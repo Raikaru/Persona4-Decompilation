@@ -95,7 +95,7 @@ extern s32 func_0025e8f0(s32 arg0);
 extern s32 func_002aa300(u8 *arg0, s32 arg1);
 extern s32 func_002aa3f0(void);
 extern s32 func_0012dea0(u8 *arg0, s32 arg1);
-extern void func_0046d280(s32 arg0);
+extern void func_0046d280(void *node);
 extern void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
                           u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 z, s32 arg6);
 extern s32 func_0034c210(void);
@@ -2209,7 +2209,7 @@ void func_0012e150(s32 arg0)
         temp_16 = temp_3 + 0x3C;
         temp_4 = *(s32 *)temp_16;
         if (temp_4 != 0) {
-            func_0046d280(temp_4);
+            func_0046d280((void *)temp_4);
             *(s32 *)temp_16 = 0;
         }
         var_17 += 1;

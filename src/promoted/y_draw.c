@@ -49,7 +49,7 @@ extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32
 extern f32 func_0046b260(u8 *arg0);
 extern f32 func_0046b2f0(u8 *arg0);
 extern u8 *func_0046d200(u32 arg0, u32 arg1);
-extern void func_0046d280(u8 *);
+extern void func_0046d280(void *node);
 extern void func_002b7cd0(u8 *, s16, s16);
 extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
 extern s32 func_002b2cb0(s32, s32, s32, s32, s8);

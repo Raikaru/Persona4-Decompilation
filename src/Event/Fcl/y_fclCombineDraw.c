@@ -88,7 +88,7 @@ extern void func_002b6af0(s16, u32, u32, s32, f32, f32, f32, f32);
 extern void func_002b69f0(s16, f2, f2, u32, u32, s16);
 extern u8 *func_0046d200(u32, u32);
 extern f32 func_0046b2f0(u8 *);
-extern void func_0046d280(void);
+extern void func_0046d280(void *node);
 extern void func_002b68d0(s16, s16, s8);
 extern f32 D_007495C0[];
 extern f32 D_00749600[];

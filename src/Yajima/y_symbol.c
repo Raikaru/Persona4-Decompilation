@@ -60,7 +60,7 @@ extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32
 extern f32 func_0046b260(u8 *arg0);
 extern f32 func_0046b2f0(u8 *arg0);
 extern u8 *func_0046d200(s32 arg0, s32 arg1);
-extern void func_0046d280(u8 *arg0);
+extern void func_0046d280(void *node);
 
 extern s32 func_002b3720(u8 *arg0);
 extern void func_002b3960(u8 *arg0);

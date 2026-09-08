@@ -32,6 +32,7 @@ s16 func_001991c0(BtlUnit* unit, u16 id, f32 scale);
 s16 func_00199830(BtlUnit* unit);
 
 typedef struct BtlAction BtlAction;
+typedef struct BtlUnitStateWork BtlUnitStateWork;
 
 typedef struct BtlCameraPacketSetState
 {
@@ -92,7 +93,7 @@ extern void func_001958f0(s32, void*);
 extern f32 func_0044b868(f32 x);
 extern f32 func_003e40b0(f32 *out, f32 *in);
 extern void func_00195850(u8 *arg0, f32 *arg1);
-extern void func_0019de70(u8 *arg0, u16 arg1);
+extern void func_0019de70(BtlUnitStateWork *work, u16 value);
 extern void func_001959d0(u8 *arg0, f32 *arg1);
 extern void func_003dcb40(void *out, const void *in, s32 count,
                           const void *quat);
@@ -537,7 +538,7 @@ void func_001c6650(u8 *arg0)
         if ((temp3_2 != NULL) &&
             ((*(u16 *)(temp3_2 + 0x1A) & 1) != 0) &&
             (func_001bc560((BtlCamera *)arg0, *(u32 *)(arg0 + 0x12C)) != 0)) {
-            func_0019de70(*(u8 **)(arg0 + 0x12C),
+            func_0019de70(*(BtlUnitStateWork **)(arg0 + 0x12C),
                           *(u16 *)(arg0 + 0x130));
         }
         break;
