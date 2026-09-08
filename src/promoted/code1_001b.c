@@ -5,6 +5,7 @@ typedef struct BtlUnit BtlUnit;
 typedef struct BtlPacket BtlPacket;
 typedef struct DatUnitEc DatUnitEc;
 typedef struct DatUnit DatUnit;
+typedef struct BtlAction BtlAction;
 extern void func_0043f9c8(void *dst, s32 value, s32 size);
 extern void func_001fc1b0(s16 arg0);
 extern s32 func_002aa300(s32 arg0, s32 arg1);
@@ -178,7 +179,7 @@ extern s32 func_00232730(s32 arg0, s32 arg1);
 extern void func_002326f0(s32 arg0, s32 arg1);
 extern void func_002339d0(s32 arg0);
 extern void func_00194f60(u8 *arg0, s32 arg1);
-extern void func_001bc660();
+extern void func_001bc660(s32 state, BtlAction *action, u32 param_3);
 extern void func_001bd780(void *arg0, const void *arg1, const void *arg2, const void *arg3);
 extern void func_001bd560(f32 *arg0, f32 *arg1);
 extern void func_001ba790(f32 *arg0, f32 *arg1, f32 *arg2, f32 arg3);
@@ -1996,7 +1997,7 @@ s32 func_001bc980(u8 *arg0)
     u8 *temp_3;
     u8 *temp_3_2;
 
-    func_001bc660(1, *(s32 *)(arg0 + 0), 1);
+    func_001bc660(1, *(BtlAction **)(arg0 + 0), 1);
     if (*(s32 *)(arg0 + 0x40) != 0) {
         func_001bd560(frame.v50, (f32 *)(D_0076449C + 0xC0));
     } else {

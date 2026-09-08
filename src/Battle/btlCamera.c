@@ -39,7 +39,7 @@ typedef struct BtlCameraPacketSetState
     u16 state;         // 0x04
 } BtlCameraPacketSetState;
 
-void func_001bc660(u16 state, BtlAction* action, u32 param_3);
+void func_001bc660(s32 state, BtlAction* action, u32 param_3);
 
 typedef u32 (*BtlPacketFunc)(void* work);
 
@@ -293,9 +293,9 @@ s32 func_001bc630(u8 *param_1)
    `[i--]` subscript (raw byte-offset forms CSE it with n, nd185), and the
    pointer-plus-index spelling with the constant last gives addu base,index. */
 // FUN_001BC660
-void func_001bc660(u16 state, BtlAction* action, u32 param_3)
+void func_001bc660(s32 state, BtlAction* action, u32 param_3)
 {
-    extern u8 *func_0022cdb0(void);
+    extern u8 *func_0022cdb0(s32 arg0);
     extern void func_001bd300(void);
     extern u8 D_005F74C0[];
     u8 *entry;
@@ -305,10 +305,10 @@ void func_001bc660(u16 state, BtlAction* action, u32 param_3)
     s32 n;
     void (*callback)(u8 *);
 
-    if ((entry = func_0022cdb0()) == NULL) {
-        entry = &D_005F74C0[state * 0x14];
+    if ((entry = func_0022cdb0(state)) == NULL) {
+        entry = &D_005F74C0[(u16)state * 0x14];
     }
-    key = state;
+    key = (u16)state;
     if (*(u16 *)(iGpffffb3ac + 0xF4) != key || *(s32 *)(entry + 8) != 0) {
         i = 2;
         while ((n = i) == 0) {

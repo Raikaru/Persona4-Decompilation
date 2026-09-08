@@ -63,7 +63,7 @@ u8 *func_00452380(s8 *name);
 
 extern u8 D_006290F0[];
 
-u16 *func_00452560();
+u32 func_00452560(void *task);
 extern u8 D_00629698[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void func_0044ea90();
@@ -74,13 +74,13 @@ extern void func_002230a0();
 extern void func_00222d20();
 extern void func_002232a0();
 extern void func_002236b0();
-extern void func_002236c0();
+extern void func_002236c0(KwlnTask *task);
 
 extern u8 D_00629640[];
 extern u8 D_00629738[];
 extern void func_002239a0();
 extern void func_00223ed0();
-extern void func_00223ee0();
+extern void func_00223ee0(KwlnTask *task);
 extern s32 func_001998e0(u8 *arg0, s32 arg1);
 extern s64 func_001999f0(u8 *arg0, s32 arg1, f32 arg2, s64 arg3);
 extern s32 func_0019fe60(u8 *arg0, s32 arg1, s32 arg2);
@@ -205,9 +205,9 @@ extern void func_00105d50(s16 character, u32 mask);
 extern s32 func_001b0d70(u8 *target);
 
 // FUN_002218E0
-s32 func_002218e0(void)
+s32 func_002218e0(KwlnTask *task)
 {
-    return (*func_00452560() & 4) != 0;
+    return (*(u16 *)func_00452560(task) & 4) != 0;
 }
 // FUN_00221910
 s32 func_00221910(void)
@@ -216,9 +216,9 @@ s32 func_00221910(void)
 }
 
 // FUN_00221940
-s32 func_00221940(void)
+s32 func_00221940(KwlnTask *task)
 {
-    return ((*func_00452560() & 0x10) != 0) ^ 1;
+    return ((*(u16 *)func_00452560(task) & 0x10) != 0) ^ 1;
 }
 // FUN_00221970
 s32 func_00221970(u8 *arg0)
@@ -276,7 +276,7 @@ s32 func_002230e0(s32 arg0)
     temp_16 = (s32)(func_00451fc0(arg0, &D_00629640, 0xF, 0, 0,
                                   (void *)func_00221f40,
                                   (void *)func_002230a0, temp_2));
-    temp_2_2 = (u16 *)(func_00452560(arg0));
+    temp_2_2 = (u16 *)(func_00452560((void *)arg0));
     *(s32 *)((u8 *)(temp_2) + 4) = 0;
     *(u16 **)((u8 *)(temp_2) + 0x3C) = (u16 *)(temp_2_2);
     func_0043f9c8((u8 *)(temp_2) + 0xC, 0, 0x30);
@@ -286,10 +286,10 @@ s32 func_002230e0(s32 arg0)
     return temp_16;
 }
 // FUN_002231E0
-void func_002231e0(void) {
+void func_002231e0(KwlnTask *task) {
     u16 *temp_2;
 
-    temp_2 = (u16 *)(func_00452560());
+    temp_2 = (u16 *)(func_00452560(task));
     *(s32 *)((u8 *)(temp_2) + 8) = 0;
     if (*(u16 *)((u8 *)(temp_2) + 0) & 4) {
         func_0021dda0();
@@ -300,9 +300,9 @@ void func_002231e0(void) {
 }
 
 // FUN_00223240
-s32 func_00223240(void)
+s32 func_00223240(KwlnTask *task)
 {
-    return *func_00452560() & 1;
+    return *(u16 *)func_00452560(task) & 1;
 }
 // FUN_00223270
 s32 func_00223270(void)
@@ -320,12 +320,12 @@ void func_002236b0(s32 arg0, u16 *arg1, s32 arg2)
     }
 }
 // FUN_002236C0
-void func_002236c0(void)
+void func_002236c0(KwlnTask *task)
 {
     u8 *p;
     s32 h;
 
-    p = (u8 *)func_00452560();
+    p = (u8 *)func_00452560(task);
     if (*(u16 *)p & 4) {
         h = *(s32 *)(p + 0x4C);
         if (h != 0) {
@@ -349,7 +349,7 @@ s32 func_00223730(s32 arg0)
     temp_16 = (s32)(func_00451fc0(arg0, &D_006296B0, 0xF, 0, 0,
                                   (void *)func_002232a0,
                                   (void *)func_002236c0, temp_2));
-    temp_2_2 = (u16 *)(func_00452560(arg0));
+    temp_2_2 = (u16 *)(func_00452560((void *)arg0));
     *(s32 *)((u8 *)(temp_2) + 4) = 0;
     *(u16 **)((u8 *)(temp_2) + 0x40) = (u16 *)(temp_2_2);
     func_0043f9c8((u8 *)(temp_2) + 8, 0, 0x30);
@@ -359,10 +359,10 @@ s32 func_00223730(s32 arg0)
     return temp_16;
 }
 // FUN_00223830
-void func_00223830(void) {
+void func_00223830(KwlnTask *task) {
     u16 *temp_2;
 
-    temp_2 = (u16 *)(func_00452560());
+    temp_2 = (u16 *)(func_00452560(task));
     *(s16 *)((u8 *)(temp_2) + 0x48) = 0;
     if (*(u16 *)((u8 *)(temp_2) + 0) & 4) {
         func_0021dda0();
@@ -373,9 +373,9 @@ void func_00223830(void) {
 }
 
 // FUN_00223890
-s32 func_00223890(void)
+s32 func_00223890(KwlnTask *task)
 {
-    return *func_00452560() & 1;
+    return *(u16 *)func_00452560(task) & 1;
 }
 // FUN_002238C0
 s32 func_002238c0(void)
@@ -393,12 +393,12 @@ void func_00223ed0(s32 arg0, u16 *arg1, s32 arg2)
     }
 }
 // FUN_00223EE0
-void func_00223ee0(void)
+void func_00223ee0(KwlnTask *task)
 {
     u8 *p;
     s32 h;
 
-    p = (u8 *)func_00452560();
+    p = (u8 *)func_00452560(task);
     h = *(s32 *)(p + 0x44);
     if (h != 0) {
         func_0011b360((u8 *)h);
@@ -420,7 +420,7 @@ s32 func_00223f40(s32 arg0)
     temp_16 = (s32)(func_00451fc0(arg0, &D_00629700, 0xF, 0, 0,
                                   (void *)func_002239a0,
                                   (void *)func_00223ee0, temp_2));
-    temp_2_2 = (u16 *)(func_00452560(arg0));
+    temp_2_2 = (u16 *)(func_00452560((void *)arg0));
     *(s32 *)((u8 *)(temp_2) + 4) = 0;
     *(u16 **)((u8 *)(temp_2) + 0x3C) = (u16 *)(temp_2_2);
     func_0043f9c8((u8 *)(temp_2) + 8, 0, 0x30);
@@ -430,18 +430,18 @@ s32 func_00223f40(s32 arg0)
     return temp_16;
 }
 // FUN_00224040
-void func_00224040(void)
+void func_00224040(KwlnTask *task)
 {
     u16 *temp_16;
 
-    temp_16 = func_00452560();
+    temp_16 = (u16 *)func_00452560(task);
     func_0021dda0();
     *(s32 *)(temp_16 + 2) = 5;
 }
 // FUN_00224080
-s32 func_00224080(void)
+s32 func_00224080(KwlnTask *task)
 {
-    return *func_00452560() & 1;
+    return *(u16 *)func_00452560(task) & 1;
 }
 // FUN_002240B0
 s32 func_002240b0(void)

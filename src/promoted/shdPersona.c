@@ -6,6 +6,8 @@
 #include "include_asm.h"
 #include "fr_font_internal.h"
 
+typedef struct KwlnTask KwlnTask;
+
 typedef struct {
     f32 x;
     f32 y;
@@ -20,7 +22,7 @@ void func_0011aaa0();
 void func_0011ba40();
 void func_0011e3c0(s32, s32);
 void func_0011fd10(s32);
-void func_00452080();
+s32 func_00452080(KwlnTask *task);
 void func_0011bc70();
 s32 func_00115020();
 s32 func_001152b0();
@@ -3241,9 +3243,9 @@ u32 func_0011f560(u8 *arg0)
 
 
 // FUN_0011F580
-void func_0011f580(void)
+s32 func_0011f580(u8 *task)
 {
-    func_00452080();
+    return func_00452080((KwlnTask *)task);
 }
 
 

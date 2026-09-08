@@ -111,7 +111,7 @@ extern f32 iGpffff83d4;
 extern f32 iGpffff8544;
 extern f32 func_0044b7b0(f32 arg0);
 extern f32 fGpffff84a4;
-extern void func_002bb7c0();
+extern void func_002bb7c0(s32 arg0);
 extern s32 func_002bb600(void);
 extern void func_002bb1e0(s32 arg0);
 extern void func_002bb9e0(s8 arg0, s32 arg1);
@@ -259,7 +259,7 @@ s32 func_00353dc0(s64 arg0)
 // FUN_00353F50
 s32 func_00353f50(s32 arg0)
 {
-    func_002bb7c0();
+    func_002bb7c0(arg0);
     if (func_002bb600() == 0) {
         func_002bb1e0(arg0);
         return 0;
