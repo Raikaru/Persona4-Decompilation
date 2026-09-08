@@ -7352,3 +7352,49 @@ zero findings across 338 first-party files. The C-linked subset remains
 MATCH coverage, not this separately measured linked subset. Loadable
 image SHA-1 remains `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
 retail ELF SHA-1 remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Exact state-0x1A camera initialization
+
+`func_00227e40` now matches in ordinary C on its first full-owner compile:
+**1,168/1,168 bytes, 44 code relocations, zero differing bytes and no
+tail padding**. No additional compiler pragma is needed. Its callback
+record at `0x006352B8` is `D_006350B0 + 0x1A * 0x14`, with words
+`{00227E40, 00227770, 1, 1, 0}`. This is the initialization callback;
+the per-frame callback is the separate `func_00227770`.
+
+The source preserves the repeated target-mask `0x2` tests through switch
+fallthrough, the three distinct 56-byte pose pairs, and unsigned frame
+conversion before division by 30. Each pose pair contains two complete
+seven-float poses; no compiler frame gap is represented as a source field.
+The 44 code relocations also resolve byte-exactly without masking.
+All seven relocated table entries equal retail: `002282B4`, `00227ED0`,
+`00227ED0`, `00227F18`, `00227EF4`, `00227F18`, `00228064`.
+
+The paired investigation of `func_00225ec0` proves a different blocker:
+`002260F8` reads an unwritten point-Y float at `sp+0x134`, then
+`0022610C` writes it for the first time. All preceding provider outputs
+have disjoint extents. Both direct callers select the side-zero branch
+containing that read, so neither a fabricated initial Y nor an invented
+argument is justified. The archive now records this concrete state
+dependency instead of the old generic COP1 accumulator classification.
+An empty eligible group can independently leave further provider outputs
+unwritten, but is not needed for the decisive point-Y proof.
+
+The real camera input is now explicit in both existing C callers:
+
+| Caller | Object / retail-window bytes | Resolved relocations |
+| --- | ---: | ---: |
+| `func_00228d50` | 520 / 528 | 16 |
+| `func_00228f60` | 180 / 192 | 8 |
+
+Both remain fully resolved byte-exact with zero-only tail padding.
+A throwaway wasm32 compile-contract smoke rejects both pre-fix callers
+against the actual one-camera declaration and accepts both corrected
+callers. This is compile-contract and retail-byte proof, not an execution
+claim for the undefined-stack ASM callee. Production retains that ASM.
+
+The final `make build-progress progress lint-errors` gate passes with
+**6,140 first-party MATCH / 720 ASM**, **172 C-linked objects / 1,570
+functions**, validated progress artifacts and zero findings across 338
+first-party files. Both retail hashes remain unchanged. Temporary
+reconstruction probes and the compile-contract fixture are removed.
