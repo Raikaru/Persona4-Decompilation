@@ -7856,3 +7856,44 @@ The full `make build-progress progress lint-errors` gate passes:
 validated progress artifacts, and zero findings across 338 first-party
 files. C linking remains **172 objects / 1,570 functions**; both loadable
 and retail ELF hashes are unchanged.
+
+## Exact roster assistance and geometry register floor
+
+`func_001ef9c0` now matches **904/912 bytes**, including all fifteen
+relocations. Its rank is an ordinary scalar; the three four-element arrays
+are real initialized-prefix pointer storage, not artificial spill padding.
+Preferred-or-random conditional expressions reproduce the retail branches,
+and declaring the roster node before the counts closes the register cycle.
+The owner now uses the real status, rank and actor-community provider
+contracts, without redundant block-scope status declarations.
+
+The freestanding 32-bit native smoke passed **46,080 combinations** of
+rank boundaries, candidate statuses, preferred nodes and unsigned random
+words. It also passed all six acting-node rejection gates, candidate
+flags/genus filtering and preferred protagonist selection. The real current
+community/status/modulo providers were exercised; the deterministic
+`RpRandom` boundary verified that preferred selection leaves RNG state
+unchanged. All non-output action bytes remained intact. No game execution
+is claimed. Complete source and contracts are in `P022_001ef9c0_body.c`.
+
+The remaining geometry caller, `func_001eca10`, stays ASM. Its complete
+candidate reaches **964/976 bytes / 23 normalized differences**, all in
+register allocation, with eleven resolved relocations and no missing
+executable instructions. Explicit coordinate-pointer lifetimes and scalar
+snapshots recover the frame and floating operand order.
+
+Source order is significant: the private orientation definition belongs
+after this caller and before the exact `func_001ece50`. Moving it before
+the candidate exposes different clobber knowledge and produces only 920
+bytes. `P022_001eca10_body.c` records this measured correction to the initial
+integration advice, the complete preferred source, and the upstream
+adjacency-capacity caveat. No route-wide memory-safety claim is made.
+The fresh camera CSE recheck likewise leaves the retained `func_002240e0`
+floor at **872/880 bytes / 344 differences**; its archive records the
+extra-load and narrowing results.
+
+The full `make build-progress progress lint-errors` gate passes:
+**6,154 first-party MATCH / 706 ASM**, **7,784 total MATCH / 4,936 ASM**,
+validated progress artifacts, and zero findings across 338 first-party
+files. C linking remains **172 objects / 1,570 functions**, with unchanged
+loadable and retail ELF hashes.
