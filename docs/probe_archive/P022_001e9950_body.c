@@ -1,24 +1,26 @@
 /* P022: retained skill-evaluator investigation, 2026-09-04.
  * Target: 001E9950..001E9F1F, 1488 bytes; production remains INCLUDE_ASM.
- * Preferred fitting probe: current-owner source, 1464/1488 bytes, nd 904,
- * 27 resolved call relocations, frame 0x190 versus retail 0x1A0. Sixteen
- * executable bytes are not covered by its emitted body; this is NOT a
- * register-only floor, an exact recovery, or an impossibility claim.
+ * Preferred fitting probe: current-owner source, 1488/1488 bytes, nd 324,
+ * 27 resolved call relocations, frame 0x1A0 matching retail. This is NOT
+ * an exact recovery, a register-only floor, or an impossibility claim.
  *
- * Source uses raw s32 skill/count/affinity values with explicit retail-width
- * uses, score-before-best declaration order, and loop-invariant hoisting.
- * Initial flat candidate: 1464/1043. Baseline CSE-off: 1500/1021; propagation
- * off: 1496/974. Raw CSE-off: 1492/894, over window; restoring s16 affinity
- * under that profile reaches 1496/868 but still overruns. Separate branch
- * locals, distinct root locals, unsigned argument casts, nested positive
- * guards, and CSE/propagation/loop profile combinations do not close it.
+ * Source uses raw s32 skill/count values, a sign-extended s64 affinity
+ * lifetime, score-before-best declaration order, and loop-invariant hoisting.
+ * The earlier s32 affinity candidate reached 1464/1488, nd 904; a wide
+ * zero predicate alone reached 1484/1488, nd 796. Keeping the affinity wide
+ * throughout recovers the exact frame and emitted size shown above.
  *
- * The first seven calls align exactly in the preferred probe. A saved
- * affinity projection adds one word before the mode branches, then shared
- * projections and loop lifetimes shorten the target loops. Retail separately
- * materializes the signed affinity in the two target-loop preheaders.
- * Narrow return masks and argument normalization also require resolution;
- * do not claim all remaining differences are register allocation.
+ * Remaining differences include register allocation, narrow return masks,
+ * argument normalization, target-ID initialization placement, shared loop
+ * projections, and floating-point association/operand order. The compiler
+ * reassociates the all-target lethal expression despite its parentheses.
+ * Do not claim all remaining differences are register allocation.
+ *
+ * Further wide-affinity profiles: plain 1480/1024, CSE-off 1500/1048,
+ * propagation-off 1544/1145, opt_fp_contract off unchanged at 1488/324.
+ * Hoisting targetId=0 reaches 1480/468; distinct branch index/target locals
+ * reach 1480/477. Broad historical callsite views reach 1484/785, not an ABI
+ * solution. Measurements list emitted bytes / normalized byte differences.
  *
  * Probe integration, NOT a repository ABI cutover: before the owner's first
  * function, merge the declarations below; replace its old s64 func_0023d8e0
@@ -48,10 +50,10 @@
  * gameplay validation is made. Measurements are compile/relocation probes.
  */
 #include "type.h"
-/* Current-owner compatible declarations for body.c. See contracts.txt before
- * changing shared declarations: narrow retail providers differ from several
- * existing broad call-site views. The s32 script-argument spelling already
- * exists in src/promoted/code1_001e.c; it is not a new alias introduced here. */
+/* Provider-derived declarations for the isolated probe. Several existing
+ * owner callsite views differ; apply the integration substitutions above.
+ * The s32 script-argument spelling already exists in the production owner;
+ * it is not a new alias introduced here. */
 extern u8 *func_0029d050(void);
 extern s32 func_0029cc00_s32(s32 index);
 extern void func_0029cf50(s32 value);
@@ -91,7 +93,7 @@ s32 func_001e9950(void)
     s32 candidateCount;
     u16 candidate;
     s32 skill;
-    s32 affinity;
+    s64 affinity;
     u8 targets[0x3D];
     s32 targetId;
     f32 score;
@@ -126,7 +128,7 @@ s32 func_001e9950(void)
         affinity = (s16)func_0023d8e0(*(u8 **)(actor + 0xA64), skill);
         if ((func_0023d6e0(affinity) & 0x7E) == 0)
             continue;
-        if ((s16)affinity == 0) {
+        if ((s64)(s16)affinity == 0) {
             if (mode == 1)
                 continue;
         } else if (mode == 2) {

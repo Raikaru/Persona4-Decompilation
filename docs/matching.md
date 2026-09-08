@@ -7925,11 +7925,12 @@ without an earlier scratch write, that upstream path does not establish
 initialized center inputs. No concrete production chain selecting that
 empty arc path was found, and no target-local guard or default was added.
 
-`func_001e9950` remains ASM. Its preferred fitting probe reaches
-**1,464/1,488 bytes / 904 normalized differences**, with all 27 calls
-resolved but sixteen uncovered executable bytes. Other profiles overrun
-the window. `P022_001e9950_body.c` preserves the complete candidate, provider
-declaration requirements, projection/lifetime differences and measured
+`func_001e9950` remains ASM. Keeping its sign-extended affinity value in an
+`s64` local improves the fitting probe to **1,488/1,488 bytes / 324 normalized
+differences**, with all 27 calls resolved and the exact retail frame size.
+Register allocation, return masks, argument normalization, loop projections,
+and floating-point association still differ. `P022_001e9950_body.c` preserves
+the complete candidate, provider declaration requirements and measured
 alternatives. This is an ongoing source-shaping result, not a
 compiler-impossibility claim.
 
