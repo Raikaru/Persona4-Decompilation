@@ -116,7 +116,7 @@ extern s32 func_001fab40(u8 *arg0);
 extern s32 func_001fab90(void);
 extern void func_00212240(u8 *arg0, s32 arg1);
 u8 *btlCameraCreateSetStatePacket(u8 *arg0, u32 arg1);
-u8 *func_001d3700(u32 arg0, u32 arg1);
+BtlPacket *func_001d3700(u16 arg0, u16 arg1);
 void func_002baac0(void *arg0);
 void func_002bad10(u32 arg0);
 void func_002bb050(u32 arg0);
@@ -985,7 +985,7 @@ void func_001b3f00(void) {
     func_002bad10(1);
     func_002bb050(0);
     func_002baf40(0);
-    t = func_001d3700(3, 0xFFF);
+    t = (u8 *)func_001d3700(3, 0xFFF);
     *(s64 *)(t + 0x60) = *p;
     func_00194590(t, 0);
     func_00194590(btlCameraCreateSetStatePacket(NULL, 0x2B), 0);

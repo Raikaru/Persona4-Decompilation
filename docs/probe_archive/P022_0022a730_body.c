@@ -12,7 +12,7 @@
  * (0x0022e23c break, 0x0022e250 test), not proof of any matching action.
  * func_001fac80 calls +0xb40 at 0x001faccc with only the +0xb48 context;
  * it ignores the result and does not establish s1. Reviewed upstream
- * func_001afa50 likewise does not establish s1. The ABI is void(packet),
+ * func_001afa50 likewise does not establish s1. The ABI is void(action),
  * unlike the paired integer-returning updater func_0022abd0.
  *
  * Executed evidence: a small decoder ran actual retail instruction bytes
@@ -33,4 +33,12 @@
  * Required next evidence: a source-level invariant making the incoming-s1
  * read unreachable, or an explicitly authorized reconstruction contract
  * change. No partial body, extra parameter, pinned register or UB is stored.
+ *
+ * Fresh complete audit confirms a nonempty registration counterexample:
+ * one active target, unit flag 8, and datUnit status 0x100 clear passes
+ * func_0022dc70's selection but never writes s1 in this initializer.
+ * The status provider reads datUnit+0xC; preliminary packet creation does
+ * not synchronously set that status. func_0022bd00 only tests root+0xBA0
+ * and provides neither a selected target nor the missing status invariant.
+ * No new candidate or compiler probe was produced by this audit.
  */

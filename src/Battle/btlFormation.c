@@ -353,16 +353,17 @@ u32 func_001d35a0(u16 *arg0)
     return 1;
 }
 // FUN_001D3700
-void func_001d3700(u16 param_1, u16 param_2)
+BtlPacket *func_001d3700(u16 param_1, u16 param_2)
 {
-    u32 *work;
-    u32 packet;
+    u16 *work;
+    BtlPacket *packet;
 
-    packet = (u32)func_00194470(0xb04, 4);
-    *(code **)(packet + 0x6c) = (code *)func_001d35a0;
-    work = *(u32 **)(packet + 0x78);
-    *(u16 *)(work + 0) = param_1;
-    *(u16 *)((u8 *)work + 2) = param_2;
+    packet = func_00194470(0xb04, 4);
+    packet->updateFunc = (BtlPacketUpdateFunc)func_001d35a0;
+    work = (u16 *)packet->workData;
+    work[0] = param_1;
+    work[1] = param_2;
+    return packet;
 }
 // FUN_001D3760
 u32 func_001d3760(u16 *arg0)
