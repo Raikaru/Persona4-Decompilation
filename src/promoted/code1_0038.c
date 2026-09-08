@@ -19,7 +19,7 @@ extern s32 func_0010ac10(u16 arg0);
 extern u8 *func_00109220(u16 arg0);
 extern void func_002bad10(s32 arg0);
 extern void func_002bbd20(s32 arg0, void *arg1);
-extern void func_0010b010(u16 arg0);
+extern u8 *func_0010b010(s32 personaId);
 extern s32 func_00376590(u8 *arg0, u8 *arg1);
 extern void func_00377930(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
 extern void func_003f6440(s32 arg0, s32 arg1);
@@ -222,7 +222,7 @@ s32 func_00380d80(u8 *arg0, s32 arg1)
         func_002bad10(3);
         return 7;
     }
-    func_0010b010(arg1);
+    func_0010b010((u16)arg1);
     func_002bbd20(0, func_00109220(arg1));
     func_002bad10(1);
     return 5;

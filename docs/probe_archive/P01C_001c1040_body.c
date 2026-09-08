@@ -1,1 +1,5 @@
-/* object 1888B / window 1888B / normalized_diff 0; differing offsets: none (ASM baseline); classification: COP1 accumulator-chain floor; confirmed retail adda.s/madd.s and adda.s/msub.s at +0x584/+0x588 and +0x598/+0x59C, which plain MWCC C cannot emit; ruled out movz/movn, standalone MMI, framed tail-jump forwarder, and ee-gcc sd $sN signature; no source probing. */
+/* Prior inventory only: object/window 1888B and normalized_diff 0 describe
+ * the ASM baseline, not a C candidate. No source reconstruction or compiler
+ * experiment was performed. Retail has adda.s/madd.s at +0x564/+0x568 and
+ * adda.s/msub.s at +0x578/+0x57C. This note establishes no compiler limitation.
+ */

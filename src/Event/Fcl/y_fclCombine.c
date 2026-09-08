@@ -61,7 +61,7 @@ extern void func_0045aac0(s32, s32, s32);
 extern s32 func_00110460(void);
 extern void func_00105690(s32, s32);
 extern void func_00105fa0(s32);
-extern void func_0010b010(s32);
+extern u8 *func_0010b010(s32 personaId);
 extern void func_002b68d0(s16, s32, s32);
 extern void func_003147e0(u8 *arg0, s8, s64, s16, s16, s32);
 extern void func_00324f80(u8 *arg0, s64, s32, s32);
@@ -85,7 +85,7 @@ extern s32 func_0010ad80(s32);
 extern s32 func_0010b190(u8 *);
 extern s32 func_0010b300(s32);
 extern void func_0010b7f0(void);
-extern void func_0010cad0(u16 *arg0, u16 arg1);
+extern void func_0010cad0(u8 *arg0, s32 arg1);
 extern s64 func_00312c60(u16 *arg0, u8 *arg1, s64 arg2);
 extern u8 *func_002e4870(s8 arg0);
 extern s32 func_0010ce10(u8 *arg0, u32 arg1);
@@ -318,7 +318,12 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f0f00);
 // FUN_002F6CF0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f6cf0);
 
-// FUN_002F9C30
+/* measured: 348B / 352B window, with 4B zero alignment. Correcting the
+   initializer's full-width persona-ID contract reverses two argument-setup
+   instructions (8 differing bytes). Preserve the typed source; keep retail
+   ASM until its argument staging matches without a false narrow prototype. */
+// FUN_002F9C30 NONMATCHING
+#ifdef NON_MATCHING
 void func_002f9c30(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, u8 *arg6, s32 arg7, s8 arg8, s8 arg9) {
     u8 buf[6][0x30];
     s8 v;
@@ -345,10 +350,13 @@ void func_002f9c30(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, 
         func_0043f810(buf[0], arg1, 0x30);
         break;
     }
-    func_0010cad0(arg0, ((u16 *)arg0)[1]);
+    func_0010cad0((u8 *)arg0, ((u16 *)arg0)[1]);
     v = (s8)func_00312c60(arg0, buf[0], (s8)arg7);
     *(func_002e4870(arg8) + arg9 + 0x2E4) = v;
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f9c30);
+#endif
 
 /* measured (re-tested wave C): the old floor note was STALE — b210 DOES emit
    the pair at 0-mod-8 displacements for an 8-byte struct passed BY VALUE
@@ -898,14 +906,14 @@ void func_00308f40(void) {
         }
         if ((n3 >= n2) || (n3 == 6)) {
             p = func_001102e0();
-            func_0010cad0(p, func_003095f0());
+            func_0010cad0((u8 *)p, func_003095f0());
             func_00110270((u8 *)func_001102e0(), (u16)packed);
             func_00106390(0x1307, 1);
             return;
         }
         if (total >= 0x1E) {
             p = func_001102e0();
-            func_0010cad0(p, func_003095f0());
+            func_0010cad0((u8 *)p, func_003095f0());
             func_00110270((u8 *)func_001102e0(), (u16)packed);
             func_00106390(0x1307, 1);
             return;

@@ -542,6 +542,11 @@ BtlPacket* func_001b83f0(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u16
 
 
 
+/* measured: fresh full transition reconstruction, 2896B / 2944B window;
+   all 36 relocations resolved. The shared 2896B differ in 579 words, and
+   the remaining retail tail contains 11 nonzero words. Both frame phases,
+   four unit lists, color interpolation and midpoint effects were recovered,
+   but code allocation/scheduling is not close. No C body installed. */
 // FUN_001B87E0
 INCLUDE_ASM("asm/nonmatchings/btlMain", func_001b87e0);
 // FUN_001B9360
