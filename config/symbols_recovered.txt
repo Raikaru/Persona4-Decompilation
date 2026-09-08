@@ -6195,6 +6195,7 @@ fGpffff8320 = 0x00761410; // type:data
 fGpffff8324 = 0x00761414; // type:data
 fGpffff8328 = 0x00761418; // type:data
 fGpffff832c = 0x0076141c; // type:data
+D_00761430 = 0x00761430; // type:data
 D_00761434 = 0x00761434; // type:data
 fGpffff8344 = 0x00761434; // type:data
 D_00761438 = 0x00761438; // type:data

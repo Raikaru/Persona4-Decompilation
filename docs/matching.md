@@ -7897,3 +7897,45 @@ The full `make build-progress progress lint-errors` gate passes:
 validated progress artifacts, and zero findings across 338 first-party
 files. C linking remains **172 objects / 1,570 functions**, with unchanged
 loadable and retail ELF hashes.
+
+## Exact eight-point route interpolation
+
+`func_001ef110` now matches **904/912 bytes**, with all eighteen
+relocations resolved. Ordinary 16-byte quaternions, a 40-byte interpolation
+cache and three-float vectors reproduce the retail frame. Declaration order
+closes the stack and long-lived float-register differences.
+
+The last point must reload both endpoint coordinates after the seven-sample
+loop and before either output store. An endpoint at `route+0x34` overlaps
+the final output: interleaved load/store assignments destroy its second
+coordinate. Staging both loads preserves this behavior; scoped
+`opt_propagation off` also preserves their exact retail order. The coefficient
+at `0x00761430` is now mapped under its actual address.
+
+The native Clang ASan/UBSan smoke passed **3,073 scenarios**: 2,857 nonlinear
+and 216 linear cache cases, coincident points, seven samples at
+`0,.125,...,.75` plus the explicit endpoint, unchanged cursor/guard bytes,
+and overlapping endpoint storage. The unstaged variant fails the overlap
+assertion. Four external SDK boundaries use native mathematical models;
+this does **not** claim PS2 SDK or game execution.
+
+The complete source and provider extents are archived in
+`P022_001ef110_body.c`. Its caller's empty-centroid caveat remains explicit:
+without an earlier scratch write, that upstream path does not establish
+initialized center inputs. No concrete production chain selecting that
+empty arc path was found, and no target-local guard or default was added.
+
+`func_001e9950` remains ASM. Its preferred fitting probe reaches
+**1,464/1,488 bytes / 904 normalized differences**, with all 27 calls
+resolved but sixteen uncovered executable bytes. Other profiles overrun
+the window. `P022_001e9950_body.c` preserves the complete candidate, provider
+declaration requirements, projection/lifetime differences and measured
+alternatives. This is an ongoing source-shaping result, not a
+compiler-impossibility claim.
+
+The full `make build-progress progress lint` gate passes:
+**6,155 first-party MATCH / 705 ASM**, **7,785 total MATCH / 4,935 ASM**,
+validated progress artifacts, and zero lint errors. Full warning mode
+reports 192 review warnings across 338 first-party files. C linking remains
+**172 objects / 1,570 functions**, with unchanged loadable and retail ELF
+hashes.
