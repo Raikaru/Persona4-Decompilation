@@ -1,6 +1,9 @@
 #include "include_asm.h"
 #include "type.h"
 #include "Kosaka/k_fldFrame_internal.h"
+
+typedef struct RwMatrix RwMatrix;
+
 typedef struct {
     f32 x;
     f32 y;
@@ -85,7 +88,7 @@ extern u8 D_005EF970[];
 extern u8 D_005EF820[];
 extern u8 D_005EF870[];
 extern void func_0046d730(const void *arg0, s32 arg1);
-extern void func_0047a180();
+extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
 extern void func_004b1150(s32 arg0);
@@ -1128,7 +1131,7 @@ s32 func_00145540(u16 arg0, s32 arg1, s32 arg2) {
         return 0;
     }
     *(s32 *)(temp_2 + 0x164) = arg2;
-    func_0047a180(arg2, sp50, 0);
+    func_0047a180((RwMatrix *)arg2, (const RwV3d *)sp50, 0);
     func_003e05d0(func_0047a2f0(*(s32 *)(temp_2 + 0x164)));
     temp_2_2 = func_001684a0(0, temp_16 & 0xFFFF, 0, 60.0f);
     *(s32 *)(temp_2 + 0x220) = temp_2_2;
@@ -1167,7 +1170,7 @@ s32 func_00145690(u16 arg0, s32 arg1) {
         return 0;
     }
     *(s32 *)(temp_2 + 0x158) = arg1;
-    func_0047a180(arg1, sp30, 0);
+    func_0047a180((RwMatrix *)arg1, (const RwV3d *)sp30, 0);
     return temp_17;
 }
 // FUN_00145780

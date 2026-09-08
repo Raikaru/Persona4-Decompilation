@@ -3,6 +3,9 @@
 /* Original translation unit btlEPL.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
+typedef struct RwMatrix RwMatrix;
+typedef struct RwV3d RwV3d;
+
 extern void func_004abd60(s32 arg0);
 extern void (*jtbl_008873EC[])(void *);
 
@@ -21,7 +24,7 @@ extern void func_00198dd0(void *arg0, s32 arg1);
 extern void func_0048a150(void *arg0, void *arg1);
 extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
 extern void func_0047a1e0(void *arg0, void *arg1, s32 arg2);
-extern void func_0047a180(void *arg0, void *arg1, s32 arg2);
+extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
 extern void func_00478e70(void *arg0);
 extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
@@ -439,7 +442,7 @@ void func_00200230(u8 *arg0) {
             sp130[0] = *(f32 *)(arg0 + 0);
             sp130[1] = *(f32 *)(arg0 + 4);
             sp130[2] = *(f32 *)(arg0 + 8);
-            func_0047a180(*(u8 **)target, sp130, 2);
+            func_0047a180((RwMatrix *)*(u8 **)target, (const RwV3d *)sp130, 2);
             func_0047a0e0(*(u8 **)target, 0, *(f32 *)(param + 8));
             func_00478e70(*(u8 **)target);
             if (func_0047a510(*(u8 **)target, 0, spE0) != 0) {

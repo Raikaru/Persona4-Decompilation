@@ -79,7 +79,7 @@ extern s32 func_00242930(void* data);
 extern s32 func_00243e30(void* data);
 extern void func_00243e50(void* data);
 extern void func_00243e70(void* data);
-extern void func_0022d600(void* source, void* action, void* data);
+extern void func_0022d600(void* source, u8* packet, s32* hpDelta);
 
 
 
@@ -326,7 +326,7 @@ s32 func_001f3010(u8* arg0)
             }
         }
     }
-    func_0022d600(*(u8**)(arg0 + 0), temp_19, arg0 + 8);
+    func_0022d600(*(u8**)(arg0 + 0), temp_19, (s32 *)(arg0 + 8));
     func_00198dd0(temp_18, 6);
     return 1;
 }

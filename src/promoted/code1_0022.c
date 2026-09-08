@@ -8,6 +8,24 @@ typedef struct BtlPacket BtlPacket;
 typedef struct RwV3d RwV3d;
 typedef struct DatUnit DatUnit;
 typedef struct KwlnTask KwlnTask;
+typedef struct Model Model;
+typedef struct RwMatrix RwMatrix;
+extern u8 *iGpffff9db0;
+extern u8 D_006355C0[], D_006355E0[], D_00635600[];
+extern u8 *func_00147530(u8 *lists, u16 id);
+extern u16 func_00231f80(DatUnit *unit);
+extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
+extern u32 func_001064f0(s32 counter);
+extern void func_00106550(s32 counter, u32 value);
+extern void func_001fae60(s32 initialize, s32 update, s32 packet);
+extern s32 func_001d9740(u8 *packet, s32 percentage);
+extern void mdlScale(Model *model, const RwV3d *scale, int combineOp);
+/* Retail forwards the matrix result as well as all three inputs. */
+extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
+typedef struct BtlAction BtlAction;
+extern void btlActionSetState(BtlAction *action, u16 state);
+extern void func_00229da0(u8 *packet);
+extern void func_0022a730(u8 *packet);
 struct RwV3d {
     f32 x;
     f32 y;
@@ -2099,8 +2117,134 @@ s32 func_0022d540(u8 *arg0, u8 *arg1) {
         return 0;
     }
 }
+/* measured: 1412B / 1424B window, all 59 relocations exact; twelve
+   retail zero-alignment bytes. Keep the real unused source input and the
+   explicit unsigned counter update with its signed clamp interpretation. */
 // FUN_0022D600
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022d600);
+void func_0022d600(void *source, u8 *packet, s32 *hpDelta)
+{
+    u8 *unit;
+    u8 *resource;
+    void *model;
+    u32 hp;
+    u32 maxHp;
+    u32 remaining;
+    s32 percentage;
+    RwV3d scale;
+    RwV3d translation;
+
+    if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0)
+        return;
+    unit = *(u8 **)(packet + 0x30);
+    if (*(u8 *)(unit + 0xA2) != 1)
+        return;
+    switch (*(u16 *)(unit + 0xA4)) {
+    case 0x102:
+        if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x100000))
+            *(s8 *)(iGpffffb3ac + 0xC12) = 3;
+        else
+            *(s8 *)(iGpffffb3ac + 0xC12) = -1;
+        break;
+    case 0x103:
+        resource = func_00147530(*(u8 **)(iGpffff9db0 + 8), 0x2804);
+        if (resource == NULL || *(void **)(resource + 0x144) == NULL)
+            break;
+        hp = *(u16 *)(*(u8 **)(*(u8 **)(packet + 0x30) + 0xA64) + 8);
+        maxHp = func_00231f80(*(DatUnit **)(*(u8 **)(packet + 0x30) + 0xA64));
+        scale.x = *(f32 *)(*(u8 **)(packet + 0x30) + 0x2C);
+        scale.y = *(f32 *)(*(u8 **)(packet + 0x30) + 0x2C);
+        scale.z = *(f32 *)(*(u8 **)(packet + 0x30) + 0x2C);
+        translation.x = 0.0f;
+        translation.y = 0.0f;
+        translation.z = -450.0f;
+        if (hp < maxHp) {
+            mdlScale(*(Model **)(resource + 0x144), &scale, 0);
+            func_0047a180(*(RwMatrix **)(resource + 0x144), &translation, 2);
+            model = *(void **)(resource + 0x144);
+            func_004777d0(model, (s32)D_006355C0, 0xFF);
+        }
+        if (hp * 100 <= maxHp * 50) {
+            mdlScale(*(Model **)(resource + 0x144), &scale, 0);
+            func_0047a180(*(RwMatrix **)(resource + 0x144), &translation, 2);
+            model = *(void **)(resource + 0x144);
+            func_004777d0(model, (s32)D_006355E0, 0xFF);
+        }
+        if (hp * 100 <= maxHp * 75) {
+            mdlScale(*(Model **)(resource + 0x144), &scale, 0);
+            func_0047a180(*(RwMatrix **)(resource + 0x144), &translation, 2);
+            model = *(void **)(resource + 0x144);
+            func_004777d0(model, (s32)D_00635600, 0xFF);
+        }
+        break;
+    case 0x104:
+        if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x100000))
+            *(s8 *)(iGpffffb3ac + 0xC12) = 3;
+        else
+            *(s8 *)(iGpffffb3ac + 0xC12) = -1;
+        break;
+    case 0x105:
+        if (!func_00106330(0x15C0)) {
+            if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x100000))
+                *(s8 *)(iGpffffb3ac + 0xC12) = 3;
+            else
+                *(s8 *)(iGpffffb3ac + 0xC12) = -1;
+        } else {
+            remaining = func_001064f0(0x7A);
+            remaining += (u32)*hpDelta;
+            if ((s32)remaining <= 0) {
+                func_001fae60((s32)func_0022ae00, (s32)func_0022b040, (s32)packet);
+                remaining = 0;
+            }
+            func_00106550(0x7A, remaining);
+        }
+        break;
+    case 0x106:
+        if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x100000) &&
+            *(s16 *)(iGpffffb3ac + 0xC34) == 0)
+            *(s8 *)(iGpffffb3ac + 0xC12) = 3;
+        else
+            *(s8 *)(iGpffffb3ac + 0xC12) = -1;
+        if (*(s16 *)(iGpffffb3ac + 0xC34) == 0 || *hpDelta >= 0)
+            break;
+        packet = func_0019ef90(1, 0x10F);
+        if (packet == NULL)
+            break;
+        func_002325a0(*(DatUnit **)(packet + 0xA64), *hpDelta);
+        packet = func_001b0c80((s32)packet);
+        /* The paired unit has an active packet; retail deliberately falls through. */
+    case 0x10F:
+        if (*(s16 *)(iGpffffb3ac + 0xC34) == 0)
+            break;
+        if (*(s16 *)(iGpffffb3ac + 0xC34) == 1)
+            percentage = 40;
+        else if (*(s16 *)(iGpffffb3ac + 0xC34) == 2)
+            percentage = 60;
+        else
+            percentage = 100;
+        if (func_001d9740(packet, 100 - percentage) ||
+            *(u16 *)(*(u8 **)(*(u8 **)(packet + 0x30) + 0xA64) + 8) < 2)
+            func_001fae60((s32)func_002299b0, (s32)func_00229c40, (s32)packet);
+        break;
+    case 0x107:
+        if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x100000))
+            *(s8 *)(iGpffffb3ac + 0xC12) = 3;
+        else
+            *(s8 *)(iGpffffb3ac + 0xC12) = -1;
+        break;
+    case 0x10B:
+        if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x100000))
+            *(s8 *)(iGpffffb3ac + 0xC12) = 3;
+        else
+            *(s8 *)(iGpffffb3ac + 0xC12) = -1;
+        break;
+    case 0x112:
+        if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x100000))
+            *(s8 *)(iGpffffb3ac + 0xC12) = 3;
+        else
+            *(s8 *)(iGpffffb3ac + 0xC12) = -1;
+        break;
+    }
+}
 // FUN_0022DB90
 void func_0022db90(u8 *arg0) {
     u16 id;
@@ -2130,8 +2274,246 @@ void func_0022db90(u8 *arg0) {
         }
     }
 }
+/* measured: 2164B / 2176B window, 74 code and 20 table relocations exact.
+   Twelve bytes are retail zero alignment. Keep node declared before started:
+   reversing them swaps saved-register uses in nine retail instructions. */
 // FUN_0022DC70
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022dc70);
+void func_0022dc70(u8 *packet)
+{
+    u8 *node;
+    s32 started;
+    u8 *unit;
+    s32 *counter;
+
+    if ((*(u32 *)(DAT_0076449c + 0xC) & 0x200000) == 0)
+        return;
+    unit = *(u8 **)(packet + 0x30);
+    if (unit[0xA2] != 1) {
+        switch (func_001ef9a0()) {
+        case 0x215:
+            if (*(u16 *)(packet + 0x6C) == 2 && *(u16 *)(packet + 0x6E) == 0x115)
+                func_001fae60((s32)func_0022ba40, (s32)func_0022bac0, (s32)packet);
+            break;
+        }
+        return;
+    }
+    switch (*(u16 *)(unit + 0xA4)) {
+    case 0x100:
+        if (*(u16 *)(packet + 0x6C) == 2) {
+            if (*(u16 *)(packet + 0x6E) == 0x160)
+                *(s8 *)(DAT_0076449c + 0xC18) = 13;
+            else
+                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+        }
+        break;
+    case 0x101:
+        if (*(u16 *)(packet + 0x6C) == 2 || *(u16 *)(packet + 0x6C) == 1) {
+            if (*(u16 *)(packet + 0x6E) == 0x161)
+                *(s8 *)(DAT_0076449c + 0xC14) = 12;
+            else
+                *(s8 *)(DAT_0076449c + 0xC14) = -1;
+        }
+        break;
+    case 0x102:
+        *(u8 **)(DAT_0076449c + 0xB98) = D_0062A5F0;
+        if (*(u16 *)(packet + 0x6C) == 2) {
+            if (*(u16 *)(packet + 0x6E) == 0x163)
+                *(s8 *)(DAT_0076449c + 0xC18) = 12;
+            else if (*(u16 *)(packet + 0x6E) == 0x162)
+                *(s8 *)(DAT_0076449c + 0xC18) = 13;
+            else
+                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+        }
+        break;
+    case 0x10D:
+        *(u8 **)(DAT_0076449c + 0xB98) = D_0062AD40;
+        break;
+    case 0x103:
+        *(u8 **)(DAT_0076449c + 0xB98) = D_0062B490;
+        if (*(u16 *)(packet + 0x6C) == 2) {
+            if (*(u16 *)(packet + 0x6E) == 0x166)
+                *(s8 *)(DAT_0076449c + 0xC18) = 12;
+            else if (*(u16 *)(packet + 0x6E) == 0x167)
+                *(s8 *)(DAT_0076449c + 0xC18) = 13;
+            else if (*(u16 *)(packet + 0x6E) == 0x168)
+                *(s8 *)(DAT_0076449c + 0xC18) = 14;
+            else
+                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+        }
+        break;
+    case 0x110:
+        *(u8 **)(DAT_0076449c + 0xB98) = D_0062BBE0;
+        break;
+    case 0x111:
+        *(u8 **)(DAT_0076449c + 0xB98) = D_0062C330;
+        break;
+    case 0x104:
+        if (*(u16 *)(packet + 0x6C) == 2) {
+            if (*(u16 *)(packet + 0x6E) == 0x169)
+                *(s8 *)(DAT_0076449c + 0xC18) = 12;
+            else
+                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+        }
+        break;
+    case 0x105:
+        if (*(u16 *)(packet + 0x6C) == 2) {
+            switch (*(u16 *)(packet + 0x6E)) {
+            case 0x16B:
+                *(s8 *)(DAT_0076449c + 0xC10) = 14;
+                *(s8 *)(DAT_0076449c + 0xC13) = 14;
+                *(s8 *)(DAT_0076449c + 0xC28) = 14;
+                *(s8 *)(DAT_0076449c + 0xC22) = 14;
+                *(s8 *)(DAT_0076449c + 0xC1A) = 14;
+                *(s8 *)(DAT_0076449c + 0xC12) = 15;
+                *(s8 *)(DAT_0076449c + 0xC18) = 17;
+                *(u16 *)(*(u8 **)(packet + 0x30) + 0x9D8) |= 0x20;
+                break;
+            case 0x16A:
+                *(s8 *)(DAT_0076449c + 0xC18) = -2;
+                break;
+            case 0x16C:
+                *(s8 *)(DAT_0076449c + 0xC18) = -2;
+                break;
+            default:
+                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+                break;
+            }
+        }
+        break;
+    case 0x106:
+        if (*(u16 *)(packet + 0x6C) == 2 || *(u16 *)(packet + 0x6C) == 1) {
+            switch (*(u16 *)(packet + 0x6E)) {
+            case 0x16E:
+            case 0x16F:
+            case 0x170:
+            case 0x171:
+                *(s8 *)(DAT_0076449c + 0xC18) = 12;
+                *(s8 *)(DAT_0076449c + 0xC14) = -1;
+                *(u32 *)(DAT_0076449c + 0xC) |= 0x400000;
+                *(u16 *)(DAT_0076449c + 0x18) |= 2;
+                break;
+            default:
+                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+                *(s8 *)(DAT_0076449c + 0xC14) = -1;
+                break;
+            }
+        }
+        break;
+    case 0x107:
+        if (*(u16 *)(packet + 0x6C) == 2) {
+            if (*(u16 *)(packet + 0x6E) == 0x178)
+                *(s8 *)(DAT_0076449c + 0xC18) = 13;
+            else
+                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+        }
+        break;
+    case 0x108:
+        if (*(u16 *)(packet + 0x6C) == 2) {
+            switch (*(u16 *)(packet + 0x6E)) {
+            case 0x17B:
+            case 0x184:
+                func_001fae60((s32)func_00229da0, (s32)func_0022a6b0, (s32)packet);
+                *(u16 *)(packet + 0x6C) = 8;
+                btlActionSetState((BtlAction *)packet, 25);
+                *(s32 *)(DAT_0076449c + 0xC38) = 3;
+                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+                break;
+            case 0x17A:
+                *(s8 *)(DAT_0076449c + 0xC18) = -2;
+                break;
+            case 0x17C:
+                *(s8 *)(DAT_0076449c + 0xC18) = -2;
+                break;
+            default:
+                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+                break;
+            }
+        }
+        started = 0;
+        counter = (s32 *)(DAT_0076449c + 0xC38);
+        if (*counter > 0) {
+            *counter -= 1;
+            if (*(s32 *)(DAT_0076449c + 0xC38) <= 0) {
+                node = *(u8 **)(DAT_0076449c + 0x174);
+                while (node != NULL) {
+                    if ((*(u16 *)(node + 0x1A) & 1) != 0) {
+                        unit = *(u8 **)(node + 0x30);
+                        if ((*(u32 *)(unit + 0x9C) & 8) != 0 &&
+                            datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x100) == 0)
+                            break;
+                    }
+                    node = *(u8 **)(node + 0x450);
+                }
+                if (node != NULL) {
+                    func_001fae60((s32)func_0022a730, (s32)func_0022abd0, (s32)packet);
+                    started = 1;
+                }
+            }
+        }
+        counter = (s32 *)(DAT_0076449c + 0xC3C);
+        if (*counter > 0 && started == 0) {
+            *counter -= 1;
+            if (*(s32 *)(DAT_0076449c + 0xC3C) <= 0 && func_00106330(0x1435) != 0)
+                func_001fae60((s32)func_0022acb0, (s32)func_0022ad40, (s32)packet);
+        }
+        break;
+    case 0x10A:
+    case 0x113:
+        if (*(u16 *)(packet + 0x6C) == 2) {
+            switch (*(u16 *)(packet + 0x6E)) {
+            case 0x17D:
+                *(s8 *)(DAT_0076449c + 0xC18) = 12;
+                break;
+            case 0x17E:
+                *(s8 *)(DAT_0076449c + 0xC18) = 13;
+                break;
+            case 0x17F:
+            case 0x186:
+                *(s8 *)(DAT_0076449c + 0xC10) = 14;
+                *(s8 *)(DAT_0076449c + 0xC13) = 14;
+                *(s8 *)(DAT_0076449c + 0xC28) = 14;
+                *(s8 *)(DAT_0076449c + 0xC22) = 14;
+                *(s8 *)(DAT_0076449c + 0xC1A) = 14;
+                *(s8 *)(DAT_0076449c + 0xC12) = 14;
+                *(s8 *)(DAT_0076449c + 0xC18) = 18;
+                *(u16 *)(*(u8 **)(packet + 0x30) + 0x9D8) |= 0x20;
+                break;
+            case 0x180:
+                *(s8 *)(DAT_0076449c + 0xC10) = -1;
+                *(s8 *)(DAT_0076449c + 0xC13) = -1;
+                *(s8 *)(DAT_0076449c + 0xC28) = -1;
+                *(s8 *)(DAT_0076449c + 0xC22) = -1;
+                *(s8 *)(DAT_0076449c + 0xC1A) = -1;
+                *(s8 *)(DAT_0076449c + 0xC12) = -1;
+                *(s8 *)(DAT_0076449c + 0xC18) = -2;
+                *(u16 *)(*(u8 **)(packet + 0x30) + 0x9D8) &= ~0x20;
+                break;
+            default:
+                if (*(s8 *)(DAT_0076449c + 0xC10) == 14)
+                    *(s8 *)(DAT_0076449c + 0xC18) = 17;
+                else
+                    *(s8 *)(DAT_0076449c + 0xC18) = -1;
+                break;
+            }
+        }
+        break;
+    case 0x10B:
+    case 0x10E:
+        if (*(u16 *)(packet + 0x6C) == 2) {
+            if (*(u16 *)(packet + 0x6E) == 0x10B) {
+                *(s8 *)(DAT_0076449c + 0xC18) = 12;
+                *(u32 *)(DAT_0076449c + 0xC) |= 0x400000;
+                *(u16 *)(DAT_0076449c + 0x18) |= 7;
+            } else if (*(u16 *)(packet + 0x6E) == 0x185)
+                *(s8 *)(DAT_0076449c + 0xC18) = 4;
+            else if (*(u16 *)(packet + 0x6E) == 0x182)
+                *(s8 *)(DAT_0076449c + 0xC18) = 13;
+            else
+                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+        }
+        break;
+    }
+}
 // FUN_0022E4F0
 s32 func_0022e4f0(u8 *arg0, s32 arg1) {
     u16 temp_4_2;

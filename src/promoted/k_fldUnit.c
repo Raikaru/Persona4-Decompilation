@@ -3,6 +3,9 @@
 #include "type.h"
 #include "include_asm.h"
 
+typedef struct RwMatrix RwMatrix;
+typedef struct RwV3d RwV3d;
+
 extern void (*DAT_008873EC[])(void *);
 extern s32 (*DAT_008873F4[])(s32, s32, s32);
 
@@ -75,7 +78,7 @@ extern s32 func_00155280(void);
 extern void func_0014a0f0(u16 arg0, s32 arg1);
 extern u16 func_00145780(u16 arg0, s32 arg1, s32 arg2);
 extern void func_0047a1a0(void *arg0, void *arg1, f32 arg2, s32 arg3);
-extern void func_0047a180(void *arg0, f32 *arg1, s32 arg2);
+extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern s32 func_0018bb20(s32 arg0, void *arg1);
 
 extern void memset(void *destination, s32 value, u32 size);
@@ -908,7 +911,7 @@ void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
         temp_21 = temp_17 * 0xC;
         func_0047a1e0(*(u8 **)(temp_2 + 0x144), D_005F1530 + temp_21, 2);
         func_0047a1a0(*(u8 **)(temp_2 + 0x144), D_00756510, *(f32 *)(arg1 + 0x14C), 2);
-        func_0047a180(*(u8 **)(temp_2 + 0x144), (f32 *)(arg1 + 0x140), 2);
+        func_0047a180((RwMatrix *)*(u8 **)(temp_2 + 0x144), (const RwV3d *)(arg1 + 0x140), 2);
         if (*(s32 *)(arg0 + 8) != 0) {
             func_00479940(*(u8 **)(temp_2 + 0x144), 0, 2, 0, 0);
         } else if (temp_17 == 1) {
@@ -943,7 +946,7 @@ void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
         *(u8 **)(temp_2 + 0x16C) = temp_2_2;
         func_0047a1a0(temp_2_2, D_00756510, *(f32 *)(arg1 + 0x14C), 2);
         func_0047a1e0(*(u8 **)(temp_2 + 0x16C), D_005F1550 + temp_21, 2);
-        func_0047a180(*(u8 **)(temp_2 + 0x16C), (f32 *)(arg1 + 0x140), 2);
+        func_0047a180((RwMatrix *)*(u8 **)(temp_2 + 0x16C), (const RwV3d *)(arg1 + 0x140), 2);
         temp_4_2 = *(u8 **)(temp_2 + 0x16C);
         *(u8 **)(arg0 + 0x164) = temp_4_2;
         func_00478e70(temp_4_2);
