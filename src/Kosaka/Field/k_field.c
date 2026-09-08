@@ -32,6 +32,10 @@ extern void func_00156750(u8 *);
 extern u8 *func_00457120(void);
 extern void func_003e9df0(s32);
 
+/* Fresh reconstruction retained in FFS_00155360_body.c: 2192/2192 bytes,
+   112 resolved code relocations and all 19 switch targets match except the
+   three argument-setup instructions at +0x1B0..+0x1B8. Retail moves task
+   before loading field/room; the candidate loads them first. Remains ASM. */
 // FUN_00155360
 INCLUDE_ASM("asm/nonmatchings/k_field", func_00155360);
 
@@ -134,7 +138,7 @@ extern f32 D_005EFF40[];
 extern void func_003e0380(f32 *arg0);
 extern void func_003e03e0(void *arg0, f32 *arg1);
 extern void func_003e9680(void *arg0);
-extern void func_00155360(u8 *arg0);
+extern s32 func_00155360(u8 *arg0);
 /* measured: object 648B/window 656B, nd 0. The six stack parameters are s64
    slots read in place through `*(s32 *)&argN` / `*(u8 *)&arg8`: an s32
    stack parameter with several uses gets homed into $s2 at entry and pushes
