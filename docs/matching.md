@@ -7074,3 +7074,56 @@ The complete `make build-progress progress lint-errors` gate passes at
 objects / 1,570 functions**. Progress artifacts validate, all 338 first-party
 files have zero lint findings, and both the loadable-image and complete-retail
 SHA-1 hashes remain unchanged.
+
+## Fresh task builders and constructor return contracts
+
+`func_00229da0` now has its first complete ordinary-C probe, preserved in
+`docs/probe_archive/P022_00229da0_body.c`; production remains ASM. The first
+candidate emitted 2,304 bytes against 2,312 executable retail bytes. One
+cast/lifetime refinement emits **2,308 / 2,320 window bytes**, with **75
+code relocations and nine table relocations resolved**, but still has
+**1,481 differing overlap bytes / 458 executable word positions differing**,
+including four missing executable bytes. Nine bytes of the 36-byte table
+differ. The final eight retail bytes are zero alignment. No further sweep,
+padding, register pinning, or fabricated inputs followed the measurement.
+
+The complete two-pass task construction retains 64-bit dependency and action
+UIDs, both coordinate outputs, initialized 32-byte configurations, all six
+switch arms, callback reloads, and the second pass's otherwise-unused list
+walk. This is a measured nonmatch, not a claimed compiler floor or native
+behavior match.
+
+`func_0022a730` has a different blocker, recorded in its existing archive.
+The first pass assigns `$s1` only after a status match at `0x0022a7f8`,
+but `0x0022a80c` reads it even when no match occurred. Reviewed scheduling
+and invocation paths establish neither a matching-node invariant nor an
+ordinary C input for that register. A decoded retail-prefix experiment with
+identical empty-list memory and explicit arguments returns when incoming
+`$s1` is zero, but reaches allocation when it is `0x4000`. No external call
+was executed; this is not a claim that empty lists are normal gameplay.
+Production stays ASM rather than inventing initialization, another argument,
+or an undefined C local.
+
+The task-builder review also exposed two real C return-contract errors:
+`btlSound.c::func_001f7c20` and `btlEffect.c::func_00202010` were declared
+`void` despite callers consuming their allocated packets. Both now explicitly
+return `BtlPacket*`. The live `func_001b0300` sound consumer uses the same
+declaration; existing ASM consumers need no binary change.
+
+Focused verification keeps both providers and the affected live consumer
+matching. A throwaway wasm32 consumer executes the actual constructor bodies,
+receives separate writable allocations, and attaches distinct full 64-bit
+dependencies without aliasing the other packet. Restoring the previous
+`void` bodies makes that C consumer fail to compile; the corrected bodies
+compile and execute successfully. Allocation is fixture-provided and engine
+callbacks are not executed. The throwaway reproduction is removed.
+
+Complete relocation checks confirm **116 / 128 bytes** for the sound
+constructor (five relocations) and **92 / 96 bytes** for the voice constructor
+(three relocations), with zero differing bytes or unresolved symbols. Their
+12- and four-byte tails are retail zero alignment.
+
+The full gate after these contract fixes passes at **6,138 first-party
+MATCH / 722 ASM**, with **172 C-linked objects / 1,570 functions**, validated
+progress artifacts, zero findings across 338 first-party files, and both
+retail hashes unchanged.
