@@ -6583,3 +6583,114 @@ The integrated `make build-progress progress lint-errors` gate passes:
 1,568 functions**, validated progress artifacts and zero lint findings
 across 337 first-party files. Both the loadable-image and whole-retail-file
 SHA-1 identities remain unchanged.
+
+## Exact field raycast and complete hit-point contracts
+
+`func_0016b540` is now C in `k_fldFrame.c`: **560 / 560 bytes**, zero
+fully relocated differing words and all **12 relocations resolved**.
+Its other 15 emitted owner functions remain unchanged.
+
+The closing source shape snapshots both endpoints before provider calls
+and gives each branch its own complete `FldFrameRaycast`. Grid lookup uses
+the **start** point's X/Z coordinates, follows the first matching entry
+through `+0x1a0`, and stops even when that first entry has no collision
+collection. The non-grid branch reloads the root after the mode query.
+Ordinary signed multiplication emits the same retail shifts without
+undefined left shifts of negative indices. Valid mapped records and
+finite, representable coordinate arithmetic remain caller preconditions;
+no new guards or artificial alignment were introduced.
+
+`Kosaka/k_fldFrame_internal.h` now owns the shared three-float vector and
+raycast declaration. All three C consumers use it. `0014c540` previously
+declared an eight-byte `s64` hit member followed by padding, despite the
+callback writing X, Y and Z. It now declares a complete vector in the
+same stack span. The private `E9F0Vec3` copy in `code1_0016.c` is replaced
+by the shared type, not retained as an alias. The direct-hit callback uses
+the actual typed raycast state; its **240 emitted bytes** are unchanged.
+
+The retail nearest-distance sentinel at `0x007613a4` is **FLT_MAX**
+(`0x7f7fffff`), not 1.0. The consumer fixture exposed that mistaken fixture
+assumption before the retail constant was read and used.
+
+## Clump iterator, callback and material metadata cutover
+
+The existing `Kosaka/k_clump_internal.h` already specified a pointer-returning
+iterator and `void *callback(void *object, void *data)`. Its `003bff30`
+implementation still returned an integer and invoked callbacks through
+`int (*)(int, int *)`. The actual model callback reproduces a
+**UBSan incorrect-function-type failure** through that old iterator;
+the repaired iterator preserves the complete returned pointer and performs
+the geometry flag update under ASan/UBSan/function sanitization.
+
+The cutover covers the iterator, its C consumers and 26 callback
+definitions across core, field, model and effect owners. Conflicting local
+declarations and callback casts are removed. The three recursive clump
+userdata callbacks now accept the shared opaque context with typed locals.
+The material metadata providers consume their existing shared declarations;
+material-array count queries receive their actual material argument.
+Animation string queries retain their provider's packed-address return
+contract but now declare and pass its real pointer argument.
+
+`00462ae0` accepts a clump object, not a function pointer, and returns its
+allocated resource-classification record or null. Its model and field
+consumers store that result as a pointer. The resource builder keeps the
+retail category priority **0,1,7,8,5,6,9,2,4,3**, list ordering, fog counts
+and discard decision. The private `func_003bff30_typed` call/declaration is
+removed rather than retained as a compatibility path.
+
+Independent original/final object comparisons preserve **849 existing C
+functions**, or **1,076 emitted functions including assembly fallbacks**,
+across the 19 affected code owners. Comparison includes every instruction
+and function-relative relocation target. Compiler-local constant names
+changed in four consumers but retain identical section contents/offsets;
+the removed iterator alias and canonical name resolve to the same address.
+The new field raycast is checked separately against its complete retail
+window, rather than counted as a before/after preserved function.
+
+## Native field and clump behavior evidence
+
+The throwaway executables compile the actual recovered functions and use
+controlled external engine providers; they are not a rendered PS2 frame.
+Packed-record scenarios run as freestanding 32-bit i386 executables under
+`qemu-i386`, avoiding widened host pointers in four-byte tables. The
+raycast/iterator scenarios also run on the 64-bit host with address,
+undefined-behavior and function-type sanitizers.
+
+| Executed surface | Cases | Observable contracts |
+| --- | ---: | --- |
+| Raycast and actual collection iterator | 1,249 | Direct hit/miss, signed cell boundaries, start-point lookup, first duplicate, provider mutations, root reload, endpoint snapshot, nearest/equal hits, cached-next detach and early stop |
+| All three actual field consumers | 196,728 | Forward/reverse visibility, strict distance thresholds, stable nearest unblocked selection, complete hit vectors, height transitions and companion synchronization |
+| Packed model/material animation | 148,224 | Actual iterator and metadata providers, material filtering, three-float colors, first insertion, per-array string deduplication, 16-bit count wrap and adjacent storage preservation |
+| Clump resource builder | 25,600 | Actual builder/callbacks, retail category priority, missing geometry, grouped reverse order, fog counts and retained/discarded ownership |
+
+These are **371,801 cases**, with the 1,249 raycast/iterator scenarios
+additionally exercised on the other host pointer width. The callback ABI
+failure/repaired run is a separate before/after reproduction.
+
+## Primitive rotation residual correction
+
+`Lng_0045e8e0_body.c` and `MnB_0045eb20_body.c` now retain the measured
+`PrimBatch` candidates with the actual `iGpffff81d0` conversion cached
+across both trigonometric calls. Center X is `s32`; center Y remains `s16`.
+Both ordinary C product-seeded `mula`/`madd`/`add` chains are reproducible,
+contradicting the old blanket FPU-floor comments.
+
+| Function | Emitted / window | Resolved differing overlap words | Missing executable zero bytes | Missing alignment |
+| --- | ---: | ---: | ---: | ---: |
+| `0045e8e0` | 560 / 576 | 100 | 4 | 12 |
+| `0045eb20` | 568 / 576 | 102 | 4 | 4 |
+
+Both resolve all 14 relocations and preserve the owner's five existing
+C functions (3,056 bytes). The raw-register/scheduling residual remains;
+this is not an improvement over the historical nd88 score. These are
+compiler experiments only, with no new native geometry or rendering
+claim. Both retail functions remain assembly-backed.
+
+The recovered symbol inventory was regenerated, removing the retired
+iterator alias without changing any retained address. All **14 recovered-symbol
+invariant tests** pass. The final `make build-progress progress lint-errors`
+gate reports **6,132 first-party MATCH / 728 ASM**, **172 C-linked objects /
+1,569 functions**, validated progress artifacts and zero lint findings
+across 338 first-party files. The loadable-image SHA-1 remains
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; the complete retail file remains
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`.

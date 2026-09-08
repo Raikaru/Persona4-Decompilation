@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "Kosaka/k_clump_internal.h"
 extern u8 D_008872E0[];
 extern u8 D_00885A90[];
 extern s32 iGpffffb680;
@@ -37,7 +38,6 @@ extern s32 func_003c0700(u8 *arg0);
 extern s32 func_003c02e0(u8 *arg0);
 extern s32 iGpffffb6b0;
 extern s32 func_003bc880(s32 arg0, s32 arg1);
-extern s32 func_003bff30(void *arg0, s32 (*arg1)(s32, s32 *), s32 *arg2);
 extern s32 D_00764770;
 extern s32 func_003e8930(s32 a, s32 b, void *c, void *d);
 extern s32 func_003bb0d0(s32 arg0);
@@ -865,7 +865,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bce50);
 #pragma schedule on
 #pragma no_branch_likely on
 // FUN_003BCF10
-s32 func_003bcf10(s32 arg0) {
+s32 func_003bcf10(void *arg0) {
     u32 count;
     s32 index;
     s32 length;
@@ -873,7 +873,7 @@ s32 func_003bcf10(s32 arg0) {
     u8 *entry;
 
     count = 0;
-    base = (u8 *)(arg0 + iGpffffb668);
+    base = (u8 *)arg0 + iGpffffb668;
     length = *(s32 *)(base + 0);
     index = 0;
     if ((s64)0 < length) {
@@ -895,12 +895,12 @@ s32 func_003bcf10(s32 arg0) {
 /* measured: no_branch_likely on restores the plain guard form in func_003bcf60. */
 #pragma no_branch_likely on
 // FUN_003BCF60
-s32 func_003bcf60(s32 arg0, s32 arg1) {
+void *func_003bcf60(void *arg0, s32 arg1) {
     s32 result;
     s32 value;
     u8 *temp_4;
 
-    temp_4 = (u8 *)(arg0 + iGpffffb668);
+    temp_4 = (u8 *)arg0 + iGpffffb668;
     if (arg1 < *(s32 *)(temp_4 + 0)) {
         value = *(s32 *)(temp_4 + 4);
         result = value + (arg1 * 0x10);
@@ -908,7 +908,7 @@ s32 func_003bcf60(s32 arg0, s32 arg1) {
     }
     result = 0;
 done:
-    return result;
+    return (void *)result;
 }
 /* measured: schedule off closes the one-function field-order probe. */
 #pragma schedule off
@@ -919,7 +919,7 @@ done:
 #pragma schedule on
 #pragma no_branch_likely on
 // FUN_003BCFB0
-s32 func_003bcfb0(s32 arg0) {
+s32 func_003bcfb0(const RpMaterial *arg0) {
     u32 count;
     s32 index;
     s32 length;
@@ -927,7 +927,7 @@ s32 func_003bcfb0(s32 arg0) {
     u8 *entry;
 
     count = 0;
-    base = (u8 *)(arg0 + D_00764770);
+    base = (u8 *)arg0 + D_00764770;
     length = *(s32 *)(base + 0);
     index = 0;
     if ((s64)0 < length) {
@@ -948,12 +948,12 @@ s32 func_003bcfb0(s32 arg0) {
 /* measured: no_branch_likely on restores the plain guard form in func_003bd000. */
 #pragma no_branch_likely on
 // FUN_003BD000
-s32 func_003bd000(s32 arg0, s32 arg1) {
+RpUserDataArray *func_003bd000(const RpMaterial *arg0, s32 arg1) {
     s32 result;
     s32 value;
     u8 *temp_4;
 
-    temp_4 = (u8 *)(arg0 + D_00764770);
+    temp_4 = (u8 *)arg0 + D_00764770;
     if (arg1 < *(s32 *)(temp_4 + 0)) {
         value = *(s32 *)(temp_4 + 4);
         result = value + (arg1 * 0x10);
@@ -961,7 +961,7 @@ s32 func_003bd000(s32 arg0, s32 arg1) {
     }
     result = 0;
 done:
-    return result;
+    return (RpUserDataArray *)result;
 }
 /* measured: schedule off closes the one-function field-order probe. */
 #pragma schedule off
@@ -971,8 +971,8 @@ done:
 /* measured: schedule on is required for func_003bd040's return delay slot. */
 #pragma schedule on
 // FUN_003BD040
-s32 func_003bd040(s32 *arg0) {
-    return *arg0;
+char *func_003bd040(RpUserDataArray *arg0) {
+    return arg0->name;
 }
 /* measured: close schedule around func_003bd040. */
 #pragma schedule off
@@ -980,8 +980,8 @@ s32 func_003bd040(s32 *arg0) {
 /* measured: schedule on is required for func_003bd050's return delay slot. */
 #pragma schedule on
 // FUN_003BD050
-s32 func_003bd050(u8 *arg0) {
-    return *(s32 *)(arg0 + 4);
+RpUserDataFormat func_003bd050(RpUserDataArray *arg0) {
+    return arg0->format;
 }
 /* measured: close schedule around func_003bd050. */
 #pragma schedule off
@@ -989,8 +989,8 @@ s32 func_003bd050(u8 *arg0) {
 // FUN_003BD070
 /* measured: schedule fills the return load in the jr delay slot. */
 #pragma schedule on
-s32 func_003bd070(u8 *arg0, s32 arg1) {
-    return *(s32 *)(*(u8 **)(arg0 + 0xC) + (arg1 * 4));
+s32 func_003bd070(RpUserDataArray *arg0, s32 arg1) {
+    return ((s32 *)arg0->data)[arg1];
 }
 /* measured: closes schedule around func_003bd070. */
 #pragma schedule off
@@ -1297,7 +1297,8 @@ s32 func_003be910(u8 *arg0) {
 // FUN_003BE940
 /* measured: schedule on is required for func_003be940's store delay slot. */
 #pragma schedule on
-s32 func_003be940(s32 arg0, s32 *arg1) {
+void *func_003be940(void *arg0, void *data) {
+    s32 *arg1 = data;
     *arg1 += 1;
     return arg0;
 }

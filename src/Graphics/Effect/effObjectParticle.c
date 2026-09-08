@@ -1,14 +1,14 @@
 #include "include_asm.h"
 #include "type.h"
+#include "Kosaka/k_clump_internal.h"
 
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void func_00492cd0(void *ptr);
 extern void func_003c0700(void *arg0);
 extern u8 *func_003c0520(void *ptr);
-extern void func_003bff30(void *ptr, void (*cb)(void *), void *userdata);
 extern void func_0046d730(const char *file, s32 line);
 extern char D_00714520[];
-extern void func_004ae080();
+extern void *func_004ae080(void *object, void *data);
 extern void func_00492d10(void *arg0);
 extern void func_004ae0a0(void *arg0, void *arg1);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);

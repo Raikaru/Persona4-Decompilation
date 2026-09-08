@@ -73,7 +73,7 @@ extern u8 iGpffffba58;
 extern u8 *func_004669d0(s32 arg0, s32 *arg1, s32 *arg2);
 extern s32 func_00457ce0(u8 *arg0, char *arg1);
 extern s32 func_00457c90(u8 *arg0, char *arg1);
-extern s32 func_00462ae0(void *arg0);
+extern void *func_00462ae0(void *arg0);
 extern void func_003db550(u8 *arg0, u8 *arg1);
 extern char D_005EFCE0[];
 extern char D_005EFD00[];
@@ -414,10 +414,10 @@ s32 func_001510c0(u8 *arg0)
                     *(s32 *)(arg0 + 0x14) = (s32)temp_20;
                 } else if (!(*(s32 *)(arg0 + 0) & 1) && *(s32 *)(arg0 + 8) == 0) {
                     *(s32 *)(arg0 + 8) = (s32)temp_20;
-                    *(s32 *)(arg0 + 0xC) = func_00462ae0(temp_20);
+                    *(void **)(arg0 + 0xC) = func_00462ae0(temp_20);
                 } else {
                     *(s32 *)(arg0 + *(s32 *)(arg0 + 0x18) * 4 + 0x1C) = (s32)temp_20;
-                    *(s32 *)(arg0 + *(s32 *)(arg0 + 0x18) * 4 + 0x9C) = func_00462ae0(temp_20);
+                    *(void **)(arg0 + *(s32 *)(arg0 + 0x18) * 4 + 0x9C) = func_00462ae0(temp_20);
                     *(s32 *)(arg0 + 0x18) = *(s32 *)(arg0 + 0x18) + 1;
                 }
                 *(s32 *)(*(u8 **)(arg0 + 0xA44) + var_19 * 4 + 0xA4) = 0;

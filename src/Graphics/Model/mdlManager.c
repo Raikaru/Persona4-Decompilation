@@ -11,7 +11,7 @@
    00473710 332/352 nd202; 00477FB0 388/400 nd272. */
 #include "type.h"
 #include "rw/std/stddef.h"
-typedef struct RpMaterial RpMaterial;
+#include "Kosaka/k_clump_internal.h"
 /* measured: index-first addu operand-order carrier (lever 3). Kept at top of
    file, OUTSIDE the opt_propagation pragma regions, so it inlines cleanly and
    does not emit a standalone symbol. */
@@ -28,7 +28,6 @@ extern s32 func_0047e6f0(void** owner);
 
 extern u32 func_00397460(s32 object);
 typedef void (*CallbackFn)(void);
-extern void* func_003e9af0(void* object, void* (*callback)(void*, void*), void* data);
 
 extern s32 func_003b83d0(s32 object, s32 hierarchy);
 
@@ -142,23 +141,17 @@ extern void* func_003df6e0(void* list, s32 index);
 extern void func_003c21e0(u32 object, u32 arg1, u32 arg2);
 extern void func_003d5e40_typed(f32 frame, void* interpolator);
 
-extern int func_003bcfb0();
-extern s32 func_003bd000(s32 material, s32 data);
-extern s32 func_003bd040(s32* userData);
-extern s32 func_003bd060(void* object);
-extern s32 func_003bd050(u8* userData);
 extern s32 func_003bd0b0(u8* object, s32 index);
 extern int strcmp(const char* s1, const char* s2);
 extern char DAT_007641c8[1];
 
 extern u32 func_003df5d0();
 extern int func_00474970(int param_1, void* param_2);
-extern void func_003bff30();
 extern void* func_00477350(void*, void*);
-extern void* func_00477430(void*);
-extern void* func_00479880(void*);
+extern void* func_00477430(void*, void*);
+extern void* func_00479880(void*, void*);
 extern void* func_004776c0(void* param_1, void* param_2);
-extern void* func_00474a10(void* param_1, u32* param_2);
+extern void* func_00474a10(void* param_1, void* data);
 extern u32 func_00474ce0(void* param_1);
 extern int func_00442c30();
 extern int func_003d8130();
@@ -174,7 +167,7 @@ extern s32 func_00397470(u8* frame);
 extern void func_003e05f0(void* a, void* b, void* c);
 
 extern void func_004585c0(u8* arg0);
-extern u8* func_00476e90(u8* a, u8** b);
+extern void* func_00476e90(void* object, void* data);
 extern u32 func_004578b0();
 extern f32 iGpffff8044;
 extern u8 D_00713160[];
@@ -260,7 +253,7 @@ extern f32 iGpffff80cc;
 extern void* func_004779b0();
 extern s32 func_00479ca0(void* a, s32 b);
 extern u32* func_003971d0(u8*, s32, s32, s32);
-extern s32 func_00462ae0();
+extern void* func_00462ae0(void* object);
 extern void func_0047da30();
 extern void* func_003c0520();
 extern void* func_0047d200();
@@ -568,16 +561,16 @@ void func_00473140(int param_1)
 
 
 // FUN_00473250
-u32 func_00473250(u32 param_1)
+void* func_00473250(void* param_1, void* data)
 {
     int iVar1;
     u32 uVar2;
     u32 lVar3;
     u32 uVar4;
-    int iVar5;
+    u8* iVar5;
     int iVar6;
 
-    iVar5 = (int)param_1;
+    iVar5 = param_1;
     iVar1 = *(int*)(iVar5 + 0x18);
     if (iVar1 == 0) {
         return param_1;
@@ -596,10 +589,10 @@ u32 func_00473250(u32 param_1)
     if (param_1 != 0) {
         uVar2 = func_0039b6e0(0x1001f);
         *(u32*)(iVar5 + 0x6c) = uVar2;
-        iVar5 = *(int*)(iVar5 + 0x18);
+        iVar5 = *(u8**)(iVar5 + 0x18);
         iVar1 = *(int*)(iVar5 + 0x24);
         for (iVar6 = 0; iVar6 < iVar1; iVar6 = iVar6 + 1) {
-            func_00473140(*(u32*)(*(int*)(iVar5 + 0x20) + iVar6 * 4));
+            func_00473140(*(u32*)(*(u8**)(iVar5 + 0x20) + iVar6 * 4));
         }
         return param_1;
     }
@@ -1306,8 +1299,9 @@ int func_00474970(int param_1, void* param_2)
 
 
 // FUN_00474A10
-void* func_00474a10(void* param_1, u32* param_2)
+void* func_00474a10(void* param_1, void* data)
 {
+    u32* param_2 = data;
     func_003c21e0(*(u32*)((u8*)param_1 + 0x18), *param_2, param_2[1]);
     return param_1;
 }
@@ -1429,18 +1423,18 @@ u32 func_00474ce0(void* param_1)
     char* uVar4;
     s32 lVar5;
     s32 iVar6;
-    void* iVar7;
+    RpUserDataArray* iVar7;
 
-    iVar1 = func_003bcfb0();
+    iVar1 = func_003bcfb0(param_1);
     uVar3 = 0;
     while (uVar3 < iVar1) {
-        iVar7 = (void*)func_003bd000((s32)param_1, uVar3);
-        uVar4 = (char*)func_003bd040((s32*)iVar7);
+        iVar7 = func_003bd000(param_1, uVar3);
+        uVar4 = func_003bd040(iVar7);
         if (strcmp(uVar4, DAT_007641c8) == 0) {
             iVar2 = func_003bd060(iVar7);
             iVar6 = 0;
             while (iVar6 < iVar2) {
-                lVar5 = func_003bd050((u8*)iVar7);
+                lVar5 = func_003bd050(iVar7);
                 if (lVar5 == 3) {
                     return (u32)func_003bd0b0((u8*)iVar7, iVar6);
                 }
@@ -1475,7 +1469,7 @@ void func_00474df0(u8* param_1, void* param_2)
         callbackData.callback = (code)func_00474970;
         callbackData.value = uVar1;
 
-        func_003bff30(param_2, (void (*)(void))func_00474a10, &callbackData);
+        func_003bff30(param_2, func_00474a10, &callbackData);
 
         *(u32*)(*(int*)(param_1 + 0x18) + 8) = uVar1;
 
@@ -1894,16 +1888,16 @@ void func_00476c70(MdlFlags78ec0* o)
 #pragma opt_propagation on
 
 // FUN_00476E10
-void* func_00476e10(void* param_1)
+void* func_00476e10(void* param_1, void* data)
 {
-    int iVar1;
+    u8* iVar1;
     u32 uVar2;
     u32 uVar3;
 
-    iVar1 = *(int*)((int)param_1 + 0x18);
+    iVar1 = *(u8**)((u8*)param_1 + 0x18);
     uVar2 = *(u32*)(iVar1 + 0x24);
     for (uVar3 = 0; uVar3 < uVar2; uVar3 = uVar3 + 1) {
-        func_004585c0((u8*)((u32*)*(int*)(iVar1 + 0x20))[uVar3]);
+        func_004585c0((u8*)(*(u32**)(iVar1 + 0x20))[uVar3]);
     }
 
     return param_1;
@@ -1921,7 +1915,7 @@ void* func_00476e10(void* param_1)
 // FUN_00476E90
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00476e90);
 // FUN_00477260
-void func_00477260(u64 param_1, u32* param_2, u16 param_3)
+void func_00477260(void* param_1, u32* param_2, u16 param_3)
 {
     struct {
         u32* ptr;
@@ -1930,7 +1924,7 @@ void func_00477260(u64 param_1, u32* param_2, u16 param_3)
 
     context.ptr = param_2;
     context.value = param_3;
-    func_003bff30(param_1, (void*)func_00476e90, &context);
+    func_003bff30(param_1, func_00476e90, &context);
     return;
 }
 
@@ -1969,9 +1963,9 @@ void* func_00477350(void* param_1, void* param_2)
     u32 count = *(u32*)((u8*)p + 0x24);
     u32 i = 0;
     while (i < count) {
-        void* e = *(void**)((u8*)*(void**)((u8*)p + 0x20) + i * 4);
+        void* e = (void*)*(u32*)((u8*)*(void**)((u8*)p + 0x20) + i * 4);
         if ((func_00399d80(e) & 2) != 0) {
-            func_0039a260(e, *(void**)((u8*)param_2 + 0));
+            func_0039a260(e, (void*)*(u32*)param_2);
         }
         i++;
     }
@@ -1985,13 +1979,13 @@ void func_00477400(void* param_1, int param_2)
 }
 
 // FUN_00477430
-void* func_00477430(void* param_1)
+void* func_00477430(void* param_1, void* data)
 {
     void* p = *(void**)((u8*)param_1 + 0x18);
     u32 count = *(u32*)((u8*)p + 0x24);
     u32 i = 0;
     while (i < count) {
-        void* e = *(void**)((u8*)*(void**)((u8*)p + 0x20) + i * 4);
+        void* e = (void*)*(u32*)((u8*)*(void**)((u8*)p + 0x20) + i * 4);
         if ((func_00399d80(e) & 2) != 0) {
             func_0039ab20(e, 2, 3, 0x73001);
         }
@@ -2007,7 +2001,7 @@ void func_004774e0(void* param_1)
 }
 
 // FUN_00477510
-void* func_00477510(void* arg0)
+void* func_00477510(void* arg0, void* data)
 {
     void* base;
     u32 count;
@@ -2018,7 +2012,7 @@ void* func_00477510(void* arg0)
     base = *(void**)((u8*)arg0 + 0x18);
     count = *(u32*)((u8*)base + 0x24);
     for (i = 0; i < count; i++) {
-        item = *(void**)((u8*)*(void**)((u8*)base + 0x20) + i * 4);
+        item = (void*)*(u32*)((u8*)*(void**)((u8*)base + 0x20) + i * 4);
         if (func_00457a90(item, D_00713180) != 0 &&
             func_00457a90(item, D_007131A0) != 0 &&
             func_00457a90(item, D_007131C0) != 0) {
@@ -2036,13 +2030,14 @@ void* func_00477510(void* arg0)
 }
 
 // FUN_00477660
-void* func_00477660(void* param_1, RwV3d* param_2)
+void* func_00477660(void* param_1, void* data)
 {
+    RwV3d* param_2 = data;
     void* p = *(void**)((u8*)param_1 + 0x18);
     u32 count = *(u32*)((u8*)p + 0x24);
     u32 i = 0;
     while (i < count) {
-        void* e = *(void**)((u8*)*(void**)((u8*)p + 0x20) + i * 4);
+        void* e = (void*)*(u32*)((u8*)*(void**)((u8*)p + 0x20) + i * 4);
         *(RwV3d*)((u8*)e + 0xC) = *param_2;
         i++;
     }
@@ -2075,7 +2070,7 @@ void *func_004776c0(void *arg0, void *arg1)
     temp_17 = func_00442948(*(s32 *)(pArg1 + 4));
     var_18 = 0;
     while (var_18 < temp_22) {
-        temp_19 = *(u8 **)(*(u8 **)(temp_16 + 0x20) + var_18 * 4);
+        temp_19 = (u8*)*(u32*)(*(u8 **)(temp_16 + 0x20) + var_18 * 4);
         if (func_00442c30(*(s32 *)(pArg1 + 4), (s32)func_00474ce0(temp_19), temp_17) == 0) {
             value = func_004578b0(temp_19, D_00713160);
             buf[2] = (u8)value;
@@ -2169,14 +2164,14 @@ void func_00477810(void *arg0, void *arg1)
 #pragma opt_loop_invariants on
 
 // FUN_00477900
-void* func_00477900(void* param_1)
+void* func_00477900(void* param_1, void* data)
 {
-    int iVar1;
+    u8* iVar1;
     u32 uVar2;
     int offset;
-    int base;
-    int iVar3;
-    int iVar4;
+    u8* base;
+    u8* iVar3;
+    u8* iVar4;
     u32 uVar5;
     f32 two;
     f32 x;
@@ -2185,8 +2180,8 @@ void* func_00477900(void* param_1)
     f32 w;
     volatile /* Removing this qualifier loses func_00477900 (MATCH nd0 -> MISMATCH nd105, size 172 -> 132) - measured W170 (ported from P3FES donor; re-probed in P4: nd0 -> nd105, size 132). */ f32 values[4];
 
-    iVar4 = (int)param_1;
-    iVar1 = *(int*)(iVar4 + 0x18);
+    iVar4 = param_1;
+    iVar1 = *(u8**)(iVar4 + 0x18);
     if (iVar1 == 0)
         goto done;
 
@@ -2199,7 +2194,7 @@ loop:
     offset = uVar5 * 8;
     offset = offset - uVar5;
     offset = offset * 4;
-    base = *(int*)(iVar1 + 0x5c);
+    base = *(u8**)(iVar1 + 0x5c);
     iVar3 = base + offset;
     values[0] = *(f32*)(iVar3 + 4);
     values[1] = *(f32*)(iVar3 + 8);
@@ -2354,13 +2349,6 @@ extern void func_0047b060(void* a);
 // FUN_00477CA0
 void func_00477ca0(u8* arg0)
 {
-    extern void func_003bff30(void*, void*, void*);
-    extern u8* func_00477900(void*);
-    extern void* func_00474df0(u8*, void*);
-    extern u8* func_00476e10(void*);
-    extern u8* func_00477510(void*);
-    extern u8* func_00477660(void*, void*);
-    extern s32 func_00462ae0(void*);
     extern void func_0047da30(u32*);
     extern f32 fGpffff80cc;
     f32 values[3];
@@ -2372,7 +2360,7 @@ void func_00477ca0(u8* arg0)
     u8* temp_16;
 
     entries = (u8 (*)[0xA4])arg0;
-    func_003bff30(*(void**)(arg0 + 0xDC), (void*)func_00477900, (void*)0);
+    func_003bff30(*(void**)(arg0 + 0xDC), func_00477900, NULL);
     if (*(s32*)(arg0 + 0x254) != 0) {
         func_00474df0(arg0 + 0x23C, *(void**)(arg0 + 0xDC));
     }
@@ -2389,8 +2377,8 @@ void func_00477ca0(u8* arg0)
             }
         }
     }
-    *(s32*)(arg0 + 0xE0) = func_00462ae0(*(void**)(arg0 + 0xDC));
-    func_003bff30(*(void**)(arg0 + 0xDC), (void*)func_00476e10, (void*)0);
+    *(void**)(arg0 + 0xE0) = func_00462ae0(*(void**)(arg0 + 0xDC));
+    func_003bff30(*(void**)(arg0 + 0xDC), func_00476e10, NULL);
     temp_3 = *(u16*)(arg0 + 0xD4);
     switch (temp_3) {
     case 1:
@@ -2398,10 +2386,10 @@ void func_00477ca0(u8* arg0)
         values[0] = fGpffff80cc;
         values[2] = 1.0f;
         values[1] = fGpffff809c;
-        func_003bff30(*(void**)(arg0 + 0xDC), (void*)func_00477660, values);
+        func_003bff30(*(void**)(arg0 + 0xDC), func_00477660, values);
         break;
     default:
-        func_003bff30(*(void**)(arg0 + 0xDC), (void*)func_00477510, (void*)0);
+        func_003bff30(*(void**)(arg0 + 0xDC), func_00477510, NULL);
         break;
     }
     temp_4_2 = *(u32*)(arg0 + 0x2CC);
@@ -2664,7 +2652,7 @@ void func_00478410(u8* source, u8* destination)
     if (*(void**)(source + 0xdc) != 0) {
         void* clump = func_003c0520(*(void**)(source + 0xdc));
         *(void**)(destination + 0xdc) = clump;
-        *(s32*)(destination + 0xe0) = func_00462ae0(clump);
+        *(void**)(destination + 0xe0) = func_00462ae0(clump);
     }
     for (layer = 0; layer < 2; layer++) {
         if (func_00479ca0(source, (u16)layer) != 0) {
@@ -2999,7 +2987,7 @@ void func_00478ec0(void* param_1, MdlFlags78ec0* o)
     dc = o->dc;
     ctx.p38 = (u8*)o + 0xD0;
     ctx.p3C = 0;
-    func_003bff30(dc, (void*)func_00476e90, &ctx);
+    func_003bff30(dc, func_00476e90, &ctx);
     t = (o->d8 & 8) != 0;
     base = D_00887300_abs;
     base[0](6, t);
@@ -3050,7 +3038,7 @@ void func_00479080(void* param_1, void* param_2)
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479100);
 
 // FUN_00479880
-void* func_00479880(void* param_1)
+void* func_00479880(void* param_1, void* data)
 {
     if ((*(u8*)((u8*)param_1 + 2) & 4) == 0) {
         return param_1;
@@ -3516,12 +3504,12 @@ s32 func_0047a320(void* arg0) {
   }
 
 // FUN_0047A4A0
-u8 *func_0047a4a0(u8 *arg0, s32 *arg1) {
+void *func_0047a4a0(void *arg0, void *arg1) {
     /* arg1 is reassigned rather than using a fresh local: retail reuses the
        $a1 argument register for the node pointer once the mask is loaded. */
-    s32 mask = *arg1;
+    s32 mask = *(s32 *)arg1;
 
-    arg1 = (s32 *)*(u8 **)(arg0 + 0x18);
+    arg1 = *(void **)((u8 *)arg0 + 0x18);
     *(s32 *)((u8 *)arg1 + 8) &= ~mask;
     return arg0;
 }
