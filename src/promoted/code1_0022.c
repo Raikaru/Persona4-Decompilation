@@ -90,6 +90,22 @@ extern s32 func_0011f580(u8 *child);
 extern s32 func_00353f50(s32 mode);
 extern s32 func_0021de60(void);
 extern void func_0046d730(const void *file, u32 line);
+extern u8 D_00635560[], D_00635580[];
+extern u8 iGpffffa4d8[4];
+extern u8 *func_001ebb00(s32 action, s32 kind, u8 *name);
+extern u8 *func_00194c90(void *callback, void *data);
+extern BtlPacket *func_001d7ab0(u8 *values, u16 duration);
+extern BtlPacket *func_001d7b60(u16 duration);
+extern BtlPacket *func_0019b6a0(BtlUnit *unit);
+extern u8 *func_0019b550(u8 *unit, s16 id, s16 animation);
+extern BtlPacket *func_002305c0(s32 id);
+extern BtlPacket *func_00230650(void);
+extern BtlPacket *func_002306d0(void);
+extern BtlPacket *func_00230750(void);
+extern BtlPacket *func_001b7e20(u32 duration);
+extern BtlPacket *func_001b9360(s32 duration, s16 mode);
+extern BtlPacket *func_001b99a0(s32 duration);
+extern BtlPacket *func_001ba090(s32 duration);
 extern void func_002236b0();
 extern void func_002236c0(KwlnTask *task);
 
@@ -3134,7 +3150,202 @@ s32 func_0022b0e0(void)
     return 1;
 }
 // FUN_0022B120
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022b120);
+/* 1860/1872 bytes; all 67 resolved code relocations exact. */
+void func_0022b120(u8 *action)
+{
+    u8 *actor;
+    s32 openingFormation;
+    s32 closingFormation;
+    u8 *wait1;
+    u8 *wait0;
+    u8 *anchor;
+    u8 *cleanup;
+    u8 *packet;
+    RwV3d rotation;
+
+    actor = *(u8 **)(action + 0x30);
+    *(u32 *)(DAT_0076449c + 0xC) |= 0x400000;
+    *(u16 *)(DAT_0076449c + 0x18) |= 0x23;
+    func_001a03b0((s64 *)action);
+    openingFormation = func_001d3d50(0);
+    closingFormation = func_001d3d50(0);
+    func_001d3ea0(openingFormation, (u32)func_0022ced0(0xC));
+    func_001d3ea0(closingFormation, (u32)func_0022ced0(0xD));
+    *(u32 *)(DAT_0076449c + 0xC) |= 0x80000;
+
+    anchor = func_001ebb00((s32)action, 3, D_00635560);
+    *(u64 *)(anchor + 0x60) = *(u64 *)action;
+    func_00194590(anchor, 1);
+
+    packet = func_00194c90((void *)func_0022b0b0, action);
+    packet[0] = 4;
+    *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
+    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    func_00194590(packet, 1);
+
+    packet = func_00199ee0(actor, 0x13, 0, 2, 1.0f);
+    packet[0] = 4;
+    *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
+    *(u16 *)(packet + 0x48) = 2;
+    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    func_00194590(packet, 0);
+
+    packet = (u8 *)func_002306d0();
+    packet[0] = 4;
+    *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
+    *(u16 *)(packet + 0x48) = 0x33;
+    func_00194590(packet, 1);
+
+    wait1 = (u8 *)func_001d6240((u32)openingFormation, (u32)actor, (u32)actor, 0, 0x200);
+    wait1[0] = 4;
+    *(u64 *)(wait1 + 8) = *(u64 *)(anchor + 0x58);
+    *(u64 *)(wait1 + 0x60) = *(u64 *)action;
+    func_00194590(wait1, 2);
+
+    wait0 = (u8 *)func_001d6240((u32)openingFormation, (u32)actor, (u32)actor, 1, 0x200);
+    wait0[0] = 4;
+    *(u64 *)(wait0 + 8) = *(u64 *)(anchor + 0x58);
+    *(u64 *)(wait0 + 0x60) = *(u64 *)action;
+    func_00194590(wait0, 2);
+
+    packet = (u8 *)func_001d7ab0(iGpffffa4d8, 0x1E);
+    packet[0] = 4;
+    *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
+    *(u16 *)(packet + 0x48) = 0x19A;
+    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    func_00194590(packet, 1);
+
+    rotation.x = 0.0f;
+    rotation.y = 0.0f;
+    rotation.z = (f32)3000;
+    packet = (u8 *)btlUnitCreateRotatePacket((BtlUnit *)actor, &rotation, 2);
+    packet[0] = 4;
+    *(u64 *)(packet + 8) = *(u64 *)(wait1 + 0x58);
+    packet[0x10] = 4;
+    *(u64 *)(packet + 0x18) = *(u64 *)(wait0 + 0x58);
+    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    func_00194590(packet, 0);
+
+    anchor = (u8 *)func_0019b6a0((BtlUnit *)actor);
+    anchor[0] = 4;
+    *(u64 *)(anchor + 8) = *(u64 *)(wait1 + 0x58);
+    anchor[0x10] = 4;
+    *(u64 *)(anchor + 0x18) = *(u64 *)(wait0 + 0x58);
+    *(u16 *)(anchor + 0x48) = 1;
+    *(u64 *)(anchor + 0x60) = *(u64 *)action;
+    func_00194590(anchor, 1);
+
+    packet = (u8 *)func_00230750();
+    packet[0] = 4;
+    *(u64 *)(packet + 8) = *(u64 *)(wait1 + 0x58);
+    packet[0x10] = 4;
+    *(u64 *)(packet + 0x18) = *(u64 *)(wait0 + 0x58);
+    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    func_00194590(packet, 1);
+
+    cleanup = (u8 *)func_00230650();
+    cleanup[0] = 4;
+    *(u64 *)(cleanup + 8) = *(u64 *)(wait1 + 0x58);
+    cleanup[0x10] = 4;
+    *(u64 *)(cleanup + 0x18) = *(u64 *)(wait0 + 0x58);
+    *(u16 *)(cleanup + 0x48) = 3;
+    *(u64 *)(cleanup + 0x60) = *(u64 *)action;
+    func_00194590(cleanup, 1);
+
+    wait0 = func_0019b550(actor, 0x10E, 0x216);
+    wait0[0] = 4;
+    *(u64 *)(wait0 + 8) = *(u64 *)(anchor + 0x58);
+    *(u16 *)(wait0 + 0x48) = 2;
+    *(u64 *)(wait0 + 0x60) = *(u64 *)action;
+    func_00194590(wait0, 1);
+
+    anchor = func_001ebb00((s32)action, 3, D_00635580);
+    anchor[0] = 4;
+    *(u64 *)(anchor + 8) = *(u64 *)(wait0 + 0x58);
+    *(u16 *)(anchor + 0x48) = 2;
+    *(u16 *)(anchor + 0x4A) = 0xC;
+    *(u64 *)(anchor + 0x60) = *(u64 *)action;
+    func_00194590(anchor, 1);
+
+    packet = func_00194c90((void *)func_0022b0e0, action);
+    packet[0] = 4;
+    *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
+    *(u16 *)(packet + 0x48) = 1;
+    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    func_00194590(packet, 1);
+
+    packet = (u8 *)func_002305c0(0x10E);
+    packet[0] = 4;
+    *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
+    packet[0x10] = 4;
+    *(u64 *)(packet + 0x18) = *(u64 *)(cleanup + 0x58);
+    *(u16 *)(packet + 0x48) = 1;
+    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    func_00194590(packet, 1);
+
+    packet = (u8 *)func_0019bbe0((BtlUnit *)actor, 0xFFFFFFFFU, 1, 0, 3, 0);
+    packet[0] = 4;
+    *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
+    *(u16 *)(packet + 0x48) = 2;
+    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    func_00194590(packet, 1);
+
+    packet = (u8 *)func_001d7b60(0x1E);
+    packet[0] = 4;
+    *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
+    *(u16 *)(packet + 0x48) = 4;
+    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    func_00194590(packet, 1);
+
+    wait0 = (u8 *)func_001d6240((u32)closingFormation, (u32)actor, (u32)actor, 0, 0x200);
+    wait0[0] = 4;
+    *(u64 *)(wait0 + 8) = *(u64 *)(anchor + 0x58);
+    *(u16 *)(wait0 + 0x48) = 2;
+    *(u64 *)(wait0 + 0x60) = *(u64 *)action;
+    func_00194590(wait0, 2);
+
+    wait1 = (u8 *)func_001d6240((u32)closingFormation, (u32)actor, (u32)actor, 1, 0x200);
+    wait1[0] = 4;
+    *(u64 *)(wait1 + 8) = *(u64 *)(anchor + 0x58);
+    *(u16 *)(wait1 + 0x48) = 2;
+    *(u64 *)(wait1 + 0x60) = *(u64 *)action;
+    func_00194590(wait1, 2);
+
+    packet = (u8 *)func_001b7e20(0x10);
+    packet[0] = 4;
+    *(u64 *)(packet + 8) = *(u64 *)(wait0 + 0x58);
+    packet[0x10] = 4;
+    *(u64 *)(packet + 0x18) = *(u64 *)(wait1 + 0x58);
+    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    func_00194590(packet, 1);
+
+    packet = (u8 *)func_001b9360(0x10, 0);
+    packet[0] = 4;
+    *(u64 *)(packet + 8) = *(u64 *)(wait0 + 0x58);
+    packet[0x10] = 4;
+    *(u64 *)(packet + 0x18) = *(u64 *)(wait1 + 0x58);
+    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    func_00194590(packet, 1);
+
+    packet = (u8 *)func_001b99a0(0x10);
+    packet[0] = 4;
+    *(u64 *)(packet + 8) = *(u64 *)(wait0 + 0x58);
+    packet[0x10] = 4;
+    *(u64 *)(packet + 0x18) = *(u64 *)(wait1 + 0x58);
+    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    func_00194590(packet, 1);
+
+    packet = (u8 *)func_001ba090(8);
+    packet[0] = 4;
+    *(u64 *)(packet + 8) = *(u64 *)(wait0 + 0x58);
+    packet[0x10] = 4;
+    *(u64 *)(packet + 0x18) = *(u64 *)(wait1 + 0x58);
+    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    func_00194590(packet, 0);
+
+    func_001d3e00((u32)closingFormation);
+    func_001d3e00((u32)openingFormation);
+}
 /* measured: opt_loop_invariants on probe for func_0022b870. */
 #pragma opt_loop_invariants on
 // FUN_0022B870
