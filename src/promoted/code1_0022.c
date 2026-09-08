@@ -138,6 +138,22 @@ extern u8 *func_0010d740(s16 arg0);
 extern void func_00278450(u8 *arg0, s32 arg1, u8 *arg2);
 extern void func_00452570(u8 *arg0, u8 *arg1);
 extern void func_00225ec0(void);
+extern u8 D_00629750[], D_00629EA0[], D_0062CA80[], D_0062D1D0[];
+extern u8 D_0062E7C0[], D_0062EF10[], D_0062F660[], D_0062FDB0[];
+extern u8 D_00630500[], D_00630C50[], D_006313A0[], D_00631AF0[];
+extern u8 D_006355A0[];
+extern void func_0010b7c0(void);
+extern u8 *func_0010b010(s32 personaId);
+extern s32 func_0010b300(s32 personaId);
+extern void func_0019ef30(u8 *unit, u16 action);
+extern void func_00106d40(s16 character, s16 slot, s16 value);
+extern u16 func_00104dc0(s32 character);
+extern u32 func_00104e30(s32 character);
+extern void func_001056e0(s16 character, s16 value);
+extern void func_00105730(s16 character, s16 value);
+extern void func_00105d50(s16 character, u32 mask);
+extern s32 func_001b0d70(u8 *target);
+
 // FUN_002218E0
 s32 func_002218e0(void)
 {
@@ -1514,8 +1530,146 @@ s32 func_0022bd20(void)
                      *(u16 *)(*(u8 **)(DAT_0076449c + 0xC68) + 8) * 0x18) &
             0x20) != 0;
 }
+/* measured: 1744/1744 bytes, all 152 code relocations and 22 switch-table
+   targets exact. Loop-invariant motion keeps the signed empty-slot sentinel
+   in the clearing-loop preheader. The pragma does not affect other functions. */
+#pragma push
+#pragma opt_loop_invariants on
 // FUN_0022BD60
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022bd60);
+void func_0022bd60(void)
+{
+    u32 i;
+
+    *(u32 *)(DAT_0076449c + 0xC) |= 0x200000;
+    *(u32 *)(DAT_0076449c + 0x10) |= 1;
+    switch (func_001ef9a0()) {
+    case 0x200:
+        *(u32 *)(DAT_0076449c + 0x10) |= 2;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
+        *(u8 **)(DAT_0076449c + 0xB98) = D_00629750;
+        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        break;
+    case 0x201:
+        *(u32 *)(DAT_0076449c + 0x10) |= 2;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
+        *(u8 **)(DAT_0076449c + 0xB98) = D_00629EA0;
+        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        break;
+    case 0x202:
+        *(u32 *)(DAT_0076449c + 0x10) |= 2;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
+        *(u8 **)(DAT_0076449c + 0xB98) = D_0062A5F0;
+        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        break;
+    case 0x203:
+        *(u32 *)(DAT_0076449c + 0x10) |= 2;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x400;
+        *(u8 **)(DAT_0076449c + 0xB98) = D_0062B490;
+        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        break;
+    case 0x204:
+        *(u32 *)(DAT_0076449c + 0x10) |= 2;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
+        *(u8 **)(DAT_0076449c + 0xB98) = D_0062CA80;
+        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        break;
+    case 0x205:
+        *(u32 *)(DAT_0076449c + 0x10) |= 2;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x200;
+        *(u8 **)(DAT_0076449c + 0xB98) = D_0062D1D0;
+        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        break;
+    case 0x206:
+        *(u32 *)(DAT_0076449c + 0x10) |= 2;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
+        *(u8 **)(DAT_0076449c + 0xB98) = D_0062D920;
+        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        *(u16 *)(DAT_0076449c + 0xC34) = 0;
+        break;
+    case 0x207:
+        *(u32 *)(DAT_0076449c + 0x10) |= 2;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
+        *(u8 **)(DAT_0076449c + 0xB98) = D_0062E7C0;
+        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        break;
+    case 0x208:
+        *(u32 *)(DAT_0076449c + 0x10) |= 2;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
+        *(u8 **)(DAT_0076449c + 0xB98) = D_0062EF10;
+        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        break;
+    case 0x209:
+        *(u32 *)(DAT_0076449c + 0x10) |= 2;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x80;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x800;
+        *(u8 **)(DAT_0076449c + 0xB98) = D_0062F660;
+        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        break;
+    case 0x20A:
+        *(u32 *)(DAT_0076449c + 0xC) &= ~0x400U;
+        *(u32 *)(DAT_0076449c + 0x10) |= 2;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x100;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x200;
+        *(u8 **)(DAT_0076449c + 0xB98) = D_0062FDB0;
+        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        break;
+    case 0x20B:
+    case 0x215:
+        *(u32 *)(DAT_0076449c + 0xC) &= ~0x400U;
+        *(u32 *)(DAT_0076449c + 0x10) |= 2;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x200;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x2000;
+        if (func_001ef9a0() == 0x20B) {
+            *(u8 **)(DAT_0076449c + 0xB98) = D_00630500;
+        } else {
+            *(u8 **)(DAT_0076449c + 0xB98) = D_00630C50;
+        }
+        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        break;
+    case 0x20C:
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
+        break;
+    case 0x20D:
+        *(u32 *)(DAT_0076449c + 0x10) |= 2;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x80;
+        *(u8 **)(DAT_0076449c + 0xB98) = D_006313A0;
+        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        break;
+    case 0x214:
+        *(u32 *)(DAT_0076449c + 0xC) &= ~0x400U;
+        *(u32 *)(DAT_0076449c + 0x10) |= 2;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x100;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x200;
+        *(u8 **)(DAT_0076449c + 0xB98) = D_00631AF0;
+        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        func_00106390(0x1438, 1);
+        break;
+    }
+    for (i = 0; i < 30; i++) {
+        *(s8 *)(DAT_0076449c + i + 0xC10) = -1;
+    }
+}
+#pragma pop
 // FUN_0022C430
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022c430);
 static inline u8 *cb90AddBaseIndex(u32 base, u32 index)
@@ -1565,10 +1719,6 @@ s32 func_0022cb90(u8 *arg0, s32 arg1)
 // FUN_0022CC90
 void func_0022cc90(void)
 {
-    extern void func_0010b010(s32 arg0);
-    extern s32 func_0010b300(s32 arg0);
-    extern void func_0010b7c0(void);
-    extern void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
     extern void func_00454bd0(s32 arg0);
     extern void func_001d3e00(s32 arg0, u8 *arg1);
     s16 i;
@@ -1843,8 +1993,113 @@ s32 func_0022e4f0(u8 *arg0, s32 arg1) {
 block_25:
     return 0;
 }
+/* measured: first complete C candidate, 1172/1184 bytes with twelve zero
+   alignment bytes; all 28 relocations resolved and no executable differences.
+   Enqueue always receives the target, including the four unconditional calls
+   for battle 0x215. Stat results and the status-clear mask are explicit. */
 // FUN_0022E630
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022e630);
+s32 func_0022e630(u8 *arg0)
+{
+    u8 *unit;
+    if ((*(s32 *)(DAT_0076449c + 0xC) & 0x200000) == 0) {
+        return 0;
+    }
+    unit = *(u8 **)(arg0 + 0x30);
+    if (*(u8 *)(unit + 0xA2) != 1) {
+        switch (func_001ef9a0()) {
+        case 0x214:
+            func_0010b7c0();
+            func_0010b010(0xE0);
+            func_0010b300(0xE0);
+            func_0019ef30(unit, 0xE0);
+            func_00106d40(1, 0, 4);
+            *(u16 *)(arg0 + 0x18) |= 0x40;
+            break;
+        case 0x215:
+            func_0010b7c0();
+            func_0010b010(0xE1);
+            func_0010b300(0xE1);
+            func_0019ef30(unit, 0xE1);
+            func_001056e0(1, (s16)func_00104dc0(1));
+            func_00105730(1, (s16)func_00104e30(1));
+            func_00105d50(1, -1);
+            *(u16 *)(arg0 + 0x18) |= 0x40;
+            break;
+        }
+        return 0;
+    }
+    switch (*(u16 *)(unit + 0xA4)) {
+    case 0x100:
+        *(u32 *)(unit + 0x9C) |= 0x4000;
+        break;
+    case 0x102:
+        *(u32 *)(unit + 0x9C) |= 0x8000;
+        break;
+    case 0x104:
+        *(u32 *)(unit + 0x9C) |= 0x8000;
+        **(u16 **)(unit + 0xA64) |= 0x20;
+        break;
+    case 0x105:
+        *(u32 *)(unit + 0x9C) |= 0x8000;
+        break;
+    case 0x106:
+        *(u32 *)(unit + 0x9C) |= 0x8000;
+        **(u16 **)(unit + 0xA64) |= 0x20;
+        *(u16 *)(arg0 + 0x1A) |= 0x100;
+        func_001b0d70(arg0);
+        break;
+    case 0x10F:
+        *(u16 *)(arg0 + 0x1A) &= ~8;
+        *(u16 *)(arg0 + 0x1A) |= 0x100;
+        *(u32 *)(unit + 0x9C) &= ~8;
+        *(u32 *)(unit + 0x9C) |= 0x2000;
+        **(u16 **)(unit + 0xA64) |= 0x20;
+        *(u16 *)(unit + 0x9D8) |= 0x20;
+        func_001b0d70(arg0);
+        break;
+    case 0x107:
+        *(u32 *)(unit + 0x9C) |= 0x8000;
+        break;
+    case 0x109:
+        *(u16 *)(arg0 + 0x1A) |= 0x200;
+        *(u16 *)(arg0 + 0x1A) |= 0x10;
+        func_0019ef30(unit, 0xCE);
+        break;
+    case 0x10A:
+        *(u16 *)(arg0 + 0x1A) |= 0x100;
+        func_001b0d70(arg0);
+        break;
+    case 0x10B:
+        **(u16 **)(unit + 0xA64) |= 0x20;
+        *(u32 *)(unit + 0x9C) |= 0x8000;
+        break;
+    case 0x10E:
+        *(u32 *)(unit + 0x9C) |= 0x2000;
+        *(u32 *)(unit + 0x9C) &= ~0x8000;
+        if (func_001ef9a0() != 0x215) {
+            **(u16 **)(unit + 0xA64) |= 0x20;
+            *(u16 *)(arg0 + 0x1A) |= 0x100;
+            func_001b0d70(arg0);
+        } else {
+            func_00106390(0x15C0, 1);
+            *(u16 *)(arg0 + 0x1A) |= 0x2000;
+            func_001b0d70(arg0);
+            func_001b0d70(arg0);
+            func_001b0d70(arg0);
+            func_001b0d70(arg0);
+        }
+        break;
+    case 0x112:
+        *(u32 *)(unit + 0x9C) |= 0x8000;
+        *(u16 *)(arg0 + 0x1A) |= 0x10;
+        func_0019ef30(unit, 7);
+        break;
+    case 0x113:
+        **(u16 **)(unit + 0xA64) |= 0x20;
+        break;
+    }
+    return 1;
+}
 // FUN_0022EAD0
 s32 func_0022ead0(void) {
     struct {

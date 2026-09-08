@@ -18,9 +18,9 @@ void func_0034f1e0(void);
 void func_0034f460(s32 arg0, s32 arg1, s8 arg2, s8 arg3, s8 arg4, s64 arg5,
                    f32 fparg0, f32 fparg1);
 s32 func_00104ce0(s16 arg0);
-s32 func_00104dc0(s16 arg0);
+u16 func_00104dc0(s32 arg0);
 s32 func_00104d50(s16 arg0);
-s32 func_00104e30(s16 arg0);
+u32 func_00104e30(s32 arg0);
 u8* func_00457120(void);
 s16 func_00353b50(s16* dst);
 s32 func_0046aea0(void* arg0);
