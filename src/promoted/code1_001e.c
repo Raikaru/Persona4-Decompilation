@@ -51,7 +51,7 @@ extern s32 D_00724504;
 extern void func_001eb7f0(u8 *arg0);
 extern s32 func_001eb860(void);
 extern void func_001a03b0(s32 arg0);
-extern u8 *func_001d3700(s32 arg0, s32 arg1);
+extern BtlPacket *func_001d3700(u16 arg0, u16 arg1);
 extern u8 *func_001bc920(s32 arg0, s32 arg1);
 extern s32 func_001dbba0();
 extern void func_001da2f0();
@@ -1638,7 +1638,7 @@ done:
 s32 func_001ea580(void)
 {
     func_001a03b0(*(s32 *)(iGpffffb3ac + 0x170));
-    func_00194590(func_001d3700(3, 0xFFF), 0);
+    func_00194590((u8 *)func_001d3700(3, 0xFFF), 0);
     func_00194590(func_001bc920(*(s32 *)(iGpffffb3ac + 0x170), 0x21), 0);
     return 1;
 }
@@ -1647,7 +1647,7 @@ s32 func_001ea580(void)
 s32 func_001ea5f0(void)
 {
     func_001a03b0(*(s32 *)(iGpffffb3ac + 0x170));
-    func_00194590(func_001d3700(3, 0xFFF), 0);
+    func_00194590((u8 *)func_001d3700(3, 0xFFF), 0);
     func_00194590(func_001bc920(*(s32 *)(iGpffffb3ac + 0x170), 0x2C), 0);
     return 1;
 }
@@ -1667,7 +1667,7 @@ s32 func_001ea660(void)
     f32 value;
 
     func_001a03b0(*(s32 *)(iGpffffb3ac + 0x170));
-    func_00194590(func_001d3700(3, 0xFFF), 0);
+    func_00194590((u8 *)func_001d3700(3, 0xFFF), 0);
     first.x = func_0029cd50(0);
     first.y = func_0029cd50(1);
     first.z = func_0029cd50(2);
@@ -1713,7 +1713,7 @@ s32 func_001ea830(void) {
 // FUN_001EA8E0
 s32 func_001ea8e0(void) {
     func_001a03b0(*(s32 *)(iGpffffb3ac + 0x170));
-    func_00194590(func_001d3700(3, 0xFFF), 0);
+    func_00194590((u8 *)func_001d3700(3, 0xFFF), 0);
     func_00194590(func_001bcb50(
         *(s32 *)(iGpffffb3ac + 0x170),
         &D_00881420[0],
@@ -1970,7 +1970,7 @@ s32 func_001eb0b0(void) {
     u8 *o;
 
     func_001a03b0(*(s32 *)(iGpffffb3ac + 0x170));
-    o = func_001d3700(3, 0xFFF);
+    o = (u8 *)func_001d3700(3, 0xFFF);
     *(s16 *)(o + 0x48) = 3;
     func_00194590(o, 0);
     return 1;

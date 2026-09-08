@@ -28,7 +28,7 @@ s32 btlUnitIsMoving(u8 *arg0);
 
 void func_001a03b0(s64 *arg0);
 void func_001dbf20(void *arg0, s32 arg1);
-u8 *func_001d3700(u16 arg0, u16 arg1);
+BtlPacket *func_001d3700(u16 arg0, u16 arg1);
 s64 func_00194590(u8 *arg0, u32 arg1);
 extern u8 *D_0076449C;
 extern u8 *iGpffffb3ac;
@@ -263,7 +263,7 @@ void func_001a03b0(s64 *arg0)
             func_00194590(temp_2, 1);
         }
         if (*(u16 *)(D_0076449C + 0x18) & 2) {
-            temp_2_2 = func_001d3700(3, 0xFFF);
+            temp_2_2 = (u8 *)func_001d3700(3, 0xFFF);
             *(s64 *)(temp_2_2 + 0x60) = *arg0;
             func_00194590(temp_2_2, 0);
         }
@@ -504,7 +504,7 @@ loop_19_test:
         if (var_16_2 != NULL) {
             goto loop_19_body;
         }
-        temp_2_3 = func_001d3700(3, 0x8001);
+        temp_2_3 = (u8 *)func_001d3700(3, 0x8001);
         *(s64 *)(temp_2_3 + 0x60) = *arg0;
         func_00194590(temp_2_3, 0);
         if (*(u8 *)((u8 *)arg0 + 0x28) == 0) {
@@ -799,7 +799,7 @@ void func_001a3f90(u8 *arg0)
             func_00194590(func_00202850(), 1);
             func_00194590(func_001fa8f0(), 1);
             func_002182c0(*(u8 **)(D_0076449C + 0xDD4), (u8 *)arg0);
-            func_00194590(func_001d3700(3, 0xFFF), 0);
+            func_00194590((u8 *)func_001d3700(3, 0xFFF), 0);
             temp_2 = (void *)func_001b1540();
             func_00194590(
                 func_00198300((u8 *)temp_2->field_30,
@@ -962,7 +962,7 @@ void func_001ac500(s64 *arg0) {
     func_001eb3b0((u8 *)arg0 + 0x38);
     func_001dbf20(arg0, 0);
     func_001a03b0(arg0);
-    temp_2 = func_001d3700(3, 0xFFF);
+    temp_2 = (u8 *)func_001d3700(3, 0xFFF);
     *(s64 *)(temp_2 + 0x60) = *arg0;
     func_00194590(temp_2, 0);
     temp_2_2 = btlCameraCreateSetStatePacket(arg0, 0x2C);
@@ -1273,7 +1273,7 @@ void func_001ad280(u8 *arg0)
     *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
     func_00194590(temp_2, 1);
     *(u16 *)(arg0 + 0x18) |= 0x200;
-    temp_2 = func_001d3700(3, 0xFFF);
+    temp_2 = (u8 *)func_001d3700(3, 0xFFF);
     *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
     func_00194590(temp_2, 0);
     temp_2 = func_001bc920(arg0, 9);
