@@ -2734,8 +2734,103 @@ int func_001ed060(float *param_1, float *param_2)
     }
     return 0;
 }
+typedef struct P4NeighborNode {
+    s32 unknown0;
+    s32 unknown4;
+    f32 x;
+    f32 z;
+    f32 unknown10;
+    f32 active;
+    f32 clearance;
+    u8 rest[0x114];
+} P4NeighborNode;
+typedef struct P4NeighborGroup {
+    s32 unknown0;
+    s32 unknown4;
+    P4NeighborNode nodes[4];
+    struct P4NeighborGroup *previous;
+    struct P4NeighborGroup *next;
+} P4NeighborGroup;
+extern s32 func_001eca10(u8 *first, u8 *second);
+extern f32 func_003e41b0(f32 *vector);
+typedef struct P4NeighborWorld {
+    u8 prefix[0x318];
+    P4NeighborGroup *groups;
+    P4NeighborNode nodes[4];
+    P4NeighborNode start;
+    P4NeighborNode goal;
+} P4NeighborWorld;
+
 // FUN_001ED3A0
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ed3a0);
+/* 852/864 bytes; all eighteen relocations resolve exactly.
+   Array types preserve halfword indexing; local order preserves lifetimes. */
+s32 func_001ed3a0(u8 *node, f32 threshold)
+{
+    f32 linkedDelta[2];
+    f32 fixedDelta[2];
+    f32 startDelta[2];
+    f32 goalDelta[2];
+    f32 distance;
+    P4NeighborGroup *group;
+    s32 count;
+    u16 index;
+    u8 *neighbor;
+
+    count = 0;
+    group = *(P4NeighborGroup **)(iGpffffb3ac + 0x318);
+    while (group != 0) {
+        for (index = 0; index < 4; index++) {
+            neighbor = (u8 *)&group->nodes[index];
+            if (neighbor == node)
+                continue;
+            if (group->nodes[index].active <= 0.0f)
+                continue;
+            if (group->nodes[index].clearance < threshold)
+                continue;
+            if (func_001eca10(node, neighbor) != 0)
+                continue;
+            linkedDelta[0] = *(f32 *)(node + 8) - *(f32 *)((u8 *)group + index * 0x130 + 0x10);
+            linkedDelta[1] = *(f32 *)(node + 0xC) - *(f32 *)((u8 *)group + index * 0x130 + 0x14);
+            distance = func_003e41b0(linkedDelta);
+        *(f32 *)(node + (u16)count * 4 + 0xB0) = distance;
+            *(u8 **)(node + (u16)count * 4 + 0x30) = neighbor;
+            count = (u16)(count + 1);
+        }
+        group = group->next;
+    }
+    for (index = 0; index < 4; index++) {
+        if ((u8 *)&((P4NeighborWorld *)iGpffffb3ac)->nodes[index] == node)
+            continue;
+        if (((P4NeighborWorld *)iGpffffb3ac)->nodes[index].active <= 0.0f)
+            continue;
+        if (func_001eca10(node, (u8 *)&((P4NeighborWorld *)iGpffffb3ac)->nodes[index]) != 0)
+            continue;
+        fixedDelta[0] = *(f32 *)(node + 8) - ((P4NeighborWorld *)iGpffffb3ac)->nodes[index].x;
+        fixedDelta[1] = *(f32 *)(node + 0xC) - ((P4NeighborWorld *)iGpffffb3ac)->nodes[index].z;
+        distance = func_003e41b0(fixedDelta);
+        *(f32 *)(node + (u16)count * 4 + 0xB0) = distance;
+        *(u8 **)(node + (u16)count * 4 + 0x30) = (u8 *)&((P4NeighborWorld *)iGpffffb3ac)->nodes[index];
+        count = (u16)(count + 1);
+    }
+    if (iGpffffb3ac + 0x7DC != node && func_001eca10(node, iGpffffb3ac + 0x7DC) == 0) {
+        startDelta[0] = *(f32 *)(node + 8) - *(f32 *)(iGpffffb3ac + 0x7E4);
+        startDelta[1] = *(f32 *)(node + 0xC) - *(f32 *)(iGpffffb3ac + 0x7E8);
+        distance = func_003e41b0(startDelta);
+        *(f32 *)(p4_slot_001eb320((u16)count * 4, node) + 0xB0) = distance;
+        *(u8 **)(p4_slot_001eb320((u16)count * 4, node) + 0x30) = iGpffffb3ac + 0x7DC;
+        count = (u16)(count + 1);
+    }
+    if (iGpffffb3ac + 0x90C != node && func_001eca10(node, iGpffffb3ac + 0x90C) == 0) {
+        goalDelta[0] = *(f32 *)(node + 8) - *(f32 *)(iGpffffb3ac + 0x914);
+        goalDelta[1] = *(f32 *)(node + 0xC) - *(f32 *)(iGpffffb3ac + 0x918);
+        distance = func_003e41b0(goalDelta);
+        *(f32 *)(p4_slot_001eb320((u16)count * 4, node) + 0xB0) = distance;
+        *(u8 **)(p4_slot_001eb320((u16)count * 4, node) + 0x30) = iGpffffb3ac + 0x90C;
+        count = (u16)(count + 1);
+    }
+    *(u8 **)(p4_slot_001eb320((u16)count * 4, node) + 0x30) = 0;
+    return count;
+}
 // FUN_001ED700
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ed700);
 // FUN_001EE1C0
