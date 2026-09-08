@@ -95,7 +95,7 @@ extern s32 func_0023ddc0(u8 *unit, s32 command);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3b8;
 extern void func_001ebc00(u8 *a, u8 *b);
-extern s32 func_0023dfe0(u32 a);
+extern s32 func_0023dfe0(u8 *unit);
 extern s32 func_0023dff0(u8 *arg0);
 extern u32 func_00231e20(u32 arg0);
 extern s32 func_002428f0(u32 arg0, u32 arg1);
@@ -1197,7 +1197,7 @@ void func_001de640(u8 *p, u8 *q, u16 v)
     switch (t & 0xFFFF) {
     case 0x8000:
         *(u16 *)(q + 0x34) = 1;
-        *(u16 *)(q + 0x36) = func_0023dfe0(*(u32 *)(*(u32 *)(p + 0x30) + 0xA64)) & 0xFFFF;
+        *(u16 *)(q + 0x36) = func_0023dfe0(*(u8 **)(*(u8 **)(p + 0x30) + 0xA64)) & 0xFFFF;
         break;
     case 0x1000:
         *(u16 *)(q + 0x34) = 9;
