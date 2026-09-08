@@ -116,6 +116,7 @@ extern f32 fGpffff8178;
 extern f32 fGpffff817c;
 extern void func_001c9820(u8 *camera, s32 reverseSide, s32 forceActorSide, f32 angleLimit);
 extern void func_002266b0(u8 *camera, f32 heightScale, f32 scale, f32 distanceOffset, f32 duration);
+extern s32 func_0019fc70(u8 *action);
 
 extern u8 D_006296B0[];
 extern u8 D_006296E8[];
@@ -1014,10 +1015,251 @@ void func_002266b0(u8 *camera, f32 heightScale, f32 scale, f32 distanceOffset, f
     func_001bbef0(camera, duration);
 }
 #pragma opt_scalarize on
-// FUN_00226C40 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00226c40);
-// FUN_00227230 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00227230);
+// FUN_00226C40
+/* 1516/1520 bytes, 48 resolved code relocations and all
+ * seven switch targets match retail; four zero tail-alignment bytes. */
+#pragma opt_common_subs off
+void func_00226c40(u8 *camera)
+{
+    RwRGBA color;
+    struct CameraPosePair {
+        RwV3d first;
+        RtQuat firstRotation;
+        RwV3d second;
+        RtQuat secondRotation;
+    } selected, player, other;
+    f32 duration;
+    u8 *action;
+    u8 *unit;
+    u8 *subordinate;
+    u8 *target;
+    u8 *node;
+    u8 *record;
+    u32 index;
+    u32 ordinal;
+    u16 partyIndex;
+    u16 variant;
+    u32 frames;
+    s32 matchesSubordinate;
+
+    action = *(u8 **)(camera + 0xE0);
+    unit = *(u8 **)(action + 0x30);
+    subordinate = *(u8 **)(unit + 0xA0C);
+    if (action != NULL && *(u8 *)(unit + 0xA2) == 0) {
+        index = 0;
+        while ((action = *(u8 **)(camera + 0xE0)),
+               (u16)index < *(u16 *)(action + 0x6A)) {
+            target = *(u8 **)(action + 0x38 + (u16)index * 4);
+            target = *(u8 **)(target + 0x30);
+            if (*(u8 *)(target + 0xA2) == 1) {
+                func_00195590((BtlUnit *)target, (const RwV3d *)(unit + 4));
+            }
+            index = (u16)(index + 1);
+        }
+    }
+    *(u16 *)(camera + 0x110) = func_001c0e50(camera);
+    matchesSubordinate = subordinate != NULL &&
+        func_0022f950(*(u8 **)(camera + 0xE0), subordinate) != 0;
+    if (matchesSubordinate && *(u16 *)(camera + 0x110) != 1) {
+        func_0019d0c0(subordinate);
+        color.red = *(u8 *)(subordinate + 0x30);
+        color.green = *(u8 *)(subordinate + 0x31);
+        color.blue = *(u8 *)(subordinate + 0x32);
+        color.alpha = 0;
+        btlUnitSetColor((BtlUnit *)subordinate, color);
+    }
+    func_0019de70((BtlUnitStateWork *)subordinate, 0);
+    switch (*(u16 *)(camera + 0x110)) {
+    case 0:
+    case 1:
+    case 2:
+    case 4:
+        func_001c5110(camera);
+        action = *(u8 **)(camera + 0xE0);
+        if (*(u16 *)(action + 0x6A) != 1) {
+            break;
+        }
+        if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) != 0) {
+            break;
+        }
+        target = *(u8 **)(action + 0x38);
+        if (action == target) {
+            break;
+        }
+        if (*(u8 *)(*(u8 **)(target + 0x30) + 0xA2) != 0) {
+            break;
+        }
+        func_001bcd40(action, NULL, NULL, 8, 0.0f);
+        break;
+    case 3:
+    case 5:
+        action = *(u8 **)(camera + 0xE0);
+        unit = *(u8 **)(action + 0x30);
+        variant = func_00231d70(2);
+        if (*(u8 *)(unit + 0xA2) != 0) {
+            partyIndex = 0;
+        } else {
+            ordinal = 0;
+            node = *(u8 **)(iGpffffb3ac + 0x17C);
+            while (node != NULL) {
+                if (unit == node) {
+                    break;
+                }
+                ordinal = (u16)(ordinal + 1);
+                node = *(u8 **)(node + 0xA68);
+            }
+            partyIndex = (u16)ordinal;
+        }
+        record = *(u8 **)(iGpffffb3ac + 0xB98) +
+                 (u16)partyIndex * 0x68 + (u16)variant * 0x34 + 0x3A8;
+        func_001bd780(&selected.firstRotation, record + 4, record + 0x10, D_0060A0E0);
+        selected.first = *(RwV3d *)(record + 4);
+        func_001bd780(&selected.secondRotation, record + 0x1C, record + 0x28, D_0060A0E0);
+        selected.second = *(RwV3d *)(record + 0x1C);
+        frames = *(u16 *)record;
+        duration = (f32)frames / 30.0f;
+        func_001bac20((u16 *)(iGpffffb3ac + 0x24),
+                      (f32 *)&selected.first, (f32 *)&selected.second, 1);
+        func_001bbef0(iGpffffb3ac + 0x24, duration);
+        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+        break;
+    case 6:
+        action = *(u8 **)(camera + 0xE0);
+        if ((*(u16 *)(action + 0x1A) & 1) == 0) {
+            break;
+        }
+        if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) == 0) {
+            record = *(u8 **)(iGpffffb3ac + 0xB98) + 0x618;
+            func_001bd780(&player.firstRotation, record + 4, record + 0x10, D_0060A0E0);
+            player.first = *(RwV3d *)(record + 4);
+            func_001bd780(&player.secondRotation, record + 0x1C, record + 0x28, D_0060A0E0);
+            player.second = *(RwV3d *)(record + 0x1C);
+            frames = *(u16 *)record;
+            duration = (f32)frames / 30.0f;
+            func_001bac20((u16 *)(iGpffffb3ac + 0x24),
+                          (f32 *)&player.first, (f32 *)&player.second, 1);
+            func_001bbef0(iGpffffb3ac + 0x24, duration);
+        } else {
+            variant = func_00231d70(2);
+            record = *(u8 **)(iGpffffb3ac + 0xB98) + (u16)variant * 0x34 + 0x64C;
+            func_001bd780(&other.firstRotation, record + 4, record + 0x10, D_0060A0E0);
+            other.first = *(RwV3d *)(record + 4);
+            func_001bd780(&other.secondRotation, record + 0x1C, record + 0x28, D_0060A0E0);
+            other.second = *(RwV3d *)(record + 0x1C);
+            frames = *(u16 *)record;
+            duration = (f32)frames / 30.0f;
+            func_001bac20((u16 *)(iGpffffb3ac + 0x24),
+                          (f32 *)&other.first, (f32 *)&other.second, 1);
+            func_001bbef0(iGpffffb3ac + 0x24, duration);
+        }
+        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+        break;
+    default:
+        break;
+    }
+}
+#pragma opt_common_subs on
+// FUN_00227230
+/* 1336/1344 bytes, 48 resolved code relocations and all
+ * seven switch targets match retail; eight zero tail-alignment bytes. */
+void func_00227230(u8 *camera)
+{
+    struct CameraPosePair {
+        RwV3d first;
+        RtQuat firstRotation;
+        RwV3d second;
+        RtQuat secondRotation;
+    } selected, player, other;
+    f32 duration;
+    u8 *action;
+    u8 *record;
+    u16 targetFlags;
+    u16 variant;
+    u32 frames;
+
+    *(u16 *)(camera + 0x110) = func_001c0e50(camera);
+    targetFlags = func_001eb440((BtlTarget *)(*(u8 **)(camera + 0xE0) + 0x38));
+    *(u32 *)(camera + 0x12C) = 0;
+    action = *(u8 **)(camera + 0xE0);
+    if ((*(u16 *)(action + 0x1A) & 0x10) != 0) {
+        func_0019de70(*(BtlUnitStateWork **)(*(u8 **)(action + 0x30) + 0xA0C), 1);
+    }
+    switch (*(u16 *)(camera + 0x110)) {
+    case 0:
+        break;
+    case 1:
+        action = *(u8 **)(camera + 0xE0);
+        if ((*(u16 *)(action + 0x1A) & 0x10) != 0) {
+            func_001c5110(camera);
+            break;
+        }
+    case 2:
+        if (((u16)targetFlags & 2) == 0) {
+            func_002266b0(camera, 0.0f, 3.0f, 0.0f, 2.0f);
+            break;
+        }
+    case 4:
+        if (((u16)targetFlags & 2) == 0) {
+            if (func_00243ce0(*(u8 **)(*(u8 **)(*(u8 **)(camera + 0xE0) + 0x30) + 0xA64)) != 0 &&
+                func_0019fc70(*(u8 **)(camera + 0xE0)) != 0) {
+                func_002250a0(camera, 0.0f, 0.75f);
+                break;
+            }
+            func_002266b0(camera, 0.0f, 3.0f, 0.0f, 2.0f);
+            break;
+        }
+    case 3:
+    case 5:
+        if (((u16)targetFlags & 2) != 0) {
+            variant = func_00231d70(2);
+            record = *(u8 **)(iGpffffb3ac + 0xB98) + (u16)variant * 0x34 + 0x5B0;
+            func_001bd780(&selected.firstRotation, record + 4, record + 0x10, D_0060A0E0);
+            selected.first = *(RwV3d *)(record + 4);
+            func_001bd780(&selected.secondRotation, record + 0x1C, record + 0x28, D_0060A0E0);
+            selected.second = *(RwV3d *)(record + 0x1C);
+            frames = *(u16 *)record;
+            duration = (f32)frames / 30.0f;
+            func_001bac20((u16 *)(iGpffffb3ac + 0x24),
+                          (f32 *)&selected.first, (f32 *)&selected.second, 1);
+            func_001bbef0(iGpffffb3ac + 0x24, duration);
+            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+            break;
+        }
+    case 6:
+        action = *(u8 **)(camera + 0xE0);
+        if ((*(u16 *)(action + 0x1A) & 1) == 0) {
+            break;
+        }
+        if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) == 0) {
+            record = *(u8 **)(iGpffffb3ac + 0xB98) + 0x618;
+            func_001bd780(&player.firstRotation, record + 4, record + 0x10, D_0060A0E0);
+            player.first = *(RwV3d *)(record + 4);
+            func_001bd780(&player.secondRotation, record + 0x1C, record + 0x28, D_0060A0E0);
+            player.second = *(RwV3d *)(record + 0x1C);
+            frames = *(u16 *)record;
+            duration = (f32)frames / 30.0f;
+            func_001bac20((u16 *)(iGpffffb3ac + 0x24),
+                          (f32 *)&player.first, (f32 *)&player.second, 1);
+            func_001bbef0(iGpffffb3ac + 0x24, duration);
+        } else {
+            variant = func_00231d70(2);
+            record = *(u8 **)(iGpffffb3ac + 0xB98) + (u16)variant * 0x34 + 0x64C;
+            func_001bd780(&other.firstRotation, record + 4, record + 0x10, D_0060A0E0);
+            other.first = *(RwV3d *)(record + 4);
+            func_001bd780(&other.secondRotation, record + 0x1C, record + 0x28, D_0060A0E0);
+            other.second = *(RwV3d *)(record + 0x1C);
+            frames = *(u16 *)record;
+            duration = (f32)frames / 30.0f;
+            func_001bac20((u16 *)(iGpffffb3ac + 0x24),
+                          (f32 *)&other.first, (f32 *)&other.second, 1);
+            func_001bbef0(iGpffffb3ac + 0x24, duration);
+        }
+        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+        break;
+    default:
+        break;
+    }
+}
 // FUN_00227770
 void func_00227770(u8 *arg0)
 {
