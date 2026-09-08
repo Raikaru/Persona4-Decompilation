@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "Kosaka/k_clump_internal.h"
 extern f32 D_008872F8_abs[];
 extern f32 D_008872FC_abs[];
 extern f32 fGpffff8200;
@@ -48,7 +49,6 @@ extern s16 iGpffffba2c;
 extern s16 iGpffffba30;
 extern s16 iGpffffba34;
 extern void func_003e18c0(void *object, void *callback, s32 userdata);
-extern void func_003bff30(void *object, void *callback, void *userdata);
 extern void func_003ca270(void *object, void *callback, void *userdata);
 extern void func_003c21e0();
 extern void func_004526f0(u8 *arg0, s32 arg1);
@@ -73,19 +73,15 @@ extern void func_00454d20(s32 arg0, void *arg1);
 extern void func_0043f810(void *dst, void *src, s32 size);
 extern void func_00442428(void *arg0, void *arg1);
 extern void func_00456400(u8 *arg0, u8 *arg1, s32 arg2, void *arg3);
-extern u8 *func_00458c40(u8 *arg0, s32 arg1);
+extern void *func_00458c40(void *arg0, void *arg1);
 extern void func_00458ce0(void);
-extern u8 *func_00458f00(u8 *arg0, s32 arg1);
+extern void *func_00458f00(void *arg0, void *arg1);
 extern u8 D_007117B0[];
 extern u8 D_00711738[];
 extern void func_004244c8();
 extern u8 D_00711720[];
 extern s32 func_003bcfa0();
-extern s32 func_003bcfb0();
-extern s32 func_003bd000();
-extern s32 func_003bd040();
 extern void func_003bd0d0();
-extern s32 func_004426e8();
 extern s32 D_00711870_abs[];
 extern void func_00430e28(void);
 extern void func_00430f80();
@@ -103,7 +99,6 @@ extern s32 D_008E413C_abs[];
 extern s32 D_008E4180_abs[];
 extern s32 D_008E41C4_abs[];
 extern s32 D_008E4208_abs[];
-extern void func_00442830(void *arg0, void *arg1);
 extern s32 func_00442948(void *arg0);
 extern s32 func_00426cf0(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_004270f8(s32 arg0, s32 arg1, s32 arg2);
@@ -743,7 +738,7 @@ s32 func_004566c0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
 
     var_16 = 0;
     func_004244c8(D_00711720, arg2);
-    func_00442830(&sp50, &iGpffffad88);
+    func_00442830((char *)sp50, (const char *)&iGpffffad88);
     func_00442428(&sp50, arg2 + func_00442948(&sp50));
     if (arg2 == 0) {
         return 2;
@@ -1050,22 +1045,22 @@ void func_004585c0(u8 *arg0) {
     var_19 = 0;
     goto loop_004585c0_test;
 loop_004585c0_body:
-    temp_2 = (s32)func_003bd000(arg0, var_19);
-    func_003bd040(temp_2);
-    if (func_004426e8(func_003bd040(temp_2), D_00711870_abs) == 0) {
+    temp_2 = (s32)func_003bd000((const RpMaterial *)arg0, var_19);
+    func_003bd040((RpUserDataArray *)temp_2);
+    if (func_004426e8(func_003bd040((RpUserDataArray *)temp_2), (const char *)D_00711870_abs) == 0) {
         var_18 = 1;
         goto loop_004585c0_done;
     }
     var_19 += 1;
 loop_004585c0_test:
-    if (var_19 < func_003bcfb0(arg0)) {
+    if (var_19 < func_003bcfb0((const RpMaterial *)arg0)) {
         goto loop_004585c0_body;
     }
 loop_004585c0_done:
     if (var_18 == 0) {
         func_003bd0d0(
             func_003bd000(
-                arg0,
+                (const RpMaterial *)arg0,
                 func_003bcfa0(
                     arg0,
                     D_00711870_abs,
@@ -1087,14 +1082,14 @@ void func_004586f0(u8 *arg0, u8 *arg1) {
     var_18 = 0;
     goto loop_004586f0_test;
 loop_004586f0_body:
-    var_16 = (s32)func_003bd000(arg0, var_18);
-    if (func_004426e8(func_003bd040(var_16), D_00711870_abs) != 0) {
+    var_16 = (s32)func_003bd000((const RpMaterial *)arg0, var_18);
+    if (func_004426e8(func_003bd040((RpUserDataArray *)var_16), (const char *)D_00711870_abs) != 0) {
         var_18 += 1;
         goto loop_004586f0_test;
     }
     goto loop_004586f0_done;
 loop_004586f0_test:
-    if (var_18 < func_003bcfb0(arg0)) {
+    if (var_18 < func_003bcfb0((const RpMaterial *)arg0)) {
         goto loop_004586f0_body;
     }
 loop_004586f0_done:
@@ -1110,10 +1105,11 @@ loop_004586f0_done:
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_004587d0);
 /* Measured callback-wrapper idiom: preserve the object in s0, move userdata to a2, and call the shared iterator with the object field and callback. */
 // FUN_00458C40
-u8 *func_00458c40(u8 *arg0, s32 arg1)
+void *func_00458c40(void *object, void *arg1)
 {
+    u8 *arg0 = object;
     func_003c21e0(*(s32 *)(arg0 + 0x18), func_004587d0, arg1);
-    return arg0;
+    return object;
 }
 // FUN_00458C80
 void func_00458c80(void *arg0, void *arg1)
@@ -1128,10 +1124,11 @@ void func_00458cb0(void *arg0, void *arg1)
 // FUN_00458CE0
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00458ce0);
 // FUN_00458F00
-u8 *func_00458f00(u8 *arg0, s32 arg1)
+void *func_00458f00(void *object, void *arg1)
 {
+    u8 *arg0 = object;
     func_003c21e0(*(s32 *)(arg0 + 0x18), func_00458ce0, arg1);
-    return arg0;
+    return object;
 }
 // FUN_00458F40
 void func_00458f40(void *arg0, void *arg1)

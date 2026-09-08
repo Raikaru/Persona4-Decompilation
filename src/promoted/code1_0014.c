@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "Kosaka/k_fldFrame_internal.h"
 typedef struct {
     f32 x;
     f32 y;
@@ -2695,13 +2696,8 @@ u8 *func_0014c540(u8 *arg0, f32 fparg0, f32 fparg1) {
     f32 temp_f23;
     f32 temp_f23_2;
     f32 temp_f23_3;
-    struct C540Vec3 {
-        f32 x;
-        f32 y;
-        f32 z;
-    };
-    struct C540Vec3 vec_x;
-    struct C540Vec3 vec_y;
+    RwV3d vec_x;
+    RwV3d vec_y;
     f32 best;
     u8 *result;
     s32 i;
@@ -2711,14 +2707,13 @@ u8 *func_0014c540(u8 *arg0, f32 fparg0, f32 fparg1) {
     u8 *temp_2;
     u8 *temp_2_2;
     struct C540Stack {
-        struct C540Vec3 v80;
-        struct C540Vec3 v8c;
+        RwV3d v80;
+        RwV3d v8c;
         u8 pad98[8];
-        s64 spA0;
-        u8 padA8[8];
+        RwV3d hitPoint;
+        u8 padAC[4];
         f32 diffB0[3];
     } stack;
-    extern s32 func_0016b540(void *arg0, s64 *arg1);
     extern s32 func_0014bff0(u8 *arg0, u8 *arg1, f32 fparg0);
     extern f32 fGpffff82b4;
     extern u8 *D_007E8020_abs[];
@@ -2745,14 +2740,14 @@ loop_body_0014c540:
             stack.diffB0[2] = temp_f23_3 -
                               *(f32 *)(func_0047a2f0(*(s32 *)(arg + 0x50)) + 0x38);
             temp_2 = func_0047a2f0(*(s32 *)(arg + 0x50));
-            vec_x = *(struct C540Vec3 *)(temp_2 + 0x30);
+            vec_x = *(RwV3d *)(temp_2 + 0x30);
             stack.v80 = vec_x;
             temp_2_2 = func_0047a2f0(*(s32 *)(*entry + 0x50));
-            vec_y = *(struct C540Vec3 *)(temp_2_2 + 0x30);
+            vec_y = *(RwV3d *)(temp_2_2 + 0x30);
             stack.v8c = vec_y;
             stack.v80.y += 100.0f;
             stack.v8c.y += 100.0f;
-            if (func_0016b540(&stack.v80, &stack.spA0) == 0) {
+            if (func_0016b540(&stack.v80, &stack.hitPoint) == 0) {
                 temp_f0 = func_003e4180(stack.diffB0);
                 if ((temp_f0 < fparg0) && (temp_f0 < best)) {
                     result = *saved_entry;

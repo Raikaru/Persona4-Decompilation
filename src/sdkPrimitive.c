@@ -278,25 +278,21 @@ void func_0045e6a0(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3, s32 arg4,
 }
 
 
-/* measured: prologue, alloc, w-field setup, both func_0043f810 copies, the
-   iGpffff81d0*scale + func_0044b7b0/44b610 calls, and the tail all match
-   byte-for-byte (nd 88). The rotation loop's retail FPU-accumulator chain
-   (mula.s $f2,$f20; madd.s $f1,$f3,$f0; add.s $f1,$f6,$f1 -- a 2-product
-   sum whose ACC is seeded with the dy*f21*f20 product, then the base f6
-   added last) is not reproduced: mwcc b210 always seeds the ACC with the
-   base addend (mtc1 $zero + adda.s $f4,$f6 + madda.s + madd.s) instead of
-   the product, for every term order (x-first/y-first), parenthesized,
-   separate rx/ry temps, and dx/dy locals (all nd 88-89). Also the w base
-   lands in $s0 vs retail $s2, and the pre-loop pos[0]/pos[1] spB8/spBC
-   stack stores are omitted. FPU-accumulate (mula/madd) floor. */
+/* Refreshed probe: Lng_0045e8e0_body.c uses the real iGpffff81d0 conversion,
+   caches it across both trigonometric calls and keeps center X as s32.
+   Ordinary C reproduces both product-seeded mula/madd/add chains; the old
+   blanket accumulator-floor claim was false. The current 560B/576B candidate
+   has 100 fully relocated differing words, plus a missing 4B executable nop
+   and 12B alignment. Register allocation and scheduling remain unresolved;
+   this does not improve the historical nd88 score. Retail stays in ASM. */
 // FUN_0045E8E0
 INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045e8e0);
 
 
-/* measured: identical structure to func_0045e8e0 (same rotation loop with
-   retail's FPU-accumulator chain mula.s/madd.s/add.s) plus w->prime = 1
-   after the loop; hits the same FPU-accumulate floor at nd 88 (the base
-   f6/f5 acc-seed vs retail's product seed, and the w base in $s0 vs retail
-   $s2). See func_0045e8e0 note. FPU-accumulate (mula/madd) floor. */
+/* MnB_0045eb20_body.c has the same recovered product-seeded rotation chains
+   and the post-loop alpha byte store. Its 568B/576B candidate has 102 fully
+   relocated differing words, a missing 4B executable nop and 4B alignment.
+   Both probes resolve all 14 relocations and preserve all five owner C
+   functions; neither is an instruction match or a proven FPU limitation. */
 // FUN_0045EB20
 INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045eb20);

@@ -1,3 +1,4 @@
+#include "Kosaka/k_clump_internal.h"
 #include "include_asm.h"
 #include "type.h"
 extern void (*jtbl_008873EC[])();
@@ -1577,11 +1578,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb300);
 // FUN_003CB670
 /* measured: schedule places the saved object in the helper call delay slot. */
 #pragma schedule on
-s32 func_003cb670(u8 *arg0, u8 *arg1) {
+void *func_003cb670(void *arg0, void *arg1) {
     u8 *self;
     self = arg0;
     func_003cbc90(arg1, self);
-    return (s32)self;
+    return self;
 }
 #pragma schedule off
 
@@ -1862,7 +1863,6 @@ extern s32 func_003cbce0(s32 arg0); /* P4: ported verbatim into src/renderware *
 // FUN_003CBCF0
 u8 *func_003cbcf0(u8 *arg0, u8 *arg1) {
     extern s32 iGpffffb710;
-    extern void func_003bff30(u8 *arg0, void *arg1, u8 *arg2);
     extern void func_003c0050(u8 *arg0, void *arg1, u8 *arg2);
     extern void func_003bffc0(u8 *arg0, void *arg1, u8 *arg2);
     u8 *field;
@@ -1882,7 +1882,7 @@ u8 *func_003cbcf0(u8 *arg0, u8 *arg1) {
     count = *(s32 *)(arg0 + 0x24) + 1;
     *(s32 *)(arg0 + 0x24) = count;
     *(u8 **)(base + 0) = arg0;
-    func_003bff30(arg1, (void *)func_003cb670, arg0);
+    func_003bff30(arg1, func_003cb670, arg0);
     func_003c0050(arg1, (void *)func_003cb6a0, arg0);
     func_003bffc0(arg1, (void *)func_003cb6d0, arg0);
     if (old != NULL) {

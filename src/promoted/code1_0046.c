@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "Kosaka/k_clump_internal.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 typedef int s128 __attribute__((mode(TI)));
 typedef struct {
@@ -29,8 +30,7 @@ extern s32 iGpffffba98;
 extern s32 iGpffffba9c;
 extern u8 D_008E43C0[];
 extern u8 D_008E43E4[];
-extern void func_003bff30(void *object, void *callback, void *userdata);
-extern u8 *func_004632f0(u8 *a0, u8 *a1);
+extern void *func_004632f0(void *a0, void *a1);
 extern s32 D_00922984[];
 extern s32 D_00922980[];
 extern s32 D_00922988[];
@@ -72,7 +72,7 @@ extern void func_003f6440(s32 arg0, s32 arg1);
 extern void func_00460ac0(char *name, u8 *task);
 extern u8 D_00712670[];
 extern s32 D_00724BF4;
-extern s32 func_004426e8(char *a, char *b);
+extern s32 func_004426e8(const char *a, const char *b);
 extern s32 uGpffffb230;
 extern s32 D_00724BC8;
 extern s32 func_0042ba70();
@@ -716,7 +716,7 @@ void func_004623a0(u8 *arg0)
     void (*end_cb)(u8 *, s32, void *);
     extern void func_003e82a0(s32, s8 *, s32);
     extern s32 func_003c9d00(u8 *);
-    extern void *func_00462170(void *);
+    extern void *func_00462170(void *, void *);
     extern void func_00410420(void *, u32, void *, u32);
     extern void func_004104d0(void);
     extern void func_00410520(u32, void *, u32);
@@ -783,7 +783,7 @@ void func_004623a0(u8 *arg0)
             func_00461be0(p);
             break;
         case 9:
-            func_003bff30(*(void **)(p + 0x1C), (void *)func_00462170, NULL);
+            func_003bff30(*(void **)(p + 0x1C), func_00462170, NULL);
             break;
         case 10:
             func_003c9d00(*(u8 **)(p + 0x1C));
@@ -1375,7 +1375,7 @@ s32 func_004680f0(u8 *arg0, s8 *arg1) {
     *arg1 = 0;
     if (*(s16 *)(temp_6 + 0x80F80) == 3) {
         if (*(s32 *)(temp_6 + 0x80F88) != 0) {
-            func_00442830(arg1, temp_6 + 0x80F90, temp_6);
+            func_00442830((char *)arg1, (char *)temp_6 + 0x80F90);
         }
         return 1;
     }

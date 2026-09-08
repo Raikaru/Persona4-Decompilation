@@ -357,9 +357,9 @@ s32 func_00190130(s32 arg0)
                          func_001900a0, work);
 }
 // FUN_00191E20
-s32 func_00191e20(s32 arg0) {
+void *func_00191e20(void *arg0, void *data) {
     if (func_003e8120(func_00457120()) != 0) {
-        func_003c1bd0(arg0);
+        func_003c1bd0((s32)(uintptr_t)arg0);
     }
     func_003e8110(func_00457120());
     return arg0;

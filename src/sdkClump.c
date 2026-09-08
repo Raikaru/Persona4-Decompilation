@@ -2,6 +2,7 @@
 /* Original translation unit sdkClump.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+#include "Kosaka/k_clump_internal.h"
 
 extern void func_0044ea90(const void *file, u32 line);
 extern u8 *(*D_008873F4[])(s32, s32, s32);
@@ -14,18 +15,17 @@ extern u32 func_00457a90(void *material, const char *name);
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
 extern s32 func_003c21e0(void *arg0, s32 (*cb)(s32, void *), void *arg2);
 extern void func_00462780(u8 *arg0, u32 arg1, u8 *arg2, s32 arg3);
-extern void func_003bff30(void *object, void *callback, void *data);
 extern void func_00462bf0(void *arg0);
 extern s32 func_00462960(s32 arg0, void *arg1);
 
 
 // FUN_00462A60
-u8 *func_00462a60(u8 *arg0, u8 *arg1) {
+void *func_00462a60(void *arg0, void *arg1) {
     u8 sp30[0xC];
     s32 temp_4;
 
     func_0043f9c8(sp30, 0, 0xC);
-    temp_4 = *(s32 *)(arg0 + 0x18);
+    temp_4 = *(s32 *)((u8 *)arg0 + 0x18);
     if (temp_4 != 0) {
         func_003c21e0((void *)temp_4, func_00462960, sp30);
         func_00462780(arg1, *(u32 *)(sp30 + 0), arg0, *(s32 *)(sp30 + 4));
@@ -140,7 +140,7 @@ void func_00462780(u8 *arg0, u32 arg1, u8 *arg2, s32 arg3) {
 
 
 // FUN_00462AE0
-void *func_00462ae0(void *(*arg0)(void *, void *)) {
+void *func_00462ae0(void *arg0) {
     void *var_16;
 
     func_0044ea90(D_00712518, 0xAE);

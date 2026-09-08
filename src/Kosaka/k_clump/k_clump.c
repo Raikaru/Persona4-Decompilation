@@ -213,8 +213,9 @@ u32 func_00457ce0(void* geometry, const char* name)
 
 
 // FUN_00457E00
-void* func_00457e00(void* object, u32* context)
+void* func_00457e00(void* object, void* data)
 {
+    u32* context = data;
     s32 resourceIndex;
     s32 materialIndex;
     s32 elementIndex;
@@ -238,7 +239,7 @@ void* func_00457e00(void* object, u32* context)
             }
         }
     }
-    func_003e9af0(object, (KClumpCallback)func_00457e00, context);
+    func_003e9af0(object, func_00457e00, context);
     return object;
 }
 
@@ -278,15 +279,16 @@ void* func_00457f40(void* object, const char* name, s32 value)
             }
         }
     }
-    func_003e9af0(geometry, (KClumpCallback)func_00457e00, context.nameCopy);
+    func_003e9af0(geometry, func_00457e00, context.nameCopy);
     return context.result;
 }
 
 
 
 // FUN_00458090
-void* func_00458090(void* object, u32* context)
+void* func_00458090(void* object, void* data)
 {
+    u32* context = data;
     s32 resourceIndex;
     s32 elementIndex;
     void* material;
@@ -305,7 +307,7 @@ void* func_00458090(void* object, u32* context)
             }
         }
     }
-    func_003e9af0(object, (KClumpCallback)func_00458090, context);
+    func_003e9af0(object, func_00458090, context);
     return object;
 }
 
@@ -337,15 +339,16 @@ s32 func_004581a0(void* object, const char* name)
             }
         }
     }
-    func_003e9af0(clump, (KClumpCallback)func_00458090, &context);
+    func_003e9af0(clump, func_00458090, &context);
     return (s32)context.count;
 }
 
 
 
 // FUN_004582C0
-void* func_004582c0(void* object, u32* context)
+void* func_004582c0(void* object, void* data)
 {
+    u32* context = data;
     s32 resourceIndex;
     s32 elementIndex;
     void* material;
@@ -375,7 +378,7 @@ void* func_004582c0(void* object, u32* context)
             }
         }
     }
-    func_003e9af0(object, (KClumpCallback)func_004582c0, context);
+    func_003e9af0(object, func_004582c0, context);
     return object;
 }
 
@@ -423,14 +426,14 @@ void func_00458430(f32* result, void* object, const char* name, s32 index)
             }
         }
     }
-    func_003e9af0(geometry, (KClumpCallback)func_004582c0, &context);
+    func_003e9af0(geometry, func_004582c0, &context);
     *(RwV2d*)result = *(RwV2d*)&context.resultValue;
 }
 
 
 
 // FUN_00462170
-void* func_00462170(void* item)
+void* func_00462170(void* item, void* data)
 {
     RwSphere* sphere;
 

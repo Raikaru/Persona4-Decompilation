@@ -1,13 +1,8 @@
 /* Source unit: src/Kosaka/Field/k_event.c */
 #include "include_asm.h"
 #include "type.h"
+#include "Kosaka/k_fldFrame_internal.h"
 
-typedef struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
 
 typedef struct RwMatrix
 {
@@ -29,7 +24,6 @@ extern f32 func_0044b920(f32 x);
 
 extern u32 K_FldEvent_IsPosWithinFov(const RwMatrix* viewerMat, const RwV3d* targetPos, f32 fov);
 extern f32 RwV3dLength(const RwV3d* vector);
-extern u32 func_0016b540(const RwV3d* line, RwV3d* hitPointDst);
 
 
 

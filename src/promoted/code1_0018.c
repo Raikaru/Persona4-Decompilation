@@ -1,3 +1,4 @@
+#include "Kosaka/k_clump_internal.h"
 #include "include_asm.h"
 #include "type.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
@@ -137,7 +138,6 @@ extern u8 *func_00457120(void);
 extern s32 func_003e8200(u8 *arg0, s32 arg1);
 extern void func_003f68a0(s32 arg0, s32 arg1);
 extern u8 D_007E8C00[];
-extern void func_003bff30(u8 *arg0, u8 *(*cb)(u8 *, s32), s32 *result);
 extern s64 func_001060b0(void);
 extern s32 func_001060c0(void);
 extern s64 func_00110960(s64 arg0, s32 arg1);
@@ -975,10 +975,12 @@ u8 *func_0018c610(u8 *arg0, s32 *arg1) {
 }
 
 // FUN_0018C680
-u8 *func_0018c680(u8 *arg0, s32 arg1)
+void *func_0018c680(void *object, void *data)
 {
+    u8 *arg0 = object;
+    s32 arg1 = (s32)data;
     func_003c21e0(*(s32 *)(arg0 + 0x18), func_0018c610, arg1);
-    return arg0;
+    return object;
 }
 // FUN_0018C6C0
 s32 func_0018c6c0(u8 *arg0, s32 arg1)

@@ -1,4 +1,15 @@
-/* LaneFldFrame candidate archive: semantic C reconstruction measured non-MATCH (frame/register layout); reverted to INCLUDE_ASM. */
+/* Exact field raycast recovery, installed in k_fldFrame.c.
+ * 560B/560B; zero fully relocated differing words; all 12 relocations resolved.
+ * The complete owner preserves its other 15 emitted functions.
+ * Uses the existing owner FldFrameRaycast and shared k_fldFrame_internal.h types.
+ * Start X/Z selects the grid record; +0x1a0 reaches its resource. The non-grid
+ * path reloads the root after the mode query. All paths use the input snapshot.
+ * Signed multiplication preserves the retail shifts without shifting negatives.
+ * Native proof: 1,249 raycast/iterator cases (64-bit sanitizers and 32-bit), plus
+ * 196,728 cases executing all three actual field consumers on 32-bit records.
+ * Inputs require two valid points, finite representable coordinate conversions
+ * and a valid mapped-grid record for the selected cell. No guards were added.
+ */
 u32 func_0016b540(const RwV3d* line, RwV3d* hitPointDst)
 {
     typedef struct FldFrameLine
@@ -10,78 +21,76 @@ u32 func_0016b540(const RwV3d* line, RwV3d* hitPointDst)
         FldFrameLine line;
         u32 type;
     } FldFrameIntersection;
-    typedef struct FldFrameHitState
-    {
-        RwV3d* hitPointDst;
-        u32 didHit;
-    } FldFrameHitState;
-    FldFrameLine lineCopy __attribute__((aligned(16)));
-    FldFrameIntersection intersection __attribute__((aligned(16)));
-    FldFrameHitState hitState;
-    FldFrameRaycast raycast;
-    u8* root;
-    u8* collisionWorld;
-    u8* entry;
-    u16 id;
-    u32 result;
+    FldFrameLine lineCopy;
+    u8* object;
+    void* collisionWorld;
 
     lineCopy = *(const FldFrameLine*)line;
-    result = 0;
-    root = *(u8**)(iGpffff9db0 + 0x28);
-    if (root != NULL)
+    object = *(u8**)(iGpffff9db0 + 0x28);
+    if (object == NULL)
     {
-        if ((*(u32*)root & 1) != 0)
+        return 0;
+    }
+    if ((*(u32*)object & 1) != 0)
+    {
+        FldFrameIntersection intersection;
+        FldFrameRaycast raycast;
+        u32 result;
+        collisionWorld = *(void**)(object + 0xc);
+        raycast.hitPointDst = hitPointDst;
+        raycast.didHit = 0;
+        intersection.type = 1;
+        intersection.line = lineCopy;
+        if (collisionWorld == NULL)
         {
-            hitState.hitPointDst = hitPointDst;
-            hitState.didHit = 0;
-            intersection.type = 1;
-            intersection.line = lineCopy;
-            collisionWorld = *(u8**)(root + 0xc);
-            if (collisionWorld != NULL)
+            result = 0;
+        }
+        else
+        {
+            func_00394d70(collisionWorld, &intersection, func_0016b260, &raycast);
+            result = raycast.didHit;
+        }
+        return result;
+    }
+    else
+    {
+        FldFrameIntersection intersection;
+        FldFrameRaycast raycast;
+        collisionWorld = NULL;
+        if (func_0014a160() != 0)
+        {
+            u8* entry;
+            u32 key;
+            entry = func_001452b0(0xc);
+            key = *(u16*)((u8*)func_00155280() +
+                         (s32)((600.0f + lineCopy.point[0].z) / 1200.0f) * 0x100 +
+                         (s32)((600.0f + lineCopy.point[0].x) / 1200.0f) * 0x10 + 0x56);
+            while (entry != NULL)
             {
-                func_00394d70(collisionWorld, &intersection,
-                              func_0016b260, &hitState);
-                result = hitState.didHit;
+                if (*(u16*)entry == key)
+                {
+                    collisionWorld = *(void**)(*(u8**)(entry + 0x1a0) + 8);
+                    break;
+                }
+                entry = *(u8**)(entry + 0x138);
             }
         }
         else
         {
-            /* Probe retained an erroneous label while exploring branch layout. */
-            collisionWorld = NULL;
-            if (func_0014a160() != 0)
-            {
-                entry = func_001452b0(0xc);
-                id = *(u16*)(func_00155280() +
-                             (s32)((lineCopy.point[1].z + 600.0f) /
-                                   1200.0f) * 0x100 +
-                             (s32)((lineCopy.point[0].x + 600.0f) /
-                                   1200.0f) * 0x10 + 0x56);
-                while (entry != NULL)
-                {
-                    if (*(u16*)entry == id)
-                    {
-                        collisionWorld = *(u8**)(*(u8**)(entry + 0xd0) + 8);
-                        break;
-                    }
-                    entry = *(u8**)(entry + 0x138);
-                }
-            }
-            else
-            {
-                collisionWorld = *(u8**)(root + 8);
-            }
-            raycast.hitPointDst = hitPointDst;
-            raycast.didHit = 0;
-            raycast.nearestFraction = fGpffff82b4;
-            raycast.intersectionType = 1;
-            raycast.line[0] = lineCopy.point[0];
-            raycast.line[1] = lineCopy.point[1];
-            if (collisionWorld != NULL)
-            {
-                func_003bff30(collisionWorld, func_0016b430, &raycast);
-                result = raycast.didHit;
-            }
+            collisionWorld = *(void**)(*(u8**)(iGpffff9db0 + 0x28) + 8);
         }
+        raycast.hitPointDst = hitPointDst;
+        raycast.didHit = 0;
+        raycast.nearestFraction = fGpffff82b4;
+        intersection.type = 1;
+        intersection.line = lineCopy;
+        *(FldFrameIntersection*)&raycast.line[0] = intersection;
+        if (collisionWorld == NULL)
+        {
+            return 0;
+        }
+        func_003bff30(collisionWorld, func_0016b430, &raycast);
+        return raycast.didHit;
     }
-    return result;
 }
+

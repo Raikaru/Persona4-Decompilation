@@ -37,8 +37,8 @@ extern s32 func_004426e8(const char* left, const char* right);
 extern char* func_00442830(char* destination, const char* source);
 
 extern void* func_00457b60(void* object, void* data);
-extern void* func_00457e00(void* object, u32* context);
-extern void* func_00458090(void* object, u32* context);
-extern void* func_004582c0(void* object, u32* context);
+extern void* func_00457e00(void* object, void* data);
+extern void* func_00458090(void* object, void* data);
+extern void* func_004582c0(void* object, void* data);
 
 #endif

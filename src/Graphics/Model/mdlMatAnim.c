@@ -2,6 +2,7 @@
 /* Original translation unit mdlMatAnim.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "include_asm.h"
+#include "Kosaka/k_clump_internal.h"
 
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
@@ -19,23 +20,16 @@ typedef struct {
 } MdlFrameDispatch;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void func_0043f9c8(void *dest, s32 value, s32 size);
-extern s32 func_003bcfb0();
-extern s32 func_003bd000();
-extern s32 func_003bd040();
-extern s32 func_003bd050();
-extern s32 func_003bd060();
-extern s32 func_003bd0b0();
-extern s32 strcmp();
+extern s32 func_003bd0b0(u8 *userData, s32 index);
+extern s32 strcmp(const char *left, const char *right);
 extern void func_00480910(int *param_1,u32 param_2);
 extern u8 DAT_007641e0;
 
-extern u32 func_00480430(u32 param_1,u32 *param_2);
+extern void *func_00480430(void *object, void *data);
 
-extern u64 func_003bff30();
-extern u32 func_00480580(u32 param_1,u32 param_2);
+extern void *func_00480580(void *object, void *data);
 
-extern u8 *func_00480670(u8 *param_1, u8 *param_2);
-extern void func_003bff30_typed(u64 param_1,void *param_2,void *param_3);
+extern void *func_00480670(void *object, void *data);
 
 
 
@@ -334,30 +328,31 @@ INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_004800d0);
 
 
 // FUN_00480430
-u32 func_00480430(u32 param_1,u32 *param_2)
+void *func_00480430(void *param_1, void *context)
 {
+  u32 *param_2 = context;
   s32 arrayCount;
   s32 dataCount;
   s32 arrayIndex;
   s32 dataIndex;
-  void *userData;
+  RpUserDataArray *userData;
   char *name;
   char *data;
 
-  arrayCount = func_003bcfb0();
+  arrayCount = func_003bcfb0(param_1);
 
   arrayIndex = 0;
   while (arrayIndex < arrayCount) {
-    userData = (void *)func_003bd000(param_1,arrayIndex);
-    name = (char *)func_003bd040((u32)userData);
+    userData = func_003bd000(param_1,arrayIndex);
+    name = func_003bd040(userData);
     if (strcmp(name,(char *)&DAT_007641e0) == 0) {
-      dataCount = func_003bd060((u32)userData);
+      dataCount = func_003bd060(userData);
       dataIndex = 0;
       while (dataIndex < dataCount) {
-        if (func_003bd050((u32)userData) == 3) {
-          data = (char *)func_003bd0b0((u32)userData,dataIndex);
+        if (func_003bd050(userData) == 3) {
+          data = (char *)func_003bd0b0((u8 *)userData,dataIndex);
           if (strcmp((char *)param_2[1],data) == 0) {
-            func_00480910((int *)*param_2,param_1);
+            func_00480910((int *)*param_2,(u32)param_1);
             return 0;
           }
         }
@@ -372,19 +367,19 @@ u32 func_00480430(u32 param_1,u32 *param_2)
 
 
 // FUN_00480580
-u32 func_00480580(u32 param_1,u32 param_2)
+void *func_00480580(void *param_1, void *param_2)
 {
-  int iVar1;
+  u8 *iVar1;
   int iVar2;
-  u32 lVar3;
+  void *lVar3;
   int iVar4;
 
-  iVar1 = *(int *)((int)param_1 + 0x18);
+  iVar1 = *(u8 **)((u8 *)param_1 + 0x18);
   iVar2 = *(int *)(iVar1 + 0x24);
   iVar4 = 0;
   goto check;
 loop:
-  lVar3 = func_00480430((int)(*(u32 *)(*(int *)(iVar1 + 0x20) + iVar4 * 4)),(u32 *)(param_2));
+  lVar3 = func_00480430((void *)(*(u32 *)(*(u8 **)(iVar1 + 0x20) + iVar4 * 4)),param_2);
   if (lVar3 != 0) {
     goto increment;
   }
@@ -403,9 +398,9 @@ done:
 
 
 // FUN_00480630
-u64 func_00480630(u64 param_1,u64 param_2)
+void *func_00480630(void *param_1, void *param_2)
 {
-  func_003bff30(param_1,(void (*)())func_00480580,param_2);
+  func_003bff30(param_1,func_00480580,param_2);
   return param_1;
 }
 
@@ -414,23 +409,23 @@ u64 func_00480630(u64 param_1,u64 param_2)
 
 
 // FUN_00480670
-u8 *func_00480670(u8 *arg0, u8 *arg1)
+void *func_00480670(void *arg0, void *arg1)
 {
     s32 spB0;
     s32 spA0;
-    s32 temp_21;
-    s32 temp_2;
+    RpMaterial *temp_21;
+    RpUserDataArray *temp_2;
     s32 temp_30;
     s32 i;
     s32 j;
     s32 k;
     u8 *list;
 
-    list = *(u8 **)(arg0 + 0x18);
+    list = *(u8 **)((u8 *)arg0 + 0x18);
     temp_30 = *(s32 *)(list + 0x24);
     i = 0;
     while (i < temp_30) {
-        temp_21 = *(s32 *)(*(u8 **)(list + 0x20) + i * 4);
+        temp_21 = (RpMaterial *)*(u32 *)(*(u8 **)(list + 0x20) + i * 4);
         spB0 = func_003bcfb0(temp_21);
         j = 0;
         while (j < spB0) {
@@ -441,8 +436,8 @@ u8 *func_00480670(u8 *arg0, u8 *arg1)
                 while (k < spA0) {
                     if (func_003bd050(temp_2) == 3 &&
                         strcmp((char *)*(u32 *)arg1,
-                               (char *)func_003bd0b0(temp_2, k)) == 0) {
-                        *(u16 *)(arg1 + 4) = *(u16 *)(arg1 + 4) + 1;
+                               (char *)func_003bd0b0((u8 *)temp_2, k)) == 0) {
+                        *(u16 *)((u8 *)arg1 + 4) = *(u16 *)((u8 *)arg1 + 4) + 1;
                         break;
                     } else {
                         k++;
@@ -457,7 +452,7 @@ u8 *func_00480670(u8 *arg0, u8 *arg1)
 }
 
 // FUN_00480800
-u16 func_00480800(u64 param_1,u32 param_2)
+u16 func_00480800(void *param_1,u32 param_2)
 {
   struct {
     u32 input;
@@ -466,7 +461,7 @@ u16 func_00480800(u64 param_1,u32 param_2)
 
   stack.input = param_2;
   stack.output = 0;
-  func_003bff30_typed(param_1,(void *)&func_00480670,&stack);
+  func_003bff30(param_1,func_00480670,&stack);
   return stack.output;
 }
 
