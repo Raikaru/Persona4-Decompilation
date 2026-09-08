@@ -345,6 +345,12 @@ void func_00252050(s32 arg0, s32 arg1, s32 arg2) {
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252230);
 
 
+/* measured: fresh complete callback reconstruction, 864B / 848B window,
+   all 24 relocations resolved; 203 executable words differ, plus 16B overrun.
+   Context is the third callback argument, not a return from func_00252230:
+   that interpolation leaf returns void. func_0025f360 returns a 32-bit handle.
+   Candidate frame 0x100 versus retail 0xF0; external-leaf preservation and
+   render-state base allocation remain different. Production stays ASM. */
 // FUN_00252710
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252710);
 

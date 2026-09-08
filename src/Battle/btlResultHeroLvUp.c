@@ -24,7 +24,7 @@ struct BtlResultWork
 };
 
 s16 func_00105ee0(s32 index);
-s32 func_00105610(s16 param);
+u32 func_00105610(s16 param);
 s32 func_00106330(s32 id);
 void func_001f8690(u16 param);
 void func_001f86d0(void);

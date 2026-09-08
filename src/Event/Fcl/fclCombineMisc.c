@@ -10,7 +10,7 @@ extern u8 *func_002e48a0(s8 arg0, s16 arg1);
 extern void func_0043f810(void *dst, void *src, u32 size);
 extern void func_0046d730(const char *file, s32 line);
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
-extern void func_0010cad0();
+extern void func_0010cad0(u8 *arg0, s32 arg1);
 extern u8 *iGpffffb3d4;
 extern char D_00642F30[];
 extern s32 func_00312220(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3);
@@ -96,7 +96,7 @@ s32 func_003127e0(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     if (ret == 0) {
         return 0;
     }
-    func_0010cad0(arg0, ret);
+    func_0010cad0((u8 *)arg0, ret);
     return 1;
 }
 

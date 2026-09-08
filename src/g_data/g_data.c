@@ -114,13 +114,14 @@ extern void func_0043f810(void* arg0, void* arg1, u32 arg2);
 extern u8 func_00231e20(void* arg0);
 extern u32 func_00231ed0(void* arg0);
 extern u32 func_00231ee0(void* arg0);
-extern u32 func_00231f80(void* arg0);
-extern u32 func_00232290(void* arg0);
+struct DatUnit;
+extern u16 func_00231f80(struct DatUnit* unit);
+extern u32 func_00232290(struct DatUnit* unit);
 extern void func_002326c0(void* arg0);
 extern void func_00231dc0(void* arg0, s16 arg1);
 extern void func_00232680(void* arg0);
-extern void func_002326f0(void* arg0);
-extern void func_002428f0(void* arg0, s32 arg1);
+extern u32 datCalcClearBadStatus(int unit, u32 badStatus);
+extern u32 datCalcIsDead(int unit, s32 hpDelta);
 
 extern u8 D_007973C4[];
 extern u8 D_00796E50[];
@@ -345,29 +346,32 @@ void func_00104d50(s16 arg0)
     }
 }
 
+/* Retail callers pass a promoted ID; signed-halfword selection occurs here. */
 // FUN_00104DC0
-void func_00104dc0(s16 arg0)
+u16 func_00104dc0(s32 character)
 {
+    s16 arg0 = (s16)character;
     if (arg0 == 1)
     {
-        func_00231f80(D_007973C4);
+        return func_00231f80((struct DatUnit*)D_007973C4);
     }
     else
     {
-        func_00231f80((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+        return func_00231f80((struct DatUnit*)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4));
     }
 }
 
 // FUN_00104E30
-void func_00104e30(s16 arg0)
+u32 func_00104e30(s32 character)
 {
+    s16 arg0 = (s16)character;
     if (arg0 == 1)
     {
-        func_00232290(D_007973C4);
+        return func_00232290((struct DatUnit*)D_007973C4);
     }
     else
     {
-        func_00232290((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+        return func_00232290((struct DatUnit*)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4));
     }
 }
 
@@ -598,15 +602,15 @@ void func_001055a0(s16 arg0)
     }
 }
 // FUN_00105610
-void func_00105610(s16 arg0)
+u32 func_00105610(s16 arg0)
 {
     if (arg0 == 1)
     {
-        func_002428f0(D_007973C4, 0);
+        return datCalcIsDead((int)D_007973C4, 0);
     }
     else
     {
-        func_002428f0((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4, 0);
+        return datCalcIsDead((int)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4), 0);
     }
 }
 
@@ -667,13 +671,12 @@ void func_00105780(s16 arg0)
     v1 = (u16)r;
     if (arg0 == 1)
     {
-        r = func_00231f80(D_007973C4);
+        v2 = func_00231f80((struct DatUnit*)D_007973C4);
     }
     else
     {
-        r = func_00231f80((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+        v2 = func_00231f80((struct DatUnit*)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4));
     }
-    v2 = (u16)r;
     if (v2 < v1)
     {
         s16 t = (s16)v2;
@@ -697,11 +700,11 @@ void func_00105780(s16 arg0)
     v1 = (u16)r;
     if (arg0 == 1)
     {
-        r = func_00232290(D_007973C4);
+        r = func_00232290((struct DatUnit*)D_007973C4);
     }
     else
     {
-        r = func_00232290((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+        r = func_00232290((struct DatUnit*)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4));
     }
     v2 = (u16)r;
     if (v2 < v1)
@@ -767,15 +770,15 @@ void func_00105ce0(s16 arg0)
 }
 
 // FUN_00105D50
-void func_00105d50(s16 arg0)
+void func_00105d50(s16 arg0, u32 mask)
 {
     if (arg0 == 1)
     {
-        func_002326f0(D_007973C4);
+        datCalcClearBadStatus((int)D_007973C4, mask);
     }
     else
     {
-        func_002326f0((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+        datCalcClearBadStatus((int)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4), mask);
     }
 }
 

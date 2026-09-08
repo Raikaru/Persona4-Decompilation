@@ -34,7 +34,7 @@ extern void *func_0010fcb0();
 extern s32 func_0010aa80(s32 arg0);
 extern u16 *func_0010ac10(s32 arg0);
 
-extern void func_0010cad0(void *dest, u16 id);
+extern void func_0010cad0(u8 *dest, s32 id);
 extern s16 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_00311d00(u16 id);
 extern s32 func_00311d60(u16 id);

@@ -751,10 +751,10 @@ loop_5_check:
 // FUN_00193450
 s32 func_00193450(void)
 {
-    extern s64 func_00105ee0(s32 arg0);
-    extern s32 func_00105610();
-    extern void func_001056e0();
-    extern void func_00105d50();
+    extern s16 datGetPartyId(s32 idx);
+    extern u32 func_00105610(s16 character);
+    extern void func_001056e0(s16 character, s16 value);
+    extern void func_00105d50(s16 character, u32 mask);
     u32 var_16;
     u32 dep;
 
@@ -775,10 +775,10 @@ s32 func_00193450(void)
             var_16 = 0;
             goto loop_11_check;
 loop_11_body:
-            if ((((s64)(func_00105ee0((s32)var_16) << 0x30) >> 0x30) != 0) &&
-                (func_00105610(func_00105ee0((s32)var_16)) != 0)) {
-                func_001056e0(func_00105ee0((s32)var_16), 1);
-                func_00105d50(func_00105ee0((s32)var_16), 0x80000);
+            if (((s16)datGetPartyId((s32)var_16) != 0) &&
+                (func_00105610(datGetPartyId((s32)var_16)) != 0)) {
+                func_001056e0(datGetPartyId((s32)var_16), 1);
+                func_00105d50(datGetPartyId((s32)var_16), 0x80000);
             }
             var_16 += 1;
 loop_11_check:

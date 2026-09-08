@@ -6808,3 +6808,107 @@ functions**, validated progress artifacts, and zero lint findings across
 338 first-party files. The loadable-image SHA-1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; the complete retail file remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Fresh battle dispatchers and truthful provider contracts
+
+Two previously unworked dispatchers are now ordinary matching C in
+`src/promoted/code1_0022.c`:
+
+| Function | Emitted / retail window | Resolved evidence |
+| --- | ---: | --- |
+| `func_0022bd60` | 1744 / 1744 | All 152 relocations and all 22 switch targets exact |
+| `func_0022e630` | 1172 / 1184 | All 28 relocations exact; twelve genuine zero alignment bytes |
+
+The setup dispatcher retains the complete 22-case configuration and the
+signed-byte sentinel loop. A function-local `opt_loop_invariants on`
+bracket reproduces the loop without affecting neighboring functions.
+The action dispatcher retains all 19 battle-specific branches, including
+four unconditional enqueue attempts for battle `0x215`.
+
+The new consumers exposed existing provider declarations that had relied
+on physical register contents instead of valid C contracts:
+
+- `func_0010b010` and `func_0010b060` return persona pointers and carry the
+  full input ID through to `func_0010cad0`. The initializer masks the ID
+  itself; a false halfword-only declaration is not a substitute.
+- `func_00104dc0` returns `u16`; `func_00104e30` returns `u32`.
+  Their promoted `s32` ID input is narrowed to signed halfword inside
+  each provider, as retail does. Consumers retain their own required
+  signed narrowing explicitly.
+- `func_00105610` returns the real `u32` death predicate from
+  `datCalcIsDead`, rather than declaring a void result that callers use.
+- `func_00105d50` forwards the complete `u32` status mask to
+  `datCalcClearBadStatus`. The party-revival consumer uses the real
+  `datGetPartyId` return and typed predicate/setter contracts.
+- The HP-clamping consumer stores the `u16` maximum directly into its
+  halfword temporary, avoiding redundant widening at both branch arms.
+
+The corrected owners pass focused verification. One formerly counted
+match, `y_fclCombine.c::func_002f9c30`, exposes a real residual when its
+initializer declaration is corrected: two argument-setup instructions
+are reversed, eight differing bytes in a 348-byte body and a 352-byte
+window. Its typed C is preserved under `NON_MATCHING`; production uses
+the retail ASM. No narrow-prototype shim, volatile staging, or artificial
+instruction was added to keep the old score. Thus two new exact functions
+produce a truthful **net gain of one match**.
+
+Throwaway wasm32 executions preserve the target's 32-bit pointer model:
+
+- **252 setup cases** cover all switch entries, out-of-range battle codes,
+  prior flag values, repeated lookups, the event flag, and complete state
+  preservation outside the required writes.
+- **171 action cases** cover the battle branches, persona selection,
+  stat boundaries, status masks, queue availability, provider-effect
+  ordering, and the four unconditional enqueue attempts.
+- **144 status-transition cases** execute the current production wrappers
+  with the actual `datCalcIsDead` and `datCalcClearBadStatus` leaves. They
+  cover hero/party selection, zero and nonzero HP, death and unrelated
+  status bits, zero/selective/full masks, and unchanged neighboring memory.
+
+The first two fixtures supply external provider behavior; the third uses
+the actual status leaves. These are source behavior checks, not hardware
+execution or an end-to-end game-runtime claim. Exact executable and
+relocation comparisons remain the matching proof.
+
+Other full fresh reconstructions remain ASM:
+
+| Function | Emitted / window | Measured residual | Source reference |
+| --- | ---: | --- | --- |
+| `00268230` | 1596 / 1600 | 13 executable words / 46 bytes at +0x480..+0x4b0 | `FF2_00268230_body.c` |
+| `00252710` | 864 / 848 | 203 executable words; 16-byte overrun | `FF2_00252710_body.c` |
+| `002232a0` | 1024 / 1040 | 778 overlap bytes, ten switch bytes, six nonzero bytes in missing suffix | `FF2_002232a0_body.c` |
+
+These references live in `docs/probe_archive`; they are not standalone
+translation units or installed matching bodies.
+
+The dungeon candidate resolves all **45 relocations**, all fourteen
+constant objects, and the complete **1,444-byte entry table**. Its full
+0x58-byte node payload and COP1 polynomial accumulator chain match.
+Only the entry-pointer recomputation and its lifetime across the first
+16-byte copy remain different. The actual task must be passed to the
+canonical packed-address work getter at every affected owner consumer.
+
+The rank callback resolves all **24 relocations**. Context is the third
+callback argument, not a return from the interpolation leaf:
+`func_00252230` returns void. Its resource-handle provider
+`func_0025f360` returns a 32-bit value. The candidate still needs an extra
+saved register and a 0x100 frame versus retail's 0xf0.
+
+The reward dispatcher resolves all **26 code and nine table relocations**.
+The complete position pair and eleven option words are retained.
+Future integration requires a `s32(void *task)` callback, the canonical
+`u32 func_00452560(void *task)` getter, and recovery of the existing owner's
+no-argument getter consumers (`002218e0`, `00221940`, `002231e0`,
+`00223240`, `002236c0`, `00223830`, `00223890`, `00223ee0`,
+`00224040`, `00224080`). The explicit consumers `002230e0`, `00223730`,
+`00223f40`, and `0022bad0` also require contract review. Its candidate does
+not imitate retail's uninitialized-register behavior for a corrupted
+persona index; equivalence is limited to valid retail state. No matching
+or native-behavior claim is made for these three nonmatching candidates.
+
+The complete `make build-progress progress lint-errors` gate passes:
+**6,134 / 6,860 first-party matches, 726 ASM fallbacks**, **172 C-linked
+objects / 1,570 functions**, validated progress artifacts, and zero lint
+findings across 338 first-party files. Both hashes remain unchanged:
+loadable image `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
+retail file `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.

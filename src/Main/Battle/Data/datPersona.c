@@ -32,7 +32,7 @@ extern void func_0010fde0(u8 *arg0);
 
 extern s32 func_0010be20(u8 *arg0);
 extern void func_0010fde0(u8 *arg0);
-void func_0010cad0(); /* old-style: callers pass args raw */
+void func_0010cad0(u8 *arg0, s32 arg1);
 
 extern u16 *func_0010ace0(s16 arg0);
 extern s32 func_0010b5b0(void);
@@ -55,7 +55,7 @@ s8 func_00109d20(u8 *arg0, s32 arg1);
 s8 func_00109dd0(u8 *arg0, s32 arg1);
 s8 func_00109e30(u8 *arg0, s32 arg1);
 
-extern u8 *func_0010b060(); /* old-style: b010 jals with no arg setup */
+extern u8 *func_0010b060(s32 personaId);
 
 u16 *func_0010a900(); /* old-style: every retail caller jals with no arg setup */
 
@@ -492,9 +492,9 @@ done:
 }
 
 // FUN_0010B010
-u8 *func_0010b010(void)
+u8 *func_0010b010(s32 personaId)
 {
-    u8 *p = func_0010b060();
+    u8 *p = func_0010b060(personaId);
     if (p == NULL) {
         func_0046d730(D_005E4318, 0x43A);
     }
@@ -502,7 +502,7 @@ u8 *func_0010b010(void)
 }
 
 // FUN_0010B060
-u8 *func_0010b060(u8 *arg0)
+u8 *func_0010b060(s32 personaId)
 {
     s32 i = 0;
     s16 found;
@@ -521,7 +521,7 @@ done:
         return NULL;
     }
     entry = (u8 *)D_007973A0 + found * 0x30 + 0xBEC;
-    func_0010cad0(entry, arg0);
+    func_0010cad0(entry, personaId);
     *(u16 *)((u8 *)D_00797F8C + found * 0x30) &= 0xC;
     *(u16 *)((u8 *)D_00797F8C + found * 0x30) |= 1;
     func_0010fde0(entry);

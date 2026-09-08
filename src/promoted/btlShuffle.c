@@ -42,15 +42,15 @@ extern s32 func_0036e140(void);
 
 extern void func_0036e600(void);
 
-extern u32 func_00104dc0();
+extern u16 func_00104dc0(s32 character);
 
 extern u32 func_001056e0();
 
-extern s32 func_00105610(s16 param);
+extern u32 func_00105610(s16 param);
 
 extern s32 func_00105ee0();
 
-extern s32 func_00104e30();
+extern u32 func_00104e30(s32 character);
 
 extern s32 func_00104d50();
 
@@ -76,7 +76,7 @@ extern s32 func_00109390();
 
 extern void func_0010ad80();
 
-extern void func_0010b010();
+extern u8 *func_0010b010(s32 personaId);
 
 extern u8 *iGpffffb3c0;
 
