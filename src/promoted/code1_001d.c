@@ -1563,9 +1563,10 @@ u8 *func_001d8c00(u8 *arg0)
     }
     return NULL;
 }
-/* measured: whole translation unit with -DNON_MATCHING: object 312B/window 320B, normalized_diff 158.
-   The earlier figure of 18 predates later declaration-environment changes in this file. */
-// Committed at nd 158.
+/* Retained defined-C floor: 312B/320B, four fully relocated executable-word
+   differences and eight zero-tail bytes. The first-entry guard must precede
+   the comparison to avoid an uninitialized best-distance read. See
+   docs/probe_archive/R1EE_001d8cb0_body.c; production remains ASM. */
 // FUN_001D8CB0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d8cb0);
 // FUN_001D8E50
