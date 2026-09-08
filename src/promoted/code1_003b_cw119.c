@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "Kosaka/k_clump_internal.h"
 
 /* RenderWare-derived functions verified with MWCCPS2 3.0.1 b119 (see
    config/compiler_units.txt and docs/matching.md). Fallbacks stay under
@@ -39,7 +40,6 @@ extern s32 func_003c0700(u8 *arg0);
 extern s32 func_003c02e0(u8 *arg0);
 extern s32 iGpffffb6b0;
 extern s32 func_003bc880(s32 arg0, s32 arg1);
-extern s32 func_003bff30(void *arg0, s32 (*arg1)(s32, s32 *), s32 *arg2);
 extern s32 D_00764770;
 extern s32 func_003e8930(s32 a, s32 b, void *c, void *d);
 extern s32 func_003bb0d0(s32 arg0);
@@ -205,7 +205,7 @@ done:
 /* measured: no_branch_likely on selects retail's plain beqz/bne branches. */
 #pragma schedule on
 #pragma no_branch_likely on
-s32 func_003bff30(void *arg0, s32 (*arg1)(s32, s32 *), s32 *arg2) {
+void *func_003bff30(void *arg0, KClumpCallback arg1, void *arg2) {
     u8 *current;
     u8 *sentinel;
     u8 *next;
@@ -216,13 +216,13 @@ s32 func_003bff30(void *arg0, s32 (*arg1)(s32, s32 *), s32 *arg2) {
         goto done;
 loop:
     next = *(u8 **)current;
-    if (arg1((s32)(current - 0x40), arg2) == 0)
-        return (s32)arg0;
+    if (arg1(current - 0x40, arg2) == NULL)
+        return arg0;
     current = next;
     if (current != sentinel)
         goto loop;
 done:
-    return (s32)arg0;
+    return arg0;
 }
 /* measured: close no_branch_likely around func_003bff30. */
 #pragma no_branch_likely off

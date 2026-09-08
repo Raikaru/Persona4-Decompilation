@@ -1,6 +1,7 @@
 #include "include_asm.h"
 /* Source unit: src/Kosaka/k_clump/k_clumpInstance.c */
 #include "type.h"
+#include "Kosaka/k_clump_internal.h"
 
 typedef struct ClumpWork
 {
@@ -23,7 +24,6 @@ extern void func_003ef260(void *arg0, void (*arg1)(void), s32 *arg2);
 extern void func_003ef1b0(void *arg0);
 extern void *func_003c0f20(void *arg0);
 extern s32 func_00457c90(void *arg0, const char *arg1);
-extern void func_003bff30(void *arg0, void (*callback)(void), void *arg2);
 extern void func_003c0960(void *arg0, void *arg1);
 extern void func_0046d730(const char *arg0, s32 arg1);
 extern void func_0044ea90(const char *arg0, s32 arg1);
@@ -34,7 +34,7 @@ extern void func_003deff0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_003e2ab0(void *arg0, void *arg1, s32 arg2);
 extern void func_00463250(void *arg0);
 extern void func_003e2e40(void *arg0, s32 arg1);
-extern void func_00191e20(void);
+extern void *func_00191e20(void *object, void *data);
 extern void func_00463100(void);
 extern void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2);
 extern s32 func_001921a0(u8 *arg0);
@@ -44,9 +44,7 @@ extern char D_005F64E0[];
 extern char D_005F6500[];
 extern s32 func_00428550(const char *arg0);
 extern s32 func_00428780(s32 arg0, void *arg1);
-extern s32 func_004426e8(const char *arg0, const char *arg1);
 extern s32 func_0043c6b0(const char *arg0);
-extern void func_00442830(void *arg0, const char *arg1);
 extern void func_00442428(void *arg0, const char *arg1);
 extern void func_00440b68(char *arg0, const char *arg1, s32 arg2);
 extern u8 *func_00454a60(void *arg0, s32 arg1);

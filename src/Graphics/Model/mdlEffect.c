@@ -1293,7 +1293,7 @@ check:
 
 
 // FUN_004AE080
-u32 *func_004ae080(u32 *param_1)
+void *func_004ae080(void *param_1, void *data)
 {
   u32 *p;
 

@@ -1,17 +1,14 @@
 /* Source unit: src/Kosaka/Field/k_fldFrame.c */
 #include "include_asm.h"
 #include "type.h"
+#include "Kosaka/k_clump_internal.h"
+#include "Kosaka/k_fldFrame_internal.h"
 
-typedef struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 extern u8* iGpffff9db0;
 extern s32 func_00145270(s32 arg0);
 extern u8* func_001452b0(s32 arg0);
+extern s32 func_0014a160(void);
 extern s32 func_0014a200(void);
 extern s32 func_0014a270(void);
 extern void* func_00155280(void);
@@ -24,8 +21,8 @@ extern s32 func_0016a110(s32 collisionWorld, f32* origin,
 extern u8* func_003e9700(s32 arg0);
 extern u8* func_00457120(void);
 
-extern void func_00394d70(s32 collisionWorld, s32 intersection,
-                          void* callback, s32 param);
+extern void* func_00394d70(void* collisionWorld, void* intersection,
+                           void* callback, void* param);
 extern void func_003e40b0(f32* dst, const f32* src);
 extern void func_0043f9c8(void* dst, s32 value, s32 size);
 
@@ -50,8 +47,7 @@ extern void* func_0016b350(f32 fraction, const RwV3d* line,
 // P3 counterpart fGpffff820c (gp -0x7DF4); P4 retail uses gp -0x7D4C,
 // i.e. absolute 0x007690f0 - 0x7d4c = 0x007613a4.
 extern f32 fGpffff82b4;
-extern void func_003bff30(void* collisionWorld, void* callback, void* param);
-extern void* func_0016b430(void* collisionWorld, FldFrameRaycast* raycast);
+extern void* func_0016b430(void* collisionWorld, void* data);
 extern void* func_0016b770(f32 fraction, const RwV3d* line,
                            void* unused, FldFrameRaycast* raycast);
 
@@ -202,7 +198,7 @@ INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016b080);
 #pragma opt_propagation off
 // FUN_0016B260
 void* func_0016b260(const RwV3d* line, void* unused,
-                    const void* triangle, u8* raycast)
+                    const void* triangle, FldFrameRaycast* raycast)
 {
     typedef struct FldFrameLine
     {
@@ -244,10 +240,10 @@ void* func_0016b260(const RwV3d* line, void* unused,
                    (normalX * startX + normalY * startY +
                     normalZ * startZ));
     fraction = numerator / denominator;
-    *(f32*)*(u8**)raycast = fraction * deltaX + startX;
-    *(f32*)(*(u8**)raycast + 4) = fraction * deltaY + startY;
-    *(f32*)(*(u8**)raycast + 8) = fraction * deltaZ + startZ;
-    *(u32*)(raycast + 4) = 1;
+    raycast->hitPointDst->x = fraction * deltaX + startX;
+    raycast->hitPointDst->y = fraction * deltaY + startY;
+    raycast->hitPointDst->z = fraction * deltaZ + startZ;
+    raycast->didHit = 1;
     return 0;
 }
 #pragma opt_propagation on
@@ -284,8 +280,9 @@ void* func_0016b350(f32 fraction, const RwV3d* line,
 
 
 // FUN_0016B430
-void* func_0016b430(void* collisionWorld, FldFrameRaycast* raycast)
+void* func_0016b430(void* collisionWorld, void* data)
 {
+    FldFrameRaycast* raycast = data;
     raycast->hitObject = collisionWorld;
     func_00394e70(collisionWorld, &raycast->line[0],
                   func_0016b350, raycast);
@@ -329,8 +326,94 @@ u32 func_0016b480(void* collisionWorld, const RwV3d* line,
 
 
 
+/* Snapshot both endpoints before any provider call. Grid lookup uses start X/Z;
+   the non-grid path reloads the root after the mode query. Branch-local full
+   raycast state reproduces all 560 retail bytes and 12 relocations without
+   artificial alignment. A hit writes all three destination components. */
 // FUN_0016B540
-INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016b540);
+u32 func_0016b540(const RwV3d* line, RwV3d* hitPointDst)
+{
+    typedef struct FldFrameLine
+    {
+        RwV3d point[2];
+    } FldFrameLine;
+    typedef struct FldFrameIntersection
+    {
+        FldFrameLine line;
+        u32 type;
+    } FldFrameIntersection;
+    FldFrameLine lineCopy;
+    u8* object;
+    void* collisionWorld;
+
+    lineCopy = *(const FldFrameLine*)line;
+    object = *(u8**)(iGpffff9db0 + 0x28);
+    if (object == NULL)
+    {
+        return 0;
+    }
+    if ((*(u32*)object & 1) != 0)
+    {
+        FldFrameIntersection intersection;
+        FldFrameRaycast raycast;
+        u32 result;
+        collisionWorld = *(void**)(object + 0xc);
+        raycast.hitPointDst = hitPointDst;
+        raycast.didHit = 0;
+        intersection.type = 1;
+        intersection.line = lineCopy;
+        if (collisionWorld == NULL)
+        {
+            result = 0;
+        }
+        else
+        {
+            func_00394d70(collisionWorld, &intersection, func_0016b260, &raycast);
+            result = raycast.didHit;
+        }
+        return result;
+    }
+    else
+    {
+        FldFrameIntersection intersection;
+        FldFrameRaycast raycast;
+        collisionWorld = NULL;
+        if (func_0014a160() != 0)
+        {
+            u8* entry;
+            u32 key;
+            entry = func_001452b0(0xc);
+            key = *(u16*)((u8*)func_00155280() +
+                         (s32)((600.0f + lineCopy.point[0].z) / 1200.0f) * 0x100 +
+                         (s32)((600.0f + lineCopy.point[0].x) / 1200.0f) * 0x10 + 0x56);
+            while (entry != NULL)
+            {
+                if (*(u16*)entry == key)
+                {
+                    collisionWorld = *(void**)(*(u8**)(entry + 0x1a0) + 8);
+                    break;
+                }
+                entry = *(u8**)(entry + 0x138);
+            }
+        }
+        else
+        {
+            collisionWorld = *(void**)(*(u8**)(iGpffff9db0 + 0x28) + 8);
+        }
+        raycast.hitPointDst = hitPointDst;
+        raycast.didHit = 0;
+        raycast.nearestFraction = fGpffff82b4;
+        intersection.type = 1;
+        intersection.line = lineCopy;
+        *(FldFrameIntersection*)&raycast.line[0] = intersection;
+        if (collisionWorld == NULL)
+        {
+            return 0;
+        }
+        func_003bff30(collisionWorld, func_0016b430, &raycast);
+        return raycast.didHit;
+    }
+}
 // FUN_0016B770
 void* func_0016b770(f32 fraction, const RwV3d* line,
                     void* unused, FldFrameRaycast* raycast)
@@ -364,8 +447,9 @@ void* func_0016b770(f32 fraction, const RwV3d* line,
 
 
 // FUN_0016B850
-void* func_0016b850(void* collisionWorld, FldFrameRaycast* raycast)
+void* func_0016b850(void* collisionWorld, void* data)
 {
+    FldFrameRaycast* raycast = data;
     raycast->hitObject = collisionWorld;
     func_00394e70(collisionWorld, &raycast->line[0],
                   func_0016b770, raycast);
