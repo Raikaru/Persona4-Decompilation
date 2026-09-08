@@ -5,6 +5,7 @@
 
 typedef struct RwMatrix RwMatrix;
 typedef struct RwV3d RwV3d;
+typedef struct BtlAction BtlAction;
 
 extern s32 func_00247cb0(s16 arg0);
 extern u16 func_00107ac0(s32 arg0);
@@ -151,7 +152,7 @@ extern void func_00207320();
 extern void func_00207b00();
 extern void func_002089e0();
 extern void func_00208870(u8 *unused, u8 *arg1, f32 *arg2);
-extern void func_001bc660(u16 arg0, void *arg1, u32 arg2);
+extern void func_001bc660(s32 state, BtlAction *action, u32 param_3);
 extern void func_001bcd40(f32 arg0, u8 *arg1, u8 *arg2, u8 *arg3, u32 arg4);
 extern u8 *func_001b0c80(s32 arg0);
 extern s32 func_002428f0(s32 arg0, s32 arg1);
@@ -236,7 +237,6 @@ void func_00200770(u8 *arg0)
         u8 spE0[0x40];
         Vec3 sp120;
     } Frame;
-    extern void func_001bc660(u16 arg0, void *arg1, u32 arg2);
     extern void func_001bcd40(f32 arg0, u8 *arg1, u8 *arg2, u8 *arg3, u32 arg4);
     extern u16 func_001bc7f0(void);
     extern void func_0048a150(void *arg0, void *arg1);
@@ -350,10 +350,10 @@ void func_00200a60(u8 *arg0)
         func_001bc660(0x2D, NULL, 1);
         break;
     case 2:
-        func_001bc660(0x2E, func_001b0c80(D_00881444_abs[0]), 1);
+        func_001bc660(0x2E, (BtlAction *)func_001b0c80(D_00881444_abs[0]), 1);
         break;
     case 3:
-        func_001bc660(6, func_001b0c80(D_00881444_abs[0]), 1);
+        func_001bc660(6, (BtlAction *)func_001b0c80(D_00881444_abs[0]), 1);
         break;
     }
     if (*(u8 *)(temp_16 + 4) == 0) {
