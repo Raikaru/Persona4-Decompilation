@@ -93,6 +93,15 @@ extern u16 func_001eb440(BtlTarget *target);
 extern s32 func_001f0a50(u8 *arg0);
 extern void func_001c9750(u8 *arg0);
 extern f32 fGpffff809c;
+extern f32 fGpffff8030;
+extern f32 fGpffff803c;
+extern f32 fGpffff8098;
+extern f32 fGpffff8118;
+extern f32 fGpffff8174;
+extern f32 fGpffff8178;
+extern f32 fGpffff817c;
+extern void func_001c9820(u8 *camera, s32 reverseSide, s32 forceActorSide, f32 angleLimit);
+extern void func_002266b0(u8 *camera, f32 heightScale, f32 scale, f32 distanceOffset, f32 duration);
 
 extern u8 D_006296B0[];
 extern u8 D_006296E8[];
@@ -118,7 +127,6 @@ extern u8 *func_001b0c80(s32 arg0);
 extern void func_001f2eb0(u8 *arg0, s32 arg1);
 extern void func_001f7530(void);
 
-void func_002258b0(u8 *arg0, f32 arg1, f32 arg2);
 
 u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
 
@@ -521,7 +529,121 @@ void func_00225860(u8 *arg0)
 }
 
 // FUN_002258B0
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_002258b0);
+/* Measured: 800/800 bytes, 20 resolved relocations, zero differences.
+ * Disabling common-subexpression folding preserves the wrapping target walk. */
+#pragma opt_common_subs off
+void func_002258b0(u8 *camera, f32 distanceOffset, f32 duration)
+{
+    u8 *action;
+    u8 *unit;
+    u8 *target;
+    u32 index;
+    f32 scale;
+    f32 heightScale;
+
+    action = *(u8 **)(camera + 0xE0);
+    if (action != NULL && (*(u16 *)(action + 0x1A) & 1) != 0) {
+        if (action != NULL &&
+            *(u8 *)((unit = *(u8 **)(action + 0x30)) + 0xA2) == 0) {
+            index = 0;
+            while ((action = *(u8 **)(camera + 0xE0)),
+                   (u16)index < *(u16 *)(action + 0x6A)) {
+                target = *(u8 **)(action + 0x38 + (u16)index * 4);
+                target = *(u8 **)(target + 0x30);
+                if (*(u8 *)(target + 0xA2) == 1) {
+                    func_00195590((BtlUnit *)target, (const RwV3d *)(unit + 4));
+                }
+                index = (u16)(index + 1);
+            }
+        }
+        unit = *(u8 **)(action + 0x30);
+        if (*(u8 *)(unit + 0xA2) == 0) {
+            func_001c9820(camera, 0, 1, 0.0f);
+            return;
+        }
+        target = *(u8 **)(*(u8 **)(action + 0x38) + 0x30);
+        scale = 1.5f;
+        heightScale = fGpffff803c;
+        switch (*(u16 *)(unit + 0xA4)) {
+        case 0x100:
+            scale = 1.75f;
+            heightScale = 0.0f;
+            break;
+        case 0x101:
+            scale = 3.5f;
+            heightScale = fGpffff8098;
+            break;
+        case 0x102:
+            scale = 3.75f;
+            if (datCalcChkBadStatus(*(s32 *)(target + 0xA64), 0x100000) == 0) {
+                heightScale = fGpffff8174;
+            } else {
+                heightScale = fGpffff8178;
+            }
+            break;
+        case 0x103:
+            scale = 3.0f;
+            heightScale = 0.0f;
+            break;
+        case 0x104:
+            scale = 4.5f;
+            if (datCalcChkBadStatus(*(s32 *)(target + 0xA64), 0x100000) == 0) {
+                heightScale = fGpffff8030;
+            } else {
+                heightScale = fGpffff8178;
+            }
+            break;
+        case 0x105:
+            scale = 3.5f;
+            heightScale = fGpffff8098;
+            break;
+        case 0x106:
+            scale = 2.25f;
+            heightScale = 0.0f;
+            break;
+        case 0x10F:
+            scale = 3.5f;
+            if (datCalcChkBadStatus(*(s32 *)(target + 0xA64), 0x100000) == 0) {
+                heightScale = fGpffff8118;
+            } else {
+                heightScale = 0.0f;
+            }
+            break;
+        case 0x107:
+            scale = 3.0f;
+            heightScale = 0.0f;
+            break;
+        case 0x108:
+            scale = 3.5f;
+            if (datCalcChkBadStatus(*(s32 *)(target + 0xA64), 0x100000) == 0) {
+                heightScale = 0.0f;
+            } else {
+                heightScale = fGpffff817c;
+            }
+            break;
+        case 0x10A:
+            scale = 3.5f;
+            if (datCalcChkBadStatus(*(s32 *)(target + 0xA64), 0x100000) == 0) {
+                heightScale = fGpffff8118;
+            } else {
+                heightScale = 0.0f;
+            }
+            break;
+        case 0x10B:
+            scale = 3.5f;
+            heightScale = 0.0f;
+            break;
+        case 0x112:
+            scale = 3.0f;
+            heightScale = 0.0f;
+            break;
+        default:
+            break;
+        }
+        func_002266b0(camera, heightScale, scale, distanceOffset, duration);
+    }
+}
+#pragma opt_common_subs on
 // FUN_00225BD0
 void func_00225bd0(u8 *arg0)
 {
@@ -2336,7 +2458,81 @@ fail:
     return -1.0f;
 }
 // FUN_0022D200
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022d200);
+/* Measured: 824/832 bytes, one resolved relocation, zero differences;
+ * the remaining eight retail bytes are zero alignment. */
+s32 func_0022d200(u8 *action)
+{
+    u8 *global;
+    u8 *unit;
+    u16 unitId;
+    u16 skill;
+
+    global = iGpffffb3ac;
+    if ((*(u32 *)(global + 0xC) & 0x200000) == 0) {
+        return 0;
+    }
+    if ((*(u16 *)(action + 0x1A) & 1) == 0) {
+        return 0;
+    }
+    unit = *(u8 **)(action + 0x30);
+    if (*(u8 *)(unit + 0xA2) != 1) {
+        return 0;
+    }
+    unitId = *(u16 *)(unit + 0xA4);
+    switch (unitId) {
+    case 0x100:
+        skill = *(u16 *)(action + 0x6E);
+        return skill == 0x160 ? *(s32 *)(global + 0xBF0) : *(s32 *)(global + 0xBE0);
+    case 0x103:
+        skill = *(u16 *)(action + 0x6E);
+        if (skill == 0x166 || skill == 0x167 || skill == 0x168) {
+            return *(s32 *)(global + 0xBF0);
+        }
+        return *(s32 *)(global + 0xBE0);
+    case 0x104:
+        skill = *(u16 *)(action + 0x6E);
+        return skill == 0x169 ? *(s32 *)(global + 0xBF0) : *(s32 *)(global + 0xBE0);
+    case 0x106:
+    case 0x10F:
+        skill = *(u16 *)(action + 0x6E);
+        if (skill == 0x16D || skill == 0x173 || skill == 0x174 ||
+            skill == 0x175 || skill == 0x176 || skill == 0x177) {
+            return *(s32 *)(global + 0xBF0);
+        }
+        return skill == 0x172 ? *(s32 *)(global + 0xBF4) : *(s32 *)(global + 0xBE0);
+    case 0x105:
+        skill = *(u16 *)(action + 0x6E);
+        if (skill == 0x16B) {
+            return *(s32 *)(global + 0xBF0);
+        }
+        if (skill == 0x16A) {
+            return *(s32 *)(global + 0xBF0);
+        }
+        return skill == 0x16C ? *(s32 *)(global + 0xBF0) : *(s32 *)(global + 0xBE0);
+    case 0x108:
+        skill = *(u16 *)(action + 0x6E);
+        if (skill == 0x17A) {
+            return *(s32 *)(global + 0xBF0);
+        }
+        return skill == 0x17C ? *(s32 *)(global + 0xBF0) : *(s32 *)(global + 0xBE0);
+    case 0x10A:
+    case 0x113:
+        skill = *(u16 *)(action + 0x6E);
+        if (skill == 0x17F || skill == 0x186) {
+            return *(s32 *)(global + 0xBF0);
+        }
+        return skill == 0x180 ? *(s32 *)(global + 0xBF0) : *(s32 *)(global + 0xBE0);
+    case 0x10B:
+    case 0x10E:
+        skill = *(u16 *)(action + 0x6E);
+        if (skill == 0x181 || skill == 0x18B || skill == 0x182 || skill == 0x185) {
+            return *(s32 *)(global + 0xBF0);
+        }
+        return *(s32 *)(global + 0xBE0);
+    default:
+        return *(s32 *)(global + 0xBE0);
+    }
+}
 // FUN_0022D540
 s32 func_0022d540(u8 *arg0, u8 *arg1) {
     u16 temp_3;

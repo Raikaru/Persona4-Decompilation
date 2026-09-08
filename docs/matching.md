@@ -7398,3 +7398,67 @@ The final `make build-progress progress lint-errors` gate passes with
 functions**, validated progress artifacts and zero findings across 338
 first-party files. Both retail hashes remain unchanged. Temporary
 reconstruction probes and the compile-contract fixture are removed.
+
+## Exact enemy camera transition and battle resource selection
+
+Two further helpers now match in ordinary C:
+
+| Function | Object / retail-window bytes | Fully resolved relocations | Zero-only tail |
+| --- | ---: | ---: | ---: |
+| `func_002258b0` | 800 / 800 | 20 | 0 |
+| `func_0022d200` | 824 / 832 | 1 | 8 |
+
+Both have zero differing bytes after resolving every code relocation,
+without masking. The camera helper needs `opt_common_subs off` around
+its body to preserve the action reload and explicitly wrapping target
+ordinal. Its three existing callers remain fully resolved byte-exact:
+`func_00225bd0` is 44/48 bytes, `func_00225c00` is 256/256, and
+`func_00225d00` is 252/256.
+
+The camera switch selects the actor ID, while its status predicates read
+the first target's unit data. The fitting provider receives height scale,
+distance scale, distance offset and duration in that order; the first
+scalar is not an angular threshold. Each GP-relative constant is a
+separately declared float rather than an offset beyond another scalar.
+All 19 relocated compiler-generated entries equal retail table
+`0x00747820`:
+
+```text
+002259E0 002259F4 00225A08 00225A40 00225A54 00225A8C 00225AA0
+00225AEC 00225B00 00225B90 00225B38 00225B70 00225B90 00225B90
+00225B90 00225AB4 00225B90 00225B90 00225B84
+```
+
+The resource selector preserves its ordered outer switch and separate
+final default return. Global bit `0x200000`, action bit `1` and actor
+genus `1` gate selection. The normal, special and alternate handles come
+from global offsets `0xBE0`, `0xBF0` and `0xBF4`; only IDs `0x106` and
+`0x10F` with skill `0x172` select the alternate slot. A selected zero
+handle remains zero. No compiler pragma is needed.
+
+A throwaway native smoke extracted the actual promoted selector body.
+Clang AddressSanitizer and UndefinedBehaviorSanitizer passed **1,507,328
+ID/skill selections**: all 65,536 skill values for IDs `0xFF..0x114` and
+`0xFFFF`, plus early gates, signed handles and a zero special resource.
+This is native selector execution and retail-byte proof, not a claim
+that the camera helper or the full game was executed.
+
+The fallback initializer `func_002240e0` remains ASM. Its complete
+ordinary-C archive has **872/880 bytes, 344 normalized differing bytes,
+34 fully resolved relocations, and 413 differing overlap bytes without
+masking**. There are 135 differing executable word positions including
+the uncovered instruction. Four executable bytes remain uncovered;
+the last four retail-window bytes are alignment zeros. The previous
+archive had 414 unmasked differing bytes and 136 differing word positions.
+This is a source-shape floor, not the undefined-input blocker found in
+the other camera helpers: both seven-float output poses are fully
+initialized. The archive records the remaining allocation/narrowing
+differences and the failed source-shaping levers.
+
+The final `make build-progress progress lint-errors` gate passes:
+**6,142 first-party MATCH / 718 ASM**, **172 C-linked objects / 1,570
+functions**, validated progress artifacts and zero findings across 338
+first-party files. Loadable image SHA-1 remains
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; retail ELF SHA-1 remains
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`. The reconstruction probes
+and native smoke fixture are removed.
