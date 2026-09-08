@@ -31,7 +31,6 @@ typedef void (*CallbackFn)(void);
 
 extern s32 func_003b83d0(s32 object, s32 hierarchy);
 
-extern void func_003e0c90(void);
 extern void func_003e0870(void);
 extern void func_003e0e20(void);
 extern f32 DAT_0076112c;
@@ -216,6 +215,18 @@ typedef struct RwMatrix
     RwV3d pos;     // 0x30
     u32 pad3;      // 0x3c
 } RwMatrix;
+
+/* RwOpCombineType from rw/plcore/bamatrix.h; RWFORCEENUMSIZEINT is 0x7FFFFFFF. */
+enum RwOpCombineType
+{
+    rwCOMBINEREPLACE = 0,
+    rwCOMBINEPRECONCAT,
+    rwCOMBINEPOSTCONCAT,
+    rwOPCOMBINETYPEFORCEENUMSIZEINT = 0x7FFFFFFF
+};
+typedef enum RwOpCombineType RwOpCombineType;
+
+extern RwMatrix* RwMatrixTranslate(RwMatrix* matrix, const RwV3d* translation, RwOpCombineType combineOp);
 
 // 12 bytes. attachedWpns slot layout from P4 retail (flags bit 0 at 0x00, wpnMdl at 0x04, unk_08 at 0x08).
 typedef struct MdlWpnSlot
@@ -3373,9 +3384,9 @@ void func_0047a150(void* param_1)
 }
 
 // FUN_0047A180
-void func_0047a180(void)
+RwMatrix* func_0047a180(RwMatrix* matrix, const RwV3d* translation, int combineOp)
 {
-    func_003e0c90();
+    return RwMatrixTranslate(matrix, translation, (RwOpCombineType)combineOp);
 }
 
 // FUN_0047A1A0

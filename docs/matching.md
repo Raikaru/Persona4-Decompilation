@@ -7010,3 +7010,67 @@ The complete `make build-progress progress lint-errors` gate passes at
 1,570 functions**, validated progress artifacts, and zero findings across
 338 first-party files. Both the loadable-image and complete-retail hashes
 remain unchanged.
+
+## Fresh reaction setup and start dispatchers
+
+Two previously unattempted helpers in `code1_0022.c` are now ordinary C:
+
+| Function | Executable / retail window | Fully resolved relocations |
+| --- | --- | --- |
+| `func_0022d600` | 1,412 / 1,424 bytes | 59 code: 27 calls, 18 GP-relative, seven HI16/LO16 pairs |
+| `func_0022dc70` | 2,164 / 2,176 bytes | 74 code: eight calls, 38 GP-relative, fourteen HI16/LO16 pairs; 20 jump-table entries |
+
+Both integrated bodies have zero differing executable bytes or words, no
+unresolved relocations, no missing instructions, and no window overrun.
+Each remaining 12-byte tail is retail zero alignment. The start dispatcher's
+complete 80-byte selector table also matches. No artificial padding or
+register pinning is used.
+
+The setup helper retains its real, unused source input, affected packet,
+and signed HP-delta pointer; `btlTarget.c` now declares that precise contract.
+Its unsigned counter update preserves modulo-32-bit arithmetic before the
+signed clamp. The start helper's first complete candidate differed in nine
+saved-register uses. Declaring the list cursor before the `started` flag
+closed all nine differences without changing control flow.
+
+The matrix translation wrapper `func_0047a180` now explicitly forwards all
+three inputs to `RwMatrixTranslate` and returns the resulting matrix pointer.
+Its consumers retain their original matrix/vector addresses and combine
+modes; they no longer depend on a zero-argument C forwarding body.
+
+A throwaway wasm32 setup smoke passes **79 scenarios** using the integrated
+dispatcher and six actual provider bodies: `datCalcChkBadStatus`,
+`func_002325a0`, `func_001d9740`, `func_001fae60`, `func_0047a180`, and
+`mdlScale`. It checks status branches, unsigned counter boundaries, callback
+storage, overlapping HP-display thresholds, model-handle replacement between
+calls, paired-unit HP clamping and fallthrough, and all three translation
+modes with real 32-bit pointers. Whole-state comparisons check unrelated
+storage remains unchanged.
+
+Maximum-HP lookup, registries, event/counter storage, material mutation, and
+matrix mathematics are fixture services. The real matrix wrapper is executed,
+not the canonical RenderWare mathematics implementation. Scheduled callback
+bodies are not invoked. This is source-level behavior evidence, not console
+or end-to-end game execution.
+
+The start dispatcher separately passes **73,974 wasm32 scenarios**, including
+all 65,536 selectors, signed-byte stages, action gates, flag preservation,
+list filtering, and both countdowns across `INT_MIN` through `INT_MAX`.
+The actual `func_001fae60`, `datCalcChkBadStatus`, and `btlActionSetState`
+bodies execute alongside it. Every scenario compares all 24,832 bytes of
+fixture state. The independent oracle uses the authenticated retail
+jump-table destinations, not the candidate table.
+
+List-node genus and ID are deliberately not filters here; the smoke varies
+them to detect invented restrictions. Countdown decrements are guarded by
+`> 0`, so even the signed extrema introduce no overflow. Battle/flag inputs,
+callback and data identities, and the state-25 engine initializer are fixture
+services; registered initializer/updater bodies are not executed. The smoke
+checks the real action-state transition and dispatch order, not the external
+state-25 initializer's game behavior. Both throwaway smoke fixtures are removed.
+
+The complete `make build-progress progress lint-errors` gate passes at
+**6,138 first-party MATCH / 722 ASM**. C-linked coverage remains **172
+objects / 1,570 functions**. Progress artifacts validate, all 338 first-party
+files have zero lint findings, and both the loadable-image and complete-retail
+SHA-1 hashes remain unchanged.

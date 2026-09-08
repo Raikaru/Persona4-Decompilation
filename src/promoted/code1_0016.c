@@ -1,6 +1,9 @@
 #include "include_asm.h"
 #include "type.h"
 #include "Kosaka/k_fldFrame_internal.h"
+
+typedef struct RwMatrix RwMatrix;
+
 extern s32 iGpffff9ef8;
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 extern void func_004577d0(void *arg0, f32 arg1);
@@ -92,7 +95,7 @@ extern u8 D_005F1610[];
 extern u8 D_007F00D8[];
 extern u8 D_007E9328[];
 extern s32 func_00168060(u8 *arg0);
-extern void func_0047a180(s32 arg0, void *arg1, s32 arg2);
+extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern void func_0047a1a0(s32 arg0, s32 arg1, f32 arg2, s32 arg3);
 extern void func_00478e70(s32 arg0);
 extern s32 iGpffff9f00;
@@ -934,7 +937,7 @@ s32 func_00168060(u8 *arg0)
                 func_0016a960(&stack.sp70, &stack.sp80,
                               *(f32 *)(work + 0x24), *(u16 *)(work + 8));
             }
-            func_0047a180(*(s32 *)(work + 0x10), &stack.sp80, 2);
+            func_0047a180((RwMatrix *)*(s32 *)(work + 0x10), &stack.sp80, 2);
             if (*(s32 *)(work + 0x14) != 0) {
                 source = func_0047a2f0(*(s32 *)(work + 0x10));
                 target = func_0047a2f0(*(s32 *)(work + 0x14));
@@ -1319,9 +1322,9 @@ void func_00168de0(u8 *arg0, s32 arg1, f32 fparg0) {
         sp40.x = -1.0f * sp50.x;
         sp40.y = -1.0f * sp50.y;
         sp40.z = -1.0f * sp50.z;
-        func_0047a180(*(s32 *)(temp_16 + 0x10), &sp40, 2);
+        func_0047a180((RwMatrix *)*(s32 *)(temp_16 + 0x10), &sp40, 2);
         func_0047a1a0(*(s32 *)(temp_16 + 0x10), arg1, fparg0, 2);
-        func_0047a180(*(s32 *)(temp_16 + 0x10), &sp50, 2);
+        func_0047a180((RwMatrix *)*(s32 *)(temp_16 + 0x10), &sp50, 2);
     }
 }
 // FUN_00168EC0

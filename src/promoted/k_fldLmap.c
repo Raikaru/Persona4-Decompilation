@@ -3,6 +3,9 @@
 #include "type.h"
 #include "include_asm.h"
 
+typedef struct RwMatrix RwMatrix;
+typedef struct RwV3d RwV3d;
+
 extern void (*jtbl_008873EC[])(void *);
 typedef struct Vec3 { f32 x; f32 y; f32 z; } Vec3;
 extern u8 *(*D_008873F4[])(s32, s32, s32);
@@ -27,7 +30,7 @@ extern void func_00460ac0(void *param, u8 *work);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern f32 func_003e40b0(f32 *param, f32 *out);
 extern u8 *func_0047a2f0(s32 param);
-extern void func_0047a180();
+extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern u8 *func_00457120();
 extern void func_00457630(u8 *param, u8 *src, u8 *dst, s32 mode);
 extern f32 func_0044b7b0(f32 param);
@@ -641,7 +644,7 @@ s32 func_00188be0(u8 *arg0)
             *(s32 *)(temp_16 + 0x58) = -1;
             *(s32 *)temp_16 = 1;
         }
-        func_0047a180(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144), &sp20.x, 0);
+        func_0047a180((RwMatrix *)*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144), (const RwV3d *)&sp20, 0);
         break;
     case 3:
         return -1;
@@ -711,7 +714,7 @@ void func_00189060(u8 *arg0, s32 arg1, f32 fparg0)
         }
         *(s32 *)(temp_16 + 0x58) = -1;
         *(s32 *)(temp_16 + 0x5C) = arg1;
-        func_0047a180(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144), temp_16 + (arg1 * 0xC) + 0xC, 0);
+        func_0047a180((RwMatrix *)*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144), (const RwV3d *)(temp_16 + (arg1 * 0xC) + 0xC), 0);
     }
 }
 
