@@ -10,6 +10,17 @@
  * provider mutations, inter-call state, all twelve records and adjacent bytes.
  * All 44 existing owner C matches and their relocations remain intact.
  * Requires valid aligned backing storage and an allocated record index.
+ *
+ * Fresh 2026-09-09 compiler experiments preserve the same 156B/nd4 floor.
+ * Eight equivalent integer/pointer/indexed state views do not close the
+ * cached-base copies; the wide-index view grows to 172B. Explicit cached
+ * state stores and a grouped base/offset/context local both collapse to
+ * 128B/nd100, removing the retail parent/index register lifetimes. An inline
+ * context-view helper reaches 156B/nd26 but still recomputes the two bases.
+ * Typed-record cached-context construction grows to 176B/nd115. The b119
+ * compiler emits the same 156B/nd4 candidate as b210; no compiler cutover.
+ * Production remains unchanged. These are source-shape experiments, not
+ * a proof that no matching ordinary-C spelling exists.
  */
 // FUN_00375F00
 #pragma optimization_level 1
