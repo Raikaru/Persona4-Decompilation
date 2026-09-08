@@ -23,7 +23,7 @@ extern void func_003554b0(u8 *arg0);
 extern void func_00442de8(void *dst, const void *src, u32 size);
 extern f32 func_003e40b0(void *out, const void *in);
 
-extern void func_0046d280(s32 arg0);
+extern void func_0046d280(void *node);
 extern void func_00452080(s32 arg0);
 extern void func_002bc060(s32 arg0);
 extern s32 func_002467b0(u16 arg0);
@@ -1254,7 +1254,7 @@ loop_body:
     temp_2 = arg0 + (var_17 * 4) + 0x11D0;
     temp_4 = *(s32 *)temp_2;
     if (temp_4 != 0) {
-        func_0046d280(temp_4);
+        func_0046d280((void *)temp_4);
         *(s32 *)temp_2 = 0;
     }
     var_17 += 1;
@@ -1748,7 +1748,7 @@ void func_0035e820(u8 *arg0)
 loop_body:
     slot = (s32 *)(base + i * 4 + 0x448);
     if (*slot != 0) {
-        func_0046d280(*slot);
+        func_0046d280((void *)*slot);
         *slot = 0;
     }
     i++;

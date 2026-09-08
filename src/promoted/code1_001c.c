@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+typedef struct BtlUnitStateWork BtlUnitStateWork;
 extern void func_001bdeb0();
 extern void func_001c9820(u8 *arg0, s32 arg1, s32 arg2, f32 arg3);
 extern void func_001ce620(u8 *arg0, f32 arg1, f32 arg2, f32 arg3);
@@ -30,7 +31,7 @@ extern f32 fGpffff811c;
 extern void func_001bcd40(u8 *arg0, u8 *arg1, u8 *arg2, f32 arg3, s32 arg4);
 extern void func_001ca590(u8 *arg0, f32 arg1, f32 arg2);
 extern void func_001cacd0(u8 *arg0, f32 arg1, f32 arg2);
-extern void func_0019de70(u8 *arg0, u16 arg1);
+extern void func_0019de70(BtlUnitStateWork *work, u16 value);
 extern s32 func_001bc560(u8 *arg0, u8 *arg1);
 extern s16 func_001d7f10(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_001d8df0(u8 *arg0);
@@ -238,9 +239,9 @@ void func_001c1f70(u8 *arg0)
         temp_16 = func_001d0730(*(u16 *)(temp_18 + 0xA4), 0);
         if ((*(u16 *)(iGpffffb3e0 +
                       *(u16 *)(temp_18 + 0xA4) * 0x58) & 1) == 0) {
-            func_0019de70(temp_18, 0);
+            func_0019de70((BtlUnitStateWork *)temp_18, 0);
         } else {
-            func_0019de70(temp_18, 1);
+            func_0019de70((BtlUnitStateWork *)temp_18, 1);
         }
         func_003dcb40((s64 *)&frame.valueA0,
                       (s64 *)((u8 *)temp_16 + 4),
@@ -291,7 +292,7 @@ void func_001c3eb0(u8 *arg0, s32 arg1)
             }
         }
         if (func_001bc560(arg0, *(u8 **)(arg0 + 0x12C)) != 0) {
-            func_0019de70(*(u8 **)(arg0 + 0x12C), *(u16 *)(arg0 + 0x130));
+            func_0019de70(*(BtlUnitStateWork **)(arg0 + 0x12C), *(u16 *)(arg0 + 0x130));
         }
     }
 }
@@ -359,7 +360,7 @@ void func_001c52c0(u8 *arg0)
         if ((*(u8 **)(arg0 + 0xE0) != NULL) &&
             ((*(u16 *)(*(u8 **)(arg0 + 0xE0) + 0x1A) & 1) != 0) &&
             (func_001bc560(arg0, *(u8 **)(arg0 + 0x12C)) != 0)) {
-            func_0019de70(*(u8 **)(arg0 + 0x12C),
+            func_0019de70(*(BtlUnitStateWork **)(arg0 + 0x12C),
                           *(u16 *)(arg0 + 0x130));
             return;
         }
@@ -372,7 +373,7 @@ void func_001c52c0(u8 *arg0)
                               NULL, NULL, 0.0f, 3);
             }
             if (func_001bc560(arg0, *(u8 **)(arg0 + 0x12C)) != 0) {
-                func_0019de70(*(u8 **)(arg0 + 0x12C),
+                func_0019de70(*(BtlUnitStateWork **)(arg0 + 0x12C),
                               *(u16 *)(arg0 + 0x130));
                 return;
             }
@@ -386,7 +387,7 @@ void func_001c52c0(u8 *arg0)
                  *(s32 *)(*(u8 **)(arg0 + 0xE0) + 0x38)) &&
                 ((*(u16 *)(*(u8 **)(arg0 + 0xE0) + 0x1A) & 1) != 0)) {
                 if (func_001bc560(arg0, *(u8 **)(arg0 + 0x12C)) != 0) {
-                    func_0019de70(*(u8 **)(arg0 + 0x12C),
+                    func_0019de70(*(BtlUnitStateWork **)(arg0 + 0x12C),
                                   *(u16 *)(arg0 + 0x130));
                 }
                 func_001bcd40(*(u8 **)(arg0 + 0xE0),
@@ -397,7 +398,7 @@ void func_001c52c0(u8 *arg0)
             if ((*(u8 **)(arg0 + 0xE0) != NULL) &&
                 ((*(u16 *)(*(u8 **)(arg0 + 0xE0) + 0x1A) & 1) != 0) &&
                 (func_001bc560(arg0, *(u8 **)(arg0 + 0x12C)) != 0)) {
-                func_0019de70(*(u8 **)(arg0 + 0x12C),
+                func_0019de70(*(BtlUnitStateWork **)(arg0 + 0x12C),
                               *(u16 *)(arg0 + 0x130));
             }
         }
@@ -409,7 +410,7 @@ void func_001c52c0(u8 *arg0)
         if ((*(u8 **)(arg0 + 0xE0) != NULL) &&
             ((*(u16 *)(*(u8 **)(arg0 + 0xE0) + 0x1A) & 1) != 0) &&
             (func_001bc560(arg0, *(u8 **)(arg0 + 0x12C)) != 0)) {
-            func_0019de70(*(u8 **)(arg0 + 0x12C),
+            func_0019de70(*(BtlUnitStateWork **)(arg0 + 0x12C),
                           *(u16 *)(arg0 + 0x130));
         }
         break;
@@ -819,7 +820,7 @@ void func_001cb540(u8 *arg0)
         func_001bcd40(temp, NULL, NULL, 0.0f, 0x11);
     }
     if (func_001bc560(arg0, *(u8 **)(arg0 + 0x12C)) != 0) {
-        func_0019de70(*(u8 **)(arg0 + 0x12C), *(u16 *)(arg0 + 0x130));
+        func_0019de70(*(BtlUnitStateWork **)(arg0 + 0x12C), *(u16 *)(arg0 + 0x130));
     }
 done:
     ;
