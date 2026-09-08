@@ -192,6 +192,10 @@ s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
 }
 // FUN_0016ABC0
 INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016abc0);
+/* Retained dispatcher: 476B/480B, ten resolved relocations, one branch-target
+   word differs; the last four retail bytes are zero alignment. The typed
+   preferred/fallback selector and cached-root guard pass 1,492,992 native
+   boundary/mutation cases. See LFF2_0016b080_body.c; production remains ASM. */
 // FUN_0016B080
 INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016b080);
 /* measured: propagation probe for func_0016b260 register scheduling. */

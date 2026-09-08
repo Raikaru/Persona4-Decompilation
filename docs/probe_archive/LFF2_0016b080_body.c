@@ -1,36 +1,42 @@
-/* IDA-backed field selection; production remains ASM.
- * MWCCPS2 b210, full owner profile: 476B / 480B, 72 differing masked words
- * (71 emitted differences and the omitted zero tail at 0x1dc).
- * Thirty-five source-shape probes improved the former 460B/93-word floor.
- * A typed resource/list prefix, cached initial guard, lexical float placement
- * and common-subexpression disabling are retained. Remaining differences:
- * null/disabled guard folding, duplicated FP constants and preferred/fallback
- * joins. The final default call and epilogue align with retail.
- * Integer arguments remain a0/a1/a2; fraction independently occupies f12.
- * The callee declaration below needs cohort-wide lexical-order migration.
- * Camera/map/frame getter pointer contracts also remain an integration issue;
- * the separate func_0014a270 signed return repair is now in production.
- * Signed grid strides use multiplication, not undefined negative shifts.
- * Reload the default resource after the field queries, compare modes with 1,
- * retain the unsigned key and stop at the first matching list node.
- * The earlier raw-pointer spelling passed 13,440 native32 cases. This
- * revision has compiler/disassembly evidence, not a new native smoke claim.
+/* Field collision dispatcher; production remains ASM.
+ * MWCCPS2 3.0.1 b210, -O2 -Iinclude, complete current k_fldFrame.c owner:
+ * 476 emitted bytes / 480-byte retail window, ten resolved relocations,
+ * one executable-word difference at +0x134. Retail branches to +0x154;
+ * this candidate branches to +0x140, which then branches to +0x154.
+ * The final four retail bytes are zero alignment, not missing executable code.
+ * No bytes were appended and no instructions or relocations were patched.
+ *
+ * A real null-root early return and the shared inline preferred/fallback
+ * selector remove the previous guard/constant/selection residuals. The
+ * previous retained candidate reproduced 78 fully relocated word differences
+ * (its older 72-word figure used relocation masking).
+ * All 15 other emitted owner functions, including ten existing C matches,
+ * retain their bytes and relocation identities.
+ *
+ * Native 64-bit ASan/UBSan/function smoke: 1,492,992 cases covering signed
+ * grid boundaries, exact mode == 1 checks, cached initial guard, root reload,
+ * provider mutations, full unsigned keys, first duplicate including a null
+ * collection, preferred/fallback selection, and aliased hit-output vectors.
+ * This uses native typed pointer layouts, not a claim of retail execution.
+ * The matrix getter receives the owner's existing packed 32-bit frame handle.
+ * Radius occupies f12 independently of the three integer pointer arguments.
+ * Collection addresses are pointers; signed grid strides use multiplication.
  */
 #pragma push
-/* measured: hoisting on and common-subexpression elimination off give 72 words. */
+/* Measured full-owner loop-invariant and common-subexpression profile. */
 #pragma opt_loop_invariants on
-#pragma opt_common_subs off
-extern s32 func_0016abc0(s32 collisionWorld, f32* point, f32 fraction, f32* normal,
+#pragma opt_common_subs on
+extern s32 func_0016abc0(void* collisionWorld, f32* point, f32 radius, f32* normal,
                          f32* vector);
 
 typedef struct FldSelectionResource
 {
     u32 flags;
     u32 unknown04;
-    s32 fallback;
+    void* fallback;
     u32 unknown0c;
     u32 unknown10;
-    s32 preferred;
+    void* preferred;
 } FldSelectionResource;
 typedef struct FldSelectionNode
 {
@@ -41,20 +47,28 @@ typedef struct FldSelectionNode
     FldSelectionResource* resource;
 } FldSelectionNode;
 
-s32 func_0016b080(f32* point, f32 fraction, f32* normal, f32* vector)
+static inline void* fldSelectionWorld(FldSelectionResource* selected)
+{
+    void* world = selected->preferred;
+    if (world != 0)
+        return world;
+    return selected->fallback;
+}
+
+s32 func_0016b080(f32* point, f32 radius, f32* normal, f32* vector)
 {
     s32 result;
-    s32 collisionWorld;
+    void* collisionWorld;
     s32 fieldX;
     s32 fieldZ;
     u16 key;
 
-    u8* object;
+    FldSelectionResource* object;
     result = 0;
-    object = *(u8**)(iGpffff9db0 + 0x28);
+    object = *(FldSelectionResource**)(iGpffff9db0 + 0x28);
     if (object == NULL)
-        goto finished;
-    if ((*(u32*)object & 1) == 0)
+        return result;
+    if ((object->flags & 1) == 0)
     {
         collisionWorld = 0;
         if (func_0014a200() == 1 || func_0014a270() == 1)
@@ -72,24 +86,19 @@ s32 func_0016b080(f32* point, f32 fraction, f32* normal, f32* vector)
                 if (node->id == key)
                 {
                     FldSelectionResource* selected = node->resource;
-                    collisionWorld = selected->preferred;
-                    if (collisionWorld == 0)
-                        collisionWorld = selected->fallback;
+                    collisionWorld = fldSelectionWorld(selected);
                     break;
                 }
             }
-            result = func_0016abc0(collisionWorld, point, fraction, normal, vector);
+            result = func_0016abc0(collisionWorld, point, radius, normal, vector);
         }
         else
         {
             FldSelectionResource* selected = *(FldSelectionResource**)(iGpffff9db0 + 0x28);
-            s32 fallbackWorld = selected->preferred;
-            if (fallbackWorld == 0)
-                fallbackWorld = selected->fallback;
-            result = func_0016abc0(fallbackWorld, point, fraction, normal, vector);
+            void* fallbackWorld = fldSelectionWorld(selected);
+            result = func_0016abc0(fallbackWorld, point, radius, normal, vector);
         }
     }
-finished:
     return result;
 }
 #pragma pop

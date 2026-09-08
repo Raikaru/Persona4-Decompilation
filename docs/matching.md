@@ -6694,3 +6694,61 @@ gate reports **6,132 first-party MATCH / 728 ASM**, **172 C-linked objects /
 across 338 first-party files. The loadable-image SHA-1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; the complete retail file remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Field dispatcher: one remaining branch target
+
+`LFF2_0016b080_body.c` now retains a **476 / 480-byte** candidate with
+**one fully relocated executable-word difference**, down from **78** in
+the previous retained body. Both versions have ten relocations and omit
+only four zero alignment bytes. The old 72-word figure used relocation
+masking; it was not a fully resolved comparison.
+
+The closing source choices are a real early return for a null cached root
+and one inline preferred/fallback collection selector reused in both
+resource paths. Collection fields are pointers, and both cached and reloaded
+root accesses use the same resource-pointer type. Shared floating constants
+and signed grid multiplication reproduce the remaining instructions without
+register constraints, undefined shifts or artificial padding.
+
+At **+0x134**, retail branches directly to **+0x154**. The candidate instead
+branches to **+0x140**, whose branch then reaches **+0x154**. That extra
+branch path remains an instruction mismatch: the function stays
+`INCLUDE_ASM`. The zero alignment tail is reported separately, not treated
+as missing executable code or patched into the object.
+
+Independent full-owner comparison preserves all **15 other emitted
+functions**, including the owner's **ten existing C matches**, with identical
+instruction bytes and relocation identities.
+
+A native 64-bit **ASan/UBSan/function** scenario passes **1,492,992 cases**:
+signed cell boundaries with independently tabulated expected indices;
+mode values -1, 0, 1 and 2; null/disabled/cached roots; root replacement
+during provider calls; coordinate mutation after index calculation; zero
+and high-bit unsigned keys; absent entries; first duplicates with both
+nonnull and null collections; preferred/fallback choices; and overlapping
+three-float output buffers. Actual collection objects are passed as pointers.
+The fixture uses native typed layouts and a packed frame-handle adapter;
+this is not a claim of executing retail code or native 32-bit layout testing.
+
+The accompanying independent replays do not close their prior residuals:
+
+| Function | Emitted / window | Resolved executable-word differences | Zero tail |
+| --- | ---: | ---: | ---: |
+| `0014be50` | 416 / 416 | 4, at +0x60 through +0x6c | 0 |
+| `001d8cb0` | 312 / 320 | 4, at +0xd8 through +0xe4 | 8 |
+
+The triangle retains its ordinary 12-byte normal and shared vector type.
+The battle selector retains the first-entry short circuit before reading
+its best-distance variable; reversing that source order would introduce
+an uninitialized read. Neither residual is promoted, and no new native
+behavior claim is made for those two replays.
+
+Archive replay succeeds with:
+
+```sh
+python tools/probe_archive.py docs/probe_archive/LFF2_0016b080_body.c src/Kosaka/Field/k_fldFrame.c
+```
+
+That tool's legacy score is **2**: the branch mismatch plus one omitted
+zero-tail word. The fully relocated measurement above separately checks
+all ten linker-owned fields.
