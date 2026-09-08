@@ -7822,3 +7822,37 @@ validated progress artifacts, and zero findings across 338 first-party
 files. C linking remains **172 objects / 1,570 functions**, with unchanged
 loadable and retail ELF hashes. Both completed recovery directories and
 their compiler probes were removed after archiving the evidence.
+
+## Exact collision segment and actor skill selectors
+
+`func_001ece50` now lives beside its geometry providers in
+`src/btlTarget/btlTarget.c`; the promoted-owner ASM marker is removed.
+It matches **520/528 bytes**, with six fully resolved relocations and only
+eight retail alignment bytes outside the compiler symbol. The existing
+orientation leaf is private: all twelve retail calls belong to this unit,
+and exposing it forces unnecessary caller saves. Its signed `-1/0/+1`
+contract remains intact. `func_001ec8c0` now accepts the actual two-float
+coordinate pairs rather than claiming three-component vectors; it still
+matches all 336 bytes. `P022_001ece50_body.c` preserves the complete source
+and caller/provider audit.
+
+`func_001ebc00` matches **1468/1472 bytes**, with four fully resolved call
+relocations and one zero alignment word. All 97 skill IDs remain explicit.
+A real `u16` array view, word-sized loaded skill, declaration order and
+scoped `opt_common_subs off` preserve the retail narrowing operations.
+The fallback provider `func_0023dfe0` now consistently takes its real unit
+pointer and returns `s32`; its zero-return body is unchanged.
+
+A freestanding 32-bit native smoke exercised the selector with its real
+skill getter, eligibility predicate, fallback and unsigned-modulo providers.
+All 65,536 skill IDs agreed with the independent retail case oracle.
+Eight-slot selection, duplicate entries, rejection and untouched command
+bytes also passed. Unexercised provider branches were fail-fast fixture
+boundaries, not successful substitutes. This is not game execution.
+`P022_001ebc00_body.c` records the source, contracts and smoke evidence.
+
+The full `make build-progress progress lint-errors` gate passes:
+**6,153 first-party MATCH / 707 ASM**, **7,783 total MATCH / 4,937 ASM**,
+validated progress artifacts, and zero findings across 338 first-party
+files. C linking remains **172 objects / 1,570 functions**; both loadable
+and retail ELF hashes are unchanged.

@@ -12,6 +12,7 @@ typedef struct RwV3d
 extern f32 RwV3dLength(const RwV3d* vector);
 extern f32 func_003e41e0(f32* out, f32* in);
 extern f32 fabsf(f32 x);
+extern u8 *iGpffffb3ac;
 
 typedef u32 (*BtlPacketUpdateFunc)(void* work);
 
@@ -149,7 +150,7 @@ void func_001ec790(void* work, s32 x, s32 z, f32 radius)
    floating-point scheduling. */
 #pragma opt_propagation off
 // FUN_001EC8C0
-s32 func_001ec8c0(RwV3d* first, RwV3d* second, RwV3d* point, f32 threshold)
+s32 func_001ec8c0(f32* first, f32* second, f32* point, f32 threshold)
 {
     f32 delta[2];
     f32 pointDeltaX;
@@ -158,18 +159,18 @@ s32 func_001ec8c0(RwV3d* first, RwV3d* second, RwV3d* point, f32 threshold)
     f32 projectedX;
     f32 projectedY;
 
-    delta[0] = first->x - second->x;
-    delta[1] = first->y - second->y;
+    delta[0] = first[0] - second[0];
+    delta[1] = first[1] - second[1];
     func_003e41e0(delta, delta);
-    pointDeltaX = point->x - first->x;
-    pointDeltaY = point->y - first->y;
+    pointDeltaX = point[0] - first[0];
+    pointDeltaY = point[1] - first[1];
     cross = pointDeltaX * delta[1] + pointDeltaY * -delta[0];
-    projectedX = point->x - cross * delta[1];
-    projectedY = point->y - cross * -delta[0];
-    if (((first->x < projectedX || second->x > projectedX) &&
-         (first->x > projectedX || second->x < projectedX)) ||
-        ((first->y < projectedY || second->y > projectedY) &&
-         (first->y > projectedY || second->y < projectedY)))
+    projectedX = point[0] - cross * delta[1];
+    projectedY = point[1] - cross * -delta[0];
+    if (((first[0] < projectedX || second[0] > projectedX) &&
+         (first[0] > projectedX || second[0] < projectedX)) ||
+        ((first[1] < projectedY || second[1] > projectedY) &&
+         (first[1] > projectedY || second[1] < projectedY)))
     {
         return 0;
     }
@@ -180,7 +181,8 @@ s32 func_001ec8c0(RwV3d* first, RwV3d* second, RwV3d* point, f32 threshold)
 // FUN_001ECA10
 INCLUDE_ASM("asm/nonmatchings/btlTarget", func_001eca10);
 // FUN_001ECDE0
-s32 func_001ecde0(const f32* param_1, const f32* param_2, const f32* param_3)
+/* Private leaf: all twelve retail calls belong to this geometry unit. */
+static s32 func_001ecde0(const f32* param_1, const f32* param_2, const f32* param_3)
 {
     f32 cross = (param_2[0] - param_1[0]) * (param_3[1] - param_1[1]) -
                 (param_2[1] - param_1[1]) * (param_3[0] - param_1[0]);
@@ -193,6 +195,58 @@ s32 func_001ecde0(const f32* param_1, const f32* param_2, const f32* param_3)
 
 nonpositive:
     return -(cross < 0.0f);
+}
+
+// FUN_001ECE50
+/* 520/528 bytes; all six relocations resolve exactly with the private leaf. */
+s32 func_001ece50(f32 *first, f32 *second, f32 margin)
+{
+    u8 *node;
+    s32 i;
+
+    for (node = *(u8 **)(iGpffffb3ac + 0x318);
+         node != NULL;
+         node = *(u8 **)(node + 0x4CC)) {
+        if ((*(f32 *)(node + 8) < first[0]) &&
+            (*(f32 *)(node + 0xC) < first[1]) &&
+            !(*(f32 *)(node + 0x268) <= first[0]) &&
+            !(*(f32 *)(node + 0x26C) <= first[1])) {
+            continue;
+        }
+        if ((*(f32 *)(node + 8) < second[0]) &&
+            (*(f32 *)(node + 0xC) < second[1]) &&
+            !(*(f32 *)(node + 0x268) <= second[0]) &&
+            !(*(f32 *)(node + 0x26C) <= second[1])) {
+            continue;
+        }
+        for (i = 0; i < 4; i++) {
+            s32 wrap = (i + 1) & 3;
+            f32 *next = (f32 *)(node + wrap * 0x130 + 8);
+            f32 *edge = (f32 *)(node + i * 0x130 + 8);
+            s32 intersects;
+            s32 side_a = func_001ecde0(edge, next, first);
+            s32 side_b = func_001ecde0(edge, next, second);
+
+            if (side_a != side_b) {
+                side_a = func_001ecde0(first, second, edge);
+                side_b = func_001ecde0(first, second, next);
+                if (side_a != side_b) {
+                    intersects = 1;
+                } else {
+                    intersects = 0;
+                }
+            } else {
+                intersects = 0;
+            }
+            if (intersects != 0) {
+                return 1;
+            }
+            if (func_001ec8c0(first, second, edge, margin) != 0) {
+                return 1;
+            }
+        }
+    }
+    return 0;
 }
 
 

@@ -1970,7 +1970,7 @@ s32 func_0023df70(s32 arg0)
 }
 
 // FUN_0023DFE0
-s32 func_0023dfe0(void)
+s32 func_0023dfe0(u8 *unit)
 {
     return 0;
 }

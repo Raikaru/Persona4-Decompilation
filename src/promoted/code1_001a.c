@@ -37,7 +37,7 @@ u8 *btlCameraCreateSetStatePacket(void *arg0, s32 arg1);
 u32 func_001deeb0(void *arg0);
 void func_001ded30();
 u32 func_001deee0();
-s16 func_0023dfe0(s32 arg0);
+s32 func_0023dfe0(u8 *unit);
 u32 func_001d8bc0(void *arg0);
 void func_001d8be0(u8 *arg0, s32 arg1);
 u8 *func_001f5f70(u8 *arg0, u16 arg1, u32 arg2, u32 arg3, u32 arg4);
@@ -679,7 +679,7 @@ void func_001a2c70(u8 *arg0)
 
     *(s16 *)(arg0 + 0x6C) = 1;
     *(s16 *)(arg0 + 0x6E) =
-        func_0023dfe0(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64));
+        func_0023dfe0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
     *(s32 *)(arg0 + 0x38) = func_001d8bc0(arg0 + 0x98);
     *(s16 *)(arg0 + 0x6A) = 1;
     func_001d8be0(arg0 + 0x98, *(s32 *)(arg0 + 0x38));
