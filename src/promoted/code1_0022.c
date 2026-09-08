@@ -8,6 +8,37 @@ typedef struct BtlPacket BtlPacket;
 typedef struct RwV3d RwV3d;
 typedef struct DatUnit DatUnit;
 typedef struct KwlnTask KwlnTask;
+struct RwV3d {
+    f32 x;
+    f32 y;
+    f32 z;
+};
+typedef struct RtQuat {
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 w;
+} RtQuat;
+typedef struct RwRGBA {
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+} RwRGBA;
+extern RwRGBA iGpffffb45c;
+extern char D_007636C0[8];
+extern char D_007636C8[8];
+extern char D_007636D0[8];
+extern u8 D_0062E070[];
+extern void func_004777d0(void *model, s32 name, u8 alpha);
+extern s32 func_002325a0(DatUnit *unit, s32 hpDelta);
+extern void func_00233880(u8 *unit, s32 effect);
+extern RtQuat *func_003dc740(RtQuat *out, const RwV3d *axis, f32 angle, s32 mode);
+extern void btlUnitSetRot(BtlUnit *unit, const RtQuat *rotation);
+extern void btlUnitSetColor(BtlUnit *unit, RwRGBA color);
+extern u32 datCalcClearBadStatus(s32 unit, u32 mask);
+extern void func_0019d040(u8 *unit);
+extern u32 func_00106330(s32 bit);
 extern void func_001bdeb0();
 
 u8 *func_00452380(s8 *name);
@@ -2296,8 +2327,208 @@ loop_check:
     }
     return 1;
 }
+/* measured: 2428B / 2432B window; all 115 relocations resolve exactly.
+   The remaining four bytes are retail zero alignment. Keep the single-case
+   action switch, model reloads before each callback, and structured list loop. */
 // FUN_0022EBA0
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022eba0);
+s32 func_0022eba0(u8 *packet)
+{
+    u8 *unit;
+    u8 *other;
+    u8 *target;
+    u8 *node;
+    void *model;
+    u32 index;
+    RtQuat rotation;
+
+    if ((*(u32 *)(DAT_0076449c + 0xC) & 0x200000) == 0)
+        return 1;
+    unit = *(u8 **)(packet + 0x30);
+    if (unit[0xA2] != 1)
+        return 1;
+    switch (*(u16 *)(unit + 0xA4)) {
+    case 0x105:
+        if (*(u16 *)(packet + 0x6C) == 2) {
+            switch (*(u16 *)(packet + 0x6E)) {
+            case 0x16A:
+                *(s8 *)(DAT_0076449c + 0xC10) = -1;
+                *(s8 *)(DAT_0076449c + 0xC13) = -1;
+                *(s8 *)(DAT_0076449c + 0xC28) = -1;
+                *(s8 *)(DAT_0076449c + 0xC22) = -1;
+                *(s8 *)(DAT_0076449c + 0xC1A) = -1;
+                *(s8 *)(DAT_0076449c + 0xC12) = -1;
+                break;
+            }
+        }
+        if (*(s8 *)(DAT_0076449c + 0xC10) == 0xE)
+            *(u16 *)(*(u8 **)(packet + 0x30) + 0x9D8) |= 0x20;
+        else
+            *(u16 *)(*(u8 **)(packet + 0x30) + 0x9D8) &= ~0x20;
+        break;
+    case 0x106:
+        if (*(u16 *)(packet + 0x6C) != 2)
+            break;
+        other = func_0019ef90(1, 0x10F);
+        if (other == 0 || *(u8 **)(other + 0xA00) == 0)
+            break;
+        switch (*(u16 *)(packet + 0x6E)) {
+        case 0x16E:
+            model = *(void **)(other + 0xA00);
+            func_004777d0(model, (s32)D_007636C0, 0);
+            model = *(void **)(other + 0xA00);
+            func_004777d0(model, (s32)D_007636C8, 0);
+            model = *(void **)(other + 0xA00);
+            func_004777d0(model, (s32)D_007636D0, 255);
+            *(s16 *)(DAT_0076449c + 0xC34) = 1;
+            **(u16 **)(unit + 0xA64) |= 0x20;
+            target = func_001b0c80((s32)other);
+            *(u16 *)(target + 0x1A) &= ~0x400;
+            func_002325a0(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
+            func_00198920(other, 0, 0, 1.0f, 1);
+            func_0019d040(other);
+            break;
+        case 0x16F:
+            model = *(void **)(other + 0xA00);
+            func_004777d0(model, (s32)D_007636C0, 0);
+            model = *(void **)(other + 0xA00);
+            func_004777d0(model, (s32)D_007636C8, 255);
+            model = *(void **)(other + 0xA00);
+            func_004777d0(model, (s32)D_007636D0, 255);
+            *(s16 *)(DAT_0076449c + 0xC34) = 2;
+            **(u16 **)(unit + 0xA64) |= 0x20;
+            target = func_001b0c80((s32)other);
+            *(u16 *)(target + 0x1A) &= ~0x400;
+            func_002325a0(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
+            func_00198920(other, 0, 0, 1.0f, 1);
+            func_0019d040(other);
+            break;
+        case 0x170:
+            model = *(void **)(other + 0xA00);
+            func_004777d0(model, (s32)D_007636C0, 255);
+            model = *(void **)(other + 0xA00);
+            func_004777d0(model, (s32)D_007636C8, 255);
+            model = *(void **)(other + 0xA00);
+            func_004777d0(model, (s32)D_007636D0, 255);
+            /* fall through */
+        case 0x171:
+            *(s16 *)(DAT_0076449c + 0xC34) = 3;
+            **(u16 **)(unit + 0xA64) |= 0x20;
+            func_002325a0(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
+            func_00198dd0(other, 0);
+            func_00198920(other, 0, 0, 1.0f, 1);
+            *(u8 **)(DAT_0076449c + 0xB98) = D_0062E070;
+            target = func_001b0c80((s32)other);
+            *(u16 *)(packet + 0x1A) &= ~8;
+            *(u32 *)(unit + 0x9C) &= ~8;
+            *(u16 *)(target + 0x1A) |= 8;
+            *(u16 *)(target + 0x1A) &= ~0x400;
+            *(u32 *)(other + 0x9C) |= 8;
+            if (*(u16 *)(packet + 0x6E) == 0x171) {
+                *(u32 *)(other + 0x9C) &= ~0x2000;
+                func_003dc740(&rotation, (const RwV3d *)D_0060A0E0, 180.0f, 0);
+                btlUnitSetRot((BtlUnit *)other, &rotation);
+                *(u32 *)(other + 0x9C) |= 0x2000;
+                func_0019d040(other);
+            }
+            break;
+        }
+        break;
+    case 0x108:
+        if (*(u16 *)(packet + 0x6C) != 2 || *(u16 *)(packet + 0x6E) != 0x17A)
+            break;
+        if (func_00106330(0x15C0) != 0) {
+            func_00106390(0x15C5, 1);
+            func_00106390(0x15C6, 0);
+            func_00106390(0x15C7, 0);
+            func_00106390(0x15C8, 0);
+            func_00106390(0x1435, 1);
+        }
+        if (func_00106330(0x15C1) != 0) {
+            func_00106390(0x15C5, 0);
+            func_00106390(0x15C6, 1);
+            func_00106390(0x15C7, 0);
+            func_00106390(0x15C8, 0);
+            func_00106390(0x1435, 1);
+        }
+        if (func_00106330(0x15C2) != 0) {
+            func_00106390(0x15C5, 0);
+            func_00106390(0x15C6, 0);
+            func_00106390(0x15C7, 1);
+            func_00106390(0x15C8, 0);
+            func_00106390(0x1435, 1);
+        }
+        if (func_00106330(0x15C3) != 0) {
+            func_00106390(0x15C5, 0);
+            func_00106390(0x15C6, 0);
+            func_00106390(0x15C7, 0);
+            func_00106390(0x15C8, 1);
+            func_00106390(0x1435, 1);
+        }
+        if (func_00106330(0x15C4) != 0) {
+            func_00106390(0x15C5, 0);
+            func_00106390(0x15C6, 0);
+            func_00106390(0x15C7, 0);
+            func_00106390(0x15C8, 0);
+            func_00106390(0x15C5 + func_00231d70(4), 1);
+            func_00106390(0x1435, 1);
+        }
+        if (func_00106330(0x1435) != 0)
+            *(s32 *)(DAT_0076449c + 0xC3C) = 3;
+        break;
+    case 0x10A:
+    case 0x113:
+        if (*(u16 *)(packet + 0x6E) != 0x180)
+            break;
+        node = *(u8 **)(DAT_0076449c + 0x174);
+        while (node != 0) {
+            if ((*(u16 *)(node + 0x1A) & 1) != 0) {
+                unit = *(u8 **)(node + 0x30);
+                if ((*(u32 *)(unit + 0x9C) & 8) != 0 && *(u8 **)(unit + 0xA64) != 0)
+                    func_00233880(*(u8 **)(unit + 0xA64), 0x14);
+            }
+            node = *(u8 **)(node + 0x450);
+        }
+        break;
+    case 0x10E:
+        if (*(u16 *)(packet + 0x6E) != 0x181)
+            break;
+        *(u32 *)(DAT_0076449c + 0x10) |= 0x20000000;
+        target = *(u8 **)(packet + 0x88);
+        if (target != 0) {
+            *(u32 *)(*(u8 **)(target + 0x30) + 0x9C) &= ~8;
+            *(RwRGBA *)(*(u8 **)(target + 0x30) + 0x40) = iGpffffb45c;
+            *(RwRGBA *)(*(u8 **)(target + 0x30) + 0x44) = iGpffffb45c;
+            *(RwRGBA *)(*(u8 **)(target + 0x30) + 0x48) = iGpffffb45c;
+            btlUnitSetColor((BtlUnit *)*(u8 **)(target + 0x30), iGpffffb45c);
+            datCalcClearBadStatus((s32)*(u8 **)(*(u8 **)(target + 0x30) + 0xA64), 0xFFF7FFFF);
+            unit = *(u8 **)(target + 0x30);
+            if ((*(u32 *)(unit + 0x98) & 2) != 0)
+                *(u16 *)(unit + 0x9D8) |= 0x10;
+        } else {
+            index = 0;
+            goto targets_check;
+targets_body:
+            target = *(u8 **)(packet + index * 4 + 0x38);
+            if (*(u8 **)(DAT_0076449c + 0x170) == target)
+                *(u32 *)(DAT_0076449c + 0x10) |= 0x10000000;
+            *(u32 *)(*(u8 **)(target + 0x30) + 0x9C) &= ~8;
+            *(RwRGBA *)(*(u8 **)(target + 0x30) + 0x40) = iGpffffb45c;
+            *(RwRGBA *)(*(u8 **)(target + 0x30) + 0x44) = iGpffffb45c;
+            *(RwRGBA *)(*(u8 **)(target + 0x30) + 0x48) = iGpffffb45c;
+            btlUnitSetColor((BtlUnit *)*(u8 **)(target + 0x30), iGpffffb45c);
+            datCalcClearBadStatus((s32)*(u8 **)(*(u8 **)(target + 0x30) + 0xA64), 0xFFF7FFFF);
+            unit = *(u8 **)(target + 0x30);
+            if ((*(u32 *)(unit + 0x98) & 2) != 0)
+                *(u16 *)(unit + 0x9D8) |= 0x10;
+            index++;
+targets_check:
+            if (index < *(u16 *)(packet + 0x6A))
+                goto targets_body;
+        }
+        break;
+    }
+    return 1;
+}
 // FUN_0022F520
 s32 func_0022f520(void)
 {
