@@ -492,7 +492,7 @@ bool btlCond_MYID(int param_1, int param_2)
 
 
 // FUN_00202010
-void func_00202010(u32 param_1, u16 param_2)
+BtlPacket* func_00202010(u32 param_1, u16 param_2)
 {
   u32 *puVar1;
   int iVar2 = 0;
@@ -503,5 +503,5 @@ void func_00202010(u32 param_1, u16 param_2)
   *puVar1 = param_1;
   *(u16 *)(puVar1 + 1) = param_2;
   puVar1[2] = 0;
-  return;
+  return (BtlPacket*)iVar2;
 }
