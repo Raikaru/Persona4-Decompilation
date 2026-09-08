@@ -28,7 +28,7 @@ extern f32 fGpffff8114;
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3e0;
 extern f32 fGpffff811c;
-extern void func_001bcd40(u8 *arg0, u8 *arg1, u8 *arg2, f32 arg3, s32 arg4);
+extern void func_001bcd40(u8 *arg0, u8 *arg1, u8 *arg2, f32 arg3, u16 arg4);
 extern void func_001ca590(u8 *arg0, f32 arg1, f32 arg2);
 extern void func_001cacd0(u8 *arg0, f32 arg1, f32 arg2);
 extern void func_0019de70(BtlUnitStateWork *work, u16 value);

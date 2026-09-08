@@ -153,7 +153,7 @@ extern void func_00207b00();
 extern void func_002089e0();
 extern void func_00208870(u8 *unused, u8 *arg1, f32 *arg2);
 extern void func_001bc660(s32 state, BtlAction *action, u32 param_3);
-extern void func_001bcd40(f32 arg0, u8 *arg1, u8 *arg2, u8 *arg3, u32 arg4);
+extern void func_001bcd40(f32 arg0, u8 *arg1, u8 *arg2, u8 *arg3, u16 arg4);
 extern u8 *func_001b0c80(s32 arg0);
 extern s32 func_002428f0(s32 arg0, s32 arg1);
 extern void func_00194ff0(void *arg0, void *arg1, void *arg2, void *arg3);
