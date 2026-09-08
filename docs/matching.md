@@ -7127,3 +7127,84 @@ The full gate after these contract fixes passes at **6,138 first-party
 MATCH / 722 ASM**, with **172 C-linked objects / 1,570 functions**, validated
 progress artifacts, zero findings across 338 first-party files, and both
 retail hashes unchanged.
+
+## Fresh status and resource probes; complete packet returns
+
+`func_002240e0` now has a complete ordinary-C reconstruction in
+`docs/probe_archive/P022_002240e0_body.c`. Its first candidate was 868 bytes;
+contiguous seven-float transform records, separate ordinal traversal and
+conditional-result narrowing improve it to **872 / 880 window bytes**.
+All **34 relocations resolve**, but **414 bytes / 136 executable word
+positions differ**, including four missing executable bytes. The last four
+retail bytes are alignment. Rewriting the traversal as an ordinary `for`
+loop changes no bytes. Production remains ASM.
+
+`func_0022b120` now has its complete 23-packet reconstruction in
+`docs/probe_archive/P022_0022b120_body.c`. It emits **1,860 / 1,872 bytes**
+with **67 resolved relocations**: 55 calls, four GP-relative references and
+four HI/LO pairs. Ordinary local-declaration ordering removes every saved
+register difference, reducing the first candidate's 88 differing bytes in
+68 words to **28 bytes in eight words**. Only argument-materialization order
+at its two script-constructor calls differs. There is no missing executable
+code, overrun or jump table; the last twelve retail bytes are alignment.
+The neighboring setup functions' `opt_propagation off` profile produces
+identical bytes, so that pragma is not retained. Production remains ASM.
+
+The resource candidate preserves both runtime formation resources, callback
+and data pointers, all 64-bit dependencies and action UIDs, both delays,
+queue selection and refcount releases. Its resource-start packet deliberately
+does not receive an action UID, as in retail. The color source has its actual
+four-byte extent. Neither archived candidate is claimed to have passed native
+behavior or game execution.
+
+The resource review exposed eleven more real constructors that published
+`void` while callers consumed the packet left in `$v0`. Each live definition
+now explicitly returns its allocation as `BtlPacket*`. Complete relocation
+checks give:
+
+| Constructor | Executable / window bytes | Resolved relocations |
+| --- | ---: | ---: |
+| `func_001d6240` | 184 / 192 | 9 |
+| `func_001d7ab0` | 116 / 128 | 3 |
+| `func_001d7b60` | 72 / 80 | 3 |
+| `func_001b7e20` | 72 / 80 | 3 |
+| `func_001b9360` | 88 / 96 | 3 |
+| `func_001b99a0` | 72 / 80 | 3 |
+| `func_001ba090` | 72 / 80 | 3 |
+| `func_002305c0` | 76 / 80 | 3 |
+| `func_00230650` | 64 / 64 | 3 |
+| `func_002306d0` | 64 / 64 | 3 |
+| `func_00230750` | 64 / 64 | 3 |
+
+Every executable byte matches retail after resolving every relocation, and
+all remaining window bytes are zero alignment. Caller declarations and raw
+byte-pointer conversions are migrated in `code1_001a`, `code1_001b`,
+`code1_001e` and `code1_0022`, including block-local declarations. The
+formation constructor keeps its real `(u32, u32, u32, u16, u32)` inputs;
+callers do not weaken that contract to manufacture a match. The remaining
+`code1_001a` sound-constructor declaration also uses its corrected packet
+return.
+
+A throwaway wasm32 consumer fails at all eleven return sites with the old
+`void` declarations. With the corrected contracts it compiles with `-Werror`
+and executes the eleven verbatim live constructor bodies plus the actual
+packet-allocator body. Two calls per constructor produce **22 independent
+writable packets**; the consumer checks retained payload boundaries and full
+64-bit predecessor/owner UIDs after all allocations. Arena allocation,
+memory-fill and diagnostic hooks are fixture-provided; engine callbacks are
+not executed. This is target-width C execution, not a PS2 gameplay claim.
+The throwaway smoke fixture is removed.
+
+Focused verification caught an 18-byte argument-order regression in
+`func_002299b0` during caller migration. Reading its unit handles as the
+constructor's actual `u32` inputs restores **644 / 656 bytes, MATCH** without
+changing the provider contract. The complete `code1_0022` owner then verifies
+at **79 MATCH / 19 ASM**.
+
+The integrated `make build-progress progress lint-errors` gate passes:
+**6,138 first-party MATCH / 722 ASM**, **172 C-linked objects / 1,570
+functions**, validated progress artifacts, and zero findings across 338
+first-party files. Loadable-image SHA1 remains
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; retail ELF SHA1 remains
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`. The API corrections do not claim
+additional matching functions.

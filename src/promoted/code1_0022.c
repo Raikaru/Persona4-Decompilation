@@ -177,8 +177,8 @@ extern BtlPacket *func_001f36e0(s32 param_1, s32 param_2, void *param_3, s16 par
 extern u8 *func_00199ee0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
 extern BtlPacket *func_0019a980(BtlUnit *unit);
 extern BtlPacket *func_001f81f0(u16 channel, const char *streamName);
-extern u8 *func_001d6240(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4);
-extern void func_001d3e00(s32 arg0);
+extern BtlPacket *func_001d6240(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
+extern void func_001d3e00(u32 arg0);
 extern u8 D_006354B0[];
 extern u8 *iGpffffb444;
 extern u8 *iGpffffb3ac;
@@ -1154,17 +1154,17 @@ after_ef90:
     }
     {
         u8 *temp_2;
-        temp_2 = func_001d6240(temp_17,
-                               *(u8 **)(saved_arg0 + 0x30),
-                               *(u8 **)(var_16 + 0x30), 0, 0x200);
+        temp_2 = (u8 *)func_001d6240((u32)temp_17,
+                                    *(u32 *)(saved_arg0 + 0x30),
+                                    *(u32 *)(var_16 + 0x30), 0, 0x200);
         *(s64 *)(temp_2 + 0x60) = *(s64 *)saved_arg0;
         func_00194590(temp_2, 2);
     }
     {
         u8 *temp_2;
-        temp_2 = func_001d6240(temp_17,
-                               *(u8 **)(saved_arg0 + 0x30),
-                               *(u8 **)(var_16 + 0x30), 1, 0x200);
+        temp_2 = (u8 *)func_001d6240((u32)temp_17,
+                                    *(u32 *)(saved_arg0 + 0x30),
+                                    *(u32 *)(var_16 + 0x30), 1, 0x200);
         *(s64 *)(temp_2 + 0x60) = *(s64 *)saved_arg0;
         func_00194590(temp_2, 2);
     }
@@ -1351,7 +1351,7 @@ void func_0022ae00(u8 *arg0)
         u8 *temp_5;
         u8 *temp_2_5;
         temp_5 = *(u8 **)(arg0 + 0x30);
-        temp_2_5 = func_001d6240(temp_16, temp_5, temp_5, 0, 0x200);
+        temp_2_5 = (u8 *)func_001d6240((u32)temp_16, (u32)temp_5, (u32)temp_5, 0, 0x200);
         *(s64 *)(temp_2_5 + 0x60) = *(s64 *)arg0;
         func_00194590(temp_2_5, 2);
     }
@@ -1359,7 +1359,7 @@ void func_0022ae00(u8 *arg0)
         u8 *temp_5_2;
         u8 *temp_2_6;
         temp_5_2 = *(u8 **)(arg0 + 0x30);
-        temp_2_6 = func_001d6240(temp_16, temp_5_2, temp_5_2, 1, 0x200);
+        temp_2_6 = (u8 *)func_001d6240((u32)temp_16, (u32)temp_5_2, (u32)temp_5_2, 1, 0x200);
         *(s64 *)(temp_2_6 + 0x60) = *(s64 *)arg0;
         func_00194590(temp_2_6, 2);
     }

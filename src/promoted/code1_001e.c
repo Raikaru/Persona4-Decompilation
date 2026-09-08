@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "sdk_snd_internal.h"
+typedef struct BtlPacket BtlPacket;
 typedef signed __int128 s128;
 typedef struct P4Vec4_001EC2B0 {
     f32 x;
@@ -113,7 +114,7 @@ extern f32 D_00881414[];
 extern f32 D_00881418[];
 extern f32 fGpffffb454;
 extern u8 *func_001bcb50(s32 arg0, f32 *arg1, f32 *arg2, f32 arg3, f32 *arg4, f32 *arg5, f32 arg6, f32 arg7);
-extern u8 *func_002306d0(void);
+extern BtlPacket *func_002306d0(void);
 extern u8 *func_001f81f0(s32 arg0, void *arg1);
 extern void func_00442088(void *arg0, void *arg1, s64 arg2);
 extern u8 D_00609E40[];
@@ -1823,7 +1824,7 @@ s32 func_001eabc0(void) {
 s32 func_001eaca0(void) {
     extern s32 func_001d3d50(u32 arg0);
     extern void func_001d3ea0(u8 *arg0, u8 *arg1);
-    extern u8 *func_001d6240(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4);
+    extern BtlPacket *func_001d6240(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
     extern void func_001d3e00(u8 *arg0);
     extern s32 func_00243ce0(s32 arg0);
     u8 *temp_18;
@@ -1864,10 +1865,10 @@ loop_test:
 selected:
     if (var_17 == NULL)
         var_17 = temp_18;
-    temp_2 = func_001d6240(temp_16, temp_18, var_17, 0, 0x200);
+    temp_2 = (u8 *)func_001d6240((u32)temp_16, (u32)temp_18, (u32)var_17, 0, 0x200);
     func_00194590(temp_2, 2);
     *(s64 *)(iGpffffb3ac + 0xBD0) = *(s64 *)(temp_2 + 0x58);
-    var_17 = func_001d6240(temp_16, temp_18, var_17, 1, 0x200);
+    var_17 = (u8 *)func_001d6240((u32)temp_16, (u32)temp_18, (u32)var_17, 1, 0x200);
     func_00194590(var_17, 2);
     *(s64 *)(iGpffffb3ac + 0xBD8) = *(s64 *)(var_17 + 0x58);
     func_001d3e00(temp_16);
@@ -1989,7 +1990,7 @@ s32 func_001eb110(void) {
     temp_2 = func_0029cc00(1);
     switch (temp_2) {
     case 0:
-        temp_2_2 = func_002306d0();
+        temp_2_2 = (u8 *)func_002306d0();
         *(s16 *)(temp_2_2 + 0x48) = 2;
         func_00194590(temp_2_2, 1);
         break;

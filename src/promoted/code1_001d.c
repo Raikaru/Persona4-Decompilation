@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+typedef struct BtlPacket BtlPacket;
 static inline s32 p4_001da5f0_xor(s32 left, s32 right)
 {
     return left ^ right;
@@ -1483,14 +1484,14 @@ s32 func_001d7b30(u16 *arg0) {
     return 1;
 }
 // FUN_001D7B60
-void func_001d7b60(u16 param_1)
+BtlPacket *func_001d7b60(u16 param_1)
 {
   int iVar1 = 0;
 
   iVar1 = (int)func_00194470(0x30B, 2);
   *(code *)(iVar1 + 0x6c) = (code)func_001d7b30;
   **(u16 **)(iVar1 + 0x78) = param_1;
-  return;
+  return (BtlPacket *)iVar1;
 }
 
 // FUN_001D7BF0
