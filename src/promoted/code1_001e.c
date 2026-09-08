@@ -120,7 +120,7 @@ extern BtlPacket *func_002306d0(void);
 extern u8 *func_001f81f0(s32 arg0, void *arg1);
 extern void func_00442088(void *arg0, void *arg1, s64 arg2);
 extern u8 D_00609E40[];
-extern s32 func_00232710(s32 arg0, s32 arg1);
+extern u32 func_00232710(s32 arg0, u32 arg1);
 extern s32 func_00232c70(s32 arg0, s32 arg1);
 extern s32 func_00231ed0(s32 arg0);
 extern s32 func_002428f0(s32 arg0, s32 arg1);
@@ -137,10 +137,10 @@ extern u8 *func_0022ced0(s32 arg0);
 extern s32 func_0029de20(s32 arg0, s32 arg1);
 extern s32 func_001eba20(u8 *arg0);
 extern u8 *iGpffffb428;
-extern s32 func_00107ac0(s32 arg0);
+extern u16 func_00107ac0(s32 arg0);
 extern void func_00106550(s32 arg0, s32 arg1);
-extern s32 func_00243e30(s32 arg0);
-extern s32 func_00247cb0(s16 arg0);
+extern s32 func_00243e30(u16 *arg0);
+extern u16 func_00247cb0(s64 arg0);
 extern u8 *iGpffffb42c;
 // FUN_001E6B90
 s32 func_001e6b90(void) {
@@ -1392,7 +1392,6 @@ s32 func_001e9770(void) {
     extern s32 func_002428f0(s32 arg0, s32 arg1);
     extern s32 func_00231ed0(s32 arg0);
     extern s32 func_00231f80(s32 arg0);
-    extern s32 func_00232710(s32 arg0, s32 arg1);
     u32 temp_16;
     u32 temp_2;
     s32 temp_30;
@@ -1457,7 +1456,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001e9950);
 s32 func_001e9f20(void) {
     extern s32 func_0029cc00(s32 arg0);
     extern s32 func_00231ed0(s32 arg0);
-    extern s32 func_00232710(s32 arg0, s32 arg1);
     extern s32 func_002428f0(s32 arg0, s32 arg1);
     extern void func_0029cf50(s32 arg0);
     u16 flags;
@@ -1497,7 +1495,6 @@ s32 func_001e9f20(void) {
 s32 func_001ea050(void) {
     extern s32 func_0029cc00(s32 arg0);
     extern s32 func_00231ed0(s32 arg0);
-    extern s32 func_00232710(s32 arg0, s32 arg1);
     extern s32 func_002428f0(s32 arg0, s32 arg1);
     extern void func_0029cf50(s32 arg0);
     u16 flags;
@@ -3104,7 +3101,113 @@ s32 func_001ef9a0(void) {
     return *(u16 *)(*(u8 **)(iGpffffb3ac + 0xC68) + 8);
 }
 // FUN_001EF9C0
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef9c0);
+/* 904/912 bytes; all fifteen relocations resolve exactly. */
+s32 func_001ef9c0(u8 *action)
+{
+    s32 rank;
+    u8 *status1Targets[4];
+    u8 *status100000Targets[4];
+    u8 *status1eTargets[4];
+    u8 *node;
+    s32 count1;
+    s32 count100000;
+    s32 count1e;
+    u8 *preferred1;
+    u8 *preferred100000;
+    u8 *preferred1e;
+    u8 *actor;
+    u16 flags;
+
+    *(s16 *)(action + 0x448) = -1;
+    *(u8 **)(action + 0x444) = NULL;
+    actor = *(u8 **)(action + 0x30);
+    if (*(u8 *)(actor + 0xA2) != 0) {
+        return 0;
+    }
+    if (*(u16 *)(actor + 0xA4) == 1) {
+        return 0;
+    }
+    if (func_00232710(*(s32 *)(actor + 0xA64), 0x1001FF) != 0) {
+        return 0;
+    }
+    if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x1000) ||
+        *(u16 *)(action + 0x14) == 9) {
+        return 0;
+    }
+    if (func_00243e30(*(u16 **)(*(u8 **)(action + 0x30) + 0xA64)) != 0) {
+        return 0;
+    }
+    rank = func_00107ac0(func_00247cb0(
+        *(s16 *)(*(u8 **)(action + 0x30) + 0xA4)) & 0xFFFF) & 0xFFFF;
+    count1 = 0;
+    count100000 = 0;
+    count1e = 0;
+    preferred1 = NULL;
+    preferred100000 = NULL;
+    preferred1e = NULL;
+    node = *(u8 **)(iGpffffb3ac + 0x174);
+    goto check;
+loop:
+    flags = *(u16 *)(node + 0x1A);
+    if ((flags & 1) == 0) goto next;
+    if ((flags & 8) == 0) goto next;
+    if (node == action) goto next;
+    actor = *(u8 **)(node + 0x30);
+    if (*(u8 *)(actor + 0xA2) != 0) goto next;
+    if (rank >= 5) {
+        if (func_00232710(*(s32 *)(actor + 0xA64), 1) != 0) {
+            if (*(u8 **)(iGpffffb3ac + 0x170) == node) {
+                preferred1 = node;
+            }
+            status1Targets[count1] = node;
+            count1++;
+        } else if (func_00232710(*(s32 *)(actor + 0xA64), 0x100000) != 0) {
+            if (*(u8 **)(iGpffffb3ac + 0x170) == node) {
+                preferred100000 = node;
+            }
+            status100000Targets[count100000] = node;
+            count100000++;
+        }
+    }
+    if (rank >= 7) {
+        if (func_00232710(*(s32 *)(actor + 0xA64), 0x1E) != 0) {
+            if (*(u8 **)(iGpffffb3ac + 0x170) == node) {
+                preferred1e = node;
+            }
+            status1eTargets[count1e] = node;
+            count1e++;
+        }
+    }
+next:
+    node = *(u8 **)(node + 0x450);
+check:
+    if (node != NULL) goto loop;
+    if (count100000 == 0 && count1e == 0 && count1 == 0) {
+        return 0;
+    }
+    if (count1 != 0) {
+        *(s16 *)(action + 0x448) = 1;
+        preferred1 = preferred1 != NULL ? preferred1 :
+            status1Targets[func_00231d70(count1)];
+        *(u8 **)(action + 0x444) = preferred1;
+        return 1;
+    }
+    if (count100000 != 0) {
+        *(s16 *)(action + 0x448) = 1;
+        preferred100000 = preferred100000 != NULL ? preferred100000 :
+            status100000Targets[func_00231d70(count100000)];
+        *(u8 **)(action + 0x444) = preferred100000;
+        return 1;
+    }
+    if (count1e != 0) {
+        *(s16 *)(action + 0x448) = 0;
+        preferred1e = preferred1e != NULL ? preferred1e :
+            status1eTargets[func_00231d70(count1e)];
+        *(u8 **)(action + 0x444) = preferred1e;
+        return 1;
+    }
+    return 0;
+}
 // FUN_001EFD50
 u8 *func_001efd50(u8 *arg0)
 {
@@ -3199,7 +3302,7 @@ s32 func_001eff50(u8 *arg0)
                 (func_00232710(*(s32 *)(temp_16 + 0xA64),
                                 0x1001FF) == 0) &&
                 (func_002428f0(*(s32 *)(temp_16 + 0xA64), 0) == 0) &&
-                (func_00243e30(*(s32 *)(temp_16 + 0xA64)) == 0) &&
+                (func_00243e30(*(u16 **)(temp_16 + 0xA64)) == 0) &&
                 ((func_00107ac0((func_00247cb0(
                                     *(s16 *)(temp_16 + 0xA4)) &
                                   0xFFFF)) &
