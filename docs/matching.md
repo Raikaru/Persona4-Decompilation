@@ -7511,3 +7511,54 @@ mixed owner eligible for whole-object C linking. Loadable image SHA-1 is
 still `3d1d3d2b9d6ccb60836db239ab49674223025a78`, and retail ELF SHA-1 is
 still `4eeec0360cf2715535d9f7e52eb69d786fb0158c`. The three reconstruction
 directories and their temporary compiler experiments are removed.
+
+## Exact group and selection camera dispatchers
+
+`func_00226c40` and `func_00227230` are now ordinary C in
+`src/promoted/code1_0022.c`. Both initial owner-context candidates matched;
+the actual integrated owner was then compiled and checked with every code
+and switch-table relocation resolved against the retail ELF.
+
+| Function | Object / window | Resolved code relocations | Normalized differences | Resolved differing bytes | Zero tail bytes |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `func_00226c40` | 1516 / 1520 | 48 | 0 | 0 | 4 |
+| `func_00227230` | 1336 / 1344 | 48 | 0 | 0 | 8 |
+
+All seven `R_MIPS_32` entries in each switch table also match:
+
+```text
+00747870: 00226D98 00226D98 00226D98 00226E04 00226D98 00226E04 00226FB8
+00747890: 0022774C 002272C0 002272E8 002273B0 00227324 002273B0 002274FC
+```
+
+The source reuses the exact neighboring dispatchers' real 56-byte
+`CameraPosePair`: two 12-byte positions and two 16-byte quaternions. Every
+seven-float pose passed to the consumer has its complete position and
+quaternion produced on that branch. The old archives' standalone scalar
+quaternion outputs were undersized objects, not retail undefined state.
+Widening record frames to `u32` before conversion preserves the compiler's
+ordinary unsigned-to-float expansion without inventing a negative input.
+
+The group dispatcher uses scoped `opt_common_subs off`, independent
+wrapping target/party ordinals and a complete `RwRGBA` passed by value.
+States 0/1/2/4 call the generic camera before their count/genus/self guards;
+they do not inherit the neighboring dispatcher's selected-pose fallthrough.
+The selection dispatcher needs no local pragma and preserves the distinct
+case-1, case-2, case-4 and case-3/5 tests and fallthrough paths.
+`V022_00226c40_body.c` and `V022_00227230_body.c` now contain the exact
+sources and complete provider/caller evidence, replacing the recorded
+989- and 839-difference candidates.
+
+Keep the canonical `// FUN_...` marker separate from measured block
+comments: block-comment-only headings were omitted by the report scanner.
+Restoring the canonical markers and rerunning
+`make build-progress progress lint-errors` gives **6,146 first-party MATCH /
+714 ASM**, with all **6,860 first-party / 12,720 total** functions scanned,
+validated progress artifacts and zero findings across 338 first-party files.
+The mixed owner remains outside whole-object C linking: **172 objects /
+1,570 functions** are C-linked. Loadable image SHA-1 remains
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; retail ELF SHA-1 remains
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`. These are compiled-output and
+build checks, not game or camera execution.
+The two reconstruction directories and their temporary compiler objects
+have been removed after archiving the source and contract evidence.
