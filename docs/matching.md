@@ -7940,3 +7940,41 @@ validated progress artifacts, and zero lint errors. Full warning mode
 reports 192 review warnings across 338 first-party files. C linking remains
 **172 objects / 1,570 functions**, with unchanged loadable and retail ELF
 hashes.
+
+## Exact geometry neighbor construction
+
+`func_001ed3a0` matches **852/864 bytes**, including all eighteen resolved
+relocations and twelve zero alignment bytes. Typed 0x130-byte node arrays
+restore the loop index projections. Raw coordinate loads preserve address
+scheduling; the existing offset-first slot helper preserves special-node
+stores. Group/count/index/neighbor declaration order closes register
+allocation without a pragma.
+
+A freestanding **32-bit native smoke passed 65,597 scenarios** using the
+exact candidate body and actual four-byte pointers. It covers exhaustive
+collision masks over fourteen neighbors, activity/clearance boundaries,
+NaN predicates, every self-node position, an empty linked-group chain,
+ordered distances, the null sentinel, and untouched output guards.
+Collision and axis-aligned length providers are explicit native models:
+this does not claim game or PS2 SDK execution.
+
+The retail initializer calls the builder for eligible linked/fixed nodes,
+then start and goal. The builder has no capacity guard; safe in-node
+storage requires fewer than 32 admitted neighbors, including room for the
+sentinel. No game-data population bound is asserted or synthetic guard added.
+`P023_001ed3a0_body.c` preserves the exact source and fitting evidence.
+
+`func_001eed10` remains ASM. Its complete route-search candidate reaches
+**1,000/1,024 bytes / 364 normalized differences**, with the exact 0xB0
+frame and 24 relocations. Index/address sharing, reload order, register
+lifetimes and closed-list unlink alignment remain unresolved.
+`P023_001eed10_body.c` records the source and provider preconditions.
+The retail reopening predicate compares the current node's cost, not the
+neighbor's: it was preserved rather than replaced with a conventional
+pathfinding rule.
+
+The full `make build-progress progress lint-errors` gate passes:
+**6,156 first-party MATCH / 704 ASM**, **7,786 total MATCH / 4,934 ASM**,
+validated progress artifacts, and zero lint errors across 338 first-party
+files. C linking remains **172 objects / 1,570 functions**; both the
+loadable-image and retail-ELF hashes remain unchanged.
