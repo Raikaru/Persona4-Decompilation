@@ -3207,7 +3207,7 @@ extern char D_005E4F30[];
 s32 func_0011e8e0(u8 *);
 void func_0011f3c0(u8 *);
 // FUN_0011F410
-u8 *func_0011f410(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5)
+u8 *func_0011f410(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 *arg5)
 {
     u8 *w;
     u8 *r;
@@ -3223,11 +3223,11 @@ u8 *func_0011f410(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5)
         func_0046d730(D_005E4868, 0x146F);
     }
     *(s32 *)(w + 0x1C) = arg1;
-    *(s32 *)(w + 0x20) = arg2;
+    *(u8 **)(w + 0x20) = arg2;
     *(s32 *)(w + 0x24) = arg3;
     *(s32 *)(w + 0x28) = arg4;
     for (i = 0; i < 0xB; i++) {
-        *(s32 *)(w + 0x2C + i * 4) = *(s32 *)(arg5 + i * 4);
+        *(s32 *)(w + 0x2C + i * 4) = arg5[i];
     }
     return r;
 }

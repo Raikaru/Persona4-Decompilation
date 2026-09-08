@@ -10,7 +10,7 @@ static inline u8 *btlCamera_add_index(s32 index, u8 *base)
 /* Canonical grouped function declarations. */
 u32 func_001d10d0(void* camera);
 void func_00195850(u8* arg0, f32* arg1);
-void func_001bcd40(u8* arg0, u8* arg1, f32* arg2, s32 arg3, f32 arg4);
+void func_001bcd40(u8* arg0, u8* arg1, f32* arg2, u16 arg3, f32 arg4);
 extern s32 func_004bd050(s32 arg0);
 extern u8 D_005FE1D0[];
 extern u32 func_00231d70(s32 arg0);
