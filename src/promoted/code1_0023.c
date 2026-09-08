@@ -1,6 +1,8 @@
 #include "include_asm.h"
 #include "type.h"
 
+typedef struct BtlPacket BtlPacket;
+
 /* gp - 0x4C54 = 0x007690f0 - 0x4c54 = 0x0076449c */
 extern u8 *iGpffffb3ac;
 
@@ -51,7 +53,7 @@ extern char D_00635800[];
 
 
 // FUN_002305C0
-void func_002305c0(s32 arg0)
+BtlPacket *func_002305c0(s32 arg0)
 {
     u8 *p;
     u8 *work;
@@ -61,6 +63,7 @@ void func_002305c0(s32 arg0)
     work = *(u8 **)(p + 0x78);
     *(s32 *)(work + 0) = arg0;
     *(s32 *)(work + 4) = 0;
+    return (BtlPacket *)p;
 }
 // FUN_00230610
 s32 func_00230610(void)
@@ -75,13 +78,14 @@ s32 func_00230610(void)
     return 1;
 }
 // FUN_00230650
-void func_00230650(void)
+BtlPacket *func_00230650(void)
 {
     u8 *p;
 
     p = func_00194470(0xE02, 0);
     p[0x47] &= 0xFE;
     *(void **)(p + 0x6C) = (void *)func_00230610;
+    return (BtlPacket *)p;
 }
 // FUN_00230690
 s32 func_00230690(void)
@@ -95,13 +99,14 @@ s32 func_00230690(void)
     return 1;
 }
 // FUN_002306D0
-void func_002306d0(void)
+BtlPacket *func_002306d0(void)
 {
     u8 *p;
 
     p = func_00194470(0xE03, 0);
     p[0x47] &= 0xFE;
     *(void **)(p + 0x6C) = (void *)func_00230690;
+    return (BtlPacket *)p;
 }
 // FUN_00230710
 s32 func_00230710(void)
@@ -115,13 +120,14 @@ s32 func_00230710(void)
 
 
 // FUN_00230750
-void func_00230750(void)
+BtlPacket *func_00230750(void)
 {
     u8 *p;
 
     p = func_00194470(0xE04, 0);
     p[0x47] &= 0xFE;
     *(void **)(p + 0x6C) = (void *)func_00230710;
+    return (BtlPacket *)p;
 }
 // FUN_00230790
 s32 func_00230790(void)

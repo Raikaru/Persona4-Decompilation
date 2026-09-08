@@ -264,7 +264,7 @@ void func_001d7a10(u16 param_1)
 
 
 // FUN_001D7AB0
-void func_001d7ab0(u8 *param_1,u16 param_2)
+BtlPacket* func_001d7ab0(u8 *param_1,u16 param_2)
 
 {
   typedef struct BtlMessageArgs {
@@ -278,7 +278,7 @@ void func_001d7ab0(u8 *param_1,u16 param_2)
   work = *(u8 **)(packet + 0x78);
   *(BtlMessageArgs *)work = *(BtlMessageArgs *)param_1;
   *(u16 *)(work + 4) = param_2;
-  return;
+  return (BtlPacket*)packet;
 }
 
 
