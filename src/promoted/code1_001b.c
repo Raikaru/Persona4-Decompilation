@@ -102,7 +102,7 @@ extern BtlPacket *func_001f9b80(u16 arg0);
 extern u8 *func_001f97b0(void);
 extern u8 *func_002304b0(void);
 extern s32 func_00230790(void);
-extern u8 *func_002305c0(s32 arg0);
+extern BtlPacket *func_002305c0(s32 arg0);
 extern void func_002aaa80(void);
 extern void func_001fc280(void);
 void func_00194590(u8 *arg0, u32 arg1);
@@ -144,7 +144,7 @@ extern u8 *func_001d1200(u8 *arg0);
 extern s32 func_002428f0(s32 arg0, s32 arg1);
 extern void func_001d10f0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
 extern void func_001bdeb0(u8 *arg0);
-extern u8 *func_001d6240(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
+extern BtlPacket *func_001d6240(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
 extern u8 *func_00194b60(void);
 extern BtlPacket *func_001f60c0(void);
 extern void func_001f86d0(void);
@@ -269,7 +269,7 @@ void func_001b0300(u8 *arg0)
             work = (u8 *)func_0019bbe0((BtlUnit *)p, 0xFFFFFF, 6, 0, 4, 0);
             *(s64 *)(work + 0x60) = *(s64 *)arg0;
             func_00194590(work, 1);
-            work = func_001d6240((u32)*(s32 *)(iGpffffb3ac + 0xD48), (u32)p, (u32)p, 0, 0);
+            work = (u8 *)func_001d6240((u32)*(s32 *)(iGpffffb3ac + 0xD48), (u32)p, (u32)p, 0, 0);
             *(s64 *)(work + 0x60) = *(s64 *)arg0;
             func_00194590(work, 2);
             work = (u8 *)func_001f7c20(0xA, 2, 0xA);
@@ -715,7 +715,6 @@ s32 func_001b19c0(void)
     extern s32 func_0022bd20(void);
     extern u8 *func_002304b0(void);
     extern s32 func_00230790(void);
-    extern u8 *func_002305c0(s32 arg0);
     extern s32 func_001ef9a0(void);
     extern void func_002aaa80(void);
     extern void func_001fc280(void);
@@ -751,7 +750,7 @@ got_var:
         func_00194590(func_002304b0(), 1);
         temp_2_3 = func_00230790();
         if (temp_2_3 != -1) {
-            func_00194590(func_002305c0(temp_2_3), 1);
+            func_00194590((u8 *)func_002305c0(temp_2_3), 1);
         }
     }
     temp_2_4 = func_001ef9a0();
@@ -1148,7 +1147,7 @@ void func_001b54e0(void)
     p = *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30);
     if ((func_002428f0(*(s32 *)(p + 0xA64), 0) != 0) &&
         ((*(s32 *)(iGpffffb3ac + 0x10) & 0x20000000) == 0)) {
-        work = func_001d6240((u32)*(s32 *)(iGpffffb3ac + 0xDBC), (u32)p, (u32)p, 1, 0);
+        work = (u8 *)func_001d6240((u32)*(s32 *)(iGpffffb3ac + 0xDBC), (u32)p, (u32)p, 1, 0);
         *(s64 *)(work + 0x60) = *(s64 *)(*(u8 **)(iGpffffb3ac + 0x170));
         *(u16 *)(work + 0x48) = 0xF;
         func_00194590(work, 2);

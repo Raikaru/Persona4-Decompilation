@@ -281,13 +281,14 @@ u32 func_001b7b30(void* work)
 /* measured: restore propagation after func_001b7b30. */
 #pragma opt_propagation on
 // FUN_001B7E20
-void func_001b7e20(u32 value)
+BtlPacket* func_001b7e20(u32 value)
 {
     BtlPacket* packet;
 
     packet = func_00194470(0x601, 0x28);
     packet->updateFunc = func_001b7b30;
     *(u32*)((u8*)packet->workData + 0x20) = value;
+    return packet;
 }
 
 
@@ -550,7 +551,7 @@ BtlPacket* func_001b83f0(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u16
 // FUN_001B87E0
 INCLUDE_ASM("asm/nonmatchings/btlMain", func_001b87e0);
 // FUN_001B9360
-void func_001b9360(s32 arg, s16 mode)
+BtlPacket* func_001b9360(s32 arg, s16 mode)
 {
     BtlPacket* packet;
     u8* work;
@@ -560,6 +561,7 @@ void func_001b9360(s32 arg, s16 mode)
     work = (u8*)packet->workData;
     *(s32*)(work + 0x50) = arg;
     *(s16*)(work + 0x58) = mode;
+    return packet;
 }
 
 
@@ -681,13 +683,14 @@ u32 func_001b96e0(void* work)
 /* measured: restore common-subexpression optimization after func_001b96e0. */
 #pragma opt_common_subs on
 // FUN_001B99A0
-void func_001b99a0(s32 arg)
+BtlPacket* func_001b99a0(s32 arg)
 {
     BtlPacket* packet;
 
     packet = func_00194470(0x605, 0x18);
     packet->updateFunc = func_001b96e0;
     *(s32*)((u8*)packet->workData + 0x10) = arg;
+    return packet;
 }
 
 
@@ -785,13 +788,14 @@ u32 func_001b9e50(void* work)
     return result;
 }
 // FUN_001BA090
-void func_001ba090(s32 arg)
+BtlPacket* func_001ba090(s32 arg)
 {
     BtlPacket* packet;
 
     packet = func_00194470(0x607, 8);
     packet->updateFunc = func_001b9e50;
     *(s32*)packet->workData = arg;
+    return packet;
 }
 
 

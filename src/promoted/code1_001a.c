@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+typedef struct BtlPacket BtlPacket;
 
 void btlActionSetState(u8 *arg0, u16 arg1);
 u8 *func_00193bf0(u64 arg0, u64 arg1);
@@ -50,7 +51,7 @@ u8 *func_0019e550(u8 *arg0, u8 *arg1, s32 arg2);
 u8 *func_001bc920(u8 *arg0, s32 arg1);
 u8 *func_0019a0c0(u8 *arg0, s16 arg1);
 u8 *func_0019e7c0(s32 arg0, s32 arg1);
-u8 *func_001ba090(s32 arg0);
+BtlPacket *func_001ba090(s32 arg0);
 u8 *func_001d7a10(u16 arg0);
 u8 *func_00201f20(void);
 s32 func_002428f0(u8 *arg0, s32 arg1);
@@ -103,8 +104,8 @@ s32 func_0010b300(s32 arg0);
 extern void func_0019ef30(u8 *arg0, u16 arg1);
 extern void func_0010b7f0(void);
 extern s32 func_00106330(s32 arg0);
-void func_001d6240(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
-void func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
+BtlPacket *func_001d6240(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
+BtlPacket *func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
 extern f32 D_0076144C;
 s32 func_001fac80(u8 *arg0);
 void func_001fad10(void);
@@ -284,7 +285,7 @@ loop_test:
             }
         }
         if (*(u16 *)(D_0076449C + 0x18) & 0x10) {
-            temp_2_4 = func_001ba090(0);
+            temp_2_4 = (u8 *)func_001ba090(0);
             *(s64 *)(temp_2_4 + 0x60) = *arg0;
             func_00194590(temp_2_4, 1);
         }

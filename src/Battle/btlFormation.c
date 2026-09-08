@@ -903,7 +903,7 @@ void func_001d61e0(u32 *param_1)
 
 
 // FUN_001D6240
-void func_001d6240(u32 param_1, u32 param_2, u32 param_3, u16 param_4, u32 param_5)
+BtlPacket* func_001d6240(u32 param_1, u32 param_2, u32 param_3, u16 param_4, u32 param_5)
 {
     u32 *work;
     u32 packet;
@@ -920,6 +920,7 @@ void func_001d6240(u32 param_1, u32 param_2, u32 param_3, u16 param_4, u32 param
     work[2] = param_3;
     *(u16 *)(work + 3) = param_4;
     work[7] = param_5;
+    return (BtlPacket*)packet;
 }
 
 
