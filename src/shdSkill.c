@@ -75,6 +75,10 @@ void func_00113e30(Vec2f arg0, f32 fparg0, u8 arg1, void *arg2, s32 arg3) {
 // FUN_00113EF0
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00113ef0);
 
+/* Fresh full reconstruction: 2124/2128 bytes, all 37 relocations resolved,
+   472 differing executable words and four missing zero alignment bytes.
+   Frame 0x130 versus retail 0x120; allocation and argument scheduling still
+   diverge substantially. No near-match body retained or compiler floor claimed. */
 // FUN_00114460
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00114460);
 

@@ -6752,3 +6752,59 @@ python tools/probe_archive.py docs/probe_archive/LFF2_0016b080_body.c src/Kosaka
 That tool's legacy score is **2**: the branch mismatch plus one omitted
 zero-tail word. The fully relocated measurement above separately checks
 all ten linker-owned fields.
+
+## Fresh functions instead of repeated compiler floors
+
+`shdScript.c::func_0025c790` is now ordinary C: **996 / 1008 bytes**,
+all **45 relocations resolved**, no executable differences, and twelve
+zero alignment bytes. One full state-machine reconstruction and one
+evidence-led refinement closed it. Keeping rank snapshots promoted until
+the actual halfword provider boundaries avoids redundant narrowing;
+the bounded comparisons preserve retail's condition temporaries.
+Point addition uses unsigned arithmetic before the signed cap comparison,
+preserving the retail 32-bit wrap without signed-overflow undefined behavior.
+
+The update and release callbacks receive their task explicitly. The
+work getter retains its actual packed-address `u32(void *)` contract;
+the scene lookup returns a resource pointer rather than a truth-value
+integer. The four previously matching functions retain identical emitted
+instructions and relocation identities.
+
+A throwaway native 64-bit ASan/UBSan/function fixture passes **725 cases**
+plus two distinct release contexts. It exercises initial field selection,
+allocation failure, pending messages, unchanged and changed rank paths,
+point-cap and integer-boundary inputs, all five parameter indices,
+termination, unknown states, signed slot narrowing, and old/new text
+selection. Work and text addresses use an explicit low-address mapping for
+the packed retail providers. Other provider behavior is supplied by the
+fixture; this is not hardware execution or an end-to-end game-runtime claim.
+
+The two larger fresh reconstructions were measured independently:
+
+| Function | Emitted / retail | Resolved executable differences | Disposition |
+| --- | ---: | --- | --- |
+| `00155360` | 2192 / 2192 | Three reordered argument-setup words at +0x1b0..+0x1b8 | Retained in `FFS_00155360_body.c`; production ASM |
+| `00114460` | 2124 / 2128 | 472 differing words; frame 0x130 versus 0x120 | Production ASM; no near-match body retained |
+
+The field candidate resolves all **112 code relocations** and its complete
+**19-entry, 76-byte switch table** exactly apart from the stated three code
+words. Its update result is signed: normal/default paths return zero;
+state 18 clears the field task handle and returns -1. The owner declaration
+now reflects that scheduler-consumed return value. Both existing C owner
+functions remain retail matches. Replay:
+
+```sh
+python tools/probe_archive.py docs/probe_archive/FFS_00155360_body.c src/Kosaka/Field/k_field.c
+```
+
+The skill reconstruction resolves all 37 relocations and omits only four
+zero alignment bytes, but its executable allocation and scheduling still
+diverge substantially. Neither larger candidate has a new native behavior
+claim. These results do not justify another register-permutation sweep.
+
+The full `make build-progress progress lint-errors` gate passes:
+**6,133 first-party MATCH / 727 ASM**, **172 C-linked objects / 1,570
+functions**, validated progress artifacts, and zero lint findings across
+338 first-party files. The loadable-image SHA-1 remains
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; the complete retail file remains
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
