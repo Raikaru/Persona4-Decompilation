@@ -6961,3 +6961,52 @@ The complete gate passes at **6,135 first-party MATCH / 725 ASM**.
 C-linked coverage remains **172 objects / 1,570 functions**; progress
 artifacts validate, and all 338 first-party files have zero lint findings.
 The loadable-image and complete-retail SHA-1 hashes remain unchanged.
+
+## Fresh enemy reaction dispatcher
+
+`code1_0022.c::func_0022eba0` is now ordinary C: **2,428 executable bytes
+/ 2,432-byte retail window**, with all **115 code relocations resolved
+exactly**. These comprise 63 call relocations, 48 GP-relative relocations,
+and two HI16/LO16 pairs. The remaining four retail bytes are zero alignment.
+No matching pragma, artificial instruction, or padding was added.
+
+The first complete candidate emitted 2,420 bytes: eight executable bytes
+were missing, producing 1,798 overlap-byte differences after the shift.
+One evidence-led refinement closed the actual source-shape differences:
+
+- Keep the single-case action switch inside the `0x105` mode guard.
+- Load the model handle in a preceding statement before each callback;
+  do not cache it across callbacks.
+- Use the structured linked-list loop rather than a flattened conditional
+  goto, preserving the retail backedge polarity.
+
+The integrated aggregate declarations agree with the existing unit
+providers. Quaternion construction receives its output, axis, angle, and
+mode; rotation receives the complete quaternion, and color is passed by
+value. HP mutation, effect removal, and status clearing retain their real
+provider contracts. In particular, `datCalcClearBadStatus` complements its
+mask: the `0xFFF7FFFF` argument here **preserves only status bit `0x80000`**,
+not the other way around.
+
+A throwaway wasm32 execution passes **66,099 scenarios**, using the
+integrated dispatcher and five actual production provider bodies:
+`func_002325a0`, `func_00233880`, `datCalcClearBadStatus`,
+`btlUnitSetRot`, and `btlUnitSetColor`. It exercises all 65,536 selector
+values, all signed-byte sentinel representations, early gates, each
+transformation phase, event-flag precedence and random selection,
+linked-list filtering, guarded rotation, and direct/array target
+restoration. Model callbacks replace their handles between calls, exposing
+stale caching. Array cases include zero targets and current-target
+membership; unrelated targets remain unchanged.
+
+Lookup, maximum-HP lookup, event flags, RNG, quaternion construction,
+model callbacks, and engine update/cancel requests are fixture-provided.
+This is a source behavior check with genuine 32-bit pointers, not console
+or end-to-end game execution. The complete executable and relocation
+comparison is the matching proof; the smoke scaffolding is removed.
+
+The complete `make build-progress progress lint-errors` gate passes at
+**6,136 first-party MATCH / 724 ASM**, with **172 C-linked objects /
+1,570 functions**, validated progress artifacts, and zero findings across
+338 first-party files. Both the loadable-image and complete-retail hashes
+remain unchanged.
