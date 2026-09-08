@@ -1821,7 +1821,7 @@ s32 func_001eabc0(void) {
 #pragma push
 #pragma opt_rebuildconditionals off
 s32 func_001eaca0(void) {
-    extern u8 *func_001d3d50(s32 arg0);
+    extern s32 func_001d3d50(u32 arg0);
     extern void func_001d3ea0(u8 *arg0, u8 *arg1);
     extern u8 *func_001d6240(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4);
     extern void func_001d3e00(u8 *arg0);
@@ -1833,7 +1833,7 @@ s32 func_001eaca0(void) {
     s32 temp_4;
     u16 temp_3_2;
 
-    temp_16 = func_001d3d50(0);
+    temp_16 = (u8 *)func_001d3d50(0);
     temp_4 = func_0029cc00_s32(0) & 0xFFFF;
     temp_4 = temp_4 + 1;
     func_001d3ea0(temp_16, func_0022ced0(temp_4 & 0xFFFF));
