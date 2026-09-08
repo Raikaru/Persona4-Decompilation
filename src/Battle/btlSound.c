@@ -111,7 +111,7 @@ void func_001f7620(s16 channel, s32 fadeFrames)
 
 
 // FUN_001F7C20
-void func_001f7c20(u16 channel, u16 cue, u16 variant)
+BtlPacket* func_001f7c20(u16 channel, u16 cue, u16 variant)
 {
     BtlPacket* packet;
     u16* work;
@@ -123,6 +123,7 @@ void func_001f7c20(u16 channel, u16 cue, u16 variant)
     work[0] = channel;
     work[1] = cue;
     work[2] = variant;
+    return packet;
 }
 
 
