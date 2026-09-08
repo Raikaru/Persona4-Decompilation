@@ -7462,3 +7462,52 @@ first-party files. Loadable image SHA-1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; retail ELF SHA-1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`. The reconstruction probes
 and native smoke fixture are removed.
+
+## Exact camera positions and parameterized fitting
+
+Two more camera helpers now match in ordinary C:
+
+| Function | Object / retail-window bytes | Fully resolved code relocations | Zero-only tail |
+| --- | ---: | ---: | ---: |
+| `func_002249a0` | 1780 / 1792 | 32 | 12 |
+| `func_002266b0` | 1420 / 1424 | 21 | 4 |
+
+Both integrated bodies have zero differing code bytes after resolving all
+relocations, without masking. The position helper also reproduces all 20
+relocated entries of retail table `0x007477D0`:
+
+```text
+00224A30 00224A8C 00224AE4 00224B3C 00224BEC 00224C48 00224CA0
+00224D54 00224DAC 0022506C 00224E0C 0022506C 0022506C 0022506C
+0022506C 00224CFC 00224B94 00224B94 00224E64 00224EBC
+```
+
+The position helper needs no pragma. Both sphere-center providers write
+exactly XYZ, and every actor/target branch returns a defined framing scale.
+The fitting helper needs `opt_scalarize off`: otherwise the compiler
+removes the horizontal perpendicular-vector stores and changes the frame.
+The source retains real two-component horizontal vectors, staged radius
+scaling, X-before-Y dot-product operands, and a scoped table of two-halfword
+skill records. Both output poses contain exactly seven initialized floats.
+No extra frame fields, invented inputs, inline COP1, or pinned registers
+are used. This is compiler-output and relocation proof, not a claim that
+the camera code or full game was executed.
+
+`func_002250a0` remains ASM. Its complete ordinary-C reconstruction improves
+from **670 to 19 normalized differing bytes**, with **1688/1696 bytes and
+36 fully resolved code relocations**. All 19 differences remain without
+masking: 17 are stack offsets around the temporary quaternion and horizontal
+vectors; two are `addiu` versus `daddiu` for the transition flags. The final
+eight retail-window bytes are alignment zeros. Arithmetic, branches,
+calls and call targets match. The archive records the complete source,
+the exact differing instructions and unsuccessful source/profile probes;
+this measured floor is not a proof that an exact source is impossible.
+
+The final `make build-progress progress lint-errors` gate passes with
+**6,144 first-party MATCH / 716 ASM**, validated progress artifacts and
+zero findings across 338 first-party files. The C-linked boundary remains
+**172 objects / 1,570 functions**; these two promotions do not make their
+mixed owner eligible for whole-object C linking. Loadable image SHA-1 is
+still `3d1d3d2b9d6ccb60836db239ab49674223025a78`, and retail ELF SHA-1 is
+still `4eeec0360cf2715535d9f7e52eb69d786fb0158c`. The three reconstruction
+directories and their temporary compiler experiments are removed.
