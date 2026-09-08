@@ -7562,3 +7562,111 @@ The mixed owner remains outside whole-object C linking: **172 objects /
 build checks, not game or camera execution.
 The two reconstruction directories and their temporary compiler objects
 have been removed after archiving the source and contract evidence.
+
+## Formation packet creator return contract
+
+`func_001d3700` in `src/Battle/btlFormation.c` now explicitly returns the
+`BtlPacket *` it allocates. Retail retains the allocator's result in `v0`
+while writing the callback and the two halfword work fields; callers then
+write packet conditions and timing fields through that result. A `void`
+source declaration did not express that contract.
+
+The provider remains exact at **88 / 96 bytes**, with all **three code
+relocations resolved**, zero differing bytes and eight zero tail bytes.
+Declarations and pointer-view casts were migrated in
+`src/promoted/code1_001a.c`, `code1_001b.c` and `code1_001e.c`.
+Scoped verification covers **349 functions: 296 MATCH / 53 ASM**; every
+affected row retains its prior status, object size and relocation count.
+
+A temporary native smoke compiled the real creator body and the real
+`func_001eb0b0` consumer body, replacing only allocation and publication.
+It confirmed that the consumer publishes the returned packet and writes
+its expected timing field. This is an isolated C contract check, not game
+execution.
+
+## Exact alternate camera and action sequencing
+
+`func_00229020` and `func_00229da0` are now ordinary C in
+`src/promoted/code1_0022.c`. The already matching `func_002299b0` now uses
+its real eight-word payload rather than a data-plus-padding holder.
+All three were checked again from the actual integrated owner object:
+
+| Function | Object / window | Resolved code relocations | Resolved differing bytes | Zero tail bytes |
+| --- | ---: | ---: | ---: | ---: |
+| `func_00229020` | 2444 / 2448 | 56 | 0 | 4 |
+| `func_002299b0` | 644 / 656 | 29 | 0 | 12 |
+| `func_00229da0` | 2312 / 2320 | 75 | 0 | 8 |
+
+The sequence builder's nine `R_MIPS_32` switch entries are also exact:
+
+```text
+007478F0: 0022A3FC 0022A3FC 0022A374 0022A38C 0022A3A4
+          0022A3FC 0022A3BC 0022A3EC 0022A3D4
+```
+
+The alternate camera's old, unprobed accumulator-chain classification was
+not a compiler floor. Ordinary expressions emit the retail COP1 chains.
+Its geometry workspace contains four real two-float vectors and a complete
+56-byte pose pair; there are no padding members. Scoped `opt_scalarize off`
+retains their stores. Shared switch defaults, case-label order, explicit
+ordinal/address views, mode declaration order and staged floating-point
+expressions close the remaining instruction differences.
+
+The camera copy provider writes all seven incoming-pose floats, including
+the first quaternion. Quaternion producers and vector providers write
+their complete consumed extents. The live-action scheduling chain through
+`func_001a4c80` supplies states `0x16` and `0x17`; all three callback tables
+contain this initializer at those states. The retail null-action test
+does **not** make the callback null-safe: its later unconditional
+`action+0x30` load remains. No invented early return was added.
+
+The sequence builder keeps separate packet roles across its phases and
+an iteration-local target pointer. Both 32-byte configuration objects
+are fully initialized; all action and published-packet identities remain
+64-bit. The two target traversals, optional status sequence, six switch
+arms, roster walk and publication-dependent identity loads are retained.
+Its formation cleanup consumes the corrected `func_001d3700` return.
+
+The followup initializer is registered by `func_0022d600`, not
+`func_0022dc70`. Its `u32 payload[8]` is completely initialized by
+`func_001f0a10` and copied by `func_001f36e0` before local lifetime ends.
+Its existing scoped `opt_propagation off` remains necessary.
+The sound provider still requests `strlen+8` work bytes but copies
+`strlen+1` bytes at work offset eight. For the retail `EM10F_END.ADX`,
+that is a 21-byte request and a 22-byte written extent. Active allocator
+rounding has not been established; this is not an unconditional
+whole-provider memory-safety claim, and target-local padding is not a fix.
+
+`P022_00229020_body.c`, `P022_002299b0_body.c` and `P022_00229da0_body.c`
+archive the exact sources and complete caller/provider evidence. The last
+replaces the 2308-byte sequence candidate that omitted four executable
+bytes and differed in 1481 resolved bytes.
+
+The full `make build-progress progress lint-errors` gate passes:
+**6,148 first-party MATCH / 712 ASM**, **7,778 total MATCH / 4,942 ASM**,
+validated progress artifacts, and zero findings across 338 first-party
+files. Whole-object C linking remains **172 objects / 1,570 functions**.
+Loadable image SHA-1 remains
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; retail ELF SHA-1 remains
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+These are compiler, relocation and build checks, not game execution.
+
+## Scripted initializer saved-register blocker
+
+`func_0022a730` remains ASM. A fresh complete audit confirms the existing
+`P022_0022a730_body.c` blocker: `0x0022A80C` consumes incoming `s1` unless
+the first traversal writes it at `0x0022A7F8`. That write requires status
+bit `0x100` to be present; the real registration path in `func_0022dc70`
+selects the opposite predicate.
+
+A single active target with unit flag eight and status `0x100` clear can
+reach registration without establishing the required write. The callback
+dispatcher supplies only the registered action in `a0`, and
+`func_0022bd00` supplies no selected-target or status invariant.
+Initializing the pointer, deriving it from another input, or reading a
+pinned saved register would change the contract or introduce undefined C.
+No such candidate was compiled or installed. The center provider's
+no-output path remains a secondary, unresolved path-invariant requirement.
+
+The four temporary reconstruction directories and the formation-return
+smoke fixtures were removed after their source and evidence were archived.
