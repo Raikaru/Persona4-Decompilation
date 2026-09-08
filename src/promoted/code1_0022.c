@@ -104,7 +104,11 @@ void func_001c8d50(void);
 extern u8 *DAT_0076449c;
 extern void func_001c97b0(u8 *arg0);
 extern s32 func_001bc560(u8 *arg0, u8 *arg1);
-extern void func_0019de70(u8 *arg0, u16 arg1);
+extern void func_0019de70(BtlUnitStateWork *work, u16 value);
+extern void func_00195590(BtlUnit *unit, const RwV3d *target);
+extern s32 func_001c0e50(u8 *camera);
+extern void func_001c5110(u8 *camera);
+extern s32 func_0022f950(u8 *action, u8 *subordinate);
 
 extern u8 *func_00193bf0(u64 uid, u64 mask);
 extern void func_00106390(s32 arg0, s32 arg1);
@@ -620,14 +624,165 @@ void func_00227770(u8 *arg0)
         if ((temp_3 != NULL) &&
             ((*(u16 *)(temp_3 + 0x1A) & 1) != 0) &&
             (func_001bc560(arg0, temp_5) != 0)) {
-            func_0019de70(*(u8 **)(arg0 + 0x12C), *(u16 *)(arg0 + 0x130));
+            func_0019de70(*(BtlUnitStateWork **)(arg0 + 0x12C), *(u16 *)(arg0 + 0x130));
         }
     }
 }
 
 
 // FUN_002277E0
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_002277e0);
+/* measured: opt_common_subs off preserves per-use 16-bit ordinal masks.
+ * Independent target/party ordinals and the materialized subordinate predicate
+ * give 1620/1632 bytes, 50 code relocations and zero normalized differences.
+ * Each pose pair is two contiguous seven-float poses, without padding. */
+#pragma opt_common_subs off
+void func_002277e0(u8 *camera)
+{
+    RwRGBA color;
+    struct CameraPosePair {
+        RwV3d first;
+        RtQuat firstRotation;
+        RwV3d second;
+        RtQuat secondRotation;
+    } selected, player, other;
+    f32 duration;
+    u8 *action;
+    u8 *unit;
+    u8 *subordinate;
+    u8 *target;
+    u8 *node;
+    u8 *record;
+    u32 index;
+    u32 ordinal;
+    u16 partyIndex;
+    u16 variant;
+    u32 frames;
+    s32 matchesSubordinate;
+
+    action = *(u8 **)(camera + 0xE0);
+    unit = *(u8 **)(action + 0x30);
+    subordinate = *(u8 **)(unit + 0xA0C);
+    if (action != NULL && *(u8 *)(unit + 0xA2) == 0) {
+        index = 0;
+        while ((action = *(u8 **)(camera + 0xE0)),
+               (u16)index < *(u16 *)(action + 0x6A)) {
+            target = *(u8 **)(action + 0x38 + (u16)index * 4);
+            target = *(u8 **)(target + 0x30);
+            if (*(u8 *)(target + 0xA2) == 1) {
+                func_00195590((BtlUnit *)target, (const RwV3d *)(unit + 4));
+            }
+            index = (u16)(index + 1);
+        }
+    }
+    *(u16 *)(camera + 0x110) = func_001c0e50(camera);
+    matchesSubordinate = subordinate != NULL &&
+        func_0022f950(*(u8 **)(camera + 0xE0), subordinate) != 0;
+    if (matchesSubordinate && *(u16 *)(camera + 0x110) != 1) {
+        func_0019d0c0(subordinate);
+        color.red = *(u8 *)(subordinate + 0x30);
+        color.green = *(u8 *)(subordinate + 0x31);
+        color.blue = *(u8 *)(subordinate + 0x32);
+        color.alpha = 0;
+        btlUnitSetColor((BtlUnit *)subordinate, color);
+    }
+    func_0019de70((BtlUnitStateWork *)subordinate, 0);
+    switch (*(u16 *)(camera + 0x110)) {
+    case 0:
+    case 1:
+        func_001c5110(camera);
+        action = *(u8 **)(camera + 0xE0);
+        if (*(u16 *)(action + 0x6A) != 1) {
+            break;
+        }
+        if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) != 0) {
+            break;
+        }
+        target = *(u8 **)(action + 0x38);
+        if (*(u8 *)(*(u8 **)(target + 0x30) + 0xA2) != 0) {
+            break;
+        }
+        func_001bcd40(action, NULL, NULL, 8, 0.0f);
+        break;
+    case 2:
+    case 4:
+        action = *(u8 **)(camera + 0xE0);
+        if (*(u16 *)(action + 0x6A) == 1 &&
+            *(u8 *)(*(u8 **)(action + 0x30) + 0xA2) == 0 &&
+            (target = *(u8 **)(action + 0x38), action != target) &&
+            *(u8 *)(*(u8 **)(target + 0x30) + 0xA2) == 0) {
+            func_001c5110(camera);
+            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 8, 0.0f);
+            break;
+        }
+    case 3:
+    case 5:
+        action = *(u8 **)(camera + 0xE0);
+        unit = *(u8 **)(action + 0x30);
+        variant = func_00231d70(2);
+        if (*(u8 *)(unit + 0xA2) != 0) {
+            partyIndex = 0;
+        } else {
+            ordinal = 0;
+            node = *(u8 **)(iGpffffb3ac + 0x17C);
+            while (node != NULL) {
+                if (unit == node) {
+                    break;
+                }
+                ordinal = (u16)(ordinal + 1);
+                node = *(u8 **)(node + 0xA68);
+            }
+            partyIndex = (u16)ordinal;
+        }
+        record = *(u8 **)(iGpffffb3ac + 0xB98) +
+                 (u16)partyIndex * 0x68 + (u16)variant * 0x34 + 0x3A8;
+        func_001bd780(&selected.firstRotation, record + 4, record + 0x10, D_0060A0E0);
+        selected.first = *(RwV3d *)(record + 4);
+        func_001bd780(&selected.secondRotation, record + 0x1C, record + 0x28, D_0060A0E0);
+        selected.second = *(RwV3d *)(record + 0x1C);
+        frames = *(u16 *)record;
+        duration = (f32)frames / 30.0f;
+        func_001bac20((u16 *)(iGpffffb3ac + 0x24),
+                      (f32 *)&selected.first, (f32 *)&selected.second, 1);
+        func_001bbef0(iGpffffb3ac + 0x24, duration);
+        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+        break;
+    case 6:
+        action = *(u8 **)(camera + 0xE0);
+        if ((*(u16 *)(action + 0x1A) & 1) == 0) {
+            break;
+        }
+        if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) == 0) {
+            record = *(u8 **)(iGpffffb3ac + 0xB98) + 0x618;
+            func_001bd780(&player.firstRotation, record + 4, record + 0x10, D_0060A0E0);
+            player.first = *(RwV3d *)(record + 4);
+            func_001bd780(&player.secondRotation, record + 0x1C, record + 0x28, D_0060A0E0);
+            player.second = *(RwV3d *)(record + 0x1C);
+            frames = *(u16 *)record;
+            duration = (f32)frames / 30.0f;
+            func_001bac20((u16 *)(iGpffffb3ac + 0x24),
+                          (f32 *)&player.first, (f32 *)&player.second, 1);
+            func_001bbef0(iGpffffb3ac + 0x24, duration);
+        } else {
+            variant = func_00231d70(2);
+            record = *(u8 **)(iGpffffb3ac + 0xB98) + (u16)variant * 0x34 + 0x64C;
+            func_001bd780(&other.firstRotation, record + 4, record + 0x10, D_0060A0E0);
+            other.first = *(RwV3d *)(record + 4);
+            func_001bd780(&other.secondRotation, record + 0x1C, record + 0x28, D_0060A0E0);
+            other.second = *(RwV3d *)(record + 0x1C);
+            frames = *(u16 *)record;
+            duration = (f32)frames / 30.0f;
+            func_001bac20((u16 *)(iGpffffb3ac + 0x24),
+                          (f32 *)&other.first, (f32 *)&other.second, 1);
+            func_001bbef0(iGpffffb3ac + 0x24, duration);
+        }
+        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+        break;
+    default:
+        break;
+    }
+}
+/* measured: closing opt_common_subs off for func_002277e0. */
+#pragma opt_common_subs on
 // FUN_00227E40 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00227e40);
 // FUN_002282D0

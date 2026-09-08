@@ -16,7 +16,7 @@ s32 func_004669d0(s32 arg0, s32 *arg1, s32 arg2);
 void func_0046b380(u8 *arg0, s32 arg1);
 
 /* Sprite dispatcher slot at 0x008873EC (absolute, outside gp window). */
-extern void (*jtbl_008873EC[])();
+extern void (*jtbl_008873EC[])(void *node);
 /* Allocator slot at 0x008873F4 (absolute, outside gp window). */
 extern u8 *(*D_008873F4[])(s32, s32, s32);
 /* GP-relative list head at gp -0x44E8 (absolute 0x00764C08). */
@@ -330,9 +330,9 @@ u8 *func_0046d200(u32 arg0, u32 arg1)
 }
 
 // FUN_0046D280
-void func_0046d280(void)
+void func_0046d280(void *node)
 {
-    jtbl_008873EC[0]();
+    jtbl_008873EC[0](node);
 }
 
 // FUN_0046D2B0

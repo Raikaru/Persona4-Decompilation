@@ -16,7 +16,7 @@ s32 func_0034c210(void);
 void func_001437b0(void* arg0, s32 arg1, s32 arg2);
 void func_0034f5d0(void* arg0);
 u32 func_003b7060(void);
-void func_0046d280(s32 arg0);
+void func_0046d280(void *node);
 void func_00452080(s32 arg0);
 void func_002bb4e0(void);
 void func_003550d0(s32 arg0, void* arg1, void* arg2);
@@ -437,7 +437,7 @@ void func_001377e0(u8* arg0) {
     for (i = 0; i < 0x17; i++) {
         p = (s32*)(base + i * 4 + 0x1C54);
         if (*p != 0) {
-            func_0046d280(*p);
+            func_0046d280((void *)*p);
             *p = 0;
         }
     }

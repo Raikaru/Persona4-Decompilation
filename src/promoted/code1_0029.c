@@ -977,7 +977,7 @@ void func_0029e9e0(s32 arg0, f32 farg0, f32 farg1, f32 farg2, f32 farg3,
     extern f32 func_0046b260(u8 *arg0);
     extern f32 func_0046b2f0(u8 *arg0);
     extern void func_0046b380(u8 *arg0, s32 arg1);
-    extern void func_0046d280(u8 *arg0);
+    extern void func_0046d280(void *node);
     f32 temp_f0;
     f32 temp_f21;
     f32 temp_f20;

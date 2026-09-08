@@ -7293,3 +7293,62 @@ The final `make build-progress progress lint-errors` gate passes with
 **6,138 first-party MATCH / 722 ASM**, **172 C-linked objects / 1,570
 functions**, validated progress artifacts and zero findings across 338
 first-party files. Both retail hashes remain unchanged.
+
+## Exact camera preparation and descriptor release contracts
+
+`func_002277e0` is now ordinary C in `src/promoted/code1_0022.c`:
+**1,620 object bytes / 1,632 retail-window bytes, 50 code relocations,
+zero normalized differing bytes and 12 zero tail bytes**. The public
+camera pointer is established by the override callback at `0x006352A4`
+and its real invoker, `func_001bc660`.
+
+The initial complete reconstruction measured 1,604 bytes / nd1129.
+The closing levers were source-level distinctions, not fabricated storage:
+
+- A 32-bit target-loop ordinal with explicit 16-bit wrapping preserves
+  the retail induction variable. `opt_common_subs off` retains its
+  separate per-use masks.
+- A named subordinate predicate preserves the materialized boolean
+  before the independent camera-state guard.
+- The party search has its own ordinal and a halfword party index.
+  Sharing the target-loop variable changed its register lifetime.
+- Each of the three pose pairs is exactly two contiguous seven-float
+  poses. The direction vector `D_0060A0E0` is exactly twelve bytes.
+
+`func_0019de70` and its live camera callers now agree on
+`BtlUnitStateWork *` and the halfword state input. The provider narrows
+only at the actual byte store. `func_0046d280` now accepts and forwards
+the descriptor pointer to the typed release slot; its live declarations
+and callers use the pointer contract rather than an integer or no input.
+These provider corrections preserve their existing matching bytes.
+
+A throwaway native consumer compiles the extracted production release
+body against libc `free`, with AddressSanitizer enabled. The pre-fix body
+is rejected for its conflicting signature and missing release argument.
+The corrected body releases one real allocation without poisoning a
+second allocation, subsequently releases the second, and accepts NULL.
+This is real allocator ownership behavior, not a mock callback echo.
+
+The result-animation investigation instead establishes a concrete blocker
+for `func_00222210`: on reachable draw frames 1–6 with flag `0x8` clear,
+retail consumes incoming callee-saved `f20` without defining it. Its direct
+caller also leaves `f20` undefined before the call. The value reaches the
+gold sprite coordinates; neither a substituted phase nor an invented FP
+argument is justified. The updated probe archive records the branch,
+providers and constructor/update evidence. Production remains ASM.
+
+The preparation comparison also passes with every code relocation fully
+resolved and no masked bytes. All seven relocated jump-table entries
+equal retail: `00227938`, `00227938`, `0022799C`, `00227A0C`,
+`0022799C`, `00227A0C`, `00227BC0`. The corrected state setter measures
+36/48 bytes with no relocations; descriptor release measures 40/48 with
+two resolved relocations. Both are byte-exact with zero-only tail padding.
+Temporary probes and the allocator smoke fixture are removed.
+
+The final `make build-progress progress lint-errors` gate passes:
+**6,139 first-party MATCH / 721 ASM**, validated progress artifacts, and
+zero findings across 338 first-party files. The C-linked subset remains
+**172 objects / 1,570 functions**; the preparation promotion increases
+MATCH coverage, not this separately measured linked subset. Loadable
+image SHA-1 remains `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
+retail ELF SHA-1 remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.

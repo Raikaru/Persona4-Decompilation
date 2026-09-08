@@ -1278,11 +1278,11 @@ u32 func_0019d130(BtlUnit* unit)
 }
 
 // FUN_0019DE70
-void func_0019de70(BtlUnitStateWork* work, u8 value)
+void func_0019de70(BtlUnitStateWork* work, u16 value)
 {
     if (work != NULL && work->state == 2)
     {
-        work->value = value;
+        work->value = (u8)value;
     }
 }
 

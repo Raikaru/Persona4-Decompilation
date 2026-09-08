@@ -20,7 +20,7 @@ extern s32 D_00629560[];
 extern s32 D_006295F0[];
 void func_00454bd0(u8 *ptr);
 void func_0046b0d0(void *ptr);
-void func_0046d280(s32 arg0);
+void func_0046d280(void *node);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 void func_0044ea90(const void *msg, s32 id);
@@ -416,7 +416,7 @@ void func_002214d0(void) {
     for (j = 0; j < 0x2A; j++) {
         s32 *el = (s32 *)(addBase((u32)p, (u32)(j * 4)) + 0x414);
         if (*el != 0) {
-            func_0046d280(*el);
+            func_0046d280((void *)*el);
             *el = 0;
         }
     }

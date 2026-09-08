@@ -56,7 +56,7 @@ extern void func_004577d0(void *arg0, f32 arg1);
 extern void func_00457630(void *arg0, void *arg1, void *arg2, s32 arg3);
 extern void func_0011fd30(u8 *arg0);
 extern void func_0011fd50(s64 arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
-extern void func_0046d280(s32 arg0);
+extern void func_0046d280(void *node);
 extern void func_00452080(s32 arg0);
 extern void func_002bb550(s8 arg0);
 extern f32 iGpffff84a4;
@@ -193,7 +193,7 @@ void func_00361a30(u8 *arg0)
         temp_3 = arg0 + (var_18 * 4) + 0x658;
         temp_4 = *(s32 *)temp_3;
         if (temp_4 != 0) {
-            func_0046d280(temp_4);
+            func_0046d280((void *)temp_4);
             *(s32 *)temp_3 = 0;
         }
         var_18 += 1;

@@ -59,7 +59,7 @@ extern void func_00454bd0(u8 *ptr);
 extern s32 func_004553c0(u8 *ptr);
 extern s32 func_0046a750(s32 param);
 extern s32 func_0046aea0(const u8 *name);
-extern void func_0046d280(s32 param);
+extern void func_0046d280(void *node);
 extern void func_0046d730(void *msg, s32 id);
 extern s32 func_004667d0(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern s32 func_004669d0(s32, s32 *, s32);
@@ -249,18 +249,18 @@ void func_002ae520(u8 *arg0) {
     p = *(u8 **)(arg0 + 0x38);
     i = 0;
     while (i < 4) {
-        func_0046d280(*(s32 *)(p + i * 4 + 0x24));
+        func_0046d280(*(void **)(p + i * 4 + 0x24));
         i++;
     }
     i = 0;
     while (i < 6) {
-        func_0046d280(*(s32 *)(p + i * 4 + 0x34));
-        func_0046d280(*(s32 *)(p + i * 4 + 0x4C));
-        func_0046d280(*(s32 *)(p + i * 4 + 0x64));
+        func_0046d280(*(void **)(p + i * 4 + 0x34));
+        func_0046d280(*(void **)(p + i * 4 + 0x4C));
+        func_0046d280(*(void **)(p + i * 4 + 0x64));
         i++;
     }
-    func_0046d280(*(s32 *)(p + 0x7C));
-    func_0046d280(*(s32 *)(p + 0x80));
+    func_0046d280(*(void **)(p + 0x7C));
+    func_0046d280(*(void **)(p + 0x80));
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 

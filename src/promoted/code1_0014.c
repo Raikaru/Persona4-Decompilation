@@ -53,7 +53,7 @@ extern void func_00355370(u8 *arg0, u8 *arg1);
 
 
 
-extern void func_0046d280(s32 arg0);
+extern void func_0046d280(void *node);
 extern void func_00452080(s32 arg0);
 extern void func_00146630(u16 arg0);
 extern void func_001470e0(u8 *arg0);
@@ -492,7 +492,7 @@ s32 i;
         q = p + 0x1810;
         temp_4 = *(s32 *)(p + 0x1810);
         if (temp_4 != 0) {
-            func_0046d280(temp_4);
+            func_0046d280((void *)temp_4);
             *(s32 *)q = 0;
         }
     }

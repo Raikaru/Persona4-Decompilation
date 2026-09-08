@@ -27,7 +27,7 @@ extern u8 D_00793E80[];
 extern void func_0034a8b0(void *arg0);
 extern f32 fGpffff8504;
 extern f32 fGpffff8224;
-extern void func_0046d280(u8 *arg0);
+extern void func_0046d280(void *node);
 extern f32 D_0088467C[];
 extern f32 D_008872F8[];
 extern u8 D_0064A6E0[];

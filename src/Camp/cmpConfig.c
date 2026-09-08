@@ -7,7 +7,7 @@
 typedef struct { f32 x, y; } Vec2f;
 
 void func_0046d730(void* arg0, s32 arg1);
-void func_0046d280(s32 arg0);
+void func_0046d280(void *node);
 void func_00460ac0(void* param, void* work);
 void func_00106390(s32 a, s32 b);
 s32 func_0035f0c0(u32* arg0, s32* arg1, u8* arg2);
@@ -431,7 +431,7 @@ void func_0035e6a0(u8* arg0) {
         s32 v = *(s32*)(q + 0x448);
 
         if (v != 0) {
-            func_0046d280(v);
+            func_0046d280((void *)v);
             *(s32*)(arg0 + i * 4 + 0x448) = 0;
         }
     }

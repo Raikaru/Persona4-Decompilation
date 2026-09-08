@@ -153,7 +153,7 @@ void func_002e0700(u8 *arg0, s64 arg1, f32 fparg0, f32 fparg1,
     extern u8 *func_0046d200(u32 arg0, s16 arg1);
     extern f32 func_0046b2f0(u8 *arg0);
     u8 *base;
-    extern void func_0046d280(u8 *arg0);
+    extern void func_0046d280(void *node);
     extern void func_002b8300(u8 *arg0,
                               f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
                               s8 arg1, s32 arg2, s32 arg3);
