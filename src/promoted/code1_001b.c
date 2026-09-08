@@ -122,7 +122,7 @@ void func_002bad10(u32 arg0);
 void func_002bb050(u32 arg0);
 void func_002baf40(u32 arg0);
 extern void func_00195850(u8 *arg0, f32 *arg1);
-extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, s32 arg3, f32 arg4);
+extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, u16 arg3, f32 arg4);
 extern void func_001b73f0(u8 *arg0);
 extern s32 func_004bd050(s32 arg0);
 extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
@@ -2518,7 +2518,7 @@ void func_001bdd60(void) {
 // FUN_001BDD80
 void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2)
 {
-    s32 var_7;
+    u16 var_7;
     u16 temp_16;
     f32 temp_f12;
     u8 *temp_2;
@@ -2558,7 +2558,7 @@ void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2)
 // FUN_001BDEB0
 void func_001bdeb0(u8 *arg0)
 {
-    s32 temp_16;
+    u16 temp_16;
     s32 var_2;
     u8 *temp_2;
     u8 *temp_4;

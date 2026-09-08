@@ -87,7 +87,7 @@ f32 RwV3dNormalize(RwV3d* out, RwV3d* in);
 RwMatrix* RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mode);
 RwV3d* func_003e4320(RwV3d* out, const RwV3d* in, const RwMatrix* matrix);
 void func_001bd780(void* out, const void* first, const void* second, const void* config);
-void func_001bcd40(f32 param_1, u8* param_2, u8* param_3, u8* param_4, u32 param_5);
+void func_001bcd40(f32 param_1, u8* param_2, u8* param_3, u8* param_4, u16 param_5);
 extern f32 func_00196040(u32, u32, void*, f32*, void*, u32);
 extern void func_001958f0(s32, void*);
 extern f32 func_0044b868(f32 x);

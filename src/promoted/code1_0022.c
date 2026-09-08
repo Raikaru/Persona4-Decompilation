@@ -72,7 +72,24 @@ extern s32 func_00451fc0();
 extern void func_00221f40();
 extern void func_002230a0();
 extern void func_00222d20();
-extern void func_002232a0();
+extern s32 func_002232a0(KwlnTask *task);
+extern u8 D_00795F20[];
+extern u8 D_006296D0[];
+extern u8 D_008C0240[0x94];
+extern void func_00460ac0(u8 *list, u8 *node);
+extern u16 func_0010b6f0(void);
+extern u16 *func_0010ace0(s16 slot);
+extern u8 *func_00117780(s32 parent, s32 priority, s32 mode, s32 layout, s32 option);
+extern void func_00117580(u8 *window, s32 value);
+extern void func_0011d100(u8 *window, f32 *position);
+extern void func_0011bb90(u8 *window);
+extern void func_0011b480(u8 *window, s32 mode, u32 persona, s32 option);
+extern u8 *func_0011f410(s32 parent, s32 window, u8 *record, s32 payload, s32 option, s32 *messages);
+extern u32 func_0011f560(u8 *child);
+extern s32 func_0011f580(u8 *child);
+extern s32 func_00353f50(s32 mode);
+extern s32 func_0021de60(void);
+extern void func_0046d730(const void *file, u32 line);
 extern void func_002236b0();
 extern void func_002236c0(KwlnTask *task);
 
@@ -97,6 +114,10 @@ extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
 extern f32 func_003e41e0(f32 *out, f32 *in);
 extern RwV3d *RtQuatTransformVectors(RwV3d *out, const RwV3d *in, s32 count, const RtQuat *rotation);
 extern f32 func_001ec3d0(u8 *first, u8 *second, u8 *point, u8 *out);
+extern void func_001ec1c0(void *out, void *first, void *second);
+extern void func_001bd5e0(f32 *out, f32 *in);
+extern f32 fGpffff80fc;
+extern f32 fGpffff80dc;
 extern f32 tanf(f32 angle);
 extern u32 func_001bc3a0(f32 *pose, f32 *out);
 extern f32 fGpffff8110;
@@ -186,7 +207,7 @@ extern s64 func_00194590(u8 *arg0, u32 arg1);
 extern u8 *func_00202400(s32 arg0, s32 arg1);
 extern s32 func_004bd050(s32 arg0);
 extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
-extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, s32 arg3, f32 arg4);
+extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, u16 arg3, f32 arg4);
 extern u8 D_00632240[];
 extern u8 *func_0019ef90(s32 arg0, s32 arg1);
 extern void func_0019d0c0(u8 *arg0);
@@ -354,7 +375,141 @@ s32 func_00223270(void)
 }
 
 // FUN_002232A0
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_002232a0);
+/* 1036/1040 bytes; 26 code relocations and all nine switch entries exact. */
+#pragma opt_propagation off
+s32 func_002232a0(KwlnTask *task)
+{
+    u8 *work;
+    u8 *results;
+    u8 *persona;
+    u8 *payload;
+    s32 index;
+    s32 messages[11];
+    f32 position[2];
+
+    work = (u8 *)func_00452560(task);
+    results = *(u8 **)(work + 0x40);
+    *(u32 *)(work + 8) = 0;
+    *(u32 *)(work + 0xC) = 0;
+    func_00460ac0(D_00795F20, work + 8);
+
+    switch (*(u32 *)(work + 4)) {
+    case 0:
+        *(s32 *)(work + 0x3C) = 0;
+        *(s32 *)(work + 0x38) = (u16)func_0010b6f0();
+        *(u8 **)(work + 0x4C) = func_00117780(0, 15, 4, 5, 0);
+        if (*(u8 **)(work + 0x4C) == 0) {
+            func_0046d730(D_006296D0, 0x2F);
+        }
+        func_00117580(*(u8 **)(work + 0x4C), 0xAE);
+        position[0] = 0.0f;
+        position[1] = 19.0f;
+        func_0011d100(*(u8 **)(work + 0x4C), position);
+        func_0011bb90(*(u8 **)(work + 0x4C));
+        *(s32 *)(work + 4) = 1;
+        /* fall through */
+    case 1:
+        results += 0x60;
+        while ((index = *(s32 *)(work + 0x3C)) < *(s32 *)(work + 0x38)) {
+            u32 reward;
+
+            persona = (u8 *)func_0010ace0((s16)index);
+            reward = *(u32 *)(results + 8 + *(s32 *)(work + 0x3C) * 4);
+            *(u32 *)(persona + 8) += reward;
+            index = *(s32 *)(work + 0x3C);
+            if (*(u8 *)(index * 0x88 + results + 0x38) > 0) {
+                break;
+            }
+            *(s32 *)(work + 0x3C) = index + 1;
+        }
+        /* Constructor and transitions maintain 0 <= index <= count <= 12.
+         * Consequently this arm always has a persona produced by the loop. */
+        if (index != *(s32 *)(work + 0x38)) {
+            s32 recordIndex;
+
+            func_0011b480(*(u8 **)(work + 0x4C), 1, (u32)persona, 0);
+            messages[0] = 12;
+            messages[1] = 0;
+            messages[2] = 6;
+            messages[3] = 9;
+            messages[4] = 10;
+            messages[5] = 11;
+            messages[6] = 13;
+            messages[7] = 14;
+            messages[8] = 19;
+            messages[9] = 20;
+            messages[10] = 21;
+            payload = func_00455ea0(
+                *(u8 **)(*(u8 **)(work + 0x40) + 0x934), 0, 0);
+            recordIndex = *(s32 *)(work + 0x3C);
+            *(u8 **)(work + 0x50) = func_0011f410(
+                (s32)task, *(s32 *)(work + 0x4C),
+                results + recordIndex * 0x88 + 0x38,
+                (s32)payload, 0, messages);
+            *(u16 *)work |= 2;
+            *(s32 *)(work + 4) = 2;
+        } else if (*(u32 *)(*(u8 **)(work + 0x40) + 0x60) & 0x10) {
+            *(u16 *)work &= 0xFFFE;
+            *(s32 *)(work + 4) = 8;
+        } else {
+            *(u16 *)work &= 0xFFFE;
+            *(s32 *)(work + 4) = 8;
+            *(u16 *)work |= 4;
+        }
+        break;
+    case 2:
+        *(s32 *)(work + 4) = 3;
+        /* fall through */
+    case 3:
+        if (func_0011f560(*(u8 **)(work + 0x50)) == 0) {
+            break;
+        }
+        func_0011f580(*(u8 **)(work + 0x50));
+        *(s32 *)(work + 4) = 4;
+        *(u16 *)(work + 0x48) = 0;
+        /* fall through */
+    case 4:
+        if (++*(u16 *)(work + 0x48) < 45) {
+            if ((*(u16 *)(D_008C0240 + 0xE) & 0x50) == 0) {
+                if ((*(u16 *)(D_008C0240 + 0xC) & 0x10) == 0) {
+                    break;
+                }
+                if (*(u16 *)(work + 0x48) < 4) {
+                    break;
+                }
+            }
+        }
+        *(s32 *)(work + 0x3C) += 1;
+        *(s32 *)(work + 4) = 1;
+        break;
+    case 5:
+        if (func_00353f50(1) != 0) {
+            break;
+        }
+        *(u16 *)work &= 0xFFFE;
+        *(s32 *)(work + 4) = 8;
+        break;
+    case 6:
+        if (func_0021de60() == 0) {
+            break;
+        }
+        *(s32 *)(work + 4) = 7;
+        /* fall through */
+    case 7:
+        if ((*(u16 *)work & 4) == 0) {
+            if (++*(u16 *)(work + 0x48) < 5) {
+                break;
+            }
+        }
+        *(u16 *)work &= 0xFFFD;
+        return -1;
+    case 8:
+    default:
+        break;
+    }
+    return 0;
+}
+#pragma opt_propagation on
 // FUN_002236B0
 void func_002236b0(s32 arg0, u16 *arg1, s32 arg2)
 {
@@ -637,7 +792,187 @@ f32 func_002249a0(u8 *actor, u8 *target, RwV3d *actorPosition, RwV3d *targetPosi
     return 3.5f;
 }
 // FUN_002250A0
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_002250a0);
+/* 1688/1696 bytes; all 36 resolved code relocations exact. */
+#pragma opt_scalarize off
+void func_002250a0(u8 *camera, f32 distanceOffset, f32 duration)
+{
+    RwV3d actorPosition;
+    RwV3d targetPosition;
+    RwV3d basePosition;
+    RwV3d focus;
+    RwV3d offset;
+    RwV3d direction;
+    RwV3d eye;
+    f32 baseXZ[2];
+    f32 projectionXZ[2];
+    struct {
+        f32 perpendicular[2];
+        f32 horizontal[2];
+        f32 focusXZ[2];
+        f32 eyeXZ[2];
+        RtQuat yaw;
+    } geometry;
+    struct CameraPosePair {
+        RwV3d first;
+        RtQuat firstRotation;
+        RwV3d second;
+        RtQuat secondRotation;
+    } poses;
+    u8 *action;
+    u8 *actor;
+    u8 *target;
+    u8 *farUnit;
+    u8 *nearUnit;
+    f32 framingScale;
+    f32 actorRadius;
+    f32 targetRadius;
+    f32 length;
+    f32 sideOffset;
+    f32 along;
+    f32 baseZ;
+    f32 baseHeight;
+    f32 side;
+    f32 extent;
+    f32 halfAngle;
+    f32 distance;
+    u16 flags;
+
+    action = *(u8 **)(camera + 0xE0);
+    actor = *(u8 **)(action + 0x30);
+    target = *(u8 **)(*(u8 **)(action + 0x38) + 0x30);
+    framingScale = func_002249a0(actor, target, &actorPosition, &targetPosition);
+    actorRadius = *(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C);
+    targetRadius = *(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C);
+    geometry.horizontal[0] = *(f32 *)(camera + 0x9C) - actorPosition.x;
+    geometry.horizontal[1] = *(f32 *)(camera + 0xA4) - actorPosition.z;
+    func_003e41e0(geometry.horizontal, geometry.horizontal);
+
+    if (*(u8 *)(actor + 0xA2) == 0) {
+        func_001ec1c0((u8 *)&geometry.yaw, (u8 *)&actorPosition, (u8 *)&targetPosition);
+        RtQuatTransformVectors(&offset, (const RwV3d *)D_0060A100, 1, &geometry.yaw);
+        offset.x = offset.x * targetRadius;
+        offset.y = offset.y * targetRadius;
+        offset.z = offset.z * targetRadius;
+        targetPosition.x = targetPosition.x + offset.x;
+        targetPosition.y = targetPosition.y + offset.y;
+        targetPosition.z = targetPosition.z + offset.z;
+        direction.x = actorPosition.x - targetPosition.x;
+        direction.y = actorPosition.y - targetPosition.y;
+        direction.z = actorPosition.z - targetPosition.z;
+        length = RwV3dNormalize(&direction, &direction);
+        nearUnit = actor;
+        farUnit = target;
+        basePosition = actorPosition;
+        sideOffset = 1.25f * (*(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C));
+        along = fGpffff8128 * length;
+        focus.x = direction.x * along;
+        focus.y = direction.y * along;
+        focus.z = direction.z * along;
+        baseHeight = basePosition.y;
+        eye.y = baseHeight;
+    } else {
+        func_001ec1c0((u8 *)&geometry.yaw, (u8 *)&targetPosition, (u8 *)&actorPosition);
+        RtQuatTransformVectors(&offset, (const RwV3d *)D_0060A100, 1, &geometry.yaw);
+        offset.x = offset.x * actorRadius;
+        offset.y = offset.y * actorRadius;
+        offset.z = offset.z * actorRadius;
+        actorPosition.x = actorPosition.x + offset.x;
+        actorPosition.y = actorPosition.y + offset.y;
+        actorPosition.z = actorPosition.z + offset.z;
+        direction.x = actorPosition.x - targetPosition.x;
+        direction.y = actorPosition.y - targetPosition.y;
+        direction.z = actorPosition.z - targetPosition.z;
+        length = RwV3dNormalize(&direction, &direction);
+        nearUnit = target;
+        farUnit = actor;
+        basePosition = targetPosition;
+        sideOffset = 0.5f * (*(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C));
+        along = fGpffff80fc * length;
+        focus.x = direction.x * along;
+        focus.y = direction.y * along;
+        focus.z = direction.z * along;
+        baseHeight = basePosition.y;
+        eye.y = baseHeight;
+    }
+    focus.x = focus.x + targetPosition.x;
+    focus.y = focus.y + targetPosition.y;
+    focus.z = focus.z + targetPosition.z;
+    geometry.perpendicular[0] = direction.z;
+    geometry.perpendicular[1] = -direction.x;
+    side = geometry.perpendicular[0] * geometry.horizontal[0] + geometry.perpendicular[1] * geometry.horizontal[1];
+    if (!(side < 0.0f)) {
+        eye.x = (0.0f + basePosition.x) + direction.z * sideOffset;
+        baseZ = basePosition.z;
+        eye.z = (0.0f + baseZ) - direction.x * sideOffset;
+    } else {
+        eye.x = (0.0f + basePosition.x) - direction.z * sideOffset;
+        baseZ = basePosition.z;
+        eye.z = (0.0f + baseZ) + direction.x * sideOffset;
+    }
+    func_001bd780(&poses.secondRotation, &eye, &focus, D_0060A0E0);
+    RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A100, 1,
+                           &poses.secondRotation);
+    geometry.focusXZ[0] = focus.x;
+    geometry.focusXZ[1] = focus.z;
+    geometry.eyeXZ[0] = eye.x;
+    geometry.eyeXZ[1] = eye.z;
+    baseXZ[0] = basePosition.x;
+    baseXZ[1] = baseZ;
+    extent = func_001ec3d0((u8 *)geometry.focusXZ, (u8 *)geometry.eyeXZ,
+                          (u8 *)baseXZ, (u8 *)projectionXZ);
+    extent = (0.0f + extent) + framingScale *
+        (*(f32 *)(nearUnit + 0x90) * *(f32 *)(nearUnit + 0x2C));
+    eye.x = projectionXZ[0];
+    eye.y = baseHeight;
+    eye.z = projectionXZ[1];
+    halfAngle = 0.5f * *(f32 *)(camera + 0xB8);
+    distance = extent / tanf(fGpffff8110 * halfAngle);
+    distance = distance + distanceOffset;
+    if (distance < 100.0f) {
+        distance = 100.0f;
+    }
+    direction.x = direction.x * distance;
+    direction.y = direction.y * distance;
+    direction.z = direction.z * distance;
+    poses.second.x = eye.x + direction.x;
+    poses.second.y = eye.y + direction.y;
+    poses.second.z = eye.z + direction.z;
+    if (poses.second.y < 22.5f) {
+        poses.second.y = 22.5f;
+    }
+    func_001bd560((f32 *)&poses.first, (f32 *)(camera + 0x9C));
+    if (!(func_001ec2b0(&poses.firstRotation,
+                        &poses.secondRotation) <= fGpffff80dc)) {
+        func_001bd5e0((f32 *)&poses.first, (f32 *)&poses.second);
+        flags = 3;
+    } else {
+        flags = 0xC3;
+    }
+    func_001bcd40(*(u8 **)(camera + 0xE0), farUnit + 4,
+                  (f32 *)&poses.second, flags, 50.0f);
+    if (duration == 0.0f) {
+        func_001bd5e0((f32 *)&poses.first, (f32 *)&poses.second);
+        RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A100, 1,
+                               &poses.firstRotation);
+        direction.x = direction.x * 150.0f;
+        direction.y = direction.y * 150.0f;
+        direction.z = direction.z * 150.0f;
+        poses.second.x = poses.first.x + direction.x;
+        poses.second.y = poses.first.y + direction.y;
+        poses.second.z = poses.first.z + direction.z;
+        if (poses.second.y < 22.5f) {
+            poses.second.y = 22.5f;
+        }
+        func_001bac20((u16 *)camera, (f32 *)&poses.first,
+                      (f32 *)&poses.second, 1);
+        func_001bbef0(camera, 2.0f);
+    } else {
+        func_001bac20((u16 *)camera, (f32 *)&poses.first,
+                      (f32 *)&poses.second, 1);
+        func_001bbef0(camera, duration);
+    }
+}
+#pragma opt_scalarize on
 // FUN_00225740
 void func_00225740(u8 *arg0)
 {

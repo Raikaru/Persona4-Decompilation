@@ -7493,15 +7493,13 @@ No extra frame fields, invented inputs, inline COP1, or pinned registers
 are used. This is compiler-output and relocation proof, not a claim that
 the camera code or full game was executed.
 
-`func_002250a0` remains ASM. Its complete ordinary-C reconstruction improves
-from **670 to 19 normalized differing bytes**, with **1688/1696 bytes and
-36 fully resolved code relocations**. All 19 differences remain without
-masking: 17 are stack offsets around the temporary quaternion and horizontal
-vectors; two are `addiu` versus `daddiu` for the transition flags. The final
-eight retail-window bytes are alignment zeros. Arithmetic, branches,
-calls and call targets match. The archive records the complete source,
-the exact differing instructions and unsuccessful source/profile probes;
-this measured floor is not a proof that an exact source is impossible.
+The initial `func_002250a0` reconstruction reached **19 normalized differing
+bytes**, with **1688/1696 bytes and 36 fully resolved code relocations**.
+Seventeen differences were stack offsets around the temporary quaternion
+and horizontal vectors; two were `addiu` versus `daddiu` for transition
+flags. This floor is now closed by the real geometry workspace and
+halfword flag contract described below in “Exact opposing camera and
+persona result updater”; its archive now contains the exact source.
 
 The final `make build-progress progress lint-errors` gate passes with
 **6,144 first-party MATCH / 716 ASM**, validated progress artifacts and
@@ -7670,3 +7668,88 @@ no-output path remains a secondary, unresolved path-invariant requirement.
 
 The four temporary reconstruction directories and the formation-return
 smoke fixtures were removed after their source and evidence were archived.
+
+## Exact opposing camera and persona result updater
+
+Two more ASM bodies in `src/promoted/code1_0022.c` are now ordinary C:
+
+| Function | Object / window | Resolved code relocations | Resolved differing bytes | Zero tail bytes |
+| --- | ---: | ---: | ---: | ---: |
+| `func_002250a0` | 1688 / 1696 | 36 | 0 | 8 |
+| `func_002232a0` | 1036 / 1040 | 26 | 0 | 4 |
+
+The opposing camera uses four real two-float vectors followed by its yaw
+quaternion in one geometry workspace. Scoped `opt_scalarize off` preserves
+the stores; no padding is introduced. Both seven-float poses are fully
+produced before use. The quaternion comparison receives real quaternion
+objects through the provider's existing `void *` interface.
+
+`func_001bcd40` masks its incoming transition flags to 16 bits. All six
+active owner declarations now use `u16` for that argument while retaining
+their existing float/GP order. The local selectors in `func_001bdd80` and
+`func_001bdeb0` also needed `u16`; word-sized selectors introduced extra
+truncation instructions. Verification of those six owners gives
+**406 MATCH / 81 ASM**, with no mismatches.
+
+The persona updater preserves all nine states and the task dispatcher's
+`0`/`-1` return contract. Its named reward preserves experience-load order,
+and prefix halfword increments preserve wrapping timer comparisons.
+Scoped `opt_propagation off` retains the result-area base and later field
+reloads. All nine switch entries resolve exactly:
+
+```text
+00747750: 00223314 002233A4 00223558 00223560 0022358C
+          002235FC 0022362C 00223644 00223688
+```
+
+The constructor and transitions establish `0 <= index <= count <= 12`.
+On every constructor-reachable path that consumes the persona local, a
+loop iteration has produced it. The existing occupied-prefix persona
+collection precondition is retained; no corruption fallback or invented
+initialization is added. The position output is two floats, and the
+message list is exactly eleven initialized words.
+
+`func_0011f410` now takes actual record and message-array pointers in both
+its active definition and the new caller. Both affected owners verify at
+**180 MATCH / 20 ASM**, with no mismatches. A freestanding 32-bit native
+smoke ran the real constructor body: the returned task exposes the record
+pointer and an independent copy of all eleven messages even after the
+caller's array is overwritten. Only allocation/publication and platform
+support were substituted; this is not game execution.
+
+`P022_002250a0_body.c` and `P022_002232a0_body.c` archive the exact sources
+and their evidence.
+
+### Result renderer: one opcode byte remains
+
+`func_00222d20` remains ASM. Its complete ordinary-C candidate now covers
+**896/896 bytes**, with all **17 code relocations resolved** and just one
+differing byte:
+
+```text
+00222E5C: addiu s1, zero, 255   | retail: daddiu s1, zero, 255
+```
+
+Everything else, including the return delay slot, matches. Direct
+float-to-byte casts, fused frame advancement, real two-float arrays,
+origin declaration order, staged opacity multiplication and the
+float-first quad-renderer declaration close the earlier differences.
+The correct overlay scalar is `fGpffff838c` (`0.8f`), and overlay alpha
+never overwrites the base alpha passed to descriptor rendering.
+
+Literal, integer-width, narrow-provider and propagation variants did not
+close the final byte. The older b119 compiler gives 920 bytes and 629
+normalized differences. `P022_00222d20_body.c` records the full candidate,
+actual callback ABI, provider extents and remaining integration work.
+This measured floor is not a proof that exact C is impossible.
+The separate `func_00222210` incoming-`f20` blocker remains unchanged.
+
+The full `make build-progress progress lint-errors` gate passes:
+**6,150 first-party MATCH / 710 ASM**, **7,780 total MATCH / 4,940 ASM**,
+validated progress artifacts, and zero findings across 338 first-party
+files. Whole-object C linking remains **172 objects / 1,570 functions**.
+Loadable image SHA-1 is unchanged at
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; retail ELF SHA-1 remains
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+The three reconstruction directories, compiler experiments and native
+smoke fixtures were removed after archiving the source and evidence.
