@@ -60,7 +60,7 @@ extern void func_00456150(void* handle);
 extern void func_0044ea90(void* msg, s32 id);
 extern void func_0043f810(void* dst, void* src, u32 size);
 extern void func_00454bd0(u8* ptr);
-extern u32 func_001d3d50(u16 param_1);
+extern s32 func_001d3d50(u32 param_1);
 extern void func_001d4490(int param_1, u32 param_2);
 extern u32 func_001d94d0(int param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5, code *param_6);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);

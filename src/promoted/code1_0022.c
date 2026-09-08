@@ -119,6 +119,7 @@ extern void func_002339d0(u8 *arg0);
 extern u8 D_0062D920[];
 extern void func_001a03b0(s64 *arg0);
 extern s32 func_001d3d50(u32 param_1);
+extern void func_001d4490(s32 formation, u32 data);
 extern u8 *func_0022ced0(s32 arg0);
 extern void func_001d3ea0(int destination, u32 source);
 extern BtlPacket *func_0019bbe0(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
@@ -1670,8 +1671,167 @@ void func_0022bd60(void)
     }
 }
 #pragma pop
+/* measured: 1876B / 1888B window; 123 code relocations and all 22 table
+   relocations resolve exactly. The omitted 12B are zero alignment.
+   Keep each lookup/allocation/set/store sequence and its global reload. */
 // FUN_0022C430
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022c430);
+void func_0022c430(void)
+{
+    u8 *data;
+    s32 formation;
+
+    switch (func_001ef9a0()) {
+    case 0x200:
+        data = func_0022ced0(4);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        data = func_0022ced0(8);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBF0) = formation;
+        break;
+    case 0x201:
+        data = func_0022ced0(4);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        break;
+    case 0x202:
+        data = func_0022ced0(4);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        break;
+    case 0x203:
+        data = func_0022ced0(4);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        data = func_0022ced0(8);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBF0) = formation;
+        break;
+    case 0x204:
+        data = func_0022ced0(4);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        data = func_0022ced0(8);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBF0) = formation;
+        break;
+    case 0x205:
+        data = func_0022ced0(4);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        data = func_0022ced0(8);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBF0) = formation;
+        break;
+    case 0x206:
+        data = func_0022ced0(4);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        data = func_0022ced0(8);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBF0) = formation;
+        data = func_0022ced0(9);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBF4) = formation;
+        break;
+    case 0x207:
+        data = func_0022ced0(4);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        break;
+    case 0x208:
+        data = func_0022ced0(4);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        data = func_0022ced0(8);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBF0) = formation;
+        break;
+    case 0x209:
+        data = func_0022ced0(4);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        data = func_0022ced0(5);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBE4) = formation;
+        data = func_0022ced0(6);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBE8) = formation;
+        data = func_0022ced0(7);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBEC) = formation;
+        break;
+    case 0x20A:
+        data = func_0022ced0(4);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        data = func_0022ced0(8);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBF0) = formation;
+        break;
+    case 0x20B:
+    case 0x215:
+        data = func_0022ced0(4);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        data = func_0022ced0(8);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBF0) = formation;
+        break;
+    case 0x20D:
+        data = func_0022ced0(4);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        data = func_0022ced0(5);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBE4) = formation;
+        data = func_0022ced0(6);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBE8) = formation;
+        data = func_0022ced0(7);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBEC) = formation;
+        break;
+    case 0x214:
+        data = func_0022ced0(4);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        data = func_0022ced0(8);
+        formation = func_001d3d50(2);
+        func_001d4490(formation, (u32)data);
+        *(s32 *)(DAT_0076449c + 0xBF0) = formation;
+        break;
+    }
+}
 static inline u8 *cb90AddBaseIndex(u32 base, u32 index)
 {
     return (u8 *)(base + index);
