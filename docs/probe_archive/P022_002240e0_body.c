@@ -33,6 +33,12 @@
  * produce a match. Diagnostic helpers and permutations are not retained.
  * No fixed registers, inline assembly, padding fields, invented arguments
  * or undefined reads were introduced. No native/game execution is claimed.
+ * Rechecked after the halfword transition API repair: the complete baseline
+ * still gives 872 bytes / 344 normalized differences. Word-sized variant
+ * and party selectors give 868 bytes / 343 differences, omitting eight
+ * executable bytes instead of four. Current propagation-off and explicit
+ * selection temporaries do not close the missing narrowing or register
+ * allocation differences. The complete baseline below remains preferred.
  * Additional declarations assume the live owner's existing types/providers.
  */
 extern s32 func_00243d80(u8 *unitData);
