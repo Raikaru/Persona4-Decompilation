@@ -174,6 +174,9 @@ extern void func_00213d20(void *arg0);
 extern void func_00216e50(void *arg0);
 extern void func_00211a10(void *arg0);
 extern void func_0020add0(void *arg0);
+extern s32 func_00242930(u8 *arg0);
+extern f32 fGpffff8478;
+extern f32 fGpffffb478;
 extern void func_0020bb70(u8 *arg0);
 extern void func_00219130(void *arg0);
 extern void func_0021b1e0(void *arg0);
@@ -2138,8 +2141,72 @@ void func_0020ad80(u8 *arg0, s32 arg1) {
 
 
 
+/*
+ * measured: 968/976 bytes, 11 resolved relocations, eight zero alignment bytes.
+ * Preserve the 4,5,0 source case order and all reloads after callbacks.
+ */
 // FUN_0020ADD0
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020add0);
+void func_0020add0(void *arg0)
+{
+    u8 *state = arg0;
+    if (*(u32 *)(state + 4) & 1) {
+        if (*(s16 *)(state + 0xA) < 11) ++*(s16 *)(state + 0xA);
+    } else {
+        if (*(s16 *)(state + 8) < 19) ++*(s16 *)(state + 8);
+        if (*(s16 *)(state + 0xA) < 6) ++*(s16 *)(state + 0xA);
+        else if (*(s16 *)(state + 0xA) > 6) --*(s16 *)(state + 0xA);
+    }
+    if (*(s16 *)(state + 0xC) < 4) ++*(s16 *)(state + 0xC);
+    if (*(s16 *)(state + 0xE) < 2) ++*(s16 *)(state + 0xE);
+    else if (!(*(u32 *)(state + 4) & 2)) {
+        *(u32 *)(state + 4) |= 2;
+        *(s16 *)(state + 0x10) = 0;
+    }
+    if (*(u16 *)state == 1 && *(s16 *)(state + 8) == 8) {
+        func_0045af60(1, 15, 2, 26);
+    }
+    if (*(u8 **)(state + 0x38) == state + 0x40) {
+        if (*(u16 *)state == 1) {
+            if (*(s16 *)(state + 0x12) > 0) --*(s16 *)(state + 0x12);
+        } else {
+            if (*(s16 *)(state + 0x12) < 3) ++*(s16 *)(state + 0x12);
+        }
+    } else {
+        if (!(*(u32 *)(state + 4) & 1)) {
+            if (*(s16 *)(state + 0x12) < 3) ++*(s16 *)(state + 0x12);
+            else if (*(s16 *)(state + 0x12) > 3) --*(s16 *)(state + 0x12);
+        } else {
+            if (*(s16 *)(state + 0x12) < 6) ++*(s16 *)(state + 0x12);
+        }
+    }
+    *(u16 *)(state + 2) = *(u16 *)state;
+    if (*(u16 *)state == 1 && !(*(u32 *)(iGpffffb3ac + 0xC) & 0x10000)) {
+        switch (func_00203420(state + 0x2C) & 0xFFFF) {
+        case 4: *(u16 *)state = 2; break;
+        case 5: *(u16 *)state = 0; break;
+        case 0: break;
+        }
+        if (*(u8 **)(state + 0x178) != 0 &&
+            *(u8 **)(*(u8 **)(state + 0x178) + 0x30) != 0 &&
+            *(u8 **)(*(u8 **)(*(u8 **)(state + 0x178) + 0x30) + 0xA64) != 0) {
+            f32 pulse;
+            if (func_00242930(*(u8 **)(*(u8 **)(*(u8 **)(state + 0x178) + 0x30) + 0xA64))) {
+                pulse = func_0044b7b0(fGpffff8478 * fGpffffb478);
+                fGpffffb478 += 2.0f;
+                if (!(fGpffffb478 < 180.0f)) fGpffffb478 -= 180.0f;
+            } else {
+                pulse = 0.0f;
+                fGpffffb478 = 0.0f;
+            }
+            state[0x24] = (u8)(150.0f * pulse) + 10;
+            state[0x25] = 10;
+            state[0x26] = 10;
+            state[0x28] = (u8)(160.0f * pulse);
+            state[0x29] = 0;
+            state[0x2A] = 0;
+        }
+    }
+}
 // FUN_0020B1A0
 void func_0020b1a0(s32 arg0, u8 *arg1)
 {
