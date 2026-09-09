@@ -142,10 +142,16 @@ extern void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
                            s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
                            s32 arg5, s32 arg6, s32 arg7,
                            s32 arg_sp0);
-extern s32 func_002746a0();
+extern u32 func_002746a0(void);
+extern void func_00273cc0(u8 *text, u8 *context);
+extern u32 func_001067f0(s16 id);
 extern s64 func_0010d660(s32 arg0);
 extern s64 func_0010d6d0(s32 arg0);
-extern void func_00442088();
+extern s32 func_00442088(char *dst, const char *fmt, ...);
+extern char D_0063BA50[];
+extern char D_0063BA80[];
+extern s32 func_0045ae10(s32 arg0, s32 arg1, s32 arg2);
+extern s32 func_0045aeb0(s16 arg0, const char *arg1);
 extern s32 D_008815B0[];
 extern void func_00273f70(u8 *arg0);
 extern void func_002739e0(s32 arg0, u8 *arg1);
@@ -1487,7 +1493,7 @@ s32 func_0026ef60(s32 arg0, u8 *arg1)
                           (temp_4 & 0xFF)));
     temp_18 = temp_q2;
 
-    if (func_002746a0(temp_4) != 0) {
+    if (func_002746a0() != 0) {
         return 0;
     }
     var_4 = (u8 *)&D_0063BA30[0];
@@ -1563,7 +1569,7 @@ s32 func_0026f0a0(s32 arg0, u8 *arg1)
                           (temp_4 & 0xFF)));
     temp_18 = temp_q2;
 
-    if (func_002746a0(temp_4) != 0) {
+    if (func_002746a0() != 0) {
         return 0;
     }
     var_4 = (u8 *)&D_0063BA30[0];
@@ -1609,7 +1615,7 @@ s32 func_0026f1e0(s32 arg0, u32 arg1, s32 arg2)
     var_2 &= 0xFF;
     temp_16 = (u16)(s16)((var_2 << 8) | (u8)temp_4);
     temp_16 &= 0xFFFF;
-    if (func_002746a0(temp_4) != 0) {
+    if (func_002746a0() != 0) {
         return 0;
     }
     if (D_008815B0[temp_16 & 0xFFFF] != 0) {
@@ -1619,7 +1625,122 @@ s32 func_0026f1e0(s32 arg0, u32 arg1, s32 arg2)
     return 0;
 }
 // FUN_0026F2C0
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026f2c0);
+/* measured: MWCCPS2 b210 -O2, 724B/window 736B, 16 relocations,
+ * 12 zero alignment bytes. Ghidra/IDA and retail agree on the three-byte
+ * glyph at sp+0x68: align the real buffer to eight, without enlarging it.
+ * The scoped options preserve operand reloads and decode scheduling. */
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
+s32 func_0026f2c0(s32 arg0, u8 *arg1)
+{
+    s32 first;
+    s32 second;
+    s64 third;
+    s32 *slot;
+    u8 previous_character;
+    s32 stream_offset;
+    s32 stream_base;
+    u8 *stream;
+    s32 low;
+    s32 high_byte;
+    s32 high_first;
+    s32 high_second;
+    s32 high_third;
+    s32 force_character;
+    s32 character_code;
+    s8 glyph[3] __attribute__((aligned(8)));
+
+    stream_offset = *(s32 *)(arg1 + 0x18);
+    stream_base = *(s32 *)(arg1 + 0x10);
+    stream = func_0026f1e0_add((u8 *)stream_base, (u32)stream_offset);
+    low = (stream[0] - 1) & 0xFF;
+    high_byte = stream[1];
+    if (high_byte == 0xFF) {
+        high_first = 0;
+    } else {
+        high_first = (high_byte - 1) & 0xFF;
+    }
+    first = (u16)(s16)(((high_first & 0xFF) << 8) | (low & 0xFF));
+
+    stream_offset = *(s32 *)(arg1 + 0x18);
+    stream_base = *(s32 *)(arg1 + 0x10);
+    stream = (u8 *)((u32)stream_offset + (u32)stream_base);
+    low = (stream[2] - 1) & 0xFF;
+    high_byte = stream[3];
+    if (high_byte == 0xFF) {
+        high_second = 0;
+    } else {
+        high_second = (high_byte - 1) & 0xFF;
+    }
+    second = (u16)(s16)(((high_second & 0xFF) << 8) | (low & 0xFF));
+
+    stream_offset = *(s32 *)(arg1 + 0x18);
+    stream_base = *(s32 *)(arg1 + 0x10);
+    stream = (u8 *)((u32)stream_offset + (u32)stream_base);
+    low = (stream[4] - 1) & 0xFF;
+    high_byte = stream[5];
+    if (high_byte == 0xFF) {
+        high_third = 0;
+    } else {
+        high_third = (high_byte - 1) & 0xFF;
+    }
+    third = (u16)(s16)(((high_third & 0xFF) << 8) | (low & 0xFF));
+
+    if (func_002746a0() != 0) {
+        return 0;
+    }
+    slot = &D_008815B0[(u16)third];
+    if (*slot != 0) {
+        previous_character = arg1[0xD];
+        /* Retail compares a zero-extended halfword with signed -1. */
+        if ((first & 0xFFFF) != -1) {
+            arg1[0xD] = first;
+        }
+        character_code = second & 0xFFFF;
+        if (character_code != 0xFFFF) {
+            glyph[0] = -0x7D;
+            glyph[1] = character_code + 0xC7;
+            glyph[2] = 0;
+            func_00273f70(arg1);
+            func_00273cc0((u8 *)glyph, arg1);
+            func_00273f70(arg1);
+            func_002739e0((u8)third, arg1);
+            arg1[0xD] = previous_character;
+        } else {
+            third = *(s32 *)*slot;
+            switch (func_0026e360(third)) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 9:
+            case 11:
+                force_character = 1;
+                break;
+            default:
+                force_character = 0;
+                break;
+            }
+            if (force_character != 0) {
+                arg1[0xD] = 4;
+            }
+            glyph[0] = -0x7D;
+            glyph[1] = func_0026e360(third) + 0xC7;
+            glyph[2] = 0;
+            func_00273f70(arg1);
+            func_00273cc0((u8 *)glyph, arg1);
+            func_00273f70(arg1);
+            func_00273cc0((u8 *)func_001067f0((s16)third), arg1);
+            arg1[0xD] = previous_character;
+        }
+    }
+    return 0;
+}
+#pragma pop
 /* measured: optimization_level 0 probe for the retail redundant return branch. */
 #pragma optimization_level 0
 // FUN_0026F5A0
@@ -1747,8 +1868,139 @@ s32 func_0026f5e0(s32 arg0, u8 *arg1)
 /* measured: closing opt_propagation off for func_0026f5e0. */
 #pragma opt_propagation on
 #pragma pop
+/* measured: MWCCPS2 b210 -O2, 832B/window 832B, 16 relocations.
+ * Ghidra gives the descending dispatch; IDA gives the 64-byte path buffer.
+ * Named action/channel values survive their comparisons into case one.
+ * The final switch preserves retail's explicit zero/default branches.
+ * The sound provider narrows the fourth operand at its halfword store. */
 // FUN_0026F860
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026f860);
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
+s32 func_0026f860(s32 arg0, u8 *arg1)
+{
+    s32 first;
+    s32 second;
+    s32 third;
+    s32 fourth;
+    s8 sp50[0x40];
+    s32 temp_3_4;
+    s32 temp_3_5;
+    s32 temp_3_3;
+    s32 temp_3_2;
+    s32 var_2_1;
+    s32 var_2_2;
+    s32 var_2_3;
+    s32 var_2_4;
+    s32 action;
+    s32 channel;
+    u8 *temp_3;
+
+    temp_3_4 = *(s32 *)(arg1 + 0x18);
+    temp_3_5 = *(s32 *)(arg1 + 0x10);
+    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
+    temp_3_3 = (s32)((temp_3[0] - 1) & 0xFF);
+    temp_3_2 = temp_3[1];
+    if ((u8)temp_3_2 == 0xFF) {
+        var_2_1 = 0;
+    } else {
+        var_2_1 = (temp_3_2 - 1) & 0xFF;
+    }
+    first = (s64)(s16)(((var_2_1 & 0xFF) << 8) | (temp_3_3 & 0xFF));
+
+    temp_3_4 = *(s32 *)(arg1 + 0x18);
+    temp_3_5 = *(s32 *)(arg1 + 0x10);
+    temp_3 = (u8 *)(temp_3_4 + temp_3_5);
+    temp_3_3 = (s32)((temp_3[2] - 1) & 0xFF);
+    temp_3_2 = temp_3[3];
+    if ((u8)temp_3_2 == 0xFF) {
+        var_2_2 = 0;
+    } else {
+        var_2_2 = (temp_3_2 - 1) & 0xFF;
+    }
+    second = (s64)(s16)(((var_2_2 & 0xFF) << 8) | (temp_3_3 & 0xFF));
+
+    temp_3_4 = *(s32 *)(arg1 + 0x18);
+    temp_3_5 = *(s32 *)(arg1 + 0x10);
+    temp_3 = (u8 *)(temp_3_4 + temp_3_5);
+    temp_3_3 = (s32)((temp_3[4] - 1) & 0xFF);
+    temp_3_2 = temp_3[5];
+    if ((u8)temp_3_2 == 0xFF) {
+        var_2_3 = 0;
+    } else {
+        var_2_3 = (temp_3_2 - 1) & 0xFF;
+    }
+    third = (s64)(s16)(((var_2_3 & 0xFF) << 8) | (temp_3_3 & 0xFF));
+
+    temp_3_4 = *(s32 *)(arg1 + 0x18);
+    temp_3_5 = *(s32 *)(arg1 + 0x10);
+    temp_3 = (u8 *)(temp_3_4 + temp_3_5);
+    temp_3_3 = (s32)((temp_3[6] - 1) & 0xFF);
+    temp_3_2 = temp_3[7];
+    if ((u8)temp_3_2 == 0xFF) {
+        var_2_4 = 0;
+    } else {
+        var_2_4 = (temp_3_2 - 1) & 0xFF;
+    }
+    fourth = (s64)(s16)(((var_2_4 & 0xFF) << 8) | (temp_3_3 & 0xFF));
+
+    iGpffffa730 = -1;
+    if (func_002746a0() == 0) {
+        if (first == 1) {
+            iGpffffa730 = fourth;
+        }
+    }
+    if (func_002746a0() != 1) {
+        return 0;
+    }
+    if (func_00106330(0x3A) == 0) {
+        return 0;
+    }
+
+    if (first == 4) goto L4;
+    if (first == 3) goto L3;
+    action = 2;
+    if (first == action) goto L2;
+    channel = 1;
+    if (first == channel) goto L1;
+    switch (first) {
+    case 0:
+        goto L0;
+    default:
+        goto Lend;
+    }
+
+L0:
+    if ((second >= 0) && (second < 0x191)) {
+        func_00442088((char *)sp50, D_0063BA50, second, third, second, third, fourth);
+    } else if ((second >= 0x191) && (second < 0x1F5)) {
+        func_00442088((char *)sp50, D_0063BA80, second, third / 0x14, second, third, fourth);
+    }
+    func_0045aeb0(1, (const char *)sp50);
+    goto Lend;
+
+L1:
+    if (fourth != 0) {
+        func_0045ae10(action, channel, fourth);
+    }
+    goto Lend;
+
+L2:
+    func_0045ae10(third, 1, fourth);
+    goto Lend;
+
+L3:
+    func_0045ae10(third, 1, fourth);
+    goto Lend;
+
+L4:
+    func_0045ae10(third, 1, fourth);
+    goto Lend;
+
+Lend:
+    return 0;
+}
+#pragma pop
 // FUN_0026FBA0
 s32 func_0026fba0(s32 arg0, u8 *arg1)
 {
@@ -1757,9 +2009,9 @@ s32 func_0026fba0(s32 arg0, u8 *arg1)
     if (func_002746a0() != 0) {
         return 0;
     }
-    func_00442088(&sp20, &iGpffffa734, func_0010d660(1));
+    func_00442088((char *)sp20, (const char *)&iGpffffa734, func_0010d660(1));
     func_00273f70(arg1);
-    func_00273cc0(&sp20, arg1);
+    func_00273cc0((u8 *)sp20, arg1);
     return 0;
 }
 // FUN_0026FC20
@@ -1770,9 +2022,9 @@ s32 func_0026fc20(s32 arg0, u8 *arg1)
     if (func_002746a0() != 0) {
         return 0;
     }
-    func_00442088(&sp20, &iGpffffa734, func_0010d6d0(1));
+    func_00442088((char *)sp20, (const char *)&iGpffffa734, func_0010d6d0(1));
     func_00273f70(arg1);
-    func_00273cc0(&sp20, arg1);
+    func_00273cc0((u8 *)sp20, arg1);
     return 0;
 }
 // FUN_0026FCA0
@@ -1783,21 +2035,119 @@ s32 func_0026fca0(s32 arg0, u8 *arg1)
     if (func_002746a0() != 0) {
         return 0;
     }
-    func_00442088(&sp20, &iGpffffa734, func_0010d6d0(1));
+    func_00442088((char *)sp20, (const char *)&iGpffffa734, func_0010d6d0(1));
     func_00273f70(arg1);
-    func_00273cc0(&sp20, arg1);
+    func_00273cc0((u8 *)sp20, arg1);
     sp20[0] = -0x7D;
     sp20[1] = -0xA;
     sp20[2] = 0;
     func_00273f70(arg1);
-    func_00273cc0(&sp20, arg1);
-    func_00442088(&sp20, &iGpffffa734, func_0010d660(1));
+    func_00273cc0((u8 *)sp20, arg1);
+    func_00442088((char *)sp20, (const char *)&iGpffffa734, func_0010d660(1));
     func_00273f70(arg1);
-    func_00273cc0(&sp20, arg1);
+    func_00273cc0((u8 *)sp20, arg1);
     return 0;
 }
 // FUN_0026FD90
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026fd90);
+/* measured: MWCCPS2 b210 -O2, 596B/window 608B, 10 relocations,
+ * 12 zero alignment bytes. Ghidra/IDA and retail agree on the three-byte
+ * glyph at sp+0x68: align the real buffer to eight, without enlarging it.
+ * The scoped options preserve operand reloads and decode scheduling. */
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
+s32 func_0026fd90(s32 arg0, u8 *arg1)
+{
+    u8 previous_character;
+    s32 first;
+    s64 second;
+    s32 third;
+    s8 glyph[3] __attribute__((aligned(8)));
+    s32 stream_offset;
+    s32 stream_base;
+    u8 *stream;
+    s32 low;
+    s32 high_byte;
+    s32 high_first;
+    s32 high_second;
+    s32 high_third;
+    s32 force_character;
+    stream_offset = *(s32 *)(arg1 + 0x18);
+    stream_base = *(s32 *)(arg1 + 0x10);
+    stream = func_0026f1e0_add((u8 *)stream_base, (u32)stream_offset);
+    low = (stream[0] - 1) & 0xFF;
+    high_byte = stream[1];
+    if (high_byte == 0xFF) {
+        high_first = 0;
+    } else {
+        high_first = (high_byte - 1) & 0xFF;
+    }
+    first = (u16)(s16)(((high_first & 0xFF) << 8) | (low & 0xFF));
+
+    stream_offset = *(s32 *)(arg1 + 0x18);
+    stream_base = *(s32 *)(arg1 + 0x10);
+    stream = (u8 *)((u32)stream_offset + (u32)stream_base);
+    low = (stream[2] - 1) & 0xFF;
+    high_byte = stream[3];
+    if (high_byte == 0xFF) {
+        high_second = 0;
+    } else {
+        high_second = (high_byte - 1) & 0xFF;
+    }
+    second = (u16)(s16)(((high_second & 0xFF) << 8) | (low & 0xFF));
+
+    stream_offset = *(s32 *)(arg1 + 0x18);
+    stream_base = *(s32 *)(arg1 + 0x10);
+    stream = (u8 *)((u32)stream_offset + (u32)stream_base);
+    low = (stream[4] - 1) & 0xFF;
+    high_byte = stream[5];
+    if (high_byte == 0xFF) {
+        high_third = 0;
+    } else {
+        high_third = (high_byte - 1) & 0xFF;
+    }
+    third = (u16)(s16)(((high_third & 0xFF) << 8) | (low & 0xFF));
+
+    if (func_002746a0() != 0) {
+        return 0;
+    }
+    if ((first & 0xFFFF) != -1) {
+        previous_character = arg1[0xD];
+        arg1[0xD] = first;
+    }
+    if ((u16)second != 0) {
+        second = (u16)third;
+        switch (func_0026e360(second)) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 9:
+        case 11:
+            force_character = 1;
+            break;
+        default:
+            force_character = 0;
+            break;
+        }
+        if (force_character != 0) {
+            arg1[0xD] = 4;
+        }
+        glyph[0] = -0x7D;
+        glyph[1] = func_0026e360(second) + 0xC7;
+        glyph[2] = 0;
+        func_00273f70(arg1);
+        func_00273cc0((u8 *)glyph, arg1);
+    }
+    func_00273f70(arg1);
+    func_00273cc0((u8 *)func_001067f0((s16)third), arg1);
+    arg1[0xD] = previous_character;
+    return 0;
+}
+#pragma pop
 /* measured: opt_common_subs off forces func_0026fff0 field reloads. */
 #pragma opt_common_subs off
 /* measured: opt_propagation off preserves func_0026fff0 decode scheduling. */
@@ -1843,7 +2193,7 @@ s32 func_0026fff0(s32 arg0, u8 *arg1)
     }
     var_2_2 &= 0xFF;
     temp_17 = (s32)(s16)((var_2_2 << 8) | (u8)temp_4);
-    if (func_002746a0(temp_4) != 0) {
+    if (func_002746a0() != 0) {
         return 0;
     }
     func_00106620((s16)temp_16, temp_17 & 0xFF);
