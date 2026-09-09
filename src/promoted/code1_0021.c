@@ -128,8 +128,99 @@ static inline f32 ws14_sub(f32 left, f32 right)
 
 // FUN_00210C70
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00210c70);
+#pragma push
+#pragma opt_loop_invariants on
+/* Exact: 912/912 bytes, no relocations. Loop extraction retains the
+   shared decay constants; separate counters describe independent phases. */
 // FUN_002112C0
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002112c0);
+void func_002112c0(u8 *state, u8 *output)
+{
+    s32 i;
+
+    for (i = 0; i < 9; i++) {
+        *(u16 *)(output + 8 + i * 2) = 0;
+    }
+    if (*(u16 *)(state + 0x16) & 1) {
+        s32 frame;
+        s32 cursor;
+        f32 weight;
+        u16 phase;
+
+        frame = *(u16 *)(state + 0x14);
+        cursor = frame;
+        weight = 1.0f;
+        while (cursor >= 0) {
+            if (cursor < 9) {
+                *(u16 *)(output + 8 + cursor * 2) = (u16)(255.0f * weight);
+            }
+            cursor--;
+            weight *= 0.75f;
+        }
+        if (!(*(u16 *)(state + 0x16) & 2) && frame > 4) {
+            phase = frame;
+            if (frame >= 8) {
+                phase = 0;
+            }
+            if (phase % 2 == 0 && phase / 2 == 0) {
+                *(u16 *)(state + 0x16) |= 2;
+            }
+        }
+        if (frame >= 18) {
+            *(u16 *)(state + 0x16) &= 0xFFFE;
+            *(u16 *)(state + 0x16) |= 2;
+        }
+        *(s32 *)(output + 4) = 9;
+    } else {
+        *(s32 *)(output + 4) = 4;
+    }
+    if (*(u16 *)(state + 0x16) & 4) {
+        s32 frame;
+        f32 alpha;
+
+        frame = *(u16 *)(state + 0x14);
+        if (frame < 0) {
+            alpha = 0.0f;
+        } else if (frame < 3) {
+            alpha = (f32)frame / 3.0f;
+        } else {
+            alpha = 1.0f;
+        }
+        *(f32 *)output = alpha;
+        if (frame > 3) {
+            *(u16 *)(state + 0x16) &= 0xFFFB;
+        }
+    } else {
+        *(f32 *)output = 1.0f;
+    }
+    if (*(u16 *)(state + 0x16) & 2) {
+        s32 frame;
+        s32 trail;
+        u16 phase;
+
+        frame = *(u16 *)(state + 0x14);
+        phase = frame % 8;
+        if (phase % 2 == 0) {
+            state[0x18 + phase / 2] = 255;
+        }
+        for (trail = 0; trail < 4; trail++) {
+            u16 sum;
+            f32 decay;
+
+            decay = (f32)state[0x18 + trail];
+            decay *= 0.75f;
+            state[0x18 + trail] = (u8)decay;
+            sum = *(u16 *)(output + 8 + trail * 2) + state[0x18 + trail];
+            if (sum > 255) {
+                sum = 255;
+            }
+            *(u16 *)(output + 8 + trail * 2) = sum;
+        }
+    }
+    if (++*(u16 *)(state + 0x14) >= 144) {
+        *(u16 *)(state + 0x14) = 0;
+    }
+}
+#pragma pop
 // FUN_00211650
 void func_00211650(u8 *arg0, u8 *arg1)
 {
