@@ -31,6 +31,14 @@ typedef struct {
     f32 y;
 } F2_0033;
 
+/* Same four byte channels as the color constructor's output. */
+typedef struct Byte4 {
+    u8 b0;
+    u8 b1;
+    u8 b2;
+    u8 b3;
+} Color_0033;
+
 typedef struct {
     s32 sp30;
     s16 sp34;
@@ -90,6 +98,11 @@ extern s32 func_00122720(void);
 extern s32 func_0033de90(u8 *arg0, s32 arg1);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 D_007955C0[];
+extern void func_002b2a60(u8 *, s32, s32, s32, s32);
+extern void func_0045eb20(void *, void *, f32, s32, s32, s32, s32, s16,
+                         f32, f32, f32, void *);
+extern u8 D_00794A80[];
+extern u8 D_00794AB0[];
 
 // FUN_00331560
 s32 func_00331560(void)
@@ -410,8 +423,71 @@ void func_0033d550(u8 *arg0)
 }
 /* measured: restore opt_propagation for the rest of the translation unit. */
 #pragma opt_propagation on
+/*
+ * measured: 924/928 bytes, eight resolved relocations, four zero alignment bytes.
+ * The point-anchor dependency rebuilds both passes without retaining x + 4.
+ * Keep the input-Y snapshot and the real color/point object lifetimes.
+ */
 // FUN_0033D630
-INCLUDE_ASM("asm/nonmatchings/code1_0033", func_0033d630);
+f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, s32 alpha, s8 highlight)
+{
+    Color_0033 baseColor;
+    Color_0033 highlightColor;
+    F2_0033 points[5];
+    Color_0033 colors[5];
+    f32 rotation;
+    f32 originX;
+    f32 originY;
+    f32 result;
+    f32 inputY = pos.y;
+
+    rotation = (f32)-(s16)angleStep - angleOffset;
+
+    originX = 113.0f + pos.x;
+    points[0].x = points[4].x = originX;
+
+    originY = 113.0f + inputY;
+    points[0].y = points[4].y = originY;
+
+    points[1].x = 4.0f + points[0].x;
+    points[1].y = 338.0f;
+
+    points[2].x = 26.0f + points[1].x;
+    points[2].y = -400.0f;
+
+    points[3].x = originX - 26.0f;
+    points[3].y = -400.0f;
+
+    func_002b2a60((u8 *)&baseColor, 0x7E, 0, 8, alpha);
+    colors[0] = colors[1] = colors[2] = colors[3] = colors[4] = baseColor;
+
+    func_0045eb20(colors, points, 70.0f, 5, 4, 1, 0, 0, rotation, 1.0f, 1.0f, D_00794AB0);
+
+    if ((s8)highlight == 1) {
+        points[0].x = points[4].x = originX;
+        points[0].y = points[4].y = originY;
+
+        points[1].x = 4.0f + points[0].x;
+        points[1].y = 338.0f;
+
+        points[2].x = 7.0f + (26.0f + points[1].x);
+        points[2].y = -400.0f;
+
+        points[3].x = (originX - 26.0f) - 7.0f;
+        points[3].y = -400.0f;
+
+        func_002b2a60((u8 *)&highlightColor, 0xFF, 0xFF, 0xFF, alpha);
+        colors[0] = colors[1] = colors[2] = colors[3] = colors[4] = highlightColor;
+
+        func_0045eb20(colors, points, 69.0f, 5, 4, 1, 0, 0, 5.0f + rotation, 1.0f, 1.0f, D_00794A80);
+    }
+
+    result = (f32)angleStep + angleOffset;
+    if (result >= 360.0f) {
+        result -= 360.0f;
+    }
+    return result;
+}
 // FUN_0033D9D0
  s32 func_0033d9d0(u8 *arg0)
  {
