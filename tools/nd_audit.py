@@ -117,6 +117,8 @@ def main():
             if claim is None and not show_all:
                 continue
             addr = MARK.match(lines[marker]).group(1).lower()
+            if verify.code_origin(path.as_posix(), addr) != "main":
+                continue
             checked += 1
             status, got = measure(path, lines, marker, ifd, els, end, addr, nl)
             drifted = claim is not None and got != claim

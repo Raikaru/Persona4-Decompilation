@@ -168,7 +168,7 @@ def main() -> None:
     report = json.loads(Path(args.report).read_text(encoding="utf-8"))
     matched: dict[str, list[str]] = {}
     for row in report["results"]:
-        if row["status"] != "MATCH" or V.is_third_party(row["file"]):
+        if row["status"] != "MATCH" or (V.code_origin(row["file"], row.get("addr")) != "main"):
             continue
         matched.setdefault(row["file"].replace("\\", "/"), []).append(row["name"])
 

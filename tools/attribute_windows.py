@@ -90,13 +90,13 @@ def attribute(report):
     data, scanned = load(report)
     sizes = json.loads((TOOLS / "slus21782_functions.json").read_text())["windows"]
     addrs = [a for a, _, _ in scanned]
-    third = [verify.is_third_party(f) for _, f, _ in scanned]
+    third = [verify.code_origin(f, a) != "main" for a, f, _ in scanned]
     seen = set(addrs)
     unscanned = sorted(int(a, 16) for a in sizes if int(a, 16) not in seen)
 
     buckets = bucket(unscanned, addrs, third)
 
-    fp = [(a, f, s) for a, f, s in scanned if not verify.is_third_party(f)]
+    fp = [(a, f, s) for a, f, s in scanned if verify.code_origin(f, a) == "main"]
     matched = sum(1 for _, _, s in fp if s == "MATCH")
     asm = sum(1 for _, _, s in fp if s == "ASM")
     return {

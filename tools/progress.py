@@ -21,6 +21,8 @@ from pathlib import Path
 from typing import Any
 
 REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "tools"))
+import gen_objdiff
 METADATA = REPO / "tools" / "slus21782_functions.json"
 SCHEMA_VERSION = 1
 CACHE_SECONDS = 3600
@@ -182,6 +184,39 @@ def validate_linked_report(report: Any, windows: dict[int, int | None]) -> dict[
     return report
 
 
+def category_metrics(results: list[dict], windows: dict[int, int | None],
+                     matched: set[int], linked: set[int]) -> dict[str, dict]:
+    """Partition canonical windows without conflating SDK linkage with C recovery."""
+    owners = {
+        canonical_address(row["addr"]): row.get("file")
+        for row in results if canonical_address(row["addr"]) in windows
+    }
+    tu_names = gen_objdiff.tu_name_by_address({f"{a:08x}": size for a, size in windows.items()})
+    groups = {name: set() for name in ("main", "sony_sdk", "third_party", "unclassified")}
+    for address in windows:
+        origin = gen_objdiff.progress_category(owners.get(address), tu_names.get(address), address)
+        groups[origin].add(address)
+    out = {}
+    for origin, addresses in groups.items():
+        matches, linked_here = addresses & matched, addresses & linked
+        total_code = sum(windows[a] or 0 for a in addresses)
+        linked_code = sum(windows[a] or 0 for a in linked_here)
+        out[origin] = {
+            "total": len(addresses),
+            "addresses": [f"{a:08x}" for a in sorted(addresses)],
+            "matching_count": len(matches),
+            "matching_percent": percentage(len(matches), len(addresses)),
+            "matching_addresses": [f"{a:08x}" for a in sorted(matches)],
+            "linked_count": len(linked_here),
+            "linked_percent": percentage(len(linked_here), len(addresses)),
+            "linked_addresses": [f"{a:08x}" for a in sorted(linked_here)],
+            "total_code_bytes": total_code,
+            "linked_code_bytes": linked_code,
+            "linked_code_percent": percentage(linked_code, total_code),
+        }
+    return out
+
+
 def make_metrics(report: Any, windows: dict[int, int | None], linked_report: dict[str, Any] | None,
                  verifier_source: str, linked_source: str | None) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     results = report_results(report)
@@ -197,16 +232,14 @@ def make_metrics(report: Any, windows: dict[int, int | None], linked_report: dic
     hashes: dict[str, str | None] = {"retail_sha1": None, "image_sha1": None}
     build_succeeded = False
     asm_fallback_linked = 0
+    all_linked: set[int] = set()
     if linked_report is not None:
-        linked = {canonical_linked_address(row["address"]) for row in linked_report["linked_functions"]}
-        # A translation unit links as one object even when some of its functions
-        # are INCLUDE_ASM fallbacks, so `linked` now contains addresses that are
-        # NOT decompiled C. Those bytes are identical to what the assembly carve
-        # path would have placed, so counting them as linked progress would
-        # inflate the metric with work nobody has done. Keep the intersection
-        # and report the remainder separately.
-        asm_fallback_linked = len(linked - matched)
-        linked &= matched
+        all_linked = {canonical_linked_address(row["address"]) for row in linked_report["linked_functions"]}
+        sdk_linked = {a for a in all_linked if gen_objdiff.progress_category(None, address=a) == "sony_sdk"}
+        # This endpoint remains C-source linkage. SDK black boxes have separate
+        # build-proven category measures, including when old SDK C already MATCHes.
+        asm_fallback_linked = len(all_linked - sdk_linked - matched)
+        linked = (all_linked & matched) - sdk_linked
         linked_addresses = [f"{address:08x}" for address in sorted(linked)]
         hashes = {"retail_sha1": linked_report["retail_sha1"], "image_sha1": linked_report["image_sha1"]}
         build_succeeded = True
@@ -232,6 +265,7 @@ def make_metrics(report: Any, windows: dict[int, int | None], linked_report: dic
                             "unscanned": total - unique_known,
                             "unscanned_percent": percentage(total - unique_known, total)},
                "status_counts": status_counts, "hashes": hashes, "build_succeeded": build_succeeded}
+    metrics["categories"] = category_metrics(results, windows, matched, all_linked)
     return metrics, badge("matching", len(matching_addresses), total), badge("linked", len(linked_addresses), total)
 
 
@@ -252,6 +286,9 @@ def write_endpoints(directory: Path, metrics: dict[str, Any], matching_badge: di
     atomic_write_json(directory / "metrics.json", metrics)
     atomic_write_json(directory / "matching.json", matching_badge)
     atomic_write_json(directory / "linked.json", linked_badge)
+    sdk = metrics["categories"]["sony_sdk"]
+    atomic_write_json(directory / "sony-sdk-linked.json",
+                      badge("Sony SDK linked", sdk["linked_count"], sdk["total"]))
 
 
 def validate_address_list(value: Any, name: str, windows: dict[int, int | None]) -> set[str]:
@@ -309,6 +346,46 @@ def validate_endpoints(directory: Path, windows: dict[int, int | None]) -> None:
             raise ProgressError(f"invalid metrics endpoint: {name} count does not agree with addresses")
     if metrics["matching"]["count"] > unique or not address_sets["linked"].issubset(address_sets["matching"]):
         raise ProgressError("invalid metrics endpoint: linked addresses must be a matching subset")
+    categories = metrics.get("categories")
+    expected_categories = {"main", "sony_sdk", "third_party", "unclassified"}
+    if not isinstance(categories, dict) or set(categories) != expected_categories:
+        raise ProgressError("invalid metrics endpoint: missing origin categories")
+    covered = set()
+    for origin, value in categories.items():
+        members = validate_address_list(value.get("addresses"), origin, windows)
+        matches = validate_address_list(value.get("matching_addresses"), origin, windows)
+        linked = validate_address_list(value.get("linked_addresses"), origin, windows)
+        if covered & members or value.get("total") != len(members):
+            raise ProgressError("invalid metrics endpoint: origin categories overlap or have wrong totals")
+        covered.update(members)
+        if matches != members & address_sets["matching"] or not linked <= members:
+            raise ProgressError("invalid metrics endpoint: category matching or linkage membership")
+        for kind, addresses in (("matching", matches), ("linked", linked)):
+            if value.get(f"{kind}_count") != len(addresses) or value.get(f"{kind}_percent") != percentage(len(addresses), len(members)):
+                raise ProgressError("invalid metrics endpoint: category count or percent")
+        total_code = sum(windows[int(a, 16)] or 0 for a in members)
+        linked_code = sum(windows[int(a, 16)] or 0 for a in linked)
+        if (value.get("total_code_bytes") != total_code or value.get("linked_code_bytes") != linked_code
+                or value.get("linked_code_percent") != percentage(linked_code, total_code)):
+            raise ProgressError("invalid metrics endpoint: category code-byte measures")
+    if covered != {f"{a:08x}" for a in windows}:
+        raise ProgressError("invalid metrics endpoint: origin categories do not cover all windows")
+    sdk = categories["sony_sdk"]
+    sdk_members = set(sdk["addresses"])
+    expected_sdk = {f"{a:08x}" for a in windows
+                    if gen_objdiff.progress_category(None, address=a) == "sony_sdk"}
+    if sdk_members != expected_sdk:
+        raise ProgressError("invalid metrics endpoint: Sony SDK membership disagrees with provenance")
+    all_linked = {a for group in categories.values() for a in group["linked_addresses"]}
+    if (all_linked & address_sets["matching"]) - sdk_members != address_sets["linked"]:
+        raise ProgressError("invalid metrics endpoint: linked C includes SDK or disagrees with origin linkage")
+    if len(all_linked - sdk_members - address_sets["matching"]) != metrics["linked"]["asm_fallbacks_in_linked_objects"]:
+        raise ProgressError("invalid metrics endpoint: assembly fallback linkage count")
+    if all_linked and metrics["build_succeeded"] is not True:
+        raise ProgressError("invalid metrics endpoint: linked code without a successful build")
+    sdk_badge = load_json(directory / "sony-sdk-linked.json", "Sony SDK linked endpoint")
+    if sdk_badge != badge("Sony SDK linked", sdk["linked_count"], sdk["total"]):
+        raise ProgressError("invalid Sony SDK linked badge")
     if matching_badge != badge("matching", metrics["matching"]["count"], len(windows)) or linked_badge != badge("linked", metrics["linked"]["count"], len(windows)):
         raise ProgressError("invalid badge endpoint: schema, message, or color disagrees with metrics")
 
@@ -342,6 +419,15 @@ def render_status(metrics: dict, recovery: dict | None) -> str:
         f"| In byte-exact linked C objects | {linked['count']:,} ({linked['percent']}% of windows), "
         f"with {linked['asm_fallbacks_in_linked_objects']:,} assembly fallbacks still inside those objects |",
     ]
+    labels = {"main": "Atlus game/engine", "sony_sdk": "Proven Sony PS2 SDK",
+              "third_party": "Other third-party/vendor", "unclassified": "Unattributed"}
+    for origin, label in labels.items():
+        group = metrics["categories"][origin]
+        rows.append(
+            f"| {label} | {group['total']:,} functions; "
+            f"{group['matching_count']:,} C-matched ({group['matching_percent']}%); "
+            f"{group['linked_count']:,} linked ({group['linked_percent']}%) |"
+        )
     if recovery:
         scored = recovery["matched_first_party"]
         rows += [
@@ -358,7 +444,8 @@ def render_status(metrics: dict, recovery: dict | None) -> str:
     note = (
         "\nByte-identical is not recovered: a matching function can still have an "
         "address for a name and raw field offsets. "
-        "`tools/recovery_quality.py --worst 20` ranks the files needing work.\n"
+        "Sony SDK linkage is black-box reuse, not decompiled source. "
+        "`tools/recovery_quality.py --worst 20` ranks the game files needing work.\n"
     )
     return "\n".join(rows) + "\n" + note
 

@@ -77,6 +77,20 @@ class VendorAddressTests(unittest.TestCase):
             self.assertTrue(verify.is_vendor_address(addr), hex(addr))
 
 
+class SonySdkOriginTests(unittest.TestCase):
+    def test_proven_sdk_and_unproven_gap_stay_distinct_in_one_file(self) -> None:
+        owner = "src/promoted/code1_0042.c"
+        self.assertEqual(verify.code_origin(owner, "004213c0"), "sony_sdk")
+        self.assertEqual(verify.code_origin(owner, "004214c0"), "third_party")
+        self.assertEqual(verify.code_origin(owner, "001014b0"), "main")
+        self.assertEqual(verify.code_origin(None, "004213c0"), "sony_sdk")
+
+    def test_sdk_names_do_not_reclassify_atlus_wrappers(self) -> None:
+        for owner in ("src/Kernel/sdkTask.c", "src/sdkOt.c", "src/Kernel/sdkCdvd.c"):
+            self.assertEqual(verify.code_origin(owner, "001014b0"), "main")
+        self.assertEqual(verify.code_origin(None, "001014b0"), "unclassified")
+
+
 @unittest.skipUnless(MIDDLEWARE.is_file(), "middleware unit not present")
 class MiddlewareUnitTests(unittest.TestCase):
     """The unit only holds functions with a signature b210 cannot emit.

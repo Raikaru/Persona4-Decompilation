@@ -51,7 +51,7 @@ import sys
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "tools"))
 
-from verify import is_third_party, is_vendor_address  # noqa: E402
+from verify import code_origin  # noqa: E402
 
 # "normalized_diff 42", "nd 42", "nd=42" -- lanes have written all three.
 ND = re.compile(r"normalized[_ ]diff[ =]*(\d+)|\bnd[ =]+(\d+)", re.I)
@@ -189,8 +189,7 @@ def main():
         rows = json.load(f)["results"]
     asm = [r for r in rows
            if r["status"] == "ASM"
-           and not is_third_party(r["file"])
-           and not is_vendor_address(r.get("addr"))]
+           and code_origin(r["file"], r.get("addr")) == "main"]
     arch = archives()
 
     out = []

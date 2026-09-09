@@ -82,7 +82,7 @@ REPO = Path(__file__).resolve().parents[1]
 TOOLS = REPO / "tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
-from verify import RetailElf, is_generated, is_third_party, scan_markers
+from verify import RetailElf, code_origin, is_generated, scan_markers
 
 TARGET = REPO / "config" / "target.json"
 FUNCTION_WINDOWS = TOOLS / "slus21782_functions.json"
@@ -425,12 +425,12 @@ def main() -> int:
 
     # Third-party / SDK targets.
     owners = load_owners()
-    code2_start = CODE2_LO
 
     def third_party(address: int) -> bool:
-        if address >= code2_start:  # shared PS2 SDK/kernel blob, like libc_core
-            return True
-        return any(is_third_party(str(owner)) for owner in owners.get(address, []))
+        source_owners = owners.get(address, [])
+        return not source_owners or not any(
+            code_origin(str(owner), address) == "main" for owner in source_owners
+        )
 
     # --- Class A acceptance -------------------------------------------------
     by_string = single_function_records(records)

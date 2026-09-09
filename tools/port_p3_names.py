@@ -55,7 +55,7 @@ REPO = Path(__file__).resolve().parents[1]
 TOOLS = REPO / "tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
-from verify import is_third_party  # noqa: E402
+from verify import code_origin  # noqa: E402
 from reconcile_function_boundaries import source_markers  # noqa: E402
 
 MAPPING_DEFAULT = Path("C:/tmp/shared.json")  # orchestrator-prebuilt P4<->P3 report
@@ -162,6 +162,8 @@ def classify(
         "invalid_identifier": 0,
         "not_canonical": 0,
         "third_party": 0,
+        "sony_sdk": 0,
+        "unclassified": 0,
         "duplicate_name": 0,
     }
     used_names: dict[str, int] = {}
@@ -189,8 +191,9 @@ def classify(
             counts["invalid_identifier"] += 1
             continue
         owner = owners.get(p4_address)
-        if owner is not None and is_third_party(owner):
-            counts["third_party"] += 1
+        origin = code_origin(owner, p4_address)
+        if origin != "main":
+            counts[origin] += 1
             continue
         if name in used_names:
             counts["duplicate_name"] += 1

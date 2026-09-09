@@ -233,10 +233,10 @@ class UnitBuildingTests(unittest.TestCase):
         self.assertTrue(matched[0]["metadata"]["complete"])
 
     def test_progress_categories_split_first_and_third_party(self) -> None:
-        """The three attribution categories partition every unit exactly once.
+        """The four attribution categories partition every unit exactly once.
 
-        They are mutually exclusive by construction -- a unit is first-party,
-        middleware, or not yet attributed -- so a badge over one of them has a
+        They are mutually exclusive: game, proven Sony SDK, other vendor, or
+        not yet attributed, so a badge over one has a
         meaningful denominator. `linked` is deliberately NOT one of them: it is
         additive, carried alongside whichever attribution category a unit has,
         because being linked into the byte-exact image is orthogonal to which
@@ -271,6 +271,12 @@ class UnitBuildingTests(unittest.TestCase):
             self.assertEqual(gen.linked_addresses(str(Path(temporary) / "absent.json")), from_metrics)
         # Address sanity, not proof of canonical membership.
         self.assertTrue(all(isinstance(a, int) and 0 < a < 0x8000000 for a in from_metrics))
+
+    def test_empty_successful_build_does_not_reuse_stale_linkage(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            report = Path(temporary) / "linked.json"
+            report.write_text(json.dumps({"build_succeeded": True, "linked_functions": []}))
+            self.assertEqual(gen.linked_addresses(str(report)), frozenset())
 
 
 class TrimWindowPaddingTests(unittest.TestCase):
