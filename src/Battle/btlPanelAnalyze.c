@@ -1,8 +1,8 @@
 /* Original translation unit btlPanelAnalyze.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+#include "btl_panel_internal.h"
 extern void func_0043f9c8();
-void func_00201650(void *arg0, s32 arg1, s32 arg2, f32 arg3, f32 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8);
 s32 func_0023a6b0(s32 arg0, s64 arg1);
 void func_00364c50(void);
 void func_00364c70(void);
