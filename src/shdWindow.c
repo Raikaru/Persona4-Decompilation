@@ -32,7 +32,7 @@ extern void func_00271b70(u8 *);
 extern f32 iGpffff8094;
 extern f32 func_0044b7b0(f32);
 extern void func_00366670(s32, s32, s32, s32, s32, s32, s32, s32,
-                         f32, f32, f32, f32, s32, s32);
+                         s16, void *, f32, f32, f32, f32);
 extern void func_0025dd30(f32, f32, s32, u8 *);
 
 
@@ -245,21 +245,7 @@ void func_0025e4a0(s32 arg0, s32 arg1)
         count = *(s32 *)(temp_5 + 0x10);
         count = count < 3 ? count : 3;
         temp_f20 = func_0044b7b0((iGpffff8094 * (f32)count) / 3.0f);
-        func_00366670(
-            92,
-            (s32)(74.0f + 150.0f * (1.0f - temp_f20)),
-            456,
-            (s32)(300.0f * temp_f20),
-            0x2D2D2D,
-            255,
-            1,
-            0,
-            0.0f,
-            0.0f,
-            1.0f,
-            1.0f,
-            0,
-            0);
+        func_00366670(92, (s32)(74.0f + 150.0f * (1.0f - temp_f20)), 456, (s32)(300.0f * temp_f20), 0x2D2D2D, 255, 1, 0, 0, 0, 0.0f, 0.0f, 1.0f, 1.0f);
         func_0025dd30(92.0f, 74.0f, (s32)(255.0f * temp_f20), p);
         break;
     case 0:
@@ -268,21 +254,7 @@ void func_0025e4a0(s32 arg0, s32 arg1)
         frac = (f32)count / 3.0f;
         temp_f20 = 255.0f * frac;
         color = 0x2D2D2D00 | (((s8)(s32)(255.0f * frac)) & 0xFF);
-        func_00366670(
-            92,
-            (s32)(74.0f + 150.0f * (1.0f - frac)),
-            456,
-            (s32)(10.0f + 290.0f * frac),
-            color >> 8,
-            color & 0xFF,
-            1,
-            0,
-            0.0f,
-            0.0f,
-            1.0f,
-            1.0f,
-            0,
-            0);
+        func_00366670(92, (s32)(74.0f + 150.0f * (1.0f - frac)), 456, (s32)(10.0f + 290.0f * frac), color >> 8, color & 0xFF, 1, 0, 0, 0, 0.0f, 0.0f, 1.0f, 1.0f);
         func_0025dd30(92.0f, 74.0f, (s32)temp_f20, p);
         break;
     }

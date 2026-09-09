@@ -8982,3 +8982,53 @@ test. Totals are **7,810 MATCH / 4,910 ASM** overall and
 **6,180 MATCH / 680 ASM** first-party (**90.1%**, rounded). Published progress
 and objdiff metadata use these complete reports. The all-matching objective
 remains open.
+
+## First-party continuation: panel callback and rounded rectangle
+
+Two more first-party fallbacks are recovered C. Both reference decompilers
+were checked against the retail instructions, and the complete production
+verifier reports both targets as `MATCH`:
+
+| Function | Owner | Executable / window | Relocations | Zero tail |
+| --- | --- | --- | --- | --- |
+| `func_0020aa70` | `src/promoted/code1_0020.c` | 508 / 512 | 13 | 4 bytes |
+| `func_00366380` | `src/promoted/code1_0036.c` | 752 / 752 | 10 | none |
+
+The panel callback follows the already-matched `func_002099c0` source shape.
+Its consumed position view becomes the callback-table base, but each state
+change still reloads the callback slot. The archived second tile coordinate
+was incorrect: retail uses `8.0f`, not `30.0f`. Task-work accessor declarations
+and pointer conversions now agree with the actual `u32(void *)` provider.
+All 122 previously matched owner functions remain matched.
+
+The rounded rectangle uses the retail 18-point template and two-pixel bevel.
+The three-pixel sibling, `func_00366670`, remains exact at 752 bytes. Both
+functions now use the actual primitive contracts: center X is a signed word;
+queued renderers consume signed-halfword center Y, while the immediate
+renderer consumes a signed word. Capturing the narrowed value and its
+promotion in one assignment preserves both contracts without redundant
+extensions. Color packing uses unsigned shifts, including colors with the
+high red bit set.
+
+All active C imports and calls were migrated to one integer-first draw
+signature with an explicit queue pointer. The message wrapper's center-Y
+input is a signed halfword; its 56-byte body, one relocation and eight zero
+alignment bytes remain exact. Its remaining caller is ASM. Generated
+decompiler drafts are unchanged. All 101 previously matched functions across
+the draw owner and three caller owners remain matched.
+
+The panel smoke passes 1,024 sanitized 32-bit cases. The integrated draw
+functions and message wrapper pass 12,288 sanitized 32-bit cases, checking
+every vertex and color, signed coordinate narrowing, renderer selection,
+queue arguments, canaries and callback-visible 64-bit flag mutations.
+Opaque immediate rendering sets and then clears bit `0x80`; it does not
+restore an initially set bit. These are source-behavior checks with explicit
+external renderer boundaries, not PS2 rendering or floating-point exception
+coverage. Numeric cases use finite, representable conversions.
+
+The complete build links 172 source objects and 56 Sony SDK objects and
+reproduces both retail SHA-1s. All 529 repository tests pass; source-honesty
+lint reports zero findings across 339 first-party files. All 12,720 functions
+remain under test. Totals are **7,812 MATCH / 4,908 ASM** overall and
+**6,182 MATCH / 678 ASM** first-party (**90.1%**, rounded). The all-matching
+objective remains open.

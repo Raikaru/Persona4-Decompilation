@@ -8,7 +8,7 @@ extern s32 func_00452380(void *path);
 extern void func_0046d730(const void *file, u32 line);
 extern s32 func_0025f110(void *arg);
 extern void func_0025f230(u32 arg);
-extern void func_00366380(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, s32 t2, s32 t3, s32 s0, void *s1, f32 f0, f32 f1, f32 f2, f32 f3);
+extern void func_00366380(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, s32 t2, s32 t3, s16 s0, void *s1, f32 f0, f32 f1, f32 f2, f32 f3);
 extern void func_0046a750(void *arg);
 extern s32 func_00455f70(char *str, void *out);
 extern s32 func_0046af60(void *arg);
@@ -41,7 +41,7 @@ extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *a0, void *a1);
 extern void func_0027bf30(u8 *arg);
-extern void func_0027d620(u32 a0, u32 a1, u32 a2, u32 a3, u32 t0, u32 t1, u32 t2, u32 t3, void *s0, float f0, float f1, float f2, float f3);
+extern void func_0027d620(u32 a0, u32 a1, u32 a2, u32 a3, u32 t0, u32 t1, u32 t2, s16 t3, void *s0, float f0, float f1, float f2, float f3);
 extern void func_0027f6a0(void);
 extern void func_00283360(void);
 extern void func_00278110(void);
@@ -254,10 +254,7 @@ void func_0027d3c0(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4,
 }
 
 // FUN_0027D620
-void func_0027d620(u32 a0, u32 a1, u32 a2, u32 a3, u32 t0, u32 t1, u32 t2, u32 t3, void *s0, float f0, float f1, float f2, float f3)
-{
-    func_00366380(a0, a1, a2, a3, t0, t1, 1, t2, t3, s0, f0, f1, f2, f3);
-}
+void func_0027d620(u32 a0, u32 a1, u32 a2, u32 a3, u32 t0, u32 t1, u32 t2, s16 t3, void *s0, float f0, float f1, float f2, float f3) { func_00366380(a0, a1, a2, a3, t0, t1, 1, t2, t3, s0, f0, f1, f2, f3); }
 
 // FUN_0027D660
 void func_0027d660(s32 arg0, s32 arg1, s32 arg2, s32 arg3, float f0, void *arg4)

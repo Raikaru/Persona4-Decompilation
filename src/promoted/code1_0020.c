@@ -54,7 +54,7 @@ static inline u8 *p4_002091f0_add(u32 offset, u8 *base)
 }
 
 
-extern u8 *func_00452560();
+extern u32 func_00452560();
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
 extern u8 *func_0010ace0(s16 arg0);
@@ -437,7 +437,7 @@ s32 func_00200cf0(void)
 {
     u8 *temp_2;
 
-    temp_2 = func_00452560();
+    temp_2 = (u8 *)func_00452560();
     func_0021be70(temp_2 + 0x9E4);
     *(s32 *)(temp_2 + 0x9F0) = 0;
     *(s32 *)(temp_2 + 0x9F4) = 0;
@@ -1345,7 +1345,7 @@ void func_00203670(s32 unused, s32 arg1)
     u8 *temp_2;
     u8 *temp_16;
     u8 *temp_18;
-    temp_2 = func_00452560();
+    temp_2 = (u8 *)func_00452560();
     temp_16 = temp_2 + 0x9C;
     *(s32 *)(temp_2 + 0x214) = arg1;
     *(s16 *)(temp_2 + 0x9C) = 1;
@@ -1399,7 +1399,7 @@ s32 func_00203810(void)
     u8 *base;
     s32 field;
 
-    p = func_00452560();
+    p = (u8 *)func_00452560();
     base = p + 0x9C;
     field = *(s32 *)(p + 0xD4);
     base += 0x40;
@@ -1616,7 +1616,7 @@ void func_00208870(u8 *unused, u8 *arg1, f32 *arg2)
     f32 temp_f3;
     f32 temp_f4;
 
-    func_002012d0(func_00452560(*(s32 *)(arg1 + 0x5B0)), arg2[0], arg2[1]);
+    func_002012d0((u8 *)func_00452560(*(void **)(arg1 + 0x5B0)), arg2[0], arg2[1]);
     temp_f0 = (f32)*(s16 *)(arg1 + 0xE) / 2.0f;
     if (temp_f0 > 1.0f) {
         temp_f1 = 1.0f;
@@ -1928,7 +1928,7 @@ void func_002099c0(u8 *arg0, u8 *arg1, f32 *arg2)
 {
     u8 *temp;
 
-    temp = (u8 *)func_00452560(*(s32 *)(arg1 + 0x5B0));
+    temp = (u8 *)func_00452560(*(void **)(arg1 + 0x5B0));
     func_002012d0(temp, arg2[0], arg2[1]);
     func_00201650(temp, 9, 0x1F, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     arg2 = (f32 *)D_00887300;
@@ -2205,8 +2205,31 @@ u16 func_0020a640(u8 *arg0, u8 *arg1)
 
     return var_16;
 }
+/* 508/512 bytes, 13 resolved relocations, four zero alignment bytes.
+ * As in func_002099c0, reuse the consumed position view for the callback
+ * table base; each state change still reloads the callback slot.
+ */
 // FUN_0020AA70
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020aa70);
+void func_0020aa70(u8 *arg0, u8 *arg1, f32 *arg2)
+{
+    u8 *temp;
+
+    temp = (u8 *)func_00452560(*(void **)(arg1 + 0x5B0));
+    func_002012d0(temp, arg2[0], arg2[1]);
+    func_00201650(temp, 9, 0x22, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
+    arg2 = (f32 *)D_00887300;
+    ((void (**)(u32, u32))arg2)[0](6, 1);
+    func_002019e0(temp, 120.0f);
+    func_00201650(temp, 9, 0x38, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
+    ((void (**)(u32, u32))arg2)[0](6, 0);
+    func_002019e0(temp, 0.0f);
+    if (func_001eb860() != 0) {
+        func_00201650(temp, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        func_00201410(temp, 9, 0x1C, 100.0f, (f32)0x19B);
+        func_00201650(temp, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        func_00201410(temp, 9, 0x19, 119.0f, (f32)0x19B);
+    }
+}
 // FUN_0020AC70
 void func_0020ac70(s32 arg0, u8 *arg1, f32 *arg2)
 {
@@ -2341,7 +2364,7 @@ void func_0020b1a0(s32 arg0, u8 *arg1)
     f32 temp_f12;
     f32 temp_f20;
 
-    temp_2 = func_00452560(*(s32 *)(arg1 + 0x5B0));
+    temp_2 = (u8 *)func_00452560(*(void **)(arg1 + 0x5B0));
     if ((*(s32 *)temp_2 & 1) != 0) {
         if (*(u16 *)arg1 != 0) {
             if (*(s16 *)(arg1 + 0x5AC) == -1) {
@@ -2394,7 +2417,7 @@ void func_0020b3a0(s32 arg0, u8 *arg1)
     s16 temp_4;
     f32 temp_f20;
 
-    temp_2 = func_00452560(*(s32 *)(arg1 + 0x5B0));
+    temp_2 = (u8 *)func_00452560(*(void **)(arg1 + 0x5B0));
     if ((*(s32 *)temp_2 & 1) != 0) {
         if (*(u16 *)arg1 != 0) {
             if (*(s16 *)(arg1 + 0x5AC) == -1) {
@@ -2456,7 +2479,7 @@ void func_0020b5b0(s32 arg0, u8 *arg1)
     void (**base)(u32, u32);
     u8 work[4];
 
-    temp_2 = (u8 *)func_00452560(*(s32 *)(arg1 + 0x5B0));
+    temp_2 = (u8 *)func_00452560(*(void **)(arg1 + 0x5B0));
     if (((*(u32 *)temp_2 & 1) != 0) &&
         (*(u16 *)arg1 != 0) &&
         (*(s16 *)(arg1 + 0x5AC) == -1)) {
@@ -2542,7 +2565,7 @@ void func_0020bd70(u8 *arg0, u8 *arg1)
         f32 sp48[2];
         f32 sp50[2];
     } Frame;
-    extern u8 *func_00452560(u8 *arg0);
+    extern u32 func_00452560(void *arg0);
     extern void func_00201350(void);
     extern u8 *func_001b1560(void);
     extern void func_00195d50(u8 *arg0, f32 *arg1);
@@ -2561,7 +2584,7 @@ void func_0020bd70(u8 *arg0, u8 *arg1)
     s32 temp_16;
     s32 var_17;
 
-    temp_2 = func_00452560(*(u8 **)(arg1 + 0x18));
+    temp_2 = (u8 *)func_00452560(*(u8 **)(arg1 + 0x18));
     if ((*(u32 *)temp_2 & 1) != 0) {
         if ((*(u16 *)arg1 & 1) == 0) {
             temp_4 = *(u16 *)(arg1 + 2);
@@ -2644,7 +2667,7 @@ void func_0020e010(s32 arg0, u8 *arg1, u8 *arg2)
     u16 temp_3;
     u16 temp_4;
 
-    temp_16 = func_00452560();
+    temp_16 = (u8 *)func_00452560();
     temp_3 = *(u16 *)(arg1 + 2);
     if (temp_3 == 0) {
         if (*(u8 *)(arg2 + 0xA2) == 0) {
@@ -2760,7 +2783,7 @@ void func_0020e250(u8 *arg0, s32 arg1, s32 *arg2, f32 *arg3, u16 arg4)
 }
 // FUN_0020E3F0
 void func_0020e3f0() {
-    func_002119a0(func_00452560() + 0x75C);
+    func_002119a0((u8 *)func_00452560() + 0x75C);
 }
 
 /* measured: entry parks are emitted in PARAMETER order, so the floats sit
@@ -2851,7 +2874,7 @@ void func_0020e690(u8 *task, u8 *transition, u8 *panel,
     s32 frame;
     f32 fade;
     f32 slide;
-    func_00452560(*(s32 *)(task + 4));
+    func_00452560(*(void **)(task + 4));
     frame = *(s32 *)(transition + 0x10);
     if (*(u16 *)(transition + 0x14) & 2) {
         if (frame < 3) fade = 0.0f;
@@ -2905,7 +2928,7 @@ void func_0020ea60(u8 *task, u8 *transition, u8 *panel, u8 *output)
     f32 stretch;
     f32 fade;
     f32 y;
-    work = func_00452560(*(s32 *)(task + 4));
+    work = (u8 *)func_00452560(*(void **)(task + 4));
     frame = *(s32 *)(transition + 0x10);
     if (frame < 0) first = 0.0f;
     else if (frame < 4) first = (f32)frame / 4.0f;
@@ -2963,7 +2986,7 @@ void func_0020ef10(u8 *task, u8 *transition, u8 *panel, u8 *output)
     f32 fade;
     f32 offset;
     f32 y;
-    work = func_00452560(*(s32 *)(task + 4));
+    work = (u8 *)func_00452560(*(void **)(task + 4));
     frame = *(s32 *)(transition + 0x10);
     if (frame < 0) first = 0.0f;
     else if (frame < 4) first = (f32)frame / 4.0f;
@@ -3018,7 +3041,7 @@ void func_0020ef10(u8 *task, u8 *transition, u8 *panel, u8 *output)
 // FUN_0020F4D0
 void func_0020f4d0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1)
 {
-    extern u8 *func_00452560(s32 arg0);
+    extern u32 func_00452560(void *arg0);
     Vec2f sp48;
     f32 temp_f1;
     f32 var_f1;
@@ -3026,7 +3049,7 @@ void func_0020f4d0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1)
     u8 *temp_17;
     s32 temp_16;
 
-    temp_17 = (u8 *)func_00452560(*(s32 *)(arg0 + 4));
+    temp_17 = (u8 *)func_00452560(*(void **)(arg0 + 4));
     temp_16 = *(s32 *)(arg1 + 0x10);
     if (temp_16 < 0) {
         var_f20 = 0.0f;

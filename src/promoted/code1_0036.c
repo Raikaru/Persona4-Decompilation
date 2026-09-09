@@ -356,28 +356,26 @@ void func_003642e0(u8 *arg0, void *arg1)
         *temp &= (u16)~1;
     }
 }
+/* 752/752 bytes, ten resolved relocations, no alignment tail.
+ * Capture both offset widths together: queued renderers consume a signed
+ * halfword Y, while the immediate renderer takes its promoted signed word.
+ */
 // FUN_00366380
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00366380);
-// FUN_00366670
-/* measured: nd 152 -> 0. The vertex table is an explicit two-word copy loop from
-   D_0064E3B0 (an initialiser hoists the lh of arg8 out of the entry). arg7/arg8 are
-   s16 params reassigned in place with the (s16) offsets and the three primitive
-   callees take s16 a5/a6, so no dsll32/dsra32 re-extension at the calls; `i = 0`
-   before the rgba byte split gives the counter $v0 and the bytes $t4/$t0/$a3/$a2. */
-void func_00366670(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
-                   s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s16 arg7, s16 arg8, s32 arg9)
+void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                   s32 arg4, s32 arg5, s32 arg6, s32 arg7,
+                   s16 arg8, void *arg9, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3)
 {
     extern s64 iGpffffabe8;
-    extern u8 D_0064E3B0[];
-    extern s32 func_0045eb20(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
-    extern s32 func_0045e8e0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
-    extern void func_0045e6a0(void *arg0, void *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, s16 arg5, s16 arg6, f32 fparg1, f32 fparg2, f32 fparg3);
+    extern u8 D_0064E320[];
+    extern void func_0045eb20(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+    extern void func_0045e8e0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+    extern void func_0045e6a0(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 fparg1, f32 fparg2, f32 fparg3);
     f32 v[18][2];
     u8 col[0x48];
     f32 w;
     s32 *src;
     s32 *dst;
-    s32 cnt;
+    s32 cnt, centerY;
     s32 t1;
     s32 t2;
     f32 h;
@@ -392,7 +390,7 @@ void func_00366670(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 f
     PairF32 *p;
     u8 *c;
 
-    src = (s32 *)D_0064E3B0;
+    src = (s32 *)D_0064E320;
     dst = (s32 *)v;
     cnt = 18;
     do {
@@ -409,25 +407,25 @@ void func_00366670(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 f
     h = (f32)(arg3 - 10) * fparg3;
     v[0][1] = h * 0.5f + 5.0f;
     v[5][0] = w + 5.0f;
-    v[6][0] = v[5][0] + 3.0f;
+    v[6][0] = v[5][0] + 2.0f;
     v[7][0] = v[5][0] + 4.0f;
     v[8][0] = v[5][0] + 5.0f;
     v[9][0] = v[5][0] + 5.0f;
     v[9][1] = h + 5.0f;
     v[10][0] = v[5][0] + 4.0f;
-    v[10][1] = v[9][1] + 3.0f;
-    v[11][0] = v[5][0] + 3.0f;
+    v[10][1] = v[9][1] + 2.0f;
+    v[11][0] = v[5][0] + 2.0f;
     v[11][1] = v[9][1] + 4.0f;
     v[12][0] = v[5][0];
     v[12][1] = v[9][1] + 5.0f;
     v[13][1] = v[9][1] + 5.0f;
     v[14][1] = v[9][1] + 4.0f;
-    v[15][1] = v[9][1] + 3.0f;
+    v[15][1] = v[9][1] + 2.0f;
     v[16][1] = v[9][1];
-    arg7 = (s16)(s32)((f32)arg7 - v[0][0]);
-    arg8 = (s16)(s32)((f32)arg8 - v[0][1]);
+    arg7 = (s32)(s16)(s32)((f32)arg7 - v[0][0]);
+    centerY = (arg8 = (s16)(s32)((f32)arg8 - v[0][1]));
     i = 0;
-    rgba = (arg4 << 8) | arg5;
+    rgba = ((u32)arg4 << 8) | (u32)arg5;
     r = rgba >> 24;
     g = rgba >> 16;
     b = rgba >> 8;
@@ -447,18 +445,114 @@ void func_00366670(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 f
     }
     if (arg9 != 0) {
         if (arg5 == 0xFF) {
-            func_0045eb20(col, v, fparg0, 18, 5, arg6, arg7, arg8, fparg1, fparg2, fparg3, (void *)arg9);
+            func_0045eb20(col, v, fparg0, 18, 5, arg6, arg7, arg8, fparg1, fparg2, fparg3, arg9);
         } else {
-            func_0045e8e0(col, v, fparg0, 18, 5, arg6, arg7, arg8, fparg1, fparg2, fparg3, (void *)arg9);
+            func_0045e8e0(col, v, fparg0, 18, 5, arg6, arg7, arg8, fparg1, fparg2, fparg3, arg9);
         }
     } else if (arg5 == 0xFF) {
         iGpffffabe8 |= 0x80;
-        func_0045e6a0(col, v, fparg0, 18, 5, arg6, arg7, arg8, fparg1, fparg2, fparg3);
+        func_0045e6a0((s32)(u32)col, (s32)(u32)v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
         iGpffffabe8 &= ~0x80;
     } else {
-        func_0045e6a0(col, v, fparg0, 18, 5, arg6, arg7, arg8, fparg1, fparg2, fparg3);
+        func_0045e6a0((s32)(u32)col, (s32)(u32)v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
     }
 }
+// FUN_00366670
+/* 752/752 bytes, ten resolved relocations. The explicit table copy preserves
+ * the entry halfword load; the paired offset assignment preserves both real
+ * primitive ABIs. Keep i = 0 before splitting the unsigned packed color.
+ */
+void func_00366670(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s16 arg8, void *arg9, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) { extern s64 iGpffffabe8;
+extern u8 D_0064E3B0[];
+extern void func_0045eb20(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+extern void func_0045e8e0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+extern void func_0045e6a0(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 fparg1, f32 fparg2, f32 fparg3);
+f32 v[18][2];
+u8 col[0x48];
+f32 w;
+s32 *src;
+s32 *dst;
+s32 cnt, centerY;
+s32 t1;
+s32 t2;
+f32 h;
+u32 i;
+u32 rgba;
+u8 r;
+u8 g;
+u8 b;
+u8 a;
+f32 fx;
+f32 fy;
+PairF32 *p;
+u8 *c;
+
+src = (s32 *)D_0064E3B0;
+dst = (s32 *)v;
+cnt = 18;
+do {
+    t1 = src[0];
+    t2 = src[1];
+    src += 2;
+    cnt -= 1;
+    dst[0] = t1;
+    dst[1] = t2;
+    dst += 2;
+} while (cnt > 0);
+w = (f32)(arg2 - 10) * fparg2;
+v[0][0] = w * 0.5f + 5.0f;
+h = (f32)(arg3 - 10) * fparg3;
+v[0][1] = h * 0.5f + 5.0f;
+v[5][0] = w + 5.0f;
+v[6][0] = v[5][0] + 3.0f;
+v[7][0] = v[5][0] + 4.0f;
+v[8][0] = v[5][0] + 5.0f;
+v[9][0] = v[5][0] + 5.0f;
+v[9][1] = h + 5.0f;
+v[10][0] = v[5][0] + 4.0f;
+v[10][1] = v[9][1] + 3.0f;
+v[11][0] = v[5][0] + 3.0f;
+v[11][1] = v[9][1] + 4.0f;
+v[12][0] = v[5][0];
+v[12][1] = v[9][1] + 5.0f;
+v[13][1] = v[9][1] + 5.0f;
+v[14][1] = v[9][1] + 4.0f;
+v[15][1] = v[9][1] + 3.0f;
+v[16][1] = v[9][1];
+arg7 = (s32)(s16)(s32)((f32)arg7 - v[0][0]);
+centerY = (arg8 = (s16)(s32)((f32)arg8 - v[0][1]));
+i = 0;
+rgba = ((u32)arg4 << 8) | (u32)arg5;
+r = rgba >> 24;
+g = rgba >> 16;
+b = rgba >> 8;
+a = rgba;
+fx = (f32)arg0;
+fy = (f32)arg1;
+while (i < 18) {
+    p = (PairF32 *)v[i];
+    p->x += fx;
+    p->y += fy;
+    c = &col[i * 4];
+    c[0] = r;
+    c[1] = g;
+    c[2] = b;
+    c[3] = a;
+    i++;
+}
+if (arg9 != 0) {
+    if (arg5 == 0xFF) {
+        func_0045eb20(col, v, fparg0, 18, 5, arg6, arg7, arg8, fparg1, fparg2, fparg3, arg9);
+    } else {
+        func_0045e8e0(col, v, fparg0, 18, 5, arg6, arg7, arg8, fparg1, fparg2, fparg3, arg9);
+    }
+} else if (arg5 == 0xFF) {
+    iGpffffabe8 |= 0x80;
+    func_0045e6a0((s32)(u32)col, (s32)(u32)v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
+    iGpffffabe8 &= ~0x80;
+} else {
+    func_0045e6a0((s32)(u32)col, (s32)(u32)v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
+} }
 // FUN_00366960
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00366960);
 // FUN_00366C70
