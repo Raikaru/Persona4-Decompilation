@@ -2764,8 +2764,66 @@ void func_0020e690(u8 *task, u8 *transition, u8 *panel,
         }
     }
 }
+/*
+ * measured: 1192/1200 bytes, eight resolved calls, eight zero alignment bytes.
+ * Keep the alternating fade/y stages: expression propagation otherwise fuses
+ * the slide arithmetic or reverses its floating-point operand order.
+ */
 // FUN_0020EA60
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020ea60);
+void func_0020ea60(u8 *task, u8 *transition, u8 *panel, u8 *output)
+{
+    u8 *work;
+    s32 frame;
+    u8 alpha;
+    f32 first;
+    f32 second;
+    f32 stretch;
+    f32 fade;
+    f32 y;
+    work = func_00452560(*(s32 *)(task + 4));
+    frame = *(s32 *)(transition + 0x10);
+    if (frame < 0) first = 0.0f;
+    else if (frame < 4) first = (f32)frame / 4.0f;
+    else first = 1.0f;
+    if (frame < 4) second = 0.0f;
+    else if (frame < 8) second = (f32)(frame - 4) / 4.0f;
+    else second = 1.0f;
+    stretch = 2.0f * first - second;
+    if (!(stretch <= 0.0f)) {
+        func_002019d0(work, 1.0f, stretch);
+        func_00201650(work, 10, 21, 54.0f, 25.0f, 150, 255, 2, 255);
+        func_00201650(work, 10, 22, 54.0f, 70.0f, 150, 255, 2, 255);
+        func_002019d0(work, 1.0f, 1.0f);
+    }
+    if (frame < 2) fade = 0.0f;
+    else if (frame < 5) fade = (f32)(frame - 2) / 3.0f;
+    else fade = 1.0f;
+    if (!(fade <= 0.0f)) {
+        alpha = (u8)(255.0f * fade);
+        fade = 1.0f - fade;
+        y = 20.0f * fade;
+        fade = 71.0f + y;
+        y = fade - 16.0f;
+        func_00201650(work, 10, 14, 28.0f, y, 150, 255, 2, (u8)alpha);
+        func_00201650(work, 10, 13, 28.0f, y, 35, 55, 0, (u8)alpha);
+    }
+    if (frame < 2) fade = 0.0f;
+    else if (frame < 5) fade = (f32)(frame - 2) / 3.0f;
+    else fade = 1.0f;
+    output[4] = (u8)(255.0f * fade);
+    *(f32 *)output = 20.0f * (1.0f - fade);
+    if (*(u16 *)(transition + 0x14) & 4) {
+        *(f32 *)(output + 0xC) = 54.0f;
+        *(f32 *)(output + 0x10) = 89.0f;
+        *(s32 *)(output + 8) = 1;
+    } else if (frame == 6) {
+        func_0021b310(panel, 1);
+    } else if (frame > 6) {
+        *(f32 *)(output + 0xC) = 54.0f;
+        *(f32 *)(output + 0x10) = 89.0f;
+        *(s32 *)(output + 8) = 1;
+    }
+}
 // FUN_0020EF10
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020ef10);
 /* measured: struct aggregate spelling probe for F4D0. */

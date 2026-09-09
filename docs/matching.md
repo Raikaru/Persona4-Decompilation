@@ -8615,3 +8615,39 @@ objects linked, both retail SHA-1 hashes matched, all 12,720 functions
 scanned, and zero findings across 338 first-party files. Totals are
 **7,794 MATCH / 4,926 ASM** overall and **6,164 MATCH / 696 ASM** first-party
 (89.9%). The all-matching objective remains incomplete.
+
+## Fresh-target continuation: staged panel animation
+
+`func_0020ea60` in `src/promoted/code1_0020.c` is now **MATCH**:
+1192/1200 bytes, eight independently resolved call relocations and eight
+zero alignment bytes. Direct call resolution reproduces all 1200 retail
+bytes. The initial slide expression had 37 differing bytes; repeated
+assignments to `fade` reduced that to four operand-order bytes.
+Alternating `fade` and `y` assignments closes them without pragmas or
+padding while retaining the retail arithmetic boundaries.
+
+Preserve the frame snapshot after the work getter and across sprite
+callbacks, the late flag reload, the unit-scale reset between sprite
+groups, and the saved alpha/Y values within the second group. Flag4
+precedes frame6 panel activation. Existing providers and callers are
+unchanged.
+
+The integrated source passed **335,872 Wasm32 cases** through the real
+scale setter, color-forwarding wrapper, sprite setup and pointer-add
+helper. The submission boundary captures complete descriptors before
+mutating frames, flags, coordinates, resource IDs, scales, UV fields and
+output. An independent model checks complete fixture state, guard regions
+and queued descriptor bytes, including transient colors and post-callback
+resets. Coverage includes every signed-halfword frame with four flag
+combinations, all halfword flags at boundary frames, and 8,192 full-width
+frames. Conversion inputs stay within provider bounds; this does not
+claim PS2 graphical presentation or arbitrary corrupt-work-state behavior.
+
+`docs/probe_archive/FreshPanelAnimation_0020ea60_body.c` retains the
+complete exact source and measurement/runtime evidence.
+
+`make all lint-errors` passed: 172 source objects linked, both retail
+SHA-1 hashes matched, all 12,720 functions scanned, and zero findings
+across 338 first-party files. Totals are **7,795 MATCH / 4,925 ASM**
+overall and **6,165 MATCH / 695 ASM** first-party (89.9%). The overall
+all-matching objective remains incomplete.
