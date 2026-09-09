@@ -6,12 +6,13 @@
 [![first-party functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=first-party%20functions&measure=matched_functions&category=main)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 [![all functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=all%20functions&measure=matched_functions)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 [![byte-exact linked C](https://img.shields.io/endpoint?url=https%3A%2F%2FRaikaru.github.io%2FPersona4-Decompilation%2Fprogress%2Flinked.json)](https://Raikaru.github.io/Persona4-Decompilation/progress/linked.json)
+[![Sony SDK linked](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=Sony%20SDK%20linked&measure=complete_code&category=sony_sdk)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 
 A matching decompilation of **Shin Megami Tensei: Persona 4** for the
-PlayStation 2 (USA, v1.00, `SLUS_217.82`). "Matching" means exact: every
-function in this tree is compiled with the compiler Atlus used and compared
-against the retail executable byte for byte, and the build reproduces the
-loadable image and the ELF with the same SHA-1 as the disc.
+PlayStation 2 (USA, v1.00, `SLUS_217.82`). Recovered C functions are compiled
+with their configured matching toolchain and compared against the retail
+executable byte for byte. The build links those objects with retail-backed
+binary inputs and reproduces the loadable image and ELF SHA-1s.
 
 This repository contains source and tooling only. There is no executable, disc
 image, or game data here; `make setup` extracts what the build needs from a
@@ -31,23 +32,46 @@ version.
 | Retail executable | `SLUS_217.82`; SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` |
 | Loadable image | `0x838a00` bytes at `0x00100000`; SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` |
 | Canonical function windows | 13,102; all mapped to C or owned retail assembly |
-| Byte-identical functions | 7,787 (59.434% of windows) |
+| Byte-identical functions | 7,803 (59.556% of windows) |
 | Under test (a `// FUN_` marker scores them) | 12,720 (97.084% of windows) |
 | Not yet under test, supplied as retail bytes | 382 (2.916% of windows) |
 | In byte-exact linked C objects | 1,570 (11.983% of windows), with 238 assembly fallbacks still inside those objects |
-| First-party matched, scored for recovery | 6,821 |
-| — NAMED (not a `func_<address>` placeholder) | 154 (2.258%) |
-| — TYPED (no raw-offset or `M2C_` access) | 2,172 (31.843%) |
-| — DOCUMENTED (prose, or trivially self-evident) | 4,811 (70.532%) |
-| — still carrying decompiler local names | 1,986 (29.116%) |
+| Atlus game/engine | 6,860 functions; 6,173 C-matched (89.985%); 1,767 linked (25.758%) |
+| Proven Sony PS2 SDK | 491 functions; 148 C-matched (30.143%); 491 linked (100.0%) |
+| Other third-party/vendor | 5,749 functions; 1,482 C-matched (25.778%); 41 linked (0.713%) |
+| Unattributed | 2 functions; 0 C-matched (0.0%); 0 linked (0.0%) |
+| First-party matched, scored for recovery | 6,173 |
+| — NAMED (not a `func_<address>` placeholder) | 154 (2.495%) |
+| — TYPED (no raw-offset or `M2C_` access) | 1,769 (28.657%) |
+| — DOCUMENTED (prose, or trivially self-evident) | 4,196 (67.973%) |
+| — still carrying decompiler local names | 1,908 (30.909%) |
 
-Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. `tools/recovery_quality.py --worst 20` ranks the files needing work.
+Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. Sony SDK linkage is black-box reuse, not decompiled source. `tools/recovery_quality.py --worst 20` ranks the game files needing work.
 <!-- STATUS:END -->
 
-"First-party" is Atlus's own code. The retail image also links prebuilt
-middleware (RenderWare at `0x0038F990`-`0x00417510`, then CRI, the Sony SDK
-and the C runtime); those address spans are tracked so the image stays
-byte-exact, but they are reported separately.
+"First-party" means Atlus's game and engine code. Progress is partitioned by
+**function address**, not whole source file, because some promoted files mix
+game functions with vendor libraries:
+
+- **Atlus game and engine** (`main`): the source-recovery target.
+- **Sony PS2 SDK** (`sony_sdk`): only functions recorded with archive, member,
+  address, size, and canonical hash in
+  [`config/sdk_symbol_provenance.txt`](config/sdk_symbol_provenance.txt).
+- **Other third-party/vendor** (`third_party`): RenderWare, CRI, the C runtime,
+  and vendor code without enough evidence to call it Sony SDK.
+- **Unattributed** (`unclassified`): functions without an established owner.
+
+The proven SDK functions link as generated objects under `build/obj/sony_sdk/`,
+assembled from the user's extracted retail assembly. These are **retail-backed
+black boxes**, not copies of original Sony archive members or recovered C.
+No proprietary SDK objects or archives are committed.
+
+The SDK's decomp.dev **Linked Code** measure (`complete_code`) can therefore
+reach 100% while its C-matching percentage remains lower. That percentage covers
+the proven manifest, not an assertion that every Sony function has been found.
+Recovery queues, batch m2c promotion, and naming passes exclude SDK/vendor
+targets. Atlus wrappers such as `sdkTask.c`, `sdkOt.c`, and `sdkCdvd.c` stay
+in game scope: an `sdk` filename is not authorship evidence.
 
 ## How it works
 
@@ -80,10 +104,11 @@ to reproduce it:
 | RenderWare Graphics 3.7 (`src/renderware/`) | MWCCPS2 3.0.1 build 119 | `-O4,p -inline auto` | `config/compiler_units.txt`, `config/version_flags.txt` |
 | A few speed-tuned units | build 210 | `-O2,p` | `config/speed_units.txt` |
 | Five units of GCC-built code | ee-gcc 2.96 | `-O2 -G0` | `config/gcc_units.txt` |
+| Archive-proven Sony PS2 SDK | Retail-backed objects, not recompiled C | Fixed-address link | `config/sdk_symbol_provenance.txt` |
 
-The RenderWare block is being ported verbatim from the RenderWare 3.7.0.2
-source, compiled against the vendored headers in `include/rw/`; the
-`src/renderware/` layout mirrors the original tree.
+Existing RenderWare recoveries use the RenderWare 3.7.0.2 source and vendored
+headers in `include/rw/`; `src/renderware/` mirrors the original tree. They
+remain tracked separately; active source recovery targets Atlus code.
 
 ## Setup
 

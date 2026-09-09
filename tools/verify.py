@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import bisect
 import hashlib
+from functools import lru_cache
 import json
 import os
 from pathlib import Path
@@ -150,6 +151,52 @@ def is_vendor_address(address) -> bool:
         except ValueError:
             return False
     return any(low <= address < high for low, high in VENDOR_CODE_RANGES)
+
+
+SDK_PROVENANCE = REPO / "config" / "sdk_symbol_provenance.txt"
+SDK_RECORD_RE = re.compile(
+    r"(?P<name>[A-Za-z_]\w*) = 0x(?P<address>[0-9A-Fa-f]{8}); // "
+    r"archive:(?P<archive>[^:;]+):(?P<member>[^;]+); "
+    r"size:(?P<size>\d+); canonical_sha256:(?P<sha256>[0-9a-f]{64})"
+)
+
+
+@lru_cache(maxsize=1)
+def sony_sdk_provenance() -> dict[int, dict]:
+    """Archive-proven Sony symbols; names or sdk-prefixed game files are not proof."""
+    records = {}
+    for number, line in enumerate(SDK_PROVENANCE.read_text(encoding="utf-8").splitlines(), 1):
+        if not line.strip() or line.startswith("#"):
+            continue
+        match = SDK_RECORD_RE.fullmatch(line)
+        if match is None:
+            raise ValueError(f"{SDK_PROVENANCE}:{number}: invalid SDK provenance")
+        record = match.groupdict()
+        address = int(record.pop("address"), 16)
+        record["size"] = int(record["size"])
+        if address in records or record["size"] <= 0:
+            raise ValueError(f"{SDK_PROVENANCE}:{number}: duplicate address or invalid size")
+        records[address] = record
+    return records
+
+
+def code_origin(rel_file: str | None, address: int | str | None = None) -> str:
+    """Function-level attribution shared by recovery, linking and published reports.
+
+    Exact archive evidence wins over generic mixed-owner paths. Unproven vendor
+    functions remain third_party; neither compiler family nor sdk*.c naming
+    establishes Sony authorship. A source-less non-vendor stays unclassified.
+    """
+    if isinstance(address, str):
+        try:
+            address = int(address, 16)
+        except ValueError:
+            address = None
+    if address in sony_sdk_provenance():
+        return "sony_sdk"
+    if is_vendor_address(address) or (rel_file is not None and is_third_party(rel_file)):
+        return "third_party"
+    return "main" if rel_file is not None else "unclassified"
 
 
 def _die(message: str) -> None:
@@ -891,7 +938,7 @@ def main() -> None:
     for result in results: counts[result["status"]] = counts.get(result["status"], 0) + 1
     first_party = [
         r for r in results
-        if not is_third_party(r["file"]) and not is_vendor_address(r.get("addr"))
+        if code_origin(r["file"], r.get("addr")) == "main"
     ]
     fp_counts: dict[str, int] = {}
     for result in first_party: fp_counts[result["status"]] = fp_counts.get(result["status"], 0) + 1
@@ -908,6 +955,13 @@ def main() -> None:
     print(f"  {'MATCH':<18} {fp_match}{fp_pct}")
     for status in order[1:]:
         if fp_counts.get(status): print(f"  {status:<18} {fp_counts[status]}")
+    for origin, label in (("sony_sdk", "Sony PS2 SDK"), ("third_party", "other third-party")):
+        selected = [r for r in results if code_origin(r["file"], r.get("addr")) == origin]
+        print(f"{label} functions scanned: {len(selected)}")
+        for status in order:
+            count = sum(r["status"] == status for r in selected)
+            if count:
+                print(f"  {status:<18} {count}")
     # Relocation TARGETS are masked by the byte comparison, so a call to the
     # wrong function is invisible to `normalized_diff` -- it matches per-function
     # and then corrupts the linked image by exactly that one jal word. Where the
@@ -975,7 +1029,18 @@ def main() -> None:
             if "normalized_diff" in result: print(f"  obj {result['object_size']}B window {result['window']}B normalized_diff {result['normalized_diff']} first {result.get('first_diffs', [])}")
             if result.get("detail"): print(f"  {result['detail']}")
     if args.json:
-        Path(args.json).write_text(json.dumps(dict(summary=counts, summary_first_party=fp_counts, results=results), indent=1) + "\n", encoding="utf-8")
+        by_origin = {
+            origin: {
+                status: sum(r["status"] == status for r in results
+                            if code_origin(r["file"], r.get("addr")) == origin)
+                for status in counts
+            }
+            for origin in ("main", "sony_sdk", "third_party", "unclassified")
+        }
+        Path(args.json).write_text(json.dumps(dict(
+            summary=counts, summary_first_party=fp_counts,
+            summary_by_origin=by_origin, results=results,
+        ), indent=1) + "\n", encoding="utf-8")
         print(f"report: {args.json}")
     raise SystemExit(1 if bad else 0)
 

@@ -120,7 +120,7 @@ def census(report: dict, include_third_party: bool = False) -> dict:
 
     rows = [r for r in report["results"] if r.get("status") != "MATCH"]
     if not include_third_party:
-        rows = [r for r in rows if not verify.is_third_party(r["file"].replace("\\", "/"))]
+        rows = [r for r in rows if not (verify.code_origin(r["file"], r.get("addr")) != "main")]
 
     cache: dict[str, list[str]] = {}
     untried: list[dict] = []

@@ -141,7 +141,7 @@ def main():
             splits.append({'file': rel, 'knob': knob, 'line': info['line'],
                            'inside': info['in'], 'outside': info['out']})
         for addr, (line, active) in scopes_for(src).items():
-            if not active:
+            if not active or verify.code_origin(rel, addr) != "main":
                 continue
             st, _ = status.get(addr, ('UNSCANNED', ''))
             if st != 'ASM' and not show_all:

@@ -133,13 +133,13 @@ class RejectionClassTests(unittest.TestCase):
         self.assertEqual(accepted, [])
         self.assertEqual(counts["third_party"], 1)
 
-    def test_accepts_asm_owned_target_when_no_source_owner_exists(self) -> None:
-        """No owning source file means is_third_party never classifies it."""
+    def test_rejects_target_without_game_ownership_evidence(self) -> None:
+        """Unattributed assembly is not automatically game code."""
         accepted, counts = classify(
             [match(0x00100218, 0x00100218)], owners={}
         )
-        self.assertEqual(len(accepted), 1)
-        self.assertEqual(counts["third_party"], 0)
+        self.assertEqual(accepted, [])
+        self.assertEqual(counts["unclassified"], 1)
 
     def test_rejects_non_canonical_p4_address(self) -> None:
         accepted, counts = classify([match(0x00999999, 0x00100218)])
@@ -154,7 +154,10 @@ class RejectionClassTests(unittest.TestCase):
     def test_skips_duplicate_name_after_first_acceptance(self) -> None:
         """Two addresses sharing one symbol would break the link; emit only one."""
         second = match(0x00100570, 0x00100218)  # same P3 name, different P4 target
-        accepted, counts = classify([match(0x00100218, 0x00100218), second])
+        accepted, counts = classify(
+            [match(0x00100218, 0x00100218), second],
+            owners={0x00100218: "src/game.c", 0x00100570: "src/game.c"},
+        )
         self.assertEqual([entry["p4_address"] for entry in accepted], [0x00100218])
         self.assertEqual(counts["duplicate_name"], 1)
 

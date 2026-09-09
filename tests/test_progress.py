@@ -92,6 +92,35 @@ class ProgressTests(unittest.TestCase):
         self.assertEqual(metrics["linked"]["count"], 1)
         self.assertEqual(metrics["linked"]["asm_fallbacks_in_linked_objects"], 1)
 
+    def test_sdk_black_boxes_link_without_claiming_c_recovery(self) -> None:
+        windows = {0x00100008: 16, 0x004213c0: 16, 0x004213d0: 16}
+        report = {"results": [
+            {"addr": "00100008", "file": "src/game.c", "status": "MATCH", "object_size": 16},
+            {"addr": "004213c0", "file": "src/promoted/code1_0042.c", "status": "ASM"},
+            {"addr": "004213d0", "file": "src/promoted/code1_0042.c", "status": "MATCH", "object_size": 16},
+        ]}
+        linked = copy.deepcopy(LINKED_REPORT)
+        linked["function_total"] = linked["linked_function_count"] = 3
+        linked["linked_tu_count"] = 2
+        linked["linked_functions"].extend(
+            {"address": address, "name": "func_" + address, "file": "build/obj/sony_sdk/kernel.o"}
+            for address in ("004213c0", "004213d0")
+        )
+        linked = progress.validate_linked_report(linked, windows)
+        metrics, matching, linked_badge = progress.make_metrics(report, windows, linked, "verify.json", "build.json")
+        sdk = metrics["categories"]["sony_sdk"]
+        self.assertEqual(sdk["linked_percent"], 100.0)
+        self.assertEqual(sdk["linked_code_percent"], 100.0)
+        self.assertEqual(sdk["matching_percent"], 50.0)
+        self.assertEqual(metrics["linked"]["addresses"], ["00100008"])
+        self.assertEqual(metrics["linked"]["asm_fallbacks_in_linked_objects"], 0)
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            progress.write_endpoints(directory, metrics, matching, linked_badge)
+            progress.validate_endpoints(directory, windows)
+        without_build, _, _ = progress.make_metrics(report, windows, None, "verify.json", None)
+        self.assertEqual(without_build["categories"]["sony_sdk"]["linked_count"], 0)
+
     def test_validates_generated_endpoints_and_rejects_non_subset(self) -> None:
         report = {"results": [{"addr": "00100008", "status": "MATCH", "object_size": 8}]}
         linked = progress.validate_linked_report(copy.deepcopy(LINKED_REPORT), WINDOWS)

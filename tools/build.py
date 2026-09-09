@@ -80,6 +80,35 @@ SEGMENTS = [(name, kind, start - VRAM, end - VRAM)
             for name, kind, start, end in TARGET_SEGMENTS]
 BYTES_RE = re.compile(r"/\*\s*[0-9A-Fa-f]+\s+([0-9A-Fa-f]+)\s+[0-9A-Fa-f]{8}")
 
+def is_pure_sdk_source(cpath: Path) -> bool:
+    markers = [m for m in V.scan_markers(cpath) if m.get("name")]
+    if not markers:
+        return False
+    try:
+        rel = cpath.relative_to(REPO).as_posix()
+    except ValueError:
+        rel = cpath.name
+    return all(V.code_origin(rel, m["addr"]) == "sony_sdk" for m in markers)
+
+def get_glabel(blk: list[str]) -> str | None:
+    for line in blk:
+        m = re.match(r"\s*glabel\s+([A-Za-z0-9_]+)", line)
+        if m:
+            return m.group(1)
+    return None
+
+
+def make_sdk_aliases(addr: int, blk: list[str], prov_map: dict) -> list[str]:
+    existing_label = get_glabel(blk)
+    if existing_label is None:
+        raise ValueError(f"Sony SDK function {addr:08x} has no assembly entry label")
+    aliases = []
+    canonical = prov_map[addr]["name"]
+    func_name = f"func_{addr:08x}"
+    targets = {canonical, func_name} - {None, existing_label}
+    for target in sorted(targets):
+        aliases.append(f".globl {target}\n{target} = {existing_label}\n")
+    return aliases
 
 def cfg():
     c = {}
@@ -690,7 +719,8 @@ def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
     # construction, so the build does not depend on a second compiler.
     sources = sorted(p for p in (REPO / "src").rglob("*.c")
                      if (include_generated or not V.is_generated(p))
-                     and not V.is_gcc_unit(p))
+                     and not V.is_gcc_unit(p)
+                     and not is_pure_sdk_source(p))
     for cpath in sources:
         markers = V.scan_markers(cpath)
         real = [m for m in markers if m["name"]]
@@ -798,15 +828,86 @@ def split_blocks(text):
     return preamble, parsed
 
 
-def build_code_carved(c, name, lo, hi, cobjs, entries):
+def build_sony_sdk_objects(preamble, sdk_runs, entries, window_sizes):
+    sdk_dir = OBJ / "sony_sdk"
+    sdk_dir.mkdir(parents=True, exist_ok=True)
+    prov_map = V.sony_sdk_provenance()
+    retail = IMAGE.read_bytes() if sdk_runs else b""
+    sdk_objects = []
+    for run in sdk_runs:
+        first_addr = run[0][0]
+        last_win = window_sizes[run[-1][0]]
+        end_addr = run[-1][0] + last_win
+        members = {prov_map[a]["member"] for a, _ in run}
+        archives = {prov_map[a]["archive"] for a, _ in run}
+        if len(archives) == 1 and len(members) == 1:
+            arch = list(archives)[0].replace(".a", "")
+            mem = list(members)[0].replace(".o", "")
+            base_name = f"{arch}_{mem}"
+        else:
+            base_name = "sony_sdk"
+        sdk_obj_name = f"{base_name}_{first_addr:08x}.o"
+        sdk_obj_path = sdk_dir / sdk_obj_name
+        sdk_s_path = sdk_dir / f"{base_name}_{first_addr:08x}.s"
+        sdk_body = []
+        funcs_in_obj = []
+        for a, b_lines in run:
+            sdk_body.extend(b_lines)
+            sdk_body.extend(make_sdk_aliases(a, b_lines, prov_map))
+            funcs_in_obj.append({"addr": a, "name": prov_map[a]["name"], "origin": "sony_sdk"})
+        sdk_s_path.write_text("".join(preamble) + "".join(sdk_body))
+        ok, log, _lines = A.assemble(
+            sdk_s_path, sdk_obj_path, AS_TOOL, OBJCOPY_TOOL,
+            ref=retail, vram=first_addr, ref_lo=first_addr - VRAM,
+            keep_text=True
+        )
+        if not ok:
+            sys.stderr.write(log + "\n")
+            sys.exit(f"build: failed to assemble Sony SDK object {sdk_obj_name}")
+        patch_align1(sdk_obj_path, ".text")
+        entries.append((first_addr, sdk_obj_path, ".text"))
+        sdk_objects.append({
+            "obj": sdk_obj_path,
+            "src": sdk_obj_path.relative_to(REPO),
+            "funcs": funcs_in_obj,
+            "start": first_addr,
+            "end": end_addr,
+        })
+    return sdk_objects
+
+
+def build_code_carved(c, name, lo, hi, cobjs, entries, window_sizes):
     """Assemble the splat asm for a code region, split into chunk objects around
-    the C-owned ranges, and register each chunk + C object as a link entry."""
+    the C-owned ranges and Sony SDK ranges, and register each chunk + C/SDK object
+    as a link entry."""
     src = ASM / f"{name}.s"
     preamble, blocks = split_blocks(src.read_text())
     seg_lo, seg_hi = VRAM + lo, VRAM + hi
-    ranges = [(s, e, o) for o in cobjs for s, e in o["ranges"] if seg_lo <= s < seg_hi]
-    ranges.sort()
-    starts = [r[0] for r in ranges]
+
+    # Group consecutive Sony SDK blocks
+    sdk_runs = []
+    cur_run = []
+    for addr, blk in blocks:
+        if addr is not None and seg_lo <= addr < seg_hi and V.code_origin(None, addr) == "sony_sdk":
+            cur_run.append((addr, blk))
+        else:
+            if cur_run:
+                sdk_runs.append(cur_run)
+                cur_run = []
+    if cur_run:
+        sdk_runs.append(cur_run)
+
+    # Build and register Sony SDK objects
+    sdk_objects = build_sony_sdk_objects(preamble, sdk_runs, entries, window_sizes)
+
+    c_ranges = [(s, e, o) for o in cobjs for s, e in o["ranges"] if seg_lo <= s < seg_hi]
+    sdk_ranges = [(o["start"], o["end"], o) for o in sdk_objects]
+    for sdk_start, sdk_end, _ in sdk_ranges:
+        if any(start < sdk_end and sdk_start < end for start, end, _ in c_ranges):
+            raise ValueError(f"Sony SDK text at {sdk_start:08x} overlaps a linked C object")
+    all_carved = sorted(c_ranges + [(s, e, None) for s, e, _o in sdk_ranges])
+    starts = [r[0] for r in all_carved]
+
     import bisect
     chunks = {}  # chunk index -> list of block lines (order preserved)
     for _addr, blk in blocks:
@@ -817,7 +918,7 @@ def build_code_carved(c, name, lo, hi, cobjs, entries):
             match = BYTES_RE.search(ln)
             if match:
                 addr = int(match.group(1), 16)
-                carved = any(s <= addr < e for s, e, _ in ranges)
+                carved = any(s <= addr < e for s, e, _ in all_carved)
                 if carved:
                     pending.clear()
                 else:
@@ -859,7 +960,7 @@ def build_code_carved(c, name, lo, hi, cobjs, entries):
             sys.exit(f"build: failed to assemble {cpath.name}")
         patch_align1(obj, ".text")
         entries.append((first, obj, ".text"))
-
+    return sdk_objects
 
 def build_code_plain(c, name, lo, hi, entries):
     src = ASM / f"{name}.s"
@@ -1110,7 +1211,8 @@ def linked_function_records(cobjs, windows):
                 )
             by_address[address] = record
     return [
-        {"address": f"{address:08x}", "name": name, "file": source}
+        {"address": f"{address:08x}", "name": name, "file": source,
+         "origin": V.code_origin(source, address)}
         for address, (name, source) in sorted(by_address.items())
     ]
 
@@ -1126,7 +1228,7 @@ def write_progress_report(path, image_sha1, retail_sha1, function_total, cobjs, 
         "image_sha1": image_sha1,
         "retail_sha1": retail_sha1,
         "function_total": function_total,
-        "linked_tu_count": len(cobjs),
+        "linked_tu_count": len({row["file"] for row in linked_functions}) if linked_functions else len(cobjs),
         "linked_function_count": len(linked_functions),
         "linked_functions": linked_functions,
     }
@@ -1146,7 +1248,7 @@ def write_progress_report(path, image_sha1, retail_sha1, function_total, cobjs, 
             temp_path.unlink(missing_ok=True)
         raise
 
-def build_matching_elf(c, n_cobj):
+def build_matching_elf(c, n_cobj, n_sdk=0):
     linked = (BUILD / "slus21782.elf").read_bytes()
     retail, retail_load_header, image = retail_load(c)
     phoff = struct.unpack_from("<I", linked, 0x1C)[0]
@@ -1165,6 +1267,8 @@ def build_matching_elf(c, n_cobj):
         print("build: no loadable segment at target VRAM in linked output")
         return 1
     print(f"C objects linked from source: {n_cobj}")
+    if n_sdk:
+        print(f"Sony SDK objects linked: {n_sdk}")
     image_sha1 = hashlib.sha1(payload).hexdigest()
     img_ok = payload == image
     print(f"loadable image sha1: {image_sha1}  {'OK' if img_ok else 'MISMATCH'}")
@@ -1312,14 +1416,28 @@ def main():
             if any(s <= addr < e for s, e, _o in c_text_ranges):
                 defs[nm] = addr
 
+    all_sdk_objects = []
     for name, kind, lo, hi in SEGMENTS:
         if kind == "code":
-            if any(VRAM + lo <= s < VRAM + hi for s, _e, _o in c_text_ranges):
-                build_code_carved(c, name, lo, hi, cobjs, entries)
+            has_c = any(VRAM + lo <= s < VRAM + hi for s, _e, _o in c_text_ranges)
+            has_sdk = any(
+                V.code_origin(None, addr) == "sony_sdk"
+                for addr in (boundaries or [])
+                if VRAM + lo <= addr < VRAM + hi
+            )
+            if has_c or has_sdk:
+                sdk_objs = build_code_carved(c, name, lo, hi, cobjs, entries, window_sizes)
+                all_sdk_objects.extend(sdk_objs)
             else:
                 build_code_plain(c, name, lo, hi, entries)
         else:
             build_data_carved(name, lo, hi, data_carves, entries)
+
+    for sdk_obj in all_sdk_objects:
+        for func in sdk_obj["funcs"]:
+            addr = func["addr"]
+            symbol_addresses.setdefault(f"func_{addr:08x}", addr)
+            symbol_addresses.setdefault(func["name"], addr)
 
     unresolved = set()
     for o in cobjs:
@@ -1334,15 +1452,30 @@ def main():
     complete_missing_definitions(defs, unresolved, exported, symbol_addresses)
     write_lcf(entries, gp, defs)
     link(c, entries)
-    status = build_matching_elf(c, len(cobjs))
+    status = build_matching_elf(c, len(cobjs), len(all_sdk_objects))
     if status == 0 and args.progress_report is not None:
+        all_linked_functions = list(linked_functions)
+        seen_addresses = {int(r["address"], 16) for r in all_linked_functions}
+        for sdk_obj in all_sdk_objects:
+            sdk_file = sdk_obj["src"].as_posix()
+            for func in sdk_obj["funcs"]:
+                addr = func["addr"]
+                if addr not in seen_addresses:
+                    seen_addresses.add(addr)
+                    all_linked_functions.append({
+                        "address": f"{addr:08x}",
+                        "name": func["name"],
+                        "file": sdk_file,
+                        "origin": "sony_sdk",
+                    })
+        all_linked_functions.sort(key=lambda r: int(r["address"], 16))
         write_progress_report(
             args.progress_report,
             hashlib.sha1(IMAGE.read_bytes()).hexdigest(),
             hashlib.sha1((BUILD / ELF_TARGET["filename"]).read_bytes()).hexdigest(),
             len(boundaries),
             cobjs,
-            linked_functions,
+            all_linked_functions,
         )
     sys.exit(status)
 
