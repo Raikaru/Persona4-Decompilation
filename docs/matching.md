@@ -8016,3 +8016,39 @@ The full `make build-progress progress lint-errors` gate passes:
 validated progress artifacts, and zero lint findings across 338 first-party
 files. C linking remains **172 objects / 1,570 functions**; the loadable-image
 and retail-ELF hashes remain unchanged.
+
+## Fusion, initiative and nearest-action source-shape retry
+
+Fresh independent fusion and initiative proposals were compiled in their
+current owners; none was promoted. The published curve recovery above is
+unchanged, and its CI run `34293257000` passed.
+
+- `func_002f9c30`: scalar argument snapshots, a full-width initializer
+  argument aggregate and six exact-size halfword records all retain
+  **348/352 bytes / eight differing bytes in two instructions**, with
+  eleven relocations. Propagation, CSE and lifetime controls and level1 do
+  not reverse the initializer argument pair. The initializer remains
+  `void(u8 *, s32)`, not the earlier false narrow declaration.
+  Full provider/caller inspection also exposes the count precondition:
+  `(s16)count` selects the copy cases, while `(s8)count` controls the
+  fusion consumer. `0x101` skips every copy but reads one uninitialized
+  record; seven additionally exceeds the six-record array. The dynamic
+  caller's persona-validation helper does not impose a six-count limit.
+  No game-wide exclusion invariant, invented records or input repair is
+  claimed; the current source note records this boundary.
+- `func_001b1020`: counted-collection and phase-union proposals regress to
+  **420 bytes / nd297** and **436 bytes / nd323**. Reusing the collection
+  count as the sort bound reproduces the retained **408/416 bytes / nd23
+  in seventeen executable words**, with five relocations; reusing the
+  arithmetic scalars for one/bound gives **408 bytes / nd30**.
+  `U1b_001b1020_body.c` preserves the simpler source. The unsigned empty-list
+  underflow, full-width random adjustment, stable descending swaps and
+  per-pass global-base reload are unchanged.
+- `func_001d8cb0`: safe reject/advance guards and CSE-off tie the existing
+  **312/320 bytes / nd11 in four executable words**, with three calls.
+  Conditional, boolean-union, split-first and propagation-off forms regress.
+  `R1EE_001d8cb0_body.c` records the measurements. The first-entry guard
+  remains before the best-distance read; no undefined local was introduced
+  to reproduce retail's opposite comparison order.
+
+These are bounded source-shaping results, not compiler-impossibility claims.

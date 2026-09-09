@@ -16,6 +16,11 @@
  * Inline whole-sort, inline collection, explicit traversal/convergence CFG
  * and inline paired-swap transitions all reproduce the scalar body bytes.
  * None is retained. Helpers already have canonical u8/u32 contracts.
+ * Fresh source-shape retry: a counted score collection emits 420B/nd297;
+ * disjoint phase-union storage emits 436B/nd323. Reusing the collected count
+ * as the sort bound reproduces the scalar baseline exactly: 408B/nd23 in
+ * 17 executable words, five relocations. Reusing sample/adjusted scalars
+ * as one/bound instead emits 408B/nd30. Production remains unchanged.
  */
 extern u8 func_00232c70(u8 *, s32);
 extern u32 func_00231d70(u32);

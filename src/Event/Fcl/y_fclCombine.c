@@ -318,10 +318,15 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f0f00);
 // FUN_002F6CF0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f6cf0);
 
-/* measured: 348B / 352B window, with 4B zero alignment. Correcting the
-   initializer's full-width persona-ID contract reverses two argument-setup
-   instructions (8 differing bytes). Preserve the typed source; keep retail
-   ASM until its argument staging matches without a false narrow prototype. */
+/* Measured: 348B/352B, four zero-tail bytes. The full-width persona-ID
+   contract reverses two initializer argument-setup instructions (nd8).
+   Fresh scalar snapshots, full-width argument aggregates and six 24-halfword
+   record views all tie; propagation/CSE/lifetime-off and level1 also tie.
+   Keep the honest initializer contract and retail ASM.
+   Counts whose low signed halfword is outside 0..6 but whose low signed
+   byte is positive leave scratch uninitialized (e.g. 0x101); 7 also exceeds
+   six records. The dynamic caller's validation does not establish a bound
+   of six. No default records or unsupported-count repair was introduced. */
 // FUN_002F9C30 NONMATCHING
 #ifdef NON_MATCHING
 void func_002f9c30(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, u8 *arg6, s32 arg7, s8 arg8, s8 arg9) {
