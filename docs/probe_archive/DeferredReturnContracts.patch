@@ -1,0 +1,239 @@
+--- a/src/g_data/g_data.c
++++ b/src/g_data/g_data.c
+@@ -111,7 +111,7 @@
+ 
+ extern void func_0043f810(void* arg0, void* arg1, u32 arg2);
+ 
+-extern u8 func_00231e20(void* arg0);
++extern s32 func_00231e20(u8* arg0);
+ extern u32 func_00231ed0(void* arg0);
+ extern u32 func_00231ee0(void* arg0);
+ struct DatUnit;
+@@ -308,15 +308,15 @@
+ }
+ 
+ // FUN_00104C70
+-void func_00104c70(s16 arg0)
+-{
+-    if (arg0 == 1)
+-    {
+-        func_00231e20(D_007973C4);
+-    }
+-    else
+-    {
+-        func_00231e20((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
++s32 func_00104c70(s16 arg0)
++{
++    if (arg0 == 1)
++    {
++        return func_00231e20(D_007973C4);
++    }
++    else
++    {
++        return func_00231e20((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+     }
+ }
+ 
+--- a/src/Battle/btlResultHeroLvUp.c
++++ b/src/Battle/btlResultHeroLvUp.c
+@@ -41,7 +41,7 @@
+ s32 func_00353f50(s32 param);
+ void func_00442088(void* dst, void* fmt, s32 value);
+ u8* func_00455ea0(u8* param, s32 a, s32* b);
+-s32 func_00104c70(s32 param);
++s32 func_00104c70(s16 param);
+ extern u16 D_008C024C[];
+ extern u16 D_008C024E[];
+ extern char iGpffffa5C8;
+--- a/src/Kosaka/k_command.c
++++ b/src/Kosaka/k_command.c
+@@ -3,7 +3,7 @@
+ 
+ extern s32 func_0029cc00(s32 index);
+ extern void func_0026bc10(u16 resourceId, u8 value);
+-extern u8 func_00104c70(s16 value);
++extern s32 func_00104c70(s16 value);
+ extern void func_0029cf50(s32 value);
+ 
+ 
+@@ -27,7 +27,7 @@
+ // FUN_00299FD0
+ u32 func_00299fd0(void)
+ {
+-    func_0029cf50(func_00104c70(func_0029cc00(0)));
++    func_0029cf50((u8)func_00104c70(func_0029cc00(0)));
+ 
+     return 1;
+ }
+--- a/src/promoted/cmmScript.c
++++ b/src/promoted/cmmScript.c
+@@ -139,7 +139,7 @@
+ extern u8* func_00285af0(void);
+ extern void func_001104d0(s32 arg0, void* arg1, void* arg2);
+ extern u8* func_00246e10(u16 arg0);
+-extern s32 func_00104c70(s32 arg0);
++extern s32 func_00104c70(s16 arg0);
+ extern s32 func_00247900(s32 arg0, s32 arg1, s32 arg2);
+ extern s32 func_00451fc0(void* arg0, const void* arg1, s32 arg2, s32 arg3, s32 arg4, s32 (*arg5)(void), void (*arg6)(void), void* arg7);
+ extern void func_0044ea90(const void* arg0, s32 arg1);
+--- a/src/promoted/code1_0014.c
++++ b/src/promoted/code1_0014.c
+@@ -94,7 +94,7 @@
+ extern void func_004b1150(s32 arg0);
+ extern s32 func_004782b0(s32 arg0);
+ extern void func_004787e0(s32 arg0);
+-extern s32 func_00104c70(s32 arg0);
++extern s32 func_00104c70(s16 arg0);
+ extern u8 D_007EF9B0[];
+ extern void func_003c38b0(void *arg0, void *arg1);
+ extern void func_003e8110(void *arg0);
+@@ -162,7 +162,7 @@
+ extern s32 D_007642E4;
+ extern u8 D_005EFB10[];
+ extern void func_00148280(void);
+-extern void func_0017ccc0(u8 *arg0);
++extern s32 func_0017ccc0(u8 *arg0);
+ extern u8 *func_00451fc0(u8 *a, const void *b, s32 c, s32 d, s32 e, void *f, void *g, void *h);
+ 
+ static inline u8 *p4_e740_add(s32 offset, u8 *base) {
+--- a/src/promoted/code1_0038.c
++++ b/src/promoted/code1_0038.c
+@@ -171,7 +171,7 @@
+ s32 func_00380bd0(u8 **arg0)
+ {
+     extern u8 func_00109bf0(u8 *arg0, s32 arg1);
+-    extern void func_00104c70(s16 arg0);
++    extern s32 func_00104c70(s16 arg0);
+     extern s32 func_00106330(s32 arg0);
+     extern s32 func_003b7060(void);
+     extern u8 D_0064E760[];
+--- a/src/promoted/code1_0022.c
++++ b/src/promoted/code1_0022.c
+@@ -57,6 +57,7 @@
+ extern u32 datCalcClearBadStatus(s32 unit, u32 mask);
+ extern void func_0019d040(u8 *unit);
+ extern u32 func_00106330(s32 bit);
++extern s32 func_00104c70(s16 arg0);
+ extern void func_001bdeb0();
+ 
+ u8 *func_00452380(s8 *name);
+--- a/src/promoted/code1_0017.c
++++ b/src/promoted/code1_0017.c
+@@ -80,7 +80,7 @@
+                     s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9);
+ extern s32 func_0017cd60(u8 *arg0);
+ extern void func_0044ea90(const void *msg, s32 id);
+-extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c, void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
++extern void *func_00451fc0(void *window, const void *data, s32 a, s32 b, s32 c, s32 init, s32 close, s32 buf);
+ extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
+ extern f32 func_0044b7b0(f32 arg0);
+ extern f32 func_0044b610(f32 arg0);
+@@ -1716,7 +1716,7 @@
+     if (buf == NULL) {
+         return 0;
+     }
+-    return func_00451fc0(arg0, D_005F1910, 8, 0, 0, (void (*)(u8 *))func_0017c930, func_0017cc90, buf);
++    return (s32)func_00451fc0(arg0, D_005F1910, 8, 0, 0, (s32)func_0017c930, (s32)func_0017cc90, (s32)buf);
+ }
+ 
+ 
+@@ -1727,10 +1727,10 @@
+ {
+ }
+ // FUN_0017D070
+-void func_0017d070(u8 *arg0)
++void *func_0017d070(u8 *arg0)
+ {
+     func_0043f9c8(D_007F1740, 0, 0x20);
+-    func_00451fc0(arg0, D_005F1950, 0x12, 0, 0, (void (*)(u8 *))func_0017cd60, func_0017d060, D_007F1740);
++    return func_00451fc0(arg0, D_005F1950, 0x12, 0, 0, (s32)func_0017cd60, (s32)func_0017d060, (s32)D_007F1740);
+ }
+ // FUN_0017D0F0
+ void func_0017d0f0(u8 *arg0, s32 arg1)
+--- a/src/Kosaka/k_testMenu.c
++++ b/src/Kosaka/k_testMenu.c
+@@ -32,7 +32,7 @@
+ extern s32 func_001838d0(f32 f0, u8 *arg0, s32 arg1, f32 f1, f32 f2, f32 f3,
+                           s32 arg2, s32 arg3, s32 arg4);
+ extern s32 func_00186640(u8 *arg0);
+-extern s32 func_0017d070(u8 *arg0);
++extern void *func_0017d070(u8 *arg0);
+ extern s32 func_001924d0(s32 arg0);
+ extern s32 func_00191610(s32 arg0);
+ extern s32 func_00191bc0(s32 arg0);
+@@ -81,7 +81,7 @@
+                 *(s32 *)(p + 8) = func_00186640(arg0);
+                 break;
+             case 5:
+-                *(s32 *)(p + 8) = func_0017d070(arg0);
++                *(s32 *)(p + 8) = (s32)func_0017d070(arg0);
+                 break;
+             case 6:
+                 *(s32 *)(p + 8) = func_001924d0(0);
+--- a/src/promoted/k_fldUnit.c
++++ b/src/promoted/k_fldUnit.c
+@@ -58,7 +58,7 @@
+ extern s32 func_0016fd00(s32 arg0);
+ extern s32 func_0017e890(s32 arg0, u8 *arg1, u8 *arg2);
+ extern void func_0017e990(s32 arg0);
+-extern s32 func_0017d070(s32 arg0);
++extern void *func_0017d070(u8 *arg0);
+ extern void func_00168c00(s32 arg0);
+ extern f32 func_003e4180(f32 *arg0);
+ extern s32 func_00161630(u16 arg0, u16 arg1, u16 arg2, s32 arg3);
+@@ -72,7 +72,7 @@
+ extern u8 *func_00231580(u16 arg0);
+ extern u8 *func_00162680(s32 arg0, s32 arg1, s32 arg2);
+ extern s32 func_00109400(s32 arg0);
+-extern s32 func_00104c70(s32 arg0);
++extern s32 func_00104c70(s16 arg0);
+ extern s32 func_00105ee0(s32 arg0);
+ extern s32 func_00155280(void);
+ extern void func_0014a0f0(u16 arg0, s32 arg1);
+--- a/src/Kosaka/k_encount.c
++++ b/src/Kosaka/k_encount.c
+@@ -7,13 +7,14 @@
+  *   iGpffffb41c (gp-0x4BE4 = 0x0076450C) -- pointer to the 10-byte encounter
+  *       table entries (u16 id at +0, u8 flags/rates at +2/+3/+4, u16 at +6)
+  *   iGpffffb418 (gp-0x4BE8 = 0x00764508) -- pointer to the 0xF8-stride
+- *       per-encounter sub-table (two 0x78 halves, selected by the bool flag)
++ *       per-encounter sub-table: 8-byte header, then two 30-entry banks
++ *       of four-byte records (0x78 bytes per bank, whole stride 0xF8)
+  *   iGpffffb424 (gp-0x4BDC = 0x00764514) -- pointer to the 0x15C-stride
+  *       encounter-record table used by func_00161c80
+  */
+ 
+-extern s32 func_0014a230();
+-extern s32 func_0014a2a0();
++extern s32 func_0014a230(s32 arg0, s32 arg1);
++extern s32 func_0014a2a0(s32 arg0, s32 arg1);
+ extern s32 func_0015a740();
+ extern s64 func_001060b0();
+ extern s32 func_001060c0();
+@@ -51,7 +52,7 @@
+     u8 *base;
+ 
+     result = 0;
+-    if ((func_0014a230() == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
++    if ((func_0014a230(arg0, arg1) == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
+         base = iGpffffb41c;
+         result = *(u8 *)((u8 *)encSlot((arg2 & 0xFFFF) * 10, (u32)base) + 2);
+     }
+@@ -69,7 +70,7 @@
+     u8 *base;
+ 
+     result = 0;
+-    if ((func_0014a230() == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
++    if ((func_0014a230(arg0, arg1) == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
+         base = iGpffffb41c;
+         result = *(u8 *)((u8 *)encSlot((arg2 & 0xFFFF) * 10, (u32)base) + 4);
+     }
+@@ -89,7 +90,7 @@
+     u8 *base;
+ 
+     result = 0;
+-    if ((func_0014a230() == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
++    if ((func_0014a230(arg0, arg1) == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
+         base = iGpffffb41c;
+         idx = arg2 & 0xFFFF;
+         result = *(u8 *)((u8 *)encSlot(idx * 10, (u32)base) + 3);
