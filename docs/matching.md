@@ -8746,3 +8746,67 @@ SHA-1 hashes matched, all 12,720 functions scanned, and zero findings
 across 339 first-party files. Totals are **7,797 MATCH / 4,923 ASM**
 overall and **6,167 MATCH / 693 ASM** first-party (89.9%). The overall
 all-matching objective remains incomplete.
+
+## Fresh-target continuation: field transform and panel selection
+
+Two independent complete reconstructions are now **MATCH**:
+
+| Function | Owner | Executable / retail bytes | Resolved relocations | Zero alignment bytes |
+| --- | --- | ---: | ---: | ---: |
+| `func_0017c270` | `src/promoted/code1_0017.c` | 1016 / 1024 | 29 | 8 |
+| `func_0020a640` | `src/promoted/code1_0020.c` | 1064 / 1072 | 35 | 8 |
+
+Every relocation and alignment byte was independently resolved/compared;
+both complete retail windows match. The field updater closed on its first
+complete candidate using the existing vector/color types, distinct
+tolerance arrays, explicit zero-add MAC association, and the retail
+snapshot/reload boundaries. Its clear/replacement colors are the next
+words after the neighboring updater's constants, not interchangeable
+addresses.
+
+The panel dispatcher initially had 129 differing bytes. Correct
+confirmation-branch ordering reduced that to 24. Stats-pointer projection
+alone and integer task loads tied; separate stats/task snapshots closed
+the three argument-load pairs. `func_0010b510` retains its actual `s32`
+return contract, with an explicit caller-side `s16` projection.
+
+`func_00202e70` reads the selection object through incoming `$a0`.
+`include/btl_panel_internal.h` now declares that parameter; all three
+existing compiled callers pass it explicitly and the contradictory
+zero-argument declarations are removed. The existing panel release
+caller also uses the persona provider's pointer input contract.
+
+The view-control functions `func_00213c70` and `func_00213ca0` now take
+and forward the view task to `func_00452560(view)`, which reads work at
+task offset `0x38`. Their inputs are not unused. Both retain their
+44/48-byte retail bodies. All 108 existing owner-21 instruction bodies
+are unchanged; one 40-byte switch table was renamed, with identical
+contents and all ten relocation targets/addends preserved.
+
+Runtime proof uses actual integrated source:
+
+- **229,376 panel Wasm32 cases** compare return statuses, full guarded
+  fixtures, and ordered provider arguments/packets against an independent
+  transition model. Coverage includes every low-halfword command value
+  and focused commands across 64 callback-mutation modes. Actual timing
+  and view-control bodies and the task work-accessor expression are
+  exercised; remaining providers are opaque mutation boundaries.
+- **Eleven guarded field scenarios plus 1,024 model-flag cases** cover
+  both bases/aspect branches, count exits, clipping, translation,
+  begin-update failure, late frame/data/model changes, RGBA preservation,
+  all byte values in the five stride-12 flag entries, and model flag `4`.
+  Geometry/model APIs are deterministic boundaries, not a PS2 rendering
+  implementation.
+- Both smokes pass normally and with undefined-behavior,
+  float-cast-overflow and float-divide-by-zero sanitizer traps.
+
+Complete source and measured evidence are preserved in
+`docs/probe_archive/FreshFieldTransform_0017c270_body.c` and
+`docs/probe_archive/FreshPanelSelection_0020a640_body.c`.
+Temporary compiler probes and runtime smoke fixtures were removed.
+
+The final `make all lint-errors` passed: 172 source objects linked,
+both retail SHA-1 hashes matched, all 12,720 functions scanned, and zero
+findings across 339 first-party files. Totals are **7,799 MATCH / 4,921 ASM**
+overall and **6,169 MATCH / 691 ASM** first-party (89.9%). The overall
+all-matching objective remains incomplete.
