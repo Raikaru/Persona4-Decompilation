@@ -156,7 +156,7 @@ extern void func_004b1170(s32 arg0);
 extern s32 func_004b11b0(s32 arg0);
 extern void func_004b1250(s32 arg0, u8 *arg1);
 extern s32 func_001684a0(s32 arg0, s32 arg1, s32 arg2, f32 fparg0);
-extern s32 func_0017b510(s32 arg0, s32 arg1, s32 arg2);
+extern void *func_0017b510(u8 *parent, s32 id, s32 mode);
 extern void func_004b13d0(s32 arg0, f32 arg1);
 
 extern s32 D_007642E4;
@@ -1135,7 +1135,7 @@ s32 func_00145540(u16 arg0, s32 arg1, s32 arg2) {
     func_003e05d0(func_0047a2f0(*(s32 *)(temp_2 + 0x164)));
     temp_2_2 = func_001684a0(0, temp_16 & 0xFFFF, 0, 60.0f);
     *(s32 *)(temp_2 + 0x220) = temp_2_2;
-    *(s32 *)(temp_2 + 0x224) = func_0017b510(temp_2_2, temp_16, arg1);
+    *(void **)(temp_2 + 0x224) = func_0017b510((u8 *)temp_2_2, temp_16, arg1);
     return temp_16;
 }
 // FUN_00145690
@@ -1209,7 +1209,7 @@ s32 func_00145780(u16 arg0, s32 arg1, s32 arg2) {
     *(s32 *)(temp_2 + 0x164) = arg2;
     temp_2_2 = func_001684a0(0, temp_17 & 0xFFFF, 0, 60.0f);
     *(s32 *)(temp_2 + 0x228) = temp_2_2;
-    *(s32 *)(temp_2 + 0x230) = func_0017b510(temp_2_2, temp_17, arg1);
+    *(void **)(temp_2 + 0x230) = func_0017b510((u8 *)temp_2_2, temp_17, arg1);
     return temp_17;
 }
 // FUN_001459B0
