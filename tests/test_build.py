@@ -324,5 +324,22 @@ class CompileCacheIntegrationTests(unittest.TestCase):
             self.assertEqual(output.read_bytes(), b"linked-object")
 
 
+class SonySdkLinkingTests(unittest.TestCase):
+    """Sony SDK code is linked as retail-backed black-box objects."""
+
+    def test_pure_sdk_source_exclusion(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            cpath = Path(temporary) / "pure_sdk.c"
+            cpath.write_text("// FUN_004213c0\nvoid RFU000_FullReset(void) {}\n")
+            self.assertTrue(build.is_pure_sdk_source(cpath))
+
+            mixed_path = Path(temporary) / "mixed.c"
+            mixed_path.write_text(
+                "// FUN_004213c0\nvoid RFU000_FullReset(void) {}\n"
+                "// FUN_001014b0\nvoid game_func(void) {}\n"
+            )
+            self.assertFalse(build.is_pure_sdk_source(mixed_path))
+
+
 if __name__ == "__main__":
     unittest.main()

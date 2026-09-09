@@ -172,30 +172,16 @@ def build_canonical_units(windows: dict, covered: set[int]) -> list[dict]:
 # because it occupies retail windows, so it is reported separately from the
 # first-party code the project actually cares about.
 #
-# A function with no source file yet cannot be attributed to either, and
-# guessing corrupts BOTH published numbers: folding ~11,000 unattributed
-# functions into "main" inflates the first-party denominator with untouched
-# middleware, while "third_party" then contains only the middleware we happen
-# to have finished and reads 100% complete. Address-range clustering and the
-# P3 cross-reference were both measured as classifiers and neither covers the
-# bulk (the densest middleware run is only 15% attributed; P3 evidence adds
-# 144 of ~12,000), so unattributed functions get their own category and the
-# other two stay meaningful.
+# Attribution is function-level: promoted translation units can contain both
+# game and vendor functions. Archive-proven Sony SDK code has its own bucket;
+# unresolved vendor authorship is not silently relabelled Sony.
 PROGRESS_CATEGORIES = [
-    {"id": "main", "name": "First-party code"},
-    {"id": "third_party", "name": "Third-party middleware"},
+    {"id": "main", "name": "Atlus game and engine"},
+    {"id": "sony_sdk", "name": "Sony PS2 SDK (black-box linkage)"},
+    {"id": "third_party", "name": "Other third-party and vendor code"},
     {"id": "unclassified", "name": "Not yet attributed to a source file"},
-    # Cross-cutting, so a unit carries it IN ADDITION to one of the three
-    # above. A function is "linked" when it lives in a translation unit the
-    # byte-exact build actually links into SLUS_217.82, which is a strictly
-    # stronger claim than a verifier MATCH: MATCH says the function compiles to
-    # retail's bytes in isolation, linked says those bytes are in the shipped
-    # image at retail's address. The two differ by design, because a linked TU
-    # still splices INCLUDE_ASM for its unfinished functions -- 1863 functions
-    # are linked while 1406 of them are compiled C -- so `complete_units` under
-    # this category is the honest "fully linked perfect match" figure and
-    # `complete_code_percent` is the fraction of linked code that is real C
-    # rather than spliced assembly.
+    # Cross-cutting linkage evidence, separate from C-source matching.
+    # SDK retail objects can be fully linked without contributing a C MATCH.
     {"id": "linked", "name": "Linked into the byte-exact image"},
 ]
 
@@ -212,7 +198,7 @@ def linked_addresses(path: str | None) -> frozenset[int]:
     linked function including the assembly fallbacks a linked object still
     splices. That file is a BUILD ARTIFACT and is absent in a fresh checkout, so
     it falls back to the committed ``progress/metrics.json`` endpoint, whose
-    ``linked.addresses`` holds the linked functions that are also byte-exact C.
+    origin categories preserve both linked C and black-box linkage evidence.
 
     The fallback matters because CI regenerates objdiff.json from scratch before
     the report step, in a job that has never run the linker. Without it the
@@ -232,33 +218,23 @@ def linked_addresses(path: str | None) -> frozenset[int]:
         if key == "linked_functions":
             rows = [row.get("address") for row in report.get("linked_functions", [])]
         else:
-            rows = report.get("linked", {}).get("addresses", [])
+            rows = [address for category in report["categories"].values()
+                    for address in category["linked_addresses"]]
         out = set()
         for address in rows:
             if not isinstance(address, str) or not re.fullmatch(r"[0-9a-f]{8}", address):
                 sys.exit(f"gen_objdiff: {file}: bad linked address {address!r}")
             out.add(int(address, 16))
-        if out:
-            return frozenset(out)
+        return frozenset(out)
     return frozenset()
 
 
-def progress_category(file_rel: str | None, tu_name: str | None = None) -> str:
-    """Category id for a unit.
-
-    A unit with a source file is classified by that file. A source-less unit can
-    still be classified when the compiler left its ``__FILE__`` assert string in
-    the image: that string names the original translation unit, and the name is
-    resolvable to a side when the file exists in this tree or in the P3 FES
-    tree, or when the recorded path escapes the repository (an SDK/middleware
-    header included from outside the game's own sources).
-
-    A name we cannot resolve stays unclassified. Guessing from the look of a
-    name would put its functions in a bucket on no evidence, which is the
-    failure this category exists to prevent.
-    """
-    if file_rel is not None:
-        return "third_party" if _verify().is_third_party(file_rel) else "main"
+def progress_category(file_rel: str | None, tu_name: str | None = None,
+                      address: int | str | None = None) -> str:
+    """Use proven function origin before file/TU attribution in mixed units."""
+    origin = _verify().code_origin(file_rel, address)
+    if origin != "unclassified":
+        return origin
     resolved = resolve_tu_name(tu_name)
     if resolved is None:
         return "unclassified"
@@ -719,7 +695,7 @@ def main() -> None:
         address = unit["addr"]
         if isinstance(address, str):
             address = int(address, 16)
-        categories = [progress_category(unit["file"], tu_names.get(address))]
+        categories = [progress_category(unit["file"], tu_names.get(address), address)]
         if address in linked:
             categories.append("linked")
         unit["metadata"]["progress_categories"] = categories

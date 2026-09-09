@@ -24,23 +24,13 @@ strictly better evidence than a pairwise object diff, so this tool consumes it
 and writes the report itself. `objdiff.json` remains for interactive diffing in
 the objdiff GUI; it is no longer on the publishing path.
 
-Grouping: one report unit per SOURCE FILE, which is the natural translation-unit
-grouping and mirrors how other decomp.dev projects report. A unit is `complete`
-when every function it owns is byte-exact.
+Grouping: source-file units are split by function origin where an owner mixes
+game code, Sony SDK and other vendor code. Attribution categories are `main`,
+`sony_sdk`, `third_party` and `unclassified`; `linked` is additive.
 
-Measures, all computed the same way at top level and per category:
-
-  matched_/complete_*  byte-exact functions and their code size. This project
-                       counts a function only when it is byte-identical, so the
-                       matched and complete figures are deliberately equal.
-  fuzzy_match_percent  size-weighted similarity, crediting each function by the
-                       fraction of its window that is byte-identical. A function
-                       with no compiled C body scores zero rather than being
-                       excluded, so the denominator stays the whole program.
-
-Categories are `main`, `third_party` and `unclassified` (mutually exclusive
-attribution, from tools/gen_objdiff.py so the two configs cannot drift) plus the
-additive `linked` category for functions the byte-exact build actually ships.
+`matched_*` measures compiled C matching retail. `complete_*` measures proven
+linkage. A retail-backed SDK object can be 100% linked and 0% C-matched; it
+never contributes invented decompilation progress.
 
     python tools/gen_decomp_report.py --report build/verify_report.json \
         --output build/report.json
@@ -171,33 +161,30 @@ def build_report(report_path: Path, linked_report: str | None) -> dict:
             "_tu": tu,
         })
 
-    by_file: dict[str, list[dict]] = defaultdict(list)
+    by_file: dict[tuple[str, str], list[dict]] = defaultdict(list)
+    file_categories: dict[str, set[str]] = defaultdict(set)
     for row in results:
-        by_file[Path(row["file"]).as_posix()].append(row)
+        file_rel = row["file"].replace("\\", "/")
+        category = gen_objdiff.progress_category(
+            None if file_rel.startswith("(unattributed)/") else file_rel,
+            row.get("_tu"), _address(row),
+        )
+        by_file[file_rel, category].append(row)
+        file_categories[file_rel].add(category)
 
     units, per_category = [], defaultdict(list)
-    for file_rel in sorted(by_file):
-        rows = sorted(by_file[file_rel], key=lambda r: r.get("line") or 0)
-        # Synthetic remainder rows carry no real path, so they are classified
-        # from the recovered translation-unit name exactly as gen_objdiff does.
-        if file_rel.startswith("(unattributed)/"):
-            category = gen_objdiff.progress_category(None, rows[0].get("_tu"))
-        else:
-            category = gen_objdiff.progress_category(file_rel)
-        # `complete` is decomp.dev's LINKED flag, not a byte-exactness flag. The
-        # linker places whole translation units, so a unit is complete when the
-        # build ships it; individual rows are tagged so per-category and per-unit
-        # complete_code sum only the functions actually in the image.
+    for (file_rel, category), rows in sorted(by_file.items()):
+        rows = sorted(rows, key=lambda r: r.get("line") or 0)
         for row in rows:
             row["_linked"] = _address(row) in linked
-        complete = any(row["_linked"] for row in rows)
+        complete = all(row["_linked"] for row in rows)
         categories = [category]
-        if complete:
+        if any(row["_linked"] for row in rows):
             categories.append("linked")
-        for cat in categories:
-            per_category[cat].extend(rows)
+            per_category["linked"].extend(row for row in rows if row["_linked"])
+        per_category[category].extend(rows)
         units.append({
-            "name": unit_name(file_rel),
+            "name": unit_name(file_rel) + (f":{category}" if len(file_categories[file_rel]) > 1 else ""),
             "measures": measures(rows, 1, 1 if complete else 0),
             "sections": [],
             "functions": [{
@@ -267,9 +254,9 @@ def main() -> int:
     for cat in report["categories"]:
         m = cat["measures"]
         if m.get("total_functions"):
-            print("  %-13s %5s/%-5s functions, fuzzy %6.2f%%"
+            print("  %-13s %5s/%-5s C-matched functions, fuzzy %6.2f%%, linked code %6.2f%%"
                   % (cat["id"], m["matched_functions"], m["total_functions"],
-                     m["fuzzy_match_percent"]))
+                     m["fuzzy_match_percent"], m["complete_code_percent"]))
     return 0
 
 

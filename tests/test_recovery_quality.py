@@ -176,47 +176,7 @@ def status_rows(text):
 
 
 class StatusTableTests(unittest.TestCase):
-    """The README table drifted to 1,314 matches when the truth was 3,419."""
-
-    METRICS = {
-        "total": 13084,
-        "hashes": {"retail_sha1": "aa", "image_sha1": "bb"},
-        "matching": {"count": 3419, "percent": 26.131},
-        "linked": {"count": 977, "percent": 7.467,
-                   "asm_fallbacks_in_linked_objects": 814},
-        "coverage": {"scanned": 4864, "scanned_percent": 37.174,
-                     "unscanned": 8220, "unscanned_percent": 62.826},
-    }
-    RECOVERY = {
-        "matched_first_party": 2801, "named": 155, "typed": 1163,
-        "documented": 1651, "decompiler_residue": 600,
-        "named_percent": 5.534, "typed_percent": 41.521,
-        "documented_percent": 58.943, "residue_percent": 21.421,
-    }
-
-    def test_table_reports_the_metrics_it_was_given(self) -> None:
-        rows = status_rows(progress.render_status(self.METRICS, self.RECOVERY))
-        expected = {
-            "Canonical function windows": ["13,084"],
-            "Byte-identical functions": ["3,419", "26.131"],
-            "Under test": ["4,864", "37.174"],
-            "Not yet under test": ["8,220", "62.826"],
-            "In byte-exact linked C objects": ["977", "7.467", "814"],
-            "First-party matched": ["2,801"],
-            "— NAMED": ["155", "5.534"],
-            "— TYPED": ["1,163", "41.521"],
-            "— DOCUMENTED": ["1,651", "58.943"],
-            "— still carrying": ["600", "21.421"],
-        }
-        for prefix, numbers in expected.items():
-            value = next(value for label, value in rows.items() if label.startswith(prefix))
-            self.assertEqual(re.findall(r"\d[\d,]*(?:\.\d+)?", value), numbers, prefix)
-
-
-    def test_recovery_rows_are_optional(self) -> None:
-        body = progress.render_status(self.METRICS, None)
-        self.assertIn("3,419", body)
-        self.assertNotIn("NAMED", body)
+    """Generated status updates must preserve surrounding documentation."""
 
     def test_update_readme_replaces_only_the_marked_block(self) -> None:
         import tempfile

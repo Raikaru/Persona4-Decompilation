@@ -16,6 +16,7 @@ here pins one of them:
 
 import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -91,6 +92,34 @@ class MeasureTests(unittest.TestCase):
             self.assertNotIn(measure, m)
 
 
+class MixedOriginReportTests(unittest.TestCase):
+    def test_sdk_linkage_is_separate_from_game_matching_in_a_mixed_file(self) -> None:
+        source = "src/promoted/code1_0042.c"
+        rows = [
+            {"addr": "001014b0", "file": source, "name": "game", "status": "MATCH", "window": 16},
+            {"addr": "004213c0", "file": source, "name": "sdk", "status": "ASM", "window": 16},
+            {"addr": "004214c0", "file": source, "name": "vendor", "status": "ASM", "window": 16},
+        ]
+        with tempfile.TemporaryDirectory() as temporary:
+            report_path = Path(temporary) / "verify.json"
+            linked_path = Path(temporary) / "linked.json"
+            report_path.write_text(json.dumps({"results": rows}))
+            linked_path.write_text(json.dumps({
+                "build_succeeded": True,
+                "linked_functions": [{"address": f"{a:08x}"} for a in V.sony_sdk_provenance()],
+            }))
+            report = gen.build_report(report_path, str(linked_path))
+        mixed = {u["metadata"]["progress_categories"][0]: u for u in report["units"]
+                 if u["metadata"]["source_path"] == source}
+        self.assertEqual(set(mixed), {"main", "sony_sdk", "third_party"})
+        self.assertTrue(mixed["sony_sdk"]["metadata"]["complete"])
+        self.assertFalse(mixed["main"]["metadata"]["complete"])
+        categories = {c["id"]: c["measures"] for c in report["categories"]}
+        self.assertEqual(categories["sony_sdk"]["complete_code_percent"], 100.0)
+        self.assertEqual(categories["sony_sdk"]["matched_code_percent"], 0.0)
+        self.assertEqual(mixed["main"]["measures"]["matched_code_percent"], 100.0)
+
+
 class ReportShapeTests(unittest.TestCase):
     """Built from whichever real verifier report is on disk, so the invariants
     hold against the actual tree rather than a fixture that can drift."""
@@ -122,13 +151,14 @@ class ReportShapeTests(unittest.TestCase):
 
 
     def test_attribution_categories_partition_the_program(self) -> None:
-        """main, third_party and unclassified are mutually exclusive and cover
+        """main, sony_sdk, third_party and unclassified are mutually exclusive and cover
         everything; `linked` is additive and deliberately overlaps them."""
         counts = {c["id"]: c["measures"].get("total_functions", 0)
                   for c in self.report["categories"]}
-        self.assertEqual(counts["main"] + counts["third_party"] + counts["unclassified"],
+        origins = ("main", "sony_sdk", "third_party", "unclassified")
+        self.assertEqual(sum(counts[c] for c in origins),
                          self.report["measures"]["total_functions"])
-        totals = dict.fromkeys(("main", "third_party", "unclassified"), 0)
+        totals = dict.fromkeys(origins, 0)
         for unit in self.report["units"]:
             attribution = [c for c in unit["metadata"]["progress_categories"] if c in totals]
             self.assertEqual(len(attribution), 1, unit["name"])
@@ -146,7 +176,8 @@ class ReportShapeTests(unittest.TestCase):
         for unit in self.report["units"]:
             complete = unit["metadata"]["complete"]
             linked_code = int(unit["measures"].get("complete_code", "0"))
-            self.assertEqual(complete, linked_code > 0, unit["name"])
+            total_code = int(unit["measures"].get("total_code", "0"))
+            self.assertEqual(complete, linked_code > 0 and linked_code == total_code, unit["name"])
 
 
 if __name__ == "__main__":

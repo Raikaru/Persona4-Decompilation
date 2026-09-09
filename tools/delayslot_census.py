@@ -70,7 +70,7 @@ def main():
 
     rows = []
     for r in report['results']:
-        if r['status'] != want or verify.is_third_party(r['file']):
+        if r['status'] != want or verify.code_origin(r['file'], r.get('addr')) != 'main':
             continue
         if not r['name'].startswith('func_'):
             continue

@@ -70,6 +70,8 @@ def discover_targets():
             if end is None:
                 continue
             addr = MARKER_RE.match(lines[marker]).group(1).lower()
+            if verify.code_origin(rel, addr) != "main":
+                continue
             found.append({"file": rel, "function": f"func_{addr}",
                           "body_lines": other - i - 1})
     return found

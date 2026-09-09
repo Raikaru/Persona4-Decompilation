@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate grouped m2c C candidates for fallback Persona 4 functions.
+"""Generate grouped m2c C candidates for first-party Persona 4 functions.
 
 The generated files live under ``build/m2c_candidates`` and, by default, under
 ``src/generated``. They are deliberately separate from the authoritative
@@ -25,6 +25,8 @@ from dataclasses import dataclass
 from typing import Iterable
 
 REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "tools"))
+from verify import code_origin  # noqa: E402
 FUNCTION_MAP = REPO / "build" / "function_map.txt"
 FUNCTION_SOURCES = REPO / "build" / "function_sources"
 OUTPUT_DEFAULT = REPO / "build" / "m2c_candidates"
@@ -5470,7 +5472,7 @@ def load_verified_candidate_matches(
             address = int(row["addr"], 16)
         except (KeyError, TypeError, ValueError):
             continue
-        if address in expected:
+        if address in expected and code_origin(file, address) == "main":
             matches.add(address)
     return matches
 
@@ -5646,7 +5648,7 @@ def main() -> int:
     parser.add_argument("--undefined-syms", type=Path, default=UNDEFINED_SYMS_DEFAULT)
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--timeout", type=float, default=120.0)
-    parser.add_argument("--limit", type=int, help="process only the first N fallback boundaries")
+    parser.add_argument("--limit", type=int, help="process only the first N game fallback boundaries")
     parser.add_argument("--start", type=lambda value: int(value, 0), default=0)
     parser.add_argument("--check", action="store_true", help="validate existing grouped candidates")
     parser.add_argument(
@@ -5683,7 +5685,8 @@ def main() -> int:
     if args.batch_size < 1 or args.timeout <= 0:
         parser.error("--batch-size must be positive and --timeout must be greater than zero")
 
-    fallbacks = load_fallbacks()
+    fallbacks = {address: fallback for address, fallback in load_fallbacks().items()
+                 if code_origin(fallback.owner, address) == "main"}
     if args.promote_report is not None:
         promoted, verified = promote_verified_matches(
             args.source_output.resolve(),
@@ -5960,7 +5963,7 @@ def load_grouped_match_addresses(
         if row.get("status") != "MATCH" or row.get("normalized_diff") != 0:
             continue
         address = _report_address(row)
-        if address is not None:
+        if address is not None and code_origin(file, address) == "main":
             grouped[file].add(address)
     return grouped
 
