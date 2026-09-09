@@ -1096,13 +1096,14 @@ void func_001bac20(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
 INCLUDE_ASM("asm/nonmatchings/btlMain", func_001baff0);
 // FUN_001BB3D0
 INCLUDE_ASM("asm/nonmatchings/btlMain", func_001bb3d0);
-/* Retained typed curve floor: 296B/304B, 21 emitted differing words,
-   six relocations resolved and eight zero-tail bytes. All 22 owner C
-   matches remain intact. Native UB-trap smoke: 15,360 ring/overlap cases.
-   See docs/probe_archive/JnB_001bb790_body.c; production remains ASM. */
-// FUN_001BB790 NONMATCHING
-#ifdef NON_MATCHING
 extern RwV3d D_00881430;
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
+/* Exact: 296B/304B, six resolved relocations and eight zero-tail bytes.
+   Scoped loop extraction hoists positive zero; the coefficient pointer
+   retains retail's stack-address materialization with propagation off. */
+// FUN_001BB790
 void func_001bb790(u8 *arg0, f32 *arg1, f32 fparg0)
 {
     f32 weights[4];
@@ -1115,6 +1116,7 @@ void func_001bb790(u8 *arg0, f32 *arg1, f32 fparg0)
     u16 i;
     s32 index;
     u8 *p;
+    f32 *weight;
 
     f3 = 1.0f - fparg0;
     f1 = f3 * f3;
@@ -1130,7 +1132,8 @@ void func_001bb790(u8 *arg0, f32 *arg1, f32 fparg0)
     *(RwV3d *)arg1 = D_00881430;
     i = 0;
     while (i < 4) {
-        temp_f5 = weights[i];
+        weight = &weights[i];
+        temp_f5 = *weight;
         p = arg0 + (u16)index * 0x1C;
         f4 = *(f32 *)(p + 8) * temp_f5;
         f3 = *(f32 *)(p + 0xC) * temp_f5;
@@ -1144,9 +1147,7 @@ void func_001bb790(u8 *arg0, f32 *arg1, f32 fparg0)
         i++;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlMain", func_001bb790);
-#endif
+#pragma pop
 // FUN_001BB8C0
 void func_001bb8c0(u8* param_2, f32* param_3, f32 param_1)
 {

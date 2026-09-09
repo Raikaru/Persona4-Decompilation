@@ -7978,3 +7978,41 @@ The full `make build-progress progress lint-errors` gate passes:
 validated progress artifacts, and zero lint errors across 338 first-party
 files. C linking remains **172 objects / 1,570 functions**; both the
 loadable-image and retail-ELF hashes remain unchanged.
+
+## Exact four-sample battle curve
+
+`func_001bb790` now matches **296/304 bytes**, with all six relocations
+resolved to the three seed words at `00881430`, `00881434`, and `00881438`,
+plus eight zero alignment bytes. The coefficient element pointer is ordinary
+`f32 *` into the existing four-element array. Scoped `opt_propagation off`
+preserves its stack-address materialization; `opt_loop_invariants on` hoists
+positive zero. No dummy operation, padding, wrapper type or register binding
+is required. The pragma state is restored immediately afterward.
+
+The independent subagent proposals were compiled in the current owner.
+Named-zero, typed-record, seven-float and bounded Y/Z-product forms all
+reached **300 bytes / 133 normalized differences**. Inspection of the
+loop-extracted form showed that its apparently worse **292 bytes / 114
+differences** reduced to one missing address instruction and the consequent
+shift. Explicit element-pointer materialization with propagation disabled
+closed it. `JnB_001bb790_body.c` preserves the exact source and measurements.
+
+A fresh **x86-64 native Clang UB-trap smoke passes 15,360 cases**: four ring
+indices, twelve parameters, eight input patterns, every four-byte-aligned
+output position that fits the 160-byte input arena, separate output, and
+exact seed-object aliasing. Whole-arena/output/seed comparisons check the
+ordered overlapping reads and writes. The smoke disables FP contraction;
+it verifies C behavior, not EE COP1 execution. A 32-bit libc build was
+unavailable because `gnu/stubs-32.h` is missing.
+
+The complete owner has **23 MATCH / 4 ASM**, preserving all 22 prior matches.
+The separate battle-order retry remains at **192/192 bytes / five differing
+words**: the proposed key/index aggregate and lexical key scope regress,
+while compare-only key projection ties. `F1B0_001b11c0_body.c` records those
+measurements; that production routine remains ASM.
+
+The full `make build-progress progress lint-errors` gate passes:
+**6,157 first-party MATCH / 703 ASM**, **7,787 total MATCH / 4,933 ASM**,
+validated progress artifacts, and zero lint findings across 338 first-party
+files. C linking remains **172 objects / 1,570 functions**; the loadable-image
+and retail-ELF hashes remain unchanged.
