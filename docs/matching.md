@@ -8575,3 +8575,43 @@ hashes matched,and all12,720 functions were scanned. Totals are **7,793
 MATCH /4,927 ASM** overall and **6,163 MATCH /697 ASM** first-party.
 Lint reports zero findings across338 first-party files. The all-matching
 criterion remains unsatisfied.
+
+## Fresh-target continuation: panel transition
+
+`func_0020e690` in `src/promoted/code1_0020.c` is now **MATCH**:
+964/976 bytes, three independently resolved call relocations, twelve
+zero alignment bytes. The first reconstruction reproduces all 976 retail
+bytes without pragmas, register bindings or padding objects.
+
+Keep the work-getter call before reading the transition state, the frame
+snapshot across drawing, and the flag reload afterward. The zero-duration
+ramp follows the existing `func_0020e5c0` / `func_0020f4d0` convention:
+its duplicate negative-frame guard makes the division by zero unreachable.
+The behavioral model uses an explicit step function instead.
+
+The drawing call now uses the existing `Vec2f` aggregate. The real
+`func_003657d0` provider takes that type directly instead of reinterpreting
+an integer through float pointers; its 752-byte body and 14 relocations
+remain exact. `include/shd_misc_internal.h` owns the complete prototype.
+Removed the stale cursor/persona declarations and consolidated the
+persona owner's duplicate point type. The retail eight-byte argument
+layout is unchanged; no assembly callers or generated-source artifacts
+require an ABI change.
+
+The integrated transition and real drawing provider passed **335,872
+native cases** under GCC and Clang: all signed-halfword frames with four
+flag combinations, all halfword flag values at boundary frames, and 8,192
+full-width frame values. Getter, camera and draw callbacks mutate state;
+the model checks the entire fixture, canaries, phase-dependent writes,
+four vertices' geometry/depth/reciprocal/RGBA and render-flag visibility.
+Clang used ASan, UBSan, float-division and float-cast checks. GCC's ASan
+libraries are missing, so its successful run was unsanitized.
+The quarter-turn constant is grounded in retail data; native sine/cosine
+backends do not establish PS2 graphical or trigonometric bit equivalence.
+
+`docs/probe_archive/FreshPanelTransition_0020e690_body.c` retains the
+complete source and evidence. `make all lint-errors` passed: 172 source
+objects linked, both retail SHA-1 hashes matched, all 12,720 functions
+scanned, and zero findings across 338 first-party files. Totals are
+**7,794 MATCH / 4,926 ASM** overall and **6,164 MATCH / 696 ASM** first-party
+(89.9%). The all-matching objective remains incomplete.

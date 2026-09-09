@@ -11,7 +11,6 @@ extern void func_00201820(s32 mode);
 extern void func_0021ae80(u8 *work, s32 unused);
 extern void func_0021aeb0(s32 arg0, u8 *work, s32 color, f32 x, f32 y, f32 alpha);
 extern f32 func_0021b0a0(u8 *work);
-extern void func_003657d0(s64 pos, s32 color, s32 mode, f32 rotation, f32 radius, f32 angle);
 extern f32 func_003e41e0(f32 *out, f32 *in);
 extern void func_0046d730(void *file, s32 line);
 extern f32 iGpffff83d4[2];

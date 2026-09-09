@@ -193,15 +193,14 @@ void func_00364c90(Vec2f position, f32 depth, s32 color,
 // FUN_00364FB0
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00364fb0);
 
-/* measured: best clean-C probe was object 748B over a 752B window (nd 163).
-   Five source/declaration-order variants retained the same saved-register and
-   scheduler residual, so the archived probe is intentionally not committed. */
+/* measured: Vec2f-by-value preserves the exact 752-byte body and 14 relocations.
+   The canonical declaration is shared with the panel transition caller. */
 /* measured: the four byte->float conversions are plain `(f32)(u32)x` (mwcc emits the
    bltz / srl-andi-or / mtc1 / cvt / add.s idiom itself with retail's $v1 destination;
    spelling it out by hand colours $v0). The angle is `iGpffff8094 * (f32)var_20`
    in one expression so the GP constant is the first mul.s operand. */
 // FUN_003657D0
-void func_003657d0(s64 arg0, f32 fparg0, s32 arg1, f32 fparg1, f32 fparg2, s32 arg2) {
+void func_003657d0(Vec2f arg0, f32 fparg0, s32 arg1, f32 fparg1, f32 fparg2, s32 arg2) {
     f32 vertices[4][16];
     f32 sine;
     f32 cosine;
@@ -217,8 +216,8 @@ void func_003657d0(s64 arg0, f32 fparg0, s32 arg1, f32 fparg1, f32 fparg2, s32 a
     s32 var_20;
     u8 *temp_2;
 
-    origin_y = *((f32 *)(void *)&arg0 + 1);
-    origin_x = *(f32 *)(void *)&arg0;
+    origin_y = arg0.y;
+    origin_x = arg0.x;
     temp_f23 = 1.0f / *(f32 *)(func_00457120() + 0x80);
     temp_f20 = D_008872F8[0];
     temp_19 = (s32)(u8)(((u32)arg1 & 0xFF000000) >> 24);
