@@ -8534,3 +8534,44 @@ scanned. Totals are **7,792 MATCH /4,928 ASM** overall and **6,162 MATCH /
 698 ASM** first-party. Lint reports zero findings across338 first-party
 files. This adds one exact first-party match; the all-matching criterion
 remains unsatisfied.
+
+## Fresh-target continuation: panel state updater
+
+`func_0020add0` in `src/promoted/code1_0020.c` is now **MATCH**:
+968/976 bytes,11 independently resolved relocations,eight zero alignment
+bytes. Direct relocation resolution reproduces all976 retail bytes.
+The initial reconstruction differed by20 bytes, entirely in command dispatch.
+Source case order4,5,0 restores retail tests0,5,4; no pragma, synthetic
+padding, register binding or ABI change is required.
+
+Keep the signed-halfword counter bounds, first-transition flag/reset pair,
+and callback reloads. Offset2 snapshots mode before command dispatch;
+commands4/5 change mode but must not skip the remaining color update.
+Nested pointers are read after the command callback, and phase is reloaded
+after selection and sine callbacks. The wrap is one subtraction of180,
+not arbitrary modulo.
+
+The integrated source passed **149,504 Wasm32 full-state cases**:
+131,072 cover every signed16-bit value in each of five varying counters
+under both flag0 states;18,432 combine boundary values,modes,flags,list
+states,low-halfword command results,nested-pointer availability and
+selection outcomes. Callback mutations exercise state reloads,pointer
+activation/removal and phase changes. Every case checks all0x5B4 state
+bytes,callback counts,phase and external canaries against an independent
+model. The finite sine input uses the retail conversion constant at
+0x00761568. This is32-bit state/provider verification,not PS2 graphical
+verification or a claim about non-finite/corrupted phase inputs.
+
+`docs/probe_archive/FreshPanelUpdater_0020add0_body.c` retains the exact
+source and evidence. `FreshPanelStrip_00204dc0_body.c` retains the complete
+rotated-strip reconstruction without promoting it: preferred scoped
+propagation-off source is864/944 bytes,nd628,18 object relocations,with
+76 executable bytes still uncovered. Invariant optimization ties;
+disabling common subexpressions regresses to1216/nd1005. Production
+`func_00204dc0` remains ASM; that candidate has no behavioral-smoke claim.
+
+`make all lint-errors` passed:172 source objects linked,both retail SHA-1
+hashes matched,and all12,720 functions were scanned. Totals are **7,793
+MATCH /4,927 ASM** overall and **6,163 MATCH /697 ASM** first-party.
+Lint reports zero findings across338 first-party files. The all-matching
+criterion remains unsatisfied.
