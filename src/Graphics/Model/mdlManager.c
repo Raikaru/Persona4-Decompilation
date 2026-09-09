@@ -32,7 +32,7 @@ typedef void (*CallbackFn)(void);
 extern s32 func_003b83d0(s32 object, s32 hierarchy);
 
 extern void func_003e0870(void);
-extern void func_003e0e20(void);
+extern void func_003e0e20(void *arg0, void *arg1, s32 arg2);
 extern f32 DAT_0076112c;
 extern void func_0039a260(void* a, void* b);
 extern void func_0039ab20(void* a, int b, int c, int d);
@@ -3396,9 +3396,9 @@ void func_0047a1a0(void)
 }
 
 // FUN_0047A1C0
-void func_0047a1c0(void)
+void func_0047a1c0(void *arg0, void *arg1, s32 arg2)
 {
-    func_003e0e20();
+    func_003e0e20(arg0, arg1, arg2);
 }
 // FUN_0047A1E0
 void mdlScale(Model* mdl, const RwV3d* scale, int combineOp)

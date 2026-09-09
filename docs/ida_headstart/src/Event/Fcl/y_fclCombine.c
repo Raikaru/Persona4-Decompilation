@@ -5786,6 +5786,65 @@ LABEL_169:
 }
 
 
+// func_002f9c30  addr 0x002f9c30  window 352B
+__int64 __fastcall sub_2F9C30(
+        __int64 a1,
+        __int64 a2,
+        __int64 a3,
+        __int64 a4,
+        __int64 a5,
+        __int64 a6,
+        __int64 a7,
+        __int16 a8,
+        char a9,
+        char a10)
+{
+  char v16; // $s0
+  char v17; // $s0
+  __int64 result; // $v0
+  _BYTE v19[48]; // [sp+80h] [-120h] BYREF
+  _BYTE v20[48]; // [sp+B0h] [-F0h] BYREF
+  _BYTE v21[48]; // [sp+E0h] [-C0h] BYREF
+  _BYTE v22[48]; // [sp+110h] [-90h] BYREF
+  _BYTE v23[48]; // [sp+140h] [-60h] BYREF
+  _BYTE v24[48]; // [sp+170h] [-30h] BYREF
+
+  v16 = a8;
+  switch ( a8 )
+  {
+    case 1:
+      goto LABEL_7;
+    case 2:
+      goto LABEL_6;
+    case 3:
+      goto LABEL_5;
+    case 4:
+      goto LABEL_4;
+    case 5:
+      goto LABEL_3;
+    case 6:
+      sub_43F810((int)v24, a7, 48);
+LABEL_3:
+      sub_43F810((int)v23, a6, 48);
+LABEL_4:
+      sub_43F810((int)v22, a5, 48);
+LABEL_5:
+      sub_43F810((int)v21, a4, 48);
+LABEL_6:
+      sub_43F810((int)v20, a3, 48);
+LABEL_7:
+      sub_43F810((int)v19, a2, 48);
+      break;
+    default:
+      break;
+  }
+  sub_10CAD0(a1, *(unsigned __int16 *)(a1 + 2));
+  v17 = sub_312C60(a1, (int)v19, v16);
+  result = sub_2E4870(a9);
+  *(_BYTE *)(result + a10 + 740) = v17;
+  return result;
+}
+
 // func_002f9d90  addr 0x002f9d90  window 8464B
 void __fastcall sub_2F9D90(__int64 a1)
 {

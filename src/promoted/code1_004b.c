@@ -9,7 +9,7 @@ extern void func_00484bb0();
 extern void func_00485b20();
 extern void func_00485fe0();
 extern void func_00485630();
-extern void func_00485c80();
+extern u8 *func_00485c80(u8 *arg0);
 extern void func_00486400();
 extern void func_00486060();
 extern void func_004860f0();
@@ -199,9 +199,9 @@ void func_004b1190(void)
 }
 
 // FUN_004B11B0
-void func_004b11b0(void)
+s32 func_004b11b0(s32 arg0)
 {
-    func_00485c80();
+    return (s32)(u32)func_00485c80((u8 *)arg0);
 }
 
 // FUN_004B11D0

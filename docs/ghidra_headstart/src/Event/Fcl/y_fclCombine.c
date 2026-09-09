@@ -5151,6 +5151,43 @@ void FUN_002f6cf0(undefined8 param_1)
 }
 
 
+// func_002f9c30  addr 0x002f9c30  window 352B
+void FUN_002f9c30(undefined8 param_1,undefined8 param_2,undefined8 param_3,undefined8 param_4,
+                 undefined8 param_5,undefined8 param_6,undefined8 param_7,undefined2 param_8,
+                 undefined1 param_9,char param_10)
+
+{
+  undefined1 uVar1;
+  int iVar2;
+  undefined1 auStack_120 [48];
+  undefined1 auStack_f0 [48];
+  undefined1 auStack_c0 [48];
+  undefined1 auStack_90 [48];
+  undefined1 auStack_60 [48];
+  undefined1 auStack_30 [48];
+  
+  switch(param_8) {
+  case 6:
+    func_0x0043f810(auStack_30,param_7,0x30);
+  case 5:
+    func_0x0043f810(auStack_60,param_6,0x30);
+  case 4:
+    func_0x0043f810(auStack_90,param_5,0x30);
+  case 3:
+    func_0x0043f810(auStack_c0,param_4,0x30);
+  case 2:
+    func_0x0043f810(auStack_f0,param_3,0x30);
+  case 1:
+    func_0x0043f810(auStack_120,param_2,0x30);
+  default:
+    func_0x0010cad0(param_1,*(undefined2 *)((int)param_1 + 2));
+    uVar1 = func_0x00312c60(param_1,auStack_120,(char)param_8);
+    iVar2 = func_0x002e4870(param_9);
+    *(undefined1 *)(iVar2 + param_10 + 0x2e4) = uVar1;
+    return;
+  }
+}
+
 // func_002f9d90  addr 0x002f9d90  window 8464B
 void FUN_002f9d90(undefined8 param_1)
 
