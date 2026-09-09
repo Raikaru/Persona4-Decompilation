@@ -8341,3 +8341,74 @@ were scanned. Totals are **7,789 MATCH /4,931 ASM** overall and
 **6,159 MATCH /701 ASM** first-party. Lint reports zero findings across338
 first-party files. This is one additional first-party match, not completion
 of the remaining701 ASM functions.
+
+## Fresh-target continuation: item-shop polygon renderer
+
+`func_0033d630` in `src/promoted/code1_0033.c` now replaces its ASM slot
+with ordinary C: **924/928 bytes, nd0, eight resolved relocations and four
+zero alignment bytes**. Independently resolving all four call relocations
+and both table-address pairs reproduces every executable byte.
+
+The initial reconstruction retained an extra `x + 4` expression across the
+primitive call. Deriving each pass's second vertex from its freshly written
+anchor removes that cache: 916/nd619 becomes924/nd168. The input-Y snapshot,
+actual color/point object lifetimes and float argument's position then close
+the remaining differences. No pragma, synthetic storage, register binding
+or inline assembly is added.
+
+All six retail calls are inside the still-ASM `func_00332bb0`, owned by
+`src/Event/Fcl/y_fclItemShopDraw.c`. They construct an eight-byte float pair,
+load it into `a0`, sign-extend the step into `a1`, load the angle into `f12`,
+and supply alpha/highlight in `a2`/`a3`. The recovered signature is
+`f32(F2_0033,s16,f32,s32,s8)`. The color constructor keeps its actual
+byte-output-pointer and four signed-word inputs; the primitive dispatcher
+keeps its signed-word X center, signed-halfword Y center and void return.
+No compiled C caller needs migration. Uncompiled generated M2C reference
+files and the retail ASM caller are intentionally unchanged.
+
+All37 existing owner C instruction bodies, totaling3,808 bytes, remain
+identical. One36-byte jump-table literal is renamed by the compiler but
+retains its bytes and relocation meaning.
+
+A disposable native smoke, using the integrated production body, passes
+**65,973 cases** under GCC and under Clang with AddressSanitizer and
+UndefinedBehaviorSanitizer. It covers all65,536 signed-halfword steps with
+varied finite angle offsets, all256 signed-byte highlight values,50 alpha
+truncation cases,11 explicit single-subtract boundaries,100 callback-mutation
+cases and20 position/selection combinations. Captured geometry and colors
+must match an independent expectation; poisoning the first primitive call's
+arrays must not corrupt the rebuilt highlight pass. The return subtracts360
+at most once: it is not a general modulo operation. This verifies the native
+geometry/dispatch boundary, not PS2 graphics output or non-finite arithmetic.
+
+The fresh battle selector remains ASM. Its complete preferred source is in
+`FreshBattleSelector_001f3bb0_body.c`: **968/944 bytes, nd678,17 object
+relocations**, including24 overrun bytes. An explicit list-head snapshot
+ties; proven narrow count/level locals regress to972/nd715. No native
+behavioral verification or exact-match claim is made for that candidate.
+
+The result renderer `func_00211ba0` reaches **1000/1008 bytes, nd14,18 fully
+resolved relocations and eight zero alignment bytes**. Only the group/unit
+saved-register permutation remains. Signed-word conversion of the unsigned
+halfword removes the unnecessary wide-unsigned float path. A direct float-to-byte
+cast, after staging the easing callback result, restores the retail alpha
+conversion and constant-load order. Per-unit draw-context scope reduces nd15
+to nd14; narrower cursor scope ties, and retaining the task accessor's raw
+word value returns to nd15.
+
+`FreshResultRenderer_00211ba0_body.c` preserves the complete preferred source
+and replay requirements. Its fade descriptor is the real12-byte
+alpha/step/flags/scale object; the halfword at offset2 is a highlight step
+threshold, not a displacement. The real status provider is
+`datCalcChkBadStatus` at00232710. The agent's claimed symbol error and claimed
+effect of an explicit alpha mask were rejected by source inspection and
+compiler replay. The unchanged production owner reproduces the same nd14;
+none of the scratch owner-wide task-return changes is needed or promoted.
+This candidate remains ASM and has no native behavioral verification.
+
+After the polygon renderer promotion, `make all lint-errors` passed:
+172 source objects linked, both retail SHA-1 hashes matched, and all12,720
+functions were scanned. Totals are **7,790 MATCH /4,930 ASM** overall and
+**6,160 MATCH /700 ASM** first-party. Lint reports zero findings across338
+first-party files. This batch adds one exact first-party recovery. Compiler
+and native-smoke scratch directories are removed after their evidence is saved.
