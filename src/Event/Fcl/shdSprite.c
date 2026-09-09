@@ -24,7 +24,7 @@ u8 *func_0046af60(s32 arg0);
 u8 *func_0046aea0(const char *name);
 u32 func_0046a750(s16 *param);
 f32 func_0046b1f0(void *ptr, s32 index);
-f32 func_0046d5f0(void *ptr, s32 index);
+s32 func_0046d5f0(u8 *ptr, s32 index);
 void func_0046d730(const void *file, s32 line);
 
 void func_0025ea20(s32, s32, s32, void *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
@@ -184,8 +184,10 @@ s32 func_0025f2c0(s32 arg0, s32 arg1, u8 *arg2)
     return (s32)func_0046b1f0(elem, (arg0 & 0xFFFF) + arg1);
 }
 
+/* Integer handle returned by sdkSpr, not a floating-point result.
+ * Measured: 136/144 bytes, nd0, two relocations, eight zero-tail bytes. */
 // FUN_0025F360
-f32 func_0025f360(s32 arg0, s32 arg1, u8 *arg2)
+s32 func_0025f360(s32 arg0, s32 arg1, u8 *arg2)
 {
     s32 temp_3;
     u8 *temp_7;
