@@ -2,6 +2,7 @@
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
+#include "btl_panel_internal.h"
 
 typedef struct KwlnTask KwlnTask;
 
@@ -84,8 +85,6 @@ extern s32 func_0010c6f0(u8 *arg0);
 extern void func_0010c5a0(u8 *arg0, u8 *arg1);
 extern u8 *func_0010a900(u16 arg0);
 extern void func_00201720(void *arg0, f32 arg1, f32 arg2);
-extern void func_00201650(void *arg0, s32 arg1, s32 arg2, f32 arg3, f32 arg4,
-                          s32 arg5, s32 arg6, s32 arg7, s32 arg8);
 extern void func_00201300(s32 *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4);
 extern void func_002016e0(u8 *arg0, s16 arg1, s16 arg2, f32 arg3);
 extern void func_00201950(u8 *arg0, s32 arg1, s32 arg2);
@@ -1480,9 +1479,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021b630);
 void func_0021bbb0(s32 arg0, u16 arg1)
 {
     extern void (*D_00887300[])(s32 arg0, s32 arg1);
-    extern void func_00365f00(f32 f0, s64 arg0, s32 arg1, s32 arg2,
-                              f32 f1, f32 f2, s32 arg3, f32 f3, s32 arg4,
-                              f32 f4);
     extern void func_003f6440(s32 arg0, s32 arg1);
     extern void func_0045c870(u8 *arg0, s32 arg1);
     extern void func_00489f80(void);
@@ -1501,14 +1497,17 @@ void func_0021bbb0(s32 arg0, u16 arg1)
         f32 f;
         s32 i;
     } arg_color_copy;
-    struct {
-        s32 low;
-        s32 high;
+    union {
+        Vec2f v;
+        struct {
+            s32 low;
+            s32 high;
+        } raw;
     } coords;
     f32 scale;
 
-    coords.low = 0x43A00000;
-    coords.high = 0x43640000;
+    coords.raw.low = 0x43A00000;
+    coords.raw.high = 0x43640000;
     D_00887300[0](1, 0);
     arg1 = arg1 & 0xFFFF;
     if ((arg1 >= 0x21) && (arg1 < 0x30)) {
@@ -1524,9 +1523,9 @@ void func_0021bbb0(s32 arg0, u16 arg1)
         func_0045c870(color.bytes, 0);
         color.bytes[3] = 0xFF;
         color_value.f = color.value;
-        func_00365f00(0.0f, *(s64 *)&coords,
+        func_00365f00(coords.v, 0.0f,
                       color_value.i, color_value.i,
-                      scale, 0.0f, 0x24, fGpffff84cc, 0, 1.0f);
+                      scale, 0.0f, 0x24, fGpffff84cc, 1.0f, 0);
         func_0048a000();
         func_003f6440(3, 0x37801);
     }
@@ -1537,9 +1536,9 @@ void func_0021bbb0(s32 arg0, u16 arg1)
                     func_0044b7b0(
                         fGpffff84a4 * ((f32)(arg1 - 3) / 30.0f));
             arg_color_copy.f = *(f32 *)&arg0;
-            func_00365f00(0.0f, *(s64 *)&coords,
+            func_00365f00(coords.v, 0.0f,
                           arg_color_copy.i, arg_color_copy.i,
-                          scale, 0.0f, 0x24, fGpffff84cc, 0, 1.0f);
+                          scale, 0.0f, 0x24, fGpffff84cc, 1.0f, 0);
             func_003f6440(2, 0x44);
         } else if (arg1 < 0x30) {
             func_003f6440(2, 0x48);
