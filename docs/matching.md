@@ -8214,3 +8214,72 @@ retail; all12,720 functions scanned, with **7,787 MATCH / 4,933 ASM** overall
 and **6,157 MATCH / 703 ASM** first-party. Lint reports zero findings across
 338 first-party files. This is an ABI correction with unchanged retail
 bytes, not an additional first-party match.
+
+## Fresh-target pivot: result weight update
+
+Target selection now excludes retained candidate definitions and
+address-named probe archives rather than repeatedly selecting the smallest
+ASM windows. An archived floor needs a new explanation before another
+attempt. Supporting ABI work is not counted as a new recovery.
+
+`func_002112c0` in `src/promoted/code1_0021.c` replaces a plain ASM slot with
+complete ordinary C: **912/912 bytes, nd0, no relocations or alignment tail**.
+It updates nine output weights, the four persistent pulse bytes, alpha,
+mode flags and the wrapping halfword frame counter. It keeps the existing
+`void(u8 *,u8 *)` contract and introduces no provider or caller changes.
+
+The first complete reconstruction measured920/912 / nd667. Retail hoists
+the decay/conversion constants outside both loops; scoped
+`opt_loop_invariants on` and independent phase counters reach912/912 / nd10.
+The remaining differences have specific source explanations:
+
+- `frame > 4` and `frame > 3` recover the retail comparison temporaries.
+- Testing the pre-increment expression preserves the halfword result
+  instead of loading it again.
+- An explicit float decay value with `decay *= 0.75f` retains the retail
+  multiply operand order. Swapping operands inside the original compound
+  conversion expression does not.
+
+All108 previously compiled owner functions retain identical instruction
+bytes. Two compiler-generated literal labels are renumbered; their24-byte
+and40-byte objects remain byte-identical.
+
+A native x86-64 smoke runs the isolated production body, with fixed-width
+field types and no external provider substitutes. **112,128 cases pass**:
+all low mode-bit combinations, four unrelated-high-bit masks, eight pulse
+patterns, frame0..145 and255/1024/65534/65535, plus288-step state traces.
+An independent model checks full state and output buffers, including
+untouched bytes, saturation, phase transitions and16-bit wrapping.
+The smoke is not an EE floating-point emulator; exact retail instruction
+comparison independently establishes the target implementation.
+
+Three subagents reconstructed separate fresh owners. One initial compiler
+replay per candidate gives:
+
+| Target | Object/retail bytes | nd | Object relocations |
+| --- | ---: | ---: | ---: |
+| `func_0019f1d0` | 1004/1056 | 321 | 1 |
+| `func_001b99f0` | 1008/1008 | 259 | 5 |
+| `func_0020f730` | 840/832 | 624 | 26 |
+
+They remain ASM, with complete bodies and reconstruction evidence in
+`FreshProjection_0019f1d0_body.c`,
+`FreshBattleTransition_001b99f0_body.c` and
+`FreshPanelDraw_0020f730_body.c`. The panel count includes eight overrun
+bytes. No native verification or exact-match claim is made for these
+three candidates, and no layout sweep followed their initial replay.
+Panel dimension-provider corrections exist only in its scratch replay;
+none was promoted independently.
+
+The unfinished level/task-return and encounter-input changes were parked
+in `DeferredReturnContracts.patch`, not promoted or declared resolved.
+Their original production source was restored before this recovery.
+That restored baseline passed `make all lint-errors`: both retail hashes
+matched, with6,157 first-party MATCH /703 ASM and zero lint findings.
+
+After promoting the weight update, `make all lint-errors` also passed:
+172 C objects linked; both retail SHA-1 hashes match; all12,720 functions
+scanned, with **7,788 MATCH /4,932 ASM** overall and **6,158 MATCH /702 ASM**
+first-party. Lint reports zero findings across338 first-party files.
+This is one additional first-party recovery. The disposable native smoke
+and compiler replay directories are removed after verification.
