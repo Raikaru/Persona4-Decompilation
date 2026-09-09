@@ -177,6 +177,7 @@ extern void func_0020add0(void *arg0);
 extern s32 func_00242930(u8 *arg0);
 extern f32 fGpffff8478;
 extern f32 fGpffffb478;
+extern void func_0021b310(u8 *arg0, s32 arg1);
 extern void func_0020bb70(u8 *arg0);
 extern void func_00219130(void *arg0);
 extern void func_0021b1e0(void *arg0);
@@ -2712,8 +2713,57 @@ f32 func_0020e5c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 done:
     return temp_f0;
 }
+/*
+ * measured: 964/976 bytes, three resolved calls, twelve zero alignment bytes.
+ * The zero-duration ramp follows 0020E5C0 and the adjacent 0020F4D0 spelling;
+ * its division is unreachable. Preserve the frame snapshot and flag reload.
+ */
 // FUN_0020E690
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020e690);
+void func_0020e690(u8 *task, u8 *transition, u8 *panel,
+                   f32 x, f32 y, s32 color, u8 *output)
+{
+    Vec2f position;
+    s32 frame;
+    f32 fade;
+    f32 slide;
+    func_00452560(*(s32 *)(task + 4));
+    frame = *(s32 *)(transition + 0x10);
+    if (*(u16 *)(transition + 0x14) & 2) {
+        if (frame < 3) fade = 0.0f;
+        else if (frame < 9) fade = (f32)(frame - 3) / 6.0f;
+        else fade = 1.0f;
+        output[4] = (u8)(255.0f * (1.0f - fade));
+        if (frame < 0) slide = 0.0f;
+        else if (frame < 6) slide = (f32)frame / 6.0f;
+        else slide = 1.0f;
+        *(f32 *)output = -30.0f * slide;
+    } else {
+        if (frame < 0) slide = 0.0f;
+        else if (frame < 0) slide = (f32)frame / 0.0f;
+        else slide = 1.0f;
+        if (!(slide <= 0.0f)) {
+            position.x = 89.0f + x;
+            position.y = 86.0f + y;
+            func_003657d0(position, 0.0f, color, 22.0f * slide, 0.0f, 1);
+        }
+        if (frame < 0) fade = 0.0f;
+        else if (frame < 3) fade = (f32)frame / 3.0f;
+        else fade = 1.0f;
+        output[4] = (u8)(255.0f * fade);
+        *(f32 *)output = 10.0f * (1.0f - fade);
+        if (*(u16 *)(transition + 0x14) & 4) {
+            *(f32 *)(output + 0xC) = 55.0f;
+            *(f32 *)(output + 0x10) = 89.0f;
+            *(s32 *)(output + 8) = 1;
+        } else if (frame == 3) {
+            func_0021b310(panel, 1);
+        } else if (frame > 3) {
+            *(f32 *)(output + 0xC) = 55.0f;
+            *(f32 *)(output + 0x10) = 89.0f;
+            *(s32 *)(output + 8) = 1;
+        }
+    }
+}
 // FUN_0020EA60
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020ea60);
 // FUN_0020EF10

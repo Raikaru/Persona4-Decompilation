@@ -5,13 +5,10 @@
 #include "sdktask.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
+#include "shd_misc_internal.h"
 
 typedef struct KwlnTask KwlnTask;
 
-typedef struct {
-    f32 x;
-    f32 y;
-} Vec2f;
 typedef unsigned int ShdByte __attribute__((mode(QI)));
 
 void func_0011e230();
@@ -850,7 +847,6 @@ extern f32 D_005E4D84;
 extern f32 D_005E4D88;
 extern u8 D_005E4D90[];
 extern s16 D_005E4D58[];
-void func_003657d0(s64, f32, s32, f32, f32, s32, f32, f32);
 s32 func_003b7060();
 void func_0045dfd0(f32, void *, void *, s32, s32, s32);
 void func_0034f4a0(s32, s32, s8, s8, s8, s64, s64, s16, f32, f32, f32, f32, s16, s16);
