@@ -25,6 +25,12 @@
  * traversal, exact helper status, open height bounds and NaNs, full u16 IDs,
  * output/next-link aliasing and mutable-helper reloads. Scripted helper
  * outcomes exercise caller behavior, not the retail crossing algorithm.
+ * Fresh complete-value boundaries do not close the copy scheduling:
+ * inline Float2/f32 parts give 428B/nd247 (ten relocations); a returned
+ * twelve-byte parts object gives 444B/nd295 (ten relocations). Propagation-off
+ * on the inline copy gives 432B/nd254 (eight relocations). Passing the actual
+ * NormalXY0014 value, in either parameter order, gives 432B/nd253 with eight
+ * relocations. All are rejected; the original 416B/nd8 four-word floor stays.
  */
 u16 func_0014be50(u8 *arg0, u8 **arg1) {
     SVec3 *triangle[3];
