@@ -8052,3 +8052,46 @@ unchanged, and its CI run `34293257000` passed.
   to reproduce retail's opposite comparison order.
 
 These are bounded source-shaping results, not compiler-impossibility claims.
+
+## Script glyph, panel callback and shop digit retry
+
+Independent script and panel reconstructions were measured in their current
+owners with the actual provider contracts. Neither was promoted; the shop
+renderer also remains ASM. These are source-shape measurements, not runtime
+or full-build verification claims.
+
+- `func_0026f2c0`: retaining the signed item word as `s64` across the existing
+  `s64` classifier calls and casting its earlier slot-index role to `u16`
+  closes the saved-register and normalization differences. Two branch-local
+  three-byte glyph arrays reach **724/736 bytes / nd4**, with sixteen
+  resolved relocations and twelve zero-tail bytes. Only the first branch's
+  four stack-offset bytes differ. A shared three-byte array leaves nd8;
+  declaration movement and lifetime controls do not close the placement.
+  An eight-byte array reaches nd0 diagnostically, but its five additional
+  capacity bytes have no established source contract and were rejected.
+  `ScriptCommand_0026f2c0_body.c` preserves the real three-byte buffers,
+  complete source and integration prerequisites. In particular, the first
+  operand's zero-extended-halfword comparison against signed `-1` must not
+  be replaced with the second operand's genuine `0xFFFF` sentinel.
+- `func_00202890`: integer-address or indexed slot stores avoid caching the
+  entire slot pointer and reach **708/720 bytes / nd226**, with thirty-two
+  resolved relocations. Two retail offset-copy instructions remain missing,
+  shifting subsequent branches; some add-operand orientations also differ.
+  Finalization and the epilogue agree after that eight-byte shift.
+  Named copies and lifetime/dead-assignment controls do not close it.
+  `PanelCallback_00202890_body.c` preserves the complete callback, canonical
+  provider declarations, state-zero-to-one same-call fallthrough and
+  callback-mutated index/archive reloads. It also records the unproven
+  actor-five invariant: an empty slot four with that actor present still
+  passes the real NULL name-table entry to the sprite allocator. No
+  replacement asset, guard or success result was invented.
+- `func_002caa10`: canonical byte channels/alpha and the actual sprite-pointer
+  contract reach **696/704 bytes / nd37** in thirty-four executable words,
+  with fourteen relocations. Full-width channel snapshots regress to nd108;
+  direct sprite and ordinary register hints tie nd37, while byte count,
+  direct number and shared glyph forms regress. `ShopDigits_002caa10_body.c`
+  records the corrected contracts and measurements.
+
+Production and the previously verified **6,157 first-party MATCH / 703 ASM**
+result are unchanged by this batch. Archive-only work does not constitute a
+new production match.

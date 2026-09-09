@@ -7,6 +7,13 @@
  * improve the floor. Sharing width-subtraction branches changes the CFG.
  * Reusing one glyph local regresses to 37 real words; O1 regresses to 724B.
  * Keep the production fallback until every executable word closes. */
+/* Current-owner replay uses the canonical byte-channel packer, byte alpha
+ * and sprite-pointer draw contracts below. Byte channel snapshots retain
+ * 696B/nd37 in 34 executable words with fourteen relocations; s32 snapshots
+ * under those same contracts give nd108. Direct sprite use and ordinary
+ * hot-local storage hints tie nd37. A byte loop counter grows to 708B/nd235;
+ * direct number use gives 696B/nd45, and one shared glyph gives 696B/nd40.
+ * No declaration is narrowed merely to reproduce argument setup. */
 #include "type.h"
 typedef struct { f32 x, y; } Vec2f;
 typedef struct { u8 r, g, b, a; } RGBA;
@@ -16,8 +23,8 @@ void *func_0046d200(void *, s32);
 f32 func_0046b260(void *);
 void func_0046d280(void *);
 char *func_00442830(char *, const char *);
-s32 func_002b2a30(s32, u8, s32, s32);
-void func_0025ec90(f32, f32, f32, s32, s32, s32, s32, s32, void *);
+s32 func_002b2a30(u8, u8, u8, u8);
+void func_0025ec90(f32, f32, f32, s32, u8, s32, void *, s32, void *);
 
 // FUN_002CAA10
 #pragma push
@@ -37,9 +44,9 @@ void func_002caa10(Vec2f position, f32 depth, RGBA color, u32 number_, s16 glyph
     s16 commaWidth;
     u8 *entry;
     s32 base;
-    s32 a;
-    s32 b;
-    s32 g;
+    u8 a;
+    u8 b;
+    u8 g;
     f32 y;
     s32 comma;
 
@@ -63,13 +70,13 @@ void func_002caa10(Vec2f position, f32 depth, RGBA color, u32 number_, s16 glyph
     g = color.g;
     y = position.y;
     do {
-        func_0025ec90(x, y, depth, func_002b2a30(0xFF, color.r, g, b), a, base + number % 10, (s32)sprite, 1, entry);
+        func_0025ec90(x, y, depth, func_002b2a30(0xFF, color.r, g, b), a, base + number % 10, sprite, 1, entry);
         number /= 10;
         count = (s8)(count + 1);
         if (count % 3 == 0) {
             if (number != 0) {
                 x -= (f32)commaWidth;
-                func_0025ec90(x, y, depth, func_002b2a30(0xFF, color.r, g, b), a, comma, (s32)sprite, 1, entry);
+                func_0025ec90(x, y, depth, func_002b2a30(0xFF, color.r, g, b), a, comma, sprite, 1, entry);
                 x -= (f32)digitWidth;
             } else {
                 x -= (f32)digitWidth;
