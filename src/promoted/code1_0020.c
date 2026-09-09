@@ -16,7 +16,6 @@ extern void func_00209fa0(void);
 extern void func_00209f90(void);
 extern void func_0020a5c0(void);
 extern void func_00202d20();
-extern s32 func_00202e70(void);
 extern void func_00113500(void);
 extern void func_00113480(s32 a0, s32 a1, s32 a2, s32 a3);
 extern f32 func_0046b260(u8 *arg0);
@@ -66,7 +65,17 @@ extern u16 func_00272c60(s16 arg0);
 extern u16 func_00272c80(u16 arg0);
 
 extern u32 func_001d8bc0(void *arg0);
-extern void func_0011b360(s32 arg0);
+extern void func_0011b360(u8 *arg0);
+extern s32 func_0011ba00(u8 *arg0);
+extern void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s32 arg3);
+extern void func_0011bb90(u8 *arg0);
+extern void func_0011bc70(u8 *arg0);
+extern void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void func_0011c2c0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+extern u32 func_0011c610(u8 *arg0);
+extern void func_0011c630(u8 *arg0);
+extern void func_0011c6e0(u8 *arg0, s32 arg1);
+extern void func_0011caf0(u8 *arg0);
 extern void func_00201410(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1);
 extern void func_002119a0(u8 *arg0);
 extern u8 *D_0076449C;
@@ -151,7 +160,6 @@ extern void func_00205c20(u8 *arg0, s16 arg1, f32 fparg0, f32 fparg1,
                           s8 arg2, s32 arg3);
 extern void func_00205950(u8 *arg0, s64 arg1, f32 fparg0, s32 arg2,
                           f32 fparg1, s32 arg3);
-extern s32 func_00202e70(void);
 extern u16 func_00243920(s64 arg0);
 extern void func_00207140();
 extern void func_00207320();
@@ -1423,7 +1431,7 @@ void func_002038c0(void) {
     *(s32 *)(b + 4) &= ~2;
     func_002033c0(b + 0x2C);
     if (*(s32 *)(b + 0x5A8) != 0) {
-        func_0011b360(*(s32 *)(b + 0x5A8));
+        func_0011b360(*(u8 **)(b + 0x5A8));
         *(s32 *)(b + 0x5A8) = 0;
         *(s16 *)(b + 0x5AC) = -1;
     }
@@ -1754,7 +1762,7 @@ u16 func_002091f0(u8 *arg0, u8 *arg1)
     s32 temp_2;
     u16 value;
 
-    value = func_00202e70() & 0xFFFF;
+    value = func_00202e70(arg0) & 0xFFFF;
     switch (value) {
     case 2:
         *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) = 3;
@@ -1884,7 +1892,7 @@ u16 func_00209870(u8 *arg0, s32 arg1, u8 **arg2)
 
     out = (u8 **)arg2;
     base = (u8 *)(u32)arg1;
-    temp_4 = func_00202e70() & 0xFFFF;
+    temp_4 = func_00202e70(arg0) & 0xFFFF;
     switch (temp_4) {
     case 2:
         temp_2 = *(u8 **)(p4_002091f0_add(
@@ -2016,14 +2024,13 @@ u16 func_00209dc0(u8 *arg0, u8 *arg1)
     extern u8 *func_001f99c0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3,
                               s32 arg4);
     extern s64 func_00194590(u8 *arg0, u32 arg1);
-    extern s32 func_00202e70(void);
     s16 temp_16;
     u8 *temp_2;
     s32 temp_2_2;
     s32 temp_3;
     u16 var_16;
 
-    var_16 = func_00202e70() & 0xFFFF;
+    var_16 = func_00202e70(arg0) & 0xFFFF;
     switch (var_16) {
     case 2:
         temp_16 = *(s16 *)(arg0 + 4);
@@ -2090,7 +2097,114 @@ void func_0020a5d0(u16 *arg0, u8 *arg1) {
 }
 
 // FUN_0020A640
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020a640);
+/* measured: 1064/1072 bytes; 35 independently resolved relocations and eight
+   zero alignment bytes. Separate stats/task snapshots preserve the retail
+   argument-load order without narrowing the persona lookup return type. */
+u16 func_0020a640(u8 *arg0, u8 *arg1)
+{
+    s16 sp48[4];
+    s16 temp_16;
+    u8 *temp_2;
+    u16 var_16;
+    u8 *stats;
+    u8 *task;
+
+    var_16 = (u16)(func_00202e70(arg0) & 0xFFFF);
+    switch (var_16) {
+    case 2:
+        temp_16 = *(s16 *)(arg0 + 4);
+        if (temp_16 != (s16)func_0010b510()) {
+            temp_2 = func_0010ace0(temp_16);
+            *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) = 5;
+            *(u16 *)(*(u8 **)(arg1 + 0x178) + 0x74) = *(u16 *)((u8 *)temp_2 + 2);
+            func_0011b360(*(u8 **)(arg1 + 0x5A8));
+            *(u8 **)(arg1 + 0x5A8) = NULL;
+            *(s16 *)(arg1 + 0x5AC) = -1;
+            *(s32 *)(iGpffffb3ac + 0xC) |= 0x2000;
+            *(s32 *)(iGpffffb3ac + 0xC) |= 0x20000;
+            func_00213c70(*(u8 **)(arg1 + 0x5B0));
+            var_16 = 4;
+        } else {
+            func_0045af60(0, 15, 0, 8);
+            var_16 = 1;
+        }
+        break;
+
+    case 3:
+        if (*(s16 *)(arg1 + 0x5AC) == -1) {
+            if (func_0011ba00(*(u8 **)(arg1 + 0x5A8)) == 0) {
+                temp_2 = func_0010ace0(*(s16 *)(arg0 + 4));
+                *(s32 *)(iGpffffb3ac + 0xC) &= ~0x2000;
+                *(s32 *)(iGpffffb3ac + 0xC) &= ~0x20000;
+                stats = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30);
+                task = *(u8 **)(arg1 + 0x5A8);
+                func_0011b480(task, *(u16 *)(stats + 0xA4), (u32)temp_2, 0);
+                func_0011bb90(*(u8 **)(arg1 + 0x5A8));
+                func_00213ca0(*(u8 **)(arg1 + 0x5B0));
+                func_0043f9c8(sp48, 0, 8);
+                sp48[0] = 4;
+                sp48[1] = 8;
+                func_00202e00(arg0, sp48);
+                *(u16 *)arg0 &= ~2;
+                *(u16 *)arg0 &= ~1;
+                *(u16 *)arg0 &= ~8;
+                *(s16 *)(arg1 + 0x5AC) = *(s16 *)(arg0 + 4);
+            }
+        } else if (func_0011c610(*(u8 **)(arg1 + 0x5A8)) == 0) {
+            func_0011c630(*(u8 **)(arg1 + 0x5A8));
+        } else {
+            func_0011c6e0(*(u8 **)(arg1 + 0x5A8), 1);
+        }
+        break;
+
+    case 1:
+        if (*(s16 *)(arg1 + 0x5AC) == -1) {
+            func_0011b360(*(u8 **)(arg1 + 0x5A8));
+            *(u8 **)(arg1 + 0x5A8) = NULL;
+            *(s16 *)(arg1 + 0x5AC) = -1;
+            func_0045af60(0, 0, 0, 4);
+            var_16 = 2;
+        } else if (func_0011c610(*(u8 **)(arg1 + 0x5A8)) == 0) {
+            *(s32 *)(iGpffffb3ac + 0xC) |= 0x2000;
+            *(s32 *)(iGpffffb3ac + 0xC) |= 0x20000;
+            func_0011bc70(*(u8 **)(arg1 + 0x5A8));
+            *(s16 *)(arg1 + 0x5AC) = -1;
+            func_00202e00(arg0, NULL);
+            func_00213c70(*(u8 **)(arg1 + 0x5B0));
+            *(u16 *)arg0 |= 2;
+            *(u16 *)arg0 |= 1;
+            *(u16 *)arg0 |= 8;
+            func_0045af60(0, 0, 0, 4);
+            var_16 = 1;
+        } else {
+            func_0011c6e0(*(u8 **)(arg1 + 0x5A8), 1);
+        }
+        break;
+
+    default:
+        if (*(s16 *)(arg1 + 0x5AC) != -1) {
+            if (*(s16 *)(arg1 + 0x5AC) != *(s16 *)(arg0 + 4)) {
+                temp_2 = func_0010ace0(*(s16 *)(arg0 + 4));
+                if (var_16 == 5) {
+                    stats = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30);
+                    task = *(u8 **)(arg1 + 0x5A8);
+                    func_0011c180(task, *(u16 *)(stats + 0xA4), (u32)temp_2, 0);
+                } else {
+                    stats = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30);
+                    task = *(u8 **)(arg1 + 0x5A8);
+                    func_0011c2c0(task, *(u16 *)(stats + 0xA4), (u32)temp_2, 0);
+                }
+                *(s16 *)(arg1 + 0x5AC) = *(s16 *)(arg0 + 4);
+            } else if (func_0011c610(*(u8 **)(arg1 + 0x5A8)) != 0) {
+                func_0011caf0(*(u8 **)(arg1 + 0x5A8));
+            }
+        }
+        var_16 = 1;
+        break;
+    }
+
+    return var_16;
+}
 // FUN_0020AA70
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020aa70);
 // FUN_0020AC70

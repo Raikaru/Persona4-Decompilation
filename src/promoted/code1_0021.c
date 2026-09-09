@@ -664,20 +664,20 @@ void func_00213c40(void)
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) & ~2;
 }
 // FUN_00213C70
-void func_00213c70(void)
+void func_00213c70(u8 *view)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560();
+    p = (u8 *)func_00452560(view);
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) | 0x100;
 }
 
 // FUN_00213CA0
-void func_00213ca0(void)
+void func_00213ca0(u8 *view)
 {
     u8 *p;
 
-    p = func_00452560();
+    p = (u8 *)func_00452560(view);
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) & ~0x100;
 }
 // FUN_00213CD0
