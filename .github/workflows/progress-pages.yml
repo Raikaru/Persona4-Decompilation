@@ -33,8 +33,9 @@ jobs:
           test -f progress/metrics.json
           test -f progress/matching.json
           test -f progress/linked.json
+          test -f progress/sony-sdk-linked.json
           mkdir -p _site/progress
-          cp progress/metrics.json progress/matching.json progress/linked.json _site/progress/
+          cp progress/metrics.json progress/matching.json progress/linked.json progress/sony-sdk-linked.json _site/progress/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
