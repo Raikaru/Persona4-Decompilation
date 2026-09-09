@@ -264,14 +264,14 @@ extern u8 *func_003e9af0(u8 *arg0, s32 (*arg1)(u8 *, s32), s32 arg2); /* P4: por
 /* measured: retail uses plain beqz in func_003e9c10's flag test. */
 #pragma no_branch_likely on
 // FUN_003E9C10
-u8 *func_003e9c10(u8 *arg0)
+u8 *func_003e9c10(u8 *arg0, const f32 *translation, s32 combineOp)
 {
-    extern s32 func_003e0c90();
+    extern u8 *func_003e0c90(u8 *, const f32 *, s32);
     u8 *temp_3;
     u8 temp_5;
     u8 **head;
 
-    func_003e0c90(arg0 + 0x10);
+    func_003e0c90(arg0 + 0x10, translation, combineOp);
     temp_3 = *(u8 **)(arg0 + 0xA0);
     temp_5 = *(u8 *)(temp_3 + 3);
     if ((temp_5 & 3) == 0) {

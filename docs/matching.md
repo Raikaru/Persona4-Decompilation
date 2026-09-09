@@ -8412,3 +8412,63 @@ functions were scanned. Totals are **7,790 MATCH /4,930 ASM** overall and
 **6,160 MATCH /700 ASM** first-party. Lint reports zero findings across338
 first-party files. This batch adds one exact first-party recovery. Compiler
 and native-smoke scratch directories are removed after their evidence is saved.
+
+## Fresh-target continuation: field camera callback
+
+`func_0017bc60` in `src/promoted/code1_0017.c` now replaces its ASM slot
+with ordinary C: **940/944 bytes, nd0,29 resolved relocations and four zero
+alignment bytes**. The staged matrix-result source reaches940/nd29;
+component-wise scaled increments close it. Keep `0.0f` on the left of the
+accumulated translation, reload the camera's frame after callbacks, and
+retain the separate matrix-result lifetime. All69 previously recovered
+field-owner C bodies retain their bytes and relocation meaning.
+
+The supporting `func_003e9c10` wrapper in `src/rw/rwcore_grouped.c` now takes
+`(u8 *,const f32 *,s32)` and explicitly forwards translation and combine mode
+to `func_003e0c90`. Its existing match remains **148/160 bytes, nd0,three
+relocations**. Both compiled callers in `src/promoted/code1_004a.c` are
+migrated; the field callback uses post-concatenation mode2. This contract
+repair is not counted as a new recovery.
+
+The old wrapper fails strict Wasm linking at both missing-argument
+signatures. The corrected, integrated wrapper passes **396 Wasm32 cases**
+covering numerical results for all three combine modes, four dirty-flag
+states,33 translation vectors, list insertion, unchanged inputs and canaries.
+Its matrix provider is an instrumented numerical boundary, not the complete
+RenderWare backend.
+
+The integrated field callback passes **11 Wasm32 scenario groups** covering
+early exit, both basis modes, clip/view-window calculations, component-wise
+translation, begin-update success/failure, RGBA save/replacement, callback
+mutation of frame/data/model pointers, reloads, untouched state and canaries.
+The fixture uses four-byte pointers and the actual matrix, clip and model
+color offsets. Native i386 libc headers/runtime are unavailable; this is
+32-bit WebAssembly execution, not a native32 or PS2 graphics-output claim.
+
+`FreshFieldRenderer_0017bc60_body.c` retains the exact source, declarations
+and evidence. The two other fresh candidates remain ASM:
+
+| Target | Result | Blocker |
+| --- | --- | --- |
+| `func_0045d370` | 852/880 bytes, nd455, six object relocations | 28 executable bytes uncovered; register/FP shape remains non-exact |
+| `func_0026f860` | Complete structural candidate; not compiled | Reachable case0 passes an unwritten string buffer to the sound provider |
+
+`FreshPrimitiveBuilder_0045d370_body.c` preserves the first source. Explicit
+zero additions and scoped propagation-off both tie the preferred result.
+No behavior smoke or exact-match claim is made for it.
+
+`FreshScriptCommand_0026f860_body.c` records the safety blocker: second<0 or
+second>=501 skips both format calls, then passes sp+0x50 to
+`func_0045aeb0(1,...)`. The dispatcher checks command dispatch, not the
+operand range; the sound provider forwards the string. No proven asset
+precondition excludes this path. Initializing that buffer would change
+retail behavior. Both formatted paths need at most45 bytes including NUL
+under signed16 operand bounds; print widths are minimums. That corrected
+bound does not repair the skipped-format path, and the remaining64-byte
+stack window does not independently prove the original declaration size.
+
+After this promotion, `make all lint-errors` passed:172 source objects
+linked, both retail SHA-1 hashes matched, and all12,720 functions were
+scanned. Totals are **7,791 MATCH /4,929 ASM** overall and **6,161 MATCH /
+699 ASM** first-party. Lint reports zero findings across338 first-party
+files. This is one additional exact first-party recovery, not completion.
