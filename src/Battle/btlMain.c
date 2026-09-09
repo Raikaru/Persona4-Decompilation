@@ -76,7 +76,7 @@ u32 func_001b96e0(void* work);
 u32 func_001b99f0(void* work);
 u32 func_001b9e50(void* work);
 
-extern u32 func_003bb4a0(); /* old-style, matches donor call shape */
+extern u8 *func_003bb4a0(u8 *spline, s32 index, f32 *position);
 
 typedef struct RwV3d RwV3d;
 struct RwV3d
@@ -828,7 +828,7 @@ u32 func_001ba9e0(u16 *param_1, f32 *param_2, f32 *param_3)
         entry[2] = value1;
         if ((*param_1 & 1) == 0)
         {
-            func_003bb4a0(*(u32*)(param_1 + 0x4c), index, param_2);
+            func_003bb4a0(*(u8 **)(param_1 + 0x4c), index, param_2);
         }
     }
     if (param_3 != ((void*)0))
@@ -890,7 +890,7 @@ void func_001bab00(u16 *param_1, f32 *param_2)
             entry[2] = value1;
             if ((*param_1 & 1) == 0)
             {
-                func_003bb4a0(*(u32*)((u8*)param_1 + 0x98), index, param_2);
+                func_003bb4a0(*(u8 **)((u8*)param_1 + 0x98), index, param_2);
             }
         }
         source = param_2 + 3;
@@ -957,7 +957,7 @@ void func_001bac20(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
             entry[2] = value1;
             if ((*param_1 & 1) == 0)
             {
-                func_003bb4a0(*(u32*)((u8*)param_1 + 0x98), index0, param_2);
+                func_003bb4a0(*(u8 **)((u8*)param_1 + 0x98), index0, param_2);
             }
         }
         source = param_2 + 3;
@@ -996,7 +996,7 @@ void func_001bac20(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
             *(RwV3d*)entry = *(RwV3d*)work;
             if ((*param_1 & 1) == 0)
             {
-                func_003bb4a0(*(u32*)((u8*)param_1 + 0x98), index1, work);
+                func_003bb4a0(*(u8 **)((u8*)param_1 + 0x98), index1, work);
             }
         }
         if (work + 3 != ((void*)0))
@@ -1027,7 +1027,7 @@ void func_001bac20(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
             *(RwV3d*)entry = *(RwV3d*)work;
             if ((*param_1 & 1) == 0)
             {
-                func_003bb4a0(*(u32*)((u8*)param_1 + 0x98), index, work);
+                func_003bb4a0(*(u8 **)((u8*)param_1 + 0x98), index, work);
             }
         }
         if (work + 3 != ((void*)0))
@@ -1062,7 +1062,7 @@ void func_001bac20(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
             entry[2] = value1;
             if ((*param_1 & 1) == 0)
             {
-                func_003bb4a0(*(u32*)((u8*)param_1 + 0x98), index, param_3);
+                func_003bb4a0(*(u8 **)((u8*)param_1 + 0x98), index, param_3);
             }
         }
         source = param_3 + 3;
@@ -1094,8 +1094,197 @@ void func_001bac20(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
 
 // FUN_001BAFF0
 INCLUDE_ASM("asm/nonmatchings/btlMain", func_001baff0);
+/* Exact: 948B/960B, four resolved spline calls and twelve zero-tail bytes.
+   Keep each append's count/index reloads and callback-visible copy order. */
 // FUN_001BB3D0
-INCLUDE_ASM("asm/nonmatchings/btlMain", func_001bb3d0);
+void func_001bb3d0(void *camera, void *first, void *second,
+                   void *third, void *fourth, u16 mode)
+{
+    u16 *state = (u16 *)camera;
+    u16 index;
+    u32 address;
+    f32 *entry;
+    f32 *source;
+    f32 value1;
+    f32 value2;
+    f32 value3;
+    f32 value4;
+
+    state[0] = mode;
+    state[0x3A] = 0;
+    state[0x3B] = 0;
+    state[0x3C] = 0;
+    *(u32 *)((u8 *)camera + 0x80) = 0;
+    *(u32 *)((u8 *)camera + 0x7C) = 0;
+    if (state[0x3B] < 4)
+    {
+        index = state[0x3C];
+        if (first != NULL)
+        {
+            address = (u32)index * 0x1C;
+            address = address + (u32)state;
+            entry = (f32 *)(address + 4);
+            value2 = ((f32 *)first)[0];
+            value3 = ((f32 *)first)[1];
+            value1 = ((f32 *)first)[2];
+            entry[0] = value2;
+            entry[1] = value3;
+            entry[2] = value1;
+            if ((*state & 1) == 0)
+            {
+                func_003bb4a0(*(u8 **)((u8 *)state + 0x98), index, first);
+            }
+        }
+        source = (f32 *)((u8 *)first + 0xC);
+        if (source != NULL)
+        {
+            address = (u32)index * 0x1C;
+            address = address + (u32)state;
+            entry = (f32 *)(address + 0x10);
+            value2 = source[0];
+            value3 = source[1];
+            value4 = source[2];
+            value1 = source[3];
+            entry[0] = value2;
+            entry[1] = value3;
+            entry[2] = value4;
+            entry[3] = value1;
+        }
+        index++;
+        if (index >= 4)
+        {
+            index = 0;
+        }
+        state[0x3C] = index;
+        state[0x3B]++;
+    }
+    if (state[0x3B] < 4)
+    {
+        index = state[0x3C];
+        if (second != NULL)
+        {
+            address = (u32)index * 0x1C;
+            address = address + (u32)state;
+            entry = (f32 *)(address + 4);
+            value2 = ((f32 *)second)[0];
+            value3 = ((f32 *)second)[1];
+            value1 = ((f32 *)second)[2];
+            entry[0] = value2;
+            entry[1] = value3;
+            entry[2] = value1;
+            if ((*state & 1) == 0)
+            {
+                func_003bb4a0(*(u8 **)((u8 *)state + 0x98), index, second);
+            }
+        }
+        source = (f32 *)((u8 *)second + 0xC);
+        if (source != NULL)
+        {
+            address = (u32)index * 0x1C;
+            address = address + (u32)state;
+            entry = (f32 *)(address + 0x10);
+            value2 = source[0];
+            value3 = source[1];
+            value4 = source[2];
+            value1 = source[3];
+            entry[0] = value2;
+            entry[1] = value3;
+            entry[2] = value4;
+            entry[3] = value1;
+        }
+        index++;
+        if (index >= 4)
+        {
+            index = 0;
+        }
+        state[0x3C] = index;
+        state[0x3B]++;
+    }
+    if (state[0x3B] < 4)
+    {
+        index = state[0x3C];
+        if (third != NULL)
+        {
+            address = (u32)index * 0x1C;
+            address = address + (u32)state;
+            entry = (f32 *)(address + 4);
+            value2 = ((f32 *)third)[0];
+            value3 = ((f32 *)third)[1];
+            value1 = ((f32 *)third)[2];
+            entry[0] = value2;
+            entry[1] = value3;
+            entry[2] = value1;
+            if ((*state & 1) == 0)
+            {
+                func_003bb4a0(*(u8 **)((u8 *)state + 0x98), index, third);
+            }
+        }
+        source = (f32 *)((u8 *)third + 0xC);
+        if (source != NULL)
+        {
+            address = (u32)index * 0x1C;
+            address = address + (u32)state;
+            entry = (f32 *)(address + 0x10);
+            value2 = source[0];
+            value3 = source[1];
+            value4 = source[2];
+            value1 = source[3];
+            entry[0] = value2;
+            entry[1] = value3;
+            entry[2] = value4;
+            entry[3] = value1;
+        }
+        index++;
+        if (index >= 4)
+        {
+            index = 0;
+        }
+        state[0x3C] = index;
+        state[0x3B]++;
+    }
+    if (state[0x3B] < 4)
+    {
+        index = state[0x3C];
+        if (fourth != NULL)
+        {
+            address = (u32)index * 0x1C;
+            address = address + (u32)state;
+            entry = (f32 *)(address + 4);
+            value2 = ((f32 *)fourth)[0];
+            value3 = ((f32 *)fourth)[1];
+            value1 = ((f32 *)fourth)[2];
+            entry[0] = value2;
+            entry[1] = value3;
+            entry[2] = value1;
+            if ((*state & 1) == 0)
+            {
+                func_003bb4a0(*(u8 **)((u8 *)state + 0x98), index, fourth);
+            }
+        }
+        source = (f32 *)((u8 *)fourth + 0xC);
+        if (source != NULL)
+        {
+            address = (u32)index * 0x1C;
+            address = address + (u32)state;
+            entry = (f32 *)(address + 0x10);
+            value2 = source[0];
+            value3 = source[1];
+            value4 = source[2];
+            value1 = source[3];
+            entry[0] = value2;
+            entry[1] = value3;
+            entry[2] = value4;
+            entry[3] = value1;
+        }
+        index++;
+        if (index >= 4)
+        {
+            index = 0;
+        }
+        state[0x3C] = index;
+        state[0x3B]++;
+    }
+}
 extern RwV3d D_00881430;
 #pragma push
 #pragma opt_loop_invariants on
