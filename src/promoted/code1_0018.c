@@ -106,7 +106,7 @@ extern s32 func_0015a560(void);
 extern f32 func_0044b7b0(f32 arg0);
 extern void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, s32 arg5, s32 arg6, s32 arg7,
-                          s32 arg8, u8 *arg9, f32 farg0, f32 farg1,
+                          s16 arg8, void *arg9, f32 farg0, f32 farg1,
                           f32 farg2, f32 farg3);
 
 extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
