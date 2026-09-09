@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "sdk_snd_internal.h"
+#include "shd_misc_internal.h"
 
 extern void func_0034f5d0(u8 *arg0);
 
@@ -106,7 +107,6 @@ extern void func_00356140(u8 *arg0);
 extern void func_003556a0(u8 *arg0, s64 arg1, s32 arg2);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern u8 D_00793E80[];
-extern void func_00365f00(f32 f0, f32 f1, f32 f2, f32 f3, s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, f32 f4);
 extern f32 iGpffff83d4;
 extern f32 iGpffff8544;
 extern f32 func_0044b7b0(f32 arg0);
@@ -973,13 +973,13 @@ void func_00356140(u8 *arg0)
 void func_00356170(s64 arg0, s32 arg1, s32 arg2, s32 arg3,
                    f32 f0, f32 f1, f32 f2)
 {
-    s64 saved0[1];
+    union { s64 bits; Vec2f position; } saved0[1];
     s32 saved1[1];
     s32 var8;
     s32 tmp2;
     u8 sel;
 
-    saved0[0] = arg0;
+    saved0[0].bits = arg0;
     saved1[0] = arg1;
     tmp2 = arg2;
     var8 = arg3;
@@ -987,8 +987,9 @@ void func_00356170(s64 arg0, s32 arg1, s32 arg2, s32 arg3,
     if (sel != 0xFF) {
         var8 = 0;
     }
-    func_00365f00(f0, f1, f2, 1.0f, *(s64 *)((u8 *)saved0),
-                  *(s32 *)((u8 *)saved1), saved1[0], tmp2, var8, 1.0f);
+    func_00365f00(saved0[0].position, f0,
+                  *(s32 *)((u8 *)saved1), saved1[0],
+                  f1, f2, tmp2, 1.0f, 1.0f, var8);
 }
 #pragma pop
 /* measured: opt_propagation off probe for staged argument materialisation. */
@@ -997,10 +998,13 @@ void func_00356170(s64 arg0, s32 arg1, s32 arg2, s32 arg3,
    locals preserve retail materialisation order under opt_propagation off; the
    12-byte tail is retail zero padding. */
 // FUN_003561D0
-void func_003561d0(s64 arg0, s32 arg1, s32 arg2, s32 arg3,
+void func_003561d0(Vec2f arg0, s32 arg1, s32 arg2, s32 arg3,
                    f32 dummy, f32 f0, f32 f1)
 {
-    struct Frame { s64 saved0; s32 saved1; f32 temp; } frame;
+    struct Frame {
+        union { s32 bits; f32 value; } saved1;
+        union { f32 value; u8 bytes[4]; } temp;
+    } frame;
     s32 var8;
     u8 sel;
     f32 scaled;
@@ -1010,19 +1014,15 @@ void func_003561d0(s64 arg0, s32 arg1, s32 arg2, s32 arg3,
     f32 call_f1;
     f32 call_f2;
     f32 call_f3;
-    s64 call_arg0;
-    s32 call_arg1;
-    s32 call_arg2;
     s32 call_arg4;
     f32 call_f4;
 
-    frame.saved0 = arg0;
-    frame.saved1 = arg1;
+    frame.saved1.bits = arg1;
     scaled = f0 / iGpffff83d4;
     shifted = iGpffff8544 + f1;
     var8 = arg2;
-    frame.temp = *(f32 *)((u8 *)&frame.saved1);
-    sel = ((u8 *)&frame.temp)[3];
+    frame.temp.value = frame.saved1.value;
+    sel = frame.temp.bytes[3];
     if (sel != 0xFF) {
         var8 = 0;
     }
@@ -1031,14 +1031,11 @@ void func_003561d0(s64 arg0, s32 arg1, s32 arg2, s32 arg3,
     call_f1 = scaled;
     call_f2 = shifted;
     call_f3 = one;
-    call_arg0 = *(s64 *)((u8 *)&frame.saved0);
-    call_arg1 = frame.saved1;
-    call_arg2 = frame.saved1;
     call_arg4 = var8;
     call_f4 = one;
-    func_00365f00(call_f0, call_f1, call_f2, call_f3,
-                  call_arg0, call_arg1, call_arg2, 4,
-                  call_arg4, call_f4);
+    func_00365f00(arg0, call_f0, frame.saved1.bits, frame.saved1.bits,
+                  call_f1, call_f2, 4,
+                  call_f3, call_f4, call_arg4);
 }
 /* measured: closes opt_propagation off probe for staged argument materialisation. */
 #pragma opt_propagation on

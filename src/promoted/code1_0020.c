@@ -2,6 +2,7 @@
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
+#include "btl_panel_internal.h"
 
 typedef struct RwMatrix RwMatrix;
 typedef struct RwV3d RwV3d;
@@ -665,19 +666,26 @@ void func_00201410(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1)
     *(u16 *)(arg0 + 0x8C) = 0;
     *(u16 *)(arg0 + 0x8E) = 0;
 }
+/* Keep the opacity base ahead of byte promotion, matching retail order. */
+#pragma push
+#pragma opt_propagation off
 // FUN_00201650
 void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1,
-                   s32 arg5, s32 arg6, s32 arg7, s32 arg8) {
+                   u8 arg5, u8 arg6, u8 arg7, u8 arg8) {
     arg0[0x94] = (u8)arg5;
     arg0[0x95] = (u8)arg6;
     arg0[0x96] = (u8)arg7;
-    arg0[0x7D] = 0xFF - (arg8 & 0xFF);
+    {
+        s32 maximum = 0xFF;
+        arg0[0x7D] = maximum - (arg8 & 0xFF);
+    }
     func_00201410(arg0, arg1, arg2, fparg0, fparg1);
     arg0[0x94] = 0xFF;
     arg0[0x95] = 0xFF;
     arg0[0x96] = 0xFF;
     arg0[0x7D] = 0;
 }
+#pragma pop
 
 // FUN_002016B0
 void func_002016b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
@@ -2645,10 +2653,9 @@ void func_0020e3f0() {
    between $s6 and the $v1/$s4 parks only with (ctx, x, y, text, flag, color);
    the EE ABI assigns int/float registers independently, so callers are
    unchanged. arg3 is unsigned (srl, not sra) and the four colour bytes are
-   (s8)(u8) into u64 locals (dsll32/dsra32 canonicalisation, then an in-place
-   andi via `c = (u8)c` that a later s64-parameter call passes with a bare
-   move); the callee is declared with s64 colour parameters at block scope
-   for that reason (its definition takes s32). `i = 0` precedes the masks
+   (s8)(u8) into u64 locals (dsll32/dsra32 canonicalisation). Separate byte
+   snapshots preserve the four masks and bare argument moves through the
+   canonical byte-color provider declaration. `i = 0` precedes the masks
    so the index inherits the dead flag's $s4. */
 // FUN_0020E420
 void func_0020e420(u8 *arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, u32 arg3)
@@ -2656,12 +2663,15 @@ void func_0020e420(u8 *arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, u32 arg
     extern s32 iGpffffa580;
     extern void func_00442088(void *arg0, const char *arg1, ...);
     extern s32 func_00442948(const void *arg0);
-    extern void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1, s64 arg5, s64 arg6, s64 arg7, s64 arg8);
     u8 sp90[0x40];
     u64 c0;
+    u8 channel0;
     u64 c1;
+    u8 channel1;
     u64 c2;
+    u8 channel2;
     u64 c3;
+    u8 channel3;
     s32 count;
     s32 i;
 
@@ -2677,12 +2687,13 @@ void func_0020e420(u8 *arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, u32 arg
             fparg1 -= 11.0f;
         }
         i = 0;
-        c0 = (u8)c0;
-        c1 = (u8)c1;
-        c2 = (u8)c2;
-        c3 = (u8)c3;
+        channel0 = (u8)c0;
+        channel1 = (u8)c1;
+        channel2 = (u8)c2;
+        channel3 = (u8)c3;
         for (; i < count; i++) {
-            func_00201650(arg0, 10, (s8)sp90[i] - 0x19, fparg0, fparg1, c3, c2, c1, c0);
+            func_00201650(arg0, 10, (s8)sp90[i] - 0x19, fparg0, fparg1,
+                          channel3, channel2, channel1, channel0);
             fparg0 += 19.0f;
         }
     }
@@ -2941,6 +2952,63 @@ void func_0020f4d0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1)
 // FUN_0020F730
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020f730);
 // FUN_0020FA70
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020fa70);
+/* Retail-exact: 1156 bytes, 24 relocations, 12 zero alignment bytes. */
+void func_0020fa70(u8 *work, u8 *state)
+{
+    extern void func_0020f730(u8 *work, u8 *state, s32 color, s32 index);
+    union { Color4 rgba; s32 bits; } ring, fill, saved, black, transparent;
+    Vec2f position;
+    u8 red;
+    u8 green;
+    u8 blue;
+    s32 index;
+    f32 extent;
+    extent = *(f32 *)(state + 8);
+    if (extent == 0.0f) return;
+    func_00201350();
+    if (*(s16 *)(state + 4) & 4) {
+        red = 140; green = 170; blue = 255;
+        ring.rgba.c0 = 102; ring.rgba.c1 = 130; ring.rgba.c2 = 255;
+        fill.rgba.c0 = 0; fill.rgba.c1 = 25; fill.rgba.c2 = 255;
+    } else {
+        red = 255; green = 140; blue = 170;
+        ring.rgba.c0 = 255; ring.rgba.c1 = 102; ring.rgba.c2 = 110;
+        fill.rgba.c0 = 255; fill.rgba.c1 = 0; fill.rgba.c2 = 21;
+    }
+    ring.rgba.c3 = 51;
+    fill.rgba.c3 = (u8)(255.0f * extent);
+    func_002012d0(work, (f32)279, 229.0f);
+    func_002019d0(work, 1.0f, 1.0f);
+    saved.rgba = fill.rgba;
+    position.x = (f32)279;
+    position.y = 229.0f;
+    transparent.rgba.c0 = black.rgba.c0 = 0;
+    transparent.rgba.c1 = black.rgba.c1 = 0;
+    transparent.rgba.c2 = black.rgba.c2 = 0;
+    black.rgba.c3 = (u8)(76.0f * extent);
+    transparent.rgba.c3 = 0;
+    func_00365f00(position, 0.0f, black.bits, transparent.bits, 100.0f, 0.0f, 12, 1.066f, 1.0f, 0);
+    transparent.rgba.c0 = saved.rgba.c0;
+    transparent.rgba.c1 = saved.rgba.c1;
+    transparent.rgba.c2 = saved.rgba.c2;
+    transparent.rgba.c3 = 0;
+    func_00201820(2);
+    func_00365f00(position, 0.0f, fill.bits, transparent.bits, 125.0f, 0.0f, 12, 1.066f, 1.0f, 0);
+    func_00201720(work, extent, 1.0f);
+    func_002016e0(work, 0, 0, 90.0f);
+    func_00201650(work, 10, 45, 20.0f, -57.0f * extent, red, green, blue, 255);
+    if (state[0]) {
+        func_00201720(work, 1.2f, 1.5f);
+        func_00201650(work, 10, 45, 30.0f, -68.4f, red, green, blue, state[0]);
+    }
+    func_00201720(work, 1.0f, extent);
+    func_002016e0(work, 0, 0, 0.0f);
+    func_00201650(work, 10, 46, 12.0f, -5.0f * extent, red, green, blue, 255);
+    func_00201720(work, 1.066f, extent);
+    for (index = 1; index < 12; index++) func_0020f730(work, state, ring.bits, index);
+    func_002016e0(work, 0, 0, 0.0f);
+    func_00201720(work, 1.0f, 1.0f);
+    func_002019d0(work, 1.0f, 1.0f);
+}
 // FUN_0020FF00
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020ff00);

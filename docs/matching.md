@@ -8691,3 +8691,58 @@ SHA-1 hashes matched, all 12,720 functions scanned, and zero findings
 across 338 first-party files. Totals are **7,796 MATCH / 4,924 ASM**
 overall and **6,166 MATCH / 694 ASM** first-party (89.9%). The overall
 all-matching objective remains incomplete.
+
+## Fresh-target continuation: panel composition and drawing contracts
+
+`func_0020fa70` in `src/promoted/code1_0020.c` is now **MATCH**:
+1156/1168 bytes, nineteen call and five floating-literal relocations
+independently resolved, and twelve zero alignment bytes. All 1168 retail
+bytes compare equal. The initial integer-palette reconstruction had 760
+differing bytes. Byte palette locals and the provider's actual four-byte
+color contract eliminate the extra masks and close argument scheduling.
+
+`include/btl_panel_internal.h` now supplies the canonical byte-color
+declaration for `func_00201650`; `btlPanelAnalyze.c` already used that
+contract. Contradictory integer, wide-integer and misordered declarations
+were removed. Scoped opacity-base staging keeps the provider's original
+92-byte body exact. Separate byte snapshots retain the glyph renderer's
+412-byte body and original mask placement without a shadow declaration.
+Existing owner functions remain retail-exact.
+
+The radial declaration in `include/shd_misc_internal.h` now uses the
+existing `Vec2f`, two packed colors, the five floating inputs, full-width
+segment count and mode. All compiled callers migrated. `func_0021bbb0`,
+`func_00356170` and `func_003561d0` remain exact at 604/608, 96/96 and
+116/128 bytes respectively. The staged wrapper takes its actual `Vec2f`
+input directly rather than copying an integer into another aggregate.
+
+The integrated composition passed **336,896 Wasm32 cases** through nine
+actual provider bodies. An independent model checks whole guarded
+fixtures, queued 44-byte sprite descriptors, and ordered render-state,
+radial and child submissions. Mutations exercise the extent snapshot,
+late palette/pulse reads, coordinate and scale changes, UV reset behavior,
+and cleanup after child calls. Coverage includes all halfword flags,
+all pulse bytes over 33 bounded extents and 32 mutation modes, and 1,024
+negative-zero early exits. Radial and child renderers are opaque submission
+boundaries; this is not a PS2 graphical presentation check.
+
+Another **131,072 native cases** exercise the actual typed radial wrappers
+under Clang address, undefined-behavior, float-cast-overflow and
+float-divide-by-zero sanitizers. They check coordinate/color preservation,
+alpha-gated modes, full-width segment forwarding and radius/angle changes.
+
+The complete radial provider candidate reaches **1148/1152 bytes,
+31 differing bytes**, with seventeen independently resolved relocations
+and four zero tail bytes. Only a five-register color/count cycle remains.
+Type, count and loop-shape alternatives did not close it; production
+`func_00365f00` retains ASM. The complete candidates and evidence are in
+`FreshPanelComposition_0020fa70_body.c` and `RadialProvider_00365f00_body.c`
+under `docs/probe_archive/`.
+
+Temporary compiler probes and runtime smoke fixtures were removed.
+
+`make all lint-errors` passed: 172 source objects linked, both retail
+SHA-1 hashes matched, all 12,720 functions scanned, and zero findings
+across 339 first-party files. Totals are **7,797 MATCH / 4,923 ASM**
+overall and **6,167 MATCH / 693 ASM** first-party (89.9%). The overall
+all-matching objective remains incomplete.

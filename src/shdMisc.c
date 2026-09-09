@@ -256,9 +256,10 @@ void func_003657d0(Vec2f arg0, f32 fparg0, s32 arg1, f32 fparg1, f32 fparg2, s32
 // FUN_00365AC0
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00365ac0);
 
-/* measured: closest clean-C probe was object 1720B over a 1152B window
-   (normalized diff 414); packet stack placement and compiler schedule remained
-   nonmatching, so the archived probe is intentionally not committed. */
+/* measured: complete source reaches 1148/1152 bytes with 17 independently
+   resolved relocations and four zero alignment bytes. A five-register
+   color/count cycle leaves 31 differing bytes. Retain retail ASM; complete
+   source and probe evidence: docs/probe_archive/RadialProvider_00365f00_body.c. */
 // FUN_00365F00
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00365f00);
 

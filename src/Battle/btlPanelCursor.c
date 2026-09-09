@@ -3,9 +3,9 @@
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
 #include "shd_misc_internal.h"
+#include "btl_panel_internal.h"
 
 extern u8 *func_00452560(void);
-extern void func_00201650(u8 *work, s32 mode, s32 tile, f32 r, f32 g, s32 b, s32 a, f32 x, f32 y);
 extern void func_002016e0(u8 *work, s16 mode, s16 tile, f32 angle);
 extern void func_00201820(s32 mode);
 extern void func_0021ae80(u8 *work, s32 unused);
