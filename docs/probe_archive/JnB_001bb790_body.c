@@ -1,19 +1,30 @@
-/* Current typed curve floor: 296B/304B, 59 differing bytes in 21 emitted
- * words, all six relocations resolved; eight zero-tail bytes. Production ASM.
- * Ordinary pointer arithmetic ties the former integer-punned candidate.
+/* Exact current owner recovery: 296B/304B, zero differing bytes after
+ * resolving all six relocations; eight zero-tail bytes. Production C.
+ * A coefficient pointer plus scoped propagation-off retains the stack
+ * address instruction. Loop-invariant extraction hoists positive zero.
  * The RwV3d seed copy preserves three loads before any output store.
  * Y/Z products precede X accumulation, including when output overlaps input.
  * IDA: docs/ida_headstart/src/Battle/btlMain.c:898-936.
- * Residual: zero hoisting, the coefficient address's zero add, and resulting
- * loop scheduling/register allocation. Cursor grouping worsens to 32 fndiff
- * words; loop-invariant/basis forms give 40 and grouped work 56. A weighted
- * vector ties 23 fndiff words, including the two missing zero-tail words.
- * All 22 existing owner C matches and relocation lists remain intact.
- * Native Clang UB-trap smoke: 15,360 cases, valid ring indices 0..3,
- * coefficient boundaries, partial output overlap, seed-object aliasing and
- * whole-buffer preservation. C floating behavior, not an EE COP1 emulator.
+ * The former literal-index floor was 296B/nd59. Fresh independent named-zero,
+ * typed-sample, seven-float and Y/Z temporary candidates all give 300B/nd133.
+ * A const zero or four-component coefficient vector ties 296B/nd59.
+ * Loop extraction alone reaches 292B/nd114: only the zero-displacement
+ * coefficient-address instruction is missing, shifting later instructions.
+ * A natural element pointer with propagation disabled closes that final
+ * instruction. The original f32[4] storage suffices; no wrapper, padding,
+ * invented arithmetic or register binding is needed.
+ * The complete owner now has 23 MATCH / 4 ASM; all 22 earlier matches survive.
+ * Fresh native x86-64 Clang UB-trap smoke passes 15,360 cases: four ring
+ * indices, twelve parameters, eight data patterns, 38 input/output overlap
+ * positions, an external output and exact seed-object aliasing. Every arena,
+ * external output and seed byte is checked. -ffp-contract=off models C
+ * floating behavior, not EE COP1 execution. The 32-bit libc build was
+ * unavailable (gnu/stubs-32.h missing); no fresh 32-bit runtime claim.
  */
 extern RwV3d D_00881430;
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
 void func_001bb790(u8 *arg0, f32 *arg1, f32 fparg0)
 {
     f32 weights[4];
@@ -26,6 +37,7 @@ void func_001bb790(u8 *arg0, f32 *arg1, f32 fparg0)
     u16 i;
     s32 index;
     u8 *p;
+    f32 *weight;
 
     f3 = 1.0f - fparg0;
     f1 = f3 * f3;
@@ -41,7 +53,8 @@ void func_001bb790(u8 *arg0, f32 *arg1, f32 fparg0)
     *(RwV3d *)arg1 = D_00881430;
     i = 0;
     while (i < 4) {
-        temp_f5 = weights[i];
+        weight = &weights[i];
+        temp_f5 = *weight;
         p = arg0 + (u16)index * 0x1C;
         f4 = *(f32 *)(p + 8) * temp_f5;
         f3 = *(f32 *)(p + 0xC) * temp_f5;
@@ -55,3 +68,4 @@ void func_001bb790(u8 *arg0, f32 *arg1, f32 fparg0)
         i++;
     }
 }
+#pragma pop

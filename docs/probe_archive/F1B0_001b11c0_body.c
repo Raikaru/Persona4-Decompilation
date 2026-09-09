@@ -18,6 +18,13 @@
  * Checks exact stable ordering and untouched prefix/sentinel/suffix bytes.
  * Singleton actions need no unit; a guard page after entry twelve proves
  * the full-count scan does not read a thirteenth slot.
+ *
+ * Fresh 2026-09-09 independent source-shape proposals were measured in the
+ * current owner: a nonescaping index/key aggregate reaches 192B/nd11;
+ * reversing its field order is identical. Compare-only low-16 key
+ * projection ties 192B/nd5; a key-only child scope reaches 192B/nd8.
+ * Signed/unsigned 64-bit key locals both grow to 208B/nd118. No candidate
+ * closes the t1/t3 cycle, and production remains unchanged.
  */
 #pragma opt_loop_invariants on
 void func_001b11c0(s32 arg0)
