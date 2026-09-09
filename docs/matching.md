@@ -8651,3 +8651,43 @@ SHA-1 hashes matched, all 12,720 functions scanned, and zero findings
 across 338 first-party files. Totals are **7,795 MATCH / 4,925 ASM**
 overall and **6,165 MATCH / 695 ASM** first-party (89.9%). The overall
 all-matching objective remains incomplete.
+
+## Fresh-target continuation: three-sprite panel expansion
+
+`func_0020ef10` in `src/promoted/code1_0020.c` is now **MATCH**:
+1460/1472 bytes, seven independently resolved call relocations and twelve
+zero alignment bytes. Direct call resolution reproduces all 1472 retail
+bytes. The promoted alpha conditional first reached 77 differing bytes.
+Separating the initial expansion from the saved remainder, using the
+finite-value `expansion > 1.0f` saturation, and keeping the first-phase
+remainder distinct from the second-phase fade closes the residual.
+No additional pragma or padding is needed.
+
+Preserve the frame snapshot after the work getter, the saved alpha and
+coordinates across each sprite group, and the late halfword-flag reload.
+The three-sprite phase uses `3*ramp(frame,0,4)-2*ramp(frame,4,8)`; its
+integer-derived inputs are bounded and finite. Flag4 precedes frame6
+activation. Unlike the neighboring animation, this target does not reset
+work scales. Existing providers and callers are unchanged.
+
+The exact source passed **335,872 Wasm32 cases** through the real
+pointer-add helper, sprite setup and color wrapper. The submission sink
+captures complete 44-byte descriptors for up to five sprites before
+mutating frames, flags, coordinates, resource IDs, scales, UV fields and
+output. An independent model checks whole fixtures, guard regions,
+transient descriptor data and post-callback resets. Coverage includes
+every signed-halfword frame with four flag combinations, every halfword
+flag at boundary frames, and 8,192 full-width frame samples. Both unit-scale
+and scaled/cropped provider paths are exercised with bounded conversions.
+This is not a PS2 graphical presentation check or a claim about arbitrary
+corrupt work state.
+
+`docs/probe_archive/FreshPanelExpansion_0020ef10_body.c` retains the
+complete exact source, probe progression and runtime evidence. Temporary
+compiler and smoke fixtures were removed.
+
+`make all lint-errors` passed: 172 source objects linked, both retail
+SHA-1 hashes matched, all 12,720 functions scanned, and zero findings
+across 338 first-party files. Totals are **7,796 MATCH / 4,924 ASM**
+overall and **6,166 MATCH / 694 ASM** first-party (89.9%). The overall
+all-matching objective remains incomplete.

@@ -2825,7 +2825,69 @@ void func_0020ea60(u8 *task, u8 *transition, u8 *panel, u8 *output)
     }
 }
 // FUN_0020EF10
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020ef10);
+/* Retail-exact: 1460 bytes, 7 call relocations, 12 zero alignment bytes. */
+void func_0020ef10(u8 *task, u8 *transition, u8 *panel, u8 *output)
+{
+    u8 *work;
+    s32 frame;
+    u8 alpha;
+    f32 first;
+    f32 second;
+    f32 expansion;
+    f32 remaining;
+    f32 fade;
+    f32 offset;
+    f32 y;
+    work = func_00452560(*(s32 *)(task + 4));
+    frame = *(s32 *)(transition + 0x10);
+    if (frame < 0) first = 0.0f;
+    else if (frame < 4) first = (f32)frame / 4.0f;
+    else first = 1.0f;
+    if (frame < 4) second = 0.0f;
+    else if (frame < 8) second = (f32)(frame - 4) / 4.0f;
+    else second = 1.0f;
+    expansion = 3.0f * first - 2.0f * second;
+    if (!(expansion <= 0.0f)) {
+        alpha = (expansion > 1.0f) ? 255 : (u8)(255.0f * expansion);
+        remaining = 1.0f - expansion;
+        func_00201650(work, 10, 18, 61.0f,
+                      (0.0f + 46.0f - 20.0f * remaining) - 16.0f,
+                      244, 255, 14, (u8)alpha);
+        offset = 10.0f * remaining;
+        remaining = 87.0f + offset;
+        y = remaining - 16.0f;
+        func_00201650(work, 10, 19, 37.0f - offset, y, 244, 255, 14, (u8)alpha);
+        func_00201650(work, 10, 20, 84.0f + offset, y, 244, 255, 14, (u8)alpha);
+    }
+    if (frame < 2) fade = 0.0f;
+    else if (frame < 5) fade = (f32)(frame - 2) / 3.0f;
+    else fade = 1.0f;
+    if (!(fade <= 0.0f)) {
+        alpha = (u8)(255.0f * fade);
+        fade = 1.0f - fade;
+        y = 20.0f * fade;
+        fade = 73.0f + y;
+        y = fade - 16.0f;
+        func_00201650(work, 10, 12, 47.0f, y, 244, 255, 14, (u8)alpha);
+        func_00201650(work, 10, 11, 47.0f, y, 54, 46, 0, (u8)alpha);
+    }
+    if (frame < 2) fade = 0.0f;
+    else if (frame < 5) fade = (f32)(frame - 2) / 3.0f;
+    else fade = 1.0f;
+    output[4] = (u8)(255.0f * fade);
+    *(f32 *)output = 20.0f * (1.0f - fade);
+    if (*(u16 *)(transition + 0x14) & 4) {
+        *(f32 *)(output + 0xC) = 54.0f;
+        *(f32 *)(output + 0x10) = 89.0f;
+        *(s32 *)(output + 8) = 1;
+    } else if (frame == 6) {
+        func_0021b310(panel, 1);
+    } else if (frame > 6) {
+        *(f32 *)(output + 0xC) = 54.0f;
+        *(f32 *)(output + 0x10) = 89.0f;
+        *(s32 *)(output + 8) = 1;
+    }
+}
 /* measured: struct aggregate spelling probe for F4D0. */
 #pragma opt_propagation off
 // FUN_0020F4D0
