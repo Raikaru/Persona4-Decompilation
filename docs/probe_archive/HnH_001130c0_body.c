@@ -26,6 +26,20 @@
  * with G/B assigned first all emit 440B and 15 masked differing words.
  * They change saved-register allocation rather than closing the five-word
  * schedule. Keep the smaller original floor, not those aggregate variants.
+ * Fresh canonical-owner replay: 440/448 bytes, 17 differing executable bytes
+ * in the same five words, nine relocations, and eight zero-tail bytes.
+ * Independent alpha is not the copied Color.a; borrowing that byte would
+ * invent a store or replace real copied data. No such variant is retained.
+ * Canonical formatter declaration is s32(void *, const void *, ...);
+ * remove the caller's conflicting non-variadic void declaration.
+ * A separate caller-local Vec2f produces 712/720 bytes with three differing
+ * stack-offset bytes. Instead add Vec2f position to the caller's existing
+ * eight-byte xy union, assign xy.position.x/y in this target's branch and
+ * pass xy.position through the canonical Vec2f prototype. This writes and
+ * reads the same active union member; no integer bitcast crosses this call.
+ * That caller replays at 712/720, nd0, 27 relocations and eight zero-tail
+ * bytes. The target retains its five-word scheduling floor. These are
+ * compiler measurements, not a rerun of the historical native smokes.
  */
 void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
 {

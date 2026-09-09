@@ -23,11 +23,18 @@
  *   - AST permuter seed 47 for 90 seconds: 2,584 compilations, no exact hit
  *     (best score 11).
  *
- * Required declarations already present in src/Kosaka/k_vpad.c:
- *   RuntimeVec3, RuntimeMatrix, RuntimeWork, RuntimeListNode;
- *   func_004b6de0(RuntimeListNode *);
- *   func_003e0f80(void), func_0047a510(void *, void *, RuntimeMatrix *),
- *   func_003e0f40(void *).
+ * Required owner types: RuntimeVec3, RuntimeMatrix, RuntimeWork and
+ * RuntimeListNode. Keep the existing matrix allocator and predicate.
+ * Correct the owner declarations in place before replay:
+ *   extern s32 func_0047a510(void *context, s32 index, void *matrix);
+ *   extern s32 func_003e0f40(void *matrix);
+ * The actual model provider consumes a signed integer index and returns
+ * success, not a pointer-valued index or void. The pair table contains two
+ * s32 indices per eight-byte record. Matrix destruction returns RwBool.
+ * Fresh replay below: 324/336 bytes, eight differing executable bytes in
+ * the same two scheduling words, seven relocations and twelve zero-tail
+ * bytes. Expressing the table as s32 (*)[2] instead gives ten differing
+ * bytes, adding an address-register difference without closing the order.
  *
  * Keep src/Kosaka/k_vpad.c on its INCLUDE_ASM fallback until a future
  * compiler/source-shape measurement closes the sll/lw schedule difference.
@@ -50,12 +57,12 @@ void func_004b5800(RuntimeWork* work)
     {
         func_0047a510(
             *(void**)((u8*)(uintptr_t)work->requestFlags + 0x20),
-            *(void**)((u8*)*(void**)((u8*)(uintptr_t)work->requestFlags + 0x18) +
+            *(s32*)((u8*)*(s32**)((u8*)(uintptr_t)work->requestFlags + 0x18) +
                       i * 8),
             firstMatrix);
         func_0047a510(
             *(void**)((u8*)(uintptr_t)work->requestFlags + 0x20),
-            *(void**)((u8*)*(void**)((u8*)(uintptr_t)work->requestFlags + 0x18) +
+            *(s32*)((u8*)*(s32**)((u8*)(uintptr_t)work->requestFlags + 0x18) +
                       i * 8 + 4),
             secondMatrix);
         ((RuntimeVec3*)(uintptr_t)work->selection)[i * 2] =

@@ -21,6 +21,18 @@
  * Discovered consumers mask levels to bytes but do not enforce all those
  * conditions for arbitrary states. The final clamp cannot repair an earlier
  * invalid float-to-int conversion.
+ * Fresh current-owner replay with provider-correct
+ *   extern u32 func_00106330(s32 arg0);
+ * is 440/448 bytes, four differing executable bytes in the same three
+ * upper-clamp words, five relocations and eight zero-tail bytes.
+ * Scoping scale to the arithmetic phase and table_value/delta/index to the
+ * table branch leaves that output unchanged. No source lifetime explains
+ * the retail assembler-temporary register; do not invent a bool or input.
+ * Separate provider limitation: current DatGlobal.flags[1] does not model
+ * the storage needed by target flag indices 160/161. Its retail base and
+ * full-width u32 return are established, not whole-program C definedness.
+ * The actual copied input record is 0x58 bytes; byte-masked caller levels
+ * still do not prove a nonzero participant divisor or safe FP conversion.
  */
 #pragma push
 #pragma opt_propagation off

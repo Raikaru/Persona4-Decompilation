@@ -8131,3 +8131,34 @@ No production function or provider declaration was changed. The preceding
 archive publication `ff18dbfa` passed CI (`34298804183`); these new compiler
 replays are source-shape evidence, not a new production match or runtime
 verification claim.
+
+## Text color, reward clamp and virtual-pad contracts
+
+Fresh canonical-owner compiler replays retain three existing ASM fallbacks:
+
+- `func_001130c0`: **440/448 bytes / nd17**, nine relocations. The seventeen
+  differing executable bytes occupy the same five scheduling words; eight
+  zero-tail bytes are omitted. Independent opacity cannot legitimately
+  borrow the copied Color alpha byte. The required Vec2f caller migration
+  has also been measured: reusing the existing eight-byte position union
+  through a real Vec2f member gives **712/720 bytes / nd0**, twenty-seven
+  relocations and eight zero-tail bytes. A separate position object leaves
+  three stack-offset differences. `HnH_001130c0_body.c` records the exact
+  prototype, variadic formatter and active-union-member prerequisites.
+- `func_0021de90`: **440/448 bytes / nd4**, five relocations. Lexical phase
+  scopes do not change the three upper-clamp register words or eight
+  zero-tail bytes. The flag provider returns full-width `u32`; neither that
+  contract nor byte-masked caller levels establishes safe arithmetic for
+  arbitrary records. The existing provider's one-element flag declaration
+  is a separate extent limitation, not evidence that indices160/161 are
+  valid C. `EoDwrap_0021de90_body.c` retains these distinctions.
+- `func_004b5800`: **324/336 bytes / nd8**, seven relocations. Correcting the
+  matrix getter's index from pointer to `s32` preserves the two-word
+  load/shift scheduling residual and twelve zero-tail bytes. A typed
+  two-index record form instead gives nd10. `W47Vpad_004b5800_body.c` now
+  uses the actual integer indices and documents both provider returns.
+
+Here nd counts differing relocation-masked executable bytes, not the older
+archive word metric. These are compiler experiments, not new runtime smoke
+claims. Production sources and **6,157 first-party MATCH / 703 ASM** remain
+unchanged; no padding, invented storage or false provider ABI was promoted.
