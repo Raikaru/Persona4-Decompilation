@@ -8095,3 +8095,39 @@ or full-build verification claims.
 Production and the previously verified **6,157 first-party MATCH / 703 ASM**
 result are unchanged by this batch. Archive-only work does not constitute a
 new production match.
+
+## Capped updates, formation mode and neighboring script retry
+
+All three retained archive files were compiled again under their canonical
+current-owner declaration prerequisites before publication:
+
+- `func_002494c0`: **432/432 bytes / nd262**, sixteen resolved relocations.
+  Phase-local selector/update storage and meaningful date snapshots tie the
+  retained source; borrowing a column subobject instead yields **400 bytes /
+  nd161**, not complete instruction coverage. The converter's two outputs
+  are real `s32` objects, the counter getter is `u8(s16)`, and the setter
+  retains full `s32` arguments. The assertion returns, so failed eligibility
+  is not a safe early-return path. `CommonRecordFinal_002494c0_body.c`
+  records the canonical contracts and measured alternatives.
+- `func_001d2e20`: **440/448 bytes / nd252**, ten resolved relocations.
+  A signed-halfword transient connects the initial mode load and later
+  selector; a separate `s64` retains the original provider input. The
+  earlier source replays at nd254; reusing the retained mode as the selector
+  gives nd266. Neither ordinary argument-time snapshots nor a word
+  transient close the copy/register residual. `SFRM_001d2e20_body.c`
+  retains the preferred complete source and the genuine three-float
+  position/four-float rotation outputs.
+- `func_0026fd90`: **596/608 bytes / nd4**, ten resolved relocations and
+  twelve zero-tail bytes. Declaring the saved character before the decoded
+  operands closes the five-register cycle. Only four glyph-buffer offsets
+  remain: real `glyph[3]` is at `sp+0x6C..6E`, retail uses `sp+0x68..6A`.
+  `JoG_0026fd90_body.c` now uses one valid three-byte string instead of
+  passing the address of one scalar as though neighboring scalars formed
+  an array. It preserves the full-width classifier input, both classifier
+  calls, the signed-low-halfword name lookup and final character restore.
+  The actual twelve-entry jump table was checked against both destinations.
+
+No production function or provider declaration was changed. The preceding
+archive publication `ff18dbfa` passed CI (`34298804183`); these new compiler
+replays are source-shape evidence, not a new production match or runtime
+verification claim.
