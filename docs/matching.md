@@ -8925,3 +8925,60 @@ SHA-1 hashes matched, all 12,720 functions scanned, and zero findings across
 339 first-party files. Totals are **7,802 MATCH / 4,918 ASM** overall and
 **6,172 MATCH / 688 ASM** first-party (**90.0%**, rounded). The all-matching
 objective remains incomplete.
+
+## First-party continuation: directory, script, draw and field resources
+
+Seven first-party fallbacks are now recovered C. Both Ghidra and IDA bodies
+were checked against the retail instructions; the current full verifier
+reports every target as `MATCH`, including its relocation checks:
+
+| Function | Owner | Executable / window | Relocations | Zero tail |
+| --- | --- | --- | --- | --- |
+| `func_004673c0` | `src/promoted/code1_0046.c` | 1,204 / 1,216 | 12 | 12 bytes |
+| `func_00484b30` | `src/promoted/code1_0048.c` | 120 / 128 | 3 | 8 bytes |
+| `func_0026f2c0` | `src/promoted/code1_0026.c` | 724 / 736 | 16 | 12 bytes |
+| `func_0026fd90` | `src/promoted/code1_0026.c` | 596 / 608 | 10 | 12 bytes |
+| `func_0026f860` | `src/promoted/code1_0026.c` | 832 / 832 | 16 | none |
+| `func_0032c480` | `src/Event/Fcl/y_fclCombineDraw.c` | 472 / 480 | 21 | 8 bytes |
+| `func_001534a0` | `src/Kosaka/Field/k_fldResource.c` | 792 / 800 | 17 | 8 bytes |
+
+The voice command closes with scoped common-subexpression optimization and
+propagation off, separate action/channel values, and a terminal switch after
+the explicit dispatch comparisons. Its sound provider accepts the complete
+32-bit operand and narrows only at the actual halfword store. The provider
+and active caller declarations were migrated together; the provider remains
+byte-exact.
+
+The fusion draw recovery uses typed work projections and preserves selection,
+model and persona reloads across calls. The message provider and wrapper now
+carry the actual queue pointer and all incoming arguments explicitly. The
+list provider retains its real signed-byte/signed-halfword contract; a signed
+halfword loop counter preserves the already-matched neighboring draw loop.
+
+The field clone preserves the two 32-element arrays, 96 subentries, three
+entry-type paths, conditional nonzero-field transformations, unsigned angle
+conversion and final scale copy. Its existing model wrappers now explicitly
+forward their real input and return contracts rather than relying on live
+argument/result registers.
+
+Native behavioral smokes passed for the directory (518 cases), initializer
+(1,024 cases), paired script commands (616 cases), voice dispatch, fusion draw
+and field clone. The latter three exercise dispatch/path boundaries, actual
+sound-state stores, callback-time reloads, packet/font arguments, unsigned
+angle boundaries, maximum array/entry counts and canaries. These are host
+behavior checks with explicit external boundaries, not PS2 rendering or
+hardware execution.
+
+The formerly missing `func_002f9c30` reference bodies were recovered from live
+Ghidra and IDA and added to their existing reference files. That function
+remains ASM: its exact old candidate used an incompatible narrowed callee
+declaration; the real 32-bit provider contract still leaves eight differing
+bytes. No prototype mismatch was promoted to claim a match.
+
+The full build links 172 source objects and 56 Sony SDK objects and reproduces
+both retail SHA-1s. All 529 repository tests pass; source-honesty lint reports
+zero findings across 339 first-party files. All 12,720 functions remain under
+test. Totals are **7,810 MATCH / 4,910 ASM** overall and
+**6,180 MATCH / 680 ASM** first-party (**90.1%**, rounded). Published progress
+and objdiff metadata use these complete reports. The all-matching objective
+remains open.

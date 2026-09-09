@@ -1456,7 +1456,7 @@ void func_00279300(u8 *arg0, s32 arg1) {
 }
 
 // FUN_00279350
-s32 func_00279350(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6)
+s32 func_00279350(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, u8 *arg6)
 {
     u8 *obj;
     u8 *cb;

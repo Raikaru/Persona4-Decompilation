@@ -121,7 +121,7 @@ extern void func_00466c60(void);
 extern void func_0050cd80(void);
 extern void func_00466600(void);
 extern void func_00440b68();
-extern void func_00442088(void *dst, void *fmt, s32 arg2, s32 arg3);
+extern s32 func_00442088(char *dst, const char *fmt, ...);
 extern s32 sceMc2GetInfoAsync(s32 socket, void *out);
 extern s32 func_00431d78(s32 socket, void *data, void *result);
 extern char D_007127D0[];
@@ -1251,8 +1251,144 @@ failed:
     }
     return NULL;
 }
+typedef struct FilerEntry {
+    char name[256];
+    s32 type;
+    s32 active;
+} FilerEntry;
+
+typedef struct FilerTable {
+    u8 path[256];
+    FilerEntry entries[2000];
+} FilerTable;
+
+typedef struct FilerStat {
+    u32 mode;
+    u32 attr;
+    u32 size;
+    u8 ctime[8];
+    u8 atime[8];
+    u8 mtime[8];
+    u32 hisize;
+    u32 private_0;
+    u32 private_1;
+    u32 private_2;
+    u32 private_3;
+    u32 private_4;
+    u32 private_5;
+} FilerStat;
+
+/* Extended directory entry: 64-byte stat, 256-byte name, trailing word.
+ * Layout: PCSX2 IopBios.cpp, revision 9fe8235e, fxio_dirent_t.
+ * Natural four-byte alignment, not modern ps2sdk's aligned(64) variant. */
+typedef struct FilerDirent {
+    FilerStat stat;
+    char name[256];
+    u32 unknown;
+} FilerDirent;
+
+
 // FUN_004673C0
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004673c0);
+/* measured: MWCCPS2 b210 -O2, 1204B/window 1216B, 12 resolved relocations,
+ * 12 zero alignment bytes. Ghidra and IDA agree on the 2000-entry cap,
+ * type/name ordering, and 264-byte record copies; both split the local
+ * directory entry, whose complete 324-byte backend layout supplies the frame. */
+void func_004673c0(u8 *work)
+{
+    extern s32 func_00428550(u8 *path);
+    extern s32 func_00428780(s32 handle, void *out);
+    extern s32 func_00428618(s32 handle);
+    extern char iGpffffb01c;
+    FilerDirent dirent;
+    FilerEntry selected;
+    FilerEntry swapped;
+    s32 handle;
+    s16 readIndex;
+    s16 clearIndex;
+    s32 compareIndex;
+    s32 sortIndex;
+    s32 shouldSwap;
+    u8 *sortEntry;
+    s16 *count;
+
+    *(s16 *)(work + 0x80F86) = 0;
+    for (clearIndex = 0; clearIndex < 2000; clearIndex++) {
+        ((FilerTable *)work)->entries[clearIndex].active = 0;
+    }
+    handle = func_00428550(work);
+    for (readIndex = 0; readIndex < 2000; readIndex++) {
+        if (func_00428780(handle, &dirent) <= 0) {
+            break;
+        }
+        (*(s16 *)(work + 0x80F86))++;
+        dirent.stat.mode &= 0xF000;
+        ((FilerTable *)work)->entries[readIndex].active = 1;
+        switch (dirent.stat.mode) {
+        case 0x1000:
+            ((FilerTable *)work)->entries[readIndex].type = 1;
+            func_00442088(((FilerTable *)work)->entries[readIndex].name, &iGpffffb01c, dirent.name);
+            break;
+        case 0x2000:
+            ((FilerTable *)work)->entries[readIndex].type = 0;
+            func_00442088(((FilerTable *)work)->entries[readIndex].name, &iGpffffb01c, dirent.name);
+            break;
+        case 0x4000:
+            ((FilerTable *)work)->entries[readIndex].type = 2;
+            func_00442088(((FilerTable *)work)->entries[readIndex].name, &iGpffffb01c, dirent.name);
+            break;
+        }
+    }
+    func_00428618(handle);
+    if (*(s16 *)(work + 0x80F86) >= 2) {
+        for (sortIndex = 0; sortIndex < *(s16 *)(work + 0x80F86); sortIndex++) {
+            sortEntry = work + sortIndex * 0x108;
+            selected = *(FilerEntry *)(sortEntry + 0x100);
+            compareIndex = sortIndex;
+            count = (s16 *)(work + 0x80F86);
+            for (; compareIndex < *count; compareIndex++) {
+                shouldSwap = 0;
+                switch (selected.type) {
+                case 2:
+                    if (((FilerTable *)work)->entries[compareIndex].type == 2) {
+                        if (func_004426e8(((FilerTable *)work)->entries[compareIndex].name, selected.name) <= 0) {
+                            shouldSwap = 1;
+                        }
+                    }
+                    break;
+                case 1:
+                    if (((FilerTable *)work)->entries[compareIndex].type == 2) {
+                        shouldSwap = 1;
+                    }
+                    if (((FilerTable *)work)->entries[compareIndex].type == 1) {
+                        if (func_004426e8(((FilerTable *)work)->entries[compareIndex].name, selected.name) <= 0) {
+                            shouldSwap = 1;
+                        }
+                    }
+                    break;
+                case 0:
+                    if (((FilerTable *)work)->entries[compareIndex].type == 2) {
+                        shouldSwap = 1;
+                    }
+                    if (((FilerTable *)work)->entries[compareIndex].type == 1) {
+                        shouldSwap = 1;
+                    }
+                    if (((FilerTable *)work)->entries[compareIndex].type == 0) {
+                        if (func_004426e8(((FilerTable *)work)->entries[compareIndex].name, selected.name) <= 0) {
+                            shouldSwap = 1;
+                        }
+                    }
+                    break;
+                }
+                if (shouldSwap != 0) {
+                    swapped = ((FilerTable *)work)->entries[compareIndex];
+                    ((FilerTable *)work)->entries[compareIndex] = selected;
+                    *(FilerEntry *)(sortEntry + 0x100) = swapped;
+                    selected = swapped;
+                }
+            }
+        }
+    }
+}
 // FUN_00467880
 /* measured: honest void *table plus explicit function-pointer casts; object 848B/window 848B/nd 0; no H001 waiver. */
 void func_00467880(u8 *arg0)

@@ -79,7 +79,7 @@ extern void func_00235020(s32 arg0);
 extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
 extern void func_002bd3c0(void);
 
-extern s32 func_0045ae10(s32 arg0, s64 arg1, u16 arg2);
+extern s32 func_0045ae10(s32 arg0, s32 arg1, s32 arg2);
 extern void func_002bd3e0(void);
 extern void func_002bd410(void);
 extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);

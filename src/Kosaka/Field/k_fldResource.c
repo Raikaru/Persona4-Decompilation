@@ -999,6 +999,101 @@ loop_test_19:
 /* measured: restore propagation after func_00153300. */
 #pragma pop
 
-// FUN_001534A0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_001534a0);
+typedef struct {
+    u16 type;
+    u16 flags;
+    s32 field_4;
+    s32 field_8;
+    s32 field_c;
+    s32 field_10;
+    s32 field_14;
+} k_fldSubEntry;
+
+typedef struct {
+    u32 flags;
+    s16 field_04;
+    s16 field_06;
+    s32 field_08;
+    s32 field_0c;
+    s32 field_10;
+    s32 field_14;
+    u32 count1;
+    s32 arr1[32];
+    s32 arr2[32];
+    u32 count2;
+    k_fldSubEntry entries[96];
+    s32 field_a20;
+    Vec3 scale;
+} k_fldResource;
+
+extern void func_00152e50(void *arg0, void *arg1, f32 arg2);
+
+/* measured: MWCCPS2 b210 -O2, 792B/window 800B, 17 relocations,
+ * eight zero alignment bytes. Ghidra identifies the unsigned angle
+ * conversion; IDA identifies the three-pair copy of each 24-byte entry.
+ * The arrays end at the measured count/scale fields, not at the allocation
+ * boundary: the original allocation remains 0xAB0 bytes. */
+// FUN_001534A0
+k_fldResource *func_001534a0(k_fldResource *src, void *arg1, u32 arg2)
+{
+    k_fldResource *dst;
+    f32 temp_f20;
+    u32 i;
+    u32 j;
+    u8 *p_dst;
+
+    temp_f20 = 90.0f * (f32)arg2;
+    if (src->flags & 1) {
+        return NULL;
+    }
+    func_0044ea90(D_005EFC80, 0xA2A);
+    dst = (k_fldResource *)D_008873F4[0](1, 0xAB0, 0x40000);
+    dst->flags = src->flags | 2;
+    dst->field_04 = src->field_04;
+    dst->field_06 = src->field_06;
+    if (src->field_08 != 0) {
+        dst->field_08 = func_003c0520(src->field_08);
+        dst->field_0c = (s32)func_00462ae0((void *)dst->field_08);
+    }
+    if (src->field_10 != 0) {
+        dst->field_10 = func_003c0520(src->field_10);
+    }
+    if (src->field_14 != 0) {
+        dst->field_14 = func_003c0520(src->field_14);
+    }
+    dst->count1 = src->count1;
+    for (i = 0; i < src->count1; i++) {
+        s32 arg = *(s32 *)((u8 *)src + i * 4 + 28);
+        if (arg != 0) {
+            s32 *s1;
+            p_dst = (u8 *)dst + i * 4;
+            s1 = (s32 *)(p_dst + 28);
+            *s1 = func_003c0520(arg);
+            *(s32 *)(p_dst + 156) = (s32)func_00462ae0((void *)*s1);
+        }
+    }
+    dst->count2 = src->count2;
+    for (j = 0; j < src->count2; j++) {
+        u8 *src_base = (u8 *)src + (s32)j * 24;
+        k_fldSubEntry *a3 = (k_fldSubEntry *)(src_base + 288);
+        p_dst = (u8 *)dst + (s32)j * 24;
+        *(k_fldSubEntry *)(p_dst + 288) = *a3;
+
+        if (a3->type == 0 || a3->type == 2) {
+            u8 *s1 = (u8 *)src + j * 24;
+            s32 *s0 = &dst->entries[j].field_c;
+            *s0 = func_00478750(*(s32 *)(s1 + 300));
+            func_0047a1c0((void *)*s0, func_003e9700(*(void **)(s1 + 296)), 0);
+            if (*(u16 *)(s1 + 290) & 2) {
+                *(u16 *)(p_dst + 290) |= 2;
+            }
+        } else if (a3->type == 1) {
+            *(s32 *)(p_dst + 304) = func_004b11b0(*(s32 *)(src_base + 304));
+        }
+    }
+    dst->scale = src->scale;
+    func_00153300((s8 *)dst, temp_f20);
+    func_00152e50((u8 *)dst, arg1, temp_f20);
+    return dst;
+}
 

@@ -65,7 +65,7 @@ extern s16 func_002b6970(s16, s16);
 extern void func_002b7750(s16, s16);
 extern void func_002b2a60(void *, s32, s32, s32, s32);
 extern u8 *func_002e4870(s8 arg0);
-extern u8 *func_002e48a0(s8 arg0, s32 arg1);
+extern u8 *func_002e48a0(s8 arg0, s16 arg1);
 extern u8 *func_0034ae50(u8 *arg0, s64 arg1);
 extern void func_002ba970(u8 *, s16, u32);
 extern s32 func_002b2a30(u8, u8, u8, u8);
@@ -137,7 +137,8 @@ extern s32 iGpffffb598;
 extern s32 iGpffffb440;
 extern u8 D_00796310[];
 extern u8 D_00796370[];
-extern s32 func_00279350(f32, f32, f32, s32, s32, s32, s32, s32, s32, s32);
+extern s32 func_00279350(f32, f32, f32, s32, s32, s32, s32, s32, s32, u8 *);
+extern int func_00275820(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
 extern void func_0034a640(s32, u16, s32);
 extern s32 func_0034a630(u8 *);
 extern u8 func_00109280(s32);
@@ -1304,7 +1305,7 @@ void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
   f32 new_var11;
   f32 *new_var10;
   short new_var3;
-  s32 i;
+  s16 i;
   s32 v1;
   s32 v2;
   u8 *new_var6;
@@ -1331,7 +1332,7 @@ void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     ;
     ;
     func_0031ac10(arg0, spC0, -1, (s8) i, (*((u16 *) (func_002e48a0(0, i) + 2))) & 0xFFFFu, *((u8 *) (func_002e48a0(0, i) + 4)), (s16) (((s16) i) * v1), arg3, 0, 0x99);
-    i = (s16) (i + 1);
+    i++;
   }
 
   new_var3 = 0x3C;
@@ -1419,28 +1420,50 @@ void func_0032c0c0(u8 *arg0, s64 arg1) {
     facc = 52.0f + *(f32 *)(func_002b6150(0xB1) + 0x3C);
     *(f32 *)(func_002b6150(0xB5) + 0x3C) = facc;
 }
-/* measured: nd 67 best (attempts: 67 cast-fix, 67 decl+hoist, ~65 n:s32+
-   decl-order, 98 c-first-statement — worse, mwcc sinks the t load below the
-   2a30 call and saves arg0). All call shapes and stack layout match; residual
-   is a fixed saved-register rotation (retail t->$s1/c->$s0/n reuses $s0, mwcc
-   always t->$s0/c->$s1 regardless of declaration or statement order) plus two
-   scheduling swaps: the func_002e48a0(0, s16) calls emit lh-before-move-a0
-   (retail move-a0-first) at all 3 sites, and the func_00330e50 call
-   materializes the D_00796310 address before mov.s f13/f14 (retail after).
-   Rotation + argument-scheduling floor. Re-measured this wave (best 65 of 3
-   attempts: separate s32/s16/s8 temp locals 65, one-s16-reused 96, decl-swap
-   94). LEVER-1 confirmed: func_00279350's 7th param is a pointer (D_00796370),
-   not s32 — fixed the extern to (u8 *) this wave. The t/c register rotation
-   and the func_00330e50 D_00796310-before-mov.s swap resist spelling. */
-/* measured: current best normalized_diff nd 214, object 480/window 480;
-   fresh fndiff differing-word count 65. The candidate keeps obj/c/n in
-   $s0/$s1/$s1 while retail uses $s1/$s0/$s0; repeated lh-before-move-a0 and
-   call-argument scheduling also differ. Declaration-order, local-reuse,
-   zero-local, and call-order probes did not improve the rotation. Discarded
-   above the nd 25 park threshold; recipe, register map, residual rows, and
-   ruled-out shapes are archived in build/W8FclCombineDraw_0032c480_body.c.txt. */
+typedef struct {
+    u8 reserved00[4];
+    u8 *persona;
+} CdfDrawWork;
+
+typedef struct {
+    u8 reserved00[0x11E];
+    s16 selection;
+    u8 reserved120[0x28];
+    u8 *draw;
+    u8 reserved14c[0x108];
+    u8 *model;
+} CdfCombineWork;
+
+static inline u8 *cdfPersona(u8 *draw)
+{
+    return ((CdfDrawWork *)*(u8 **)(draw + 0x38))->persona;
+}
+
+/* measured: MWCCPS2 b210 -O2, 472B/window 480B, 21 resolved relocations,
+ * eight zero alignment bytes. Ghidra supplies the float constants; IDA
+ * supplies the signed selection and two-word position packet. Typed work
+ * views and the canonical message-queue pointer preserve argument order. */
 // FUN_0032C480
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c480);
+void func_0032c480(u8 *arg0)
+{
+    union { FclVec2 xy; s64 whole; } sp38;
+    CdfCombineWork *obj;
+    s32 n;
+
+    obj = (CdfCombineWork *)*(u8 **)(arg0 + 0x38);
+    func_00275820(140.0f, 101.0f, 1.0f, func_002b2a30(0, 0, 0, 0xFF), 0, 2,
+        (const char *)((u8 *)iGpffffb440 + *(u16 *)(func_002e48a0(0, obj->selection) + 2) * 0x11),
+        0, 0, D_00796310, 0x15);
+    n = (s16)((func_00109280(*(u16 *)(func_002e48a0(0, obj->selection) + 2)) & 0xFF) + 0x1B);
+    func_002b2970(&sp38.xy, 54.0f, 103.0f);
+    func_00330e50(n, sp38.whole, 1.0f, 0xFF000000, 0xFF, 1, 1.0f, 1.0f, D_00796310);
+    n = (s16)func_00331640();
+    func_00279350(54.0f, 138.0f, 1.0f, -1, 1, 0, 1, n,
+        *(u16 *)(func_002e48a0(0, obj->selection) + 2), D_00796370);
+    func_0034a640((s32)obj->model, *(u16 *)(func_002e48a0(0, obj->selection) + 2), 1);
+    *(u8 *)(func_0034a630(obj->model) + 1) = 0;
+    func_0011d1d0(cdfPersona(obj->draw), 64000.0f);
+}
 
 // measured: nd N/A (draw-family, s64-param floor). 26x 2970 + 17x 69f0 + 8x 68d0 + 6x 6c30 + 6x 7750: same s64-arg normalization floor; externs locked by matched callers. s64-param-normalization floor.
 // FUN_0032C660

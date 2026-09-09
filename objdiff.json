@@ -10654,7 +10654,7 @@
       "target_path": "build/objdiff/target/Event/Fcl/y_fclCombineDraw/0032c480.o",
       "base_path": "build/objdiff/base/Event/Fcl/y_fclCombineDraw/0032c480.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -19781,7 +19781,7 @@
       "target_path": "build/objdiff/target/Kosaka/Field/k_fldResource/001534a0.o",
       "base_path": "build/objdiff/base/Kosaka/Field/k_fldResource/001534a0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -93331,7 +93331,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0026/0026f2c0.o",
       "base_path": "build/objdiff/base/promoted/code1_0026/0026f2c0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -93364,7 +93364,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0026/0026f860.o",
       "base_path": "build/objdiff/base/promoted/code1_0026/0026f860.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -93408,7 +93408,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0026/0026fd90.o",
       "base_path": "build/objdiff/base/promoted/code1_0026/0026fd90.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -120618,7 +120618,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0046/004673c0.o",
       "base_path": "build/objdiff/base/promoted/code1_0046/004673c0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -121751,7 +121751,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0048/00484b30.o",
       "base_path": "build/objdiff/base/promoted/code1_0048/00484b30.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

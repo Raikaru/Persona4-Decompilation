@@ -796,14 +796,51 @@ void func_00484ae0(u8 *arg0, s32 arg1) {
     }
 }
 
-/* Measured hardware-only candidate: object 120B / window 128B, six differing
-   emitted words plus two zero tail words. Real sqc2 vf0 stores preserve
-   (0,0,0,1); the old zero-quad archive incorrectly cleared four W lanes.
-   Remaining differences are v1/v0 allocation for the 5.0 constant and
-   D_00713CE0 copy. Corrected candidate and bounded probe evidence:
-   docs/probe_archive/W50Code48_00484b30_body.c. */
-// FUN_00484B30 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484b30);
+typedef struct Code48InitialState {
+    f32 vector00[4];
+    f32 vector10[4];
+    u_long128 quad20;
+    u8 unknown30[0x10];
+    f32 vector40[4];
+    f32 vector50[4];
+    f32 scalar60;
+    u32 word64;
+    u32 word68;
+    u32 unknown6c;
+    u32 unknown70;
+    f32 scalar74;
+    u32 unknown78[2];
+} Code48InitialState;
+// FUN_00484B30
+/* measured: MWCCPS2 b210 -O2, 120B/window 128B, three relocations,
+ * eight zero alignment bytes. IDA retains the result that Ghidra drops:
+ * retail leaves the copied quadword in v0 through return. Preserve that
+ * live-out; the current C callers discard it. The four hardware vf0 stores
+ * produce (0,0,0,1), not a zero quadword. */
+#pragma push
+#pragma opt_propagation off
+u_long128 func_00484b30(u8 *arg0)
+{
+    Code48InitialState *state = (Code48InitialState *)(void *)arg0;
+    const u_long128 *quadSource;
+    u_long128 quad;
+
+    func_0043f9c8(state, 0, sizeof(*state));
+    __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(state) : "memory");
+    __asm__ volatile("sqc2 vf0, 16(%0)" : : "r"(state) : "memory");
+    __asm__ volatile("sqc2 vf0, 64(%0)" : : "r"(state) : "memory");
+    state->vector40[1] = 5.0f;
+    __asm__ volatile("sqc2 vf0, 80(%0)" : : "r"(state) : "memory");
+    quadSource = (const u_long128 *)(const void *)D_00713CE0;
+    quad = *quadSource;
+    state->quad20 = quad;
+    state->scalar60 = 1.0f;
+    state->scalar74 = 1.0f;
+    state->word64 = 0xFFFFFFFF;
+    state->word68 = 0x80;
+    return quad;
+}
+#pragma pop
 // FUN_00484BB0
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484bb0);
 // FUN_00485630
@@ -863,7 +900,6 @@ loop_00485b20_check:
     jtbl_008873EC[0](arg0);
 }
 extern void func_00486330(u8 *arg0, u8 *arg1);
-extern void func_00484b30(u8 *arg0);
 extern void func_00486710(u8 *arg0, u8 *arg1);
 extern void func_004865c0(u8 *arg0, s32 arg1);
 /* measured: object 852B/window 864B, nd 0. The allocator table address lives in
