@@ -10,6 +10,13 @@
    The source objects are two 12-byte RwV3d values and a 12-pointer selection
    table followed by its 64-bit key, count, selected index, and flags; no fourth
    vector lane is needed. Production remains ASM. */
+/* Fresh guard-shaping measurements: baseline and an equivalent reject/advance
+   guard both retain 312B/nd11 (four executable words). A conditional first
+   entry gives 340B/nd105; a guarded boolean union gives 344B/nd115; splitting
+   first-entry/update branches gives 332B/nd101. Propagation-off gives
+   324B/nd241, while common-subexpression elimination off ties 312B/nd11.
+   All have three call relocations. No safe source shape here moves the
+   distance comparison before the first-entry test; the defined guard stays. */
 // FUN_001D8CB0
 #pragma push
 #pragma opt_loop_invariants on
