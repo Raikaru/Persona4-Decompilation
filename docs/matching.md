@@ -8283,3 +8283,61 @@ scanned, with **7,788 MATCH /4,932 ASM** overall and **6,158 MATCH /702 ASM**
 first-party. Lint reports zero findings across338 first-party files.
 This is one additional first-party recovery. The disposable native smoke
 and compiler replay directories are removed after verification.
+
+## Fresh-target continuation: four-key camera initializer
+
+`func_001bb3d0` in `src/Battle/btlMain.c` replaces its plain ASM slot with
+complete ordinary C: **948/960 bytes, nd0, four resolved calls and twelve
+zero alignment bytes**. Its existing six-argument camera/keyframe/mode
+contract is unchanged.
+
+Calling the existing append helper four times initially produces168 bytes,
+not the retail inline expansion. Expanding that helper's actual operations
+closes the function without pragmas, synthetic locals, storage padding or
+register bindings. Each phase retains its count/index reloads, position
+copy before the spline call, quaternion copy afterward, index wrap and
+count increment. Do not collapse those phases around assumed callback
+behavior.
+
+The owner declaration of `func_003bb4a0` now uses its actual
+`u8 *(u8 *,s32,f32 *)` provider contract. Its six existing callsites load
+the spline field as a pointer rather than an integer. All23 previously
+matched C functions retain identical bytes and relocations. This supporting
+correction is not counted separately. Resolving all four new call
+relocations to003BB4A0 reproduces every one of the948 retail bytes.
+
+A native32-bit smoke exercises **131,072 cases**: every odd16-bit mode,
+including the real callers' mode1, with four key selections covering normal
+order, reversal, repeated pointers and a permutation. An independent
+byte-state model checks all four seven-float records, mode preservation,
+counter/index reset and wrap, cleared progress fields, unchanged inputs and
+surrounding canaries. The spline backend is a fail-fast boundary: these
+modes must not invoke it. This smoke does **not** simulate the even-mode
+backend; exact target instruction/relocation comparison covers that code.
+
+The two resent agents delivered fresh reconstructions, both still ASM:
+
+| Target | Preferred object/retail bytes | nd | Object relocations |
+| --- | ---: | ---: | ---: |
+| `func_0016f8b0` | 1080/1104 | 580 | 13 |
+| `func_001c5500` | 1664/1664 | 219 | 27 |
+
+`FreshFieldHeading_0016f8b0_body.c` retains the one initial field replay.
+The agent's unsupported match claim is discarded; the retail comparison
+keeps an angle of exactly360 degrees rather than wrapping it to zero.
+
+`FreshCameraDispatch_001c5500_body.c` retains provider-sized pose, quaternion,
+2D and3D objects. The first padding-shaped frame was rejected before
+compilation. Real independent objects give nd231; placing the zero
+assignment after the dot product reduces that to nd219. Two radius
+first-use spellings overrun by four bytes, and the existing camera
+scalarization-off profile ties the preferred result. Their measurements
+are archived; no padding or declaration-layout sweep was used. Neither
+unpromoted candidate has native behavioral verification.
+
+After the initializer promotion, `make all lint-errors` passed:172 C
+objects linked, both retail SHA-1 hashes matched, and all12,720 functions
+were scanned. Totals are **7,789 MATCH /4,931 ASM** overall and
+**6,159 MATCH /701 ASM** first-party. Lint reports zero findings across338
+first-party files. This is one additional first-party match, not completion
+of the remaining701 ASM functions.
