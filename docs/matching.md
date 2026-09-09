@@ -8810,3 +8810,56 @@ both retail SHA-1 hashes matched, all 12,720 functions scanned, and zero
 findings across 339 first-party files. Totals are **7,799 MATCH / 4,921 ASM**
 overall and **6,169 MATCH / 691 ASM** first-party (89.9%). The overall
 all-matching objective remains incomplete.
+
+## Fresh-target continuation: material color and controller payload
+
+`func_004587d0` in `src/promoted/code1_0045.c` is **MATCH**:
+**1,136 / 1,136 bytes**, **23 independently resolved relocations**, and
+no alignment tail. All 59 previously compiled owner functions retain their
+instruction bytes and relocation lists.
+
+The complete initial candidate was 1,140 bytes with 729 differing bytes.
+Separate userdata lifetimes and direct initialization-getter forwarding
+removed the extra move, leaving 18 differences at the correct size.
+Declaring the second search index before its saved color and using unsigned
+`> 255` clamps closed those differences. Alpha is explicitly promoted to
+`u32` before the high-byte packing shift. Existing material creation and
+integer-setter calls now use their actual provider argument contracts;
+the recovered callback retains its existing pointer input/return contract.
+
+The actual integrated callback and eight actual provider bodies pass
+**131,072 guarded Wasm32 cases**, both normally and with undefined-behavior,
+float-cast-overflow and float-divide-by-zero sanitizer traps. An independent
+state model compares the entire fixture, including material bytes, userdata
+records/values, scales, canaries and allocation counts. Coverage includes
+sparse slots, absent keys, wrong formats, later integer matches, persistent
+original colors, external color/value changes, all byte values, saturation
+and both sides of the unsigned conversion's `2^31` boundary. Products remain
+finite with truncated values representable in `u32`; this is not a portable
+claim for nonfinite or out-of-domain inputs. Allocation and string comparison
+are deterministic boundaries, not a RenderWare rendering implementation.
+
+The controller partner, `func_00452870`, remains **ASM**. At
+`0x00452B84/0x00452B88` it initializes only `sp+0x40` and `sp+0x41`,
+then passes that address to `func_00430630`. The actual consumer copies six
+bytes at `0x00430698..0x004306B4`, including unwritten `sp+0x42..0x45`,
+and sets the command payload length to six. The alignment table's
+`00 01 FF FF FF FF` bytes do not gate those EE reads.
+
+A bounded interpreter executed that exact retail copy loop, including its
+delay slots: 48 instructions per six-byte copy. Equal first two bytes and
+different remaining bytes produced `01 7F 12 34 56 78` and
+`01 7F 98 BA DC FE` respectively. This proves the unwritten-tail dependency,
+not controller hardware or DMA behavior. No zero fill, invented input or
+out-of-bounds C packet was promoted.
+
+Source and evidence are preserved in
+`docs/probe_archive/FreshMaterialColor_004587d0_body.c` and
+`docs/probe_archive/FreshControllerState_00452870_evidence.c`.
+Temporary compiler probes and runtime fixtures were removed.
+
+The final `make all lint-errors` passed: 172 source objects linked, both
+retail SHA-1 hashes matched, all 12,720 functions scanned, and zero findings
+across 339 first-party files. Totals are **7,800 MATCH / 4,920 ASM** overall
+and **6,170 MATCH / 690 ASM** first-party (89.9%). The all-matching objective
+remains incomplete.
