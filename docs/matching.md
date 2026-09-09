@@ -9032,3 +9032,130 @@ lint reports zero findings across 339 first-party files. All 12,720 functions
 remain under test. Totals are **7,812 MATCH / 4,908 ASM** overall and
 **6,182 MATCH / 678 ASM** first-party (**90.1%**, rounded). The all-matching
 objective remains open.
+
+## First-party continuation: state, save, drawing and ABI recovery
+
+Thirty-one additional first-party fallbacks are recovered C, totaling 25,192
+emitted bytes. Retail instructions, Ghidra and IDA informed the recoveries;
+the complete verifier reports every target as `MATCH`:
+
+| Function | Executable / window bytes | Relocations | Zero tail bytes |
+| --- | --- | --- | --- |
+| `func_00105a50` | 576 / 576 | 27 | 0 |
+| `func_00109e30` | 2,372 / 2,384 | 56 | 12 |
+| `func_0010c750` | 556 / 560 | 15 | 4 |
+| `func_0010d7c0` | 3,908 / 3,920 | 219 | 12 |
+| `func_0010e9e0` | 2,480 / 2,480 | 106 | 0 |
+| `func_00121690` | 688 / 688 | 17 | 0 |
+| `func_00157700` | 684 / 688 | 12 | 4 |
+| `func_0016b080` | 476 / 480 | 10 | 4 |
+| `func_00175f70` | 608 / 608 | 8 | 0 |
+| `func_001a5650` | 656 / 656 | 15 | 0 |
+| `func_001adb80` | 644 / 656 | 22 | 12 |
+| `func_001b0020` | 564 / 576 | 16 | 12 |
+| `func_00204b80` | 460 / 464 | 13 | 4 |
+| `func_00205c20` | 468 / 480 | 8 | 12 |
+| `func_00205e00` | 488 / 496 | 7 | 8 |
+| `func_00207140` | 472 / 480 | 8 | 8 |
+| `func_00208b00` | 500 / 512 | 9 | 12 |
+| `func_0020bb70` | 512 / 512 | 17 | 0 |
+| `func_002894b0` | 720 / 720 | 49 | 0 |
+| `func_0029e550` | 608 / 608 | 35 | 0 |
+| `func_002b74f0` | 596 / 608 | 25 | 12 |
+| `func_002b7cd0` | 580 / 592 | 10 | 12 |
+| `func_00312220` | 640 / 640 | 16 | 0 |
+| `func_0034db60` | 652 / 656 | 13 | 4 |
+| `func_00364320` | 660 / 672 | 18 | 12 |
+| `func_00366960` | 780 / 784 | 9 | 4 |
+| `func_00375b40` | 520 / 528 | 10 | 8 |
+| `func_004667d0` | 512 / 512 | 10 | 0 |
+| `func_00466c60` | 540 / 544 | 20 | 4 |
+| `func_00468d10` | 652 / 656 | 8 | 4 |
+| `func_00493e60` | 620 / 624 | 40 | 4 |
+
+The task-work boundary now passes real task values in 61 getter calls; that
+cutover preserved 490 previously matched bodies. The shared four-byte
+`BtlSkillFlags` record closes the panel selector's last instruction differences
+without artificial register controls; its seven-owner cutover preserved 773
+existing matches. Unsigned halfword persona identifiers are carried through
+the fusion providers and callers, preserving 595 existing matches across
+twelve owners. The battle packet provider `func_002022e0` explicitly returns
+its allocated packet while retaining its 92-byte body and three relocations.
+
+The save writer/reader execute compact and full round trips of 85,064 and
+171,112 bytes. Their consumer checks checksum corruption, actual padding in
+the checksum, record classes, malformed lengths, unknown tags and duplicate
+precedence, with 87,173 assertions. Persona bonus calculation passes 679
+runtime assertions. The script launcher's clear operation now addresses its
+directory buffer, and its work-data calls carry their task: the old consumer
+fails, while the repaired path passes 30 scenarios and 662 assertions.
+
+Sprite initialization checks all 780 records and three components per record,
+including work-data replacement on the first and last provider calls. The
+battle callback pair passes 32 scenarios. The line constructor passes 192
+sanitized cases covering 1,092 written vertices, zero-line geometry and four
+boundary modes. The request handler executes twelve requests across three
+ticks, preserving replacement-handle and replacement-resource-table reloads.
+
+`shdMisc`'s apparent high-half argument floor was an ABI error: `$a0` holds
+both `Vec2f` components, `$a1` holds color, `$a2` holds the number and `$f12`
+holds depth. The canonical `(Vec2f, f32, s32, s32)` contract, separate alpha
+extraction and actual digit-pointer lifetime close the target. All 115 prior
+matches in its three owners remain exact. The current producer, caller,
+formatter and renderer pass sanitized execution with distinct coordinate
+halves, nine callback replacements, grouped digits, per-draw resource reloads,
+zero alpha and fallback numbers.
+
+Calendar recovery also replaces the fake fixed-argument implementations of
+`func_00450dd0` and `func_00450e80` with genuine variadics. They remain
+164/176 bytes with three relocations and 156/160 bytes with two relocations.
+`PackedVec2f` and `PackedColor4` expose both representations actually used:
+callers write coordinates/color components, and the renderer consumes packed
+words. The existing `__builtin_args_info(2)`/`__builtin_next_arg` convention
+lets the compiler construct the register-save area; synthetic stack padding
+and invented fixed arguments are removed from both providers. Calendar label
+entries are real string pointers, not integers passed to `%s`.
+
+The integrated calendar, its actual date providers and the formatting path
+pass 365 dates, five retail labels, 11,111 numeric commands and 1,584 row
+wraps, plus disabled/null and callback-shortened loop cases. The SDK filer
+passes 192 sanitized cases, including signed glyphs, position/color snapshots,
+mixed and overflow native varargs, and input/default-color mutations.
+Native varargs execution uses the host `va_start` adapter; the EE save-area
+claim comes from the complete resolved instruction comparison, not that
+adapter.
+
+The recursive field traversal executes its real provider and passes 1,590
+sanitized cases, including 1,000 differential maps. It covers every occupancy
+and category byte, signed depth gates, four directions, incoming-edge
+suppression, horizontal depth exemptions, corners, shared/aliased outputs,
+captured exits and category changes caused by earlier recursion. No explicit
+128-bit scratch values are needed to reproduce the retail scalar spills.
+
+Two integration gates caught issues that a function-only score cannot:
+
+- MWCC ignores `pack()`. Nested supported pragma scopes now limit `pack(4)`
+  to the real twelve-byte axis. Compiler assertions confirm natural/packed/
+  restored sizes of 16/12/16 bytes, and all 45 current shuffle-owner matches
+  remain exact.
+- Calendar and `shdMisc` initially lost link eligibility because their newly
+  used GP symbols lacked linker definitions. Retail operands and bytes prove
+  `iGpffff9c54 = 0x00762d44` (`%2d\0`) and
+  `iGpffffb5a8 = 0x00764698` (the zero-initialized resource cache). Registering
+  those symbols restores the 172-object floor; the floor was not lowered.
+
+Run broad source scans after compiler jobs finish: compiler temporary C
+files inside source directories can disappear between census enumeration
+and reading. The final build, lint and test suite were serialized rather
+than weakening the marker tripwire.
+
+The complete build links 172 source objects and 56 Sony SDK objects and
+reproduces both retail SHA-1s. All 529 repository tests pass; source-honesty
+lint reports zero findings across 340 first-party files. All 12,720 functions
+remain under test. Totals are **7,843 MATCH / 4,877 ASM** overall and
+**6,213 MATCH / 647 ASM** first-party (**90.6%**, rounded).
+
+These consumer runs model opaque external services and do not claim real PS2
+rendering, storage I/O or floating-point exception coverage. Residual and
+undefined-source blockers remain assembly fallbacks. The all-matching
+objective remains open.

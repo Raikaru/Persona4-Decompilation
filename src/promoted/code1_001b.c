@@ -1,5 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
+#include "btl_skill_internal.h"
+extern s32 func_00106600(s16 id);
 typedef struct KwlnTask KwlnTask;
 typedef struct BtlUnit BtlUnit;
 typedef struct BtlPacket BtlPacket;
@@ -13,7 +15,6 @@ extern void func_00144c90(s32 arg0, s32 arg1);
 extern s32 func_003bbb60(u8 *arg0);
 extern s32 iGpffffb3ac;
 extern u8 *iGpffffb3e0;
-extern u8 *iGpffffb3bc;
 extern void *func_0014acd0(void);
 extern s32 func_001b0d70(u8 *arg0);
 extern s32 func_001b0dd0(u8 *arg0);
@@ -26,7 +27,7 @@ extern s32 func_00452080(KwlnTask *arg0);
 extern u32 func_00452560(s32 arg0);
 extern s32 func_00459760(s32 arg0);
 extern void func_0045a3e0(s32 arg0, s32 arg1);
-extern void func_00213a10(s32 arg0);
+extern void func_00213a10(s32 task);
 extern s32 func_002428f0(s32 arg0, s32 arg1);
 extern u8 *func_00193bf0(u64 arg0, u64 arg1);
 extern s32 func_001f6290(void);
@@ -107,7 +108,7 @@ extern BtlPacket *func_002305c0(s32 arg0);
 extern void func_002aaa80(void);
 extern void func_001fc280(void);
 void func_00194590(u8 *arg0, u32 arg1);
-extern s32 func_0021d470(s32 arg0);
+extern s32 func_0021d470(s32 task);
 extern void func_00198dd0(u8 *arg0, s32 arg1);
 extern void func_001eb7f0(u8 *arg0);
 extern s32 func_001eb860(void);
@@ -150,13 +151,13 @@ extern u8 *func_00194b60(void);
 extern BtlPacket *func_001f60c0(void);
 extern void func_001f86d0(void);
 extern void func_00212100(s32 arg0);
-extern void func_00213990(s32 arg0);
-extern s32 func_002139d0(s32 arg0);
+extern void func_00213990(s32 task);
+extern s32 func_002139d0(s32 task);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
-extern s32 func_0021db10(s32 arg0);
+extern s32 func_0021db10(s32 task);
 extern s32 func_00213a50(s32 arg0);
-extern s32 func_0021db40(s32 arg0);
+extern s32 func_0021db40(s32 task);
 extern s32 func_00122720(void);
 extern BtlPacket *func_0019bbe0(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
 extern BtlPacket *func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
@@ -229,8 +230,75 @@ void btlUnitClearFlags(u8 *arg0, u32 arg1);
 
 
 
+/* 564/576 bytes; sixteen resolved relocations; twelve zero alignment bytes.
+ * Named unsigned address terms retain table ordering without signed overflow. */
+#pragma opt_propagation off
 // FUN_001B0020
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b0020);
+void func_001b0020(u8 *arg0)
+{
+    extern s32 func_001b1510(void);
+    extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
+    typedef struct RwV3d { f32 x, y, z; } RwV3d;
+    extern f32 func_001ec250(const RwV3d *first, const RwV3d *second);
+    extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const RwV3d *position, f32 speed, u32 flags);
+    extern u8 *iGpffffb3b8;
+    extern u8 *iGpffffb3cc;
+    extern f32 D_005F6D20[];
+    RwV3d position;
+    u8 *unit;
+    u8 *packet;
+    u16 speed;
+    u16 side;
+    u16 id;
+    u8 kind;
+    u32 table;
+    u32 offset;
+    u32 record;
+    u32 selector;
+
+    unit = *(u8 **)(arg0 + 0x30);
+    *(s32 *)(arg0 + 0x41C) = 0;
+    if (func_002428f0(*(s32 *)(unit + 0xA64), 0) != 0) {
+        if ((*(u32 *)(unit + 0x9C) & 0x40) != 0) {
+            *(u32 *)(iGpffffb3ac + 0xC) |= 0x400000;
+            *(u16 *)(iGpffffb3ac + 0x18) |= 6;
+        }
+        func_001b0800(arg0, 1);
+        return;
+    }
+    if (arg0 == (u8 *)func_001b1510()) {
+        func_001b0800(arg0, 1);
+        return;
+    }
+    if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x400000) != 0 &&
+        (*(u16 *)(iGpffffb3ac + 0x18) & 2) != 0) return;
+    if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64), 0x180001) != 0) return;
+    func_00194ff0(unit, &position, NULL, NULL);
+    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 0) {
+        *(s32 *)(arg0 + 0x41C) = 1;
+    }
+    if (!(func_001ec250((const RwV3d *)(unit + 4), &position) <= 75.0f)) {
+        speed = 2;
+        side = !(iGpffffb3b8[*(u16 *)(arg0 + 0x6E) * 0x28] & 2);
+        id = *(u16 *)(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64) + 2);
+        kind = *(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2);
+        switch (kind) {
+        case 0: break;
+        case 1:
+            table = (u32)iGpffffb3cc;
+            offset = (u32)id * 0xE8;
+            record = offset + table;
+            selector = side * 4;
+            speed = *(u16 *)(selector + record + 0x24);
+            break;
+        }
+        packet = (u8 *)btlUnitCreateMovePacket(*(BtlUnit **)(arg0 + 0x30), &position, D_005F6D20[speed], 0);
+        *(s64 *)(packet + 0x60) = *(s64 *)arg0;
+        func_00194590(packet, 1);
+        *(s32 *)(arg0 + 0x41C) = 1;
+    }
+}
+#pragma opt_propagation on
 // FUN_001B0260
 void func_001b0260(u8 *arg0)
 {
@@ -776,11 +844,11 @@ void func_001b1b20(void)
 s32 func_001b1b30(void)
 {
     extern u8 *func_001f5f70(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-    extern void func_00212240(s32 arg0, s32 arg1);
+    extern void func_00212240(u8 *arg0, s32 arg1);
     extern u8 *func_001f3870(u8 *arg0, s32 arg1);
     extern void func_0020bf90(s32 arg0);
-    extern void func_00213b50(s32 arg0);
-    extern void func_00213c40(s32 arg0);
+    extern void func_00213b50(s32 task);
+    extern void func_00213c40(s32 task);
     extern void func_001eb7f0(void);
     u8 *node;
     s32 state;
@@ -840,7 +908,7 @@ second_check:
     if (func_001eb860() == 1) {
         work = (u8 *)iGpffffb3ac;
         *(s32 *)(work + 0xC) |= 0x2000;
-        func_00212240(*(s32 *)((u8 *)iGpffffb3ac + 0xDD4), 1);
+        func_00212240(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4), 1);
         func_001eb7f0();
     }
     return 5;
@@ -1894,13 +1962,9 @@ s32 func_001bc140(u8 *arg0) {
 // FUN_001BC1B0
 s32 func_001bc1b0(u8 *arg0)
 {
-    typedef struct {
-        u16 pad;
-        u16 flags;
-    } TableEntry;
     u8 *temp_2;
     u8 *temp_3;
-    TableEntry *base;
+    BtlSkillFlags *base;
     s32 index;
 
     temp_3 = *(u8 **)(arg0 + 0xE0);
@@ -1910,7 +1974,7 @@ s32 func_001bc1b0(u8 *arg0)
         (*(u16 *)(iGpffffb3e0 + (*(u16 *)(temp_2 + 0xA4) * 0x58)) & 1)) {
         return 0;
     }
-    base = (TableEntry *)iGpffffb3bc;
+    base = iGpffffb3bc;
     if ((base[index & 0xFFFF].flags & 0x10) != 0) {
         return 0;
     }
@@ -1938,7 +2002,7 @@ s32 func_001bc240(s32 arg0)
         result = 0;
         goto check20;
     }
-    base = iGpffffb3bc;
+    base = (u8 *)iGpffffb3bc;
     if ((*(u16 *)((u8 *)(((arg0 & 0xFFFF) << 2) + (u32)base) + 2) &
          0x10) != 0) {
         result = 0;
@@ -1949,7 +2013,7 @@ check20:
     if (result == 0) {
         goto final_zero;
     }
-    base = iGpffffb3bc;
+    base = (u8 *)iGpffffb3bc;
     if ((*(u16 *)((u8 *)(((arg0 & 0xFFFF) << 2) + (u32)base) + 2) &
          0x20) != 0) {
         result = 1;

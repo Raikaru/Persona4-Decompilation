@@ -46,7 +46,7 @@ typedef struct {
 } UnkStruct_002865E0;
 
 
-extern void func_0028b160(s32 *arg0, s32 arg1);
+extern void func_0028b160(s32 arg0, s32 arg1);
 extern u8 *func_0028afe0(void);
 extern void func_0028bfb0(u8 *arg0, s32 arg1, u8 **arg2, u8 **arg3);
 extern s32 func_00285dd0(s32 arg0);
@@ -359,9 +359,9 @@ void func_00286240(void) {
 
     p = func_00452560();
     if (*p & 0x80000000) {
-        func_0028b160(p, 1);
+        func_0028b160((s32)p, 1);
     } else {
-        func_0028b160(p, 0);
+        func_0028b160((s32)p, 0);
     }
 }
 // FUN_002862A0

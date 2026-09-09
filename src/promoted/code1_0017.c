@@ -613,8 +613,82 @@ s32 func_001714b0(u8 *arg0)
     return 1;
 }
 
+/* 608/608 bytes; eight fully resolved GP relocations.
+ * Aggregate matrix assignment preserves all 64 bytes. */
+typedef struct { Vec3_00178590 right; u32 flags; Vec3_00178590 up; u32 pad1; Vec3_00178590 at; u32 pad2; Vec3_00178590 position; u32 pad3; } FieldMatrix_0017;
 // FUN_00175F70
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00175f70);
+s32 func_00175f70(const u8 *arg0, const FieldMatrix_0017 *arg1, f32 arg2, f32 arg3)
+{
+    extern f32 fGpffff8558;
+    extern f32 fabsf(f32);
+    s32 state;
+    u8 *work;
+    s32 count;
+    s32 descending;
+    f32 first;
+    f32 second;
+    f32 direct;
+    f32 wrapped;
+    work = *(u8 **)((u8 *)arg0 + 0x38);
+    state = *(s32 *)(work + 0x40);
+    if (state == 1)
+        return 0;
+    first = arg2;
+    second = arg3;
+    *(FieldMatrix_0017 *)work = *arg1;
+    if (!(first <= 360.0f))
+        first -= 360.0f;
+    *(f32 *)(work + 0x4C) = first;
+    if (!(second <= 360.0f))
+        second -= 360.0f;
+    *(f32 *)(work + 0x50) = second;
+    if (first < second) {
+        if (!(first <= fGpffff8558))
+            first = 0.0f;
+        if (!(second <= *(const f32 *)&fGpffff8558))
+            second = 360.0f;
+        if (first < iGpffff8214)
+            first = 0.0f;
+        if (second < *(const f32 *)&iGpffff8214)
+            second = 360.0f;
+        direct = second - first;
+        wrapped = first + (360.0f - second);
+        descending = 0;
+    } else {
+        if (!(first <= fGpffff8558))
+            first = 360.0f;
+        if (!(second <= *(const f32 *)&fGpffff8558))
+            second = 0.0f;
+        if (first < iGpffff8214)
+            first = 360.0f;
+        if (second < *(const f32 *)&iGpffff8214)
+            second = 0.0f;
+        direct = first - second;
+        wrapped = second + (360.0f - first);
+        descending = 1;
+    }
+    if (fabsf(direct) < fabsf(wrapped)) {
+        *(f32 *)(work + 0x54) = direct;
+        if (descending == 1)
+            *(f32 *)(work + 0x54) = *(f32 *)(work + 0x54) * -1.0f;
+    } else {
+        *(f32 *)(work + 0x54) = wrapped;
+        if (descending == 0)
+            *(f32 *)(work + 0x54) = *(f32 *)(work + 0x54) * -1.0f;
+    }
+    if (!(fabsf(*(f32 *)(work + 0x54)) <= 45.0f)) {
+        count = (s32)fabsf(*(f32 *)(work + 0x54)) / 30;
+        if (count <= 0)
+            count = 1;
+        *(s32 *)(work + 0x5C) = count;
+        *(s32 *)(work + 0x58) = 0;
+        *(f32 *)(work + 0x54) =
+            *(f32 *)(work + 0x54) / (f32) *(s32 *)(work + 0x5C);
+        *(s32 *)(work + 0x40) = 1;
+        return 1;
+    }
+    return 0;
+}
 
 
 // FUN_001761D0

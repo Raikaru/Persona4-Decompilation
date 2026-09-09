@@ -2,6 +2,9 @@
 
 #include "include_asm.h"
 #include "type.h"
+extern s32 func_00311b90(u16 *, u16 *, s32, s16 *);
+extern s32 func_0010cc20(u8 *, u16);
+extern s32 func_0010ce10(u8 *, u32);
 extern s32 func_003124a0();
 extern s32 func_003127e0();
 extern u32 func_003b7060();
@@ -10,7 +13,7 @@ extern u8 *func_002e48a0(s8 arg0, s16 arg1);
 extern void func_0043f810(void *dst, void *src, u32 size);
 extern void func_0046d730(const char *file, s32 line);
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
-extern void func_0010cad0(u8 *arg0, s32 arg1);
+extern void func_0010cad0(u8 *arg0, u16 arg1);
 extern u8 *iGpffffb3d4;
 extern char D_00642F30[];
 extern s32 func_00312220(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3);
@@ -33,25 +36,73 @@ extern u8 D_00642F04[];
 // FUN_00311EA0
 INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_00311ea0);
 
-/* measured: structure fully recovered (s128 aggregate-copy count reload,
-   threshold gate, 0x17-entry flag scan, four-entry callback loop, and
-   indexed result lookup), but no clean-C probe reaches the retail code.
-   Best probe uses typedef signed __int128 for the retail sq/lq count,
-   an s64 outer counter and threshold, and an indexed final return:
-   object 640B vs the 640B retail window, normalized_diff 76
-   (reloc-masked). The prior pointer-arithmetic return was nd77; the
-   earlier s32-counter body was 648B vs 640B, nd97.
-   Tried scalar s128 storage, threshold and outer-counter width/forms,
-   explicit gate labels and branch forms, declaration ordering, parameter
-   ABI widths, typed versus old-style helper declarations, key and
-   bottom-pointer lifetimes, and focused optimization pragmas. Remaining
-   residuals are real saved-register allocation and loop-layout differences:
-   MWCC maps arg2 to $s5 rather than retail $s3, spills arg3 instead of
-   retaining it in $fp, rotates threshold/key/status across $s7/$fp/$s6
-   rather than $s6/$s7/$s5, and uses $s3 for the outer counter rather than
-   retail $s2. Production intentionally retains INCLUDE_ASM. */
+/* Measured: 640/640 bytes and all 16 relocations match retail.
+ * Ordinary s32 counters produce the quadword spill; persona/skill inputs
+ * use the same halfword contracts as their providers and other callers. */
 // FUN_00312220
-INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_00312220);
+s32 func_00312220(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3) {
+    s32 count;
+    s16 matched;
+    s32 row;
+    s32 threshold;
+    u16 *entry;
+    s32 key;
+    s32 allowed;
+    s32 result;
+    s32 gate;
+    u32 flagIndex;
+    s32 skillIndex;
+    u8 *flag;
+    s16 bits;
+    u16 *skill;
+    if (arg0 == NULL || arg2 == NULL || arg1 >= 5)
+        func_0046d730(D_00642F30, 0x17B);
+    entry = *(u16 **)(D_00642F00 + arg1 * 8);
+    count = *(s32 *)(D_00642F04 + arg1 * 8);
+    row = 0;
+    threshold = (s16)(arg1 + 2);
+    while (row < count) {
+        matched = 0;
+        result = func_00311b90(entry, arg2, arg3, &matched);
+        result = matched >= threshold ? result : 0;
+        if (result != 0) {
+            key = *entry;
+            allowed = 1;
+            for (flagIndex = 0; flagIndex < 0x17U; flagIndex++) {
+                flag = D_006420A0 + flagIndex * 8;
+                if (key == *(s16 *)(flag + 4)) {
+                    bits = *(s16 *)(flag + 6);
+                    if (bits & 1) {
+                        if (func_00106330(*(s32 *)flag) == 0) {
+                            gate = 0;
+                            goto flag_done;
+                        }
+                    } else if (bits & 2) {
+                        allowed = 0;
+                        if (func_00106330(*(s32 *)flag) == 1) {
+                            gate = 1;
+                            goto flag_done;
+                        }
+                    }
+                }
+            }
+            gate = allowed;
+flag_done:
+            if (gate) {
+                func_0010cad0((u8 *)arg0, *entry);
+                for (skillIndex = 0; skillIndex < 4; skillIndex++) {
+                    skill = (u16 *)((u8 *)&entry[skillIndex] + 24);
+                    if (*skill != 0 && func_0010ce10((u8 *)arg0, *skill) == -1 &&
+                        func_0010cc20((u8 *)arg0, *skill) == 0) break;
+                }
+                return iGpffffb3d4[arg0[1] * 14 + 2];
+            }
+        }
+        entry += 16;
+        row++;
+    }
+    return 0;
+}
 
 /* measured: structure fully recovered (sp8C/sp8E pair, func_00312220 gate,
    temp_16/temp_20 from iGpffffb3d4+arg*14+2, func_002ac350() branch into

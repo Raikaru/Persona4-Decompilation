@@ -49,10 +49,10 @@ extern char D_005E57F0[];
 
 void func_0046d730(const char *file, s32 line);
 void func_0043f9c8(void *dst, s32 value, s32 size);
-s32 func_0010cc20();
-void func_00115420();
+s32 func_0010cc20(u8 *, u16);
+void func_00115420(u16, u8 *);
 void func_00115940();
-s32 func_0010c750();
+u32 func_0010c750(void *persona, u16 level);
 s32 func_00109430();
 s32 func_0010cd70(s32, s32, u8 *);
 void func_00115500(s16, u8 *, u8 *);
@@ -2277,13 +2277,13 @@ void func_0011caf0(u8 *arg0)
     }
 }
 // FUN_0011CB70
-s32 func_0011cb70(u8 *arg0, u8 *arg1)
+s32 func_0011cb70(u8 *arg0, u16 arg1)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     if (*(s32 *)b == 0) {
         func_0046d730(D_005E4868, 0xE21);
     }
-    if (func_0010cc20(*(s32 *)b, arg1) != 0) {
+    if (func_0010cc20(*(u8 **)b, arg1) != 0) {
         func_00115420(arg1, b + 0x8C);
         return 1;
     }

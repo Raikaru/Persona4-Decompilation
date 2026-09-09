@@ -1,6 +1,7 @@
 /* Source unit: src/Battle/btlCamera_001bc3a0.c */
 #include "include_asm.h"
 #include "type.h"
+#include "btl_skill_internal.h"
 
 typedef struct RwV3d RwV3d;
 struct RwV3d
@@ -179,7 +180,6 @@ extern f32 DAT_00761254;
 extern f32 DAT_00761188;
 extern f32 DAT_00761258;
 extern u8 *iGpffffb3ac;
-extern u8 *iGpffffb3bc;
 extern void func_001c1f70(void *arg0, s32 arg1);
 extern void func_001bdeb0(void);
 void func_001cb970(void* camera, f32 speed, int param_3);

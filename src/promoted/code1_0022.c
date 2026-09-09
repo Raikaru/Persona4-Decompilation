@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "btl_skill_internal.h"
 typedef struct BtlTarget BtlTarget;
 typedef struct BtlCamera BtlCamera;
 typedef struct BtlUnitStateWork BtlUnitStateWork;
@@ -137,7 +138,6 @@ extern f32 fGpffff80dc;
 extern f32 tanf(f32 angle);
 extern u32 func_001bc3a0(f32 *pose, f32 *out);
 extern f32 fGpffff8110;
-extern u8 *iGpffffb3bc;
 extern u8 D_0060A100[];
 extern f32 fGpffff8100;
 extern f32 fGpffff810c;
@@ -258,7 +258,7 @@ extern u8 D_0062E7C0[], D_0062EF10[], D_0062F660[], D_0062FDB0[];
 extern u8 D_00630500[], D_00630C50[], D_006313A0[], D_00631AF0[];
 extern u8 D_006355A0[];
 extern void func_0010b7c0(void);
-extern u8 *func_0010b010(s32 personaId);
+extern u8 *func_0010b010(u16 personaId);
 extern s32 func_0010b300(s32 personaId);
 extern void func_0019ef30(u8 *unit, u16 action);
 extern void func_00106d40(s16 character, s16 slot, s16 value);

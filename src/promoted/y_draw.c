@@ -671,25 +671,79 @@ void func_002b74c0(u8 *arg0) {
     jtbl_008873EC[0](p);
 }
 
-/* measured: retail anchors the inner loop's (s16)j sign-extend at the loop head
-   into $s0 (before the func_002b2970 call, live across it) and re-issues the table
-   load before each store with the 0xFF constant between the loads and the addu;
-   mwcc b210 emits the j-extend at first use after the call (or sinks a pre-call
-   jx statement into the bottom test, nd 102) and materializes the constants before
-   the table loads (nd 91-95 across inline/jx/while/for spellings, ix-first addu,
-   and j=0-before-ix ordering). Same s16-index-extension family as func_002b6590's
-   measured note. */
-/* measured 2026-08-03: LEVER-1 discovery - func_002b74f0 RETURNS u8* (the
-   final lw $2,-0x4A8C($28) before the epilogue is iGpffffb574, not a dead
-   load). The void decl was wrong (m2c says u8 *func_002b74f0(s32,s32)). Full
-   body reconstructed (func_002b2a60 = (u8*,u8,u8,u8,u8) extern added) but nd
-   147: the loop register allocation diverges (candidate uses fewer saved
-   regs: retail 5 = $16 arg1/$17 ix/$18 p/$19 i/$20 base; mwcc allocates
-   differently) and the inner-loop table base is re-loaded per use while
-   retail keeps $20 = base across the pair. The nd-91-95 recipe's exact
-   allocations were not recovered. */
+/* Measured: 596/608 bytes, 25 resolved relocations and 12 zero alignment bytes.
+ * Record addresses use signed EE word arithmetic before byte component offsets;
+ * separate table snapshots preserve provider-visible work-data replacement. */
+#pragma push
+#pragma opt_loop_invariants off
+#pragma opt_propagation off
+#pragma schedule off
 // FUN_002B74F0
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b74f0);
+u8 *func_002b74f0(s32 arg0, s32 arg1) {
+    u8 *data;
+    u8 *entries;
+    u8 *entry;
+    s32 componentOffset;
+    s32 entryOffset;
+    s16 record;
+    s16 component;
+    s16 index;
+    f2 position;
+    u4 color;
+    u32 alpha;
+    f32 unitScale;
+    f32 zero;
+
+    func_0044ea90(&D_0063F178, 0x3F3);
+    data = D_008873F4[0](1, 0x31220, 0x40000);
+    iGpffffb574 = (u8 *)func_00451fc0(arg0, D_0063F1B0, 0xF, 0, 0,
+                                        (void (*)(u8 *))func_002b6ec0,
+                                        (void (*)(u8 *))func_002b74c0, data);
+    *(s32 *)(data + 0) = arg1;
+    *(s16 *)(data + 0x30C04) = 0;
+    record = 0;
+    while ((s32)record < 0x30C) {
+        component = 0;
+        entryOffset = (s32)record * 0x100;
+        while ((s32)component < 3) {
+            entries = *(u8 **)(iGpffffb574 + 0x38);
+            index = component;
+            componentOffset = index;
+            zero = 0.0f;
+            func_002b2970((u8 *)&position, zero, zero);
+            *(f2 *)((u8 *)(entryOffset + (s32)entries) + componentOffset * 8 + 0x2C) = position;
+            entry = *(u8 **)(iGpffffb574 + 0x38);
+            alpha = 0xFF;
+            *(u8 *)((u8 *)(entryOffset + (s32)entry) + componentOffset + 0x70) = alpha;
+            entry = *(u8 **)(iGpffffb574 + 0x38);
+            componentOffset = componentOffset * 4;
+            *(s32 *)((u8 *)(entryOffset + (s32)entry) + componentOffset + 0xCC) = 0;
+            entry = *(u8 **)(iGpffffb574 + 0x38);
+            unitScale = 1.0f;
+            entry = (u8 *)(entryOffset + (s32)entry) + componentOffset;
+            *(f32 *)(entry + 0xA8) = unitScale;
+            *(f32 *)(entry + 0x9C) = unitScale;
+            entries = *(u8 **)(iGpffffb574 + 0x38);
+            func_002b2a60((u8 *)&color, alpha, alpha, alpha, alpha);
+            *(u4 *)((u8 *)(entryOffset + (s32)entries) + componentOffset + 0x81) = color;
+            component++;
+        }
+        entry = *(u8 **)(iGpffffb574 + 0x38);
+        index = record;
+        entryOffset = (s32)index * 0x100;
+        *(f32 *)(entry + entryOffset + 0x18) = 100.0f;
+        entry = *(u8 **)(iGpffffb574 + 0x38);
+        *(s32 *)(entry + entryOffset + 0x0C) = 0x55;
+        *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + entryOffset + 0x14) = 0;
+        entry = (u8 *)(*(u8 **)(iGpffffb574 + 0x38) + entryOffset);
+        *(s16 *)(entry + 0x12) = 0;
+        *(s16 *)(entry + 0x10) = 0;
+        record++;
+    }
+    return iGpffffb574;
+}
+#pragma pop
+
 // FUN_002B7750
 /* measured: open opt_propagation scope for func_002b7750. */
 #pragma opt_propagation off
@@ -713,30 +767,72 @@ void func_002b7750(s16 arg0, s16 arg1) {
 // FUN_002B77D0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b77d0);
 
-/* measured: retail sinks found=0 into the loop's exit edge (test fall-through) and
-   CSEs the constant 1 from i's init ($a0 = i's 1) into both the sllv base and the
-   bne compare, keeping $a3=flags unextended (lh already sign-extends); mwcc b210
-   keeps found=0 before the loop (or folds it when written after: nd 133) and
-   rematerializes the 1 inside the body (nd 100-133 across s16/s32 flags and
-   per-iteration found=0 spellings). Also retail re-loads iGpffffb574's table per
-   compare and keeps $18 = arg2's sign-extend across calls. Loop-init-sinking +
-   constant-LICM floor, cousin of the load-sinking wall. */
-/* measured: re-tested recipe B (base hoist). Natural full-deref spelling
-   (flags = *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + idx + 0x14), per-compare
-   re-derivation) is nd 133; a typed u8 *tbl local hoisted for all uses is nd
-   132 - retail re-loads iGpffffb574's table per compare, so the hoist is the
-   wrong shape. The residual is the loop-init/constant wall: retail sinks
-   found=0 into the loop's exit edge (test fall-through), CSEs the constant 1
-   from i's init into the sllv base, the bne compare and the found value, and
-   extends (s16)i at both the body head and the bottom test; mwcc b210 keeps
-   found=0 before the loop, rematerializes the 1 inside the body, and merges
-   the loop-head extension into the test. Everything after the found-check
-   (func_0046d200 chain, v[] stack loop, four compare chains with the base
-   re-derived per compare, &= ~1, func_0046d280) is byte-identical. Same
-   loop-init-sinking + constant-LICM floor as recorded; cousin of the
-   load-sinking wall. */
+/* 580/592 bytes; 10 resolved relocations; 12 zero alignment bytes.
+ * The selected-state join retains both signed-index extensions. */
+typedef struct {
+    u8 unknown00[0x14];
+    s16 flags;
+    u8 unknown16[0x26];
+    f32 x;
+    f32 y;
+    u8 unknown44[0xBC];
+} YDrawCullEntry;
+typedef struct {
+    u8 unknown00[0x34];
+    s32 margins[4];
+    u8 unknown44[0x3C];
+} YDrawSpriteFrameMargins;
+
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
+#pragma schedule off
 // FUN_002B7CD0
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7cd0);
+void func_002b7cd0(u8 *arg0, s16 arg1, s16 arg2) {
+    u8 *context;
+    s32 entryOffset;
+    s32 flags;
+    s16 bit;
+    s16 selected;
+    u8 *sample;
+    s32 frameIndex;
+    YDrawSpriteFrameMargins *frame;
+    YDrawCullEntry *entries;
+    f32 margins[4];
+    s16 side;
+
+    context = *(u8 **)(arg0 + 0x38);
+    entries = *(YDrawCullEntry **)(iGpffffb574 + 0x38);
+    entryOffset = (s32)arg1 * 0x100;
+    flags = ((YDrawCullEntry *)((u8 *)entries + entryOffset))->flags;
+    for (bit = 1; bit < 13; bit++) {
+        if (((flags & (u16)(1 << bit)) >> bit) == 1) {
+            selected = 1;
+            goto found_check;
+        }
+    }
+    selected = 0;
+found_check:
+    if (selected == 0) {
+        frameIndex = arg2;
+        sample = func_0046d200(*(u32 *)context, frameIndex);
+        (void)func_0046b260(sample);
+        (void)func_0046b2f0(sample);
+        side = 0;
+        frame = (YDrawSpriteFrameMargins *)(*(u8 **)(*(u8 **)sample + 0x204) + frameIndex * 0x80);
+        for (; side < 4; side++) {
+            margins[side] = (f32)frame->margins[side];
+        }
+        if (!(((YDrawCullEntry *)((u8 *)(entries = *(YDrawCullEntry **)(iGpffffb574 + 0x38)) + entryOffset))->x - margins[2] < 640.0f) ||
+            (margins[3] + (((YDrawCullEntry *)((u8 *)entries + entryOffset))->x + func_0046b260(sample)) < 0.0f) ||
+            !(((YDrawCullEntry *)((u8 *)(entries = *(YDrawCullEntry **)(iGpffffb574 + 0x38)) + entryOffset))->y - margins[0] < 480.0f) ||
+            (margins[1] + (((YDrawCullEntry *)((u8 *)entries + entryOffset))->y + func_0046b2f0(sample)) < 0.0f)) {
+            ((YDrawCullEntry *)((u8 *)*(YDrawCullEntry **)(iGpffffb574 + 0x38) + entryOffset))->flags &= ~1;
+        }
+        func_0046d280(sample);
+    }
+}
+#pragma pop
 
 /* measured: retail compiles the u8->float c-check (lbu 0x125 + bltz, round-to-even
    trick via srl/andi/or, doubling via add.s) as a standard if/else - one bltz, direct

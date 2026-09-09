@@ -431,8 +431,54 @@ INCLUDE_ASM("asm/nonmatchings/code1_0015", func_00156800);
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_00156cf0);
 // FUN_00157310
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_00157310);
+/* Measured: 684/688 bytes, 12 resolved call relocations and four zero tail bytes.
+ * Capture exits before output writes; reload categories after earlier recursion. */
 // FUN_00157700
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_00157700);
+void func_00157700(s32 x, s32 y, s32 incoming, s32 depth,
+                  s32 limit, s32 *found_two, s32 *found_high)
+{
+    s32 exits;
+    s32 next_depth;
+    s32 right_depth;
+
+    if (depth < limit) {
+        if (((u8 *)func_00155280() + y * 0x100 + x * 0x10)[0x54] == 1) {
+            exits = ~incoming & ((u8 *)func_00155280() + y * 0x100 + x * 0x10)[0x5E];
+            if (((u8 *)func_00155280() + y * 0x100 + x * 0x10)[0x58] == 2) {
+                *found_two = 1;
+            }
+            if (((u8 *)func_00155280() + y * 0x100 + x * 0x10)[0x58] >= 9) {
+                *found_high = 1;
+            }
+            if (exits & 1) {
+                func_00157700(x, y - 1, 4, depth + 1, limit, found_two, found_high);
+            }
+            if (exits & 2) {
+                if ((((u8 *)func_00155280() + y * 0x100 + x * 0x10)[0x58] == 7 ||
+                     ((u8 *)func_00155280() + y * 0x100 + x * 0x10)[0x58] == 8) &&
+                    limit == 4) {
+                    next_depth = depth;
+                } else {
+                    next_depth = depth + 1;
+                }
+                func_00157700(x - 1, y, 8, next_depth, limit, found_two, found_high);
+            }
+            if (exits & 4) {
+                func_00157700(x, y + 1, 1, depth + 1, limit, found_two, found_high);
+            }
+            if (exits & 8) {
+                if ((((u8 *)func_00155280() + y * 0x100 + x * 0x10)[0x58] == 7 ||
+                     ((u8 *)func_00155280() + y * 0x100 + x * 0x10)[0x58] == 8) &&
+                    limit == 4) {
+                    right_depth = depth;
+                } else {
+                    right_depth = depth + 1;
+                }
+                func_00157700(x + 1, y, 2, right_depth, limit, found_two, found_high);
+            }
+        }
+    }
+}
 /* measured: opt_propagation off keeps the special-call $a3 load before the coordinate masks (nd 9 -> 0). */
 #pragma opt_propagation off
 // FUN_001579B0

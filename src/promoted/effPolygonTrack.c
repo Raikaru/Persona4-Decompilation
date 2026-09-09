@@ -489,5 +489,73 @@ void func_00493e30(u8 *arg0, f32 fparg0)
     func_00492e30((u16 *)*(u32 *)(arg0 + 0x30));
 }
 
+/* Measured: 620/624 bytes, 40 resolved relocations and 4 zero alignment bytes. */
+#pragma push
+#pragma opt_propagation off
 // FUN_00493E60
-INCLUDE_ASM("asm/nonmatchings/effPolygonTrack", func_00493e60);
+u8 *func_00493e60(u16 count, u16 segments) {
+    s32 size;
+    u8 *track;
+    u16 count16;
+    u32 i;
+    s32 index;
+    u16 *geometry;
+    u16 *ribbon;
+    u16 *cap;
+    u8 *ribbonEntry;
+    s32 opaque;
+    s32 maxAlpha;
+    u8 *capEntry;
+
+    if ((u16)segments < 2) {
+        func_0046d730(&D_00713E30, 0x205);
+    }
+    count16 = count & 0xFFFF;
+    size = (count16 * 2) + 0x1C;
+    func_0044ea90(&D_00713E30, 0x20A);
+    track = (u8 *)(*jtbl_008873E8)(size, 0x40000);
+    if (track == NULL) {
+        func_0046d730(&D_00713E30, 0x20B);
+    }
+    func_0043f9c8(track, 0, size);
+    *(u8 **)(track + 0x18) = track + 0x1C;
+    geometry = (u16 *)func_00483e10(count, segments, (void *)D_00713310, 3, 0x48);
+    *(u16 **)(track + 0x10) = geometry;
+    *geometry &= 0xFFFB;
+    geometry = (u16 *)func_00483c40(count, 1, 6, 8, (void *)D_00713420, 0x48);
+    *(u16 **)(track + 0x14) = geometry;
+    *geometry = *geometry & (u16)0xFFFB;
+    i = 0;
+    opaque = 0xFF;
+    maxAlpha = 0xFE;
+    for (; i < count16; i += 1) {
+        ribbon = *(u16 **)(track + 0x10);
+        if (iGpffffbb64.c3 != opaque) {
+            index = (u16)i * 4;
+            ribbonEntry = *(u8 **)((u8 *)ribbon + 0x54) + index;
+            ribbonEntry = *(u8 **)ribbonEntry;
+            *(LineNovaColor *)(ribbonEntry + 4) = iGpffffbb64;
+        } else {
+            iGpffffbb64.c3 = maxAlpha;
+            index = (u16)i * 4;
+            ribbonEntry = *(u8 **)((u8 *)ribbon + 0x54) + index;
+            ribbonEntry = *(u8 **)ribbonEntry;
+            *(LineNovaColor *)(ribbonEntry + 4) = iGpffffbb64;
+            iGpffffbb64.c3 = opaque;
+        }
+        cap = *(u16 **)(track + 0x14);
+        if (iGpffffbb64.c3 != opaque) {
+            capEntry = *(u8 **)((u8 *)cap + 0x54) + index;
+            capEntry = *(u8 **)capEntry;
+            *(LineNovaColor *)(capEntry + 4) = iGpffffbb64;
+        } else {
+            iGpffffbb64.c3 = maxAlpha;
+            capEntry = *(u8 **)((u8 *)cap + 0x54) + index;
+            capEntry = *(u8 **)capEntry;
+            *(LineNovaColor *)(capEntry + 4) = iGpffffbb64;
+            iGpffffbb64.c3 = opaque;
+        }
+    }
+    return track;
+}
+#pragma pop

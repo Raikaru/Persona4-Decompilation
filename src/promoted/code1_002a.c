@@ -98,9 +98,10 @@ typedef struct P4_002aa450_Work {
 static inline f32 p4_002aa450_mul(f32 left, f32 right) {
     return left * right;
 }
-extern void func_00366960(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          s32 arg4, s32 arg5, s32 arg6, s32 arg7,
-                          f32 farg0, s16 arg_sp0, s32 *arg_sp8, s32 arg_sp10);
+struct RwMatrixTag;
+extern void func_00366960(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
+                          s32 alpha, s32 mode, s32 centerX, s16 centerY,
+                          const struct RwMatrixTag *matrix, void *queue);
 extern void func_003e0870(void *arg0, void *arg1, f32 farg0, s32 arg2);
 extern void func_003e0a90(void *arg0, void *arg1, s32 arg2);
 extern void func_003e4320(void *arg0, void *arg1, void *arg2);
@@ -582,27 +583,27 @@ void func_002aa450(void) {
     color_x = (f32)0x1A3;
     color_y = (f32)0x242;
     color_value = 397;
-    func_00366960((s32)color_y, (s32)color_x, 0x18, 0x1F, 0xFF00, 0xFF, 1, 0,
-                  0.0f, 0, (s32 *)&work.matrix, 0);
+    func_00366960((s32)color_y, (s32)color_x, 0.0f, 0x18, 0x1F, 0xFF00, 0xFF, 1, 0,
+                  0, (const struct RwMatrixTag *)work.matrix, 0);
     func_003e0870(work.matrix, &work.pair0, offset, 0);
     func_003e0870(work.matrix, &work.pair3, 120.0f + angle, 2);
     func_003e0a90(work.matrix, &work.pair4, 2);
-    func_00366960((s32)color_y, (s32)color_x, 0x18, 0x1F, 0xFFFF00, 0xFF, 1, 0,
-                  0.0f, 0, (s32 *)&work.matrix, 0);
+    func_00366960((s32)color_y, (s32)color_x, 0.0f, 0x18, 0x1F, 0xFFFF00, 0xFF, 1, 0,
+                  0, (const struct RwMatrixTag *)work.matrix, 0);
     func_003e0870(work.matrix, &work.pair0, offset, 0);
     func_003e0870(work.matrix, &work.pair3, 240.0f + angle, 2);
     func_003e0a90(work.matrix, &work.pair4, 2);
-    func_00366960((s32)color_y, (s32)color_x, 0x18, 0x1F, 0xFF0000, 0xFF, 1, 0,
-                  0.0f, 0, (s32 *)&work.matrix, 0);
+    func_00366960((s32)color_y, (s32)color_x, 0.0f, 0x18, 0x1F, 0xFF0000, 0xFF, 1, 0,
+                  0, (const struct RwMatrixTag *)work.matrix, 0);
     func_003e0870(work.matrix, &work.pair1, fGpffff855c, 0);
     func_003e0870(work.matrix, &work.pair2, 357.0f * phase + 3.0f, 2);
     ((f32 *)&work.pair4)[0] *= ratio;
     ((f32 *)&work.pair4)[1] *= ratio;
     ((f32 *)&work.pair4)[2] *= ratio;
     func_003e0a90(work.matrix, &work.pair4, 2);
-    func_00366960((s32)color_y, (s32)(color_value - ratio * 2.0f), 0x22, 0x2C,
-                  0xE6E6E6, 0xFF, 1, 0x11, 0.0f, 0x16,
-                  (s32 *)&work.matrix, 0);
+    func_00366960((s32)color_y, (s32)(color_value - ratio * 2.0f), 0.0f, 0x22, 0x2C,
+                  0xE6E6E6, 0xFF, 1, 0x11, 0x16,
+                  (const struct RwMatrixTag *)work.matrix, 0);
 }
 // FUN_002AA890
 s32 func_002aa890(u8 *arg0) {

@@ -32,7 +32,7 @@ extern void func_00440b68(const void *, ...);
 extern void func_004659f0(void *);
 extern void func_0025e8b0(s32);
 extern s32 func_0025e800(s32, s32, s32);
-extern void *func_0010d7c0(s32, s32 *, s32);
+extern u8 *func_0010d7c0(s32, s32 *, s32);
 extern void func_0043f810(void *, void *, s32);
 extern void func_00464650(s32, void *, s32);
 extern void func_00466260(s32);
@@ -168,7 +168,7 @@ void func_002a2e50(u8 *arg0, s32 arg1) {
         return;
     case 2:
         t19 = *(s32 *)(arg0 + 0x3AC);
-        p18 = (u8 *)func_0010d7c0(0, &sp6C, 0);
+        p18 = func_0010d7c0(0, &sp6C, 0);
         p17 = sp6C;
         func_0044ea90(&D_007638F8, 0x16D);
         p = D_008873F4[0](1, 0x38008, 0x40000);

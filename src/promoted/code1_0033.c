@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "shd_misc_internal.h"
 extern void (*jtbl_008873EC[])(u8 *arg0);
 
 // P4 retail reaches the battle-data object pointer at gp-0x4A68,
@@ -11,12 +12,6 @@ extern s32 func_00106330(s32 arg0);
 extern void func_00106390(s32 arg0, s32 arg1);
 extern u32 func_002e7a60(void);
 
-typedef struct {
-    s32 lo;
-    s32 hi;
-} S8iodata;
-
-extern void func_00364320(S8iodata arg0, s32 arg1, s32 arg2, f32 fparg0);
 
 void func_002b82d0(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s16 arg5);
 
@@ -305,7 +300,7 @@ void func_00332a80(void)
 // FUN_00332B60
 void func_00332b60(u8 *arg0, u8 *arg1)
 {
-    func_00364320(*(S8iodata *)(arg1 + 0x1E0), 0xFF, func_002e7a60(), 1.0f);
+    func_00364320(*(Vec2f *)(arg1 + 0x1E0), 1.0f, 0xFF, func_002e7a60());
 }
 
 // FUN_0033D310

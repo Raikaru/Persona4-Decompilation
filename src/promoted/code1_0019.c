@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "btl_skill_internal.h"
 typedef struct P4_95730_Vec3 {
     f32 x;
     f32 y;
@@ -38,7 +39,6 @@ extern u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3);
 extern s32 func_001f0a50(u8 *arg0);
 extern s32 func_001f11e0(s64 arg0);
 extern s32 func_0023d8e0(u8 *arg0, s32 arg1);
-extern u8 *iGpffffb3bc;
 extern u8 *iGpffffb3c0;
 extern u8 *iGpffffb3cc;
 extern s64 func_00192560(void);
@@ -3954,7 +3954,7 @@ result_one_0019fc70:
     if (func_001f11e0((s64)(s16)temp_18) != 0) {
         {
             u8 *flags_table;
-            flags_table = iGpffffb3bc;
+            flags_table = (u8 *)iGpffffb3bc;
             if ((*(u16 *)(p4_unit_00195530(
                 temp_16 * 4, flags_table) + 2) & 1) == 0)
                 return 0;
@@ -4006,7 +4006,7 @@ s32 func_0019fe60(u8 *arg0, s32 arg1, s32 arg2)
             return 1;
         }
         if (status == 3) {
-            table = iGpffffb3bc;
+            table = (u8 *)iGpffffb3bc;
             if ((*(u16 *)(p4_unit_00195530((arg1 & 0xFFFF) * 4,
                                            table) + 2) &
                  0x8000) != 0 ||

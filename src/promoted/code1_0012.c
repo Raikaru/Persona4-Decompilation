@@ -146,7 +146,7 @@ extern void func_00123d50(u8 *arg0);
 extern s32 func_004669d0(s32 arg0, s32 *arg1, s32 arg2);
 extern void func_0046d730(const void *file, s32 line);
 extern u8 D_005E5548[];
-extern u8 func_00106600(s16 arg0);
+extern s32 func_00106600(s16 id);
 extern u8 D_005E76C8[];
 extern u8 D_005E5720[];
 extern void func_0012aa70(void);

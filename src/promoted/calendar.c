@@ -2,6 +2,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit calendar.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "shd_misc_internal.h"
 extern s32 func_00452380();
 extern u8 D_005E4FE8[];
 extern u8 D_005E4FD8[];
@@ -37,8 +38,8 @@ extern s32 func_00110580(s32 arg0);
 extern s32 func_001105b0(s32 arg0);
 extern s32 func_00110600(s32 arg0, s32 arg1);
 extern void func_0045d6e0(void *arg0, void *arg1, s32 arg2, f32 farg0);
-extern void func_00450dd0(s64 arg0, void *arg1, s32 arg2, s32 arg3, f32 farg0);
-extern u8 D_005E5010[];
+extern s32 iGpffff9c54;
+extern const char *D_005E5010[];
 extern u8 D_005E5028[];
 
 
@@ -171,16 +172,52 @@ void func_00121660(void *arg0)
     jtbl_008873EC[0](p);
 }
 
-/* measured: retail calendar func_00121690. Frame/stack layout (0x80, color@0x74,
-   dim@0x50, pos@0x68) matched exactly via a union{ f32 f[2]; s64 x; } for the
-   sp68/sp6C pair (the `ld $a0,0x68` 8-byte read forces 8-byte alignment; separate
-   f32s or a struct put it at 0x60). nd 117->62. Residual: persistent saved-register
-   rotation (work=$s2 vs retail $s1, var_18=$s3 vs $s2, temp_2=$s1 vs $s0,
-   var_19=$s0 vs $s3) that no declaration-order permutation fixes, plus the func_
-   00450dd0 loop call emits an extra $a3 (4-arg vs 5-arg signature) and the
-   var_18+=1 / slti order in the loop. func_00450dd0 is (s64,void*,s32,s32,f32). */
-// FUN_00121690 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/calendar", func_00121690);
+/* Measured: 688 bytes and 17 resolved relocations. Packed positions retain
+ * both coordinate components; the formatter consumes a genuine vararg list.
+ * Keep the loop bound live and reuse the selected row offset across queries. */
+// FUN_00121690
+s32 func_00121690(void)
+{
+    s32 month, day;
+    u8 color[4];
+    PackedVec2f pos;
+    s32 dim[4];
+    s32 current, index;
+    s32 offset;
+    s32 weekday;
+    u8 *work;
+
+    work = (u8 *)D_007242B4;
+    if (work == NULL) return 0;
+    if (*(s32 *)(work + 4) == 0) return 0;
+    color[0] = 0x40; color[1] = 0x40; color[2] = 0x40; color[3] = 0xff;
+    dim[0] = 100; dim[1] = 100; dim[2] = 250; dim[3] = 100;
+    func_0045d6e0(color, dim, 1, 0.0f);
+    func_001104d0(*(s32 *)(work + 8), &month, &day);
+    weekday = func_00110580(func_00110600(month, 1));
+    current = func_00110580(*(s32 *)(work + 8));
+    if (current >= weekday) offset = 0; else offset = 12;
+    offset = offset + (func_001105b0(*(s32 *)(work + 8)) - 1) * 12;
+    color[0] = 0x40; color[1] = 0x80; color[2] = 0x80; color[3] = 0xff;
+    dim[0] = current * 36 + 100; dim[1] = offset + 124; dim[2] = 36; dim[3] = 12;
+    func_0045d6e0(color, dim, 1, 0.0f);
+    pos.xy.x = 100.0f; pos.xy.y = 100.0f;
+    func_00450dd0(pos, 0.0f, D_005E5028, month, D_005E5010[func_001060c0()]);
+    pos.xy.x = 0.0f + 100.0f + 36.0f * (f32)weekday;
+    pos.xy.y = 124.0f;
+    index = 0;
+    while (index < func_001104a0(month)) {
+        func_00450dd0(pos, 0.0f, &iGpffff9c54, index + 1);
+        weekday++;
+        if (weekday > 6) {
+            weekday = 0;
+            pos.xy.x -= 252.0f; pos.xy.y += 12.0f;
+        }
+        pos.xy.x += 36.0f;
+        index++;
+    }
+    return 0;
+}
 
 // FUN_00121940
 s32 func_00121940(void)

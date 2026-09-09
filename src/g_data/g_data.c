@@ -95,7 +95,7 @@ extern char iGpffff9b18;
 
 extern u8* iGpffffb3d4; /* gp -0x4C2C */
 
-extern u8* iGpffffb3e4; /* gp -0x4C1C */
+extern u16 (*iGpffffb3e4)[311]; /* gp -0x4C1C */
 
 extern u8* iGpffffb3dc; /* gp -0x4C24 */
 
@@ -229,7 +229,7 @@ typedef struct PersonaWork {
 
 extern PersonaWork* func_0010a900(u16 pcId);
 
-extern u32 func_0010c750(PersonaWork* persona, u16 level);
+extern u32 func_0010c750(void *persona, u16 level);
 
 extern u32 datPersonaGetNextExp(int persona);
 
@@ -734,14 +734,79 @@ void func_00105990(s16 arg0, u32 arg1)
     }
 }
 
-/* measured: retail keeps the raw arg0 in $s1 (move $s1,$a0 before the
-   dsll32/dsra32 sign-extend) and colors j->$a1, k->$a2, v=0x63 as daddiu;
-   mwcc b210 folds the andi 0xFFFF into the sign-extended copy, swaps j/k
-   registers, and emits addiu - tried s16 param, s32 a local, m2c loop shapes
-   (top-test and bottom-test), s32/u8 jk, declaration orders - best nd 104.
-   Register-rotation + constant-width floor. */
+/* 576/576 bytes; twenty-seven resolved relocations.
+ * Independent byte counters retain both scans and the final experience reload. */
 // FUN_00105A50
-INCLUDE_ASM("asm/nonmatchings/g_data", func_00105a50);
+s32 func_00105a50(s16 arg0)
+{
+    extern void func_0046d730(const char *file, s32 line);
+    s32 value;
+    s32 value3;
+    u8 j;
+    u8 index;
+    u8 i;
+    u8 index2;
+    if (arg0 == 1)
+        value = D_00797400[0];
+    else {
+        PersonaWork *persona = func_0010a900((u16)arg0);
+        if (persona == 0)
+            func_0046d730((const char *)D_005E4298, 0x1B8);
+        value = datPersonaGetNextExp((int)persona);
+    }
+    index = 0;
+    i = 0;
+    j = 0;
+    goto first_test;
+first_body:
+    if (value < D_005DD6E0[j]) {
+        index = i;
+        goto first_done;
+    }
+    i++;
+    j++;
+first_test:
+    if (j < 0x63)
+        goto first_body;
+    index = 0x63;
+first_done:
+    if ((index & 0xFF) == 0x63)
+        return 0;
+    if (arg0 == 1)
+        value = D_00797400[0];
+    else {
+        PersonaWork *persona = func_0010a900((u16)arg0);
+        if (persona == 0)
+            func_0046d730((const char *)D_005E4298, 0x1B8);
+        value = datPersonaGetNextExp((int)persona);
+    }
+    index2 = 0;
+    i = 0;
+    j = 0;
+    goto second_test;
+second_body:
+    if (value < D_005DD6E0[j]) {
+        index2 = i;
+        goto second_done;
+    }
+    i++;
+    j++;
+second_test:
+    if (j < 0x63)
+        goto second_body;
+    index2 = 0x63;
+second_done:
+    value3 = D_005DD6DC[((index2 & 0xFF) + 1) & 0xFF];
+    if (arg0 == 1)
+        value = D_00797400[0];
+    else {
+        PersonaWork *persona = func_0010a900((u16)arg0);
+        if (persona == 0)
+            func_0046d730((const char *)D_005E4298, 0x1B8);
+        value = datPersonaGetNextExp((int)persona);
+    }
+    return (s32)((u32)value3 - (u32)value);
+}
 
 // FUN_00105C90
 void func_00105c90(s16 arg0, s16 arg1)
@@ -1082,7 +1147,7 @@ void func_001065c0(void)
 }
 
 // FUN_00106600
-u8 func_00106600(s16 arg0)
+s32 func_00106600(s16 arg0)
 {
     return D_0079757A[arg0];
 }
@@ -1662,8 +1727,341 @@ void func_0010d7b0(void)
 {
 }
 
+extern u8 D_0079740C[];
+extern u8 D_00797564[];
+extern u8 D_00797B87[];
+extern u8 D_00797F8C[];
+extern u8 D_0079B690[];
+extern u8 D_0079B698[];
+extern u8 D_0079B69C[];
+extern u8 D_0079B6A0[];
+extern u8 D_0079B6D8[];
+extern u8 D_0079BEF4[];
+extern u8 D_007BBF00[];
+extern s32 iGpffffb1b4;
+extern s32 iGpffffb1b8;
+extern u8 *func_0015a690(void);
+extern s32 func_0015a6a0(void);
+
+/* The inferred nested metadata layout leaves one natural tail-padding byte.
+ * Retail includes that byte in the character-wise summary checksum.
+ * 3908/3920 bytes; 219 resolved relocations; 12 zero alignment bytes. */
+extern u8 *iGpffff9db0;
+extern u8 *(*D_008873F4[])(s32 count, s32 size, s32 hint);
+extern s32 func_0015a160(void);
+extern u32 func_00110460(void);
+extern u32 D_0079B3CC[];
+extern char D_005E45A0[];
+typedef struct DatSaveMetadata {
+    s16 date;
+    u16 period;
+    u32 elapsed;
+    u8 level;
+    u8 difficulty;
+    u8 cleared;
+} DatSaveMetadata;
+typedef struct DatSaveSummary {
+    DatSaveMetadata metadata;
+    s8 names[2][18];
+    u8 mode;
+    u8 submode;
+    u16 checksum;
+} DatSaveSummary;
+typedef char DatSaveMetadataSize[(sizeof(DatSaveMetadata) == 12) ? 1 : -1];
+typedef char DatSaveSummarySize[(sizeof(DatSaveSummary) == 52) ? 1 : -1];
+
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
 // FUN_0010D7C0
-INCLUDE_ASM("asm/nonmatchings/g_data", func_0010d7c0);
+u8 *func_0010d7c0(s32 version, s32 *outSize, s32 compact)
+{
+    u8 checksum;
+    s32 tag;
+    s32 length;
+    DatSaveSummary summary;
+    u8 *buffer;
+    u8 *records;
+    u8 *cursor;
+    u8 *unit;
+    s32 total;
+    s32 eventEnd;
+    u32 nameIndex;
+    u32 surnameIndex;
+    u32 unitIndex;
+    u32 checksumIndex;
+    u8 threshold;
+    u8 level;
+    u8 sum;
+    u32 summaryIndex;
+    u8 resultLevel;
+    s32 experience;
+    u8 *summaryBytes;
+
+    *(s32 *)D_0079B698 = *(s32 *)iGpffff9db0;
+    *(s32 *)D_0079B69C = *(s32 *)(iGpffff9db0 + 4);
+    *(s32 *)D_0079B6A0 = func_0015a160();
+    func_0044ea90(D_005E4298, 0x721);
+    buffer = D_008873F4[0](1, 0x2A000, 0x40000);
+    tag = 0;
+    total = 0;
+    func_0043f810(buffer, &version, 4);
+    summary.metadata.elapsed = iGpffffb19c;
+    D_0079B67C[0] = iGpffffb19c;
+    summary.metadata.date = D_00797B7A[0];
+    summary.metadata.period = D_00797B7C[0];
+    for (nameIndex = 0; nameIndex < 18; nameIndex++)
+        summary.names[0][nameIndex] = ((s8 *)D_007973A0)[nameIndex];
+    for (surnameIndex = 0; surnameIndex < 18; surnameIndex++)
+        summary.names[1][surnameIndex] = *((s8 *)D_007973A0 + surnameIndex + 18);
+    summary.mode = *(s32 *)iGpffff9db0;
+    summary.submode = *(s32 *)(iGpffff9db0 + 4);
+    experience = D_00797400[0];
+    level = 0;
+    threshold = 0;
+    goto level_test;
+level_body:
+    if (experience < D_005DD6E0[threshold]) {
+        resultLevel = level;
+        goto level_done;
+    }
+    level++;
+    threshold++;
+level_test:
+    if (threshold < 99)
+        goto level_body;
+    resultLevel = 99;
+level_done:
+    summary.metadata.level = resultLevel;
+    summary.metadata.cleared = func_00110460();
+    if (D_0079B3CC[0] & 0x10000)
+        summary.metadata.difficulty = 0;
+    else if (D_0079B3CC[0] & 0x20000)
+        summary.metadata.difficulty = 2;
+    else
+        summary.metadata.difficulty = 1;
+    summaryBytes = (u8 *)&summary;
+    sum = 0;
+    for (summaryIndex = 0; summaryIndex < 50; summaryIndex++)
+        sum += summaryBytes[summaryIndex];
+    summary.checksum = sum;
+    func_0043f810(buffer + 4, &summary, 52);
+    records = buffer + 56;
+    tag = 1;
+    func_0043f810(records, &tag, 4);
+    length = 36;
+    func_0043f810(buffer + 60, &length, 4);
+    func_0043f810(buffer + 64, D_007973A0, 36);
+    tag = 2;
+    func_0043f810(buffer + 100, &tag, 4);
+    length = 72;
+    func_0043f810(buffer + 104, &length, 4);
+    func_0043f810(buffer + 108, D_007973C4, 72);
+    tag = 3;
+    func_0043f810(buffer + 180, &tag, 4);
+    length = 344;
+    func_0043f810(buffer + 184, &length, 4);
+    func_0043f810(buffer + 188, D_0079740C, 344);
+    tag = 4;
+    func_0043f810(buffer + 532, &tag, 4);
+    length = 16;
+    func_0043f810(buffer + 536, &length, 4);
+    func_0043f810(buffer + 540, D_00797564, 16);
+    tag = 5;
+    func_0043f810(buffer + 556, &tag, 4);
+    length = 6;
+    func_0043f810(buffer + 560, &length, 4);
+    func_0043f810(buffer + 564, D_00797574, 6);
+    tag = 6;
+    func_0043f810(buffer + 570, &tag, 4);
+    length = 1536;
+    func_0043f810(buffer + 574, &length, 4);
+    func_0043f810(buffer + 578, D_0079757A, 1536);
+    tag = 8;
+    func_0043f810(buffer + 2114, &tag, 4);
+    length = 2;
+    func_0043f810(buffer + 2118, &length, 4);
+    func_0043f810(buffer + 2122, D_00797B7A, 2);
+    tag = 9;
+    func_0043f810(buffer + 2124, &tag, 4);
+    length = 1;
+    func_0043f810(buffer + 2128, &length, 4);
+    func_0043f810(buffer + 2132, D_00797B7C, 1);
+    tag = 10;
+    func_0043f810(buffer + 2133, &tag, 4);
+    length = 4;
+    func_0043f810(buffer + 2137, &length, 4);
+    func_0043f810(buffer + 2141, D_00797B80, 4);
+    tag = 11;
+    func_0043f810(buffer + 2145, &tag, 4);
+    length = 2;
+    func_0043f810(buffer + 2149, &length, 4);
+    func_0043f810(buffer + 2153, D_00797B84, 2);
+    tag = 12;
+    func_0043f810(buffer + 2155, &tag, 4);
+    length = 1;
+    func_0043f810(buffer + 2159, &length, 4);
+    func_0043f810(buffer + 2163, D_00797B86, 1);
+    tag = 13;
+    func_0043f810(buffer + 2164, &tag, 4);
+    length = 1024;
+    func_0043f810(buffer + 2168, &length, 4);
+    func_0043f810(buffer + 2172, D_00797B87, 1024);
+    tag = 14;
+    func_0043f810(buffer + 3196, &tag, 4);
+    length = 2;
+    func_0043f810(buffer + 3200, &length, 4);
+    func_0043f810(buffer + 3204, D_00797F88, 2);
+    tag = 15;
+    func_0043f810(buffer + 3206, &tag, 4);
+    length = 576;
+    func_0043f810(buffer + 3210, &length, 4);
+    func_0043f810(buffer + 3214, D_00797F8C, 576);
+    tag = 16;
+    func_0043f810(buffer + 3790, &tag, 4);
+    length = 12288;
+    func_0043f810(buffer + 3794, &length, 4);
+    func_0043f810(buffer + 3798, D_007981CC, 12288);
+    tag = 17;
+    func_0043f810(buffer + 16086, &tag, 4);
+    length = 704;
+    func_0043f810(buffer + 16090, &length, 4);
+    func_0043f810(buffer + 16094, D_0079B1CC, 704);
+    tag = 18;
+    func_0043f810(buffer + 16798, &tag, 4);
+    length = 4;
+    func_0043f810(buffer + 16802, &length, 4);
+    func_0043f810(buffer + 16806, D_0079B68C, 4);
+    tag = 19;
+    func_0043f810(buffer + 16810, &tag, 4);
+    length = 8;
+    func_0043f810(buffer + 16814, &length, 4);
+    func_0043f810(buffer + 16818, D_0079B690, 8);
+    tag = 21;
+    func_0043f810(buffer + 16826, &tag, 4);
+    length = 4;
+    func_0043f810(buffer + 16830, &length, 4);
+    func_0043f810(buffer + 16834, D_0079B698, 4);
+    tag = 22;
+    func_0043f810(buffer + 16838, &tag, 4);
+    length = 4;
+    func_0043f810(buffer + 16842, &length, 4);
+    func_0043f810(buffer + 16846, D_0079B69C, 4);
+    tag = 23;
+    func_0043f810(buffer + 16850, &tag, 4);
+    length = 4;
+    func_0043f810(buffer + 16854, &length, 4);
+    func_0043f810(buffer + 16858, D_0079B6A0, 4);
+    tag = 24;
+    func_0043f810(buffer + 16862, &tag, 4);
+    length = 340;
+    func_0043f810(buffer + 16866, &length, 4);
+    func_0043f810(buffer + 16870, D_0079BCD8, 340);
+    tag = 25;
+    func_0043f810(buffer + 17210, &tag, 4);
+    length = 512;
+    func_0043f810(buffer + 17214, &length, 4);
+    func_0043f810(buffer + 17218, D_0079B48C, 512);
+    tag = 26;
+    func_0043f810(buffer + 17730, &tag, 4);
+    length = 1536;
+    func_0043f810(buffer + 17734, &length, 4);
+    func_0043f810(buffer + 17738, D_0079B6D8, 1536);
+    tag = 27;
+    func_0043f810(buffer + 19274, &tag, 4);
+    length = 52;
+    func_0043f810(buffer + 19278, &length, 4);
+    func_0043f810(buffer + 19282, D_0079B6A4, 52);
+    tag = 34;
+    func_0043f810(buffer + 19334, &tag, 4);
+    length = 1;
+    func_0043f810(buffer + 19338, &length, 4);
+    func_0043f810(buffer + 19342, D_00797B7C, 1);
+    tag = 35;
+    func_0043f810(buffer + 19343, &tag, 4);
+    length = 4;
+    func_0043f810(buffer + 19347, &length, 4);
+    func_0043f810(buffer + 19351, D_0079BEF4, 4);
+    cursor = buffer + 19355;
+    total += 19355;
+    if (compact == 0) {
+        tag = 37;
+        func_0043f810(cursor, &tag, 4);
+        length = 4;
+        func_0043f810(cursor + 4, &length, 4);
+        func_0043f810(cursor + 8, &iGpffffb1b4, 4);
+        tag = 38;
+        func_0043f810(cursor + 12, &tag, 4);
+        length = 4;
+        func_0043f810(cursor + 16, &length, 4);
+        func_0043f810(cursor + 20, &iGpffffb1b8, 4);
+        tag = 39;
+        func_0043f810(cursor + 24, &tag, 4);
+        length = 86016;
+        func_0043f810(cursor + 28, &length, 4);
+        func_0043f810(cursor + 32, D_007BBF00, 86016);
+        cursor += 0x15020;
+        total += 0x15020;
+    }
+    tag = 40;
+    func_0043f810(cursor, &tag, 4);
+    length = 200;
+    func_0043f810(cursor + 4, &length, 4);
+    func_0043f810(cursor + 8, D_0079BE2C, 200);
+    tag = 41;
+    func_0043f810(cursor + 208, &tag, 4);
+    length = func_0015a6a0();
+    func_0043f810(cursor + 212, &length, 4);
+    cursor += 216;
+    eventEnd = total + 216;
+    func_0043f810(cursor, func_0015a690(), func_0015a6a0());
+    cursor += func_0015a6a0();
+    total = eventEnd + func_0015a6a0();
+    for (unitIndex = 0; unitIndex < 10; unitIndex++) {
+        tag = (unitIndex << 8) + 0x100;
+        func_0043f810(cursor, &tag, 4);
+        length = 4;
+        func_0043f810(cursor + 4, &length, 4);
+        unit = D_00796E50 + unitIndex * 0x88;
+        func_0043f810(cursor + 8, unit, 4);
+        tag = (unitIndex << 8) + 257;
+        func_0043f810(cursor + 12, &tag, 4);
+        length = 72;
+        func_0043f810(cursor + 16, &length, 4);
+        func_0043f810(cursor + 20, unit + 4, 72);
+        tag = (unitIndex << 8) + 258;
+        func_0043f810(cursor + 92, &tag, 4);
+        length = 6;
+        func_0043f810(cursor + 96, &length, 4);
+        func_0043f810(cursor + 100, unit + 76, 6);
+        tag = (unitIndex << 8) + 261;
+        func_0043f810(cursor + 106, &tag, 4);
+        length = 48;
+        func_0043f810(cursor + 110, &length, 4);
+        func_0043f810(cursor + 114, unit + 84, 48);
+        tag = (unitIndex << 8) + 267;
+        func_0043f810(cursor + 162, &tag, 4);
+        length = 4;
+        func_0043f810(cursor + 166, &length, 4);
+        func_0043f810(cursor + 170, unit + 132, 4);
+        cursor += 174;
+        total += 174;
+    }
+    checksum = 0;
+    for (checksumIndex = 0; checksumIndex < (u32)(total - 56); checksumIndex++)
+        checksum += records[checksumIndex];
+    tag = 0x2000;
+    func_0043f810(cursor, &tag, 4);
+    length = 1;
+    func_0043f810(cursor + 4, &length, 4);
+    func_0043f810(cursor + 8, &checksum, 1);
+    tag = -1;
+    func_0043f810(cursor + 9, &tag, 4);
+    *outSize = total + 13;
+    func_00440b68(D_005E45A0, total + 13);
+    return buffer;
+}
+#pragma pop
 
 // FUN_0010E710
 void func_0010e710(s32 arg0, s32 arg1, s32 arg2)
@@ -1750,8 +2148,200 @@ s32 func_0010e880(s32 arg0, s32 arg1, s32 arg2)
     return 0;
 }
 
+/* 2480/2480 bytes; 106 fully resolved relocations. */
 // FUN_0010E9E0
-INCLUDE_ASM("asm/nonmatchings/g_data", func_0010e9e0);
+void func_0010e9e0(s32 arg0, u32 arg1, u32 arg2, u8* arg3)
+{
+    u32 index;
+    switch (arg1) {
+    case 1:
+        if (arg2 == 36)
+            func_0043f810(D_007973A0, arg3, 36);
+        break;
+    case 2:
+        if (arg2 == 72)
+            func_0043f810(D_007973C4, arg3, 72);
+        break;
+    case 3:
+        if (arg2 == 344)
+            func_0043f810(D_0079740C, arg3, 344);
+        break;
+    case 4:
+        if (arg2 == 16)
+            func_0043f810(D_00797564, arg3, 16);
+        break;
+    case 5:
+        if (arg2 == 6)
+            func_0043f810(D_00797574, arg3, 6);
+        break;
+    case 6:
+        if (arg2 == 1536)
+            func_0043f810(D_0079757A, arg3, arg2);
+        break;
+    case 8:
+        if (arg2 == 2)
+            func_0043f810(D_00797B7A, arg3, arg2);
+        break;
+    case 9:
+        if (arg2 == 1)
+            func_0043f810(D_00797B7C, arg3, arg2);
+        break;
+    case 10:
+        if (arg2 == 4)
+            func_0043f810(D_00797B80, arg3, arg2);
+        break;
+    case 11:
+        if (arg2 == 2)
+            func_0043f810(D_00797B84, arg3, arg2);
+        break;
+    case 12:
+        if (arg2 == 1)
+            func_0043f810(D_00797B86, arg3, arg2);
+        break;
+    case 13:
+        if (arg2 == 1024)
+            func_0043f810(D_00797B87, arg3, arg2);
+        break;
+    case 14:
+        if (arg2 == 2)
+            func_0043f810(D_00797F88, arg3, arg2);
+        break;
+    case 15:
+        if (arg2 == 576)
+            func_0043f810(D_00797F8C, arg3, arg2);
+        break;
+    case 16:
+        if (arg2 == 12288)
+            func_0043f810(D_007981CC, arg3, arg2);
+        break;
+    case 17:
+        if (arg2 == 704)
+            func_0043f810(D_0079B1CC, arg3, arg2);
+        break;
+    case 18:
+        if (arg2 == 4)
+            func_0043f810(D_0079B68C, arg3, arg2);
+        break;
+    case 19:
+        if (arg2 == 8)
+            func_0043f810(D_0079B690, arg3, arg2);
+        break;
+    case 21:
+        if (arg2 == 4)
+            func_0043f810(D_0079B698, arg3, arg2);
+        break;
+    case 22:
+        if (arg2 == 4)
+            func_0043f810(D_0079B69C, arg3, arg2);
+        break;
+    case 23:
+        if (arg2 == 4)
+            func_0043f810(D_0079B6A0, arg3, arg2);
+        break;
+    case 24:
+        if (arg2 == 340)
+            func_0043f810(D_0079BCD8, arg3, arg2);
+        break;
+    case 25:
+        if (arg2 == 512)
+            func_0043f810(D_0079B48C, arg3, arg2);
+        break;
+    case 26:
+        if (arg2 == 1536)
+            func_0043f810(D_0079B6D8, arg3, arg2);
+        break;
+    case 27:
+        if (arg2 == 52)
+            func_0043f810(D_0079B6A4, arg3, arg2);
+        break;
+    case 32:
+        break;
+    case 34:
+        if (arg2 == 1)
+            func_0043f810(D_00797B7C, arg3, arg2);
+        break;
+    case 35:
+        if (arg2 == 4)
+            func_0043f810(D_0079BEF4, arg3, arg2);
+        break;
+    case 37:
+        if (arg2 == 4)
+            func_0043f810(&iGpffffb1b4, arg3, arg2);
+        break;
+    case 38:
+        if (arg2 == 4)
+            func_0043f810(&iGpffffb1b8, arg3, arg2);
+        break;
+    case 39:
+        if (arg2 == 86016)
+            func_0043f810(D_007BBF00, arg3, arg2);
+        break;
+    case 40:
+        if (arg2 == 200)
+            func_0043f810(D_0079BE2C, arg3, arg2);
+        break;
+    case 41:
+        if (arg2 == func_0015a6a0())
+            func_0043f810(func_0015a690(), arg3, arg2);
+        break;
+    case 0x100:
+    case 0x200:
+    case 0x300:
+    case 0x400:
+    case 0x500:
+    case 0x600:
+    case 0x700:
+    case 0x800:
+    case 0x900:
+    case 0xa00:
+        index = arg1 >> 8;
+        if (arg2 == 4)
+            func_0043f810(D_00796E50 + (index - 1) * 0x88, arg3, arg2);
+        break;
+    case 0x101:
+    case 0x201:
+    case 0x301:
+    case 0x401:
+    case 0x501:
+    case 0x601:
+    case 0x701:
+    case 0x801:
+    case 0x901:
+    case 0xa01:
+        index = arg1 >> 8;
+        if (arg2 == 72)
+            func_0043f810(D_00796E50 + (index - 1) * 0x88 + 4, arg3, arg2);
+        break;
+    case 0x102:
+    case 0x202:
+    case 0x302:
+    case 0x402:
+    case 0x502:
+    case 0x602:
+    case 0x702:
+    case 0x802:
+    case 0x902:
+    case 0xa02:
+        index = arg1 >> 8;
+        if (arg2 == 6)
+            func_0043f810(D_00796E50 + (index - 1) * 0x88 + 76, arg3, arg2);
+        break;
+    case 0x105:
+    case 0x205:
+    case 0x305:
+    case 0x405:
+    case 0x505:
+    case 0x605:
+    case 0x705:
+    case 0x805:
+    case 0x905:
+    case 0xa05:
+        index = arg1 >> 8;
+        if (arg2 == 48)
+            func_0043f810(D_00796E50 + (index - 1) * 0x88 + 84, arg3, arg2);
+        break;
+    }
+}
 
 // FUN_0010F390
 void func_0010f390(void)
@@ -1917,7 +2507,7 @@ void func_0010f770(s16 arg0, s16 arg1, u32 arg2, u32 arg3)
 }
 
 // FUN_0010F8C0
-u8 func_0010f8c0(s32 arg0)
+u16 func_0010f8c0(s32 arg0)
 {
     u8* table;
     u16 id;
@@ -2093,7 +2683,7 @@ u8* func_0010fde0(u8* arg0)
 }
 
 // FUN_0010FFA0
-extern void func_0010cad0(u8 *arg0, s32 arg1);
+extern void func_0010cad0(u8 *arg0, u16 arg1);
 void func_0010ffa0(void) {
     u8 buf[0x30];
     u8 *base;

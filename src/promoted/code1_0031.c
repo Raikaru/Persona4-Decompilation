@@ -16,9 +16,9 @@ static inline s32 func_0031_ne(s32 value, s32 target)
     return value != target;
 }
 
-extern s32 func_0010c750(u8 *arg0, s32 arg1);
+extern u32 func_0010c750(void *persona, u16 level);
 extern s32 func_00106330(s32 arg0);
-extern u8 func_00106600(s16 arg0);
+extern s32 func_00106600(s16 id);
 extern u16 func_00107ac0(s32 arg0);
 extern u8 D_006432B0[];
 extern u8 func_002e78a0(void);

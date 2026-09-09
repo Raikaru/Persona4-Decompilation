@@ -7,7 +7,7 @@ void func_001437b0(void *arg0, s32 arg1, s32 arg2);
 void func_001344d0(u8 *arg0);
 void func_00131a00(u8 *arg0);
 s16 func_00106cd0(s16 arg0, s16 arg1);
-u8 func_00106600(s16 arg0);
+s32 func_00106600(s16 id);
 s32 func_00106c30(s16 arg0, s16 arg1);
 s32 func_00106c80(s16 arg0);
 s16 func_00353ce0(void *arg0);
@@ -146,7 +146,7 @@ void func_00131730(s16 *arg0) {
     for (i = 0, count = 0; i < 0x2FF; i++) {
         found = i == func_00106cd0(id, call_type);
         if (!found) {
-            filter = func_00106600(i) != 0;
+            filter = (u8)func_00106600((s16)i) != 0;
             if (filter) {
                 filter = func_00106c30(i, id) != 0;
             }
@@ -157,7 +157,7 @@ void func_00131730(s16 *arg0) {
                 goto skip;
             }
         }
-        value = found + func_00106600(i);
+        value = found + (u8)func_00106600((s16)i);
         if (value > 99) {
             value = 99;
         }

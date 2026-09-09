@@ -24,7 +24,7 @@ extern void func_0045da40(float *a0, void *a1, float a2, s32 a3, void *a4);
 extern void func_0048a000(void);
 extern float func_0044b7b0(float angle);
 extern float func_0044b610(float angle);
-extern s32 func_0045eb20(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+extern void func_0045eb20(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
 extern float D_007612D0;
 extern f32 iGpffff81e0;
 extern f32 iGpffff8094;
@@ -35,7 +35,7 @@ extern s32 iGpffffb4dc;
 extern s32 iGpffffb4d8;
 extern u8 D_00796430[];
 extern u8 D_00796490[];
-extern void func_0027d800(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, f32 f0, f32 f1, f32 f2, f32 f3, void *t2);
+extern void func_0027d800(s32 a0, s32 a1, s32 a2, s32 a3, s16 t0, s16 t1, f32 f0, f32 f1, f32 f2, f32 f3, void *t2);
 extern void func_0027d3c0(s32 a0, s32 a1, f32 f0, s32 a2, s32 a3, s32 t0, s32 t1, s16 t2, s16 t3, f32 f1, f32 f2, f32 f3, void *a4);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 *func_00460990(void);
@@ -305,15 +305,10 @@ void func_0027d660(s32 arg0, s32 arg1, s32 arg2, s32 arg3, float f0, void *arg4)
     func_0048a000();
 }
 
-/* Near-match archived in build/TWIN_0027d800_body.c: object 364B/window 368B,
-   nd 22 with a one-instruction deficit. The copy loop, aggregate layout, color
-   packing, and += loop match; residuals are confined to the COP1 constant/mul/add
-   block at offsets 76-100 (register assignment and schedule). Probed aggregate
-   gap layout, pointer/indexed for/do-while copy forms, struct field order,
-   statement order, operand order, inline helper fusion, -O1, opt_propagation off,
-   and opt_common_subs off without closing it. No inline asm or live mismatch. */
+/* 364/368 bytes; three resolved relocations; four zero alignment bytes.
+ * The signed-halfword centers and explicit float arguments preserve the draw ABI. */
 // FUN_0027D800
-void func_0027d800(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, f32 f0, f32 f1, f32 f2, f32 f3, void *t2)
+void func_0027d800(s32 a0, s32 a1, s32 a2, s32 a3, s16 t0, s16 t1, f32 f0, f32 f1, f32 f2, f32 f3, void *t2)
 {
   struct 
   {
@@ -341,14 +336,10 @@ void func_0027d800(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, f32 f0, f32 f
   int new_var10;
   u32 blue;
   u32 alpha;
-  int new_var9;
-  char pad;
   u8 new_var8;
-  f32 base;
   f32 scaled;
   f32 dx;
   f32 dy;
-  extern s32 func_0045eb20();
   MsgProcWindowRGBA *new_var4;
   new_var3 = 3;
   new_var = a1;
@@ -360,29 +351,24 @@ void func_0027d800(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, f32 f0, f32 f
     lo = src->a;
     hi = src->b;
     src++;
-    alpha = (new_var9 = packed & 0xFF);
     count--;
- do { do { dst->a = lo; } while (0); } while (0);
+    dst->a = lo;
     dst->b = hi;
     dst++;
   }
   while (count > 0);
   scaled = 78.0f * f3;
-  ;
   work.points[1].y = scaled + 5.0f;
   work.points[new_var3].y = 2.0f + (scaled + 5.0f);
-  work.points[5].y = ((0, 4)) + (scaled + 5.0f);
-  work.points[7 & 0xFFu].y = 5.0f + (scaled + 5.0f);
+  work.points[5].y = 4.0f + (scaled + 5.0f);
+  work.points[7].y = 5.0f + (scaled + 5.0f);
   work.points[9].y = work.points[7].y;
-  alpha = alpha;
   new_var3 = 10;
   i = 0;
   new_var2 = a3;
   packed = (((u32) a2) << 8) | ((u32) new_var2);
   red = 0xFF & (packed >> 24);
   green = (packed >> 16) & 0xFF;
-  blue = (packed >> 8) & ((long) 0xFF);
-  src->a += 0;
   blue = (packed >> 8) & 0xFF;
   alpha = packed & 0xFF;
   dx = (f32) a0;
@@ -404,7 +390,7 @@ void func_0027d800(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, f32 f0, f32 f
     c->a = (u8) alpha;
   }
 
-  func_0045eb20(&work.colors[(unsigned char) 0], &work.points[alpha * 0], 10, 4, 1, t0, t1, t2);
+  func_0045eb20(&work.colors[0], &work.points[0], f0, 10, 4, 1, t0, t1, f1, f2, f3, t2);
 }
 
 /* Skip: retail contains COP1 adda.s/madd.s chains; ordinary FPU-MAC inline asm

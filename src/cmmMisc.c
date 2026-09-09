@@ -14,7 +14,7 @@ extern s32 func_00106330(s32 flag);
 extern void func_00106390(s32 id, s32 flag);
 extern s32 func_001064f0(s32 idx);
 extern s32 func_00106550(s32 id, s32 value);
-extern s32 func_00106600(s32 idx);
+extern s32 func_00106600(s16 idx);
 extern void func_00106620(s32 a, s32 b);
 extern s32 func_00107b70(s32 idx);
 extern s32 func_00107c80(s32 idx);
