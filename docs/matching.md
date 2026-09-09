@@ -8472,3 +8472,65 @@ linked, both retail SHA-1 hashes matched, and all12,720 functions were
 scanned. Totals are **7,791 MATCH /4,929 ASM** overall and **6,161 MATCH /
 699 ASM** first-party. Lint reports zero findings across338 first-party
 files. This is one additional exact first-party recovery, not completion.
+
+## Fresh-target continuation: panel geometry
+
+`func_00204690` in `src/promoted/code1_0020.c` now replaces its ASM slot
+with ordinary C: **916/928 bytes, nd0,15 independently resolved relocations
+and12 zero alignment bytes**. Explicit relocation resolution reproduces
+every byte of the928-byte retail window.
+
+The first complete source is1016/nd761. Reverse byte-channel capture,
+a separate transformed-depth result and scoped loop-invariant optimization
+reach916/nd109. A separate initialization counter and explicit point/output
+views reduce this to nd88; an unsigned cursor ties. Giving each quadrant
+its own cursor lifetime closes the remaining register cycle.
+
+The81-record array is grounded by the retail initialization loop, not a
+stack-size guess. Its64-byte records use the existing immediate-vertex
+layout. Four sweeps over the20 retail point pairs produce77 geometry records:
+0..19,18..0,1..19,18..0. The final call explicitly supplies primitive5,
+the vertex array and count77 to the existing three-argument draw callback.
+The public signature is unchanged; the compiled caller already disables
+texture before drawing. No padding objects or invented field initialization
+are added.
+
+The integrated source passes **65,536 native cases** under GCC and under
+Clang with AddressSanitizer and UndefinedBehaviorSanitizer. An independent
+per-output quadrant mapping checks bit-identical position, depth and
+reciprocal values plus all four color channels. Cases cover negative, zero
+and positive finite scales, varied scale factors, depth and near planes,
+and every low-halfword color paired with an XOR-transformed high halfword.
+In9,363 cases the camera accessor mutates globals and points and replaces
+the draw callback: pre-call scale/depth snapshots and late point/callback
+reads must remain correct. Input and camera canaries remain intact.
+This is headless geometry verification, not PS2 graphics-output or
+non-finite arithmetic verification.
+
+`FreshPanelGeometry_00204690_body.c` retains the exact source and evidence.
+The independently reconstructed candidates remain ASM:
+
+| Target | Preferred object/retail bytes | nd | Object relocations |
+| --- | ---: | ---: | ---: |
+| `func_00157310` | 1076/1008 | 723 | 26 |
+| `func_00450630` | 1044/1056 | 441 | 28 |
+
+`FreshFieldTile_00157310_body.c` retains defined multiplication for signed
+anchor offsets rather than shifting negative signed values. Returning
+assertions do not establish coordinate ranges. Separate placement/neighbor
+cursors regress to nd724;68 overrun bytes remain. The16-byte cell stride
+does not establish the full work allocation's capacity.
+
+`FreshSdkOverlay_00450630_body.c` uses four real vertex records, four UV
+pairs and two2D position objects, without the agent's named-padding
+structure. Loop-invariant optimization improves1028/nd745 to1044/nd441.
+All executable bytes are covered, with12 zero alignment bytes, but the
+instruction differences remain. Neither archived candidate has behavioral
+smoke verification or an exact-match claim.
+
+After the panel promotion, `make all lint-errors` passed:172 source objects
+linked, both retail SHA-1 hashes matched, and all12,720 functions were
+scanned. Totals are **7,792 MATCH /4,928 ASM** overall and **6,162 MATCH /
+698 ASM** first-party. Lint reports zero findings across338 first-party
+files. This adds one exact first-party match; the all-matching criterion
+remains unsatisfied.

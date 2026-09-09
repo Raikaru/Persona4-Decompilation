@@ -138,6 +138,11 @@ typedef struct {
 } Work4;
 extern void func_003f6440(s32 arg0, s32 arg1);
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
+extern f32 fGpffff82e0, fGpffff82e4;
+extern f32 D_008872F8[];
+extern f32 D_00626890[][2];
+extern u8 *func_00457120(void);
+extern void (*D_00887310[])(s32 primType, void *vertices, s32 count);
 
 
 extern void func_00201820(s32 arg0);
@@ -1416,8 +1421,84 @@ void func_002038c0(void) {
 
 // FUN_00203930
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00203930);
+/*
+ * measured: 916/928 bytes, 15 resolved relocations, 12 zero alignment bytes.
+ * The initialization loop covers 81 real vertex records; the four geometry
+ * phases supply 77 vertices. Keep each quadrant cursor's separate lifetime.
+ */
 // FUN_00204690
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00204690);
+#pragma push
+#pragma opt_loop_invariants on
+void func_00204690(u8 *unused, f32 scaleX, f32 scaleY, s32 color, f32 depth)
+{
+    f32 vertices[81][16];
+    u32 alpha = ((u8 *)&color)[3];
+    u32 blue = ((u8 *)&color)[2];
+    u32 green = ((u8 *)&color)[1];
+    u32 red = ((u8 *)&color)[0];
+    f32 reciprocal;
+    f32 transformedDepth;
+    u32 vertex;
+    u32 initialize;
+    scaleX *= fGpffff82e0;
+    scaleY *= fGpffff82e4;
+    transformedDepth = D_008872F8[0] - depth;
+    reciprocal = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    for (initialize = 0; initialize < 81; initialize++) {
+        f32 *out = vertices[initialize];
+        out[2] = transformedDepth;
+        out[6] = reciprocal;
+        out[8] = (f32)red;
+        out[9] = (f32)green;
+        out[10] = (f32)blue;
+        out[11] = (f32)alpha;
+    }
+    vertex = 0;
+    vertices[0][0] = 320.0f;
+    vertices[0][1] = 211.0f;
+    {
+        s32 i;
+        for (i = 0; (u32)i < 20; i++) {
+            f32 *point = D_00626890[i];
+            f32 *out = vertices[vertex];
+            out[0] = (0.0f + 320.0f) + scaleX * point[0];
+            out[1] = (0.0f + 211.0f) - scaleY * point[1];
+            vertex++;
+        }
+    }
+    {
+        s32 i;
+        for (i = 18; i >= 0; i--) {
+            f32 *point = D_00626890[i];
+            f32 *out = vertices[vertex];
+            out[0] = (0.0f + 320.0f) + scaleX * -point[0];
+            out[1] = (0.0f + 211.0f) - scaleY * point[1];
+            vertex++;
+        }
+    }
+    {
+        s32 i;
+        for (i = 1; (u32)i < 20; i++) {
+            f32 *point = D_00626890[i];
+            f32 *out = vertices[vertex];
+            out[0] = (0.0f + 320.0f) + scaleX * -point[0];
+            out[1] = (0.0f + 211.0f) + scaleY * point[1];
+            vertex++;
+        }
+    }
+    {
+        s32 i;
+        for (i = 18; i >= 0; i--) {
+            f32 *point = D_00626890[i];
+            f32 *out = vertices[vertex];
+            out[0] = (0.0f + 320.0f) + scaleX * point[0];
+            out[1] = (0.0f + 211.0f) + scaleY * point[1];
+            vertex++;
+        }
+    }
+    D_00887310[0](5, vertices, vertex);
+}
+#pragma pop
 /* measured: opt_propagation off probe for callback cache in func_00204a30. */
 #pragma opt_propagation off
 // FUN_00204A30
