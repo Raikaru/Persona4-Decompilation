@@ -8863,3 +8863,65 @@ retail SHA-1 hashes matched, all 12,720 functions scanned, and zero findings
 across 339 first-party files. Totals are **7,800 MATCH / 4,920 ASM** overall
 and **6,170 MATCH / 690 ASM** first-party (89.9%). The all-matching objective
 remains incomplete.
+
+## Fresh-target continuation: field constructor and camera pose
+
+Two independent agents owned their scratch recoveries through compiler
+iterations and measured handoffs. Integration independently checked complete
+relocation encodings, executable bytes, and alignment tails:
+
+| Function | Owner | Executable / window | Relocations | Zero tail |
+| --- | --- | --- | --- | --- |
+| `func_0017b510` | `src/promoted/code1_0017.c` | 1,148 / 1,152 | 48 | 4 bytes |
+| `func_001cc0a0` | `src/Battle/btlCamera.c` | 1,300 / 1,312 | 23 | 12 bytes |
+
+All 76 other field-owner functions and 45 other camera-owner functions retain
+their instruction bytes and relocation lists. Both field constructor callers
+now accept/store its task pointer explicitly; all 126 compiled functions in
+`src/promoted/code1_0014.c` remain byte/relocation identical.
+
+The field constructor closes with scoped loop invariants on and propagation
+off, allocator/mode/resource slot pointers, first-node coordinate snapshots,
+retail switch ordering, and the actual qword-plus-float translation copy.
+The full original ID reaches object lookup; only dispatch is narrowed.
+Calloc zero-fill supplies untouched fields. Returning diagnostics and invalid
+allocation/lookup fallthroughs are preserved, not replaced by invented recovery.
+The task provider's pointer return is restored while retaining the owner's
+existing callback-slot projection; its raw-word SDK declaration is not falsely
+presented as an identical prototype.
+
+The camera closes with vector calculation phases, a saved height product,
+ordered clamp expressions, and aggregates containing four XZ pairs and a
+position plus a 16-byte quaternion. Every member has a real use; no explicit
+padding or enlarged quaternion is introduced.
+
+Both IDA and Ghidra batch references informed the source. IDA exposes the
+field translation's real 64-bit-plus-float copy. Ghidra preserves the camera's
+entry scale value and tangent argument that IDA loses. Neither export is
+authoritative: apparent quaternion capacity, register reuse, parameter types,
+and floating-point branch inversions require checks against retail assembly.
+
+The actual integrated source passes **196,608 field cases** and
+**12,288 camera cases** with undefined-behavior, float-cast-overflow, and
+float-divide-by-zero sanitizer traps enabled. Field checks cover mode/list
+combinations, full-width IDs, initial allocation failure, optional null color
+rasters, callback-time slot mutations, allocation contents, and canaries.
+Camera checks use four actual recovered math-provider bodies, an independent
+geometry oracle, whole-scene canaries, and mutations defending the entry size
+snapshot and final camera-work reload.
+
+Scene, allocation, and remaining math/RW providers are explicit deterministic
+boundaries. This is not real rendering or PS2 floating-point exception
+coverage. Camera inputs are finite; field null-dereference fallthroughs are
+not claimed as defined-C runtime coverage.
+
+Complete source and measured evidence are archived in
+`docs/probe_archive/FreshFieldConstructor_0017b510_body.c` and
+`docs/probe_archive/FreshCameraPose_001cc0a0_body.c`.
+Temporary compiler probes and runtime fixtures were removed.
+
+The final `make all lint-errors` passed: 172 source objects linked, both retail
+SHA-1 hashes matched, all 12,720 functions scanned, and zero findings across
+339 first-party files. Totals are **7,802 MATCH / 4,918 ASM** overall and
+**6,172 MATCH / 688 ASM** first-party (**90.0%**, rounded). The all-matching
+objective remains incomplete.

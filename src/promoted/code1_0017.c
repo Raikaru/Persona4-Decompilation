@@ -69,7 +69,7 @@ extern s32 func_0015a130(void);
 extern void func_0015a7c0(s32 arg0);
 extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern u8 D_005F18C0[];
-extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 flags);
 extern u8 D_005F1910[];
 extern u8 D_007F1740[];
 extern u8 D_005F1950[];
@@ -87,7 +87,7 @@ void func_0017d240(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                     s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9);
 extern s32 func_0017cd60(u8 *arg0);
 extern void func_0044ea90(const void *msg, s32 id);
-extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c, void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
+extern void *func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c, void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern f32 func_0044b7b0(f32 arg0);
 extern f32 func_0044b610(f32 arg0);
@@ -187,9 +187,9 @@ extern void func_003cbc60(s32 arg0, u8 *arg1);
 extern void func_003e8440(u8 *arg0);
 extern void func_003e9390(s32 arg0);
 extern void func_003ec330(s32 arg0);
-extern void func_003ef080(u8 *arg0, s32 arg1);
+extern void *func_003ef080(void *texture, void *raster);
 extern void func_003ef3a0(u8 *arg0);
-extern void func_003efd20(u8 *arg0, s32 arg1);
+extern void func_003efd20(u8 *camera, u8 *frame);
 extern s32 func_00457190(void);
 
 extern u8 *func_004571a0(void);
@@ -1465,8 +1465,166 @@ void func_0017b350(u8 *arg0)
     }
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
+extern u8 D_005F18D0[];
+extern const u64 D_005F18B0;
+extern const f32 D_005F18B8;
+extern u8 *func_003ef2e0(void *raster);
+extern u8 *func_003ec590(s32 width, s32 height, s32 depth, s32 flags);
+extern u8 *func_003e84a0(void);
+extern u8 *func_003e9320(void);
+extern void *func_003e9df0(void *frame);
+extern void *func_003e8310(void *camera, s32 projection);
+extern void func_001790a0(void *camera);
+extern void *func_003cbc10(s32 world, void *camera);
+extern u8 *func_00145270(s32 id);
+extern f32 fabsf(f32 x);
+extern void func_0017acc0(u8 *task);
+
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
 // FUN_0017B510
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017b510);
+/* Measured: 1148 executable bytes, 48 resolved relocations, four zero
+   alignment bytes. Slot pointers retain the retail callback reloads. */
+void *func_0017b510(u8 *arg0, s32 arg1, s32 arg2)
+{
+    u8 *data;
+    void *task;
+    u8 *node;
+    s32 i;
+    u8 **texture;
+    u8 *raster;
+    u8 *camera;
+    u8 *zRaster;
+    u8 *obj;
+    Vec3_00178590 pos;
+    u8 *(**table)(s32, s32, s32);
+    u16 *mode;
+
+    i = 0;
+    func_0044ea90(D_005F18C0, 0x5E6);
+    table = D_008873F4;
+    data = table[0](1, 0xE0, 0x40000);
+    if (data == NULL) {
+        return NULL;
+    }
+
+    task = func_00451fc0(arg0, D_005F18D0, 0x10, 0, 0, func_0017acc0, func_0017b350, data);
+    *(u16 *)(data + 0x8) = arg1;
+    mode = (u16 *)(data + 0xA);
+    *mode = arg2;
+
+    for (node = func_001452b0(0x13); node != NULL; node = *(u8 **)(node + 0x138)) {
+        if (i == 0) {
+            f32 x = *(f32 *)(node + 0x140);
+            f32 y = *(f32 *)(node + 0x144);
+            f32 z = *(f32 *)(node + 0x148);
+            *(f32 *)(data + 0xC0) = x;
+            *(f32 *)(data + 0xC4) = y;
+            *(f32 *)(data + 0xC8) = z;
+        }
+        if (i == 1) {
+            if (fabsf(*(f32 *)(data + 0xC0) - *(f32 *)(node + 0x140)) >
+                fabsf(*(f32 *)(data + 0xC8) - *(f32 *)(node + 0x148))) {
+                *(u32 *)(data + 0xCC) = 0x3F800000;
+                *(u32 *)(data + 0xD0) = 0;
+                *(u32 *)(data + 0xD4) = 0;
+            } else {
+                *(u32 *)(data + 0xCC) = 0;
+                *(u32 *)(data + 0xD0) = 0;
+                *(u32 *)(data + 0xD4) = 0x3F800000;
+            }
+            *mode = 4;
+        }
+        i++;
+    }
+
+    switch (*mode) {
+    case 1: {
+        u8 **raster_slot;
+        u8 **frame_slot;
+        u8 **camera_slot;
+
+        texture = (u8 **)(data + 0x3C);
+        *texture = func_003ef2e0(NULL);
+        if (*texture == NULL) {
+            func_0046d730(D_005F18C0, 0x622);
+        }
+        *(u32 *)(*(u8 **)(data + 0x3C) + 0x50) = (*(u32 *)(*(u8 **)(data + 0x3C) + 0x50) & ~0xFF) | 2;
+        *(u32 *)(*(u8 **)(data + 0x3C) + 0x50) = (*(u32 *)(*(u8 **)(data + 0x3C) + 0x50) & 0xFFFF00FF) | 0x3300;
+
+        raster = func_003ec590(128, 128, 32, 0x505);
+        if (raster != NULL) {
+            func_0040fcd0(raster, 1);
+        }
+        raster_slot = (u8 **)(data + 0x40);
+        *(u8 **)(data + 0x40) = raster;
+        func_003ef080(*texture, raster);
+
+        camera = func_003e84a0();
+        if (camera != NULL) {
+            u64 c_lo = D_005F18B0;
+            f32 c_hi = D_005F18B8;
+            *(u64 *)&pos = c_lo;
+            pos.z = c_hi;
+            func_003efd20(camera, func_003e9320());
+            frame_slot = (u8 **)(camera + 0x4);
+            func_003e9df0(*(u8 **)(camera + 0x4));
+            func_003e9c10(*frame_slot, (const f32 *)&pos, 0);
+            if (*frame_slot != NULL) {
+                zRaster = func_003ec590(128, 128, 0, 1);
+                if (zRaster != NULL) {
+                    *(u8 **)(camera + 0x64) = zRaster;
+                    func_003e8310(camera, 2);
+                    goto camera_registered;
+                }
+            }
+        }
+
+        func_001790a0(camera);
+        camera = NULL;
+
+camera_registered:
+        camera_slot = (u8 **)(data + 0x44);
+        *(u8 **)(data + 0x44) = camera;
+        {
+            s32 world = func_00457190();
+            func_003cbc10(world, *camera_slot);
+        }
+        *(u8 **)(*camera_slot + 0x60) = *raster_slot;
+
+        func_0044ea90(D_005F18C0, 0x62F);
+        *(u8 **)(data + 0x4C) = table[0](1, 0x54D0, 0x40000);
+        break;
+    }
+
+    case 4:
+    case 3:
+        func_0044ea90(D_005F18C0, 0x634);
+        *(f32 **)(data + 0x50) = (f32 *)table[0](1, 0xC, 0x40000);
+        **(f32 **)(data + 0x50) = 30.0f;
+        break;
+    }
+
+    if ((((u16)arg1 & 0xFFC00) >> 10) == 1) {
+        obj = func_00145270(arg1);
+        *(u8 **)(data + 0xC) = obj;
+        if (obj == NULL) {
+            func_0046d730(D_005F18C0, 0x63F);
+        }
+        *(void **)(data + 0x10) = *(void **)(obj + 0x164);
+    } else if ((((u16)arg1 & 0xFFC00) >> 10) == 3) {
+        obj = func_00145270(arg1);
+        *(u8 **)(data + 0xC) = obj;
+        if (obj == NULL) {
+            func_0046d730(D_005F18C0, 0x648);
+        }
+        *(void **)(data + 0x10) = *(void **)(obj + 0x164);
+    }
+
+    return task;
+}
+#pragma opt_propagation on
+#pragma opt_loop_invariants off
 
 // FUN_0017B990
 void func_0017b990(u8 *arg0, s32 arg1)
@@ -1903,7 +2061,7 @@ s32 func_0017ccc0(u8 *arg0) {
     if (buf == NULL) {
         return 0;
     }
-    return func_00451fc0(arg0, D_005F1910, 8, 0, 0, (void (*)(u8 *))func_0017c930, func_0017cc90, buf);
+    return (s32)func_00451fc0(arg0, D_005F1910, 8, 0, 0, (void (*)(u8 *))func_0017c930, func_0017cc90, buf);
 }
 
 
