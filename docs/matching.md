@@ -8162,3 +8162,55 @@ Here nd counts differing relocation-masked executable bytes, not the older
 archive word metric. These are compiler experiments, not new runtime smoke
 claims. Production sources and **6,157 first-party MATCH / 703 ASM** remain
 unchanged; no padding, invented storage or false provider ABI was promoted.
+
+## Integer sprite handle ABI and coupled draw recoveries
+
+`func_0025f360` in `src/Event/Fcl/shdSprite.c` now returns `s32`, matching
+the actual resource handle returned by `func_0046d5f0`. Its callee declaration
+also changes from floating return to `s32(u8 *,s32)`; `cmmRankUp.c` now
+declares the wrapper as `s32(s32,s32,u8 *)`, not an `s64` result with an
+integer resource argument. Both wrapper branches remain unchanged.
+
+The wrapper still measures **136/144 bytes / nd0**, two relocations and
+eight zero-tail bytes. All eleven existing functions in its owner retain
+identical bytes and relocations. A freestanding 32-bit native consumer
+using the old floating source contract fails; the corrected source passes
+**512 cases** with the actual sprite provider body. Cases exercise mapped
+and packed indices, negative mapped slots and offsets, full-width signed
+handle patterns, descriptor channels, and a dispatch callback that mutates
+the handle table after lookup. The returned handle remains the pre-callback
+snapshot. Only platform logging and the provider's injectable allocator/
+dispatcher boundaries are supplied by the fixture.
+
+Three independent complete reconstructions were also measured:
+
+- `func_00115e90`: **772/768 bytes / nd341**, twenty-two relocations. The
+  coherent Vec2f/resource-pointer family migration removes the old illegal
+  array/integer views but overruns by four bytes. Its existing `00116190`
+  and `001162f0` consumers also regress to nd52/nd32; `001163e0` and
+  `00116610` stay nd0. `W56ShdPersona_00115e90_body.c` now retains the
+  supported types, complete body and migration instructions, not the former
+  semantically unverified nd39 spelling. No family change was promoted.
+- `func_00252710`: **864/848 bytes / nd618**, twenty-four relocations.
+  Branch-local render-table address lifetime and alternative real UV/matrix
+  storage produce exactly the retained candidate's bytes and relocations.
+  The 0x100/0xF0 frame mismatch remains: retail preserves context/special in
+  registers that an ordinary external C call may clobber. The simpler
+  `FF2_00252710_body.c` is retained with the real resource-pointer argument.
+- `func_00267800`: **824/800 bytes / nd500**, ten relocations. This is a
+  visual expansion/fade callback, not a script decoder. The real renderer
+  has six integer slots plus six floats; two copied tables have nineteen
+  words each, and position is a genuine four-float object. Literal automatic
+  table initializers tie the aggregate-copy result. The complete
+  `VisualExpansion_00267800_body.c` preserves callback index reloads and
+  unordered comparison behavior without the old padded frame helpers.
+
+For these oversized candidates, nd includes respectively4/16/24 overrun
+bytes in addition to337/602/476 in-window differences. They remain ASM.
+
+After the production handle-contract fix, `make all lint-errors` passed:
+172 C objects linked; loadable image and executable SHA-1 hashes both match
+retail; all12,720 functions scanned, with **7,787 MATCH / 4,933 ASM** overall
+and **6,157 MATCH / 703 ASM** first-party. Lint reports zero findings across
+338 first-party files. This is an ABI correction with unchanged retail
+bytes, not an additional first-party match.

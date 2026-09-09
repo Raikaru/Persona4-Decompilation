@@ -78,7 +78,7 @@ extern u8 *func_00252230(Sp120 *arg0, Sp120 *arg1, Sp120 *arg2, f32 fparg0);
 extern void func_003f6440(s32 arg0, s32 arg1);
 extern u8 *func_00251570(s32 arg0, s32 arg1);
 extern void func_00251850(s32 arg0);
-extern s64 func_0025f360(s32 arg0, s32 arg1, s32 arg2);
+extern s32 func_0025f360(s32 arg0, s32 arg1, u8 *arg2);
 extern s32 func_0035afa0(s32 arg0);
 extern s32 func_003b7060();
 extern void func_003e05f0(void *arg0, void *arg1, void *arg2);

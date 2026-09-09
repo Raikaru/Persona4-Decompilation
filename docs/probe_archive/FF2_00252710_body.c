@@ -5,6 +5,25 @@
  * void func_00252230(...) and a 32-bit func_0025f360 return; the former does
  * not return its preserved context register. Sp120 is the owner state type.
  * This is not a standalone translation unit.
+ * Fresh canonical-owner replay: 864/848 bytes, nd618 (602 in-window byte
+ * differences plus sixteen overrun bytes),
+ * 24 relocations. A branch-local saved render-table address, CopyPair UV
+ * storage and byte matrix storage produce identical bytes/relocations;
+ * retain this simpler source. Every render callback still reloads slot zero.
+ * Required replacements in the owner:
+ *   void func_00252230(Sp120 *, Sp120 *, Sp120 *, f32);
+ *   s32 func_0025f360(s32, s32, u8 *);
+ *   void *func_003e0870(void *, void *, f32, s32);
+ *   s32 func_003f6440(s32, s32);
+ *   s32 func_00366c70(...), keeping all existing parameter types.
+ * The handle wrapper and its actual sdkSpr provider now use s32 in
+ * production; do not revive the former floating-return declarations.
+ * Retail keeps context/special in v0/t0 across the interpolation leaf,
+ * which does not overwrite them. External C call-clobber knowledge still
+ * produces the 0x100 rather than 0xF0 frame; no false return is substituted.
+ * Proven extents: 0x78-byte entry, three 0x24-byte states, 32-byte UV array,
+ * 64-byte matrix. State f0 is unwritten by the leaf and never evaluated
+ * here. The outer context allocation extent remains unproven.
  */
 extern u8 D_006361F0[];
 
@@ -69,7 +88,7 @@ s32 func_00252710(u8 *base, u8 *entry, u8 *context) {
         *(s32 *)(dst + 4) = second;
         dst += 8;
     } while (count > 0);
-    sprite = func_0025f360(24, 0, *(s32 *)(context + 0x10));
+    sprite = func_0025f360(24, 0, *(u8 **)(context + 0x10));
     func_003e0870(work.matrix, &work.state.fC, work.state.f1C, 0);
     if (*(s32 *)(entry + 0xC) == 1) {
         D_00887300[0](7, 2);
