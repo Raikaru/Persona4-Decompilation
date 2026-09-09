@@ -748,7 +748,7 @@ u32 func_00178970()
 // FUN_0025D100
 u32 func_0025d100()
 {
-    func_0029cf50(func_00106600(func_0029cc00(0)));
+    func_0029cf50((u8)func_00106600((s16)func_0029cc00(0)));
 
     return true;
 }

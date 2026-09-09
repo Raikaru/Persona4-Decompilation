@@ -2,6 +2,7 @@
 /* Original translation unit sdkFiler.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "include_asm.h"
+#include "shd_misc_internal.h"
 extern void (*jtbl_008873EC[])(void *ptr);
 
 
@@ -25,8 +26,6 @@ extern u16 D_008C0252[];
 extern u16 D_008C0256[];
 extern u8 *D_00712AA0[];
 extern void func_0045d6e0(void *arg0, void *arg1, s32 arg2, f32 farg0);
-extern void func_00450dd0(f32 farg0, ...);
-extern void func_00450e80(f32 farg0, ...);
 extern char iGpffffb030;
 
 void func_004685c0(u8 *arg0);
@@ -154,68 +153,68 @@ void func_004685c0(u8 *arg0) {
     struct {
         s32 pos[2];
         s32 size[2];
-        f32 xy[2];
+        PackedVec2f position;
         u8 pad[4];
-        u8 color[4];
+        PackedColor4 color;
     } work;
     s8 glyph;
     s32 i;
 
-    work.color[3] = 0x80;
-    work.color[2] = 0;
-    work.color[0] = 0;
-    work.color[1] = 0;
+    work.color.rgba[3] = 0x80;
+    work.color.rgba[2] = 0;
+    work.color.rgba[0] = 0;
+    work.color.rgba[1] = 0;
     work.pos[0] = (s32)*(f32 *)(arg0 + 0x28);
     work.pos[1] = (s32)(*(f32 *)(arg0 + 0x2C) - 12.0f);
     work.size[0] = 0xF0;
     work.size[1] = 0x0C;
-    func_0045d6e0(work.color, work.pos, 1, 0.0f);
+    func_0045d6e0(work.color.rgba, work.pos, 1, 0.0f);
 
-    work.color[3] = 0x80;
-    work.color[2] = 0;
-    work.color[0] = 0;
-    work.color[1] = 0x46;
+    work.color.rgba[3] = 0x80;
+    work.color.rgba[2] = 0;
+    work.color.rgba[0] = 0;
+    work.color.rgba[1] = 0x46;
     work.pos[0] = (s32)*(f32 *)(arg0 + 0x28);
     work.pos[1] = (s32)*(f32 *)(arg0 + 0x2C);
     work.size[0] = 0x78;
     work.size[1] = 0x30;
-    func_0045d6e0(work.color, work.pos, 1, 0.0f);
+    func_0045d6e0(work.color.rgba, work.pos, 1, 0.0f);
 
-    work.color[3] = 0x80;
-    work.color[2] = 0x50;
-    work.color[0] = 0x50;
-    work.color[1] = 0x50;
+    work.color.rgba[3] = 0x80;
+    work.color.rgba[2] = 0x50;
+    work.color.rgba[0] = 0x50;
+    work.color.rgba[1] = 0x50;
     work.pos[0] = (s32)(12.0f * (f32)*(s32 *)(arg0 + 4) +
                         *(f32 *)(arg0 + 0x28) + 0.0f);
     work.pos[1] = (s32)(12.0f * (f32)*(s32 *)(arg0 + 8) +
                         *(f32 *)(arg0 + 0x2C) + 0.0f);
     work.size[0] = 0x0C;
     work.size[1] = 0x0C;
-    func_0045d6e0(work.color, work.pos, 1, 0.0f);
+    func_0045d6e0(work.color.rgba, work.pos, 1, 0.0f);
 
-    work.xy[0] = *(f32 *)(arg0 + 0x28);
-    work.xy[1] = *(f32 *)(arg0 + 0x2C);
+    work.position.xy.x = *(f32 *)(arg0 + 0x28);
+    work.position.xy.y = *(f32 *)(arg0 + 0x2C);
     for (i = 0; i < 4; i++) {
-        func_00450dd0(0.0f, *(s64 *)work.xy, &iGpffffb01c,
+        func_00450dd0(work.position, 0.0f, &iGpffffb01c,
                       D_00712AA0[i]);
-        work.xy[1] += 12.0f;
+        work.position.xy.y += 12.0f;
     }
 
-    work.xy[0] = *(f32 *)(arg0 + 0x28);
-    work.xy[1] = *(f32 *)(arg0 + 0x2C) - 12.0f;
-    func_00450dd0(0.0f, *(s64 *)work.xy, &iGpffffb01c, arg0 + 0x10);
+    work.position.xy.x = *(f32 *)(arg0 + 0x28);
+    work.position.xy.y = *(f32 *)(arg0 + 0x2C) - 12.0f;
+    func_00450dd0(work.position, 0.0f, &iGpffffb01c, arg0 + 0x10);
 
-    work.xy[0] = (12.0f * (f32)*(s32 *)(arg0 + 4) +
+    work.position.xy.x = (12.0f * (f32)*(s32 *)(arg0 + 4) +
                   *(f32 *)(arg0 + 0x28) + 0.0f);
-    work.xy[1] = (12.0f * (f32)*(s32 *)(arg0 + 8) +
+    work.position.xy.y = (12.0f * (f32)*(s32 *)(arg0 + 8) +
                   *(f32 *)(arg0 + 0x2C) + 0.0f);
-    work.color[3] = 0x80;
-    work.color[2] = 0;
-    work.color[0] = 0xFF;
-    work.color[1] = 0;
+    work.color.rgba[3] = 0x80;
+    work.color.rgba[2] = 0;
+    work.color.rgba[0] = 0xFF;
+    work.color.rgba[1] = 0;
     glyph = *(s8 *)(D_00712AA0[*(s32 *)(arg0 + 8)] +
                     *(s32 *)(arg0 + 4));
-    func_00450e80(0.0f, *(s32 *)work.color, *(s64 *)work.xy,
+    func_00450e80(work.color, work.position, 0.0f,
                   &iGpffffb030, glyph);
 }
 

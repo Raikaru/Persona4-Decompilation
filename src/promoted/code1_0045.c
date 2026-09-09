@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "shd_misc_internal.h"
 #include "Kosaka/k_clump_internal.h"
 extern f32 D_008872F8_abs[];
 extern f32 D_008872FC_abs[];
@@ -7,7 +8,7 @@ extern f32 fGpffff8200;
 extern f32 func_0044b610(f32 fparg0);
 extern f32 func_0044b7b0(f32 fparg0);
 extern void func_0045dfd0(void *arg0, void *arg1, f32 farg0, s32 arg2, s32 arg3, s32 arg4);
-extern void func_00446ed8(void *buf, s32 fmt, void *va);
+extern void func_00446ed8(void *buf, const void *fmt, void *va);
 extern void func_00450a50(s32 arg0, s64 arg1, f32 fparg0, void *arg2);
 extern s32 iGpffffb9e8;
 extern void (*D_00887300[])();
@@ -229,101 +230,51 @@ f32 func_00450490(f32 fparg0)
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450630);
 // FUN_00450A50 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450a50);
-/* measured: O1 preserves the 00450DD0 mixed save and literal count branch. */
+/* Measured: 164/176 bytes, three resolved relocations and 12 zero tail bytes.
+ * O1 preserves the compiler-reported variadic argument-count branch. */
 #pragma optimization_level 1
 // FUN_00450DD0
-void func_00450dd0(s64 arg0, s32 arg1, s64 arg2, s64 arg3, s64 arg4,
-                   s64 arg5, s64 arg6, s64 arg7, f32 fparg0, s64 arg_sp0)
+void func_00450dd0(PackedVec2f position, f32 z, const void *format, ...)
 {
-    struct {
-        u8 sp20[0x100];
-        u8 pad_120[0xC];
-        union {
-            f32 f;
-            s32 i;
-        } sp12C;
-        s64 sp130;
-        u8 pad_138[0x18];
-        s32 sp150;
-        u8 pad_154[0xC];
-        s64 sp160;
-        s64 sp168;
-        s64 sp170;
-        s64 sp178;
-        s64 sp180;
-        s64 sp188;
-    } work;
-    s32 var_3;
-    f32 temp_f0;
+    char buffer[0x100];
+    union { f32 f; s32 bits; } scale;
+    char *args;
+    s32 count;
     extern f32 fGpffffac58;
 
-    work.sp130 = arg0;
-    temp_f0 = fparg0;
-    work.sp150 = arg1;
-    work.sp160 = arg2;
-    work.sp168 = arg3;
-    work.sp170 = arg4;
-    work.sp178 = arg5;
-    work.sp180 = arg6;
-    work.sp188 = arg7;
-    work.sp12C.f = fGpffffac58;
-    var_3 = 2;
-    if (var_3 >= 8) {
-        var_3 = 0;
-    } else {
-        var_3 = (8 - var_3) * 8;
-    }
-    func_00446ed8(work.sp20, work.sp150,
-                   (u8 *)&arg_sp0 - var_3);
-    func_00450a50(work.sp12C.i, work.sp130, temp_f0, work.sp20);
+    scale.f = fGpffffac58;
+    count = __builtin_args_info(2);
+    if (count >= 8) count = 0; else count = (8 - count) * 8;
+    args = (char *)__builtin_next_arg(format) - count;
+    func_00446ed8(buffer, format, args);
+    func_00450a50(scale.bits, position.packed, z, buffer);
 }
 /* measured: restore O2 after func_00450dd0. */
 #pragma optimization_level 2
-/* measured: O1 preserves the literal argument-count branch shape. */
+/* Measured: 156/160 bytes, two resolved relocations and four zero tail bytes.
+ * Color and position aggregates use the compiler's real variadic save area. */
 #pragma optimization_level 1
 // FUN_00450E80
-void func_00450e80(s32 arg0, s64 arg1, s32 arg2, s64 arg3, s64 arg4,
-                   s64 arg5, s64 arg6, s64 arg7, f32 fparg0, s64 arg_sp0)
+void func_00450e80(PackedColor4 color, PackedVec2f position, f32 z,
+                   const void *format, ...)
 {
-    struct {
-        u8 sp20[0x100];
-        u8 pad_120[8];
-        s32 sp128;
-        u8 pad_12c[0xC];
-        s64 sp138;
-        u8 pad_140[0x18];
-        s32 sp158;
-        u8 pad_15c[0xC];
-        s64 sp168;
-        s64 sp170;
-        s64 sp178;
-        s64 sp180;
-        s64 sp188;
-    } work;
-    s32 var_3;
-    s32 temp_3;
-    f32 temp_f0;
+    char buffer[0x100];
+    char *args;
+    s32 count;
+    s32 remaining;
 
-    work.sp128 = arg0;
-    work.sp138 = arg1;
-    temp_f0 = fparg0;
-    work.sp158 = arg2;
-    work.sp168 = arg3;
-    work.sp170 = arg4;
-    work.sp178 = arg5;
-    work.sp180 = arg6;
-    work.sp188 = arg7;
-    var_3 = 3;
-    if (var_3 >= 8) {
-        var_3 = 0;
+    count = __builtin_args_info(2);
+    if (count >= 8) {
+        count = 0;
     } else {
-        temp_3 = 8 - var_3;
-        var_3 = temp_3 * 8;
+        remaining = 8 - count;
+        count = remaining * 8;
     }
-    func_00446ed8(work.sp20, work.sp158, (u8 *)&arg_sp0 - var_3);
-    func_00450a50(work.sp128, work.sp138, temp_f0, work.sp20);
+    args = (char *)__builtin_next_arg(format) - count;
+    func_00446ed8(buffer, format, args);
+    func_00450a50(color.packed, position.packed, z, buffer);
 }
-/* measured: restore O2 after the 00450e80 O1 probe. */
+/* measured: restore O2 after func_00450e80. */
 #pragma optimization_level 2
 // FUN_004526A0
 void func_004526a0(u8 *arg0) {

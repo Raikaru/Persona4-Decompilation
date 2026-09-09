@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
 typedef struct BtlPacket BtlPacket;
 typedef signed __int128 s128;
@@ -50,15 +51,14 @@ extern u8 *func_0029d050();
 
 extern void memset(void *destination, s32 value, u32 size);
 extern u8 *iGpffffb3ac;
-extern u8 *iGpffffb3bc;
 extern u8 *iGpffffb414;
 extern u8 iGpffffa9b0;
 extern s32 *gEncountTbl;
-extern void func_00213b80(s32 arg0);
-extern void func_00213b50(s32 arg0);
+extern void func_00213b80(s32 task);
+extern void func_00213b50(s32 task);
 extern s32 func_001eb860(void);
-extern void func_00212240();
-extern void func_00212210();
+extern void func_00212240(u8 *arg0, s32 arg1);
+extern void func_00212210(s32 task);
 extern s32 func_001ef9a0(void);
 extern s32 D_00724504;
 extern void func_001eb7f0(u8 *arg0);
@@ -1796,7 +1796,7 @@ s32 func_001eaac0(void)
 s32 func_001eab10(void) {
     func_00213b50(*(s32 *)(iGpffffb3ac + 0xDD4));
     if (func_001eb860() == 1) {
-        func_00212240(*(s32 *)(iGpffffb3ac + 0xDD4), 1);
+        func_00212240(*(u8 **)(iGpffffb3ac + 0xDD4), 1);
     }
     return 1;
 }
@@ -1805,7 +1805,7 @@ s32 func_001eab10(void) {
 s32 func_001eab60(void) {
     func_00213b80(*(s32 *)(iGpffffb3ac + 0xDD4));
     if (func_001eb860() == 1) {
-        func_00212240(*(s32 *)(iGpffffb3ac + 0xDD4), 0);
+        func_00212240(*(u8 **)(iGpffffb3ac + 0xDD4), 0);
     }
     return 1;
 }
@@ -2232,7 +2232,7 @@ void func_001eb7f0(u8 *arg0) {
     temp_4 = *(s32 *)(temp_3 + 0xC);
     if (temp_4 & 0x1000) {
         *(s32 *)temp_5 = temp_4 & ~0x1000;
-        func_00212210(*(s32 *)(iGpffffb3ac + 0xDD4), temp_5);
+        func_00212210(*(s32 *)(iGpffffb3ac + 0xDD4));
         func_0045af60(1, 0xF, 2, 0x13);
     }
 }
@@ -2258,8 +2258,8 @@ done:
 }
 // FUN_001EB8D0
 void func_001eb8d0(void) {
-    extern void func_002121b0();
-    extern void func_00212210();
+    extern void func_002121b0(s32 task);
+    extern void func_00212210(s32 task);
     extern u16 D_008C024E[];
     s32 flags;
     s32 temp_5;
@@ -2287,12 +2287,12 @@ void func_001eb8d0(void) {
             if (((D_008C024E[0] & 0x10) || (D_008C024E[0] & 0x20)) &&
                 (temp_5 != 0)) {
                 *(s32 *)temp_6 = *(s32 *)temp_6 & ~0x1000;
-                func_00212210(*(s32 *)(iGpffffb3ac + 0xDD4), temp_5, temp_6);
+                func_00212210(*(s32 *)(iGpffffb3ac + 0xDD4));
                 func_0045af60(1, 0xF, 2, 0x13);
             }
         } else if ((D_008C024E[0] & 0x10) && (temp_5 == 0)) {
             *(s32 *)temp_6 = flags | 0x1000;
-            func_002121b0(*(s32 *)(iGpffffb3ac + 0xDD4), temp_5, temp_6);
+            func_002121b0(*(s32 *)(iGpffffb3ac + 0xDD4));
             func_0045af60(1, 0xF, 2, 0x12);
         }
     }
@@ -3151,7 +3151,7 @@ s32 func_001ef4a0(s32 arg0)
 {
     s32 value;
 
-    value = iGpffffb3bc[(arg0 & 0xFFFF) * 4];
+    value = ((u8 *)iGpffffb3bc)[(arg0 & 0xFFFF) * 4];
     if (value == 0)
     {
         value = 1;

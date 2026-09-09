@@ -11,7 +11,7 @@ void* dds3GetProcessWorkData(KwlnTask* task);
 void dds3SetProcessWorkData(KwlnTask* task, void* workData);
 void scrReleaseScript(ScrData* scr);
 void scrDestroyTask(KwlnTask* scrTask);
-extern s32 func_0029d870(void);
+extern s32 func_0029d870(void* task);
 extern void func_0029d1c0(void* pool, void* elem);
 
 typedef enum
@@ -101,12 +101,12 @@ struct ScrScriptWork
 typedef struct ScrTaskData
 {
     u32 flags;        // 0x00
-    s32 unk_04;       // 0x04
+    u8* unk_04;       // 0x04. Filer task pointer.
     s32 state;        // 0x08
     s32 unk_0C;       // 0x0C
     char text[0x200]; // 0x10
     s32 unk_210;      // 0x210
-    s32 unk_214;      // 0x214
+    ScrScriptWork* unk_214; // 0x214
     s32 unk_218;      // 0x218
     f32 unk_21C;      // 0x21C
     f32 unk_220;      // 0x220
@@ -172,7 +172,7 @@ void func_0043f810(void* dst, void* src, s32 size);
 void func_0046a2d0(char* file, s32 line);
 u8* func_0046a430(s32 size);
 void func_0046a340(void* ptr);
-void* func_00452560(void);
+u32 func_00452560(void* task);
 s32 func_0029cb00(void* arg0, ...);
 s32 func_0029e970(void);
 void func_0029e960(s32 arg0);
@@ -181,19 +181,17 @@ void func_004504f0(char* fmt, ...);
 void func_002777f0(s32 handle);
 s32 func_002774d0(u8* str);
 void func_00278640(s32 handle, s32 arg1, s32 arg2);
-void func_00452080(s32 handle);
+s32 func_00452080(KwlnTask* task);
 void func_00454bd0(s32 handle);
-s32 func_00468170(void* arg0, void* arg1);
-void func_00442088(void* arg0, void* arg1, void* arg2, void* arg3);
+u8* func_00468170(void* parent, const char* text);
+s32 func_00442088(char* dst, const char* format, ...);
 u32 func_00442948(void* arg0);
 s32 func_00451de0(const void* data, s32 a, s32 b, s32 c, void* init, void* close, void* buf);
 s32 func_00451fc0(s32 arg0, const void* arg1, s32 arg2, s32 arg3, s32 arg4, void (*init)(u8*), void (*close)(u8*), u8* arg7);
-/* Still an INCLUDE_ASM fallback below, so it has no C definition to declare it;
- * its address is taken at line 720. */
-extern s32 func_0029e550(u8* arg0);
+extern s32 func_0029e040(u8* task);
 s32 func_004553c0(s32 arg0);
 s32 func_00454a60(void* arg0, s32 arg1);
-s32 func_004680f0(s32 arg0, void* arg1);
+s32 func_004680f0(u8* task, s8* text);
 void func_00442830(void* arg0, void* arg1);
 u8* func_00455f70(void* arg0, void* arg1);
 void func_00450050(s64 arg0, char* arg1, s32 arg2, void* arg3);
@@ -494,11 +492,11 @@ ScrScriptWork* func_0029d660(ScrHeader* header, s32 index)
 #pragma opt_loop_invariants off
 
 // FUN_0029D870
-s32 func_0029d870(void)
+s32 func_0029d870(void* task)
 {
     s32 code;
 
-    code = func_0029cb00(func_00452560());
+    code = func_0029cb00((void*)func_00452560(task));
     switch (code)
     {
     case 0:  // SCRTRACE_ERROR
@@ -749,7 +747,7 @@ void func_0029dfe0(void* arg0, u8* proc)
 {
     ScrScriptWork* work;
 
-    work = (ScrScriptWork*)func_00452560();
+    work = (ScrScriptWork*)func_00452560(arg0);
     if (work == NULL)
     {
         func_0046d730(D_0063E3D0, 0x3C5);
@@ -763,13 +761,10 @@ void func_0029dfe0(void* arg0, u8* proc)
 // FUN_0029E040
 INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029e040);
 
-/* Measured nd 25 (object 608 / window 608). The retail first-call
-   pointer arithmetic is offset-result first; the file-scope scrAddOff
-   inline helper preserves that addu operand order while the following
-   +0x10 keeps the task text address. The remaining differences are the
-   documented loop scheduling residual. Committed at nd 25. */
-// FUN_0029E550 NONMATCHING
-#ifdef NON_MATCHING
+/* Measured: all 608 bytes and 35 resolved relocations match retail.
+ * Loop invariants hoist the slash constant. */
+#pragma opt_loop_invariants on
+// FUN_0029E550
 s32 func_0029e550(u8 *arg0)
 {
     ScrTaskData *task;
@@ -785,8 +780,8 @@ s32 func_0029e550(u8 *arg0)
                       scrAddOff(func_00442948(D_0063E5F0), (u8 *)task) + 0x10);
         n = func_00442948(task->text) - 1;
         while (n > 0) {
-            if (*((s8 *)task + n + 0x10) == 0x2F) {
-                func_0043f9c8((u8 *)task + n + 0x20, 0, n - 1);
+            if (task->text[n] == 0x2F) {
+                func_0043f9c8(&task->text[n + 1], 0, n - 1);
                 break;
             }
             n--;
@@ -802,7 +797,7 @@ s32 func_0029e550(u8 *arg0)
             task->unk_0C = 3;
             break;
         case 2:
-            child = (ScrScriptWork *)task->unk_214;
+            child = task->unk_214;
             if (child != NULL) {
                 func_00440b68(D_0063E548,
                               child->procedure + (child->index << 5));
@@ -814,9 +809,8 @@ s32 func_0029e550(u8 *arg0)
                     func_002777f0(handle);
                     func_00440b68(D_0063E580);
                 }
-                handle = (s32)child->textBuf;
-                if (handle != 0) {
-                    func_0046a340((void *)handle);
+                if (child->textBuf != NULL) {
+                    func_0046a340(child->textBuf);
                     func_00440b68(D_0063E5A0);
                 }
                 func_0029d270(child);
@@ -828,7 +822,7 @@ s32 func_0029e550(u8 *arg0)
                 func_00454bd0(handle);
                 task->unk_210 = 0;
             }
-            func_00452080(task->unk_04);
+            func_00452080((KwlnTask*)task->unk_04);
             task->unk_04 = 0;
             task->unk_0C = 0;
             break;
@@ -840,9 +834,7 @@ s32 func_0029e550(u8 *arg0)
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029e550);
-#endif
+#pragma opt_loop_invariants off
 
 
 // FUN_0029E7B0
@@ -853,7 +845,7 @@ void func_0029e7b0(u8* arg0)
     s32 handle;
 
     task = *(ScrTaskData**)(arg0 + 0x38);
-    work = (ScrScriptWork*)task->unk_214;
+    work = task->unk_214;
     if (work != NULL)
     {
         func_00440b68(D_0063E548, (work->index << 5) + work->procedure);

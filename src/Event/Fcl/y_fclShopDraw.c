@@ -237,7 +237,7 @@ void func_002b2a60(void *, s32, s32, s32, s32);
 void func_002cacd0(u64, f32, RGBA, s32, s16, u32, s32, s32, s32, s32, s32);
 s64 func_0046a770(void *);
 s16 func_002e2830(void *, s32);
-u8 func_00106600(s64);
+s32 func_00106600(s16 id);
 u16 func_001069d0(s64);
 s64 func_00106b80(s64);
 void func_002bc7f0(s32, s32, s32, s32, s32, s32, f32, f32, f32);

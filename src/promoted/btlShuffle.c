@@ -76,7 +76,7 @@ extern s32 func_00109390();
 
 extern void func_0010ad80();
 
-extern u8 *func_0010b010(s32 personaId);
+extern u8 *func_0010b010(u16 personaId);
 
 extern u8 *iGpffffb3c0;
 
@@ -587,7 +587,7 @@ s32 func_0036fd00(s32 arg0, u8 *arg1)
     u8 *best = NULL;
     u16 i;
     u16 min = 0x64;
-    s32 bestFlag = 0;
+    u16 bestFlag = 0;
     u16 t;
 
     for (i = 0; i < count; i++) {

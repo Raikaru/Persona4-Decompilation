@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "shd_misc_internal.h"
 static inline s32 p4_pack_or(s32 left, s32 right)
 {
     return left | right;
@@ -63,7 +64,6 @@ extern u32 func_002786c0(s32 arg0, s32 arg1, s32 arg2);
 extern void func_002bbdd0(s32 arg0);
 extern void func_002bbe90(s64 arg0, s32 arg1);
 extern u32 func_002e7a60(void);
-extern void func_00364320(s64 arg0, s32 arg1, s32 arg2, f32 arg3);
 extern u8 *func_002e2170(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_00442088();
 extern s64 func_001060b0(void);
@@ -140,14 +140,11 @@ s32 func_002b2960(void)
 // FUN_002B2970
 void func_002b2970(u8 *arg0, f32 arg1, f32 arg2)
 {
-    struct Float2 {
-        f32 x;
-        f32 y;
-    } val;
+    Vec2f val;
 
     val.x = arg1;
     val.y = arg2;
-    *(struct Float2 *)arg0 = val;
+    *(Vec2f *)arg0 = val;
 }
 // FUN_002B29A0
 void func_002b29a0(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
@@ -1386,7 +1383,7 @@ void func_002bc0b0(u32 arg0, u32 arg1, u32 arg2, s32 arg3, s32 arg4) {
 // FUN_002BC0E0
  s32 func_002bc0e0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5)
 {
-    extern u8 func_00106600(s16 arg0);
+    extern s32 func_00106600(s16 id);
     extern u32 func_00106880(s16 arg0);
     extern s64 func_00106b80(s64 arg0);
     extern s32 func_00278e90(s32 arg0);
@@ -1962,10 +1959,10 @@ void func_002be3c0(void)
 // FUN_002BE4A0
 void func_002be4a0(void)
 {
-    s64 sp18;
+    Vec2f sp18;
 
     func_002b2970((u8 *)&sp18,
                   580.0f - 21.0f * (f32)func_002b3170(func_002e7a60()),
                   15.0f);
-    func_00364320(sp18, 0xFF, func_002e7a60(), 1.0f);
+    func_00364320(sp18, 1.0f, 0xFF, func_002e7a60());
 }

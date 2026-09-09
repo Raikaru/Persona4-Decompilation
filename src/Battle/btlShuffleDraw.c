@@ -27,15 +27,16 @@ extern void func_003730f0(u8 *arg0, s32 arg1, s32 arg2, void *arg3);
 extern void func_003733d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_00373590(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 
-typedef struct { f32 x, y, z; } ShuffleVec3;
+typedef struct RwV3d { f32 x, y, z; } ShuffleVec3;
 typedef struct { f32 x, y, z, w; } ShuffleVec4;
+typedef struct RtQuat { ShuffleVec3 imag; f32 real; } ShuffleQuaternion;
 typedef struct { s64 a; f32 b; } ShuffleVec2s;
 
 extern s32 func_00442088(char *buf, const char *fmt, ...);
 extern char D_0064EA80[];
 extern void func_003547c0(s32 *arg0, u8 *arg1);
 extern char D_0064EA20[];
-extern void func_0046d730(const void *file, u32 line);
+extern void func_0046d730(void *file, s32 line);
 extern f32 func_00373cb0(f32 fparg0, f32 fparg1, s32 arg0, f32 fparg2);
 extern s64 func_001060b0(void);
 extern s32 func_00110d60(s16 value);
@@ -105,7 +106,9 @@ extern void func_00364c70(void);
 extern f32 D_008872F8[];
 extern void (*D_00887300[])(u32, u32);
 extern void (*D_00887310[])(s32, void *, s32);
-extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
+extern ShuffleQuaternion *func_003dc740(ShuffleQuaternion *dst,
+                                       const ShuffleVec3 *axis,
+                                       f32 angle, s32 combine);
 extern s64 D_0064EA48[];
 extern f32 D_0064EA50[];
 extern s64 D_0064EA38[];
@@ -549,23 +552,73 @@ f32 func_00375a70(u8 *arg0, s32 arg1) {
 #pragma optimization_level 2
 
 
-/* measured: reconstructed to nd 88 (obj 504B, window 528B). The ACC-fused rotation
-   block IS emittable -- the chain (mula/madda/madd then mula/msub x3 then
-   adda/madd x6) compiles byte-for-byte from plain expressions, with the fixed
-   register pattern (f5,f11),(f6,f10),(f7,f9). The residuals are: (1) load order
-   of the 7 chain operands -- retail hoists them (B,A,C,D,G,E,F) = sp74,sp70,
-   sp78,sp7C,p7C,p74,p78; mwcc b210 sorts struct-field loads ascending and emits
-   (A,B,C,D,G,F,E) (sp70-7C as ShuffleVec4) or (B,C,D,G,E,F,A) (temp locals), so
-   every downstream register differs (~20 words; separate f32 locals instead make
-   mwcc register-allocate them across the func_003dc740 call, nd 127);
-   (2) the v==3||v==0 dispatch -- retail beq+beqz-to-shared-var1 + b-to-else;
-   mwcc emits beq-to-var1 + bnez-to-else (|| spelling) or separate var1 blocks
-   (else-if spelling); (3) the D_0064EA48/D_0064EA50 input: retail batches
-   ld;lwc1;sd;swc1, mwcc interleaves ld;sd;lwc1;swc1 (temp-load spelling tried).
-   4 attempts: 88, 88, 127, 88. New symbols D_0064EA48/D_0064EA50 added to
-   config/symbol_data_addrs.txt (ld/lwc1 evidence). */
+/* 520/528 bytes; ten resolved relocations; eight zero alignment bytes.
+ * Load both parts of the twelve-byte axis before storing either part.
+ * The typed quaternion dot product retains the retail ACC operand order. */
+#pragma push
+#pragma opt_propagation off
+#pragma push
+#pragma pack(4)
+typedef struct { s64 xy; f32 z; } ShuffleAxis12;
+typedef union { ShuffleAxis12 bits; ShuffleVec3 vector; } ShuffleAxis;
+#pragma pop
+typedef char ShuffleAxisSizeCheck[sizeof(ShuffleAxis) == 12 ? 1 : -1];
+typedef char ShuffleQuatSizeCheck[sizeof(ShuffleQuaternion) == 16 ? 1 : -1];
+extern s32 func_00378530(s32 count, s32 mode);
 // FUN_00375B40
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00375b40);
+void func_00375b40(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
+    ShuffleAxis axis;
+    s64 bits;
+    f32 value;
+
+    ShuffleQuaternion rotation;
+    ShuffleVec4 output;
+    s32 state;
+    s64 active;
+    u8 *p;
+    ShuffleVec4 *current;
+
+    bits = D_0064EA48[0];
+    value = D_0064EA50[0];
+    axis.bits.xy = bits;
+    axis.bits.z = value;
+    if (arg1 >= func_00378530(*(s32 *)(arg0 + 0x1F304), *(s32 *)(arg0 + 0x1F2FC))) {
+        func_0046d730(D_0064EA20, 0x3E9);
+    }
+    p = arg0 + arg1 * 0xE8 + 0x1D6A0;
+    state = *(s32 *)(p + 8);
+    switch (state) {
+    case 0:
+    case 3:
+        active = 1;
+        break;
+    default:
+        if ((s64)*(u16 *)(p + 0x6C) >= (s64)*(u16 *)(p + 0x6E)) {
+            active = 1;
+        } else {
+            active = 0;
+        }
+        break;
+    }
+    if (active) {
+        func_003dc740(&rotation, &axis.vector, 180.0f, 0);
+        current = (ShuffleVec4 *)(p + 0x74);
+        output.w = current->w * rotation.real
+            - ((current->x * rotation.imag.x + current->y * rotation.imag.y)
+                + current->z * rotation.imag.z);
+        output.x = current->y * rotation.imag.z - current->z * rotation.imag.y;
+        output.y = current->z * rotation.imag.x - current->x * rotation.imag.z;
+        output.z = current->x * rotation.imag.y - current->y * rotation.imag.x;
+        output.x = (0.0f + output.x) + rotation.imag.x * current->w;
+        output.y = (0.0f + output.y) + rotation.imag.y * current->w;
+        output.z = (0.0f + output.z) + rotation.imag.z * current->w;
+        output.x = (0.0f + output.x) + current->x * rotation.real;
+        output.y = (0.0f + output.y) + current->y * rotation.real;
+        output.z = (0.0f + output.z) + current->z * rotation.real;
+        func_003760f0(arg0, arg1, arg2, arg3, 0, (f32 *)&output);
+    }
+}
+#pragma pop
 
 // FUN_00375D50
 void func_00375d50(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 *arg2, f32 *arg3) {

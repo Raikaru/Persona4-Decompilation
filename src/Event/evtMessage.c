@@ -10,7 +10,7 @@ extern void func_00278640(s32 arg0, s32 arg1, s32 arg2);
 
 extern void func_0046d730(u8 *file, s32 line);
 extern u8 D_0063C820[];
-extern void func_00278e20(s32 arg0, s32 arg1);
+extern s32 func_00278e20(s32 arg0, s32 arg1);
 
 extern void func_00276e70();
 extern void func_00277250();
@@ -47,8 +47,8 @@ s32 func_00290880(u8 *arg0, s32 arg1) {
     return temp_2;
 }
 // FUN_00290940
-extern void func_00290b00_narg(void);
-extern void func_00290a50_narg(void);
+void func_00290b00(int *param_1);
+void func_00290a50(int *param_1);
 
 void func_00290940(int *param_1)
 {
@@ -59,7 +59,7 @@ void func_00290940(int *param_1)
 
   bVar1 = *piVar1 != 0;
   if (bVar1) {
-    func_00290b00_narg();
+    func_00290b00(param_1);
     func_002777f0(piVar1[2]);
     *piVar1 = 0;
     func_0043f9c8(param_1, 0, 0x34);
@@ -71,7 +71,7 @@ void func_002909b0(int *param_1, int a2, int a3, int a4, int a5)
 {
   if ((u8)(*param_1 != 0)) {
     if (param_1[3] != 0) {
-      func_00290a50_narg();
+      func_00290a50(param_1);
     }
     param_1[3] = 1;
     param_1[1] = a2;
@@ -227,10 +227,10 @@ nonzero:
 }
 
 // FUN_00290E50
-void func_00290e50(u8 *arg0, s32 arg1)
+s32 func_00290e50(u8 *arg0, s32 arg1)
 {
     if (!(u8)(*(u32 *)arg0 != 0)) {
         func_0046d730(D_0063C820, 0x122);
     }
-    func_00278e20(*(s32 *)(arg0 + 8), arg1);
+    return func_00278e20(*(s32 *)(arg0 + 8), arg1);
 }

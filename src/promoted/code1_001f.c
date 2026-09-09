@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
 /* Force the offset operand into the first addu slot. */
 static inline u32 addOffsetFirst(u32 offset, u32 base) {
@@ -29,7 +30,6 @@ extern s32 func_002326c0(u8 *arg0);
 extern s32 func_002428f0(u8 *arg0, s32 arg1);
 extern s32 func_00106330(s32 arg0);
 extern s32 func_0010f420(s32 arg0, s32 arg1);
-extern u8 *iGpffffb3bc;
 extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
 
@@ -130,7 +130,7 @@ extern s32 func_001f39d0(u8 **arg0);
 extern void func_001f3b00(void);
 
 extern s32 func_001f8380(u8 **arg0);
-extern s32 func_00106600(s32 arg0);
+extern s32 func_00106600(s16 arg0);
 extern void func_00106620(s32 arg0, u32 arg1);
 extern s32 func_002325a0(s32 arg0, s32 arg1);
 extern s32 func_00232610(s32 arg0, s32 arg1);
@@ -1048,6 +1048,7 @@ s32 func_001f39d0(u8 **arg0) {
     s32 off;
     u8 *base;
     u8 *ptr;
+    s32 itemId;
 
     temp_4 = *arg0;
     temp_16 = *(u8 **)(temp_4 + 0x30);
@@ -1074,7 +1075,8 @@ s32 func_001f39d0(u8 **arg0) {
     case 3:
         if (*(u8 *)(temp_16 + 0xA2) == 0) {
             temp_3 = *(u16 *)(temp_4 + 0x70);
-            func_00106620((s16)temp_3, ((func_00106600((s16)temp_3) & 0xFF) - 1) & 0xFF);
+            itemId = (s16)temp_3;
+            func_00106620(itemId, ((func_00106600((s16)temp_3) & 0xFF) - 1) & 0xFF);
         }
         break;
     case 9:

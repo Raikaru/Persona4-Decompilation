@@ -7,7 +7,7 @@
 /* gp - 0x5418 = 0x00763CD8, accessed as a 64-bit word (ld/sd). */
 extern s64 iGpffffabe8;
 
-/* gp - 0x4A58 = 0x00763BA8. */
+/* gp - 0x4A58 = 0x00764698. */
 extern s32 iGpffffb5a8;
 
 extern f32 D_0064E310[];
@@ -34,18 +34,66 @@ void func_0048a000(void);
 u8 *func_00457120(void);
 f32 func_0044b610(f32 fparg0);
 f32 func_0044b7b0(f32 fparg0);
-s32 func_003645c0();
+s32 func_003645c0(char *arg0, s32 rem);
 
-/* measured: register allocation / stack-layout floor. Retail stores first arg
-   (s64) as one sd at 0x48, keeps arg0-HIGH in $s1 across the 9 vtable calls,
-   frame 0x90. mwcc either emits two separate sw (s32-arg spelling) or spills
-   arg0 to 0x58 with frame 0xa0 (extra $s2 for var_17) and reads the high byte
-   via lbu from the stack (s64-arg spelling). Tried 4 spellings: s32/s64 arg0,
-   (arg0>>32) vs *((s32*)&arg0+1) high-word access, float locals vs address-
-   taken reads. The D_00887300 base-hoist recipe and D_0064E2F8 array decl both
-   match retail exactly; only the arg-spill/register-allocation shape differs. */
+/* Measured: Vec2f-by-value, explicit digit-pointer lifetime and separate alpha
+ * extraction reproduce 660 executable bytes and 18 resolved relocations.
+ * The remaining 12 bytes are zero function-alignment padding. */
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
 // FUN_00364320
-INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00364320);
+void func_00364320(Vec2f pos, f32 z, s32 color, s32 num)
+{
+    char tmp[64];
+    s32 ch;
+    s32 i;
+    s32 alpha;
+    char *p;
+
+    if (color & 0xFF) {
+        if (num <= 0) {
+            num = func_00105ed0();
+        }
+        func_003645c0(tmp, num);
+        if (iGpffffb5a8 == 0) {
+            s32 temp = func_0046a770(D_005E5810);
+            iGpffffb5a8 = temp;
+            if (temp == 0) {
+                func_0046d730(D_0064E2F8, 0x31);
+            }
+        }
+        {
+            void (**base)(u32, u32) = D_00887300;
+            base[0](6, 1);
+            base[0](7, 2);
+            base[0](8, 1);
+            base[0](9, 2);
+            base[0](0xC, 1);
+            base[0](0xB, 6);
+            base[0](0xA, 5);
+            base[0](2, 4);
+            base[0](0xE, 0);
+        }
+        alpha = color & 0xFF;
+        alpha = 0xFF - alpha;
+        func_0046d3b0(0, iGpffffb5a8, 0x19, pos.x, pos.y, 0, alpha, z, 0);
+        pos.x += 36.0f;
+        for (i = 0; (p = tmp + i, ch = *p) != 0; i++) {
+            switch (ch) {
+            case '.':
+                func_0046d3b0(0, iGpffffb5a8, 0x18, pos.x, pos.y + 20.0f, 0, alpha, z, 0);
+                pos.x += 8.0f;
+                break;
+            default:
+                func_0046d3b0(0, iGpffffb5a8, ch - 0x22, pos.x, pos.y + 20.0f, 0, alpha, z, 0);
+                pos.x += 19.0f;
+                break;
+            }
+        }
+    }
+}
+#pragma pop
 
 
 /* measured: returning the digit count makes b210 keep the loop index in $v0,
