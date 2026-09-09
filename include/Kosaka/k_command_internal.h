@@ -7,7 +7,7 @@
 
 
 typedef struct Model Model;
-extern u8 func_00106600(s16 value);
+extern s32 func_00106600(s16 id);
 extern void func_0014a0f0(u16 resourceId, u32 value);
 extern s32 func_0014b510(u32 type);
 extern void func_00106550(s32 arg0, s32 arg1);

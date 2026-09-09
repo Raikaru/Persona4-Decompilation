@@ -284,7 +284,7 @@ s16 func_00115380(u8 *arg0, s32 arg1) {
    plus the extra dsll32/dsra32 re-extension the call path needs; temp-register
    rotation floor. */
 // FUN_00115420
-void func_00115420(s32 arg0, u8 *arg1) {
+void func_00115420(u16 arg0, u8 *arg1) {
     s32 target;
     s32 value;
     s32 i;

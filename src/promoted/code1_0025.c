@@ -18,7 +18,7 @@ extern void func_0045aeb0(s32 arg0, const char *arg1);
 extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_00250ad0(s32 *arg0, u8 *arg1);
 extern s32 func_0010a900(s32 arg0);
-extern void func_0010cfa0(void *arg0, u16 arg1, s32 arg2);
+extern s32 func_0010cfa0(u8 *arg0, u16 arg1, u8 *arg2);
 extern void func_0043f810(void *arg0, void *arg1, s32 arg2);
 extern s16 D_00636A40[];
 extern char D_00635C00[];
@@ -789,9 +789,9 @@ s32 func_0025d580(void) {
     }
     temp_2_2 = func_0010a900(temp_16);
     func_0010cfa0(
-        sp60,
+        (u8 *)sp60,
         *(u16 *)((u8 *)sp30 + ((temp_16 & 0xFFFF) * 4) + 2),
-        temp_2_2);
+        (u8 *)temp_2_2);
     func_0043f810((void *)temp_2_2, sp60, 0x30);
     return 1;
 }

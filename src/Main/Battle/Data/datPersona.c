@@ -20,7 +20,7 @@ extern u8 *DAT_007644d4;
 extern u8 *iGpffffb3d8; /* gp -0x4C28 */
 extern u8 *iGpffffb3d4; /* gp -0x4C2C */
 extern u8 *iGpffffb3dc; /* gp -0x4C24 */
-extern u8 *iGpffffb3e4; /* gp -0x4C1C */
+extern u16 (*iGpffffb3e4)[311]; /* gp -0x4C1C */
 static inline s32 datPersonaOrFlag(s32 flags, s32 mask)
 {
     return flags | mask;
@@ -32,7 +32,8 @@ extern void func_0010fde0(u8 *arg0);
 
 extern s32 func_0010be20(u8 *arg0);
 extern void func_0010fde0(u8 *arg0);
-void func_0010cad0(u8 *arg0, s32 arg1);
+void func_0010cad0(u8 *arg0, u16 arg1);
+s32 func_0010cc20(u8 *arg0, u16 arg1);
 
 extern u16 *func_0010ace0(s16 arg0);
 extern s32 func_0010b5b0(void);
@@ -41,7 +42,7 @@ extern s32 func_0010ae30(s32 arg0);
 extern s32 func_0010b3b0(); /* old-style: target call preserves s64 argument */
 extern u16 func_0010b460(void);
 
-extern u32 func_0010c750(u8 *arg0, s32 arg1);
+extern u32 func_0010c750(void *persona, u16 level);
 extern void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2);
 extern void func_0010c5a0(u8 *arg0, u8 *arg1);
 extern void func_0010d150(u8 *arg0);
@@ -49,13 +50,15 @@ extern void func_0010d150(u8 *arg0);
 extern f32 fGpffff8218; /* gp -0x7DF8 */
 extern f32 fGpffff821c; /* gp -0x7DF4 */
 extern f32 fGpffff8150; /* gp -0x7EB0 */
-extern u8 *iGpffffb3e8; /* gp -0x4C18 */
+extern f32 fGpffff8208;
+extern f32 fGpffff820c;
+extern s32 (*iGpffffb3e8)[98]; /* gp -0x4C18 */
 
 s8 func_00109d20(u8 *arg0, s32 arg1);
 s8 func_00109dd0(u8 *arg0, s32 arg1);
 s8 func_00109e30(u8 *arg0, s32 arg1);
 
-extern u8 *func_0010b060(s32 personaId);
+extern u8 *func_0010b060(u16 personaId);
 
 u16 *func_0010a900(); /* old-style: every retail caller jals with no arg setup */
 
@@ -248,8 +251,110 @@ s8 func_00109dd0(u8 *arg0, s32 arg1)
     return (s8)arg0[(u16)arg1 + 0x26];
 }
 
+extern u16 func_00232880(u16 arg0, u16 arg1);
+extern s16 D_00797578[];
+extern u8 D_00796D90[];
+extern u8 *iGpffffb1b0;
+
+/* 2372/2384 bytes; 56 resolved relocations; 12 zero alignment bytes.
+ * The real equipment-query inputs are unsigned halfwords. Keep each weighted
+ * query independent and preserve the signed-byte result for the stat clamp. */
 // FUN_00109E30
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_00109e30);
+s8 func_00109e30(u8 *arg0, s32 arg1)
+{
+    s16 bonus;
+    u16 party;
+    s16 equipped;
+    u16 equipment;
+    u16 stat = (u16)arg1;
+    if (stat >= 5) {
+        func_0046d730(D_005E4318, 0x2CD);
+    }
+    bonus = 0;
+    if (func_0010be20(arg0) != 0) {
+        if (*(u16 *)(arg0 + 2) < 0xC0 || *(u16 *)(arg0 + 2) > 0xD7) {
+            func_0046d730(D_005E4318, 0x2D4);
+        }
+        party = iGpffffb3e4[*(u16 *)(arg0 + 2) - 0xC0][0];
+    } else {
+        party = 1;
+    }
+    if ((u16)party >= 0xB) {
+        func_0046d730(D_005E4318, 0x2D9);
+    }
+    if ((s16)party == 1) {
+        equipped = D_00797578[0];
+    } else {
+        equipped = *(s16 *)(D_00796D90 + (s16)party * 0x88);
+    }
+    equipment = equipped;
+    switch (stat) {
+    case 0:
+        bonus += *(s16 *)(iGpffffb1b0 + (s16)equipment * 0x44 + 20);
+        break;
+    case 2:
+        bonus += *(s16 *)(iGpffffb1b0 + (s16)equipment * 0x44 + 22);
+        break;
+    case 1:
+        bonus += *(s16 *)(iGpffffb1b0 + (s16)equipment * 0x44 + 24);
+        break;
+    case 3:
+        bonus += *(s16 *)(iGpffffb1b0 + (s16)equipment * 0x44 + 26);
+        break;
+    case 4:
+        bonus += *(s16 *)(iGpffffb1b0 + (s16)equipment * 0x44 + 28);
+        break;
+    }
+    switch (stat) {
+    case 0:
+        bonus += (s16)(func_00232880(party, 1) * 1);
+        bonus += (s16)(func_00232880(party, 2) * 2);
+        bonus += (s16)(func_00232880(party, 3) * 3);
+        bonus += (s16)(func_00232880(party, 4) * 4);
+        bonus += (s16)(func_00232880(party, 5) * 5);
+        bonus += (s16)(func_00232880(party, 86) * 10);
+        break;
+    case 1:
+        bonus += (s16)(func_00232880(party, 11) * 1);
+        bonus += (s16)(func_00232880(party, 12) * 2);
+        bonus += (s16)(func_00232880(party, 13) * 3);
+        bonus += (s16)(func_00232880(party, 14) * 4);
+        bonus += (s16)(func_00232880(party, 15) * 5);
+        bonus += (s16)(func_00232880(party, 88) * 10);
+        break;
+    case 2:
+        bonus += (s16)(func_00232880(party, 6) * 1);
+        bonus += (s16)(func_00232880(party, 7) * 2);
+        bonus += (s16)(func_00232880(party, 8) * 3);
+        bonus += (s16)(func_00232880(party, 9) * 4);
+        bonus += (s16)(func_00232880(party, 10) * 5);
+        bonus += (s16)(func_00232880(party, 87) * 10);
+        break;
+    case 3:
+        bonus += (s16)(func_00232880(party, 16) * 1);
+        bonus += (s16)(func_00232880(party, 17) * 2);
+        bonus += (s16)(func_00232880(party, 18) * 3);
+        bonus += (s16)(func_00232880(party, 19) * 4);
+        bonus += (s16)(func_00232880(party, 20) * 5);
+        bonus += (s16)(func_00232880(party, 89) * 10);
+        break;
+    case 4:
+        bonus += (s16)(func_00232880(party, 21) * 1);
+        bonus += (s16)(func_00232880(party, 22) * 2);
+        bonus += (s16)(func_00232880(party, 23) * 3);
+        bonus += (s16)(func_00232880(party, 24) * 4);
+        bonus += (s16)(func_00232880(party, 25) * 5);
+        bonus += (s16)(func_00232880(party, 90) * 10);
+        break;
+    }
+    bonus += (s16)(func_00232880(party, 63) * 1);
+    bonus += (s16)(func_00232880(party, 64) * 2);
+    bonus += (s16)(func_00232880(party, 65) * 3);
+    bonus += (s16)(func_00232880(party, 66) * 4);
+    bonus += (s16)(func_00232880(party, 67) * 5);
+    bonus += (s16)(func_00232880(party, 139) * 10);
+    return (s8)bonus;
+}
 
 /* Ported from the Persona 3 FES tree (datPersona.c
    datPersonaAddToNaturalStat), which shares this source: two separate s16
@@ -492,7 +597,7 @@ done:
 }
 
 // FUN_0010B010
-u8 *func_0010b010(s32 personaId)
+u8 *func_0010b010(u16 personaId)
 {
     u8 *p = func_0010b060(personaId);
     if (p == NULL) {
@@ -502,7 +607,7 @@ u8 *func_0010b010(s32 personaId)
 }
 
 // FUN_0010B060
-u8 *func_0010b060(s32 personaId)
+u8 *func_0010b060(u16 personaId)
 {
     s32 i = 0;
     s16 found;
@@ -837,12 +942,58 @@ void func_0010c5a0(u8 *arg0, u8 *arg1)
     }
 }
 
-/* measured: retail allocates the f32 locals to $f4/$f3 and evaluates the
-   madd/msub accumulator chain msub-part-first; mwcc b210 picks $f1/$f4 and
-   hoists the C2*f4^3 chain before the msub. Tried term orders, t3 splits,
-   parens, decl orders; nd 74-128. FP register/scheduling floor. */
+/* 556/560 bytes; fifteen resolved relocations; four zero alignment bytes.
+ * Typed party records and experience curves retain retail address ordering. */
 // FUN_0010C750
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010c750);
+u32 func_0010c750(void *persona, u16 level)
+{
+    u8 *work = persona;
+    u32 partyPersona;
+    s32 baseOffset;
+    f32 levelF;
+    f32 baseLevelF;
+    f32 prod;
+    u16 curveId;
+    s32 result;
+
+    if ((level & 0xFFFF) < 2) {
+        result = 0;
+    } else {
+        if ((level & 0xFFFF) > 99) {
+            level = 0x63;
+        }
+
+        if ((*(u16 *)(work + 2) >= 0xC0) &&
+            (*(u16 *)(work + 2) < 0xD8)) {
+            partyPersona = 1;
+        } else {
+            partyPersona = 0;
+        }
+        if (partyPersona == 0) {
+            if (*(u16 *)(work + 2) >= 0x100) {
+                func_0046d730(D_005E4318, 0x673);
+            }
+            levelF = (f32)level;
+            baseOffset = (s32)*(u16 *)(work + 2) * 0xE;
+            baseLevelF = (f32)(u32)iGpffffb3d4[baseOffset + 3];
+            prod = fGpffff8150 * levelF;
+            result = (s32)((0.0f + 10.0f) +
+                           ((fGpffff820c + 0.0f - fGpffff8208 * baseLevelF) *
+                            (prod * levelF * levelF)));
+        } else {
+            if ((*(u16 *)(work + 2) < 0xC0) ||
+                (*(u16 *)(work + 2) > 0xD7)) {
+                func_0046d730(D_005E4318, 0x67B);
+            }
+            curveId = iGpffffb3e4[*(u16 *)(work + 2) - 0xC0][0];
+            if ((curveId <= 1) || (curveId >= 0xB)) {
+                func_0046d730(D_005E4318, 0x67D);
+            }
+            result = iGpffffb3e8[curveId - 2][(level & 0xFFFF) - 2];
+        }
+    }
+    return (u32)result;
+}
 
 // FUN_0010C980
 void func_0010c980(u8 *arg0, s32 arg1)
@@ -899,8 +1050,11 @@ void func_0010c9e0(u8 *arg0)
 /* measured: closing pragma balances the required loop-invariant setting; nd 0. */
 #pragma opt_loop_invariants off
 
+/* The halfword persona contract retains both retail masks when common
+ * subexpression folding is disabled for this initializer. */
+#pragma opt_common_subs off
 // FUN_0010CAD0
-void func_0010cad0(u8 *arg0, s32 arg1)
+void func_0010cad0(u8 *arg0, u16 arg1)
 {
     s32 id;
     s32 offset;
@@ -934,8 +1088,9 @@ void func_0010cad0(u8 *arg0, s32 arg1)
     func_0010d150(arg0);
 }
 
+#pragma opt_common_subs on
 // FUN_0010CC20
-s32 func_0010cc20(u8 *arg0, u32 arg1)
+s32 func_0010cc20(u8 *arg0, u16 arg1)
 {
     s32 i;
 
@@ -1045,7 +1200,7 @@ u16 func_0010cf40(u8 *arg0, s16 arg1)
     return *(u16 *)(off + (s32)arg0 + 0xC);
 }
 // FUN_0010CFA0
-s32 func_0010cfa0(u8 *arg0, s32 arg1, u8 *arg2)
+s32 func_0010cfa0(u8 *arg0, u16 arg1, u8 *arg2)
 {
     s32 i;
     s32 i2;

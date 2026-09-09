@@ -1,13 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
+#include "h_cdvd_internal.h"
 #include "Kosaka/k_clump_internal.h"
-typedef unsigned int u_long128 __attribute__((mode(TI)));
-typedef int s128 __attribute__((mode(TI)));
-typedef struct {
-    s128 lock;
-    u8 pad[12];
-    s32 arg6;
-} Func004667d0Locals;
 extern s32 iGpffffb034;
 extern s32 iGpffffbaf8;
 extern s32 iGpffffbab4;
@@ -18,10 +12,6 @@ extern s32 D_008E4B38[];
 extern u8 D_008E4800[];
 extern u8 D_008E4B50[];
 extern u8 D_008E4D30[];
-static inline u8 *func_004667d0_entry(u8 *base, s32 index)
-{
-    return base + index * 0x1DC;
-}
 extern void func_0043a978(void);
 extern void func_004316a8(s32 arg0);
 extern s32 func_00431928(void *a, u8 *b);
@@ -120,7 +110,6 @@ extern s32 func_00457120(void);
 extern void func_00466c60(void);
 extern void func_0050cd80(void);
 extern void func_00466600(void);
-extern void func_00440b68();
 extern s32 func_00442088(char *dst, const char *fmt, ...);
 extern s32 sceMc2GetInfoAsync(s32 socket, void *out);
 extern s32 func_00431d78(s32 socket, void *data, void *result);
@@ -1138,8 +1127,69 @@ skip:
     }
 }
 
+/* 512/512 bytes; ten fully resolved relocations.
+ * A real interrupt-state local retains the retail spill under register pressure. */
+#pragma opt_loop_invariants on
 // FUN_004667D0
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004667d0);
+u8 *func_004667d0(s32 kind, const char *name, const char *path,
+                    s32 flags, s32 source, s32 buffer, s32 byteCount,
+                    const char *cacheName, s32 resultKind, s32 memoryKind)
+{
+    extern void *func_0043f9c8(void *dst, s32 value, u32 size);
+    extern char *func_00442830(char *dst, const char *src);
+    s32 lock;
+    u8 *last;
+    u8 *request;
+    s16 i;
+
+    last = D_008E4B50;
+    lock = func_0042ba20();
+    for (;;) {
+        if (*(u8 **)last == NULL) {
+            i = 0;
+            for (; i < 256; i++) {
+                if (*(s32 *)(D_008E4D30 + i * 0x1DC) == 0) {
+                    *(s32 *)(D_008E4D30 + i * 0x1DC) = 1;
+                    request = D_008E4D30 + i * 0x1DC + 4;
+                    func_0043f9c8(request, 0, 0x1D8);
+                    goto allocated;
+                }
+            }
+            request = NULL;
+        allocated:
+            *(u8 **)(request + 0) = NULL;
+            request[0x24] = 0;
+            if (name != NULL) {
+                func_00442830((char *)request + 0x24, name);
+            }
+            request[0xA4] = 0;
+            if (path != NULL) {
+                func_00442830((char *)request + 0xA4, path);
+            }
+            *(s32 *)(request + 8) = source;
+            *(s32 *)(request + 0x1A4) = 0;
+            *(s32 *)(request + 0x1A8) = flags;
+            *(s32 *)(request + 0x1AC) = kind;
+            *(s32 *)(request + 0x1C4) = buffer;
+            *(s32 *)(request + 0x1C0) = byteCount;
+            request[0x124] = 0;
+            *(s32 *)(request + 0x20) = resultKind;
+            *(s32 *)(request + 0x1CC) = memoryKind;
+            *(s16 *)(request + 0x1D4) = 0;
+            if (cacheName != NULL) {
+                func_00442830((char *)request + 0x124, cacheName);
+            }
+            *(u8 **)(request + 4) = last;
+            *(u8 **)last = request;
+            if (lock != 0) {
+                func_0042ba70();
+            }
+            return request;
+        }
+        last = *(u8 **)last;
+    }
+}
+#pragma opt_loop_invariants reset
 // FUN_004669D0
 u8 *func_004669d0(u8 *arg0, s32 *arg1, s32 *arg2)
 {
@@ -1528,8 +1578,100 @@ void func_00468a10(void)
     D_00922930[0] = 0;
     D_0092293C[0] = 0;
 }
+/* Measured: 652/656 bytes, eight resolved relocations and four zero tail bytes.
+ * Request handles and resource tables are reloaded after their callbacks. */
+#pragma opt_loop_invariants on
 // FUN_00468D10
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00468d10);
+void func_00468d10(void)
+{
+    extern s32 func_00468bf0(u8 *node, s32 slot);
+    extern s32 func_004c9820(ADXF request);
+    extern void *func_0043f9c8(void *dst, s32 value, u32 count);
+    extern void func_00456530(u8 *basePath, u8 *archive, s32 singleEntry);
+    u8 *node;
+    char *cursor;
+    s8 value;
+    s32 state;
+    s32 slot;
+    s32 phase;
+    s32 character;
+    s32 separator;
+    s32 backslash;
+    char path[0x100];
+
+    node = (u8 *)D_00922930;
+    do {
+        state = *(s32 *)(node + 0xC);
+        switch (state) {
+        case 0:
+            node = *(u8 **)(node + 4);
+            break;
+        case 1:
+            *(s32 *)(node + 0x44) = 0;
+            for (phase = 0; phase < 10; phase++) {
+                if (func_00468bf0(node, phase) == 0) {
+                    break;
+                }
+            }
+            *(s32 *)(node + 0xC) = 2;
+            /* fall through */
+        case 2:
+            phase = 1;
+            for (slot = 0; slot < 10; slot++) {
+                if (*(s32 *)(node + 0x10 + slot * 4) != 0) {
+                    if (func_004c9820(*(ADXF *)(node + 0x10 + slot * 4)) == 3) {
+                        func_004c8a60(*(ADXF *)(node + 0x10 + slot * 4));
+                        *(s32 *)(node + 0x10 + slot * 4) = 0;
+                        if (func_00468bf0(node, slot) == 1) {
+                            phase = 0;
+                        }
+                    } else {
+                        phase = 0;
+                    }
+                }
+            }
+            if (phase != 0) {
+                *(s32 *)(node + 0xC) = 3;
+            } else {
+                node = NULL;
+                break;
+            }
+            /* fall through */
+        case 3:
+            func_0043f9c8(path, 0, 0x100);
+            backslash = 0x5C;
+            for (character = 0; character < 0x100; character++) {
+                value = *(s8 *)(*(u8 **)(node + 8) + character + 0x118);
+                if (value != 0) {
+                    path[character] = value;
+                } else {
+                    for (separator = character - 1;; separator--) {
+                        cursor = path + separator;
+                        if (cursor[-1] == backslash) {
+                            *cursor = 0;
+                            break;
+                        }
+                    }
+                }
+            }
+            for (phase = 0;
+                 phase < *(s32 *)(node + 0x40) - *(s32 *)(node + 0x3C);
+                 phase++) {
+                if ((*(s32 **)(node + 0x38))[phase] != 0) {
+                    func_00456530((u8 *)path,
+                                  (u8 *)(*(s32 **)(node + 0x38))[phase], 1);
+                    (*(s32 **)(node + 0x38))[phase] += 0x100;
+                }
+            }
+            *(s32 *)(node + 0xC) = 4;
+            break;
+        case 4:
+            node = *(u8 **)(node + 4);
+            break;
+        }
+    } while (node != NULL);
+}
+#pragma opt_loop_invariants reset
 // FUN_00468FA0
 s32 func_00468fa0(u8 *arg0) {
     u8 *ctx;

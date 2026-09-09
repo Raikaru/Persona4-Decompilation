@@ -12,6 +12,7 @@ typedef struct {
    separate and its remaining-width calculation before the callbacks. */
 static inline f32 addF(f32 a, f32 b) { return a + b; }
 static inline f32 subF(f32 a, f32 b) { return a - b; }
+static inline f32 mulF(f32 a, f32 b) { return a * b; }
 
 
 extern void (*D_00887310[])(s32, void *, s32);
@@ -1033,8 +1034,56 @@ void func_0034d890(u8 *arg0, s32 arg1) {
 }
 /* measured: reconstructed d890 body matches retail byte-for-byte (720-byte window). */
 
+/* Measured: declaration order and inline multiply boundaries preserve FP
+ * allocation; 652/656 bytes, 13 resolved relocations and four zero tail bytes. */
 // FUN_0034DB60
-INCLUDE_ASM("asm/nonmatchings/nLine", func_0034db60);
+void func_0034db60(u8 *arg0, f32 fparg0, s32 arg1) {
+    f32 elapsed;
+    f32 height;
+    f32 width;
+    f32 inset_x;
+    f32 inset_y;
+    f32 amount;
+    f32 left;
+    f32 right;
+    f32 top;
+    f32 depth;
+    f32 bottom;
+    f32 reciprocal;
+    f32 duration;
+
+    duration = *(f32 *)(arg0 + 0x1688) * fparg0;
+    if (*(s32 *)(arg0 + 0x1690) == 0) {
+        elapsed = (f32)*(s16 *)(arg0 + 0x1684);
+        if (elapsed < duration) {
+            amount = func_0044b7b0((iGpffff8094 * elapsed) / duration);
+        } else {
+            amount = 1.0f;
+        }
+    } else {
+        amount = 1.0f;
+    }
+    if (arg1 == 0) {
+        amount = 1.0f - amount;
+    }
+    width = mulF(640.0f, amount);
+    inset_x = (640.0f - width) / 2.0f;
+    height = mulF(480.0f, amount);
+    inset_y = (448.0f - height) / 2.0f;
+    *(s32 *)(arg0 + 0x990) = 0;
+    top = inset_y + *(f32 *)(arg0 + 0x9A0);
+    left = inset_x + *(f32 *)(arg0 + 0x99C);
+    depth = D_008872F8[0] - D_0088467C[0];
+    reciprocal = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    func_0034f0d0(arg0 + 0x690, left, top, depth, reciprocal, 255, 233, 44, 255);
+    bottom = addF(top, height);
+    func_0034f0d0(arg0 + 0x6D0, left, bottom, depth, reciprocal, 255, 233, 44, 255);
+    right = addF(left, width);
+    func_0034f0d0(arg0 + 0x710, right, bottom, depth, reciprocal, 255, 233, 44, 255);
+    func_0034f0d0(arg0 + 0x750, right, top, depth, reciprocal, 255, 233, 44, 255);
+    *(s16 *)(arg0 + 0x1670) = func_0034e360(arg0, inset_x + *(f32 *)(arg0 + 0x99C), inset_y + *(f32 *)(arg0 + 0x9A0), width, height);
+    func_0034ee90(arg0, 0.0f, 0.0f, amount);
+}
 /* measured: disabling common-subexpression elimination preserves retail's
    per-call corner recomputation. */
 #pragma opt_common_subs off

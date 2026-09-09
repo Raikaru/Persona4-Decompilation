@@ -1,7 +1,8 @@
 #include "include_asm.h"
 #include "type.h"
 #include "fr_font_internal.h"
-typedef struct {
+struct RwMatrixTag;
+typedef struct RwV3d {
     f32 x;
     f32 y;
     f32 z;
@@ -141,7 +142,8 @@ typedef struct {
     u8 local[0x30];
 } P4DrawFrame66C70;
 typedef void (*P4RenderState66C70)(s32 state, s32 value);
-extern void *func_003e4320(void *dst, void *src, void *matrix);
+extern RwV3d *func_003e4320(RwV3d *dst, const RwV3d *src,
+                           const struct RwMatrixTag *matrix);
 extern f32 func_0044b7b0(f32 arg0);
 extern void func_003f6440(s32 arg0, s32 arg1);
 extern s32 D_0064E440[];
@@ -553,8 +555,86 @@ if (arg9 != 0) {
 } else {
     func_0045e6a0((s32)(u32)col, (s32)(u32)v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
 } }
+/* 780/784 bytes; nine resolved relocations; four zero alignment bytes.
+ * Keep the angle and shared scale local to each primitive call. */
+#pragma push
+#pragma opt_propagation off
 // FUN_00366960
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00366960);
+void func_00366960(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
+                   s32 alpha, s32 mode, s32 centerX, s16 centerY,
+                   const struct RwMatrixTag *matrix, void *queue)
+{
+    extern s64 iGpffffabe8;
+    extern void func_0045eb20(void *, void *, f32, s32, s32, s32, s32, s16, f32, f32, f32, void *);
+    extern void func_0045e8e0(void *, void *, f32, s32, s32, s32, s32, s16, f32, f32, f32, void *);
+    extern void func_0045e6a0(s32, s32, f32, u32, s32, s32, s32, s32, f32, f32, f32);
+    f32 points[4][2] = { 0.0f };
+    u8 colors[16];
+    RwV3d transformed;
+    u32 i;
+    u32 packed;
+    u8 r, g, b, a;
+
+    points[1][0] = (f32)width;
+    points[2][0] = points[1][0];
+    points[2][1] = (f32)height;
+    points[3][1] = points[2][1];
+    i = 0;
+    packed = ((u32)rgb << 8) | (u32)alpha;
+    r = (u8)(packed >> 24);
+    g = (u8)(packed >> 16);
+    b = (u8)(packed >> 8);
+    a = (u8)packed;
+    while (i < 4) {
+        u8 *color;
+        f32 *point;
+        f32 *pointY;
+        color = &colors[i * 4];
+        color[0] = r;
+        color[1] = g;
+        color[2] = b;
+        color[3] = a;
+        point = points[i];
+        transformed.x = point[0] - (f32)centerX;
+        pointY = point + 1;
+        transformed.y = point[1] - (f32)centerY;
+        transformed.z = 0.0f;
+        func_003e4320(&transformed, &transformed, matrix);
+        point[0] = transformed.x + (f32)x;
+        *pointY = transformed.y + (f32)y;
+        i++;
+    }
+    if (queue) {
+        if (alpha == 255) {
+            {
+                f32 angle = 0.0f;
+                f32 scale = 1.0f;
+                func_0045eb20(colors, points, z, 4, 5, mode, 0, 0, angle, scale, scale, queue);
+            }
+        } else {
+            {
+                f32 angle = 0.0f;
+                f32 scale = 1.0f;
+                func_0045e8e0(colors, points, z, 4, 5, mode, 0, 0, angle, scale, scale, queue);
+            }
+        }
+    } else if (alpha == 255) {
+        iGpffffabe8 |= 0x80;
+        {
+            f32 angle = 0.0f;
+            f32 scale = 1.0f;
+            func_0045e6a0((s32)(u32)colors, (s32)(u32)points, z, 4, 5, mode, 0, 0, angle, scale, scale);
+        }
+        iGpffffabe8 &= ~0x80;
+    } else {
+        {
+            f32 angle = 0.0f;
+            f32 scale = 1.0f;
+            func_0045e6a0((s32)(u32)colors, (s32)(u32)points, z, 4, 5, mode, 0, 0, angle, scale, scale);
+        }
+    }
+}
+#pragma pop
 // FUN_00366C70
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00366c70);
 // FUN_003671D0

@@ -192,12 +192,93 @@ s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
 }
 // FUN_0016ABC0
 INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016abc0);
-/* Retained dispatcher: 476B/480B, ten resolved relocations, one branch-target
-   word differs; the last four retail bytes are zero alignment. The typed
-   preferred/fallback selector and cached-root guard pass 1,492,992 native
-   boundary/mutation cases. See LFF2_0016b080_body.c; production remains ASM. */
+/* 476/480 bytes; ten resolved relocations; four zero alignment bytes.
+ * Write the preferred/fallback selection through the caller's real output. */
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_common_subs on
+extern s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius,
+                         RwV3d* normal, RwV3d* vector);
+
+typedef struct FldSelectionResource
+{
+    u32 flags;
+    u32 unknown04;
+    void* fallback;
+    u32 unknown0c;
+    u32 unknown10;
+    void* preferred;
+} FldSelectionResource;
+typedef struct FldSelectionNode
+{
+    u16 id;
+    u8 unknown002[0x136];
+    struct FldSelectionNode* next;
+    u8 unknown13c[0x64];
+    FldSelectionResource* resource;
+} FldSelectionNode;
+
+static inline void fldFrameSelectWorld(FldSelectionResource* selected, void** dst)
+{
+    void* world = selected->preferred;
+    if (world != 0)
+    {
+        *dst = world;
+        return;
+    }
+    *dst = selected->fallback;
+}
+
 // FUN_0016B080
-INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016b080);
+s32 func_0016b080(const RwV3d* point, f32 radius, RwV3d* normal, RwV3d* vector)
+{
+    s32 result;
+    void* collisionWorld;
+    s32 fieldX;
+    s32 fieldZ;
+    u16 key;
+
+    FldSelectionResource* object;
+    result = 0;
+    object = *(FldSelectionResource**)(iGpffff9db0 + 0x28);
+    if (object == NULL)
+        return result;
+    if ((object->flags & 1) == 0)
+    {
+        collisionWorld = 0;
+        if (func_0014a200() == 1 || func_0014a270() == 1)
+        {
+            u8* map;
+            FldSelectionNode* node;
+            map = func_003e9700(*(s32*)(func_00457120() + 4));
+            fieldX = (s32)((((const RwV3d*)(map + 0x30))->x + 600.0f) / 1200.0f);
+            fieldZ = (s32)((((const RwV3d*)(map + 0x30))->z + 600.0f) / 1200.0f);
+            key = *(u16*)((u8*)func_00155280() + (fieldZ * 256) +
+                         (fieldX * 16) + 0x56);
+            for (node = (FldSelectionNode*)func_001452b0(12); node != NULL;
+                 node = node->next)
+            {
+                if (node->id == key)
+                {
+                    FldSelectionResource* selected = node->resource;
+                    fldFrameSelectWorld(selected, &collisionWorld);
+                    break;
+                }
+            }
+            result = func_0016abc0(collisionWorld, point, radius, normal, vector);
+        }
+        else
+        {
+            FldSelectionResource* selected = *(FldSelectionResource**)(iGpffff9db0 + 0x28);
+            void* fallbackWorld;
+            fldFrameSelectWorld(selected, &fallbackWorld);
+            result = func_0016abc0(fallbackWorld, point, radius, normal, vector);
+        }
+    }
+    return result;
+}
+#pragma pop
+
 /* measured: propagation probe for func_0016b260 register scheduling. */
 #pragma opt_propagation off
 // FUN_0016B260

@@ -2,13 +2,13 @@
 /* Original translation unit sdkWrap.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+#include "h_cdvd_internal.h"
 
 extern void (*jtbl_008873EC[])(s32);
 extern void func_0044ea90(const void *msg, s32 id);
 extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
 extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c,
                          void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
-extern void func_00440b68(const void *, ...);
 extern u8 D_00712978[];
 extern u8 D_007129E0[];
 extern u8 D_00712A00[];
@@ -21,8 +21,89 @@ extern void func_00454bd0(u8 *arg0);
 extern void func_00466c60(void);
 extern void func_00466e80(u8 *);
 
+extern u8 D_008E4B50[];
+extern s32 func_0042ba20(void);
+extern s32 func_0042ba70(void);
+extern u8 *func_00454a60(u8 *path, s32 flags);
+extern void func_00421710(s32 threadId);
+extern u8 D_00712990[];
+extern s32 D_00724BC8;
+extern char iGpffffb010[6];
+extern u8 iGpffffbae0[8];
+extern f32 iGpffffbb24;
+
+/* 540/544 bytes; twenty resolved relocations; four zero alignment bytes.
+ * The pointer switch retains the retail null guard and separate backedge. */
+#pragma opt_loop_invariants on
 // FUN_00466C60
-INCLUDE_ASM("asm/nonmatchings/sdkWrap", func_00466c60);
+void func_00466c60(void)
+{
+    s16 i;
+    u8 *work;
+    s32 lock;
+
+    for (i = 0; i <= 0; i++) {
+        work = *(u8 **)(D_008E4B50 + i * 0x1D8);
+        if (work != NULL) {
+            for (;;) {
+                switch (*(s32 *)(work + 0x1A4)) {
+                case 0:
+                    if (*(s8 *)(work + 0xA4) != 0) {
+                        lock = func_0042ba20();
+                        func_00440b68(iGpffffb010, D_00712978, 0x233);
+                        *(u8 **)(work + 0x1B0) =
+                            func_00454a60(work + 0xA4, *(s32 *)(work + 0x1A8));
+                        if (lock != 0) {
+                            func_0042ba70();
+                        }
+                        *(s32 *)(work + 0x1A4) = 1;
+                        goto next_queue;
+                    }
+                    *(u8 **)(work + 0x1B0) = NULL;
+                    lock = 0;
+                    goto enqueue;
+                case 1:
+                    lock = func_0042ba20();
+                    if (func_004553c0(*(struct HCdvd **)(work + 0x1B0)) != 0) {
+                        if (lock != 0) {
+                            func_0042ba70();
+                        }
+                        lock = 0;
+                enqueue:
+                        *(s16 *)(iGpffffbae0 + i * 8) = 1;
+                        *(u8 **)(iGpffffbae0 + i * 8 + 4) = work;
+                        *(s32 *)(work + 0x1A4) = 2;
+                        func_00421710(*((s32 *)&D_00724BC8 + i));
+                    }
+                    if (lock != 0) {
+                        func_0042ba70();
+                    }
+                    goto next_queue;
+                case 2:
+                    if (++*(s16 *)(work + 0x1D4) > 5) {
+                        func_00440b68((const char *)D_00712990, (s32)iGpffffbb24);
+                    }
+                    goto next_queue;
+                case 3:
+                    work = *(u8 **)work;
+                    if (work == NULL) {
+                        return;
+                    }
+                    break;
+                default:
+                    goto next_queue;
+                }
+                switch ((uintptr_t)work) {
+                case 0:
+                    goto next_queue;
+                }
+            }
+        }
+next_queue:
+        ;
+    }
+}
+#pragma opt_loop_invariants reset
 // FUN_00466E80
 void func_00466e80(u8 *arg0)
 {
@@ -44,7 +125,7 @@ void func_00466e80(u8 *arg0)
     extern s32 func_003eaf60(u8 *arg0);
     extern s32 func_003bb210(s32 arg0);
     extern s32 func_0042ba20(void);
-    extern void func_0042ba70(void);
+    extern s32 func_0042ba70(void);
     u8 *work;
     u8 *next;
     s32 lock;
@@ -181,9 +262,9 @@ s32 func_004671c0(u8 *arg0)
     handle = func_004669d0(*(s32 *)work, &count, 0);
     if (count != 0) {
         if (*(u8 **)(work + 4) != NULL) {
-            func_00440b68(D_007129A0, *(u8 **)(work + 4) + 0x10);
+            func_00440b68((const char *)D_007129A0, *(u8 **)(work + 4) + 0x10);
         } else {
-            func_00440b68(D_007129C0);
+            func_00440b68((const char *)D_007129C0);
         }
         if (handle != 0) {
             func_003ef3a0(handle);
@@ -228,7 +309,7 @@ s32 func_004672c0(s32 arg0, u8 *arg1)
         return 0;
     }
     if (arg1 != NULL) {
-        func_00440b68(D_00712A00, arg1 + 0x10);
+        func_00440b68((const char *)D_00712A00, arg1 + 0x10);
     }
     *(s32 *)(mem + 0) = arg0;
     *(u8 **)(mem + 4) = arg1;

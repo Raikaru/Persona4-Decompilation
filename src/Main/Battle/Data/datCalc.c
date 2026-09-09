@@ -385,7 +385,7 @@ s32 func_00232830(u16 *arg0, s64 arg1)
 
 
 // FUN_00232880
-u16 func_00232880(s32 arg0, s32 arg1)
+u16 func_00232880(u16 arg0, u16 arg1)
 {
     u16 count;
     s16 id;
