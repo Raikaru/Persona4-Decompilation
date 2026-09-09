@@ -34,6 +34,10 @@ typedef struct {
     f32 y;
     f32 z;
 } Code45Vec3;
+typedef struct {
+    u8 red, green, blue, alpha;
+} Code45RGBA;
+extern u32 func_00457a90(const RpMaterial *material, const char *name);
 extern s32 func_0045ce40(f32 *out, u8 *colors, s32 *pos, f32 z);
 extern struct {
     s32 state;
@@ -80,8 +84,8 @@ extern u8 D_007117B0[];
 extern u8 D_00711738[];
 extern void func_004244c8();
 extern u8 D_00711720[];
-extern s32 func_003bcfa0();
-extern void func_003bd0d0();
+extern s32 func_003bcfa0(RpMaterial *material, char *name, s32 format, s32 numElements);
+extern void func_003bd0d0(u8 *userData, s32 index, s32 value);
 extern s32 D_00711870_abs[];
 extern void func_00430e28(void);
 extern void func_00430f80();
@@ -1059,11 +1063,11 @@ loop_004585c0_test:
 loop_004585c0_done:
     if (var_18 == 0) {
         func_003bd0d0(
-            func_003bd000(
+            (u8 *)func_003bd000(
                 (const RpMaterial *)arg0,
                 func_003bcfa0(
-                    arg0,
-                    D_00711870_abs,
+                    (RpMaterial *)arg0,
+                    (char *)D_00711870_abs,
                     (temp_2 = (s32)(
                         *(u8 *)(arg0 + 6) |
                         (*(u8 *)(arg0 + 5) << 8 |
@@ -1094,7 +1098,7 @@ loop_004586f0_test:
     }
 loop_004586f0_done:
     func_003bd0d0(
-        var_16,
+        (u8 *)var_16,
         0,
         *(u8 *)(arg1 + 2) |
         (*(u8 *)(arg1 + 1) << 8 |
@@ -1102,7 +1106,98 @@ loop_004586f0_done:
                 (*(u8 *)(arg1 + 0) << 0x10))));
 }
 // FUN_004587D0
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_004587d0);
+/* Measured: 1136/1136 bytes, 23 resolved relocations, no alignment tail.
+   Separate userdata lifetimes and index-before-color declarations preserve
+   register allocation; unsigned >255 clamps retain the retail branch form. */
+u8 *func_004587d0(u8 *material, u8 *data)
+{
+    f32 *scale = (f32 *)data;
+    s32 i;
+    s32 found;
+
+    if (func_00457a90((RpMaterial *)material, (const char *)D_00711870_abs) == 0)
+    {
+        u32 packedColor;
+        s32 index;
+
+        packedColor = ((u32)*(u8 *)(material + 7) << 24) |
+                      (*(u8 *)(material + 4) << 16) |
+                      (*(u8 *)(material + 5) << 8) |
+                      *(u8 *)(material + 6);
+
+        index = func_003bcfa0((RpMaterial *)material, (char *)D_00711870_abs, rpINTUSERDATA, 1);
+        func_003bd0d0((u8 *)func_003bd000((RpMaterial *)material, index), 0, (s32)packedColor);
+    }
+
+    found = 0;
+    for (i = 0; i < func_003bcfb0((RpMaterial *)material); i++)
+    {
+        RpUserDataArray *userData;
+        userData = func_003bd000((RpMaterial *)material, i);
+        func_003bd040(userData);
+        if (func_004426e8(func_003bd040(userData), (const char *)D_00711870_abs) == 0)
+        {
+            found = 1;
+            break;
+        }
+    }
+
+    if (found == 1)
+    {
+        s32 j;
+        u32 colorValue = 0;
+        u32 red;
+        u32 green;
+        u32 blue;
+        u32 alpha;
+        Code45RGBA color;
+
+        for (j = 0; j < func_003bcfb0((RpMaterial *)material); j++)
+        {
+            RpUserDataArray *userData;
+            userData = func_003bd000((RpMaterial *)material, j);
+            if (func_004426e8(func_003bd040(userData), (const char *)D_00711870_abs) == 0 &&
+                func_003bd050(userData) == rpINTUSERDATA)
+            {
+                colorValue = (u32)func_003bd070(userData, 0);
+                break;
+            }
+        }
+
+        red = (u32)((f32)((colorValue >> 16) & 0xFF) * scale[0]);
+        green = (u32)((f32)((colorValue >> 8) & 0xFF) * scale[1]);
+        blue = (u32)((f32)(colorValue & 0xFF) * scale[2]);
+        alpha = (u32)((f32)((colorValue >> 24) & 0xFF) * scale[3]);
+
+        if (red > 0xFF)
+        {
+            red = 0xFF;
+        }
+        color.red = red;
+
+        if (green > 0xFF)
+        {
+            green = 0xFF;
+        }
+        color.green = green;
+
+        if (blue > 0xFF)
+        {
+            blue = 0xFF;
+        }
+        color.blue = blue;
+
+        if (alpha > 0xFF)
+        {
+            alpha = 0xFF;
+        }
+        color.alpha = alpha;
+
+        *(Code45RGBA *)(material + 4) = color;
+    }
+
+    return material;
+}
 /* Measured callback-wrapper idiom: preserve the object in s0, move userdata to a2, and call the shared iterator with the object field and callback. */
 // FUN_00458C40
 void *func_00458c40(void *object, void *arg1)
