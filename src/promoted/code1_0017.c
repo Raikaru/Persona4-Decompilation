@@ -18,6 +18,13 @@ typedef struct
     f32 y;
     f32 z;
 } Vec3_00178590;
+typedef struct
+{
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+} FieldColor_0017;
 extern void func_0015a630();
 extern void func_00174c20();
 extern s32 func_0015f660();
@@ -119,9 +126,9 @@ extern void func_002bd280(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern u8 *func_00457120(void);
 extern u8 *func_0047a2f0(void *arg0);
 extern void func_0047a1e0(void *arg0, void *arg1, s32 arg2);
-extern void func_003e0380(f32 *arg0);
-extern void func_003e03e0(void *arg0, f32 *arg1);
-extern void func_003e05d0(void *arg0);
+extern s32 func_003e0380(f32 *arg0);
+extern u8 *func_003e03e0(void *arg0, f32 *arg1);
+extern u8 *func_003e05d0(void *arg0);
 extern void func_004789c0(void *arg0);
 extern void func_0047a320(void *arg0);
 extern s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
@@ -146,6 +153,23 @@ extern u8 D_005F197C[];
 extern u8 D_005F1AE0[];
 extern u8 D_005F1B00[];
 extern u8 iGpffff9f54;
+extern void *func_0014ad50(void);
+extern u8 *func_003e81c0(u8 *, f32);
+extern u8 *func_003e8180(u8 *, f32);
+extern u8 *func_003e83a0(u8 *, const f32 *);
+extern u8 *func_003e9c10(u8 *, const f32 *, s32);
+extern u8 *func_003e9700(u8 *);
+extern u8 *func_003e0670(u8 *, u8 *);
+extern u8 *func_003e82a0(u8 *, void *, s32);
+extern u32 func_003e8120(u32);
+extern void *func_0047a250(void *);
+extern void func_0047a220(u8 *, const void *);
+extern f32 iGpffff826c;
+extern f32 iGpffff8214;
+extern f32 iGpffff8360;
+extern u32 iGpffffb308;
+extern u32 iGpffff9f4c;
+extern void func_0046d730(const void *, s32);
 extern s32 D_005F1930[];
 extern s32 D_005F1934[];
 extern void func_002bd410(void);
@@ -1525,8 +1549,88 @@ void func_0017bbe0(u8 *arg0, u8 *arg1)
     func_004571a0();
 }
 
+/*
+ * measured: 940/944 bytes, 29 resolved relocations, four zero alignment bytes.
+ * Keep the frame-slot reload after camera callbacks, separate matrix-result
+ * lifetime, and component-wise scaled increment's operand order.
+ */
 // FUN_0017BC60
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017bc60);
+void func_0017bc60(u8 *unused, u8 *state)
+{
+    Vec3_00178590 position;
+    f32 localTolerance[3];
+    f32 sceneTolerance[3];
+    f32 viewWindow[2];
+    Vec3_00178590 translation;
+    u8 *data;
+    u8 *camera;
+    u8 **frameSlot;
+    u8 *frame;
+    f32 height;
+    f32 scaledHeight;
+
+    data = *(u8 **)(*(u8 **)(state + 0x224) + 0x38);
+    camera = *(u8 **)(data + 0x44);
+    height = *(f32 *)(data + 0x18);
+    position = *(Vec3_00178590 *)(func_0047a2f0(*(void **)(state + 0x164)) + 0x30);
+    if (*(s32 *)(*(u8 **)(*(u8 **)(state + 0x224) + 0x38)) > 0) {
+        if (*(u32 *)(state + 0x28) & 0x80000000U) {
+            frameSlot = (u8 **)(camera + 4);
+            frame = *frameSlot;
+            *(Vec3_00178590 *)(frame + 0x10) = *(Vec3_00178590 *)(state + 0x190);
+            *(Vec3_00178590 *)(frame + 0x20) = *(Vec3_00178590 *)(state + 0x1A0);
+            *(Vec3_00178590 *)(frame + 0x30) = *(Vec3_00178590 *)(state + 0x1B0);
+            func_003e0380(localTolerance);
+            func_003e03e0(frame + 0x10, localTolerance);
+            func_003e05d0(frame + 0x10);
+        } else {
+            u8 *basis = func_0014ad50();
+            frameSlot = (u8 **)(camera + 4);
+            frame = *frameSlot;
+            *(Vec3_00178590 *)(frame + 0x10) = *(Vec3_00178590 *)(basis + 0);
+            *(Vec3_00178590 *)(frame + 0x20) = *(Vec3_00178590 *)(basis + 0x10);
+            *(Vec3_00178590 *)(frame + 0x30) = *(Vec3_00178590 *)(basis + 0x20);
+            func_003e0380(sceneTolerance);
+            func_003e03e0(frame + 0x10, sceneTolerance);
+            func_003e05d0(frame + 0x10);
+        }
+        scaledHeight = iGpffff826c * height;
+        func_003e81c0(camera, 10.0f * scaledHeight);
+        func_003e8180(camera, iGpffff8214 * scaledHeight);
+        if (func_0014a160() == 1) {
+            viewWindow[0] = 2.0f * (iGpffff826c * height);
+            viewWindow[1] = viewWindow[0];
+        } else {
+            viewWindow[0] = iGpffff8360 * (iGpffff826c * height);
+            viewWindow[1] = viewWindow[0];
+        }
+        func_003e83a0(camera, viewWindow);
+        position.y += height / 2.0f;
+        frame = *frameSlot;
+        translation.x = -*(f32 *)(frame + 0x40);
+        translation.y = -*(f32 *)(frame + 0x44);
+        translation.z = -*(f32 *)(frame + 0x48);
+        translation.x += position.x;
+        translation.y += position.y;
+        translation.z += position.z;
+        translation.x = (0.0f + translation.x) + *(f32 *)(frame + 0x30) * (-0.5f * *(f32 *)(camera + 0x84));
+        translation.y = (0.0f + translation.y) + *(f32 *)(frame + 0x34) * (-0.5f * *(f32 *)(camera + 0x84));
+        translation.z = (0.0f + translation.z) + *(f32 *)(frame + 0x38) * (-0.5f * *(f32 *)(camera + 0x84));
+        func_003e9c10(frame, (const f32 *)&translation, 2);
+        {
+            u8 *matrix = func_003e9700(frame);
+            func_003e0670(matrix, matrix);
+        }
+        func_003e82a0(camera, &iGpffffb308, 3);
+        if (func_003e8120((u32)camera)) {
+            FieldColor_0017 *savedColor = (FieldColor_0017 *)(*(u8 **)(*(u8 **)(state + 0x224) + 0x38) + 0x48);
+            *savedColor = *(FieldColor_0017 *)func_0047a250(*(void **)(state + 0x164));
+            func_0047a220(*(u8 **)(state + 0x164), &iGpffff9f4c);
+        } else {
+            func_0046d730(D_005F18C0, 0x764);
+        }
+    }
+}
 // FUN_0017C010
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017c010);
 
@@ -1538,7 +1642,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017c270);
 void func_0017c670(u8 *arg0, u8 *arg1)
 {
     extern void func_003e8110(void *arg0);
-    extern void func_0047a220(u8 *arg0, s32 arg1);
     extern void func_00178c20(f32 farg0, f32 farg1, void *arg0, void *arg1,
                                f32 farg2, f32 farg3, f32 farg4, f32 farg5);
     extern u8 D_005F1900[];
@@ -1559,7 +1662,7 @@ void func_0017c670(u8 *arg0, u8 *arg1)
         for (i = 0; i < 5; i++)
             *(u8 *)(*(u8 **)(arg1 + 0x164) + i * 0xC + 0x28C) |= 1;
         func_0047a220(*(u8 **)(arg1 + 0x164),
-                      (s32)(*(u8 **)(*(u8 **)(arg1 + 0x230) + 0x38) + 0x48));
+                      (const void *)(s32)(*(u8 **)(*(u8 **)(arg1 + 0x230) + 0x38) + 0x48));
         base = (void *)D_00887300;
         (*(void (**)(s32, s32))base)(0xE, 0);
         (*(void (**)(s32, s32))base)(6, 0);
@@ -1608,7 +1711,6 @@ s32 func_0017c930(u8 *arg0)
     extern void func_00479100(void *, void *);
     extern void func_0017bb50(u8 *, u8 *);
     extern void func_0017bbe0(u8 *);
-    extern void func_0017bc60(u8 *, u8 *);
     extern void func_0017c010(u8 *);
 
     extern void func_0017c270(u8 *, u8 *);
