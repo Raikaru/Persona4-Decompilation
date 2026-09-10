@@ -26,8 +26,9 @@ void func_0034f8f0(void* arg0);
 void func_0034f1e0(void);
 void func_0034c270(Vec2f arg0, u8 arg1, s32 arg2, f32 arg3);
 void func_0034f2e0(void* arg0, f32 arg5, f32 arg6, u8 arg1, u8 arg2, u8 arg3, s64 arg4);
-void func_0034f320(void* arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7,
-                   f32 arg8, f32 arg9, f32 arg10, f32 arg11, s16 arg12);
+void func_0034f320(u8 *arg0, f32 x, f32 y, f32 depth,
+                   u8 red, u8 green, u8 blue, s64 alpha, s64 scaleX,
+                   s32 scaleY, s16 flags, f32 angle, s16 finalFlags);
 f32 func_0044b7b0(f32 arg0);
 
 void func_0034f9d0(Vec2f arg0, u8 arg1, s16 arg2, void* arg3, f32 arg4);
@@ -419,8 +420,117 @@ void func_0035ddf0(u8 *arg0)
 
 
 
+/* 1764/1776 bytes; seventeen resolved relocations and twelve zero tail bytes.
+ * Member-first array bases preserve the four retail ADDU operand orders.
+ * The second arrow reloads its counter/selection, but keeps the first
+ * sprite/coordinate snapshot; both text draws reload their field data. */
 // FUN_0035DFB0
-INCLUDE_ASM("asm/nonmatchings/cmpConfig", func_0035dfb0);
+void func_0035dfb0(u8 *arg0, s32 arg1, s32 arg2)
+{
+    u8 color[4];
+    f32 opacity;
+    f32 baseX;
+    f32 baseY;
+    f32 x;
+    f32 y;
+    f32 phase;
+    f32 angle;
+    f32 rowY;
+    f32 rowOpacity;
+    s64 arrowAlpha;
+    u8 otherColor;
+    u8 *sprite;
+    s64 alpha;
+    u8 *row;
+    u16 counter;
+    u32 counterAddress;
+    u32 rowAddress;
+    f32 *rowXField;
+    f32 *rowYField;
+
+    baseX = *(f32 *)(arg0 + 8);
+    baseY = *(f32 *)(arg0 + 0xC);
+    opacity = (f32)*arg0 / 255.0f;
+    if (arg2 != 1) {
+        rowAddress = arg1 * 0x30;
+        rowAddress += (u32)arg0;
+        row = (u8 *)rowAddress;
+        x = 60.0f + (464.0f + (baseX + *(f32 *)(row + 0x208)));
+        y = (119.0f + (baseY + *(f32 *)(row + 0x20C))) + 32.0f * (f32)arg1;
+        arrowAlpha = (u8)((f32)*(u8 *)(row + 0x212) * opacity);
+        sprite = *(u8 **)(arg0 + 0x45C);
+        counterAddress = arg1 * 2;
+        counterAddress += (u32)arg0;
+        counter = *(u16 *)(counterAddress + 0x3A);
+        if ((s32)counter < 5)
+            phase = func_0044b7b0((iGpffff8094 * (f32)counter) / 5.0f);
+        else
+            phase = 1.0f;
+        if (((s32 *)(arg0 + 0x48))[arg1] != 0)
+            angle = (90.0f + 180.0f * phase) - 180.0f;
+        else
+            angle = (-90.0f + 180.0f * phase) - 180.0f;
+        func_0034f320(sprite, x, y, 0.0f, 0xFF, 0xFF, 0xFF, arrowAlpha,
+                      0x1000, 0x1000, 0x11, angle, 0x11);
+    }
+    if (arg2 == 2) {
+        func_00489f80();
+        D_00887300[0](1, 0);
+        color[0] = 0;
+        color[1] = 0;
+        color[2] = 0;
+        color[3] = 0;
+        func_0045c870(color, 0);
+        counterAddress = arg1 * 2;
+        counterAddress += (u32)arg0;
+        counter = *(u16 *)(counterAddress + 0x3A);
+        if ((s32)counter < 5)
+            phase = func_0044b7b0((iGpffff8094 * (f32)counter) / 5.0f);
+        else
+            phase = 1.0f;
+        if (((s32 *)(arg0 + 0x48))[arg1] != 0)
+            angle = (90.0f + 180.0f * phase) - 180.0f;
+        else
+            angle = (-90.0f + 180.0f * phase) - 180.0f;
+        func_0034f320(sprite, x, y, 0.0f, 0xFF, 0xFF, 0xFF, 0xFF,
+                      0x1000, 0x1000, 0x11, angle, 0x11);
+        func_0048a000();
+        func_003f6440(3, 0x2D801);
+        func_003f6440(2, 0x44);
+    }
+    rowOpacity = (f32)arg0[arg1 * 0x30 + 0xC2];
+    rowOpacity *= opacity;
+    alpha = (u8)rowOpacity;
+    if (arg2 == 1) {
+        color[0] = 0x80; color[1] = 0x80; color[2] = 0x80; otherColor = 0x80;
+    } else if (arg2 == 2) {
+        color[0] = 0xFF; color[1] = 0xFF; color[2] = 0xFF; otherColor = 0xFF;
+    } else {
+        counterAddress = arg1 * 4;
+        counterAddress += (u32)arg0;
+        if (*(s32 *)(counterAddress + 0x48) != 0) {
+            color[0] = 0xFF; color[1] = 0xFF; color[2] = 0xFF; otherColor = 0x80;
+        } else {
+            color[0] = 0x80; color[1] = 0x80; color[2] = 0x80; otherColor = 0xFF;
+        }
+    }
+    rowXField = &((f32 *)(arg0 + 0x208))[arg1 * 12];
+    x = (f32)0x1DD;
+    x = x + (baseX + *rowXField);
+    rowYField = (f32 *)(arg1 * 0x30 + arg0 + 0x20C);
+    rowY = 32.0f * (f32)arg1;
+    func_0034f2e0(*(u8 **)(arg0 + 0x454), x,
+                  rowY + (121.0f + (baseY + *rowYField)),
+                  color[0], color[1], color[2], alpha);
+    func_0034f2e0(*(u8 **)(arg0 + 0x458),
+                  556.0f + (baseX + *rowXField),
+                  rowY + (131.0f + (baseY + *rowYField)),
+                  otherColor, otherColor, otherColor, alpha);
+    if (arg2 == 2) {
+        func_003f6440(3, 0x717FB);
+        func_003f6440(2, 0x44);
+    }
+}
 
 // FUN_0035E6A0
 void func_0035e6a0(u8* arg0) {

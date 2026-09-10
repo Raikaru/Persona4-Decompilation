@@ -32,19 +32,19 @@ version.
 | Retail executable | `SLUS_217.82`; SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` |
 | Loadable image | `0x838a00` bytes at `0x00100000`; SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` |
 | Canonical function windows | 13,102; all mapped to C or owned retail assembly |
-| Byte-identical functions | 7,877 (60.121% of windows) |
+| Byte-identical functions | 7,882 (60.159% of windows) |
 | Under test (a `// FUN_` marker scores them) | 12,720 (97.084% of windows) |
 | Not yet under test, supplied as retail bytes | 382 (2.916% of windows) |
-| In byte-exact linked C objects | 1,591 (12.143% of windows), with 217 assembly fallbacks still inside those objects |
-| Atlus game/engine | 6,860 functions; 6,247 C-matched (91.064%); 1,767 linked (25.758%) |
+| In byte-exact linked C objects | 1,592 (12.151% of windows), with 216 assembly fallbacks still inside those objects |
+| Atlus game/engine | 6,860 functions; 6,252 C-matched (91.137%); 1,767 linked (25.758%) |
 | Proven Sony PS2 SDK | 491 functions; 148 C-matched (30.143%); 491 linked (100.0%) |
 | Other third-party/vendor | 5,749 functions; 1,482 C-matched (25.778%); 41 linked (0.713%) |
 | Unattributed | 2 functions; 0 C-matched (0.0%); 0 linked (0.0%) |
-| First-party matched, scored for recovery | 6,247 |
-| — NAMED (not a `func_<address>` placeholder) | 154 (2.465%) |
-| — TYPED (no raw-offset or `M2C_` access) | 1,783 (28.542%) |
-| — DOCUMENTED (prose, or trivially self-evident) | 4,269 (68.337%) |
-| — still carrying decompiler local names | 1,919 (30.719%) |
+| First-party matched, scored for recovery | 6,252 |
+| — NAMED (not a `func_<address>` placeholder) | 154 (2.463%) |
+| — TYPED (no raw-offset or `M2C_` access) | 1,784 (28.535%) |
+| — DOCUMENTED (prose, or trivially self-evident) | 4,274 (68.362%) |
+| — still carrying decompiler local names | 1,920 (30.71%) |
 
 Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. Sony SDK linkage is black-box reuse, not decompiled source. `tools/recovery_quality.py --worst 20` ranks the game files needing work.
 <!-- STATUS:END -->

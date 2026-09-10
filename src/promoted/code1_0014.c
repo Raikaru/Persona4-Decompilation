@@ -251,13 +251,8 @@ extern u8 D_005EF7C0[];
 extern u8 iGpffff9db8;
 extern u8 iGpffff9dc0;
 extern u8 iGpffff9dc8;
-extern s32 func_00168ec0(void *arg0, void *arg1, void *arg2);
-typedef union {
-    s64 bits;
-    Float2_0014 values;
-} NormalXY0014;
-extern NormalXY0014 D_005EFB98[];
-extern f32 D_005EFBA0[];
+extern s32 func_00168ec0(f32 *arg0, f32 **arg1, f32 *arg2);
+extern RwV3d D_005EFB98;
 static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
 {
     return (u8 *)(offset + (u32)base);
@@ -2763,11 +2758,57 @@ void func_0014b840(u8 *arg0)
 s32 func_0014bd90(u8 *arg0) {
     return *(s32 *)(*(u8 **)(arg0 + 0x38)) == 1;
 }
-/* measured: an ordinary 12-byte normal and three typed triangle pointers retain
-   416B/416B, four executable copy-scheduling differences, eight resolved
-   relocations and all 114 owner C matches. No normal union or invented padding. */
-// FUN_0014BE50 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014be50);
+/* 416/416 bytes; eight resolved relocations, no tail or overrun.
+ * D_005EFB98 is one 12-byte (0,1,0) vector, not separate XY/Z objects.
+ * Its aggregate copy preserves the grouped retail load/store schedule.
+ * The predicate and subsequent height checks share the live triangle. */
+// FUN_0014BE50
+u16 func_0014be50(u8 *arg0, u8 **arg1) {
+    f32 *triangle[3];
+    RwV3d normal;
+    f32 pointY;
+    f32 secondPointY;
+    f32 surfaceY;
+    f32 secondSurfaceY;
+    u16 selectedId;
+    u8 *surface;
+
+    selectedId = 0xFFFF;
+    surface = (u8 *)(func_001452b0(0xD));
+    if (func_0014a200() == 1) {
+        return 0xFFFFU;
+    }
+    while (surface != NULL) {
+        normal = D_005EFB98;
+        triangle[0] = (f32 *)(surface + 0x15C);
+        triangle[1] = (f32 *)(surface + 0x168);
+        triangle[2] = (f32 *)(surface + 0x174);
+        if ((func_00168ec0((f32 *)arg0, triangle, (f32 *)&normal) == 1) &&
+            (surfaceY = triangle[0][1],
+             pointY = *(f32 *)(arg0 + 4),
+             (pointY < (100.0f + surfaceY))) &&
+            !(pointY <= (surfaceY - 100.0f))) {
+            selectedId = *(u16 *)surface;
+            *arg1 = surface;
+            goto done;
+        }
+        triangle[0] = (f32 *)(surface + 0x168);
+        triangle[1] = (f32 *)(surface + 0x174);
+        triangle[2] = (f32 *)(surface + 0x180);
+        if ((func_00168ec0((f32 *)arg0, triangle, (f32 *)&normal) == 1) &&
+            (secondSurfaceY = triangle[0][1],
+             secondPointY = *(f32 *)(arg0 + 4),
+             (secondPointY < (100.0f + secondSurfaceY))) &&
+            !(secondPointY <= (secondSurfaceY - 100.0f))) {
+            selectedId = *(u16 *)surface;
+            *arg1 = surface;
+            goto done;
+        }
+        surface = *(u8 **)(surface + 0x138);
+    }
+done:
+    return selectedId;
+}
 // FUN_0014C540
 u8 *func_0014c540(u8 *arg0, f32 fparg0, f32 fparg1) {
     f32 temp_f0;

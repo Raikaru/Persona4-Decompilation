@@ -1508,8 +1508,104 @@ void func_001d7bf0(u32 param_1, u32 param_2, u32 param_3)
     work[1] = param_2;
     work[2] = param_3;
 }
+/* 680/688 bytes; five resolved relocations and eight zero alignment bytes.
+ * Active battle actions receive type-0/1 work from func_0019f5f0 through
+ * btlActionSetUnit. Type-2 auxiliary work lives at work+0xA0C instead.
+ * This construction contract defines both sides before they are used. */
 // FUN_001D7C60
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d7c60);
+void func_001d7c60(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4)
+{
+    u16 sideA;
+    u16 sideB;
+    u16 mask;
+    s32 eff;
+    s32 flt;
+    s32 mcopy;
+    s32 need4;
+    s32 needExcl;
+    s32 skipDead;
+    s32 needAlive;
+    u8 *unit;
+    u8 *work;
+    u8 utype;
+    func_0043f9c8(arg1, 0, 0x30);
+    *(u16 *)(arg1 + 0x38) = 0;
+    *(u16 *)(arg1 + 0x3A) = 0;
+    *(u8 *)(arg1 + 0x3C) = 0;
+    *(u8 *)(arg1 + 0x3C) |= 1;
+    if (arg0 != NULL) {
+        switch (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2)) {
+        case 0:
+            sideA = 1;
+            sideB = 2;
+            break;
+        case 1:
+            sideA = 2;
+            sideB = 1;
+            break;
+        }
+    } else {
+        sideA = 1;
+        sideB = 2;
+    }
+    mask = 0;
+    eff = arg2 & 0xFF;
+    if ((eff & 1) != 0) {
+        mask |= sideA;
+    }
+    if ((eff & 2) != 0) {
+        mask |= sideB;
+    }
+    if ((eff & 4) != 0) {
+        mask |= 4;
+    }
+    flt = arg3 & 0xFF;
+    if ((flt & 1) != 0) {
+        *(u8 **)(arg1 + 0) = arg0;
+        *(u16 *)(arg1 + 0x38) = 1;
+        return;
+    }
+    unit = *(u8 **)(iGpffffb3ac + 0x174);
+    mcopy = mask & 0xFFFF;
+    need4 = mcopy & 4;
+    needExcl = flt & 2;
+    skipDead = flt & 4;
+    needAlive = flt & 8;
+    while (unit != NULL) {
+        if ((arg0 == NULL || (*(u16 *)(unit + 0x1A) & 8) != 0) &&
+            (*(u16 *)(unit + 0x1A) & 1) != 0) {
+            work = *(u8 **)(unit + 0x30);
+            utype = *(u8 *)(work + 0xA2);
+            if (utype == 2 || (*(s32 *)(work + 0x9C) & 8) != 0) {
+                if ((mcopy & (1 << utype)) != 0) {
+                    if (need4 != 0) {
+                        goto store;
+                    }
+                    if (needExcl == 0 || arg0 != unit) {
+                        if (skipDead != 0 || func_002428f0(*(u8 **)(work + 0xA64), 0) == 0) {
+                            if (needAlive != 0) {
+                                if (func_00232710(*(u8 **)(work + 0xA64), 0x100000) == 0) {
+                                    goto next;
+                                }
+                                goto store;
+                            } else if (arg4 == 0 ||
+                                ((*(s32 *)(*(u8 **)(work + 0xA64) + 0xC) & 0xFFEFFFFF) != 0 &&
+                                 func_00232710(*(u8 **)(work + 0xA64), arg4) == 0)) {
+                                goto store;
+                            }
+                        }
+                    }
+                    goto next;
+store:
+                    *(u8 **)(arg1 + (u32)*(u16 *)(arg1 + 0x38) * 4) = unit;
+                    *(u16 *)(arg1 + 0x38) = (u16)(*(u16 *)(arg1 + 0x38) + 1);
+                }
+            }
+        }
+next:
+        unit = *(u8 **)(unit + 0x450);
+    }
+}
 // FUN_001D7F10
 u8 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
 {
@@ -1813,6 +1909,8 @@ int func_001d9390(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 (*arg5)(
     struct Frame {
         u8 *entries[14];
         u16 count;
+        u16 unknown3a;
+        u8 flags;
     } frame;
     u8 *unit;
     s32 index;
@@ -1820,7 +1918,7 @@ int func_001d9390(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 (*arg5)(
     u8 *work;
     u16 flags;
 
-    func_001d7c60((u8 *)arg0, (u8 *)&frame.entries[0], arg3, 0, 0);
+    func_001d7c60((u8 *)arg0, (u8 *)&frame, arg3, 0, 0);
     matches = 0;
     index = 0;
     goto test;
