@@ -82,17 +82,125 @@ extern s32 D_00763AD0;
 extern s32 D_00763AD4;
 
 
-/* measured: nd 146, ALL `!` rows are register-allocation (instruction seq
-   matches 1:1). Frame 0x1040, switch dispatch (4,3,2,1,0 descending) both
-   match after declaring the switch cases ASCENDING (0,1,2,3,4) so mwcc emits
-   the reversed test order. The 3 copy loops (0x1F6 x 8B: var_20->sp90,
-   var_19->var_20, sp90->var_19) and all comparisons match modulo register
-   names. Retail uses s1=temp_17,s4=var_20,s0=tempp,s2=tempp2,s3=var_19 down
-   to s7; candidate is shifted one register lower throughout. 8 saved regs
-   (s16-s23) + 0xFB0 sp90 buffer; exact original declaration order would be
-   needed to resolve (lever 1), impractical to reverse-engineer. 2 attempts. */
+/* 804/816 bytes; eight resolved relocations and twelve zero alignment bytes.
+ * CSE-off recomputes the two swap record bases; LICM-on hoists the inner
+ * descriptor-count address while retaining each count reload. Together they
+ * preserve retail's register allocation. The word buffer holds one 0xFB0-byte
+ * record and is completely written before it is read. */
+#pragma opt_common_subs off
+#pragma opt_loop_invariants on
 // FUN_00378600
-INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00378600);
+void func_00378600(u8 *arg0)
+{
+    s32 buf[0x3EC];
+    s32 mode;
+    s32 n;
+    s32 i;
+    s32 j;
+    s32 genus;
+    s32 ok;
+    s32 genus2;
+    u8 *pi;
+    u8 *ps;
+    u8 *pd;
+    s32 k;
+    s32 t1;
+    s32 t2;
+    u8 *card;
+    u8 *desc;
+
+    mode = *(s32 *)(arg0 + 0x1F2FC);
+    switch (mode) {
+    case 0:
+    case 1:
+    case 2:
+        return;
+    case 3:
+    case 4:
+    default:
+        break;
+    }
+    n = func_00378530(*(s32 *)(arg0 + 0x1F304), mode);
+    i = 0;
+    while (i < n - 1) {
+        desc = arg0 + (i % *(s32 *)(arg0 + 0x1F304)) * 8 + 0x1F250;
+        card = arg0 + i * 0xFB0;
+        genus = *(s32 *)desc;
+        if (genus == func_0036de60(card)) {
+            if ((genus == 0) && (*(u16 *)(desc + 4) != (func_0036dee0(card) & 0xFFFF))) {
+                ok = 0;
+            } else {
+                ok = 1;
+            }
+        } else {
+            ok = 0;
+        }
+        if (ok == 0) {
+            j = i + 1;
+            while (j < n - 1) {
+                desc = arg0 + (i % *(s32 *)(arg0 + 0x1F304)) * 8 + 0x1F250;
+                card = arg0 + j * 0xFB0;
+                genus2 = *(s32 *)desc;
+                if (genus2 == func_0036de60(card)) {
+                    if ((genus2 == 0) && (*(u16 *)(desc + 4) != (func_0036dee0(card) & 0xFFFF))) {
+                        ok = 0;
+                    } else {
+                        ok = 1;
+                    }
+                } else {
+                    ok = 0;
+                }
+                if (ok != 0) {
+                    break;
+                }
+                j++;
+            }
+            if (j >= n) {
+                func_0046d730(D_0064EAA0, 0x56);
+            }
+            pi = arg0 + i * 0xFB0;
+            pd = (u8 *)buf;
+            k = 0x1F6;
+            ps = pi;
+            do {
+                t1 = *(s32 *)(ps + 0);
+                t2 = *(s32 *)(ps + 4);
+                ps += 8;
+                k -= 1;
+                *(s32 *)(pd + 0) = t1;
+                *(s32 *)(pd + 4) = t2;
+                pd += 8;
+            } while (k > 0);
+            ps = arg0 + j * 0xFB0;
+            k = 0x1F6;
+            pd = ps;
+            do {
+                t1 = *(s32 *)(pd + 0);
+                t2 = *(s32 *)(pd + 4);
+                pd += 8;
+                k -= 1;
+                *(s32 *)(pi + 0) = t1;
+                *(s32 *)(pi + 4) = t2;
+                pi += 8;
+            } while (k > 0);
+            pd = (u8 *)buf;
+            k = 0x1F6;
+            do {
+                t1 = *(s32 *)(pd + 0);
+                t2 = *(s32 *)(pd + 4);
+                pd += 8;
+                k -= 1;
+                *(s32 *)(ps + 0) = t1;
+                *(s32 *)(ps + 4) = t2;
+                ps += 8;
+            } while (k > 0);
+        }
+        i++;
+    }
+}
+/* Restore the translation unit defaults for the following functions. */
+#pragma opt_common_subs on
+#pragma opt_loop_invariants off
 
 // FUN_00378930
 s32 func_00378930(u8 *arg0, s32 arg1) {
