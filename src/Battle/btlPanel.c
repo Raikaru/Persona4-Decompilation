@@ -38,9 +38,77 @@ extern u8 D_006267D0[];
 
 
 
-// Archived C body: build/WBHygiene_func_00202890_archive.txt; no current park body remains.
+typedef struct {
+    u32 flags;
+    u8 pad04[0x28];
+    s32 resources[16];
+} BtlPanelResources;
+
+/* 716/720 bytes; thirty-two resolved relocations; four zero alignment bytes.
+ * Capture store indices but reload the panel index after readiness callbacks. */
 // FUN_00202890
-INCLUDE_ASM("asm/nonmatchings/btlPanel", func_00202890);
+s32 func_00202890(void* param)
+{
+    BtlPanel* panel = (BtlPanel*)param;
+    BtlPanelResources* recs = (BtlPanelResources*)func_00452560(panel->field34);
+    s16 done = 0;
+    s32 idx;
+    u8* rec;
+
+    switch (panel->state) {
+    case 0:
+        rec = panel->records;
+        if (rec == NULL) {
+            if (func_00106330(0x1438) == 0) {
+                func_00440b68(&iGpffffa578, D_00626780, 0x532);
+                panel->records = func_00454a60(D_00626790, 1);
+            } else {
+                func_00440b68(&iGpffffa578, D_00626780, 0x534);
+                panel->records = func_00454a60(D_006267B0, 1);
+            }
+            goto check;
+        }
+        if (func_004553c0(rec) != 0) {
+            panel->state = 1;
+        case 1:
+            idx = panel->index;
+            if (recs->resources[panel->index] == 0) {
+                if (idx < 8) {
+                    if (func_0019ef90(0, (idx + 1) & 0xFFFF) != 0) {
+                        if (func_00106330(0x1438) == 0 || idx != 0) {
+                            recs->resources[idx] = func_0046b000(D_00626720[idx]);
+                        } else {
+                            recs->resources[idx] = func_0046b000(iGpffffa570);
+                        }
+                    } else {
+                        recs->resources[idx] = 0;
+                        panel->index++;
+                    }
+                } else if (idx < 0xC) {
+                    recs->resources[idx] = func_0046b000(D_00626720[idx]);
+                }
+            } else if (func_0046a750(recs->resources[panel->index]) != 0) {
+                if (++panel->index == 0xC) {
+                    func_00454bd0(panel->records);
+                    panel->records = NULL;
+                    done = 0xC;
+                }
+            }
+        }
+        break;
+    default:
+        break;
+    }
+check:
+    if (done == 0xC) {
+        for (idx = 0xC; idx < 0x10; idx++) {
+            *(s32*)((u8*)recs + idx * 4 + 0x2C) = func_0046a770(D_00626720[idx]);
+        }
+        recs->flags |= 1;
+        return 1;
+    }
+    return 0;
+}
 
 
 

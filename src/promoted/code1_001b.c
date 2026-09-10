@@ -919,8 +919,111 @@ done:
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b1d70);
 // FUN_001B2380
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b2380);
+/* 744/752 bytes; twenty resolved relocations; eight zero alignment bytes.
+ * Keep full-width dependency snapshots and branch-materialized final mode. */
+#pragma push
+#pragma opt_rebuildconditionals off
 // FUN_001B33C0
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b33c0);
+void func_001b33c0(void)
+{
+    extern u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2);
+    extern u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
+    extern u8 *func_001d7880(void);
+    extern u8 *func_00202b60(s32 arg0);
+    extern u8 *func_001f6710(s32 arg0);
+    extern s32 iGpffffb450;
+    s32 group_mode;
+    s32 first;
+    u8 *unit_packet;
+    u8 *motion_packet;
+    s64 previous_unit_uid;
+    s64 previous_motion_uid;
+    u8 *unit;
+    u8 *cursor;
+    u16 unit_count;
+    u8 *followup_packet;
+    u8 *simple_packet;
+    u8 *effect_packet;
+    u8 *panel_packet;
+    u8 *finish_packet;
+    s32 flags;
+    s32 finish_mode;
+    s16 motion_mode;
+
+    first = 1;
+    previous_unit_uid = 0;
+    previous_motion_uid = 0;
+    unit_count = 0;
+    unit = *(u8 **)(D_0076449C + 0x180);
+    cursor = unit;
+    while (cursor != NULL) {
+        unit_count++;
+        cursor = *(u8 **)(cursor + 0xA6C);
+    }
+    group_mode = (unit_count < 4) + 1;
+    while (unit != NULL) {
+        unit_packet = func_0019b550(unit, *(u16 *)(unit + 0xA4), 0x3E);
+        *(s8 *)(unit_packet + 0) = 4;
+        *(s64 *)(unit_packet + 8) = previous_unit_uid;
+        func_00194590(unit_packet, 1);
+        previous_unit_uid = *(s64 *)(unit_packet + 0x58);
+        if (!(*(s32 *)(D_0076449C + 0x10) & 1)) {
+            motion_packet = func_001d65d0(iGpffffb450, (s32)unit, 0, 0, 0);
+            motion_mode = 4;
+            *(s8 *)(motion_packet + 0) = 4;
+            *(s64 *)(motion_packet + 8) = *(s64 *)(unit_packet + 0x58);
+            if (first == 1) {
+                *(s16 *)(motion_packet + 0x48) = 1;
+            } else {
+                *(s8 *)(motion_packet + 0x10) = 5;
+                *(s64 *)(motion_packet + 0x18) = previous_motion_uid;
+                if (group_mode) {
+                    motion_mode = 8;
+                }
+                *(s16 *)(motion_packet + 0x48) = motion_mode;
+            }
+            func_00194590(motion_packet, 2);
+            previous_motion_uid = *(s64 *)(motion_packet + 0x58);
+            followup_packet = (u8 *)func_0019bbe0((BtlUnit *)unit, 0xFFFFFFFF, 0xC, 0, 3, 1);
+            *(s8 *)(followup_packet + 0) = 4;
+            *(s64 *)(followup_packet + 8) = *(s64 *)(unit_packet + 0x58);
+            *(s8 *)(followup_packet + 0x10) = 5;
+            *(s64 *)(followup_packet + 0x18) = previous_motion_uid;
+            *(s16 *)(followup_packet + 0x48) = 0x1D;
+            func_00194590(followup_packet, 1);
+        } else {
+            simple_packet = (u8 *)func_0019bbe0((BtlUnit *)unit, 0xFFFFFFFF, 0, 0, 3, 1);
+            *(s8 *)(simple_packet + 0) = 4;
+            *(s64 *)(simple_packet + 8) = *(s64 *)(unit_packet + 0x58);
+            *(s16 *)(simple_packet + 0x48) = 2;
+            func_00194590(simple_packet, 1);
+            previous_motion_uid = *(s64 *)(simple_packet + 0x58);
+        }
+        first = 0;
+        unit = *(u8 **)(unit + 0xA6C);
+    }
+    flags = *(s32 *)(D_0076449C + 0xC);
+    if (!(flags & 0x20000000)) {
+        effect_packet = func_001d7880();
+        *(s8 *)(effect_packet + 0) = 4;
+        *(s64 *)(effect_packet + 8) = previous_unit_uid;
+        func_00194590(effect_packet, 1);
+        panel_packet = func_00202b60(*(s32 *)(D_0076449C + 0xDD4));
+        *(s8 *)(panel_packet + 0) = 4;
+        *(s64 *)(panel_packet + 8) = *(s64 *)(effect_packet + 0x58);
+        func_00194590(panel_packet, 1);
+        if (func_00106330(0x38) != 0) {
+            finish_mode = 1;
+        } else {
+            finish_mode = 0;
+        }
+        finish_packet = func_001f6710((u16)finish_mode);
+        *(s8 *)(finish_packet + 0) = 4;
+        *(s64 *)(finish_packet + 8) = *(s64 *)(panel_packet + 0x58);
+        func_00194590(finish_packet, 1);
+    }
+}
+#pragma pop
 // FUN_001B36B0
 s32 func_001b36b0(void)
 {

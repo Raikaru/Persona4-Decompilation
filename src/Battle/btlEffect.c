@@ -202,7 +202,7 @@ u32 func_001d7760(void)
 }
 
 // FUN_001D7880
-void func_001d7880(void)
+u8 *func_001d7880(void)
 
 {
   int iVar1 = 0;
@@ -211,7 +211,7 @@ void func_001d7880(void)
   *(u8 *)(iVar1 + 0x47) = *(u8 *)(iVar1 + 0x47) & 0xfe;
   *(code *)(iVar1 + 0x68) = (code)func_001d7700;
   *(code *)(iVar1 + 0x6c) = (code)func_001d7760;
-  return;
+  return (u8 *)iVar1;
 }
 
 
