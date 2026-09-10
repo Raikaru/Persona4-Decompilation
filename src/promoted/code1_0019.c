@@ -1154,8 +1154,128 @@ static inline u32 packetListOffset(u32 offset, u32 base)
 }
 
 
+typedef struct {
+    u8 *head;
+    u8 *tail;
+} PacketList;
+extern s32 func_00193d90(u8 *arg0, s32 arg1);
+
+/* 852/864 bytes; ten resolved relocations; twelve zero alignment bytes.
+ * States fall through only after their conditions complete. Destruction
+ * reloads the list flag and links after the callback; counters wrap as u32. */
 // FUN_00194670
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00194670);
+void func_00194670(u8 *arg0)
+{
+    u8 flags;
+    u8 index;
+    u8 *next;
+    u8 *prev;
+    void (*callback)(u8 *);
+    s32 count;
+    s32 ok;
+    s32 i;
+
+    if (*(u8 *)(arg0 + 0x46) != 0) {
+        return;
+    }
+    flags = *(u8 *)(arg0 + 0x47);
+    if ((flags & 8) == 0) {
+        return;
+    }
+    if ((flags & 4) != 0) {
+        callback = *(void (**)(u8 *))(arg0 + 0x70);
+        if (callback != NULL) {
+            callback(*(u8 **)(arg0 + 0x78));
+        }
+        if ((*(u8 *)(arg0 + 0x47) & 8) != 0) {
+            index = *(u8 *)(arg0 + 0x44);
+            next = *(u8 **)(arg0 + 0x80);
+            if (next != NULL) {
+                *(u8 **)(next + 0x7C) = *(u8 **)(arg0 + 0x7C);
+            } else {
+                ((PacketList *)(iGpffffb3ac + 0x198))[index & 0xFF].tail = *(u8 **)(arg0 + 0x7C);
+            }
+            prev = *(u8 **)(arg0 + 0x7C);
+            if (prev != NULL) {
+                *(u8 **)(prev + 0x80) = *(u8 **)(arg0 + 0x80);
+            } else {
+                ((PacketList *)(iGpffffb3ac + 0x198))[index & 0xFF].head = *(u8 **)(arg0 + 0x80);
+            }
+        }
+        jtbl_008873EC[0](arg0);
+    } else {
+        count = *(s32 *)(arg0 + 0x4C);
+        *(s32 *)(arg0 + 0x4C) = (s32)((u32)count + 1U);
+        switch (*(u8 *)(arg0 + 0x45)) {
+        case 0:
+            for (i = 0; (i & 0xFFFF) < 2; i = (i + 1) & 0xFFFF) {
+                if (func_00193d90(arg0 + (((u16)i) << 4), count) == 0) {
+                    ok = 0;
+                    goto state0_done;
+                }
+            }
+            ok = 1;
+        state0_done:
+            if (ok == 0) {
+                return;
+            }
+            *(u8 *)(arg0 + 0x45) = 1;
+        case 1:
+            if (*(s16 *)(arg0 + 0x48) <= 0) {
+                *(u8 *)(arg0 + 0x45) = 2;
+            } else {
+                *(s16 *)(arg0 + 0x48) = (s16)(*(s16 *)(arg0 + 0x48) - 1);
+                return;
+            }
+        case 2:
+            if ((*(u32 (**)(void *))(arg0 + 0x6C))(*(void **)(arg0 + 0x78)) != 0) {
+                *(u8 *)(arg0 + 0x45) = 3;
+            } else {
+                *(u32 *)(arg0 + 0x50) += 1U;
+                return;
+            }
+        case 3:
+            for (i = 0; (i & 0xFFFF) < 2; i = (i + 1) & 0xFFFF) {
+                if (func_00193d90((u8 *)((((u16)i) << 4) + (u32)arg0) + 0x20, count) == 0) {
+                    ok = 0;
+                    goto state3_done;
+                }
+            }
+            ok = 1;
+        state3_done:
+            if (ok == 0) {
+                return;
+            }
+            *(u8 *)(arg0 + 0x45) = 4;
+        case 4:
+            if (*(s16 *)(arg0 + 0x4A) <= 0) {
+                callback = *(void (**)(u8 *))(arg0 + 0x70);
+                if (callback != NULL) {
+                    callback(*(u8 **)(arg0 + 0x78));
+                }
+                if ((*(u8 *)(arg0 + 0x47) & 8) != 0) {
+                    index = *(u8 *)(arg0 + 0x44);
+                    next = *(u8 **)(arg0 + 0x80);
+                    if (next != NULL) {
+                        *(u8 **)(next + 0x7C) = *(u8 **)(arg0 + 0x7C);
+                    } else {
+                        ((PacketList *)(iGpffffb3ac + 0x198))[index & 0xFF].tail = *(u8 **)(arg0 + 0x7C);
+                    }
+                    prev = *(u8 **)(arg0 + 0x7C);
+                    if (prev != NULL) {
+                        *(u8 **)(prev + 0x80) = *(u8 **)(arg0 + 0x80);
+                    } else {
+                        ((PacketList *)(iGpffffb3ac + 0x198))[index & 0xFF].head = *(u8 **)(arg0 + 0x80);
+                    }
+                }
+                jtbl_008873EC[0](arg0);
+            } else {
+                *(s16 *)(arg0 + 0x4A) = (s16)(*(s16 *)(arg0 + 0x4A) - 1);
+            }
+            break;
+        }
+    }
+}
 
 /* measured: opt_propagation off is scoped to func_001949d0. */
 #pragma opt_propagation off

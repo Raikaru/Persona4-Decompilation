@@ -64,11 +64,72 @@ extern f32 iGpffff83f4;
 extern f32 iGpffff83e8;
 extern f32 iGpffff83ec;
 
-// measured: plain C reaches object 828B/window 832B but leaves normalized_diff 485;
-// the retail MAC register order, saved-register rotation, and fix2float operand
-// order remain divergent. Restored the bare assembly fallback.
+/* 824/832 bytes; 19 resolved relocations; eight zero alignment bytes.
+ * Promoted byte snapshots preserve signed inclusive spans; u16 casts retain
+ * retail truncation before the count checks and mode dispatch. */
 // FUN_0037C720
-INCLUDE_ASM("asm/nonmatchings/btlShuffleSeqShuffle4", func_0037c720);
+void func_0037c720(u8 *arg0) {
+    u8 *base;
+    s32 idx;
+    s32 lo1;
+    s32 d1;
+    s32 hi1;
+    f32 ratio1;
+    f32 v1;
+    u16 t1;
+    s32 lo2;
+    s32 d2;
+    s32 hi2;
+    f32 ratio2;
+    f32 v2;
+    s32 t2;
+    s32 mode;
+
+    base = arg0 + 0x1F1D0;
+    idx = *(s32 *)(arg0 + 0x1F304);
+    lo1 = D_0064E6BA[idx * 2];
+    hi1 = D_0064E6BB[idx * 2];
+    ratio1 = (f32)(u32)(func_003b7060() & 0xFFF) / 4096.0f;
+    d1 = hi1 - lo1 + 1;
+    v1 = (f32)d1 * ratio1 + (f32)lo1;
+    t1 = (u16)v1;
+    *(u16 *)(base + 0xA) = t1;
+    if (*(u16 *)(base + 0xA) > 0x10) {
+        func_0046d730(&D_0064EB20[0], 0x32);
+    }
+    if (*(s32 *)(arg0 + 0x1F300) == 3) {
+        *(s16 *)(base + 0x2C) = 0;
+    } else {
+        lo2 = D_0064E6CA[idx * 2];
+        hi2 = D_0064E6CB[idx * 2];
+        ratio2 = (f32)(u32)(func_003b7060() & 0xFFF) / 4096.0f;
+        d2 = hi2 - lo2 + 1;
+        v2 = (f32)d2 * ratio2 + (f32)lo2;
+        t2 = (u16)v2;
+        mode = *(s32 *)(arg0 + 0x1F300);
+        switch (mode) {
+        case 0:
+            *(s16 *)(base + 2) = 10;
+            break;
+        case 1:
+            *(s16 *)(base + 2) = 8;
+            break;
+        case 2:
+            *(s16 *)(base + 2) = 5;
+            break;
+        default:
+            func_0046d730(&D_0064EB20[0], 0x49);
+            break;
+        }
+        if (t2 <= 0) {
+            t2 = 1;
+        }
+        *(s16 *)(base + 0x2C) = t2;
+    }
+    if (*(u16 *)(base + 0x2C) > 0x10) {
+        func_0046d730(&D_0064EB20[0], 0x4E);
+    }
+}
 
 // measured: plain C reaches object 2052B/window 2064B but leaves normalized_diff
 // 190; all case CFGs and stack frame match, but retail's FPU MAC schedules differ.

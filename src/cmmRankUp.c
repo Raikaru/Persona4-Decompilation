@@ -73,7 +73,7 @@ extern void func_0045d6e0(void *arg0, void *arg1, s32 arg2, f32 fparg0);
 extern void func_0045e6a0(void *arg0, void *arg1, f32 fparg0, s32 arg2,
                           s32 arg3, s32 arg4, s32 arg5, s32 arg6,
                           f32 fparg1, f32 fparg2, f32 fparg3);
-extern u8 *func_00252230(Sp120 *arg0, Sp120 *arg1, Sp120 *arg2, f32 fparg0);
+extern void func_00252230(Sp120 *arg0, Sp120 *arg1, Sp120 *arg2, f32 fparg0);
  extern void func_003e0870(void *arg0, void *arg1, f32 fparg0, s32 arg2);
 extern void func_003f6440(s32 arg0, s32 arg1);
 extern u8 *func_00251570(s32 arg0, s32 arg1);
@@ -326,23 +326,61 @@ void func_00252050(s32 arg0, s32 arg1, s32 arg2) {
 
 
 
-/* measured: recipe A (s32 load local + u32 copy + (f32)(s32) cast on the
-   OR result + x+x doubling) applied; best nd 49. Float channels and s16
-   channels match byte-for-byte ONLY when written through the named locals
-   (fa = a->f4; fb = b->f4; out->f4 = fa + t * (fb - fa)) - bare expression
-   form rotates the FP regs (nd 144). s16 sites need (f32) casts on both
-   operands (bare b-a does integer subu). Clamp needs cvt-arm-then order
-   (if (2147483648.0f <= r) { w = (u8)(s32)r; } else { w = sub-arm; }) to put
-   the cvt arm inline. Residual 49 = recorded $v1-coloring floor: (1) 8
-   doubling sites: mwcc emits or into the ANDI-dest $v1 + cvt through $f0
-   scratch + add.s $f2,$f0,$f0 where retail ors into the SRL-dest $a3/$a1 and
-   CVTs straight into fa's $f2 with self-add (24 words); (2) clamp: mwcc
-   keeps the byte value in $v1 where retail uses $a3/$a1 (mfc1/andi/or/join
-   all follow), and emits bc1f where retail emits bc1t (24 words). Tried
-   u8/s32 w, ternary, single-statement if, both arm orders, both compare
-   polarities (c.ole.s $f0,$f1 vs c.olt.s $f1,$f0 - constant-left wins). */
+/* 1244/1248 bytes; no relocations; four zero alignment bytes.
+ * Named float snapshots preserve interpolation order. Packed channels use
+ * unsigned word shifts and byte truncation, including the high channel. */
 // FUN_00252230
-INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252230);
+void func_00252230(Sp120 *out, Sp120 *a, Sp120 *b, f32 t)
+{
+    f32 fa;
+    f32 fb;
+    f32 r;
+
+    fa = a->f4;
+    fb = b->f4;
+    out->f4 = fa + t * (fb - fa);
+    fa = a->f8;
+    fb = b->f8;
+    out->f8 = fa + t * (fb - fa);
+    fa = a->fC;
+    fb = b->fC;
+    out->fC = fa + t * (fb - fa);
+    fa = a->f10;
+    fb = b->f10;
+    out->f10 = fa + t * (fb - fa);
+    fa = a->f14;
+    fb = b->f14;
+    out->f14 = fa + t * (fb - fa);
+    fa = a->f1C;
+    fb = b->f1C;
+    out->f1C = fa + t * (fb - fa);
+    fa = (f32)a->f20;
+    fb = (f32)b->f20;
+    out->f20 = (s16)(s32)(fa + t * (fb - fa));
+    fa = (f32)a->f22;
+    fb = (f32)b->f22;
+    out->f22 = (s16)(s32)(fa + t * (fb - fa));
+    {
+        f32 ba;
+        f32 bb;
+        ba = (f32)(u32)(((u32)a->f18 >> 24) & 0xFF);
+        bb = (f32)(u32)(((u32)b->f18 >> 24) & 0xFF);
+        r = ba + t * (bb - ba);
+        out->f18 = (s32)(((u32)(u8)r) << 24);
+        ba = (f32)(u32)(((u32)a->f18 >> 16) & 0xFF);
+        bb = (f32)(u32)(((u32)b->f18 >> 16) & 0xFF);
+        r = ba + t * (bb - ba);
+        out->f18 |= (s32)(((u32)(u8)r) << 16);
+        ba = (f32)(u32)(((u32)a->f18 >> 8) & 0xFF);
+        bb = (f32)(u32)(((u32)b->f18 >> 8) & 0xFF);
+        r = ba + t * (bb - ba);
+        out->f18 |= (s32)(((u32)(u8)r) << 8);
+        ba = (f32)(u32)((u32)a->f18 & 0xFF);
+        bb = (f32)(u32)((u32)b->f18 & 0xFF);
+        r = ba + t * (bb - ba);
+        out->f18 |= (s32)(u32)(u8)r;
+    }
+}
 
 
 /* measured: fresh complete callback reconstruction, 864B / 848B window,

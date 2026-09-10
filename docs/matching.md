@@ -9434,3 +9434,90 @@ outside the checkout; all 11 reconciliation tests then passed, including
 canonical ownership. The other 518 tests passed in the full run. No
 ownership check was weakened. The 626 remaining first-party ASM fallbacks
 stay visible; all-matching remains open.
+
+## First-party continuation: shuffle count initialization
+
+`func_0037c720` is recovered in
+`src/Battle/btlShuffleSeqShuffle4.c`: **824 / 832 bytes**, 19 fully resolved
+relocations and eight verified-zero alignment bytes. All four preceding
+owner C matches retain identical instruction bytes and relocation records.
+
+Promote the table bytes into `s32` snapshots before forming each inclusive
+span. Keeping them as `u8` locals made MWCC add masks and unsigned
+conversion branches absent from retail. A named signed span also preserves
+the `madd.s` operand order. The sampled results narrow through `u16`,
+not `u32`; the mode dispatch is a switch, and the range checks are `> 16`.
+
+The current-source native consumer passes **196,608 cases**: every
+12-bit RNG fraction, eight byte-bound pairs including reversed bounds, and
+six modes including both invalid-mode paths. An independent integer-rational
+reference checks both sampled counts. The consumer also checks periods,
+the minimum second count, mode 3's single RNG draw, assertion order and
+complete context guards. Its controlled RNG/error providers do not claim
+PS2 graphics or scheduler execution. The throwaway fixture is removed.
+
+## First-party continuation: fade, packet dispatch and UI interpolation
+
+Four more first-party fallbacks are replaced by ordinary C:
+
+| Function | Executable / window bytes | Code relocations | Zero tail bytes |
+| --- | --- | --- | --- |
+| `func_001b7520` | 860 / 864 | 7 | 4 |
+| `func_00194670` | 852 / 864 | 10 | 12 |
+| `func_002a73c0` | 844 / 848 | 8 | 4 |
+| `func_00252230` | 1244 / 1248 | 0 | 4 |
+
+The fade callback uses the packet API's `u32(void *)` contract. Its
+constructor now assigns the typed callback and accesses `workData` through
+`BtlPacket`, without changing its instructions. Saved field colors survive
+external color writes during an active fade; unsigned frame conversion,
+interpolation order and completion remain retail-exact.
+
+The dispatcher preserves all five states, condition short-circuiting and
+same-call fallthrough. It reloads flags, list index and neighbor pointers
+after destruction callbacks. Update callbacks use `u32(void *)`, and both
+word counters explicitly wrap through unsigned arithmetic. These contract
+corrections retain the exact 852-byte body. All 143 preceding owner
+instruction bodies are unchanged; three compiler-local literal objects
+are renamed, while every allocated non-executable section stays identical.
+
+The memory-card update separates each table index from its base through
+the inline pointer helper, reloads the stored halfword step, and reuses the
+table-copy word before converting width to float. The alpha product wraps
+as an unsigned word before signed interpretation. Its RNG declaration now
+agrees with the no-argument unsigned provider. The other drawing caller
+uses the existing renderer's float-first declaration instead of a
+conflicting local prototype; all 23 preceding owner matches are unchanged.
+
+The rank-up interpolation leaf returns `void`, not an incidental live
+register. Named float snapshots, unsigned packed-channel shifts and
+sequential byte packing close the former 49-word residual. The signed
+halfword channels retain truncation toward zero. All 14 preceding owner
+instruction bodies remain identical; one internal literal label changes
+without changing its bytes or relocation placement.
+
+Current-source freestanding i386 consumers pass:
+
+- **2,914** fade-constructor/callback cases: disabled guards, zero duration,
+  unsigned-wide counters, external color changes, interpolation and completion.
+- **6,487** dispatcher cases: all states, condition gates, signed delays,
+  counter wrap, callback changes to work and list membership, and unlinking
+  before release. A multi-frame lifecycle reaches release exactly once.
+- **1,040** memory-card cases: all eight retail tables, timing and fade
+  boundaries, unsigned alpha wrap, RNG endpoints, first/free/full child pools,
+  renderer-visible field reloads and complete context guards. The actual
+  child allocator executes in the consumer.
+- **983,040** rank-up cases: every byte-channel input pair, five rational
+  weights, signed-halfword limits, separate and in-place destinations, and
+  complete object guards against an independent rational reference.
+
+These consumers use controlled external providers, not a PS2 graphics or
+scheduler runtime. Their throwaway source files and executables are removed.
+
+All 7,865 preceding MATCH rows remain MATCH. The full scan reports
+**7,869 MATCH / 4,851 ASM** overall and **6,239 MATCH / 621 ASM** first-party
+across the unchanged 12,720 scanned functions. Both retail SHA-1s pass.
+The build retains 172 source-linked objects and 56 Sony SDK objects;
+byte-exact linked C coverage rises to 1,586 functions. All 529 repository
+tests pass, source-honesty lint reports zero findings in 340 first-party
+files, and generated progress validates. All-matching remains open.

@@ -26,7 +26,7 @@ typedef struct BtlPacket {
 
 BtlPacket* func_00194470(u32 type, u32 workSize);
 
-extern u32 func_001b7520(float* param_1);
+extern u32 func_001b7520(void* work);
 extern f32 fGpffff81f4; /* P4 gp -0x7e0c */
 
 u32 func_001b7b30(void* work);
@@ -171,12 +171,12 @@ u32 btlMainUpdateStateExit(void* work)
 BtlPacket* func_001b7880(u32 param_1, u32 param_2, u32 param_3)
 {
     float *color;
-    int packet;
+    BtlPacket *packet;
     union { u32 value; u8 bytes[4]; } packed;
 
-    packet = (int)func_00194470(0x600, 0x68);
-    *(code **)(packet + 0x6c) = (code *)func_001b7520;
-    color = *(float **)(packet + 0x78);
+    packet = func_00194470(0x600, 0x68);
+    packet->updateFunc = func_001b7520;
+    color = packet->workData;
     packed.value = param_1;
     color[0] = fGpffff81f4 * (float)packed.bytes[0];
     color[1] = fGpffff81f4 * (float)packed.bytes[1];
@@ -188,7 +188,7 @@ BtlPacket* func_001b7880(u32 param_1, u32 param_2, u32 param_3)
     color[6] = fGpffff81f4 * (float)packed.bytes[2];
     color[7] = fGpffff81f4 * (float)packed.bytes[3];
     *(u32*)((u8*)color + 0x60) = param_3;
-    return (BtlPacket*)packet;
+    return packet;
 }
 
 
