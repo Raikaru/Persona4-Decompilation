@@ -13,11 +13,13 @@ extern void func_001cfad0(u8 *arg0, f32 arg1, f32 arg2);
 extern f32 fGpffff809c;
 extern f32 fGpffff8198;
 extern f32 fGpffff8110;
+extern f32 DAT_00761278;
 extern f32 fGpffff8100;
 extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
 extern f32 func_003e4180(f32 *arg0);
 extern void func_001bd560();
 extern void func_001958f0(u8 *arg0, f32 *arg1);
+extern void func_001959d0(u8 *arg0, f32 *arg1);
 extern f32 func_00196040(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5);
 extern void func_003e0870(void *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void func_003e4320(void *arg0, void *arg1, void *arg2);
@@ -71,6 +73,7 @@ extern void func_001bd780(void *arg0, void *arg1, void *arg2, void *arg3);
 extern u8 D_0060A0D0[];
 extern u8 D_0060A0E0[];
 extern u8 D_0060A0F0[];
+extern u8 D_0060A100[];
 extern s32 func_001ec4a0(f32 *arg0, f32 *arg1);
 extern f32 func_001ec250(f32 *arg0, u8 *arg1);
 extern s32 func_0044dcd8(f32 arg0);
@@ -825,8 +828,99 @@ void func_001cb540(u8 *arg0)
 done:
     ;
 }
+/* 840/848 bytes; 27 resolved relocations; eight zero alignment bytes.
+   Build both position/quaternion keys before clamping their heights. */
 // FUN_001CB610
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cb610);
+void func_001cb610(u8 *arg0)
+{
+    struct Vec3 {
+        f32 x;
+        f32 y;
+        f32 z;
+    };
+    struct Matrix {
+        struct Vec3 right;
+        u32 flags;
+        struct Vec3 up;
+        u32 pad1;
+        struct Vec3 at;
+        u32 pad2;
+        struct Vec3 pos;
+        u32 pad3;
+    };
+    struct Work {
+        struct Vec3 firstPosition;
+        u8 firstView[0x10];
+        struct Vec3 secondPosition;
+        u8 secondView[0x18];
+        struct Matrix rotation;
+        struct Vec3 center;
+        u8 padBC[4];
+        struct Vec3 direction;
+        u8 padCC[4];
+        struct Vec3 scaled;
+        u8 padDC[4];
+    } work;
+    u8 *temp17;
+    f32 angleScale;
+    f32 rotationAngle;
+    f32 y;
+
+    temp17 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x38);
+    temp17 = *(u8 **)(temp17 + 0x30);
+    func_001959d0(temp17, &work.center.x);
+    work.center.y = 0.0f + work.center.y +
+                    DAT_00761278 *
+                    (*(f32 *)(temp17 + 0x8C) *
+                     *(f32 *)(temp17 + 0x2C));
+    work.center.y = work.center.y + 10.0f;
+    func_003dcb40((s64 *)&work.direction, (s64 *)D_0060A100, 1, temp17 + 0x1C);
+    work.scaled.x = work.direction.x * 200.0f;
+    work.scaled.y = work.direction.y * 200.0f;
+    work.scaled.z = work.direction.z * 200.0f;
+    y = work.center.y + work.scaled.y;
+    y = y + 10.0f;
+    work.direction.x = (work.center.x + work.scaled.x) - work.center.x;
+    work.direction.y = y - work.center.y;
+    work.direction.z = (work.center.z + work.scaled.z) - work.center.z;
+    func_003e40b0((f32 *)&work.direction, (f32 *)&work.direction);
+    rotationAngle = 30.0f;
+    func_003e0870(&work.rotation, D_0060A0E0, 0.5f * -rotationAngle, 0);
+    func_003e4320(&work.scaled, &work.direction, &work.rotation);
+    angleScale = 115.0f /
+                 func_0044b868(fGpffff8110 *
+                      (0.5f * *(f32 *)(arg0 + 0xB8)));
+    work.scaled.x = work.scaled.x * angleScale;
+    work.scaled.y = work.scaled.y * angleScale;
+    work.scaled.z = work.scaled.z * angleScale;
+    work.firstPosition.x = work.center.x + work.scaled.x;
+    work.firstPosition.y = work.center.y + work.scaled.y;
+    work.firstPosition.z = work.center.z + work.scaled.z;
+    func_001bd780(work.firstView, &work.firstPosition, &work.center,
+                  D_0060A0E0);
+    func_003e0870(&work.rotation, D_0060A0E0, 15.0f, 0);
+    func_003e4320(&work.scaled, &work.direction, &work.rotation);
+    angleScale = 165.0f /
+                 func_0044b868(fGpffff8110 *
+                      (0.5f * *(f32 *)(arg0 + 0xB8)));
+    work.scaled.x = work.scaled.x * angleScale;
+    work.scaled.y = work.scaled.y * angleScale;
+    work.scaled.z = work.scaled.z * angleScale;
+    work.secondPosition.x = work.center.x + work.scaled.x;
+    work.secondPosition.y = work.center.y + work.scaled.y;
+    work.secondPosition.z = work.center.z + work.scaled.z;
+    func_001bd780(work.secondView, &work.secondPosition, &work.center,
+                  D_0060A0E0);
+    if (work.firstPosition.y < 25.0f) {
+        work.firstPosition.y = 25.0f;
+    }
+    if (work.secondPosition.y < 25.0f) {
+        work.secondPosition.y = 25.0f;
+    }
+    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 3);
+    func_001bac20(arg0, (f32 *)&work.firstPosition, (f32 *)&work.secondPosition, 1);
+    func_001bbef0(arg0, 2.0f);
+}
 // FUN_001CB960
 void func_001cb960(void) {}
 // FUN_001CB970

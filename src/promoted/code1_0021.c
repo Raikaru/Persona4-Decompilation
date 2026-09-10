@@ -87,11 +87,9 @@ extern u8 *func_0010a900(u16 arg0);
 extern void func_00201720(void *arg0, f32 arg1, f32 arg2);
 extern void func_00201300(s32 *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4);
 extern void func_002016e0(u8 *arg0, s16 arg1, s16 arg2, f32 arg3);
-extern void func_00201950(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_00201990(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_002019d0(u8 *arg0, f32 arg1, f32 arg2);
-extern s32 func_00243e90(s32 arg0);
-extern u8 *func_001b1540(void);
+extern s32 func_00243e90(u8 *arg0);
+extern s32 func_001b1540(void);
 extern void func_002142b0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1);
 extern void func_002161d0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1);
 extern void func_00215c10(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1);
@@ -933,8 +931,106 @@ INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002142b0);
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00215c10);
 // FUN_002161D0
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002161d0);
+/* 844/848 bytes; nine resolved relocations; four zero alignment bytes.
+ * Snapshot the four party slots before callbacks can update the actor list. */
 // FUN_002167F0
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002167f0);
+#pragma push
+#pragma opt_loop_invariants on
+void func_002167f0(u8 *arg0, u8 *arg1)
+{
+    s32 *work;
+    u8 *selected;
+    s32 i;
+    s32 count;
+    u8 *old;
+    s32 j;
+    u8 *iter;
+    s32 selectedIndex;
+    u8 local[0x30];
+    f32 x;
+    f32 y;
+
+    work = (s32 *)func_00452560((void *)(*(u8 **)(arg1 + 0xC)));
+    if ((*(s32 *)work & 1) != 0 && (*(s32 *)arg1 & 0x100) != 0) {
+        func_00201350();
+        selected = (u8 *)func_001b1540();
+        if (selected != NULL) selected = *(u8 **)(selected + 0x30);
+        else selected = *(u8 **)(arg1 + 8);
+        selectedIndex = -1;
+        count = 0;
+        iter = *(u8 **)(iGpffffb3ac + 0x17C);
+        while (iter != NULL) {
+            if ((*(s32 *)(iter + 0x9C) & 8) != 0) {
+                *(f32 *)(local + count * 8) = (f32)485;
+                *(f32 *)(local + 4 + count * 8) = (f32)count * 105.0f + -15.0f;
+                *(u8 **)(local + 0x20 + count * 4) = iter;
+                if (selected == iter) selectedIndex = count;
+                count += 1;
+            }
+            iter = *(u8 **)(iter + 0xA68);
+        }
+        if (selectedIndex >= 0) {
+            old = *(u8 **)(arg1 + 8);
+            if (old != selected) {
+                if (old != NULL) {
+                    s32 flags = *(s32 *)(old + 0xA10);
+                    flags &= ~0xC; *(s32 *)(old + 0xA10) = flags;
+                    flags |= 0x10; *(s32 *)(old + 0xA10) = flags;
+                    if ((flags & 0x40) != 0) {
+                        flags &= ~0x60; *(s32 *)(old + 0xA10) = flags;
+                        flags |= 0x80; *(s32 *)(old + 0xA10) = flags;
+                        *(f32 *)(old + 0xA20) = 1.0f;
+                    }
+                }
+                old = selected;
+                {
+                    s32 flags = *(s32 *)(old + 0xA10);
+                    flags |= 0xC; *(s32 *)(old + 0xA10) = flags;
+                    flags &= ~0x10; *(s32 *)(old + 0xA10) = flags;
+                    if ((s16)func_00243e90(*(u8 **)(old + 0xA64)) == 4) {
+                        flags = *(s32 *)(old + 0xA10);
+                        flags |= 0x60; *(s32 *)(old + 0xA10) = flags;
+                        flags &= ~0x80; *(s32 *)(old + 0xA10) = flags;
+                        *(f32 *)(old + 0xA20) = 1.0f;
+                    }
+                }
+                *(u8 **)(arg1 + 8) = old;
+            }
+        } else {
+            old = *(u8 **)(arg1 + 8);
+            if (old != NULL) {
+                s32 flags = *(s32 *)(old + 0xA10);
+                flags &= ~0xC; *(s32 *)(old + 0xA10) = flags;
+                flags |= 0x10; *(s32 *)(old + 0xA10) = flags;
+                if ((flags & 0x40) != 0) {
+                    flags &= ~0x60; *(s32 *)(old + 0xA10) = flags;
+                    flags |= 0x80; *(s32 *)(old + 0xA10) = flags;
+                    *(f32 *)(old + 0xA20) = 1.0f;
+                }
+                *(u8 **)(arg1 + 8) = NULL;
+            }
+        }
+        i = 0;
+        while (i < count) {
+            old = *(u8 **)(local + 0x20 + i * 4);
+            x = *(f32 *)(local + i * 8);
+            y = *(f32 *)(local + 4 + i * 8);
+            if ((*(s32 *)(old + 0xA10) & 0x1C) != 0) func_00215c10(work, old, i & 0xFFFF, x, y);
+            if ((*(s32 *)(old + 0xA10) & 0xE0) != 0) func_002161d0(work, old, i & 0xFFFF, x, y);
+            i += 1;
+        }
+        j = 0;
+        while (j < count) {
+            old = *(u8 **)(local + 0x20 + j * 4);
+            x = *(f32 *)(local + j * 8);
+            y = *(f32 *)(local + 4 + j * 8);
+            func_002142b0(work, old, j & 0xFFFF, x, y);
+            j += 1;
+        }
+        func_002019d0((u8 *)work, 1.0f, 1.0f);
+    }
+}
+#pragma pop
 // FUN_00216B40
 void func_00216b40(s32 arg0, s32 arg1) {
     u8 *temp_16;
