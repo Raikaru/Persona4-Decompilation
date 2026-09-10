@@ -3974,7 +3974,7 @@ void func_0047b060(void* param_1)
    plus the usual saved-register rotation across the ~30 temp loads. Verified
    call shapes for retry: func_00397c40-style 1-arg sites use func_003e2ce0
    (always 1-arg); func_00463100 is (void*); func_0047f9f0 returns u32;
-   func_004800d0 is (void*,void*,void*,void*); func_003d60e0 (void*,s32);
+   func_004800d0 is s32(void*,u8**,u32,void*); func_003d60e0 (void*,s32);
    func_0047d200/7dc30 return void* (cast to s32); jtbl_008873E8 =
    (void* (*)(int,int))DAT_008873e8[0]; D_0070B610 is an u8 extern; mwcc C89
    rejects void*+int - cast derefs to u8* first. Switch-layout +
@@ -3990,7 +3990,7 @@ extern void func_003e2e40(void* a, void* b);
 extern void func_003d60e0(void* a, s32 b);
 extern s32 func_004667d0();
 extern u32 func_0047f9f0(void* a);
-extern void func_004800d0(void* a, void* b, void* c, void* d);
+extern s32 func_004800d0(void *stream, u8 **head, u32 kind, void *clump);
 extern void func_00463100(void* a);
 extern u8 D_0070B610;
 /* measured: nd ~409 after 4 attempts; all structure transcribed (the three
