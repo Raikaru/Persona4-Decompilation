@@ -46,7 +46,7 @@ extern s64 func_00192560(void);
 extern s64 func_0029cc00(s32 arg0);
 extern u8 *func_00105510(s16 arg0);
 extern void func_00243ec0(u8 *arg0, s16 arg1);
-extern s64 func_00243e90(u8 *arg0);
+extern s32 func_00243e90(u8 *arg0);
 extern void func_0029cf50(s32 arg0);
 
 extern u8 *iGpffff9db0;
