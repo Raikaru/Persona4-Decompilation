@@ -115,12 +115,14 @@ void func_0047f2c0(void *param_1,void *param_2)
 
 
 
+/* 64/64 bytes; two resolved relocations. Pass the released object explicitly
+ * rather than relying on an incidental live argument register. */
 // FUN_004808B0
 void func_004808b0(int param_1)
 {
   *(u16 *)(param_1 + 8) = *(u16 *)(param_1 + 8) - 1;
   if (*(u16 *)(param_1 + 8) == 0) {
-    ((void (*)())(*(u32 *)0x008873ec))();
+    ((void (*)(void *))DAT_008873ec_abs[0])((void *)param_1);
   }
   return;
 }

@@ -315,15 +315,125 @@ f32 func_00480060(u8 **arg0)
 
 
 
-/* measured: best C (m2c-style loop + batched u8/f32 copies + old-style externs for the
-   u64-param calls func_00480800/00480840/00480630 with (u32) casts) reaches nd 103;
-   retail allocates args $s5..$s2 + bVar5 $s6 with var_17 at $s1, mwcc b210 always puts
-   the args one reg lower ($s4..$s1, bVar5 $s5, var_17 last) no matter the declaration
-   order, and the search loop's exit-edge NULL plus the lbu/lwc1 copy register rotation
-   resist all loop spellings (while+break, if/else, goto-found, m2c goto: nd 103..149).
-   P3 twin FUN_00320880 is NONMATCHING for the same family. */
+/* 864/864 bytes; 27 resolved relocations; no alignment tail.
+ * Aggregate material copies and a separate search result preserve retail
+ * scheduling. Reuse the counter to stage the name length before reading.
+ * Both loader paths supply only material chunk tags 0xF0F00080..83. */
 // FUN_004800D0
-INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_004800d0);
+s32 func_004800d0(void *arg0, u8 **arg1, u32 arg2, void *arg3)
+{
+    typedef struct { u32 count; f32 duration; u32 stride; u32 nameLength; u32 unk10; } Hdr;
+    typedef struct { u8 r, g, b, a; } MatColor;
+    typedef struct { f32 ambient, specular, diffuse; } MatSurface;
+    Hdr header;
+    u32 search[2];
+    u8 nameBuf[0x80];
+    u8 *channel;
+    u8 *name;
+    s32 allocated;
+    u8 *node;
+    u8 *table;
+    u32 i;
+    u8 *entry;
+    u8 *mat;
+    u8 *tmp;
+    extern u32 func_003e2910(void *a, void *b, u32 c);
+    extern void *func_003e2ce0(void *a, u32 b);
+    extern u16 func_00480800(void *a, u32 b);
+    extern u8 *func_00480840(s32 a);
+    extern void *func_00480630(void *a, void *b);
+    extern u32 func_004808f0(s32 a);
+
+    func_003e2910(arg0, &header, 0x14);
+    if (header.nameLength < 0x80U) {
+        name = nameBuf;
+        allocated = 0;
+    } else {
+        func_0044ea90(D_00713260, 0x307);
+        name = jtbl_008873E8[0](header.nameLength + 1, 0x40000);
+        allocated = 1;
+    }
+    i = header.nameLength;
+    func_003e2910(arg0, name, i);
+    name[header.nameLength] = 0;
+    search[0] = (u32)func_00480840(func_00480800(arg3, (u32)name) & 0xFFFFU);
+    search[1] = (u32)name;
+    func_00480630(arg3, search);
+    if (allocated != 0) {
+        DAT_008873ec_abs[0](name);
+    }
+    table = (u8 *)search[0];
+    for (tmp = *arg1; tmp != NULL; tmp = *(u8 **)(tmp + 0x54)) {
+        if (*(u8 **)(tmp + 0x50) == table) {
+            node = tmp;
+            goto found;
+        }
+    }
+    node = NULL;
+found:
+    if (node == NULL) {
+        func_0044ea90(D_00713260, 0x19C);
+        node = jtbl_008873E8[0](0x58, 0x40000);
+        func_0043f9c8(node, 0, 0x58);
+        i = 0;
+        goto looptest2;
+loop2:
+        tmp = node + (i * 0x10);
+        *(u32 *)(tmp + 0) = 0;
+        *(u32 *)(tmp + 4) = 0;
+        *(u32 *)(tmp + 8) = 0;
+        *(u32 *)(tmp + 0xC) = 0;
+        i += 1;
+looptest2:
+        if (i < 4U) {
+            goto loop2;
+        }
+        *(u8 **)(node + 0x54) = NULL;
+        entry = (u8 *)func_004808f0((s32)table);
+        *(u8 **)(node + 0x50) = entry;
+        mat = *(u8 **)entry;
+        mat = *(u8 **)mat;
+        *(MatColor *)(node + 0x40) = *(MatColor *)(mat + 4);
+        *(MatSurface *)(node + 0x44) = *(MatSurface *)(mat + 0xC);
+        tmp = *arg1;
+        if (tmp == NULL) {
+            *(u8 **)(node + 0x54) = NULL;
+            *arg1 = node;
+        } else {
+            *(u8 **)(node + 0x54) = tmp;
+            *arg1 = node;
+        }
+    }
+    func_004808b0((s32)search[0]);
+    switch (arg2) {
+    case 0xF0F00080:
+        channel = node;
+        break;
+    case 0xF0F00081:
+        channel = node + 0x10;
+        break;
+    case 0xF0F00082:
+        channel = node + 0x20;
+        break;
+    case 0xF0F00083:
+        channel = node + 0x30;
+        break;
+    }
+    {
+        u32 dataSize = header.count * header.stride;
+        if (*(u8 **)(channel + 0xC) == NULL) {
+            *(u32 *)channel = header.count;
+            *(f32 *)(channel + 4) = header.duration;
+            *(u32 *)(channel + 8) = header.stride;
+            func_0044ea90(D_00713260, 0x349);
+            *(u8 **)(channel + 0xC) = jtbl_008873E8[0](dataSize, 0x40000);
+            func_003e2910(arg0, *(u8 **)(channel + 0xC), dataSize);
+        } else {
+            func_003e2ce0(arg0, dataSize);
+        }
+    }
+    return 1;
+}
 
 
 
