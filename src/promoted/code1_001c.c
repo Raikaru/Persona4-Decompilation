@@ -1,5 +1,12 @@
 #include "include_asm.h"
 #include "type.h"
+
+/* Preserve source operand order in the camera's height products. */
+static inline f32 p4_cacd0_mul(f32 left, f32 right)
+{
+    return left * right;
+}
+
 typedef struct BtlUnitStateWork BtlUnitStateWork;
 extern void func_001bdeb0();
 extern void func_001c9820(u8 *arg0, s32 arg1, s32 arg2, f32 arg3);
@@ -673,8 +680,127 @@ void func_001ca550(u8 *arg0) {
 }
 // FUN_001CA590
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001ca590);
+/* 1052/1056 bytes; 19 resolved relocations; four zero alignment bytes.
+ * Build the current pose plus three orbit keys with a halfword frame index. */
 // FUN_001CACD0
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cacd0);
+void func_001cacd0(u8 *arg0, f32 fparg0, f32 fparg1)
+{
+    struct Vec3 {
+        f32 x;
+        f32 y;
+        f32 z;
+    };
+    struct Quat {
+        f32 x;
+        f32 y;
+        f32 z;
+        f32 w;
+    };
+    struct Frame {
+        struct Vec3 pos;
+        struct Quat rot;
+    };
+    struct Work {
+        struct Frame frames[4];
+        u8 matrix[0x40];
+        f32 xzA[2];
+        f32 xzB[2];
+        struct Vec3 unit;
+        u8 pad12C[4];
+        struct Vec3 delta;
+        u8 pad13C[4];
+        struct Vec3 rotated;
+        u8 pad14C[4];
+        struct Vec3 scaled;
+        u8 pad15C[4];
+        struct Vec3 diff;
+        u8 pad16C[4];
+    } work;
+    u8 *action;
+    u8 *s0;
+    u8 *s2;
+    f32 prod;
+    f32 height;
+    f32 dot;
+    f32 len;
+    f32 angle;
+    f32 step;
+    f32 zero;
+    u16 i;
+    struct Frame *base;
+    extern f32 fGpffff8118;
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+    extern void func_001bb3d0(void *arg0, void *arg1, void *arg2, void *arg3, void *arg4, u16 arg5);
+    extern void func_001bd560(f32 *arg0, f32 *arg1);
+
+    action = *(u8 **)(arg0 + 0xE0);
+    s0 = *(u8 **)(action + 0x30);
+    s2 = *(u8 **)(*(u8 **)(action + 0x38) + 0x30);
+    func_001bd560((f32 *)&work.frames[0], (f32 *)(arg0 + 0x9C));
+    prod = *(f32 *)(s0 + 0x84) * *(f32 *)(s0 + 0x2C);
+    func_00195850(s2, (f32 *)&work.unit);
+    height = (0.0f + prod + p4_cacd0_mul(*(f32 *)(s0 + 0x8C), *(f32 *)(s0 + 0x2C)) * fGpffff8118);
+    height += (0.0f + work.unit.y + (*(f32 *)(s2 + 0x8C) * *(f32 *)(s2 + 0x2C)) * fGpffff8118);
+    work.unit.y = 0.0f;
+    zero = 0.0f;
+    work.diff.x = *(f32 *)(s0 + 0xDC) - work.unit.x;
+    work.diff.y = *(f32 *)(s0 + 0xE0) - zero;
+    work.diff.z = *(f32 *)(s0 + 0xE4) - work.unit.z;
+    len = func_003e40b0((f32 *)&work.diff, (f32 *)&work.diff);
+    work.scaled.x = work.diff.x * (0.5f * len);
+    work.scaled.y = work.diff.y * (0.5f * len);
+    work.scaled.z = work.diff.z * (0.5f * len);
+    work.scaled.x = work.scaled.x + work.unit.x;
+    work.scaled.y = work.scaled.y + work.unit.y;
+    work.scaled.z = work.scaled.z + work.unit.z;
+    height = p4_cacd0_mul(0.5f, height);
+    work.scaled.y = height;
+    work.xzA[0] = work.diff.z;
+    work.xzA[1] = -work.diff.x;
+    work.xzB[0] = work.frames[0].pos.x - work.scaled.x;
+    work.xzB[1] = work.frames[0].pos.z - work.scaled.z;
+    func_003e41e0(work.xzA, work.xzA);
+    func_003e41e0(work.xzB, work.xzB);
+    dot = work.xzA[0] * work.xzB[0] + work.xzA[1] * work.xzB[1];
+    if (!(dot < 0.0f)) {
+        work.scaled.x = work.diff.x * (fGpffff8118 * len);
+        work.scaled.y = work.diff.y * (fGpffff8118 * len);
+        work.scaled.z = work.diff.z * (fGpffff8118 * len);
+    } else {
+        work.scaled.x = work.diff.x * (0.5f * len);
+        work.scaled.y = work.diff.y * (0.5f * len);
+        work.scaled.z = work.diff.z * (0.5f * len);
+    }
+    work.scaled.x = work.scaled.x + work.unit.x;
+    work.scaled.y = work.scaled.y + work.unit.y;
+    work.scaled.z = work.scaled.z + work.unit.z;
+    work.scaled.y = height;
+    *(f32 *)(arg0 + 0x10C) = 0.5f * *(f32 *)(s0 + 0xE8);
+    *(struct Vec3 *)(arg0 + 0x100) = work.scaled;
+    work.delta.x = work.frames[0].pos.x - work.scaled.x;
+    work.delta.y = work.frames[0].pos.y - work.scaled.y;
+    work.delta.z = work.frames[0].pos.z - work.scaled.z;
+    angle = fparg0 / 3.0f;
+    step = angle;
+    i = 1;
+    while (i < 4) {
+        if (!(dot < 0.0f)) {
+            func_003e0870(work.matrix, D_0060A0E0, angle, 0);
+        } else {
+            func_003e0870(work.matrix, D_0060A0E0, -angle, 0);
+        }
+        func_003e4320(&work.rotated, &work.delta, work.matrix);
+        base = &work.frames[(u16)i];
+        base->pos.x = work.rotated.x + work.scaled.x;
+        base->pos.y = work.rotated.y + work.scaled.y;
+        base->pos.z = work.rotated.z + work.scaled.z;
+        func_001bd780(&base->rot, &base->pos, &work.scaled, D_0060A0E0);
+        angle = angle + step;
+        i++;
+    }
+    func_001bb3d0(arg0, &work.frames[0], &work.frames[1], &work.frames[2], &work.frames[3], 1);
+    func_001bbef0(arg0, fparg1);
+}
 // FUN_001CB0F0
 void func_001cb0f0(u8 *arg0)
 {
