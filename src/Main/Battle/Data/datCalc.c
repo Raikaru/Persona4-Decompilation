@@ -2821,7 +2821,7 @@ void func_00243e70(u16 *arg0)
 }
 
 // FUN_00243E90
-s8 func_00243e90(u8 *arg0)
+s32 func_00243e90(u8 *arg0)
 {
     if (*(u16 *)(arg0 + 2) == 1) {
         return 4;

@@ -85,7 +85,7 @@ extern u8 *D_0076449C;
 extern s32 iGpffffb448;
 extern s32 D_0062656C[];
 extern void func_00216c40(s32 arg0, s32 arg1);
-extern s64 func_00243e90(u8 *arg0);
+extern s32 func_00243e90(u8 *arg0);
 extern void func_00216b40(s32 arg0, s32 arg1);
 extern void func_00216bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_00216d10(s32 task);
@@ -766,20 +766,20 @@ void func_00201820(s32 arg0)
     }
 }
 // FUN_00201950
-void func_00201950(u8 *arg0, s32 arg1, s32 arg2)
+f32 func_00201950(u8 *arg0, s32 arg1, s32 arg2)
 {
     *(s32 *)(arg0 + 0x6C) =
         *(s32 *)((u8 *)(arg1 * 4) + (u32)arg0 + 0x2C);
     *(s32 *)(arg0 + 0x70) = arg2;
-    func_0046b260(arg0 + 0x6C);
+    return func_0046b260(arg0 + 0x6C);
 }
 // FUN_00201990
-void func_00201990(u8 *arg0, s32 arg1, s32 arg2)
+f32 func_00201990(u8 *arg0, s32 arg1, s32 arg2)
 {
     *(s32 *)(arg0 + 0x6C) =
         *(s32 *)((u8 *)(arg1 * 4) + (u32)arg0 + 0x2C);
     *(s32 *)(arg0 + 0x70) = arg2;
-    func_0046b2f0(arg0 + 0x6C);
+    return func_0046b2f0(arg0 + 0x6C);
 }
 // FUN_002019D0
 void func_002019d0(u8 *arg0, f32 fparg0, f32 fparg1)

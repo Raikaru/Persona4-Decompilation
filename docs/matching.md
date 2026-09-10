@@ -9330,3 +9330,62 @@ byte-exact linked C objects. Both retail SHA-1s pass, all 529 repository tests
 pass, source-honesty lint reports zero findings in 340 first-party files,
 and generated progress validates. The remaining 629 first-party fallbacks
 stay visible; all-matching remains open.
+
+## First-party continuation: camera keys and party-panel selection
+
+Two more fallbacks are replaced by ordinary C:
+
+| Function | Executable / window bytes | Code relocations | Zero tail bytes |
+| --- | --- | --- | --- |
+| `func_001cb610` | 840 / 848 | 27 | 8 |
+| `func_002167f0` | 844 / 848 | 9 | 4 |
+
+The camera routine constructs both position/quaternion keys before applying
+the independent height clamps. Its five native scenarios execute the current
+body with the real basis and timing providers, reference rotation math and
+complete keyframe comparisons. All 45 preceding owner matches retain their
+instruction bodies and relocations.
+
+Party-panel selection snapshots the four eligible actor slots before drawing
+callbacks can change the list. Selection changes preserve the old/new actor
+flag transitions and animation resets; drawing retains callback-visible flag
+reloads and two ordered passes over the saved positions and actor pointers.
+Only this function enables `opt_loop_invariants`, inside a push/pop scope.
+
+The selector provider `func_00243e90` and its callers now agree on
+`s32 func_00243e90(u8 *)`. Its signed-byte lookup and special-kind return of
+four still compile to the same 40 bytes. Existing callers retain their
+explicit signed-halfword comparisons. The selected-handle getter declaration
+now agrees with its existing signed-word provider, with an explicit pointer
+conversion at the consumer.
+
+The panel metric getters `func_00201950` and `func_00201990` now explicitly
+return the underlying sprite width and height as `f32`, rather than declaring
+`void` and relying on an incidental return register. Both 56-byte bodies and
+their relocations remain exact. A float-consuming native caller fails to
+compile against the old declarations and passes against the corrected
+contract. Eight native i386 scenarios execute the current panel and sprite
+providers across bank selection, overrides, fixed-point truncation, unsigned
+wrap and zero dimensions.
+
+The current-source selection consumer passes six scenarios and all 512
+signed-byte/special-kind selector inputs. It covers both guards, a full
+four-slot transition, empty-list deselection, signed results, and callbacks
+that sever the actor list and change flags between drawing passes. The actor,
+task and context fixtures occupy separate storage. These native consumers use
+controlled external callbacks; they do not claim PS2 GPU or scheduler
+execution.
+
+The affected-owner scan covers 671 functions: all 591 preceding C matches
+remain MATCH, alongside the two new recoveries. The panel drawing candidate
+`func_0020f730` is not integrated: its snapshot and index scheduling still
+differ from retail. Its ASM fallback remains visible.
+
+All 7,861 preceding MATCH rows remain MATCH. The full 12,720-function scan
+reports **7,863 MATCH / 4,857 ASM** overall and
+**6,233 MATCH / 627 ASM** first-party (**90.9%**, rounded). The build retains
+172 source-linked objects, 56 Sony SDK objects and 1,584 functions in
+byte-exact linked C objects. Both retail SHA-1s pass, all 529 repository tests
+pass, source-honesty lint reports zero findings in 340 first-party files,
+and generated progress validates. The remaining 627 first-party fallbacks
+stay visible; all-matching remains open.
