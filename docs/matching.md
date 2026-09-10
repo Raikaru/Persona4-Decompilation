@@ -9704,3 +9704,44 @@ linked, with 1,591 byte-exact C-linked functions. All 529 repository tests
 pass, source-honesty lint reports zero findings in 340 first-party files,
 and generated progress validates. The remaining 614 first-party assembly
 fallbacks remain in scope.
+
+## First-party continuation: battle callback state-word recovery
+
+`func_00208d00` in `src/promoted/code1_0020.c` now matches **716/720
+bytes** with eighteen resolved relocations, zero executable differences,
+four zero alignment bytes and no overrun. The previously differing two
+entry moves came from the second parameter's source representation.
+The existing `func_002035a0` dispatcher loads the state word at
+`node+0x28` with `lw` and invokes its callback as `void (u8 *, s32, u8 *)`.
+The recovered callback accepts that real `s32` input and converts it once
+to `u8 *state`; no argument, instruction or register binding is invented.
+
+Whole-owner comparison preserves the other instruction bodies. The three
+renumbered compiler-local float labels in `func_0020fa70` retain their
+original offsets and identical four-byte contents; the label spelling
+change does not introduce or alter literal data.
+
+A freestanding 32-bit consumer compiles the actual recovered callback,
+`func_00202c60` constructor and `func_002035a0` dispatcher. It reports
+`PASS 2016 i386 state-callback consumers`, exercising positive and
+high-bit state-address words, halfword state kinds, signed counter
+boundaries, zero/positive/negative feature results and callback mutation
+of state kind, coordinates, the mode callback table and the counter.
+Seven independent mutations are rejected: counter-limit changes, cached
+counter, byte-width state kind, cached coordinates, cached callback,
+negative state rejection and positive-only feature handling.
+
+This is native callback/dispatcher execution with controlled external
+providers and a recorded rendering sink, not PS2 graphics execution.
+The throwaway consumer, mutation fixtures and executables are removed.
+
+`make build-progress lint-errors test progress progress-validate` passes:
+the unchanged 12,720-function scan reports **7,877 MATCH / 4,843 ASM**
+overall and **6,247 MATCH / 613 ASM (91.1%)** first-party. Both retail
+SHA-1s pass, all 529 tests pass, source-honesty lint reports zero findings
+in 340 first-party files and generated progress validates. The promoted
+owner remains outside whole-TU linkage for pre-existing eligibility
+limitations; this recovery's exact object and native consumer proofs are
+separate from image linkage. The 172 source objects, 56 Sony SDK objects
+and 1,591 byte-exact C-linked functions are unchanged. The remaining 613
+first-party assembly fallbacks remain in scope.
