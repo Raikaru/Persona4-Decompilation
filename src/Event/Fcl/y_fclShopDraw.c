@@ -151,6 +151,7 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 *(*D_008873F4[])(s32, s32, s32);
 extern u8 D_00795E60[];
 extern u8 D_00793E80[];
+extern char iGpffffa884[2];
 extern u8 D_0063FAC0[];
 extern u8 D_0063FB30[];
 extern u8 D_0063FB70[];
@@ -198,6 +199,7 @@ void func_002e0940(void *, f32, f32, s32, s32, s32);
 void func_002b2970(void *, f32, f32);
 void *func_002b5c90(void *, u64);
 void *func_002e2590(void *, s32, s32, s32, s32);
+char *func_00442830(char *, const char *);
 void *func_0046d200(void *, s32);
 f32 func_0046b260(void *);
 f32 func_0046b2f0(void *);
@@ -359,16 +361,74 @@ void func_002caa00(void *arg0, s8 arg1) {
     *(s8 *)(*(u32 *)((u8 *)arg0 + 0x38)) = arg1;
 }
 
-/* Faithful recovery: docs/probe_archive/ShopDigits_002caa10_body.c.
-   Real caller ABI is (Vec2f, f32, RGBA, u32, s16, void *, s32): packed
-   coordinates/color, unsigned decimal division, and signed16 glyph base.
-   Object 696B/window 704B: 34 executable saved-GPR differences, plus 8B
-   zero tail. The frame and natural SQ/LQ spills match without dummy locals.
-   The GP string is space+NUL; text[16] models real strcpy storage, but its
-   exact original bound remains inferred. Keep ASM until the register
-   allocation residual closes. */
+/* Measured: 696/704 bytes, fourteen resolved relocations, eight zero
+   alignment bytes. Separate glyph acquisition/release scopes preserve
+   the saved-register allocation and callback order. */
+#pragma push
+#pragma opt_loop_invariants off
+#pragma opt_common_subs off
 // FUN_002CAA10
-INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002caa10);
+void func_002caa10(Vec2f position, f32 depth, RGBA color, u32 number_, s16 glyphBase, void *sprite_, s32 style)
+{
+    char text[16];
+    f32 x;
+    u32 number;
+    s32 digitWidth;
+    void *sprite;
+    s32 count;
+    s16 commaWidth;
+    u8 *entry;
+    s32 base;
+    u8 a;
+    u8 b;
+    u8 g;
+    f32 y;
+    s32 comma;
+
+    sprite = sprite_;
+    number = number_;
+    count = 0;
+    x = position.x;
+    {
+        void *glyph;
+        s32 measuredBase;
+        measuredBase = (s16)glyphBase;
+        glyph = func_0046d200(sprite, measuredBase);
+        digitWidth = (s16)(s32)(func_0046b260(glyph) - 1.0f);
+        func_0046d280(glyph);
+        comma = measuredBase + 10;
+    }
+    {
+        void *commaGlyph;
+        commaGlyph = func_0046d200(sprite, comma);
+        commaWidth = (s16)(s32)(func_0046b260(commaGlyph) - 1.0f);
+        func_0046d280(commaGlyph);
+    }
+    func_00442830(text, iGpffffa884);
+    entry = D_00793E80 + style * 0x30;
+    base = (s16)glyphBase;
+    a = color.a;
+    b = color.b;
+    g = color.g;
+    y = position.y;
+    do {
+        func_0025ec90(x, y, depth, func_002b2a30(0xFF, color.r, g, b), a, base + number % 10, sprite, 1, entry);
+        number /= 10;
+        count = (s8)(count + 1);
+        if (count % 3 == 0) {
+            if (number != 0) {
+                x -= (f32)commaWidth;
+                func_0025ec90(x, y, depth, func_002b2a30(0xFF, color.r, g, b), a, comma, sprite, 1, entry);
+                x -= (f32)digitWidth;
+            } else {
+                x -= (f32)digitWidth;
+            }
+        } else {
+            x -= (f32)digitWidth;
+        }
+    } while (number != 0);
+}
+#pragma pop
 
 /* measured: object 536B/window 544B, nd 0. Signature (u64, f32, RGBA, s32, s16, u32,
    s32, s32, s32, s32, s32): fparg0 second so it homes to $f22 right after $a0; RGBA

@@ -8,6 +8,7 @@
 
 typedef struct RwMatrix RwMatrix;
 typedef struct RwV3d RwV3d;
+typedef struct BtlUnit BtlUnit;
 typedef struct BtlAction BtlAction;
 
 extern s32 func_00247cb0(s16 arg0);
@@ -823,8 +824,120 @@ void func_00201a80(u8 *arg0) {
     }
     *(s32 *)(arg0 + 0x34) = 0;
 }
+/* Measured: 676/688 bytes, seven resolved relocations and twelve zero alignment bytes.
+ * Snapshot inputs before providers; reload the skill fields and final output
+ * metadata at their retail callback boundaries. */
+#pragma push
+#pragma opt_propagation off
 // FUN_00201B00
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00201b00);
+s32 func_00201b00(u8 *work)
+{
+    u16 flags;
+    u32 input_flags;
+    s32 empty;
+    s32 value0;
+    s32 value1;
+    struct { s32 value0; s32 value1; u16 flags; } result;
+    f32 position[3];
+    s32 value;
+    u8 *table;
+    s32 offset;
+
+    extern u8 *iGpffffb3b8;
+    extern s32 func_0023d8e0(u8 *arg0, s32 arg1);
+    extern s32 func_0023d6e0(s16 arg0);
+    extern void func_00195ea0(BtlUnit *unit, RwV3d *position);
+    extern void func_001959d0(BtlUnit *unit, RwV3d *position);
+    extern void func_0020e250(u8 *arg0, s32 arg1, s32 *arg2, f32 *arg3, u16 arg4);
+
+    flags = 0;
+    input_flags = *(u16 *)(work + 0x2C);
+    if ((input_flags & 4) ||
+        (*(s32 *)(work + 8) == 0 && *(s32 *)(work + 0xC) == 0 &&
+         *(s32 *)(work + 0x10) == 0 && *(s32 *)(work + 0x14) == 0 &&
+         *(s32 *)(work + 0x18) == 0)) {
+        empty = 1;
+    } else {
+        empty = 0;
+    }
+
+    value0 = *(s32 *)(work + 8);
+    if (value0 != 0) {
+        flags |= 0x10;
+    } else {
+        value0 = 0;
+    }
+
+    value1 = *(s32 *)(work + 0xC);
+    if (value1 != 0) {
+        flags |= 0x20;
+    } else {
+        value1 = 0;
+    }
+
+    if (*(u16 *)(work + 0x32) == *(u16 *)(work + 0x30) + 1) {
+        if (empty == 0) {
+            value = *(u16 *)(work + 0x2E);
+            if (value & 2) {
+                flags |= 1;
+            }
+            if (value & 4) {
+                flags |= 2;
+            }
+        }
+
+        if (input_flags & 0x100) {
+            value = *(s32 *)(work + 0x28);
+            if (value != -1 && *(u8 **)(*(u8 **)work + 0xA64) != NULL) {
+                value = func_0023d8e0(*(u8 **)(*(u8 **)work + 0xA64), value & 0xFFFF);
+                value = func_0023d6e0((s16)value);
+            } else {
+                value = 0;
+            }
+            if (!(value & 0x1FE00)) {
+                flags |= 8;
+            } else {
+                flags |= 4;
+            }
+        } else if (empty != 0) {
+            flags |= 4;
+        }
+
+        if (*(s32 *)(work + 0x10) & 0x100000) {
+            flags |= 0x40;
+        }
+    }
+
+    offset = *(s32 *)(work + 0x28);
+    if (offset >= 0) {
+        offset *= 0x28;
+        table = iGpffffb3b8;
+        value = *(u8 *)((u32)offset + (u32)table + 8);
+        switch (value) {
+        case 1:
+        case 2:
+            flags |= 0x80;
+            break;
+        }
+        if (*(u8 *)(table + offset) & 0x20) {
+            flags &= 0xFFFB;
+        }
+    }
+
+    result.value0 = value0;
+    result.value1 = value1;
+    result.flags = flags;
+    if (*(s32 *)(work + 0x34) != 0) {
+        func_00195ea0((BtlUnit *)*(u8 **)(work + 4), (RwV3d *)position);
+    } else {
+        func_001959d0((BtlUnit *)*(u8 **)(work + 4), (RwV3d *)position);
+    }
+
+    func_0020e250(*(u8 **)(D_0076449C + 0xDD4), *(s32 *)(work + 4),
+                  (s32 *)&result, position, *(u16 *)(work + 0x38));
+    return 1;
+}
+#pragma pop
 // FUN_00201DE0
 u8 *func_00201de0(s32 arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4,
                   s16 arg5, s16 arg6, s32 arg7, u16 arg_sp0)

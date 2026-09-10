@@ -1843,8 +1843,112 @@ loop_done:
         func_0042ba70(var_4);
     }
 }
+extern void func_00451b70(void);
+extern char *func_004526e0(void);
+extern void func_0046d700(const char *file, s32 line, const char *msg, ...);
+extern char D_00713078[], D_00713088[], D_007130A0[];
+extern char D_00756758[], D_00756748[], D_00756730[], D_00756720[];
+/* Inline overlap search preserves retail's early-return branches.
+   The metadata table and count are reloaded on each retry. */
+static inline u32 sdkMallocFindOverlap(u32 candidate, u32 size)
+{
+    u32 i;
+    u32 base;
+    u32 length;
+    u32 finish;
+    u32 end;
+    u32 count;
+    u8 *table;
+    u8 *entry;
+    table = (u8 *)iGpffffbb14;
+    end = candidate + size;
+    i = 0;
+    count = iGpffffbb0c;
+    for (; i < count; i++) {
+        entry = table + i * 8;
+        length = *(u32 *)(entry + 4);
+        if (length != 0) {
+            base = *(u32 *)entry;
+            finish = base + length;
+            if (candidate == base) {
+                return finish;
+            } else if (base < candidate) {
+                if (candidate < finish) {
+                    return finish;
+                }
+            } else if (finish < end) {
+                return finish;
+            } else if (base < end) {
+                return finish;
+            }
+        }
+    }
+    return candidate;
+}
+
+/* Measured: 692/704 bytes, 53 resolved relocations and twelve zero
+   alignment bytes. Diagnostic arguments reload after the task-name call. */
 // FUN_0046A430
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046a430);
+u8 *func_0046a430(s32 arg0)
+{
+    s32 lock;
+    u32 candidate;
+    u32 size;
+    u32 finish;
+    u32 i;
+    u8 *entry;
+    u32 *entry_length;
+    char *task_name;
+
+    lock = func_0042ba20();
+    size = ((u32)arg0 + 0xF) & ~0xF;
+    candidate = iGpffffbb14 + iGpffffbb0c * 8;
+retry:
+    finish = sdkMallocFindOverlap(candidate, size);
+    if (finish == candidate) {
+        i = 0;
+        while (i < iGpffffbb0c) {
+            entry = (u8 *)iGpffffbb14 + i * 8;
+            entry_length = (u32 *)(entry + 4);
+            if (*entry_length == 0) {
+                *(u32 *)entry = finish;
+                *entry_length = size;
+                iGpffffbb04 += size;
+                goto allocated;
+            }
+            i++;
+        }
+        func_00440b68(D_00756758);
+        task_name = func_004526e0();
+        func_0046d700((const char *)D_00756748, 0xB2,
+                      (const char *)D_00756730, iGpffffbb04, size,
+                      task_name, D_00724BEC, D_00724BF0);
+        func_0046d730(D_00756720, 0xB3);
+allocated:
+        if (lock != 0) {
+            func_0042ba70();
+        }
+        if (finish + size >= iGpffffbb10) {
+            func_00440b68(D_00713078);
+            task_name = func_004526e0();
+            func_0046d700((const char *)D_00713088, 0xEC,
+                          (const char *)D_007130A0, iGpffffbb04, size,
+                          task_name, D_00724BEC, D_00724BF0);
+        }
+        return (u8 *)finish;
+    }
+    candidate = finish;
+    if (candidate + size >= iGpffffbb10) {
+        func_00451b70();
+        func_00440b68(D_00713078);
+        task_name = func_004526e0();
+        func_0046d700((const char *)D_00713088, 0xFA,
+                      (const char *)D_007130A0, iGpffffbb04, size,
+                      task_name, D_00724BEC, D_00724BF0);
+        func_0046d730(D_00713088, 0xFB);
+    }
+    goto retry;
+}
 // FUN_0046A770
 /* The list walk is written with an explicit goto loop: retail tests the
    cursor at the TOP of the loop and both early exits are out of line, which

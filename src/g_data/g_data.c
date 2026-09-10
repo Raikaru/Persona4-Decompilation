@@ -1071,7 +1071,7 @@ u32 datGetFlag(s32 bit)
     idx = bit / 32;
     mask = bit % 32;
 
-    return (D_00797560.flags[idx] & (1 << mask)) != 0;
+    return (D_00797560.flags[idx] & (1U << mask)) != 0;
 }
 
 

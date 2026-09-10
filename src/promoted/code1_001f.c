@@ -49,7 +49,7 @@ extern s32 func_001ef5f0(s32 arg0, s32 arg1, s32 arg2);
 extern u32 func_00231d70();
 extern s32 func_00243950(s32 arg0);
 extern s32 func_002439c0(s32 arg0);
-extern s32 func_00243a30(s32 arg0, s32 *arg1);
+extern u16 func_00243a30(u8 *arg0, s32 *arg1);
 extern void func_0046d730(void *arg0, s32 arg1);
 extern u8 D_0060AB08[];
 extern s32 func_002340c0(s32 arg0, s32 arg1);
@@ -909,7 +909,7 @@ void func_001f2cc0(u8 *arg0)
                     *(s32 *)(D_0076449C + 0xCB4) +
                     func_002439c0(*(s32 *)(temp_16 + 0xA64));
                 var_16 = (u16)(func_00243a30(
-                    *(s32 *)(temp_16 + 0xA64), &sp3C) & 0xFFFF);
+                    *(u8 **)(temp_16 + 0xA64), &sp3C) & 0xFFFF);
                 if ((sp3C != 1) &&
                     (*(u16 *)(arg0 + 0x80) != 0) &&
                     ((s32)(func_00231d70(0x64) & 0xFF) <
