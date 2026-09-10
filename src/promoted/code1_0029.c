@@ -40,12 +40,12 @@ s32 func_0045a3e0(s16 arg0, s32 arg1);
 s32 func_00459880(void);
 s32 func_004598e0(s16 arg0);
 
-s32 func_00104ce0(s16 arg0);
+u32 func_00104ce0(s16 arg0);
 void func_0029cf50(s32 arg0);
 
-u16 func_00104dc0(s32 arg0);
+u16 func_00104dc0(s16 arg0);
 
-s32 func_00104d50(s16 arg0);
+u32 func_00104d50(s16 arg0);
 extern void func_001056e0(s16 arg0, s16 arg1);
 extern s64 func_0029cc00_s64(s32 arg0);
 extern void func_0045b2e0(s32 arg0);
@@ -58,7 +58,7 @@ extern u8 D_0063CFA0[];
 extern s32 func_00452380(void *path);
 extern s32 func_00106330(s32 arg0);
 extern void func_001238c0(s32 arg0);
-extern u32 func_00104e30(s32 arg0);
+extern u32 func_00104e30(s16 arg0);
 extern void func_00105730(s16 arg0, s16 arg1);
 static inline u8 *code29AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);

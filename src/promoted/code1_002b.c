@@ -1385,7 +1385,7 @@ void func_002bc0b0(u32 arg0, u32 arg1, u32 arg2, s32 arg3, s32 arg4) {
 {
     extern s32 func_00106600(s16 id);
     extern u32 func_00106880(s16 arg0);
-    extern s64 func_00106b80(s64 arg0);
+    extern s64 func_00106b80(s32 arg0);
     extern s32 func_00278e90(s32 arg0);
     extern s32 func_002791f0(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
     extern s32 func_00279470(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8, s32 arg9, s32 arg10);
@@ -1487,15 +1487,17 @@ block_23:
                   arg0, arg1, arg2, arg3, temp_item, arg5);
     return 0;
 }
+/* Preserve the word-sized ID through both metadata queries. Passing it
+ * explicitly preserves all 740 code bytes and the six-way table. */
 // FUN_002BC4B0
-void func_002bc4b0(s64 arg0, s32 arg1, s32 arg2, f32 fparg0, s32 arg3, s32 arg4, s32 arg5)
+void func_002bc4b0(s32 arg0, s32 arg1, s32 arg2, f32 fparg0, s32 arg3, s32 arg4, s32 arg5)
 {
-    extern u32 func_00106850();
-    extern s64 func_00106b80();
-    extern void func_002791f0(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
+    extern u32 func_00106850(s32 arg0);
+    extern s64 func_00106b80(s32 arg0);
+    extern s32 func_002791f0(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
     u32 temp_2;
 
-    temp_2 = func_00106850();
+    temp_2 = func_00106850(arg0);
     switch (temp_2) {
     case 0:
         func_002791f0((f32)arg1, (f32)arg2, fparg0,

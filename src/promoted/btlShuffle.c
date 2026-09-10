@@ -42,19 +42,19 @@ extern s32 func_0036e140(void);
 
 extern void func_0036e600(void);
 
-extern u16 func_00104dc0(s32 character);
+extern u16 func_00104dc0(s16 character);
 
-extern u32 func_001056e0();
+extern void func_001056e0(s16 character, s16 value);
 
 extern u32 func_00105610(s16 param);
 
 extern s32 func_00105ee0();
 
-extern u32 func_00104e30(s32 character);
+extern u32 func_00104e30(s16 character);
 
-extern s32 func_00104d50();
+extern u32 func_00104d50(s16 character);
 
-extern void func_00105730();
+extern void func_00105730(s16 character, s16 value);
 
 extern u8 D_0064E5F0[];
 
@@ -552,7 +552,7 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036f880);
 // FUN_0036FBE0
 s32 func_0036fbe0(s32 arg0)
 {
-    s32 s;
+    s16 s;
     u16 i;
     u16 r;
     s32 flag = arg0 & 0xFFFF;

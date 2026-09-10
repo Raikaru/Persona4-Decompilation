@@ -43,10 +43,10 @@ extern u8 *func_00106820(s16 arg0);
 /* Old-style declaration: the retail call site at func_00232aa0 passes arg0 raw (no 64-bit extension). */
 u16 func_00243920();
 
-extern u16 func_00104dc0(s32 character);
-extern u32 func_001056e0();
-extern u32 func_00104e30(s32 character);
-extern u32 func_00105730();
+extern u16 func_00104dc0(s16 character);
+extern void func_001056e0(s16 character, s16 value);
+extern u32 func_00104e30(s16 character);
+extern void func_00105730(s16 character, s16 value);
 extern void func_00105d50(s16 character, u32 mask);
 
 extern u8 *func_001094e0(u16 arg0);
