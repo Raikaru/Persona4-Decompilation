@@ -9745,3 +9745,88 @@ limitations; this recovery's exact object and native consumer proofs are
 separate from image linkage. The 172 source objects, 56 Sony SDK objects
 and 1,591 byte-exact C-linked functions are unchanged. The remaining 613
 first-party assembly fallbacks remain in scope.
+
+## First-party continuation: model setup, drawing and field selection
+
+Five more first-party functions now match. Every listed relocation resolves
+independently; every executable word agrees with retail, and no object
+overruns its window.
+
+| Function | Owner | Object/window bytes | Relocations | Zero alignment bytes |
+| --- | --- | ---: | ---: | ---: |
+| `func_00475350` | `src/Graphics/Model/mdlManager.c` | 1220/1232 | 46 | 12 |
+| `func_001d7c60` | `src/promoted/code1_001d.c` | 680/688 | 5 | 8 |
+| `func_0035dfb0` | `src/Camp/cmpConfig.c` | 1764/1776 | 17 | 12 |
+| `func_00209370` | `src/promoted/code1_0020.c` | 716/720 | 18 | 4 |
+| `func_0014be50` | `src/promoted/code1_0014.c` | 416/416 | 8 | 0 |
+
+The model setup keeps the dispatcher's raw word arguments and performs
+signed-index/unsigned-blend/flag narrowing in the callee. It reuses the
+existing animation resource and control views, the SDK animation layout
+and the real clump callback signature. Interpolator reuse, replacement,
+reference ownership and scheme callbacks retain their retail reloads.
+
+The battle collector preserves effect-mask precedence, self selection,
+status filtering and callback-visible data/count reloads. Its non-null
+source work has the type-0/1 construction contract established by
+`func_0019f5f0` and `btlActionSetUnit`; type-2 auxiliary work belongs to
+the separate `work+0xA0C` path. The `func_001d9390` caller now owns the
+complete 64-byte result, including the flag at `+0x3C`. Its previous
+60-byte C record overwrites a following canary when used with the
+collector. Completing the record changes no retail caller instructions.
+
+Configuration drawing uses member-first array bases and the canonical
+coordinates-before-color sprite API. The second arrow reloads its phase
+counter and selection while keeping the original sprite and coordinates;
+the text passes reload their row fields and resources. The adjacent
+battle-state renderer follows the same signed state-word contract as
+`func_00208d00`, with its own glyph slots and `func_002055d0` callback.
+
+Triangle selection replaces the artificial split normal declaration with
+one 12-byte `RwV3d`. Retail bytes at `0x005EFB98` are exactly
+`(0.0f, 1.0f, 0.0f)`. An aggregate copy and the predicate's canonical
+`f32 *`/`f32 **` arguments preserve the load/store schedule without a
+union or invented padding. Both triangle tests retain the live vertex,
+point-height and next-surface reads.
+
+The other recovered owner functions remain matched. The model material
+color string and three later battle float literals receive new
+compiler-local labels only; their bytes and offsets remain unchanged.
+
+Freestanding 32-bit consumers exercise actual recovered C:
+
+- **23,760 model-setup cases**, including raw argument narrowing,
+  interpolator lifetimes, resource replacement, scheme replacement and
+  callback-driven list changes. Six mutations are rejected.
+- **31,489 battle-collection cases**, including the actual constructor
+  and filtering caller. The old record extent, changed neutral-mask
+  precedence and cached data-pointer mutations are rejected.
+- **3,072 configuration-draw cases**, through the actual sprite wrappers
+  and core renderer into a command consumer. These cover opacity
+  boundaries, row selection, overlay state, retained arrow snapshots and
+  refreshed text fields. Cached counters/text, lost snapshots and
+  integer-opacity mutations are rejected.
+- **384 paired battle-state cases**, comparing the new renderer with
+  the already matched sibling after accounting for the intended glyph
+  and handler differences. The actual constructor and dispatcher run
+  with both ordinary and high-bit state addresses. Wrong-handler,
+  cached-position and cached-mode-callback mutations are rejected.
+- **17,500 triangle-selection cases**, through the actual projection
+  predicate. These cover first-hit selection, untouched output on a
+  miss, the strict height bounds and pointer/point/list mutations.
+  Closed-upper-bound and cached point/height/next mutations are rejected.
+
+These are native consumers with controlled external providers, not PS2
+graphics execution. Their throwaway sources, mutation fixtures and
+executables are removed. Configuration drawing is newly C-linked; the
+model and promoted owners retain their pre-existing whole-TU eligibility
+limitations, separate from these exact object and consumer proofs.
+
+`make build-progress lint-errors test progress progress-validate` passes:
+the unchanged 12,720-function scan reports **7,882 MATCH / 4,838 ASM**
+overall and **6,252 MATCH / 608 ASM (91.1%)** first-party. Both retail
+SHA-1s pass, all 529 tests pass, source-honesty lint reports zero findings
+in 340 first-party files and generated progress validates. The build
+retains 172 source objects and 56 Sony SDK objects; byte-exact C-linked
+functions rise to 1,592. All 608 remaining first-party assembly fallbacks
+remain in scope.

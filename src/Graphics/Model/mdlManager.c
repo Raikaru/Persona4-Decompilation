@@ -1506,7 +1506,7 @@ void func_00474df0(u8* param_1, void* param_2)
 
 
 // FUN_00474F40
-void* func_00474f40(void* arg0)
+void* func_00474f40(void* arg0, void* data)
 {
     void* obj;
     s32 count;
@@ -1549,7 +1549,7 @@ void* func_00474f40(void* arg0)
     return arg0;
 }
 // FUN_00475090
-u32 func_00475090(u32 param_1)
+void* func_00475090(void* param_1, void* data)
 {
     int iVar1;
     int iVar2;
@@ -1638,19 +1638,6 @@ void func_00475170(u8* arg0, f32 fparg0)
     }
 }
 
-/* IDA 00475350, mdlManager.c:1542-1684: typed resources, animation schemes
-   and detach lifetimes reduce the old 245-word draft to 30 fully relocated
-   instruction differences (1220B/1232B, plus 12 zero-tail bytes).
-   The successful-loop animation/interpolator allocation still differs.
-   Retained in IDA_00475350_body.c; production remains ASM. */
-// FUN_00475350
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475350);
-
-/* IDA 00475820, mdlManager.c:1687-1775: primary and secondary interpolators
-   have separate lifetimes, including the mode-1 callback-only path.
-   Measured 744B/752B: instruction match, followed by 8 zero tail bytes. */
-#pragma push
-#pragma always_inline on
 typedef struct MdlAnimResourceView {
     MdlAnimResourceEntry* entries;
     u32 unknown04;
@@ -1671,6 +1658,131 @@ typedef struct MdlAnimControlView {
     u16 unknown16;
     MdlAnimResourceView* resource;
 } MdlAnimControlView;
+
+/* Prefix view of the interpolation scheme in rw/inc/rtanim.h. */
+typedef struct MdlAnimSchemeView {
+    s32 typeID;
+    s32 interpKeyFrameSize;
+    s32 animKeyFrameSize;
+    void *keyFrameApplyCB;
+    RtAnimKeyFrameBlendCallBack keyFrameBlendCB;
+    void *keyFrameInterpolateCB;
+} MdlAnimSchemeView;
+typedef struct RtAnimInterpolatorInfo RtAnimInterpolatorInfo;
+struct RtAnimAnimation {
+    RtAnimInterpolatorInfo *interpInfo;
+    s32 numFrames;
+    s32 flags;
+    f32 duration;
+    void *pFrames;
+    void *customData;
+};
+extern RtAnimAnimation *func_003d6170(void *, u32);
+extern s32 func_003d5750(RtAnimAnimation *);
+extern void func_003d7c50(RtAnimAnimation *);
+extern void func_003d7cd0(RtAnimAnimation *);
+extern void func_003d8070();
+extern void func_0039a700();
+extern void func_00399bf0();
+extern s32 iGpffffb74c;
+
+static inline void mdlSetupDetach(u32 *object) {
+    RtAnimInterpolator *interpolator = (RtAnimInterpolator *)func_003d8130(*object, 1);
+    if (interpolator != 0) {
+        func_003d7c50(interpolator->pCurrentAnim);
+        func_003d5830(interpolator);
+        *(u32 *)((u8 *)*object + iGpffffb74c + 12) = 0;
+    }
+}
+
+/* 1220/1232 bytes; 46 resolved relocations and twelve zero alignment bytes.
+ * Old-style narrow parameters preserve the dispatcher's raw s32 arguments;
+ * the retail signed-short and unsigned-short conversions occur here.
+ * Keep the animation and interpolator lifetimes in this declaration order. */
+// FUN_00475350
+void func_00475350(clump, state, index, blend, flags)
+void *clump;
+MdlAnimControlView *state;
+s16 index;
+u16 blend;
+u16 flags;
+{
+    MdlAnimResourceView *resource;
+    u32 *object;
+    u32 name;
+    RtAnimInterpolator *interpolator;
+    RtAnimAnimation *animation;
+    s32 special;
+    if (state->resource != 0) {
+        state->flags &= ~1u;
+        state->flags |= flags & 0xffff & 1;
+        state->mode = 0;
+        state->secondaryTime = 0;
+        if (blend > 0 && state->index != -1 && state->resource != 0 &&
+            state->index < state->resource->count && state->resource->entries[state->index].resource != 0 &&
+            state->resource != 0 && (s64)index < state->resource->count && state->resource->entries[index].resource != 0)
+            state->ticks = blend;
+        else
+            state->ticks = 0;
+        resource = state->resource;
+        if (resource != 0 && (s64)index < resource->count && resource->entries[index].resource != 0) {
+            s32 *objects = resource->objects;
+            for (object = (u32 *)func_003df890(objects); object != (u32 *)func_003df8a0(objects); ++object) {
+                switch (func_00399d80(*object)) {
+                case 5: case 6: func_0039a700(*object, 0, 0); break;
+                }
+                name = func_00474ce0((void *)*object);
+                if (name != 0) {
+                    animation = func_003d6170(((MdlAnimResourceEntry *)addOff((s32)index * 8, (u32)state->resource->entries))->resource, name);
+                    if (animation != 0) {
+                        special = func_00442c30(name, &gp0xffff9d10, 5) == 0;
+                        interpolator = (RtAnimInterpolator *)func_003d8130(*object, 1);
+                        if (interpolator != 0) {
+                            s32 nodeCount;
+                            func_003d7c50(interpolator->pCurrentAnim);
+                            nodeCount = interpolator->numNodes;
+                            if (nodeCount != func_003d5750(animation) || interpolator->currentInterpKeyFrameSize != ((MdlAnimSchemeView *)animation->interpInfo)->interpKeyFrameSize) {
+                                func_003d5830(interpolator);
+                                interpolator = 0;
+                            }
+                        }
+                        if (interpolator != 0) {
+                            func_003d5840(interpolator, animation);
+                            func_003d7cd0(animation);
+                        } else {
+                            func_003d8070(*object, animation, 1);
+                            interpolator = (RtAnimInterpolator *)func_003d8130(*object, 1);
+                        }
+                        if (func_003d5750(animation) == 1) func_00399bf0(*object, 5);
+                        else func_00399bf0(*object, 6);
+                        if (special == 1) {
+                            func_003d5990(interpolator, func_00474ba0, state);
+                            interpolator->keyFrameBlendCB = (RtAnimKeyFrameBlendCallBack)func_00474a50;
+                            interpolator->keyFrameInterpolateCB = (void *)func_00474a90;
+                        } else {
+                            func_003d5990(interpolator, func_00474af0, state);
+                            interpolator->keyFrameBlendCB = ((MdlAnimSchemeView *)animation->interpInfo)->keyFrameBlendCB;
+                            interpolator->keyFrameInterpolateCB = ((MdlAnimSchemeView *)animation->interpInfo)->keyFrameInterpolateCB;
+                        }
+                    } else mdlSetupDetach(object);
+                }
+            }
+            func_003bff30(clump, func_00475090, 0);
+            func_003bff30(clump, func_00474f40, 0);
+        } else {
+            s32 *objects = resource->objects;
+            for (object = (u32 *)func_003df890(objects); object != (u32 *)func_003df8a0(objects); ++object)
+                if (func_00474ce0((void *)*object) != 0) mdlSetupDetach(object);
+        }
+        state->index = index;
+    }
+}
+
+/* IDA 00475820, mdlManager.c:1687-1775: primary and secondary interpolators
+   have separate lifetimes, including the mode-1 callback-only path.
+   Measured 744B/752B: instruction match, followed by 8 zero tail bytes. */
+#pragma push
+#pragma always_inline on
 
 static inline void mdl_step_secondary(MdlAnimControlView* state, u32* it)
 {
@@ -3111,7 +3223,7 @@ static inline void mdl_dispatch_animation(u8* mdl, u32 layer, s32 animation, s32
         }
         if (*(void**)(mdl + 0x234) && (blend = *(u8***)(mdl + 0x238)))
             func_0047fe90(blend, 0.0f, 1.0f);
-        func_00475350(*(void**)(mdl + 0xdc), mdl + 0x23c, animation, frame, flags);
+        func_00475350(*(void**)(mdl + 0xdc), (MdlAnimControlView*)(mdl + 0x23c), animation, frame, flags);
     }
     func_004740c0(mdl + 0xec + (u16)layer * 0xa4, animation, frame, flags);
     if (*(void**)(mdl + 0x2d0) && !((narrowFlags = (u16)flags) & 0x40) && baseLayer == 0) {
