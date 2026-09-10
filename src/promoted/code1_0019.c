@@ -2623,7 +2623,7 @@ void func_0019b530(u8 *arg0)
 }
 
 // FUN_0019B550
-u8 *func_0019b550(u8 *arg0, s16 arg1, s16 arg2)
+u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2)
 {
     u8 *work;
     u8 *packet;

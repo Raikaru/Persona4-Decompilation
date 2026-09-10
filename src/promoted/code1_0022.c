@@ -98,7 +98,7 @@ extern u8 *func_00194c90(void *callback, void *data);
 extern BtlPacket *func_001d7ab0(u8 *values, u16 duration);
 extern BtlPacket *func_001d7b60(u16 duration);
 extern BtlPacket *func_0019b6a0(BtlUnit *unit);
-extern u8 *func_0019b550(u8 *unit, s16 id, s16 animation);
+extern u8 *func_0019b550(u8 *unit, u16 id, s16 animation);
 extern BtlPacket *func_002305c0(s32 id);
 extern BtlPacket *func_00230650(void);
 extern BtlPacket *func_002306d0(void);

@@ -2139,17 +2139,75 @@ s32 func_0017ccc0(u8 *arg0) {
 }
 
 
-// FUN_0017CD60 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017cd60);
+/* 764/768 bytes; fourteen resolved relocations; four zero alignment bytes.
+ * Preserve unsigned frame updates and the three ordered sprite draws. */
+// FUN_0017CD60
+s32 func_0017cd60(u8 *arg0)
+{
+    u8 *work;
+    f32 easing;
+    f32 inverse;
+    f32 frame;
+    s32 opacity;
+    u16 counter;
+    f32 x;
+    f32 y;
+
+    work = *(u8 **)(arg0 + 0x38);
+    if (*(s32 *)(work + 4) == 0) {
+        return 0;
+    }
+    switch (*(s32 *)work) {
+    case 0:
+        *(s32 *)(work + 8) = (s32)func_0046a770(D_005E5850);
+        *(u16 *)(work + 0xC) = 320;
+        *(u16 *)(work + 0xE) = 240;
+        *(s32 *)work = *(s32 *)work + 1;
+        goto done;
+    case 1:
+        counter = *(u16 *)(work + 0x10);
+        frame = (f32)(u16)counter;
+        easing = func_0044b7b0((iGpffff82fc * frame) / 15.0f);
+        inverse = 1.0f - easing;
+        func_0025ecd0((f32)(*(u16 *)(work + 0xC) + 10),
+                      (f32)(*(u16 *)(work + 0xE) + 25), 1000.0f,
+                      0xFFFFFF, 0xFF, 0xC4, (void *)(*(u32 *)(work + 8)),
+                      1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        opacity = (s32)(128.0f * easing) + 0x80;
+        x = (f32)(*(u16 *)(work + 0xC) + 0x6E);
+        y = (f32)(*(u16 *)(work + 0xE) + 0x22);
+        opacity = (0xFF < opacity) ? 0xFF : opacity;
+        func_0025ecd0(x, y, 1000.0f,
+                      0xFFFFFF, opacity & 0xFF, 0xC6, (void *)(*(u32 *)(work + 8)),
+                      1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        func_0025ecd0((f32)(*(u16 *)(work + 0xC) + 0x6E),
+                      (f32)(*(u16 *)(work + 0xE) + 0xF +
+                            (s32)(3.0f * inverse)), 1000.0f,
+                      0xFFFFFF, 0xFF, 0xC5, (void *)(*(u32 *)(work + 8)),
+                      1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        counter = *(u16 *)(work + 0x10) + 1;
+        *(u16 *)(work + 0x10) = counter;
+        if (0xF < *(u16 *)(work + 0x10)) {
+            *(u16 *)(work + 0x10) = 0;
+        }
+        goto done;
+    case 2:
+        return -1;
+    default:
+        goto done;
+    }
+done:
+    return 0;
+}
 // FUN_0017D060
 void func_0017d060(u8 *arg0)
 {
 }
 // FUN_0017D070
-void func_0017d070(u8 *arg0)
+s32 func_0017d070(u8 *arg0)
 {
     func_0043f9c8(D_007F1740, 0, 0x20);
-    func_00451fc0(arg0, D_005F1950, 0x12, 0, 0, (void (*)(u8 *))func_0017cd60, func_0017d060, D_007F1740);
+    return (s32)func_00451fc0(arg0, D_005F1950, 0x12, 0, 0, (void (*)(u8 *))func_0017cd60, func_0017d060, D_007F1740);
 }
 // FUN_0017D0F0
 void func_0017d0f0(u8 *arg0, s32 arg1)

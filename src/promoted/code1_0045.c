@@ -379,8 +379,80 @@ loop_00452ce0_check:
     D_008C0349[0] = 0x80;
     func_004533d0();
 }
+/* 756/768 bytes; thirty-eight resolved relocations; twelve zero tail bytes.
+ * Measured: propagation off retains the raw/cooked pointer allocation.
+ * Analog values 0x5B..0xA5 are neutral; retain raw button bits 4..7. */
+#pragma push
+#pragma opt_propagation off
 // FUN_00452DB0
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00452db0);
+void func_00452db0(s32 slot) {
+    unsigned off2;
+    s32 off;
+    u16 *cooked;
+    u16 *rawHw;
+    u16 *edge;
+    u16 raw;
+    u16 cookedVal;
+    u8 *ana3;
+    u8 *ana0;
+    u8 *ana1;
+    u8 *ana2;
+
+    off = slot * 0x4A;
+    rawHw = (u16 *)(D_008C02EC + off);
+    cooked = (u16 *)(D_008C02F6 + off);
+    *cooked = (u16)(*rawHw & 0xF0);
+    ana0 = D_008C02FC + off;
+    if ((s32)*ana0 > 0xA5) {
+        *cooked |= 0x2000;
+    }
+    if ((s32)*ana0 < 0x5B) {
+        *cooked |= 0x8000;
+    }
+    ana1 = D_008C02FD + off;
+    if ((s32)*ana1 > 0xA5) {
+        *cooked |= 0x4000;
+    }
+    if ((s32)*ana1 < 0x5B) {
+        *cooked |= 0x1000;
+    }
+    ana2 = D_008C02FE + off;
+    if ((s32)*ana2 > 0xA5) {
+        *cooked |= 0x40;
+    }
+    if ((s32)*ana2 < 0x5B) {
+        *cooked |= 0x80;
+    }
+    ana3 = D_008C02FF + off;
+    if ((s32)*ana3 > 0xA5) {
+        *cooked |= 0x20;
+    }
+    if ((s32)*ana3 < 0x5B) {
+        *cooked |= 0x10;
+    }
+    /* The unsigned second offset preserves the retail stride recompute
+       after the analog-byte accesses, without extending off's lifetime. */
+    off2 = (unsigned)slot * 0x4A;
+    raw = *(u16 *)(D_008C02EC + off2);
+    edge = (u16 *)(D_008C02EE + off2);
+    *edge = (u16)(raw & (raw ^ *(u16 *)(D_008C02F0 + off2)));
+    cookedVal = *(u16 *)(D_008C02F6 + off2);
+    *(u16 *)(D_008C02F8 + off2) = (u16)(cookedVal & (cookedVal ^ *(u16 *)(D_008C02FA + off2)));
+    *(u16 *)(D_008C02F2 + off2) = *edge;
+    func_00453250(slot, 0x1000, 0);
+    func_00453250(slot, 0x4000, 1);
+    func_00453250(slot, 0x8000, 2);
+    func_00453250(slot, 0x2000, 3);
+    func_00453250(slot, 4, 4);
+    func_00453250(slot, 1, 5);
+    func_00453250(slot, 8, 6);
+    func_00453250(slot, 2, 7);
+    func_00453250(slot, 0x40, 8);
+    func_00453250(slot, 0x20, 9);
+    func_00453250(slot, 0x10, 0xA);
+    func_00453250(slot, 0x80, 0xB);
+}
+#pragma pop
 // FUN_004530B0
 void func_004530b0(s32 arg0) {
     s32 temp_6;

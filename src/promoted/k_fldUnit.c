@@ -58,7 +58,7 @@ extern s32 func_002319f0(s32 arg0);
 extern s32 func_0016fd00(s32 arg0);
 extern s32 func_0017e890(s32 arg0, u8 *arg1, u8 *arg2);
 extern void func_0017e990(s32 arg0);
-extern s32 func_0017d070(s32 arg0);
+extern s32 func_0017d070(u8 *arg0);
 extern void func_00168c00(s32 arg0);
 extern f32 func_003e4180(f32 *arg0);
 extern s32 func_00161630(u16 arg0, u16 arg1, u16 arg2, s32 arg3);
@@ -115,12 +115,11 @@ extern u8 D_007E80A0[];
 
 static s32 D_007643C8[2];
 static s32 D_007643C0[2];
-static u8 D_00763008[4];
-static u8 D_00763010[4];
-static u8 *D_00762EA0;
+extern u8 D_00763008[8];
+extern u8 D_00763010[4];
+extern u8 *D_00762EA0;
 static s32 D_00764350;
-static s32 D_007643E4;
-static f32 D_007613EC;
+extern f32 D_007613EC;
 
 typedef struct {
     u8 b[4];
@@ -552,16 +551,86 @@ void func_00164f50(s32 arg0)
 
 
 
-/* measured: nd ~26 after four attempts; everything matches except retail's
-   three re-issued `mult` recomputations of arg0*0x750 (temp_20_2, D_007F00D8,
-   D_007EFB60 sites). mwcc b210 CSEs arg0*0x750 against the temp_17 local
-   (kept in $s1 across the calls) and emits addu instead of a fresh mult, in
-   every spelling tried: arg0*0x750, 0x750*arg0, (s32)&D_..+arg0*0x750
-   int-cast form, (u32)arg0*0x750 (that one also grows the frame to 0x90).
-   CSE-of-recomputed-multiply floor (cf. cmmMisc func_00247cb0). sp70[3]
-   array, w0/w1 copy loop, and D_007EFA04-between-calls placement all match. */
+/* 708/720 bytes; forty resolved relocations; twelve zero alignment bytes.
+ * Preserve repeated unit-base multiplies and the link destination lifetime. */
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
 // FUN_00164FA0
-INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00164fa0);
+void func_00164fa0(s32 arg0)
+{
+    f32 sp70[3];
+    f32 temp_f0;
+    s32 *temp_21;
+    s32 *link;
+    s32 stride;
+    s32 temp_17;
+    s32 temp_2_2;
+    s32 temp_3;
+    s32 temp_4;
+    u16 actorId;
+    u8 **temp_16;
+    u8 **temp_20;
+    u8 **temp_20_2;
+    u8 *temp_18;
+    u8 *temp_2;
+    u8 *var_2;
+    u8 *var_6;
+    s32 i;
+
+    temp_17 = arg0 * 0x750;
+    temp_21 = (s32 *)(D_007EF9F8 + temp_17);
+    if (*temp_21 != 0) {
+        temp_16 = (u8 **)(D_007EFA00 + temp_17);
+        actorId = func_00145540(arg0 & 0xFFFF, 3, *temp_16) & 0xFFFF;
+        temp_20 = (u8 **)(D_007EFA04 + temp_17);
+        temp_2 = func_00145270(actorId);
+        *temp_20 = temp_2;
+        func_0017b9a0(*(s32 *)(temp_2 + 0x224), 60.0f);
+        temp_18 = D_007EF9B0 + temp_17;
+        var_2 = func_0047a2f0((s32)*temp_16);
+        i = 8;
+        var_6 = temp_18;
+        do {
+            temp_4 = *(s32 *)var_6;
+            temp_3 = *(s32 *)(var_6 + 4);
+            var_6 += 8;
+            i -= 1;
+            *(s32 *)var_2 = temp_4;
+            *(s32 *)(var_2 + 4) = temp_3;
+            var_2 += 8;
+        } while (i > 0);
+        func_003e05d0(func_0047a2f0((s32)*temp_16));
+        func_0014b0c0(*(u16 *)*temp_20, 1);
+        func_00168730(*((s32 *)(*temp_20 + 0x220)), 0x40000000);
+        func_00168c00(*((s32 *)(*temp_20 + 0x220)));
+        if (arg0 == 0) {
+            func_00168780(*((s32 *)(*temp_20 + 0x220)), 60.0f);
+        } else {
+            func_00168780(*((s32 *)(*temp_20 + 0x220)), 35.0f);
+        }
+        temp_20_2 = (u8 **)(D_007EFA04 + (arg0 * 0x750));
+        *(u8 **)(*temp_20_2 + 0x228) = (u8 *)func_00478750(iGpffffb274);
+        temp_f0 = func_00168770(*((s32 *)(*temp_20_2 + 0x220)));
+        sp70[0] = sp70[1] = sp70[2] = temp_f0;
+        func_0047a1e0(*(u8 **)(*temp_20_2 + 0x228), &sp70[0], 2);
+        func_00478e70(*(u8 **)(*temp_20_2 + 0x228));
+        if (func_002319f0(*temp_21) == 0) {
+            func_00479940(*temp_16, 0, (s16)func_0016fd00(*(u16 *)(D_007F00D8 + (arg0 * 0x750))), 0, 1);
+        }
+        if (arg0 != 0) {
+            stride = 0x750;
+            link = (s32 *)(D_007EFB60 + arg0 * stride);
+            temp_2_2 = func_0017e890(0, temp_18, D_007EF9B0 + ((arg0 - 1) * stride));
+            *link = temp_2_2;
+            func_0017e990(temp_2_2);
+        }
+        if (arg0 == 0) {
+            *(s32 *)(D_007EFB64 + temp_17) = func_0017d070(0);
+        }
+    }
+}
+#pragma pop
 
 
 

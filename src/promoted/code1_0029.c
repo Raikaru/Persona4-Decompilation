@@ -84,7 +84,7 @@ extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_00442c30(void *arg0, void *arg1, s32 arg2);
 extern u32 func_00442948(const void *arg0);
 extern void func_0043f810(void *arg0, void *arg1, s32 arg2);
-extern s32 func_0029ecb0(u8 *arg0);
+extern void func_0029ecb0(u8 *arg0);
 extern s32 D_0076462C;
 extern u8 iGpffffa7e8;
 
@@ -1030,8 +1030,91 @@ void func_0029ebf0(u8 *arg0, s32 arg1)
     func_002a27c0(temp_16 + 0x2A8, var_19, var_18, var_19, var_17,
                   fGpffff8204, 0, 0, 0xA);
 }
+/* 724/736 bytes; twenty-five resolved relocations; twelve zero tail bytes.
+ * Reload input halfwords at each direction and boundary. */
+#pragma push
+#pragma opt_loop_invariants on
 // FUN_0029ECB0
-INCLUDE_ASM("asm/nonmatchings/code1_0029", func_0029ecb0);
+void func_0029ecb0(u8 *arg0)
+{
+    extern u16 D_008C027A[];
+    extern u8 D_007485D0[];
+    u8 *state;
+    u8 *entry;
+    s32 value;
+
+    state = *(u8 **)(arg0 + 0x38);
+    *(s32 *)(state + 0x28) = *(s32 *)(state + 0x1C);
+    *(s32 *)(state + 0x2C) = *(s32 *)(state + 0x20);
+    *(s32 *)(state + 0x30) = *(s32 *)(state + 0x24);
+    if (*(volatile u16 *)D_008C027A & 0x4000) {
+        do {
+            value = *(s32 *)(state + 0x20) + 1;
+            *(s32 *)(state + 0x20) = value;
+            if (value >= 6) {
+                if (*(volatile u16 *)D_008C024E & 0x4000)
+                    *(s32 *)(state + 0x20) = 0;
+                else
+                    *(s32 *)(state + 0x20) = *(s32 *)(state + 0x2C);
+            }
+            entry = D_007485D0 + *(s32 *)(state + 0x20) * 0x28;
+            entry = code29AddOff(*(s32 *)(state + 0x1C) * 2, entry);
+        } while (*(s16 *)entry < 0);
+    }
+    if (*(volatile u16 *)D_008C027A & 0x1000) {
+        do {
+            value = *(s32 *)(state + 0x20) - 1;
+            *(s32 *)(state + 0x20) = value;
+            if (value < 0) {
+                if (*(volatile u16 *)D_008C024E & 0x1000)
+                    *(s32 *)(state + 0x20) = 5;
+                else
+                    *(s32 *)(state + 0x20) = *(s32 *)(state + 0x2C);
+            }
+            entry = D_007485D0 + *(s32 *)(state + 0x20) * 0x28;
+            entry = code29AddOff(*(s32 *)(state + 0x1C) * 2, entry);
+        } while (*(s16 *)entry < 0);
+    }
+    if (*(volatile u16 *)D_008C027A & 0x2000) {
+        do {
+            value = *(s32 *)(state + 0x1C) + 1;
+            *(s32 *)(state + 0x1C) = value;
+            if (value >= 20) {
+                if (*(volatile u16 *)D_008C024E & 0x2000)
+                    *(s32 *)(state + 0x1C) = 0;
+                else
+                    *(s32 *)(state + 0x1C) = *(s32 *)(state + 0x28);
+            }
+            entry = D_007485D0 + *(s32 *)(state + 0x20) * 0x28;
+            entry = code29AddOff(*(s32 *)(state + 0x1C) * 2, entry);
+        } while (*(s16 *)entry < 0);
+    }
+    if (*(volatile u16 *)D_008C027A & 0x8000) {
+        do {
+            value = *(s32 *)(state + 0x1C) - 1;
+            *(s32 *)(state + 0x1C) = value;
+            if (value < 0) {
+                if (*(volatile u16 *)D_008C024E & 0x8000)
+                    *(s32 *)(state + 0x1C) = 19;
+                else
+                    *(s32 *)(state + 0x1C) = *(s32 *)(state + 0x28);
+            }
+            entry = D_007485D0 + *(s32 *)(state + 0x20) * 0x28;
+            entry = code29AddOff(*(s32 *)(state + 0x1C) * 2, entry);
+        } while (*(s16 *)entry < 0);
+    }
+    value = *(s32 *)(state + 0x1C) % 5 + *(s32 *)(state + 0x20) * 5;
+    *(s32 *)(state + 0x24) = value;
+    value += (*(s32 *)(state + 0x1C) / 5) * 30;
+    *(s32 *)(state + 0x24) = value;
+    if (value != *(s32 *)(state + 0x30)) {
+        *(s32 *)(state + 0x34) = *(s32 *)(state + 0x28);
+        *(s32 *)(state + 0x38) = *(s32 *)(state + 0x2C);
+        *(s32 *)(state + 0x3C) = *(s32 *)(state + 0x30);
+        func_0045af60(0, 0, 0, 0);
+    }
+}
+#pragma pop
 // FUN_0029EF90
 void func_0029ef90(u8 *arg0, u8 *arg1)
 {
@@ -1060,7 +1143,7 @@ void func_0029ef90(u8 *arg0, u8 *arg1)
     }
 }
 // FUN_0029F070
-s32 func_0029f070(u8 *arg0)
+void func_0029f070(u8 *arg0)
 {
     u8 sp7C[4];
     s32 temp_19;
@@ -1125,7 +1208,8 @@ s32 func_0029f070(u8 *arg0)
     if ((D_008C024E[0] & 0x800) && (var_16 > 0)) {
         *(s32 *)(temp_18 + 0x14) = 3;
         *(s32 *)(temp_18 + 0x1C64) = 1;
-        return func_0045af60(0, 0, 0, 1);
+        func_0045af60(0, 0, 0, 1);
+        return;
     }
     temp_3 = temp_18 + 0x1C38;
     *(s16 *)temp_3 = 0;
@@ -1228,7 +1312,8 @@ s32 func_0029f070(u8 *arg0)
         }
         if (var_16 > 0) {
             *(s32 *)(temp_18 + 0x1C50) = 1;
-            return func_0045af60(0, 0, 0, 2);
+            func_0045af60(0, 0, 0, 2);
+            return;
         }
     }
     temp_3 = temp_18 + 0x1C3C;
@@ -1246,7 +1331,8 @@ s32 func_0029f070(u8 *arg0)
                       2);
         func_0029ef90(arg0, sp7C);
         *(s32 *)(temp_18 + 0x1C54) = 1;
-        return func_0045af60(0, 0, 0, 1);
+        func_0045af60(0, 0, 0, 1);
+        return;
     }
     temp_3 = temp_18 + 0x1C40;
     *(s16 *)temp_3 = 0;
@@ -1282,7 +1368,7 @@ s32 func_0029f070(u8 *arg0)
         *(s32 *)(temp_18 + 0x1C60) = 1;
         func_0045af60(0, 0, 0, 0);
     }
-    return func_0029ecb0(arg0);
+    func_0029ecb0(arg0);
 }
 // FUN_0029F790
 void func_0029f790(u8 *arg0)
