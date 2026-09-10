@@ -2688,18 +2688,86 @@ u16 func_002439c0(u8 *arg0)
     return *(u16 *)(iGpffffb3c4 + *(u16 *)(arg0 + 2) * 0x3C + 0x20);
 }
 
-/* measured: saved-register allocation; retail uses 7 saved regs incl. a
-   loop pointer hoisted to $s6 (addiu $22,$16,0x22 across the 0x106330
-   call) while mwcc reuses arg0's slot for var_21 and re-derives the
-   pointer, frame 0x70 vs 0x80, nd 156. Tried separate loop vars, top-level
-   pointer locals, m2c declaration order.
-   Wave 14: the single gp-relative base load (lw $2,-0x4c3c) feeds a
-   loop-invariant element pointer ($18) used across a dozen lhu/lbu reads —
-   multi-use hoisted base, so the opt_propagation-off + index-first helper
-   combo is NOT applicable (would CSE a base retail hoists to $s6).
-   Corroborated saved-register/loop-pointer-hoist floor. */
+/* Measured: 688/688 bytes and 16 fully resolved relocations.
+ * Loop guards mask promoted counters independently of narrowed indexing;
+ * the weighted random choice retains its unsigned-halfword boundary. */
 // FUN_00243A30
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243a30);
+u16 func_00243a30(u8 *arg0, s32 *arg1)
+{
+    u8 *entry;
+    u16 result;
+    s32 total;
+    s32 count;
+    s32 second_total;
+    s32 i;
+    u16 value;
+    u8 *slot;
+    u16 *field;
+
+    if (!(*(u16 *)arg0 & 4)) {
+        func_0046d730(D_00635938, 0x153F);
+    }
+    if (*(u16 *)(arg0 + 2) >= 0x150) {
+        func_0046d730(D_00635938, 0x1540);
+    }
+    entry = iGpffffb3c4 + *(u16 *)(arg0 + 2) * 0x3C;
+    result = 0;
+    if (arg1 != 0) {
+        *arg1 = 0;
+    }
+    if (*(u16 *)(entry + 0x34) != 0) {
+        value = *(u16 *)(entry + 0x32);
+        if (value != 0 && func_00106330(value) != 0 &&
+            (s32)((func_003b7060() % 100U) & 0xFF) < (s32)*(u8 *)(entry + 0x36)) {
+            result = *(u16 *)(entry + 0x34);
+            if (arg1 != 0) {
+                *arg1 = 1;
+            }
+        }
+    }
+    if (result == 0) {
+        total = 0;
+        i = 0;
+        while ((i & 0xFFFF) < 4) {
+            slot = entry + (u16)i * 4;
+            value = *(u16 *)(slot + 0x22);
+            if (value != 0 &&
+                (value < 0x400 || value >= 0x500 ||
+                 func_00106330(0x600 - value) == 0)) {
+                total = (total + *(u8 *)(slot + 0x24)) & 0xFFFF;
+            }
+            i = (i + 1) & 0xFFFF;
+        }
+        count = total & 0xFFFF;
+        if (count > 0 &&
+            (s32)((func_003b7060() % 200U) & 0xFFFF) < count) {
+            if (count == 0) {
+                func_0046d730(D_00635938, 0x17);
+            }
+            total = (u16)(func_003b7060() % (u32)count);
+            second_total = 0;
+            i = 0;
+            while ((i & 0xFFFF) < 4) {
+                slot = entry + (u16)i * 4;
+                field = (u16 *)(slot + 0x22);
+                value = *field;
+                if (value != 0 &&
+                    (value < 0x400 || value >= 0x500 ||
+                     func_00106330(0x600 - value) == 0)) {
+                    second_total =
+                        (second_total + *(u8 *)(slot + 0x24)) & 0xFFFF;
+                    if (total < second_total) {
+                        result = *field;
+                        goto done;
+                    }
+                }
+                i = (i + 1) & 0xFFFF;
+            }
+        }
+    }
+done:
+    return result;
+}
 
 // FUN_00243CE0
 s32 func_00243ce0(u8 *arg0)
