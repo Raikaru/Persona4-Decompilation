@@ -1764,8 +1764,102 @@ outer_check:
 done:
     ;
 }
+/* 860/864 bytes; seven resolved relocations; four zero alignment bytes.
+ * Snapshot both field colors once, then interpolate to their products.
+ * The packet callback keeps its u32(void *) contract and unsigned timer. */
+#pragma push
+#pragma opt_propagation off
 // FUN_001B7520
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b7520);
+u32 func_001b7520(void *arg0)
+{
+    typedef struct { f32 x; f32 y; f32 z; f32 w; } FadeV4;
+    typedef struct {
+        FadeV4 colorA;
+        FadeV4 colorB;
+        FadeV4 prodA;
+        FadeV4 prodB;
+        FadeV4 snapA;
+        FadeV4 snapB;
+        u32 totalFrames;
+        u32 currentFrame;
+    } FadeWork;
+    FadeWork *work;
+    u32 flags;
+    u32 totalFrames;
+    u32 currentFrame;
+    f32 currentFloat;
+    f32 totalFloat;
+    f32 ratio;
+    f32 inverse;
+    f32 firstX;
+    f32 firstY;
+    f32 firstZ;
+    f32 firstW;
+    f32 secondX;
+    f32 secondY;
+    f32 secondZ;
+    f32 secondW;
+    FadeV4 result;
+    FadeV4 *tmp;
+
+    work = (FadeWork *)arg0;
+    flags = *(u32 *)(iGpffffb3ac + 0xC);
+    if ((flags & 2) == 0) {
+        return 1;
+    }
+    if ((flags & 0x2000000) == 0) {
+        return 1;
+    }
+    if (work->currentFrame == 0) {
+        tmp = (FadeV4 *)func_00149ca0();
+        work->snapA = *tmp;
+        tmp = (FadeV4 *)func_00149ce0();
+        work->snapB = *tmp;
+        work->prodA.x = work->snapA.x * work->colorA.x;
+        work->prodA.y = work->snapA.y * work->colorA.y;
+        work->prodA.z = work->snapA.z * work->colorA.z;
+        work->prodA.w = work->snapA.w * work->colorA.w;
+        work->prodB.x = work->snapB.x * work->colorB.x;
+        work->prodB.y = work->snapB.y * work->colorB.y;
+        work->prodB.z = work->snapB.z * work->colorB.z;
+        work->prodB.w = work->snapB.w * work->colorB.w;
+    }
+    totalFrames = work->totalFrames;
+    currentFrame = work->currentFrame;
+    if (currentFrame < totalFrames) {
+        currentFloat = (f32)currentFrame;
+        totalFloat = (f32)totalFrames;
+        ratio = currentFloat / totalFloat;
+        inverse = 1.0f - ratio;
+        firstX = work->snapA.x * inverse;
+        firstY = work->snapA.y * inverse;
+        firstZ = work->snapA.z * inverse;
+        firstW = work->snapA.w * inverse;
+        secondX = work->prodA.x * ratio;
+        secondY = work->prodA.y * ratio;
+        secondZ = work->prodA.z * ratio;
+        secondW = work->prodA.w * ratio;
+        result.x = firstX + secondX;
+        result.y = firstY + secondY;
+        result.z = firstZ + secondZ;
+        result.w = firstW + secondW;
+        *(FadeV4 *)func_00149ca0() = result;
+        result.x = work->snapB.x * inverse + work->prodB.x * ratio;
+        result.y = work->snapB.y * inverse + work->prodB.y * ratio;
+        result.z = work->snapB.z * inverse + work->prodB.z * ratio;
+        result.w = work->snapB.w * inverse + work->prodB.w * ratio;
+        *(FadeV4 *)func_00149ce0() = result;
+    } else {
+        tmp = (FadeV4 *)func_00149ca0();
+        *tmp = work->prodA;
+        tmp = (FadeV4 *)func_00149ce0();
+        *tmp = work->prodB;
+        return 1;
+    }
+    work->currentFrame = work->currentFrame + 1;
+    return 0;
+}
+#pragma pop
 // FUN_001BA0E0
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001ba0e0);
 // FUN_001BA530
