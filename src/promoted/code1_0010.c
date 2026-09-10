@@ -696,8 +696,120 @@ void func_00103b00(void) {
         index++;
     }
 }
+struct HCdvd;
+struct RwTexture;
+/* Measured: 700/704 bytes, 23 resolved code relocations and seven resolved
+   jump-table entries; four zero alignment bytes. State 3 is inert, and the
+   drawing callback receives the current slot. */
 // FUN_00103C40
-INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00103c40);
+void func_00103c40(u8 *slot)
+{
+    extern u8 D_005DD630[];
+    extern u8 D_005DD640[];
+    extern u8 D_005DD670[];
+    extern u32 func_004553c0(struct HCdvd *archive);
+    extern const char *func_00456090(struct HCdvd *archive, s32 index);
+    extern u8 *func_004667d0(s32 kind, const char *name, const char *path,
+                            s32 flags, s32 source, s32 buffer, s32 byteCount,
+                            const char *cacheName, s32 resultKind, s32 memoryKind);
+    extern u8 *func_004669d0(u8 *request, s32 *complete, s32 *size);
+    extern s32 func_004672c0(s32 request, u8 *archive);
+    extern u8 *func_00454a60(u8 *path, s32 mode);
+    extern u32 func_00454bd0(struct HCdvd *archive);
+    extern s32 func_003ef3a0(struct RwTexture *texture);
+    extern void func_00103f00(u8 *slot);
+    extern s32 func_00442088(u8 *destination, const u8 *format, ...);
+    s32 complete;
+    s16 state;
+    u8 *texture;
+    s32 index;
+    u8 *textureSlot;
+    u8 *archive;
+    u8 *request;
+    s32 offset;
+
+    state = *(s16 *)slot;
+    switch (state) {
+    case 1:
+        *(s32 *)(slot + 0x36C) = *(s32 *)(slot + 0x36C) + 1;
+        if (func_004553c0(*(struct HCdvd **)(slot + 0x24)) == 0) {
+            break;
+        }
+        if (func_00456090(*(struct HCdvd **)(slot + 0x24),
+                          *(s32 *)(slot + 0x4C)) != NULL) {
+            func_00442088(slot + 0x60, D_005DD630,
+                           func_00456090(*(struct HCdvd **)(slot + 0x24),
+                                          *(s32 *)(slot + 0x4C)));
+            *(u8 **)(slot + 0x48) =
+                func_004667d0(0, (const char *)slot + 0x60, NULL,
+                              0, 0, 0, 0, NULL, 0, 0);
+            *(s16 *)slot = 2;
+            break;
+        }
+        func_00454bd0(*(struct HCdvd **)(slot + 0x24));
+        *(u8 **)(slot + 0x24) = NULL;
+        *(s16 *)slot = 3;
+        func_00440b68(D_005DD640, *(s16 *)(slot + 4),
+                      *(s16 *)(slot + 6), *(s16 *)(slot + 8),
+                      *(s32 *)(slot + 0x364), *(s32 *)(slot + 0x368),
+                      *(s32 *)(slot + 0x36C));
+        break;
+    case 2:
+        *(s32 *)(slot + 0x368) = *(s32 *)(slot + 0x368) + 1;
+        texture = func_004669d0(*(u8 **)(slot + 0x48), &complete, NULL);
+        offset = *(s32 *)(slot + 0x4C) * 4;
+        *(u8 **)(offset + (u32)slot + 0x14) = texture;
+        if (complete != 0) {
+            offset = *(s32 *)(slot + 0x4C) * 4;
+            texture = *(u8 **)(offset + (u32)slot + 0x14);
+            *(u32 *)(texture + 0x50) =
+                (*(u32 *)(texture + 0x50) & 0xFFFF00FF) | 0x3300;
+            *(u8 **)(slot + 0x48) = NULL;
+            *(s32 *)(slot + 0x4C) = *(s32 *)(slot + 0x4C) + 1;
+            *(s16 *)slot = 1;
+            break;
+        }
+        break;
+    case 4:
+        func_00103f00(slot);
+        break;
+    case 5:
+    case 6:
+        *(s32 *)(slot + 0x364) = *(s32 *)(slot + 0x364) + 1;
+        request = *(u8 **)(slot + 0x48);
+        if (request != NULL) {
+            func_004672c0((s32)request, *(u8 **)(slot + 0x24));
+            *(u8 **)(slot + 0x48) = NULL;
+            *(u8 **)(slot + 0x24) = NULL;
+        } else {
+            archive = *(u8 **)(slot + 0x24);
+            if (archive != NULL) {
+                func_00454bd0((struct HCdvd *)archive);
+                *(u8 **)(slot + 0x24) = NULL;
+            }
+        }
+        index = 0;
+        while (index < 2) {
+            textureSlot = slot + (index * 4) + 0x14;
+            if (*(struct RwTexture **)textureSlot != NULL) {
+                func_003ef3a0(*(struct RwTexture **)textureSlot);
+                *(u8 **)textureSlot = NULL;
+            }
+            index++;
+        }
+        if (*(s16 *)slot != 6) {
+            *(s16 *)slot = 0;
+        } else {
+            func_00440b68((u8 *)&iGpffff85d0 + 8, D_005DD670, 0xC5);
+            *(u8 **)(slot + 0x24) = func_00454a60(slot + 0x60, 1);
+            *(s16 *)slot = 1;
+        }
+        break;
+    case 0:
+    default:
+        break;
+    }
+}
 // FUN_00103F00
 INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00103f00);
 // FUN_001044D0

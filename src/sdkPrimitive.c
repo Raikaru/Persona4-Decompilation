@@ -3,6 +3,19 @@
 #include "include_asm.h"
 #include "type.h"
 
+typedef struct { u8 c[4]; } PrimByte4;
+typedef struct { f32 v[4]; } PrimFloat4;
+typedef struct { f32 v[2]; } PrimFloat2;
+typedef struct {
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad0[12];
+    f32 inv;
+    u8 pad1[4];
+    f32 color[4];
+    u8 pad2[16];
+} PrimVertex;
 extern void func_0044ea90(void *msg, s32 id);
 extern void func_0043f810(void *dst, const void *src, u32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -13,7 +26,9 @@ extern u8 *func_00460990(void);
 extern void func_00460ac0(void *param, void *work);
 extern void func_0045d890(void);
 extern void func_0045d370(void *out, void *a1, void *a2, f32 f0, s32 a3, s32 a4, f32 f1, f32 f2, f32 f3);
-extern void func_0045dd30(u8 *a0, s32 a1, s32 a2, f32 f0, u32 a3, s32 a4, s32 a5, f32 f1, f32 f2, f32 f3);
+extern void func_0045dd30(PrimVertex *out, const PrimByte4 *colors, const PrimFloat2 *positions,
+                          f32 depth, u32 count, s32 offsetX, s32 offsetY,
+                          f32 rotation, f32 scaleX, f32 scaleY);
 extern void func_003f6440(s32 param, s32 value);
 extern void (*D_00887300[])();
 extern void (*D_00887304[])();
@@ -29,9 +44,6 @@ extern f32 func_0044b610(f32 x);
 extern f32 D_008872F8[];
 extern f32 iGpffff81d0;
 
-typedef struct { u8 c[4]; } PrimByte4;
-typedef struct { f32 v[4]; } PrimFloat4;
-typedef struct { f32 v[2]; } PrimFloat2;
 
 // FUN_0045DA40
 void func_0045da40(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, f32 fparg0) {
@@ -88,29 +100,59 @@ void func_0045db40(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4,
 }
 
 
-/* measured: retail FP home-register mapping is {z:f24, sinv:f20, inv:f21,
-   ang:f25, fparg0:f24, fparg1:f20, fparg2:f23, fparg3:f22} (mula/madd body
-   matches once the sum-of-products is parenthesized and the 2-float base copy
-   is a struct); mwcc b210 always emits {z:f20, sinv:f22, inv:f21, ang:f25,
-   fparg0:f20, fparg1:f22, fparg2:f24, fparg3:f23} (nd 179-183) regardless of
-   local declaration order (tried sinv,inv,z,ang / statement order / base
-   first / base last), prototype FP-param position (interleaved 4th vs
-   GPRs-first), base as struct vs 2-element array vs plain f32s, and
-   x + x vs 2.0f * x. FP register-allocation floor. */
+/* Measured: 664/672 bytes, six resolved relocations and eight zero alignment bytes.
+ * Keep both coordinate subtractions before the in-place scale multiplications;
+ * the base position and unsigned color channels retain their actual layouts. */
 // FUN_0045DD30
-INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045dd30);
-
-
-typedef struct {
+void func_0045dd30(PrimVertex *out, const PrimByte4 *colors, const PrimFloat2 *positions,
+                  f32 depth, u32 count, s32 offsetX, s32 offsetY,
+                  f32 rotation, f32 scaleX, f32 scaleY) {
+    PrimFloat2 base;
+    const PrimFloat2 *position;
+    PrimVertex *vertex;
+    const u8 *color;
+    f32 inv;
+    f32 angle;
+    f32 sine;
+    f32 cosine;
+    f32 centerX;
+    f32 centerY;
     f32 x;
     f32 y;
-    f32 z;
-    u8 pad0[12];
-    f32 inv;
-    u8 pad1[4];
-    f32 color[4];
-    u8 pad2[16];
-} PrimVertex;
+    f32 negSine;
+    u32 i;
+
+    inv = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    depth = D_008872F8[0] - depth;
+    angle = iGpffff81d0 * rotation;
+    sine = func_0044b7b0(angle);
+    cosine = func_0044b610(angle);
+    base = *positions;
+    i = 0;
+    centerX = base.v[0] + (f32)offsetX;
+    centerY = base.v[1] + (f32)offsetY;
+    negSine = -sine;
+    while (i < count) {
+        position = &positions[i];
+        x = position->v[0] - centerX;
+        y = position->v[1] - centerY;
+        x *= scaleX;
+        y *= scaleY;
+        vertex = &out[i];
+        vertex->x = centerX + (x * cosine + y * sine);
+        vertex->y = centerY + (x * negSine + y * cosine);
+        vertex->z = depth;
+        color = colors[i].c;
+        vertex->color[0] = (f32)(u32)color[0];
+        vertex->color[1] = (f32)(u32)color[1];
+        vertex->color[2] = (f32)(u32)color[2];
+        vertex->color[3] = (f32)(u32)color[3];
+        vertex->inv = inv;
+        i++;
+    }
+}
+
+
 // FUN_0045DFD0
 
 void func_0045dfd0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4) {
@@ -266,7 +308,8 @@ void func_0045e6a0(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3, s32 arg4,
     }
     func_0044ea90(D_007124C0, 0x355);
     out = (s32 *)jtbl_008873E8[0](arg2 << 6, 0x40000);
-    func_0045dd30((u8 *)out, arg0, arg1, fparg0, arg2, arg5, arg6, fparg1, fparg2, fparg3);
+    func_0045dd30((PrimVertex *)out, (const PrimByte4 *)arg0, (const PrimFloat2 *)arg1,
+                  fparg0, arg2, arg5, arg6, fparg1, fparg2, fparg3);
     D_00887310[0](arg3, out, arg2);
     if (arg4 != 0) {
         for (j = 0; j < 6; j++) {

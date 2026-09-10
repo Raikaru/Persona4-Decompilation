@@ -9159,3 +9159,51 @@ These consumer runs model opaque external services and do not claim real PS2
 rendering, storage I/O or floating-point exception coverage. Residual and
 undefined-source blockers remain assembly fallbacks. The all-matching
 objective remains open.
+
+## First-party continuation: slots, loot, drawing and allocation
+
+Six more assembly fallbacks are replaced by ordinary C:
+
+| Function | Executable / window bytes | Code relocations | Zero tail bytes |
+| --- | --- | --- | --- |
+| `func_00103c40` | 700 / 704 | 23 | 4 |
+| `func_00201b00` | 676 / 688 | 7 | 12 |
+| `func_00243a30` | 688 / 688 | 16 | 0 |
+| `func_002caa10` | 696 / 704 | 14 | 8 |
+| `func_0045dd30` | 664 / 672 | 6 | 8 |
+| `func_0046a430` | 692 / 704 | 53 | 12 |
+
+The current build objects match retail after resolving all 119 code
+relocations, not just masking their instruction fields. The slot callback's
+seven-entry jump table at `0x00746500` also matches all 28 bytes after resolving
+its seven data relocations. Every omitted tail byte is verified zero.
+
+Slot state 3 remains inert; the drawing callback receives the actual slot,
+and cleanup retains callback-visible handle, index and state reloads. The
+shop number renderer preserves the by-value coordinate/color ABI, full
+unsigned decimal input, signed glyph widths, comma placement and resource
+acquisition/release order. The allocator retains its interrupt state, list
+transitions, overlap search, callback-visible diagnostic arguments and retry
+reloads rather than caching values across those calls.
+
+The focused consumers pass 16 slot scenarios, 10,069 shop-number cases and
+the allocator's list, alignment, exhaustion, overlap and retry scenarios.
+These use controlled external providers on native hosts or 32-bit x86
+Unicorn; they do not claim PS2 graphics, disc I/O or scheduler execution.
+The PS2 code and ABI claim comes from the resolved retail instruction and
+owned-data comparisons.
+
+Two new GP references require explicit linker bindings:
+`iGpffff81d0 = 0x007612c0` is the primitive's radians-per-degree float, and
+`iGpffffa884 = 0x00763974` is the shop renderer's `" "` string. Their retail
+operands and data bytes are checked. Registering them preserves the
+**172-object source-link floor** without lowering it.
+
+All 7,843 preceding MATCH rows remain MATCH. The fresh 12,720-function
+scan reports **7,849 MATCH / 4,871 ASM** overall and
+**6,219 MATCH / 641 ASM** first-party (**90.7%**, rounded). The build links
+172 C objects and 56 Sony SDK objects and reproduces both retail SHA-1s;
+all 529 repository tests pass, and source-honesty lint finds zero issues in
+340 first-party files. Generated progress and its validation pass. The
+remaining 641 first-party fallbacks stay visible; all-matching is not yet
+complete.
