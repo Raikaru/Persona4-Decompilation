@@ -9595,3 +9595,47 @@ the throwaway native sources and executables are removed.
 `make build lint-errors test progress progress-validate` passes: both retail
 SHA-1s are unchanged, all 529 tests pass, first-party lint has zero findings,
 and the full scan remains 6,240 first-party MATCH / 620 ASM.
+
+## First-party continuation: card-record reconciliation
+
+`func_00378600` is recovered in `src/Battle/btlShuffleSeq.c`:
+**804 / 816 bytes**, eight fully resolved relocations, zero differing
+instruction words, and twelve zero alignment bytes.
+
+The old register-allocation floor closes with two scoped optimizer settings:
+`opt_common_subs off` recomputes both swap record bases, while
+`opt_loop_invariants on` hoists the inner descriptor-count address.
+The count itself is still reloaded for each descriptor lookup.
+Either setting alone regresses the candidate; together they reproduce
+retail. File-scope restores preserve the following functions. A real
+`s32[0x3EC]` temporary supplies aligned storage for the complete 0xFB0-byte
+record, with all words written before they are read.
+
+All nineteen other owner instruction bodies and relocation records remain
+unchanged, including the remaining assembly fallback. The targeted scan
+reports **19 MATCH / 1 ASM**, with all twenty canonical function markers
+still discovered.
+
+A current-source consumer passes **2,975 freestanding i386 cases**. It
+executes the reconciliation body, the live `func_00379d70` caller, and the
+actual card-count, genus and identity providers. Cases cover early-return
+modes, invalid-mode assertions, nonpositive counts, ordered/reversed/rotated
+and shuffled records, duplicate identities, unmatched descriptors, complete
+record payloads, and whole-context guards. Instrumented query boundaries
+exercise count changes during reconciliation. The caller cases cover
+pending, accepted, redraw and invalid-result transitions.
+
+The search deliberately stops before the last card; an unmatched search
+swaps with that final record without querying it. The consumer rejects
+three plausible mutations: searching the last card, shortening the copy
+loops by eight bytes, and caching the descriptor count. These checks use
+controlled UI providers and query instrumentation, not a PS2 playthrough.
+The throwaway consumer sources, mutation fixtures and executables are removed.
+
+`make build lint-errors test progress progress-validate` passes. The unchanged
+12,720-function scan reports **7,871 MATCH / 4,849 ASM** overall and
+**6,241 MATCH / 619 ASM (91.0%)** first-party. Both retail SHA-1s pass;
+172 source objects and 56 Sony SDK objects remain linked, with 1,588
+byte-exact C-linked functions. All 529 tests pass, first-party lint reports
+zero findings in 340 files, and generated progress validates.
+The remaining 619 first-party assembly fallbacks are still in scope.
