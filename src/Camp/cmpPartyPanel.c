@@ -15,12 +15,12 @@ void func_003640f0(u8* arg0);
 s32 func_00362f00(u8* arg0);
 void func_00363200(u8* arg0, s64 arg1);
 void func_0034f1e0(void);
-void func_0034f460(s32 arg0, s32 arg1, s8 arg2, s8 arg3, s8 arg4, s64 arg5,
-                   f32 fparg0, f32 fparg1);
-s32 func_00104ce0(s16 arg0);
-u16 func_00104dc0(s32 arg0);
-s32 func_00104d50(s16 arg0);
-u32 func_00104e30(s32 arg0);
+void func_0034f460(s32 resource, s32 slot, f32 x, f32 y,
+                   u8 r, u8 g, u8 b, s64 alpha);
+u32 func_00104ce0(s16 arg0);
+u16 func_00104dc0(s16 arg0);
+u32 func_00104d50(s16 arg0);
+u32 func_00104e30(s16 arg0);
 u8* func_00457120(void);
 s16 func_00353b50(s16* dst);
 s32 func_0046aea0(void* arg0);
@@ -180,11 +180,55 @@ void func_00363080(f32 fparg0, f32 fparg1, f32 fparg2) {
 }
 
 
-/* measured: a temporary indexed-row pointer with opt_propagation off
-   reached object 840B/window 832B and 135 differing words; residual drift
-   remains, so the retail ASM is kept authoritative. */
-// FUN_00363200 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/cmpPartyPanel", func_00363200);
+/* 820/832 bytes; sixteen resolved relocations and twelve zero alignment bytes.
+ * The sprite API keeps coordinates before byte colors, as its core does.
+ * Snapshot the row position and unsigned HP/SP values before drawing. */
+// FUN_00363200
+void func_00363200(u8* arg0, s64 arg1)
+{
+    s32 off = (s16)arg1 * 0x28;
+    s16 id = *(s16*)((u8*)(off + (s32)arg0) + 0x34);
+    s32 sprB = *(s32*)(arg0 + 0x0C);
+    s32 sprA = *(s32*)((u8*)(off + (s32)arg0) + 0x2C);
+
+    if (*(s32*)((u8*)(off + (s32)arg0) + 0x30) != 0) {
+        Vec2f xy;
+        f32 y;
+        u32 hpCur;
+        u32 hpMax;
+        u32 spCur;
+        u32 spMax;
+        f32 ratio;
+        f32 y35;
+        f32 x13;
+        f32 y39;
+
+        if (sprB == 0) {
+            func_0046d730(D_0064E290, 0x108);
+        }
+        if (sprA == 0) {
+            func_0046d730(D_0064E290, 0x109);
+        }
+        xy = *(Vec2f*)(panelSlot(off, arg0) + 0x20);
+        hpCur = func_00104ce0(id) & 0xFFFF;
+        hpMax = func_00104dc0(id) & 0xFFFF;
+        spCur = func_00104d50(id) & 0xFFFF;
+        spMax = func_00104e30(id) & 0xFFFF;
+        y = xy.y;
+        func_0034f460(sprA, 0, xy.x, y, 0xFF, 0xFF, 0xFF, 0xFF);
+        func_0034f460(sprB, 0, 8.0f + xy.x, 31.0f + y,
+                      0xFF, 0xFF, 0xFF, 0xFF);
+        ratio = (f32)hpCur / (f32)hpMax;
+        y35 = 35.0f + y;
+        x13 = 13.0f + xy.x;
+        func_0034f460(sprB, 1, x13, y35, 0xFF, 0xFF, 0xFF, 0xFF);
+        func_00363080(x13, y35, ratio);
+        y39 = 39.0f + y;
+        func_0034f460(sprB, 2, x13, y39, 0xFF, 0xFF, 0xFF, 0xFF);
+        ratio = (f32)spCur / (f32)spMax;
+        func_00363080(x13, y39, ratio);
+    }
+}
 
 // FUN_00363540
 void func_00363540(u8* arg0, u8* arg1) {

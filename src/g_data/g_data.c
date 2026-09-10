@@ -320,37 +320,39 @@ void func_00104c70(s16 arg0)
     }
 }
 
+/* Return the unit reader's value explicitly; both 108-byte bodies retain
+ * their six relocations and four zero alignment bytes. */
 // FUN_00104CE0
-void func_00104ce0(s16 arg0)
+u32 func_00104ce0(s16 arg0)
 {
     if (arg0 == 1)
     {
-        func_00231ed0(D_007973C4);
+        return func_00231ed0(D_007973C4);
     }
     else
     {
-        func_00231ed0((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+        return func_00231ed0((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
     }
 }
 
 // FUN_00104D50
-void func_00104d50(s16 arg0)
+u32 func_00104d50(s16 arg0)
 {
     if (arg0 == 1)
     {
-        func_00231ee0(D_007973C4);
+        return func_00231ee0(D_007973C4);
     }
     else
     {
-        func_00231ee0((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+        return func_00231ee0((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
     }
 }
 
-/* Retail callers pass a promoted ID; signed-halfword selection occurs here. */
+/* Character selectors are signed halfwords. Canonical getter/setter
+ * declarations preserve both 108-byte wrappers and their caller bodies. */
 // FUN_00104DC0
-u16 func_00104dc0(s32 character)
+u16 func_00104dc0(s16 arg0)
 {
-    s16 arg0 = (s16)character;
     if (arg0 == 1)
     {
         return func_00231f80((struct DatUnit*)D_007973C4);
@@ -362,9 +364,8 @@ u16 func_00104dc0(s32 character)
 }
 
 // FUN_00104E30
-u32 func_00104e30(s32 character)
+u32 func_00104e30(s16 arg0)
 {
-    s16 arg0 = (s16)character;
     if (arg0 == 1)
     {
         return func_00232290((struct DatUnit*)D_007973C4);
@@ -1327,8 +1328,10 @@ u32 func_00106b50(s16 arg0)
     return *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x40);
 }
 
+/* Metadata IDs arrive as words; the signed low halfword selects the
+ * bank-relative index. The word-sized input preserves all 176 bytes. */
 // FUN_00106B80
-s64 func_00106b80(s64 arg0)
+s64 func_00106b80(s32 arg0)
 {
     s16 temp_2;
 

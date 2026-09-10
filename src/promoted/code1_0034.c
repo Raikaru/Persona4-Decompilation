@@ -446,8 +446,8 @@ void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
     func_0046b380(arg0, 0);
 }
 // FUN_0034F460
-void func_0034f460(s32 arg0, s32 arg1, u8 arg2, u8 arg3, u8 arg4, s64 arg5,
-                   f32 fparg0, f32 fparg1) {
+void func_0034f460(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
+                   u8 arg2, u8 arg3, u8 arg4, s64 arg5) {
     func_0034f4a0(arg0, arg1, fparg0, fparg1, 0.0f, arg2, arg3, arg4, arg5,
                   0x1000, 0x1000, 0.0f, 0, 0);
 }

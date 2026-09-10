@@ -132,7 +132,8 @@ extern s32 func_00200ce0(void);
 extern void func_00205170(void);
 extern void func_00205ff0(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
                           void (*callback)(void), u8 *arg3);
-extern void func_002055d0(u8 *arg0, s16 arg1, s8 arg2, s32 arg3, s32 arg4, f32 fparg0, f32 fparg1);
+extern void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
+                         u8 opacity, s32 highlighted, s32 show_detail);
 extern void func_00204690(u8 *arg0, f32 fparg0, f32 fparg1, s32 arg1, f32 fparg2);
 extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
 typedef struct {
@@ -1735,9 +1736,91 @@ void func_00204d90(void)
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00204dc0);
 // FUN_00205170
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205170);
-/* measured: candidate object 920B/window 896B, normalized_diff 663; archived as build/E205_055d0_casts.json. */
+/* 888/896 bytes; twelve resolved relocations and eight zero alignment bytes.
+ * Narrow the promoted row ID at helper boundaries. The four-byte color
+ * has byte and packed-word views; reload the signed number after drawing. */
+#pragma push
+#pragma opt_rebuildconditionals off
+#pragma opt_common_subs off
+#pragma opt_propagation off
 // FUN_002055D0
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_002055d0);
+void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
+                   u8 opacity, s32 highlighted, s32 show_detail)
+{
+    extern u32 func_00452560(void *task);
+    extern void func_00113280(Vec2f arg0, f32 fparg0, s32 arg1,
+                              s16 arg2, s32 arg3, s32 arg4);
+    extern void func_002bc4b0(s32 arg0, s32 arg1, s32 arg2, f32 fparg0,
+                              s32 arg3, s32 arg4, s32 arg5);
+    u8 *glyphs;
+    u8 tone;
+    s32 off;
+    s32 id;
+    s32 digit;
+    s32 masked;
+    s32 tens;
+    s32 radix;
+    f32 digit_y;
+    f32 digit_x;
+    f32 fx;
+    const char *name;
+    Vec2f pos;
+    union {
+        Color4 bytes;
+        s32 word;
+    } color;
+
+    glyphs = (u8 *)func_00452560(*(void **)(work + 0x5B0));
+    off = slot * 4;
+    id = *(s16 *)(p4_002091f0_add((u32)off, work) + 0x1A6);
+    if (highlighted != 0) {
+        tone = 0x1B;
+    } else {
+        tone = 0xFF;
+    }
+    pos.x = x;
+    pos.y = y;
+    color.bytes.c0 = tone;
+    color.bytes.c1 = tone;
+    color.bytes.c2 = tone;
+    color.bytes.c3 = opacity;
+    func_00113280(pos, 50.0f, color.word, id,
+                  *(s32 *)(glyphs + 0x5C), *(s32 *)(glyphs + 0x60));
+    func_00272c60(0x40);
+    masked = opacity & 0xFF;
+    fx = 42.0f + x;
+    name = (const char *)func_001067f0(id);
+    {
+        f32 text_y = (2.0f + y) - 1.0f;
+        f32 depth = 50.0f;
+        u32 high = (u8)tone;
+        func_00275020(fx, text_y, depth,
+                      (high << 24) | (high << 16) |
+                          ((u32)(u8)tone << 8) | masked,
+                      0, 1, name, 0, -1);
+    }
+    func_00272c80(0x40);
+    func_00201650(glyphs, 0xC, 0x47, (374.0f + x) - 97.0f,
+                  (157.0f + y) - 145.0f, tone, tone, tone, opacity);
+    digit = *(s8 *)(p4_002091f0_add((u32)off, work) + 0x1A8);
+    digit_y = (155.0f + y) - 145.0f;
+    digit_x = (398.0f + x) - 97.0f;
+    func_00201650(glyphs, 0xC, (digit % 10) + 9, 16.0f + digit_x,
+                  digit_y, tone, tone, tone, opacity);
+    radix = 10;
+    tens = digit / radix;
+    if (tens != 0) {
+        func_00201650(glyphs, 0xC, (tens % radix) + 9, digit_x, digit_y,
+                      tone, tone, tone, opacity);
+    }
+    if (show_detail != 0) {
+        func_00272c60(0x40);
+        func_002bc4b0((s16)id, (s32)(10.0f + ((2.0f + fx) - 1.0f)),
+                      (s32)(36.0f + y), 0.0f, masked | ~0xFF, 1, 0);
+        func_00272c80(0x40);
+    }
+}
+#pragma pop
 /* 712/720 bytes; twelve resolved relocations; eight zero alignment bytes.
  * Keep the shared decimal divisor and the branch-local byte tones. */
 #pragma push

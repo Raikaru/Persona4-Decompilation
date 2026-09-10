@@ -876,12 +876,123 @@ valid_index:
         D_00797F88[0] = 0;
     }
 }
-/* measured: retail loads the count-select ternary arms with daddiu into
-   $v0 and hoists (u16)count/base to the search-loop preheader; mwcc b210
-   emits addiu into $a1 and re-masks/re-bases inside the loop (same
-   daddiu-local floor as func_0010b6f0/0010b7f0). nd 165-215. */
+/* 1008/1008 bytes; forty-five fully resolved relocations, no alignment tail.
+ * Preserve the promoted search bound and signed persona-ID comparison.
+ * Initialization and diagnostics can change the capacity flags: reload them
+ * at each subsequent validation, as the retail body does. */
 // FUN_0010B9A0
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010b9a0);
+s32 func_0010b9a0(s32 arg0, u16 arg1)
+{
+    s32 v = arg0 & 0xFFFF;
+    u8 *p;
+    s16 empty;
+    s32 emptyOff;
+    u16 maxPersonaCount;
+    s32 personaCount;
+    s32 i;
+    s16 found;
+    s32 id;
+    u8 *base;
+    s32 off;
+    s32 cur;
+    s32 curOff;
+
+    if (v == 1) {
+        empty = func_0010ab30();
+        if (empty == -1) {
+            p = NULL;
+        } else {
+            emptyOff = empty * 0x30;
+            p = (u8 *)D_007973A0 + emptyOff + 0xBEC;
+            func_0010cad0(p, arg1);
+            *(u16 *)((u8 *)D_00797F8C + emptyOff) &= 0xC;
+            *(u16 *)((u8 *)D_00797F8C + emptyOff) |= 1;
+            func_0010fde0(p);
+        }
+        if (p == NULL) {
+            func_0046d730(D_005E4318, 0x43A);
+        }
+        if (D_0079B40C[0] & 4) {
+            maxPersonaCount = 0xC;
+        } else if (D_0079B40C[0] & 2) {
+            maxPersonaCount = 0xA;
+        } else if (D_0079B40C[0] & 1) {
+            maxPersonaCount = 8;
+        } else {
+            maxPersonaCount = 6;
+        }
+        i = 0;
+        id = (s16)arg1;
+        personaCount = (u16)maxPersonaCount;
+        base = (u8 *)D_007973A0;
+        for (; (u16)i < personaCount; i = (u16)(i + 1)) {
+            off = (i & 0xFFFF) * 0x30;
+            if ((*(u16 *)(base + 0xBEC + off) & 1) != 0 && *(u16 *)(base + 0xBEC + off + 2) == id) {
+                found = (s16)i;
+                goto search_done;
+            }
+        }
+        found = -1;
+search_done:
+        if (found >= 0) {
+            if (D_0079B40C[0] & 4) {
+                maxPersonaCount = 0xC;
+            } else if (D_0079B40C[0] & 2) {
+                maxPersonaCount = 0xA;
+            } else if (D_0079B40C[0] & 1) {
+                maxPersonaCount = 8;
+            } else {
+                maxPersonaCount = 6;
+            }
+            personaCount = (u16)maxPersonaCount;
+            if (found < personaCount) {
+                goto pass52D;
+            }
+        }
+        func_0046d730(D_005E4318, 0x52D);
+pass52D:
+        if (found >= 0) {
+            if (D_0079B40C[0] & 4) {
+                maxPersonaCount = 0xC;
+            } else if (D_0079B40C[0] & 2) {
+                maxPersonaCount = 0xA;
+            } else if (D_0079B40C[0] & 1) {
+                maxPersonaCount = 8;
+            } else {
+                maxPersonaCount = 6;
+            }
+            personaCount = (u16)maxPersonaCount;
+            if (found < personaCount) {
+                goto pass47E;
+            }
+        }
+        func_0046d730(D_005E4318, 0x47E);
+pass47E:
+        if ((*(u16 *)((u8 *)D_00797F8C + found * 0x30) & 1) != 0) {
+            D_00797F88[0] = found;
+        }
+    } else {
+        if (v == 1) {
+            cur = D_00797F88[0];
+            if (cur < 0 || cur >= (u16)func_0010b5b0()) {
+                func_0046d730(D_005E4318, 0x3FE);
+            }
+            curOff = cur * 0x30;
+            p = ((*(u16 *)((u8 *)D_00797F8C + curOff) & 1) != 0) ? (u8 *)D_007973A0 + curOff + 0xBEC : NULL;
+        } else {
+            if (v >= 0xB) {
+                func_0046d730(D_005E4318, 0x3A5);
+            }
+            p = (u8 *)D_00796E50 + (v - 2) * 0x88 + 0x54;
+        }
+        if (p == NULL) {
+            func_0046d730(D_005E4318, 0x3A9);
+        }
+        func_0010cad0(p, arg1);
+        *(u16 *)p = 1;
+    }
+    return 1;
+}
 
 // FUN_0010BD90
 void func_0010bd90(s16 arg0)
