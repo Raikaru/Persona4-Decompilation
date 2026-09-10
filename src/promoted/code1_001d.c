@@ -1177,7 +1177,7 @@ void func_001d6570(u8 *arg0)
 }
 
 // FUN_001D65D0
-void func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4)
+u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4)
 {
     u8 *packet;
     u8 *work;
@@ -1193,6 +1193,7 @@ void func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4)
     *(s32 *)(work + 8) = arg2;
     *(s64 *)(work + 0x10) = arg3;
     *(s32 *)(work + 0x20) = arg4;
+    return packet;
 }
 // FUN_001D6680
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d6680);

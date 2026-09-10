@@ -3340,8 +3340,120 @@ void func_0014e920(u8 *arg0, s32 arg1, s32 arg2) {
     }
     *(s32 *)(p4_00141cf0_add((u32)(arg1 * 4), temp_4) + 0x9C) = arg2;
 }
+/* 712/720 bytes; ten resolved relocations; eight zero alignment bytes.
+ * Inline predicates preserve reveal ordering and the frame-41 transition. */
+#pragma push
+#pragma opt_rebuildlogicals off
+#pragma opt_loop_invariants on
+static inline void fieldTransitionScaleVector(SVec3 *destination, SVec3 *source, f32 scale)
+{
+    destination->x = source->x * scale;
+    destination->y = source->y * scale;
+    destination->z = source->z * scale;
+}
+static inline s32 fieldTransitionChildReady(u8 *child)
+{
+    if (child == NULL) return 1;
+    if (**(s32 **)(child + 0x38) > 0) return 1;
+    return 0;
+}
+static inline u32 fieldTransitionEntryActive(u32 index)
+{
+    s32 active = 0;
+    u8 *entry = D_007EF9B0 + index * 0x750;
+    if (*(s32 *)(entry + 0x48) != 0 && *(u8 **)(entry + 0x54) != NULL) active = 1;
+    return active != 0;
+}
+extern void func_00122520(s32 enabled, s32 mode);
+extern void func_001228a0(s32 red, s32 green, s32 blue);
+extern void func_003e40b0(f32 *destination, f32 *source);
+extern u8 iGpffff9dd8[8];
+
 // FUN_0014E950
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014e950);
+s32 func_0014e950(u8 *task)
+{
+    SVec3 direction;
+    SVec3 position;
+    u8 color[8];
+    u8 *work;
+    s32 state;
+    u32 i;
+
+    work = *(u8 **)(task + 0x38);
+    state = *(s32 *)work;
+    switch (state) {
+        case 0:
+        {
+            u8 *child = *(u8 **)(work + 0xC);
+            if (fieldTransitionChildReady(child)) {
+                s32 *source = (s32 *)func_003e9700(*(s32 *)(func_00457120() + 4));
+                s32 *destination = (s32 *)(work + 0x10);
+                s32 count = 8;
+                do {
+                    s32 first = source[0];
+                    s32 second = source[1];
+                    source += 2;
+                    count--;
+                    destination[0] = first;
+                    destination[1] = second;
+                    destination += 2;
+                } while (count > 0);
+                direction = *(SVec3 *)(work + 0x30);
+                func_003e40b0(&direction.x, &direction.x);
+                fieldTransitionScaleVector(&direction, &direction, 700.0f);
+                position = *(SVec3 *)(work + 0x40);
+                position.x += direction.x;
+                position.y += direction.y;
+                position.z += direction.z;
+                func_0014e740(*(u8 **)(work + 0xC), &position.x);
+                func_0045af60(1, 0xB, 3, 4);
+                *(s32 *)(work + 8) = 0;
+                ++*(s32 *)work;
+            }
+            break;
+        }
+        case 1:
+        {
+            s32 frame = *(s32 *)(work + 8);
+            if (frame < 84) {
+                if (frame > 40) {
+                    for (i = 0; i < 4; i++) {
+                        if (fieldTransitionEntryActive(i)) {
+                            u8 *entry = D_007EF9B0 + i * 0x750;
+                            u8 *object = *(u8 **)(entry + 0x54);
+                            *(u32 *)(object + 0x28) &= ~2U;
+                        }
+                    }
+                    if (*(s32 *)(work + 4) == 1) {
+                        s8 *source = (s8 *)iGpffff9dd8;
+                        s8 *destination = (s8 *)color;
+                        s32 count = 4;
+                        do {
+                            s8 first = source[0];
+                            s8 second = source[1];
+                            source += 2;
+                            count--;
+                            destination[0] = first;
+                            destination[1] = second;
+                            destination += 2;
+                        } while (count > 0);
+                        func_00122520(1, 1);
+                        func_001228a0(color[0], color[1], color[2]);
+                        ++*(s32 *)work;
+                    }
+                }
+                ++*(s32 *)(work + 8);
+            } else {
+                *(s32 *)work = state + 1;
+            }
+            break;
+        }
+        case 2:
+            return -1;
+    }
+    return 0;
+}
+#pragma pop
 // FUN_0014EC20
 void func_0014ec20(u8 *arg0)
 {
@@ -3350,7 +3462,7 @@ void func_0014ec20(u8 *arg0)
 
 // FUN_0014EC50
 s32 func_0014ec50(u8 *arg0, s32 arg1) {
-    extern s32 func_0014e950(u8 *arg0, s32 arg3);
+    extern s32 func_0014e950(u8 *arg0);
     extern s32 func_00454a60(const void *arg0, s32 arg1);
     extern u8 D_005EFC40[];
     u8 **allocator_table;

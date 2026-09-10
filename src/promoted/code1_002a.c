@@ -129,7 +129,7 @@ extern void func_0010d490(u8 *arg0, u8 *arg1);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern void func_00122640(s32 arg0, s32 arg1);
 extern void func_0029ebf0(u8 *arg0, s32 arg1);
-extern s32 func_0029f070(u8 *arg0);
+extern void func_0029f070(u8 *arg0);
 extern void func_002a12e0(u8 *arg0, s32 arg1);
 extern s32 func_00442c30(void *arg0, void *arg1, s32 arg2);
 

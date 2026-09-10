@@ -161,8 +161,8 @@ extern void (*D_00887310[])(s32 primType, void *vertices, s32 count);
 extern void func_00201820(s32 arg0);
 extern void func_00205c20(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted);
-extern void func_00205950(u8 *arg0, s64 arg1, f32 fparg0, s32 arg2,
-                          f32 fparg1, s32 arg3);
+extern void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
+                          u8 opacity, s32 highlighted);
 extern u16 func_00243920(s64 arg0);
 extern void func_00207140(u16 *flags, u8 *work);
 extern void func_00207320();
@@ -1738,9 +1738,70 @@ INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205170);
 /* measured: candidate object 920B/window 896B, normalized_diff 663; archived as build/E205_055d0_casts.json. */
 // FUN_002055D0
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_002055d0);
-/* measured: candidate object 760B/window 720B, normalized_diff 592; archived as build/E205_05950_archive_source.c. */
+/* 712/720 bytes; twelve resolved relocations; eight zero alignment bytes.
+ * Keep the shared decimal divisor and the branch-local byte tones. */
+#pragma push
+#pragma opt_rebuildconditionals off
+#pragma opt_common_subs off
+#pragma opt_propagation off
 // FUN_00205950
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205950);
+void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
+                   u8 opacity, s32 highlighted)
+{
+    extern u32 func_00452560(void *task);
+    u8 *glyphs;
+    u8 *persona;
+    u8 tone;
+    s32 level;
+    s32 tens;
+    s32 radix;
+    f32 digit_y;
+    f32 digit_x;
+    const char *name;
+
+    glyphs = (u8 *)func_00452560(*(void **)(work + 0x5B0));
+    persona = func_0010ace0((s16)slot);
+    if (slot == (s16)func_0010b510()) {
+        func_00201650(glyphs, 13, 0x2B, -11.0f + x, 6.0f + y,
+                      0xF3, 0, 0xB, opacity);
+        if (highlighted != 0) {
+            tone = 0x6E;
+        } else {
+            tone = 0x96;
+        }
+    } else if (highlighted != 0) {
+        tone = 0x1B;
+    } else {
+        tone = 0xFF;
+    }
+    func_00201650(glyphs, 13, 0x2A, 33.0f + x, 12.0f + y,
+                  tone, tone, tone, opacity);
+    level = (u8)func_00109390(persona);
+    digit_y = 5.0f + y;
+    digit_x = 63.0f + x;
+    func_00201650(glyphs, 13, level % 10 + 0x1D, 22.0f + digit_x,
+                  digit_y, tone, tone, tone, opacity);
+    radix = 10;
+    tens = level / radix;
+    if (tens != 0) {
+        func_00201650(glyphs, 13, tens % radix + 0x1D, digit_x,
+                      digit_y, tone, tone, tone, opacity);
+    }
+    func_00272c60(0x40);
+    name = (const char *)func_00109220(*(u16 *)(persona + 2));
+    {
+        f32 text_x = 151.0f + x;
+        f32 text_y = (4.0f + y) - 1.0f;
+        f32 depth = 50.0f;
+        u32 high = (u8)tone;
+        func_00275020(
+            text_x, text_y, depth,
+            (high << 24) | (high << 16) | ((u32)(u8)tone << 8) | (u8)opacity,
+            0, 1, name, 0, -1);
+    }
+    func_00272c80(0x40);
+}
+#pragma pop
 extern s16 func_00105f00(s16 arg0);
 extern u32 func_0010d6d0(s16 arg0);
 /* 468/480 bytes; eight resolved relocations; twelve zero alignment bytes.

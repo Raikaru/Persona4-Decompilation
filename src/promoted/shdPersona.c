@@ -24,24 +24,21 @@ void func_0011bc70();
 s32 func_00115020();
 s32 func_001152b0();
 void func_00115cb0(Vec2f, f32, s32, s16 *);
-void func_00115e90(Vec2f, s32, s16 *, f32);
+void func_00115e90(Vec2f, f32, s32, s16 *);
 extern char iGpffff9c0c;
 extern char iGpffff9c08;
 
 void *func_00109220(u16 arg0);
+u8 *func_0046a770(char *arg0);
 void func_00116190(s64, f32, s32, u8 *, s32 *);
 void func_00116610(s64, f32, s32, u8 *, s32 *);
 void func_001162f0(s64, f32, s32, u8 *, s32 *);
 void func_001163e0(s64, f32, s32, u8 *, s32 *);
 void func_00116820(s64, f32, s32, u8 *, s32 *);
-typedef struct {
-    s32 lo;
-    s32 hi;
-} I64;
-void func_00116d40(I64, s32, u8, u8, s16, s32, f32);
+void func_00116d40(Vec2f, s32, u8, u8, s16, s32, f32);
 void func_0045d6e0(void *, void *, s32, f32);
 void func_0034c270(Vec2f, f32, u8, s32);
-extern void (*D_00887300[])(u32, u32);
+extern s32 (*D_00887300[])(s32, void *);
 extern char D_005E5810[];
 extern char D_005E5830[];
 extern char D_005E5850[];
@@ -226,7 +223,7 @@ void func_00115c40(Vec2f arg0, s32 arg1, s16 *arg2, f32 farg3)
         func_00115dc0(arg0, farg3, arg1, arg2);
         break;
     case 1:
-        func_00115e90(arg0, arg1, arg2, farg3);
+        func_00115e90(arg0, farg3, arg1, arg2);
         break;
     case 2:
         func_00115cb0(arg0, farg3, arg1, arg2);
@@ -310,59 +307,59 @@ void func_00115dc0(Vec2f arg0, f32 fparg0, s32 arg1, s16 *arg2)
 
 
 
-/* measured: two documented floor families. (1) The D_00887300
-   render-vtable base hoist — retail keeps lui/addiu of the table base in
-   $s0 across all 8 jalr calls; mwcc b210 rematerialises lui/lw per call
-   (brief's vtable-hoist floor; nd contribution ~16 words). (2) The
-   &arg0.y address-take floor (func_00115cb0 family): retail keeps the
-   colour in $s2 (move $s2, $a1) plus the sd $a0, 0x58 pair home; mwcc
-   goes memory-only (frame 0x70 vs 0x80). Signature note: the s64-typed
-   definition (s64 arg0, u8 *arg2, f32 fparg0) is ABI-correct and is what
-   the family callees use, but mwcc b210 rejects both `()` and implicit
-   int declarations followed by a typed definition, and the caller
-   (matched func_00115c40) passes a Vec2f, so the definition must stay
-   Vec2f-typed here. The 4-param prototype + farg3 pass-through is kept
-   (ABI-faithful, func_00115c40 still matches). */
-/* measured: fully decompiled, best nd 168 (obj 696B / window 768B). The
-   frame 0x80, the sd $a0, 0x58 home, the 4 func_0046a770 stores, the
-   func_00116190/16610/162f0/163e0/16820/16d40 call sequences and the loop all
-   reproduce with `*(f32 *)&arg0.x` reads + `f32 y = arg0.y;`. Remaining:
-   (1) the D_00887300 base hoist floor is CONFIRMED — retail keeps lui/addiu
-   of the table base in $s0 with per-call `lw $v0, ($s0)`, and mwcc
-   rematerialises lui/lw per call; even `void (**tbl)(u32,u32) = D_00887300;
-   tbl[0](...)` folds back (it DID hoist in func_0011d5b0's context — the
-   allocator gives the saved slots to arg1/arg2 first here, so the tbl gets no
-   register and is folded); (2) FP saved-reg order: retail y->$f20, farg3->$f21
-   (reverse first-use), mwcc puts farg3 in $f20 and re-reads y from the home
-   per use; (3) arg registers: retail arg1->$s2, arg2->$s1, mwcc arg1->$s1,
-   arg2->$s0. The family prototypes were corrected to 5-arg
-   (s64, s32 colour, u8 *, s32 *, f32) and func_00116d40 to
-   (I64, f32, s32, u8, u8, s32, s32) — the 4-arg forms in the old notes were
-   wrong (the colour IS a register argument). */
-/* measured: recipe B re-test OVERTURNED part of the old note — best nd 119
-   (was 168). A u32 *base = (u32 *)D_00887300 local DOES hoist: retail's
-   lui/addiu of the table base into $s0 with per-call lw $v0, ($s0) is
-   reproduced (the old `void (**tbl)` spelling folded; the DATA-pointer type
-   is the lever). FP saved regs also now match (y->$f20 via lwc1 0x5C,
-   fparg0->$f21 via mov.s). Remaining, all measured: (1) the 8 table calls
-   are D_00887300[0](N,M) — retail always loads the pointer at SLOT 0 (lw
-   $v0, ($s0)) and passes the index as arg0 (m2c's `D_00887300(6, 0)` direct
-   call shape); I used base[6] giving lw 0x18($s0) — write base[0] each
-   call (~8 words, unmeasured but mechanical); (2) prologue save order:
-   retail emits mov.s $f21 BEFORE the GP moves and materialises the base
-   lui/addiu AFTER the 4th func_0046a770 call (assign base = ... after the
-   sp60[0..3] stores); mwcc puts the moves first and hoists the base into
-   the prologue (~6 words); (3) the sp78/sp7C pair must be ONE 8-byte
-   object — separate f32 locals get slot-coalesced at 0x7C and the s64 read
-   becomes ldr/ldl with the sp7C store dead-eliminated (f32/s64 TBAA); an
-   f32 sp78[2] array read as *(s64 *)sp78 kept both stores. Layout 0x58
-   arg0 home / 0x60 sp60[4] / 0x78 pair matches retail with declarations
-   [base, y, sp78[2], sp60[4]]. Frame 0x80, all stores reproduce. */
-/* measured: object/window 768/768 bytes, normalized_diff 39. The
-   semantically unverified scheduling probe is archived in
-   docs/probe_archive/W56ShdPersona_00115e90_body.c; retain assembly. */
+/* 768/768 bytes and twenty-two resolved relocations. The shared 24-byte
+ * jump table remains exact; packed coordinates retain the retail ABI. */
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_common_subs off
 // FUN_00115E90
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115e90);
+void func_00115e90(Vec2f arg0, f32 farg3, s32 arg1, s16 *arg2)
+{
+    u32 *base;
+    f32 y;
+    PackedVec2f position;
+    s32 resources[4];
+    s32 i;
+    u8 *record;
+
+    y = arg0.y;
+    resources[0] = (s32)func_0046a770(D_005E5810);
+    resources[1] = (s32)func_0046a770(D_005E5830);
+    resources[2] = (s32)func_0046a770(D_005E5850);
+    resources[3] = (s32)func_0046a770(D_005E57F0);
+    base = (u32 *)D_00887300;
+    ((s32 (**)(s32, void *))base)[0](6, (void *)0);
+    ((s32 (**)(s32, void *))base)[0](7, (void *)2);
+    ((s32 (**)(s32, void *))base)[0](8, (void *)0);
+    ((s32 (**)(s32, void *))base)[0](9, (void *)2);
+    ((s32 (**)(s32, void *))base)[0](0xC, (void *)1);
+    ((s32 (**)(s32, void *))base)[0](0xB, (void *)6);
+    ((s32 (**)(s32, void *))base)[0](0xA, (void *)5);
+    ((s32 (**)(s32, void *))base)[0](2, (void *)4);
+    func_003f6440(2, 0x44);
+    func_003f6440(3, 0x717FB);
+    position.xy.x = arg0.x;
+    position.xy.y = 43.0f + y;
+    func_00116190(position.packed, farg3, arg1, (u8 *)arg2 + 8, resources);
+    position.xy.x = arg0.x - 23.0f;
+    position.xy.y = 76.0f + y;
+    func_00116610(position.packed, farg3, arg1, (u8 *)arg2 + 8, resources);
+    func_001162f0(position.packed, farg3, arg1, (u8 *)arg2 + 8, resources);
+    func_001163e0(position.packed, farg3, arg1, (u8 *)arg2 + 8, resources);
+    position.xy.x = (f32)305 + arg0.x;
+    position.xy.y = 139.0f + y;
+    func_00116820(position.packed, farg3, arg1, (u8 *)arg2 + 8, resources);
+    i = 0;
+    while (i < 5) {
+        position.xy.x = 88.0f + arg0.x;
+        position.xy.y = 203.0f + y + (f32)(i * 19);
+        record = (u8 *)arg2 + i;
+        func_00116d40(position.xy, arg1, record[0xF],
+                     record[0x14], 0, resources[0], 0.0f);
+        i++;
+    }
+}
+#pragma pop
 u8 *func_0010d6d0(s16 arg0);
 // FUN_00116190
 void func_00116190(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
@@ -755,10 +752,10 @@ void func_001175e0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     *(s16 *)(*(u8 **)(arg0 + 0x38) + 0x570) = 0xB1;
     *(u8 **)(b + 0x4F8) = func_0011d460((s32)arg0, 0xF, 0, 0, -0x100);
     func_0011b6d0(arg0, arg1);
-    *(s32 *)(b + 0x2B8) = func_0046a770(D_005E5810);
-    *(s32 *)(b + 0x2BC) = func_0046a770(D_005E5830);
-    *(s32 *)(b + 0x2C0) = func_0046a770(D_005E5850);
-    *(s32 *)(b + 0x2C4) = func_0046a770(D_005E57F0);
+    *(s32 *)(b + 0x2B8) = (s32)func_0046a770(D_005E5810);
+    *(s32 *)(b + 0x2BC) = (s32)func_0046a770(D_005E5830);
+    *(s32 *)(b + 0x2C0) = (s32)func_0046a770(D_005E5850);
+    *(s32 *)(b + 0x2C4) = (s32)func_0046a770(D_005E57F0);
     for (i = 0; i < 0xA; i++) {
         src = D_005E4880 + i * 0x14;
         dst = b + i * 0x24;
@@ -1465,7 +1462,6 @@ void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s32 arg3)
 
 
 
-s32 func_0046a770(char *arg0);
 extern char D_005E4E00[];
 void func_0011e360(u8 *, s32);
 // FUN_0011B6D0
@@ -1543,7 +1539,7 @@ s32 func_0011b6d0(u8 *arg0, s32 arg1)
             *(s32 *)(work + 0x534) = t5;
             t6 = t5 | 0x200000;
             *(s32 *)(work + 0x534) = t6;
-            t7 = func_0046a770(D_005E4E00);
+            t7 = (s32)func_0046a770(D_005E4E00);
             *(s32 *)(work + 0x2C8) = t7;
             if (t7 == 0) {
                 func_0046d730(D_005E4868, 0xC02);

@@ -2103,8 +2103,94 @@ void func_001f62b0(void) {
     temp_4 = iGpffffb3ac;
     *(u16 *)(temp_4 + 0xA4E) &= 0xFFFE;
 }
+/* 728/736 bytes; thirteen resolved code relocations and seven jump-table
+ * entries; eight zero tail bytes. Preserve eligibility-argument timing. */
+struct EffRandState;
+
+static inline s32 battleMessageBand(s32 value, s32 band)
+{
+    return value + band;
+}
+
 // FUN_001F62F0
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f62f0);
+s32 func_001f62f0(u8 *arg0)
+{
+    extern s32 func_001ef4d0(s32 arg0, s32 arg1);
+    extern s32 func_00231e20(u8 *arg0);
+    extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
+    extern u32 effMiscRand(struct EffRandState *state);
+    s32 code;
+    s32 base;
+    s32 random;
+    u16 mode;
+    u16 count;
+    s16 i;
+    s32 flags;
+    s32 offset;
+    u16 values[8];
+
+    base = func_00106330(0x38) != 0 ? 0xFA : 0xC8;
+    random = func_001ef4d0(2, 0x80000) & 0xFFFF;
+    flags = func_00231e20(
+        *(u8 **)(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30) + 0xA64)) &
+        0xFF;
+    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0) {
+        mode = 0;
+    } else if ((random - flags) >= 4) {
+        mode = 0;
+    } else if ((flags - random) >= 4) {
+        mode = 2;
+    } else {
+        mode = 1;
+    }
+    count = 0;
+    i = 0;
+    offset = mode * 0x1E;
+    for (; i < 7; i++) {
+        switch (i) {
+        case 0:
+            code = 0;
+            break;
+        case 1:
+            code = 1;
+            break;
+        case 2:
+            code = 2;
+            break;
+        case 3:
+            code = 4;
+            break;
+        case 4:
+            code = 3;
+            break;
+        case 5:
+            code = 6;
+            break;
+        case 6:
+            code = 7;
+            break;
+        default:
+            break;
+        }
+        if ((*(u8 *)(arg0 + 0xA2) != 1) ||
+            ((flags = (u16)code, func_001f0950(*(u16 *)(arg0 + 0xA4), flags)) != 0)) {
+            flags = func_0023a6b0(*(u8 **)(arg0 + 0xA64), code);
+            if ((flags & 0x08000000) != 0) {
+                values[count++] =
+                    (u16)(battleMessageBand(base + (i * 2), offset) + 2 +
+                          (effMiscRand(NULL) & 1));
+            } else if ((flags & 0x07000000) != 0) {
+                values[count++] =
+                    (u16)(battleMessageBand(base + (i * 2), offset) + 2 +
+                          (effMiscRand(NULL) & 1) + 0xE);
+            }
+        }
+    }
+    if (count > 0) {
+        return values[func_00231d70(count)];
+    }
+    return base + (effMiscRand(NULL) & 1) + offset;
+}
 // FUN_001F65D0
 s32 func_001f65d0(u8 *arg0)
 {
@@ -2155,7 +2241,7 @@ s32 func_001f65d0(u8 *arg0)
     }
 }
 // FUN_001F6710
-void func_001f6710(s32 arg0) {
+u8 *func_001f6710(s32 arg0) {
     u8 *p;
     u8 *q;
 
@@ -2165,6 +2251,7 @@ void func_001f6710(s32 arg0) {
     q = *(u8 **)(p + 0x78);
     *(s16 *)(q + 4) = (s16)arg0;
     *(s16 *)(q + 6) = 0;
+    return p;
 }
 
 /* measured: opt_loop_invariants on hoists the loop's one constant before the entry test. */
@@ -2707,6 +2794,8 @@ void func_001f73c0(void)
 {
 }
 
+/* Retail selectors 4/5/6 request tracks 5/6/4. Preserve block order:
+ * the eleven resolved jump-table entries at 0x00747550 must also match. */
 // FUN_001F73D0
 void func_001f73d0(void)
 {
@@ -2724,13 +2813,13 @@ void func_001f73d0(void)
         case 3:
             func_0045a3e0(3, 1);
             break;
-        case 4:
+        case 6:
             func_0045a3e0(4, 1);
             break;
-        case 5:
+        case 4:
             func_0045a3e0(5, 1);
             break;
-        case 6:
+        case 5:
             func_0045a3e0(6, 1);
             break;
         case 7:

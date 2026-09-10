@@ -9207,3 +9207,83 @@ all 529 repository tests pass, and source-honesty lint finds zero issues in
 340 first-party files. Generated progress and its validation pass. The
 remaining 641 first-party fallbacks stay visible; all-matching is not yet
 complete.
+
+## First-party continuation: field tasks, battle state and controller input
+
+Ten more assembly fallbacks are replaced by ordinary C:
+
+| Function | Executable / window bytes | Code relocations | Zero tail bytes |
+| --- | --- | --- | --- |
+| `func_00115e90` | 768 / 768 | 22 | 0 |
+| `func_0014e950` | 712 / 720 | 10 | 8 |
+| `func_00164fa0` | 708 / 720 | 40 | 12 |
+| `func_0017cd60` | 764 / 768 | 14 | 4 |
+| `func_001b33c0` | 744 / 752 | 20 | 8 |
+| `func_001f62f0` | 728 / 736 | 13 | 8 |
+| `func_00202890` | 716 / 720 | 32 | 4 |
+| `func_00205950` | 712 / 720 | 12 | 8 |
+| `func_0029ecb0` | 724 / 736 | 25 | 12 |
+| `func_00452db0` | 756 / 768 | 38 | 12 |
+
+All 7,332 emitted instruction bytes match retail with the 226 code
+relocations fully resolved. The remaining 76 window bytes are verified-zero
+alignment tails, not executable differences or source padding. The battle
+state callback's seven-entry jump table at `0x00747530` also matches its
+28 resolved bytes and four following zero alignment bytes.
+
+The recovery includes the contracts required by those bodies:
+
+- The field transition callback takes its actual task, without an invented
+  second parameter. Panel resource state retains its sixteen real handles.
+- Battle status drawing keeps the `u8` opacity input and the independent
+  highlighted-slot flag.
+- `func_0019b550` accepts an unsigned 16-bit identifier.
+  `func_001d65d0`, `func_001d7880` and `func_001f6710` explicitly return their
+  task pointers; `func_0017d070` explicitly returns its field handle.
+- Persona drawing uses the canonical by-value `Vec2f` contract, a callable
+  callback table and the real resource pointer return. The old integer-pair
+  coordinate type is removed.
+- The event-record updater and its caller are `void`, rather than returning
+  an incidental register value. The updater retains the six-by-twenty grid,
+  negative-entry skips, wrapping, restoration and callback-visible reloads.
+
+Current-TU checks cover 1,022 function bodies, including 939 preceding C
+matches, with no instruction failures. They also exposed two older
+source-data defects which instruction-only scores did not reveal:
+
+- `func_001f73d0` must map selectors 4, 5 and 6 to tracks 5, 6 and 4. Correcting
+  the source switch restores the 44-byte jump table at `0x00747550`.
+  The focused consumer changes from 24 failures in 224 cases to zero.
+- `k_fldUnit` must import the initialized retail objects `D_00763008`,
+  `D_00763010`, `D_00762EA0` and `D_007613EC`, not allocate zero-initialized
+  replacements. The format string at `0x00763008` occupies eight bytes.
+  The unused `D_007643E4` declaration is removed. After correction, all
+  200 functions and 26 owned data/BSS sections in the two affected owners
+  match. NOBITS sections are checked as zero initialization, never read as
+  file-backed bytes.
+
+The focused consumers pass 16 field-transition scenarios, 18 panel-resource
+cases, 23,040 battle-status cases, 14 battle-state scenarios and 6,720
+event-grid cases. Explicit non-inlined 32-bit constructor calls pass 203
+scenarios covering unsigned identifiers, pointer returns, lookup outcomes,
+payload guards and field-handle consumption. Controller execution covers
+idle frames, press/hold/release, debounce, all four deadzone boundaries,
+cooked pressed edges, slot isolation and adjacent-state guards. Field
+indicator and persona drawing consumers also pass.
+
+These runs use controlled providers on native hosts or x86-32 Unicorn;
+they do not claim PS2 graphics, hardware I/O or scheduler execution.
+The PS2 instruction and data claim comes from the resolved retail
+comparisons. New GP references have explicit bindings:
+`iGpffff9dd8 = 0x00762ec8` and `iGpffffa570 = 0x00763660`, alongside the
+two corrected retail data imports at `0x00763008` and `0x00763010`.
+
+All 7,849 preceding MATCH rows remain MATCH. The quiet 12,720-function scan
+reports **7,859 MATCH / 4,861 ASM** overall and
+**6,229 MATCH / 631 ASM** first-party (**90.8%**, rounded). The build preserves
+the 172-source-object floor, links 56 Sony SDK objects and reproduces both
+retail SHA-1s; 1,584 functions are now in byte-exact linked C objects.
+All 529 repository tests pass, and source-honesty lint reports zero findings
+across 340 first-party files. Generated progress and its validation pass.
+The remaining 631 first-party fallbacks stay visible; all-matching remains
+open.
