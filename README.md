@@ -32,19 +32,19 @@ version.
 | Retail executable | `SLUS_217.82`; SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` |
 | Loadable image | `0x838a00` bytes at `0x00100000`; SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` |
 | Canonical function windows | 13,102; all mapped to C or owned retail assembly |
-| Byte-identical functions | 7,863 (60.014% of windows) |
+| Byte-identical functions | 7,864 (60.021% of windows) |
 | Under test (a `// FUN_` marker scores them) | 12,720 (97.084% of windows) |
 | Not yet under test, supplied as retail bytes | 382 (2.916% of windows) |
 | In byte-exact linked C objects | 1,584 (12.09% of windows), with 224 assembly fallbacks still inside those objects |
-| Atlus game/engine | 6,860 functions; 6,233 C-matched (90.86%); 1,767 linked (25.758%) |
+| Atlus game/engine | 6,860 functions; 6,234 C-matched (90.875%); 1,767 linked (25.758%) |
 | Proven Sony PS2 SDK | 491 functions; 148 C-matched (30.143%); 491 linked (100.0%) |
 | Other third-party/vendor | 5,749 functions; 1,482 C-matched (25.778%); 41 linked (0.713%) |
 | Unattributed | 2 functions; 0 C-matched (0.0%); 0 linked (0.0%) |
-| First-party matched, scored for recovery | 6,233 |
-| — NAMED (not a `func_<address>` placeholder) | 154 (2.471%) |
-| — TYPED (no raw-offset or `M2C_` access) | 1,782 (28.59%) |
-| — DOCUMENTED (prose, or trivially self-evident) | 4,253 (68.234%) |
-| — still carrying decompiler local names | 1,914 (30.708%) |
+| First-party matched, scored for recovery | 6,234 |
+| — NAMED (not a `func_<address>` placeholder) | 154 (2.47%) |
+| — TYPED (no raw-offset or `M2C_` access) | 1,782 (28.585%) |
+| — DOCUMENTED (prose, or trivially self-evident) | 4,254 (68.239%) |
+| — still carrying decompiler local names | 1,914 (30.703%) |
 
 Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. Sony SDK linkage is black-box reuse, not decompiled source. `tools/recovery_quality.py --worst 20` ranks the game files needing work.
 <!-- STATUS:END -->
