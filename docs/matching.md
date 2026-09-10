@@ -9287,3 +9287,46 @@ All 529 repository tests pass, and source-honesty lint reports zero findings
 across 340 first-party files. Generated progress and its validation pass.
 The remaining 631 first-party fallbacks stay visible; all-matching remains
 open.
+
+## First-party continuation: boot initialization and field rendering
+
+Two further fallbacks are recovered with fully resolved instruction bytes:
+
+| Function | Executable / window bytes | Code relocations | Zero tail bytes |
+| --- | --- | --- | --- |
+| `func_00100350` | 788 / 800 | 74 | 12 |
+| `func_001424b0` | 776 / 784 | 16 | 8 |
+
+Boot initialization retains both materialized retry booleans, volatile timer
+register writes and the ordered fifteen-module load sequence. Its constructor
+call now explicitly passes a null parent. `func_00149620` forwards its actual
+incoming parent instead of reading an uninitialized local; the constructor
+and its caller remain exactly 96 and 1,040 bytes.
+
+Field rendering uses unions for packed position/color words and the existing
+owner address helper. The eight-byte kind table is declared with its real
+extent. Circle and sprite declarations now agree with their providers:
+coordinates precede color arguments, and sprite opacity stays 64-bit until
+the core renderer masks its low byte. The existing caller owner keeps all
+43 instruction bodies and relocation records unchanged, using the shared
+`PackedVec2f` type. The obsolete disabled `func_00135130` sketch, which had an
+unrecovered Y value and incompatible call casts, is removed; its retail ASM
+fallback remains, without changing the matching floor.
+
+Four boot/constructor scenarios exercise reset completion, mapped timer
+registers, ordered module loading and parented/unparented construction.
+Fourteen native i386 rendering scenarios execute the recovered sprite and
+circle providers and real rank lookup. They cover all five retail kind
+mappings, raw tint bits, zero and wide opacity, sprite state, callback-driven
+pointer reloads, both palettes and border/marker flag combinations. The
+native backend is controlled; these are not claims of PS2 GPU or IOP
+execution. PS2 identity is established by resolved instruction comparison
+and the retail-image hashes.
+
+The 12,720-function scan reports **7,861 MATCH / 4,859 ASM** overall and
+**6,231 MATCH / 629 ASM** first-party (**90.8%**, rounded). The build retains
+172 source-linked objects, 56 Sony SDK objects and 1,584 functions in
+byte-exact linked C objects. Both retail SHA-1s pass, all 529 repository tests
+pass, source-honesty lint reports zero findings in 340 first-party files,
+and generated progress validates. The remaining 629 first-party fallbacks
+stay visible; all-matching remains open.

@@ -970,8 +970,8 @@ void func_00356140(u8 *arg0)
 #pragma push
 #pragma opt_propagation off
 // FUN_00356170
-void func_00356170(s64 arg0, s32 arg1, s32 arg2, s32 arg3,
-                   f32 f0, f32 f1, f32 f2)
+void func_00356170(s64 arg0, f32 f0, f32 f1, f32 f2,
+                   s32 arg1, s32 arg2, s32 arg3)
 {
     union { s64 bits; Vec2f position; } saved0[1];
     s32 saved1[1];

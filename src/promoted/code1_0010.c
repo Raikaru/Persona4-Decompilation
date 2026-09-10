@@ -87,7 +87,7 @@ extern void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_0010d7b0(void);
 extern void func_00121b20(void);
 extern void func_00122430(s32 arg0);
-extern void func_00149620(s32 arg0);
+extern u8 *func_00149620(u8 *parent);
 extern void func_001605a0(void);
 extern void func_001939a0(void);
 extern void func_002312e0(void);
@@ -236,8 +236,106 @@ s32 func_00100310(s32 arg0)
     );
     return 0;
 }
+/* IOP reset, timer setup and ordered module loading. Materialized retry
+   booleans preserve both reset-loop schedules. Exact 788/800 bytes with
+   74 resolved relocations and twelve verified-zero alignment bytes. */
 // FUN_00100350
-INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00100350);
+void func_00100350(void)
+{
+    extern void func_00424f28(s32 arg0);
+    extern void func_00429c18(void);
+    extern void func_0042eae0(s32 arg0);
+    extern void func_0042f600(s32 arg0);
+    extern void func_00442088(u8 *dst, const u8 *fmt, ...);
+    extern s32 func_0042b098(u8 *arg0);
+    extern s32 func_0042b048(void);
+    extern void func_004214c0(s32 arg0, s32 (*cb)(s32), s32 arg2);
+    extern void func_00422328(s32 arg0);
+    extern s32 func_0042ab68(const u8 *path, s32 arg1, const u8 *arg2);
+    extern void func_00452760(void);
+    extern void func_004645e0(void);
+    extern s32 func_004216d0(void);
+    extern u8 D_005DC530[];
+    extern u8 D_005DC548[];
+    extern u8 D_005DC560[];
+    extern u8 D_005DC580[];
+    extern u8 D_005DC5A0[];
+    extern u8 D_005DC5C0[];
+    extern u8 D_005DC5E0[];
+    extern u8 D_005DC600[];
+    extern u8 D_005DC620[];
+    extern u8 D_005DC640[];
+    extern u8 D_005DC660[];
+    extern u8 D_005DC680[];
+    extern u8 D_005DC6A0[];
+    extern u8 D_005DC6C0[];
+    extern u8 D_005DC6E0[];
+    extern u8 D_005DC700[];
+    extern u8 D_005DC720[];
+    extern u8 D_005DC740[];
+    extern s32 D_00764280;
+    extern s32 iGpffffb19c;
+    extern s32 iGpffffb1a0;
+    u8 resetPath[0x40];
+    s32 retry;
+
+    func_00424f28(0);
+    func_00429c18();
+    func_0042eae0(0);
+    func_0042f600(2);
+    func_00442088(resetPath, D_005DC530, D_005DC548);
+    do {
+        retry = !func_0042b098(resetPath);
+    } while (retry);
+    do {
+        retry = !func_0042b048();
+    } while (retry);
+    func_00424f28(0);
+    func_00429c18();
+    func_0042eae0(0);
+    func_0042f600(2);
+    func_004214c0(9, func_00100310, 0);
+    *(volatile u32 *)0x10000000 = 0;
+    *(volatile u32 *)0x10000020 = 0;
+    *(volatile u32 *)0x10000030 = 0;
+    *(volatile u32 *)0x10000010 = 0x281;
+    func_00422328(9);
+    iGpffffb19c = 0;
+    iGpffffb1a0 = 0;
+    do {
+    } while (func_0042ab68(D_005DC560, 0, (u8 *)0) < 0);
+    do {
+    } while (func_0042ab68(D_005DC580, 0, (u8 *)0) < 0);
+    do {
+    } while (func_0042ab68(D_005DC5A0, 0, (u8 *)0) < 0);
+    do {
+    } while (func_0042ab68(D_005DC5C0, 0, (u8 *)0) < 0);
+    do {
+    } while (func_0042ab68(D_005DC5E0, 0, (u8 *)0) < 0);
+    do {
+    } while (func_0042ab68(D_005DC600, 0, (u8 *)0) < 0);
+    do {
+    } while (func_0042ab68(D_005DC620, 0x14, D_005DC640) < 0);
+    do {
+    } while (func_0042ab68(D_005DC660, 0, (u8 *)0) < 0);
+    do {
+    } while (func_0042ab68(D_005DC680, 0, (u8 *)0) < 0);
+    do {
+    } while (func_0042ab68(D_005DC6A0, 0, (u8 *)0) < 0);
+    do {
+    } while (func_0042ab68(D_005DC6C0, 0, (u8 *)0) < 0);
+    do {
+    } while (func_0042ab68(D_005DC6E0, 0, (u8 *)0) < 0);
+    do {
+    } while (func_0042ab68(D_005DC700, 0, (u8 *)0) < 0);
+    do {
+    } while (func_0042ab68(D_005DC700, 0, (u8 *)0) < 0);
+    do {
+    } while (func_0042ab68(D_005DC720, 0x18, D_005DC740) < 0);
+    func_00452760();
+    func_004645e0();
+    D_00764280 = func_004216d0();
+}
 // FUN_00100670
 INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00100670);
 // FUN_00100E30
@@ -347,7 +445,7 @@ void func_00100e60(void)
     func_001605a0();
     func_002aaa10();
     func_001029a0(0x1E, 0, 0, 0);
-    func_00149620(0);
+    func_00149620(NULL);
     func_00121b20();
     func_00122430(0);
     func_0034b970();

@@ -25,7 +25,7 @@ void func_001437b0(void* arg0, s32 arg1, s32 arg2);
 void func_0034f8f0(void* arg0);
 void func_0034f1e0(void);
 void func_0034c270(Vec2f arg0, u8 arg1, s32 arg2, f32 arg3);
-void func_0034f2e0(void* arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, f32 arg5, f32 arg6);
+void func_0034f2e0(void* arg0, f32 arg5, f32 arg6, u8 arg1, u8 arg2, u8 arg3, s64 arg4);
 void func_0034f320(void* arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7,
                    f32 arg8, f32 arg9, f32 arg10, f32 arg11, s16 arg12);
 f32 func_0044b7b0(f32 arg0);
