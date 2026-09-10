@@ -9521,3 +9521,50 @@ The build retains 172 source-linked objects and 56 Sony SDK objects;
 byte-exact linked C coverage rises to 1,586 functions. All 529 repository
 tests pass, source-honesty lint reports zero findings in 340 first-party
 files, and generated progress validates. All-matching remains open.
+
+## First-party continuation: material animation loading
+
+`func_004800d0` is recovered in `src/Graphics/Model/mdlMatAnim.c`:
+**864 / 864 bytes**, all 27 relocations resolved, and no alignment tail.
+The private recovery reduced the old 103-word candidate to 19 words; three
+ordinary-C changes close the rest:
+
+- Aggregate copies of the four byte colors and three float surface properties
+  reproduce all twelve remaining copy instructions.
+- A separate search cursor and result preserve the retail match-branch shape.
+- Reuse the later loop counter to stage `header.nameLength`. A fresh
+  single-use local is propagated back into the call and retains the three
+  argument-setup differences.
+
+All 14 preceding material-animation owner matches retain identical
+instruction bytes and relocation records. The loader declaration in
+`mdlManager.c` now agrees with `s32(void *, u8 **, u32, void *)`; all 118
+preceding manager matches are unchanged. Direct dispatch selects tags
+`0xF0F00080..83`, and deferred records store that same selected tag.
+No default-channel value or fabricated input is introduced.
+
+The table-release provider `func_004808b0` now explicitly passes the released
+object to the existing deallocator table. The old no-argument call depended
+on an incidental live argument register. The corrected body remains
+**64 / 64 bytes**, with two fully resolved relocations; every other preceding
+`mdlFile.c` match is unchanged. An i386 consumer with sibling-call
+optimization disabled fails argument delivery against the old source and
+passes against the corrected source.
+
+The current-source material consumer passes **640 i386 cases**, covering
+name lengths 0, 1, 127, 128 and 129; all four channels; empty/prepended lists
+and head/middle/tail matches; new data versus occupied-channel skipping;
+zero and wrapping unsigned payload sizes; bit-exact byte/float properties;
+reference counts, allocation guards and complete lifetime cleanup.
+It executes the actual table allocator, append, retain, release, list-holder
+constructor and animation teardown bodies. Stream and lookup providers are
+controlled; this is not PS2 graphics execution. Both native fixtures and
+their executables are removed.
+
+The full gate reports **6,240 first-party MATCH / 620 ASM (91.0%)**;
+the overall scan is 7,870 MATCH / 4,850 ASM across the unchanged 12,720
+functions. Both retail SHA-1s pass. The build retains 172 source-linked
+objects and 56 Sony SDK objects, with 1,587 byte-exact C-linked functions.
+All 529 repository tests pass, source-honesty lint reports zero findings
+in 340 first-party files, and generated progress validates. The remaining
+620 first-party assembly fallbacks are still in scope.
