@@ -117,8 +117,8 @@ extern void func_004647a0(void);
 extern void func_004647b0(void);
 extern void func_00465570(s32, s32, s32);
 extern s32 func_00465590(void);
-extern void func_0010e710(s32, s32, s32);
-extern s32 func_0010e880(s32, s32, s32);
+extern void func_0010e710(s32, u8 *, s32);
+extern s32 func_0010e880(s32, u8 *, s32);
 extern u16 D_008C024E[];
 extern s32 func_00110580(s32);
 extern void func_001104d0(s32 seed, s32 *month, s32 *day);
@@ -612,21 +612,214 @@ s32 func_002a34e0(u8 *arg0) {
 }
 
 
-/* measured: retail materializes the func_0010e880/0010e710 args as
-   [lw p[4]] [lw p[0]] [addiu a2,p[0]-4] [lw a0,sp4C] [addiu a1,p[4]+4]; mwcc
-   b210 emits arg order left-to-right interleaving each load with its addiu
-   ([lw p[4]] [addiu a1] [lw p[0]] [addiu a2] [lw a0]), 6 words per call site
-   (nd 12). The D_008873EC base hoist WAS matched via a `void *ec` local
-   (setState pattern, nd 81 -> 12); only this arg-order scheduling remains.
-   Argument-evaluation-order floor. */
-/* Wave-14 re-test: lever 7 (arg hoist into locals in retail order) applied to
-   a fresh m2c-sourced body; nd 235-282 (worse than the recorded 12) because the
-   m2c register allocation differs from the previous hand-adapted body. The
-   arg-order hoist at the func_0010e880/0010e710 sites alone does not recover
-   the frame; the whole-body register rotation dominates. Retest from the
-   previous nd-12 body, not from m2c. */
+/* 1544/1552 bytes; 67 resolved text relocations, twelve exact jump-table
+ * entries, and eight zero alignment bytes. The payload's byte-pointer ABI
+ * preserves retail's load/load/count/version/pointer argument schedule.
+ * Cache only the deallocator slot address, not its callback or work pointer. */
 // FUN_002A3D80
-INCLUDE_ASM("asm/nonmatchings/mc", func_002a3d80);
+s32 func_002a3d80(s32 address) {
+    u8 *arg0 = (u8 *)address;
+    s32 v;
+    s32 t;
+    s32 file;
+    u8 *p;
+    s32 ok;
+    s32 sp4C;
+    s32 sp48;
+    void *ec;
+    u8 *temporary;
+
+    v = *(s32 *)(arg0 + 0xC);
+    switch (v) {
+    case 16:
+        *(s32 *)(arg0 + 0xC) = 0x11;
+        if (*(s32 *)(arg0 + 0x394) != 0) {
+            func_0025e8b0(*(s32 *)(arg0 + 0x394));
+            *(s32 *)(arg0 + 0x394) = 0;
+        }
+        *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0xB);
+        func_004653f0();
+        /* fallthrough */
+    case 17:
+        t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
+        if (t != 0) {
+            *(s32 *)(arg0 + 0x394) = 0;
+        }
+        switch (t) {
+        case 1:
+            if (*(s32 *)(arg0 + 0x394) != 0) {
+                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                *(s32 *)(arg0 + 0x394) = 0;
+            }
+            *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0xC);
+            *(s32 *)(arg0 + 0xC) = 0x12;
+            break;
+        case 2:
+            return 2;
+        }
+        t = func_00465400();
+        switch (t) {
+        case 0:
+            break;
+        case -5:
+        case 3:
+            func_00440b68(D_0063EC30, t);
+            return 4;
+        }
+        break;
+    case 18:
+        *(s32 *)(arg0 + 0xC) = 0x13;
+        file = *(s32 *)(arg0 + 0x3AC);
+        func_0044ea90(&D_007638F8, 0x16D);
+        p = D_008873F4[0](1, 0x38008, 0x40000);
+        *(u8 **)(p + 4) = p + 8;
+        func_00465570(file, *(s32 *)(p + 4), (s32)p);
+        *(u8 **)(arg0 + 0x39C) = p;
+        /* fallthrough */
+    case 19:
+        t = func_00465590();
+        if (t == 0) {
+            break;
+        }
+        if (t == -3 || t == -5) {
+            goto read_failed;
+        }
+        switch (t) {
+        case 100:
+            p = *(u8 **)(arg0 + 0x39C);
+            sp4C = 0;
+            temporary = func_0010d7c0(0, &sp48, 0);
+            ec = D_008873EC;
+            (*(void (**)(void *))ec)(temporary);
+            func_0043f810(&sp4C, *(void **)(p + 4), 4);
+            if (func_0010e880(sp4C, *(u8 **)(p + 4) + 4, *(s32 *)p - 4) == 0) {
+                ok = 0;
+            } else {
+                func_0010e710(sp4C, *(u8 **)(p + 4) + 4, *(s32 *)p - 4);
+                ok = 1;
+            }
+            (*(void (**)(void *))ec)(*(void **)(arg0 + 0x39C));
+            if (ok != 0) {
+                func_00440b68(D_0063ECD0);
+                *(s32 *)(arg0 + 0xC) = 0x14;
+                if (arg0 == NULL) {
+                    func_0046d730(&D_007638F8, 0xE3);
+                }
+                D_00764638 = *(s32 *)(arg0 + 0x3AC);
+            } else {
+                func_00440b68(D_0063ECF0);
+                *(s32 *)(arg0 + 0xC) = 0x16;
+            }
+            break;
+        case -4:
+            func_00440b68(D_0063ED20);
+            *(s32 *)(arg0 + 0xC) = 0xE;
+            D_008873EC[0](*(void **)(arg0 + 0x39C));
+            break;
+        default:
+read_failed:
+            func_00440b68(D_0063ED20);
+            *(s32 *)(arg0 + 0xC) = 0xC;
+            D_008873EC[0](*(void **)(arg0 + 0x39C));
+            break;
+        }
+        break;
+    case 20:
+        *(s32 *)(arg0 + 0xC) = 0x15;
+        if (*(s32 *)(arg0 + 0x394) != 0) {
+            func_0025e8b0(*(s32 *)(arg0 + 0x394));
+            *(s32 *)(arg0 + 0x394) = 0;
+        }
+        *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0xD);
+        /* fallthrough */
+    case 21:
+        t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
+        if (t != 0) {
+            *(s32 *)(arg0 + 0x394) = 0;
+        }
+        if (t != 0) {
+            return 1;
+        }
+        break;
+    case 22:
+        *(s32 *)(arg0 + 0xC) = 0x17;
+        if (*(s32 *)(arg0 + 0x394) != 0) {
+            func_0025e8b0(*(s32 *)(arg0 + 0x394));
+            *(s32 *)(arg0 + 0x394) = 0;
+        }
+        *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0x14);
+        func_004653f0();
+        /* fallthrough */
+    case 23:
+        t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
+        if (t != 0) {
+            *(s32 *)(arg0 + 0x394) = 0;
+        }
+        if (t != 0) {
+            *(s32 *)(arg0 + 0xC) = 0xC;
+        }
+        t = func_00465400();
+        switch (t) {
+        case -2:
+        case 3:
+            *(s32 *)(arg0 + 0xC) = 0xC;
+            break;
+        }
+        break;
+    case 12:
+        *(s32 *)(arg0 + 0xC) = 0xD;
+        func_004653f0();
+        if (*(s32 *)(arg0 + 0x394) != 0) {
+            func_0025e8b0(*(s32 *)(arg0 + 0x394));
+            *(s32 *)(arg0 + 0x394) = 0;
+        }
+        *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0xE);
+        /* fallthrough */
+    case 13:
+        t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
+        if (t != 0) {
+            *(s32 *)(arg0 + 0x394) = 0;
+        }
+        if (t != 0) {
+            return 4;
+        }
+        t = func_00465400();
+        switch (t) {
+        case -2:
+        case 3:
+            func_00440b68(D_0063EC30, t);
+            return 4;
+        }
+        break;
+    case 14:
+        *(s32 *)(arg0 + 0xC) = 0xF;
+        func_004653f0();
+        if (*(s32 *)(arg0 + 0x394) != 0) {
+            func_0025e8b0(*(s32 *)(arg0 + 0x394));
+            *(s32 *)(arg0 + 0x394) = 0;
+        }
+        *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0x16);
+        /* fallthrough */
+    case 15:
+        t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
+        if (t != 0) {
+            *(s32 *)(arg0 + 0x394) = 0;
+        }
+        if (t != 0) {
+            return 4;
+        }
+        t = func_00465400();
+        switch (t) {
+        case -2:
+        case 3:
+            func_00440b68(D_0063EC30, t);
+            return 4;
+        }
+        break;
+    }
+    return 0;
+}
+
 // FUN_002A4390
 s32 func_002a4390(s32 arg0) {
     typedef struct {
