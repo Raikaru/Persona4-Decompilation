@@ -456,7 +456,7 @@ void func_001421b0(u8 *arg0) {
    keeps the retail t0/t1/a3 live ranges and loop arithmetic. */
 #pragma optimization_level 1
 void func_00142230(u8 *arg0) {
-    extern s32 iGpffff9cd8;
+    extern u8 iGpffff9cd8[8];
     extern u8 D_005EF5A0[];
     s32 i;
     u8 *base;
@@ -465,7 +465,7 @@ void func_00142230(u8 *arg0) {
     u8 *temp_3;
     u8 *temp_5;
     i = 0;
-    base = (u8 *)&iGpffff9cd8;
+    base = iGpffff9cd8;
     table = D_005EF5A0;
     while (i < 5) {
         value = *(s16 *)(arg0 + (*(u8 *)(base + i) * 2) + 0x187E) - 1;
@@ -543,8 +543,82 @@ void func_001423c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
 }
 /* measured: closes opt_propagation off probe for func_001423c0. */
 #pragma opt_propagation on
+/* Field portrait circle, type icon and rank label. Unions preserve the packed
+   position/color words; keep retail's integer tint scaling. Exact 776/784
+   bytes, 16 fully resolved relocations and eight zero alignment bytes. */
 // FUN_001424B0
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001424b0);
+void func_001424b0(Float2_0014 pos, f32 fparg0, s64 arg1, u8 *arg2, s32 arg3)
+{
+    extern f32 fGpffff9ce0;
+    extern u8 iGpffff9cd8[8];
+    extern f32 D_005EF6E0[];
+    extern f32 D_005EF6E4[];
+    extern void func_0046d730(const void *file, s32 line);
+    extern void func_00356170(s64 arg0, f32 f0, f32 f1, f32 f2, s32 arg1, s32 arg2, s32 arg3);
+    extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, s64 arg4);
+    extern s32 func_00246980(s16 arg0, s16 arg1);
+    extern s32 func_002751a0(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 out, s32 charWidth);
+
+    f32 saved_fparg0;
+    f32 pos_y;
+    union { f32 value; s32 bits; u8 bytes[4]; } color;
+    s32 kind;
+    union { Float2_0014 position; s64 bits; } pos2;
+    u8 *str;
+
+    saved_fparg0 = fparg0;
+    pos_y = pos.y;
+    if (arg3 >= 5) {
+        func_0046d730(&D_005EF6C8, 0x50F);
+    }
+
+    color.value = fGpffff9ce0;
+    pos2.position.x = 59.0f + pos.x;
+    pos2.position.y = 59.0f + pos_y;
+    color.bytes[3] = (u8)((*arg2 * 255) / 255);
+
+    func_00356170(pos2.bits, saved_fparg0, 59.0f, 0.0f, color.bits, 0x30, 1);
+
+    kind = iGpffff9cd8[arg3];
+    switch (kind) {
+    case 0:
+        pos2.position.x = 26.0f + pos.x;
+        pos2.position.y = (pos_y + 36.0f) - 3.0f - 3.0f;
+        break;
+    case 2:
+        pos2.position.x = 26.0f + pos.x;
+        pos2.position.y = 36.0f + pos_y;
+        break;
+    case 1:
+        pos2.position.x = 26.0f + pos.x;
+        pos2.position.y = 36.0f + pos_y;
+        break;
+    case 4:
+        pos2.position.x = 10.0f + pos.x;
+        pos2.position.y = 36.0f + pos_y;
+        break;
+    case 3:
+        pos2.position.x = 11.0f + pos.x;
+        pos2.position.y = 36.0f + pos_y;
+        break;
+    default:
+        func_0046d730(&D_005EF6C8, 0x539);
+        break;
+    }
+
+    func_0034f2e0(*(u8 **)(p4_00141cf0_add(arg3 * 4, arg2) + 0x1820), pos2.position.x, pos2.position.y, 0x2D, 0x2D, 0x2D, arg1);
+    str = (u8 *)func_00246980((s16) kind, *(s16 *)(p4_00141cf0_add(kind * 2, arg2) + 0x187E));
+    func_002751a0(61.0f + pos.x + D_005EF6E0[arg3 * 2],
+                  62.0f + pos_y + D_005EF6E4[arg3 * 2],
+                  0.0f,
+                  ((u8)arg1 | -256),
+                  8,
+                  3,
+                  (const char *)str,
+                  8,
+                  0x6E,
+                  -2);
+}
 // FUN_001427C0
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001427c0);
 /* measured: opt_propagation off probe for func_00142bf0. */
@@ -2187,9 +2261,10 @@ s32 func_00148140(u8 **arg0, u8 **arg1) {
 #pragma opt_propagation on
 // FUN_00148280
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00148280);
+/* The incoming parent is forwarded to the task allocator, which attaches
+   the new task when it is non-null. The constructor remains 96/96 bytes. */
 // FUN_00149620
-u8 *func_00149620(void) {
-    u8 *ctx;
+u8 *func_00149620(u8 *ctx) {
     u8 *o;
 
     o = func_00451fc0(ctx, D_005EFB10, 0xC7, 0, 0, (void *)func_00148280, NULL, NULL);

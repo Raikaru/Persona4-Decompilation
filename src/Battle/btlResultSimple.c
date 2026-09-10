@@ -42,7 +42,7 @@ s32 func_0046af60(u8 *arg0);
 s32 func_0046a750(s32 param);
 void func_0021fea0(u8 *work);
 void func_002214d0(void);
-void func_0034f2e0(void *arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6);
+void func_0034f2e0(void *arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, u8 arg5, s64 arg6);
 void func_00442088(void *dst, const void *fmt, s32 value);
 void func_00460ac0(void *param, void *work);
 extern u32 D_00795F20[];
@@ -93,11 +93,10 @@ struct BtlResultSubWork
 };
 
 /* measured 2026-08-03 (wave 14 re-attack, 10 attempts): two lever wins landed,
-   then a register-coloring floor remained. LEVER 1: func_0034f2e0's true
-   signature is (u8*, f32, f32, u8, u8, u8, u8) — FLOATS-FIRST after the pointer
-   (verified from func_0034f320's own prologue: mov.s $f12/$f13/$f14 saved before
-   the int args; the old extern had int args first, which WAS the recorded
-   "emits int args first" floor). LEVER 5: the walk loop needs switch(buf[i])
+   then a register-coloring floor remained. LEVER 1: func_0034f2e0 takes its
+   coordinates before the color arguments; its wide opacity argument is
+   narrowed by the core renderer. The old int-first extern caused the
+   recorded argument-materialization floor. LEVER 5: the walk loop needs switch(buf[i])
    {case 0x2E: dotbody; break; default: digitbody;} — case 0x2E declared FIRST so
    the '.' body is laid out before the digit body (beq->dot, b->digit), exactly
    matching retail; if/else and goto forms lay them out reversed (nd 99-104 vs

@@ -408,9 +408,11 @@ void func_0034f1e0(void)
 }
 /* measured: closing opt_propagation bracket for func_0034f1e0. */
 #pragma opt_propagation on
+/* Coordinates precede color arguments; opacity stays wide until the core
+   renderer masks its low byte. This preserves the shared call contract. */
 // FUN_0034F2E0
-void func_0034f2e0(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s64 arg4, f32 fparg0,
-                   f32 fparg1) {
+void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1,
+                   u8 arg1, u8 arg2, u8 arg3, s64 arg4) {
     func_0034f320(arg0, fparg0, fparg1, 0.0f, arg1, arg2, arg3, arg4,
                   0x1000, 0x1000, 0, 0.0f, 0);
 }
