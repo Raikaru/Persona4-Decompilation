@@ -916,10 +916,11 @@ done:
 end:
     return result;
 }
+/* 80/80 bytes; eight resolved relocations. Retail forwards the incoming
+ * a0 to the task constructor as the parent; it is not an uninitialized
+ * local left in an incidental register. */
 // FUN_00193A80
-void func_00193a80(void) {
-    u8 *ctx;
-
+void func_00193a80(u8 *ctx) {
     iGpffffb430 = 0;
     iGpffffb434 = 0;
     iGpffffb438 = 0;
