@@ -9568,3 +9568,30 @@ objects and 56 Sony SDK objects, with 1,587 byte-exact C-linked functions.
 All 529 repository tests pass, source-honesty lint reports zero findings
 in 340 first-party files, and generated progress validates. The remaining
 620 first-party assembly fallbacks are still in scope.
+
+## First-party continuation: task-loader parent input
+
+`func_00193a80` in `src/promoted/code1_0019.c` now takes its real incoming
+task-parent pointer instead of reading an uninitialized local. Retail
+clears the three loader counters and forwards the untouched `$a0` to
+`func_00451fc0`; that constructor uses it to attach the new task through
+`func_00452570`. The corrected `void(u8 *)` entry remains **80 / 80 bytes**,
+with eight fully resolved relocations and no alignment tail.
+
+All 144 existing owner MATCH instruction bodies remain unchanged; the
+targeted scan still reports 144 MATCH / 7 ASM. No assembly fallback is
+removed by this source-contract correction.
+
+The current-source consumer passes **576 freestanding i386 cases** using
+the actual constructor, hierarchy insertion and loader callback bodies.
+It covers null and three distinct parents, zero through eight existing
+siblings, allocation failure, signed counter extremes, counter resets
+before the callback, retained callback mutations and complete object
+guards. Allocation and the leaf loader are controlled; this is not a PS2
+task-scheduler run. The old source emits an uninitialized-use warning and
+fails the first non-null-parent case. The corrected source passes, and
+the throwaway native sources and executables are removed.
+
+`make build lint-errors test progress progress-validate` passes: both retail
+SHA-1s are unchanged, all 529 tests pass, first-party lint has zero findings,
+and the full scan remains 6,240 first-party MATCH / 620 ASM.
