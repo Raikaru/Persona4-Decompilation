@@ -12,7 +12,7 @@ typedef struct { u8 pad[8]; S16x4 coord; F32x4 vec[3]; } StackState;
 
 extern s32 func_00145260(void);
 extern u16 func_00145480(u16);
-extern void func_0026bfc0(f32 *, f32 *, f32, f32, f32, f32);
+extern void func_0026bfc0(f32 *, f32, f32, f32, f32, f32 *);
 extern u8 *func_00287060(s32, u8 *, u16, u8 *);
 extern void func_0028be70(u8 *, s32);
 extern u8 *func_00286780(u8 *, u16, u8 *);
@@ -34,8 +34,8 @@ extern void func_0043f810(u8 *, u8 *, s32);
 extern u8 D_005DC7D0[];
 extern u8 D_005DC878[];
 extern u8 D_0063CAB0[];
-extern s64 D_0063CAE8;
-extern f32 D_0063CAF0;
+extern s64 D_0063CAE8[];
+extern f32 D_0063CAF0[];
 
 // FUN_00294610
 void func_00294610(u8 *arg0, u8 *arg1, s32 arg2) {
@@ -213,9 +213,182 @@ void func_00294a90(u8 *arg0, u8 *arg1, u8 *arg2, u16 arg3) {
     }
 }
 
-/* measured: parked func_00294be0 after plain-C reconstruction probes; body archived in build/WALastMile6_evtLoadSave_func_00294be0_park.txt. */
+/* 1496/1504 bytes; twenty resolved relocations and eight zero alignment bytes.
+ * Preserve the source-type reloads after object creation, separate resource
+ * ID/pointer lifetimes, and the three-float vector copies. Address-taken angle
+ * fields retain retail's constant-load and stack-store ordering. */
 // FUN_00294BE0
-INCLUDE_ASM("asm/nonmatchings/evtLoadSave", func_00294be0);
+void func_00294be0(u8 *arg0, u8 *arg1) {
+    typedef struct { f32 x; f32 y; f32 z; } EventVector;
+    StackState stack;
+    s16 *coord;
+    s16 temp_6;
+    s16 temp_5_2;
+    s16 temp_4;
+    s16 temp_7_2;
+    s64 *angles_xy_ptr;
+    f32 *angles_z_ptr;
+    s64 angles_xy;
+    f32 angles_z;
+    u8 *zero;
+    s32 zero_count;
+    s32 type;
+    s32 idx;
+    s32 off;
+    u16 resource_id;
+    u8 *dest;
+    u8 *resource;
+    u16 *temp_3;
+    u16 id;
+    u16 var_2;
+    u16 var_4;
+    u8 *temp_2_3;
+    u8 *temp_7;
+    u8 *q;
+    zero = (u8 *)&stack.vec[1];
+    zero_count = 0xC;
+    if (zero != NULL) {
+        do {
+            *zero = 0;
+            zero++;
+            zero_count--;
+        } while (zero_count != 0);
+    }
+    angles_xy_ptr = &angles_xy;
+    *angles_xy_ptr = D_0063CAE8[0];
+    angles_z_ptr = &angles_z;
+    *angles_z_ptr = D_0063CAF0[0];
+    *(s64 *)&stack.vec[0] = angles_xy;
+    stack.vec[0].z = angles_z;
+    if (func_00145260() != 0) {
+        idx = (s32)func_00145270(0x1E58);
+        if (idx == 0) {
+            resource_id = func_00145480(0x258) & 0xFFFF;
+            idx = (s32)func_00145270(resource_id);
+        } else {
+            resource_id = *(u16 *)idx;
+        }
+        func_00146e60(resource_id, &stack.vec[1].x, &stack.vec[0].x);
+        *(s32 *)((u8 *)idx + 0x144) = 0;
+        *(u16 **)(arg1 + 0x12C) = func_00145270(resource_id);
+        func_0026bfc0(&stack.vec[1].x, 900.0f, 45.0f, 0.0f, 0.0f, &stack.vec[2].x);
+        func_00146e60(resource_id, &stack.vec[2].x, &stack.vec[0].x);
+        resource = (u8 *)func_00145270(0x1E59);
+        if (resource == NULL) {
+            resource_id = func_00145480(0x259) & 0xFFFF;
+            func_00145270(resource_id);
+        } else {
+            resource_id = *(u16 *)resource;
+        }
+        func_00146e60(resource_id, &stack.vec[2].x, &stack.vec[0].x);
+        *(s32 *)((u8 *)func_00145270(resource_id) + 0x144) = 0;
+        func_0028be70(arg1, 0);
+        temp_3 = *(u16 **)(arg1 + 0x12C);
+        if (temp_3 != NULL) {
+            dest = (u8 *)func_00287060(0x21, arg1, *temp_3, NULL);
+            *(s32 *)(dest + 8) = -1;
+            *(EventVector *)(dest + 0x38) = *(EventVector *)&stack.vec[2];
+            *(EventVector *)(dest + 0x44) = *(EventVector *)&stack.vec[0];
+            for (idx = 0; idx < *(s32 *)(arg0 + 0xAC); idx++) {
+                type = *(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14);
+                if (type == 4) {
+                    id = *(u16 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10));
+                } else {
+                    id = *(u16 *)(*(s32 *)(arg0 + 0x98) + (idx * 0x3C));
+                }
+                if ((id & 0xFFFF) == 0x21) {
+                    if (type == 4) {
+                        var_2 = *(u16 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 2);
+                    } else {
+                        var_2 = *(u16 *)(*(s32 *)(arg0 + 0x98) + (idx * 0x3C) + 2);
+                    }
+                    temp_2_3 = func_00286780(dest, var_2 & 0xFFFF, arg1);
+                    off = idx * 0x3C;
+                    temp_7 = (u8 *)(*(s32 *)(arg0 + 0x98) + off);
+                    coord = &temp_6;
+                    *coord = *(s16 *)(temp_7 + 0xC);
+                    coord = &temp_5_2;
+                    *coord = *(s16 *)(temp_7 + 0xE);
+                    coord = &temp_4;
+                    *coord = *(s16 *)(temp_7 + 0x10);
+                    coord = &temp_7_2;
+                    *coord = *(s16 *)(temp_7 + 0x12);
+                    stack.coord.a = temp_6;
+                    stack.coord.b = temp_5_2;
+                    stack.coord.c = temp_4;
+                    stack.coord.d = temp_7_2;
+                    *(S16x4 *)(temp_2_3 + 8) = stack.coord;
+                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
+                        var_4 = *(u16 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 4);
+                    } else {
+                        var_4 = *(u16 *)(*(s32 *)(arg0 + 0x98) + off + 4);
+                    }
+                    *(u16 *)(temp_2_3 + 2) = var_4;
+                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    } else {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                    }
+                    *(s32 *)(temp_2_3 + 0x10) = *(s32 *)q;
+                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    } else {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                    }
+                    *(s32 *)(temp_2_3 + 0x14) = *(s32 *)(q + 4);
+                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    } else {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                    }
+                    *(s32 *)(temp_2_3 + 0x18) = *(s32 *)(q + 8);
+                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    } else {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                    }
+                    *(s32 *)(temp_2_3 + 0x1C) = *(s32 *)(q + 0xC);
+                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    } else {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                    }
+                    *(s32 *)(temp_2_3 + 0x20) = *(s32 *)(q + 0x10);
+                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    } else {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                    }
+                    *(s32 *)(temp_2_3 + 0x24) = *(s32 *)(q + 0x14);
+                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    } else {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                    }
+                    *(s32 *)(temp_2_3 + 0x28) = *(s32 *)(q + 0x18);
+                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    } else {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                    }
+                    *(s32 *)(temp_2_3 + 0x2C) = *(s32 *)(q + 0x1C);
+                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    } else {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                    }
+                    *(s32 *)(temp_2_3 + 0x30) = *(s32 *)(q + 0x20);
+                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (idx * 0x10) + 8);
+                    } else {
+                        q = (u8 *)(*(s32 *)(arg0 + 0x98) + off + 0x14);
+                    }
+                    *(s32 *)(temp_2_3 + 0x34) = *(s32 *)(q + 0x24);
+                }
+            }
+        }
+    }
+}
 
 // FUN_002951C0
 void func_002951c0(u8 *arg0, u8 *arg1) {

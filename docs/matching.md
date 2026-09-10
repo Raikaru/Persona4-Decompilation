@@ -9639,3 +9639,68 @@ The throwaway consumer sources, mutation fixtures and executables are removed.
 byte-exact C-linked functions. All 529 tests pass, first-party lint reports
 zero findings in 340 files, and generated progress validates.
 The remaining 619 first-party assembly fallbacks are still in scope.
+
+## First-party continuation: event, memory-card and interface recovery
+
+Five more assembly fallbacks are recovered as ordinary C:
+
+| Function | Owner | C bytes / retail window | Resolved text relocations | Zero alignment tail |
+| --- | --- | ---: | ---: | ---: |
+| `func_00294be0` | `src/Event/evtLoadSave.c` | 1,496 / 1,504 | 20 | 8 |
+| `func_002a3d80` | `src/Kernel/mc.c` | 1,544 / 1,552 | 67 | 8 |
+| `func_00219130` | `src/Battle/btlPanelAnalyze.c` | 1,624 / 1,632 | 53 | 8 |
+| `func_00374d20` | `src/Battle/btlShuffleDraw.c` | 1,732 / 1,744 | 37 | 12 |
+| `func_002962f0` | `src/promoted/code1_0029.c` | 776 / 784 | 4 | 8 |
+
+All five have zero fully resolved executable differences and no overrun.
+The memory-card switch also resolves all twelve table entries at
+`0x00748720`; the shuffle renderer's twelve-byte axis initializer matches
+`{0.0f, 0.0f, 1.0f}` at `0x0064EA38`. These local objects are checked
+against retail independently of relocation masking.
+
+The memory-card recovery gives `func_0010e710` and `func_0010e880` their
+actual byte-buffer parameter in `g_data.c`, and migrates the declaration
+and call in `func_00110f00`. Both providers and that existing caller retain
+their exact instruction bodies. The loader preserves callback-visible
+buffer and deallocator reloads instead of caching a stale release target.
+
+The analysis recovery names the two real GP-relative float objects:
+`fGpffff8480` at `0x00761570` and `fGpffff8484` at `0x00761574`.
+Their curated evidence records the retail loads at `0x0021941C` and
+`0x00219514`, their signed GP displacements, and the exact float bits.
+Regenerating `config/symbols_recovered.txt` activates those registrations
+for the linker; changing only the curated input does not. This restores
+the analysis translation unit without lowering the 172-object link floor.
+
+Current-source freestanding i386 consumers pass:
+
+- **6,152 event-restoration cases**, including callback-visible record
+  changes and complete vector restoration. The consumer rejects cached
+  record-type and shortened-vector-copy mutations.
+- **723 memory-card loading cases**, covering state transitions, actual
+  serializer/checksum providers, the serialized-size boundary, failed
+  loads, callback replacement and buffer replacement. It rejects cached
+  buffer/deallocator and missing four-byte payload-slice mutations.
+- **1,600 event-descriptor cases**, covering signed readiness and count
+  boundaries, compact/wide records, high-bit identifiers, all four position
+  halfwords, seven trailing property bytes, skipped record kinds, and
+  callback changes to layout, wide-record storage and loop count.
+  It rejects unsigned-readiness, shortened-position, cached-count,
+  cached-wide-storage and cached-layout mutations.
+
+These consumers use controlled external providers; they are not PS2
+memory-card or graphics-runtime execution. Their throwaway sources,
+mutation fixtures and executables are removed. The rebuilt retail-identical
+image includes the event-restoration, analysis and shuffle-rendering
+functions from their C owners. The memory-card and promoted descriptor
+owners remain outside whole-TU linkage for pre-existing eligibility
+limitations; their exact object and consumer proofs are separate.
+
+`make build-progress lint-errors test progress progress-validate` passes.
+The unchanged 12,720-function scan reports **7,876 MATCH / 4,844 ASM**
+overall and **6,246 MATCH / 614 ASM (91.0%)** first-party.
+Both retail SHA-1s pass; 172 source objects and 56 Sony SDK objects remain
+linked, with 1,591 byte-exact C-linked functions. All 529 repository tests
+pass, source-honesty lint reports zero findings in 340 first-party files,
+and generated progress validates. The remaining 614 first-party assembly
+fallbacks remain in scope.

@@ -16,6 +16,10 @@ extern s32 func_00388bd0(void *arg0);
 extern s32 func_0038d790(void *arg0);
 extern void func_0034f1e0(void);
 extern void func_00374d20(u8 *arg0);
+extern s32 func_00378240(u8 *arg0);
+extern s32 func_00378250(u8 *arg0);
+extern s32 func_00378500(u8 *arg0);
+extern void func_00378280(u8 *arg0, u8 arg1);
 extern void func_00371990(u8 *arg0, u8 *arg1, u8 *arg2);
 extern void func_00371ba0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern void func_00370410(u8 *arg0);
@@ -97,7 +101,7 @@ extern void func_00376290(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern f32 func_0036de70(u8 *arg0);
 extern f32 func_0036deb0(u8 *arg0);
 extern void *func_003e0f80(void);
-extern void func_003e0c90(void *arg0, void *arg1, s32 arg2, f32 fparg0);
+extern void *func_003e0c90(void *arg0, const void *arg1, s32 arg2);
 extern void func_003e42a0(void *arg0, void *arg1, void *arg2);
 extern void func_003717e0(void *arg0, void *arg1);
 extern void func_003e0f40(void *arg0);
@@ -422,29 +426,134 @@ void func_00374cf0(u8 *arg0) {
 }
 
 
-/* measured: reconstructed to nd 121 (obj 0x6A4, window 0x6D0). Most of the body
-   is byte-exact: frame/slots, the two vec struct copies, the full camera-matrix
-   chain (2.0f/dot + 9 products + 9 stores), func_003e0c90/003e0e20, the
-   D_00887300 base-hoist calls via the u32-cast recipe ((u32)D_00887300 + per-call
-   *(u32*)base jalr -- one lui/addiu in a saved reg, as retail), the
-   func_003f6440/00410420/004106a0 calls, the func_00373cb0 call and the
-   func_003e0a90 tail. Residuals (all scheduling/register-choice floors): (1) the
-   dot chain sorts to mula(x) where retail has mula(y) (same 2-word family as
-   func_00377930); (2) func_00378280's arg load is emitted before the a0 move
-   (2 words); (3) the D_0064EA38/D_0064EA40 12-byte input interleaves
-   ld;sd;lwc1;swc1 and materialises the a1 arg last, retail batches
-   a1;ld;lwc1;sd;swc1 (also seen in func_00375b40); (4) both alpha blocks'
-   else-arm or/mtc1/cvt use $v0/$f0 where retail uses $v1/$f1 (recipe-A
-   register residual, 8 words); (5) both 0x4F000000 float-to-byte guards emit
-   c.olt.s $f1,$f0 + bc1f where retail has c.ole.s $f0,$f1 + bc1t, plus mfc1
-   $v0 vs $v1 -- identical polarity floor as btlShuffleCalc func_003733f0
-   (nd 27, all four compare spellings probed there); (6) the &0x100 u16
-   increment block: mwcc keeps the +1 result in $a0 and hoists the andi before
-   the sh (retail: $v1, sh-then-andi; tried s32/u16 temp spellings).
-   New symbols: D_0064EA38/D_0064EA40/iGpffff840c (evidence in
-   config/symbol_data_addrs.txt). 4 attempts: 121, 126, 126, 132. */
+/* 1732/1744 bytes; 37 resolved relocations and twelve zero alignment bytes.
+ * The scoped axis initializer binds its twelve-byte object to D_0064EA38.
+ * Natural quaternion products, native byte casts, and the u16 pre-increment
+ * preserve retail's MAC order, conversion paths, and callback-visible reloads. */
 // FUN_00374D20
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00374d20);
+void func_00374d20(u8 *arg0) {
+    ShuffleVec3 translation;
+    ShuffleVec4 rotation;
+    f32 inv;
+    f32 t2;
+    f32 t1;
+    f32 t0;
+    f32 q10;
+    f32 q9;
+    f32 q8;
+    f32 q7;
+    f32 q6;
+    f32 q5;
+    f32 q4;
+    f32 q3;
+    f32 q2;
+    f32 pulseFrame;
+    f32 fadeFrame;
+    f32 pulseAlpha;
+    f32 fadeAlpha;
+    f32 progress;
+    s32 frontVertices;
+    s32 backVertices;
+    s32 texture;
+    u8 *card;
+    s32 camera;
+    u32 renderStateBase;
+    u8 pulseByte;
+    u8 fadeByte;
+    u8 *p;
+    u8 *m;
+
+    p = arg0 + *(s32 *)(arg0 + 0x1F308) * 0xE8 + 0x1D6A0;
+    translation = *(ShuffleVec3 *)(p + 0x18);
+    rotation = *(ShuffleVec4 *)(p + 0x74);
+    if (*(u16 *)(arg0 + 0x1F2F4) & 0x40) {
+        card = *(u8 **)(arg0 + 0x1F2A4);
+    } else {
+        card = *(u8 **)(arg0 + 0x1F2A0);
+    }
+    frontVertices = func_00378240(card);
+    backVertices = func_00378250(card);
+    texture = func_00378500(card);
+    m = (u8 *)func_003e0f80();
+    camera = *(s32 *)((u8 *)func_00457120() + 4);
+    inv = 2.0f / (rotation.x * rotation.x + rotation.y * rotation.y + rotation.z * rotation.z +
+                  rotation.w * rotation.w);
+    t2 = rotation.x * inv;
+    t1 = rotation.y * inv;
+    t0 = rotation.z * inv;
+    q10 = t2 * rotation.w;
+    q9 = t1 * rotation.w;
+    q8 = t0 * rotation.w;
+    q7 = rotation.x * t2;
+    q6 = rotation.y * t1;
+    q5 = rotation.z * t0;
+    q4 = rotation.y * t0;
+    q3 = rotation.z * t2;
+    q2 = rotation.x * t1;
+    *(f32 *)(m + 0x00) = 1.0f - (q6 + q5);
+    *(f32 *)(m + 0x04) = q2 + q8;
+    *(f32 *)(m + 0x08) = q3 - q9;
+    *(f32 *)(m + 0x10) = q2 - q8;
+    *(f32 *)(m + 0x14) = 1.0f - (q5 + q7);
+    *(f32 *)(m + 0x18) = q4 + q10;
+    *(f32 *)(m + 0x20) = q3 + q9;
+    *(f32 *)(m + 0x24) = q4 - q10;
+    *(f32 *)(m + 0x28) = 1.0f - (q7 + q6);
+    *(s32 *)(m + 0x30) = 0;
+    *(s32 *)(m + 0x34) = 0;
+    *(s32 *)(m + 0x38) = 0;
+    *(s32 *)(m + 0x0C) = 3;
+    func_003e0c90(m, &translation, 2);
+    func_003e0e20(m, func_003e9700(camera), 2);
+    renderStateBase = (u32)D_00887300;
+    ((void (*)(s32, s32))*(u32 *)renderStateBase)(6, 0);
+    ((void (*)(s32, s32))*(u32 *)renderStateBase)(8, 0);
+    ((void (*)(s32, s32))*(u32 *)renderStateBase)(0x14, 2);
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x44);
+    if (*(u16 *)(arg0 + 0x1F2F4) & 0x20) {
+        ((void (*)(s32, s32))*(u32 *)renderStateBase)(1, func_0036be00());
+        func_00410420(backVertices, 4, m, 3);
+        func_004106a0(4);
+    }
+    func_00378280(card, *(u8 *)(p + 0xD8));
+    if (*(u16 *)(arg0 + 0x1F2F4) & 0x80) {
+        ShuffleVec3 axis = {0.0f, 0.0f, 1.0f};
+        func_003e0870(m, &axis, 1, 180.0f);
+    }
+    ((void (*)(s32, s32))*(u32 *)renderStateBase)(1, texture);
+    func_00410420(frontVertices, 4, m, 3);
+    func_004106a0(4);
+    if (*(u16 *)(arg0 + 0x1F2F4) & 0x10) {
+        func_003f6440(3, 0x71801);
+        func_003f6440(2, 0x48);
+        *(u16 *)(arg0 + 0x1F2F2) = (u16)((*(u16 *)(arg0 + 0x1F2F2) + 1) % 60);
+        pulseFrame = (f32)(u32)*(u16 *)(arg0 + 0x1F2F2);
+        pulseAlpha = 255.0f * (1.0f - func_0044b610((iGpffff81e0 * pulseFrame) / 60.0f)) / 2.0f;
+        pulseByte = (u8)pulseAlpha;
+        func_00378280(card, pulseByte & 0xFF);
+        func_00410420(frontVertices, 4, m, 3);
+        func_004106a0(4);
+    }
+    if (*(u16 *)(arg0 + 0x1F2F4) & 0x100) {
+        ShuffleVec3 scale;
+        fadeFrame = (f32)(u32)++*(u16 *)(arg0 + 0x1F2F2);
+        progress = func_00373cb0(fadeFrame, 0.0f, 1, 20.0f);
+        if (*(u16 *)(arg0 + 0x1F2F2) >= 20) {
+            *(u16 *)(arg0 + 0x1F2F4) &= 0xFEFF;
+        }
+        fadeAlpha = 255.0f * (1.0f - progress);
+        fadeByte = (u8)fadeAlpha;
+        func_00378280(card, fadeByte & 0xFF);
+        scale.x = 1.0f + (f32)(iGpffff840c * progress);
+        scale.y = scale.x;
+        scale.z = 1.0f;
+        func_003e0a90(m, &scale, 1);
+        func_00410420(frontVertices, 4, m, 3);
+        func_004106a0(4);
+    }
+    func_003e0f40(m);
+}
 
 // FUN_003753F0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003753f0);

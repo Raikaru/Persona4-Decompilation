@@ -313,24 +313,165 @@ void func_00219060(u8 *arg0) {
     func_003e8120(func_00457120());
 }
 
-/* measured: the arg0[0x88] update uses the FPU accumulator idiom (adda.s $f0,$f1
-   then madd.s $f0,$f2,$f3 — a fused multiply-add of 0 + arg0[0x88] + iGpffff8480*f3)
-   which m2c marks M2C_ERROR and no C float spelling reproduces byte-for-byte
-   (same floor as btlAICommand func_001de370). The rest of the function (the
-   state-machine switch on arg0[2], the D_00626FE0/D_00628F60 table pick, the
-   D_008C025C signed-byte float conversion, the func_003e0870/05f0 render calls,
-   the 0x28/0xFF fade counter) is readable. FPU-accumulator floor; no real body
-   was produced for this 1632B retail window. */
+/* 1624/1632 bytes; 53 resolved relocations and eight zero alignment bytes.
+ * The explicit zero-add expression emits retail's adda.s/madd.s sequence.
+ * Preserve unsigned controller conversion before subtracting 128, matrix
+ * initialization before composition, and callback-visible field reloads. */
 // FUN_00219130
-INCLUDE_ASM("asm/nonmatchings/btlPanelAnalyze", func_00219130);
+void func_00219130(u8 *arg0) {
+    typedef struct { f32 x, y, z; } AnalyzeVec3;
+    typedef struct { f32 matrix[16]; } AnalyzeMatrix;
+    extern u8 D_005DC9C8[];
+    extern u8 D_00626FE0[][24];
+    extern u8 D_00628F60[];
+    extern u8 D_008C025C[];
+    extern u8 D_0060A0D0[];
+    extern u8 D_0060A0E0[];
+    extern u8 D_00795020[];
+    extern u8 *iGpffffb3cc;
+    extern f32 fGpffff8480;
+    extern f32 fGpffff8484;
+    u8 *func_00478750(u8 *);
+    void func_004787e0(u8 *);
+    void func_0047aa30(u8 *, void *);
+    void func_00478ea0(u8 *, void (*)(u8 *), u8 *);
+    void func_00478eb0(u8 *, void (*)(u8 *), u8 *);
+    void *func_003e4320(void *, const void *, const void *);
+    void *func_003e0870(void *, const void *, f32, s32);
+    void *func_003e05f0(void *, const void *, const void *);
+    u8 *func_0047a2f0(u8 *);
+    void func_0047a850(u8 *);
+    void func_0047a220(u8 *, const void *);
+    void func_00479100(void *, u8 *);
+    AnalyzeVec3 position;
+    AnalyzeVec3 transformed;
+    AnalyzeMatrix rotation;
+    u8 color[4];
+    u8 *model;
+    u8 *entry;
+    u8 *matrix;
+    u8 *unit;
+    u16 flags;
+    u32 table_address;
+    f32 delta;
+    f32 width;
+    f32 height;
+    f32 translated;
 
-/* measured: the 7-element spell loop uses the FPU accumulator idiom (adda.s
-   $f1,$f22 / madd.s $f23,$f0,$f20 in the loop body at 0x119EA4) which m2c marks
-   M2C_ERROR and no C float spelling reproduces byte-for-byte (same floor as
-   btlAICommand func_001de370 and this file's func_00219130). The rest (the
-   tempered-float fade, the D_00628FB8 spell table, the func_00218760/18af0/18c60
-   panel draws, the D_00887300/10 render dispatch) is readable. FPU-accumulator
-   floor; no real body was produced for this 4128B retail window. */
+    if (*(u16 *)(arg0 + 2) == 0) {
+        return;
+    }
+    switch (*(u16 *)(arg0 + 2)) {
+    case 1:
+        unit = *(u8 **)(arg0 + 8);
+        model = func_00478750(*(u8 **)(*(u8 **)(unit + 0x30) + 0xA00));
+        *(u8 **)(arg0 + 0xC) = model;
+        func_0047aa30(model, D_005DC9C8);
+        *(u32 *)(*(u8 **)(arg0 + 0xC) + 0xD8) &= ~0x100;
+        entry = *(u8 **)(unit + 0x30);
+        if (entry[0xA2] == 1) {
+            table_address = *(u16 *)(entry + 0xA4) * 0xE8;
+            table_address += (u32)iGpffffb3cc;
+            flags = *(u16 *)(table_address + 0x18);
+            if (flags & 2) {
+                *(u32 *)(*(u8 **)(arg0 + 0xC) + 0xD8) |= 0x200;
+            }
+            if (flags & 8) {
+                *(u32 *)(*(u8 **)(arg0 + 0xC) + 0xD8) |= 0x400;
+            }
+            if (flags & 0x10) {
+                *(u32 *)(*(u8 **)(arg0 + 0xC) + 0xD8) |= 0x800;
+            }
+        }
+        func_00478ea0(*(u8 **)(arg0 + 0xC), func_00218ea0, arg0);
+        func_00478eb0(*(u8 **)(arg0 + 0xC), func_00219060, arg0);
+        *(u16 *)(arg0 + 0) &= ~2;
+        *(u16 *)(arg0 + 0) |= 1;
+        *(f32 *)(arg0 + 0x88) = 0.0f;
+        arg0[6] = 0;
+        *(u16 *)(arg0 + 2) = 3;
+        break;
+    case 2:
+        func_004787e0(*(u8 **)(arg0 + 0xC));
+        model = func_00478750(*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 8) + 0x30) + 0xA00));
+        *(u8 **)(arg0 + 0xC) = model;
+        func_0047aa30(model, D_005DC9C8);
+        *(u32 *)(*(u8 **)(arg0 + 0xC) + 0xD8) &= ~0x100;
+        func_00478ea0(*(u8 **)(arg0 + 0xC), func_00218ea0, arg0);
+        func_00478eb0(*(u8 **)(arg0 + 0xC), func_00219060, arg0);
+        *(f32 *)(arg0 + 0x88) = 0.0f;
+        *(u16 *)(arg0 + 2) = 3;
+    case 3:
+        if (*(u16 *)(arg0 + 4) < 5) {
+            break;
+        }
+        unit = *(u8 **)(*(u8 **)(arg0 + 8) + 0x30);
+        if (unit[0xA2] == 1) {
+            entry = D_00626FE0[*(u16 *)(unit + 0xA4)];
+        } else {
+            entry = D_00628F60;
+        }
+        delta = (f32)D_008C025C[0] - 128.0f;
+        if (delta < -48.0f || delta > 48.0f) {
+            *(f32 *)(arg0 + 0x88) = (0.0f + *(f32 *)(arg0 + 0x88)) + fGpffff8480 * delta;
+        }
+        if (entry[0x14] < 180 || entry[0x15] < 180) {
+            if (*(f32 *)(arg0 + 0x88) > (f32)entry[0x14]) {
+                *(f32 *)(arg0 + 0x88) = (f32)entry[0x14];
+            } else if (*(f32 *)(arg0 + 0x88) < (f32)-entry[0x15]) {
+                *(f32 *)(arg0 + 0x88) = (f32)-entry[0x15];
+            }
+        }
+        unit = func_00457120();
+        translated = *(f32 *)(unit + 0x68);
+        width = 2.0f * (translated * fGpffff8484);
+        height = 2.0f * (*(f32 *)(unit + 0x6C) * fGpffff8484);
+        matrix = *(u8 **)(func_00457120() + 4) + 0x10;
+        translated = 320.0f;
+        translated += *(f32 *)(entry + 0);
+        position.x = (0.5f + -translated / 640.0f) * width;
+        position.y = (0.5f + -(224.0f + *(f32 *)(entry + 4)) / 448.0f) * height;
+        translated = (f32)(s32)0x226;
+        translated += *(f32 *)(entry + 8);
+        position.z = translated;
+        func_003e4320(&transformed, &position, matrix);
+        func_003e0870(&rotation, D_0060A0E0, *(f32 *)(arg0 + 0x88), 0);
+        func_003e0870(&rotation, D_0060A0D0, *(f32 *)(entry + 0xC), 2);
+        func_003e0870(&rotation, D_0060A0E0, 180.0f + *(f32 *)(entry + 0x10), 2);
+        func_003e05f0(func_0047a2f0(*(u8 **)(arg0 + 0xC)), &rotation, matrix);
+        translated = *(f32 *)(matrix + 0x30) + transformed.x;
+        *(f32 *)(func_0047a2f0(*(u8 **)(arg0 + 0xC)) + 0x30) = translated;
+        translated = *(f32 *)(matrix + 0x34) + transformed.y;
+        *(f32 *)(func_0047a2f0(*(u8 **)(arg0 + 0xC)) + 0x34) = translated;
+        translated = *(f32 *)(matrix + 0x38) + transformed.z;
+        *(f32 *)(func_0047a2f0(*(u8 **)(arg0 + 0xC)) + 0x38) = translated;
+        if (arg0[6] < 0xFF) {
+            if (arg0[6] < 0xD7) {
+                arg0[6] += 0x28;
+            } else {
+                arg0[6] = 0xFF;
+            }
+            func_0047a850(*(u8 **)(arg0 + 0xC));
+            color[0] = 0xFF;
+            color[1] = 0xFF;
+            color[2] = 0xFF;
+            color[3] = arg0[6];
+            func_0047a220(*(u8 **)(arg0 + 0xC), color);
+        }
+        func_00479100(D_00795020, *(u8 **)(arg0 + 0xC));
+        break;
+    case 4:
+        func_004787e0(*(u8 **)(arg0 + 0xC));
+        *(u8 **)(arg0 + 0xC) = NULL;
+        *(u16 *)(arg0 + 0) &= ~1;
+        *(u16 *)(arg0 + 2) = 0;
+        break;
+    }
+}
+
+/* Prior triage did not produce a complete C body for this 4128-byte window.
+ * The spell loop uses adda.s/madd.s, which the preceding recovery now emits
+ * from ordinary C; accumulator instructions are not a compiler blocker. */
 // FUN_00219790
 INCLUDE_ASM("asm/nonmatchings/btlPanelAnalyze", func_00219790);
 

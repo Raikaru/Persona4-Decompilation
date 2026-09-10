@@ -707,3 +707,5 @@ D_005E7320 = 0x005e7320; // type:data evidence: retail func_0012ff60 mode-8/9 ta
 D_007144C8 = 0x007144c8; // type:data evidence: retail func_004accc0 lui/ld at 0x004acce4/0x004acce8 and lui/lwc1 at 0x004accec/0x004accf0
 D_007144D8 = 0x007144d8; // type:data evidence: retail func_004accc0 lui/ld at 0x004accfc/0x004acd00 and lui/lwc1 at 0x004acd04/0x004acd08
 D_007144E8 = 0x007144e8; // type:data evidence: retail func_004accc0 lui/ld at 0x004acd14/0x004acd18 and lui/lwc1 at 0x004acd1c/0x004acd20
+fGpffff8480 = 0x00761570; // type:data evidence: retail func_00219130 lwc1 $f2,-0x7B80($28) at 0x0021941C; gp-0x7B80; f32 bits 0x3CF5C290
+fGpffff8484 = 0x00761574; // type:data evidence: retail func_00219130 lwc1 $f2,-0x7B7C($28) at 0x00219514; gp-0x7B7C; f32 bits 0x420C10F4
