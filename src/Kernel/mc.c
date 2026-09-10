@@ -134,7 +134,7 @@ extern char iGpffffa824;
 extern void func_002a2e10(void);
 extern void func_002a9100(f32, f32, f32, s32, s32, u8 *, s32, u8 *);
 extern void func_002a95c0(f32, f32, f32, s32, s32, s32, u8 *, u8 *);
-extern s32 func_003b7060(s32);
+extern u32 func_003b7060(void);
 extern s32 D_0063EDB0[];
 extern s32 D_0063EDD0[];
 extern f32 D_00761300;
@@ -1222,7 +1222,6 @@ void func_002a6c30(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
 
 // FUN_002A6E30
 void func_002a6e30(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
-    void func_002a66d0(s32, s32, s32, f32, f32, f32, f32, f32);
     typedef struct { s32 a, b; } I8;
     f32 f1, f3;
     f32 f23, f22, f21, f20, f24;
@@ -1292,7 +1291,7 @@ void func_002a6e30(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     f1 = 1.0f - f20;
     f20 = -70.0f * f1;
     f24 = -30.0f * f1;
-    func_002a66d0(0xFFAE20, arg2, 1, (f32)(arg0 + 0x15) + f24, (f32)(arg1 - 4) + f20, 0.0f, 108.0f, 100.0f);
+    func_002a66d0((f32)(arg0 + 0x15) + f24, (f32)(arg1 - 4) + f20, 0.0f, 108.0f, 100.0f, 0xFFAE20, arg2, 1);
     i = 0;
     f3 = (f32)(arg0 + 0xB) + f24;
     f1 = f20 + ((f32)(arg1 + 0x14) - 3.0f * f23);
@@ -1309,7 +1308,7 @@ void func_002a6e30(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     f1 = 1.0f - f21;
     f20 = 70.0f * f1;
     f21 = 30.0f * f1;
-    func_002a66d0(0xFFAE20, arg2, 1, (f32)(arg0 + 0x95) + f21, (f32)(arg1 + 0x1D1) + f20, 0.0f, 108.0f, 100.0f);
+    func_002a66d0((f32)(arg0 + 0x95) + f21, (f32)(arg1 + 0x1D1) + f20, 0.0f, 108.0f, 100.0f, 0xFFAE20, arg2, 1);
     i = 0;
     f3 = (f32)(arg0 + 0x83) + f21;
     f1 = f20 + ((f32)(arg1 + 0x1AB) + 3.0f * f22);
@@ -1340,24 +1339,111 @@ s32 func_002a7330(u8 *arg0) {
     return 0;
 }
 
-/* measured: saved-register rotation on the 4-saved-reg prologue -- retail
-   colors arg2->$s0, arg1->$s1, arg2[4]->$s2, v->$s3; mwcc b210 always emits
-   v->$s0, arg2->$s1, arg1->$s2 (+arg2[4] wherever), with the sp60 index
-   folded into the lw instead of a separate addiu (nd 158). Tried with and
-   without the preloaded arg2[4] local, 3 local declaration orders, pointer
-   vs index copy loops -- the rotation never aligns. The first 4 copy-loop
-   instructions, the state checks and the 66d0 call all match. Saved-register
-   rotation floor. */
-/* Wave-14 re-test: fresh m2c-sourced body with the half-scaler as u32
-   (((u32)t2 >> 1) | (t2 & 1), per the btlShuffleCalc discovery) and the
-   0x8000001E overflow-guard constant; nd 176 (recorded best 158). The sp60
-   index still folds into the lw and the frame is 0x90 vs retail 0xA0 (3 vs 4
-   saved GPRs) — saved-register rotation + index-fold floor persists. Lever-3
-   inline helper for the sp60/sp80 base+index (per the y_CmbCardEff combo)
-   could not be measured: mwcc b210 rejects the inline-deref expression
-   ("pointer/array required") before it can be scored. */
-// FUN_002A73C0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/mc", func_002a73c0);
+static inline const s32 *mcTableAt(s32 index, const s32 *base)
+{
+    return base + index;
+}
+
+/* 844/848 bytes; eight resolved relocations; four zero alignment bytes.
+ * Keep table indices separate from their bases and reload the stored step.
+ * Reuse the table-copy word for width before converting it to float. */
+// FUN_002A73C0
+s32 func_002a73c0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
+    typedef struct { s32 a, b; } I8;
+    s32 sp80[8];
+    s32 sp60[8];
+    u8 *work;
+    u8 *rec;
+    I8 *src;
+    I8 *dst;
+    s32 n;
+    s32 v;
+    s32 i;
+    s32 scale;
+    s32 total;
+    s16 step;
+    f32 rate;
+    f32 w;
+    f32 fx;
+    f32 fy;
+    s32 ns;
+    u32 r;
+    f32 rf;
+    s32 tail;
+    s32 idx;
+    f32 cx;
+    f32 cy;
+    u8 *nw;
+
+    work = arg1;
+    rec = arg2;
+    src = (I8 *)D_0063EDB0;
+    dst = (I8 *)sp80;
+    n = 4;
+    do {
+        v = src->a;
+        i = src->b;
+        src++;
+        n--;
+        dst->a = v;
+        dst->b = i;
+        dst++;
+    } while (n > 0);
+    src = (I8 *)D_0063EDD0;
+    dst = (I8 *)sp60;
+    n = 4;
+    do {
+        v = src->a;
+        i = src->b;
+        src++;
+        n--;
+        dst->a = v;
+        dst->b = i;
+        dst++;
+    } while (n > 0);
+    if (*(s16 *)(rec + 0x12) > 0) {
+        *(s16 *)(rec + 0x12) -= 1;
+        return 0;
+    }
+    scale = (s32)((f32)(s32)((u32)arg3 * 255U) / 255.0f);
+    total = *mcTableAt(*(s32 *)(rec + 4), sp60);
+    step = *(s16 *)(rec + 0x10);
+    rate = (f32)step / (f32)total;
+    if (step < 30) {
+        scale = (s32)(((f32)step / 30.0f) * (f32)scale);
+    } else if (total - 30 < step) {
+        scale = (s32)((f32)scale * ((f32)(total - step) / 30.0f));
+    }
+    v = *mcTableAt(((s32 *)rec)[1], sp80);
+    w = 2.0f * (f32)v;
+    fx = *(f32 *)(rec + 8) - 512.0f * rate;
+    fy = *(f32 *)(rec + 0xC) + 512.0f * rate;
+    func_002a66d0(fx, fy, 0.0f, D_00761300 * w, w, 0xFFF267, scale, 1);
+    *(s16 *)(rec + 0x10) += 1;
+    total = *mcTableAt(*(s32 *)(rec + 4), sp60);
+    ns = *(s16 *)(rec + 0x10);
+    if (ns >= total) {
+        *(s16 *)(rec + 0x10) = 0;
+        return 1;
+    }
+    if ((s32)ns == (total >> 2) * 3) {
+        r = func_003b7060();
+        rf = (f32)r;
+        rf = 10.0f * (rf / 2147483648.0f);
+        tail = (s32)(u32)rf + 30;
+        idx = *(s32 *)(rec + 4);
+        cy = *(f32 *)(rec + 0xC);
+        cx = *(f32 *)(rec + 8);
+        nw = (u8 *)func_002a7330(work);
+        if (nw != 0) {
+            *(s32 *)(nw + 4) = idx;
+            *(f32 *)(nw + 8) = cx;
+            *(f32 *)(nw + 0xC) = cy;
+            *(s16 *)(nw + 0x12) = (s16)tail;
+        }
+    }
+    return 0;
+}
 // FUN_002A7710
 void func_002a7710(s32 arg0, u8 *arg1) {
     s32 i;
