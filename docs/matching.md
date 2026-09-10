@@ -9830,3 +9830,112 @@ in 340 first-party files and generated progress validates. The build
 retains 172 source objects and 56 Sony SDK objects; byte-exact C-linked
 functions rise to 1,592. All 608 remaining first-party assembly fallbacks
 remain in scope.
+
+## First-party continuation: battle labels, party panels and Persona initialization
+
+Three additional first-party bodies are recovered. Every relocation in
+the following table resolves, every executable word equals retail, and
+none of the objects overruns its window.
+
+| Function | Owner | Object/window bytes | Relocations | Zero alignment bytes |
+| --- | --- | ---: | ---: | ---: |
+| `func_002055d0` | `src/promoted/code1_0020.c` | 888/896 | 12 | 8 |
+| `func_00363200` | `src/Camp/cmpPartyPanel.c` | 820/832 | 16 | 12 |
+| `func_0010b9a0` | `src/Main/Battle/Data/datPersona.c` | 1008/1008 | 45 | 0 |
+
+The battle label preserves its row-ID snapshot, narrows that ID at the
+helper boundaries and reloads the signed number after drawing. Its
+four-byte color has byte and packed-word views. The category renderer
+`func_002bc4b0` now explicitly passes its word-sized ID to
+`func_00106850`; `func_00106b80` has the same word-input contract and
+narrows the signed low halfword internally. This removes reliance on an
+unmentioned live argument register without changing the 740-byte
+category body or the 176-byte metadata wrapper. The six-way table at
+`0x007488D0` retains retail destinations `0x002BC528`, `0x002BC588`,
+`0x002BC5E8`, `0x002BC648`, `0x002BC6A8` and `0x002BC708`; its comparison
+is independent of relocation masking.
+
+The party-panel recovery requires a coherent sprite and metric API
+cutover, not different function types in different translation units:
+
+- `func_0034f460` takes resource, slot, coordinates, byte RGB, then
+  opacity. Its provider, the party panel and all three active promoted
+  C callers use that order.
+- The current HP/SP wrappers `func_00104ce0` and `func_00104d50`
+  explicitly return their `u32` results. The old void definitions
+  cannot compile against the actual rendering consumer's value use.
+- All four HP/SP getters take signed-halfword character selectors.
+  Their active C declarations agree with the providers. The maximum
+  wrappers' previous word-formal-plus-local-narrow spelling is replaced
+  by the canonical short formal without changing their instructions.
+- The real `void(s16, s16)` HP/SP setter declarations are used in the
+  calculation and shuffle callers. Leaving those setters unprototyped
+  changes extension and saved-register allocation when the getters
+  become fully typed. In `func_0036fbe0`, the temporary containing only
+  `(s16)r` is itself `s16`. No split prototypes or invented arguments
+  remain in this cutover.
+
+The existing bodies remain byte-exact under those interfaces:
+
+| Existing function(s) | Object/window bytes, each | Resolved relocations, each |
+| --- | ---: | ---: |
+| `func_00104ce0`, `func_00104d50`, `func_00104dc0`, `func_00104e30` | 108/112 | 6 |
+| `func_00243f20` | 120/128 | 5 |
+| `func_0036fbe0` | 284/288 | 8 |
+| `func_0036fed0` | 328/336 | 10 |
+| `func_0022e630` | 1172/1184 | 28 |
+| `func_00299c60`, `func_00299cb0`, `func_00299d60`, `func_00299db0` | 68/80 | 3 |
+| `func_0034f460` | 56/64 | 1 |
+| `func_0038b1c0` | 712/720 | 10 |
+| `func_0038b490` | 156/160 | 7 |
+| `func_0038b530` | 1396/1408 | 17 |
+
+All unfilled suffixes in that table are separately verified zero
+alignment bytes, not missing instructions.
+
+Persona initialization keeps the stock alias at main-character storage
+plus `0xBEC`, the retained flag bits, first matching slot selection and
+the signed persona-ID comparison. The promoted loop bound matches the
+retail extension schedule. Capacity flags are re-read after initialization
+and again after diagnostics rather than cached across those calls.
+
+Freestanding 32-bit consumers execute the recovered C:
+
+- **4,608 label cases and 4,608 category cases** exercise the actual
+  renderer/metadata path. Unsigned-number handling, lost ID snapshots,
+  premature number loads and wrong category IDs are rejected.
+- **5,785 party, sprite and menu cases** include 5,760 panel cases,
+  all four menu-layout branches, counter/graphics-state mutations and
+  the composed menu caller. The actual four getters, sprite wrapper,
+  sprite core and bar-packet producer run into packet consumers.
+  Inactive rows, unsigned HP/SP boundaries, zero maxima, retained
+  position/ID/value snapshots, opacity and resource release are covered.
+  Six separately compiled mutations fail: unmasked HP, signed current
+  HP, lost ID snapshot, lost position snapshot, HP substituted for the
+  SP ratio and swapped sprite coordinates.
+- The integrated Persona body passes the native stock, duplicate
+  selection, party-record, capacity and post-initialization reload
+  consumer, with **53 checks and zero failures**.
+
+These are controlled native consumers, not PS2 graphics execution.
+
+The full `make build-progress lint-errors test progress progress-validate` gate
+passes after this cutover: **7,885 MATCH / 4,835 ASM** overall and
+**6,255 MATCH / 605 ASM** first-party. All **529 tests** pass; lint reports no
+findings across **340 first-party files**. Both SHA-1 checks remain exact:
+
+```text
+loadable image  3d1d3d2b9d6ccb60836db239ab49674223025a78
+SLUS_217.82     4eeec0360cf2715535d9f7e52eb69d786fb0158c
+```
+
+The build links **172 C objects** and **56 Sony SDK objects**; progress records
+**1,593 C-linked functions**. The party-panel recovery adds one C-linked
+function. The label and Persona bodies are source-MATCH but retain their
+owners' existing whole-translation-unit linkage restrictions.
+
+The completed consumers, mutation fixtures and one-off comparison scripts
+were removed after their results were recorded. Private compiler measurements
+remain available. These are matching and controlled native-consumer results,
+not a claim of PS2 runtime verification or completion of the remaining
+**605 first-party ASM** functions.

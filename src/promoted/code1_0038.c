@@ -70,8 +70,8 @@ extern void func_00389640();
 extern void func_00389e10();
 extern void func_0038a940();
 extern void func_0038b1c0();
-extern void func_0034f460(s32 arg0, f32 arg1, s32 arg2, f32 arg3,
-                          s32 arg4, s32 arg5, s32 arg6, s32 arg7);
+extern void func_0034f460(s32 resource, s32 slot, f32 x, f32 y,
+                          u8 r, u8 g, u8 b, s64 alpha);
 extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
                           f32 fparg2, u8 arg2, u8 arg3, u8 arg4, s64 arg5,
                           s64 arg6, s32 arg7, f32 fparg3, s16 arg_sp0,
@@ -846,8 +846,6 @@ void func_0038b1c0(u8 *arg0)
 {
     extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2,
                              s32 arg0);
-    extern void func_0034f460(s32 arg0, s32 arg1, u8 arg2, u8 arg3,
-                              u8 arg4, s64 arg5, f32 fparg0, f32 fparg1);
     extern s32 D_0064EFB0[];
     u8 *base;
     s32 palette;
@@ -899,10 +897,10 @@ void func_0038b1c0(u8 *arg0)
         func_0034f460(
             palette,
             *(s32 *)((u8 *)D_0064EFB0 + i * 0x14 + 0x10),
-            red, green, blue, alpha_byte,
             30.0f * (1.0f - alpha) +
                 *(f32 *)((u8 *)D_0064EFB0 + i * 0x14) + 0.0f,
-            *(f32 *)((u8 *)D_0064EFB0 + i * 0x14 + 4));
+            *(f32 *)((u8 *)D_0064EFB0 + i * 0x14 + 4),
+            red, green, blue, alpha_byte);
     }
     func_003f6440(3, 0x717FB);
     func_003f6440(2, 0x44);
@@ -917,7 +915,7 @@ void func_0038b490(s32 arg0, u8 **arg1)
     func_00389370(arg1);
     func_00389640(arg1);
     temp_16 = *(s32 *)(*arg1 + 0x1F2B4);
-    func_0034f460(temp_16, 0.0f, 0, 0.0f, 0xDA, 0x8C, 0x17, 0xC0);
+    func_0034f460(temp_16, 0, 0.0f, 0.0f, 0xDA, 0x8C, 0x17, 0xC0);
     func_00389e10(arg1);
     func_0038a940(arg1);
     func_0038b1c0((u8 *)arg1);
@@ -934,13 +932,13 @@ void func_0038b530(u8 *arg0, s32 arg1, f32 *arg2)
     handle = *(s32 *)(*(u8 **)arg0 + 0x1F2AC);
     switch (arg1) {
     case 1:
-        func_0034f460(handle, 492.0f + arg2[0], 0x40,
+        func_0034f460(handle, 0x40, 492.0f + arg2[0],
                       407.0f + arg2[1], 0xFF, 0xFF, 0xFF, 0xFF);
         x = 507.0f + arg2[0];
         y = 403.0f + arg2[1];
         func_0034f4a0(handle, 0x41, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
-        func_0034f460(handle, 528.0f + arg2[0], 6,
+        func_0034f460(handle, 6, 528.0f + arg2[0],
                       416.0f + arg2[1], 0xFF, 0xFF, 0xFF, 0xFF);
         x = 541.0f + arg2[0];
         y = 414.0f + arg2[1];
@@ -948,7 +946,7 @@ void func_0038b530(u8 *arg0, s32 arg1, f32 *arg2)
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
         break;
     case 2:
-        func_0034f460(handle, 528.0f + arg2[0], 6,
+        func_0034f460(handle, 6, 528.0f + arg2[0],
                       417.0f + arg2[1], 0xFF, 0xFF, 0xFF, 0xFF);
         x = 541.0f + arg2[0];
         y = 414.0f + arg2[1];
@@ -956,13 +954,13 @@ void func_0038b530(u8 *arg0, s32 arg1, f32 *arg2)
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
         break;
     case 3:
-        func_0034f460(handle, 493.0f + arg2[0], 7,
+        func_0034f460(handle, 7, 493.0f + arg2[0],
                       361.0f + arg2[1], 0xB4, 0xB4, 0xB4, 0xFF);
         x = 504.0f + arg2[0];
         y = 358.0f + arg2[1];
         func_0034f4a0(handle, 4, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
-        func_0034f460(handle, 479.0f + arg2[0], 6,
+        func_0034f460(handle, 6, 479.0f + arg2[0],
                       397.0f + arg2[1], 0xFF, 0xFF, 0xFF, 0xFF);
         x = 492.0f + arg2[0];
         y = 394.0f + arg2[1];
@@ -970,13 +968,13 @@ void func_0038b530(u8 *arg0, s32 arg1, f32 *arg2)
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
         break;
     case 4:
-        func_0034f460(handle, 483.0f + arg2[0], 0x14,
+        func_0034f460(handle, 0x14, 483.0f + arg2[0],
                       413.0f + arg2[1], 0xFF, 0xFF, 0xFF, 0xFF);
         x = 498.0f + arg2[0];
         y = 410.0f + arg2[1];
         func_0034f4a0(handle, 0x1D, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
-        func_0034f460(handle, 528.0f + arg2[0], 6,
+        func_0034f460(handle, 6, 528.0f + arg2[0],
                       414.0f + arg2[1], 0xFF, 0xFF, 0xFF, 0xFF);
         x = 542.0f + arg2[0];
         y = 414.0f + arg2[1];

@@ -76,8 +76,6 @@ extern void func_0013c5a0(s32 *arg0, u8 *arg1);
 extern u8 D_0064B2E0[];
 extern u8 D_0064B2E8[];
 typedef signed __int128 code13S128;
-extern s32 func_00104ce0(s32 arg0);
-extern s32 func_00104d50(s32 arg0);
 extern void func_001056e0(s32 arg0, s16 arg1);
 extern void func_00105730(s32 arg0, s16 arg1);
 extern void func_00106390(s32 arg0, s32 arg1);
