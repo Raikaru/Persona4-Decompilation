@@ -2084,8 +2084,44 @@ u16 func_00208b00(u8 *arg0, u8 *arg1)
     }
     return var_16;
 }
+/* 716/720 bytes; eighteen resolved relocations and four zero alignment bytes.
+ * func_002035a0 forwards the signed state word at node+0x28. Convert that
+ * real input to a pointer here; a pointer parameter swaps two entry moves. */
 // FUN_00208D00
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00208d00);
+void func_00208d00(u8 *arg0, s32 arg1, f32 *arg2)
+{
+    extern void func_00206dd0(u8 *arg0, u8 *state, f32 farg0, f32 farg1, void (*callback)(void));
+    u8 *state = (u8 *)arg1;
+    u8 *temp;
+    s16 temp_2;
+
+    temp = (u8 *)func_00452560(*(void **)(state + 0x5B0));
+    func_002012d0(temp, arg2[0], arg2[1]);
+    if (*(u16 *)state == 2) {
+        func_00201650(temp, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
+        func_00201650(temp, 9, 0x4A, 93.0f, 314.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+        func_00206dd0(state, arg0, arg2[0], arg2[1], func_00205170);
+    } else {
+        func_00201650(temp, 9, 0x21, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
+    }
+    arg2 = (f32 *)D_00887300;
+    ((void (**)(u32, u32))arg2)[0](6, 1);
+    func_002019e0(temp, 120.0f);
+    func_00201650(temp, 9, 0x37, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
+    ((void (**)(u32, u32))arg2)[0](6, 0);
+    func_002019e0(temp, 0.0f);
+    temp_2 = *(s16 *)(state + 0x1A);
+    if (temp_2 < 4) {
+        *(s16 *)(state + 0x1A) = temp_2 + 1;
+    }
+    if (func_001eb860() != 0) {
+        func_00201650(temp, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        func_00201410(temp, 9, 0x1C, 100.0f, (f32)0x19B);
+        func_00201650(temp, 9, 0x1A, 119.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
+        func_00201410(temp, 9, 0x19, 119.0f, (f32)0x19B);
+    }
+}
+
 // FUN_00208FD0
 void func_00208fd0(u8 *arg0, u8 *arg1, f32 *arg2)
 {
