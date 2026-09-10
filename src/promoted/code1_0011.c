@@ -3,6 +3,7 @@
 #include "fr_font_internal.h"
 extern u8 *func_001094d0(void);
 extern s32 func_00109510(s32 arg0, void *arg1, void *arg2);
+extern void func_0010e710(s32, u8 *, s32);
 typedef struct {
     f32 x;
     f32 y;
@@ -497,7 +498,7 @@ s32 func_00110f00(void)
         temp_18 = iGpffffb1b8;
         zero = 0;
         buffer += 4;
-        func_0010e710(zero, buffer, temp_18);
+        func_0010e710(zero, (u8 *)buffer, temp_18);
         func_00111160(temp_17);
         iGpffffb19c = temp_16;
         func_001029a0(0x1A, 0, 0, 0);

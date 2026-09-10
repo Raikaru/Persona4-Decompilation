@@ -418,8 +418,136 @@ void func_00293710(s16 arg0, s32 arg1, f32 fparg0, f32 fparg1,
 #pragma optimization_level 2
 // FUN_00294280
 INCLUDE_ASM("asm/nonmatchings/code1_0029", func_00294280);
+/* 776/784 bytes; four resolved relocations and eight zero alignment bytes.
+ * Preserve the signed readiness gate, callback-visible record reloads, and
+ * the complete four-halfword position aggregate. */
 // FUN_002962F0
-INCLUDE_ASM("asm/nonmatchings/code1_0029", func_002962f0);
+void func_002962f0(u8 *arg0, u8 *arg1)
+{
+  extern u32 func_002909a0(u32 *arg0);
+  extern s32 func_00290e10(s32 *arg0);
+  extern u8 *func_00286f00(s32 arg0, u8 *arg1);
+  extern u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2);
+  typedef struct { s16 x, y, z, w; } Pos4_962f0;
+  s32 temp_3;
+  u8 *temp_17;
+  s32 var_16;
+  u16 var_2;
+  u16 var_3;
+  u16 var_4;
+  u8 *temp_2;
+  u8 *temp_7;
+  if (func_002909a0((u32 *)(arg1 + 0x678)) != 1)
+  {
+    return;
+  }
+  if (func_00290e10((s32 *)(arg1 + 0x678)) <= 0)
+  {
+    return;
+  }
+  temp_17 = func_00286f00(4, arg1);
+  var_16 = 0;
+  goto loop_test;
+loop_body:
+  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+  {
+    var_3 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_16 * 0x10));
+  }
+  else
+  {
+    var_3 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_16 * 0x3C));
+  }
+  if ((var_3 & 0xFFFF) != 4)
+  {
+    goto loop_increment;
+  }
+  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+  {
+    var_2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_16 * 0x10 + 2));
+  }
+  else
+  {
+    var_2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_16 * 0x3C + 2));
+  }
+  {
+    Pos4_962f0 tmp;
+    Pos4_962f0 pos;
+    s16 *p10;
+    u8 *p12;
+    u8 *p14;
+    u8 *p15;
+    u8 *p16;
+    temp_2 = func_00286780(temp_17, var_2 & 0xFFFF, arg1);
+    temp_3 = var_16 * 0x3C;
+    temp_7 = *((u8 **)(arg0 + 0x98)) + temp_3;
+    tmp = *((Pos4_962f0 *)(temp_7 + 0xC));
+    pos = tmp;
+    *((Pos4_962f0 *)(temp_2 + 8)) = pos;
+    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    {
+      var_4 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_16 * 0x10 + 4));
+    }
+    else
+    {
+      var_4 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + temp_3 + 4));
+    }
+    *((u16 *)(temp_2 + 2)) = var_4;
+    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    {
+      p10 = (s16 *)(*((u8 **)(arg0 + 0x94)) + var_16 * 0x10 + 8);
+    }
+    else
+    {
+      p10 = (s16 *)(*((u8 **)(arg0 + 0x98)) + temp_3 + 0x14);
+    }
+    *((s16 *)(temp_2 + 0x10)) = *p10;
+    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    {
+      p12 = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_16 * 0x10 + 8);
+    }
+    else
+    {
+      p12 = (u8 *)(*((u8 **)(arg0 + 0x98)) + temp_3 + 0x14);
+    }
+    *((s16 *)(temp_2 + 0x12)) = *((s16 *)(p12 + 2));
+    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    {
+      p14 = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_16 * 0x10 + 8);
+    }
+    else
+    {
+      p14 = (u8 *)(*((u8 **)(arg0 + 0x98)) + temp_3 + 0x14);
+    }
+    *((s8 *)(temp_2 + 0x14)) = *((s8 *)(p14 + 4));
+    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    {
+      p15 = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_16 * 0x10 + 8);
+    }
+    else
+    {
+      p15 = (u8 *)(*((u8 **)(arg0 + 0x98)) + temp_3 + 0x14);
+    }
+    *((s8 *)(temp_2 + 0x15)) = *((s8 *)(p15 + 5));
+    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    {
+      p16 = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_16 * 0x10 + 8);
+    }
+    else
+    {
+      p16 = (u8 *)(*((u8 **)(arg0 + 0x98)) + temp_3 + 0x14);
+    }
+    *((s8 *)(temp_2 + 0x16)) = *((s8 *)(p16 + 6));
+  }
+loop_increment:
+  var_16 += 1;
+loop_test:
+  if (var_16 < *((s32 *)(arg0 + 0xAC)))
+  {
+    goto loop_body;
+  }
+  return;
+}
+
 // FUN_00296600
 void func_00296600(u8 *arg0, u8 *arg1)
 {

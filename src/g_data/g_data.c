@@ -2064,11 +2064,11 @@ level_done:
 #pragma pop
 
 // FUN_0010E710
-void func_0010e710(s32 arg0, s32 arg1, s32 arg2)
+void func_0010e710(s32 arg0, u8 *arg1, s32 arg2)
 {
     u32 v1;
     u32 v2;
-    u8* p = (u8*)arg1 + 0x34;
+    u8* p = arg1 + 0x34;
 
     while (1)
     {
@@ -2093,7 +2093,7 @@ void func_0010e710(s32 arg0, s32 arg1, s32 arg2)
 }
 
 // FUN_0010E880
-s32 func_0010e880(s32 arg0, s32 arg1, s32 arg2)
+s32 func_0010e880(s32 arg0, u8 *arg1, s32 arg2)
 {
     u8 byte;
     u32 v1;
@@ -2108,7 +2108,7 @@ s32 func_0010e880(s32 arg0, s32 arg1, s32 arg2)
     {
         return 0;
     }
-    p = (u8*)arg1 + 0x34;
+    p = arg1 + 0x34;
     sum = 0;
     limit = (u32)(arg2 - 0x34);
     while (1)
@@ -2124,7 +2124,7 @@ s32 func_0010e880(s32 arg0, s32 arg1, s32 arg2)
             i = 0;
             while (i < sum)
             {
-                checksum = (checksum + *(u8*)((u8*)arg1 + i + 0x34)) & 0xFF;
+                checksum = (checksum + *(u8*)(arg1 + i + 0x34)) & 0xFF;
                 i = i + 1;
             }
             func_0043f810(&v2, p + 4, 4);
