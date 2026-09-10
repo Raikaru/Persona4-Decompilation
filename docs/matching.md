@@ -9389,3 +9389,48 @@ byte-exact linked C objects. Both retail SHA-1s pass, all 529 repository tests
 pass, source-honesty lint reports zero findings in 340 first-party files,
 and generated progress validates. The remaining 627 first-party fallbacks
 stay visible; all-matching remains open.
+
+## First-party continuation: four-keyframe orbit camera
+
+`func_001cacd0` is recovered in `src/promoted/code1_001c.c`: **1,052 / 1,056
+bytes**, 19 fully resolved relocations and four verified-zero alignment
+bytes. All 46 preceding owner instruction bodies remain unchanged. Two
+compiler-local literal objects are renamed, but their 28-byte contents and
+both allocated non-executable sections remain identical.
+
+Three ordinary-C choices close the former six-word residual:
+
+- Compute the two height contributions as separate statements, preserving
+  the retail product/load order and accumulator boundaries.
+- Use the scalar multiplication helper to preserve source operand order
+  for the first height product and the half-height assignment.
+- Use a natural `u16` frame index with `while (i < 4)` and `i++`. This emits
+  retail's `daddiu` initializer and `addiu`/`andi` update. Wider integers with
+  hand-written masks did not reproduce the same instructions.
+
+The function copies the current pose, builds three orbit keys, selects the
+orbit side from the normalized XZ dot product, publishes all four positions
+and quaternions, and starts the existing timer. `fGpffff8118` is the already
+bound float at `0x00761208`: retail bits `0x3E19999A`, or `0.15f`.
+
+Eight current-source native scenarios execute the actual unit-position,
+pose-copy, basis, four-key publication and timing bodies, with controlled
+math providers. They cover positive, negative and zero dot products; scaled
+and rotated model bounds; zero, negative and wide angles; complete keyframe
+positions and quaternion orientation; timer state, input preservation and
+adjacent-state guards. The x86-64 fixture keeps the camera buffer below
+4 GiB to execute the publisher's original 32-bit address arithmetic.
+This is not a claim of PS2 graphics or scheduler execution.
+
+All 7,863 preceding MATCH rows remain MATCH. The complete scan now reports
+**7,864 MATCH / 4,856 ASM** overall and **6,234 MATCH / 626 ASM** first-party.
+Both retail SHA-1s still pass; the build retains 172 source-linked objects
+and 56 Sony SDK objects. Source-honesty lint reports zero findings in 340
+first-party files, and generated progress validates.
+
+The 529-test run exposed temporary recovery-probe sources under `src/`,
+not a production ownership change. Probe inputs were moved entirely
+outside the checkout; all 11 reconciliation tests then passed, including
+canonical ownership. The other 518 tests passed in the full run. No
+ownership check was weakened. The 626 remaining first-party ASM fallbacks
+stay visible; all-matching remains open.
