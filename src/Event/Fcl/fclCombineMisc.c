@@ -5,14 +5,14 @@
 extern s32 func_00311b90(u16 *, u16 *, s32, s16 *);
 extern s32 func_0010cc20(u8 *, u16);
 extern s32 func_0010ce10(u8 *, u32);
-extern s32 func_003124a0();
+extern s32 func_003124a0(u16 *output, u16 first, u16 second);
 extern s32 func_003127e0();
 extern u32 func_003b7060();
 extern s16 func_002e54c0(s8 arg0, s16 arg1);
 extern u8 *func_002e48a0(s8 arg0, s16 arg1);
 extern void func_0043f810(void *dst, void *src, u32 size);
-extern void func_0046d730(const char *file, s32 line);
-extern void func_0043f9c8(void *dst, s32 value, u32 size);
+extern void func_0046d730(void *file, s32 line);
+extern void *func_0043f9c8(void *dst, s32 value, u32 size);
 extern void func_0010cad0(u8 *arg0, u16 arg1);
 extern u8 *iGpffffb3d4;
 extern char D_00642F30[];
@@ -23,6 +23,10 @@ extern s32 func_00106330(s32 id);
 extern u8 D_006420A0[];
 extern u8 D_00642F00[];
 extern u8 D_00642F04[];
+extern s8 func_002ac350(void);
+extern s32 func_003133b0(u32 arg0, s32 arg1, u16 *arg2);
+extern u8 D_00642147[];
+extern u8 D_00642387[];
 
 /* measured: structure fully recovered (16B ptr[4] zero loop, 3-pair s8 copy
    from iGpffffa8d0 to sp58, 3-iteration bubble sort by ptr[][4] then
@@ -104,17 +108,77 @@ flag_done:
     return 0;
 }
 
-/* measured: structure fully recovered (sp8C/sp8E pair, func_00312220 gate,
-   temp_16/temp_20 from iGpffffb3d4+arg*14+2, func_002ac350() branch into
-   D_00642147 vs D_00642387 min*24+max lookups, the sp70 zero+pair, the
-   (base[arg1*14+3]+base[arg2*14+3])/2 rounding into temp_5_2, and the
-   func_003133b0-vs-func_003130e0 dispatch on temp_16==base[arg*14+2]) but
-   the measured C probe was 804B vs the 832B retail window (nd 539).
-   mwcc b210 keeps temp_21 (arg2*14) in $s6 (retail frame 0x90 vs 0xA0
-   candidate) and flips both result-table index add orders. Register-allocation
-   + index-order floor; probe discarded. */
+static inline u8 fclNormalPairArcana(s32 first, s32 second)
+{
+    if (first == 0 || second == 0)
+        func_0046d730(D_00642F30, 0x90);
+    if (first < second)
+        return *(second + (D_00642147 + first * 24));
+    return *(first + (D_00642147 + second * 24));
+}
+
+static inline u8 fclAlternatePairArcana(s32 first, s32 second)
+{
+    if (first == 0 || second == 0)
+        func_0046d730(D_00642F30, 0x90);
+    if (first < second)
+        return *(second + (D_00642387 + first * 24));
+    return *(first + (D_00642387 + second * 24));
+}
+
+/* Measured: 828/832 bytes, 26 resolved relocations, four zero tail bytes.
+ * Promoted lookup inputs avoid an extra saved register; byte-return helpers
+ * preserve retail narrowing. All ten neighboring owner images remain exact. */
 // FUN_003124A0
-INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_003124a0);
+s32 func_003124a0(u16 *output, u16 first, u16 second)
+{
+    u16 pair[2];
+    u16 excluded[12];
+    s32 secondIndex;
+    u8 *base;
+    u8 *arcana;
+    u8 *levels;
+    u8 firstArcana;
+    u8 secondArcana;
+    u32 result;
+    s32 level;
+    u16 persona;
+
+    pair[0] = first;
+    pair[1] = second;
+    if (output == NULL || first == 0 || second == 0)
+        func_0046d730(D_00642F30, 0x1A1);
+    if (func_00312220(output, 0, pair, 2) & 0xFF)
+        return 2;
+    secondIndex = second * 14;
+    arcana = iGpffffb3d4 + 2;
+    secondArcana = arcana[secondIndex];
+    firstArcana = arcana[first * 14];
+    if (func_002ac350() == 0)
+        result = fclNormalPairArcana(firstArcana, secondArcana);
+    else
+        result = fclAlternatePairArcana(firstArcana, secondArcana);
+    if ((u8)result == 0) {
+        func_0043f9c8(output, 0, 0x30);
+        return 0;
+    }
+    func_0043f9c8(excluded, 0, 0x18);
+    excluded[0] = first;
+    excluded[1] = second;
+    base = iGpffffb3d4;
+    levels = base + 3;
+    level = ((levels[first * 14] + levels[secondIndex]) / 2 + 1) & 0xFF;
+    arcana = base + 2;
+    if ((u8)result == arcana[first * 14] && (u8)result == arcana[secondIndex]) {
+        persona = func_003133b0(result, level, excluded);
+        if (persona == 0) return 0;
+    } else {
+        persona = func_003130e0(result, level, excluded);
+        if (persona == 0) return 0;
+    }
+    func_0010cad0((u8 *)output, persona);
+    return 1;
+}
 
 // FUN_003127E0
 s32 func_003127e0(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
@@ -195,7 +259,7 @@ s32 func_003129b0(u8 *arg0, s32 arg1, s32 arg2) {
 
 // FUN_00312B60
 s32 func_00312b60(s32 arg0, s32 arg1, s32 arg2) {
-    return func_003124a0(arg0, arg1 & 0xFFFF, arg2 & 0xFFFF) & 0xFF;
+    return func_003124a0((u16 *)arg0, arg1 & 0xFFFF, arg2 & 0xFFFF) & 0xFF;
 }
 
 // FUN_00312B90
