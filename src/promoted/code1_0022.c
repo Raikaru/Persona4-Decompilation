@@ -283,6 +283,7 @@ extern BtlPacket *func_001d3700(u16 group, u16 mask);
 extern f32 fGpffff80e4;
 extern f32 func_001ec2b0(void *first, void *second);
 extern s32 func_004b3110(s16 frames);
+extern s32 func_00104c70(s32 arg0);
 
 // FUN_002218E0
 s32 func_002218e0(KwlnTask *task)
