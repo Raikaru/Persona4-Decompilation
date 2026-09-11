@@ -10426,3 +10426,33 @@ files. Documented first-party matches increase to 4,297; matching and
 link totals do not change. The loadable-image SHA-1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`, and the retail ELF SHA-1
 remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## First-party continuation: complete player experience curve
+
+`src/Main/g_data.c` declared 99 player XP thresholds but initialized only
+48. The remaining 51 entries became zero: XP **154838** returned level
+**99**, not **48**. Restore every missing entry from the 396-byte retail
+table at **`0x005DD6E0`**; the first missing threshold is **164718** and
+the final threshold is **1358428**.
+
+The `func_001059e0` executable and both relocations remain unchanged:
+**104/112 bytes**, two HI16/LO16 relocations bound to the verified retail
+table address, **zero instruction differences**, and eight zero tail
+bytes. All **99 compiled table words** match retail, including the
+51 corrected words. The integrated object reproduces both the verified
+function and complete table.
+
+A no-libc i386 consumer executes the current C function at and immediately
+below every retail threshold, plus `INT_MIN` and `INT_MAX`. The original
+source fails **102 of 200 checks**; the restored and freshly integrated
+sources each pass **all 200**. This is a source-data correctness repair,
+not an additional assembly recovery.
+
+The complete checkpoint gate passes **529 tests** and reports zero lint
+findings across 340 first-party files. The complete table makes this owner
+C-link eligible: **173 C objects / 1,594 C-linked functions**, up by one
+each. First-party matching remains **6,268 / 592 assembly fallbacks**.
+Both the loadable-image and retail ELF SHA-1 values remain unchanged.
+Native sources, hashes, build recipes, reproduction output and complete
+gate output are archived; all **seven standalone native proof files**
+were removed. Before/after/integrated compiler evidence is retained.
