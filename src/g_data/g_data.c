@@ -822,8 +822,9 @@ void func_00105c90(s16 arg0, s16 arg1)
     }
 }
 
+/* The retail initializer supplies a second halfword; this reset ignores it. */
 // FUN_00105CE0
-void func_00105ce0(s16 arg0)
+void func_00105ce0(s16 arg0, s16 arg1)
 {
     if (arg0 == 1)
     {
