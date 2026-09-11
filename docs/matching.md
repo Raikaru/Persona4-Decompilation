@@ -10296,3 +10296,57 @@ remain 172 C objects, 56 Sony SDK objects and 1,593 C-linked functions.
 The loadable-image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and
 retail ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
 SDK and other third-party matching totals are unchanged.
+
+## First-party continuation: two-unit camera framing
+
+`code1_001d.c::func_001d01c0` matches **1,004 / 1,008 bytes** with all
+**19 relocations resolved**, zero executable differences and four zero
+tail bytes. Ghidra and IDA were cross-checked against the retail body.
+The decisive source shape keeps all three `eye + direction` sums live
+before subtracting the focus vector; componentwise fused expressions
+lose the retail scheduling and register allocation.
+
+The target-holder getter retains its actual `s32` return type, with an
+explicit pointer conversion at the call. The pose writer retains
+`(u16 *, f32 *, f32 *, u16)`, and the vector normalizer's declaration now
+returns the length as `f32`. All **93 other owner functions** preserve
+their instructions and bound relocations. The only renamed local label,
+`@508` to `@545`, identifies the same 56-byte, fourteen-entry jump table:
+all fourteen `R_MIPS_32` entries resolve to the retail table at `0x007470D0`.
+
+The freestanding i386 consumer passes **146 state checks across 16
+scenarios**, including rotated/scaled sphere centers, clamped and elevated
+poses, all four pose-ring entries, nonempty-ring replacement, translated
+and reversed endpoints, geometric band boundaries, endpoint exclusion,
+inactive records, disabled models and the closed global effect gate.
+It exercises the integrated candidate against state-mutating pose and
+effect consumers, not renderer argument logs.
+
+The effect model follows retail record-to-model indirection. Mode `1`
+clears model flag `2` and sets `4`; mode `8` clears `2` for matching genera
+without setting `4`. Mode `8` is not the mode-`2` target-array path.
+Projection outputs are absolute point coordinates minus/plus the
+perpendicular components, and band distance subtracts the model's
+scaled radius before comparison.
+
+All **22 candidate-only mutations** and **seven provider-model mutations**
+fail observable state assertions with normal exit status 1. Seven
+unsupported-model probes halt explicitly with status 86; these are not
+counted as mutation kills. Native builds have no diagnostics. Numerical
+models are bounded to nonzero vectors, positive matrix trace, one-vector
+quaternion transforms and identical unit-quaternion interpolation;
+the effect model supports only combinations of mode bits `1` and `8`.
+The x87 square root and radian tangent provide numerical smoke coverage,
+not bit-exact PS2 FPU emulation. Sources, hashes, mutation recipes and
+outputs are archived before standalone native proof files are removed.
+
+The checkpoint gates pass with **6,268 first-party matches / 592 assembly
+fallbacks** and **7,898 total matches / 4,822 assembly fallbacks**. All
+**529 tests pass**, with zero lint findings across 340 first-party files.
+The progress scan was rerun with private temporary storage after the
+default temporary filesystem hit its quota. Link totals remain 172 C
+objects, 56 Sony SDK objects and 1,593 C-linked functions; SDK/vendor
+matching totals are unchanged. Both the loadable-image SHA-1
+`3d1d3d2b9d6ccb60836db239ab49674223025a78` and retail ELF SHA-1
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
+All 117 standalone native proof files were removed after archival.
