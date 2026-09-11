@@ -9939,3 +9939,103 @@ were removed after their results were recorded. Private compiler measurements
 remain available. These are matching and controlled native-consumer results,
 not a claim of PS2 runtime verification or completion of the remaining
 **605 first-party ASM** functions.
+
+## First-party continuation: callbacks, field frames and resource snapshots
+
+Six additional first-party bodies are recovered. Every relocation below
+resolves, every executable word equals retail, and each remaining suffix
+contains only the stated zero alignment bytes.
+
+| Function | Owner | Object/window bytes | Relocations | Zero alignment bytes |
+| --- | --- | ---: | ---: | ---: |
+| `func_001b99f0` | `src/Battle/btlMain.c` | 1008/1008 | 5 | 0 |
+| `func_001113b0` | `src/promoted/code1_0011.c` | 1032/1040 | 58 | 8 |
+| `func_00152e50` | `src/Kosaka/Field/k_fldResource.c` | 1188/1200 | 27 | 12 |
+| `func_00211ba0` | `src/promoted/code1_0021.c` | 1000/1008 | 18 | 8 |
+| `func_0038a940` | `src/promoted/code1_0038.c` | 904/912 | 11 | 8 |
+| `func_00294280` | `src/promoted/code1_0029.c` | 908/912 | 30 | 4 |
+
+The tint callback retains its table selection, phase calculation and
+post-callback reloads. Scoped common-subexpression and loop-invariant
+optimization reproduce retail without introducing a scheduling dependency.
+
+Persona state initialization uses the actual eight-byte encoded name
+arrays, not oversized native fixtures. `func_00105ce0` explicitly accepts
+the second signed-halfword argument supplied by its caller, although the
+provider does not inspect it. Its 108/112-byte body, six relocations and
+four zero alignment bytes remain exact.
+
+Field synchronization uses real RenderWare matrix/frame types and a
+stack aggregate whose individual vector/tolerance members have their
+required alignment. The axis also has a packed-word view; no unused
+padding array substitutes for the real member layout. Matrix classification,
+identity flags, composition order and callback-visible resource/count/frame
+reloads are preserved. The affected existing callers remain exact:
+
+| Existing function | Object/window bytes | Resolved relocations | Zero alignment bytes |
+| --- | ---: | ---: | ---: |
+| `func_00151c80` | 760/768 | 22 | 8 |
+| `func_00152cd0` | 384/384 | 12 | 0 |
+| `func_001534a0` | 792/800 | 17 | 8 |
+
+The battle overlay keeps its list filters, projection gate, 25-frame
+pulse, draw-time reload and 30-frame fade. Panel animation retains
+closing interpolation, the five-frame opening transition and the
+300-frame idle phase. Its closing coefficient is the actual
+`D_00761490` word, `0xBD872B00`, rather than the different binary32
+value produced by spelling it `-0.066f`.
+
+Resource snapshots use the real scene/list/color interfaces and record
+constructor argument widths. The diagnostic conversion returns binary64,
+not a word-sized integer; separate first-record and loop diagnostic
+lifetimes restore retail's saved-register allocation with the correct
+return type. The format strings still contain their retail `%d` fields.
+No format repair or guessed integer conversion is introduced.
+`mdlGetColor` resolves to its existing verified provider at `0x0047A250`.
+The empty `func_0028f530` explicitly accepts its unused resource argument
+and remains 8/16 bytes with eight zero alignment bytes. It cannot mutate
+the list; the native reload scenario instead rewires the next resource
+inside the allocator callback actually reached by the record constructor.
+
+The executed consumers cover the following bounded behavior:
+
+- Tint: **87 checks, zero failures**; four separately compiled wrong
+  phase/table/color/reload bodies are rejected.
+- Persona state: a genuine i386 graft uses eight-byte name storage.
+  The baseline passes and **five actual body mutants** fail.
+- Field frames: **330 checks, zero failures**, including real matrix
+  classification arithmetic, guarded frame/matrix storage, counts through
+  96, transform kinds, quarter rotations, composition and callback
+  mutations. **Eight actual wrong variants** fail, including an omitted
+  optimization that leaves stale identity flags visible to a transform
+  consumer.
+- Overlay: the current-source i386 graft passes **13 named scenarios**.
+  Five separately compiled reload/period/fade/geometry/filter variants
+  fail in the private consumer.
+- Panel animation: **36 checks pass**. Five separately compiled changes
+  to closing gain, opening/idle thresholds, phase divisor and amplitude
+  are rejected by the same consumer.
+- Resource snapshots: the current-source i386 graft passes **seven
+  scenarios and 2,800 checks**, including physical canaries, null/absent
+  resources, zero/one/two-node lists, linked event records, complete
+  transforms/RGBA/environment payloads and allocation-time list rewiring.
+  Six separately compiled coordinate-truncation, color, copy-length,
+  preset-count, marker and cached-link mutants fail.
+
+These are native executions with controlled external providers, not PS2
+graphics/runtime verification. The resource logger collects typed
+binary64 arguments and their low words; it does not emulate the PS2
+formatter's variadic parser. The float-conversion fixture is restricted
+to finite normal coordinates. Field hierarchy coverage is flat.
+
+The complete `make build-progress lint-errors test progress progress-validate`
+gate passes after these six recoveries: **6,261 first-party matches and 599
+assembly fallbacks**, out of 6,860 first-party windows. The full scored set is
+**7,891 MATCH / 4,829 ASM**. All **529 tests pass**, and lint reports zero
+findings across 340 first-party files. SDK/vendor totals are unchanged.
+
+The link still uses **172 C objects and 56 Sony SDK objects**, with **1,593
+C-linked functions**; these individual source matches do not imply that their
+whole translation units became eligible for C linkage. Both identities pass:
+loadable image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and retail
+ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.

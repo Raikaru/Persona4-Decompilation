@@ -2,8 +2,23 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldResource.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "rw/ps2/ostypes.h"
 
-typedef struct { f32 x; f32 y; f32 z; } Vec3;
+typedef struct RwMatrixTolerance {
+    f32 Normal;
+    f32 Orthogonal;
+    f32 Identity;
+} RwMatrixTolerance;
+
+typedef struct RwV3d { f32 x; f32 y; f32 z; } Vec3;
+typedef struct RwFrame RwFrame;
+typedef struct RwMatrixTag RwMatrix;
+typedef enum RwOpCombineType {
+    rwCOMBINEREPLACE = 0,
+    rwCOMBINEPRECONCAT,
+    rwCOMBINEPOSTCONCAT,
+    rwOPCOMBINETYPEFORCEENUMSIZEINT = 0x7FFFFFFF
+} RwOpCombineType;
 typedef struct { f32 x; f32 y; f32 z; f32 w; } Vec4;
 
 extern void func_00442088();
@@ -46,7 +61,7 @@ extern s32 func_004782b0(u32 arg0);
 extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
 extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
 extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
-extern u8 *func_003e9700(void *a);
+extern RwMatrix *func_003e9700(RwFrame *frame);
 extern void func_00463250(void *arg0);
 extern s32 func_004b1130(s32 a0);
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
@@ -103,7 +118,17 @@ extern s32 func_0044ec30(void);
 extern s32 func_003c0520(s32 arg0);
 extern s32 func_00478750(s32 arg0);
 extern s32 func_004b11b0(s32 arg0);
-extern void func_004b1250(s32 a, void *b);
+extern void func_004b1250(void *effect, f32 *position);
+extern RwBool func_003e0380(RwMatrixTolerance *tolerance);
+extern RwMatrix *func_003e03e0(RwMatrix *matrix, const RwMatrixTolerance *tolerance);
+extern RwFrame *func_003e9680(RwFrame *frame);
+extern RwMatrix *func_003e0f80(void);
+extern RwBool func_003e0f40(RwMatrix *matrix);
+extern RwMatrix *func_003e0870(RwMatrix *matrix, const Vec3 *axis, f32 angle, RwOpCombineType combine);
+extern Vec3 *func_003e42a0(Vec3 *pointOut, const Vec3 *pointIn, const RwMatrix *matrix);
+extern RwMatrix *func_0047a180(RwMatrix *matrix, const Vec3 *translation, s32 combine);
+extern s64 D_005EFE28[];
+extern f32 D_005EFE30[];
 extern u8 *iGpffff9db0;
 extern void func_00454bd0(void *ptr);
 extern u8 D_005EFD20[];
@@ -615,7 +640,7 @@ s32 func_00151c80(u8 *arg0)
     }
     for (j = 0; j < *(u32 *)(arg0 + 0x11C); j++) {
         if (*(u16 *)(arg0 + j * 0x18 + 0x120) == 0 || *(u16 *)(arg0 + j * 0x18 + 0x120) == 2) {
-            func_0047a1c0(*(void **)(arg0 + j * 0x18 + 0x12C), func_003e9700(*(u8 **)(arg0 + j * 0x18 + 0x128)), 0);
+            func_0047a1c0(*(void **)(arg0 + j * 0x18 + 0x12C), func_003e9700(*(RwFrame **)(arg0 + j * 0x18 + 0x128)), 0);
             if (*(u16 *)(arg0 + j * 0x18 + 0x122) & 1) {
                 func_0047a0e0(*(void **)(arg0 + j * 0x18 + 0x12C), 0, 0.0f);
             } else {
@@ -625,13 +650,13 @@ s32 func_00151c80(u8 *arg0)
             if (iGpffffb204 == 0) {
                 if (*(u8 **)(arg0 + j * 0x18 + 0x134) != NULL) {
                     *(s32 *)(arg0 + j * 0x18 + 0x130) = func_004b1130(*(u32 *)(*(u8 **)(arg0 + j * 0x18 + 0x134) + 0x110));
-                    func_004b1250(*(s32 *)(arg0 + j * 0x18 + 0x130), func_003e9700(*(u8 **)(arg0 + j * 0x18 + 0x128)) + 0x30);
+                    func_004b1250(*(void **)(arg0 + j * 0x18 + 0x130), (f32 *)((u8 *)func_003e9700(*(RwFrame **)(arg0 + j * 0x18 + 0x128)) + 0x30));
                     func_00454bd0(*(u8 **)(arg0 + j * 0x18 + 0x134));
                     *(u8 **)(arg0 + j * 0x18 + 0x134) = NULL;
                 }
             } else if (*(u8 **)(arg0 + j * 0x18 + 0x134) != NULL) {
                 *(s32 *)(arg0 + j * 0x18 + 0x130) = func_004b1130((s32)*(u8 **)(arg0 + j * 0x18 + 0x134));
-                func_004b1250(*(s32 *)(arg0 + j * 0x18 + 0x130), func_003e9700(*(u8 **)(arg0 + j * 0x18 + 0x128)) + 0x30);
+                func_004b1250(*(void **)(arg0 + j * 0x18 + 0x130), (f32 *)((u8 *)func_003e9700(*(RwFrame **)(arg0 + j * 0x18 + 0x128)) + 0x30));
                 *(u8 **)(arg0 + j * 0x18 + 0x134) = NULL;
             }
         }
@@ -907,8 +932,146 @@ void func_00152cd0(u8 *arg0, u8 *arg1)
     }
 }
 
+/* Measured: 1188 bytes and 27 resolved relocations; twelve zero tail bytes.
+ * Real twelve-byte vectors/tolerances occupy quadword-aligned stack slots.
+ * The packed axis view preserves the independent eight- and four-byte loads;
+ * resource pointers, loop bounds and the post-rotate frame remain reloads. */
+#pragma push
+#pragma opt_propagation off
 // FUN_00152E50
-INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00152e50);
+void func_00152e50(u8 *arg0, u8 *arg1, f32 fparg0)
+{
+    struct {
+        Vec3 RWALIGN(trans, 16);
+        union {
+            Vec3 vector;
+            struct { s64 xy; f32 z; } bits;
+        } RWALIGN(axis, 16);
+        RwMatrixTolerance RWALIGN(t3, 16);
+        Vec3 RWALIGN(v3, 16);
+        RwMatrixTolerance RWALIGN(t2, 16);
+        Vec3 RWALIGN(v2, 16);
+        RwMatrixTolerance RWALIGN(t1, 16);
+        Vec3 RWALIGN(v1, 16);
+        RwMatrixTolerance RWALIGN(t0, 16);
+        Vec3 RWALIGN(v0, 16);
+    } stk;
+    u16 kind;
+    u32 i;
+    u8 *mtx2;
+    u32 j;
+    u8 *frame;
+    u8 *frame2;
+    u8 *frame3;
+    u8 *frame4;
+    u8 *mtx;
+    u8 *res;
+    u8 *res2;
+    u8 *res3;
+    u8 *res4;
+
+    if (!(*(s32 *)arg0 & 1)) {
+        res = *(u8 **)(arg0 + 8);
+        if (res != NULL) {
+            frame = *(u8 **)(res + 4);
+            mtx = (u8 *)func_003e9700((RwFrame *)frame);
+            stk.v0 = *(Vec3 *)(mtx + 0x30);
+            stk.v0.x += *(f32 *)(arg1 + 0);
+            stk.v0.y += *(f32 *)(arg1 + 4);
+            stk.v0.z += *(f32 *)(arg1 + 8);
+            *(Vec3 *)(frame + 0x40) = stk.v0;
+            func_003e0380(&stk.t0);
+            func_003e03e0((RwMatrix *)(frame + 0x10), &stk.t0);
+            func_003e9680((RwFrame *)frame);
+        }
+        res2 = *(u8 **)(arg0 + 0x10);
+        if (res2 != NULL) {
+            frame2 = *(u8 **)(res2 + 4);
+            mtx = (u8 *)func_003e9700((RwFrame *)frame2);
+            stk.v1 = *(Vec3 *)(mtx + 0x30);
+            stk.v1.x += *(f32 *)(arg1 + 0);
+            stk.v1.y += *(f32 *)(arg1 + 4);
+            stk.v1.z += *(f32 *)(arg1 + 8);
+            *(Vec3 *)(frame2 + 0x40) = stk.v1;
+            func_003e0380(&stk.t1);
+            func_003e03e0((RwMatrix *)(frame2 + 0x10), &stk.t1);
+            func_003e9680((RwFrame *)frame2);
+        }
+        res3 = *(u8 **)(arg0 + 0x14);
+        if (res3 != NULL) {
+            frame3 = *(u8 **)(res3 + 4);
+            mtx = (u8 *)func_003e9700((RwFrame *)frame3);
+            stk.v2 = *(Vec3 *)(mtx + 0x30);
+            stk.v2.x += *(f32 *)(arg1 + 0);
+            stk.v2.y += *(f32 *)(arg1 + 4);
+            stk.v2.z += *(f32 *)(arg1 + 8);
+            *(Vec3 *)(frame3 + 0x40) = stk.v2;
+            func_003e0380(&stk.t2);
+            func_003e03e0((RwMatrix *)(frame3 + 0x10), &stk.t2);
+            func_003e9680((RwFrame *)frame3);
+        }
+    }
+    i = 0;
+    while (i < *(u32 *)(arg0 + 0x18)) {
+        res4 = *(u8 **)(arg0 + i * 4 + 0x1C);
+        if (res4 != NULL) {
+            frame4 = *(u8 **)(res4 + 4);
+            mtx = (u8 *)func_003e9700((RwFrame *)frame4);
+            stk.v3 = *(Vec3 *)(mtx + 0x30);
+            stk.v3.x += *(f32 *)(arg1 + 0);
+            stk.v3.y += *(f32 *)(arg1 + 4);
+            stk.v3.z += *(f32 *)(arg1 + 8);
+            *(Vec3 *)(frame4 + 0x40) = stk.v3;
+            func_003e0380(&stk.t3);
+            func_003e03e0((RwMatrix *)(frame4 + 0x10), &stk.t3);
+            func_003e9680((RwFrame *)frame4);
+        }
+        i += 1;
+    }
+    j = 0;
+    while (j < *(u32 *)(arg0 + 0x11C)) {
+        kind = *(u16 *)(arg0 + j * 0x18 + 0x120);
+        if (kind == 0 || kind == 2) {
+            func_0047a180(*(RwMatrix **)(arg0 + j * 0x18 + 0x12C), (const Vec3 *)arg1, 2);
+        } else if (kind == 1) {
+            {
+                s64 tmp_xy = D_005EFE28[0];
+                f32 tmp_z = D_005EFE30[0];
+                stk.axis.bits.xy = tmp_xy;
+                stk.axis.bits.z = tmp_z;
+            }
+            mtx2 = (u8 *)func_003e0f80();
+            *(s32 *)(mtx2 + 0x28) = 0x3F800000;
+            *(s32 *)(mtx2 + 0x14) = 0x3F800000;
+            *(s32 *)(mtx2 + 0) = 0x3F800000;
+            *(s32 *)(mtx2 + 0x10) = 0;
+            *(s32 *)(mtx2 + 8) = 0;
+            *(s32 *)(mtx2 + 4) = 0;
+            *(s32 *)(mtx2 + 0x24) = 0;
+            *(s32 *)(mtx2 + 0x20) = 0;
+            *(s32 *)(mtx2 + 0x18) = 0;
+            *(s32 *)(mtx2 + 0x38) = 0;
+            *(s32 *)(mtx2 + 0x34) = 0;
+            *(s32 *)(mtx2 + 0x30) = 0;
+            *(s32 *)(mtx2 + 0xC) |= 0x20003;
+            func_003e0870((RwMatrix *)mtx2, &stk.axis.vector, fparg0, rwCOMBINEPOSTCONCAT);
+            {
+                u32 k = j;
+                u8 *base = arg0 + k * 0x18;
+                mtx = (u8 *)func_003e9700(*(RwFrame **)(base + 0x128));
+                stk.trans = *(Vec3 *)(mtx + 0x30);
+                func_003e42a0(&stk.trans, &stk.trans, (const RwMatrix *)mtx2);
+                stk.trans.x += *(f32 *)(arg1 + 0);
+                stk.trans.y += *(f32 *)(arg1 + 4);
+                stk.trans.z += *(f32 *)(arg1 + 8);
+                func_004b1250(*(void **)(base + 0x130), (f32 *)&stk.trans);
+            }
+            func_003e0f40((RwMatrix *)mtx2);
+        }
+        j += 1;
+    }
+}
+#pragma pop
 
 /* measured: opt_propagation off preserves the named scalar global loads; this scalar pair copy suppresses aggregate ld/sd traffic. */
 #pragma push
@@ -1026,7 +1189,7 @@ typedef struct {
     Vec3 scale;
 } k_fldResource;
 
-extern void func_00152e50(void *arg0, void *arg1, f32 arg2);
+extern void func_00152e50(u8 *arg0, u8 *arg1, f32 arg2);
 
 /* measured: MWCCPS2 b210 -O2, 792B/window 800B, 17 relocations,
  * eight zero alignment bytes. Ghidra identifies the unsigned angle

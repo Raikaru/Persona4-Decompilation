@@ -837,8 +837,76 @@ void func_0038a3e0(u8 *arg0)
 }
 // FUN_0038A480
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038a480);
+/* Measured: 904/912 bytes, eleven resolved relocations and eight zero
+ * alignment bytes. D_00761490 is the retail scalar 0xBD872B00, not the
+ * rounded -0.066f literal; keep the five-frame and 300-frame reloads. */
+#pragma opt_propagation off
 // FUN_0038A940
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038a940);
+void func_0038a940(u8 **arg0)
+{
+    extern f32 D_00761288;
+    extern f32 D_00761300;
+    extern f32 D_00761490;
+    extern f32 D_007612D0;
+    extern f32 DAT_007613f8;
+    extern f32 func_00373cb0(f32, f32, f32, s32);
+    extern f32 func_0044b7b0(f32);
+    extern void func_0038a480(u8 *);
+    u8 *state = (u8 *)arg0 + 0x168;
+    u8 *work = state + 4;
+    u16 flags = *(u16 *)state;
+    f32 t;
+    if (flags & 1) {
+        f32 c10 = 317.0f;
+        f32 old10 = *(f32 *)(work + 0x10);
+        f32 diff10 = c10 - old10;
+        f32 k = D_00761288;
+        *(f32 *)(work + 0x10) = k * diff10 + old10;
+        {
+            f32 old14 = *(f32 *)(work + 0x14);
+            f32 diff14 = 212.0f - old14;
+            *(f32 *)(work + 0x14) = k * diff14 + old14;
+        }
+        {
+            f32 old18 = *(f32 *)(work + 0x18);
+            f32 diff18 = D_00761300 - old18;
+            *(f32 *)(work + 0x18) = k * diff18 + old18;
+        }
+        {
+            f32 old1C = *(f32 *)(work + 0x1C);
+            f32 diff1C = 1.0f - old1C;
+            *(f32 *)(work + 0x1C) = k * diff1C + old1C;
+        }
+        *(f32 *)(work + 4) += 144.0f - *(f32 *)(work + 4);
+        *(f32 *)(work + 8) += 165.0f - *(f32 *)(work + 8);
+        {
+            f32 old0C = *(f32 *)(work + 0x0C);
+            f32 neg0C = -old0C;
+            *(f32 *)(work + 0x0C) = k * neg0C + old0C;
+        }
+    } else if (flags & 2) {
+        t = func_00373cb0((f32)*(u16 *)work, 0.0f, 5.0f, 2);
+        *(f32 *)(work + 0x10) = (f32)0x13D;
+        *(f32 *)(work + 0x14) = 212.0f + 60.0f * t;
+        *(f32 *)(work + 0x18) = D_00761300 + D_00761490 * t;
+        *(f32 *)(work + 0x1C) = 1.0f + (-0.75f) * t;
+        *(f32 *)(work + 4) = 144.0f + 35.0f * t;
+        *(f32 *)(work + 8) = 165.0f + 60.0f * t;
+        if (++*(u16 *)work >= 5) {
+            *(u16 *)state &= (u16)0xFFFD;
+            *(u16 *)work = 0;
+        }
+    } else {
+        ++*(u16 *)work;
+        if (*(u16 *)work >= 300) {
+            *(u16 *)work = 0;
+        }
+        *(f32 *)(work + 0x1C) = 0.25f + DAT_007613f8 * func_0044b7b0(D_007612D0 * (f32)*(u16 *)work / 150.0f);
+        *(f32 *)(work + 0x0C) = 15.0f * func_0044b7b0(D_007612D0 * (f32)*(u16 *)work / 300.0f);
+    }
+    func_0038a480(work);
+}
+#pragma opt_propagation on
 // FUN_0038ACD0
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038acd0);
 // FUN_0038B1C0

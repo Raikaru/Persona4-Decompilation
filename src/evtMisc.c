@@ -575,7 +575,7 @@ void func_0028f4f0(void) {
 }
 
 // FUN_0028F530
-void func_0028f530(void) {
+void func_0028f530(u8 *resource) {
 }
 
 // FUN_0028F540
