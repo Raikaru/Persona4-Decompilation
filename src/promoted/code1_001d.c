@@ -44,6 +44,14 @@ extern void func_003dcb40(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
 extern void func_00485870(s32 arg0);
 extern s32 func_00481450(void);
 extern void func_00481440(s32 arg0);
+extern void func_0047a220(u8 *arg0, u32 *arg1);
+extern void func_004865c0(s32 arg0, u32 arg1);
+extern void func_00478e70(s32 arg0);
+extern void func_00485630(s32 arg0);
+extern void func_001d53e0(s32 arg0);
+extern void func_00479100(s32 arg0, u8 *arg1);
+extern u8 D_005DC7D0[];
+extern u8 D_00794150[];
 extern u8 *func_00460990(void);
 extern void func_00460ac0(char *arg0, u8 *arg1);
 extern char D_005DC824[];
@@ -1195,8 +1203,90 @@ u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4)
     *(s32 *)(work + 0x20) = arg4;
     return packet;
 }
+/* The 0x24-byte records built by func_001d6ad0 store packed RGBA at +4
+ * and a wrapping frame counter at +0xC. Fade-out wins over fade-in;
+ * bit 0x40 freezes update/cleanup, not drawing.
+ * Retail: 504/512B, 14 resolved relocations, eight zero tail bytes. */
 // FUN_001D6680
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d6680);
+void func_001d6680(void)
+{
+    struct BtlPacket {
+        u16 flags;
+        u16 unknown02;
+        u32 color;
+        u8 step;
+        u8 unknown09;
+        u8 unknown0a;
+        u8 unknown0b;
+        u32 counter;
+        u8 *unknown10;
+        u8 *unknown14;
+        u8 *unknown18;
+        u8 *unknown1c;
+        u8 *next;
+    };
+    struct BtlPacket *node;
+    u32 color;
+    u16 flags;
+    u32 step;
+    u32 arg;
+
+    func_00481440((s32)D_005DC7D0);
+    node = *(struct BtlPacket **)(iGpffffb3ac + 0x1B8);
+    while (node != NULL) {
+        color = node->color;
+        flags = node->flags;
+        if ((flags & 0x40) == 0) {
+            if ((flags & 0x100) != 0) {
+                step = (u32)node->step << 24;
+                if (step < (color & 0xFF000000)) {
+                    color = color - step;
+                } else {
+                    color = color & 0x00FFFFFF;
+                    node->flags = flags & 0xFE7F;
+                }
+            } else if ((flags & 0x80) != 0) {
+                step = (u32)node->step << 24;
+                if (step < (u32)(0xFF000000 - (color & 0xFF000000))) {
+                    color = color + step;
+                } else {
+                    color = color & 0x00FFFFFF;
+                    color = color | 0xFF000000;
+                    node->flags = flags & 0xFE7F;
+                }
+            }
+            if ((node->flags & 0x220) == 0x220) {
+                if (node->unknown18 != NULL) {
+                    func_00478e70((s32)node->unknown18);
+                }
+                if (node->unknown14 != NULL) {
+                    func_00485630((s32)node->unknown14);
+                }
+                if (node->unknown10 != NULL) {
+                    func_001d53e0((s32)node->unknown10);
+                }
+            }
+        }
+        if ((node->flags & 0x210) == 0x210 && (color & 0xFF000000) != 0) {
+            if (node->unknown18 != NULL) {
+                arg = color;
+                func_0047a220(node->unknown18, &arg);
+                func_00479100((s32)D_00794150, node->unknown18);
+            }
+            if (node->unknown14 != NULL) {
+                func_004865c0((s32)node->unknown14, color);
+                func_00485870((s32)node->unknown14);
+            }
+            if (node->unknown10 != NULL) {
+                *(u32 *)(node->unknown10 + 0x10) = color;
+                func_001d5b20(node->unknown10);
+            }
+        }
+        node->color = color;
+        node->counter = node->counter + 1;
+        node = (struct BtlPacket *)node->next;
+    }
+}
 // FUN_001D6910
 void func_001d6910(u8 *arg0)
 {
