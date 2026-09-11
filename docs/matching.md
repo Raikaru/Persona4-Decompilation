@@ -10747,3 +10747,41 @@ The private `p4_direct_result_ef70/checkpoint_evidence.json` retains compiler
 and native evidence, seven native source/binary snapshots with SHA-256 hashes,
 and the full gate log. All seven standalone native proof files were
 hash-archived and removed.
+
+## First-party continuation: two-Persona fusion
+
+`func_003124a0` is recovered as **828/832 bytes**, with all **26 relocations**
+resolved, no differing executable bytes and four zero tail bytes. Both lookup
+helpers retain byte returns but use promoted integer inputs. This removes the
+extra saved register without losing retail narrowing or changing the
+`min * 24 + max` lookup address order. All **11 owner function images** resolve
+exactly, including the ten unchanged neighbors.
+
+Both actual Ghidra and IDA guides were checked against retail and current
+providers. The two input IDs precede diagnostics; the exclusion list is a
+fully cleared 24-byte buffer, not the guides' partial scalar view. The Persona
+initializer receives the selected ID explicitly; Ghidra omits that argument.
+The recovery retains signed mean-level division, byte and halfword narrowing,
+the post-clear global metadata reload and both same/different-arcana selectors.
+Only necessary local imports and the existing integer-address wrapper's
+explicit pointer conversion change.
+
+Fresh no-libc i386 execution passes **38,725 scenarios / 1,559,219 checks /
+zero failures**. The production target, both lookup helpers, actual mode getter
+and retail lookup tables execute. Checks cover both lookup modes, 22-by-22
+arcana pairs, guarded full output images, gate and selector outcomes, level
+wrap, initialized exclusion entries and replacement metadata during clearing.
+Special fusion, selection, Persona initialization, memory clearing and
+diagnostics are modeled boundaries; this is not complete selector,
+initializer or game-runtime execution.
+
+The full gate passes **529 tests** and zero lint findings. Of all **12,720**
+statuses, only `003124a0` changes from ASM to MATCH: **6,273 first-party matches
+/ 587 fallbacks**, and **7,903 total matches / 4,817 fallbacks**.
+Source linkage is **173 C objects / 1,596 C-linked functions**.
+Loadable-image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and retail
+ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
+The private `p4_fusion_pair_recovery/checkpoint_evidence.json` retains compiler,
+retail-table and native evidence, five native source/binary snapshots with
+SHA-256 hashes, and the full gate log. All five standalone native proof files
+were hash-archived and removed.
