@@ -10673,3 +10673,49 @@ The private `p4_filename_tneffect_cri_native/checkpoint_evidence.json`
 retains before/after source snapshots, compiler comparisons, native sources
 and binaries with SHA-256 hashes, native outputs and the complete gate log.
 All **12 standalone native proof files** were hash-archived and removed.
+
+## First-party continuation: event cleanup and internal unlink
+
+`func_0028ad90` is recovered as **592/592 bytes**, with all **30 relocations**
+resolved and no differing instruction or tail bytes. Its list-unlink helper,
+`func_00286e90`, is now translation-unit-local. With the same truthful typed
+calls but global helper linkage, the control emits **596 bytes**: an extra
+allocation-pointer move precedes the free. Static linkage preserves the
+compiler's knowledge of the helper's register liveness. The helper remains
+**100/112 bytes**, unchanged, and all **47 owner function images** plus both
+jump tables resolve exactly.
+
+Both actual Ghidra and IDA `evtMain.c` guides were checked against retail and
+the current providers. Both omit the child argument; Ghidra omits the free
+pointer, while IDA presents an uninitialized temporary there. The recovered C
+instead passes the real context, child and allocation pointers explicitly.
+The retail-image scan finds one direct call to the unlink helper, at
+`0x0028AF70`, and no raw pointer word equal to its address. Current source,
+configuration and assembly references were also checked; stale or incomplete
+graph coverage was not accepted as absence of callers.
+
+The provider declarations used by this cleanup are corrected, including
+pointer arguments and void returns. The sound query return is corrected to
+`s32`, but its existing unspecified-argument declaration is retained because
+older unrelated calls still pass extra arguments. This cleanup passes zero
+arguments, matching the actual provider. This is not a full sound-import
+cutover.
+
+Fresh no-libc i386 execution passes **489 checks / zero failures**, using six
+source-identical production bodies. Scenarios cover parent/child teardown,
+borrowed kind-12 payloads, owned payloads, allocation accounting, detach-before-
+free ordering, and cancellation callbacks that mutate state requiring reloads.
+SDK, sound, movie and effect services remain capture boundaries; this is not
+a full SDK-runtime claim. A null context is not exercised because earlier
+dereferences require a valid context.
+
+The full gate passes **529 tests** and zero lint findings. Of all **12,720**
+statuses, only `0028ad90` changes, from ASM to MATCH: **6,271 first-party
+matches / 589 fallbacks**, and **7,901 total matches / 4,819 fallbacks**.
+Source linkage remains **173 C objects / 1,594 C-linked functions**.
+Loadable-image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and retail
+ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
+The private `p4_event_28ad90_native/checkpoint_evidence.json` retains source
+snapshots, both guide bodies, typed global/static compiler evidence, reference
+evidence, native sources and binary with SHA-256 hashes, and the full gate log.
+All **eight standalone native proof files** were hash-archived and removed.

@@ -8,7 +8,7 @@ extern u32 DAT_007645D8;
 void func_00285260(void);
 void func_002871a0();
 u8 *func_00145270(s32 arg0);
-extern void func_0046d730(const void *file, u32 line);
+extern void func_0046d730(void *file, s32 line);
 extern void *func_00457120(void);
 extern u8 *func_00457130(void);
 void func_003e8180(void *, float);
@@ -29,7 +29,7 @@ extern u8 D_0063C3C0[];
 extern u8 D_0063C3E0[];
 s32 func_00298130();
 u64 func_00298190(s16 param_1, int param_2);
-void func_00459880();
+s32 func_00459880();
 void func_0045a3e0();
 void func_004599a0();
 void func_004598e0();
@@ -42,22 +42,22 @@ extern s32 (**D_00882204[])(s32, s32, s32, u8 *, u8 *);
 extern u8 D_0063C420[];
 void func_00287360();
 void func_00287bf0();
-void func_0028c370();
+void func_0028c370(void);
 void func_00288020();
 void func_00287d90();
-void func_0028f4f0();
-void func_00293270();
+void func_0028f4f0(void);
+void func_00293270(void);
 void func_004577d0(void *arg0, f32 arg1);
 void func_0028be70();
 void func_0028b230(int param_1);
-void func_002e0dd0();
-void func_0028d0a0();
-void func_00290b00();
-void func_00291900();
-void func_002919e0();
-void func_00290fa0();
-void func_00286e90();
-void func_00290470();
+void func_002e0dd0(void);
+void func_0028d0a0(u8 *arg0);
+void func_00290b00(int *param_1);
+void func_00291900(void);
+void func_002919e0(void);
+void func_00290fa0(u8 *arg0);
+static void func_00286e90(int param_1, int param_2);
+void func_00290470(s32 *arg0, s32 arg1);
 void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2);
 s32 func_0028d390();
 s32 func_0028dc30();
@@ -92,7 +92,7 @@ u32 func_002699d0(u32 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f
 void func_00269820(void *res, s32 a, s32 b, s32 c, s32 d, s32 e, f32 f);
 void func_00269bd0(void *resource, s32 enabled);
 void func_0014a2f0(s32 arg0);
-s32 func_002852a0(s32 arg0, s32 arg1);
+void func_002852a0(s32 arg0, s32 arg1);
 s32 func_00285330(void);
 extern void func_00440b68(char *fmt, ...);
 extern char D_0063C628[];
@@ -114,7 +114,7 @@ extern u8 D_0063C5C0[];
 void func_00442088();
 s32 func_0028f770(s32 arg0);
 void func_0028f800();
-void func_0026d810();
+void func_0026d810(void);
 void func_0026d780(s32 arg0, s32 arg1);
 extern u32 DAT_00764B38;
 extern u8 DAT_00764B3C;
@@ -434,7 +434,7 @@ void func_00286d80(u32 *param_1, u32 *param_2) {
 }
 
 // FUN_00286E90
-void func_00286e90(int param_1, int param_2) {
+static void func_00286e90(int param_1, int param_2) {
     if (*(u32 *)(param_1 + 0x94) == 0) {
         *(u32 *)(param_2 + 0x4C) = *(u32 *)(param_1 + 0x90);
     } else {
@@ -1868,14 +1868,94 @@ void func_0028aaf0(s32 arg0, u8 *arg1) {
     }
 }
 
-/* measured: the archived candidate now passes both real unlink arguments
-   and the deallocator's allocation pointer. The old apparent nd2 floor
-   omitted the child; fixing only that call can score zero while leaving an
-   invalid zero-argument deallocator cast. Correcting both calls produces
-   596B / retail 592B (nd26): an extra argument move shifts the tail.
-   Keep ASM until the ABI-correct body matches; see EoF_0028ad90_body.c. */
 // FUN_0028AD90
-INCLUDE_ASM("asm/nonmatchings/evtMain", func_0028ad90);
+void func_0028ad90(u8 *arg0, s32 arg1) {
+    s32 temp_4;
+    s32 temp_4_2;
+    s32 temp_4_3;
+    s32 temp_4_4;
+    s32 temp_4_5;
+    s32 *temp_2;
+    s32 var_16;
+    s32 *temp_16;
+    u8 *child;
+
+    func_0028f4f0();
+    func_00293270();
+    var_16 = 0;
+    goto loop_6_test;
+loop_6_body:
+    temp_2 = (s32 *)(arg0 + (var_16 * 4) + 0x6C4);
+    temp_4 = *temp_2;
+    if (temp_4 != 0) {
+        if (func_00452490((void *)temp_4) != 0) {
+            func_00452080((struct KwlnTask *)*temp_2);
+        }
+        *temp_2 = 0;
+    }
+    var_16 += 1;
+loop_6_test:
+    if (var_16 < 3) {
+        goto loop_6_body;
+    }
+    func_002e0dd0();
+    func_00113500();
+    func_0026d810();
+    func_0028c370();
+    if ((*(s32 *)(arg0 + 4) != 0) && (func_002909a0((u32 *)(arg0 + 0x678)) != 0)) {
+        func_00290b00((s32 *)(arg0 + 0x678));
+    }
+    func_0028d0a0(arg0);
+    func_00298190(2, 0);
+    temp_4_2 = (s32)(*(s32 *)(arg0 + 0x760));
+    if ((temp_4_2 != 0) && (func_00452490((void *)temp_4_2) != 0)) {
+        func_00452080((struct KwlnTask *)*(s32 *)(arg0 + 0x760));
+        *(s32 *)(arg0 + 0x760) = 0;
+    }
+    temp_4_3 = (s32)(*(s32 *)(arg0 + 0x768));
+    if ((temp_4_3 != 0) && (func_00452490((void *)temp_4_3) != 0)) {
+        func_00452080((struct KwlnTask *)*(s32 *)(arg0 + 0x768));
+        *(s32 *)(arg0 + 0x768) = 0;
+    }
+    if (arg1 != 0) {
+        func_00459880();
+    }
+    temp_4_4 = (s32)(*(s32 *)(arg0 + 0x75C));
+    if (temp_4_4 != 0) {
+        func_00452080((struct KwlnTask *)temp_4_4);
+        *(s32 *)(arg0 + 0x75C) = 0;
+    }
+    if (arg0 == NULL) {
+        func_0046d730(D_0063C3B0, 0xF4);
+    }
+    func_00291900();
+    func_002919e0();
+    func_00290fa0(*(u8 **)(arg0 + 0x5D0));
+    *(s32 *)(arg0 + 0x5D0) = 0;
+    goto loop_27_test;
+loop_27_body:
+    temp_16 = *(s32 **)(arg0 + 0x4C);
+    goto loop_25_test;
+loop_25_body:
+    func_00286c60((u8 *)temp_16, child);
+loop_25_test:
+    if ((child = *(u8 **)(temp_16 + 0x1A)) != 0) {
+        goto loop_25_body;
+    }
+    func_00286e90((int)temp_16, (int)arg0);
+    jtbl_008873EC[0]((void *)temp_16);
+    func_002852a0(7, -0x98);
+loop_27_test:
+    temp_16 = *(s32 **)(arg0 + 0x4C);
+    if (temp_16 != NULL) {
+        goto loop_27_body;
+    }
+    temp_4_5 = (s32)(*(s32 *)(arg0 + 4));
+    if (temp_4_5 != 0) {
+        func_00290470((s32 *)temp_4_5, (s32)(arg0 + 0x678));
+        *(s32 *)(arg0 + 4) = 0;
+    }
+}
 
 // FUN_0028AFE0
 u8 *func_0028afe0(void) {
