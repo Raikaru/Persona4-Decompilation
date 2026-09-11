@@ -10456,3 +10456,70 @@ Both the loadable-image and retail ELF SHA-1 values remain unchanged.
 Native sources, hashes, build recipes, reproduction output and complete
 gate output are archived; all **seven standalone native proof files**
 were removed. Before/after/integrated compiler evidence is retained.
+
+## First-party continuation: reward XP setup and panel quad
+
+Two assembly fallbacks in `src/promoted/code1_0021.c` are now exact C:
+
+| Function | Executable/window bytes | Resolved relocations | Zero tail |
+| --- | ---: | ---: | ---: |
+| `func_0021e110` | 2188/2192 | 49 | 4 bytes |
+| `func_0021b630` | 1400/1408 | 5 | 8 bytes |
+
+Both integrated objects have **zero instruction differences** after resolving
+every relocation. The XP setup uses the actual Persona getter interfaces,
+including `datPersonaGetSkills` at `0x001094D0`, and scopes
+`opt_loop_invariants on` around the award calculation. Its inventory deltas
+occupy twelve 0x88-byte slots ending at 0x698; four party deltas end at 0x8D4.
+`func_0010c6f0` now returns the signed word consumed by its callers rather than
+declaring an unrelated byte return. Its **92/96-byte** body remains exact,
+and both Persona XP applicators use the same `PersonaWork *` declaration.
+
+The quad emits one four-vertex strip with 0x40-byte records. Packed RGBA passes
+through a four-byte `ColorWord` union and the retail float-local spill before
+expanding each channel to a float. All nine float formals precede the union;
+`func_00211650` reuses its existing color frame as that union and migrates all
+five calls. The caller stays exact at **760/768 bytes**.
+
+The primitive callback is consistently `s32(s32, void *, s32)`, including its
+registration and all non-generated declarations. The RenderWare provider
+`func_0040c0f0` takes the vertex pointer directly and explicitly converts it to
+the renderer entry's integer address word. This interface correction leaves
+the provider's **116/128-byte** body and registration instructions unchanged;
+it is not an additional vendor recovery.
+
+Full-owner comparison checks 108 panel functions, 137 data functions and 223
+RenderWare functions. Apart from the two recoveries, executable bytes remain
+unchanged. Two compiler-local jump-table labels are renumbered; their complete
+24-byte and 40-byte data, all sixteen function-relative fixups, and referring
+instructions remain identical.
+
+Freshly grafted current-source no-libc i386 consumers pass:
+
+- **357 XP/growth/RNG checks**: complete setup, both inventory/party Persona
+  applicators, read-only inputs, output bounds, zero awards, stacked bonuses,
+  twelve-slot capacity, level caps, and growth/stat/skill/RNG state.
+- **84 geometry checks**: computed positions, normalized UVs, reciprocal scale,
+  four float color channels, vertex count and both renderer-state branches,
+  using the two controlled runtime depth constants.
+
+The XP reference executes the retail call graph with explicit scalar
+LQ/SQ and multiply compatibility adapters. Ordinary Persona thresholds use
+the current C expression, not a claimed emulation of the EE accumulator.
+Unrecovered growth and RNG native adapters are checked against retail
+execution; the RNG also has a separate 96-call instruction-execution proof.
+Equipment records are **68 decimal / 0x44 bytes**, and the legacy
+`D_007242A0` spelling resolves to **`0x007642A0`** (`gp-0x4E50`).
+The quad consumer runs the actual context getter and renderer-dispatch C;
+capture at `D_0070C2E0[4]` is the boundary. Neither hardware depth
+initialization nor GPU rendering is claimed.
+
+The full gate passes **529 tests**, zero lint findings, and **6,270 first-party
+matches / 590 assembly fallbacks**; totals are **7,900 matches / 4,820 fallbacks**.
+No unrelated status changes occur. Source linkage remains **173 C objects /
+1,594 C-linked functions**: these are two new matches, not two newly linked
+functions. Loadable-image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78`
+and retail ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
+Sources, binary fixtures, hashes, build recipes, native outputs, relocation
+evidence and full gate output are archived. All **24 standalone native proof
+files** were removed; compiler evidence and JSON measurements are retained.

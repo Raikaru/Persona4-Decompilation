@@ -156,7 +156,7 @@ extern f32 fGpffff82e0, fGpffff82e4;
 extern f32 D_008872F8[];
 extern f32 D_00626890[][2];
 extern u8 *func_00457120(void);
-extern void (*D_00887310[])(s32 primType, void *vertices, s32 count);
+extern s32 (*D_00887310[])(s32 primType, void *vertices, s32 count);
 
 
 extern void func_00201820(s32 arg0);

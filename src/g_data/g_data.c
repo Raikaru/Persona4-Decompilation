@@ -1574,7 +1574,7 @@ void datPersonaAddToBonusStatByPcId(u16 pcId, u16 statId, s8 amount)
 
 
 // FUN_0010C6F0
-u8 func_0010c6f0(PersonaWork* persona)
+s32 func_0010c6f0(PersonaWork* persona)
 {
     if (persona->level >= 99) {
         return 0;

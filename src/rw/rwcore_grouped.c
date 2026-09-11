@@ -68,11 +68,11 @@ extern u8 *iGpffffb978;
 extern u8 *iGpffffb97c;
 extern void (*D_00887308[])(void);
 extern void (*D_0088730C[])(void);
-extern void (*D_00887310[])(void);
+extern s32 (*D_00887310[])(s32, void *, s32);
 extern void (*D_00887314[])(void);
 extern s32 func_0040afb0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_0040b230(u8 *arg0, s32 unused, s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_0040c0f0(s32 arg0, s32 arg1, s32 arg2);
+extern s32 func_0040c0f0(s32 arg0, void *arg1, s32 arg2);
 extern s32 func_0040d0a0(s32 arg0, s32 arg1);
 extern void func_0040aa60(void (*arg0)(void));
 extern s32 func_00402d50(void *arg0, s32 *arg1);
@@ -1113,7 +1113,7 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040bde0);
 /* measured: retail 0040c0f0 uses plain blez/beqz branches. */
 #pragma no_branch_likely on
 // FUN_0040C0F0
-s32 func_0040c0f0(s32 arg0, s32 arg1, s32 arg2)
+s32 func_0040c0f0(s32 arg0, void *arg1, s32 arg2)
 {
     extern u8 iGpffffb984;
     extern u8 D_00753330[];
@@ -1127,7 +1127,7 @@ s32 func_0040c0f0(s32 arg0, s32 arg1, s32 arg2)
         } else {
             var_4 = D_00753330;
         }
-        D_0070C2E0[arg0](var_4, 0, arg1, arg2);
+        D_0070C2E0[arg0](var_4, 0, (s32)arg1, arg2);
     }
     return 1;
 }
@@ -1167,7 +1167,7 @@ void func_0040d110(void)
 {
     D_00887308[0] = (void (*)(void))func_0040afb0;
     D_0088730C[0] = (void (*)(void))func_0040b230;
-    D_00887310[0] = (void (*)(void))func_0040c0f0;
+    D_00887310[0] = func_0040c0f0;
     D_00887314[0] = (void (*)(void))func_0040d0a0;
     func_0040aa60((void (*)(void))func_0040c0f0);
 }

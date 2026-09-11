@@ -2631,7 +2631,7 @@ u8 *func_0011d460(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3)
 
 u8 *func_00457120();
 extern f32 D_008872F8;
-extern void (*D_00887310[])(s32, void *, s32);
+extern s32 (*D_00887310[])(s32, void *, s32);
 /* measured: fully decompiled, best nd 593 (obj 2596B / window 1696B — the
    object is OVER window because mwcc emits extra instructions, not missing
    ones). The signature (f32, s32, s32, f32, f32, s32, s32, s32) is CORRECT
