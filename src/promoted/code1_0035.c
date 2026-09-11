@@ -66,7 +66,6 @@ static inline u32 add_offset_first(u32 offset, u32 base)
 
 extern s32 func_0034c210(void);
 
-extern void FUN_0046d730(const char *file, s32 line);
 extern u32 D_0064B1E0[];
 
 extern void func_004672c0(s32 arg0, s32 arg1);
@@ -409,7 +408,7 @@ void func_00354280(u8 *arg0, s32 arg1, s32 arg2)
 u32 func_00354490(s32 arg0)
 {
     if (!(arg0 < 0x40)) {
-        FUN_0046d730(__FILE__, 0x3D6);
+        func_0046d730(D_0064B310, 0x3D6);
     }
     return D_0064B1E0[arg0];
 }
