@@ -15,7 +15,6 @@ extern void func_00278450(u8 *arg0, s32 arg1, u8 *arg2);
 extern void func_00271b70(s32 arg0);
 extern void func_00277ad0(s32 arg0, s32 arg1);
 extern void func_00201350(void);
-extern void func_002112c0(u8 *arg0, u8 *arg1);
 extern void func_00211650(u8 *arg0, u8 *arg1);
 
 extern void memset(void *destination, s32 value, u32 size);
@@ -131,7 +130,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00210c70);
 /* Exact: 912/912 bytes, no relocations. Loop extraction retains the
    shared decay constants; separate counters describe independent phases. */
 // FUN_002112C0
-void func_002112c0(u8 *state, u8 *output)
+static void func_002112c0(u8 *state, u8 *output)
 {
     s32 i;
 
@@ -449,7 +448,6 @@ void func_00211ba0(u8 *arg0, u8 *arg1)
 }
 // FUN_00211F90
 void func_00211f90(s32 arg0, u8 *arg1) {
-    extern void func_00211650();
     u8 sp30[0x20];
     u8 *b = (u8 *)func_00452560(*(void **)(arg1 + 4));
 
@@ -461,7 +459,7 @@ void func_00211f90(s32 arg0, u8 *arg1) {
         return;
     }
     func_002112c0(arg1, sp30);
-    func_00211650(b);
+    func_00211650(b, sp30);
 }
 
 // FUN_00212010
