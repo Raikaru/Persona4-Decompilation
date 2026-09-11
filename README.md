@@ -35,8 +35,8 @@ version.
 | Byte-identical functions | 7,898 (60.281% of windows) |
 | Under test (a `// FUN_` marker scores them) | 12,720 (97.084% of windows) |
 | Not yet under test, supplied as retail bytes | 382 (2.916% of windows) |
-| In byte-exact linked C objects | 1,593 (12.158% of windows), with 215 assembly fallbacks still inside those objects |
-| Atlus game/engine | 6,860 functions; 6,268 C-matched (91.37%); 1,767 linked (25.758%) |
+| In byte-exact linked C objects | 1,594 (12.166% of windows), with 215 assembly fallbacks still inside those objects |
+| Atlus game/engine | 6,860 functions; 6,268 C-matched (91.37%); 1,768 linked (25.773%) |
 | Proven Sony PS2 SDK | 491 functions; 148 C-matched (30.143%); 491 linked (100.0%) |
 | Other third-party/vendor | 5,749 functions; 1,482 C-matched (25.778%); 41 linked (0.713%) |
 | Unattributed | 2 functions; 0 C-matched (0.0%); 0 linked (0.0%) |
