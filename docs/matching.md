@@ -10719,3 +10719,31 @@ The private `p4_event_28ad90_native/checkpoint_evidence.json` retains source
 snapshots, both guide bodies, typed global/static compiler evidence, reference
 evidence, native sources and binary with SHA-256 hashes, and the full gate log.
 All **eight standalone native proof files** were hash-archived and removed.
+
+## First-party continuation: result descriptor initialization
+
+`func_0021ef70` is recovered as **976/976 bytes**, with all **29 relocations**
+resolved and no differing bytes or tail padding. Scoped
+`opt_loop_invariants on` preserves the retail setup loops. The allocation
+import uses the actual constructor contract, `u8 *(u32, u32)`. The neighboring
+glyph renderer remains ASM and the renderer opacity contract is unchanged.
+All **13 owner function images** and both local tables resolve exactly.
+
+Both actual Ghidra and IDA guides were checked against retail and the current
+constructor. Fresh no-libc i386 execution of the production setup and actual
+44-byte constructor passes **129 checks / zero failures**. It checks the full
+work image, untouched bytes and canaries, 42 guarded descriptors, full-width
+bank identities, signed table indices, colors and controlled 31-bit RNG
+vectors. Allocation, RNG and diagnostics are modeled boundaries; this does
+not claim glyph-renderer, GPU or complete SDK-runtime execution.
+
+The full gate passes **529 tests** and zero lint findings. Of all **12,720**
+statuses, only `0021ef70` changes from ASM to MATCH: **6,272 first-party matches
+/ 588 fallbacks**, and **7,902 total matches / 4,818 fallbacks**.
+Source linkage is **173 C objects / 1,595 C-linked functions**.
+Loadable-image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and retail
+ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
+The private `p4_direct_result_ef70/checkpoint_evidence.json` retains compiler
+and native evidence, seven native source/binary snapshots with SHA-256 hashes,
+and the full gate log. All seven standalone native proof files were
+hash-archived and removed.

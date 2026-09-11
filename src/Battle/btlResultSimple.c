@@ -9,7 +9,7 @@ void func_001437b0(void *arg0, s32 arg1, s32 arg2);
 s32 func_001b5fd0(void);
 void func_0025cbc0(void *arg0, s32 arg1, s32 arg2);
 s32 func_0025cc70(void);
-s32 func_0046d200(s32 arg0, s32 arg1);
+u8 *func_0046d200(u32 arg0, u32 arg1);
 u32 func_003b7060(void);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
@@ -115,22 +115,93 @@ INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021ed10);
 
 
 
-/* measured 2026-08-03 (wave 14 re-attack, 3 attempts): full body reconstructed from
-   the m2c draft (code1_0021.c) + retail asm — all 4 loops and the final stores
-   correct, but the register allocation makes the object 1020B (44B OVER the 976B
-   window) with 237 differing words. The m2c draft's u16* arg0 pointer math is
-   WRONG (doubles the byte offsets); the real access is u8* byte offsets. The
-   half-scaler value must be u32 (retail srl for the >>1, not sra) and the bltz
-   test is (s32)scaled<0. Base tables D_006291A0/D_00629380 are hoisted by
-   retail to the preheader; mwcc re-materialises them per iteration. Retail
-   frame -0x60 with arg0 in $s3 and loop vars in $s0/$s1/$s2 + $f20; mwcc b210
-   allocates the loop counters to saved registers and frames -0x70+ (5 saved
-   int regs), so the object runs 44B over the window. Block-scoping every loop
-   local, hoisted table bases, and separate table pointers all leave the
-   allocation unchanged. Frame + register-colouring floor (same family as the
-   recorded note). */
+/* Matched: 976 bytes and all 29 relocations. Pointer slots and unsigned
+ * resource-bank loads preserve the real constructor contract; scoped loop
+ * invariants retain the retail table bases and register allocation. */
 // FUN_0021EF70
-INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021ef70);
+#pragma opt_loop_invariants on
+void func_0021ef70(BtlResultWork *work)
+{
+    u8 *base;
+    u8 *row;
+    u8 *src;
+    u8 *p;
+    u8 **out;
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 m;
+    f32 base_value;
+    f32 x;
+    f32 y;
+    u8 c;
+
+    base = (u8 *)work;
+    for (i = 0; i < 20; i++) {
+        src = (u8 *)D_006291A0 + i * 0x18;
+        row = base + i * 0x30;
+        x = *(f32 *)(src + 0);
+        *(f32 *)(row + 0x40) = x;
+        *(f32 *)(row + 0x50) = x;
+        y = *(f32 *)(src + 4);
+        *(f32 *)(row + 0x44) = y;
+        *(f32 *)(row + 0x54) = y;
+        c = *(u8 *)(src + 8);
+        *(u8 *)(row + 0x58) = c;
+        *(u8 *)(row + 0x5A) = c;
+        src = (u8 *)D_00629380 + i * 0x18;
+        *(f32 *)(row + 0x48) = *(f32 *)(src + 0);
+        *(f32 *)(row + 0x4C) = *(f32 *)(src + 4);
+        *(u8 *)(row + 0x59) = *(u8 *)(src + 8);
+        *(s32 *)(row + 0x68) = *(s32 *)(src + 0xC);
+        *(s32 *)(row + 0x6C) = *(s32 *)(src + 0x10);
+    }
+    for (j = 0; j < 42; j++) {
+        if (j < 13) {
+            out = (u8 **)(base + j * 4 + 0x414);
+            *out = func_0046d200(*(u32 *)(base + 0x400), (u32)D_00629170[j]);
+        } else if (j < 15) {
+            out = (u8 **)(base + j * 4 + 0x414);
+            *out = func_0046d200(*(u32 *)(base + 0x404), (u32)D_00629170[j]);
+        } else if (j < 25) {
+            out = (u8 **)(base + j * 4 + 0x414);
+            *out = func_0046d200(*(u32 *)(base + 0x40C), (u32)D_00629170[j]);
+        } else if (j < 36) {
+            out = (u8 **)(base + j * 4 + 0x414);
+            *out = func_0046d200(*(u32 *)(base + 0x410), (u32)D_00629170[j]);
+        } else {
+            out = (u8 **)(base + j * 4 + 0x414);
+            *out = func_0046d200(*(u32 *)(base + 0x408), (u32)D_00629170[j]);
+        }
+        if (*out == 0) {
+            func_0046d730(&D_00629610, 0x159);
+        }
+    }
+    for (k = 0; k < 5; k++) {
+        p = base + k * 0x20;
+        *(u32 *)(p + 0x4C8) = 0x43560000;
+        row = p + 0x4C0;
+        *(f32 *)(p + 0x4D0) = *(f32 *)(p + 0x4C8);
+        *(f32 *)(row + 0x18) =
+            (f32)((func_003b7060() & 0xFFF) * 214) / 4096.0f;
+        src = (u8 *)D_00629560 + k * 0x1C;
+        base_value = *(f32 *)(src + 0x14);
+        *(f32 *)(row + 4) = base_value +
+            ((*(f32 *)(src + 0x18) - base_value) *
+             (f32)(func_003b7060() & 0xFFF)) / 4096.0f;
+        *(s16 *)(row + 0) = 0;
+        *(s16 *)(row + 2) =
+            *(s32 *)(src + 8) + func_003b7060() % *(u32 *)(src + 0xC);
+    }
+    for (m = 0; m < 2; m++) {
+        row = base + m * 8;
+        *(s16 *)(row + 0x564) = 0;
+        *(f32 *)(row + 0x560) = *(f32 *)((u8 *)D_006295F0 + m * 0xC + 4);
+    }
+    *(s16 *)(base + 0x3C) = 0;
+    *(s32 *)(base + 0x38) = 0;
+}
+#pragma opt_loop_invariants off
 /* measured 2026-08-07: discarded raw_alias body reached nd 57 with object
    472B vs the 480B window. Retail precomputes the indexed field400 store
    address before func_0046af60; b210 keeps the loop/index colouring in the
