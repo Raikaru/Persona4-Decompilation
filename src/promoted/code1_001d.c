@@ -19,6 +19,7 @@ extern u8 *D_0076449C;
 extern s32 func_002428f0(u8 *arg0, s32 arg1);
 extern s32 func_00231e20(u8 *arg0);
 extern s32 func_00232710();
+extern u32 datCalcChkBadStatus(int unit, u32 badStatus);
 extern u16 func_00231ed0(u8 *arg0);
 extern u16 func_00231ee0(u8 *arg0);
 extern s32 func_002340c0(s32 arg0, s32 arg1);
@@ -76,7 +77,7 @@ extern void func_0048a250(u8 *arg0);
 extern void func_003dc740(void *arg0, void *arg1, f32 arg3, s32 arg2);
 
 
-extern void func_001d9b60(u8 *arg0);
+extern s32 func_001d9b60(u8 *task, s32 mask);
 extern u8 *func_00457120();
 extern void func_003e8110(u8 *arg0);
 extern void func_003e8120(u8 *arg0);
@@ -2160,7 +2161,6 @@ test:
 // FUN_001D94D0
 int func_001d94d0(int param_1, int param_2, int param_3, int param_4, int param_5, code param_6)
 {
-    typedef signed __int128 s128;
     u8 *unit;
     u8 *work;
     u16 flags;
@@ -2325,8 +2325,8 @@ s32 func_001d99a0(u8 *arg0, u32 arg1)
     return (u32)(func_00231e20(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64)) & 0xFF) >= arg1;
 }
 // FUN_001D9B60
-void func_001d9b60(u8 *arg0) {
-    func_00232710(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64));
+s32 func_001d9b60(u8 *task, s32 mask) {
+    return datCalcChkBadStatus(*(s32 *)(*(u8 **)(task + 0x30) + 0xA64), (u32)mask);
 }
 // FUN_001D9B90
 void func_001d9b90(u8 *arg0, u32 arg1)
@@ -2335,9 +2335,9 @@ void func_001d9b90(u8 *arg0, u32 arg1)
 
     mask = (1 << *(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2)) & 0xFFFF;
     if ((arg1 & 0x80000) != 0) {
-        func_001d94d0((int)arg0, arg1, mask, 0, 0, (code)func_001d9b60);
+        func_001d94d0((int)arg0, arg1, mask, 0, 0, func_001d9b60);
     } else {
-        func_001d94d0((int)arg0, arg1, mask, 0x80000, 0, (code)func_001d9b60);
+        func_001d94d0((int)arg0, arg1, mask, 0x80000, 0, func_001d9b60);
     }
 }
 
@@ -2361,9 +2361,9 @@ void func_001d9c00(u8 *arg0, u32 arg1)
     }
     temp_3 = shift & 0xFFFF;
     if ((arg1 & 0x80000) != 0) {
-        func_001d94d0((int)arg0, arg1, (1 << (temp_3 & 0xFFFF)) & 0xFFFF, 0, 0, (code)func_001d9b60);
+        func_001d94d0((int)arg0, arg1, (1 << (temp_3 & 0xFFFF)) & 0xFFFF, 0, 0, func_001d9b60);
     } else {
-        func_001d94d0((int)arg0, arg1, (1 << (temp_3 & 0xFFFF)) & 0xFFFF, 0x80000, 0, (code)func_001d9b60);
+        func_001d94d0((int)arg0, arg1, (1 << (temp_3 & 0xFFFF)) & 0xFFFF, 0x80000, 0, func_001d9b60);
     }
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
