@@ -134,7 +134,7 @@ extern s32 func_00106600(s16 arg0);
 extern void func_00106620(s32 arg0, u32 arg1);
 extern s32 func_002325a0(s32 arg0, s32 arg1);
 extern s32 func_00232610(s32 arg0, s32 arg1);
-extern s32 func_0023d9b0(s32 arg0, u16 arg1);
+extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
 
 extern s32 func_001f8400(u8 **arg0);
 extern s32 iGpffffb464;
@@ -1056,7 +1056,7 @@ s32 func_001f39d0(u8 **arg0) {
     switch (temp_3) {
     case 2:
         temp_17 = *(u16 *)(temp_4 + 0x6E);
-        temp_2 = func_0023d9b0(*(s32 *)(temp_16 + 0xA64), temp_17);
+        temp_2 = func_0023d9b0(*(u8 **)(temp_16 + 0xA64), temp_17);
         if (temp_2 != 0) {
             base = iGpffffb3b8;
             off = (s32)((temp_17 & 0xFFFF) * 0x28);

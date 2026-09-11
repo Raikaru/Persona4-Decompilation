@@ -10160,3 +10160,75 @@ lint reports zero findings across 340 first-party files. Link totals
 remain 172 C objects, 56 Sony SDK objects and 1,593 C-linked functions.
 The loadable-image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and
 retail ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
+
+## First-party continuation: skill cost and battle fade records
+
+| Recovery | C / retail bytes | Resolved relocations | Zero tail |
+| --- | ---: | ---: | ---: |
+| `datCalc.c::func_0023d9b0` | 992 / 992 | 24 | 0 |
+| `code1_001d.c::func_001d6680` | 504 / 512 | 14 | 8 |
+
+Both bodies have zero resolved executable differences. Ghidra, IDA and
+retail instructions establish the source contracts; compiler-local
+symbol names are not treated as proof of data identity.
+
+The skill-cost recovery closes the old 132-word floor with scoped
+`opt_common_subs off`, `opt_loop_invariants on`, then `opt_propagation off`,
+and explicit offset, reduction, limit and loaded-entry temporaries.
+Equipment IDs retain their actual `s16` return type. Existing consumers
+zero-extend through `u16` before wider masking, and the equipment-attribute
+getter has its real `u16 (s16)` prototype. All **421 other functions across
+the four affected owners** retain their instruction bytes and referenced
+data; renumbered local tables have identical contents and relocations.
+
+`g_data.c::func_0010f600` now returns the cost and takes a word-sized skill
+ID, rather than pretending to be a void function with a pointer argument.
+Its battle and Persona callers use the corrected contracts. The wrapper
+remains **156/160 bytes with eight resolved relocations**; its local
+`g_data.c` diagnostic literal is bound only after verifying the nine
+retail bytes at `0x005E4298`. The battle and Persona callers remain
+304/304 and 232/240 bytes respectively.
+
+The integrated skill-cost i386 consumer passes **39 scenarios / 313
+checks** using 14 current-source fragments, actual skill/stat/equipment
+lookups, the corrected wrapper and the availability consumer. Coverage
+includes learned-versus-accessory precedence, the eighth skill and a
+poison ninth word, enemy exemptions, percentage versus flat SP cost,
+32-bit product wrap followed by signed division, unsigned halving,
+HP/SP zero and minimum differences, wide skill IDs and resource-budget
+boundaries. A defined synthetic prefix record exercises the signed `-1`
+equipment bit pattern; this does not assert that retail provides an
+equipment record numbered `-1`. All **17 separately compiled source
+mutations fail observable assertions**.
+
+The fade updater walks the actual 0x24-byte records allocated by
+`func_001d6ad0`, not the neighboring 0x28-byte packet work area. Offset
+`+4` is packed RGBA; `+0xC` is a wrapping frame counter. Fade-out takes
+precedence over fade-in, saturation clears both fade bits, and bit `0x40`
+freezes update/cleanup without suppressing drawing. All **93 other owner
+functions** retain identical bodies and relocation lists.
+
+Its integrated i386 consumer passes **41 checks**, including empty and
+multi-node lists, RGB preservation, exact saturation boundaries, counter
+wrap, frozen drawing, updated color consumption and the existing
+`func_001d5b20` entry walk. All **17 candidate-only mutations fail actual
+assertions**, not unsupported-provider traps. The provider models preserve
+the real gates and stores: `func_00485870` clears bit 31 at `+0x68` but
+does not clear the counter at `+0x84`; `func_00485630` sets that bit and
+increments the counter. Closed model-update gates have no invented
+alpha, dispatch or debug-counter effects.
+
+These are freestanding native executions, not PS2 runtime verification.
+Fade-provider coverage is limited to closed model gates, childless and
+auxiliary-transform-free effects, and the supported entry walk. All nine
+unsupported gate scenarios halt explicitly; VU child processing, model
+dispatch and job submission are not claimed.
+
+The complete `make build-progress lint-errors test progress progress-validate`
+gate passes: **6,265 first-party matches / 595 assembly fallbacks** and
+**7,895 total matches / 4,825 assembly fallbacks**. All **529 tests pass**;
+lint reports zero findings across 340 first-party files. Link totals
+remain 172 C objects, 56 Sony SDK objects and 1,593 C-linked functions.
+The loadable-image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and
+retail ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
+SDK and other third-party matching totals are unchanged.
