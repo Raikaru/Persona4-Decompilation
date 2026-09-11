@@ -10859,3 +10859,44 @@ Only `002e1030` changes status among **12,720** scanned functions:
 4,815 fallbacks**. Source linkage is **173 C objects / 1,597 C-linked functions**.
 Both retail SHA-1 identities remain unchanged. The checkpoint archive also
 retains the full gate log and complete status-delta evidence.
+
+## First-party continuation: bank-slot animation
+
+`func_002e13b0` is recovered as **1,080/1,088 bytes**, with all **ten text
+relocations** and the **six-entry switch table** resolved exactly. No executable
+words differ; the eight tail bytes are zero. All **ten bank-owner images** and
+the table resolve exactly.
+
+Both actual decompiler guides, retail and current providers were checked.
+An explicit idle case preserves the six-way switch. Signed halfword flags,
+32-bit fade ticks, sequential stores and scoped propagation control retain
+the retail transitions and ratio lifetime. Direct float-to-unsigned-byte
+casts preserve the branch-local alpha conversions; an intermediate unsigned
+word conversion does not match.
+
+The directly enabling alpha provider, `func_00104770`, now accepts and stores
+an unsigned byte, consistent with the actual bank initializer. Its
+**52/64-byte** image resolves exactly with **two relocations** and twelve zero
+tail bytes. All **38 provider-owner images and its table** remain byte- and
+relocation-identical to a fresh pre-change compile. No other active C caller
+needed migration; no broad renderer or SDK contract package is included.
+
+Source-identical no-libc i386 consumers execute the animation and all three
+actual provider bodies, without function stubs. GCC and Clang each pass
+**23,552 scenarios / 70,656 checks / zero failures**; Clang enables
+undefined-behavior traps. Coverage includes all 16 relevant flag combinations
+per slot and four occupancy masks, five-frame entry, stable refresh,
+immediate/delayed exit, inactive/noncanonical states, guarded slot/unit
+images, and all 256 alpha values across both indices and four high-64-bit
+index patterns. The native entry uses an ABI-correct aligned assembly call
+into C. This exercises valid lifecycle timers in synthetic buffers, not
+arbitrary invalid timers, EE COP1 rounding or PS2 rendering.
+
+The isolated home-only full gate passes **529 tests** and zero lint findings.
+Only `002e13b0` changes status among **12,720** scanned functions:
+**6,276 first-party matches / 584 fallbacks**, and **7,906 total matches /
+4,814 fallbacks**. Source linkage is **173 C objects / 1,598 C-linked functions**.
+Both retail SHA-1 identities remain unchanged. The private
+`p4_bank_animation_recovery/checkpoint_evidence.json` retains compiler/native
+evidence, production snapshots, the full gate log and status-delta evidence.
+All five native source/binary files were hash-archived, verified and removed.

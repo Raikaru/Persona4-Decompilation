@@ -32,19 +32,19 @@ version.
 | Retail executable | `SLUS_217.82`; SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` |
 | Loadable image | `0x838a00` bytes at `0x00100000`; SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` |
 | Canonical function windows | 13,102; all mapped to C or owned retail assembly |
-| Byte-identical functions | 7,905 (60.334% of windows) |
+| Byte-identical functions | 7,906 (60.342% of windows) |
 | Under test (a `// FUN_` marker scores them) | 12,720 (97.084% of windows) |
 | Not yet under test, supplied as retail bytes | 382 (2.916% of windows) |
-| In byte-exact linked C objects | 1,597 (12.189% of windows), with 212 assembly fallbacks still inside those objects |
-| Atlus game/engine | 6,860 functions; 6,275 C-matched (91.472%); 1,768 linked (25.773%) |
+| In byte-exact linked C objects | 1,598 (12.197% of windows), with 211 assembly fallbacks still inside those objects |
+| Atlus game/engine | 6,860 functions; 6,276 C-matched (91.487%); 1,768 linked (25.773%) |
 | Proven Sony PS2 SDK | 491 functions; 148 C-matched (30.143%); 491 linked (100.0%) |
 | Other third-party/vendor | 5,749 functions; 1,482 C-matched (25.778%); 41 linked (0.713%) |
 | Unattributed | 2 functions; 0 C-matched (0.0%); 0 linked (0.0%) |
-| First-party matched, scored for recovery | 6,275 |
+| First-party matched, scored for recovery | 6,276 |
 | — NAMED (not a `func_<address>` placeholder) | 154 (2.454%) |
-| — TYPED (no raw-offset or `M2C_` access) | 1,786 (28.462%) |
-| — DOCUMENTED (prose, or trivially self-evident) | 4,302 (68.558%) |
-| — still carrying decompiler local names | 1,924 (30.661%) |
+| — TYPED (no raw-offset or `M2C_` access) | 1,786 (28.458%) |
+| — DOCUMENTED (prose, or trivially self-evident) | 4,303 (68.563%) |
+| — still carrying decompiler local names | 1,924 (30.656%) |
 
 Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. Sony SDK linkage is black-box reuse, not decompiled source. `tools/recovery_quality.py --worst 20` ranks the game files needing work.
 <!-- STATUS:END -->
