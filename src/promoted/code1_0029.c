@@ -58,7 +58,7 @@ extern u8 D_0063CFA0[];
 extern s32 func_00452380(void *path);
 extern s32 func_00106330(s32 arg0);
 extern void func_001238c0(s32 arg0);
-extern u32 func_00104e30(s16 arg0);
+extern u16 func_00104e30(s16 arg0);
 extern void func_00105730(s16 arg0, s16 arg1);
 static inline u8 *code29AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);

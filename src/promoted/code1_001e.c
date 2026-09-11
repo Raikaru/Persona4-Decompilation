@@ -37,7 +37,7 @@ static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
     return (u8 *)((u32)offset + (u32)base);
 }
 extern s32 datCalcGetHp();
-extern s32 func_00232290();
+extern u16 func_00232290();
 extern s32 datCalcGetSp();
 
 extern s64 func_0023d8e0();

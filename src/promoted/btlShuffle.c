@@ -50,7 +50,7 @@ extern u32 func_00105610(s16 param);
 
 extern s32 func_00105ee0();
 
-extern u32 func_00104e30(s16 character);
+extern u16 func_00104e30(s16 character);
 
 extern u32 func_00104d50(s16 character);
 

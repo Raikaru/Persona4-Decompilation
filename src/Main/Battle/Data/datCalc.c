@@ -29,7 +29,7 @@ extern u32 func_001053b0(s16 arg0);
 extern s32 func_00232730(u8 *arg0, s32 arg1);
 extern u16 func_00232950(u8 *arg0, s32 arg1);
 
-extern u32 func_00232290(DatUnit* unit);
+extern u16 func_00232290(DatUnit* unit);
 
 extern s32 func_00106600(s16 arg);
 
@@ -45,7 +45,7 @@ u16 func_00243920();
 
 extern u16 func_00104dc0(s16 character);
 extern void func_001056e0(s16 character, s16 value);
-extern u32 func_00104e30(s16 character);
+extern u16 func_00104e30(s16 character);
 extern void func_00105730(s16 character, s16 value);
 extern void func_00105d50(s16 character, u32 mask);
 
@@ -240,7 +240,7 @@ u16 func_00231f80(DatUnit *unit)
 /* measured: sibling of exact 00231f80 template; raw s32 temp, integer GP-base addition, and direct clamp spelling preserve retail. */
 #pragma opt_common_subs off
 #pragma opt_propagation off
-u32 func_00232290(DatUnit *unit)
+u16 func_00232290(DatUnit *unit)
 {
     s32 temp_16;
     s32 var_18;

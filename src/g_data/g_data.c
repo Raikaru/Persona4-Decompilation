@@ -116,7 +116,7 @@ extern u32 func_00231ed0(void* arg0);
 extern u32 func_00231ee0(void* arg0);
 struct DatUnit;
 extern u16 func_00231f80(struct DatUnit* unit);
-extern u32 func_00232290(struct DatUnit* unit);
+extern u16 func_00232290(struct DatUnit* unit);
 extern void func_002326c0(void* arg0);
 extern void func_00231dc0(void* arg0, s16 arg1);
 extern void func_00232680(void* arg0);
@@ -364,7 +364,7 @@ u16 func_00104dc0(s16 arg0)
 }
 
 // FUN_00104E30
-u32 func_00104e30(s16 arg0)
+u16 func_00104e30(s16 arg0)
 {
     if (arg0 == 1)
     {
@@ -701,13 +701,12 @@ void func_00105780(s16 arg0)
     v1 = (u16)r;
     if (arg0 == 1)
     {
-        r = func_00232290((struct DatUnit*)D_007973C4);
+        v2 = func_00232290((struct DatUnit*)D_007973C4);
     }
     else
     {
-        r = func_00232290((struct DatUnit*)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4));
+        v2 = func_00232290((struct DatUnit*)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4));
     }
-    v2 = (u16)r;
     if (v2 < v1)
     {
         s16 t = (s16)v2;

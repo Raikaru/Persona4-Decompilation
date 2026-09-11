@@ -1541,8 +1541,8 @@ void func_00203890(void) {
     *(s16 *)(p + 0x9C) = 4;
 }
 // FUN_002038C0
-void func_002038c0(void) {
-    u8 *b = (u8 *)func_00452560() + 0x9C;
+void func_002038c0(s32 task) {
+    u8 *b = (u8 *)func_00452560((void *)task) + 0x9C;
 
     *(s32 *)(b + 4) &= ~2;
     func_002033c0(b + 0x2C);
