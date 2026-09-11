@@ -4,18 +4,19 @@
 #include "include_asm.h"
 
 
-// P4 retail reaches this object at gp-0x4A78, i.e. absolute 0x007690f0 - 0x4a78
-// = 0x00724678, GP-relative.
-extern int iGpffffb588;
+/* Retail manager pointer at gp-0x4A78 (0x00764678). */
+extern u8 *iGpffffb588;
 
-extern int iGpffffa890;
+extern char iGpffffa890[8];
 extern int iGpffffa898;
 
 extern void func_00446e88(u8 *, s32 *);
 extern u8 *func_002e2170(void *, s32, s32);
-extern int *func_002e2240(int *, int *, int *);
-extern void func_00440b68();
-extern void func_00104510(s64, s16, s16, s16);
+typedef struct NmlistNode NmlistNode;
+typedef struct NmlistList NmlistList;
+extern NmlistNode *func_002e2240(NmlistList *, NmlistList *, int *);
+extern s32 func_00440b68(const char *, ...);
+extern void func_00104510(s16, s16, s16, s16);
 extern void func_001047b0(s64, s32);
 extern char D_0063FBB0[];
 extern char D_0063FBC8[];
@@ -61,10 +62,10 @@ void func_002e0dd0(void)
     node = *(s32 **)(iGpffffb588 + 4);
     while (node != NULL) {
         s32 *next = *(s32 **)((u8 *)node + 0x10);
-        func_002e2240((int *)iGpffffb588, (int *)(iGpffffb588 + 4), node);
+        func_002e2240((NmlistList *)iGpffffb588, (NmlistList *)(iGpffffb588 + 4), node);
         node = next;
     }
-    func_00440b68(&iGpffffa890, D_0063FBB0, 0xCA);
+    func_00440b68(iGpffffa890, D_0063FBB0, 0xCA);
     func_002e0ea0((u8 *)&iGpffffa898);
 }
 
@@ -107,11 +108,71 @@ s32 func_002e0fb0(void)
     }
     return 0;
 }
-/* measured: the best exploratory C for func_002e1030 scored nd 334
-   (object 480B / window 512B); it was size-deficit and discarded, so no
-   real body is retained. */
+typedef struct FclBankSlot {
+    s16 flags;
+    s16 unk02;
+    u32 descriptor;
+    s16 index;
+    u8 unk0a[10];
+} FclBankSlot;
+
+static inline s16 findUnusedBank(u8 *banks)
+{
+    s32 i;
+    FclBankSlot *slot = (FclBankSlot *)(banks + 4);
+    for (i = 0; i < 2; i++) {
+        if ((slot->flags & 1) == 0)
+            return i;
+        slot++;
+    }
+    return -1;
+}
+
+static inline s16 findReusableBank(u8 *banks)
+{
+    s32 i;
+    FclBankSlot *slot = (FclBankSlot *)(banks + 4);
+    for (i = 0; i < 2; i++) {
+        s16 value = slot->flags;
+        if ((value & 1) && !(value & 2) && !(value & 8))
+            return i;
+        slot++;
+    }
+    return -1;
+}
+
+/* Measured: wide selection and return retain retail narrowing boundaries;
+   the low-halfword index store keeps the original selected register.
+   Exact 500/512 bytes, with twelve zero tail bytes. */
 // FUN_002E1030
-INCLUDE_ASM("asm/nonmatchings/fclBankManager", func_002e1030);
+s64 func_002e1030(int *node)
+{
+    FclBankSlot *slot;
+    s64 selected;
+    u8 *banks;
+    u8 *payload;
+
+    banks = *(u8 **)(iGpffffb588 + 0x24);
+    selected = findUnusedBank(banks);
+    if (selected == -1)
+        selected = findReusableBank(banks);
+    if ((s16)selected == -1)
+        return -1;
+    payload = *(u8 **)((u8 *)node + 0x14);
+    slot = (FclBankSlot *)(banks + 4 + (s16)selected * 20);
+    slot->descriptor = *(u32 *)(payload + 4);
+    slot->flags = *(s16 *)payload;
+    slot->index = (u16)selected;
+    func_00104510(selected, (s16)((slot->descriptor & 0xFFFF0000U) >> 16),
+                 (s16)((slot->descriptor & 0xFF00) >> 8), (s16)(slot->descriptor & 0xFF));
+    func_001047b0(slot->index, 1);
+    slot->flags |= 1;
+    slot->flags |= 2;
+    func_002e2240((NmlistList *)iGpffffb588, (NmlistList *)(iGpffffb588 + 4), node);
+    func_00440b68(iGpffffa890, D_0063FBB0, 0x19D);
+    func_002e0ea0((u8 *)D_0063FBC8, slot->index);
+    return selected;
+}
 
 // FUN_002E1230
 void func_002e1230(s32 arg0, s64 arg1)
