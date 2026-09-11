@@ -8972,6 +8972,7 @@
         "00110830",
         "00110850",
         "00110960",
+        "00110a60",
         "00110c50",
         "00110d30",
         "00110d60",
@@ -14913,8 +14914,8 @@
         "004bd450",
         "004bd4a0"
       ],
-      "matching_count": 6273,
-      "matching_percent": 91.443,
+      "matching_count": 6274,
+      "matching_percent": 91.458,
       "total": 6860,
       "total_code_bytes": 3139296
     },
@@ -25317,6 +25318,7 @@
       "00110830",
       "00110850",
       "00110960",
+      "00110a60",
       "00110c50",
       "00110d30",
       "00110d60",
@@ -32888,11 +32890,11 @@
       "0052d970",
       "0052d980"
     ],
-    "count": 7903,
+    "count": 7904,
     "duplicate_rows": 0,
     "known_rows": 12720,
-    "matched_body_bytes": 1626664,
-    "percent": 60.319,
+    "matched_body_bytes": 1627152,
+    "percent": 60.327,
     "unique_known_addresses": 12720
   },
   "schema_version": 1,
@@ -32903,8 +32905,8 @@
     "verifier_report": "build/verify_report.json"
   },
   "status_counts": {
-    "ASM": 4817,
-    "MATCH": 7903
+    "ASM": 4816,
+    "MATCH": 7904
   },
   "total": 13102
 }

@@ -10785,3 +10785,38 @@ The private `p4_fusion_pair_recovery/checkpoint_evidence.json` retains compiler,
 retail-table and native evidence, five native source/binary snapshots with
 SHA-256 hashes, and the full gate log. All five standalone native proof files
 were hash-archived and removed.
+
+## First-party continuation: calendar override classification
+
+`func_00110a60` is recovered as **488/496 bytes**, with all **15 relocations**
+resolved, no differing executable words and eight zero tail bytes. The inline
+override helper preserves the duplicated phase-3/phase-4 paths. A shared
+month divisor remains live through December wrapping; declaring the previous
+month before the accumulator closes the last register exchange. Scoped
+propagation/CSE controls retain the signed override staging and are restored
+after the function.
+
+Both actual Ghidra and IDA bodies were checked against retail and the current
+calendar and override providers. The wide signed return matches retail;
+changing it to a byte return adds narrowing instructions. The sole active C
+caller's import now agrees, while its explicit signed-byte conversion remains.
+All **47 owner images / two tables** and **41 consumer-owner images / two
+tables** resolve exactly.
+
+A source-identical no-libc i386 slice executes all nine target/helper/provider
+bodies without function stubs. It passes **1,869,165 scenarios / 3,738,331
+checks / zero failures**: all 365 valid dates, both phase branches, null override
+state, every signed override/fallback byte, noncanonical nonzero calendar flags,
+and full-width date/phase mismatches. It also checks that classification leaves
+override storage unchanged. Retail month/calendar tables seed the slice;
+override state and boundary table mutations are synthetic. Invalid dates are
+not given invented guards.
+
+The full gate passes **529 tests** and zero lint findings. Only `00110a60`
+changes status among **12,720** scanned functions: **6,274 first-party matches /
+586 fallbacks**, and **7,904 total matches / 4,816 fallbacks**. Source linkage
+remains **173 C objects / 1,596 C-linked functions**. Both retail SHA-1 identities
+remain unchanged. `p4_calendar_classifier_recovery/checkpoint_evidence.json`
+retains compiler, native, retail-table and gate evidence, production source
+snapshots, and all five standalone native proof files with SHA-256 hashes.
+Those five native files were hash-verified against the archive and removed.
