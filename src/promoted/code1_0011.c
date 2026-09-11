@@ -368,8 +368,55 @@ s64 func_00110960(s32 arg0, u32 arg1)
 #pragma opt_propagation on
 /* measured probe: restore opt_common_subs after func_00110960. */
 #pragma opt_common_subs on
+static inline s64 calendarOverrideValue(s32 date, s32 phase)
+{
+    s64 result;
+    s32 address;
+    s32 loaded;
+
+    result = -1;
+    if (date == (s16)func_00123b10() && (s16)func_00123b40() == phase)
+        result = (s8)func_00123ae0();
+    if ((s8)result == -1) {
+        address = p4_00110850_add(date * 6, (s32)D_005E3A02);
+        loaded = p4_0011_load_s8((s8 *)address + 2);
+        result = loaded;
+    }
+    return result;
+}
+
+/* Measured: keep the shared month divisor live through December wrapping,
+   and retain the signed override staging in both inlined phase branches. */
+#pragma opt_propagation off
+#pragma opt_common_subs off
 // FUN_00110A60
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110a60);
+s64 func_00110a60(s32 month, s32 day)
+{
+    extern s32 func_00110d30(s32 date);
+    s32 previous;
+    s32 total;
+    s32 next;
+    s32 divisor;
+
+    total = 0;
+    if (month != 4) {
+        previous = month - 1;
+        if (previous == 0) previous = 12;
+        do {
+            next = previous - 1;
+            divisor = 12;
+            total += D_005E45E0[next % divisor];
+            if (previous == 4) break;
+            previous = next;
+            if (next == 0) previous = divisor;
+        } while (1);
+    }
+    if (func_00110d30(total + (day - 1)) == 1)
+        return calendarOverrideValue(func_00110600(month, day), 3);
+    return calendarOverrideValue(func_00110600(month, day), 4);
+}
+#pragma opt_common_subs on
+#pragma opt_propagation on
 // FUN_00110C50
 s32 func_00110c50(s32 arg0, s32 arg1)
 {
