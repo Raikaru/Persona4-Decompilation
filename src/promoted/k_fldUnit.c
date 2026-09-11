@@ -72,7 +72,6 @@ extern u8 *func_00162330(void);
 extern u8 *func_00231580(u16 arg0);
 extern u8 *func_00162680(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00109400(s32 arg0);
-extern s32 func_00104c70(s32 arg0);
 extern s32 func_00105ee0(s32 arg0);
 extern s32 func_00155280(void);
 extern void func_0014a0f0(u16 arg0, s32 arg1);
