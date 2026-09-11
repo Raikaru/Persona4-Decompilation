@@ -62,7 +62,7 @@ extern f32 func_00196040(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, s32 arg4, s32 a
 extern void func_00194ee0(u8 *arg0, f32 *arg1);
 extern void func_00195b60(u8 *arg0, s32 arg1, u8 *arg2);
 extern u8 *func_0019eda0(u8 *arg0, s32 arg1);
-extern void func_003e40b0(f32 *arg0, f32 *arg1);
+extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
 extern void func_0044ea90(u8 *arg0, s32 arg1);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
 extern void func_0043f9c8(u8 *arg0, s32 arg1, s32 arg2);
@@ -115,8 +115,130 @@ extern void *func_00194470();
 extern s32 func_001d7b30(u16 *arg0);
 extern s32 func_0022ead0(void);
 
+typedef struct RwV3d RwV3d;
+struct RwV3d
+{
+    f32 x;
+    f32 y;
+    f32 z;
+};
+
+typedef struct RtQuat RtQuat;
+struct RtQuat
+{
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 w;
+};
+
+extern s32 func_001b1540(void);
+extern void func_001bd780(void *arg0, const void *arg1, const void *arg2, const void *arg3);
+extern f32 func_0044b868(f32 arg0);
+extern void func_001bac20(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
+extern void func_001bbef0(u8 *arg0, f32 arg1);
+extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, u16 arg3, f32 arg4);
+extern f32 D_0060A100[];
+extern f32 fGpffff8030;
+extern f32 fGpffff803c;
+extern f32 fGpffff8110;
+
+/* Two-unit framing: stage all three vector sums before subtracting focus.
+ * MWCC: 1004/1008 bytes, 19 resolved relocations, four zero tail bytes. */
 // FUN_001D01C0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d01c0);
+void func_001d01c0(u8 *arg0)
+{
+    struct
+    {
+        RwV3d firstPosition;
+        RtQuat firstRotation;
+        RwV3d secondPosition;
+        RtQuat secondRotation;
+    } poses;
+    RwV3d firstCenter;
+    RwV3d secondCenter;
+    RwV3d direction;
+    RwV3d side;
+    RwV3d focus;
+    RwV3d eye;
+    u8 *action;
+    u8 *unitA;
+    u8 *unitB;
+    f32 radius;
+    f32 along;
+    f32 spread;
+    f32 distance;
+    f32 length;
+    RwV3d sum;
+
+    u8 *temp = (u8 *)func_001b1540();
+    action = *(u8 **)(arg0 + 0xE0);
+    unitA = *(u8 **)(action + 0x30);
+    unitB = *(u8 **)(temp + 0x30);
+    func_00195850(unitA, (f32 *)&firstCenter);
+    radius = *(f32 *)(unitA + 0x90) * *(f32 *)(unitA + 0x2C);
+    func_00195850(unitB, (f32 *)&secondCenter);
+    direction.x = firstCenter.x - secondCenter.x;
+    direction.y = firstCenter.y - secondCenter.y;
+    direction.z = firstCenter.z - secondCenter.z;
+    along = fGpffff8030 * func_003e40b0((f32 *)&direction, (f32 *)&direction);
+    focus.x = direction.x * along;
+    focus.y = direction.y * along;
+    focus.z = direction.z * along;
+    focus.x = focus.x + secondCenter.x;
+    focus.y = focus.y + secondCenter.y;
+    focus.z = focus.z + secondCenter.z;
+    eye = firstCenter;
+    eye.y = secondCenter.y;
+    side.x = eye.x - secondCenter.x;
+    side.y = eye.y - secondCenter.y;
+    side.z = eye.z - secondCenter.z;
+    func_003e40b0((f32 *)&side, (f32 *)&side);
+    spread = 1.25f * radius;
+    eye.x = (0.0f + eye.x) - side.z * spread;
+    eye.z = (0.0f + eye.z) + side.x * spread;
+    eye.y = (0.0f + firstCenter.y) +
+            fGpffff803c * (*(f32 *)(unitA + 0x8C) * *(f32 *)(unitA + 0x2C));
+    func_001bd780(&poses.firstRotation, &eye, &focus, D_0060A0E0);
+    distance = (2.5f * radius) /
+               func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+    direction.x = direction.x * distance;
+    direction.y = direction.y * distance;
+    direction.z = direction.z * distance;
+    sum.x = eye.x + direction.x;
+    sum.y = eye.y + direction.y;
+    sum.z = eye.z + direction.z;
+    direction.x = sum.x - focus.x;
+    direction.y = sum.y - focus.y;
+    direction.z = sum.z - focus.z;
+    length = func_003e40b0((f32 *)&direction, (f32 *)&direction);
+    along = 100.0f + length;
+    direction.x = direction.x * along;
+    direction.y = direction.y * along;
+    direction.z = direction.z * along;
+    poses.firstPosition.x = focus.x + direction.x;
+    poses.firstPosition.y = focus.y + direction.y;
+    poses.firstPosition.z = focus.z + direction.z;
+    poses.secondRotation = poses.firstRotation;
+    func_003dcb40((f32 *)&direction, D_0060A100, 1, (u8 *)&poses.firstRotation);
+    along = 15.0f + length;
+    direction.x = direction.x * along;
+    direction.y = direction.y * along;
+    direction.z = direction.z * along;
+    poses.secondPosition.x = focus.x + direction.x;
+    poses.secondPosition.y = focus.y + direction.y;
+    poses.secondPosition.z = focus.z + direction.z;
+    if (poses.firstPosition.y < 25.0f) {
+        poses.firstPosition.y = 25.0f;
+    }
+    if (poses.secondPosition.y < 25.0f) {
+        poses.secondPosition.y = 25.0f;
+    }
+    func_001bac20((u16 *)arg0, (f32 *)&poses.firstPosition, (f32 *)&poses.secondPosition, 1);
+    func_001bbef0(arg0, 5.0f);
+    func_001bcd40(*(u8 **)(arg0 + 0xE0), (u8 *)&firstCenter, (f32 *)&secondCenter,
+                  9, 50.0f);
+}
 // FUN_001D1310
 void func_001d1310(u16 *arg0) {
     u8 *node;
