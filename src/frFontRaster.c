@@ -29,7 +29,7 @@ extern code D_008873e8_abs[]; /* RwMalloc */
 extern code D_008873ec_abs[]; /* RwFree */
 extern u32 DAT_00881750_abs[];
 extern void (*D_00887300[])(u32 state, u32 value); /* device.setRenderState */
-extern void (*D_00887310[])(s32, void *, s32);     /* device.fpIm2DRenderPrimitive */
+extern s32 (*D_00887310[])(s32, void *, s32);     /* device.fpIm2DRenderPrimitive */
 
 /* Runtime helpers (old-style where retail passes no prototype-driven
  * zero-extension). */

@@ -55,7 +55,7 @@ extern void func_0038cab0(u8 *arg0);
 extern f32 D_00761470;
 extern f32 D_008872F8[];
 extern void (*D_00887300[])(u32, u32);
-extern void (*D_00887310[])(s32, void *, s32);
+extern s32 (*D_00887310[])(s32, void *, s32);
 extern u8 *func_00457120(void);
 extern f32 func_0044b610(f32 fparg0);
 extern void func_00364c50(void);

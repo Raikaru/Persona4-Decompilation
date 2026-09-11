@@ -15,7 +15,7 @@ static inline f32 subF(f32 a, f32 b) { return a - b; }
 static inline f32 mulF(f32 a, f32 b) { return a * b; }
 
 
-extern void (*D_00887310[])(s32, void *, s32);
+extern s32 (*D_00887310[])(s32, void *, s32);
 extern void (*D_00887300[])(s32, s32);
 extern s32 D_00882FC0[];
 extern void (*D_00882FC8[])(void);

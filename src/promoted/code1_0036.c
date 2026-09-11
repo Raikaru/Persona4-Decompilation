@@ -149,7 +149,7 @@ extern void func_003f6440(s32 arg0, s32 arg1);
 extern s32 D_0064E440[];
 extern f32 D_008872F8;
 extern P4RenderState66C70 D_00887300[];
-extern void (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
+extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
 extern f32 iGpffff8040;
 extern f32 fGpffff8198;
 extern f32 fGpffff83fc;

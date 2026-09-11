@@ -21,7 +21,7 @@ void func_0046d730(const void *file, s32 line);
 extern u8 D_00628F80[];
 extern char iGpffffa59c;
 extern void (*D_00887300[])(u32 state, u32 value);
-extern void (*D_00887310[])(s32, void *, s32);
+extern s32 (*D_00887310[])(s32, void *, s32);
 extern f32 D_008872F8[];
 extern f32 fGpffff847c;
 extern f32 fGpffff80cc;

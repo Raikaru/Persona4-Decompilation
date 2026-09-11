@@ -12,7 +12,7 @@ extern void func_00446ed8(void *buf, const void *fmt, void *va);
 extern void func_00450a50(s32 arg0, s64 arg1, f32 fparg0, void *arg2);
 extern s32 iGpffffb9e8;
 extern void (*D_00887300[])();
-extern void (*D_00887310[])(s32, void *, s32);
+extern s32 (*D_00887310[])(s32, void *, s32);
 extern void func_003e05d0(void *arg0);
 extern void func_003e40b0(f32 *arg0, f32 *arg1);
 extern void func_003e9680(void *arg0);

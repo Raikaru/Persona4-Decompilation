@@ -129,7 +129,7 @@ extern s32 func_003cbf30(s32 arg0, void *arg1);
 extern u8 *func_00149ce0(void);
 extern u8 *func_00149d20(void);
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
-extern void (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
+extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
 extern f32 D_008872F8[];
 extern f32 fGpffff8198;
 extern u8 D_005EF710[];

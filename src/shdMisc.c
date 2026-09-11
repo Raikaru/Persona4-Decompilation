@@ -18,7 +18,7 @@ extern f32 D_008872F8[];
 extern f32 iGpffff8094;
 extern f32 iGpffff81e0;
 extern void (*D_00887300[])(u32 state, u32 value);
-extern void (*D_00887310[])(s32, void *, s32);
+extern s32 (*D_00887310[])(s32, void *, s32);
 
 extern char D_005E5810[];
 extern char D_0064E2F8[];
