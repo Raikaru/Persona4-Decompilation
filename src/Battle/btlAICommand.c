@@ -18,7 +18,6 @@ extern s64 func_0023a6b0(s32 arg0, s64 arg1);
 typedef void (*FormationCallback)(void);
 
 extern s32 func_001dbba0();
-void btlCond_MYBAD(void);
 
 extern u64 func_00452490();
 
@@ -28,7 +27,7 @@ extern u32 func_0029cc00();
 extern void func_0029cf50();
 extern u8 *func_0029d050();
 
-extern void func_001d9b60();
+extern s32 func_001d9b60(u8 *task, s32 mask);
 extern void func_001dacc0();
 extern void func_001da230();
 extern void func_001da270();
@@ -861,7 +860,7 @@ s32 func_001dca60(u8 *param_1, u32 param_2)
 // FUN_001DCB50
 void func_001dcb50(u64 formation)
 {
-    func_001dbba0(formation, 0x100000, 0, 0, 0, btlCond_MYBAD);
+    func_001dbba0(formation, 0x100000, 0, 0, 0, func_001d9b60);
 }
 
 
@@ -869,7 +868,7 @@ void func_001dcb50(u64 formation)
 // FUN_001DCB90
 void func_001dcb90(u64 formation)
 {
-    func_001dbba0(formation, 0x100000, 0, 0, 1, btlCond_MYBAD);
+    func_001dbba0(formation, 0x100000, 0, 0, 1, func_001d9b60);
 }
 
 
