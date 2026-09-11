@@ -9001,7 +9001,7 @@ void func_004e55b8(int object, u32 first, u32 second)
 
 /* Source unit: src/cri/cri_adx_004e5c50.c (1 function markers) */
 
-extern u32 argument_abs[];
+extern u32 D_007330C8[];
 
 // FUN_004E55C8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e55c8);
@@ -9031,7 +9031,7 @@ u32 func_004e5c50(u32 callback, u32 argument)
 {
   u32 segment = 0x00730000;
   *(u32 *)(segment + 0x30c4) = callback;
-  argument_abs[0] = argument;
+  D_007330C8[0] = argument;
   return segment;
 }
 #pragma schedule off
@@ -9217,7 +9217,7 @@ asm void func_004e7428(void)
 
 /* Source unit: src/cri/cri_adx_004e76e0.c (1 function markers) */
 
-extern u32 argument_abs[];
+extern u32 D_00733F60[];
 
 // FUN_004E7458
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e7458);
@@ -9237,7 +9237,7 @@ u32 func_004e76e0(u32 callback, u32 argument)
 {
   u32 segment = 0x00730000;
   *(u32 *)(segment + 0x3f5c) = callback;
-  argument_abs[0] = argument;
+  D_00733F60[0] = argument;
   return segment;
 }
 #pragma schedule off
@@ -9376,7 +9376,7 @@ void func_004e9088(int object, u32 value) { *(u32 *)(object + 0x28) = value; }
 
 /* Source unit: src/cri/cri_adx_004ea008.c (1 function markers) */
 
-extern u32 argument_abs[];
+extern u32 D_00738CF8[];
 
 // FUN_004E9090
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9090);
@@ -9460,7 +9460,7 @@ u32 func_004ea008(u32 callback, u32 argument)
 {
   u32 segment = 0x00740000;
   *(u32 *)(segment - 0x730c) = callback;
-  argument_abs[0] = argument;
+  D_00738CF8[0] = argument;
   return segment;
 }
 #pragma schedule off

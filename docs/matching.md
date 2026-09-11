@@ -10621,3 +10621,55 @@ The private `frame_forwarding_native/checkpoint_evidence.json` retains the
 source snapshot, compiler comparisons, complete gate log, native source and
 binary with hashes. Compiler and production source differ only in line
 endings. All five standalone native proof files were hash-archived and removed.
+
+## First-party continuation: retail diagnostic and lookup data
+
+Three existing C diagnostics now reference their actual retail filename data.
+The Persona accessors `func_00109220` and `func_00109280` use `D_005E4318`
+(`datPersona.c`) at lines `0x18` and `0x26`; the merged owner's `K_ASSERT`
+instead selected `g_data.c`. `func_00354490` uses the existing `D_0064B310`
+(`cmpMisc.c`) at line `0x3D6`, rather than a compiler-generated temporary
+source filename. Conditions and failure calls are otherwise unchanged.
+
+`tnEffect.c` now initializes the two retail `.sdata` objects instead of
+leaving them zero-filled: the eight-byte `%s %d` format at `0x007641E8`
+and the eight-byte `{0, 1, 4, 6, 2, 3, 5, 0}` lookup at `0x007641F0`.
+Their complete object bytes match retail, including padding. The three
+effect getters now select the intended client fields.
+
+The CRI grouped owner also had three unrelated callback argument words
+collapsed onto one `argument_abs` symbol. The existing setters now reference
+`D_007330C8`, `D_00733F60` and `D_00738CF8` independently. This is a data-symbol
+correction only: no vendor function body is newly recovered.
+
+Fresh production-source compilation resolves all **3,127 function images**
+exactly: 137 in `g_data.c`, 80 in `code1_0035.c`, 18 in `tnEffect.c` and 2,892
+in the CRI owner. Instruction words, bindings, zero tails and the affected
+initialized data are checked, rather than accepting relocation-masked matches.
+
+Fresh no-libc i386 execution of ten source-identical function bodies passes
+**2,400 checks / zero failures**. It exercises all 256 Persona IDs with three
+high-word patterns, 64 miscellaneous entries, all seven effect modes through
+the three getters, and the three actual CRI setters. The CRI consumer checks
+the entire mapped arena against an independent model after each setter.
+Six diagnostic scenarios also pass, checking actual filename contents and
+line numbers. Diagnostic termination is modeled; the SDK failure runtime
+and the heavy effect loader are not executed. The format string therefore
+has object-data proof, not a native loader claim.
+
+The pre-fix consumer reproduces **20 runtime check failures** and three
+wrong-filename failures. Its ambiguous CRI alias is assigned the first valid
+slot solely to permit execution; one binding cannot represent all three
+retail locations. The native miscellaneous filename is its include path,
+while the EE compiler evidence records the generated temporary filename.
+
+The full gate passes **529 tests** and zero lint findings. All **12,720**
+function statuses remain unchanged: **6,270 first-party matches / 590
+fallbacks**, and **7,900 total matches / 4,820 fallbacks**. Source linkage
+remains **173 C objects / 1,594 C-linked functions**. Loadable-image SHA-1
+`3d1d3d2b9d6ccb60836db239ab49674223025a78` and retail ELF SHA-1
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
+The private `p4_filename_tneffect_cri_native/checkpoint_evidence.json`
+retains before/after source snapshots, compiler comparisons, native sources
+and binaries with SHA-256 hashes, native outputs and the complete gate log.
+All **12 standalone native proof files** were hash-archived and removed.

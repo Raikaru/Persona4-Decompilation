@@ -205,6 +205,7 @@ typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
 extern char D_005e4308[];
+extern char D_005E4318[];
 extern long func_00452380(void* path);
 extern void func_00452080(long handle);
 
@@ -1491,7 +1492,9 @@ u8* func_00109220(s32 personaId)
 {
     u16 id;
 
-    K_ASSERT((personaId & 0xffff) < 0x100, 0x18);
+    if (!((personaId & 0xffff) < 0x100)) {
+        FUN_0046d730(D_005E4318, 0x18);
+    }
     id = personaId;
     return DAT_00764530 + id * 0x11;
 }
@@ -1504,7 +1507,9 @@ u8 func_00109280(s32 personaId)
     u8* table;
     u16 id;
 
-    K_ASSERT((personaId & 0xffff) < 0x100, 0x26);
+    if (!((personaId & 0xffff) < 0x100)) {
+        FUN_0046d730(D_005E4318, 0x26);
+    }
     table = DAT_007644c4;
     id = personaId;
     return table[id * 0xE + 2];
