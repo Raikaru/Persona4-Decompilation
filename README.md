@@ -43,7 +43,7 @@ version.
 | First-party matched, scored for recovery | 6,268 |
 | — NAMED (not a `func_<address>` placeholder) | 154 (2.457%) |
 | — TYPED (no raw-offset or `M2C_` access) | 1,784 (28.462%) |
-| — DOCUMENTED (prose, or trivially self-evident) | 4,295 (68.523%) |
+| — DOCUMENTED (prose, or trivially self-evident) | 4,297 (68.555%) |
 | — still carrying decompiler local names | 1,923 (30.68%) |
 
 Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. Sony SDK linkage is black-box reuse, not decompiled source. `tools/recovery_quality.py --worst 20` ranks the game files needing work.

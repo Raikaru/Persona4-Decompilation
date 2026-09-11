@@ -3,7 +3,7 @@
 
 extern s32 func_0029cc00(s32 index);
 extern void func_0026bc10(u16 resourceId, u8 value);
-extern u8 func_00104c70(s16 value);
+extern s32 func_00104c70(s32 value);
 extern void func_0029cf50(s32 value);
 
 
@@ -27,7 +27,7 @@ u32 func_0025c6d0(void)
 // FUN_00299FD0
 u32 func_00299fd0(void)
 {
-    func_0029cf50(func_00104c70(func_0029cc00(0)));
+    func_0029cf50((u8)func_00104c70((s16)func_0029cc00(0)));
 
     return 1;
 }

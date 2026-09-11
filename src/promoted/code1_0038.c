@@ -171,7 +171,7 @@ s32 func_00380980(u8 *arg0)
 s32 func_00380bd0(u8 **arg0)
 {
     extern u8 func_00109bf0(u8 *arg0, s32 arg1);
-    extern void func_00104c70(s16 arg0);
+    extern s32 func_00104c70(s32 arg0);
     extern s32 func_00106330(s32 arg0);
     extern s32 func_003b7060(void);
     extern u8 D_0064E760[];

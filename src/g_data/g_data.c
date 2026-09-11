@@ -111,7 +111,7 @@ extern u16 func_00107890(u8 arg0);
 
 extern void func_0043f810(void* arg0, void* arg1, u32 arg2);
 
-extern u8 func_00231e20(void* arg0);
+extern s32 func_00231e20(u8* arg0);
 extern u32 func_00231ed0(void* arg0);
 extern u32 func_00231ee0(void* arg0);
 struct DatUnit;
@@ -307,16 +307,19 @@ void func_00104c50(void)
     D_007242A0 = (GDataEntry*)((u32)&D_0079BF00[0] + 0x10);
 }
 
+/* Return the reader's level; normalize the selector's signed low word at entry. */
 // FUN_00104C70
-void func_00104c70(s16 arg0)
+s32 func_00104c70(s32 arg0)
 {
-    if (arg0 == 1)
+    s16 unit = (s16)arg0;
+
+    if (unit == 1)
     {
-        func_00231e20(D_007973C4);
+        return func_00231e20(D_007973C4);
     }
     else
     {
-        func_00231e20((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+        return func_00231e20((u8*)D_00796E50 + (unit - 2) * 0x88 + 4);
     }
 }
 
@@ -544,10 +547,11 @@ void func_00105340(s16 arg0)
     }
 }
 
+/* Both level-table lookups byte-mask the selected level after the branch join. */
 // FUN_001053B0
 u16 func_001053b0(s16 arg0)
 {
-    u8 r;
+    s32 r;
 
     if (arg0 == 1)
     {
@@ -557,13 +561,13 @@ u16 func_001053b0(s16 arg0)
     {
         r = func_00231e20((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
     }
-    return *(u16*)((u8*)D_005DD844 + r * 0x2C + (s32)arg0 * 4);
+    return *(u16*)((u8*)D_005DD844 + (r & 0xFF) * 0x2C + (s32)arg0 * 4);
 }
 
 // FUN_00105460
 u16 func_00105460(s16 arg0)
 {
-    u8 r;
+    s32 r;
 
     if (arg0 == 1)
     {
@@ -573,7 +577,7 @@ u16 func_00105460(s16 arg0)
     {
         r = func_00231e20((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
     }
-    return *(u16*)((u8*)D_005DD846 + r * 0x2C + (s32)arg0 * 4);
+    return *(u16*)((u8*)D_005DD846 + (r & 0xFF) * 0x2C + (s32)arg0 * 4);
 }
 
 // FUN_00105510

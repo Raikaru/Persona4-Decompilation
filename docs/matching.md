@@ -10350,3 +10350,79 @@ matching totals are unchanged. Both the loadable-image SHA-1
 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and retail ELF SHA-1
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
 All 117 standalone native proof files were removed after archival.
+
+## First-party continuation: unit-level selector return contract
+
+`func_00104c70` now returns the level reader's value explicitly. Its
+canonical contract is `s32(s32)`, with a local `s16` conversion preserving
+retail's signed-low-word normalization at entry. This representation
+preserves existing 32-bit callers without claiming that the original
+formal parameter type can be recovered uniquely. The old `void` definition
+fails a native consumer compilation with “void value not ignored”; the
+corrected definition compiles and returns the observed level.
+
+All seven live declarations agree with the definition. The implicit
+declaration in `code1_0022.c` is replaced by an explicit prototype; the
+unused `k_fldUnit.c` declaration is removed. The script command preserves
+its signed-halfword argument and unsigned-byte result conversions
+explicitly. Existing compatible hero-level, social-script and `code1_0014`
+callers are unchanged.
+
+The local `func_00231e20` declaration now matches its current
+`s32(u8 *)` definition. It reads unit byte `+6` when flag `4` is set or the
+unit ID is `1`; otherwise it reads the selected Persona work's level.
+It does not return a battle ID. Both level-table lookups carry the full
+reader result through the branch join and apply their byte mask at the
+index use, preserving the single retail `ANDI`.
+
+| Function | Executable / window bytes | Relocations | Resolved differences | Zero tail |
+| --- | ---: | ---: | ---: | ---: |
+| `func_00104c70` | 108 / 112 | 6 | 0 | 4 |
+| `func_001053b0` | 164 / 176 | 8 | 0 | 12 |
+| `func_00105460` | 164 / 176 | 8 | 0 | 12 |
+| `func_00299fd0` | 68 / 80 | 3 | 0 | 12 |
+
+All **408 functions** across the six changed owners retain their
+instructions and relocations. The only anonymous-name change,
+`@631` to `@636` in `func_00106100`, names the same 28-byte jump table:
+all seven `R_MIPS_32` entries resolve exactly to retail at `0x00746520`.
+Integrated-source objects also match the verified private objects.
+These were already matching functions; this repair does not retire an
+assembly fallback. The Ghidra and IDA headstart files omit this already
+matched selector, so its entry/return contract is checked against retail
+instructions and current callers.
+
+The integrated-source freestanding i386 consumer passes **405 checks**:
+50 routing fixtures exercise 300 selectors with IDs `1`–`10` and varied
+high words, including negative 32-bit inputs; 100 HP/SP table reads and
+five read-only-state checks cover the same fixtures. The low-halfword
+IDs remain positive. Fixtures distinguish direct levels from Persona
+levels, unrelated flag bits from flag `4`, and the two table fields.
+Controlled tables cover the full unsigned-byte level range; they are
+explicit fixture data, not a claim about recovered retail asset rows.
+
+Providers use current C bodies, including the named integer-address
+level getter. One explicit 32-bit pointer-to-integer adapter preserves
+`datCalc.c`'s legacy call representation. A unit-pointer guard rejects
+out-of-domain addresses before provider reads. The native build uses
+`-m32`, `-fno-strict-aliasing`, a realigned entry point and no libc;
+this is integer-source smoke coverage, not a PS2 emulator.
+
+All **eight candidate mutations** and **seven provider mutations** fail
+with normal status 1: four hit the address-domain guard, three hit a
+retail diagnostic, and eight fail returned-value/table assertions.
+The zero-level boundary separately reaches diagnostic `0x5C`, intercepted
+with status 86; it is not counted as a mutation kill or evidence that
+retail diagnostics terminate execution.
+
+Native sources, hashes, mutation recipes and outputs are archived;
+all **41 standalone native proof files** were removed. Full-TU
+before/final/integrated compiler evidence is retained.
+
+The complete checkpoint gate passes: **6,268 first-party matches /
+592 assembly fallbacks**, 7,898 total matches / 4,822 fallbacks,
+**529 passing tests**, and zero lint findings across 340 first-party
+files. Documented first-party matches increase to 4,297; matching and
+link totals do not change. The loadable-image SHA-1 remains
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`, and the retail ELF SHA-1
+remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
