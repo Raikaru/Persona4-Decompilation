@@ -2047,15 +2047,64 @@ s32 func_0021de60(void)
 {
     return func_00452380(&D_006290E0) == 0;
 }
-/* measured: docs/probe_archive/EoDwrap_0021de90_body.c emits 440B/448B.
-   All five relocations resolve; three executable words differ because the
-   upper-bound compare uses v1 instead of retail's at. The remaining eight
-   bytes are zero alignment. Inline clamp/predicate boundaries tie this floor.
-   All 94 existing owner C functions preserve bytes and relocations.
-   Valid tables, nonzero divisor and representable intermediate conversions
-   remain source preconditions. No instruction match or promotion claimed. */
-// FUN_0021DE90 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021de90);
+/* measured: 440/448B, five resolved relocations, no instruction differences;
+   the remaining eight bytes are zero alignment. The u32 result retains retail
+   allocation only with signed casts at both clamp bounds. Valid tables,
+   nonzero divisor and representable intermediate conversions are required. */
+// FUN_0021DE90
+#pragma push
+#pragma opt_propagation off
+s32 func_0021de90(s32 arg0, u8 *arg1)
+{
+    s32 value;
+    u32 result;
+    f32 scale;
+    f32 table_value;
+    s32 delta;
+    s32 index;
+
+    value = *(s32 *)(arg1 + 4);
+    if (value <= 0) {
+        return 0;
+    }
+    if ((*(u16 *)arg1 & 8) == 0 && func_00106330(0x1403) != 0) {
+        if (func_00106330(0x1428) != 0) {
+            value = (s32)(2.0f * (f32)value);
+        } else if (func_00106330(0x1429) != 0) {
+            value = 0;
+        }
+    }
+    scale = 1.0f / (f32)*(s32 *)(arg1 + 0x20);
+    if ((*(s32 *)(iGpffffb414 + (*(s32 *)(arg1 + 0xC) * 0x18)) & 0x80) != 0) {
+        result = (s32)((f32)value * scale);
+    } else {
+        delta = *(s32 *)(arg1 + 0x38) - arg0;
+        if (delta >= 10) {
+            index = 20;
+        } else if (delta < -9) {
+            index = 0;
+        } else {
+            index = delta + 10;
+        }
+        table_value = iGpffffb40c[index];
+        result = (s32)(scale * ((f32)value * table_value));
+    }
+    if ((s32)result <= 0xFFFF) {
+        goto normal_result;
+    }
+    result = 0xFFFF;
+    goto finish;
+normal_result:
+    if ((s32)result > 0) {
+        goto finish;
+    }
+    result = 1;
+finish:
+
+    return result;
+}
+#pragma opt_propagation on
+#pragma pop
 // FUN_0021E050
 s32 func_0021e050(u8 *arg0)
 {

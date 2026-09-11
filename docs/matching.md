@@ -10232,3 +10232,67 @@ remain 172 C objects, 56 Sony SDK objects and 1,593 C-linked functions.
 The loadable-image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and
 retail ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
 SDK and other third-party matching totals are unchanged.
+
+## First-party continuation: reward scaling and AI eligibility
+
+| Recovery | C / retail bytes | Resolved relocations | Zero tail |
+| --- | ---: | ---: | ---: |
+| `code1_0021.c::func_0021de90` | 440 / 448 | 5 | 8 |
+| `btlAICommand.c::func_001db360` | 544 / 544 | 8 | 0 |
+
+Both integrated bodies have zero resolved executable differences. All
+**107 other reward-owner functions** and **262 other AI-owner functions**
+retain identical instruction bytes and relocation lists. Ghidra and IDA
+bodies were checked against the retail instructions before promotion.
+
+The reward calculation retains scoped `opt_propagation off`, the
+21-entry clamped level-difference curve, and multiplication of the base
+value by the curve before applying the reciprocal divisor. Nonpositive
+input rewards return zero; a positive input whose computed reward is
+nonpositive instead reaches the minimum of one. Both comparisons of the
+unsigned result temporary must explicitly use `s32`: an unsigned upper
+comparison would incorrectly saturate a negative result to 65,535, and
+an unsigned lower comparison would let that result escape.
+
+The freestanding i386/SSE2 consumer passes **27 scenarios** and rejects
+all **19 candidate-only mutations** through result assertions. It covers
+flag `0x1403` gating, `0x1428` precedence over `0x1429`, record-bit `8`
+bypass, category-bit `0x80` bypass, curve endpoints, FP operation order
+and both signed clamps. Curve values and category records are synthetic
+fixtures, not extracted retail tables. Inputs stay within finite,
+representable conversion ranges with a nonzero divisor; this is not
+PS2 FPU emulation.
+
+The AI gate requires `opt_loop_invariants on` before
+`opt_propagation off`, with both restored afterward. Status checks apply
+only when `enabled == 1`, not for every nonzero value. The signed-byte
+status getter is tested with `> 0`; this caller's indices `0x10` and
+`0x11` take its bit path, not its signed-nibble path. The gate preserves
+the genus-one bitmap shortcut, the eight-entry command scan and the
+final `0x07000000` affinity mask.
+
+Its native consumer passes **44 result scenarios with no diagnostics**.
+All **14 candidate-only mutations** fail result assertions. Another
+**seven provider-model mutations** are counted separately; these expose
+incorrect affinity-mask constants, command selection and precedence.
+Three unsupported-domain probes pass six normal-exit/status checks;
+traps and signal deaths are never substituted for result-assertion kills.
+
+The affinity chain is an explicitly bounded model of retail assembly,
+not a claim that every provider is a verbatim C graft. Supported full
+paths use IDs 0, 5 and 6; the other covered IDs return before the large
+dispatch. The actual table at `0x00747C40` places the `s17`/`s22` modifier
+writes in cases 1 through 4, so those modifiers remain zero on the
+modeled paths. Existing Persona getter return-type recovery remains
+open separately; the model follows the value actually returned in `$2`.
+
+Consumer sources, hashes, build commands, mutation recipes and outputs
+were archived before removing 171 standalone native proof files.
+The complete `make build-progress lint-errors test progress progress-validate`
+gate passes: **6,267 first-party matches / 593 assembly fallbacks** and
+**7,897 total matches / 4,823 assembly fallbacks**. All **529 tests pass**;
+lint reports zero findings across 340 first-party files. Link totals
+remain 172 C objects, 56 Sony SDK objects and 1,593 C-linked functions.
+The loadable-image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and
+retail ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
+SDK and other third-party matching totals are unchanged.

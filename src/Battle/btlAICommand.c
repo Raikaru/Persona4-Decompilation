@@ -41,6 +41,8 @@ extern s32 func_001d8cb0(u32 arg0, u8 *arg1);
 extern u32 func_001d8bc0(u8 *arg0);
 extern void func_001d9740();
 extern s32 func_0023d8e0(u8 *unit, s32 command);
+extern s32 func_0023d6e0(s16 index);
+extern s8 func_00233a90(u8 *unit, s32 status);
 extern u32 func_0023e130(u8 *unit);
 extern u8 *func_0023e140(u8 *unit);
 extern u32 func_00243920(u32 arg0);
@@ -252,12 +254,67 @@ next:
     return 0;
 }
 
-/* measured: promoted command values and short-circuit continuation reduce
-   docs/probe_archive/IDA_001db360_body.c to 544B/544B, ten fully relocated
-   executable differing words. Block ordering remains; 15,360 native
-   predicate/bitmap cases pass. Retail stays in assembly. */
-// FUN_001DB360 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001db360);
+/* Measured: 544/544 bytes, eight resolved relocations, no differing words.
+ * Preserve the signed status result and the exactly-enabled status gate. */
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
+// FUN_001DB360
+s32 func_001db360(u8 *formation, s32 index, s32 enabled)
+{
+    u8 *unit;
+    s32 flags;
+    u16 count;
+    u16 *commands;
+    u16 i;
+    s32 limit;
+    u16 command;
+
+    unit = *(u8 **)(formation + 0x30);
+    if (*(u8 *)(unit + 0xA2) == 1 &&
+        func_001f9ce0(formation, (s16)index) == 0) {
+        u32 queryIndex = (u16)index;
+        if (func_0010f420(*(u16 *)(unit + 0xA4), queryIndex) == 0)
+            return 1;
+    }
+
+    flags = func_0023d6e0((s16)index);
+    if (enabled == 1 && !(flags & 0xE0001)) {
+        if (flags & 2) {
+            if (func_00233a90(*(u8 **)(unit + 0xA64), 0x10) > 0)
+                return 0;
+        } else if (!(flags & 0x40) &&
+                   func_00233a90(*(u8 **)(unit + 0xA64), 0x11) > 0) {
+            return 0;
+        }
+    }
+
+    if (flags & 2) {
+        if (*(u8 *)(unit + 0xA2) == 1) {
+            if (*(u16 *)*(u8 **)(unit + 0xA64) & 0x100)
+                return 0;
+        } else {
+            count = func_0023e130(*(u8 **)(unit + 0xA64));
+            commands = (u16 *)func_0023e140(*(u8 **)(unit + 0xA64));
+            i = 0;
+            limit = count;
+            while (i < limit) {
+                command = commands[i];
+                switch (command) {
+                case 0x1F6:
+                case 0x1F7:
+                case 0x1F8:
+                    return 0;
+                }
+                i++;
+            }
+        }
+    }
+    return !(func_00242800(*(u8 **)(unit + 0xA64), (s16)index) & 0x07000000);
+}
+#pragma opt_propagation on
+#pragma opt_loop_invariants off
+#pragma pop
 // FUN_001DB580
 s32 btlCond_MYNOMAL(u8 *formation, s32 index)
 {
