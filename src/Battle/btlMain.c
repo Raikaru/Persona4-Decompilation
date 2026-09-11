@@ -132,6 +132,7 @@ extern s32 D_00922CC0[];
 extern void func_001ba790(f32* out, f32* first, f32* second, f32 weight);
 extern f32 fGpffff80c0; /* P4 gp -0x7f40 */
 extern f32 fGpffff80c8; /* P4 gp -0x7f38 */
+extern f32 fGpffff81a4; /* P4 gp -0x7e5c */
 
 extern f32 fGpffff8434; /* P4 gp -0x7bcc */
 
@@ -1228,8 +1229,179 @@ void func_001bac20(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
 
 
 
+/* Three poses form four keys: first, two-thirds toward the middle,
+   one-third toward the last, then last. Curve writes precede quaternion
+   reloads, including when an input aliases spline storage.
+   Measured: 984/992B, eight resolved relocations, eight zero-tail bytes. */
 // FUN_001BAFF0
-INCLUDE_ASM("asm/nonmatchings/btlMain", func_001baff0);
+void func_001baff0(u16 *param_1, f32 *param_2, f32 *param_3, f32 *param_4, u16 param_5)
+{
+    u16 index;
+    u16 index0;
+    u16 index1;
+    u32 address;
+    f32 *entry;
+    f32 *source;
+    f32 value1;
+    f32 value2;
+    f32 value3;
+    f32 value4;
+    f32 work[7];
+
+    *param_1 = param_5;
+    param_1[0x3a] = 0;
+    param_1[0x3b] = 0;
+    param_1[0x3c] = 0;
+    *(u32*)((u8*)param_1 + 0x80) = 0;
+    *(u32*)((u8*)param_1 + 0x7c) = 0;
+    if (param_1[0x3b] < 4)
+    {
+        index0 = param_1[0x3c];
+        if (param_2 != ((void*)0))
+        {
+            address = (u32)index0 * 0x1c;
+            address += (u32)param_1;
+            entry = (f32*)(address + 4);
+            value2 = param_2[0];
+            value3 = param_2[1];
+            value1 = param_2[2];
+            entry[0] = value2;
+            entry[1] = value3;
+            entry[2] = value1;
+            if ((*param_1 & 1) == 0)
+            {
+                func_003bb4a0(*(u8 **)((u8*)param_1 + 0x98), index0, param_2);
+            }
+        }
+        source = param_2 + 3;
+        if (source != ((void*)0))
+        {
+            address = (u32)index0 * 0x1c;
+            address += (u32)param_1;
+            entry = (f32*)(address + 0x10);
+            value2 = source[0];
+            value3 = source[1];
+            value4 = source[2];
+            value1 = source[3];
+            entry[0] = value2;
+            entry[1] = value3;
+            entry[2] = value4;
+            entry[3] = value1;
+        }
+        index0++;
+        if (index0 >= 4)
+        {
+            index0 = 0;
+        }
+        param_1[0x3c] = index0;
+        param_1[0x3b]++;
+    }
+
+    func_001ba790(work, param_2, param_3, fGpffff80c8);
+    if (param_1[0x3b] < 4)
+    {
+        index1 = param_1[0x3c];
+        if (work != ((void*)0))
+        {
+            address = (u32)index1 * 0x1c;
+            address += (u32)param_1;
+            entry = (f32*)(address + 4);
+            *(RwV3d*)entry = *(RwV3d*)work;
+            if ((*param_1 & 1) == 0)
+            {
+                func_003bb4a0(*(u8 **)((u8*)param_1 + 0x98), index1, work);
+            }
+        }
+        if (work + 3 != ((void*)0))
+        {
+            address = (u32)index1 * 0x1c;
+            address += (u32)param_1;
+            entry = (f32*)(address + 0x10);
+            *(RwV4d*)entry = *(RwV4d*)(work + 3);
+        }
+        index1++;
+        if (index1 >= 4)
+        {
+            index1 = 0;
+        }
+        param_1[0x3c] = index1;
+        param_1[0x3b]++;
+    }
+
+    func_001ba790(work, param_3, param_4, fGpffff81a4);
+    if (param_1[0x3b] < 4)
+    {
+        index = param_1[0x3c];
+        if (work != ((void*)0))
+        {
+            address = (u32)index * 0x1c;
+            address += (u32)param_1;
+            entry = (f32*)(address + 4);
+            *(RwV3d*)entry = *(RwV3d*)work;
+            if ((*param_1 & 1) == 0)
+            {
+                func_003bb4a0(*(u8 **)((u8*)param_1 + 0x98), index, work);
+            }
+        }
+        if (work + 3 != ((void*)0))
+        {
+            address = (u32)index * 0x1c;
+            address += (u32)param_1;
+            entry = (f32*)(address + 0x10);
+            *(RwV4d*)entry = *(RwV4d*)(work + 3);
+        }
+        index++;
+        if (index >= 4)
+        {
+            index = 0;
+        }
+        param_1[0x3c] = index;
+        param_1[0x3b]++;
+    }
+
+    if (param_1[0x3b] < 4)
+    {
+        index = param_1[0x3c];
+        if (param_4 != ((void*)0))
+        {
+            address = (u32)index * 0x1c;
+            address += (u32)param_1;
+            entry = (f32*)(address + 4);
+            value2 = param_4[0];
+            value3 = param_4[1];
+            value1 = param_4[2];
+            entry[0] = value2;
+            entry[1] = value3;
+            entry[2] = value1;
+            if ((*param_1 & 1) == 0)
+            {
+                func_003bb4a0(*(u8 **)((u8*)param_1 + 0x98), index, param_4);
+            }
+        }
+        source = param_4 + 3;
+        if (source != ((void*)0))
+        {
+            address = (u32)index * 0x1c;
+            address += (u32)param_1;
+            entry = (f32*)(address + 0x10);
+            value2 = source[0];
+            value3 = source[1];
+            value4 = source[2];
+            value1 = source[3];
+            entry[0] = value2;
+            entry[1] = value3;
+            entry[2] = value4;
+            entry[3] = value1;
+        }
+        index++;
+        if (index >= 4)
+        {
+            index = 0;
+        }
+        param_1[0x3c] = index;
+        param_1[0x3b]++;
+    }
+}
 /* Exact: 948B/960B, four resolved spline calls and twelve zero-tail bytes.
    Keep each append's count/index reloads and callback-visible copy order. */
 // FUN_001BB3D0
