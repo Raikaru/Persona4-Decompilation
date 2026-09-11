@@ -10573,3 +10573,51 @@ Final source snapshots, native sources and binaries, SHA-256 hashes,
 compiler comparisons and the complete gate output are archived in the
 private `status_predicate/checkpoint_evidence.json`. All seven standalone
 native proof files were removed; compiler candidates and measurements remain.
+
+## First-party continuation: explicit frame output forwarding
+
+`func_00211f90` now passes its frame buffer explicitly to
+`func_00211650(b, sp30)`. The former local unspecified-argument declaration
+hid the second parameter; retail instead relies on `$5` surviving the call
+to the frame producer at `0x002112C0`.
+
+The producer is now `static`, with its redundant external declaration removed.
+Current source/configuration references and report relocations identify only
+the caller in this owner. The measured compiler lever is internal linkage:
+the honest global-provider control emits **128 bytes**, while the same explicit
+call with an internal provider emits the retail **124/128 bytes**, with four
+zero tail bytes. The producer remains **912/912 bytes**. All **108 owner
+function images and normalized relocation bindings** equal the prior baseline.
+No foreign provider was redeclared as an undefined static function, and no
+parameter erasure or register-dependent C call remains in this wrapper.
+
+Fresh no-libc i386 execution passes **190 frames / 109,756 checks / zero
+failures** through the actual producer, consumer, quad emitter and primitive
+dispatch. The independent state model uses integer rational decay; emitted
+vertices are checked for position, UV, depth, scale and all four color channels.
+Scenarios cover startup fading, trail saturation, animation completion, the
+144-frame wrap, 16-bit counter overflow, preserved high flags, both draw-state
+branches, negative nonzero activation, and both early-return guards. The full
+state, task and work arenas are checked for intended changes or preservation.
+
+The smoke includes the actual task/context/raster getters and render-state
+setup C. Unrecovered SDK state calls and the final hardware draw are capture
+boundaries. The signed and unsigned `D_00887300` views use separate correctly
+typed native capture wrappers with identical 32-bit values; this is not proof
+of that legacy SDK callback ABI. Retail depth constants are supplied without
+running the hardware initializer. SSE single-precision execution is not EE
+FPU emulation or GPU verification. The old wrapper fails compilation against
+the true two-argument consumer declaration; that is the pre-fix reproduction,
+not a before-fix runtime comparison.
+
+The full gate passes **529 tests** and zero lint findings. All **12,720**
+function statuses are unchanged: **6,270 first-party matches / 590 fallbacks**
+and **7,900 total matches / 4,820 fallbacks**. This repairs an existing C match;
+it adds no match or C-linked function. The build remains **173 C objects /
+1,594 C-linked functions**, with loadable-image SHA-1
+`3d1d3d2b9d6ccb60836db239ab49674223025a78` and retail ELF SHA-1
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+The private `frame_forwarding_native/checkpoint_evidence.json` retains the
+source snapshot, compiler comparisons, complete gate log, native source and
+binary with hashes. Compiler and production source differ only in line
+endings. All five standalone native proof files were hash-archived and removed.
