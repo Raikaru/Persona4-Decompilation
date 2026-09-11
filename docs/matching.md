@@ -10102,3 +10102,61 @@ lint reports zero findings across 340 first-party files. The link retains
 loadable-image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and retail
 ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact. SDK and
 vendor totals are unchanged.
+
+## First-party continuation: three-pose camera initialization
+
+`src/Battle/btlMain.c` now recovers `func_001baff0` at **984/992 bytes**,
+with **eight resolved relocations**, zero executable differences and
+eight zero alignment bytes. The second interpolation uses the actual
+`fGpffff81a4` location at `0x00761294`, not an equal-valued neighboring
+constant.
+
+Ghidra and IDA agree on the four seven-float keys: first pose, two-thirds
+from first to middle, one-third from middle to last, and last pose.
+The source retains each append's count/mode/curve reloads and saved write
+index. Position writes occur before the spline provider; quaternion loads
+occur afterward. No active C caller needed migration; the remaining
+generated caller is reference material.
+
+The integrated i386 consumer passes **13 scenarios / 3,301 checks**.
+It executes existing interpolation, spline-point setter, camera evaluation
+and clock bodies with bounded quaternion and spline mathematics recovered
+from Ghidra, IDA and retail constants. The quaternion provider computes the
+real sign-corrected, 40-byte interpolation cache, including angle, integer
+mode and reciprocal-sine scaling. The spline provider constructs the
+four-control inverse matrix through the retail integer recurrence and
+generates the 257-sample cubic blending tables at runtime.
+
+An independent double-precision knot-equation solve, analytic cubic basis
+and trigonometric quaternion reference check the resulting camera
+trajectories. Coverage includes spline and Bezier modes, near-collinear,
+orthogonal and negative-dot quaternions, clock consumption, reinitializing
+a consumed ring, input preservation and guarded storage.
+
+One ordinary scenario supplies a valid seven-float pose inside the spline's
+computed-point storage. The actual point setter and reconstruction change
+that input before the initializer reloads its quaternion and performs its
+first interpolation. This exercises real aliasing, without a fabricated
+callback. Four additional scenarios deliberately inject mutations at the
+provider boundary to check count, index, mode, curve and input reloads;
+those hooks are instrumentation, not claims about ordinary SDK callbacks.
+
+All **13 separately compiled mutations fail**: wrong first/second weight,
+wrong middle pose, cached mode/curve/quaternion/count, omitted
+count/read-index/write-index/time reset, and unscaled or fixed-angle
+quaternion providers. The last two specifically reject the earlier
+inadequate mathematical stubs.
+
+This is native IEEE/SSE2 execution, not PS2 FPU emulation or a PS2 runtime
+claim. Spline coverage is the valid open, four-control, smooth,
+position-only path; unsupported spline modes and tangent output trap.
+Pose inputs are valid seven-float arrays. Invalid null-pointer arithmetic
+is not used as a boundary case. SDK source remains excluded from recovery.
+
+The complete `make build-progress lint-errors test progress progress-validate`
+gate passes: **6,263 first-party matches / 597 assembly fallbacks** and
+**7,893 total matches / 4,827 assembly fallbacks**. All **529 tests pass**;
+lint reports zero findings across 340 first-party files. Link totals
+remain 172 C objects, 56 Sony SDK objects and 1,593 C-linked functions.
+The loadable-image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and
+retail ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
