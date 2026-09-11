@@ -695,8 +695,153 @@ BtlPacket* func_001b99a0(s32 arg)
 
 
 
+typedef struct BtlUnit BtlUnit;
+typedef struct RwRGBA
+{
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+} RwRGBA;
+extern void func_00194f60(BtlUnit* unit, RwRGBA col);
+/* Measured: all 1008 bytes and five relocations match.
+ * Keep the word selector and row base separate: the base load precedes
+ * index arithmetic. Work counters and list links remain callback reloads. */
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_common_subs on
+extern u8 *iGpffffb3b8;
+extern s32 func_001f0ff0(u32 arg0);
 // FUN_001B99F0
-INCLUDE_ASM("asm/nonmatchings/btlMain", func_001b99f0);
+u32 func_001b99f0(void *work)
+{
+    u8 *arg0;
+    u8 *unit;
+    s32 result;
+    s32 i;
+    u8 *node;
+    u8 *primary;
+    u32 total;
+    u32 current;
+    s32 selector;
+    u8 *tableBase;
+    u16 mask1;
+    s32 mask2;
+    s32 j;
+    s32 k;
+    s32 bit;
+    u8 fade;
+    f32 curF;
+    f32 totF;
+    f32 ratio;
+    f32 inv;
+    f32 scaled;
+    RwRGBA col;
+
+    result = 1;
+    arg0 = (u8 *)work;
+    unit = *(u8 **)(arg0 + 0);
+    selector = *(u16 *)(arg0 + 0xc);
+    if ((*(s32 *)(iGpffffb3ac + 0x10) & 8) != 0)
+    {
+        return 1;
+    }
+    tableBase = iGpffffb3b8 + 0x11;
+    if (*(u8 *)(tableBase + (selector & 0xFFFF) * 0x28) == 0x10)
+    {
+        return 1;
+    }
+    if (((s32)*(u16 *)(unit + 0x6a) < 2) && (*(u8 *)(*(u8 **)(unit + 0x30) + 0xa2) != 0))
+    {
+        return 1;
+    }
+    if (func_001f0ff0((u32)unit) != 0)
+    {
+        mask1 = ((1 << *(u8 *)(*(u8 **)(unit + 0x30) + 0xa2)) & 0xFFFF);
+        mask2 = 0;
+    }
+    else
+    {
+        s32 maskIndex;
+        mask1 = 3;
+        mask2 = 0;
+        maskIndex = 0;
+        while ((maskIndex & 0xFFFF) < (s32)*(u16 *)(unit + 0x6a))
+        {
+            mask2 = ((mask2 | ((1 << *(u8 *)(*(u8 **)(*(u8 **)(unit + ((u16)maskIndex * 4) + 0x38) + 0x30) + 0xa2)) & 0xFFFF)) & 0xFFFF);
+            maskIndex = (maskIndex + 1) & 0xFFFF;
+        }
+    }
+    if (*(u8 *)(*(u8 **)(unit + 0x30) + 0xa2) == 0)
+    {
+        j = 1;
+        k = 0;
+        while ((k & 0xFFFF) < (s32)*(u16 *)(unit + 0x6a))
+        {
+            if (*(u8 *)(*(u8 **)(*(u8 **)(unit + ((u16)k * 4) + 0x38) + 0x30) + 0xa2) != 0)
+            {
+                j = 0;
+                break;
+            }
+            k = (k + 1) & 0xFFFF;
+        }
+        if (j != 0)
+        {
+            return 1;
+        }
+    }
+    total = *(u32 *)(arg0 + 4);
+    current = *(u32 *)(arg0 + 8);
+    if (current < total)
+    {
+        curF = (f32)current;
+        totF = (f32)total;
+        ratio = curF / totF;
+        inv = 1.0f - ratio;
+        scaled = 255.0f * inv;
+        fade = (u8)scaled;
+        result = 0;
+    }
+    else
+    {
+        fade = 0;
+    }
+    i = 0;
+    mask1 = mask1 & 0xFFFF;
+    mask2 = mask2 & 0xFFFF;
+    while ((i & 0xFFFF) < 2)
+    {
+        node = *(u8 **)(iGpffffb3ac + ((u16)i) * 8 + 0x178);
+        while (node != 0)
+        {
+            if (*(u16 *)(node + 0x9fe) != 0)
+            {
+                bit = ((1 << *(u8 *)(node + 0xa2)) & 0xFFFF);
+                if (((mask1 & bit) != 0) && ((*(s32 *)(node + 0x9c) & 1) == 0))
+                {
+                    col.red = *(u8 *)(node + 0x30);
+                    col.green = *(u8 *)(node + 0x31);
+                    col.blue = *(u8 *)(node + 0x32);
+                    primary = *(u8 **)(unit + 0x30);
+                    if ((node != primary) && ((mask2 & bit) == 0))
+                    {
+                        col.alpha = fade;
+                    }
+                    else
+                    {
+                        col.alpha = 0xff;
+                    }
+                    func_00194f60((BtlUnit *)node, col);
+                }
+            }
+            node = *(u8 **)(node + 0xa6c);
+        }
+        i = (i + 1) & 0xFFFF;
+    }
+    *(u32 *)(arg0 + 8) = *(u32 *)(arg0 + 8) + 1;
+    return result;
+}
+#pragma pop
 // FUN_001B9DE0
 void func_001b9de0(s32 arg1, s16 arg2, s32 arg3)
 {
@@ -714,15 +859,6 @@ void func_001b9de0(s32 arg1, s16 arg2, s32 arg3)
 
 
 
-typedef struct BtlUnit BtlUnit;
-typedef struct RwRGBA
-{
-    u8 red;
-    u8 green;
-    u8 blue;
-    u8 alpha;
-} RwRGBA;
-extern void func_00194f60(BtlUnit* unit, RwRGBA col);
 // FUN_001B9E50
 u32 func_001b9e50(void* work)
 {
