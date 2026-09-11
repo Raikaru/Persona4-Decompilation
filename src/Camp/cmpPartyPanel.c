@@ -20,7 +20,7 @@ void func_0034f460(s32 resource, s32 slot, f32 x, f32 y,
 u32 func_00104ce0(s16 arg0);
 u16 func_00104dc0(s16 arg0);
 u32 func_00104d50(s16 arg0);
-u32 func_00104e30(s16 arg0);
+u16 func_00104e30(s16 arg0);
 u8* func_00457120(void);
 s16 func_00353b50(s16* dst);
 s32 func_0046aea0(void* arg0);

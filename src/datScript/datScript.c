@@ -30,7 +30,6 @@ extern u8* DAT_007644F4;    /* parameter table (s16 entries) */
 s32 func_00231e20(u16* unit);
 s32 func_00231ed0(u16* unit);
 s32 func_00231f80(u16* unit);
-s32 func_00232290(u16* unit);
 s32 func_00232c70(u16* unit, u32 param);
 s32 func_0023a6b0(u16* unit, s16 param);
 s32 func_0023d740(s16 cmd, s32 param);
