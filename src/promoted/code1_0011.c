@@ -622,7 +622,7 @@ void func_001113b0(void)
     u8 *p;
     u8 *q;
     u16 func_00104dc0(s16);
-    u32 func_00104e30(s16);
+    u16 func_00104e30(s16);
     void func_001051a0(s16, s16, s16);
     void func_001055a0(s16);
     void func_00105690(s16, u8);

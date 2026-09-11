@@ -10039,3 +10039,66 @@ C-linked functions**; these individual source matches do not imply that their
 whole translation units became eligible for C linkage. Both identities pass:
 loadable image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and retail
 ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## First-party continuation: battle setup and stat contracts
+
+`src/promoted/code1_001b.c` now recovers `func_001b5970` at
+**952/960 bytes**, with **40 resolved relocations**, no executable
+differences and eight zero alignment bytes. Ghidra and IDA bodies were
+checked against retail instructions for the Persona selector, restoration
+precedence, unsigned character counter and callback-visible reloads.
+
+Full restoration takes precedence over the eight-percent skill; Persona
+HP/SP bonuses then add five percent using signed integer division after
+the unsigned-halfword masks. Dead units are excluded from that first
+restoration pass. Cleanup subsequently clears both packed modifier arrays,
+conditionally resets characters 1 through 10, and initializes action state
+`0x24` only for actions not already in that state. The final leader path
+restores one HP and clears only the death bit. Task cleanup can change the
+battle context: the following unit list and final task are reloaded.
+
+The recovery uses concrete provider contracts rather than widening
+halfword stat declarations to obtain a match. Maximum SP now has the same
+unsigned-halfword return contract as maximum HP, through the calculator
+and character wrapper. The clamp assigns that result directly to its
+halfword local. All active wrapper/getter declarations were migrated; one
+unused script declaration was removed. Generated decompiler exports remain
+reference material, not active callers.
+
+| Contract repair | Code/window | Resolved relocations |
+| --- | ---: | ---: |
+| `func_00232290` maximum SP | 784/784 | 20 |
+| `func_00104e30` character maximum-SP wrapper | 108/112 | 6 |
+| `func_00105780` HP/SP clamp | 528/528 | 32 |
+| `func_002038c0` task cleanup input | 112/112 | 3 |
+
+Each entry remains instruction-exact; the wrapper's four omitted bytes
+are zero alignment. Cleanup now explicitly forwards its incoming task to
+the work accessor. Its current-source i386 reproduction previously exited
+with signal 11 and now passes distinct-work, callback-unlink, stable-work,
+Persona-shutdown and bytewise/canary checks.
+
+The setup's integrated i386 consumer passes **10 scenarios / 706 checks**.
+It grafts 19 existing provider bodies, including stat calculations,
+setters, modifier clearing and task cleanup/destruction. Coverage includes
+restoration precedence, selector-specific bonuses, null/dead units,
+state-24 reinitialization avoidance, real cleanup-list callbacks that
+replace the battle context, packet flags, final revival, deferred task
+lifetime, and unsigned stat values above 32767. Nine separately compiled
+mutations fail: priority, Persona selection, percentage, reset bound,
+cached unit list, repeated state init, death mask, cached task and omitted
+modifier reset.
+
+These are native executions with controlled game-data and external
+providers, not PS2 runtime verification. Task destruction coverage is
+restricted to pinned and unpinned leaf tasks; other scheduler paths are
+not claimed.
+
+The complete `make build-progress lint-errors test progress progress-validate`
+gate passes: **6,262 first-party matches / 598 assembly fallbacks** and
+**7,892 total matches / 4,828 assembly fallbacks**. All **529 tests pass**;
+lint reports zero findings across 340 first-party files. The link retains
+172 C objects, 56 Sony SDK objects and 1,593 C-linked functions. Both the
+loadable-image SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and retail
+ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact. SDK and
+vendor totals are unchanged.
