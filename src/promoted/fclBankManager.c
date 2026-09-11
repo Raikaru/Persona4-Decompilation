@@ -239,10 +239,92 @@ s32 func_002e12e0(s16 *arg0)
 }
 #pragma opt_loop_invariants off
 
-/* measured: no real C body was produced for this 1088B retail window; no
-   candidate nd was retained. */
+/* Measured: explicit idle case retains the six-entry switch table, while
+   propagation off keeps the fade ratio across position getters. Direct
+   float-to-u8 conversion retains both retail conversion branches. */
+#pragma opt_propagation off
 // FUN_002E13B0
-INCLUDE_ASM("asm/nonmatchings/fclBankManager", func_002e13b0);
+void func_002e13b0(void)
+{
+    extern u8 *func_00104880(s64 bank);
+    extern void func_00104770(s64 bank, u8 alpha);
+    extern void func_00104830(s64 bank);
+    s16 *slot;
+    s32 i;
+    s32 fadeTicks;
+    s32 ticks;
+    s32 x;
+    f32 ratio;
+
+    slot = (s16 *)(*(u8 **)(iGpffffb588 + 0x24) + 4);
+    for (i = 0; i < 2; slot += 10, i++) {
+        if (slot[0] & 1) {
+            switch ((u16)slot[1]) {
+            case 0:
+                break;
+            case 1:
+                slot[1] = 2;
+                slot[0] |= 8;
+                slot[0] |= 16;
+                slot[0] &= ~4;
+                slot[8] = 0;
+                /* fallthrough */
+            case 2:
+                slot[8]++;
+                if (slot[0] & 0x20) {
+                    ticks = slot[8];
+                    if (slot[0] & 0x100) x = -126;
+                    else x = 280;
+                } else if (slot[0] & 0x100) {
+                    ticks = slot[8];
+                    x = (s32)((f32)(ticks * 32) / 5.0f + -158.0f);
+                } else {
+                    ticks = slot[8];
+                    x = (s32)((1.0f - (f32)ticks / 5.0f) * 32.0f + 280.0f);
+                }
+                ratio = (f32)ticks / 5.0f;
+                *(f32 *)func_00104880(slot[4]) = (f32)x;
+                *(f32 *)(func_00104880(slot[4]) + 4) = 91.0f;
+                func_00104770(slot[4], (u8)(ratio * 255.0f));
+                func_00104830(slot[4]);
+                if (slot[8] >= 5) {
+                    slot[8] = 0;
+                    slot[0] |= 4;
+                    slot[0] &= ~16;
+                    slot[1] = 3;
+                }
+                break;
+            case 3:
+                func_00104830(slot[4]);
+                break;
+            case 4:
+                slot[1] = 5;
+                slot[0] |= 16;
+                slot[0] &= ~4;
+                slot[8] = 0;
+                /* fallthrough */
+            case 5:
+                slot[8]++;
+                if (slot[0] & 0x40) {
+                    fadeTicks = slot[8] - 4;
+                    if (fadeTicks < 0) fadeTicks = 0;
+                } else fadeTicks = slot[8];
+                func_00104770(slot[4], (u8)(255.0f - ((f32)(s32)fadeTicks * 255.0f) / 5.0f));
+                func_00104830(slot[4]);
+                if (fadeTicks >= 5) {
+                    slot[8] = 0;
+                    slot[0] &= ~0x40;
+                    slot[0] &= ~8;
+                    slot[0] |= 4;
+                    slot[0] &= ~16;
+                    slot[1] = 0;
+                }
+                break;
+            }
+        }
+    }
+}
+#pragma opt_propagation on
 
 /* measured: no real C body was produced for this 1248B retail window; no
    candidate nd was retained. */

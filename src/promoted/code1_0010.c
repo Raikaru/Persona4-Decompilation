@@ -963,8 +963,8 @@ void func_00104510(s16 arg0, s16 arg1, s16 arg2, s16 arg3)
         *(s32 *)(D_00796A60 + offset) = 0x3e;
 }
 // FUN_00104770
-void func_00104770(s64 arg0, s8 arg1) {
-    *(s8 *)(D_0079671F + (((s16)arg0) * 0x370)) = arg1;
+void func_00104770(s64 arg0, u8 arg1) {
+    *(u8 *)(D_0079671F + (((s16)arg0) * 0x370)) = arg1;
 }
 // FUN_001047B0
 void func_001047b0(s64 arg0, s32 arg1) {
