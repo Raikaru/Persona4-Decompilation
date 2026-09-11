@@ -57,8 +57,8 @@ extern u8 *func_00105510(s32 arg0);
 extern u8 func_00232c70(u8 *arg0, s32 arg1);
 /* Defined below in this file; used before its definition. */
 extern u16 func_002439c0(u8 *arg0);
-extern u32 func_00106cd0(s16 arg0, s32 arg1);
-extern u32 func_001069d0(u32 arg0);
+extern s16 func_00106cd0(s16 arg0, s16 arg1);
+extern u16 func_001069d0(s16 arg0);
 extern s32 func_00106a30(s16 arg0);
 extern u32 func_001069a0(s16 arg0);
 
@@ -362,7 +362,7 @@ s32 func_00232730(u8 *arg0, s32 arg1)
         var_5 = (var_5 + 1) & 0xFFFF;
     }
     if (!(*(u16 *)arg0 & 4)) {
-        result = (s32)((u32)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+        result = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
         if (result >= 0) {
             if (temp_16 == func_001069a0((s16)result)) {
                 return 1;
@@ -1878,34 +1878,137 @@ s32 func_0023d8e0(u8 *arg0, s32 arg1)
         if (*(u16 *)arg0 & 4) {
             v = iGpffffb3c4[*(u16 *)(arg0 + 2) * 0x3C + 0x38];
         } else {
-            v = (s16)func_00106a30((s16)(func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF));
+            v = (s16)func_00106a30((s16)((u16)func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF));
         }
     } else {
         v = (s8)iGpffffb3b4[(arg1 & 0xFFFF) * 2];
     }
     return v;
 }
-/* measured 2026-08-03: full C body rebuilt from retail; frame -0x50,
-   saved regs s0=temp_16/s1=var_17/s2=arg1/s3=arg0, switch dispatch,
-   error calls, found-tail (srl + clamp to 1), case-2 lhu read and
-   if/else polarity all match. Best nd 132: mwcc b210 CSEs the
-   (u16)arg1 mask across the error call into s1 no matter the spelling
-   ((u16)arg1, (s32)(u16)arg1, (u16)(arg1 & 0xFFFF) all fold/CSE) while
-   retail re-masks fresh at every site (test, temp_16, case-1 chain,
-   case-2 else, case-2 mult = five separate andis); a 3rd distinct
-   spelling (u32)arg1 % 0x10000U bloats the object 24B. Also: the loop
-   compare constant 0x20B/0x20A is hoisted pre-loop into $a0 by retail
-   but materialized per-iteration by b210 (== form booleanizes to
-   xori/sltiu; != continue and goto-inc forms give nd 183-185), and
-   var_17 must be u32 for the srl shift while the /100 division stays
-   signed (s32 temps).
-   Wave 14: 5 gp-relative base loads (multi-use: base pointer reused across
-   the case-2 chain) — opt_propagation-off + index-first helper combo not
-   applicable (would CSE the per-site re-derives); m2c draft signature
-   (u32 func_0023d9b0(u8*, s32)) matches the extern exactly (no lever-1
-   defect). Corroborated mask-CSE floor. */
+/* measured: 992B / 992B, 24 resolved relocations, no instruction differences.
+   The ordered optimizer scopes and materialized offsets/loop operands retain
+   the fresh 16-bit masks and retail register ordering. The equipment guard
+   tests a zero-extended value; percentage products wrap to 32 bits before
+   signed division, while cost reduction remains an unsigned shift. */
 // FUN_0023D9B0
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023d9b0);
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
+u32 func_0023d9b0(u8 *arg0, s32 arg1)
+{
+    s32 offset;
+    u32 result;
+    u16 count;
+    u16 index;
+    u16 maximum;
+    u8 *table;
+    s32 product;
+    s32 equipment;
+    s32 hit;
+    s32 entry;
+    s32 reduction;
+    s32 limit;
+    u32 field_offset;
+
+    if ((s32)(u16)arg1 >= 0x1B8) {
+        func_0046d730(D_00635938, 0xEB4);
+    }
+    result = 0;
+    offset = (u16)arg1 * 0x28;
+    switch (*(u8 *)(offset + (u32)iGpffffb3b8 + 3)) {
+    case 1:
+        if (*(u16 *)arg0 & 4) {
+            if (*(u16 *)(arg0 + 2) >= 0x150) {
+                func_0046d730(D_00635938, 0xEBE);
+            }
+            return 0;
+        }
+        maximum = func_00231f80((DatUnit *)arg0);
+        field_offset = (u16)arg1 * 0x28;
+        table = (u8 *)(field_offset + (u32)iGpffffb3b8);
+        product = (s32)((u32)maximum * *(u16 *)(table + 4));
+        result = product / 100 + *(u16 *)(table + 6);
+        count = (u16)func_0023e130(arg0);
+        table = func_0023e140(arg0);
+        index = 0;
+        limit = count;
+        reduction = 0x20B;
+        while (index < limit) {
+            entry = *(u16 *)(table + index * 2);
+            if (entry == reduction) {
+                hit = 1;
+                goto hp_reduction;
+            }
+            index++;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            equipment = (u16)func_00106cd0(*(s16 *)(arg0 + 2), 2);
+            if (equipment >= 0) {
+                if (func_001069a0((s16)equipment) == 0x20B) {
+                    hit = 1;
+                    goto hp_reduction;
+                }
+            }
+        }
+        hit = 0;
+    hp_reduction:
+        if (hit != 0) result >>= 1;
+        if (result == 0) result = 1;
+        break;
+    case 2:
+        if (*(u16 *)arg0 & 4) {
+            if (*(u16 *)(arg0 + 2) >= 0x150) {
+                func_0046d730(D_00635938, 0xED7);
+            }
+            if (*(u16 *)(iGpffffb3c4 + *(u16 *)(arg0 + 2) * 0x3C) & 2) {
+                return 0;
+            }
+        }
+        table = iGpffffb3b8;
+        if ((*(u8 *)(table + offset) & 0x10) == 0) {
+            field_offset = (u16)arg1 * 0x28;
+            table = (u8 *)(field_offset + (u32)table);
+            result = *(u16 *)(table + 4) + *(u16 *)(table + 6);
+        } else {
+            maximum = func_00232290((DatUnit *)arg0);
+            field_offset = (u16)arg1 * 0x28;
+            table = (u8 *)(field_offset + (u32)iGpffffb3b8);
+            product = (s32)((u32)maximum * *(u16 *)(table + 4));
+            result = product / 100 + *(u16 *)(table + 6);
+        }
+        if (result == 0) break;
+        count = (u16)func_0023e130(arg0);
+        table = func_0023e140(arg0);
+        index = 0;
+        limit = count;
+        reduction = 0x20A;
+        while (index < limit) {
+            entry = *(u16 *)(table + index * 2);
+            if (entry == reduction) {
+                hit = 1;
+                goto sp_reduction;
+            }
+            index++;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            equipment = (u16)func_00106cd0(*(s16 *)(arg0 + 2), 2);
+            if (equipment >= 0) {
+                if (func_001069a0((s16)equipment) == 0x20A) {
+                    hit = 1;
+                    goto sp_reduction;
+                }
+            }
+        }
+        hit = 0;
+    sp_reduction:
+        if (hit != 0) result >>= 1;
+        if (result == 0) result = 1;
+        break;
+    }
+    return result;
+}
+#pragma pop
 // FUN_0023DD90
 u8 func_0023dd90(u8 *arg0, s32 arg1)
 {
@@ -2064,7 +2167,7 @@ u16 func_0023e270(u8 *arg0)
     if (*(u16 *)(arg0 + 2) >= 0xB) {
         func_0046d730(D_00635938, 0xFCE);
     }
-    return func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF;
+    return (u16)func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF;
 }
 
 // FUN_0023E2F0
@@ -2130,7 +2233,7 @@ u16 func_0023e3e0(u16 *arg0, s32 arg1)
         if (field1 >= 0xB) {
             func_0046d730(D_00635938, 0x1011);
         }
-        r = func_00106cd0((s16)field1, 0) & 0xFFFF;
+        r = (u16)func_00106cd0((s16)field1, 0) & 0xFFFF;
         switch (arg1 & 0xFF) {
         case 0:
             return func_001068b0((s16)r);
@@ -2171,7 +2274,7 @@ s32 func_0023e5b0(u8 *arg0, s32 arg1)
         if ((s32)id >= 0xB) {
             func_0046d730(D_00635938, 0x103D);
         }
-        v = func_00106cd0((s16)id, 1) & 0xFFFF;
+        v = (u16)func_00106cd0((s16)id, 1) & 0xFFFF;
         temp_3 = arg1 & 0xFF;
         switch (temp_3) {
         case 0:
@@ -2272,7 +2375,7 @@ s32 arg4;
             partyPtr = (u8 *)(partyOffset + (s32)iGpffffb3c4);
             value = (s16)partyPtr[0x38];
         } else {
-            value = (s16)func_00106a30((s16)(func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF));
+            value = (s16)func_00106a30((s16)((u16)func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF));
         }
     } else {
         value = *(s8 *)(iGpffffb3b4 + (u32)(u16)arg2 * 2);
@@ -2512,7 +2615,7 @@ s32 func_00242360(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
                 }
                 var_5 = (var_5 + 1) & 0xFFFF;
             }
-            if (!(*(u16 *)arg0 & 4) && (temp_2_2 = func_00106cd0((s16)*(u16 *)(arg0 + 2), 2) & 0xFFFF, (s32)temp_2_2 >= 0) &&
+            if (!(*(u16 *)arg0 & 4) && (temp_2_2 = (u16)func_00106cd0((s16)*(u16 *)(arg0 + 2), 2) & 0xFFFF, (s32)temp_2_2 >= 0) &&
                 (func_001069a0((s16)temp_2_2) == 0x21C)) {
                 var_2_2 = 1;
             } else {
