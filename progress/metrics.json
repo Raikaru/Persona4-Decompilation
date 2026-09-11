@@ -6917,6 +6917,7 @@
         "00103440",
         "00103480",
         "001034b0",
+        "001059e0",
         "00110470",
         "001117c0",
         "001118a0",
@@ -8633,10 +8634,10 @@
         "004bd3c0",
         "004bd450"
       ],
-      "linked_code_bytes": 1026400,
-      "linked_code_percent": 32.695,
-      "linked_count": 1767,
-      "linked_percent": 25.758,
+      "linked_code_bytes": 1026512,
+      "linked_code_percent": 32.699,
+      "linked_count": 1768,
+      "linked_percent": 25.773,
       "matching_addresses": [
         "00100218",
         "00100220",
@@ -23427,6 +23428,7 @@
       "00103440",
       "00103480",
       "001034b0",
+      "001059e0",
       "00110470",
       "001117c0",
       "001118a0",
@@ -24970,8 +24972,8 @@
       "004bd450"
     ],
     "asm_fallbacks_in_linked_objects": 215,
-    "count": 1593,
-    "percent": 12.158
+    "count": 1594,
+    "percent": 12.166
   },
   "matching": {
     "addresses": [
