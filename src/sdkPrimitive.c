@@ -32,7 +32,7 @@ extern void func_0045dd30(PrimVertex *out, const PrimByte4 *colors, const PrimFl
 extern void func_003f6440(s32 param, s32 value);
 extern void (*D_00887300[])();
 extern void (*D_00887304[])();
-extern void (*D_00887310[])(s32 primType, void *verts, s32 numVerts);
+extern s32 (*D_00887310[])(s32 primType, void *verts, s32 numVerts);
 extern struct {
     s32 state;
     s32 val;

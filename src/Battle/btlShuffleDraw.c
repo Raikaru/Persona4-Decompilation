@@ -109,7 +109,7 @@ extern void func_00364c50(void);
 extern void func_00364c70(void);
 extern f32 D_008872F8[];
 extern void (*D_00887300[])(u32, u32);
-extern void (*D_00887310[])(s32, void *, s32);
+extern s32 (*D_00887310[])(s32, void *, s32);
 extern ShuffleQuaternion *func_003dc740(ShuffleQuaternion *dst,
                                        const ShuffleVec3 *axis,
                                        f32 angle, s32 combine);

@@ -719,7 +719,7 @@ void func_004623a0(u8 *arg0)
     extern void func_004818a0(void *);
     extern void func_004818c0(void *);
     extern void func_00475cd0(void *);
-    extern void (*D_00887310[])(s32, void *, s32);
+    extern s32 (*D_00887310[])(s32, void *, s32);
     extern void (*D_00887314[])(s32, void *, s32, void *, s32);
     extern void (*D_00887308[])(s32, s32, s32, s32);
     extern void (*D_0088730C[])(s32, s32, s32, s32, s32);

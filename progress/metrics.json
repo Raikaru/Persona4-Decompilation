@@ -11488,6 +11488,7 @@
         "0021b310",
         "0021b330",
         "0021b500",
+        "0021b630",
         "0021bbb0",
         "0021be10",
         "0021be60",
@@ -11507,6 +11508,7 @@
         "0021de60",
         "0021de90",
         "0021e050",
+        "0021e110",
         "0021e9a0",
         "0021eb60",
         "0021ec40",
@@ -14908,8 +14910,8 @@
         "004bd450",
         "004bd4a0"
       ],
-      "matching_count": 6268,
-      "matching_percent": 91.37,
+      "matching_count": 6270,
+      "matching_percent": 91.399,
       "total": 6860,
       "total_code_bytes": 3139296
     },
@@ -27826,6 +27828,7 @@
       "0021b310",
       "0021b330",
       "0021b500",
+      "0021b630",
       "0021bbb0",
       "0021be10",
       "0021be60",
@@ -27845,6 +27848,7 @@
       "0021de60",
       "0021de90",
       "0021e050",
+      "0021e110",
       "0021e9a0",
       "0021eb60",
       "0021ec40",
@@ -32876,11 +32880,11 @@
       "0052d970",
       "0052d980"
     ],
-    "count": 7898,
+    "count": 7900,
     "duplicate_rows": 0,
     "known_rows": 12720,
-    "matched_body_bytes": 1620680,
-    "percent": 60.281,
+    "matched_body_bytes": 1624268,
+    "percent": 60.296,
     "unique_known_addresses": 12720
   },
   "schema_version": 1,
@@ -32891,8 +32895,8 @@
     "verifier_report": "build/verify_report.json"
   },
   "status_counts": {
-    "ASM": 4822,
-    "MATCH": 7898
+    "ASM": 4820,
+    "MATCH": 7900
   },
   "total": 13102
 }

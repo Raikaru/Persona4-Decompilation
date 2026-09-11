@@ -5,6 +5,7 @@
 #include "btl_panel_internal.h"
 
 typedef struct KwlnTask KwlnTask;
+typedef struct PersonaWork PersonaWork;
 
 extern s32 iGpffffa598;
 extern u8 *iGpffffb3ac;
@@ -38,7 +39,7 @@ extern s32 func_00212180(s32);
 extern void func_00216c40(s32, s32);
 extern void func_001f7620(s16 channel, s32 fadeFrames);
 extern void func_00454bd0(u8 *arg0);
-extern s32 func_00106330(s32 arg0);
+extern u32 func_00106330(s32 arg0);
 extern s32 func_00243ce0(u8 *arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_006290C0[];
@@ -56,7 +57,7 @@ extern u8 D_00796340[];
 extern s32 func_0046a750(s32 arg0);
 extern s32 func_0021d4a0(s32 arg0);
 extern u8 *iGpffffb3c4;
-extern void func_0043f9c8(void *dst, s32 value, u32 size);
+extern void *func_0043f9c8(void *dst, s32 value, u32 size);
 extern s32 func_0046aea0(void *arg0);
 extern u8 D_00626C30[];
 extern u8 D_00626CA0[];
@@ -78,12 +79,12 @@ extern s32 func_00451de0(const void *data, s32 arg1, s32 arg2, s32 arg3,
                          void *init, void *close, void *buf);
 extern void func_0021dc50(s32 arg0, s32 *arg1);
 extern void func_0021dd60(void);
-extern u8 *func_0010ace0(s64 arg0);
-extern s32 func_0010b6f0(void);
+extern u16 *func_0010ace0(s16 arg0);
+extern u16 func_0010b6f0(void);
 extern void func_0010c980(u8 *arg0, s32 arg1);
-extern s32 func_0010c6f0(u8 *arg0);
+extern s32 func_0010c6f0(PersonaWork *arg0);
 extern void func_0010c5a0(u8 *arg0, u8 *arg1);
-extern u8 *func_0010a900(u16 arg0);
+extern u16 *func_0010a900(s32 arg0);
 extern void func_00201720(void *arg0, f32 arg1, f32 arg2);
 extern void func_00201300(s32 *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4);
 extern void func_002016e0(u8 *arg0, s16 arg1, s16 arg2, f32 arg3);
@@ -218,19 +219,23 @@ void func_002112c0(u8 *state, u8 *output)
     }
 }
 #pragma pop
+union ColorWord {
+    s32 word;
+    f32 value;
+    u8 bytes[4];
+};
+
 // FUN_00211650
 void func_00211650(u8 *arg0, u8 *arg1)
 {
     extern void (*D_00887300[])(s32 arg0, s32 arg1);
     extern void func_00201820(s32 arg0);
     extern s32 func_0021be60(void);
-    extern void func_0021b630(f32 f0, f32 f1, f32 f2, f32 f3, f32 f4,
-                              f32 f5, f32 f6, f32 f7, s32 arg0, f32 f8);
+    extern void func_0021b630(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
+                              f32 fparg4, f32 fparg5, f32 fparg6, f32 fparg7,
+                              f32 fparg8, union ColorWord arg0);
     extern f32 fGpffff84a0;
-    struct FnFrame {
-        u8 color[4];
-    } frame;
-    s32 color;
+    union ColorWord frame;
     f32 temp_f22;
     f32 temp_f21;
     f32 temp_f20;
@@ -239,40 +244,39 @@ void func_00211650(u8 *arg0, u8 *arg1)
 
     D_00887300[0](1, func_0021be60());
     func_00201820(2);
-    frame.color[0] = 0x52;
-    frame.color[1] = 0xF3;
-    frame.color[2] = 0;
+    frame.bytes[0] = 0x52;
+    frame.bytes[1] = 0xF3;
+    frame.bytes[2] = 0;
     temp_16 = *(s32 *)(arg1 + 4);
     for (var_17 = 0; var_17 < temp_16; var_17++) {
-        frame.color[3] = (s8)*(u16 *)(arg1 + 8 + (var_17 << 1));
-        color = *(s32 *)frame.color;
+        frame.bytes[3] = (s8)*(u16 *)(arg1 + 8 + (var_17 << 1));
         func_0021b630(21.0f + (f32)(var_17 * 0x14),
                       386.0f, 0.0f, 22.0f, 22.0f,
-                      114.0f, 197.0f, 136.0f, color, 219.0f);
+                      114.0f, 197.0f, 136.0f, 219.0f, frame);
     }
     temp_f22 = *(f32 *)arg1;
     if (!(temp_f22 <= 0.0f)) {
-        frame.color[0] = 0x52;
-        frame.color[1] = 0xF3;
-        frame.color[2] = 0;
-        frame.color[3] = 0xFF;
+        frame.bytes[0] = 0x52;
+        frame.bytes[1] = 0xF3;
+        frame.bytes[2] = 0;
+        frame.bytes[3] = 0xFF;
         temp_f21 = 21.0f * temp_f22;
         temp_f20 = ws14_mul(temp_f22, -10.5f);
         temp_f20 = ws14_add(fGpffff84a0, temp_f20);
         func_0021b630(14.0f, temp_f20, 0.0f, 12.0f, temp_f21,
-                      37.0f, 218.0f, 49.0f, *(s32 *)frame.color, 239.0f);
+                      37.0f, 218.0f, 49.0f, 239.0f, frame);
         func_0021b630(26.0f, temp_f20, 0.0f, 112.0f, temp_f21,
-                      49.0f, 218.0f, 49.0f, *(s32 *)frame.color, 239.0f);
+                      49.0f, 218.0f, 49.0f, 239.0f, frame);
         func_0021b630(138.0f, temp_f20, 0.0f, 12.0f, temp_f21,
-                      49.0f, 218.0f, 37.0f, *(s32 *)frame.color, 239.0f);
+                      49.0f, 218.0f, 37.0f, 239.0f, frame);
         func_00201820(0);
-        frame.color[0] = 0xD;
-        frame.color[1] = 0x1B;
-        frame.color[2] = 0;
-        frame.color[3] = 0xFF;
+        frame.bytes[0] = 0xD;
+        frame.bytes[1] = 0x1B;
+        frame.bytes[2] = 0;
+        frame.bytes[3] = 0xFF;
         func_0021b630(24.0f, fGpffff84a0 + ws14_mul(temp_f22, -9.5f),
                       0.0f, 116.0f, 19.0f * temp_f22, 136.0f,
-                      235.0f, 252.0f, *(s32 *)frame.color, 254.0f);
+                      235.0f, 252.0f, 254.0f, frame);
         return;
     }
     func_00201820(0);
@@ -1647,8 +1651,95 @@ void func_0021b500(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1,
     *(f32 *)(arg0 + 0x14) = fparg4;
     *(f32 *)(arg0 + 0x18) = fparg5;
 }
+typedef struct {
+    f32 x, y, z;
+    f32 padding0;
+    f32 u, v;
+    f32 scale;
+    f32 padding1;
+    f32 color[4];
+    u32 padding2[4];
+} PanelQuad;
+
+/* One four-vertex strip. The union preserves the packed RGBA bits through
+ * the retail float-local spill; channel values are stored as floats.
+ * Nine float formals precede the color union to preserve caller scheduling. */
 // FUN_0021B630
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021b630);
+void func_0021b630(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
+                   f32 fparg4, f32 fparg5, f32 fparg6, f32 fparg7,
+                   f32 fparg8, union ColorWord arg0)
+{
+    extern f32 D_008872F8[];
+    extern s32 (*D_00887310[])(s32, void *, s32);
+    extern s32 func_00457120(void);
+    f32 color;
+    PanelQuad quads[4];
+    union {
+        s32 word;
+        f32 value;
+        u8 bytes[4];
+    } spC, sp8, sp4, sp0;
+    u8 *p;
+    f32 zval;
+    f32 scale;
+
+    zval = D_008872F8[0] - fparg2;
+    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    fparg5 = fparg5 / 256.0f;
+    fparg6 = fparg6 / 256.0f;
+    fparg7 = fparg7 / 256.0f;
+    fparg8 = fparg8 / 256.0f;
+    color = arg0.value;
+    spC.value = color;
+    p = (u8 *)&quads[0];
+    *(f32 *)(p + 0) = fparg0;
+    *(f32 *)(p + 4) = fparg1;
+    *(f32 *)(p + 8) = zval;
+    *(f32 *)(p + 0x20) = (f32)(u32)spC.bytes[0];
+    *(f32 *)(p + 0x24) = (f32)(u32)spC.bytes[1];
+    *(f32 *)(p + 0x28) = (f32)(u32)spC.bytes[2];
+    *(f32 *)(p + 0x2C) = (f32)(u32)spC.bytes[3];
+    *(f32 *)(p + 0x10) = fparg5;
+    *(f32 *)(p + 0x14) = fparg6;
+    *(f32 *)(p + 0x18) = scale;
+    sp8.value = color;
+    p = (u8 *)&quads[1];
+    *(f32 *)(p + 0) = fparg0 + fparg3;
+    *(f32 *)(p + 4) = fparg1;
+    *(f32 *)(p + 8) = zval;
+    *(f32 *)(p + 0x20) = (f32)(u32)sp8.bytes[0];
+    *(f32 *)(p + 0x24) = (f32)(u32)sp8.bytes[1];
+    *(f32 *)(p + 0x28) = (f32)(u32)sp8.bytes[2];
+    *(f32 *)(p + 0x2C) = (f32)(u32)sp8.bytes[3];
+    *(f32 *)(p + 0x10) = fparg7;
+    *(f32 *)(p + 0x14) = fparg6;
+    *(f32 *)(p + 0x18) = scale;
+    sp4.value = color;
+    p = (u8 *)&quads[2];
+    *(f32 *)(p + 0) = fparg0;
+    *(f32 *)(p + 4) = fparg1 + fparg4;
+    *(f32 *)(p + 8) = zval;
+    *(f32 *)(p + 0x20) = (f32)(u32)sp4.bytes[0];
+    *(f32 *)(p + 0x24) = (f32)(u32)sp4.bytes[1];
+    *(f32 *)(p + 0x28) = (f32)(u32)sp4.bytes[2];
+    *(f32 *)(p + 0x2C) = (f32)(u32)sp4.bytes[3];
+    *(f32 *)(p + 0x10) = fparg5;
+    *(f32 *)(p + 0x14) = fparg8;
+    *(f32 *)(p + 0x18) = scale;
+    sp0.value = color;
+    p = (u8 *)&quads[3];
+    *(f32 *)(p + 0) = fparg0 + fparg3;
+    *(f32 *)(p + 4) = fparg1 + fparg4;
+    *(f32 *)(p + 8) = zval;
+    *(f32 *)(p + 0x20) = (f32)(u32)sp0.bytes[0];
+    *(f32 *)(p + 0x24) = (f32)(u32)sp0.bytes[1];
+    *(f32 *)(p + 0x28) = (f32)(u32)sp0.bytes[2];
+    *(f32 *)(p + 0x2C) = (f32)(u32)sp0.bytes[3];
+    *(f32 *)(p + 0x10) = fparg7;
+    *(f32 *)(p + 0x14) = fparg8;
+    *(f32 *)(p + 0x18) = scale;
+    D_00887310[0](4, &quads[0], 4);
+}
 // FUN_0021BBB0
 void func_0021bbb0(s32 arg0, u16 arg1)
 {
@@ -2123,8 +2214,184 @@ s32 func_0021e050(u8 *arg0)
     }
     return value;
 }
+extern s32 func_00104c70(s32 arg0);
+extern u8 datPersonaGetLevel(int persona);
+extern u32 datPersonaGetNextExp(int persona);
+extern u16 *datPersonaGetSkills(int persona);
+extern u16 func_001069d0(s16 arg0);
+extern s16 func_00106cd0(s16 arg0, s16 arg1);
+extern u32 func_0010c750(void *persona, u16 level);
+
+/* Prepare XP awards and 0x88-byte growth deltas without applying them.
+ * Inventory deltas end at 0x698; four party deltas end at 0x8D4.
+ * Loop invariants on preserves the retail award hoists: 2188/2192 bytes,
+ * 49 resolved calls, with only four zero alignment bytes remaining. */
+#pragma opt_loop_invariants on
 // FUN_0021E110
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021e110);
+void func_0021e110(u8 *arg0, u8 *arg1)
+{
+    s32 i;
+    s32 j;
+    s32 out;
+    s32 level;
+    s32 base;
+    s32 lv;
+    s32 lv2;
+    s32 lv3;
+    s32 level2;
+    s32 v6;
+    s32 v7;
+    u16 *entry3;
+
+    s32 sum;
+    s32 count;
+    s32 count2;
+    s32 id;
+    s32 id2;
+    s32 v;
+    s32 v2;
+    s32 v3;
+    s32 v4;
+    s32 v5;
+    s32 k;
+    u8 c;
+    u16 *entry;
+    u16 *entry2;
+    s32 ref;
+
+    func_0043f9c8(arg0, 0, 0x8D4);
+    out = 0;
+    if (*(u16 *)arg1 & 1) {
+        *(u32 *)arg0 |= 1;
+    }
+    c = func_00104c70(1) & 0xFF;
+    level = func_0021de90(c, arg1);
+    base = level;
+    if (func_001069d0(func_00106cd0(1, 0)) == 0x86) {
+        level += (s32)(0.5f * (f32)level);
+    }
+    if (func_001069d0(func_00106cd0(1, 1)) == 0x86) {
+        level += (s32)(0.5f * (f32)base);
+    }
+    if (c != (func_001059e0(level + func_00105210(1)) & 0xFF)) {
+        *(u32 *)arg0 |= 2;
+    }
+    *(s16 *)(arg0 + 0x698) = *(s16 *)(arg1 + 0x10);
+    *(u32 *)(arg0 + 4) = level;
+    entry = func_0010a900(1);
+    func_00105510(1);
+    ref = entry[1];
+    count = func_0010b6f0() & 0xFFFF;
+    for (i = 0; i < count; i++) {
+        entry2 = func_0010ace0((s16)i);
+        id = datPersonaGetLevel((s32)entry2) & 0xFF;
+        lv = func_0021de90(id, arg1);
+        if (entry2[1] == ref) {
+            level = lv;
+            if (func_0010a9b0(1) != 0) {
+                level += (s32)(0.5f * (f32)lv);
+            }
+            if (func_001069d0(func_00106cd0(1, 0)) == 0x86) {
+                level += (s32)(0.5f * (f32)lv);
+            }
+            if (func_001069d0(func_00106cd0(1, 1)) == 0x86) {
+                level += (s32)(0.5f * (f32)lv);
+            }
+        } else {
+            v = (s32)datPersonaGetSkills((s32)entry2);
+            level = 0;
+            for (k = 0; k < 8; k++) {
+                v2 = *(u16 *)(v + k * 2);
+                if (v2 != 0) {
+                    switch (v2) {
+                    case 0x1FF:
+                        level += (s32)(0.25f * (f32)lv);
+                        break;
+                    case 0x200:
+                        level += (s32)(0.5f * (f32)lv);
+                        break;
+                    case 0x201:
+                        level += (s32)(f32)lv;
+                        break;
+                    }
+                }
+            }
+            sum = level;
+            if (entry2[0] & 4) {
+                level += (s32)(0.5f * (f32)level);
+            }
+            if (func_001069d0(func_00106cd0(1, 0)) == 0x86) {
+                level += (s32)(0.5f * (f32)sum);
+            }
+            if (func_001069d0(func_00106cd0(1, 1)) == 0x86) {
+                level += (s32)(0.5f * (f32)sum);
+            }
+        }
+        if (id < 99) {
+            v3 = datPersonaGetNextExp((s32)entry2);
+            v4 = (s32)func_0010c750(entry2, (u16)(id + 1));
+            if (v4 <= v3 + level) {
+                *(u32 *)arg0 |= 8;
+                func_0010be60((u8 *)entry2, arg0 + i * 0x88 + 0x38, level);
+            }
+            if (level != 0) {
+                *(u32 *)(arg0 + i * 4 + 8) = level;
+            }
+        }
+    }
+    count2 = *(s32 *)(arg1 + 0x1C);
+    for (j = 0; j < count2; j++) {
+        id2 = *(u16 *)(arg1 + j * 2 + 0x12);
+        if (id2 != 1) {
+            entry3 = func_0010a900((u16)id2);
+            v5 = datPersonaGetLevel((s32)entry3) & 0xFF;
+            lv2 = func_0021de90(v5, arg1);
+            level2 = lv2;
+            if (func_001069d0(func_00106cd0((s16)id2, 0)) == 0x86) {
+                level2 += (s32)(0.5f * (f32)lv2);
+            }
+            if (func_001069d0(func_00106cd0((s16)id2, 1)) == 0x86) {
+                level2 += (s32)(0.5f * (f32)lv2);
+            }
+            if (v5 < 99) {
+                v3 = datPersonaGetNextExp((s32)entry3);
+                v4 = (s32)func_0010c750(entry3, (u16)(v5 + 1));
+                if (v4 <= v3 + level2) {
+                    *(u32 *)arg0 |= 0x10;
+                    func_0010be60((u8 *)entry3, arg0 + out * 0x88 + 0x6B4, level2);
+                }
+                *(u32 *)(arg0 + out * 4 + 0x6A4) = level2;
+            }
+            *(u16 *)(arg0 + out * 2 + 0x69A) = id2;
+            out += 1;
+        }
+    }
+    if (func_00106330(0x38) != 0) {
+        entry3 = func_0010a900(5);
+        v5 = datPersonaGetLevel((s32)entry3) & 0xFF;
+        lv3 = func_0021de90(v5, arg1);
+        level2 = lv3;
+        if (func_001069d0(func_00106cd0(5, 0)) == 0x86) {
+            level2 += (s32)(0.5f * (f32)lv3);
+        }
+        if (func_001069d0(func_00106cd0(5, 1)) == 0x86) {
+            level2 += (s32)(0.5f * (f32)lv3);
+        }
+        if (v5 < 99) {
+            v3 = datPersonaGetNextExp((s32)entry3);
+            v4 = (s32)func_0010c750(entry3, (u16)(v5 + 1));
+            if (v4 <= v3 + level2) {
+                *(u32 *)arg0 |= 0x10;
+                func_0010be60((u8 *)entry3, arg0 + out * 0x88 + 0x6B4, level2);
+            }
+            v6 = out * 4;
+            *(u32 *)(v6 + (s32)arg0 + 0x6A4) = level2;
+        }
+        v7 = out * 2;
+        *(u16 *)(v7 + (s32)arg0 + 0x69A) = 5;
+    }
+}
+#pragma opt_loop_invariants off
 /* measured: plain-C reconstruction reaches object size 448B against the
    448B retail window at normalized_diff 7. The prologue, calls, loop
    addressing, and arithmetic all match; the residual is register naming in
@@ -2190,9 +2457,9 @@ void func_0021eb60(u8 *arg0)
     while (i < limit) {
         value = *(s32 *)(arg0 + (i * 4) + 8);
         if (value != 0) {
-            persona = func_0010ace0((s64)(s16)i);
+            persona = (u8 *)func_0010ace0((s16)i);
             func_0010c980(persona, value);
-            if (func_0010c6f0(persona) != 0) {
+            if (func_0010c6f0((PersonaWork *)persona) != 0) {
                 func_0010c5a0(persona, arg0 + (i * 0x88) + 0x38);
             }
         }
@@ -2213,7 +2480,7 @@ loop_body:
     if (temp_19 != 0) {
         temp_2 = (s32)func_0010a900(*(u16 *)((u8 *)arg0 + (var_16 * 2) + 0x69A));
         func_0010c980((u8 *)temp_2, temp_19);
-        if (func_0010c6f0((u8 *)temp_2) != 0) {
+        if (func_0010c6f0((PersonaWork *)temp_2) != 0) {
             func_0010c5a0((u8 *)temp_2,
                           (u8 *)arg0 + (var_16 * 0x88) + 0x6B4);
         }
