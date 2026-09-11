@@ -10523,3 +10523,53 @@ and retail ELF SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
 Sources, binary fixtures, hashes, build recipes, native outputs, relocation
 evidence and full gate output are archived. All **24 standalone native proof
 files** were removed; compiler evidence and JSON measurements are retained.
+
+## First-party continuation: explicit AI status predicate
+
+`func_001d9b60` now has the real `s32(u8 *task, s32 mask)` contract.
+The former `void(u8 *)` body omitted both the status mask and the result.
+Retail preserves incoming `$5` across the task/work pointer loads and returns
+the result of `datCalcChkBadStatus` at `0x00232710`. The C wrapper now passes
+that mask explicitly to the current `u32(int, u32)` provider and returns its
+boolean result.
+
+Both owner declarations and all callback references use this contract.
+The redundant callback casts and the false `void btlCond_MYBAD(void)`
+declaration are removed. The historical symbol binding is unambiguous:
+`btlCond_MYBAD` is **`0x001D9B60`**, not the separate constant predicate at
+`0x001DBB90`; its two source uses now name `func_001d9b60` directly.
+Unrelated encoded-name calls to `func_00232710` are intentionally unchanged.
+No decompiler body was found for the wrapper in the available guides;
+the caller guides, actual provider and retail wrapper instructions supply
+the evidence instead.
+
+The wrapper remains **40/48 bytes**, with one resolved call, zero differing
+instructions and eight zero tail bytes. Full-owner comparisons cover
+**94 functions** in `code1_001d.c` and **263** in `btlAICommand.c`; executable
+bytes and resolved bindings are unchanged after the two known symbol-alias
+normalizations. Removing the selector's unused `s128` typedef also leaves
+all 94 owner function images unchanged.
+
+Fresh final-source no-libc i386 execution passes **3,780 cases**:
+280 direct predicate cases and 3,500 cases through the real `func_001d94d0`
+selector. These cover zero, combined and high-bit masks, status exclusions,
+eligibility flags, type filters and linked-list traversal, with the entire
+input arena preserved. The selector exercise uses zero options and excludes
+the ignore-dead branch; unexercised helpers trap. Native-only declarations
+give the callback its precise type, and existing encoded provider calls
+receive explicit 32-bit pointer/address casts. No executable statements are
+changed in the extracted final functions. The old wrapper fails compilation
+against this typed consumer contract; this is a compile-time reproduction,
+not a before-fix runtime comparison.
+
+The full gate passes **529 tests**, zero lint findings, and unchanged
+**6,270 first-party matches / 590 assembly fallbacks**. This repairs an existing
+C match; it adds no match or C-linked function. Overall totals remain
+**7,900 matches / 4,820 fallbacks**, with **173 C objects / 1,594 C-linked
+functions**. All function statuses are unchanged. Loadable-image SHA-1
+`3d1d3d2b9d6ccb60836db239ab49674223025a78` and retail ELF SHA-1
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
+Final source snapshots, native sources and binaries, SHA-256 hashes,
+compiler comparisons and the complete gate output are archived in the
+private `status_predicate/checkpoint_evidence.json`. All seven standalone
+native proof files were removed; compiler candidates and measurements remain.
