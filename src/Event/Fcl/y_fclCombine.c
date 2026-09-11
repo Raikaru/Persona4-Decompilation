@@ -105,7 +105,7 @@ extern s32 func_00106600(s16 id);
 extern u8 D_00641880[];
 extern u8 D_0063FCA0[];
 extern u8 D_006406F0[];
-extern s8 func_00110a60(s32 arg0, s32 arg1);
+extern s64 func_00110a60(s32 arg0, s32 arg1);
 extern s32 func_00303610(u8 *arg0, s8 arg1, u16 *arg2);
 extern f32 D_00641660[];
 extern u8 D_006417E0[];
