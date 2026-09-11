@@ -10820,3 +10820,42 @@ remain unchanged. `p4_calendar_classifier_recovery/checkpoint_evidence.json`
 retains compiler, native, retail-table and gate evidence, production source
 snapshots, and all five standalone native proof files with SHA-256 hashes.
 Those five native files were hash-verified against the archive and removed.
+
+## First-party continuation: bank-slot registration
+
+`func_002e1030` is recovered as **500/512 bytes**, with all **12 relocations**
+resolved, no differing executable words and twelve zero tail bytes. A wide
+signed selection and return preserve retail's repeated halfword projections;
+an explicit unsigned low-halfword store retains the original selected register.
+Both search helpers keep signed-halfword returns. All **ten owner images**
+resolve exactly.
+
+Both decompiler guides were checked against retail and current providers.
+The manager is a pointer produced by `func_002e0d60`; the diagnostic prefix is
+the actual eight-byte `[%s:%d]` object. Necessary local declarations now agree
+with the four-halfword bank setter, list removal and variadic formatter.
+The existing removal caller's casts and format argument change without
+changing its image. No broad formatter or SDK recovery is included.
+
+Source-identical no-libc i386 consumers pass **56,464 scenarios / 958,016
+checks / zero failures** under both GCC and Clang; the Clang run enables
+undefined-behavior traps. Checks cover unused-before-reusable precedence,
+all low flag combinations with sign-bit variants, descriptor sign boundaries,
+failure with a null input and no writes/calls, guarded slot images, provider
+replacement of the global manager, index/flag reloads, original-selection
+returns, consumed-node poisoning and removal/diagnostic order.
+
+The target and both search helpers execute unchanged. Bank setup/enabling,
+list removal, the diagnostic formatter and logging wrapper are modeled
+boundaries with adversarial mutations; this is not full provider or PS2
+runtime execution. The private `p4_bank_transition_recovery/checkpoint_evidence.json`
+retains compiler/native evidence and the production source. All five native
+source/binary files and both superseded `QFCL`/`RFBM` drafts were hash-archived,
+verified and removed.
+
+The isolated home-only full gate passes **529 tests** and zero lint findings.
+Only `002e1030` changes status among **12,720** scanned functions:
+**6,275 first-party matches / 585 fallbacks**, and **7,905 total matches /
+4,815 fallbacks**. Source linkage is **173 C objects / 1,597 C-linked functions**.
+Both retail SHA-1 identities remain unchanged. The checkpoint archive also
+retains the full gate log and complete status-delta evidence.
