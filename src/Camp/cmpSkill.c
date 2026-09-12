@@ -36,9 +36,11 @@ s32 func_003b7060(void);
 s16 func_0023d8e0(void *, s32);
 void func_0034f1e0(void);
 void func_0034c270(Vec2f, u8, f32);
-void func_0034f320(void *, u8, u8, u8, s32, s32, s32, s32, f32, f32, f32, f32, f32);
-void func_0034f2e0(void *, f32, f32, u8, u8, u8, s64);
-void func_0034f9d0(Vec2f, u8, s16, void *, f32);
+void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
+                   u8 arg1, u8 arg2, u8 arg3, u32 arg4,
+                   u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+void func_0034f2e0(void *, f32, f32, u8, u8, u8, u32);
+void func_0034f9d0(Vec2f unused, f32 fparg0, u32 arg1, s32 arg2, s32 arg3);
 void func_0013b370(void *, Vec2f, u32);
 void func_0013b420(void *, Vec2f, s32, void *);
 void func_00113730(void *);

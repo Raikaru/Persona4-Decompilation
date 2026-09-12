@@ -42,8 +42,8 @@ s32 func_0046af60(u8 *arg0);
 s32 func_0046a750(s32 param);
 void func_0021fea0(u8 *work);
 void func_002214d0(void);
-void func_0034f2e0(void *arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, u8 arg5, s64 arg6);
-void func_00442088(void *dst, const void *fmt, s32 value);
+void func_0034f2e0(void *arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, u8 arg5, u32 arg6);
+extern s32 func_00442088(void *dst, const void *fmt, ...);
 void func_00460ac0(void *param, void *work);
 extern u32 D_00795F20[];
 s32 func_0021f520(u8 *arg0);
@@ -92,25 +92,81 @@ struct BtlResultSubWork
     s32 field934;      // 0x934
 };
 
-/* measured 2026-08-03 (wave 14 re-attack, 10 attempts): two lever wins landed,
-   then a register-coloring floor remained. LEVER 1: func_0034f2e0 takes its
-   coordinates before the color arguments; its wide opacity argument is
-   narrowed by the core renderer. The old int-first extern caused the
-   recorded argument-materialization floor. LEVER 5: the walk loop needs switch(buf[i])
-   {case 0x2E: dotbody; break; default: digitbody;} — case 0x2E declared FIRST so
-   the '.' body is laid out before the digit body (beq->dot, b->digit), exactly
-   matching retail; if/else and goto forms lay them out reversed (nd 99-104 vs
-   switch's 39). Also: arg3 must be u32 (retail divu + sltiu; s32 emits signed
-   div/slti), byte extraction is (arg2 & 0xFF000000)>>24 mask-first (srl, not sra),
-   and buf/buf2 must be char[] (signed lb loads). Retail window 608B; best
-   discarded body was 600B with nd 39: residual is the no-call
-   digit-conversion loop's temp-register coloring (retail k=$t2/j=$t1,
-   +0x2E/2/0xA consts hoisted to the preheader; mwcc k=$v1/j=$t0 and sinks the
-   0x2E/2 materialisation into the loop) plus one slt-$at-vs-$v0 in the digit
-   assert. opt_loop_invariants off/on, block-scoped k/j, f32* arg1, m2c casts:
-   unchanged. Register-coloring + const-hoist floor. */
+/* Matched: 604 bytes, seven resolved relocations and four zero tail bytes.
+ * Grouped values are unsigned; the plain retail format is signed "%d".
+ * Scoped loop invariants retain the digit-loop constants and allocation. */
 // FUN_0021ED10
-INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021ed10);
+#pragma opt_loop_invariants on
+void func_0021ed10(u8 *arg0, f32 *arg1, s32 arg2, u32 arg3, s32 arg4)
+{
+    s8 rev[0x40];
+    s8 buf[0x40];
+    u8 hi;
+    u8 mid;
+    u8 lo;
+    u32 ch;
+    s32 i;
+    s32 n;
+    s32 tmp;
+    s32 k;
+    s32 j;
+    s32 digit;
+
+    hi = (u8)((arg2 & 0xFF000000) >> 24);
+    mid = (u8)((u32)(arg2 & 0xFF0000) >> 16);
+    lo = (u8)((u32)(arg2 & 0xFF00) >> 8);
+    ch = arg2 & 0xFF;
+    if (ch != 0) {
+        if (arg3 >= 1000 && arg4 != 0) {
+            k = 0;
+            j = 0;
+            do {
+                buf[k] = (u8)((arg3 % 10) + 0x30);
+                k += 1;
+                arg3 /= 10;
+                if (arg3 != 0 && j == 2) {
+                    buf[k] = 0x2E;
+                    k += 1;
+                }
+                j += 1;
+                if (j > 2) {
+                    j = 0;
+                }
+            } while (arg3 != 0);
+            n = 0;
+            while (n < k) {
+                tmp = n + 1;
+                rev[n] = buf[k - tmp];
+                n = tmp;
+            }
+            rev[n] = 0;
+        } else {
+            func_00442088(rev, &iGpffffa5b4, (s32)arg3);
+        }
+        i = 0;
+        while (rev[i] != 0) {
+            switch (rev[i]) {
+            case 0x2E:
+                func_0034f2e0(*(void **)(arg0 + 0x4A0),
+                              arg1[0], arg1[1], hi, mid, lo, ch);
+                arg1[0] += 8.0f;
+                break;
+            default:
+                digit = rev[i] - 0x30;
+                if (digit < 0 || digit > 9) {
+                    func_0046d730(&D_00629610, 0x119);
+                }
+                func_0034f2e0(
+                    *(void **)(arg0 + digit * 4 + 0x478),
+                    arg1[0], arg1[1], hi, mid, lo, ch);
+                arg1[0] += 22.0f;
+                break;
+            }
+            i += 1;
+        }
+    }
+}
+#pragma opt_loop_invariants off
 
 
 

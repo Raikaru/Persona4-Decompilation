@@ -25,13 +25,13 @@ void func_001437b0(void* arg0, s32 arg1, s32 arg2);
 void func_0034f8f0(void* arg0);
 void func_0034f1e0(void);
 void func_0034c270(Vec2f arg0, u8 arg1, s32 arg2, f32 arg3);
-void func_0034f2e0(void* arg0, f32 arg5, f32 arg6, u8 arg1, u8 arg2, u8 arg3, s64 arg4);
-void func_0034f320(u8 *arg0, f32 x, f32 y, f32 depth,
-                   u8 red, u8 green, u8 blue, s64 alpha, s64 scaleX,
-                   s32 scaleY, s16 flags, f32 angle, s16 finalFlags);
+void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u32 arg4);
+void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
+                   u8 arg1, u8 arg2, u8 arg3, u32 arg4,
+                   u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 f32 func_0044b7b0(f32 arg0);
 
-void func_0034f9d0(Vec2f arg0, u8 arg1, s16 arg2, void* arg3, f32 arg4);
+void func_0034f9d0(Vec2f unused, f32 fparg0, u32 arg1, s32 arg2, s32 arg3);
 void func_00489f80(void);
 void func_0045c870(void* arg0, s32 arg1);
 void func_0048a000(void);
@@ -437,10 +437,10 @@ void func_0035dfb0(u8 *arg0, s32 arg1, s32 arg2)
     f32 angle;
     f32 rowY;
     f32 rowOpacity;
-    s64 arrowAlpha;
+    u32 arrowAlpha;
     u8 otherColor;
     u8 *sprite;
-    s64 alpha;
+    u32 alpha;
     u8 *row;
     u16 counter;
     u32 counterAddress;

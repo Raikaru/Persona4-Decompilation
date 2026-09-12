@@ -716,3 +716,4 @@ iGpffffac38 = 0x00763D28; // type:data evidence: retail func_0044f570 passes gp-
 iGpffffb9dc = 0x00764ACC; // type:data evidence: retail func_0044f570 clears the diagnostic text-list head at gp-0x4624
 iGpffffb9e0 = 0x00764AD0; // type:data evidence: retail func_0044f570 stores the font work pointer at gp-0x4620
 iGpffffb9e4 = 0x00764AD4; // type:data evidence: retail func_0044f570 stores and clears the loaded font-image pointer at gp-0x461C
+iGpffffa5b4 = 0x007636A4; // type:data evidence: retail func_0021ed10 addiu $a1,$gp,-0x5A4C at 0x0021EE40; gp-0x5A4C; format bytes 25 64 00

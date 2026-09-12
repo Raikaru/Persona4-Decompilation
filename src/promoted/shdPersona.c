@@ -846,7 +846,9 @@ extern u8 D_005E4D90[];
 extern s16 D_005E4D58[];
 s32 func_003b7060();
 void func_0045dfd0(f32, void *, void *, s32, s32, s32);
-void func_0034f4a0(s32, s32, s8, s8, s8, s64, s64, s16, f32, f32, f32, f32, s16, s16);
+void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
+                   u8 arg2, u8 arg3, u8 arg4, u32 arg5,
+                   u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
 /* measured: fully decoded, best nd 858 (obj 2992B / window 3632B) at attempt 2.
    The sp120-sp12B byte block and the spE0-spF4 float block must be ARRAYS
    (`u8 sp120[16]; f32 spE0[6];`) or mwcc dead-store-eliminates all but the
@@ -872,7 +874,9 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00117980);
 
 
 
-void func_0034f4a0(s32, s32, s8, s8, s8, s64, s64, s16, f32, f32, f32, f32, s16, s16);
+void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
+                   u8 arg2, u8 arg3, u8 arg4, u32 arg5,
+                   u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
 /* measured: retail keeps only t16 and arg2 in saved registers (frame 0x60 with
    the two s64 homes at 0x50/0x58); mwcc b210 also saves arg0 (frame 0x80,
    homes at 0x70/0x78) and the whole body shifts (nd 147, obj 8B over window).
@@ -1035,7 +1039,7 @@ void func_00114460(s64, u8, u8 *, s32, f32);
 void func_00119210(u8 *);
 void func_00119810(u8 *);
 void func_00117980(u8 *);
-void func_0034f9d0(s64, u8, s32, s32, s32);
+void func_0034f9d0(Vec2f unused, f32 fparg0, u32 arg1, s32 arg2, s32 arg3);
 /* measured: fully decoded, best nd 830 (obj 3844B / window 3216B, frame 0xA0
    vs 0x90) at attempt 3. The TRUE signature is `void func_00119e10(u8 *arg0,
    u8 *arg1)` with the USED base in $5 (the m2c's arg1 — a leading param was

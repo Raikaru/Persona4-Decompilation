@@ -11316,3 +11316,61 @@ native interface.
 The private checkpoint evidence and preserved reports are under
 `p4_four_resume_20260912T062313/Main/verified_checkpoint/`.
 The full first-party goal remains open.
+
+## Decimal result rendering and coherent opacity slots
+
+`func_0021ed10` is now C: **604 executable bytes / 608-byte window**,
+seven fully resolved relocations, and four zero alignment bytes. The
+unsigned grouped path inserts a dot every three digits; the plain path
+passes an explicit `s32` to the retail `%d` formatter. Digits advance the
+pen by 22 pixels and dots by eight. `0021ef70` was already MATCH and is
+not counted as a new recovery.
+
+The five `0034f2e0`/`0034f320`/`0034f460`/`0034f4a0`/`0034f9d0`
+opacity slots and their affected producers now use `u32`; only the low
+byte is observed. Both scale slots use `u16` at **both** the core and
+wrapper layers. The existing masks observe only these low halfwords,
+so integral inputs still project modulo 2^16 without new value bounds.
+The caller cutover includes the real float/integer parameter order and
+the existing by-value `Vec2f` shape, not register-bank-compatible shadow
+prototypes. The conflicting block-scope declaration in `00389370` is
+removed; its original float-to-`u16` conversions remain.
+
+All nine affected owners preserve **448 function images and eight data
+tables** after full relocation resolution. This includes all 22 entries
+of the 88-byte `0034f9d0` jump table at `0x00752730`; no table words are
+masked. The new formatter relocation names `iGpffffa5b4` at
+`0x007636A4`: retail instruction `0x2785A5B4` at `0x0021EE40` supplies
+gp-0x5A4C, and the three format bytes are `25 64 00`.
+
+GCC and Clang each execute the three current C bodies (`0021ed10`,
+`0034f2e0`, and `0034f320`) through **78 passing i386 consumer checks**.
+They cover grouping, signed/plain formatting, pen movement, color,
+opacity and scale projection, untouched-node early exits, and canaries.
+Each compiler also reaches the expected invalid-digit and null-node
+diagnostic boundaries. Changing dot advance from eight to nine fails
+12 checks; testing the full opacity word instead of its low byte fails
+one. The SDK formatter, diagnostic, and descriptor-enqueue boundaries
+are controlled: this is not SDK, GPU, or PS2 runtime verification.
+
+The final inputs, six executables, outputs, compiler commands and hashes
+are preserved in
+`p4_four_resume_20260912T062313/Main/opacity_current_native_archive.json`.
+All 21 owned native scratch files were removed after archive hash and
+decode round-trip checks; the repository type header is unchanged.
+
+Regenerating the curated format binding restores the complete source link:
+**173 C objects / 1,602 C-linked functions**, plus 56 Sony SDK objects.
+All prior C-owner windows remain linked. The shared verifier changes only
+`0021ed10` from ASM to MATCH: **6,289 first-party matches / 571 fallbacks**
+and **7,919 total matches / 4,801 fallbacks** among 12,720 scanned functions.
+SDK and vendor matching counts are unchanged. All **531 tests** pass
+after the data-binding repair; first-party lint has zero findings, and
+the regenerated progress artifacts validate.
+
+Both retail identities remain exact:
+
+- Loadable image: `3d1d3d2b9d6ccb60836db239ab49674223025a78`.
+- Complete ELF: `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+The full first-party goal remains open.

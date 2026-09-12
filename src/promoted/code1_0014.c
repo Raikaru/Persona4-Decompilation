@@ -144,8 +144,8 @@ extern u8 iGpffffba58;
 extern void func_00145080(void);
 extern u8 * iGpffff9db0;
 extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                          u8 arg1, u8 arg2, u8 arg3, s64 arg4, s64 arg5,
-                          s32 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+                          u8 arg1, u8 arg2, u8 arg3, u32 arg4, u16 arg5,
+                          u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
@@ -520,7 +520,7 @@ void func_001423c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
 {
     u8 *base;
     s32 count;
-    s64 c1;
+    u32 c1;
     u8 c2;
     u8 c3;
     base = arg2;
@@ -542,7 +542,7 @@ void func_001423c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
    position/color words; keep retail's integer tint scaling. Exact 776/784
    bytes, 16 fully resolved relocations and eight zero alignment bytes. */
 // FUN_001424B0
-void func_001424b0(Float2_0014 pos, f32 fparg0, s64 arg1, u8 *arg2, s32 arg3)
+void func_001424b0(Float2_0014 pos, f32 fparg0, u32 arg1, u8 *arg2, s32 arg3)
 {
     extern f32 fGpffff9ce0;
     extern u8 iGpffff9cd8[8];
@@ -550,7 +550,7 @@ void func_001424b0(Float2_0014 pos, f32 fparg0, s64 arg1, u8 *arg2, s32 arg3)
     extern f32 D_005EF6E4[];
     extern void func_0046d730(const void *file, s32 line);
     extern void func_00356170(s64 arg0, f32 f0, f32 f1, f32 f2, s32 arg1, s32 arg2, s32 arg3);
-    extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, s64 arg4);
+    extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u32 arg4);
     extern s32 func_00246980(s16 arg0, s16 arg1);
     extern s32 func_002751a0(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 out, s32 charWidth);
 
