@@ -10900,3 +10900,46 @@ Both retail SHA-1 identities remain unchanged. The private
 `p4_bank_animation_recovery/checkpoint_evidence.json` retains compiler/native
 evidence, production snapshots, the full gate log and status-delta evidence.
 All five native source/binary files were hash-archived, verified and removed.
+
+## First-party continuation: bank controller
+
+`func_002e17f0` is recovered as **1,236/1,248 bytes**, with all **54 text
+relocations** resolved exactly. No executable words differ; the twelve tail
+bytes are zero. All **ten bank-owner images** and the animation's six-entry
+switch table resolve exactly.
+
+Both actual decompiler bodies, complete retail and current providers were
+checked. The actual scheduler calls `s32 (struct KwlnTask *)`; the controller
+and its font registration declaration now share that contract. The registration
+caller remains exact at **164/176 bytes / 14 relocations**, with twelve zero
+tail bytes. All **57 font-owner images** remain byte- and relocation-identical
+to a fresh pre-change compile. No SDK implementation changes are included.
+
+The controller captures the bank array before queue processing, captures each
+next node before consuming the current node, and clears the originally captured
+banks after animation. The visible-peer helper reloads the current manager and
+preserves post-diagnostic reloads. Explicit signed-halfword projection retains
+both retail sign extensions; loop-invariant optimization scoped through the
+helper and inlining caller puts the mask constant outside the peer loop.
+
+Source-identical no-libc i386 consumers execute **14 actual bodies**, including
+registration, animation and their small providers. GCC and Clang each pass
+**265,728 scenarios / 922,384 checks / zero failures**; Clang enables
+undefined-behavior traps. Coverage includes exhaustive controller flags,
+geometry/sign combinations, peer occupancy, both processing positions,
+readiness, zero-to-three-node queues, poisoned consumed nodes, multi-frame
+entry/exit, guarded images and adversarial diagnostic callback mutations.
+Modeled boundaries are resource setup, queue removal and the two logging
+interfaces; these do not claim execution of the full allocator, resource I/O,
+PS2 variadic formatting or renderer. The actual empty assertion provider is
+linked, but the invalid null-manager path is not exercised. Timers and buffers
+are valid synthetic inputs; EE COP1 rounding is not covered.
+
+The home-only full gate passes **529 tests** and zero lint findings.
+Only `002e17f0` changes status among **12,720** scanned functions:
+**6,277 first-party matches / 583 fallbacks**, and **7,907 total matches /
+4,813 fallbacks**. Source linkage is **173 C objects / 1,599 C-linked functions**.
+Both retail SHA-1 identities remain unchanged. The private
+`p4_bank_controller_recovery/checkpoint_evidence.json` retains compiler/native
+evidence, production snapshots, the full gate log and status-delta evidence.
+All five native source/binary files were hash-archived, verified and removed.
