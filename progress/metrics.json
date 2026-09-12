@@ -9835,6 +9835,7 @@
         "0017bb50",
         "0017bbe0",
         "0017bc60",
+        "0017c010",
         "0017c270",
         "0017c670",
         "0017c930",
@@ -14917,8 +14918,8 @@
         "004bd450",
         "004bd4a0"
       ],
-      "matching_count": 6277,
-      "matching_percent": 91.501,
+      "matching_count": 6278,
+      "matching_percent": 91.516,
       "total": 6860,
       "total_code_bytes": 3139296
     },
@@ -26187,6 +26188,7 @@
       "0017bb50",
       "0017bbe0",
       "0017bc60",
+      "0017c010",
       "0017c270",
       "0017c670",
       "0017c930",
@@ -32899,11 +32901,11 @@
       "0052d970",
       "0052d980"
     ],
-    "count": 7907,
+    "count": 7908,
     "duplicate_rows": 0,
     "known_rows": 12720,
-    "matched_body_bytes": 1629968,
-    "percent": 60.35,
+    "matched_body_bytes": 1630576,
+    "percent": 60.357,
     "unique_known_addresses": 12720
   },
   "schema_version": 1,
@@ -32914,8 +32916,8 @@
     "verifier_report": "build/verify_report.json"
   },
   "status_counts": {
-    "ASM": 4813,
-    "MATCH": 7907
+    "ASM": 4812,
+    "MATCH": 7908
   },
   "total": 13102
 }

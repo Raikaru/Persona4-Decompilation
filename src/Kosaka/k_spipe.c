@@ -59,7 +59,7 @@ typedef RwSky2DVertex RwIm2DVertex;
 
 /* rwGlobals.device.fpIm2DRenderPrimitive lives at 0x00887310 in P4 retail. */
 #define RwIm2DRenderPrimitive(primType, vertices, numVertices) \
-    (*(u32 (**)(u32, void*, u32))0x00887310)((primType), (vertices), (numVertices))
+    (*(s32 (**)(s32, void*, s32))0x00887310)((primType), (vertices), (numVertices))
 
 
 typedef struct RwObject RwObject;
@@ -151,8 +151,8 @@ extern void* func_00179860(void* ignored, const FldShadowTriangle* triangle,
 // FUN_00178C20
 u32 K_FldShadow_Draw(f32 xLeft, f32 yTop,
                   f32 xRight, f32 yBot,
-                  f32 zBufferNear, f32 recipZ,
-                  const RwRGBA* topColor, const RwRGBA* botColor)
+                  const RwRGBA* topColor, const RwRGBA* botColor,
+                  f32 zBufferNear, f32 recipZ)
 {
     RwIm2DVertex vertices[4];
 
