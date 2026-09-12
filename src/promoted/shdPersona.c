@@ -2076,28 +2076,81 @@ void func_0011c2c0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 
 
 
-/* measured: rule 2 confirmed for the FMA sites — with the multiplications
-   written ratio-first (`base + r * delta`, `f + r * diff`) AND
-   #pragma opt_loop_invariants on, the adda.s $f4,$f2 / madd.s $f0,$f5,$f0
-   pairs match retail byte-for-byte (without the pragma the acc seed lands
-   inside the loop and the fusion breaks into add.s+adda.s+madd.s, nd 136;
-   with the pragma the FMA block matches and the residual drops to ~15
-   naming/order rows). Best nd 112 (obj 540B / window 560B) at attempt 4,
-   still short of the old wave's 8. Remaining rows, all the documented
-   scheduling/colouring family: (1) statement order at the loop top — retail
-   [lh 0x516; i*36 math; lwc1 0x2E8; mtc1; cvt], the v-load must precede the
-   e1 computation (untried with the pragma); (2) the neg-path abs or-dest
-   $a2 vs $v1 (1 word); (3) the guard test encodes c.olt.s+bc1f where retail
-   has c.ole.s+bc1t (1 word, same as func_0011c930 — small-path-inline layout
-   is right either way); (4) prologue length: with the pragma the four loop
-   constants (1.0f/0.0f/0x4F000000/0x80000000) still do not all hoist. The
-   e1/e2 double address computation, `f += f` doubling, (u32)a >> 1,
-   `r = acc` sharing, and sign-in-$a1 (or $v1,$v1,$a1) all reproduced.
-   The function is back to INCLUDE_ASM, so no pragma is carried here: one
-   wrapped around an INCLUDE_ASM does nothing except risk leaking into a
-   neighbour. Re-add it with this note if the body is attempted again. */
+/* The ordered halfword observation keeps the retail per-record sample load;
+   loop-invariant motion preserves the accumulator/FMA instruction pairs. */
+#pragma push
+#pragma opt_loop_invariants on
 // FUN_0011C3E0
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c3e0);
+void func_0011c3e0(u8 *arg0)
+{
+    f32 diff;
+    f32 f_abs;
+    f32 acc;
+    f32 ratio;
+    f32 lo;
+    f32 hi;
+    f32 base;
+    f32 delta;
+    s32 i;
+    s32 j;
+    s32 a;
+    s32 b;
+    s16 raw;
+    u8 *src;
+    u8 *dst;
+    f32 value;
+    u8 c;
+
+    for (i = 0; i < 10; i++) {
+        raw = *(volatile s16 *)(arg0 + 0x516);
+        lo = *(f32 *)(arg0 + i * 36 + 0x2E8);
+        ratio = (f32)raw;
+        if (ratio < lo) {
+            ratio = 0.0f;
+        } else {
+            hi = *(f32 *)(arg0 + i * 36 + 0x2EC);
+            if (ratio > hi) {
+                ratio = 1.0f;
+            } else {
+                ratio = (ratio - lo) / (hi - lo);
+            }
+        }
+        base = *(f32 *)((u32)arg0 + i * 36 + 0x2CC);
+        delta = *(f32 *)((u32)arg0 + i * 36 + 0x2D4) - base;
+        *(f32 *)((u32)arg0 + i * 36 + 0x2DC) = base + ratio * delta;
+        base = *(f32 *)((u32)arg0 + i * 36 + 0x2D0);
+        delta = *(f32 *)((u32)arg0 + i * 36 + 0x2D8) - base;
+        *(f32 *)((u32)arg0 + i * 36 + 0x2E0) = base + ratio * delta;
+        a = *(u8 *)((u32)arg0 + i * 36 + 0x2E4);
+        b = *(u8 *)((u32)arg0 + i * 36 + 0x2E5);
+        diff = (f32)(b - a);
+        f_abs = (f32)(u32)a;
+        acc = f_abs + ratio * diff;
+        *(u8 *)((u32)arg0 + i * 36 + 0x2E6) = (u8)acc;
+    }
+    if (!((f32)*(s16 *)(arg0 + 0x516) <= 4.0f)) {
+        *(s32 *)(arg0 + 0x534) &= ~0x4000;
+        for (j = 0; j < 10; j++) {
+            src = D_005E4950 + j * 20;
+            dst = arg0 + j * 36;
+            value = *(f32 *)src;
+            *(f32 *)(dst + 0x2DC) = value;
+            *(f32 *)(dst + 0x2CC) = value;
+            *(f32 *)(dst + 0x2D4) = value;
+            value = *(f32 *)(src + 4);
+            *(f32 *)(dst + 0x2E0) = value;
+            *(f32 *)(dst + 0x2D0) = value;
+            *(f32 *)(dst + 0x2D8) = value;
+            c = *(u8 *)(src + 8);
+            *(u8 *)(dst + 0x2E6) = c;
+            *(u8 *)(dst + 0x2E4) = c;
+            *(u8 *)(dst + 0x2E5) = c;
+            *(s32 *)(dst + 0x2E8) = 0;
+            *(s32 *)(dst + 0x2EC) = 0;
+        }
+    }
+}
+#pragma pop
 
 
 // FUN_0011C610

@@ -6,6 +6,7 @@
 extern u32 func_003b7060(void);
 extern s32 func_0034c210(void);
 extern u8 *func_00106820();
+extern u32 func_00106880(s16 arg0);
 extern s32 func_0010f930(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 static inline u8 *code13AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
@@ -63,7 +64,7 @@ extern void func_002bc860(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           f32 fparg0, f32 fparg1, f32 fparg2);
 extern void func_0012e2f0(u8 *arg0);
 extern s32 func_0012e8b0(u8 *arg0);
-extern s32 func_0012ff40(s32 arg0, s32 arg1, s32 arg2);
+extern s32 func_0012ff40(s32 arg0, s32 arg1, s16 arg2);
 extern void func_00353fb0(void);
 extern void func_00353fe0(void);
 extern s32 func_00354030(void);
@@ -72,6 +73,7 @@ extern void func_0034bd60(s32 arg0);
 extern s32 func_0013b9f0(u8 *arg0);
 extern s32 func_0013c700(s32 arg0, s32 arg1, u8 *arg2);
 extern u16 D_008C024E[];
+extern u16 D_008C0252[];
 extern void func_0013c5a0(s32 *arg0, u8 *arg1);
 extern u8 D_0064B2E0[];
 extern u8 D_0064B2E8[];
@@ -646,8 +648,99 @@ void func_0013b370(u8 *arg0, s64 arg1, s32 arg2)
 #pragma opt_propagation on
 // FUN_0013B420
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013b420);
-// FUN_0013B9F0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013b9f0);
+static inline s32 code13GroupBefore(u8 *arg0, s32 index)
+{
+    u32 selected;
+    selected = func_00106880(*(s16 *)(code13AddOff((index - 1) * 4, arg0) + 0x3E));
+    index = index - 1;
+    while (index > 0) {
+        if (func_00106880(*(s16 *)(arg0 + index * 4 + 0x3A)) != selected) break;
+        index--;
+    }
+    return index;
+}
+static inline s32 code13GroupBeforeOrSame(u8 *arg0, s32 total)
+{
+    if (total == 0) {
+        return total;
+    } else {
+        return code13GroupBefore(arg0, total);
+    }
+}
+static inline s32 code13GroupAfter(u8 *arg0, s32 total, s32 count, s32 wrap)
+{
+    s32 index;
+    u32 selected;
+    selected = func_00106880(*(s16 *)(code13AddOff(total * 4, arg0) + 0x3E));
+    index = total + 1;
+    while (index < count) {
+        if (func_00106880(*(s16 *)(arg0 + index * 4 + 0x3E)) != selected) break;
+        index++;
+    }
+    if (index >= count) index = wrap;
+    return index;
+}
+/* The sum's inline boundary preserves the retail column-before-row loads. */
+#pragma opt_propagation off
+static inline s32 code13SelectionSum(s32 row, s32 column)
+{
+    return row + column;
+}
+// FUN_0013B9F0
+s32 func_0013b9f0(u8 *arg0)
+{
+    s32 count;
+    s32 index;
+    s32 total;
+    s32 low;
+    s32 high;
+
+    count = *(s16 *)(arg0 + 0xC3E);
+    if (count < 2) return 0;
+    {
+        s32 column = *(s16 *)(arg0 + 0x24);
+        s32 row = *(s16 *)(arg0 + 0x22);
+        total = code13SelectionSum(row, column);
+    }
+    if (D_008C024E[0] & 4) {
+        index = total;
+        if (total == 0) index = count;
+        index = code13GroupBefore(arg0, index);
+        goto process;
+    }
+    if (D_008C024E[0] & 8) {
+        index = code13GroupAfter(arg0, total, count, 0);
+        goto process;
+    }
+    if (D_008C0252[0] & 4) {
+        index = code13GroupBeforeOrSame(arg0, total);
+        goto process;
+    }
+    if (D_008C0252[0] & 8) {
+        index = code13GroupAfter(arg0, total, count, total);
+        goto process;
+    }
+    return 0;
+process:
+    if (total == index) return 0;
+    if (count < 7) {
+        low = 0;
+        high = (s16)index;
+    } else {
+        s32 threshold = count - 6;
+        if (index >= threshold) {
+            low = (s16)threshold;
+            high = (s16)(index - low);
+        } else {
+            low = (s16)index;
+            high = 0;
+        }
+    }
+    func_0012ff40((s32)arg0, 0, (s16)high);
+    func_0012ff40((s32)arg0, 1, (s16)low);
+    return 1;
+}
+#pragma opt_propagation on
 // FUN_0013BCF0
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013bcf0);
 // FUN_0013C5A0

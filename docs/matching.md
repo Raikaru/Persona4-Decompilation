@@ -11001,3 +11001,90 @@ Both retail SHA-1 identities remain unchanged. The private
 `p4_field_c010_canonical_recovery/checkpoint_evidence.json` records the compiler,
 native and complete gate evidence. All **19 native consumer, negative-control
 and type-probe source/binary files** were hash-archived, verified and removed.
+
+## First-party continuation: seven recoveries after the renewed worker window
+
+The renewed 65-minute worker window ran **57 assignments in four waves
+(16 / 15 / 16 / 10)**, with at most sixteen concurrent workers. The cutoff was
+**2026-09-12 01:39:46 EDT**; all assignments settled before it and zero workers
+remained running. Main completed integration and verification after the cutoff
+without launching further workers. SDK and vendor recovery stayed excluded.
+
+Seven recoveries pass current-source, fully relocated instruction comparison:
+
+| Function | Role | Bytes / retail window | Text relocations | Native cases per compiler |
+| --- | --- | ---: | ---: | ---: |
+| `func_0013b9f0` | Navigation and selection | 764 / 768 | 14 | 151,024 |
+| `func_002494c0` | Community schedule counter | 428 / 432 | 16 | 17,640 |
+| `func_0011c3e0` | Persona interpolation and reset | 556 / 560 | 2 | 2,560 |
+| `func_0034a8b0` | Affine quad callback | 836 / 848 | 8 | 16,384 |
+| `func_00311ea0` | Fusion arcana selection | 884 / 896 | 23 | 1,119,744 |
+| `func_00476e90` | Material tint traversal | 972 / 976 | 11 | 131,072 |
+| `func_00267800` | Layered field-shape callback | 800 / 800 | 11 | 9,120 |
+
+All executable words resolve exactly; every remaining tail byte is zero.
+Across the seven recovery owners and two enabling provider owners, all
+**651 function images and eighteen data/switch tables** resolve exactly.
+Complete Ghidra and IDA guides, retail instructions, actual C provider
+definitions and callback consumers were used rather than treating generated
+declarations as provider authority.
+
+The navigation path uses the existing address helpers and the setter's real
+signed-halfword parameter. Its setter no longer forms an address through null
+pointer arithmetic. The community path uses the actual calendar, counter and
+flag providers; `DatGlobal.flags` now describes all **0xB0 words**, with the
+following padding reduced to preserve the party-ID offset at **0x4130** and
+the aggregate size. The original setter and one-word flag view each trap under
+Clang undefined-behavior checks. The final navigation consumer exercises the
+existing-helper setter spelling, and the community consumer exercises the
+expanded flag view without traps; both provider owners remain exact.
+
+The Persona loop reloads its signed-halfword state at the retail iteration
+points. The affine callback uses the dispatcher's actual three-argument
+contract and the shared SDK `RwRenderState` type, retaining callback-slot
+replacement and camera/raster reload behavior. Fusion selection copies the
+complete pair-table object, sorts pointer slots and preserves aliased-input
+behavior. Material tint uses the signed integer user-data getter, initializes
+every channel on both alpha paths, and retains the separate qualified
+normalization loads without manufacturing a quantizer seed or padding.
+The field callback snapshots its nineteen-entry tables while reloading the
+item index after each renderer call; its renderer declaration accounts for
+all six general-purpose and six floating-point argument slots.
+
+Source-identical no-libc i386 consumers contain **42 actual bodies**. GCC and
+Clang each pass **1,447,544 cases**, both with undefined-behavior traps.
+Coverage includes navigation priority/wrap and whole work images; Persona
+multi-frame completion/reset; counter clamps, duplicates, signs, wrapping and
+read-after-write; affine callback replacement and adversarial resource/input
+mutation; all arcana/level combinations and three alias modes; material
+traversal, missing/wrong-format metadata, all byte-component pairs and both
+alpha modes; and layer fade/depth thresholds, local table snapshots and late
+index reloads. The freestanding affine entry needed native stack realignment
+under Clang; no production instruction change was needed.
+
+Assembly rendering and copy operations are explicitly modeled native
+boundaries, not GPU execution. The material consumer's bytewise `strcmp`
+boundary is not claimed as recovered SDK/libc code. These consumers do not
+verify PS2 COP1/GS hardware behavior or arbitrary invalid object graphs.
+All **44 native source/header/binary and negative-control files** were
+hash-archived, round-trip verified and removed; no permanent tests were added.
+
+Three further byte-exact candidates remain private and **unpromoted**:
+`002f9c30` reaches current C helpers that drop an allocation return and a free
+pointer; `0019f1d0` has an upstream initializer that drops required arguments;
+and `001cfad0` reaches an animation-bounds getter through a pointer-return
+declaration incompatible with its current signed-integer-return definition.
+The last candidate remains exact with genuine sixteen-byte matrix alignment
+instead of an invented padding member, but that does not close its provider
+contracts. Worker completion or instruction identity alone is not acceptance.
+
+The single home-only shared gate passes **529 tests** and zero lint findings.
+Exactly the seven listed functions change status among **12,720** scanned
+functions: **6,285 first-party matches / 575 fallbacks**, and **7,915 total
+matches / 4,805 fallbacks**. Source linkage is **173 C objects / 1,601
+C-linked functions**; community and fusion add the two linked C bodies, while
+the other five recoveries have independent current-source object proofs.
+Both retail SHA-1 identities remain unchanged. The private
+`p4_restarted_batch_integration/checkpoint_evidence.json` indexes the primary
+proofs, complete gate transcript, native archive, all 57 worker handoffs and
+the rejected-candidate evidence. The full first-party goal remains open.

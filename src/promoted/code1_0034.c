@@ -1,8 +1,9 @@
 #include "include_asm.h"
 #include "type.h"
+#include "rw/plcore/barenderstate.h"
 extern void func_0034c4a0();
-extern void (*D_00887300[])(s32, s32);
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern s32 (*D_00887300[])(RwRenderState, void *);
+extern s32 func_003f6440(s32 command, void *value);
 extern void func_0046b380(u8 *arg0, s32 arg1);
 extern void func_0046d730(const void *file, s32 line);
 extern char D_0064B310[];
@@ -21,10 +22,10 @@ extern u16 iGpffffb5a4;
 extern u8 *func_0046d200(s32 arg0, s32 arg1);
 extern s32 func_002b89a0(void *arg0);
 extern void func_0043f810(void *arg0, s32 arg1, s32 arg2);
-extern u8 *func_00457120(void);
+extern s32 func_00457120(void);
 extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
 extern u8 D_00793E80[];
-extern void func_0034a8b0(void *arg0);
+extern void func_0034a8b0(u8 *packet, s32 data, void *callback);
 extern f32 fGpffff8504;
 extern f32 fGpffff8224;
 extern void func_0046d280(void *node);
@@ -184,7 +185,7 @@ void func_0034a840(u8 *arg0) {
     temp_16 = (u8 *)(*(u8 **)(arg0 + 0x38));
     *(s32 *)(temp_16 + 0xE4) = 0;
     *(s32 *)(temp_16 + 0xE0) = 0;
-    func_003e8130(func_00457120(), temp_16 + 0xE0);
+    func_003e8130((u8 *)func_00457120(), temp_16 + 0xE0);
 }
 
 // FUN_0034A890
@@ -196,14 +197,76 @@ void func_0034a890(u8 *arg0)
     *(u8 *)(p + 6) = 1;
 }
 // FUN_0034A8B0
-INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034a8b0);
+/* Preserve the dispatcher contract and the four retail far-plane observations. */
+#pragma push
+#pragma opt_propagation off
+#pragma opt_loop_invariants on
+void func_0034a8b0(u8 *packet, s32 data, void *callback)
+{
+    extern s32 func_003315c0(void);
+    f32 reciprocal;
+    s32 *raster;
+    s32 (**state)(RwRenderState, void *);
+    s32 i;
+    u8 *v;
+
+    reciprocal = 1.0f / *(f32 *)((u8 *)func_00457120() + 0x80);
+    raster = (s32 *)func_003315c0();
+    state = D_00887300;
+    state[0](6, (void *)1);
+    state[0](7, (void *)2);
+    state[0](8, (void *)1);
+    state[0](9, (void *)2);
+    state[0](0xC, (void *)1);
+    state[0](2, (void *)3);
+    state[0](0xB, (void *)6);
+    state[0](0xA, (void *)5);
+    func_003f6440(2, (void *)0x44);
+    func_003f6440(3, (void *)0x717FB);
+    *(s32 *)((u8 *)data + 0x10) = 0;
+    *(s32 *)((u8 *)data + 0x14) = 0;
+    *(s32 *)((u8 *)data + 0x50) = 0x3F800000;
+    *(s32 *)((u8 *)data + 0x54) = 0;
+    *(s32 *)((u8 *)data + 0x90) = 0;
+    *(s32 *)((u8 *)data + 0x94) = 0x3F800000;
+    *(s32 *)((u8 *)data + 0xD0) = 0x3F800000;
+    *(s32 *)((u8 *)data + 0xD4) = 0x3F800000;
+    i = 0;
+    while ((s64)(s16)i < 4) {
+        f32 farZ;
+        f32 depth;
+        v = (u8 *)data + ((s32)(s64)(s16)(s64)i << 6);
+        farZ = *(volatile f32 *)D_008872F8;
+        depth = *(f32 *)((u8 *)data + 0x108);
+        *(f32 *)(v + 8) = farZ - depth;
+        *(f32 *)(v + 0x18) = reciprocal;
+        *(f32 *)(v + 0x20) = (f32)(u32)*(u8 *)((u8 *)data + 0x179);
+        *(f32 *)(v + 0x24) = (f32)(u32)*(u8 *)((u8 *)data + 0x17A);
+        *(f32 *)(v + 0x28) = (f32)(u32)*(u8 *)((u8 *)data + 0x17B);
+        *(f32 *)(v + 0x2C) = (f32)(u32)*(u8 *)((u8 *)data + 0x162);
+        i = (s64)(s16)(i + 1);
+    }
+    *(f32 *)((u8 *)data + 0) = *(f32 *)((u8 *)data + 0x12C);
+    *(f32 *)((u8 *)data + 4) = *(f32 *)((u8 *)data + 0x130);
+    {
+        f32 width;
+        width = *(f32 *)((u8 *)data + 0x194);
+        *(f32 *)((u8 *)data + 0x40) = width * 32.0f + *(f32 *)((u8 *)data + 0x12C);
+    }
+    *(f32 *)((u8 *)data + 0x44) = *(f32 *)((u8 *)data + 0x130);
+    *(f32 *)((u8 *)data + 0x80) = *(f32 *)((u8 *)data + 0x12C);
+    *(f32 *)((u8 *)data + 0x84) = *(f32 *)((u8 *)data + 0x1A0) * 32.0f + *(f32 *)((u8 *)data + 0x130);
+    *(f32 *)((u8 *)data + 0xC0) = *(f32 *)((u8 *)data + 0x194) * 32.0f + *(f32 *)((u8 *)data + 0x12C);
+    *(f32 *)((u8 *)data + 0xC4) = *(f32 *)((u8 *)data + 0x1A0) * 32.0f + *(f32 *)((u8 *)data + 0x130);
+    state[0](1, (void *)*raster);
+}
+#pragma pop
 // FUN_0034AC00
 /* measured: opt_propagation off plus a named local forces the GP global read to its written position, producing retail's field-first/global-second order. */
 #pragma push
 #pragma opt_propagation off
 s32 func_0034ac00(u8 *arg0)
 {
-    extern void func_0034a8b0(void *arg0);
     s32 counter;
     s16 bumped;
     u8 *entry;
@@ -314,17 +377,17 @@ void func_0034b950(void)
 #pragma opt_propagation off
 void func_0034edc0(void)
 {
-    void (**base)(s32, s32);
+    s32 (**base)(RwRenderState, void *);
 
     base = D_00887300;
-    base[0](7, 2);
-    base[0](6, 0);
-    base[0](8, 0);
-    base[0](1, 0);
-    base[0](0xE, 0);
-    base[0](0xA, 5);
-    base[0](0xB, 7);
-    base[0](0xC, 1);
+    base[0](7, (void *)2);
+    base[0](6, (void *)0);
+    base[0](8, (void *)0);
+    base[0](1, (void *)0);
+    base[0](0xE, (void *)0);
+    base[0](0xA, (void *)5);
+    base[0](0xB, (void *)7);
+    base[0](0xC, (void *)1);
 }
 /* measured: close opt_propagation bracket for func_0034edc0. */
 #pragma opt_propagation on
@@ -351,7 +414,7 @@ void func_0034ee90(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
     temp_f20 = fparg0;
     if (!(fparg2 <= 0.0f)) {
         temp_f23 = D_008872F8[0] - D_0088467C[0];
-        temp_f22 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+        temp_f22 = 1.0f / *(f32 *)((u8 *)func_00457120() + 0x80);
         temp_16 = (u8 *)((s32)(temp_17) + 0x790);
         *(s32 *)(temp_17 + 0x990) = 1;
         temp_f21 = 448.0f + fparg1;
@@ -391,20 +454,20 @@ void func_0034f0d0(f32 fparg0, f32 fparg1, u8 *arg0, f32 fparg2,
 #pragma opt_propagation off
 void func_0034f1e0(void)
 {
-    void (**base)(s32, s32);
+    s32 (**base)(RwRenderState, void *);
 
     base = D_00887300;
-    base[0](6, 0);
-    base[0](7, 2);
-    base[0](8, 0);
-    base[0](9, 2);
-    base[0](0xC, 1);
-    base[0](0xB, 6);
-    base[0](0xA, 5);
-    base[0](2, 4);
-    base[0](0xE, 0);
-    func_003f6440(3, 0x717FB);
-    func_003f6440(2, 0x44);
+    base[0](6, (void *)0);
+    base[0](7, (void *)2);
+    base[0](8, (void *)0);
+    base[0](9, (void *)2);
+    base[0](0xC, (void *)1);
+    base[0](0xB, (void *)6);
+    base[0](0xA, (void *)5);
+    base[0](2, (void *)4);
+    base[0](0xE, (void *)0);
+    func_003f6440(3, (void *)0x717FB);
+    func_003f6440(2, (void *)0x44);
 }
 /* measured: closing opt_propagation bracket for func_0034f1e0. */
 #pragma opt_propagation on

@@ -8,8 +8,8 @@ extern u32 D_0079B68C[];
 
 typedef struct DatGlobal {
     u8 padding[0x3c6c];
-    u32 flags[1];
-    u8 padding2[0x4c0];
+    u32 flags[0xB0];
+    u8 padding2[0x204];
     s16 partyIds[1];
 } DatGlobal;
 

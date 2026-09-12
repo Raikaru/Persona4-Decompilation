@@ -7,12 +7,12 @@ extern void func_00440b68(const char *fmt, const char *file, s32 line);
 extern void *func_00454a60(const char *path, s32 flags);
 extern void func_00456150(void *handle);
 extern u8 *func_00455ea0(u8 *handle, s32 index, s32 *out);
-extern void func_0046d730(const char *file, s32 line);
+extern void func_0046d730(void *file, s32 line);
 extern void func_0046d700(const char *file, s32 line, char *fmt, s32 value);
 extern s32 func_001060b0(void);
-extern s32 func_00106330(s32 flag);
+extern u32 func_00106330(s32 flag);
 extern void func_00106390(s32 id, s32 flag);
-extern s32 func_001064f0(s32 idx);
+extern u32 func_001064f0(s32 idx);
 extern s32 func_00106550(s32 id, s32 value);
 extern s32 func_00106600(s16 idx);
 extern void func_00106620(s32 a, s32 b);
@@ -36,8 +36,7 @@ extern s32 func_00109280(s32 idx);
 extern s32 func_00109300(s32 idx);
 extern s32 func_0010b6f0(void);
 extern void func_001104d0(s32 seed, s32 *month, s32 *day);
-extern s32 func_001064f0(s32 idx);
-extern u32 func_00110600(u8 a, u8 b);
+extern s32 func_00110600(s32 a, s32 b);
 extern s32 func_00110d30(s32 idx);
 extern s32 func_00249010();
 extern u16 func_002489c0(s32 arg0);
@@ -1577,15 +1576,59 @@ selected_record:
     if (selected == NULL) return 0;
     return *(s32 *)(cmmMiscAddOff(column * 16, (s32)selected) + 12);
 }
-/* measured: CommonRecordFinal_002494c0_body.c emits 432 executable bytes
-   versus retail 428 plus four alignment bytes. All 16 relocations resolve;
-   one extra daddu a0,s0,zero at +0x2C shifts the remainder (96 positional
-   executable differences, 86 masked words). Removing it only for analysis
-   leaves exact bytes. Shared-NULL flow and scoped CSE close the old floor,
-   but both tested inline optimization boundaries fail to remove this copy.
-   Retain ASM; the date/column ABI and callback-visible field reloads stand. */
+/* Unsigned address addition preserves the retail operand order without
+   changing the signed counter-delta arithmetic. */
+static inline u32 cmmMiscAddAddress(u32 offset, u32 base)
+{
+    return offset + base;
+}
+
 // FUN_002494C0
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002494c0);
+s32 func_002494c0(s32 date, s32 column)
+{
+    s32 month;
+    s32 day;
+    u8 *base;
+    u8 *record;
+    u8 *selected;
+    u16 *key;
+    s32 value;
+    s32 offset;
+    u16 id;
+
+    base = D_008814D0[0] + 8;
+    func_001104d0(date, &month, &day);
+    if (func_00106330(0xA61) == 0) goto null_record;
+    record = base + func_001064f0(0x6D) * 36;
+    if ((u32)date < (u32)func_00110600(record[2], record[3])) goto null_record;
+    selected = record;
+    goto selected_record;
+null_record:
+    record = NULL;
+    selected = record;
+selected_record:
+    if (column != 0 && column != 1) func_0046d730(D_006359D0, 0x4AB);
+    if (selected == NULL) func_0046d730(D_006359D0, 0x4AC);
+    offset = column * 16;
+    key = (u16 *)(cmmMiscAddOff(offset, (s32)selected) + 4);
+    id = *key;
+    if (id != 0) {
+        value = func_00106600((s16)id) & 0xFF;
+        value = cmmMiscAddOff(value, *(s16 *)(cmmMiscAddAddress((u32)offset, (u32)selected) + 6));
+        if (value > 99) value = 99;
+        func_00106620(*(s16 *)key, value & 0xFF);
+    }
+    key = (u16 *)(cmmMiscAddAddress((u32)offset, (u32)selected) + 8);
+    id = *key;
+    if (id != 0) {
+        offset = (u32)column << 4;
+        value = func_00106600((s16)id) & 0xFF;
+        value = cmmMiscAddOff(value, *(s16 *)(cmmMiscAddOff(offset, (s32)selected) + 10));
+        if (value > 99) value = 99;
+        func_00106620(*(s16 *)key, value & 0xFF);
+    }
+    return 1;
+}
 /* measured: nd 4 (obj 252B vs window 256B, so THREE real words) from 14.
    Reconstructed from the m2c draft in src/generated/code1_0024.c, which gave the
    control flow directly; the `(s64)((x + 0x4EA) << 0x30) >> 0x30` it prints is
