@@ -1759,7 +1759,7 @@ extern s32 func_0015a6a0(void);
  * Retail includes that byte in the character-wise summary checksum.
  * 3908/3920 bytes; 219 resolved relocations; 12 zero alignment bytes. */
 extern u8 *iGpffff9db0;
-extern u8 *(*D_008873F4[])(s32 count, s32 size, s32 hint);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_0015a160(void);
 extern u32 func_00110460(void);
 extern u32 D_0079B3CC[];

@@ -25,7 +25,7 @@ void func_004504f0(void* a0, void* a1);
 void func_00440b68();
 s16 func_0044ec40(void);
 void func_00454f50(void* a0, void* a1, void* a2);
-extern u8* (*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_008D1B80[];
 extern u8* D_008D1B84[];
 extern char D_00710900[];
@@ -141,7 +141,7 @@ void func_004555d0(void* resultData, void* slotData, s32 amount, s32 mode)
 
 s32 func_003dd900(s32 a0);
 void func_0044ea90(const void* file, s32 line);
-extern u8* (*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_004556b0(void);
 extern void func_004556f0(void);
 extern void func_004553e0(void);

@@ -29,7 +29,8 @@ extern void func_0021afa0(s32 arg0);
 extern void func_0020e3f0();
 
 extern u32 func_00106330(s32 arg0);
-extern void func_00213ab0();
+extern u32 func_00232710(s32 arg0, u32 arg1);
+extern void func_00213ab0(s32 arg0, u8 *arg1);
 extern void func_0021ae60(u8 *arg0, u8 *arg1);
 
 extern void memset(void *destination, s32 value, u32 size);
@@ -594,7 +595,7 @@ s32 func_002011c0(s32 arg0)
 }
 // FUN_00201280
 void func_00201280(u8 *arg0, u8 *arg1) {
-    func_00213ab0();
+    func_00213ab0((s32)arg0, arg1);
     func_0021ae60(arg0, arg1 + 0x18);
 }
 
@@ -3704,6 +3705,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020f730);
 void func_0020fa70(u8 *work, u8 *state)
 {
     extern void func_0020f730(u8 *work, u8 *state, s32 color, s32 index);
+    extern f32 D_00761300;
+    extern f32 fGpffff8110;
+    extern f32 fGpffff84ac;
     union { Color4 rgba; s32 bits; } ring, fill, saved, black, transparent;
     Vec2f position;
     u8 red;
@@ -3735,24 +3739,24 @@ void func_0020fa70(u8 *work, u8 *state)
     transparent.rgba.c2 = black.rgba.c2 = 0;
     black.rgba.c3 = (u8)(76.0f * extent);
     transparent.rgba.c3 = 0;
-    func_00365f00(position, 0.0f, black.bits, transparent.bits, 100.0f, 0.0f, 12, 1.066f, 1.0f, 0);
+    func_00365f00(position, 0.0f, black.bits, transparent.bits, 100.0f, 0.0f, 12, D_00761300, 1.0f, 0);
     transparent.rgba.c0 = saved.rgba.c0;
     transparent.rgba.c1 = saved.rgba.c1;
     transparent.rgba.c2 = saved.rgba.c2;
     transparent.rgba.c3 = 0;
     func_00201820(2);
-    func_00365f00(position, 0.0f, fill.bits, transparent.bits, 125.0f, 0.0f, 12, 1.066f, 1.0f, 0);
+    func_00365f00(position, 0.0f, fill.bits, transparent.bits, 125.0f, 0.0f, 12, D_00761300, 1.0f, 0);
     func_00201720(work, extent, 1.0f);
     func_002016e0(work, 0, 0, 90.0f);
     func_00201650(work, 10, 45, 20.0f, -57.0f * extent, red, green, blue, 255);
     if (state[0]) {
-        func_00201720(work, 1.2f, 1.5f);
-        func_00201650(work, 10, 45, 30.0f, -68.4f, red, green, blue, state[0]);
+        func_00201720(work, fGpffff8110, 1.5f);
+        func_00201650(work, 10, 45, 30.0f, fGpffff84ac, red, green, blue, state[0]);
     }
     func_00201720(work, 1.0f, extent);
     func_002016e0(work, 0, 0, 0.0f);
     func_00201650(work, 10, 46, 12.0f, -5.0f * extent, red, green, blue, 255);
-    func_00201720(work, 1.066f, extent);
+    func_00201720(work, D_00761300, extent);
     for (index = 1; index < 12; index++) func_0020f730(work, state, ring.bits, index);
     func_002016e0(work, 0, 0, 0.0f);
     func_00201720(work, 1.0f, 1.0f);

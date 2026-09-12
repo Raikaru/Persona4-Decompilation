@@ -48,7 +48,7 @@ extern u8 iGpffffba58;
 extern void (*D_00887300[])(u32, u32);
 extern void func_003f6440(s32 arg0, s32 arg1);
 extern void func_0044ea90(const void *msg, s32 line);
-extern void *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_00456150(void *arg0);
 extern void func_0043f810(void *dst, void *src, u32 size);
 extern void func_00454bd0(void *arg0);

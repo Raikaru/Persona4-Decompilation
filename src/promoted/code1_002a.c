@@ -4,7 +4,7 @@
 #include "sdk_snd_internal.h"
 #include "fr_font_internal.h"
 
-extern void (*jtbl_008873EC[])(u8 *);
+extern void (*jtbl_008873EC[])(void *);
 extern u16 *D_00764658;
 
 s32 func_00452380(void *arg0);
@@ -22,7 +22,7 @@ extern void func_002aa450(void);
 extern void func_0044ea90(void *arg0, s32 arg1);
 extern u8 D_0063EEC0[];
 extern u8 D_0063EED0[];
-extern u8 *(*D_008873F4[])(s32 arg0, s32 arg1, s32 arg2);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_00451de0(const void *data, s32 arg1, s32 arg2, s32 arg3,
                          void *init, void *close, void *buf);
 extern s32 func_002abf70(u8 *arg0);

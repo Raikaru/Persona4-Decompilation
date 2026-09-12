@@ -42,7 +42,7 @@ extern void func_00106db0(s32 a, s32 b);
 extern void func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
 extern void func_00108d80(void);
 extern void func_00108cb0(void);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u16 D_0079740C[];
 extern u8 D_00797410[];
 extern s32 D_00797560[];

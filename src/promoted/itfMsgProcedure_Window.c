@@ -78,7 +78,7 @@ extern void func_00272ba0(void *arg0, s32 arg1);
 extern void func_0027a490(void *a0, s32 a1, s32 a2, s32 a3);
 extern void func_0027a4b0(void *a0, s32 a1, s32 a2, s32 a3);
 extern void func_002e0dd0(void);
-extern void *(*D_008873F4[])(s32 a0, s32 a1, s32 a2);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *arg0);
 extern void func_0027be90(void *arg0, void *arg1);
 extern void func_0044ea90(const void *file, s32 line);

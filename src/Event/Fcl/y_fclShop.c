@@ -7,7 +7,7 @@ extern char D_0063F3E0[];
 extern char D_0063F550[];
 extern s32 D_0063F520[];
 extern char iGpffffa870;
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 s32 func_002ca830(s32);
 s32 func_002be100(s32);

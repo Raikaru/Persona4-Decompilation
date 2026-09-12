@@ -23,7 +23,7 @@ extern void func_0012b940(void);
 extern void func_0012b9a0(void);
 extern void *func_00452560();
 extern void (*jtbl_008873EC[])(void *);
-extern void *(*D_008873F4[])(s32, s32, u32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern char D_00762D88;
 extern char D_00762D98;

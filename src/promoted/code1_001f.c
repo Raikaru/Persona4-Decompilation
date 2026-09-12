@@ -18,7 +18,7 @@ static inline u32 addOffsetAfterBase(u32 base, u32 offset) {
     return offset + base;
 }
 
-extern s32 func_00232710(s32 arg0, s32 arg1);
+extern u32 func_00232710(s32 arg0, u32 arg1);
 extern s32 func_002326e0(s32 arg0);
 extern s32 func_00243ce0(s32 arg0);
 extern u8 *iGpffffb3c4;

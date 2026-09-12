@@ -3001,7 +3001,7 @@ s32 func_00243fa0(s32 arg0, s32 arg1)
     case 11:
     case 13:
     case 15:
-        goto err1682;
+        break;
     case 1:
     case 2:
     case 6:
@@ -3012,7 +3012,6 @@ s32 func_00243fa0(s32 arg0, s32 arg1)
         var_16 = 0;
         break;
     default:
-    err1682:
         func_0046d730(D_00635938, 0x1682);
         break;
     }

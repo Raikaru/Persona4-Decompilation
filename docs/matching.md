@@ -11088,3 +11088,231 @@ Both retail SHA-1 identities remain unchanged. The private
 `p4_restarted_batch_integration/checkpoint_evidence.json` indexes the primary
 proofs, complete gate transcript, native archive, all 57 worker handoffs and
 the rejected-candidate evidence. The full first-party goal remains open.
+
+## Fusion snapshot and list-lifecycle contract closure
+
+`func_002f9c30` now copies the consumed fusion records before the destructive
+Persona initializer. Its 348-byte body matches the 352-byte retail window,
+with eleven resolved relocations, four zero tail bytes, and the exact
+28-byte, seven-relocation switch table. The actual list allocator
+`func_002e6f00` returns its initialized block; `func_002e7190` forwards the
+received block to the real free slot. Both slots use the canonical
+`void *(size_t, size_t, u32)` allocation and `void (void *)` free contracts.
+Current-source proofs cover all **118 function images and eighteen tables**
+across `y_fclCombine.c`, `y_list.c`, and `code1_002e.c`, without differing or
+unresolved bytes.
+
+The no-libc i386 smoke consumer contains **fourteen actual current C bodies**.
+GCC and Clang each pass **6,173 cases** with undefined-behavior traps:
+6,075 snapshot cases and 98 list-lifecycle cases. Coverage includes every
+consumed-input alias for counts two through six, party/nonparty ID boundaries,
+levels 1/33/99, zero through eight initial skills, the 48-entry list capacity,
+duplicates, removal compaction, and guard bytes. Allocations use real Linux
+`mmap`; deallocation is checked by the subsequent `mprotect` failure with
+`ENOMEM`, not by callback bookkeeping.
+
+The unrecovered `00312c60` boundary supplies one controlled inheritance
+selection and checks the complete saved records; this is not a reconstruction
+of retail random inheritance. The unrecovered `0010be60` boundary supplies
+initialized zero-growth data for constructor/no-added-XP fixtures. Copy,
+clear, and unrecovered diagnostic operations are explicit native boundaries.
+The native entry alone needs stack realignment under Clang.
+
+Initializing before the snapshots, dropping the allocation return, and
+dropping the free each fail under both compilers: six meaningful negative
+controls. All fourteen throwaway source/header/binary artifacts were
+hash-archived, round-trip verified, and removed. No permanent test was added.
+Evidence is indexed by
+`p4_four_resume_20260912T062313/Main/fusion_snapshot_evidence.json` and
+`fusion_snapshot_native_archive.json`. Task callback APIs, the pending camera
+and sizing packages, and the full first-party goal are not claimed closed by
+this proof. Shared build counts await the next integrated gate.
+
+## Named-task completion state transitions
+
+`func_00331680`, `func_00331770`, and `func_00331860` now advance through
+states one through five and poll their named task in state six. Completion
+restores the window and resets the state only after the task disappears.
+The lookup declaration uses the actual `sdkTask.c` contract, `u8 *(s8 *)`,
+not an integer return or an invented const-qualified parameter.
+Current-source comparison covers **39 function images and four tables** in
+`code1_0033.c`, with every relocation resolved and no differing bytes.
+
+The freestanding i386 consumer executes **five actual C bodies**: the three
+callbacks, the three-list task lookup, and the window-restoration provider.
+The pre-fix GCC executable fails its delay/transition check. GCC and Clang
+each pass **nine complete delay/wait/restoration lifecycles** after the fix,
+including every task-list placement and a checksum-colliding different name.
+State-zero task creation is outside this consumer; no PS2 execution is claimed.
+
+All seven source/header/binary artifacts were hash-archived, round-trip
+verified, and removed. No permanent test was added. Evidence is indexed by
+`p4_four_resume_20260912T062313/Main/state_transition_evidence.json` and
+`state_transition_native_archive.json`.
+
+## Unit-sizing boundary and mutation proof
+
+The recovered `func_0019f1d0` uses the three retail size bands, truncates
+scaled dimensions before classification, applies the selected growth/shrink
+mode, and marks eligible units dirty. Resource exclusion returns without
+changing the unit. Its current owner, `code1_0019.c`, passes resolved
+comparison of **151 function images and three tables**.
+
+GCC and Clang each pass **22,800 native scenarios** using the actual recovered
+body: fractional and integer validity/band boundaries, three initial scales,
+all four modes, flagged and unflagged resources, a null resource, and
+nonexcluded unit types. Checks cover the resulting scale and dirty bit plus
+every unrelated unit byte. Inputs are finite and their scaled dimensions are
+representable as `s32`; this does not define float-to-integer conversion
+outside that domain.
+
+Clang reports two path-analysis warnings about the band variable despite
+the preceding radius guard dominating both branches. No suppression or
+extra initialization was added. The native harness entry, not the recovered
+body, needs stack realignment under Clang; the debugger identified an
+unaligned `movaps` in the freestanding `_start`.
+All five native artifacts were hash-archived, round-trip verified, and
+removed. Evidence is indexed by
+`p4_four_resume_20260912T062313/Main/unit_sizing_evidence.json` and
+`unit_sizing_native_archive.json`. This is not PS2 runtime verification.
+
+## Anonymous text-section relocation identity
+
+The `mwccgap` transplant now maps an assembled own-text `STT_SECTION`
+reference onto the existing containing-function symbol when their bases
+are equivalent. The original addend stays intact. This avoids resolving
+the section's empty name to ELF symbol zero, without exporting local labels
+or requiring a label exactly at the referenced offset.
+
+The current `code1_0010.c` object passes unmasked comparison of **38 function
+images and one table**. The startup `D_1F60000` address was independently
+checked against its retail HI16/LO16 pair. The regression in
+`tests/test_mwccgap.py` verifies linked jump and word-pointer destinations,
+an external call, differing assembler/compiler section indices, and targets
+without exact labels. Disabling the section-base repair reproduces the
+unresolved-null-symbol failure. Evidence:
+`p4_four_resume_20260912T062313/Main/section_relocation_evidence.json`.
+
+## Classifier table repair, not anonymous renumbering
+
+The baseline `func_00243fa0` table at `0x747CC0` sent ten valid categories
+to `0x2440C8`, the assertion block, instead of retail's `0x2440DC` return.
+Replacing their `goto err1682` with `break` and removing the obsolete label
+fixes the C dispatch. The default error path remains intact. Current
+`datCalc.c` passes fully resolved comparison of **80 function images and
+two tables**. No relocation mask or anonymous-name exception was needed.
+
+The old actual C body triggers assertion `0x1682` for a valid category.
+GCC and Clang each pass **44,880 cases** with the repaired body: every one
+of the seventeen retail categories, both selected fields, all IDs below
+`0x1B8`, and high-bit truncation. Diagnostics are an explicit failing native
+boundary. Invalid selectors are outside these fixtures; the compilers'
+existing warning about that default path remains unsuppressed.
+All seven native artifacts were hash-archived, round-trip verified, and
+removed. Evidence is indexed by
+`p4_four_resume_20260912T062313/Main/datcalc_classifier_evidence.json` and
+`datcalc_classifier_native_archive.json`. No PS2 execution is claimed.
+
+## Bounds-centered camera consumer proof
+
+The recovered `func_001cfad0` uses a real, sixteen-byte-aligned `RwMatrix`
+for both orbit rotations. Its current `code1_001c.c` owner passes fully
+resolved comparison of **63 function images and two tables**.
+
+GCC and Clang each pass **6,912 freestanding i386 cases** with UBSan traps:
+the actual camera body, ten actual first-party provider bodies, and two
+existing inline helpers. The fixtures cover all three unit kinds, primary
+bounds at two indices, both status branches and full-width RNG parities,
+radius/scale thresholds, four rotations, and varied heights, distances,
+and fields of view. Independent double-precision geometry checks all four
+positions, orientation before the Y clamp, shortest-arc interpolation,
+playback state, and preservation of unrelated camera and unit bytes.
+
+SDK math uses numerical boundary implementations, not PS2 FPU emulation.
+The real battle tint gate returns before material updates; spline mode
+is not exercised. Clang reports the existing local non-prototype declaration
+and two nonnull stack-array comparisons; no warnings were suppressed.
+All seven native artifacts were hash-archived, round-trip verified, and
+removed. Evidence is indexed by
+`p4_four_resume_20260912T062313/Main/camera_bounds_evidence.json` and
+`camera_bounds_native_archive.json`.
+
+## Canonical free callback and memory lifecycle proof
+
+`func_0046e7f0` now caches the free table as `void (**)(void *)`, without
+an incompatible function-pointer cast. Scoped `opt_propagation off` keeps
+retail's saved table address and reloads each callback entry. Propagation
+enabled emits an 80-byte body instead; disabling common subexpressions or
+enabling loop invariants does not close that difference. The integrated
+owner passes fully resolved comparison of **59 images and two tables**.
+
+The old cast is a real native type error: restoring only that cast makes
+Clang's UBSan function-type check trap in `func_0046e7f0`. GDB identifies
+the mismatched callback type-hash branch, not an alignment or bounds check.
+The canonical version passes **762 cases under both GCC and Clang**, using
+ten actual first-party C bodies and the actual inline overlap search.
+Coverage includes allocation/free/reuse, calloc clearing, all nine teardown
+chains, window buffer construction and destruction, callback-triggered
+changes to both the callback slot and task work pointer, external frees on
+both sides of the pool, its inclusive upper boundary, both interrupt entry
+states, allocation-failure injection, and both constructor subobjects.
+
+The five current source owners (`code1_0046.c`, `code1_0021.c`, `datUnit.c`,
+`h_malloc.c`, and the `code1_0020.c` forwarder) pass **330 function images
+and four tables** in total. Native task registration, byte filling, and
+interrupt primitives are explicit boundaries; task initialization,
+scheduler execution, and allocator exhaustion are not exercised. Sizes
+are bounded positive values representable in the retail ABI. Clang's
+existing old-style interrupt-enable warning remains unsuppressed.
+
+All seven native artifacts, including the failing old-cast control, were
+hash-archived, round-trip verified, and removed. Evidence:
+`p4_four_resume_20260912T062313/Main/memory_consumers_evidence.json` and
+`memory_consumers_native_archive.json`. No PS2 execution is claimed.
+
+## Compiler scratch files outside the source inventory
+
+A concurrent full verification/test run exposed `mwccgap`'s temporary
+copies under source directories as duplicate canonical function owners.
+The wrapper now writes encoded and transformed C copies into the configured
+temporary area instead. It prepends the original source directory to the
+include search path, preserving local-header precedence. The canonical
+inventory scanner and its assertion are unchanged.
+
+`SourceInventoryTests` observes the real canonical-owner inventory during
+both compiler stages. Both encoded and unencoded paths fail before the
+repair and pass afterward. Real MWCC smoke compiles with a deliberately
+conflicting include directory preserve the source-local constant and exact
+assembly transplant bytes, in ordinary UTF-8 and Shift-JIS source paths.
+The six smoke artifacts were hash-archived, round-trip verified, and removed.
+Evidence:
+`p4_four_resume_20260912T062313/Main/source_scratch_evidence.json` and
+`source_scratch_archive.json`.
+
+## Verified continuation: fusion, unit sizing, and camera bounds
+
+The fresh shared gate changes exactly three statuses from the preceding
+checkpoint: `002f9c30`, `0019f1d0`, and `001cfad0`, all from ASM to MATCH.
+There are now **6,288 first-party matches / 572 fallbacks**, and **7,918
+total matches / 4,802 fallbacks**, among the same 12,720 scanned functions.
+SDK and other third-party matching counts are unchanged.
+
+All **531 tests** pass, including the two compiler-transplant regressions;
+the first-party lint reports zero findings. The source link includes
+**173 C objects / 1,601 C-linked functions**, plus 56 Sony SDK objects.
+Both retail identities remain exact:
+
+- Loadable image: `3d1d3d2b9d6ccb60836db239ab49674223025a78`.
+- Complete ELF: `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+This gate includes the fully resolved owner proofs and native consumers
+documented above, the canonical memory callback cutover, the classifier
+repair, and both compiler-wrapper fixes. Native execution does not stand in
+for PS2 execution, and near-matches remain private. In particular,
+`001bcd40` is still assembly-backed; its mixed source-level float argument
+orders remain an open provider/caller recovery contract, not a recovered
+native interface.
+
+The private checkpoint evidence and preserved reports are under
+`p4_four_resume_20260912T062313/Main/verified_checkpoint/`.
+The full first-party goal remains open.

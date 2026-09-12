@@ -16,7 +16,7 @@ extern u8 iGpffffa6f8;
 /* gp - 0x5900 = 0x007637F0. */
 extern u8 iGpffffa700;
 extern void func_0044ea90(const void *msg, s32 id);
-extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c,
                          void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
 extern u8 *func_00145270(); /* old-style: func_0026d890 passes the icon id in $a0, func_0026da30 calls it bare */

@@ -3,7 +3,7 @@
 #include "include_asm.h"
 #include "type.h"
 extern void (*jtbl_008873EC[])(void *ptr);
-extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*D_00887300[])(u32, u32);
 extern void func_003f6440(s32 arg0, s32 arg1);
 extern void func_00481430(void *arg0);

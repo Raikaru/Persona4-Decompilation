@@ -9,7 +9,7 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern void strcpy(s8 *arg0, s32 *arg1);
 extern void func_00452080(u8 *arg0);
 extern void func_0044ea90(const void *file, s32 line);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 *func_00451fc0(u8 *arg0, const void *name, s32 prio, s32 a3, s32 a4,
                          void (*init)(u8 *), void (*close)(u8 *), u8 *work);
 extern u8 D_00712A40[];

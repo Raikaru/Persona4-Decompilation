@@ -207,7 +207,7 @@ extern u8 D_0062B490[];
 extern u8 D_0062BBE0[];
 extern u8 D_0062C330[];
 extern s32 func_001b1510(void);
-extern s32 func_00232710(u8 *arg0, s32 arg1);
+extern u32 func_00232710(s32 arg0, u32 arg1);
 extern f32 fGpffff834c;
 extern void func_001958f0(BtlUnit *unit, RwV3d *dst);
 extern void func_00194ee0(u8 *arg0, s32 *arg1);
@@ -2824,7 +2824,7 @@ void func_00229da0(u8 *action)
         **(u16 **)(*(u8 **)(target + 0x30) + 0xA64) |= 8;
         **(u16 **)(*(u8 **)(target + 0x30) + 0xA64) |= 0x10;
 
-        if (func_00232710(*(u8 **)(*(u8 **)(target + 0x30) + 0xA64),
+        if (func_00232710((s32)*(u8 **)(*(u8 **)(target + 0x30) + 0xA64),
                           0x100000) != 0) {
             statusAnimation = func_00199ee0(*(u8 **)(target + 0x30),
                                             0xB, 0, 0, 1.0f);
@@ -5038,7 +5038,7 @@ s32 func_0022f7d0(u8 *arg0, u8 *arg1) {
         temp_2_2 = (u8 *)func_001b1510();
         if (temp_2_2 != NULL) {
             temp_4 = *(u8 **)(*(u8 **)(temp_2_2 + 0x30) + 0xA64);
-            if ((temp_4 != NULL) && (func_00232710(temp_4, 0x100) == 0)) {
+            if ((temp_4 != NULL) && (func_00232710((s32)temp_4, 0x100) == 0)) {
                 return 0;
             }
         }

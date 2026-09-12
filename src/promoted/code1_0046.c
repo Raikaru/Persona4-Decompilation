@@ -36,7 +36,7 @@ extern void (*jtbl_008873FC[])();
 
 extern void func_00452730(s32 arg0);
 
-extern void (*jtbl_008873EC[])();
+extern void (*jtbl_008873EC[])(void *);
 extern s32 iGpffffbae8;
 extern s32 iGpffffbaec;
 extern u8 D_0070B610[];
@@ -1548,7 +1548,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00467bd0);
 // FUN_004680C0
 void func_004680c0(u8 *arg0)
 {
-    jtbl_008873EC[0](*(s32 *)(arg0 + 0x38));
+    jtbl_008873EC[0]((void *)*(s32 *)(arg0 + 0x38));
 }
 
 
@@ -1701,11 +1701,11 @@ void func_0046a020(u8 *arg0)
         *(s32 *)(work + 4) = 0;
     }
     if (*(s32 *)(work + 0x1E0) != 0) {
-        jtbl_008873EC[0](*(s32 *)(work + 0x1E0));
+        jtbl_008873EC[0]((void *)*(s32 *)(work + 0x1E0));
         *(s32 *)(work + 0x1E0) = 0;
     }
     if (*(s32 *)(work + 0x200) != 0) {
-        jtbl_008873EC[0](*(s32 *)(work + 0x200));
+        jtbl_008873EC[0]((void *)*(s32 *)(work + 0x200));
         *(s32 *)(work + 0x200) = 0;
         iGpffffbae8 = 0;
     }
@@ -1812,11 +1812,11 @@ void func_0046a340(u32 arg0) {
     u8 *entry;
 
     if (arg0 < iGpffffbb14) {
-        (*jtbl_008873EC)();
+        (*jtbl_008873EC)((void *)arg0);
         return;
     }
     if (iGpffffbb10 < arg0) {
-        (*jtbl_008873EC)();
+        (*jtbl_008873EC)((void *)arg0);
         return;
     }
     temp_2 = func_0042ba20();
@@ -2004,14 +2004,18 @@ void func_0046d740(void) {}
 // FUN_0046D750
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046d750);
 // FUN_0046E7F0
+/* Keep the table address cached without changing the free callback type. */
+#pragma push
+#pragma opt_propagation off
 void func_0046e7f0(u8 *arg0)
 {
-    void (**tbl)(u8 *) = (void (**)(u8 *))jtbl_008873EC;
+    void (**tbl)(void *) = jtbl_008873EC;
     u8 *work = *(u8 **)(arg0 + 0x38);
 
     tbl[0](*(u8 **)(work + 0x48));
     tbl[0](*(u8 **)(arg0 + 0x38));
 }
+#pragma pop
 /* Pointer-valued task name restores retail argument setup.
  * MWCCPS2 b210 -O2: 444 executable bytes / 448-byte retail window.
  * The buffer calculation uses rectangle x/y, not width/height. */
@@ -2019,7 +2023,7 @@ void func_0046e7f0(u8 *arg0)
 #pragma opt_propagation off
 extern s32 func_0046d750(u8 *);
 extern void func_0044ea90(void *, s32);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_007130F8[], D_00713108[];
 // FUN_0046E850
 u8 *func_0046e850(u8 *parent, void *rect_arg, void *first_arg, void *second_arg)
@@ -2032,7 +2036,7 @@ u8 *func_0046e850(u8 *parent, void *rect_arg, void *first_arg, void *second_arg)
         WindowRect rect;
         WindowColor first, second;
         u8 reserved24[32];
-        s32 buffer_size;
+        size_t buffer_size;
         u8 *buffer, *cursor;
     } WindowWork;
     WindowRect *rect = (WindowRect *)rect_arg;
@@ -2041,8 +2045,8 @@ u8 *func_0046e850(u8 *parent, void *rect_arg, void *first_arg, void *second_arg)
     s32 result;
     WindowWork *work;
     u8 *buffer;
-    s32 *size;
-    u8 *(**allocator)(s32, s32, s32);
+    size_t *size;
+    void *(**allocator)(size_t, size_t, u32);
 
     func_0044ea90(D_007130F8, 379);
     allocator = D_008873F4;

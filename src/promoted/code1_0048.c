@@ -82,7 +82,7 @@ extern void func_004946d0(u8 *arg0, u16 arg1);
 extern void func_00494ff0(u8 *arg0);
 
 
-extern void (*jtbl_008873EC[])();
+extern void (*jtbl_008873EC[])(void *);
 static inline f32 code1_0048_mul(f32 left, f32 right) {
     return left * right;
 }

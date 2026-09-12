@@ -20,7 +20,7 @@ extern void func_00290940(s32 arg0);
 extern void func_00442088();
 extern void func_0026c770(f32 *param_1, f32 *param_2, f32 *param_3);
 extern void func_0026c680(f32 *param_1);
-extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00748340[];
 extern u8 D_0063C6A0[];
 extern u8 D_0063C7A0[];

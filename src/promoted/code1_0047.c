@@ -7,7 +7,7 @@ extern void (*iGpffffbb34)();
 extern void (*iGpffffbb38)();
 extern void (*iGpffffbb3c)();
 extern void func_00470d70(u8 *arg0);
-extern void (*jtbl_008873EC[])(u8 *arg0);
+extern void (*jtbl_008873EC[])(void *);
 extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
 extern s32 iGpffffbb28;
 extern void *D_00922BE0[];

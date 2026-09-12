@@ -175,7 +175,7 @@ struct BtlUnitAnimBounds
     u16 unk_6;
     u16 radius;
 };
-const BtlUnitAnimBounds* func_0019eda0(BtlUnit* unit, s32 id);
+u8* func_0019eda0(u8* unit, s32 id);
 
 
 BtlPacket* func_00194470(u32 id, s32 workDataSize);
@@ -184,7 +184,7 @@ RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
 void func_001ec1c0(RwV3d* dst, const RwV3d* from, const RwV3d* to);
 extern void func_003dcb40(RwV3d *dst, RwV3d *src, s32 mode, RwV3d *rot);
 extern s32 func_002428f0(void *arg0, s32 arg1);
-extern s32 func_00232710(void *arg0, s32 arg1);
+extern u32 func_00232710(s32 arg0, u32 arg1);
 extern f32 func_003e4180(RwV3d *value);
 extern u8 *iGpffffb3ac;
 extern RwV3d D_00881430;
@@ -212,7 +212,7 @@ void func_00195b60(u8 *arg0, s32 arg1, u8 *arg2)
     RwV3d *out;
 
     func_001ec1c0(&work.rotation, (RwV3d *)(arg0 + 4), (RwV3d *)((u8 *)arg1 + 4));
-    bounds = (BtlUnitAnimBounds *)func_0019eda0((BtlUnit *)arg0, 0xA);
+    bounds = (BtlUnitAnimBounds *)func_0019eda0(arg0, 0xA);
     centerY = (f32)bounds->centerY;
     centerZ = (f32)bounds->centerZ;
     centerX = (f32)bounds->centerX;
@@ -316,7 +316,7 @@ f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                     (!*(s32 *)(filters + 0x10) ||
                      group != 0 ||
                      (func_002428f0(*(void **)(firstUnit + 0xA64), 0) == 0 &&
-                      func_00232710(*(void **)(firstUnit + 0xA64), 0x100117) == 0)))
+                      func_00232710(*(s32 *)(firstUnit + 0xA64), 0x100117) == 0)))
                 {
                     f32 x;
                     f32 y;
@@ -412,7 +412,7 @@ f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                         (!*(s32 *)(filters + 0x10) ||
                          secondGroup != 0 ||
                          (func_002428f0(*(void **)(unit + 0xA64), 0) == 0 &&
-                          func_00232710(*(void **)(unit + 0xA64), 0x100117) == 0)))
+                          func_00232710(*(s32 *)(unit + 0xA64), 0x100117) == 0)))
                     {
                         f32 x;
                         f32 z;
@@ -703,7 +703,7 @@ u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
             else
             {
                 func_001ec1c0(&frame.rotateB, &target->pos, &packet->unit->pos);
-                bounds = func_0019eda0(target, 0);
+                bounds = (const BtlUnitAnimBounds *)func_0019eda0((u8 *)target, 0);
                 centerY = (f32)bounds->centerY;
                 centerZ = (f32)bounds->centerZ;
                 centerX = (f32)bounds->centerX;
@@ -733,7 +733,7 @@ u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
         }
         else
         {
-            bounds = func_0019eda0(target, 0);
+            bounds = (const BtlUnitAnimBounds *)func_0019eda0((u8 *)target, 0);
             centerY = (f32)bounds->centerY;
             centerZ = (f32)bounds->centerZ;
             centerX = (f32)bounds->centerX;
@@ -762,7 +762,7 @@ u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
         else
         {
             target = packet->unit;
-            bounds = func_0019eda0(target, 0);
+            bounds = (const BtlUnitAnimBounds *)func_0019eda0((u8 *)target, 0);
             centerY = (f32)bounds->centerY;
             centerZ = (f32)bounds->centerZ;
             centerX = (f32)bounds->centerX;
@@ -1491,7 +1491,7 @@ void func_001959d0(BtlUnit* unit, RwV3d* param_2)
     f32 centerZ;
     f32 centerX;
 
-    bounds = func_0019eda0(unit, 0);
+    bounds = (const BtlUnitAnimBounds *)func_0019eda0((u8 *)unit, 0);
     centerY = bounds->centerY;
     centerZ = bounds->centerZ;
     centerX = bounds->centerX;

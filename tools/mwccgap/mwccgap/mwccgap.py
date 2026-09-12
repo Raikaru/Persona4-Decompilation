@@ -14,7 +14,7 @@ from .constants import (
     SYMBOL_SINIT,
     IGNORED_RELOCATIONS,
 )
-from .elf import Elf, TextSection, Relocation, Symbol
+from .elf import Elf, TextSection, Relocation, Symbol, STT_SECTION
 from .preprocessor import Preprocessor
 
 
@@ -35,11 +35,14 @@ def process_c_file(
     skip_asm: bool = False,
 ):
     # 1. compile file as-is, any INCLUDE_ASM'd functions will be missing from the object
-    compiler = Compiler(c_flags, mwcc_path, use_wibo, wibo_path)
+    # Scratch sources must not appear as extra owners in source-tree scans.
+    # Preserve their original local-header lookup when compiling outside it.
+    source_flags = [f"-I{c_file.parent.resolve()}", *(c_flags or [])]
+    compiler = Compiler(source_flags, mwcc_path, use_wibo, wibo_path)
     if c_file_encoding:
         temp_c_file_path = None
         try:
-            with tempfile.NamedTemporaryFile(suffix=".c", dir=c_file.parent, delete=False) as temp_c_file:
+            with tempfile.NamedTemporaryFile(suffix=".c", delete=False) as temp_c_file:
                 data = c_file.read_text(encoding="utf-8")
                 temp_c_file.write(data.encode(c_file_encoding))
                 temp_c_file_path = Path(temp_c_file.name)
@@ -79,7 +82,7 @@ def process_c_file(
     # 3. compile the modified .c file for real
     temp_c_file_path = None
     try:
-        with tempfile.NamedTemporaryFile(suffix=".c", dir=c_file.parent, delete=False) as temp_c_file:
+        with tempfile.NamedTemporaryFile(suffix=".c", delete=False) as temp_c_file:
             temp_c_file.write("\n".join(out_lines).encode(c_file_encoding or "utf-8"))
             temp_c_file_path = Path(temp_c_file.name)
 
@@ -250,6 +253,25 @@ def process_c_file(
 
             for relocation in relocation_record.relocations:
                 symbol = assembled_elf.symtab.symbols[relocation.symbol_index]
+
+                if (
+                    has_text
+                    and symbol.type == STT_SECTION
+                    and assembled_elf.sections[symbol.st_shndx] is asm_functions[0]
+                ):
+                    # A section-relative reference need not have a named label
+                    # at its addend. Use the existing containing-function base,
+                    # retaining the addend and the visibility of all local labels.
+                    # Looking up the section's empty name would select ELF symbol 0.
+                    _, text_base = compiled_elf.symtab.get_symbol_by_name(function)
+                    assert (
+                        text_base is not None
+                        and text_base.st_shndx == text_section_index
+                        and text_base.st_value == symbol.st_value
+                    ), f"No equivalent text base for {function} in {c_file}"
+                    resolved.append((relocation, text_base, False))
+                    reloc_symbols.add(text_base.name)
+                    continue
 
                 if symbol.bind == 0:
                     local_syms_inserted += 1

@@ -6,7 +6,7 @@
 extern void func_0044ea90(const void *file, s32 line);
 extern u8 *func_00460990();
 extern void func_00460ac0(void *arg0, void *arg1);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 D_0063EE50[];
 extern void func_002aabf0(void *arg0, void *arg1);
@@ -398,7 +398,7 @@ void func_002abb30(
     u8 *packet3;
     u8 *callback;
     u32 color;
-    u8 *(**alloc)(s32, s32, s32);
+    void *(**alloc)(size_t, size_t, u32);
 
     var = (u8 *)&spC8[0];
     count = 4;

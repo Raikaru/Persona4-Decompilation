@@ -44,7 +44,7 @@ void func_0035d000(u8* arg0, u8* arg1);
 void func_0035ddf0(u8* arg0);
 void func_0035d0a0(u8 *arg0);
 void func_0035dfb0(u8* arg0, s32 arg1, s32 arg2);
-extern u8* (*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*D_00887300[])(u32, u32);
 extern u8 D_0064D3C8[];
 extern u8 D_0064D3D8[];

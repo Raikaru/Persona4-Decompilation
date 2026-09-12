@@ -123,7 +123,7 @@ extern u8 *D_007D3D64[];
 extern u8 D_005EFF10[];
 extern u8 D_005EFF48[];
 extern void func_0044ea90(const void *msg, s32 id);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_00451fc0(u8 *arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4, void *arg5, void *arg6, u8 *arg7);
 extern void func_00149680(s32 arg0);
 extern s32 func_00293ed0(s32 a, s32 b, s32 c, s32 d);

@@ -18,7 +18,7 @@ s32 func_00451fc0(s32 window, const void *data, s32 a, s32 b, s32 c,
                   s32 (*init)(u8 *), void (*close)(u8 *), void *buf);
 s32 func_0045a8d0();
 s32 func_004598e0();
-extern void *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
 void func_00263460(void);
 void func_00264d10(void);

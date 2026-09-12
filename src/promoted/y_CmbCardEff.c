@@ -128,7 +128,7 @@ extern u8 D_0064A520[];
 extern u8 D_0064A540[];
 extern u8 D_0064A560[];
 extern u8 D_0064A580[];
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 s32 func_0033e810(u8 *arg0);
 s32 func_0033e5c0(u8 *arg0);
 u8 *func_003488d0(u8 *arg0, u8 *arg1, s8 arg2);

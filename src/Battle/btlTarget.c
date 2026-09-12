@@ -72,7 +72,7 @@ extern void func_002325a0(void* data, s32 value);
 extern void func_00232610(void* data, s32 value);
 extern void func_00232680(void* data, s32 value);
 extern void func_002326f0(void* data, s32 value);
-extern s32 func_00232710(void* data, s32 flags);
+extern u32 func_00232710(s32 arg0, u32 arg1);
 extern void func_00234830(void* data, s32 value, s32 mode);
 extern s32 func_002428f0(void* data, s32 mode);
 extern s32 func_00242930(void* data);
@@ -211,8 +211,8 @@ s32 func_001f3010(u8* arg0)
     temp_18 = *(u8**)(temp_19 + 0x30);
     temp_17 = func_002428f0(*(u8**)(temp_18 + 0xa64), 0);
     temp_21 = func_00242930(*(u8**)(temp_18 + 0xa64));
-    temp_22 = func_00232710(*(u8**)(temp_18 + 0xa64), 1);
-    temp_16 = func_00232710(*(u8**)(temp_18 + 0xa64), 0x100000);
+    temp_22 = func_00232710((s32)*(u8**)(temp_18 + 0xa64), 1);
+    temp_16 = func_00232710((s32)*(u8**)(temp_18 + 0xa64), 0x100000);
     if (*(u16*)(arg0 + 0x2a) & 2) {
         *(u16*)(temp_19 + 0x18) = *(u16*)(temp_19 + 0x18) | 0x1000;
     }
@@ -301,14 +301,14 @@ s32 func_001f3010(u8* arg0)
     } else {
         temp_3_6 = *(u8*)(*(u8**)(temp_19 + 0x30) + 0xa2);
         if ((temp_3_6 == 0) && (temp_3_6 != *(u8*)(*(u8**)(*(u8**)(arg0 + 0) + 0x30) + 0xa2))) {
-            if ((func_00232710(*(u8**)(temp_18 + 0xa64), 1) != 0) && (temp_22 == 0)) {
+            if ((func_00232710((s32)*(u8**)(temp_18 + 0xa64), 1) != 0) && (temp_22 == 0)) {
                 func_001f56d0(temp_19, 0x16, 0, 0, 0);
-            } else if ((func_00232710(*(u8**)(temp_18 + 0xa64), 0x100000) != 0) && (temp_16 == 0)) {
+            } else if ((func_00232710((s32)*(u8**)(temp_18 + 0xa64), 0x100000) != 0) && (temp_16 == 0)) {
                 func_001f56d0(temp_19, 0x17, 0, 0, 0);
             } else if (*(u16*)(arg0 + 0x28) & 6) {
                 func_001f56d0(temp_19, 0x1a, 0, 0, 0);
             }
-        } else if ((func_00232710(*(u8**)(temp_18 + 0xa64), 0x100000) == 0) || (temp_16 == 1)) {
+        } else if ((func_00232710((s32)*(u8**)(temp_18 + 0xa64), 0x100000) == 0) || (temp_16 == 1)) {
             temp_4_2 = *(u8**)(arg0 + 0);
             temp_3_7 = *(u8*)(*(u8**)(temp_4_2 + 0x30) + 0xa2);
             if ((temp_3_7 == 0) &&

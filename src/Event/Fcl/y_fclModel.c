@@ -17,7 +17,7 @@ typedef struct
     f32 z;
 } FclVec3;
 extern u8 D_0064A6D0[];
-extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 func_00451fc0(s32 arg0, const void *name, s32 prio, s32 a3, s32 a4,
                          void (*init)(u8 *), void (*close)(u8 *), u8 *work);

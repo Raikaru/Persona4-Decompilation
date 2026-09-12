@@ -11,8 +11,8 @@ extern void func_00101350(void);
 extern u8 D_00559810[];
 extern u8 D_00559820[];
 
-extern void (*jtbl_008873EC[])(u8 *);
-extern void *(*D_008873F4[])(s32, s32, s32);
+extern void (*jtbl_008873EC[])(void *);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*D_00887300[])(s32, s32);
 extern s32 iGpffffb1a8;
 extern s32 iGpffffb9e8;

@@ -10,7 +10,7 @@ extern code DAT_008873ec_abs[];
 
 extern void func_0044ea90(const void *file, s32 line);
 extern void func_0046d730(const void *file, s32 line);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00637190[];
 extern u8 D_00637248[];
 extern u8 D_00637270[];

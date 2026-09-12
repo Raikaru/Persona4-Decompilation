@@ -35,7 +35,7 @@ extern void (*D_00887300[])(u32, u32);
 extern s32 (*D_00887310[])(s32, void*, s32);
 extern u8 D_0064E290[];
 extern u8 D_0064E2E0[];
-extern u8* (*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void* ptr);
 
 typedef struct { f32 x, y; } Vec2f;

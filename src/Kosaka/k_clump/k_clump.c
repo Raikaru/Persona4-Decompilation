@@ -51,7 +51,7 @@ extern void func_003ef3a0(void*);
 extern void func_003ef5b0(s32, s32);
 extern void func_00440b68();
 extern void func_0044ea90(void*, s32);
-extern u8* (*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00712620[];
 extern u8 D_00712640[];
 extern u8 D_00712650[];

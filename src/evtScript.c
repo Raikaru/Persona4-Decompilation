@@ -16,7 +16,7 @@ extern void func_0046d730(const void *file, u32 line);
 extern u8 D_0063CF80[];
 extern u8 D_0063CF90[];
 extern u8 D_0063CFA0[];
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u16 D_008C024E[];
 extern u8 D_00795E60[];
 extern s32 func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);

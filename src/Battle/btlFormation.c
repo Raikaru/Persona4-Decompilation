@@ -44,7 +44,7 @@ extern void func_0019dea0(void *arg0);
 extern void func_001ee490(void *arg0);
 extern u8 *func_001b1510(void);
 extern void func_001d1680(s32 arg0, s32 arg1);
-extern s32 func_00232710(u32 arg0, u32 arg1);
+extern u32 func_00232710(s32 arg0, u32 arg1);
 extern s32 func_002428f0(u32 arg0, u32 arg1);
 extern void func_003e40b0(f32 *arg0, f32 *arg1);
 
@@ -57,7 +57,7 @@ typedef struct BtlFormationState
 } BtlFormationState;
 
 extern void func_001d3ff0(int state);
-extern void (*DAT_008873EC[])();
+extern void (*DAT_008873EC[])(void *);
 
 extern u64 memcpy();
 extern u32 func_00485c80(u32 param_1);
@@ -383,7 +383,7 @@ u32 func_001d3760(u16 *arg0)
     if ((*arg0 & 1) != 0) {
         var_17 = *(u8 **)(D_0076449C + 0x178);
         while (var_17 != NULL) {
-            if ((func_00232710(*(u32 *)(var_17 + 0xa64), 0x180017) == 0) &&
+            if ((func_00232710((s32)*(u32 *)(var_17 + 0xa64), 0x180017) == 0) &&
                 (func_002428f0(*(u32 *)(var_17 + 0xa64), 0) == 0)) {
                 if (*(u8 **)(temp_16 + 0x30) == var_17) {
                     var_f20 = 250.0f;

@@ -134,7 +134,7 @@ extern void *func_00477c40(u32 arg0, u32 arg1, u32 arg2);
 extern u8 *func_00477f10(s32 arg0, u16 arg1, u8 *arg2, s32 arg3, s32 arg4);
 extern void func_00485fe0(s32 arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern void (*jtbl_008873EC[])(u8 *arg0);
+extern void (*jtbl_008873EC[])(void *);
 
 
 

@@ -2,7 +2,7 @@
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "ed_staff_internal.h"
-extern void (*jtbl_008873EC[])(u8 *arg0);
+extern void (*jtbl_008873EC[])(void *);
 
 extern void (*D_008873ec[])(s32);
 
@@ -23,7 +23,7 @@ extern u8 *func_0010b010(u16 personaId);
 extern s32 func_00376590(u8 *arg0, u8 *arg1);
 extern void func_00377930(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
 extern void func_003f6440(s32 arg0, s32 arg1);
-extern u8 *(*D_008873F4[])(s32 arg0, s32 arg1, s32 arg2);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_0064ECA0[];
 extern u8 D_0064EED0[];
 extern void func_00389cb0(u8 *arg0);
@@ -1607,7 +1607,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038f400);
 // FUN_0038F590
 void func_0038f590(u8 *allocation)
 {
-    ((void (*)(void *))jtbl_008873EC[0])(allocation);
+    jtbl_008873EC[0](allocation);
 }
 // FUN_0038F600
 void func_0038f600(u8 *arg0) {

@@ -5,7 +5,7 @@
 extern void func_0044ea90(void *msg, s32 id);
 extern void func_0046d730(const void *file, u32 line);
 extern void *func_0043f9c8(void *dest, s32 value, s32 size);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern char D_006372B0[];
 extern u32 D_008814F0[3];
 extern s32 D_0076457C;

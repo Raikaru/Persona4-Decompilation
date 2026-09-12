@@ -35,7 +35,7 @@ extern void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg
 
 
 extern void func_0044ea90(const void *msg, s32 id);
-extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_00451fc0(s32 arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4,
                          void (*init)(u8 *), void (*close)(u8 *), u8 *arg7);
 extern void func_003f6440(s32, s32);

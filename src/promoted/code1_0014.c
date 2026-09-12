@@ -146,7 +146,7 @@ extern u8 * iGpffff9db0;
 extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                           u8 arg1, u8 arg2, u8 arg3, s64 arg4, s64 arg5,
                           s32 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
-extern void (*jtbl_008873EC[])(u8 *arg0);
+extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
 
@@ -236,7 +236,7 @@ extern u8 iGpffff9de0;
 extern u8 iGpffff9de8;
 extern s32 func_0014e2a0(u8 *arg0);
 extern void func_0014e540(u8 *arg0);
-extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c,
                          void *init, void *close, void *buf);
 extern u8 iGpffff9da8;

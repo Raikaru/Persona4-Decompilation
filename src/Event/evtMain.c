@@ -96,7 +96,7 @@ void func_002852a0(s32 arg0, s32 arg1);
 s32 func_00285330(void);
 extern void func_00440b68(char *fmt, ...);
 extern char D_0063C628[];
-extern void *DAT_008873EC[];
+extern void (*DAT_008873EC[])(void *);
 s32 func_00286430(u8 *arg0);
 u32 func_00145260(void);
 u8 *func_001452b0(s32 arg0);
@@ -105,7 +105,7 @@ void func_00161460(u8, u8, u8);
 void func_00161500(u8);
 extern void func_0044ea90(void *msg, s32 id);
 extern char D_00748340[];
-extern void *D_008873F4[];
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
 void func_00286d80(u32 *, u32 *);
 s32 func_002853f0(s32 arg0);
@@ -154,7 +154,7 @@ u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2) {
     switch (*(u32 *)arg0) {
     case 10:
         func_0044ea90(D_00748340, 0x52);
-        r = ((u8 *(*)(s32, s32, s32))D_008873F4[0])(1, 0x30, 0x40000);
+        r = D_008873F4[0](1, 0x30, 0x40000);
         func_002852a0(9, 0x30);
         if (r == NULL) {
             func_0046d730(D_0063C3B0, 0x170);
@@ -166,7 +166,7 @@ u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2) {
         break;
     }
     func_0044ea90(D_00748340, 0x52);
-    temp_17 = ((u8 *(*)(s32, s32, s32))D_008873F4[0])(1, 0x54, 0x40000);
+    temp_17 = D_008873F4[0](1, 0x54, 0x40000);
     func_002852a0(8, 0x54);
     if (temp_17 == NULL) {
         func_0046d730(D_0063C3B0, 0x198);
@@ -454,7 +454,7 @@ static void func_00286e90(int param_1, int param_2) {
 void *func_00286f00(int param_1, int param_2) {
     void *r;
     func_0044ea90(D_00748340, 0x52);
-    r = ((void *(*)(int, int, int))D_008873F4[0])(1, 0x98, 0x40000);
+    r = D_008873F4[0](1, 0x98, 0x40000);
     func_002852a0(7, 0x98);
     if (r == 0) {
         return NULL;
@@ -494,7 +494,7 @@ void *func_00287060(s32 arg0, u8 *arg1, u16 arg2, s32 arg3) {
     u8 *t;
 
     func_0044ea90(D_00748340, 0x52);
-    r = ((void *(*)(int, int, int))D_008873F4[0])(1, 0x98, 0x40000);
+    r = D_008873F4[0](1, 0x98, 0x40000);
     func_002852a0(7, 0x98);
     if (r == NULL) {
         r = NULL;
@@ -1969,7 +1969,7 @@ u8 *func_0028afe0(void) {
     s32 i;
 
     func_0044ea90(D_00748340, 0x52);
-    p = ((u8 *(*)(s32, s32, s32))D_008873F4[0])(1, 0x7B0, 0x40000);
+    p = D_008873F4[0](1, 0x7B0, 0x40000);
     func_002852a0(0, 0x7B0);
     func_0043f9c8(p, 0, 0x7B0);
     func_0028b230((s32)p);
@@ -2023,7 +2023,7 @@ void func_0028b160(int param_1, s32 arg1) {
         }
     }
     func_0014a2f0(0);
-    ((void (*)(int))DAT_008873EC[0])(param_1);
+    DAT_008873EC[0]((void *)param_1);
     func_002852a0(0, -0x7B0);
     func_00285330();
     func_00440b68(D_0063C628);

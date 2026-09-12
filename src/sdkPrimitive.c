@@ -20,7 +20,7 @@ extern void func_0044ea90(void *msg, s32 id);
 extern void func_0043f810(void *dst, const void *src, u32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
-extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s64 iGpffffabe8;
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *param, void *work);

@@ -76,9 +76,9 @@ extern f32 D_00640D78[];
 extern void func_00106390(s32, s32);
 extern void func_0044ea90(const void *, s32);
 extern void func_0043f9c8(void *, s32, u32);
-extern void func_0043f810(void *, void *, u32);
+extern void *func_0043f810(void *, void *, u32);
 extern u8 *func_0010fcb0();
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00641B00[];
 extern u16 func_0010b460(void);
 extern s32 func_0010ad80(s32);
@@ -318,50 +318,37 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f0f00);
 // FUN_002F6CF0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f6cf0);
 
-/* Measured: 348B/352B, four zero-tail bytes. The full-width persona-ID
-   contract reverses two initializer argument-setup instructions (nd8).
-   Fresh scalar snapshots, full-width argument aggregates and six 24-halfword
-   record views all tie; propagation/CSE/lifetime-off and level1 also tie.
-   Keep the honest initializer contract and retail ASM.
-   Counts whose low signed halfword is outside 0..6 but whose low signed
-   byte is positive leave scratch uninitialized (e.g. 0x101); 7 also exceeds
-   six records. The dynamic caller's validation does not establish a bound
-   of six. No default records or unsupported-count repair was introduced. */
-// FUN_002F9C30 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_002F9C30
 void func_002f9c30(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, u8 *arg6, s32 arg7, s8 arg8, s8 arg9) {
-    u8 buf[6][0x30];
+    u16 buf[6 * 24];
     s8 v;
 
     switch ((s16)arg7) {
     case 0:
         break;
     case 6:
-        func_0043f810(buf[5], arg6, 0x30);
+        func_0043f810(buf + 5 * 24, arg6, 0x30);
         /* fallthrough */
     case 5:
-        func_0043f810(buf[4], arg5, 0x30);
+        func_0043f810(buf + 4 * 24, arg5, 0x30);
         /* fallthrough */
     case 4:
-        func_0043f810(buf[3], arg4, 0x30);
+        func_0043f810(buf + 3 * 24, arg4, 0x30);
         /* fallthrough */
     case 3:
-        func_0043f810(buf[2], arg3, 0x30);
+        func_0043f810(buf + 2 * 24, arg3, 0x30);
         /* fallthrough */
     case 2:
-        func_0043f810(buf[1], arg2, 0x30);
+        func_0043f810(buf + 1 * 24, arg2, 0x30);
         /* fallthrough */
     case 1:
-        func_0043f810(buf[0], arg1, 0x30);
+        func_0043f810(buf, arg1, 0x30);
         break;
     }
-    func_0010cad0((u8 *)arg0, ((u16 *)arg0)[1]);
-    v = (s8)func_00312c60(arg0, buf[0], (s8)arg7);
+    func_0010cad0((u8 *)arg0, arg0[1]);
+    v = (s8)func_00312c60(arg0, (u8 *)buf, (s8)arg7);
     *(func_002e4870(arg8) + arg9 + 0x2E4) = v;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f9c30);
-#endif
 
 /* measured (re-tested wave C): the old floor note was STALE — b210 DOES emit
    the pair at 0-mod-8 displacements for an 8-byte struct passed BY VALUE

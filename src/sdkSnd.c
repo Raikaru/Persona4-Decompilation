@@ -162,7 +162,7 @@ extern f32 D_00761124;
 /* Allocator / task / debug tables. */
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
-extern void *(*D_008873F4[])(s32, s32, u32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 /* Shared SDK blob helpers. */
 extern void func_0043c0c0(s32, s32, s32, s32);

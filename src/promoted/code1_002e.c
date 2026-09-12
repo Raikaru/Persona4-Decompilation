@@ -1,7 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "fr_font_internal.h"
-extern void (*jtbl_008873EC[])(u8 *arg0);
+extern void (*jtbl_008873EC[])(void *arg0);
 typedef struct {
     f32 x;
     f32 y;
@@ -29,7 +29,7 @@ extern s32 func_00110830();
 extern s32 func_002bdff0();
 extern u8 D_0063FC80[];
 extern u8 D_0063FC90[];
-extern u8 *(*D_008873F4[])(s32 arg0, s32 arg1, s32 arg2);
+extern void *(*D_008873F4[])(size_t numObj, size_t sizeObj, u32 hint);
 extern void func_0044ea90(const void *arg0, u32 arg1);
 extern s32 func_00451fc0(s32 arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4,
                          void (*arg5)(u8 *), void (*arg6)(u8 *), u8 *arg7);
@@ -427,8 +427,8 @@ s32 func_002e7010(u8 *arg0, s16 arg1)
 /* measured: scoped loop-invariant optimization for func_002e7010 */
 #pragma opt_loop_invariants off
 // FUN_002E7190
-void func_002e7190(void) {
-    ((void (*)(void))jtbl_008873EC[0])();
+void func_002e7190(u8 *arg0) {
+    jtbl_008873EC[0](arg0);
 }
 // FUN_002E71C0
 s32 func_002e71c0(void)
