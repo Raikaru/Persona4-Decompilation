@@ -2513,7 +2513,7 @@ s32 func_0012ff40(s32 arg0, s32 arg1, s16 arg2)
 {
     u8 *p;
 
-    p = (u8 *)(arg1 * 2) + (u32)arg0;
+    p = (u8 *)code1_0012_stride(arg1 * 2, arg0);
     *(s16 *)(p + 0x28) = *(s16 *)(p + 0x22);
     *(s16 *)(p + 0x22) = arg2;
     return 1;
