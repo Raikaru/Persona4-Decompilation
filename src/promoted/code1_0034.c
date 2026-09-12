@@ -53,11 +53,11 @@ typedef struct {
 } S4b_0034b820;
 
 void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                   u8 arg1, u8 arg2, u8 arg3, s64 arg4, s64 arg5,
-                   s32 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+                   u8 arg1, u8 arg2, u8 arg3, u32 arg4, u16 arg5,
+                   u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 
 void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
-                   u8 arg2, u8 arg3, u8 arg4, s64 arg5, s64 arg6, s32 arg7,
+                   u8 arg2, u8 arg3, u8 arg4, u32 arg5, u16 arg6, u16 arg7,
                    f32 fparg3, s16 arg_sp0, s16 arg_sp8);
 
 // FUN_00349340
@@ -475,15 +475,15 @@ void func_0034f1e0(void)
    renderer masks its low byte. This preserves the shared call contract. */
 // FUN_0034F2E0
 void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1,
-                   u8 arg1, u8 arg2, u8 arg3, s64 arg4) {
+                   u8 arg1, u8 arg2, u8 arg3, u32 arg4) {
     func_0034f320(arg0, fparg0, fparg1, 0.0f, arg1, arg2, arg3, arg4,
                   0x1000, 0x1000, 0, 0.0f, 0);
 }
 
 // FUN_0034F320
 void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                   u8 arg1, u8 arg2, u8 arg3, s64 arg4, s64 arg5,
-                   s32 arg6, s16 arg7, f32 fparg3, s16 arg_sp0)
+                   u8 arg1, u8 arg2, u8 arg3, u32 arg4, u16 arg5,
+                   u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0)
 {
     u8 temp;
 
@@ -510,14 +510,14 @@ void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
 }
 // FUN_0034F460
 void func_0034f460(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
-                   u8 arg2, u8 arg3, u8 arg4, s64 arg5) {
+                   u8 arg2, u8 arg3, u8 arg4, u32 arg5) {
     func_0034f4a0(arg0, arg1, fparg0, fparg1, 0.0f, arg2, arg3, arg4, arg5,
                   0x1000, 0x1000, 0.0f, 0, 0);
 }
 
 // FUN_0034F4A0
 void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
-                   u8 arg2, u8 arg3, u8 arg4, s64 arg5, s64 arg6, s32 arg7,
+                   u8 arg2, u8 arg3, u8 arg4, u32 arg5, u16 arg6, u16 arg7,
                    f32 fparg3, s16 arg_sp0, s16 arg_sp8)
 {
     u8 *temp_2;
@@ -631,7 +631,7 @@ void func_0034f8f0(u8 *arg0)
   }
 }
 // FUN_0034F9D0
-void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 arg3) {
+void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, u32 arg1, s32 arg2, s32 arg3) {
     u8 *temp_2;
     u8 *temp_2_100;
     u8 *temp_2_101;

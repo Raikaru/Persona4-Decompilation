@@ -71,10 +71,10 @@ extern void func_00389e10();
 extern void func_0038a940();
 extern void func_0038b1c0();
 extern void func_0034f460(s32 resource, s32 slot, f32 x, f32 y,
-                          u8 r, u8 g, u8 b, s64 alpha);
+                          u8 r, u8 g, u8 b, u32 alpha);
 extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
-                          f32 fparg2, u8 arg2, u8 arg3, u8 arg4, s64 arg5,
-                          s64 arg6, s32 arg7, f32 fparg3, s16 arg_sp0,
+                          f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u32 arg5,
+                          u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0,
                           s16 arg_sp8);
 static inline u32 add_offset_first_0038(u32 offset, u32 base)
 {
@@ -763,7 +763,6 @@ void func_00389370(u8 **arg0)
     size1 = (s32)size1_f;
 
     {
-        extern void func_0034f4a0(s32, s32, f32, f32, f32, u8, u8, u8, u8, u16, u16, f32, s16, s16);
         func_0034f4a0(palette, 0, 320.0f - size0_f, 224.0f - size1_f, 0.0f,
                       0xFF, 0xFF, 0xFF, (u8)0xFF,
                       (u16)(4096.0f * q0), (u16)(4096.0f * q1),
@@ -921,7 +920,7 @@ void func_0038b1c0(u8 *arg0)
     u16 *counter;
     f32 alpha;
     f32 scaled;
-    s64 alpha_byte;
+    u32 alpha_byte;
     u8 red;
     u8 green;
     u8 blue;

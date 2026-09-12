@@ -6400,6 +6400,7 @@ iGpffffa59c = 0x0076368c; // type:data
 iGpffffa5a0 = 0x00763690; // type:data
 iGpffffa5a8 = 0x00763698; // type:data
 iGpffffa5b0 = 0x007636a0; // type:data
+iGpffffa5b4 = 0x007636a4; // type:data
 iGpffffa5b8 = 0x007636a8; // type:data
 iGpffffa5C0 = 0x007636b0; // type:data
 iGpffffa5C8 = 0x007636b8; // type:data
