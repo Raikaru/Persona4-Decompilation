@@ -27,11 +27,13 @@ extern void func_00440bb8(u32 *arg0, s32 arg1, s32 arg2,
                            s32 (*arg3)(u8 **arg0, u8 **arg1));
 extern void func_0044ea90(void *arg0, s32 arg1);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
-extern void func_0043f810(void *arg0, void *arg1, s32 arg2);
+extern void *func_0043f810(void *arg0, const void *arg1, u32 arg2);
 extern void func_0043f9c8(void *arg0, void *arg1, s32 arg2);
 extern u8 D_0088152F[];
-extern s32 D_00638FD0[];
-extern s32 D_00639020[];
+typedef struct { s32 value[19]; } Code1_00267800ShapeTable;
+extern Code1_00267800ShapeTable D_00638FD0;
+typedef union { f32 value[19]; u32 words[19]; } Code1_00267800ScaleTable;
+extern Code1_00267800ScaleTable D_00639020;
 extern f32 fGpffff8218;
 extern f32 fGpffff84a4;
 extern f32 fGpffff8574;
@@ -46,30 +48,10 @@ static inline f32 func_00263220_mul(f32 left, f32 right)
 {
     return left * right;
 }
-extern void func_00267b20(s32 arg0, s32 arg1, s32 arg3,
+extern void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2,
+                          s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s64 arg4, s64 arg5,
-                          f32 fparg0, f32 fparg1, f32 fparg2,
                           f32 fparg3, f32 fparg4, f32 fparg5);
-typedef struct {
-    s32 stack40[0x13];
-    u8 pad8C[4];
-    s32 stack90[0x13];
-    u8 padDC[4];
-    f32 pos[3];
-    f32 spEC;
-} Code1_00267800Frame;
-static inline u8 *func_00267800_index(u8 *base, s32 index)
-{
-    return base + (index << 2);
-}
-static inline u8 *func_00267800_index90(u8 *base, s32 index)
-{
-    return base + (index << 2) + 0x90;
-}
-static inline f32 func_00267800_mul(f32 left, f32 right)
-{
-    return left * right;
-}
 extern char iGpffffa6c4;
 extern void (*D_00887300[])(u32 state, u32 value);
 extern u8 D_00881530[];
@@ -629,10 +611,86 @@ f32 func_002677a0(f32 p0, f32 p1, f32 p2, f32 p3, f32 t) {
 /* measured: closes the optimization_level bracket (nd 0). */
 #pragma optimization_level 2
 
-/* Reconstruction attempt reached object/window parity but normalized_diff 279;
-   archived at build/WU01_00267800.c and reverted to the assembly fallback. */
+/* Copy complete table objects; renderer callbacks may change the item index. */
+#pragma optimization_level 1
+static inline f32 func_00267800_threshold(void)
+{
+    return fGpffff8218;
+}
+static inline s32 *func_00267800_shape_at(s32 *values, s32 index)
+{
+    return values + index;
+}
+#pragma optimization_level 2
+#pragma opt_common_subs off
 // FUN_00267800
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00267800);
+s32 func_00267800(u8 **arg0, u8 *arg1)
+{
+    f32 position[4];
+    Code1_00267800ShapeTable shapes;
+    Code1_00267800ScaleTable scales;
+    s32 alpha;
+    s32 shape;
+    f32 scale;
+    f32 threshold;
+    f32 renderScale;
+    s32 *shapeSrc;
+    s32 *shapeDst;
+    u32 *scaleSrc;
+    u32 *scaleDst;
+    s32 count;
+
+    func_0043f810(position, arg1 + 0x28, sizeof(position));
+    position[2] += -136.0f + (150.0f * *(f32 *)((u8 *)arg0 + 4)) / 120.0f;
+    position[0] += 288.0f;
+    position[1] += 222.0f;
+    shapeSrc = D_00638FD0.value;
+    shapeDst = shapes.value;
+    count = 19;
+    do {
+        s32 value = *shapeSrc++;
+        count--;
+        *shapeDst++ = value;
+    } while (count > 0);
+    scaleSrc = D_00639020.words;
+    scaleDst = scales.words;
+    count = 19;
+    do {
+        u32 value = *scaleSrc++;
+        count--;
+        *scaleDst++ = value;
+    } while (count > 0);
+    alpha = 0xFF;
+    scale = *(f32 *)((u8 *)arg0 + 8) * scales.value[*(s32 *)(arg1 + 4)];
+    position[3] = scale;
+    if (scale < (threshold = fGpffff8218)) {
+        alpha = (s32)((255.0f * scale) / threshold);
+    }
+    alpha = (s32)((f32)alpha * ((f32)*(s32 *)((u8 *)arg0 + 0xC) / 255.0f));
+    shape = *func_00267800_shape_at(shapes.value, *(s32 *)(arg1 + 4));
+    if (shape != 9) {
+        if (!(scale <= func_00267800_threshold())) {
+            renderScale = position[3];
+            func_00267b20(position[0], position[1], 0.0f, 0x76BF48, alpha, 1, shape, 0, 0,
+                           4.0f + position[2], renderScale, renderScale);
+            renderScale = position[3];
+            func_00267b20(position[0], position[1], 0.0f, 0x4883BF, alpha, 1, shapes.value[*(s32 *)(arg1 + 4)], 0, 0,
+                           2.0f + position[2], renderScale, renderScale);
+            renderScale = position[3];
+            func_00267b20(position[0], position[1], 0.0f, 0xBF4848, alpha, 1, shapes.value[*(s32 *)(arg1 + 4)], 0, 0,
+                           position[2] - 2.0f, renderScale, renderScale);
+        }
+        renderScale = position[3];
+        func_00267b20(position[0], position[1], 0.0f, 0x292929, alpha, 1, shapes.value[*(s32 *)(arg1 + 4)], 0, 0,
+                           position[2], renderScale, renderScale);
+    }
+    if (!(position[3] < 7.0f)) {
+        return 1;
+    }
+    return 0;
+}
+#pragma opt_common_subs reset
+#pragma optimization_level 2
 // FUN_00267B20
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00267b20);
 // FUN_00268A70

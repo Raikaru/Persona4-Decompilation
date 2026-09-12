@@ -193,7 +193,7 @@ extern void func_0047aff0(void* a, void* b);
 extern void func_0047afd0(void* a, void* b);
 typedef void (*FnVoidPtr)(void*);
 
-extern s32 K_Clump_MatUsrDataGetInt();
+extern s32 K_Clump_MatUsrDataGetInt(const RpMaterial* material, const char* name);
 
 typedef struct RwRGBA
 {
@@ -2029,14 +2029,84 @@ void* func_00476e10(void* param_1, void* data)
 
 
 
-/* IDA-first candidate: 996B / 976B, 72 reloc-masked differing words.
-   Ordinary unsigned-to-float casts reproduce the single-negative-path
-   conversion; CSE-off preserves normalization loads and propagation-off keeps
-   named quantization constants. Repeated accumulator-zero materialization
-   and FP/GPR allocation still differ. No padding or manual conversion CFG.
-   Retained in docs/probe_archive/IDA_00476e90_body.c; still ASM. */
+typedef struct MdlMaterialColorReal { f32 red, green, blue, alpha; } MdlMaterialColorReal;
+typedef struct MdlMaterialColor { u32 unknown00; RwRGBA color; } MdlMaterialColor;
+typedef struct MdlMaterialColorGeometry {
+    u8 unknown00[8];
+    u32 flags;
+    u8 unknown0c[20];
+    MdlMaterialColor** materials;
+    u32 count;
+} MdlMaterialColorGeometry;
+
+/* Qualified normalization reads preserve retail loads without duplicating
+ * the quantizer accumulator seed. */
+#pragma push
+#pragma always_inline on
+#pragma opt_common_subs on
+#pragma opt_propagation off
+
+static inline void mdlColorToReal(MdlMaterialColorReal* out, const RwRGBA* color)
+{
+    f32 channel;
+    channel = (f32)(u32)color->red;
+    out->red = *(volatile f32*)&iGpffff8044 * channel;
+    channel = (f32)(u32)color->green;
+    out->green = *(volatile f32*)&iGpffff8044 * channel;
+    channel = (f32)(u32)color->blue;
+    out->blue = *(volatile f32*)&iGpffff8044 * channel;
+    channel = (f32)(u32)color->alpha;
+    out->alpha = *(volatile f32*)&iGpffff8044 * channel;
+}
+
+static inline void mdlColorUnpack(RwRGBA* out, u32 packed)
+{
+    out->blue = packed;
+    out->green = packed >> 8;
+    out->red = packed >> 16;
+    out->alpha = packed >> 24;
+}
+
+static inline void mdlColorQuantize(RwRGBA* out, const MdlMaterialColorReal* color)
+{
+    f32 maximum = 255.0f;
+    f32 bias = 0.5f;
+    out->red = (s32)(bias + maximum * color->red);
+    out->green = (s32)(bias + maximum * color->green);
+    out->blue = (s32)(bias + maximum * color->blue);
+    out->alpha = (s32)(bias + maximum * color->alpha);
+}
+
 // FUN_00476E90
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00476e90);
+void* func_00476e90(void* object, void* data)
+{
+    MdlMaterialColorGeometry* geometry;
+    u32 count;
+    MdlMaterialColorReal scale;
+    u32 index;
+    geometry = *(MdlMaterialColorGeometry**)((u8*)object + 0x18);
+    geometry->flags |= 0x40;
+    count = geometry->count;
+    mdlColorToReal(&scale, *(const RwRGBA**)data);
+    for (index = 0; index < count; ++index) {
+        MdlMaterialColor* material = geometry->materials[index];
+        RwRGBA color;
+        MdlMaterialColorReal real;
+        mdlColorUnpack(&color, (u32)K_Clump_MatUsrDataGetInt((const RpMaterial*)material, (const char*)D_00713160));
+        mdlColorToReal(&real, &color);
+        real.red *= scale.red;
+        real.green *= scale.green;
+        real.blue *= scale.blue;
+        if ((*(u16*)((u8*)data + 4) & 1) == 0)
+            real.alpha *= scale.alpha;
+        else
+            real.alpha = scale.alpha;
+        mdlColorQuantize(&color, &real);
+        material->color = color;
+    }
+    return object;
+}
+#pragma pop
 // FUN_00477260
 void func_00477260(void* param_1, u32* param_2, u16 param_3)
 {
@@ -2067,7 +2137,7 @@ u32 func_004772a0(void* param_1, u32* param_2)
     uVar4 = 0;
     while (uVar4 < uVar2) {
         entries = *(u32**)(iVar1 + 0x20);
-        uVar3 = K_Clump_MatUsrDataGetInt(entries[uVar4], "per3modelMatColor");
+        uVar3 = K_Clump_MatUsrDataGetInt((const RpMaterial*)entries[uVar4], "per3modelMatColor");
         if (uVar3 >> 0x18 != 0) {
             *param_2 = 0;
             return 0;

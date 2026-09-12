@@ -28,17 +28,119 @@ extern s32 func_003133b0(u32 arg0, s32 arg1, u16 *arg2);
 extern u8 D_00642147[];
 extern u8 D_00642387[];
 
-/* measured: structure fully recovered (16B ptr[4] zero loop, 3-pair s8 copy
-   from iGpffffa8d0 to sp58, 3-iteration bubble sort by ptr[][4] then
-   iGpffffb3d4[ptr[][2]*14+2] tiebreak into sp4C, the t18/t16/t17 loads and
-   D_00642727/D_00642967 min*24+max lookups) but mwcc b210 allocates the
-   s16 sort-loop counter to $a3 (retail $a0) and reorders the D_00642727
-   index computation (t17*24 before +t16; retail t16*24 before +t17), and
-   the object is 836B vs 896B window (15 words short). Tried s16/s32 loop,
-   indexed vs pointer-increment sp58 copy, named sp4C swap temp; nd 193.
-   Register-allocation + tail-order floor. */
+extern s8 iGpffffa8d0[6];
+extern u8 D_00642727[];
+extern u8 D_00642967[];
+
+static inline u8 fclTriangleUpperArcana(s32 first, s32 second)
+{
+    if (first == 0 || second == 0)
+        func_0046d730(D_00642F30, 0x90);
+    if (first < second)
+        return *(second + (D_00642967 + first * 24));
+    return *(first + (D_00642967 + second * 24));
+}
+
+/* Ordered pointer slots and arcana snapshots preserve retail tie-breaking. */
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
 // FUN_00311EA0
-INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_00311ea0);
+u8 func_00311ea0(u8 *arg0, u8 *arg1, u8 *arg2)
+{
+    s8 pairs[3][2];
+    u8 *personas[4];
+    u8 *clear;
+    s32 remaining;
+    s8 *source;
+    s8 *destination;
+    s32 copies;
+    s8 firstByte;
+    s8 secondByte;
+    s16 pairIndex;
+    u8 *base;
+    s8 *pair;
+    u8 **leftSlot;
+    u8 **rightSlot;
+    u8 *right;
+    u8 *left;
+    s32 leftLevel;
+    s32 rightLevel;
+    s32 firstArcana;
+    u8 secondArcana;
+    u8 thirdArcana;
+    s32 result;
+    s32 secondKey;
+    s32 thirdKey;
+    u8 resultByte;
+
+    clear = (u8 *)personas;
+    remaining = sizeof(personas);
+    if (clear != NULL) {
+        do {
+            *clear++ = 0;
+            remaining--;
+        } while (remaining != 0);
+    }
+    personas[0] = arg0;
+    personas[1] = arg1;
+    personas[2] = arg2;
+    source = iGpffffa8d0;
+    destination = (s8 *)&pairs;
+    copies = 3;
+    do {
+        firstByte = source[0];
+        secondByte = source[1];
+        source += 2;
+        copies--;
+        destination[0] = firstByte;
+        destination[1] = secondByte;
+        destination += 2;
+    } while (copies > 0);
+    if (arg0 == NULL || arg1 == NULL || arg2 == NULL)
+        func_0046d730(D_00642F30, 0x156);
+    pairIndex = 0;
+    base = iGpffffb3d4;
+    while (pairIndex < 3) {
+        pair = pairs[pairIndex];
+        rightSlot = &personas[pair[1]];
+        right = *rightSlot;
+        rightLevel = right[4];
+        leftSlot = &personas[pair[0]];
+        left = *leftSlot;
+        leftLevel = left[4];
+        if (leftLevel < rightLevel ||
+            (leftLevel == rightLevel &&
+             *((u8 *)((u32)base + *(u16 *)(left + 2) * 14) + 2) > *((u8 *)((u32)base + *(u16 *)(right + 2) * 14) + 2))) {
+            pair = pairs[pairIndex];
+            leftSlot = &personas[pair[0]];
+            personas[3] = left;
+            rightSlot = &personas[pair[1]];
+            *leftSlot = *rightSlot;
+            *rightSlot = personas[3];
+        }
+        pairIndex++;
+    }
+    base = iGpffffb3d4 + 2;
+    firstArcana = base[*(u16 *)(personas[0] + 2) * 14];
+    secondArcana = base[*(u16 *)(personas[1] + 2) * 14];
+    thirdArcana = base[*(u16 *)(personas[2] + 2) * 14];
+    if (firstArcana == 0 || secondArcana == 0 || thirdArcana == 0)
+        func_0046d730(D_00642F30, 0x167);
+    secondKey = secondArcana;
+    if (secondKey == 0 || thirdArcana == 0)
+        func_0046d730(D_00642F30, 0x90);
+    thirdKey = thirdArcana;
+    if (secondKey < thirdKey)
+        resultByte = *(thirdKey + (D_00642727 + secondKey * 24));
+    else
+        resultByte = *(secondKey + (D_00642727 + thirdKey * 24));
+    result = resultByte;
+    if (result == 0)
+        return 0;
+    return fclTriangleUpperArcana(firstArcana, result);
+}
+#pragma pop
 
 /* Measured: 640/640 bytes and all 16 relocations match retail.
  * Ordinary s32 counters produce the quadword spill; persona/skill inputs
