@@ -55,10 +55,10 @@ extern void func_00106620(s16 arg0, s32 arg1);
 extern void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
 extern void func_00134990(u8 *arg0, s16 arg1, s16 arg2);
 extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1,
-                          u8 arg1, u8 arg2, u8 arg3, s64 arg4);
-extern void func_0034f320(void *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                          u8 arg1, u8 arg2, u8 arg3, s64 arg4, s64 arg5,
-                          s32 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+                          u8 arg1, u8 arg2, u8 arg3, u32 arg4);
+extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
+                          u8 arg1, u8 arg2, u8 arg3, u32 arg4, u16 arg5,
+                          u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 extern void func_00113790(s64 arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4);
 extern void func_002bc860(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           f32 fparg0, f32 fparg1, f32 fparg2);
@@ -250,7 +250,7 @@ void func_00130c30(u8 *arg0, s64 arg1, s32 arg2)
 {
     f32 c0;
     s32 p;
-    s64 c1;
+    u32 c1;
     u8 c2;
     u8 c3;
 
@@ -501,7 +501,7 @@ done:
 // FUN_00134E50
 /* measured: reconstructing the mixed-ABI palette draw pair from the matching 00130C30 shape. */
 #pragma opt_propagation off
-void func_00134e50(u8 *arg0, s64 arg1, s64 arg2, s64 arg3)
+void func_00134e50(u8 *arg0, s64 arg1, s64 arg2, u32 arg3)
 {
     f32 temp_f20;
     s32 p;
@@ -529,7 +529,7 @@ void func_00134e50(u8 *arg0, s64 arg1, s64 arg2, s64 arg3)
 // FUN_00134F40
 /* measured: transfer the neighboring mixed-ABI palette branch shape. */
 #pragma opt_propagation off
-void func_00134f40(u8 *arg0, s64 arg1, s64 arg2, s64 arg3)
+void func_00134f40(u8 *arg0, s64 arg1, s64 arg2, u32 arg3)
 {
     f32 temp_f20;
     s32 p;
@@ -579,7 +579,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00135130);
    130.0f` keeps the variable first. The 467.0f sum is recomputed for the last
    call, as retail does. */
 // FUN_00135520
-void func_00135520(u8 *arg0, PackedVec2f arg1, s64 arg2, s32 arg3)
+void func_00135520(u8 *arg0, PackedVec2f arg1, u32 arg2, s32 arg3)
 {
     f32 temp_f21;
     f32 temp_f20;
@@ -628,7 +628,7 @@ void func_0013b370(u8 *arg0, s64 arg1, s32 arg2)
 {
     f32 c0;
     s32 p;
-    s64 c1;
+    u32 c1;
     u8 c2;
     u8 c3;
 
