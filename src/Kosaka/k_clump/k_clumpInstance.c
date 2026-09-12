@@ -27,7 +27,7 @@ extern s32 func_00457c90(void *arg0, const char *arg1);
 extern void func_003c0960(void *arg0, void *arg1);
 extern void func_0046d730(const char *arg0, s32 arg1);
 extern void func_0044ea90(const char *arg0, s32 arg1);
-extern void *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
 extern void func_003e2910(void *arg0, void *arg1, s32 arg2);
 extern void func_003deff0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -74,7 +74,7 @@ extern char iGpffffa080;
 void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2)
 {
     s32 sp70[8];
-    s32 sp50[4];
+    union { s32 s[4]; u32 u[4]; } sp50;
     s32 i;
     void *s1;
     void *s0;
@@ -92,9 +92,9 @@ void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2)
     }
     if (s1 != NULL && s0 != NULL)
     {
-        while (func_003df3c0(s1, &sp50[0]) != 0)
+        while (func_003df3c0(s1, &sp50.s[0]) != 0)
         {
-            switch (sp50[0])
+            switch (sp50.s[0])
             {
             case 0x16:
                 s3 = func_003e6a90(s1);
@@ -124,10 +124,10 @@ void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2)
                 break;
             default:
                 func_0044ea90(D_005F6500, 0x9A);
-                s3 = D_008873F4[0](1, sp50[1], 0x40000);
-                func_003e2910(s1, s3, sp50[1]);
-                func_003deff0((void *)s0, (u32)sp50[0], (u32)sp50[1], sp50[2], sp50[3]);
-                func_003e2ab0(s0, s3, sp50[1]);
+                s3 = D_008873F4[0](1, sp50.u[1], 0x40000);
+                func_003e2910(s1, s3, sp50.s[1]);
+                func_003deff0((void *)s0, (u32)sp50.s[0], (u32)sp50.s[1], sp50.s[2], sp50.s[3]);
+                func_003e2ab0(s0, s3, sp50.s[1]);
                 jtbl_008873EC[0](s3);
                 break;
             }

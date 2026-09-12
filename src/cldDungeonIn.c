@@ -12,7 +12,7 @@ extern void func_002e1ef0(void *a);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void func_0045a8d0(s32 a, s32 b);
 extern void func_00106390(s32 a, s32 b);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_0044ea90(const void *msg, s32 id);
 extern u8 *func_002e1db0(s32 a, s32 b, s32 c, s32 d);
 extern void func_0045b2e0(s32 a);

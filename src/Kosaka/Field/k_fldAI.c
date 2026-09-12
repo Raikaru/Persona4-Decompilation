@@ -4,7 +4,7 @@ extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 fla
 extern s32 func_0016fd00();
 extern void func_003e0f40();
 extern void (*jtbl_008873EC[])(void *ptr);
-extern void *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_005F1B18[];
 extern u8 D_005F1B28[];
 extern u8 D_005F1CF0[];

@@ -100,7 +100,7 @@ extern void func_00478e70(void *arg0);
 extern void func_0047a1a0(void *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void func_0047a1e0(void *arg0, void *arg1, s32 arg2);
 extern void *func_0047a2f0(u32 arg0);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
 extern u32 iGpffffb2a8;
 extern u32 *iGpffffb2a4;

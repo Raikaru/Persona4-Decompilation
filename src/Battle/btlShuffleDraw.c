@@ -54,7 +54,7 @@ extern void func_00371e50(u8 *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4);
 extern void func_00371160(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, u8 *arg4, f32 fparg0);
 extern void func_0046b0d0(void *ptr);
 extern void func_0044ea90(const void *file, s32 line);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern f32 func_00373c20(u8 *arg0);
 extern s32 func_00106330(s32 arg0);
 extern void func_0036c900(void);

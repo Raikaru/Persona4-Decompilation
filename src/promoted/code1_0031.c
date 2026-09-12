@@ -1,6 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
-extern void (*jtbl_008873EC[])(u8 *arg0);
+extern void (*jtbl_008873EC[])(void *);
 extern s8 D_00641E60[];
 extern s32 func_00246830();
 extern u8 *iGpffffb3d4;

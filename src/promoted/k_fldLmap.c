@@ -8,7 +8,7 @@ typedef struct RwV3d RwV3d;
 
 extern void (*jtbl_008873EC[])(void *);
 typedef struct Vec3 { f32 x; f32 y; f32 z; } Vec3;
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*D_00887300[])(s32, s32);
 extern void func_0044ea90(u8 *file, s32 line);
 extern void func_0046d730(u8 *file, s32 line);

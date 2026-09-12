@@ -57,7 +57,7 @@ s32 func_0011dfc0(s32, s32, char *);
 void func_00454bd0();
 void func_003ef3a0();
 void func_0044ea90(const void *msg, s32 id);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
 extern char D_005E4810[];
 extern char D_005E4EB0[];
@@ -109,7 +109,7 @@ extern char D_005E4E20[];
 extern char D_005E4E40[];
 extern u8 D_00793E80[];
 
-extern void (*jtbl_008873EC[])(u8 *);
+extern void (*jtbl_008873EC[])(void *);
 
 
 

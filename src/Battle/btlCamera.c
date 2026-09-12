@@ -95,11 +95,11 @@ extern f32 func_0044b868(f32 x);
 extern f32 func_003e40b0(f32 *out, f32 *in);
 extern void func_00195850(u8 *arg0, f32 *arg1);
 extern void func_0019de70(BtlUnitStateWork *work, u16 value);
-extern void func_001959d0(u8 *arg0, f32 *arg1);
+extern void func_001959d0(BtlUnit *arg0, RwV3d *arg1);
 extern void func_003dcb40(void *out, const void *in, s32 count,
                           const void *quat);
 extern void func_001bab00(u8 *arg0, void *arg1);
-void func_001bac20(u8* camera, RwV3d* first, RwV3d* second, s32 mode);
+void func_001bac20(u16* work, f32* first, f32* second, u16 mode);
 void func_001bd560(f32 *out, f32 *in);
 void func_001cc5d0(u8 *camera, f32 *out);
 void func_001bdd80(u8* camera, void* data, s32 mode);
@@ -628,7 +628,7 @@ void func_001c6760(void *camera, float angle, float distanceScale, float heightS
   scratch.secondPosition.y = scratch.center.value.y + scratch.direction.value.y;
   scratch.secondPosition.z = scratch.center.value.z + scratch.direction.value.z;
   func_001bcd40(0.0f, *(u8 **)(cameraAddress + 0xe0), NULL, NULL, 1);
-  func_001bac20((u8 *)camera, &scratch.firstPosition, &scratch.secondPosition, 1);
+  func_001bac20((u16 *)camera, (f32 *)&scratch.firstPosition, (f32 *)&scratch.secondPosition, 1);
   func_001bbef0((u8 *)camera, 3.5f);
 }
 
@@ -688,7 +688,7 @@ void func_001c6bf0(u8 *arg0)
 
     temp17 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x38);
     temp17 = *(u8 **)(temp17 + 0x30);
-    func_001959d0(temp17, &work.center.x);
+    func_001959d0((BtlUnit *)temp17, (RwV3d *)&work.center.x);
     work.center.y = 0.0f + work.center.y +
                     DAT_00761278 *
                     (*(f32 *)(temp17 + 0x8C) *
@@ -739,7 +739,7 @@ void func_001c6bf0(u8 *arg0)
         work.secondPosition.y = 25.0f;
     }
     func_001bcd40(0.0f, *(u8 **)(arg0 + 0xE0), NULL, NULL, 2);
-    func_001bac20(arg0, &work.firstPosition, &work.secondPosition, 1);
+    func_001bac20((u16 *)arg0, (f32 *)&work.firstPosition, (f32 *)&work.secondPosition, 1);
     func_001bbef0(arg0, 1.5f);
 }
 // FUN_001C6F30
@@ -791,8 +791,8 @@ void func_001c73e0(u8 *arg0)
         func_001bab00(arg0, &work.last);
         return;
     }
-    func_001bac20(arg0, (RwV3d *)&work.first,
-                  (RwV3d *)&work.last, 1);
+    func_001bac20((u16 *)arg0, (f32 *)&work.first,
+                  (f32 *)&work.last, 1);
     func_001bbef0(arg0, fGpffff80e8);
 }
 // FUN_001C7500
@@ -846,7 +846,7 @@ void func_001c7510(BtlCamera* camera)
   buf[8] = buf[21] * fVar20 + fVar8;
   buf[9] = buf[22] * fVar20 + fVar7;
   func_001bcd40(0.0f, (u8 *)camera->action, 0, 0, 1);
-  func_001bac20((u8 *)camera, (RwV3d *)buf, (RwV3d *)(buf + 7), 1);
+  func_001bac20((u16 *)camera, (f32 *)buf, (f32 *)(buf + 7), 1);
   func_001bbef0((u8 *)camera, 2.5f);
 }
 
@@ -904,7 +904,7 @@ void func_001c7780(BtlCamera* camera)
   buf[8] = buf[21] * fVar20 + fVar8;
   buf[9] = buf[22] * fVar20 + fVar7;
   func_001bcd40(0.0f, (u8 *)camera->action, 0, 0, 1);
-  func_001bac20((u8 *)camera, (RwV3d *)(buf + 7), (RwV3d *)buf, 1);
+  func_001bac20((u16 *)camera, (f32 *)(buf + 7), (f32 *)buf, 1);
   func_001bbef0((u8 *)camera, 2.5f);
 }
 
@@ -1238,7 +1238,7 @@ void func_001cc9e0(u8 *arg0)
 
     func_001bd560(work.first, (f32 *)(arg0 + 0x9C));
     func_001cc5d0(arg0, work.second);
-    func_001bac20(arg0, (RwV3d *)work.first, (RwV3d *)work.second, 1);
+    func_001bac20((u16 *)arg0, (f32 *)work.first, (f32 *)work.second, 1);
     func_001bbef0(arg0, 10.0f);
 }
 // FUN_001CCA50
@@ -1575,8 +1575,8 @@ void func_001cdaf0(u8 *camera)
     func_001bcd40(60.0f, *(u8 **)(camera + 0xe0),
                   (u8 *)&work.currentPosition,
                   (u8 *)work.unitPosition, 0x8c0);
-    func_001bac20(camera, &work.currentPosition,
-                  &work.targetPosition, 1);
+    func_001bac20((u16 *)camera, (f32 *)&work.currentPosition,
+                  (f32 *)&work.targetPosition, 1);
     func_001bbef0(camera, 0.75f);
 }
 // FUN_001CDE50

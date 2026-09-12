@@ -7,7 +7,7 @@ typedef struct RwMatrix RwMatrix;
 typedef struct RwV3d RwV3d;
 
 extern void (*DAT_008873EC[])(void *);
-extern s32 (*DAT_008873F4[])(s32, s32, s32);
+extern void *(*DAT_008873F4[])(size_t, size_t, u32);
 
 extern s32 iGpffffb2e8;
 extern s32 iGpffffb260;
@@ -212,7 +212,7 @@ s32 func_00162c30(void)
                 v7 = ((s32 *)D_007EF9B0) + i * 468;
                 field = (s32)(v7 + 460);
                 resource = *(s32 *)(v7[460] + 0x118);
-                v7[461] = (*DAT_008873F4)(1, resource, 0x40000);
+                v7[461] = (s32)(*DAT_008873F4)(1, resource, 0x40000);
                 v7[462] = *(s32 *)(*(s32 *)field + 0x118);
                 resource = *(s32 *)field;
                 v9 = *(s32 *)(resource + 0x118);

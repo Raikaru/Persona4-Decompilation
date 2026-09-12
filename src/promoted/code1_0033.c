@@ -1,7 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "shd_misc_internal.h"
-extern void (*jtbl_008873EC[])(u8 *arg0);
+extern void (*jtbl_008873EC[])(void *);
 
 // P4 retail reaches the battle-data object pointer at gp-0x4A68,
 // i.e. absolute 0x007690f0 - 0x4a68 = 0x00764688, GP-relative.
@@ -51,7 +51,7 @@ extern void func_002b8270(u8 *arg0, F2_0033 arg1, F2_0033 arg2,
 
 extern void func_00457140(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s8 iGpffffb59c;
-extern s32 func_00452380(const void *arg0);
+extern u8 *func_00452380(s8 *arg0);
 extern s32 func_0015f660(void);
 extern void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
 extern void func_001238c0(s32 arg0);
@@ -59,7 +59,7 @@ extern u8 D_00644E80[];
 extern u8 D_00644E98[];
 extern u8 D_00644EB0[];
 extern void func_0044ea90(const void *arg0, s32 arg1);
-extern u8 *(*D_008873F4[])(s32 arg0, s32 arg1, s32 arg2);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_00451fc0(u8 *arg0, const void *arg1, s32 arg2, s32 arg3,
                          s32 arg4, void *arg5, void *arg6, u8 *arg7);
 extern s32 func_0046aea0(void *arg0);
@@ -165,19 +165,18 @@ s32 func_00331680(void)
         }
         break;
     case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
         iGpffffb59c += 1;
         break;
-    case 2:
-        if (func_00452380(D_00644E80) == 0) {
+    case 6:
+        if (func_00452380((s8 *)D_00644E80) == 0) {
             func_001238c0(1);
             iGpffffb59c = 0;
             return 1;
         }
-        break;
-    case 3:
-    case 4:
-    case 5:
-    case 6:
         break;
     default:
         break;
@@ -197,19 +196,18 @@ s32 func_00331770(void)
         }
         break;
     case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
         iGpffffb59c += 1;
         break;
-    case 2:
-        if (func_00452380(D_00644E98) == 0) {
+    case 6:
+        if (func_00452380((s8 *)D_00644E98) == 0) {
             func_001238c0(1);
             iGpffffb59c = 0;
             return 1;
         }
-        break;
-    case 3:
-    case 4:
-    case 5:
-    case 6:
         break;
     default:
         break;
@@ -229,19 +227,18 @@ s32 func_00331860(void)
         }
         break;
     case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
         iGpffffb59c += 1;
         break;
-    case 2:
-        if (func_00452380(D_00644EB0) == 0) {
+    case 6:
+        if (func_00452380((s8 *)D_00644EB0) == 0) {
             func_001238c0(1);
             iGpffffb59c = 0;
             return 1;
         }
-        break;
-    case 3:
-    case 4:
-    case 5:
-    case 6:
         break;
     default:
         break;

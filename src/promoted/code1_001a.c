@@ -97,7 +97,7 @@ s64 func_001d15a0(s32 arg0);
 void func_001eb7f0(void);
 s32 func_001ef720(s32 arg0, s32 arg1);
 s32 func_001fabe0(u8 *arg0);
-s32 func_00232710(u8 *arg0, s32 arg1);
+u32 func_00232710(s32 arg0, u32 arg1);
 s32 func_00232d80(u8 *arg0);
 s64 func_00235320(u8 *arg0);
 s32 func_00243e30(u16 *arg0);
@@ -476,7 +476,7 @@ void func_001a1450(s64 *arg0)
         var_16 = *(u8 **)(iGpffffb3ac + 0x17C);
         goto loop_14_test;
 loop_14_body:
-        if (func_00232710(*(u8 **)(var_16 + 0xA64), 0x100) != 0) {
+        if (func_00232710((s32)*(u8 **)(var_16 + 0xA64), 0x100) != 0) {
             func_001958f0(
                 *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30),
                 (f32 *)&sp30);

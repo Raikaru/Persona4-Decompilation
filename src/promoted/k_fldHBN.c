@@ -27,7 +27,7 @@ extern u8 *func_00455f70(void *arg0, u32 *arg1);
 extern void func_0044ea90(void *arg0, s32 arg1);
 extern void func_0043f810(void *arg0, void *arg1, s32 arg2);
 extern void func_00454bd0(void *arg0);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 // FUN_0015F8E0
 u8 *func_0015f8e0(s32 arg0, s32 arg1)
@@ -78,7 +78,7 @@ s32 func_0015f9b0(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3)
     if (var_18 != NULL)
     {
         func_0044ea90(D_005F1108, 0x1AE);
-        temp_2 = (u16 *)D_008873F4[0](1, sp9C, 0x40000);
+        temp_2 = (u16 *)D_008873F4[0](1, (s32)(sp9C), 0x40000);
         *arg1 = temp_2;
         func_0043f810(temp_2, var_18, sp9C);
     }
@@ -164,7 +164,7 @@ s32 func_00160000(u8 *arg0)
         func_00160180();
         *(s32 *)((u8 *)func_00155280() + 0x18D8) = sp8C / 44;
         func_0044ea90(D_005F1108, 0x2AD);
-        temp_2 = D_008873F4[0](1, sp8C, 0x40000);
+        temp_2 = D_008873F4[0](1, (s32)(sp8C), 0x40000);
         *(u8 **)((u8 *)func_00155280() + 0x18DC) = temp_2;
         func_0043f810(*(void **)((u8 *)func_00155280() + 0x18DC), var_16, sp8C);
     }
@@ -225,7 +225,7 @@ s32 func_001602a0(u8 *arg0, s32 arg1)
         if (func_004553c0(arg0) != 0)
         {
             func_0044ea90(D_005F1108, 0x2F9);
-            var_16 = D_008873F4[0](1, *(u32 *)(arg0 + 0x118), 0x40000);
+            var_16 = D_008873F4[0](1, (s32)(*(u32 *)(arg0 + 0x118)), 0x40000);
             *(u8 **)((u8 *)func_00155280() + 0x1854) = var_16;
             *(u32 *)((u8 *)func_00155280() + 0x1858) = *(u32 *)(arg0 + 0x118);
             func_0043f810(*(void **)((u8 *)func_00155280() + 0x1854), *(void **)(arg0 + 0x110), *(u32 *)(arg0 + 0x118));
@@ -240,7 +240,7 @@ s32 func_001602a0(u8 *arg0, s32 arg1)
         if (temp_2 != NULL)
         {
             func_0044ea90(D_005F1108, 0x30C);
-            var_16 = D_008873F4[0](1, sp7C, 0x40000);
+            var_16 = D_008873F4[0](1, (s32)(sp7C), 0x40000);
             *(u8 **)((u8 *)func_00155280() + 0x1854) = var_16;
             *(u32 *)((u8 *)func_00155280() + 0x1858) = sp7C;
             func_0043f810(*(void **)((u8 *)func_00155280() + 0x1854), temp_2, sp7C);

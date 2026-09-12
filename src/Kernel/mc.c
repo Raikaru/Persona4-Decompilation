@@ -59,7 +59,7 @@ extern s32 func_00453d70(void *);
 extern void *memset(void *dst, s32 value, u32 size);
 extern char D_00796370[];
 extern void (*D_008873EC[])(void *);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 typedef int (*RwRenderStateSetFunc)(s32, s32);
 extern f32 D_00763910;
 extern s32 D_00764634;

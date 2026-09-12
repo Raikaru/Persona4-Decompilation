@@ -16,7 +16,7 @@ typedef struct P4_0015_Vec3
 extern s32 iGpffffb210;
 extern void func_00454bd0();
 
-extern void (*DAT_008873EC[])();
+extern void (*DAT_008873EC[])(void *);
 
 extern s32 func_00102980(void);
 extern void func_00145080();
@@ -56,7 +56,7 @@ extern s32 func_0014e710();
 extern void func_0046d730();
 extern void func_0043f810();
 extern void func_0044ea90(const void *msg, s32 line);
-extern void *(*D_008873F4[])();
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_0014e5e0();
 extern s32 func_00454570(void *arg0);
 extern f32 iGpffff853c;
@@ -163,7 +163,7 @@ extern s32 func_004782b0(s32 arg0);
 
 
 
-extern void (*jtbl_008873EC[])();
+extern void (*jtbl_008873EC[])(void *);
 
 // FUN_001537C0
 void func_001537c0(u8 *arg0, s32 arg1)
@@ -2021,7 +2021,7 @@ void func_0015d270(u8 *arg0)
 
     h = *(s32 *)(arg0 + 0x14);
     if (h != 0) {
-        (*jtbl_008873EC)(h);
+        (*jtbl_008873EC)((void *)h);
         *(s32 *)(arg0 + 0x14) = 0;
     }
 }

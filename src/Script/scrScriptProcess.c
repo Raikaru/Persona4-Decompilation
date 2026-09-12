@@ -157,8 +157,8 @@ extern ScrE040Vec4 D_0063E5E0;
 extern char D_0063E5F0[];
 extern char D_0063E600[];
 extern char D_0063E618[];
-extern u8* D_008873F4[]; // Allocator slot.
-extern void* jtbl_008873EC[];
+extern void *(*D_008873F4[])(size_t, size_t, u32); // Allocator slot.
+extern void (*jtbl_008873EC[])(void *);
 extern u16 D_008C024E;
 extern u16 D_008C0252;
 extern u16 D_008C0256;
@@ -873,7 +873,7 @@ void func_0029e7b0(u8* arg0)
         func_00454bd0(handle);
         task->unk_210 = 0;
     }
-    ((void (*)(void*))jtbl_008873EC[0])(task);
+    jtbl_008873EC[0](task);
 }
 
 // FUN_0029E8D0
@@ -882,7 +882,7 @@ void func_0029e8d0(u8* arg0)
     u8* buf;
 
     func_0044ea90(D_0063E3D0, 0x4AB);
-    buf = ((u8* (*)(s32, s32, s32))D_008873F4[0])(1, 0x228, 0x40000);
+    buf = D_008873F4[0](1, 0x228, 0x40000);
     func_00451fc0((s32)arg0, D_0063E618, 0xC9, 0, 0, (void (*)(u8*))func_0029e550, (void (*)(u8*))func_0029e7b0, buf);
 }
 

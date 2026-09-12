@@ -18,7 +18,7 @@ extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
 extern s32 func_002428f0(u8 *arg0, s32 arg1);
 extern s32 func_00231e20(u8 *arg0);
-extern s32 func_00232710();
+extern u32 func_00232710(s32 arg0, u32 arg1);
 extern u32 datCalcChkBadStatus(int unit, u32 badStatus);
 extern u16 func_00231ed0(u8 *arg0);
 extern u16 func_00231ee0(u8 *arg0);
@@ -29,7 +29,7 @@ extern void func_001d42e0(s32 arg0);
 extern void func_00485b20(s32 arg0);
 extern void func_004787e0(s32 arg0);
 extern void func_001d6880(u8 *arg0);
-extern void (*jtbl_008873EC[])(u8 *arg0);
+extern void (*jtbl_008873EC[])(void *);
 extern void func_001d3e00(s32 arg0);
 extern void func_001d6910(u8 *arg0);
 extern void func_001d75d0(u8 *arg0);
@@ -1797,13 +1797,13 @@ void func_001d7c60(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4)
                     if (needExcl == 0 || arg0 != unit) {
                         if (skipDead != 0 || func_002428f0(*(u8 **)(work + 0xA64), 0) == 0) {
                             if (needAlive != 0) {
-                                if (func_00232710(*(u8 **)(work + 0xA64), 0x100000) == 0) {
+                                if (func_00232710((s32)*(u8 **)(work + 0xA64), 0x100000) == 0) {
                                     goto next;
                                 }
                                 goto store;
                             } else if (arg4 == 0 ||
                                 ((*(s32 *)(*(u8 **)(work + 0xA64) + 0xC) & 0xFFEFFFFF) != 0 &&
-                                 func_00232710(*(u8 **)(work + 0xA64), arg4) == 0)) {
+                                 func_00232710((s32)*(u8 **)(work + 0xA64), arg4) == 0)) {
                                 goto store;
                             }
                         }
@@ -1930,7 +1930,7 @@ mode_valid:
                     if (*(u8 **)(arg0 + 0x30) ==
                         *(u8 **)(*(u8 **)(arg1 + (u32)(u16)index * 4) + 0x30) &&
                         func_00232710(
-                            *(u8 **)(*(u8 **)(*(u8 **)(arg1 +
+                            (s32)*(u8 **)(*(u8 **)(*(u8 **)(arg1 +
                                                           (u32)(u16)index * 4) +
                                                      0x30) +
                                      0xA64),
@@ -1944,7 +1944,7 @@ mode_valid:
                 index = 0;
                 while ((u16)index < *(u16 *)(arg1 + 0x38)) {
                     if (func_00232710(
-                            *(u8 **)(*(u8 **)(*(u8 **)(arg1 +
+                            (s32)*(u8 **)(*(u8 **)(*(u8 **)(arg1 +
                                                           (u32)(u16)index * 4) +
                                                      0x30) +
                                      0xA64),
@@ -2100,7 +2100,7 @@ loop:
                         goto next;
                     }
                 }
-                if (func_00232710(*(u8 **)(work + 0xA64), work_flags) != 0) {
+                if (func_00232710((s32)*(u8 **)(work + 0xA64), work_flags) != 0) {
                     goto next;
                 }
                 if (*(u16 *)(work + 0xA4) == id) {
@@ -2141,7 +2141,7 @@ loop:
     if ((flags & 1) != 0) {
         if ((flags & 8) != 0) {
             work = *(u8 **)(unit + 0x30);
-            if (func_00232710(*(u8 **)(work + 0xA64), arg2) == 0) {
+            if (func_00232710((s32)*(u8 **)(work + 0xA64), arg2) == 0) {
                 if (arg5(unit, arg1) != arg4) {
                     if (arg6 != NULL) {
                         arg6[(u16)matches] = unit;
@@ -2198,7 +2198,7 @@ loop:
             if (options == 0)
                 goto check_general;
             if (option_one != 0 &&
-                func_00232710(*(u8 **)(work + 0xA64), 0x100000) == 0)
+                func_00232710((s32)*(u8 **)(work + 0xA64), 0x100000) == 0)
                 goto next;
             if (option_two != 0) {
                 status = func_0023d6e0((s16)param_2);
@@ -2225,7 +2225,7 @@ loop:
 check_general:
             if ((ignore_dead_value == 0 ||
                  func_002428f0(*(u8 **)(work + 0xA64), 0) == 0) &&
-                func_00232710(*(u8 **)(work + 0xA64), param_4) == 0 &&
+                func_00232710((s32)*(u8 **)(work + 0xA64), param_4) == 0 &&
                 param_6(unit, param_2) != 0)
                 return 1;
         }

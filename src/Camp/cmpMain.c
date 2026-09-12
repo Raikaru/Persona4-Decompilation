@@ -56,7 +56,7 @@ void func_00361a30(u8 *arg0);
 void func_00359720(u8 *arg0);
 
 extern void (*jtbl_008873EC[])(void *ptr);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*D_00887300[])(s32, s32);
 extern void (*D_00887304[])(s32, void *);
 extern u16 D_008C024E[];

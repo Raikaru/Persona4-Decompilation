@@ -14,7 +14,7 @@ struct HDbText3D
 typedef struct { u8 b0, b1, b2, b3; } RGBA8;
 
 static char sGrid[HDBPRT_GRID_HEIGHT][HDBPRT_GRID_WIDTH];
-static HDbText3D* sText3DList;
+static HDbText3D* iGpffffb9dc; /* gp -0x4624 (0x00764ACC) */
 
 extern void* memset(void* destination, s32 value, size_t count);
 /* rwGlobals.memFuncs.RwFree slot: indirect call through data. */
@@ -38,16 +38,17 @@ extern u8 *func_003ec180(u8 *arg0, s32 *arg1);
 extern s32 func_003ea370(s32 *arg0);
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
 
-static void *sFontWork;   /* gp -0x4620 (0x00764AD0) */
-static u8 *sFontFile;     /* gp -0x461C (0x00764AD4) */
-static s32 *sRaster;      /* gp -0x4618 (0x00764AD8) */
+static void *iGpffffb9e0;   /* gp -0x4620 (0x00764AD0) */
+static u8 *iGpffffb9e4;     /* gp -0x461C (0x00764AD4) */
+static s32 *iGpffffb9e8;      /* gp -0x4618 (0x00764AD8) */
 
 /* text3d helpers */
 extern void func_0044ec50(s32 arg0);
 extern void func_0044ea90(const void *file, s32 line);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_00446ed8(void *buf, const void *fmt, void *va);
 extern char iGpffffac30;
+extern char iGpffffac38[6]; /* gp -0x53C8: "%s %d" */
 
 typedef char *va_list;
 #define va_start(ap, last) (ap = ((va_list)__builtin_next_arg(last) - (__builtin_args_info(2) >= 8 ? 0 : (8 - __builtin_args_info(2)) * 8)))
@@ -60,23 +61,23 @@ void func_0044f570(s32 arg0) {
     u8 *h2;
     s32 *raster;
 
-    func_00440b68("%s %d", D_00710500, 0x4F);
+    func_00440b68(iGpffffac38, D_00710500, 0x4F);
     h1 = func_00454a60((u8 *)D_00710510, 0);
     func_00456150(h1);
-    func_00440b68("%s %d", D_00710500, 0x52);
+    func_00440b68(iGpffffac38, D_00710500, 0x52);
     h2 = func_00454a60((u8 *)D_00710530, 0);
     func_00456150(h2);
     func_00454bd0(h2);
-    sFontFile = func_003eaf60((u8 *)D_00710510);
-    sFontWork = (void *)arg0;
+    iGpffffb9e4 = func_003eaf60((u8 *)D_00710510);
+    iGpffffb9e0 = (void *)arg0;
     func_00454bd0(h1);
-    raster = func_003ec590(*(s32 *)(sFontFile + 4), *(s32 *)(sFontFile + 8), 4, 0x4504);
-    sRaster = raster;
-    func_003ec180((u8 *)raster, (s32 *)sFontFile);
-    func_003ea370((s32 *)sFontFile);
-    sFontFile = NULL;
+    raster = func_003ec590(*(s32 *)(iGpffffb9e4 + 4), *(s32 *)(iGpffffb9e4 + 8), 4, 0x4504);
+    iGpffffb9e8 = raster;
+    func_003ec180((u8 *)raster, (s32 *)iGpffffb9e4);
+    func_003ea370((s32 *)iGpffffb9e4);
+    iGpffffb9e4 = NULL;
     func_0043f9c8(D_008BF720, 0x20, 0x848);
-    sText3DList = NULL;
+    iGpffffb9dc = NULL;
 }
 
 // FUN_0044F6B0
@@ -87,8 +88,8 @@ void H_Dbprt_Flush()
 
     memset(sGrid, ' ', sizeof(sGrid));
 
-    curr = sText3DList;
-    sText3DList = NULL;
+    curr = iGpffffb9dc;
+    iGpffffb9dc = NULL;
     while (1)
     {
         if (curr == NULL)
@@ -103,9 +104,9 @@ void H_Dbprt_Flush()
 }
 /* measured: retail keeps the D_00887300 render-vtable base in $s1 and the
    D_008BF720 grid row base (grid + var_18*0x35) hoisted in $s0 across the
-   glyph loop, and loads sFontWork into caller-saved $a0 (reloaded at the
+   glyph loop, and loads iGpffffb9e0 into caller-saved $a0 (reloaded at the
    func_003e8110 tail); mwcc b210 with the u32-cast base hoist lands the base
-   in $s0, keeps sFontWork in saved $s3 across the body, and re-orders the
+   in $s0, keeps iGpffffb9e0 in saved $s3 across the body, and re-orders the
    glyph quad/UV position arithmetic (the 12x12 cell corners and 0.0625/0.046875
    UV block) differently from retail. Frame (0x190) and the D_00887300 calls
    match; nf-diff 175. */
@@ -114,7 +115,7 @@ void H_Dbprt_Flush()
 // FUN_0044F720
 INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044f720);
 
-/* measured: retail iterates the sText3DList nodes and renders each glyph into
+/* measured: retail iterates the iGpffffb9dc nodes and renders each glyph into
    the 4x0x40 quad buffer (sp+0x40) with the byte-color conversion (lbu + bltz
    guard, then cvt.w.s or srl/or + doubling) and the same 12x12-cell / 0.0625
    UV block as func_0044f720; mwcc b210 reorders the color-conversion branches
@@ -197,9 +198,9 @@ void func_004501f0(s64 arg0, s32 arg1, s32 arg2, ...) {
         *(s32 *)(temp_2 + 0xC) = 0;
         *(RGBA8 *)(temp_2 + 0x114) = *(RGBA8 *)((u8 *)&arg1 + 0);
         *(s32 *)(temp_2 + 0x110) = 0;
-        var_4 = sText3DList;
+        var_4 = iGpffffb9dc;
         if (var_4 == NULL) {
-            sText3DList = (HDbText3D *)temp_2;
+            iGpffffb9dc = (HDbText3D *)temp_2;
             return;
         }
         do {
@@ -237,9 +238,9 @@ void func_00450340(s64 arg0, s32 arg1, ...) {
         *(u8 *)(temp_2 + 0x116) = 0xFF;
         *(u8 *)(temp_2 + 0x115) = 0xFF;
         *(u8 *)(temp_2 + 0x114) = 0xFF;
-        var_4 = sText3DList;
+        var_4 = iGpffffb9dc;
         if (var_4 == NULL) {
-            sText3DList = (HDbText3D *)temp_2;
+            iGpffffb9dc = (HDbText3D *)temp_2;
             return;
         }
         do {

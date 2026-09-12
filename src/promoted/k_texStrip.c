@@ -3,12 +3,12 @@
 /* Original translation unit k_texStrip.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
-extern void (*jtbl_008873EC[])(u8 *);
+extern void (*jtbl_008873EC[])(void *);
 
 extern void func_00428618(s32 arg0);
 extern void func_0044ea90(const void *file, u32 line);
 extern void func_00440b68(const char *fmt, ...);
-extern void *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void *func_003ef650(void *arg0, const char *arg1);
 extern void func_003ef610(s32 arg0);
 extern void func_003ef5b0(s32 arg0, s32 arg1);
@@ -100,8 +100,8 @@ s32 func_00191850(u8 *arg0);
 
 
 
-// measured: nd 115 after 4 attempts (best). Spill-slot rule as func_001916a0: the four
-// func_003df3c0 spill slots MUST be `s32 spill[4]`. Switch `case 0x16 / case 0xF0F000E0 /
+// measured: nd 115 after 4 attempts (best). Spill-slot rule as func_001916a0:
+// func_003df3c0 writes four signed header words in spill.s. Switch `case 0x16 / case 0xF0F000E0 /
 // default` compiles the dispatch comparison in the correct order (0xF0F000E0 first, then 0x16)
 // and matches retail exactly. Residual nd 115 is dominated by register allocation: retail keeps
 // sp60/sp64/sp68 (the 0x14-byte func_003e2910 buffer + sp64/sp68) on the STACK at 0x60/0x64/
@@ -111,16 +111,16 @@ s32 func_00191850(u8 *arg0);
 // 5-word array (nd 138) or a 3-field struct (nd 141) is worse. Core regs are otherwise right.
 // QTEX lane: plain-C candidate object 668/window 672; baseline fndiff was nd 20
 // (six differing instruction words plus one zero-padding tail word), with both
-// func_003deff0 calls materializing move $a0 before the spill[0]/spill[1] loads.
-// The targeted `(u32)` casts on spill[0] and spill[1] at both calls produce nd 0.
-// s32 sp[2], s32 spill[4], and buffer[5] reproduce the 0xA0 frame and saved-register
+// func_003deff0 calls materializing move $a0 before the spill.s[0]/spill.s[1] loads.
+// The targeted `(u32)` casts on spill.s[0] and spill.s[1] at both calls produce nd 0.
+// s32 sp[2], the 16-byte spill union, and buffer[5] reproduce the 0xA0 frame and saved-register
 // coloring. Shared-callee probe: retail func_003deff0 first-uses a0 as a forwarded
 // pointer, saves a1/a2, and masks a3/t0, proving five args `(void *,s32,s32,s32,s32)`;
 // existing calls already pass all five, so no prototype change was needed.
 // FUN_00190680
 s32 func_00190680(u8 *arg0, void *arg1) {
     s32 sp[2];
-    s32 spill[4];
+    union { s32 s[4]; u32 u[4]; } spill;
     s32 buffer[5];
     s32 var_20;
     s32 temp_19;
@@ -136,13 +136,13 @@ s32 func_00190680(u8 *arg0, void *arg1) {
     if ((temp_19 != 0) && (temp_18 != 0)) {
         goto loop_check;
 loop_body:
-        switch (spill[0]) {
+        switch (spill.s[0]) {
         case 0x16:
             var_20 = func_003e6a90(temp_19);
             break;
         case 0xF0F000E0:
             func_003e2910(temp_19, &buffer[0], 0x14);
-            func_003deff0(temp_18, (u32)spill[0], (u32)spill[1], spill[2], spill[3]);
+            func_003deff0(temp_18, (u32)spill.s[0], (u32)spill.s[1], spill.s[2], spill.s[3]);
             func_003e2ab0(temp_18, &buffer[0], 0x14);
             func_003e2ce0(temp_19, buffer[2]);
             func_0044ea90(D_005F6168, 0xBB);
@@ -152,20 +152,20 @@ loop_body:
             jtbl_008873EC[0](temp_2);
             break;
         default:
-            if (spill[1] != 0) {
+            if (spill.s[1] != 0) {
                 func_0044ea90(D_005F6168, 0xCA);
-                var_16 = D_008873F4[0](1, spill[1], 0x40000);
-                func_003e2910(temp_19, var_16, spill[1]);
+                var_16 = D_008873F4[0](1, spill.u[1], 0x40000);
+                func_003e2910(temp_19, var_16, spill.s[1]);
             }
-            func_003deff0(temp_18, (u32)spill[0], (u32)spill[1], spill[2], spill[3]);
-            if (spill[1] != 0) {
-                func_003e2ab0(temp_18, var_16, spill[1]);
+            func_003deff0(temp_18, (u32)spill.s[0], (u32)spill.s[1], spill.s[2], spill.s[3]);
+            if (spill.s[1] != 0) {
+                func_003e2ab0(temp_18, var_16, spill.s[1]);
                 jtbl_008873EC[0](var_16);
             }
             break;
         }
 loop_check:
-        if (func_003df3c0(temp_19, &spill[0]) != 0) {
+        if (func_003df3c0(temp_19, &spill.s[0]) != 0) {
             goto loop_body;
         }
         func_003e2e40(temp_19, 0);
@@ -199,14 +199,14 @@ s32 func_00190920(s32 arg0, s32 arg1) {
 
 // measured: candidate frame, spill arrays, saved-register order, switch/goto layout, and
 // shared-callee five-argument signature reached object 532/window 544 with normalized_diff 10.
-// fndiff isolated the residual to func_003deff0 setup: retail loads spill[0] and spill[1]
+// fndiff isolated the residual to func_003deff0 setup: retail loads spill.s[0] and spill.s[1]
 // into $a1/$a2 before moving temp_19 into $a0, while b210 materializes the first argument
 // first. Casting those two stack values to u32 reproduces the retail order and closes this
 // function (normalized_diff 0).
 // FUN_001909F0
 void func_001909f0(u8 *arg0, void *arg1, u8 *arg2) {
     s32 sp[2];
-    s32 spill[4];
+    union { s32 s[4]; u32 u[4]; } spill;
     s32 temp_20;
     s32 temp_19;
     s32 temp_18;
@@ -221,7 +221,7 @@ void func_001909f0(u8 *arg0, void *arg1, u8 *arg2) {
     if ((temp_20 != 0) && (temp_19 != 0)) {
         goto loop_check;
 loop_body:
-        switch (spill[0]) {
+        switch (spill.s[0]) {
         case 0x16:
             temp_18 = func_003e6a90(temp_20);
             var_17 = 0;
@@ -240,20 +240,20 @@ item_check:
             func_003ef1b0(temp_18);
             break;
         default:
-            if (spill[1] != 0) {
+            if (spill.s[1] != 0) {
                 func_0044ea90(D_005F6168, 0x141);
-                var_16 = D_008873F4[0](1, spill[1], 0x40000);
-                func_003e2910(temp_20, var_16, spill[1]);
+                var_16 = D_008873F4[0](1, spill.u[1], 0x40000);
+                func_003e2910(temp_20, var_16, spill.s[1]);
             }
-            func_003deff0(temp_19, (u32)spill[0], (u32)spill[1], spill[2], spill[3]);
-            if (spill[1] != 0) {
-                func_003e2ab0(temp_19, var_16, spill[1]);
+            func_003deff0(temp_19, (u32)spill.s[0], (u32)spill.s[1], spill.s[2], spill.s[3]);
+            if (spill.s[1] != 0) {
+                func_003e2ab0(temp_19, var_16, spill.s[1]);
                 jtbl_008873EC[0](var_16);
             }
             break;
         }
 loop_check:
-        if (func_003df3c0(temp_20, &spill[0]) != 0) {
+        if (func_003df3c0(temp_20, &spill.s[0]) != 0) {
             goto loop_body;
         }
         func_003e2e40(temp_20, 0);
@@ -304,16 +304,16 @@ s32 func_00191610(void)
 }
 
 // measured: MATCH (object 420/window 432). The four func_003df3c0 spill slots
-// MUST be a 4-element array `s32 spill[4]` passed as &spill[0] and read as
-// spill[1..3], keeping them on the stack at 0x50-0x5C and preserving the
-// retail saved-register allocation.
-// The `(u32)` casts on spill[0] and spill[1] in func_003deff0 reproduce retail's
+// use a 16-byte union: producer &spill.s[0], signed reads spill.s[1..3],
+// and unsigned allocation length spill.u[1]. The stack slots at 0x50-0x5C
+// and retail saved-register allocation are unchanged.
+// The `(u32)` casts on spill.s[0] and spill.s[1] in func_003deff0 reproduce retail's
 // argument-materialization order (loads before the first-argument move).
 // FUN_001916A0
 s32 func_001916a0(u8 *arg0, void *arg1)
 {
     s32 sp[2];
-    s32 spill[4];
+    union { s32 s[4]; u32 u[4]; } spill;
     s32 var_19;
     s32 temp_18;
     s32 temp_17;
@@ -327,25 +327,25 @@ s32 func_001916a0(u8 *arg0, void *arg1)
     if ((temp_18 != 0) && (temp_17 != 0)) {
         goto loop_check;
 loop_body:
-        switch (spill[0]) {
+        switch (spill.s[0]) {
         case 0x16:
             var_19 = func_003e6a90(temp_18);
             break;
         default:
-            if (spill[1] != 0) {
+            if (spill.s[1] != 0) {
                 func_0044ea90(D_005F6168, 0x330);
-                var_16 = D_008873F4[0](1, spill[1], 0x40000);
-                func_003e2910(temp_18, var_16, spill[1]);
+                var_16 = D_008873F4[0](1, spill.u[1], 0x40000);
+                func_003e2910(temp_18, var_16, spill.s[1]);
             }
-            func_003deff0(temp_17, (u32)spill[0], (u32)spill[1], spill[2], spill[3]);
-            if (spill[1] != 0) {
-                func_003e2ab0(temp_17, var_16, spill[1]);
+            func_003deff0(temp_17, (u32)spill.s[0], (u32)spill.s[1], spill.s[2], spill.s[3]);
+            if (spill.s[1] != 0) {
+                func_003e2ab0(temp_17, var_16, spill.s[1]);
                 jtbl_008873EC[0](var_16);
             }
             break;
         }
 loop_check:
-        if (func_003df3c0(temp_18, &spill[0]) != 0) {
+        if (func_003df3c0(temp_18, &spill.s[0]) != 0) {
             goto loop_body;
         }
         func_003e2e40(temp_18, 0);
