@@ -34,7 +34,7 @@ s32 func_0025f540(s32, u8, s32, s32, u8 *, s32, s16, s16, void *, f32, f32, f32,
 u32 func_0025f6b0(f32, f32, f32, s32, u8, s32, s32, s16 *, shd_cb, s32);
 
 /* Allocator slot at 0x008873F4 (absolute, outside gp window). */
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 /* Assert source file string. */
 extern u8 D_00637280[];
 

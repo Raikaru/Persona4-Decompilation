@@ -41,7 +41,7 @@ extern s32 iGpffffb19c;
 extern void func_001104d0(s32 seed, s32 *month, s32 *day);
 extern s32 iGpffffb1b8;
 extern s32 iGpffffb1f0;
-extern void (*jtbl_008873EC[])(u8 *);
+extern void (*jtbl_008873EC[])(void *);
 extern u8 *func_0010d7c0(s32 a, s32 *b, s32 c);
 extern u8 D_007BBF00[];
 extern void func_0043f810(void *dst, void *src, s32 n);

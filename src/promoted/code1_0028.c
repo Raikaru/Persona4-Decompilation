@@ -84,7 +84,7 @@ extern void func_0028f990(s32 arg0, f32 arg1, f32 *arg2, f32 *arg3,
                           f32 *arg4);
 typedef signed __int128 s128;
 extern void func_0044ea90(const void *file, s32 line);
-extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00748340[];
 
 

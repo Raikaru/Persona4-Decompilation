@@ -4,7 +4,7 @@
 
 extern void func_0046d730(const void *file, u32 line);
 extern void func_0044ea90(const void *file, u32 line);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 D_0064F0F0[];
 extern f32 D_0064F110[];

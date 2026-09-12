@@ -9,6 +9,8 @@ SHT_RELA = 4
 SHT_NOBITS = 8
 SHT_REL = 9
 
+STT_SECTION = 3
+
 FUNCTION_ST_INFOS = (
     0x12,  # global functions
     0x02,  # local functions

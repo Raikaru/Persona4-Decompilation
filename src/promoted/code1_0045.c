@@ -25,7 +25,7 @@ extern u8 *iGpffffb9e0;
 extern void func_0043f9c8(void *dst, s32 value, s32 size);
 extern void func_003f6440(s32 param, s32 value);
 extern void (*D_00887304[])();
-extern void (*D_008873EC[])();
+extern void (*D_008873EC[])(void *);
 extern u8 D_007124C0[];
 typedef struct {
     f32 v[4];
@@ -115,7 +115,7 @@ extern void func_0044ea90(void *arg0, s32 arg1);
 extern void func_00440b68();
 extern u8 D_007117C8[];
 extern u8 D_007117E0[];
-extern u8 *(*D_008873F4[])(s32 arg0, s32 arg1, s32 arg2);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_00456b70(void);
 extern void func_00456be0(void);
 extern void func_004568a0(void);
@@ -819,7 +819,7 @@ u8 *func_00456c30(void)
 // FUN_00456C60
 u8 *func_00456c60(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 var_20;
-    u8 *(*(*alloc_table))(s32, s32, s32);
+    void *(*(*alloc_table))(size_t, size_t, u32);
     u8 *temp_2;
     u8 *temp_2_2;
     u8 *temp_4;

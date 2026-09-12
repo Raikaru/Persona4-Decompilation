@@ -3,7 +3,7 @@
 /* Original translation unit datUnit.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
-extern void (*jtbl_008873EC[])(void);
+extern void (*jtbl_008873EC[])(void *);
 
 /* Ported from the P3FES donor src/Main/Battle/Data/datUnit.c (verified MATCH
  * there for 7 of 8 functions); adapted to the P4 build: assert lines
@@ -290,7 +290,7 @@ u32 func_00231af0(DatUnit* unit, u8 genus, u16 id)
 #pragma opt_loop_invariants off
 
 // FUN_002319C0
-void func_002319c0(void)
+void func_002319c0(s32 arg0)
 {
-    jtbl_008873EC[0]();
+    jtbl_008873EC[0]((void *)arg0);
 }

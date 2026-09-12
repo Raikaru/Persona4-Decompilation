@@ -125,7 +125,7 @@ extern void func_003ef3a0(void *arg0);
 extern void func_001437b0(void *arg0, s32 arg1, s32 arg2);
 extern void func_0034f5d0(u8 *arg0);
 extern s32 func_0044ea90(const void *file, s32 line);
-extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_00451fc0(s32 window, const void *data, s32 prio, s32 a3,
                          s32 a4, void *init, void *close, u8 *work);
 extern u8 D_005E57B8[];

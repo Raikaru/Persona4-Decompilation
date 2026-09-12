@@ -101,7 +101,7 @@ extern void func_00454bd0(s32 arg0);
 extern void func_00196040(s32 arg0, s32 arg1, void *arg2,
                           s32 arg3, s32 arg4, s32 arg5);
 extern void func_001958f0(void *arg0, void *arg1);
-extern s32 func_00232710(s32 arg0, s32 arg1, s32 arg2);
+extern u32 func_00232710(s32 arg0, u32 arg1);
 extern s32 func_0022f7d0(u8 *arg0, f32 *arg1, s32 arg2);
 extern u8 *func_001b1510(void);
 extern void func_001ec1c0(void *arg0, void *arg1, void *arg2);
@@ -301,7 +301,7 @@ extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
 extern u8 D_005F6020[];
-extern void *(*D_008873F4[])(s32 arg0, s32 arg1, s32 arg2);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_0018f950();
 extern void func_001d78d0(void);
 extern void func_00200cb0(void);
@@ -1426,7 +1426,7 @@ void func_00194ff0(u8 *arg0, u8 *arg1, f32 *arg2, f32 *arg3)
         temp_5 = *(u8 *)(arg0 + 0xA2);
         switch (temp_5) {
         case 0:
-            if (func_00232710(*(s32 *)(arg0 + 0xA64), 0x100, temp_6_2) == 0) {
+            if (func_00232710(*(s32 *)(arg0 + 0xA64), 0x100) == 0) {
                 func_00196040(2, 1, frame.vec, 0, 0, 1);
             } else {
                 func_001958f0(
@@ -3311,7 +3311,6 @@ void func_0019db40(u8 *arg0)
     extern void func_0047a8b0(void *arg0, void *arg1);
     extern s32 func_0047a6d0(void *arg0, s32 arg1, void *arg2);
     extern f32 DAT_007613f8;
-    extern s32 func_00232710();
     extern u8 *func_0019efe0(s32 arg0);
     P4_95730_Vec3 pos;
     P4_95730_Vec3 scaled;
@@ -3655,16 +3654,14 @@ void func_0019ea60(u8 *arg0, s32 arg1)
     func_00201280(arg0, arg0 + 0xA10);
 }
 // FUN_0019EDA0
-s32 func_0019eda0(u8 *arg0, s32 arg1)
+u8 *func_0019eda0(u8 *arg0, s32 arg1)
 {
-    extern s32 func_00232710();
     s32 temp_16;
     s32 temp_3;
-    s32 var_2;
-    s32 var_2_2;
+    u8 *var_2;
+    u8 *var_2_2;
     s32 var_4;
-    u8 *temp_4;
-    u8 temp_3_2;
+    s32 flags;
 
     temp_16 = *(u16 *)(arg0 + 0xA4);
     temp_3 = arg1 & 0xFFFF;
@@ -3674,34 +3671,33 @@ s32 func_0019eda0(u8 *arg0, s32 arg1)
         var_4 = 1;
         break;
     case 2:
-        temp_4 = *(u8 **)(arg0 + 0xA64);
-        if ((temp_4 != NULL) && (func_00232710(temp_4, 0x100000) != 0)) {
+        flags = *(s32 *)(arg0 + 0xA64);
+        if ((flags != 0) && (func_00232710(flags, 0x100000) != 0)) {
             var_4 = 1;
             break;
         }
     default:
         var_4 = 0;
     }
-    temp_3_2 = *(u8 *)(arg0 + 0xA2);
-    switch (temp_3_2) {
+    switch (*(u8 *)(arg0 + 0xA2)) {
     case 0:
         if (var_4 != 0) {
-            var_2 = (s32)(iGpffffb3c0 + temp_16 * 0x14C + 0xA);
+            var_2 = iGpffffb3c0 + temp_16 * 0x14C + 0xA;
         } else {
-            var_2 = (s32)(iGpffffb3c0 + temp_16 * 0x14C);
+            var_2 = iGpffffb3c0 + temp_16 * 0x14C;
         }
         return var_2;
     case 1:
         if (var_4 != 0) {
-            var_2_2 = (s32)(iGpffffb3cc + temp_16 * 0xE8 + 0xA);
+            var_2_2 = iGpffffb3cc + temp_16 * 0xE8 + 0xA;
         } else {
-            var_2_2 = (s32)(iGpffffb3cc + temp_16 * 0xE8);
+            var_2_2 = iGpffffb3cc + temp_16 * 0xE8;
         }
         return var_2_2;
     case 2:
-        return (s32)(iGpffffb3e0 + temp_16 * 0x58 + 2);
+        return iGpffffb3e0 + temp_16 * 0x58 + 2;
     default:
-        return 0;
+        return NULL;
     }
 }
 // FUN_0019EF30
@@ -3821,8 +3817,138 @@ s32 func_0019f0f0(u8 *arg0)
     }
     return result;
 }
+
+#pragma push
+#pragma opt_propagation off
+#pragma opt_rebuildconditionals off
+#pragma opt_common_subs off
 // FUN_0019F1D0
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019f1d0);
+void func_0019f1d0(u8 *unit)
+{
+    extern u8 *iGpffffb3c4;
+    u8 *resource;
+    f32 radius;
+    f32 height;
+    f32 minRadius;
+    f32 minHeight;
+    f32 factor;
+    f32 lower;
+    f32 scale;
+    f32 upper;
+    f32 lowerHeight;
+    f32 upperHeight;
+    u16 band;
+    s32 bound;
+
+    if (*(u8 *)(unit + 0xA2) == 1) {
+        resource = *(u8 **)(unit + 0xA64);
+        if (resource != NULL &&
+            (*(u16 *)(iGpffffb3c4 + *(u16 *)(resource + 2) * 0x3C) & 0x8000)) {
+            return;
+        }
+    }
+
+    scale = *(f32 *)(unit + 0x2C);
+    radius = (f32)(s32)(*(f32 *)(unit + 0x90) * scale);
+    height = (f32)(s32)(*(f32 *)(unit + 0x8C) * scale);
+    lowerHeight = 200.0f;
+    if (!(radius <= lowerHeight) || !(height <= 400.0f) ||
+        radius < 50.0f || height < 100.0f) {
+        return;
+    }
+
+    if (height <= lowerHeight) {
+        if (radius <= 75.0f) {
+            band = 0;
+        } else if (radius <= 125.0f) {
+            band = 1;
+        } else if (radius <= lowerHeight) {
+            band = 2;
+        }
+    } else if (height <= 300.0f) {
+        if (radius <= 125.0f) {
+            band = 1;
+        } else if (radius <= lowerHeight) {
+            band = 2;
+        }
+    } else {
+        band = 2;
+    }
+
+    switch (band) {
+    case 0:
+        minRadius = 50.0f;
+        minHeight = 100.0f;
+        upper = 74.0f;
+        lower = 199.0f;
+        break;
+    case 1:
+        minRadius = 76.0f;
+        minHeight = 201.0f;
+        upper = 124.0f;
+        bound = 299;
+        lower = (f32)bound;
+        break;
+    case 2:
+        minRadius = 126.0f;
+        bound = 301;
+        minHeight = (f32)bound;
+        upper = 199.0f;
+        bound = 399;
+        lower = (f32)bound;
+        break;
+    }
+
+    if (upper <= radius) goto upper_radius_one;
+    upper = upper / radius;
+    goto upper_radius_done;
+upper_radius_one:
+    upper = 1.0f;
+upper_radius_done:
+    if (lower <= height) goto upper_height_one;
+    upperHeight = lower / height;
+    goto upper_height_done;
+upper_height_one:
+    upperHeight = 1.0f;
+upper_height_done:
+    upper = upper < upperHeight ? upper : upperHeight;
+
+    if (minRadius < radius) {
+        lower = minRadius / radius;
+    } else {
+        lower = -1.0f;
+    }
+    if (minHeight < height) {
+        lowerHeight = minHeight / height;
+    } else {
+        lowerHeight = -1.0f;
+    }
+    upperHeight = 0.0f;
+    if (!(lower <= upperHeight) && !(lowerHeight <= upperHeight)) {
+        lower = lower > lowerHeight ? lower : lowerHeight;
+    } else {
+        lower = 1.0f;
+    }
+
+    switch (*(u32 *)(unit + 0xA8) & 3) {
+    case 0:
+        factor = upper;
+        break;
+    case 1:
+        factor = (0.0f + lower) + 0.5f * (upper - lower);
+        break;
+    case 2:
+        factor = lower;
+        break;
+    case 3:
+        factor = 1.0f;
+        break;
+    }
+    *(f32 *)(unit + 0x2C) = factor * scale;
+    *(u32 *)(unit + 0x98) |= 4;
+}
+
+#pragma pop
 // FUN_0019F5F0
 u8 *func_0019f5f0(s32 arg0, s64 arg1, u16 *arg2)
 {
@@ -3915,7 +4041,6 @@ u8 *func_0019f5f0(s32 arg0, s64 arg1, u16 *arg2)
 // FUN_0019F8A0
 s32 func_0019f8a0(u8 *arg0)
 {
-    extern s32 func_00232710();
     s32 temp_2;
     u16 *temp_4;
 
@@ -3986,7 +4111,6 @@ void func_0019fa40(void)
 // FUN_0019FAF0
 void func_0019faf0(u8 *arg0)
 {
-    extern s32 func_00232710();
     f32 sp40[3];
     u16 temp_4;
     u8 *var_17;
@@ -4153,7 +4277,6 @@ s32 func_0019fe60(u8 *arg0, s32 arg1, s32 arg2)
 // FUN_0019FF60
 s32 func_0019ff60(u8 *arg0)
 {
-    extern s32 func_00232710();
     u8 *state;
     u8 *current;
     u8 *unit;

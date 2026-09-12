@@ -37,7 +37,7 @@ extern f32 D_0076120C;
 extern f32 D_00761288;
 extern f32 D_0076122C;
 extern void (*D_00887300[])(u32, u32);
-extern void *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 void func_0044ea90(void *msg, s32 id);
 void func_0046d730(const void *file, s32 line);

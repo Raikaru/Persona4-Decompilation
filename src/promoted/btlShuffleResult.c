@@ -14,7 +14,7 @@ extern void func_002bad10(s32 a);
 extern void func_0043f9c8(void *dst, s32 value, s32 size);
 extern void func_0044ea90(const void *msg, s32 id);
 extern void func_0046d730(const void *file, u32 line);
-extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_0064EB60[];
 extern u8 D_0064EC70[];
 extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c,

@@ -9,7 +9,7 @@ extern u8 D_00636A30[];
 typedef void (*code)(void *);
 extern code DAT_008873ec_abs[];
 extern void func_0044ea90(const void *msg, s32 id);
-extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c,
                          void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
 extern u8 *D_00636820[];

@@ -4,9 +4,9 @@
 #include "type.h"
 #include "h_cdvd_internal.h"
 
-extern void (*jtbl_008873EC[])(s32);
+extern void (*jtbl_008873EC[])(void *);
 extern void func_0044ea90(const void *msg, s32 id);
-extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c,
                          void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
 extern u8 D_00712978[];
@@ -285,7 +285,7 @@ s32 func_004671c0(u8 *arg0)
 // FUN_00467290
 void func_00467290(u8 *arg0)
 {
-    jtbl_008873EC[0](*(s32 *)(arg0 + 0x38));
+    jtbl_008873EC[0]((void *)*(s32 *)(arg0 + 0x38));
 }
 
 /* measured: `handle` must be declared BEFORE `mem`. With `mem` first, b210

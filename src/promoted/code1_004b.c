@@ -100,7 +100,7 @@ extern u8 D_008872FC_abs[];
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
 extern s32 (*D_00887310_abs[])(s32 arg0, void *arg1, s32 arg2);
 
-extern void (*jtbl_008873EC[])(u8 *arg0);
+extern void (*jtbl_008873EC[])(void *);
 /* The six framed tail-jump wrappers listed above are intentionally retained
    as assembly fallbacks; all ordinary small wrappers below are source-backed. */
 

@@ -47,7 +47,7 @@ extern f32 D_00764B5C;
 extern u8 D_00748340[];
 extern u8 D_0063C638[];
 extern u8 D_0063C690[];
-extern void *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 typedef int (*code)();
 extern code DAT_008873ec_abs[];

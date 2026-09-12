@@ -3,7 +3,7 @@
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
 extern void (*jtbl_008873EC[])(void *ptr);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern char D_0064A000[];
 extern char D_0064A018[];
 extern char D_0064A030[];

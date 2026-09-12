@@ -3,10 +3,10 @@
 #include "type.h"
 #include "include_asm.h"
 
-extern void (*DAT_008873EC[])();
+extern void (*DAT_008873EC[])(void *);
 
 extern void func_0044ea90(const void *msg, s32 id);
-extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c,
                          void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
 extern u8 D_005F0A88[];

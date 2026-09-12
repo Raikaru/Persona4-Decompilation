@@ -3,8 +3,8 @@
 #include "include_asm.h"
 #include "type.h"
 
-extern void (*jtbl_008873EC[])(s32);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void (*jtbl_008873EC[])(void *);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 D_007243EC;
 extern s32 D_007243E8;
 extern f32 D_007243DC;
@@ -796,7 +796,7 @@ s32 func_001747d0(u8 *arg0)
 // FUN_00174AA0
 void func_00174aa0(u8 *arg0)
 {
-    jtbl_008873EC[0](*(s32 *)(arg0 + 0x38));
+    jtbl_008873EC[0]((void *)*(s32 *)(arg0 + 0x38));
 }
 
 // FUN_00174AD0
@@ -933,7 +933,7 @@ end:
 // FUN_00175E70
 void func_00175e70(u8 *arg0)
 {
-    jtbl_008873EC[0](*(s32 *)(arg0 + 0x38));
+    jtbl_008873EC[0]((void *)*(s32 *)(arg0 + 0x38));
 }
 
 // FUN_00175EA0

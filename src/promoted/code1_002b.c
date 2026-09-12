@@ -9,7 +9,7 @@ static inline f32 p4_mul_left(f32 left, f32 right)
 {
     return right * left;
 }
-extern void (*jtbl_008873EC[])(u8 *arg0);
+extern void (*jtbl_008873EC[])(void *);
 extern void func_002baa50(void);
 extern void func_002baa90(s32 *arg0);
 extern void func_002bb7c0(s32 arg0);
@@ -38,7 +38,7 @@ extern u8 D_0063F1F0[];
 extern s8 D_007488F8[];
 extern s8 D_00764670;
 extern s8 iGpffffb580;
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s8 iGpffffb578;
 extern s32 iGpffffb55c;
 extern s8 func_002bacb0(void);

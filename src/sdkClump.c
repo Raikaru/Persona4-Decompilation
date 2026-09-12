@@ -5,7 +5,7 @@
 #include "Kosaka/k_clump_internal.h"
 
 extern void func_0044ea90(const void *file, u32 line);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00712518[];
 extern u32 D_00712530[];
 extern u8 D_00712558[];

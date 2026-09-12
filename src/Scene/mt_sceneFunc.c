@@ -105,7 +105,7 @@ extern s32 func_00451fc0(s32 arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg
                          void (*arg5)(u8 *), void (*arg6)(u8 *), u8 *arg7);
 extern void func_0046d730(const void *msg, u32 line);
 extern void func_00440b68(const void *msg, u32 value);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u32 *jtbl_008873E8[];
 extern s32 func_004577d0(void *arg0, f32 arg1);
 extern u8 *func_00457120(void);

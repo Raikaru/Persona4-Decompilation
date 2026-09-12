@@ -9,7 +9,7 @@ static u8 *iGpffffb3d4;
 extern char D_0063FC48[];
 extern char D_0063FC58[];
 extern u8 *D_00882F70[];
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
 
 extern s32 func_002b2d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
@@ -1048,7 +1048,7 @@ void func_002e6c90(s8 arg0) {
    constant at the top of the loop body (nd 6) instead of hoisting it into the
    preheader as retail does (addiu $a1,$zero,-1 before the initial branch). */
 #pragma opt_loop_invariants on
-void func_002e6f00(void) {
+u8 *func_002e6f00(void) {
     s16 *buf;
     s16 i;
     s16 value;
@@ -1062,6 +1062,7 @@ void func_002e6f00(void) {
         i++;
     }
     buf[0x30] = 0;
+    return (u8 *)buf;
 }
 /* measured: see the annotation above the matching `on` pragma (func_002e6f00). */
 #pragma opt_loop_invariants off

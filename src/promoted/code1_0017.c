@@ -73,7 +73,7 @@ extern s32 func_0015a130(void);
 extern void func_0015a7c0(s32 arg0);
 extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern u8 D_005F18C0[];
-extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 flags);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_005F1910[];
 extern u8 D_007F1740[];
 extern u8 D_005F1950[];
@@ -103,7 +103,7 @@ extern char D_005E5850[];
 extern f32 iGpffff82fc;
 extern u8 D_00794E70[];
 
-extern void (*jtbl_008873EC[])(u8 *arg0);
+extern void (*jtbl_008873EC[])(void *);
 
 extern s32 func_0029d020(void);
 extern s32 func_00110f00(void);
@@ -1575,7 +1575,7 @@ void *func_0017b510(u8 *arg0, s32 arg1, s32 arg2)
     u8 *zRaster;
     u8 *obj;
     Vec3_00178590 pos;
-    u8 *(**table)(s32, s32, s32);
+    void *(**table)(size_t, size_t, u32);
     u16 *mode;
 
     i = 0;

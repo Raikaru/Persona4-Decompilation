@@ -82,8 +82,8 @@ extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern void func_00266cc0(s32 arg0, s32 arg1);
 
 extern void func_0025f230(void *arg0);
-extern void (*jtbl_008873EC[])(u8 *arg0);
-extern u8 *(*D_008873F4[])(s32 arg0, s32 arg1, s32 arg2);
+extern void (*jtbl_008873EC[])(void *);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00638FA0[];
 extern u8 D_00638FB0[];
 extern void func_0046d730(void *arg0, s32 arg1);

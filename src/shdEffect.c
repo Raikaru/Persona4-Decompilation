@@ -46,7 +46,7 @@ extern void func_0025fa30(void *arg);
 extern s32 func_0025fd80(void);
 extern void func_0025fe00(void);
 
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern char D_00637290[];
 extern char D_006372A0[];

@@ -28,7 +28,7 @@ u32 func_002303e0(void* work);
 u32 func_00230450(void* work);
 extern s32 func_001f0ff0();
 extern u16 func_001d7f10();
-extern s32 func_00232710(u8* arg0, u32 arg1);
+extern u32 func_00232710(s32 arg0, u32 arg1);
 extern s32 func_0019fc70();
 extern s32 func_001ef9a0();
 extern s32 func_002428f0(s32 arg0, s32 arg1);
@@ -102,7 +102,7 @@ s32 func_0022fc00(u8* arg0)
         return 1;
     }
     temp_4_2 = *(u8**)(temp_5 + 0xa64);
-    if ((temp_4_2 != NULL) && (func_00232710(temp_4_2, 0x100) != 0))
+    if ((temp_4_2 != NULL) && (func_00232710((s32)temp_4_2, 0x100) != 0))
     {
         return 1;
     }

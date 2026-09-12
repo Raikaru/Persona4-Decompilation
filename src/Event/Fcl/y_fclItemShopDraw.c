@@ -3,7 +3,7 @@
 #include "include_asm.h"
 #include "type.h"
 extern void (*jtbl_008873EC[])(void *ptr);
-extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 typedef struct {
     f32 x;
