@@ -326,8 +326,127 @@ void func_002e13b0(void)
 }
 #pragma opt_propagation on
 
-/* measured: no real C body was produced for this 1248B retail window; no
-   candidate nd was retained. */
+/* measured: 1236/1248B, 54 resolved relocations, zero executable differences,
+   twelve zero tail bytes. Keep the inlined peer mask in its loop preheader. */
+#pragma opt_loop_invariants on
+static inline s32 bankSlotHasMatchingVisiblePeer(s16 *slot)
+{
+    s16 *peer;
+    s32 i;
+
+    peer = (s16 *)(*(u8 **)(iGpffffb588 + 0x24) + 4);
+    i = 0;
+    for (; i < 2; i++) {
+        if (peer != slot) {
+            s16 flags = *peer;
+            if ((flags & 1) && (flags & 8) &&
+                ((flags & 0x100) == (*slot & 0x100)) &&
+                (((*(u32 *)(peer + 2) & 0xFFFF0000) >> 16) ==
+                 ((*(u32 *)(slot + 2) & 0xFFFF0000) >> 16))) {
+                return 1;
+            }
+        }
+        peer += 10;
+    }
+    return 0;
+}
+
+struct KwlnTask;
+
 // FUN_002E17F0
-INCLUDE_ASM("asm/nonmatchings/fclBankManager", func_002e17f0);
+s32 func_002e17f0(struct KwlnTask *task)
+{
+    extern void func_0046d730(void *, s32);
+    extern s32 func_001048c0(s64);
+    extern void func_001044d0(s64);
+    extern u8 D_0063FBD8[], D_0063FBE8[], D_0063FBF8[];
+    extern u8 D_0063FC08[], D_0063FC18[], D_0063FC28[];
+    u8 *banks;
+    s32 *node;
+    s32 *next;
+    s16 *slot;
+    s32 i;
+
+    if (iGpffffb588 == NULL) {
+        func_0046d730(D_0063FBB0, 681);
+    }
+    banks = *(u8 **)(iGpffffb588 + 0x24);
+    node = *(s32 **)(iGpffffb588 + 4);
+    while (node != NULL) {
+        next = *(s32 **)((u8 *)node + 0x10);
+        if ((s16)func_002e1030(node) == -1) {
+            func_00440b68(iGpffffa890, D_0063FBB0, 690);
+            func_002e0ea0(D_0063FBD8);
+            break;
+        }
+        node = next;
+    }
+    slot = (s16 *)(banks + 4);
+    i = 0;
+    for (; i < 2; i++) {
+        s32 flags = *slot;
+        if (flags & 1) {
+            if (flags & 2) {
+                if (func_001048c0((s16)i)) {
+                    *slot &= ~2;
+                    *slot |= 4;
+                    if (*slot & 0x400) {
+                        *slot &= ~0x200;
+                        *slot &= ~0x400;
+                    }
+                }
+            } else if (!(flags & 2) && (flags & 4)) {
+                if ((flags & 0x200) && !(*(u32 *)(banks + 0x2C) & 1)) {
+                    if (flags & 8) {
+                        *slot &= ~0x200;
+                        func_00440b68(iGpffffa890, D_0063FBB0, 721);
+                        func_002e0ea0(D_0063FBE8, slot[4]);
+                    } else if (func_002e12e0(slot)) {
+                        func_00440b68(iGpffffa890, D_0063FBB0, 725);
+                        func_002e0ea0(D_0063FBF8, slot[4]);
+                        *slot &= ~0x200;
+                        *slot &= ~4;
+                        slot[1] = 1;
+                        if (bankSlotHasMatchingVisiblePeer(slot)) {
+                            *slot |= 0x20;
+                        }
+                    }
+                } else if (flags & 0x400) {
+                    func_00440b68(iGpffffa890, D_0063FBB0, 736);
+                    func_002e0ea0(D_0063FC08, slot[4]);
+                    *slot &= ~0x400;
+                    if (*slot & 8) {
+                        *slot &= ~4;
+                        slot[1] = 4;
+                    }
+                    *slot |= 0x1000;
+                } else if (flags & 0x800) {
+                    if (flags & 8) {
+                        *slot = (s16)flags | 0x400;
+                    } else {
+                        func_00440b68(iGpffffa890, D_0063FBB0, 753);
+                        func_002e0ea0(D_0063FC18, slot[4]);
+                        *slot &= ~0x800;
+                        *slot &= ~4;
+                        *slot &= ~1;
+                        func_001044d0(slot[4]);
+                    }
+                } else if (flags & 0x1000) {
+                    func_00440b68(iGpffffa890, D_0063FBB0, 763);
+                    func_002e0ea0(D_0063FC28, slot[4]);
+                    *slot &= ~0x1000;
+                    *slot &= ~4;
+                    *slot &= ~1;
+                    func_001044d0(slot[4]);
+                }
+            }
+        }
+        slot += 10;
+    }
+    func_002e13b0();
+    *(u32 *)(banks + 0x2C) &= ~1;
+    return 0;
+}
+
+#pragma opt_loop_invariants off
 
