@@ -10943,3 +10943,61 @@ Both retail SHA-1 identities remain unchanged. The private
 `p4_bank_controller_recovery/checkpoint_evidence.json` retains compiler/native
 evidence, production snapshots, the full gate log and status-delta evidence.
 All five native source/binary files were hash-archived, verified and removed.
+
+## First-party continuation: field gradient end callback
+
+`func_0017c010` is recovered as **608/608 bytes**, with all **29 text
+relocations** resolved exactly. No executable words differ and no tail
+padding is needed. Fresh compiles of the actual production sources resolve
+all **77 field-owner images** and **six strip-provider images** exactly.
+Both complete decompiler guides, retail, actual providers and the packet
+dispatcher's three-argument callback contract were checked.
+
+The directly enabling cutover gives `K_FldShadow_Draw` and both active C
+callers one signature: four float coordinates, two `const RwRGBA *` colors,
+then two float depth values. The actual provider's instructions are unchanged.
+This closes the fifteen near-Z/color-address ordering words without an
+adapter, conflicting per-call declarations or raw inline assembly. Both field
+end callbacks now accept the packet, signed state-address word and callback
+self pointer actually supplied by the dispatcher. The primitive callback uses
+the actual C provider's `s32 (s32, void *, s32)` contract.
+
+The field render-state slot uses the real SDK `RwRenderState` parameter and
+signed 32-bit return. The existing enum is shared through
+`include/rw/plcore/barenderstate.h`, not copied into a competing declaration.
+Production SDK-only include-path and callback-type compatibility probes pass;
+no compiler flags change. The generated Windows/D3D9 amalgamation and unrelated
+legacy callbacks remain unchanged.
+
+Source-identical no-libc i386 consumers execute **seven actual bodies across
+five owners**, including both field callbacks, the strip provider, model
+setter/getter, primitive dispatcher and camera-end wrapper. GCC and Clang each
+pass **163,840 scenarios / 17,874,947 checks / zero failures**, emitting
+**294,912 strips** and ending **98,304 cameras**. Both enable undefined-behavior
+traps; Clang also checks indirect function types.
+
+Coverage includes signed counter gates, all 256 byte-component values, both
+primitive contexts, the paired callback's five attachment flags, model and
+neighbor preservation, initial camera snapshots, fresh depth inputs,
+callback-slot replacement, and adversarial resource/model/camera changes.
+The late fog test remains equality to one; cull restoration remains two
+(back). Restoring either the old unsigned primitive callback type or the old
+two-argument packet callback makes the same Clang consumer trap.
+
+Render-state backends, the assembly graphics command handler, low-level GS
+strip emitters and the camera-end driver callback are modeled boundaries.
+This is not PS2 display/COP1 verification, does not exercise zero/nonfinite
+near planes or invalid positive-count object graphs, and does not execute the
+full queue constructor/start phases. The nonpositive-count path permits null
+model/camera values while retaining a valid resource graph.
+
+The home-only full gate passes **529 tests** and zero lint findings.
+Only `0017c010` changes status among **12,720** scanned functions:
+**6,278 first-party matches / 582 fallbacks**, and **7,908 total matches /
+4,812 fallbacks**. Source linkage remains **173 C objects / 1,599 C-linked
+functions**: the field owner is not selected into the linked-C set, so its
+current-source object is verified independently with every relocation resolved.
+Both retail SHA-1 identities remain unchanged. The private
+`p4_field_c010_canonical_recovery/checkpoint_evidence.json` records the compiler,
+native and complete gate evidence. All **19 native consumer, negative-control
+and type-probe source/binary files** were hash-archived, verified and removed.

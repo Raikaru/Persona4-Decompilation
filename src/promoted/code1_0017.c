@@ -1,6 +1,10 @@
 #include "include_asm.h"
 #include "type.h"
 #include "sdk_snd_internal.h"
+#include "rw/plcore/barenderstate.h"
+typedef struct RwRGBA RwRGBA;
+typedef s32 (*FieldRenderStateSetFunction)(RwRenderState, void *);
+struct Model;
 typedef struct
 {
     f32 first;
@@ -138,7 +142,7 @@ extern void func_003e40b0(void *arg0, void *arg1);
 extern void func_003e42a0(void *dst, void *src, u8 *arg2);
 extern u8 D_007EFA00[];
 extern void func_00442088(void *dst, const void *src);
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern s32 func_003f6440(s32 state, void *value);
 extern s32 func_003ef6d0(void);
 extern s32 func_003ef650(s32 arg0, void *arg1);
 extern void func_0014def0(s32 arg0, s32 arg1,
@@ -1474,8 +1478,8 @@ void func_0017abd0(u8 *arg0, u8 *arg1)
     if (iGpffffba48 == 1) {
         base[0](0xE, 1);
     }
-    func_003f6440(2, 0x44);
-    func_003f6440(3, 0x717FB);
+    func_003f6440(2, (void *)0x44);
+    func_003f6440(3, (void *)0x717FB);
     temp_4 = *(u8 **)(*(u8 **)(arg1 + 0x50) + 4);
     (*(void (**)(u8 *))(temp_4 + 0x48))(temp_4);
     if (iGpffffba48 == 1) {
@@ -1866,7 +1870,56 @@ void func_0017bc60(u8 *unused, u8 *state)
     }
 }
 // FUN_0017C010
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017c010);
+/* measured: 608/608 bytes and 29 resolved relocations. The shared draw
+   signature preserves both packet-end callbacks and the real provider. */
+void func_0017c010(u8 *packet, s32 stateAddress, void *callbackSelf)
+{
+    extern u32 K_FldShadow_Draw(f32, f32, f32, f32,
+                               const RwRGBA *, const RwRGBA *, f32, f32);
+    extern void *mdlGetMatrix(void *);
+    extern void mdlSetColor(struct Model *, const RwRGBA *);
+    extern u32 func_003e8110(u32 camera);
+    extern u8 D_005F18F0[], D_005F18F4[], D_005F18F8[], D_005F18FC[];
+    extern f32 D_008872F8[];
+    u8 *arg1 = (u8 *)stateAddress;
+    void *base;
+    u8 *camera;
+    void *constant;
+
+    camera = *(u8 **)(*(u8 **)(arg1 + 0x224) + 0x38);
+    camera = *(u8 **)(camera + 0x44);
+    mdlGetMatrix(*(void **)(arg1 + 0x164));
+    if (*(s32 *)*(u8 **)(*(u8 **)(arg1 + 0x224) + 0x38) > 0) {
+        mdlSetColor(*(struct Model **)(arg1 + 0x164),
+                    (const RwRGBA *)(s32)(*(u8 **)(*(u8 **)(arg1 + 0x224) + 0x38) + 0x48));
+        base = (void *)D_00887300;
+        (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATEFOGENABLE, (void *)0);
+        (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATEZTESTENABLE, (void *)0);
+        (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATEZWRITEENABLE, (void *)0);
+        (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATESHADEMODE, (void *)2);
+        (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATETEXTURERASTER, (void *)0);
+        func_003f6440(2, (void *)0x44);
+        func_003f6440(3, (void *)0x717FB);
+        constant = (void *)D_008872F8;
+        K_FldShadow_Draw(0.0f, 0.0f, 128.0f, 48.0f,
+                         (const RwRGBA *)D_005F18F0, (const RwRGBA *)D_005F18F4,
+                         *(f32 *)constant, 1.0f / *(f32 *)(camera + 0x80));
+        func_003f6440(2, (void *)0x44);
+        func_003f6440(3, (void *)0x3C803);
+        K_FldShadow_Draw(0.0f, 48.0f, 128.0f, 76.0f,
+                         (const RwRGBA *)D_005F18F4, (const RwRGBA *)D_005F18F8,
+                         *(f32 *)constant, 1.0f / *(f32 *)(camera + 0x80));
+        K_FldShadow_Draw(0.0f, 76.0f, 128.0f, 128.0f,
+                         (const RwRGBA *)D_005F18F8, (const RwRGBA *)D_005F18FC,
+                         *(f32 *)constant, 1.0f / *(f32 *)(camera + 0x80));
+        func_003f6440(2, (void *)0x44);
+        func_003f6440(3, (void *)0x717FB);
+        (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATECULLMODE, (void *)2);
+        if (iGpffffba48 == 1)
+            (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATEFOGENABLE, (void *)1);
+        func_003e8110((u32)camera);
+    }
+}
 
 
 // FUN_0017C270
@@ -1956,11 +2009,14 @@ void func_0017c270(u8 *unused, u8 *state)
 }
 
 // FUN_0017C670
-void func_0017c670(u8 *arg0, u8 *arg1)
+void func_0017c670(u8 *packet, s32 stateAddress, void *callbackSelf)
 {
-    extern void func_003e8110(void *arg0);
-    extern void func_00178c20(f32 farg0, f32 farg1, void *arg0, void *arg1,
-                               f32 farg2, f32 farg3, f32 farg4, f32 farg5);
+    u8 *arg1 = (u8 *)stateAddress;
+    extern void *mdlGetMatrix(void *);
+    extern void mdlSetColor(struct Model *, const RwRGBA *);
+    extern u32 func_003e8110(u32 camera);
+    extern u32 K_FldShadow_Draw(f32, f32, f32, f32,
+                               const RwRGBA *, const RwRGBA *, f32, f32);
     extern u8 D_005F1900[];
     extern u8 D_005F1904[];
     extern u8 D_005F1908[];
@@ -1973,43 +2029,39 @@ void func_0017c670(u8 *arg0, u8 *arg1)
 
     matrix = *(u8 **)(*(u8 **)(arg1 + 0x230) + 0x38);
     matrix = *(u8 **)(matrix + 0x44);
-    func_0047a2f0(*(u8 **)(arg1 + 0x164));
+    mdlGetMatrix(*(void **)(arg1 + 0x164));
     if (*(s32 *)*(u8 **)(*(u8 **)(arg1 + 0x230) + 0x38) > 0) {
         *(s32 *)(*(u8 **)(arg1 + 0x164) + 0xD8) &= ~4;
         for (i = 0; i < 5; i++)
             *(u8 *)(*(u8 **)(arg1 + 0x164) + i * 0xC + 0x28C) |= 1;
-        func_0047a220(*(u8 **)(arg1 + 0x164),
-                      (const void *)(s32)(*(u8 **)(*(u8 **)(arg1 + 0x230) + 0x38) + 0x48));
+        mdlSetColor(*(struct Model **)(arg1 + 0x164),
+                      (const RwRGBA *)(s32)(*(u8 **)(*(u8 **)(arg1 + 0x230) + 0x38) + 0x48));
         base = (void *)D_00887300;
-        (*(void (**)(s32, s32))base)(0xE, 0);
-        (*(void (**)(s32, s32))base)(6, 0);
-        (*(void (**)(s32, s32))base)(8, 0);
-        (*(void (**)(s32, s32))base)(7, 2);
-        (*(void (**)(s32, s32))base)(1, 0);
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x717FB);
+        (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATEFOGENABLE, (void *)0);
+        (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATEZTESTENABLE, (void *)0);
+        (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATEZWRITEENABLE, (void *)0);
+        (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATESHADEMODE, (void *)2);
+        (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATETEXTURERASTER, (void *)0);
+        func_003f6440(2, (void *)0x44);
+        func_003f6440(3, (void *)0x717FB);
         constant = (void *)D_008872F8;
-        func_00178c20(0.0f, 0.0f, D_005F1900, D_005F1904,
-                      128.0f, 48.0f, *(f32 *)constant,
-                      1.0f / *(f32 *)(matrix + 0x80));
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x3C803);
-        func_00178c20(0.0f, 48.0f, D_005F1904, D_005F1908,
-                      128.0f, 76.0f, *(f32 *)constant,
-                      1.0f / *(f32 *)(matrix + 0x80));
-        {
-            extern void func_00178c20(f32 farg0, f32 farg1, f32 farg2, f32 farg3,
-                                      void *arg0, void *arg1, f32 farg4, f32 farg5);
-            func_00178c20(0.0f, 76.0f, 128.0f, 128.0f,
-                          D_005F1908, D_005F190C, *(f32 *)constant,
-                          1.0f / *(f32 *)(matrix + 0x80));
-        }
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x717FB);
-        (*(void (**)(s32, s32))base)(0x14, 2);
+        K_FldShadow_Draw(0.0f, 0.0f, 128.0f, 48.0f,
+                         (const RwRGBA *)D_005F1900, (const RwRGBA *)D_005F1904,
+                         *(f32 *)constant, 1.0f / *(f32 *)(matrix + 0x80));
+        func_003f6440(2, (void *)0x44);
+        func_003f6440(3, (void *)0x3C803);
+        K_FldShadow_Draw(0.0f, 48.0f, 128.0f, 76.0f,
+                         (const RwRGBA *)D_005F1904, (const RwRGBA *)D_005F1908,
+                         *(f32 *)constant, 1.0f / *(f32 *)(matrix + 0x80));
+        K_FldShadow_Draw(0.0f, 76.0f, 128.0f, 128.0f,
+                         (const RwRGBA *)D_005F1908, (const RwRGBA *)D_005F190C,
+                         *(f32 *)constant, 1.0f / *(f32 *)(matrix + 0x80));
+        func_003f6440(2, (void *)0x44);
+        func_003f6440(3, (void *)0x717FB);
+        (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATECULLMODE, (void *)2);
         if (iGpffffba48 == 1)
-            (*(void (**)(s32, s32))base)(0xE, 1);
-        func_003e8110(matrix);
+            (*(FieldRenderStateSetFunction *)base)(rwRENDERSTATEFOGENABLE, (void *)1);
+        func_003e8110((u32)matrix);
     }
 }
 
@@ -2028,10 +2080,10 @@ s32 func_0017c930(u8 *arg0)
     extern void func_00479100(void *, void *);
     extern void func_0017bb50(u8 *, u8 *);
     extern void func_0017bbe0(u8 *);
-    extern void func_0017c010(u8 *);
+    extern void func_0017c010(u8 *, s32, void *);
 
     extern void func_0017c270(u8 *, u8 *);
-    extern void func_0017c670(u8 *);
+    extern void func_0017c670(u8 *, s32, void *);
     u8 *list1;
     u8 *list3;
     u8 *state;
