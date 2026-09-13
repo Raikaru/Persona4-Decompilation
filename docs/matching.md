@@ -11516,3 +11516,54 @@ unchanged combined-image regression gate:
 - Complete ELF: `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
 The full first-party goal remains open.
+
+## Descriptor dispatch with explicit case-five forwarding
+
+`code1_0036.c`'s `func_00367210` now declares its four actual inputs:
+the packed two-word origin, floating-point depth, alpha, and descriptor
+pointer. The unused fifth formal and the conflicting block-scope
+`func_00367b80(void)` declaration are removed. Case five explicitly
+forwards all four inputs to the existing renderer, just like the other
+descriptor cases; no implicit register preservation is used as a C ABI.
+
+The ordinary four-argument call needs no extra instructions or pragma.
+The current dispatcher is **188 executable bytes / 192-byte window**,
+with nine resolved code relocations, seven exact jump-table entries,
+and four zero alignment bytes. All **34 function images and the one
+local table** in the complete current owner remain byte-exact.
+This repairs already-matching source; it earns no additional ASM-to-C
+matching credit.
+
+GCC and Clang both reject the old source's conflicting declarations.
+After the repair, each runs **76,544 passing i386 consumer checks**
+through the actual dispatcher and actual case-five renderer. The
+consumer observes text placement, text and badge colors, badge depth,
+resource-failure continuation, all byte-sized badge values, callback-
+visible descriptor updates, zero-alpha suppression with a null
+descriptor, and ignored descriptor kinds. A lost-depth negative control
+fails at check 53.
+
+Texture lookup, diagnostics, and final text/glyph drawing are controlled
+boundaries; other descriptor renderers are rejecting boundaries rather
+than exercised implementations. This is native source-consumer proof,
+not PS2 visual or timing verification. Sources, compiler failures,
+commands, outputs, the negative control, and the complete resolved
+owner proof are archived in
+`p4_four_resume_20260912T062313/Main/descriptor_forwarding_native_archive.json`.
+The owned native fixtures are removed after archive verification.
+
+Full verification remains **6,291 first-party matches / 569 fallbacks**
+and **7,921 total matches / 4,799 fallbacks** among 12,720 scanned
+functions. All **531 tests** pass; full lint reports **zero errors and
+264 advisory warnings** across 340 first-party files. Progress artifacts
+validate. The linked build remains 173 C objects / 1,602 C-linked
+functions plus 56 Sony SDK objects. This generic owner is still
+assembly-backed in that build, so its current-source proof is the
+separate complete-object and native-consumer evidence above.
+
+- Loadable image: `3d1d3d2b9d6ccb60836db239ab49674223025a78`.
+- Complete ELF: `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+The one-word `00222d20` callback floor and two-word `00375f00` state-store
+floor remain private, unintegrated, and uncredited. The full first-party
+goal remains open.
