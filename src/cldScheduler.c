@@ -17,34 +17,34 @@ typedef struct SdlSched
     s32 unk8;    /* 0x08 */
 } SdlSched;
 
-extern s64 func_001060b0(void);
-extern s32 func_001060c0(void);
-extern void func_001104d0(s16 year, s32 *month, s32 *day);
+extern s16 func_001060b0(void);
+extern u8 func_001060c0(void);
+extern void func_001104d0(s32 date, s32 *month, s32 *day);
 extern void func_001029a0(s32 id, void *data, s32 size, s32 flag);
 extern void func_00248240(void);
-extern s32 func_0029da90(s32 kind, s32 a, s32 b);
+extern s32 func_0029da90(s32 kind, u8 *script, s32 index);
 extern s32 func_0029de20(s32 a, void *b);
 extern void func_0043f810(void *arg0, void *arg1, u32 arg2);
 extern void func_00440b68(char *fmt, ...);
 extern s32 func_00442088(char *buf, char *fmt, ...);
-extern s32 func_00452490(s32 handle);
-extern void *func_00452560(void);
-extern s32 func_00454a60(void *msg, s32 kind);
+extern s32 func_00452490(void *task);
+extern u32 func_00452560(void *task);
+extern u8 *func_00454a60(u8 *path, s32 kind);
 extern void func_00454bd0(void *handle);
 extern s32 func_004553c0(u8 *ptr);
 extern char D_006372C0[];
-extern char D_006372E0[];
 extern char D_00637310[];
 extern char D_00637320[];
 extern s32 D_007637A0;
-extern char D_007637A8;
+extern char D_007637A8[6];
 extern s32 D_00764578;
 extern s32 D_00764574;
-extern void func_00452080(s32 handle);
-extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c,
-                         void *init, void *close, void *buf);
+typedef struct KwlnTask KwlnTask;
+extern s32 func_00452080(KwlnTask *task);
+extern void *func_00451de0(const void *data, s32 a, s32 b, s32 c,
+                          s32 init, s32 close, s32 buf);
 extern char D_00637348[];
-extern s32 func_00260020(void);
+extern s32 func_00260020(void *task);
 extern void func_00260440(void);
 
 
@@ -63,15 +63,11 @@ void func_0025ff90(void)
 
 
 
-// FUN_00260020 NONMATCHING
-#ifdef NON_MATCHING
-/* Floor: b210 allocates the day-of-week temp ($a3 retail) ahead of the
- * 0x18 copy-loop counter ($a0 retail); every source ordering tried
- * (statement order, declaration order, for/do-while, block scope, u32
- * counter, comma-init) pins the counter last instead, swapping the two
- * registers in 5 instructions (nd 5/1056, obj 1048/1056).
- * Committed at nd 5. */
-s32 func_00260020(void)
+/* The six eight-byte period labels generate the retail paired-byte copy.
+ * Keep propagation off here to retain the post-copy byte conversion. */
+#pragma opt_propagation off
+// FUN_00260020
+s32 func_00260020(void *task)
 {
     s32 v1;
     s32 v2;
@@ -79,18 +75,16 @@ s32 func_00260020(void)
     s32 v4;
     char buf90[0x100];
     char buf70[0x20];
-    char buf40[0x30];
     SdlSched *sched;
     s32 flag;
     s32 flag2;
     s32 day;
-    s32 i;
     s32 b;
     s32 a;
     s32 ret;
     s32 msg;
 
-    sched = func_00452560();
+    sched = (SdlSched *)func_00452560(task);
     v1 = 0;
     v2 = 0;
     func_001104d0((s16)func_001060b0(), &v1, &v2);
@@ -115,36 +109,22 @@ s32 func_00260020(void)
             }
             D_007637A0 = day;
             func_00442088(buf90, D_006372C0, day);
-            func_00440b68(&D_007637A8, D_006372B0, 0x57);
-            D_00764578 = func_00454a60(buf90, 0);
+            func_00440b68(D_007637A8, D_006372B0, 0x57);
+            D_00764578 = (s32)func_00454a60((u8 *)buf90, 0);
             sched->state = 1;
         }
         else
         {
-            s32 dow;
+            s32 period;
             sched->state = 2;
             v3 = 0;
             v4 = 0;
             func_001104d0((s16)func_001060b0(), &v3, &v4);
-            dow = func_001060c0() & 0xFF;
+            period = func_001060c0() & 0xFF;
             {
-                s32 t0;
-                s32 t1;
-                s8 *src = (s8 *)D_006372E0;
-                s8 *dst = (s8 *)buf40;
-                i = 0x18;
-                do
-                {
-                    t0 = src[0];
-                    t1 = src[1];
-                    src += 2;
-                    i--;
-                    dst[0] = t0;
-                    dst[1] = t1;
-                    dst += 2;
-                } while (i > 0);
+                char labels[6][8] = { "AM_A", "AM_B", "PM_A", "PM_B", "PM_C", "PM_D" };
+                func_00442088(buf70, D_00637310, v3, v4, labels[period & 0xFF]);
             }
-            func_00442088(buf70, D_00637310, v3, v4, &buf40[(dow & 0xFF) * 8]);
             if (D_007637A0 == -1)
             {
                 a = 0;
@@ -166,7 +146,7 @@ s32 func_00260020(void)
             }
             else
             {
-                msg = func_0029da90(0xF, a, ret);
+                msg = func_0029da90(0xF, (u8 *)a, ret);
             }
             sched->unk4 = msg;
             if (msg == 0)
@@ -212,7 +192,7 @@ s32 func_00260020(void)
         D_00764574 = (s16)func_001060b0();
         /* fallthrough */
     case 3:
-        if (func_00452490(sched->unk4) == 0)
+        if (func_00452490((void *)sched->unk4) == 0)
         {
             sched->unk4 = 0;
             sched->state = 4;
@@ -229,9 +209,7 @@ s32 func_00260020(void)
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/cldScheduler", func_00260020);
-#endif
+#pragma opt_propagation on
 
 
 
@@ -243,13 +221,15 @@ void func_00260440(void)
 
 
 // FUN_00260450
+/* Preserve argument materialization order with the task API's word handles. */
+#pragma opt_propagation off
 void func_00260450(void)
 {
     u32 *base = D_008814F0;
 
-    if (D_008814F0[1] != 0 && func_00452490(base[1]) != 0)
+    if (D_008814F0[1] != 0 && func_00452490((void *)base[1]) != 0)
     {
-        func_00452080(base[1]);
+        func_00452080((KwlnTask *)base[1]);
         base[1] = 0;
     }
     func_0043f9c8(base, 0, 0xC);
@@ -257,6 +237,14 @@ void func_00260450(void)
     {
         func_0046d730(D_006372B0, 0xD8);
     }
-    func_00451de0(D_00637348, 0x100, 0, 0, (void *)&func_00260020,
-                  (void *)&func_00260440, base);
+    {
+        const void *name = D_00637348;
+        s32 priority = 0x100;
+        s32 startDelay = 0;
+        s32 closeDelay = 0;
+        s32 update = (s32)&func_00260020;
+        s32 close = (s32)&func_00260440;
+        func_00451de0(name, priority, startDelay, closeDelay, update, close, (s32)base);
+    }
 }
+#pragma opt_propagation on
