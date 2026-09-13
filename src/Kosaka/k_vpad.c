@@ -20,7 +20,7 @@ extern void RwMatrixRotate(RuntimeMatrix* matrix, const RuntimeVec3* axis,
 extern void func_003e42e0(RuntimeVec3* destination,
                           const RuntimeVec3* source, s32 count,
                           RuntimeMatrix* matrix);
-extern void func_003e0f40(void* matrix);
+extern s32 func_003e0f40(void* matrix);
 
 /* Ported from P3FES src/Kosaka/k_vpad.c FUN_001E6AF0 (verified MATCH there).
  * The P3 donor builds the quad vertices with inline machine code; under MWCC
@@ -38,7 +38,7 @@ typedef struct RuntimeWork
 } RuntimeWork;
 
 extern s32 func_004b6de0(RuntimeListNode* node);
-extern void func_0047a510(void* context, void* object, RuntimeMatrix* matrix);
+extern s32 func_0047a510(void* context, s32 index, RuntimeMatrix* matrix);
 
 /* Ported from P3FES src/Kosaka/k_vpad.c FUN_001EDA90 (verified MATCH there).
  * Honest C: request = work->requestFlags; offset = i * 8; inlined at both
@@ -145,14 +145,54 @@ void func_0015f720(RuntimeVec3* vertices, const RuntimeVec3* translation,
 }
 
 
-/* measured: func_004b5800's best honest C is 324B in a 336B window at
-   normalized_diff 5. MWCC b210 schedules `sll $s0,$s3,3` before
-   `lw $v1,4($s4)` while retail reverses those independent words; the other
-   three differences are retail zero-tail padding. Loop forms, offset/request
-   locals, optimizer pragmas, and 2,584 AST permutations did not close it.
-   Archived in docs/probe_archive/W47Vpad_004b5800_body.c; assembly restored. */
+/* The input table stores two signed indices per entry. Keeping the pair
+ * offset in one inlined helper preserves the owner expression while making
+ * the complete pair address an explicit, natural C value. */
+static inline s32 vpad_pair_index(RuntimeWork* work, s32 index, s32 side)
+{
+    return *(s32*)((u8*)*(s32**)((u8*)(uintptr_t)work->requestFlags + 0x18) +
+                    index * 8 + side * 4);
+}
+
+/* 324/336 bytes; seven resolved relocations and twelve zero alignment bytes.
+ * The signed pair-index helper preserves each request reload and the retail
+ * load/shift order without ABI, volatile, or assembly workarounds. */
 // FUN_004B5800
-INCLUDE_ASM("asm/nonmatchings/k_vpad", func_004b5800);
+void func_004b5800(RuntimeWork* work)
+{
+    s32 i;
+    RuntimeMatrix* firstMatrix;
+    RuntimeMatrix* secondMatrix;
+
+    if (func_004b6de0((RuntimeListNode*)work) == 0)
+    {
+        return;
+    }
+
+    firstMatrix = func_003e0f80();
+    secondMatrix = func_003e0f80();
+    i = 0;
+    while (i < *(s16*)((u8*)(uintptr_t)work->requestFlags + 4))
+    {
+        func_0047a510(
+            *(void**)((u8*)(uintptr_t)work->requestFlags + 0x20),
+            vpad_pair_index(work, i, 0),
+            firstMatrix);
+        func_0047a510(
+            *(void**)((u8*)(uintptr_t)work->requestFlags + 0x20),
+            vpad_pair_index(work, i, 1),
+            secondMatrix);
+        ((RuntimeVec3*)(uintptr_t)work->selection)[i * 2] =
+            *(RuntimeVec3*)((u8*)firstMatrix + 0x30);
+        ((RuntimeVec3*)(uintptr_t)work->selection)[i * 2 + 1] =
+            *(RuntimeVec3*)((u8*)secondMatrix + 0x30);
+        i++;
+    }
+
+    work->flags |= 2;
+    func_003e0f40(firstMatrix);
+    func_003e0f40(secondMatrix);
+}
 
 
 // FUN_004B5950
