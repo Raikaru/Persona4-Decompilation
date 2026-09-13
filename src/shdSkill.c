@@ -21,14 +21,14 @@ void func_00115670(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 s64 func_0023d8e0(u32 arg0, u16 arg1);
 extern char D_005E4800[];
 extern char D_005E47F0[];
-void *func_00243840(u16 arg0);
+u8 *func_00243840(s32 arg0);
 
 void func_0046d4c0(s32 arg0, s32 arg1, s32 arg2, f32 arg3, f32 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8, f32 arg9, s32 arg10);
 extern char D_005E5830[];
 extern char D_005E5850[];
 void func_002bc860(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
-s32 func_0046a770(const char *file);
-void func_001138c0(s64 arg0, u8 arg1, s16 *arg2, f32 arg3);
+u8 *func_0046a770(char *file);
+void func_001138c0(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mode);
 
 // FUN_001138C0
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_001138c0);
@@ -67,13 +67,107 @@ void func_00113e30(Vec2f arg0, f32 fparg0, u8 arg1, void *arg2, s32 arg3) {
                   -1);
 }
 
-/* measured: plain-C reconstruction attempt for the ordinary adda.s/madd.s
-   color interpolation reached nd 1083 (object 1456/1392) and was discarded:
-   the candidate's frame was 0xE0 versus retail 0xF0 and the saved-register
-   allocation diverged before the first call. No body is kept; rebuild this
-   target from retail rather than treating the measurement as a floor. */
+/* 1384/1392 bytes, 20 resolved relocations; eight zero tail bytes.
+   The caller draws entries 0..7. Preserve byte promotion, coordinate-field
+   updates, and the plain-char font lookup with scalar propagation disabled. */
 // FUN_00113EF0
-INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00113ef0);
+#pragma push
+#pragma opt_propagation off
+#pragma opt_scalarize off
+void func_00113ef0(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry, f32 fade)
+{
+    typedef struct { f32 x, y, z; } PayloadVector;
+    typedef union {
+        PayloadVector vector;
+        struct { u16 tag, id; u32 first, second; } fields;
+    } Payload;
+    typedef struct { s16 kind, style, flags; Payload data; } Descriptor;
+    Descriptor descriptor;
+    Vec2f position;
+    f32 baseY;
+    f32 drawY;
+    s32 selected;
+    u8 *texture;
+    s32 opacity;
+    s32 inverseAlpha;
+    u32 textAlpha;
+    u32 index;
+    u8 red, green, blue;
+    s16 style;
+
+    baseY = base.y;
+    selected = entry & 0xFF;
+    if (selected < 0 || selected >= 8) {
+        func_0046d730(D_005E4800, 0x1E1);
+    }
+    texture = func_0046a770(D_005E5830);
+    if (texture == 0) {
+        func_0046d730(D_005E4800, 0x1E4);
+    }
+    if (*(s8 *)(state + 4) == selected) {
+        red = 45;
+        green = 45;
+        blue = 45;
+        style = 3;
+    } else if (!(fade <= 0.0f)) {
+        red = (u8)(255.0f * (1.0f - fade) + 45.0f * fade);
+        green = (u8)(255.0f * (1.0f - fade) + 45.0f * fade);
+        blue = (u8)(129.0f * (1.0f - fade) + 45.0f * fade);
+        style = 3;
+    } else if (*(s8 *)(state + 0x6A) & (1U << selected)) {
+        red = 192;
+        green = 0;
+        blue = 0;
+        style = 3;
+    } else {
+        red = 255;
+        green = 255;
+        blue = 129;
+        style = 2;
+    }
+    opacity = alpha & 0xFF;
+    textAlpha = (u32)(opacity * 255) / 255U;
+    descriptor.style = 0;
+    descriptor.flags = 0;
+    descriptor.kind = 2;
+    index = entry;
+    descriptor.data.vector = *(PayloadVector *)(shdSkill_addOff(index * 12, state) + 8);
+    descriptor.style = style;
+    position.x = 18.0f + (base.x + (f32)((s32)(index >> 2) * 198));
+    drawY = 304.0f + (baseY + (f32)(((s32)index % 4) * 25));
+    position.y = drawY;
+    inverseAlpha = 255 - opacity;
+    func_0046d4c0(0, (s32)texture, 90, position.x, drawY, inverseAlpha & 0xFF,
+                  red, green, blue, scale, 0);
+    func_0046d4c0(0, (s32)texture, 91, 192.0f + position.x, drawY, inverseAlpha,
+                  red, green, blue, scale, 0);
+    if ((s32)index < *(u16 *)(state + 0x68)) {
+        position.x += 96.0f;
+        position.y -= 2.0f;
+        switch (descriptor.kind) {
+        case 0: {
+            Vec2f textPosition = position;
+            const char *text = (const char *)func_00243840(descriptor.data.fields.id);
+            func_00274ed0((f32)(s32)textPosition.x, (f32)(s32)textPosition.y, scale,
+                          textAlpha | ~0xFF, ((char *)D_005E47F0)[descriptor.style * 2],
+                          1, text, 0, 0);
+            break;
+        }
+        case 1:
+            func_001138c0(position, scale, alpha, &descriptor, 1);
+            break;
+        case 2: {
+            Vec2f textPosition = position;
+            const char *text = (const char *)func_00243840(descriptor.data.fields.id);
+            func_00275020((f32)(s32)textPosition.x, (f32)(s32)textPosition.y, scale,
+                          textAlpha | ~0xFF, ((char *)D_005E47F0)[descriptor.style * 2],
+                          1, text, 8, -1);
+            break;
+        }
+        }
+    }
+}
+#pragma pop
 
 /* Fresh full reconstruction: 2124/2128 bytes, all 37 relocations resolved,
    472 differing executable words and four missing zero alignment bytes.
@@ -183,7 +277,7 @@ void func_00114e50(Vec2f arg0, f32 fparg0, s32 arg1, s32 arg2) {
     f32 y;
     s32 temp_7;
 
-    temp_2 = func_0046a770(D_005E5850);
+    temp_2 = (s32)func_0046a770(D_005E5850);
     if (temp_2 == 0) {
         func_0046d730(D_005E4800, 0x353);
     }

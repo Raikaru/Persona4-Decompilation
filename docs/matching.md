@@ -11635,3 +11635,73 @@ separate complete-owner and native-consumer evidence above.
 
 The four-word cut-in loader and two-word shuffle state-store candidates
 remain private and uncredited. The full first-party goal remains open.
+
+## Skill-grid rendering with coherent descriptor calls
+
+`func_00113ef0` in `src/shdSkill.c` now replaces its assembly fallback
+with **1,384 executable bytes / 1,392-byte window**, **20 resolved
+relocations**, and eight verified zero tail bytes. The full current
+owner proof covers 15 function images and one table with no differences.
+
+Both preserved decompilers and the complete retail assembly informed
+the reconstruction. Ordinary float expressions reproduce the color
+interpolation, including the retail `adda.s`/`madd.s` sequence. Scoped
+`opt_propagation off` and `opt_scalarize off` retain the byte promotions
+and lazy aggregate loads without assembly, intrinsics, or padding code.
+The established offset helper preserves the record-address operand order;
+updating the coordinate field itself preserves the final float move.
+Plain-char font-table reads reuse the existing `func_00113800` convention.
+
+The input is the eight-slot grid: the actual `func_00119e10` caller loops
+over entries 0 through 7. Its fourth GP input is the slot byte; its two
+FP inputs remain separate. The unused, incorrect C declaration beside
+that assembly-backed caller is removed.
+
+The descriptor renderer is not a four-input function. The existing
+`func_00113790` dispatcher forwards four GP inputs plus the FP input,
+including the family mode word in `$a3`. Its declaration and call to
+`func_001138c0` now consistently use float-first C ordering. This
+preserves all 47 function images and two tables in
+`src/promoted/code1_0011.c`. The declaration removal preserves all
+102 images and one table in `src/promoted/shdPersona.c`. Across the
+three current owners, **164 function images and four tables are exact**.
+The skill owner also uses the actual pointer-returning sprite and
+skill-name lookup contracts.
+
+Freestanding i386 GCC and Clang consumers each pass
+**18,472 scenarios / 3,944,376 checks**. They execute the current grid,
+both lookup providers, the sprite packet constructor, the descriptor
+dispatcher, and both descriptor text wrappers. Fixtures include the
+retail style table and all **576 × 19 bytes** of the skill-name table.
+Checks cover palette precedence, slot layout, opacity endpoints,
+negative/fractional coordinates, missing resources, descriptor snapshots,
+and live count reloads after sprite submission. A negative control
+that caches the count before submission fails at scenario 17,923.
+
+Allocator, sprite initialization/submission, string comparison,
+diagnostics, final text rendering, and the unrecovered descriptor renderer
+are controlled native boundaries. No PS2 visual/timing verification or
+general host/PS2 floating-point equivalence is claimed. The unused family
+mode word is not assigned a fabricated rendering effect.
+
+Seven native fixture sources and three executable hashes are archived,
+round-trip verified, and their owned scratch directory removed.
+Complete owner proofs, source identities, compiler commands, native
+outputs, and measured source variants are retained in
+`p4_four_resume_20260912T062313/Main/skill_grid_native_archive.json`.
+
+Shared verification passes all **531 tests**, with **zero lint errors /
+264 advisory warnings**. The only status change is `00113ef0` from ASM
+to MATCH: **6,293 first-party matches / 567 fallbacks**, and **7,923
+total matches / 4,797 fallbacks** among 12,720 scanned functions.
+SDK/vendor counts are unchanged; progress artifacts validate.
+
+Unlike the preceding generic-owner callback, this grid function is in
+the combined source-linked build. It raises the C-linked count to
+**1,603**, across the same **173 C objects**, plus 56 Sony SDK objects.
+Both retail hashes remain unchanged:
+
+- Loadable image: `3d1d3d2b9d6ccb60836db239ab49674223025a78`.
+- Complete ELF: `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+The full first-party goal remains open with 567 assembly fallbacks.

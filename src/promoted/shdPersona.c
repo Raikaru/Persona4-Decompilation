@@ -1034,7 +1034,6 @@ void func_0011e400(u8 *, u8 *);
 s32 func_0011e460(u8 *);
 s32 func_0011ccb0(u8 *);
 void func_00114e50(s64, u8, s32, s32);
-void func_00113ef0(s64, u8, u8 *, u8, s32, f32);
 void func_00114460(s64, u8, u8 *, s32, f32);
 void func_00119210(u8 *);
 void func_00119810(u8 *);
