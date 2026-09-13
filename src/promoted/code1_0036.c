@@ -83,8 +83,6 @@ extern void func_00367420(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_003676f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_00367940(P4Pair arg0, f32 arg1, s32 arg2, u8 *arg3);
 extern void func_003679c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
-/* func_00367b80: retail prototype (the dispatcher keeps its own block-scope (void) declaration so
-   it still preserves the incoming registers as retail does). */
 extern void func_00367b80(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_00367d00(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_00367f50(void);
@@ -645,10 +643,9 @@ void func_003671d0(s16 *arg0)
 }
 
 // FUN_00367210
-void func_00367210(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2, s32 arg3)
+void func_00367210(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2)
 {
     s16 temp_3;
-    extern void func_00367b80(void);
 
     if (arg1 & 0xFF) {
         temp_3 = *arg2;
@@ -669,7 +666,7 @@ void func_00367210(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2, s32 arg3)
             func_003679c0(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
             return;
         case 5:
-            func_00367b80();
+            func_00367b80(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
             return;
         case 6:
             func_00367d00(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
