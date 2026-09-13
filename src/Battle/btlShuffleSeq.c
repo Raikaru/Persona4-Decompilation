@@ -511,19 +511,135 @@ s32 func_00379240(u8 *arg0) {
 #pragma opt_loop_invariants off
 
 
-/* measured: nd 286, deep floor. Switch over *(u32*)(arg0+0x1F210) with jump
-   table jtbl_00752A00, 6 cases: [0]=0x379480,[1]=0x3794d4,[2]=0x3796cc,
-   [3]=0x3796f4,[4]=0x379748,[5]=0x379870 (case 2/5 are the func_003891e0
-   check, fallthrough from case 1/4). Frame -0x80 in retail (8 saved regs
-   s16-s23), candidate -0x70 with arg0 in s2 vs retail s0 and the whole body
-   shifted, so the object overflows the 1200B window (1256B). Structure
-   (switch cases, both loops, func_003891b0/00389200 color args) is right but
-   every register is off by one. Also needs jtbl symbol declared (m2c emits
-   `@213`). The case-1 float conversion is the brief's u16-sign-test pattern
-   on `func_003b7060() & 0xFFF`. 1 attempt, floored as not worth the register
-   grind. */
+/* 1192/1200 bytes with eight zero alignment bytes. The comma expression
+ * snapshots the random scale before loading the record count, preserving
+ * retail's `mul.s $f0,$f0,$f1` operand order. */
 // FUN_00379420
-INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00379420);
+typedef struct ShufflePair {
+    f32 x;
+    f32 y;
+} ShufflePair;
+
+s32 func_00379420(u8 *arg0) {
+    s32 *seq;
+    s32 i1;
+    s32 i4;
+    s32 index;
+    u8 *entry4;
+    s32 *step1;
+    s32 *step4;
+    s32 total1;
+    s32 total4;
+    s32 k1;
+    s32 k4;
+    u32 random;
+    f32 fraction;
+
+    seq = (s32 *)(arg0 + 0x1F210);
+    switch (*seq) {
+    case 0:
+        func_002bb7c0(1);
+        if (func_002bb600() == 0) {
+            func_00389200(*(s32 *)(arg0 + 0x1F294), 0xFF, 0xFF, 0xFF);
+            *seq = 1;
+            func_002bb4e0();
+        }
+        goto done;
+
+    case 1:
+        if (func_00389280(*(s32 *)(arg0 + 0x1F294)) == 0) {
+            goto done;
+        }
+        func_0045af60(1, 5, 2, 0);
+        i1 = 0;
+        while (i1 < seq[9]) {
+            u8 *entry1;
+            u8 *source;
+            ShufflePair *dstPair;
+            ShufflePair *srcPair;
+            u8 *sourceRecord;
+            source = arg0 + 0x1F304;
+            do {
+                f32 scale;
+                random = func_003b7060() & 0xFFF;
+                fraction = (f32)random / 4096.0f;
+                fraction = (scale = fraction, (f32)*(s32 *)source * scale);
+                index = (s32)fraction;
+            } while (func_0036de60(arg0 + index * 0xFB0) != 0);
+            source = arg0 + index * 8;
+            entry1 = (u8 *)(seq + i1 + 1);
+            srcPair = (ShufflePair *)(source + 0x1F250);
+            dstPair = (ShufflePair *)(arg0 + *(s32 *)entry1 * 8 + 0x1F250);
+            *dstPair = *srcPair;
+
+            total1 = func_00378530(*(s32 *)(arg0 + 0x1F304),
+                                   *(s32 *)(arg0 + 0x1F2FC));
+            k1 = *(s32 *)entry1;
+            sourceRecord = source + 0x1F250;
+            step1 = (s32 *)(arg0 + 0x1F304);
+            while (k1 < total1) {
+                func_0036d990(arg0 + k1 * 0xFB0, sourceRecord);
+                k1 += *step1;
+            }
+            i1++;
+        }
+        func_003892c0(*(s32 *)(arg0 + 0x1F294));
+        func_003891b0(*(s32 *)(arg0 + 0x1F294), 0xFF, 0xFF, 0xFF);
+        *seq = 2;
+        /* fallthrough */
+
+    case 2:
+        if (func_003891e0(*(s32 *)(arg0 + 0x1F294)) != 0) {
+            return 1;
+        }
+        goto done;
+
+    case 3:
+        func_002bb7c0(1);
+        if (func_002bb600() == 0) {
+            func_00389200(*(s32 *)(arg0 + 0x1F294), 0xFF, 0, 0);
+            *seq = 4;
+            func_002bb4e0();
+        }
+        goto done;
+
+    case 4:
+        if (func_00389280(*(s32 *)(arg0 + 0x1F294)) == 0) {
+            goto done;
+        }
+        func_0045af60(1, 5, 2, 1);
+        i4 = 0;
+        while (i4 < seq[9]) {
+            entry4 = (u8 *)(seq + i4 + 1);
+            *(s32 *)(arg0 + *(s32 *)entry4 * 8 + 0x1F250) = 3;
+            total4 = func_00378530(*(s32 *)(arg0 + 0x1F304),
+                                   *(s32 *)(arg0 + 0x1F2FC));
+            k4 = *(s32 *)entry4;
+            step4 = (s32 *)(arg0 + 0x1F304);
+            while (k4 < total4) {
+                func_0036db60(arg0 + k4 * 0xFB0);
+                k4 += *step4;
+            }
+            i4++;
+        }
+        func_003892c0(*(s32 *)(arg0 + 0x1F294));
+        func_003891b0(*(s32 *)(arg0 + 0x1F294), 0, 0, 0);
+        *seq = 5;
+        /* fallthrough */
+
+    case 5:
+        if (func_003891e0(*(s32 *)(arg0 + 0x1F294)) != 0) {
+            return 1;
+        }
+        goto done;
+
+    default:
+        break;
+    }
+
+done:
+    return 0;
+}
 
 // FUN_003798D0
 void func_003798d0(u8 *arg0, s32 arg1) {
