@@ -39,7 +39,7 @@ extern void func_00233bb0(u32 arg0);
 extern s32 func_001d8cb0(u32 arg0, u8 *arg1);
 extern u32 func_001d8bc0(u8 *arg0);
 extern void func_001d9740();
-extern s32 func_0023d8e0(u8 *unit, s32 command);
+extern s32 func_0023d8e0(u8 *unit, u16 command);
 extern s32 func_0023d6e0(s16 index);
 extern s8 func_00233a90(u8 *unit, s32 status);
 extern u32 func_0023e130(u8 *unit);

@@ -18,7 +18,7 @@ static inline u8 *shdSkill_addOff(s32 offset, u8 *base) {
 u16 func_00115750(u8 *arg0);
 void func_0046d730(void *file, s32 line);
 void func_00115670(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
-s64 func_0023d8e0(u32 arg0, u16 arg1);
+s32 func_0023d8e0(u8 *arg0, u16 arg1);
 extern char D_005E4800[];
 extern char D_005E47F0[];
 u8 *func_00243840(s32 arg0);
@@ -29,9 +29,159 @@ extern char D_005E5850[];
 void func_002bc860(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
 u8 *func_0046a770(char *file);
 void func_001138c0(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mode);
+void func_00114dc0(Vec2f position, f32 scale, Color4 color, u16 skill, s32 texture);
 
+/* 1384/1392 bytes, 23 resolved relocations; eight zero tail bytes.
+   Preserve live flag, ID, and style reads across draw callbacks and sample
+   costs after the text call. Keep the dash row's Y lifetime separate. */
 // FUN_001138C0
-INCLUDE_ASM("asm/nonmatchings/shdSkill", func_001138c0);
+#pragma push
+#pragma opt_propagation off
+#pragma opt_scalarize off
+void func_001138c0(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mode)
+{
+    typedef struct { f32 x, y, z; } PayloadVector;
+    typedef union {
+        PayloadVector vector;
+        struct { u16 tag, id; u32 first, second; } fields;
+    } Payload;
+    typedef struct { s16 kind, style, flags; Payload data; } Descriptor;
+    Descriptor *data = descriptor;
+    u8 *texture;
+    u8 *helpTexture;
+    u8 numberRed, numberGreen, numberBlue;
+    u8 unitRed, unitGreen, unitBlue;
+    u8 backgroundRed, backgroundGreen, backgroundBlue;
+    Color4 iconColor;
+    Vec2f iconPosition;
+    u32 textAlpha;
+    void *text;
+    f32 baseY;
+    f32 digitY;
+    f32 digitX;
+    s32 firstCost;
+    s32 secondCost;
+    s32 index;
+
+    texture = func_0046a770(D_005E5830);
+    if (texture == 0) {
+        func_0046d730(D_005E4800, 0xE4);
+    }
+    helpTexture = func_0046a770(D_005E5850);
+    if (helpTexture == 0) {
+        func_0046d730(D_005E4800, 0xE6);
+    }
+    switch (data->style) {
+    case 2:
+        numberRed = 236;
+        numberGreen = 124;
+        numberBlue = 0;
+        unitRed = 236;
+        unitGreen = 156;
+        unitBlue = 0;
+        backgroundRed = 255;
+        backgroundGreen = 255;
+        backgroundBlue = 129;
+        break;
+    case 3:
+        numberRed = 255;
+        numberGreen = 255;
+        numberBlue = 255;
+        unitRed = 176;
+        unitGreen = 176;
+        unitBlue = 176;
+        backgroundRed = 45;
+        backgroundGreen = 45;
+        backgroundBlue = 45;
+        break;
+    case 4:
+        numberRed = 45;
+        numberGreen = 45;
+        numberBlue = 45;
+        unitRed = 189;
+        unitGreen = 96;
+        unitBlue = 0;
+        backgroundRed = 236;
+        backgroundGreen = 124;
+        backgroundBlue = 0;
+        break;
+    default:
+        numberRed = 255;
+        numberGreen = 255;
+        numberBlue = 255;
+        unitRed = 255;
+        unitGreen = 255;
+        unitBlue = 255;
+        backgroundRed = 45;
+        backgroundGreen = 45;
+        backgroundBlue = 45;
+        break;
+    }
+    if (data->flags != 0) {
+        if (data->flags & 2) {
+            func_0046d4c0(0, (s32)texture, 2, position.x, position.y,
+                          (255 - alpha) & 0xFF,
+                          backgroundRed, backgroundGreen, backgroundBlue, scale, 0);
+        }
+        if (data->flags & 1) {
+            iconPosition.x = 3.0f + position.x;
+            iconPosition.y = 2.0f + position.y;
+            iconColor.b0 = numberRed;
+            iconColor.b1 = numberGreen;
+            iconColor.b2 = numberBlue;
+            iconColor.b3 = alpha;
+            func_00114dc0(iconPosition, scale, iconColor, data->data.fields.id, (s32)helpTexture);
+        }
+        position.x += 45.0f;
+    }
+    text = func_00243840(data->data.fields.id);
+    textAlpha = alpha & 0xFF;
+    baseY = position.y;
+    func_00275020((f32)(s32)position.x, (f32)(s32)baseY, scale,
+                  ((textAlpha * 255) / 255U) | ~0xFF,
+                  D_005E47F0[data->style * 2], 1, text, 0, -1);
+    digitX = 250.0f + position.x;
+    digitY = 10.0f + baseY;
+    firstCost = (s32)data->data.fields.first;
+    if (firstCost != 0) {
+        s32 inverseAlpha = 255 - textAlpha;
+        while (firstCost > 0) {
+            func_0046d4c0(0, (s32)texture, firstCost % 10 + 9, digitX, digitY,
+                          inverseAlpha & 0xFF, numberRed, numberGreen, numberBlue, scale, 0);
+            firstCost /= 10;
+            digitX -= 16.0f;
+        }
+        func_0046d4c0(0, (s32)texture, 86, 268.0f + position.x, 11.0f + baseY,
+                      inverseAlpha, unitRed, unitGreen, unitBlue, scale, 0);
+    } else {
+        secondCost = (s32)data->data.fields.second;
+        if (secondCost != 0) {
+            s32 inverseAlpha = 255 - textAlpha;
+            while (secondCost > 0) {
+                func_0046d4c0(0, (s32)texture, secondCost % 10 + 9, digitX, digitY,
+                              inverseAlpha & 0xFF, numberRed, numberGreen, numberBlue, scale, 0);
+                secondCost /= 10;
+                digitX -= 16.0f;
+            }
+            func_0046d4c0(0, (s32)texture, 87, 268.0f + position.x, 11.0f + baseY,
+                          inverseAlpha, unitRed, unitGreen, unitBlue, scale, 0);
+        } else {
+            f32 dashY;
+            s32 inverseAlpha;
+            digitX = 223.0f + position.x;
+            dashY = 11.0f + baseY;
+            index = 0;
+            inverseAlpha = 255 - textAlpha;
+            while (index < 4) {
+                func_0046d4c0(0, (s32)texture, 60, digitX, dashY,
+                              inverseAlpha & 0xFF, unitRed, unitGreen, unitBlue, scale, 0);
+                digitX += 20.0f;
+                index++;
+            }
+        }
+    }
+}
+#pragma pop
 
 /* measured: re-confirmed nd 5 this wave (reloc-masked; probe_variants reports
    11 unmasked) with the m2c-faithful 9-arg 275020 spelling -- the only
