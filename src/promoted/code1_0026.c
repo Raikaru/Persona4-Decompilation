@@ -57,7 +57,7 @@ extern void (*D_00887300[])(u32 state, u32 value);
 extern u8 D_00881530[];
 extern u8 D_0063BA30[];
 typedef struct { s32 a, b, c, d; } Quad4;
-typedef void (*Code1_0026Callback)(s32, s32, s8 *, s32, s32, s32, f32, f32, f32);
+typedef void (*Code1_0026Callback)(f32, f32, f32, s32, s32, s8 *, s32, s32, u8 *);
 static inline u32 *func_0026e010_add_offset(s32 offset, u32 *base)
 {
     return (u32 *)((u8 *)base + offset + 8);
@@ -97,10 +97,6 @@ extern void func_002674b0(s32 arg0, u8 *arg1);
 extern char D_00637348[];
 extern s32 func_00452380(void *arg0);
 extern void func_00452080(s32 arg0);
-extern void func_0025f430(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          u8 *arg4, s32 arg5, s16 arg6, s16 arg7,
-                          f32 arg8, f32 arg9, f32 arg10, f32 arg11,
-                          f32 arg12, f32 arg13);
 extern void func_00263cb0(s32 arg0);
 extern void func_00274660(u32 param_1, int param_2);
 extern s32 func_00266950(s32 arg0, s32 arg1, s32 arg2);
@@ -116,7 +112,7 @@ extern void func_00264cb0(s32 arg0, s32 arg1);
 extern s32 func_00110c50(s32 arg0, s32 arg1);
 extern s32 func_0043c6a0(s32 arg0);
 extern f32 func_0044b7b0(f32 fparg0);
-extern void func_00262de0(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
+extern void func_00262de0(s32 arg0, s32 arg1, f32 fparg0, s32 arg2,
                            s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
                            s32 arg5, s32 arg6, s32 arg7,
                            s32 arg_sp0);
@@ -151,9 +147,7 @@ extern void func_00489f80(void);
 extern void func_0045d6e0(void *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void func_0048a000(void);
 extern s32 func_0025f2c0(s32 arg0, s32 arg1, u8 *arg2);
-extern void func_0025f620(s32 arg0, u8 arg1, s32 arg2, s32 arg3,
-                          s16 arg4, s16 arg5, Code1_0026Callback arg6,
-                          s32 arg7, f32 arg8, f32 arg9, f32 arg10);
+extern void func_0025f620(f32, f32, f32, s32, s32, const char *, s32, s16, s16, Code1_0026Callback, u8 *);
 // FUN_00260510
 void func_00260510(void)
 {
@@ -180,9 +174,11 @@ void func_00260560(void)
    retail's zero/pointer/constant/halfword setup order; object 88B, retail
    window 96B with zero tail, normalized_diff 0. */
 // FUN_002605A0
-void func_002605a0(s32 arg0, s32 arg1, s8 *arg2, s32 arg3, s32 arg4,
-                   u8 *arg5, f32 fparg0, f32 fparg1, f32 fparg2)
+void func_002605a0(f32 fparg0, f32 fparg1, f32 fparg2,
+                   s32 arg0, s32 arg1, s8 *arg2, s32 arg3, s32 arg4, u8 *arg5)
 {
+    extern void func_0025f430(s32, s32, s32, s32, u8 *, s32, s16, s16,
+                              f32, f32, f32, f32, f32, f32);
     s8 temp_7;
 
     temp_7 = *(s8 *)(arg2 + arg3);
@@ -199,7 +195,95 @@ INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00260e60);
 // FUN_00261560
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00261560);
 // FUN_00262DE0
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00262de0);
+#pragma opt_propagation off
+static inline void calendarZeroBytes(void *memory, s32 count)
+{
+    u8 *cursor;
+    s32 remaining;
+    cursor = memory;
+    remaining = count;
+    if (cursor != NULL) {
+        do {
+            *cursor++ = 0;
+            remaining--;
+        } while (remaining != 0);
+    }
+}
+void func_00262de0(s32 x, s32 y, f32 depth, s32 alpha,
+                    s32 date, s32 enabled, f32 scaleX, f32 scaleY,
+                    s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite)
+{
+    extern s32 func_0025f430(f32, f32, f32, s32, s32, s32, s32, u8 *,
+                             s32, s32, s32, f32, f32, f32);
+    struct CalendarGlyphContext {
+        s16 offsetX, offsetY;
+        f32 depthOffset, scaleX, scaleY;
+        u8 *font;
+    };
+    char number[4];
+    s32 month;
+    s32 day;
+    struct CalendarColor { u8 r, g, b, a; } depthValue;
+    struct CalendarColor depthScratch;
+    Quad4 clip;
+    Quad4 clipScratch;
+    struct CalendarGlyphContext glyphContext;
+    s32 weekday;
+    s32 color;
+    s32 glyphWidth;
+    f32 drawDepth;
+    void (**states)(u32 state, u32 value);
+
+    func_001104d0(date, &month, &day);
+    weekday = func_00110580(date);
+    color = enabled ? 0 : 0x686868;
+    if (enabled) {
+        if (weekday == 0 || func_00110d30(date) != 0) color = 0x860113;
+        else if (weekday == 6) color = 0x35081;
+    } else {
+        if (weekday == 0 || func_00110d30(date) != 0) color = 0x885C62;
+        else if (weekday == 6) color = 0x4D626F;
+    }
+    if (forceWhite == 1 && (weekday == 6 || weekday == 0 || func_00110d30(date) != 0))
+        color = 0xFFFFFF;
+
+    calendarZeroBytes(&depthScratch, sizeof(depthScratch));
+    depthValue = depthScratch;
+    calendarZeroBytes(&clipScratch, sizeof(clipScratch));
+    clipScratch.a = clipLeft;
+    clipScratch.b = 0;
+    clipScratch.c = clipRight;
+    clipScratch.d = 480;
+    clip = clipScratch;
+    states = D_00887300;
+    states[0](14, 0);
+    states[0](12, 1);
+    states[0](7, 2);
+    states[0](9, 1);
+    states[0](20, 1);
+    states[0](6, 0);
+    states[0](8, 1);
+    func_003f6440(3, 0x31003);
+    func_003f6440(2, 0x44);
+    func_00489f80();
+    func_0045d6e0(&depthValue, &clip, depth, 0);
+    func_0048a000();
+    glyphWidth = func_0025f2c0(1, 0, (u8 *)fontWord);
+    drawDepth = 1.0f + depth;
+    func_0025f430(((f32)x + 0.0f) + ((f32)glyphWidth / 2.0f) * (1.0f - scaleX),
+                  (f32)y, drawDepth, color, alpha, 1, weekday, (u8 *)fontWord, 1, 0, 0,
+                  0.0f, scaleX, scaleY);
+    func_00442088(number, &iGpffffa6c4, day);
+    glyphContext.offsetX = 0;
+    glyphContext.offsetY = 0;
+    glyphContext.depthOffset = 0.0f;
+    glyphContext.scaleX = scaleX;
+    glyphContext.scaleY = scaleY;
+    glyphContext.font = (u8 *)fontWord;
+    func_0025f620((f32)(x + 20), ((f32)y + 0.0f) + 19.0f * scaleY, drawDepth,
+                  color, alpha, number, 2, 31, 0, func_002605a0, (u8 *)&glyphContext);
+}
+#pragma opt_propagation on
 // FUN_00263220
 /* measured: optimization-level probe for 00263220 register colouring */
 #pragma optimization_level 1
