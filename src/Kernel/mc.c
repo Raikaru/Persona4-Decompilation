@@ -94,6 +94,11 @@ extern void func_0045dfd0(void *, void *, f32, s32, s32, s32);
 extern void func_002a66d0(f32, f32, f32, f32, f32, s32, s32, s32);
 extern void func_0045ed60(void *, void *, s32, f32);
 typedef struct { s32 a, b, c, d; } Quad4;
+typedef struct { s32 x, y, width, height; } McRect;
+extern f32 iGpffffa818;
+extern f32 iGpffffa81c;
+extern McRect D_0063ED50;
+extern McRect D_0063ED60;
 extern RwRenderStateSetFunc D_00887300[4];
 extern char D_0063EBF0[];
 extern char D_0063EB50[];
@@ -1158,14 +1163,52 @@ void func_002a4cb0(s32 arg0) {
     func_002aa2b0(work);
 }
 
-/* measured: the ordinary RGBA/four-s32 rectangle reconstruction in
-   docs/probe_archive/PoD_002a4d10_body.c emits 524B/528B under bounded O1,
-   with 59 fully relocated executable differing words and four zero-tail
-   bytes. It forwards the task explicitly and uses pointer color arguments;
-   1,470 native cases cover frame reloads, geometry and completion.
-   Scheduling/aggregate stack placement remain unmatched; keep ASM. */
+/* Exact under MWCC b210/O2: three one-field values preserve the two source
+   color slots and their shared output slot without synthetic padding. */
 // FUN_002A4D10
-INCLUDE_ASM("asm/nonmatchings/mc", func_002a4d10);
+s32 func_002a4d10(s32 task) {
+    typedef struct { f32 value; } ColorValue;
+    u8 *work;
+    s32 frame;
+    f32 eased;
+    ColorValue outputColor;
+    ColorValue firstColor;
+    ColorValue secondColor;
+    McRect rectangle;
+    McRect first;
+    McRect second;
+
+    work = (u8 *)func_00452560((void *)task);
+    frame = *(s32 *)(work + 0x568);
+    if (frame > 20) frame = 20;
+    eased = func_0044b7b0((D_00761184 * (f32)frame) / 20.0f);
+    firstColor.value = iGpffffa818;
+    outputColor = firstColor;
+    first = D_0063ED50;
+    first.y = (s32)(178.0f * (1.0f - eased));
+    first.height = (s32)(448.0f * eased);
+    rectangle = first;
+    func_0045d6e0(&outputColor.value, &rectangle, 0.0f, 1);
+    frame = *(s32 *)(work + 0x568);
+    if (frame > 5) {
+        frame -= 5;
+        if (frame > 15) frame = 15;
+        eased = func_0044b7b0((D_00761184 * (f32)frame) / 15.0f);
+        secondColor.value = iGpffffa81c;
+        outputColor = secondColor;
+        second = D_0063ED60;
+        second.y = (s32)(178.0f - (94.0f * eased) / 2.0f);
+        second.height = (s32)(94.0f * eased);
+        rectangle = second;
+        func_0045d6e0(&outputColor.value, &rectangle, 0.0f, 1);
+    }
+    frame = ++*(s32 *)(work + 0x568);
+    if (frame >= 20) {
+        *(s32 *)(work + 0x568) = 0;
+        return 1;
+    }
+    return 0;
+}
 
 /* measured: retail colors p->$s1, s16->$s0, s18->$s2, s19->$s3, s20(loop)->$s4,
    s21->$s5, f21->$f21, f20->$f20, f23->$f23, f22->$f22; mwcc b210 graph-colors
