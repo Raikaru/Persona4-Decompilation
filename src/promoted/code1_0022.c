@@ -72,7 +72,7 @@ extern void func_0043f9c8();
 extern s32 func_00451fc0();
 extern void func_00221f40();
 extern void func_002230a0();
-extern void func_00222d20();
+extern void func_00222d20(u8 *drawData, s32 workAddress, void *callback);
 extern s32 func_002232a0(KwlnTask *task);
 extern u8 D_00795F20[];
 extern u8 D_006296D0[];
@@ -342,8 +342,90 @@ exit:
 }
 // FUN_00222210
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00222210);
-// FUN_00222D20 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00222d20);
+/* 896/896 bytes and all 17 relocations resolve exactly.
+ * Keep the opaque byte branch-local, snapshot coordinates before opacity
+ * conversion, and pack the color before preparing the overlay dimensions. */
+#pragma push
+#pragma opt_propagation off
+// FUN_00222D20
+void func_00222d20(u8 *drawData, s32 workAddress, void *callback)
+{
+    typedef struct { f32 x, y; } Vec2fLocal;
+    typedef struct { s32 lo, hi; } DescriptorPair;
+    typedef union { Vec2fLocal draw; DescriptorPair descriptor; } OriginPair;
+    extern void func_00222210(u8 *work, u32 alpha);
+    extern void func_0034f1e0(void);
+    extern void func_0034c270(Vec2fLocal arg0, s32 arg1, s32 arg2, f32 arg3);
+    extern void func_00354ba0(u8 *arg0);
+    extern s32 func_00355430(u8 *arg0);
+    extern void func_00355310(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
+    extern void func_003553b0(u8 *arg0, f32 *arg1);
+    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern void func_00364680(f32 depth, f32 x, f32 y, f32 shadowX, f32 shadowY,
+                              f32 width, f32 height, s32 color, s32 texture,
+                              s32 shadow, s32 mode);
+    extern void func_00367210(DescriptorPair origin, f32 depth, s32 alpha, s16 *descriptor);
+    extern s32 func_003f6440(s32 state, s32 value);
+    extern s32 func_0045aeb0(s16 channel, const char *name);
+    extern u8 D_00629680[];
+    extern f32 fGpffff838c;
+    u8 *work;
+    u32 alpha;
+    s32 texture;
+    f32 phase;
+    OriginPair origin;
+    f32 position[2];
+    f32 scale[2];
+
+    work = (u8 *)workAddress;
+    if ((*(u16 *)work & 2) != 0) {
+        if ((*(u16 *)work & 8) == 0) {
+            if (++*(u16 *)(work + 0x46) >= 54) {
+                *(u16 *)work |= 8;
+            }
+            alpha = (u8)(255.0f * func_00373cb0((f32)(u32)*(u16 *)(work + 0x46), 0.0f, 5.0f, 1));
+            if (*(u16 *)(work + 0x46) == 14) {
+                func_0045aeb0(2, (const char *)D_00629680);
+            }
+        } else {
+            u8 opaque = 255;
+            alpha = opaque;
+        }
+        func_0034f1e0();
+        origin.draw.x = 0.0f;
+        origin.draw.y = 0.0f;
+        func_0034c270(origin.draw, alpha, 0x16, 0.0f);
+        func_00222210(work, alpha);
+        func_00354ba0(*(u8 **)(work + 0x4C));
+        origin.draw.x = 0.0f;
+        origin.draw.y = 0.0f;
+        texture = func_00355430(*(u8 **)(work + 0x4C));
+        if (texture != 0) {
+            if (*(u16 *)(work + 0x46) >= 24) {
+                u32 overlayAlpha;
+                f32 opacity;
+                f32 drawX;
+                f32 drawY;
+                s32 color;
+                phase = func_00373cb0((f32)(u32)*(u16 *)(work + 0x46), 27.0f, 54.0f, 2);
+                func_00355310(*(u8 **)(work + 0x4C), 0, (u8 *)position, 0);
+                func_003553b0(*(u8 **)(work + 0x4C), scale);
+                drawY = position[1];
+                drawX = position[0];
+                opacity = fGpffff838c * (f32)alpha;
+                overlayAlpha = (u8)(opacity * (1.0f - phase));
+                color = (s32)(overlayAlpha | 0xFFFFFF00U);
+                func_00364680(0.0f, drawX, drawY, drawX, drawY,
+                              256.0f * scale[0], 512.0f * scale[1],
+                              color, texture, 0, 1);
+                func_003f6440(3, 0x717FB);
+                func_003f6440(2, 0x44);
+            }
+        }
+        func_00367210(origin.descriptor, 0.0f, alpha, (s16 *)(work + 0x58));
+    }
+}
+#pragma pop
 // FUN_002230E0
 s32 func_002230e0(s32 arg0)
 {
@@ -361,7 +443,7 @@ s32 func_002230e0(s32 arg0)
     *(s32 *)((u8 *)(temp_2) + 4) = 0;
     *(u16 **)((u8 *)(temp_2) + 0x3C) = (u16 *)(temp_2_2);
     func_0043f9c8((u8 *)(temp_2) + 0xC, 0, 0x30);
-    *(void (**)(u8 *))((u8 *)(temp_2) + 0x14) = (void (*)(u8 *))(func_00222d20);
+    *(void (**)(u8 *, s32, void *))((u8 *)(temp_2) + 0x14) = func_00222d20;
     *(u8 **)((u8 *)(temp_2) + 0x1C) = (u8 *)(temp_2);
     *(u16 *)((u8 *)(temp_2) + 0) = (u16)(*(u16 *)((u8 *)(temp_2) + 0) | 1);
     return temp_16;

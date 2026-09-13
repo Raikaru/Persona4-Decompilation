@@ -11564,6 +11564,74 @@ separate complete-object and native-consumer evidence above.
 - Loadable image: `3d1d3d2b9d6ccb60836db239ab49674223025a78`.
 - Complete ELF: `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
-The one-word `00222d20` callback floor and two-word `00375f00` state-store
-floor remain private, unintegrated, and uncredited. The full first-party
-goal remains open.
+At this checkpoint, the one-word `00222d20` callback floor and two-word
+`00375f00` state-store floor were private and uncredited. The callback
+floor is closed below; the full first-party goal remains open.
+
+## Result dialog callback with byte opacity and live effect reloads
+
+`src/promoted/code1_0022.c` now recovers `func_00222d20` in ordinary C:
+**896 executable bytes / 896-byte window**, all **17 code relocations**
+resolved, with no alignment tail. The complete current owner has
+**98 exact function images and 12 exact local tables**, including the
+unchanged instruction image of its constructor.
+
+The opaque branch keeps its value in a byte local before promoting it
+to the word-sized alpha consumed by the renderers. Function-scoped
+`opt_propagation off` preserves that byte constant's retail instruction.
+Explicit coordinate snapshots before opacity conversion and an explicit
+packed color before dimension setup close the remaining ordering
+differences without changing helper ABIs or adding register-only work.
+The existing position and scale getters each write exactly two floats;
+the two-element output buffers cover their actual writes.
+
+The declaration and constructor registration now agree with the
+existing `func_004623a0` invocation:
+`void (u8 *drawData, s32 workAddress, void *callbackToken)`.
+The one-argument registration cast is removed. The ordering-table
+provider passes the node's payload, stored context, and current callback
+address; its assembly call sites retain the callback address in `$a2`.
+No ordering-table or SDK implementation is changed.
+
+GCC and Clang each pass **1,827 native scenarios / 292,353 checks**
+through the recovered callback, actual interpolation routine, three
+actual effect getters, actual descriptor dispatcher, and actual
+case-five renderer. Coverage includes the frame-14 sound event,
+frame-24 overlay gate, frame-54 opacity latch, unsigned counter wrap,
+unrelated flag preservation, live effect-pointer and counter changes
+across rendering/animation callbacks, coordinate and scale forwarding,
+zero-opacity drawing, and final text/badge commands.
+Changing the latch to `> 54` compiles but fails scenario 1,273,
+check 203,077.
+
+Graphics, animation, sound, main-dialog rendering, and final command
+emission are controlled native boundaries. Sine and cosine use
+deterministic host-libm samples rounded to `f32`; this does not establish
+PS2 transcendental equivalence. The fixture exercises the established
+callback signature and payload offsets, not the full ordering-table
+command interpreter or task constructor. This is source-consumer proof,
+not PS2 visual or timing verification.
+
+Fixture contents, compiler commands, positive and negative outputs,
+source identity, and the complete resolved owner proof are archived in
+`p4_four_resume_20260912T062313/Main/dialog_callback_native_archive.json`.
+The owned native sources, executables, and test scratch are removed
+after archive verification.
+
+Full verification changes only `00222d20` from ASM to MATCH:
+**6,292 first-party matches / 568 fallbacks**, and **7,922 total matches /
+4,798 fallbacks** among 12,720 scanned functions. SDK/vendor counts
+are unchanged. All **531 tests** pass; full lint reports **zero errors
+and 264 advisory warnings** across 340 first-party files. Progress
+artifacts validate.
+
+The combined build remains **173 C objects / 1,602 C-linked functions**,
+plus 56 Sony SDK objects. This generic owner is not included in the
+source-linked function list, so the new callback's proof is the
+separate complete-owner and native-consumer evidence above.
+
+- Loadable image: `3d1d3d2b9d6ccb60836db239ab49674223025a78`.
+- Complete ELF: `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+The four-word cut-in loader and two-word shuffle state-store candidates
+remain private and uncredited. The full first-party goal remains open.
