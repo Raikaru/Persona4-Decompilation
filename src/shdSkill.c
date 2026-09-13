@@ -169,12 +169,156 @@ void func_00113ef0(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry, f32 fad
 }
 #pragma pop
 
-/* Fresh full reconstruction: 2124/2128 bytes, all 37 relocations resolved,
-   472 differing executable words and four missing zero alignment bytes.
-   Frame 0x130 versus retail 0x120; allocation and argument scheduling still
-   diverge substantially. No near-match body retained or compiler floor claimed. */
+/* Skill detail frame, digit counter and pending-skill markers.
+   2116/2128 bytes, 37 resolved relocations and 12 zero alignment bytes.
+   Compound u16 narrowing and the local declaration order preserve the
+   digit/label lifetimes across sprite submissions. */
 // FUN_00114460
-INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00114460);
+#pragma push
+#pragma opt_propagation off
+#pragma opt_scalarize off
+void func_00114460(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fade)
+{
+    typedef struct { f32 x, y, z; } PayloadVector;
+    typedef union {
+        PayloadVector vector;
+        struct { u16 tag, id; u32 first, second; } fields;
+    } Payload;
+    typedef struct { s16 kind, style, flags; Payload data; } Descriptor;
+    extern char D_005E5810[];
+    extern f32 fGpffff8368;
+    Descriptor descriptor;
+    Vec2f position;
+    u8 *panelTexture;
+    u16 number;
+    u8 *frameTexture;
+    u8 *helpTexture;
+    f32 baseY;
+    f32 nameX;
+    f32 nameY;
+    f32 firstColumn;
+    f32 starsY;
+    u8 red, green, blue;
+    s16 style;
+    u8 drawAlpha;
+    s32 inverseAlpha;
+    s32 alphaWord;
+    s32 color;
+    s32 index;
+
+    baseY = base.y;
+    panelTexture = func_0046a770(D_005E5830);
+    if (panelTexture == 0) {
+        func_0046d730(D_005E4800, 0x243);
+    }
+    descriptor.style = 2;
+    frameTexture = func_0046a770(D_005E5810);
+    if (frameTexture == 0) {
+        func_0046d730(D_005E4800, 0x247);
+    }
+    helpTexture = func_0046a770(D_005E5850);
+    if (helpTexture == 0) {
+        func_0046d730(D_005E4800, 0x249);
+    }
+    if (*(u16 *)(state + 0x22C) != 0) {
+        if (*(s8 *)(state + 4) == 8) {
+            red = 45;
+            green = 45;
+            blue = 45;
+            style = 3;
+        } else if (!(fade <= 0.0f)) {
+            red = (u8)(255.0f * (1.0f - fade) + 45.0f * fade);
+            green = (u8)(255.0f * (1.0f - fade) + 45.0f * fade);
+            blue = (u8)(129.0f * (1.0f - fade) + 45.0f * fade);
+            style = 3;
+        } else {
+            red = 255;
+            green = 255;
+            blue = 129;
+            style = 2;
+        }
+        drawAlpha = alpha;
+        firstColumn = (f32)417 + base.x;
+        position.x = firstColumn;
+        position.y = 304.0f + baseY;
+        inverseAlpha = 255 - drawAlpha;
+        func_0046d4c0(0, (s32)frameTexture, 58, firstColumn, position.y, inverseAlpha & 0xFF,
+                      255, 162, 0, scale, 0);
+        func_0046d4c0(0, (s32)frameTexture, 59, 192.0f + position.x, position.y, inverseAlpha,
+                      255, 162, 0, scale, 0);
+        position.x = 422.0f + base.x;
+        position.y = 310.0f + baseY;
+        func_0046d4c0(0, (s32)frameTexture, 60, position.x, position.y, inverseAlpha,
+                      255, 255, 129, scale, 0);
+        func_0046d4c0(0, (s32)helpTexture, 42, 76.0f + position.x, 4.0f + position.y, inverseAlpha,
+                      255, 255, 129, scale, 0);
+        number = *(u16 *)(state + 0x1EC);
+        if ((s32)number < 10) {
+            position.x = (f32)538 + base.x;
+        } else {
+            position.x = (f32)550 + base.x;
+        }
+        position.y = 306.0f + baseY;
+        do {
+            func_0046d4c0(0, (s32)helpTexture, (s32)number % 10 + 29, position.x, position.y,
+                          inverseAlpha, 255, 255, 129, scale, 0);
+            number /= 10U;
+            position.x -= 22.0f;
+        } while ((s32)number > 0);
+        position.x = (f32)421 + base.x;
+        position.y = (f32)327 + baseY;
+        alphaWord = alpha;
+        inverseAlpha = 255 - alphaWord;
+        func_0046d4c0(0, (s32)panelTexture, 92, position.x, position.y, inverseAlpha & 0xFF,
+                      red, green, blue, scale, 0);
+        func_0046d4c0(0, (s32)panelTexture, 93, 182.0f + position.x, position.y, inverseAlpha,
+                      red, green, blue, scale, 0);
+        index = 0;
+        nameX = fGpffff8368 + base.x;
+        nameY = (f32)325 + baseY;
+        color = ((u32)(alphaWord * 255) / 255U) | ~0xFF;
+        starsY = 354.0f + baseY;
+        while (index < *(u16 *)(state + 0x22C)) {
+            if (index == 0) {
+                position.x = nameX;
+                position.y = nameY;
+                descriptor.data.vector = *(PayloadVector *)(state + index * 12 + 0x6C);
+                descriptor.kind = 2;
+                descriptor.style = style;
+                switch (descriptor.kind) {
+                case 0: {
+                    Vec2f textPosition = position;
+                    const char *text = (const char *)func_00243840(descriptor.data.fields.id);
+                    func_00274ed0((f32)(s32)textPosition.x, (f32)(s32)textPosition.y, scale,
+                                  color, ((char *)D_005E47F0)[descriptor.style * 2], 1, text, 0, 0);
+                    break;
+                }
+                case 1:
+                    func_001138c0(position, scale, drawAlpha, &descriptor, 1);
+                    break;
+                case 2: {
+                    Vec2f textPosition = position;
+                    const char *text = (const char *)func_00243840(descriptor.data.fields.id);
+                    func_00275020((f32)(s32)textPosition.x, (f32)(s32)textPosition.y, scale,
+                                  color, ((char *)D_005E47F0)[descriptor.style * 2], 1, text, 8, -1);
+                    break;
+                }
+                }
+            } else if (index < 7) {
+                position.x = firstColumn + (f32)((index - 1) * 33);
+                position.y = starsY;
+                func_0046d4c0(0, (s32)frameTexture, 69, position.x, starsY, inverseAlpha,
+                              255, 162, 0, scale, 0);
+                position.x += 5.0f;
+                position.y += 3.0f;
+                func_0046d4c0(0, (s32)frameTexture, 70, position.x, position.y, inverseAlpha,
+                              255, 255, 129, scale, 0);
+            }
+            index++;
+        }
+    }
+}
+#pragma pop
 
 // FUN_00114CB0
 s32 func_00114cb0(u16 arg0) {
