@@ -11885,3 +11885,73 @@ transition is `func_001138c0`; it is source-linked. Linkage rises to
 unchanged. Both retail identities remain exact:
 loadable image `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
 complete ELF `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Skill navigation: signed remainder and fallback-first selection
+
+`src/shdSkill.c` `func_00115020` is **652 executable bytes in its
+656-byte retail window**, with **two resolved relocations** and **four
+zero tail bytes**. This closes the owner's last assembly fallback.
+Recovery uses the complete retail assembly and both independent bodies:
+`docs/ghidra_headstart/src/shdSkill.c:400–492` and
+`docs/ida_headstart/src/shdSkill.c:422–532`.
+
+The old explicit signed-mask correction chains leave **44 executable
+word differences**. Natural signed `% 4` reduces that to **eight**:
+the previous cursor and active predicate occupy opposite argument
+registers. Declaration order alone does not close this floor. Capture
+`active = force != 0`, then use
+`active = active == 0 ? (count > 0) : active`. Putting the fallback first
+closes the register swap without the eight-byte conditional trampoline
+produced by the opposite ternary orientation. No extra formal, dummy
+register use, assembly implementation, or acceptance masking is involved.
+
+The actual two-input contract is
+`s32 func_00115020(u8 *state, s32 force)`. Its live C caller,
+`src/promoted/shdPersona.c` `func_0011caf0`, now imports that prototype
+and no longer passes a third workspace argument through an unspecified
+parameter list. The caller remains byte-exact: retail `$a2` already holds
+the workspace used to form the first argument, not a separate required
+third-input setup. Both complete current-source owners resolve exactly:
+**15 function images / one table** in `shdSkill` and
+**102 function images / one table** in `shdPersona`.
+
+Preserve signed-byte current/previous positions, halfword pending count,
+nonzero force semantics, and direction priority
+`0x1000` → `0x4000` → `0x8000` → `0x2000`. Negative positions require
+signed remainder, not an unsigned mask. On a changed selection the old
+current position becomes the previous position; otherwise both bytes
+remain unchanged and the function returns zero. The real Persona caller
+also suppresses navigation when flag `0x800` is clear or the current
+position is `-1`, and submits its audio cue only after a change.
+
+A throwaway freestanding i386 consumer executes the two unchanged
+current-source bodies. GCC and Clang each pass **2,127,872 direct
+scenarios, 35,840 caller scenarios, and 51,958,688 observable checks**.
+The direct matrix crosses all 256 current bytes, all 256 previous bytes,
+all 16 direction combinations, and both active states. Separate cases
+cover signed force boundaries, counts `0/1/32767/32768/65535`, unrelated
+button bits, callback gating, change-only audio submission, and complete
+buffer canaries. The independent oracle uses repeated addition or
+subtraction for remainder and a direction-priority table.
+
+Unsigned remainder fails at direct scenario **3**; prioritizing down
+over up fails at **11**. The audio submission boundary is controlled
+using its real four-halfword prototype. There is no real-audio or PS2
+visual verification claim.
+
+Trials, both full owner proofs, compiler outputs, all six native fixture
+contents, four executable images and hashes, and negative-control results
+are archived at
+`/home/raikaru/p4_four_resume_20260912T062313/Main/skill_navigation_recovery_archive.json`.
+All six native fixtures and four executables were removed after archive
+round-trip and content/hash verification.
+
+Shared gates pass **531 tests**; lint remains **0 errors / 264 warnings**
+across 340 first-party files, with 232 third-party files skipped.
+`make build-progress && make progress` reports **6,296 MATCH / 564 ASM**
+first-party and **7,926 MATCH / 4,794 ASM** overall. `func_00115020` is
+the only new matching transition; `shdSkill` now has **15 MATCH / zero ASM**.
+Linkage rises to **1,606 C-linked functions**, with **173 source objects /
+56 SDK objects** unchanged. Both retail identities remain exact:
+loadable image `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
+complete ELF `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
