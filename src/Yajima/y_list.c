@@ -41,6 +41,7 @@ extern s32 func_00311d60(u16 id);
 extern s32 func_00311e40(u16 id);
 extern void func_0043f810(void *dst, void *src, u32 size);
 
+/* 228/240 bytes; fifteen resolved relocations and twelve zero alignment bytes. */
 // FUN_002E24A0
 void func_002e24a0(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
     u8 *buf;
@@ -58,7 +59,6 @@ void func_002e24a0(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
     *(s8 *)(buf + 0) = 1;
     *(s8 *)(buf + 0xC) = arg3;
 }
-INCLUDE_ASM("asm/nonmatchings/y_list", func_002e24a0);
 
 // FUN_002E2590
 void func_002e2590(s32 arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
