@@ -14,9 +14,9 @@ extern void func_0034ac00(u8 *);
 extern void func_0034ad40(u8 *);
 extern s32 func_0034b380(u8 *);
 extern u8 *func_00461390(void *, s32, void *, s32);
-extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
-extern s16 func_002b2cb0(s32, s32, s32, s32, s32);
-extern s16 func_002b2d00(s32, s32, s32, s32, s32);
+extern f32 func_002b2aa0(s64, f32, f32, f32, f32);
+extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
+extern s32 func_002b2d00(s32, s32, s32, s32, s8);
 extern u8 D_00793E80[];
 
 
@@ -58,19 +58,77 @@ u8 *func_0034ae50(u8 *arg0, s8 arg1) {
 // FUN_0034AE70
 INCLUDE_ASM("asm/nonmatchings/y_fclCmbBall", func_0034ae70);
 
-/* measured: functional structure fully recovered (E10/E70/E73 dispatch, the
-   two u8-to-float conversion branches with the s8 shift, the func_002b2aa0
-   call with 5 args, the 0x4F000000 float-to-u8 guard, the E6A/E68 update,
-   the E70 func_002b2d00 branch, and the 0xE s16-indexed func_00461390 loop).
-   Unresolved residuals: (1) the float-to-u8 overflow guard compares with
-   c.ole.s $f1,$f0 (2.1474836e9<=r) + bc1t, retail emits c.olt.s $f0,$f1
-   (r<2.1474836e9) + bc1f -- both (r<f) and !(r>=f) spellings canonicalize to
-   c.ole.s, unchanged nd 165; (2) the u8-to-float negative branch shifts with
-   srl (v is s32/s8 from lbu, mwcc proves non-negative) but retail ELF uses
-   sra; .s file says srl, ELF says sra -- unreconciled; (3) obj 892B vs window
-   912B, 5 words short. Compiler floors, not yet source-drivable. */
+/* Recovered target body: the retail flag gates, staged interpolation, and
+   0xE-entry packet loop are represented directly. The first interpolation
+   call passes E72 as its signed integer mode and E6C/E6D/E6A/E68 as floats;
+   the second uses signed E68 / 2 (C division supplies retail's correction
+   sequence). The bounded update is func_002b2cb0(E6A, 1, E68, 0, 1).
+   The plain u8 result cast preserves retail's float-to-u8 saturation path. */
+/* Target window: 0x390 bytes; the compiled owner image is 0x384 bytes and
+   its remaining 12 target bytes are zero padding. */
+/* func_0034b380 -- reconstructed from the complete retail, Ghidra, and IDA
+   bodies; all six owner images and all target relocations are checked. */
+extern void func_0034ae70(u8 *, s32);
+
 // FUN_0034B380
-INCLUDE_ASM("asm/nonmatchings/y_fclCmbBall", func_0034b380);
+s32 func_0034b380(u8 *arg0) {
+    u8 *p;
+
+    p = *(u8 **)(arg0 + 0x38);
+    if ((*(s16 *)(p + 0xE10) & 1) == 0) {
+        return 0;
+    }
+
+    if (((*(s16 *)(p + 0xE10) & 4) >> 2) == 1) {
+        if (*(s16 *)(p + 0xE70) == 0) {
+            if (*(s8 *)(p + 0xE73) == 0) {
+                *(u8 *)(p + 0xE6E) =
+                    (u8)func_002b2aa0((s32)*(s8 *)(p + 0xE72),
+                                           (f32)*(u8 *)(p + 0xE6C),
+                                           (f32)*(u8 *)(p + 0xE6D),
+                                           (f32)(s16)*(s16 *)(p + 0xE6A),
+                                           (f32)(s16)*(s16 *)(p + 0xE68));
+            } else {
+                *(u8 *)(p + 0xE6E) =
+                    (u8)func_002b2aa0((s32)*(s8 *)(p + 0xE72),
+                                           (f32)*(u8 *)(p + 0xE6C),
+                                           (f32)*(u8 *)(p + 0xE6D),
+                                           (f32)(s16)*(s16 *)(p + 0xE6A),
+                                           (f32)(*(s16 *)(p + 0xE68) / 2));
+            }
+            if (*(s16 *)(p + 0xE6A) < *(s16 *)(p + 0xE68)) {
+                *(s16 *)(p + 0xE6A) =
+                    func_002b2cb0(*(s16 *)(p + 0xE6A), 1,
+                                  *(s16 *)(p + 0xE68), 0, 1);
+            } else {
+                *(u8 *)(p + 0xE6E) = *(u8 *)(p + 0xE6D);
+                if (*(s8 *)(p + 0xE73) == 1) {
+                    *(u8 *)(p + 0xE6E) = *(u8 *)(p + 0xE6C);
+                }
+                *(s16 *)(p + 0xE10) = *(s16 *)(p + 0xE10) | 4;
+            }
+        } else {
+            *(s16 *)(p + 0xE70) = func_002b2d00(*(s16 *)(p + 0xE70), 1, 0, 0, 1);
+        }
+    }
+
+    if (*(u8 *)(p + 0xE6E) <= 0) {
+        return 0;
+    }
+
+    *(s16 *)(p + 2) = 0;
+    {
+        s16 i;
+
+        for (i = 0; i < 0xE; i++) {
+            u8 *q = (u8 *)func_00461390(D_00793E80 + *(s16 *)p * 0x30, 4,
+                                        p + i * 0x100 + 0x10, 4);
+            *(void **)(q + 8) = (void *)func_0034ae70;
+            *(u8 **)(q + 0x10) = p;
+        }
+    }
+    return 0;
+}
 // FUN_0034B710
 void func_0034b710(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
