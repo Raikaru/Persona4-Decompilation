@@ -32,11 +32,12 @@ extern s32 func_001619b0(u16 arg0, u16 arg1, u16 arg2);
 extern s32 func_00161a70(u16 arg0, u16 arg1, u16 arg2);
 extern void func_00182310(s32 arg0);
 extern s32 func_00164570(u32 arg0, s32 arg1);
-extern u8 *func_00231630(u32 arg0, s32 arg1, s32 arg2);
+typedef struct DatUnitEc DatUnitEc;
+extern DatUnitEc *func_00231630(u16 encountId);
 extern u8 *func_00163990(u32 arg0, u8 *arg1, s32 arg2);
-extern void func_00442088(void *dst, const void *fmt, s32 value);
+extern s32 func_00442088(char *dst, const char *fmt, ...);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
-extern u32 func_003b7060(void);
+extern u64 func_003b7060(void);
 extern u8 *func_00145270(s32 arg0);
 extern s32 func_00145540(s32 arg0, u8 arg1, u8 *arg2);
 extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
@@ -138,10 +139,10 @@ s32 func_00163c90(s32 arg0);
 void func_00164020(u8 *arg0);
 void func_00164fa0(s32 arg0);
 void func_00165670(u8 *arg0, s32 arg1);
-s32 func_00478140(s32 arg0, u16 arg1, s32 arg2);
+void *func_00478140(u32 arg0, u32 arg1, u32 arg2);
 s32 func_004782b0(s32 arg0);
-void func_00440b68(u8 *arg0, u8 *arg1, s32 arg2);
-s32 func_00454a60(u8 *arg0, s32 arg1);
+s32 func_00440b68(const char *fmt, ...);
+u8 *func_00454a60(u8 *arg0, s32 arg1);
 s32 func_0014a200(void);
 s32 func_0014a270(void);
 s32 func_001668e0(u8 *arg0);
@@ -240,21 +241,108 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00162e10);
 
 
 
-/* measured: nd 130 after four retries (recipe B + preheader reordering).
-   (1) Retail materialises 0x750 into $a1 ONCE in the search-loop preheader
-   (order: slot=NULL, i=0, step, base) and reuses it as func_00231630's arg1;
-   mwcc b210 always sinks the constant to the loop-entry block in $v0 and
-   rematerialises addiu $a1,0x750 at the call, shifting the whole tail by one
-   word — tried shared s32 local (with/without opt_loop_invariants, for/while,
-   every pre-loop placement) and inline literal; base hoists to $a0 correctly
-   either way (recipe B works for D_007E8C00). (2) The average loop: retail
-   re-issues lw 0x48(slot) per iteration (cnt in $a1); mwcc CSEs it out of the
-   loop (cnt in $a0) — all load spellings nd >= 122. (3) D_00724504's load
-   lands before the t21*0x18 scaling in mwcc, after it in retail, both operand
-   orders tried. Constant-materialization + CSE-of-loop-test-load floors.
-   Note this is the recipe-B retest: the base hoist itself is NOT the blocker. */
+/* 760/768 bytes, 15 resolved relocations, and eight zero alignment bytes.
+ * Loop-invariant motion preserves the slot stride and copy-loop scheduling. */
+#pragma push
+#pragma opt_loop_invariants on
 // FUN_00163990
-INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00163990);
+u8 *func_00163990(u32 encounter, u8 *placement, s32 variant)
+{
+    u8 message[0x100];
+    u32 encounterId;
+    s32 category;
+    u64 modelVariant;
+    s32 slotIndex;
+    s32 unitIndex;
+    s32 levelSum;
+    u16 unitCount;
+    u8 *candidate;
+    u8 *slot;
+    u8 *source;
+    u8 *destination;
+    s32 copyCount;
+    u8 *group;
+
+    slot = NULL;
+    for (slotIndex = 0; slotIndex < 0xF; slotIndex++) {
+        candidate = D_007E8C00 + (slotIndex * 0x750);
+        if (*(s32 *)(candidate + 0x48) == 0) {
+            slot = candidate;
+            break;
+        }
+    }
+    modelVariant = 0;
+    if (slot == NULL) {
+        return NULL;
+    }
+    encounterId = encounter & 0xFFFF;
+    *(u8 **)(slot + 0x48) = (u8 *)func_00231630((u16)encounterId);
+    *(s32 *)(slot + 0x4C) = (s32)(iGpffffb414 + (encounterId * 0x18));
+    *(s16 *)(slot + 0x728) = 0;
+    category = (encounter >> 0x10) & 0xFFFF;
+    switch (category) {
+    case 1:
+        *(s16 *)(slot + 0x1C8) = 1;
+        break;
+    case 2:
+        *(s16 *)(slot + 0x1C8) = 2;
+        break;
+    case 4:
+        *(s16 *)(slot + 0x1C8) = 3;
+        break;
+    default:
+        func_00442088((char *)message, (const char *)D_005F1510, encounter);
+        func_0046d740(message, D_005F1500, 0x4B6);
+        break;
+    }
+    switch (variant) {
+    case 0:
+        modelVariant = 0;
+        break;
+    case 1:
+        modelVariant = 1;
+        break;
+    case 2:
+        modelVariant = func_003b7060() & 1;
+        break;
+    default:
+        break;
+    }
+    if (modelVariant == 0) {
+        *(s32 *)(slot + 0x50) = (s32)func_00478140(8U, 1U, 0);
+        *(s8 *)(slot + 0x1CA) = 0;
+    } else {
+        *(s32 *)(slot + 0x50) = (s32)func_00478140(8U, 2U, 0);
+        *(s8 *)(slot + 0x1CA) = 1;
+    }
+    destination = slot + 0x5C;
+    copyCount = 0x2A;
+    source = placement;
+    do {
+        s32 word0 = *(s32 *)source;
+        s32 word1 = *(s32 *)(source + 4);
+        source += 8;
+        copyCount -= 1;
+        *(s32 *)destination = word0;
+        *(s32 *)(destination + 4) = word1;
+        destination += 8;
+    } while (copyCount > 0);
+    *(u8 **)(slot + 0x1AC) = slot + 0x5C;
+    *(s16 *)(slot + 0x1CC) = (s16)(s32)((600.0f + *(f32 *)(placement + 0x140)) / 1200.0f);
+    *(s16 *)(slot + 0x1CE) = (s16)(s32)((600.0f + *(f32 *)(placement + 0x148)) / 1200.0f);
+    unitIndex = 0;
+    levelSum = 0;
+    unitCount = *(u16 *)(*(u8 **)(slot + 0x48) + 2);
+    for (; unitIndex < (s32)unitCount; unitIndex++) {
+        /* The group pointer is reloaded for each unit in the retail loop. */
+        group = *(u8 *volatile *)(slot + 0x48);
+        levelSum += *(u8 *)(*(u8 **)(group + 4) + (unitIndex * 0x30) + 6);
+    }
+    *(s32 *)(slot + 0x1C0) = levelSum / (s32)unitCount;
+    iGpffffb2e8 += 1;
+    return slot;
+}
+#pragma pop
 
 
 
@@ -640,7 +728,7 @@ void func_00165270(void)
     for (i = 0; i < 0xF; i++) {
         u8 *p = D_007E8C00 + i * 0x750;
         if (*(s32 *)(p + 0x48) != 0) {
-            *(s32 *)(p + 0x50) = func_00478140(8, (u16)(*(u8 *)(p + 0x1CA) + 1), 0);
+            *(s32 *)(p + 0x50) = (s32)func_00478140(8, (u16)(*(u8 *)(p + 0x1CA) + 1), 0);
         }
     }
 }
@@ -830,25 +918,14 @@ void func_00165840(s32 arg0)
 
 
 
-/* SUPERSEDED measured: nd 63 after four attempts; only registers differ from here on.
-   (1) var_16 lands in $s2 and var_18 in $s0 where retail has $s0/$s2 — the
-   allocator's internal order is fixed ($s4=var_20, $s3=var_19, $s2=var_16,
-   $s1=var_17, $s0=var_18) under every declaration permutation tried, so the
-   whole body shows the 2-way swap (saved-register-rotation floor). (2) The
-   var_16*4 scale is GVN'd into ONE saved register ($s5) feeding both the
-   D_007643C8 slot pointer and the D_007643C0 store; retail computes it twice
-   (temp sll for the slot pointer + hoisted sll $s6 for the C0 store) — 1
-   word; explicit temp_22 = var_16*4 local still GVN's with the pointer
-   scale. Everything else matches byte-for-byte: absolute lui addressing via
-   array declarations for D_007E8BE8/D_007E8BF8, daddiu 0x80A/0x120A via the
-   u16 var_18_2, dsll32/dsra32 via (s16) of the s64 func_001060b0 result,
-   andi-then-bgez ordering, temp_21 in $s5/$s6 slot pair. */
+/* Keep the saved halfword and allocator word in the same assignment chain. */
 // FUN_001658B0
 void func_001658b0(void)
 {
     s32 i;
     s32 j;
     u16 code;
+    u32 modelCode;
     s32 value;
     s32 count;
 
@@ -883,12 +960,12 @@ loop:
             }
             if (i < 6) {
                 value = i + 2;
-                code = (u16)((value << 8) | base);
+                modelCode = code = (u16)((value << 8) | base);
             } else if (i == 6) {
-                code = 0x80A;
+                modelCode = code = 0x80A;
                 value = i + 2;
             } else {
-                code = 0x120A;
+                modelCode = code = 0x120A;
                 value = 9;
             }
             if (count >= 2) {
@@ -897,10 +974,10 @@ loop:
             if (D_007643C8[count] != 0) {
                 func_0046d730(D_005F1500, 0x917);
             }
-            D_007643C8[count] = func_00478140(9, code, 0);
-            func_00440b68(D_00763008, D_005F1500, 0x91C);
+            D_007643C8[count] = (s32)func_00478140(9, modelCode, 0);
+            func_00440b68((const char *)D_00763008, D_005F1500, 0x91C);
             D_007643C0[count] =
-                func_00454a60(D_005F13C0 + value * 0x20, 0);
+                (s32)func_00454a60(D_005F13C0 + value * 0x20, 0);
             *(s32 *)(D_007E8BE0 + j * 16) = 1;
             *(u16 *)(D_007E8BE0 + j * 16 + 4) = 9;
             *(u16 *)(D_007E8BE0 + j * 16 + 6) = code;
@@ -921,9 +998,9 @@ void func_00165b00(void)
     for (i = 0; i < 2; i++) {
         u8 *p = D_007E8BE0 + i * 16;
         if (*(s32 *)p != 0) {
-            D_007643C8[j] = func_00478140(*(u16 *)(p + 4), *(u16 *)(p + 6), 0);
-            func_00440b68(D_00763008, D_005F1500, 0x939);
-            D_007643C0[j] = func_00454a60(D_005F13C0 + (*(s32 *)(p + 0xC) << 5), 0);
+            D_007643C8[j] = (s32)func_00478140(*(u16 *)(p + 4), *(u16 *)(p + 6), 0);
+            func_00440b68((const char *)D_00763008, D_005F1500, 0x939);
+            D_007643C0[j] = (s32)func_00454a60(D_005F13C0 + (*(s32 *)(p + 0xC) << 5), 0);
             j++;
         }
     }

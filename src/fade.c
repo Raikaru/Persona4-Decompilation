@@ -19,7 +19,7 @@ extern char iGpffffb1d8;
 extern char iGpffffb1d4;
 extern char iGpffffb1d0;
 
-void func_0046d740();
+void func_0046d740(const void *msg, const void *file, u32 line);
 
 extern char D_005E50B0[];
 
