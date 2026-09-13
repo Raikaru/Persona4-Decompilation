@@ -11785,3 +11785,103 @@ C-linked functions** from **173 source objects**, with **56 SDK objects**
 unchanged. Both retail identities remain exact:
 loadable image `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
 complete ELF `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Skill descriptor costs and the category-provider contract
+
+Recovered `func_001138c0` in `src/shdSkill.c` from its retail assembly and
+both `docs/ghidra_headstart/src/shdSkill.c` and
+`docs/ida_headstart/src/shdSkill.c` bodies. The integrated function resolves
+exactly: **1,384 executable bytes / 1,392-byte window, 23 relocations**,
+and eight verified zero tail bytes. The real five-input descriptor API
+remains unchanged; its floating-point argument is passed through as draw
+depth. No fabricated input, assembly recovery, padding insertion, or
+relocation-masked acceptance is involved.
+
+The category provider now has one coherent declaration throughout its
+active source owners: `s32 func_0023d8e0(u8 *context, u16 skill)`. Its
+implementation consumes a nullable context and the unsigned low halfword
+of the skill ID. This removes inconsistent signed-64-bit, signed-halfword,
+integer-context, and unprototyped imports rather than retaining a private
+signature to influence scheduling. The existing `u16` interfaces of
+`func_00114cb0` and `func_00114dc0` remain intact.
+
+`func_0013ac30` also accepts a `u16` ID and explicitly projects the category
+result to `s16` before forming its dense switch index.
+`func_001da5f0` loads the nullable context at child offset `0xA64` as a
+pointer, not an integer. The block-scoped declaration in
+`src/promoted/code1_0020.c` stays inside `func_00201b00`, where its only
+actual C call resides. Obsolete camp-selector comments asserting the
+opposite parameter contract and a filled return delay slot were removed.
+
+Fresh complete-owner proofs cover **960 function images and 10 owned
+tables**, all fully resolved and exact:
+
+| Current source owner | Function images | Owned tables |
+| --- | ---: | ---: |
+| `src/shdSkill.c` | 15 | 1 |
+| `src/Main/Battle/Data/datCalc.c` | 80 | 2 |
+| `src/Battle/btlAICommand.c` | 263 | 0 |
+| `src/Camp/cmpSkill.c` | 16 | 2 |
+| `src/datScript/datScript.c` | 4 | 0 |
+| `src/promoted/code1_0019.c` | 151 | 3 |
+| `src/promoted/code1_001a.c` | 71 | 1 |
+| `src/promoted/code1_001d.c` | 94 | 1 |
+| `src/promoted/code1_001e.c` | 120 | 0 |
+| `src/promoted/code1_0020.c` | 146 | 0 |
+
+The renderer uses the existing 20-byte descriptor representation, with its
+skill ID at `0xA` and signed cost values at `0xC` and `0x10`. Preserve the
+flag reload after the background draw, the ID reload after the icon draw,
+the fresh font-style read, and cost reads after the text call. An initially
+nonzero flag word reserves 45 horizontal units even if a callback clears
+the icon flags. The first nonzero cost takes precedence even when negative:
+negative costs draw only their suffix, positive costs emit decimal digits
+right-to-left, and two zero costs draw four dashes. Digit iteration uses a
+captured local value despite later callbacks changing descriptor costs.
+
+Scoped `opt_propagation off` and `opt_scalarize off`, unsigned-byte alpha
+promotion, and a separate dash-row Y lifetime preserve the retail
+allocation and floating-point operand order. Widened forwarding helpers
+and packed-field experiments were rejected; the accepted provider and
+callers share the actual halfword contract.
+
+A throwaway freestanding i386 consumer compiles **13 unchanged current
+function/helper bodies**, including the real dispatcher, descriptor
+renderers, category provider, both category maps, predicate, name lookup,
+resource traversal, and sprite packet constructor. GCC and Clang each
+pass **7,440 renderer scenarios, 9,216 provider/category scenarios, and
+7,774,791 observable checks**. Cases cover signed cost boundaries through
+`INT_MIN`/`INT_MAX`, first-cost precedence, alpha boundaries, all eight
+in-bounds font-table rows, missing resources, live callback mutations,
+packet/descriptor canaries, all 256 category bytes, the 439/440 skill
+boundary, ID 65535, and nullable context-table selection. A powers-based
+decimal oracle checks emitted digits independently of the renderer's
+division loop.
+
+The cached-flags negative control fails at renderer scenario **6,423**;
+the pre-font cost snapshot fails at **6,690**. Graphics/font callbacks,
+resource comparison, allocation/submission, tracing, and returning
+diagnostics are controlled boundaries. Runtime skill names and category
+tables are fixture data; font-style bytes and resource names reuse retail
+bytes. The actor-resolution branch through `func_00106cd0` and
+`func_00106a30` is not exercised. There is no PS2 visual or unrestricted
+floating-point equivalence claim; tested coordinates stay in the defined
+float-to-integer range. Native compilers retain the predicate's intentional
+signed/unsigned-comparison warning without treating it as an error; the
+actual source expression is unchanged.
+
+Full owner proofs, source trials, compiler outputs, native fixtures,
+executable bytes/hashes, and negative controls are archived at
+`/home/raikaru/p4_four_resume_20260912T062313/Main/descriptor_cost_recovery_archive.json`.
+All seven native fixture files and four executables were removed after
+archive round-trip and content/hash verification.
+
+Shared gates pass **531 tests**; lint remains **0 errors / 264 warnings**
+across 340 first-party files, with 232 third-party files skipped.
+`make build-progress && make progress` reports **6,295 MATCH / 565 ASM**
+first-party and **7,925 MATCH / 4,795 ASM** overall. The only new matching
+transition is `func_001138c0`; it is source-linked. Linkage rises to
+**1,605 C-linked functions**, with **173 source objects / 56 SDK objects**
+unchanged. Both retail identities remain exact:
+loadable image `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
+complete ELF `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.

@@ -106,7 +106,7 @@ extern void func_001da270(void);
 extern void func_001da2b0(void);
 extern void func_001da2f0(void);
 extern s32 func_001da5f0(u8 *arg0, s32 arg1);
-extern s64 func_0023d8e0(s32 arg0, u16 arg1);
+extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
 extern u32 func_0023e130(u8 *arg0);
 extern s32 func_00122640(s32 arg0, s32 arg1);
 
@@ -2699,7 +2699,7 @@ void func_001da590(u8 *arg0, u32 arg1) {
 s32 func_001da5f0(u8 *arg0, s32 arg1)
 {
     return p4_001da5f0_xor((s16)func_0023d8e0(
-        *(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64),
+        *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64),
         *(u16 *)(arg0 + 0x7E)), arg1) < 1U;
 }
 // FUN_001DA640

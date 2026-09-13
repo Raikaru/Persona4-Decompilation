@@ -76,7 +76,7 @@ s64 *func_001b1540(void);
 s32 func_001d94d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   s32 (*arg5)(u8 *arg0, s64 arg1));
 s32 func_001f01a0(u8 *arg0, s32 arg1);
-s32 func_0023d8e0(u8 *arg0, s32 arg1);
+s32 func_0023d8e0(u8 *arg0, u16 arg1);
 u8 *func_001fa9c0(void);
 s32 func_001db5e0(u8 *arg0, s64 arg1);
 u32 func_00193cd0(u32 arg0);
