@@ -9,7 +9,7 @@ typedef struct {
     f32 y;
 } Vec2f;
 void func_00113800(Vec2f arg0, f32 arg4, u8 arg1, void *arg2, s32 arg3);
-void func_001138c0(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4);
+void func_001138c0(Vec2f arg0, f32 arg4, u8 arg1, void *arg2, s32 arg3);
 void func_00113e30(Vec2f arg0, f32 fparg0, u8 arg1, void *arg2, s32 arg3);
 void func_0011fdf0(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
 void func_001203a0(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3, s32 arg4_2);
@@ -1143,7 +1143,7 @@ void func_00113790(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4)
         func_00113800(arg0, arg4, arg1, arg2, arg3);
         return;
     case 1:
-        func_001138c0(arg0, arg1, arg2, arg3, arg4);
+        func_001138c0(arg0, arg4, arg1, arg2, arg3);
         return;
     case 2:
         func_00113e30(arg0, arg4, arg1, arg2, arg3);
