@@ -57,7 +57,7 @@ extern void func_003e9d50(u8 *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void func_00457630(u8 *arg0, void *arg1, void *arg2, s32 arg3);
 extern void func_003e0c90(void *arg0, void *arg1, s32 arg2);
 extern void func_003e0e20(void *arg0, void *arg1, s32 arg2);
-extern void func_003e40b0();
+extern f32 func_003e40b0(RwV3d *out, const RwV3d *in);
 extern u8 *func_003e9700(s32 arg0);
 extern f32 D_007F1730[];
 
@@ -1591,7 +1591,7 @@ body:
             *(f32 *)(work + 0xC0) = t;
             *(f32 *)(work + 0xB8) = 0.5f;
             func_003bb5b0(*(u8 **)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20), 0xA, *(f32 *)(work + 0xB8), work + 0xC4, work + 0xD0);
-            func_003e40b0(work + 0xD0, work + 0xD0);
+            func_003e40b0((RwV3d *)(work + 0xD0), (const RwV3d *)(work + 0xD0));
             if (*(s32 *)(*(u8 **)(func_00457120() + 4) + 4) != 0) {
                 func_003e99a0(*(void **)(func_00457120() + 4));
             }
@@ -1828,8 +1828,8 @@ void func_0016ec90(u8 *arg0)
     s32 temp_2;
     s32 temp_3;
     s32 temp_4;
-    u8 *var_5;
     u8 *var_6;
+    u8 *var_5;
     s32 var_4;
     u8 *temp_16;
     u8 *temp_17;
@@ -1856,7 +1856,7 @@ void func_0016ec90(u8 *arg0)
         } while (var_4 > 0);
         temp_2_2 = *(u8 **)(temp_16 + 0x2C0);
         *(RwV3d *)&sp40[0] = *(RwV3d *)(temp_2_2 + 0x20);
-        func_003e40b0(&sp40[0], &sp40[0], var_6);
+        func_003e40b0((RwV3d *)&sp40[0], (const RwV3d *)&sp40[0]);
         temp_f4 = -sp40[0];
         sp40[0] = temp_f4;
         temp_f3 = -sp40[1];
@@ -2237,8 +2237,93 @@ void func_0016f750(u8 *arg0, u8 *arg1)
         return;
     }
 }
+extern u16 D_008C024C[];
+extern u8 D_008C025C[];
+extern u8 D_008C025D[];
+extern u8 D_008C025E[];
+extern u8 D_008C025F[];
+extern f32 fGpffff8300;
+extern f32 func_0044b920(f32 arg0);
+extern f32 sqrtf(f32 x);
+
 // FUN_0016F8B0
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016f8b0);
+// MATCH: 1100B/1104B, 13 resolved relocations, four zero tail bytes.
+f32 func_0016f8b0(s32 arg0, s32 arg1)
+{
+    RwV3d normalized;
+    RwV3d input;
+    u8 *clear;
+    s32 remaining;
+    u32 offset;
+    u16 buttons;
+    f32 result;
+    f32 comp_z;
+    f32 comp_x;
+
+    clear = (u8 *)&input;
+    remaining = sizeof(input);
+    if (clear != NULL) {
+        do {
+            *clear = 0;
+            clear += 1;
+            remaining -= 1;
+        } while (remaining != 0);
+    }
+    result = 0.0f;
+    if (arg1 == 0) {
+        offset = (u32)arg0 * 0x4A;
+        input.z = (f32)(u32)D_008C025D[offset] - 128.0f;
+        buttons = *(u16 *)((u8 *)D_008C024C + offset);
+        if (buttons & 0x1000) {
+            input.z = -128.0f;
+        } else if (buttons & 0x4000) {
+            input.z = 128.0f;
+        }
+        if ((buttons & 0xA000) && !(input.z < -48.0f) &&
+            (input.z <= 48.0f)) {
+            input.z = 0.0f;
+        }
+
+        input.x = (f32)(u32)D_008C025C[arg0 * 0x4A] - 128.0f;
+        if (buttons & 0x8000) {
+            input.x = -128.0f;
+        } else if (buttons & 0x2000) {
+            input.x = 128.0f;
+        }
+        if ((buttons & 0x5000) && !(input.x < -48.0f) &&
+            (input.x <= 48.0f)) {
+            input.x = 0.0f;
+        }
+    } else {
+        offset = (u32)arg0 * 0x4A;
+        input.z = (f32)(u32)D_008C025F[offset] - 128.0f;
+        if (!(input.z < -48.0f) && (input.z <= 48.0f)) {
+            input.z = 0.0f;
+        }
+        input.x = (f32)(u32)D_008C025E[offset] - 128.0f;
+        if (!(input.x < -48.0f) && (input.x <= 48.0f)) {
+            input.x = 0.0f;
+        }
+    }
+
+    if ((input.z < -48.0f) || !(input.z <= 48.0f) ||
+        (input.x < -48.0f) || !(input.x <= 48.0f)) {
+        func_003e40b0(&normalized, &input);
+        comp_z = normalized.z;
+        comp_x = normalized.x;
+        result = func_0044b920(comp_z /
+                              sqrtf(comp_x * comp_x + comp_z * comp_z));
+        result *= fGpffff8300;
+        if (normalized.x < 0.0f) {
+            result = 360.0f - result;
+        }
+        result += 180.0f;
+        if (!(result <= 360.0f)) {
+            result -= 360.0f;
+        }
+    }
+    return result;
+}
 // FUN_0016FD00
 s32 func_0016fd00(s32 arg0)
 {
