@@ -23,7 +23,6 @@ extern u8 *func_00454a60(u8 *param, s32 mode);
 extern void *func_0043f810(void *dst, const void *src, u32 size);
 extern void func_00271380(s32 slot, void *data);
 extern void func_00271820(s32 slot);
-extern u32 func_0038f400(const u32 *data);
 
 // FUN_0038F620
 void func_0038f620(void)
