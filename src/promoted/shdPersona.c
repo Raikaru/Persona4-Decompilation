@@ -21,7 +21,7 @@ void func_0011e3c0(s32, s32);
 void func_0011fd10(s32);
 s32 func_00452080(KwlnTask *task);
 void func_0011bc70();
-s32 func_00115020();
+s32 func_00115020(u8 *state, s32 force);
 s32 func_001152b0();
 void func_00115cb0(Vec2f, f32, s32, s16 *);
 void func_00115e90(Vec2f, f32, s32, s16 *);
@@ -2323,7 +2323,7 @@ void func_0011caf0(u8 *arg0)
         return;
     }
     bit100000 = (flags & 0x100000) != 0;
-    if (func_00115020(work + 0x84, bit100000, work) != 0) {
+    if (func_00115020(work + 0x84, bit100000) != 0) {
         func_0045af60(0, 0, 0, 0);
     }
 }

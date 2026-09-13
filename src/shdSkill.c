@@ -596,22 +596,72 @@ void func_00114e50(Vec2f arg0, f32 fparg0, s32 arg1, s32 arg2) {
     }
 }
 
-/* measured: re-measured this wave with a rebuilt body, best nd 45. The
-   working spelling: `u16 count = *(u16 *)(arg0 + 0x22C)` loaded BEFORE
-   `var_6 = arg1 != 0` (fixes retail's lhu-before-sltu order and the
-   `andi $v1,$v1,0xffff` promotion mask), s8 temp_2/var_8/temp_7, s32
-   temp_5/var_3 with the %4 fixup run in s32 BEFORE the trailing `(s8)`
-   conversion (an early (s8) cast breaks the fixup chain, nd 186), and
-   D_008C027A[0] array form for the absolute lhu. Residual: (1) temp_7 -> $a2
-   / var_6 -> $a3 swap vs retail $a3/$a2 (recorded floor, all decl+def orders
-   tried); (2) temp_5/var_3 rotate too: mwcc reuses t's $v1 for temp_5
-   (`addiu $v1,$v1,3`) and puts var_3 in $a1, retail gives temp_5 $a1 / var_3
-   $v1, in all six %4 fixup chains. The m2c (s64)<<0x38>>0x38 spelling
-   double-emits the dsll32/dsra32 pairs (nd 154). Everything else byte-
-   identical (s8 pairs, slti/beqz chains, sb stores, beq join). nd 45;
-   temp-register rotation floor. */
+/* 652/656 bytes, two resolved relocations; four zero tail bytes.
+   Native signed remainder preserves negative byte-index behavior.
+   The fallback-first ternary keeps active/previous in the retail registers
+   without adding a caller argument or a conditional trampoline. */
 // FUN_00115020
-INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00115020);
+s32 func_00115020(u8 *state, s32 force) {
+    extern u16 D_008C027A[];
+    s8 current;
+    s8 next;
+    s8 previous;
+    s32 active;
+    u16 count;
+    s32 column;
+
+    current = *(s8 *)(state + 4);
+    next = current;
+    previous = *(s8 *)(state + 5);
+    count = *(u16 *)(state + 0x22C);
+    active = force != 0;
+    active = active == 0 ? (count > 0) : active;
+    if (D_008C027A[0] & 0x1000) {
+        if (current < 4) {
+            column = (current + 3) % 4;
+            next = (s8)column;
+        } else if (current < 8) {
+            column = (current + 3) % 4;
+            next = (s8)(column + 4);
+        }
+    } else if (D_008C027A[0] & 0x4000) {
+        if (current < 4) {
+            column = (current + 1) % 4;
+            next = (s8)column;
+        } else if (current < 8) {
+            column = (current + 1) % 4;
+            next = (s8)(column + 4);
+        }
+    } else if (D_008C027A[0] & 0x8000) {
+        if (current < 4) {
+            if (active != 0) {
+                next = 8;
+            } else {
+                next = (s8)(current + 4);
+            }
+        } else if (current < 8) {
+            next = (s8)(current - 4);
+        } else {
+            column = previous % 4;
+            next = (s8)(column + 4);
+        }
+    } else if (D_008C027A[0] & 0x2000) {
+        if (current < 4) {
+            next = (s8)(current + 4);
+        } else if ((current < 8) && (active != 0)) {
+            next = 8;
+        } else {
+            column = previous % 4;
+            next = (s8)column;
+        }
+    }
+    if (next != current) {
+        *(s8 *)(state + 5) = current;
+        *(s8 *)(state + 4) = next;
+        return 1;
+    }
+    return 0;
+}
 
 // FUN_001152B0
 u16 func_001152b0(u8 *arg0) {
