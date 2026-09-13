@@ -33,7 +33,7 @@ s32 func_00231f80(u16* unit);
 s32 func_00232c70(u16* unit, u32 param);
 s32 func_0023a6b0(u16* unit, s16 param);
 s32 func_0023d740(s16 cmd, s32 param);
-s32 func_0023d8e0(u16* unit, u16 cmd);
+s32 func_0023d8e0(u8* unit, u16 cmd);
 s32 func_0023e3e0(u16* unit, s32 param);
 s32 func_0023e5b0(u16* unit, s32 param);
 s32 func_00243ce0(u16* unit);

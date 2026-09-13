@@ -40,7 +40,7 @@ extern s32 datCalcGetHp();
 extern u16 func_00232290();
 extern s32 datCalcGetSp();
 
-extern s64 func_0023d8e0();
+extern s32 func_0023d8e0(u8 *unit, u16 skill);
 extern u32 func_0023e130(u8 *arg0);
 extern u8 *func_0023e140(u8 *unit);
 extern s32 func_0023ddc0(u8 *unit, s32 skill);

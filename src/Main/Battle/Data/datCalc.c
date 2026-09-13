@@ -97,7 +97,7 @@ extern u8 func_00109bf0(u8 *arg0, s32 arg1);
 extern s32 func_00106940(s16 arg0);
 extern s32 func_00106970(s16 arg0);
 extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
-extern s32 func_0023d8e0(u8 *arg0, s32 arg1);
+extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
 extern s8 func_002332a0(u8 *arg0, s32 arg1);
 extern u16 func_001068b0(s16 arg0);
 extern u16 func_001068e0(s16 arg0);
@@ -1869,7 +1869,7 @@ s32 func_0023d740(s32 arg0, s32 arg1)
 }
 
 // FUN_0023D8E0
-s32 func_0023d8e0(u8 *arg0, s32 arg1)
+s32 func_0023d8e0(u8 *arg0, u16 arg1)
 {
     s32 v;
 

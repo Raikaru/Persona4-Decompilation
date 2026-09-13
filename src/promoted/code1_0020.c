@@ -846,7 +846,7 @@ s32 func_00201b00(u8 *work)
     s32 offset;
 
     extern u8 *iGpffffb3b8;
-    extern s32 func_0023d8e0(u8 *arg0, s32 arg1);
+    extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
     extern s32 func_0023d6e0(s16 arg0);
     extern void func_00195ea0(BtlUnit *unit, RwV3d *position);
     extern void func_001959d0(BtlUnit *unit, RwV3d *position);

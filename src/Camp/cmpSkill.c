@@ -33,7 +33,7 @@ void func_001437b0(void *, s32, s32);
 void func_0046d280(void *);
 s32 func_0034c210(void);
 s32 func_003b7060(void);
-s16 func_0023d8e0(void *, s32);
+s32 func_0023d8e0(u8 *, u16);
 void func_0034f1e0(void);
 void func_0034c270(Vec2f, u8, f32);
 void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
@@ -699,30 +699,20 @@ s32 func_0013abb0(u8 *arg0)
     return result & func_0034c210();
 }
 
-/* measured: retail fills the switch dispatch `jr $v0` delay slot with the
-   first case body (addiu $v0, 0x2b) and the table points at the following b;
-   mwcc b210 leaves the delay slot as nop for every spelling tried (s32/s64
-   switch value, direct-call vs local, return-in-case vs break+result,
-   #pragma schedule on / optimization_level 3). Real defect is exactly 1 word:
-   nd 2 (1 real + 1 padding) with the correct s32-arg0 + s32-second-param
-   prototypes (func_0023d8e0's second param is s32 per its own m2c body). */
 /* Case values decoded from jtbl_007469C0 with tools/jtbl.py: twenty dense
    entries mapping index+1 to 0x2B..0x32, with 9-19 sharing 0x33 and index 0
    returning -1; >= 0x14 hits the assert. The labels are declared in that
    object order because b210 lays case bodies out in declaration order.
-   This function is also why func_0023d8e0's second parameter is s32 and not
-   s16: retail passes arg0 with a plain `move $a1,$a0` and masks the COPY,
-   where the s16 prototype forced a dsll32/dsra32 pair and shifted the whole
-   body (nd 177). Widening it matched this function and regressed none of the
-   ten already matching in this file. */
+   The unsigned-halfword ID is forwarded unchanged. The signed-halfword
+   result projection before adding one matches the retail switch index. */
 // FUN_0013AC30
-s32 func_0013ac30(s32 arg0) {
+s32 func_0013ac30(u16 arg0) {
     s32 v;
 
     if ((arg0 & 0xFFFF) >= 0x1B8) {
         return 0x35;
     }
-    v = func_0023d8e0(NULL, arg0) + 1;
+    v = (s16)func_0023d8e0(NULL, arg0) + 1;
     switch ((u32)v) {
     case 1:
         return 0x2B;
