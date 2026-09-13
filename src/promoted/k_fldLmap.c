@@ -454,12 +454,87 @@ void func_00188200(u8 *arg0, u8 *arg1)
 
 
 
-/* measured re-triage: corrected loop/call CFG and declaration order produce
-   exact size, but MWCC b210 differs in the repeated float argument
-   materialisation and call scheduling. Best candidate:
-   normalized_diff 321, object 624/624; discarded. */
+/* Exact under MWCC b210/O2: preserve the float input view and associate the
+   column offset before adding the caller's x coordinate. */
 // FUN_00188320
-INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188320);
+void func_00188320(u8 *arg0, u8 *arg1)
+{
+    s32 temp_17;
+    s32 temp_16;
+    u8 *temp_2;
+    f32 temp_f0;
+    f32 temp_f1;
+    f32 temp_f20;
+    const f32 *p;
+
+    p = (const f32 *)arg1;
+    temp_2 = func_00460990();
+    *(void (**)(void))(temp_2 + 8) = func_00187f50;
+    *(s32 *)(temp_2 + 0x10) = 0;
+    func_00460ac0(D_00795E60, temp_2);
+    temp_f0 = -44.0f;
+    temp_f0 += *(f32 *)arg1;
+    temp_f1 = -7.0f + *(f32 *)(arg1 + 4);
+    func_0025ecd0(
+        (f32)(s32)temp_f0,
+        (f32)(s32)temp_f1,
+        *(f32 *)(arg1 + 8) - 10.0f,
+        0x313131,
+        0xFF,
+        0,
+        *(void **)(arg0 + 0x2C),
+        0,
+        0,
+        0,
+        0.0f,
+        1.0f,
+        1.0f,
+        D_00795E60);
+    temp_f0 = -44.0f;
+    temp_f0 += *(f32 *)arg1;
+    temp_f1 = 224.0f + *(f32 *)(arg1 + 4);
+    func_0025ecd0(
+        (f32)(s32)temp_f0,
+        (f32)(s32)temp_f1,
+        *(f32 *)(arg1 + 8) - 10.0f,
+        0x313131,
+        0xFF,
+        1,
+        *(void **)(arg0 + 0x2C),
+        0,
+        0,
+        0,
+        0.0f,
+        1.0f,
+        1.0f,
+        D_00795E60);
+    temp_17 = 0;
+    while (temp_17 < 5) {
+        temp_16 = 0;
+        temp_f20 = 102.0f * (f32)temp_17;
+        while (temp_16 < 2) {
+            temp_f0 = 93.0f * (f32)temp_16 + (-5.0f + p[0]);
+            temp_f1 = -40.0f + *(f32 *)(arg1 + 4) + temp_f20;
+            func_0025ecd0(
+                (f32)(s32)temp_f0,
+                (f32)(s32)temp_f1,
+                *(f32 *)(arg1 + 8),
+                0x393939,
+                0xFF,
+                3,
+                *(void **)(arg0 + 0x2C),
+                1,
+                0,
+                0,
+                0.0f,
+                1.0f,
+                1.0f,
+                D_00795E60);
+            temp_16 += 1;
+        }
+        temp_17 += 1;
+    }
+}
 
 // FUN_00188590
 void func_00188590(u8 *arg0, u8 *arg1, s32 arg2)
