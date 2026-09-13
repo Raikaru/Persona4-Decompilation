@@ -35,7 +35,7 @@ extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 arg2, s32 arg3);
 extern void func_00489f80(void);
 extern void func_0048a000(void);
 extern s32 func_0025f3f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                         void *arg4, s32 arg5, f32 farg0, f32 farg1,
+                         u8 *arg4, s32 arg5, f32 farg0, f32 farg1,
                          f32 farg2);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *arg0, void *arg1);
@@ -502,14 +502,14 @@ void func_002a2740(void) {
 
 // FUN_002A2E10
 void func_002a2e10(f32 f0, f32 f1, f32 f2, s32 arg0, s32 arg1,
-                   s8 *arg2, s32 arg3, s32 arg4, s32 arg5) {
+                   s8 *arg2, s32 arg3, s32 arg4, u8 *arg5) {
     s32 value;
 
     value = arg2[arg3];
     if (value == 0) {
         value = 10;
     }
-    func_0025f3f0(arg0, arg1, value, 0, (void *)arg5, 1, f0, f1, f2);
+    func_0025f3f0(arg0, arg1, value, 0, arg5, 1, f0, f1, f2);
 }
 // FUN_002AA3F0
 s32 func_002aa3f0(void) {

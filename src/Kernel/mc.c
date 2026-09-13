@@ -127,11 +127,12 @@ extern s32 func_0025f2c0(s32, s32, u8 *);
 extern u8 *D_0063EA68;
 extern s32 D_0063EA60[];
 extern void func_00442088(void *, void *, s32, ...);
-extern void func_0025f6b0(f32, f32, f32, s32, u8, void *, s32, void *, void *, s32);
+typedef void (*McGlyphCallback)(f32, f32, f32, s32, s32, s8 *, s32, s32, u8 *);
+extern void func_0025f6b0(f32, f32, f32, s32, u8, void *, s32, void *, McGlyphCallback, u8 *);
 
 extern s16 D_0063EB30[];
 extern char iGpffffa824;
-extern void func_002a2e10(void);
+extern void func_002a2e10(f32, f32, f32, s32, s32, s8 *, s32, s32, u8 *);
 extern void func_002a9100(f32, f32, f32, s32, s32, u8 *, s32, u8 *);
 extern void func_002a95c0(f32, f32, f32, s32, s32, s32, u8 *, u8 *);
 extern u32 func_003b7060(void);
@@ -1741,7 +1742,7 @@ void func_002a9100(f32 fparg0, f32 fparg1, f32 fparg2,
     u32 temp_23;
     u32 temp_30;
     u32 temp_3;
-    s32 temp_handle;
+    u8 *temp_handle;
 
     temp_17 = (u8 *)(arg2 + (arg3 * 0x34) + 0x40);
     func_00110580(*(s16 *)temp_17);
@@ -1753,7 +1754,7 @@ void func_002a9100(f32 fparg0, f32 fparg1, f32 fparg2,
     func_0025f3f0(10.0f + fparg0, 31.0f + fparg1, fparg2,
                   temp_22, (u8)arg1, 0x18, 0, *(s32 *)(arg4 + 0x398), 1);
     func_00442088(spC0 + 0x58, &iGpffffa824, *(u8 *)(temp_17 + 8));
-    temp_handle = *(s32 *)(arg4 + 0x398);
+    temp_handle = *(u8 **)(arg4 + 0x398);
     var_6 = D_0063EB30;
     var_5 = (s16 *)(spC0 + 0x40);
     var_4 = 6;
@@ -1786,7 +1787,7 @@ void func_002a9100(f32 fparg0, f32 fparg1, f32 fparg2,
     func_0025f3f0(16.0f + fparg0, 53.0f + fparg1, fparg2,
                   temp_16_2, (u8)arg1, 0x19, 0, *(s32 *)(arg4 + 0x398), 1);
     func_00442088(spC0 + 0x58, &iGpffffa824, (s32)temp_23);
-    temp_handle = *(s32 *)(arg4 + 0x398);
+    temp_handle = *(u8 **)(arg4 + 0x398);
     var_6_2 = D_0063EB30;
     var_5_2 = (s16 *)(spC0 + 0x20);
     var_4_2 = 6;
@@ -1806,7 +1807,7 @@ void func_002a9100(f32 fparg0, f32 fparg1, f32 fparg2,
     func_0025f3f0(177.0f + fparg0, temp_f21, fparg2,
                   temp_16_2, (u8)arg1, 0xB, 0, *(s32 *)(arg4 + 0x398), 1);
     func_00442088(spC0 + 0x58, &iGpffffa824, (s32)temp_30);
-    temp_handle = *(s32 *)(arg4 + 0x398);
+    temp_handle = *(u8 **)(arg4 + 0x398);
     var_6_3 = D_0063EB30;
     var_5_3 = (s16 *)(spC0 + 0x00);
     var_4_3 = 6;

@@ -7,8 +7,7 @@ typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
 typedef signed __int128 s128;
-typedef void (*shd_cb)(s32, u8, s8 *, s32, s32, s32, f32, f32, f32);
-typedef void (*shd_cb_f)(f32, f32, f32, s32, u8, s8 *, s32, s32, s32);
+typedef void (*shd_cb)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
 
 
 // func_0046b0d0 is intentionally left undeclared (implicit old-style call,
@@ -31,7 +30,7 @@ void func_0025ea20(s32, s32, s32, void *, s32, s32, s32, f32, f32, f32, f32, f32
 s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 s32 func_0025f430(s32, s32, s32, s32, u8 *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
 s32 func_0025f540(s32, u8, s32, s32, u8 *, s32, s16, s16, void *, f32, f32, f32, f32, f32, f32);
-u32 func_0025f6b0(f32, f32, f32, s32, u8, s32, s32, s16 *, shd_cb, s32);
+u32 func_0025f6b0(f32, f32, f32, s32, u8, s32, s32, s16 *, shd_cb, u8 *);
 
 /* Allocator slot at 0x008873F4 (absolute, outside gp window). */
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -256,7 +255,7 @@ s32 func_0025f540(s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s16 a6, s16 a7,
 }
 
 // FUN_0025F620
-void func_0025f620(s32 a0, u8 a1, s32 a2, s32 a3, s16 a4, s16 a5, shd_cb cb, s32 a7, f32 f0, f32 f1, f32 f2)
+void func_0025f620(s32 a0, u8 a1, s32 a2, s32 a3, s16 a4, s16 a5, shd_cb cb, u8 *a7, f32 f0, f32 f1, f32 f2)
 {
     s16 buf[0xC];
     u8 *p;
@@ -287,7 +286,7 @@ void func_0025f620(s32 a0, u8 a1, s32 a2, s32 a3, s16 a4, s16 a5, shd_cb cb, s32
 }
 
 // FUN_0025F6B0
-u32 func_0025f6b0(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, s16 *a4, shd_cb cb, s32 a6)
+u32 func_0025f6b0(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, s16 *a4, shd_cb cb, u8 *a6)
 {
     s8 buf[0x20];
     s32 j;
@@ -341,7 +340,7 @@ u32 func_0025f6b0(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, s16 *a4
     k = 0;
     while (k < j) {
         if (buf[k] != 0xB) {
-            ((shd_cb_f)cb)(f0 + (f32)off, f1, f2, a0, a1, (s8 *)buf, k, j, a6);
+            cb(f0 + (f32)off, f1, f2, a0, a1, (s8 *)buf, k, j, a6);
         }
         off += (s32)a4[buf[k]];
         k++;
