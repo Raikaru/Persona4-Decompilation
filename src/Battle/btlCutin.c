@@ -18,38 +18,77 @@ extern void func_00485870();
 extern void *func_00481450();
 extern void func_00481440();
 extern u8 D_005DC8CC[];
-extern u8 D_00625190[];
-extern u8 D_00625090[];
-extern u8 D_006251C0[];
-extern u8 iGpffffa528;
-extern u8 iGpffffa530;
-extern s32 func_001060b0();
-extern s32 func_00110d60();
-extern s32 func_00106330();
+extern char D_00625190[];
+extern char D_00625090[];
+extern char D_006251C0[];
+extern char iGpffffa528[8];
+extern const char *iGpffffa530[2];
+extern s16 func_001060b0(void);
+extern s32 func_00110d60(s32 arg0);
+extern u32 datGetFlag(s32 bit);
 extern s32 func_00120e20();
-extern void func_00442088();
-extern void func_00440b68();
-extern s32 func_00454a60();
-extern u8 iGpffffa520;
-extern u8 D_00625050[];
-extern u8 D_00625060[];
-extern u8 D_006250A0[];
-extern u8 D_006250D0[];
-extern u8 D_00625100[];
-extern u8 D_00625130[];
-extern u8 D_00625160[];
+extern s32 func_00442088(char *dst, const char *format, ...);
+extern s32 func_00440b68(const char *format, ...);
+extern u8 *func_00454a60(u8 *path, s32 flags);
+extern const char *iGpffffa520[2];
+extern const char *D_00625050[3];
+extern char D_00625060[];
+extern char D_006250A0[];
+extern char D_006250D0[];
+extern char D_00625100[];
+extern char D_00625130[];
+extern char D_00625160[];
 
 
-/* measured: retail keeps the case-0 base pointer (iGpffffa520 + temp_5*4) in $s2
-   and the loaded arg0+8 s16 in $s1; mwcc b210 emits them swapped (temp_17->$s2,
-   temp_18->$s1) when temp_17 is assigned first, and reversed ORDER (temp_18
-   computed before the lh) when temp_18 is assigned first. Declaration-order
-   swaps, s32-pointee vs s32 address typing, and a temp_6 intermediate for temp_17+1 all
-   leave nd 8 (register swap) or nd 4 (instruction-order swap); it is a coupled
-   register/order floor, not a declaration-order fix. obj exactly matches the
-   688B window apart from this. */
-// FUN_001F9CF0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/btlCutin", func_001f9cf0);
+/* Exact under MWCC b210/O2: evaluate the case-0 count first, use the
+   table element directly for the first format call, then retain the
+   table-element address for the loop. */
+// FUN_001F9CF0
+void func_001f9cf0(u8 *arg0) {
+    s32 temp_16;
+    s32 temp_5;
+    s32 var_19;
+    char sp60[0x100];
+
+    temp_5 = (func_00110d60(func_001060b0()) & 1) != 0;
+    switch (*(u16 *)arg0) {
+    case 0: {
+        const char **suffix;
+        s32 count;
+        count = *(s16 *)(arg0 + 8);
+        func_00442088(sp60, D_00625060, count + 1, count + 1, iGpffffa520[temp_5]);
+        suffix = &iGpffffa520[temp_5];
+        func_00440b68(iGpffffa528, D_00625090, 0x26);
+        *(s32 *)(iGpffffb3ac + 0xB6C) = (u32)func_00454a60((u8 *)sp60, 0);
+        var_19 = 0;
+        while (var_19 < count) {
+            temp_16 = var_19 * 4;
+            func_00442088(sp60, D_006250A0, count + 1, count + 1,
+                          D_00625050[var_19],
+                          *(s16 *)(arg0 + var_19 * 2 + 2), *suffix);
+            func_00440b68(iGpffffa528, D_00625090, 0x2C);
+            *(s32 *)(iGpffffb3ac + temp_16 + 0xB70) = (u32)func_00454a60((u8 *)sp60, 0);
+            var_19++;
+        }
+        func_00442088(sp60, D_006250D0, count + 1, count + 1);
+        func_00440b68(iGpffffa528, D_00625090, 0x2F);
+        *(s32 *)(iGpffffb3ac + 0xB58) = (u32)func_00454a60((u8 *)sp60, 0);
+        break;
+    }
+    case 2:
+        func_00442088(sp60, D_00625100, *(s16 *)(arg0 + 2), iGpffffa520[temp_5]);
+        func_00440b68(iGpffffa528, D_00625090, 0x35);
+        *(s32 *)(iGpffffb3ac + 0xB58) = (u32)func_00454a60((u8 *)sp60, 0);
+        break;
+    case 4:
+        if (*(s16 *)(arg0 + 2) < 0xB) func_00442088(sp60, D_00625130, *(s16 *)(arg0 + 2));
+        else func_00442088(sp60, D_00625160, *(s16 *)(arg0 + 2));
+        func_00440b68(iGpffffa528, D_00625090, 0x40);
+        *(s32 *)(iGpffffb3ac + 0xB58) = (u32)func_00454a60((u8 *)sp60, 0);
+        break;
+    }
+    *(u16 *)(iGpffffb3ac + 0xB50) = *(u16 *)arg0;
+}
 
 
 
@@ -203,23 +242,23 @@ void func_001fa490(u8 *arg0) {
     s32 temp_5;
     u16 temp_4;
 
-    temp_5 = (func_00110d60((s16)func_001060b0()) & 1) != 0;
+    temp_5 = (func_00110d60(func_001060b0()) & 1) != 0;
     temp_4 = *(u16 *)arg0;
     switch (temp_4) {
     case 1:
-        func_00442088(&sp20, &D_00625190, *(s16 *)(arg0 + 2), *(s32 *)(&iGpffffa530 + temp_5 * 4));
-        func_00440b68(&iGpffffa528, &D_00625090, 0x152);
-        *(s32 *)(iGpffffb3ac + 0xB84) = func_00454a60(&sp20, 0);
+        func_00442088(sp20, D_00625190, *(s16 *)(arg0 + 2), iGpffffa530[temp_5]);
+        func_00440b68(iGpffffa528, D_00625090, 0x152);
+        *(s32 *)(iGpffffb3ac + 0xB84) = (u32)func_00454a60((u8 *)sp20, 0);
         break;
     case 3:
-        func_00442088(&sp20, &D_006251C0, *(s16 *)(arg0 + 2), *(s32 *)(&iGpffffa530 + temp_5 * 4));
-        func_00440b68(&iGpffffa528, &D_00625090, 0x158);
-        *(s32 *)(iGpffffb3ac + 0xB84) = func_00454a60(&sp20, 0);
+        func_00442088(sp20, D_006251C0, *(s16 *)(arg0 + 2), iGpffffa530[temp_5]);
+        func_00440b68(iGpffffa528, D_00625090, 0x158);
+        *(s32 *)(iGpffffb3ac + 0xB84) = (u32)func_00454a60((u8 *)sp20, 0);
         break;
     case 5:
-        if (func_00106330(0x38, temp_5) != 0) {
+        if (datGetFlag(0x38) != 0) {
             sp12.a = 5;
-            if (func_00110d60((s16)func_001060b0()) & 1) {
+            if (func_00110d60(func_001060b0()) & 1) {
                 sp12.b = 0x1E;
             } else {
                 sp12.b = 0x14;
