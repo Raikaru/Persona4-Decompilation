@@ -18,7 +18,7 @@ extern void func_00460ac0(void *arg0, void *arg1);
 extern void func_004623a0(s32 arg0);
 extern void func_0044ea90(void *file, s32 line);
 extern void func_0046d730(void *file, s32 line);
-extern void func_0046d740(const void *msg, const void *file, s32 line);
+extern void func_0046d740(const void *msg, const void *file, u32 line);
 extern s32 func_00451de0();
 extern u8 D_00793E80[];
 extern u8 D_00793EB0[];

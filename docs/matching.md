@@ -11439,3 +11439,80 @@ not evidence that this new C body was linked into that image:
 - Complete ELF: `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
 The full first-party goal remains open.
+
+## Encounter slots with real allocator and diagnostic contracts
+
+`k_fldUnit.c`'s `func_00163990` is now C: **760 executable bytes /
+768-byte window**, 15 fully resolved relocations, no differing instruction
+words, and eight zero alignment bytes. Retail assembly, Ghidra, and IDA
+agree on the 15-slot search, 0x750-byte stride, 0x150-byte placement copy,
+category mapping, variant selection, grid conversion, and compact-unit
+level average. Unknown categories pass through the release diagnostic
+and continue without overwriting the existing category field; exhaustion
+returns null before allocating or advancing the live count.
+
+The old three-argument encounter declaration was false. The actual
+`DatUnitEc *func_00231630(u16)` provider receives only the low-half
+encounter ID. The slot also uses the actual
+`void *func_00478140(u32, u32, u32)` model allocator and the RNG's
+64-bit return. Keeping the default variant initialized before the calls,
+loading both copy words before either store, and scoped
+`opt_loop_invariants on` reproduce the retail scheduling. The average
+loop explicitly reloads the group pointer for each unit; this records
+the observed memory reads, not a thread-safety guarantee.
+
+All model-allocator callers in the owner now retain pointer returns with
+explicit handle casts. `001658b0` keeps both a saved `u16` model code and
+the allocator's `u32` word through chained assignments. Separating the
+assignments or passing only the halfword changes instructions; the
+chained form preserves both real contracts, including `0x80A` and
+`0x120A`. The two file-loader callers likewise use the actual pointer
+return, and the formatted diagnostic uses its variadic interface.
+The complete current unit owner proves **42 function images** exact.
+
+The release diagnostic now has one compatible contract throughout its
+active caller set:
+`void func_0046d740(const void *msg, const void *file, u32 line)`.
+Its empty release body is genuine retail behavior, not a new stub.
+A variadic definition would emit an oversized argument-save prologue
+and was rejected. Removing four extraneous arguments from the script
+loader's invalid-type path leaves all 22 script-owner images unchanged.
+The provider and six other changed diagnostic owners prove another
+173 function images and 15 local data records exact. Together, the
+eight changed owners cover **215 function images and 15 records** with
+complete inventories and resolved relocations.
+
+GCC and Clang each execute **28,208 passing i386 consumer checks** using
+the current slot, encounter-constructor, release-diagnostic, model
+selection, and both model-reload bodies. Cases cover first-free and
+exhausted pools, interior-slot reuse, sparse encounter members, category
+continuation, random-state consumption, signed grid boundaries,
+placement bytes, model-code width, and one- and two-member selections.
+Wrong unit stride and truncated allocator-word controls fail their
+observable level-average and model-selection checks.
+
+Native allocation, unit-level initialization, RNG, selection state,
+model/file resources, and formatting are controlled boundaries. The
+consumer exercises valid nonempty encounters and finite coordinates
+representable as `s32`; it does not execute the PS2 SDK or establish
+timing equivalence. Sources, commands, outputs, negative controls,
+hashes, and all eight resolved owner proofs are preserved in
+`p4_four_resume_20260912T062313/Main/unit_slot_native_archive.json`.
+Owned native fixtures are removed after archive round-trip checks.
+
+The full verifier changes only `00163990` from ASM to MATCH:
+**6,291 first-party matches / 569 fallbacks**, and **7,921 total matches /
+4,799 fallbacks** among 12,720 scanned functions. SDK/vendor counts are
+unchanged. All **531 tests** pass; full lint reports **zero errors and
+264 advisory warnings** across 340 first-party files. Progress artifacts
+validate. These are full-lint totals, not an errors-only finding count.
+
+Source linkage remains **173 C objects / 1,602 C-linked functions**, plus
+56 Sony SDK objects. The unit owner is not included in the source-linked
+function list, so its complete object proof is separate from the
+unchanged combined-image regression gate:
+
+- Loadable image: `3d1d3d2b9d6ccb60836db239ab49674223025a78`.
+- Complete ELF: `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+The full first-party goal remains open.

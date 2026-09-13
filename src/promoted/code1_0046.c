@@ -2000,7 +2000,7 @@ void func_0046d700(const char *file, s32 line, const char *msg, ...)
 // FUN_0046D730
 void func_0046d730(void *arg0, s32 arg1) {}
 // FUN_0046D740
-void func_0046d740(void) {}
+void func_0046d740(const void *msg, const void *file, u32 line) {}
 // FUN_0046D750
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046d750);
 // FUN_0046E7F0

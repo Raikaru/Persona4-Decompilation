@@ -165,7 +165,7 @@ extern u16 D_008C0256;
 
 void func_0044ea90(char* file, s32 line);
 void func_0046d730(char* file, s32 line);
-void func_0046d740(char* msg, char* file, s32 line, ...);
+void func_0046d740(const void *msg, const void *file, u32 line);
 void func_0046d700(char* file, s32 line, char* msg, s32 value);
 void func_0043f9c8(void* dst, s32 value, s32 size);
 void func_0043f810(void* dst, void* src, s32 size);
@@ -481,7 +481,7 @@ ScrScriptWork* func_0029d660(ScrHeader* header, s32 index)
             strings = (u8*)((uintptr_t)header + currEntry->offset);
             break;
         default:
-            func_0046d740(D_0063E4F0, D_0063E3D0, 0x19E, 2, 3, 4, currEntry);
+            func_0046d740(D_0063E4F0, D_0063E3D0, 0x19E);
             return NULL;
         }
     }
