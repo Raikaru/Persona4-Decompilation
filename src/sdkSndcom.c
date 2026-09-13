@@ -74,7 +74,7 @@ extern char D_00764030;
 /* Sony SDK PS2 sound-library helpers (shared blob). */
 extern void func_00440b68();
 extern void func_0046d730();
-extern void func_0046d740();
+extern void func_0046d740(const void *msg, const void *file, u32 line);
 extern void func_00421a60();
 extern s32 func_00424708();
 extern s32 func_00421b80();
