@@ -11705,3 +11705,83 @@ Both retail hashes remain unchanged:
 - Complete ELF: `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
 The full first-party goal remains open with 567 assembly fallbacks.
+
+## Skill-detail frame and live pending-skill iteration
+
+`func_00114460` in `src/shdSkill.c` now reproduces all **2,116 executable
+bytes** in its **2,128-byte** retail window, with **37 resolved relocations**
+and a verified **12-byte zero tail**. The complete current-source owner
+proof covers 15 function images and one table. Removing its unused,
+incorrect declaration from `src/promoted/shdPersona.c` preserves all 102
+images and that owner's table: **117 images and two tables**, all exact.
+
+The assembly, Ghidra, IDA and generated M2C bodies were consulted together.
+The actual mixed input contract is
+`(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fade)`.
+The retail `func_00119e10` call supplies packed position in `a0`, alpha in
+`a1`, `work + 0x84` in `a2`, zero in `f12`, and zero or `work + 0x51c` in
+`f13`. There is no fourth GP input. That assembly caller and the preserved
+decompiler corpora remain unchanged.
+
+The same scoped propagation/scalarization settings as the adjacent grid
+renderer retain the original stores and argument preparation. Compound
+`u16` division (`number /= 10U`) keeps the decimal cursor live through each
+sprite submission; the expanded assignment instead spills it. Declaration
+ordering then closes the GP/FP allocation and local-spill differences
+without dummy uses, added calculations, unused ABI inputs or padding.
+The name-position constant remains `fGpffff8368` (`gp-0x7c98`, **515.5**).
+
+The quantity is read after the first four sprite submissions, then held
+through the digit loop. Palette and style are captured earlier. The
+pending skill's payload is read later, after the border submissions, and
+the pending count is reloaded at every loop test. Only index zero emits a
+name; indices one through six emit paired markers. A count change during
+the first marker does not suppress the second marker of that pair.
+The local descriptor's initialized kind is always two at dispatch, so
+the unreachable descriptor-renderer branch never reads its unwritten
+flags field.
+
+The actual-source i386 consumer runs this function together with the real
+resource lookup, skill-name lookup and sprite-packet constructor. GCC and
+Clang each pass **5,414 scenarios / 10,533,040 checks**. The observable
+stream oracle uses descending decimal powers for digit order and integer
+eighths for palette quantization. Coverage includes zero through
+five-digit quantities, one-/two-digit centering, zero and maximum pending
+counts, six-marker saturation, signed selection, alpha endpoints,
+fractional and negative coordinates, negative-zero depth, all resource
+missing/present combinations, callback-driven state changes, and whole
+state/packet canaries.
+
+Distinct controlled names are installed in the actual runtime name buffer;
+the test does **not** claim those names are retail game text. The font
+output and primitive allocation/setup/submission surfaces remain controlled
+boundaries, not a native implementation of the font engine or a PS2 visual
+test. Finite dyadic inputs avoid claiming general PS2/host FP equivalence.
+
+Both semantic negative controls fail: an early pending-count snapshot at
+scenario **4,545 / check 8,872,351**, and an early quantity snapshot at
+scenario **4,539 / check 8,860,735**. Complete fixtures, compiler commands,
+outputs, executable hashes, ten measured source candidates and both owner
+proof payloads are recorded in
+`/home/raikaru/p4_four_resume_20260912T062313/Main/skill_detail_native_archive.json`.
+All seven native fixture files and four executables were removed after
+archive round-trip and hash verification; private source candidates and
+owner proofs remain as external evidence.
+
+`make test` passes **531 tests**. `make lint` remains at **0 errors / 264
+warnings** across 340 first-party files, with 232 third-party files skipped.
+
+The first public build exposed a stale generated linker input: `fGpffff8368`
+was absent from `config/symbols_recovered.txt`, so the unresolved reference
+excluded the entire `shdSkill.c` owner from source linkage. The existing
+`python tools/recover_symbols.py` command recovered `0x00761458` directly
+from the exact GP relocation; no curated binding, tooling change, or lowered
+linkage floor was needed. The refreshed symbol table also passes all
+**14 recovered-symbol tests**.
+
+The accepted `make build-progress && make progress` result is **6,294 MATCH
+/ 566 ASM** first-party, **7,924 MATCH / 4,796 ASM** overall, and **1,604
+C-linked functions** from **173 source objects**, with **56 SDK objects**
+unchanged. Both retail identities remain exact:
+loadable image `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
+complete ELF `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
