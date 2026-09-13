@@ -11374,3 +11374,68 @@ Both retail identities remain exact:
 - Complete ELF: `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 
 The full first-party goal remains open.
+
+## Controller heading with the actual normalization contract
+
+`func_0016f8b0` is now C: **1,100 executable bytes / 1,104-byte
+window**, 13 fully resolved relocations, no differing instruction words,
+and four zero alignment bytes. Both decompiler bodies were checked against
+the retail instructions. Primary-stick D-pad precedence, the inclusive
+48-unit deadzone, secondary-stick selection for nonzero mode, and the
+non-neutral `(0, 360]` heading boundary are preserved. The retail degree
+coefficient is `57.2957763671875`, not the nearest float to an independently
+computed `180 / pi`. Keeping the multiplication as `result *= coefficient`
+closes the remaining multiply-operand-order word.
+
+The same owner now declares `003e40b0` with its real
+`f32(RwV3d *, const RwV3d *)` contract. Its retail body and RenderWare
+`RwV3dNormalize` source agree on three scalar component stores and a
+length return; this is a 12-byte vector interface, not a 16-byte VU
+footprint. Existing raw-storage callers use explicit vector-pointer
+casts. Removing `0016ec90`'s excess third argument initially changed eight
+copy-register words; declaring its source pointer before its destination
+pointer restores every original instruction without a false prototype.
+The recompiled current owner proves all **64 function images and two local
+data records** exact with complete inventory coverage.
+
+GCC and Clang each execute the current heading body through **2,228,224
+passing x86_64 consumer checks**. Clang also enables AddressSanitizer and
+UndefinedBehaviorSanitizer. Two allocated pad slots cover every byte-axis
+pair, all 16 primary D-pad combinations, the secondary stick, and an
+additional negative nonzero-mode case. An independent integer decoder and
+double-precision geometric heading oracle observe a maximum angular error
+of `0.000363904289` degrees, below the preselected `0.005`-degree envelope.
+Changing D-pad precedence or the 360-degree boundary makes both compilers'
+consumers fail with the expected heading mismatch.
+
+The native dependency boundary is explicit: the consumer models the
+normalizer's ordered float32 arithmetic on this finite nonzero-vector
+domain and uses host `sqrtf`/`acosf`. It does not execute the SDK binary or
+claim EE approximation or timing equivalence. Instruction identity is
+proved separately. Current source, consumer code, commands, outputs,
+negative controls and hashes are archived under
+`p4_four_resume_20260912T062313/Main/controller_heading_native_archive.json`.
+The obsolete private coverage wrapper and owned native fixtures were
+removed after archive round-trip checks. The replacement private prover's
+complete-owner, GP-resolution and table-only-corruption controls are
+preserved in `Main/private_proof_repair_archive.json` under the same root.
+
+The shared verifier changes only `0016f8b0` from ASM to MATCH:
+**6,290 first-party matches / 570 fallbacks**, and **7,920 total matches /
+4,800 fallbacks**, among 12,720 scanned functions. SDK and vendor matching
+counts are unchanged. All **531 tests** pass; lint reports zero findings
+across 340 first-party files, and the regenerated progress artifacts
+validate.
+
+Source linkage remains **173 C objects / 1,602 C-linked functions**, plus
+56 Sony SDK objects. `code1_0016.c` still encounters the existing
+noncontiguous-owner placement restriction: gaps end at `001614D0`,
+`00162120`, `00167F00`, and `0016B8A0`. Its 60 C matches are independently
+proved, but this owner remains assembly-backed in the combined link.
+Consequently the unchanged whole-image hashes are a build-regression gate,
+not evidence that this new C body was linked into that image:
+
+- Loadable image: `3d1d3d2b9d6ccb60836db239ab49674223025a78`.
+- Complete ELF: `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+The full first-party goal remains open.
