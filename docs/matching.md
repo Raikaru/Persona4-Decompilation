@@ -11955,3 +11955,102 @@ Linkage rises to **1,606 C-linked functions**, with **173 source objects /
 56 SDK objects** unchanged. Both retail identities remain exact:
 loadable image `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
 complete ELF `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Calendar scheduler: period initialization and real task context
+
+`src/cldScheduler.c` `func_00260020` is **1,048 executable bytes in its
+1,056-byte retail window**, with **63 resolved relocations** and **eight
+zero tail bytes**. Its **48-byte period-label initializer** also resolves
+exactly to the retail data at `0x006372E0`. Recovery uses the complete
+retail assembly, `docs/ghidra_headstart/src/cldScheduler.c:25–171`, and
+`docs/ida_headstart/src/cldScheduler.c:15–171`.
+
+The old hand-written paired-byte copy leaves five executable differences:
+the period index and copy counter occupy opposite argument registers.
+These are six time-period labels, not weekdays:
+`AM_A`, `AM_B`, `PM_A`, `PM_B`, `PM_C`, and `PM_D`, each in an eight-byte
+row. A genuine `char labels[6][8]` initializer generates the matching
+copy and register assignment. Default propagation removes the second
+byte conversion and shortens the function by four bytes;
+function-scoped `opt_propagation off` preserves it. Aggregate assignment
+instead generates a quadword copy and does not match.
+
+The callback is `s32 func_00260020(void *task)`. It passes that real input
+to the current `u32 func_00452560(void *task)` context getter, then
+converts the returned word to `SdlSched *`. It does not depend on an
+unprototyped, zero-argument call accidentally retaining incoming `$a0`.
+Imports agree with the current signed-halfword date getter, byte period
+getter, word-width calendar converter, pointer-returning resource opener,
+script-buffer input, task membership query, task cancellation, and
+word-handle task constructor. The GP format object is the actual
+six-byte `"%s %d"` array, not a scalar character or an unsized array.
+
+The constructor's real integer callback/data slots change the launcher's
+argument materialization order. Explicit named task arguments with
+function-scoped `opt_propagation off` preserve the retail order without
+weakening that provider signature. Both pragma scopes restore
+propagation afterward. All **four current-source owner functions and
+one data table** resolve exactly, including the unchanged initializer
+and close callback and the corrected launcher. No dummy formal, unused
+register input, assembly implementation, padding shim, or proof-tool
+change is involved.
+
+Preserve asynchronous month loading, full 128 KiB cache clearing before
+the payload copy, resource release before retrying state zero, and a
+fresh month check after pending I/O. Script lookup failure and task
+creation failure still produce the retail diagnostic and zero task
+handle. State two falls through to the real task-membership query.
+Its date cache compares a full signed word against the signed-halfword
+date; after the daily-update callback it reads the date again. Completion
+messaging is deferred to state four and suppressed only by flag bit zero.
+
+A freestanding i386 consumer executes **nine unchanged current-source
+function bodies**: all four scheduler functions, both date/period getters,
+the calendar converter, and the context and task-membership getters.
+GCC and Clang each pass **402,003 scenarios and 5,215,829 checks**:
+
+- **8,760 lifecycles** across all 365 calendar dates, six periods, and
+  four completion-flag values; warm/cold month caches, pending I/O,
+  previous-task cancellation, and membership in each of the three lists.
+- **393,216 state-two transitions** crossing all 65,536 signed date
+  values with six word-width cache values. The daily-update boundary
+  can change the clock, proving the final fresh read. A separate task
+  context and guard words reject accidental use of the global workspace.
+- Ten payload-size boundaries from zero through `0x20000`, twelve
+  missing-procedure/task-creation failures, four unknown states, and a
+  month rollover while the previous month's resource is still pending.
+
+Three GCC negative controls compile and then fail: substituting `PM_C`
+for `PM_D` fails at scenario **21**; truncating the cached date before
+comparison fails at **1**; clearing one byte less than the full cache
+fails at **2**. Disc I/O, allocation, formatting, diagnostics, task
+creation/cancellation, script lookup/execution, daily updates, and
+completion messaging remain controlled native boundaries. There is no
+PS2 execution or visual-verification claim.
+
+Trials, the complete current owner proof, retail data bytes, nine source
+body hashes, compiler/run output, all eight native fixture contents,
+five executable images and hashes, and negative controls are archived at
+`/home/raikaru/p4_four_resume_20260912T062313/Main/calendar_scheduler_recovery_archive.json`.
+The eight fixtures and five executables were removed after archive
+round-trip and content/hash verification.
+
+The first shared build exposed a linkage regression despite both retail
+hashes passing: the newly active body referenced four GP objects absent
+from the old generated symbol file, excluding the owner and dropping
+C linkage to 1,603. Run `python tools/recover_symbols.py` before rebuilding.
+It derives `D_007637A0`, `D_007637A8`, `D_00764574`, and `D_00764578`
+from the current matched relocations and removes the old data-kind entry
+for `func_00260020`. No hand-curated addresses or tooling changes are
+needed. All four scheduler functions are now explicitly present in the
+source-linked report.
+
+Shared verification passes **531 tests**; lint remains **0 errors /
+264 warnings** across 340 first-party files, with 232 third-party files
+skipped. The final `make build-progress && make progress` reports
+**6,297 MATCH / 563 ASM** first-party, **7,927 MATCH / 4,793 ASM** overall,
+and **1,607 C-linked functions**, with **173 source objects / 56 SDK
+objects**. `func_00260020` is the only matching-status transition;
+`cldScheduler` has **four MATCH / zero ASM**. Both identities remain
+exact: loadable image `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
+complete ELF `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
