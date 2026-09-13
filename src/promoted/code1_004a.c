@@ -94,7 +94,7 @@ extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
-extern void func_003c22f0(u8 *arg0, u8 *arg1);
+extern void func_003c22f0();
 extern u16 *func_00483c40(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           void *arg4, s32 arg5);
 extern void func_003c2290(void *arg0, s32 arg1);
@@ -256,8 +256,89 @@ void func_004a1ca0(u8 *arg0)
 }
 /* measured: closes the opt_loop_invariants scope for 004a1ca0 at the file baseline. */
 #pragma opt_loop_invariants off
-// FUN_004A1D70 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a1d70);
+/* measured: loop-invariant hoisting recovers the shared fade constants and
+   replication strides. The 4-byte color assignment preserves retail's
+   load-all/store-all byte copy. Separate loop locals keep the saved-register
+   allocation exact. */
+#pragma opt_loop_invariants on
+// FUN_004A1D70
+void func_004a1d70(u8 *arg0, u8 *arg1)
+{
+    u32 meshCount;
+    u8 *geometry;
+    u8 *colors;
+    u8 *colorsBase;
+    u8 *verticesBase;
+    u8 *vertices;
+    s32 frames;
+    u32 fadeIn;
+    u32 fadeOut;
+    u32 pointCount;
+    u32 i;
+    f32 opacity;
+    f32 step;
+    u32 colorBytes;
+    u32 wordCount;
+    u32 vertexBytes;
+    u32 copies;
+    u16 *model;
+
+    meshCount = *(u32 *)(arg1 + 0x38);
+    if (meshCount != 0) {
+        geometry = *(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18);
+        func_003c2290(geometry, 0xFF8);
+        geometry = *(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18);
+        colorsBase = *(u8 **)(geometry + 0x30);
+        colors = colorsBase;
+        verticesBase = *(u8 **)(geometry + 0x34);
+        vertices = verticesBase;
+        step = *(f32 *)(arg1 + 0x90) / 3.0f;
+        frames = *(s32 *)(arg1 + 0x8C);
+        fadeIn = (s32)(*(f32 *)(arg1 + 0x78) * (f32)frames);
+        fadeOut = (s32)(*(f32 *)(arg1 + 0x7C) * (f32)frames);
+        pointCount = frames + 1;
+        wordCount = pointCount * 4;
+        i = 0;
+        while (i < pointCount) {
+            if (i < fadeIn) {
+                opacity = (f32)i / (f32)(s32)fadeIn;
+            } else if (fadeOut < i) {
+                opacity = (f32)(u32)(frames - i) / (f32)(s32)(frames - fadeOut);
+            } else {
+                opacity = 1.0f;
+            }
+            *(u32 *)(colors + 0) = 0xFFFFFF;
+            *(u32 *)(colors + 4) = ((u32)(opacity * 255.0f) << 24) | 0xFFFFFF;
+            *(PolygonWindColor *)(colors + 8) = *(PolygonWindColor *)(colors + 4);
+            *(u32 *)(colors + 12) = 0xFFFFFF;
+            colors += 0x10;
+            *(u32 *)(vertices + 0) = 0;
+            *(f32 *)(vertices + 8) = step;
+            *(f32 *)(vertices + 0x10) = step * 2.0f;
+            *(f32 *)(vertices + 0x18) = step * 3.0f;
+            vertices += 0x20;
+            i += 1;
+        }
+        copies = 1;
+        colorBytes = wordCount * 4;
+        vertexBytes = wordCount * 8;
+        while (copies < meshCount) {
+            func_0043f810(colors, colorsBase, colorBytes);
+            colors += colorBytes;
+            func_0043f810(vertices, verticesBase, vertexBytes);
+            vertices += vertexBytes;
+            copies += 1;
+        }
+        model = *(u16 **)(arg0 + 4);
+        geometry = *(u8 **)(*(u8 **)((u8 *)model + 0x10) + 0x18);
+        func_003c22f0(geometry);
+        if ((*model & 4) != 0) {
+            *(u16 *)(geometry + 0xC) |= 1;
+        }
+    }
+}
+/* measured: restores the file's O2 loop-invariant baseline. */
+#pragma opt_loop_invariants off
 // FUN_004A22C0
 void func_004a22c0(u8 *arg0) {
     u8 *temp_16;
