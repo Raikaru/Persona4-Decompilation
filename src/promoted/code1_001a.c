@@ -50,7 +50,7 @@ void func_001d8be0(u8 *arg0, s32 arg1);
 u8 *func_001f5f70(u8 *arg0, u16 arg1, u32 arg2, u32 arg3, u32 arg4);
 extern u8 *iGpffffb3b8;
 void func_001d8e50(u8 *arg0, u8 *arg1);
-void func_0020b6d0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
+void func_0020b6d0(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3);
 extern void func_00212010(s32 task);
 void func_0019faf0(u8 *arg0);
 s32 func_0023e1f0();
