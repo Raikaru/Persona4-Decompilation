@@ -1,17 +1,16 @@
-/* measured: b210 -O2, opt_loop_invariants on; 764B object / 768B window,
-   10 differing words (nine replication-loop register differences plus one
-   zero tail word). Both native unsigned-conversion OR/mtc1 sequences and
-   the entire first loop match. Reuses the unit's four-byte PolygonWindColor.
-   Copy-helper ABI is void (void *, const void *, u32), not pointer-sized
-   argument fabrication. Independent semantic review accepted this archive.
-   The historical nd5 body was unavailable; this replaces the surviving
-   nd309-byte archive rather than claiming to improve that lost nd5 body. */
-/* Fresh replay: unsigned alpha, distinct row-size locals and inline row-size
-   expressions all produce the same 764B/768B, ten-word instruction diff.
-   Keep alpha unsigned: the old 255 << 24 fails UBSan on a valid solid row.
-   The unsigned body passes eight 32-bit SSE/UBSan raw-layout smoke cases:
-   segments 0/8, replicas 0/1/2/4, lock-replaced buffers, exact copy ranges,
-   whole color/coordinate images and canaries. No EE/FCSR claim. */
+/* MATCH: b210 -O2, opt_loop_invariants on; 764 emitted bytes plus one
+ * linker-supplied zero word exactly reproduce the 768-byte retail window.
+ * All three call relocations resolve to the retail targets.
+ *
+ * The final allocation lever is source-level lifetime reuse: arg1 is no
+ * longer dereferenced after the first loop, so its register becomes the
+ * replica index. Retail consequently uses s4 for that index and s6/s5 for
+ * the two row sizes. A separate replica-index local rotates those registers.
+ *
+ * Alpha remains unsigned: 255 << 24 through a signed value fails UBSan on a
+ * valid solid row. Eight 32-bit SSE/UBSan raw-layout scenarios cover segments
+ * 0/8, replicas 0/1/2/4, lock-replaced buffers, exact copy ranges, complete
+ * color/coordinate images, and canaries. No EE/FCSR runtime claim is made. */
 #pragma push
 #pragma opt_loop_invariants on
 void func_004a30e0(u8 *arg0, u8 *arg1)
@@ -26,7 +25,6 @@ void func_004a30e0(u8 *arg0, u8 *arg1)
     u32 var_10;
     s32 temp_4;
     s32 temp_5;
-    u32 var_20;
     s32 temp_6;
     s32 temp_7;
     s32 temp_8;
@@ -86,15 +84,15 @@ void func_004a30e0(u8 *arg0, u8 *arg1)
             var_17 += 0x20;
             var_9 += 1;
         }
-        var_20 = 1;
+        arg1 = (u8 *)1;
         temp_6 = temp_4 * 4;
         temp_7 = temp_4 * 8;
-        while (var_20 < temp_23) {
+        while ((uintptr_t)arg1 < temp_23) {
             func_0043f810(var_19, temp_18, (u32)temp_6);
             var_19 += temp_6;
             func_0043f810(var_17, temp_16, (u32)temp_7);
             var_17 += temp_7;
-            var_20 += 1;
+            arg1 = (u8 *)((uintptr_t)arg1 + 1);
         }
     }
 }
