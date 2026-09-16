@@ -172,8 +172,166 @@ void func_001546a0(u16 arg0, u16 arg1)
    var_18=$s2, var_19=$s3 (declare var_18 second). Case 5 of the jtbl_00746C20
    switch goes straight to block_42 (own empty case needed). */
 /* measured: discarded positive-branch candidate object 980B/window 1008B, normalized_diff 232; restored to bare INCLUDE_ASM. */
-// FUN_00154720
+/* Floor: 177 differing words, from a first reconstruction of the m2c draft.
+   What it took: the state and the working value are 32-bit locals and the
+   returns carry no `(s16)` cast - each cast cost a dsll32/dsra32 pair that
+   retail does not have - and the arg2 case labels are written in the order
+   that makes the compare chain come out reversed, which is retail's.
+   A variant that moves the shared `common` block to the end of the switch
+   instead of the `default:` position scores 186 words but only 42 edit
+   instructions against 154 here, so its block layout is much closer to
+   retail's; the remaining difference there is a handful of un-inverted
+   branch pairs (retail keeps `beqz far` plus `b near` where this build
+   emits one inverted branch), which opt_rebuildconditionals,
+   no_branch_likely, schedule, propagation and dead-assignment do not
+   move. */
+// FUN_00154720 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00154720(u16 arg0, u16 arg1, s64 arg2)
+{
+    extern s32 func_001060c0(void);
+    extern s32 func_00106330(s32 id);
+    extern s32 func_0014a160(void);
+    extern u8 *func_0015a0c0(void);
+    s32 value;
+    s32 hour;
+    s32 result;
+    s32 state;
+    s32 kind;
+    s32 weather;
+    u8 *entry;
+
+    state = arg1;
+    value = state;
+    weather = func_001060c0() & 0xFF;
+    kind = arg0;
+    if (kind == 0x1C && state == 2) {
+        if (func_00106330(0xF52) == 1) {
+            result = 3;
+        } else {
+            result = 2;
+        }
+        return result;
+    }
+    if (kind >= 0x14 && kind < 0x28) {
+        return state;
+    }
+    if ((kind < 0x14 || kind >= 0x28) && func_0014a160() == 1) {
+        entry = func_0015a0c0();
+        if (entry != NULL) {
+            value = *(u8 *)(entry + 0xD);
+        }
+        return value;
+    }
+    switch (kind) {
+    case 4:
+        return state;
+    case 6:
+        if ((s32)state < 6) {
+            value = 1;
+        }
+    default:
+common:
+        if (func_00106330(0x8A) == 1 &&
+            (((kind != 7 || state != 2) && (kind != 7 || state != 3)) ||
+             (weather & 0xFF) != 5)) {
+            switch (arg2) {
+            case 2:
+            case 0:
+                value += 0x320;
+                break;
+            case 4:
+            case 3:
+            case 1:
+                value += 0x384;
+                break;
+            }
+        } else {
+            switch (arg2) {
+            case 0:
+                hour = weather & 0xFF;
+                switch (hour) {
+                case 4:
+                    value += 0x64;
+                    break;
+                case 5:
+                    value += 0xC8;
+                    break;
+                }
+                break;
+            case 2:
+                hour = weather & 0xFF;
+                if (hour < 5) {
+                    value += 0x190;
+                } else if (hour == 5) {
+                    value += 0x1F4;
+                }
+                break;
+            case 4:
+            case 3:
+            case 1:
+                hour = weather & 0xFF;
+                if (hour < 5) {
+                    value += 0x258;
+                } else if (hour == 5) {
+                    value += 0x2BC;
+                }
+                break;
+            }
+        }
+        return value;
+    case 7:
+        if (state != 1) {
+            value = 2;
+        }
+        goto common;
+    case 8:
+        if (state == 2) {
+            value = 1;
+        }
+        if ((s32)value >= 3 && (s32)value < 9) {
+            return value;
+        }
+        goto common;
+    case 9:
+        if (state != 1 && state != 4) {
+            return state;
+        }
+        goto common;
+    case 10:
+        if (state == 4) {
+            value = 3;
+        }
+        goto common;
+    case 11:
+        if (state == 2) {
+            return state;
+        }
+        goto common;
+    case 12:
+        if (state == 4) {
+            return state;
+        }
+        goto common;
+    case 13:
+        if (state != 8) {
+            return state;
+        }
+        goto common;
+    case 14:
+    case 15:
+    case 16:
+        return state;
+    case 17:
+        if (state == 2) {
+            value = 1;
+        }
+        goto common;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/k_fldEnvironment", func_00154720);
+#endif
 
 // FUN_00154B10
 s32 func_00154b10(void) {
