@@ -271,10 +271,77 @@ report a residual on functions `verify.py` calls MATCH.
 
 Comments carrying old `nd` numbers are not trustworthy: a measured sweep of
 every first-party floor found notes off by as much as 744 words (one claimed
-`nd 0`). Re-measure before planning work. The smallest measured floors after
-this pass are `00375f00` (2), `001130c0` and `001b11c0` (5), `0012d630` (15),
-`004b2a00` (17), `001b05d0` (36), `001dd920` (39), `001b1020` (42) and
-`001f4e50` (57).
+`nd 0`). Re-measure before planning work, and measure the archive too — a
+`docs/probe_archive/` body can be far better than the floor installed beside
+it (`R1EE_001d8cb0_body.c` scored 4 against the source floor's 45, and it was
+one operand swap from matching).
+
+### 7e. Align the instruction streams, do not read positional diffs
+
+`fndiff` compares word N with word N. A candidate that is one instruction
+short therefore reports a few hundred differing words, and the single missing
+instruction is invisible. `tools/fnalign.py` aligns the two streams and prints
+the edit script instead:
+
+    python tools/fnalign.py src/foo.c func_00123456 --candidate /tmp/body.c
+
+It normalises branch targets to instruction-relative form, drops relocated
+jump targets, and reports replacements that differ only in a relocated
+immediate separately, so the edit count is the real work remaining. This is
+what turned `func_001dd570` from a "159-word floor" into four concrete source
+shapes, and it separates the two populations that matter: floors whose streams
+already match retail instruction for instruction (only register names differ —
+no source spelling has ever moved those) from floors with genuine inserts and
+deletes, which are the ones worth hand work.
+
+For a search, amortise the harness. `verify`/`fndiff` reload the retail ELF and
+rescan every marker in `src/` per candidate, about 9s; loading those once and
+splicing candidates in-process costs 0.16s, which makes hundreds of
+declaration orders or spelling combinations practical in a minute.
+
+### 7f. Defensive C is the most common self-inflicted residual
+
+Three recoveries this pass were blocked by C that was safer than retail's:
+
+- `func_0020bff0`, `func_0020c680`, `func_0020ce60` initialised an `alpha`
+  float that retail leaves unwritten on the reset path; the `= 1.0f` added an
+  `lui`/`mtc1` pair at the top and shifted the whole object.
+- `func_001d8cb0` ordered its nearest-target test `(first != 0) || (d < best)`
+  to avoid reading `best` before the first iteration writes it. Retail emits
+  the float comparison first, so the source is `(d < best) || (first != 0)`.
+
+Retail routinely reads an uninitialised local on a path where the value is not
+consumed, and the original source demonstrably did the same. Match it, and say
+so in the note.
+
+### 7g. Narrow the types m2c widened
+
+Every `s64`/`u64` local that is really 32-bit costs a `dsll32`/`dsra32`
+normalisation pair per assignment, and every `s16` loop index costs one per
+increment. Grep an alignment for object-only `dsll32` runs: fourteen floors
+carry that signature. `func_001a2d70` fell from 231 to 25 words on the type
+narrowing alone, `func_001d8cb0` from 80 to 45.
+
+### 7h. Pragmas that changed a result, with their signatures
+
+- `opt_propagation off` — retail keeps a fold this build removes (a constant
+  increment after a known-zero init, a `beqz` on a register the compiler knows
+  is 1). Write masks as `(u16)call()`, not `call() & 0xFFFF`: propagation-off
+  lowers the latter as `ori`/`and`.
+- `opt_dead_assignments off` — retail materialises a constant in a loop
+  preheader that this build rebuilds inside the loop, because the store that
+  produced it is dead after loop rotation (`func_001b1020`).
+- `opt_common_subs off` — retail reloads an address this build folds
+  (`func_001a2d70`).
+- `opt_loop_invariants on` — retail hoists a bound or a constant.
+
+Measure the file-wide form before scoping one: `opt_dead_assignments off` for
+all of `btlOrder_grouped.c` costs a match, and `-O2,p` for `btlAICommand.c`
+costs seventeen.
+
+The smallest measured floors after this pass are `00375f00` (2), `001130c0`
+and `001b11c0` (5), `0012d630` (15), `004b2a00` (17), `001a2d70` (25),
+`001b05d0` (36), `001dd920` (39) and `001d8cb0`'s neighbours.
 
 ### 8. Re-run the complete proof on the winner
 
