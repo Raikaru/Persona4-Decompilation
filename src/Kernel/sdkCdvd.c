@@ -31,15 +31,184 @@ extern u8* D_008D1B84[];
 extern char D_00710900[];
 extern char D_00710910[];
 
-/* measured: complex HCdvd state-machine loop (readState 0-4 with fallthrough).
-   m2c draft adapted to u8* offsets; nd 186 -> 103. The residual is dominated by
-   register allocation in the size computation (block>>6/&0x3F fixup), the
-   archiveFileCount-refCount subtraction (retail loads 0x35C first and subu into
-   $v1, mine loads 0x35A first), and the linked-list unlink (retail uses $v0/$v1,
-   mine $s0). All three are temp-pool coloring; tried expression and declaration
-   orderings. Budget exhausted; floored. */
-// FUN_00454640
+/* Floor: 5 differing words (the earlier attempt measured 103).  The
+   state-machine shapes that closed it: `case 3` is a top-level label whose
+   body follows the state-4 block, reached by an explicit
+   `if (state == 3) { readState = 3; goto do_state3; }` so the store lands
+   on the branch path as retail's does; the reference count is a compound
+   `-=`, which loads 0x35C before 0x35A the way retail does, and the
+   difference is stored before the sign extension that feeds the test; the
+   archive handle is stored straight from the call and re-read into the
+   local.  `opt_loop_invariants on` hoists the slot-scan base and the
+   `node + 8` target out of the loop.
+   WALL: retail assigns the scan loop's two hoisted values $a0 (target) and
+   $a1 (base); this build swaps them.  Manual hoists in either order, a
+   reversed comparison and 150 declaration orders were measured. */
+// FUN_00454640 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma opt_loop_invariants on
+void func_00454640(void)
+{
+    extern void func_00468a50(void);
+    extern void func_00468d10(void);
+    extern void func_00455230(void *arg0);
+    extern void func_00455b70(void *arg0);
+    extern s32 func_004c85a0(void *arg0, s32 arg1);
+    extern void func_004c8a60(s32 handle);
+    extern s32 func_004c9010(s32 handle, s32 count, s32 buffer);
+    extern s32 func_004c95f8(s32 handle);
+    extern s32 func_004c9670(s32 handle);
+    extern s32 func_004c9820(s32 handle);
+    extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+    extern void (*jtbl_008873EC[])(void *ptr);
+    extern char D_00710880[];
+    extern char D_007108A0[];
+    extern char D_007108C0[];
+    extern char D_007108E0[];
+    u8 *node;
+    u8 *next;
+    u8 *prev;
+    u8 *link;
+    u8 *slot;
+    s32 handle;
+    s32 offset;
+    s32 buffer;
+    s32 blocks;
+    s32 aligned;
+    s32 spare;
+    s32 state;
+    s16 i;
+
+    func_00468a50();
+    func_00468d10();
+    node = D_008D1B84[0];
+    if (node == NULL) {
+        return;
+    }
+loop:
+    if (*(s32 *)(node + 0xC) != 4) {
+        switch (*(s32 *)(node + 0xC)) {
+        case 0:
+            *(s16 *)(node + 0x35E) = 0;
+            func_00455230(node + 0x258);
+            *(s32 *)(node + 0x154) = func_004c85a0(node + 0x158, 0);
+            handle = *(s32 *)(node + 0x154);
+            if (handle == 0) {
+                goto tail;
+            }
+            offset = func_004c9670(handle);
+            *(s32 *)(node + 0x124) = offset;
+            *(s32 *)(node + 0x118) = offset;
+            *(s32 *)(node + 0xC) = 1;
+        case 1:
+            if (*(s32 *)(node + 0x110) == 0) {
+                func_0044ea90(D_00710870, 0xFA);
+                buffer = (s32)(*jtbl_008873E8)(
+                    (func_004c95f8(*(s32 *)(node + 0x154)) << 0xB) + 0x40, 0x40000);
+                *(s32 *)(node + 0x114) = buffer;
+                if (buffer == 0) {
+                    func_0046d740(D_00710880, D_00710870, 0xFF);
+                    return;
+                }
+                aligned = buffer / 0x40 * 0x40;
+                spare = buffer % 0x40;
+                if (spare != 0) {
+                    aligned += 0x40;
+                }
+                *(s32 *)(node + 0x110) = aligned;
+            }
+            blocks = func_004c9010(*(s32 *)(node + 0x154),
+                                   func_004c95f8(*(s32 *)(node + 0x154)),
+                                   *(s32 *)(node + 0x110));
+            if (blocks != func_004c95f8(*(s32 *)(node + 0x154))) {
+                func_004c8a60(*(s32 *)(node + 0x154));
+                *(s32 *)(node + 0x154) = 0;
+                if (*(s32 *)(node + 8) == 0) {
+                    (*jtbl_008873EC)(*(void **)(node + 0x114));
+                    *(s32 *)(node + 0x110) = 0;
+                    *(s32 *)(node + 0x114) = 0;
+                }
+                *(s32 *)(node + 0xC) = 0;
+                goto tail;
+            }
+            *(s32 *)(node + 0xC) = 2;
+        case 2:
+            *(s16 *)(node + 0x35E) = (s16)(*(s16 *)(node + 0x35E) + 1);
+            state = func_004c9820(*(s32 *)(node + 0x154));
+            if (state == 3) {
+                *(s32 *)(node + 0xC) = 3;
+                goto do_state3;
+            }
+            {
+                if (state == 4) {
+                    func_00440b68(D_007108A0);
+                    func_004c8a60(*(s32 *)(node + 0x154));
+                    *(s32 *)(node + 0x154) = 0;
+                    *(s32 *)(node + 0xC) = 0;
+                    if (*(s32 *)(node + 8) == 0) {
+                        (*jtbl_008873EC)(*(void **)(node + 0x114));
+                        *(s32 *)(node + 0x110) = 0;
+                        *(s32 *)(node + 0x114) = 0;
+                    }
+                    return;
+                }
+                goto tail;
+            }
+do_state3:
+        case 3:
+            func_00455b70(node + 8);
+            *(s32 *)(node + 0xC) = 4;
+            func_004c8a60(*(s32 *)(node + 0x154));
+            *(s32 *)(node + 0x154) = 0;
+            func_00440b68(D_007108C0, node + 0x10);
+            goto tail;
+        }
+        goto tail;
+    }
+tail:
+    if (*(s32 *)(node + 0xC) == 4) {
+        next = *(u8 **)(node + 4);
+        *(s16 *)(node + 0x35A) -= *(s16 *)(node + 0x35C);
+        if (*(s16 *)(node + 0x35A) < 0) {
+            func_00440b68(D_007108E0);
+        }
+        *(s16 *)(node + 0x35C) = 0;
+        if (*(s16 *)(node + 0x35A) <= 0) {
+            prev = *(u8 **)(node + 0);
+            link = *(u8 **)(node + 4);
+            *(u8 **)(prev + 4) = link;
+            if (link != NULL) {
+                *(u8 **)link = prev;
+            }
+            if (*(s32 *)(node + 0x110) != 0 && *(s32 *)(node + 8) == 0) {
+                (*jtbl_008873EC)(*(void **)(node + 0x114));
+                *(s32 *)(node + 0x110) = 0;
+                *(s32 *)(node + 0x114) = 0;
+            }
+            for (i = 0; i < 0x100; i++) {
+                slot = D_008C8780 + i * 0x94;
+                if (*(s32 *)slot != 0 && *(s32 *)(slot + 4) == (s32)(node + 8)) {
+                    *(s32 *)slot = 0;
+                }
+            }
+            handle = *(s32 *)(node + 0x154);
+            if (handle != 0) {
+                func_004c8a60(handle);
+                *(s32 *)(node + 0x154) = 0;
+            }
+            (*jtbl_008873EC)(node);
+        }
+        node = next;
+        if (next != NULL) {
+            goto loop;
+        }
+    }
+}
+#pragma pop
+#else
 INCLUDE_ASM("asm/nonmatchings/sdkCdvd", func_00454640);
+#endif
 
 // FUN_00454A60
 u8* func_00454a60(u8* arg0, s32 arg1) {
