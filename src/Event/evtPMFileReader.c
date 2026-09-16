@@ -110,7 +110,7 @@ s32 func_002938c0(void) {
         temp_3 = *(u8 **)temp_2;
         switch ((s32)temp_3) {
         case 0:
-            func_00440b68(&iGpffffa7c0, D_0063C990, 0x6C);
+            func_00440b68(&iGpffffa7c0, D_0063C970, 0x6C);
             *(s32 *)(temp_2 + 0x1C) = (s32)func_00454a60(spE0, 0);
             *(u8 **)temp_2 = (u8 *)1;
             break;
@@ -131,7 +131,7 @@ s32 func_002938c0(void) {
                 }
                 *(u8 **)temp_2 = (u8 *)4;
             } else {
-                func_00440b68(&iGpffffa7c0, D_0063C990, 0x8C);
+                func_00440b68(&iGpffffa7c0, D_0063C970, 0x8C);
                 *(s32 *)(temp_2 + 0x20) = (s32)func_00454a60(spA0, 0);
                 *(u8 **)temp_2 = (u8 *)3;
             }
@@ -153,7 +153,7 @@ s32 func_002938c0(void) {
                 }
                 *(u8 **)temp_2 = (u8 *)6;
             } else {
-                func_00440b68(&iGpffffa7c0, D_0063C990, 0xA8);
+                func_00440b68(&iGpffffa7c0, D_0063C970, 0xA8);
                 *(s32 *)(temp_2 + 0x24) = (s32)func_00454a60(sp60, 0);
                 *(u8 **)temp_2 = (u8 *)5;
             }
