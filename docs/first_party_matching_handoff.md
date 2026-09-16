@@ -355,7 +355,21 @@ costs seventeen.
   `case 0: case 1:` produces retail's `beq 1` then `beqz` chain. That, plus
   spelling a two-value test as a switch rather than `||`, is what matched
   `func_00198dd0`; the same reordering cut `func_00154720`'s edit distance
-  by a third.
+  by a third. The reversal covers the **whole label sequence**, not just
+  the groups: on `func_00463930` reversing the groups alone left every
+  label inside a group backwards, and reversing both took it from 182
+  words to 155. The bodies still come out in source order, so a switch
+  whose arms must appear in a particular order cannot also have its
+  chain in that order - that conflict is the residual there, where
+  retail places the `default` body between the chain and the first case.
+- **An outer dispatch that m2c prints as a switch is often an if/else-if
+  chain.** The tell in retail is each arm's body sitting inline right
+  after its own `bne`, with arms that share a return value falling
+  through to one shared `return` instead of each materialising the
+  constant. A real jump table looks different: `sltiu` bound check, then
+  `lw`/`jr`. On `func_00207320` that distinction was 427 words to 311,
+  and `jtbl_` in the retail asm tells the two apart before you write a
+  line.
 - **A compound assignment evaluates its right side first.**
   `*(s16 *)(p + 0x35A) -= *(s16 *)(p + 0x35C);` loads 0x35C before 0x35A,
   which a staged local cannot reproduce - the compiler sinks the staged
