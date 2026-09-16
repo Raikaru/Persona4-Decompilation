@@ -74,6 +74,7 @@ extern u8 *func_00231580(u16 arg0);
 extern u8 *func_00162680(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00109400(s32 arg0);
 extern s32 func_00105ee0(s32 arg0);
+extern s32 func_00104c70(s32 arg0);
 extern s32 func_00155280(void);
 extern void func_0014a0f0(u16 arg0, s32 arg1);
 extern u16 func_00145780(u16 arg0, s32 arg1, s32 arg2);
@@ -533,8 +534,100 @@ void func_001641d0(void)
    clean andi ($18,& 0xffff) but the D_005F13C0 index wants s32 (retail
    daddu+sll); the (s64)(s16) cast pairs, s64 temp_18_3/andis, func_004787e0
    1-arg call, and the first block all match. */
-// FUN_00164230
+// FUN_00164230 NONMATCHING
+#ifdef SKIP_ASM
+void func_00164230(s32 arg0, s32 arg1, s32 arg2)
+{
+    u8 *p;
+    s32 i;
+    s32 j;
+    s32 v;
+    u16 w;
+    u8 *e;
+    u8 *b;
+    u8 *e2;
+
+    p = func_00162330();
+    if (p == NULL) {
+    } else {
+        *(u8 **)(p + 72) = func_00231580(1);
+        *(u8 **)(p + 80) = func_00162680(arg0, arg1, 1);
+        *(u16 *)(p + 1832) = 1;
+        *(s32 *)(p + 68) = 0;
+        *(s32 *)(p + 448) = func_00109400(arg2) & 0xFF;
+        *(s32 *)(p + 452) = func_00104c70(1) & 0xFF;
+        *(u8 **)(p + 436) = (u8 *)func_0017d070((u8 *)0);
+        *(u16 *)(p + 88) = arg2;
+    }
+    if (func_00162510(arg0, arg1) == 1) {
+        i = 0;
+        while (i < 3) {
+            e = D_007F16F0 + i * 8;
+            if (*(u8 **)(e + 12) == NULL) {
+            } else {
+                j = 0;
+                while (j < 5) {
+                    b = *(u8 **)(e + 12) + (j * 3) * 4;
+                    *(b + 652) = *(b + 652) | 1;
+                    j += 1;
+                }
+                b = D_007F16F0 + i * 8;
+                e2 = b + 12;
+                func_004787e0(*(s32 *)(b + 12));
+                *(s32 *)e2 = 0;
+                *(u16 *)(b + 8) = 0;
+                *(u16 *)(b + 10) = 0;
+            }
+            i += 1;
+        }
+    } else {
+        i = 0;
+        while (i < 3) {
+            v = (s16)func_00105ee0(i);
+            if (v > 0) {
+                p = func_00162330();
+                if (p == NULL) {
+                } else {
+                    w = (u16)v;
+                    *(u8 **)(p + 72) = func_00231580(w);
+                    *(u8 **)(p + 80) = func_00162680(arg0, arg1, w);
+                    *(u16 *)(p + 1832) = v;
+                    *(s32 *)(p + 68) = 0;
+                    *(s32 *)(p + 448) = func_00109400(v) & 0xFF;
+                    if (w == 1) {
+                        *(s32 *)(p + 452) = func_00104c70((s16)v) & 0xFF;
+                        *(u8 **)(p + 436) = (u8 *)func_0017d070((u8 *)0);
+                    } else {
+                        func_00440b68((const char *)D_00763008, D_005F1500, 477);
+                        *(u8 **)(p + 1840) = func_00454a60(D_005F13C0 + w * 32, 0);
+                    }
+                    *(u16 *)(p + 88) = arg2;
+                }
+            } else {
+                e = D_007F16F0 + i * 8;
+                if (*(u8 **)(e + 12) == NULL) {
+                } else {
+                    j = 0;
+                    while (j < 5) {
+                        b = *(u8 **)(e + 12) + (j * 3) * 4;
+                        *(b + 652) = *(b + 652) | 1;
+                        j += 1;
+                    }
+                    b = D_007F16F0 + i * 8;
+                    e2 = b + 12;
+                    func_004787e0(*(s32 *)(b + 12));
+                    *(s32 *)e2 = 0;
+                    *(u16 *)(b + 8) = 0;
+                    *(u16 *)(b + 10) = 0;
+                }
+            }
+            i += 1;
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00164230);
+#endif
 
 
 

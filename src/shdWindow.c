@@ -101,6 +101,8 @@ s32 func_0025db00(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
 // whole 14-arg func_00366670 / 9-arg func_00274ed0 call region rotates. Tried
 // 3 declaration orders and the sp array vs 4 separate scalar locals, all nd
 // 216-224. Saved-register rotation + float-order floor.
+extern s8 func_00275a40(char param_1);
+extern void func_0025d850(f32 farg0, f32 farg1, f32 farg2, s32 arg0);
 // FUN_0025DD30
 INCLUDE_ASM("asm/nonmatchings/shdWindow", func_0025dd30);
 

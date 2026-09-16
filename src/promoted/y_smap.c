@@ -433,6 +433,7 @@ void func_002b07a0(u8 *arg0, u8 *arg1) {
    prologue move order (GPRs-then-FPs vs retail's interleave), which cascades
    register names through the loop body. Tried param types u32/s32/s8 and
    statement orders — all nd 99. Register-allocation + invariant-hoist floor. */
+extern u8 D_00793E80[];
 // FUN_002B0B10
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b0b10);
 
