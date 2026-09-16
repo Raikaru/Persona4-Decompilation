@@ -91,6 +91,42 @@ def find_region(lines, marker_idx):
     return marker_idx, j, open_line
 
 
+def locate_region(lines, marker_idx):
+    """Region to substitute, as (start, end, open_line_local, region).
+
+    A floor kept behind `#ifdef NON_MATCHING`/`#ifdef SKIP_ASM` compiles its
+    INCLUDE_ASM arm, so substituting only the guarded definition leaves the
+    fallback in the translation unit and every candidate scores "symbol
+    missing". Replace the whole guard with the plain body instead, exactly as
+    probe_variants.py does, so the permuter measures the C it is mutating.
+    """
+    probe = marker_idx + 1
+    while probe < len(lines) and not strip_line_comment(lines[probe]).strip():
+        probe += 1
+    if probe < len(lines) and strip_line_comment(lines[probe]).strip().startswith("#if"):
+        depth, els, endif = 0, None, None
+        for index in range(probe, len(lines)):
+            directive = strip_line_comment(lines[index]).strip()
+            if directive.startswith("#if"):
+                depth += 1
+            elif directive.startswith("#endif"):
+                depth -= 1
+                if depth == 0:
+                    endif = index
+                    break
+            elif directive.startswith("#else") and depth == 1:
+                els = index
+        if (els is not None and endif is not None
+                and any("INCLUDE_ASM" in line for line in lines[els + 1:endif])):
+            region = [lines[marker_idx]] + lines[probe + 1:els]
+            opener = next((i for i, line in enumerate(region)
+                           if i and "{" in strip_line_comment(line)), None)
+            if opener is not None:
+                return marker_idx, endif, opener, region
+    start, end, open_line = find_region(lines, marker_idx)
+    return start, end, open_line - start, lines[start:end + 1]
+
+
 class Target:
     def __init__(self, cpath, funcname, boundaries, cfg, retail):
         self.cpath = cpath
@@ -107,10 +143,10 @@ class Target:
         self.window = window_for(self.addr, boundaries)
         if not self.window:
             sys.exit("permute: could not determine retail window")
-        s, e, o = find_region(self.lines, mk["line"] - 1)
-        self.start, self.end, self.open_line = s, e, o
-        self.region = self.lines[s:e + 1]
-        hdr = " ".join(strip_line_comment(l) for l in self.lines[s + 1:o + 1]
+        s, e, o, region = locate_region(self.lines, mk["line"] - 1)
+        self.start, self.end, self.open_line = s, e, s + o
+        self.region = region
+        hdr = " ".join(strip_line_comment(l) for l in region[1:o + 1]
                        if not strip_line_comment(l).strip().startswith("#"))
         self.params = parse_params(hdr)
         self.win_bytes = retail.bytes_at(self.addr, self.window)
@@ -293,6 +329,40 @@ def simple_stmt(line):
             and not CTRL_RE.search(s) and not DECL_RE.match(s) and s != ";")
 
 
+_IDENT_RE = re.compile(r"[A-Za-z_]\w*")
+
+
+def _assigned_name(line):
+    """Name a simple statement assigns, or None."""
+    code = strip_line_comment(line).strip().rstrip(";")
+    head, sep, _ = code.partition("=")
+    if not sep or head.rstrip().endswith(("=", "!", "<", ">")):
+        return None
+    names = _IDENT_RE.findall(head)
+    return names[-1] if names else None
+
+
+def swap_is_safe(first, second):
+    """Reject a swap that would move a use above its definition.
+
+    Scoring only compares bytes, so a mutation that changes behaviour can win:
+    swapping `offset = i * 8;` below `temp = *(u8 **)(base + offset + 0xC94);`
+    scored 42 -> 19 on func_001b05d0 purely by reading the previous
+    iteration's offset. Any candidate the permuter proposes has to mean the
+    same thing as the body it started from.
+    """
+    for producer, consumer in ((first, second), (second, first)):
+        target = _assigned_name(producer)
+        if target is None:
+            continue
+        used = set(_IDENT_RE.findall(strip_line_comment(consumer)))
+        if target in used:
+            return False
+        if _assigned_name(consumer) == target:
+            return False
+    return True
+
+
 def mut_stmts(region, open_line_local, rng):
     b0, b1 = body_span(region, open_line_local)
     cand = [i for i in range(b0, b1)
@@ -300,7 +370,12 @@ def mut_stmts(region, open_line_local, rng):
     cand = [i for i in cand if i + 1 < b1 and simple_stmt(region[i + 1])]
     if not cand:
         return None
-    i = rng.choice(cand)
+    rng.shuffle(cand)
+    for i in cand:
+        if swap_is_safe(region[i], region[i + 1]):
+            break
+    else:
+        return None
     out = region[:]
     out[i], out[i + 1] = out[i + 1], out[i]
     return out
@@ -501,6 +576,14 @@ def mut_reverse_run(region, open_line_local, rng):
     a = rng.randrange(len(run) - 1)
     b = rng.randrange(a + 1, len(run))
     idxs = run[a:b + 1]
+    # Reversing a run moves every statement past every other one, so it needs
+    # the same def-use check as a single swap applied pairwise; without it the
+    # reversal reintroduces exactly the stale-read "win" that swap_is_safe
+    # rejects.
+    for first in range(len(idxs)):
+        for second in range(first + 1, len(idxs)):
+            if not swap_is_safe(region[idxs[first]], region[idxs[second]]):
+                return None
     out = region[:]
     vals = [region[i] for i in idxs][::-1]
     for i, v in zip(idxs, vals):
