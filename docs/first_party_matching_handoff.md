@@ -368,6 +368,27 @@ costs seventeen.
   `if (state == 3) { p->state = 3; goto do_state3; }` with `do_state3:`
   beside `case 3:` reproduces retail's `bne`, `sw`, `b`; the same store
   written after an `if (state != 3) {...}` block lands after the else arm.
+- **An induction variable is zeroed before the invariants beside it.**
+  Retail's `for` prologues read `move $s2,$zero` and only then compute the
+  row pointer and the row's base coordinate. Writing the invariants as
+  plain statements above the loop emits them first and costs a word at
+  every nesting level; folding them into the header -
+  `for (c = 0, row = shape + r * 5, ry = y + r; c < 5; c++)` - reproduces
+  retail's order. This was the last 68 words of `func_00156cf0`.
+- **Code reached by falling out of a loop belongs after the function's
+  other `return`.** `func_00156cf0`'s second pass runs when the 5x5 scan
+  completes; written inside the column loop it forces every failure branch
+  to jump over it (248 words of pure displacement), written as a label
+  after `return 0` it lands where retail puts it (68).
+- **Two passes over the same grid want two counters.** Reusing the scan's
+  index for the second pass costs 72 words - and if the reuse is nested,
+  it also miscompiles. m2c's `var_19` / `var_19_2` naming is a real
+  distinction, not noise.
+- **m2c's pointer type scales every stride.** A draft that types the base
+  `s16 *` turns a stride of 5 into 10 and 0xC into 0x18. Read one
+  `sll`/`addu` pair out of retail before trusting the draft's type: the
+  same defect hid `arg2[j]` behind `*(u8 *)(arg2 + j * 2)` in
+  `func_00303610`.
 
 The smallest measured floors after this pass are `00375f00` (2),
 `func_001a2d70` (2), `func_00452870` (4), `001130c0`, `001b11c0`,
