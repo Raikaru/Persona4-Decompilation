@@ -86,10 +86,21 @@ def decode(data: bytes, base: int) -> list[str]:
 
 
 def strip_immediates(text: str) -> str:
-    """Instruction text without numeric operands, for reloc-only comparison."""
+    """Instruction text without numeric operands, for reloc-only comparison.
+
+    A relocated field reaches the operand as a bare immediate (`addiu $a0,
+    $a0, 0x1234`) or as a load/store displacement (`lwc1 $f2, 0x42d8($v0)`);
+    both are linker-owned, so both are dropped here.
+    """
     mnemonic, _, operands = text.partition(" ")
-    kept = [part for part in operands.split(",")
-            if part.strip() and not re.fullmatch(r"-?(0x[0-9a-fA-F]+|\d+)", part.strip())]
+    kept = []
+    for part in operands.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        if re.fullmatch(r"-?(0x[0-9a-fA-F]+|\d+)", part):
+            continue
+        kept.append(re.sub(r"^-?(0x[0-9a-fA-F]+|\d+)\(", "(", part))
     return f"{mnemonic} {','.join(kept)}"
 
 
