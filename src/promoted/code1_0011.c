@@ -1197,9 +1197,16 @@ INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00112830);
    two colour locals preserves retail's $s2/$s1/$s0 assignment, which
    follows definition order here (declaration order is inert in this
    function; six permutations measured).
-   WALL: moving the colour reads above the alpha statement fixes the
-   order but rotates the same three registers (13 words); `#pragma
-   schedule on` (105) and `opt_propagation off` (78) are worse. */
+   WALL: moving the colour reads above the alpha statement makes the
+   instruction stream exact - an instruction-level alignment then
+   reports no inserts, deletes or reordering - but rotates the same
+   three registers ($s2/$s1/$s0 against retail's $s1/$s0/$s2), scoring
+   11 words against this shape's 5.  Measured inert on that variant:
+   400 declaration permutations, every colour/alpha type combination
+   in {u8,u16,s16,u32,s32}, and the pragmas opt_dead_assignments,
+   opt_lifetimes, optimize_for_size and opt_strength_reduction.
+   `#pragma schedule on` (105) and `opt_propagation off` (78) are
+   worse still. */
 // FUN_001130C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
