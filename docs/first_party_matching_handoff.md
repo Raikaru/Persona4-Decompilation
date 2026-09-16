@@ -344,9 +344,35 @@ Measure the file-wide form before scoping one: `opt_dead_assignments off` for
 all of `btlOrder_grouped.c` costs a match, and `-O2,p` for `btlAICommand.c`
 costs seventeen.
 
-The smallest measured floors after this pass are `00375f00` (2), `001130c0`
-and `001b11c0` (5), `0012d630` (15), `004b2a00` (17), `001a2d70` (25),
-`001b05d0` (36), `001dd920` (39) and `001d8cb0`'s neighbours.
+### 7i. Declaration levers found while reconstructing untried functions
+
+- **A global declared as a scalar lands in small data.** `extern u8 D_008C0000;`
+  makes every access gp-relative; retail addresses those pad-snapshot bytes
+  absolutely, so they are arrays. Declaring them `extern u8 D_008C0000[];` and
+  indexing `[0]` took `func_00452870` from 265 differing words to 15 in one
+  edit. Check the addressing mode in retail before trusting an m2c scalar.
+- **Switch compare chains are emitted in reverse label order.** Writing
+  `case 0: case 1:` produces retail's `beq 1` then `beqz` chain. That, plus
+  spelling a two-value test as a switch rather than `||`, is what matched
+  `func_00198dd0`; the same reordering cut `func_00154720`'s edit distance
+  by a third.
+- **A compound assignment evaluates its right side first.**
+  `*(s16 *)(p + 0x35A) -= *(s16 *)(p + 0x35C);` loads 0x35C before 0x35A,
+  which a staged local cannot reproduce - the compiler sinks the staged
+  load. This was the item a previous pass had written off as temp-pool
+  colouring on `func_00454640`.
+- **Store the narrow result before the test that sign-extends it.** Writing
+  the field and then testing the field keeps retail's `subu`, `sh`,
+  `dsll32`/`dsra32`, `bgez` order; testing a local first extends early.
+- **A `goto` out of a case puts the store on the branch path.**
+  `if (state == 3) { p->state = 3; goto do_state3; }` with `do_state3:`
+  beside `case 3:` reproduces retail's `bne`, `sw`, `b`; the same store
+  written after an `if (state != 3) {...}` block lands after the else arm.
+
+The smallest measured floors after this pass are `00375f00` (2),
+`func_001a2d70` (2), `func_00452870` (4), `001130c0`, `001b11c0`,
+`00311930`, `0034ddf0` and `func_00454640` (5), `0024be40` (8),
+`0012d630` (15) and `004b2a00` (17).
 
 ### 8. Re-run the complete proof on the winner
 
