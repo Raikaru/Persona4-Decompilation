@@ -318,6 +318,7 @@ void func_004a3010(u8 *arg0)
 }
 #pragma opt_loop_invariants off
 
+// FUN_004A30E0
 /* Reusing arg1 as the replica index after its last dereference preserves the
  * retail saved-register allocation for the replication loop. */
 #pragma push
