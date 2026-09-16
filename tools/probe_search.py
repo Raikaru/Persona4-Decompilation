@@ -210,8 +210,12 @@ def main() -> int:
             print(f"searched {len(seen)} declaration orders")
 
     if args.pragmas and best[0]:
+        # Every pragma is measured against the same body: wrapping the running
+        # best instead stacks them, and each later trial then reports the
+        # earlier winner's score.
+        unwrapped = best_body
         for pragma in PRAGMAS:
-            trial = f"#pragma push\n#pragma {pragma}\n{best_body.rstrip()}\n#pragma pop\n"
+            trial = f"#pragma push\n#pragma {pragma}\n{unwrapped.rstrip()}\n#pragma pop\n"
             score = evaluator.score(trial)
             if score[0] is None:
                 continue
