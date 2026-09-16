@@ -3498,12 +3498,19 @@ void func_0014dd80(u8 *arg0, u8 *arg1) {
    conversion copy, counters, stores, propagation). See W44c14 doc. */
 // FUN_0014DEF0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_propagation off
 /*
  * W44c14 probe archive: func_0014def0 (0x0014def0)
- * object: 940B; retail window: 944B; best nd: 203 (reloc-masked)
- * differing offsets: 0x74/0x78 (global load spelling), 0x1F8-0x37C
- *   (loop index/base and conversion temporary register colouring), and
- *   0x390-0x3A4 (tail alignment/register cascade).
+ * object: 936B; retail window: 944B; best nd: 34 (reloc-masked)
+ * A scoped `opt_propagation off` closed the global load spelling: with
+ * propagation on, the address of D_008872F8 is folded into the load and
+ * materialised a second time beside the pointer this body keeps, which is
+ * the 0x74/0x78 pair.  With it off the instruction stream is retail's -
+ * tools/fnalign.py reports 234 against 234 with no inserts or deletes - and
+ * every remaining word is a caller-saved temporary name in the conversion
+ * loop (retail holds the index in $a1, this build in $v0).  200 declaration
+ * orders are inert on that.
  * levers tried: interleaved EE/FPU parameter declaration order; grouped and
  *   address-of/volatile/cast global-pointer spellings; recipe-A s32/u32
  *   conversion copy; s16 and s32 loop counters; loop-local declaration
@@ -3678,6 +3685,7 @@ loop_test:
     *(void **)(temp_2_5 + 8) = (void *)func_0014dd80;
     *(u8 **)(temp_2_5 + 0x10) = arg1;
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014def0);
 #endif
