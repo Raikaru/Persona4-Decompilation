@@ -104,13 +104,121 @@ u16 func_00109470(s32 arg0)
     return *p;
 }
 
-/* measured: retail allocates arg0->$s1/arg2->$s6/id-as-temp with the m
-   and n inits at their preheaders; mwcc b210 rotates the whole saved
-   register map one slot (arg0->$s0/arg2->$s7) and spills arg1 to the
-   stack instead of $fp. Tried id-local/inline/hybrid and init
-   placements; nd 134-151. Saved-register rotation floor. */
-// FUN_00109510
+/* Floor: 105 differing words, and an instruction-level alignment
+   (tools/fnalign.py) reports the stream is retail's - every residual is a
+   register name, the saved-register map rotated one slot (retail keeps arg0
+   in $s1 and arg2 in $s6, this build uses $s0/$s7).  What closed the
+   structure: the candidate-count local is left uninitialised the way retail
+   leaves it (an explicit `last = 0` costs an instruction), `level` is a
+   plain 32-bit local so the base-level subtraction is not masked, the
+   reach (`level + room`) is computed once after the if/else join as retail
+   does, and `opt_loop_invariants on` hoists the constant 1 that both
+   `found = 1` and `span = 1` reuse.  Measured inert afterwards: 250
+   declaration orders, the goto-shaped second loop, and the
+   opt_dead_assignments, opt_propagation, opt_common_subs, schedule and
+   optimize_for_size pragmas. */
+// FUN_00109510 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma opt_loop_invariants on
+s32 func_00109510(u8 *arg0, s32 arg1, s32 arg2) {
+    u8 *entry;
+    s32 reach;
+    u16 id;
+    u8 base_level;
+    s32 known;
+    s32 last;
+    u8 *scan;
+    s32 j;
+    s32 found;
+    s32 i;
+    s32 slot;
+    s32 span;
+    s32 out;
+    s32 limit;
+    s32 room;
+    s32 first;
+    s32 level;
+
+    if ((s32)*(u16 *)(arg0 + 2) >= 0x100) {
+        func_0046d730(D_005E4318, 0x132);
+    }
+    if (func_0010be20(arg0) != 0) {
+        entry = (u8 *)iGpffffb3e4 + (*(u16 *)(arg0 + 2) - 0xC0) * 0x26E + 4;
+        limit = 0x20;
+        base_level = 0;
+        level = *(u8 *)(arg0 + 4);
+        room = 0x63 - level;
+    } else {
+        id = *(u16 *)(arg0 + 2);
+        entry = (u8 *)iGpffffb3dc + id * 0x46 + 6;
+        limit = 0x10;
+        base_level = *(u8 *)(iGpffffb3d4 + id * 0xE + 3);
+        level = *(u8 *)(arg0 + 4) - base_level;
+        room = 0x63 - *(u8 *)(arg0 + 4);
+    }
+    reach = level + room;
+    first = 0;
+    found = 0;
+    span = 0;
+    i = 0;
+    while (i < limit) {
+        scan = entry + i * 4;
+        if (*(s8 *)(scan + 1) == 0) {
+            break;
+        }
+        if ((s32)level < (s32)*(u8 *)scan) {
+            if (found == 0) {
+                found = 1;
+                first = i;
+                last = i;
+            }
+            if (reach >= (s32)*(u8 *)scan) {
+                span = 1;
+                last = i;
+            }
+        }
+        i++;
+    }
+    if (span != 0) {
+        slot = (last + 1) - first;
+    } else {
+        slot = 0;
+    }
+    scan = entry + first * 4;
+    known = func_0010ceb0(arg0);
+    out = 0;
+    j = 0;
+    while (j < slot) {
+        if (*(s8 *)(scan + 1) == 1) {
+            for (i = 0; i < known; i++) {
+                if (*(u16 *)(scan + 2) == *(u16 *)(arg0 + 0xC + i * 2)) {
+                    break;
+                }
+            }
+            if (i == known) {
+                if (out >= 0x20) {
+                    func_0046d730(D_005E4318, 0x17B);
+                }
+                *(u16 *)(arg1 + out * 2) = *(u16 *)(scan + 2);
+                if (arg2 != 0) {
+                    *(u16 *)(arg2 + out * 2) = *(u8 *)scan + base_level;
+                }
+                out++;
+            }
+        }
+        if (out == 0x20) {
+            break;
+        }
+        j++;
+        scan += 4;
+    }
+    return out & 0xFFFF;
+}
+#pragma pop
+#else
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_00109510);
+#endif
 
 // FUN_001097C0
 void func_001097c0(u8 *arg0, s32 arg1)
