@@ -23,6 +23,13 @@
    opt_dead_code/opt_strength_reduction/opt_lifetimes pragmas all
    fold. A census over all 7942 matched functions finds no in-tree
    precedent for one sp-derived base with two materialized offsets.
+   MEASURED, NOT BANKED: spelling the guard `if (aux > -1)` instead of
+   `if (aux >= 0)` drops the reloc-masked residual from 57 words to 6, but
+   it is not an improvement. That spelling emits `slti $at,$v0,0; bnez $at`
+   where retail emits a single `bltz $v0`, and the extra instruction merely
+   cancels the one missing `addiu` below, realigning every later branch
+   offset. Two cancelling size errors score better than one honest one, so
+   the body below keeps the form that matches retail's comparison.
    Resume: that rematerialization lever.
 */
 s64 func_001f4e50(u8 *arg0) {
