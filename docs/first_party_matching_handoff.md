@@ -290,9 +290,14 @@ jump targets, and reports replacements that differ only in a relocated
 immediate separately, so the edit count is the real work remaining. This is
 what turned `func_001dd570` from a "159-word floor" into four concrete source
 shapes, and it separates the two populations that matter: floors whose streams
-already match retail instruction for instruction (only register names differ —
-no source spelling has ever moved those) from floors with genuine inserts and
-deletes, which are the ones worth hand work.
+already match retail instruction for instruction, where only register names
+differ, from floors with genuine inserts, deletes or reordered instructions.
+Measured over the 84 guarded first-party floors, exactly one — `func_001dd920`
+— is in the first class; the other 83 carry real structural edits, so the
+aligner points at actual work in almost every case. The edit distance is also
+a much better queue order than `nd`: `func_0020bff0` read as 385 differing
+words and was four instructions away, `func_001d8cb0`'s archive read 4 and was
+one operand swap away.
 
 For a search, amortise the harness. `verify`/`fndiff` reload the retail ELF and
 rescan every marker in `src/` per candidate, about 9s; loading those once and
