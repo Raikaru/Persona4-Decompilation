@@ -724,9 +724,13 @@ def main():
     marker_local = 0
     open_local = t.open_line - t.start
 
-    base = strip_opt(t.region)
-    base_open = open_local - sum(1 for l in t.region[:t.open_line - t.start]
-                                 if "#pragma optimization_level" in l)
+    # Search from the body as it stands, pragmas included. Stripping
+    # `#pragma optimization_level` first and hoping mut_opt puts it back
+    # throws away a measured floor: func_00375f00 scores 2 with its
+    # `optimization_level 1` and 632 without it, so the search would start
+    # 630 points behind and spend its budget climbing back.
+    base = t.region
+    base_open = open_local
     base_score, base_match, log = t.score(base)
     print(f"[{args.function}] addr={t.addr:#010x} window={t.window} "
           f"base_score={base_score} match={base_match}", flush=True)
