@@ -2043,16 +2043,16 @@ void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4in)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00198920);
 #endif
-/* Best-distance flag-block reconstruction (768B window). Re-measured nd 130;
-   frame, switch dispatch and callee conventions verified against retail.
-   Open: shared-tail branch merge (bne+b) plus scheduler ordering in the
-   flag blocks, resistant to known levers (see archived header notes). */
-/* Best-distance flag-block reconstruction (768B window). Re-measured nd 130;
-   frame, switch dispatch and callee conventions verified against retail.
-   Open: shared-tail branch merge (bne+b) plus scheduler ordering in the
-   flag blocks, resistant to known levers (see archived header notes). */
-// FUN_00198DD0 NONMATCHING
-#ifdef NON_MATCHING
+/* Recovered.  Two shapes closed it: the availability flag is an if/else
+   (`if (r == 1) flag = 0; else flag = 1;`) rather than `flag = 1` with a
+   conditional clear - retail reuses the materialised 1 as both the flag
+   value and the comparison constant, and keeps the unreachable clear the
+   else arm leaves behind - and the kind test is a `switch` with `case 0:
+   case 1:` falling into one body, which emits retail's three-branch chain
+   (beq 1, beqz, b default) instead of the inverted two-branch form an
+   `||` condition produces.  The case labels are written 0 then 1 because
+   the compare chain is emitted in reverse label order. */
+// FUN_00198DD0
 #pragma push
 #pragma opt_propagation off
 void func_00198dd0(u8 *arg0, u16 arg1)
@@ -2077,9 +2077,10 @@ void func_00198dd0(u8 *arg0, u16 arg1)
                 flag = 0;
             } else {
                 r = func_00479dd0(*(u8 **)(arg0 + 0xA00), 0, temp);
-                flag = 1;
                 if (r == 1) {
                     flag = 0;
+                } else {
+                    flag = 1;
                 }
             }
         } else {
@@ -2108,9 +2109,10 @@ void func_00198dd0(u8 *arg0, u16 arg1)
                 flag = 0;
             } else {
                 r = func_00479dd0(*(u8 **)(arg0 + 0xA00), 0, temp);
-                flag = 1;
                 if (r == 1) {
                     flag = 0;
+                } else {
+                    flag = 1;
                 }
             }
         } else {
@@ -2133,15 +2135,19 @@ void func_00198dd0(u8 *arg0, u16 arg1)
         s16 ref;
 
         kind = *(u8 *)(arg0 + 0xA2);
-        if ((kind == 1) || (kind == 0)) {
+        switch (kind) {
+        case 0:
+        case 1:
             if ((*(s32 *)(arg0 + 0x98) & 2) != 0) {
                 ref = *(s16 *)(arg0 + 0x9DA);
             } else {
                 ref = 0;
             }
             same = (s32)(*(s16 *)(arg0 + 0x9EC) == (s16)ref);
-        } else {
+            break;
+        default:
             same = 0;
+            break;
         }
     }
     if ((same != 0) && ((s64)(*(s16 *)(arg0 + 0x9EC)) != value)) {
@@ -2153,9 +2159,6 @@ void func_00198dd0(u8 *arg0, u16 arg1)
     *(s8 *)(arg0 + 0x9F4) = var_17;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00198dd0);
-#endif
 /* measured: opt_propagation off is scoped to func_001990d0. */
 #pragma opt_propagation off
 // FUN_001990D0
