@@ -36,7 +36,7 @@ s32 btlUnitIsMoving(u8 *arg0);
 void func_001a03b0(s64 *arg0);
 void func_001dbf20(void *arg0, s32 arg1);
 BtlPacket *func_001d3700(u16 arg0, u16 arg1);
-s64 func_00194590(u8 *arg0, u32 arg1);
+s32 func_00194590(u8 *arg0, u32 arg1);
 extern void func_0022db90(u8 *arg0);
 extern void func_001f0a40(void *arg0);
 extern void func_00212070(u8 *arg0, u8 *arg1);
@@ -1081,13 +1081,16 @@ void func_001a2d60(void)
    branch tests zero the way retail does, the switch subject is a masked
    local, and `opt_common_subs off` stops this build from folding the
    repeated `*(u8 **)(unit + 0xA64)` loads that retail reloads.
-   WALL: retail range-checks the jump table with `bltz` as well as
-   `sltiu`, a check that is dead after the `andi 0xff`; no subject
-   spelling reproduces it (s8/s16/s32/s64/u8 locals, masked or cast, a
-   u8 return declaration on func_00235320, and the propagation,
-   dead-assignment, lifetime and size pragmas were all measured).  The
-   remaining pair is the s32 normalisation of func_00194590's s64
-   return. */
+   func_00194590 is declared s32, not the s64 m2c emitted: truncating its
+   result cost a dsll32/dsra32 normalisation pair, and correcting the
+   declaration took this floor from 25 differing words to 2 with no other
+   change in the unit (52 matched functions before and after).
+   WALL: the last two words are retail's `bltz` jump-table range check,
+   dead after the `andi 0xff`, which this build omits.  No subject
+   spelling reproduces it - s8/s16/s32/s64/u8/u32 locals, masked, cast or
+   switched on directly, a u8 return declaration on func_00235320,
+   `% 0x100`, and the propagation, dead-assignment, rebuild-conditionals,
+   lifetime and size pragmas were all measured. */
 // FUN_001A2D70 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
