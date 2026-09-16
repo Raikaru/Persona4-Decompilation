@@ -1,22 +1,25 @@
-/* object 672B/window 672B (exact size), normalized_diff 12; probe WSCR2. Moved locals to order: sum, found, index, j, base, floats, sum2, i, work. Residual worsened: found still in $s0, second-loop i/sum2 swapped. */
-// FUN_0024BE40
+/* Floor: 8 differing words (was 11).  The declaration order below is the
+   best of 250 measured permutations; the residual is a single $s0/$s2
+   saved-register swap - the instruction stream is retail's, 168 against
+   168 with no inserts or deletes.  The eight documented pragmas were
+   measured on top of it and none moves the pair. */
 s32 func_0024be40(void)
 {
     extern void* func_00452560();
     s32 month;
     extern s32 func_00246e10(s32 arg0);
-    s32 day;
     s32 sum;
-    u8* found;
-    s32 index;
-    s32 j;
-    u8* base;
-    f32 random_f;
-    f32 sum_f;
-    f32 product;
-    s32 sum2;
-    s32 i;
     u8* work;
+    s32 j;
+    f32 random_f;
+    u8* found;
+    s32 i;
+    s32 day;
+    f32 product;
+    s32 index;
+    u8* base;
+    s32 sum2;
+    f32 sum_f;
 
     found = 0;
     index = 0;
