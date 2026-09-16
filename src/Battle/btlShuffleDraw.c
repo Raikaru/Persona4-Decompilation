@@ -963,7 +963,15 @@ void func_00375ec0(u8 *arg0, s32 arg1) {
    their views. At +0x48/+0x70 the compiler still adds parent/index instead
    of copying the cached base. All 44 owner C matches remain intact.
    Native actual-provider smoke: 180 cases under undefined-behavior traps.
-   Keep ASM until both base-copy words match. */
+   Keep ASM until both base-copy words match.
+   Re-measured at baseline -O2: retail's frame saves $16/$17/$18 and copies
+   the cached base into $v1 before each state store, which needs arg0 and
+   the index to stay live across both calls.  Sixteen combinations of the
+   pointer and store spellings were measured; whenever the two use the same
+   operand order MWCC folds them and drops to one saved register (36
+   words), and whenever they differ it keeps three but recomputes the sum
+   instead of copying it (20 words).  The optimization_level 1 body above
+   is the better floor; do not replace it with an -O2 form. */
 // FUN_00375F00 NONMATCHING
 #ifdef NON_MATCHING
 #pragma optimization_level 1
