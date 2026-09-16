@@ -44,6 +44,8 @@ DECLARATION_RE = re.compile(
 # Pragmas whose effect on b210 output is documented in the matching handoff.
 PRAGMAS = (
     "opt_propagation off",
+    "opt_rebuildconditionals off",
+    "no_branch_likely on",
     "opt_dead_assignments off",
     "opt_common_subs off",
     "opt_loop_invariants on",
