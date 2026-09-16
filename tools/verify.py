@@ -439,7 +439,8 @@ def scan_markers(cpath: Path) -> list[dict]:
                 ))
                 index += 2
                 continue
-            # A function kept as near-miss C behind `#ifdef NON_MATCHING` with an
+            # A function kept as near-miss C behind a conditional guard
+            # (`#ifdef NON_MATCHING`, `#ifdef SKIP_ASM`, ...) with an
             # INCLUDE_ASM fallback in the `#else` arm. The object gets the exact
             # retail bytes, so a byte comparison always succeeds and would score
             # the row MATCH (or STALE_NONMATCHING, inviting someone to drop the
@@ -456,7 +457,9 @@ def scan_markers(cpath: Path) -> list[dict]:
                 or code_lines[probe].lstrip().startswith("#pragma")
             ):
                 probe += 1
-            if probe < len(lines) and code_lines[probe].strip().startswith("#ifdef NON_MATCHING"):
+            if probe < len(lines) and re.match(
+                r"#\s*(?:ifdef|ifndef|if)\b", code_lines[probe].strip()
+            ):
                 # Search to the NEXT marker rather than a fixed window: the C body
                 # being preserved can be arbitrarily long (one is 435 lines).
                 fallback, end = None, probe

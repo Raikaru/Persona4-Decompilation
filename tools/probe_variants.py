@@ -150,9 +150,22 @@ def region_for(
         stripped = code.strip()
         if not stripped:
             continue
-        if stripped == "#ifdef NON_MATCHING":
-            guard_line = index
-            break
+        if stripped.startswith("#if"):
+            # Floors are guarded with whichever macro their owner uses
+            # (`NON_MATCHING`, `SKIP_ASM`, ...). Only treat the block as the
+            # target's guard when it really carries this function's
+            # INCLUDE_ASM fallback; otherwise it is ordinary conditional code
+            # and the definition scan must continue.
+            block_end = _matching_endif(lines, code_lines, index)
+            fallback = any(
+                (match := INCLUDE_CODE_RE.match(code_lines[row])) is not None
+                and match.group("name") == name
+                for row in range(index, block_end + 1)
+            )
+            if fallback:
+                guard_line = index
+                break
+            continue
         include = INCLUDE_CODE_RE.match(code)
         if include is not None and include.group("name") == name:
             return offsets[index], offsets[index] + len(lines[index])
