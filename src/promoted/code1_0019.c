@@ -1952,10 +1952,210 @@ u32 func_001988b0(u8 *unit)
     return 0;
 }
 
-// FUN_00198920
+/* Battle-motion floor (1200B window). First probe nd 252
+   (obj 1128B, in-window); frame -0x80 vs -0x90 retail (one
+   saved reg short), DSP prologue shape verified. Open: frame
+   size, branch cascade, scheduler ordering. Quad-built
+   (m2c+IDA+Ghidra+retail: void/5-arg sig, int-form 1.0f store,
+   neighbor-merged tails rejected, a2 zeroing modeled). */
+// FUN_00198920 NONMATCHING
+#ifdef NON_MATCHING
+void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4in)
+{
+    extern f32 iGpffff80d4;
+    extern f32 iGpffff812c;
+    extern u8 *func_0019eda0(u8 *arg0, s32 arg1);
+    s32 a1m;
+    s32 v11;
+    s32 v12;
+    s16 *sp;
+    u8 *base;
+    s32 arg4;
+
+    /* a3-slot arrives u16 but retail masks it in its own param home. */
+    arg4 = arg4in;
+    *(s16 *)(arg0 + 0x9DC) = arg4;
+    if ((*(u32 *)(arg0 + 0x98) & 2) != 0) {
+        *(s16 *)(arg0 + 0x9DA) = arg1;
+        a1m = arg1 & 0xFFFF;
+        v11 = (u16)func_001990d0(arg0, a1m);
+        if (v11 < *(u16 *)(arg0 + 0x9E4)) {
+            *(f32 *)(arg0 + 0x9E0) = arg3 * ((f32)*(s16 *)(*(u8 **)(arg0 + 0x9F8) + v11 * 10 + 2) / 100.0f);
+        } else {
+            *(s32 *)(arg0 + 0x9E0) = 0x3F800000;
+        }
+        arg4 = arg4 & 0xFFFF;
+        if (arg4 != 5 && arg4 != 4 && arg4 != 3 && arg4 != 2 && arg4 != 0) {
+            v12 = 1;
+        } else {
+            v12 = 0;
+        }
+        if ((arg3 < iGpffff80d4 || iGpffff812c < arg3) && (arg2 == 8 || arg2 == 12 || arg2 == 4)) {
+            v12 = v12 | 0x60;
+        }
+        if (((*(u16 *)(arg0 + 0x9D8) & 0x10) != 0) || (*(s32 *)(arg0 + 0xA64) != 0 && func_00232710(*(s32 *)(arg0 + 0xA64), 256) != 0)) {
+            v12 = v12 | 0x100;
+        }
+        if (arg2 == 19) {
+            func_0047a150(*(u8 **)(arg0 + 0xA00));
+        } else {
+            func_0047a120(*(u8 **)(arg0 + 0xA00));
+        }
+        if ((*(u16 *)(arg0 + 0x9D8) & 0x20) != 0) {
+            arg2 = 0;
+        }
+        if ((*(u16 *)(arg0 + 0x9D8) & 0x40) != 0) {
+            v11 = 27;
+        }
+        func_00479940(*(u8 **)(arg0 + 0xA00), 0, (s32)(s16)v11, arg2, v12);
+        func_0047a0e0(*(u8 **)(arg0 + 0xA00), 0, *(f32 *)(arg0 + 0x9E0));
+        sp = (s16 *)func_0019eda0(arg0, a1m);
+        *(f32 *)(arg0 + 0x80) = (f32)sp[0];
+        *(f32 *)(arg0 + 0x84) = (f32)sp[1];
+        *(f32 *)(arg0 + 0x88) = (f32)sp[2];
+        *(f32 *)(arg0 + 0x8C) = (f32)(u16)sp[3];
+        *(f32 *)(arg0 + 0x90) = (f32)(u16)sp[4];
+        if (arg2 == 16 || arg2 == 8) {
+            if (v11 < *(u16 *)(arg0 + 0x9E4)) {
+                base = *(u8 **)(arg0 + 0x9F8) + v11 * 10;
+                if (*(s16 *)base >= 0 && *(s16 *)(base + 4) > 0) {
+                    *(u16 *)(arg0 + 0x9D8) = *(u16 *)(arg0 + 0x9D8) | 4;
+                    *(s16 *)(arg0 + 0x9E6) = *(s16 *)base;
+                    *(s16 *)(arg0 + 0x9E8) = *(s16 *)(base + 4);
+                }
+            }
+        } else {
+            *(u16 *)(arg0 + 0x9D8) = *(u16 *)(arg0 + 0x9D8) & ~4;
+        }
+        if (arg4 == 0) {
+            if (arg2 == 4) {
+                *(s16 *)(arg0 + 0x9EE) = 0;
+            } else if (arg2 == 20 || arg2 == 23 || arg2 == 22 || arg2 == 11 || arg2 == 9 || arg2 == 12 || arg2 == 8 || arg2 == 2) {
+                *(s16 *)(arg0 + 0x9EE) = 0;
+            } else if (v11 >= *(u16 *)(arg0 + 0x9E4)) {
+                *(s16 *)(arg0 + 0x9EE) = 0;
+            } else {
+                *(s16 *)(arg0 + 0x9EE) = *(s16 *)(*(u8 **)(arg0 + 0x9F8) + v11 * 10 + 8);
+            }
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00198920);
-// FUN_00198DD0
+#endif
+/* Best-distance flag-block reconstruction (768B window). Re-measured nd 130;
+   frame, switch dispatch and callee conventions verified against retail.
+   Open: shared-tail branch merge (bne+b) plus scheduler ordering in the
+   flag blocks, resistant to known levers (see archived header notes). */
+/* Best-distance flag-block reconstruction (768B window). Re-measured nd 130;
+   frame, switch dispatch and callee conventions verified against retail.
+   Open: shared-tail branch merge (bne+b) plus scheduler ordering in the
+   flag blocks, resistant to known levers (see archived header notes). */
+// FUN_00198DD0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma opt_propagation off
+void func_00198dd0(u8 *arg0, u16 arg1)
+{
+    s16 var_18;
+    s64 value;
+    u16 var_17;
+    u16 var_16;
+    s32 same;
+    s32 flag;
+    s32 r;
+    s16 temp;
+    extern s32 func_00479d10(u8 *a, u32 b, s16 c);
+    extern s32 func_00479dd0(u8 *a, u32 b, s16 c);
+    extern s32 func_00232710();
+
+    var_18 = 0;
+    if (func_00242930(*(u8 **)(arg0 + 0xA64)) != 0) {
+        if ((*(s32 *)(arg0 + 0x98) & 2) != 0) {
+            temp = (s16)(func_001990d0(arg0, 0x12) & 0xFFFF);
+            if (func_00479d10(*(u8 **)(arg0 + 0xA00), 0, temp) == 0) {
+                flag = 0;
+            } else {
+                r = func_00479dd0(*(u8 **)(arg0 + 0xA00), 0, temp);
+                flag = 1;
+                if (r == 1) {
+                    flag = 0;
+                }
+            }
+        } else {
+            flag = 0;
+        }
+        if (flag != 0) {
+            var_18 = 0x12;
+        }
+    }
+    if (func_00232710(*(s32 *)(arg0 + 0xA64), 0xFFFFF) != 0) {
+        var_18 = 3;
+    }
+    if (func_00232710(*(s32 *)(arg0 + 0xA64), 0x100000) != 0) {
+        var_18 = 0xA;
+    }
+    if (func_00243e30(*(s32 *)(arg0 + 0xA64)) != 0) {
+        var_18 = 0x18;
+    }
+    if (func_00232710(*(s32 *)(arg0 + 0xA64), 0x100) != 0) {
+        var_18 = 0;
+    }
+    if ((func_002428f0(*(u8 **)(arg0 + 0xA64), 0) != 0) && ((*(s32 *)(arg0 + 0x9C) & 0x20) != 0)) {
+        if ((*(s32 *)(arg0 + 0x98) & 2) != 0) {
+            temp = (s16)(func_001990d0(arg0, 0x13) & 0xFFFF);
+            if (func_00479d10(*(u8 **)(arg0 + 0xA00), 0, temp) == 0) {
+                flag = 0;
+            } else {
+                r = func_00479dd0(*(u8 **)(arg0 + 0xA00), 0, temp);
+                flag = 1;
+                if (r == 1) {
+                    flag = 0;
+                }
+            }
+        } else {
+            flag = 0;
+        }
+        if (flag != 0) {
+            var_18 = 0x13;
+        }
+    }
+    value = (s64)var_18;
+    if (value != 0x13) {
+        var_17 = 1;
+        var_16 = *(u16 *)(arg0 + 0x9EE);
+    } else {
+        var_17 = 2;
+        var_16 = 0;
+    }
+    {
+        u8 kind;
+        s16 ref;
+
+        kind = *(u8 *)(arg0 + 0xA2);
+        if ((kind == 1) || (kind == 0)) {
+            if ((*(s32 *)(arg0 + 0x98) & 2) != 0) {
+                ref = *(s16 *)(arg0 + 0x9DA);
+            } else {
+                ref = 0;
+            }
+            same = (s32)(*(s16 *)(arg0 + 0x9EC) == (s16)ref);
+        } else {
+            same = 0;
+        }
+    }
+    if ((same != 0) && ((s64)(*(s16 *)(arg0 + 0x9EC)) != value)) {
+        func_00198920(arg0, var_18, arg1, 1.0f, var_17);
+    }
+    *(s16 *)(arg0 + 0x9EC) = var_18;
+    *(u16 *)(arg0 + 0x9EE) = var_16;
+    *(f32 *)(arg0 + 0x9F0) = 1.0f;
+    *(s8 *)(arg0 + 0x9F4) = var_17;
+}
+#pragma pop
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00198dd0);
+#endif
 /* measured: opt_propagation off is scoped to func_001990d0. */
 #pragma opt_propagation off
 // FUN_001990D0

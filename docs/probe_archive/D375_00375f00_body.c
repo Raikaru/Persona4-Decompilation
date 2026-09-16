@@ -19,7 +19,11 @@
  * context-view helper reaches 156B/nd26 but still recomputes the two bases.
  * Typed-record cached-context construction grows to 176B/nd115. The b119
  * compiler emits the same 156B/nd4 candidate as b210; no compiler cutover.
- * Production remains unchanged. These are source-shape experiments, not
+ * Fresh 2026-09-15 variants via tools/probe_variants.py (baseline remeasured
+ * at 3 reloc-masked differing words): stores via the cached context 38,
+ * dual context pointers 23, recomputed call args with cached stores 19.
+ * None closes the two s2-copy words; production remains unchanged.
+ * These are source-shape experiments, not
  * a proof that no matching ordinary-C spelling exists.
  */
 // FUN_00375F00

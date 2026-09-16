@@ -59,6 +59,9 @@ extern f32 func_00373c20(u8 *arg0);
 extern s32 func_00106330(s32 arg0);
 extern void func_0036c900(void);
 extern void func_0036d990(u8 *arg0, u8 *arg1);
+extern void func_0036dda0(u8 *arg0, void *arg1);
+extern void func_0036de20(u8 *arg0, void *arg1);
+extern void func_0036de40(u8 *arg0, void *arg1);
 extern void func_0043f9c8(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_0036dc60(u8 *unit, f32 *src, f32 *dst, f32 scale);
 extern void func_00373750(s32 arg0, s32 arg1, void *arg2);
@@ -235,8 +238,106 @@ void func_003741f0(u8 *arg0) {
    it to the store and folds 0x1F2AC as lui $v1,2 / sw -0xd54($v1) (load-sinking
    floor; hoisting into a pointer local did not move it). 4 attempts: m2c decl
    order nd 108, reordered nd 147, probe batch best 133, final 133. */
-// FUN_003742B0
+/* Faithful C reconstruction of the shuffle-draw state loader (864B window).
+   First probe nd 188; switch structure, loop nests and callee conventions
+   verified against retail. Open: two extra saved regs (s0-s6 vs s0-s4),
+   stack-frame size (-0x90 vs -0x70), and scheduler ordering throughout.
+   Counter/address merges and switch-value inlining inert. */
+// FUN_003742B0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003742b0(u8 *arg0)
+{
+    s32 sp6C;
+    s32 temp_17;
+    s32 temp_17_2;
+    s32 temp_2;
+    s32 temp_2_2;
+    s32 temp_2_3;
+    s32 temp_3;
+    s32 temp_4;
+    s32 var_17;
+    s32 var_17_2;
+    s32 var_18;
+    s32 var_18_2;
+    s32 var_19;
+    u8 *temp_3_2;
+    u8 *temp_3_3;
+temp_3 = (s32)((*( s32 *)((u8 *)(arg0) + 0x1F2EC)));
+    switch (temp_3) {                               /* irregular */
+    case 0:
+        if (func_004553c0((*( s32 *)((u8 *)(arg0) + 0x1F2E8))) != 0) {
+            var_19 = 0;
+            var_18 = 0;
+loop_9:
+            if (var_18 < 9) {
+                temp_17 = (s32)(func_00455ea0((u8 *)(*( s32 *)((u8 *)(arg0) + 0x1F2E8)), var_19, &sp6C));
+                func_0044ea90(&D_0064EA20, 0x101);
+                temp_2 = (s32)(D_008873F4[0](1, sp6C, 0x40000));
+                temp_3_2 = (u8 *)(arg0 + (var_18 * 4));
+                (*( s32 *)((u8 *)(temp_3_2) + 0x1F2B8)) = temp_2;
+                if (temp_2 == 0) {
+                    func_0046d730(&D_0064EA20, 0x102);
+                }
+                func_0043f810((*( s32 *)((u8 *)(temp_3_2) + 0x1F2B8)), temp_17, sp6C);
+                var_18 += 1;
+                var_19 += 1;
+                goto loop_9;
+            }
+            var_17 = 0;
+loop_14:
+            if (var_17 < 3) {
+                temp_2_2 = func_0046af60((s32)func_00455ea0((u8 *)(*( s32 *)((u8 *)(arg0) + 0x1F2E8)), var_19, NULL));
+                (*( s32 *)((u8 *)((arg0 + (var_17 * 4))) + 0x1F2AC)) = temp_2_2;
+                if (temp_2_2 == 0) {
+                    func_0046d730(&D_0064EA20, 0x109);
+                }
+                var_17 += 1;
+                var_19 += 1;
+                goto loop_14;
+            }
+            var_18_2 = 0;
+loop_19:
+            if (var_18_2 < 3) {
+                temp_17_2 = (s32)(func_00455ea0((u8 *)(*( s32 *)((u8 *)(arg0) + 0x1F2E8)), var_19, &sp6C));
+                func_0044ea90(&D_0064EA20, 0x10F);
+                temp_2_3 = (s32)(D_008873F4[0](1, sp6C, 0x40000));
+                temp_3_3 = (u8 *)(arg0 + (var_18_2 * 4));
+                (*( s32 *)((u8 *)(temp_3_3) + 0x1F2DC)) = temp_2_3;
+                if (temp_2_3 == 0) {
+                    func_0046d730(&D_0064EA20, 0x110);
+                }
+                func_0043f810((*( s32 *)((u8 *)(temp_3_3) + 0x1F2DC)), temp_17_2, sp6C);
+                var_18_2 += 1;
+                var_19 += 1;
+                goto loop_19;
+            }
+            func_0036d230((s32)func_00455ea0((u8 *)(*( s32 *)((u8 *)(arg0) + 0x1F2E8)), var_19, NULL));
+            (*( s32 *)((u8 *)(arg0) + 0x1F2EC)) = 1;
+        case 1:
+            var_17_2 = 0;
+loop_26:
+            if (var_17_2 >= 3) {
+                func_00454bd0((*( s32 *)((u8 *)(arg0) + 0x1F2E8)));
+                (*( s32 *)((u8 *)(arg0) + 0x1F2E8)) = 0;
+                (*( s32 *)((u8 *)(arg0) + 0x1F2EC)) = 2;
+            case 2:
+                return 1;
+            }
+            temp_4 = (s32)((*( s32 *)((u8 *)((arg0 + (var_17_2 * 4))) + 0x1F2AC)));
+            if ((temp_4 != 0) && (func_0046a750(temp_4) == 0)) {
+                return 0;
+            }
+            var_17_2 += 1;
+            goto loop_26;
+        }
+    default:
+        return 0;
+    }
+
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003742b0);
+#endif
 // FUN_00374610
 void func_00374610(u8 *arg0) {
     s32 i;
@@ -555,8 +656,98 @@ void func_00374d20(u8 *arg0) {
     func_003e0f40(m);
 }
 
-// FUN_003753F0
+/* In recovery (2026-09-15): plain-C candidate at 197 reloc-masked differing
+ * words. Solved: 0x120 frame via u8 *spA0[30] (table spans 0xA0..0x117),
+ * prologue byte-exact through the count dispatch, first-loop opcodes,
+ * if/else mode dispatch (4/3 zero, 2 div3, 1 div2, 0/default compute),
+ * explicit u32->float two-sided conversion, GP float iGpffff8170.
+ * Wall: saved-register rotation (var_18 pinned $s5 vs retail $s2 across four
+ * declaration orders plus a 1800-iteration permuter sweep; temp_16 $s0,
+ * temp_22 $s6, arg0 $s4 stable). Production stays ASM. */
+// FUN_003753F0 NONMATCHING
+#ifdef NON_MATCHING
+void func_003753f0(u8 *arg0) {
+    u8 sp11C[4];
+    u8 sp118[4];
+    u8 *spA0[30];
+    f32 var_f20;
+    u8 *temp_16;
+    s32 var_18;
+    u8 *temp_21;
+    u32 var_17;
+    s32 var_19;
+    u8 *temp_22;
+    f32 var_f2;
+    f32 var_f0;
+    s32 temp_5;
+    s32 var_6;
+    s32 var_16;
+    func_0034f1e0();
+    sp11C[0] = 0xFF;
+    sp11C[1] = 0xFF;
+    sp11C[2] = 0xFF;
+    if (*(u16 *)(arg0 + 0x1F2F4) & 1) {
+        var_18 = func_00378530(*(s32 *)(arg0 + 0x1F304), *(s32 *)(arg0 + 0x1F2FC));
+    } else {
+        var_18 = *(s32 *)(arg0 + 0x1F304);
+    }
+    for (var_19 = 0; var_19 < var_18; var_19++) {
+        if (*(u16 *)(arg0 + var_19 * 0xE8 + 0x1D6A0) & 2) {
+            if ((*(u16 *)(arg0 + 0x1F2F4) & 2) == 0) {
+                func_00374a10(arg0, var_19);
+            }
+            temp_21 = arg0 + var_19 * 0xE8;
+            temp_22 = temp_21 + 0x1D6B8;
+            temp_16 = arg0 + var_19 * 0xFB0;
+            func_0036dda0(temp_16, temp_22);
+            func_0036de20(temp_16, temp_21 + 0x1D714);
+            sp11C[3] = *(temp_21 + 0x1D778);
+            func_0036de40(temp_16, sp11C);
+            if (var_19 != *(s32 *)(arg0 + 0x1F308)) {
+                spA0[var_19] = temp_16;
+                func_003766f0((f32 **)(arg0 + 0x1F24C), (s32)func_00374cf0, (s32)(spA0 + var_19), temp_22);
+            }
+        }
+    }
+    func_00376800((u8 **)(arg0 + 0x1F24C), 1);
+    sp118[0] = 0x20;
+    sp118[1] = 0x40;
+    sp118[2] = 0xFF;
+    sp118[3] = 0xFF;
+    var_f2 = 1.0f;
+    var_6 = *(s32 *)(arg0 + 0x1F304);
+    temp_5 = *(s32 *)(arg0 + 0x1F2FC);
+    if (temp_5 == 4 || temp_5 == 3) {
+        var_f20 = 0.0f;
+    } else {
+        if (temp_5 == 2) {
+            var_6 /= 3;
+            var_17 = *(u16 *)(arg0 + 0x1F1D2);
+            var_f2 = iGpffff8170;
+        } else if (temp_5 == 1) {
+            var_6 /= 2;
+            var_17 = *(u16 *)(arg0 + 0x1F1D2);
+        } else if (temp_5 == 0) {
+            var_17 = *(u16 *)(arg0 + 0x1F1D2);
+        }
+        if ((s32)var_17 >= 0) {
+            var_f0 = (f32)var_17;
+        } else {
+            var_f0 = 2.0f * (f32)((var_17 >> 1) | (var_17 & 1));
+        }
+        var_f20 = var_f2 * ((0.5f * var_f0) / (f32)var_6);
+    }
+    if (!(var_f20 <= 0.0f)) {
+        for (var_16 = 0; var_16 < var_18; var_16++) {
+            if (*(u16 *)(arg0 + var_16 * 0xE8 + 0x1D6A0) & 2) {
+                func_003768e0(arg0, var_16, 2, sp118, var_f20 * func_00375a70(arg0, var_16));
+            }
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003753f0);
+#endif
 
 
 // FUN_003757F0
@@ -1071,9 +1262,147 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003768e0);
    mula(y),madda(x) -- survived direct-struct-field and 4-temp spellings;
    (3) alpha else-arm or/mtc1 result register $v0 vs retail $v1 (scheduling
    residual, 8 words). 4 attempts: nd 108->15->51. */
-// FUN_00377930
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00377930);
+/* Shuffle-render floor (1248B window). First probe nd 378
+   (obj 1616B, 368B overrun); frame verified, int homes exact,
+   mula/madda/madd fusion emitted from plain spelling. Model:
+   5 int-saves, 4 FP-saves + scalar-replacement gap (quad kept
+   in regs vs retail stacked). Open: FP homes, addu flips,
+   mula order, alpha-reg, scheduler cascade. Variants tied:
+   folding, block-scope, counter-reuse all neutral. Ghidra
+   phantoms killed (per-iter div, +C0 store, denormal).
+   Quad-built, retail-arbitrated; prior nd-15 note on file. */
+// FUN_00377930 NONMATCHING
+#ifdef NON_MATCHING
+void func_00377930(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4)
+{
+    extern f32 D_008872F8_abs[];
+    f32 datw;
+    f32 halfW;
+    f32 halfH;
+    f32 scale;
+    f32 norm;
+    f32 n0;
+    f32 n1;
+    f32 n2;
+    f32 sp1B8v[3];
+    f32 sp1C8[2];
+    f32 sp80[12];
+    f32 sp70v[4];
+    f32 mat[4][16];
+    u8 *chain;
+    u8 *cbase;
+    void *matrix;
+    f32 *slot;
 
+    datw = D_008872F8_abs[0];
+    scale = 1.0f / *(f32 *)((u8 *)func_00457120() + 0x80);
+    if (arg2 != 0) {
+        sp1B8v[0] = *(f32 *)arg2;
+        sp1B8v[1] = *(f32 *)(arg2 + 4);
+        sp1B8v[2] = *(f32 *)(arg2 + 8);
+    } else {
+        chain = arg1 * 0xE8 + arg0;
+        cbase = chain + 0x1D6B8;
+        sp1B8v[0] = *(f32 *)(chain + 0x1D6B8);
+        sp1B8v[1] = *(f32 *)(cbase + 4);
+        sp1B8v[2] = *(f32 *)(cbase + 8);
+    }
+    chain = arg1 * 0xE8 + arg0;
+    sp70v[0] = *(f32 *)(chain + 0x1D714);
+    sp70v[1] = *(f32 *)(chain + 0x1D718);
+    sp70v[2] = *(f32 *)(chain + 0x1D71C);
+    sp70v[3] = *(f32 *)(chain + 0x1D720);
+    arg2 = (s32)(arg0 + arg1 * 0xFB0);
+    halfW = func_0036de70((u8 *)arg2) / 2.0f;
+    halfH = func_0036deb0((u8 *)arg2) / 2.0f;
+    matrix = func_003e0f80();
+    func_00457120();
+    norm = 2.0f / (sp70v[3] * sp70v[3] + sp70v[2] * sp70v[2] + sp70v[0] * sp70v[0] + sp70v[1] * sp70v[1]);
+    n0 = sp70v[0] * norm;
+    n1 = sp70v[1] * norm;
+    n2 = sp70v[2] * norm;
+    ((f32 *)matrix)[0] = 1.0f - (sp70v[1] * n1 + sp70v[2] * n2);
+    ((f32 *)matrix)[1] = sp70v[0] * n1 + n2 * sp70v[3];
+    ((f32 *)matrix)[2] = sp70v[2] * n0 - n1 * sp70v[3];
+    ((f32 *)matrix)[4] = sp70v[0] * n1 - n2 * sp70v[3];
+    ((f32 *)matrix)[5] = 1.0f - (sp70v[2] * n2 + sp70v[0] * n0);
+    ((f32 *)matrix)[6] = sp70v[1] * n2 + n0 * sp70v[3];
+    ((f32 *)matrix)[8] = sp70v[2] * n0 + n1 * sp70v[3];
+    ((f32 *)matrix)[9] = sp70v[1] * n2 - n0 * sp70v[3];
+    ((f32 *)matrix)[10] = 1.0f - (sp70v[0] * n0 + sp70v[1] * n1);
+    ((s32 *)matrix)[12] = 0;
+    ((s32 *)matrix)[13] = 0;
+    ((s32 *)matrix)[14] = 0;
+    ((s32 *)matrix)[3] = 3;
+    func_003e0c90(matrix, sp1B8v, 2);
+    sp80[0] = halfW;
+    sp80[1] = halfH;
+    sp80[2] = 0.0f;
+    sp80[3] = -halfW;
+    ((s32 *)sp80)[4] = 0;
+    sp80[5] = -halfH;
+    ((s32 *)sp80)[6] = 0;
+    ((s32 *)sp80)[7] = 0;
+    sp80[8] = halfH;
+    sp80[9] = halfW;
+    sp80[10] = -halfW;
+    sp80[11] = -halfH;
+    for (arg2 = 0; arg2 < 4; arg2 = arg2 + 1) {
+        u32 t;
+        f32 f;
+        func_003e42a0(sp1B8v, &sp80[arg2 * 3], matrix);
+        func_003717e0(sp1B8v, sp1C8);
+        slot = mat[arg2];
+        slot[0] = sp1C8[0];
+        slot[1] = sp1C8[1];
+        slot[2] = datw;
+        slot[6] = scale;
+        t = arg3[0];
+        if ((s32)t < 0) {
+            f = (f32)((t >> 1) | (t & 1));
+            f += f;
+        } else {
+            f = (f32)t;
+        }
+        slot[8] = f;
+        t = arg3[1];
+        if ((s32)t < 0) {
+            f = (f32)((t >> 1) | (t & 1));
+            f += f;
+        } else {
+            f = (f32)t;
+        }
+        slot[9] = f;
+        t = arg3[2];
+        if ((s32)t < 0) {
+            f = (f32)((t >> 1) | (t & 1));
+            f += f;
+        } else {
+            f = (f32)t;
+        }
+        slot[10] = f;
+        t = arg3[3];
+        if ((s32)t < 0) {
+            f = (f32)((t >> 1) | (t & 1));
+            f += f;
+        } else {
+            f = (f32)t;
+        }
+        slot[11] = f;
+    }
+    D_00887300[0](1, 0);
+    if (arg4 != 0 && arg3[3] == 0xFF) {
+        func_00364c50();
+    }
+    D_00887310[0](4, mat, 4);
+    if (arg4 != 0 && arg3[3] == 0xFF) {
+        func_00364c70();
+    }
+    func_003e0f40(matrix);
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00377930);
+#endif
 // FUN_00377E10
 s32 func_00377e10(u8 *arg0) {
     s32 *p = *(s32 **)(arg0 + 0x38);
@@ -1102,14 +1431,131 @@ void func_00377e60(u8 *arg0) {
    sp40[4]@0x40, the element-wise spill copies via a block-scoped f32* q, the
    +30/-30 shared materialisation (temp_f1 = 30.0f, stores via -temp_f1), the gp
    value in temp_f0/temp_f0_2, the two 4-iteration copy loops to mem[i*0x24+0x120]
-   and +0x1B0, and func_00451fc0's 8-arg call. Temp-register rotation floor. */
-// FUN_00377EB0
+   and +0x1B0, and func_00451fc0's 8-arg call. Temp-register rotation floor.
+   Re-measured 2026-09-15 at nd 120 (s-reg work/p/arg1 rotation plus the loop
+   rotation; decl and assignment swaps inert); banked as guarded floor. */
+// FUN_00377EB0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00377eb0(u8 *arg0, s32 arg1)
+{
+    struct ShuffleDrawStack {
+        s32 sp40[4];
+        s32 sp50[4];
+        f32 sp60[4][3];
+        f32 sp90[3];
+        s32 gap;
+        f32 spA0[3];
+    } stack;
+    s32 saved_arg1;
+    u8 *p;
+    u8 *saved_arg0;
+    u8 *q;
+    s32 i;
+    f32 temp_f0;
+    f32 temp_f1;
+
+    saved_arg0 = arg0;
+    saved_arg1 = arg1;
+    func_0044ea90(D_0064EA20, 0x76C);
+    p = D_008873F4[0](1, 0x240, 0x40000);
+    if (p == NULL) {
+        func_0046d730(D_0064EA20, 0x76D);
+    }
+    p = (u8 *)func_00451fc0(saved_arg0, D_0064EA60, 0x12, 0, 0,
+                             (void *)func_00377e10, (void *)func_00377e60, p);
+    if (p == NULL) {
+        func_0046d730(D_0064EA20, 0x777);
+    }
+    func_003781d0(p, saved_arg1);
+    func_00378260(p, 0xFF, 0xFF, 0xFF, 0);
+
+    temp_f1 = 30.0f;
+    stack.sp60[0][0] = -temp_f1;
+    temp_f0 = iGpffff81e0;
+    stack.sp60[0][1] = temp_f0;
+    stack.sp60[0][2] = 0.0f;
+    stack.sp50[0] = 0x3F7E0000;
+    stack.sp40[0] = 0;
+    stack.sp60[1][0] = temp_f1;
+    stack.sp60[1][1] = temp_f0;
+    stack.sp60[1][2] = 0.0f;
+    stack.sp50[1] = 0;
+    stack.sp40[1] = 0;
+    stack.sp60[2][0] = -temp_f1;
+    temp_f0 = -temp_f0;
+    stack.sp60[2][1] = temp_f0;
+    stack.sp60[2][2] = 0.0f;
+    stack.sp50[2] = 0x3F7E0000;
+    stack.sp40[2] = 0x3F250000;
+    stack.sp60[3][0] = temp_f1;
+    stack.sp60[3][1] = temp_f0;
+    stack.sp60[3][2] = 0.0f;
+    stack.sp50[3] = 0;
+    stack.sp40[3] = 0x3F250000;
+
+    for (i = 0; i < 4; i++) {
+        q = (u8 *)&stack.sp60[i][0];
+        sp: ;
+        stack.spA0[0] = *(f32 *)(q + 0);
+        stack.spA0[1] = *(f32 *)(q + 4);
+        stack.spA0[2] = *(f32 *)(q + 8);
+        q = p + i * 0x24;
+        *(f32 *)(q + 0x120) = stack.spA0[0];
+        *(f32 *)(q + 0x124) = stack.spA0[1];
+        *(f32 *)(q + 0x128) = stack.spA0[2];
+        q[0x12C] = 0xFF;
+        q[0x12D] = 0xFF;
+        q[0x12E] = 0xFF;
+        q[0x12F] = 0xFF;
+        *(f32 *)(q + 0x13C) = *(f32 *)&stack.sp50[i];
+        *(f32 *)(q + 0x140) = *(f32 *)&stack.sp40[i];
+    }
+
+    temp_f1 = 30.0f;
+    stack.sp60[0][0] = temp_f1;
+    temp_f0 = iGpffff81e0;
+    stack.sp60[0][1] = temp_f0;
+    stack.sp60[0][2] = 0.0f;
+    stack.sp50[0] = 0x3F7E0000;
+    stack.sp40[0] = 0;
+    stack.sp60[1][0] = -temp_f1;
+    stack.sp60[1][1] = temp_f0;
+    stack.sp60[1][2] = 0.0f;
+    stack.sp50[1] = 0;
+    stack.sp40[1] = 0;
+    stack.sp60[2][0] = temp_f1;
+    temp_f0 = -temp_f0;
+    stack.sp60[2][1] = temp_f0;
+    stack.sp60[2][2] = 0.0f;
+    stack.sp50[2] = 0x3F7E0000;
+    stack.sp40[2] = 0x3F250000;
+    stack.sp60[3][0] = -temp_f1;
+    stack.sp60[3][1] = temp_f0;
+    stack.sp60[3][2] = 0.0f;
+    stack.sp50[3] = 0;
+    stack.sp40[3] = 0x3F250000;
+
+    for (i = 0; i < 4; i++) {
+        q = (u8 *)&stack.sp60[i][0];
+        stack.sp90[0] = *(f32 *)(q + 0);
+        stack.sp90[1] = *(f32 *)(q + 4);
+        stack.sp90[2] = *(f32 *)(q + 8);
+        q = p + i * 0x24;
+        *(f32 *)(q + 0x1B0) = stack.sp90[0];
+        *(f32 *)(q + 0x1B4) = stack.sp90[1];
+        *(f32 *)(q + 0x1B8) = stack.sp90[2];
+        q[0x1BC] = 0xFF;
+        q[0x1BD] = 0xFF;
+        q[0x1BE] = 0xFF;
+        q[0x1BF] = 0xFF;
+        *(f32 *)(q + 0x1CC) = *(f32 *)&stack.sp50[i];
+        *(f32 *)(q + 0x1D0) = *(f32 *)&stack.sp40[i];
+    }
+    return (s32)p;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00377eb0);
-
-
-
-
-
+#endif
 // FUN_003781D0
 void func_003781d0(u8 *arg0, s32 arg1) {
     char buf[0x100];

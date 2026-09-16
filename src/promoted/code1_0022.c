@@ -748,8 +748,183 @@ s32 func_002240b0(void)
 
 
 
-// FUN_002240E0
+/* Camera-pose floor (880B window). First probe nd 123 (frame/prologue
+   verified); structure and callee conventions per archived notes. Open:
+   s-reg rotation (s1/s2/s5) and scheduler ordering. See P022 doc. */
+// FUN_002240E0 NONMATCHING
+#ifdef NON_MATCHING
+/* Complete ordinary-C source; production remains ASM.
+ * classification=SOURCE_SHAPE_NONMATCH; object_size=872; window=880;
+ * normalized_diff=344; fully_resolved_code_relocations=34;
+ * unmasked_overlap_byte_diff=413;
+ * differing_executable_words_including_uncovered=135;
+ * retail_executable_bytes=876; missing_executable_bytes=4;
+ * unresolved_relocations=0; window_overrun=0; no jump table.
+ * Final four retail bytes are zero alignment. Measured in the current
+ * production owner after the 002258b0 and 0022d200 promotions.
+ * Previous retained source: 872 bytes, 414 unmasked differing bytes,
+ * 136 differing executable words including the uncovered instruction.
+ *
+ * One camera pointer is the complete ABI. Matched caller func_00227e40
+ * forwards it at retail 0x227EE4 and 0x227F08. All saved GPRs are defined
+ * locally; no missing live-in or unwritten pose component was found.
+ * Source/destination poses are seven floats each (pair size 0x38).
+ * func_001bd560 writes the complete first pose; func_001bd780 writes the
+ * destination quaternion, and the explicit float snapshot supplies XYZ.
+ * The normal preset record contains six floats: eye[3], lookAt[3].
+ *
+ * Absolute special-vector objects are at 0x634870 and 0x63487C. Scalar
+ * aliases at 0x634874/0x634878 use the existing unsized-array declaration
+ * convention, not small-data scalar declarations that emit out-of-range
+ * GP loads. Duration fGpffff80e8 is at 0x7611D8 (word 0x3F666666).
+ * Both status accumulators are presence flags; traversal does not stop
+ * after either flag becomes true. The canonical datCalcChkBadStatus is
+ * used, rather than the owner's old generic func_00232710 declaration.
+ *
+ * Remaining differences: saved-register assignment, conditional narrowing
+ * and instruction selection. Scoped walks, inline selection, reordered
+ * declarations, explicit mask/selection separation, optimization level 1,
+ * common-subexpression/propagation/conditional-rebuilding controls did not
+ * produce a match. Diagnostic helpers and permutations are not retained.
+ * No fixed registers, inline assembly, padding fields, invented arguments
+ * or undefined reads were introduced. No native/game execution is claimed.
+ * Rechecked after the halfword transition API repair: the complete baseline
+ * still gives 872 bytes / 344 normalized differences. Word-sized variant
+ * and party selectors give 868 bytes / 343 differences, omitting eight
+ * executable bytes instead of four. Current propagation-off and explicit
+ * selection temporaries do not close the missing narrowing or register
+ * allocation differences. The complete baseline below remains preferred.
+ * Fresh CSE-off recheck: 880/880 bytes but 371 normalized differences.
+ * It adds two unit-pointer reloads while still missing the conditional
+ * narrowing. Explicit unit snapshots return to 872/344; additionally
+ * staging selection with propagation off gives 872/346. No new floor.
+ * Additional declarations assume the live owner's existing types/providers.
+ */
+extern s32 func_00243d80(u8 *unitData);
+extern s32 func_00243e30(u16 *unitData);
+extern void func_001b73f0(u8 *unit);
+extern f32 fGpffff80e8;
+extern u8 D_00634870[];
+extern f32 D_00634874[];
+extern f32 D_00634878[];
+extern u8 D_0063487C[];
+
+void func_002240e0(u8 *camera)
+{
+    struct CameraPosePair {
+        RwV3d first;
+        RtQuat firstRotation;
+        RwV3d second;
+        RtQuat secondRotation;
+    } poses;
+    u8 *unit;
+    u8 *partyMember;
+    u8 *enemy;
+    u8 *ally;
+    u8 *record;
+    f32 x;
+    f32 y;
+    f32 z;
+    u32 ordinal;
+    u16 partyIndex;
+    u16 variant;
+    u16 previousState;
+    s32 reset;
+    s32 hasStatus;
+    s32 hasPriorityStatus;
+
+    previousState = *(u16 *)(iGpffffb3ac + 0x108);
+    switch (previousState) {
+    case 2:
+    case 0x22:
+    case 0x28:
+    case 0x29:
+        reset = 0;
+        break;
+    default:
+        reset = 1;
+        break;
+    }
+    if (*(s32 *)(camera + 0x148) != 0) {
+        reset = 1;
+        *(s32 *)(camera + 0x148) = 0;
+    }
+    unit = *(u8 **)(*(u8 **)(camera + 0xE0) + 0x30);
+    if (*(u8 *)(unit + 0xA2) != 0) {
+        partyIndex = 0;
+    } else {
+        ordinal = 0;
+        partyMember = *(u8 **)(iGpffffb3ac + 0x17C);
+        while (partyMember != NULL) {
+            if (unit == partyMember) {
+                break;
+            }
+            ordinal = (u16)(ordinal + 1);
+            partyMember = *(u8 **)(partyMember + 0xA68);
+        }
+        partyIndex = (u16)ordinal;
+    }
+    hasStatus = 0;
+    hasPriorityStatus = 0;
+    enemy = *(u8 **)(iGpffffb3ac + 0x180);
+    while (enemy != NULL) {
+        if ((*(u32 *)(enemy + 0x9C) & 8) != 0 &&
+            *(u8 **)(enemy + 0xA64) != NULL &&
+            func_00243d80(*(u8 **)(enemy + 0xA64)) != 0) {
+            if (datCalcChkBadStatus(*(s32 *)(enemy + 0xA64), 0x100000) != 0) {
+                hasStatus = 1;
+            }
+            if (func_00243e30(*(u16 **)(enemy + 0xA64)) != 0) {
+                hasPriorityStatus = 1;
+            }
+        }
+        enemy = *(u8 **)(enemy + 0xA6C);
+    }
+    variant = hasPriorityStatus != 0 ? 2 : (u16)(hasStatus != 0);
+    if (func_001ef9a0() == 0x208 && (u16)variant == 0) {
+        ally = *(u8 **)(iGpffffb3ac + 0x178);
+        while (ally != NULL) {
+            if ((*(u32 *)(ally + 0x9C) & 8) != 0 &&
+                *(u8 **)(ally + 0xA64) != NULL &&
+                datCalcChkBadStatus(*(s32 *)(ally + 0xA64), 0x100) != 0) {
+                variant = 2;
+                break;
+            }
+            ally = *(u8 **)(ally + 0xA6C);
+        }
+    }
+    func_001bd560((f32 *)&poses.first, (f32 *)(camera + 0x9C));
+    if (func_001ef9a0() != 0x215) {
+        record = *(u8 **)(iGpffffb3ac + 0xB98) +
+                 (u16)partyIndex * 0x48 + (u16)variant * 0x18;
+        func_001bd780(&poses.secondRotation, record, record + 0xC, D_0060A0E0);
+        x = *(f32 *)record;
+        y = *(f32 *)(record + 4);
+        z = *(f32 *)(record + 8);
+        poses.second.x = x;
+        poses.second.y = y;
+        poses.second.z = z;
+    } else {
+        func_001bd780(&poses.secondRotation, D_00634870, D_0063487C, D_0060A0E0);
+        x = *(f32 *)D_00634870;
+        y = D_00634874[0];
+        z = D_00634878[0];
+        poses.second.x = x;
+        poses.second.y = y;
+        poses.second.z = z;
+    }
+    if (reset != 0) {
+        func_001b73f0(NULL);
+        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+        func_001bab00((u16 *)camera, (f32 *)&poses.second);
+    } else {
+        func_001bac20((u16 *)camera, (f32 *)&poses.first, (f32 *)&poses.second, 1);
+        func_001bbef0(camera, fGpffff80e8);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_002240e0);
+#endif
 // FUN_00224450
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00224450);
 // FUN_00224970
@@ -3059,8 +3234,139 @@ s32 func_0022a6b0(s64 *arg0) {
     return 1;
 }
 
-// FUN_0022A730
+/* Battle-packet floor (1184B window). First probe nd 259 (obj 1216B,
+   32B overrun); frame -0x90 vs -0xA0, prologue incl DSP words
+   verified. Open: frame size, branch-target cascade, scheduler
+   ordering. Triple-built (m2c+IDA+Ghidra, retail-arbitrated:
+   gp-struct direct, 1973f0 4-arg, masked k-counter). */
+// FUN_0022A730 NONMATCHING
+#ifdef NON_MATCHING
+void func_0022a730(u8 *arg0)
+{
+    extern u8 *func_0019a0c0();
+    extern void func_00196040();
+    extern u8 *func_001973f0(u8 *arg0, s32 arg1, f32 farg, s32 arg2);
+    extern u8 *func_00197f50();
+    extern f32 fGpffff809c;
+    extern u8 D_00635530[];
+    u8 v26[12];
+    s32 v27;
+    u8 v28[16];
+    u8 *i;
+    u8 *j;
+    u8 *v1;
+    s32 v4;
+    u8 *v6;
+    u8 *v14;
+    u8 *k;
+    u16 u;
+    s16 v12;
+    s16 v22;
+    u8 *w;
+    u8 *w24;
+    s32 v9;
+
+    *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) | 0x80000;
+    v4 = 0;
+    v1 = 0;
+    for (i = *(u8 **)(iGpffffb3ac + 0x174); i != 0; i = *(u8 **)(i + 0x450)) {
+        if ((*(u16 *)(i + 0x1A) & 1) != 0) {
+            v6 = *(u8 **)(i + 0x30);
+            if ((*(u32 *)(v6 + 0x9C) & 8) != 0) {
+                if (func_002428f0(*(u8 **)(v6 + 0xA64), 0) == 0) {
+                    w = func_0019a0c0(v6, 0);
+                    *(s64 *)(w + 0x60) = *(s64 *)arg0;
+                    func_00194590(w, 0);
+                }
+                if (func_00232710(*(s32 *)(v6 + 0xA64), 256) != 0) {
+                    v1 = i;
+                    v4 = v4 + 1;
+                }
+            }
+        }
+    }
+    if (v1 != 0) {
+        w = (u8 *)func_001d3700(2, 4095);
+        *(s16 *)(w + 0x48) = 8;
+        *(s64 *)(w + 0x60) = *(s64 *)arg0;
+        func_00194590(w, 0);
+        if (v4 == 1) {
+            v9 = 172;
+        } else {
+            v9 = 173;
+        }
+        w = func_00202400(*(s32 *)(v1 + 0x30), v9);
+        *(s64 *)(w + 0x60) = *(s64 *)arg0;
+        func_00194590(w, 3);
+        func_001f0a10(v26);
+        v27 = 256;
+        func_00196040(2, 1, v28, 0, 0, 1);
+        if (v4 != 1) {
+            w = func_001bc920(arg0, 44);
+            *(s64 *)(w + 0x60) = *(s64 *)arg0;
+            func_00194590(w, 0);
+        }
+        v12 = 12;
+        for (j = *(u8 **)(iGpffffb3ac + 0x174); j != 0; j = *(u8 **)(j + 0x450)) {
+            if ((*(u16 *)(j + 0x1A) & 1) != 0) {
+                v14 = *(u8 **)(j + 0x30);
+                if ((*(u32 *)(v14 + 0x9C) & 8) != 0 && func_00232710(*(s32 *)(v14 + 0xA64), 256) != 0) {
+                    *(u16 *)(j + 0x1A) = *(u16 *)(j + 0x1A) | 8;
+                    *(u16 *)(*(u8 **)(*(u8 **)(j + 0x30) + 0xA64)) = *(u16 *)(*(u8 **)(*(u8 **)(j + 0x30) + 0xA64)) & ~0x20;
+                    *(u16 *)(*(u8 **)(*(u8 **)(j + 0x30) + 0xA64)) = *(u16 *)(*(u8 **)(*(u8 **)(j + 0x30) + 0xA64)) & ~0x8;
+                    *(u16 *)(*(u8 **)(*(u8 **)(j + 0x30) + 0xA64)) = *(u16 *)(*(u8 **)(*(u8 **)(j + 0x30) + 0xA64)) & ~0x10;
+                    if (*(v14 + 0xA2) != 0) {
+                        u = 0;
+                    } else {
+                        u = 0;
+                        for (k = *(u8 **)(iGpffffb3ac + 0x17C); k != 0 && v14 != k; k = *(u8 **)(k + 0xA68)) {
+                            u = (u + 1) & 0xFFFF;
+                        }
+                    }
+                    func_001ec6d0((s16 *)(v14 + 0x94), (s16 *)(v14 + 0x96), (f32 *)(D_00635530 + u * 0xC));
+                    if (v4 == 1) {
+                        w = func_001bc920(j, 10);
+                        *(s64 *)(w + 0x60) = *(s64 *)arg0;
+                        func_00194590(w, 0);
+                    }
+                    w = (u8 *)func_001d6240(*(u32 *)(iGpffffb3ac + 0xD74), (u32)v14, (u32)v14, 1, 0);
+                    *(s16 *)(w + 0x48) = v12;
+                    *(s64 *)(w + 0x60) = *(s64 *)arg0;
+                    func_00194590(w, 2);
+                    w = (u8 *)func_001f36e0((s32)j, (s32)j, v26, 1, 1);
+                    *(s16 *)(w + 0x48) = v12;
+                    *(s64 *)(w + 0x60) = *(s64 *)arg0;
+                    func_00194590(w, 1);
+                    w = (u8 *)func_0019e7c0(*(u8 **)(j + 0x30), 0);
+                    *(s64 *)(w + 0x60) = *(s64 *)arg0;
+                    func_00194590(w, 1);
+                    if (v4 == 1) {
+                        v22 = v12 + 34;
+                        w = func_001bc920(j, 44);
+                        *(s16 *)(w + 0x48) = v22;
+                        *(s64 *)(w + 0x60) = *(s64 *)arg0;
+                        func_00194590(w, 0);
+                    } else {
+                        v22 = v12 + 26;
+                    }
+                    w24 = func_001973f0(v14, 0, fGpffff809c, 24);
+                    *(s16 *)(w24 + 0x48) = v22;
+                    *(s64 *)(w24 + 0x60) = *(s64 *)arg0;
+                    func_00194590(w24, 1);
+                    w = func_00197f50(*(u8 **)(j + 0x30), v28, 0);
+                    *w = 4;
+                    *(s64 *)(w + 8) = *(s64 *)(w24 + 88);
+                    *(s64 *)(w + 0x60) = *(s64 *)arg0;
+                    func_00194590(w, 1);
+                    v12 = v12 + 4;
+                }
+            }
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022a730);
+#endif
 // FUN_0022ABD0
 s32 func_0022abd0(s64 *arg0) {
     u8 *temp_4;

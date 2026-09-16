@@ -1,9 +1,11 @@
-/* Closest tested candidate before reverting to INCLUDE_ASM: object 1088B, retail window 1072B, normalized_diff 712. */
+/* Banked floor: object 1072B = retail window 1072B (size-exact), normalized_diff 215.
+   fea0 float->s16 idiom; absolute consts via file-scope array decls.
+   Open: loop-hoist wall, s0/s5 arg0-home swap. */
 void func_0013fb50(u8 *arg0) {
     s16 i;
     s16 j;
     s16 k;
-    s16 value;
+    s32 value;
     f32 f;
     s32 resource0;
     s32 resource1;
@@ -32,17 +34,17 @@ void func_0013fb50(u8 *arg0) {
         *(f32 *)(dst + 0x50) = *(f32 *)(src + 0);
         *(f32 *)(dst + 0x54) = *(f32 *)(src + 4);
         f = *(f32 *)(src + 8);
-        if (f >= 2147483648.0f) {
-            value = (s16)((s32)(f - 2147483648.0f) | 0x80000000);
+        if (2147483648.0f <= f) {
+            value = (((s32)(f - 2147483648.0f)) | 0x80000000) & 0xFFFF;
         } else {
-            value = (s16)(s32)f;
+            value = (s32)f & 0xFFFF;
         }
         *(s16 *)(dst + 0x60) = value;
         f = *(f32 *)(src + 0xC);
-        if (f >= 2147483648.0f) {
-            value = (s16)((s32)(f - 2147483648.0f) | 0x80000000);
+        if (2147483648.0f <= f) {
+            value = (((s32)(f - 2147483648.0f)) | 0x80000000) & 0xFFFF;
         } else {
-            value = (s16)(s32)f;
+            value = (s32)f & 0xFFFF;
         }
         *(s16 *)(dst + 0x66) = value;
         *(u8 *)(dst + 0x5A) = *(u8 *)(src + 0x10);

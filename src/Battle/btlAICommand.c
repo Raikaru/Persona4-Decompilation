@@ -22,7 +22,7 @@ extern s32 func_001dbba0();
 extern u64 func_00452490();
 
 extern u8 *func_001b0cc0();
-extern s32 func_001de000();
+extern s32 func_001de000(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3);
 extern u32 func_0029cc00();
 extern void func_0029cf50();
 extern u8 *func_0029d050();
@@ -580,9 +580,137 @@ s32 func_001dbb90(void) {
    typed prototype errors on the heterogeneous u64/u32/... call sites) and
    everything else — call shapes, loop, tail — compiles correctly. Tried
    s32/s64 arg1 and u32/(u_long128) mask spellings; best nd 204. */
-// FUN_001DBBA0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbba0);
+// FUN_001DBBA0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_001dbba0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, code arg5)
+{
+    s32 f23;
+    s32 f17;
+    s32 m1;
+    s32 m2;
+    s32 m3;
+    s32 m4;
+    u8 *temp19;
+    u8 *temp16;
+    s32 c18;
+    s32 i22;
+    u8 *selected[12];
 
+    f23 = arg3 & 0xFFFF;
+    if ((f23 & 0x20) != 0) {
+        func_001d7c60((u8 *)arg0, (u8 *)arg0 + 0x98, 2, 0, 0);
+    } else {
+        u16 available;
+
+        available = func_001d7f10((u8 *)arg0, (u8 *)arg0 + 0x98, *(u16 *)((u8 *)arg0 + 0x6E), 0);
+        if (available != 0) {
+            u16 eindex;
+            u16 ecount;
+
+            eindex = 0;
+            while ((ecount = *(u16 *)((u8 *)arg0 + 0xD0)), (u16)eindex < ecount) {
+                *(u32 *)((u8 *)arg0 + (eindex & 0xFFFF) * 4 + 0x38) =
+                    *(u32 *)((u8 *)arg0 + (eindex & 0xFFFF) * 4 + 0x98);
+                eindex++;
+            }
+            *(u16 *)((u8 *)arg0 + 0x6A) = ecount;
+            return 1;
+        }
+    }
+    c18 = 0;
+    i22 = 0;
+    f17 = (u16)arg3;
+    m1 = f17 & 1;
+    m2 = f17 & 2;
+    m3 = f17 & 0x10;
+    m4 = f17 & 0x40;
+    for (; (u16)i22 < *(u16 *)((u8 *)arg0 + 0xD0); i22 = (i22 + 1) & 0xFFFF) {
+        temp19 = *(u8 **)((u8 *)arg0 + (i22 & 0xFFFF) * 4 + 0x98);
+        if ((*(u16 *)(temp19 + 0x1A) & 1) == 0) {
+            continue;
+        }
+        temp16 = *(u8 **)(temp19 + 0x30);
+        if (f17 == 0) {
+            goto testm4;
+        }
+        if (m1 == 0) {
+            goto testm2;
+        }
+        if (func_00232710(*(u32 *)(temp16 + 0xA64), 0x100000) == 0) {
+            continue;
+        }
+    testm2:
+        if (m2 == 0) {
+            goto testm3;
+        }
+        if (*(u8 *)(temp16 + 0xA2) != 1 || func_001f9ce0(temp19, (s16)arg1) != 0) {
+            goto testm3;
+        }
+        {
+            u32 index = (u16)arg1;
+            if (func_0010f420(*(u16 *)(temp16 + 0xA4), index) == 0) {
+                continue;
+            }
+        }
+    testm3:
+        if (m3 == 0) {
+            goto testm4;
+        }
+        if (func_001dd570((u8 *)arg0, temp19, 0, 0) < 0) {
+            continue;
+        }
+    testm4:
+        if (m4 == 0) {
+            if (func_00232710(*(u32 *)(temp16 + 0xA64), arg2) != 0) {
+                continue;
+            } else {
+                goto docallback;
+            }
+        }
+        if (func_002340c0(*(u32 *)(temp16 + 0xA64), arg2) != 0) {
+            continue;
+        }
+    docallback:
+        if (arg5(temp19, arg1) != arg4) {
+            selected[(u16)c18] = temp19;
+            c18 = (c18 + 1) & 0xFFFF;
+        }
+    }
+    {
+        s32 count;
+
+        count = c18 & 0xFFFF;
+        if (count == 0) {
+            if ((f23 & 8) != 0) {
+                return 0;
+            }
+            return func_001dbf20((u8 *)arg0, arg1);
+        }
+        if ((f23 & 4) == 0) {
+            s32 pick;
+
+            pick = 0;
+            if (count >= 2) {
+                pick = func_00231d70(count) & 0xFFFF;
+            }
+            *(u8 **)((u8 *)arg0 + 0x38) = selected[pick & 0xFFFF];
+            *(u16 *)((u8 *)arg0 + 0x6A) = 1;
+        } else {
+            s32 k;
+
+            k = 0;
+            while ((u16)k < count) {
+                *(u8 **)((u8 *)arg0 + (k & 0xFFFF) * 4 + 0x38) = selected[k & 0xFFFF];
+                k = (k + 1) & 0xFFFF;
+            }
+            *(u16 *)((u8 *)arg0 + 0x6A) = c18;
+        }
+        return 1;
+    }
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbba0);
+#endif
 /* measured: complete candidate in docs/probe_archive/QAIC_001dbf20_body.c:
    object 1152B / window 1120B / differing words 242; not a compiler floor.
    The historical five-word comparison described FUN_001DC9A0, not this body.
@@ -591,9 +719,115 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbba0);
    FP/sort/weight addressing still differ. The archive uses the canonical HP
    getter contracts, including recovered datCalcGetHp, and both parameters.
    Keep the authoritative ASM; no near-match claim applies to this function. */
-// FUN_001DBF20
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbf20);
+// FUN_001DBF20 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_001dbf20(u8 *arg0, u32 arg1) {
+    extern u16 func_00231f80(u8 *arg0);
+    extern u8 D_006095F0[];
+    u16 v7;
+    u16 i;
+    u16 j;
+    u16 k;
+    u16 m;
+    u16 n;
+    u16 c18;
+    u8 g;
+    s32 v8;
+    u8 *e;
+    u32 w;
+    u16 f15;
+    u16 f16;
+    f32 stab[24];
+    s32 swapped;
+    f32 r0;
+    f32 r1;
+    s32 t0;
 
+    if (func_001d7f10(arg0, arg0 + 0x98, *(u16 *)(arg0 + 0x6E), 0) != 0) {
+        i = 0;
+        while (1) {
+            v7 = *(u16 *)(arg0 + 0xD0);
+            if (i >= v7) {
+                break;
+            }
+            *(u32 *)(arg0 + 4 * i + 0x38) = *(u32 *)(arg0 + 4 * i + 0x98);
+            i = i + 1;
+        }
+        *(u16 *)(arg0 + 0x6A) = v7;
+        return 1;
+    }
+    v7 = *(u16 *)(arg0 + 0xD0);
+    v8 = 1;
+    if (v7 == 1) {
+        *(u32 *)(arg0 + 0x38) = *(u32 *)(arg0 + 0x98);
+        *(u16 *)(arg0 + 0x6A) = 1;
+    } else {
+        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 1) {
+            j = 0;
+            while (j < v7 && *(u8 *)(*(u8 **)(*(u32 *)(arg0 + 4 * j + 0x98) + 0x30) + 0xA2) == 0) {
+                j++;
+            }
+            if (j == v7) {
+                v8 = 0;
+            }
+        }
+        g = *(iGpffffb3b8 + *(u16 *)(arg0 + 0x6E) * 40 + 17);
+        if (g == 0x10 || g == 0x0E || g == 0x0D || g == 0x0C || g == 0x0A || g == 0x08 || g == 0x04 || g == 0x03 || g == 0x01) {
+        } else {
+            v8 = 1;
+        }
+        if (v8 != 0 || v7 >= 5) {
+            *(u32 *)(arg0 + 0x38) = *(u32 *)(arg0 + 4 * func_00231d70(v7) + 0x98);
+            *(u16 *)(arg0 + 0x6A) = 1;
+        } else {
+            n = 0;
+            c18 = v7;
+            while (n < c18) {
+                e = (u8 *)(arg0 + 4 * n + 0x98);
+                w = *(u32 *)e;
+                f15 = func_00231f80(*(u8 **)(*(u32 *)(*(u32 *)e + 0x30) + 0xA64));
+                f16 = (u16)func_00231ed0(*(u32 *)(w + 0x30) + 0xA64);
+                stab[2 * n] = *(f32 *)e;
+                stab[2 * n + 1] = (f32)f16 / (f32)f15;
+                n++;
+            }
+            do {
+                swapped = 0;
+                for (k = 0; k < (s32)c18 - 1; k++) {
+                    r0 = stab[2 * k + 1];
+                    if (r0 < stab[2 * k + 3]) {
+                        t0 = *(s32 *)&stab[2 * k];
+                        stab[2 * k] = stab[2 * k + 2];
+                        stab[2 * k + 1] = stab[2 * k + 3];
+                        *(s32 *)&stab[2 * k + 2] = t0;
+                        stab[2 * k + 3] = r0;
+                        swapped = 1;
+                    }
+                }
+            } while (swapped != 0);
+            w = func_00231d70(100);
+            m = 0;
+            n = 0;
+            while (m < v7) {
+                n = (n + D_006095F0[4 * v7 - 4 + m]) & 0xFFFF;
+                if (n >= w) {
+                    break;
+                }
+                m++;
+            }
+            if (c18 == m) {
+                *(u32 *)(arg0 + 0x38) = *(u32 *)&stab[2 * func_00231d70(v7)];
+            } else {
+                *(u32 *)(arg0 + 0x38) = *(u32 *)&stab[2 * m];
+            }
+            *(u16 *)(arg0 + 0x6A) = 1;
+        }
+    }
+    return 1;
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbf20);
+#endif
 /* Ported from P3FES btlEffect.c func_002c3be0 (copy-all / min-stat select).
    func_002bff60_u16->func_001d7f10; offsets 0x88->0x98, 0xc0->0xd0, 0xa2c->0xa64;
    lowest init 0xfffffff. */
@@ -1026,7 +1260,7 @@ u32 func_001dd0d0(u32 param_1)
     return 1;
 }
 // FUN_001DD1C0
-s32 func_001dd1c0(u8 *p, u8 *q, u16 *t, u32 u, u32 v) {
+s32 func_001dd1c0(u8 *p, u8 *q, u16 *t, u16 u, u32 v) {
     u32 s;
     s32 bd;
     s32 best;
@@ -1075,7 +1309,7 @@ s32 func_001dd1c0(u8 *p, u8 *q, u16 *t, u32 u, u32 v) {
     return best;
 }
 // FUN_001DD3A0
-s32 func_001dd3a0(u8 *p, u8 *q, u16 *t, u32 u, s32 v) {
+s32 func_001dd3a0(u8 *p, u8 *q, u16 *t, u16 u, s32 v) {
     u32 s1;
     u32 s2;
     s32 bd;
@@ -1121,9 +1355,100 @@ s32 func_001dd3a0(u8 *p, u8 *q, u16 *t, u32 u, s32 v) {
    every narrowing read at every -O level, spilled or register-resident.
    The loop-test shape (andi idx into $3; lq $2; slt $2,$3,$2 with $3
    surviving the lq) has no pair-free C spelling. */
-// FUN_001DD570
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd570);
+// FUN_001DD570 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_001dd570(u8 *p, u8 *q, s32 arg2, s32 arg3)
+{
+    u8 *unit0;
+    s16 cur0;
+    u16 buf[9];
+    u16 idx;
+    u16 n;
+    u16 *table;
+    u16 limit;
+    u16 *e;
+    u16 v;
+    s16 cur;
+    s32 flags;
+    u16 cmd;
+    u8 *unitP;
+    s32 ok;
+    s32 r;
 
+    n = 0;
+    unit0 = *(u8 **)(p + 0x30);
+    cur0 = (s16)func_0023d8e0(*(u8 **)(unit0 + 0xA64), 0);
+    if (func_001db360(q, cur0, 1) != 0) {
+        buf[0] = 0;
+        n = (n + 1) & 0xFFFF;
+    }
+    limit = func_0023e130(*(u8 **)(unit0 + 0xA64)) & 0xFFFF;
+    table = (u16 *)func_0023e140(*(u8 **)(unit0 + 0xA64));
+    idx = 0;
+    while (idx < limit) {
+        e = table + idx;
+        v = *e;
+        if (v != 0 && v < 0x1B8) {
+            cur = (s16)func_0023d8e0(*(u8 **)(unit0 + 0xA64), v);
+            flags = func_0023d6e0(cur);
+            if (arg3 == 0) {
+                if ((flags & 0x7E) == 0)
+                    goto next;
+            } else if (arg3 == 1) {
+                if ((flags & 0x7E) == 0 || (flags & 2) != 0)
+                    goto next;
+            } else if (arg3 == 2) {
+                if ((flags & 2) == 0)
+                    goto next;
+            }
+            cmd = *e;
+            if (cmd >= 0x240)
+                func_0046d730(D_006095E0, 0x45F);
+            unitP = *(u8 **)(p + 0x30);
+            if (cmd < 0x1B8) {
+                if (func_00232710(*(u32 *)(unitP + 0xA64), 0x80008) != 0)
+                    ok = 0;
+                else if (func_00232730(*(u8 **)(unitP + 0xA64), cmd) == 0)
+                    ok = 0;
+                else if (func_0023ddc0(*(u8 **)(unitP + 0xA64), cmd) == 0)
+                    ok = 1;
+                else
+                    ok = 0;
+            } else {
+                if (func_00232730(*(u8 **)(unitP + 0xA64), cmd) != 0)
+                    ok = 1;
+                else
+                    ok = 0;
+            }
+            if (ok == 0)
+                goto next;
+            if (func_001db360(q, cur, 1) != 0) {
+                buf[n] = *e;
+                n++;
+            }
+        }
+next:
+        idx++;
+    }
+    if (n == 0)
+        return -1;
+    if (arg2 == 1) {
+        r = func_001dd1c0(p, q, buf, n, 1);
+        if (r < 0)
+            r = func_001dd1c0(p, q, buf, n, 0);
+        return r;
+    } else if (arg2 == 0) {
+        r = func_001dd1c0(p, q, buf, n, 0);
+        if (r < 0)
+            r = func_001dd1c0(p, q, buf, n, 1);
+        return r;
+    } else {
+        return func_001dd1c0(p, q, buf, n, 0xFFFF);
+    }
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd570);
+#endif
 /* measured: same 128-bit-slot conversion wall as FUN_001DD570 — the limit
    slot at 0xA0 (andi $2,$17,0xffff; sq) and its loop test (andi idx into $3;
    lq $2; slt $2,$3,$2) need raw sq/lq without the dsll32/dsra32 pairs mwcc
@@ -1131,18 +1456,224 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd570);
    locals, aligned u64, wide-return helpers, all -O levels). The pointer base
    (from func_0023e140) is register-resident and fine; only the 0xA0 slot
    pattern blocks it. */
-// FUN_001DD920
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd920);
+// FUN_001DD920 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma opt_propagation off
+s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
+{
+    u8 *unit;
+    u16 count;
+    u16 *commands;
+    u16 table[8];
+    u16 n;
+    s16 result;
+    u16 cmd;
+    u32 hp;
+    u32 max;
+    s32 cur;
+    s32 r;
 
-/* measured: the func_001db360 call-site convention is unreachable in C — retail
-   calls it with ($4=q, $5=stale s16 from the 3d8e0 compare, $6=1) while the
-   matched callers need the typed (u64,u16,s32) declaration; an old-style extern
-   satisfies de000 but adds a u16 promotion andi to the matched callers
-   (MISMATCH), and the typed extern forces mwcc's broken u64 half-construction
-   (dsll32/dsra32 pairs + or) at this call site. Also the n2 = (n2+1) fold
-   (daddiu vs retail's addiu+andi) is a 1-word constant-propagation floor. */
+    result = -1;
+    n = 0;
+    unit = *(u8 **)(arg0 + 0x30);
+    count = func_0023e130(*(u8 **)(unit + 0xA64));
+    commands = (u16 *)func_0023e140(*(u8 **)(unit + 0xA64));
+    if (func_002428f0(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64), 0) != 0) {
+        result = 0;
+    } else {
+        hp = *(u16 *)(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64) + 8);
+        max = (u16)func_00231f80(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64));
+        if (hp * 100 <= max * 60) {
+            result = 1;
+        } else {
+            if (func_00232710(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64), 0xC) != 0) {
+                result = 2;
+            } else {
+                cur = func_00231ed0(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64)) & 0xFFFF;
+                if (cur < (s32)(func_00231f80(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64)) & 0xFFFF))
+                    result = 1;
+            }
+        }
+    }
+    switch (result) {
+    case 0: {
+        u16 i;
+        u16 *entry;
+        s32 limit;
+
+        i = 0;
+        limit = count;
+        while (i < limit) {
+            entry = commands + i;
+            cmd = *entry;
+            if (cmd != 0 && cmd < 0x1B8) {
+                switch (cmd) {
+                case 0xD1: case 0xD2:
+                    if (btlCommandUsable(arg0, cmd)) {
+                        table[n] = *entry;
+                        n++;
+                    }
+                    break;
+                }
+            }
+            i++;
+        }
+        break;
+    }
+    case 1: {
+        u16 i;
+        u16 *entry;
+        s32 limit;
+
+        i = 0;
+        limit = count;
+        while (i < limit) {
+            entry = commands + i;
+            cmd = *entry;
+            if (cmd != 0 && cmd < 0x1B8) {
+                switch (cmd) {
+                case 0xC0: case 0xC1: case 0xC2: case 0xC3:
+                case 0xC4: case 0xC5: case 0xC6:
+                    if (btlCommandUsable(arg0, cmd)) {
+                        table[n] = *entry;
+                        n++;
+                    }
+                    break;
+                }
+            }
+            i++;
+        }
+        if (n > 0) {
+            switch (arg3) {
+            case 0:
+                r = func_001dd3a0(arg0, arg1, table, n, 0);
+                if (r < 0)
+                    r = func_001dd3a0(arg0, arg1, table, n, 1);
+                break;
+            case 1:
+                r = func_001dd3a0(arg0, arg1, table, n, 1);
+                if (r < 0)
+                    r = func_001dd3a0(arg0, arg1, table, n, 0);
+                break;
+            default:
+                r = func_001dd3a0(arg0, arg1, table, n, 0xFFFF);
+                break;
+            }
+            return r;
+        }
+        break;
+    }
+    case 2: {
+        u16 i;
+        u16 *entry;
+        s32 limit;
+
+        i = 0;
+        limit = count;
+        while (i < limit) {
+            entry = commands + i;
+            cmd = *entry;
+            if (cmd != 0 && cmd < 0x1B8) {
+                switch (cmd) {
+                case 0xC7: case 0xC8:
+                    if (btlCommandUsable(arg0, cmd)) {
+                        table[n] = *entry;
+                        n++;
+                    }
+                    break;
+                }
+            }
+            i++;
+        }
+        break;
+    }
+    }
+    if (n > 0)
+        return table[func_00231d70(n)];
+    return -1;
+}
+#pragma pop
+#else
+INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd920);
+#endif
+/* measured: matched by declaring func_001dd1c0's count parameter u16, so
+   the u16 tally passes raw ($a3 = $s2) instead of reusing a promoted
+   copy; the guard and the table index keep their own andi temps, which
+   is retail's shape. The callee is unaffected (still exact). */
 // FUN_001DE000
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001de000);
+#pragma push
+#pragma opt_propagation off
+s32 func_001de000(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
+{
+    extern s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3);
+    u8 *unit;
+    s16 queried;
+    s16 q;
+    u16 count;
+    s32 limit;
+    u16 *commands;
+    u16 j;
+    u16 n;
+    u16 *entry;
+    u16 cmd;
+    u16 table[8];
+    s32 r;
+
+    if (arg2 == 0x10)
+        return func_001dd920(arg0, arg1, arg2, arg3);
+
+    n = 0;
+    unit = *(u8 **)(arg0 + 0x30);
+    queried = func_0023d8e0(*(u8 **)(unit + 0xA64), 0);
+    if (queried == arg2 && func_001db360(arg1, queried, 1) != 0) {
+        table[0] = 0;
+        n++;
+    }
+    count = func_0023e130(*(u8 **)(unit + 0xA64));
+    commands = (u16 *)func_0023e140(*(u8 **)(unit + 0xA64));
+    j = 0;
+    limit = count;
+    for (; j < limit; j++) {
+        entry = commands + j;
+        if (*entry == 0 || *entry >= 0x1B8)
+            goto next;
+        queried = func_0023d8e0(*(u8 **)(unit + 0xA64), *entry);
+        if (queried != arg2)
+            goto next;
+        cmd = *entry;
+        if (btlCommandUsable(arg0, cmd) == 0)
+            goto next;
+        q = queried;
+        if (func_001db360(arg1, q, 1) == 0)
+            goto next;
+        table[n] = *entry;
+        n++;
+    next:
+        ;
+    }
+    if (n > 0) {
+        switch (arg3) {
+        case 0:
+            r = func_001dd1c0(arg0, arg1, table, n, 0);
+            if (r < 0)
+                r = func_001dd1c0(arg0, arg1, table, n, 1);
+            break;
+        case 1:
+            r = func_001dd1c0(arg0, arg1, table, n, 1);
+            if (r < 0)
+                r = func_001dd1c0(arg0, arg1, table, n, 0);
+            break;
+        default:
+            r = func_001dd1c0(arg0, arg1, table, n, 0xFFFF);
+            break;
+        }
+    } else {
+        return -1;
+    }
+    return r;
+}
+#pragma pop
 #pragma push
 /* measured: opt_loop_invariants on is required for the retail-sized frame and
    bubble-sort register coloring; the COP1 chain is ordinary C arithmetic and
