@@ -1097,6 +1097,16 @@ void func_00463520(void) {
     func_00451de0(D_00712670, 0x12C, 0, 0, (void *)func_004633f0, 0, 0);
 }
 
+/* Floor: 155 differing words, down from 182.  MWCC emits a compare chain
+   in the reverse of the source's label order - the whole sequence, not
+   just the groups - so listing the TMX depth codes 1, 2/0xA, 0x13/0x1B,
+   0x14/0x24/0x2C reproduces retail's 0x2C-first chain and its body
+   layout; the palette-format switch wants its default arm first.
+   WALL: every case branch is exactly five instructions short of retail's.
+   Retail places the default arm's body between the compare chain and the
+   first case body; hoisting it there by writing `default:` first costs 45
+   words elsewhere (200), so the five-instruction gap and the branch
+   displacements that follow from it are the whole residual. */
 // FUN_00463930 NONMATCHING
 #ifdef NON_MATCHING
 u8 *func_00463930(u8 *arg0)
@@ -1117,22 +1127,22 @@ u8 *func_00463930(u8 *arg0)
         (*(u8 *)(arg0 + 0xB) != 0x30)) {
         return NULL;
     }
-    switch (*(u8 *)(arg0 + 0x16)) {
-    case 0x2C:
-    case 0x24:
-    case 0x14:
-        bit_depth = 4;
+    switch (*(u8 *)(arg0 + 0x16)) {    case 1:
+        bit_depth = 0x18;
         break;
-    case 0x1B:
-    case 0x13:
-        bit_depth = 8;
-        break;
-    case 0xA:
     case 2:
+    case 0xA:
         bit_depth = 0x10;
         break;
-    case 1:
-        bit_depth = 0x18;
+    case 0x13:
+    case 0x1B:
+        bit_depth = 8;
+        break;
+    case 0x14:
+    case 0x24:
+
+    case 0x2C:
+        bit_depth = 4;
         break;
     default:
         if (*(u8 *)(arg0 + 0x16) == 0) {
@@ -1152,9 +1162,12 @@ u8 *func_00463930(u8 *arg0)
                           *(u16 *)(arg0 + 0x14), bit_depth);
     func_003ea3e0(image);
     if (*(u8 *)(arg0 + 0x10) != 0) {
-        switch (*(u8 *)(arg0 + 0x11)) {
+        switch (*(u8 *)(arg0 + 0x11)) {        case 0:
+            func_004637c0(image, (const u16 *)source);
+            break;
+                case 2:
+
         case 0xA:
-        case 2:
             for (i = 0; i < (1 << *(s32 *)(image + 0xC)); i++) {
                 u16 value = *(u16 *)(source + i * 2);
                 u8 *entry = image + *(s32 *)(image + 0x18) + i * 4;
@@ -1169,10 +1182,7 @@ u8 *func_00463930(u8 *arg0)
                 }
             }
             break;
-        case 0:
-            func_004637c0(image, (const u16 *)source);
-            break;
-        }
+}
         func_00463870(image, bit_depth);
         if (*(u8 *)(arg0 + 0x11) == 0) {
             source += (0x20 * *(u8 *)(arg0 + 0x10) * (1 << bit_depth)) >> 3;
@@ -1181,14 +1191,20 @@ u8 *func_00463930(u8 *arg0)
             source += (0x10 * *(u8 *)(arg0 + 0x10) * (1 << bit_depth)) >> 3;
         }
     }
-    switch (*(u8 *)(arg0 + 0x16)) {
-    case 0x2C:
-    case 0x24:
-    case 0x14:
-        func_00463740(image, source);
+    switch (*(u8 *)(arg0 + 0x16)) {    default:
+        if (*(u8 *)(arg0 + 0x16) == 0) {
+            func_00463570(image, source);
+        }
         break;
-    case 0x1B:
+        case 1:
+        func_00463620(image, source);
+        break;
+    case 2:
+    case 0xA:
+        func_004636a0(image, source);
+        break;
     case 0x13:
+    case 0x1B:
         dst = image + *(s32 *)(image + 0x14);
         for (i = 0; i < *(s32 *)(image + 8); i++) {
             s32 j;
@@ -1200,19 +1216,13 @@ u8 *func_00463930(u8 *arg0)
             dst += *(s32 *)(image + 0x10);
         }
         break;
-    case 0xA:
-    case 2:
-        func_004636a0(image, source);
+    case 0x14:
+    case 0x24:
+
+    case 0x2C:
+        func_00463740(image, source);
         break;
-    case 1:
-        func_00463620(image, source);
-        break;
-    default:
-        if (*(u8 *)(arg0 + 0x16) == 0) {
-            func_00463570(image, source);
-        }
-        break;
-    }
+}
     return image;
 }
 #else
