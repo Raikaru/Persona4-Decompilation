@@ -37,7 +37,7 @@ s32 func_0013ea20(u8 *arg0, s32 *arg1, u8 *arg2);
 s32 func_0013caa0(u8 *arg0, s32 *arg1, u8 *arg2);
 s32 func_0013d8b0(u8 *arg0, s32 *arg1, u8 *arg2);
 s32 func_00142f20(u8 *arg0, s32 *arg1, u8 *arg2);
-s32 func_003627b0(u8 *arg0, s32 *arg1, u8 *arg2);
+s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2);
 s32 func_0035e8b0(u8 *arg0, s32 *arg1, u8 *arg2);
 s32 func_0012d630(u8 *arg0);
 s32 func_0012e900(u8 *arg0);
@@ -274,7 +274,7 @@ s32 func_0012c510(void) {
         }
         break;
     case 10:
-        r = func_003627b0(p + 4, &sp58, p + 0x9000);
+        r = func_003627b0((u32 *)(p + 4), &sp58, p + 0x9000);
         switch (r) {
         case 0:
             if (sp58 != 0) {
