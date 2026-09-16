@@ -110,10 +110,13 @@ def main() -> None:
         differs = any((object_word[index] if index < len(object_word) else None) !=
                       (retail_word[index] if index < len(retail_word) else None)
                       for index in range(4) if offset + index < len(mask) and not mask[offset + index])
-        if differs:
-            differing_words += 1
+        # Retail pads each function up to its window with zero words. verify.py
+        # treats that tail as alignment, so counting it here reported a phantom
+        # residual (and a "not matching" read) for functions verify calls MATCH.
         if offset >= len(body) and not any(retail_word):
             continue
+        if differs:
+            differing_words += 1
         object_text = f"{object_word.hex():<9} {disassemble(object_word, address + offset)}" if len(object_word) == 4 else object_word.hex()
         retail_text = f"{retail_word.hex():<9} {disassemble(retail_word, address + offset)}" if len(retail_word) == 4 else retail_word.hex()
         print(f"{offset:6} {'!' if differs else ' '} {object_text:<34} {retail_text:<34} {','.join(reloc_at.get(offset, []))}")
