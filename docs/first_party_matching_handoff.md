@@ -365,6 +365,16 @@ After a candidate reaches an instruction-exact emitted prefix:
 
 A proof should name exact counts, not say only "looks exact" or "build passes."
 
+`verify.py` masks relocated fields, so it cannot see which symbol a
+relocation names: a body that passes the wrong data symbol to a call still
+scores MATCH. Only the link catches it. `func_002938c0` passed `D_0063C990`
+where retail passes `D_0063C970` in three of four calls, scored MATCH, and
+broke CI two pushes running with `loadable image sha1 ... MISMATCH, first diff
+at vram 0x293a94`. Run `python tools/build.py` — about two minutes with a warm
+cache, and it prints `loadable image sha1 ... OK` — after any recovery that
+introduces, renames or re-points a data symbol, and read the first-diff vram
+it prints: it names the exact word.
+
 ### 9. Integrate minimally
 
 - Replace only the target `INCLUDE_ASM` marker and required declarations/callers.
