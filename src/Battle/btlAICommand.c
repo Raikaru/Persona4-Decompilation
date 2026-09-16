@@ -1355,13 +1355,29 @@ s32 func_001dd3a0(u8 *p, u8 *q, u16 *t, u16 u, s32 v) {
    every narrowing read at every -O level, spilled or register-resident.
    The loop-test shape (andi idx into $3; lq $2; slt $2,$3,$2 with $3
    surviving the lq) has no pair-free C spelling. */
+/* Floor: 944B window, obj 932B, 159 differing words (was 168). The
+   candidate list holds eight entries, not nine - with u16 buf[8] the
+   frame is retail's -0xf0 exactly.
+   WALL: retail increments the tally with `addiu $v0,$s2,1; andi $s2,`
+   after zeroing it, while this build constant-folds the first
+   increment to `daddiu $s2,$zero,1`. Every spelling of the increment
+   (n++, n += 1, (u16)(n + 1), % 0x10000u, a staged temp) folds the
+   same way, and a micro-experiment shows b210 folds this pattern at
+   -O2/-O2,p/-O2,s/-O3 regardless of an intervening call or a second
+   increment in a later loop. opt_propagation off stops the fold but
+   adds a read mask retail does not have (three instructions for two),
+   scoring 181. Retail's two-instruction form means its tally is known
+   16-bit clean but not constant there, so the remaining work is to
+   find what makes the initial value non-constant in the real source.
+   Past that one instruction the residual is small: the limit value
+   lands in $s1 rather than a masked $v0, and the rest are relocs. */
 // FUN_001DD570 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001dd570(u8 *p, u8 *q, s32 arg2, s32 arg3)
 {
     u8 *unit0;
     s16 cur0;
-    u16 buf[9];
+    u16 buf[8];
     u16 idx;
     u16 n;
     u16 *table;
