@@ -6,8 +6,8 @@ extern s32 func_00452490();
 extern s32 *func_00452560();
 extern u8 D_0063C970[];
 extern u8 D_0063C990[];
-extern u8 D_007638B0[];
-extern void func_00290710(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+extern char iGpffffa7c0;
+extern void func_00290710(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5);
 extern u8 *func_00454a60(u8 *arg0, s32 arg1);
 extern s32 func_004553c0(u8 *arg0);
 extern s32 func_00455f70(u8 *arg0, s32 *arg1);
@@ -42,8 +42,14 @@ extern u8 D_0063CA70[];
    pair; the 4-byte residual from this floor propagates to every branch target
    in the else-branch (nd 126). Same family as cmpConfig func_0035cb00's
    documented sltu/xori booleanization floor. INCLUDE_ASM restored. */
-// FUN_002938C0 NONMATCHING
-#ifdef SKIP_ASM
+/* measured: matched by typing the context pointer as a byte pointer (the
+   u8 ** draft scaled every field offset by four), materialising the
+   `*(s32 *)(ctx + 4) == 1` tests as boolean values rather than branches,
+   restoring the empty `case 7` the second dispatch needs for its eight-
+   entry jump table, writing the cases in ascending order, taking the
+   format buffer through its small-data name, and giving func_00290710
+   the pointer parameters its own body already requires. */
+// FUN_002938C0
 s32 func_002938c0(void) {
     s32 sp12C;
     u8 spE0[64];
@@ -54,16 +60,15 @@ s32 func_002938c0(void) {
     s32 temp_2_3;
     s32 temp_2_4;
     u16 temp_4;
-    u8 **temp_2;
+    u8 *temp_2;
     u8 *temp_3;
+    s32 ready;
 
-    temp_2 = (u8 **)func_00452560();
-    func_00290710(*(s32 *)(temp_2 + 0x0C), *(s32 *)(temp_2 + 0x10), (s32)spE0, (s32)spA0, (s32)sp60, (s32)sp20);
+    temp_2 = (u8 *)func_00452560();
+    func_00290710(*(s32 *)(temp_2 + 0x0C), *(s32 *)(temp_2 + 0x10), spE0, spA0, sp60, sp20);
     if (*(s32 *)(temp_2 + 8) != 0) {
-        temp_3 = *(temp_2 + 0);
+        temp_3 = *(u8 **)temp_2;
         switch ((s32)temp_3) {
-        case 7:
-            break;
         case 0:
             *(s32 *)(temp_2 + 0x28) = 0;
             *(s32 *)(temp_2 + 0x2C) = 0;
@@ -71,87 +76,91 @@ s32 func_002938c0(void) {
             *(s32 *)(temp_2 + 0x34) = 0;
             *(s32 *)(temp_2 + 0x38) = 0;
             *(s32 *)(temp_2 + 0x3C) = 0;
-            func_00440b68((char *)D_007638B0, D_0063C970, 0x3F);
+            func_00440b68(&iGpffffa7c0, D_0063C970, 0x3F);
             *(s32 *)(temp_2 + 0x1C) = (s32)func_00454a60(sp20, 1);
-            *(temp_2 + 0) = (u8 *)1;
+            *(u8 **)temp_2 = (u8 *)1;
             break;
         case 1:
             if (func_004553c0(*(u8 **)(temp_2 + 0x1C)) == 1) {
                 temp_2_2 = func_00455f70(spE0, &sp12C);
                 *(s32 *)(temp_2 + 0x34) = temp_2_2;
                 if (temp_2_2 == 0) {
-                    *(s32 *)(temp_2 + 0x28) = (s32)func_002904f0((s32 **)((s32)temp_2 + 0x34));
+                    *(s32 *)(temp_2 + 0x28) = (s32)func_002904f0((s32 **)(temp_2 + 0x34));
                 }
                 func_002852a0(4, sp12C);
                 temp_2_3 = func_00455f70(spA0, &sp12C);
                 *(s32 *)(temp_2 + 0x38) = temp_2_3;
                 if (temp_2_3 == 0) {
-                    *(s32 *)(temp_2 + 0x2C) = (s32)func_002905a0((s32 **)((s32)temp_2 + 0x38));
+                    *(s32 *)(temp_2 + 0x2C) = (s32)func_002905a0((s32 **)(temp_2 + 0x38));
                 }
                 func_002852a0(5, sp12C);
                 temp_2_4 = func_00455f70(sp60, &sp12C);
                 *(s32 *)(temp_2 + 0x3C) = temp_2_4;
                 if (temp_2_4 == 0) {
-                    *(s32 *)(temp_2 + 0x30) = (s32)func_00290660((s32 **)((s32)temp_2 + 0x3C));
+                    *(s32 *)(temp_2 + 0x30) = (s32)func_00290660((s32 **)(temp_2 + 0x3C));
                 }
                 func_002852a0(6, sp12C);
-                *(temp_2 + 0) = (u8 *)7;
+                *(u8 **)temp_2 = (u8 *)7;
             }
+            break;
+        case 7:
             break;
         }
     } else {
-        temp_3 = *(temp_2 + 0);
+        temp_3 = *(u8 **)temp_2;
         switch ((s32)temp_3) {
         case 0:
-            func_00440b68((char *)D_007638B0, D_0063C990, 0x6C);
+            func_00440b68(&iGpffffa7c0, D_0063C990, 0x6C);
             *(s32 *)(temp_2 + 0x1C) = (s32)func_00454a60(spE0, 0);
-            *(temp_2 + 0) = (u8 *)1;
+            *(u8 **)temp_2 = (u8 *)1;
             break;
         case 1:
             if (func_004553c0(*(u8 **)(temp_2 + 0x1C)) == 1) {
                 *(s32 *)(temp_2 + 0x28) = 0;
                 *(s32 *)(temp_2 + 0x34) = func_00455f70(spE0, &sp12C);
                 func_002852a0(4, sp12C);
-                *(temp_2 + 0) = (u8 *)2;
+                *(u8 **)temp_2 = (u8 *)2;
             }
             break;
         case 2:
-            if (*(s32 *)(temp_2 + 4) == 1) {
-                *(s32 *)(temp_2 + 0x2C) = (s32)func_002905a0((s32 **)((s32)temp_2 + 0x38));
+            ready = (*(s32 *)(temp_2 + 4) == 1);
+            if (ready != 0) {
+                *(s32 *)(temp_2 + 0x2C) = (s32)func_002905a0((s32 **)(temp_2 + 0x38));
                 if (*(s32 *)(temp_2 + 0x38) == 0) {
                     func_0046d730(D_0063C970, 0x88);
                 }
-                *(temp_2 + 0) = (u8 *)4;
+                *(u8 **)temp_2 = (u8 *)4;
             } else {
-                func_00440b68((char *)D_007638B0, D_0063C990, 0x8C);
+                func_00440b68(&iGpffffa7c0, D_0063C990, 0x8C);
                 *(s32 *)(temp_2 + 0x20) = (s32)func_00454a60(spA0, 0);
-                *(temp_2 + 0) = (u8 *)3;
+                *(u8 **)temp_2 = (u8 *)3;
             }
             break;
         case 3:
             if (func_004553c0(*(u8 **)(temp_2 + 0x20)) == 1) {
-                *(temp_2 + 0) = (u8 *)4;
+                *(u8 **)temp_2 = (u8 *)4;
                 *(s32 *)(temp_2 + 0x2C) = 0;
                 *(s32 *)(temp_2 + 0x38) = func_00455f70(spA0, &sp12C);
                 func_002852a0(5, sp12C);
             }
             break;
         case 4:
-            if (*(s32 *)(temp_2 + 4) == 1) {
-                *(s32 *)(temp_2 + 0x30) = (s32)func_00290660((s32 **)((s32)temp_2 + 0x3C));
+            ready = (*(s32 *)(temp_2 + 4) == 1);
+            if (ready != 0) {
+                *(s32 *)(temp_2 + 0x30) = (s32)func_00290660((s32 **)(temp_2 + 0x3C));
                 if (*(s32 *)(temp_2 + 0x3C) == 0) {
                     func_0046d730(D_0063C970, 0xA4);
                 }
-                *(temp_2 + 0) = (u8 *)6;
+                *(u8 **)temp_2 = (u8 *)6;
             } else {
-                func_00440b68((char *)D_007638B0, D_0063C990, 0xA8);
+                func_00440b68(&iGpffffa7c0, D_0063C990, 0xA8);
                 *(s32 *)(temp_2 + 0x24) = (s32)func_00454a60(sp60, 0);
-                *(temp_2 + 0) = (u8 *)5;
+                *(u8 **)temp_2 = (u8 *)5;
             }
             break;
         case 5:
             if (func_004553c0(*(u8 **)(temp_2 + 0x24)) == 1) {
-                *(temp_2 + 0) = (u8 *)6;
+                *(u8 **)temp_2 = (u8 *)6;
                 *(s32 *)(temp_2 + 0x30) = 0;
                 *(s32 *)(temp_2 + 0x3C) = func_00455f70(sp60, &sp12C);
                 func_002852a0(6, sp12C);
@@ -163,16 +172,15 @@ s32 func_002938c0(void) {
             if ((s32)temp_4 > 0) {
                 func_00106390(temp_4, 1);
             }
-            *(temp_2 + 0) = (u8 *)7;
+            *(u8 **)temp_2 = (u8 *)7;
             func_00440b68((char *)D_0063C990);
+            break;
+        case 7:
             break;
         }
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/evtPMFileReader", func_002938c0);
-#endif
 
 // FUN_00293D30
 void func_00293d30(void) {
