@@ -797,8 +797,141 @@ void func_00156800(void *arg0_v, u32 arg1)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_00156800);
 #endif
+/* MATCHED: the m2c draft typed arg0 as s16 *, which turned retail's
+   row stride of 5 into 10 and the rule stride of 0xC into 0x18; it is a
+   u8 *.  Three layout facts finished it: the success half is reached by
+   falling out of the 5x5 scan, so it belongs after `return 0` behind a
+   label rather than inside the column loop; the second pass needs its own
+   counter (a shared one with the scan costs 72 words); and each loop's
+   induction variable is zeroed before the invariants beside it, which is
+   the comma-initialiser in the three `for` headers. */
 // FUN_00156CF0
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_00156cf0);
+s32 func_00156cf0(void *arg0, u32 *arg1, u32 *arg2)
+{
+    u8 *shape;
+    u8 *row;
+    u8 *rule;
+    u8 *board;
+    s32 x;
+    s32 y;
+    s32 saved_y;
+    s32 by;
+    s32 ry;
+    s32 bx;
+    s32 rowbase;
+    s32 colofs;
+    s32 i;
+    s32 k;
+    s32 j;
+    s32 r;
+    s32 c;
+    u8 cell;
+
+    shape = (u8 *)arg0;
+    for (i = 0, y = *arg2; i < shape[2]; i++, y--) {
+        for (j = 0, x = *arg1; j < shape[1]; j++, x--) {
+            for (r = 0; r < 5; r++) {
+                for (c = 0, row = shape + r * 5, ry = y + r; c < 5; c++) {
+                    cell = row[c + 0x18];
+                    if (cell == 0) {
+                        continue;
+                    }
+                    bx = *(s8 *)(shape + 0x16) + (x + c);
+                    by = *(s8 *)(shape + 0x17) + ry;
+                    if (cell == 1) {
+                        board = (u8 *)func_00155280() + (by << 8) + (bx * 0x10);
+                        if (board[0x54] != 0) {
+                            goto next_x;
+                        }
+                    }
+                    if (row[c + 0x18] == 2) {
+                        if (*((u8 *)func_00155280() + (by << 8) + (bx * 0x10) + 0x54) == 1) {
+                            goto next_x;
+                        }
+                        if (*((u8 *)func_00155280() + (by << 8) + (bx * 0x10) + 0x64) == 1 &&
+                            (*((u8 *)func_00155280() + (by << 8) + (bx * 0x10) + 0x6E) & 0x20)) {
+                            goto next_x;
+                        }
+                        if (*((u8 *)func_00155280() + (by << 8) + (bx * 0x10) + 0x44) == 1 &&
+                            (*((u8 *)func_00155280() + (by << 8) + (bx * 0x10) + 0x4E) & 0x80)) {
+                            goto next_x;
+                        }
+                        if (*((u8 *)func_00155280() + (by << 8) + (bx * 0x10) + 0x154) == 1 &&
+                            (*((u8 *)func_00155280() + (by << 8) + (bx * 0x10) + 0x15E) & 0x10)) {
+                            goto next_x;
+                        }
+                        if (*((u8 *)func_00155280() + (by << 8) + (bx * 0x10) - 0xAC) == 1 &&
+                            (*((u8 *)func_00155280() + (by << 8) + (bx * 0x10) - 0xA2) & 0x40)) {
+                            goto next_x;
+                        }
+                    }
+                }
+            }
+            goto fits;
+        next_x:
+            ;
+        }
+    }
+    return 0;
+fits:
+    saved_y = y;
+    for (k = 0; k < shape[2]; k++, y++) {
+        for (r = 0, bx = x, rule = shape + k * 0xC, rowbase = y << 8; r < shape[1]; r++, bx++) {
+            if (y == 0x16 && (rule[r * 4 + 0x32] & 0x40)) {
+                return 0;
+            }
+            if (y == 1 && (rule[r * 4 + 0x32] & 0x10)) {
+                return 0;
+            }
+            if (bx == 0xE && (rule[r * 4 + 0x32] & 0x80)) {
+                return 0;
+            }
+            if (bx == 1 && (rule[r * 4 + 0x32] & 0x20)) {
+                return 0;
+            }
+            colofs = bx * 0x10;
+            if (*((u8 *)func_00155280() + rowbase + colofs - 0xAC) != 0) {
+                if (*((u8 *)func_00155280() + rowbase + colofs - 0xA2) & 0x40) {
+                    if (!(rule[r * 4 + 0x32] & 0x10)) {
+                        return 0;
+                    }
+                } else if (rule[r * 4 + 0x32] & 0x10) {
+                    return 0;
+                }
+            }
+            if (*((u8 *)func_00155280() + rowbase + colofs + 0x44) != 0) {
+                if (*((u8 *)func_00155280() + rowbase + colofs + 0x4E) & 0x80) {
+                    if (!(rule[r * 4 + 0x32] & 0x20)) {
+                        return 0;
+                    }
+                } else if (rule[r * 4 + 0x32] & 0x20) {
+                    return 0;
+                }
+            }
+            if (*((u8 *)func_00155280() + rowbase + colofs + 0x154) != 0) {
+                if (*((u8 *)func_00155280() + rowbase + colofs + 0x15E) & 0x10) {
+                    if (!(rule[r * 4 + 0x32] & 0x40)) {
+                        return 0;
+                    }
+                } else if (rule[r * 4 + 0x32] & 0x40) {
+                    return 0;
+                }
+            }
+            if (*((u8 *)func_00155280() + rowbase + colofs + 0x64) != 0) {
+                if (*((u8 *)func_00155280() + rowbase + colofs + 0x6E) & 0x20) {
+                    if (!(rule[r * 4 + 0x32] & 0x80)) {
+                        return 0;
+                    }
+                } else if (rule[r * 4 + 0x32] & 0x80) {
+                    return 0;
+                }
+            }
+        }
+    }
+    *arg1 = x;
+    *arg2 = saved_y;
+    return 1;
+}
 // FUN_00157310
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_00157310);
 /* Measured: 684/688 bytes, 12 resolved call relocations and four zero tail bytes.
