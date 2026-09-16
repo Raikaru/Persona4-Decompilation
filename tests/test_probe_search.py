@@ -28,16 +28,34 @@ class DeclarationBlockTests(unittest.TestCase):
         self.assertEqual([d.strip() for d in declarations], ["s32 count;", "u8 *scan;"])
         self.assertEqual(body.split("\n")[start:end], declarations)
 
-    def test_a_local_prototype_ends_the_block(self) -> None:
-        """Permuting a declaration past a prototype it uses would not compile, and
-        prototypes are not register-allocated anyway."""
+    def test_a_local_prototype_is_skipped_not_permuted(self) -> None:
+        """Bodies open with block-scope callee prototypes; they are not register
+        allocated and moving one past a declaration that uses its type would not
+        compile, so the run after them is what gets permuted."""
         body = ("void f(void)\n"
                 "{\n"
                 "    extern s32 helper(u8 *p);\n"
                 "    s32 count;\n"
+                "    u8 *scan;\n"
+                "    count = 0;\n"
+                "}\n")
+        declarations, start, end = search.declaration_block(body)
+        self.assertEqual([d.strip() for d in declarations], ["s32 count;", "u8 *scan;"])
+        self.assertEqual(body.split("\n")[start:end], declarations)
+
+    def test_a_leading_struct_definition_is_skipped(self) -> None:
+        """A local struct or typedef is multi-line and must not swallow the run."""
+        body = ("void f(void)\n"
+                "{\n"
+                "    struct {\n"
+                "        u8 packet[0xF0];\n"
+                "    } work;\n"
+                "    f32 scale;\n"
+                "    s32 index;\n"
+                "    index = 0;\n"
                 "}\n")
         declarations, _, _ = search.declaration_block(body)
-        self.assertEqual(declarations, [])
+        self.assertEqual([d.strip() for d in declarations], ["f32 scale;", "s32 index;"])
 
     def test_arrays_and_qualifiers_are_declarations(self) -> None:
         body = ("void f(void)\n"

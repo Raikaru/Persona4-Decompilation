@@ -842,9 +842,51 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcbe0);
 // FUN_003BCC80
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcc80);
 
-/* measured: best current-TU body object 204B/window 208B, normalized_diff 42; differing words are the entry guard register (slt $v0 vs retail slt $at,$zero,$v0 + beqz, the same $at-guard floor as func_003b4230), i=0 landing after the branch instead of in its delay slot, and one trailing nop. Levers: schedule on, no_branch_likely on, opt_rebuildconditionals off, opt_propagation off, goto done, cur = arg0 with return arg0 (arg0 stays live in $s4), volatile work reads for fresh loop-test reloads, decl order sp6C/work/go/cur/i/row. Body archived at build/B3B_003bcd50_body.c and restored to INCLUDE_ASM. */
+/* Recovered: this body was measured at zero differing words in
+   docs/probe_archive/KoA_003bcd50_body.c and never installed. */
 // FUN_003BCD50
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcd50);
+extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+/* measured: schedule on fills the guard and call delay slots; no_branch_likely
+   on keeps the beqz plain; opt_rebuildconditionals off and opt_propagation off
+   retain the B3B saved-register assignment.  The `(s64)0 < count` guard from
+   func_003bcf10 fixes the slt $at floor; i=0 is hoisted before the guard. */
+#pragma schedule on
+#pragma no_branch_likely on
+#pragma opt_rebuildconditionals off
+#pragma opt_propagation off
+s32 func_003bcd50(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    s32 sp6C;
+    s32 cur;
+    s32 i;
+    s32 row;
+    u8 *work;
+    work = (u8 *)(arg2 + arg3);
+    cur = arg0;
+    if (work == NULL) {
+        goto done;
+    }
+    if (func_003df360(arg0, &sp6C, 4) == 0) {
+        goto done;
+    }
+    *(s32 *)work = sp6C;
+    *(u8 **)(work + 4) = jtbl_008873E8[0](*(volatile s32 *)work * 0x10, 0x3011F);
+    i = 0;
+    if ((s64)0 < *(volatile s32 *)work) {
+        row = 0;
+        do {
+            cur = func_003bc150(*(u8 **)(work + 4) + row, cur);
+            i += 1;
+            row += 0x10;
+        } while (i < *(volatile s32 *)work);
+    }
+done:
+    return arg0;
+}
+/* measured: close the schedule/no_branch_likely/opt_rebuildconditionals/opt_propagation bracket. */
+#pragma opt_propagation on
+#pragma opt_rebuildconditionals on
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003BCE20
 /* measured: schedule on is required for func_003bce20's callback delay slot. */
 #pragma schedule on
