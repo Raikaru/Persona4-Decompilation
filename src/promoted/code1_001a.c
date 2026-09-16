@@ -1073,16 +1073,31 @@ void func_001a2c70(u8 *arg0)
 void func_001a2d60(void)
 {
 }
-/* Event-dispatch floor (1072B window). First probe nd 231
-   (frame/prologue verified). Open: one extra saved reg, s-reg
-   rotation, and scheduler ordering. See Lane001a doc. */
+/* Floor: 1072B window, 25 differing words (was 231), and an
+   instruction-level alignment reports only three items.  What moved it:
+   the return value and the two state locals are s32, not the s64 m2c
+   emitted - every s64 local here costs a dsll32/dsra32 normalisation
+   pair - the state selections are spelled `if (unit[0xA2] == 0)` so the
+   branch tests zero the way retail does, the switch subject is a masked
+   local, and `opt_common_subs off` stops this build from folding the
+   repeated `*(u8 **)(unit + 0xA64)` loads that retail reloads.
+   WALL: retail range-checks the jump table with `bltz` as well as
+   `sltiu`, a check that is dead after the `andi 0xff`; no subject
+   spelling reproduces it (s8/s16/s32/s64/u8 locals, masked or cast, a
+   u8 return declaration on func_00235320, and the propagation,
+   dead-assignment, lifetime and size pragmas were all measured).  The
+   remaining pair is the s32 normalisation of func_00194590's s64
+   return. */
 // FUN_001A2D70 NONMATCHING
 #ifdef NON_MATCHING
-s64 func_001a2d70(s64 *arg0) {
-    extern s64 func_001b0800(u8 *, s32);
+#pragma push
+#pragma opt_common_subs off
+s32 func_001a2d70(s64 *arg0) {
+    extern s32 func_001b0800(u8 *, s32);
 
-    s64 result;
-    s64 state;
+    s32 result;
+    s32 state;
+    s32 kind;
     u8 *unit;
     u8 *packet;
 
@@ -1092,120 +1107,121 @@ s64 func_001a2d70(s64 *arg0) {
     result = func_00193cd0(0x506);
     if (result == 0) {
         unit = *(u8 **)((u8 *)arg0 + 0x30);
-        switch ((u8)func_00235320(*(u8 **)(unit + 0xA64))) {
+        kind = func_00235320(*(u8 **)(unit + 0xA64)) & 0xFF;
+        switch (kind) {
         case 0:
         case 1:
-            if (unit[0xA2] != 0) {
-                state = 31;
-            } else {
+            if (unit[0xA2] == 0) {
                 state = 30;
+            } else {
+                state = 31;
             }
             func_00233880(*(u8 **)(unit + 0xA64), 0);
             func_00233880(*(u8 **)(unit + 0xA64), 1);
             break;
         case 2:
         case 4:
-            if (unit[0xA2] != 0) {
-                state = 33;
-            } else {
+            if (unit[0xA2] == 0) {
                 state = 32;
+            } else {
+                state = 33;
             }
             func_00233880(*(u8 **)(unit + 0xA64), 4);
             func_00233880(*(u8 **)(unit + 0xA64), 2);
             break;
         case 3:
-            if (unit[0xA2] != 0) {
-                state = 35;
-            } else {
+            if (unit[0xA2] == 0) {
                 state = 34;
+            } else {
+                state = 35;
             }
             func_00233880(*(u8 **)(unit + 0xA64), 3);
             break;
         case 5:
-            if (unit[0xA2] != 0) {
-                state = 37;
-            } else {
+            if (unit[0xA2] == 0) {
                 state = 36;
+            } else {
+                state = 37;
             }
             func_00233880(*(u8 **)(unit + 0xA64), 5);
             break;
         case 6:
-            if (unit[0xA2] != 0) {
-                state = 39;
-            } else {
+            if (unit[0xA2] == 0) {
                 state = 38;
+            } else {
+                state = 39;
             }
             func_00233880(*(u8 **)(unit + 0xA64), 6);
             break;
         case 7:
-            if (unit[0xA2] != 0) {
-                state = 41;
-            } else {
+            if (unit[0xA2] == 0) {
                 state = 40;
+            } else {
+                state = 41;
             }
             func_00233880(*(u8 **)(unit + 0xA64), 7);
             break;
         case 8:
-            if (unit[0xA2] != 0) {
-                state = 81;
-            } else {
+            if (unit[0xA2] == 0) {
                 state = 80;
+            } else {
+                state = 81;
             }
             func_00233880(*(u8 **)(unit + 0xA64), 8);
             break;
         case 9:
-            if (unit[0xA2] != 0) {
-                state = 83;
-            } else {
+            if (unit[0xA2] == 0) {
                 state = 82;
+            } else {
+                state = 83;
             }
             func_00233880(*(u8 **)(unit + 0xA64), 9);
             break;
         case 10:
-            if (unit[0xA2] != 0) {
-                state = 85;
-            } else {
+            if (unit[0xA2] == 0) {
                 state = 84;
+            } else {
+                state = 85;
             }
             func_00233880(*(u8 **)(unit + 0xA64), 10);
             break;
         case 11:
-            if (unit[0xA2] != 0) {
-                state = 87;
-            } else {
+            if (unit[0xA2] == 0) {
                 state = 86;
+            } else {
+                state = 87;
             }
             func_00233880(*(u8 **)(unit + 0xA64), 11);
             break;
         case 12:
-            if (unit[0xA2] != 0) {
-                state = 131;
-            } else {
+            if (unit[0xA2] == 0) {
                 state = 130;
+            } else {
+                state = 131;
             }
             func_00233880(*(u8 **)(unit + 0xA64), 12);
             break;
         case 13:
-            if (unit[0xA2] != 0) {
-                state = 133;
-            } else {
+            if (unit[0xA2] == 0) {
                 state = 132;
+            } else {
+                state = 133;
             }
             func_00233880(*(u8 **)(unit + 0xA64), 13);
             break;
         case 14:
-            if (unit[0xA2] != 0) {
-                state = 135;
-            } else {
+            if (unit[0xA2] == 0) {
                 state = 134;
+            } else {
+                state = 135;
             }
             func_00233880(*(u8 **)(unit + 0xA64), 14);
             break;
         case 15:
-            if (unit[0xA2] != 0) {
-                state = 137;
-            } else {
+            if (unit[0xA2] == 0) {
                 state = 136;
+            } else {
+                state = 137;
             }
             func_00233880(*(u8 **)(unit + 0xA64), 15);
             break;
@@ -1229,6 +1245,7 @@ s64 func_001a2d70(s64 *arg0) {
     }
     return result;
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a2d70);
 #endif
