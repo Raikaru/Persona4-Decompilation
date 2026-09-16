@@ -222,24 +222,33 @@ store:
     *p = (s32)arg0;
     return 1;
 }
-/* Best reconstruction: docs/probe_archive/F1B0_001b1020_body.c.
-   measured: object 404B/window 416B, normalized_diff 125, 41 differing words;
-   first 240B (the whole rank-collection loop) byte-exact and every remaining
-   word is register allocation plus one hoisted-constant scheduling choice. */
-// FUN_001B1020 NONMATCHING
-#ifdef NON_MATCHING
+/* Recovered.  Three measured shapes carry this one.  The loop bound is the
+   expression `j < i - 1`, not a variable: retail hoists `i - 1` out of both
+   loops, and an explicit `limit` local puts it in the preheader ahead of the
+   hoisted constant instead of behind it.  The declaration order below fixes
+   the temporaries ($t3 index, $t4 pointer, $t5 flag) - permuting it is the
+   only thing that moves them.  `opt_dead_assignments off` keeps the
+   pre-loop `swapped = 1` store, whose constant retail materialises in the
+   outer preheader and reuses inside the loop (`move $t5,$a1`); with the
+   store eliminated the constant is rebuilt inside the loop instead.  Both
+   pragmas are scoped: the file-wide `opt_dead_assignments off` costs a
+   match elsewhere in this unit. */
+// FUN_001B1020
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_dead_assignments off
 void func_001b1020(s32 arg0)
 {
     u8 ranks[0xC];
+    u8 curr_rank;
+    s32 swapped;
     BtlAction **scan;
     u32 i;
-    u32 j;
-    s32 swapped;
-    s32 limit;
     BtlAction *curr;
-    BtlAction *next;
-    u8 curr_rank;
     u8 next_rank;
+    BtlAction *next;
+    BtlAction **sort;
+    u32 j;
 
     scan = (BtlAction **)(D_0076449C + 0x29C);
     for (i = 0; i < 0xCU; i++) {
@@ -253,7 +262,7 @@ void func_001b1020(s32 arg0)
             u32 score = (r19 * bonus) / 100U;
             if (score == 0) {
                 score = 1;
-            } else if (score >= 100U) {
+            } else if (score > 99U) {
                 score = 99;
             }
             ranks[i] = (u8)score;
@@ -263,33 +272,27 @@ void func_001b1020(s32 arg0)
         scan++;
     }
 
-    limit = (s32)(i - 1);
     swapped = 1;
     do {
-        BtlAction **sort;
         swapped = 0;
-        for (sort = (BtlAction **)(D_0076449C + 0x29C), j = 0; j < limit; j++) {
+        for (sort = (BtlAction **)(D_0076449C + 0x29C), j = 0; j < i - 1; j++, sort++) {
             curr = *sort;
             next = sort[1];
             if (curr != NULL && next != NULL) {
-                u8 *rp = &ranks[j];
-                curr_rank = rp[0];
-                next_rank = rp[1];
+                curr_rank = ranks[j];
+                next_rank = ranks[j + 1];
                 if (curr_rank < next_rank) {
                     *sort = next;
                     sort[1] = curr;
-                    rp[0] = next_rank;
-                    rp[1] = curr_rank;
+                    ranks[j] = next_rank;
+                    ranks[j + 1] = curr_rank;
                     swapped = 1;
                 }
             }
-            sort++;
         }
     } while (swapped);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b1020);
-#endif
+#pragma pop
 /* Best faithful probe: docs/probe_archive/F1B0_001b11c0_body.c.
    Object/window 192B/192B; five differing words swap the key/index registers. */
 // FUN_001B11C0 NONMATCHING

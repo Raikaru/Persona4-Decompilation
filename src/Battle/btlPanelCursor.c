@@ -6,7 +6,7 @@
 #include "btl_panel_internal.h"
 
 extern u8 *func_00452560(s32 task);
-extern void func_002016e0(u8 *work, s16 mode, s16 tile, f32 angle);
+extern void func_002016e0(u8 *work, s16 mode, s32 tile, f32 angle);
 extern void func_00201820(s32 mode);
 extern void func_0021ae80(u8 *work, s32 unused);
 extern void func_0021aeb0(s32 arg0, u8 *work, s32 color, f32 x, f32 y, f32 alpha);
@@ -34,8 +34,13 @@ extern f32 fGpffff837c;
 extern f32 D_00761590;
 
 #pragma opt_loop_invariants on
-// FUN_0020BFF0 NONMATCHING
-#ifdef NON_MATCHING
+/* Recovered.  `alpha` is deliberately left uninitialised: retail reads the
+   FPR on the reset path (case 1 sets the flag bits that make the later
+   `iGpffff83d4[1] * alpha` live) without ever writing it there, so the
+   defensive `= 1.0f` initialiser this recovery used to carry produced two
+   extra instructions (`lui`/`mtc1` of 1.0f into $f20) at the top and cost
+   the whole match. */
+// FUN_0020BFF0
 void func_0020bff0(s32 task, u8 *cursor, u8 *panel, f32 *position)
 {
     CursorColor color;
@@ -43,8 +48,7 @@ void func_0020bff0(s32 task, u8 *cursor, u8 *panel, f32 *position)
     f32 delta[2];
     u8 *work;
     u8 *control;
-    /* Defined recovery residual: retail leaves this FPR unwritten on reset paths. */
-    f32 alpha = 1.0f;
+    f32 alpha;
     f32 t;
     f32 length;
     s32 count;
@@ -148,14 +152,16 @@ void func_0020bff0(s32 task, u8 *cursor, u8 *panel, f32 *position)
         func_0021aeb0(task, panel, 255, position[0] - 9.0f, position[1] - 5.0f, t);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlPanelCursor", func_0020bff0);
-#endif
 /* measured triage: no real C body was produced for the 2016B retail window;
    prior switch/MAC probes were discarded rather than parked because object-size
    closeness was not established. */
-// FUN_0020C680 NONMATCHING
-#ifdef NON_MATCHING
+/* Recovered.  `alpha` is deliberately left uninitialised: retail reads the
+   FPR on the reset path (case 1 sets the flag bits that make the later
+   `iGpffff83d4[1] * alpha` live) without ever writing it there, so the
+   defensive `= 1.0f` initialiser this recovery used to carry produced two
+   extra instructions (`lui`/`mtc1` of 1.0f into $f20) at the top and cost
+   the whole match. */
+// FUN_0020C680
 void func_0020c680(s32 task, u8 *cursor, u8 *panel, f32 *position)
 {
     CursorColor color;
@@ -163,8 +169,7 @@ void func_0020c680(s32 task, u8 *cursor, u8 *panel, f32 *position)
     f32 delta[2];
     u8 *work;
     u8 *control;
-    /* Defined recovery residual: retail leaves this FPR unwritten on reset paths. */
-    f32 alpha = 1.0f;
+    f32 alpha;
     f32 t;
     f32 length;
     s32 count;
@@ -278,14 +283,16 @@ void func_0020c680(s32 task, u8 *cursor, u8 *panel, f32 *position)
         func_0021aeb0(task, panel, 255, position[0] - 9.0f, position[1] - 5.0f, t);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlPanelCursor", func_0020c680);
-#endif
 /* measured triage: no real C body was produced for the 2112B retail window;
    prior switch/MAC probes were discarded rather than parked because object-size
    closeness was not established. */
-// FUN_0020CE60 NONMATCHING
-#ifdef NON_MATCHING
+/* Recovered.  Same uninitialised `alpha` as the two cursors above, plus the
+   `tile` parameter of func_002016e0: retail passes the converted float
+   straight through (`mfc1 $a2,$f0`), so the parameter is s32, not s16 -
+   the narrow declaration added a dsll32/dsra32 pair here.  The other call
+   sites pass a constant distance, where the conversion folds away, which
+   is why they matched with the wrong width. */
+// FUN_0020CE60
 void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
 {
     CursorColor color;
@@ -293,8 +300,7 @@ void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
     f32 delta[2];
     u8 *work;
     u8 *control;
-    /* Defined recovery residual: retail leaves this FPR unwritten on reset paths. */
-    f32 alpha = 1.0f;
+    f32 alpha;
     f32 t;
     f32 length;
     s32 i;
@@ -417,9 +423,6 @@ void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
         func_0021aeb0(task, panel, 255, position[0] - 9.0f, position[1] - 5.0f, t);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlPanelCursor", func_0020ce60);
-#endif
 /* measured triage: no real C body was produced for the 2416B retail window;
    prior ring/MAC probes were discarded rather than parked because object-size
    closeness was not established. */
