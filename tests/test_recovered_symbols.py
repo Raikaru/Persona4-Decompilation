@@ -124,17 +124,33 @@ class CuratedDataAddressTests(unittest.TestCase):
     # `lbu` at a time. So alignment is only required of entries whose evidence
     # shows a word-or-wider access; requiring it of everything rejected six
     # correctly-evidenced byte symbols.
+    #
+    # Halfword globals are the same story one width up: retail loads
+    # `D_008C0276`/`D_008C027A` with `lhu`, and a halfword object only has to
+    # be two-aligned. Those entries are still checked -- an `lhu` symbol at an
+    # odd address would be a transcription error -- just against the alignment
+    # its own access width requires.
     BYTE_ACCESS = ("lbu", "lb ", "sb ", "byte")
+    HALF_ACCESS = ("lhu", "lh ", "sh ", "halfword", "u16", "s16")
 
     def test_addresses_are_aligned_for_their_access_width(self) -> None:
         for number, name, addr, rest in entries():
             if addr % 4 == 0:
                 continue
+            evidence = rest.lower()
             with self.subTest(name=name):
-                self.assertTrue(
-                    any(tok in rest.lower() for tok in self.BYTE_ACCESS),
+                if any(tok in evidence for tok in self.BYTE_ACCESS):
+                    continue
+                if any(tok in evidence for tok in self.HALF_ACCESS):
+                    self.assertEqual(
+                        addr % 2, 0,
+                        f"{CURATED}:{number}: {name} = {addr:#010x} is loaded "
+                        "as a halfword but is not two-aligned")
+                    continue
+                self.fail(
                     f"{CURATED}:{number}: {name} = {addr:#010x} is not word "
-                    "aligned and its evidence does not show a byte access")
+                    "aligned and its evidence does not show a byte or "
+                    "halfword access")
 
     # A gp-relative entry's note states the displacement it was read from, e.g.
     # "GPREL -0x58A0($28)" or "gp-0x45B8". The address must equal gp minus that
