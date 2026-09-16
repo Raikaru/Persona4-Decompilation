@@ -1348,31 +1348,22 @@ s32 func_001dd3a0(u8 *p, u8 *q, u16 *t, u16 u, s32 v) {
     func_00233bb0(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64));
     return best;
 }
-/* measured: blocked by the 128-bit-slot conversion wall (probed against b210
-   directly, see FUN_001DD570 note): the sq/lq slots spC0/spB0/spA0 receive
-   andi'd 32-bit values raw in retail, but mwcc emits dsll32/dsra32 or
-   dsll32/dsrl32 conversion pairs for every 32-bit->u_long128 assignment and
-   every narrowing read at every -O level, spilled or register-resident.
-   The loop-test shape (andi idx into $3; lq $2; slt $2,$3,$2 with $3
-   surviving the lq) has no pair-free C spelling. */
-/* Floor: 944B window, obj 932B, 159 differing words (was 168). The
-   candidate list holds eight entries, not nine - with u16 buf[8] the
-   frame is retail's -0xf0 exactly.
-   WALL: retail increments the tally with `addiu $v0,$s2,1; andi $s2,`
-   after zeroing it, while this build constant-folds the first
-   increment to `daddiu $s2,$zero,1`. Every spelling of the increment
-   (n++, n += 1, (u16)(n + 1), % 0x10000u, a staged temp) folds the
-   same way, and a micro-experiment shows b210 folds this pattern at
-   -O2/-O2,p/-O2,s/-O3 regardless of an intervening call or a second
-   increment in a later loop. opt_propagation off stops the fold but
-   adds a read mask retail does not have (three instructions for two),
-   scoring 181. Retail's two-instruction form means its tally is known
-   16-bit clean but not constant there, so the remaining work is to
-   find what makes the initial value non-constant in the real source.
-   Past that one instruction the residual is small: the limit value
-   lands in $s1 rather than a masked $v0, and the rest are relocs. */
-// FUN_001DD570 NONMATCHING
-#ifdef NON_MATCHING
+/* Recovered: retail's shape is a scoped `opt_propagation off` translation
+   unit region, which is why the object keeps folds this build would remove
+   (the first tally increment stays `addiu $v0,$s2,1; andi $s2,$v0,0xffff`
+   after the tally is zeroed, and `ok = 1` is still tested by `beqz $v0`).
+   Four source shapes carry the rest: the loop bound is a separate `s32`
+   copy of the u16 limit (retail keeps the u16 in $s1 and spills the int
+   copy to 0xB0, masking once instead of once per iteration), `idx = 0`
+   precedes that copy, both legs of the command test assign `ok = 0` and
+   jump to a single shared `ok = 1`, and the dispatch is a `switch` whose
+   cases `break` to one `return r` - the trampoline at 0x1dd8d4 - with the
+   `return -1` left as the function's last statement.  With the limit mask
+   written `(u16)call()` (propagation-off lowers `call() & 0xFFFF` as
+   ori/and) this is byte-exact. */
+// FUN_001DD570
+#pragma push
+#pragma opt_propagation off
 s32 func_001dd570(u8 *p, u8 *q, s32 arg2, s32 arg3)
 {
     u8 *unit0;
@@ -1382,6 +1373,7 @@ s32 func_001dd570(u8 *p, u8 *q, s32 arg2, s32 arg3)
     u16 n;
     u16 *table;
     u16 limit;
+    s32 count;
     u16 *e;
     u16 v;
     s16 cur;
@@ -1396,12 +1388,13 @@ s32 func_001dd570(u8 *p, u8 *q, s32 arg2, s32 arg3)
     cur0 = (s16)func_0023d8e0(*(u8 **)(unit0 + 0xA64), 0);
     if (func_001db360(q, cur0, 1) != 0) {
         buf[0] = 0;
-        n = (n + 1) & 0xFFFF;
+        n++;
     }
-    limit = func_0023e130(*(u8 **)(unit0 + 0xA64)) & 0xFFFF;
+    limit = (u16)func_0023e130(*(u8 **)(unit0 + 0xA64));
     table = (u16 *)func_0023e140(*(u8 **)(unit0 + 0xA64));
     idx = 0;
-    while (idx < limit) {
+    count = limit;
+    while (idx < count) {
         e = table + idx;
         v = *e;
         if (v != 0 && v < 0x1B8) {
@@ -1422,20 +1415,26 @@ s32 func_001dd570(u8 *p, u8 *q, s32 arg2, s32 arg3)
                 func_0046d730(D_006095E0, 0x45F);
             unitP = *(u8 **)(p + 0x30);
             if (cmd < 0x1B8) {
-                if (func_00232710(*(u32 *)(unitP + 0xA64), 0x80008) != 0)
+                if (func_00232710(*(u32 *)(unitP + 0xA64), 0x80008) != 0) {
                     ok = 0;
-                else if (func_00232730(*(u8 **)(unitP + 0xA64), cmd) == 0)
+                    goto have_ok;
+                }
+                if (func_00232730(*(u8 **)(unitP + 0xA64), cmd) == 0) {
                     ok = 0;
-                else if (func_0023ddc0(*(u8 **)(unitP + 0xA64), cmd) == 0)
-                    ok = 1;
-                else
+                    goto have_ok;
+                }
+                if (func_0023ddc0(*(u8 **)(unitP + 0xA64), cmd) != 0) {
                     ok = 0;
+                    goto have_ok;
+                }
             } else {
-                if (func_00232730(*(u8 **)(unitP + 0xA64), cmd) != 0)
-                    ok = 1;
-                else
+                if (func_00232730(*(u8 **)(unitP + 0xA64), cmd) == 0) {
                     ok = 0;
+                    goto have_ok;
+                }
             }
+            ok = 1;
+have_ok:
             if (ok == 0)
                 goto next;
             if (func_001db360(q, cur, 1) != 0) {
@@ -1446,36 +1445,47 @@ s32 func_001dd570(u8 *p, u8 *q, s32 arg2, s32 arg3)
 next:
         idx++;
     }
-    if (n == 0)
-        return -1;
-    if (arg2 == 1) {
-        r = func_001dd1c0(p, q, buf, n, 1);
-        if (r < 0)
+    if (n > 0) {
+        switch (arg2) {
+        case 0:
             r = func_001dd1c0(p, q, buf, n, 0);
-        return r;
-    } else if (arg2 == 0) {
-        r = func_001dd1c0(p, q, buf, n, 0);
-        if (r < 0)
+            if (r < 0)
+                r = func_001dd1c0(p, q, buf, n, 1);
+            break;
+        case 1:
             r = func_001dd1c0(p, q, buf, n, 1);
+            if (r < 0)
+                r = func_001dd1c0(p, q, buf, n, 0);
+            break;
+        default:
+            r = func_001dd1c0(p, q, buf, n, 0xFFFF);
+            break;
+        }
         return r;
-    } else {
-        return func_001dd1c0(p, q, buf, n, 0xFFFF);
     }
+    return -1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd570);
-#endif
-/* measured: same 128-bit-slot conversion wall as FUN_001DD570 — the limit
-   slot at 0xA0 (andi $2,$17,0xffff; sq) and its loop test (andi idx into $3;
-   lq $2; slt $2,$3,$2) need raw sq/lq without the dsll32/dsra32 pairs mwcc
-   b210 inserts for every 32-bit<->u_long128 conversion (probed: u_long128
-   locals, aligned u64, wide-return helpers, all -O levels). The pointer base
-   (from func_0023e140) is register-resident and fine; only the 0xA0 slot
-   pattern blocks it. */
+#pragma pop
+/* Floor: 1760B window, 39 differing words, and the instruction stream is
+   retail's exactly - `tools/probe_variants.py` plus an instruction-level
+   aligner report zero inserts or deletes, only register names.  Retail
+   colours `result` $s0 and `count` $s1; this build swaps that pair, and the
+   two later rotations ($s1/$s3 around the case-2 entry) follow from it
+   because each build reuses the register the count freed.  Measured inert:
+   declaration order (every position for both variables), variable names,
+   local types (s8/s16/s32 result, s16 count, s32 idx/limit), parameter
+   types, statement order, an extra AI-table local, inlining the `unit`
+   deref, merging `r` into `result`, and the pragmas opt_propagation,
+   opt_lifetimes, opt_dead_assignments, opt_strength_reduction,
+   opt_unroll_loops and optimization_level.  `optimize_for_size off` does
+   flip the pair to retail's assignment but re-colours five other variables
+   (284 words), and `-O2,p` for the whole unit costs 17 matched functions
+   here.  Micro-experiments (/var/tmp/ra) show the pair flips when `result`
+   outlives the switch or when `count` is consumed once before it - neither
+   is true of retail's code, whose tail is `return -1` and whose three cases
+   each mask the count separately. */
 // FUN_001DD920 NONMATCHING
 #ifdef NON_MATCHING
-#pragma push
-#pragma opt_propagation off
 s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
 {
     u8 *unit;
@@ -1609,7 +1619,6 @@ s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
         return table[func_00231d70(n)];
     return -1;
 }
-#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd920);
 #endif
