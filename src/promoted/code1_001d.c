@@ -2079,62 +2079,94 @@ u8 *func_001d8c00(u8 *arg0)
     }
     return NULL;
 }
-/* Retained defined-C floor: 312B/320B, four fully relocated executable-word
-   differences and eight zero-tail bytes. The first-entry guard must precede
-   the comparison to avoid an uninitialized best-distance read. See
-   docs/probe_archive/R1EE_001d8cb0_body.c; production remains ASM. */
-/* Nearest-neighbor best-distance search (320B window). First probe nd 86,
-   refined to nd 80 (count reloads via loop temps). Structure, pointer
-   compares and callee conventions verified against retail. Open: one extra
-   saved reg (s0-s3 vs s0-s2), frame size, and scheduler ordering. The
-   first-entry guard precedes the comparison; see docs/probe_archive/
-   R1EE_001d8cb0_body.c. */
-// FUN_001D8CB0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_001d8cb0(u8 *arg0, u8 *arg1, s16 arg2)
+/* Recovered from docs/probe_archive/R1EE_001d8cb0_body.c by swapping the
+   two operands of the nearest-target test: retail emits the float
+   comparison first (`c.olt.s`, `bc1t`, then `beqz` on the first-entry
+   flag), so the source reads `(temp_f0 < var_f20) || (first != 0)`.
+   That order reads the best distance before the first iteration has
+   written it, which is exactly what retail does; the defensive order
+   this floor used to carry - first-entry guard first, to avoid the
+   uninitialised read - was the whole residual. */
+// FUN_001D8CB0
+#pragma push
+#pragma opt_loop_invariants on
+s32 func_001d8cb0(u8 *arg0, u8 *arg1)
 {
-    RwV3d sp60;
-    RwV3d sp50;
+    struct BtlUnit;
+    struct BtlAction {
+        u64 uid;
+        u8 unknown08[4];
+        u16 currState;
+        u16 pendingState;
+        u16 oldState;
+        u16 pendingStateTimer;
+        u16 state;
+        u16 unknown16;
+        u16 unknown18;
+        u16 unknown1a;
+        u32 stateTimer;
+        u8 unknown20[0x10];
+        struct BtlUnit *unit;
+    };
+    struct DistanceSelection {
+        struct BtlAction *entries[12];
+        u64 key;
+        u16 count;
+        u16 selected;
+        u8 flags;
+    };
+    struct RwV3d {
+        f32 x;
+        f32 y;
+        f32 z;
+    };
+    extern void func_001958f0(struct BtlUnit *unit, struct RwV3d *dst);
+    extern f32 func_001ec250(const struct RwV3d *first, const struct RwV3d *second);
+    struct RwV3d sp60;
+    struct RwV3d sp50;
     f32 temp_f0;
-    f32 best;
-    s16 var_16;
-    s32 var_17;
-    u64 temp_5;
-    void func_001958f0(s32, RwV3d *);
-    f32 func_001ec250(const RwV3d *, const RwV3d *);
-
-    (*(s16 *)(arg1 + 0x3A)) = 0;
-    temp_5 = (*(u64 *)(arg1 + 0x30));
-    if (temp_5 != 0) {
-        arg2 = 0;
-        while ((arg2 & 0xFFFF) < (s32)(*(u16 *)(arg1 + 0x38))) {
-            if (temp_5 == (*(u64 *)(u32)(*(u32 *)(arg1 + ((arg2 & 0xFFFF) * 4))))) {
-                (*(s16 *)(arg1 + 0x3A)) = arg2;
-                return 1;
+    f32 var_f20;
+    struct DistanceSelection *selection = (struct DistanceSelection *)arg1;
+    s32 first;
+    s32 index;
+    selection->selected = 0;
+    {
+        u64 key;
+        u16 key_index;
+        key = selection->key;
+        if (key != 0) {
+            key_index = 0;
+            while (key_index < selection->count) {
+                if (key == selection->entries[key_index]->uid) {
+                    selection->selected = key_index;
+                    return 1;
+                }
+                key_index++;
             }
-            arg2 = (arg2 + 1) & 0xFFFF;
         }
     }
-    if (arg0 != NULL) {
-        var_17 = 1;
-        func_001958f0((*(s32 *)(arg0 + 0x30)), &sp60);
-        var_16 = 0;
-        while ((var_16 & 0xFFFF) < (s32)(*(u16 *)(arg1 + 0x38))) {
-            func_001958f0((*(s32 *)((*(u8 **)(arg1 + ((var_16 & 0xFFFF) * 4))) + 0x30)), &sp50);
-            temp_f0 = func_001ec250(&sp60, &sp50);
-            if ((var_17 != 0) || (temp_f0 < best)) {
-                (*(s16 *)(arg1 + 0x3A)) = var_16;
-                best = temp_f0;
-                var_17 = 0;
-            }
-            var_16 = (var_16 + 1) & 0xFFFF;
-        }
+    if (arg0 == NULL)
+        goto return_one;
+    first = 1;
+    func_001958f0(((struct BtlAction *)arg0)->unit, &sp60);
+    index = 0;
+    goto distance_test;
+distance_loop:
+    func_001958f0(selection->entries[index & 0xFFFF]->unit, &sp50);
+    temp_f0 = func_001ec250(&sp60, &sp50);
+    if ((temp_f0 < var_f20) || (first != 0)) {
+        selection->selected = (u16)index;
+        var_f20 = temp_f0;
+        first = 0;
     }
+    index = (index + 1) & 0xFFFF;
+distance_test:
+    if ((u16)index < selection->count)
+        goto distance_loop;
+return_one:
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d8cb0);
-#endif
+#pragma pop
 // FUN_001D8E50
 void func_001d8e50(u8 *arg0, u8 *arg1)
 {
