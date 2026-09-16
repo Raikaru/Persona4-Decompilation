@@ -418,24 +418,139 @@ s32 func_003026c0(s32 arg0, s32 arg1)
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00302770);
 
 /* wave 14: signature re-checked via the m2c oracle and the retail prologue
-   (dsll32 $16,$5,24 / dsra32 = byte sign-extend): arg1 IS s8 (the m2c's
-   s64 arg1 is widening noise — the current extern s32 func_00303610(u8 *,
-   s8, u16 *) is correct, no lever-1 fix). The residual (case-local loop
-   counters j/k in $s5/$s3 + jtbl switch 1-10 + const-1 hoist for case 6's
-   flag set) is saved-register rotation + const-hoist; every wave-14 lever
-   checked (no global base, no addu-order site, slt uses slti not the $at
-   form). Best nd 131 unchanged. */
-/* measured: retail allocates case-local loop counters as temps ($a1/$a3)
-   and splits j/k across $s5/$s3, hoists the const 1 for case 6's flag set
-   (move $s2,$a0), and lands the flag check at 0x3039A8; mwcc b210 keeps j
-   in saved $s3 across all cases, swaps j/k to $s3/$s5, re-materializes
-   addiu $s2,1 at each flag site, and lands the check 4 bytes earlier
-   (every branch target after shifts by 4). Structure verified identical
-   (switch 1-10 via jtbl, nested loops, flag=0 reset, i=0/n/tail setup
-   order, ++ increments). Best nd 131. Saved-register rotation + const
-   hoist floor. */
-// FUN_00303610
+   (dsll32 $16,$5,24 / dsra32 = byte sign-extend): arg1 IS s8; the m2c's
+   s64 arg1 is widening noise. */
+/* Floor: 32 differing words (the wave-14 attempt measured 131 and kept no
+   body).  Two things carried it: `arg2` is a `u16 *`, so the draft's
+   `*(u8 *)(arg2 + j * 2)` double-scales - plain `arg2[j]` gives retail's
+   `sll 1` plus `lhu` - and `opt_loop_invariants on` hoists the constant 1
+   that every case's flag set reuses, which is the const-hoist the earlier
+   note identified but did not close (145 -> 44 words on its own).
+   WALL: retail keeps the per-case loop counters in temps ($a1) and splits
+   j/k across $s5/$s3, while this build holds j in $s3 throughout, and it
+   sets the flag to zero before computing the rule address rather than
+   after.  Block-scoped per-case counters (240) and 200 declaration orders
+   were measured. */
+// FUN_00303610 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma opt_loop_invariants on
+s32 func_00303610(u8 *arg0, s8 arg1, u16 *arg2)
+{
+    u8 *rule;
+    u16 *last;
+    s16 want;
+    s8 kind;
+    s8 index;
+    s16 i;
+    s16 j;
+    s16 k;
+    s16 count;
+    s8 found;
+
+    index = *(s8 *)(*(u8 **)(arg0 + 0x38) + 0x2D4);
+    if (index == -1) {
+        return 1;
+    }
+    rule = D_0063FCA0 + index * 0x1C;
+    count = arg1;
+    last = arg2 + count;
+    for (i = 0; i < 3; i++) {
+        kind = *(s8 *)(rule + 2);
+        if (kind == 0) {
+            continue;
+        }
+        found = 0;
+        switch (kind) {
+        case 1:
+            for (j = 0; j < count; j++) {
+                want = *(s16 *)(rule + 4);
+                if (want == (func_00109280(arg2[j]) & 0xFF)) {
+                    found = 1;
+                    break;
+                }
+            }
+            break;
+        case 2:
+            for (j = 0; j < count; j++) {
+                if (*(s16 *)(rule + 4) == arg2[j]) {
+                    found = 1;
+                    break;
+                }
+            }
+            break;
+        case 3:
+            want = *(s16 *)(rule + 4);
+            if (want == (func_00109280(*last) & 0xFF)) {
+                found = 1;
+            }
+            break;
+        case 4:
+            if (*(s16 *)(rule + 4) == *last) {
+                found = 1;
+            }
+            break;
+        case 5:
+            for (j = 0; j < count; j++) {
+                want = *(s16 *)(rule + 4);
+                if (want == (func_00109280(arg2[j]) & 0xFF)) {
+                    for (k = 0; k < count; k++) {
+                        want = *(s16 *)(rule + 6);
+                        if (want == (func_00109280(arg2[k]) & 0xFF)) {
+                            found = 1;
+                            break;
+                        }
+                    }
+                }
+            }
+            break;
+        case 6:
+            for (j = 0; j < count; j++) {
+                if (*(s16 *)(rule + 4) == arg2[j]) {
+                    for (k = 0; k < count; k++) {
+                        if (*(s16 *)(rule + 6) == arg2[k]) {
+                            found = 1;
+                            break;
+                        }
+                    }
+                }
+            }
+            break;
+        case 7:
+            if (count != 3) {
+                return 0;
+            }
+            found = 1;
+            break;
+        case 8:
+            if (count != 4) {
+                return 0;
+            }
+            found = 1;
+            break;
+        case 9:
+            if (count != 5) {
+                return 0;
+            }
+            found = 1;
+            break;
+        case 10:
+            if (count != 6) {
+                return 0;
+            }
+            found = 1;
+            break;
+        }
+        if (found == 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+#pragma pop
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00303610);
+#endif
 
 // FUN_00303A20
 void func_00303a20(u8 *arg0) {
