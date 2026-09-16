@@ -1000,8 +1000,141 @@ void func_002d6190(void *arg0) {
    by generated-draft call sites. D_0063F650/D_0063F658 are f32[] (matches
    the note's Vec2f*(f32[]) reading); func_002e0620 (void*,u64,u64,s32,s32,
    s16) and func_002e04e0 (void*) match m2c. No extern-width defect. */
+/* MATCHED: Vec2f *base over f32[] D_0063F658/D_0063F650 reproduces the $s1 base hoist; (f32)int casts + float literals reproduce every 2970 chain. */
 // FUN_002D7300
-INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d7300);
+void func_002d7300(void *arg0) {
+    u64 sp198;
+    u64 sp190;
+    u64 sp188;
+    u64 sp180;
+    u64 sp178;
+    u64 sp170;
+    u64 sp168;
+    u64 sp160;
+    u64 sp158;
+    u64 sp150;
+    u64 sp148;
+    u64 sp140;
+    u64 sp138;
+    u64 sp130;
+    u64 sp128;
+    u64 sp120;
+    u64 sp118;
+    u64 sp110;
+    u64 sp108;
+    u64 sp100;
+    u64 spF8;
+    u64 spF0;
+    u64 spE8;
+    u64 spE0;
+    u64 spD8;
+    u64 spD0;
+    u64 spC8;
+    u64 spC0;
+    u64 spB8;
+    u64 spB0;
+    u64 spA8;
+    u64 spA0;
+    u64 sp98;
+    u64 sp90;
+    u64 sp88;
+    u64 sp80;
+    u64 sp78;
+    u64 sp70;
+    u64 sp68;
+    u64 sp60;
+    u64 sp58;
+    u64 sp50;
+    u64 sp48;
+    u64 sp40;
+    u64 sp38;
+    u64 sp30;
+    u8 *work;
+    Vec2f *base;
+    s8 temp_4;
+
+    work = *(u8 **)((u8 *)arg0 + 0x38);
+    func_002b2970(&sp198, 70.0f, 208.0f);
+    func_002b2970(&sp190, (f32)0x29E, 208.0f);
+    func_002e0620(*(void **)(work + 0xCE4), sp198, sp190, 0, 8, 0);
+    func_002b2970(&sp188, (f32)0x233, 208.0f);
+    func_002b2970(&sp180, (f32)0x48B, 208.0f);
+    func_002e0620(*(void **)(work + 0xCE8), sp188, sp180, 0, 8, 0);
+    base = (Vec2f *)D_0063F658;
+    func_002b2970(&sp178, base->x, base->y);
+    func_002b2970(&sp170, 600.0f + base->x, base->y);
+    func_002e0620(*(void **)(work + 0xCB4), sp178, sp170, 0, 8, 0);
+    func_002b2970(&sp168, 368.0f, 227.0f);
+    func_002b2970(&sp160, 968.0f, 227.0f);
+    func_002e0620(*(void **)(work + 0xCAC), sp168, sp160, 0, 8, 0);
+    func_002b2970(&sp158, (f32)0x1C7, 227.0f);
+    func_002b2970(&sp150, (f32)0x41F, 227.0f);
+    func_002e0620(*(void **)(work + 0xE84), sp158, sp150, 0, 8, 0);
+    func_002b2970(&sp148, 70.0f, 94.0f);
+    func_002b2970(&sp140, (f32)-0x212, 94.0f);
+    func_002e0620(*(void **)(work + 0xEDC), sp148, sp140, 0, 8, 0);
+    func_002b2970(&sp138, (f32)0x233, 94.0f);
+    func_002b2970(&sp130, -37.0f, 94.0f);
+    func_002e0620(*(void **)(work + 0xEE0), sp138, sp130, 0, 8, 0);
+    base = (Vec2f *)D_0063F650;
+    func_002b2970(&sp128, base->x, base->y);
+    func_002b2970(&sp120, base->x - 600.0f, base->y);
+    func_002e0620(*(void **)(work + 0xCB0), sp128, sp120, 0, 8, 0);
+    func_002b2970(&sp118, (f32)0x13D, 178.0f);
+    func_002b2970(&sp110, (f32)-0x11B, 178.0f);
+    func_002e0620(*(void **)(work + 0xCD0), sp118, sp110, 0, 8, 0);
+    func_002b2970(&sp108, 368.0f, 113.0f);
+    func_002b2970(&sp100, -232.0f, 113.0f);
+    func_002e0620(*(void **)(work + 0xEA4), sp108, sp100, 0, 8, 0);
+    func_002b2970(&spF8, (f32)0x1C7, 113.0f);
+    func_002b2970(&spF0, -145.0f, 113.0f);
+    func_002e0620(*(void **)(work + 0xEA8), spF8, spF0, 0, 8, 0);
+    temp_4 = *(s8 *)(work + 7);
+    switch (temp_4) {
+    case 0:
+        func_002b2970(&spE8, 370.0f, 234.0f);
+        func_002b2970(&spE0, (f32)0x3CA, 234.0f);
+        func_002e0620(*(void **)(work + 0xCA0), spE8, spE0, 0, 8, 0);
+        func_002b2970(&spD8, (f32)0x1C9, 234.0f);
+        func_002b2970(&spD0, (f32)0x421, 234.0f);
+        func_002e0620(*(void **)(work + 0xCA8), spD8, spD0, 0, 8, 0);
+        func_002b2970(&spC8, 370.0f, 121.0f);
+        func_002b2970(&spC0, -230.0f, 121.0f);
+        func_002e0620(*(void **)(work + 0xE98), spC8, spC0, 0, 8, 0);
+        func_002b2970(&spB8, (f32)0x1C9, 121.0f);
+        func_002b2970(&spB0, -143.0f, 121.0f);
+        func_002e0620(*(void **)(work + 0xEA0), spB8, spB0, 0, 8, 0);
+        return;
+    case 1:
+        func_002b2970(&spA8, 370.0f, 234.0f);
+        func_002b2970(&spA0, (f32)0x3CA, 234.0f);
+        func_002e0620(*(void **)(work + 0xC9C), spA8, spA0, 0, 8, 0);
+        func_002b2970(&sp98, (f32)0x1C9, 234.0f);
+        func_002b2970(&sp90, (f32)0x421, 234.0f);
+        func_002e0620(*(void **)(work + 0xCA4), sp98, sp90, 0, 8, 0);
+        func_002b2970(&sp88, 370.0f, 121.0f);
+        func_002b2970(&sp80, -230.0f, 121.0f);
+        func_002e0620(*(void **)(work + 0xE94), sp88, sp80, 0, 8, 0);
+        func_002b2970(&sp78, (f32)0x1C9, 120.0f);
+        func_002b2970(&sp70, -143.0f, 122.0f);
+        func_002e0620(*(void **)(work + 0xE9C), sp78, sp70, 0, 8, 0);
+        return;
+    case 2:
+        func_002b2970(&sp68, (f32)0x16F, 225.0f);
+        func_002b2970(&sp60, (f32)0x3C7, 225.0f);
+        func_002e0620(*(void **)(work + 0xCB8), sp68, sp60, 0, 8, 0);
+        func_002b2970(&sp58, 454.0f, 225.0f);
+        func_002b2970(&sp50, (f32)0x41E, 225.0f);
+        func_002e0620(*(void **)(work + 0xEAC), sp58, sp50, 0, 8, 0);
+        func_002b2970(&sp48, (f32)0x16F, 111.0f);
+        func_002b2970(&sp40, -233.0f, 111.0f);
+        func_002e0620(*(void **)(work + 0xCBC), sp48, sp40, 0, 8, 0);
+        func_002b2970(&sp38, 454.0f, 111.0f);
+        func_002b2970(&sp30, -146.0f, 111.0f);
+        func_002e0620(*(void **)(work + 0xEB0), sp38, sp30, 0, 8, 0);
+        return;
+    }
+}
 
 
 
