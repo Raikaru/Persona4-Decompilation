@@ -397,15 +397,149 @@ s32 func_00312bc0(s8 arg0) {
 }
 #pragma opt_rebuildconditionals on
 
-/* measured: raw C reconstruction compiles to 1264B against the 1152B retail
-   window with normalized_diff 924. Retail keeps a 0xA0 frame and maps the
-   input/table locals to $s3/$fp/$s0/$s6; the straightforward typed loops
-   grew a 0xB0 frame and rotated those saved registers. Probe discarded. */
-/* Named compiler floor: the typed loop's saved-register/frame allocation grows
-   and rotates under b210; keep this body as ASM rather than inflating C with
-   artificial locals or pragmas. */
-// FUN_00312C60
+/* Floor: 221 differing words (the earlier discarded probe measured 924 with
+   a 0xB0 frame).  What closed most of it: the third parameter is s32 with a
+   single hoisted `(s8)` cast - retail sign-extends it once into $s4 rather
+   than per iteration - the deck row and the u16 cell are pointer locals so
+   the inner accesses reuse retail's $s5/$s7, the inner index is zeroed
+   before the row is computed, and the frame is retail's 0xA0 again.
+   `opt_loop_invariants on` carries the rest; the residual is the saved- and
+   temporary-register map through the weighted pick loop. */
+// FUN_00312C60 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma opt_loop_invariants on
+s8 func_00312c60(u16 *arg0, u8 *arg1, s32 arg2)
+{
+    extern u32 func_0010ceb0(void *arg0);
+    extern u8 *func_002e6f00(void);
+    extern void func_002e6f90(u8 *arg0, s16 arg1);
+    extern void func_002e7010(u8 *arg0, s16 arg1);
+    extern void func_002e7190(u8 *arg0);
+    extern void func_00440b68(const void *arg0);
+    extern void func_0044ea90(const void *arg0, s32 arg1);
+    extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+    extern void (*jtbl_008873EC[])(void *ptr);
+    extern u8 *iGpffffb3b4;
+    extern u8 D_00641C20[];
+    extern u8 D_00641C40[];
+    extern s8 D_00641E60[];
+    extern char D_00642F50[];
+    s32 total;
+    s16 free_slots;
+    s8 taken;
+    s16 pick_index;
+    u32 roll;
+    s32 limit;
+    s32 arcana;
+    u16 *slot;
+    u16 *cell;
+    s32 running;
+
+    s16 scan;
+    s16 id;
+    u8 *pool;
+    s32 weight;
+    s16 i;
+    u8 *row;
+    s16 count;
+    s8 remaining;
+    s32 step;
+    u8 *weights;
+    s8 rate;
+    s16 j;
+
+    taken = 0;
+    if (arg0 == NULL) {
+        func_0046d730(D_00642F30, 0x3AF);
+    }
+    pool = func_002e6f00();
+    limit = (s8)arg2;
+    for (i = 0; i < limit; i++) {
+        j = 0;
+        row = arg1 + i * 0x30;
+        for (; j < 8; j++) {
+            cell = (u16 *)(row + j * 2 + 0xC);
+            if (*cell != 0 && func_0010ce10((u8 *)arg0, *cell) == -1) {
+                func_002e6f90(pool, (s16)*cell);
+            }
+        }
+    }
+    count = *(s16 *)(pool + 0x60);
+    step = 8;
+    while (1) {
+        if (step < 0) {
+            remaining = 0;
+            break;
+        }
+        if (count >= D_00641C20[step * 2]) {
+            remaining = (s8)D_00641C20[step * 2 + 1];
+            break;
+        }
+        step--;
+    }
+    free_slots = (s16)(8 - func_0010ceb0(arg0));
+    if (free_slots == 0) {
+        func_00440b68(D_00642F50);
+        func_002e7190(pool);
+        return 0;
+    }
+    if (free_slots < remaining) {
+        remaining = (s8)free_slots;
+    }
+    func_0044ea90(D_00642F30, 0x3CC);
+    weights = (u8 *)(*jtbl_008873E8)(*(s16 *)(pool + 0x60) * 4, 0x40000);
+    while (remaining != 0) {
+        total = 0;
+        for (i = 0; i < *(s16 *)(pool + 0x60); i++) {
+            id = *(u8 *)(pool + i * 2);
+            if (arg0 == NULL) {
+                func_0046d730(D_00642F30, 0x327);
+            }
+            arcana = (s8)iGpffffb3b4[id * 2];
+            if (arcana == -1) {
+                arcana = 0x12;
+            }
+            rate = D_00641E60[id];
+            if (rate == 0) {
+                weight = 0;
+            } else {
+                weight = *(u8 *)(arcana * 2 + (D_00641C40 +
+                             *(u16 *)(iGpffffb3d4 + *(u16 *)(arg0 + 1) * 0xE + 0xA) * 0x26)) * 0xA / rate;
+            }
+            weights[i * 4] = (u8)weight;
+            total += weight;
+        }
+        if (total == 0) {
+            break;
+        }
+        running = 0;
+        roll = func_003b7060() % total;
+        for (pick_index = 0; pick_index < (s32)(u8)*(s16 *)(pool + 0x60); pick_index++) {
+            running += weights[pick_index * 4];
+            if ((s32)roll < running) {
+                for (scan = 0; scan < 8; scan++) {
+                    if (*(u16 *)(arg0 + scan * 1 + 6) == 0) {
+                        taken = (s8)(taken | (1 << scan));
+                        break;
+                    }
+                }
+                slot = (u16 *)(pool + pick_index * 2);
+                func_0010cc20((u8 *)arg0, *slot);
+                func_002e7010(pool, (s16)*slot);
+                remaining--;
+                break;
+            }
+        }
+    }
+    (*jtbl_008873EC)(weights);
+    func_002e7190(pool);
+    return taken;
+}
+#pragma pop
+#else
 INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_00312c60);
+#endif
 
 /* measured: retail sq's arg0&0xFF into spA0 (0xA0) and lq's it back in the
    0xC0 i-loop, comparing via raw bne (lq $2,0xA0 / bne $2,$3). The old
