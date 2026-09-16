@@ -222,12 +222,123 @@ store:
     *p = (s32)arg0;
     return 1;
 }
-// FUN_001B1020
+/* Best reconstruction: docs/probe_archive/F1B0_001b1020_body.c.
+   measured: object 404B/window 416B, normalized_diff 125, 41 differing words;
+   first 240B (the whole rank-collection loop) byte-exact and every remaining
+   word is register allocation plus one hoisted-constant scheduling choice. */
+// FUN_001B1020 NONMATCHING
+#ifdef NON_MATCHING
+void func_001b1020(s32 arg0)
+{
+    u8 ranks[0xC];
+    BtlAction **scan;
+    u32 i;
+    u32 j;
+    s32 swapped;
+    s32 limit;
+    BtlAction *curr;
+    BtlAction *next;
+    u8 curr_rank;
+    u8 next_rank;
+
+    scan = (BtlAction **)(D_0076449C + 0x29C);
+    for (i = 0; i < 0xCU; i++) {
+        curr = *scan;
+        if (curr == NULL) {
+            break;
+        }
+        if (arg0 != 0 && (*(u8 *)(*(u8 **)((u8 *)curr + 0x30) + 0xA2)) == 1) {
+            u32 r19 = func_00232c70(*(u8 **)(*(u8 **)((u8 *)curr + 0x30) + 0xA64), 3) & 0xFF;
+            u32 bonus = func_00231d70(0x15) + 0x5A;
+            u32 score = (r19 * bonus) / 100U;
+            if (score == 0) {
+                score = 1;
+            } else if (score >= 100U) {
+                score = 99;
+            }
+            ranks[i] = (u8)score;
+        } else {
+            ranks[i] = func_00232c70(*(u8 **)(*(u8 **)((u8 *)curr + 0x30) + 0xA64), 3);
+        }
+        scan++;
+    }
+
+    limit = (s32)(i - 1);
+    swapped = 1;
+    do {
+        BtlAction **sort;
+        swapped = 0;
+        for (sort = (BtlAction **)(D_0076449C + 0x29C), j = 0; j < limit; j++) {
+            curr = *sort;
+            next = sort[1];
+            if (curr != NULL && next != NULL) {
+                u8 *rp = &ranks[j];
+                curr_rank = rp[0];
+                next_rank = rp[1];
+                if (curr_rank < next_rank) {
+                    *sort = next;
+                    sort[1] = curr;
+                    rp[0] = next_rank;
+                    rp[1] = curr_rank;
+                    swapped = 1;
+                }
+            }
+            sort++;
+        }
+    } while (swapped);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b1020);
+#endif
 /* Best faithful probe: docs/probe_archive/F1B0_001b11c0_body.c.
    Object/window 192B/192B; five differing words swap the key/index registers. */
-// FUN_001B11C0
+// FUN_001B11C0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_loop_invariants on
+void func_001b11c0(s32 arg0)
+{
+    u8 **count_scan;
+    u32 count;
+    u32 key;
+    s32 changed;
+    u32 i;
+    u8 **scan;
+    u8 *left;
+    u8 *right;
+    u32 kind;
+
+    count_scan = (u8 **)((u8 *)iGpffffb3ac + 0x29C);
+    count = 0;
+    while (count < 0xC) {
+        if (*count_scan == NULL) break;
+        count_scan++;
+        count++;
+    }
+    key = arg0 & 0xFFFF;
+    do {
+        changed = 0;
+        scan = (u8 **)((u8 *)iGpffffb3ac + 0x29C);
+        i = 0;
+        while (i < count - 1) {
+            left = scan[0];
+            right = scan[1];
+            if (left != NULL && right != NULL) {
+                kind = *(u8 *)(*(u8 **)(left + 0x30) + 0xA2);
+                if (kind != *(u8 *)(*(u8 **)(right + 0x30) + 0xA2) && kind != key) {
+                    scan[0] = right;
+                    scan[1] = left;
+                    changed = 1;
+                }
+            }
+            i++;
+            scan++;
+        }
+    } while (changed != 0);
+}
+#pragma opt_loop_invariants off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b11c0);
+#endif
 // FUN_001B1280
 void func_001b1280(s32 arg0)
 {

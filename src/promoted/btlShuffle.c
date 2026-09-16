@@ -81,6 +81,10 @@ extern u8 *func_0010b010(u16 personaId);
 extern u8 *iGpffffb3c0;
 
 extern u8 *iGpffffb3f0;
+extern u8 *iGpffffb3e0;
+extern u8 *iGpffffb3ec;
+extern s32 func_001094d0(u32 arg0);
+extern void func_0010cd70(u8 *arg0, s32 arg1, s32 arg2);
 
 extern s32 D_0064E7B0[];
 
@@ -541,8 +545,131 @@ s32 func_0036f640(s32 arg0, s32 *arg1)
  * sp+0xA0 vs retail's 0x90 and rotating the loop registers. Named flag, all
  * counter types, and declaration orders tried; the extra live value across the
  * inner loop never coaders into $s0-$s5. Saved-register-count floor. */
-// FUN_0036F880
+// FUN_0036F880 NONMATCHING
+#ifdef SKIP_ASM
+s32 func_0036f880(s32 arg0, u8 *arg1)
+{
+    u32 w1[8];
+    u32 h2[8];
+    u16 lim;
+    u16 cnt;
+    u16 i;
+    s16 v;
+    u8 *pick;
+    u32 t2;
+    u8 *tbl;
+    u16 s5v;
+    u16 a;
+    u16 b;
+    u16 c;
+    u16 d;
+    u16 e;
+    u16 f;
+    u16 sA;
+    u16 sB;
+
+    lim = func_0010b5b0() & 0xFFFF;
+    cnt = 0;
+    if (lim >= 13) {
+        func_0046d730(D_0064E790, 1207);
+    }
+    i = 0;
+    while (((i & 0xFFFF)) < lim) {
+        v = (s16)i;
+        if (func_0010abd0(v) != 0) {
+            w1[cnt] = (u32)func_0010ace0(v);
+            cnt = (cnt + 1) & 0xFFFF;
+        }
+        i = (i + 1) & 0xFFFF;
+    }
+    if ((cnt & 0xFFFF) == 0) {
+        return 0;
+    }
+    pick = (u8 *)w1[func_00231d70(cnt)];
+    t2 = func_001094d0((u32)pick);
+    a = 0;
+    b = 0;
+    tbl = iGpffffb3ec;
+    s5v = arg0 & 0xFFFF;
+    while (((a & 0xFFFF)) < 8) {
+        {
+            u16 cv = *(u16 *)(t2 + (a & 0xFFFF) * 2);
+            if (cv != 0) {
+                c = 0;
+                if (s5v != 0) {
+                    while (1) {
+                        d = *(u16 *)(tbl + (c & 0xFFFF) * 4);
+                        if (d == cv) {
+                            break;
+                        }
+                        if (d == 0) {
+                            break;
+                        }
+                        c = (c + 1) & 0xFFFF;
+                    }
+                    if (d != 0) {
+                        e = 0;
+                        while (((e & 0xFFFF)) < 8) {
+                            f = *(u16 *)(t2 + (e & 0xFFFF) * 2);
+                            if (f == 0 || f == *(u16 *)(tbl + (c & 0xFFFF) * 4 + 2)) {
+                                break;
+                            }
+                            e = (e + 1) & 0xFFFF;
+                        }
+                        if (((e & 0xFFFF)) >= 8) {
+                            h2[b] = d;
+                            h2[b] = (h2[b] & 0xFFFF) | ((u32)*(u16 *)(tbl + (c & 0xFFFF) * 4 + 2) << 16);
+                            b = (b + 1) & 0xFFFF;
+                        }
+                    }
+                } else {
+                    while (1) {
+                        d = *(u16 *)(tbl + (c & 0xFFFF) * 4 + 2);
+                        if (d == cv) {
+                            break;
+                        }
+                        if (d == 0) {
+                            break;
+                        }
+                        c = (c + 1) & 0xFFFF;
+                    }
+                    if (d != 0) {
+                        e = 0;
+                        while (((e & 0xFFFF)) < 8) {
+                            f = *(u16 *)(t2 + (e & 0xFFFF) * 2);
+                            if (f == 0 || f == *(u16 *)(tbl + (c & 0xFFFF) * 4)) {
+                                break;
+                            }
+                            e = (e + 1) & 0xFFFF;
+                        }
+                        if (((e & 0xFFFF)) >= 8) {
+                            h2[b] = d;
+                            h2[b] = (h2[b] & 0xFFFF) | ((u32)*(u16 *)(tbl + (c & 0xFFFF) * 4) << 16);
+                            b = (b + 1) & 0xFFFF;
+                        }
+                    }
+                }
+            }
+        }
+        a = (a + 1) & 0xFFFF;
+    }
+    if ((b & 0xFFFF) == 0) {
+        return 0;
+    }
+    {
+        u8 *sp = (u8 *)h2 + (func_00231d70(b) & 0xFFFF) * 4;
+        sA = *(u16 *)(sp + 114);
+        sB = *(u16 *)(sp + 112);
+        func_0010cd70(pick, (s16)sB, sA);
+    }
+    *(u16 *)(arg1 + 4) = *(u16 *)(pick + 2);
+    *(u16 *)(arg1 + 8) = sB;
+    *(u16 *)(arg1 + 6) = sA;
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036f880);
+#endif
 
 
 /* matched: s32 `s` and flag temporaries preserve retail's callee-saved

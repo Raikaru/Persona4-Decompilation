@@ -46,7 +46,7 @@ extern u8 *func_001b1510(void);
 extern void func_001d1680(s32 arg0, s32 arg1);
 extern u32 func_00232710(s32 arg0, u32 arg1);
 extern s32 func_002428f0(u32 arg0, u32 arg1);
-extern void func_003e40b0(f32 *arg0, f32 *arg1);
+extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
 
 typedef struct BtlFormationState
 {
@@ -165,8 +165,58 @@ void func_001d2e00(u32 *work)
 {
     *(u16 *)(work[0] + 0xa0) = *(u16 *)(work[0] + 0xa0) + 1;
 }
-// FUN_001D2E20
+// FUN_001D2E20 NONMATCHING
+#ifdef NON_MATCHING
+u32 func_001d2e20(u8 *arg0) {
+    extern s32 func_00199d00(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3);
+    extern s32 func_001f1210(u8 *arg0, s16 arg1, s32 arg2);
+    extern void func_001951f0(u8 *arg0, u8 *arg1, u8 *arg2, s16 arg3, f32 *arg4, f32 *arg5, s32 arg6);
+    f32 sp70[4];
+    f32 sp80[4];
+    s16 temp_3;
+    s32 temp_16;
+    s16 temp_17;
+    s32 temp_3_2;
+    u8 *temp_18;
+    u8 *temp_19;
+
+    temp_19 = *(u8 **)arg0;
+    temp_18 = *(u8 **)(*(u8 **)(arg0 + 4) + 0x30);
+    temp_3 = *(s16 *)(arg0 + 0xC);
+    temp_16 = ((u32)*(u8 **)(arg0 + 8) > 0U);
+    temp_17 = (s16)func_00199d00(temp_19, temp_18, temp_3, temp_16);
+    if (func_001f1210(temp_19, temp_3, temp_16) == 0) {
+        temp_3_2 = (s16)func_00199d00(temp_19, temp_18, temp_3, temp_16);
+        if (temp_3_2 == 3) {
+            goto DO1;
+        } else if (temp_3_2 == 1) {
+            goto DO1;
+        } else if (temp_3_2 == 2) {
+            goto DO0;
+        } else if (temp_3_2 == 0) {
+            goto DO0;
+        } else {
+            goto JOIN;
+        }
+DO1:
+        func_001951f0(temp_19, temp_18, 0, temp_17, sp80, sp70, 1);
+        goto JOIN;
+DO0:
+        func_001951f0(temp_19, temp_18, 0, temp_17, sp80, sp70, 0);
+JOIN: ;
+        func_00194f10(temp_19, sp70);
+        func_00194ee0(temp_19, sp80);
+    } else {
+        func_001951f0(temp_19, temp_18, *(u8 **)(*(u8 **)(arg0 + 8) + 0x30), temp_17, sp80, sp70, 2);
+        func_00194f10(temp_19, sp70);
+        func_00194ee0(temp_19, sp80);
+    }
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d2e20);
+#endif
+
 // FUN_001D2FE0
 void func_001d2fe0(u32 *work)
 {

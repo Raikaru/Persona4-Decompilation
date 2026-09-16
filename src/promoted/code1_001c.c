@@ -154,12 +154,326 @@ static inline void func_001c_rotate(RwMatrix *arg0, const RwV3d *arg1,
 /* Promoted from the canonical function map: every function here is a
    retail window with an INCLUDE_ASM fallback and no C body yet. */
 
-// FUN_001C04E0
+/* Camera-track floor (1216B window). First probe nd 263
+   (obj 876B, thinner); frame -0xD0 vs -0x130 retail, saved-reg
+   set verified, stack layout divergent (packed vs spread).
+   Open: frame layout, madd/msub fusion, scheduler ordering.
+   Triple-built (m2c+IDA+Ghidra, retail-arbitrated: 1bcd40
+   TU-decl order, 0.5-first 44b868, max-form update). */
+// FUN_001C04E0 NONMATCHING
+#ifdef NON_MATCHING
+void func_001c04e0(u8 *arg0)
+{
+    extern void func_001bd5a0();
+    extern f32 func_001ec3d0(f32 *arg0, f32 *arg1, f32 *arg2, f32 *arg3);
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+    extern f32 func_0044b868();
+    extern u8 D_0060A100[];
+    extern f32 iGpffff80fc;
+    extern f32 iGpffff8030;
+    extern f32 iGpffff8110;
+    f32 sp120;
+    f32 sp124;
+    f32 sp128;
+    f32 sp110;
+    f32 sp114;
+    f32 sp118;
+    f32 spE0;
+    f32 spE4;
+    f32 spE8;
+    f32 spA8;
+    f32 spAC;
+    f32 temp_f23;
+    f32 temp_f22;
+    f32 temp_f25;
+    f32 spF0;
+    f32 spF4;
+    f32 spF8;
+    f32 sp108;
+    f32 spA0;
+    f32 spA4;
+    f32 spD4;
+    f32 spCC;
+    f32 spD0;
+    f32 spD8;
+    f32 spB0;
+    f32 spB4;
+    f32 spB8;
+    f32 spBC;
+    f32 spC8;
+    f32 spC0;
+    f32 spC4;
+    f32 ec3ret;
+    f32 fblend;
+    f32 fdiv;
+    f32 var_f2;
+    f32 sp80;
+    f32 sp84;
+    f32 sp88;
+    s64 sp100;
+    u8 pbuf[20];
+    u8 dbuf[32];
+    u8 *iVar3;
+    u8 *iVar1;
+
+    iVar3 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
+    iVar1 = *(u8 **)(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x38) + 0x30);
+    func_00195850(iVar3, &sp120);
+    func_00195850(iVar1, &sp110);
+    temp_f23 = *(f32 *)(iVar3 + 0x90) * *(f32 *)(iVar3 + 0x2C);
+    temp_f22 = *(f32 *)(iVar1 + 0x90) * *(f32 *)(iVar1 + 0x2C);
+    spE0 = sp120 - sp110;
+    spE4 = sp124 - sp114;
+    spE8 = sp128 - sp118;
+    temp_f25 = func_003e40b0((RwV3d *)&spE0, (const RwV3d *)&spE0);
+    spA8 = *(f32 *)(arg0 + 0x9C) - sp120;
+    spAC = *(f32 *)(arg0 + 0xA4) - sp128;
+    func_003e41e0(&spA8, &spA8);
+    temp_f25 = iGpffff80fc * temp_f25;
+    spA0 = spE8;
+    spA4 = -spE0;
+    spF0 = spE0 * temp_f25 + sp110;
+    spF4 = spE4 * temp_f25 + sp114;
+    spF8 = spE8 * temp_f25 + sp118;
+    if (0.0f <= spE0 * spA8 + spE8 * spAC) {
+        sp100 = *(s64 *)&sp120;
+        sp108 = sp128;
+        if (*(f32 *)((u8 *)&sp100 + 4) < 125.0f) {
+            *(f32 *)((u8 *)&sp100 + 4) = 125.0f;
+        }
+    } else {
+        sp100 = *(s64 *)&sp110;
+        sp108 = sp118;
+    }
+    spA0 = spE8;
+    spA4 = -spE0;
+    spD0 = iGpffff8030 * *(f32 *)(iVar3 + 0x8C) * *(f32 *)(iVar3 + 0x2C) + *(f32 *)((u8 *)&sp100 + 4);
+    if (0.0f <= spE8 * spA8 + spA4 * spAC) {
+        spD0 = spA4 + spE8 * temp_f25;
+        spD8 = spA0 + spE0 * temp_f25;
+    } else {
+        spD0 = spA0 - spE8 * temp_f25;
+        spD8 = spA4 + spE0 * temp_f25;
+    }
+    func_001bd780(pbuf, &spD0, &spF0, D_0060A0E0);
+    func_003dcb40((RwV3d *)&spE0, (const RwV3d *)D_0060A100, 1, (const RtQuat *)pbuf);
+    spB0 = spF0;
+    spB4 = spF8;
+    spB8 = spD0;
+    spBC = spD8;
+    spC8 = *(f32 *)&sp100;
+    spCC = sp108;
+    ec3ret = func_001ec3d0(&spB0, &spB8, &spC8, &spC0);
+    spD0 = spC0;
+    spD4 = *(f32 *)((u8 *)&sp100 + 4);
+    spD4 = *(f32 *)((u8 *)&sp100 + 4);
+    spD8 = spC4;
+    fblend = (*(f32 *)(iVar3 + 0x90) * *(f32 *)(iVar3 + 0x2C)) * 2.25f + ec3ret;
+    fdiv = func_0044b868(iGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+    var_f2 = 500.0f;
+    if (500.0f <= fblend / fdiv) {
+        var_f2 = fblend / fdiv;
+    }
+    spE0 = spE0 * var_f2;
+    spE4 = spE4 * var_f2;
+    spE8 = spE8 * var_f2;
+    sp80 = spD0 + spE0;
+    sp84 = spD4 + spE4;
+    sp88 = spD8 + spE8;
+    if (sp84 < 25.0f) {
+        sp84 = 25.0f;
+    }
+    func_001bd5a0(arg0 + 0x9C, &sp80);
+    func_001c8e90(arg0, &sp80, (f32 *)dbuf);
+    func_001bab00(arg0, dbuf);
+    func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, arg0 + 0x100, 0.5f * ((temp_f25 + temp_f23) + temp_f22), 3);
+    if (temp_f23 <= temp_f22) {
+        temp_f23 = temp_f22;
+    }
+    func_001bcd40(*(u8 **)(arg0 + 0xE0), (u8 *)&sp120, (u8 *)&sp110, temp_f23, 3);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c04e0);
+#endif
 // FUN_001C09A0
 void func_001c09a0(void) {}
-// FUN_001C09B0
+/* Sine-poly camera floor (1168B window). First probe nd 273
+   (obj 900B, frame -0x80 vs -0xF0 retail, thinner). Open:
+   accumulator-chain fusion (mula/madd/adda/msub un-emittable
+   in plain C), saved-reg pressure, scheduler ordering.
+   Chains decoded from retail to zero-seeded Horner sine polys
+   (coeffs iGpffff8054-8108/8180); closed forms cross-checked
+   against IDA Hex-Rays + Ghidra bodies. Spill model: 1bd560
+   writes sp40+, 1ec2b0 writes sp4C..spA4, 1bd780 writes sp68+,
+   3dcc70 writes sp80..sp9C. +0.0f ACC seeds measured worse. */
+// FUN_001C09B0 NONMATCHING
+#ifdef NON_MATCHING
+void func_001c09b0(u8 *arg0)
+{
+    extern f32 iGpffff8054;
+    extern f32 iGpffff8058;
+    extern f32 iGpffff805C;
+    extern f32 iGpffff8060;
+    extern f32 iGpffff8108;
+    extern f32 iGpffff8180;
+    extern f32 iGpffff8118;
+    extern f32 iGpffff815C;
+    extern f32 iGpffff804C;
+    extern f32 iGpffff8160;
+    extern f32 iGpffff8110;
+    extern f32 iGpffff818C;
+    extern f32 func_001ec2b0();
+    extern f32 func_0044b868();
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+    extern void func_003dc740(u8 *arg0, u8 *arg1, s32 arg2, f32 farg);
+    extern u8 D_0060A100[];
+    f32 spEC;
+    f32 spE8;
+    f32 spE0;
+    f32 spD0;
+    f32 spCC;
+    f32 spC8;
+    f32 spBC;
+    f32 spB8;
+    f32 spB4;
+    f32 spB0;
+    f32 sp80;
+    f32 sp68;
+    f32 sp64;
+    f32 sp60;
+    f32 sp5C;
+    f32 sp4C;
+    f32 sp48;
+    f32 sp50;
+    f32 sp54;
+    f32 sp58;
+    f32 sp6C;
+    f32 sp70;
+    f32 sp74;
+    f32 sp84;
+    f32 sp88;
+    f32 sp8C;
+    f32 sp90;
+    f32 sp94;
+    f32 sp98;
+    f32 sp9C;
+    f32 spDC;
+    f32 spA0;
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f0_3;
+    f32 temp_f1;
+    f32 temp_f1_2;
+    f32 temp_f1_3;
+    f32 temp_f20;
+    f32 temp_f20_2;
+    f32 temp_f2;
+    f32 temp_f3;
+    f32 var_f0;
+    f32 chA;
+    f32 chB;
+    f32 tA;
+    f32 xA;
+    f32 tB;
+    f32 xB;
+    f32 f20poly;
+    f32 temp_t;
+    s64 spD8;
+    s64 sp40;
+    s32 spA4;
+    u8 *temp_17;
+
+    temp_17 = (*(u8 **)((u8 *)(*(u8 **)(arg0 + 0xE0)) + 0x30));
+    func_001bd560(&sp40, arg0 + 0x9C);
+    func_00194ff0(temp_17, &spC8, 0, 0);
+    temp_t = *(f32 *)(temp_17 + 0x2C);
+    spCC = *(f32 *)(temp_17 + 0x84) * temp_t + iGpffff8118 * (*(f32 *)(temp_17 + 0x8C) * temp_t);
+    spD8 = sp40;
+    spE0 = sp48;
+    spDC = spCC;
+    func_001bd780(&sp68, &spD8, &spC8, D_0060A0E0);
+    temp_f0 = func_001ec2b0(&sp4C, &sp68);
+    temp_f1_2 = (f32)(s32)iGpffff815C;
+    if (temp_f1_2 < temp_f0) {
+        temp_f20 = temp_f1_2 / temp_f0;
+        func_003dcc70(&sp4C, &sp68, &sp80);
+        if (temp_f20 <= 0.0f) {
+            spB0 = sp4C;
+            spB4 = sp50;
+            spB8 = sp54;
+            spBC = sp58;
+        } else if (temp_f20 >= 1.0f) {
+            spB0 = sp68;
+            spB4 = sp6C;
+            spB8 = sp70;
+            spBC = sp74;
+        } else {
+            var_f0 = 1.0f - temp_f20;
+            /* spA0/spA4 arrive via the pre-chain call-spill region
+               (1ec2b0 out-struct); m2c, IDA and Ghidra all read the
+               slots with no in-function write. */
+            if (spA4 == 0) {
+                tA = var_f0 * spA0;
+                xA = tA * tA;
+                chA = iGpffff8054 + iGpffff8180 * xA;
+                chA = iGpffff8058 + xA * chA;
+                chA = iGpffff805C + xA * chA;
+                chA = iGpffff8060 + xA * chA;
+                chB = iGpffff8108 + xA * chA;
+                var_f0 = tA + (xA * tA) * chB;
+                tB = temp_f20 * spA0;
+                xB = tB * tB;
+                chA = iGpffff8054 + iGpffff8180 * xB;
+                chA = iGpffff8058 + xB * chA;
+                chA = iGpffff805C + xB * chA;
+                chA = iGpffff8060 + xB * chA;
+                chB = iGpffff8108 + xB * chA;
+                f20poly = tB + (xB * tB) * chB;
+            }
+            spB0 = sp80 * var_f0;
+            spB4 = sp84 * var_f0;
+            spB8 = sp88 * var_f0;
+            spB0 = spB0 + sp90 * f20poly;
+            spB4 = spB4 + sp94 * f20poly;
+            spB8 = spB8 + sp98 * f20poly;
+            spBC = sp9C * f20poly + sp8C * var_f0;
+        }
+        func_003dcb40((RwV3d *)&spD8, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&spB0);
+        *(f32 *)&spD8 = *(f32 *)&spD8 + spC8;
+        spDC = spDC + spCC;
+        spE0 = spE0 + spD0;
+        func_001bd780(&sp68, &spD8, &spC8, D_0060A0E0);
+    } else if (temp_f0 < iGpffff804C) {
+        func_003dc740((u8 *)&sp68, D_0060A0E0, 2, iGpffff8160);
+    }
+    func_003dcb40((RwV3d *)&spD8, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&sp68);
+    temp_f20_2 = (f32)0x177 / func_0044b868(iGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+    temp_f0_2 = *(f32 *)&spD8 * temp_f20_2;
+    *(f32 *)&spD8 = temp_f0_2;
+    spDC = spDC * temp_f20_2;
+    temp_f0_3 = spE0 * temp_f20_2;
+    spE0 = temp_f0_3;
+    f20poly = temp_f20_2 * func_0044b868(iGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8))) * 0.21875f;
+    spE8 = temp_f0_2;
+    spEC = temp_f0_3;
+    func_003e41e0(&spE8, &spE8);
+    temp_f3 = spC8 + spEC * f20poly;
+    spC8 = temp_f3;
+    temp_f2 = spD0 - spE8 * f20poly;
+    spD0 = temp_f2;
+    sp5C = temp_f3 + *(f32 *)&spD8;
+    temp_f1_3 = spCC + spDC;
+    sp60 = temp_f1_3;
+    sp64 = temp_f2 + spE0;
+    if (temp_f1_3 < 25.0f) {
+        sp60 = 25.0f;
+    }
+    func_001bac20((u16 *)arg0, (f32 *)&sp40, &sp5C, 1);
+    func_001bbef0(arg0, iGpffff818C);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c09b0);
+#endif
 // FUN_001C0E40
 void func_001c0e40(void) {}
 // FUN_001C0E50

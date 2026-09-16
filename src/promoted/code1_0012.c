@@ -1438,7 +1438,6 @@ void func_00124970(s32 arg0, u32 arg1, s32 arg2, u32 *arg3)
         }
     }
 }
-// FUN_00124BB0
 extern void *func_003e0870(void *m, void *src, f32 angle, s32 mode);
 extern void *func_003e4320(void *dst, void *src, void *m);
 extern void *func_003e0a90(void *m, void *v, s32 mode);
@@ -1455,6 +1454,7 @@ typedef struct {
     f32 f;
 } Code1GlobalPair12;
 
+// FUN_00124BB0
 /* 956/960 bytes; twenty-five resolved relocations and one zero alignment word. */
 #pragma push
 #pragma opt_propagation off
@@ -1671,8 +1671,125 @@ void func_00125e80(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
     func_0045e6a0(sp70, sp40, fparg2, 6, 4, 0, 0, 0,
                   -20.0f, 1.0f, 1.0f);
 }
-// FUN_00126090
+// FUN_00126090 NONMATCHING
+#ifdef NON_MATCHING
+void func_00126090(s32 arg0, u8 *arg1)
+{
+extern s32 func_0025f3f0(f32 farg0, f32 farg1, f32 farg2,
+                         s32 arg0, u8 arg1, s32 arg2, s32 arg3,
+                         s32 arg4, s32 arg5);
+extern void func_002aaac0(void);
+extern s32 func_003f6440(s32 arg0, s32 arg1);
+extern void func_00489f80(void);
+extern void func_0048a000(void);
+extern f32 fGpffff8230;
+extern f32 fGpffff8234;
+extern f32 fGpffff8238;
+extern f32 fGpffff823c;
+extern f32 fGpffff8240;
+extern f32 fGpffff8244;
+extern f32 fGpffff8248;
+extern f32 fGpffff824c;
+extern f32 fGpffff8250;
+extern f32 fGpffff8254;
+extern f32 fGpffff8258;
+extern f32 fGpffff825c;
+extern f32 fGpffff8260;
+extern f32 fGpffff8264;
+extern f32 fGpffff8268;
+extern f32 fGpffff826c;
+extern f32 fGpffff8270;
+extern f32 fGpffff8274;
+extern f32 fGpffff8278;
+extern f32 fGpffff827c;
+extern f32 fGpffff8280;
+extern f32 fGpffff8284;
+extern f32 fGpffff8288;
+extern f32 fGpffff828c;
+extern f32 fGpffff8290;
+extern f32 fGpffff8294;
+extern f32 fGpffff8298;
+extern f32 fGpffff829c;
+extern s128 D_005E5590;
+extern s128 D_005E55A0;
+extern void func_002aaf20(void *arg0, f32 farg0, f32 farg1, f32 farg2,
+                          f32 farg3, f32 farg4, s32 arg1, s32 arg2);
+extern void func_0025f430(f32 farg0, f32 farg1, f32 farg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s16 arg6, s16 arg7, f32 farg3, f32 farg5, f32 farg4);
+
+    u8 sp7C[4];
+    u8 sp78[4];
+    u8 sp74[4];
+    u8 sp70[4];
+    s32 sp60[4];
+    s32 sp50[4];
+    s32 sp40[4];
+    u8 *p;
+    s32 n;
+    s32 temp_2;
+    f32 temp_f20;
+    f32 temp_f21;
+    s16 radius;
+    f32 r64;
+
+    p = sp78;
+    n = 4;
+    if (p != NULL) {
+        do {
+            *p = 0;
+            p++;
+            n--;
+        } while (n != 0);
+    }
+    *(f32 *)sp7C = *(f32 *)sp78;
+    func_002aaf20(sp7C, 0.0f, 0.0f, 0.0f, 640.0f, 480.0f, 0x12, 0);
+    func_00489f80();
+    func_0025f3f0(0.0f, 0.0f, 0.0f, 0xFFFFFF, arg0 & 0xFF, 0x1000C, 0,
+                  *(s32 *)(arg1 + 0x3C), 1);
+    func_0048a000();
+    func_00489f80();
+    p = sp70;
+    n = 4;
+    if (p != NULL) {
+        do {
+            *p = 0;
+            p++;
+            n--;
+        } while (n != 0);
+    }
+    sp70[3] = 0;
+    *(f32 *)sp74 = *(f32 *)sp70;
+    *(s128 *)sp50 = D_005E5590;
+    *(s128 *)sp60 = D_005E5590;
+    func_0045d6e0(sp74, sp60, 0, 0.0f);
+    *(s128 *)sp40 = D_005E55A0;
+    *(s128 *)sp60 = D_005E55A0;
+    func_0045d6e0(sp74, sp60, 0, 0.0f);
+    func_0048a000();
+    temp_2 = *(s32 *)(arg1 + 0x80) + 1;
+    *(s32 *)(arg1 + 0x80) = temp_2;
+    if (temp_2 >= 0xC8) {
+        *(s32 *)(arg1 + 0x80) = 0;
+    }
+    temp_f21 = (f32)*(s32 *)(arg1 + 0x80) / 200.0f;
+    func_002aaac0();
+    func_003f6440(3, 0x53001);
+    func_003f6440(2, 0x58);
+    temp_f20 = 360.0f * temp_f21;
+    r64 = 64.0f;
+    radius = (s16)fGpffff8230;
+    func_0025f430(fGpffff8234, fGpffff8238, 0.0f, 0x202020, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, radius, radius, temp_f20, fGpffff823c, fGpffff823c);
+    func_0025f430(fGpffff8244, fGpffff8248, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, (s16)fGpffff8240, (s16)fGpffff8240, temp_f20, fGpffff824c, fGpffff824c);
+    func_0025f430(fGpffff8254, fGpffff8258, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, (s16)fGpffff8250, (s16)fGpffff8250, temp_f20, fGpffff825c, fGpffff825c);
+    func_0025f430(fGpffff8264, fGpffff8268, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, (s16)fGpffff8260, (s16)fGpffff8260, temp_f20, fGpffff826c, fGpffff826c);
+    temp_f20 = -360.0f * temp_f21;
+    func_0025f430(fGpffff8274, fGpffff8278, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, (s16)fGpffff8270, (s16)fGpffff8270, temp_f20, fGpffff827c, fGpffff827c);
+    func_0025f430(fGpffff8284, fGpffff8288, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, (s16)fGpffff8280, (s16)fGpffff8280, temp_f20, fGpffff828c, fGpffff828c);
+    func_0025f430(313.0f, 29.0f, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, (s16)r64, (s16)r64, temp_f20, 1.0f, 1.0f);
+    func_0025f430(fGpffff8294, fGpffff8298, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, (s16)fGpffff8290, (s16)fGpffff8290, temp_f20, fGpffff829c, fGpffff829c);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00126090);
+#endif
 // FUN_001265A0
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_001265a0);
 // FUN_0012AA70
@@ -2057,8 +2174,179 @@ void func_0012d410(u8 *arg0)
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
 #pragma pop
-// FUN_0012D630
+/* Floor: 1360B window, obj 1348B, 13 differing words (was 66).
+   Typed record views closed two of them: the per-entry alpha/tally pair is
+   a 0x30-stride record based at p+0xAE, and the sprite lookups are an array
+   of pointers at p+0x74 - indexing those views naturally beats byte-offset
+   arithmetic (kit recipe S03).
+   WINS: the per-entry alpha byte is read into a u32 temp before the
+   sprite if/else, which is where retail emits `lbu $t0,0xae(...)`;
+   declaring func_0034f320's 10th parameter u16 (it takes the raw
+   *(u16 *)(q + 0xBA) tally) removes the promotion that reordered the
+   whole argument block - 28 -> 16 words; and func_00364320 takes
+   (pos, z, color, num), so the palette byte is the colour argument and
+   -1 the number - the previous body had those two swapped, which was a
+   real ABI error, not just a codegen difference.
+   WALL: the remaining rows are evaluation-order artifacts - retail
+   computes `index + base` (addu $v1,$v0,$s1) and converts the 0x17D
+   constant before loading its float addend, this build does both the
+   other way round. Integer-cast pointer arithmetic, operand swaps and
+   named temporaries for either side were all measured inert. */
+// FUN_0012D630 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0012d630(u8 *arg0)
+{
+    typedef struct {
+        u8 alpha;
+        u8 pad01[0xB];
+        u16 tally;
+        u8 padE[0x30 - 0xE];
+    } Rec0012d630;
+    typedef struct {
+        f32 x;
+        f32 y;
+    } Vec2f_0012d630;
+    extern s32 func_0012e1d0(u8 *arg0);
+    extern void func_0034f1e0(void);
+    extern void func_0034f320(u8 *arg0, f32 farg0, f32 farg1, f32 farg2,
+                              u8 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5,
+                              u16 arg6, s32 arg7, f32 farg3, s16 arg_sp0);
+    extern void func_00364320(Vec2f_0012d630 pos, f32 z, s32 color, s32 num);
+    extern void func_0034f9d0(Vec2f_0012d630 pos, s32 arg1, f32 z, s32 arg2, s32 arg3);
+    Vec2f_0012d630 pos;
+    Vec2f_0012d630 pos2;
+    s32 result;
+    u8 *p;
+    s32 i;
+    s32 count;
+    s32 sel;
+    s32 j;
+    f32 x;
+    f32 y;
+
+    result = 1;
+    p = arg0;
+    switch (*(s32 *)(p + 0x18)) {
+    case 0:
+        if (1) {
+            if (func_0012e1d0(p) != 0) {
+                func_0012dea0(p, 1);
+                break;
+            }
+        }
+        if (*(s16 *)(p + 0xC) < 100) {
+            *(s16 *)(p + 0xC) = *(s16 *)(p + 0xC) + 1;
+        }
+        for (i = 0; i < 0xB; i++) {
+            u8 *q = p + i * 0x30;
+            func_001437b0(q + 0x94, *(s16 *)(p + 0xC), 0);
+            if (*(u8 *)(q + 0xAE) != 0) {
+                result = 0;
+            }
+        }
+        break;
+    case 1:
+        if (0) {
+            if (func_0012e1d0(p) != 0) {
+                func_0012dea0(p, 1);
+                break;
+            }
+        }
+        if (*(s16 *)(p + 0xC) < 100) {
+            *(s16 *)(p + 0xC) = *(s16 *)(p + 0xC) + 1;
+        }
+        for (i = 0; i < 0xB; i++) {
+            u8 *q = p + i * 0x30;
+            func_001437b0(q + 0x94, *(s16 *)(p + 0xC), 0);
+            if (*(u8 *)(q + 0xAE) != 0) {
+                result = 0;
+            }
+        }
+        break;
+    case 2:
+        if (1) {
+            if (func_0012e1d0(p) != 0) {
+                func_0012dea0(p, 1);
+                break;
+            }
+        }
+        if (*(s16 *)(p + 0xC) < 100) {
+            *(s16 *)(p + 0xC) = *(s16 *)(p + 0xC) + 1;
+        }
+        for (i = 0; i < 0xB; i++) {
+            u8 *q = p + i * 0x30;
+            func_001437b0(q + 0x94, *(s16 *)(p + 0xC), 2);
+            if (*(u8 *)(q + 0xAE) != 0) {
+                result = 0;
+            }
+        }
+        break;
+    case 3:
+        if (0) {
+            if (func_0012e1d0(p) != 0) {
+                func_0012dea0(p, 1);
+                break;
+            }
+        }
+        if (*(s16 *)(p + 0xC) < 100) {
+            *(s16 *)(p + 0xC) = *(s16 *)(p + 0xC) + 1;
+        }
+        for (i = 0; i < 0xB; i++) {
+            u8 *q = p + i * 0x30;
+            func_001437b0(q + 0x94, *(s16 *)(p + 0xC), 0);
+            if (*(u8 *)(q + 0xAE) != 0) {
+                result = 0;
+            }
+        }
+        break;
+    }
+    func_0034f1e0();
+    sel = *(s32 *)(p + 0x10);
+    count = *(s32 *)(p + 0x38);
+    for (j = 0; j < count; j++) {
+        u8 *q = p + j * 0x30;
+        s32 idx;
+        u8 *sprite;
+        u32 alpha;
+
+        x = *(f32 *)(p + 4) + 173.0f + *(f32 *)(q + 0xA4);
+        pos.x = x;
+        y = *(f32 *)(p + 8) + 52.0f + *(f32 *)(q + 0xA8) + (f32)(j * 0x16);
+        pos.y = y;
+        alpha = *(u8 *)(q + 0xAE);
+        idx = *(s32 *)(p + j * 4 + 0x1C);
+        if (j == sel) {
+            pos.x += 2.0f;
+            pos.y += 11.0f;
+            sprite = *(u8 **)(p + idx * 4 + 0x58);
+        } else {
+            pos.x += 1.0f;
+            if (sel < j) {
+                pos.y += 45.0f;
+            }
+            sprite = *(u8 **)(p + idx * 4 + 0x3C);
+        }
+        func_0034f320(sprite, pos.x, pos.y, 0.0f, 0xFF, 0xFF, 0xFF,
+                      alpha, 0x1000, *(u16 *)(q + 0xBA), 0,
+                      0.0f, 0);
+    }
+    pos.x = *(f32 *)(p + 4) + 173.0f + *(f32 *)(p + 0x1F4) + 3.0f;
+    pos.y = *(f32 *)(p + 8) + 52.0f + *(f32 *)(p + 0x1F8) + 311.0f;
+    func_0034f320(((u8 **)(p + 0x74))[*(s32 *)(p + *(s32 *)(p + 0x10) * 4 + 0x1C)],
+                  pos.x, pos.y, 0.0f, 0xFF, 0xFF, 0xFF,
+                  ((Rec0012d630 *)(p + 0xAE))[j].alpha, 0x1000,
+                  ((Rec0012d630 *)(p + 0xAE))[j].tally, 0, 0.0f, 0);
+    pos.x = *(f32 *)(p + 0x224) + 18.0f;
+    pos.y = (f32)0x17D + *(f32 *)(p + 0x228);
+    func_00364320(pos, 0.0f, *(u8 *)(p + 0x22E), -1);
+    pos2.x = *(f32 *)(p + 0x254) + 640.0f;
+    pos2.y = *(f32 *)(p + 0x258) + 400.0f;
+    func_0034f9d0(pos2, *(u8 *)(p + 0x25E), 0.0f, 0, *(s32 *)(p + 0x90));
+    return result;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_0012d630);
+#endif
 // FUN_0012DB80
 s32 func_0012db80(u8 *arg0, s32 arg1)
 {

@@ -1,4 +1,11 @@
 /* object 176B / window 176B / normalized_diff 34; residual is FP register assignment and arithmetic sequence from +0x54 through +0x8C; prologue, globals, call setup, stores, and tail match. */
+/* measured 2026-09-16: storing each scaled component right after it is
+   computed (retail interleaves `swc1 0x10(sp)` between the two divisions)
+   takes this from 13 to 11 differing words at 176/176 bytes. The residual
+   is FP temp naming only: retail keeps the divisor in $f0 with the
+   dividend/result in $f1/$f2, this build uses $f2/$f0/$f1. Declaration
+   order, load order, inlined loads, an extra quotient local, a divisor
+   alias and every asm clobber spelling were all inert. */
 f32 *func_0048a460(void)
 {
     u8 raw[0x30];
@@ -26,9 +33,9 @@ f32 *func_0048a460(void)
     sp38 = *(f32 *)(raw + 0x28);
     sp30 = *(f32 *)(raw + 0x20);
     sp10 = 640.0f * (sp30 / sp38);
+    *(f32 *)(raw + 0x0) = sp10;
     sp34 = *(f32 *)(raw + 0x24);
     sp14 = 448.0f * (sp34 / sp38);
-    *(f32 *)(raw + 0x0) = sp10;
     *(f32 *)(raw + 0x4) = sp14;
     sp18 = 0;
     sp1C = 0;

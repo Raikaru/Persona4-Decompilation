@@ -1,3 +1,10 @@
+/* measured 2026-09-16: 584/592 bytes, 5 differing words (reloc-masked).
+   The residual is FP temp naming only - retail holds the 1.0f constant in
+   $f1 and the sqrt result in $f2, this build uses $f3 and $f1. Declaration
+   order, a separate constant local, inlined literals, plain operators in
+   place of the add/mul helpers and fusing the sqrt with its doubling were
+   all inert. Supersedes the 139-word VU-intrinsic route: ordinary C with
+   the lqc2/sqc2 transfers is far closer. */
 /*
  * Re-certified: object 584B / retail window 592B; raw fndiff 7 words,
  * comprising five executable FPR differences and two absent zero-tail

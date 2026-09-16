@@ -9,6 +9,8 @@ static u8 *iGpffffb3d4;
 extern char D_0063FC48[];
 extern char D_0063FC58[];
 extern u8 *D_00882F70[];
+extern s32 func_00312b60(s32 arg0, s32 arg1, s32 arg2);
+extern s32 func_00312b90(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
 
@@ -371,8 +373,203 @@ void func_002e4960(u8 *arg0, s8 arg1, s16 arg2) {
 
 
 
-// FUN_002E4AC0
+// FUN_002E4AC0 NONMATCHING
+#ifdef SKIP_ASM
+void func_002e4ac0(s32 arg0, s32 arg1) {
+    typedef signed __int128 s128;
+    s128 spE0;
+    s128 spD0;
+    s128 spC0;
+    s128 spB0;
+    s128 spA0;
+    s64 var_4;
+    s64 temp_30;
+    s64 temp_22;
+    s64 temp_23;
+    s16 var_20;
+    s16 var_19;
+    s16 temp_18;
+    s16 temp_16;
+    s32 temp_7;
+    s32 temp_17;
+    s32 var_2;
+    s32 var_2_3;
+    s32 temp_2;
+    u8 *temp_21;
+    u8 *var_3;
+    u8 *temp_5;
+    u8 *var_4_2;
+    u8 *var_7;
+    u8 *var_2_2;
+    u8 *var_4_3;
+    u8 *var_5;
+    u8 *var_6;
+    u8 *var_7_2;
+
+    var_4 = arg0;
+    temp_21 = *(u8 **)(D_00882F70[0] + 0x38);
+    var_3 = temp_21;
+    temp_7 = *(s32 *)(temp_21 + 4);
+    if ((temp_7 != 6) && (temp_7 != 10) && (temp_7 != 1)) {
+        return;
+    }
+    var_20 = 0;
+    temp_30 = (s64)(s8)var_4;
+    temp_22 = (s64)(s8)arg1;
+    temp_23 = temp_22 * 0x30;
+loop_58:
+    if (var_20 < *(s32 *)(var_3 + 8)) {
+        temp_18 = var_20;
+        *(s8 *)(temp_21 + temp_18 + 0x2E4) = 0;
+        var_19 = 0;
+        spE0 = (s128)(temp_18 * 12);
+        spD0 = (s128)(temp_21 + temp_18 * 12);
+        spC0 = (s128)&D_00882F70[temp_18 + 1];
+        temp_17 = temp_18 * 0x30;
+        spB0 = (s128)&D_00882F70[temp_18];
+loop_56:
+        var_3 = *(u8 **)(D_00882F70[0] + 0x38);
+        temp_16 = var_19;
+        if (temp_16 < *(s32 *)(var_3 + 8)) {
+            temp_5 = (u8 *)((s32)spD0 + temp_16);
+            *(s128 *)&spA0 = (s128)(s32)(temp_5 + 0x14);
+            *(s8 *)(temp_5 + 0x14) = 0;
+            if (temp_18 != var_19) {
+                if (temp_30 == 0) {
+                    u8 *temp_4 = *(u8 **)((u8 *)spC0 + 0x38);
+                    switch (*(u32 *)(temp_4 + 4)) {
+                    case 0: case 2: case 7: case 8:
+                        var_2 = temp_16 * 0x30;
+                        var_4_2 = temp_4 + var_2 + 0x14;
+                        break;
+                    case 1: case 5: case 6: case 10:
+                        var_2 = temp_16 * 0x30;
+                        var_4_2 = temp_4 + var_2 + 0xA4;
+                        break;
+                    default:
+                        var_2 = temp_16 * 0x30;
+                        var_4_2 = temp_4 + var_2 + 0x14;
+                        break;
+                    }
+                    {
+                        u8 *t32 = *(u8 **)(D_00882F70[0] + 0x38);
+                        switch (*(u32 *)(t32 + 4)) {
+                        case 0: case 2: case 7: case 8:
+                            var_7 = t32 + temp_17 + 0x14;
+                            break;
+                        case 1: case 5: case 6: case 10:
+                            var_7 = t32 + temp_17 + 0xA4;
+                            break;
+                        default:
+                            var_7 = t32 + temp_17 + 0x14;
+                            break;
+                        }
+                        {
+                            switch (*(u32 *)(t32 + 4)) {
+                            case 0: case 2: case 7: case 8:
+                                var_2_2 = t32 + var_2 + 0x14;
+                                break;
+                            case 1: case 5: case 6: case 10:
+                                var_2_2 = t32 + var_2 + 0xA4;
+                                break;
+                            default:
+                                var_2_2 = t32 + var_2 + 0x14;
+                                break;
+                            }
+                        }
+                    }
+                    var_4 = (s64)(s8)func_00312b60((s32)var_4_2, *(s16 *)(var_7 + 2), *(s16 *)(var_4_2 + 2));
+                } else if (temp_30 == 1) {
+                    if ((temp_22 == temp_18) || (temp_22 == temp_16)) {
+                        var_4 = 0;
+                    } else {
+                        u8 *temp_42 = *(u8 **)((u8 *)spC0 + 0x38);
+                        switch (*(u32 *)(temp_42 + 4)) {
+                        case 0: case 2: case 7: case 8:
+                            var_2_3 = temp_16 * 0x30;
+                            var_4_3 = temp_42 + var_2_3 + 0x14;
+                            break;
+                        case 1: case 5: case 6: case 10:
+                            var_2_3 = temp_16 * 0x30;
+                            var_4_3 = temp_42 + var_2_3 + 0xA4;
+                            break;
+                        default:
+                            var_2_3 = temp_16 * 0x30;
+                            var_4_3 = temp_42 + var_2_3 + 0x14;
+                            break;
+                        }
+                        {
+                            u8 *t33 = *(u8 **)(D_00882F70[0] + 0x38);
+                            switch (*(u32 *)(t33 + 4)) {
+                            case 0: case 2: case 7: case 8:
+                                var_5 = t33 + temp_23 + 0x14;
+                                break;
+                            case 1: case 5: case 6: case 10:
+                                var_5 = t33 + temp_23 + 0xA4;
+                                break;
+                            default:
+                                var_5 = t33 + temp_23 + 0x14;
+                                break;
+                            }
+                            {
+                                switch (*(u32 *)(t33 + 4)) {
+                                case 0: case 2: case 7: case 8:
+                                    var_6 = t33 + temp_17 + 0x14;
+                                    break;
+                                case 1: case 5: case 6: case 10:
+                                    var_6 = t33 + temp_17 + 0xA4;
+                                    break;
+                                default:
+                                    var_6 = t33 + temp_17 + 0x14;
+                                    break;
+                                }
+                            }
+                            {
+                                switch (*(u32 *)(t33 + 4)) {
+                                case 0: case 2: case 7: case 8:
+                                    var_7_2 = t33 + var_2_3 + 0x14;
+                                    break;
+                                case 1: case 5: case 6: case 10:
+                                    var_7_2 = t33 + var_2_3 + 0xA4;
+                                    break;
+                                default:
+                                    var_7_2 = t33 + var_2_3 + 0x14;
+                                    break;
+                                }
+                            }
+                        }
+                        var_4 = (s64)(s8)func_00312b90((u16 *)var_4_3, var_5, var_6, var_7_2);
+                    }
+                }
+            }
+            {
+                u8 *t34 = (u8 *)((s32)spE0 + *(s32 *)(*(u8 **)((u8 *)spB0 + 4) + 0x38) + temp_16);
+                *(s8 *)(t34 + 0x14) = 0;
+                if (((s64)(s8)var_4) != 0) {
+                    *(s8 *)(t34 + 0x14) = 1;
+                    if (((s64)(s8)var_4) == 2) {
+                        *(s8 *)(t34 + 0x14) = 2;
+                    }
+                }
+            }
+            {
+                if (((s64)(s8)var_4) != 0) {
+                    *(s32 *)&spA0 = 1;
+                    if (((s64)(s8)var_4) == 2) {
+                        *(s32 *)&spA0 = 2;
+                    }
+                }
+            }
+            var_19++;
+            goto loop_56;
+        }
+        var_20++;
+        goto loop_58;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4ac0);
+#endif
 
 // FUN_002E5000
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e5000);
@@ -707,8 +904,111 @@ s32 func_002e6230(u16 arg0, u16 *arg1) {
    with a single materialization where retail keeps it in $v1 with the
    post-j-loop sink and the k-join re-materialization. Best nd 73 at
    936/944B. Saved-reg rotation/spill floor. */
-// FUN_002E6280
+// FUN_002E6280 NONMATCHING
+#ifdef SKIP_ASM
+void func_002e6280(s8 arg0, u8 *arg1, s8 arg2)
+{
+    u8 **slotp;
+    s16 cnt;
+    s16 i;
+    u16 j;
+    u16 k;
+    s16 found;
+    u8 *q;
+    s16 h8;
+    u32 sw1;
+    u32 sw2;
+    u8 *dst1;
+    u8 *dst2;
+    s32 spA0;
+    u8 *gp_tbl;
+
+    slotp = &D_00882F70[(s8)arg0];
+    if (*slotp == NULL) {
+        return;
+    }
+    gp_tbl = iGpffffb3d4;
+    func_002e5960(arg0);
+    spA0 = (s16)func_002b2cb0((s16)arg2, 3, 99, 1, 1);
+    i = 0;
+    while (((i & 0xFFFF)) < 192) {
+        {
+            u8 *t = *(u8 **)(gp_tbl + i * 14);
+            if (*(t + 2) == 1 && (*(t) & 8) == 0) {
+                u16 id = (u16)i;
+                if (func_00311d00(id) != 0 && func_00311d60(id) != 0) {
+                    found = 0;
+                    j = 0;
+                    while (((j & 0xFFFF)) < 13) {
+                        if (id == *(u16 *)(arg1 + (j & 0xFFFF) * 2)) {
+                            found = 1;
+                            break;
+                        }
+                        j = (j + 1) & 0xFFFF;
+                    }
+                    if (found == 0) {
+                        if (*slotp != NULL) {
+                            k = 0;
+                            found = 0;
+                            while (((s16)k) < *(s32 *)(*(u8 **)(*slotp + 56) + 8)) {
+                                if (i == *(s16 *)(func_002e48a0(arg0, k) + 2)) {
+                                    found = 1;
+                                    break;
+                                }
+                                k = (((s16)k + 1) & 0xFFFF);
+                            }
+                        }
+                        if (found == 0 && func_00311e40(id) == 0 && spA0 >= *(t + 3)) {
+                            h8 = *(s16 *)(*(u8 **)(*slotp + 56) + 8);
+                            q = *(u8 **)(*slotp + 56);
+                            sw1 = *(u32 *)(q + 4);
+                            switch (sw1) {
+                            case 0:
+                            case 2:
+                            case 7:
+                            case 8:
+                            default:
+                                dst1 = q + (h8 * 48) + 20;
+                                break;
+                            case 1:
+                            case 5:
+                            case 6:
+                            case 10:
+                                dst1 = q + (h8 * 48) + 164;
+                                break;
+                            }
+                            func_0043f9c8(dst1, 0, 48);
+                            h8 = *(s16 *)(*(u8 **)(*slotp + 56) + 8);
+                            q = *(u8 **)(*slotp + 56);
+                            sw2 = *(u32 *)(q + 4);
+                            switch (sw2) {
+                            case 0:
+                            case 2:
+                            case 7:
+                            case 8:
+                            default:
+                                dst2 = q + (h8 * 48) + 20;
+                                break;
+                            case 1:
+                            case 5:
+                            case 6:
+                            case 10:
+                                dst2 = q + (h8 * 48) + 164;
+                                break;
+                            }
+                            func_0010cad0(dst2, id);
+                            *(s16 *)(*(u8 **)(*slotp + 56) + 8) = h8 + 1;
+                        }
+                    }
+                }
+            }
+        }
+        i = (((s16)i + 1) & 0xFFFF);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6280);
+#endif
 
 /* measured: 640B/640B, exact instructions and all 44 jump-table entries.
    Keep each signed index's byte offset across its repeated accessor pair.

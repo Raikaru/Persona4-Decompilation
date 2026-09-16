@@ -815,6 +815,7 @@ void func_00112300(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2)
     union {
         s64 whole;
         f32 values[2];
+        Vec2f position;
     } xy;
     f32 temp_1;
     s32 temp_2;
@@ -825,7 +826,7 @@ void func_00112300(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2)
     void func_0046d730(void *, s32);
     void func_00112610(s64, f32, u8, u8 *, s32, s32);
     void func_00112830(s64, f32, u8, u8 *, s32);
-    void func_001130c0(s64, f32, u8, u8 *, s32);
+    void func_001130c0(Vec2f, f32, u8, u8 *, s32);
     extern f32 D_005E4790[];
     extern f32 D_005E4794[];
     extern f32 D_005E479C[];
@@ -870,12 +871,12 @@ void func_00112300(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2)
         func_00112830(xy.whole, fparg0, arg1, arg2, temp16);
     }
     if (*(s16 *)(arg2 + 2) != -1) {
-        xy.values[0] = *(f32 *)&arg0 +
-                       D_005E4794[*(s16 *)(arg2 + 0x18) * 4];
+        xy.position.x = *(f32 *)&arg0 +
+                        D_005E4794[*(s16 *)(arg2 + 0x18) * 4];
         temp_1 = 12.0f;
         temp_1 += *(f32 *)((u8 *)&arg0 + 4);
-        xy.values[1] = temp_1;
-        func_001130c0(xy.whole, fparg0, arg1, arg2, temp16);
+        xy.position.y = temp_1;
+        func_001130c0(xy.position, fparg0, arg1, arg2, temp16);
     }
     if (*(s32 *)(arg2 + 8) != -1) {
         xy.values[0] = *(f32 *)&arg0 +
@@ -972,10 +973,282 @@ void func_00112610(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4
                       *(s16 *)(arg2 + 0), arg3, arg4);
     }
 }
-// FUN_00112830
+// FUN_00112830 NONMATCHING
+#ifdef NON_MATCHING
+void func_00112830(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
+{
+    extern u8 D_005E4750[];
+
+    u8 *table;
+    s32 current;
+    s32 mode_a;
+    s32 mode_b;
+    u8 color_b;
+    u8 color_g;
+    s32 alpha;
+    f32 x;
+    f32 y;
+    s32 kind;
+    s32 value;
+    s32 digit;
+    s32 i;
+    s64 positions[9];
+    u8 colors[9][4];
+    extern u8 D_005E4750[];
+
+    positions[0] = arg0;
+    table = D_005E4750 + (*(s16 *)(arg2 + 0x16) * 4);
+    colors[8][0] = table[0];
+    colors[8][1] = table[1];
+    colors[8][2] = table[2];
+    colors[8][3] = table[3];
+    colors[8][3] = arg1;
+    kind = func_00106c80(*(s16 *)arg2);
+    switch (kind) {
+    case 0:
+        value = func_001068b0(*(s16 *)arg2) & 0xFFFF;
+        positions[8] = positions[0];
+        if (value / 100 != 0) {
+            x = 30.0f + *(f32 *)&positions[8];
+        } else {
+            x = 22.0f + *(f32 *)&positions[8];
+        }
+        y = *(f32 *)((u8 *)&positions[8] + 4);
+        current = value;
+        color_b = colors[7][2];
+        color_g = colors[7][1];
+        colors[7][3] = colors[8][3];
+        colors[7][0] = colors[8][0];
+        colors[7][1] = colors[8][1];
+        colors[7][2] = colors[8][2];
+        alpha = 0xFF - colors[8][3];
+        do {
+            digit = ((current & 0xFFFF) % 10) + 0x1E;
+            func_0046d4c0(0, arg3, digit, x, y, (u8)alpha,
+                          colors[8][0], color_g, color_b, fparg0, 0);
+            x -= 15.0f;
+            current = (current / 10) & 0xFFFF;
+        } while (current > 0);
+        *(f32 *)&positions[0] += 52.0f;
+        if (*(s16 *)(arg2 + 6) != -1) {
+            value = func_001068b0(*(s16 *)(arg2 + 6)) & 0xFFFF;
+            positions[7] = positions[0];
+            if (value != current) {
+                if (value < current) {
+                    mode_a = 40;
+                } else if (current < value) {
+                    mode_a = 41;
+                }
+                y = *(f32 *)((u8 *)&positions[7] + 4) - 1.0f;
+                func_0046d4c0(0, arg3, mode_a, *(f32 *)&positions[7], y, (u8)alpha,
+                              colors[8][0], color_g, color_b, fparg0, 0);
+            }
+        }
+        *(f32 *)&positions[0] += 42.0f;
+        value = func_001068e0(*(s16 *)arg2) & 0xFFFF;
+        positions[6] = positions[0];
+        if (value / 100 != 0) {
+            x = 30.0f + *(f32 *)&positions[6];
+        } else {
+            x = 22.0f + *(f32 *)&positions[6];
+        }
+        y = *(f32 *)((u8 *)&positions[6] + 4);
+        current = value;
+        color_b = colors[6][2];
+        color_g = colors[6][1];
+        colors[6][3] = colors[8][3];
+        colors[6][0] = colors[8][0];
+        colors[6][1] = colors[8][1];
+        colors[6][2] = colors[8][2];
+        alpha = 0xFF - colors[8][3];
+        do {
+            digit = ((current & 0xFFFF) % 10) + 0x1E;
+            func_0046d4c0(0, arg3, digit, x, y, (u8)alpha,
+                          colors[8][0], color_g, color_b, fparg0, 0);
+            x -= 15.0f;
+            current = (current / 10) & 0xFFFF;
+        } while (current > 0);
+        *(f32 *)&positions[0] += 52.0f;
+        if (*(s16 *)(arg2 + 6) != -1) {
+            value = func_001068e0(*(s16 *)(arg2 + 6)) & 0xFFFF;
+            positions[5] = positions[0];
+            if (value != current) {
+                if (value < current) {
+                    mode_b = 40;
+                } else if (current < value) {
+                    mode_b = 41;
+                }
+                y = *(f32 *)((u8 *)&positions[5] + 4) - 1.0f;
+                func_0046d4c0(0, arg3, mode_b, *(f32 *)&positions[5], y, (u8)alpha,
+                              colors[8][0], color_g, color_b, fparg0, 0);
+            }
+        }
+        break;
+    case 1:
+        value = func_00106940(*(s16 *)arg2) & 0xFFFF;
+        positions[4] = positions[0];
+        if (value / 100 != 0) {
+            x = 30.0f + *(f32 *)&positions[4];
+        } else {
+            x = 22.0f + *(f32 *)&positions[4];
+        }
+        y = *(f32 *)((u8 *)&positions[4] + 4);
+        current = value;
+        color_b = colors[5][2];
+        color_g = colors[5][1];
+        colors[5][3] = colors[8][3];
+        colors[5][0] = colors[8][0];
+        colors[5][1] = colors[8][1];
+        colors[5][2] = colors[8][2];
+        alpha = 0xFF - colors[8][3];
+        do {
+            digit = ((current & 0xFFFF) % 10) + 0x1E;
+            func_0046d4c0(0, arg3, digit, x, y, (u8)alpha,
+                          colors[8][0], color_g, color_b, fparg0, 0);
+            x -= 15.0f;
+            current = (current / 10) & 0xFFFF;
+        } while (current > 0);
+        *(f32 *)&positions[0] += 52.0f;
+        if (*(s16 *)(arg2 + 6) != -1) {
+            value = func_00106940(*(s16 *)(arg2 + 6)) & 0xFFFF;
+            positions[3] = positions[0];
+            if (value != current) {
+                if (value < current) {
+                    mode_a = 40;
+                } else if (current < value) {
+                    mode_a = 41;
+                }
+                y = *(f32 *)((u8 *)&positions[3] + 4) - 1.0f;
+                func_0046d4c0(0, arg3, mode_a, *(f32 *)&positions[3], y, (u8)alpha,
+                              colors[8][0], color_g, color_b, fparg0, 0);
+            }
+        }
+        *(f32 *)&positions[0] += 42.0f;
+        value = func_00106970(*(s16 *)arg2) & 0xFFFF;
+        positions[2] = positions[0];
+        if (value / 100 != 0) {
+            x = 30.0f + *(f32 *)&positions[2];
+        } else {
+            x = 22.0f + *(f32 *)&positions[2];
+        }
+        y = *(f32 *)((u8 *)&positions[2] + 4);
+        current = value;
+        color_b = colors[4][2];
+        color_g = colors[4][1];
+        colors[4][3] = colors[8][3];
+        colors[4][0] = colors[8][0];
+        colors[4][1] = colors[8][1];
+        colors[4][2] = colors[8][2];
+        alpha = 0xFF - colors[8][3];
+        do {
+            digit = ((current & 0xFFFF) % 10) + 0x1E;
+            func_0046d4c0(0, arg3, digit, x, y, (u8)alpha,
+                          colors[8][0], color_g, color_b, fparg0, 0);
+            x -= 15.0f;
+            current = (current / 10) & 0xFFFF;
+        } while (current > 0);
+        *(f32 *)&positions[0] += 52.0f;
+        if (*(s16 *)(arg2 + 6) != -1) {
+            value = func_00106970(*(s16 *)(arg2 + 6)) & 0xFFFF;
+            positions[1] = positions[0];
+            if (value != current) {
+                if (value < current) {
+                    mode_b = 40;
+                } else if (current < value) {
+                    mode_b = 41;
+                }
+                y = *(f32 *)((u8 *)&positions[1] + 4) - 1.0f;
+                func_0046d4c0(0, arg3, mode_b, *(f32 *)&positions[1], y, (u8)alpha,
+                              colors[8][0], color_g, color_b, fparg0, 0);
+            }
+        }
+        break;
+    case 2:
+        *(f32 *)&positions[0] += 35.0f;
+        *(f32 *)((u8 *)&positions[0] + 4) += 4.0f;
+        current = 0;
+        color_b = colors[8][2];
+        color_g = colors[8][1];
+        alpha = 0xFF - (arg1 & 0xFF);
+        for (i = 0; i < 4; i++) {
+            func_0046d4c0(0, arg3, 60,
+                          *(f32 *)&positions[0],
+                          *(f32 *)((u8 *)&positions[0] + 4), (u8)alpha,
+                          colors[8][0], color_g, color_b, fparg0, 0);
+            *(f32 *)&positions[0] += 34.0f;
+            current++;
+        }
+        break;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00112830);
-// FUN_001130C0
+#endif
+/* Floor: 448B window, obj 440B, 7 differing words. Registers, frame,
+   both calls and the whole loop match retail; the only residual is a
+   scheduling group swap - retail emits the two colour read-backs
+   (lbu 0xde/0xdd(sp)) before the alpha arithmetic, this build emits
+   them after.
+   WINS: writing the alpha as `255 - (arg1 & 0xFF)` on a u8 parameter
+   makes MWCC evaluate the masked operand first (andi, then the 0xFF
+   constant, then `subu $s2,$v0,$v1`), which is retail's operand order;
+   the bare `255 - arg1` form materialises the constant first and
+   reverses the subu operands. Keeping alpha_byte assigned before the
+   two colour locals preserves retail's $s2/$s1/$s0 assignment, which
+   follows definition order here (declaration order is inert in this
+   function; six permutations measured).
+   WALL: moving the colour reads above the alpha statement fixes the
+   order but rotates the same three registers (13 words); `#pragma
+   schedule on` (105) and `opt_propagation off` (78) are worse. */
+// FUN_001130C0 NONMATCHING
+#ifdef NON_MATCHING
+void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
+{
+    typedef struct { u8 r, g, b, a; } Color;
+    struct {
+        s8 text[0x4C];
+        Color color;
+    } stack;
+    s16 temp_21;
+    u32 color2;
+    u32 color1;
+    s32 alpha_byte;
+    s32 var_20;
+    u8 loop_color2;
+    u8 loop_color1;
+    u8 *temp_2;
+    extern u8 D_005E4770[];
+    extern u8 D_005E4798[];
+    extern s32 iGpffff9bec;
+    extern s32 func_00442088(void *, const void *, ...);
+    extern s32 func_00442948(const void *);
+
+    temp_21 = *(s16 *)(arg2 + 2);
+    temp_2 = D_005E4770 + (*(s16 *)(arg2 + 0x16) * 4);
+    stack.color = *(Color *)temp_2;
+    alpha_byte = 255 - (arg1 & 0xFF);
+    color2 = stack.color.b;
+    color1 = stack.color.g;
+    func_0046d4c0(0, arg3, 0x47, arg0.x, 2.0f + arg0.y,
+                  alpha_byte, stack.color.r, color1, color2,
+                  fparg0, 0);
+    func_00442088(stack.text, &iGpffff9bec, (s16)temp_21);
+    arg0.x = arg0.x + (14.0f +
+        *(f32 *)(D_005E4798 + (*(s16 *)(arg2 + 0x18) * 0x10)));
+    var_20 = func_00442948(stack.text) - 1;
+    loop_color2 = color2;
+    loop_color1 = color1;
+    while (var_20 >= 0) {
+        func_0046d4c0(0, arg3, stack.text[var_20] - 0x27,
+                      arg0.x, arg0.y, alpha_byte,
+                      stack.color.r, loop_color1, loop_color2, fparg0, 0);
+        arg0.x -= 14.0f;
+        var_20--;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_001130c0);
+#endif
 // FUN_00113280
 void func_00113280(Vec2f arg0, f32 fparg0, s32 arg1, s16 arg2, s32 arg3,
                    s32 arg4)

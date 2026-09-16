@@ -130,7 +130,7 @@ extern f32 fGpffff81a8;
 extern f32 func_0044b610(f32 fparg0);
 extern f32 func_0044b7b0(f32 fparg0);
 extern s32 func_00200ce0(void);
-extern void func_00205170(void);
+extern void func_00205170(u8 *arg0, s32 arg1, f32 fx, f32 fy, s32 arg2, s32 arg3, s32 arg4);
 extern void func_00205ff0(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
                           void (*callback)(void), u8 *arg3);
 extern void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
@@ -1328,8 +1328,153 @@ void func_00202e60(u8 *arg0, void *arg1)
     *(s32 *)(arg0 + 0x18) = (s32)arg1;
 }
 
-// FUN_00202E70
+/* Flag-ladder floor (1264B window). First probe nd 231
+   (obj 1208B, in-window); frame/prologue verified. Open:
+   GPREL-vs-absolute masks (scope-proof), return masking,
+   scheduler ordering. s32 counter beats s16 (-16); sign-
+   extend at checks verified; IDA returns over Ghidra.
+   u8 def avoids caller churn; s32 return = int history. */
+// FUN_00202E70 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00202e70(u8 *arg0)
+{
+    extern u16 D_008C024E[];
+    extern u16 D_008C0276[];
+    extern u16 D_008C027A[];
+    u16 *a;
+    s16 v1;
+    s32 v2;
+    s32 v5;
+    s32 v6;
+    s32 v7;
+    s16 v8;
+    s32 i;
+
+    a = (u16 *)arg0;
+    v1 = (s16)a[4];
+    if ((s16)a[2] >= v1) {
+        a[2] = v1 - 1;
+        v2 = (s16)a[4] - (s16)a[3];
+        a[1] = v2;
+        if ((s16)v2 < 0LL) {
+            a[1] = 0;
+        }
+    }
+    if (D_008C024E[0] & 0x40) {
+        return 2;
+    }
+    if (D_008C024E[0] & 0x20) {
+        return 1;
+    }
+    if (D_008C024E[0] & 0x80) {
+        return 3;
+    }
+    if ((a[0] & 4) != 0 && (D_008C024E[0] & 4) != 0) {
+        return 4;
+    }
+    if (((D_008C027A[0] & a[22]) != 0) || (((a[0] & 1) != 0) && ((D_008C027A[0] & a[24]) != 0))) {
+        v5 = 1;
+        v6 = (D_008C027A[0] & a[24]) != 0;
+        v7 = (D_008C027A[0] & a[24]) == 0;
+        if ((D_008C027A[0] & a[24]) != 0) {
+            v8 = a[3];
+        } else {
+            v8 = 1;
+        }
+        for (i = 0; i < v8; i = i + 1) {
+            v1 = (s16)a[1];
+            v2 = (s16)a[2];
+            if (v1 + 1 < v2) {
+                a[2] = v2 - 1;
+            } else if (v1 <= 0) {
+                if (v2 != 1) {
+                    if (((a[0] & 2) == 0) || ((D_008C0276[0] & a[22]) != 0) || (v6 != 0 && ((D_008C0276[0] & a[24]) != 0))) {
+                        v2 = (s16)a[4] - (s16)a[3];
+                        a[1] = v2;
+                        if ((s16)v2 < 0LL) {
+                            a[1] = 0;
+                        }
+                        a[2] = (s16)a[4] - 1;
+                    } else {
+                        v5 = 0;
+                        a[1] = 0;
+                        a[2] = 0;
+                    }
+                    break;
+                }
+                a[2] = 0;
+            } else {
+                a[1] = v1 - 1;
+                a[2] = a[2] - 1;
+            }
+        }
+        if (v5 != 0 && (a[0] & 8) != 0) {
+            if (v6 != 0) {
+                func_0045af60(0, 0, 0, 5);
+            } else {
+                func_0045af60(0, 0, 0, 0);
+            }
+        }
+        if (v7 == 0) {
+            return 7;
+        } else {
+            return 5;
+        }
+    } else if (((D_008C027A[0] & a[23]) != 0) || (((a[0] & 1) != 0) && ((D_008C027A[0] & a[25]) != 0))) {
+        v5 = 1;
+        v6 = (D_008C027A[0] & a[25]) != 0;
+        v7 = (D_008C027A[0] & a[25]) == 0;
+        if ((D_008C027A[0] & a[25]) != 0) {
+            v8 = a[3];
+        } else {
+            v8 = 1;
+        }
+        for (i = 0; i < v8; i = i + 1) {
+            v1 = (s16)a[1];
+            v2 = (s16)a[2];
+            if (v1 + 1 < v2) {
+                a[2] = v2 - 1;
+            } else if (v1 <= 0) {
+                if (v2 != 1) {
+                    if (((a[0] & 2) == 0) || ((D_008C0276[0] & a[23]) != 0) || (v6 != 0 && ((D_008C0276[0] & a[25]) != 0))) {
+                        v2 = (s16)a[4] - (s16)a[3];
+                        a[1] = v2;
+                        if (v2 < 0) {
+                            a[1] = 0;
+                        }
+                        a[2] = (s16)a[4] - 1;
+                    } else {
+                        v5 = 0;
+                        a[1] = 0;
+                        a[2] = 0;
+                    }
+                    break;
+                }
+                a[2] = 0;
+            } else {
+                a[1] = v1 - 1;
+                a[2] = a[2] - 1;
+            }
+        }
+        if (v5 != 0 && (a[0] & 8) != 0) {
+            if (v6 != 0) {
+                func_0045af60(0, 0, 0, 5);
+            } else {
+                func_0045af60(0, 0, 0, 0);
+            }
+        }
+        if (v7 == 0) {
+            return 8;
+        } else {
+            return 6;
+        }
+    } else {
+        return 0;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00202e70);
+#endif
 // FUN_00203360
 void func_00203360(u8 *arg0, u8 *arg1) {
     u8 *temp_16;
@@ -1733,10 +1878,214 @@ void func_00204d90(void)
     *(s32 *)(p + 0xA0) = *(s32 *)(p + 0xA0) | 0x1;
 }
 
-// FUN_00204DC0
+/* Fresh rotated panel strip candidate: func_00204dc0.
+ * Owner src/promoted/code1_0020.c. PRODUCTION REMAINS ASM.
+ * Initial source856/944 bytes,nd660,18 object relocations. Preferred scoped
+ * opt_propagation off source864/944 bytes,nd628,18 relocations:76 executable bytes
+ * remain uncovered,plus four retail alignment bytes. Adding loop-invariant
+ * optimization ties; disabling common subexpressions as well produces1216/nd1005.
+ * No exact-match or behavioral-smoke claim is made for this candidate.
+ * 
+ * Actual inputs are index in a0,extend flag in a1,and four floats in f12..f15:
+ * positionX,positionY,depth,angle. Index is sign-truncated to16 bits at use.
+ * Four actual64-byte immediate vertex records form the first opaque27-gray strip;
+ * the optional extension rewrites XY and colors while retaining depth/reciprocal
+ * from the first pass, including any mutations made by the drawing callbacks.
+ * Texture is disabled before geometry. Preserve the first draw's00364C50/00364C70
+ * bracket and optional render-state8 enable/disable pair. Repeated zero terms,
+ * FP accumulation and coordinate sharing do not yet reproduce retail code.
+ * No invented inputs,synthetic stack padding,inline assembly or register binding
+ * is used. Declarations below supplement the current owner; existing production
+ * callers remain unchanged.
+ */
+
+extern f32 fGpffff836c;
+extern void func_00364c50(void);
+extern void func_00364c70(void);
+
+/* Inclined-strip floor (944B window). First probe nd 210 (frame/prologue
+   verified); structure and callee conventions per archived notes. Open:
+   s-reg/f-reg rotation and scheduler ordering. See FreshPanelStrip doc. */
+// FUN_00204DC0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma opt_propagation off
+void func_00204dc0(s32 index, f32 x, f32 y, f32 depth, f32 angle, s32 extend)
+{
+    f32 vertices[4][16];
+    f32 reciprocal;
+    f32 cosine;
+    f32 sine;
+    f32 width;
+    f32 halfWidth;
+    D_00887300[0](1, 0);
+    reciprocal = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    depth = D_008872F8[0] - depth;
+    angle = fGpffff836c * angle;
+    cosine = func_0044b610(angle);
+    sine = func_0044b7b0(angle);
+    width = 86.0f;
+    x = 97.0f + x;
+    y += (0.0f + 312.0f) + 15.0f * (f32)((s16)index - 3);
+    halfWidth = width + 64.0f;
+    vertices[0][0] = ((0.0f + x) + (0.0f + halfWidth) * cosine) - 8.0f * sine;
+    vertices[0][1] = ((0.0f + y) + (0.0f + halfWidth) * sine) + 8.0f * cosine;
+    vertices[0][2] = depth;
+    vertices[1][0] = (x + (0.0f - halfWidth) * cosine) - 8.0f * sine;
+    vertices[1][1] = (y + (0.0f - halfWidth) * sine) + 8.0f * cosine;
+    vertices[1][2] = depth;
+    vertices[3][0] = (x + (0.0f - halfWidth) * cosine) - -8.0f * sine;
+    vertices[3][1] = (y + (0.0f - halfWidth) * sine) + -8.0f * cosine;
+    vertices[3][2] = depth;
+    vertices[2][0] = ((0.0f + x) + (0.0f + halfWidth) * cosine) - -8.0f * sine;
+    vertices[2][1] = ((0.0f + y) + (0.0f + halfWidth) * sine) + -8.0f * cosine;
+    vertices[2][2] = depth;
+    vertices[0][8] = 27.0f;
+    vertices[0][9] = 27.0f;
+    vertices[0][10] = 27.0f;
+    vertices[0][11] = 255.0f;
+    vertices[1][8] = 27.0f;
+    vertices[1][9] = 27.0f;
+    vertices[1][10] = 27.0f;
+    vertices[1][11] = 255.0f;
+    vertices[2][8] = 27.0f;
+    vertices[2][9] = 27.0f;
+    vertices[2][10] = 27.0f;
+    vertices[2][11] = 255.0f;
+    vertices[3][8] = 27.0f;
+    vertices[3][9] = 27.0f;
+    vertices[3][10] = 27.0f;
+    vertices[3][11] = 255.0f;
+    vertices[0][6] = reciprocal;
+    vertices[1][6] = reciprocal;
+    vertices[2][6] = reciprocal;
+    vertices[3][6] = reciprocal;
+    func_00364c50();
+    D_00887310[0](4, vertices, 4);
+    func_00364c70();
+    if (extend != 0) {
+        D_00887300[0](8, 1);
+        vertices[0][0] = ((0.0f + x) + (0.0f + halfWidth) * cosine) - 0.0f * sine;
+        vertices[0][1] = ((0.0f + y) + (0.0f + halfWidth) * sine) + 0.0f * cosine;
+        vertices[1][0] = (0.0f + (x + (0.0f - halfWidth) * cosine)) - 0.0f * sine;
+        vertices[1][1] = (0.0f + (y + (0.0f - halfWidth) * sine)) + 0.0f * cosine;
+        vertices[3][0] = (x + (0.0f - halfWidth) * cosine) - -800.0f * sine;
+        vertices[3][1] = (y + (0.0f - halfWidth) * sine) + -800.0f * cosine;
+        vertices[2][0] = ((0.0f + x) + (0.0f + halfWidth) * cosine) - -800.0f * sine;
+        vertices[2][1] = ((0.0f + y) + (0.0f + halfWidth) * sine) + -800.0f * cosine;
+        vertices[0][8] = 27.0f;
+        vertices[0][9] = 27.0f;
+        vertices[0][10] = 27.0f;
+        vertices[0][11] = 0.0f;
+        vertices[1][8] = 27.0f;
+        vertices[1][9] = 27.0f;
+        vertices[1][10] = 27.0f;
+        vertices[1][11] = 0.0f;
+        vertices[2][8] = 27.0f;
+        vertices[2][9] = 27.0f;
+        vertices[2][10] = 27.0f;
+        vertices[2][11] = 0.0f;
+        vertices[3][8] = 27.0f;
+        vertices[3][9] = 27.0f;
+        vertices[3][10] = 27.0f;
+        vertices[3][11] = 0.0f;
+        D_00887310[0](4, vertices, 4);
+        D_00887300[0](8, 0);
+    }
+}
+
+#pragma pop
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00204dc0);
-// FUN_00205170
+#endif
+// FUN_00205170 NONMATCHING
+#ifdef NON_MATCHING
+void func_00205170(u8 *arg0, s32 arg1, f32 fx, f32 fy, s32 arg2, s32 arg3, s32 arg4) {
+    extern u32 func_00452560(void *arg0);
+    extern s32 func_0023ddc0(u8 *arg0, s32 arg1);
+    extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
+    extern s32 func_0023dd90(u8 *arg0, s32 arg1);
+    extern void func_00114dc0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, f32 fx);
+    extern void func_002bc860(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 fx, f32 fy, f32 fz);
+    f32 spB0;
+    f32 spB4;
+    u8 spBC;
+    u8 spBD;
+    u8 spBE;
+    u8 spBF;
+    s8 var_16;
+    s32 temp_17;
+    u8 *temp_18;
+    u8 *temp_19;
+    s32 temp_21;
+    s32 temp_22;
+    s32 temp_2;
+    s32 temp_lo;
+    s32 temp_lo_2;
+    f32 temp_f20;
+    f32 temp_f23;
+    f32 temp_f24;
+
+    temp_19 = (u8 *)func_00452560(*(void **)(arg0 + 0x5B0));
+    temp_18 = *(u8 **)(*(u8 **)(*(u8 **)(arg0 + 0x178) + 0x30) + 0xA64);
+    temp_17 = *(u16 *)(arg0 + arg1 * 2 + 0x194);
+    if (temp_17 >= 0x1B8 || func_0023ddc0(temp_18, temp_17 & 0xFFFF) != 0) {
+        if (arg3 != 0) {
+            var_16 = 0x6E;
+        } else {
+            var_16 = 0x96;
+        }
+    } else if (arg3 != 0) {
+        var_16 = 0x1B;
+    } else {
+        var_16 = 0xFF;
+    }
+    spB0 = fx;
+    spB4 = fy;
+    spBC = var_16;
+    spBD = var_16;
+    spBE = var_16;
+    spBF = arg2;
+    func_00114dc0((s32)(*(s64 *)&spB0), *(s32 *)&spBC, temp_17 & 0xFFFF, *(u8 **)(temp_19 + 0x60), 50.0f);
+    func_00272c60(0x40);
+    temp_22 = arg2 & 0xFF;
+    temp_f20 = 42.0f + fx;
+    temp_2 = (u8)var_16;
+    func_00275020(temp_f20, (2.0f + fy) - 1.0f, 50.0f,
+                  temp_22 | (((temp_2 << 24) | (temp_2 << 16)) | (((u8)var_16) << 8)),
+                  0, 1, (const char *)D_00887300 + temp_17 * 0x13, 0, -1);
+    func_00272c80(0x40);
+    if (temp_17 < 0x1B8) {
+        temp_21 = func_0023d9b0(temp_18, temp_17 & 0xFFFF);
+        if (temp_21 != 0) {
+            temp_f24 = 10.0f + fy;
+            temp_f23 = 262.0f + fx;
+            func_00201650(temp_19, 0xC, (temp_21 % 10) + 9, 32.0f + temp_f23, temp_f24, var_16, var_16, var_16, arg2);
+            temp_lo = temp_21 / 10;
+            if (temp_lo != 0) {
+                func_00201650(temp_19, 0xC, (temp_lo % 10) + 9, 16.0f + temp_f23, temp_f24, var_16, var_16, var_16, arg2);
+            }
+            temp_lo_2 = temp_21 / 100;
+            if (temp_lo_2 != 0) {
+                func_00201650(temp_19, 0xC, (temp_lo_2 % 10) + 9, temp_f23, temp_f24, var_16, var_16, var_16, arg2);
+            }
+            if ((func_0023dd90(temp_18, temp_17 & 0xFFFF) & 0xFFFF) == 1) {
+                func_00201650(temp_19, 0xC, 0x56, 310.0f + fx, 12.0f + fy, var_16, var_16, var_16, arg2);
+            } else {
+                func_00201650(temp_19, 0xC, 0x57, 310.0f + fx, 12.0f + fy, var_16, var_16, var_16, arg2);
+            }
+        }
+    }
+    if (arg4 != 0) {
+        func_00272c60(0x40);
+        func_002bc860(temp_22 | -0x100, 1, 0, temp_17, 10.0f + (2.0f + temp_f20), 36.0f + fy, 0.0f);
+        func_00272c80(0x40);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205170);
+#endif
+
 /* 888/896 bytes; twelve resolved relocations and eight zero alignment bytes.
  * Narrow the promoted row ID at helper boundaries. The four-byte color
  * has byte and packed-word views; reload the signed number after drawing. */
@@ -1965,8 +2314,87 @@ void func_00205e00(u8 *panel, s32 index, f32 x, f32 y,
 #pragma pop
 // FUN_00205FF0
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205ff0);
-// FUN_00206DD0
+/* Panel-draw callback floor (880B window). First probe nd 85;
+   frame and prologue verified against retail. Open: vtable-base reuse
+   (redundant per-call rematerialization) and arg-order scheduling.
+   See W42c20_00206dd0_body.c for tried levers. */
+// FUN_00206DD0 NONMATCHING
+#ifdef NON_MATCHING
+/* lane W42c20 probe for func_00206dd0 (0x00206dd0)
+ * measured: obj 868B, window 880B, differing words 88 (fndiff)
+ * levers tried: explicit clamping, (2.0f * f) - (f * f) to trigger mula/msub,
+ *   base = D_00887300, s32[4] pos with bit-pattern values, Color4 byte writes.
+ * Remaining differences: D_00887300 base register/relocation handling
+ *   and prologue saved-register copy order for s2 vs f20/f21.
+ */
+
+void func_00206dd0(u8 *arg0, u8 *arg1, void (*arg2)(u8 *, s16, s8, s32, s32, f32, f32), f32 fparg0, f32 fparg1)
+{
+    u8 *temp_2;
+    f32 var_f0;
+    f32 var_f1;
+    f32 temp_f20;
+    f32 temp_f20_2;
+    s32 pos[4];
+    Color4 color;
+    void (**base)(u32, u32);
+
+    temp_2 = (u8 *)func_00452560(*(s32 *)(arg0 + 0x5B0));
+    func_002012d0(temp_2, fparg0, fparg1);
+
+    var_f0 = (f32)(*(s16 *)(arg0 + 0x1A)) / 4.0f;
+    if (var_f0 > 1.0f) {
+        var_f1 = 1.0f;
+    } else if (var_f0 < 0.0f) {
+        var_f1 = 0.0f;
+    } else {
+        var_f1 = var_f0;
+    }
+
+    temp_f20 = (2.0f * var_f1) - (var_f1 * var_f1);
+    if (temp_f20 <= 0.0f) {
+        return;
+    }
+
+    base = D_00887300;
+    base[0](8, 1);
+
+    if (temp_f20 < 1.0f) {
+        base[0](1, 0);
+
+        color.c0 = 0;
+        color.c1 = 0;
+        color.c2 = 0xFF;
+        color.c3 = 0;
+        pos[0] = 0x6E;
+        pos[1] = 0x14D;
+        pos[2] = 0x17C;
+        pos[3] = 0x25;
+        func_0045d6e0((u8 *)&color, (f32 *)pos, 0.0f, 0);
+    }
+
+    func_002019e0(temp_2, 170.0f);
+    func_00201720(temp_2, 1.0f, temp_f20);
+
+    temp_f20_2 = (f32)0x14D + (18.5f * (1.0f - temp_f20));
+    func_00201410(temp_2, 9, 0x30, 110.0f, temp_f20_2);
+    func_00201410(temp_2, 9, 0x31, 470.0f, temp_f20_2);
+
+    func_00201720(temp_2, 1.0f, 1.0f);
+    base[0](8, 0);
+    func_002019e0(temp_2, 150.0f);
+    base[0](6, 1);
+    arg2(arg0, *(s16 *)(arg1 + 4), 0xFF, 0, 0, 127.0f, 338.0f);
+    base[0](6, 0);
+    func_002019e0(temp_2, 0.0f);
+    func_00201410(temp_2, 9, 0x32, 215.0f, 412.0f);
+    func_00201410(temp_2, 9, 0x33, 193.0f, 412.0f);
+    func_00201410(temp_2, 9, 0x33, (f32)0x19D, 412.0f);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00206dd0);
+#endif
+
 extern s32 func_00106600(s16 id);
 extern u16 *func_0010a900(s32 id);
 extern u16 func_0010cf40(u8 *persona, s16 slot);
@@ -2184,7 +2612,7 @@ void func_00208d00(u8 *arg0, s32 arg1, f32 *arg2)
     if (*(u16 *)state == 2) {
         func_00201650(temp, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
         func_00201650(temp, 9, 0x4A, 93.0f, 314.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-        func_00206dd0(state, arg0, arg2[0], arg2[1], func_00205170);
+        func_00206dd0(state, arg0, arg2[0], arg2[1], (void (*)(void))func_00205170);
     } else {
         func_00201650(temp, 9, 0x21, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     }
@@ -2217,7 +2645,7 @@ void func_00208fd0(u8 *arg0, u8 *arg1, f32 *arg2)
     s16 temp_3_6;
 
     if (*(u16 *)(arg1 + 2) != 2) {
-        func_00205ff0(arg1, arg0, arg2[0], arg2[1], func_00205170, arg0);
+        func_00205ff0(arg1, arg0, arg2[0], arg2[1], (void (*)(void))func_00205170, arg0);
     }
     temp_3 = *(s16 *)(arg1 + 0x20);
     if (temp_3 < 4) {
@@ -3811,8 +4239,168 @@ void func_0020f4d0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1)
 }
 /* measured: close the F4D0 propagation probe. */
 #pragma opt_propagation on
-// FUN_0020F730
+/* Fresh reconstruction; NOT MATCHED, NOT PROMOTED.
+ * Main current-owner compiler replay: 840/832 bytes, nd624, twenty-six object relocations; nd includes eight overrun bytes.
+ * nd counts relocation-masked differing executable bytes, including overruns.
+ * No native behavioral verification was run for this unpromoted candidate.
+ * One initial compiler replay only; no source-layout sweep.
+ * Production remains the original ASM fallback, including unchanged providers.
+ *
+ * Agent reconstruction evidence follows (its no-compilation statement describes
+ * agent work before Main performed the compiler replay recorded above).
+ * Target: func_0020f730, retail 0x0020F730..0x0020FA6F (0x340 bytes).
+ * Deliverable: body.c is a complete ordinary-C candidate, not compiled or measured.
+ * No production/shared files were changed. All validation was intentionally skipped as assigned.
+ * 
+ * ABI / input representation
+ * - Entry 0x20F760..76C preserves a0=context, a1=panel pointer, a2=one packed 32-bit color, a3=signed segment index. No floating input or fifth argument exists.
+ * - Existing owner Color4 is four consecutive u8 fields c0,c1,c2,c3 (src/promoted/code1_0020.c lines 125-130). body.c uses that true four-byte aggregate by value, not a pointer, u64, or invented extra arguments.
+ * - Caller func_0020fa70 at 0x20FE5C..6C passes context and panel unchanged, loads one word from its four initialized color bytes at sp+0x8C into a2, and passes loop index in a3. The caller visits 1..11 inclusive. It initializes the packed color as {0x66,0x82,0xFF,0x33} or {0xFF,0x66,0x6E,0x33}; byte order is little-endian.
+ * - Target spills that word at sp+0x9C and reads +0/+1/+2/+3 with lbu. c0/c1/c2 are RGB; c3 is alpha because renderer stores 255-(alpha&255) at context+0x7D.
+ * - Panel fields actually accessed here are f32 at +8, sampled before renderer calls, and signed s16 at +2, sampled AFTER the first draw. No claimed complete panel struct or invented padding; u8 * plus grounded typed accesses follows the owner convention.
+ * - Return is void: no return-value contract is consumed by the caller.
+ * 
+ * Initialized aggregates / storage proof
+ * - config/slus21782.yaml maps image.bin offset zero to VRAM 0x100000. Direct binary extraction at address-0x100000 produced:
+ *   0x626C40: 0000c4c2 0000b8c2 0000c442 0000b842
+ *             f32 {-98,-92,98,92}, represented as corners[2][2].
+ *   0x626C50: 00007041 00005842 0000d841 0000c841 00006442 00006041
+ *             f32 {15,54,27,25,57,14}, represented as offsets[3][2].
+ *   0x626C70: 31000000 36000000 39000000 3c000000
+ *             s32 {49,54,57,60}, represented as sprites[4].
+ * - The first aggregate occupies precisely sp+D0..DF: four lwc1/swc1 copies, later indexed at D0+8*flipX and D4+8*flipY.
+ * - The six-word aggregate occupies precisely sp+B0..C7: retail 0x20F7B0..D0 performs three iterations, loading/storing TWO words each, advancing source and destination by eight. Accesses later are B0+8*part and B4+8*part. C8..CF is not invented array storage or padding. An ordinary initialized 3x2 float array represents the actual copy loop without a fake memcpy provider or integer/float alias punning.
+ * - The four sprite words occupy sp+A0..AF. Though copied using FP loads/stores, retail reads selected values with lw at 0x20F8D8 and subtracts part as an integer. They are NOT tiny floating values.
+ * - All three aggregate initializations precede the arg3==0 branch, exactly as retail; no pointers to these local arrays escape.
+ * 
+ * Scale constant
+ * - Read orig/SLUS_217.82 ELF32 .reginfo (SHT_MIPS_REGINFO 0x70000006): gp=0x007690F0.
+ * - Retail gp-0x7DF0 is therefore 0x00761300. image.bin has bytes b0 72 88 3f there: binary32 1.065999984741211 (0x3F8872B0).
+ * - Candidate retains an external float load named fGpffff8210, not an immediate literal that would wrongly erase reloads. This follows existing fGpffff815c=0x0076124C mapping in config/symbols_recovered.txt. declarations.c records the new necessary symbol mapping.
+ * 
+ * Control flow / arithmetic
+ * - Zero index: no context access or rendering after aggregate initialization.
+ * - half=index/6; flipX=1-((index/3+half)&1); flipY=1-half. Signed divisions/remainders are intentional.
+ * - Sign conversion is integer +1 for zero flip and -1 otherwise, followed by f32 conversion, matching cvt.s.w rather than an invented float ABI.
+ * - part=index%3 if index%6<3, otherwise ~(index%3)+3. sprite=sprites[flipX|(flipY<<1)]-part. Caller-established 1..11 makes both flip flags 0/1 and part 0..2. The target itself does not add bounds guards, so the candidate does not either.
+ * - Snapshot scaleY=globalScale*panel.scale before all calls.
+ * - Width query first. Compute float(flipX)*returnedWidth; reload globalScale AFTER width query; divide the product by that reload; add offsets[part][0]; multiply by converted X sign; multiply by reloaded scale. No division-to-multiply rewrite or reassociation.
+ * - Height query second. Compute float(flipY)*returnedHeight, divide by earlier scaleY, add offsets[part][1], multiply by converted Y sign, then multiply by scaleY.
+ * - Origin X is (0.0f+float(0x117)) + newly reloaded globalScale*corners[flipX][0]; Y is (0.0f+229.0f) + scaleY*corners[flipY][1]. Retail explicitly uses adda.s to seed ACC with zero+base and madd.s for the product addition. Candidate preserves these additive/multiplicative expression trees; whether the compiler selects the identical accumulator instructions is unmeasured.
+ * - Set origin, draw once with packed alpha, then reload panel signed +2 and draw again with alpha 255 if index<threshold. No outer render loop belongs in this function; it is in func_0020fa70. The only retail loop inside this window is the six-word initialization copy.
+ * 
+ * Providers / side effects / necessary owner corrections
+ * - func_00201950 and func_00201990 each take (u8 *context,s32 bank,s32 sprite) in a0/a1/a2. Retail selects context[bank*4+0x2C], stores it at context+0x6C, stores sprite at +0x70, and calls respectively func_0046b260 or func_0046b2f0(context+0x6C). They preserve the returned f0 all the way out; target immediately consumes it as binary32.
+ * - Current promoted owner incorrectly defines those two as void with bare calls. declarations.c specifies the essential f32 return types and `return` of their existing lower calls. This is required for a truthful candidate, not a block-scope false signature or unrelated ABI repair. Existing src/Kernel/sdkSpr.c lines 261-310 already defines both lower providers as f32, deriving dimensions from sprite metadata and optional dimension/scaling overrides. No new dimension helper or bypass of the real provider is proposed.
+ * - func_002012d0(u8 *,f32,f32) uses a0,f12,f13; converts the coordinates to integer origin at context+4/+8 and clears context+C/+10. Its existing owner definition is truthful.
+ * - func_00201650(u8 *,s32,s32,f32,f32,s32,s32,s32,s32) uses a0/a1/a2,f12/f13,a3/t0/t1/t2. Existing owner definition is truthful: sets RGB at +94/+95/+96, inverse alpha at +7D, invokes func_00201410, then resets RGB to 255 and inverse alpha to zero. No s64 color redeclarations are needed.
+ * - func_00201410 selects the sprite, transforms coordinates from current renderer state, sets optional scaling fields, invokes func_0046b380, and clears scaling fields on its scaled path. Calls are retained in order with full opaque effects. No callback function pointer is an input to this target and none is fabricated. Do not mark providers pure/const or hoist panel threshold/global-scale reads across them: callbacks or aliased state reachable in renderer calls must retain their observable effects.
+ * 
+ * Uncertainty / blocker status
+ * - No semantic representability blocker found for the actual caller's index range. Complete initializers, storage bounds, argument registers, effects, and arithmetic order are grounded.
+ * - Initial array layout, compiler-generated aggregate-copy loop, register allocation, and accumulator instruction selection remain unmeasured; no MATCH claim is made. Main must perform central compilation/measurement and integrate the two essential return corrections before trying this candidate.
+ * - Graph lookup and coverage checks found stale promoted-source metadata and partial assembly parsing. All substantive claims above use direct current-source/retail reads, plus raw image/ELF extraction; no graph absence was treated as proof.
+ */
+
+/* New owner-local data declaration. Retail gp is 0x007690F0; the load at
+ * gp - 0x7DF0 addresses 0x00761300. Add the equivalent recovered-symbol
+ * mapping if the normal symbol-recovery step does not already create it:
+ * fGpffff8210 = 0x00761300; // type:data
+ */
+extern f32 fGpffff8210;
+
+/* Correct the existing owner definitions to these result types, and replace
+ * their final bare calls with `return func_0046b260(arg0 + 0x6C);` and
+ * `return func_0046b2f0(arg0 + 0x6C);`, respectively. All existing argument
+ * types and the two context stores remain unchanged. Do not add conflicting
+ * block-scope declarations while retaining the incorrect void definitions.
+ */
+f32 func_00201950(u8 *arg0, s32 arg1, s32 arg2);
+f32 func_00201990(u8 *arg0, s32 arg1, s32 arg2);
+
+/* Existing Color4 at owner lines 125-130 is already exactly four u8 members
+ * c0/c1/c2/c3 and needs no changes. Existing func_002012d0 and func_00201650
+ * definitions already have the truthful signatures used by body.c.
+ */
+
+/* Panel-segment renderer floor (832B window). First probe nd 199;
+   structure, loop nests and callee conventions verified against retail.
+   Open: frame size, s-reg/f-reg assignment, absolute data symbols vs
+   stack locals, loop lowering, and scheduler ordering. Absolute externs
+   D_00626C40/50/70 registered but inert. See FreshPanelDraw doc. */
+// FUN_0020F730 NONMATCHING
+#ifdef NON_MATCHING
+void func_0020f730(u8 *arg0, u8 *arg1, Color4 arg2, s32 arg3)
+{
+    f32 corners[2][2] = {
+        {-98.0f, -92.0f},
+        {98.0f, 92.0f}
+    };
+    f32 offsets[3][2] = {
+        {15.0f, 54.0f},
+        {27.0f, 25.0f},
+        {57.0f, 14.0f}
+    };
+    s32 sprites[4] = {49, 54, 57, 60};
+    f32 scaleY;
+    f32 drawY;
+    f32 drawX;
+    f32 dimension;
+    f32 scaleX;
+    s32 flipY;
+    s32 flipX;
+    s32 sprite;
+    s32 part;
+    s32 half;
+    s32 sign;
+    s32 green;
+    s32 blue;
+
+    if (arg3 != 0) {
+        scaleY = fGpffff8210 * *(f32 *)(arg1 + 8);
+        half = arg3 / 6;
+        flipX = 1 - (((arg3 / 3) + half) & 1);
+        flipY = 1 - half;
+        sign = 1;
+        if (flipX != 0) {
+            sign = -1;
+        }
+        drawX = (f32)sign;
+        if (flipY == 0) {
+            sign = 1;
+        } else {
+            sign = -1;
+        }
+        drawY = (f32)sign;
+        if (arg3 % 6 < 3) {
+            part = arg3 % 3;
+        } else {
+            part = ~(arg3 % 3) + 3;
+        }
+        sprite = sprites[flipX | (flipY << 1)] - part;
+        dimension = func_00201950(arg0, 10, sprite);
+        dimension = (f32)flipX * dimension;
+        scaleX = fGpffff8210;
+        drawX = scaleX * (drawX * (offsets[part][0] + dimension / scaleX));
+        dimension = func_00201990(arg0, 10, sprite);
+        dimension = (f32)flipY * dimension;
+        drawY = scaleY * (drawY * (offsets[part][1] + dimension / scaleY));
+        func_002012d0(arg0,
+                     (0.0f + (f32)0x117) + fGpffff8210 * corners[flipX][0],
+                     (0.0f + 229.0f) + scaleY * corners[flipY][1]);
+        blue = arg2.c2;
+        green = arg2.c1;
+        func_00201650(arg0, 10, sprite, drawX, drawY,
+                      arg2.c0, green, blue, arg2.c3);
+        if (arg3 < *(s16 *)(arg1 + 2)) {
+            func_00201650(arg0, 10, sprite, drawX, drawY,
+                          arg2.c0, green, blue, 255);
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020f730);
+#endif
 // FUN_0020FA70
 /* Retail-exact: 1156 bytes, 24 relocations, 12 zero alignment bytes. */
 void func_0020fa70(u8 *work, u8 *state)

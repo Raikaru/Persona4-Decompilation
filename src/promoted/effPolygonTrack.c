@@ -10,7 +10,7 @@ extern void func_00492d00(int arg0);
 extern void func_00492dd0(int arg0);
 extern void func_00492e10(int arg0);
 extern void func_00492e30(u16 *arg0);
-extern void func_00489f40(void *arg0, void *arg1);
+extern void func_00489f40(void *arg0, u32 color);
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void func_0044ea90(const void *file, u32 line);
@@ -478,7 +478,7 @@ void func_00493e00(u8 *arg0, u32 arg1)
     *(u32 *)(arg0 + 4) = arg1;
     temp_4 = *(u32 *)(arg0 + 0x2C);
     if (temp_4 != 0) {
-        func_00489f40((void *)temp_4, (void *)arg1);
+        func_00489f40((void *)temp_4, arg1);
     }
 }
 

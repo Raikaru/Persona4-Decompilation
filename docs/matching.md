@@ -75,6 +75,42 @@ Use this six-step loop for every target:
    separate deliberate source edit. Any TU, declaration, or relocation change
    requires a full `tools/build.py` link and linked-image comparison.
 
+### Five evidence gates before a floor verdict
+
+These are source-shape decisions, not invitations to add arbitrary pragmas:
+
+1. **Reverse declaration-order allocation is target-local.** On the
+   declaration/first-use shapes that were probed, b210 assigned callee-saved
+   registers in reverse order. Require matching frame size, saved-register
+   count, and value lifetimes first; then run a bounded declaration-order
+   probe. A successful swap is evidence about that target's source ordering,
+   not a campaign-wide allocator law. See [Register allocation and
+   caching](#register-allocation-and-caching).
+2. **Separate folded displacement from materialized address.** A direct
+   field expression such as `value = arr[i].member` can give retail's
+   `load ...,offset(base)`. If retail instead has `addiu tmp,base,offset`
+   followed by `load ...,0(tmp)`, preserve an address value at that point,
+   for example with `p = &arr[i].member; value = *p;`, and measure any
+   propagation scope. The `addiu`/load pair in retail decides which spelling
+   is correct; source style does not.
+3. **Match the physical CFG: shared epilogue or duplicated tail.** If retail
+   branches to one common suffix, assign the result in each arm and return
+   once. If retail repeats the suffix in each arm, keep the source tails
+   separate. Factoring or duplicating a semantically identical tail changes
+   branch targets, delay slots, and object layout. See [Shared-tail joins](#shared-tail-joins-assign-one-result-in-every-arm-return-once).
+4. **Run a matched-binary signature census before permuting.** Normalize the
+   residual, mask relocations, and search verified MATCH retail windows for
+   the same call order, load/store widths, branch shape, and COP1/COP2/MMI
+   instruction classes. A hit supplies a structural sibling to transfer;
+   zero hits is the gate to stop mining that recipe and switch to ABI, CFG,
+   or source reconstruction. Zero hits is not proof of impossibility.
+5. **Preserve explicit redundant range guards.** Retail may keep a signed
+   outer guard around a bounded switch, such as
+   `if (aux >= 0) { switch (aux) { ... } }`, even when the guard is
+   semantically redundant. That source shape can retain the retail `bltz`
+   and dispatch sequence. Confirm signedness and the exact upper-bound
+   behavior from retail; do not simplify the guard away.
+
 ### Symptom → technique → measured anchor
 
 | Symptom | Technique (see) | Measured anchor |
@@ -623,11 +659,13 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   preventing the compiler from scheduling its address calculation before the
   call. `volatile` is banned by `docs/STYLE.md` unless the function carries a
   `measured` waiver.
-- **THE saved-register assignment rule — measured, deterministic, no
-  exceptions in 20 probes.** This replaces the earlier "declaration order
-  tends to" hint and the "param vs local fight is a floor" claim, both of
-  which were symptoms of not knowing the rule. b210 assigns callee-saved GPRs
-  like this:
+- **THE saved-register assignment rule is a measured source lever, not a
+  universal floor.** The 20 declaration/first-use probes were consistent: b210
+  assigned callee-saved GPRs in reverse order. This replaces the earlier
+  "declaration order tends to" hint and the "param vs local fight is a floor"
+  claim, but it does not promote one target-local success into a campaign-wide
+  allocator law. Require matching frame size, saved-register count, and value
+  lifetimes before using the rule. The measured assignment procedure is:
 
   1. Build one ordered list: **parameters in parameter order, then locals in
      declaration order.**
@@ -1101,6 +1139,14 @@ real conversion instruction moves it — see that archive.
 - **Absolute globals outside the gp window** (read as `lui;lw` with HI16/LO16
   relocs) → declare `extern T DAT_addr[];` and use `DAT_addr[0]`. A `static`
   would emit GPREL16 and mismatch.
+- **Folded displacement versus materialized address is a source distinction.**
+  A direct expression such as `value = arr[i].member` usually gives the
+  folded `load ...,offset(base)` form. If retail first emits
+  `addiu tmp,base,offset` and then loads through `0(tmp)`, preserve the
+  address as a source value at that point (`p = &arr[i].member; value = *p;`)
+  and verify that propagation has not folded it back. Do not use `volatile`
+  as a generic address pin; the retail instruction pair and the value's
+  lifetime decide which spelling is faithful.
 - **Absolute function-pointer slots use the same array idiom.** For a retail
   `lui; lw; jalr` through an address outside the gp window, declare
   `extern void* DAT_addr[];` and call `((Ret (*)(Args...))DAT_addr[0])(...)`.
@@ -1302,6 +1348,28 @@ Measured closures and near-misses from the swap and its relatives:
 As with the operator form, this is **per-comparison**: apply it to the single
 comparison feeding the differing row, not across the function.
 
+## Redundant outer guards around bounded dispatch
+
+A semantically redundant guard can still be part of the retail CFG. When the
+retail sequence begins with a signed lower-bound branch and then performs a
+bounded switch or dispatch, preserve that guard explicitly:
+
+```c
+if (aux >= 0) {
+    switch (aux) {
+    case 2: ...; break;
+    case 3: ...; break;
+    default: ...; break;
+    }
+}
+```
+
+The `aux >= 0` spelling can retain the retail `bltz` before the dispatch even
+when every handled case is non-negative and an optimizing compiler could prove
+the test redundant. Confirm the signed type, handled range, default path, and
+branch destinations from retail. Do not replace this shape with a bare switch
+nor generalize it to every `bltz`/`sltiu` pair.
+
 ## Shared-tail joins: assign one result in every arm, return once
 
 A distinct branch-shape residual, and it has a reliable recipe. Symptom: the
@@ -1331,6 +1399,36 @@ Do not confuse this with the unreachable shared-tail floor recorded under
 a shared tail and b210 merges to a single `beq` (`code1_0028 func_0028c3f0`,
 `cmmCommunity`). That one is about the *number* of branches and does not yield;
 this one is about their targets and does.
+
+The inverse is a separate CFG rule: if retail duplicates the suffix in each
+branch, do not factor it into one C tail merely because the statements are
+identical. The duplicated stores, calls, or returns are part of the physical
+layout. Compare branch destinations and delay slots before refactoring a common
+suffix.
+
+## Signature census before permuting or declaring a floor
+
+A small normalized residual can look like a register-allocation wall while the
+source shape is simply absent from the tree. Before launching a permuter or
+writing a compiler-floor note:
+
+1. Start from a fresh scoped `tools/verify.py --json` report and select
+   verified MATCH retail windows; do not compare against stale candidate
+   objects.
+2. Build a binary signature for the target residual: preserve call order,
+   load/store widths, branch polarity and destinations, and COP1/COP2/MMI
+   classes; mask relocations and register fields only for the question being
+   tested.
+3. Search that signature across the verified MATCH corpus. An exact hit is a
+   measured structural sibling: transfer its source shape and declarations,
+   then re-check target-specific immediates and relocations.
+4. If the census has zero hits, stop assuming an in-tree recipe exists. Move
+   to ABI/type/CFG reconstruction or a bounded source probe, and record the
+   negative result with the signature and corpus scope.
+
+The census is a decision gate, not an impossibility proof. A zero-hit signature
+means only that this exact instruction class and CFG shape has no verified
+precedent in the searched corpus.
 
 ## b210 accepts 386 pragmas — sweep them before declaring a floor
 
