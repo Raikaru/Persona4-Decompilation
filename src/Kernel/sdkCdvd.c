@@ -41,9 +41,16 @@ extern char D_00710910[];
    archive handle is stored straight from the call and re-read into the
    local.  `opt_loop_invariants on` hoists the slot-scan base and the
    `node + 8` target out of the loop.
-   WALL: retail assigns the scan loop's two hoisted values $a0 (target) and
-   $a1 (base); this build swaps them.  Manual hoists in either order, a
-   reversed comparison and 150 declaration orders were measured. */
+   The scan loop's base belongs in the `for` header: hoisting it there
+   while the pragma still lifts `node + 8` puts both values in retail's
+   registers ($a0 target, $a1 base) and drops the floor from 5 words to 3.
+   WALL: the two hoists are emitted in the wrong order - retail materialises
+   the target first, this build the base.  Hoisting the target instead, or
+   first, restores the order but swaps the registers back, because MWCC
+   numbers them by first use in the loop body and retail's C evidently used
+   the target first.  Both manual hoists in both orders, a target hoisted
+   above the loop, a reversed comparison, the fully inlined index form and
+   150 declaration orders were measured. */
 // FUN_00454640 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -79,6 +86,7 @@ void func_00454640(void)
     s32 spare;
     s32 state;
     s16 i;
+    u8 *base;
 
     func_00468a50();
     func_00468d10();
@@ -186,8 +194,8 @@ tail:
                 *(s32 *)(node + 0x110) = 0;
                 *(s32 *)(node + 0x114) = 0;
             }
-            for (i = 0; i < 0x100; i++) {
-                slot = D_008C8780 + i * 0x94;
+            for (i = 0, base = D_008C8780; i < 0x100; i++) {
+                slot = base + i * 0x94;
                 if (*(s32 *)slot != 0 && *(s32 *)(slot + 4) == (s32)(node + 8)) {
                     *(s32 *)slot = 0;
                 }
