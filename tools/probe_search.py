@@ -119,19 +119,40 @@ class Evaluator:
 
 
 def declaration_block(body: str) -> tuple[list[str], int, int]:
-    """The run of local declarations at the top of the function body."""
+    """The longest run of permutable local declarations in the function body.
+
+    A body often opens with a local struct or typedef and with block-scope
+    callee prototypes. Neither is register-allocated, and reordering a
+    declaration past a type it uses would not compile, so both are skipped and
+    the run of plain one-line declarations after them is returned.
+    """
     lines = body.split("\n")
     opening = next((index for index, line in enumerate(lines)
                     if line.rstrip().endswith("{")), None)
     if opening is None:
         return [], 0, 0
-    start = opening + 1
-    while start < len(lines) and not lines[start].strip():
-        start += 1
-    end = start
-    while end < len(lines) and DECLARATION_RE.match(lines[end]) and "(" not in lines[end]:
-        end += 1
-    return lines[start:end], start, end
+    best: tuple[int, int] = (0, 0)
+    index, depth = opening + 1, 0
+    run_start: int | None = None
+    while index < len(lines):
+        line = lines[index]
+        stripped = line.strip()
+        depth += line.count("{") - line.count("}")
+        if depth > 0 or (run_start is None and not stripped):
+            run_start = None
+            index += 1
+            continue
+        if DECLARATION_RE.match(line) and "(" not in line:
+            if run_start is None:
+                run_start = index
+            if index + 1 - run_start > best[1] - best[0]:
+                best = (run_start, index + 1)
+        elif stripped and not stripped.startswith(("/*", "*", "//")):
+            if run_start is not None and not stripped.startswith(("extern ", "typedef ", "struct ", "union ")):
+                break
+            run_start = None
+        index += 1
+    return lines[best[0]:best[1]], best[0], best[1]
 
 
 def main() -> int:
