@@ -751,8 +751,15 @@ s32 func_002240b0(void)
 /* Camera-pose floor (880B window). First probe nd 123 (frame/prologue
    verified); structure and callee conventions per archived notes. Open:
    s-reg rotation (s1/s2/s5) and scheduler ordering. See P022 doc. */
+/* Floor: 118 differing words (was 123) and, with the scoped
+   `opt_propagation off` this body carries, an instruction-level alignment
+   reports 218 against retail's 218 with no inserts or deletes: the residual
+   is the $s1/$s5 pair plus one boolean materialisation.  The declaration
+   order below is the best of 150 measured permutations. */
 // FUN_002240E0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_propagation off
 /* Complete ordinary-C source; production remains ASM.
  * classification=SOURCE_SHAPE_NONMATCH; object_size=872; window=880;
  * normalized_diff=344; fully_resolved_code_relocations=34;
@@ -817,21 +824,21 @@ void func_002240e0(u8 *camera)
         RwV3d second;
         RtQuat secondRotation;
     } poses;
-    u8 *unit;
-    u8 *partyMember;
+    f32 z;
     u8 *enemy;
+    s32 reset;
+    u16 partyIndex;
+    s32 hasPriorityStatus;
+    u8 *unit;
     u8 *ally;
-    u8 *record;
+    u16 variant;
     f32 x;
     f32 y;
-    f32 z;
-    u32 ordinal;
-    u16 partyIndex;
-    u16 variant;
+    u8 *record;
+    u8 *partyMember;
     u16 previousState;
-    s32 reset;
+    u32 ordinal;
     s32 hasStatus;
-    s32 hasPriorityStatus;
 
     previousState = *(u16 *)(iGpffffb3ac + 0x108);
     switch (previousState) {
@@ -922,6 +929,7 @@ void func_002240e0(u8 *camera)
         func_001bbef0(camera, fGpffff80e8);
     }
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_002240e0);
 #endif
