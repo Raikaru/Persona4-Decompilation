@@ -453,6 +453,50 @@ retail reads `entry[(u16)i]`, and a `default:` arm the switch does not have.
 A wrong body measures a wrong wall, and nothing in the gate set re-checks a
 banked body against the disassembly.
 
+**Triage the whole tree before picking a target.** Two tools rank the work:
+
+```
+python3 -E -s tools/floorboard.py          # every guarded floor, ranked by words
+python3 -E -s tools/opclass.py [owner.c]   # which opcode classes a floor gets wrong
+```
+
+`floorboard` recompiles all 214 banked first-party floors in parallel and
+sorts them.  Nineteen are under twenty differing words and thirty-two under
+fifty; those are the reachable MATCHes, and no amount of reading notes finds
+them.  A cold 1500-byte window is a day's work for a three-figure floor.
+
+`opclass` answers what `fnalign` cannot: not *where* a candidate diverges but
+*what kind* of instruction it emits that retail never does, which names the
+defect.  Surplus `dsll32`/`dsra32` is a local declared too narrow and a
+shortfall is one too wide; `lbu` against `lb` and `lhu` against `lh` are
+signedness; `cvt.s.w`/`mtc1` is an extern with the wrong return type or an
+integer local that should be `f32`; `div` against `divu` is a signed modulo;
+`jalr` against `jal` is a call through a pointer where retail calls directly;
+a `lui` surplus is a constant retail hoists, so measure
+`opt_loop_invariants on`.  Of 214 floors, 133 carry a surplus.
+
+**An opcode-class fix that shrinks the object is not a fix.** This is the
+tool's one trap and it caught two of three transplants in its first wave.
+`func_0013f720` cleared twenty-one surplus `dsll32`/`dsra32` pairs and went
+226 to 199 words with the object becoming size-exact at 267/267 — correct.
+`func_00308f40` cleared fifteen pairs and the object fell from 402 emitted
+instructions to 378 against retail's 427, eleven percent short, with both
+`fnalign` edits and the word score worse; the histogram row looked perfect
+because the code that needed those instructions had been deleted rather than
+retyped.  A `jal`/`jalr` clear of fourteen on `func_0021fea0` likewise took
+the object 560 bytes short.  Read `fnalign`'s header line — it prints retail
+and object instruction counts — before and after every opclass change.
+
+**An extern declared with the wrong return type is worth more than any
+pragma.** A callee that returns `f32` but is declared `s32`, or declared with
+an empty parameter list so the return defaults to `int`, makes MWCC emit an
+`mtc1`/`cvt.s.w` round trip at every call site.  One such declaration —
+`extern f32 func_0044b868()` where the truth is `(f32)` — cost 171 differing
+words on `func_001c5500`, and writing it truthfully took that body from 249
+to 78.  When `opclass` shows a `cvt.s.w` surplus, audit every extern the body
+calls against the retail callee's actual return register before touching
+anything else.
+
 **Sweep the cheap pragmas, never reason about them.** Each of these costs
 one compile against a body you already have, so wrapping the guarded body
 and re-measuring is strictly cheaper than deciding whether it "should"
