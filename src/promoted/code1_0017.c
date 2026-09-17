@@ -1247,8 +1247,207 @@ s32 func_00178c00(void)
    real TU is split out. They were canonical windows with no marker, i.e.
    invisible to the verifier and supplied to the link as retail bytes. */
 
-// FUN_00179FC0
+/* Floor: 337 differing words, 462 emitted instructions against retail's
+   464 (1848 bytes in an 1856-byte window), frame 0x100 with the
+   sd/sq/swc1 prologue block exact.  Levers that landed: the D_00887300
+   table base hoisted once under opt_propagation off; the (u8)(u32)(255.0f
+   * scale) conversion; a plain lwc1 for arg0+0x68; the f20/f21 homes
+   swapped so scale sits in $f20; the three ft loads grouped; the stack
+   arrays resized and padded to retail's slots; and `count = (p != 0)`
+   rewritten as `if (p) count++`.  func_00145270, func_001791d0 and
+   func_00179f70 are declared locally because the owner's declarations
+   come later in the file or not at all.
+   WALL: register colour permutation (base $s1 vs $s0, arg1/arg4 $s6/$s7,
+   arg3 $s0 vs $s1), the stack slot class of the float temporaries (0xA0
+   vs 0xF0) and four `andi $v1,$a0,0xFFFF` promotions before the dedup
+   compares.  A permutation census on this line was ~255 structural and
+   ~43 allocation/scheduling words. */
+// FUN_00179FC0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_propagation off
+s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, u8 *arg5, f32 farg0, f32 farg1) {
+    extern u8 *func_00145270(s32 id);
+    extern u8 *func_001791d0(u8 *arg0, u8 *arg1);
+    extern void *func_00179f70(void *atomic, void *context);
+    f32 f_vals[4];
+    u32 e_vals[4];
+    void *ctx[4];
+    u16 ids[8];
+    u8 *allocs[8];
+    f32 f21;
+    f32 f20;
+    f32 ft0;
+    f32 ft1;
+    f32 ft2;
+    u8 *tmp;
+    u8 *p;
+    s32 count;
+    s32 i;
+    u32 k;
+    u16 cur;
+    s32 v1;
+    s32 v2;
+    s32 gp_val;
+    f32 tmp_f;
+    u8 *alloc;
+    u8 *a;
+    s32 v;
+    u32 n;
+    void (**base)(s32, s32);
+    f20 = farg0;
+    tmp = func_001452b0(0xC);
+    base = D_00887300;
+    base[0](1, arg1);
+    base[0](2, 3);
+    base[0](0xC, 1);
+    base[0](9, 2);
+    base[0](0xA, 5);
+    if (f20 < 0.0f) {
+        f20 = -f20;
+        base[0](0xB, 5);
+    } else {
+        base[0](0xB, 6);
+    }
+    p = *(u8 **)(arg0 + 4);
+    ft0 = *(f32 *)(p + 0x30);
+    ft1 = *(f32 *)(p + 0x34);
+    ft2 = *(f32 *)(p + 0x38);
+    *(f32 *)(arg5 + 0x5470) = ft0;
+    *(f32 *)(arg5 + 0x5474) = ft1;
+    *(f32 *)(arg5 + 0x5478) = ft2;
+    f21 = *(f32 *)(arg0 + 0x68);
+    func_003e0960(arg5 + 0x5480, p + 0x10);
+    tmp_f = -0.5f / f21;
+    f_vals[0] = tmp_f;
+    f_vals[1] = tmp_f;
+    f_vals[2] = 1.0f / (farg1 + f21);
+    func_003e0a90(arg5 + 0x5480, f_vals, 2);
+    e_vals[0] = 0x3F000000;
+    e_vals[1] = 0x3F000000;
+    e_vals[2] = 0;
+    func_003e0c90(arg5 + 0x5480, e_vals, 2);
+    *(s32 *)(arg5 + 0x54C4) = arg4;
+    *(u8 *)(arg5 + 0x54C0) = (u8)(u32)(255.0f * f20);
+    *(s32 *)(arg5 + 0x54C8) = 0;
+    *(u32 *)(arg5 + 0x5460) = 0;
+    if (arg2 == 0) {
+        p = *(u8 **)(tmp + 0x1A0);
+        v = *(s32 *)(p + 0x10);
+        if (v == 0) {
+            v = *(s32 *)(p + 8);
+        }
+        func_00394d70(v, arg3, func_001791d0, arg5);
+    } else if (arg2 == 1) {
+        count = 0;
+        ctx[0] = arg3;
+        ctx[1] = arg5;
+        if ((func_0014a200() == 1) || ((gp_val = *(s32 *)iGpffff9db0, (gp_val >= 0x33 && gp_val < 0x3B)) || (gp_val >= 0x47 && gp_val < 0x4F))) {
+            alloc = func_00145270(0x400);
+            if (alloc == NULL) {
+                return 0;
+            }
+            v1 = func_001687d0(*(u8 **)(alloc + 0x220));
+            v2 = func_001687e0(*(u8 **)(alloc + 0x220));
+            v2 = v2 << 8;
+            v1 = v1 * 0x10;
+            cur = *(u16 *)(func_00155280() + v2 + v1 + 0x56);
+            ids[0] = cur;
+            allocs[0] = func_00145270(cur);
+            if (allocs[0] != NULL) {
+                count++;
+            }
+            cur = *(u16 *)(func_00155280() + v2 + v1 + 0x66);
+            ids[1] = cur;
+            for (i = 0; i < count; i++) {
+                if (cur == ids[i]) {
+                    break;
+                }
+            }
+            if (i >= count) {
+                allocs[count] = func_00145270(cur);
+                if (allocs[count] != NULL) {
+                    count++;
+                }
+            }
+            cur = *(u16 *)(func_00155280() + v2 + v1 + 0x46);
+            ids[2] = cur;
+            for (i = 0; i < count; i++) {
+                if (cur == ids[i]) {
+                    break;
+                }
+            }
+            if (i >= count) {
+                allocs[count] = func_00145270(cur);
+                if (allocs[count] != NULL) {
+                    count++;
+                }
+            }
+            cur = *(u16 *)(func_00155280() + v2 + v1 + 0x156);
+            ids[3] = cur;
+            for (i = 0; i < count; i++) {
+                if (cur == ids[i]) {
+                    break;
+                }
+            }
+            if (i >= count) {
+                allocs[count] = func_00145270(cur);
+                if (allocs[count] != NULL) {
+                    count++;
+                }
+            }
+            cur = *(u16 *)(func_00155280() + v2 + v1 - 0xAA);
+            ids[4] = cur;
+            for (i = 0; i < count; i++) {
+                if (cur == ids[i]) {
+                    break;
+                }
+            }
+            if (i >= count) {
+                allocs[count] = func_00145270(cur);
+                if (allocs[count] != NULL) {
+                    count++;
+                }
+            }
+        } else {
+            allocs[0] = tmp;
+            count = 1;
+        }
+        for (i = 0; i < count; i++) {
+            a = allocs[i];
+            v = *(s32 *)(*(u8 **)(a + 0x1A0) + 0x10);
+            if (v != 0) {
+                func_003bff30((void *)v, (void (*)())func_00179f70, ctx);
+            } else {
+                n = *(u32 *)(*(u8 **)(a + 0x1A0) + 0x18);
+                for (k = 0; k < n; k++) {
+                    func_003bff30(*(void **)(*(u8 **)(a + 0x1A0) + k * 4 + 0x1C), (void (*)())func_00179f70, ctx);
+                }
+            }
+        }
+    }
+    *(u32 *)(arg5 + 0x5464) = (*(u32 *)(arg5 + 0x5460) + *(u32 *)(arg5 + 0x54C8) * 600) / 3U;
+    if (*(u32 *)(arg5 + 0x5460) != 0) {
+        base[0](1, arg1);
+        base[0](0xE, 0);
+        base[0](6, 1);
+        base[0](8, 0);
+        if (func_00410420(arg5, *(u32 *)(arg5 + 0x5460), 0, 0x19) != 0) {
+            func_004106a0(3);
+            func_004104d0();
+        }
+        if (iGpffffba48 == 1) {
+            base[0](0xE, 1);
+        }
+        *(u32 *)(arg5 + 0x5460) = 0;
+    }
+    base[0](0xB, 6);
+    base[0](0xA, 5);
+    return 1;
+}
+#pragma opt_propagation on
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00179fc0);
+#endif
 // FUN_0017A700
 /* measured: opt_propagation off preserves the second-branch descriptor
    pointer materialisation and grouped float-load order; object matches

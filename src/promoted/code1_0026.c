@@ -862,8 +862,230 @@ s32 func_00267800(u8 **arg0, u8 *arg1)
 }
 #pragma opt_common_subs reset
 #pragma optimization_level 2
-// FUN_00267B20
+/* Floor: 304 differing words, 445 emitted instructions against retail's
+   452 (1780 bytes in a 1808-byte window), frame -0xDB0 exact.  The
+   twelve-argument signature is six ints and six floats with two $t
+   registers live on entry, so ints five and six ride $t0/$t1; the s64
+   width for those two comes from the caller-side declaration above and
+   scores 8 words better than s32.  The frame is one struct so the
+   0x100/0x150/0x1A0/0x5A0/0xDA8 offsets fall out of the layout, and the
+   two 0x13-word table copies are u32 do-while loops, which is what gives
+   retail's lw/sw pairs; the DA8/DAC lwc1/swc1, the E0 zero/sw/lq-sq and
+   the D_0063A9E0/D_0063AA30 lui/lo blocks all match.  Loop counters,
+   pointers and unpacked colour bytes are split per phase; the fourth loop
+   and the final call use count/count-1; (s16) narrowing gives the
+   dsll32/dsra32 pairs.
+   WALL: callee-saved allocation shift (combined in $s4 vs $s0, the args in
+   $s3-$s0 vs $s5-$s2, the table base in $v0 vs $s1), the destination
+   addu order in the four point/colour loops (base+index vs index+sp+off
+   with the lwc1/addu pair reordered) and the func_0045e6a0 move order. */
+// FUN_00267B20 NONMATCHING
+#ifdef NON_MATCHING
+void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s64 arg4, s64 arg5,
+                   f32 fparg3, f32 fparg4, f32 fparg5)
+{
+    typedef unsigned int u_long128 __attribute__((mode(TI)));
+    extern u32 D_0063A9E0[];
+    extern u32 D_0063AA30[];
+    extern void func_00364c70(void);
+    extern void func_0045e6a0(void *arg0, void *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 fparg1, f32 fparg2, f32 fparg3);
+    struct {
+        u_long128 c0;
+        s32 d0;
+        u8 padD4[12];
+        u_long128 e0;
+        u_long128 f0;
+        u32 arr100[0x13];
+        u8 pad100[4];
+        u32 arr150[0x13];
+        u8 pad150[4];
+        u8 colors[256][4];
+        f32 points[257][2];
+        f32 da8;
+        f32 dac;
+    } frame;
+    s32 i9;
+    s32 iA;
+    s32 iB;
+    s32 iC;
+    s32 count9;
+    s32 countA;
+    s32 countB;
+    u8 *ptr9;
+    u8 *ptrA;
+    u8 *ptrB;
+    u8 b0_9;
+    u8 b1_9;
+    u8 b2_9;
+    u8 b3_9;
+    u8 b0;
+    u8 b1;
+    u8 b3;
+    u32 tmp;
+    u32 *src;
+    u32 *dst;
+    s32 n;
+    u8 *p;
+    s32 m;
+    void (**tbl)(u32, u32);
+    u32 tbl2;
+    u32 combined;
+    combined = ((u32)arg0 << 8) | (u32)arg1;
+    src = D_0063A9E0;
+    dst = frame.arr150;
+    n = 0x13;
+    do {
+        tmp = *src;
+        src++;
+        n--;
+        *dst = tmp;
+        dst++;
+    } while (n > 0);
+    src = D_0063AA30;
+    dst = frame.arr100;
+    n = 0x13;
+    do {
+        tmp = *src;
+        src++;
+        n--;
+        *dst = tmp;
+        dst++;
+    } while (n > 0);
+    if (!(fparg4 < 7.0f) || !(fparg5 < 7.0f)) {
+        return;
+    }
+    if (arg3 == 9) {
+        count9 = frame.arr150[arg3 * 2];
+        ptr9 = (u8 *)frame.arr100[arg3 * 2];
+        i9 = 0;
+        b0_9 = (combined >> 24) & 0xFF;
+        b1_9 = (combined >> 16) & 0xFF;
+        b2_9 = (combined >> 8) & 0xFF;
+        b3_9 = combined & 0xFF;
+        while (i9 < count9) {
+            frame.points[i9][0] = (fparg0 + ((f32 *)ptr9)[i9 * 2]) - ((f32 *)ptr9)[0];
+            frame.points[i9][1] = (fparg1 + ((f32 *)ptr9)[i9 * 2 + 1]) - ((f32 *)ptr9)[1];
+            frame.colors[i9][0] = b0_9;
+            frame.colors[i9][1] = b1_9;
+            frame.colors[i9][2] = b2_9;
+            frame.colors[i9][3] = b3_9;
+            i9++;
+        }
+        func_00364c50();
+        func_0045e6a0(frame.colors, frame.points, fparg2, count9, 5, 1, arg4, arg5, fparg3, fparg4, fparg5);
+        func_00364c70();
+        return;
+    }
+    p = (u8 *)&frame.da8;
+    m = 4;
+    if (p != NULL) {
+        do {
+            *p = 0;
+            p++;
+            m--;
+        } while (m != 0);
+    }
+    frame.dac = frame.da8;
+    p = (u8 *)&frame.e0;
+    m = 0x10;
+    if (p != NULL) {
+        do {
+            *p = 0;
+            p++;
+            m--;
+        } while (m != 0);
+    }
+    ((s32 *)&frame.e0)[0] = 0;
+    ((s32 *)&frame.e0)[1] = 0;
+    ((s32 *)&frame.e0)[2] = 0x280;
+    ((s32 *)&frame.e0)[3] = 0x1E0;
+    frame.f0 = frame.e0;
+    tbl = D_00887300;
+    tbl[0](0xE, 0);
+    tbl[0](0xC, 1);
+    tbl[0](7, 2);
+    tbl[0](9, 2);
+    tbl[0](0x14, 1);
+    tbl[0](6, 0);
+    tbl[0](8, 1);
+    func_003f6440(3, 0x31003);
+    func_003f6440(2, 0x44);
+    func_00489f80();
+    func_0045d6e0(&frame.dac, &frame.f0, 10.0f, 0);
+    func_0048a000();
+    countA = frame.arr150[arg3 * 2 + 1];
+    ptrA = (u8 *)frame.arr100[arg3 * 2 + 1];
+    iA = 0;
+    b0 = (combined >> 24) & 0xFF;
+    b1 = (combined >> 16) & 0xFF;
+    frame.d0 = (combined >> 8) & 0xFF;
+    b3 = combined & 0xFF;
+    while (iA < countA) {
+        frame.points[iA][0] = (fparg0 + ((f32 *)ptrA)[iA * 2]) - ((f32 *)ptrA)[0];
+        frame.points[iA][1] = (fparg1 + ((f32 *)ptrA)[iA * 2 + 1]) - ((f32 *)ptrA)[1];
+        frame.colors[iA][0] = b0;
+        frame.colors[iA][1] = b1;
+        frame.colors[iA][2] = (u8)frame.d0;
+        frame.colors[iA][3] = b3;
+        iA++;
+    }
+    func_00364c50();
+    tbl2 = (u32)D_00887300;
+    frame.c0 = (u_long128)tbl2;
+    ((void (**)(u32, u32))tbl2)[0](6, 0);
+    ((void (**)(u32, u32))&frame.c0)[0](8, 1);
+    func_003f6440(3, 0x30003);
+    func_003f6440(2, 0x44);
+    func_00489f80();
+    func_0045e6a0(frame.colors, frame.points, fparg2, countA, 5, 0, arg4, arg5, fparg3, fparg4, fparg5);
+    func_0048a000();
+    func_00364c70();
+    countB = frame.arr150[arg3 * 2];
+    ptrB = (u8 *)frame.arr100[arg3 * 2];
+    iB = 0;
+    while (iB < countB) {
+        frame.points[iB][0] = (fparg0 + ((f32 *)ptrB)[iB * 2]) - ((f32 *)ptrB)[0];
+        frame.points[iB][1] = (fparg1 + ((f32 *)ptrB)[iB * 2 + 1]) - ((f32 *)ptrB)[1];
+        frame.colors[iB][0] = b0;
+        frame.colors[iB][1] = b1;
+        frame.colors[iB][2] = (u8)frame.d0;
+        frame.colors[iB][3] = b3;
+        iB++;
+    }
+    if (arg1 == 0xFF) {
+        func_00364c50();
+    }
+    func_0045e6a0(frame.colors, frame.points, 1.0f + fparg2, countB, 5, 1, arg4, arg5, fparg3, fparg4, fparg5);
+    if (arg1 == 0xFF) {
+        func_00364c70();
+    }
+    iC = 1;
+    while (iC < countA) {
+        frame.points[iC - 1][0] = (fparg0 + ((f32 *)ptrA)[iC * 2]) - ((f32 *)ptrA)[0];
+        frame.points[iC - 1][1] = (fparg1 + ((f32 *)ptrA)[iC * 2 + 1]) - ((f32 *)ptrA)[1];
+        frame.colors[iC - 1][0] = b0;
+        frame.colors[iC - 1][1] = b1;
+        frame.colors[iC - 1][2] = (u8)frame.d0;
+        frame.colors[iC - 1][3] = b3;
+        iC++;
+    }
+    if (arg1 == 0xFF) {
+        func_00364c50();
+    }
+    {
+        s32 v0;
+        s32 v1;
+        v0 = (s32)(s16)(s32)(fparg0 + ((f32)arg4 - frame.points[0][0]));
+        v1 = (s32)(s16)(s32)(fparg1 + ((f32)arg5 - frame.points[0][1]));
+        func_0045e6a0(frame.colors, frame.points, fparg2, countA - 1, 4, 1, v0, v1, fparg3, fparg4, fparg5);
+    }
+    if (arg1 == 0xFF) {
+        func_00364c70();
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00267b20);
+#endif
 // FUN_00268A70
 s32 func_00268a70(u8 *arg0)
 {
