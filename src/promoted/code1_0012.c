@@ -6,7 +6,7 @@ extern f32 fGpffff9cA0;
 extern f32 fGpffff9cA4;
 extern s128 D_005E5740;
 extern s128 D_005E5750;
-extern void func_00366c70(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s16 arg7, f32 fparg0, s16 arg_sp0, s32 *arg_sp8, s32 arg_sp10, void *arg_sp18);
+extern s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb, s32 alpha, s32 mode, s16 centerX, s16 centerY, void *matrix, s32 texture, void *uv);
 extern f32 fGpffff84a4;
 extern u8 iGpffffb1d8;
 extern u8 iGpffffb1d4;
@@ -1955,7 +1955,7 @@ void func_0012b9a0(s32 unused, s32 arg1)
         } else {
             var_2 = 0;
         }
-        func_00366c70(0x77, 0xAA, 0x200, 0x80, 0xFFFFFF, 0xFF, 1, 0, 0.0f, 0, 0, var_2, 0);
+        func_00366c70(0x77, 0xAA, 0.0f, 0x200, 0x80, 0xFFFFFF, 0xFF, 1, 0, 0, 0, var_2, 0);
         return;
     case 7:
     case 8:
@@ -1977,7 +1977,7 @@ void func_0012b9a0(s32 unused, s32 arg1)
         } else {
             var_2_2 = 0;
         }
-        func_00366c70(0, 0, 0x400, 0x200, 0xFFFFFF, 0xFF, 1, 0, 0.0f, 0, 0, var_2_2, 0);
+        func_00366c70(0, 0, 0.0f, 0x400, 0x200, 0xFFFFFF, 0xFF, 1, 0, 0, 0, var_2_2, 0);
         /* fall through */
     default:
         return;
