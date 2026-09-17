@@ -350,7 +350,25 @@ narrowing alone, `func_001d8cb0` from 80 to 45.
   produced it is dead after loop rotation (`func_001b1020`).
 - `opt_common_subs off` — retail reloads an address this build folds
   (`func_001a2d70`).
-- `opt_loop_invariants on` — retail hoists a bound or a constant.
+- `opt_loop_invariants on` — retail hoists a bound or a constant.  The clearest
+  signature: retail materialises the constant in the loop *preheader*, right
+  after the counter init and before the `b` to the bottom test
+  (`addiu $v1, $zero, 4`), while this build rematerialises it inside the body.
+  That also swaps the two compare operands (`beq $v0, $v1` retail against
+  `beq $v1, $v0` here) and leaves the object two words short, which shifts
+  every later branch target.  On `func_0028fc40` the one pragma was worth
+  nine words and the whole 8-byte size gap: 14 differing words to 5.  Things
+  that do *not* reproduce it, all measured on the same body: an invariant
+  `four = 4;` local before the loop, `for (k = 0, four = 4; ...)`,
+  `opt_strength_reduction on`, and `opt_propagation on` (that one exploded to
+  209 words).
+- `tailcall on` — converts `jal X; epilogue; jr $ra` into `epilogue; j X`, but
+  it also eliminates the frame.  Only reach for it when retail is frameless
+  too.  `func_00512b90` is the counter-example: retail keeps `addiu $sp, -0x10`
+  / `sd $ra` / `ld $ra` / `addiu $sp, 0x10` *and* tail-jumps, and no
+  combination of `tailcall on` with optimization level 0/1/3,
+  `opt_dead_assignments off`, `opt_lifetimes off` or `schedule off` reproduces
+  the frame-preserving form.
 
 Measure the file-wide form before scoping one: `opt_dead_assignments off` for
 all of `btlOrder_grouped.c` costs a match, and `-O2,p` for `btlAICommand.c`
@@ -358,6 +376,30 @@ costs seventeen.
 
 ### 7i. Declaration levers found while reconstructing untried functions
 
+- **A cast at a call site, not the scheduler, is what moves an argument
+  load.** On `func_0047ce00` the whole two-word residual was that retail
+  ends the argument block with the trailing stack load — `daddu $a3, $v0`
+  (the nested call's result) and only then `lw $t0, 0x4c($sp)` — while this
+  build hoisted the `lw` one slot earlier. The out-parameter local was
+  declared `s32 sp4C` and passed as `(u32)sp4C`; the cast made it a
+  conversion expression, which b210 evaluates eagerly. Declaring the local
+  with the type the callee actually takes, `u32 sp4C`, and passing it bare
+  restored retail's order and matched the function. The `&sp4C`
+  out-parameter then needs `(s32 *)&sp4C`, which costs nothing. Generalise:
+  when the residual is argument-setup *order*, audit the casts. Reaching
+  for the scheduler is actively harmful here — `schedule off` around the
+  call took the same body from 2 words to 120, and staging the nested
+  call's result in a temp gave 80. A function-local K&R redeclaration of
+  the callee and a function-local prototype with a different fifth
+  parameter width were both no-ops.
+- **The parameter home-move block cannot be reordered from source.** When
+  the only residual is the order of the `daddu $sN, $aM, zero` copies, stop.
+  On `func_0028fc40` retail emits them in argument order (a0, a1, a2, a3,
+  t0) and b210 emits them in allocation order (a2, a3, t0, a0, a1 = s5, s4,
+  s3, s1, s0) with the *colouring already identical*. Declaration order,
+  initialiser-versus-assignment form, assignment order, K&R definition form
+  and direct-parameter-versus-copy-local models were each measured and all
+  five give the same five words.
 - **A global declared as a scalar lands in small data.** `extern u8 D_008C0000;`
   makes every access gp-relative; retail addresses those pad-snapshot bytes
   absolutely, so they are arrays. Declaring them `extern u8 D_008C0000[];` and
