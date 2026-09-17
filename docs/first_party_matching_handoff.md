@@ -757,7 +757,33 @@ Private artifacts:
 
 ## Current high-value queue
 
-The following floors were current immediately after `de42a42d`; remeasure before acting:
+516 first-party functions still fall back to `INCLUDE_ASM`.  Derive the list
+authoritatively — do NOT guess from the file path:
+
+```python
+import json, sys; sys.path.insert(0, 'tools')
+import verify
+from pathlib import Path
+d = json.load(open('report.json'))           # tools/verify.py --json report.json
+asm = [r for r in d['results']
+       if r['status'] == 'ASM'
+       and verify.code_origin(Path(r['file']), int(r['addr'], 16)) == 'main']
+```
+
+`verify.is_third_party(path)` is a *file*-level predicate and disagrees with
+the per-function provenance: `code1_0041.c`, `code1_004e.c`, `code1_004f.c`
+and `code1_0051.c` all answer "first party" to it while every function in
+them is third party.  A batch scoped with the file-level predicate spends its
+whole budget off-goal.
+
+Densest owners, first-party ASM count: `y_fclCombineDraw.c` 33,
+`code1_001a.c` 18, `y_fclCombine.c` 17, `code1_001b.c` 15, `code1_001c.c` 15,
+`y_fclShopDraw.c` 13, `code1_0038.c` 13, `code1_0048.c` 13, `cmmRankUp.c` 11,
+`code1_0020.c` 11, `shdPersona.c` 11.
+
+Smallest windows first — these are where a MATCH is still plausible.  The
+following floors were current immediately after `de42a42d`; remeasure before
+acting:
 
 | Function | Measured floor | Residual character |
 | --- | ---: | --- |
