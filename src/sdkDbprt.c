@@ -115,13 +115,16 @@ void H_Dbprt_Flush()
 // FUN_0044F720
 INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044f720);
 
-/* measured: retail iterates the iGpffffb9dc nodes and renders each glyph into
-   the 4x0x40 quad buffer (sp+0x40) with the byte-color conversion (lbu + bltz
-   guard, then cvt.w.s or srl/or + doubling) and the same 12x12-cell / 0.0625
-   UV block as func_0044f720; mwcc b210 reorders the color-conversion branches
-   and glyph arithmetic across the two scale paths (f21 vs var_f20). nf-diff 342. */
-/* measured: the best retained exploratory C scored nd 342; its object size
-   was not recorded (retail window 1472B), and the discarded body is not kept. */
+/* measured: retail iterates the iGpffffb9dc nodes and renders each glyph into */
+/* measured: the 4x0x40 quad buffer (sp+0x40) with the byte-color conversion */
+/* measured: (lbu + bltz guard, then cvt.w.s or srl/or + doubling) and the same */
+/* measured: 12x12-cell / 0.0625 UV block as func_0044f720; mwcc b210 reorders */
+/* measured: only the color-conversion register colors and glyph FPR colors   */
+/* measured: across the two scale paths (f21 vs scaled f20). Frame 0x160 and   */
+/* measured: sp+0x40/0x140 bases match; fnalign 146 edits, 366 vs 367 instrs. */
+/* measured: best faithful floor v8 scores nd 314 (obj 1464B/window 1472B,    */
+/* measured: 12 relocs all resolved to retail targets); banked in             */
+/* measured: docs/probe_archive/sdkDbprt_0044fa90_body.c; production stays ASM. */
 // FUN_0044FA90
 INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044fa90);
 

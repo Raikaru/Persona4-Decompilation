@@ -144,7 +144,7 @@ extern void func_003f68a0(s32 arg0, s32 arg1);
 extern u8 D_007E8C00[];
 extern s64 func_001060b0(void);
 extern s32 func_001060c0(void);
-extern s64 func_00110960(s64 arg0, s32 arg1);
+extern s64 func_00110960(s32 arg0, u32 arg1);
 extern s32 func_00106330(s32 arg0);
 extern s32 func_0014bdb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_0015a160(void);
@@ -1147,6 +1147,13 @@ done:
 }
 /* measured: restore optimization level after func_0018c750. */
 #pragma optimization_level 2
+/* measured: a first reconstruction reaches 40 differing words over 25 edit
+   instructions with all 19 relocations resolved; the body is archived at
+   docs/probe_archive/C18_0018c7e0_body.c and production stays ASM.  The
+   declaration of func_00110960 above is part of that measurement - its
+   first argument is a 32-bit id and its second an unsigned flag word, not
+   the s64/s32 pair m2c printed, and the s64 form costs a dsll32/dsra32
+   pair at every call site in this unit. */
 // FUN_0018C7E0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018c7e0);
 // FUN_0018CED0
