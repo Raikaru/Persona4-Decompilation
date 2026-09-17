@@ -376,6 +376,38 @@ costs seventeen.
 
 ### 7i. Declaration levers found while reconstructing untried functions
 
+- **An index mask retail rematerialises needs both a `u16` parameter and
+  `opt_common_subs off`.** Symptom: retail emits `andi $a1, $sN, 0xffff`
+  immediately before each of several calls; this build computes it once
+  into an extra saved register and emits `move $a1, $sX` at each site.  The
+  real cost is the extra saved register: it adds an `sq`/`lq` pair and 0x10
+  of frame, so the frame is one slot too big and every stack displacement
+  shifts.  Narrowing the callees' index parameter to `u16` makes the mask a
+  parameter promotion, which is never treated as a common subexpression;
+  `opt_common_subs off` stops the remaining hoist.  Both are needed:
+  `opt_common_subs off` alone also duplicates a `lwc1 $fN, <gp>` you wanted
+  shared (152 words on `func_004938e0`), and the `u16` prototypes alone
+  leave the CSE (109).  Together, 98 words at an exact 171/171 instruction
+  count, and then one more shape below took it to MATCH.
+- **`x == -1 || x == 0` is folded to a range check; retail keeps two
+  compares.** b210 emits `addiu $v0, $v1, 1; sltiu $at, $v0, 2; beqz $at`
+  (three instructions) for any pair of adjacent constants; retail emits
+  `addiu $v0, $zero, -1; beq $v1, $v0, <body>; nop; bnez $v1, <skip>`
+  (four).  `opt_rebuildconditionals off` does not stop the fold.  The only
+  source form that reproduces retail is two separate tests with gotos into
+  a shared body:
+
+  ```c
+  if (x == -1) { goto shared; }
+  if (x != 0)  { goto other; }
+  shared:
+      /* body */
+      continue;
+  other:
+  ```
+
+  That was the last four words of `func_004938e0`.  Any `a == K ||
+  a == K + 1` in a condition is a candidate.
 - **`slti $at` versus `slti $v0`: spell the bound inclusively.** Retail's
   branch-if-true range tests land the compare in `$at`; this build puts it
   in `$v0`/`$v1` when the bound is written exclusively and in `$at` when it
