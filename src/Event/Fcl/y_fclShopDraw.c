@@ -670,7 +670,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d1590);
    then mov.s; (3) the sp58 f32-pair stores: mwcc always loads in reverse
    store order (lwc1 0x5C before 0x58, first-loaded binds $f1) - tried f32
    temps in all declaration/assignment orders. Scheduling floor. */
-/* measured: MWCC -O2 plain, object 2172B/window 2176B, normalized_diff 8 (fndiff 4 words). Switch ascending + Vec2f*b-per-group + raw DBC loops best (v0 inline-D 1426->1134-30, switch 10, raw 8, 826.0f honest). Levers: i<3 (i<=2 +12 worse), b->x+740 flipped 0, decl swap 0. Remaining 0690 call-arg setup floor (f12/mov.s order). Combine Vec2f*b+raw+switch transferable; if-chain/inline-D/array/i<=2 do NOT transfer. No volatile/asm. Staged /tmp/push_3ee0_full.c via NearGA.Fcl3ee0. */
+/* measured: MWCC -O2 plain, object 2172B/window 2176B, normalized_diff 8 (fndiff 4 words at 1496-1508: retail mov.s f13,f12 first then GP zeros vs object GP first). Re-push: A/B/C (0U/named-one/casts) all 4, cse-off 387, prop-off 413, loopinv-on 4, rebuild-off 4, schedule-on 451. No shortfall (543/543 fnalign, 1-word window pad only), so dead-arm N/A; no casts to delete; loopinv neutral. Scheduling wall holds (float-copy vs GP-imm order), banked rather than grinding. Switch+Vec2f*b+raw best stands. No volatile/asm. */
 // FUN_002D3EE0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002d3ee0(void *arg0) {

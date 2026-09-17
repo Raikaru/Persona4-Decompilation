@@ -1322,8 +1322,219 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030b060);
    (FclByte4 struct copies compile 10B larger); (4) retail materializes a
    te+1 pointer for the [1] reads. Saved-register rotation + scheduling
    floor. */
-// FUN_0030B7B0
+// FUN_0030B7B0 NONMATCHING
+/* measured: v2 candidate — obj 769I == retail 769I (stripped), probe 475 words, fnalign 119 edits (+40 reloc-only). Earliest divergence now branch-offset only for first 200I; first real divergence at 219 (s16 extend for j) + colour-copy load-all vs interleave + te+1 pointer. Saved-reg rotation fixed vs v1 (arg0=$s1,p=$s0 match). Floor candidate for guarded install; prior best nd 295 retained as reference. */
+#ifdef NON_MATCHING
+void func_0030b7b0(u8 *arg0) {
+    u8 *p;
+    u8 kind;
+    s16 i;
+    s16 j;
+    s64 v0;
+    s64 v1;
+    s64 v2;
+    s64 v3;
+    s64 v4;
+    s64 v5;
+    FclByte4 c0;
+    FclByte4 c1;
+    FclByte4 c2;
+    FclByte4 c3;
+    FclByte4 c4;
+    FclByte4 c5;
+    FclByte4 c6;
+    u8 *te;
+    u8 *te2;
+    u8 *p501;
+    u8 *p500;
+    s8 sidx;
+    s8 t;
+    u16 f276;
+    u16 f27a;
+    u16 f24e;
+
+    p = *(u8 **)(arg0 + 0x38);
+    kind = *(p + 1);
+    switch (kind) {
+    case 0xC2:
+        func_003205f0(arg0, 0x97, 0x96);
+        *(s16 *)(p + 0x11E) = 0;
+        *(p + 0x139) = 0;
+        func_002b2970(&v0, 26.0f, 87.0f);
+        func_003147e0(arg0, 0, v0, 0x168, 2, 0);
+        D_00882FB0[*(s8 *)(p + 0x139) * 2] = 0;
+        D_00882FB1[*(s8 *)(p + 0x139) * 2] = 0;
+        *(s8 *)(p + 0x139) += 1;
+        func_002b2970(&v1, 26.0f, (f32)(*(s8 *)(p + 0x139) * 0x22 + 0x57));
+        func_003147e0(arg0, 1, v1, 0x174, 4, 0);
+        D_00882FB0[*(s8 *)(p + 0x139) * 2] = 1;
+        D_00882FB1[*(s8 *)(p + 0x139) * 2] = 0xC;
+        *(s8 *)(p + 0x139) += 1;
+        func_002b2970(&v2, 26.0f, (f32)(*(s8 *)(p + 0x139) * 0x22 + 0x57));
+        func_003147e0(arg0, 2, v2, 0x170, 6, 0);
+        D_00882FB0[*(s8 *)(p + 0x139) * 2] = 2;
+        D_00882FB1[*(s8 *)(p + 0x139) * 2] = 8;
+        *(s8 *)(p + 0x139) += 1;
+        func_002b2970(&v3, 26.0f, (f32)(*(s8 *)(p + 0x139) * 0x22 + 0x57));
+        func_003147e0(arg0, 3, v3, 0x171, 8, 0);
+        D_00882FB0[*(s8 *)(p + 0x139) * 2] = 3;
+        D_00882FB1[*(s8 *)(p + 0x139) * 2] = 9;
+        *(s8 *)(p + 0x139) += 1;
+        if (func_00106330(0x1305) != 0) {
+            func_002b2970(&v4, 26.0f, (f32)(*(s8 *)(p + 0x139) * 0x22 + 0x57));
+            func_003147e0(arg0, 0xB, v4, 0x173, 0xA, 0);
+            D_00882FB0[*(s8 *)(p + 0x139) * 2] = 0xB;
+            D_00882FB1[*(s8 *)(p + 0x139) * 2] = 0xB;
+            *(s8 *)(p + 0x139) += 1;
+        }
+        for (j = 0; j < *(s8 *)(p + 0x139); j++) {
+            te = &D_00882FB0[j * 2];
+            func_002b2a60(&c0, 0, 0, 0x66, 0xFF);
+            p501 = func_002b6150((s16)(*(s8 *)te * 2 + 501));
+            *(p501 + 0x85) = c0.b0;
+            *(p501 + 0x86) = c0.b1;
+            *(p501 + 0x87) = c0.b2;
+            *(p501 + 0x88) = c0.b3;
+            p500 = func_002b6150((s16)(*(s8 *)te * 2 + 500));
+            *(p500 + 0x85) = *(p501 + 0x85);
+            *(p500 + 0x86) = *(p501 + 0x86);
+            *(p500 + 0x87) = *(p501 + 0x87);
+            *(p500 + 0x88) = *(p501 + 0x88);
+            func_002b2a60(&c1, 0xCC, 0xFF, 0xFF, 0xFF);
+            te2 = func_002b6150((s16)(te[1] + 0x168));
+            *(te2 + 0x85) = c1.b0;
+            *(te2 + 0x86) = c1.b1;
+            *(te2 + 0x87) = c1.b2;
+            *(te2 + 0x88) = c1.b3;
+            if (*te == 0xB && func_00106330(0x1308) == 0) {
+                func_002b2a60(&c2, 0xFF, 0xCC, 0xFF, 0xFF);
+                te2 = func_002b6150((s16)(te[1] + 0x168));
+                *(te2 + 0x85) = c2.b0;
+                *(te2 + 0x86) = c2.b1;
+                *(te2 + 0x87) = c2.b2;
+                *(te2 + 0x88) = c2.b3;
+            }
+        }
+        func_002b2a60(&c3, 0xC6, 0xEE, 1, 0xFF);
+        te = func_002b6150(500);
+        *(te + 0x85) = c3.b0;
+        *(te + 0x86) = c3.b1;
+        *(te + 0x87) = c3.b2;
+        *(te + 0x88) = c3.b3;
+        func_002b2a60(&c4, 0xC6, 0xEE, 1, 0xFF);
+        te = func_002b6150(501);
+        *(te + 0x85) = c4.b0;
+        *(te + 0x86) = c4.b1;
+        *(te + 0x87) = c4.b2;
+        *(te + 0x88) = c4.b3;
+        func_002b2a60(&c5, 0x2D, 0x2D, 0x2D, 0xFF);
+        te = func_002b6150(0x168);
+        *(te + 0x85) = c5.b0;
+        *(te + 0x86) = c5.b1;
+        *(te + 0x87) = c5.b2;
+        *(te + 0x88) = c5.b3;
+        func_002b2a60(&c6, 0x92, 0xC8, 7, 0xFF);
+        te = func_002b6150((s16)(D_00882FB0[*(s16 *)(p + 0x11E) * 2] + 0x2FB));
+        *(te + 0x85) = c6.b0;
+        *(te + 0x86) = c6.b1;
+        *(te + 0x87) = c6.b2;
+        *(te + 0x88) = c6.b3;
+        if (*(s8 *)(p + 0x138) > 0) {
+            func_0032f060(arg0, 0);
+        }
+        *(p + 1) = 0xC3;
+        break;
+    case 0xC3:
+        if ((s16)func_002b6970(*(s16 *)(func_002b6150((s16)(*(s8 *)(D_00882FAE + *(s8 *)(p + 0x139) * 2) * 2 + 500)) + 0x10), 1) != 1) {
+            f276 = D_008C0276[0];
+            f27a = D_008C027A[0];
+            if ((f276 & 0x1000) && (*(p + 0x13A) == 0)) {
+                func_003307b0(arg0, 5, D_00882FB0);
+                return;
+            }
+            if (f27a & 0x1000) {
+                func_003307b0(arg0, 1, D_00882FB0);
+                return;
+            }
+            if ((f276 & 0x4000) && (*(p + 0x13A) == 0)) {
+                func_003307b0(arg0, 4, D_00882FB0);
+                return;
+            }
+            if (f27a & 0x4000) {
+                func_003307b0(arg0, 0, D_00882FB0);
+                return;
+            }
+            f24e = D_008C024E[0];
+            if (f24e & 0x40) {
+                func_0045af60(0, 0, 0, 1);
+                t = D_00882FB0[*(s16 *)(p + 0x11E) * 2];
+                switch (t) {
+                case 0:
+                    *(p + 0xD) = func_002bab80((void *)func_00331660());
+                    if ((func_002e78a0() & 0xFF) == 3 && (func_002e78e0() & 0xFF) >= 0x14 && (func_002e78e0() & 0xFF) < 0x20) {
+                        func_002badc0(*(p + 0xD), 0x6F);
+                    } else if ((s16)func_00104f10(1) < 3 || func_00106330(0x96F) != 0) {
+                        func_002badc0(*(p + 0xD), (func_00107ac0(0x14) & 0xFFFF) + 0x64);
+                    } else {
+                        func_002badc0(*(p + 0xD), 0x70);
+                    }
+                    break;
+                case 1:
+                    sidx = (s8)(10.0f * func_00109190());
+                    te = D_006417E0 + ((func_002e78a0() & 0xFF) - 1) * 0xB;
+                    *(p + 0xD) = func_002bab80((void *)func_00331660());
+                    func_002badc0(*(s8 *)(p + 0xD), *(te + sidx) + 2);
+                    break;
+                case 2:
+                    *(p + 0xD) = func_002bab80((void *)func_00331660());
+                    func_002badc0(*(s8 *)(p + 0xD), 0x61);
+                    break;
+                case 3:
+                    *(p + 0xD) = func_002bab80((void *)func_00331660());
+                    func_002badc0(*(s8 *)(p + 0xD), 0x62);
+                    break;
+                case 11:
+                    func_00106390(0x1308, 1);
+                    *(p + 0xD) = func_002bab80((void *)func_00331660());
+                    func_002badc0(*(s8 *)(p + 0xD), 0x63);
+                    if (*(s8 *)(p + 0x138) == 0) {
+                        func_0032f060(arg0, 1);
+                    }
+                    break;
+                }
+                *(p + 1) = 0xC4;
+            } else if (f24e & 0x20) {
+                func_0045af60(0, 0, 0, 2);
+                for (i = 0; i < *(s8 *)(p + 0x139); i++) {
+                    te = &D_00882FB0[i * 2];
+                    func_002b2970(&v5, 26.0f, (f32)(i * 0x22 + 0x57));
+                    func_003147e0(arg0, *te, v5, (s16)(te[1] + 0x168), (s16)(i * 2 + 2), 1);
+                }
+                if (*(s8 *)(p + 0x138) > 0) {
+                    func_0032f060(arg0, 1);
+                }
+                func_0032f4d0(arg0);
+                func_003205f0(arg0, 0x96, 0x97);
+                *p = 0;
+                *(p + 1) = 0x1B;
+            }
+            *(p + 0x13A) = 0;
+            return;
+        }
+        break;
+    case 0xC4:
+        if (func_002bb680(*(p + 0xD)) != 0) {
+            func_002bbcf0(*(p + 0xD));
+        } else {
+            func_002bb550(*(p + 0xD));
+            *(p + 1) = 0xC3;
+        }
+        break;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030b7b0);
+#endif
 
 // FUN_0030C3C0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030c3c0);

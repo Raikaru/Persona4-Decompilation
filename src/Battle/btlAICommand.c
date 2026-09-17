@@ -712,7 +712,7 @@ s32 func_001dbba0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, code arg5)
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbba0);
 #endif
 /* measured: object 1096B/window 1120B/normalized_diff 769 (247 differing words, live re-measured current tree). */
-/* measured: slti-at s4-5 dest fixed via >=5 to >4 flip in probe (fnalign slti line gone, 143 to 142) with net words unchanged at 247 due to branch shape so kept current body; 4-short plus inserts at 181-261-278 checked for dead-arm trailing store, arg-cast audit and loop-invariant to follow top-down. */
+/* measured: slti-at s4-5 dest fixed via >=5 to >4 flip (fnalign slti line gone, 143 to 142) with net words unchanged at 247 due to branch shape — banked >4 this wave; 4-short (278 vs 274) plus inserts at 181-261-278 in FP/sort/weight region, not trailing dead-arm (g-chain empty then-arm preserves non-constant v8 so no dead store; trailing c18==m both store); branch-polarity flip to (v8==0 && v7<5) worsens 247 to 250; Main 004938e0 levers N-A (frame exact -0xF0, no andi-CSE; g-chain adjacents keep explicit compares, no fold); arg-cast/loop-invariant to follow top-down. */
 // FUN_001DBF20 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001dbf20(u8 *arg0, u32 arg1) {
@@ -770,7 +770,7 @@ s32 func_001dbf20(u8 *arg0, u32 arg1) {
         } else {
             v8 = 1;
         }
-        if (v8 != 0 || v7 >= 5) {
+        if (v8 != 0 || v7 > 4) {
             *(u32 *)(arg0 + 0x38) = *(u32 *)(arg0 + 4 * func_00231d70(v7) + 0x98);
             *(u16 *)(arg0 + 0x6A) = 1;
         } else {
@@ -1461,7 +1461,7 @@ next:
 }
 #pragma pop
 /* measured: object 1748B/window 1760B/normalized_diff 39 (39 differing words, live re-measured current tree). */
-/* measured: earliest fnalign is saved-reg coloring s0-s1 (437 vs 437 instrs); slti already at on both sides for 0x1B8 (input s1-vs-s0 coloring only) so inclusive flip N-A; decl swaps neutral (39), init swap worsens to 40; no short tail, arg N-A, loop neutral; wall is colour rotation. */
+/* measured: earliest fnalign is saved-reg coloring s0-s1 (437 vs 437 instrs); paired slti dest already $at both sides for 0x1B8 (input s1-vs-s0 coloring only) so inclusive flip N-A — re-verified this wave via fnalign slti dest (retail slti $at vs object slti $at; 0x240 pair retail slti $v0 vs object slti $v0, same dest): cmd<0x1B8 to cmd<=0x1B7 / 0x1B8>cmd / !(cmd>=0x1B8) all stay 39/39w 437/437; decl swap neutral (39), s32 result 317w / s32 count 330w, init swap 40 per sibling; no short tail, arg N-A, loop neutral; Main 004938e0 levers N-A (frame exact, no andi-CSE; no adjacent-OR fold); wall is colour rotation. */
 // FUN_001DD920 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)

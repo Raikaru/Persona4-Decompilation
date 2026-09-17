@@ -2677,7 +2677,7 @@ void func_0029f790(u8 *arg0)
                       alpha, 1);
     }
 }
-/* measured: func_0029fbb0 obj 1828B window 1856B (retail 461 instrs object 457 instrs) fnalign 193 edits (+2 reloc-only) fndiff 401 differing words; frame 0x190 vs retail 0x1A0 (copy[36] honest, copy[40] fixes frame to 0x1A0 at 400 diff but pads copy dishonestly); residual systematic saved-reg rotation + sq/lq spill vs sw + copy-loop a0-a2 vs a1-a3 shift from base spill to 0xF0; compiler floor, keep ASM. */
+/* measured: func_0029fbb0 obj 1856B window 1856B (retail 464 instrs object 464 instrs) fnalign 131 edits (+10 reloc-only) fndiff 404 differing words; frame 0x1A0 vs retail 0x1A0 (copy[36] honest, frame honest via arg0 spill for redundant base reload, not via copy[40] padding); slti check: no slti/$at wall, final ==0/==1/==3 chain intact (adjacent 0/1 not folded); residual systematic saved-reg rotation + sq/lq spill vs sw + copy-loop a0-a2 vs a1-a3 shift; compiler floor, keep ASM. */
 // FUN_0029FBB0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0029fbb0(u8 *arg0, s32 arg1) {
@@ -2810,7 +2810,7 @@ do_copy:
             func_0025e9e0(0xCCFFFF, var23, temp22, iGpffffb540, 1, (f32)spA0, (f32)spC0, 0.0f);
         }
         {
-            u8 *b2 = base + off4;
+            u8 *b2 = *(u8 **)(arg0 + 0x38) + off4;
             if (*(s32 *)(b2 + 0x1C50) != 0) {
                 *(s32 *)(b2 + 0x1C50) = 0;
                 ix = t17;
