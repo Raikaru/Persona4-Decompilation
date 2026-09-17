@@ -2546,6 +2546,11 @@ void func_003482d0(u8 *arg0, CmbVec2f arg1, CmbVec2f arg2, u16 arg3) {
    truncated note; confirmed func_004553c0 takes ONE arg (the m2c draft's 2nd arg
    is wrong), and the gated conversion needs the explicit `2.1474836e9f > f0`
    guard to keep the c.ole.s/bc1t + per-arm andi. 16 remains the measured best. */
+/* measured 2026-09-17 full pragma_sweep --pairs: banked 15 via measure_guarded; */
+/* best stays 15 (ties: loopinv on, strength off, unroll off and pairs; 26-group */
+/* prop/dead pairs; 234-235 csoff group, 277-281 schedule group, 310-331 peephole */
+/* group). No pair wins; floor stands. */
+/* `python3 -E -s tools/pragma_sweep.py src/promoted/y_CmbCardEff.c func_00348330 --pairs`. */
 // FUN_00348330 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00348330(u8 *arg0) {

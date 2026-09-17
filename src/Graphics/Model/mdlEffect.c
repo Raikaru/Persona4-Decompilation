@@ -879,6 +879,11 @@ void func_0048a340(f32 param_1)
         : "$vf28", "$vf29", "$vf30", "memory");
 }
 /* measured floor: honest void 15wd fresh this session (obj176B/window176B, fnalign FPR $f0/$f1/$f2 + $v0/$v1 rotation per owner note). Rejected 11wd returning-local-array (dangling stack, callers use $vf10 not $v0). Inert: decl orders, mul swap, nested forms, quot/div-reuse, raw spellings, opt CSE/prop/dead/loop/schedule, O1/O3, b119 regress 45wd. No volatile-ordinary/asm-steering; COP2 sqc2/lqc2 is genuine hardware contract. Banked. */
+/* measured 2026-09-17 full pragma_sweep --pairs: banked 15 via measure_guarded; */
+/* best stays 15 (ties: dead off, loopinv on, prop off, strength off, unroll off */
+/* and their pairs; 22 csoff group, 23 peephole group, 34-35 schedule group). */
+/* No pair wins; floor stands. */
+/* `python3 -E -s tools/pragma_sweep.py src/Graphics/Model/mdlEffect.c func_0048a460 --pairs`. */
 // FUN_0048A460 NONMATCHING
 #ifdef NON_MATCHING
 void func_0048a460(void)

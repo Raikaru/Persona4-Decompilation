@@ -614,6 +614,19 @@ s32 func_004b2780(u8 *arg0) {
 /* v0-vs-v1 wall at six sites plus (u8)-conversion f-reg f1-vs-f0 wall at five */
 /* rows; single-expr/split/two-temp and separate div-result variants inert. */
 /* Fnalign edit 17 plus six reloc-only pairs; production remains ASM. */
+/* measured 2026-09-17 full pragma_sweep --pairs: banked 17 via measure_guarded */
+/* (already carries opt_propagation off + opt_common_subs off); best stays 17 */
+/* with that pair (105 prop+peephole next, 175 loopinv/strength/unroll ties, 195 */
+/* csoff singles, 222 dead group, 231-240 schedule/prop groups, 251-258 peephole */
+/* high). No pair wins; installed pair is load-bearing. */
+/* `python3 -E -s tools/pragma_sweep.py src/promoted/code1_004b.c func_004b2a00 --pairs`. */
+/* measured 2026-09-17 earliest-hunk only (fnalign 254/254, 17 edits +6 reloc-only; */
+/* earliest replace retail[16:18] or $v1 vs or $v0 + mtc1): u32 temp_2 for the */
+/* *(u16*)(arg0+4) load fixes earliest hunk, 17->15 words (fnalign 15 edits +6 */
+/* reloc-only, still 254/254) via `tools/fnalign.py ... --candidate */
+/* /var/tmp/pairteen/earliest_b.c`; inclusive flip >-1 243 and u32 t2a 241 both */
+/* worse (probe_variants a 243, c 241, b 15). Remaining 15 are the second or-site */
+/* onward plus f-reg wall; stop per earliest-hunk-only. */
 // FUN_004B2A00 NONMATCHING
 #ifdef SKIP_ASM
 #pragma opt_propagation off
@@ -634,7 +647,7 @@ void func_004b2a00(u8 *arg0) {
     s32 ck;
     s32 three;
     s32 four;
-    s32 temp_2;
+    u32 temp_2;
     s32 temp_2_2;
     s32 var_3;
     s32 temp_17;

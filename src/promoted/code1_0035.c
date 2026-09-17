@@ -599,6 +599,11 @@ u8 *func_00354a50(s32 arg0, u16 arg1) {
     return temp_2;
 }
 /* measured: live body obj 1224B/window 1232B (-8B, -0.65%); verify nd 58; probe_variants 16 differing words; fnalign 306/306 instrs, 6 edits (+7 reloc-only). Reconstructed from retail asm + P4_UNIT_00354BA0 draft (160 lines, noise 5: two adda/madd lerps); frame locals as 4x Q40 quads at sp+0x40/0x80/0xC0/0x100 (x,y,z,q,a floats; u,v,r,g,b s32); each jal checked (00457120 no-arg+0x80, 0044b7b0 f12, 00364680 s32,s32*,s32,s32+7 floats sx/sy in f17/f18, 003f6440 s32,s32, D_00887300 u32-cast hoist into $s0, D_00887310 s32,ptr,s32 daddu). File-scope decls differ here so body carries function-local externs. Tried || vs two-ifs (|| matches bnez+b), u32-cast hoist vs opt_propagation off (u32 avoids extra f22). Residuals are call-arg-setup-order + scheduling floors. */
+/* measured 2026-09-17 full pragma_sweep --pairs: banked 16 via measure_guarded; */
+/* best stays 16 (ties: loopinv on, strength off, unroll off and pairs; 81 prop */
+/* group, 238 dead group, 272-279 schedule group, 276 peephole ties, 283 csoff */
+/* group, 292-308 peephole/csoff high). No pair wins; floor stands. */
+/* `python3 -E -s tools/pragma_sweep.py src/promoted/code1_0035.c func_00354ba0 --pairs`. */
 // FUN_00354BA0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00354ba0(u8 *arg0) {

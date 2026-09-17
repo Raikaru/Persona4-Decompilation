@@ -934,6 +934,7 @@ void func_002240e0(u8 *camera)
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_002240e0);
 #endif
 /* measured: MWCC -O2 plain, object 1312B/window 1312B, normalized_diff 38 (m2c baseline 1308B/756). Levers: (1) var_19>=1 756->62; (3) Vec3 0x215 tail 62->46, var_4/var_5_2 decl swap 46->38; (2) explicit chain regress, dead store 0; (4) opt_loop_invariants 0; (5) s64+full pragmas catastrophic, plain s64 regress; (6) unsigned/<1U/u16/split fold. Remaining 32 words s0/s1 swap + slti-vs-sltu/xori-vs-andi + daddiu. No volatile/asm. Preserves defective 22466C->224888 vs safe 22482C->return. Pushed from NearGA.Push24450 /tmp/push_24450_full.c. */
+/* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/promoted/code1_0022.c func_00224450 --pairs` banked 32 (note above still says 38: drifted, re-measured); best ties 32 (opt_loop_invariants on, opt_strength_reduction off, opt_unroll_loops off and three pairwise combos); all 28 pairs neutral or worse (dead 174, commons+prop 246, schedule 276-296, commons 293-295, peephole 292-308, propagation 296-308). fnalign retail/object 328/328 per assignment. Floor stands; production stays ASM. */
 // FUN_00224450 NONMATCHING
 #ifdef NON_MATCHING
 void func_00224450(u8 *arg0)

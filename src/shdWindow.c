@@ -120,6 +120,13 @@ s32 func_0025db00(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
 // elsewhere).  The single-use temps are folded into their stores by
 // propagation and rescheduled; nothing short of disabling propagation for
 // the whole function reproduces retail's four live FPRs.
+// measured 2026-09-17 full pragma_sweep --pairs (8 singles + 28 pairs):
+// banked 14 via `python3 -E -s tools/measure_guarded.py src/shdWindow.c func_0025dd30`;
+// best stays 14 (ties: opt_loop_invariants on, opt_strength_reduction off,
+// opt_unroll_loops off and their three pairs; 26-group: prop off and five
+// prop/dead/loopinv/strength pairs; 157 csoff+propoff, 165 csoff group,
+// 220-224 peephole group, 244-247 schedule group). No pair wins; floor stands.
+// `python3 -E -s tools/pragma_sweep.py src/shdWindow.c func_0025dd30 --pairs`.
 extern s8 func_00275a40(char param_1);
 extern void func_0025d850(f32 farg0, f32 farg1, f32 farg2, s32 arg0);
 // FUN_0025DD30 NONMATCHING
