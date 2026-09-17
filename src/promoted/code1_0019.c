@@ -2120,12 +2120,13 @@ u32 func_001988b0(u8 *unit)
     return 0;
 }
 
-/* Battle-motion floor (1200B window). First probe nd 252
-   (obj 1128B, in-window); frame -0x80 vs -0x90 retail (one
-   saved reg short), DSP prologue shape verified. Open: frame
-   size, branch cascade, scheduler ordering. Quad-built
+/* Battle-motion floor (1200B window; plain obj 1128B fndiff 249 verify 748,
+   cse_off obj 1204B fndiff 222 verify 707 fnalign 176 edits retail 300/obj 301;
+   frame -0x80 vs -0x90 retail (one saved reg short), DSP prologue shape verified.
+   Open: frame size, branch cascade, scheduler ordering. Quad-built
    (m2c+IDA+Ghidra+retail: void/5-arg sig, int-form 1.0f store,
-   neighbor-merged tails rejected, a2 zeroing modeled). */
+   neighbor-merged tails rejected, a2 zeroing modeled). Extra pragmas 2026-09-17:
+   loopinv 222 neutral, schedule 273 worse, nobl 222 neutral. */
 /* measured 00198920: `opt_common_subs off` inside the guard is worth 27 words (249 -> 222); retail rematerialises what b210 hoists. */
 // FUN_00198920 NONMATCHING
 #ifdef NON_MATCHING

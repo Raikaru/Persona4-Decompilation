@@ -432,17 +432,18 @@ void func_00313b50(u8 *arg0)
     *(u8 *)(work + 0x2D6) = 0;
 }
 #pragma pop
-/* Floor: 130 differing words over 85 fnalign edits, 152 emitted against */
-/* retail's 162 (94%).  Levers that moved it: truthful (u8-ptr,u8,u8,s8) sig */
+/* Floor: 129 differing words (probe_variants) over 60 fnalign edits (+4 reloc-only), 163 emitted against */
+/* retail's 163 (100%). Levers that moved it: truthful (u8-ptr,u8,u8,s8) sig */
 /* plus s64-return callee decl (140->138); structured while loops for the */
 /* jump-to-test lowering (138->135); opt_loop_invariants on for the hoisted */
-/* base-plus-offset address invariant (135->131).  Ruled out with measurement: */
+/* base-plus-offset address invariant (135->131); s8->s16 for temp_4_4/temp_11_3 */
+/* (edits 64->60, words 129 neutral). Ruled out with measurement: */
 /* var_17/var_18 decl swap (131->130); param-sourced x5 multiply (neutral at */
-/* 130, CSE-defeated); opt_propagation off (130->138, worse).  WALL: */
-/* saved-register colour rotation plus temp-reg selection and the resulting */
-/* branch-displacement cascade; loop bounds already slti-$v1 both sides (no */
-/* slti-$at lever); no adjacent-const OR fold; single call site (no index */
-/* mask CSE shape); no MAC block. */
+/* 130, CSE-defeated); opt_propagation off (130->138, worse); var_18 reuse for */
+/* the -1 compare (neutral at 129). WALL: saved-register colour rotation plus */
+/* temp-reg selection and the resulting branch-displacement cascade; loop */
+/* bounds already slti-$v1 both sides (no slti-$at lever); no adjacent-const */
+/* OR fold; single call site (no index mask CSE shape); no MAC block. */
 /* measured 00313d20: `opt_common_subs off` inside the guard is worth 1 words (130 -> 129); retail rematerialises what b210 hoists. */
 // FUN_00313D20 NONMATCHING
 #ifdef NON_MATCHING
@@ -464,9 +465,9 @@ void func_00313d20(u8 *arg0, u8 arg1, u8 arg2, s8 arg3)
     s32 var_4;
     s32 var_6;
     s32 var_8;
-    s8 temp_11_3;
+    s16 temp_11_3;
     s8 temp_4;
-    s8 temp_4_4;
+    s16 temp_4_4;
     u8 *temp_11_2;
     u8 *temp_4_3;
     u8 *temp_5;

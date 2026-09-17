@@ -139,26 +139,72 @@ extern void (*D_00887300[])(s32, s32);
 
 
 
-/* measured: re-tested recipe A (no u16->float conversion exists in this function —
-   N/A) and recipe B (no global base hoist; retail itself rematerializes the 0x19FD8
-   lui/addu twice). The recorded "loop-test load CSE" floor did NOT reproduce:
-   with the reload written as its own expression (q = (u16 *)(obj + i*2 + 2) inside
-   the if, reload `lhu $a1, ($q)`) mwcc emits retail's exact shape — test lhu at
-   disp 2, addiu q after the beqz, disp-0 reload, ori 0xE398 before the second jal
-   (nd 62 -> 39, obj 488B vs 512B window). Actual residual: (1) a 3-register saved
-   rotation obj=$s0/i=$s1/q=$s2 vs retail q=$s0/obj=$s1/i=$s2 (p=$s3 matches); tried
-   4 declaration orders incl. q-first — the allocator ignores decl order here;
-   (2) the q and p address computations in the loop body are swapped (mine p then
-   q, retail q then p) — a scheduler-order defect across the two call args.
-   Re-measured this wave: the gp-relative func_00440b68 arg0 is `&iGpffffa938`
-   (gp-0x56C8, symbol already in the file); the function returns s32 (retail ends
-   daddu $2,$0), so it is declared `s32 func_0033e5c0(u8*)` and the f690 callback
-   sites cast it `(void (*)(u8 *))`; the loop's `*(s8 *)(obj+0x19FD8) += 1` must be
-   s8 (signed lb) not u8 (lbu). `#pragma opt_propagation off` around the body
-   REGRESSED to nd 49 (the q-then-p interleave is not a base-load-sink, it is a
-   two-call-arg scheduler order). nd 39 confirmed floor. */
-// FUN_0033E5C0
+/* Floor: 36 differing words (reloc-masked), obj 500B/window 512B, 125/125 instrs,
+   33 fnalign edits plus 5 reloc-only. Body is
+   docs/probe_archive/HOFTRY55_0033e5c0_body.c verbatim (direct-pointer form).
+   The entire residual is register color plus one scheduler swap: retail holds the
+   state pointer in $s1, this build in $s0; full map retail q=$s0/obj=$s1/i=$s2/p=$s3
+   vs build obj=$s0/i=$s1/q=$s2/p=$s3, and the loop body's q and p address
+   computations are swapped (build p-then-q with the disp-0 reload after the ori,
+   retail q-then-p with the ori first and the reload last). Exhausted: six
+   declaration permutations (all 36); two named-slot-pointer variants (both 58,
+   reproduced this pass); value-side q-last q-before-p, q-last q-after-p,
+   block-scope q, and s8-obj spellings (all 36); opt_propagation off REGRESSED to
+   49. Semantic gate: s32 return (retail daddu $2,$0), s8 increments (signed lb),
+   gp-relative `&iGpffffa938` first call arg; every call uses the file-scope
+   prototypes, no block-scope prototype changes. Production stays ASM. */
+// FUN_0033E5C0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0033e5c0(u8 *arg0) {
+    u8 *p;
+    s16 i;
+    u8 *obj;
+    s8 type;
+
+    obj = *(u8 **)(arg0 + 0x38);
+    type = *(s8 *)obj;
+    if (type != 4) {
+        switch (type) {
+        case 0:
+            func_0036d860(obj + 0x20, 0);
+            func_00440b68(&iGpffffa938, D_0064A4A0, 0x63);
+            *(u8 **)(obj + 0x1C) = (u8 *)func_00454a60(D_0064E590, 0);
+            *(s8 *)obj += 1;
+            break;
+        case 1:
+            if (func_004553c0(*(u8 **)(obj + 0x1C)) != 0) {
+                func_0036d230(*(u32 *)(*(u8 **)(obj + 0x1C) + 0x110));
+                func_00454bd0(*(u8 **)(obj + 0x1C));
+                *(s8 *)obj += 1;
+            }
+            break;
+        case 2:
+            for (i = 0; i < 0xC; i++) {
+                if (*(u16 *)(obj + (s32)i * 2 + 2) == 0)
+                    goto next_card;
+                p = obj + (s32)i * 0xFB0;
+                func_0036da40(p + 0x2758,
+                              *(u16 *)(obj + (s32)i * 2 + 2));
+                func_0036da40(p + 0xE398,
+                              *(u16 *)(obj + (s32)i * 2 + 2));
+                *(s8 *)(obj + 0x19FD8) += 1;
+            next_card:
+                ;
+            }
+            *(s8 *)obj += 1;
+            break;
+        case 3:
+            if (func_0036d960() != 0) {
+                *(s8 *)obj += 1;
+            }
+            break;
+        }
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_0033e5c0);
+#endif
 // FUN_0033E7C0
 void func_0033e7c0(u8 *arg0) {
     func_0036d940((u8 *)(*(u8 **)(arg0 + 0x38)) + 0x20);
