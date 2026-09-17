@@ -21,7 +21,7 @@ static inline u32 addOffsetAfterBase(u32 base, u32 offset) {
 extern s32 D_00625210[];
 extern void (*D_00887300[])();
 extern void (*D_00887304[])(s32 arg0, void *arg1);
-extern void func_001fb480(void *arg0, s32 arg1, s32 arg2, u8 *arg3, f32 fparg0);
+extern void func_001fb480(f32 scale, u8 *arg0, s32 arg1, s32 arg2, u8 *arg3);
 extern u16 D_0076455C;
 extern u16 D_0076455A;
 extern f32 D_007613E0;
@@ -4725,8 +4725,130 @@ loop_after_call:
     }
     return 0;
 }
+/* Matched: the textured colour-quad Im2D upload (four 0x40-byte vertices).
+   Conventions follow the matched code1_004b func_004b2780 (640/448 display
+   scales, D_008872FC_abs depth, raw-offset stores) and the (f32)(u32)
+   byte-colour idiom.  Levers: `x = a + (-b) * c` contracts to
+   adda.s/madd.s; staging each negation as its own local emits lui + neg.s
+   instead of a folded negative constant; staging each display-field
+   conversion in a float local puts the lwc1 before the divide; the
+   float-first signature is ABI-identical to the draft's order and fixes
+   the mov.s materialisation order.  The opt_propagation-off bracket is
+   load-bearing: without it the D_00887300 base rematerialises per call
+   and the frame shrinks from 0x1A0 to 0x190. */
+#pragma push
+#pragma opt_propagation off
 // FUN_001FB480
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001fb480);
+void func_001fb480(f32 scale, u8 *arg0, s32 arg1, s32 arg2, u8 *arg3)
+{
+    struct {
+        u8 packet[0xF0];
+        u8 pad[0x10];
+    } work;
+    f32 sx;
+    f32 sy;
+    f32 x0;
+    f32 y0;
+    f32 x1;
+    f32 y1;
+    f32 z;
+    f32 inv;
+    f32 cx;
+    f32 cy;
+    f32 w320;
+    f32 w224;
+    f32 n320;
+    f32 n224;
+    f32 f;
+    f32 g;
+    void (**base)(u32, u32);
+    u8 *cam;
+    u8 *disp;
+    extern u8 *func_00401b80(void);
+    extern void (*D_00887310[])(u32 arg0, void *arg1, u32 arg2);
+    extern f32 fGpffff82e8;
+    extern f32 fGpffff82ec;
+
+    cam = (u8 *)func_00457120();
+    disp = func_00401b80();
+    f = (f32)*(s32 *)(disp + 0xC);
+    sx = 640.0f / f;
+    g = (f32)*(s32 *)(disp + 0x10);
+    sy = 448.0f / g;
+    x1 = 640.0f;
+    y1 = 448.0f;
+    if (scale == 0.0f) {
+        x0 = 0.0f;
+        y0 = 0.0f;
+    } else {
+        w320 = 320.0f;
+        n320 = -w320;
+        cx = fGpffff82e8;
+        x0 = cx + n320 * scale;
+        w224 = 224.0f;
+        n224 = -w224;
+        cy = fGpffff82ec;
+        y0 = cy + n224 * scale;
+        x1 = cx + w320 * scale;
+        y1 = cy + w224 * scale;
+    }
+    base = (void (**)(u32, u32))D_00887300;
+    base[0](7, 2);
+    base[0](0x14, 1);
+    base[0](0xE, 0);
+    base[0](6, 0);
+    base[0](8, 0);
+    base[0](9, (u32)arg3);
+    base[0](0xC, 1);
+    base[0](1, (u32)disp);
+    func_003f6440(2, arg1);
+    func_003f6440(3, arg2);
+    z = *(f32 *)D_008872FC_abs;
+    inv = 1.0f / *(f32 *)(cam + 0x84);
+    *(f32 *)(work.packet + 0x00) = x0;
+    *(f32 *)(work.packet + 0x04) = y0;
+    *(f32 *)(work.packet + 0x08) = z;
+    *(f32 *)(work.packet + 0x20) = (f32)(u32)arg0[0];
+    *(f32 *)(work.packet + 0x24) = (f32)(u32)arg0[1];
+    *(f32 *)(work.packet + 0x28) = (f32)(u32)arg0[2];
+    *(f32 *)(work.packet + 0x2C) = (f32)(u32)arg0[3];
+    *(f32 *)(work.packet + 0x18) = inv;
+    *(s32 *)(work.packet + 0x10) = 0;
+    *(s32 *)(work.packet + 0x14) = 0;
+    *(f32 *)(work.packet + 0x40) = x0;
+    *(f32 *)(work.packet + 0x44) = y1;
+    *(f32 *)(work.packet + 0x48) = z;
+    *(f32 *)(work.packet + 0x60) = (f32)(u32)arg0[0];
+    *(f32 *)(work.packet + 0x64) = (f32)(u32)arg0[1];
+    *(f32 *)(work.packet + 0x68) = (f32)(u32)arg0[2];
+    *(f32 *)(work.packet + 0x6C) = (f32)(u32)arg0[3];
+    *(f32 *)(work.packet + 0x58) = inv;
+    *(s32 *)(work.packet + 0x50) = 0;
+    *(f32 *)(work.packet + 0x54) = sy;
+    *(f32 *)(work.packet + 0x80) = x1;
+    *(f32 *)(work.packet + 0x84) = y0;
+    *(f32 *)(work.packet + 0x88) = z;
+    *(f32 *)(work.packet + 0xA0) = (f32)(u32)arg0[0];
+    *(f32 *)(work.packet + 0xA4) = (f32)(u32)arg0[1];
+    *(f32 *)(work.packet + 0xA8) = (f32)(u32)arg0[2];
+    *(f32 *)(work.packet + 0xAC) = (f32)(u32)arg0[3];
+    *(f32 *)(work.packet + 0x98) = inv;
+    *(f32 *)(work.packet + 0x90) = sx;
+    *(s32 *)(work.packet + 0x94) = 0;
+    *(f32 *)(work.packet + 0xC0) = x1;
+    *(f32 *)(work.packet + 0xC4) = y1;
+    *(f32 *)(work.packet + 0xC8) = z;
+    *(f32 *)(work.packet + 0xE0) = (f32)(u32)arg0[0];
+    *(f32 *)(work.packet + 0xE4) = (f32)(u32)arg0[1];
+    *(f32 *)(work.packet + 0xE8) = (f32)(u32)arg0[2];
+    *(f32 *)(work.packet + 0xEC) = (f32)(u32)arg0[3];
+    *(f32 *)(work.packet + 0xD8) = inv;
+    *(f32 *)(work.packet + 0xD0) = sx;
+    *(f32 *)(work.packet + 0xD4) = sy;
+    D_00887310[0](4, work.packet, 4);
+    base[0](1, 0);
+}
+#pragma pop
 // FUN_001FBB50 NONMATCHING
 #ifdef SKIP_ASM
 s32 func_001fbb50(u8 *arg0) {
@@ -4828,7 +4950,7 @@ s32 func_001fbb50(u8 *arg0) {
                 func_003f6440(3, 0x31801);
                 func_00204690(0, temp_f20, temp_f20, sp78.w, D_008872FC_abs[0]);
                 func_0048a000();
-                func_001fb480(D_007635C8, 0x54, 0x31801, (u8 *)1, 1.0f);
+                func_001fb480(1.0f, D_007635C8, 0x54, 0x31801, (u8 *)1);
                 if ((s32)D_0076455A >= 0x14) {
                     *temp_17 = 3;
                 }
@@ -4839,7 +4961,7 @@ s32 func_001fbb50(u8 *arg0) {
         }
         case 2: {
             if (iGpffffb469 == 0) {
-                func_001fb480(D_007635C8, 0x44, 0x31801, (u8 *)1, 1.0f);
+                func_001fb480(1.0f, D_007635C8, 0x44, 0x31801, (u8 *)1);
                 if (*(u16 *)(temp_17 + 6) == 1) {
                     temp_f20 = (f32)(s32)D_007613E0;
                 } else {
@@ -4853,9 +4975,9 @@ s32 func_001fbb50(u8 *arg0) {
                 } else {
                     sp7C[3] = 0x0A;
                 }
-                func_001fb480(sp7C, 0x44, 0x31801, (u8 *)2, temp_f20);
+                func_001fb480(temp_f20, sp7C, 0x44, 0x31801, (u8 *)2);
                 sp7C[3] = 5;
-                func_001fb480(sp7C, 0x48, 0x31801, (u8 *)2, temp_f20);
+                func_001fb480(temp_f20, sp7C, 0x48, 0x31801, (u8 *)2);
             }
             break;
         }

@@ -598,8 +598,131 @@ u8 *func_00354a50(s32 arg0, u16 arg1) {
     func_00355190(temp_2, arg1);
     return temp_2;
 }
-// FUN_00354BA0
+/* measured: live body obj 1224B/window 1232B (-8B, -0.65%); verify nd 58; probe_variants 16 differing words; fnalign 306/306 instrs, 6 edits (+7 reloc-only). Reconstructed from retail asm + P4_UNIT_00354BA0 draft (160 lines, noise 5: two adda/madd lerps); frame locals as 4x Q40 quads at sp+0x40/0x80/0xC0/0x100 (x,y,z,q,a floats; u,v,r,g,b s32); each jal checked (00457120 no-arg+0x80, 0044b7b0 f12, 00364680 s32,s32*,s32,s32+7 floats sx/sy in f17/f18, 003f6440 s32,s32, D_00887300 u32-cast hoist into $s0, D_00887310 s32,ptr,s32 daddu). File-scope decls differ here so body carries function-local externs. Tried || vs two-ifs (|| matches bnez+b), u32-cast hoist vs opt_propagation off (u32 avoids extra f22). Residuals are call-arg-setup-order + scheduling floors. */
+// FUN_00354BA0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00354ba0(u8 *arg0) {
+    extern u8 *func_00457120(void);
+    extern f32 D_008872F8[];
+    extern f32 D_00761470;
+    extern void func_00364680(s32 arg0, s32 *arg1, s32 arg2, s32 arg3, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5, f32 f6);
+    extern void func_003f6440(s32 arg0, s32 arg1);
+    extern u8 D_00887300[];
+    extern void (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
+    typedef struct {
+        f32 x;
+        f32 y;
+        f32 z;
+        s32 _c;
+        s32 u;
+        s32 v;
+        f32 q;
+        s32 _1c;
+        s32 r;
+        s32 g;
+        s32 b;
+        f32 a;
+        s32 _pad[4];
+    } Q40;
+    Q40 qs[4];
+    u8 *p;
+    f32 z;
+    f32 q;
+    s32 cnt;
+    f32 ft;
+    f32 blend;
+    f32 sx;
+    f32 sy;
+    u8 alpha;
+    u32 col;
+    u32 adiv;
+    u32 base;
+
+    p = *(u8 **)(arg0 + 0x38);
+    z = D_008872F8[0];
+    q = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    if ((*(s32 *)(p + 0x40) == 0) || (*(u16 *)(p + 8) == 0)) {
+        return;
+    }
+    cnt = *(s32 *)(p + 4);
+    if (cnt < 100) {
+        *(s32 *)(p + 4) = cnt + 1;
+    }
+    ft = (f32)*(s32 *)(p + 4);
+    if (ft < 10.0f) {
+        blend = func_0044b7b0(D_00761470 * (ft / 10.0f));
+    } else {
+        blend = 1.0f;
+    }
+    *(f32 *)(p + 0x10) = *(f32 *)(p + 0x18) + blend * (*(f32 *)(p + 0x20) - *(f32 *)(p + 0x18));
+    *(f32 *)(p + 0x14) = *(f32 *)(p + 0x1C) + blend * (*(f32 *)(p + 0x24) - *(f32 *)(p + 0x1C));
+    *(f32 *)(p + 0x30) += (*(f32 *)(p + 0x10) - *(f32 *)(p + 0x30)) / 3.0f;
+    *(f32 *)(p + 0x34) += (*(f32 *)(p + 0x14) - *(f32 *)(p + 0x34)) / 3.0f;
+    alpha = *(u8 *)(p + 0xA);
+    sx = 256.0f * *(f32 *)(p + 0x38);
+    sy = 512.0f * *(f32 *)(p + 0x3C);
+    qs[0].x = *(f32 *)(p + 0x10);
+    qs[0].y = *(f32 *)(p + 0x14);
+    qs[0].z = z;
+    qs[0].r = 0x437F0000;
+    qs[0].g = 0x437F0000;
+    qs[0].b = 0x437F0000;
+    qs[0].a = (f32)(u32)alpha;
+    qs[0].u = 0;
+    qs[0].v = 0;
+    qs[0].q = q;
+    qs[1].x = *(f32 *)(p + 0x10) + sx;
+    qs[1].y = *(f32 *)(p + 0x14);
+    qs[1].z = z;
+    qs[1].r = 0x437F0000;
+    qs[1].g = 0x437F0000;
+    qs[1].b = 0x437F0000;
+    qs[1].a = (f32)(u32)alpha;
+    qs[1].u = 0x3F800000;
+    qs[1].v = 0;
+    qs[1].q = q;
+    qs[2].x = *(f32 *)(p + 0x10);
+    qs[2].y = *(f32 *)(p + 0x14) + sy;
+    qs[2].z = z;
+    qs[2].r = 0x437F0000;
+    qs[2].g = 0x437F0000;
+    qs[2].b = 0x437F0000;
+    qs[2].a = (f32)(u32)alpha;
+    qs[2].u = 0;
+    qs[2].v = 0x3F800000;
+    qs[2].q = q;
+    qs[3].x = *(f32 *)(p + 0x10) + sx;
+    qs[3].y = *(f32 *)(p + 0x14) + sy;
+    qs[3].z = z;
+    qs[3].r = 0x437F0000;
+    qs[3].g = 0x437F0000;
+    qs[3].b = 0x437F0000;
+    qs[3].a = (f32)(u32)alpha;
+    qs[3].u = 0x3F800000;
+    qs[3].v = 0x3F800000;
+    qs[3].q = q;
+    col = *(u32 *)(p + 0xC);
+    adiv = *(u8 *)(p + 0xA);
+    col = (col & ~0xFF) | ((((col & 0xFF) * 0xFF) / adiv) & 0xFF);
+    func_00364680(col, *(s32 **)(p + 0x150), 1, 0, 0.0f, *(f32 *)(p + 0x28) + *(f32 *)(p + 0x30), *(f32 *)(p + 0x2C) + *(f32 *)(p + 0x34), *(f32 *)(p + 0x10), *(f32 *)(p + 0x14), sx, sy);
+    base = (u32)D_00887300;
+    ((void (*)(u32, u32))*(u32 *)base)(6, 0);
+    ((void (*)(u32, u32))*(u32 *)base)(7, 2);
+    ((void (*)(u32, u32))*(u32 *)base)(8, 0);
+    ((void (*)(u32, u32))*(u32 *)base)(9, 2);
+    ((void (*)(u32, u32))*(u32 *)base)(0xC, 1);
+    ((void (*)(u32, u32))*(u32 *)base)(0xB, 6);
+    ((void (*)(u32, u32))*(u32 *)base)(0xA, 5);
+    ((void (*)(u32, u32))*(u32 *)base)(2, 4);
+    ((void (*)(u32, u32))*(u32 *)base)(0xE, 0);
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x44);
+    ((void (*)(u32, u32))*(u32 *)base)(1, *(*(u32 **)(p + 0x150)));
+    D_00887310[0](4, &qs[0], 4);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00354ba0);
+#endif
 // FUN_00355070
 void func_00355070(u8 *arg0, u8 *arg1) {
     u8 *temp_3;
