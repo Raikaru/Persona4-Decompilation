@@ -625,8 +625,10 @@ void func_001424b0(Float2_0014 pos, f32 fparg0, u32 arg1, u8 *arg2, s32 arg3)
                   0x6E,
                   -2);
 }
+/* measured 001427c0: `opt_loop_invariants on` inside the guard is worth 42 words (225 -> 183), the loop-preheader constant hoist. */
 // FUN_001427C0 NONMATCHING
 #ifdef SKIP_ASM
+#pragma opt_loop_invariants on
 /* 001427c0 floor (1076B/1072B, nd 225, edits 213+4 reloc-only; 269 vs 268 instrs, 14 relocs); honest Float2 pos with u32 byte conversions, i%5 packet build and 5-sprite second loop. Production stays ASM. See docs/probe_archive/C14_001427c0_body.c. */
 void func_001427c0(Float2_0014 pos, s32 arg1, u8 *arg2, f32 fparg0)
 {
@@ -697,6 +699,7 @@ void func_001427c0(Float2_0014 pos, s32 arg1, u8 *arg2, f32 fparg0)
         j += 1;
     }
 }
+#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001427c0);
 #endif
@@ -3493,8 +3496,10 @@ void func_0014c920(void) {
     iGpffffb1fc = 0;
     func_0043f9c8(&D_007D24B0, 0, 0x30);
 }
+/* measured 0014c960: `opt_loop_invariants on` inside the guard is worth 5 words (283 -> 278), the loop-preheader constant hoist. */
 // FUN_0014C960 NONMATCHING
 #ifdef SKIP_ASM
+#pragma opt_loop_invariants on
 s32 func_0014c960(s32 *arg0, s32 *arg1)
 {
     s32 var_20;
@@ -3639,6 +3644,7 @@ s32 func_0014c960(s32 *arg0, s32 *arg1)
     }
     return 0;
 }
+#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014c960);
 #endif
