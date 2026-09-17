@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
-"""Present an MWCCPS2-shaped command line but build with ee-gcc 3.2 + Ps2EeAs.
+"""Present an MWCCPS2-shaped command line but build with ee-gcc + Ps2EeAs.
 
 Part of P4's source is not Metrowerks code.  Functions whose retail prologue
 saves callee-saved `$s` registers with `sd` rather than `sq` were compiled with
 GCC, and MWCCPS2 cannot reproduce them at any optimisation level or in any of
 its builds.  Those functions are byte-exact under:
 
-    ee-gcc 3.2-030926   -O2 -G0
+    ee-gcc 2.96-ee-001003-1   -O2 -G0   (see config/gcc_units.txt for how the
+                                         version was pinned: 2.95.3 emits `sq`
+                                         for callee-saved registers and 3.2
+                                         colours a scratch base `$t7` where
+                                         retail has `$v0`)
     Ps2EeAs             (Sony's EE assembler)
 
 The assembler matters as much as the compiler.  GNU `as` expands the `move`
@@ -17,21 +21,27 @@ and `-mgp64`, and `.set gp=64` does not change GNU as.
 `mwccgap` invokes a compiler as `<path> -c <flags> -o <out.o> <in.c>`, so this
 shim can be dropped in as that path with no changes to mwccgap itself.
 
-Two environment quirks are handled here:
-  * ee-gcc 3.2 is a Linux binary.  It runs under WSL, but cc1 fails with
+Three environment quirks are handled here:
+  * ee-gcc is a Linux binary.  It runs under WSL, but cc1 fails with
     "Value too large for defined data type" when reading source across the
     DrvFs `/mnt/c` mount, so sources and the toolchain are staged inside the
     WSL filesystem.
   * The repository path contains spaces, which a
     `cmd.exe -> wsl.exe -> bash -c` command line cannot survive.  All quoting
     is kept inside a generated script placed at a space-free path.
+  * The 2.96 `cc1` is a 32-bit i386 binary patched to a private loader, so it
+    needs its own glibc on the library path.  An `LD_LIBRARY_PATH` inherited
+    from the surrounding shell shadows that and makes every function in the
+    unit report COMPILE_ERROR; `eegcc_ld_library_path` overrides it.
 
 Configure with, in `tools/build_config.local.json`:
 
-    "eegcc_root":  "<dir containing bin/ and lib/ from ee-gcc3.2-030926>"
+    "eegcc_root":  "<dir containing bin/ and lib/ from the pinned ee-gcc>"
+    "eegcc_ld_library_path": "<dir holding the 32-bit glibc cc1 links against>"
     "ps2eeas":     "<path to Ps2EeAs.exe>"
 
-or the environment variables `P4_EEGCC_ROOT` and `P4_PS2EEAS`.
+or the environment variables `P4_EEGCC_ROOT`, `P4_EEGCC_LD_LIBRARY_PATH` and
+`P4_PS2EEAS`.
 """
 from pathlib import Path
 import json
@@ -76,6 +86,25 @@ def _config() -> dict:
         if os.environ.get(env):
             cfg[key] = os.environ[env]
     return cfg
+
+
+def _cc_env() -> dict:
+    """Environment for the ee-gcc driver.
+
+    The 2.96 toolchain is a 32-bit i386 build whose `cc1` is patched to a
+    private loader, so it needs its own glibc on the library path.  An
+    inherited `LD_LIBRARY_PATH` from the surrounding shell shadows that and
+    makes `cc1` fail with `libc.so.6: cannot open shared object file`, which
+    verify.py reports as COMPILE_ERROR for every function in the unit.  Set
+    `eegcc_ld_library_path` in `tools/build_config.local.json` (or
+    `P4_EEGCC_LD_LIBRARY_PATH`) to the directory holding that glibc.
+    """
+    env = dict(os.environ)
+    extra = os.environ.get("P4_EEGCC_LD_LIBRARY_PATH") or \
+        _config().get("eegcc_ld_library_path")
+    if extra:
+        env["LD_LIBRARY_PATH"] = str(extra)
+    return env
 
 
 def _die(message: str) -> "NoReturn":
@@ -283,6 +312,7 @@ def _compile_to_asm(root: Path, source: Path, includes: list[str], work: Path) -
             [str(root / "bin" / "ee-gcc"), *GCC_FLAGS, *cc_includes,
              "-S", str(work / "in.c"), "-o", str(asm)],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+            env=_cc_env(),
         )
         if proc.returncode != 0 or not asm.is_file():
             _die("ee-gcc failed for %s:\n%s" % (source, proc.stdout))

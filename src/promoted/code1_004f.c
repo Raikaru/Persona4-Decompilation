@@ -92,8 +92,27 @@ extern s32 D_0075D370[];
    the jr $ra delay slot unfilled; retail fills the delay slot with the
    final addiu (nd 6 -> 0). */
 
-// FUN_004F13C0
+/* measured: ee-gcc 2.96 -O2 -G0, object 88B/window 88B, normalized_diff 6; archived 1-arg body keeps var_2 in $v0. Three-arg ($a2) fixes the arg register but moves var_2 to $a0 (nd 7); s64-dummy (nd 8) and switch (nd 25) are worse. No loop entry-guard or slti $at constant-bound pattern, so the parent (s64)0 and <= levers do not apply. Sibling switch lever from 004f1460 does not transfer. Body at docs/probe_archive/GA4F_004f13c0_body.c. */
+// FUN_004F13C0 NONMATCHING
+#ifdef NON_MATCHING
+void func_004f13c0(s32 arg2) {
+    s32 var_2;
+    var_2 = 1;
+    if (arg2 != 1) {
+        var_2 = 0;
+        if (arg2 != 0) {
+            var_2 = 2;
+            if (arg2 != 2) {
+                func_004f53c0(&D_0075D3E0, 0x84, &D_0075D3F8, 0, -0x64);
+                return;
+            }
+        }
+    }
+    func_004e2108(var_2);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f13c0);
+#endif
 // FUN_004F1418
 void func_004f1418(void) {
     func_004e20a0();
@@ -106,8 +125,26 @@ void func_004f1430(void) {
 void func_004f1448(void) {
     func_004e2240();
 }
-// FUN_004F1460
+/* measured: ee-gcc 2.96 -O2 -G0, object 64B/window 80B, normalized_diff 10 with switch; archived if-chain is nd 13. Switch replaces xor/movn with branches, closer to retail's branch chain. If-chain, else-if, and u32/int variants stayed at nd 13. No slt $at entry guard or trailing dead-arm store pattern, so parent levers do not apply beyond the tried switch shape. Body at docs/probe_archive/GA4F_004f1460_body.c (if-chain baseline). */
+// FUN_004F1460 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_004f1460(void) {
+    s32 v;
+    v = func_004e22f8();
+    switch (v) {
+    case 1:
+        return 1;
+    case 0:
+        return 0;
+    case 2:
+        return 2;
+    default:
+        return 3;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1460);
+#endif
 // FUN_004F14B0
 void func_004f14b0(void) {
     func_004e2690();
@@ -116,8 +153,24 @@ void func_004f14b0(void) {
 void func_004f14c8(s32 unused) {
     func_004e2750();
 }
-// FUN_004F14E0
+/* Floor: 9 differing words.  ee-gcc 2.96 -O2 -G0.  Retail calls func_004f14c8
+   with `jal` and then runs the epilogue; this build turns the call into a
+   sibling call (`j`, epilogue hoisted before it).  A staged local temporary
+   and a reordered compare were both measured at 9.  A zero-word result is
+   reachable only with an inline-asm memory clobber, which is banned here -
+   production stays ASM.  WALL: ee-gcc sibling-call conversion; the retail
+   unit was evidently built without it, so the fix belongs in the unit's
+   flags, not in the source. */
+// FUN_004F14E0 NONMATCHING
+#ifdef NON_MATCHING
+void func_004f14e0(s32 arg0) {
+    if (func_004e3448() == 0) {
+        func_004f14c8(arg0);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f14e0);
+#endif
 // FUN_004F1518
 void func_004f1518(void) {
     func_004e2298();

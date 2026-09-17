@@ -37,8 +37,23 @@ INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e0308);
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e0380);
 // FUN_004E0398
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e0398);
-// FUN_004E03B0
+/* measured: ee-gcc 2.96 -O2 -G0, object 92B/window 88B, normalized_diff 19; archived body keeps the retail global/address staging. Baseline typed body, volatile-qualified value, and hoisted-load variants left the sd $s1 frame and $s1-address coloring unchanged. No loop entry-guard (slt $at) or constant-bound slti $at pattern in this function, so the parent (s64)0 and <= levers do not apply. Body at docs/probe_archive/GA4E_004e03b0_body.c. */
+// FUN_004E03B0 NONMATCHING
+#ifdef NON_MATCHING
+void func_004e03b0(void) {
+    s32 value;
+
+    func_004e0380();
+    value = D_0072B678;
+    if (value == 0) {
+        func_0043f9c8(&D_0072B680, 0, 0x6570);
+    }
+    D_0072B678 = value + 1;
+    func_004e0398();
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e03b0);
+#endif
 // FUN_004E0408
 void func_004e0408(void) {
     s32 value;
@@ -68,8 +83,28 @@ s8 func_004e0590(u8 *arg0)
 {
     return *(s8 *)(arg0 + 1);
 }
-// FUN_004E0598
+/* Floor: 3 differing words.  ee-gcc 2.96 -O2 -G0.  Retail stores the four
+   fields in source order (0x10, then the 0x1 byte, then 0x8, then 0xC); this
+   build's scheduler reorders them to 0xC, 1, 0x10, 0x8.  Plain u32/u8 widths,
+   a struct assignment and a staged local temporary were all measured at 3.
+   A zero-word result is reachable only by qualifying the stores `volatile`,
+   which is a lie about ordinary struct fields - rejected, production stays
+   ASM.  WALL: ee-gcc store scheduling; the retail unit was evidently built
+   with the store order preserved, so the fix belongs in the unit's flags,
+   not in the source. */
+// FUN_004E0598 NONMATCHING
+#ifdef NON_MATCHING
+void func_004e0598(u8 *arg0) {
+    func_004e0380();
+    *(s32 *)(arg0 + 0x10) = 0;
+    *(s8 *)(arg0 + 1) = 1;
+    *(s32 *)(arg0 + 8) = 0;
+    *(s32 *)(arg0 + 0xC) = 0;
+    func_004e0398();
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e0598);
+#endif
 // FUN_004E05D0
 void func_004e05d0(u8 *arg0)
 {
