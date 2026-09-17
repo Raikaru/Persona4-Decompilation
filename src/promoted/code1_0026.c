@@ -887,8 +887,10 @@ s32 func_00267800(u8 **arg0, u8 *arg1)
    $s3-$s0 vs $s5-$s2, the table base in $v0 vs $s1), the destination
    addu order in the four point/colour loops (base+index vs index+sp+off
    with the lwc1/addu pair reordered) and the func_0045e6a0 move order. */
+/* measured 00267b20: `opt_propagation off` inside the guard is worth 40 words (304 -> 264). */
 // FUN_00267B20 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_propagation off
 void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s64 arg4, s64 arg5,
                    f32 fparg3, f32 fparg4, f32 fparg5)
 {
@@ -1091,6 +1093,7 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
         func_00364c70();
     }
 }
+#pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00267b20);
 #endif

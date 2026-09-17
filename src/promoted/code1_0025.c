@@ -133,6 +133,7 @@ extern void func_0045ee00(s32 arg0, s32 arg1, void *arg2, s32 arg3,
 /* measured: c.le/bc1t u8 site (8 sites). Production stays ASM via guard; C body is faithful */
 /* measured: (both dispatch arms, all 5x25f430 + 4x44b7b0 + 7x003b7060 calls, 42/255/360/19/127/ */
 /* measured: 40/60 constants, 0x78/0x1E bounds, [0,1] clamp) with no UB, no volatile/asm/pragma. */
+/* measured 00250ad0: live re-measure confirms probe 608 words via measure_guarded, fnalign retail 680/object 680 exact with 330 edits (+7 reloc-only); wscan obj 2 pairs vs retail 4 (hoisted s16_1/s16_2 CSE wall, cseoff overshoots 608->642); f21/f22 decl swap 606 (-2 with 318+10e, known o3 wall, not installed); full-body inline 613 (+5); schedule 616 (+8), prop 625 (+17), loopinv 608 tie. No slti rows (inclusive N/A), exact size (dead-arm N/A), single || is bit-tests (adjacent-== N/A). Banked floor stands. */
 // FUN_00250AD0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00250ad0(s32 *arg0, u8 *arg1)

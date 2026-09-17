@@ -136,10 +136,14 @@ s32 func_00161bb0(s16 id) {
 }
 /* measured: closes the hoisting scope after func_00161bb0. */
 #pragma opt_loop_invariants off
-/* Model floor (896B window; obj ~860B). Best probe nd 195.
-   WINS: flat (A==0x28||A==0x3c)&&call==0 branch chain, arg0/arg1
-   identifier swap (s1/s3 homes), 1.0f init, trunc idiom, (s32)
-   modulo compares, blez >0 test, direct t0 (no extra move).
+/* Model floor (896B window; obj ~860B). Best probe 191 words via measure_guarded
+   (was 192) / 105 edits via fnalign (was 100). WINS: st is s32 with a single
+   (s16) cast at creation -- wscan dsll32/dsra32 now 2 vs 2 retail (was 3 vs 2;
+   removes the spurious call-site pair) -- plus flat (A==0x28||A==0x3c)&&call==0
+   branch chain, arg0/arg1 identifier swap (s1/s3 homes), 1.0f init, trunc idiom,
+   (s32) modulo compares, blez >0 test, direct t0 (no extra move). The width fix
+   trades 192/100 for 191/105: pairs understood, remaining cost is colouring
+   (s1 vs s3 homes), bnez vs beqz+b, GP loads and lbu schedule.
    WALLS: s2 shared-temp squatter (blocks arg3/i12 coalesce),
    result-init single-word (retail ori+andi), +16 layout shift,
    temp-reg names, GPREL/absolute display phantoms (relocs ok).
@@ -151,7 +155,7 @@ u32 func_00161630(u32 arg1, u32 arg0, u32 arg2, u32 arg3)
     u32 result;
     f32 f;
     u16 u2;
-    s16 st;
+    s32 st;
     s8 c;
     u32 u13;
     u32 u11;
