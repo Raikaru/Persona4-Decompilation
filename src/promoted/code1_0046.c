@@ -2377,8 +2377,306 @@ void func_0046d700(const char *file, s32 line, const char *msg, ...)
 void func_0046d730(void *arg0, s32 arg1) {}
 // FUN_0046D740
 void func_0046d740(const void *msg, const void *file, u32 line) {}
-// FUN_0046D750
+/* measured: func_0046d750 reconstruction from retail asm + P4_UNIT_0046D750 draft (495 lines, m2c noise 0).
+ * Jal audit: func_00457120 takes 0 args (no $a0-$a3 written before jal, returns pointer for 0x80 float);
+ * func_003e8120/func_003e8110 take 1 arg ($a0 = 457120 result); func_003f6440 takes 2 ($a0,$a1);
+ * D_00887300 takes 2 ($a0,$a1, cached in $s1), D_00887310 takes 3 ($a0,$a1,$a2 = 4,ptr,4, cached in $s1);
+ * func_0046ea60 takes 2 (arg0 original $a0 + work+0xC $a1) -- draft 1-arg form is invented, fixed here.
+ * Frame is 0x30 with $s0=work, $s1=table base, no stack locals (all state in work struct).
+ * Variants hand-reasoned from alignment edits, all with #pragma opt_propagation off (measured below):
+ * v1 honest for-loops, cached tables: nd 3061 obj 4252/4256 (frame 0x20, no $s1, float $f1/$f2 swapped, counters $v vs $a).
+ * +pragma off: nd 629 obj 4236/4256 (frame 0x30 + $s1 restored, tail tables match).
+ * decl f2-before-f1: nd 618 (float sub/div $f2/$f1 fixed).
+ * case-7 duplicate bnez via (b23==0 && b23==0): nd 325 obj 4244/4256 (tail + epilogue byte-exact from 0x46e678).
+ * case-7 group pointer g=work+(i<<8), e=g+(j<<6): nd 318 obj 4244/4256 hwasm (best, ported below).
+ * Residual is pure integer register coloring: outer $v1 vs $a3, g $a3 vs $a1, e $a2 vs $a0, byte $a0 vs $v0,
+ * or-dest $a1 vs $v1; decl-order sweeps (3 tries) all stay nd 318, tail from 0x46e678 onward is byte-exact.
+ * Saved-register coloring + call-argument setup order floor (cf. docs/matching.md known floors); banked as guarded body.
+ * Removing #pragma opt_propagation off measures nd 318 -> nd 3061 (frame 0x30->0x20, tables reload each call).
+ * Ported to this owner with function-local externs (D_00887310 s32-return, 8120/8110, ea60); file-scope here
+ * already has D_00887300/003f6440/457120. probe_variants.py in this tree: base without pragma context 1030,
+ * with pragma 248 differing words; store-via-g without e temp (noe) 248, e/g decl swap (egdecl) 248, byte-temps
+ * before e (bytesfirst) 285 (worse). fnalign.py base: retail 1061 instrs, object 1061 instrs, all edits are
+ * register-only replaces ($a3/$a2/$a1/$a0 vs $v1/$v0/$a3/$a2, $v0/$v1 vs $a0/$a1); same count confirms coloring floor. */
+#pragma opt_propagation off
+// FUN_0046D750 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0046d750(u8 *arg0) {
+    extern s32 func_003e8120(s32 arg0);
+    extern void func_003e8110(s32 arg0);
+    extern s32 (*D_00887310[])(s32, void *, s32);
+    extern void func_0046ea60(u8 *arg0, u8 *arg1);
+    f32 f2;
+    f32 f1;
+    s32 i;
+    s32 j;
+    s32 k;
+    u8 *work;
+    u8 *g;
+    u8 *e;
+    s32 state;
+    void (**tbl00)(s32, s32);
+    s32 (**tbl10)(s32, void *, s32);
+
+    work = *(u8 **)(arg0 + 0x38);
+    state = *(s32 *)work;
+    switch (state) {
+    case 0:
+        f2 = *(f32 *)((u8 *)func_00457120() + 0x80) - 400.0f;
+        f1 = 1.0f / f2;
+        i = 0;
+        goto test0o;
+body0o:
+        g = work + (i << 8);
+        *(s32 *)(g + 0x60) = 0;
+        *(s32 *)(g + 0x64) = 0;
+        *(f32 *)(g + 0x68) = f2;
+        *(s32 *)(g + 0xA0) = 0;
+        *(s32 *)(g + 0xA4) = 0;
+        *(f32 *)(g + 0xA8) = f2;
+        *(s32 *)(g + 0xE0) = 0;
+        *(s32 *)(g + 0xE4) = 0;
+        *(f32 *)(g + 0xE8) = f2;
+        *(s32 *)(g + 0x120) = 0;
+        *(s32 *)(g + 0x124) = 0;
+        *(f32 *)(g + 0x128) = f2;
+        *(f32 *)(g + 0x78) = f1;
+        *(f32 *)(g + 0xB8) = f1;
+        *(f32 *)(g + 0xF8) = f1;
+        *(f32 *)(g + 0x138) = f1;
+        j = 0;
+        goto test0i;
+body0i:
+        e = g + (j << 6);
+        *(f32 *)(e + 0x80) = (f32)*(u8 *)(work + 0x1C);
+        *(f32 *)(e + 0x84) = (f32)*(u8 *)(work + 0x1D);
+        *(f32 *)(e + 0x88) = (f32)*(u8 *)(work + 0x1E);
+        *(f32 *)(e + 0x8C) = (f32)*(u8 *)(work + 0x1F);
+        j++;
+test0i:
+        if (j < 4) {
+            goto body0i;
+        }
+        i++;
+test0o:
+        if (i < 4) {
+            goto body0o;
+        }
+        *(f32 *)(work + 0x460) = (f32)*(s32 *)(work + 0xC);
+        *(f32 *)(work + 0x464) = (f32)*(s32 *)(work + 0x10);
+        *(f32 *)(work + 0x468) = f2;
+        *(f32 *)(work + 0x4A0) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14));
+        *(f32 *)(work + 0x4A4) = (f32)*(s32 *)(work + 0x10);
+        *(f32 *)(work + 0x4A8) = f2;
+        *(f32 *)(work + 0x4E0) = (f32)*(s32 *)(work + 0xC);
+        *(f32 *)(work + 0x4E4) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18));
+        *(f32 *)(work + 0x4E8) = f2;
+        *(f32 *)(work + 0x520) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14));
+        *(f32 *)(work + 0x524) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18));
+        *(f32 *)(work + 0x528) = f2;
+        *(f32 *)(work + 0x478) = f1;
+        *(f32 *)(work + 0x4B8) = f1;
+        *(f32 *)(work + 0x4F8) = f1;
+        *(f32 *)(work + 0x538) = f1;
+        k = 0;
+        goto test0k;
+body0k:
+        e = work + (k << 6);
+        *(f32 *)(e + 0x480) = (f32)*(u8 *)(work + 0x20);
+        *(f32 *)(e + 0x484) = (f32)*(u8 *)(work + 0x21);
+        *(f32 *)(e + 0x488) = (f32)*(u8 *)(work + 0x22);
+        *(s32 *)(e + 0x48C) = 0;
+        k++;
+test0k:
+        if (k < 4) {
+            goto body0k;
+        }
+        *(f32 *)(work + 0x40) = (f32)*(u8 *)(work + 0x23);
+        *(u8 *)(work + 0x23) = 0;
+        *(s32 *)work = *(s32 *)work + 1;
+        *(u8 *)(work + 0x23) = (u8)(*(f32 *)(work + 0x40));
+        k = 0;
+        goto test0k2;
+body0k2:
+        e = work + (k << 6);
+        *(f32 *)(e + 0x480) = (f32)*(u8 *)(work + 0x20);
+        *(f32 *)(e + 0x484) = (f32)*(u8 *)(work + 0x21);
+        *(f32 *)(e + 0x488) = (f32)*(u8 *)(work + 0x22);
+        *(f32 *)(e + 0x48C) = (f32)*(u8 *)(work + 0x23);
+        k++;
+test0k2:
+        if (k < 4) {
+            goto body0k2;
+        }
+        *(s32 *)work = 6;
+        break;
+    case 1:
+        if (!(*(f32 *)(work + 0x30) < (f32)*(s32 *)(work + 0x14))) {
+            *(f32 *)(work + 0x30) = (f32)*(s32 *)(work + 0x14);
+            *(s32 *)work = *(s32 *)work + 1;
+        }
+        *(f32 *)(work + 0x60) = (f32)*(s32 *)(work + 0xC);
+        *(f32 *)(work + 0x64) = (f32)*(s32 *)(work + 0x10);
+        *(f32 *)(work + 0xA0) = (f32)*(s32 *)(work + 0xC) + *(f32 *)(work + 0x30);
+        *(f32 *)(work + 0xA4) = (f32)*(s32 *)(work + 0x10);
+        *(f32 *)(work + 0xE0) = (f32)*(s32 *)(work + 0xC);
+        *(f32 *)(work + 0xE4) = (f32)(*(s32 *)(work + 0x10) + 2);
+        *(f32 *)(work + 0x120) = (f32)*(s32 *)(work + 0xC) + *(f32 *)(work + 0x30);
+        *(f32 *)(work + 0x124) = (f32)(*(s32 *)(work + 0x10) + 2);
+        *(f32 *)(work + 0x30) = *(f32 *)(work + 0x30) + (f32)*(s32 *)(work + 0x14) / 2.0f;
+        break;
+    case 2:
+        if (!(*(f32 *)(work + 0x34) < (f32)*(s32 *)(work + 0x18))) {
+            *(f32 *)(work + 0x34) = (f32)*(s32 *)(work + 0x18);
+            *(s32 *)work = *(s32 *)work + 1;
+        }
+        *(f32 *)(work + 0x160) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14) - 2);
+        *(f32 *)(work + 0x164) = (f32)*(s32 *)(work + 0x10);
+        *(f32 *)(work + 0x1A0) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14));
+        *(f32 *)(work + 0x1A4) = (f32)*(s32 *)(work + 0x10);
+        *(f32 *)(work + 0x1E0) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14) - 2);
+        *(f32 *)(work + 0x1E4) = (f32)*(s32 *)(work + 0x10) + *(f32 *)(work + 0x34);
+        *(f32 *)(work + 0x220) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14));
+        *(f32 *)(work + 0x224) = (f32)*(s32 *)(work + 0x10) + *(f32 *)(work + 0x34);
+        *(f32 *)(work + 0x34) = *(f32 *)(work + 0x34) + (f32)*(s32 *)(work + 0x18) / 2.0f;
+        break;
+    case 3:
+        if (!(*(f32 *)(work + 0x38) < (f32)*(s32 *)(work + 0x14))) {
+            *(f32 *)(work + 0x38) = (f32)*(s32 *)(work + 0x14);
+            *(s32 *)work = *(s32 *)work + 1;
+        }
+        *(f32 *)(work + 0x260) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14)) - *(f32 *)(work + 0x38);
+        *(f32 *)(work + 0x264) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18) - 2);
+        *(f32 *)(work + 0x2A0) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14));
+        *(f32 *)(work + 0x2A4) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18) - 2);
+        *(f32 *)(work + 0x2E0) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14)) - *(f32 *)(work + 0x38);
+        *(f32 *)(work + 0x2E4) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18));
+        *(f32 *)(work + 0x320) = (f32)(*(s32 *)(work + 0xC) + *(s32 *)(work + 0x14));
+        *(f32 *)(work + 0x324) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18));
+        *(f32 *)(work + 0x38) = *(f32 *)(work + 0x38) + (f32)*(s32 *)(work + 0x14) / 2.0f;
+        break;
+    case 4:
+        if (!(*(f32 *)(work + 0x3C) < (f32)*(s32 *)(work + 0x18))) {
+            *(f32 *)(work + 0x3C) = (f32)*(s32 *)(work + 0x18);
+            *(s32 *)work = *(s32 *)work + 1;
+        }
+        *(f32 *)(work + 0x360) = (f32)*(s32 *)(work + 0xC);
+        *(f32 *)(work + 0x364) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18)) - *(f32 *)(work + 0x3C);
+        *(f32 *)(work + 0x3A0) = (f32)(*(s32 *)(work + 0xC) + 2);
+        *(f32 *)(work + 0x3A4) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18)) - *(f32 *)(work + 0x3C);
+        *(f32 *)(work + 0x3E0) = (f32)*(s32 *)(work + 0xC);
+        *(f32 *)(work + 0x3E4) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18));
+        *(f32 *)(work + 0x420) = (f32)(*(s32 *)(work + 0xC) + 2);
+        *(f32 *)(work + 0x424) = (f32)(*(s32 *)(work + 0x10) + *(s32 *)(work + 0x18));
+        *(f32 *)(work + 0x3C) = *(f32 *)(work + 0x3C) + (f32)*(s32 *)(work + 0x18) / 2.0f;
+        break;
+    case 5: {
+        u8 c;
+        c = (u8)(*(f32 *)(work + 0x40));
+        if (*(u8 *)(work + 0x23) < c) {
+            f32 fb;
+            f32 f;
+            fb = (f32)*(u8 *)(work + 0x23);
+            f = fb + *(f32 *)(work + 0x40) / 8.0f;
+            *(u8 *)(work + 0x23) = (u8)f;
+        } else {
+            *(u8 *)(work + 0x23) = (u8)(*(f32 *)(work + 0x40));
+            *(s32 *)work = *(s32 *)work + 1;
+        }
+        k = 0;
+        goto test5k;
+body5k:
+        e = work + (k << 6);
+        *(f32 *)(e + 0x480) = (f32)*(u8 *)(work + 0x20);
+        *(f32 *)(e + 0x484) = (f32)*(u8 *)(work + 0x21);
+        *(f32 *)(e + 0x488) = (f32)*(u8 *)(work + 0x22);
+        *(f32 *)(e + 0x48C) = (f32)*(u8 *)(work + 0x23);
+        k++;
+test5k:
+        if (k < 4) {
+            goto body5k;
+        }
+        break;
+    }
+    case 6:
+        func_0046ea60(arg0, work + 0xC);
+        break;
+    case 7:
+        if (*(u8 *)(work + 0x23) > 0) {
+            *(u8 *)(work + 0x23) = *(u8 *)(work + 0x23) - 1;
+        }
+        if (*(u8 *)(work + 0x1F) > 0) {
+            *(u8 *)(work + 0x1F) = *(u8 *)(work + 0x1F) - 1;
+        }
+        i = 0;
+        goto test7o;
+body7o:
+        g = work + (i << 8);
+        j = 0;
+        goto test7i;
+body7i:
+        e = g + (j << 6);
+        *(f32 *)(e + 0x80) = (f32)*(u8 *)(work + 0x1C);
+        *(f32 *)(e + 0x84) = (f32)*(u8 *)(work + 0x1D);
+        *(f32 *)(e + 0x88) = (f32)*(u8 *)(work + 0x1E);
+        *(f32 *)(e + 0x8C) = (f32)*(u8 *)(work + 0x1F);
+        j++;
+test7i:
+        if (j < 4) {
+            goto body7i;
+        }
+        i++;
+test7o:
+        if (i < 4) {
+            goto body7o;
+        }
+        k = 0;
+        goto test7k;
+body7k:
+        e = work + (k << 6);
+        *(f32 *)(e + 0x480) = (f32)*(u8 *)(work + 0x20);
+        *(f32 *)(e + 0x484) = (f32)*(u8 *)(work + 0x21);
+        *(f32 *)(e + 0x488) = (f32)*(u8 *)(work + 0x22);
+        *(f32 *)(e + 0x48C) = (f32)*(u8 *)(work + 0x23);
+        k++;
+test7k:
+        if (k < 4) {
+            goto body7k;
+        }
+        if (*(u8 *)(work + 0x23) == 0 && *(u8 *)(work + 0x23) == 0) {
+            *(s32 *)work = *(s32 *)work + 1;
+        }
+        break;
+    case 8:
+        return -1;
+    }
+    if (*(s32 *)(work + 4) == 1) {
+        if (func_003e8120(func_00457120()) != 0) {
+            tbl00 = D_00887300;
+            tbl00[0](6, 1);
+            tbl00[0](8, 0);
+            tbl00[0](7, 2);
+            tbl00[0](0xC, 1);
+            tbl00[0](1, 0);
+            func_003f6440(2, 0x44);
+            func_003f6440(3, 0x717FB);
+            tbl10 = D_00887310;
+            tbl10[0](4, work + 0x460, 4);
+            tbl10[0](4, work + 0x60, 4);
+            tbl10[0](4, work + 0x160, 4);
+            tbl10[0](4, work + 0x260, 4);
+            tbl10[0](4, work + 0x360, 4);
+        }
+        func_003e8110(func_00457120());
+    }
+    return 0;
+}
+
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046d750);
+#endif
+/* measured: closes opt_propagation around func_0046d750. */
+#pragma opt_propagation on
 // FUN_0046E7F0
 /* Keep the table address cached without changing the free callback type. */
 #pragma push

@@ -24,8 +24,10 @@ extern void func_003e40b0(f32 *a, f32 *b);
 extern f32 func_004b7300(void *arg0, s32 arg1);
 extern s32 func_004b7800(void *arg0, s32 arg1);
 extern f32 func_004bc310(u8 *arg0, s32 arg1);
+extern f32 func_004bc1e0(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_004bb1d0(void *arg0, s32 arg1);
 extern void func_004b7dc0(u8 *arg0, s32 arg1, EffAfterVec *arg2);
+extern void func_004b7830(u8 *arg0, s32 arg1, s32 arg2, EffAfterVec *arg3);
 
 // FUN_004B7460
 void func_004b7460(u8 *data, f32 distance, u32 *section, f32 *fraction) {
@@ -457,8 +459,446 @@ void func_004bad70(u8 *data, EffAfterVec *position, EffAfterVec *normal) {
         break;
     }
 }
-// FUN_004BB1D0
+/* measured: floor for func_004bb1d0 (obj 3952B vs window 4112B, probe_variants 879 differing words reloc-masked).
+   Frame 0xA0 matches retail; initial param loads (0x1C->0x78, 0x24->0x70, 0x20->0x7C, 0x28->0x74) match.
+   Logic confirmed against retail asm (asm/nonmatchings/eff_after/func_004bb1d0.s via `grep -rl func_004bb1d0 asm/`),
+   IDA sub_4BB1D0, and M2C P4_UNIT_004BB1D0 (606 draft lines, noise 0): 4-block ribbon accumulation
+   (sec,side,src,dst) = (arg1,0,0x10,0x18), (arg1,1,0x14,0x20), (arg1+1,0,0x10,0x1C), (arg1+1,1,0x14,0x24);
+   triple selection (count==2 / section==0 vs else) and (count==2 || (count==3 && section==1) vs else);
+   ring indices `-2 - sec + cursor` and `(cursor-1)-sec` with wrap by +count; asserts 0x14E/0x137 for count<2.
+   Residual is compiler floor per docs/matching.md: swapped saved regs ($s2/$s1 for work/section,
+   $f26 vs $f21 etc. for coeff/pair), scheduling (addiu before c.le.s vs after), and FPU choice
+   (madd for scale vs retail mul+mul+add). Exhausted folded-displacement (struct AfterWork vs raw
+   work+8 hoisting), reverse-order float/stack allocation, and struct-vs-raw probes.
+   No pooled float constants (noise 0; only 0.0f via mtc1 $zero, no gp-relative loads to bank).
+   Unit confirmed via `grep -rl func_004bb1d0 asm/` -> asm/nonmatchings/eff_after/func_004bb1d0.s.
+   Production stays INCLUDE_ASM fallback; body preserved here as NON_MATCHING seed. */
+// FUN_004BB1D0 NONMATCHING
+#ifdef NON_MATCHING
+void func_004bb1d0(void *arg0, s32 arg1) {
+    typedef struct {
+        u8 *config;
+        s32 unk4;
+        s32 count;
+        s32 cursor;
+        EffAfterVec *src0;
+        EffAfterVec *src1;
+        EffAfterVec *dst0;
+        EffAfterVec *dst1;
+        EffAfterVec *dst2;
+        EffAfterVec *dst3;
+    } AfterWork;
+    AfterWork *work = (AfterWork *)arg0;
+    EffAfterVec acc;
+    EffAfterVec dir;
+    f32 widths[2];
+    f32 alphas[2];
+    f32 coeff0;
+    f32 pairA0;
+    f32 pairB0;
+    f32 pairB1;
+    f32 pairA1;
+    f32 coeff2;
+    f32 coeff1;
+    f32 scale;
+    s32 sel;
+    {
+        u8 *param = *(u8 **)work->config;
+        widths[0] = *(f32 *)(param + 0x1C);
+        alphas[0] = *(f32 *)(param + 0x24);
+        widths[1] = *(f32 *)(param + 0x20);
+        alphas[1] = *(f32 *)(param + 0x28);
+    }
+    {
+        f32 len0 = func_004bc1e0((u8 *)work, arg1, 0);
+        f32 len1 = func_004bc1e0((u8 *)work, arg1, 1);
+        s32 tmp = 1;
+        if (len0 <= len1) {
+            tmp = 0;
+        }
+        sel = tmp ^ 1;
+    }
+    if (work->count == 2) {
+        u8 *param = *(u8 **)work->config;
+        coeff0 = *(f32 *)(param + 0xC);
+        coeff1 = *(f32 *)(param + 0x10);
+        coeff2 = 0.0f;
+    } else if (arg1 == 0) {
+        u8 *param = *(u8 **)work->config;
+        coeff0 = *(f32 *)(param + 0xC);
+        coeff1 = *(f32 *)(param + 0x10);
+        coeff2 = 0.0f;
+    } else {
+        u8 *param = *(u8 **)work->config;
+        coeff0 = *(f32 *)(param + 0x0);
+        coeff1 = *(f32 *)(param + 0x8);
+        coeff2 = *(f32 *)(param + 0x4);
+    }
+    acc.c[0] = 0.0f;
+    acc.c[1] = 0.0f;
+    acc.c[2] = 0.0f;
+    pairA0 = widths[sel & 1];
+    scale = pairA0 * func_004bc1e0((u8 *)work, arg1, 0);
+    pairA1 = alphas[sel & 1];
+    scale = scale + pairA1 * func_004bc310((u8 *)work, arg1);
+    func_004b7830((u8 *)work, arg1, 0, &dir);
+    dir.c[0] *= coeff0;
+    dir.c[1] *= coeff0;
+    dir.c[2] *= coeff0;
+    acc.c[0] += dir.c[0];
+    acc.c[1] += dir.c[1];
+    acc.c[2] += dir.c[2];
+    if (work->count < 2) {
+        func_0046d730(D_007146E0, 0x14E);
+    }
+    if (arg1 == 0) {
+        dir.c[0] = 0.0f;
+        dir.c[1] = 0.0f;
+        dir.c[2] = 0.0f;
+    } else {
+        s32 idxA = (work->cursor - 1) - arg1;
+        s32 idxB;
+        EffAfterVec *base;
+        if (idxA < 0) {
+            idxA += work->count;
+        }
+        idxB = work->cursor - arg1;
+        if (idxB < 0) {
+            idxB += work->count;
+        }
+        base = work->src0;
+        dir.c[0] = base[idxB].c[0] - base[idxA].c[0];
+        dir.c[1] = base[idxB].c[1] - base[idxA].c[1];
+        dir.c[2] = base[idxB].c[2] - base[idxA].c[2];
+        func_003e40b0(&dir.c[0], &dir.c[0]);
+    }
+    dir.c[0] *= coeff2;
+    dir.c[1] *= coeff2;
+    dir.c[2] *= coeff2;
+    acc.c[0] += dir.c[0];
+    acc.c[1] += dir.c[1];
+    acc.c[2] += dir.c[2];
+    if (work->count < 2) {
+        func_0046d730(D_007146E0, 0x137);
+    }
+    if (arg1 == work->count - 1) {
+        dir.c[0] = 0.0f;
+        dir.c[1] = 0.0f;
+        dir.c[2] = 0.0f;
+    } else {
+        s32 idxC = (work->cursor - 1) - arg1;
+        s32 idxD;
+        EffAfterVec *base;
+        if (idxC < 0) {
+            idxC += work->count;
+        }
+        idxD = -2 - arg1 + work->cursor;
+        if (idxD < 0) {
+            idxD += work->count;
+        }
+        base = work->src0;
+        dir.c[0] = base[idxC].c[0] - base[idxD].c[0];
+        dir.c[1] = base[idxC].c[1] - base[idxD].c[1];
+        dir.c[2] = base[idxC].c[2] - base[idxD].c[2];
+        func_003e40b0(&dir.c[0], &dir.c[0]);
+    }
+    dir.c[0] *= coeff1;
+    dir.c[1] *= coeff1;
+    dir.c[2] *= coeff1;
+    acc.c[0] += dir.c[0];
+    acc.c[1] += dir.c[1];
+    acc.c[2] += dir.c[2];
+    func_003e40b0(&acc.c[0], &acc.c[0]);
+    acc.c[0] *= scale;
+    acc.c[1] *= scale;
+    acc.c[2] *= scale;
+    {
+        s32 idx = (work->cursor - 1) - arg1;
+        EffAfterVec *dst;
+        if (idx < 0) {
+            idx += work->count;
+        }
+        dst = work->dst0;
+        dst[idx] = acc;
+    }
+    acc.c[0] = 0.0f;
+    acc.c[1] = 0.0f;
+    acc.c[2] = 0.0f;
+    pairB0 = widths[(sel + 1) & 1];
+    scale = pairB0 * func_004bc1e0((u8 *)work, arg1, 1);
+    pairB1 = alphas[(sel + 1) & 1];
+    scale = scale + pairB1 * func_004bc310((u8 *)work, arg1);
+    func_004b7830((u8 *)work, arg1, 1, &dir);
+    dir.c[0] *= coeff0;
+    dir.c[1] *= coeff0;
+    dir.c[2] *= coeff0;
+    acc.c[0] += dir.c[0];
+    acc.c[1] += dir.c[1];
+    acc.c[2] += dir.c[2];
+    if (work->count < 2) {
+        func_0046d730(D_007146E0, 0x14E);
+    }
+    if (arg1 == 0) {
+        dir.c[0] = 0.0f;
+        dir.c[1] = 0.0f;
+        dir.c[2] = 0.0f;
+    } else {
+        s32 idxA = (work->cursor - 1) - arg1;
+        s32 idxB;
+        EffAfterVec *base;
+        if (idxA < 0) {
+            idxA += work->count;
+        }
+        idxB = work->cursor - arg1;
+        if (idxB < 0) {
+            idxB += work->count;
+        }
+        base = work->src1;
+        dir.c[0] = base[idxB].c[0] - base[idxA].c[0];
+        dir.c[1] = base[idxB].c[1] - base[idxA].c[1];
+        dir.c[2] = base[idxB].c[2] - base[idxA].c[2];
+        func_003e40b0(&dir.c[0], &dir.c[0]);
+    }
+    dir.c[0] *= coeff2;
+    dir.c[1] *= coeff2;
+    dir.c[2] *= coeff2;
+    acc.c[0] += dir.c[0];
+    acc.c[1] += dir.c[1];
+    acc.c[2] += dir.c[2];
+    if (work->count < 2) {
+        func_0046d730(D_007146E0, 0x137);
+    }
+    if (arg1 == work->count - 1) {
+        dir.c[0] = 0.0f;
+        dir.c[1] = 0.0f;
+        dir.c[2] = 0.0f;
+    } else {
+        s32 idxC = (work->cursor - 1) - arg1;
+        s32 idxD;
+        EffAfterVec *base;
+        if (idxC < 0) {
+            idxC += work->count;
+        }
+        idxD = -2 - arg1 + work->cursor;
+        if (idxD < 0) {
+            idxD += work->count;
+        }
+        base = work->src1;
+        dir.c[0] = base[idxC].c[0] - base[idxD].c[0];
+        dir.c[1] = base[idxC].c[1] - base[idxD].c[1];
+        dir.c[2] = base[idxC].c[2] - base[idxD].c[2];
+        func_003e40b0(&dir.c[0], &dir.c[0]);
+    }
+    dir.c[0] *= coeff1;
+    dir.c[1] *= coeff1;
+    dir.c[2] *= coeff1;
+    acc.c[0] += dir.c[0];
+    acc.c[1] += dir.c[1];
+    acc.c[2] += dir.c[2];
+    func_003e40b0(&acc.c[0], &acc.c[0]);
+    acc.c[0] *= scale;
+    acc.c[1] *= scale;
+    acc.c[2] *= scale;
+    {
+        s32 idx = (work->cursor - 1) - arg1;
+        EffAfterVec *dst;
+        if (idx < 0) {
+            idx += work->count;
+        }
+        dst = work->dst2;
+        dst[idx] = acc;
+    }
+    acc.c[0] = 0.0f;
+    acc.c[1] = 0.0f;
+    acc.c[2] = 0.0f;
+    if (work->count == 2) {
+        u8 *param = *(u8 **)work->config;
+        coeff2 = *(f32 *)(param + 0x14);
+        coeff1 = 0.0f;
+        coeff0 = *(f32 *)(param + 0x18);
+    } else if (work->count == 3 && arg1 == 1) {
+        u8 *param = *(u8 **)work->config;
+        coeff2 = *(f32 *)(param + 0x14);
+        coeff1 = 0.0f;
+        coeff0 = *(f32 *)(param + 0x18);
+    } else {
+        u8 *param = *(u8 **)work->config;
+        coeff2 = *(f32 *)(param + 0x0);
+        coeff1 = *(f32 *)(param + 0x8);
+        coeff0 = *(f32 *)(param + 0x4);
+    }
+    sel = arg1 + 1;
+    pairA0 = pairA0 * func_004bc1e0((u8 *)work, arg1, 0);
+    pairA1 = pairA0 + pairA1 * func_004bc310((u8 *)work, arg1);
+    func_004b7830((u8 *)work, sel, 0, &dir);
+    dir.c[0] *= coeff2;
+    dir.c[1] *= coeff2;
+    dir.c[2] *= coeff2;
+    acc.c[0] += dir.c[0];
+    acc.c[1] += dir.c[1];
+    acc.c[2] += dir.c[2];
+    if (work->count < 2) {
+        func_0046d730(D_007146E0, 0x14E);
+    }
+    if (sel == 0) {
+        dir.c[0] = 0.0f;
+        dir.c[1] = 0.0f;
+        dir.c[2] = 0.0f;
+    } else {
+        s32 idxA = (work->cursor - 1) - sel;
+        s32 idxB;
+        EffAfterVec *base;
+        if (idxA < 0) {
+            idxA += work->count;
+        }
+        idxB = work->cursor - sel;
+        if (idxB < 0) {
+            idxB += work->count;
+        }
+        base = work->src0;
+        dir.c[0] = base[idxB].c[0] - base[idxA].c[0];
+        dir.c[1] = base[idxB].c[1] - base[idxA].c[1];
+        dir.c[2] = base[idxB].c[2] - base[idxA].c[2];
+        func_003e40b0(&dir.c[0], &dir.c[0]);
+    }
+    dir.c[0] *= coeff0;
+    dir.c[1] *= coeff0;
+    dir.c[2] *= coeff0;
+    acc.c[0] += dir.c[0];
+    acc.c[1] += dir.c[1];
+    acc.c[2] += dir.c[2];
+    if (work->count < 2) {
+        func_0046d730(D_007146E0, 0x137);
+    }
+    if (sel == work->count - 1) {
+        dir.c[0] = 0.0f;
+        dir.c[1] = 0.0f;
+        dir.c[2] = 0.0f;
+    } else {
+        s32 idxC = (work->cursor - 1) - sel;
+        s32 idxD;
+        EffAfterVec *base;
+        if (idxC < 0) {
+            idxC += work->count;
+        }
+        idxD = -2 - sel + work->cursor;
+        if (idxD < 0) {
+            idxD += work->count;
+        }
+        base = work->src0;
+        dir.c[0] = base[idxC].c[0] - base[idxD].c[0];
+        dir.c[1] = base[idxC].c[1] - base[idxD].c[1];
+        dir.c[2] = base[idxC].c[2] - base[idxD].c[2];
+        func_003e40b0(&dir.c[0], &dir.c[0]);
+    }
+    dir.c[0] *= coeff1;
+    dir.c[1] *= coeff1;
+    dir.c[2] *= coeff1;
+    acc.c[0] += dir.c[0];
+    acc.c[1] += dir.c[1];
+    acc.c[2] += dir.c[2];
+    func_003e40b0(&acc.c[0], &acc.c[0]);
+    acc.c[0] *= pairA1;
+    acc.c[1] *= pairA1;
+    acc.c[2] *= pairA1;
+    {
+        s32 idx = (work->cursor - 1) - arg1;
+        EffAfterVec *dst;
+        if (idx < 0) {
+            idx += work->count;
+        }
+        dst = work->dst1;
+        dst[idx] = acc;
+    }
+    acc.c[0] = 0.0f;
+    acc.c[1] = 0.0f;
+    acc.c[2] = 0.0f;
+    pairA1 = pairB0 * func_004bc1e0((u8 *)work, arg1, 1);
+    pairA1 = pairA1 + pairB1 * func_004bc310((u8 *)work, arg1);
+    func_004b7830((u8 *)work, sel, 1, &dir);
+    dir.c[0] *= coeff2;
+    dir.c[1] *= coeff2;
+    dir.c[2] *= coeff2;
+    acc.c[0] += dir.c[0];
+    acc.c[1] += dir.c[1];
+    acc.c[2] += dir.c[2];
+    if (work->count < 2) {
+        func_0046d730(D_007146E0, 0x14E);
+    }
+    if (sel == 0) {
+        dir.c[0] = 0.0f;
+        dir.c[1] = 0.0f;
+        dir.c[2] = 0.0f;
+    } else {
+        s32 idxA = (work->cursor - 1) - sel;
+        s32 idxB;
+        EffAfterVec *base;
+        if (idxA < 0) {
+            idxA += work->count;
+        }
+        idxB = work->cursor - sel;
+        if (idxB < 0) {
+            idxB += work->count;
+        }
+        base = work->src1;
+        dir.c[0] = base[idxB].c[0] - base[idxA].c[0];
+        dir.c[1] = base[idxB].c[1] - base[idxA].c[1];
+        dir.c[2] = base[idxB].c[2] - base[idxA].c[2];
+        func_003e40b0(&dir.c[0], &dir.c[0]);
+    }
+    dir.c[0] *= coeff0;
+    dir.c[1] *= coeff0;
+    dir.c[2] *= coeff0;
+    acc.c[0] += dir.c[0];
+    acc.c[1] += dir.c[1];
+    acc.c[2] += dir.c[2];
+    if (work->count < 2) {
+        func_0046d730(D_007146E0, 0x137);
+    }
+    if (sel == work->count - 1) {
+        dir.c[0] = 0.0f;
+        dir.c[1] = 0.0f;
+        dir.c[2] = 0.0f;
+    } else {
+        s32 idxC = (work->cursor - 1) - sel;
+        s32 idxD;
+        EffAfterVec *base;
+        if (idxC < 0) {
+            idxC += work->count;
+        }
+        idxD = -2 - sel + work->cursor;
+        if (idxD < 0) {
+            idxD += work->count;
+        }
+        base = work->src1;
+        dir.c[0] = base[idxC].c[0] - base[idxD].c[0];
+        dir.c[1] = base[idxC].c[1] - base[idxD].c[1];
+        dir.c[2] = base[idxC].c[2] - base[idxD].c[2];
+        func_003e40b0(&dir.c[0], &dir.c[0]);
+    }
+    dir.c[0] *= coeff1;
+    dir.c[1] *= coeff1;
+    dir.c[2] *= coeff1;
+    acc.c[0] += dir.c[0];
+    acc.c[1] += dir.c[1];
+    acc.c[2] += dir.c[2];
+    func_003e40b0(&acc.c[0], &acc.c[0]);
+    acc.c[0] *= pairA1;
+    acc.c[1] *= pairA1;
+    acc.c[2] *= pairA1;
+    {
+        s32 idx = (work->cursor - 1) - arg1;
+        EffAfterVec *dst;
+        if (idx < 0) {
+            idx += work->count;
+        }
+        dst = work->dst3;
+        dst[idx] = acc;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004bb1d0);
+#endif
 
 /* measured: nd 34 from 49 (obj 288B vs window 304B). Logic confirmed, including
    that the two ring-index expressions have DIFFERENT shapes in retail --
@@ -484,7 +924,7 @@ INCLUDE_ASM("asm/nonmatchings/eff_after", func_004bb1d0);
 /* measured: optimization_level 1 probe for eff_after target. */
 #pragma optimization_level 1
 // FUN_004BC1E0
-void func_004bc1e0(u8 *arg0, s32 arg1, s32 arg2)
+f32 func_004bc1e0(u8 *arg0, s32 arg1, s32 arg2)
 {
     f32 v[3];
     s32 i;
@@ -521,7 +961,7 @@ void func_004bc1e0(u8 *arg0, s32 arg1, s32 arg2)
     v[1] -= t;
     t = p[2];
     v[2] -= t;
-    func_003e4180(v);
+    return func_003e4180(v);
 }
 #pragma optimization_level 2
 
