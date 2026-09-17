@@ -57,6 +57,7 @@ static inline void fclZero8(u8 *p)
 /* 6150 copy pattern: retain result in p1/p2 locals, *(FclByte4*)(p2+0x85)=*(FclByte4*)(p1+0x85); never re-call 6150 for the source. */
 /* Pragma check on all four exact bodies: loop_invariants neutral (220->220, 249->250, 271->271, 307->307), common_subs off and schedule on worse except f4d0 cse_off 307->287 (ties prior F floor, noted not committed); rotation persists, so it stands as a measured wall here unlike mdlSE 0047e0f0 where loop_invariants dissolved it. */
 /* Width check on all four: (s8) counters/args via lb with dsll24/dsra24, heap bytes via lbu/lhu; no s8/u8 mixups remain. */
+/* Fresh 2026-09-17 (3212e0 lane, after 004941f0/00347c70 in order): pointer slots holding heap+offset (retail sq 0xC0/0xB0 on 3212e0) are plain u8* locals, not u_long128 -- u_long128 widens frame 0xF0->0x100 and costs 4 words (WIDE 321w/139ed/375B -> PTR 317w/136ed+3reloc/367B exact, retail 368/367). Byte-copy colours where retail shows batched lbu/sb stay u8[4] with per-byte copies; FclByte4 &c + struct-assign gives lw/sw and only applies where retail shows word copies (MATCHed 315310 idiom) -- trying FclByte4 here fails to compile (needs & + .bN rewrites) and would be the wrong shape. Guarded (u8)(s32)f conversion uses the same normal-first 2.1474836e9f > f + per-arm andi idiom as y_CmbCardEff 00348330 (shared across owners; polarity >= vs > is equality-edge only, both match retail c.le.s/bc1t). */
 extern void func_0044ea90(const void *arg0, u32 arg1);
 extern void *func_0043f9c8(void *dest, s32 value, s32 size);
 extern void *func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
@@ -1088,6 +1089,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00320b80);
 /* (331->321 words, 154->139 edits, 381->375 object). WALL remains slot-layout + scheduling (u8 groups alias, */
 /* byte-copy interleave vs batched, var_16 4-instr vs clean pair, u8 arg1 andi, u_long128 widening). Base G */
 /* body 331/154/381 (both archives exist and reproduce). */
+/* Fresh 2026-09-17 PTR lever (this lane): u_long128 spC0/spB0 -> plain u8* (spC0=temp_18+(s32)var_16, spB0=temp_18+temp_22, temp_2=spB0+(s32)j, (s8*)(spC0+0x18C)) measures 317w over 136 fnalign edits (+3 reloc-only), retail 367 vs object 367 exact (frame fixed 0x100->0xF0) via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_003212e0 --candidate PTR=/tmp/fcl3212_ptr.c` (WIDE 321 same command) and `python3 tools/fnalign.py ... --candidate /tmp/fcl3212_ptr.c --quiet`. FclByte4 struct lever on the same base fails to compile (u8[4] decays to u8* for 2b2a60, struct needs & + .bN; plus wrong shape lw/sw vs retail lbu/sb) -- documented in conventions above, not re-probed. 317 is the new measured best; WALL now slot-layout + scheduling minus widening (var_16/u8-arg1/byte-interleave remain). Production stays INCLUDE_ASM per floor policy; archives unchanged (WIDE still reproduces 321). */
 // FUN_003212E0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003212e0);
 
@@ -1100,6 +1102,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003212e0);
 /* Shapes that match: s32 v = (s16)arg1 raw to 6af0/69f0, sp16C..sp158 s32, 2a60 FclByte4 chains, inner if/else */
 /* with 2e4870(0)+sp100+(s16)j+0x14 lb test, 83e0 6-call block, for(i=0;(s16)i<(u16)func_0010b5b0();i=(s16)(i+1)) */
 /* with m=n*23, 25E/14E/7F constants, sq'd sp120 = v+3 reloaded as (s16) for 6a70. */
+/* Fresh 2026-09-17 (this lane, last in order after 004941f0/00347c70/003212e0): no new source probing -- prior best-of-3 body still missing so no --candidate re-measurement possible (P01C placeholder still 1-line, verified). 3212e0 PTR lever in this same file applies verbatim here per the sq/lq spill line above: use s32/u8* locals, never source u_long128, for the 0x120..0xC0 slots (u_long128 would widen frame 0x170 further, same family as 3212e0 0xF0->0x100); lwr/lwl stay plain *(u32*)(p+0x75) per preserved shapes (do not re-try u8-byte or s32-index forms); guarded (u8)(s32)f where present uses the shared 2.1474836e9f idiom per conventions. Production stays INCLUDE_ASM; wall stands as documented (heap unaligned-load + loop-CSE/spill/saved-reg rotation). */
 // FUN_003218A0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003218a0);
 
