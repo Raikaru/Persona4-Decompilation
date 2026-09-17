@@ -113,6 +113,10 @@ extern u8 D_0064E650[];
 extern u8 D_0064E670[];
 
 extern u8 D_0064E6A0[];
+extern u16 func_0010b6f0(void);
+extern u8 func_00109920(u8 *arg0, u16 arg1);
+extern u8 func_001099f0(u8 *arg0, u16 arg1);
+extern s32 func_0010a780(u8 *arg0, u16 arg1, s8 arg2);
 
 
 
@@ -776,13 +780,70 @@ s32 func_0036fed0(s32 arg0)
     return 1;
 }
 
-/* measured: main body logic and switch dispatch (u32)(arg0 & 0xFFFF0000)>>16
- * reproduce retail's lui/and/srl + beq chain; register coloring for p/v17/v16
- * matches ($s2/$s1/$s0). Residual nd 132: retail sign-extends v16 with a
- * dsll32/dsra32 pair at each use (s16 and s32 declarations both fail) and loads
- * the v17 switch constants with daddiu (s32/s64 declarations both emit addiu).
- * Re-extension + daddiu-constant scheduling floor. SUPERSEDED: re-deriving
- * the body with the narrow-unsigned switch local. */
+/* matched: u16 sel reproduces the lui/and/srl/andi dispatch; u16 kind with */
+/* narrow callee prototypes yields retail's daddiu constants with no extra */
+/* masking; s32 flag + (flag & 0xFFFF) keeps the redundant andi; s16 v/t give */
+/* the dsll32/dsra32 schedule, sum = t+v with (sum > 0x63) and (t <= v) fix the */
+/* slti/slt $at coloring. */
 // FUN_00370020
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_00370020);
+s32 func_00370020(s32 arg0, u8 *arg1)
+{
+    s32 flag = arg0 & 0xFFFF;
+    u16 sel = (u16)((u32)(arg0 & 0xFFFF0000) >> 16);
+    u8 *p;
+    u16 kind;
+    s16 v;
+    s16 t;
+
+    switch (sel) {
+    case 8:
+        kind = 3;
+        break;
+    case 9:
+        kind = 0;
+        break;
+    case 11:
+        kind = 4;
+        break;
+    case 12:
+        kind = 1;
+        break;
+    case 13:
+        kind = 2;
+        break;
+    default:
+        func_0046d730(D_0064E790, 0x5D6);
+        break;
+    }
+    p = func_0010ace0((s16)func_00231d70(func_0010b6f0() & 0xFFFF));
+    if (p == NULL) {
+        func_0046d730(D_0064E790, 0x5DC);
+    }
+    if ((flag & 0xFFFF) != 0) {
+        s32 sum;
+        v = (s16)(func_00231d70(3) + 1);
+        t = (s16)(func_001099f0(p, kind) & 0xFF);
+        if (t >= 0x63) {
+            return 0;
+        }
+        sum = t + v;
+        if (sum > 0x63) {
+            v = 0x63 - t;
+        }
+        func_0010a780(p, kind, (s8)v);
+    } else {
+        v = (s16)(func_00231d70(1) + 1);
+        t = (s16)(func_00109920(p, kind) & 0xFF);
+        if (t < 2) {
+            return 0;
+        }
+        if (t <= v) {
+            v = t - 1;
+        }
+        func_0010a780(p, kind, (s8)(-v));
+    }
+    *(u16 *)(arg1 + 4) = *(u16 *)(p + 2);
+    *(u16 *)(arg1 + 8) = (u16)v;
+    return 1;
+}
 

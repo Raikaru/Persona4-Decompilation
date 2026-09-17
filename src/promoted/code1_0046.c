@@ -2345,6 +2345,14 @@ loop:
     goto loop;
 }
 
+/* Measured wall: func_0046a7f0 844/848B faithful (nd 71) vs 836/848B unfaithful (nd 100, missing *(B+0x204) load). */
+/* Neighbours 0046a770 (128B) / 0046ab40 (80B) both MATCH with explicit goto top-test loops; full window 0xB0 */
+/* frame (input sp+0x80 / output sp+0x50) checked top-down: off 0-104 (first 4x2 copy) byte-exact. */
+/* Table-remat check: retail final loop remats table base twice per iter (lw $5,0($17); lw $3,4($17); */
+/* sll $4,$3,7; lw $3,0x204($5); addu $3,$3,$4 at 0x46AA80-90 and 0x46AAE4-F4). Faithful spelling twice */
+/* (`*( *(B+0x204)+(idx<<7)+0x44/0x48` inline twice) gives obj 844B nd 71; +`opt_common_subs off` gives */
+/* nd 193 (worse). Middle 4x3 copy single-base (sp+i*12 +0x50/+0x80, 3-reg loads-first) vs twice + 1-reg */
+/* also walls. FPR $f1 vs $f3, counter $a3 vs $t0, ACC scheduling remain. Banked as wall; keep INCLUDE_ASM. */
 // FUN_0046A7F0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046a7f0);
 // FUN_0046AB40
