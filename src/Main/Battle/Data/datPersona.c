@@ -46,6 +46,7 @@ extern u32 func_0010c750(void *persona, u16 level);
 extern void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2);
 extern void func_0010c5a0(u8 *arg0, u8 *arg1);
 extern void func_0010d150(u8 *arg0);
+extern u32 func_00231d70(u32 arg0);
 
 extern f32 fGpffff8218; /* gp -0x7DF8 */
 extern f32 fGpffff821c; /* gp -0x7DF4 */
@@ -1126,8 +1127,241 @@ s32 func_0010be20(u8 *arg0)
     return 0;
 }
 
-// FUN_0010BE60
+/* Floor: tools/probe_variants.py v2 scores 445 differing words (reloc-masked),
+   object 1812B/window 1856B (44B short, 97.6%, within ~3%); v3 reuses level/
+   expsum/pidoff for first/found/span and scores 440/1808B. Frame is retail
+   -0xA0 (8 saved + ra, u16 stat[5] at sp+0x90) vs this build -0xC0 (9 saved
+   + ra incl. s8, array at sp+0xB0): one extra saved reg (skills in s8 vs
+   retail s7) plus 32B spill; every residual is register/stack-offset, no
+   missing control flow. No jtbl_ in asm (only jr $31); skill-type switch
+   recovered from the compare chain as if-else 4,3,2,1 in retail order, with
+   type-2 inserting when already known (C4F0 beq) vs type-1 when new (C458
+   bne) preserved. Reuses sibling conventions: iGpffffb3dc/b3d4/b3e4 tables,
+   (u16)i masked loops, D_005E4318 asserts (8: 0x56D,0x1DE,0x268,0x299,0x59F,
+   0x604,0x614,0x61F) from P4_UNIT_0010BE60 (281 draft lines, noise 8).
+   Measured inert: declaration-order perms v3a/b/c all 440, u8/s8 stat mixes,
+   (u8 *)iGpffffb3e4 + 0x7A growth-byte casts. */
+// FUN_0010BE60 NONMATCHING
+#ifdef NON_MATCHING
+void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2) {
+    u16 stat[5];
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 a;
+    s32 b;
+    u16 pid;
+    s32 level;
+    s32 expsum;
+    s32 pidoff;
+    u8 *entry;
+    u8 *skills;
+    s32 known;
+    pid = *(u16 *)(arg0 + 2);
+    if (pid == 0 || pid >= 0x100) {
+        func_0046d730(D_005E4318, 0x56D);
+    }
+    func_0043f9c8(arg1, 0, 0x88);
+    i = 0;
+    while ((u16)i < 5) {
+        if ((u16)i >= 5) {
+            func_0046d730(D_005E4318, 0x1DE);
+        }
+        stat[(u16)i] = *(u8 *)(arg0 + 0x1C + (u16)i);
+        if ((u16)i >= 5) {
+            func_0046d730(D_005E4318, 0x268);
+        }
+        stat[(u16)i] = (u16)(stat[(u16)i] + *(s8 *)(arg0 + 0x21 + (u16)i));
+        if ((u16)i >= 5) {
+            func_0046d730(D_005E4318, 0x299);
+        }
+        stat[(u16)i] = (u16)(stat[(u16)i] + *(s8 *)(arg0 + 0x26 + (u16)i));
+        i = (i + 1) & 0xFFFF;
+    }
+    level = ((*(u8 *)(arg0 + 4) + 1) & 0xFFFF);
+    expsum = *(s32 *)(arg0 + 8) + arg2;
+    pidoff = (s32)pid * 0x46;
+    while (1) {
+        u32 need;
+        need = func_0010c750(arg0, (u16)level);
+        if ((u32)expsum < need) {
+            break;
+        }
+        if ((u16)level >= 0x64) {
+            break;
+        }
+        if (*(u16 *)(arg0 + 2) >= 0xC0 && *(u16 *)(arg0 + 2) < 0xD8) {
+            if (*(u16 *)(arg0 + 2) < 0xC0 || *(u16 *)(arg0 + 2) >= 0xD8) {
+                func_0046d730(D_005E4318, 0x59F);
+            }
+            if ((u16)level >= 2) {
+                u8 *base;
+                base = (u8 *)iGpffffb3e4 + (*(u16 *)(arg0 + 2) - 0xC0) * 0x26E + (level & 0xFFFF) * 5;
+                j = 0;
+                while ((u16)j < 5) {
+                    u16 sv;
+                    u8 av;
+                    sv = stat[(u16)j];
+                    av = *(u8 *)(arg1 + (u16)j + 0x82);
+                    if ((s32)(av + sv) < 0x63) {
+                        u8 gain;
+                        u8 nv;
+                        gain = *(u8 *)(base + (u16)j + 0x7A);
+                        nv = (u8)(av + gain);
+                        *(u8 *)(arg1 + (u16)j + 0x82) = nv;
+                        if ((s32)(nv + sv) >= 0x64) {
+                            *(u8 *)(arg1 + (u16)j + 0x82) = (u8)(0x63 - sv);
+                        }
+                    }
+                    j = (j + 1) & 0xFFFF;
+                }
+            }
+        } else {
+            i = 0;
+            while ((u16)i < 3) {
+                a = 0;
+                j = 0;
+                while ((u16)j < 5) {
+                    if ((s32)(*(u8 *)(arg1 + (u16)j + 0x82) + stat[(u16)j]) < 0x63) {
+                        a = (a + *(u8 *)(iGpffffb3dc + pidoff + (u16)j)) & 0xFFFF;
+                    }
+                    j = (j + 1) & 0xFFFF;
+                }
+                a = a & 0xFFFF;
+                if ((a & 0xFFFF) > 0) {
+                    b = (func_00231d70(a & 0xFFFF) + 1) & 0xFFFF;
+                    k = 0;
+                    a = 0;
+                    j = 0;
+                    while ((u16)j < 5) {
+                        if ((s32)(*(u8 *)(arg1 + (u16)j + 0x82) + stat[(u16)j]) < 0x63) {
+                            a = (a + *(u8 *)(iGpffffb3dc + pidoff + (u16)j)) & 0xFFFF;
+                            if (a >= b) {
+                                *(u8 *)(arg1 + (u16)j + 0x82) = (u8)(*(u8 *)(arg1 + (u16)j + 0x82) + 1);
+                                break;
+                            }
+                        }
+                        j = (j + 1) & 0xFFFF;
+                    }
+                }
+                i = (i + 1) & 0xFFFF;
+            }
+        }
+        level = (level + 1) & 0xFFFF;
+        *(u8 *)(arg1 + 0) += 1;
+    }
+    {
+        u16 id2;
+        s32 limit;
+        s32 oldlv;
+        s32 newlv;
+        s32 first;
+        s32 found;
+        s32 span;
+        s32 last;
+        s32 slot;
+        s32 out1;
+        s32 out2;
+        id2 = *(u16 *)(arg0 + 2);
+        if (id2 >= 0xC0 && id2 < 0xD8) {
+            entry = (u8 *)iGpffffb3e4 + (id2 - 0xC0) * 0x26E + 4;
+            limit = 0x20;
+            oldlv = *(u8 *)(arg0 + 4);
+        } else {
+            entry = iGpffffb3dc + (s32)id2 * 0x46 + 6;
+            limit = 0x10;
+            oldlv = *(u8 *)(arg0 + 4) - *(u8 *)(iGpffffb3d4 + (s32)id2 * 0xE + 3);
+        }
+        newlv = oldlv + *(u8 *)(arg1 + 0);
+        first = 0;
+        found = 0;
+        span = 0;
+        last = 0;
+        i = 0;
+        while ((u16)i < limit) {
+            u8 *e;
+            e = entry + (u16)i * 4;
+            if (*(s8 *)(e + 1) == 0) {
+                break;
+            }
+            if ((s32)oldlv < (s32)*(u8 *)e) {
+                if (found == 0) {
+                    found = 1;
+                    first = (u16)i;
+                    last = (u16)i;
+                }
+                if ((s32)newlv >= (s32)*(u8 *)e) {
+                    span = 1;
+                    last = (u16)i;
+                }
+            }
+            i = (i + 1) & 0xFFFF;
+        }
+        if (span != 0) {
+            slot = (last + 1) - first;
+        } else {
+            slot = 0;
+        }
+        entry = entry + first * 4;
+        skills = arg0 + 0xC;
+        known = func_0010ceb0(arg0);
+        out1 = 0;
+        out2 = 0;
+        i = 0;
+        while ((u16)i < slot) {
+            s8 typ;
+            typ = *(s8 *)(entry + 1);
+            if (typ == 4) {
+            } else if (typ == 3) {
+            } else if (typ == 2) {
+                u16 sk;
+                sk = *(u16 *)(entry + 2);
+                if (sk != 0) {
+                    j = 0;
+                    while ((u16)j < known) {
+                        if (sk == *(u16 *)(skills + (u16)j * 2)) {
+                            break;
+                        }
+                        j = (j + 1) & 0xFFFF;
+                    }
+                    if ((u16)j != (u16)known) {
+                        if ((u16)out2 >= 0x20) {
+                            func_0046d730(D_005E4318, 0x614);
+                        }
+                        *(u16 *)(arg1 + (u16)out2 * 2 + 0x42) = sk;
+                        out2 = (out2 + 1) & 0xFFFF;
+                    }
+                }
+            } else if (typ == 1) {
+                u16 sk2;
+                sk2 = *(u16 *)(entry + 2);
+                if (sk2 != 0) {
+                    j = 0;
+                    while ((u16)j < known) {
+                        if (sk2 == *(u16 *)(skills + (u16)j * 2)) {
+                            break;
+                        }
+                        j = (j + 1) & 0xFFFF;
+                    }
+                    if ((u16)j == (u16)known) {
+                        if ((u16)out1 >= 0x20) {
+                            func_0046d730(D_005E4318, 0x604);
+                        }
+                        *(u16 *)(arg1 + (u16)out1 * 2 + 2) = sk2;
+                        out1 = (out1 + 1) & 0xFFFF;
+                    }
+                }
+            } else {
+                func_0046d730(D_005E4318, 0x61F);
+            }
+            i = (i + 1) & 0xFFFF;
+            entry += 4;
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010be60);
+#endif
 
 // FUN_0010C5A0
 void func_0010c5a0(u8 *arg0, u8 *arg1)
