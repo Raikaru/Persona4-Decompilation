@@ -154,12 +154,12 @@ static inline void func_001c_rotate(RwMatrix *arg0, const RwV3d *arg1,
 /* Promoted from the canonical function map: every function here is a
    retail window with an INCLUDE_ASM fallback and no C body yet. */
 
-/* Camera-track floor (1216B window). First probe nd 263
-   (obj 876B, thinner); frame -0xD0 vs -0x130 retail, saved-reg
-   set verified, stack layout divergent (packed vs spread).
-   Open: frame layout, madd/msub fusion, scheduler ordering.
-   Triple-built (m2c+IDA+Ghidra, retail-arbitrated: 1bcd40
-   TU-decl order, 0.5-first 44b868, max-form update). */
+/* Camera-track floor (1216B window; obj 876B fndiff 248 verify 594; width check 2026-09-17:
+   no dsll/dsra pairs, clean; frame -0xD0 vs -0x130 retail, saved-reg set verified, stack
+   layout divergent (packed vs spread)). Open: frame layout, madd/msub fusion, scheduler
+   ordering. Triple-built (m2c+IDA+Ghidra, retail-arbitrated: 1bcd40 TU-decl order,
+   0.5-first 44b868, max-form update). Prior 263 now 248; reproducible with --candidate.
+*/
 // FUN_001C04E0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001c04e0(u8 *arg0)
@@ -297,15 +297,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c04e0);
 #endif
 // FUN_001C09A0
 void func_001c09a0(void) {}
-/* Sine-poly camera floor (1168B window). First probe nd 273
-   (obj 900B, frame -0x80 vs -0xF0 retail, thinner). Open:
-   accumulator-chain fusion (mula/madd/adda/msub un-emittable
-   in plain C), saved-reg pressure, scheduler ordering.
-   Chains decoded from retail to zero-seeded Horner sine polys
-   (coeffs iGpffff8054-8108/8180); closed forms cross-checked
-   against IDA Hex-Rays + Ghidra bodies. Spill model: 1bd560
-   writes sp40+, 1ec2b0 writes sp4C..spA4, 1bd780 writes sp68+,
-   3dcc70 writes sp80..sp9C. +0.0f ACC seeds measured worse. */
+/* Sine-poly camera floor (1168B window; obj 900B fndiff 261 verify 654; width check
+   2026-09-17: no dsll/dsra pairs, clean; frame -0x80 vs -0xF0 retail, thinner). Open:
+   accumulator-chain fusion (mula/madd/adda/msub un-emittable in plain C), saved-reg
+   pressure, scheduler ordering. Chains decoded from retail to zero-seeded Horner sine
+   polys (coeffs iGpffff8054-8108/8180); closed forms cross-checked against IDA Hex-Rays
+   + Ghidra bodies. Spill model: 1bd560 writes sp40+, 1ec2b0 writes sp4C..spA4, 1bd780
+   writes sp68+, 3dcc70 writes sp80..sp9C. +0.0f ACC seeds measured worse. Prior 273 now
+   261 with current tree; numbers reproducible with --candidate on extracted body.
+*/
 // FUN_001C09B0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001c09b0(u8 *arg0)
@@ -1390,8 +1390,11 @@ void func_001cb960(void) {}
 /* Vector temps at sp+0x110 (delta), sp+0xD8 (camXZ), sp+0xD0 (deltaXZ); Pose at sp+0x90/0xAC, quat at 0xB8. */
 /* Mined 48 MATCH neighbours (cb610/cacd0/c04e0): p4_cacd0_mul, func_001c_copy_pair, 0.0f+adda/madd, 100.0f/12.5f/500.0f clamps. */
 /* FMA chains (mula/madd/msub/adda) + 001959d0x2/003e40b0/003e41e0 retained; fnalign top-down, same levers. */
+/* measured 001cb970: `schedule on` inside the guard is worth 10 words (367 -> 357); retail fills delay slots plain -O2 leaves empty. */
 // FUN_001CB970 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: retail fills delay slots this function leaves empty at -O2. */
+#pragma schedule on
 void func_001cb970(u8 *arg0, f32 fparg0, s32 arg1)
 {
     extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
@@ -1566,6 +1569,8 @@ void func_001cb970(u8 *arg0, f32 fparg0, s32 arg1)
     func_001bac20((u16 *)camera, (f32 *)&work.poseOld, (f32 *)&work.poseNew, 1);
     func_001bbef0(camera, fparg0);
 }
+/* measured: closes the scope above at the file's -O2 baseline. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cb970);
 #endif

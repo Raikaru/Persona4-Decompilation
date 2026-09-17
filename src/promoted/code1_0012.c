@@ -170,7 +170,7 @@ extern u8 D_005E5BB8[];
 extern u8 D_005E76C8[];
 extern void func_0012e7c0(u8 *arg0);
 extern s32 func_0012ff60(u8 *arg0, u32 arg1);
-/* measured: func_001203a0 obj 1824B window 1856B (32B short, 1.7% within 3%), 382 reloc-masked differing words; fnalign retail 463 instrs object 456 instrs (7 short); frame -0xD0 vs -0x100, missing swc1 f23 save, sd/mov park order, s-reg coloring (s5/s3, s0/s2, s7/fp) + f22/f21 vs f12/f13 + stack offsets (0xE0 vs 0xB8 etc.); arg-setup float-first (00275020/00120ae0/0046d4c0) + u32 color unions + s32 D/C via cvt kept; opt_propagation+opt_common_subs off gives 382 (vs 398 single-inner, 397 both-inners, 400 flat); no slti/slt levers in retail; best honest exact-size draft, parked as compiler floor. */
+/* measured: func_001203a0 obj 1824B window 1856B (32B short, 1.7% within 3%), 382 reloc-masked differing words; fnalign retail 463 instrs object 456 instrs (7 short); frame -0xD0 vs -0x100, missing swc1 f23 save, sd/mov park order, s-reg coloring (s5/s3, s0/s2, s7/fp) + f22/f21 vs f12/f13 + stack offsets (0xE0 vs 0xB8 etc.); arg-setup float-first (00275020/00120ae0/0046d4c0) + u32 color unions + s32 D/C via cvt kept; opt_propagation+opt_common_subs off gives 382 (vs 398 single-inner, 397 both-inners, 400 flat); no slti/slt levers in retail; best honest exact-size draft, parked as compiler floor. Width 2026-09-17: 24 dsll/dsra pairs are s16-temp vs s32-callee tension; temp_18 s16->s32 400 worse, 0010d620 s16->s32 390 worse; keep s16, allocation wall. */
 // FUN_001203A0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
@@ -1854,6 +1854,10 @@ void func_00125e80(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
     func_0045e6a0(sp70, sp40, fparg2, 6, 4, 0, 0, 0,
                   -20.0f, 1.0f, 1.0f);
 }
+/* Floor (1296B window; obj 1288B fndiff 155 verify 465 fnalign 32 plus 15 reloc-only
+   retail 322/object 322 exact; width check 2026-09-17: no dsll/dsra pairs, clean.
+   Open: stack-address scheduling (sp+0x7c/0x74/0x60 ordering), gp-relative immediates
+   are reloc-only phantoms. Triple-built m2c+IDA+Ghidra; frame exact. */
 // FUN_00126090 NONMATCHING
 #ifdef NON_MATCHING
 void func_00126090(s32 arg0, u8 *arg1)

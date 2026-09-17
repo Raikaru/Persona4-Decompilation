@@ -714,7 +714,7 @@ s32 func_00164570(u32 arg0, s32 arg1)
 
 
 
-/* measured: floor 313 differing words (reloc-masked), object 1688B vs 1728B window, 45/45 relocs; L003b 370 -> 313 via Frame v70/v80/v90/vA0 aggregates, block-scope u32 003b7060 (divu), opt_common_subs/propagation off + slot+0x50 temps, grouped f2/f1/f0 loads, index-before-reload order, var_16-last decl. Residual: sltu $2,$0,$4 at 0xF4/0x284/0x4F4 vs beqz $a0; $s1/$s2 outer/index rotation with mfhi $s0 vs $s2; entry b vs sltiu+beqz; 3-nop count-loop pad. Archived in docs/probe_archive/W50FldUnit_00164880_body.c; production stays ASM. */
+/* measured: floor 313 differing words (reloc-masked), object 1688B vs 1728B window, 45/45 relocs; L003b 370 -> 313 via Frame v70/v80/v90/vA0 aggregates, block-scope u32 003b7060 (divu), opt_common_subs/propagation off + slot+0x50 temps, grouped f2/f1/f0 loads, index-before-reload order, var_16-last decl. Re-measured this pass: 313 words, 431 vs 422 instrs, 124 fnalign edits plus 4 reloc-only. Residual: sltu $2,$0,$4 at 0xF4/0x284/0x4F4 vs beqz $a0; $s1/$s2 outer/index rotation with mfhi $s0 vs $s2; entry b vs sltiu+beqz; 3-nop count-loop pad. This pass chased the sltu (var_4/var_4_2/var_4_3 0/1 flags tested after an addiu-1/daddu-0 join): 0u < (u32)var casts, u32 declarations with != 0 and 0u < tests, and both-paths assignment with unsigned test all score 313 neutral (both-paths alone: 337, the var=0-then-conditional-1 shape is load-bearing); MWCC folds the unsigned compare to beqz here while retail materialises it, mechanism unknown. Archived in docs/probe_archive/W50FldUnit_00164880_body.c; production stays ASM. */
 // FUN_00164880
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00164880);
 
@@ -1847,10 +1847,15 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00167560);
 
 
 
-/* measured: func_001679d0's best honest C is 772B at normalized_diff 184;
-   switch layout, local lifetimes, pointer splitting, and ready-test widths
-   did not close the register/control-flow scheduling residual. Archived in
-   docs/probe_archive/W47FldUnit_001679d0_body.c; restored assembly fallback. */
+/* measured: func_001679d0's best honest C is 772B at 175 differing words
+   (reloc-masked fndiff; obj 772B/window 912B, 193 vs 225 instrs, 119 fnalign
+   edits). Switch layout, local lifetimes, pointer splitting, and ready-test
+   widths did not close the register/control-flow scheduling residual. This pass:
+   scoped opt_common_subs off (alone and with propagation off) rematerialises the
+   per-site slot addresses exactly like retail (sll/lui/addiu/addu at the collapse
+   sites) but cascades to 209 words, so the 175-word archive stands; the full
+   per-assignment recipe that matched sibling func_00165380 was not ported.
+   Archived in docs/probe_archive/W47FldUnit_001679d0_body.c; production stays ASM. */
 // FUN_001679D0
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_001679d0);
 
