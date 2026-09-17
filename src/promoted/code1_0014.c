@@ -1095,6 +1095,7 @@ void func_00143b90(void)
 // FUN_001441E0 NONMATCHING
 #ifdef SKIP_ASM
 /* 001441e0 floor (2068B/2272B, nd 425); truthful s32 return; init plus two display loops with Work-pair s64 arg. Production stays ASM. See docs/probe_archive/C14_001441e0_body.c. */
+/* measured 001441e0 (WWidthD): `s16 t0-t3`+`s8 v0/v1` -> `s32` gives 425 -> 424 words via `tools/measure_guarded.py`, fnalign 968 -> 964 edits at 513/566 (-53, was 517/566 -49) via `tools/fnalign.py --candidate`, `tools/wscan_pairs.py` 8 -> 6 vs retail 6 (exact, one 0x10 + one 0x18 removed); pragmas via `tools/probe_variants.py` (base 425): `schedule on` 454, `opt_common_subs off` 451, `opt_loop_invariants on` 426, `opt_propagation off` 425; outer polarity `kind==0`-first swap 447, nested `kind!=1` 443 (base else-if best; `bne` vs retail `beq` + `$s1`/`$s2` colour walls stand); -53 SHORT (9.4%, draft) from cascade, not one logical block (fnalign +436/-496 misalignment from polarity, net -49). */
 s32 func_001441e0(u8 *arg0) {
     extern s16 func_001060b0(void);
     extern s64 func_00110850(s32 arg0, u32 arg1);
@@ -1134,12 +1135,12 @@ s32 func_001441e0(u8 *arg0) {
     Pos441e0 pos;
     s64 pair;
     u16 v;
-    s16 t0;
-    s16 t1;
-    s16 t2;
-    s16 t3;
-    s8 v0;
-    s8 v1;
+    s32 t0;
+    s32 t1;
+    s32 t2;
+    s32 t3;
+    s32 v0;
+    s32 v1;
     st = *(State441e0 **)(arg0 + 0x38);
     kind = st->kind;
     if (kind == 1) {
