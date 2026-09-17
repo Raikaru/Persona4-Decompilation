@@ -1,7 +1,7 @@
-/* Best attempted reconstruction for func_003a2950 under -O2,p; object 152B, retail window 160B, normalized_diff 11. Tried explicit u64 low/mask/upper/lowbyte locals and ((u64)(arg2 << 0x20) >> 0x20) for low-32 zero-extension. Residual: dsll32 uses  instead of , mask materialization order differs, and 2 trailing nops are missing. */
+/* Best attempted reconstruction for func_003a2950 under -O2,p; object 152B, retail window 160B, nine reloc-masked differing words (was nd11) plus two trailing nops. Re-measured 2026-09-17: probe_archive 152B/160B 9 words; fnalign edit 8 plus one reloc-only pair. Tried explicit u64 low/mask/upper/lowbyte locals and ((u64)(arg2 << 0x20) >> 0x20) for low-32 zero-extension. Residual: dsll32 destination ($v0 vs $a1) plus mask-materialization order wall. Bounded 2026-09-17 family: lowbyte-first retains 9, s64 locals give 20, single-expr inline gives 21; no MATCH. */
 // FUN_003A2950
 #pragma schedule on
-/* measured: no_branch_likely on for func_003a2950; object 160B/window 160B. */
+/* measured: no_branch_likely on for func_003a2950; probe_archive 152B/160B 9 words with schedule-on plus no_branch_likely-on. */
 #pragma no_branch_likely on
 s32 func_003a2950(s32 arg0, s32 arg1, s64 arg2)
 {

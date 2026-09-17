@@ -1149,15 +1149,124 @@ done:
 }
 /* measured: restore optimization level after func_0018c750. */
 #pragma optimization_level 2
-/* measured: a first reconstruction reaches 40 differing words over 25 edit
-   instructions with all 19 relocations resolved; the body is archived at
-   docs/probe_archive/C18_0018c7e0_body.c and production stays ASM.  The
-   declaration of func_00110960 above is part of that measurement - its
-   first argument is a 32-bit id and its second an unsigned flag word, not
-   the s64/s32 pair m2c printed, and the s64 form costs a dsll32/dsra32
-   pair at every call site in this unit. */
+/* MATCHED from a 40-word reconstruction.  Two source shapes carried it.
+   The dungeon chain's dead final arm is `else if (dungeon < 0xA0) { res = 0; }`,
+   not an empty arm: b210 drops the redundant store (res is already 0 on that
+   path) but keeps the `slti $at, $s3, 0xa0` exactly as retail does, while a
+   genuinely empty arm is removed compare and all, which cost three
+   instructions and shifted every later branch displacement (40 words).  The
+   first arm's range test is spelled `dungeon <= 5`, not `dungeon < 6`: both
+   lower to `slti ..., $s3, 6`, but only the `<=` form puts the result in
+   $at, which is what retail's branch-if-true uses; `< 6`, `6 > dungeon`,
+   `!(dungeon >= 6)` and `(dungeon < 6) != 0` all pick $v0.  The declaration
+   of func_00110960 above is also load-bearing - its first argument is a
+   32-bit id and its second an unsigned flag word, not the s64/s32 pair m2c
+   printed, and the s64 form costs a dsll32/dsra32 pair at every call site in
+   this unit. */
 // FUN_0018C7E0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018c7e0);
+s32 func_0018c7e0(void) {
+    s32 dungeon;
+    s32 date;
+    s32 w1;
+    s32 phase;
+    s32 res;
+
+    dungeon = func_0015a160();
+    res = 0;
+    date = (s16)func_001060b0();
+    w1 = (s8)func_00110960(date, func_001060c0() & 0xFF);
+    phase = func_001060c0() & 0xFF;
+    if (iGpffffb264 == 1) {
+        return 0;
+    }
+    if (func_00106330(0x3E0) == 1) {
+        func_0045a3e0(0x2C, 1);
+        return 1;
+    }
+    if (dungeon == 0) {
+        if ((*(s32 *)iGpffff9db0 == 8) && (*(s32 *)(iGpffff9db0 + 4) == 3)) {
+            res = 0x14;
+        } else if ((*(s32 *)iGpffff9db0 == 7) && ((*(s32 *)(iGpffff9db0 + 4) == 2) || (*(s32 *)(iGpffff9db0 + 4) == 3))) {
+            s32 t;
+            t = func_001060c0() & 0xFF;
+            if (*(s32 *)(iGpffff9db0 + 4) == 2) {
+                if (func_0014bdb0(4, 1, 0xB, 4) == 1) {
+                    res = 0x19;
+                } else {
+                    res = 0x1A;
+                }
+            } else if ((*(s32 *)(iGpffff9db0 + 4) == 3) && (((t & 0xFF) == 3) || ((t & 0xFF) == 4))) {
+                if (func_0014bdb0(4, 1, 0xB, 4) == 1) {
+                    res = 0x19;
+                } else {
+                    res = 0x1A;
+                }
+            }
+        } else if (((*(s32 *)iGpffff9db0 == 9) && (*(s32 *)(iGpffff9db0 + 4) == 1)) || ((*(s32 *)iGpffff9db0 == 9) && (*(s32 *)(iGpffff9db0 + 4) == 2)) || ((*(s32 *)iGpffff9db0 == 9) && (*(s32 *)(iGpffff9db0 + 4) == 3)) || ((*(s32 *)iGpffff9db0 == 9) && (*(s32 *)(iGpffff9db0 + 4) == 4))) {
+            res = 0;
+        } else {
+            s32 t2;
+            s32 w2;
+            dungeon = (s16)func_001060b0();
+            t2 = func_001060c0() & 0xFF;
+            w2 = (s8)func_00110960(dungeon, t2);
+            switch (w2) {
+            case 0:
+                res = 0x16;
+                break;
+            case 1:
+                break;
+            case 3:
+                break;
+            case 2:
+                res = 0x17;
+                break;
+            case 4:
+                break;
+            }
+            if (func_00106330(0x8A) == 1) {
+                res = 0x18;
+            }
+        }
+        if (((s8)w1 == 0) && (((*(s32 *)iGpffff9db0 == 6) && (*(s32 *)(iGpffff9db0 + 4) == 9)) || ((*(s32 *)iGpffff9db0 == 6) && (*(s32 *)(iGpffff9db0 + 4) == 0xE)) || ((*(s32 *)iGpffff9db0 == 6) && (*(s32 *)(iGpffff9db0 + 4) == 0xF)) || ((*(s32 *)iGpffff9db0 == 7) && (*(s32 *)(iGpffff9db0 + 4) == 1)) || ((*(s32 *)iGpffff9db0 == 8) && (*(s32 *)(iGpffff9db0 + 4) == 1)) || ((*(s32 *)iGpffff9db0 == 8) && (*(s32 *)(iGpffff9db0 + 4) == 2)) || ((*(s32 *)iGpffff9db0 == 8) && (*(s32 *)(iGpffff9db0 + 4) == 9)) || ((*(s32 *)iGpffff9db0 == 0xA) && (*(s32 *)(iGpffff9db0 + 4) == 1)) || ((*(s32 *)iGpffff9db0 == 0xA) && (*(s32 *)(iGpffff9db0 + 4) == 2)) || ((*(s32 *)iGpffff9db0 == 0xA) && (*(s32 *)(iGpffff9db0 + 4) == 3)) || ((*(s32 *)iGpffff9db0 == 0xA) && (*(s32 *)(iGpffff9db0 + 4) == 4)) || ((*(s32 *)iGpffff9db0 == 0xB) && (*(s32 *)(iGpffff9db0 + 4) == 1)) || ((*(s32 *)iGpffff9db0 == 0xD) && (*(s32 *)(iGpffff9db0 + 4) == 8)) || ((*(s32 *)iGpffff9db0 == 0x11) && (*(s32 *)(iGpffff9db0 + 4) == 1)) || ((*(s32 *)iGpffff9db0 == 0x11) && (*(s32 *)(iGpffff9db0 + 4) == 3)))) {
+            if ((func_0014bdb0(7, 0x1B, 8, 0x1F) == 1) && (((phase & 0xFF) == 3) || ((phase & 0xFF) == 4))) {
+                res = 0;
+            } else if ((phase & 0xFF) == 4) {
+                if (func_0014bdb0(9, 1, 9, 7) == 1) {
+                    res = 0;
+                } else if (func_0014bdb0(9, 8, 0xA, 5) == 1) {
+                    res = 0;
+                }
+            }
+        }
+    } else if ((dungeon <= 5) || (dungeon == 0x14) || (dungeon == 0x28) || (dungeon == 0x3C) || (dungeon == 0x50) || (dungeon == 0x64) || (dungeon == 0x78) || (dungeon == 0x8C)) {
+        res = 0x1B;
+    } else if (dungeon < 0x14) {
+        res = 0x1C;
+    } else if (dungeon < 0x28) {
+        res = 0x1D;
+    } else if (dungeon < 0x3C) {
+        res = 0x1E;
+    } else if (dungeon < 0x50) {
+        res = 0x1F;
+    } else if (dungeon < 0x64) {
+        res = 0x20;
+    } else if (dungeon < 0x78) {
+        res = 0x21;
+    } else if (dungeon < 0x8C) {
+        res = 0x22;
+    } else if (dungeon < 0x9F) {
+        res = 0x23;
+    } else if (dungeon < 0xA0) {
+        res = 0;
+    }
+    if (res > 0) {
+        func_0045a3e0((s16)res, 1);
+        return 1;
+    }
+    func_004598e0(0x1E);
+    return 0;
+}
 /* MATCHED: the dispatch reads the pair at iGpffff9db0 with only the first
    word cached - retail reloads *(s32 *)(ctx + 4) at every test, so the
    long (major, minor) chains are written out rather than staged in a
