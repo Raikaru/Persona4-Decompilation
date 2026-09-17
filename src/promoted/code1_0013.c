@@ -1797,11 +1797,15 @@ s32 func_0013caa0(u32 *arg0, s32 *arg1, u8 *arg2) {
     }
     return 0;
 }
-/* State-machine floor (864B window; widened obj 856B fndiff 150 verify 443 fnalign 98 plus 4
-   retail 214/object 214 exact; width win 2026-09-17: six s16 locals -> s32 deletes 17->0
-   object dsll pairs (retail 3), 168->150. Loopinv 177->168 kept underneath. Pragmas on widened:
-   schedule 178 worse, cse_off 159 worse. Open: s-reg assignment, index-arith shape, call
-   sequence alignment. See V013_0013c700_body.c for ruled-out variants. */
+/* State-machine floor (864B window; P1 obj 852B fndiff 135 fnalign 95 plus 4 reloc-only,
+   retail 214/object 213 (1 short, 0.5% within 3%, words+edits improve); P1 lever 2026-09-17:
+   correct func_00106620 to truthful (s32,s32) via block extern (g_data.c MATCH), 150->135/98->95.
+   Widened s32 base kept (single-narrow sweeps all worse: total 171, remaining 158, entry 157,
+   updated 159, index 158, count 159, state 161; itemOnly 153, typeOnly 154, truthful hybrid 153).
+   Ruled out: E1 recompute 156, P3 decl 150 neutral, P4 RMW 158 (00215c10 lever does not transfer),
+   P5 u16 150 neutral, P2 s16-pair 134 untruthful (true type u16, edits 129 worse). Pragmas on widened:
+   schedule 178 worse, cse_off 159 worse, loopinv 177->168 kept. Open: s-reg rotation, index-arith,
+   call-sequence alignment. See V013_0013c700_body.c for ruled-out variants. */
 /* measured 0013c700: `opt_loop_invariants on` inside the guard is worth 9 words (177 -> 168), the loop-preheader constant hoist. */
 // FUN_0013C700 NONMATCHING
 #ifdef NON_MATCHING
@@ -1816,6 +1820,7 @@ s32 func_0013c700(s32 arg0, s16 arg1, u8 *arg2)
     extern void func_0046d730(void *arg0, s32 arg1);
     extern u8 D_005ED9D0[];
     extern s32 func_00354010(void);
+    extern void func_00106620(s32 arg0, s32 arg1);
     s32 state;
     s32 index_count;
     s32 index;

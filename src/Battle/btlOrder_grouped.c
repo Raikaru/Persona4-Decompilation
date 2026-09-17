@@ -294,7 +294,7 @@ void func_001b1020(s32 arg0)
 }
 #pragma pop
 /* measured: F1B0 floor 192B/192B/5wd fresh (fnalign 5: key $t3 vs $t1 + i $t1 vs $t3 at +0x34,+0x4c,+0x88,+0x9c,+0xa4; $t1/$t3 swap). */
-/* measured: ruled out this session value-side (decl perms 5,8,8 per owner) -- u16 key 33wd, i+1<count 35wd, key-inside-do 35wd, u8 kind+key&0xFF 33wd, i/scan order swap 35wd, key-after-i 35wd, compare/store reversal 35wd; all 33-35 vs 5. $t1/$t3 allocator wall stands; honest 5wd floor kept. No volatile/asm. */
+/* measured: ruled out this session value-side (decl perms 5,8,8 per owner) -- u16 key 33wd, i+1<count 35wd, key-inside-do 35wd, u8 kind+key&0xFF 33wd, i/scan order swap 35wd, key-after-i 35wd, compare/store reversal 35wd; all 33-35 vs 5; pragmas on the 5wd body: loop-inv removal 35 (installed pragma load-bearing, 5 -> 35), cse-off 35, propag-off 36, sched-on 42. $t1/$t3 allocator wall stands; honest 5wd floor kept. No volatile/asm. */
 // FUN_001B11C0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
