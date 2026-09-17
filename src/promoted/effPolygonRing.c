@@ -289,6 +289,7 @@ void func_004996e0(u8 *arg0)
    vrsqrt chain (vmulax/vmadday/vmaddz/vrsqrt/vwaitq/vmulq as one asm block
    with "$22"-clobber forcing the saved $22), the var_8==0 pointer math and
    the tail all reproduce otherwise. allocator-pool floor family. */
+/* fresh: TPLY remains a 2-line stub (accurate record, no code retained -- prior best 152wd working copy unarchived); 152 stands with rotation wall (temp_17 $s0 vs $s0-pinning regardless of decl order, 8-saved-reg loop cascade) + 13 hoisted lui + vrsqrt asm-block + var_8==0 math per note; parent COP2-unpack N/A (retail has no pextlb/pextlh/qmtc2 colour-unpack sequence -- single VU hit is the vrsqrt normalization chain, already asm-block; no sltiu in retail (no || fold to cure)); no mask/frame symptom checkable (no body; retail frame 0x90 noted). Bare ASM kept. */
 // FUN_00499730
 INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_00499730);
 

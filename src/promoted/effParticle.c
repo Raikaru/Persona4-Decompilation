@@ -83,6 +83,7 @@ void *func_00486a50(s32 arg0)
    opt_propagation off + typed base local -- all nd >= 42. The jtbl_008873E8
    base-hoist spelling used here (u32 base = (u32)jtbl_008873E8;
    ((void (*)(u32,u32))*(u32 *)base)()) is correct and matches retail. */
+/* fresh: E486 body fixed + archived (compile blockers NULL->0 (5 sites), (int) casts removed to match owner (u8*) decls -- zero codegen change); 105wd / obj780B/window784B (4B short, 1 instr, 0.5%% gate); prior note best 42wd is unarchived (working copy lost -- E486 header said 252 stale); rotation wall stands (prior decl-order/shared/comma/propagation all >=42); parent 4938e0 levers N/A (mask is 0xFF single recompute (no 0xFFFF-per-site + frame symptom, frame -96/sqx5 matches); no ||; no COP2 unpack (allocation/jtbl code)). Bare ASM kept. */
 // FUN_00486B00
 INCLUDE_ASM("asm/nonmatchings/effParticle", func_00486b00);
 

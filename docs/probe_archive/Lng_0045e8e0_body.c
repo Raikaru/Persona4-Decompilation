@@ -1,5 +1,5 @@
 /* Refreshed func_0045e8e0 compiler probe; retail remains assembly-backed.
- * 560B/576B; 100 fully relocated differing overlap words; all 14 relocations resolve.
+ * 560B/576B; 94 fully relocated differing overlap words fresh (loop tie, sched +33 out); all 14 relocations resolve.
  * Missing tail: four executable zero bytes, then 12 bytes of zero alignment.
  * The ordinary C product-seeded mula/madd/add chains are reproduced. This is
  * a register/allocation/scheduling residual, not a proven FPU-accumulator wall.

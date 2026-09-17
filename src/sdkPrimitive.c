@@ -328,6 +328,7 @@ void func_0045e6a0(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3, s32 arg4,
    has 100 fully relocated differing words, plus a missing 4B executable nop
    and 12B alignment. Register allocation and scheduling remain unresolved;
    this does not improve the historical nd88 score. Retail stays in ASM. */
+/* fresh: Lng body 94wd (was 100) / obj560B/window576B (16B short: 4B exec nop + 12B align, exact 140/140 code); loop_invariants on 94 tie (no-op), schedule on 127 (+33 out, scheduling wall not flag); parent 4938e0 levers N/A (no 0xFFFF/||/==-1/COP2 in body); WALL colour rotation [32:36] (s1/s0 vs s2/s1, systematic +1 shift, prior parorder/alias/shape scopes stand) + scheduling; conventions transfer to eb20. Bare ASM kept (exact size). */
 // FUN_0045E8E0
 INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045e8e0);
 
@@ -337,5 +338,6 @@ INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045e8e0);
    relocated differing words, a missing 4B executable nop and 4B alignment.
    Both probes resolve all 14 relocations and preserve all five owner C
    functions; neither is an instruction match or a proven FPU limitation. */
+/* fresh: MnB body 96wd (was 102) / obj568B/window576B (8B short: nop + 4B align, exact 142/142 code); loop_invariants on 96 tie (transfers e8e0); identical divergence pattern to e8e0 ([32:36] rotation, [54]/[89]/[93] inserts, [76]/[91] deletes -- same source family, conventions transfer); parent levers N/A (same: no mask/||/COP2); WALL same colour+scheduling. Bare ASM kept. */
 // FUN_0045EB20
 INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045eb20);
