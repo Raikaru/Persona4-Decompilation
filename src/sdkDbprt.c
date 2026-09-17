@@ -103,7 +103,7 @@ void H_Dbprt_Flush()
     }
 }
 /* Floor (measured 2026-09-17, source-repo only): probe_variants w2 163 words BEST (w1 202, w3 s64 230, loop 219, sched 196, nobl 163 neutral, prop 211), fnalign 220/230/87 (+8), emitted 920B/window 880B (+40 over from flat quads+while copy restoring frame 0x190; not short so banked per 100+word rule). Frame MATCH, vtBase hoist restores 7+1 jalr, dead low branch kept. Prior nd175 claim had no body and wrong-tree scores discarded. Banked as guarded floor; production stays ASM. */
-// FUN_0044F720
+// FUN_0044F720 NONMATCHING
 #ifdef NON_MATCHING
 void func_0044f720(void)
 {
@@ -218,7 +218,7 @@ INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044f720);
 #endif
 
 /* Floor (measured 2026-09-17, source-repo only): probe_variants s_best 314 words / 132 edits / 366 vs 367 BEST faithful (bare 353/464, levers unfaithful despite words wins), fnalign 367/366/132 (+5), emitted 1464B/window 1472B (99.5%). Four-pragma sweep: bare wins (loop +1w/-6ed noted, cse/sched catastrophic, nobl neutral). wscan 0/0, opclass 0/0. Residual is coloring/scheduling/orientation + daddu. Re-derived sibling v8 floor; production stays ASM. Banked as guarded floor. */
-// FUN_0044FA90
+// FUN_0044FA90 NONMATCHING
 #ifdef NON_MATCHING
 /* Target: func_0044fa90 -- source-repo faithful floor (banked, production stays ASM).
  * Owner: src/sdkDbprt.c (source/Persona4-Decompilation, CRLF; candidates LF, probe normalises).

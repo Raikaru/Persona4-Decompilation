@@ -106,7 +106,7 @@ void func_0049a9e0(u8 *arg0)
    packed scalar color data before the COP2 block; b210 cannot emit this sequence
    from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
 /* Floor (measured 2026-09-17, source-repo only): probe_variants bare 514 / loop 487 / prop 511 / sched 517 / branch 514 / u8+loop 488 FINAL (v3+double-def neutral), fnalign final 540/528/297 (bare 540/529/354, loop 540/529/300), emitted 2112B/window 2176B (97.06%%, 2112>=2111 PASS by 1B). measured: opt_loop_invariants on inside guard is worth 27 words / 54 edits (rotation collapses); u8 truthful for lbu loads. Residual is s128-canonicalization (b210 dsll32/dsra32 after (s32)s128 lq/mfc1) + standalone MMI pextlb/pextlh + interior VU vitof/vmul/vftoi/ppach pipeline + daddu zero-idiom; frame/reloc tail exact. Banked as guarded floor; production stays ASM. */
-// FUN_0049AA30
+// FUN_0049AA30 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
 void func_0049aa30(u8 *arg0)
@@ -1743,7 +1743,7 @@ void func_0049e100(u8 *arg0)
    packed scalar color data before the COP2 block; b210 cannot emit this sequence
    from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
 /* Floor (measured 2026-09-17, source-repo only): probe_variants p3_both (loop+prop) 495 words BEST (p0 523/520ed, p1 530/511ed, p2 520/509ed), fnalign 500/546/466, emitted 2184B/window 2000B (+9.2% over from scalar VU expansion of compact VU; not short so banked per 100+word rule). measured: loop+prop together worth 28w/54ed (loop alone hurts words helps edits, prop helps both slightly). wscan OBJ 6 dsll32/dsra32 vs RETAIL 0 (s128 width wall) + standalone MMI + interior VU pipeline, frame -0x120 vs -0x190, rotation persists. Banked as guarded floor despite over; production stays ASM. See docs/probe_archive/CMsgWin_0049e150_body.c. */
-// FUN_0049E150
+// FUN_0049E150 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
