@@ -48,6 +48,16 @@ INCLUDE_MARKER_RE = re.compile(
 )
 
 def is_generated(path: Path) -> bool:
+    """True for files that are tool output, not tracked source.
+
+    `tools/probe_variants.py` stages its candidate in the owner's own
+    directory so relative `#include`s still resolve, and names it
+    `.<owner>.probe_<token>.c`.  While a probe is in flight that file is a
+    second owner for every marker in the unit, which makes verify.py report
+    COMPILE_ERROR or MISMATCH rows against a path that is about to vanish and
+    makes tests/test_reconcile.py fail on duplicate canonical owners.  It is
+    tool output, so it belongs here with the permuter's scratch.
+    """
     try:
         relative = path.relative_to(REPO / "src")
     except ValueError:
@@ -55,6 +65,7 @@ def is_generated(path: Path) -> bool:
     return (
         path.name.endswith(".match.c")
         or path.name.startswith(".permute_")
+        or (path.name.startswith(".") and ".probe_" in path.name)
         or any(part.startswith("generated") for part in relative.parts)
     )
 

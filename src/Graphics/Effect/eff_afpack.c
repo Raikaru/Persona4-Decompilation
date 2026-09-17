@@ -85,6 +85,7 @@ extern void func_003c22f0(void* a);
    body preserved here as NON_MATCHING seed. Unit confirmed via `grep -rl func_004b6030 asm/`
    -> asm/nonmatchings/eff_afpack/func_004b6030.s. */
 // FUN_004B6030 NONMATCHING
+#ifdef NON_MATCHING
 u8* func_004b6030(u8* arg0)
 {
     extern void func_0043f810(void* dst, void* src, u32 size);
@@ -299,6 +300,9 @@ u8* func_004b6030(u8* arg0)
 }
 
 
+#else
+INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b6030);
+#endif
 // FUN_004B6900
 u8* func_004b6900(u8* arg0)
 {
