@@ -1190,6 +1190,7 @@ void func_00112610(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4
                       *(s16 *)(arg2 + 0), arg3, arg4);
     }
 }
+/* measured 00112830 2026-09-17 via `python3 tools/measure_guarded.py src/promoted/code1_0011.c func_00112830`: 494wd before and after (obj 2040B/window 2192B); `value / 100` -> `value / 100U` (4 sites) clears division defect (opclass div +4/divu -4 -> 0/0, score 42 -> 34; fnalign 540 -> 540, no regression; u32 value alone flips to div -8/divu +8 with sltu +8/slt -8, so divisor widening not operand widening is correct). Remaining lbu -28/move +16 is spill not signedness: retail has 39 lbu/0 lb (all unsigned); s8 colors probe worsens 540 -> 550 edits, so byte-signedness reading disproved. */
 // FUN_00112830 NONMATCHING
 #ifdef NON_MATCHING
 void func_00112830(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
@@ -1224,7 +1225,7 @@ void func_00112830(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
     case 0:
         value = func_001068b0(*(s16 *)arg2) & 0xFFFF;
         positions[8] = positions[0];
-        if (value / 100 != 0) {
+        if (value / 100U != 0) {
             x = 30.0f + *(f32 *)&positions[8];
         } else {
             x = 22.0f + *(f32 *)&positions[8];
@@ -1263,7 +1264,7 @@ void func_00112830(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
         *(f32 *)&positions[0] += 42.0f;
         value = func_001068e0(*(s16 *)arg2) & 0xFFFF;
         positions[6] = positions[0];
-        if (value / 100 != 0) {
+        if (value / 100U != 0) {
             x = 30.0f + *(f32 *)&positions[6];
         } else {
             x = 22.0f + *(f32 *)&positions[6];
@@ -1303,7 +1304,7 @@ void func_00112830(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
     case 1:
         value = func_00106940(*(s16 *)arg2) & 0xFFFF;
         positions[4] = positions[0];
-        if (value / 100 != 0) {
+        if (value / 100U != 0) {
             x = 30.0f + *(f32 *)&positions[4];
         } else {
             x = 22.0f + *(f32 *)&positions[4];
@@ -1342,7 +1343,7 @@ void func_00112830(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
         *(f32 *)&positions[0] += 42.0f;
         value = func_00106970(*(s16 *)arg2) & 0xFFFF;
         positions[2] = positions[0];
-        if (value / 100 != 0) {
+        if (value / 100U != 0) {
             x = 30.0f + *(f32 *)&positions[2];
         } else {
             x = 22.0f + *(f32 *)&positions[2];
@@ -1431,7 +1432,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00112830);
 /*   Sweep complete 2026-09-17: `opt_common_subs off` and */
 /*   `opt_loop_invariants on` are neutral (5 words / 4 edits, identical */
 /*   stream); `#pragma schedule on` (105) and `opt_propagation off` (78) */
-/*   are worse still. */
+/*   are worse still. Opclass 2026-09-17 (tools/opclass.py on this owner): */
+/*   this floor carries no opcode-class surplus - both sides emit the lbu */
+/*   pair, so the residual is genuinely scheduling, not an lb/lbu fix. */
 // FUN_001130C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)

@@ -614,9 +614,11 @@ void func_00156750(u8 *arg0)
 
 
 
-/* Tile-shuffle draft (1264B window). Re-measured 2026-09-17: 302wd / 259 edits
-   (300 vs 315 instrs, 15 short, obj 1200B, 5.1% short, still >3% so a draft
-   not a floor); s16 rotation temps clear the signedness delta (opclass lh -26
+/* Tile-shuffle draft (1264B window). Re-measured 2026-09-17 via `python3
+   tools/measure_guarded.py src/promoted/code1_0015.c func_00156800`: 302wd
+   before and after (259 edits after, 300 vs 315 instrs, 15 short, obj 1200B,
+   5.1% short, still >3% so a draft not a floor — clearing lhu did NOT close
+   the gap). s16 rotation temps clear the signedness delta (opclass lh -26
    -> -2, lhu +24 -> 0, score 54 -> 6; remaining sh -4, lbu -4, lh -2 are frame
    spills/byte reloads). Frameless leaf vs retail -0x10 (rotation-temp spills
    at 0x8/0xA and 0xC/0xE unreproduced). csuboff 318 regresses (+16). Prior

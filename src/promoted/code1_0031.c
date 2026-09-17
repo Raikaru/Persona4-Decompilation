@@ -51,6 +51,9 @@ void func_00311900(s64 arg0)
 /* b210 vs $f0 retail) in the (u8) conversion idiom at 0x70/0x74 and the */
 /* taken-path sub at 0x88/0x8C/0x90; invariant under direct-u8 conversion, */
 /* int/const-float initializers, reversed float decl order, result-domain decl. */
+/* Pragma sweep 2026-09-17: schedule off, opt_propagation off, */
+/* opt_common_subs off and opt_loop_invariants on each tie at 5 words / */
+/* 5 edits with a byte-identical stream (probe_variants + fnalign --candidate). */
 // FUN_00311930 NONMATCHING
 #ifdef NON_MATCHING
 /* Re-certified under scoped optimization_level 1: object 596B / window */
