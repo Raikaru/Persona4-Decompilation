@@ -50,6 +50,36 @@ typedef struct {
     f32 f128, f12c, f130, f134, f138, f13c, f140, f144, f148, f14c;
     u8 bytes[0x180];
 } Cmb43Work;
+typedef struct { s64 lo; s64 hi; } Cmb48V16;
+typedef struct {
+    Cmb48V16 v80;
+    Cmb48V16 v90;
+    Cmb48V16 vA0;
+    Cmb48V16 vB0;
+    Cmb48V16 vC0;
+    Cmb48V16 vD0;
+    Cmb48V16 vE0;
+    Cmb48V16 vF0;
+    Cmb48V16 v100;
+    Cmb48V16 v110;
+    Cmb48V16 v120;
+    s64 s130;
+    s64 s138;
+    s64 s140;
+    s64 s148;
+    s64 s150;
+    s64 s158;
+    s64 s160;
+    s64 s168;
+    s64 s170;
+    s64 s178;
+    s64 s180;
+    s64 s188;
+    u32 pad190;
+    u32 c194;
+    u32 c198;
+    u32 c19C;
+} Cmb48Work;
 
 static inline u8 *cmbAddPtrRev(u32 base, u32 index) { return (u8 *)(index + base); }
 
@@ -81,7 +111,7 @@ void func_0036de20(void *arg0, void *arg1);
 void func_0036dd10(void *arg0, void *arg1, f32 arg2);
 s32 func_00285b30(void);
 f32 func_002b2aa0(s32, f32, f32, f32, f32);
-s16 func_002b2cb0(s32, s32, s32, s32, s32);
+s32 func_002b2cb0(s32, s32, s32, s32, s32);
 u8 *func_00457120(void);
 u8 *func_00461390(void *a, s32 b, void *c, s32 d);
 void func_00347b30(u8 *arg0, u8 *arg1);
@@ -2489,6 +2519,7 @@ void func_003482d0(u8 *arg0, CmbVec2f arg1, CmbVec2f arg2, u16 arg3) {
     *(u16 *)(obj + 0x13C) = arg3;
 }
 
+/* measured: nd 15, obj 1296B = window (323 instrs both) — dispatch (lb 0x4, beq 3,2,1 + beqz 0 + b default), 004553c0/004b11xx/002b2d00 branches and float loads all match; EVERYTHING matches except the guarded-conversion result register: three `if (2.1474836e9f > f0) { v = (s32)f0; v &= 0xFF; } else { v = (s32)(f0-K)|0x80000000; v &= 0xFF; }` keep b210 mfc1/or/sb in $v0 where retail coalesces into $v1 (3 sites x 5 = 15 words; tried u8 locals, f0/v order, inline stores — no shift, same family as cmmScript func_0024c0e0). Recipe (correct-tree, top-down fnalign): outer switch cases 0,1,2,3 ascending (reverse beq chain 3,2,1,0+beqz) with case0/default break-shared to single return 0 (explicit return 0 in case1/2 regresses to 275; order 1,0,2,3 regresses dispatch to 39); inner 0x39 3-way if/else-if (x==0/1/2) reusing $a1=2; D_005DC7D0 indexed `&D_005DC7D0[idx*0x54]` (reloc-only); half via `h/2` (manual sra+bgez keeps $v0/$v1 swap, 29); nv via reload `*(s16*)=func...; if (*(s16*)<...)` (nv-local + explicit (s32)(s16) cast mis-schedules sh, 18). func_004553c0 takes ONE arg (m2c 2nd arg wrong); guard must be `2.1474836e9f > f0` with normal-first to keep c.le.s/bc1t + per-arm andi. Path 275->39->29->18->15. Production stays ASM. */
 /* measured: nd 16, obj 1292B vs 1296B window — EVERYTHING matches byte-for-byte
    except the guarded-conversion result register: the three
    `if (2.1474836e9f > f0) { v = (u8)(s32)f0; } else { v = (u8)((s32)(f0-2.1474836e9f)|0x80000000); }`
@@ -2507,8 +2538,136 @@ void func_003482d0(u8 *arg0, CmbVec2f arg1, CmbVec2f arg2, u16 arg3) {
    truncated note; confirmed func_004553c0 takes ONE arg (the m2c draft's 2nd arg
    is wrong), and the gated conversion needs the explicit `2.1474836e9f > f0`
    guard to keep the c.ole.s/bc1t + per-arm andi. 16 remains the measured best. */
-// FUN_00348330
+// FUN_00348330 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00348330(u8 *arg0) {
+    u8 *obj = *(u8 **)(arg0 + 0x38);
+    switch (*(s8 *)(obj + 4)) {
+    case 0:
+        break;
+    case 1: {
+        if (func_004553c0(*(u8 **)(obj + 0)) == 0) {
+            return 0;
+        }
+        {
+            u32 h = *(u32 *)(obj + 8);
+            if (h != 0) {
+                func_004b1150(h);
+                *(u32 *)(obj + 8) = 0;
+            }
+        }
+        {
+            s32 nv = func_004b1130(*(s32 *)(*(u8 **)(obj + 0) + 0x110));
+            *(s32 *)(obj + 8) = nv;
+            func_004b1250(nv, obj + 0x18);
+            func_004b1290(*(s32 *)(obj + 8), *(f32 *)(obj + 0x24), *(f32 *)(obj + 0x28), *(f32 *)(obj + 0x2C));
+            func_004b13d0(*(s32 *)(obj + 8), *(f32 *)(obj + 0x30));
+            func_004b13f0(*(s32 *)(obj + 8), obj + 0x34);
+            if (*(u8 *)(obj + 0x48) == 1) {
+                s32 nv2 = func_004b11b0(*(s32 *)(obj + 8));
+                *(s32 *)(obj + 0x44) = nv2;
+                func_004b1250(nv2, obj + 0x4C);
+                func_004b1290(*(s32 *)(obj + 0x44), *(f32 *)(obj + 0x58), *(f32 *)(obj + 0x5C), *(f32 *)(obj + 0x60));
+                func_004b13d0(*(s32 *)(obj + 0x44), *(f32 *)(obj + 0x64));
+                func_004b13f0(*(s32 *)(obj + 0x44), obj + 0x68);
+            }
+        }
+        *(u16 *)(obj + 0xC) = 0;
+        *(s8 *)(obj + 4) += 1;
+        break;
+    }
+    case 2: {
+        s16 cnt = *(s16 *)(obj + 0x3E);
+        if (cnt > 0) {
+            *(s16 *)(obj + 0x3E) = func_002b2d00(cnt, 1, 0, 0, 1);
+            return 0;
+        }
+        {
+            u8 mode = *(u8 *)(obj + 0x39);
+            if (mode == 0) {
+                f32 f0 = func_002b2aa0(0, 0.0f, *(f32 *)(obj + 0x40), (f32)*(s16 *)(obj + 0x3C), (f32)*(s16 *)(obj + 0x3A));
+                s32 v;
+                if (2.1474836e9f > f0) {
+                    v = (s32)f0;
+                    v &= 0xFF;
+                } else {
+                    v = (s32)(f0 - 2.1474836e9f) | 0x80000000;
+                    v &= 0xFF;
+                }
+                *(u8 *)(obj + 0x38) = (u8)v;
+            } else if (mode == 1) {
+                f32 f0 = func_002b2aa0(0, *(f32 *)(obj + 0x40), 0.0f, (f32)*(s16 *)(obj + 0x3C), (f32)*(s16 *)(obj + 0x3A));
+                s32 v;
+                if (2.1474836e9f > f0) {
+                    v = (s32)f0;
+                    v &= 0xFF;
+                } else {
+                    v = (s32)(f0 - 2.1474836e9f) | 0x80000000;
+                    v &= 0xFF;
+                }
+                *(u8 *)(obj + 0x38) = (u8)v;
+                if (*(s16 *)(obj + 0x3C) >= *(s16 *)(obj + 0x3A)) {
+                    *(s8 *)(obj + 4) = 3;
+                }
+            } else if (mode == 2) {
+                s16 h = *(s16 *)(obj + 0x3A);
+                s32 half = h / 2;
+                {
+                    f32 f0 = func_002b2aa0(1, 0.0f, 255.0f, (f32)*(s16 *)(obj + 0x3C), (f32)half);
+                    s32 v;
+                    if (2.1474836e9f > f0) {
+                        v = (s32)f0;
+                        v &= 0xFF;
+                    } else {
+                        v = (s32)(f0 - 2.1474836e9f) | 0x80000000;
+                        v &= 0xFF;
+                    }
+                    *(u8 *)(obj + 0x38) = (u8)v;
+                }
+            }
+        }
+        {
+            *(s16 *)(obj + 0x3C) = func_002b2cb0(*(s16 *)(obj + 0x3C), 1, *(s16 *)(obj + 0x3A), 0, 1);
+            if (*(s16 *)(obj + 0x3C) < *(s16 *)(obj + 0x3A)) {
+                *(u8 *)(obj + 0x37) = *(u8 *)(obj + 0x38);
+                func_004b13f0(*(s32 *)(obj + 8), obj + 0x34);
+                if (*(u8 *)(obj + 0x48) == 1) {
+                    *(u8 *)(obj + 0x6B) = *(u8 *)(obj + 0x38);
+                    func_004b13f0(*(s32 *)(obj + 0x44), obj + 0x68);
+                }
+            }
+        }
+        func_004b1190(*(s32 *)(obj + 8));
+        func_004b11d0((s32)&D_005DC7D0[*(u8 *)(obj + 0x14) * 0x54], *(s32 *)(obj + 8));
+        if (*(u8 *)(obj + 0x48) == 1) {
+            func_004b1190(*(s32 *)(obj + 0x44));
+            func_004b11d0((s32)&D_005DC7D0[*(u8 *)(obj + 0x14) * 0x54], *(s32 *)(obj + 0x44));
+        }
+        {
+            s32 lim = *(s32 *)(obj + 0x10);
+            if (lim == -1) {
+                if (func_004b1520(*(s32 *)(obj + 8)) == 0) {
+                    *(s8 *)(obj + 4) = 3;
+                }
+            } else {
+                *(u16 *)(obj + 0xC) = func_002b2cb0(*(u16 *)(obj + 0xC), 1, lim, 0, 1);
+                if (*(u16 *)(obj + 0xC) >= *(s32 *)(obj + 0x10)) {
+                    *(s8 *)(obj + 4) = 3;
+                }
+            }
+        }
+        break;
+    }
+    case 3:
+        return -1;
+    default:
+        break;
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_00348330);
+#endif
 // FUN_00348840
 void func_00348840(u8 *arg0) {
     u8 *obj = *(u8 **)(arg0 + 0x38);
@@ -2602,16 +2761,106 @@ void func_00348c30(u8 *arg0, u16 arg1) {
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x3E) = arg1;
 }
 
-/* measured: full transcription of the init loop + 5 func_002b5fd0 groups; every call
-   sequence/constant matches retail instruction-for-instruction, but mwcc b210 packs the
-   23 s64 stack buffers (frame 0x150 vs retail 0x1A0, nd 104) in every spelling — scalar
-   s64 locals, q[12]/r[11] arrays (retail's 0x80-0x18F layout is exactly array-like),
-   decl-order flips. Same stack-alloc floor as func_0033fc80 / func_00347c70: b210's
-   slot coalescing of disjoint-lifetime address-taken buffers cannot reproduce this
-   file's retail frames from C. State switch: ascending case order 0,1 gives retail's
-   reversed beq-1/beqz-0 dispatch. */
-// FUN_00348C40
+/* measured: banked reconstruction (switch 0,1 + Cmb48Work struct with V16+pad) matches retail calls/constants; frame now 0x1A0 via 11xV16 (0x80-0x12F) +12xs64 (0x130-0x18F)+pad+3xu32 (0x194-0x19C), fixing prior 0x150 coalescing claim. fnalign retail 389/object 386, 56 edits: register-color (obj s3 vs s1, idx s0 vs s4, slot s2 vs s0, scaled s1 vs s5, colors s5/s4 vs s3/s2) + tail return branchless (xori/sltiu/negu vs bne/addiu -1) + displacements. Tried: if-1-first vs switch-0,1 (switch gives retail beq-1/beqz-0), scalar s64 vs struct (struct fixes frame), pad190 fixes color offsets, decl-order flips (no move), s16->s32 return fixes dsll32/dsra32. Floor: register allocation + -1/0 materialization. */
+// FUN_00348C40 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00348c40(u8 *arg0) {
+    s32 i;
+    s32 base;
+    s32 r;
+    s32 g;
+    s32 b;
+    u8 *slot;
+    u8 *obj;
+    Cmb48Work work;
+    /* --- state dispatch: retail beq-1/beqz-0, ascending 0,1 switch gives it --- */
+    obj = *(u8 **)(arg0 + 0x38);
+    switch (*(s8 *)(obj + 1)) {
+    case 0:
+        /* --- init loop: 5 handles (offsets 4,8,C,10,14) --- */
+        i = 0;
+        while (i < 5) {
+            /* handle create: 465,0 -> 5c90 */
+            slot = obj + i * 4 + 4;
+            func_002b2970(&work.s188, 0x1D1, 0.0f);
+            *(s32 *)slot = func_002b5c90(arg0, work.s188);
+            /* vec: 9.0,480.0 -> 5db0 */
+            func_002b2970(&work.s180, 0x1D1, 0.0f);
+            func_002b29e0(&work.v120, 9.0f, 480.0f);
+            func_002b5db0(*(s32 *)slot, work.s180, &work.v120);
+            /* color conditional: byte0==1 uses (i+2)*10 else gray */
+            if (*(s8 *)obj == 1) {
+                base = (i + 2) * 10;
+                r = func_002b2cb0(base, 10, 0xFF, 0, 1) & 0xFF;
+                g = func_002b2cb0(base + 0x37, 10, 0xFF, 0, 1) & 0xFF;
+                b = func_002b2cb0(base + 0xF2, 10, 0xFF, 0, 1) & 0xFF;
+                func_002b2a60(&work.c19C, r, g, b, 0xFF);
+                func_002b5e30(*(s32 *)slot, work.c19C);
+                if (i == 4) {
+                    base = (i + 1) * 10;
+                    r = func_002b2cb0(base, 10, 0xFF, 0, 1) & 0xFF;
+                    g = func_002b2cb0(base + 0x37, 10, 0xFF, 0, 1) & 0xFF;
+                    b = func_002b2cb0(base + 0xF2, 10, 0xFF, 0, 1) & 0xFF;
+                    func_002b2a60(&work.c198, r, g, b, 0xFF);
+                    func_002b5e30(*(s32 *)slot, work.c198);
+                }
+            } else {
+                func_002b2a60(&work.c194, 0, 0x37, 0xF2, 0xFF);
+                func_002b5e30(*(s32 *)slot, work.c194);
+            }
+            /* per-iteration tail: 0xBB + 50.0f */
+            slot = obj + i * 4 + 4;
+            func_002b6130(*(s32 *)slot, 0xBB);
+            func_002b5e20(*(s32 *)slot, 50.0f);
+            i++;
+        }
+        /* --- five post-loop 5fd0 groups --- */
+        /* group offset 4: 465,275 + 8,480 + 380,480, last 0 */
+        func_002b2970(&work.s178, 0x1D1, 0.0f);
+        func_002b2970(&work.s170, 0x113, 0.0f);
+        func_002b29e0(&work.v110, 8.0f, 480.0f);
+        func_002b29e0(&work.v100, 380.0f, 480.0f);
+        func_002b5fd0(*(s32 *)(obj + 4), work.s178, work.s170, &work.v110, &work.v100, 0xF, 0);
+        /* group offset 8: same, last 2 */
+        func_002b2970(&work.s168, 0x1D1, 0.0f);
+        func_002b2970(&work.s160, 0x113, 0.0f);
+        func_002b29e0(&work.vF0, 8.0f, 480.0f);
+        func_002b29e0(&work.vE0, 380.0f, 480.0f);
+        func_002b5fd0(*(s32 *)(obj + 8), work.s168, work.s160, &work.vF0, &work.vE0, 0xF, 2);
+        /* group offset C: same, last 9 */
+        func_002b2970(&work.s158, 0x1D1, 0.0f);
+        func_002b2970(&work.s150, 0x113, 0.0f);
+        func_002b29e0(&work.vD0, 8.0f, 480.0f);
+        func_002b29e0(&work.vC0, 380.0f, 480.0f);
+        func_002b5fd0(*(s32 *)(obj + 0xC), work.s158, work.s150, &work.vD0, &work.vC0, 0xF, 9);
+        /* group offset 0x10: 8,480 + 8,480, last 9 */
+        func_002b2970(&work.s148, 0x1D1, 0.0f);
+        func_002b2970(&work.s140, 0x113, 0.0f);
+        func_002b29e0(&work.vB0, 8.0f, 480.0f);
+        func_002b29e0(&work.vA0, 8.0f, 480.0f);
+        func_002b5fd0(*(s32 *)(obj + 0x10), work.s148, work.s140, &work.vB0, &work.vA0, 0xF, 9);
+        /* group offset 0x14: 465,655 + 8,480 + 8,480, last 9 */
+        func_002b2970(&work.s138, 0x1D1, 0.0f);
+        func_002b2970(&work.s130, 0x28F, 0.0f);
+        func_002b29e0(&work.v90, 8.0f, 480.0f);
+        func_002b29e0(&work.v80, 8.0f, 480.0f);
+        func_002b5fd0(*(s32 *)(obj + 0x14), work.s138, work.s130, &work.v90, &work.v80, 0xF, 9);
+        *(s8 *)(obj + 1) = 1;
+        break;
+    case 1:
+        /* --- state-1 check: 5th handle via 5da0, -1 if byte==1 else 0 --- */
+        if (*(s8 *)func_002b5da0(*(s32 *)(obj + 0x14)) != 1) {
+            return 0;
+        }
+        return -1;
+    default:
+        break;
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_00348c40);
+#endif
 
 // FUN_00349260
 void func_00349260(u8 *arg0) {

@@ -27,6 +27,7 @@ extern u8 D_00636230[];
 extern s64 D_00636250[];
 extern f32 D_00636258[];
 extern u8 D_00636260[];
+extern u8 D_006361F0[];
 extern u32 D_80000046[];
 extern u32 D_8000001E[];
 extern f32 D_00761184;
@@ -383,17 +384,92 @@ void func_00252230(Sp120 *out, Sp120 *a, Sp120 *b, f32 t)
 }
 
 
-/* measured: fresh complete callback reconstruction, 864B / 848B window,
-   all 24 relocations resolved; 202 differing words (reloc-masked probe),
-   plus 16B overrun. Context is the third callback argument, not a return
-   from func_00252230: that interpolation leaf returns void. func_0025f360
-   returns a 32-bit handle. Candidate frame 0x100 versus retail 0xF0;
-   external-leaf preservation and render-state base allocation remain
-   different. Pragma sweep on this exact body (opt_loop_invariants on,
-   schedule off, opt_propagation off) is neutral at 202 - the wall is the
-   call-clobber frame, not rotation/scheduling. Production stays ASM. */
-// FUN_00252710
+/* measured: fixed solo + schedule on, 188 differing words (was 202), 211/211 exact instrs, 24 relocs resolved; frame 0x100 vs retail 0xF0 (one extra sq), s3/s1/s2/s0 vs s0/v0/s2/t0 coloring, D_00887300 hoist via work reuse, mtc1 zero scheduling; call-clobber floor (retail keeps ctx in v0/special in t0 across func_00252230 which never touches v0/t0, b210 spills to saved). Production stays ASM. */
+// FUN_00252710 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+s32 func_00252710(s32 arg0, u8 *work, u8 *ctx)
+{
+    Sp120 sp120;
+    u8 mat[0x40];
+    u8 uv[0x20];
+    u8 *src;
+    u8 *dst;
+    s32 count;
+    s32 temp_3;
+    s32 temp_2;
+    s32 rank;
+    s32 done;
+    s32 special;
+    s32 tex;
+    done = 0;
+    special = 0;
+    if (*(s32 *)(ctx + 8) == 0xA) {
+        special = 1;
+    }
+    if (!(*(s32 *)(work + 0) & 2)) {
+        *(s32 *)(work + 4) += 1;
+    }
+    rank = *(s32 *)(work + 4);
+    if (rank >= 0x3C) {
+        done = 1;
+    }
+    if (rank >= 0x1F) {
+        func_00252230(&sp120, (Sp120 *)(work + 0x30), (Sp120 *)(work + 0x54),
+                      (f32)(rank - 0x1E) / 30.0f);
+    } else {
+        func_00252230(&sp120, (Sp120 *)(work + 0xC), (Sp120 *)(work + 0x30),
+                      (f32)rank / 30.0f);
+    }
+    if (special != 0) {
+        if (sp120.f18 == 0xFFE92CFF) {
+            *(s32 *)(work + 0xC) = 0;
+            sp120.f18 = -1;
+        } else {
+            sp120.f18 = 0xBFBFBFFF;
+        }
+    }
+    src = D_006361F0;
+    dst = uv;
+    count = 4;
+    do {
+        temp_3 = *(s32 *)src;
+        temp_2 = *(s32 *)(src + 4);
+        src += 8;
+        count--;
+        *(s32 *)dst = temp_3;
+        *(s32 *)(dst + 4) = temp_2;
+        dst += 8;
+    } while (count > 0);
+    tex = func_0025f360(0x18, 0, *(u8 **)(ctx + 0x10));
+    func_003e0870(mat, (u8 *)&sp120 + 0xC, sp120.f1C, 0);
+    if (*(s32 *)(work + 0xC) == 1) {
+        work = (u8 *)D_00887300;
+        (*(void (**)(u32, u32))work)(7, 2);
+        (*(void (**)(u32, u32))work)(9, 2);
+        (*(void (**)(u32, u32))work)(6, 1);
+        (*(void (**)(u32, u32))work)(8, 1);
+        (*(void (**)(u32, u32))work)(0xC, 1);
+        (*(void (**)(u32, u32))work)(2, 4);
+        (*(void (**)(u32, u32))work)(0xE, 0);
+        func_003f6440(3, 0x7000D);
+        func_003f6440(2, 0x48);
+        func_00366c70((s32)sp120.f4, (s32)sp120.f8, sp120.f20, sp120.f22,
+                      (u32)sp120.f18 >> 8, sp120.f18 & 0xFF, 0,
+                      (s16)(sp120.f20 >> 1), 0.0f,
+                      (s16)(sp120.f22 >> 1), mat, tex, uv);
+    } else {
+        func_00366c70((s32)sp120.f4, (s32)sp120.f8, sp120.f20, sp120.f22,
+                      (u32)sp120.f18 >> 8, sp120.f18 & 0xFF, 1,
+                      (s16)(sp120.f20 >> 1), 0.0f,
+                      (s16)(sp120.f22 >> 1), mat, tex, uv);
+    }
+    return done;
+}
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252710);
+#endif
 
 /* measured: skipped; aggregate-stack candidate archived in
    build/LRankUp_00252a60_body.c but remained a frame/register mismatch. */
@@ -901,8 +977,137 @@ INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_002566d0);
    assignment makes mwcc rematerialize lui/lw per call and the frame shrinks
    to 0x140). Saved-register rotation + D_00887300 vtable-hoist floors; alpha
    sites need the (u32) cast like func_002570f0. */
-// FUN_00256BE0
+/* measured: ported twin 002566d0 floor with D_00636480/D_006364D0 tables, D_0076122C global, 0.5x position factor (0.125 vs 0.25), 271 differing words; twin walls (FP/GPR rotation, vt hoist, (u32) alpha); production stays ASM. */
+// FUN_00256BE0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00256be0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                   f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
+                   f32 fparg4) {
+    Sp120 sp120;
+    u8 spD0[0x48];
+    u8 spB0[0x20];
+    u8 sp70[0x40];
+    u8 *src;
+    u8 *dst;
+    s32 count;
+    s32 temp_3;
+    f32 temp_f22;
+    f32 temp_f20;
+    f32 temp_f20_2;
+    f32 temp_f21;
+    f32 temp_f21_2;
+    f32 var_f0;
+    s32 temp_2;
+    u32 alpha_u;
+    s32 call_x;
+    s32 call_y;
+    s16 call_w;
+    s16 call_h;
+    s32 call_alpha;
+    void (*vt)(u32, u32);
+    temp_f22 = fparg4;
+    src = D_00636480;
+    dst = spD0;
+    count = 9;
+    do {
+        temp_3 = *(s32 *)src;
+        temp_2 = *(s32 *)(src + 4);
+        src += 8;
+        count--;
+        *(s32 *)dst = temp_3;
+        *(s32 *)(dst + 4) = temp_2;
+        dst += 8;
+    } while (count > 0);
+    src = D_006364D0;
+    dst = spB0;
+    count = 4;
+    do {
+        temp_3 = *(s32 *)src;
+        temp_2 = *(s32 *)(src + 4);
+        src += 8;
+        count--;
+        *(s32 *)dst = temp_3;
+        *(s32 *)(dst + 4) = temp_2;
+        dst += 8;
+    } while (count > 0);
+    temp_f21 = (f32)arg1 / 255.0f;
+    temp_f20 = 0.25f * temp_f22;
+    temp_f20_2 = 0.5f * temp_f20;
+    temp_f22 = D_0076122C * (1.0f - temp_f22) * temp_f21;
+    temp_f21_2 = 1.0f + temp_f20;
+    func_00252230(&sp120, (Sp120 *)spD0,
+                  (Sp120 *)((u8 *)spD0 + 0x24), fparg3);
+    func_003e0870(sp70, (u8 *)&sp120 + 0xC, sp120.f1C, 0);
+    call_h = sp120.f22;
+    call_w = sp120.f20;
+    call_alpha = sp120.f18;
+    call_x = (s32)sp120.f4;
+    call_y = (s32)sp120.f8;
+    alpha_u = call_alpha;
+    temp_2 = alpha_u & 0xFF;
+    if (temp_2 >= 0) {
+        var_f0 = (f32)temp_2;
+    } else {
+        var_f0 = (f32)(s32)(((u32)temp_2 >> 1) | ((u32)temp_2 & 1));
+        var_f0 += var_f0;
+    }
+    func_00366c70(call_x, call_y,
+                  call_w, call_h, call_alpha >> 8,
+                  (s32)(var_f0 * temp_f21), 3,
+                  (s16)(call_w >> 1), 0.0f,
+                  (s16)(call_h >> 1), sp70, arg2, spB0);
+    temp_2 = *(u8 *)&sp120.f18;
+    alpha_u = temp_2;
+    if (temp_2 >= 0) {
+        var_f0 = (f32)temp_2;
+    } else {
+        var_f0 = 2.0f * (f32)(s32)((alpha_u >> 1) | (alpha_u & 1));
+    }
+    func_00366c70((s32)sp120.f4, (s32)sp120.f8,
+                  sp120.f20, sp120.f22, sp120.f18 >> 8,
+                  (s32)(var_f0 * temp_f21), 5,
+                  (s16)(sp120.f20 >> 1), 0.0f,
+                  (s16)(sp120.f22 >> 1), sp70, arg3, spB0);
+    vt = D_00887300[0];
+    vt(6, 0);
+    vt(8, 1);
+    func_003f6440(3, 0x31003);
+    func_003f6440(2, 0x48);
+    temp_2 = *(u8 *)&sp120.f18;
+    alpha_u = temp_2;
+    if (temp_2 >= 0) {
+        var_f0 = (f32)temp_2;
+    } else {
+        var_f0 = 2.0f * (f32)(s32)((alpha_u >> 1) | (alpha_u & 1));
+    }
+    func_00366c70(
+                  (s32)((f32)sp120.f4 - (f32)sp120.f20 * temp_f20_2),
+                  (s32)((f32)sp120.f8 - (f32)sp120.f22 * temp_f20_2),
+                  (s32)((f32)sp120.f20 * temp_f21_2),
+                  (s32)((f32)sp120.f22 * temp_f21_2), sp120.f18 >> 8,
+                  (s32)(var_f0 * temp_f22), 2,
+                  (s16)(sp120.f20 >> 1), 0.0f,
+                  (s16)(sp120.f22 >> 1), sp70, arg2, spB0);
+    temp_2 = *(u8 *)&sp120.f18;
+    alpha_u = temp_2;
+    if (temp_2 >= 0) {
+        var_f0 = (f32)temp_2;
+    } else {
+        var_f0 = 2.0f * (f32)(s32)((alpha_u >> 1) | (alpha_u & 1));
+    }
+    func_00366c70(
+                  (s32)((f32)sp120.f4 - (f32)sp120.f20 * temp_f20_2),
+                  (s32)((f32)sp120.f8 - (f32)sp120.f22 * temp_f20_2),
+                  (s32)((f32)sp120.f20 * temp_f21_2),
+                  (s32)((f32)sp120.f22 * temp_f21_2), sp120.f18 >> 8,
+                  (s32)(var_f0 * temp_f22), 4,
+                  (s16)(sp120.f20 >> 1), 0.0f,
+                  (s16)(sp120.f22 >> 1), sp70, arg3, spB0);
+}
+
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00256be0);
+#endif
 
 /* measured: nd 189 after four attempts; frame 0x1C0, all stack offsets, both
    copy loops, all zero-fill loops, the struct stores/copies (lq/sq), and the

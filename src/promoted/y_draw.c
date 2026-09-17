@@ -764,8 +764,64 @@ void func_002b7750(s16 arg0, s16 arg1) {
 }
 /* measured: opt_propagation off is required for the byte-exact 7750 reset sequence. */
 #pragma opt_propagation on
-// FUN_002B77D0
+/* measured 002b77d0 (banked two-branch honest body: s16 index + f2 p1 + s16/s32/s8/s16/s16 + f32 + s16/u32 stack, then/else sharing the 6c30 prefix + 82d0/8300/2970/8270 extras, fGpffff8504 float): measure_guarded 280 words obj 1300B/window 1280B; fnalign --candidate 187 edits (+10 reloc-only), retail 320 vs object 325 instrs; opclass dsll32/dsra32 +3 addu +3 surplus with swc1/lwc1 -4 move -3 shortfall. Earliest hunk is prologue allocation: retail holds 7 saved, mwcc takes an 8th (s7 for the s8 flag) shifting spills sd a1 0x90->0xA8 / sw a3 0x9C->0xB4 and colouring t1/t2/t3 s7/s1/s5; scoping off+tmp per-branch re-measured identical 280. Param-vs-surviving-local floor, same family as 001441e0's standing s1/s2 colour walls. Production stays ASM. */
+// FUN_002B77D0 NONMATCHING
+#ifdef NON_MATCHING
+void func_002b77d0(s16 arg0, f2 p1, s16 arg1, u32 arg2, s16 arg3, s8 arg4, s16 arg5, s16 arg6, f32 fparg0, s16 arg7, u32 arg8) {
+    u8 *first;
+    f2 tmpS;
+    f2 outS;
+    first = func_0046d200(arg8, (s32)arg1);
+    if ((s32)arg4 == 1) {
+        s32 off;
+        u8 *tmp;
+        off = ((s32)arg0) << 8;
+        *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14) |= 1;
+        *(f32 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x18) = fparg0;
+        *(s32 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x0C) = (s32)arg3;
+        *(f2 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x3C) = p1;
+        tmp = func_0046d200(*(u32 *)(*(u8 **)(iGpffffb574 + 0x38)), *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8));
+        *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x10) = (s16)(func_0046b260(tmp) / 2.0f);
+        *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x12) = (s16)(func_0046b2f0(tmp) / 2.0f);
+        func_0046d280(tmp);
+        func_002b82d0(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x72), 0, 0, 0, (s16)(arg6 + arg7));
+        func_002b8300(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, 0, (u32)arg6, arg7, 1.0f, 1.0f, 1.0f, fGpffff8504);
+        func_002b2970(&tmpS, p1.x, p1.y + func_0046b2f0(first) / 2.0f);
+        outS = tmpS;
+        func_002b8270(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, p1, outS, 0, (s32)arg6, (s32)arg7);
+    } else {
+        s32 off;
+        u8 *tmp;
+        off = ((s32)arg0) << 8;
+        *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8) = arg1;
+        *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14) = 0;
+        *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x4B) = 0;
+        *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x77) = 0;
+        *(*(u8 **)(iGpffffb574 + 0x38) + off + 0xB7) = 0;
+        *(*(u8 **)(iGpffffb574 + 0x38) + off + 0xDF) = 0;
+        *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14) |= 1;
+        *(f32 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x18) = fparg0;
+        *(s32 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x0C) = (s32)arg3;
+        *(f2 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x3C) = p1;
+        tmp = func_0046d200(*(u32 *)(*(u8 **)(iGpffffb574 + 0x38)), *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8));
+        *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x10) = (s16)(func_0046b260(tmp) / 2.0f);
+        *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x12) = (s16)(func_0046b2f0(tmp) / 2.0f);
+        func_0046d280(tmp);
+        *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x89) = ((u8 *)&arg2)[0];
+        *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x8A) = ((u8 *)&arg2)[1];
+        *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x8B) = ((u8 *)&arg2)[2];
+        *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x8C) = ((u8 *)&arg2)[3];
+        func_002b82d0(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, 0, ((u8 *)&arg2)[3], 0, 0, 0);
+        func_002b8300(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, 0, (u32)arg5, arg7, 1.0f, 1.0f, fGpffff8504, 1.0f);
+        func_002b2970(&tmpS, p1.x, p1.y + func_0046b2f0(first) / 2.0f);
+        outS = tmpS;
+        func_002b8270(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, outS, p1, 0, (s32)arg5, (s32)arg7);
+    }
+    func_0046d280(first);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b77d0);
+#endif
 
 /* 580/592 bytes; 10 resolved relocations; 12 zero alignment bytes.
  * The selected-state join retains both signed-index extensions. */
@@ -1049,8 +1105,192 @@ void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
    function-level and block-scoped local spellings, with and without hoisted
    x6/x7 s16 extensions - retail's arg6/arg7 extensions are hoisted temps
    used only at 0x82/0xA0). No source spelling forces fresh per-branch slots. */
-// FUN_002B83E0
+// FUN_002B83E0 NONMATCHING
+#ifdef NON_MATCHING
+void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, s16 arg6, s16 arg7, f32 fparg0, f32 fparg1, s8 arg_sp0, s8 arg_sp8) {
+    arg0[0x37] = arg_sp8;
+    arg0[0xA3] = arg_sp8;
+    arg0[0x5C] = arg4;
+    arg0[0x5D] = arg5;
+    arg0[0x5E] = arg4;
+    *(s16 *)(arg0 + 0x5A) = 0;
+    *(s16 *)(arg0 + 0x58) = arg6;
+    *(s16 *)(arg0 + 0x60) = arg7;
+    arg0[0x62] = 0;
+    *(s16 *)arg0 |= 4;
+    if (arg_sp0 != 0) {
+        if ((s32)(s8)arg_sp8 != 0) {
+            f2 t;
+            f2 out;
+            *(f32 *)(arg0 + 0x88) = 1.0f;
+            *(f32 *)(arg0 + 0x8C) = 1.0f;
+            *(f32 *)(arg0 + 0x90) = 1.0f;
+            *(f32 *)(arg0 + 0x94) = 1.0f;
+            *(f32 *)(arg0 + 0x98) = fGpffff8504;
+            *(f32 *)(arg0 + 0x9C) = 1.0f;
+            *(s16 *)(arg0 + 0x84) = 0;
+            *(s16 *)(arg0 + 0x82) = arg6;
+            *(s16 *)(arg0 + 0xA0) = arg7;
+            arg0[0xA2] = 1;
+            *(s16 *)arg0 |= 0x10;
+            func_002b2970(&t, p1.x, p1.y + fparg0 / 2.0f);
+            out = t;
+            *(f32 *)(arg0 + 0x18) = p1.x;
+            *(f32 *)(arg0 + 0x1C) = p1.y;
+            *(f32 *)(arg0 + 0x20) = out.x;
+            *(f32 *)(arg0 + 0x24) = out.y;
+            *(f32 *)(arg0 + 0x28) = p1.x;
+            *(f32 *)(arg0 + 0x2C) = p1.y;
+            *(s16 *)(arg0 + 0x32) = 0;
+            *(s16 *)(arg0 + 0x30) = arg6;
+            *(s16 *)(arg0 + 0x34) = arg7;
+            arg0[0x36] = 1;
+            *(s16 *)arg0 |= 2;
+            arg0[0x6D] = arg2.c0;
+            arg0[0x6E] = arg2.c1;
+            arg0[0x6F] = arg2.c2;
+            arg0[0x71] = arg3.c0;
+            arg0[0x72] = arg3.c1;
+            arg0[0x73] = arg3.c2;
+            arg0[0x75] = arg2.c0;
+            arg0[0x76] = arg2.c1;
+            arg0[0x77] = arg2.c2;
+            *(s16 *)(arg0 + 0x7A) = 0;
+            *(s16 *)(arg0 + 0x7C) = 0;
+            *(s16 *)(arg0 + 0x7E) = arg6 / 2;
+            arg0[0x80] = 0;
+            *(s16 *)arg0 |= 0x200;
+        } else {
+            f2 t;
+            f2 out;
+            *(f32 *)(arg0 + 0x88) = 1.0f;
+            *(f32 *)(arg0 + 0x8C) = 1.0f;
+            *(f32 *)(arg0 + 0x90) = 1.0f;
+            *(f32 *)(arg0 + 0x94) = 1.0f;
+            *(f32 *)(arg0 + 0x98) = fGpffff8504;
+            *(f32 *)(arg0 + 0x9C) = 1.0f;
+            *(s16 *)(arg0 + 0x84) = 0;
+            *(s16 *)(arg0 + 0x82) = arg6;
+            *(s16 *)(arg0 + 0xA0) = arg7;
+            arg0[0xA2] = 1;
+            *(s16 *)arg0 |= 0x10;
+            func_002b2970(&t, p1.x, p1.y + fparg0 / 2.0f);
+            out = t;
+            *(f32 *)(arg0 + 0x18) = p1.x;
+            *(f32 *)(arg0 + 0x1C) = p1.y;
+            *(f32 *)(arg0 + 0x20) = out.x;
+            *(f32 *)(arg0 + 0x24) = out.y;
+            *(f32 *)(arg0 + 0x28) = p1.x;
+            *(f32 *)(arg0 + 0x2C) = p1.y;
+            *(s16 *)(arg0 + 0x32) = 0;
+            *(s16 *)(arg0 + 0x30) = arg6;
+            *(s16 *)(arg0 + 0x34) = arg7;
+            arg0[0x36] = 0;
+            *(s16 *)arg0 |= 2;
+            arg0[0x6D] = arg2.c0;
+            arg0[0x6E] = arg2.c1;
+            arg0[0x6F] = arg2.c2;
+            arg0[0x71] = arg3.c0;
+            arg0[0x72] = arg3.c1;
+            arg0[0x73] = arg3.c2;
+            arg0[0x75] = arg2.c0;
+            arg0[0x76] = arg2.c1;
+            arg0[0x77] = arg2.c2;
+            *(s16 *)(arg0 + 0x7A) = 0;
+            *(s16 *)(arg0 + 0x7C) = 0;
+            *(s16 *)(arg0 + 0x7E) = 0;
+            arg0[0x80] = 0;
+            *(s16 *)arg0 |= 0x200;
+        }
+    } else if ((s32)(s8)arg_sp8 != 0) {
+        f2 t;
+        f2 out;
+        *(f32 *)(arg0 + 0x88) = 1.0f;
+        *(f32 *)(arg0 + 0x8C) = 1.0f;
+        *(f32 *)(arg0 + 0x90) = 1.0f;
+        *(f32 *)(arg0 + 0x94) = fGpffff8504;
+        *(f32 *)(arg0 + 0x98) = 1.0f;
+        *(f32 *)(arg0 + 0x9C) = fGpffff8504;
+        *(s16 *)(arg0 + 0x84) = 0;
+        *(s16 *)(arg0 + 0x82) = arg6;
+        *(s16 *)(arg0 + 0xA0) = arg7;
+        arg0[0xA2] = 1;
+        *(s16 *)arg0 |= 0x10;
+        func_002b2970(&t, p1.x, p1.y + fparg0 / 2.0f);
+        out = t;
+        *(f32 *)(arg0 + 0x18) = out.x;
+        *(f32 *)(arg0 + 0x1C) = out.y;
+        *(f32 *)(arg0 + 0x20) = p1.x;
+        *(f32 *)(arg0 + 0x24) = p1.y;
+        *(f32 *)(arg0 + 0x28) = out.x;
+        *(f32 *)(arg0 + 0x2C) = out.y;
+        *(s16 *)(arg0 + 0x32) = 0;
+        *(s16 *)(arg0 + 0x30) = arg6;
+        *(s16 *)(arg0 + 0x34) = arg7;
+        arg0[0x36] = 1;
+        *(s16 *)arg0 |= 2;
+        arg0[0x6D] = arg2.c0;
+        arg0[0x6E] = arg2.c1;
+        arg0[0x6F] = arg2.c2;
+        arg0[0x71] = arg3.c0;
+        arg0[0x72] = arg3.c1;
+        arg0[0x73] = arg3.c2;
+        arg0[0x75] = arg2.c0;
+        arg0[0x76] = arg2.c1;
+        arg0[0x77] = arg2.c2;
+        *(s16 *)(arg0 + 0x7A) = 0;
+        *(s16 *)(arg0 + 0x7C) = 0;
+        *(s16 *)(arg0 + 0x7E) = arg6 / 2;
+        arg0[0x80] = 0;
+        *(s16 *)arg0 |= 0x200;
+    } else {
+        f2 t;
+        f2 out;
+        *(f32 *)(arg0 + 0x88) = 1.0f;
+        *(f32 *)(arg0 + 0x8C) = 1.0f;
+        *(f32 *)(arg0 + 0x90) = 1.0f;
+        *(f32 *)(arg0 + 0x94) = fGpffff8504;
+        *(f32 *)(arg0 + 0x98) = 1.0f;
+        *(f32 *)(arg0 + 0x9C) = fGpffff8504;
+        *(s16 *)(arg0 + 0x84) = 0;
+        *(s16 *)(arg0 + 0x82) = arg6;
+        *(s16 *)(arg0 + 0xA0) = arg7;
+        arg0[0xA2] = 0;
+        *(s16 *)arg0 |= 0x10;
+        func_002b2970(&t, p1.x, p1.y + fparg0 / 2.0f);
+        out = t;
+        *(f32 *)(arg0 + 0x18) = out.x;
+        *(f32 *)(arg0 + 0x1C) = out.y;
+        *(f32 *)(arg0 + 0x20) = p1.x;
+        *(f32 *)(arg0 + 0x24) = p1.y;
+        *(f32 *)(arg0 + 0x28) = out.x;
+        *(f32 *)(arg0 + 0x2C) = out.y;
+        *(s16 *)(arg0 + 0x32) = 0;
+        *(s16 *)(arg0 + 0x30) = arg6;
+        *(s16 *)(arg0 + 0x34) = arg7;
+        arg0[0x36] = 0;
+        *(s16 *)arg0 |= 2;
+        arg0[0x6D] = arg2.c0;
+        arg0[0x6E] = arg2.c1;
+        arg0[0x6F] = arg2.c2;
+        arg0[0x71] = arg3.c0;
+        arg0[0x72] = arg3.c1;
+        arg0[0x73] = arg3.c2;
+        arg0[0x75] = arg2.c0;
+        arg0[0x76] = arg2.c1;
+        arg0[0x77] = arg2.c2;
+        *(s16 *)(arg0 + 0x7A) = 0;
+        *(s16 *)(arg0 + 0x7C) = 0;
+        *(s16 *)(arg0 + 0x7E) = 0;
+        arg0[0x80] = 0;
+        *(s16 *)arg0 |= 0x200;
+    }
+    *(f32 *)(arg0 + 4) = fparg1;
+    *(s16 *)arg0 |= 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b83e0);
+#endif
 
 /* measured: complete six-chain state machine decompiled (0x2/0x80/0x4/0x200/
    0x10/8 flag dispatches, recipe-A byte conversions at 0x5C-0x77 - single bare

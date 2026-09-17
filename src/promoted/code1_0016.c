@@ -1433,8 +1433,172 @@ s32 func_00168ec0(f32 *arg0, f32 **arg1, f32 *arg2)
     }
     return result;
 }
-// FUN_0016B8A0
+// FUN_0016B8A0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0016b8a0(const RwV3d *line, RwV3d *hitPointDst)
+{
+    typedef struct { RwV3d point[2]; } Line;
+    typedef struct { Line line; u32 type; } Inter;
+    typedef struct { RwV3d *dst; u32 hit; RwV3d ln[2]; u32 type; f32 nearest; void *obj; } Ray;
+    extern u8 *func_001452b0(s32 arg0);
+    extern s32 func_0014a160(void);
+    extern void *func_00155280(void);
+    extern void *func_0016b850(void *cw, void *ray);
+    extern void func_003bff30(void *cw, void *cb, void *ray);
+    extern void *func_0047a310(s32 arg0);
+    extern f32 fGpffff82b4;
+    extern u8 *iGpffff9db0;
+    extern s32 D_005F1670[];
+    Line lineCopy __attribute__((aligned(16)));
+    Inter interA __attribute__((aligned(16)));
+    Ray rayA __attribute__((aligned(16)));
+    Inter interC __attribute__((aligned(16)));
+    Ray rayC __attribute__((aligned(16)));
+    Inter interF1 __attribute__((aligned(16)));
+    Ray rayF1 __attribute__((aligned(16)));
+    Inter interF2 __attribute__((aligned(16)));
+    Ray rayF2 __attribute__((aligned(16)));
+    s32 var19;
+    s32 var18;
+    void *var17;
+    u8 *var16;
+    s32 key;
+    s32 fieldX;
+    s32 fieldZ;
+    u8 *object;
+    u8 *entry;
+    u8 *node;
+    void *cw;
+
+    lineCopy = *(const Line *)line;
+    var19 = 0;
+    object = *(u8 **)(iGpffff9db0 + 0x28);
+    if (object == NULL) {
+        return 0;
+    }
+    if ((*(u32 *)object & 1) != 0) {
+        return var19;
+    }
+    var17 = 0;
+    if (func_0014a160() != 0) {
+        fieldX = (s32)((600.0f + lineCopy.point[0].x) / 1200.0f);
+        fieldZ = (s32)((600.0f + lineCopy.point[0].z) / 1200.0f);
+        var18 = 0;
+        while (var18 < 5) {
+            s32 *offsets = &D_005F1670[2 * var18];
+            void *table;
+            table = func_00155280();
+            if (*(u8 *)((u8 *)table + ((fieldZ + offsets[1]) << 8) + 16 * (fieldX + offsets[0]) + 0x54) != 1) {
+                goto next_cell;
+            }
+            table = func_00155280();
+            key = *(u16 *)((u8 *)table + ((fieldZ + offsets[1]) << 8) + 16 * (fieldX + offsets[0]) + 0x56) & 0xFFFF;
+            var16 = func_001452b0(0xA);
+            while (var16 != NULL) {
+                u16 *idptr = *(u16 **)(var16 + 0x140);
+                if (idptr != NULL && *idptr == (u16)key && (*(s32 *)(var16 + 0x28) & 2) != 0 && *(s32 *)(var16 + 0x150) == 1) {
+                    var17 = func_0047a310(*(s32 *)(var16 + 0x144));
+                    rayA.dst = hitPointDst;
+                    rayA.hit = 0;
+                    rayA.nearest = fGpffff82b4;
+                    interA.type = 1;
+                    interA.line = lineCopy;
+                    *(Inter *)&rayA.ln[0] = interA;
+                    if (var17 == NULL) {
+                        var19 = 0;
+                    } else {
+                        func_003bff30(var17, func_0016b850, &rayA);
+                        var19 = rayA.hit;
+                    }
+                    if (var19 == 1) {
+                        break;
+                    }
+                }
+                var16 = *(u8 **)(var16 + 0x138);
+            }
+            if (var19 == 1) {
+                return var19;
+            }
+            entry = func_001452b0(0xC);
+            while (entry != NULL) {
+                if (*(u16 *)entry == (u16)key) {
+                    u8 *t = *(u8 **)(entry + 0x1A0);
+                    var17 = *(void **)(t + 0x14);
+                    if (var17 == NULL) {
+                        var17 = *(void **)(t + 0x8);
+                    }
+                    break;
+                }
+                entry = *(u8 **)(entry + 0x138);
+            }
+            rayC.dst = hitPointDst;
+            rayC.hit = 0;
+            rayC.nearest = fGpffff82b4;
+            interC.type = 1;
+            interC.line = lineCopy;
+            *(Inter *)&rayC.ln[0] = interC;
+            if (var17 == NULL) {
+                var19 = 0;
+            } else {
+                func_003bff30(var17, func_0016b850, &rayC);
+                var19 = rayC.hit;
+            }
+            if (var19 == 1) {
+                return var19;
+            }
+next_cell:
+            var18 += 1;
+        }
+        return var19;
+    } else {
+        u8 *root = *(u8 **)(iGpffff9db0 + 0x28);
+        cw = *(void **)(root + 0x14);
+        if (cw == NULL) {
+            cw = *(void **)(root + 0x8);
+        }
+        rayF1.dst = hitPointDst;
+        rayF1.hit = 0;
+        rayF1.nearest = fGpffff82b4;
+        interF1.type = 1;
+        interF1.line = lineCopy;
+        *(Inter *)&rayF1.ln[0] = interF1;
+        if (cw == NULL) {
+            var19 = 0;
+        } else {
+            func_003bff30(cw, func_0016b850, &rayF1);
+            var19 = rayF1.hit;
+        }
+        if (var19 == 1) {
+            return var19;
+        }
+        node = func_001452b0(0xA);
+        while (node != NULL) {
+            if ((*(s32 *)(node + 0x28) & 2) != 0 && *(s32 *)(node + 0x150) == 1) {
+                void *cw2 = func_0047a310(*(s32 *)(node + 0x144));
+                rayF2.dst = hitPointDst;
+                rayF2.hit = 0;
+                rayF2.nearest = fGpffff82b4;
+                interF2.type = 1;
+                interF2.line = lineCopy;
+                *(Inter *)&rayF2.ln[0] = interF2;
+                if (cw2 == NULL) {
+                    var19 = 0;
+                } else {
+                    func_003bff30(cw2, func_0016b850, &rayF2);
+                    var19 = rayF2.hit;
+                }
+                if (var19 == 1) {
+                    break;
+                }
+            }
+            node = *(u8 **)(node + 0x138);
+        }
+        return var19;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016b8a0);
+#endif
 // FUN_0016BDD0
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016bdd0);
 // FUN_0016E210

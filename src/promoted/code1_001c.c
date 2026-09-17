@@ -764,7 +764,7 @@ void func_001c52c0(u8 *arg0)
     }
 }
 // FUN_001C5500 NONMATCHING
-/* measured 001c5500: 78 differing words guarded via `python3 tools/measure_guarded.py src/promoted/code1_001c.c func_001c5500`; fnalign retail 416 vs object 416, 15 edits (+8 reloc-only). Decisive lever: truthful `extern f32 func_0044b868(f32)` block decl (implicit int return emitted mtc1/cvt plus cascade) moved the same body from 249 to 78. */
+/* measured 001c5500: 78 differing words guarded via `python3 tools/measure_guarded.py src/promoted/code1_001c.c func_001c5500`; fnalign retail 416 vs object 416, 15 edits (+8 reloc-only). Decisive lever: truthful `extern f32 func_0044b868(f32)` block decl (implicit int return emitted mtc1/cvt plus cascade) moved the same body from 249 to 78. Defect class: a missing float return type on an extern, invisible until you spot a stray `cvt.s.w` in your object that retail does not have — check every float-returning callee's declaration when one appears. */
 /* Fresh independent-object layout (251w) beats explicit Frame pads (389w/392w); dot/cross decl swap fixes $f24 (251w to 249w); binary (u8*,s32) ties unary with no caller migration. Pragmas swept scoped on exact body: schedule on 387, commons off 457, loopinv on tie, prop off 306 — neutral/worse, none installed. Top remaining: mtc1 $zero $f5 vs $f6 extra live temp at dot compare, 1.5f ($f23) hoist before base copy, mul $f6 vs $f7, $f20/$f21 cycle (div/cvt region already fixed by 0044b868 prototype). */
 #ifdef NON_MATCHING
 void func_001c5500(u8 *arg0, s32 arg1)
@@ -979,8 +979,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c5b80);
 // FUN_001C79E0
 void func_001c79e0(void) {}
 // FUN_001C79F0 NONMATCHING
-/* measured 001c79f0: 12 differing words via `python3 tools/probe_variants.py src/promoted/code1_001c.c func_001c79f0 --candidate fix1=/var/tmp/main/c79f0_fix1.c`; fnalign retail 448 vs object 448, 14 edits (+23 reloc-only); emitted 1792B/window 1792B. */
-/* 272->12 via if-branch outC0 add (retail add.s, not madd: base+dir, no extra *var_f20); FPU mtc1/swc1 coloring resolved as side effect. Pragmas on exact body: loopinv_on tie 12, sched_off tie 12, sched_on 388 worse, cse_off COMPILE ERROR -- none installed. Next: addiu 0x14c/0x148 hoist (insert29/delete32:34) via double-def pin; mul gp*len order 81:83; mul 0.21875 chains 142:145 + 379:382; lwc1 order 406/407. */
+/* measured 001c79f0: 9 differing words via `python3 tools/probe_variants.py src/promoted/code1_001c.c func_001c79f0 --candidate d1=/var/tmp/main/c79f0_d1.c`; fnalign retail 448 vs object 448, 10 edits (+24 reloc-only); emitted 1792B/window 1792B; opclass no surplus for 79F0. */
+/* 272->12 via if-branch outC0 add; 12->9 via p4_cacd0_mul gp-first for 81 plus second-mul helper for both 0.21875 chains (81 reloc-only, 379 first-mul fixed). Pragmas: loopinv/sched_off tie, sched_on worse, cse_off error -- none installed. Wall (all measured, ties fail): exact two-def pin ties 9w (j=0 folds; 12/96-from-same-base has no 4-offset); third-mul helper prev*gp worsens to 24w, gp*prev swap ties 9w; lwc1 struct 64w/70w worse, reorder 50w worse (temp-split untried). Remaining: addiu hoist 29/32:34 (4), third-mul 143:145 (2) + 380:382 (2), lwc1 order 406 (2). */
 #ifdef NON_MATCHING
 void func_001c79f0(u8 *arg0, s32 arg1)
 {
@@ -1050,7 +1050,7 @@ void func_001c79f0(u8 *arg0, s32 arg1)
         {
             f32 tmpLen;
             tmpLen = func_003e40b0((RwV3d *)frame.dir128, (const RwV3d *)frame.dir128);
-            tmpLen = tmpLen * fGpffff8128;
+            tmpLen = p4_cacd0_mul(fGpffff8128, tmpLen);
             frame.dir128[0] = frame.dir128[0] * tmpLen;
             frame.dir128[1] = frame.dir128[1] * tmpLen;
             frame.dir128[2] = frame.dir128[2] * tmpLen;
@@ -1066,7 +1066,7 @@ void func_001c79f0(u8 *arg0, s32 arg1)
         frame.dir128[0] = frame.dir128[0] * var_f20;
         frame.dir128[1] = frame.dir128[1] * var_f20;
         frame.dir128[2] = frame.dir128[2] * var_f20;
-        var_f20 = var_f20 * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8))) * 0.21875f * fGpffff812c;
+        var_f20 = p4_cacd0_mul(var_f20 * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8))), 0.21875f) * fGpffff812c;
         frame.horizE0[0] = frame.dir128[0];
         frame.horizE0[1] = frame.dir128[2];
         func_003e41e0(frame.horizE0, frame.horizE0);
@@ -1123,7 +1123,7 @@ void func_001c79f0(u8 *arg0, s32 arg1)
         func_003dcb40((RwV3d *)frame.dir128, (const RwV3d *)D_0060A0F0, 1, (const RtQuat *)(var16 + 0x1C));
         func_003e0870((RwMatrix *)frame.mat60, (const RwV3d *)D_0060A0E0, var_f21, 0);
         func_003e4320((RwV3d *)frame.dir128, (const RwV3d *)frame.dir128, (const RwMatrix *)frame.mat60);
-        var_f21 = var_f20 * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8))) * 0.21875f * fGpffff8118;
+        var_f21 = p4_cacd0_mul(var_f20 * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8))), 0.21875f) * fGpffff8118;
         frame.horizE0[0] = frame.dir128[0];
         frame.horizE0[1] = frame.dir128[2];
         func_003e41e0(frame.horizE0, frame.horizE0);

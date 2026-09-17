@@ -1981,15 +1981,19 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00167560);
 
 
 
-/* measured: func_001679d0's best honest C is 772B at 175 differing words
-   (reloc-masked fndiff; obj 772B/window 912B, 193 vs 225 instrs, 119 fnalign
-   edits). Switch layout, local lifetimes, pointer splitting, and ready-test
-   widths did not close the register/control-flow scheduling residual. This pass:
-   scoped opt_common_subs off (alone and with propagation off) rematerialises the
-   per-site slot addresses exactly like retail (sll/lui/addiu/addu at the collapse
-   sites) but cascades to 209 words, so the 175-word archive stands; the full
-   per-assignment recipe that matched sibling func_00165380 was not ported.
-   Archived in docs/probe_archive/W47FldUnit_001679d0_body.c; production stays ASM. */
+/* measured: func_001679d0's best honest C is 772B at 175 differing words */
+/*   (reloc-masked fndiff; obj 772B/window 912B, 193 vs 225 instrs, 119 fnalign */
+/*   edits). Switch layout, local lifetimes, pointer splitting, and ready-test */
+/*   widths did not close the register/control-flow scheduling residual. This pass: */
+/*   scoped opt_common_subs off (alone and with propagation off) rematerialises the */
+/*   per-site slot addresses exactly like retail (sll/lui/addiu/addu at the collapse */
+/*   sites) but cascades to 209 words, so the 175-word archive stands; the full */
+/*   per-assignment recipe that matched sibling func_00165380 was not ported. */
+/*   2026-09-17 pass: ready as narrow/unsigned/u32-load (flat 175, braced narrow 185), */
+/*   p/slot declaration swap (flat), held kind-pointer (184, extra live range costs), */
+/*   slot recompute after calls (flat: file subs ON re-merges it), loop_invariants on */
+/*   inert by BOTH metrics (175 words, 119 edits — unlike mdlSE 0047e0f0, no snap). */
+/*   Archived in docs/probe_archive/W47FldUnit_001679d0_body.c; production stays ASM. */
 // FUN_001679D0
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_001679d0);
 

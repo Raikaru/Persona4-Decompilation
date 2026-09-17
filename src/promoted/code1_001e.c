@@ -3196,8 +3196,176 @@ s32 func_001ee490(u8 *arg0) {
     }
     return 0;
 }
-// FUN_001EE610
+/* measured 001ee610: heaviest MAC (1600B window, 429-line asm, 7 mula + 12 madda + 7 madd = 26 MAC words in 7 groups: 1x2-term dot + 6x4-term dots).
+   First probe via fnalign --candidate: object 383 vs retail 398 instrs, frame 0x4C0 vs 0x4E0 (32B shortfall),
+   s-reg rotation (arg0 s3 vs retail s4), stack pts 0xC0 vs 0x80. MAC reassociation per matching.md
+   (madd.s follows source multiply order; b210 starts accumulator with SECOND addend): 2-term dot as
+   tmp8*tmp10 + tmp9*tmp11 (mula=second) and 4-term dots as c0+c1+c2+c3 where c1=mula, c3=madd
+   (retail order c1,c0,c2,c3). Swapped order (c1+c0+c2+c3) same earliest hunks, confirming earliest
+   frame/s-reg floor hides MACs. Open: frame, s-reg rotation, scheduler ordering (cf. 001eed10 floor).
+   Committed as NONMATCHING; production remains ASM (1024B? no, 1600B window). See P023 doc. */
+// FUN_001EE610 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_001ee610(u8 *arg0, f32 arg1) {
+    extern s32 func_001ece50(f32 *a0, f32 *a1, f32 f);
+    extern f32 func_003e41e0(f32 *out, f32 *in);
+    extern f32 fGpffff8334;
+    extern f32 fGpffff8338;
+    extern f32 fGpffff80fc;
+    extern f32 fGpffff833c;
+    f32 pts[256];
+    f32 tmp[24];
+    u8 *var_16;
+    u8 *var_17;
+    s32 var_18;
+    s32 var_19;
+    s32 var_18_2;
+    s32 var_17_2;
+    u8 *base;
+    f32 half;
+    base = iGpffffb3ac;
+    var_16 = base + 0x90C;
+    half = 0.5f * arg1;
+    var_18 = 0;
+    tmp[10] = 0.0f;
+    tmp[11] = 0.0f;
+    tmp[22] = 0.0f;
+    tmp[23] = 0.0f;
+    if (func_001ece50((f32 *)(base + 0x7E4), (f32 *)(base + 0x914), half) == 0) {
+        base = iGpffffb3ac;
+        pts[0] = *(f32 *)(base + 0x914);
+        pts[1] = *(f32 *)(base + 0x918);
+        pts[2] = *(f32 *)(base + 0x7E4);
+        pts[3] = *(f32 *)(base + 0x7E8);
+        var_18 = 2;
+        goto tail_check;
+    }
+    goto outer_test;
+outer_body:
+    if (var_18 > 0) {
+        var_17 = var_16;
+inner_test:
+        if (var_16 != 0) {
+            if (func_001ece50(&tmp[18], (f32 *)(var_16 + 8), half) == 0) {
+                var_17 = var_16;
+                var_16 = *(u8 **)(var_16 + 0x2C);
+                goto inner_test;
+            }
+        }
+        var_16 = var_17;
+        tmp[18] = *(f32 *)(var_17 + 8);
+        tmp[19] = *(f32 *)(var_17 + 0xC);
+    } else {
+        tmp[18] = *(f32 *)(var_16 + 8);
+        tmp[19] = *(f32 *)(var_16 + 0xC);
+    }
+    tmp[8] = tmp[10];
+    tmp[9] = tmp[11];
+    tmp[10] = tmp[18] - tmp[22];
+    tmp[11] = tmp[19] - tmp[23];
+    {
+        f32 dot = tmp[8] * tmp[10] + tmp[9] * tmp[11];
+        if (var_18 >= 2 && dot <= fGpffff8334) {
+            f32 f21;
+            f32 f02;
+            f21 = func_003e41e0(&tmp[12], &tmp[10]);
+            f02 = func_003e41e0(&tmp[14], &tmp[8]);
+            if (f21 < 250.0f && f02 < 250.0f) {
+                var_18_2 = var_18 - 1;
+            } else {
+                f32 f2 = fGpffff8338 * f21;
+                tmp[20] = tmp[12] * f2 + pts[var_18 * 2 - 2];
+                tmp[21] = tmp[13] * f2 + pts[var_18 * 2 - 1];
+                pts[var_18 * 2] = tmp[20];
+                pts[var_18 * 2 + 1] = tmp[21];
+                {
+                    f32 g1 = fGpffff80fc * f02;
+                    tmp[20] = tmp[14] * g1 + pts[var_18 * 2 - 4];
+                    tmp[21] = tmp[15] * g1 + pts[var_18 * 2 - 3];
+                    pts[var_18 * 2 - 2] = tmp[20];
+                    pts[var_18 * 2 - 1] = tmp[21];
+                }
+                var_18_2 = var_18 + 1;
+            }
+            pts[var_18_2 * 2] = tmp[18];
+            pts[var_18_2 * 2 + 1] = tmp[19];
+            var_18 = var_18_2 + 1;
+        } else {
+            pts[var_18 * 2] = tmp[18];
+            pts[var_18 * 2 + 1] = tmp[19];
+            var_18 += 1;
+        }
+    }
+    tmp[22] = pts[var_18 * 2 - 4];
+    tmp[23] = pts[var_18 * 2 - 3];
+    var_16 = *(u8 **)(var_16 + 0x2C);
+outer_test:
+    if (var_16 != 0) goto outer_body;
+tail_check:
+    if (var_18 < 2) return 0;
+    if (var_18 < 3) {
+        *(f32 *)(arg0 + 0) = pts[2];
+        *(f32 *)(arg0 + 4) = pts[3];
+        *(f32 *)(arg0 + 8) = pts[0];
+        *(f32 *)(arg0 + 0xC) = pts[1];
+        *(s16 *)(arg0 + 0x400) = 2;
+        return 1;
+    }
+    {
+        var_17_2 = 0;
+        var_19 = var_18 - 1;
+        do {
+            u8 *out;
+            tmp[0] = pts[var_19 * 2];
+            tmp[1] = pts[var_19 * 2 + 1];
+            if ((var_19 + 1) >= var_18) {
+                tmp[2] = pts[var_18 * 2 - 2];
+                tmp[3] = pts[var_18 * 2 - 1];
+            } else {
+                tmp[2] = pts[var_19 * 2 + 4];
+                tmp[3] = pts[var_19 * 2 + 5];
+            }
+            if ((var_19 - 1) < 0) {
+                tmp[16] = pts[0] - tmp[0];
+                tmp[17] = pts[1] - tmp[1];
+                func_003e41e0(&tmp[16], &tmp[16]);
+                tmp[4] = tmp[16] * 300.0f + pts[0];
+                tmp[5] = tmp[17] * 300.0f + pts[1];
+            } else {
+                tmp[4] = pts[var_19 * 2 - 2];
+                tmp[5] = pts[var_19 * 2 - 1];
+            }
+            if ((var_19 - 2) < 0) {
+                tmp[16] = pts[0] - tmp[0];
+                tmp[17] = pts[1] - tmp[1];
+                func_003e41e0(&tmp[16], &tmp[16]);
+                tmp[6] = tmp[16] * 500.0f + pts[0];
+                tmp[7] = tmp[17] * 500.0f + pts[1];
+            } else {
+                tmp[6] = pts[var_19 * 2 - 4];
+                tmp[7] = pts[var_19 * 2 - 3];
+            }
+            out = arg0 + var_17_2 * 8;
+            *(f32 *)(out + 0) = tmp[0];
+            *(f32 *)(out + 4) = tmp[1];
+            *(f32 *)(out + 8) = -0.0703125f * tmp[2] + 0.8671875f * tmp[0] + 0.2265625f * tmp[4] + -0.0234375f * tmp[6];
+            *(f32 *)(out + 0xC) = -0.0703125f * tmp[3] + 0.8671875f * tmp[1] + 0.2265625f * tmp[5] + -0.0234375f * tmp[7];
+            *(f32 *)(out + 0x10) = -0.0625f * tmp[2] + 0.5625f * tmp[0] + 0.5625f * tmp[4] + -0.0625f * tmp[6];
+            *(f32 *)(out + 0x14) = -0.0625f * tmp[3] + 0.5625f * tmp[1] + 0.5625f * tmp[5] + -0.0625f * tmp[7];
+            *(f32 *)(out + 0x18) = -0.0234375f * tmp[2] + fGpffff833c * tmp[0] + 0.8671875f * tmp[4] + -0.0703125f * tmp[6];
+            *(f32 *)(out + 0x1C) = -0.0234375f * tmp[3] + fGpffff833c * tmp[1] + 0.8671875f * tmp[5] + -0.0703125f * tmp[7];
+            var_17_2 += 4;
+            var_19 -= 1;
+        } while (var_19 > 0);
+        *(f32 *)(arg0 + var_17_2 * 8 + 0) = pts[0];
+        *(f32 *)(arg0 + var_17_2 * 8 + 4) = pts[1];
+        *(s16 *)(arg0 + 0x400) = (s16)(var_17_2 + 1);
+    }
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ee610);
+#endif
 /* measured: object 172B vs window 176B, normalized_diff 2; the remaining
    residual is the best-node register assignment. Committed at nd 2. */
 // FUN_001EEC60

@@ -3165,8 +3165,211 @@ void func_0019b710(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
 
-// FUN_0019B730
+// FUN_0019B730 NONMATCHING
+#ifdef NON_MATCHING
+extern f32 fGpffff81f4;
+s32 func_0019b730(u8 *arg0)
+{
+    u8 *temp_19;
+    s32 temp_16;
+    s32 var_18;
+    s32 var_17;
+    s32 var_21;
+    s32 var_22;
+    s32 var_23;
+    u32 var_3;
+    s32 spA8;
+    s32 spA4;
+    s32 spA0;
+    s32 sp9C;
+    s32 sp98;
+    s32 sp94;
+    f32 scale;
+    f32 factor;
+    f32 inv;
+    temp_19 = *(u8 **)arg0;
+    temp_16 = *(s16 *)(arg0 + 0x12);
+    switch (*(u8 *)(arg0 + 0x10)) {
+    case 1:
+        var_18 = *(s16 *)(arg0 + 0xC);
+        var_21 = 0;
+        var_17 = *(s16 *)(arg0 + 0xE);
+        var_22 = var_18 + 1;
+        var_23 = var_17 + var_18;
+        break;
+    case 2:
+        var_17 = *(s16 *)(arg0 + 0xE);
+        var_22 = 0;
+        var_18 = *(s16 *)(arg0 + 0xC);
+        var_21 = var_17 + 1;
+        var_23 = var_17 + var_18;
+        break;
+    case 3:
+    case 4:
+        var_18 = *(s16 *)(arg0 + 0xC);
+        var_21 = 0;
+        var_17 = *(s16 *)(arg0 + 0xE);
+        var_22 = 0;
+        if (var_17 < var_18) {
+            var_23 = var_18;
+        } else {
+            var_23 = var_17;
+        }
+        break;
+    }
+    if (temp_16 == 0) {
+        var_3 = *(u8 *)(temp_19 + 0x30) | ((*(u8 *)(temp_19 + 0x31) << 8) | ((*(u8 *)(temp_19 + 0x33) << 24) | (*(u8 *)(temp_19 + 0x32) << 16)));
+        *(u32 *)(arg0 + 4) = var_3;
+        if (*(u8 *)(arg0 + 0x11) & 1) {
+            *(u32 *)(arg0 + 4) = *(u32 *)(arg0 + 4) & 0xFFFFFF;
+        }
+        if (*(u8 *)(arg0 + 0x11) & 2) {
+            *(u32 *)(arg0 + 4) = (*(u32 *)(arg0 + 4) & 0xFFFFFF) | 0xFF000000;
+        }
+        if (*(u8 *)(arg0 + 0x11) & 4) {
+            *(u32 *)(arg0 + 4) = 0;
+        }
+        if (*(u8 *)(arg0 + 0x11) & 8) {
+            *(u32 *)(arg0 + 4) = 0xFFFFFFFF;
+        }
+        func_0019d040(temp_19);
+    }
+    var_3 = *(u32 *)(arg0 + 4);
+    if (temp_16 >= var_22) {
+        if (var_17 > 0) {
+            if (temp_16 < var_22 + var_17) {
+                factor = (f32)(temp_16 - var_22) / (f32)var_17;
+            } else {
+                factor = 1.0f;
+            }
+        } else {
+            factor = 1.0f;
+        }
+        inv = 1.0f - factor;
+        scale = fGpffff81f4;
+        spA8 = *(s32 *)(arg0 + 8);
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf11    \n"
+            "vitof0.xyzw $vf11, $vf11 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
+            :
+            : "r"(&spA8), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        spA4 = *(s32 *)(arg0 + 4);
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "mfc1 $2, %2           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "mfc1 $2, %3           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
+            "vadd.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0xA0($sp)      \n"
+            :
+            : "r"(&spA4), "f"(scale), "f"(inv), "f"(factor)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
+           hoists the reload above the asm, so the read is volatile. */
+        spA0 = *(volatile s32 *)&spA0;
+        var_3 = (var_3 & 0xFF000000) | (spA0 & 0xFFFFFF);
+    }
+    if (temp_16 >= var_21) {
+        if (var_18 > 0) {
+            if (temp_16 < var_21 + var_18) {
+                factor = (f32)(temp_16 - var_21) / (f32)var_18;
+            } else {
+                factor = 1.0f;
+            }
+        } else {
+            factor = 1.0f;
+        }
+        inv = 1.0f - factor;
+        scale = fGpffff81f4;
+        sp9C = *(s32 *)(arg0 + 8);
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf11    \n"
+            "vitof0.xyzw $vf11, $vf11 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
+            :
+            : "r"(&sp9C), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        sp98 = *(s32 *)(arg0 + 4);
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "mfc1 $2, %2           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "mfc1 $2, %3           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
+            "vadd.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0x94($sp)      \n"
+            :
+            : "r"(&sp98), "f"(scale), "f"(inv), "f"(factor)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
+           hoists the reload above the asm, so the read is volatile. */
+        sp94 = *(volatile s32 *)&sp94;
+        var_3 = (var_3 & 0xFFFFFF) | (sp94 & 0xFF000000);
+    }
+    *(u32 *)(temp_19 + 0x30) = var_3;
+    *(s32 *)(temp_19 + 0x98) = *(s32 *)(temp_19 + 0x98) | 4;
+    if (var_23 < temp_16) {
+        return 1;
+    }
+    *(s16 *)(arg0 + 0x12) = temp_16 + 1;
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019b730);
+#endif
 // FUN_0019BBC0
 void func_0019bbc0(u8 *arg0)
 {

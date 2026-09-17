@@ -520,8 +520,82 @@ INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00383f80);
 #endif
 // FUN_00384CC0
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00384cc0);
-// FUN_00385380
+/* measured: probe_variants func_00385380 base 336wd honest (exclusive <0x12, Vec2f{318,231}, plain accumulators, (u8)/(u16) clamps), inclusive (>0x12/slti 0x13) 336wd tie (no $at site, lever N/A beyond exclusivity), pragma_schedule 335wd (-1 churn, fnalign 411 vs 193 edits worse, not adopted); fnalign base retail 377/object 320 (193 edits +1 reloc-only; frame 0x90->0x80, s3->s2, accumulator madd chains); providers verified (373cb0, 3f6440, 64c90, 34f4a0, 44b7b0/610, DAT_007613F8/fGp82cc/80bc/83c8 per Draft5380); Ghidra/IDA agree; archive docs/probe_archive/P038_00385380_body.c (COP1 floor note, consistent); lever 4 tie; banked guarded floor for opclass measurability (object 320/377, 15% short noted plainly, stays out per 3% rule for MATCH but in as floor for triage). */
+// FUN_00385380 NONMATCHING
+#ifdef NON_MATCHING
+void func_00385380(u8 *arg0)
+{
+    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern void func_003f6440(s32 arg0, s32 arg1);
+    typedef struct { f32 x; f32 y; } Vec2f_5380;
+    extern void func_00364c90(Vec2f_5380 pos, f32 depth, s32 color, f32 width, f32 height, f32 angle, s32 mode);
+    extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u32 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+    extern f32 func_0044b7b0(f32 fparg0);
+    extern f32 func_0044b610(f32 fparg0);
+    extern f32 DAT_007613F8;
+    extern f32 fGpffff82cc;
+    extern f32 fGpffff80bc;
+    extern f32 fGpffff83c8;
+    u16 *cnt = (u16 *)(arg0 + 0x1E);
+    s32 res = *(s32 *)(*(u8 **)arg0 + 0x1F2AC);
+    f32 eased1;
+    f32 w1;
+    f32 t1;
+    f32 blend1;
+    f32 w2;
+    f32 t2;
+    f32 blend2;
+    f32 b;
+    u8 idx;
+    f32 delta;
+    f32 inv;
+    f32 v21;
+    f32 v23;
+    f32 s1;
+    f32 c1;
+    f32 s2;
+    f32 c2;
+    f32 x;
+    f32 y;
+    u16 cdelta;
+    u16 cblend;
+    u16 next;
+    eased1 = func_00373cb0((f32)*cnt, 14.0f, 18.0f, 2);
+    w1 = func_00373cb0((f32)*cnt, 5.0f, 6.0f, 1);
+    t1 = func_00373cb0((f32)*cnt, 0.0f, 5.0f, 1);
+    blend1 = DAT_007613F8 * w1 + (fGpffff80bc - fGpffff82cc * t1);
+    func_003f6440(3, 0x71801);
+    func_003f6440(2, 0x48);
+    func_00364c90((Vec2f_5380){318.0f, 231.0f}, 0.0f, 0x71BA00FF, (blend1 - eased1) * 270.0f, blend1 * 45.0f, fGpffff83c8, 0);
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x44);
+    w2 = func_00373cb0((f32)*cnt, 5.0f, 6.0f, 1);
+    t2 = func_00373cb0((f32)*cnt, 2.0f, 5.0f, 1);
+    blend2 = DAT_007613F8 * w2 + (fGpffff80bc - fGpffff82cc * t2);
+    delta = blend2 - eased1;
+    b = func_00373cb0((f32)*cnt, 2.0f, 5.0f, 1);
+    idx = (u8)(s32)(255.0f * b);
+    inv = 1.0f - delta;
+    v21 = (inv * 190.0f) / 2.0f;
+    s1 = func_0044b7b0(fGpffff83c8);
+    c1 = func_0044b610(fGpffff83c8);
+    v23 = (inv * 39.0f) / 2.0f;
+    s2 = func_0044b7b0(fGpffff83c8);
+    c2 = func_0044b610(fGpffff83c8);
+    x = 221.0f + v21 * c1 - v23 * s1;
+    y = 235.0f + 2.0f + v21 * s2 + ((1.0f - blend2) * 39.0f) / 2.0f * c2;
+    cdelta = (u16)(s32)(4096.0f * delta);
+    cblend = (u16)(s32)(4096.0f * blend2);
+    func_0034f4a0(res, 0x12, x, y, 0.0f, 0, 0, 0, idx, cdelta, cblend, -15.0f, 0, 0);
+    next = *cnt + 1;
+    *cnt = next;
+    if ((u16)(next & 0xFFFF) >= 0x12) {
+        *(u16 *)(arg0 + 0x4C) &= (u16)~8;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00385380);
+#endif
 // FUN_00385970
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00385970);
 // FUN_00386C00
@@ -1012,8 +1086,125 @@ void func_00389cb0(u8 *arg0)
 }
 /* measured: restore loop-invariant optimization after func_00389cb0. */
 #pragma opt_loop_invariants off
-// FUN_00389E10
+/* measured: probe_variants func_00389e10 base 276wd, inclusive (m<=30) 276wd tie (no lever gain), pragma loop_invariants on 198wd best (-78, dissolves six-register rotation per mdlSE lesson, judge by fnalign too); fnalign 371 retail vs 367 object COP1 adda/madd floor (4/2/62/31 CFG exact, call order exact); providers verified (3F6440, 008872F8/7300/7310, 457120, 3E41E0/B0, 44B7B0/sinf, 364C50/70, D_007612D0/EC); Ghidra/IDA agree on CFG/call order, differ on signature/loop/cnt/sin args (used retail ABI); lever 4 inclusive tie; s8 vs u8 checked (lbu correct); struct 12B copy tried (tie); double-def offset remains + COP1 chains; re-derived, no fabrications; archive docs/probe_archive/P038_00389e10_body.c (stale). Banked guarded floor with loop_invariants bracket. */
+// FUN_00389E10 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_loop_invariants on
+void func_00389e10(u8 **arg0)
+{
+    extern f32 D_007612D0;
+    extern f32 D_007613EC;
+    extern f32 func_0044b7b0(f32 fparg0);
+    extern f32 func_003e41e0(f32 *out, f32 *in);
+    extern f32 func_003e41b0(f32 *value);
+    s32 outer;
+    s32 j;
+    s32 k;
+    s32 m;
+    s32 idx;
+    s32 half;
+    s32 found;
+    u8 *raw;
+    u8 *base;
+    u8 *entry;
+    f32 z;
+    f32 scale;
+    f32 norm[4];
+    f32 diff[4];
+    f32 batch[62][16];
+    f32 tmp[2];
+    raw = (u8 *)arg0;
+    z = D_008872F8[0];
+    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    D_00887300[0](1, 0);
+    func_003f6440(3, 0x71801);
+    func_003f6440(2, 0x48);
+    for (outer = 0; outer < 4; outer++) {
+        base = raw + 0xA0 + outer * 0x30;
+        entry = base + 4;
+        if (outer == 2) {
+            func_003f6440(3, 0x717FB);
+            func_003f6440(2, 0x44);
+        }
+        for (j = 0; j < 2; j++) {
+            u16 *cnt;
+            u16 *max;
+            f32 *fp;
+            cnt = (u16 *)(entry + j * 2 + 0x20);
+            max = (u16 *)(entry + j * 2 + 0x24);
+            if (++*cnt >= *max) {
+                *cnt = 0;
+            }
+            fp = (f32 *)(entry + j * 8);
+            diff[j * 2] = fp[4] - fp[0];
+            diff[j * 2 + 1] = fp[5] - fp[1];
+            norm[j * 2] = -diff[j * 2 + 1];
+            norm[j * 2 + 1] = diff[j * 2];
+            func_003e41e0(&norm[j * 2], &norm[j * 2]);
+        }
+        for (k = 0; k < 62; k++) {
+            f32 cntf;
+            f32 maxf;
+            f32 ratio;
+            f32 ang;
+            f32 s;
+            f32 w;
+            f32 *inp;
+            f32 rx;
+            f32 ry;
+            idx = k % 2;
+            half = k / 2;
+            cntf = (f32)*(u16 *)(entry + idx * 2 + 0x20);
+            maxf = (f32)*(u16 *)(entry + idx * 2 + 0x24);
+            ratio = cntf / maxf;
+            ang = D_007612D0 * ratio + D_007613EC * (f32)half / 30.0f;
+            s = func_0044b7b0(ang);
+            w = *(f32 *)(entry + 0x28) * s;
+            inp = (f32 *)(entry + idx * 8);
+            rx = (f32)half / 30.0f * diff[idx * 2] + inp[0];
+            ry = (f32)half / 30.0f * diff[idx * 2 + 1] + inp[1];
+            batch[k][0] = rx + w * norm[idx * 2];
+            batch[k][1] = ry + w * norm[idx * 2 + 1];
+            batch[k][2] = z;
+            batch[k][6] = scale;
+            batch[k][8] = (f32)*(u8 *)(entry + 0x2C);
+            batch[k][9] = (f32)*(u8 *)(entry + 0x2D);
+            batch[k][10] = (f32)*(u8 *)(entry + 0x2E);
+            batch[k][11] = (f32)*(u8 *)(entry + 0x2F);
+        }
+        if (outer < 2) {
+            found = 0;
+            for (m = 0; m < 31; m++) {
+                tmp[0] = batch[m * 2][0] - batch[m * 2 + 1][0];
+                tmp[1] = batch[m * 2][1] - batch[m * 2 + 1][1];
+                if (func_003e41b0(tmp) > 1.0f) {
+                    found = 1;
+                    break;
+                }
+            }
+        }
+        func_00364c50();
+        if (outer < 2) {
+            if (found != 0) {
+                func_003f6440(3, 0x71801);
+                func_003f6440(2, 0x42);
+            }
+            D_00887310[0](2, (void *)batch, 62);
+            if (found != 0) {
+                func_003f6440(3, 0x71801);
+                func_003f6440(2, 0x48);
+            }
+        }
+        D_00887310[0](4, (void *)batch, 62);
+        func_00364c70();
+    }
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x44);
+}
+#pragma opt_loop_invariants off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00389e10);
+#endif
 // FUN_0038A3E0
 void func_0038a3e0(u8 *arg0)
 {
@@ -1034,7 +1225,7 @@ void func_0038a3e0(u8 *arg0)
     *(u8 *)(temp_16 + 0x22) = 0x15;
     *(u8 *)(temp_16 + 0x23) = 0xFF;
 }
-/* measured: retail 0x4C0/1216B window, 0x2110 frame (131-entry vertex array per Ghidra afStack_2088); COP1 accumulator-chain floor per policy - retail pre-loop mula.s/msub.s/adda.s/msub.s + repeated adda.s/madd.s chains plain MWCC C cannot emit (archive docs/probe_archive/P038_0038a480_body.c, no source probing); integer tail slti $1,$17,0x41 + bnez + slti $1,$16,0x83 + bnez already $at with exclusive <65/<131 so lever 4 inclusive (<=64/<=130) N/A (would regress to $v0 per handoff 7i); short-by-N hunt N/A (frame-exact, not short); banked as cold INCLUDE_ASM with note (no guard body per COP1 policy). */
+/* measured: retail 0x4C0/1216B window, 0x2110 frame (130-entry Vertex[64B] at sp+0x70, 65x2 outer/inner, Ghidra for i<0x41/j<0x83 exclusive already $at); probe_variants full honest (Vertex[130], (f32)(u32) bytes, plain a+b*c second-addend-first, struct12b tie) 264wd/70instr, sched 257wd/172instr best (-7), FPU reverse tie 264, struct12b tie 264, inclusive (<=64/<=130) 264 tie (lever neutral, exclusive already $at); fnalign sched 172 vs 300 (128 short, 43% short, stays out per 3% rule, body in /var/tmp/a480/full_sched.c); COP1 adda/madd/mula/msub reconstruct exactly per 0046a7f0 rules (adda $f2,0 seed for coeff+prev*x2, operand order literal, mula+msub single expr, 0.0f reused) tried - remaining shortfall missing work (second entry per iteration + tail + 12B pinning), not wall (?? +3 is capstone COP1 MMI); opclass N/A (note-only, no banked body); banked cold INCLUDE_ASM with note (no guard body, 43% short stays out, no invented figures). */
 // FUN_0038A480
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038a480);
 /* Measured: 904/912 bytes, eleven resolved relocations and eight zero
@@ -1107,8 +1298,107 @@ void func_0038a940(u8 **arg0)
     func_0038a480(work);
 }
 #pragma opt_propagation on
-// FUN_0038ACD0
+/* measured: probe_variants func_0038acd0 archived 276wd, base 159wd, inclusive (i<5 -> <=4) 161wd regress (+2, exclusive correct), reorder (declaration order per handoff 7a reverse) 154wd best (-5), schedule 293wd regress (not justified); fnalign base 59 edits +4 reloc-only 316/316 instrs, reorder 43 edits +6 reloc-only (best, -16 edits); lever 4 exclusive correct (i<5 keeps $at? actually i<5 vs <=4 regress confirms exclusive); schedule off (unit baseline) correct; providers verified per DraftAcd0 (373cb0, 64c90, etc.); Ghidra/IDA agree; archive docs/probe_archive/P038_0038a480_body.c? No, P038_0038acd0_body.c (stale 276). Banked guarded floor (no pragmas). */
+// FUN_0038ACD0 NONMATCHING
+#ifdef NON_MATCHING
+typedef struct { f32 x; f32 y; } Vec2f_acd0;
+extern void func_00364c90(Vec2f_acd0 position, f32 depth, s32 color, f32 width, f32 height, f32 angle, s32 mode);
+void func_0038acd0(u8 *arg0)
+{
+    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern f32 fGpffff83a4;
+    extern u8 D_0064F090[];
+    f32 factors[5];
+    Vec2f_acd0 point;
+    u8 *state;
+    u8 *entry;
+    s32 span;
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 type;
+    u16 flags;
+    u16 counter;
+    f32 upper;
+    f32 lower;
+    f32 tail;
+    f32 half;
+    f32 width;
+    f32 off;
+    f32 fac;
+
+    state = arg0 + 0x1B4;
+    type = *(s32 *)(*(u8 **)arg0 + 0x1F2FC);
+    switch (type) {
+    case 3:
+        span = 20;
+        lower = 196.0f;
+        upper = 320.0f;
+        break;
+    case 4:
+        span = 20;
+        lower = 185.0f;
+        upper = fGpffff83a4;
+        break;
+    }
+    flags = *(u16 *)(state + 2);
+    if ((flags & 1) == 0) {
+        for (i = 0; i < 5; i++) {
+            entry = D_0064F090 + i * 0x10;
+            tail = (f32)(u32)*(u16 *)state;
+            half = (f32)span;
+            factors[i] = func_00373cb0(tail, half * *(f32 *)(entry + 8), half * *(f32 *)(entry + 0xC), 1);
+        }
+        tail = (f32)(u32)*(u16 *)state;
+        half = (f32)span;
+        tail = func_00373cb0(tail, 0.25f * half, half, 1);
+        counter = ++*(u16 *)state;
+        if (counter >= span) {
+            *(u16 *)(state + 2) |= 1;
+            *(u16 *)state = 0;
+        }
+    } else if (flags & 2) {
+        for (i = 0; i < 5; i++) {
+            entry = D_0064F090 + i * 0x10;
+            tail = (f32)(u32)*(u16 *)state;
+            half = (f32)span;
+            factors[i] = 1.0f - func_00373cb0(tail, half * *(f32 *)(entry + 8), half * *(f32 *)(entry + 0xC), 1);
+        }
+        tail = (f32)(u32)*(u16 *)state;
+        half = (f32)span;
+        tail = 1.0f - func_00373cb0(tail, 0.25f * half, half, 1);
+        counter = ++*(u16 *)state;
+        if (counter >= span) {
+            *(u16 *)(arg0 + 4) &= (u16)0xFFDF;
+        }
+    } else {
+        for (j = 0; j < 5; j++) {
+            factors[j] = 1.0f;
+        }
+        tail = 1.0f;
+    }
+    func_003f6440(3, 0x71801);
+    func_003f6440(2, 0x48);
+    point.y = 224.0f;
+    half = lower / 2.0f;
+    for (k = 0; k < 5; k++) {
+        fac = factors[k];
+        entry = D_0064F090 + k * 0x10;
+        width = *(f32 *)(entry + 4) * fac;
+        off = (half + *(f32 *)entry) * fac;
+        point.x = upper + off;
+        func_00364c90(point, 0.0f, 0xFF403DFF, width, 448.0f, 0.0f, 0);
+        point.x = upper - off;
+        func_00364c90(point, 0.0f, 0xFF403DFF, width, 448.0f, 0.0f, 0);
+    }
+    point.x = upper;
+    func_00364c90(point, 0.0f, 0xFF403DFF, lower * tail, 448.0f, 0.0f, 0);
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x44);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038acd0);
+#endif
 // FUN_0038B1C0
 void func_0038b1c0(u8 *arg0)
 {
@@ -2271,7 +2561,7 @@ read_flags:
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038fd30);
 #endif
-/* measured: probe_variants func_0038fe90 fixed (externs corrected, jtbl redeclare removed) 216wd (vs stale archive 732wd oversized), sched 191wd win (-25), loop_invariants 215wd tie, sched inclusive (value<0xF0 -> <=0xEF) 191wd tie (fndiff both slti $at, exclusive already $at so lever neutral here); fnalign sched 246 edits (frame 0x140 vs retail 0x110 + scheduling + address chains, plus 4 reloc-only); lever 4 tie per above; parent lesson: schedule measured, common_subs off COMPILE ERROR (pragma+body interaction, banked without it), loop_invariants tie; lb (lbu correct for u8 record bytes) checked; double-def offset (addu base+off after lw at 28FF24/28FF30) remains; re-derived (5-arg f990, 3-arg df360/df300, 1-arg e2ce0, jtbl void* per file-scope, Ghidra/IDA 5-arg confirmed); archive docs/probe_archive/P038_0038fe90_body.c (stale oversized). Banked guarded floor with sched bracket. */
+/* measured: probe_variants func_0038fe90 fixed (externs corrected, jtbl redeclare removed) 216wd (vs stale archive 732wd oversized), sched 191wd win (-25), loop_invariants 215wd tie, sched inclusive (value<0xF0 -> <=0xEF) 191wd tie (fndiff both slti $at, exclusive already $at so lever neutral here); fnalign sched 246 edits (frame 0x140 vs retail 0x110 + scheduling + address chains, plus 4 reloc-only); lever 4 tie per above; parent lesson: schedule measured, common_subs off COMPILE ERROR (pragma+body interaction, banked without it), loop_invariants tie; lb (lbu correct for u8 record bytes) checked; double-def offset (addu base+off after lw at 28FF24/28FF30) remains; re-derived (5-arg f990, 3-arg df360/df300, 1-arg e2ce0, jtbl void* per file-scope, Ghidra/IDA 5-arg confirmed); archive docs/probe_archive/P038_0038fe90_body.c (stale oversized). Banked guarded floor with sched bracket; revisit (2.4% short 204v209): sched+common_subs push 192wd tie+1 (not adopted), dead-arm N/A (no trailing empty else-if, ends with flag-gated j-loop + return), compare-chain N/A (two ==2 tests on different bytes, not adjacent K/K+1). */
 // FUN_0038FE90 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on

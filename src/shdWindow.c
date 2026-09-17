@@ -100,18 +100,86 @@ s32 func_0025db00(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
 // measured: closes the func_0025db00 loop-invariant bracket.
 #pragma opt_loop_invariants off
 
-// measured: retail allocates arg0->$s3, arg1->$s2, temp_16->$s0, temp_17->$s1
-// and loads D_00637260-6C with absolute lui/lwc1 (fixed by declaring them
-// arrays); mwcc b210 instead shifts every saved register down by one
-// (arg0->$s2, arg1->$s1) and reorders the var_f22 float computation, so the
-// whole 14-arg func_00366670 / 9-arg func_00274ed0 call region rotates. Tried
-// 3 declaration orders and the sp array vs 4 separate scalar locals, all nd
-// 216-224. Saved-register rotation + float-order floor.
+// measured: 14 differing words at an exact 269/269.  The previous note on
+// this function claimed a saved-register rotation at nd 216-224 and a later
+// pass reported nd 719; both were measuring something other than the body
+// that is banked here, which scores 14 via
+// `tools/measure_guarded.py src/shdWindow.c func_0025dd30`.  The body was
+// also left LIVE and unguarded, so `verify.py` reported a real MISMATCH on
+// this translation unit; it is behind `#ifdef NON_MATCHING` now.
+// WALL, all 14 words: retail loads D_00637260/64/68/6C into $f3,$f2,$f1,$f0
+// and only then stores the four to sp+0x70..0x7C; b210 reuses $f0 and
+// interleaves each load with its store.  Four separate externs are correct -
+// retail re-emits `lui $v0, 0x63` before every `lwc1`, which a single
+// `f32 D_00637260[4]` would fold into one base.  Measured and rejected:
+// direct `table[i] = D_006372xx[0]` with no temps (14, unchanged), the four
+// temps assigned in reverse (14), the stores emitted in reverse (15), a
+// four-field struct assignment (244), `opt_loop_invariants on` (14),
+// `opt_common_subs off` (165), `schedule on` (246) and `opt_propagation off`
+// (26 words but only 11 edits - it fixes this block and breaks more
+// elsewhere).  The single-use temps are folded into their stores by
+// propagation and rescheduled; nothing short of disabling propagation for
+// the whole function reproduces retail's four live FPRs.
 extern s8 func_00275a40(char param_1);
 extern void func_0025d850(f32 farg0, f32 farg1, f32 farg2, s32 arg0);
-// FUN_0025DD30
-INCLUDE_ASM("asm/nonmatchings/shdWindow", func_0025dd30);
+// FUN_0025DD30 NONMATCHING
+#ifdef NON_MATCHING
+void func_0025dd30(f32 param_1, f32 param_2, s32 color, u8 *data) {
+    f32 table[4];
+    f32 t1a;
+    f32 t1b;
+    f32 t1c;
+    f32 t1d;
+    s32 y;
+    s32 kind;
+    f32 var;
+    f32 xprog;
+    s32 ret;
 
+    t1a = D_00637260[0];
+    t1b = D_00637264[0];
+    t1c = D_00637268[0];
+    t1d = D_0063726C[0];
+    table[0] = t1a;
+    table[1] = t1b;
+    table[2] = t1c;
+    table[3] = t1d;
+    func_00275a40(2);
+    y = *(s32 *)(data + 12);
+    if (y >= 0x17) {
+        func_0046d730(D_00637248, 121);
+    }
+    kind = *(u16 *)(D_00637190 + y * 8 + 4);
+    xprog = 228.0f + param_1;
+    if (kind == 2) {
+        var = ((150.0f + param_2) - 6.0f) - 37.5f;
+    } else {
+        var = (150.0f + param_2) - 6.0f;
+    }
+    ret = func_0025db00(xprog, var, 0xFFFFFF, color, *(s32 *)(data + 12), 1);
+    y = (s32)(49.0f + (var + (f32)(ret >> 1)));
+    switch (kind) {
+    case 2:
+        if (*(s32 *)(data + 20) == 0) {
+            u32 combined = (color & 0xFF) | -256;
+            func_00366670((s32)(110.0f + param_1), y, 106, 26, combined >> 8, combined & 0xFF, 1, 0, 0, NULL, 0.0f, 0.0f, 1.0f, 1.0f);
+            func_00274ed0(163.0f + param_1, (f32)(y - 5), 0.0f, color | 0x64F0FF00, ((s8 *)table)[*(s32 *)(data + 20) * 8], 0, (const char *)iGpffffa6a0, 8, 0);
+            func_00274ed0((f32)293 + param_1, (f32)(y - 5), 0.0f, color | -256, ((s8 *)table)[*(s32 *)(data + 20) * 8 + 4], 1, (const char *)iGpffffa6a4, 8, 0);
+        } else {
+            u32 combined = (color & 0xFF) | -256;
+            func_00366670((s32)(240.0f + param_1), y, 106, 26, combined >> 8, combined & 0xFF, 1, 0, 0, NULL, 0.0f, 0.0f, 1.0f, 1.0f);
+            func_00274ed0(163.0f + param_1, (f32)(y - 5), 0.0f, color | -256, ((s8 *)table)[*(s32 *)(data + 20) * 8], 1, (const char *)iGpffffa6a0, 8, 0);
+            func_00274ed0(3.0f + ((f32)293 + param_1), (f32)(y - 5), 0.0f, color | 0x64F0FF00, ((s8 *)table)[*(s32 *)(data + 20) * 8 + 4], 0, (const char *)iGpffffa6a4, 8, 0);
+        }
+        break;
+    case 1:
+        func_0025d850((f32)399 + param_1, 255.0f + param_2, 0.0f, -1);
+        break;
+    }
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/shdWindow", func_0025dd30);
+#endif
 // FUN_0025E170
 s32 func_0025e170(s32 arg0)
 {

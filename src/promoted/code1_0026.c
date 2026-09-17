@@ -1129,9 +1129,154 @@ void func_00268ad0(u8 *arg0)
     jtbl_008873EC[0](temp_16);
 }
 
-/* draft (not floor, >3% short): fresh probe L26 277wd / obj1088B/window1296B (208B short, 16% short, needs >=1257B); gap-zero worse 287wd (ruled out, scratch uninit); array [4]->[8] frame-only 276wd (+64B frame to -0x160, still -0x170, 1-word win, no code); top-down fnalign 322v272 (50 short): earliest frame/FPR/lb, then retail[188:196] 8-instr float temps (3x sub.s sp+0x140-0x154 to 0xC8-0xD0 + jal 003e4180) + retail[302:307] 5-instr lb-bound loop (addiu/lb/slt/bnez); need whole-window with missing lb-loop + float temps, Work-gap, CopyPair lw/sw, never lwc1 for 8B copies. No volatile/asm. */
-// FUN_0026CEF0
+/* measured 0026cef0: L26 277wd/obj1088B/window1296B (208B short, 16% short, fails 3% gate >=1257B) + gap-zero 287wd + array[4]->[8] 276wd/frame-0x160 still short; frame-struct explicit 0x80-0x16C pads (0xF0 size) whole-window 324v325/obj1300B/window1296B (4B over, 0.3%, within gate), fnalign 75 edits (+3 reloc-only): earliest mtc1/div/mov FPR (f23/f21/f20 coloring), sll/addu *36 with var_5 hoist, s0/s1 (var_17/var_16), addu order, lwc1/swc1 scheduling, MAC FPR; tried float honesty (1.0f/20.0f, s8 lb, f32), branch polarity (<=/< with !< for bc1f/bc1t), bottom-test while, cached base (base/base2, fixed lb + whole-window), MAC second-addend (delta*weight+first), interleaved sig (arg0/fparg0/arg1/arg2 for mov.s order), declaration reorder (75 vs 87), block V3 (71 edits but +1 instr, kept per-field donor-style). Remaining are register/scheduling/FPU floors per matching.md; banked. No volatile/asm. */
+// FUN_0026CEF0 NONMATCHING
+#ifdef NON_MATCHING
+f32 func_0026cef0(s8 *arg0, f32 fparg0, f32 *arg1, f32 *arg2,
+                  f32 fparg1)
+{
+    struct Cef0Frame {
+        f32 v80[4];
+        f32 v90[4];
+        f32 vA0[4];
+        u8 padB0[8];
+        f32 vB8;
+        f32 vBC;
+        f32 vC0;
+        u8 padC4[4];
+        f32 vC8;
+        f32 vCC;
+        f32 vD0;
+        u8 padD4[4];
+        f32 vD8;
+        f32 vDC;
+        f32 vE0;
+        u8 padE4[4];
+        f32 vE8[4];
+        f32 vF8;
+        f32 vFC;
+        f32 v100;
+        u8 pad104[4];
+        f32 v108;
+        f32 v10C;
+        f32 v110;
+        u8 pad114[4];
+        f32 v118;
+        f32 v11C;
+        f32 v120;
+        u8 pad124[4];
+        f32 v128[6];
+        f32 v140[6];
+        f32 v158[6];
+    } frame;
+    f32 var_f20;
+    f32 temp_f21;
+    f32 temp_f22;
+    f32 var_f23;
+    f32 temp_f0;
+    f32 temp_f21_2;
+    f32 temp_f3;
+    f32 temp_f4;
+    s32 var_17;
+    s32 var_16;
+    s32 var_5;
+    s32 var_5_2;
+    s8 temp_3;
+    u8 *temp_3_2;
+    u8 *temp_3_3;
+
+    var_f23 = 0.0f;
+    temp_3 = *arg0;
+    temp_f21 = (1.0f / (f32)temp_3) / 20.0f;
+    var_f20 = 0.0f;
+    if (fparg1 <= fparg0) {
+        u8 *base;
+        base = (u8 *)arg0 + (temp_3 - 1) * 0x24;
+        var_5 = 0;
+        while (var_5 < 4) {
+            temp_3_2 = base + var_5 * 0xC;
+            frame.vA0[var_5] = *(f32 *)(temp_3_2 + 4);
+            frame.v90[var_5] = *(f32 *)(temp_3_2 + 8);
+            frame.v80[var_5] = *(f32 *)(temp_3_2 + 0xC);
+            var_5 += 1;
+        }
+        func_0026c960(fGpffff82d4, frame.vA0, frame.v90, frame.v80, &frame.v158[5], &frame.v158[3], &frame.v158[1]);
+        func_0026c960(1.0f, frame.vA0, frame.v90, frame.v80, &frame.v158[4], &frame.v158[2], &frame.v158[0]);
+        frame.vD8 = frame.v158[4] - frame.v158[5];
+        frame.vDC = frame.v158[2] - frame.v158[3];
+        frame.vE0 = frame.v158[0] - frame.v158[1];
+        func_003e4180(&frame.vD8);
+        frame.v118 = frame.v158[4];
+        frame.v11C = frame.v158[2];
+        frame.v120 = frame.v158[0];
+        arg1[0] = frame.v118;
+        arg1[1] = frame.v11C;
+        arg1[2] = frame.v120;
+        frame.v108 = frame.v158[4] - frame.v158[5];
+        frame.v10C = frame.v158[2] - frame.v158[3];
+        frame.v110 = frame.v158[0] - frame.v158[1];
+        func_003e40b0(frame.vE8, &frame.v108);
+        func_0026c860(frame.vE8, arg2);
+        return 1.0f;
+    }
+    var_17 = 0;
+    while (var_17 < *arg0) {
+        u8 *base2;
+        base2 = (u8 *)arg0 + var_17 * 0x24;
+        var_5_2 = 0;
+        while (var_5_2 < 4) {
+            temp_3_3 = base2 + var_5_2 * 0xC;
+            frame.vA0[var_5_2] = *(f32 *)(temp_3_3 + 4);
+            frame.v90[var_5_2] = *(f32 *)(temp_3_3 + 8);
+            frame.v80[var_5_2] = *(f32 *)(temp_3_3 + 0xC);
+            var_5_2 += 1;
+        }
+        var_16 = 0;
+        while (var_16 < 0x14) {
+            temp_f22 = (f32)var_16 * fGpffff83d0;
+            func_0026c960(temp_f22, frame.vA0, frame.v90, frame.v80, &frame.v140[5], &frame.v140[3], &frame.v140[1]);
+            func_0026c960((f32)(var_16 + 1) * fGpffff83d0, frame.vA0, frame.v90, frame.v80, &frame.v140[4], &frame.v140[2], &frame.v140[0]);
+            frame.vC8 = frame.v140[4] - frame.v140[5];
+            frame.vCC = frame.v140[2] - frame.v140[3];
+            frame.vD0 = frame.v140[0] - frame.v140[1];
+            temp_f0 = func_003e4180(&frame.vC8);
+            frame.v118 = frame.v140[4];
+            frame.v11C = frame.v140[2];
+            frame.v120 = frame.v140[0];
+            var_f23 += temp_f0;
+            if (!(var_f23 < fparg0)) {
+                temp_f4 = 1.0f - ((var_f23 - fparg0) / temp_f0);
+                temp_f3 = temp_f21 * temp_f4;
+                frame.v108 = frame.v140[4] - frame.v140[5];
+                frame.v10C = frame.v140[2] - frame.v140[3];
+                frame.v110 = frame.v140[0] - frame.v140[1];
+                arg1[0] = frame.v108 * temp_f4 + frame.v140[5];
+                arg1[1] = frame.v10C * temp_f4 + frame.v140[3];
+                arg1[2] = frame.v110 * temp_f4 + frame.v140[1];
+                temp_f21_2 = temp_f22 + temp_f3;
+                func_0026c960(temp_f21_2, frame.vA0, frame.v90, frame.v80, &frame.v128[5], &frame.v128[3], &frame.v128[1]);
+                func_0026c960(temp_f21_2 - fGpffff842c, frame.vA0, frame.v90, frame.v80, &frame.v128[4], &frame.v128[2], &frame.v128[0]);
+                frame.vB8 = frame.v128[4] - frame.v128[5];
+                frame.vBC = frame.v128[2] - frame.v128[3];
+                frame.vC0 = frame.v128[0] - frame.v128[1];
+                func_003e4180(&frame.vB8);
+                frame.vF8 = frame.v128[5] - frame.v128[4];
+                frame.vFC = frame.v128[3] - frame.v128[2];
+                frame.v100 = frame.v128[1] - frame.v128[0];
+                func_003e40b0(frame.vE8, &frame.vF8);
+                func_0026c860(frame.vE8, arg2);
+                return var_f20 + temp_f3;
+            }
+            var_f20 += temp_f21;
+            var_16 += 1;
+        }
+        var_17 += 1;
+    }
+    return 0.0f;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026cef0);
+#endif
 /* measured: optimization_level 1 register-coloring probe for func_0026db60. */
 #pragma optimization_level 1
 /* measured: opt_propagation off probe for func_0026db60 loop test ordering. */
