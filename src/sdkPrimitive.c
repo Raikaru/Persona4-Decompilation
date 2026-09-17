@@ -329,8 +329,60 @@ void func_0045e6a0(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3, s32 arg4,
    and 12B alignment. Register allocation and scheduling remain unresolved;
    this does not improve the historical nd88 score. Retail stays in ASM. */
 /* fresh: Lng body 94wd (was 100) / obj560B/window576B (16B short: 4B exec nop + 12B align, exact 140/140 code); loop_invariants on 94 tie (no-op), schedule on 127 (+33 out, scheduling wall not flag); parent 4938e0 levers N/A (no 0xFFFF/||/==-1/COP2 in body); WALL colour rotation [32:36] (s1/s0 vs s2/s1, systematic +1 shift, prior parorder/alias/shape scopes stand) + scheduling; conventions transfer to eb20. Bare ASM kept (exact size). */
-// FUN_0045E8E0
+/* measured: 94 differing words, 140/140 instrs, obj560B/window576B (16B short: 4B exec nop + 12B align); loopinv 94 tie (32ed tie), schedule 127wd/126ed, commons 98wd/68ed, prop tie, nobl tie, O1 98; s8/double-def N/A (no lb, no sunk address chain); product-seeded mula/madd/add chains reproduce, wall is [32:36] colour rotation (s1/s0 vs s2/s1) + scheduling. Banked floor. */
+// FUN_0045E8E0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0045e8e0(void *arg0, void *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s16 arg6, f32 fparg1, f32 fparg2, f32 fparg3, void *arg7) {
+    s32 size8;
+    s32 size4;
+    PrimBatch *work;
+    u8 *callback;
+    f32 angle;
+    f32 sine;
+    f32 cosine;
+    PrimFloat2 base;
+    f32 centerX;
+    f32 centerY;
+    f32 x;
+    f32 y;
+    f32 negSine;
+    PrimFloat2 *position;
+    s32 i;
+
+    func_0044ea90(D_007124C0, 0x328);
+    size8 = arg2 * 8;
+    size4 = arg2 * 4;
+    work = (void *)D_008873F4[0](1, size4 + 0x1C + size8, 0x40000);
+    work->colors = (u8 *)(work + 1);
+    work->positions = work->colors + size4;
+    work->scale = fparg0;
+    work->count = arg2;
+    work->enabled = arg4;
+    work->primType = arg3;
+    func_0043f810(work->positions, (void *)arg1, size8);
+    func_0043f810(work->colors, (void *)arg0, size4);
+    angle = iGpffff81d0 * fparg1;
+    sine = func_0044b7b0(angle);
+    cosine = func_0044b610(angle);
+    base = *(PrimFloat2 *)work->positions;
+    centerX = base.v[0] + (f32)arg5;
+    centerY = base.v[1] + (f32)arg6;
+    negSine = -sine;
+    for (i = 0; i < arg2; i++) {
+        position = (PrimFloat2 *)((u8 *)work->positions + i * 8);
+        x = (position->v[0] - centerX) * fparg2;
+        y = (position->v[1] - centerY) * fparg3;
+        position->v[0] = base.v[0] + (f32)arg5 + (x * cosine + y * sine);
+        ((PrimFloat2 *)work->positions)[i].v[1] = base.v[1] + (f32)arg6 + (x * negSine + y * cosine);
+    }
+    callback = func_00460990();
+    *(void **)(callback + 8) = (void *)func_0045e310;
+    *(void **)(callback + 0x10) = work;
+    func_00460ac0(arg7, callback);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045e8e0);
+#endif
 
 
 /* MnB_0045eb20_body.c has the same recovered product-seeded rotation chains
@@ -339,5 +391,58 @@ INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045e8e0);
    Both probes resolve all 14 relocations and preserve all five owner C
    functions; neither is an instruction match or a proven FPU limitation. */
 /* fresh: MnB body 96wd (was 102) / obj568B/window576B (8B short: nop + 4B align, exact 142/142 code); loop_invariants on 96 tie (transfers e8e0); identical divergence pattern to e8e0 ([32:36] rotation, [54]/[89]/[93] inserts, [76]/[91] deletes -- same source family, conventions transfer); parent levers N/A (same: no mask/||/COP2); WALL same colour+scheduling. Bare ASM kept. */
-// FUN_0045EB20
+/* measured: 96 differing words, 142/142 instrs, obj568B/window576B (8B short: nop + 4B align); loopinv 96 tie, schedule 129wd, commons 101wd (612B), prop 96 tie (transfers e8e0); identical [32:36] rotation + scheduling wall, same source family. Banked floor. */
+// FUN_0045EB20 NONMATCHING
+#ifdef NON_MATCHING
+void func_0045eb20(void *arg0, void *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s16 arg6, f32 fparg1, f32 fparg2, f32 fparg3, void *arg7) {
+    s32 size8;
+    s32 size4;
+    PrimBatch *work;
+    u8 *callback;
+    f32 angle;
+    f32 sine;
+    f32 cosine;
+    PrimFloat2 base;
+    f32 centerX;
+    f32 centerY;
+    f32 x;
+    f32 y;
+    f32 negSine;
+    PrimFloat2 *position;
+    s32 i;
+
+    func_0044ea90(D_007124C0, 0x328);
+    size8 = arg2 * 8;
+    size4 = arg2 * 4;
+    work = (void *)D_008873F4[0](1, size4 + 0x1C + size8, 0x40000);
+    work->colors = (u8 *)(work + 1);
+    work->positions = work->colors + size4;
+    work->scale = fparg0;
+    work->count = arg2;
+    work->enabled = arg4;
+    work->primType = arg3;
+    func_0043f810(work->positions, (void *)arg1, size8);
+    func_0043f810(work->colors, (void *)arg0, size4);
+    angle = iGpffff81d0 * fparg1;
+    sine = func_0044b7b0(angle);
+    cosine = func_0044b610(angle);
+    base = *(PrimFloat2 *)work->positions;
+    centerX = base.v[0] + (f32)arg5;
+    centerY = base.v[1] + (f32)arg6;
+    negSine = -sine;
+    for (i = 0; i < arg2; i++) {
+        position = (PrimFloat2 *)((u8 *)work->positions + i * 8);
+        x = (position->v[0] - centerX) * fparg2;
+        y = (position->v[1] - centerY) * fparg3;
+        position->v[0] = base.v[0] + (f32)arg5 + (x * cosine + y * sine);
+        ((PrimFloat2 *)work->positions)[i].v[1] = base.v[1] + (f32)arg6 + (x * negSine + y * cosine);
+    }
+    work->alpha = 1;
+    callback = func_00460990();
+    *(void **)(callback + 8) = (void *)func_0045e310;
+    *(void **)(callback + 0x10) = work;
+    func_00460ac0(arg7, callback);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045eb20);
+#endif

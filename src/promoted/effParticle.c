@@ -84,8 +84,76 @@ void *func_00486a50(s32 arg0)
    base-hoist spelling used here (u32 base = (u32)jtbl_008873E8;
    ((void (*)(u32,u32))*(u32 *)base)()) is correct and matches retail. */
 /* fresh: E486 body fixed + archived (compile blockers NULL->0 (5 sites), (int) casts removed to match owner (u8*) decls -- zero codegen change); 105wd / obj780B/window784B (4B short, 1 instr, 0.5%% gate); prior note best 42wd is unarchived (working copy lost -- E486 header said 252 stale); rotation wall stands (prior decl-order/shared/comma/propagation all >=42); parent 4938e0 levers N/A (mask is 0xFF single recompute (no 0xFFFF-per-site + frame symptom, frame -96/sqx5 matches); no ||; no COP2 unpack (allocation/jtbl code)). Bare ASM kept. */
-// FUN_00486B00
+/* measured: 105 differing words, 195/195 instrs, fnalign 56ed (+12 reloc), obj780B/window784B (4B short, 1 instr); loopinv 105 tie, schedule 162 (660B), commons 148, prop 105 tie; no lb/lbu (halfwords only) so s8 N/A; single 0xFF recompute (no 0xFFFF-per-site + frame symptom) so TRAK u16+commons N/A; no COP2-unpack in alloc/jtbl path; signatures corrected to MATCH defs. Banked floor. */
+// FUN_00486B00 NONMATCHING
+#ifdef NON_MATCHING
+ typedef s32 EP_WORD;
+ #define EP_FIELD(expr, type_ptr, offset) (*(type_ptr)((s8 *)(expr) + (offset)))
+ EP_WORD *func_00486b00(u8 *arg0)
+ {
+    u8 *arg0_p = arg0;
+    u8 *temp_2_2;
+    u32 base;
+    s32 temp_3;
+    u32 var_19;
+    EP_WORD *temp_2;
+    EP_WORD *temp_2_5;
+    s32 *temp_2_3;
+    temp_2_2 = (u8 *)func_00484490(arg0_p);
+    if (0 == temp_2_2) {
+        func_0046d730(D_00713CD0, 0x55);
+    }
+    temp_3 = (s32)(EP_FIELD(temp_2_2, s32 *, 0x20));
+    if (temp_3 == 0) {
+        var_19 = (u32)(EP_FIELD(temp_2_2, s32 *, 0xB8) * EP_FIELD(temp_2_2, s32 *, 0x24));
+    } else {
+        var_19 = (u32)(temp_3 * EP_FIELD(temp_2_2, s32 *, 0x24));
+    }
+    if (var_19 >= 0x12DU) var_19 = 0x12C;
+    func_0044ea90(D_00713CC0, 0x171);
+    base = (u32)jtbl_008873E8;
+    temp_2 = (EP_WORD *)(*(void *(*)(u32, u32))*(u32 *)base)(0x60, 0x40000);
+    func_0043f9c8(temp_2, 0, 0x60);
+    if (temp_2 == 0) func_0046d730(D_00713CD0, 0x1F);
+    EP_FIELD(temp_2, EP_WORD **, 0) = (EP_WORD *)var_19;
+    EP_FIELD(temp_2, s32 *, 4) = -1;
+    EP_FIELD(temp_2, s32 *, 8) = 0x3F800000;
+    if (temp_2 == 0) func_0046d730(D_00713CD0, 0x57);
+    func_004875d0((u8 *)temp_2, EP_FIELD(arg0, u16 *, 0xC), temp_2_2);
+    if (EP_FIELD(temp_2, EP_WORD **, 0) == 0) return temp_2;
+    temp_2_3 = (s32 *)func_004844d0(arg0_p);
+    if (temp_2_3 != 0) {
+        switch ((u16)(EP_FIELD(arg0_p, u16 *, 0x1C))) {
+        case 1:
+            func_00487650((u8 *)temp_2, EP_FIELD(EP_FIELD(temp_2, u8 **, 0x4C), s32 *, 8), 1);
+            func_004877b0((u8 *)temp_2, (s32)temp_2_3); break;
+        case 2:
+            func_00487650((u8 *)temp_2, EP_FIELD(EP_FIELD(temp_2, u8 **, 0x4C), s32 *, 8), 2);
+            func_00487860((u8 *)temp_2, temp_2_3); break;
+        case 4:
+            func_00487650((u8 *)temp_2, EP_FIELD(EP_FIELD(temp_2, u8 **, 0x4C), s32 *, 8), 4);
+            func_00487710((u8 *)temp_2, *temp_2_3); break;
+        case 5: func_004878c0((u8 *)temp_2, temp_2_3); break;
+        case 6: func_00487a30((u8 *)temp_2, temp_2_3); break;
+        case 7:
+            func_00487650((u8 *)temp_2, EP_FIELD(EP_FIELD(temp_2, u8 **, 0x4C), s32 *, 8), 7);
+            func_00487ba0((u8 *)temp_2, temp_2_3);
+            func_0044ea90(D_00713CC0, 0x171);
+            temp_2_5 = (EP_WORD *)(*(void *(*)(u32, u32))*(u32 *)base)(0x30, 0x40000);
+            func_0043f9c8(temp_2_5, 0, 0x30);
+            EP_FIELD(temp_2_5, s16 *, 0x18) = 0x19;
+            EP_FIELD(temp_2, EP_WORD **, 0x5C) = (EP_WORD *)temp_2_5;
+            EP_FIELD(EP_FIELD(temp_2, EP_WORD **, 0x5C), EP_WORD **, 0x1C) = (EP_WORD *)temp_2;
+            break;
+        default: func_0046d730(D_00713CD0, 0x7E); break;
+        }
+        EP_FIELD(temp_2, u16 *, 0xC) = (u16)EP_FIELD(arg0_p, u16 *, 0x1C);
+    }
+    return temp_2;
+ }
+#else
 INCLUDE_ASM("asm/nonmatchings/effParticle", func_00486b00);
+#endif
 
 // FUN_00486E10
 void func_00486e10(u8 *arg0)
@@ -472,8 +540,203 @@ void func_00487c00(int param_1)
 
 /* measured: reconstructed full switch/VU0 particle path; retail and candidate differ only by temp_17/var_16 saved-register assignment (retail $s1/$s0, candidate $s0/$s1), nd 27, object 892B/window 896B. Tried saved-local declaration permutations, case-local splits, register qualifiers, pointer/count types, expression shapes, and O1; no improvement. Parked near-match. */
 // Archived C body: build/WBHygiene_func_00487c30_archive.txt; no current park body remains.
-// FUN_00487C30
+/* measured: 27 differing words, 223/223 instrs, fnalign 49ed, obj892B/window896B; loopinv 27wd/49ed tie, schedule 194 (764B), commons 27 tie, prop 27 tie; decl-swap var_16-front 64ed (worse); temp_17/var_16 $s0/$s1 vs retail $s1/$s0 rotation stands from earliest hunk (retail[18] lw $s0 vs object $s1); no lb/lbu so s8 N/A; no sunk address chain so double-def N/A; VU0 lqc2/sqc2 split blocks reproduce. Banked near-match. */
+// FUN_00487C30 NONMATCHING
+#ifdef NON_MATCHING
+void func_00487c30(u8 *arg0, f32 arg1)
+{
+    u8 spC0[16];
+    u8 spB0[16];
+    u8 spA0[16];
+    u8 sp60[0x40];
+    s32 *var_19;
+    s32 temp_17;
+    s32 var_18;
+    u16 temp_5;
+    u8 *temp_18;
+    u8 *var_16;
+
+    temp_18 = *(u8 **)(arg0 + 0x4C);
+    temp_5 = *(u16 *)(arg0 + 0xC);
+    switch (temp_5) {
+    case 5:
+        var_16 = *(u8 **)(temp_18 + 0x18);
+        var_19 = *(s32 **)(arg0 + 0x34);
+        temp_17 = *(s32 *)(temp_18 + 8);
+        if ((*(u32 *)(temp_18 + 0xC) & 1) == 0) {
+            var_18 = 0;
+            while (var_18 < temp_17) {
+                if (*(s32 *)(var_16 + 0x10) == 0) {
+                    func_00484970(*var_19);
+                }
+                if (*(s32 *)(var_16 + 0x10) >= 0) {
+                    func_00484a90(*var_19,
+                                  *(f32 *)(var_16 + 0x18) * arg1);
+                    func_00484a40(*var_19, var_16);
+                    func_004849c0(*var_19);
+                }
+                var_18++;
+                var_16 += 0x20;
+                var_19++;
+            }
+            return;
+        }
+        func_00492df0(temp_18, spA0);
+        func_00492db0(temp_18, spB0);
+        __asm__ volatile(
+            ".set noreorder       \n"
+            "lqc2 $vf10, 0(%0)    \n"
+            ".set reorder         \n"
+            :
+            : "r"(spA0)
+            : "$vf10", "memory");
+        func_004bceb0();
+        __asm__ volatile(
+            ".set noreorder       \n"
+            "lqc2 $vf31, 0(%0)    \n"
+            ".set reorder         \n"
+            :
+            : "r"(spB0)
+            : "$vf31", "memory");
+        __asm__ volatile(
+            ".set noreorder       \n"
+            "sqc2 $vf28, 0(%0)    \n"
+            "sqc2 $vf29, 16(%0)   \n"
+            "sqc2 $vf30, 32(%0)   \n"
+            "sqc2 $vf31, 48(%0)   \n"
+            ".set reorder         \n"
+            :
+            : "r"(sp60)
+            : "$vf28", "$vf29", "$vf30", "$vf31", "memory");
+        var_18 = 0;
+        while (var_18 < temp_17) {
+            if (*(s32 *)(var_16 + 0x10) >= 0) {
+                __asm__ volatile(
+                    ".set noreorder                  \n"
+                    "lqc2 $vf28, 0(%0)                \n"
+                    "lqc2 $vf29, 16(%0)               \n"
+                    "lqc2 $vf30, 32(%0)               \n"
+                    "lqc2 $vf31, 48(%0)               \n"
+                    "lqc2 $vf10, 0(%1)                \n"
+                    "vmulax.xyzw $ACC, $vf28, $vf10x \n"
+                    "vmadday.xyzw $ACC, $vf29, $vf10y \n"
+                    "vmaddaz.xyzw $ACC, $vf30, $vf10z \n"
+                    "vmaddw.xyzw $vf10, $vf31, $vf0w \n"
+                    ".set reorder                    \n"
+                    :
+                    : "r"(sp60), "r"(var_16)
+                    : "$vf28", "$vf29", "$vf30", "$vf31", "$vf10",
+                      "ACC", "memory");
+                __asm__ volatile(
+                    ".set noreorder       \n"
+                    "sqc2 $vf10, 0(%0)    \n"
+                    ".set reorder         \n"
+                    :
+                    : "r"(spC0)
+                    : "$vf10", "memory");
+                func_00484a90(*var_19,
+                              *(f32 *)(var_16 + 0x18) * arg1);
+                func_00484a40(*var_19, spC0);
+                func_004849c0(*var_19);
+            }
+            var_18++;
+            var_16 += 0x20;
+            var_19++;
+        }
+        return;
+    case 6:
+        var_16 = *(u8 **)(temp_18 + 0x18);
+        var_19 = *(s32 **)(arg0 + 0x3C);
+        temp_17 = *(s32 *)(temp_18 + 8);
+        if ((*(u32 *)(temp_18 + 0xC) & 1) == 0) {
+            var_18 = 0;
+            while (var_18 < temp_17) {
+                if (*(s32 *)(var_16 + 0x10) == 0) {
+                    func_00485fe0(*var_19);
+                }
+                if (*(s32 *)(var_16 + 0x10) >= 0) {
+                    func_00486400(*var_19,
+                                  *(f32 *)(var_16 + 0x18) * arg1);
+                    func_004861f0(*var_19, var_16);
+                    func_00485630(*var_19);
+                }
+                var_18++;
+                var_16 += 0x20;
+                var_19++;
+            }
+            return;
+        }
+        func_00492df0(temp_18, spA0);
+        func_00492db0(temp_18, spB0);
+        __asm__ volatile(
+            ".set noreorder       \n"
+            "lqc2 $vf10, 0(%0)    \n"
+            ".set reorder         \n"
+            :
+            : "r"(spA0)
+            : "$vf10", "memory");
+        func_004bceb0();
+        __asm__ volatile(
+            ".set noreorder       \n"
+            "lqc2 $vf31, 0(%0)    \n"
+            ".set reorder         \n"
+            :
+            : "r"(spB0)
+            : "$vf31", "memory");
+        __asm__ volatile(
+            ".set noreorder       \n"
+            "sqc2 $vf28, 0(%0)    \n"
+            "sqc2 $vf29, 16(%0)   \n"
+            "sqc2 $vf30, 32(%0)   \n"
+            "sqc2 $vf31, 48(%0)   \n"
+            ".set reorder         \n"
+            :
+            : "r"(sp60)
+            : "$vf28", "$vf29", "$vf30", "$vf31", "memory");
+        var_18 = 0;
+        while (var_18 < temp_17) {
+            if (*(s32 *)(var_16 + 0x10) == 0) {
+                func_00485fe0(*var_19);
+            }
+            if (*(s32 *)(var_16 + 0x10) >= 0) {
+                __asm__ volatile(
+                    ".set noreorder                  \n"
+                    "lqc2 $vf28, 0(%0)                \n"
+                    "lqc2 $vf29, 16(%0)               \n"
+                    "lqc2 $vf30, 32(%0)               \n"
+                    "lqc2 $vf31, 48(%0)               \n"
+                    "lqc2 $vf10, 0(%1)                \n"
+                    "vmulax.xyzw $ACC, $vf28, $vf10x \n"
+                    "vmadday.xyzw $ACC, $vf29, $vf10y \n"
+                    "vmaddaz.xyzw $ACC, $vf30, $vf10z \n"
+                    "vmaddw.xyzw $vf10, $vf31, $vf0w \n"
+                    ".set reorder                    \n"
+                    :
+                    : "r"(sp60), "r"(var_16)
+                    : "$vf28", "$vf29", "$vf30", "$vf31", "$vf10",
+                      "ACC", "memory");
+                __asm__ volatile(
+                    ".set noreorder       \n"
+                    "sqc2 $vf10, 0(%0)    \n"
+                    ".set reorder         \n"
+                    :
+                    : "r"(spC0)
+                    : "$vf10", "memory");
+                func_00486400(*var_19,
+                              *(f32 *)(var_16 + 0x18) * arg1);
+                func_004861f0(*var_19, spC0);
+                func_00485630(*var_19);
+            }
+            var_18++;
+            var_16 += 0x20;
+            var_19++;
+        }
+        return;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/effParticle", func_00487c30);
+#endif
 // FUN_00487FB0
 INCLUDE_ASM("asm/nonmatchings/effParticle", func_00487fb0);
 // FUN_00488D70

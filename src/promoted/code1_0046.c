@@ -147,6 +147,24 @@ struct Data_00712508 {
 extern struct Data_00712508 D_00712508[] __attribute__((aligned(8)));
 extern f32 fGpffff81f0;
 extern void func_003e0870(void *arg0, void *arg1, s32 arg2, f32 fparg0);
+extern void *func_003e0f80(void);
+extern void *func_003e0680(void *mat, void *axis, s32 arg2, f32 fparg0, f32 fparg1);
+extern void func_003e42e0(void *dst, void *src, s32 count, void *mat);
+extern void func_003e0f40(void *mat);
+extern u8 D_007130B8[];
+extern f32 fGpffff8054;
+extern f32 fGpffff8058;
+extern f32 fGpffff805c;
+extern f32 fGpffff8060;
+extern f32 fGpffff8084;
+extern f32 fGpffff81b0;
+extern f32 fGpffff81b4;
+extern f32 fGpffff81b8;
+extern f32 fGpffff81bc;
+extern f32 fGpffff81c0;
+extern f32 fGpffff81c4;
+extern f32 fGpffff81c8;
+extern f32 fGpffff81cc;
 
 
 // FUN_004601C0
@@ -2345,16 +2363,133 @@ loop:
     goto loop;
 }
 
-/* Measured wall: func_0046a7f0 844/848B faithful (nd 71) vs 836/848B unfaithful (nd 100, missing *(B+0x204) load). */
-/* Neighbours 0046a770 (128B) / 0046ab40 (80B) both MATCH with explicit goto top-test loops; full window 0xB0 */
-/* frame (input sp+0x80 / output sp+0x50) checked top-down: off 0-104 (first 4x2 copy) byte-exact. */
-/* Table-remat check: retail final loop remats table base twice per iter (lw $5,0($17); lw $3,4($17); */
-/* sll $4,$3,7; lw $3,0x204($5); addu $3,$3,$4 at 0x46AA80-90 and 0x46AAE4-F4). Faithful spelling twice */
-/* (`*( *(B+0x204)+(idx<<7)+0x44/0x48` inline twice) gives obj 844B nd 71; +`opt_common_subs off` gives */
-/* nd 193 (worse). Middle 4x3 copy single-base (sp+i*12 +0x50/+0x80, 3-reg loads-first) vs twice + 1-reg */
-/* also walls. FPR $f1 vs $f3, counter $a3 vs $t0, ACC scheduling remain. Banked as wall; keep INCLUDE_ASM. */
+/* measured: 19 differing words at an exact 211/211, from a full rewrite.
+   The previous note recorded nd 71 for a body that no longer exists in the
+   tree; this is re-derived from the disassembly and every number below is
+   reproducible with `tools/measure_guarded.py --save-candidate` plus
+   `tools/fnalign.py --candidate` on the body beneath.
+   Levers that paid, in order of size: `opt_loop_invariants on` 56 -> 25
+   differing words (retail hoists 360.0f, -180.0f, 180.0f and the constant 1
+   out of the angle-wrap loop; b210 rematerialises them per iteration unless
+   told); declaring the two f32[4][3] frame slots src-before-dst so src lands
+   at sp+0x80 and dst at sp+0x50; materialising the wrap test as
+   `over = !(ang <= 180.0f)` into an s32 rather than branching on it directly,
+   which is what produces retail's move/bc1/xori triple; and copying the
+   middle 4x3 block with a three-field struct assignment rather than three
+   scalar temps, worth 25 -> 19 (temps in either declaration order, reversed
+   store order, and function-scope temps all mis-order the three lwc1s).
+   WALL 1, 2 words: retail materialises the *negation* of `ang <= 180.0f`
+   with `bc1f` and then recovers the positive sense with `xori` for the
+   branch; b210 materialises the positive sense with `bc1t` and folds the
+   negation into `beqz`. Same instruction count, opposite polarity. Measured
+   and rejected: `(ang <= 180.0f) ? 0 : 1` (19, unchanged), `!(180.0f >= ang)`
+   (23), `over != 0` / `over == 1` (23), `(ang <= 180.0f) == 0` (161),
+   `!!(...)` with `if (!over)` (163), `ang > 180.0f` (163), the nested
+   if/else form (169), an explicit `over = 1; if (ang <= 180.0f) over = 0;`
+   (162), and a u8 `over` (161).
+   WALL 2, 17 words: retail computes the y table term
+   `(f32)*(s32 *)(*(s32 *)(*arg0 + 0x204) + (idx << 7) + 0x48)` *last* in the
+   final loop, into $f0, while computing the x term first into $f2 - the
+   same expression shape scheduled two different ways in one loop body.
+   b210 hoists both to the top. The destination register is the cause: $f2
+   has to stay live across the y arithmetic, so the scheduler pulls it
+   forward. Measured and rejected: the y sum in an intermediate variable,
+   the x term in an intermediate variable, table-term-first, explicit
+   parentheses around the sum, a u8* pointer temp for the table base, and
+   all of `opt_common_subs off` (205), `opt_propagation off` (130),
+   `schedule on` (196), `opt_strength_reduction off` (19, neutral),
+   `opt_dead_assignments off` (122) and `peephole off` (124) layered on the
+   loop-invariants base.
+   Seven gp coefficient slots (fGpffff81b4..fGpffff81cc, the sin/cos Horner
+   table contiguous with the known fGpffff81b0 at 0x007612a0) are new in
+   config/symbol_data_addrs.txt. */
 // FUN_0046A7F0
+#ifdef NON_MATCHING
+#pragma opt_loop_invariants on
+void func_0046a7f0(u8 *arg0, u8 *arg1)
+{
+    f32 src[4][3];
+    f32 dst[4][3];
+    s32 i;
+    s32 j;
+    s32 k;
+    f32 ang;
+    f32 x;
+    f32 x2;
+    f32 r;
+    f32 q;
+    f32 h;
+    f32 cosv;
+    f32 sinv;
+    s32 wrapped;
+    void *mat;
+    void *rot;
+
+    for (i = 0; i < 4; i++) {
+        f32 *s = (f32 *)(arg1 + i * 8);
+        f32 *d = src[i];
+
+        d[0] = s[0];
+        d[1] = s[1];
+    }
+    ang = *(f32 *)(arg0 + 0x18);
+    if (ang != 0.0f) {
+        do {
+            s32 over;
+
+            wrapped = 0;
+            over = !(ang <= 180.0f);
+            if (over) {
+                ang -= 360.0f;
+                wrapped = 1;
+            } else if (ang < -180.0f) {
+                ang += 360.0f;
+                wrapped = 1;
+            }
+        } while (wrapped != 0);
+        x = (fGpffff8084 * ang) / 180.0f;
+        x2 = x * x;
+        mat = func_003e0f80();
+        r = fGpffff81b0 * x2 + fGpffff81b4;
+        r = x2 * r + fGpffff81b8;
+        r = x2 * r + fGpffff81bc;
+        r = x2 * r + fGpffff81c0;
+        r = x2 * r + fGpffff81c4;
+        q = x2 * r;
+        h = 0.5f * x2 - x2 * q;
+        cosv = 1.0f - (1.0f - h);
+        r = fGpffff81c8 * x2 + fGpffff8054;
+        r = x2 * r + fGpffff8058;
+        r = x2 * r + fGpffff805c;
+        r = x2 * r + fGpffff8060;
+        r = x2 * r + fGpffff81cc;
+        sinv = x + (x2 * x) * r;
+        rot = func_003e0680(mat, D_007130B8, 0, cosv, sinv);
+        func_003e42e0(dst, src, 4, rot);
+        func_003e0f40(rot);
+        for (k = 0; k < 4; k++) {
+            f32 *s = dst[k];
+            f32 *d = src[k];
+            struct V3 { f32 x; f32 y; f32 z; };
+
+            *(struct V3 *)d = *(struct V3 *)s;
+        }
+    }
+    for (j = 0; j < 4; j++) {
+        f32 *p = src[j];
+        f32 *o = (f32 *)(arg1 + j * 8);
+
+        o[0] = *(f32 *)(arg0 + 8) + ((f32)*(s16 *)(arg0 + 0x1C) + p[0]) +
+               (f32)*(s32 *)(*(s32 *)(*(u8 **)arg0 + 0x204) + (*(s32 *)(arg0 + 4) << 7) + 0x44);
+        o[1] = *(f32 *)(arg0 + 0xC) + ((f32)*(s16 *)(arg0 + 0x1E) + p[1]) +
+               (f32)*(s32 *)(*(s32 *)(*(u8 **)arg0 + 0x204) + (*(s32 *)(arg0 + 4) << 7) + 0x48);
+    }
+}
+
+#pragma opt_loop_invariants off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046a7f0);
+#endif
 // FUN_0046AB40
 void func_0046ab40(void)
 {

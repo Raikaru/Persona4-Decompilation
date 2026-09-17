@@ -616,6 +616,7 @@ s32 func_00172360(u8 *arg0)
    func_00452490(void *), func_0018e030(u8 *, s32),
    func_0029db50(s32, s32, s32, s32), func_00182310(s32),
    func_001560a0(u8 *, s16, s16, s16), func_0047a0e0(u8 *, s32, f32). */
+/* Re-measured 2026-09-17: E172 body compiles in this TU only with a (u8 *) cast on func_00479940's first arg (TU decl takes u8* model); then probe/fndiff nd 197 at 236/236 instrs (same size). Residual is frame shape (object 0x70 vs retail 0x50) plus switch-dispatch/branch polarity, not missing logic. Production stays ASM. */
 // FUN_001727F0
 INCLUDE_ASM("asm/nonmatchings/k_fldEvent", func_001727f0);
 // FUN_00172BA0
