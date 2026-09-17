@@ -2403,7 +2403,7 @@ loop:
    Seven gp coefficient slots (fGpffff81b4..fGpffff81cc, the sin/cos Horner
    table contiguous with the known fGpffff81b0 at 0x007612a0) are new in
    config/symbol_data_addrs.txt. */
-// FUN_0046A7F0
+// FUN_0046A7F0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
 void func_0046a7f0(u8 *arg0, u8 *arg1)
