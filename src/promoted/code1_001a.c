@@ -518,7 +518,7 @@ void func_001a06d0(u8 *arg0) {
         func_001b0800(arg0, *(u16 *)(arg0 + 0x14));
     }
 }
-/* measured: live object 1064B/window 1088B, normalized_diff 230 (guard below; schedule on inside the guard is worth 2 words, 232 -> 230, sweep-measured). Solved: twin-idiom calls, local externs, s64 arg0, memset-grounded stack, Ghidra nested tail (else-form), alternating unit-address spellings. Walls: frame 0x80 vs retail 0x70 (5 saved regs vs 3; temp live values overflow into s-regs), sp6E uninit-OR kept in reg ($s4 ori) vs retail stack slot (lhu/ori/sh), first-global lw symbol/offset. Ruled out today: baseline opts without the cs-off/prop-off pair (233, frame balloons to 0xa0), sp6E declared last (232, lateral), volatile sp6E (236). Production stays ASM; banked as floor. */
+/* measured: live object 956B/window 1088B, normalized_diff 230 (guard below; schedule on inside the guard is worth 2 words, 232 -> 230, sweep-measured; schedule fills delay slots so the object compacts 266 -> 239 instrs while fnalign fragments 99 -> 393 edits). Solved: twin-idiom calls, local externs, s64 arg0, memset-grounded stack, Ghidra nested tail (else-form), alternating unit-address spellings. Walls: frame 0x80 vs retail 0x70 (5 saved regs vs 3; temp live values overflow into s-regs), sp6E uninit-OR kept in reg ($s4 ori) vs retail stack slot (lhu/ori/sh), first-global lw symbol/offset. Ruled out today: baseline opts without the cs-off/prop-off pair (233, frame balloons to 0xa0), sp6E declared last (232, lateral), volatile sp6E (236). Production stays ASM; banked as floor. */
 // FUN_001A0B00 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -3085,7 +3085,7 @@ void func_001ade10(s64 *arg0)
 void func_001ade90(void)
 {
 }
-/* measured 001adea0: schedule on inside the guard is worth 1 word (271 -> 270, sweep-measured); body remains distant (277/327 instrs, 189 edits, 50 short) with unrecovered dispatch structure and needs reconstruction; sp64 dead store pre-existing (H007). Production stays ASM. */
+/* measured 001adea0: schedule on inside the guard is worth 1 word (271 -> 270, sweep-measured) but churns alignment (277 -> 237 instrs, 189 -> 337 edits); body remains distant (50 short pre-schedule, 90 short now) with unrecovered dispatch structure and needs reconstruction; sp64 dead store pre-existing (H007). Production stays ASM. */
 // FUN_001ADEA0 NONMATCHING
 #ifdef SKIP_ASM
 #pragma schedule on
