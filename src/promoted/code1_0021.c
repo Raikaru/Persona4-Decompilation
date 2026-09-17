@@ -149,8 +149,10 @@ static inline f32 ws14_sub(f32 left, f32 right)
    this build contracts the add into a madd; staging the product,
    opt_treetransformation, opt_movepostops, opt_propagation, lifetimes,
    dead-assignments, size and strength-reduction were all measured. */
+/* measured 00210c70: `schedule on` inside the guard is worth 5 words (367 -> 362). */
 // FUN_00210C70 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
 void func_00210c70(u8 *arg0, u8 *arg1)
 {
     extern s32 func_001ec4a0(f32 *arg0, f32 *arg1);
@@ -286,6 +288,7 @@ void func_00210c70(u8 *arg0, u8 *arg1)
         }
     }
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00210c70);
 #endif
@@ -1711,8 +1714,10 @@ void func_00218730(s32 task)
     p = (u8 *)func_00452560((void *)task);
     *(u16 *)(p + 0x8C0) = *(u16 *)(p + 0x8C0) | 0x10;
 }
+/* measured 0021a7b0: `schedule on` inside the guard is worth 7 words (393 -> 386). */
 // FUN_0021A7B0 NONMATCHING
 #ifdef SKIP_ASM
+#pragma schedule on
 void func_0021a7b0(u8 *arg1) {
     struct { s32 lo; s32 hi; } sp208pair;
     f32 spB8;
@@ -1913,6 +1918,7 @@ void func_0021a7b0(u8 *arg1) {
         }
     }
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021a7b0);
 #endif

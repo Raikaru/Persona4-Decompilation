@@ -259,8 +259,130 @@ found2:
 #else
 INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_00169320);
 #endif
-// FUN_00169780
+/* Floor: 88 differing words (reloc-masked fndiff), obj 664B/window 688B, 166 vs 169
+   instrs, 52 fnalign edits plus 2 reloc-only. Cold start from the retail window;
+   nearest archives (LFF2 nd340, LaneFldFrame non-MATCH) contributed only the buffer
+   shape. Work struct mirrors sibling func_0016abc0's measured query-work pattern
+   (records/mode/count/hitCount/gap/scratch/zero/input/inputCopy/inputTail/type):
+   retail offsets fix records[0xB00], count +0xB04, endpoint copy 0xBB0->0xBC0 (lq/sq
+   via u_long128), type +0xB78 and delta +0xB80, so the 0x48 interior and the 8-byte
+   tail are sized, not invented; mode/hitCount/gap/scratch/zero/tail are unstored on
+   this path (retail writes neither) and documented here, not asserted as used. The
+   nested query sub-struct carries the u_long128 alignment that pads 0x2C->0x30 and
+   lands delta at +0xB80; the main loop reads the copy (displacement proof: retail
+   loads 0xBC0/0xBCC, never 0xBB0). Frame 0xBF0, save set s0-s4 and all 6 retail
+   relocations (2x memset, 69320 HI/LO, 394d70, 3e40b0 at identical offsets) match;
+   the 2 extra object GPRELs are link-time small-data for fGpffff82b4.
+   WALLS: (1) saved rotation retail i/result/vector/cw/rec in $s0..$s4 vs build
+   cw/i/result/vector/rec: cw sits 4th vs 1st, everything else identical. Stable
+   across 12 probes: two struct models, three decl orders, s32/void* handle, union
+   copy reads, block/function-scope pointer, dot associations, scheduler scopes.
+   A void* local copy is copy-propagated away (neutral); only a true prototype
+   change moves it, and void* is kept anyway as the semantic truth (world pointer
+   into a void* callee, sibling 0016a0c0 precedent) with the sole caller 0016a960
+   verified MATCH. (2) scale CSE: retail recomputes the fractions address post-call
+   in a $v0 temp with split +0x60/+0x600 (7-vs-4, the 3-instruction shortfall); this
+   build carries the folded +0x660 address in dead-cw $s0 across func_003e40b0.
+   Killed: fq-temp split (110, +17 via an extra saved live range), result=0 late
+   (163, destroys the early-zero prologue), yoda zero-checks (neutral), scoped
+   schedule off (neutral), commute/scope CSE splits (neutral). (3) zero-check FPR:
+   $f1-zero retail vs $f2-zero build plus cascade. s32 loop index throughout (no
+   spurious dsll32/dsra32). Production stays ASM; func_00169320 and func_0016abc0
+   untouched. */
+// FUN_00169780 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00169780(void* collisionWorld, f32* origin,
+                  f32* vector, f32 fraction)
+{
+    extern void* func_00169320(RwV3d* point, void* unused, RwV3d* triangle,
+                              u8* context);
+    typedef struct FldFrameWork69780
+    {
+        u8 records[0xb00];
+        s32 mode;
+        s32 count;
+        s32 hitCount;
+        u8 gap[0xc];
+        u8 scratch[0x20];
+        u8 zero[0x18];
+        f32 input[4];
+        struct
+        {
+            union
+            {
+                u_long128 bits;
+                f32 f[4];
+            } copy;
+            u8 tail[8];
+            s32 type;
+        } query;
+        RwV3d delta;
+    } FldFrameWork69780;
+    FldFrameWork69780 work;
+    f32 px, py, pz;
+    f32 scale;
+    f32 dot;
+    s32 i;
+    s32 result;
+
+    result = 0;
+    work.input[0] = origin[0] + vector[0];
+    work.input[1] = origin[1] + vector[1];
+    work.input[2] = origin[2] + vector[2];
+    work.input[3] = fraction;
+    work.query.type = 3;
+    work.query.copy.bits = *(u_long128*)work.input;
+    for (i = 0; i < 64; i++)
+    {
+        u8* rec = work.records + 12 * i;
+        func_0043f9c8(rec, 0, 12);
+        func_0043f9c8(rec + 0x300, 0, 12);
+        *(f32*)(work.records + 0x600 + 4 * i) = fGpffff82b4;
+    }
+    work.count = 0;
+    if (collisionWorld == NULL)
+    {
+        return 0;
+    }
+    func_00394d70(collisionWorld, &work.query.copy, func_00169320, work.records);
+    for (i = 0; i < work.count; i++)
+    {
+        if (((f32*)(work.records + 0x600))[i] < fGpffff82b4)
+        {
+            RwV3d* point = (RwV3d*)(work.records + 12 * i);
+            work.delta.x = work.query.copy.f[0] - point->x;
+            work.delta.y = work.query.copy.f[1] - point->y;
+            work.delta.z = work.query.copy.f[2] - point->z;
+            func_003e40b0(&work.delta.x, &work.delta.x);
+            scale = work.query.copy.f[3] - ((f32*)(work.records + 0x600))[i];
+            px = work.delta.x * scale;
+            py = work.delta.y * scale;
+            pz = work.delta.z * scale;
+            dot = vector[0] * work.delta.x + vector[1] * work.delta.y + vector[2] * work.delta.z;
+            if (dot < 0.0f)
+            {
+                px = work.delta.x * dot;
+                py = work.delta.y * dot;
+                pz = work.delta.z * dot;
+                vector[0] -= px;
+                vector[1] -= py;
+                vector[2] -= pz;
+                result = 1;
+            }
+            if (vector[0] == 0.0f && vector[1] == 0.0f && vector[2] == 0.0f)
+            {
+                vector[0] += px;
+                vector[1] += py;
+                vector[2] += pz;
+                result = 1;
+            }
+        }
+    }
+    return result;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_00169780);
+#endif
 // FUN_00169A30
 INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_00169a30);
 // FUN_0016A0C0
