@@ -526,16 +526,23 @@ void func_001641d0(void)
 
 
 
-/* measured: nd ~128 after many attempts. (1) Loop A register rotation:
-   retail keeps var_16 in $s0 (coalesced with temp_2's freed $16) and the
-   D_007F16F0 slot pointer in $a0; mwcc b210 gives temp_4 the freed $16 and
-   pushes var_16 to $s1, var_5 to $a0 vs retail's $a1 — every declaration
-   order tried. Saved-register-rotation floor. (2) temp_21 is s64 for the
-   clean andi ($18,& 0xffff) but the D_005F13C0 index wants s32 (retail
-   daddu+sll); the (s64)(s16) cast pairs, s64 temp_18_3/andis, func_004787e0
-   1-arg call, and the first block all match. */
+/* Floor: 136 differing words over 80 fnalign edits, 199 emitted against
+   retail's 207 (3.9% short).  Corrected this pass: the first block's
+   `func_00109400` argument is the literal 1 (retail leaves the 1 it just
+   stored to +0x728 in $a0), not arg2 - the old body passed arg2, which is
+   both wrong and cost 24 words (160 -> 136).
+   WALL: the eight-instruction shortfall is retail rematerialising
+   `D_007F16F0 + i * 8` twice per iteration of the first clear loop - once
+   into $a0 at the loop head and again into $s2 after the inner loop - while
+   b210 folds both into one saved register.  The source already spells it
+   out twice.  `opt_common_subs off` does not recover it (161 words),
+   `opt_propagation off` and `opt_loop_invariants on` are both neutral at
+   136.  Underneath that is the documented saved-register rotation: retail
+   keeps var_16 in $s0 coalesced with temp_2's freed $16 and the slot
+   pointer in $a0, b210 gives the freed $16 to temp_4 and pushes var_16 to
+   $s1; every declaration order was tried in an earlier pass. */
 // FUN_00164230 NONMATCHING
-#ifdef SKIP_ASM
+#ifdef NON_MATCHING
 void func_00164230(s32 arg0, s32 arg1, s32 arg2)
 {
     u8 *p;
@@ -554,7 +561,7 @@ void func_00164230(s32 arg0, s32 arg1, s32 arg2)
         *(u8 **)(p + 80) = func_00162680(arg0, arg1, 1);
         *(u16 *)(p + 1832) = 1;
         *(s32 *)(p + 68) = 0;
-        *(s32 *)(p + 448) = func_00109400(arg2) & 0xFF;
+        *(s32 *)(p + 448) = func_00109400(1) & 0xFF;
         *(s32 *)(p + 452) = func_00104c70(1) & 0xFF;
         *(u8 **)(p + 436) = (u8 *)func_0017d070((u8 *)0);
         *(u16 *)(p + 88) = arg2;
