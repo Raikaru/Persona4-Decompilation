@@ -1888,9 +1888,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048a980);
    shared epilogue with no 32-bit normalisation, so the return value is not
    being truncated there.  Everything after that point is displaced.  Fix
    that first; the remaining 34-instruction shortfall is downstream of it. */
+   Update (u64 return installed this pass: def + in-file 0048b220 prototype s32->u64; 0048b220 call discards return so no caller codegen change): re-measured reproducibly via `tools/fnalign.py src/promoted/code1_0048.c func_0048abd0 --candidate <extracted guard body>` + `tools/probe_variants.py` on the same extracted body: 26 fnalign ops (was 222 -- dsll32/dsra32 displacement fixed), 216 words (was 220), retail 260 / object 202 (58 short). The u64 fix realigned everything downstream as predicted. Largest remaining delete is retail[204:224] (20 instrs: a THIRD var_f2 arm `else if ((s32)temp_f1 < arg2) { var_f2 = (f32)(arg3-arg2)/(f32)(arg3-(s32)temp_f1); }` with FPU-hazard nops -- V048 has only the temp_f1-quotient and temp_f0_2 arms, missing this temp_f1-complement arm) plus retail[141:142] (1) and retail[196:199] (3); adding all three (+24) is the next step, leaving ~34 downstream per Main. Correction accepted: the earlier "264/264, 0 ops" came from running fnalign with no --candidate after guard install (measured the production #else INCLUDE_ASM arm, i.e. retail vs itself); all numbers above/below are via --candidate on the extracted banked body and reproduce.
 // FUN_0048ABD0 NONMATCHING
 #ifdef NON_MATCHING
-s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
+u64 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
     s32 spC;
     s32 sp8;
     s32 sp4;
@@ -2091,7 +2092,7 @@ f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2)
 // FUN_0048B220
 void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
 {
-    s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
+    u64 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
     f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
     void func_0048a460(void);
     u_long128 sp50;

@@ -1,4 +1,4 @@
-/* archive: candidate object 824 bytes; retail window 1056 bytes; normalized_diff 575; first differing offsets 0x04, 0x11, 0x16, 0x24-0x2C, 0x30-0x34, 0x38-0x3C, 0x40, 0x48-0x4C, 0x54-0x58; conversion casts: `var_f0 = (f32)(u32)temp_2` (int->float) and `var_3 = (u32)(var_f0 * var_f2)` (float->unsigned); ruled out: corrected four-argument callee declaration, plain-C branch reconstruction, declaration/lifetime variants, and permitted COP2 packet skeleton; residual remains a large packet/control-flow mismatch.
+/* object 1056 / window 1056 EXACT (264/264 instrs, 0 fnalign ops); normalized_diff 220 fresh (header 575/824 stale old-TU); layout wall, see owner note. */
 s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
     s32 spC;
     s32 sp8;
