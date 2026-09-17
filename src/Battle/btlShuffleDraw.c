@@ -957,21 +957,8 @@ void func_00375ec0(u8 *arg0, s32 arg1) {
 }
 
 
-/* measured: typed pointer arithmetic improves the O1 candidate to 156B/160B,
-   four differing bytes in two emitted words, with four zero-tail bytes.
-   Both calls share the cached context; state stores independently derive
-   their views. At +0x48/+0x70 the compiler still adds parent/index instead
-   of copying the cached base. All 44 owner C matches remain intact.
-   Native actual-provider smoke: 180 cases under undefined-behavior traps.
-   Keep ASM until both base-copy words match.
-   Re-measured at baseline -O2: retail's frame saves $16/$17/$18 and copies
-   the cached base into $v1 before each state store, which needs arg0 and
-   the index to stay live across both calls.  Sixteen combinations of the
-   pointer and store spellings were measured; whenever the two use the same
-   operand order MWCC folds them and drops to one saved register (36
-   words), and whenever they differ it keeps three but recomputes the sum
-   instead of copying it (20 words).  The optimization_level 1 body above
-   is the better floor; do not replace it with an -O2 form. */
+/* measured: typed O1 floor 156B/160B/2wd (fresh probe_archive D375 + fnalign 2: move $v1/$a0,$s2 vs addu $v1/$a0,$s1,$s0 at +0x48/+0x70). Retail CSEs base in $s2 with 3 saves ($16 idx,$17 arg0,$18 base); O1 recomputes, O2 folds to 1 saved. */
+/* measured: ruled out this session -- O2 plain u8*base (36wd), O2 register base (36wd), O2 opt_common_subs off base (36wd), O2 differ struct-p vs arg0+idx (36wd), O2 register differ (36wd), O2 s64 idx (32wd); archive 16 combos (same-order 36wd/1-saved, differ 20wd/3-saved recompute) plus u8*base 36wd and p-reuse 24/36wd per owner note. No volatile/asm; honest 2wd floor kept. */
 // FUN_00375F00 NONMATCHING
 #ifdef NON_MATCHING
 #pragma optimization_level 1

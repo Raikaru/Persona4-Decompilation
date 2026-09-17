@@ -571,19 +571,123 @@ loop_56:
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4ac0);
 #endif
 
-/* measured: clean floor at 90 differing words (docs/probe_archive/YL_002e5000_body.c, */
-/* object 604B/window 624B, retail 152 instrs vs object 151, fnalign 46 edits plus */
-/* 6 reloc-only). Saved-order dst,nextp,i,j,base,row,outer_offset (reverse-assigns */
-/* to retail s6..s0) moved 103 -> 90 with outer-invariant order row,nextp,outer_offset; */
-/* for-loop form kept (goto variant 131, no-active-temp variant 137, offset/pragma/temp */
-/* permutations neutral). Residual is temp colouring and scheduling: move $a1,$s2 vs */
-/* $a2,$s2, slot-base lw/addu $a1 vs $a2, outer addu/addiu $a1/$a3 vs $v1/$t0, slot2 */
-/* addu $v0,$v1 vs $a3, inner-bound reload addiu. Production stays INCLUDE_ASM. */
-/* Semantic: D_00882F70[0] is correct per retail HI16/LO16 (iGpffffb58c would be GPREL, */
-/* wrong symbol); func_003129b0 takes 3 args (u8 *,s32,s32), M2C's 4th arg is the dead */
-/* $a3 (outer) leftover, not a parameter. */
-// FUN_002E5000
+/* measured: object 604B/window 624B/normalized_diff 260 (90 differing words, fnalign per current tree). */
+/* measured: saved-order dst-nextp-i-j-base-row-outer_offset plus outer-invariant row-nextp-outer_offset and for-loop form already applied per archive (103 to 90); slti-at N-A (both sides sltiu-at with a1-vs-a2 input), no 2-3-instr short tail (151 vs 152 instrs), arg-setup already fixed to 3-arg func_003129b0 with D_00882F70-zero symbol, opt_loop_invariants neutral; residual is a1-a2 slot-base plus a3-t0 outer plus v1-a3 slot2 coloring with inner-bound reload and scheduling. */
+// FUN_002E5000 NONMATCHING
+#ifdef NON_MATCHING
+// func_002e5000 (0x002e5000-0x002e5270, 624B) — clean floor at 90 differing words.
+// Retail 152 instrs, object 151 instrs (604B/624B); fnalign 46 edits plus 6 reloc-only.
+// Retail relocs 15: 4x D_00882F70 HI16/LO16 pairs, 3x jtbl HI16/LO16
+// (jtbl_00748C50/00748C20/00748BF0), 1x func_003129b0 R_MIPS_26. Frame 0x80 with
+// s16-s22 plus ra matches; production stays INCLUDE_ASM (no TU regression).
+// Source is the 108-line P4_UNIT_002E5000 M2C block de-noised: M2C_FIELD/M2C_UNK,
+// s64 shift guards, s128 stack slots, loop gotos and the spurious 4th call arg
+// removed; file idiom kept (u8*, *(u8 **)(...+0x38), *(s32 *)(...+4/8),
+// *(u16 *)(...+2), &D_00882F70[(s8)(i+1)], 0/2/7/8 -> +0x14 / 1/5/6/10 -> +0xA4).
+// Wins: saved-order dst,nextp,i,j,base,row,outer_offset (reverse-assigns to retail
+// s6..s0) 103 -> 90; outer-invariant order row,nextp,outer_offset; for-loop form
+// (explicit-goto variant scores 131); active temp retained (removing it scores 137).
+// Neutral: ((i*3)*0x10) vs i*0x30 and ((j*3)*0x10) vs j*0x30; opt_loop_invariants on;
+// temp-declaration permutations. Prior best W8 107 words (goto, split active/base2),
+// IoG archive MISMATCH-nd288, WT16 shape reference. Walls: $a1/$a2 slot-base colour,
+// $a3/$t0 outer colour, $v1/$a3 slot2 colour, inner-bound reload addiu, scheduling.
+// Semantic gate: D_00882F70[0] is correct per retail HI16/LO16 (iGpffffb58c would be
+// GPREL and is the wrong symbol); func_003129b0 takes 3 args (u8*,s32,s32) per
+// src/Event/Fcl/fclCombineMisc.c — M2C's 4th arg is the dead $a3 (outer) leftover,
+// not a parameter; three switches must stay switches (all three jtbl_ present);
+// s16 i/j for the dsll32/dsra32 guards, u16 loads for the lhu pair. Non-goals
+// func_002e2a10 / func_002e3560 untouched with their own measured notes.
+extern s32 func_003129b0(u8 *arg0, s32 arg1, s32 arg2);
+void func_002e5000(void) {
+    u8 *dst;
+    u8 **nextp;
+    s16 i;
+    s16 j;
+    u8 *base;
+    u8 *row;
+    s32 outer_offset;
+    s32 inner_offset;
+    u8 *active;
+    u8 *active2;
+    u8 *slot;
+    u8 *inner;
+    u8 *outer;
+    u8 *slot2;
+    base = *(u8 **)(D_00882F70[0] + 0x38);
+    active = base;
+    for (i = 0; i < *(s32 *)(active + 8); i++) {
+        j = 0;
+        row = base + i * 0xC;
+        nextp = &D_00882F70[(s8)(i + 1)];
+        outer_offset = i * 0x30;
+        for (; (active = *(u8 **)(D_00882F70[0] + 0x38)), j < *(s32 *)(active + 8); j++) {
+            dst = row + j + 0x14;
+            *dst = 0;
+            slot = *(u8 **)(*nextp + 0x38);
+            switch (*(s32 *)(slot + 4)) {
+            case 0:
+            case 2:
+            case 7:
+            case 8:
+                inner_offset = j * 0x30;
+                inner = slot + inner_offset + 0x14;
+                break;
+            case 1:
+            case 5:
+            case 6:
+            case 10:
+                inner_offset = j * 0x30;
+                inner = slot + inner_offset + 0xA4;
+                break;
+            default:
+                inner_offset = j * 0x30;
+                inner = slot + inner_offset + 0x14;
+                break;
+            }
+            active2 = *(u8 **)(D_00882F70[0] + 0x38);
+            switch (*(s32 *)(active2 + 4)) {
+            case 0:
+            case 2:
+            case 7:
+            case 8:
+                outer = active2 + outer_offset + 0x14;
+                break;
+            case 1:
+            case 5:
+            case 6:
+            case 10:
+                outer = active2 + outer_offset + 0xA4;
+                break;
+            default:
+                outer = active2 + outer_offset + 0x14;
+                break;
+            }
+            switch (*(s32 *)(active2 + 4)) {
+            case 0:
+            case 2:
+            case 7:
+            case 8:
+                slot2 = active2 + inner_offset + 0x14;
+                break;
+            case 1:
+            case 5:
+            case 6:
+            case 10:
+                slot2 = active2 + inner_offset + 0xA4;
+                break;
+            default:
+                slot2 = active2 + inner_offset + 0x14;
+                break;
+            }
+            if (func_003129b0(inner, *(u16 *)(outer + 2), *(u16 *)(slot2 + 2)) == 1) {
+                *dst = 1;
+            }
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e5000);
+#endif
 // FUN_002E5270
 s32 func_002e5270(u8 *arg0, u8 *arg1) {
     s16 i;
@@ -902,21 +1006,10 @@ s32 func_002e6230(u16 arg0, u16 *arg1) {
     return 0;
 }
 
-/* measured: structure fully recovered (entry null-check, func_002e5960 and
-   func_002b2cb0((s8)arg2,3,0x63,1,1) with the s16 result spilled to the
-   stack, the 0xC0 i-loop with the iGpffffb3d4+i*14 entry2 checks, the id =
-   (u16)i j-loop over list with found flag, the k-loop via func_002e48a0
-   comparing q[2] against i, the 31e40 check, the count<entry2[3] gate and
-   the two jump-table switches (full-chain *slotp+0x38 conditions) with
-   memset/cad0 and the trailing p->8++) but mwcc b210 assigns the saved
-   registers one slot higher for arg0 ($s7 vs retail $s6), pushing the s16-i
-   temp to $s6 and i*14 to $fp, so arg1 (list) is spilled to the stack and
-   reloaded per j-iteration, and the found flag is kept in a saved register
-   with a single materialization where retail keeps it in $v1 with the
-   post-j-loop sink and the k-join re-materialization. Best nd 73 at
-   936/944B. Saved-reg rotation/spill floor. */
+/* measured: object 888B/window 944B/normalized_diff 523 (183 differing words, fnalign per current tree). */
+/* measured: current 100-line body re-measured live (was nd73 at 936B in old note, now 888B with TU drift); saved-reg rotation-spill floor with single materialization vs retail v1-retained plus post-j sink and k-join rematerialization; declaration-order, loop-invariant, slti, dead-store and arg-setup levers to be worked top-down via fnalign; full-window body preserved. */
 // FUN_002E6280 NONMATCHING
-#ifdef SKIP_ASM
+#ifdef NON_MATCHING
 void func_002e6280(s8 arg0, u8 *arg1, s8 arg2)
 {
     u8 **slotp;

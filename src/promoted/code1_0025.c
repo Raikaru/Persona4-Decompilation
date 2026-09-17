@@ -109,8 +109,175 @@ extern void func_0045ee00(s32 arg0, s32 arg1, void *arg2, s32 arg3,
 
 
 
-// FUN_00250AD0
+/* measured floor for func_00250ad0: retail window 2720B (680 instrs per fnalign) at 0x00250ad0. */
+/* measured: probe v1 emits 680 instrs (2720B, 0% size diff, within 3% gate) with nd 608 */
+/* measured: differing words (reloc-masked) and fnalign 330 edits (+7 reloc-only). Best decl */
+/* measured: variant o3 (f22,f21,f20 order) gives nd 609 (-2 vs v5 base 611); all other */
+/* measured: decl orders 610-612. Levers tried with deltas (all via probe_variants on the */
+/* measured: live TU, b210 -O2): v1 baseline 608 (680/680); v2 inline s16 611 (+3); v3/v4/v5 */
+/* measured: minimal-locals 611 (+3); lever C >=0x1E/0x78 vs >0x1D/0x77 neutral 611->611 (0); */
+/* measured: lever D clamp !(<=1) vs >1 neutral 611->611 (0); CSE-off on 2-call subset 541->554 */
+/* measured: (+13, regressed, removed); v6 add-vs-mul doubling fix 608->609 (+1, kept v1). */
+/* measured: Evidence read in full per Contract: asm/nonmatchings/code1_0025/func_00250ad0.s */
+/* measured: (732 lines), src/generated/code1_0025.c:385 m2c (M2C_ERROR adda/madd replaced with */
+/* measured: p4_0025_mul_add per file header), docs/ghidra_headstart + docs/ida_headstart for */
+/* measured: 0x00250ad0, neighbours func_00251570 (goto labels) and func_0025d850 (COP1 helpers */
+/* measured: p4_0025_mul_add/add), callers at promoted 193/206/219, shdSprite func_0025f430 */
+/* measured: (s32,s32,s32,s32,u8*,s32,s32,s32,f32*6) and u32 func_003b7060 providers. Draft */
+/* measured: probed top-down with fnalign to 330 edits; decl-search once complete (6 orders). */
+/* measured: Walls (banked, not ground): extra saved int s0 for (s16)(s32)f20 CSE across the */
+/* measured: first two 25f430 calls vs retail temp t2 recompute (frame 0x50 vs retail 0x40); FPR */
+/* measured: f21/f22 swap (tried decl orders, best -2 only); s16 scheduled before madd vs retail */
+/* measured: after-u8 path; small-branch float live set 5 (f20s,f21s,r2nd,r3rd + temp) vs retail 4 */
+/* measured: (f20,f21,f22,f23); pervasive $a1 ($v1 vs $a1) + scheduling displacement on every */
+/* measured: c.le/bc1t u8 site (8 sites). Production stays ASM via guard; C body is faithful */
+/* measured: (both dispatch arms, all 5x25f430 + 4x44b7b0 + 7x003b7060 calls, 42/255/360/19/127/ */
+/* measured: 40/60 constants, 0x78/0x1E bounds, [0,1] clamp) with no UB, no volatile/asm/pragma. */
+// FUN_00250AD0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00250ad0(s32 *arg0, u8 *arg1)
+{
+    extern s32 func_0025f430(s32 a0, s32 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s32 a6, s32 a7, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5);
+    extern u32 func_003b7060(void);
+    extern f32 func_0044b7b0(f32 arg0);
+    extern f32 fGpffff8094;
+    extern f32 fGpffff8084;
+    extern f32 fGpffff8170;
+    extern f32 fGpffff8218;
+    extern f32 fGpffff8030;
+    extern f32 fGpffff813c;
+    extern f32 fGpffff81e0;
+    extern f32 D_007612CC;
+    extern f32 fGpffff8198;
+    extern f32 fGpffff82a8;
+    s32 flags;
+    f32 f21;
+    f32 f22;
+    f32 f20;
+    f32 second;
+    f32 madd1;
+    f32 scaled1;
+    s32 a1_1;
+    s32 s16_1;
+    f32 frand1;
+    f32 madd2;
+    f32 scaled2;
+    s32 a1_2;
+    f32 f20b;
+    f32 scaled3;
+    s32 a1_3;
+    s32 s16_2;
+    f32 frand2;
+    f32 f20c;
+    f32 scaled4;
+    s32 a1_4;
+    s32 tmp14;
+    s32 tmpC;
+    f32 fsmall20;
+    f32 fsmall21;
+    f32 fr1;
+    f32 fr2;
+    f32 fr3;
+    f32 fr4;
+    s32 tmpA;
+    s32 tmpB;
+    s32 tmpC2;
+    f32 fconv1;
+    f32 fconv2;
+    f32 scaledS;
+    s32 a1_s;
+    s32 tmpC3;
++
+    flags = arg0[0];
+    if ((flags & 2) || (flags & 4)) {
+        if ((flags & 4) != 0) {
+            f21 = fGpffff8170;
+        } else {
+            f21 = 1.0f;
+        }
+        if ((flags & 8) != 0) {
+            arg0[4] = arg0[4] + 1;
+        }
+        f22 = func_0044b7b0(fGpffff8094 + (fGpffff8094 * (f32)arg0[4]) / 30.0f);
+        second = func_0044b7b0((fGpffff8084 * (f32)arg0[3]) / 120.0f);
+        f20 = 42.0f * f21;
+        madd1 = p4_0025_mul_add(fGpffff8218, second, fGpffff8030);
+        scaled1 = 255.0f * madd1 * f22;
+        a1_1 = (u8)scaled1;
+        s16_1 = (s16)(s32)f20;
+        func_0025f430(0xFFFFFF, a1_1, 0x1B, 0, *(u8 **)(arg1 + 0x10), 1, s16_1, s16_1, *(f32 *)(arg0 + 1) - f20, *(f32 *)(arg0 + 2) - f20, 0.0f, 0.0f, f21, f21);
+        frand1 = (f32)func_003b7060();
+        madd2 = p4_0025_mul_add(fGpffff813c, frand1 / 2.1474836e9f, fGpffff8030);
+        scaled2 = 255.0f * madd2 * f22;
+        a1_2 = (u8)scaled2;
+        func_0025f430(0xFFFFFF, a1_2, 0x1B, 0, *(u8 **)(arg1 + 0x10), 1, s16_1, s16_1, *(f32 *)(arg0 + 1) - f20, *(f32 *)(arg0 + 2) - f20, 0.0f, 0.0f, f21, f21);
+        f20b = (1.0f + func_0044b7b0(D_007612CC + (fGpffff81e0 * (f32)arg0[5]) / (f32)arg0[6])) / 2.0f;
+        scaled3 = 255.0f * (fGpffff8198 * f20b) * f22;
+        a1_3 = (u8)scaled3;
+        s16_2 = (s16)(s32)fGpffff82a8;
+        func_0025f430(0xFFFFFF, a1_3, 0x1B, 0, *(u8 **)(arg1 + 0x10), 1, s16_2, s16_2, *(f32 *)(arg0 + 1) - fGpffff82a8, *(f32 *)(arg0 + 2) - fGpffff82a8, 0.0f, (360.0f * (f32)arg0[3]) / 120.0f, fGpffff8170, fGpffff8170);
+        frand2 = (f32)func_003b7060();
+        f20c = f20b + (fGpffff8218 * (frand2 / 2.1474836e9f) - fGpffff8030);
+        if (f20c < 0.0f) {
+            f20c = 0.0f;
+        } else if (!(f20c <= 1.0f)) {
+            f20c = 1.0f;
+        }
+        scaled4 = 255.0f * (fGpffff8198 * f20c) * f22;
+        a1_4 = (u8)scaled4;
+        func_0025f430(0xFFFFFF, a1_4, 0x1B, 0, *(u8 **)(arg1 + 0x10), 1, s16_2, s16_2, *(f32 *)(arg0 + 1) - fGpffff82a8, *(f32 *)(arg0 + 2) - fGpffff82a8, 0.0f, (360.0f * (f32)arg0[3]) / 120.0f, fGpffff8170, fGpffff8170);
+        tmp14 = arg0[5] + 1;
+        arg0[5] = tmp14;
+        if (tmp14 >= arg0[6]) {
+            arg0[5] = 0;
+            arg0[6] = (s32)p4_0025_mul_add(40.0f, (f32)func_003b7060() / 2.1474836e9f, 60.0f);
+        }
+        tmpC = arg0[3] + 1;
+        arg0[3] = tmpC;
+        if (tmpC >= 0x78) {
+            arg0[3] = 0;
+        }
+        if (arg0[4] >= 0x1E) {
+            return 1;
+        }
+        return 0;
+    }
+    fsmall20 = func_0044b7b0(fGpffff8094 - (fGpffff8094 * (f32)arg0[3]) / 30.0f);
+    fr1 = (f32)func_003b7060();
+    fsmall21 = 1.0f + (fGpffff8170 * (fr1 / 2.1474836e9f) - fGpffff8198);
+    fr2 = (f32)func_003b7060();
+    fr3 = (f32)func_003b7060();
+    fr4 = (f32)func_003b7060();
+    tmpA = (s32)(1.0f * (fr4 / 2.1474836e9f));
+    if (tmpA >= 0) {
+        fconv1 = (f32)tmpA;
+    } else {
+        fconv1 = 2.0f * (f32)(((u32)tmpA >> 1) | (tmpA & 1));
+    }
+    tmpB = (s32)(1.0f * (fr3 / 2.1474836e9f));
+    if (tmpB >= 0) {
+        fconv2 = (f32)tmpB;
+    } else {
+        fconv2 = 2.0f * (f32)(((u32)tmpB >> 1) | (tmpB & 1));
+    }
+    tmpC2 = (s32)(127.0f * (fr2 / 2.1474836e9f));
+    if (tmpC2 >= 0) {
+        scaledS = fsmall20 * ((f32)(tmpC2 + 128));
+    } else {
+        scaledS = fsmall20 * (2.0f * (f32)(((u32)(tmpC2 + 128) >> 1) | ((tmpC2 + 128) & 1)));
+    }
+    a1_s = (u8)(scaledS * 1.0f);
+    func_0025f430(0xFFFFFF, a1_s, 0x2F, 0, *(u8 **)(arg1 + 0x10), 1, 0, 0, (*(f32 *)(arg0 + 1) + fconv1) - 19.0f * fsmall21, (*(f32 *)(arg0 + 2) + fconv2) - 19.0f * fsmall21, 0.0f, 0.0f, fsmall21, fsmall21);
+    tmpC3 = arg0[3] + 1;
+    arg0[3] = tmpC3;
+    if (tmpC3 >= 0x1E) {
+        return 1;
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0025", func_00250ad0);
+#endif
 // FUN_00251570
 u8 *func_00251570(s32 arg0, s32 arg1) {
     u8 *ptr;

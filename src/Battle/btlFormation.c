@@ -165,6 +165,7 @@ void func_001d2e00(u32 *work)
 {
     *(u16 *)(work[0] + 0xa0) = *(u16 *)(work[0] + 0xa0) + 1;
 }
+/* measured: cur guard 89wd (obj448B/window448B, fnalign 49 edits: $s0-3 + sp70/sp80 $sp+0x70/0x80 swaps) improved to 87wd via temp_19/temp_18 decl swap (u8*temp_19 before u8*temp_18 to match retail $s3/$s2). No slti $at range, no dead-arm chain, no loop hoist, no s64 guard to convert. Dispatch 3/1->1,2/0->0,else JOIN matches retail beq chain. Honest allocator/stack floor; banked improved. No volatile/asm. */
 // FUN_001D2E20 NONMATCHING
 #ifdef NON_MATCHING
 u32 func_001d2e20(u8 *arg0) {
@@ -177,8 +178,8 @@ u32 func_001d2e20(u8 *arg0) {
     s32 temp_16;
     s16 temp_17;
     s32 temp_3_2;
-    u8 *temp_18;
     u8 *temp_19;
+    u8 *temp_18;
 
     temp_19 = *(u8 **)arg0;
     temp_18 = *(u8 **)(*(u8 **)(arg0 + 4) + 0x30);
