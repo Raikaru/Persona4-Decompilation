@@ -623,25 +623,20 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c518);
 // FUN_0043C5E8
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c5e8);
 
-/* measured: direct cast is byte-exact except return conversion and epilogue scheduling; Committed at nd 8 in-file (nd 2 measured in isolation). */
+/* measured: live object 40B/window 40B, normalized_diff 2 (installed guard below; prior nd8 note was stale). Schedule on closes the call/return delay slots (8 -> 2); the explicit (s32) narrowing of the s64 callee result is required and codegen-neutral next to the implicit form. Remainder is one swapped pair: b210 restores $ra before the dsll32 $v0,$v0,0 shift, retail interleaves the restore between dsll32 and dsra32 $v0,$v0,0 in the shift-latency slot. Ruled out: no-cast, tailcall, split-return, u32 arg, s64-split local, peephole off, arg-locals, O3, propagation off. Banked as floor. */
 // FUN_0043C6B0 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: schedule on fills the call and return delay slots. */
+#pragma schedule on
 s32 func_0043c6b0(s32 arg0) {
     return (s32)func_00444210(arg0, 0, 0xA);
 }
+/* measured: closes the schedule bracket at the file baseline. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c6b0);
 #endif
-
-
-
-
-/* measured: O3 is the best tested body for this byte loop (object 52/56,
-   normalized_diff 9). Retail allocates the -1 sentinel in $t7 and puts the
-   pointer increment in the branch-delay slot; plain C keeps the sentinel in
-   $v1 and emits the increment before the branch. Postincrement, for-loop,
-   O2, live third-argument, pointer-alias, and hoisted-zero probes were ruled
-   out. Committed at nd 9. */
+/* measured: live object 52B/window 56B, normalized_diff 5 (guard below; prior nd9 note was stale). Retail allocates the -1 sentinel in $t7 and puts the pointer increment in the branch-delay slot; plain C keeps the sentinel in $v1 and emits the increment before the branch. Ruled out today: const/s16/literal sentinel, sentinel-first order swap, opt_loop_invariants on, u32/s8 signature spellings (need file-top prototype edit, not probed); previously postincrement, for-loop, O2, live third-argument, pointer-alias, hoisted-zero. Banked as floor. */
 
 // FUN_0043C6D8 NONMATCHING
 #ifdef NON_MATCHING
@@ -685,7 +680,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043ca70);
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043dc60);
 // FUN_0043DCE8
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043dce8);
-/* measured: raw field stores reproduce the exact 96-byte object except b210 uses $v1/$a1 for the two function/data addresses and leaves the final self-pointer store in the body instead of the jr $ra delay slot. In-function schedule off improves the baseline to normalized_diff 24 (object 92/96); address-local and struct-pointer spellings do not improve it. Committed at nd 24. */
+/* measured: live object 92B/window 96B, normalized_diff 14 (guard below; prior nd24 note was stale). Pure register-coloring wall: retail materializes the two function/data address pairs into $t7/$t6 with both luis before both addius per pair, b210 uses $v1/$a1 with per-address lui/addiu/store interleaving; store order and the final self-pointer store otherwise agree. Ruled out today: co-live address locals (plain and opt_propagation-off, copy-propagated back to identical codegen), O1/O3; previously address-local and struct-pointer spellings. Banked as floor. */
 // FUN_0043DDF8 NONMATCHING
 #ifdef NON_MATCHING
 void func_0043ddf8(u8 *arg0, s16 arg1, s16 arg2, s32 arg3) {
@@ -733,15 +728,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043de58);
 // FUN_0043DEC8
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043dec8);
 
-/* measured: pointer-loaded absolute D_00710070 plus schedule-on gives the exact
-   32-byte object at nd 13 (bare baseline was nd 7 with object 16/32). The
-   remaining fndiff rows are off 4 (candidate lui $v0 vs retail lui $t7), off
-   16 (candidate lw $a0 vs retail ld $ra), off 20 (candidate ld $ra vs retail
-   j func_0043DFA0), off 24 (candidate jr vs retail addiu $sp,0x10), and off
-   28 (candidate addiu $sp,0x10 vs retail nop). Direct array-address,
-   scalar-GP, pointer-cast, void-return, and schedule-off spellings were
-   ruled out; the scheduled pointer load is the best tested body.
-   Committed at nd 13. */
+/* measured: live object 32B/window 32B, normalized_diff 5 (guard below; prior nd13/nd7 notes were stale). Retail is a framed tail jump: frame setup, lui $t7 + lw $a0 arg load, early $ra restore, j func_0043DFA0 with the sp teardown in the delay slot. b210 either emits jal+jr+frame (schedule on, 5) or a frameless j (tailcall on, 6); no pragma combination keeps the frame under the jump. Remainder is the frame words plus lui $t7 vs $v0. Ruled out today: tailcall on (6, frameless 12B), tailcall+schedule-off (6), O1 (8)/O3 (6), peephole off (6), arg-local/ptr-arith/byte-offset/deref address spellings (6), s32-return rewrite (6), s32** base local (5). Previously direct array-address, scalar-GP, pointer-cast, void-return, schedule-off. Banked as floor. */
 
 // FUN_0043DFC0 NONMATCHING
 #ifdef NON_MATCHING
@@ -790,10 +777,7 @@ s32 *func_0043eae8(s32 *arg0) {
 // FUN_0043EAF8
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043eaf8);
 
-/* measured: schedule-on call wrapper is object 32/32 at normalized_diff 13.
-   Retail uses an absolute D_00710070 load in $t7 followed by a framed tail jump;
-   b210 emits the equivalent jal/epilogue with a $v0 absolute load. Direct
-   tail-return without schedule was nd 25, object 40/32. Committed at nd 13. */
+/* measured: live object 32B/window 32B, normalized_diff 5 (guard below; prior nd13/nd25 notes were stale). Twin of func_0043dfc0: retail is an absolute D_00710070 load in $t7 followed by a framed tail jump, b210 emits jal/epilogue with a $v0 load (schedule on) or a frameless j (tailcall on, 6). Ruled out today: tailcall on (6), arg-local and deref address spellings (6). Banked as floor. */
 
 // FUN_0043EB20 NONMATCHING
 #ifdef NON_MATCHING
