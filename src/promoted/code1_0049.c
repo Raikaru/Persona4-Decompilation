@@ -356,6 +356,7 @@ void func_004940d0(u8 *arg0, u16 arg1, Code1_0049Color *arg2)
 /* measured: closing opt_propagation after func_004940d0 probe. */
 #pragma opt_propagation on
 /* Draft (measured 2026-09-17, source-repo only): probe_variants p_cseoff 263 words BEST (s_v2 278, sched 276, nobl 278, levers neutral), fnalign 253/291/203 (87% emitted, 38 instrs short). Four-pragma sweep measured; words-best cseoff vs edits-best s_v2/nobl (189). wscan dsll32 2 vs 0 + MMI pextlb/pextlh wall. More than 3% short of retail instruction count, so left as plain INCLUDE_ASM draft, not a floor. See docs/probe_archive/CMsgWin_004941f0_body.c. */
+/* Fresh 2026-09-17 plain-C (no MMI asm, f32 quads + guarded (u8)(s32)f lerp per y_CmbCardEff 00348330 idiom, same CFG/gotos): probe_variants 528w, fnalign 431ed retail292/object541 (bloated, not short) vs draft 263w/203ed 253/291. Plain C without pextlb/pextlh/qmtc2/vitof0/vmulx/sqc2/lqc2/vadd/vftoi0/ppach doubles the word distance and bloats the object, confirming the wall is genuine VU0+MMI transfer shape, not a shortfall artifact or CFG defect. Draft 263w keeps MMI asm so still H009-unsafe for src/; both stay as docs/probe_archive drafts, production stays INCLUDE_ASM. */
 // FUN_004941F0
 INCLUDE_ASM("asm/nonmatchings/code1_0049", func_004941f0);
 // FUN_00494680
