@@ -497,6 +497,30 @@ to 78.  When `opclass` shows a `cvt.s.w` surplus, audit every extern the body
 calls against the retail callee's actual return register before touching
 anything else.
 
+**There are eight cheap pragmas, not four, and pairs are a separate axis.**
+`func_001dbba0` sat at two differing words with all four of the usual
+pragmas measured on it — `schedule on` 199, `opt_loop_invariants on` 147,
+`opt_common_subs off` 193, `opt_propagation off` 191 — and five source
+spellings tried on the residual, which was retail evaluating the second
+argument of a two-argument call first.  `#pragma opt_dead_assignments off`
+alone takes it to zero.  It is live and byte-exact now.  The four that had
+never been measured anywhere in this tree are `opt_strength_reduction off`,
+`opt_dead_assignments off`, `opt_unroll_loops off` and `peephole off`.
+
+```
+python3 -E -s tools/pragma_sweep.py <owner.c> func_<addr>           # all eight
+python3 -E -s tools/pragma_sweep.py <owner.c> func_<addr> --pairs   # + 28 pairs
+python3 -E -s tools/pragma_sweep.py --board 50                      # every close floor
+```
+
+It strips pragma scaffolding already present in the banked body before
+testing, so a pair is never silently tripled, and it prints the banked
+baseline for comparison.  Sweeping the four new pragmas singly across all
+thirty-four floors at or under fifty words produced exactly one win, the one
+above — so singles are exhausted in that band and **pairs are the open
+ground**.  The win was itself found by a pair sweep and then narrowed to a
+single pragma, which is the order to work in.
+
 **Sweep the cheap pragmas, never reason about them.** Each of these costs
 one compile against a body you already have, so wrapping the guarded body
 and re-measuring is strictly cheaper than deciding whether it "should"
