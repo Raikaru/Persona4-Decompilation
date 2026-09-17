@@ -435,8 +435,38 @@ costs seventeen.
   `sll`/`addu` pair out of retail before trusting the draft's type: the
   same defect hid `arg2[j]` behind `*(u8 *)(arg2 + j * 2)` in
   `func_00303610`.
+- **Loop counters in a block scope allocate after the hoisted temporaries.**
+  A function-scope `i` takes `$v0` before MWCC assigns the loop's hoisted
+  `lui`, `andi` and pointer temporaries, and every one of them rotates;
+  declaring `{ s32 i; u8 *quad; for (...) ... }` inside the block that owns
+  the loop puts retail's `lui` in `$v0` and the counter in `$t1`. That was
+  58 of 96 alignment edits on `func_00103f00`, with no change in word count
+  until the next lever landed. Declaration order at function scope did
+  nothing.
+- **A struct copied to the stack and read back in two places gets its
+  expressions folded across calls.** `Pos pos = *(Pos *)(arg0 + 0xC);`
+  followed by `256.0f + pos.x` in two halves of `func_00103f00` kept the
+  sum in `$f21` and the y reload in `$f20` across the intervening calls;
+  retail reloads both from the slot. `f32 pos[2]` filled by the same 8-byte
+  struct copy through a cast reads back as array elements, which MWCC does
+  not fold (350 -> 247 words). Read each element into its own local before
+  the add when retail loads before it materialises the constant.
+- **A RenderWare global is a member of `ourGlobals`, not a scalar.**
+  `D_008872F8` is `RWSRCGLOBAL(dOpenDevice).zBufferNear` at
+  `ourGlobals + 0x18`; `D_00887300`/`D_00887310` are the render-state and
+  Im2D entry points that follow it. Inside a loop the array spelling
+  `D_008872F8[0]` hoists the whole load, and the scalar spelling goes
+  gp-relative; a member access through a prefix of `RwGlobals`/`RwDevice`
+  (see `src/promoted/code1_0010.c`) hoists only the `lui` and keeps
+  `lwc1 %lo(...)` in the loop, which is retail's shape and the last words
+  of `func_00103f00`.
+- **An integer-arithmetic destination moves `addiu $a0` to the head of an
+  argument block.** `func_0047ce00` passed `arg0 + 0x2D0` and emitted the
+  two `lhu` and the `lw` first; `(u8 *)((u32)arg0 + 0x2D0)` emits retail's
+  `addiu $a0` first (5 -> 2 words). The remaining fifth-argument `lw $t0`
+  placement resisted every width and nesting.
 
-The smallest measured floors after this pass are `00375f00` (2),
+The smallest measured floors after this pass are `00375f00` (2), `0047ce00` (2),
 `func_001a2d70` (2), `func_00452870` (4), `001130c0`, `001b11c0`,
 `00311930`, `0034ddf0` and `func_00454640` (5), `0024be40` (8),
 `0012d630` (15) and `004b2a00` (17).
