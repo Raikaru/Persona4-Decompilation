@@ -1473,8 +1473,10 @@ void func_001cca60(BtlCamera* camera)
 void func_001ccda0(void)
 {
 }
+/* measured 001ccdb0: `opt_propagation off` inside the guard is worth 2 words (475 -> 473). */
 // FUN_001CCDB0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_propagation off
 void func_001ccdb0(u8 *arg0) {
     extern u32 func_001bc3a0(float *a, float *b);
     extern void func_001ba790(f32 *out, f32 *first, f32 *second, f32 weight);
@@ -1626,6 +1628,7 @@ void func_001ccdb0(u8 *arg0) {
     func_001baff0((u16 *)arg0, v90, (f32 *)col74, v58, 1);
     func_001bbef0(arg0, step);
 }
+#pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001ccdb0);
 #endif
@@ -1866,8 +1869,10 @@ void func_001cdaf0(u8 *camera)
     func_001bbef0(camera, 0.75f);
 }
 /* measured 001cde50: `schedule on` inside the guard is worth 1 words (312 -> 311). */
+/* measured 001cde50: `opt_propagation off` inside the guard is worth 2 words (311 -> 309). */
 // FUN_001CDE50 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_propagation off
 #pragma schedule on
 void func_001cde50(u8 *arg0) {
     extern void func_001bd560(f32 *out, f32 *in);
@@ -1990,6 +1995,7 @@ void func_001cde50(u8 *arg0) {
     func_001bbef0(arg0, 0.75f);
 }
 #pragma schedule off
+#pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cde50);
 #endif

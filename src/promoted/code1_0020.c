@@ -2492,7 +2492,7 @@ s32 func_00207320(u8 *arg0, u8 *arg1, u8 **arg2)
     extern u32 func_001ef720(s32 arg0, s32 arg1);
     extern s16 func_0023dfe0(s32 arg0);
     extern s32 func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-    extern s8 func_0010b6f0(void);
+    extern u16 func_0010b6f0(void);
     extern void func_00202c60(u8 *arg0, s32 arg1, s16 arg2, void *a, void *b, void *c, void *d, u8 *arg7);
     extern void func_00202e60(u8 *arg0, void *arg1);
     extern void func_002019f0(u8 *arg0, s32 arg1);
@@ -2521,7 +2521,6 @@ s32 func_00207320(u8 *arg0, u8 *arg1, u8 **arg2)
     u8 *ui;
     s32 mode;
     s16 sub;
-    s16 n;
     s32 count;
 
     if (*(s16 *)(func_00452560(*(s32 *)(arg1 + 0x5B0)) + 0xAA) < 2) {
@@ -2583,15 +2582,14 @@ s32 func_00207320(u8 *arg0, u8 *arg1, u8 **arg2)
         *(s32 *)(arg1 + 4) = *(s32 *)(arg1 + 4) & ~4;
         return 3;
     case 6:
-        n = *(s16 *)(arg1 + 0x5A6);
-        if (func_001f0620(*(u8 **)(arg1 + 0x178), 3) == 0 || n == 0) {
+        if (func_001f0620(*(u8 **)(arg1 + 0x178), 3) == 0 || *(s16 *)(arg1 + 0x5A6) == 0) {
             if (*(s16 *)(arg1 + 0x5A6) == 0) {
                 func_002019f0(*(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30), 0x92);
             }
             func_0045af60(0, 0xF, 0, 8);
             return 1;
         }
-        func_00202c60(arg1 + 0xA8, 4, n, func_00209140, func_002091f0,
+        func_00202c60(arg1 + 0xA8, 4, *(s16 *)(arg1 + 0x5A6), func_00209140, func_002091f0,
                       func_00209370, func_00209740, arg1);
         panel = arg1 + 0xA8;
         *arg2 = panel;
@@ -2601,7 +2599,7 @@ s32 func_00207320(u8 *arg0, u8 *arg1, u8 **arg2)
         return 3;
     case 1:
         if (func_001f0620(*(u8 **)(arg1 + 0x178), 4) == 0) {
-            if ((func_001ef720(1, 0) & 0xFFFF) < 2) {
+            if ((s32)(func_001ef720(1, 0) & 0xFFFF) < 2) {
                 func_002019f0(*(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30), 0x93);
             }
             func_0045af60(0, 0xF, 0, 8);
