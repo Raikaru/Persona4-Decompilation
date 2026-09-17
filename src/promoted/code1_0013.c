@@ -1958,8 +1958,293 @@ s32 func_0013e8e0(u8 *arg0, s32 *arg1) {
     }
     return 0;
 }
-// FUN_0013EA20
+/* Floor: 473 differing words over 86 edits, 693 emitted against retail's
+   684.  Same menu-state-machine family as func_0013caa0 and func_0013d8b0
+   above; m2c's seven-argument calls are stale registers and all of them
+   take one or two.  The find here is that m2c DROPPED two switch label
+   sets - it printed `switch (x) { <body> <body> }` with no `case` lines -
+   and retail's compare chain recovers them: an s8 result tested 3, 2, 1,
+   0 then a default branch, where case 2 re-arms the panel and case 3
+   returns 2.  Writing them `case 0: case 1: case 2: case 3:` restores 52
+   of the 43 missing instructions.
+   WALL: nine instructions over, from the inner switch's 0/1 arms
+   branching to the switch end and then to the function's shared exit
+   where retail jumps straight there, plus an $s0/$s1 colour swap on the
+   two slot indices. */
+// FUN_0013EA20 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
+    extern void func_00137fb0(u8 *arg0);
+    extern s32 func_00138ad0(u8 *arg0);
+    extern s32 func_0013abb0(u8 *arg0);
+    extern void func_0013ab30(u8 *arg0);
+    extern void func_0013a8a0(u8 *arg0);
+    extern void func_0013a930(u8 *arg0);
+    extern void func_0013f4d0(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3);
+    u8 buf[0x30];
+    f32 temp_f1;
+    f32 var_f1;
+    s16 temp_17;
+    s16 temp_2;
+    s16 temp_3;
+    s16 temp_7;
+    s16 temp_8;
+    s16 temp_9;
+    s32 temp_16;
+    s32 temp_16_2;
+    s32 temp_2_2;
+    s32 temp_2_3;
+    s32 var_10;
+    s64 temp_3_2;
+    s64 temp_3_3;
+    s32 var_3;
+    u16 temp_5_3;
+    u16 temp_5_4;
+
+    *arg1 = (var_10 = 1);
+    temp_7 = (*(s16 *)(arg2 + 0x5C));
+    temp_17 = (*(s16 *)(((u8 *)(temp_7 * 2) + (u32)arg2 + 0xF4)));
+    temp_9 = (*(s16 *)(arg2 + 0x62));
+    temp_3 = (*(s16 *)(((u8 *)(temp_9 * 2) + (u32)arg2 + 0xF4)));
+    temp_2 = (*(s16 *)(arg2 + 0x5E));
+    temp_8 = (*(s16 *)(arg2 + 0x60));
+    temp_16 = temp_8 + temp_2;
+    switch (*arg0) {
+        case 0:
+            *arg1 = 0;
+            func_00137fb0(arg2);
+            *arg0 = 1;
+            break;
+        case 1:
+            temp_16_2 = (func_00138ad0(arg2));
+            if (temp_16_2 & func_0034c210()) {
+                *arg0 = 3;
+                func_0034bb20(8);
+                func_0013a8a0(arg2);
+            } else {
+                *arg1 = 0;
+            }
+            break;
+        case 2:
+            if ((s32)(func_0013abb0(arg2)) != (s32)(0)) {
+                func_0013ab30(arg2);
+                return 1;
+            }
+            break;
+        case 3:
+            if ((s32)(func_0013abb0(arg2)) != (s32)(0)) {
+                func_00353fe0();
+                *arg0 = 4;
+                func_0013a530(arg2, 2U);
+                func_0013a8a0(arg2);
+            }
+            break;
+        case 4:
+            if (D_008C024E[0] & 0x20) {
+                func_0013a530(arg2, 1U);
+                *arg0 = 2;
+                func_00353fb0();
+                func_0034bb20(0xA);
+                func_0045af60(0, 2, 0, 4);
+            } else if (D_008C024E[0] & 0x40) {
+                if ((s32)(func_00105610(temp_17)) != (s32)(0)) {
+                    func_0045af60(0, 0, 0, 8);
+                } else {
+                    func_0013a530(arg2, 3U);
+                    *arg0 = 5;
+                    func_0045af60(0, 0, 0, 1);
+                }
+            } else if (D_008C024E[0] & 0x10) {
+                *(s32 *)(arg2 + 0x10) = (s32)(func_00354030());
+                *arg0 = 0xD;
+            } else {
+                func_00453670(buf, 4, *(s16 *)(arg2 + 0xFC), temp_7, 0, temp_9, 1);
+                func_004538e0(buf, 0x4000, 0x1000, 0, 0);
+                if ((s32)(func_00453960(buf)) != (s32)(0)) {
+                    func_0013a040(arg2, 0, *(s32 *)(buf + 0x24));
+                    func_00138490(arg2);
+                    func_0013a8a0(arg2);
+                    func_0045af60(0, 1, 0, 0);
+                }
+            }
+            break;
+        case 5:
+            if ((s32)(func_0013abb0(arg2)) != (s32)(0)) {
+                *arg0 = 6;
+                func_0013a530(arg2, 4U);
+            }
+            break;
+        case 6:
+            if (D_008C024E[0] & 0x20) {
+                *arg0 = 3;
+                func_0013a530(arg2, 2);
+                func_0013a8a0(arg2);
+                func_0045af60(0, 0, 0, 2);
+            } else {
+                temp_5_3 = D_008C024E[0] & 0x40;
+                if (temp_5_3 != 0) {
+                    func_0013f4d0((s32 *)arg0, temp_17, temp_3, arg2);
+                } else if (D_008C024E[0] & 0x80) {
+                    func_0013a530(arg2, 9);
+                    *arg0 = 0xB;
+                    func_0045af60(0, 2, 0, 3);
+                } else if (D_008C024E[0] & 0x10) {
+                    *(s32 *)(arg2 + 0x10) = (s32)(func_00354030());
+                    *arg0 = 0xD;
+                } else {
+                    func_00453670(buf, 6, *(s16 *)(arg2 + 0x580), temp_2, temp_8, temp_9, 1);
+                    func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
+                    temp_2_2 = (s32)(func_00453960(buf));
+                    if (temp_2_2 > 0) {
+                        func_0013a040(arg2, 1, *(s32 *)(buf + 0x24));
+                        func_0013a040(arg2, 2, *(s32 *)(buf + 0x28));
+                        if (*(s16 *)(arg2 + 0x60) != *(s16 *)(arg2 + 0xAC)) {
+                            func_0013a930(arg2);
+                        }
+                        func_00354080(temp_2_2);
+                    }
+                }
+            }
+            break;
+        case 7:
+            if ((s32)(func_0013abb0(arg2)) != (s32)(0)) {
+                func_0013a530(arg2, 6U);
+                func_0013aa00(arg2);
+                *arg0 = 8;
+            }
+            break;
+        case 8:
+            if (D_008C024E[0] & 0x20) {
+                func_0013a530(arg2, 3U);
+                *arg0 = 5;
+                func_0034bd60(8);
+                func_0045af60(0, 0, 0, 2);
+                break;
+            }
+            if (D_008C024E[0] & 0x40) {
+                temp_3_2 = (s64)((s64) (func_0013f720(temp_17, temp_3, temp_16, arg2, temp_8, temp_9, 1) << 0x38) >> 0x38);
+                switch (temp_3_2) {
+                case 0:
+                case 1:
+                    break;
+                case 2:
+                    func_0013a530(arg2, 3U);
+                    *arg0 = 5;
+                    func_0034bd60(8);
+                    break;
+                case 3:
+                    return 2;
+                }
+            } else {
+                if (D_008C024E[0] & 0x10) {
+                    *(s32 *)(arg2 + 0x10) = (s32)(func_00354030());
+                    *arg0 = 0xD;
+                } else {
+                    func_00453670(buf, 4, *(s16 *)(arg2 + 0xFC), temp_9, 0, temp_9, 1);
+                    func_004538e0(buf, 0x4000, 0x1000, 0, 0);
+                    if ((s32)(func_00453960(buf)) != (s32)(0)) {
+                        func_0013a040(arg2, 3, *(s32 *)(buf + 0x24));
+                        func_0013aa00(arg2);
+                        func_0045af60(0, 1, 0, 0);
+                    }
+                }
+                break;
+            }
+            break;
+        case 9:
+            if ((s32)(func_0013abb0(arg2)) != (s32)(0)) {
+                func_0013a530(arg2, 8U);
+                *arg0 = 0xA;
+            }
+            break;
+        case 10:
+            if ((s32)(func_0013abb0(arg2)) != (s32)(0)) {
+                if (D_008C024E[0] & 0x20) {
+                    func_0013a530(arg2, 3U);
+                    *arg0 = 5;
+                    func_0034bd60(8);
+                    func_0045af60(0, 0, 0, 2);
+                    break;
+                }
+                if (D_008C024E[0] & 0x40) {
+                    temp_3_3 = (s64)((s64) (func_0013f720(temp_17, -1, temp_16, arg2) << 0x38) >> 0x38);
+                    switch (temp_3_3) {
+                    case 0:
+                    case 1:
+                        break;
+                    case 2:
+                        func_0013a530(arg2, 3U);
+                        *arg0 = 5;
+                        func_0034bd60(8);
+                        break;
+                    case 3:
+                        return 2;
+                    }
+                } else {
+                    if (D_008C024E[0] & 0x10) {
+                        *(s32 *)(arg2 + 0x10) = (s32)(func_00354030());
+                        *arg0 = 0xD;
+                    }
+                    break;
+                }
+            } else {
+                break;
+            }
+            break;
+        case 11:
+            if ((s32)(func_0013abb0(arg2)) != (s32)(0)) {
+                func_0013a530(arg2, 0xAU);
+                *arg0 = 0xC;
+            }
+            break;
+        case 12:
+            if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80)) {
+                func_0013a530(arg2, 3);
+                *arg0 = 5;
+                func_0045af60(0, 2, 0, 4);
+            } else {
+                temp_5_4 = D_008C024E[0] & 0x40;
+                if (temp_5_4 != 0) {
+                    func_0013f4d0((s32 *)arg0, temp_17, temp_3, arg2);
+                } else if (D_008C024E[0] & 0x10) {
+                    *(s32 *)(arg2 + 0x10) = (s32)(func_00354030());
+                    *arg0 = 0xD;
+                } else {
+                    func_00453670(buf, 6, *(s16 *)(arg2 + 0x580), temp_2, temp_8, temp_9, 1);
+                    func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
+                    temp_2_3 = (s32)(func_00453960(buf));
+                    if (temp_2_3 > 0) {
+                        func_0013a040(arg2, 1, *(s32 *)(buf + 0x24));
+                        func_0013a040(arg2, 2, *(s32 *)(buf + 0x28));
+                        if (*(s16 *)(arg2 + 0x60) != *(s16 *)(arg2 + 0xAC)) {
+                            func_0013a930(arg2);
+                        }
+                        func_00354080(temp_2_3);
+                    }
+                }
+            }
+            break;
+        case 13:
+            if ((++*(u16 *)(arg2 + 0xC) & 0xFFFF) >= 3) {
+                var_10 = 1;
+            } else {
+                temp_f1 = (1.0f - ((f32)*(u16 *)(arg2 + 0xC) / 3.0f)) * 255.0f;
+                var_3 = (u8)temp_f1;
+                *(u8 *)arg2 = var_3;
+                var_10 = 0;
+            }
+            if (var_10 != 0) {
+                return 2;
+            }
+            break;
+    default:
+        break;
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013ea20);
+#endif
 // FUN_0013F4D0
 void func_0013f4d0(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3) {
     s32 temp_18;

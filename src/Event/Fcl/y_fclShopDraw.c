@@ -1419,8 +1419,89 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002dd3b0);
 // FUN_002DE5A0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002de5a0);
 
-// FUN_002DF020
+/* Floor: 219 reloc-masked differing words (window 296 words/1184B, emitted 301 words/1204B).
+   Levers that closed it from 271 to 219: u64 Vec2f slots with Vec2f direct pass
+   for 002e0ca0/002e0b20 (ld $a1, not lwc1), (f32)0x1F1 for the 497 cvt.s.w chain,
+   goto order 0,1,2 (L0 first, L1 second, L2 third, Ljoin) to match retail layout
+   L070/L0D8/L160/L1C0, single s32 tmp + u8 *work to hold frame at retail 0xC0
+   with sd $ra + sq s3/s2/s1/s0, *(u64*)(iGpffffa890-8) for the 0x763978 GP load.
+   Residual is systematic (2 sites, then shift): off 32 lw $s0 vs retail $s1 and
+   off 36 lb ($s0) vs ($s1) -- work wants $s1, tmp wants $s0, candidate has them
+   swapped (~10 words via work+0x12/0xF28/0xCC8 and andi); off 64 bnez vs beqz +
+   off 72 missing b+nop -- IROEVAL "Removing branch around goto" folds beq-over-b
+   (over 1) to bnez with L0 inline (6 words before L0, not retail 8), shifting
+   every later offset by 8 so fndiff marks ~200 words that are mnemonically
+   identical once realigned. #pragma opt_optimizecontrolflow off/on (file and
+   scoped) is ignored by b210; #pragma peephole off restores beq+b (aligned) but
+   costs +46 elsewhere (265). Orders 1,2,0 score 250. Archive: v11 floor banked
+   in docs/probe_archive/ShopDraw_002df020_body.c (62 lines). */
+// FUN_002DF020 NONMATCHING
+#ifdef NON_MATCHING
+void func_002df020(void *arg0, s64 arg1, s32 arg2) {
+    extern u8 iGpffffa890[];
+    extern u8 D_0063FAA0[];
+    s32 tmp;
+    u8 *work;
+    RGBA spBC;
+    RGBA spB8;
+    RGBA spB4;
+    u64 spA8;
+    Vec2f spA0;
+    Vec2f sp98;
+    Vec2f sp90;
+    u64 sp88;
+    u64 sp80;
+    Vec2f sp78;
+    u64 sp70;
+    Vec2f sp68;
+    work = *(u8 **)((u8 *)arg0 + 0x38);
+    if (*(s8 *)(work + 0x11) == 2) {
+        goto L2;
+    }
+    if (*(s8 *)(work + 0x11) == 1) {
+        goto L1;
+    }
+    if (*(s8 *)(work + 0x11) == 0) {
+        goto L0;
+    }
+    goto Ljoin;
+L0:
+    func_002b2970(&spA0, 97.0f, 178.0f);
+    func_002e0ca0(0x1A, spA0, 13.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+    goto Ljoin;
+L1:
+    tmp = func_002d4f30((s16)func_00106880((s16)arg1)) & 0xFFFF;
+    func_002b2970(&sp98, 97.0f, 178.0f);
+    func_002e0b20(tmp, sp98, 13.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+    goto Ljoin;
+L2:
+    func_002b2970(&sp90, 97.0f, 178.0f);
+    func_002e0ca0(0x1B, sp90, 13.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+Ljoin:
+    tmp = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
+    func_002b2970(&sp88, 140.0f, 178.0f);
+    sp68 = *(Vec2f *)&sp88;
+    func_00275680(sp68.x, sp68.y, 13.0f, tmp, 0, 1, (const char *)func_001067f0((s32)arg1), 0, 0, D_00795E30, -1);
+    tmp = func_00106a90((s16)arg1) / 5U;
+    func_002b2970(&sp80, 448.0f, 185.0f);
+    func_002b2a60(&spBC, 0x2D, 0x2D, 0x2D, 0xFF);
+    func_002cacd0(sp80, 13.0f, spBC, 0x10, 5, (u32)tmp, 9, 0x7B, (s32)func_0046a770(D_0063FB50), *(s32 *)(work + 0xF28), 0xA9);
+    func_002b2970(&sp78, 476.0f, 187.0f);
+    func_002e0b20(0x47, sp78, 13.0f, func_002b2a30(0x2D, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E60);
+    spA8 = *(u64 *)(iGpffffa890 - 8);
+    if (*(s16 *)(work + 0x12) < 10) {
+        *(f32 *)&spA8 = *(f32 *)&spA8 - 8.0f;
+    }
+    func_002b2a60(&spB8, 0x2D, 0x2D, 0x2D, 0xFF);
+    func_002cacd0(spA8, 13.0f, spB8, 0x10, 5, *(s16 *)(work + 0x12), 9, 0x7B, (s32)func_0046a770(D_0063FB50), *(s32 *)(work + 0xF28), 0xA9);
+    func_002b2970(&sp70, (f32)0x1F1, 247.0f);
+    func_002b2a60(&spB4, 0xDF, 0x6C, 0, *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC8)) + 0x62));
+    tmp = (s32)func_0046a770(D_0063FAA0);
+    func_002cacd0(sp70, 1.0f, spB4, 0x1B, 0, arg2 & 0xFF, 0x2F, 0, tmp, (s32)func_0046a770(D_0063FAA0), 0xA9);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002df020);
+#endif
 
 
 
