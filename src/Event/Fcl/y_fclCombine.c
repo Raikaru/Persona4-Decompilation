@@ -1158,8 +1158,10 @@ s32 func_00308e50(u8 *arg0) {
    block dead; retail reuses). Words 372 -> 356, edits 179 -> 171 (fnalign retail 428 / object 449-450
    instrs, window 1712B); frame 0x70 vs 0x60 + saved-reg rotation remain the WALL. */
 /* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
+/* measured 00308f40: `schedule on` inside the guard is worth 15 words (356 -> 341). */
 // FUN_00308F40 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
 void func_00308f40(void) {
     s32 raw;
     s64 n0;
@@ -1277,6 +1279,7 @@ void func_00308f40(void) {
         }
     }
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00308f40);
 #endif

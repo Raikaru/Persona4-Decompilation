@@ -172,8 +172,10 @@ extern u8 D_0063BCC0[];
 extern f32 D_008872F8[];
 extern u8 D_0063BC88[];
 extern s32 D_00881750;
+/* measured 00275d80: `schedule on` inside the guard is worth 3 words (258 -> 255). */
 // FUN_00275D80 NONMATCHING (measured floor: live C, object 844B/window 1136B, normalized_diff 246, frame -448 exact, 5+2 calls complete; see docs/probe_archive/FR_00275d80_body.c)
 #ifdef NON_MATCHING
+#pragma schedule on
 #pragma push
 #pragma opt_loop_invariants off
 s32 func_00275d80(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5, u32 arg6, f32 fparg0) {
@@ -320,6 +322,7 @@ s32 func_00275d80(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5, u3
     return 0;
 }
 #pragma pop
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/frFontRaster", func_00275d80);
 #endif

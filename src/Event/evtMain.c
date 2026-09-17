@@ -850,8 +850,10 @@ u8 *func_00145270(s32);                  /* extern */
 /* retail (float compares use bc1, so no slti-$at lever); float-copy variant (drop (s32) from six case-0 inits) */
 /* neutral at 263 words with 310 object instrs. */
 /* measured 00288af0: `opt_common_subs off` inside the guard is worth 14 words (276 -> 262); retail rematerialises what b210 hoists. */
+/* measured 00288af0: `schedule on` inside the guard is worth 26 words (262 -> 236). */
 // FUN_00288AF0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
 #pragma opt_common_subs off
 s32 func_00288af0(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
     void func_00146e60(u64, u64, u64);
@@ -953,6 +955,7 @@ s32 func_00288af0(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
     }
 }
 #pragma opt_common_subs on
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_00288af0);
 #endif

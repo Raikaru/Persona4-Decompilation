@@ -3611,8 +3611,10 @@ s32 func_0022a6b0(s64 *arg0) {
    verified. Open: frame size, branch-target cascade, scheduler
    ordering. Triple-built (m2c+IDA+Ghidra, retail-arbitrated:
    gp-struct direct, 1973f0 4-arg, masked k-counter). */
+/* measured 0022a730: `schedule on` inside the guard is worth 6 words (259 -> 253). */
 // FUN_0022A730 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
 void func_0022a730(u8 *arg0)
 {
     extern u8 *func_0019a0c0();
@@ -3736,6 +3738,7 @@ void func_0022a730(u8 *arg0)
         }
     }
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022a730);
 #endif

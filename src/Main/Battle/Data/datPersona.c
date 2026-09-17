@@ -1118,8 +1118,10 @@ s32 func_0010be20(u8 *arg0)
 
 /* measured: object 1820B/window 1856B/normalized_diff 1426 (443 differing words, live re-measured current tree). */
 /* measured: live 443 words / fnalign 388 edits (463 vs 455 instrs, 8 short, 1820B/1856B within 3%); slti inclusive top-down 15 variants all tie except >=0xC0->>0xBF +1 regress (pid, i>=5 x3, level>=0x64/>=2, dispatch, av+sv<0x63, nv+sv>=0x64, j<5, i<3, out>=0x20 x2, id2 dispatch x2); 8 short is layout-inversion delete 60 at dispatch (shadow inline vs retail out-of-line) so dead-arm N-A (ends assert/loop, no retail slti-at trailing dead compare); sltiu 0 so adjacent-== fold N-A (|| are pid==0||>=0x100 and id<0xC0||>=0xD8); frame 0xD0 vs 0xA0 single-site calls and true u32 param for 00231d70 per btlUnit.c so index-mask N-A; banked floor. */
+/* measured 0010be60: `schedule on` inside the guard is worth 10 words (443 -> 433). */
 // FUN_0010BE60 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
 #pragma opt_loop_invariants on
 void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2) {
     u16 stat[5];
@@ -1338,6 +1340,7 @@ void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2) {
     }
 }
 #pragma opt_loop_invariants off
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010be60);
 #endif

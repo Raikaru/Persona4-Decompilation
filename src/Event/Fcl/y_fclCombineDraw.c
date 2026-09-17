@@ -1003,18 +1003,17 @@ void func_00320970(u8 *arg0, s64 arg1) {
 // FUN_00320B80
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00320b80);
 
-/* Floor: 331 differing words (probe_variants docs/probe_archive/G_003212e0_body.c) over 154 fnalign edits */
-/* (+3 reloc-only), retail 368 vs object 381 (+13, frames 0xF0 vs 0x110). WALL: (1) separate u8 locals for 2a60 */
-/* groups alias to scrambled 6-byte frame top (FclByte4 keeps distinct but shifts layout); (2) byte copies */
-/* interleaved vs retail batched lbu x4/sb x4 (FclByte4 emits lw/sw); (3) var_16 (s64)((s32)<<0x30)>>0x30 emits */
-/* 4 instrs vs retail clean (s64)(s16) pair; (4) u8 arg1 sb andi; (5) u_long128 spC0/spB0 sq widening. */
-/* Old nd332 best-of-4 reproduced as 331 words (335/332/349 plus CE). Slot-layout + scheduling floor. */
+/* Floor: 321 differing words (probe_variants docs/probe_archive/WIDE_003212e0_body.c) over 139 fnalign edits */
+/* (+3 reloc-only), retail 368 vs object 375 (+7, frames 0xF0 vs 0x100). New dsll/dsra lever: s16 i/j -> s32 */
+/* (331->321 words, 154->139 edits, 381->375 object). WALL remains slot-layout + scheduling (u8 groups alias, */
+/* byte-copy interleave vs batched, var_16 4-instr vs clean pair, u8 arg1 andi, u_long128 widening). Base G */
+/* body 331/154/381; old nd332 best-of-4 essentially reproduced. */
 // FUN_003212E0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003212e0);
 
 /* No banked body archived (docs/probe_archive/P01C_003218a0_body.c is a 1-line placeholder); retained as bare */
-/* INCLUDE_ASM. Prior nd273 best-of-3 (285/285/273) references a missing preserved body and is not currently */
-/* reproducible with --candidate. WALL per prior shape work (preserved here for reuse): lwr/lwl 0x75/0x78 are */
+/* INCLUDE_ASM. Prior best-of-3 references a missing preserved body and is not currently reproducible with */
+/* --candidate. WALL per prior shape work (preserved here for reuse): lwr/lwl 0x75/0x78 are */
 /* plain *(u32 *)(p + 0x75) on heap func_0034ae50 results; sq/lq 0x120..0xC0 are mwcc spills of s32 */
 /* loop-invariant locals (not source u_long128); residuals are loop-CSE of (s16)i normalize, m2 spill to 0x110 */
 /* (frame 0x160 vs 0x170), and saved-reg rotation (arg1->$s6/t->$fp/v->$s7/i->$s5 vs $s5/$s7/$s6/$s2). */
@@ -1518,7 +1517,8 @@ void func_0032f060(u8 *arg0, s32 arg1) {
 /* saved-reg rotation t $s0 vs $s1 and lb/lbu for 0xB7 counter. Reusable skeleton in conventions note above */
 /* (spA0..sp78 s64 locals, tbl FclVec2[5] at 0x50, nested 0x1305/0x1306, third 2970 block, t->0xB7 re-read, */
 /* f20=-14 last, r s16, for(i=0;(s16)i<t->0xB7;i=(s16)(i+1)) with n=(s16)i and func_003147e0 call). Old nd130 */
-/* claim superseded (no archive; F body measures 287/88). */
+/* claim superseded (no archive; F body measures 287/88). Lever checklist: slti-$at N/A (no integer slti); */
+/* dead-arm N/A (exact 343/343); opt_common_subs off 287->289 worse; opt_loop_invariants neutral. */
 // FUN_0032F4D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032f4d0);
 

@@ -1239,8 +1239,10 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003768e0);
    folding, block-scope, counter-reuse all neutral. Ghidra
    phantoms killed (per-iter div, +C0 store, denormal).
    Quad-built, retail-arbitrated; prior nd-15 note on file. */
+/* measured 00377930: `schedule on` inside the guard is worth 38 words (378 -> 340). */
 // FUN_00377930 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
 void func_00377930(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4)
 {
     extern f32 D_008872F8_abs[];
@@ -1368,6 +1370,7 @@ void func_00377930(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4)
     }
     func_003e0f40(matrix);
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00377930);
 #endif

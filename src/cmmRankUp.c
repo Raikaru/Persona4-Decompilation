@@ -617,8 +617,10 @@ void func_00256040(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
    declared object; declaring the complete frame as one struct in source
    declaration order reproduces offsets that separate locals do not. */
 /* measured: W3CRNK_002561f0_body.c fresh 150wd (obj608B/window624B) vs aggregate 628B/nd484 per owner note; head-start recipe (16x8B down-count loop, colours with trailing andi, 255 round-trip unfolded, sltiu i-14<2/i-6<4/i-10<4 else to sp+0x70+i*4, 0045e6a0(sp+0x70,sp+0xC0,16,4,...)) tried via this body; inclusive-bound/dead-arm/cast/loop-invariant/s64 levers checked (no convertible slt $at range guard; call-setup casts per EABI t0-t3 kept). Honest table/CSE/stack-gap floor; banked. No volatile/asm. */
+/* measured 002561f0: `schedule on` inside the guard is worth 2 words (150 -> 148). */
 // FUN_002561F0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
 void func_002561f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s64 arg5, s64 arg6, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4) {
     typedef struct { u8 r; u8 g; u8 b; u8 a; } RGBA;
     typedef union { struct { f32 x; f32 y; } f; struct { u32 w0; u32 w1; } w; s64 align; } Pair;
@@ -642,6 +644,7 @@ void func_002561f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s64 arg5, s64 arg6, f
     base = (u8 *)work.rgba;
     func_0045e6a0(base, work.pairs, fparg2, 0x10, 4, (s32)(s16)arg5, (s32)(s16)arg6, b1, 0, fparg3, fparg4);
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_002561f0);
 #endif
