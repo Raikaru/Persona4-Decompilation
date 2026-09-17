@@ -541,6 +541,7 @@ void func_00487c00(int param_1)
 /* measured: reconstructed full switch/VU0 particle path; retail and candidate differ only by temp_17/var_16 saved-register assignment (retail $s1/$s0, candidate $s0/$s1), nd 27, object 892B/window 896B. Tried saved-local declaration permutations, case-local splits, register qualifiers, pointer/count types, expression shapes, and O1; no improvement. Parked near-match. */
 // Archived C body: build/WBHygiene_func_00487c30_archive.txt; no current park body remains.
 /* measured: 27 differing words, 223/223 instrs, fnalign 49ed, obj892B/window896B; loopinv 27wd/49ed tie, schedule 194 (764B), commons 27 tie, prop 27 tie; decl-swap var_16-front 64ed (worse); temp_17/var_16 $s0/$s1 vs retail $s1/$s0 rotation stands from earliest hunk (retail[18] lw $s0 vs object $s1); no lb/lbu so s8 N/A; no sunk address chain so double-def N/A; VU0 lqc2/sqc2 split blocks reproduce. Banked near-match. */
+/* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/promoted/effParticle.c func_00487c30 --pairs` banked 27; best ties 27 (all 8 singles except schedule/peephole plus 13 pairs among them); all 28 pairs neutral or worse (peephole 175-191, schedule 190-194). Singles loopinv/commons/prop already tie per above; pairs confirm $s0/$s1 rotation floor. fnalign retail/object 223/223 per assignment. Floor stands; production stays ASM. */
 // FUN_00487C30 NONMATCHING
 #ifdef NON_MATCHING
 void func_00487c30(u8 *arg0, f32 arg1)
