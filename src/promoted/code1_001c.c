@@ -763,14 +763,384 @@ void func_001c52c0(u8 *arg0)
         return;
     }
 }
-// FUN_001C5500
+// FUN_001C5500 NONMATCHING
+/* measured 001c5500: 78 differing words guarded via `python3 tools/measure_guarded.py src/promoted/code1_001c.c func_001c5500`; fnalign retail 416 vs object 416, 15 edits (+8 reloc-only). Decisive lever: truthful `extern f32 func_0044b868(f32)` block decl (implicit int return emitted mtc1/cvt plus cascade) moved the same body from 249 to 78. */
+/* Fresh independent-object layout (251w) beats explicit Frame pads (389w/392w); dot/cross decl swap fixes $f24 (251w to 249w); binary (u8*,s32) ties unary with no caller migration. Pragmas swept scoped on exact body: schedule on 387, commons off 457, loopinv on tie, prop off 306 — neutral/worse, none installed. Top remaining: mtc1 $zero $f5 vs $f6 extra live temp at dot compare, 1.5f ($f23) hoist before base copy, mul $f6 vs $f7, $f20/$f21 cycle (div/cvt region already fixed by 0044b868 prototype). */
+#ifdef NON_MATCHING
+void func_001c5500(u8 *arg0, s32 arg1)
+{
+    struct Quat5500 {
+        f32 x;
+        f32 y;
+        f32 z;
+        f32 w;
+    };
+    struct PosePair5500 {
+        RwV3d first;
+        struct Quat5500 firstRotation;
+        RwV3d second;
+        struct Quat5500 secondRotation;
+    };
+    RwV3d actorPosition;
+    RwV3d targetPosition;
+    RwV3d basePosition;
+    RwV3d focus;
+    RwV3d direction;
+    RwV3d eye;
+    RwV3d savedDirection;
+    f32 baseXZ[2];
+    f32 projectionXZ[2];
+    struct {
+        f32 perpendicular[2];
+        f32 horizontal[2];
+        f32 focusXZ[2];
+        f32 eyeXZ[2];
+    } geometry;
+    struct PosePair5500 poses;
+    u8 *action;
+    u8 *actor;
+    u8 *target;
+    u8 *primaryUnit;
+    u8 *secondaryUnit;
+    f32 length;
+    f32 scale;
+    f32 crossProduct;
+    f32 dotProduct;
+    f32 radius;
+    f32 radiusScale;
+    f32 heightFactor;
+    f32 offsetFactor;
+    f32 unitY;
+    f32 projDist;
+    f32 accumDist;
+    f32 tanFov;
+    f32 distScale;
+    f32 var_f20;
+    u16 command;
+    extern f32 fGpffff8128;
+    extern f32 fGpffff8118;
+    extern f32 fGpffff8158;
+    extern f32 fGpffff814c;
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+    extern f32 func_001ec3d0(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
+    extern f32 func_001ec2b0(void *arg0, void *arg1);
+    extern void func_001bd5e0(f32 *arg0, f32 *arg1);
+    extern f32 func_0044b868(f32 arg0);
+
+    (void)arg1;
+    action = *(u8 **)(arg0 + 0xE0);
+    actor = *(u8 **)(action + 0x30);
+    target = *(u8 **)(*(u8 **)(action + 0x38) + 0x30);
+    func_00195850(actor, (f32 *)&actorPosition);
+    func_00195850(target, (f32 *)&targetPosition);
+
+    direction.x = actorPosition.x - targetPosition.x;
+    direction.y = actorPosition.y - targetPosition.y;
+    direction.z = actorPosition.z - targetPosition.z;
+    length = func_003e40b0((RwV3d *)&direction, (const RwV3d *)&direction);
+
+    geometry.horizontal[0] = *(f32 *)(arg0 + 0x9C) - actorPosition.x;
+    geometry.horizontal[1] = *(f32 *)(arg0 + 0xA4) - actorPosition.z;
+    func_003e41e0(geometry.horizontal, geometry.horizontal);
+
+    scale = fGpffff8128 * length;
+    focus.x = direction.x * scale;
+    focus.y = direction.y * scale;
+    focus.z = direction.z * scale;
+    focus.x += targetPosition.x;
+    focus.y += targetPosition.y;
+    focus.z += targetPosition.z;
+
+    geometry.perpendicular[0] = direction.x;
+    geometry.perpendicular[1] = direction.z;
+    dotProduct = geometry.perpendicular[0] * geometry.horizontal[0] + geometry.perpendicular[1] * geometry.horizontal[1];
+
+    if (!(dotProduct < 0.0f)) {
+        primaryUnit = actor;
+        secondaryUnit = target;
+        basePosition = actorPosition;
+        radiusScale = 1.5f;
+        radius = radiusScale * (*(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C));
+        heightFactor = fGpffff8118;
+        offsetFactor = 0.0f;
+        if (basePosition.y < 125.0f) {
+            basePosition.y = 125.0f;
+        }
+    } else {
+        primaryUnit = target;
+        secondaryUnit = actor;
+        basePosition = targetPosition;
+        if (*(u8 *)(target + 0xA2) == 0) {
+            radius = 1.5f * (*(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C));
+            radiusScale = 3.5f;
+        } else {
+            radius = 1.25f * (*(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C));
+            radiusScale = 1.75f;
+        }
+        heightFactor = 0.25f;
+        offsetFactor = heightFactor;
+    }
+
+    geometry.perpendicular[0] = direction.z;
+    geometry.perpendicular[1] = -direction.x;
+    crossProduct = geometry.perpendicular[1] * geometry.horizontal[1] + geometry.perpendicular[0] * geometry.horizontal[0];
+    unitY = basePosition.y;
+    eye.y = unitY + offsetFactor * (*(f32 *)(primaryUnit + 0x8C) * *(f32 *)(primaryUnit + 0x2C));
+
+    if (!(crossProduct < 0.0f)) {
+        eye.x = basePosition.x + direction.z * radius;
+        eye.z = basePosition.z - direction.x * radius;
+    } else {
+        eye.x = basePosition.x - direction.z * radius;
+        eye.z = basePosition.z + direction.x * radius;
+    }
+
+    savedDirection = direction;
+    func_001bd780(&poses.secondRotation, &eye, &focus, D_0060A0E0);
+    func_003dcb40((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&poses.secondRotation);
+
+    geometry.focusXZ[0] = focus.x;
+    geometry.focusXZ[1] = focus.z;
+    geometry.eyeXZ[0] = eye.x;
+    geometry.eyeXZ[1] = eye.z;
+    baseXZ[0] = basePosition.x;
+    baseXZ[1] = basePosition.z;
+    projDist = func_001ec3d0((u8 *)geometry.focusXZ,
+                             (u8 *)geometry.eyeXZ,
+                             (u8 *)baseXZ,
+                             (u8 *)projectionXZ);
+    accumDist = projDist + radiusScale * (*(f32 *)(primaryUnit + 0x90) * *(f32 *)(primaryUnit + 0x2C));
+    eye.x = projectionXZ[0];
+    eye.y = unitY;
+    eye.z = projectionXZ[1];
+
+    tanFov = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+    distScale = accumDist / tanFov;
+    if (distScale < 500.0f) {
+        distScale = 500.0f;
+    }
+    direction.x *= distScale;
+    direction.y *= distScale;
+    direction.z *= distScale;
+
+    if (!(dotProduct < 0.0f)) {
+        if (crossProduct < 0.0f) {
+            eye.x += savedDirection.z * (*(f32 *)(primaryUnit + 0x90) * *(f32 *)(primaryUnit + 0x2C));
+            eye.z -= savedDirection.x * (*(f32 *)(primaryUnit + 0x90) * *(f32 *)(primaryUnit + 0x2C));
+        }
+    } else {
+        if (!(crossProduct < 0.0f)) {
+            eye.x -= savedDirection.z * (*(f32 *)(primaryUnit + 0x90) * *(f32 *)(primaryUnit + 0x2C));
+            eye.z += savedDirection.x * (*(f32 *)(primaryUnit + 0x90) * *(f32 *)(primaryUnit + 0x2C));
+        }
+    }
+
+    eye.y = unitY + heightFactor * (*(f32 *)(primaryUnit + 0x8C) * *(f32 *)(primaryUnit + 0x2C));
+    poses.second.x = eye.x + direction.x;
+    poses.second.y = eye.y + direction.y;
+    poses.second.z = eye.z + direction.z;
+
+    func_001bd560((f32 *)&poses.first, (f32 *)(arg0 + 0x9C));
+    if (!(func_001ec2b0(&poses.firstRotation, &poses.secondRotation) <= fGpffff8158)) {
+        func_001bd5e0((f32 *)&poses.first, (f32 *)&poses.second);
+        func_003dcb40((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&poses.firstRotation);
+        direction.x *= 150.0f;
+        direction.y *= 150.0f;
+        direction.z *= 150.0f;
+        poses.second.x += direction.x;
+        poses.second.y += direction.y;
+        poses.second.z += direction.z;
+        command = 3;
+        if (*(s32 *)(*(u8 **)(arg0 + 0xE0) + 0x88) == 0) {
+            func_004b3110(8);
+        }
+        var_f20 = 1.5f;
+    } else {
+        command = 0xC3;
+        var_f20 = fGpffff814c;
+    }
+
+    if (poses.first.y < 25.0f) {
+        poses.first.y = 25.0f;
+    }
+    if (poses.second.y < 25.0f) {
+        poses.second.y = 25.0f;
+    }
+
+    func_001bcd40(*(u8 **)(arg0 + 0xE0), secondaryUnit + 4, (u8 *)&poses.second, 50.0f, command);
+    func_001bac20((u16 *)arg0, (f32 *)&poses.first, (f32 *)&poses.second, 1);
+    func_001bbef0(arg0, var_f20);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c5500);
+#endif
 // FUN_001C5B80
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c5b80);
 // FUN_001C79E0
 void func_001c79e0(void) {}
-// FUN_001C79F0
+// FUN_001C79F0 NONMATCHING
+/* measured 001c79f0: 12 differing words via `python3 tools/probe_variants.py src/promoted/code1_001c.c func_001c79f0 --candidate fix1=/var/tmp/main/c79f0_fix1.c`; fnalign retail 448 vs object 448, 14 edits (+23 reloc-only); emitted 1792B/window 1792B. */
+/* 272->12 via if-branch outC0 add (retail add.s, not madd: base+dir, no extra *var_f20); FPU mtc1/swc1 coloring resolved as side effect. Pragmas on exact body: loopinv_on tie 12, sched_off tie 12, sched_on 388 worse, cse_off COMPILE ERROR -- none installed. Next: addiu 0x14c/0x148 hoist (insert29/delete32:34) via double-def pin; mul gp*len order 81:83; mul 0.21875 chains 142:145 + 379:382; lwc1 order 406/407. */
+#ifdef NON_MATCHING
+void func_001c79f0(u8 *arg0, s32 arg1)
+{
+    struct Frame {
+        u8 mat60[0x40];
+        f32 poseA0[7];
+        u8 padBC[4];
+        f32 outC0[3];
+        f32 quatCC[4];
+        f32 padDC;
+        f32 horizE0[2];
+        f32 actorE8[3];
+        f32 padF4;
+        f32 baseF8[3];
+        f32 pad104;
+        f32 eye108[3];
+        f32 pad114;
+        f32 target118[3];
+        f32 pad124;
+        f32 dir128[3];
+        f32 pad134;
+        f32 pos138[3];
+        f32 pad144;
+        f32 min148;
+        f32 max14C;
+    } frame;
+    extern f32 fGpffff8110;
+    extern f32 fGpffff8128;
+    extern f32 fGpffff812c;
+    extern f32 fGpffff8118;
+    extern f32 fGpffff8130;
+    extern f32 fGpffff8134;
+    extern f32 fGpffff8138;
+    extern f32 fGpffff813c;
+    extern f32 fGpffff8030;
+    extern void func_00195d50(u8 *arg0, f32 *arg1);
+    extern s32 func_002428f0(s32 arg0, s32 arg1);
+    extern s32 func_00243e30(s32 arg0);
+    extern s32 func_00242930(s32 arg0);
+    extern f32 func_0044b868(f32 arg0);
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+    f32 var_f24;
+    f32 var_f23;
+    f32 var_f22;
+    f32 var_f21;
+    f32 var_f20;
+    u8 *saved_arg0;
+    u8 *var17;
+    u8 *var16;
+    (void)arg1;
+
+    saved_arg0 = arg0;
+    if (*(u16 *)(saved_arg0 + 0x106) != 0) {
+        func_001bd560(frame.poseA0, (f32 *)(saved_arg0 + 0x9C));
+        var16 = *(u8 **)(*(u8 **)(saved_arg0 + 0xE0) + 0x30);
+        var_f20 = func_00196040(3, 0, (u8 *)frame.target118, 0, 0, 1);
+        func_00196040(1, 0, (u8 *)0, (s32)&frame.max14C, (s32)&frame.min148, 1);
+        frame.target118[1] = frame.min148 + 0.5f * (frame.max14C - frame.min148);
+        var_f20 = (0.75f * var_f20) / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
+        func_001958f0(var16, frame.actorE8);
+        frame.eye108[0] = frame.actorE8[0];
+        frame.eye108[1] = frame.target118[1];
+        frame.eye108[2] = frame.actorE8[2];
+        frame.dir128[0] = frame.actorE8[0] - frame.target118[0];
+        frame.dir128[1] = frame.target118[1] - frame.target118[1];
+        frame.dir128[2] = frame.actorE8[2] - frame.target118[2];
+        {
+            f32 tmpLen;
+            tmpLen = func_003e40b0((RwV3d *)frame.dir128, (const RwV3d *)frame.dir128);
+            tmpLen = tmpLen * fGpffff8128;
+            frame.dir128[0] = frame.dir128[0] * tmpLen;
+            frame.dir128[1] = frame.dir128[1] * tmpLen;
+            frame.dir128[2] = frame.dir128[2] * tmpLen;
+        }
+        frame.baseF8[0] = frame.target118[0] + frame.dir128[0];
+        frame.baseF8[1] = frame.target118[1] + frame.dir128[1];
+        frame.baseF8[2] = frame.target118[2] + frame.dir128[2];
+        frame.eye108[0] = frame.actorE8[0];
+        frame.eye108[1] = frame.max14C;
+        frame.eye108[2] = frame.actorE8[2];
+        func_001bd780((void *)frame.quatCC, (void *)frame.eye108, (void *)frame.baseF8, (void *)D_0060A0E0);
+        func_003dcb40((RwV3d *)frame.dir128, (const RwV3d *)D_0060A100, 1, (const RtQuat *)frame.quatCC);
+        frame.dir128[0] = frame.dir128[0] * var_f20;
+        frame.dir128[1] = frame.dir128[1] * var_f20;
+        frame.dir128[2] = frame.dir128[2] * var_f20;
+        var_f20 = var_f20 * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8))) * 0.21875f * fGpffff812c;
+        frame.horizE0[0] = frame.dir128[0];
+        frame.horizE0[1] = frame.dir128[2];
+        func_003e41e0(frame.horizE0, frame.horizE0);
+        frame.baseF8[0] = frame.horizE0[1] * var_f20 + frame.baseF8[0] + 0.0f;
+        frame.baseF8[2] = (frame.baseF8[2] + 0.0f) - frame.horizE0[0] * var_f20;
+        frame.outC0[0] = frame.baseF8[0] + frame.dir128[0];
+        frame.outC0[1] = frame.baseF8[1] + frame.dir128[1];
+        frame.outC0[2] = frame.baseF8[2] + frame.dir128[2];
+        func_001bc3a0(frame.outC0, frame.outC0);
+        func_001bac20((u16 *)saved_arg0, frame.poseA0, frame.outC0, 1);
+        func_001bbef0(saved_arg0, 0.75f);
+    } else {
+        *(s32 *)(saved_arg0 + 0x148) = 1;
+        var17 = func_001d8bc0(*(u8 **)(saved_arg0 + 0xE0) + 0x98);
+        var16 = *(u8 **)(var17 + 0x30);
+        var_f20 = *(f32 *)(var16 + 0x90) * *(f32 *)(var16 + 0x2C);
+        var_f24 = 0.5f * (*(f32 *)(var16 + 0x8C) * *(f32 *)(var16 + 0x2C));
+        if (func_002428f0(*(s32 *)(var16 + 0xA64), 0) != 0) {
+            func_00195d50(var16, frame.pos138);
+            var_f23 = 1.5f;
+            var_f22 = 3.5f;
+            var_f21 = 25.0f;
+            frame.pos138[1] = frame.pos138[1] - fGpffff8118 * var_f24;
+        } else if (func_00232710(*(s32 *)(var16 + 0xA64), 0x100000) != 0) {
+            func_00195850(var16, frame.pos138);
+            var_f23 = fGpffff8130;
+            var_f22 = fGpffff8134;
+            var_f21 = 25.0f;
+            frame.pos138[1] = frame.pos138[1] - fGpffff8118 * var_f24;
+        } else if (func_00243e30(*(s32 *)(var16 + 0xA64)) != 0) {
+            func_00195850(var16, frame.pos138);
+            var_f23 = fGpffff8138;
+            var_f22 = 0.75f;
+            var_f21 = 15.0f;
+            frame.pos138[1] = frame.pos138[1] + fGpffff8118 * var_f24;
+        } else if (func_00242930(*(s32 *)(var16 + 0xA64)) != 0) {
+            func_00195850(var16, frame.pos138);
+            var_f23 = fGpffff8138;
+            var_f22 = 1.0f;
+            var_f21 = 25.0f;
+            frame.pos138[1] = frame.pos138[1] - fGpffff8030 * var_f24;
+        } else {
+            func_00195850(var16, frame.pos138);
+            var_f23 = 1.25f;
+            var_f22 = 1.0f;
+            var_f21 = 25.0f;
+            frame.pos138[1] = frame.pos138[1] + fGpffff813c * var_f24;
+        }
+        if (var_f20 > var_f24) {
+            var_f20 = (var_f20 * var_f23) / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
+        } else {
+            var_f20 = (var_f24 * var_f23) / func_0044b868(0.5f * *(f32 *)(saved_arg0 + 0xB8));
+        }
+        func_003dcb40((RwV3d *)frame.dir128, (const RwV3d *)D_0060A0F0, 1, (const RtQuat *)(var16 + 0x1C));
+        func_003e0870((RwMatrix *)frame.mat60, (const RwV3d *)D_0060A0E0, var_f21, 0);
+        func_003e4320((RwV3d *)frame.dir128, (const RwV3d *)frame.dir128, (const RwMatrix *)frame.mat60);
+        var_f21 = var_f20 * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8))) * 0.21875f * fGpffff8118;
+        frame.horizE0[0] = frame.dir128[0];
+        frame.horizE0[1] = frame.dir128[2];
+        func_003e41e0(frame.horizE0, frame.horizE0);
+        frame.pos138[0] = frame.horizE0[1] * var_f21 + frame.pos138[0] + 0.0f;
+        frame.pos138[2] = (frame.pos138[2] + 0.0f) - frame.horizE0[0] * var_f21;
+        frame.outC0[0] = frame.pos138[0] + frame.dir128[0] * var_f20;
+        frame.outC0[1] = frame.pos138[1] + frame.dir128[1] * var_f20;
+        frame.outC0[2] = frame.pos138[2] + frame.dir128[2] * var_f20;
+        frame.outC0[1] = frame.pos138[1] + var_f24 * var_f22;
+        func_001bd780((void *)frame.quatCC, (void *)frame.outC0, (void *)frame.pos138, (void *)D_0060A0E0);
+        func_001bcd40(var17, (u8 *)0, (u8 *)0, 0.0f, 1);
+        func_001bab00(saved_arg0, (void *)frame.outC0);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c79f0);
+#endif
 // FUN_001C80F0
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c80f0);
 // FUN_001C88D0
@@ -1013,8 +1383,193 @@ INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c9820);
 void func_001ca550(u8 *arg0) {
     func_001c9820(arg0, 0, 0, 50.0f);
 }
-// FUN_001CA590
+// FUN_001CA590 NONMATCHING
+#ifdef NON_MATCHING
+/* measured 001ca590: 248 differing words via `python3 tools/probe_variants.py src/promoted/code1_001c.c func_001ca590 --candidate best=/var/tmp/main/ca590_best.c`; fnalign 464 retail vs 465 object, 66 edits (+15 reloc-only). */
+/* Work layout mirrors 001cacd0 (frames[2]+pad8+matrix+2 quats+perp/horiz+unit/actor/base/scaled/eye/diff/saved/eye2+xz, 0x140 bytes); retail-arbitrated 0.0f+adda/madd, 0.25*accum focus + 0.5*height staging, dual 003e41e0, mula/madd dot. */
+/* P01C_001ca590_body.c re-derived: COP1-floor note only, not a body. Pragmas swept on exact v1/v3: plain 248 best; loopinv 248 same; propoff 422; sched 428. No byte loads in window (lb/lbu N/A). Next: dot x-first order, dot2 !( <0) branch, decl-order f20/f21/f22 + distScale f23, double-def pinning for sunk address arithmetic. */
+void func_001ca590(u8 *arg0, f32 fparg0, f32 fparg1)
+{
+    struct Vec3 {
+        f32 x;
+        f32 y;
+        f32 z;
+    };
+    struct Quat {
+        f32 x;
+        f32 y;
+        f32 z;
+        f32 w;
+    };
+    struct Frame {
+        struct Vec3 pos;
+        struct Quat rot;
+    };
+    struct Work {
+        struct Frame frames[2];
+        u8 pad38[8];
+        u8 matrix[0x40];
+        struct Quat quatE0;
+        struct Quat quatF0;
+        f32 perp[2];
+        f32 horiz[2];
+        u8 padB0[8];
+        struct Vec3 unit;
+        u8 padC4[4];
+        struct Vec3 actor;
+        u8 padD4[4];
+        struct Vec3 base;
+        u8 padE4[4];
+        struct Vec3 scaled;
+        u8 padF4[4];
+        struct Vec3 eye;
+        u8 pad104[4];
+        struct Vec3 diff;
+        u8 pad114[4];
+        struct Vec3 saved;
+        u8 pad124[4];
+        struct Vec3 eye2;
+        u8 pad134[4];
+        f32 xz[2];
+    } work;
+    u8 *action;
+    u8 *s0;
+    u8 *s1;
+    f32 height;
+    f32 halfHeight;
+    f32 accum;
+    f32 dot;
+    f32 dot2;
+    f32 dot3;
+    f32 radius;
+    f32 tanRes;
+    f32 tanRes2;
+    f32 distScale;
+    f32 finalScale;
+    f32 proj1;
+    f32 proj2;
+    f32 len2;
+    f32 baseZ;
+    f32 zero;
+    extern f32 fGpffff8118;
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+    extern f32 func_003e41b0(f32 *arg0);
+    extern f32 fabsf(f32 x);
+    extern f32 func_001ec2b0(void *first, void *second);
+    extern f32 func_0044b868(f32 arg0);
+    extern void func_001bd560(f32 *arg0, f32 *arg1);
+    action = *(u8 **)(arg0 + 0xE0);
+    s0 = *(u8 **)(action + 0x30);
+    s1 = *(u8 **)(*(u8 **)(action + 0x38) + 0x30);
+    func_001bd560((f32 *)&work.frames[0], (f32 *)(arg0 + 0x9C));
+    work.actor.x = *(f32 *)(s0 + 0xDC);
+    work.actor.y = *(f32 *)(s0 + 0x84) * *(f32 *)(s0 + 0x2C);
+    work.actor.z = *(f32 *)(s0 + 0xE4);
+    func_00195850(s1, (f32 *)&work.unit);
+    height = (0.0f + work.actor.y + p4_cacd0_mul(*(f32 *)(s0 + 0x8C), *(f32 *)(s0 + 0x2C)) * fGpffff8118);
+    height += (0.0f + work.unit.y + p4_cacd0_mul(*(f32 *)(s1 + 0x8C), *(f32 *)(s1 + 0x2C)) * fGpffff8118);
+    accum = 0.0f + *(f32 *)(s0 + 0xE8) + *(f32 *)(s0 + 0x90) * *(f32 *)(s0 + 0x2C) + *(f32 *)(s1 + 0x90) * *(f32 *)(s1 + 0x2C);
+    work.unit.y = 0.0f;
+    work.actor.y = 0.0f;
+    zero = 0.0f;
+    work.diff.x = *(f32 *)(s0 + 0xDC) - work.unit.x;
+    work.diff.y = *(f32 *)(s0 + 0xE0) - zero;
+    work.diff.z = *(f32 *)(s0 + 0xE4) - work.unit.z;
+    func_003e40b0((RwV3d *)&work.diff, (const RwV3d *)&work.diff);
+    work.scaled.x = work.diff.x * (0.25f * accum);
+    work.scaled.y = work.diff.y * (0.25f * accum);
+    work.scaled.z = work.diff.z * (0.25f * accum);
+    work.scaled.x = work.scaled.x + work.unit.x;
+    work.scaled.y = work.scaled.y + work.unit.y;
+    work.scaled.z = work.scaled.z + work.unit.z;
+    halfHeight = p4_cacd0_mul(0.5f, height);
+    work.scaled.y = halfHeight;
+    *(f32 *)(arg0 + 0x10C) = 0.5f * *(f32 *)(s0 + 0xE8);
+    *(struct Vec3 *)(arg0 + 0x100) = work.scaled;
+    work.perp[0] = work.diff.z;
+    work.perp[1] = -work.diff.x;
+    work.horiz[0] = work.frames[0].pos.x - work.scaled.x;
+    work.horiz[1] = work.frames[0].pos.z - work.scaled.z;
+    func_003e41e0(work.perp, work.perp);
+    func_003e41e0(work.horiz, work.horiz);
+    work.saved.x = work.frames[0].pos.x - work.scaled.x;
+    work.saved.y = work.frames[0].pos.y - work.scaled.y;
+    work.saved.z = work.frames[0].pos.z - work.scaled.z;
+    dot = work.perp[1] * work.horiz[1] + work.perp[0] * work.horiz[0];
+    if (!(dot < 0.0f)) {
+        func_003e0870((RwMatrix *)work.matrix, (const RwV3d *)D_0060A0E0, fparg0, 0);
+    } else {
+        func_003e0870((RwMatrix *)work.matrix, (const RwV3d *)D_0060A0E0, -fparg0, 0);
+    }
+    func_003e4320((RwV3d *)&work.saved, (const RwV3d *)&work.saved, (const RwMatrix *)work.matrix);
+    work.saved.x = work.saved.x + work.scaled.x;
+    work.saved.y = work.saved.y + work.scaled.y;
+    work.saved.z = work.saved.z + work.scaled.z;
+    func_001bd780(&work.frames[1].rot, &work.saved, &work.scaled, D_0060A0E0);
+    if (accum < 400.0f) {
+        accum = 400.0f;
+    }
+    tanRes = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+    distScale = (0.5f * accum) / tanRes;
+    func_003dcb40((RwV3d *)&work.saved, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&work.frames[1].rot);
+    work.diff.y = work.saved.y;
+    func_003e40b0((RwV3d *)&work.diff, (const RwV3d *)&work.diff);
+    dot2 = work.saved.y * work.diff.y + work.saved.x * work.diff.x + work.saved.z * work.diff.z;
+    if (dot2 < 0.0f) {
+        radius = *(f32 *)(s1 + 0x90) * *(f32 *)(s1 + 0x2C);
+        func_001c_copy_pair((s64 *)&work.base.x, &work.base.z, (s64 *)&work.unit.x, &work.unit.z);
+    } else {
+        radius = *(f32 *)(s0 + 0x90) * *(f32 *)(s0 + 0x2C);
+        func_001c_copy_pair((s64 *)&work.base.x, &work.base.z, (s64 *)&work.actor.x, &work.actor.z);
+    }
+    work.eye2.x = 0.0f + work.unit.x + work.diff.z * radius;
+    work.eye2.y = work.scaled.y;
+    work.eye2.z = 0.0f + work.unit.z - work.diff.x * radius;
+    work.eye.x = work.eye2.x - work.scaled.x;
+    work.eye.y = work.scaled.y - work.scaled.y;
+    work.eye.z = work.eye2.z - work.scaled.z;
+    func_003e40b0((RwV3d *)&work.eye, (const RwV3d *)&work.eye);
+    dot3 = work.eye.y * work.diff.y + work.eye.x * work.diff.x + work.eye.z * work.diff.z;
+    if ((fabsf(dot2) > fabsf(dot3)) && (dot3 != 0.0f) && (dot2 != 0.0f)) {
+        work.xz[0] = work.scaled.x - work.base.x;
+        baseZ = work.base.z;
+        work.xz[1] = work.scaled.z - baseZ;
+        len2 = func_003e41b0(work.xz);
+        work.eye2.y = work.scaled.y + (halfHeight * len2) / distScale;
+        work.eye2.x = 0.0f + work.base.x + work.diff.z * radius;
+        work.eye2.z = 0.0f + baseZ - work.diff.x * radius;
+        func_001bd780(&work.quatE0, &work.eye2, &work.scaled, D_0060A0E0);
+        proj1 = func_001ec2b0(&work.frames[0].rot, &work.quatE0);
+        work.eye2.x = 0.0f + work.base.x - work.diff.z * radius;
+        work.eye2.z = 0.0f + baseZ + work.diff.x * radius;
+        func_001bd780(&work.quatF0, &work.eye2, &work.scaled, D_0060A0E0);
+        proj2 = func_001ec2b0(&work.frames[0].rot, &work.quatF0);
+        if (proj1 < proj2) {
+            work.frames[1].rot = work.quatE0;
+        } else {
+            work.frames[1].rot = work.quatF0;
+        }
+        func_003dcb40((RwV3d *)&work.saved, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&work.frames[1].rot);
+    }
+    work.saved.x = work.saved.x * distScale;
+    work.saved.y = work.saved.y * distScale;
+    work.saved.z = work.saved.z * distScale;
+    tanRes2 = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+    finalScale = (distScale * tanRes2) * 0.21875f;
+    work.xz[0] = work.saved.x;
+    work.xz[1] = work.saved.z;
+    func_003e41e0(work.xz, work.xz);
+    work.scaled.x = 0.0f + work.scaled.x + work.xz[1] * finalScale;
+    work.scaled.z = 0.0f + work.scaled.z - work.xz[0] * finalScale;
+    work.frames[1].pos.x = work.scaled.x + work.saved.x;
+    work.frames[1].pos.y = work.scaled.y + work.saved.y;
+    work.frames[1].pos.z = work.scaled.z + work.saved.z;
+    func_001bac20((u16 *)arg0, (f32 *)&work.frames[0].pos, (f32 *)&work.frames[1].pos, 1);
+    func_001bbef0(arg0, fparg1);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001ca590);
+#endif
 /* 1052/1056 bytes; 19 resolved relocations; four zero alignment bytes.
  * Build the current pose plus three orbit keys with a halfword frame index. */
 // FUN_001CACD0

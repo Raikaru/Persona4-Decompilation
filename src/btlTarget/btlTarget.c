@@ -193,8 +193,125 @@ s32 func_001ec8c0(f32* first, f32* second, f32* point, f32 threshold)
 /* corner/midpoint declaration swap 23, edge/next reorder 35, no-held-entry */
 /* recompute 223, edge double-def (mdlSE pattern) 230: pinning adds a live */
 /* range and spills instead of freeing vertex. Saved-register coloring floor. */
-// FUN_001ECA10
+// FUN_001ECA10 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_001eca10(u8 *first, u8 *second)
+{
+    extern f32 func_003e41b0(const f32 *vector);
+    u8 *node;
+    s32 blocked;
+    s32 i;
+    s32 j;
+    f32 delta[2];
+    f32 coordinate;
+
+    blocked = 0;
+    for (node = *(u8 **)(iGpffffb3ac + 0x318);
+         node != NULL && blocked == 0;
+         node = *(u8 **)(node + 0x4CC)) {
+        for (i = 0; i < 4; i++) {
+            u8 *vertex = node + i * 0x130;
+            f32 *corner;
+            f32 *midpointX;
+            f32 *midpointY;
+            f32 *edge;
+            f32 *next;
+            s32 side_a;
+            s32 side_b;
+            s32 intersects;
+
+            if (*(f32 *)(vertex + 0x1C) <= 0.0f) {
+                continue;
+            }
+            corner = (f32 *)(vertex + 8);
+            if ((u8 *)corner == first || (u8 *)corner == second) {
+                continue;
+            }
+            midpointX = (f32 *)(vertex + 0x10);
+            coordinate = *midpointX;
+            delta[0] = coordinate - *(f32 *)(first + 8);
+            midpointY = (f32 *)(vertex + 0x14);
+            coordinate = *midpointY;
+            delta[1] = coordinate - *(f32 *)(first + 0xC);
+            if (func_003e41b0(delta) < 1.0f) {
+                continue;
+            }
+            coordinate = *midpointX;
+            delta[0] = coordinate - *(f32 *)(second + 8);
+            coordinate = *midpointY;
+            delta[1] = coordinate - *(f32 *)(second + 0xC);
+            if (func_003e41b0(delta) < 1.0f) {
+                continue;
+            }
+            next = *(f32 **)(node + i * 0x130 + 0x18);
+            edge = (f32 *)(node + i * 0x130 + 8);
+            side_a = func_001ecde0(edge, next, (f32 *)(first + 8));
+            side_b = func_001ecde0(edge, next, (f32 *)(second + 8));
+            if (side_a != side_b) {
+                side_a = func_001ecde0((f32 *)(first + 8),
+                                     (f32 *)(second + 8), corner);
+                side_b = func_001ecde0((f32 *)(first + 8),
+                                     (f32 *)(second + 8), next);
+                if (side_a != side_b) {
+                    intersects = 1;
+                } else {
+                    intersects = 0;
+                }
+            } else {
+                intersects = 0;
+            }
+            if (intersects != 0) {
+                blocked = 1;
+                break;
+            }
+        }
+        if (blocked != 0) {
+            continue;
+        }
+        if ((*(f32 *)(node + 8) < *(f32 *)(first + 8)) &&
+            (*(f32 *)(node + 0xC) < *(f32 *)(first + 0xC)) &&
+            !(*(f32 *)(node + 0x268) <= *(f32 *)(first + 8)) &&
+            !(*(f32 *)(node + 0x26C) <= *(f32 *)(first + 0xC))) {
+            continue;
+        }
+        if ((*(f32 *)(node + 8) < *(f32 *)(second + 8)) &&
+            (*(f32 *)(node + 0xC) < *(f32 *)(second + 0xC)) &&
+            !(*(f32 *)(node + 0x268) <= *(f32 *)(second + 8)) &&
+            !(*(f32 *)(node + 0x26C) <= *(f32 *)(second + 0xC))) {
+            continue;
+        }
+        for (j = 0; j < 4; j++) {
+            s32 wrap = (j + 1) & 3;
+            f32 *next = (f32 *)(node + wrap * 0x130 + 8);
+            f32 *edge = (f32 *)(node + j * 0x130 + 8);
+            s32 intersects;
+            s32 side_a = func_001ecde0(edge, next, (f32 *)(first + 8));
+            s32 side_b = func_001ecde0(edge, next, (f32 *)(second + 8));
+
+            if (side_a != side_b) {
+                side_a = func_001ecde0((f32 *)(first + 8),
+                                     (f32 *)(second + 8), edge);
+                side_b = func_001ecde0((f32 *)(first + 8),
+                                     (f32 *)(second + 8), next);
+                if (side_a != side_b) {
+                    intersects = 1;
+                } else {
+                    intersects = 0;
+                }
+            } else {
+                intersects = 0;
+            }
+            if (intersects != 0) {
+                blocked = 1;
+                break;
+            }
+        }
+    }
+    return blocked;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/btlTarget", func_001eca10);
+#endif
 // FUN_001ECDE0
 /* Private leaf: all twelve retail calls belong to this geometry unit. */
 static s32 func_001ecde0(const f32* param_1, const f32* param_2, const f32* param_3)
