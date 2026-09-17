@@ -1,10 +1,12 @@
-/* Re-measured 2026-09-02 (Main): object 308B / window 320B / nd12, saved-register colouring only.
-   The two post-store reloads (`sw v0,0xc(s2); lw s3,0xc(s2)` and `sw s0,0x10(s2); lw v0,0x10(s2)`)
-   are NOT reachable by types, aliases, opt_propagation/opt_common_subs off - store-to-load forwarding
-   is a PEEPHOLE in b210 and `#pragma peephole off` reproduces both reloads exactly. Remaining: retail
-   colours ctx s0, flag s1, arg0 s2, node s3, obj s4, env s5; b210 puts the parameter park in the
-   highest slot of the outer locals (node s2 / arg0 s3) unless node is block-scoped, which then
-   swaps node/obj (this body). Nested blocks and declaration permutations tried (12 variants). */
+/* Re-measured 2026-09-02 (Main): object 308B / window 320B / nd12, saved-register colouring only. */
+/* Re-measured 2026-09-17: probe_archive 308B/320B 12 words; fnalign edit 14; */
+/* bounded family ctx/flag order swap gives 21, tmp-inside-block retains 12; no MATCH. */
+/*   The two post-store reloads (`sw v0,0xc(s2); lw s3,0xc(s2)` and `sw s0,0x10(s2); lw v0,0x10(s2)`) */
+/*   are NOT reachable by types, aliases, opt_propagation/opt_common_subs off - store-to-load forwarding */
+/*   is a PEEPHOLE in b210 and `#pragma peephole off` reproduces both reloads exactly. Remaining: retail */
+/*   colours ctx s0, flag s1, arg0 s2, node s3, obj s4, env s5; b210 puts the parameter park in the */
+/*   highest slot of the outer locals (node s2 / arg0 s3) unless node is block-scoped, which then */
+/*   swaps node/obj (this body). Nested blocks and declaration permutations tried (12 variants). */
 // measured: schedule on fills the call delay slots in func_003a8500.
 #pragma schedule on
 // measured: no_branch_likely on keeps func_003a8500's null tests as plain beq.
