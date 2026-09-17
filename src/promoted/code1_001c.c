@@ -763,6 +763,23 @@ void func_001c52c0(u8 *arg0)
         return;
     }
 }
+/* measured 001c5500 (pragma exhaustion): all eight cheap pragmas and all
+   twenty-eight pairs measured via `tools/pragma_sweep.py --pairs`; nothing
+   beats the banked 78.  `opt_loop_invariants on`, `opt_strength_reduction
+   off`, `opt_unroll_loops off` and their pairs tie at 78; `opt_propagation
+   off` and `opt_dead_assignments off` cost 313; `peephole off` pairs 310-325.
+   Source shapes also measured flat at 78: a two-temp hoist of
+   geometry.horizontal[0]/[1] before the cross product, swapping the two
+   cross-product terms (crossflip 311 words but only 13 edits - a different
+   shape, not an improvement), commuting each product, and all four
+   permutations of the tanFov/distScale/var_f20 declarations.  Inlining
+   unitY costs 354 and adding a baseZ temp 308.
+   WALL, two causes at an exact 416/416: retail loads geometry.horizontal[0]
+   (sp+0xc8) before [1] (sp+0xcc) although [1] is consumed first by the
+   `mula.s`; and retail holds basePosition.y in $f20 with basePosition.z in
+   $f21 while b210 assigns them the other way round, which also shifts the
+   low FPRs by one ($f5/$f6 for the zero compare, $f4/$f5 for the negate,
+   $f6/$f7 for three multiplies).  Both are allocation, not spelling. */
 // FUN_001C5500 NONMATCHING
 /* measured 001c5500: 78 differing words guarded via `python3 tools/measure_guarded.py src/promoted/code1_001c.c func_001c5500`; fnalign retail 416 vs object 416, 15 edits (+8 reloc-only). Decisive lever: truthful `extern f32 func_0044b868(f32)` block decl (implicit int return emitted mtc1/cvt plus cascade) moved the same body from 249 to 78. Defect class: a missing float return type on an extern, invisible until you spot a stray `cvt.s.w` in your object that retail does not have — check every float-returning callee's declaration when one appears. */
 /* Fresh independent-object layout (251w) beats explicit Frame pads (389w/392w); dot/cross decl swap fixes $f24 (251w to 249w); binary (u8*,s32) ties unary with no caller migration. Pragmas swept scoped on exact body: schedule on 387, commons off 457, loopinv on tie, prop off 306 — neutral/worse, none installed. Top remaining: mtc1 $zero $f5 vs $f6 extra live temp at dot compare, 1.5f ($f23) hoist before base copy, mul $f6 vs $f7, $f20/$f21 cycle (div/cvt region already fixed by 0044b868 prototype). */

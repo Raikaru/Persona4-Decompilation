@@ -626,6 +626,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00302770);
    WALL: retail keeps the per-case loop counters in temps ($a1/$a3/$a2) and splits
    j/k across $s5/$s3, while this build holds j in $s3 throughout.  Block-scoped per-case counters (240)
    and 200 declaration orders were measured. */
+/* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/Event/Fcl/y_fclCombine.c func_00303610 --pairs` banked 27 (already carries opt_loop_invariants on); best ties 27 (loopinv alone plus four loopinv+second combos); bare without loopinv is 132, so the banked pragma stays load-bearing. All 28 pairs neutral or worse (commons 240-261, schedule 235-247, peephole 275-339). fnalign retail/object 259/259 per assignment. Floor stands; production stays ASM. */
 // FUN_00303610 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
