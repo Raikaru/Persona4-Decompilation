@@ -420,17 +420,17 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00302770);
 /* wave 14: signature re-checked via the m2c oracle and the retail prologue
    (dsll32 $16,$5,24 / dsra32 = byte sign-extend): arg1 IS s8; the m2c's
    s64 arg1 is widening noise. */
-/* Floor: 32 differing words (the wave-14 attempt measured 131 and kept no
+/* Floor: 27 differing words / 35 edits (was 32 words / 37 edits; wave-14 attempt measured 131 and kept no
    body).  Two things carried it: `arg2` is a `u16 *`, so the draft's
    `*(u8 *)(arg2 + j * 2)` double-scales - plain `arg2[j]` gives retail's
    `sll 1` plus `lhu` - and `opt_loop_invariants on` hoists the constant 1
    that every case's flag set reuses, which is the const-hoist the earlier
    note identified but did not close (145 -> 44 words on its own).
-   WALL: retail keeps the per-case loop counters in temps ($a1) and splits
-   j/k across $s5/$s3, while this build holds j in $s3 throughout, and it
-   sets the flag to zero before computing the rule address rather than
-   after.  Block-scoped per-case counters (240) and 200 declaration orders
-   were measured. */
+   measured: hoisting `i = 0` above `count`/`last` (retail rule,i,count,last order) removes the early
+   `move $s6` scheduling split (37 -> 35 edits, 32 -> 27 words; fnalign retail/object 259/259 instrs).
+   WALL: retail keeps the per-case loop counters in temps ($a1/$a3/$a2) and splits
+   j/k across $s5/$s3, while this build holds j in $s3 throughout.  Block-scoped per-case counters (240)
+   and 200 declaration orders were measured. */
 // FUN_00303610 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -453,9 +453,10 @@ s32 func_00303610(u8 *arg0, s8 arg1, u16 *arg2)
         return 1;
     }
     rule = D_0063FCA0 + index * 0x1C;
+    i = 0;
     count = arg1;
     last = arg2 + count;
-    for (i = 0; i < 3; i++) {
+    for (; i < 3; i++) {
         kind = *(s8 *)(rule + 2);
         if (kind == 0) {
             continue;
@@ -957,11 +958,15 @@ s32 func_00308e50(u8 *arg0) {
    and every residual row are saved-register swaps that resist decl order
    (all probed). No wave-14 lever applies (no global base, no jtbl reload,
    no addu-order site). Best measured nd 182 unchanged. */
+/* measured: `s32 raw` (retail sra, not dsra) + reuse first-block nibbles in the 1307/1306 arm
+   (raw is saved across the flag loop, so the 4-line recompute is redundant and made the first
+   block dead; retail reuses). Words 372 -> 356, edits 179 -> 171 (fnalign retail 428 / object 449-450
+   instrs, window 1712B); frame 0x70 vs 0x60 + saved-reg rotation remain the WALL. */
 /* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
 // FUN_00308F40 NONMATCHING
 #ifdef NON_MATCHING
 void func_00308f40(void) {
-    s64 raw;
+    s32 raw;
     s64 n0;
     s64 n1;
     s64 n2;
@@ -998,10 +1003,6 @@ void func_00308f40(void) {
         i++;
     }
     if ((func_00106330(0x1307) == 0) && (func_00106330(0x1306) != 0)) {
-        n3 = (s8)((raw >> 0xC) & 0xF);
-        n2 = (s8)((raw >> 8) & 0xF);
-        n1 = (s8)((raw >> 4) & 0xF);
-        n0 = (s8)(raw & 0xF);
         n3 = (s8)func_002b2cb0((s32)n3, 1, 6, 0, 1);
         packed = ((n3 & 0xF) << 0xC) | ((n2 & 0xF) << 8) |
                  ((n1 & 0xF) << 4) | (n0 & 0xF);
@@ -1148,7 +1149,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_003097e0);
    base, no jtbl reload, no addu-order site; residuals are the frame-size/saved-
    reg map (retail 0xB0 with a never-used $s6 vs mwcc 0xA0 six-save) and the
    switch/loop register schedule. opt_propagation off not applicable
-   (multi-store switch). Best nd ~N/A unchanged. */
+   (multi-store switch). Best nd 90 edits / 139 words (switch; was ~N/A unmeasured). */
 /* measured: retail's frame is 0xB0 with 7 saved GPR slots ($s6 saved but
    never used) while mwcc b210 allocates 6 saved regs (frame 0xA0), and the
    whole saved-register map rotates (mine arg0=$s1,p=$s0 vs retail
@@ -1156,9 +1157,150 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_003097e0);
    reversed tests, 4 separate s64 vector locals + 4 FclByte4 color locals,
    26.0f/cvt.s.w int-to-float args, per-call lbu/sb color copies, the
    6-way func_002b6970 guard, bit-flag dispatch chain, e/lim/k loop.
-   Frame-size + saved-register rotation floor. */
-// FUN_0030B060
+   measured: switch (C2,C3,C4 source order) vs if-chain fixes the dispatch layout
+   (386 -> 139 words, 583 -> 90 edits [+6 reloc]; fnalign retail 468 / object 470
+   instrs, window 1872B / object 1880B). Residual WALL is frame-size + rotation plus
+   the 4-byte colour load-all-store-all vs interleaved lbu/sb schedule and 8B size shift. */
+// FUN_0030B060 NONMATCHING
+#ifdef NON_MATCHING
+void func_0030b060(u8 *arg0)
+{
+    u8 *p;
+    u8 kind;
+    s16 i;
+    s16 j;
+    s16 e;
+    s16 k;
+    s16 lim;
+    s64 v0;
+    s64 v1;
+    s64 v2;
+    s64 v3;
+    FclByte4 c0;
+    FclByte4 c1;
+    FclByte4 c2;
+    FclByte4 c3;
+    u8 *te;
+    s8 t;
+
+    p = *(u8 **)(arg0 + 0x38);
+    kind = *(p + 1);
+    switch (kind) {
+    case 0xC2:
+        *(s16 *)(p + 0x120) = 0;
+        *(s16 *)(p + 0x11E) = 0;
+        func_003205f0(arg0, 0x97, 0x96);
+        for (i = 0; i < 8; i++) {
+            func_002b68d0((s16)(i + 0x179), 0, 1);
+        }
+        for (j = 0; j < 6; j++) {
+            func_002b2970(&v0, 26.0f, (f32)(j * 0x22 + 0x57));
+            func_003147e0(arg0, (s8)j, v0, (s16)(j + 0x179), (s16)(j * 2 + 2), 0);
+        }
+        func_002b2a60(&c0, 0xC6, 0xEE, 1, 0xFF);
+        te = func_002b6150((s16)(*(s16 *)(p + 0x11E) * 2 + 500));
+        *(te + 0x85) = c0.b0;
+        *(te + 0x86) = c0.b1;
+        *(te + 0x87) = c0.b2;
+        *(te + 0x88) = c0.b3;
+        func_002b2a60(&c1, 0xC6, 0xEE, 1, 0xFF);
+        te = func_002b6150((s16)(*(s16 *)(p + 0x11E) * 2 + 501));
+        *(te + 0x85) = c1.b0;
+        *(te + 0x86) = c1.b1;
+        *(te + 0x87) = c1.b2;
+        *(te + 0x88) = c1.b3;
+        func_002b2a60(&c2, 0x2D, 0x2D, 0x2D, 0xFF);
+        te = func_002b6150((s16)(*(s16 *)(p + 0x11E) + 0x179));
+        *(te + 0x85) = c2.b0;
+        *(te + 0x86) = c2.b1;
+        *(te + 0x87) = c2.b2;
+        *(te + 0x88) = c2.b3;
+        func_002b2a60(&c3, 0x92, 0xC8, 7, 0xFF);
+        te = func_002b6150((s16)(*(s16 *)(p + 0x120) + 0x2FB));
+        *(te + 0x85) = c3.b0;
+        *(te + 0x86) = c3.b1;
+        *(te + 0x87) = c3.b2;
+        *(te + 0x88) = c3.b3;
+        func_002b2970(&v1, D_00640D78[0], D_00640D78[1]);
+        func_00324f80(arg0, v1, 1, 0);
+        *(s32 *)(p + 0x124) = 0x428F0000;
+        *(p + 1) = 0xC3;
+        break;
+    case 0xC3:
+        if ((s16)func_002b6970(*(s16 *)(func_002b6150(500) + 0x10), 1) != 1) {
+            if ((s16)func_002b6970(*(s16 *)(func_002b6150(502) + 0x10), 1) != 1) {
+                if ((s16)func_002b6970(*(s16 *)(func_002b6150(504) + 0x10), 1) != 1) {
+                    if ((s16)func_002b6970(*(s16 *)(func_002b6150(506) + 0x10), 1) != 1) {
+                        if ((s16)func_002b6970(*(s16 *)(func_002b6150(508) + 0x10), 1) != 1) {
+                            if ((s16)func_002b6970(*(s16 *)(func_002b6150(510) + 0x10), 1) != 1) {
+                                if ((D_008C0276[0] & 0x1000) && (*(p + 0x13A) == 0)) {
+                                    func_00330060(arg0, 5);
+                                    return;
+                                }
+                                if (D_008C027A[0] & 0x1000) {
+                                    func_00330060(arg0, 1);
+                                    return;
+                                }
+                                if ((D_008C0276[0] & 0x4000) && (*(p + 0x13A) == 0)) {
+                                    func_00330060(arg0, 4);
+                                    return;
+                                }
+                                if (D_008C027A[0] & 0x4000) {
+                                    func_00330060(arg0, 0);
+                                    return;
+                                }
+                                if (D_008C027A[0] & 0x8000) {
+                                    func_00330060(arg0, 3);
+                                    return;
+                                }
+                                if (D_008C027A[0] & 0x2000) {
+                                    func_00330060(arg0, 2);
+                                    return;
+                                }
+                                if (D_008C024E[0] & 0x40) {
+                                    func_0045af60(0, 0, 0, 1);
+                                    t = func_002bab80((void *)func_00331660());
+                                    *(p + 0xD) = t;
+                                    func_002badc0(t, *(s16 *)(p + 0x11E) + 0x58);
+                                    *(p + 1) = 0xC4;
+                                } else if (D_008C024E[0] & 0x20) {
+                                    func_0045af60(0, 0, 0, 2);
+                                    func_003205f0(arg0, 0x96, 0x97);
+                                    func_002b2970(&v2, D_00640D78[0], D_00640D78[1]);
+                                    func_00324f80(arg0, v2, 1, 1);
+                                    e = *(s16 *)(p + 0x11E) - *(s16 *)(p + 0x120);
+                                    k = 0;
+                                    lim = e + 6;
+                                    for (; e < lim; e++, k++) {
+                                        func_002b2970(&v3, 26.0f, (f32)(k * 0x22 + 0x57));
+                                        func_003147e0(arg0, (s8)k, v3, (s16)(e + 0x179), (s16)((5 - k) * 2), 1);
+                                    }
+                                    func_002eb270(arg0, 0);
+                                    *p = 0;
+                                    *(p + 1) = 0x1A;
+                                }
+                                *(p + 0x13A) = 0;
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        break;
+    case 0xC4:
+        if (func_002bb680(*(p + 0xD)) != 0) {
+            func_002bbcf0(*(p + 0xD));
+        } else {
+            func_002bb550(*(p + 0xD));
+            *(p + 1) = 0xC3;
+        }
+        break;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030b060);
+#endif
 
 /* wave 14: signature re-checked via the m2c oracle (void func_0030b7b0(u8 *
    arg0) — correct). All wave-14 levers checked: no global base, no jtbl

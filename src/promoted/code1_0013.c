@@ -256,15 +256,22 @@ s32 func_00130600(u8 *arg0) {
     }
     return flag & func_0034c210();
 }
-/* Model floor (1456B window; obj ~1440B). Best probe nd ~302.
-   WINS applied: 68cb0 arm-flip recipe (negated + split arms ->
-   c.le+bc1t small-first, all 3 convs), reassign int->float,
-   trunc idiom, 1.0f init, b2 addu order.
-   WALLS (coloring chaos, 12 inert probes): unmerge-wall (b0/b1
+/* Model floor (1456B window; obj 1452B). Probe 304 words (verify nd 918),
+   fnalign 433 edits (was 445; shortfall vanished 361-vs-359 -> 363-vs-363).
+   WINS this round: spd 12B array (matched func_00367940 tmp[12] idiom;
+   208/214/216 exact, +14 layout fixed, dead li+sw/sh kept via alias),
+   loop %10 without fresh andi (retail reuses test $2, no extra andi).
+   Prior WINS kept: 68cb0 arm-flip (c.le+bc1t small-first, all 3 convs),
+   reassign int->float, trunc idiom, 1.0f init, b2 addu order.
+   slti check: exclusive <0xA kept ($at wall none; <=0xA neutral at 302).
+   WALLS (coloring chaos, ~27 inert probes total): unmerge-wall (b0/b1
    identical RHS merges to s5-sum; retail i21 in s5 + v-temp sums
    + pp s5-reuse), t30 spill (sq/lq@192, s16-narrow), pp2 dup,
-   s/f-rotations, +14 layout, temp-reg names. D_0064 rows are
-   reloc phantoms. Resume: unmerge breakthrough or allocator key.
+   s/f-rotations, f12t offset (220 vs 200), temp-reg names. D_0064 rows
+   are reloc phantoms. This round inert: final-reassign, loop-mask alone,
+   slti-inclusive, dead else-if, i21/bb orders, decl reorder, b2 order,
+   pragmas, unmerge split, pp+4. Resume: declaration-order/allocator key
+   for f12t, then t30 narrow.
 */
 // FUN_00130680 NONMATCHING
 #ifdef NON_MATCHING
@@ -274,9 +281,7 @@ void func_00130680(u8 *arg0, s32 arg1)
     s32 b2;
     f32 f24g;
     s32 v23;
-    s16 spd0;
-    s32 spd8;
-    s16 spd6;
+    u8 spd[12];
     f32 f22;
     f32 f21;
     s32 tu0;
@@ -307,9 +312,9 @@ void func_00130680(u8 *arg0, s32 arg1)
     t30 = *(s16 *)(b2 + (s32)arg0 + 0x34);
     f24g = 1.0f;
     v23 = 0;
-    func_0011fd30(&spd0);
-    spd8 = 1;
-    spd0 = t30;
+    func_0011fd30((s16 *)spd);
+    *(s32 *)(spd + 8) = 1;
+    *(s16 *)spd = t30;
     f22 = *(f32 *)(arg0 + 4);
     f21 = *(f32 *)(arg0 + 8);
     tu0 = *(u8 *)(arg0 + 0);
@@ -324,12 +329,12 @@ void func_00130680(u8 *arg0, s32 arg1)
     t3 = *(s32 *)(arg0 + 0x14);
     if (((t3 & 0x10) != 0 && *(s16 *)(arg0 + 0x26) == arg1) || ((t3 & 0x20) != 0)) {
         v23 = 1;
-        spd6 = 1;
+        *(s16 *)(spd + 6) = 1;
         pb0 = D_0064B2E8;
         pb1 = &D_0064B2E8[4];
         pb2 = &D_0064B2E8[20];
     } else {
-        spd6 = 0;
+        *(s16 *)(spd + 6) = 0;
         pb0 = D_0064B2E0;
         pb1 = &D_0064B2E0[16];
         pb2 = &D_0064B2E0[40];
@@ -356,7 +361,7 @@ void func_00130680(u8 *arg0, s32 arg1)
         mbyte &= 0xFF;
     }
     s3v = mbyte & 0xFF;
-    func_0011fd50(*(s64 *)&f12t, mbyte & 0xFF, &spd0, 0, 0.0f);
+    func_0011fd50(*(s64 *)&f12t, mbyte & 0xFF, (s16 *)spd, 0, 0.0f);
     bb = (u8 *)(i21 + (s32)arg0);
     tu2 = *(u8 *)(bb + 0x1622);
     if (tu2 >= 0) {
@@ -393,7 +398,7 @@ void func_00130680(u8 *arg0, s32 arg1)
         f12t = f12t - 11.0f;
     }
     while ((dc & 0xFF) > 0) {
-        func_0034f2e0(*(void **)((s32)arg0 + (((dc & 0xFF) % 10) * 4) + 0x1BA4),
+        func_0034f2e0(*(void **)((s32)arg0 + ((dc % 10) * 4) + 0x1BA4),
                       f12t, f13t, pb1[0], pb1[1], pb1[2], s3v);
         f12t = f12t - 22.0f;
         dc = ((u32)(dc & 0xFF) / 10U) & 0xFF;
