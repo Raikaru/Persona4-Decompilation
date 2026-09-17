@@ -805,7 +805,224 @@ loop_5_check:
     func_00106390(0x3E, 0);
 }
 // FUN_00111BC0
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00111bc0);
+#pragma opt_propagation off
+void func_00111bc0(void)
+{
+    s32 saved;
+    s32 value;
+    s32 end_date;
+    s32 result;
+    s32 count;
+    s8 flag;
+    s32 i;
+    s32 buf[344];
+    s32 func_001064f0(s32);
+    void func_00106550(s32, u32);
+    s32 func_00106600(s16);
+    s32 func_00106330(s32);
+    void func_00106390(s32, s32);
+    s16 func_00104ea0(s16, s16);
+    u32 func_00105ed0(void);
+    void func_00105fa0(u32);
+    void func_00106620(s32, s32);
+    void func_001051a0(s16, s16, s16);
+    u32 func_00110460(void);
+    void func_00110470(u32);
+    void func_00310700(void);
+    void func_00310850(void);
+    extern float D_005E4700[4];
+    typedef struct { float a; float b; float c; float d; } Vec4;
+    saved = iGpffffb19c;
+    count = 0;
+    flag = 0;
+    *(Vec4 *)buf = *(Vec4 *)D_005E4700;
+    value = func_001064f0(0x7C);
+    end_date = (s32)func_00110460() + 1;
+    if ((func_00106600(0x4A0) & 0xFF) > 0) {
+        buf[4] = 0x4A0;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4A1) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4A1;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4A2) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4A2;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4A3) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4A3;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4A4) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4A4;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4A5) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4A5;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4A6) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4A6;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4A7) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4A7;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4A8) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4A8;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4A9) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4A9;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4AA) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4AA;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4AB) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4AB;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4AC) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4AC;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4AD) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4AD;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4AE) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4AE;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4AF) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4AF;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4B0) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4B0;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4B1) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4B1;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4B2) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4B2;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x4B3) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x4B3;
+        count = (count + 1) & 0xFF;
+    }
+    if ((func_00106600(0x418) & 0xFF) > 0) {
+        buf[4 + (count & 0xFF)] = 0x418;
+        count = (count + 1) & 0xFF;
+    }
+    if (func_00106330(0x2F) != 0) {
+        flag = 1;
+    }
+    if (func_00106330(0x1DD) != 0) {
+        flag = 1;
+    }
+    i = 0;
+    goto loop1_check;
+loop1:
+    buf[332 + i] = func_00106330(i + 0x39);
+    i++;
+loop1_check:
+    if (i < 7) {
+        goto loop1;
+    }
+    result = 0;
+    goto loop2_check;
+loop2:
+    {
+        s32 *p = &buf[result];
+        s32 v = *p;
+        if (v == 0) {
+            goto loop2_done;
+        }
+        buf[132 + result] = func_00106330(v);
+        result++;
+    }
+loop2_check:
+    if (result < 200) {
+        goto loop2;
+    }
+loop2_done:
+    func_00310700();
+    i = 0;
+    goto loop3_check;
+loop3:
+    ((s16 *)buf)[680 + i] = func_00104ea0(1, (s16)i);
+    i++;
+loop3_check:
+    if (i < 5) {
+        goto loop3;
+    }
+    result = (s32)func_00105ed0();
+    func_001113b0();
+    i = 0;
+    goto loop4_check;
+loop4:
+    func_00106390(i + 0x39, buf[332 + i]);
+    i++;
+loop4_check:
+    if (i < 7) {
+        goto loop4;
+    }
+    i = 0;
+    goto loop5_check;
+loop5:
+    {
+        s32 *p = &buf[i];
+        s32 v = *p;
+        if (v == 0) {
+            goto loop5_done;
+        }
+        func_00106390(v, buf[132 + i]);
+        i++;
+    }
+loop5_check:
+    if (i < 200) {
+        goto loop5;
+    }
+loop5_done:
+    i = 0;
+    count &= 0xFF;
+    goto loop6_check;
+loop6:
+    func_00106620(((s16 *)buf)[8 + i * 2], 1);
+    i++;
+loop6_check:
+    if (i < count) {
+        goto loop6;
+    }
+    if (flag == 1) {
+        func_00106390(0x1DD, 1);
+    }
+    func_00310850();
+    func_00106390(0x1210, 1);
+    func_00106550(0x7C, (u32)value);
+    func_00110470((u32)end_date);
+    i = 0;
+    goto loop7_check;
+loop7:
+    func_001051a0(1, (s16)i, ((s16 *)buf)[680 + i]);
+    i++;
+loop7_check:
+    if (i < 5) {
+        goto loop7;
+    }
+    func_00105fa0((u32)result);
+    func_00106390(0x800, 1);
+    iGpffffb19c = saved;
+}
+#pragma opt_propagation on
 // FUN_00112300
 void func_00112300(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2)
 {
