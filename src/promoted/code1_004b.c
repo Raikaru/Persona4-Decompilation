@@ -609,6 +609,11 @@ s32 func_004b2780(u8 *arg0) {
 }
 /* measured: close the opt_propagation bracket around func_004b2780. */
 #pragma opt_propagation on
+/* Archived C body: docs/probe_archive/C4B_004b2a00_body.c (v10); object 1016B; */
+/* retail window 1024B; 17 reloc-masked differing words. Remaining: or-dest */
+/* v0-vs-v1 wall at six sites plus (u8)-conversion f-reg f1-vs-f0 wall at five */
+/* rows; single-expr/split/two-temp and separate div-result variants inert. */
+/* Fnalign edit 17 plus six reloc-only pairs; production remains ASM. */
 // FUN_004B2A00 NONMATCHING
 #ifdef SKIP_ASM
 #pragma opt_propagation off

@@ -1,3 +1,7 @@
+/* Re-measured 2026-09-17: probe_archive 964B/976B 23 words; fnalign edit 32 plus */
+/* one reloc-only pair. slti-<= lever: for (i<=3)/for (j<=3) gives 26 vs 23 for */
+/* for (i<4)/for (j<4); retail slti $v0 constant 4, so <=3/$at worse. No slt-$at */
+/* entry-guard wall and no trailing-dead-arm cascade in this TU. */
 /* Complete ordinary-C geometry graph caller; production remains ASM.
  * func_001eca10: 964 executable bytes in the 976-byte retail window;
  * final twelve retail bytes are zero alignment. All eleven relocations

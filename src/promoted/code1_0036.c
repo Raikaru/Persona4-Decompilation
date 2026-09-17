@@ -261,6 +261,8 @@ void func_00361ca0(u8 *arg0) {
     }
   }
 
+/* measured: retail window 2320B to func_00362630, frame 0x210 (sq s16-s23,s30,ra + swc1 f20-f25); 231 emitted instrs per assignment (580 words window includes padding/next). */
+/* measured: CFG top-down: half-u8-to-float (bltz/srl/andi/or/mtc1/cvt/add) + div 255, three func_00106330 probes (+0x100/+0x180/+0x140), bne fork on day-index vs s16+0x2A into mirrored colour-table blocks (D_0064B2E0-EA/EC-EE), shared tail via func_0034f2e0/func_00442088/func_00354490/func_002751a0; m2c draft clean (0 M2C_ERROR) but uses saved_reg_gp pseudo and s128 lq/sq locals needing GP/type lowering; no slt-at/slti-at entry guard (bltz sign tests), <=/dead-store N/A here. First reconstruction in progress, retained ASM pending full lowering. */
 // FUN_00361D20
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00361d20);
 // FUN_00362630
@@ -1316,6 +1318,8 @@ void func_00368d30(u8 *arg0)
     *(u32 *)(arg0 + 0x1FC) = 0x3F230000;
 }
 
+/* measured: retail window 1472B to func_00369470, frame 0x140+ (sq/sd saves); ~200 emitted instrs. */
+/* measured: CFG: switch on s32+4 with case0/case1 float chains (div 3/16/4/2, 0.5 thresholds, 0.3867/0.4101 constants), adda/madd/mula/msub MAC accumulator ops (m2c 10 M2C_ERROR) needing hand a*b+c lowering, plus two 4-iter loops over stack quads via func_0044b610/func_0044b7b0; no slt-at entry guard in this window, <= N/A. First reconstruction in progress, retained ASM pending MAC lowering. */
 // FUN_00368E80
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00368e80);
 // FUN_00369470
@@ -1328,6 +1332,8 @@ void func_00369470(s32 arg0, u8 *arg1) {
     func_00460ac0(arg1, p);
 }
 
+/* measured: retail window 1504B to func_0036b630, frame 0x140 (sq/sd saves); ~160 emitted instrs. */
+/* measured: CFG: func_003e9700/func_00457120/func_003e0f80/func_0036abd0 prologue, func_003e4320/003e42a0 matrix setup, mula/madda/madd MAC tests (m2c 14 M2C_ERROR) with bit-and/or flag stores, then 9x(8/7) nested vertex loops via func_003e40b0; saved_reg_gp GP pseudo and M2C s128/f32 stack quads need lowering; no slti-at range (<N absent), <=/dead-store checked N/A for current shape. First reconstruction in progress, retained ASM pending MAC/GP lowering. */
 // FUN_0036AE90
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_0036ae90);
 // FUN_0036B630

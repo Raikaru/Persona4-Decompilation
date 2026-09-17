@@ -1052,8 +1052,165 @@ second_check:
 done:
     return 0;
 }
-// FUN_001B1D70
+/* measured (this session): cold reconstruction v2 exact size 386/386 instrs; probe_variants 242 words -> probe_search decl-order 196 words/162 edits (200 orders; propagation/rebuild/no_branch/dead/lifetimes/strength/size/unroll tried, common_subs worse 310, loop_invariants 198); fnalign $at none (slti $at lever N/A for sltiu loops), s64 entry-guard N/A for fixed 4/6 loops; residual is saved-reg coloring ($s1/$s3 etc.) and branch-displacement cascade; banked guarded floor. */
+// FUN_001B1D70 NONMATCHING
+#ifdef NON_MATCHING
+void func_001b1d70(void) {
+    extern s32 iGpffffb414;
+    extern u8 *func_0019f5f0(s32 arg0, u16 arg1, u8 *arg2);
+    extern u32 func_002326f0(s32 arg0, u32 arg1);
+    extern u8 *func_00477c40(u16 arg0, u16 arg1, s32 arg2);
+    extern u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2);
+    extern u16 func_00145510(u16 arg0, u8 *arg1);
+    extern void func_0014a460(u16 arg0, s32 arg1);
+    extern void func_0019d7a0(u8 *arg0, s32 arg1);
+    extern void func_001987a0(u8 *arg0);
+    extern void func_0047d170(u8 *arg0);
+    extern u8 *func_0047a310(u8 *arg0);
+    extern void func_004774e0(u8 *arg0);
+    extern s32 func_001ef8c0(void);
+    extern void func_001b11c0(s32 arg0);
+    extern void func_001b0f20(u8 *arg0);
+    extern s32 func_0023d740(s32 arg0, s32 arg1);
+    extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
+    extern void func_00232680(u8 *arg0, s32 arg1);
+    extern void func_001d1680(s32 arg0, s32 arg1);
+    extern void func_00194ee0(u8 *arg0, f32 *arg1);
+    s16 r2;
+    u8 *tmp;
+    u8 *unit;
+    u32 k;
+    s16 s1tmp;
+    s16 r1;
+    f32 st[3];
+    s32 w2;
+    u8 *list;
+    s64 v1;
+    u8 *j;
+    u32 i;
+    u8 *pkt;
+    u16 id;
+    s32 f;
+
+    v1 = 0;
+    if ((*(u32 *)(D_0076449C + 0xC) & 0x20000000) == 0) {
+        i = 0;
+        while (i < 4) {
+            w2 = *(s32 *)(D_0076449C + i * 4 + 0xC74);
+            if (w2 == 0)
+                break;
+            tmp = *(u8 **)(w2 + 4);
+            id = *(u16 *)(tmp + 2);
+            pkt = func_0019f5f0(0, id, tmp);
+            unit = *(u8 **)(pkt + 0x30);
+            func_002326f0(*(s32 *)(unit + 0xA64), 0xFFF7FFFF);
+            *(u16 *)(*(u8 **)(unit + 0xA64)) &= 0xFFDF;
+            *(u16 *)(*(u8 **)(unit + 0xA64)) &= 0xFFF7;
+            *(u16 *)(*(u8 **)(unit + 0xA64)) &= 0xFFEF;
+            w2 = (s32)func_00477c40((u16)(*(u8 *)(unit + 0xA2) + 1), id, 0);
+            *(s32 *)(unit + 0xA00) = w2;
+            if (w2 == 0) {
+                pkt = func_0019b550(unit, id, 0x36);
+                *pkt = 4;
+                *(s64 *)(pkt + 8) = v1;
+                func_00194590(pkt, 1);
+                v1 = *(s64 *)(pkt + 0x58);
+            } else {
+                f = *(s32 *)(unit + 0x98) | 2;
+                *(s32 *)(unit + 0x98) = f;
+                *(s32 *)(unit + 0x98) = f | 8;
+                *(u16 *)(unit + 0x9FE) = func_00145510(id, *(u8 **)(unit + 0xA00));
+                func_0014a460(*(u16 *)(unit + 0x9FE), 1);
+                func_0019d7a0(unit, 1);
+                func_00198dd0(unit, 0);
+                func_00198920(unit, *(s16 *)(unit + 0x9EC), 0, *(s8 *)(unit + 0x9F4), *(f32 *)(unit + 0x9F0));
+                func_001987a0(unit);
+                tmp = *(u8 **)(unit + 0xA00);
+                if (*(s32 *)(tmp + 0x2D0) == 0) {
+                    func_0047d170(tmp);
+                }
+                func_0019d7a0(unit, 4);
+                func_0019d040(unit);
+                *(s32 *)(*(u8 **)(unit + 0xA00) + 0xD8) |= 0x400;
+                func_004774e0(func_0047a310(*(u8 **)(unit + 0xA00)));
+            }
+            i++;
+        }
+        *(u8 *)(D_0076449C + 0xC64) = (u8)i;
+    }
+    list = *(u8 **)(*(u8 **)(D_0076449C + 0xC68) + 4);
+    k = 0;
+    while (k < 6) {
+        if (*(u16 *)(list + 2) != 0 && func_002428f0((s32)list, 0) == 0) {
+            func_0019f5f0(1, *(u16 *)(list + 2), list);
+        }
+        k++;
+        list += 0x30;
+    }
+    if ((*(u32 *)(D_0076449C + 0xC) & 0x100) != 0) {
+        w2 = *(s32 *)((u8 *)iGpffffb414 + (u32)*(u16 *)(*(u8 **)(D_0076449C + 0xC68) + 8) * 0x18);
+        if ((w2 & 0x20) == 0) {
+            *(u16 *)(D_0076449C + 0x1A) = (u16)func_001ef8c0();
+            s1tmp = *(s16 *)(D_0076449C + 0x1A);
+            if (s1tmp == 2) {
+                func_001b1020(0);
+                func_001b11c0(1);
+                func_001b1280(1);
+                *(u16 *)(D_0076449C + 0x290) |= 4;
+                if ((w2 & 0x200) == 0) {
+                    *(u32 *)(D_0076449C + 0xC) |= 0x100000;
+                }
+            } else if (s1tmp == 1) {
+                func_001b1020(0);
+                func_001b11c0(0);
+                func_001b0f20(*(u8 **)(D_0076449C + 0x170));
+                *(u16 *)(D_0076449C + 0x290) |= 2;
+                if ((w2 & 0x200) == 0) {
+                    *(u32 *)(D_0076449C + 0xC) |= 0x100000;
+                }
+            } else if (*(u16 *)(D_0076449C + 0x1A) == 0) {
+                func_001b1020(1);
+                func_001b1280(1);
+                if ((*(u32 *)(D_0076449C + 0xC) & 0x20000000) != 0) {
+                    func_001b0f20(*(u8 **)(D_0076449C + 0x170));
+                }
+            }
+        } else {
+            if ((w2 & 0x10) == 0) {
+                *(u16 *)(D_0076449C + 0x1A) = 0;
+            }
+            func_0022fdc0((u8 *)0);
+        }
+        if (((*(u16 *)(D_0076449C + 0xC70) & 8) != 0) && ((w2 & 0x100) == 0) && ((*(u32 *)(D_0076449C + 0xC) & 0x20000000) == 0)) {
+            r1 = (s16)func_0023d740(-1, 4);
+            r2 = (s16)func_0023d740(-1, 2);
+            for (j = *(u8 **)(D_0076449C + 0x180); j != NULL; j = *(u8 **)(j + 0xA6C)) {
+                if (*(u8 **)(j + 0xA64) != NULL) {
+                    if ((func_0023a6b0(*(u8 **)(j + 0xA64), r2) & 0x27000000) == 0 && (s32)func_00231d70(100) < 0) {
+                        func_00232680(*(u8 **)(j + 0xA64), 2);
+                    }
+                    if ((func_0023a6b0(*(u8 **)(j + 0xA64), r1) & 0x27000000) == 0 && (s32)func_00231d70(100) < 0) {
+                        func_00232680(*(u8 **)(j + 0xA64), 4);
+                    }
+                }
+            }
+        }
+    }
+    if ((*(u32 *)(D_0076449C + 0xC) & 0x20000000) == 0) {
+        func_001d1680(1, 0);
+        return;
+    }
+    func_001d1680(0, 0);
+    st[1] = 0.0f;
+    for (j = *(u8 **)(D_0076449C + 0x180); j != NULL; j = *(u8 **)(j + 0xA6C)) {
+        st[0] = (f32)(*(s16 *)(j + 0x94) * 0x19 - 0x6D6);
+        st[2] = (f32)(*(s16 *)(j + 0x96) * 0x19 - 0x6D6);
+        func_00194ee0(j, st);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b1d70);
+#endif
 // FUN_001B2380
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b2380);
 /* 744/752 bytes; twenty resolved relocations; eight zero alignment bytes.
@@ -2143,8 +2300,90 @@ void func_001b6a20(void)
         *dst = *src;
     }
 }
-// FUN_001B6AB0
+/* measured (this session): cold reconstruction v2 object 380/retail 348 instrs (9% over, not short); probe_variants 357 words/79 edits; probe_search 120 orders flat (propagation/rebuild/no_branch/dead/loop/lifetimes/strength/size/unroll all 357, common_subs worse 397); fnalign $at none (float/bltz tail, slti $at lever N/A); residual is stack layout (0x160 frame pads) and u32->float halving (bltz) vs dead-store elimination; banked guarded floor. */
+// FUN_001B6AB0 NONMATCHING
+#ifdef NON_MATCHING
+void func_001b6ab0(void) {
+    extern s32 func_003f6440(s32 arg0, s32 arg1);
+    extern void (*D_00887300[])(u32 arg0, u32 arg1);
+    typedef struct {
+        u32 pad00[8];
+        f32 f40;
+        f32 f44;
+        f32 f48;
+        f32 f4c;
+        u32 pad50[4];
+        f32 f60;
+        f32 f64_;
+        u32 pad68[6];
+        f32 f80;
+        f32 f84;
+        f32 f88;
+        f32 f8c;
+        u32 pad90[12];
+        f32 fc0;
+        f32 fc4;
+        f32 fc8;
+        f32 fcc;
+        u32 padD0[12];
+        f32 f100;
+        f32 f104;
+        f32 f108;
+        f32 f10c;
+        u32 pad110[8];
+    } Buf;
+    Buf buf;
+    u32 c0;
+    u32 c1;
+    u32 c2;
+    u32 c3;
+
+    if (*(f32 *)(D_0076449C + 0x268) <= 0.0f) {
+        return;
+    }
+    func_003f6440(2, 0x48);
+    func_003f6440(3, 0x71801);
+    D_00887300[0](0xC, 1);
+    D_00887300[0](0xE, 0);
+    D_00887300[0](1, 0);
+    D_00887300[0](6, 0);
+    D_00887300[0](8, 0);
+    D_00887300[0](7, 2);
+    c0 = (u32)(s32)(*(f32 *)(D_0076449C + 0x25C) * 255.0f + 0.5f) & 0xFF;
+    c1 = (u32)(s32)(*(f32 *)(D_0076449C + 0x260) * 255.0f + 0.5f) & 0xFF;
+    c2 = (u32)(s32)(*(f32 *)(D_0076449C + 0x264) * 255.0f + 0.5f) & 0xFF;
+    c3 = (u32)(s32)(*(f32 *)(D_0076449C + 0x268) * 255.0f + 0.5f) & 0xFF;
+    buf.pad00[0] = 0;
+    buf.pad00[1] = 0;
+    buf.pad00[4] = 0;
+    buf.pad00[5] = 0x43E00000;
+    buf.pad50[0] = 0x44200000;
+    buf.pad50[1] = 0;
+    buf.pad68[0] = 0x44200000;
+    buf.pad68[1] = 0x43E00000;
+    buf.f40 = (f32)c0;
+    buf.f44 = (f32)c1;
+    buf.f48 = (f32)c2;
+    buf.f4c = (f32)c3;
+    buf.f60 = (f32)c0;
+    buf.f64_ = (f32)c1;
+    buf.f80 = (f32)c0;
+    buf.f84 = (f32)c1;
+    buf.f88 = (f32)c2;
+    buf.f8c = (f32)c3;
+    buf.fc0 = (f32)c0;
+    buf.fc4 = (f32)c1;
+    buf.fc8 = (f32)c2;
+    buf.fcc = (f32)c3;
+    buf.f100 = (f32)c0;
+    buf.f104 = (f32)c1;
+    buf.f108 = (f32)c2;
+    buf.f10c = (f32)c3;
+    D_00887300[4](4, &buf, 4);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b6ab0);
+#endif
 // FUN_001B7020
 s32 func_001b7020(void)
 {
@@ -3040,8 +3279,174 @@ void func_001bccc0(s32 arg0, s16 arg1, s32 arg2, s32 arg3) {
     *(s32 *)(temp_3 + 0xC) = arg3;
 }
 
-// FUN_001BCD40
+/* measured (this session): cold reconstruction v3 object 359/retail 367 instrs (2.2% short, within 3%); probe_variants 307 words/381 edits (v1 314/471); flag-spill locals fb0/fc0/fd0/fe0/ff0/f100/f110/f120/f130 made live (+11 instrs); fnalign slt $at none for fixed loops, s64 guard N/A (variable u16 loops use plain b+slt per retail, not (s64)0<count), slti $at N/A (variable bounds), dead-arm kept via live flag stores; residual is lq/sq flag spills and COP1 adda/msub chains; banked guarded floor. */
+// FUN_001BCD40 NONMATCHING
+#ifdef NON_MATCHING
+void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, u16 arg3, f32 arg4) {
+    extern void func_00194fc0(u8 *arg0, s32 arg1);
+    extern void func_00194fa0(u8 *arg0, s32 arg1);
+    extern void func_00195850(u8 *arg0, void *arg1);
+    extern f32 func_001ec3d0(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
+    extern void func_001b1560(void);
+    u32 mask;
+    u32 ix;
+    u32 cnt;
+    u8 *unit;
+    u8 *pkt;
+    f32 s30;
+    f32 s2c;
+    f32 s28;
+    f32 s24;
+    u32 t20;
+    u32 t1c;
+    f32 s18;
+    f32 s14;
+    u32 stk10[2];
+    u32 stk8;
+    u32 fb0; u32 fc0; u32 fd0; u32 fe0; u32 ff0; u32 f100; u32 f110; u32 f120; u32 f130;
+    f32 res;
+
+    if ((*(u32 *)(D_0076449C + 0x10) & 4) != 0) {
+        return;
+    }
+    if (arg1 == NULL || (u8 *)arg2 == NULL) {
+        res = 0.0f;
+    } else {
+        s30 = *(f32 *)arg1;
+        s2c = *(f32 *)((u8 *)arg1 + 8);
+        s28 = *(f32 *)arg2;
+        s24 = *(f32 *)((u8 *)arg2 + 8);
+    }
+    mask = 0;
+    if ((arg3 & 0x10) != 0) {
+        ix = 0;
+        cnt = *(u16 *)(arg0 + 0x6A);
+        while (ix < cnt) {
+            mask |= (u32)(1 << (*(u8 *)(*(s32 *)(*(s32 *)(arg0 + ix * 4 + 0x38) + 0x30) + 0xA2) & 0x1F)) & 0xFFFF;
+            ix = (ix + 1) & 0xFFFF;
+        }
+    }
+    fb0 = arg3 & 0x200;
+    fc0 = arg3 & 0x80;
+    fd0 = arg3 & 8;
+    fe0 = arg3 & 2;
+    ff0 = arg3 & 0x800;
+    f100 = arg3 & 1;
+    f110 = arg3 & 4;
+    f120 = arg3 & 0x400;
+    f130 = arg3 & 0x100;
+    {
+        u32 f20 = (arg3 & 0x20) != 0;
+        u32 f40 = (arg3 & 0x40) != 0;
+        u32 f100 = f130 != 0;
+        for (unit = *(u8 **)(D_0076449C + 0x174); unit != NULL; unit = *(u8 **)(unit + 0x450)) {
+            if (((*(u16 *)(unit + 0x1A) & 1) == 0) || (*(s32 *)(*(u8 **)(unit + 0x30) + 0x9C) & 8) == 0) {
+                continue;
+            }
+            pkt = *(u8 **)(unit + 0x30);
+            if (f20 == 0 || unit == arg0) {
+                if (f100 == 0) {
+                    if (unit == *(u8 **)(D_0076449C + 0x170) && f110 != 0) {
+                        func_00194fc0(pkt, 2);
+                        func_00194fa0(pkt, 4);
+                        if (f40 == 0) {
+                            *(u8 *)(pkt + 0x37) = 0xFF;
+                        }
+                    } else if (arg0 == NULL) {
+                        if (arg1 == NULL || (u8 *)arg2 == NULL) {
+                            res = 0.0f;
+                        } else {
+                            func_00195850(pkt, stk10);
+                            t20 = stk10[0];
+                            t1c = stk8;
+                            res = func_001ec3d0((u8 *)&s30, (u8 *)&s28, (u8 *)&t20, (u8 *)&s18);
+                            res = (res + 0.0f) - *(f32 *)(pkt + 0x90) * *(f32 *)(pkt + 0x2C);
+                            if (!(((s30 < s18) || (s18 < s28)) && ((s18 < s30) || (s28 < s18))) && !(((s2c < s14) || (s14 < s24)) && ((s14 < s2c) || (s24 < s14)))) {
+                                goto next_unit;
+                            }
+                        }
+                        if (res <= arg4) {
+                            func_00194fa0(pkt, 2);
+                            if (fc0 == 0) {
+                                *(u8 *)(pkt + 0x37) = 0;
+                            }
+                            if (fb0 != 0) {
+                                func_00194fc0(pkt, 4);
+                            }
+                        }
+                    } else if (unit == arg0 && f100 != 0) {
+                        func_00194fc0(pkt, 2);
+                        func_00194fa0(pkt, 4);
+                        if (f40 == 0) {
+                            *(u8 *)(pkt + 0x37) = 0xFF;
+                        }
+                    } else if ((mask & (u32)(1 << (*(u8 *)(pkt + 0xA2) & 0x1F))) == 0) {
+                        if ((ff0 == 0) || (func_001b1560(), unit != (u8 *)0)) {
+                            if (fe0 != 0) {
+                                u32 j = 0;
+                                u32 n = *(u16 *)(arg0 + 0x6A);
+                                while (j < n) {
+                                    if (unit == *(u8 **)(arg0 + j * 4 + 0x38)) {
+                                        func_00194fc0(pkt, 2);
+                                        func_00194fa0(pkt, 4);
+                                        if (f40 == 0) {
+                                            *(u8 *)(pkt + 0x37) = 0xFF;
+                                        }
+                                        break;
+                                    }
+                                    j = (j + 1) & 0xFFFF;
+                                }
+                                if (j != *(u16 *)(arg0 + 0x6A) || unit == *(u8 **)(arg0 + 0x88)) {
+                                    goto next_unit;
+                                }
+                            }
+                            if (*(s8 *)(pkt + 0xA2) != *(s8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) || fd0 == 0) {
+                                goto next_unit2;
+                            }
+                            func_00194fc0(pkt, 2);
+                            if (f40 == 0) {
+                                *(u8 *)(pkt + 0x37) = 0xFF;
+                            }
+                        } else {
+                            func_00194fc0(pkt, 2);
+                            func_00194fa0(pkt, 4);
+                            if (f40 == 0) {
+                                *(u8 *)(pkt + 0x37) = 0xFF;
+                            }
+                        }
+                    } else {
+                        func_00194fc0(pkt, 2);
+                        func_00194fa0(pkt, 4);
+                        if (f40 == 0) {
+                            *(u8 *)(pkt + 0x37) = 0xFF;
+                        }
+                    }
+                } else {
+                    func_00194fc0(pkt, 2);
+                    if (f120 != 0) {
+                        func_00194fa0(pkt, 4);
+                    }
+                    if (f40 == 0) {
+                        *(u8 *)(pkt + 0x37) = 0xFF;
+                    }
+                }
+            } else {
+                func_00194fc0(pkt, 2);
+                func_00194fa0(pkt, 4);
+                if (f40 == 0) {
+                    *(u8 *)(pkt + 0x37) = 0xFF;
+                }
+            }
+next_unit2:
+            ;
+next_unit:
+            ;
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001bcd40);
+#endif
 /* measured: disabling propagation preserves retail's independent outer-index
    materialisation after the preheader branch. */
 #pragma opt_propagation off

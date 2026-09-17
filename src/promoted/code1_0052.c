@@ -58,8 +58,21 @@ void func_005207f8(s32 arg0)
 
 /* measured: ee-gcc -O2 -G0 matches the 16-byte retail window. */
 #pragma schedule on
-// FUN_00522FD0
+/* measured: ee-gcc 2.96 -O2 -G0, object 36B/window 40B, normalized_diff 7; sd $ra placement and t0 coloring. Direct-constant, u64, and s64-zero variants all stayed at nd 7. No loop entry-guard or slti $at pattern, so parent (s64)0 and <= levers do not apply. This unit is ee-gcc, MWCC pragmas do not apply. Body at docs/probe_archive/GA52_00522fd0_body.c. */
+// FUN_00522FD0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00522fd0(s32 arg0)
+{
+    s32 value1 = 7;
+    s32 value2 = 6;
+    s32 value3 = 0;
+    s32 value4 = 0;
+
+    func_005278b0(arg0, value1, value2, value3, value4);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00522fd0);
+#endif
 // FUN_00522FF8
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00522ff8);
 // FUN_00523050
@@ -216,8 +229,27 @@ s32 *func_0052ba30(u8 *arg0, s32 arg1)
     work[0x12] = arg1;
     return work;
 }
-// FUN_0052C840
+/* measured: ee-gcc 2.96 -O2 -G0, object 44B/window 48B, normalized_diff 7; $f1/$f2 zero coloring and $f0/$f1 load coloring. Reversed-compare and f64-zero variants stayed at nd 7 (f64 at nd 24). No loop or integer range pattern, so parent levers do not apply. This unit is ee-gcc, MWCC pragmas do not apply. Body at docs/probe_archive/GA52_0052c840_body.c. */
+// FUN_0052C840 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0052c840(u8 *arg0)
+{
+    f32 zero = 0.0f;
+    f32 value0 = *(f32 *)(arg0 + 0x3C);
+    f32 value1;
+    s32 result = 1;
+
+    if (value0 == zero) {
+        value1 = *(f32 *)(arg0 + 0x40);
+        if (value1 == zero) {
+            result = 0;
+        }
+    }
+    return result;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052c840);
+#endif
 // FUN_0052C870
 void func_0052c870(s32 arg0)
 {

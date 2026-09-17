@@ -1,4 +1,7 @@
 /* Re-measured 2026-09-17: object 360B window 368B 32 reloc-masked differing words (was normalized_diff=80); fnalign edit 48. Object/window unchanged; differing_offsets 0x0-0x1c,0x34-0x3c repeated per block. Classification=register-allocation/statement-order residual with 8-byte shortfall; ruled_out=movz/movn,COP1-accumulator-MAC,standalone-MMI-H009,framed-tail-jump,sd-saved-register floor; block-scope declarations corrected: D_00752D24..D_00752D40 as u8[] absolute DATA arrays; no callees; schedule-on, optimization_level-1, split-product temporary, split-global temporary, mask local, and declaration-order probes did not close; see fndiff output. */
+/* Dead-arm lever checked 2026-09-17: trailing if (arg1 & 0x200) { var_2 += 0; } */
+/* gives 32 vs 32 tie; no branch-displacement cascade in fnalign (no branch diffs), */
+/* shortfall is 2-word trailing-nop padding, not a missing compare. No slt/slti $at wall. */
 s32 func_003a3500(s32 arg0, s32 arg1)
 {
     extern u8 D_00752D24[];

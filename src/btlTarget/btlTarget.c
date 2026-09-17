@@ -178,6 +178,13 @@ s32 func_001ec8c0(f32* first, f32* second, f32* point, f32 threshold)
 }
 /* measured: opt_propagation on restores the unit baseline after this match. */
 #pragma opt_propagation on
+/* Archived C body: docs/probe_archive/P022_001eca10_body.c; object 964B; */
+/* retail window 976B; 23 reloc-masked differing words confined to GPR */
+/* allocation with no missing executable instruction. Remaining: first-loop */
+/* corner/link and second-loop index/next-corner register exchanges ($s2/$s3, */
+/* $s2/$s6 and related). Scope/declaration/identity-type/pointer-reuse/goto */
+/* variants plus propagation-off and CSE-off measured inert. Fnalign edit 32 */
+/* plus one reloc-only pair; production remains ASM. */
 // FUN_001ECA10
 INCLUDE_ASM("asm/nonmatchings/btlTarget", func_001eca10);
 // FUN_001ECDE0
