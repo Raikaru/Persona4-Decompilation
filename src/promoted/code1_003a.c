@@ -274,6 +274,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a1c40);
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a20e0);
 // FUN_003A2290
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2290);
+/* Archived C body: docs/probe_archive/FP3A_003a2340_body.c; object 88B; */
+/* retail window 80B (object 8B over window); 17 reloc-masked differing words. */
+/* Remaining: prologue/frame plus argument/global staging (0x30 vs 0x20 frame, */
+/* extra s1 save, $t9-vs-$s0 for arg2 across the first call). Direct/address-of/ */
+/* local, typed/old-style, pointer, hidden-return, O3/O1/schedule/propagation/ */
+/* subs probes ruled out. Fnalign edit 20; production remains ASM. */
 // FUN_003A2340
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2340);
 
@@ -312,6 +318,12 @@ s32 func_003a2920(s32 arg0)
 }
 // measured: closes the schedule bracket opened above func_003a2920.
 #pragma schedule off
+/* Archived C body: docs/probe_archive/FP3A_003a2950_body.c; object 152B; */
+/* retail window 160B; nine reloc-masked differing words plus two trailing nops. */
+/* Remaining: dsll32 destination plus mask-materialization order wall. Explicit */
+/* u64 low/mask/upper/lowbyte locals and ((u64)(arg2<<0x20)>>0x20) tried; */
+/* schedule-on plus no_branch_likely-on measured. Fnalign edit 8 plus one */
+/* reloc-only pair; production remains ASM. */
 // FUN_003A2950
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2950);
 // FUN_003A29F0 NONMATCHING
@@ -466,6 +478,12 @@ s32 func_003a2d90(s32 arg0)
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2e60);
 // FUN_003A3050
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a3050);
+/* Archived C body: docs/probe_archive/P3A5_003a3500_body.c; object 360B; */
+/* retail window 368B; 32 reloc-masked differing words with 8B shortfall. */
+/* Remaining: statement-order wall (mask materialized before vs after product */
+/* plus 0xF) plus MMI-mult coloring per block. Schedule-on, */
+/* optimization_level-1, split-product/split-global/mask temporaries and */
+/* declaration-order probes did not close. Fnalign edit 48; production ASM. */
 // FUN_003A3500
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a3500);
 // FUN_003A3670
@@ -704,6 +722,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a7f80);
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a8180);
 // FUN_003A8340
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a8340);
+/* Archived C body: docs/probe_archive/Main_003a8500_body.c; object 308B; */
+/* retail window 320B; 12 reloc-masked differing words, saved-register */
+/* colouring only ($s3/$s4 family). Peephole-off reproduces both post-store */
+/* reloads exactly; schedule-on plus no_branch_likely-on measured. Nested */
+/* blocks and declaration permutations tried (12 variants). Fnalign edit 14; */
+/* production remains ASM. */
 // FUN_003A8500
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a8500);
 // FUN_003A8640

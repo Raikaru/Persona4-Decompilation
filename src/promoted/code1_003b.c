@@ -93,10 +93,53 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b0b80);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b12a0);
 // FUN_003B1A10
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b1a10);
-/* measured: best fresh plain-C attempt object 164B/window 160B, normalized_diff 34; archived at build/K3B6_003b31a0_nd34.c and restored to INCLUDE_ASM because object exceeded the retail window. */
+/* measured: docs/probe_archive/Lane119c3b_003b31a0_body.c object 164B/window 160B, normalized_diff 34 live this session (installed guard below; object exceeds window by 4B). Retail computes loop pointers t0/t5/t6 before the slt $at,$zero,$a1 + beqz entry guard and fills every delay slot; ours colors a-regs differently, leaves three nops, and the $at guard never reproduces from C - the documented entry-guard floor. K3B6/P3B nd34 archives agree; knob sweeps and sequential-pointer chains probed 140-148B/nd94-103 without moving it. Retried the func_003bcd50 (s64)0 < arg1 cure: nd38, regresses with the same register-arg sign-extension as func_003b4230. Banked as floor. */
+extern void func_003a4d50(u8 *arg0, u8 *arg1, s32 arg2);
 // FUN_003B31A0 NONMATCHING
+#ifdef NON_MATCHING
+void func_003b31a0(u8 *arg0, s32 arg1, u8 *arg2) {
+    u8 *src;
+    u8 *dst;
+    u8 *src_i;
+    u8 *dst0;
+    u8 *dst1;
+    u8 *dst2;
+    s32 stride;
+    s32 src_stride;
+    s32 count;
+    s32 value;
+    stride = *(s32 *)(arg0 + 4);
+    src_stride = *(s32 *)(arg2 + 0x30);
+    src = *(u8 **)(arg2 + 0x2C);
+    dst = *(u8 **)arg0;
+    if (src_stride != stride * 4) {
+        count = 0;
+        if (arg1 > 0) {
+            do {
+                src_i = src;
+                dst0 = dst + stride;
+                value = *(s32 *)src_i;
+                dst1 = dst0 + stride;
+                count += 1;
+                dst2 = dst1 + stride;
+                src += src_stride;
+                *(s32 *)dst = value;
+                value = *(s32 *)(src_i + 4);
+                dst = dst2 + stride;
+                *(s32 *)dst0 = value;
+                value = *(s32 *)(src_i + 8);
+                *(s32 *)dst1 = value;
+                value = *(s32 *)(src_i + 0xC);
+                *(s32 *)dst2 = value;
+            } while (count < arg1);
+        }
+    } else {
+        func_003a4d50(dst, src, arg1 * stride * 4);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b31a0);
-/* measured P3B: best current-TU body object 164B/window 160B, normalized_diff 34; archived at build/P3B_003b31a0_nd34.c and restored to INCLUDE_ASM (one word over window). K3B6 nd34 archive does not reproduce under the current TU (schedule on gives 144B/nd103); knob sweeps and sequential-pointer chains probed 140-148B/nd94-103. Retail computes loop pointers t0/t5/t6 before the slt $at,$zero,$a1 + beqz entry guard and fills every delay slot; ours colors a-regs differently, leaves three nops, and the $at guard never reproduces from C - the documented entry-guard floor. */
+#endif
 // FUN_003B3240
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b3240);
 // FUN_003B3570
@@ -123,9 +166,60 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4120);
 #pragma opt_common_subs on
 #pragma no_branch_likely off
 #pragma schedule off
-/* measured: best current-TU body object 164B/window 176B, normalized_diff 9; differing word offsets 4,20-24,156-160. Retail's entry guard is slt $at,$zero,$a1 + beqz with i=0 in the delay slot and one extra nop before jr. Every literal/boolean spelling probed colors $v1 or folds to blez/bltz instead (>=0 form reaches bltz nd13); named boolean go = 0 < arg1 under rc-off+propagation-off is the floor at nd9. Levers: schedule on, no_branch_likely on, opt_rebuildconditionals off, opt_propagation off, unrotated do-while with bottom i < arg1. Body archived at build/B3B_003b4230_body.c and restored to INCLUDE_ASM. */
-// FUN_003B4230
+/* measured: docs/probe_archive/B3B_003b4230_body.c object 168B/window 176B, normalized_diff 2 live this session. Residual is the entry-guard register only: retail slt $at,$zero,$a1 + beqz vs this build slt $v1,$zero,$a1 (assembler-pseudo-instruction wall). Inline 0 < arg1, arg1 > 0 and !(arg1 <= 0) spellings all regress to 39 words; the named go boolean is what holds it at 2. Levers: schedule on, no_branch_likely on, opt_rebuildconditionals off, opt_propagation off, named boolean go = 0 < arg1 after i = 0, unrotated do-while with bottom i < arg1. Retried the func_003bcd50 (s64)0 < arg1 cure with i = 0 before the guard: object 176B/window 176B nd42 (dsll32/dsra32 sign-extension around slt $at,$zero,$v1); register-arg promotion over-extends unlike the volatile-mem case, so the floor stands. Banked as floor; do not grind. */
+#pragma schedule on
+#pragma no_branch_likely on
+#pragma opt_rebuildconditionals off
+#pragma opt_propagation off
+// FUN_003B4230 NONMATCHING
+#ifdef NON_MATCHING
+void func_003b4230(u8 *arg0, s32 arg1, u8 *arg2) {
+    s32 i;
+    u8 *dst;
+    u8 *src;
+    u8 *row1;
+    u8 *row2;
+    u8 *row3;
+    s32 pitch;
+    s32 stride;
+    s32 go;
+    dst = *(u8 **)(arg0 + 0);
+    pitch = *(s32 *)(arg0 + 4);
+    src = *(u8 **)(arg2 + 0x14);
+    stride = *(s32 *)(arg2 + 0x18);
+    i = 0;
+    go = 0 < arg1;
+    if (go != 0) {
+        do {
+            row1 = dst + pitch;
+            row2 = row1 + pitch;
+            row3 = row2 + pitch;
+            *(f32 *)(dst + 0) = *(f32 *)(src + 0);
+            *(f32 *)(dst + 4) = *(f32 *)(src + 4);
+            *(f32 *)(dst + 8) = *(f32 *)(src + 8);
+            dst = row3 + pitch;
+            *(f32 *)(row1 + 0) = *(f32 *)(src + 0);
+            *(f32 *)(row1 + 4) = *(f32 *)(src + 4);
+            *(f32 *)(row1 + 8) = *(f32 *)(src + 8);
+            *(f32 *)(row2 + 0) = *(f32 *)(src + 0);
+            *(f32 *)(row2 + 4) = *(f32 *)(src + 4);
+            *(f32 *)(row2 + 8) = *(f32 *)(src + 8);
+            *(f32 *)(row3 + 0) = *(f32 *)(src + 0);
+            *(f32 *)(row3 + 4) = *(f32 *)(src + 4);
+            *(f32 *)(row3 + 8) = *(f32 *)(src + 8);
+            src += stride;
+            i += 1;
+        } while (i < arg1);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4230);
+#endif
+/* measured: close schedule/no_branch_likely/opt_rebuildconditionals/opt_propagation around func_003b4230. */
+#pragma opt_propagation on
+#pragma opt_rebuildconditionals on
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003B42E0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b42e0);
 // FUN_003B4470
@@ -352,17 +446,75 @@ s32 func_003b6e00(s32 arg0) {
 /* measured: close no_branch_likely and schedule around func_003b6e00. */
 #pragma no_branch_likely off
 #pragma schedule off
-/* measured: current-TU archived body object 164B/window 144B, normalized_diff 122; differing word offsets 0,4,6,7,10,11,12,13,14,15,16,17,18,19,22,23,24,25,26,27,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128,132,136,140,144,148,152,156,160. Object exceeds the retail window, so the archived body was restored immediately. Current mismatch is dominated by frame size/addressing, callback/table materialization, and branch/epilogue layout; prior schedule/O1/reload-preserving-base probes remain ruled out. */
+/* measured: docs/probe_archive/Y3BA_003b6e70_body.c object 164B/window 144B, normalized_diff 39 live this session (installed guard below; object exceeds window by 20B; prior nd122 note was stale). Mismatch is dominated by frame size/addressing, callback/table materialization, and branch/epilogue layout; prior schedule/O1/reload-preserving-base probes ruled out. Banked as floor. */
 // FUN_003B6E70 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003b6e70(s32 arg0) {
+    u8 **base;
+    extern u8 *(*jtbl_008873E8[])(s32 size, s32 align);
+    base = (u8 **)(D_008872E0 + iGpffffb618);
+    *base = jtbl_008873E8[0](0x7C, 0x4010C);
+    if (*base != NULL) {
+        base[1] = *base + 0xC;
+        base[2] = *base;
+        base[3] = *base + 0x7C;
+        func_003b6f00(0x9A319039, (u8 *)base);
+        return arg0;
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6e70);
+#endif
 /* measured: in-file body recheck is object 280B/window 352B with
    normalized_diff 210, over the park threshold; body archived at
    build/WS19_003b6f00_nd210.c and restored to INCLUDE_ASM. */
 // FUN_003B6F00
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6f00);
-/* measured: current-TU archived body object 172B/window 176B, normalized_diff 78; differing offsets 24,28,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128,132,136,140,144,148,152,156,160,164. Current body confirms the archived nd30 is stale; global array addressing is correct, while load order, counter/address materialization, signed-compare shape, and branch/return layout remain mismatched; restored fallback. */
+/* measured: docs/probe_archive/FP3B_003b7060_body.c object 172B/window 176B, normalized_diff 30 live this session (installed guard below; prior nd78 note was stale). Global array addressing is correct, while load order, counter/address materialization, signed-compare shape, and branch/return layout remain mismatched. Banked as floor. */
 // FUN_003B7060 NONMATCHING
+#ifdef NON_MATCHING
+u64 func_003b7060(void) {
+    s32 *temp_8;
+    s32 *temp_4;
+    u32 *temp_3_2;
+    u32 *temp_4_2;
+    u32 temp_4_3;
+    u32 var_3;
+    u32 raw;
+    u32 max;
+    s64 temp_2;
+    u8 *temp_3;
+    u8 *temp_5;
+    temp_3 = D_008872E0 + iGpffffb618;
+    temp_8 = *(s32 **)(temp_3 + 8);
+    temp_4 = *(s32 **)(temp_3 + 4);
+    *temp_4 = *temp_8 + *temp_4;
+    temp_5 = D_008872E0 + iGpffffb618;
+    temp_3_2 = *(u32 **)(temp_5 + 4);
+    raw = *temp_3_2;
+    temp_4_2 = temp_3_2 + 1;
+    *(u32 **)(temp_5 + 4) = temp_4_2;
+    max = *(u32 *)(temp_5 + 0xC);
+    temp_2 = ((s64)(raw >> 1) << 0x21) >> 0x21;
+    if ((u32)temp_4_2 < max) {
+        temp_4_3 = *(u32 *)(temp_5 + 8) + 4;
+        *(u32 *)(temp_5 + 8) = temp_4_3;
+        if (temp_4_3 >= max) {
+            var_3 = *(u32 *)temp_5;
+            goto block_3;
+        }
+        return temp_2;
+    }
+    *(u32 **)(temp_5 + 4) = *(u32 **)(temp_5 + 0);
+    var_3 = *(u32 *)(temp_5 + 8) + 4;
+block_3:
+    *(u32 *)(temp_5 + 8) = var_3;
+    return temp_2;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7060);
+#endif
 /* measured: schedule on reproduces func_003b7110's callback-address setup and return compare. */
 #pragma schedule on
 // FUN_003B7110
@@ -479,9 +631,55 @@ second:
 #pragma schedule off
 /* measured: close no_branch_likely around func_003b7480. */
 #pragma no_branch_likely off
-/* measured: current-TU named-boolean probe object 132B/window 128B, normalized_diff 63; differing word offsets 4,5,6,7,8,9,10,11,12,14,16,17,20,21,22,23,24,26,40,44,48,64,68,72,76,84,88,92,96,104,108,112,116,120,124,128. Object exceeds the retail window, so the archived body was restored immediately. The named boolean materialization did produce retail's sltu shape but introduced a four-byte overrun and did not resolve the register/loop ordering residual. */
-// FUN_003B7510
+/* measured: docs/probe_archive/FP3B_003b7510_body.c object 136B/window 128B, normalized_diff 27 live this session (installed guard below; object exceeds window by 8B). Named-boolean probe produced retail's sltu shape but overruns the window and leaves register/loop-ordering residual; prior nd63 aggregate note was stale. Banked as floor. */
+// FUN_003B7510 NONMATCHING
+#ifdef NON_MATCHING
+typedef struct {
+    u8 pad_0[0x10];
+    u32 field_10;
+} Func7510Rec;
+void func_003b7510(Func7510Rec *arg0, s32 *arg1, u32 arg2) {
+    u32 four;
+    s32 *var_8;
+    s32 *var_5;
+    u32 var_10;
+    u32 var_9;
+    var_5 = arg1;
+    arg0->field_10 = 1U;
+    if ((arg2 > 0U) == 1) {
+        var_10 = 0;
+        four = 4;
+loop_2:
+        var_9 = arg0->field_10;
+        if (var_9 < four) {
+            var_8 = var_5 + var_9;
+loop_4:
+            if (*var_8 != 0) {
+                arg0->field_10 = arg0->field_10 + 1;
+                if (arg0->field_10 != four) {
+                    var_9 += 1;
+                    var_8 += 4;
+                    if (var_9 >= four) {
+                        goto block_8;
+                    }
+                    goto loop_4;
+                }
+            } else {
+                goto block_8;
+            }
+        } else {
+block_8:
+            var_10 += 1;
+            var_5 += 4;
+            if (var_10 < arg2) {
+                goto loop_2;
+            }
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7510);
+#endif
 /* measured: current-TU generated-style six-argument body object 236B/window 240B, normalized_diff 174; fndiff reports 58 differing words at offsets 4-220. Unsigned >0 guards and an invariant flag did not alter codegen. Retail custom ABI uses a0-a3/t0-t1 and frame 0x10, but register/lifetime/branch scheduling remains substantially different; restored fallback. */
 // FUN_003B7590
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7590);
@@ -641,9 +839,7 @@ clear:
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb0d0);
 // FUN_003BB210
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb210);
-/* measured: best current-TU body object 104B/window 112B, normalized_diff 20;
-   differing word offsets 4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,84;
-   archived at build/F3B0_003bb330_body.c and restored to INCLUDE_ASM. */
+/* measured: docs/probe_archive/H3BB_003bb330_body.c object 104B/window 112B, normalized_diff 18 live this session (installed guard below). Residual is the if-chain vs jump-table branch layout plus stack-slot order around the two calls. Probed with optimization_level 1, schedule on, and no_branch_likely on; if/goto/switch-order, stack-local order, schedule-off, and propagation probes ruled out. The prior F3B0 switch body (nd20) is superseded. Banked as floor. */
 #pragma optimization_level 1
 #pragma no_branch_likely on
 #pragma schedule on
@@ -797,9 +993,50 @@ s32 func_003bbe80(s32 arg0) {
    accumulator in a different register class and orders the guard the other
    way. schedule on does not move it (nd 47). Committed at nd 46. */
 
-/* measured: current-TU candidates: local-base body object 220B/window 224B, normalized_diff 118; pointer-typed generated candidate object 204B/window 224B, normalized_diff 146. Retail frame is 0x50; local-base source adds an s4/base frame and pointer-typed source changes register/control-flow order. Restored original fallback; no candidate matched. */
-// FUN_003BBEA0
+/* measured: docs/probe_archive/P3B6_003bbea0_body.c object 216B/window 224B, normalized_diff 10 live this session. Retail logic and frame matched; residual is prologue saved-register/move order, signed-positive guard materialization (retail slt $at + beqz vs blez), loop back-edge load/increment order, and jr delay-slot epilogue scheduling (retail jr in beqz delay slot vs nop;jr;nop). Ruled out local-base/declaration-order variants, explicit boolean/goto guard forms, schedule on, schedule+no_branch_likely, optimization_level 1, and opt_propagation off. Banked as floor. */
+// FUN_003BBEA0 NONMATCHING
+#ifdef NON_MATCHING
+void func_003bbea0(u8 *arg0) {
+    u8 *base;
+    s32 index;
+    u8 *entry;
+    s32 count;
+    s32 positive;
+    base = arg0;
+    if (*(u8 **)base != NULL) {
+        jtbl_008873EC[0](*(u8 **)base);
+        *(u8 **)base = NULL;
+    }
+    if (*(s32 *)(base + 4) == 3) {
+        count = *(s32 *)(base + 8);
+        entry = *(u8 **)(base + 0xC);
+        positive = 0 < count;
+        if (positive == 0) {
+            goto inner_done;
+        } else {
+            void (**callbacks)(u8 *);
+            index = 0;
+            callbacks = jtbl_008873EC;
+            do {
+                if (*(u8 **)entry != NULL) {
+                    (*callbacks)(*(u8 **)entry);
+                }
+                count = *(s32 *)(base + 8);
+                index += 1;
+                entry += 4;
+            } while (index < count);
+        }
+inner_done:
+        ;
+    }
+    if (*(u8 **)(base + 0xC) != NULL) {
+        jtbl_008873EC[0](*(u8 **)(base + 0xC));
+        *(u8 **)(base + 0xC) = NULL;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bbea0);
+#endif
 
 // FUN_003BBF80
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bbf80);
@@ -838,9 +1075,40 @@ s32 func_003bcbc0(s32 arg0, s32 arg1) {
 /* measured N3B: archived W3C3B body no longer compiles as written — its implicit int->u8* call argument predates the typed func_003bbea0(u8*) prototype; with the required cast it compiles 168B/160B nd91 (object overflows window). ~40 distinct mined shapes all measure 152B/nd7 (guard register + loop-tail swap + trailing nop) or overflow; fresh guard spellings (`count>0`, `>=1`, while-form, cached-count) all land in that same tier. Retail needs slt $at,$zero,$v0;beqz $at with s2=0 in the delay slot, and lw v0,4(s0) reloaded AFTER the loop before jalr. Restored fallback; best archive build/WV08_003b_bcbe0_nd5.c is stale under the current TU (172B/105). */
 // FUN_003BCBE0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcbe0);
-/* measured: current-TU WT05 candidate object 224B/window 208B, normalized_diff 135; fndiff reports 46 differing words. Frame size matches retail, but saved-register/prologue order, allocation/table call materialization, branch layout, and loop tail remain mismatched; object exceeds window, so restored fallback. */
-// FUN_003BCC80
+/* measured: docs/probe_archive/Lane119c3b_003bcc80_body.c object 208B/window 208B, normalized_diff 40 live this session with the jtbl extern retargeted to the TU's void *(*)(u32,u32) declaration (installed guard below; verbatim archive fails to compile under the current TU because its u8 *(*)(s32,s32) jtbl redeclaration conflicts with the later file-scope declaration). Residual is the second loop entry guard (compiler blez vs retail slt $at,$zero,$v0 + beqz with counter init in the delay slot) plus prologue/loop-tail coloring; the archived nd8 claim is stale. Retried the func_003bcd50 (s64)0 < inner cure with var_19 hoisted before the guard (plain and volatile): nd41/216B both, over window and worse. Floor stands. Banked as floor. */
+extern void func_003bc740(u8 *arg0);
+extern void func_003bbf80(u8 *arg0, u8 *arg1);
+extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+// FUN_003BCC80 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003bcc80(s32 arg0, s32 arg1, s32 arg2) {
+    s32 temp_2;
+    s32 var_19;
+    s32 var_18;
+    u8 *temp_17;
+    u8 *temp_16;
+    temp_17 = (u8 *)(arg0 + arg2);
+    temp_16 = (u8 *)(arg1 + arg2);
+    func_003bc740(temp_17);
+    *(s32 *)(temp_17 + 0) = *(s32 *)(temp_16 + 0);
+    temp_2 = *(s32 *)(temp_17 + 0);
+    if (temp_2 > 0) {
+        *(u8 **)(temp_17 + 4) = jtbl_008873E8[0](temp_2 * 0x10, 0x3011F);
+        if (*(s32 *)(temp_17 + 0) > 0) {
+            var_19 = 0;
+            var_18 = 0;
+            do {
+                func_003bbf80(*(u8 **)(temp_17 + 4) + var_18, *(u8 **)(temp_16 + 4) + var_18);
+                var_19 += 1;
+                var_18 += 0x10;
+            } while (var_19 < *(s32 *)(temp_17 + 0));
+        }
+    }
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcc80);
+#endif
 
 /* Recovered: this body was measured at zero differing words in
    docs/probe_archive/KoA_003bcd50_body.c and never installed. */
@@ -897,9 +1165,54 @@ s32 func_003bce20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 /* measured: close schedule around func_003bce20. */
 #pragma schedule off
 
-/* measured: best current-TU body object 164B/window 192B, normalized_diff 71; differing words are the entry guard register (slt $v0 vs retail slt $at,$zero,$v0 + beqz, the same $at-guard floor as func_003b4230/003bcd50), retail's out-of-line func_003bc620 call placed after the loop exit and reached by bnez while every spelling compiles inline with beqz-skip, i=0 landing after the guard branch instead of in its delay slot, and one trailing nop. Levers: schedule on, no_branch_likely on, opt_rebuildconditionals off, opt_propagation off, cached count with volatile loop-tail reload, single-case switch wrap (skill sub-pattern 5), goto next, role-swapped counters, declaration permutations. Body archived at build/B3B_003bce50_body.c and restored to INCLUDE_ASM. */
-// FUN_003BCE50
+/* measured: docs/probe_archive/B3B_003bce50_body.c object 168B/window 192B, normalized_diff 25 live this session (installed guard below; prior nd71 note was stale). Residual is the entry-guard register (slt $v0 vs retail slt $at,$zero,$v0 + beqz, the same $at-guard floor as func_003b4230/003bcd50), retail's out-of-line func_003bc620 call after the loop exit reached by bnez while every spelling compiles inline with beqz-skip, i = 0 landing after the guard branch instead of in its delay slot, and one trailing nop. Levers: schedule on, no_branch_likely on, opt_rebuildconditionals off, opt_propagation off, cached count with volatile loop-tail reload, single-case switch wrap, goto next, role-swapped counters, declaration permutations. Retried the func_003bcd50 (s64)0 < volatile cure with i = 0 hoisted before the guard: nd26 (beqz $at appears but loop coloring regresses); (s64)0 < count local: nd33. Floor stands. Banked as floor. */
+#pragma schedule on
+#pragma no_branch_likely on
+#pragma opt_rebuildconditionals off
+#pragma opt_propagation off
+// FUN_003BCE50 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003bce50(s32 arg0, s32 arg1) {
+    s32 result;
+    s32 row;
+    s32 sum;
+    s32 i;
+    u8 *work;
+    s32 go;
+    s32 count;
+    result = 0;
+    work = (u8 *)(arg0 + arg1);
+    sum = 0;
+    if (work != NULL) {
+        count = *(volatile s32 *)work;
+        if (count > 0) {
+            {
+                i = 0;
+                row = 0;
+                do {
+                    u8 *a0 = *(u8 **)(work + 4) + i;
+                    if (*(s32 *)(a0 + 4) != 0) {
+                        sum += func_003bc620(a0);
+                    }
+                    row += 1;
+                    i += 0x10;
+                } while (row < *(volatile s32 *)work);
+            }
+        }
+        if (sum > 0) {
+            sum += 4;
+        }
+    }
+    return result + sum;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bce50);
+#endif
+/* measured: close schedule/no_branch_likely/opt_rebuildconditionals/opt_propagation around func_003bce50. */
+#pragma opt_propagation on
+#pragma opt_rebuildconditionals on
+#pragma no_branch_likely off
+#pragma schedule off
 /* measured: the entry guard `slt $at,$zero,$a0; beqz $at` is a 64-bit compare
    that b210 cannot fold to blez: `(s64)0 < length` reproduces it exactly, the
    loop compare stays 32-bit. schedule on fills the two delay slots (move a2 /
@@ -1122,8 +1435,18 @@ do2:
 /* measured: close schedule around func_003bd470. */
 #pragma schedule off
 #pragma no_branch_likely off
+/* measured: docs/probe_archive/Main119_003bd4f0_body.c object 136B/window 112B, normalized_diff 29 live under the current b210 TU (installed guard below; object exceeds window by 24B). The movz ternary and both calls are exact; residual is the lw $v0,OFF($a2) that retail schedules above sd $ra, which no cached MWCC build does for this source (the lw-before-sd prologue wall). The nd5 b119-unit score does not reproduce under b210. Banked as floor. */
 // FUN_003BD4F0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003bd4f0(s32 arg0, s32 arg1, u8 *arg2) {
+    if (func_003df240(arg0, (s32)(*(u8 **)(arg2 + 0x6C) + 0x2C), 4) == 0) {
+        return 0;
+    }
+    return func_003df240(arg0, (s32)(*(u8 **)(arg2 + 0x6C) + 0x30), 4) ? arg0 : 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd4f0);
+#endif
 
 /* measured: schedule on is required for func_003bd560's return delay slot. */
 #pragma schedule on
@@ -1190,8 +1513,18 @@ do2:
 /* measured: schedule off closes func_003bd590 before the archived ASM sibling. */
 #pragma schedule off
 
+/* measured: docs/probe_archive/Main119_003bd610_body.c object 136B/window 112B, normalized_diff 29 live under the current b210 TU (installed guard below; object exceeds window by 24B). The movz ternary and both calls are exact; residual is the lw $v0,OFF($a2) that retail schedules above sd $ra, which no cached MWCC build does for this source (the lw-before-sd prologue wall). The nd5 b119-unit score does not reproduce under b210. Banked as floor. */
 // FUN_003BD610 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003bd610(s32 arg0, s32 arg1, u8 *arg2) {
+    if (func_003df240(arg0, (s32)(*(u8 **)(arg2 + 0x7C) + 0x2C), 4) == 0) {
+        return 0;
+    }
+    return func_003df240(arg0, (s32)(*(u8 **)(arg2 + 0x7C) + 0x30), 4) ? arg0 : 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd610);
+#endif
 
 /* measured: schedule on opens func_003bd680's independent probe. */
 #pragma schedule on
@@ -1308,8 +1641,18 @@ do2:
 /* measured: schedule off closes func_003be820 before the archived ASM sibling. */
 #pragma schedule off
 
+/* measured: docs/probe_archive/Main119_003be8a0_body.c object 136B/window 112B, normalized_diff 29 live under the current b210 TU (installed guard below; object exceeds window by 24B). The movz ternary and both calls are exact; residual is the lw $v0,OFF($a2) that retail schedules above sd $ra, which no cached MWCC build does for this source (the lw-before-sd prologue wall). The nd5 b119-unit score does not reproduce under b210. Banked as floor. */
 // FUN_003BE8A0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003be8a0(s32 arg0, s32 arg1, u8 *arg2) {
+    if (func_003df240(arg0, (s32)(*(u8 **)(arg2 + 0x6C) + 0x2C), 4) == 0) {
+        return 0;
+    }
+    return func_003df240(arg0, (s32)(*(u8 **)(arg2 + 0x6C) + 0x30), 4) ? arg0 : 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be8a0);
+#endif
 
 /* measured: schedule on opens func_003be910's independent probe. */
 #pragma schedule on
