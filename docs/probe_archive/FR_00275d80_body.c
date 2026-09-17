@@ -142,5 +142,5 @@ s32 func_00275d80(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5, u3
     return 0;
 }
 
-Wins: frame -448 exact (stk[336]); 5 direct +2 jalr complete (46d730 NULL-branch found — m2c had it; 276290/2f0 belong to next func); 271f50 (u32*,u32 via cast); 271310 1-arg (retail lw a0,8(a1), m2c 2nd-arg phantom dropped); 46d730 2-arg (TU proto, m2c 3rd-arg phantom dropped); 87300 2-arg via K&R-absolute (retail lui 0x88, no base-var); 87310 (4,&sp,4); reassign-double (NOT 2.0f*); D_00881750/D_0063BCC0/D_0063BC88 registered+recovered.
-Walls: 246 scattered, no bulk>16; obj under-292B (844/1136); 6 H007 dead stores (kept, retail shape); saves unconfirmed (retail 6+4).
+// Wins: frame -448 exact (stk[336]); 5 direct +2 jalr complete (46d730 NULL-branch found — m2c had it; 276290/2f0 belong to next func); 271f50 (u32*,u32 via cast); 271310 1-arg (retail lw a0,8(a1), m2c 2nd-arg phantom dropped); 46d730 2-arg (TU proto, m2c 3rd-arg phantom dropped); 87300 2-arg via K&R-absolute (retail lui 0x88, no base-var); 87310 (4,&sp,4); reassign-double (NOT 2.0f*); D_00881750/D_0063BCC0/D_0063BC88 registered+recovered.
+// Walls: 246 scattered, no bulk>16; obj under-292B (844/1136); 6 H007 dead stores (kept, retail shape); saves unconfirmed (retail 6+4).

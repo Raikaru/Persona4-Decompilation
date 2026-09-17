@@ -2463,6 +2463,14 @@ void func_00347b30(u8 *arg0, u8 *arg1) {
    body is not recoverable from the truncated note + m2c draft (the adda.s/msub.s/
    madd.s accumulator block and the lui-only D_008872F8 hoist are the structural
    crux). 263 remains the measured best; not re-pursued to window-exactness. */
+/* measured: re-derived inherited nd263 -> nd56 (differing words reloc-masked, 301/301 instrs, 1204B/1216B) in correct tree pwd /home/raikaru/Projects/Persona 3 Decomp/source/Persona4-Decompilation.
+   Exact commands (bare repo-relative paths):
+     python3 tools/probe_variants.py src/promoted/y_CmbCardEff.c func_00347c70 --candidate v10b=/var/tmp/cmb347c70/body_v10b.c  # 56 (v9 raw 265, v4 tight 261, v5 reload 279, v11 dtab 270, v12 dtab+pragma 289, v13 recipeA 76)
+     python3 tools/fnalign.py src/promoted/y_CmbCardEff.c func_00347c70 --candidate /var/tmp/cmb347c70/body_v10b.c  # 58 edits (+4 reloc-only), retail 301 object 301
+     python3 tools/probe_archive.py docs/probe_archive/yCmb_00347c70_body.c src/promoted/y_CmbCardEff.c  # 56, source unchanged
+   Reconstruction top-down: lw 0x38(a0)->s0, 1.0f/div.s, ((flags&2)>>1)==1 gate, s16 i<4 loop x4 with (f32)*(u8*) srl/bltz, FMA reload *(0x134/0x138) +/- 64.0f**(0x1A0) (literal 64 for lui/mtc1, adda/msub/madd), 00285b30<0x208 alloc 00461390+00347b30, ((flags&4)>>2)==1 with 002b2aa0(0,...)/002b2cb0, ((flags&0x10)>>4)==1 with 002b2aa0(1,...)/(u8)(s32) guard + 002b2cb0.
+   Levers that moved it (docs/matching.md): raw byte-offset ((s32)obj+(s32)i*0x40+off) fixes body-head dsll32/dsra32 (p-style folds ext to bottom only; isolated loop3 int+short vs loop4 short proof) + reload FMA fixes ACC (cached f1b/c64 h1=mul vs reload h2=adda, isolated fma_test proof) + #pragma push/opt_loop_invariants on/pop 265->56 (full D-1.0 hoist vs lui-only; dtab variants reject). Recipe A explicit v/c/doubling 76 rejects (plain already single bltz as in matched 003489c0). Flag ((x&N)>>k)==1, s16, u8/lbu, s16/lh, f32, /2 correction all match.
+   Remaining 56 floor (fnalign earliest hunk loop preheader, nothing after is real until it is gone): lui-only hoist granularity (retail lui $v0 alone at entry + lwc1/sub per iter; pragma hoists whole lui+lwc1+sub to preheader, direct keeps lui in body) + or/mtc1 coloring ($v1 vs $a0, dest $a0 vs $a1, counter $a1 vs $a2, srl/andi/or/mtc1 x4 + final mfc1/or/sb $v0 vs $v1) + branch displacement cascade. Same family as prior 263 note + y_draw 002b7f20 + y_smap 002b0b10. Tried p/raw/off+base/while/dtab/recipeA/decl orders, all measured. Production stays INCLUDE_ASM per floor policy; best faithful body banked as docs/probe_archive/yCmb_00347c70_body.c (LF) with push/pop pragma. No live body, no TEMP-PROBE, externs preserved, CRLF preserved. */
 // FUN_00347C70
 INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_00347c70);
 // FUN_00348130

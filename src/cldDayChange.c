@@ -346,8 +346,116 @@ void func_00265f40(s32 arg0, s32 arg1, u32 arg2, s32 arg3, u8 *arg4,
 
 /* No real C body was produced for this 1600-byte window. The nd 7 result came
    from an 8-byte empty stub and is a size-deficit artifact, not a near miss. */
-// FUN_00266050
+/* measured: candidate object 400 instrs/retail 400 instrs (1600B/1600B exact), probe reloc-masked 332 words (guard below, NON_MATCHING so production stays ASM; fnalign 207 edits). Eleven Pair copies (0x28/0x3D/0x58/0x35/0x57/0x6A/0x19/0x66/0x5D/0x26/0x41) plus 13-entry jtbl_00747FE0 dispatch (case0->tail) with 00265f40 calls and 0045d6e0 tail. Table-dispatch shape copies MATCHed 00265110 conventions. Banked as floor. */
+// FUN_00266050 NONMATCHING
+#ifdef NON_MATCHING
+void func_00266050(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 fparg0)
+{
+    Pair b0[0x28];
+    Pair b1[0x3D];
+    Pair b2[0x58];
+    Pair b3[0x35];
+    Pair b4[0x57];
+    Pair b5[0x6A];
+    Pair b6[0x19];
+    Pair b7[0x66];
+    Pair b8[0x5D];
+    Pair b9[0x26];
+    Pair b10[0x41];
+    Pair *src;
+    Pair *dst;
+    s32 n;
+    u32 col;
+    u32 c6;
+    u8 tail[4];
+    s32 stack[4];
+
+    src = (Pair *)D_00637710; dst = b0; n = 0x28;
+    do { *dst = *src; src++; dst++; n--; } while (n > 0);
+    src = (Pair *)D_00637850; dst = b1; n = 0x3D;
+    do { *dst = *src; src++; dst++; n--; } while (n > 0);
+    src = (Pair *)D_00637A40; dst = b2; n = 0x58;
+    do { *dst = *src; src++; dst++; n--; } while (n > 0);
+    src = (Pair *)D_00637D00; dst = b3; n = 0x35;
+    do { *dst = *src; src++; dst++; n--; } while (n > 0);
+    src = (Pair *)D_00637EB0; dst = b4; n = 0x57;
+    do { *dst = *src; src++; dst++; n--; } while (n > 0);
+    src = (Pair *)D_00638170; dst = b5; n = 0x6A;
+    do { *dst = *src; src++; dst++; n--; } while (n > 0);
+    src = (Pair *)D_006384C0; dst = b6; n = 0x19;
+    do { *dst = *src; src++; dst++; n--; } while (n > 0);
+    src = (Pair *)D_00638590; dst = b7; n = 0x66;
+    do { *dst = *src; src++; dst++; n--; } while (n > 0);
+    src = (Pair *)D_006388C0; dst = b8; n = 0x5D;
+    do { *dst = *src; src++; dst++; n--; } while (n > 0);
+    src = (Pair *)D_00638BB0; dst = b9; n = 0x26;
+    do { *dst = *src; src++; dst++; n--; } while (n > 0);
+    src = (Pair *)D_00638CE0; dst = b10; n = 0x41;
+    do { *dst = *src; src++; dst++; n--; } while (n > 0);
+    col = ((u32)(arg2 & 0xFF)) | 0x23232300;
+    if ((u32)arg3 >= 0xD) {
+        goto tail;
+    }
+    c6 = col >> 8;
+    switch (arg3) {
+    case 0:
+        break;
+    case 1:
+        func_00265f40(arg0, arg1, c6, 0xFF, (u8 *)b0, fparg0, 0x28, 1.0f, 1.0f);
+        break;
+    case 2:
+        func_00265f40(arg0, arg1, c6, 0xFF, (u8 *)b1, fparg0, 0x3D, 1.0f, 1.0f);
+        break;
+    case 3:
+        func_00265f40(arg0, arg1, c6, 0xFF, (u8 *)b2, fparg0, 0x58, 1.0f, 1.0f);
+        break;
+    case 4:
+        func_00265f40(arg0, arg1, c6, 0xFF, (u8 *)b3, fparg0, 0x35, 1.0f, 1.0f);
+        break;
+    case 5:
+        func_00265f40(arg0, arg1, c6, 0xFF, (u8 *)b4, fparg0, 0x57, 1.0f, 1.0f);
+        break;
+    case 6:
+        func_00265f40(arg0, arg1, c6, 0xFF, (u8 *)b5, fparg0, 0x6A, 1.0f, 1.0f);
+        break;
+    case 7:
+        func_00265f40(arg0, arg1, c6, 0xFF, (u8 *)b6, fparg0, 0x19, 1.0f, 1.0f);
+        break;
+    case 8:
+        func_00265f40(arg0, arg1, c6, 0xFF, (u8 *)b7, fparg0, 0x66, 1.0f, 1.0f);
+        break;
+    case 9:
+        func_00265f40(arg0, arg1, c6, 0xFF, (u8 *)b8, fparg0, 0x5D, 1.0f, 1.0f);
+        break;
+    case 10:
+        func_00265f40(arg0, arg1, c6, 0xFF, (u8 *)b9, fparg0, 0x26, 1.0f, 1.0f);
+        func_00265f40(arg0, arg1, c6, 0xFF, (u8 *)b10, fparg0, 0x41, 1.0f, 1.0f);
+        break;
+    case 11:
+        func_00265f40(arg0, arg1, c6, 0xFF, (u8 *)b9, fparg0, 0x26, 1.0f, 1.0f);
+        func_00265f40(arg0 + 0x88, arg1, c6, 0xFF, (u8 *)b9, fparg0, 0x26, 1.0f, 1.0f);
+        break;
+    case 12:
+        func_00265f40(arg0, arg1, c6, 0xFF, (u8 *)b9, fparg0, 0x26, 1.0f, 1.0f);
+        func_00265f40(arg0 + 0x45, arg1 + 6, c6, 0xFF, (u8 *)b0, fparg0, 0x3D, 1.0f, 1.0f);
+        break;
+    default:
+        break;
+    }
+tail:
+    tail[0] = 0;
+    tail[1] = 0;
+    tail[2] = 0;
+    tail[3] = (u8)(0xFF - (arg2 & 0xFF));
+    stack[0] = arg0;
+    stack[1] = arg1;
+    stack[2] = 0x100;
+    stack[3] = 0xF5;
+    func_0045d6e0(tail, stack, 0.0f, 1);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cldDayChange", func_00266050);
+#endif
 
 
 /* measured: the hidden fifth float argument of func_00266050 is 0.0f, not
