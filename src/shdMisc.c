@@ -96,51 +96,44 @@ void func_00364320(Vec2f pos, f32 z, s32 color, s32 num)
 #pragma pop
 
 
-/* measured: returning the digit count makes b210 keep the loop index in $v0,
-   matching retail; opt_loop_invariants hoists the decimal constants into the
-   preheader. The function is an intentional hidden-return-value reconstruction. */
-// FUN_003645C0
+/* Matched.  Formats a decimal with a '.' every three digits and returns the
+   digit count, which is what keeps the index in $v0.  opt_loop_invariants
+   on is load-bearing: it hoists the four constants into the preheader
+   (without it the function measures 59 words); the named constant locals
+   the earlier body carried were not. */
+#pragma push
 #pragma opt_loop_invariants on
-s32 func_003645c0(char *arg0, s32 rem)
+// FUN_003645C0
+s32 func_003645c0(char *out, s32 value)
 {
+    char tmp[16];
     s32 i;
     s32 cnt;
-    s32 dot;
-    s32 two;
-    s32 three;
-    s32 ten;
-    s32 next;
     s32 j;
-    char tmp[16];
+    s32 next;
 
     i = 0;
     cnt = 0;
-    dot = 0x2e;
-    two = 2;
-    three = 3;
-    ten = 10;
     do {
-        tmp[i] = (char)((rem % ten) + 0x30);
-        i += 1;
-        rem = rem / ten;
-        if ((rem > 0) && (cnt == two)) {
-            tmp[i] = (char)dot;
-            i += 1;
+        tmp[i] = (char)((value % 10) + '0');
+        i++;
+        value = value / 10;
+        if (value > 0 && cnt == 2) {
+            tmp[i] = '.';
+            i++;
         }
-        next = cnt + 1;
-        cnt = next % three;
-    } while (rem > 0);
+        cnt = (cnt + 1) % 3;
+    } while (value > 0);
     j = 0;
     while (j < i) {
         next = j + 1;
-        arg0[j] = tmp[i - next];
+        out[j] = tmp[i - next];
         j = next;
     }
-    arg0[j] = 0;
+    out[j] = 0;
     return i;
 }
-/* measured: hidden return value keeps digit index in $v0 and yields exact retail code. */
-#pragma opt_loop_invariants off
+#pragma pop
 
 
 
