@@ -192,6 +192,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a03b0);
    a search wall at 190 edits. Archive probe body is this file's NON_MATCHING arm (measured, not stale).
    Emitted 445/456 instrs satisfies assignment ~3% gate (2.4% short) for a guarded floor. */
 #pragma opt_propagation off
+/* measured: object 1792B/window 1840B/normalized_diff 1226 (379 differing words, live re-measured current tree). */
+/* measured: inclusive <=0x5A0 with redundant-store dead-arm keeps slti-at (fnalign 143 to 142, slti-at vs slti-v0 fixed) and reaches floor size (1792 vs 1840, 2pt short); net words 375 to 379 and nd1213 to 1226 due to branch shape; arg-setup and loop-invariant to follow top-down. */
 // FUN_002A12E0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002a12e0(u8 *arg0, s32 arg1) {
@@ -216,7 +218,9 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
         func_0025e9e0(0xFFFFFF, alpha, 0xA4, iGpffffb540, 1, 0.0f, 0.0f, 0.0f);
         cnt = *(s32 *)(temp_16 + 0x1C68) + 1;
         *(s32 *)(temp_16 + 0x1C68) = cnt;
-        if (cnt >= 0x5A1) {
+        if (cnt <= 0x5A0) {
+            *(s32 *)(temp_16 + 0x1C68) = cnt;
+        } else {
             *(s32 *)(temp_16 + 0x1C68) = 0;
         }
         func_0025ea20(-78.0f, -82.0f, 0.0f, 0x4972FF, alpha, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(*(s32 *)(temp_16 + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);

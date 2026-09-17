@@ -711,14 +711,8 @@ s32 func_001dbba0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, code arg5)
 #else
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbba0);
 #endif
-/* measured: complete candidate in docs/probe_archive/QAIC_001dbf20_body.c:
-   object 1152B / window 1120B / differing words 242; not a compiler floor.
-   The historical five-word comparison described FUN_001DC9A0, not this body.
-   Ascending switch labels recover retail's descending comparison chain.
-   Call setup/masking, copy-index allocation, constant materialization and
-   FP/sort/weight addressing still differ. The archive uses the canonical HP
-   getter contracts, including recovered datCalcGetHp, and both parameters.
-   Keep the authoritative ASM; no near-match claim applies to this function. */
+/* measured: object 1096B/window 1120B/normalized_diff 769 (247 differing words, live re-measured current tree). */
+/* measured: slti-at s4-5 dest fixed via >=5 to >4 flip in probe (fnalign slti line gone, 143 to 142) with net words unchanged at 247 due to branch shape so kept current body; 4-short plus inserts at 181-261-278 checked for dead-arm trailing store, arg-cast audit and loop-invariant to follow top-down. */
 // FUN_001DBF20 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001dbf20(u8 *arg0, u32 arg1) {
@@ -1466,24 +1460,8 @@ next:
     return -1;
 }
 #pragma pop
-/* Floor: 1760B window, 39 differing words, and the instruction stream is
-   retail's exactly - `tools/probe_variants.py` plus an instruction-level
-   aligner report zero inserts or deletes, only register names.  Retail
-   colours `result` $s0 and `count` $s1; this build swaps that pair, and the
-   two later rotations ($s1/$s3 around the case-2 entry) follow from it
-   because each build reuses the register the count freed.  Measured inert:
-   declaration order (every position for both variables), variable names,
-   local types (s8/s16/s32 result, s16 count, s32 idx/limit), parameter
-   types, statement order, an extra AI-table local, inlining the `unit`
-   deref, merging `r` into `result`, and the pragmas opt_propagation,
-   opt_lifetimes, opt_dead_assignments, opt_strength_reduction,
-   opt_unroll_loops and optimization_level.  `optimize_for_size off` does
-   flip the pair to retail's assignment but re-colours five other variables
-   (284 words), and `-O2,p` for the whole unit costs 17 matched functions
-   here.  Micro-experiments (/var/tmp/ra) show the pair flips when `result`
-   outlives the switch or when `count` is consumed once before it - neither
-   is true of retail's code, whose tail is `return -1` and whose three cases
-   each mask the count separately. */
+/* measured: object 1748B/window 1760B/normalized_diff 39 (39 differing words, live re-measured current tree). */
+/* measured: earliest fnalign is saved-reg coloring s0-s1 (437 vs 437 instrs); slti already at on both sides for 0x1B8 (input s1-vs-s0 coloring only) so inclusive flip N-A; decl swaps neutral (39), init swap worsens to 40; no short tail, arg N-A, loop neutral; wall is colour rotation. */
 // FUN_001DD920 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)

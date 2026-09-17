@@ -372,10 +372,7 @@ u16 func_00156190(u8 *arg0)
     return *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x20);
 }
 
-/* Field-init floor (1168B window). First probe nd 173 (obj 1208B,
-   40B overrun); frame/prologue verified incl DSP words. Open:
-   $at/$v0 temp homes, lhu/lw order, scheduler ordering.
-   Reloc-column rows are retail-side display (obj addend-0). */
+/* Field-init floor (1168B window). First probe nd 173 (obj 1208B, 40B overrun) improved to nd 171 via slti inclusive (temp_2<3 -> <=2 fixes slti $at,$v0,3 vs $v0,$v0,3; fnalign 123->121 edits); frame/prologue verified incl DSP words. Open: $at/$v0 temp homes, lhu/lw order, scheduler ordering. Reloc-column rows are retail-side display (obj addend-0). */
 // FUN_001561A0 NONMATCHING
 #ifdef NON_MATCHING
 /* Closest non-MATCH candidate archived before reverting; lverify report had MISMATCH. */
@@ -408,7 +405,7 @@ s32 func_001561a0(u8 *arg0)
 
     temp_16 = *(u8 **)(arg0 + 0x38);
     temp_2 = *(s32 *)(temp_16 + 0);
-    if (temp_2 < 3) {
+    if (temp_2 <= 2) {
         goto after_check;
     }
     if (func_00106330(0x1470) != 0) {
@@ -949,6 +946,7 @@ fits:
    build folds both into the earlier promotions.  Shift/multiply/index
    spellings, u32 casts and moving the store ahead of the copies were all
    measured (221 to 184-208 words with worse structure). */
+/* measured this session: fresh probe 221wd / fnalign 26 edits (250 vs 246 instrs, 4 short) confirms note (no stale); triaged dead-arm hunt checked -- no trailing if/else-if chain ending 2-3 short (shortfall early at move $s1/$a1 + addu/sll recompute per top-down fnalign); slti $at inclusive checked (no convertible <N range dispatch in this window). Banked. */
 // FUN_00157310 NONMATCHING
 #ifdef NON_MATCHING
 void func_00157310(u8 *shape, u16 x0, u16 y0, s16 kind)

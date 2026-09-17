@@ -1962,8 +1962,17 @@ void func_0045ee00(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg
     colors[11] = color3;
     func_0045dfd0(colors, coords, fparg1, 3, 3, (s32)arg4);
 }
+/* Floor for FUN_0045FBE0 (retail 375 instrs): base banked body measures 372 instrs
+ * (3 short) with 128 edits (+8 reloc-only) via fnalign; tail cascade is a
+ * register-color shift ($s4->$s3, $s1->$s2, $f20/$f24) from the head
+ * arg-setup through the 20-iter loop tail. Live is Shape B (dead-arm
+ * redundant triple W32 0xC8/W32 0xC4/W8 0xC0 in NULL else removed, they are
+ * overwritten after the if): probe 333->311 words (-22), fnalign 372->369
+ * instrs (6 short) with 132 edits (+4) — accepts 3-instr size cost for -22
+ * word gain. Shape A skipped: no paired slti-$at replace row appears (only
+ * sltiu-$at/b insert-delete pairs), so >=K to >K-1 rewrite N/A. Banked. */
 // FUN_0045FBE0 NONMATCHING
-#ifdef SKIP_ASM
+#ifdef NON_MATCHING
 void func_0045fbe0(f32 *arg0, u8 *arg1, f32 *arg2, s32 arg3, f32 fparg0) {
     u8 work[0x5E0];
     f32 temp_f23;
@@ -2014,9 +2023,6 @@ void func_0045fbe0(f32 *arg0, u8 *arg1, f32 *arg2, s32 arg3, f32 fparg0) {
             W32(0xB4) = 0;
             W32(0xB0) = 0;
             W32(0xA8) = 0;
-            W32(0xC8) = 0;
-            W32(0xC4) = 0;
-            W8(0xC0) = 0.0f;
             W32(0x9C) |= 0x20003;
         }
         W8(0xC0) = (f32)*(s32 *)(arg0 + 0);
