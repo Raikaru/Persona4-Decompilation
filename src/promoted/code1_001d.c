@@ -2056,8 +2056,366 @@ u8 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
     arg0 = (u8 *)(u32)iGpffffb3b8;
     return (arg0 + (arg2 & 0xFFFF) * 0x28)[8];
 }
-// FUN_001D8010
+// FUN_001D8010 NONMATCHING
+/* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
+ * Structure: early count<2 return, D_008C027A 0x2000/8000/1000/4000 -> mode 5/4/2/3 with D_008C0276 hasFlag, 1d8df0==1 remap (5/1->3, 4/0->2), switch in object order 4/5,0/1,2/3 sharing bodies via jtbl_00747110, u16 entry idx/chain (Entry[12] at sp+0x90 -> sp+0x120 exactly), three bubble sorts (score/score/chain, descending), chain filter over *(D_0076449C+0x17C) via +0xA68, 1ec3d0 transform for 0/1, shared tail storing *(arg1+0x3A) with +0x3C|1.
+ * Phases measured (probe_variants, cwd REPO): v1 separate floats 695, v2 stk[24]+Entry[12] 687 best, v3 s64 mode 699 (regresses, retail daddiu not reached via s64), v4 s32 mode+arg0 reuse+m-inside 687 tie best (banked), v5 u16 counters+dummy s16 687 tie, v6 u16+s16 depth 696 (regresses). (s64)(x<<0x30)>>0x30 tried as s16 depth, regresses.
+ * Blockers for MATCH: 0/1 dot uses mula.s/madd.s accumulator (plain C gives mul/add, 2-word MAC floor per compiler-floors), mode sets need daddiu (6 words, s64 tried, still addiu), frame retail -0x180 vs candidate -0x1a0 (+32, extra s7/f22/f23 saves from 8 live ints vs 7), integer/FPR coloring (arg1 s0/mode s1/arg0 s2/hasFlag s3/n s4/i s5/unit s6) and stack offsets (entries 0x90, fixed 0x120-0x17C) remain.
+ * Guarded floor, production stays INCLUDE_ASM; verify.py src/promoted/code1_001d.c still 91 MATCH/3 ASM, no regression. */
+#ifdef SKIP_ASM
+void func_001d8010(u8 *arg0, u8 *arg1) {
+    extern void func_00195850(u8 *a0, f32 *a1);
+    extern void func_003e42a0(f32 *dst, f32 *src, u8 *cam);
+    extern f32 func_003e41e0(f32 *out, f32 *in);
+    extern f32 func_00196040(s32 a0, s32 a1, u8 *a2, u8 *a3, s32 a4, s32 a5);
+    extern f32 func_001ec3d0(f32 *a0, f32 *a1, f32 *a2, f32 *a3);
+    extern s32 func_001d8df0(u8 *a0);
+    extern u8 *func_001d8bc0(u8 *a0);
+    extern u16 D_008C027A[];
+    extern u16 D_008C0276[];
+    extern u8 D_00881430[];
+    extern u8 *D_0076449C;
+    typedef struct {
+        u8 *unit;
+        u16 idx;
+        u16 chain;
+        f32 score;
+    } Entry;
+    Entry entries[12];
+    f32 stk[24];
+    s32 mode;
+    s32 hasFlag;
+    s32 i;
+    s32 n;
+    u16 selected;
+#define PROJ ((f32 *)&stk[4])
+#define POS ((f32 *)&stk[12])
+#define CENTER ((f32 *)&stk[8])
+#define BASEXZ ((f32 *)&stk[0])
+#define CENTERXZ ((f32 *)&stk[2])
+#define CURXZ ((f32 *)&stk[22])
+#define OUTXZ ((f32 *)&stk[20])
+#define DELTA ((f32 *)&stk[18])
+#define DIR ((f32 *)&stk[16])
+    if (*(u16 *)(arg1 + 0x38) < 2) {
+        return;
+    }
+    if (D_008C027A[0] & 0x2000) {
+        mode = 5;
+        hasFlag = (D_008C0276[0] & 0x2000) != 0;
+    } else if (D_008C027A[0] & 0x8000) {
+        mode = 4;
+        hasFlag = (D_008C0276[0] & 0x8000) != 0;
+    } else if (D_008C027A[0] & 0x1000) {
+        mode = 2;
+        hasFlag = (D_008C0276[0] & 0x1000) != 0;
+    } else if (D_008C027A[0] & 0x4000) {
+        mode = 3;
+        hasFlag = (D_008C0276[0] & 0x4000) != 0;
+    } else {
+        return;
+    }
+    if ((func_001d8df0(arg1) & 0xFFFF) == 1) {
+        s32 m = mode & 0xFFFF;
+        if (m == 5 || m == 1) {
+            mode = 3;
+        } else if (m == 4 || m == 0) {
+            mode = 2;
+        }
+    }
+    switch (mode & 0xFFFF) {
+    case 4:
+    case 5: {
+        arg0 = func_00457120() + 0x20;
+        func_003e42a0(PROJ, (f32 *)D_00881430, arg0);
+        if (PROJ[2] == 0.0f) {
+            stk[20] = 640.0f * PROJ[0];
+            stk[21] = 448.0f * PROJ[1];
+        } else {
+            stk[20] = 640.0f * (PROJ[0] / PROJ[2]);
+            stk[21] = 448.0f * (PROJ[1] / PROJ[2]);
+        }
+        n = 0;
+        i = 0;
+        while ((i & 0xFFFF) < (s32)*(u16 *)(arg1 + 0x38)) {
+            u8 *unit = *(u8 **)(arg1 + ((i & 0xFFFF) * 4));
+            u8 *ud = *(u8 **)(unit + 0x30);
+            f32 len;
+            func_00195850(ud, POS);
+            func_003e42a0(PROJ, POS, arg0);
+            if (PROJ[2] != 0.0f) {
+                stk[22] = 640.0f * (PROJ[0] / PROJ[2]);
+                stk[23] = 448.0f * (PROJ[1] / PROJ[2]);
+            } else {
+                stk[20] = 640.0f * PROJ[0];
+                stk[21] = 448.0f * PROJ[1];
+            }
+            DELTA[0] = stk[22] - stk[20];
+            DELTA[1] = stk[23] - stk[21];
+            len = func_003e41e0(DELTA, DELTA);
+            if (0.0f < DELTA[0]) {
+                entries[n & 0xFFFF].score = -len;
+            } else {
+                entries[n & 0xFFFF].score = len;
+            }
+            entries[n & 0xFFFF].unit = unit;
+            entries[n & 0xFFFF].idx = (u16)(i & 0xFFFF);
+            n = (n + 1) & 0xFFFF;
+            i = (i + 1) & 0xFFFF;
+        }
+        {
+            s32 swapped;
+            s32 nn = n & 0xFFFF;
+            do {
+                s32 j;
+                swapped = 0;
+                j = 0;
+                while ((j & 0xFFFF) < nn - 1) {
+                    s32 jj = j & 0xFFFF;
+                    if (entries[jj].score < entries[jj + 1].score) {
+                        u8 *tp = entries[jj].unit;
+                        u16 ti = entries[jj].idx;
+                        f32 ts = entries[jj].score;
+                        entries[jj].unit = entries[jj + 1].unit;
+                        entries[jj].idx = entries[jj + 1].idx;
+                        entries[jj].score = entries[jj + 1].score;
+                        entries[jj + 1].unit = tp;
+                        entries[jj + 1].idx = ti;
+                        entries[jj + 1].score = ts;
+                        swapped = 1;
+                    }
+                    j = (j + 1) & 0xFFFF;
+                }
+            } while (swapped != 0);
+            {
+                u8 *curPtr = func_001d8bc0(arg1);
+                i = 0;
+                while ((i & 0xFFFF) < nn && entries[i & 0xFFFF].unit != curPtr) {
+                    i = (i + 1) & 0xFFFF;
+                }
+                if ((mode & 0xFFFF) == 5) {
+                    if ((i + 1) == nn) {
+                        if (hasFlag != 0) {
+                            selected = entries[0].idx;
+                        } else {
+                            selected = *(u16 *)(arg1 + 0x3A);
+                        }
+                    } else {
+                        selected = entries[(i + 1) & 0xFFFF].idx;
+                    }
+                } else {
+                    if ((i & 0xFFFF) == 0) {
+                        if (hasFlag != 0) {
+                            selected = entries[(nn - 1) & 0xFFFF].idx;
+                        } else {
+                            selected = *(u16 *)(arg1 + 0x3A);
+                        }
+                    } else {
+                        selected = entries[(i - 1) & 0xFFFF].idx;
+                    }
+                }
+            }
+        }
+        break;
+    }
+    case 0:
+    case 1: {
+        s32 tmp;
+        tmp = func_001d8df0(arg1) & 0xFFFF;
+        func_00195850(*(u8 **)(arg0 + 0x30), POS);
+        func_00196040(tmp, 0, (u8 *)CENTER, 0, 0, 1);
+        BASEXZ[0] = POS[0];
+        BASEXZ[1] = POS[2];
+        CENTERXZ[0] = CENTER[0];
+        CENTERXZ[1] = CENTER[2];
+        DELTA[0] = POS[0] - CENTER[0];
+        DELTA[1] = POS[2] - CENTER[2];
+        DIR[0] = DELTA[1];
+        DIR[1] = -DELTA[0];
+        func_003e41e0(DIR, DIR);
+        n = 0;
+        i = 0;
+        while ((i & 0xFFFF) < (s32)*(u16 *)(arg1 + 0x38)) {
+            u8 *unit = *(u8 **)(arg1 + ((i & 0xFFFF) * 4));
+            u8 *ud = *(u8 **)(unit + 0x30);
+            f32 dist;
+            f32 dot;
+            func_00195850(ud, POS);
+            CURXZ[0] = POS[0];
+            CURXZ[1] = POS[2];
+            dist = func_001ec3d0(BASEXZ, CENTERXZ, CURXZ, OUTXZ);
+            DELTA[0] = CURXZ[0] - OUTXZ[0];
+            DELTA[1] = CURXZ[1] - OUTXZ[1];
+            func_003e41e0(DELTA, DELTA);
+            dot = DELTA[1] * DIR[1] + DELTA[0] * DIR[0];
+            if (0.0f < dot) {
+                entries[n & 0xFFFF].score = -dist;
+            } else {
+                entries[n & 0xFFFF].score = dist;
+            }
+            entries[n & 0xFFFF].unit = unit;
+            entries[n & 0xFFFF].idx = (u16)(i & 0xFFFF);
+            n = (n + 1) & 0xFFFF;
+            i = (i + 1) & 0xFFFF;
+        }
+        {
+            s32 swapped;
+            s32 nn = n & 0xFFFF;
+            do {
+                s32 j;
+                swapped = 0;
+                j = 0;
+                while ((j & 0xFFFF) < nn - 1) {
+                    s32 jj = j & 0xFFFF;
+                    if (entries[jj].score < entries[jj + 1].score) {
+                        u8 *tp = entries[jj].unit;
+                        u16 ti = entries[jj].idx;
+                        f32 ts = entries[jj].score;
+                        entries[jj].unit = entries[jj + 1].unit;
+                        entries[jj].idx = entries[jj + 1].idx;
+                        entries[jj].score = entries[jj + 1].score;
+                        entries[jj + 1].unit = tp;
+                        entries[jj + 1].idx = ti;
+                        entries[jj + 1].score = ts;
+                        swapped = 1;
+                    }
+                    j = (j + 1) & 0xFFFF;
+                }
+            } while (swapped != 0);
+            {
+                u8 *curPtr = func_001d8bc0(arg1);
+                i = 0;
+                while ((i & 0xFFFF) < nn && entries[i & 0xFFFF].unit != curPtr) {
+                    i = (i + 1) & 0xFFFF;
+                }
+                if ((mode & 0xFFFF) == 1) {
+                    if ((i + 1) == nn) {
+                        if (hasFlag != 0) {
+                            selected = entries[0].idx;
+                        } else {
+                            selected = *(u16 *)(arg1 + 0x3A);
+                        }
+                    } else {
+                        selected = entries[(i + 1) & 0xFFFF].idx;
+                    }
+                } else {
+                    if ((i & 0xFFFF) == 0) {
+                        if (hasFlag != 0) {
+                            selected = entries[(nn - 1) & 0xFFFF].idx;
+                        } else {
+                            selected = *(u16 *)(arg1 + 0x3A);
+                        }
+                    } else {
+                        selected = entries[(i - 1) & 0xFFFF].idx;
+                    }
+                }
+            }
+        }
+        break;
+    }
+    case 2:
+    case 3: {
+        n = 0;
+        i = 0;
+        while ((i & 0xFFFF) < (s32)*(u16 *)(arg1 + 0x38)) {
+            u8 *unit = *(u8 **)(arg1 + ((i & 0xFFFF) * 4));
+            if ((*(u16 *)(unit + 0x1A) & 1) != 0) {
+                u8 *ud = *(u8 **)(unit + 0x30);
+                if (*(u8 *)(ud + 0xA2) == 0) {
+                    u16 depth = 0;
+                    u8 *node = *(u8 **)(D_0076449C + 0x17C);
+                    while (node != 0 && node != ud) {
+                        depth = (depth + 1) & 0xFFFF;
+                        node = *(u8 **)(node + 0xA68);
+                    }
+                    entries[n & 0xFFFF].unit = unit;
+                    entries[n & 0xFFFF].idx = (u16)(i & 0xFFFF);
+                    entries[n & 0xFFFF].chain = depth;
+                    n = (n + 1) & 0xFFFF;
+                }
+            }
+            i = (i + 1) & 0xFFFF;
+        }
+        if ((n & 0xFFFF) == 0) {
+            return;
+        }
+        if ((n & 0xFFFF) >= 2) {
+            s32 swapped;
+            s32 nn = n & 0xFFFF;
+            do {
+                s32 j;
+                swapped = 0;
+                j = 0;
+                while ((j & 0xFFFF) < nn - 1) {
+                    s32 jj = j & 0xFFFF;
+                    if (entries[jj].chain < entries[jj + 1].chain) {
+                        u8 *tp = entries[jj].unit;
+                        u16 ti = entries[jj].idx;
+                        u16 tc = entries[jj].chain;
+                        entries[jj].unit = entries[jj + 1].unit;
+                        entries[jj].idx = entries[jj + 1].idx;
+                        entries[jj].chain = entries[jj + 1].chain;
+                        entries[jj + 1].unit = tp;
+                        entries[jj + 1].idx = ti;
+                        entries[jj + 1].chain = tc;
+                        swapped = 1;
+                    }
+                    j = (j + 1) & 0xFFFF;
+                }
+            } while (swapped != 0);
+        }
+        {
+            u8 *curPtr = func_001d8bc0(arg1);
+            s32 nn = n & 0xFFFF;
+            i = 0;
+            while ((i & 0xFFFF) < nn && entries[i & 0xFFFF].unit != curPtr) {
+                i = (i + 1) & 0xFFFF;
+            }
+            if ((i & 0xFFFF) == (nn & 0xFFFF) || i == nn) {
+                return;
+            }
+            if ((mode & 0xFFFF) == 2) {
+                if ((i + 1) == nn) {
+                    if (hasFlag != 0) {
+                        selected = entries[0].idx;
+                    } else {
+                        selected = *(u16 *)(arg1 + 0x3A);
+                    }
+                } else {
+                    selected = entries[(i + 1) & 0xFFFF].idx;
+                }
+            } else {
+                if ((i & 0xFFFF) == 0) {
+                    if (hasFlag != 0) {
+                        selected = entries[(nn - 1) & 0xFFFF].idx;
+                    } else {
+                        selected = *(u16 *)(arg1 + 0x3A);
+                    }
+                } else {
+                    selected = entries[(i - 1) & 0xFFFF].idx;
+                }
+            }
+        }
+        break;
+    }
+    }
+    if (*(u16 *)(arg1 + 0x3A) != (selected & 0xFFFF)) {
+        *(u16 *)(arg1 + 0x3A) = selected;
+        *(u8 *)(arg1 + 0x3C) |= 1;
+    }
+}
+#undef PROJ
+#undef POS
+#undef CENTER
+#undef BASEXZ
+#undef CENTERXZ
+#undef CURXZ
+#undef OUTXZ
+#undef DELTA
+#undef DIR
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d8010);
+#endif
 // FUN_001D8C00
 u8 *func_001d8c00(u8 *arg0)
 {
