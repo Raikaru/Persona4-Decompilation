@@ -1247,21 +1247,18 @@ s32 func_00178c00(void)
    real TU is split out. They were canonical windows with no marker, i.e.
    invisible to the verifier and supplied to the link as retail bytes. */
 
-/* Floor: 337 differing words, 462 emitted instructions against retail's
-   464 (1848 bytes in an 1856-byte window), frame 0x100 with the
-   sd/sq/swc1 prologue block exact.  Levers that landed: the D_00887300
-   table base hoisted once under opt_propagation off; the (u8)(u32)(255.0f
-   * scale) conversion; a plain lwc1 for arg0+0x68; the f20/f21 homes
-   swapped so scale sits in $f20; the three ft loads grouped; the stack
-   arrays resized and padded to retail's slots; and `count = (p != 0)`
-   rewritten as `if (p) count++`.  func_00145270, func_001791d0 and
-   func_00179f70 are declared locally because the owner's declarations
-   come later in the file or not at all.
+/* Measured: fnalign 161 edits (plus 8 reloc-only), 451 emitted instructions
+   against retail's 462 (1804B in an 1848B window, 97.6% size, within 3%),
+   frame 0x100 with sd/sq/swc1 prologue exact. Levers in order: slti bounds
+   via goto-structured range dispatch (`gp<0x33` goto check + `gp<=0x3A`
+   goto alloc, `gp<0x47`/`gp>=0x4F` goto else, zero slti diffs, 174->169);
+   `s32 cur` removing four `andi` promotions (327->174); explicit
+   `base = D_00887300` reloads before tail (169->161, 446->450) and inner-k
+   reloads via `allocs[i]` direct (450->451, same edits); `count++` for the
+   else arm. func_00145270, func_001791d0 and func_00179f70 declared locally.
    WALL: register colour permutation (base $s1 vs $s0, arg1/arg4 $s6/$s7,
-   arg3 $s0 vs $s1), the stack slot class of the float temporaries (0xA0
-   vs 0xF0) and four `andi $v1,$a0,0xFFFF` promotions before the dedup
-   compares.  A permutation census on this line was ~255 structural and
-   ~43 allocation/scheduling words. */
+   arg3 $s0 vs $s1, count $s3 vs $s2) and prologue float/int scheduling plus
+   two late-base remats in mismatched registers. */
 // FUN_00179FC0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
@@ -1284,7 +1281,7 @@ s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, u8 *arg5, 
     s32 count;
     s32 i;
     u32 k;
-    u16 cur;
+    s32 cur;
     s32 v1;
     s32 v2;
     s32 gp_val;
@@ -1292,7 +1289,6 @@ s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, u8 *arg5, 
     u8 *alloc;
     u8 *a;
     s32 v;
-    u32 n;
     void (**base)(s32, s32);
     f20 = farg0;
     tmp = func_001452b0(0xC);
@@ -1341,7 +1337,16 @@ s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, u8 *arg5, 
         count = 0;
         ctx[0] = arg3;
         ctx[1] = arg5;
-        if ((func_0014a200() == 1) || ((gp_val = *(s32 *)iGpffff9db0, (gp_val >= 0x33 && gp_val < 0x3B)) || (gp_val >= 0x47 && gp_val < 0x4F))) {
+        if (func_0014a200() == 1) goto alloc_path;
+        gp_val = *(s32 *)iGpffff9db0;
+        if (gp_val < 0x33) goto check_second;
+        if (gp_val <= 0x3A) goto alloc_path;
+check_second:
+        if (gp_val < 0x47) goto else_path;
+        if (gp_val >= 0x4F) goto else_path;
+        goto alloc_path;
+alloc_path:
+        {
             alloc = func_00145270(0x400);
             if (alloc == NULL) {
                 return 0;
@@ -1408,24 +1413,26 @@ s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, u8 *arg5, 
                     count++;
                 }
             }
-        } else {
-            allocs[0] = tmp;
-            count = 1;
+            goto join_path;
         }
+else_path:
+        allocs[0] = tmp;
+        count++;
+join_path:;
         for (i = 0; i < count; i++) {
             a = allocs[i];
             v = *(s32 *)(*(u8 **)(a + 0x1A0) + 0x10);
             if (v != 0) {
                 func_003bff30((void *)v, (void (*)())func_00179f70, ctx);
             } else {
-                n = *(u32 *)(*(u8 **)(a + 0x1A0) + 0x18);
-                for (k = 0; k < n; k++) {
-                    func_003bff30(*(void **)(*(u8 **)(a + 0x1A0) + k * 4 + 0x1C), (void (*)())func_00179f70, ctx);
+                for (k = 0; k < *(u32 *)(*(u8 **)(allocs[i] + 0x1A0) + 0x18); k++) {
+                    func_003bff30(*(void **)(*(u8 **)(allocs[i] + 0x1A0) + k * 4 + 0x1C), (void (*)())func_00179f70, ctx);
                 }
             }
         }
     }
     *(u32 *)(arg5 + 0x5464) = (*(u32 *)(arg5 + 0x5460) + *(u32 *)(arg5 + 0x54C8) * 600) / 3U;
+    base = D_00887300;
     if (*(u32 *)(arg5 + 0x5460) != 0) {
         base[0](1, arg1);
         base[0](0xE, 0);
@@ -1440,6 +1447,7 @@ s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, u8 *arg5, 
         }
         *(u32 *)(arg5 + 0x5460) = 0;
     }
+    base = D_00887300;
     base[0](0xB, 6);
     base[0](0xA, 5);
     return 1;
