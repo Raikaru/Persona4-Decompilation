@@ -1677,6 +1677,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00422158);
 #endif
 // FUN_00422170
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00422170);
+// FUN_00422218
+INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00422218);
 /* measured: live object 16B/window 24B, normalized_diff 4 (installed guard below; twin of func_00422158). Masking the params in place, arg1 first, reproduces retail's and-order (and $a1 before j, and $a0 in the delay slot); fnalign edit script is down to 2 (was 5). Remainder is the same lui/ori-vs-addiu mask materialization wall. Ruled out: direct call, in-place forward order, (u8*,u8*) callee prototype. Banked as floor. */
 // FUN_00422298 NONMATCHING
 #ifdef NON_MATCHING
