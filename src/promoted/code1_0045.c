@@ -233,8 +233,143 @@ f32 func_00450490(f32 fparg0)
     }
     return temp_f1;
 }
-// FUN_00450630
+typedef struct {
+    f32 x;
+    f32 y;
+} Code45Vec2;
+
+typedef struct {
+    f32 u;
+    f32 v;
+} Code45TexCoords;
+
+
+/* Providers and external symbols */
+extern s32 iGpffffb9d4;
+extern Code45Vec2 iGpffffac48;
+extern Code45Vec2 iGpffffac50;
+extern s8 iGpffffb9d8;
+extern f32 D_008872F8;
+extern u8 D_008BE320[][256];
+
+
+/* measured: func_00450630 live banked floor with `opt_loop_invariants on` inside guard measures probe 174 words via `tools/probe_variants.py --candidate`, fnalign retail 261/object 261 (exact) with 108 edits (+4 reloc-only) via `tools/fnalign.py --candidate` (object 1044B/window 1056B, 12B short, 1.1% within gate). History: archive FreshSdkOverlay_00450630_body.c claimed 1044/1056 nd441 (stale; live re-measure with same body and pragma gives 174 words, 261/261, 108+4); initial 1028/nd745 without pragma per archive. Residual is frame (retail -0x190 vs object -0x180, one 16B slot) plus saved-register color and stack offsets with executable extent complete; slti rows already match ($v0 vs $v0, $v1 vs $v1) so inclusive-bound N/A, exact size so dead-arm N/A. Banked guarded floor. */
+// FUN_00450630 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_loop_invariants on
+void func_00450630(void)
+{
+    f32 vertices[4][16];
+    Code45TexCoords uvs[4];
+    Code45Vec2 text_pos;
+    Code45Vec2 box_pos;
+    f32 recipZ;
+    f32 row_y_base;
+    f32 row_y;
+    f32 col_x;
+    u8 *line;
+    s32 row;
+    s32 col;
+    s32 i;
+    s32 j;
+    u8 ch;
+
+    recipZ = 1.0f / *(f32 *)(iGpffffb9e0 + 0x80);
+    if (iGpffffb9d4 == 0) {
+        return;
+    }
+
+    D_00887300[0](6, 1);
+    D_00887300[0](7, 2);
+    D_00887300[0](8, 1);
+    D_00887300[0](9, 1);
+    D_00887300[0](12, 1);
+    box_pos = iGpffffac48;
+    D_00887300[0](1, 0);
+
+    for (i = 0; i < 4; i++) {
+        vertices[i][6] = recipZ;
+        vertices[i][8] = 64.0f;
+        vertices[i][9] = 64.0f;
+        vertices[i][10] = 64.0f;
+        vertices[i][11] = 128.0f;
+        vertices[i][2] = D_008872F8;
+    }
+
+    vertices[0][0] = box_pos.x;
+    vertices[0][1] = box_pos.y;
+    vertices[1][0] = 16.0f + (480.0f + box_pos.x);
+    vertices[1][1] = box_pos.y;
+    vertices[2][0] = box_pos.x;
+    vertices[2][1] = 16.0f + (180.0f + box_pos.y);
+    vertices[3][0] = vertices[1][0];
+    vertices[3][1] = vertices[2][1];
+
+    D_00887310[0](4, vertices, 4);
+    D_00887300[0](1, iGpffffb9e8);
+
+    for (i = 0; i < 4; i++) {
+        vertices[i][6] = recipZ;
+        vertices[i][8] = 255.0f;
+        vertices[i][9] = 255.0f;
+        vertices[i][10] = 255.0f;
+        vertices[i][11] = 255.0f;
+        vertices[i][2] = D_008872F8;
+    }
+
+    for (row = 0; row < iGpffffb9d8; row++) {
+        line = D_008BE320[row];
+        row_y_base = 12.0f * (f32)row;
+        row_y = 11.0f + row_y_base;
+
+        for (col = 0; col < 53; col++) {
+            text_pos = iGpffffac50;
+            ch = line[col];
+            if (ch == 0) {
+                break;
+            }
+            if (ch == ' ') {
+                continue;
+            }
+
+            ch -= 0x20;
+            if (ch >= 0x80) {
+                ch -= 0x20;
+            }
+
+            col_x = 12.0f * (f32)col;
+            vertices[0][0] = col_x + text_pos.x;
+            vertices[0][1] = row_y_base + text_pos.y;
+            vertices[1][0] = (11.0f + col_x) + text_pos.x;
+            vertices[1][1] = vertices[0][1];
+            vertices[2][0] = vertices[0][0];
+            vertices[2][1] = row_y + text_pos.y;
+            vertices[3][0] = vertices[1][0];
+            vertices[3][1] = vertices[2][1];
+
+            uvs[0].u = 0.0625f * (f32)(ch % 16);
+            uvs[0].v = 0.0625f * (f32)(ch >> 4);
+            uvs[1].u = 0.046875f + uvs[0].u;
+            uvs[1].v = uvs[0].v;
+            uvs[2].u = uvs[0].u;
+            uvs[2].v = 0.046875f + uvs[0].v;
+            uvs[3].u = uvs[1].u;
+            uvs[3].v = uvs[2].v;
+
+            for (j = 0; j < 4; j++) {
+                vertices[j][4] = uvs[j].u;
+                vertices[j][5] = uvs[j].v;
+            }
+
+            D_00887310[0](4, vertices, 4);
+        }
+    }
+}
+
+#pragma opt_loop_invariants off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450630);
+#endif
 // FUN_00450A50 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450a50);
 /* Measured: 164/176 bytes, three resolved relocations and 12 zero tail bytes.
@@ -1962,15 +2097,16 @@ void func_0045ee00(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg
     colors[11] = color3;
     func_0045dfd0(colors, coords, fparg1, 3, 3, (s32)arg4);
 }
-/* Floor for FUN_0045FBE0 (retail 375 instrs): base banked body measures 372 instrs
- * (3 short) with 128 edits (+8 reloc-only) via fnalign; tail cascade is a
- * register-color shift ($s4->$s3, $s1->$s2, $f20/$f24) from the head
- * arg-setup through the 20-iter loop tail. Live is Shape B (dead-arm
- * redundant triple W32 0xC8/W32 0xC4/W8 0xC0 in NULL else removed, they are
- * overwritten after the if): probe 333->311 words (-22), fnalign 372->369
- * instrs (6 short) with 132 edits (+4) — accepts 3-instr size cost for -22
- * word gain. Shape A skipped: no paired slti-$at replace row appears (only
- * sltiu-$at/b insert-delete pairs), so >=K to >K-1 rewrite N/A. Banked. */
+/* Floor for FUN_0045FBE0 (retail 375 instrs via fnalign, window 1504B): live with `opt_common_subs off`
+ * measures probe 268 words via `tools/probe_variants.py --candidate`, fnalign retail 375/object 375 (exact)
+ * with 146 edits (+8 reloc-only) via `tools/fnalign.py --candidate`. Tail cascade is a register-color shift
+ * ($s4->$s3, $s1->$s2, $f20/$f24) from the head arg-setup through the 20-iter loop tail plus the home-move
+ * order wall (retail move $s1/$s2/$s0 vs object move $s2/$s3/$s1, invariant). History: Shape B dead-arm
+ * (redundant triple W32 0xC8/W32 0xC4/W8 0xC0 in NULL else removed, overwritten after the if) took probe
+ * 333->311 words (-22) at 369 instrs (6 short, 132+4 edits); sweep then took 311->268 (-43, nopragma 311
+ * reproduced) to exact size. Shape A skipped: no paired signed-slti $at replace row appears (only sltiu
+ * $at/b insert-delete pairs at 6 and 0x14), so >=K to >K-1 rewrite N/A. Ruled out live: float-copy W32
+ * 0x84/0x88 to W8 float (268 tie) and direct-float second block W8 0xC0/0xC4/0xC8 (309, worse). Banked. */
 /* measured 0045fbe0: `opt_common_subs off` inside the guard is worth 43 words (311 -> 268); retail rematerialises what b210 hoists. */
 // FUN_0045FBE0 NONMATCHING
 #ifdef NON_MATCHING

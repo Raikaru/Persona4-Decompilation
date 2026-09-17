@@ -40,11 +40,15 @@ static inline void fclZero8(u8 *p)
 
 
 
-/* Combine-draw conventions (established from MATCHed 00315310/00316e80 and retail 00314ef0):
-   Work struct is { RGBA/col[16] at sp+0x70; u8 gap[16] at sp+0xB0; Pair/pos[16] at sp+0xC0 } (frame 0x140 for 16-entry windows).
-   Colours are FclByte4 (4x u8); UV/pos are FclVec2 pairs copied as two u32 words (lw/sw, never lwc1).
-   s64 params retain raw in s-reg (raw=arg1), normalize via (s16)raw to u32 base, loop increment as i=(s16)(i+1), offset-first address via addOff(idx*2,(u32)t).
-   16-entry dispatch is flat sltiu (i-14<2,i-6<4,i-10<4,else) to sp+0x70+i*4; use inclusive (<=1U/<=3U) if slti dest is $v0 not $at. */
+/* Combine-draw conventions (established from MATCHed 00315310/00316e80 and retail 00314ef0): */
+/* Work struct is { RGBA/col[16] at sp+0x70; u8 gap[16] at sp+0xB0; Pair/pos[16] at sp+0xC0 } (frame 0x140 for 16-entry windows). */
+/* Colours are FclByte4 (4x u8); UV/pos are FclVec2 pairs copied as two u32 words (lw/sw, never lwc1). */
+/* s64 params retain raw in s-reg (raw=arg1), normalize via (s16)raw to u32 base, loop increment as i=(s16)(i+1), offset-first address via addOff(idx*2,(u32)t). */
+/* 16-entry dispatch is flat sltiu (i-14<2,i-6<4,i-10<4,else) to sp+0x70+i*4; use inclusive (<=1U/<=3U) if slti dest is $v0 not $at. */
+/* 0032f4d0 skeleton (reuse for draw family): s64 locals spA0..sp78 fed to 2970 and cast to FclVec2 for tbl stores */
+/* (tbl FclVec2[5] at 0x50, b7=5/6 out-of-bounds over sp78/sp80); 0x1306 nested inside 0x1305 (both beqz to block 6); */
+/* third 2970(&sp98) block before 0x1305; t->0xB7 re-read inline (never named counter); f20=-14 last in 0x1306; */
+/* r s16 (s8 re-extends at fa30); loop for(i=0;(s16)i<t->0xB7;i=(s16)(i+1)) with n=(s16)i and func_003147e0 6-arg call. */
 extern void func_0044ea90(const void *arg0, u32 arg1);
 extern void *func_0043f9c8(void *dest, s32 value, s32 size);
 extern void *func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
@@ -386,7 +390,7 @@ typedef s64 M2C_UNK64;
 #define MULT_HI(a, b) (0)
 #define MULTU_HI(a, b) (0)
 #define CLZ(x) (0)
-void func_00314ef0(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s32 arg5) {
+void func_00314ef0(u8 *arg0, s64 arg1, s64 arg2, s32 arg3, s64 arg4, s32 arg5) {
     M2C_UNK spD4;
     M2C_UNK spD8;
     M2C_UNK spDC;
@@ -422,41 +426,41 @@ void func_00314ef0(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s32 arg5) {
     temp_17 = (s64) (arg1 << 0x38) >> 0x38;
     temp_22 = temp_17 * 2;
     temp_18 = (s64) ((temp_22 + 0x1F4) << 0x30) >> 0x30;
-    func_002b7750(temp_18, 0x1AC);
+    func_002b7750((s16)temp_18, 0x1AC);
     temp_16 = (s64) (((s64) (((temp_17 * 5) + 0x66) << 0x30) >> 0x30) << 0x30) >> 0x30;
     temp_23 = temp_16 + 2;
     func_002b2970(&spF0, M2C_BITWISE(f32, spC8), unkspCC);
     func_002b2a60(&sp10C, 0, 0, 0x66, 0xFF);
     func_002b77d0(temp_18, spF0, 0x1AC, sp10C, (s64) (temp_23 << 0x30) >> 0x30, arg5, 3, 3, 0x43170000, arg4, func_00331560());
     temp_18_2 = (s64) ((temp_22 + 0x1F5) << 0x30) >> 0x30;
-    func_002b7750(temp_18_2, 0x1B3);
+    func_002b7750((s16)temp_18_2, 0x1B3);
     temp_f21 = 217.0f + M2C_BITWISE(f32, spC8);
     func_002b2970(&spE8, temp_f21, unkspCC);
     func_002b2a60(&sp108, 0, 0, 0x66, 0xFF);
     func_002b77d0(temp_18_2, spE8, 0x1B3, sp108, (s64) (temp_23 << 0x30) >> 0x30, arg5, 3, 3, 0x43170000, arg4, func_00331560());
     func_002b2970(&spF8, temp_f21 - 28.0f, unkspCC);
     temp_18_3 = (s64) ((temp_17 + 0x2FB) << 0x30) >> 0x30;
-    func_002b7750(temp_18_3, 0x131);
+    func_002b7750((s16)temp_18_3, 0x131);
     func_002b2a60(&sp104, 0x25, 0x2F, 0x94, 0xFF);
     func_002b77d0(temp_18_3, spF8, 0x131, sp104, (s64) ((temp_16 + 3) << 0x30) >> 0x30, arg5, 3, 3, 0x43160000, arg4, func_00331560());
-    func_002b68d0(temp_18_3, 0xE, 0);
-    temp_18_4 = func_0046d200(func_00331560(), 0x131);
+    func_002b68d0((s16)temp_18_3, 0xE, 0);
+    temp_18_4 = (s32)func_0046d200((u32)func_00331560(), 0x131);
     temp_2 = (u8 *)((temp_17 * 4) + temp_30);
-    temp_2_2 = (u8 *)(func_002b81f0(M2C_FIELD(temp_2, s32 *, 0x258)));
+    temp_2_2 = (u8 *)(func_002b81f0((u8 *)M2C_FIELD(temp_2, s32 *, 0x258)));
     M2C_FIELD(temp_2_2, f32 *, 0) = (f32) spF8;
     M2C_FIELD(temp_2_2, f32 *, 4) = unkspFC;
-    temp_f21_2 = func_0046b260(temp_18_4);
-    func_002b29e0(&spD0, temp_f21_2, func_0046b2f0(temp_18_4));
-    temp_2_3 = (u8 *)(func_002b81f0(M2C_FIELD(temp_2, s32 *, 0x258)));
+    temp_f21_2 = func_0046b260((u8 *)temp_18_4);
+    func_002b29e0((u8 *)&spD0, temp_f21_2, func_0046b2f0((u8 *)temp_18_4));
+    temp_2_3 = (u8 *)(func_002b81f0((u8 *)M2C_FIELD(temp_2, s32 *, 0x258)));
     M2C_FIELD(temp_2_3, f32 *, 8) = spD0;
     M2C_FIELD(temp_2_3, f32 *, 0xC) = spD4;
     M2C_FIELD(temp_2_3, f32 *, 0x10) = spD8;
     M2C_FIELD(temp_2_3, f32 *, 0x14) = spDC;
-    M2C_FIELD(func_002b81f0(M2C_FIELD(temp_2, s32 *, 0x258)), s32 *, 0x120) = (s32) temp_16;
-    M2C_FIELD(func_002b81f0(M2C_FIELD(temp_2, s32 *, 0x258)), f32 *, 0x18) = 149.0f;
-    M2C_FIELD(func_002b81f0(M2C_FIELD(temp_2, s32 *, 0x258)), s8 *, 0x124) = 0;
-    func_0046d280(temp_18_4);
-    func_002b7750(arg3, arg3);
+    M2C_FIELD(func_002b81f0((u8 *)M2C_FIELD(temp_2, s32 *, 0x258)), s32 *, 0x120) = (s32) temp_16;
+    M2C_FIELD(func_002b81f0((u8 *)M2C_FIELD(temp_2, s32 *, 0x258)), f32 *, 0x18) = 149.0f;
+    M2C_FIELD(func_002b81f0((u8 *)M2C_FIELD(temp_2, s32 *, 0x258)), s8 *, 0x124) = 0;
+    func_0046d280((void *)temp_18_4);
+    func_002b7750((s16)arg3, (s16)arg3);
     func_002b2970(&spE0, 6.0f + M2C_BITWISE(f32, spC8), 8.0f + unkspCC);
     func_002b2a60(&sp100, 0xCC, 0xFF, 0xFF, 0xFF);
     func_002b77d0(arg3, spE0, arg3, sp100, (s64) ((temp_16 + 4) << 0x30) >> 0x30, arg5, 3, 3, 0x43140000, arg4, func_00331560());
@@ -999,50 +1003,24 @@ void func_00320970(u8 *arg0, s64 arg1) {
 // FUN_00320B80
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00320b80);
 
-/* measured: nd 332 (best of 4: separate-u8 slots 335/332, FclByte4 groups 349;
-   one CE from a void return). Structure fully reconstructed: 2a60 colour groups
-   (src E0/DC/D8 -> byte-copied to dst EC/E8/E4; if (s8)arg2==1 re-runs three
-   2a60s and zeroes var_16), outer/inner loops, 8370/82d0 chains, the
-   float->u8 wrap guard (if (f0 >= 2147483648.0f) { (u8)((s32)(f0 - 2^31) |
-   0x80000000) } else { (u8)(s32)f0 }) which emits retail's c.le.s/bc1t/cvt.w.s
-   arms, the 75820 11-arg call with the t*23+0x80 cvt.s.w f20. Residuals: (1)
-   separate u8 locals for the 2a60 4-byte groups ALIAS in mwcc b210 (the call
-   writes 4 bytes through a 1-byte object, so the six groups collapse into a
-   scrambled 6-byte region at frame top, frame 0x110 vs 0xF0); FclByte4 group
-   locals keep them distinct but shift the layout. (2) the byte copies compile
-   interleaved with the next 2a60 call instead of retail's batched lbu x4/sb x4
-   (FclByte4 struct assignment emits lw/sw, not lbu/sb — probed). (3)
-   var_16 = (s64)((s32 expr) << 0x30) >> 0x30 emits 4 instrs (dsll32/dsll32/
-   dsra32/dsra32); retail's clean pair needs (s64)(s16)(). (4) the u8 arg1
-   param gets an andi before the sb (s32 param + (u8) cast still andi'd). (5)
-   the u_long128 spC0/spB0 pointer writes emit the recorded dsll32/dsrl32
-   widening before each sq. Slot-layout + scheduling floor. */
+/* Floor: 331 differing words (probe_variants docs/probe_archive/G_003212e0_body.c) over 154 fnalign edits */
+/* (+3 reloc-only), retail 368 vs object 381 (+13, frames 0xF0 vs 0x110). WALL: (1) separate u8 locals for 2a60 */
+/* groups alias to scrambled 6-byte frame top (FclByte4 keeps distinct but shifts layout); (2) byte copies */
+/* interleaved vs retail batched lbu x4/sb x4 (FclByte4 emits lw/sw); (3) var_16 (s64)((s32)<<0x30)>>0x30 emits */
+/* 4 instrs vs retail clean (s64)(s16) pair; (4) u8 arg1 sb andi; (5) u_long128 spC0/spB0 sq widening. */
+/* Old nd332 best-of-4 reproduced as 331 words (335/332/349 plus CE). Slot-layout + scheduling floor. */
 // FUN_003212E0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003212e0);
 
-/* measured: nd 273 (3 attempts: 285, 285, 273) — rule 1 applied and confirmed:
-   the lwr/lwl 0x75/0x78 pairs ARE plain *(u32 *)(p + 0x75) reads on heap
-   func_0034ae50 results (base-alignment rule: heap base -> lwr/lwl even with
-   aligned displacements), and the sq/lq slots at 0x120..0xC0 are NOT source
-   u_long128 locals (int->mode(TI) assignment adds dsll32/dsra32 0 sign-extends
-   retail never makes) but mwcc's own 16-byte spills of s32 loop-invariant
-   locals under register pressure — plain s32 locals reproduce the sq/lq shapes.
-   Residuals, all one allocator cascade: (1) mwcc CSEs the loop-test (s16)i
-   normalize into the body's n = (s16)i (computes once at the loop bottom),
-   retail re-issues it at the body top AND the test; (2) mwcc keeps m2 (m+0x14E)
-   in a register where retail spills it to 0x110 (frame 0x160 vs retail 0x170,
-   every stack slot shifts -0x10, and the 83e0 a2/a3 lw's move before the f12/
-   f13 lui/mtc1 pair vs retail's after); (3) saved-register rotation
-   (arg1->$s6/t->$fp/v->$s7/i->$s5 vs retail $s5/$s7/$s6/$s2). Everything else
-   matches once the shape is right: s32 v = (s16)arg1 with arg1 passed raw to
-   6af0/69f0, sp16C..sp158 are s32 (u32 gives lwu for the s64 83e0 args; the
-   83e0 prototype's 7th/8th args are s32, 9th/10th f32 — the checked-in extern
-   had them swapped), 2a60 outputs copied to p+0x75 as FclByte4 byte chains,
-   the inner if/else with the 2e4870(0) + sp100 + (s16)j + 0x14 lb test, the
-   6-call 83e0 arg block (spE0 first word as a0, inline 6th ae50 for f13),
-   for(i=0;(s16)i<(u16)func_0010b5b0();i=(s16)(i+1)) with m=n*23, the 25E/14E/
-   7F constants, sq'd sp120 = v+3 reloaded as (s16) for the 6a70 6th arg.
-   Loop-CSE + spill-choice + rotation floor. */
+/* No banked body archived (docs/probe_archive/P01C_003218a0_body.c is a 1-line placeholder); retained as bare */
+/* INCLUDE_ASM. Prior nd273 best-of-3 (285/285/273) references a missing preserved body and is not currently */
+/* reproducible with --candidate. WALL per prior shape work (preserved here for reuse): lwr/lwl 0x75/0x78 are */
+/* plain *(u32 *)(p + 0x75) on heap func_0034ae50 results; sq/lq 0x120..0xC0 are mwcc spills of s32 */
+/* loop-invariant locals (not source u_long128); residuals are loop-CSE of (s16)i normalize, m2 spill to 0x110 */
+/* (frame 0x160 vs 0x170), and saved-reg rotation (arg1->$s6/t->$fp/v->$s7/i->$s5 vs $s5/$s7/$s6/$s2). */
+/* Shapes that match: s32 v = (s16)arg1 raw to 6af0/69f0, sp16C..sp158 s32, 2a60 FclByte4 chains, inner if/else */
+/* with 2e4870(0)+sp100+(s16)j+0x14 lb test, 83e0 6-call block, for(i=0;(s16)i<(u16)func_0010b5b0();i=(s16)(i+1)) */
+/* with m=n*23, 25E/14E/7F constants, sq'd sp120 = v+3 reloaded as (s16) for 6a70. */
 // FUN_003218A0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003218a0);
 
@@ -1239,24 +1217,14 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00325450);
 /* measured: declarations corrected for func_002b6150(s16), func_002b2970(void *, f32, f32), func_002b68d0(s16, s16, s8), func_002b2a60(void *, s32, s32, s32, s32), and func_002b7750(s16, s16). Best preserved body measured nd 322 (object 0xE0, retail window 0x4E0); archived at build/WFclCombineDraw_00329310_body.c.txt. Retained as bare INCLUDE_ASM because the body remains a reconstruction near-miss. */
 // FUN_00329310
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00329310);
-/* measured: nd 322 (best of 4: full-body rebuild with recipe-B q local 322,
-   struct-by-value ldr/ldl CE, FclByte4 copies 358, decl-reorder 343). Recipe B
-   re-test: the f32* q = D_006440B8 local DOES land in a saved register once
-   (as retail's $17) but mwcc b210 still rematerializes the FIRST use in $v0 and
-   the extra register pressure grows the frame 0xE0->0xF0 (5th saved reg).
-   Recipe C re-test: the five ldr/ldl 0x38/0x3F pairs are NOT reproducible — a
-   plain *(s64 *)(p + 0x38) read on a func_002b6150-result pointer local emits
-   plain ld (brief mechanism 2 fires only at 4-mod-8 displacement), and
-   mechanism 1 (8-byte struct by value) is blocked because the tree's shared
-   extern declares func_002b69f0's 2nd param as s64 — struct->s64 is an illegal
-   conversion in mwcc b210, so the retail pairs imply the original prototype
-   had an 8-byte struct param (unreachable without touching other matched
-   callers). Also confirmed: the (s8)arg2 extension gets a separate saved
-   register (raw arg2 kept in $s1, ext in $s2) where retail sign-extends $16 in
-   place, and the spDC 4-byte group is hoisted into $s4 across the 6150 call
-   (retail reloads after). All 2970/6c30/2a60/6150/69f0 chains, the pass-through
-   f12 arg, the switch and both branch shapes are byte-correct. Frame + saved-
-   reg rotation + ldr/ldl-vs-ld floor. */
+/* Draft docs/probe_archive/P01C_003297f0_body.c measures 325 differing words (probe_variants) over 251 fnalign */
+/* edits, object 257 vs retail 400 (143 short, 36% short, not bankable as floor per 3% rule). Retained as bare */
+/* INCLUDE_ASM. Prior nd322 best-of-4 (full-body rebuild recipe-B 322, struct-by-value CE, FclByte4 358, */
+/* decl-reorder 343) references a missing full body and is not currently reproducible. WALL per prior work: */
+/* f32* q lands in saved reg once but FIRST use rematerialized in $v0 (frame 0xE0->0xF0); five ldr/ldl 0x38/0x3F */
+/* not reproducible (plain ld for s64 reads at 8-aligned displacements; struct-by-value blocked by shared s64 */
+/* extern of func_002b69f0); (s8)arg2 split to $s1/$s2 vs retail in-place; spDC hoisted to $s4 vs reload. */
+/* All 2970/6c30/2a60/6150/69f0 chains, f12 pass-through, switch and branch shapes byte-correct. */
 // FUN_003297F0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003297f0);
 // measured: nd N/A (ldr/ldl + COP2). M2C_ERROR on ldr/ldl 0x38/0x3f and adda.s; draw-family s64-arg normalization floor. Unaligned-load + COP2 + s64-param floor.
@@ -1542,32 +1510,15 @@ void func_0032f060(u8 *arg0, s32 arg1) {
     }
 }
 
-/* measured: nd 130 — every instruction matches except three fixed residuals.
-   (1) Six sh-index addus: retail emits addu $v0,$v0,$s0 (scaled index + t),
-   mwcc b210 always emits addu $v0,$s0,$v0 (t + index) regardless of source
-   expression order — the ix-local lever (s32 ix = X*2; ix + t) FAILED here
-   (nd 151, also reordered the 0x169/0x16A/0x16E constant materialization).
-   (2) The loop: mwcc CSEs the (s16)i normalize (computes it once at the loop
-   bottom, feeding body and test) while retail re-issues it at the body top AND
-   the test (2 extra dsll32/dsra32 pairs per iteration, nd 800-904 region).
-   (3) Rule-1 loop read: retail ldr $a2,0x50($a3)/ldl 0x57 — probed EVERY
-   spelling (u32/u8/s64 pointer casts, scaled-index buf+n*2+0x14, pointer locals,
-   loop shapes): mwcc b210 proves the sp+n*8+0x50 address 8-aligned and emits
-   plain ld in every form. The ldr/ldl fires only for heap-pointer bases
-   (func_002b6150/34ae50 results), as in 297f0/2b000/2fbc0/21e60 — the
-   displacement is 8-aligned there too, so the brief's "4-mod-8 displacement"
-   rule is really a base-alignment rule and does not apply to this stack read.
-   Everything else reproduces exactly once the shape is right: spA0..sp78 are
-   s64 locals fed to 2970 and cast to FclVec2 for the tbl stores (tbl FclVec2[5]
-   at 0x50, stores at b7=5/6 out-of-bounds over sp78/sp80), the 0x1306 if is
-   NESTED inside the 0x1305 if (both beqz skip to block 6), there is a third
-   2970(&sp98) block before the 0x1305 if, t->0xB7 is re-read inline at every
-   use (never a named counter outside the loop), f20=-14.0f is the LAST
-   statement in the 0x1306 if, r must be s16 (s8 re-extends at the fa30 call),
-   loop is for(i=0;(s16)i<t->0xB7;i=(s16)(i+1)) with n=(s16)i and the
-   func_003147e0 6-arg call. Addu-order + loop-CSE + stack-read floors; the
-   old nd-154 note's saved-register-rotation claim is superseded — with the
-   correct shapes the allocation matches (the old body was missing block 3). */
+/* Floor: 287 differing words (probe_variants docs/probe_archive/F_0032f4d0_body.c) over 88 fnalign edits, */
+/* 343 emitted against retail's 343 (100% in 1376B window). WALL: (1) Six sh-index addus: retail addu */
+/* $v0,$v0,$s0 (scaled index + t) vs object addu $v0,$s0,$v0 (t + index), invariant under ix-local lever */
+/* (s32 ix = X*2; ix + t gave 151 words); (2) loop-CSE of (s16)i normalize (object once at bottom vs retail */
+/* top AND test); (3) stack ldr/ldl 0x50/0x57 vs object ld (heap-base rule, stack base always ld); plus */
+/* saved-reg rotation t $s0 vs $s1 and lb/lbu for 0xB7 counter. Reusable skeleton in conventions note above */
+/* (spA0..sp78 s64 locals, tbl FclVec2[5] at 0x50, nested 0x1305/0x1306, third 2970 block, t->0xB7 re-read, */
+/* f20=-14 last, r s16, for(i=0;(s16)i<t->0xB7;i=(s16)(i+1)) with n=(s16)i and func_003147e0 call). Old nd130 */
+/* claim superseded (no archive; F body measures 287/88). */
 // FUN_0032F4D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032f4d0);
 

@@ -640,7 +640,11 @@ done:
 /* The second switch's labels are written in reverse: MWCC emits a compare
    chain in the reverse of the source order, which is worth 4 words here
    (306 -> 302). */
-/* measured 00162680: `opt_common_subs off` inside the guard is worth 20 words (302 -> 282); retail rematerialises what b210 hoists. */
+/* measured 00162680: `opt_common_subs off` inside the guard is worth 20 words
+   (302 -> 282, 302 is 160 edits 363 vs 357, 282 is 165 edits 364 vs 364 exact
+   length); reverse second switch 306 -> 302; var_16 <= 2 (283) and var_4 <= 4
+   (282) inclusive flips neutral, slti $at/$v0 + daddiu/addiu + coloring remain;
+   retail rematerialises what b210 hoists. */
 // FUN_00162680 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off

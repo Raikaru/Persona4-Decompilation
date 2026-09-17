@@ -814,6 +814,8 @@ void func_002b5120(s32 arg0, u8 *arg1)
 }
 /* measured: restores opt_propagation after func_002b5120. */
 #pragma opt_propagation on
+/* Archive docs/probe_archive/LaneEffLineNovaCode1_002b52a0_body.c does not compile (wrong func_002b2aa0 arity, */
+/* undefined D_008872F8, plus syntax errors); 624-instr window, no bankable floor. Plain INCLUDE_ASM retained. */
 // FUN_002B52A0
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b52a0);
 // FUN_002B5C60
@@ -821,18 +823,21 @@ void func_002b5c60(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
-/* measured: plain-C probe archived to build/LaneEffLineNovaCode1_002ba080_body.c; explicit stack-local translation reached the 1360-byte window but retained a 0x120 frame and rotated saved GPR/FP registers. */
+/* Archive docs/probe_archive/LaneEffLineNovaCode1_002ba080_body.c measures 361 differing words (probe_variants) */
+/* over 514 fnalign edits, retail 340 vs object 381 (+41, frames 0x130 vs 0x170). WALL: frame plus saved-GPR/FP */
+/* rotation and scheduling cascade. Plain INCLUDE_ASM retained (12% oversize, not bankable as floor). */
 // FUN_002BA080
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002ba080);
-/* measured: plain-C probes archive to build/LaneEffLineNovaCode1_002ba5d0_body.c; MWCCPS2 b210 keeps a 0xD0 frame and rotates saved GPRs versus retail's 0xC0/$s0-$s3 layout (best object 888B vs 928B). */
-/* Effect-line floor (928B window). First probe nd 207 (object 888B);
-   frame (-0xD0 vs -0xC0) and saved-reg rotation verified. Open: one
-   extra saved reg, frame size, and scheduler ordering. See Lane doc. */
+/* Floor: 186 differing words (probe_variants) over 207 fnalign edits (+2 reloc-only), 230 emitted against */
+/* retail's 230 (100%, 8B zero tail in 928B window). WALL: saved-register rotation (retail s1=a2/s2=t1 */
+/* vs object s2=a2/s1=t1, invariant under field/value decl swap) plus spill offsets (sd a3 96 vs 152, */
+/* sw t0 108 vs 188) and scheduling cascade; frame now 0xC0 both sides after `opt_common_subs off` */
+/* (old 0xD0 claim stale). Ruled out: inclusive-bound flip >=10->>9 (neutral at 186). */
 /* measured 002ba5d0: `opt_common_subs off` inside the guard is worth 21 words (207 -> 186); retail rematerialises what b210 hoists. */
 // FUN_002BA5D0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
-/* Closest plain-C probe archived before restoring INCLUDE_ASM: saved-register allocation and stack layout remained non-matching (object 888B vs retail 928B; frame 0xD0 vs 0xC0). */
+/* Guarded body: 186 words over 207 edits, 230/230 instrs (920B/928B, 8B zero tail); frame 0xC0 both sides, s1/s2 rotation remains. */
 void func_002ba5d0(u8 *arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s64 arg5, f32 fparg0)
 {
     struct Float4 { f32 x; f32 y; f32 z; f32 w; } src, copy1, copy2;
