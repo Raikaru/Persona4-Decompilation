@@ -658,10 +658,10 @@ extern f32 iGpffff82fc;
    cleanly (c.ole.s vs retail c.le.s on the 0x4F guard is the only fp row).
    func_0046d4c0 11-arg call shapes and the odd-register arg mapping
    (arg5 in $9) verified against retail. */
-/* measured: MWCC -O2 plain, object 1112B/window 1152B, normalized_diff 602 (differing 199; VSHD baseline 804 -> -202). Signature (I64,s32,u8,u8,s16,s32,f32). Levers: no_sp98_s64_idiom -179, BF_A8 -23, decl_bytes_first -3, base-hoist u32 +12 (wall frame 0xF0 vs 0xC0, retail shares $17), u8/s8/s32/rawtemp/nos16/var22/twostep/floatfix/fsave/ge1/ne0/loopinv as reported. Remaining first-diffs swc1 f21-vs-f22 etc. at 36-52. No volatile/asm. Mined 00116820/00116d40 call-site mapping. Staged /tmp/push_116d40_full.c via NearGA.Shd116d40. */
+/* measured: MWCC -O2 plain, object 1112B/window 1152B, normalized_diff 196 with Vec2f (I64/s64 spelling redeclared struct-vs-long-long, so Vec2f retained; probe_variants Vec2f 196 vs s64-baseline 602/VSHD 804). Signature (Vec2f,s32,u8,u8,s16,s32,f32) matches file-scope decl and call-site position.xy with identical high-word idiom. Levers: no_sp98_s64_idiom -179, BF_A8 -23, decl_bytes_first -3, base-hoist u32 +12 (wall frame 0xF0 vs 0xC0, retail shares $17), u8/s8/s32/rawtemp/nos16/var22/twostep/floatfix/fsave/ge1/ne0/loopinv as reported. Remaining first-diffs swc1 f21-vs-f22 etc. No volatile/asm. Staged /tmp/push_116d40_full.c via NearGA.Shd116d40 (I64->Vec2f for compile, 602->196). */
 // FUN_00116D40 NONMATCHING
 #ifdef NON_MATCHING
-void func_00116d40(I64 arg0, s32 arg1, u8 arg2, u8 arg3, s16 arg4, s32 arg5, f32 fparg0)
+void func_00116d40(Vec2f arg0, s32 arg1, u8 arg2, u8 arg3, s16 arg4, s32 arg5, f32 fparg0)
 {
     u8 colors[8];
     s32 spA0[4];
@@ -3358,7 +3358,7 @@ s32 func_002bb600(void);
 void func_002bb1e0(s32);
 s32 func_002bb140(void);
 s32 func_001092f0(u8 *);
-extern u16 D_008C024E;
+extern u16 D_008C024E[];
 extern u16 D_008C024C;
 /* measured: fully decoded, best nd 566 (obj 2684B / window 2784B) at attempt 4.
    The prologue saved-reg order matches retail (s->$s0, p->$s1, b->$s2, e->$s3
@@ -3391,7 +3391,7 @@ s32 func_002bb600(void);
 void func_002bb1e0(s32);
 s32 func_002bb140(void);
 s32 func_001092f0(u8 *);
-extern u16 D_008C024E;
+extern u16 D_008C024E[];
 extern u16 D_008C024C;
 /* measured: fully decoded, best nd 566 (obj 2684B / window 2784B) at attempt 4.
    The prologue saved-reg order matches retail (s->$s0, p->$s1, b->$s2, e->$s3
@@ -3487,7 +3487,7 @@ s32 func_0011ccb0(u8 *arg0);
 void func_00115760(u8 *arg0);
 s32 func_001092f0(u8 *arg0);
 s16 func_00115380();
-extern u16 D_008C024E;
+extern u16 D_008C024E[];
 extern u16 D_008C024C;
 void func_0011c630(u8 *arg0);
 /* measured: retail keeps the derived work->0xC->0x38 base pointer cached in $a2

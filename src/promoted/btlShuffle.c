@@ -540,15 +540,18 @@ s32 func_0036f640(s32 arg0, s32 *arg1)
     }
     return result;
 }
-/* measured: body logic and u16 loop counters (andi masking + dsll32/dsra32
- * sign-extension) reproduce retail's structure (obj 816B vs window 864B);
- * residual nd ~191 is register allocation: mwcc b210 keeps arg0 flag in $s6
- * (frame 0xD0) where retail uses $s5 (frame 0xC0), pushing the slots array to
- * sp+0xA0 vs retail's 0x90 and rotating the loop registers. Named flag, all
- * counter types, and declaration orders tried; the extra live value across the
- * inner loop never coaders into $s0-$s5. Saved-register-count floor. */
+/* measured: prototype s32/u8* + frame 0xC0/CFG from retail; MATCH neighbours */
+/* (fbe0/fd00/f640) give u16 counters + s32-masked flag + (s16) extends. */
+/* Baseline probe nd 139 / fnalign 144 edits, obj 213 instrs (852B) vs window */
+/* 216 (864B, 1.4% under). Levers: inclusive bounds (lim>12/a<=7/e<=7/e>7) */
+/* fix slti $at -> $v0 (1 row, nd 134/edits 143); idx-based trailing halves */
+/* (sp+112/114 -> h2+idx*4+0/2, correct addr) nd 133/edits 142; redundant */
+/* sw+or+sw kept (halfword sh+sh +22 worse); s32 flag +10 worse; unsigned */
+/* (<8U/==0-><1U) neutral. Walls: s-rotation ($s5 raw vs masked, $s2/$s3 vs */
+/* $s0), frame 0xB0 vs 0xC0 (16B tighter, no spill padding), inner while-1-break */
+/* vs beq+bnez. Saved-register + quadword floor; production stays ASM. */
 // FUN_0036F880 NONMATCHING
-#ifdef SKIP_ASM
+#ifdef NON_MATCHING
 s32 func_0036f880(s32 arg0, u8 *arg1)
 {
     u32 w1[8];
@@ -572,7 +575,7 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
 
     lim = func_0010b5b0() & 0xFFFF;
     cnt = 0;
-    if (lim >= 13) {
+    if (lim > 12) {
         func_0046d730(D_0064E790, 1207);
     }
     i = 0;
@@ -593,7 +596,7 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
     b = 0;
     tbl = iGpffffb3ec;
     s5v = arg0 & 0xFFFF;
-    while (((a & 0xFFFF)) < 8) {
+    while (((a & 0xFFFF)) <= 7) {
         {
             u16 cv = *(u16 *)(t2 + (a & 0xFFFF) * 2);
             if (cv != 0) {
@@ -611,14 +614,14 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
                     }
                     if (d != 0) {
                         e = 0;
-                        while (((e & 0xFFFF)) < 8) {
+                        while (((e & 0xFFFF)) <= 7) {
                             f = *(u16 *)(t2 + (e & 0xFFFF) * 2);
                             if (f == 0 || f == *(u16 *)(tbl + (c & 0xFFFF) * 4 + 2)) {
                                 break;
                             }
                             e = (e + 1) & 0xFFFF;
                         }
-                        if (((e & 0xFFFF)) >= 8) {
+                        if (((e & 0xFFFF)) > 7) {
                             h2[b] = d;
                             h2[b] = (h2[b] & 0xFFFF) | ((u32)*(u16 *)(tbl + (c & 0xFFFF) * 4 + 2) << 16);
                             b = (b + 1) & 0xFFFF;
@@ -637,14 +640,14 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
                     }
                     if (d != 0) {
                         e = 0;
-                        while (((e & 0xFFFF)) < 8) {
+                        while (((e & 0xFFFF)) <= 7) {
                             f = *(u16 *)(t2 + (e & 0xFFFF) * 2);
                             if (f == 0 || f == *(u16 *)(tbl + (c & 0xFFFF) * 4)) {
                                 break;
                             }
                             e = (e + 1) & 0xFFFF;
                         }
-                        if (((e & 0xFFFF)) >= 8) {
+                        if (((e & 0xFFFF)) > 7) {
                             h2[b] = d;
                             h2[b] = (h2[b] & 0xFFFF) | ((u32)*(u16 *)(tbl + (c & 0xFFFF) * 4) << 16);
                             b = (b + 1) & 0xFFFF;
@@ -659,9 +662,9 @@ s32 func_0036f880(s32 arg0, u8 *arg1)
         return 0;
     }
     {
-        u8 *sp = (u8 *)h2 + (func_00231d70(b) & 0xFFFF) * 4;
-        sA = *(u16 *)(sp + 114);
-        sB = *(u16 *)(sp + 112);
+        u32 idx = func_00231d70(b) & 0xFFFF;
+        sA = *(u16 *)((u8 *)h2 + idx * 4 + 2);
+        sB = *(u16 *)((u8 *)h2 + idx * 4);
         func_0010cd70(pick, (s16)sB, sA);
     }
     *(u16 *)(arg1 + 4) = *(u16 *)(pick + 2);

@@ -1872,27 +1872,50 @@ extern void func_0015c730(u8 *arg0);
 extern void func_0015c630(u8 *arg0);
 extern void func_0043f810(u8 *dst, s32 x, s32 y);
 extern void func_00156800(s16 *arg0, s32 mask);
-/* Floor: 328 differing words over 164 edits, 460 emitted against retail's
-   465, from a first reconstruction.  Levers that landed: the 0x48-byte
-   rect at sp+0xE0 and the 0x2B-entry s16 row at sp+0x80 set the frame to
-   0x130; func_00442088's format string is the gp datum at gp-0x5FD8
-   ("%d-%d" read out of orig/SLUS_217.82) and the two colours copied into
-   sp+0x128 and sp+0x12C are gp-0x5FE0 and gp-0x5FDC; the trailing
-   adda.s/madd.s pairs m2c could not name are `80.0f + 18.0f * x` and
-   `6.0f + 18.0f * y`; the outer loop hoists `temp_20 + (y << 8)`,
-   `6.0f + (f32)(y * 0x12)` and `temp_20 + y * 0x1200` in that order,
-   which is what puts the row base in a saved register and $f20 in the
-   save list.  Typing func_0014def0, func_0017d1f0 and func_0017d240 to
-   take pointers instead of s32 is load-bearing: with an (s32) cast MWCC
-   treats &D_007966D0 as an arithmetic common subexpression and parks it
-   in a sixth saved register, which costs the frame 0x10 bytes and blocks
-   the row-base hoist (433 words); passing the array unconverted lets it
-   rematerialize per call as retail does.
+/* Floor: 328 differing words over 156 fnalign edits (160 at baseline),
+   460 emitted against retail's 465 (1.1%, within 3%), measured via
+   probe_variants/fnalign --candidate (production stays INCLUDE_ASM, so
+   verify/fndiff on the file score the fallback, not this body).  Levers
+   that landed: the 0x48-byte rect at sp+0xE0 and the 0x2B-entry s16 row
+   at sp+0x80 set the frame to 0x130; func_00442088's format string is
+   the gp datum at gp-0x5FD8 ("%d-%d" read out of orig/SLUS_217.82) and
+   the two colours copied into sp+0x128 and sp+0x12C are gp-0x5FE0 and
+   gp-0x5FDC; the trailing adda.s/madd.s pairs m2c could not name are
+   `80.0f + 18.0f * x` and `6.0f + 18.0f * y`; the outer loop hoists
+   `temp_20 + (y << 8)`, `6.0f + (f32)(y * 0x12)` and `temp_20 + y * 0x1200`
+   in that order, which is what puts the row base in a saved register
+   and $f20 in the save list.  Typing func_0014def0, func_0017d1f0 and
+   func_0017d240 to take pointers instead of s32 is load-bearing: with
+   an (s32) cast MWCC treats &D_007966D0 as an arithmetic common
+   subexpression and parks it in a sixth saved register, which costs the
+   frame 0x10 bytes and blocks the row-base hoist (433 words); passing
+   the array unconverted lets it rematerialize per call as retail does.
+   Inclusive $at shapes per func_0018c7e0 (read as worked example for
+   both shapes: `dungeon <= 5` keeps slti $at where `< 6` picks $v0, and
+   the dead final `else if (dungeon < 0xA0) { res = 0; }` keeps its slti
+   where an empty arm drops it): `< 0x17` is spelled `<= 0x16`,
+   `< 0xF` as `<= 0xE`, `>= 0xF` as `> 0xE`, `>= 4` as `> 3`.  The two
+   `>` flips fix slti $at at 0x1D00/0x1AB8 (160 to 157 edits); the two
+   `<=` are neutral but keep $at as retail does.  Width fixes that land:
+   `*(s16 *)(temp_20 + 0x1AB8)` for the func_0018f7b0 s8 arg gives retail's
+   `lh` where `(s8)(s16)*(s32 *)` gave `lb`, and bare `*(s32 *)` for the
+   trailing func_0017d1f0 s32 args gives retail's `lw` where `(u8)` gave
+   `lbu` (157 to 156 edits).  Dead-arm check: the switch has six arms
+   matching retail's sltiu 6 and every if/else-if chain ends without a
+   final else matching retail's beqz-to-next; there is no redundant-store
+   arm like 0018c7e0's to keep, and the residual is large (156 edits), not
+   short, so no dead arm applies.  Top-down remainder is the colour plus
+   scheduling wall below; no MATCH, so production stays guarded.
    WALL: saved-register colour rotation - retail holds the state pointer
    in $s4 and the inner index in $s2, this build swaps them, which is 74
    of the differing words on its own.  Declaration order does not steer
-   it: temp_20/y/x/cells/panels, temp_20/x/y/cells/panels and
-   temp_20/y/x/panels/cells were all measured at 330 words. */
+   it: temp_20/y/x/cells/panels, temp_20/x/y/cells/panels,
+   temp_20/y/x/panels/cells (all 330 words at baseline) plus count/x/y/
+   value/temp_20/cell/cells/panels base (328/160), temp_20-first (330/166),
+   temp_20-last, cells/panels swap and y/x swap (all 328) stay 328 words.
+   Further top-down: image `lw 0x110/0x118` scheduling, row-copy `sh`
+   placement, and the trailing-call `addiu $a2` hoists plus five missing
+   instructions (460 vs 465) remain. */
 // FUN_0018F950 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0018f950(u8 *arg0)
@@ -1964,7 +1987,7 @@ s32 func_0018f950(u8 *arg0)
                 *(s32 *)(temp_20 + 0x1AB4) -= 1;
             }
         } else if (D_008C0252[0] & 0x4000) {
-            if (*(s32 *)(temp_20 + 0x1AB4) < 0x17) {
+            if (*(s32 *)(temp_20 + 0x1AB4) <= 0x16) {
                 *(s32 *)(temp_20 + 0x1AB4) += 1;
             }
         }
@@ -1973,7 +1996,7 @@ s32 func_0018f950(u8 *arg0)
                 *(s32 *)(temp_20 + 0x1AB0) -= 1;
             }
         } else if (D_008C0252[0] & 0x2000) {
-            if (*(s32 *)(temp_20 + 0x1AB0) < 0xF) {
+            if (*(s32 *)(temp_20 + 0x1AB0) <= 0xE) {
                 *(s32 *)(temp_20 + 0x1AB0) += 1;
             }
         }
@@ -1986,7 +2009,7 @@ s32 func_0018f950(u8 *arg0)
         } else if (D_008C0252[0] & 2) {
             value = *(s32 *)(temp_20 + 0x1D00) + 1;
             *(s32 *)(temp_20 + 0x1D00) = value;
-            if (value >= 0xF) {
+            if (value > 0xE) {
                 *(s32 *)(temp_20 + 0x1D00) = 1;
             }
         }
@@ -1999,7 +2022,7 @@ s32 func_0018f950(u8 *arg0)
         } else if (D_008C0252[0] & 4) {
             value = *(s32 *)(temp_20 + 0x1AB8) + 1;
             *(s32 *)(temp_20 + 0x1AB8) = value;
-            if (value >= 4) {
+            if (value > 3) {
                 *(s32 *)(temp_20 + 0x1AB8) = 0;
             }
         }
@@ -2017,7 +2040,7 @@ s32 func_0018f950(u8 *arg0)
             func_00156800(row, 1 << *(s32 *)(temp_20 + 0x1AB8));
             func_0018f7b0(temp_20, row, (u16)*(s32 *)(temp_20 + 0x1AB0),
                           (u16)*(s32 *)(temp_20 + 0x1AB4),
-                          (s8)(s16)*(s32 *)(temp_20 + 0x1AB8));
+                          *(s16 *)(temp_20 + 0x1AB8));
         } else if (D_008C024E[0] & 0x20) {
             func_0018f8a0(temp_20, (u16)*(s32 *)(temp_20 + 0x1AB0),
                           (u16)*(s32 *)(temp_20 + 0x1AB4));
@@ -2050,10 +2073,10 @@ s32 func_0018f950(u8 *arg0)
             }
         }
         func_0017d1f0(D_007966D0, temp_20 + 0x1990,
-                      (u8)*(s32 *)(temp_20 + 0x1D00), 0,
+                      *(s32 *)(temp_20 + 0x1D00), 0,
                       80.0f + 18.0f * (f32)*(s32 *)(temp_20 + 0x1AB0),
                       6.0f + 18.0f * (f32)*(s32 *)(temp_20 + 0x1AB4), 0.0f,
-                      (u8)*(s32 *)(temp_20 + 0x1AB8));
+                      *(s32 *)(temp_20 + 0x1AB8));
         break;
     case 5:
         return -1;

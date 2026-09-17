@@ -1220,6 +1220,7 @@ s32 func_002a4d10(s32 task) {
    call-signature errors found in func_002a5f00 (floats must precede the ints in
    the C call); not re-probed — same rotation family where a fresh m2c body
    measured worse than the recorded hand-adapted best. */
+/* measured this session: fresh probe 391wd (was nd332 stale) / fnalign 264 edits (449 vs 445 instrs, 4 short) confirms floor; short-by-N hunt checked -- shortfall early at frame -0x80 vs -0x90 + swc1 $f23 (top-down fnalign), not trailing dead-arm chain (tail is while loops + calls, no if/else-if chain); slti $at inclusive checked (no convertible <N range in this window). Saved-reg rotation + frame/FPR wall per owner notes; banked. */
 // FUN_002A4F20 NONMATCHING
 #ifdef SKIP_ASM
 s32 func_002a4f20(s32 arg0) {
