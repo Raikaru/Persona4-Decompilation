@@ -60,6 +60,7 @@ tools/decomp-permuter/
 
 # Lane scratch files: never part of the tree (jj auto-tracks new files at snapshot time).
 src/**/_probe_*
+src/**/.*.probe_*.c
 src/**/_lane*
 src/**/*.lane*_bak
 *.bak
