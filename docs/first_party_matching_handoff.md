@@ -331,13 +331,32 @@ Retail routinely reads an uninitialised local on a path where the value is not
 consumed, and the original source demonstrably did the same. Match it, and say
 so in the note.
 
-### 7g. Narrow the types m2c widened
+### 7g. Declare every local at the width retail keeps it at
 
-Every `s64`/`u64` local that is really 32-bit costs a `dsll32`/`dsra32`
-normalisation pair per assignment, and every `s16` loop index costs one per
-increment. Grep an alignment for object-only `dsll32` runs: fourteen floors
-carry that signature. `func_001a2d70` fell from 231 to 25 words on the type
-narrowing alone, `func_001d8cb0` from 80 to 45.
+A `dsll32`/`dsra32` pair in your object that retail does not have is the
+compiler telling you a local is declared at the wrong width.  It cuts both
+ways, and the direction is read off the alignment, not guessed:
+
+- **Too wide.**  Every `s64`/`u64` local that is really 32-bit costs a
+  `dsll32`/`dsra32 0` normalisation per assignment.  `func_001a2d70` fell
+  from 231 words to 25 on the narrowing alone, `func_001d8cb0` from 80 to
+  45.
+- **Too narrow.**  An `s16` or `s8` local holding a 32-bit value costs a
+  `dsll32`/`dsra32 0x10` pair per use, and the object comes out *longer*
+  than retail rather than shorter — which reads like a structural problem
+  and is why this direction was missed for a long time.  `s16 i` to
+  `s32 i` took `func_001f3bb0` from twelve instructions long to an exact
+  234/234 and 186 words to 147.  Honest `s16`/`s64`/`s32` declarations with
+  the matching `(s64)`, `(s64)(s8)` and `(s16)` extends took
+  `func_001561a0` from ten long to four and 171 words to 163, and
+  `func_003212e0` from 381 instructions to 375 and 331 words to 321.
+
+The tell that a narrow type is *correct* is an `andi ..., 0xffff` or
+`andi ..., 0xff` that retail also emits: that is a real mask in the
+program.  A `dsll32`/`dsra32` pair with no retail counterpart never is.
+Grep every alignment for object-only `dsll32` runs before anything else;
+it is a one-line fix and it was worth 39, 24 and 10 words on three
+different functions in one afternoon.
 
 ### 7h. Pragmas that changed a result, with their signatures
 
@@ -373,6 +392,26 @@ narrowing alone, `func_001d8cb0` from 80 to 45.
 Measure the file-wide form before scoping one: `opt_dead_assignments off` for
 all of `btlOrder_grouped.c` costs a match, and `-O2,p` for `btlAICommand.c`
 costs seventeen.
+
+**Sweep the cheap pragmas, never reason about them.** Each of these costs
+one compile against a body you already have, so wrapping the guarded body
+and re-measuring is strictly cheaper than deciding whether it "should"
+apply.  Three sweeps over the 163 first-party guarded floors, run on the
+same afternoon, landed 49 improvements between them:
+
+| Pragma | Floors improved | Best single win |
+| --- | ---: | --- |
+| `opt_common_subs off` | 18 | `func_0045fbe0` 311 → 268 |
+| `schedule on` | 18 | `func_00377930` 378 → 340 |
+| `opt_loop_invariants on` | 13 | `func_0013fb50` 215 → 95 |
+
+They are independent and they compose with source shapes, so apply them
+first and then work the alignment.  The sweep is a dozen lines: lift each
+body from between `#ifdef NON_MATCHING` and `#else`, score it bare and
+wrapped, and keep the wrapper where the word count drops.  An agent that
+skipped `schedule on` on the judgement that "scheduling alone is unlikely"
+missed a 38-word win in the file it was working on.
+
 
 ### 7i. Declaration levers found while reconstructing untried functions
 
