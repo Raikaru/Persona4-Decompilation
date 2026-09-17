@@ -1385,8 +1385,190 @@ void func_001cb610(u8 *arg0)
 }
 // FUN_001CB960
 void func_001cb960(void) {}
-// FUN_001CB970
+/* 1544/1552 bytes (386/388 instrs, 0.5% short, within 3% size gate); 195 edits +3 reloc-only. */
+/* Prototype (u8*,f32,s32) parks a0/f12/a1 (camera/speed/flag); float-middle per parks, ABI-identical to the (u8*,u8*,f32) guess. */
+/* Vector temps at sp+0x110 (delta), sp+0xD8 (camXZ), sp+0xD0 (deltaXZ); Pose at sp+0x90/0xAC, quat at 0xB8. */
+/* Mined 48 MATCH neighbours (cb610/cacd0/c04e0): p4_cacd0_mul, func_001c_copy_pair, 0.0f+adda/madd, 100.0f/12.5f/500.0f clamps. */
+/* FMA chains (mula/madd/msub/adda) + 001959d0x2/003e40b0/003e41e0 retained; fnalign top-down, same levers. */
+// FUN_001CB970 NONMATCHING
+#ifdef NON_MATCHING
+void func_001cb970(u8 *arg0, f32 fparg0, s32 arg1)
+{
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+    extern f32 func_001ec2b0(void *first, void *second);
+    extern f32 func_001ec3d0(u8 *first, u8 *second, u8 *point, u8 *out);
+    extern f32 func_0044b868(f32 arg0);
+    extern void func_001bd5e0(u8 *arg0, u8 *arg1);
+    extern void func_001bd560(f32 *arg0, f32 *arg1);
+    extern void func_001bcd40(u8 *a0, u8 *a1, u8 *a2, f32 a3, s32 a4);
+    extern f32 fGpffff80dc;
+    struct Vec3 {
+        f32 x;
+        f32 y;
+        f32 z;
+    };
+    struct Quat {
+        f32 x;
+        f32 y;
+        f32 z;
+        f32 w;
+    };
+    struct Pose {
+        struct Vec3 pos;
+        struct Quat quat;
+    };
+    struct Work {
+        struct Pose poseOld;
+        struct Pose poseNew;
+        struct Vec3 firstPos;
+        struct Vec3 secondPos;
+        struct Vec3 delta;
+        struct Vec3 scaled;
+        struct Vec3 selPos;
+        struct Vec3 computed;
+        f32 camXZ[2];
+        f32 deltaXZ[2];
+        f32 targetXZ[2];
+        f32 computedXZ[2];
+        f32 selXZ[2];
+        f32 outXZ[2];
+    } work;
+    u8 *camera;
+    u8 *unitA;
+    u8 *unitB;
+    u8 *selUnit;
+    u8 *otherUnit;
+    f32 len;
+    f32 scaleXZ;
+    f32 scaleOther;
+    f32 finalMul;
+    f32 dot1;
+    f32 dot2;
+    f32 ecRet;
+    f32 tanRes;
+    f32 finalScale;
+    f32 selZ;
+    s32 mode;
+    u8 *action;
+    camera = arg0;
+    action = *(u8 **)(camera + 0xE0);
+    unitA = *(u8 **)(action + 0x30);
+    unitB = *(u8 **)(*(u8 **)(action + 0x38) + 0x30);
+    func_001959d0((BtlUnit *)unitA, (RwV3d *)&work.firstPos);
+    func_001959d0((BtlUnit *)unitB, (RwV3d *)&work.secondPos);
+    work.delta.x = work.firstPos.x - work.secondPos.x;
+    work.delta.y = work.firstPos.y - work.secondPos.y;
+    work.delta.z = work.firstPos.z - work.secondPos.z;
+    len = func_003e40b0((RwV3d *)&work.delta, (const RwV3d *)&work.delta);
+    work.camXZ[0] = *(f32 *)(camera + 0x9C) - work.firstPos.x;
+    work.camXZ[1] = *(f32 *)(camera + 0xA4) - work.firstPos.z;
+    func_003e41e0(work.camXZ, work.camXZ);
+    work.deltaXZ[0] = work.delta.x;
+    work.deltaXZ[1] = work.delta.z;
+    dot1 = work.deltaXZ[1] * work.camXZ[1] + work.deltaXZ[0] * work.camXZ[0];
+    if (arg1 != 0) {
+        if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0) {
+            *(s32 *)(camera + 0x104) = (dot1 >= 0.0f) ? 1 : 0;
+        } else {
+            *(s32 *)(camera + 0x104) = 0;
+        }
+    }
+    if (*(s32 *)(camera + 0x104) == 1) {
+        selUnit = unitA;
+        otherUnit = unitB;
+        func_001c_copy_pair((s64 *)&work.selPos.x, &work.selPos.z,
+                            (s64 *)&work.firstPos.x, &work.firstPos.z);
+        scaleOther = 1.25f * p4_cacd0_mul(*(f32 *)(unitA + 0x90), *(f32 *)(unitA + 0x2C));
+        scaleXZ = 0.35f * len;
+        finalMul = 1.35f;
+        work.scaled.x = work.delta.x * scaleXZ;
+        work.scaled.y = work.delta.y * scaleXZ;
+        work.scaled.z = work.delta.z * scaleXZ;
+        if (work.selPos.y < 100.0f) {
+            work.selPos.y = 100.0f;
+        }
+        work.computed.y = work.selPos.y;
+    } else {
+        selUnit = unitB;
+        otherUnit = unitA;
+        func_001c_copy_pair((s64 *)&work.selPos.x, &work.selPos.z,
+                            (s64 *)&work.secondPos.x, &work.secondPos.z);
+        scaleOther = 0.35f * p4_cacd0_mul(*(f32 *)(unitB + 0x90), *(f32 *)(unitB + 0x2C));
+        finalMul = 2.5f;
+        work.firstPos.y = (work.firstPos.y + 0.0f) - 0.25f * p4_cacd0_mul(*(f32 *)(unitB + 0x8C), *(f32 *)(unitB + 0x2C));
+        if (work.firstPos.y < 100.0f) {
+            work.firstPos.y = 100.0f;
+        }
+        work.delta.x = work.firstPos.x - work.secondPos.x;
+        work.delta.y = work.firstPos.y - work.secondPos.y;
+        work.delta.z = work.firstPos.z - work.secondPos.z;
+        len = func_003e40b0((RwV3d *)&work.delta, (const RwV3d *)&work.delta);
+        scaleXZ = 0.25f * len;
+        work.scaled.x = work.delta.x * scaleXZ;
+        work.scaled.y = work.delta.y * scaleXZ;
+        work.scaled.z = work.delta.z * scaleXZ;
+        work.computed.y = work.selPos.y;
+    }
+    work.scaled.x = work.scaled.x + work.secondPos.x;
+    work.scaled.y = work.scaled.y + work.secondPos.y;
+    work.scaled.z = work.scaled.z + work.secondPos.z;
+    work.deltaXZ[0] = work.delta.z;
+    work.deltaXZ[1] = -work.delta.x;
+    dot2 = work.deltaXZ[0] * work.camXZ[0] + work.deltaXZ[1] * work.camXZ[1];
+    if (arg1 != 0) {
+        *(s32 *)(camera + 0x108) = (dot2 >= 0.0f) ? 1 : 0;
+    }
+    if (*(s32 *)(camera + 0x108) == 1) {
+        work.computed.x = (work.selPos.x + 0.0f) + work.delta.z * scaleOther;
+        work.computed.z = (work.selPos.z + 0.0f) - work.delta.x * scaleOther;
+    } else {
+        work.computed.x = (work.selPos.x + 0.0f) - work.delta.z * scaleOther;
+        work.computed.z = (work.selPos.z + 0.0f) + work.delta.x * scaleOther;
+    }
+    selZ = work.selPos.z;
+    func_001bd780(&work.poseNew.quat, &work.computed, &work.scaled, D_0060A0E0);
+    func_003dcb40((RwV3d *)&work.delta, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&work.poseNew.quat);
+    work.targetXZ[0] = work.scaled.x;
+    work.targetXZ[1] = work.scaled.z;
+    work.computedXZ[0] = work.computed.x;
+    work.computedXZ[1] = work.computed.z;
+    work.selXZ[0] = work.selPos.x;
+    work.selXZ[1] = selZ;
+    ecRet = func_001ec3d0((u8 *)work.targetXZ, (u8 *)work.computedXZ, (u8 *)work.selXZ, (u8 *)work.outXZ);
+    ecRet = ecRet + 0.0f + finalMul * p4_cacd0_mul(*(f32 *)(selUnit + 0x90), *(f32 *)(selUnit + 0x2C));
+    work.computed.x = work.outXZ[0];
+    work.computed.y = work.selPos.y;
+    work.computed.z = work.outXZ[1];
+    tanRes = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+    finalScale = ecRet / tanRes;
+    if (finalScale < 500.0f) {
+        finalScale = 500.0f;
+    }
+    work.delta.x = work.delta.x * finalScale;
+    work.delta.y = work.delta.y * finalScale;
+    work.delta.z = work.delta.z * finalScale;
+    work.poseNew.pos.x = work.computed.x + work.delta.x;
+    work.poseNew.pos.y = work.computed.y + work.delta.y;
+    work.poseNew.pos.z = work.computed.z + work.delta.z;
+    if (work.poseNew.pos.y < 12.5f) {
+        work.poseNew.pos.y = 12.5f;
+    }
+    func_001bd560((f32 *)&work.poseOld, (f32 *)(camera + 0x9C));
+    if (arg1 != 0) {
+        if (func_001ec2b0(&work.poseOld.quat, &work.poseNew.quat) > fGpffff80dc) {
+            func_001bd5e0((u8 *)&work.poseOld, (u8 *)&work.poseNew);
+            mode = 3;
+        } else {
+            mode = 0x83;
+        }
+        func_001bcd40(*(u8 **)(camera + 0xE0), otherUnit + 4, (u8 *)&work.poseNew, 50.0f, mode);
+    }
+    func_001bac20((u16 *)camera, (f32 *)&work.poseOld, (f32 *)&work.poseNew, 1);
+    func_001bbef0(camera, fparg0);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cb970);
+#endif
 // FUN_001CBF80
 void func_001cbf80(u8 *arg0) {
     *(s16 *)(arg0 + 0x10E) =

@@ -1173,7 +1173,9 @@ void func_00213e20(u8 *arg0, u8 *arg1)
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002142b0);
 // FUN_00215C10
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00215c10);
-// FUN_002161D0
+/* measured: plain-C reconstruction reaches object 1564B against the 1568B retail window at 21 differing words (reloc-masked, fnalign 14 edits + 3 reloc-only). Frame 0x70, saves s16-s20 + f20-f22, parks s20/s19/f22/f21/s18/s16, forward CFG, FMA adda/madda/madd/msub/div chains and (u8) clamps via cvt.w.s/mfc1/andi with or-0x80000000 path all match; residual is prologue park order, commutative add.s, param-vs-saved FPU coloring (f12 vs f22, f13 vs f21) and 85/conversion f2/f3 coloring. Mined MATCH neighbours for helper prototypes and flag offsets; probe_variants top-down 29->21 via u8 s17 (fixes daddiu 0xFF and andi/move). Endgame levers tried in order, no loop so invariants/guard N/A. Best legal plain-C body; parked as compiler floor. */
+// FUN_002161D0 NONMATCHING
+#ifdef NON_MATCHING
 void func_002161d0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
 {
     extern f32 D_007615A4;
@@ -1188,7 +1190,7 @@ void func_002161d0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
     u32 var_s18;
     u8 *var_s16;
     f32 var_f20;
-    s32 var_s17;
+    u8 var_s17;
     f32 var_f4;
     f32 var_f2;
     f32 var_f3;
@@ -1303,6 +1305,9 @@ void func_002161d0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
     func_00201650((u8 *)var_s20, 8, 0xD, 13.0f, 12.0f, 0xFE, 0xFF, 0x22, var_s17);
     func_002016e0((u8 *)var_s20, 0, 0, 0.0f);
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002161d0);
+#endif
 /* 844/848 bytes; nine resolved relocations; four zero alignment bytes.
  * Snapshot the four party slots before callbacks can update the actor list. */
 // FUN_002167F0

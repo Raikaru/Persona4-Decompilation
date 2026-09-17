@@ -762,6 +762,18 @@ def lint_source(src):
 
 # ----------------------------------------------------------------------- CLI
 
+def _is_tool_scratch(name):
+    """True for in-flight tool copies staged beside their owner.
+
+    `tools/probe_variants.py` writes `.<owner>.probe_<token>.c` into the
+    owner's directory so relative includes resolve, and the permuter writes
+    `.permute_*`.  Both are transient and are not source; linting them
+    reports findings against a path that is about to vanish.  Mirrors
+    `verify.is_generated`.
+    """
+    return name.startswith(".permute_") or (name.startswith(".") and ".probe_" in name)
+
+
 def gather(paths, excludes, scan_errors=None):
     """Return normalized files; optionally collect unfilterable scan failures."""
     import os
@@ -783,7 +795,8 @@ def gather(paths, excludes, scan_errors=None):
                     failure(exc.filename or p, str(exc))
                 for directory, _, names in os.walk(p, onerror=onerror):
                     files.extend(Path(directory) / name for name in sorted(names)
-                                 if Path(name).suffix in (".c", ".h"))
+                                 if Path(name).suffix in (".c", ".h")
+                                 and not _is_tool_scratch(name))
             elif p.is_file():
                 files.append(p)
             else:

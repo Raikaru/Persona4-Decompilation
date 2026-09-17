@@ -863,19 +863,8 @@ void func_0036d230(u8 *arg0) {
 }
 
 // Archived C body: build/WBHygiene_func_0036d3e0_archive.txt; no current park body remains.
-/* Floor: 244 differing words over 119 edit instructions, 283 emitted against
-   retail's 285, from a first reconstruction.  The pixel-format switch's
-   labels are written in reverse inside each group as well as across groups -
-   `case 20: case 36: case 44:` is what emits retail's 0x2C, 0x24, 0x14 chain -
-   which took the edit distance from 125 to 119, and the source pointer is
-   initialised from arg0 before the depth is cleared and advanced by 0x40
-   later, which is retail's `move $s5,$s0` plus `addiu $s0,$s0,0x40`.
-   WALL: saved-register rotation.  Retail holds arg0 in $s0, the clut flag in
-   $s1, the depth in $s3 and the source pointer in $s5; this build rotates
-   them to $s2/$s5/$s0.  250 declaration orders were measured, and writing
-   the flag word as `hasClut |= 1` or building the GS flags as `flags = 0;
-   flags |= 4;` - both of which match retail's `ori` spelling - are neutral
-   and worse (270) respectively. */
+/* measured: object 1132B/window 1152B/normalized_diff 710 (244 differing words, live re-measured current tree). */
+/* measured: 2-short (119 edits) trailing-dead-arm signature with branch-displacement cascade; dead-arm redundant-store shape to be tried at chain end; slti-at, arg-setup and loop-invariant to follow; full-size floor. */
 // FUN_0036D3E0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0036d3e0(u8 *arg0)

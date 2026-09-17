@@ -1130,6 +1130,7 @@ s32 func_001f3b80(s32 arg0) {
                                           (u32)temp_5) + 4);
     return (s32)addBaseFirst((u32)temp_5, (u32)value);
 }
+/* measured: func_001f3bb0 Shape A >=6 to >5 at first guard (slti $at, same constant 6): probe 222->222 words (delta 0), fnalign 78->77 edits (+4 reloc-only both), retail 236/object 242 instrs (944/968B) unchanged; slti $at now matches (retail slti $at vs $v0 fixed, bnez $at now exact, remaining $s2 vs $s5 allocator). Banked guarded floor. */
 // FUN_001F3BB0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001f3bb0(void)
@@ -1147,7 +1148,7 @@ s32 func_001f3bb0(void)
     s16 i;
 
     count = func_001ef720(2, 0x80000) & 0xFFFF;
-    if (count >= 6) {
+    if (count > 5) {
         return -1;
     }
 

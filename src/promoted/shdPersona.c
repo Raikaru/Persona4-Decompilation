@@ -546,8 +546,95 @@ void func_00116610(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
    build/WBShdPersona_func_00116820_archive.txt; the source remains a
    bare INCLUDE_ASM until a separately measured reconstruction closes the
    retail loop tail. */
-// FUN_00116820
+/* measured: MWCC -O2 plain, object 1288B/window 1312B, normalized_diff 119 (24B short; P4-adapted archive 301 from HW 943/1236B, loop-f 301->137, inv two-statement 137->135, decl/id/tail/idfix/P3/u32-i 135->119 best). Walls: s64-for-Vec2f and u8-arg1 compile errors confirm s32; inv-u8 +129 and inv-recompute +166 (frame B0->C0) banked. Remaining off 796 andi/move/addiu wall (missing inv recompute). No volatile/asm. Mined s64-family call at line 351. Staged /tmp/push_16820_full.c via NearGA.Shd116820. */
+// FUN_00116820 NONMATCHING
+#ifdef NON_MATCHING
+void func_00116820(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
+{
+    f32 high;
+    f32 spA0[2];
+    u8 color[4];
+    u32 i;
+    s32 inv;
+    s32 id0;
+    s32 id1;
+    s32 id2;
+    s32 code;
+    s32 n;
+    f32 f;
+
+    high = *((f32 *)&arg0 + 1);
+    id0 = arg3[0];
+    if (id0 == 0) func_0046d730(D_005E4868, 0x298);
+    id1 = arg3[1];
+    if (id1 == 0) func_0046d730(D_005E4868, 0x29A);
+    id2 = arg3[2];
+    if (id2 == 0) func_0046d730(D_005E4868, 0x29C);
+    spA0[0] = *(f32 *)&arg0;
+    spA0[1] = high;
+    inv = arg1 & 0xFF;
+    inv = 0xFF - inv;
+    func_0046d4c0(0, id0, 0x42, spA0[0], spA0[1], inv, 0xFF, 0xA0, 0x0B, fparg0, 0);
+    spA0[0] = *(f32 *)&arg0 - 273.0f;
+    spA0[1] = 3.0f + high;
+    i = 0;
+    while (i < 7U) {
+        f = spA0[1];
+        func_0046d4c0(0, id2, i + 0x2E, spA0[0], f, inv, 0xFF, 0xFF, 0x81, fparg0, 0);
+        func_0046d4c0(0, id0, 0x43, spA0[0] - 2.0f, 22.0f + f, inv, 0xFF, 0xE9, 0x2C, fparg0, 0);
+        n = *(s32 *)((u8 *)arg2 + i * 4 + 0x14);
+        if ((n & 0x02000000) != 0) {
+            code = 0x35;
+        } else if ((n & 0x08000000) != 0) {
+            code = 0x36;
+        } else if ((n & 0x10000000) != 0) {
+            code = 0x37;
+        } else if ((n & 0x01000000) != 0) {
+            code = 0x38;
+        } else if ((n & 0x04000000) != 0) {
+            code = 0x39;
+        } else {
+            code = 0x3A;
+        }
+        func_0046d4c0(0, id2, code, spA0[0], 24.0f + f, inv, 0xDE, 0x75, 0, fparg0, 0);
+        if (i == 0) {
+            spA0[0] += 51.0f;
+        } else {
+            spA0[0] += 37.0f;
+        }
+        i++;
+    }
+    color[0] = 0x2D;
+    color[1] = 0x2D;
+    color[2] = 0x2D;
+    color[3] = (u8)arg1;
+    spA0[0] = *(f32 *)&arg0 - 315.0f;
+    spA0[1] = 152.0f + high;
+    func_0046d4c0(0, id0, 0x44, spA0[0], spA0[1], inv, 0xFF, 0xA0, 0x0B, fparg0, 0);
+    spA0[0] = *(f32 *)&arg0 + 31.0f - 315.0f;
+    spA0[1] = 152.0f + (high - 93.0f);
+    func_0046d4c0(0, id2, 0x2C, spA0[0], spA0[1], inv, 0xFF, 0xFF, 0x81, fparg0, 0);
+    func_0046d4c0(0, id2, 0x2D, spA0[0], 57.0f + spA0[1], inv, 0xFF, 0xFF, 0x81, fparg0, 0);
+    high = 152.0f + (high - 88.0f);
+    inv = 0;
+    while (inv < 5U) {
+        spA0[0] = *(f32 *)&arg0 + 65.0f - 315.0f;
+        n = inv * 0x13;
+        if (n >= 0) {
+            f = (f32)n;
+        } else {
+            n = (s32)(((u32)n >> 1) | (n & 1));
+            f = (f32)n;
+            f = f + f;
+        }
+        spA0[1] = high + f;
+        func_00117310(*(Vec2f *)spA0, fparg0, *(s32 *)color, ((u8 *)((u8 *)arg2 + inv))[7] & 0xFF, id1, 0);
+        inv++;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00116820);
+#endif
 
 
 
@@ -571,8 +658,74 @@ extern f32 iGpffff82fc;
    cleanly (c.ole.s vs retail c.le.s on the 0x4F guard is the only fp row).
    func_0046d4c0 11-arg call shapes and the odd-register arg mapping
    (arg5 in $9) verified against retail. */
+/* measured: MWCC -O2 plain, object 1112B/window 1152B, normalized_diff 602 (differing 199; VSHD baseline 804 -> -202). Signature (I64,s32,u8,u8,s16,s32,f32). Levers: no_sp98_s64_idiom -179, BF_A8 -23, decl_bytes_first -3, base-hoist u32 +12 (wall frame 0xF0 vs 0xC0, retail shares $17), u8/s8/s32/rawtemp/nos16/var22/twostep/floatfix/fsave/ge1/ne0/loopinv as reported. Remaining first-diffs swc1 f21-vs-f22 etc. at 36-52. No volatile/asm. Mined 00116820/00116d40 call-site mapping. Staged /tmp/push_116d40_full.c via NearGA.Shd116d40. */
 // FUN_00116D40 NONMATCHING
+#ifdef NON_MATCHING
+void func_00116d40(I64 arg0, s32 arg1, u8 arg2, u8 arg3, s16 arg4, s32 arg5, f32 fparg0)
+{
+    u8 colors[8];
+    s32 spA0[4];
+    f32 high;
+    f32 rate;
+    f32 value;
+    s32 temp;
+    s32 shade0;
+    s32 shade2;
+
+    high = *((f32 *)&arg0 + 1);
+    if ((arg3 & 0xFF) > 0) {
+        temp = (arg2 - arg3) & 0xFF;
+        colors[4] = 0x2D;
+        colors[5] = 0x2D;
+        colors[6] = 0x2D;
+        colors[7] = (u8)arg1;
+        shade0 = 140;
+        shade2 = shade0;
+        colors[0] = 0xFF;
+        colors[1] = 0xFF;
+        colors[2] = 0xFF;
+        rate = (3.0f + func_0044b610((iGpffff82fc * (f32)arg4) / 30.0f)) / 4.0f;
+        value = (f32)(u32)arg1;
+        value *= rate;
+        colors[3] = (u8)value;
+    } else {
+        colors[4] = 0xFF;
+        colors[5] = 0xA0;
+        colors[6] = 0x0B;
+        colors[7] = (u8)arg1;
+        shade0 = 255;
+        shade2 = 129;
+        colors[0] = 0xFF;
+        colors[1] = 0xFF;
+        colors[2] = 0x81;
+        colors[3] = (u8)arg1;
+        temp = arg2;
+    }
+    func_0046d4c0(0, arg5, 0x3D, *(f32 *)&arg0, high, (0xFF - colors[7]) & 0xFF, colors[4], colors[5], colors[6], fparg0, 0);
+    func_0046d4c0(0, arg5, 0x3E, 214.0f + *(f32 *)&arg0, high, (0xFF - colors[7]) & 0xFF, colors[4], colors[5], colors[6], fparg0, 0);
+    func_0046d4c0(0, arg5, 0x3F, *(f32 *)&arg0, high, (0xFF - ((u8)arg1 & 0xFF)) & 0xFF, shade0, shade0, shade2, fparg0, 0);
+    temp = (((temp & 0xFF) * 0xCC) / 99) + 0xA;
+    *(f32 *)&arg0 += (f32)temp;
+    spA0[0] = (s32)*(f32 *)&arg0;
+    spA0[1] = (s32)(4.0f + high);
+    spA0[2] = 214 - temp;
+    spA0[3] = 9;
+    D_00887300[0](1, 0);
+    func_0045d6e0(&colors[4], spA0, 0, fparg0);
+    if ((arg3 & 0xFF) > 0) {
+        spA0[0] = (s32)*(f32 *)&arg0;
+        spA0[1] = (s32)(5.0f + high);
+        spA0[2] = (((arg3 & 0xFF) * 0xCC) / 99);
+        spA0[3] = 7;
+        D_00887300[0](1, 0);
+        func_0045d6e0(&colors[0], spA0, 0, fparg0);
+        *(f32 *)&arg0 += (f32)(((arg3 & 0xFF) * 0xCC) / 99);
+    }
+    func_0046d4c0(0, arg5, 0x40, *(f32 *)&arg0, high, (0xFF - colors[3]) & 0xFF, colors[0], colors[1], colors[2], fparg0, 0);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00116d40);
+#endif
 
 
 
@@ -881,8 +1034,34 @@ void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
    the two s64 homes at 0x50/0x58); mwcc b210 also saves arg0 (frame 0x80,
    homes at 0x70/0x78) and the whole body shifts (nd 147, obj 8B over window).
    Tried declaration orders — identical. FP/GP colouring floor. */
-// FUN_001187B0
+/* measured: MWCC -O2 plain, object 564B/window 624B, normalized_diff 393. Signature (u8*,s64,u8,s64,f32). Wall frame 0x70/homes 0x60,0x68 vs retail 0x60/0x50,0x58; first diff at 0 in all variants; addiu-sp-rematerialisation + FP/GP colouring floor, banked per wall rule rather than grinding. Levers: s64/u8 baseline 395, s64/s8/s32 +45, Vec2f +45, callee u8/s32 -2, decl orders +2/0, hy2-reload +84, s16-swapped -7, schedule +42, loopinv 0. No volatile/asm. Mined s64-family neighbours (00116190/001162f0/001163e0) and odd-register mapping. Staged /tmp/push_1187b0_full.c via NearGA.Shd1187b0. */
+// FUN_001187B0 NONMATCHING
+#ifdef NON_MATCHING
+void func_001187b0(u8 *arg0, s64 arg1, u8 arg2, s64 arg3, f32 fparg0)
+{
+    void func_0034f4a0(s32, s32, u8, u8, u8, s64, s64, s16, f32, f32, f32, f32, s16, s16);
+    s32 tmp;
+    f32 f21;
+    f32 f20;
+    f32 hy2;
+    f32 f12a;
+    f32 f12b;
+    f32 f12c;
+    tmp = *(s32 *)(arg0 + 0x2C0);
+    f21 = *(f32 *)&arg1 + *(f32 *)&arg3;
+    f20 = *((f32 *)&arg1 + 1) + *((f32 *)&arg3 + 1);
+    hy2 = *((f32 *)&arg3 + 1);
+    func_0034f4a0(*(s32 *)(arg0 + 0x2C4), 0x1D, 0xBD, 0x29, 0, arg2, 0x1000, 0x1000, f21, f20, 0, fparg0, (s16)(s32)(*(f32 *)&arg3 - f21), (s16)(s32)(hy2 - f20));
+    f12a = 207.0f + f21;
+    func_0034f4a0(tmp, 0xB2, 0xBD, 0x29, 0, arg2, 0x1000, 0x1000, f12a, f20, 0, fparg0, (s16)(s32)(*(f32 *)&arg3 - f12a), (s16)(s32)(hy2 - f20));
+    f12b = 300.0f + f21;
+    func_0034f4a0(tmp, 0xB3, 0xBD, 0x29, 0, arg2, 0x1000, 0x1000, f12b, f20, 0, fparg0, (s16)(s32)(*(f32 *)&arg3 - f12b), (s16)(s32)(hy2 - f20));
+    f12c = 314.0f + f21;
+    func_0034f4a0(tmp, 0xB3, 0xBD, 0x29, 0, arg2, 0x1000, 0x1000, f12c, f20, 0, fparg0, (s16)(s32)(*(f32 *)&arg3 - f12c), (s16)(s32)(hy2 - f20));
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001187b0);
+#endif
 
 
 
@@ -3319,8 +3498,200 @@ void func_0011c630(u8 *arg0);
    args/hallucinated 3-arg calls m2c invented from leftover registers
    (func_002bb7c0/00115380/00115020/002bb4e0 are 1- or 2-arg, and the switch
    needs the empty case 8 for sltiu 9) — the colouring itself is the floor. */
-// FUN_0011F5A0
+/* measured: MWCC -O2 plain, object 1504B/window 1520B, normalized_diff 122 (v2 baseline 268 -> absolute/!!/shared-else-if/outer-!=1 to 122). Requires file-scope extern u16 D_008C024E[] array-absolute + s32/u8* casts. Minimal args, empty case 8 for sltiu 9. Remaining off 44 lw s1-vs-s2 colouring floor + exit cascades from 16B-short. Saved-reg/addiu-SP wall holds (frame exact), banked. No volatile/asm. Mined 0011fb90/0011f560/0011f580 neighbours. Staged /tmp/push_11f5a0_full.c via NearGA.Shd11f5a0. */
+// FUN_0011F5A0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0011f5a0(u8 *arg0)
+{
+    u8 *work = ((SdkTask *)arg0)->work;
+    u8 *base = *(u8 **)(*(u8 **)(work + 0xC) + 0x38);
+    u8 *first = *(u8 **)(base + 0);
+    u32 st = *(u32 *)(work + 8);
+    switch (st) {
+    case 0: {
+        u16 a;
+        if (*(s32 *)(base + 0x534) & 0x100000) {
+            a = *(u16 *)(base + 0x4F4);
+        } else {
+            a = func_00115750(base + 0x8C);
+        }
+        *(u16 *)(work + 4) = a;
+        func_002baac0(*(s32 *)(work + 0x14));
+        func_002bad10(*(s32 *)(work + 0x28));
+        *(s32 *)(work + 8) = 1;
+    }
+        /* fallthrough */
+    case 1:
+        func_002bb7c0(1);
+        if (func_002bb600() == 0) {
+            func_002bb1e0(1);
+            *(s32 *)(work + 8) = 2;
+            func_0011c630(*(u8 **)(work + 0xC));
+        }
+        break;
+    case 2: {
+        s32 fl = *(s32 *)(base + 0x534);
+        s32 b800 = !!(fl & 0x800);
+        if (b800 != 0) {
+            if (*(s8 *)(base + 0x88) != -1) {
+                if (func_00115020(base + 0x84, (fl & 0x100000) != 0) != 0) {
+                    func_0045af60(0, 0, 0, 0);
+                }
+            }
+        }
+        if (D_008C024E[0] & 0x40) {
+            u8 *q = *(u8 **)(*(u8 **)(work + 0xC) + 0x38);
+            s32 fq = *(s32 *)(q + 0x534);
+            u16 vv;
+            if (fq & 0x2000) {
+                vv = 0;
+            } else if (((fq & 0x100000) != 0) && (*(s8 *)(q + 0x88) == 8)) {
+                vv = *(u16 *)(q + 0x4F4);
+            } else {
+                vv = func_001152b0(q + 0x84) & 0xFFFF;
+            }
+            *(u16 *)(work + 6) = vv;
+            *(s32 *)(work + 8) = 3;
+            func_002bbd20(0, func_00243840(*(u16 *)(work + 6)));
+            func_002bad10(*(s32 *)(work + 0x2C));
+            func_002baf40(*(s32 *)(work + 0x18));
+            func_002bb050(1);
+            func_002bbf60();
+            func_0045af60(0, 1, 0, 1);
+        }
+        break;
+    }
+    case 3:
+        func_002bb7c0(1);
+        if (func_002bb600() == 0) {
+            s32 rr;
+            func_002bb1e0(1);
+            rr = func_002bb140();
+            if (rr != 1) {
+                if (rr == 0) {
+                    u8 *pp = *(u8 **)(work + 0xC);
+                    u8 *bb = *(u8 **)(pp + 0x38);
+                    s32 cc = func_0011ccb0(bb) & 0xFFFF;
+                    u16 dd;
+                    u16 ee;
+                    s32 ok;
+                    s32 ok2;
+                    if (*(s32 *)(bb + 0x534) & 0x100000) {
+                        dd = *(u16 *)(bb + 0x4F4);
+                    } else {
+                        dd = func_00115750(bb + 0x8C);
+                    }
+                    ee = dd & 0xFFFF;
+                    bb = *(u8 **)(pp + 0x38);
+                    if (*(u8 **)bb == NULL) {
+                        func_0046d730(D_005E4868, 0xE45);
+                    }
+                    if (func_0010cd70((s32)*(u8 **)bb, (s16)cc, (u8 *)(u32)ee) != -1) {
+                        func_00115500(cc, (u8 *)(u32)ee, bb + 0x8C);
+                        ok = 1;
+                    } else {
+                        ok = 0;
+                    }
+                    if (ok != 0) {
+                        ok2 = 1;
+                    } else {
+                        if ((*(s32 *)(bb + 0x534) & 0x100000) == 0) {
+                            func_00115760(bb + 0x8C);
+                        }
+                        ok2 = 0;
+                    }
+                    if (ok2 != 0) {
+                        *(u16 *)(work + 0) = 0;
+                        *(s32 *)(work + 8) = 4;
+                    } else {
+                        u8 *qb2;
+                        *(s32 *)(work + 8) = 6;
+                        qb2 = first;
+                        qb2 = (u8 *)func_001092f0(qb2);
+                        qb2 = (u8 *)func_00109220((u16)(u32)qb2);
+                        func_002bbd20(0, qb2);
+                        func_002bbd20(1, func_00243840(*(u16 *)(work + 4)));
+                        func_002bad10(*(s32 *)(work + 0x30));
+                    }
+                    {
+                    u8 *qb = *(u8 **)(*(u8 **)(work + 0xC) + 0x38);
+                    s32 fq2 = *(s32 *)(qb + 0x534);
+                    if (fq2 & 0x20) {
+                        if (fq2 & 0x800) {
+                            if ((fq2 & 0x2000) == 0) {
+                                s32 nv;
+                                *(f32 *)(qb + 0x434) = *(f32 *)(qb + 0x444);
+                                *(f32 *)(qb + 0x438) = *(f32 *)(qb + 0x448);
+                                *(s32 *)(qb + 0x43C) = 0xC3E10000;
+                                *(u16 *)(qb + 0x514) = 0;
+                                nv = *(s32 *)(qb + 0x534) | 0x2000;
+                                *(s32 *)(qb + 0x534) = nv;
+                                *(s32 *)(qb + 0x534) = nv & ~0x1000;
+                            }
+                        }
+                    }
+                    }
+                }
+            } else {
+                *(s32 *)(work + 8) = 2;
+            }
+        }
+        break;
+    case 4: {
+        u16 c = *(u16 *)(work + 0) + 1;
+        *(u16 *)(work + 0) = c;
+        if ((c & 0xFFFF) < 0xA) {
+            break;
+        } else {
+            u8 *q = *(u8 **)(*(u8 **)(work + 0xC) + 0x38);
+            s32 fq = *(s32 *)(q + 0x534);
+            if ((fq & 0x8000) == 0) {
+                s16 sv;
+                *(s32 *)(q + 0x534) = fq | 0x8000;
+                *(u16 *)(q + 0x518) = 0;
+                sv = func_00115380(q + 0x8C, *(u16 *)(work + 4));
+                *(s16 *)(q + 0x51A) = sv;
+                if ((s32)sv < 0) {
+                    func_0046d730(D_005E4868, 0xEB1);
+                }
+            }
+            func_0045af60(1, 3, 3, 2);
+            *(s32 *)(work + 8) = 5;
+            *(u16 *)(work + 2) = 0;
+        }
+    }
+        /* fallthrough */
+    case 5: {
+        u8 *q = *(u8 **)(*(u8 **)(work + 0xC) + 0x38);
+        s32 fq = *(s32 *)(q + 0x534);
+        if ((fq & 0x8000) == 0) {
+            *(s32 *)(q + 0x534) = fq & ~0x8000;
+            *(s32 *)(work + 8) = 6;
+            func_002bbd20(0, func_00243840(*(u16 *)(work + 6)));
+            func_002bbd20(1, func_00243840(*(u16 *)(work + 4)));
+            func_002bad10(*(s32 *)(work + 0x34));
+        /* fallthrough */
+    case 6:
+            func_002bb7c0(1);
+            if (func_002bb600() == 0) {
+                func_002bb1e0(1);
+                *(s32 *)(work + 8) = 7;
+            }
+        }
+        break;
+    }
+    case 7:
+        func_002bb4e0();
+        *(s32 *)(work + 8) = 8;
+        break;
+    case 8:
+        break;
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011f5a0);
+#endif
 
 
 

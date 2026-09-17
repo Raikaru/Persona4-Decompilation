@@ -2677,7 +2677,9 @@ void func_0029f790(u8 *arg0)
                       alpha, 1);
     }
 }
-// FUN_0029FBB0
+/* measured: func_0029fbb0 obj 1828B window 1856B (retail 461 instrs object 457 instrs) fnalign 193 edits (+2 reloc-only) fndiff 401 differing words; frame 0x190 vs retail 0x1A0 (copy[36] honest, copy[40] fixes frame to 0x1A0 at 400 diff but pads copy dishonestly); residual systematic saved-reg rotation + sq/lq spill vs sw + copy-loop a0-a2 vs a1-a3 shift from base spill to 0xF0; compiler floor, keep ASM. */
+// FUN_0029FBB0 NONMATCHING
+#ifdef NON_MATCHING
 void func_0029fbb0(u8 *arg0, s32 arg1) {
     s32 copy[36];
     f32 stack[2];
@@ -2836,3 +2838,6 @@ do_copy:
         }
     }
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0029", func_0029fbb0);
+#endif

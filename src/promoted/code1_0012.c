@@ -170,8 +170,186 @@ extern u8 D_005E5BB8[];
 extern u8 D_005E76C8[];
 extern void func_0012e7c0(u8 *arg0);
 extern s32 func_0012ff60(u8 *arg0, u32 arg1);
-// FUN_001203A0
+/* measured: func_001203a0 obj 1824B window 1856B (32B short, 1.7% within 3%), 382 reloc-masked differing words; fnalign retail 463 instrs object 456 instrs (7 short); frame -0xD0 vs -0x100, missing swc1 f23 save, sd/mov park order, s-reg coloring (s5/s3, s0/s2, s7/fp) + f22/f21 vs f12/f13 + stack offsets (0xE0 vs 0xB8 etc.); arg-setup float-first (00275020/00120ae0/0046d4c0) + u32 color unions + s32 D/C via cvt kept; opt_propagation+opt_common_subs off gives 382 (vs 398 single-inner, 397 both-inners, 400 flat); no slti/slt levers in retail; best honest exact-size draft, parked as compiler floor. */
+// FUN_001203A0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_propagation off
+#pragma opt_common_subs off
+void func_001203a0(s64 arg0, s8 arg1, u8 *arg2, s32 arg3, s32 arg4, f32 fparg0)
+{
+    extern s32 func_0046a770(void *arg0);
+    extern void func_0046d730(const void *file, s32 line);
+    extern u8 *func_0010d620(s16 arg0);
+    extern u8 *func_0010d6d0(s16 arg0);
+    extern int func_00275020(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int charWidth);
+    extern u32 func_00104ce0(s32 arg0);
+    extern u32 func_00104dc0(s32 arg0);
+    extern u32 func_00104d50(s32 arg0);
+    extern u32 func_00104e30(s32 arg0);
+    extern void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 z, s32 arg6);
+    extern void func_0046d2b0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, f32 z, s32 arg3);
+    extern void func_0045d6e0(void *arg0, s32 *arg1, s32 arg2, f32 arg3);
+    extern void func_00120ae0(s64 arg0, f32 fparg0, s32 arg1, u32 arg2, s32 arg3);
+    extern u8 D_005E5830[];
+    extern u8 D_005E5850[];
+    extern u8 D_005E4F88[];
+    union { u32 w; u8 b[4]; } colFC, colF4, colF0;
+    u8 blkF8[4];
+    f32 spEC;
+    f32 spE8;
+    s32 spDC;
+    s32 spD8;
+    s32 spD4;
+    s32 spD0;
+    s32 spCC;
+    s32 spC8;
+    s32 spC4;
+    s32 spC0;
+    s64 spB8;
+    s32 var_19;
+    f32 temp_f12;
+    f32 temp_f12_2;
+    f32 temp_f20;
+    f32 temp_f20_2;
+    f32 temp_f23;
+    s16 temp_18;
+    s16 temp_3;
+    s32 temp_17;
+    s32 temp_17_2;
+    s32 temp_17_3;
+    s32 temp_19;
+    s32 temp_20;
+    s32 temp_21;
+    u8 *temp_str;
+    s32 temp_lo;
+    s32 temp_4;
+    u32 temp_6;
+    u32 temp_6_2;
+    u32 temp_6_3;
+    u32 temp_6_4;
+
+    spB8 = arg0;
+    temp_21 = func_0046a770(D_005E5830);
+    temp_20 = func_0046a770(D_005E5850);
+    if (temp_21 == 0) {
+        func_0046d730(D_005E4F88, 0xB1);
+    }
+    if (temp_20 == 0) {
+        func_0046d730(D_005E4F88, 0xB2);
+    }
+    temp_18 = *(s16 *)arg2;
+    temp_3 = *(s16 *)(arg2 + 6);
+    switch (temp_3) {
+    case 0:
+        var_19 = 6;
+        colFC.b[0] = 0xEC; colFC.b[1] = 0x7C; colFC.b[2] = 0;
+        break;
+    case 1:
+        var_19 = 7;
+        colFC.b[0] = 0x2D; colFC.b[1] = 0x2D; colFC.b[2] = 0x2D;
+        break;
+    case 2:
+        var_19 = 6;
+        colFC.b[0] = 0xEC; colFC.b[1] = 0x7C; colFC.b[2] = 0;
+        break;
+    default:
+        var_19 = 6;
+        colFC.b[0] = 0xFF; colFC.b[1] = 0xFF; colFC.b[2] = 0x81;
+        break;
+    }
+    colFC.b[3] = (u8)arg1;
+    spE8 = *((f32 *)&spB8);
+    spEC = *((f32 *)&spB8 + 1);
+    if (*(s32 *)(arg2 + 8) == 3) {
+        spEC = *((f32 *)&spB8 + 1) - 5.0f;
+    }
+    temp_17 = arg1 & 0xFF;
+    if (arg4 != 0) {
+        temp_str = func_0010d620(temp_18);
+    } else {
+        temp_str = func_0010d6d0(temp_18);
+    }
+    func_00275020(spE8, spEC, 0.0f, temp_17 | ~0xFF, (s8)var_19, 1, (const char *)temp_str, 0, -1);
+    temp_6 = func_00104ce0(temp_18) & 0xFFFF;
+    temp_f20 = 30.0f + *((f32 *)&spB8);
+    spE8 = temp_f20;
+    spEC = 27.0f + *((f32 *)&spB8 + 1);
+    func_00120ae0(*((s64 *)&spE8), fparg0, (s32)colFC.w, temp_6, temp_21);
+    if (arg3 != 0) {
+        temp_f12 = 52.0f + *((f32 *)&spB8);
+        spE8 = temp_f12;
+        temp_f23 = 27.0f + *((f32 *)&spB8 + 1);
+        spEC = temp_f23;
+        func_0046d4c0(0, temp_20, 0x3D, temp_f12, temp_f23, (0xFF - temp_17) & 0xFF, 0xFF, 0xA2, 0, fparg0, 0);
+        spE8 = 103.0f + *((f32 *)&spB8);
+        spEC = temp_f23;
+        temp_6_2 = func_00104dc0(temp_18) & 0xFFFF;
+        colF4.b[0] = 0xFB; colF4.b[1] = 0xA2; colF4.b[2] = 0; colF4.b[3] = (u8)arg1;
+        func_00120ae0(*((s64 *)&spE8), fparg0, (s32)colF4.w, temp_6_2, temp_21);
+        spE8 = 123.0f + *((f32 *)&spB8);
+        spEC = 31.0f + *((f32 *)&spB8 + 1);
+    } else {
+        spE8 = 49.0f + *((f32 *)&spB8);
+        spEC = 30.0f + *((f32 *)&spB8 + 1);
+    }
+    temp_17_2 = 0xFF - (arg1 & 0xFF);
+    func_0046d2b0(0, temp_21, 0x4B, spE8, spEC, temp_17_2 & 0xFF, fparg0, 0);
+    func_0046d2b0(0, temp_21, 0x4C, spE8, spEC, temp_17_2 & 0xFF, fparg0, 0);
+    temp_19 = func_00104ce0(temp_18) & 0xFFFF;
+    temp_4 = func_00104dc0(temp_18) & 0xFFFF;
+    temp_lo = (s32)((temp_4 - (temp_19 & 0xFFFF)) * 0x58) / temp_4;
+    spD8 = temp_lo;
+    spDC = 6;
+    spD0 = (s32)((95.0f + spE8) - (f32)temp_lo);
+    spD4 = (s32)(4.0f + spEC);
+    blkF8[0] = 0x2D; blkF8[1] = 0x2D; blkF8[2] = 0x2D; blkF8[3] = (u8)arg1;
+    {
+        s32 blkD[4];
+        blkD[0] = spD0; blkD[1] = spD4; blkD[2] = spD8; blkD[3] = spDC;
+        func_0045d6e0(blkF8, blkD, 1, 0.0f);
+    }
+    temp_6_3 = func_00104d50(temp_18) & 0xFFFF;
+    spE8 = temp_f20;
+    spEC = 43.0f + *((f32 *)&spB8 + 1);
+    func_00120ae0(*((s64 *)&spE8), fparg0, (s32)colFC.w, temp_6_3, temp_21);
+    if (arg3 != 0) {
+        temp_f12_2 = 52.0f + *((f32 *)&spB8);
+        spE8 = temp_f12_2;
+        temp_f20_2 = 43.0f + *((f32 *)&spB8 + 1);
+        spEC = temp_f20_2;
+        func_0046d4c0(0, temp_20, 0x3D, temp_f12_2, temp_f20_2, temp_17_2 & 0xFF, 0xFF, 0xA2, 0, fparg0, 0);
+        spE8 = 103.0f + *((f32 *)&spB8);
+        spEC = temp_f20_2;
+        temp_6_4 = func_00104e30(temp_18) & 0xFFFF;
+        colF0.b[0] = 0xFB; colF0.b[1] = 0xA2; colF0.b[2] = 0; colF0.b[3] = (u8)arg1;
+        func_00120ae0(*((s64 *)&spE8), fparg0, (s32)colF0.w, temp_6_4, temp_21);
+        spE8 = 123.0f + *((f32 *)&spB8);
+        spEC = 42.0f + *((f32 *)&spB8 + 1);
+    } else {
+        spE8 = 49.0f + *((f32 *)&spB8);
+        spEC = 41.0f + *((f32 *)&spB8 + 1);
+    }
+    temp_17_3 = 0xFF - (arg1 & 0xFF);
+    func_0046d2b0(0, temp_21, 0x4B, spE8, spEC, temp_17_3 & 0xFF, fparg0, 0);
+    func_0046d2b0(0, temp_21, 0x4D, spE8, spEC, temp_17_3 & 0xFF, fparg0, 0);
+    {
+        s32 t19 = func_00104ce0(temp_18) & 0xFFFF;
+        s32 t4 = func_00104dc0(temp_18) & 0xFFFF;
+        s32 tlo = (s32)((t4 - (t19 & 0xFFFF)) * 0x58) / t4;
+        spC8 = tlo;
+        spCC = 6;
+        spC0 = (s32)((95.0f + spE8) - (f32)tlo);
+        spC4 = (s32)(4.0f + spEC);
+    }
+    blkF8[0] = 0x2D; blkF8[1] = 0x2D; blkF8[2] = 0x2D; blkF8[3] = (u8)arg1;
+    func_0045d6e0(blkF8, &spC0, 1, 0.0f);
+}
+
+#pragma opt_common_subs on
+#pragma opt_propagation on
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_001203a0);
+#endif
 // FUN_00120AE0
 void func_00120ae0(s64 arg0, f32 fparg0, s32 arg1, u32 arg2, s32 arg3)
 {
