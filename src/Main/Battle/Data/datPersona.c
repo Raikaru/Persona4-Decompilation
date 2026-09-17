@@ -106,7 +106,7 @@ u16 func_00109470(s32 arg0)
 }
 
 /* measured: object 676B/window 688B/normalized_diff 252 (105 differing words, live re-measured current tree). */
-/* measured: 170 vs 169 instrs (1 short) with tail inserts at 148 and 170 plus colouring (s1-s0, s6-s7, t3-t1); slti-v0 both sides (s3-vs-s2 input) so inclusive N-A; dead-arm redundant-store hunt at chain end plus arg-setup and loop-invariant to follow. */
+/* measured: 170 vs 169 instrs (1 short) with tail inserts at 148 and 170 plus colouring (s1-s0, s6-s7, t3-t1); slti-v0 both sides (s3-vs-s2 input) so inclusive N-A (probe >=0x100->>0xFF 105->107 regress, >=0x20->>0x1F tie, both regress); dead-arm self-assign at second-loop chain end tie 105 (no retail slti-at trailing, no honest redundant constant store); skills pointer-temp 105->108 regress; sltiu 0 and no || so adjacent-== fold N-A, frame same so index-mask N-A; banked floor within 3% (676B/688B). */
 // FUN_00109510 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1117,7 +1117,7 @@ s32 func_0010be20(u8 *arg0)
 }
 
 /* measured: object 1820B/window 1856B/normalized_diff 1426 (443 differing words, live re-measured current tree). */
-/* measured: re-measured live confirms 443 words (was 445, loop-invariants on inside guard worth 2, preheader hoist retained); slti-at hit with inclusive-bound flip to be tried top-down; full-size floor. */
+/* measured: live 443 words / fnalign 388 edits (463 vs 455 instrs, 8 short, 1820B/1856B within 3%); slti inclusive top-down 15 variants all tie except >=0xC0->>0xBF +1 regress (pid, i>=5 x3, level>=0x64/>=2, dispatch, av+sv<0x63, nv+sv>=0x64, j<5, i<3, out>=0x20 x2, id2 dispatch x2); 8 short is layout-inversion delete 60 at dispatch (shadow inline vs retail out-of-line) so dead-arm N-A (ends assert/loop, no retail slti-at trailing dead compare); sltiu 0 so adjacent-== fold N-A (|| are pid==0||>=0x100 and id<0xC0||>=0xD8); frame 0xD0 vs 0xA0 single-site calls and true u32 param for 00231d70 per btlUnit.c so index-mask N-A; banked floor. */
 // FUN_0010BE60 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on

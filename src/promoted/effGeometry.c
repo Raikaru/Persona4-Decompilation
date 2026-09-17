@@ -490,12 +490,85 @@ void func_004839d0(int param_1, u32 *param_2)
   return;
 }
 
-/* measured floor: retail allocates arg0=$s4, temp_22=$s6, temp_21=$s5, var_16=$s0
-   and places spCC at 0xcc; mwcc b210 assigns arg0=$s6 (rotated) and spCC at 0xdc
-   (stack layout shifted by the f32 spDC + sq slots). Tried 3 declaration orders
-   and u32 args, nd 108. */
+/* measured: live object 572B/window 576B, normalized_diff 81 (installed guard below; prior nd108 note was stale). Genuine gains this session: mult-operand order (arg0&mask first) and anti-CSE (u16)arg0 for the late saved mask (108 -> 81). Open walls: saved-register rotation (arg0-home $s6 vs $s4 class; decl swaps neutral), 3-operand mult operand order (rs follows evaluation; decoupled-mask forms reverse evaluation), slt-$at assert (goto-form ties), frame slots +0x10 (allocation count), u_long128 mult/conversion traffic, stack-float round-trip. Ruled out: s32 mult (uncompilable slot forms), goto-assert, schedule on (129), propagation off (126), peephole/O-levels, mask spellings, u32 caller sig. Banked as floor. */
 // FUN_00483A00 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_00483a00(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    typedef unsigned int u_long128 __attribute__((mode(TI)));
+    f32 spDC;
+    s32 spD8;
+    s32 spD4;
+    s32 spD0;
+    s32 spCC;
+    s32 spC0;
+    u_long128 spB0;
+    u_long128 spA0;
+    s32 temp_22;
+    s32 temp_21;
+    u8 *temp_19;
+    u8 *temp_18;
+    s32 temp_17;
+    s32 var_16;
+    u8 *temp_2_2;
+    f32 temp_f0;
+    s32 temp_2;
+
+    spCC = arg3;
+    temp_22 = (arg0 & 0xFFFF) * (arg1 & 0xFFFF);
+    if (temp_22 < 0x10000) {
+    } else {
+        func_0046d730(D_00713448, 459);
+    }
+    func_0044ea90(D_00713448, 461);
+    temp_21 = (u16)arg0;
+    temp_19 = jtbl_008873E8[0](temp_21 * 4 + 0x58, 0x40000);
+    spC0 = func_003e9320();
+    temp_17 = func_003c00e0();
+    temp_2 = (arg2 & 0xFFFF) * temp_21;
+    spB0 = temp_2;
+    spA0 = (u_long128)(u32)(temp_19 + 0x58);
+    temp_18 = func_003c2630(temp_22, (s32)temp_2, spCC);
+    var_16 = 0;
+    while ((var_16 & 0xFFFF) < temp_21) {
+        *(s32 *)((u8 *)spA0 + ((var_16 & 0xFFFF) * 4)) = func_003c4140();
+        var_16 = (var_16 + 1) & 0xFFFF;
+    }
+    func_003c1b90(temp_17, spC0);
+    spD0 = 0;
+    spD4 = 0;
+    spD8 = 0;
+    temp_f0 = fGpffff8078;
+    spDC = temp_f0;
+    temp_2_2 = *(u8 **)(temp_18 + 0x5C);
+    *(s32 *)(temp_2_2 + 4) = spD0;
+    *(s32 *)(temp_2_2 + 8) = spD4;
+    *(s32 *)(temp_2_2 + 0xC) = spD8;
+    *(f32 *)(temp_2_2 + 0x10) = temp_f0;
+    func_003c0210(temp_17, temp_18, 0);
+    func_003c2a80(temp_18);
+    *(s16 *)(temp_19 + 0) = 5;
+    *(s32 *)(temp_19 + 4) = spCC;
+    *(s16 *)(temp_19 + 8) = (s16)arg1;
+    *(s16 *)(temp_19 + 0xA) = (s16)arg2;
+    *(s32 *)(temp_19 + 0xC) = spC0;
+    *(s32 *)(temp_19 + 0x10) = temp_17;
+    *(s32 *)(temp_19 + 0x14) = 0;
+    *(s16 *)(temp_19 + 0x48) = (s16)arg0;
+    *(s16 *)(temp_19 + 0x4A) = (s16)temp_22;
+    *(s16 *)(temp_19 + 0x4C) = (s16)spB0;
+    *(s32 *)(temp_19 + 0x54) = (s32)spA0;
+    *(s8 *)(temp_19 + 0x4E) = -1;
+    *(s8 *)(temp_19 + 0x4F) = -1;
+    *(s8 *)(temp_19 + 0x50) = -1;
+    *(s8 *)(temp_19 + 0x51) = -1;
+    func_0043f9c8(temp_19 + 0x18, 0, 0x30);
+    *(s16 *)(temp_19 + 0x30) = 0x15;
+    *(u8 **)(temp_19 + 0x34) = temp_19;
+    return temp_19;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483a00);
+#endif
 
 // FUN_00483C40
 u8 *func_00483c40(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {

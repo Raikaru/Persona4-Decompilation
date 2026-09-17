@@ -1997,8 +1997,8 @@ void func_00204dc0(s32 index, f32 x, f32 y, f32 depth, f32 angle, s32 extend)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00204dc0);
 #endif
-/* measured: object 1100B/window 1120B/normalized_diff 617 (208 differing words, live re-measured current tree). */
-/* measured: frame-prologue plus call-order floor; levers checked top-down with no gain over current 208-word body; full-size (1100 vs 1120, minus 1pt) floor. */
+/* measured: object 1100B/window 1120B/normalized_diff 614 (206 differing words fndiff, fnalign 275/278 3-short 106e+18 reloc; baseline parked 617/208/115e). Best type_u16_temp17 (s32 temp_17->u16 temp_17 single-line, -2w/-3B/-9e). */
+/* measured: dead-arm head/lo/lo2/21 redundant-store shapes all neutral DCE (208w); slti inclusive, <1U/<2U, s16-cast, loopinv, schedule, s64, commsub, u16-narrowing (owner-edit N/A), adjacent-OR (no ||/-1), COP2 (N/A), index-mask/CSE (no andi-CSE/frame diff) all tried per checklist; remaining Path2 CSE + preheader + second-loop hoist + displacement cascade walls. No volatile/asm. Staged /tmp/push_205170_full.c via NearGA.Dead205170. */
 // FUN_00205170 NONMATCHING
 #ifdef NON_MATCHING
 void func_00205170(u8 *arg0, s32 arg1, f32 fx, f32 fy, s32 arg2, s32 arg3, s32 arg4) {
@@ -2015,7 +2015,7 @@ void func_00205170(u8 *arg0, s32 arg1, f32 fx, f32 fy, s32 arg2, s32 arg3, s32 a
     u8 spBE;
     u8 spBF;
     s8 var_16;
-    s32 temp_17;
+    u16 temp_17;
     u8 *temp_18;
     u8 *temp_19;
     s32 temp_21;

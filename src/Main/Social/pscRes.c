@@ -862,143 +862,151 @@ void func_0036d230(u8 *arg0) {
     *(u32 *)((u8 *)p + 0x10) |= 8;
 }
 
-// Archived C body: build/WBHygiene_func_0036d3e0_archive.txt; no current park body remains.
-/* measured: object 1132B/window 1152B/normalized_diff 710 (244 differing words, live re-measured current tree). */
-/* measured: 2-short (119 edits) trailing-dead-arm signature with branch-displacement cascade; dead-arm redundant-store shape to be tried at chain end; slti-at, arg-setup and loop-invariant to follow; full-size floor. */
+/* measured: MWCC -O2 plain, object 1144B/window 1152B, normalized_diff 49w (fnalign 286/286 exact, 49e+4 reloc-only; owner 244w obj1132B fnalign 285/283 2-short 119e). Best WBHygiene archive (var_17/src1/var_19/temp_20/p0/dst/dst2/var_20 + r/c pairs). Trials: deadArchCase 136w 1-over regress, deadArchDef 49w neutral DCE, deadOwnCase 203w, deadOwnDef 244w, slti-inclusive 53w regress, nocast/s32cast/declswap/u16 49 tie, flagsfold 209w 1-short (proves folding is shortfall), ownerfix 270w, u16+CSE-off 49 tie N/A (no andi-CSE/frame diff, frame 0x70 both), adjacent-OR N/A. Remaining 49 colour-only 4-way s-reg rotation + tail a0/a1 + beq + 4 reloc-only; zero inserts/deletes, wall holds. 2-short->exact via dead-arm does NOT transfer here; exact via var_20=0;var_20|=4 (move+ori) vs folded addiu. No volatile/asm. Staged /tmp/push_36d3e0_full.c via NearGA.Dead36d3e0. */
+// Archived C body: build/WBHygiene_func_0036d3e0_archive.txt; pushed to 49w exact via WBHygiene archive (see note).
 // FUN_0036D3E0 NONMATCHING
 #ifdef NON_MATCHING
-s32 func_0036d3e0(u8 *arg0)
-{
-    u8 *clut;
-    u8 *src;
+s32 func_0036d3e0(u8 *arg0) {
+    s32 var_17;
+    u8 *src1;
+    s32 var_19;
+    void *temp_20;
+    u8 *p0;
     u8 *dst;
-    s32 tex;
-    s32 depth;
-    s32 flags;
-    s32 hasClut;
+    u8 *dst2;
+    s32 var_20;
     s32 i;
-    s32 j;
+    s32 i2;
+    s32 r;
+    s32 c;
+    s32 r2;
+    s32 c2;
+    s32 r3;
+    s32 c3;
+    s32 r4;
+    s32 c4;
 
-    hasClut = 0;
-    src = arg0;
-    depth = 0;
+    var_17 = 0;
+    p0 = arg0;
+    var_19 = 0;
     switch (arg0[0x16]) {
     case 0:
-        depth = 0x20;
+        var_19 = 0x20;
         break;
     case 1:
-        depth = 0x18;
+        var_19 = 0x18;
         break;
     case 2:
     case 10:
-        depth = 0x10;
+        var_19 = 0x10;
         break;
     case 19:
     case 27:
-        depth = 8;
+        var_19 = 8;
         break;
     case 20:
     case 36:
     case 44:
-        depth = 4;
+        var_19 = 4;
         break;
     }
-    if (depth == 0) {
+    if (var_19 == 0) {
         func_0046d730(D_0064E4E0, 0x409);
     }
-    src += 0x40;
-    switch (depth) {
+    arg0 += 0x40;
+    switch (var_19) {
     case 8:
-        clut = src;
-        src += arg0[0x10] << 0xA;
-        hasClut = 1;
+        src1 = arg0;
+        arg0 += (u32)p0[0x10] << 10;
+        var_17 |= 1;
         break;
     case 4:
-        clut = src;
-        src += arg0[0x10] << 6;
-        hasClut = 1;
+        src1 = arg0;
+        arg0 += (u32)p0[0x10] << 6;
+        var_17 |= 1;
         break;
     }
-    flags = 4;
-    switch (depth) {
-    case 32:
-        flags = 4 | 0x500;
+    var_20 = 0;
+    var_20 |= 4;
+    switch (var_19) {
+    case 0x20:
+        var_20 |= 0x500;
         break;
-    case 24:
-        flags = 4 | 0x600;
+    case 0x18:
+        var_20 |= 0x600;
         break;
     case 8:
-        flags = 4 | 0x2500;
+        var_20 |= 0x2500;
         break;
     case 4:
-        flags = 4 | 0x4500;
+        var_20 |= 0x4500;
         break;
     default:
         func_0046d730(D_0064E4E0, 0x431);
         break;
     }
-    tex = (s32)func_003ec590(*(u16 *)(arg0 + 0x12), *(u16 *)(arg0 + 0x14), depth, flags);
-    if (hasClut & 1) {
-        dst = (u8 *)func_003ec3d0((void *)tex, 1);
-        switch (depth) {
+    temp_20 = func_003ec590(*(u16 *)(p0 + 0x12), *(u16 *)(p0 + 0x14), var_19, var_20);
+    if (var_17 & 1) {
+        dst = func_003ec3d0(temp_20, 1);
+        switch (var_19) {
         case 8:
             for (i = 0; i < 0x100; i++) {
-                *(s32 *)dst = *(s32 *)clut;
-                clut += 4;
+                *(s32 *)dst = *(s32 *)src1;
+                src1 += 4;
                 dst += 4;
             }
             break;
         case 4:
-            for (i = 0; i < 0x10; i++) {
-                *(s32 *)dst = *(s32 *)clut;
-                clut += 4;
+            for (i2 = 0; i2 < 0x10; i2++) {
+                *(s32 *)dst = *(s32 *)src1;
+                src1 += 4;
                 dst += 4;
             }
             break;
         }
-        func_003ec2e0((void *)tex);
+        func_003ec2e0(temp_20);
     }
-    dst = (u8 *)func_003ec6a0((void *)tex, 0, 1);
-    switch (depth) {
-    case 32:
-        for (i = 0; i < *(u16 *)(arg0 + 0x14); i++) {
-            for (j = 0; j < *(u16 *)(arg0 + 0x12); j++) {
-                *(s32 *)dst = *(s32 *)src;
-                src += 4;
-                dst += 4;
+    dst2 = func_003ec6a0(temp_20, 0, 1);
+    switch (var_19) {
+    case 0x20:
+        for (r = 0; r < (s32)*(u16 *)(p0 + 0x14); r++) {
+            for (c = 0; c < (s32)*(u16 *)(p0 + 0x12); c++) {
+                *(s32 *)dst2 = *(s32 *)arg0;
+                arg0 += 4;
+                dst2 += 4;
             }
         }
         break;
-    case 24:
-        for (i = 0; i < *(u16 *)(arg0 + 0x14); i++) {
-            for (j = 0; j < *(u16 *)(arg0 + 0x12) * 3; j++) {
-                *dst = *src;
-                src += 1;
-                dst += 1;
+    case 0x18:
+        for (r2 = 0; r2 < (s32)*(u16 *)(p0 + 0x14); r2++) {
+            for (c2 = 0; c2 < (s32)*(u16 *)(p0 + 0x12) * 3; c2++) {
+                *dst2 = *arg0;
+                arg0 += 1;
+                dst2 += 1;
             }
         }
         break;
     case 8:
-        for (i = 0; i < *(u16 *)(arg0 + 0x14); i++) {
-            for (j = 0; j < *(u16 *)(arg0 + 0x12); j++) {
-                *dst = *src;
-                src += 1;
-                dst += 1;
+        for (r3 = 0; r3 < (s32)*(u16 *)(p0 + 0x14); r3++) {
+            for (c3 = 0; c3 < (s32)*(u16 *)(p0 + 0x12); c3++) {
+                *dst2 = *arg0;
+                arg0 += 1;
+                dst2 += 1;
             }
         }
         break;
     case 4:
-        for (i = 0; i < *(u16 *)(arg0 + 0x14); i++) {
-            for (j = 0; j < (*(u16 *)(arg0 + 0x12) >> 3); j++) {
-                *(s32 *)dst = *(s32 *)src;
-                src += 4;
-                dst += 4;
+        for (r4 = 0; r4 < (s32)*(u16 *)(p0 + 0x14); r4++) {
+            for (c4 = 0; c4 < (s32)*(u16 *)(p0 + 0x12) >> 3; c4++) {
+                *(s32 *)dst2 = *(s32 *)arg0;
+                arg0 += 4;
+                dst2 += 4;
             }
         }
         break;
     }
-    func_003ec2a0((void *)tex);
-    return tex;
+    func_003ec2a0(temp_20);
+    return (s32)temp_20;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/pscRes", func_0036d3e0);
