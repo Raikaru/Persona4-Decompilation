@@ -662,8 +662,102 @@ void func_002b6ea0(void) {
    reads nd 0 by construction (the object IS the retail asm), which is why the
    assignment list showed [nd 0]. The last C-body measurement is nd 350 (above);
    do not treat this function as matched until a C body exists. */
-// FUN_002B6EC0
+// FUN_002B6EC0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_002b6ec0(u8 *arg0) {
+    extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
+    u8 *table;
+    u8 *g;
+    s32 off;
+    s16 i;
+    s32 count;
+    s16 bit;
+    s16 found;
+    s32 flags;
+    s32 color;
+    u8 *w;
+    table = *(u8 **)(arg0 + 0x38);
+    i = 0;
+    *(s16 *)(table + 0x30C04) = 0;
+    while (i < 0x30C) {
+        u8 *e;
+        s16 fl;
+        *(s16 *)(table + (s32)i * 2 + 0x30C06) = 0;
+        off = (s32)i << 8;
+        g = *(u8 **)(iGpffffb574 + 0x38);
+        e = g + off;
+        if (((*(s16 *)(e + 0x14)) & 1) == 1) {
+            func_0043f810(e + 0x14, func_002b89a0(e + 0x14), 0xF0);
+            func_002b7cd0(arg0, i, *(s16 *)(e + 8));
+            fl = *(s16 *)(e + 0x14);
+            if ((s16)((fl & 0x4000) >> 0xE) == 1) {
+                w = func_00460990();
+                *(void (**)(void))(w + 8) = func_002b6260;
+                *(s32 *)(w + 0x10) = 0;
+                func_00460ac0(D_00793E80 + *(s32 *)(e + 0xC) * 0x30, w);
+                if (*(f32 *)(e + 0xA4) <= fGpffff8504 || *(f32 *)(e + 0xB0) <= fGpffff8504) {
+                    goto bs0;
+                } else {
+                    color = func_002b2a30(0xFF, e[0x89], e[0x8A], e[0x8B]);
+                    func_0025ecd0(*(f32 *)(e + 0x3C), *(f32 *)(e + 0x40), *(f32 *)(e + 0x18), color, e[0x72], *(s16 *)(e + 8), *(void **)(table + 0), 0, *(s16 *)(e + 0x10), *(s16 *)(e + 0x12), *(f32 *)(e + 0xD4), *(f32 *)(e + 0xA4), *(f32 *)(e + 0xB0), D_00793E80 + *(s32 *)(e + 0xC) * 0x30);
+                    goto tail;
+                }
+bs0:
+                flags = *(s16 *)(e + 0x14);
+                for (bit = 1; bit < 13; bit++) {
+                    if (((flags & (u16)(1 << bit)) >> bit) == 1) { found = 1; goto bs0out; }
+                }
+                found = 0;
+bs0out:
+                if (found == 0) { *(s16 *)(e + 0x14) &= ~1; }
+                goto tail;
+            } else if ((s16)((fl & 0x2000) >> 0xD) == 1) {
+                w = func_00460990();
+                *(void (**)(void))(w + 8) = func_002b6180;
+                *(s32 *)(w + 0x10) = 0;
+                func_00460ac0(D_00793E80 + *(s32 *)(e + 0xC) * 0x30, w);
+                if (*(f32 *)(e + 0xA4) <= fGpffff8504 || *(f32 *)(e + 0xB0) <= fGpffff8504) {
+                    goto bs1;
+                } else {
+                    color = func_002b2a30(0xFF, e[0x89], e[0x8A], e[0x8B]);
+                    func_0025ecd0(*(f32 *)(e + 0x3C), *(f32 *)(e + 0x40), *(f32 *)(e + 0x18), color, e[0x72], *(s16 *)(e + 8), *(void **)(table + 0), 0, *(s16 *)(e + 0x10), *(s16 *)(e + 0x12), *(f32 *)(e + 0xD4), *(f32 *)(e + 0xA4), *(f32 *)(e + 0xB0), D_00793E80 + *(s32 *)(e + 0xC) * 0x30);
+                    goto tail;
+                }
+bs1:
+                flags = *(s16 *)(e + 0x14);
+                for (bit = 1; bit < 13; bit++) {
+                    if (((flags & (u16)(1 << bit)) >> bit) == 1) { found = 1; goto bs1out; }
+                }
+                found = 0;
+bs1out:
+                if (found == 0) { *(s16 *)(e + 0x14) &= ~1; }
+                goto tail;
+            } else if (e[0x72] > 0 && *(f32 *)(e + 0xA4) > fGpffff8504 && *(f32 *)(e + 0xB0) > fGpffff8504) {
+                color = func_002b2a30(0xFF, e[0x89], e[0x8A], e[0x8B]);
+                func_0025ecd0(*(f32 *)(e + 0x3C), *(f32 *)(e + 0x40), *(f32 *)(e + 0x18), color, e[0x72], *(s16 *)(e + 8), *(void **)(table + 0), 1, *(s16 *)(e + 0x10), *(s16 *)(e + 0x12), *(f32 *)(e + 0xD4), *(f32 *)(e + 0xA4), *(f32 *)(e + 0xB0), D_00793E80 + *(s32 *)(e + 0xC) * 0x30);
+                goto tail;
+            } else {
+                fl = *(s16 *)(e + 0x14);
+                if (fl == 1) {
+                    if (*(s8 *)(e + 0x77) == 0) {
+                        if (*(s8 *)(e + 0x4B) == 0) {
+                            *(s16 *)(e + 0x14) = fl & ~1;
+                        }
+                    }
+                }
+            }
+        }
+tail:
+        count = *(s16 *)(table + 0x30C04);
+        *(s16 *)(table + count * 2 + 0x30C06) = i;
+        *(s16 *)(table + 0x30C04) = count + 1;
+        i++;
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6ec0);
+#endif
 
 // FUN_002B74C0
 void func_002b74c0(u8 *arg0) {
