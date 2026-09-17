@@ -1244,8 +1244,10 @@ void func_001a31a0(u8 *arg0)
     *(s32 *)(arg0 + 0x41C) = 1;
     *(s32 *)(arg0 + 0x420) = 0;
 }
+/* measured 001a31e0: `opt_common_subs off` inside the guard is worth 36 words (330 -> 294); retail rematerialises what b210 hoists. */
 // FUN_001A31E0 NONMATCHING
 #ifdef SKIP_ASM
+#pragma opt_common_subs off
 void func_001a31e0(u8 *arg0) {
     u8 *func_00202400(s32 arg0, s32 arg1);
     u8 *func_0019a980(u8 *arg0);
@@ -1401,11 +1403,14 @@ void func_001a31e0(u8 *arg0) {
         func_001b0800(arg0, 0x20);
     }
 }
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a31e0);
 #endif
+/* measured 001a3840: `opt_common_subs off` inside the guard is worth 6 words (279 -> 273); retail rematerialises what b210 hoists. */
 // FUN_001A3840 NONMATCHING
 #ifdef SKIP_ASM
+#pragma opt_common_subs off
 void func_001a3840(u8 *arg0)
 {
     u8 *t20;
@@ -1514,6 +1519,7 @@ void func_001a3840(u8 *arg0)
         func_00194590(pkt, 2);
     }
 }
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a3840);
 #endif
@@ -1817,8 +1823,10 @@ void func_001a47f0(void)
 }
 
 /* measured: live object 1164B/window 1152B, normalized_diff 219 (installed guard below; prior nd232 note at 1168B; object exceeds window by 12B). Restructured the scan loop per retail: bound check as the while condition (init + branch-over-to-test), skip-chain as separate early-outs to incr with the != 1 arm exiting to donecheck (goto-loop + OR-combined chain miscompiled the branch tree). Unmasked increment (232 -> 223 -> 219). Open walls: frame 0x60 vs 0x50, s-reg rotation, body-index mask folded away (unmasked counter proves it redundant; separate/temp/three-mask/O1 spellings all tie), slt stays signed per retail. Ruled out today: masked-incr while (223), three-mask tail temp (219 tie), O1 on both (223/219 ties). Banked as floor. */
+/* measured 001a4800: `opt_common_subs off` inside the guard is worth 45 words (219 -> 174); retail rematerialises what b210 hoists. */
 // FUN_001A4800 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_common_subs off
 void func_001a4800(u8 *arg0)
 {
     s32 temp_16;
@@ -1925,6 +1933,7 @@ donecheck:
         }
     }
 }
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a4800);
 #endif

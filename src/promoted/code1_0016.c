@@ -640,8 +640,10 @@ done:
 /* The second switch's labels are written in reverse: MWCC emits a compare
    chain in the reverse of the source order, which is worth 4 words here
    (306 -> 302). */
+/* measured 00162680: `opt_common_subs off` inside the guard is worth 20 words (302 -> 282); retail rematerialises what b210 hoists. */
 // FUN_00162680 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_common_subs off
 u8 *func_00162680(u16 arg0, u16 arg1, s32 arg2)
 {
     extern void func_004787e0(u8 *arg0);
@@ -835,6 +837,7 @@ loop_65:
 done:
     return var_20;
 }
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_00162680);
 #endif

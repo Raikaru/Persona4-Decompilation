@@ -2429,8 +2429,10 @@ ret0:
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e6f0);
 
 /* measured: banked floor nd 512 (obj 2532B/window 2592B, 60B under; frame -0xA0 vs retail -0x90, extra s7). Switch-dispatch (0x200,0x400,0x100,2,4) beats || (512 vs 563); scoped-reuse 581/541; staged t/ok temps best. Saved-register rotation (obj arg2=$s6/tmp=$s0/arg3=$s1 vs retail $s2/$s6/$s0) + s7 cascades (retail 646 vs obj 631 instrs). Prior nd-521 rotation floor corroborated; 10 gp loads pragma-n/a; 4-arg s32 ABI verified, no caller change. Production stays ASM; floor in SKIP_ASM + docs/probe_archive/DC_002411a0_body.c. */
+/* measured 002411a0: `opt_common_subs off` inside the guard is worth 39 words (512 -> 473); retail rematerialises what b210 hoists. */
 // FUN_002411A0 NONMATCHING
 #ifdef SKIP_ASM
+#pragma opt_common_subs off
 s32 func_002411a0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
 {
     s32 idx;
@@ -2678,6 +2680,7 @@ s32 func_002411a0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
     }
     return 1;
 }
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_002411a0);
 #endif

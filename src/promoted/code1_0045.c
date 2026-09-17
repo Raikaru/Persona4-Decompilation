@@ -1971,8 +1971,10 @@ void func_0045ee00(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg
  * instrs (6 short) with 132 edits (+4) — accepts 3-instr size cost for -22
  * word gain. Shape A skipped: no paired slti-$at replace row appears (only
  * sltiu-$at/b insert-delete pairs), so >=K to >K-1 rewrite N/A. Banked. */
+/* measured 0045fbe0: `opt_common_subs off` inside the guard is worth 43 words (311 -> 268); retail rematerialises what b210 hoists. */
 // FUN_0045FBE0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_common_subs off
 void func_0045fbe0(f32 *arg0, u8 *arg1, f32 *arg2, s32 arg3, f32 fparg0) {
     u8 work[0x5E0];
     f32 temp_f23;
@@ -2181,6 +2183,7 @@ loop_41:
         }
     }
 }
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_0045fbe0);
 #endif

@@ -947,8 +947,10 @@ fits:
    spellings, u32 casts and moving the store ahead of the copies were all
    measured (221 to 184-208 words with worse structure). */
 /* measured this session: fresh probe 221wd / fnalign 26 edits (250 vs 246 instrs, 4 short) confirms note (no stale); triaged dead-arm hunt checked -- no trailing if/else-if chain ending 2-3 short (shortfall early at move $s1/$a1 + addu/sll recompute per top-down fnalign); slti $at inclusive checked (no convertible <N range dispatch in this window). Banked. */
+/* measured 00157310: `opt_common_subs off` inside the guard is worth 39 words (221 -> 182); retail rematerialises what b210 hoists. */
 // FUN_00157310 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_common_subs off
 void func_00157310(u8 *shape, u16 x0, u16 y0, s16 kind)
 {
     extern s32 iGpffffb230;
@@ -1026,6 +1028,7 @@ void func_00157310(u8 *shape, u16 x0, u16 y0, s16 kind)
     }
     iGpffffb224 += shape[1] * shape[2];
 }
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_00157310);
 #endif

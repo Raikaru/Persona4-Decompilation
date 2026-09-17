@@ -1611,8 +1611,10 @@ s32 func_001b3fb0(void)
     }
     return 0;
 }
+/* measured 001b4060: `opt_common_subs off` inside the guard is worth 2 words (308 -> 306); retail rematerialises what b210 hoists. */
 // FUN_001B4060 NONMATCHING
 #ifdef SKIP_ASM
+#pragma opt_common_subs off
 void func_001b4060(void)
 {
     u8 *t16;
@@ -1739,6 +1741,7 @@ void func_001b4060(void)
     func_00194590(pkt, 1);
     func_001d3e00(t18);
 }
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b4060);
 #endif

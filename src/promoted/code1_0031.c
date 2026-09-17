@@ -443,8 +443,10 @@ void func_00313b50(u8 *arg0)
 /* branch-displacement cascade; loop bounds already slti-$v1 both sides (no */
 /* slti-$at lever); no adjacent-const OR fold; single call site (no index */
 /* mask CSE shape); no MAC block. */
+/* measured 00313d20: `opt_common_subs off` inside the guard is worth 1 words (130 -> 129); retail rematerialises what b210 hoists. */
 // FUN_00313D20 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_common_subs off
 #pragma push
 #pragma opt_loop_invariants on
 void func_00313d20(u8 *arg0, u8 arg1, u8 arg2, s8 arg3)
@@ -532,6 +534,7 @@ void func_00313d20(u8 *arg0, u8 arg1, u8 arg2, s8 arg3)
     }
 }
 #pragma pop
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0031", func_00313d20);
 #endif

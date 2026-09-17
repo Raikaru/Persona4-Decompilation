@@ -84,8 +84,10 @@ extern void func_003c22f0(void* a);
    "eff_afpack.c" in SLUS_217.82). Banked per batch contract: production stays INCLUDE_ASM fallback;
    body preserved here as NON_MATCHING seed. Unit confirmed via `grep -rl func_004b6030 asm/`
    -> asm/nonmatchings/eff_afpack/func_004b6030.s. */
+/* measured 004b6030: `opt_common_subs off` inside the guard is worth 6 words (534 -> 528); retail rematerialises what b210 hoists. */
 // FUN_004B6030 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_common_subs off
 u8* func_004b6030(u8* arg0)
 {
     extern void func_0043f810(void* dst, void* src, u32 size);
@@ -300,6 +302,7 @@ u8* func_004b6030(u8* arg0)
 }
 
 
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b6030);
 #endif

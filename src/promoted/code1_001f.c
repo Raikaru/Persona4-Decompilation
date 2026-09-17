@@ -1131,8 +1131,10 @@ s32 func_001f3b80(s32 arg0) {
     return (s32)addBaseFirst((u32)temp_5, (u32)value);
 }
 /* measured: func_001f3bb0 Shape A >=6 to >5 at first guard (slti $at, same constant 6): probe 222->222 words (delta 0), fnalign 78->77 edits (+4 reloc-only both), retail 236/object 242 instrs (944/968B) unchanged; slti $at now matches (retail slti $at vs $v0 fixed, bnez $at now exact, remaining $s2 vs $s5 allocator). Banked guarded floor. */
+/* measured 001f3bb0: `opt_common_subs off` inside the guard is worth 36 words (222 -> 186); retail rematerialises what b210 hoists. */
 // FUN_001F3BB0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_common_subs off
 s32 func_001f3bb0(void)
 {
     s32 count;
@@ -1260,6 +1262,7 @@ s32 func_001f3bb0(void)
         return -1;
     }
 }
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f3bb0);
 #endif
