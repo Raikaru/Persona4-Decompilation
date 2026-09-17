@@ -87,10 +87,8 @@ s32 func_0047ce00(u8 *arg0)
             } else {
                 *(s32 *)(obj + 0x2C) = (s32)func_00455ea0(*(u8 **)(obj + 0x38), 0, &sp4C);
                 *(s32 *)(obj + 0x30) = sp4C;
-                {
-                    s32 tmp = (s32)func_00455ea0(*(u8 **)(obj + 0x38), 1, &sp4C);
-                    func_0047e450(arg0 + 0x2D0, *(u16 *)(arg0 + 0xD4), *(u16 *)(arg0 + 0xD6), tmp, (u32)sp4C);
-                }
+                func_0047e450((u8 *)((u32)arg0 + 0x2D0), *(u16 *)(arg0 + 0xD4), *(u16 *)(arg0 + 0xD6),
+                              (s32)func_00455ea0(*(u8 **)(obj + 0x38), 1, &sp4C), (u32)sp4C);
             }
             *(u8 *)(obj + 0x3C) = 2;
         }

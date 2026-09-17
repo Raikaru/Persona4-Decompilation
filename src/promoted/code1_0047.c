@@ -246,21 +246,105 @@ s32 func_0047ae90(u8 *arg0, u16 arg1)
 
 
 
-/* Floor: 5 differing words, object 584B against a 592-byte window with an
-   8-byte zero tail, 14 relocations and 146 of 146 instructions - the
-   alignment reports four edits.  Two shapes carried it: reading the 0x40
-   field directly rather than through a staged pointer (65 words to 47),
-   and inlining the success path of case 2 instead of branching to a shared
-   tail (65 to 23); together they give 5.  Loading the header fields with
-   `lhu` rather than `lh` drops the edit count from 6 to 4.  The residual
-   is pure scheduling: retail materialises `addiu $a0` first and loads
-   `$t0` last, this build emits the two `lhu` and the `lw` first and the
-   `addiu` late.  Hoisting, declaration-order and pragma families are
-   neutral or worse.  Body at docs/probe_archive/ND05_0047ce00_body.c.
-   The declaration of func_0047e450 above is part of this measurement: its
-   two parameters are s32, matching the provider in mdlSE.c. */
-// FUN_0047CE00
+/* Floor: 2 differing words, 146 of 146 instructions against a 592-byte
+   window with an 8-byte zero tail and 14 relocations.  Three shapes carried
+   it: reading the 0x40 field directly rather than through a staged pointer
+   (65 words to 47), inlining the success path of case 2 instead of
+   branching to a shared tail (65 to 23), and spelling the func_0047e450
+   destination as integer arithmetic, `(u8 *)((u32)arg0 + 0x2D0)`, which
+   moves the `addiu $a0` to the head of the argument block where retail
+   has it (5 to 2).  Loading the header fields with `lhu` rather than `lh`
+   is also load-bearing, as is the declaration of func_0047e450 above
+   with s32 second and third parameters, matching its provider in mdlSE.c.
+   WALL: the fifth argument `lw $t0, 0x4C($sp)` is retail's last setup
+   instruction, after `daddu $a3, $v0`; this build loads it before the
+   move.  Nesting the func_00455ea0 call versus staging it in a temp,
+   dropping the (u32) cast, and every width for the third, fourth and
+   fifth parameters (u16, s16, s32, pointer and K&R) were measured at 2. */
+// FUN_0047CE00 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0047ce00(u8 *arg0)
+{
+    s32 ret;
+    u8 *obj;
+    s32 sp4C;
+
+    obj = *(u8 **)(arg0 + 0x30C);
+    if (obj == NULL) {
+        return 1;
+    }
+    ret = 0;
+    switch (*(u8 *)(obj + 0x3C)) {
+    case 0:
+        if (*(u8 **)(obj + 0x38) != NULL) {
+            if ((*(s32 *)(arg0 + 0xD8) & 0x4000) != 0) {
+                func_00456150(*(u8 **)(obj + 0x38));
+            }
+            if (func_004553c0(*(u8 **)(obj + 0x38)) == 0) {
+                goto ret_label;
+            }
+            if (*(s32 *)(obj + 0x40) == 0) {
+                *(s32 *)(obj + 0x2C) = *(s32 *)(*(u8 **)(obj + 0x38) + 0x110);
+                *(s32 *)(obj + 0x30) = *(s32 *)(*(u8 **)(obj + 0x38) + 0x118);
+            } else {
+                *(s32 *)(obj + 0x2C) = (s32)func_00455ea0(*(u8 **)(obj + 0x38), 0, &sp4C);
+                *(s32 *)(obj + 0x30) = sp4C;
+                func_0047e450((u8 *)((u32)arg0 + 0x2D0), *(u16 *)(arg0 + 0xD4), *(u16 *)(arg0 + 0xD6),
+                              (s32)func_00455ea0(*(u8 **)(obj + 0x38), 1, &sp4C), (u32)sp4C);
+            }
+            *(u8 *)(obj + 0x3C) = 2;
+        }
+        if (*(s32 *)(obj + 0) == 0) {
+            *(s32 *)(obj + 0) = func_003e2f60(3, 1, (s32 *)(obj + 0x2C));
+            *(u8 *)(obj + 0x3C) = 2;
+        }
+    case 1:
+        if (*(u8 *)(obj + 0x3C) == 1) {
+c660_again:
+            if (func_0047c660(arg0) == 0) {
+                goto ret_label;
+            }
+            *(u8 *)(obj + 0x3C) = 2;
+        }
+    case 2:
+        if (func_0047b0c0(arg0) == 0) {
+            goto L_case2_fail;
+        }
+        *(u8 *)(obj + 0x3C) = 3;
+        goto L_D8_check;
+L_case2_fail:
+        *(u8 *)(obj + 0x3C) = 1;
+        goto c660_again;
+L_D8_check:
+        if ((*(s32 *)(arg0 + 0xD8) & 0x4000) != 0) {
+            *(u8 *)(obj + 0x3C) = 4;
+            goto L_after_c3;
+        }
+    case 3:
+        if (func_0047c660(arg0) == 0) {
+            goto ret_label;
+        }
+        *(u8 *)(obj + 0x3C) = 4;
+L_after_c3:
+    case 4:
+        if (*(s32 *)(obj + 0x34) != 0) {
+            func_00463250(*(void **)(obj + 0x34));
+        }
+        func_003e2e40(*(s32 *)(obj + 0), (s32 *)(obj + 0x2C));
+        if (*(u8 **)(obj + 0x38) != NULL) {
+            func_00454bd0(*(u8 **)(obj + 0x38));
+        }
+        *(u8 *)(obj + 0x3C) = 5;
+    case 5:
+        ret = 1;
+    default:
+    ret_label:
+        return ret;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047ce00);
+#endif
 // FUN_0047D050
 void func_0047d050(s32 arg0)
 {
