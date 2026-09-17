@@ -1024,7 +1024,11 @@ s32 func_0024bb00(s32 arg0) {
 /* deletes. Declaration order is the archive's best of 250 permutations */
 /* (docs/probe_archive/WSCR2_0024be40_body.c, banked verbatim below); the */
 /* eight documented pragmas and the slti-<= spellings stay worse on top of */
-/* it (both/j-only/i-only <=5 forms give 23/10/21 words). Semantic gate: the */
+/* it (both/j-only/i-only <=5 forms give 23/10/21 words). Pairs 2026-09-17 */
+/* (`tools/pragma_sweep.py --pairs`, 8 singles + 28 pairs, banked 8): ties */
+/* at 8 among loopinv/prop/strength/unroll + 6 pairs among them; cse_off 14, */
+/* dead 75, peephole 138, sched 141. No pair beats the singles; floor stands. */
+/* Semantic gate: the */
 /* block-scope s32(s32) for func_00246e10 matches the MATCHED provider */
 /* src/cmmMisc.c:294; the file-scope u8*(u16) is retained untouched for the */
 /* other caller func_00250940. K&R void* for func_00452560 ties the */

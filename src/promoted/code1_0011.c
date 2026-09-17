@@ -1432,7 +1432,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00112830);
 /*   Sweep complete 2026-09-17: `opt_common_subs off` and */
 /*   `opt_loop_invariants on` are neutral (5 words / 4 edits, identical */
 /*   stream); `#pragma schedule on` (105) and `opt_propagation off` (78) */
-/*   are worse still. Opclass 2026-09-17 (tools/opclass.py on this owner): */
+/*   are worse still. Pairs 2026-09-17 (`tools/pragma_sweep.py --pairs`, */
+/*   8 singles + 28 pairs, banked 5): ties at 5 among cse_off/loopinv/ */
+/*   strength_off/unroll_off + 8 pairs among them; dead 58, prop 75, */
+/*   sched 102, peephole 105, all sched/peephole pairs 100-109. No pair */
+/*   beats the singles; floor stands at 5. Opclass 2026-09-17 (tools/opclass.py on this owner): */
 /*   this floor carries no opcode-class surplus - both sides emit the lbu */
 /*   pair, so the residual is genuinely scheduling, not an lb/lbu fix. */
 // FUN_001130C0 NONMATCHING

@@ -727,6 +727,11 @@ void func_004a77b0(void) {
 /* measured: floor g: object 532B/window 544B (12B short), 19 words: `addiu $s0 vs $v0` at 0x6C, */
 /* measured: `lui 0.5f` hoisting (`move $a0` vs `lui` at 0x88), float colouring $f1/$f2/$f3 swaps */
 /* measured: at 0xC0-0x100 (`lwc1/abs/c.lt/c.le/add/sub`). Walls; Keep ASM until colouring closes. */
+/* measured 2026-09-17 full pragma_sweep --pairs: banked 19 via measure_guarded; */
+/* best stays 19 (ties: dead off, loopinv on, strength off, unroll off and pairs; */
+/* 108-110 csoff group, 116-117 schedule/peephole group, 121-124 prop group, 129 */
+/* csoff+peephole). No pair wins; 532B vs 544B shortfall kept (do not shrink). */
+/* `python3 -E -s tools/pragma_sweep.py src/promoted/code1_004a.c func_004a7830 --pairs`. */
 // FUN_004A7830 NONMATCHING
 #ifdef NON_MATCHING
 void func_004a7830(void)

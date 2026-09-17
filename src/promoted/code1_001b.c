@@ -449,6 +449,7 @@ void func_001b0590(u8 *arg0)
    dispatch and callee conventions verified against retail. Open: scan-temp
    rotation (found/base/i) resistant to decl/assignment swaps and gp-idiom
    respelling. See E1F2_001b05d0_body.c for scan lifetimes. */
+/* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/promoted/code1_001b.c func_001b05d0 --pairs` banked 36 (already carries #pragma opt_common_subs off); best ties 36 (commons alone plus five commons+second combos); bare without commons is 87-88, so the banked pragma stays load-bearing. All 28 pairs neutral or worse (schedule 106-107, peephole 104-111). opclass `python3 -E -s tools/opclass.py src/promoted/code1_001b.c`: 8 floors scanned, 7 with surplus, func_001b05d0 clean (no dsll32/lbu/lhu/cvt/div/jalr/lui surplus) — high 36-word count on small 123/123-instr body is saved-register coloring, not a whole-function width/signedness defect. fnalign retail/object 123/123 per assignment. Floor stands; production stays ASM. */
 // FUN_001B05D0 NONMATCHING
 #ifdef NON_MATCHING
 /* Current action transition floor: 492B/496B, 42 differing bytes in 36

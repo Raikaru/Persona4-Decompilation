@@ -1103,6 +1103,10 @@ void func_0034db60(u8 *arg0, f32 fparg0, s32 arg1) {
 /* the file `opt_common_subs off` region is load-bearing (forcing it on */
 /* scores 161), `schedule on` scores 158, `opt_loop_invariants on` ties at */
 /* 5 words / 5 edits with an identical stream and is omitted for simplicity. */
+/* Pairs 2026-09-17 (`tools/pragma_sweep.py --pairs`, 8 singles + 28 pairs, */
+/* banked 5, already carries prop_off): ties at 5 only with prop_off */
+/* (prop alone + 5 prop pairs); bare 140, cse/loopinv/strength/unroll 140, */
+/* dead 144, sched 156, peephole 146/205. No pair beats prop_off; floor stands. */
 /* Semantic gate: (u8*,s32) signature matches retail and both headstarts; */
 /* the alpha-narrowing idiom mirrors MATCHED sibling func_0034d890 above. */
 // FUN_0034DDF0 NONMATCHING

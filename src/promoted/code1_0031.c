@@ -54,6 +54,9 @@ void func_00311900(s64 arg0)
 /* Pragma sweep 2026-09-17: schedule off, opt_propagation off, */
 /* opt_common_subs off and opt_loop_invariants on each tie at 5 words / */
 /* 5 edits with a byte-identical stream (probe_variants + fnalign --candidate). */
+/* Pairs 2026-09-17 (`tools/pragma_sweep.py --pairs`, 8 singles + 28 pairs, */
+/* banked 5): all 36 tie at 5 words with a byte-identical stream. First */
+/* complete pragma exhaustion proof for this cvt.w.s wall; floor stands. */
 // FUN_00311930 NONMATCHING
 #ifdef NON_MATCHING
 /* Re-certified under scoped optimization_level 1: object 596B / window */
