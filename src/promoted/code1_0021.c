@@ -131,8 +131,164 @@ static inline f32 ws14_sub(f32 left, f32 right)
 
 
 
-// FUN_00210C70
+/* Floor: 367 differing words over 205 edits, 377 emitted against retail's
+   400, from a first reconstruction.  Two m2c blanks were recovered from
+   the image: the `adda.s`/`msub.s` pair is `2.2f - 1.2f * x`, whose two
+   operands are gp-relative pool constants at gp-0x7EF0 and gp-0x7D84
+   (1.2f and 2.2f read out of orig/SLUS_217.82), and the 0x432C0000
+   immediates are 172.0f.  The out-parameter block that func_0020e690 and
+   func_0020ea60 fill is one 0x18-byte struct at sp+0xA0 - m2c splits it
+   into spA0/spA4/spA8/spAC/spB0 - with the position pair separate at
+   sp+0xB8.
+   WALL: 23 instructions short and one saved FPU register light (retail
+   spills $f22).  Eighteen of them are the second float-to-u8 conversion
+   of `255.0f * rate`: retail converts the same value twice where this
+   build folds the two into one, and opt_common_subs off costs more
+   elsewhere than it recovers (370 words, 341 edits).  The other four are
+   retail keeping `20.0f * (1.0f - rate)` as a separate multiply where
+   this build contracts the add into a madd; staging the product,
+   opt_treetransformation, opt_movepostops, opt_propagation, lifetimes,
+   dead-assignments, size and strength-reduction were all measured. */
+// FUN_00210C70 NONMATCHING
+#ifdef NON_MATCHING
+void func_00210c70(u8 *arg0, u8 *arg1)
+{
+    extern s32 func_001ec4a0(f32 *arg0, f32 *arg1);
+    extern f32 func_0020e5c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    extern void func_00195ea0(u8 *arg0, u8 *arg1);
+    extern void func_00201650(s32 *arg0, s32 a, s32 b, u32 r, u32 g, u32 bl, u32 al, f32 x, f32 y);
+    extern void func_0020ea60(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+    extern void func_0020ef10(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+    extern void func_0020f4d0(u8 *arg0, u8 *arg1, f32 x, f32 y);
+    extern void func_0020e690(u8 *arg0, u8 *arg1, u8 *arg2, s32 a, f32 *out, f32 x, f32 y);
+    extern void func_0020e420(s32 *arg0, s32 a, s32 b, s32 c, f32 x, f32 y);
+    extern void func_0021aeb0(s32 a, u8 *b, s32 c, f32 d, f32 e, f32 f);
+    u8 info[0x18];
+    f32 pos[2];
+    s32 *panel;
+    s32 *icon;
+    u8 *work;
+    u8 *unit;
+    s32 stage;
+    s32 value;
+    s32 colour;
+    s32 drew;
+    s32 first;
+    s32 alive;
+    f32 rate;
+    f32 alpha;
+    f32 fade;
+    f32 scale;
+    f32 height;
+    f32 base;
+    f32 shift;
+
+    panel = (s32 *)func_00452560(*(void **)(arg0 + 4));
+    if (((*(u16 *)(arg1 + 0x14) & 2) && (*(s32 *)(arg1 + 0x10) >= 6)) || (*(s32 *)(arg1 + 0x10) >= 0x19)) {
+        *(u16 *)(arg1 + 0x14) = *(u16 *)(arg1 + 0x14) & 0xFFFE;
+        alive = 0;
+    } else {
+        alive = 1;
+    }
+    if (alive != 0) {
+        if (*(u16 *)(arg1 + 0x14) & 8) {
+            func_00195ea0(*(u8 **)arg1, arg1 + 4);
+        }
+        if (func_001ec4a0((f32 *)(arg1 + 4), pos) != 0) {
+            work = *(u8 **)arg1 + 0xA3C;
+            *(s32 *)(info + 8) = 0;
+            func_00201300(panel, pos[0] - 86.0f, pos[1] - 86.0f, 172.0f, 172.0f);
+            drew = 0;
+            if (*(u16 *)(arg1 + 0x20) & 1) {
+                func_0020ea60(arg0, arg1, work, (f32 *)info);
+                drew = 1;
+            }
+            if (*(u16 *)(arg1 + 0x20) & 2) {
+                func_0020ef10(arg0, arg1, work, (f32 *)info);
+                drew = 1;
+            }
+            if (*(u16 *)(arg1 + 0x20) & 4) {
+                func_0020f4d0(arg0, arg1, pos[0] - 86.0f, pos[1] - 86.0f);
+                drew = 1;
+            }
+            if (*(u16 *)(arg1 + 0x20) & 8) {
+                icon = (s32 *)func_00452560(*(void **)(arg0 + 4));
+                stage = *(s32 *)(arg1 + 0x10);
+                if (!(func_0020e5c0(stage, 0, 4, 0) <= 0.0f)) {
+                    scale = 2.2f - 1.2f * func_0020e5c0(stage, 0, 4, 0);
+                    func_002019d0((u8 *)icon, scale, scale);
+                    func_00201650(icon, 0xA, 0xF, 0x15U, 0x15U, 0x15U, 0xFFU, 57.0f, 63.0f);
+                    func_00201650(icon, 0xA, 0x10, 0x15U, 0x15U, 0x15U, 0xFFU, 86.0f, 63.0f);
+                    func_002019d0((u8 *)icon, 1.0f, 1.0f);
+                }
+                rate = func_0020e5c0(stage, 5, 7, 0);
+                if (!(rate <= 0.0f)) {
+                    alpha = 255.0f * rate;
+                    fade = 20.0f * (1.0f - rate);
+                    height = 75.0f + fade;
+                    func_00201650(icon, 0xA, 0xA, 0x15U, 0x15U, 0x15U, (u8)(u32)alpha, 47.0f, height);
+                    func_00201650(icon, 0xA, 9, 0xFFU, 0xFU, 2U, (u8)(u32)alpha, 47.0f, height);
+                }
+                drew = 1;
+            }
+            if (drew != 0) {
+                base = 83.0f;
+                first = 0;
+                shift = 0.0f;
+            } else {
+                base = 83.0f;
+                first = 1;
+                if ((*(u16 *)(arg1 + 0x20) & 0x30) == 0x30) {
+                    shift = -10.0f;
+                } else {
+                    shift = 0.0f;
+                }
+            }
+            if (*(u16 *)(arg1 + 0x20) & 0x10) {
+                value = *(s32 *)(arg1 + 0x18);
+                if (value < 0) {
+                    value = -value;
+                    colour = -0x100;
+                } else {
+                    colour = 0xFFD92F00;
+                }
+                if (first != 0) {
+                    func_0020e690(arg0, arg1, work, 0xFF, (f32 *)info, pos[0] - 86.0f, pos[1] - 86.0f);
+                    first = 0;
+                }
+                if (*(s32 *)(info + 4) > 0) {
+                    func_0020e420(panel, value, 1, colour | *(s32 *)(info + 4), 86.0f,
+                                  shift + (83.0f + *(f32 *)info));
+                }
+                if (*(s32 *)(info + 8) != 0) {
+                    unit = *(u8 **)arg1;
+                    func_0021aeb0(*(s32 *)(arg0 + 4), unit, 0xFF, *(f32 *)(info + 0xC),
+                                  *(f32 *)(info + 0x10) + shift, *(f32 *)(unit + 0xA2C));
+                }
+                base = 83.0f + 27.0f;
+            }
+            if (*(u16 *)(arg1 + 0x20) & 0x20) {
+                value = *(s32 *)(arg1 + 0x1C);
+                if (value < 0) {
+                    value = -value;
+                    colour = 0x67F1FF00;
+                } else {
+                    colour = 0xB7FF3600;
+                }
+                if (first != 0) {
+                    func_0020e690(arg0, arg1, work, 0xFF, (f32 *)info, pos[0] - 86.0f, pos[1] - 86.0f);
+                }
+                if (*(s32 *)(info + 4) > 0) {
+                    func_0020e420(panel, value, 1, colour | *(s32 *)(info + 4), 86.0f,
+                                  shift + (base + *(f32 *)info));
+                }
+            }
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00210c70);
+#endif
 #pragma push
 #pragma opt_loop_invariants on
 /* Exact: 912/912 bytes, no relocations. Loop extraction retains the
