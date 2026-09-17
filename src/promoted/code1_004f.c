@@ -44,7 +44,7 @@ extern s32 D_0075D3F8[];
 /* measured: without #pragma schedule on, MWCC emits lui/addiu/jr/nop with
    the jr $ra delay slot unfilled; retail fills the delay slot with the
    final addiu (nd 6 -> 0). */
-// FUN_004F1350
+// FUN_004F1350 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: schedule on reproduces callback global staging and delay-slot order. */
 #pragma schedule on
@@ -60,7 +60,7 @@ void func_004f1350(void) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1350);
 #endif
-// FUN_004F1380
+// FUN_004F1380 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: schedule on reproduces callback global staging and delay-slot order. */
 #pragma schedule on
@@ -206,7 +206,7 @@ void func_004f1820(s32 arg0) {
     func_004f54a0();
     func_004f26e8(arg0, 0, 0);
 }
-// FUN_004F1850
+// FUN_004F1850 NONMATCHING
 #ifdef NON_MATCHING
 void func_004f1850(u8 *arg0) {
     if ((arg0 != NULL) && (*(s16 *)(arg0 + 0x34) != 0)) {
@@ -220,7 +220,7 @@ void func_004f1850(u8 *arg0) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1850);
 #endif
-// FUN_004F1F80
+// FUN_004F1F80 NONMATCHING
 #ifdef NON_MATCHING
 void func_004f1f80(s32 unused) {
     Code1Table *table;
@@ -270,7 +270,7 @@ s32 *func_004f34a0(void) {
    address is the live return value; a void store compiles to a $v1 base.
    The schedule-on pragma fills the jr $ra delay slot (nd 6 -> 0). */
 
-// FUN_004F34B0
+// FUN_004F34B0 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: tailcall on preserves the retail framed jump after the setup calls. */
 #pragma tailcall on
@@ -401,7 +401,7 @@ s32 func_004f9130(void)
 }
 /* measured: restore schedule off after func_004f9130. */
 #pragma schedule off
-// FUN_004F9150
+// FUN_004F9150 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_004f9150(s32 arg0, s32 arg1, u32 index, s32 arg3) {
     s32 result;
@@ -458,7 +458,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f94e0);
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9528);
 // FUN_004F9590
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9590);
-// FUN_004F95F8
+// FUN_004F95F8 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_004f95f8(u8 *arg0, s32 arg1) {
     s32 result;
@@ -626,7 +626,7 @@ u32 func_004f9708(u8 *a0, u8 *a1, u8 *a2)
 /* Parked candidate: the adjacent-X donor shape leaves only the copy-load
    register residual at nd 2; measured in-place and copy variants.
    Committed at nd 2. */
-// FUN_004F9770
+// FUN_004F9770 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: optimization level 1 and schedule on reproduce this member's
    straight-line order and filled jr delay slot. */
@@ -715,7 +715,7 @@ void func_004f9840(u8 *a0, u8 *a1, u8 *a2) {
 /* Parked candidate: the same XCXCCXCX donor shape leaves only the copy-load
    and tail register residuals under MWCCPS2; measured tail and copy
    spellings. Under ee-gcc 2.96 it measures nd 26. Committed at nd 26. */
-// FUN_004F98A8
+// FUN_004F98A8 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: optimization level 1 and schedule on reproduce this member's
    straight-line order and filled jr delay slot. */

@@ -147,7 +147,7 @@ extern MsgProcWindowF2 D_0063C030[10];
 
 
 /* Floor (measured 2026-09-17, source-repo only): probe_variants 10 reloc-masked words (bare), fnalign 465/465/11 (+34 reloc-only), emitted 1860B/window 1872B (99.4%%, exact instruction count). Four-pragma sweep on exact body: bare 10/11, loop_invariants 10/11, no_branch_likely 10/11, common_subs 446, schedule 418 -- bare wins, no pragma installed. Residual is saved-register rotation (ret $s2 vs $s0, v0/v1 $s0/$s1 vs $s1/$s2) + inner-switch ascending-vs-descending compares; COP1 adda/madd/msub chains, mov.s scheduling, float->u8 clamp, lb/lbu and dsll32 all match (0/0). TWIN COP1-floor claim outdated with authoritative s16/floats-first signatures. Banked as guarded floor; production stays ASM. */
-// FUN_0027CAE0
+// FUN_0027CAE0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0027cae0(MsgProcWindowEntry *arg)
 {
@@ -556,7 +556,7 @@ void func_002818a0(u32 arg0, s32 arg1) {
 }
 
 /* Floor (measured 2026-09-17, source-repo only): probe_variants base 485 words, fnalign 601/594/179 (+47 reloc), emitted 2376B/window 2416B (98.3%%, 2376>=2344 PASS). Four-pragma sweep on exact body: base 485/179, loop 485/179, sched 485/179, prop 486/183 -- base wins, no pragma installed. TWIN 608B triage stale vs 2416B window. Residual is FPU-chain scheduling + saved/FP coloring; dsll32 1/1 exact, signature neutral. Banked as guarded floor; production stays ASM. */
-// FUN_002818E0
+// FUN_002818E0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002818e0(u8 *arg0, s32 arg1)
 {
@@ -830,7 +830,7 @@ s32 func_002833b0(s32 arg0)
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_00283490);
 
 /* Floor (measured 2026-09-17, source-repo only): probe_variants plain 189 / loop_invariants 182 WINNER (cseoff 365, both 365), fnalign plain 522/519/54 (+114 reloc) / loop 522/519/52 (+114), emitted 2076B/window 2096B (99.05%%, 2076>=2034 PASS). measured: opt_loop_invariants on inside guard is worth 7 words / 2 edits (scan-loop base hoist); cseoff hurts (+176). Residual is register/branch-form only (case8 saved-vs-v0, scan-loop bnez/b vs beqz, gp sltu join, case17 double-branch); dsll32 2/2 exact, var_2 join exact, jtbl exact. Banked as guarded floor; production stays ASM. */
-// FUN_002848C0
+// FUN_002848C0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
 s32 func_002848c0(void *arg0, s32 arg1)
