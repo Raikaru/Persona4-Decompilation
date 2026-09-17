@@ -2339,8 +2339,115 @@ body:
             entry = *(u8 **)(entry + 0x138);
         }
 }
-// FUN_0015B3E0
+/* measured floor: 284 differing words (reloc-masked), obj 1780B/window 1792B, */
+/* fnalign 445/445 instrs with 71 edits +4 reloc-only. Frame exact (0x120), */
+/* prologue exact through the counter spill, epilogue exact. Four-direction */
+/* flood over func_00155280() board, cell base+(row<<8)+(col*0x10) (row arg1, */
+/* col arg0), fields 0x54/0x55/0x56 u16 id/0x58/0x5E; guard (arg5&0xFF)<(arg6&0xFF); */
+/* exits (~arg2&walls)&0xFF with incomings 4/8/1/2; u16 north/west/south limits */
+/* (east reuses limit_low, retail $s5); keep via (u8)arg5, inc via (depth+1)&0xFF; */
+/* north/south 7/8 +0xA/depth0 increments limit leaving next_depth stale (retail */
+/* no $s2, preserved); west/east 7/8 limit4 and type-3 bits keep depth; gp mode */
+/* via existing iGpffff9db0 (0x2C/0x40). All-direct board loads (no row/col cache), */
+/* matching sibling func_00157700. Decisive: s32 limits -4, (u8) keep -11, */
+/* all-direct -61, u16 limits -16 (376->284). Residual is double-andi (6 sites), */
+/* limit sh/lhu/daddiu vs sb/lbu/addiu, call-setup extra move, scheduling/colour. */
+/* Body at docs/probe_archive/Flood_0015B3E0_body.c. Production stays INCLUDE_ASM. */
+/* Non-goals func_00156cf0/func_001561a0 untouched. */
+// FUN_0015B3E0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0015b3e0(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5, u8 arg6, s32 *arg7)
+{
+    s32 depth_low;
+    s32 limit_low;
+    u16 north_limit;
+    u16 west_limit;
+    u16 south_limit;
+    s32 east_tmp;
+    s32 next_depth;
+    s32 mode;
+    s32 exits;
+
+    depth_low = arg5 & 0xFF;
+    limit_low = arg6 & 0xFF;
+    if (depth_low < limit_low) {
+        if (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x54] == 1) {
+            func_0014a0f0(*(u16 *)(((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10)) + 0x56), 1);
+            *arg7 += 1;
+            exits = (~arg2 & ((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x5E]) & 0xFF;
+            if (exits & 1) {
+                if (arg3 & 1) {
+                    north_limit = 3;
+                } else {
+                    north_limit = (u16)limit_low;
+                }
+                if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
+                    next_depth = (u8)arg5;
+                } else if (((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (((arg4 & 0xFF) & 0xA) != 0) && (depth_low == 0)) {
+                    north_limit += 1;
+                } else if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((arg4 & 0xFF) & 1) != 0)) {
+                    next_depth = (u8)arg5;
+                } else {
+                    next_depth = (depth_low + 1) & 0xFF;
+                }
+                func_0015b3e0(arg0, arg1 - 1, 4, 0, arg4, next_depth, north_limit, arg7);
+            }
+            if (exits & 2) {
+                if (arg3 & 2) {
+                    west_limit = 3;
+                } else {
+                    west_limit = (u16)limit_low;
+                }
+                if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
+                    next_depth = (u8)arg5;
+                } else if (((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (limit_low == 4)) {
+                    next_depth = (u8)arg5;
+                } else if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((arg4 & 0xFF) & 2) != 0)) {
+                    next_depth = (u8)arg5;
+                } else {
+                    next_depth = (depth_low + 1) & 0xFF;
+                }
+                func_0015b3e0(arg0 - 1, arg1, 8, 0, arg4, next_depth, west_limit, arg7);
+            }
+            if (exits & 4) {
+                if (arg3 & 4) {
+                    south_limit = 3;
+                } else {
+                    south_limit = (u16)limit_low;
+                }
+                if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
+                    next_depth = (u8)arg5;
+                } else if (((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (((arg4 & 0xFF) & 0xA) != 0) && (depth_low == 0)) {
+                    south_limit += 1;
+                } else if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((arg4 & 0xFF) & 4) != 0)) {
+                    next_depth = (u8)arg5;
+                } else {
+                    next_depth = (depth_low + 1) & 0xFF;
+                }
+                func_0015b3e0(arg0, arg1 + 1, 1, 0, arg4, next_depth, south_limit, arg7);
+            }
+            if (exits & 8) {
+                east_tmp = arg3 & 8;
+                if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 2) && (((mode = *(s32 *)iGpffff9db0) == 0x2C) || (mode == 0x40)) && (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x55] & 0x20)) {
+                    next_depth = (u8)arg5;
+                } else if (((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 7) || (((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 8)) && (limit_low == 4)) {
+                    next_depth = (u8)arg5;
+                } else if ((((u8 *)func_00155280() + (arg1 << 8) + (arg0 * 0x10))[0x58] == 3) && (((arg4 & 0xFF) & 8) != 0)) {
+                    next_depth = (u8)arg5;
+                } else {
+                    next_depth = (depth_low + 1) & 0xFF;
+                }
+                if (east_tmp != 0) {
+                    limit_low = 3;
+                }
+                func_0015b3e0(arg0 + 1, arg1, 2, 0, arg4, next_depth, limit_low & 0xFF, arg7);
+            }
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015b3e0);
+#endif
 // FUN_0015BAE0
 void func_0015bae0(void)
 {
