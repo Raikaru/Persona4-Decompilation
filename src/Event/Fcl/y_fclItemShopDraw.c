@@ -63,6 +63,7 @@ extern void func_0033d3d0(u8 *arg0, s32 arg1);
 extern f32 D_0064A2B0[];
 extern f32 D_0064A2B8[];
 extern u8 D_00795E60[];
+extern u32 func_0033cbc0(void *arg0, s64 arg1);
 s16 func_002b2cb0(s32, s32, s32, s32, s32);
 s16 func_002b2d00(s32, s32, s32, s32, s32);
 void func_0043f810(void *, s32, s32);
@@ -213,10 +214,143 @@ void func_0033bf90(u8 *arg0) {
     *(s8 *)(work + 0) = 0x11;
 }
 
-/* measured: retail window 1840 bytes; no real C body was produced in this lane, so this function remains the bare assembly fallback. */
-// FUN_0033C490
-INCLUDE_ASM("asm/nonmatchings/y_fclItemShopDraw", func_0033c490);
+/* measured: live body obj 1856B/window 1840B (+16B, 464/460 instrs); fndiff 326
+ * differing words (reloc-masked); fnalign 178 edits (+8 reloc-only). Reconstructed
+ * from retail asm (verified via bash after one corrupted tool read) + IDA +
+ * same-file decls (25ecd0 14-param, 275520 float-first 10-param, d310/d3d0,
+ * D_0064A2B0/B8 + D_00795E60 registered). Residual is a saved-register coloring
+ * rotation (p in $s4 vs $s0 + cascade; p decl first/last compile identically),
+ * sw/lw at the three sq/lq spill slots (bound/b2/w0), color-init daddiu/andi
+ * shapes, 2b2a30 late-move. Tried: block-scope lessons from cc40 do not apply
+ * (no extra save; frame exact). Next: find the $s0 squatter or accept floor. */
+// FUN_0033C490 NONMATCHING
+#ifdef NON_MATCHING
+void func_0033c490(u8 *arg0)
+{
+    s32 v4;
+    s32 v6;
+    s32 c18;
+    s32 c19;
+    s32 c20;
+    s32 v21;
+    s32 v23;
+    f32 *tbl;
+    s32 cbret;
+    s32 bound;
+    s16 w;
+    f32 f20v;
+    s32 b2;
+    s32 w0;
+    s32 off28;
+    F2_0033 f2[2];
+    s32 sw[2];
+    u8 *p;
 
+    p = *(u8 **)(arg0 + 0x38);
+    if (*(s8 *)(p + 2) == 1) {
+        func_0025ecd0(44.0f, 77.0f, 62.0f, func_002b2a30(0xFF, 0x26, 0x26, 0x26), 0xFF, 0x24, *(void **)(p + 0xC), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
+        v4 = func_002b2a30(0x26, 0x26, 0x26, 0xFF);
+        {
+            s32 t5 = func_002e2740(*(s16 *)(p + 4));
+            v6 = func_001067f0((s16)t5);
+        }
+        func_00275520(78.0f, 77.0f, 62.0f, v4, 0, 1, v6, 0, 0, D_00795E60);
+        func_002b2970(&f2[1], 406.0f, 84.0f);
+        func_002b2a60(&sw[1], 0x26, 0x26, 0x26, 0xFF);
+        func_002caa10(*(s64 *)&f2[1], sw[1], func_0033cbc0(arg0, func_002e2740(*(s16 *)(p + 4))), 0x19, *(s32 *)(p + 0xC), 0xAB);
+        {
+            s32 t5 = func_002e2740(*(s16 *)(p + 4));
+            func_002bc7f0((s16)func_00106b80((s16)t5), -1, 1, 0, 4, 0xAA, 71.0f, 135.0f, 62.0f);
+        }
+        func_0033d320((void *)*(s32 *)(p + 0x120), 0, 1);
+        func_0033d320((void *)*(s32 *)(p + 0x124), 0, 1);
+        func_0033d320((void *)*(s32 *)(p + 0xDC), 0, 0);
+        func_0033d320((void *)*(s32 *)(p + 0xE0), 0, 0);
+        func_0033d320((void *)*(s32 *)(p + 0x6C), 0, 1);
+        func_0033d320((void *)*(s32 *)(p + 0x70), 0, 0);
+        func_0033d320((void *)*(s32 *)(p + 0xD8), 0, 0);
+    } else {
+        func_0033d320((void *)*(s32 *)(p + 0xDC), 0, 1);
+        func_0033d320((void *)*(s32 *)(p + 0xE0), 0, 1);
+        func_0033d320((void *)*(s32 *)(p + 0x6C), 0, 0);
+        func_0033d320((void *)*(s32 *)(p + 0x70), 0, 1);
+        func_0033d320((void *)*(s32 *)(p + 0xD8), 0, 1);
+        func_0033d320((void *)*(s32 *)(p + 0x120), 0, 0);
+        tbl = D_0064A2B0;
+        f20v = tbl[0];
+        *(f32 *)(func_0033d310((u8 *)*(s32 *)(p + 0x120)) + 0x2C) = f20v;
+        f20v = tbl[1] + (f32)(28 * *(s16 *)(p + 6));
+        *(f32 *)(func_0033d310((u8 *)*(s32 *)(p + 0x120)) + 0x30) = f20v;
+        func_0033d3c0((void *)*(s32 *)(p + 0x120), 63.0f);
+        func_0033d3d0((u8 *)*(s32 *)(p + 0x120), 0x5B);
+        func_0033d320((void *)*(s32 *)(p + 0x124), 0, 0);
+        tbl = D_0064A2B8;
+        f20v = tbl[0];
+        *(f32 *)(func_0033d310((u8 *)*(s32 *)(p + 0x124)) + 0x2C) = f20v;
+        f20v = tbl[1] + (f32)(28 * *(s16 *)(p + 6));
+        *(f32 *)(func_0033d310((u8 *)*(s32 *)(p + 0x124)) + 0x30) = f20v;
+        func_0033d3c0((void *)*(s32 *)(p + 0x124), 63.0f);
+        func_0033d3d0((u8 *)*(s32 *)(p + 0x124), 0x5B);
+        func_0033d320((void *)*(s32 *)(p + 0x124), 0, 0);
+        v21 = (s16)(*(s16 *)(p + 4) - *(s16 *)(p + 6));
+        v23 = 0;
+        bound = v21 + 5;
+        while ((w = (s16)v21) < bound) {
+            if (w < func_002e2670()) {
+                c20 = 0xFF;
+                c18 = 0;
+                c19 = 0;
+                if (w == *(s16 *)(p + 4)) {
+                    c18 = 0x26;
+                    c19 = 0x26;
+                    c20 = 0x26;
+                } else {
+                    cbret = func_0033cbc0(arg0, func_002e2740(w));
+                    if (func_002e7a60() < cbret) {
+                        c20 = 0x4F;
+                        c18 = 0;
+                        c19 = 0;
+                    } else {
+                        {
+                            s32 t5 = func_002e2740(w);
+                            if (((u8)func_00106600((s16)t5)) == 0x63) {
+                                c20 = 0x4F;
+                                c18 = 0;
+                                c19 = 0;
+                            } else {
+                                s32 t6 = func_002e2740(w);
+                                if (((u8)func_00110830(t6)) & 1) {
+                                    c20 = 0x9F;
+                                    c18 = 0x2F;
+                                }
+                            }
+                        }
+                    }
+                }
+                off28 = (s16)v23 * 28;
+                b2 = off28 + 0x4D;
+                f20v = (f32)b2;
+                w0 = func_002b2a30(0xFF, c20, c19, c18);
+                func_0025ecd0(44.0f, f20v, 62.0f, w0, 0xFF, 0x24, *(void **)(p + 0xC), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
+                w0 = func_002b2a30(c20, c19, c18, 0xFF);
+                {
+                    s32 t5 = func_002e2740(w);
+                    v6 = func_001067f0((s16)t5);
+                }
+                func_00275520(78.0f, f20v, 62.0f, w0, 0, 1, v6, 0, 0, D_00795E60);
+                func_002b2970(&f2[0], 406.0f, (f32)(off28 + 0x54));
+                func_002b2a60(&sw[0], c20, c19, c18, 0xFF);
+                v4 = func_0033cbc0(arg0, func_002e2740(w));
+                func_002caa10(*(s64 *)&f2[0], sw[0], v4, 0x19, *(s32 *)(p + 0xC), 0xAB);
+            }
+            v21 = (s16)(v21 + 1);
+            v23 = (s16)(v23 + 1);
+        }
+    }
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/y_fclItemShopDraw", func_0033c490);
+#endif
 // FUN_0033CBC0
 u32 func_0033cbc0(void *arg0, s64 arg1) {
     u8 *work = *(u8 **)((u8 *)arg0 + 0x38);

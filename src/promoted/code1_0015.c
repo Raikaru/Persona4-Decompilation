@@ -614,13 +614,14 @@ void func_00156750(u8 *arg0)
 
 
 
-/* Tile-shuffle floor (1264B window). Re-measured 302wd / 263 edits (300 vs 315
-   instrs, 15 short, obj 1200B in-window; first probe nd 304); csuboff 318
-   regresses (+16, no rematerialisation win); frameless leaf vs -0x10 retail
-   (rotation-temp spills unreproduced, 15-short is frame wall not trailing
-   dead arm). Open: spill pressure, switch lowering, scheduler ordering. Table
-   base D_005F0000 verified (%hi/%lo); Ghidra &0x1F masks refuted (bare sllv);
-   IDA word-widths refuted (lh/sh pairs). Triple-built. */
+/* Tile-shuffle draft (1264B window). Re-measured 2026-09-17: 302wd / 259 edits
+   (300 vs 315 instrs, 15 short, obj 1200B, 5.1% short, still >3% so a draft
+   not a floor); s16 rotation temps clear the signedness delta (opclass lh -26
+   -> -2, lhu +24 -> 0, score 54 -> 6; remaining sh -4, lbu -4, lh -2 are frame
+   spills/byte reloads). Frameless leaf vs retail -0x10 (rotation-temp spills
+   at 0x8/0xA and 0xC/0xE unreproduced). csuboff 318 regresses (+16). Prior
+   note claiming u16->s16 moved nothing and IDA word-widths refuted is
+   superseded: s16 throughout (temps + *(s16 *)(arg0+...)) is correct. */
 // FUN_00156800 NONMATCHING
 #ifdef NON_MATCHING
 void func_00156800(void *arg0_v, u32 arg1)
@@ -652,8 +653,8 @@ void func_00156800(void *arg0_v, u32 arg1)
         for (j = 0; j < 3; j = j + 1) {
             b = *(arg0 + i * 3 + j + 4);
             t = D_005F0000 + b * 4;
-            *(u16 *)(arg0 + i * 12 + j * 4 + 0x32) = *(s16 *)t;
-            *(u16 *)(arg0 + i * 12 + j * 4 + 0x34) = *(s16 *)(t + 2);
+            *(s16 *)(arg0 + i * 12 + j * 4 + 0x32) = *(s16 *)t;
+            *(s16 *)(arg0 + i * 12 + j * 4 + 0x34) = *(s16 *)(t + 2);
         }
     }
     v2 = 0;
@@ -670,43 +671,43 @@ void func_00156800(void *arg0_v, u32 arg1)
             if (b1 != 3 || b2 != 3) {
             } else {
                 for (n = 0; n < v2 * 2; n = n + 1) {
-                    u16 h0;
-                    u16 h1;
-                    u16 w0;
-                    u16 w1;
+                    s16 h0;
+                    s16 h1;
+                    s16 w0;
+                    s16 w1;
                     u8 wb;
-                    h0 = *(u16 *)(arg0 + 0x32);
-                    h1 = *(u16 *)(arg0 + 0x34);
-                    w0 = *(u16 *)(arg0 + 0x36);
-                    w1 = *(u16 *)(arg0 + 0x38);
-                    *(u16 *)(arg0 + 0x32) = w0;
-                    *(u16 *)(arg0 + 0x34) = w1;
-                    w0 = *(u16 *)(arg0 + 0x3A);
-                    w1 = *(u16 *)(arg0 + 0x3C);
-                    *(u16 *)(arg0 + 0x36) = w0;
-                    *(u16 *)(arg0 + 0x38) = w1;
-                    w0 = *(u16 *)(arg0 + 0x46);
-                    w1 = *(u16 *)(arg0 + 0x48);
-                    *(u16 *)(arg0 + 0x3A) = w0;
-                    *(u16 *)(arg0 + 0x3C) = w1;
-                    w0 = *(u16 *)(arg0 + 0x52);
-                    w1 = *(u16 *)(arg0 + 0x54);
-                    *(u16 *)(arg0 + 0x46) = w0;
-                    *(u16 *)(arg0 + 0x48) = w1;
-                    w0 = *(u16 *)(arg0 + 0x4E);
-                    w1 = *(u16 *)(arg0 + 0x50);
-                    *(u16 *)(arg0 + 0x52) = w0;
-                    *(u16 *)(arg0 + 0x54) = w1;
-                    w0 = *(u16 *)(arg0 + 0x4A);
-                    w1 = *(u16 *)(arg0 + 0x4C);
-                    *(u16 *)(arg0 + 0x4E) = w0;
-                    *(u16 *)(arg0 + 0x50) = w1;
-                    w0 = *(u16 *)(arg0 + 0x3E);
-                    w1 = *(u16 *)(arg0 + 0x40);
-                    *(u16 *)(arg0 + 0x4A) = w0;
-                    *(u16 *)(arg0 + 0x4C) = w1;
-                    *(u16 *)(arg0 + 0x3E) = h0;
-                    *(u16 *)(arg0 + 0x40) = h1;
+                    h0 = *(s16 *)(arg0 + 0x32);
+                    h1 = *(s16 *)(arg0 + 0x34);
+                    w0 = *(s16 *)(arg0 + 0x36);
+                    w1 = *(s16 *)(arg0 + 0x38);
+                    *(s16 *)(arg0 + 0x32) = w0;
+                    *(s16 *)(arg0 + 0x34) = w1;
+                    w0 = *(s16 *)(arg0 + 0x3A);
+                    w1 = *(s16 *)(arg0 + 0x3C);
+                    *(s16 *)(arg0 + 0x36) = w0;
+                    *(s16 *)(arg0 + 0x38) = w1;
+                    w0 = *(s16 *)(arg0 + 0x46);
+                    w1 = *(s16 *)(arg0 + 0x48);
+                    *(s16 *)(arg0 + 0x3A) = w0;
+                    *(s16 *)(arg0 + 0x3C) = w1;
+                    w0 = *(s16 *)(arg0 + 0x52);
+                    w1 = *(s16 *)(arg0 + 0x54);
+                    *(s16 *)(arg0 + 0x46) = w0;
+                    *(s16 *)(arg0 + 0x48) = w1;
+                    w0 = *(s16 *)(arg0 + 0x4E);
+                    w1 = *(s16 *)(arg0 + 0x50);
+                    *(s16 *)(arg0 + 0x52) = w0;
+                    *(s16 *)(arg0 + 0x54) = w1;
+                    w0 = *(s16 *)(arg0 + 0x4A);
+                    w1 = *(s16 *)(arg0 + 0x4C);
+                    *(s16 *)(arg0 + 0x4E) = w0;
+                    *(s16 *)(arg0 + 0x50) = w1;
+                    w0 = *(s16 *)(arg0 + 0x3E);
+                    w1 = *(s16 *)(arg0 + 0x40);
+                    *(s16 *)(arg0 + 0x4A) = w0;
+                    *(s16 *)(arg0 + 0x4C) = w1;
+                    *(s16 *)(arg0 + 0x3E) = h0;
+                    *(s16 *)(arg0 + 0x40) = h1;
                     wb = *(arg0 + 0xD);
                     *(arg0 + 0xD) = *(arg0 + 0xE);
                     *(arg0 + 0xE) = *(arg0 + 0xF);
@@ -720,27 +721,27 @@ void func_00156800(void *arg0_v, u32 arg1)
             }
         } else {
             for (m = 0; m < v2; m = m + 1) {
-                u16 h0;
-                u16 h1;
-                u16 w0;
-                u16 w1;
+                s16 h0;
+                s16 h1;
+                s16 w0;
+                s16 w1;
                 u8 wb;
-                h0 = *(u16 *)(arg0 + 0x32);
-                h1 = *(u16 *)(arg0 + 0x34);
-                w0 = *(u16 *)(arg0 + 0x36);
-                w1 = *(u16 *)(arg0 + 0x38);
-                *(u16 *)(arg0 + 0x32) = w0;
-                *(u16 *)(arg0 + 0x34) = w1;
-                w0 = *(u16 *)(arg0 + 0x42);
-                w1 = *(u16 *)(arg0 + 0x44);
-                *(u16 *)(arg0 + 0x36) = w0;
-                *(u16 *)(arg0 + 0x38) = w1;
-                w0 = *(u16 *)(arg0 + 0x3E);
-                w1 = *(u16 *)(arg0 + 0x40);
-                *(u16 *)(arg0 + 0x42) = w0;
-                *(u16 *)(arg0 + 0x44) = w1;
-                *(u16 *)(arg0 + 0x3E) = h0;
-                *(u16 *)(arg0 + 0x40) = h1;
+                h0 = *(s16 *)(arg0 + 0x32);
+                h1 = *(s16 *)(arg0 + 0x34);
+                w0 = *(s16 *)(arg0 + 0x36);
+                w1 = *(s16 *)(arg0 + 0x38);
+                *(s16 *)(arg0 + 0x32) = w0;
+                *(s16 *)(arg0 + 0x34) = w1;
+                w0 = *(s16 *)(arg0 + 0x42);
+                w1 = *(s16 *)(arg0 + 0x44);
+                *(s16 *)(arg0 + 0x36) = w0;
+                *(s16 *)(arg0 + 0x38) = w1;
+                w0 = *(s16 *)(arg0 + 0x3E);
+                w1 = *(s16 *)(arg0 + 0x40);
+                *(s16 *)(arg0 + 0x42) = w0;
+                *(s16 *)(arg0 + 0x44) = w1;
+                *(s16 *)(arg0 + 0x3E) = h0;
+                *(s16 *)(arg0 + 0x40) = h1;
                 wb = *(arg0 + 0xD);
                 *(arg0 + 0xD) = *(arg0 + 0xE);
                 *(arg0 + 0xE) = *(arg0 + 0x11);

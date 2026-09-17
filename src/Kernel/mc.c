@@ -1356,14 +1356,113 @@ INCLUDE_ASM("asm/nonmatchings/mc", func_002a5630);
    than retail. Tried p first/last, all five saved-reg declaration orders, and
    the two-statement mul.s (value-in-fs) fix (that one landed); best nd 81.
    Saved-register rotation floor. */
-/* Wave-14 re-test: corrected the m2c call-signature errors at func_0025f3f0
-   (floats 0.0/195.0/0.0 then ints 0xFFFFFF/0xFF/0x22/0/[0x398]/1) and
-   func_002a66d0 (floats 72.0/179.0/0.0/124.0*f/116.0*f then ints 0x2D2D2D/0xFF/1)
-   and the 0xFF constants (m2c misread as 3.57e-43f); nd 314 from a fresh m2c
-   body, worse than the recorded 81 (previous hand-adapted body). The func_002a9f50
-   call now passes the correct s32 0xFF first arg. Rotation floor persists. */
-// FUN_002A5F00
+/* Wave-14 re-test: corrected the m2c call-signature errors at func_0025f3f0 */
+/*   (floats 0.0/195.0/0.0 then ints 0xFFFFFF/0xFF/0x22/0/[0x398]/1) and */
+/*   func_002a66d0 (floats 72.0/179.0/0.0/124.0*f/116.0*f then ints 0x2D2D2D/0xFF/1) */
+/*   and the 0xFF constants (m2c misread as 3.57e-43f); nd 314 from a fresh m2c */
+/*   body, worse than the recorded 81 (previous hand-adapted body). The func_002a9f50 */
+/*   call now passes the correct s32 0xFF first arg. Rotation floor persists. */
+/* 2026-09-17 cold reconstruction from the m2c draft (guarded v1): nd 181. */
+/*   Call map used (all verified against mc.c decls + 002a4f20 sibling spellings): */
+/*   0025f3f0 as (0.0f,131.0f,0.0f,FFFFFF,FF,22,0,*(0x398),1) (m2c rotated the */
+/*   two triples); 002a9f50 as (f21,f20,5.0f,0xFF,t+0x14,t18,0,temp_2); */
+/*   002a66d0 floats-first; 6b10/6b60/6c30/7710 take int 255 (not 3.57e-43f); */
+/*   0018bb20/0015d1a0 at true arity (extra m2c args dropped); 0047a1a0 as */
+/*   (obj,&cfg,float,int). 00452560 called via cast (TU decl is (void*)->u32); */
+/*   a block-scope shadow decl + direct call regressed badly (decl conflict), */
+/*   reverted. Unhandled: two-statement mul.s split (870, worse), D_00761304/ */
+/*   D_0076130C/D_00761308 unregistered (recover_symbols.py needed before any */
+/*   live attempt; D_00761120/74 likewise Ghidra-spelled, cf iGpffff8030/8084). */
+/*   Production stays ASM. */
+// FUN_002A5F00 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_002a5f00(s32 arg0)
+{
+    extern f32 D_00761304;
+    extern f32 D_0076130C;
+    extern f32 D_00761308;
+    extern f32 D_00761120;
+    extern f32 D_00761174;
+    u8 *p;
+    s32 s17;
+    s32 s18;
+    s32 s19;
+    s32 s20;
+    f32 f21;
+    f32 f20;
+    f32 f23;
+    f32 f22;
+    f32 t0;
+    s32 a;
+    s32 b;
+    s32 c;
+
+    p = ((u8 *(*)(void))func_00452560)();
+    func_002a6b10(0, 0, 255, p);
+    func_002a7710(255, p);
+    func_002a6b60(0, 0, 255, p);
+    func_002a6c30(0, 0, 255, p);
+    a = *(s32 *)(p + 0x3AC) << 16;
+    b = *(s32 *)(p + 0x3B4);
+    if (b != a) {
+        c = a - b;
+        if ((f32)func_0043c6a0(c) <= D_00761304 * (f32)a) {
+            *(s32 *)(p + 0x3B4) = a;
+        } else {
+            t0 = (f32)c;
+            f20 = (f32)(s32)D_0076130C;
+            if (D_00761308 * t0 < f20) {
+                f23 = t0 * 0.5f;
+            } else {
+                f23 = f20;
+            }
+            *(s32 *)(p + 0x3B4) = *(s32 *)(p + 0x3B4) + (s32)f23;
+        }
+    }
+    s17 = *(s32 *)(p + 0x3B4) >> 16;
+    s19 = 0;
+    s20 = s17 << 16;
+    while (s19 < 7) {
+        s18 = (s17 + s19) - 3;
+        if (s18 >= 0 && s18 < 0x10 && ((s19 != 0 && s19 != 6) || (u16)*(s32 *)(p + 0x3B4) != 0)) {
+            func_002a6960(0, 0, 0x280, 0x1C0, 5.0f);
+            func_002a6960(0, 0, 0x280, 0x2D, 0.0f);
+            func_002a6960(0, 0x195, 0x280, 0x30, 0.0f);
+            c = s20 - *(s32 *)(p + 0x3B4);
+            f21 = -59.0f + (f32)(s19 * 0x1A) + (f32)(c * 0x1A) / 65536.0f;
+            f20 = -152.0f + (f32)(s19 * 0x5E) + (f32)(c * 0x5E) / 65536.0f;
+            func_002a7920(0xFF, p + 0x14, s18, 0, p, f21, f20, 0, 1.0f);
+            func_002a9f50(f21, f20, 5.0f, 0xFF, p + 0x14, s18, 0, p);
+        }
+        s19 += 1;
+    }
+    func_0025f3f0(0.0f, 131.0f, 0.0f, 0xFFFFFF, 0xFF, 0x22, 0, *(s32 *)(p + 0x398), 1);
+    s19 = 0;
+    while (s19 < 7) {
+        s18 = (s17 + s19) - 3;
+        if (s18 >= 0 && s18 < 0x10 && ((c = s20 - *(s32 *)(p + 0x3B4), f21 = -59.0f + (f32)(s19 * 0x1A) + (f32)(c * 0x1A) / 65536.0f, f20 = -152.0f + (f32)(s19 * 0x5E) + (f32)(c * 0x5E) / 65536.0f, s18 == s17) || s18 == s17 + 1)) {
+            func_002a6960(0, 0, 0x280, 0x1C0, 0.0f);
+            func_002a6960(0, 0x83, 0x280, 0x5E, 10.0f);
+            func_002a9f50(f21, f20, 5.0f, 0xFF, p + 0x14, s18, 1, p);
+        }
+        s19 += 1;
+    }
+    if ((*(s32 *)(p + 0x3AC) + 1) != 0) {
+        func_002a6960(0, 0, 0x280, 0x1C0, 0.0f);
+        c = *(s32 *)(p + 0x3B8);
+        if (c > 0) {
+            *(s32 *)(p + 0x3B8) = c - 1;
+        }
+        f20 = (f32)(s32)(1.0f + (D_00761120 * func_0044b7b0((s16)((D_00761174 * (f32)*(s32 *)(p + 0x3B8)) / 10.0f))));
+        func_002a66d0(72.0f, 179.0f, 0.0f, 124.0f * f20, 116.0f * f20, 0x2D2D2D, 0xFF, 1);
+        func_002a7920(0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, p, 19.0f, 130.0f, 0, f20);
+    }
+    func_002a6e30(5, -5, 0xFF, p);
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a5f00);
+#endif
 
 // FUN_002A6510
 s32 func_002a6510(s32 arg0) {

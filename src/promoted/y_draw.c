@@ -662,12 +662,12 @@ void func_002b6ea0(void) {
    reads nd 0 by construction (the object IS the retail asm), which is why the
    assignment list showed [nd 0]. The last C-body measurement is nd 350 (above);
    do not treat this function as matched until a C body exists. */
+/* measured 002b6ec0 (banked honest body: s16 i loop 0..0x30B with per-index clear, bit0-guarded 43f810+89a0/0xF0 + 7cd0 prologue, 0x4000/6260 + 0x2000/6180 arms with 460990/460AC0 + A4/B0<=gp-gated spawn vs 7cd0-shaped bit-scan, u8-0x72-gated third spawn with flag 1, s8-nested final clear, count/i tail; true floats-first 0025ecd0 via function-local extern): measure_guarded 356 words obj 1296B/window 1536B; fnalign --candidate 219 edits (+14 reloc-only), retail 380 vs object 324 instrs; opclass addu -21 lw -14 dsll32/dsra32 -5 sll -5 shortfalls. Dropping the hoisted gtable local re-measured identical 356 (mwcc CSEs re-derivations, as the old note predicted). Wall is retail's per-region base re-derivation vs saved-locals plus bit-scan x4 and 14-arg call order. Production stays ASM. */
 // FUN_002B6EC0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002b6ec0(u8 *arg0) {
     extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
     u8 *table;
-    u8 *g;
     s32 off;
     s16 i;
     s32 count;
@@ -680,12 +680,11 @@ s32 func_002b6ec0(u8 *arg0) {
     i = 0;
     *(s16 *)(table + 0x30C04) = 0;
     while (i < 0x30C) {
-        u8 *e;
         s16 fl;
+        u8 *e;
         *(s16 *)(table + (s32)i * 2 + 0x30C06) = 0;
         off = (s32)i << 8;
-        g = *(u8 **)(iGpffffb574 + 0x38);
-        e = g + off;
+        e = *(u8 **)(iGpffffb574 + 0x38) + off;
         if (((*(s16 *)(e + 0x14)) & 1) == 1) {
             func_0043f810(e + 0x14, func_002b89a0(e + 0x14), 0xF0);
             func_002b7cd0(arg0, i, *(s16 *)(e + 8));
