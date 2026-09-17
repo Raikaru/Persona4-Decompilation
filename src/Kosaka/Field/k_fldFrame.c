@@ -99,9 +99,166 @@ RwV3d* func_00169200(RwV3d* dst, const RwV3d* point,
 
 
 /* measured: floor 155 differing words (reloc-masked), object 1112B vs 1120B window (8B retail zero tail). */
-/* LFF 268 -> 155 via truthful contracts: extern f32 fabsf(f32) gives retail abs.s (undeclared fabsf emitted a call + cvt), extern s32 func_00168ec0(void*,void*,void*) and extern f32 func_003e4180(f32*) keep call setup, separate edgedist preserves second-path FPR live range (merging to one distance regresses to 160), and the retail store asymmetry is reproduced (new entries store projected at 0x80, existing store edgePoint at 0x70; the prior archive stored edgePoint for both and left second-path distance stale). Residual: index in $v0 vs $a0 with count in $a0 vs $v1, distance in $f2 vs $f3, and batched vs interleaved lwc1/swc1 for the 12B record stores. Archived in docs/probe_archive/LFF_00169320_body.c; production stays ASM. */
-// FUN_00169320
+/* Floor: 209 differing words over 26 edits, 274 emitted against retail's
+   277 (1112 bytes in an 1120-byte window with an 8-byte zero tail).  The
+   previous archive measured 155 words but 270 alignment edits; this body
+   aligns instruction for instruction except at one site per search loop.
+   Levers: extern f32 fabsf(f32) gives retail's abs.s; func_00168ec0 and
+   func_003e4180 keep their real prototypes; a separate edge distance
+   preserves the second path's FPR live range; the search index, count,
+   record and slot pointers are block-scoped per branch, which puts the
+   index in $a0 and the count in $v1; the record and triangle copies are
+   RwV3d struct assignments (paired lwc1/swc1); a miss falls out of the
+   search into `index = -1` and a hit jumps past it, and the existing-entry
+   branch is written first (`index >= 0`); the slot address is
+   `(u8 *)(4 * index) + (u32)context + 0x600` so the scaled index is added
+   first, while the record address stays base-first.
+   WALL: the third equality test - retail emits `bc1f` to the increment and
+   an unconditional `b` to the hit label, this build folds it into `bc1t`;
+   every later branch displacement moves by two words.  Nested ifs, a
+   negated `||` continue form, a found flag, opt_rebuildconditionals,
+   opt_propagation, opt_lifetimes and opt_dead_code were measured. */
+// FUN_00169320 NONMATCHING
+#ifdef NON_MATCHING
+void* func_00169320(RwV3d* point, void* unused, RwV3d* triangle, u8* context)
+{
+    extern f32 fabsf(f32 x);
+    extern s32 func_00168ec0(void *arg0, void *arg1, void *arg2);
+    extern f32 func_003e4180(f32 *vec);
+    typedef struct FldFrameTriangle
+    {
+        RwV3d vector;
+        u8 gap[0x10];
+        RwV3d* normal;
+    } FldFrameTriangle;
+    FldFrameTriangle* triangleData;
+    RwV3d projected;
+    RwV3d edgePoint;
+    RwV3d delta;
+    RwV3d* normal;
+    f32 projection;
+    f32 distance;
+    f32 edgedist;
+    s32 i;
+    f32 tx;
+    f32 ty;
+    f32 tz;
+    triangleData = (FldFrameTriangle*)triangle;
+    ty = triangleData->vector.y;
+    tx = triangleData->vector.x;
+    tz = triangleData->vector.z;
+    normal = triangleData->normal;
+    projection = normal->x * tx + normal->y * ty + normal->z * tz - (point->x * tx + point->y * ty + point->z * tz);
+    projected.x = tx * projection;
+    projected.y = ty * projection;
+    projected.z = tz * projection;
+    projected.x += point->x;
+    projected.y += point->y;
+    projected.z += point->z;
+    if (func_00168ec0(&projected, (u8*)triangle + 0x1c, triangle) != 0)
+    {
+        distance = fabsf(projection);
+        {
+        s32 index;
+        s32 count;
+        f32* record;
+        f32* fraction;
+        index = 0;
+        count = *(s32*)(context + 0xb04);
+        while (index < count)
+        {
+            record = (f32*)(context + 12 * index);
+            if (record[192] == triangle->x && record[193] == triangle->y && record[194] == triangle->z)
+                goto found1;
+            index++;
+        }
+        index = -1;
+found1:
+        if (index >= 0)
+        {
+            fraction = (f32*)((u8*)(4 * index) + (u32)context + 0x600);
+            if (distance < *fraction)
+            {
+                record = (f32*)(context + 12 * index);
+                *(RwV3d*)record = projected;
+                *(RwV3d*)(record + 192) = *triangle;
+                *fraction = distance;
+            }
+        }
+        else
+        {
+            fraction = (f32*)((u8*)(4 * count) + (u32)context + 0x600);
+            if (distance < *fraction)
+            {
+                record = (f32*)(context + 12 * count);
+                *(RwV3d*)record = projected;
+                record = (f32*)((u8*)(12 * *(s32*)(context + 0xb04)) + (u32)context);
+                *(RwV3d*)(record + 192) = *triangle;
+                fraction = (f32*)((u8*)(4 * *(s32*)(context + 0xb04)) + (u32)context + 0x600);
+                *fraction = distance;
+                (*(s32*)(context + 0xb04))++;
+            }
+        }
+    }
+    }
+    else
+    {
+        for (i = 0; i < 3; i++)
+        {
+            func_00169200(&edgePoint, &projected, *(RwV3d**)((u8*)triangle + 0x1c + 4 * i), *(RwV3d**)((u8*)triangle + 0x1c + 4 * ((i + 1) % 3)));
+            delta.x = point->x - edgePoint.x;
+            delta.y = point->y - edgePoint.y;
+            delta.z = point->z - edgePoint.z;
+            edgedist = func_003e4180((f32*)&delta);
+            {
+            s32 index;
+            s32 count;
+            f32* record;
+            f32* fraction;
+            index = 0;
+            count = *(s32*)(context + 0xb04);
+            while (index < count)
+            {
+                record = (f32*)(context + 12 * index);
+                if (record[192] == triangle->x && record[193] == triangle->y && record[194] == triangle->z)
+                    goto found2;
+                index++;
+            }
+            index = -1;
+found2:
+            if (index >= 0)
+            {
+                fraction = (f32*)((u8*)(4 * index) + (u32)context + 0x600);
+                if (edgedist < *fraction)
+                {
+                    record = (f32*)(context + 12 * index);
+                    *(RwV3d*)record = edgePoint;
+                    *(RwV3d*)(record + 192) = *triangle;
+                    *fraction = edgedist;
+                }
+            }
+            else
+            {
+                fraction = (f32*)((u8*)(4 * count) + (u32)context + 0x600);
+                if (edgedist < *fraction)
+                {
+                    record = (f32*)(context + 12 * count);
+                    *(RwV3d*)record = projected;
+                    record = (f32*)((u8*)(12 * *(s32*)(context + 0xb04)) + (u32)context);
+                    *(RwV3d*)(record + 192) = *triangle;
+                    fraction = (f32*)((u8*)(4 * *(s32*)(context + 0xb04)) + (u32)context + 0x600);
+                    *fraction = edgedist;
+                    (*(s32*)(context + 0xb04))++;
+                }
+            }
+            }
+        }
+    }
+    return triangle;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_00169320);
+#endif
 // FUN_00169780
 INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_00169780);
 // FUN_00169A30

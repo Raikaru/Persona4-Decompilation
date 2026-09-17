@@ -50,10 +50,6 @@ void* func_00169320(RwV3d* point, void* unused, RwV3d* triangle, u8* context)
     f32 projection;
     f32 distance;
     f32 edgedist;
-    f32* record;
-    s32 count;
-    s32 index;
-    f32* fraction;
     s32 i;
     f32 tx;
     f32 ty;
@@ -73,50 +69,48 @@ void* func_00169320(RwV3d* point, void* unused, RwV3d* triangle, u8* context)
     if (func_00168ec0(&projected, (u8*)triangle + 0x1c, triangle) != 0)
     {
         distance = fabsf(projection);
+        {
+        s32 index;
+        s32 count;
+        f32* record;
+        f32* fraction;
         index = 0;
         count = *(s32*)(context + 0xb04);
         while (index < count)
         {
             record = (f32*)(context + 12 * index);
             if (record[192] == triangle->x && record[193] == triangle->y && record[194] == triangle->z)
-                break;
+                goto found1;
             index++;
         }
-        if (index == count)
-            index = -1;
-        if (index < 0)
+        index = -1;
+found1:
+        if (index >= 0)
         {
-            fraction = (f32*)(context + 4 * count + 0x600);
+            fraction = (f32*)((u8*)(4 * index) + (u32)context + 0x600);
             if (distance < *fraction)
             {
-                record = (f32*)(context + 12 * count);
-                record[0] = projected.x;
-                record[1] = projected.y;
-                record[2] = projected.z;
-                record = (f32*)(context + 12 * *(s32*)(context + 0xb04));
-                record[192] = triangle->x;
-                record[193] = triangle->y;
-                record[194] = triangle->z;
-                fraction = (f32*)(context + 4 * *(s32*)(context + 0xb04) + 0x600);
+                record = (f32*)(context + 12 * index);
+                *(RwV3d*)record = projected;
+                *(RwV3d*)(record + 192) = *triangle;
                 *fraction = distance;
-                (*(s32*)(context + 0xb04))++;
             }
         }
         else
         {
-            fraction = (f32*)(context + 4 * index + 0x600);
+            fraction = (f32*)((u8*)(4 * count) + (u32)context + 0x600);
             if (distance < *fraction)
             {
-                record = (f32*)(context + 12 * index);
-                record[0] = projected.x;
-                record[1] = projected.y;
-                record[2] = projected.z;
-                record[192] = triangle->x;
-                record[193] = triangle->y;
-                record[194] = triangle->z;
+                record = (f32*)(context + 12 * count);
+                *(RwV3d*)record = projected;
+                record = (f32*)((u8*)(12 * *(s32*)(context + 0xb04)) + (u32)context);
+                *(RwV3d*)(record + 192) = *triangle;
+                fraction = (f32*)((u8*)(4 * *(s32*)(context + 0xb04)) + (u32)context + 0x600);
                 *fraction = distance;
+                (*(s32*)(context + 0xb04))++;
             }
         }
+    }
     }
     else
     {
@@ -127,49 +121,47 @@ void* func_00169320(RwV3d* point, void* unused, RwV3d* triangle, u8* context)
             delta.y = point->y - edgePoint.y;
             delta.z = point->z - edgePoint.z;
             edgedist = func_003e4180((f32*)&delta);
+            {
+            s32 index;
+            s32 count;
+            f32* record;
+            f32* fraction;
             index = 0;
             count = *(s32*)(context + 0xb04);
             while (index < count)
             {
                 record = (f32*)(context + 12 * index);
                 if (record[192] == triangle->x && record[193] == triangle->y && record[194] == triangle->z)
-                    break;
+                    goto found2;
                 index++;
             }
-            if (index == count)
-                index = -1;
-            if (index < 0)
+            index = -1;
+found2:
+            if (index >= 0)
             {
-                fraction = (f32*)(context + 4 * count + 0x600);
+                fraction = (f32*)((u8*)(4 * index) + (u32)context + 0x600);
                 if (edgedist < *fraction)
                 {
-                    record = (f32*)(context + 12 * count);
-                    record[0] = projected.x;
-                    record[1] = projected.y;
-                    record[2] = projected.z;
-                    record = (f32*)(context + 12 * *(s32*)(context + 0xb04));
-                    record[192] = triangle->x;
-                    record[193] = triangle->y;
-                    record[194] = triangle->z;
-                    fraction = (f32*)(context + 4 * *(s32*)(context + 0xb04) + 0x600);
+                    record = (f32*)(context + 12 * index);
+                    *(RwV3d*)record = edgePoint;
+                    *(RwV3d*)(record + 192) = *triangle;
                     *fraction = edgedist;
-                    (*(s32*)(context + 0xb04))++;
                 }
             }
             else
             {
-                fraction = (f32*)(context + 4 * index + 0x600);
+                fraction = (f32*)((u8*)(4 * count) + (u32)context + 0x600);
                 if (edgedist < *fraction)
                 {
-                    record = (f32*)(context + 12 * index);
-                    record[0] = edgePoint.x;
-                    record[1] = edgePoint.y;
-                    record[2] = edgePoint.z;
-                    record[192] = triangle->x;
-                    record[193] = triangle->y;
-                    record[194] = triangle->z;
+                    record = (f32*)(context + 12 * count);
+                    *(RwV3d*)record = projected;
+                    record = (f32*)((u8*)(12 * *(s32*)(context + 0xb04)) + (u32)context);
+                    *(RwV3d*)(record + 192) = *triangle;
+                    fraction = (f32*)((u8*)(4 * *(s32*)(context + 0xb04)) + (u32)context + 0x600);
                     *fraction = edgedist;
+                    (*(s32*)(context + 0xb04))++;
                 }
+            }
             }
         }
     }
