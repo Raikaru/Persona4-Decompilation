@@ -2479,8 +2479,10 @@ void func_00207140(u16 *flags, u8 *work)
    were measured; the only other difference is the 0x18C store scheduling
    one instruction later than retail's; `opt_loop_invariants on` is worth
    one word here, which does not pay for a non-baseline pragma. */
+/* measured 00207320: `opt_loop_invariants on` inside the guard is worth 1 words (311 -> 310), the loop-preheader constant hoist. */
 // FUN_00207320 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_loop_invariants on
 s32 func_00207320(u8 *arg0, u8 *arg1, u8 **arg2)
 {
     extern s32 func_001f0620(u8 *arg0, s32 arg1);
@@ -2680,6 +2682,7 @@ s32 func_00207320(u8 *arg0, u8 *arg1, u8 **arg2)
     }
     return 1;
 }
+#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00207320);
 #endif

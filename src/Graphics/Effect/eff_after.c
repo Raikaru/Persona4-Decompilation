@@ -389,8 +389,10 @@ void func_004b7dc0(u8 *work, s32 section, EffAfterVec *output) {
    No pooled float constants to bank (only lui 0x3F000000/0x3F800000/0x3B9ACA00, no gp-relative loads).
    Unit confirmed via `grep -rl func_004b8350 asm/` -> asm/nonmatchings/eff_after/func_004b8350.s.
    Production stays INCLUDE_ASM fallback; body preserved here as NON_MATCHING seed. */
+/* measured 004b8350: `opt_loop_invariants on` inside the guard is worth 1 words (623 -> 622), the loop-preheader constant hoist. */
 // FUN_004B8350 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_loop_invariants on
 u8 *func_004b8350(u8 *arg0, s32 arg1)
 {
     u8 *cfg;
@@ -709,6 +711,7 @@ u8 *func_004b8350(u8 *arg0, s32 arg1)
     *(f32 *)(tailBase + 0x10) = zeros[3];
     return obj;
 }
+#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b8350);
 #endif

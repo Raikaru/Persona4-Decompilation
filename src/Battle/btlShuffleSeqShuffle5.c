@@ -89,8 +89,10 @@ extern u16 D_008C024E[];
 // versus the retail 1264B window but remain normalized_diff 344; the three
 // interleaved shuffle-copy loops retain divergent register scheduling. Restored
 // the bare assembly fallback.
+/* measured 0037ef40: `opt_loop_invariants on` inside the guard is worth 22 words (298 -> 276), the loop-preheader constant hoist. */
 // FUN_0037EF40 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_loop_invariants on
 void func_0037ef40(u8 *arg0) {
     s32 n;
     s32 i;
@@ -232,6 +234,7 @@ void func_0037ef40(u8 *arg0) {
         }
     }
 }
+#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeqShuffle5", func_0037ef40);
 #endif
@@ -315,8 +318,10 @@ s32 func_0037f550(u8 *arg0)
    conventions verified against retail. Open: 128-bit quad locals (sq/lq
    vs sw/lw), stack-frame size (-0x120 vs -0x170), s-reg assignment, COP1
    madd/msub fusion, and scheduler ordering throughout. */
+/* measured 0037f6e0: `opt_loop_invariants on` inside the guard is worth 9 words (1047 -> 1038), the loop-preheader constant hoist. */
 // FUN_0037F6E0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_loop_invariants on
 s32 func_0037f6e0(u8 *arg0)
 {
     u8 *temp_19;
@@ -807,6 +812,7 @@ loop_123:
     }
 
 }
+#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeqShuffle5", func_0037f6e0);
 #endif

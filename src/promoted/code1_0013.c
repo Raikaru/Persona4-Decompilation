@@ -1592,8 +1592,10 @@ s32 func_0013caa0(u32 *arg0, s32 *arg1, u8 *arg2) {
    frame and prologue verified against retail. Open: s-reg assignment,
    index-arith shape, call sequence alignment, and object overrun.
    See V013_0013c700_body.c for ruled-out variants. */
+/* measured 0013c700: `opt_loop_invariants on` inside the guard is worth 9 words (177 -> 168), the loop-preheader constant hoist. */
 // FUN_0013C700 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_loop_invariants on
 /* measured: object 880B, retail window 864B, normalized_diff 177, differing offsets 48-88,100-136,144-180,188-232,240-288,296-344,352-432,440-876; archived immediately because object exceeded retail window; ruled out corrected callee declarations, pointer-vs-array entry staging, state switch shape, and direct generated-loop reconstruction */
 s32 func_0013c700(s32 arg0, s16 arg1, u8 *arg2)
 {
@@ -1668,6 +1670,7 @@ s32 func_0013c700(s32 arg0, s16 arg1, u8 *arg2)
     else func_0046d730(D_005ED9D0, 0x2ca);
     return state;
 }
+#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013c700);
 #endif
@@ -2504,8 +2507,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013f720);
    fea0 float->s16 idiom, absolute consts via array decls.
    Open: loop-hoist wall (C/0x8000/base remat per iter),
    s0/s5 arg0-home swap with counter-temp cascade. */
+/* measured 0013fb50: `opt_loop_invariants on` inside the guard is worth 120 words (215 -> 95), the loop-preheader constant hoist. */
 // FUN_0013FB50 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_loop_invariants on
 void func_0013fb50(u8 *arg0) {
     s16 i;
     s16 j;
@@ -2604,6 +2609,7 @@ void func_0013fb50(u8 *arg0) {
     *(s32 *)(arg0 + 0x3C) = func_00354a50(0, 1);
     func_00141d80(arg0, 0);
 }
+#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013fb50);
 #endif

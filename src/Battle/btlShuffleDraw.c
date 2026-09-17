@@ -1442,8 +1442,10 @@ void func_00377e60(u8 *arg0) {
    and +0x1B0, and func_00451fc0's 8-arg call. Temp-register rotation floor.
    Re-measured 2026-09-15 at nd 120 (s-reg work/p/arg1 rotation plus the loop
    rotation; decl and assignment swaps inert); banked as guarded floor. */
+/* measured 00377eb0: `opt_loop_invariants on` inside the guard is worth 2 words (119 -> 117), the loop-preheader constant hoist. */
 // FUN_00377EB0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_loop_invariants on
 s32 func_00377eb0(u8 *arg0, s32 arg1)
 {
     struct ShuffleDrawStack {
@@ -1561,6 +1563,7 @@ s32 func_00377eb0(u8 *arg0, s32 arg1)
     }
     return (s32)p;
 }
+#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00377eb0);
 #endif
