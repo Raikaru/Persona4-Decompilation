@@ -586,15 +586,8 @@ void func_00452760(void)
     }
 }
 #pragma pop
-/* Floor: 4 differing words, from a first reconstruction that measured 265.
-   The decisive shape is the pad snapshot globals: retail addresses
-   D_008C0000..7 absolutely, so they are arrays, not the scalars m2c
-   emitted - as scalars they land in small data and every access becomes
-   gp-relative, which was 250 of those words.  The declaration order below
-   is the best of 250 measured permutations.
-   WALL: the two-byte actuator pair sits at 0x40($sp) in retail and
-   0x48($sp) here; array sizes, declaration order and separate scalars in
-   the draft's slot order were all measured. */
+/* measured: 3wd floor at 282/282 instrs (was 4; opclass lh+1/lhu-1 + fnalign showed retail lhu $v1,0x4c($sp) vs object lh, so the pressed-pair read is unsigned: (u16)*(s16 *)pressed -> *(u16 *)pressed measures 4 -> 3 with identical 282/282 counts, no shrink). Remaining 3 are one cause, the two-byte actuator pair: retail sb $a2,0x40($sp); sb $a1,0x41($sp); addiu $a2,$sp,0x40 vs object 0x48/0x49/0x48 (fnalign retail[197:199] + retail[201:202]). First reconstruction measured 265; pad-snapshot globals as arrays (not m2c scalars, which went gp-relative) removed ~250; declaration order below is the best of 250 measured permutations. */
+/* measured: ruled out on the 3wd body -- actuator-after-pressed 6, actuator-swapped-with-pressed 6; pragmas loop-inv-on 3, propag-off 3 (ties), common-subs-off 249, schedule-on 259 (both catastrophic: CSE load-bearing). Array sizes and separate scalars in draft slot order measured per prior note. No volatile/asm; honest 3wd allocator wall kept. */
 // FUN_00452870 NONMATCHING
 #ifdef NON_MATCHING
 void func_00452870(void *arg0)
@@ -743,7 +736,7 @@ void func_00452870(void *arg0)
     if (buttons != 0) {
         pressed[1] = ~D_008C0002[0];
         pressed[0] = ~D_008C0003[0];
-        *(u16 *)(pad + 0xC) = (u16)*(s16 *)pressed;
+        *(u16 *)(pad + 0xC) = *(u16 *)pressed;
     } else {
         *(u16 *)(pad + 0xC) = 0;
         *(u16 *)(pad + 0x10) = 0;

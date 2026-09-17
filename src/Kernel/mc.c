@@ -1373,7 +1373,8 @@ INCLUDE_ASM("asm/nonmatchings/mc", func_002a5630);
 /*   reverted. Unhandled: two-statement mul.s split (870, worse), D_00761304/ */
 /*   D_0076130C/D_00761308 unregistered (recover_symbols.py needed before any */
 /*   live attempt; D_00761120/74 likewise Ghidra-spelled, cf iGpffff8030/8084). */
-/*   Production stays ASM. */
+/*   Size: object 1568B vs 1552B window (16 over — residual is coloring plus */
+/*   extra materialization, not missing work). Production stays ASM. */
 // FUN_002A5F00 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002a5f00(s32 arg0)
