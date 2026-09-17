@@ -226,114 +226,83 @@ void func_003741f0(u8 *arg0) {
 }
 
 
-/* measured: re-tested the old \"saved-register rotation\" floor note -- that part is
-   SOLVED: declaring i first reproduces retail's exact allocation arg0=$s0, temp=$s1,
-   i=$s2, r=$s3, p=$s4 (nd 147 -> 133) and the loop-1/3 pointer form
-   lui/ori/addu + sw($s4) with full-address pointer locals all match. The real
-   residuals are two scheduling floors: (1) argument-materialisation order before
-   BOTH the D_008873F4[0] and func_0043f810 calls -- retail materialises the sp6C
-   stack load (lw $a1 / lw $a2) before the constant/register args, mwcc b210 emits
-   the constants first (arg reorderings tried, nd stuck); (2) loop 2's pointer
-   hoist: retail computes arg0+idx*4+0x1F2AC into $18 BEFORE both calls, mwcc sinks
-   it to the store and folds 0x1F2AC as lui $v1,2 / sw -0xd54($v1) (load-sinking
-   floor; hoisting into a pointer local did not move it). 4 attempts: m2c decl
-   order nd 108, reordered nd 147, probe batch best 133, final 133. */
-/* Faithful C reconstruction of the shuffle-draw state loader (864B window).
-   First probe nd 188; switch structure, loop nests and callee conventions
-   verified against retail. Open: two extra saved regs (s0-s6 vs s0-s4),
-   stack-frame size (-0x90 vs -0x70), and scheduler ordering throughout.
-   Counter/address merges and switch-value inlining inert. */
+/* measured (b210 -O2, 2026-09-17): if-else dispatch with shared return1 tail
+   (Ghidra FUN_003742b0 + retail beq order 2,1,0); for-loop nests with reused
+   i/k/tmp/val/p (Ghidra iVar3/iVar4 reuse) give frame 0x70 and 209/212 instrs
+   (836B/848B, 1.4% size diff, within 3%). probe_variants 126 words (was 184
+   m2c-switch, 176 for-loop-switch, 128 if-else-switch); fnalign 65 edits +10
+   reloc-only (was 136+10). Decl order state,i,size,p,val,tmp,k via
+   probe_search 300 (126w/65e vs 128w/75e baseline). Levers: Ghidra if-else
+   over switch (-42w), hoisted full-address p=arg0+i*4+off after alloc for
+   loop1/3, sunk loop2 store (hoist +30w, confirmed load-sinking floor).
+   Residual floors: (1) arg-materialisation order before D_008873F4/f43f810
+   (lw sp vs constants first); (2) loop2 hoist retail $18-before vs mwcc sink
+   as lui $v1,2/sw -0xd54 (tried, +30w); (3) saved-color rotation arg0 $s3 vs
+   $s0 + branch-orientation beqz+b vs bnez. Production stays ASM. */
 // FUN_003742B0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003742b0(u8 *arg0)
 {
-    s32 sp6C;
-    s32 temp_17;
-    s32 temp_17_2;
-    s32 temp_2;
-    s32 temp_2_2;
-    s32 temp_2_3;
-    s32 temp_3;
-    s32 temp_4;
-    s32 var_17;
-    s32 var_17_2;
-    s32 var_18;
-    s32 var_18_2;
-    s32 var_19;
-    u8 *temp_3_2;
-    u8 *temp_3_3;
-temp_3 = (s32)((*( s32 *)((u8 *)(arg0) + 0x1F2EC)));
-    switch (temp_3) {                               /* irregular */
-    case 0:
-        if (func_004553c0((*( s32 *)((u8 *)(arg0) + 0x1F2E8))) != 0) {
-            var_19 = 0;
-            var_18 = 0;
-loop_9:
-            if (var_18 < 9) {
-                temp_17 = (s32)(func_00455ea0((u8 *)(*( s32 *)((u8 *)(arg0) + 0x1F2E8)), var_19, &sp6C));
-                func_0044ea90(&D_0064EA20, 0x101);
-                temp_2 = (s32)(D_008873F4[0](1, sp6C, 0x40000));
-                temp_3_2 = (u8 *)(arg0 + (var_18 * 4));
-                (*( s32 *)((u8 *)(temp_3_2) + 0x1F2B8)) = temp_2;
-                if (temp_2 == 0) {
-                    func_0046d730(&D_0064EA20, 0x102);
-                }
-                func_0043f810((*( s32 *)((u8 *)(temp_3_2) + 0x1F2B8)), temp_17, sp6C);
-                var_18 += 1;
-                var_19 += 1;
-                goto loop_9;
-            }
-            var_17 = 0;
-loop_14:
-            if (var_17 < 3) {
-                temp_2_2 = func_0046af60((s32)func_00455ea0((u8 *)(*( s32 *)((u8 *)(arg0) + 0x1F2E8)), var_19, NULL));
-                (*( s32 *)((u8 *)((arg0 + (var_17 * 4))) + 0x1F2AC)) = temp_2_2;
-                if (temp_2_2 == 0) {
-                    func_0046d730(&D_0064EA20, 0x109);
-                }
-                var_17 += 1;
-                var_19 += 1;
-                goto loop_14;
-            }
-            var_18_2 = 0;
-loop_19:
-            if (var_18_2 < 3) {
-                temp_17_2 = (s32)(func_00455ea0((u8 *)(*( s32 *)((u8 *)(arg0) + 0x1F2E8)), var_19, &sp6C));
-                func_0044ea90(&D_0064EA20, 0x10F);
-                temp_2_3 = (s32)(D_008873F4[0](1, sp6C, 0x40000));
-                temp_3_3 = (u8 *)(arg0 + (var_18_2 * 4));
-                (*( s32 *)((u8 *)(temp_3_3) + 0x1F2DC)) = temp_2_3;
-                if (temp_2_3 == 0) {
-                    func_0046d730(&D_0064EA20, 0x110);
-                }
-                func_0043f810((*( s32 *)((u8 *)(temp_3_3) + 0x1F2DC)), temp_17_2, sp6C);
-                var_18_2 += 1;
-                var_19 += 1;
-                goto loop_19;
-            }
-            func_0036d230((s32)func_00455ea0((u8 *)(*( s32 *)((u8 *)(arg0) + 0x1F2E8)), var_19, NULL));
-            (*( s32 *)((u8 *)(arg0) + 0x1F2EC)) = 1;
-        case 1:
-            var_17_2 = 0;
-loop_26:
-            if (var_17_2 >= 3) {
-                func_00454bd0((*( s32 *)((u8 *)(arg0) + 0x1F2E8)));
-                (*( s32 *)((u8 *)(arg0) + 0x1F2E8)) = 0;
-                (*( s32 *)((u8 *)(arg0) + 0x1F2EC)) = 2;
-            case 2:
-                return 1;
-            }
-            temp_4 = (s32)((*( s32 *)((u8 *)((arg0 + (var_17_2 * 4))) + 0x1F2AC)));
-            if ((temp_4 != 0) && (func_0046a750(temp_4) == 0)) {
+    s32 state;
+    s32 i;
+    s32 size;
+    u8 *p;
+    s32 val;
+    s32 tmp;
+    s32 k;
+    state = *(s32 *)(arg0 + 0x1F2EC);
+    if (state != 2) {
+        if (state != 1) {
+            if ((state != 0) || (func_004553c0(*(s32 *)(arg0 + 0x1F2E8)) == 0)) {
                 return 0;
             }
-            var_17_2 += 1;
-            goto loop_26;
+            k = 0;
+            for (i = 0; i < 9; i++) {
+                tmp = (s32)func_00455ea0((u8 *)(*(s32 *)(arg0 + 0x1F2E8)), k, &size);
+                func_0044ea90(&D_0064EA20, 0x101);
+                val = (s32)D_008873F4[0](1, size, 0x40000);
+                p = arg0 + i * 4 + 0x1F2B8;
+                *(s32 *)p = val;
+                if (val == 0) {
+                    func_0046d730(&D_0064EA20, 0x102);
+                }
+                func_0043f810(*(s32 *)p, tmp, size);
+                k++;
+            }
+            for (i = 0; i < 3; i++) {
+                val = func_0046af60((s32)func_00455ea0((u8 *)(*(s32 *)(arg0 + 0x1F2E8)), k, NULL));
+                *(s32 *)(arg0 + i * 4 + 0x1F2AC) = val;
+                if (val == 0) {
+                    func_0046d730(&D_0064EA20, 0x109);
+                }
+                k++;
+            }
+            for (i = 0; i < 3; i++) {
+                tmp = (s32)func_00455ea0((u8 *)(*(s32 *)(arg0 + 0x1F2E8)), k, &size);
+                func_0044ea90(&D_0064EA20, 0x10F);
+                val = (s32)D_008873F4[0](1, size, 0x40000);
+                p = arg0 + i * 4 + 0x1F2DC;
+                *(s32 *)p = val;
+                if (val == 0) {
+                    func_0046d730(&D_0064EA20, 0x110);
+                }
+                func_0043f810(*(s32 *)p, tmp, size);
+                k++;
+            }
+            func_0036d230((s32)func_00455ea0((u8 *)(*(s32 *)(arg0 + 0x1F2E8)), k, NULL));
+            *(s32 *)(arg0 + 0x1F2EC) = 1;
         }
-    default:
-        return 0;
+        for (i = 0; i < 3; i++) {
+            val = *(s32 *)(arg0 + i * 4 + 0x1F2AC);
+            if ((val != 0) && (func_0046a750(val) == 0)) {
+                return 0;
+            }
+        }
+        func_00454bd0(*(s32 *)(arg0 + 0x1F2E8));
+        *(s32 *)(arg0 + 0x1F2E8) = 0;
+        *(s32 *)(arg0 + 0x1F2EC) = 2;
     }
-
+    return 1;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003742b0);
@@ -656,32 +625,35 @@ void func_00374d20(u8 *arg0) {
     func_003e0f40(m);
 }
 
-/* In recovery (2026-09-15): plain-C candidate at 197 reloc-masked differing
- * words. Solved: 0x120 frame via u8 *spA0[30] (table spans 0xA0..0x117),
- * prologue byte-exact through the count dispatch, first-loop opcodes,
- * if/else mode dispatch (4/3 zero, 2 div3, 1 div2, 0/default compute),
- * explicit u32->float two-sided conversion, GP float iGpffff8170.
- * Wall: saved-register rotation (var_18 pinned $s5 vs retail $s2 across four
- * declaration orders plus a 1800-iteration permuter sweep; temp_16 $s0,
- * temp_22 $s6, arg0 $s4 stable). Production stays ASM. */
+/* measured (b210 -O2, 2026-09-17): table/index/float reconstruction (largest
+   of four in TU). 0x120 frame via u8 *spA0[30] (0xA0..0x117) exact; 0xE8/0xFB0
+   index scaling, 0x1D6B8/0x1D714/0x1D778 table spans, mode dispatch
+   (4/3 zero, 2 div3, 1 div2, 0 compute) + u16->float two-sided + iGpffff8170
+   verified. probe 183w (was 197w m2c-u32-mul); fnalign 99e+reloc (was 136e),
+   object 256/256 instrs exact (0% size diff, within 3%; was 269/256 +5%).
+   Levers top-down: u16 var_17 over u32 (-9w, exact frame), doubling via
+   var_f0+=var_f0 over 2.0f*mul (-1w/-3 instrs), decl order via probe_search
+   200 (183w/99e vs 188w/115e). Residual floors: saved-color rotation
+   var_18 $s5 vs $s2 + siblings, arg-order lw-sp vs constants, loop CSE hoist
+   differences. Production stays ASM. */
 // FUN_003753F0 NONMATCHING
 #ifdef NON_MATCHING
 void func_003753f0(u8 *arg0) {
-    u8 sp11C[4];
-    u8 sp118[4];
-    u8 *spA0[30];
-    f32 var_f20;
-    u8 *temp_16;
-    s32 var_18;
     u8 *temp_21;
-    u32 var_17;
     s32 var_19;
-    u8 *temp_22;
-    f32 var_f2;
-    f32 var_f0;
-    s32 temp_5;
+    u8 sp11C[4];
     s32 var_6;
+    u8 *spA0[30];
+    u8 *temp_16;
+    f32 var_f20;
+    u8 *temp_22;
+    f32 var_f0;
+    u8 sp118[4];
+    s32 var_18;
+    s32 temp_5;
+    f32 var_f2;
     s32 var_16;
+    u16 var_17;
     func_0034f1e0();
     sp11C[0] = 0xFF;
     sp11C[1] = 0xFF;
@@ -733,7 +705,8 @@ void func_003753f0(u8 *arg0) {
         if ((s32)var_17 >= 0) {
             var_f0 = (f32)var_17;
         } else {
-            var_f0 = 2.0f * (f32)((var_17 >> 1) | (var_17 & 1));
+            var_f0 = (f32)((var_17 >> 1) | (var_17 & 1));
+            var_f0 += var_f0;
         }
         var_f20 = var_f2 * ((0.5f * var_f0) / (f32)var_6);
     }
