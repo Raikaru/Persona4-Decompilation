@@ -4850,8 +4850,9 @@ void func_001fb480(f32 scale, u8 *arg0, s32 arg1, s32 arg2, u8 *arg3)
     base[0](1, 0);
 }
 #pragma pop
+/* measured: func_001fbb50 Shape B trailing dead-arm default carries redundant store (var_18=0, already 0, never empty {}) per 0018c7e0 40->2 cure: probe 336->320 words (-16), fnalign 151->154 edits (+6 reloc-only both, +3), retail 404/object 402 instrs (2 short, 1608/1632B UNDER-24B) -> retail 405/object 405 instrs (0 short, 1620/1632B UNDER-12B); switch+default keeps branch chain, size exact. Banked guarded floor. */
 // FUN_001FBB50 NONMATCHING
-#ifdef SKIP_ASM
+#ifdef NON_MATCHING
 s32 func_001fbb50(u8 *arg0) {
     union { s32 w; u8 b[4]; } sp78;
     s32 sp50[7];
@@ -4988,6 +4989,10 @@ s32 func_001fbb50(u8 *arg0) {
                 iGpffffb468 = 0;
                 var_18 = -1;
             }
+            break;
+        }
+        default: {
+            var_18 = 0;
             break;
         }
         }

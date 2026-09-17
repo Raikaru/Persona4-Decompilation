@@ -344,6 +344,7 @@ void func_00383d70(u8 *arg0)
    200 declaration orders measured (best 727; optimize_for_size off gives 707
    with 192 edits, rejected as steering).
    Archive: docs/probe_archive/P038_00383f80_body.c. */
+/* measured this session: fresh probe 727wd / fnalign 143 edits (was 145 stale) confirms floor; slti inclusive (v18<3 -> <=2 fixes slti $at,$s2,3 dest to $at, tie 727wd; src $s2 vs $s3 colour wall remains per owner note); short-by-N hunt checked (no 1-4 short trailing chain in this window per top-down fnalign). Banked. */
 // FUN_00383F80 NONMATCHING
 #ifdef NON_MATCHING
 void func_00383f80(u8 *arg0)
@@ -409,7 +410,7 @@ void func_00383f80(u8 *arg0)
         alpha = 0xFF;
     }
     v18 = *(u16 *)(info + 4);
-    if ((s32)v18 < 3) {
+    if ((s32)v18 <= 2) {
     } else {
         v18 = 2;
     }
