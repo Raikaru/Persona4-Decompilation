@@ -270,6 +270,12 @@ s32 func_003319c0(void) {
     return r;
 }
 
+/* Floor: 26 differing words, object 1388B against a 1392-byte window with
+   51 relocations and a 4-byte zero tail.  Residual is register colour -
+   retail's work pointer and level counter sit in $s2/$s3 where this build
+   swaps them, and the bound test goes to $at rather than $v0.  A nine-case
+   consumer smoke over the recovered body passes.  Body at
+   docs/probe_archive/Z033_00331a20_body.c; production stays ASM. */
 // FUN_00331A20
 INCLUDE_ASM("asm/nonmatchings/code1_0033", func_00331a20);
 // FUN_00331F90

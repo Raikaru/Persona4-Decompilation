@@ -59,7 +59,7 @@ extern void func_00456150(u8 *arg0);
 extern void func_00463250(void *arg0);
 extern s32 func_0047b0c0(u8 *arg0);
 extern s32 func_0047c660(u8 *arg0);
-extern void func_0047e450(u8 *arg0, s16 arg1, s16 arg2, s32 arg3, u32 arg4);
+extern void func_0047e450(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4);
 extern f32 fGpffffbb4c;
 extern f32 fGpffffbb48;
 extern f32 fGpffffbb50;
@@ -246,6 +246,19 @@ s32 func_0047ae90(u8 *arg0, u16 arg1)
 
 
 
+/* Floor: 5 differing words, object 584B against a 592-byte window with an
+   8-byte zero tail, 14 relocations and 146 of 146 instructions - the
+   alignment reports four edits.  Two shapes carried it: reading the 0x40
+   field directly rather than through a staged pointer (65 words to 47),
+   and inlining the success path of case 2 instead of branching to a shared
+   tail (65 to 23); together they give 5.  Loading the header fields with
+   `lhu` rather than `lh` drops the edit count from 6 to 4.  The residual
+   is pure scheduling: retail materialises `addiu $a0` first and loads
+   `$t0` last, this build emits the two `lhu` and the `lw` first and the
+   `addiu` late.  Hoisting, declaration-order and pragma families are
+   neutral or worse.  Body at docs/probe_archive/ND05_0047ce00_body.c.
+   The declaration of func_0047e450 above is part of this measurement: its
+   two parameters are s32, matching the provider in mdlSE.c. */
 // FUN_0047CE00
 INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047ce00);
 // FUN_0047D050

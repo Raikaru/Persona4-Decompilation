@@ -1648,6 +1648,9 @@ void func_00196ce0(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
 
+/* Floor: 245 differing words, object 1708B against a 1744-byte window,
+   from a first reconstruction.  Body at
+   docs/probe_archive/Lane0019_00196d00_body.c; production stays ASM. */
 // FUN_00196D00
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00196d00);
 // FUN_001973D0
