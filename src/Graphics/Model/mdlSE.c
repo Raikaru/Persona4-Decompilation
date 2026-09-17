@@ -110,6 +110,7 @@ s32 func_0047df40(s32 type, s32 id)
    (s16)arg1 in $s0, temp_20 in $s5, temp_19 in $s4, count in $s3. Tried the
    temp_20 operand order both ways (arg1*0xC first vs arg2*0x60 first) and the
    m2c declaration order -- arg0 stays in $s2. Saved-register rotation floor. */
+/* fresh: MSE body 166wd / obj852B/window848B (4B over, 1 instr, 0.5%% gate); rotation wall stands (note mapping: arg0 $s1 vs $s2 etc., operand-order + m2c-order tried); parent 4938e0 levers N/A (masks L44/53/61/64/66 are per-iteration loop arithmetic (c+1)&0xFFFF, not hoisted call-site index -- no frame-reg symptom; L76 || is different-x ((u16&0x40)==0 || first==-1, no adjacent fold); no COP2). Bare ASM kept. */
 // FUN_0047E0F0
 INCLUDE_ASM("asm/nonmatchings/mdlSE", func_0047e0f0);
 

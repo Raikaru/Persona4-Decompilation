@@ -212,8 +212,203 @@ extern u8 D_00749350[];
    order floor (also blocked the 0xB0 stack hole: retail frames the five
    16-byte func_002b29e0 outputs at 0x60-0xA0 and the ten s64s at 0xB8+,
    mwcc reproduces that exactly). */
-// FUN_002E8410
+// FUN_002E8410 NONMATCHING
+/* measured: vB candidate — obj 814I == retail 814I, probe 84 words, fnalign 90 edits (+6 reloc-only). Decl-search 10 variants (out/task/i/k perms + s16 + stack orders); best k,i,task,out (84 vs v1 143, others 107-149, s16 651, stack same). Earliest divergence saved-reg rotation arg0=$s3 vs $s2/out=$s2 vs $s0 (all decl orders probed). Residuals: rotation + colour-copy load-all vs interleave (6I) + 5x 5c90 move-vs-ld argument order (10I floor per prior note). Prior best nd 12 retained as reference. New levers N-A (see fnalign): single andi 0xFFFF (no CSE/frame+0x10), no adjacent-OR sltiu fold, no COP2. */
+#ifdef NON_MATCHING
+s32 func_002e8410(u8 *arg0) {
+    s32 k;
+    s32 i;
+    s32 task;
+    u8 *out;
+    s64 v0;
+    s64 v1;
+    s64 v2;
+    s64 v3;
+    s64 v4;
+    s64 v5;
+    s64 v6;
+    s64 v7;
+    s64 v8;
+    s64 v9;
+    FclByte4 c0;
+    FclByte4 c1;
+    FclByte4 c2;
+    FclByte4 c3;
+    FclByte4 c4;
+    u8 b0[16];
+    u8 b1[16];
+    u8 b2[16];
+    u8 b3[16];
+    u8 b4[16];
+    u8 *e;
+    extern s32 func_00331560(void);
+
+    func_0044ea90(D_00641B00, 0x166);
+    out = D_008873F4[0](1, 0x314, 0x40000);
+    task = func_00451fc0((s32)arg0, D_00641B10, 0xF, 0, 0, func_002e7ac0, func_002e82b0, out);
+    *out = 0;
+    *(out + 1) = 0x11;
+    *(out + 0x144) = 0;
+    func_00313b50(task);
+    *(out + 0x20) = 0;
+    *(out + 0xB3) = 0;
+    *(s32 *)(out + 0x254) = func_0034a4f0((s32)arg0, 0);
+    for (i = 0; i < (func_0010b5b0() & 0xFFFF); i++) {
+        *(s32 *)(out + i * 4 + 0x154) = func_0034ad70((s32)arg0, func_0010b5b0() & 0xFF, 0x41);
+    }
+    *(s32 *)(out + 0x184) = func_0034ad70((s32)arg0, func_0010b5b0() & 0xFF, 0x41);
+    *(s32 *)(out + 0x188) = func_0034ad70((s32)arg0, func_0010b5b0() & 0xFF, 0x58);
+    for (i = 0; i < 0xC; i++) {
+        func_002b2a60(&c0, 0, 0, 0x99, 0xFF);
+        e = func_0034ae50(*(u8 **)(out + 0x188), (s8)i);
+        *(e + 0x75) = c0.b0;
+        *(e + 0x76) = c0.b1;
+        *(e + 0x77) = c0.b2;
+        *(e + 0x78) = c0.b3;
+    }
+    *(s32 *)(out + 0x24C) = (s32)func_002b74f0((s32)arg0, func_00331560());
+    for (i = 0; i < 500; i++) {
+        func_002b7750((s16)i, (s16)i);
+    }
+    for (i = 0; i < 0xC; i++) {
+        func_002b7750((s16)(i * 2 + 500), 0x1AC);
+        func_002b7750((s16)(i * 2 + 501), 0x1AF);
+    }
+    func_002b7750(0x20C, 0x80);
+    for (i = 0; i < 9; i++) {
+        func_002b7750((s16)(i + 0x20D), 0xDC);
+    }
+    for (i = 0; i < 3; i++) {
+        func_002b7750((s16)(i + 0x216), 0x86);
+        func_002b7750((s16)(i + 0x219), 0x87);
+    }
+    for (i = 0; i < 0xC; i++) {
+        func_002b7750((s16)(i + 0x21C), 0x193);
+        func_002b7750((s16)(i + 0x22B), 0x19A);
+        func_002b7750((s16)(i + 0x238), 0x188);
+        func_002b7750((s16)(i + 0x244), 0x18C);
+        func_002b7750((s16)(i + 0x250), 0x1C);
+        func_002b7750((s16)(i + 0x25E), (s16)(i + 0x39));
+        func_002b7750((s16)(i + 0x270), 0x193);
+        func_002b7750((s16)(i + 0x27D), 0x19B);
+        func_002b7750((s16)(i + 0x28B), 0x188);
+        func_002b7750((s16)(i + 0x297), 0x18D);
+        func_002b7750((s16)(i + 0x2A3), 0x1C);
+    }
+    func_002b7750(0x228, 0x193);
+    func_002b7750(0x229, 0x193);
+    func_002b7750(0x2B1, 0x1A2);
+    func_002b7750(0x25C, 0x1C);
+    func_002b7750(0x25D, 0x1C);
+    func_002b7750(0x27C, 0x193);
+    func_002b7750(0x289, 0x19B);
+    func_002b7750(0x28A, 0x19B);
+    func_002b7750(0x237, 0x73);
+    func_002b7750(0x2AF, 0x73);
+    func_002b7750(0x2B0, 0x73);
+    func_002b7750(0x26A, 0x46);
+    func_002b7750(0x26B, 0x46);
+    func_002b7750(0x26C, 0x46);
+    func_002b7750(0x26D, 0x46);
+    func_002b7750(0x26E, 0x46);
+    func_002b7750(0x26F, 0x46);
+    func_002b7750(0x2B2, 0x54);
+    func_002b7750(0x2B3, 0x54);
+    for (i = 0; i < 0xC; i++) {
+        *(s32 *)(out + i * 4 + 0x21C) = func_0034b740((s32)arg0);
+    }
+    func_002b7750(0x2B4, 0x193);
+    func_002b7750(0x2B5, 0x19A);
+    func_002b7750(0x2B6, 0x51);
+    func_002b7750(0x2B7, 0x52);
+    func_002b7750(0x2B8, 0x53);
+    func_002b7750(0x2B9, 0x73);
+    func_002b7750(0x2BA, 0x73);
+    for (k = 0; k < 2; k++) {
+        func_002b7750((s16)(k + 0x2BB), 0xA4);
+        func_002b7750((s16)(k + 0x2BD), 0xA5);
+        func_002b7750((s16)(k + 0x2BF), 0xBC);
+        func_002b7750((s16)(k + 0x2C3), 0x19C);
+        func_002b7750((s16)(k + 0x2C1), 0x14F);
+    }
+    for (k = 0; k < 8; k++) {
+        func_002b7750((s16)(k + 0x2C5), 0x19E);
+    }
+    func_002b7750(0x2CD, 0x9E);
+    func_002b7750(0x2CE, 0xA0);
+    func_002b7750(0x2CF, 0x81);
+    func_002b7750(0x2D0, 0x11E);
+    func_002b7750(0x2D1, 0x11E);
+    func_002b7750(0x2D8, 0x1D6);
+    func_002b7750(0x2D9, 0x1D7);
+    func_002b7750(0x2DA, 0x165);
+    func_002b7750(0x2DB, (s16)((func_002e78a0() % 10) + 9));
+    func_002b7750(0x2DC, (s16)((func_002e78e0() / 10) + 9));
+    func_002b7750(0x2DD, (s16)((func_002e78e0() % 10) + 9));
+    func_002b7750(0x22A, 0x193);
+    func_002b7750(0x2DE, 0x126);
+    func_002b7750(0x2DE, 0x125);
+    for (k = 0; k < 0xC; k++) {
+        func_002b7750((s16)(k + 0x2FB), 0x131);
+        *(s32 *)(out + k * 4 + 0x258) = func_002b8150(task);
+    }
+    func_002b2970(&v0, 288.0f, 14.0f);
+    *(s32 *)(out + 0x28C) = (s32)func_002b5c90((void *)task, v0);
+    func_002b2970(&v1, 288.0f, 14.0f);
+    func_002b29e0(b0, 160.0f, 36.0f);
+    func_002b5db0(*(s32 *)(out + 0x28C), v1, b0);
+    func_002b6130(*(s32 *)(out + 0x28C), 0xAB);
+    func_002b6140(*(s32 *)(out + 0x28C), 0);
+    func_002b2a60(&c0, 0xFF, 0xFF, 0xFF, 0);
+    func_002b5e30(*(s32 *)(out + 0x28C), *(s32 *)&c0);
+    func_002b5e20(*(s32 *)(out + 0x28C), 53.0f);
+    func_002b2970(&v2, 0.0f, 14.0f);
+    *(s32 *)(out + 0x290) = (s32)func_002b5c90((void *)task, v2);
+    func_002b2970(&v3, 0.0f, 14.0f);
+    func_002b29e0(b1, 26.0f, 36.0f);
+    func_002b5db0(*(s32 *)(out + 0x290), v3, b1);
+    func_002b6130(*(s32 *)(out + 0x290), 0xAB);
+    func_002b6140(*(s32 *)(out + 0x290), 0);
+    func_002b2a60(&c1, 0xFF, 0xFF, 0xFF, 0);
+    func_002b5e30(*(s32 *)(out + 0x290), *(s32 *)&c1);
+    func_002b5e20(*(s32 *)(out + 0x290), 53.0f);
+    func_002b2970(&v4, 0.0f, 0.0f);
+    *(s32 *)(out + 0x2AC) = (s32)func_002b5c90((void *)task, v4);
+    func_002b2970(&v5, 0.0f, 0.0f);
+    func_002b29e0(b2, 640.0f, 7.0f);
+    func_002b5db0(*(s32 *)(out + 0x2AC), v5, b2);
+    func_002b6130(*(s32 *)(out + 0x2AC), 0xB2);
+    func_002b2a60(&c2, 0x2D, 0x2D, 0x2D, 0xFF);
+    func_002b5e30(*(s32 *)(out + 0x2AC), *(s32 *)&c2);
+    func_002b6140(*(s32 *)(out + 0x2AC), 1);
+    func_002b6120(*(s32 *)(out + 0x2AC), 1);
+    func_002b2970(&v6, 0.0f, 432.0f);
+    *(s32 *)(out + 0x2B0) = (s32)func_002b5c90((void *)task, v6);
+    func_002b2970(&v7, 0.0f, 432.0f);
+    func_002b29e0(b3, 640.0f, 16.0f);
+    func_002b5db0(*(s32 *)(out + 0x2B0), v7, b3);
+    func_002b6130(*(s32 *)(out + 0x2B0), 0xB2);
+    func_002b2a60(&c3, 0x2D, 0x2D, 0x2D, 0xFF);
+    func_002b5e30(*(s32 *)(out + 0x2B0), *(s32 *)&c3);
+    func_002b6140(*(s32 *)(out + 0x2B0), 1);
+    func_002b6120(*(s32 *)(out + 0x2B0), 1);
+    func_002b2970(&v8, 0.0f, 69.0f);
+    *(s32 *)(out + 0x2B4) = (s32)func_002b5c90((void *)task, v8);
+    func_002b2970(&v9, 0.0f, 69.0f);
+    func_002b29e0(b4, 640.0f, 343.0f);
+    func_002b5db0(*(s32 *)(out + 0x2B4), v9, b4);
+    func_002b6130(*(s32 *)(out + 0x2B4), 0xB2);
+    func_002b2a60(&c4, 0x2D, 0x2D, 0x2D, 0xE5);
+    func_002b5e30(*(s32 *)(out + 0x2B4), *(s32 *)&c4);
+    func_002b6140(*(s32 *)(out + 0x2B4), 1);
+    func_002b6120(*(s32 *)(out + 0x2B4), 1);
+    *(s32 *)(out + 0x250) = func_0033e3f0(task);
+    *(s32 *)(out + 0x2BC) = func_002b9f90(task, 0x30, func_00331600());
+    return task;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002e8410);
+#endif
 
 // FUN_002E90D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002e90d0);

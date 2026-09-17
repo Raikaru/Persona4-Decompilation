@@ -1,4 +1,4 @@
-/* object 780 / window 784 / normalized_diff 252; differing offsets: 93, 109, 114, 118, 126, 150, 154, 166, 177, 182, 202, 230, 238, 246, 250, 282 */
+/* object 780 / window 784 / normalized_diff 105 fresh (compile-blockers fixed: NULL->0, (int) casts removed to match owner (u8*) decls; prior note best 42 unarchived); 4B short (1 instr, 0.5%% gate); rotation wall per marker note. */
 /* Corrected callee signatures verified against MATCH definitions:
  * func_00487ba0(u8 *, s32 *);
  * func_00487860(u8 *, s32 *);
@@ -23,8 +23,8 @@
     EP_WORD *temp_2;
     EP_WORD *temp_2_5;
     s32 *temp_2_3;
-    temp_2_2 = (u8 *)func_00484490((int)arg0_p);
-    if (NULL == temp_2_2) {
+    temp_2_2 = (u8 *)func_00484490(arg0_p);
+    if (0 == temp_2_2) {
         func_0046d730(D_00713CD0, 0x55);
     }
     temp_3 = (s32)(EP_FIELD(temp_2_2, s32 *, 0x20));
@@ -38,15 +38,15 @@
     base = (u32)jtbl_008873E8;
     temp_2 = (EP_WORD *)(*(void *(*)(u32, u32))*(u32 *)base)(0x60, 0x40000);
     func_0043f9c8(temp_2, 0, 0x60);
-    if (temp_2 == NULL) func_0046d730(D_00713CD0, 0x1F);
+    if (temp_2 == 0) func_0046d730(D_00713CD0, 0x1F);
     EP_FIELD(temp_2, EP_WORD **, 0) = (EP_WORD *)var_19;
     EP_FIELD(temp_2, s32 *, 4) = -1;
     EP_FIELD(temp_2, s32 *, 8) = 0x3F800000;
-    if (temp_2 == NULL) func_0046d730(D_00713CD0, 0x57);
+    if (temp_2 == 0) func_0046d730(D_00713CD0, 0x57);
     func_004875d0((u8 *)temp_2, EP_FIELD(arg0, u16 *, 0xC), temp_2_2);
-    if (EP_FIELD(temp_2, EP_WORD **, 0) == NULL) return temp_2;
-    temp_2_3 = (s32 *)func_004844d0((int)arg0_p);
-    if (temp_2_3 != NULL) {
+    if (EP_FIELD(temp_2, EP_WORD **, 0) == 0) return temp_2;
+    temp_2_3 = (s32 *)func_004844d0(arg0_p);
+    if (temp_2_3 != 0) {
         switch ((u16)(EP_FIELD(arg0_p, u16 *, 0x1C))) {
         case 1:
             func_00487650((u8 *)temp_2, EP_FIELD(EP_FIELD(temp_2, u8 **, 0x4C), s32 *, 8), 1);
