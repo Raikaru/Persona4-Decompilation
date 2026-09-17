@@ -18,7 +18,7 @@ extern s32 func_004553c0(void *arg0);
 extern void func_00454bd0(void *arg0);
 extern u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
 extern s32 func_0045a890(s16 arg0);
-extern s32 func_003b7060(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_003b7060(void);
 extern s32 func_0047df40(s32 arg0, s32 arg1);
 
 
@@ -103,16 +103,132 @@ s32 func_0047df40(s32 type, s32 id)
 }
 #pragma pop
 
-/* measured: nd 160. Modulo fixed (divu not __moddi3) and object size is right
-   (840-844B vs 848B window), but the saved-register allocation is rotated:
-   retail keeps arg0 in $s1, arg2 in $s0, (s16)arg1 in $s5, temp_20 in $s4,
-   temp_19 in $s3, count in $s2; mwcc b210 keeps arg0 in $s2, arg2 in $s1,
-   (s16)arg1 in $s0, temp_20 in $s5, temp_19 in $s4, count in $s3. Tried the
-   temp_20 operand order both ways (arg1*0xC first vs arg2*0x60 first) and the
-   m2c declaration order -- arg0 stays in $s2. Saved-register rotation floor. */
-/* fresh: MSE body 166wd / obj852B/window848B (4B over, 1 instr, 0.5%% gate); rotation wall stands (note mapping: arg0 $s1 vs $s2 etc., operand-order + m2c-order tried); parent 4938e0 levers N/A (masks L44/53/61/64/66 are per-iteration loop arithmetic (c+1)&0xFFFF, not hoisted call-site index -- no frame-reg symptom; L76 || is different-x ((u16&0x40)==0 || first==-1, no adjacent fold); no COP2). Bare ASM kept. */
+/* MATCH.  Three things had to be right at once and the old nd-160
+   "saved-register rotation" note was a consequence of missing all three, not
+   a wall: `opt_loop_invariants on` (166 -> 10 differing words, and the whole
+   $s0-$s5 rotation the old note described collapses with it); `s8 sb[4]`
+   rather than `u8`, which is retail's `lb $v0, 0x7c($v0)`; and the cell
+   address computed as a column offset that is then rebased, which is the
+   only spelling measured that emits retail's `col*12` into $a0 ahead of the
+   base load - eight other spellings (temps in either declaration order,
+   `col*12`/`(col*3)*4`, a `(u8(*)[8][12])` grid, a 12-byte struct row base,
+   `&base[row*96+col*12]`, explicit parentheses, add-assignment, and hoisting
+   the multiply above the bound check) all left the multiply sunk past the
+   base load at 8-12 words.  The single-use temp is what propagation folds
+   into the address tree and reorders; assigning through `entry` gives it two
+   defs and pins it.  The previous body also fabricated a five-argument call
+   to func_003b7060 - it is the no-argument RNG every other caller in the
+   tree uses, and the file's extern is corrected here - read `entry[c1]`
+   where retail reads `entry[(u16)i]`, and invented a `default: = 3` arm the
+   switch does not have. */
 // FUN_0047E0F0
-INCLUDE_ASM("asm/nonmatchings/mdlSE", func_0047e0f0);
+#pragma opt_loop_invariants on
+s32 func_0047e0f0(u8 *arg0, s32 arg1, s32 arg2, u16 arg3)
+{
+    s16 row;
+    u32 colOffL;
+    s16 col;
+    u8 *entry;
+    s16 slotId;
+    s16 val;
+    s32 writeIndex;
+    s32 scanIndex;
+    s32 idx;
+    s8 cv;
+    s8 first;
+    s8 neg1;
+    s32 count;
+    u16 kind;
+    s16 mode;
+    s32 flags;
+    u8 *owner;
+    s8 sb[4];
+
+    row = (s16)arg2;
+    if (row >= 0x1B) {
+        return 0;
+    }
+    col = (s16)arg1;
+    if (col >= 8) {
+        return 0;
+    }
+    entry = (u8 *)((col * 3) * 4);
+    entry = *(u8 **)(arg0 + 12) + (row * 3) * 32 + (u32)entry;
+    slotId = *(s16 *)(entry + 8);
+    if (slotId == -1) {
+        return 0;
+    }
+    val = (col == 0) ? (s16)(slotId + (arg3 & 0xFFFF))
+                     : (s16)(slotId - *(s16 *)(entry - 4));
+    first = -1;
+    neg1 = -1;
+    writeIndex = 0;
+    scanIndex = 0;
+    while ((idx = scanIndex & 0xFFFF) < 3) {
+        cv = *(s8 *)(entry + idx);
+        if (cv != neg1) {
+            sb[writeIndex & 0xFFFF] = cv;
+            if (first == neg1) {
+                first = sb[writeIndex & 0xFFFF];
+            }
+            writeIndex = (writeIndex + 1) & 0xFFFF;
+        }
+        scanIndex = (scanIndex + 1) & 0xFFFF;
+    }
+    count = writeIndex & 0xFFFF;
+    if (count > 0) {
+        kind = *(u16 *)(*(u8 **)arg0 + 12);
+        mode = (kind == 1) ? 2 : 3;
+        *(s16 *)(arg0 + 18) = mode;
+        *(s16 *)(arg0 + 22) = val;
+        if ((*(u16 *)(arg0 + 16) & 0x40) == 0 || first == neg1) {
+            *(s16 *)(arg0 + 20) = sb[(u32)func_003b7060() % (u32)count];
+        } else {
+            *(s16 *)(arg0 + 20) = first;
+        }
+        *(s32 *)(arg0 + 24) = **(s32 **)arg0;
+    }
+    flags = *(s32 *)(entry + 4);
+    if (flags != -1) {
+        owner = *(u8 **)arg0;
+        if (*(u16 *)(owner + 12) == 1) {
+            *(s16 *)(arg0 + 28) = ((flags & 0x20000000) != 0) ^ 1;
+            *(s16 *)(arg0 + 30) = 11;
+            *(s16 *)(arg0 + 36) = val;
+            *(s16 *)(arg0 + 32) = (*(s32 *)(entry + 4) >> 16) & 0xFFF;
+            *(s16 *)(arg0 + 34) = *(s32 *)(entry + 4);
+        } else {
+            if ((flags & 0x20000000) != 0) {
+                *(s16 *)(arg0 + 28) = 0;
+            } else if ((flags & 0x40000000) != 0) {
+                *(s16 *)(arg0 + 28) = 1;
+            } else if ((flags & 0x10000000) != 0) {
+                *(s16 *)(arg0 + 28) = *(s32 *)(owner + 4);
+            }
+            switch (*(s32 *)(*(u8 **)arg0 + 4)) {
+            case 3:
+                *(s16 *)(arg0 + 30) = 1;
+                break;
+            case 4:
+                *(s16 *)(arg0 + 30) = 2;
+                break;
+            case 5:
+                *(s16 *)(arg0 + 30) = 3;
+                break;
+            }
+            *(s16 *)(arg0 + 36) = val;
+            *(s16 *)(arg0 + 32) = (*(s32 *)(entry + 4) >> 16) & 0xFFF;
+            *(s16 *)(arg0 + 34) = *(s32 *)(entry + 4);
+        }
+    } else if (col == 0) {
+        *(s16 *)(arg0 + 36) = -2;
+    }
+    *(s16 *)(arg0 + 4) = arg2;
+    return 1;
+}
+
+#pragma opt_loop_invariants off
+
 
 
 // FUN_0047E440
