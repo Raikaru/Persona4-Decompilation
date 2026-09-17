@@ -29,7 +29,7 @@ extern u8 *func_00460f80(u8 *list, s32 arg1);
 extern u8 *func_00461080(u8 *list, s32 arg1);
 extern u8 *func_00461180(u8 *list, s32 arg1);
 extern u8 *func_003e9d50(u8 *arg0);
-extern void func_00152170();
+extern void func_00152170(s32 arg0, u8 *arg1);
 extern s32 func_004581a0(void *object, const char *name);
 extern void func_00458430(s32 *out, void *object, const char *name, s32 index);
 extern void func_0046d730(const char *file, s32 line);
@@ -732,8 +732,114 @@ void func_00151f80(u8 *arg0)
     jtbl_008873EC[0](arg0);
 }
 
-// FUN_00152170
+/* Floor: 241 differing words but only 10 edit instructions, 305 emitted
+   against retail's 304, from a first reconstruction.  Three findings are
+   worth more than the number.  The context is the SECOND parameter -
+   retail's `move $s1,$a1` - so the callback is `(s32, u8 *)`, and the
+   seven slots in this file that store it needed a `void (*)(void)` cast.
+   The two four-float camera copies are Vec4 aggregate assignments: retail
+   batches four lwc1 then four swc1, where field-by-field stores
+   interleave them.  And the draw-state table address is held in $s0
+   across the tail calls, which is what the `gs` local is for.
+   WALL: MWCC still rematerialises `lui`/`addiu` for &D_00887300 at four
+   of those calls because the address is a link-time constant it can fold;
+   `opt_propagation off` stops it and reaches 165 words, but perturbs 71
+   instructions elsewhere, so it is not worth a non-baseline pragma. */
+// FUN_00152170 NONMATCHING
+#ifdef NON_MATCHING
+void func_00152170(s32 arg0, u8 *arg1)
+{
+    typedef struct { u32 w0; u32 w1; } CopyPair;
+    void (**gs)(u32 state, u32 value);
+    void *raster;
+    u8 *cam;
+    CopyPair *src;
+    CopyPair *dst;
+    u32 w0;
+    u32 w1;
+    s32 n;
+    s32 flags;
+    s32 light;
+
+    raster = func_00457120();
+    D_00887300[0](0x14, 2);
+    func_003e8110(raster);
+    cam = func_004571a0();
+    *(Vec4 *)(arg1 + 0xA50) = *(Vec4 *)(cam + 0x18);
+    cam = func_004571b0();
+    *(Vec4 *)(arg1 + 0xA60) = *(Vec4 *)(cam + 0x18);
+    src = (CopyPair *)(*(u8 **)(func_004571b0() + 4) + 0x10);
+    dst = (CopyPair *)(arg1 + 0xA70);
+    n = 8;
+    do {
+        w0 = src->w0;
+        w1 = src->w1;
+        src++;
+        n--;
+        dst->w0 = w0;
+        dst->w1 = w1;
+        dst++;
+    } while (n > 0);
+    if (func_00149ca0() != 0) {
+        func_003c38b0(func_004571a0(), (void *)func_00149ca0());
+        func_003c38b0(func_004571b0(), (void *)func_00149ce0());
+        func_003e9cb0(*(void **)(func_004571b0() + 4), (void *)func_00149d20(), 0);
+    }
+    *(s8 *)(func_004571b0() + 2) = 3;
+    func_004571b0();
+    if (*(s32 *)arg1 & 1) {
+        func_003cbc60((s32)func_00457190(), raster);
+        flags = *(s32 *)arg1;
+        if (flags & 0x80000000) {
+            func_003cbc10(*(void **)(arg1 + 0xC), raster);
+        } else if (flags & 0x40000000) {
+            light = *(s32 *)(arg1 + 0x10);
+            if (light != 0) {
+                func_003cbc10((void *)light, raster);
+            }
+        } else if (flags & 0x20000000) {
+            light = *(s32 *)(arg1 + 0x14);
+            if (light != 0) {
+                func_003cbc10((void *)light, raster);
+            }
+        } else {
+            func_003cbc10(*(void **)(arg1 + 8), raster);
+        }
+        func_003cbf30((s32)func_00457190(), func_004571a0());
+        func_003cbf30((s32)func_00457190(), func_004571b0());
+        flags = *(s32 *)arg1;
+        if (flags & 0x80000000) {
+            func_003cbe80(*(void **)(arg1 + 0xC), func_004571a0());
+            func_003cbe80(*(void **)(arg1 + 0xC), func_004571b0());
+        } else if (flags & 0x40000000) {
+            func_003cbe80(*(void **)(arg1 + 0x10), func_004571a0());
+            func_003cbe80(*(void **)(arg1 + 0x10), func_004571b0());
+        } else if ((flags & 0x20000000) && (*(s32 *)(arg1 + 0x14) != 0)) {
+            func_003cbe80(*(void **)(arg1 + 0x14), func_004571a0());
+            func_003cbe80(*(void **)(arg1 + 0x14), func_004571b0());
+        } else {
+            func_003cbe80(*(void **)(arg1 + 8), func_004571a0());
+            func_003cbe80(*(void **)(arg1 + 8), func_004571b0());
+        }
+    } else {
+        func_003cbf30((s32)func_00457190(), func_004571c0());
+    }
+    func_003e8120(raster);
+    gs = D_00887300;
+    gs[0](6, 1);
+    gs[0](8, 1);
+    func_003f6440(2, 0x44);
+    func_003f6440(3, 0x717FB);
+    gs[0](0x14, 2);
+    if (iGpffffba48 == 1) {
+        gs[0](0xE, 1);
+        gs[0](0xF, iGpffffba54 | ((iGpffffba50 << 8) | ((iGpffffba58 << 0x18) | (iGpffffba4c << 0x10))));
+        gs[0](0x10, 1);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00152170);
+#endif
 
 // FUN_00152630
 void func_00152630(u8 *arg0, u8 *arg1)
@@ -809,7 +915,7 @@ void func_00152930(u8 *arg0, u8 *arg1)
             } else {
                 var_2 = func_00461290(arg0, temp_3);
             }
-            *(void (**)(void))(var_2 + 8) = func_00152170;
+            *(void (**)(void))(var_2 + 8) = (void (*)(void))func_00152170;
             *(u8 **)(var_2 + 0x10) = arg1;
             *(void (**)(void))(var_2 + 0xC) = (void (*)(void))func_00152630;
             *(u8 **)(var_2 + 0x14) = arg1;
@@ -829,7 +935,7 @@ void func_00152930(u8 *arg0, u8 *arg1)
             }
         }
         if (var_6 != NULL) {
-            *(void (**)(void))(var_6 + 8) = func_00152170;
+            *(void (**)(void))(var_6 + 8) = (void (*)(void))func_00152170;
             *(u8 **)(var_6 + 0x10) = arg1;
             *(void (**)(void))(var_6 + 0xC) = (void (*)(void))func_00152630;
             *(u8 **)(var_6 + 0x14) = arg1;
@@ -843,7 +949,7 @@ void func_00152930(u8 *arg0, u8 *arg1)
                 p2 = func_00461180(arg0, *(s32 *)(arg1 + 0x1C + i * 4));
             }
             if (p2 != NULL && i == 0) {
-                *(void (**)(void))(p2 + 8) = func_00152170;
+                *(void (**)(void))(p2 + 8) = (void (*)(void))func_00152170;
                 *(u8 **)(p2 + 0x10) = arg1;
             }
             if (p2 != NULL && i == *(u32 *)(arg1 + 0x18) - 1) {
@@ -867,7 +973,7 @@ void func_00152bb0(u8 *arg0, u8 *arg1)
             var_6 = func_00460f80(arg0, *(s32 *)(arg1 + 0xC));
         }
         if (var_6 != NULL) {
-            *(void (**)(void))(var_6 + 8) = func_00152170;
+            *(void (**)(void))(var_6 + 8) = (void (*)(void))func_00152170;
             *(u8 **)(var_6 + 0x10) = arg1;
             *(void (**)(void))(var_6 + 0xC) = (void (*)(void))func_00152630;
             *(u8 **)(var_6 + 0x14) = arg1;
@@ -878,7 +984,7 @@ void func_00152bb0(u8 *arg0, u8 *arg1)
             if (*(u8 **)(arg1 + 0x9C + i * 4) != NULL) {
                 temp_2 = func_00460f80(arg0, *(s32 *)(arg1 + 0x9C + i * 4));
                 if (temp_2 != NULL && i == 0) {
-                    *(void (**)(void))(temp_2 + 8) = func_00152170;
+                    *(void (**)(void))(temp_2 + 8) = (void (*)(void))func_00152170;
                     *(u8 **)(temp_2 + 0x10) = arg1;
                     *(void (**)(void))(temp_2 + 0xC) = (void (*)(void))func_00152630;
                     *(u8 **)(temp_2 + 0x14) = arg1;
@@ -911,7 +1017,7 @@ void func_00152cd0(u8 *arg0, u8 *arg1)
             }
         }
         if (var_6 != NULL) {
-            *(void (**)(void))(var_6 + 8) = func_00152170;
+            *(void (**)(void))(var_6 + 8) = (void (*)(void))func_00152170;
             *(u8 **)(var_6 + 0x10) = arg1;
             *(void (**)(void))(var_6 + 0xC) = (void (*)(void))func_00152630;
             *(u8 **)(var_6 + 0x14) = arg1;
@@ -922,7 +1028,7 @@ void func_00152cd0(u8 *arg0, u8 *arg1)
             if (*(u8 **)(arg1 + 0x9C + i * 4) != NULL) {
                 temp_2 = func_00461080(arg0, *(s32 *)(arg1 + 0x9C + i * 4));
                 if (temp_2 != NULL && i == 0) {
-                    *(void (**)(void))(temp_2 + 8) = func_00152170;
+                    *(void (**)(void))(temp_2 + 8) = (void (*)(void))func_00152170;
                     *(u8 **)(temp_2 + 0x10) = arg1;
                     *(void (**)(void))(temp_2 + 0xC) = (void (*)(void))func_00152630;
                     *(u8 **)(temp_2 + 0x14) = arg1;
