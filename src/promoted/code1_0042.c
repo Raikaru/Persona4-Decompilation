@@ -1655,16 +1655,18 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00422008);
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00422030);
 // FUN_004220D8
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004220d8);
-/* Measured: tail-wrapper body has the correct two-argument mask/call semantics but b210 materializes 0xFFFFFFC0 as addiu -0x40 and emits a 16B object against the 24B window (nd 5); no mask spelling or O-level probe produced the retail lui/ori pair. Committed at nd 10 in-file (nd 5 measured in isolation). */
+/* measured: live object 16B/window 24B, normalized_diff 4 (installed guard below). Masking the params in place, arg1 first, evaluates arg1's mask before arg0's so retail's and-order (and $a1 before j, and $a0 in the delay slot) reproduces; fnalign edit script is down to 2 (was 5 with the direct-call form). Remainder is the mask materialization wall: retail lui $v0,0xffff + ori $v0,0xffc0 vs b210 addiu $v0,$zero,-0x40 for the same -64-valued constant. Ruled out: direct call, arg-order locals, (u8*,u8*)/(u32,u32) callee prototypes, ~0x3F/shift/u32-local/s32 mask spellings, u32 caller signature, peephole off, O0/O1/O3, schedule off. Banked as floor. */
 // FUN_00422158 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: tailcall on emits the bare jump to the cache-range helper. */
 #pragma tailcall on
-/* measured: schedule on places the second mask in the tail-call delay slot. */
+/* measured: schedule on places the trailing mask in the tail-call delay slot. */
 #pragma schedule on
 void func_00422158(u8 *arg0, u8 *arg1)
 {
-    func_00422030((u8 *)((u32)arg0 & 0xFFFFFFC0), (u8 *)((u32)arg1 & 0xFFFFFFC0));
+    arg1 = (u8 *)((u32)arg1 & 0xFFFFFFC0);
+    arg0 = (u8 *)((u32)arg0 & 0xFFFFFFC0);
+    func_00422030(arg0, arg1);
 }
 /* measured: end of the function-local scheduling override. */
 #pragma schedule off
@@ -1675,18 +1677,18 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00422158);
 #endif
 // FUN_00422170
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00422170);
-// FUN_00422218
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00422218);
-/* Measured: tail-wrapper body has the correct two-argument mask/call semantics but b210 materializes 0xFFFFFFC0 as addiu -0x40 and emits a 16B object against the 24B window (nd 5); no mask spelling or O-level probe produced the retail lui/ori pair. Committed at nd 10 in-file (nd 5 measured in isolation). */
+/* measured: live object 16B/window 24B, normalized_diff 4 (installed guard below; twin of func_00422158). Masking the params in place, arg1 first, reproduces retail's and-order (and $a1 before j, and $a0 in the delay slot); fnalign edit script is down to 2 (was 5). Remainder is the same lui/ori-vs-addiu mask materialization wall. Ruled out: direct call, in-place forward order, (u8*,u8*) callee prototype. Banked as floor. */
 // FUN_00422298 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: tailcall on emits the bare jump to the cache-range helper. */
 #pragma tailcall on
-/* measured: schedule on places the second mask in the tail-call delay slot. */
+/* measured: schedule on places the trailing mask in the tail-call delay slot. */
 #pragma schedule on
 void func_00422298(u8 *arg0, u8 *arg1)
 {
-    func_00422170((u8 *)((u32)arg0 & 0xFFFFFFC0), (u8 *)((u32)arg1 & 0xFFFFFFC0));
+    arg1 = (u8 *)((u32)arg1 & 0xFFFFFFC0);
+    arg0 = (u8 *)((u32)arg0 & 0xFFFFFFC0);
+    func_00422170(arg0, arg1);
 }
 /* measured: end of the function-local scheduling override. */
 #pragma schedule off
@@ -1789,21 +1791,22 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00422ca8);
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00422cd0);
 // FUN_00422CF8
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00422cf8);
+/* measured: live object 60B/window 64B, normalized_diff 13 (installed guard below). Polarity correction: retail's delay-slot store proves the guard is p[3] = b unconditionally with the fixup conditional on == (bne-over with p[3] = b in the delay slot), so the banked != is inverted from retail behavior; == reproduces retail's bne shape. Loads follow retail order t1/t3/t0 with addr computed after the p[1] store. Remainder is load-order coloring plus the delay fill (retail pulls the p[3] = b store into the bne delay slot; b210 keeps it early with a nop). Ruled out: != with/without reorder, == without +0x10 (nd14), late-b, u32 addr, late-b+u32. Banked as floor. */
 // FUN_00422D20 NONMATCHING
 #ifdef NON_MATCHING
 void func_00422d20(u8 *arg0) {
     u8 *base = arg0;
     u32 *p = (u32 *)base;
-    u32 t0 = p[0];
     u32 t1 = p[1];
     u32 t3 = p[3];
+    u32 t0 = p[0];
     u32 a = t1 + 1;
     u32 b = t3 + 1;
-    u8 *addr = base + (t0 + 0x10);
-
+    u8 *addr;
     p[1] = a;
+    addr = base + (t0 + 0x10);
     p[3] = b;
-    if (b != (u32)addr) {
+    if (b == (u32)addr) {
         p[3] = (u32)(base + 0x10);
     }
 }
