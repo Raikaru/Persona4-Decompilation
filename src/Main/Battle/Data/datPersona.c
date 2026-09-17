@@ -1141,8 +1141,10 @@ s32 func_0010be20(u8 *arg0)
    0x604,0x614,0x61F) from P4_UNIT_0010BE60 (281 draft lines, noise 8).
    Measured inert: declaration-order perms v3a/b/c all 440, u8/s8 stat mixes,
    (u8 *)iGpffffb3e4 + 0x7A growth-byte casts. */
+/* measured 0010be60: `opt_loop_invariants on` inside the guard is worth 2 words (445 -> 443), the loop-preheader constant hoist. */
 // FUN_0010BE60 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_loop_invariants on
 void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2) {
     u16 stat[5];
     s32 i;
@@ -1359,6 +1361,7 @@ void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2) {
         }
     }
 }
+#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010be60);
 #endif

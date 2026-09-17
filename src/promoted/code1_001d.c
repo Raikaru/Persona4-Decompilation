@@ -372,8 +372,10 @@ s16 func_001d15a0(void)
 done:
     return (s16)result;
 }
+/* measured 001d1680: `opt_loop_invariants on` inside the guard is worth 12 words (342 -> 330), the loop-preheader constant hoist. */
 // FUN_001D1680 NONMATCHING
 #ifdef SKIP_ASM
+#pragma opt_loop_invariants on
 void func_001d1680(s32 arg0) {
     f32 spD8;
     s32 spD4;
@@ -572,6 +574,7 @@ loop_56:
         *(s16 *)(*(u8 **)iGpffffb3ac + 0xA72) = func_001ef720(2, 0x80000);
     }
 }
+#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d1680);
 #endif

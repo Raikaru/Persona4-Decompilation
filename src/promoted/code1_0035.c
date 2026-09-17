@@ -2257,8 +2257,10 @@ loop_test:
 }
 /* Floor: 5056 differing bytes (~1264 words), 6816B emitted against a 7184B window (1704/1793 instructions, -89), frame exact 0x1A0, 591 fnalign edits (was 989 at 1386 instrs). NOT the menu state machine family: `void func_0035fd60(u8 *)` with a single `jr $ra` and no `$v0` result (void, not `s32 (u32 *, s32 *, u8 *)` with a shared `return 0` / fade `return 2`); frame 0x1A0 saving $s16-$s20/$f20-$f26, not `u8 buf[0x30]` with a `+0x24` query read; `lbu $3,0x0($18)` feeds `cvt.s.w`/`div.s` (`*arg0/255.0f` alpha scale), not a `switch (*arg0)` dispatch (no jump table); phases gated on `*(s32 *)(arg0+0x1C)` bits 1/2/4 (with &8 nested inside &4), 14 callees, 0xB/3/6 loops, no `func_00453670/004538e0/00453960` query. Levers that landed, prologue-down via fnalign --candidate: cached scale ($f22 exact) with inlined float recompute fixing the skeleton (arg0 $s2, spills 0x190/0x194); direct `(u8)float` overflow branches (`c.le.s`/`cvt.w.s` sub-paths) at all 21 float->u8 sites closing count 1386->1704 (-407->-89); 34f2e0 canonical (ptr,x,y,r,g,b,a) at 24 sites; 34f9d0 (s64,0.0f,alpha,s16,handle) union-packed with 34c270 (s64,s8,flag,0.0f); 274ed0 (x,y,0.0f,color,7,1,buf,2,0); 2bc7a0 `(f32)(s32)` + 0.0f; 45d6e0 0.0f; 275980 `D_0064D448[idx]`; globals u8 arrays, `D_00887300` array, GP `fGpffff8170`/`fGpffff8554` (relocs masked); all offsets/bounds/constants, 0x122 alpha saved across shadow.
    WALL: register color (base $f24/$f23 vs $f21/$f20, one float save short of $f26; declaration order), unsigned-branch staging/FPU choice with s64 packing, and `andi $s1` masking/re-read scheduling. */
+/* measured 0035fd60: `opt_loop_invariants on` inside the guard is worth 114 words (1636 -> 1522), the loop-preheader constant hoist. */
 // FUN_0035FD60 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_loop_invariants on
 void func_0035fd60(u8 *arg0) {
     extern void func_0034f1e0(void);
     extern void func_0034c270(s64 pos, s8 alpha, s32 flag, f32 zero);
@@ -2522,6 +2524,7 @@ void func_0035fd60(u8 *arg0) {
         func_0034f9d0(pos.s, 0.0f, a0, *(s16 *)(arg0 + 0x34), *(s32 *)(arg0 + 0x700));
     }
 }
+#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035fd60);
 #endif
