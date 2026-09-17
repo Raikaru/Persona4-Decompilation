@@ -991,7 +991,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485630);
  * opt_propagation/common_subs/loop_invariants); double DATA use in one block forces it
  * (micro12: p[0],p[1] -> addiu $a1,sp + 0/16-disp with volatile) but save/restore each
  * single-use; "" : "+r"(p) barrier gives retail form (micro10) but H002-banned.
- * Pointer-temp vs direct-index wall per handoff 7a (both forms same function). */
+ * Pointer-temp vs direct-index wall per handoff 7a (both forms same function).
+ * Re-measured 2026-09-17: banked 11 holds (obj 616B/window 624B, fnalign 154/154/12+6reloc,
+ * earliest hunk off 104-152 save/restore wall). Eight-pragma sweep: loop_invariants on 11,
+ * strength_reduction off 11, unroll off 11, dead_assignments off 19, propagation off 19,
+ * peephole off 80, common_subs off 129, schedule on 138. Earliest-hunk variants re-probed:
+ * direct-indexed 120, value-local 125. Each stack slot stays its own u_long128 local
+ * (spA0/sp90/sp80 + sp70 save, one asm block per lqc2/sqc2/vadd/vmulx/qmtc2 transfer per
+ * 861f0/86400 idiom); opclass no surplus for this floor. Banked as guarded floor. */
 void func_00485870(s32 arg0)
 {
     extern u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2);
@@ -1865,7 +1872,8 @@ void func_00489f10(u8 *arg0)
 {
     func_00492e10(*(u8 **)(arg0 + 0x4C));
 }
-/* Floor (measured 2026-09-17, source-repo only): probe_variants base 5 words (v2_retail 7, v1_ghidra 110, v4/v5 7, v6 50, v7 s8 99, v8 struct3 142, v9 doubledef neutral), fnalign 146/146/6, emitted 584B/window 592B (98.6%). Four-pragma sweep on best: base wins (loop/sched neutral, prop/common worse). wscan 0, opclass N/A (no guard). Residual is FPR destination selection (cvt.w.s/mfc1 colors + branch); recorded cvt wall re-derived and rejected as shared-wall claim (same shape as 00311930/0034ddf0 but per-function levers differ). Banked as guarded floor; production stays ASM. */
+/* Floor (measured 2026-09-17, source-repo only): probe_variants base 5 words (v2_retail 7, v1_ghidra 110, v4/v5 7, v6 50, v7 s8 99, v8 struct3 142, v9 doubledef neutral), fnalign 146/146/6, emitted 584B/window 592B (98.6%). Four-pragma sweep on best: base wins (loop/sched neutral, prop/common worse). wscan 0, opclass N/A (no guard). Residual is FPR destination selection (cvt.w.s/mfc1 colors + branch); recorded cvt wall re-derived and rejected as shared-wall claim (same shape as 00311930/0034ddf0 but per-function levers differ). Banked as guarded floor; production stays ASM.
+ * Re-measured 2026-09-17: still 5 words (obj 584B/window 592B, fnalign 146/146/6); residual is mtc1 f1-vs-f3, add f1-vs-f3, sqrt f2-vs-f1, mul f2-vs-f1, swc1 f1-vs-f3 plus one branch-cascade bbit; 36-config pragma sweep skipped per parent (00311930 proven byte-identical across all configs, so cvt.w.s destinations banked, not re-proven). */
 // FUN_0048A980 NONMATCHING
 #ifdef NON_MATCHING
 /* Best re-derived body for func_0048a980: 5 differing words (reloc-masked),
