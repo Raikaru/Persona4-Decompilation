@@ -91,6 +91,10 @@ extern u8 iGpffffa7e8;
 extern u8 *iGpffffb540;
 extern u8 D_0063E810[];
 extern u16 D_008C024E[];
+extern s32 D_0063E830[];
+extern s32 func_002a2c10(u8 *arg0, f32 *arg1);
+extern void func_0025e9e0(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, f32 farg0, f32 farg1, f32 farg2);
+extern s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, s32 arg5, s32 arg6, f32 farg3, f32 farg4, f32 farg5);
 
 
 
@@ -2674,4 +2678,161 @@ void func_0029f790(u8 *arg0)
     }
 }
 // FUN_0029FBB0
-INCLUDE_ASM("asm/nonmatchings/code1_0029", func_0029fbb0);
+void func_0029fbb0(u8 *arg0, s32 arg1) {
+    s32 copy[36];
+    f32 stack[2];
+    u8 *base;
+    u8 *temp_18;
+    u8 *temp_19;
+    s16 *p22;
+    s16 *p16;
+    s32 color;
+    s32 var23;
+    s32 temp30;
+    s32 temp22;
+    s32 t17;
+    s32 t18;
+    s32 spB0;
+    s32 spD0;
+    s32 spC0;
+    s32 spA0;
+    f32 ret;
+    s32 ix;
+    s32 iy;
+    s32 jx;
+    s32 jy;
+    s32 kx;
+    s32 ky;
+    s32 off4;
+    s32 *srcw;
+    s32 *dstw;
+    s32 ncopy;
+    s32 tmpc;
+    s32 tmpd;
+    srcw = D_0063E830;
+    dstw = copy;
+    ncopy = 0x12;
+do_copy:
+    tmpc = srcw[0];
+    tmpd = srcw[1];
+    srcw += 2;
+    ncopy -= 1;
+    dstw[0] = tmpc;
+    dstw[1] = tmpd;
+    dstw += 2;
+    if (ncopy > 0) {
+        goto do_copy;
+    }
+    base = *(u8 **)(arg0 + 0x38);
+    off4 = arg1 * 4;
+    temp_18 = base + arg1 * 0x130 + 0x1510;
+    temp_19 = base + arg1 * 0x130 + 0x15A8;
+    p22 = (s16 *)(base + off4 + 0x1C38);
+    p16 = (s16 *)(base + off4 + 0x1C3A);
+    {
+        s32 v0 = *p22;
+        if (v0 == 3) {
+            if (v0 != *p16) {
+                s32 off = arg1 * 0x18;
+                u8 *pb = (u8 *)(off + (s32)copy);
+                s32 a0 = *(s32 *)(pb + 0x10);
+                s32 a1 = *(s32 *)(pb + 0x14);
+                func_002a2780((s32)temp_18);
+                func_002a27c0((s32)temp_18, a0, a1 + 0x1E, a0, a1, fGpffff8204, 0, 0, 0xA);
+                *p16 = *p22;
+            }
+            func_002a2980(temp_18);
+            ret = func_002a2cd0(temp_18);
+            color = (u8)(255.0f * ret);
+            func_002a2c10(temp_18, stack);
+            ix = (s32)stack[0];
+            iy = (s32)stack[1];
+            {
+                s32 off = arg1 * 0x18;
+                u8 *pb = (u8 *)(off + (s32)copy);
+                s32 c1 = *(s32 *)(pb + 4);
+                s32 c0 = *(s32 *)(pb + 0);
+                s32 c2 = *(s32 *)(pb + 8);
+                s32 c3 = *(s32 *)(pb + 12);
+                s32 c4 = *(s32 *)(pb + 16);
+                s32 c5 = *(s32 *)(pb + 20);
+                func_0025e9e0(0x2D2D2D, color, c1, iGpffffb540, 1, (f32)ix, (f32)iy, 0.0f);
+                jx = (ix + c2) - c4;
+                jy = (iy + c3) - c5;
+                func_0025e9e0(0x8F8F8F, color, c0, iGpffffb540, 1, (f32)jx, (f32)jy, 0.0f);
+            }
+            return;
+        }
+        if (v0 != *p16) {
+            if (v0 == 0) {
+                s32 off = arg1 * 0x18;
+                u8 *pb = (u8 *)(off + (s32)copy);
+                s32 a0 = *(s32 *)(pb + 0x10);
+                s32 a1 = *(s32 *)(pb + 0x14);
+                func_002a2780((s32)temp_18);
+                if (*p16 == 3) {
+                    func_002a27c0((s32)temp_18, a0, a1, a0, a1, fGpffff8204, 0, 0, 1);
+                } else {
+                    func_002a27c0((s32)temp_18, a0, a1, a0, a1, fGpffff8204, 0, 0, 0xA);
+                }
+            }
+            *p16 = *p22;
+        }
+        func_002a2980(temp_18);
+        ret = func_002a2cd0(temp_18);
+        if (*p16 == 0) {
+            f32 t = 1.0f - ret;
+            s32 iv = (u8)(255.0f * t);
+            color = (iv >> 1) & 0xFF;
+        } else {
+            color = 0xFF;
+        }
+        var23 = color & 0xFF;
+        func_002a2c10(temp_18, stack);
+        ix = (s32)stack[0];
+        iy = (s32)stack[1];
+        {
+            s32 off = arg1 * 0x18;
+            u8 *pb = (u8 *)(off + (s32)copy);
+            temp30 = *(s32 *)(pb + 4);
+            temp22 = *(s32 *)(pb + 0);
+            t18 = *(s32 *)(pb + 20);
+            spD0 = *(s32 *)(pb + 12);
+            spC0 = (iy + spD0) - t18;
+            t17 = *(s32 *)(pb + 16);
+            spB0 = *(s32 *)(pb + 8);
+            spA0 = (ix + spB0) - t17;
+            func_0025e9e0(0x2D2D2D, 0xFF, temp30, iGpffffb540, 1, (f32)ix, (f32)iy, 0.0f);
+            func_0025e9e0(0x8F8F8F, 0xFF, temp22, iGpffffb540, 1, (f32)spA0, (f32)spC0, 0.0f);
+            func_0025e9e0(0x99, var23, temp30, iGpffffb540, 1, (f32)ix, (f32)iy, 0.0f);
+            func_0025e9e0(0xCCFFFF, var23, temp22, iGpffffb540, 1, (f32)spA0, (f32)spC0, 0.0f);
+        }
+        {
+            u8 *b2 = base + off4;
+            if (*(s32 *)(b2 + 0x1C50) != 0) {
+                *(s32 *)(b2 + 0x1C50) = 0;
+                ix = t17;
+                iy = t18;
+                func_002a2780((s32)temp_19);
+                func_002a27c0((s32)temp_19, t17, t18, t17, t18, fGpffff8204, 0, 0, 2);
+            }
+        }
+        if ((func_002a2ca0(temp_19) == 0) && (func_002a2c70(temp_19) != 0)) {
+            func_002a2980(temp_19);
+            func_002a2cd0(temp_19);
+            var23 = 0xFF;
+            func_002a2c10(temp_19, stack);
+            ix = (s32)stack[0];
+            iy = (s32)stack[1];
+            func_0025ea20((f32)ix, (f32)iy, 0.0f, 0xCCFF33, 0xFF, temp30, iGpffffb540, 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            kx = (ix + spB0) - t17;
+            ky = (iy + spD0) - t18;
+            func_0025ea20((f32)kx, (f32)ky, 0.0f, 0x2D2D2D, 0xFF, temp22, iGpffffb540, 1, 0, 0, 0.0f, 1.0f, 1.0f);
+        }
+        if ((arg1 == 0) || (arg1 == 1) || (arg1 == 3)) {
+            kx = (ix + spB0) - t17;
+            ky = (iy + spD0) - t18;
+            func_0025e9e0(0xCCFFFF, var23, temp22 + 0xB2, iGpffffb540, 1, (f32)kx, (f32)ky, 0.0f);
+        }
+    }
+}

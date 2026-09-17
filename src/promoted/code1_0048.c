@@ -55,7 +55,7 @@ extern void func_003ef3a0(void *arg0);
 extern void func_0046d730(void *file, s32 line);
 extern u8 D_007132F0[];
 extern u8 D_00713470[];
-extern void func_00485630(void);
+extern void func_00485630(u8 *arg0);
 extern void func_00485870(s32 arg0);
 extern void func_00492d10(s32 arg0);
 extern void func_00487c30(u8 *arg0, f32 arg1);
@@ -843,8 +843,129 @@ u_long128 func_00484b30(u8 *arg0)
 #pragma pop
 // FUN_00484BB0
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484bb0);
-// FUN_00485630
+/* Floor: 140 emitted against retail's 140, with three real deltas and one
+   consequent nop; everything else is byte-identical once the relocations are
+   masked.  The reconstruction follows its sibling func_00485870 below, with
+   the differences retail shows: no `count <= 0` early-out, the child test
+   uses the raw `*(s32 *)(arg0 + 0x84)` rather than count - 1, there is no
+   `flags & 0x80000000` arm in the loop, the final per-child callback is at
+   table offset 0x08 rather than 0x0C, and the tail sets the 0x80000000 bit
+   and bumps the 0x84 counter.  The four quadword slots are separate locals,
+   which is what puts the frame at retail's 0x90: merging the func_00486840
+   output with the save slot costs a slot and 0x10 of frame.
+   WALL: retail rematerialises `addiu $vN, $sp, 0x50` on both sides of the
+   func_00486970/func_00486330 pair (`$v1` for the save, `$v0` for the
+   restore); b210 hoists that address into `$s0` and keeps it live across
+   both calls, which is one instruction shorter and shifts everything after
+   it.  Measured and rejected: a single `u_long128 *` local (this body, the
+   shortest), two pointer locals in disjoint scopes, a `u8 *` pair, direct
+   `*(u_long128 *)sp50` on both sides (folds to `sq 0x50($sp)`, two
+   instructions short), a `u_long128` value local, a `struct { u_long128 }`
+   and a `struct { s32[4] }` wrapper, and opt_common_subs / opt_propagation /
+   opt_lifetimes / opt_dead_assignments / schedule off both function-wide and
+   scoped to the block.  The declaration of func_00485630 above carries the
+   real `u8 *` parameter that retail passes in $a0; func_00485ae0's call site
+   was updated to pass it and still matches. */
+// FUN_00485630 NONMATCHING
+#ifdef NON_MATCHING
+void func_00485630(u8 *arg0)
+{
+    extern u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2);
+    extern u_long128 func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2);
+    extern void func_00486330(u8 *arg0, u8 *arg1);
+    u_long128 spA0;
+    u_long128 sp70;
+    u_long128 sp60;
+    u8 sp50[16] __attribute__((aligned(16)));
+    f32 scale;
+    f32 five;
+    u8 *child;
+    s32 count;
+    u8 *temp_4;
+    void (*temp_2)(s32, void *);
+    void (*temp_3)(s32, void *);
+    void (*temp_4fn)(s32);
+    s32 child_flags;
+
+    __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"(arg0) : "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(arg0) : "$vf11", "memory");
+    __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&spA0) : "$vf10", "memory");
+    if ((*(s32 *)(arg0 + 0x68) & 0x60) != 0) {
+        u_long128 *save_slot = (u_long128 *)sp50;
+        *save_slot = *(u_long128 *)(arg0 + 0x50);
+        func_00486970(arg0, (u8 *)&spA0, &sp60);
+        func_00486330(arg0, (u8 *)&sp60);
+        *(u_long128 *)(arg0 + 0x50) = *save_slot;
+    }
+    count = *(s32 *)(arg0 + 0x84);
+    scale = *(f32 *)(arg0 + 0x60) * *(f32 *)(arg0 + 0x74);
+    child = *(u8 **)(arg0 + 0x8C);
+    five = 5.0f;
+    goto loop_00485630_check;
+loop_00485630_body:
+    if (count < *(s32 *)(child + 0x80)) {
+        goto loop_00485630_next;
+    }
+    if ((*(s32 *)(child + 0x84) & 2) != 0) {
+        goto loop_00485630_next;
+    }
+    if ((*(s32 *)(child + 0x68) & 0x18) != 0) {
+        func_00486840(child, (u8 *)&spA0, &sp70);
+        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&spA0) : "$vf10", "memory");
+        child_flags = *(s32 *)(child + 0x68);
+        if ((child_flags & 4) != 0) {
+            __asm__ volatile(
+                "mfc1 $2, %0       \n"
+                "nop               \n"
+                "qmtc2.ni $2, $vf2 \n"
+                "vaddx.y $vf10, $vf0, $vf2x \n"
+                :
+                : "f"(five)
+                : "$2", "$vf2", "$vf10", "memory");
+        }
+        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&sp70) : "$vf11", "memory");
+        if ((child_flags & 0x80) != 0) {
+            __asm__ volatile(
+                "mfc1 $2, %0       \n"
+                "nop               \n"
+                "qmtc2.ni $2, $vf2 \n"
+                "vmulx.xyzw $vf11, $vf11, $vf2x \n"
+                :
+                : "f"(scale)
+                : "$2", "$vf2", "$vf11", "memory");
+        }
+        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp70) : "$vf10", "memory");
+        temp_4 = *(u8 **)(child + 0x90);
+        temp_2 = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x20);
+        if (temp_2 != NULL) {
+            temp_2(*(s32 *)(temp_4 + 8), &sp70);
+        }
+    }
+    if ((*(s32 *)(child + 0x68) & 0x60) != 0) {
+        func_00486970(child, (u8 *)&spA0, &sp60);
+        temp_4 = *(u8 **)(child + 0x90);
+        temp_3 = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x24);
+        if (temp_3 != NULL) {
+            temp_3(*(s32 *)(temp_4 + 8), &sp60);
+        }
+    }
+    temp_4 = *(u8 **)(child + 0x90);
+    temp_4fn = *(void (**)(s32))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x08);
+    temp_4fn(*(s32 *)(temp_4 + 8));
+loop_00485630_next:
+    child = *(u8 **)(child + 0xAC);
+loop_00485630_check:
+    if (child != NULL) {
+        goto loop_00485630_body;
+    }
+    *(s32 *)(arg0 + 0x68) |= 0x80000000;
+    *(s32 *)(arg0 + 0x84) += 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485630);
+#endif
 // FUN_00485870
 #ifdef SKIP_ASM
 /* measured: 616B obj vs 624B window, 11 differing words reloc-masked (probe cand4).
@@ -987,7 +1108,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485870);
 // FUN_00485AE0
 void func_00485ae0(s32 arg0)
 {
-    func_00485630();
+    func_00485630((u8 *)arg0);
     func_00485870(arg0);
 }
 // FUN_00485B20

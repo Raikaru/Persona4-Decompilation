@@ -1279,6 +1279,10 @@ case8_failure:
         break;
     }
 }
+/* measured: retail window to func_001d5990, frame 0x210 (sq s16-s23 s30 ra + swc1 f20-f25); 158 emitted instrs per assignment. */
+/* measured: neighbours mined: MATCHed func_001d1680 (opt_loop_invariants hoist), func_001d8010 floor (2992B window), plus externs func_00195850 func_001ec1c0 func_001fc2c0 func_00485c80 already declared; conventions are u8-star base-pointer field access and explicit index vars. */
+/* measured: m2c draft at src-generated code1_001d line 2834 is clean of M2C_ERROR in prologue/fork (colour-table blocks mirror retail) but carries mula-madd MAC M2C_ERROR plus saved_reg_gp pseudo and s128 lq-sq locals in tail loop needing GP-type lowering; no slt-at entry guard here (bltz sign tests for half-u8-to-float), slti-at and dead-store levers checked N/A for current shape. First reconstruction in progress, retained ASM pending MAC-GP lowering; any body will be kept full-size (within 3 percent). */
+/* retail 1456B window to func_001d5990, frame 0x210 (sq s16-s23 s30 ra plus swc1 f20-f25); GP D_00609500 and GP offsets pending mapping; residual is MAC staging plus s128-quad and two-arg GP-ABI lowering. */
 // FUN_001D53E0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d53e0);
 /* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */

@@ -1688,5 +1688,215 @@ s32 func_0027bf10(s32 arg0)
 {
     return D_0063BF80[arg0];
 }
-// FUN_0027BF30
+/* Floor: func_0027bf30 @0x0027BF30, 2992B window (747 retail instrs, 748 words). */
+/* Best C: /tmp/cand_final.c sha256 96a5f23449ad89be80deb6bd1c298aa070f6b67147397492bae1d94f91d8040f (200 lines, u8+ptrloop base). */
+/* Compiler: MWCCPS2 3.0.1b210 -O2 -Iinclude (repo config). */
+/* Commands: python3 tools/probe_variants.py src/promoted/code1_0027.c func_0027bf30 --candidate final=/tmp/cand_final.c (nd 670 words reloc-masked); python3 tools/fnalign.py src/promoted/code1_0027.c func_0027bf30 --candidate /tmp/cand_final.c (736 object instrs vs 747 retail, 48B short 1.6% within 3% size gate; 202 edits +12 reloc-only); python3 tools/verify.py src/promoted/code1_0027.c (59 MATCH/1 ASM, 0 MISMATCH). */
+/* TU eligibility: guarded NON_MATCHING arm not compiled in real build; real build stays INCLUDE_ASM, C-linked via fallback (verify ASM, link OK). Retail identity unverified. */
+/* Semantic review: faithful - early-out on *(arg1+4)!=4 and handle NULL, GP floats via D_00761184 (1.5707964 pi/2), D_00761288 (0.3), D_0076112C (0.2), s128 via u_long128 lq/sq, D_00887300 via cached base[0], 0025ea20 float-first and 00366380/00262de0/00261560 per code1_0025/0018/0026 signatures, MACs as natural c+a*b/c-a*b (adda/madd/msub fuse per matching.md CORRECTION). Caveats: 00261560 12-arg order follows code1_0026.c guess (values correct, widths uncertain); 001104d0 local s32 vs file s16 (authoritative s32 per code1_0011.c MATCH, file s16 stale, arm not compiled so no TU effect); final tmp>=2 inner tmp<0 dead branch preserved as retail; GP names need link check. */
+/* Levers tried (words diff reloc-masked): v1 full s32+mask for-loops 670; v3 nested-shared-epilogue natural MACs 666 (-4); ptrloop pointer+null-guard clears 662 (-4) [lever a: s128 clears]; memset 667 (+1 vs v3) [lever a alt, rejected]; decl reverse/swap 666 (0) [lever b: decl order]; u8 direct casts 670 (+8 vs ptrloop, size 736 vs 667 +69 instrs, passes 3% size gate) [lever c: float-u8 conversion]; color cache 670 (0) [lever d: literal caching]. Decl-search reverse s/f/both + swap56 all 666 (0), closed. Measured: probe 670 words, fnalign 202+12, size 736/747 (1.6% short). nd 2137 as committed. */
+// FUN_0027BF30 NONMATCHING
+#ifdef NON_MATCHING
+void func_0027bf30(u8 *arg0, u8 *arg1) {
+    extern u8 *func_002833b0(s32 arg0);
+    extern f32 func_0044b7b0(f32 arg0);
+    extern void func_0045d6e0(void *arg0, void *arg1, s32 arg2, f32 farg0);
+    extern void *func_0046a770(void *arg0);
+    extern void (*D_00887300[])(s32 arg0, s32 arg1);
+    extern void func_003f6440(s32 arg0, s32 arg1);
+    extern s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, s32 arg5, s32 arg6, f32 farg3, f32 farg4, f32 farg5);
+    extern void func_0046d730(void *arg0, s32 arg1);
+    extern void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s16 arg8, void *arg9, f32 farg0, f32 farg1, f32 farg2, f32 farg3);
+    /* use file-scope s64 func_001060b0 with s16 narrowing */
+    extern s32 func_00110580(s32 arg0);
+    extern s32 func_00110d30(s32 arg0);
+    extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
+    extern s32 func_00110c50(s32 arg0, s32 arg1);
+    extern void func_00262de0(s32 arg0, s32 arg1, f32 farg0, s32 arg2, s32 arg3, s32 arg4, f32 farg1, f32 farg2, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
+    extern void func_00261560(s32 arg0, s32 arg1, f32 farg0, s32 arg1b, s32 arg2, s32 arg3, f32 fparg1, f32 fparg2, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
+    extern f32 D_00761184;
+    extern f32 D_00761288;
+    extern f32 D_0076112C;
+    extern unsigned int D_0063BFA0 __attribute__((mode(TI)));
+    extern char D_0063BFB0[];
+    extern u8 D_007482F0[];
+    typedef unsigned int u_long128 __attribute__((mode(TI)));
+    u8 *handle2;
+    s32 ycoord;
+    s32 wmode;
+    s32 dateTmp;
+    u8 *aptr;
+    s32 dateBase;
+    s32 mod4;
+    s32 loop6;
+    u8 *handle;
+    u8 spD0[0x18];
+    u_long128 spC0;
+    u_long128 spF0;
+    u8 sp100[4];
+    f32 sp104;
+    s32 sp108;
+    s32 sp10C;
+    f32 f20;
+    f32 f21;
+    f32 f22;
+    f32 f23;
+    s32 tmp;
+    s32 tmp2;
+    s32 alpha;
+    if (*(s32 *)(arg1 + 4) == 4) {
+        handle = func_002833b0(0);
+        if (handle != NULL) {
+            f32 t0;
+            u8 *p1;
+            s32 n1;
+            t0 = func_0044b7b0((D_00761184 * (f32)*(s32 *)(arg1 + 0x10)) / 20.0f);
+            p1 = sp100;
+            n1 = 4;
+            if (p1 != NULL) {
+                do {
+                    *p1 = 0;
+                    p1 += 1;
+                    n1 -= 1;
+                } while (n1 != 0);
+            }
+            f20 = 1.0f - t0;
+            f23 = 76.5f * f20;
+            sp100[3] = (u8)f23;
+            sp104 = *(f32 *)sp100;
+            spC0 = D_0063BFA0;
+            spF0 = D_0063BFA0;
+            func_0045d6e0(&sp104, &spF0, 1, 10.0f);
+            tmp = *(s32 *)(arg1 + 0x10);
+            mod4 = tmp % 4;
+            {
+                void (**base)(s32, s32);
+                base = D_00887300;
+                base[0](6, 1);
+                base[0](8, 1);
+            }
+            func_003f6440(3, 0x7000D);
+            func_003f6440(2, 0x48);
+            for (dateBase = 0; dateBase < 0x18; dateBase++) {
+                f22 = (f32)((dateBase % 6) * 0x7E);
+                f21 = (f32)((dateBase / 6) * 0x7E);
+                alpha = (u8)f23;
+                func_0025ea20(f22, f21, 10.0f, 0xFFFFFF, alpha, mod4, func_0046a770(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
+                mod4 = (mod4 + 1) % 4;
+            }
+            {
+                s32 ivar;
+                f32 ftmp;
+                ivar = (s32)((f32)*(s32 *)(arg1 + 0x10) + *(f32 *)(arg1 + 8));
+                ftmp = (f32)ivar;
+                if (ftmp > 120.0f) {
+                    ivar = (s32)(ftmp - 120.0f);
+                }
+                f21 = (f32)ivar / 120.0f;
+            }
+            if (handle == NULL) {
+                func_0046d730(D_007482F0, 0x59);
+            }
+            alpha = (u8)(255.0f * f20);
+            func_0025ea20(-59.0f, -103.0f, 10.0f, 0xFFFFFF, alpha, 2, *(void **)(handle + 8), 1, 0x80, 0x80, 360.0f * f21, 1.0f, 1.0f);
+            tmp = *(s32 *)(arg1 + 0x10);
+            if (tmp < 4) {
+                f32 t;
+                t = func_0044b7b0((D_00761184 * (f32)tmp) / 4.0f);
+                if (handle == NULL) {
+                    func_0046d730(D_007482F0, 0x59);
+                }
+                f21 = 1.0f - t;
+                func_0025ea20(165.0f, 244.0f + 95.0f * t, 0.0f, 0, 0xCC, 1, *(void **)(handle + 8), 1, 0, 0, 0.0f, 1.0f, f21);
+                {
+                    s32 iv;
+                    iv = (s32)(271.0f + 64.0f * t);
+                    func_00366380(0xB0, iv, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, 0, 1.0f, D_00761288 + D_00761288 * f21, 0, 0);
+                }
+            } else if (tmp < 0xB) {
+                f32 t3;
+                t3 = (f32)(tmp - 4) / 6.0f;
+                func_00366380((s32)(176.0f * (1.0f - t3)), 0x14F, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, 0, 1.0f + t3, D_00761288 - D_0076112C * t3, 0, 0);
+            }
+            handle2 = func_002833b0(1);
+            {
+                u8 *p2;
+                s32 n2;
+                p2 = spD0;
+                n2 = 0x18;
+                if (p2 != NULL) {
+                    do {
+                        *p2 = 0;
+                        p2 += 1;
+                        n2 -= 1;
+                    } while (n2 != 0);
+                }
+            }
+            {
+                dateBase = (s16)func_001060b0();
+                for (loop6 = 0; loop6 < 6; loop6++) {
+                    s32 a;
+                    s32 b;
+                    s32 c;
+                    f32 ft;
+                    s32 d;
+                    a = *(s32 *)(spD0 + loop6 * 4);
+                    b = *(s32 *)(arg1 + 0x10);
+                    if (b < a) {
+                        c = 0;
+                    } else {
+                        c = b - a;
+                        if (c > 5) {
+                            c = 5;
+                        }
+                    }
+                    ft = 1.0f - func_0044b7b0((D_00761184 * (f32)c) / 5.0f);
+                    d = dateBase + loop6 + 1;
+                    dateTmp = func_00110580(d);
+                    if (dateTmp == 0 || func_00110d30(d) != 0) {
+                        wmode = 3;
+                    } else if (dateTmp == 6) {
+                        wmode = 2;
+                    } else {
+                        wmode = 1;
+                    }
+                    func_001104d0(d, &sp10C, &sp108);
+                    if (sp108 == 1) {
+                        if (handle == NULL) {
+                            func_0046d730(D_007482F0, 0x59);
+                        }
+                        alpha = (u8)(255.0f * ft);
+                        func_0025ea20((f32)(loop6 * 0x53 + 0x4B), 69.0f, 0.0f, 0xFFE92C, alpha, sp10C + 4, *(void **)(handle + 8), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+                    }
+                    f21 = 1.0f - ft;
+                    ycoord = (s32)(113.0f + 64.0f * f21);
+                    tmp2 = loop6 * 0x53;
+                    func_00366380(tmp2 + 0x5C, ycoord, 0x50, 0x7F, 0xFFE92C, 0xFF, 1, 0, 0, 0, 1.0f, ft, 0, 0);
+                    aptr = handle2;
+                    func_00262de0(tmp2 + 0x6B, ycoord, 0.0f, 0xFF, d, 1, 1.0f, ft, 0, 0, (s32)aptr, 0);
+                    tmp = (s32)(163.0f - 5.0f * f21);
+                    func_00261560(tmp2 + 0x5D, tmp, 0xFF, func_00110c50(d, dateBase) & 0xFFFF, 1, 0, 0, 1.0f, ft * ft, wmode, (s32)aptr, 0);
+                }
+                tmp = func_00110580(dateBase + 3);
+                if (tmp != 0) {
+                    func_00110d30(dateBase + 3);
+                }
+                tmp = *(s32 *)(arg1 + 0x10);
+                if (tmp >= 2) {
+                    if (tmp < 0) {
+                        f32 t;
+                        t = func_0044b7b0((D_00761184 * (f32)(tmp - 1)) / 4.0f);
+                        func_00366380(0x12C, (s32)(145.0f + 24.0f * t), 0x50, 0x7F, 0xFFE92C, 0xFF, 1, 0, 0, 0, 1.0f, 0.5f - D_0076112C * t, 0, 0);
+                    } else if (tmp < 8) {
+                        f32 t2;
+                        t2 = (f32)(tmp - 2) / 5.0f;
+                        func_00366380((s32)(300.0f * (1.0f - t2)), 0xA9, (s32)(80.0f + 640.0f * t2), 0x7F, 0xFFE92C, 0xFF, 1, 0, 0, 0, 1.0f, D_00761288 - D_0076112C * t2, 0, 0);
+                    }
+                }
+            }
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0027", func_0027bf30);
+#endif

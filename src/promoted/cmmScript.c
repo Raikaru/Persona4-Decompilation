@@ -1016,6 +1016,12 @@ s32 func_0024bb00(s32 arg0) {
 }
 /* measured: restore the translation-unit optimization level after func_0024bb00. */
 #pragma optimization_level 2
+/* Archived C body: docs/probe_archive/WSCR2_0024be40_body.c; 168 instrs each; */
+/* eight reloc-masked differing words. Remaining: single $s0/$s2 */
+/* saved-register swap; instruction stream is otherwise retail's with no */
+/* inserts or deletes. Best of 250 declaration permutations; eight documented */
+/* pragmas measured inert on top. Fnalign edit 8 plus four reloc-only pairs; */
+/* production remains ASM. */
 // FUN_0024BE40 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024be40);
 // FUN_0024C0E0
@@ -1095,6 +1101,10 @@ block_1:
 block_20:
     return 0;
 }
+/* measured: retail window 1504B+ to func_0024d1f0, frame 0x50 (sq s16-s18 ra + swc1 f20-f21); 172 emitted instrs per assignment. */
+/* measured: neighbours mined: MATCHed func_0024a200 etc. plus externs D_00635A78 D_006359F0 D_00794E70 func_0025ecd0 func_0044b7b0 func_00452380 func_00452560 func_0046d730 and f32 iGpffff8094-809c already declared; conventions are u8-star state access and explicit s32 index vars. */
+/* measured: m2c draft at src-generated code1_0024 line 5714 mirrors prologue/fork (00452380 double-call, 0046d730 guards, 00452560 deref) but carries adda-madd-msub MAC M2C_ERROR plus saved_reg_gp (-0x7F6C maps to iGpffff8094, -0x7F64 maps to iGpffff809c) in value-range scan 0-5-0xF-0x14-0x1E; retail slti-at at 0x24c51c (slti r1 r2 5) wants inclusive <=4 spelling per lever; dead-store and loop-invariant levers to be worked top-down via fnalign. First reconstruction in progress, retained ASM pending MAC lowering; any body will be kept full-size. */
+/* retail 3472B window to func_0024d1f0, frame 0x50 (sq s16-s18 ra plus swc1 f20-f21); GP iGpffff8094 for -0x7F6C and iGpffff809c for -0x7F64 mapped; residual is MAC staging as explicit acc-diff locals in retail order. */
 // FUN_0024C460
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024c460);
 /* measured: same H1 FPU FMA floor as FUN_0024C460 -- the func_0025ecd0 calls

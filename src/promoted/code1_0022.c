@@ -933,8 +933,201 @@ void func_002240e0(u8 *camera)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_002240e0);
 #endif
-// FUN_00224450
+/* measured: MWCC -O2 plain, object 1312B/window 1312B, normalized_diff 38 (m2c baseline 1308B/756). Levers: (1) var_19>=1 756->62; (3) Vec3 0x215 tail 62->46, var_4/var_5_2 decl swap 46->38; (2) explicit chain regress, dead store 0; (4) opt_loop_invariants 0; (5) s64+full pragmas catastrophic, plain s64 regress; (6) unsigned/<1U/u16/split fold. Remaining 32 words s0/s1 swap + slti-vs-sltu/xori-vs-andi + daddiu. No volatile/asm. Preserves defective 22466C->224888 vs safe 22482C->return. Pushed from NearGA.Push24450 /tmp/push_24450_full.c. */
+// FUN_00224450 NONMATCHING
+#ifdef NON_MATCHING
+void func_00224450(u8 *arg0)
+{
+    typedef struct {
+        f32 x;
+        f32 y;
+        f32 z;
+    } Vec3;
+    struct Work {
+        f32 first[7];
+        Vec3 second;
+        f32 third[4];
+    } work;
+    extern s32 func_00243d80(u8 *arg0);
+    extern s32 func_00243e30(s32 arg0);
+    extern s32 func_00232710(u8 *arg0, s32 arg1);
+    extern s32 func_001ef9a0(void);
+    extern s32 func_001d8df0(u8 *arg0);
+    extern s32 func_001d7f10(u8 *arg0, s32 arg1, u16 arg2, s32 arg3);
+    extern void func_001c8cf0(u8 *arg0);
+    extern u8 D_00634890[];
+    extern u8 D_00634894[];
+    extern u8 D_00634898[];
+    extern u8 D_0063489C[];
+    u8 *temp_4;
+    u16 temp_3;
+    u8 *var_20;
+    s32 var_19;
+    s32 var_17;
+    s32 var_16;
+    u16 temp_19;
+    s32 temp_20;
+    s32 temp_19_2;
+    s32 temp_4_2;
+    s32 var_2;
+    s32 var_17_2;
+    u8 *var_19_2;
+    s32 temp_3_2;
+    u8 *temp_2;
+    u8 *temp_3_3;
+    u8 *temp_3_4;
+    s32 var_2_2;
+    s32 var_2_3;
+    u8 *var_5;
+    s32 var_2_4;
+    u8 *var_5_2;
+    s32 var_4;
+    u8 *temp_2_2;
+    u8 *temp_2_3;
+    u8 *temp_2_4;
+    u8 *temp_17;
+    u8 *temp_17_2;
+    u8 *temp_17_3;
+
+    *(s32 *)(DAT_0076449c + 0xC0C) = 0;
+    temp_4 = DAT_0076449c;
+    temp_3 = *(u16 *)(temp_4 + 0x108);
+    switch (temp_3) {
+    case 2:
+    case 0x21:
+    case 0x28:
+    case 0x29:
+        var_16 = 0;
+        break;
+    default:
+        var_16 = 1;
+        break;
+    }
+    var_19 = 0;
+    var_17 = 0;
+    var_20 = *(u8 **)(temp_4 + 0x180);
+    while (var_20 != NULL) {
+        if ((*(s32 *)(var_20 + 0x9C) & 8) != 0) {
+            temp_4_2 = *(s32 *)(var_20 + 0xA64);
+            if (temp_4_2 != 0 && func_00243d80((u8 *)temp_4_2) != 0) {
+                if (func_00232710(*(u8 **)(var_20 + 0xA64), 0x100000) != 0) {
+                    var_19 = 1;
+                }
+                if (func_00243e30(*(s32 *)(var_20 + 0xA64)) != 0) {
+                    var_17 = 1;
+                }
+            }
+        }
+        var_20 = *(u8 **)(var_20 + 0xA6C);
+    }
+    if (var_17 != 0) {
+        var_2 = 2;
+    } else {
+        var_2 = (var_19 >= 1) & 0xFFFF;
+    }
+    var_17_2 = var_2 & 0xFFFF;
+    if (func_001ef9a0() == 0x208 && (var_17_2 & 0xFFFF) == 0) {
+        var_19_2 = *(u8 **)(DAT_0076449c + 0x178);
+        while (var_19_2 != NULL) {
+            if ((*(s32 *)(var_19_2 + 0x9C) & 8) != 0) {
+                temp_4_2 = *(s32 *)(var_19_2 + 0xA64);
+                if (temp_4_2 != 0 && func_00232710((u8 *)temp_4_2, 0x100) != 0) {
+                    var_17_2 = 2;
+                    break;
+                }
+            }
+            var_19_2 = *(u8 **)(var_19_2 + 0xA6C);
+        }
+    }
+    temp_2 = *(u8 **)(arg0 + 0xE0);
+    temp_19 = *(u16 *)(temp_2 + 0x6E);
+    temp_20 = func_001d8df0(temp_2 + 0x98) & 0xFFFF;
+    temp_19_2 = func_001d7f10(*(u8 **)(arg0 + 0xE0), 0, temp_19, 0) & 0xFFFF;
+    func_001bd560((f32 *)&work.first, (f32 *)(arg0 + 0x9C));
+    temp_3_2 = temp_20 & 0xFFFF;
+    if (temp_3_2 == 2) {
+        if ((*(s32 *)(DAT_0076449c + 0x10) & 0x400) != 0 && (temp_19_2 & 0xFFFF) == 0) {
+            func_001c8cf0(arg0);
+            *(s32 *)(DAT_0076449c + 0xC0C) = 1;
+        } else {
+            temp_3_3 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
+            if (*(u8 *)(temp_3_3 + 0xA2) != 0) {
+                var_2_2 = 0;
+            } else {
+                var_2_3 = 0;
+                var_5 = *(u8 **)(DAT_0076449c + 0x17C);
+                goto loop_38_check;
+loop_38:
+                if (temp_3_3 == var_5) {
+                    goto loop_38_done;
+                }
+                var_2_3 = (var_2_3 + 1) & 0xFFFF;
+                var_5 = *(u8 **)(var_5 + 0xA68);
+                goto loop_38_check;
+loop_38_check:
+                if (var_5 != NULL) {
+                    goto loop_38;
+                }
+loop_38_done:
+                var_2_2 = var_2_3 & 0xFFFF;
+            }
+            temp_2_2 = *(u8 **)(DAT_0076449c + 0xB98) + ((var_2_2 & 0xFFFF) * 0x48) + ((var_17_2 & 0xFFFF) * 0x18);
+            temp_17 = temp_2_2 + 0x120;
+            func_001bd780(work.third, temp_17, temp_17 + 0xC, D_0060A0E0);
+            work.second = *(Vec3 *)temp_17;
+        }
+    } else if (temp_3_2 == 1) {
+        if ((temp_19_2 & 0xFFFF) != 0) {
+            temp_3_4 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
+            if (*(u8 *)(temp_3_4 + 0xA2) != 0) {
+                var_2_4 = 0;
+            } else {
+                var_4 = 0;
+                var_5_2 = *(u8 **)(DAT_0076449c + 0x17C);
+                goto loop_48_check;
+loop_48:
+                if (temp_3_4 == var_5_2) {
+                    goto loop_48_done;
+                }
+                var_4 = (var_4 + 1) & 0xFFFF;
+                var_5_2 = *(u8 **)(var_5_2 + 0xA68);
+loop_48_check:
+                if (var_5_2 != NULL) {
+                    goto loop_48;
+                }
+loop_48_done:
+                var_2_4 = var_4 & 0xFFFF;
+            }
+            temp_2_3 = *(u8 **)(DAT_0076449c + 0xB98) + ((var_2_4 & 0xFFFF) * 0x48) + ((var_17_2 & 0xFFFF) * 0x18);
+            temp_17_2 = temp_2_3 + 0x240;
+            func_001bd780(work.third, temp_17_2, temp_17_2 + 0xC, D_0060A0E0);
+            work.second = *(Vec3 *)temp_17_2;
+        } else {
+            func_001c8cf0(arg0);
+            *(s32 *)(DAT_0076449c + 0xC0C) = 1;
+            return;
+        }
+    } else {
+        temp_2_4 = *(u8 **)(DAT_0076449c + 0xB98) + ((var_17_2 & 0xFFFF) * 0x18);
+        temp_17_3 = temp_2_4 + 0x360;
+        func_001bd780(work.third, temp_17_3, temp_17_3 + 0xC, D_0060A0E0);
+        work.second = *(Vec3 *)temp_17_3;
+    }
+    if (func_001ef9a0() == 0x215) {
+        func_001bd780(work.third, D_00634890, D_0063489C, D_0060A0E0);
+        work.second = *(Vec3 *)D_00634890;
+    }
+    if (var_16 != 0) {
+        func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0x100, 0);
+        func_001bab00((u16 *)arg0, (f32 *)&work.second);
+        return;
+    }
+    func_001bac20((u16 *)arg0, (f32 *)&work.first, (f32 *)&work.second, 1);
+    func_001bbef0(arg0, 0.75f);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00224450);
+#endif
 // FUN_00224970
 void func_00224970(void)
 {
@@ -1500,8 +1693,179 @@ void func_00225e50(u8 *arg0)
     }
 }
 
-// FUN_00225EC0
+/* measured: MWCC -O2 plain, object 2028B/window 2032B, normalized_diff 334 (v1 436, decl-swap 430, separate else-if 334 best). Levers: decl-order, vector reverse, separate else-if vs switch (switch 430), DeMorgan, opt_scalarize/common_subs, float (0.0f+...) idioms for adda/madd, 700/25.0 clamps. Remaining: early join shift, bne-vs-beq, 4B mtc1 gap for delta.y (0.0f-0.0f folds), adda colors for honest uninit sp134 per audit (not invented). No volatile/asm. Cold from NearGA.Cold25EC0 /tmp/cand_B.c. */
+// FUN_00225EC0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00225ec0(u8 *camera)
+{
+    extern void func_00195850(u8 *arg0, f32 *arg1);
+    extern f32 func_00196040(u32 arg0, u32 arg1, void *arg2, f32 *arg3, void *arg4, u32 arg5);
+    extern f32 func_003e40b0(RwV3d *out, const RwV3d *in);
+    extern f32 func_0044b868(f32 x);
+    extern void func_001cfad0(u8 *arg0, f32 arg1, f32 arg2);
+    extern void func_001cfed0(u8 *arg0);
+    extern void func_001b73f0(u8 *arg0);
+    struct PosePair {
+        RwV3d first;
+        RtQuat firstRotation;
+        RwV3d second;
+        RtQuat secondRotation;
+    };
+    struct PosePair poses;
+    struct PosePair rec718;
+    struct PosePair rec618;
+    f32 top;
+    RwV3d groupCenter;
+    RwV3d unitCenter;
+    RwV3d point;
+    RwV3d delta;
+    u8 *record;
+    u8 *unit;
+    u8 *action;
+    s32 var17;
+    s32 var16;
+    f32 radius;
+    f32 height;
+    f32 scale;
+    f32 len;
+    u32 frames;
+    u16 battle;
+
+    action = *(u8 **)(camera + 0xE0);
+    if (action == NULL) {
+        var16 = 1;
+    } else if (*(u8 *)(*(u8 **)(action + 0x30) + 0xA2) == 0) {
+        battle = *(u16 *)(iGpffffb3ac + 0x108);
+        if (battle == 0x22) {
+            var16 = 0;
+        } else if (battle == 0x21) {
+            var16 = 0;
+        } else {
+            var16 = 1;
+        }
+    } else {
+        battle = *(u16 *)(iGpffffb3ac + 0x108);
+        if (battle == 0x24) {
+            var16 = 0;
+        } else if (battle == 0x16) {
+            var16 = 0;
+        } else {
+            var16 = 1;
+        }
+    }
+    var17 = 0;
+    unit = *(u8 **)(action + 0x30);
+    radius = *(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C);
+    if (*(u16 *)(iGpffffb3ac + 0x108) == 10 && *(s32 *)(iGpffffb3ac + 0xC04) == *(s32 *)(action + 8)) {
+        if (*(s32 *)(iGpffffb3ac + 0xC08) != 0 && func_00232710(*(s32 *)(unit + 0xA64), 0x100) == 0) {
+            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 8, 0.0f);
+        }
+        return;
+    }
+    *(s32 *)(iGpffffb3ac + 0xC04) = *(s32 *)(action + 8);
+    *(s32 *)(iGpffffb3ac + 0xC08) = 0;
+    func_001bd560((f32 *)&poses.first, (f32 *)(camera + 0x9C));
+    if (*(u8 *)(unit + 0xA2) == 0) {
+        func_00196040(2, 1, &groupCenter, NULL, NULL, 1);
+        func_00195850(unit, (f32 *)&unitCenter);
+        unitCenter.y = 0.0f;
+        groupCenter.y = 0.0f;
+        delta.x = unitCenter.x - groupCenter.x;
+        delta.y = 0.0f - 0.0f;
+        delta.z = unitCenter.z - groupCenter.z;
+        len = func_003e40b0(&delta, &delta);
+        scale = fGpffff80fc * len;
+        groupCenter.x = groupCenter.x + delta.x * scale;
+        groupCenter.y = groupCenter.y + delta.y * scale;
+        groupCenter.z = groupCenter.z + delta.z * scale;
+        point.x = unitCenter.x;
+        height = *(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C);
+        point.y = (0.0f + point.y) + fGpffff8100 * height;
+        point.z = unitCenter.z;
+        func_001bd780(&poses.secondRotation, &point, &groupCenter, D_0060A0E0);
+        len = func_0044b868(0.5f * *(f32 *)(camera + 0xB8));
+        radius = (4.0f * radius) / len;
+        delta.x = point.x - groupCenter.x;
+        delta.y = point.y - groupCenter.y;
+        delta.z = point.z - groupCenter.z;
+        func_003e40b0(&delta, &delta);
+        poses.second.x = (0.0f + point.x) + delta.x * radius;
+        poses.second.y = (0.0f + point.y) + delta.y * radius;
+        poses.second.z = (0.0f + point.z) + delta.z * radius;
+        if (!(poses.second.y <= 700.0f)) {
+            var17 = 1;
+        }
+    } else {
+        if (func_00243ce0(*(u8 **)(unit + 0xA64)) != 0) {
+            if (func_00232710(*(s32 *)(unit + 0xA64), 0x100000) == 0) {
+                record = *(u8 **)(iGpffffb3ac + 0xB98) + 0x718;
+                func_001bd780(&rec718.firstRotation, record + 4, record + 0x10, D_0060A0E0);
+                rec718.first = *(RwV3d *)(record + 4);
+                func_001bd780(&rec718.secondRotation, record + 0x1C, record + 0x28, D_0060A0E0);
+                rec718.second = *(RwV3d *)(record + 0x1C);
+                frames = *(u16 *)record;
+                scale = (f32)frames / 30.0f;
+                func_001bac20((u16 *)(iGpffffb3ac + 0x24), (f32 *)&rec718.first, (f32 *)&rec718.second, 1);
+                func_001bbef0(iGpffffb3ac + 0x24, scale);
+                func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+                return;
+            } else {
+                record = *(u8 **)(iGpffffb3ac + 0xB98) + 0x618;
+                func_001bd780(&rec618.firstRotation, record + 4, record + 0x10, D_0060A0E0);
+                rec618.first = *(RwV3d *)(record + 4);
+                func_001bd780(&rec618.secondRotation, record + 0x1C, record + 0x28, D_0060A0E0);
+                rec618.second = *(RwV3d *)(record + 0x1C);
+                frames = *(u16 *)record;
+                scale = (f32)frames / 30.0f;
+                func_001bac20((u16 *)(iGpffffb3ac + 0x24), (f32 *)&rec618.first, (f32 *)&rec618.second, 1);
+                func_001bbef0(iGpffffb3ac + 0x24, scale);
+                func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+                return;
+            }
+        }
+        func_00196040(2, 1, &unitCenter, &top, NULL, 1);
+        func_00195850(unit, (f32 *)&groupCenter);
+        poses.second = poses.first;
+        scale = 1.25f * top;
+        if (poses.second.y < scale) {
+            poses.second.y = scale;
+        }
+        func_001bd780(&poses.secondRotation, &poses.second, &groupCenter, D_0060A0E0);
+    }
+    len = func_001ec2b0(&poses.firstRotation, &poses.secondRotation);
+    if (var17 != 0 || (!(len <= fGpffff80e4) && var16 == 1)) {
+        func_001b73f0(NULL);
+        if (*(u8 *)(unit + 0xA2) == 1 && func_00243ce0(*(u8 **)(unit + 0xA64)) != 0) {
+            func_001cfad0(camera, 2.25f, 2.0f);
+        } else {
+            func_001cfed0(camera);
+        }
+        if (func_00232710(*(s32 *)(unit + 0xA64), 0x100) == 0) {
+            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 1, 0.0f);
+            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 8, 0.0f);
+        } else {
+            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+        }
+        *(s32 *)(iGpffffb3ac + 0xC08) = 1;
+        return;
+    }
+    if (poses.first.y < 25.0f) {
+        poses.first.y = 25.0f;
+    }
+    if (poses.second.y < 25.0f) {
+        poses.second.y = 25.0f;
+    }
+    func_001bac20((u16 *)camera, (f32 *)&poses.first, (f32 *)&poses.second, 1);
+    if (var16 != 0) {
+        scale = 2.5f;
+    } else {
+        scale = 1.25f;
+    }
+    func_001bbef0(camera, scale);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00225ec0);
+#endif
 // FUN_002266B0
 /* measured: opt_scalarize off retains the real horizontal vector stores.
  * Staged radius scaling and the scoped two-halfword skill table give
