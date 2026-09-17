@@ -349,8 +349,180 @@ s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
     }
     return func_0016a110(collisionWorld, origin, vector, fraction, fieldId);
 }
-// FUN_0016ABC0
+/* measured: floor 211 differing words (reloc-masked), object 299 instrs vs retail 303 instrs (1196B vs 1212B, 4-instr deficit, 129 edits +3 reloc-only).
+ * Signature (void*, RwV3d*, f32, RwV3d*, RwV3d*) copies the MATCHed func_0016b080 extern and caller setup.
+ * Threshold D_007615DC (0x007615DC, gp-0x7B14) not fGpffff82b4; table D_005F1650[2*j] pairs; grid key search copies func_0016b540 raw u8* +0x1A0/+0x138/+8 pattern; 600.0f/1200.0f via f32; lq/sq via u_long128; bare &normal->x for func_003e40b0.
+ * Probes (probe_variants, reloc-masked): baseline 227 -> scoped 7-word copy (separate n, temp v) 222 -> point temps px/py/pz + for-forms 219.
+ * Declaration search (probe_search): 200 orders 227->218; 500 orders on v3 219->211; 300 orders on v6/v7 219->211 (best order kept).
+ * Parent lever 1 (opt_loop_invariants on before for): grid for 219->219, final while 219->219, for-forms 219->219; OFF at -O2 baseline, measured no-op here.
+ * Parent lever 2 (cast at call site moves setup): bare &normal->x vs (f32*)normal, 0.0f vs *(u32*), u8* rec vs f32* rec, header KClumpCallback vs void* shadow: v6 219 vs v7 219, no-op (no stack args).
+ * WALL: param home-move daddu block order invariant per parent (declaration/initialiser/assignment/K&R/copy-local identical); retail recomputes &D[2*j] once while reusing +4 in $s6, this build CSEs both through offsets (fnalign retail[150:154] 4-instr deficit); saved-register colors $s0-$s7/$fp permuted after exhaustive search.
+ * Floor keeps production INCLUDE_ASM; body is semantically faithful. */
+// FUN_0016ABC0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* normal, RwV3d* vector)
+{
+    extern u8* func_001452b0(s32 arg0);
+    extern void func_0043f9c8(void* dst, s32 value, s32 size);
+    extern s32 func_0014a200(void);
+    extern s32 func_0014a270(void);
+    extern u8* func_00457120(void);
+    extern u8* func_003e9700(s32 arg0);
+    extern void* func_00155280(void);
+    extern void* func_0047a310(s32 arg0);
+    extern void func_003e40b0(f32* dst, const f32* src);
+    extern f32 D_007615DC;
+    extern s32 D_005F1650[];
+    typedef struct FldFrameQueryWork
+    {
+        u8 records[0xb00];
+        s32 mode;
+        s32 count;
+        s32 hitCount;
+        u8 gap[0xc];
+        u8 scratch[0x20];
+        u8 zero[0x18];
+        f32 input[4];
+        u_long128 inputCopy;
+        u8 inputTail[8];
+        s32 intersectionType;
+    } FldFrameQueryWork;
+    FldFrameQueryWork work;
+    u16 id;
+    f32 py;
+    f32 px;
+    f32* dimensions;
+    u8* node;
+    u8* list;
+    s32 foundCount;
+    s32 i;
+    f32* entry;
+    void* table;
+    s32 x;
+    f32 threshold;
+    s32 z;
+    s32 result;
+    s32 j;
+    void* target;
+    f32 pz;
+
+    result = 0;
+    list = func_001452b0(10);
+    func_001452b0(3);
+    func_001452b0(1);
+    px = point->x;
+    py = point->y;
+    pz = point->z;
+    work.input[0] = px;
+    work.input[1] = py;
+    work.input[2] = pz;
+    work.input[3] = radius;
+    work.intersectionType = 3;
+    work.inputCopy = *(u_long128*)work.input;
+    for (i = 0; i < 64; i++)
+    {
+        u8* rec = work.records + 12 * i;
+        func_0043f9c8(rec, 0, 12);
+        func_0043f9c8(rec + 0x300, 0, 12);
+        *(f32*)(work.records + 0x600 + 4 * i) = D_007615DC;
+        *(s32*)(work.records + 0xa00 + 4 * i) = 0;
+    }
+    work.hitCount = 0;
+    work.count = 0;
+    {
+        s32* src = (s32*)&work.inputCopy;
+        s32* dst = (s32*)work.scratch;
+        s32 n = 7;
+        do
+        {
+            s32 v = *src;
+            src++;
+            n--;
+            *dst = v;
+            dst++;
+        } while (n > 0);
+    }
+    func_0043f9c8(work.zero, 0, 12);
+    if (collisionWorld != 0)
+    {
+        work.mode = 1;
+        func_003bff30(collisionWorld, func_0016a0c0, work.records);
+        if (func_0014a200() == 1 || func_0014a270() == 1)
+        {
+            dimensions = (f32*)func_003e9700(*(s32*)((u8*)func_00457120() + 4));
+            x = (s32)((dimensions[12] + 600.0f) / 1200.0f);
+            z = (s32)((dimensions[14] + 600.0f) / 1200.0f);
+            for (j = 0; j < 4; j++)
+            {
+                s32* offsets = &D_005F1650[2 * j];
+                table = func_00155280();
+                if (*(u8*)((u8*)table + ((z + offsets[1]) << 8) + 16 * (x + offsets[0]) + 84) == 1)
+                {
+                    table = func_00155280();
+                    id = *(u16*)((u8*)table + ((z + offsets[1]) << 8) + 16 * (x + offsets[0]) + 86);
+                    target = 0;
+                    node = func_001452b0(12);
+                    while (node != 0)
+                    {
+                        if (*(u16*)node == id)
+                        {
+                            target = *(void**)(*(u8**)(node + 0x1a0) + 8);
+                            break;
+                        }
+                        node = *(u8**)(node + 0x138);
+                    }
+                    if (target != 0)
+                        func_003bff30(target, func_0016a0c0, work.records);
+                }
+            }
+            while (list != 0)
+            {
+                if ((*(s32*)(list + 0x28) & 2) != 0 && *(s32*)(list + 0x150) == 1)
+                {
+                    target = func_0047a310(*(s32*)(list + 0x144));
+                    func_003bff30(target, func_0016a0c0, work.records);
+                }
+                list = *(u8**)(list + 0x138);
+            }
+        }
+        normal->x = 0.0f;
+        normal->y = 0.0f;
+        normal->z = 0.0f;
+        vector->x = 0.0f;
+        vector->y = 0.0f;
+        vector->z = 0.0f;
+        foundCount = 0;
+        threshold = D_007615DC;
+        for (i = 0; i < work.count; i++)
+        {
+            entry = (f32*)(work.records + 12 * i);
+            if (*(f32*)(work.records + 0x600 + 4 * i) < threshold)
+            {
+                normal->x += entry[192];
+                normal->y += entry[193];
+                normal->z += entry[194];
+                vector->x += entry[0];
+                vector->y += entry[1];
+                vector->z += entry[2];
+                foundCount++;
+                result = 1;
+            }
+        }
+        if (result == 1)
+        {
+            func_003e40b0(&normal->x, &normal->x);
+            threshold = (f32)foundCount;
+            vector->x /= threshold;
+            vector->y /= threshold;
+            vector->z /= threshold;
+        }
+        return result;
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016abc0);
+#endif
 /* 476/480 bytes; ten resolved relocations; four zero alignment bytes.
  * Write the preferred/fallback selection through the caller's real output. */
 #pragma push

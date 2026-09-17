@@ -713,8 +713,84 @@ void func_004a77b0(void) {
     func_003e9830(D_00724C70, *(s32 *)(func_00457120() + 4));
 }
 
-// FUN_004A7830
+/* measured: sister is mt_scene func_0026d440 (MATCH): `f32 initial[2] = {0.6f, 0.6f}` pair, */
+/* measured: `delta[2]` from fGpffff80f0 (0.01f) times fGpffffbb70/bb74, `fabsf`, `vec[3]` tail */
+/* measured: via func_003e9c10(D_00724C70, vec, 0). Frame 0x70 and tail match; loop body is floor. */
+/* measured: probes (differing words, reloc-masked): a 113, c 117, d 126 (`for`+arrays), */
+/* measured: f 117 (`*(u8*)` flag + `fabsf` + byte-offset), g 19 (arrays + `vec[3]` + byte-offset), */
+/* measured: h 19 (`#pragma opt_loop_invariants on` before `for`, off after loop: 19->19 no-op), */
+/* measured: l 20 (`u32 idx/temp_17`), m 127 (`delta[idx]`/`initial[idx]` vs byte-offset). */
+/* measured: parent levers: loop-invariants 19->19 no-op here; cast-moves-load not applicable */
+/* measured: (tail `&vec[0]` already bare, no cast); scheduler not touched per parent (2->120 risk). */
+/* measured: floor g: object 532B/window 544B (12B short), 19 words: `addiu $s0 vs $v0` at 0x6C, */
+/* measured: `lui 0.5f` hoisting (`move $a0` vs `lui` at 0x88), float colouring $f1/$f2/$f3 swaps */
+/* measured: at 0xC0-0x100 (`lwc1/abs/c.lt/c.le/add/sub`). Walls; Keep ASM until colouring closes. */
+// FUN_004A7830 NONMATCHING
+#ifdef NON_MATCHING
+void func_004a7830(void)
+{
+    extern f32 fabsf(f32 arg0);
+    extern f32 fGpffff80f0;
+    f32 delta[2];
+    f32 initial[2] = {0.6f, 0.6f};
+    f32 vec[3];
+    s32 idx;
+    s32 temp_17;
+    f32 *temp_16;
+    f32 temp_f1;
+    f32 temp_f20;
+    f32 temp_f21;
+    f32 temp_f3;
+    f32 temp_f4;
+    u8 *temp_2;
+
+    if (*(u8 *)&D_00724C58 == 0) {
+        return;
+    }
+    *(u8 *)&D_00724C58 = 0;
+    delta[0] = fGpffff80f0 * fGpffffbb70;
+    delta[1] = fGpffff80f0 * fGpffffbb74;
+    for (idx = 0; idx < 2; idx++) {
+        temp_17 = idx * 4;
+        temp_f20 = *(f32 *)((u8 *)delta + temp_17);
+        if (temp_f20 != 0.0f) {
+            f32 random = func_004bd0b0(0);
+            f32 amplitude = *(f32 *)((u8 *)delta + temp_17);
+            temp_f21 = 0.5f * amplitude + 0.5f * (amplitude * random);
+            temp_16 = (f32 *)((u8 *)&D_00724C78 + temp_17);
+            temp_f1 = *temp_16;
+            temp_f3 = fabsf(temp_f1);
+            if (!(temp_f3 < (temp_f20 * *(f32 *)((u8 *)initial + temp_17)))) {
+                if (temp_f1 <= 0.0f) {
+                    *temp_16 = temp_f1 + temp_f21;
+                } else {
+                    *temp_16 = temp_f1 - temp_f21;
+                }
+            } else {
+                f32 random2 = func_004bd0b0(0);
+                temp_f3 = temp_f21 * (random2 - 0.5f);
+                *temp_16 = 0.0f + *temp_16 + 2.0f * temp_f3;
+            }
+            temp_f1 = -temp_f20;
+            if (*temp_16 < temp_f1) {
+                *temp_16 = temp_f1;
+            }
+            if (!(*temp_16 <= temp_f20)) {
+                *temp_16 = temp_f20;
+            }
+        }
+    }
+    temp_2 = *(u8 **)(func_00457120() + 4);
+    temp_f4 = *(f32 *)&D_00724C78;
+    temp_f3 = iGpffffb10c;
+    vec[0] = temp_f3 * ((*(f32 *)(temp_2 + 0x10)) * temp_f4);
+    vec[1] = temp_f3 * ((*(f32 *)&D_00724C7C) + (*(f32 *)(temp_2 + 0x14)) * temp_f4);
+    vec[2] = temp_f3 * ((*(f32 *)(temp_2 + 0x18)) * temp_f4);
+    func_003e9c10((u8 *)D_00724C70, vec, 0);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a7830);
+#endif
 
 // FUN_004A7A50
 void func_004a7a50(void) {
@@ -1428,8 +1504,91 @@ void func_004accc0(u8 *arg0)
         func_0047a320(*(s32 *)(arg0 + 0xB4));
     }
 }
+/* measured: effModel func_004ac300 VU0 colour-pack idiom with D_00761134 (1/255) scale; */
+/* measured: plain `(u32)temp_f0` gives retail's `lui $3,0x8000; or` (no D_80000001, unlike */
+/* measured: the `+1` siblings); `sp5C = *(s32 *)&sp50` forces the packed word back through */
+/* measured: memory so the `lw $2,0x50; sw $2,0x5C` copy survives and the saved ranking stays */
+/* measured: arg0 $s3, arg1 $s2, frame_index $s1, frame_count $s0 with frame 0x60. */
+/* measured: probe c: 0 differing words, object 528B/window 528B. */
 // FUN_004AD030
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004ad030);
+void func_004ad030(s32 arg0, u8 *arg1)
+{
+    extern f32 func_0047a080(s32 arg0, s32 arg1);
+    extern s32 func_0048abd0(void *arg0, void *arg1, u32 arg2, u32 arg3);
+    extern void func_0047a220(void *arg0, s32 *arg1);
+    extern f32 func_0048aff0(void *arg0, u32 arg1, u32 arg2);
+    extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
+    extern s32 func_00481450(void);
+    extern void func_0047aa30(void *arg0, s32 arg1);
+    extern void func_00479100(s32 arg0, void *arg1);
+    extern f32 D_00761134;
+    s32 sp5C;
+    s32 sp58;
+    s32 sp54;
+    s32 sp50;
+    f32 temp_f0;
+    u32 frame_index;
+    u32 frame_count;
+    s32 color;
+
+    temp_f0 = func_0047a080(*(s32 *)(arg1 + 0xB4), 0);
+    frame_index = (u32)temp_f0;
+    frame_count = *(u32 *)(arg1 + 0x9C);
+    if ((frame_count >= frame_index) || (frame_count == 0)) {
+        color = func_0048abd0(arg1 + 0x10, arg1 + 0x34, frame_index, frame_count);
+        sp58 = *(s32 *)(arg1 + 0xC);
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10   \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(&sp58), "f"(D_00761134)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        sp54 = color;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10   \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 80($sp)        \n"
+            :
+            : "r"(&sp54), "f"(D_00761134)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        sp5C = *(s32 *)&sp50;
+        func_0047a220(*(u8 **)(arg1 + 0xB4), &sp5C);
+        func_0048aff0(arg1 + 0x44, frame_index, frame_count);
+        *(s32 *)(*(u8 **)(arg1 + 0xB4) + 0xD8) &= ~0x100;
+        if ((*(u8 *)(arg1 + 0xA1) != 0) && (*(s32 *)(arg1 + 0xA4) == 0)) {
+            *(s32 *)(*(u8 **)(arg1 + 0xB4) + 0xD8) |= 0x18;
+        } else {
+            *(s32 *)(*(u8 **)(arg1 + 0xB4) + 0xD8) &= ~0x18;
+        }
+        func_0047a0e0(*(u8 **)(arg1 + 0xB4), 0, *(f32 *)(arg1 + 8));
+        func_0047aa30(*(u8 **)(arg1 + 0xB4), func_00481450());
+        func_00479100(arg0, *(u8 **)(arg1 + 0xB4));
+        *(s32 *)(arg1 + 8) = 0;
+    }
+}
 // FUN_004AD240
 void func_004ad240(u8 *arg0) {
     func_004ad030(func_004814d0(*(u16 *)(arg0 + 0x38)), arg0);

@@ -141,6 +141,12 @@ extern u8 D_005EFC80[];
 extern s32 iGpffffb200;   /* gp - 0x4E00 = 0x007642F0 */
 extern s32 iGpffffb204;   /* gp - 0x4DFC = 0x007642F4 */
 extern u8 iGpffff9df0;    /* gp - 0x6210 = 0x00762EE0 */
+extern char D_005EFC90[];
+extern u8 D_005F0590[];
+extern u8 D_005F0591[];
+extern u8 D_005F05B8[];
+extern s32 D_007E8060[];
+extern s32 iGpffffb208;   /* gp - 0x4DF8 = 0x007642F8 */
 
 
 // FUN_0014EED0
@@ -173,8 +179,85 @@ s32 func_0014ef80(void)
     return func_004553c0(iGpffffb204) != 0;
 }
 
-// FUN_0014EFC0
+/* measured floor: 127 differing words (reloc-masked), obj 824B vs 848B window, verify normalized_diff 366.
+ * Baseline C without pragma: 132 words, 828B. With #pragma opt_loop_invariants on before the second for loop:
+ * 132 -> 127 words, 828B -> 824B. Genuinely OFF at baseline -O2, so real switch, not no-op.
+ * Second lever (cast-at-call-site argument reorder) tested 2026-09-17 via probe_variants on this function:
+ * s16 copies passed bare at both func_00442088 sites (delete (s16) casts) -> 127 vs base 127, no-op.
+ * Expected: no trailing lw $t0 + nested-result daddu block exists here (args are regs/stack addiu), so no
+ * reorder to fix. u16/u8 locals variant fails to compile. schedule-off / staging-temp not retried per wall
+ * note (measured 2->120 / 80 elsewhere). K&R redeclaration / fifth-param-width variants not retried (no-ops).
+ * Prologue/stack already match (0xD0 frame, 4 s-regs, args in s3/s2, var17/var16 in s1/s0).
+ * Path1 table lookup (D_005F0591[D_005F0590[var17&0xFFFF]*12]) matches instruction-for-instruction.
+ * Remaining walls: Path2 second base CSE (ours keeps D_005F0590 base in $a0 and reuses, retail reloads via $v0;
+ * 5-word branch displacement shift at 0x112 from the 20B shortfall), first loop needs retail's hoisted
+ * D_005F05B8+var17 preheader ($a3) with lbu -0x28($a3) and lb 2($v1) form (ours folds +2 into addiu and
+ * uses lb 0), second loop needs hoisted D_007E8060 base in $a1 (ours rematerialises inside). Daddu home-move
+ * order left as-is per wall note (invariant under declaration/initialiser/assignment/K&R models).
+ * Guards as NONMATCHING with ASM fallback so verify stays 0 MISMATCH. */
+// FUN_0014EFC0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0014efc0(s32 arg0, s32 arg1)
+{
+    char sp90[0x40];
+    char sp50[0x40];
+    s32 var17;
+    s32 var16;
+    *(s32 *)(iGpffff9db0 + 0x24) = 0;
+    *(s32 *)(iGpffff9db0 + 0x94) = 0;
+    func_0043f9c8(iGpffff9db0 + 0x9C, 0, 0x40);
+    if (func_0014a230(arg0, arg1) || func_0014a2a0(arg0, arg1)) {
+        if (func_0014a2a0(arg0, arg1)) {
+            var17 = ((arg0 & 0xFFFF) - 0x14) & 0xFFFF;
+            *(s32 *)(iGpffff9db0 + 0x88) |= 0x80000000;
+            var16 = (s32)func_0015c640(arg0, arg1);
+            *(s32 *)(func_00155280() + 0x1864) = var16;
+            var16 = D_005F0591[D_005F0590[var17 & 0xFFFF] * 12];
+        } else {
+            var17 = arg0 & 0xFFFF;
+            var16 = D_005F0590[D_005F0590[var17] * 12];
+        }
+        if (*(s32 *)(iGpffff9db0 + 0x88) & 0x80000000) {
+            if (iGpffffb204 == 0) {
+                func_00442088(sp90, D_005EFC90, (s16)arg0, (s16)arg1);
+                func_00440b68(&iGpffff9df0, D_005EFC80, 0xC9);
+                iGpffffb204 = func_00454a60(sp90, 1);
+            }
+            {
+                s32 i = var16 - 1;
+                for (; i >= 0; i--) {
+                    *(s16 *)(iGpffff9db0 + *(s32 *)(iGpffff9db0 + 0x98) * 4 + 0x9C) = (s16)var17;
+                    *(s16 *)(iGpffff9db0 + *(s32 *)(iGpffff9db0 + 0x98) * 4 + 0x9E) = ((s8 *)D_005F0590)[D_005F0590[var17] * 12 + i + 2];
+                    *(s32 *)(iGpffff9db0 + 0x98) += 1;
+                }
+            }
+        } else {
+            *(s32 *)(iGpffff9db0 + 0x24) = var16;
+            {
+                s32 i = 0;
+#pragma opt_loop_invariants on
+                for (; i < *(s32 *)(iGpffff9db0 + 0x24); i++) {
+                    *(s32 *)(iGpffff9db0 + i * 4 + 0x28) = D_007E8060[i];
+                }
+            }
+            *(s32 *)(iGpffff9db0 + 0x94) = 4;
+        }
+    } else {
+        if (iGpffffb204 == 0) {
+            func_00442088(sp50, D_005EFC90, (s16)arg0, (s16)arg1);
+            func_00440b68(&iGpffff9df0, D_005EFC80, 0xC9);
+            iGpffffb204 = func_00454a60(sp50, 1);
+        }
+        *(s16 *)(iGpffff9db0 + *(s32 *)(iGpffff9db0 + 0x98) * 4 + 0x9C) = (s16)arg0;
+        *(s16 *)(iGpffff9db0 + *(s32 *)(iGpffff9db0 + 0x98) * 4 + 0x9E) = (s16)arg1;
+        *(s32 *)(iGpffff9db0 + 0x98) += 1;
+    }
+    iGpffffb208 = func_0044ec30();
+}
+#pragma opt_loop_invariants off
+#else
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_0014efc0);
+#endif
 // FUN_0014F310
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_0014f310);
 /* measured: opt_loop_invariants hoists the slash loop constant. */
