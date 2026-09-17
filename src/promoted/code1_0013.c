@@ -1040,6 +1040,7 @@ void func_00135520(u8 *arg0, PackedVec2f arg1, u32 arg2, s32 arg3)
         func_00134f40(arg0, arg1.packed, 1, arg2);
     }
 }
+/* measured 0013ad40 (banked honest body: palette-table dispatch with ptab, 67/24/60/21/2/27/43/25/37/53 float chains cast-free per 13b420, recipe-A u8->float with f+f doubling, (u8)(u32) checked colour conversions, 11fd50 s64-tail, %10//10 digit loop, 1330 tail): measure_guarded 419 words obj 1836B/window 1584B; opclass mfc1/mtc1/lui/cvt.w.s +8 with c.ole/bc1t/sub +4. Verified against retail: plain lwc1 float loads (not int-convert), col conversion is the checked (u8)(u32) lowering with call-site re-andi, recipe-A uses srl + add.s doubling. Standing questions are per-site checked-vs-plain conversion mix plus frame/scheduling across 1584B. Production stays ASM. */
 // FUN_0013AD40 NONMATCHING
 #ifdef NON_MATCHING
 void func_0013ad40(u8 *arg0, s32 arg1, s32 arg2) {
@@ -2715,29 +2716,46 @@ s32 func_0013f620(s16 arg0, s32 arg1, u8 *arg2) {
    o1 226 tie; cse_off 232->226 applied below.
 */
 /* measured 0013f720: `opt_common_subs off` inside the guard is worth 6 words (232 -> 226); retail rematerialises what b210 hoists. */
+/* measured 0013f720 width fix 2026-09-17: opclass dsll32/dsra32 surplus +21/+21 was sixteen
+   s64 locals holding 32-bit values (every use re-sign-extended, shift 0x0) plus u16 temp_17 /
+   temp_23_2 zero-extended at five call sites retail passes raw (andi +5) plus (s16)arg1 and
+   arg0 narrowed at the f770/f6a0 calls retail passes raw. Retyped to s32/s16/u16 naturals,
+   arg1 s64 -> s32 (callers already pass s32), f770/f6a0 call-site prototypes widened via
+   block-scope externs (their authoritative g_data.c s16 prototypes are MATCH-proven, and the
+   file-scope externs are load-bearing for matched func_0013f620). Before: fndiff 226,
+   fnalign 113 (+6 reloc-only) retail 268/object 294, opclass dsll32 +21/dsra32 +21/move -15.
+   After: fndiff 199, fnalign 23 (+6 reloc-only) retail 267/object 267 size-exact, opclass
+   dsll32/dsra32 surplus 0 (floor drops out of the surplus list). Retail's ten pairs
+   (8x0x10, 2x0x18) reproduced site-for-site; its three andi 0xFFFF masks kept. */
 // FUN_0013F720 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
-s32 func_0013f720(s32 arg0, s64 arg1, s32 arg2, u8 *arg3) {
+s32 func_0013f720(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
+    /* This TU passes 32-bit values where the callees' authoritative
+       prototypes are narrower (g_data.c, both MATCH): retail emits a raw
+       daddu at these two call sites, so the narrow declaration is scoped
+       to this body to avoid re-sign-extending at every call. */
+    extern s32 func_0010f6a0(s32 arg0, s32 arg1);
+    extern void func_0010f770(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     u8 *spC0;
     u8 *spB0;
     u8 *spA0;
-    s64 var_19;
-    s64 var_18;
-    s64 temp_17;
-    s64 temp_22;
-    s64 temp_23;
-    s64 temp_30;
-    s64 var_22;
-    s64 var_16;
-    s64 var_17;
-    s64 temp_16;
-    s64 temp_17_2;
-    s64 temp_17_3;
-    s64 temp_3_3;
-    s64 var_16_2;
-    s64 temp_22_2;
-    s64 temp_23_2;
+    s32 var_19;
+    s16 var_18;
+    s32 temp_17;
+    s16 temp_22;
+    s32 temp_23;
+    s32 temp_30;
+    s32 var_22;
+    s32 var_16;
+    s32 var_17;
+    s32 temp_16;
+    s32 temp_17_2;
+    s32 temp_17_3;
+    s32 temp_3_3;
+    s16 var_16_2;
+    s16 temp_22_2;
+    s32 temp_23_2;
     u8 *temp_3;
     u8 *temp_3_2;
 
@@ -2751,7 +2769,7 @@ s32 func_0013f720(s32 arg0, s64 arg1, s32 arg2, u8 *arg3) {
     temp_23 = *(s32 *)(temp_3 + 0x104);
     temp_30 = *(s32 *)(temp_3 + 0x108);
     if (temp_22 != -1) {
-        var_18 = (s64)((func_0010b510() << 0x30) >> 0x30);
+        var_18 = (s16)func_0010b510();
         func_0010b3b0(temp_22);
     }
     if ((temp_17 & 0xFFFF) == 0xF6) {
@@ -2760,7 +2778,7 @@ s32 func_0013f720(s32 arg0, s64 arg1, s32 arg2, u8 *arg3) {
         } else {
             var_19 = 0;
         }
-    } else if (((s64)(arg1 << 0x30) >> 0x30) == -1) {
+    } else if ((s16)arg1 == -1) {
         var_22 = 0;
         var_16 = 0;
 loop_11:
@@ -2777,26 +2795,26 @@ loop_11:
         if (var_22 == 0) {
             var_19 = 0;
         }
-    } else if (func_0010f930(arg0, (s16)arg1, temp_17, 0) == 0) {
-        func_0010f770(arg0, (s16)arg1, temp_17, 0);
+    } else if (func_0010f930(arg0, arg1, temp_17, 0) == 0) {
+        func_0010f770(arg0, arg1, temp_17, 0);
     } else {
         var_19 = 0;
     }
-    temp_16 = (s64)(((s64)var_19 << 0x38) >> 0x38);
+    temp_16 = (s8)var_19;
     if (temp_16 > 0) {
         if (temp_23 > 0) {
             temp_17_2 = (func_00104ce0(arg0) & 0xFFFF) - temp_23;
             if (temp_17_2 <= 0) {
                 func_0046d730(D_005ED9F0, 0x25B);
             }
-            func_001056e0(arg0, (s16)((temp_17_2 << 0x30) >> 0x30));
+            func_001056e0(arg0, (s16)temp_17_2);
         }
         if (temp_30 > 0) {
             temp_17_3 = (func_00104d50(arg0) & 0xFFFF) - temp_30;
             if (temp_17_3 < 0) {
                 func_0046d730(D_005ED9F0, 0x261);
             }
-            func_00105730(arg0, (s16)((temp_17_3 << 0x30) >> 0x30));
+            func_00105730(arg0, (s16)temp_17_3);
         }
         if (temp_16 == 3) {
             func_00106390(0x1401, 1);
@@ -2808,15 +2826,15 @@ loop_11:
             if (func_0010f540(temp_23_2) == 0) {
                 var_17 = 0;
             } else {
-                if (((s64)((s64)temp_22_2 << 0x30) >> 0x30) != -1) {
-                    var_16_2 = (s64)((func_0010b510() << 0x30) >> 0x30);
+                if (temp_22_2 != -1) {
+                    var_16_2 = (s16)func_0010b510();
                     func_0010b3b0(temp_22_2);
                 }
                 if (func_0010f6a0(arg0, temp_23_2) != 0) {
                     var_17 = 0;
                 }
-                if (((s64)(var_16_2 << 0x30) >> 0x30) != -1) {
-                    func_0010b3b0((s16)var_16_2);
+                if (var_16_2 != -1) {
+                    func_0010b3b0(var_16_2);
                 }
             }
             if (var_17 == 0) {
@@ -2826,10 +2844,10 @@ loop_11:
             }
         }
     }
-    if (((s64)(var_18 << 0x30) >> 0x30) != -1) {
-        func_0010b3b0((s16)var_18);
+    if (var_18 != -1) {
+        func_0010b3b0(var_18);
     }
-    temp_3_3 = (s64)(((s64)var_19 << 0x38) >> 0x38);
+    temp_3_3 = (s8)var_19;
     switch (temp_3_3) {
     case 3:
         break;

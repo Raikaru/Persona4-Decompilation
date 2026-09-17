@@ -149,7 +149,6 @@ s32 func_00161bb0(s16 id) {
    temp-reg names, GPREL/absolute display phantoms (relocs ok).
 */
 // FUN_00161630 NONMATCHING
-#ifdef NON_MATCHING
 u32 func_00161630(u32 arg1, u32 arg0, u32 arg2, u32 arg3)
 {
     u32 result;
@@ -243,9 +242,6 @@ u32 func_00161630(u32 arg1, u32 arg0, u32 arg2, u32 arg3)
     }
     return 0xFFFFFFFF;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_encount", func_00161630);
-#endif
 
 /* measured: cold reconstruction from the m2c draft + matched sibling 61bb0 idioms reaches probe/fndiff reloc-masked nd 243 (verify nd ~730), object ~1132B/window 1184B, fnalign 295 vs ~283 instrs. Banked in docs/probe_archive/KEn80_00161c80_body.c (guarded v1 spelling in owner). Scale note: probe/fndiff and verify normalized_diff run ~3x apart on this body (243 vs ~730); compare like with like. Flat across hoist/mask/narrow/color variants; loop_invariants and propagation pragmas catastrophic; literal table addresses neutral. Open walls: base-spill/found-reg coloring, sunk base loads, saved-register rotation. Production stays ASM. */
 // FUN_00161C80 NONMATCHING
