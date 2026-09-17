@@ -1269,8 +1269,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038bab0);
    conversions are already exact - `(f32)(u32)*(u16 *)state` reproduces
    retail's bltz/srl/or sequence - and opt_propagation, dead-assignment,
    lifetimes, common-subexpression and tree-transformation were measured. */
+/* measured 0038c100: `opt_common_subs off` inside the guard is worth 1 words (361 -> 360); retail rematerialises what b210 hoists. */
 // FUN_0038C100 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_common_subs off
 void func_0038c100(u8 *arg0)
 {
     extern void func_0034f460(s32 h, s32 id, s32 a, s32 b, s32 c, s32 alpha, f32 x, f32 y);
@@ -1344,6 +1346,7 @@ void func_0038c100(u8 *arg0)
                   515.0f + (((1.0f - scale) * 29.0f) / 2.0f),
                   407.0f + (((1.0f - scaleY) * 26.0f) / 2.0f), 0, 0.0f, 0, 0);
 }
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038c100);
 #endif

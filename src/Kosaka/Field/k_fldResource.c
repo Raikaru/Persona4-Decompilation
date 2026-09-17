@@ -203,8 +203,10 @@ s32 func_0014ef80(void)
  * only `slt $2,$7,$2` register form, B1 slti is object-only), so lever has no target; not adopted.
  * Honest floor stays base (824B/848B, 2.83% short, within size gate, no SIZE_MISMATCH).
  * Guards as NONMATCHING with ASM fallback so verify stays 0 MISMATCH. */
+/* measured 0014efc0: `opt_common_subs off` inside the guard is worth 21 words (127 -> 106); retail rematerialises what b210 hoists. */
 // FUN_0014EFC0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_common_subs off
 void func_0014efc0(s32 arg0, s32 arg1)
 {
     char sp90[0x40];
@@ -263,6 +265,7 @@ void func_0014efc0(s32 arg0, s32 arg1)
     iGpffffb208 = func_0044ec30();
 }
 #pragma opt_loop_invariants off
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_0014efc0);
 #endif

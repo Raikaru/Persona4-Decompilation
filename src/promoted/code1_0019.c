@@ -2126,8 +2126,10 @@ u32 func_001988b0(u8 *unit)
    size, branch cascade, scheduler ordering. Quad-built
    (m2c+IDA+Ghidra+retail: void/5-arg sig, int-form 1.0f store,
    neighbor-merged tails rejected, a2 zeroing modeled). */
+/* measured 00198920: `opt_common_subs off` inside the guard is worth 27 words (249 -> 222); retail rematerialises what b210 hoists. */
 // FUN_00198920 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_common_subs off
 void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4in)
 {
     extern f32 iGpffff80d4;
@@ -2208,6 +2210,7 @@ void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4in)
         }
     }
 }
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00198920);
 #endif
