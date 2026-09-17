@@ -1,5 +1,5 @@
 /* Refreshed func_0045eb20 compiler probe; retail remains assembly-backed.
- * 568B/576B; 102 fully relocated differing overlap words; all 14 relocations resolve.
+ * 568B/576B; 96 fully relocated differing overlap words fresh (loop tie, transfers e8e0); all 14 relocations resolve.
  * Missing tail: four executable zero bytes, then 4 bytes of zero alignment.
  * The ordinary C product-seeded mula/madd/add chains are reproduced. This is
  * a register/allocation/scheduling residual, not a proven FPU-accumulator wall.
