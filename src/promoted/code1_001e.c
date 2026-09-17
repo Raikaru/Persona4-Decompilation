@@ -1468,8 +1468,214 @@ loop_test:
     }
     return 1;
 }
-// FUN_001E9950
+/* FUN_001E9950: s32 func_001e9950(void), retail frame 0x1A0 (obj 0x180 here),
+   175 instrs window 1488B. Outer skill loop over e130/e140 table with
+   i==0 -> dfe0 else base[i-1] (sll/addu/lhu -2), slti 0x1B8 guard,
+   d8e0 -> (s64)(x<<0x30)>>0x30 -> d6e0 &0x7E filter, mode 1/2 split via
+   lq 0x100 bne/beq, df70/32710/ddc0 gates, 1d7f10 into tgt.entries[14]
+   +count@0x38, two inner scorings (single-best vs accumulating) with
+   negu/slt + cvt.s.w/div.s/add.s and c.lt.s/c.le.s/c.eq.s best update,
+   dd90==2 + d9b0<bestCost tie-break, de640/1b0cc0/dbf20 tail, 29cf50 return 1.
+   Neighbours (116 MATCH): 9350 for 0x1B8 + (s16)d8e0 idiom, 9240 for
+   entries[14]+count@0x38 + &0xFFFF masking, datCalc d6e0(s16)/d8e0(u8*,u16)
+   + d9b0/dd90/df70 signatures, 9770/9f20 for 29cc00/29cf50/1b0cc0 patterns.
+   Levers top-down: skillStore >=0x1B8 keeps slti $at,0x1B8 + beqz (vs
+   >0x1B7 which spills $v0 per playbook); (s64)(x<<0x30)>>0x30 keeps
+   dsll32/dsra32 16 pair (vs (s16) which collapses to seh); (s32) outer/
+   inner < keeps slt signed (vs neighbours sltu). */
+// FUN_001E9950 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_001e9950(void) {
+    extern s32 func_0029cc00(s32 arg0);
+    extern void func_0029cf50(s32 arg0);
+    extern s32 func_0023d6e0(s16 arg0);
+    extern s32 func_0023df70(s32 arg0);
+    extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
+    extern s32 func_0023dd90(u8 *arg0, s32 arg1);
+    extern s32 func_001db360(u8 *arg0, s32 arg1, s32 arg2);
+    extern s32 func_00235520();
+    extern s32 func_00242800(s32 arg0, s32 arg1);
+    extern u8 *func_001b0cc0(s32 arg0);
+    extern void func_001dbf20(u8 *arg0, s32 arg1);
+    extern s32 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, s32 arg3);
+    u8 *work;
+    u8 *unit;
+    s32 bestSkill;
+    s32 bestTarget;
+    s32 bestCost;
+    f32 curScore;
+    f32 bestScore;
+    f32 cur;
+    u16 *table;
+    s32 mode;
+    s32 outerLimit;
+    u16 outer;
+    s32 outerCount;
+    u16 skill;
+    s32 skillStore;
+    s64 kind;
+    s32 paramA;
+    s32 paramB;
+    s32 innerBest;
+    s32 idxA;
+    s32 idxB;
+    u8 *entryA;
+    u8 *entryB;
+    s32 dmg;
+    s32 hp;
+    s32 maxHp;
+    s32 neg;
+    s32 cost;
+    struct {
+        u8 *entries[14];
+        u16 count;
+    } tgt;
+    work = func_0029d050();
+    mode = func_0029cc00(0);
+    unit = *(u8 **)(work + 0x30);
+    bestTarget = 0;
+    bestSkill = -1;
+    bestCost = 0x3E7;
+    bestScore = -1.0f;
+    outerLimit = ((func_0023e130(*(u8 **)(unit + 0xA64)) & 0xFFFF) + 1) & 0xFFFF;
+    table = (u16 *)func_0023e140(*(u8 **)(unit + 0xA64));
+    outer = 0;
+    outerCount = outerLimit & 0xFFFF;
+    goto outer_test;
+outer_body:
+    if (outer == 0) {
+        skill = (u16)(func_0023dfe0(*(u8 **)(unit + 0xA64)) & 0xFFFF);
+    } else {
+        skill = *(u16 *)((u8 *)table + (u32)outer * 2 - 2);
+        if (skill == 0) {
+            goto outer_next;
+        }
+    }
+    skillStore = skill & 0xFFFF;
+    if (skillStore >= 0x1B8) {
+        goto outer_next;
+    }
+    kind = (s64)(func_0023d8e0(*(u8 **)(unit + 0xA64), skill) << 0x30) >> 0x30;
+    if ((func_0023d6e0((s16)kind) & 0x7E) == 0) {
+        goto outer_next;
+    }
+    if (((s64)(kind << 0x30) >> 0x30) == 0) {
+        if (mode == 1) {
+            goto outer_next;
+        }
+    } else {
+        if (mode == 2) {
+            goto outer_next;
+        }
+    }
+    if (func_0023df70(skill & 0xFFFF) == 0) {
+        if (func_00232710(*(s32 *)(*(u8 **)(unit + 0xA64)), 0x80008) != 0) {
+            goto check_targets;
+        }
+        if (func_0023ddc0(*(u8 **)(unit + 0xA64), skill & 0xFFFF) != 0) {
+            goto outer_next;
+        }
+    }
+check_targets:
+    innerBest = 0;
+    if ((func_001d7f10(work, (u8 *)&tgt, skill, 0) & 0xFFFF) == 0) {
+        curScore = 0.0f;
+        idxA = 0;
+        paramA = (s32)((s64)(kind << 0x30) >> 0x30);
+innerA_test:
+        if ((idxA & 0xFFFF) >= (s32)(tgt.count & 0xFFFF)) {
+            goto scored;
+        }
+        entryA = tgt.entries[(idxA & 0xFFFF)];
+        if (func_001db360(entryA, paramA, 1) != 0) {
+            dmg = func_00235520(skill & 0xFFFF, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryA + 0x30) + 0xA64), 1, 1, 1, 0, 1);
+            hp = func_00231ed0(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
+            maxHp = func_00231f80(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
+            neg = -dmg;
+            if (hp < neg) {
+                cur = (f32)hp / (f32)maxHp + 1.0f;
+            } else {
+                cur = (f32)neg / (f32)maxHp;
+            }
+            if (curScore < cur) {
+                innerBest = *(s32 *)(entryA + 8);
+                curScore = cur;
+            }
+        }
+        idxA = (idxA + 1) & 0xFFFF;
+        goto innerA_test;
+    } else {
+        curScore = 0.0f;
+        idxB = 0;
+        paramB = (s32)((s64)(kind << 0x30) >> 0x30);
+innerB_test:
+        if ((idxB & 0xFFFF) >= (s32)(tgt.count & 0xFFFF)) {
+            goto scored;
+        }
+        entryB = tgt.entries[(idxB & 0xFFFF)];
+        if (func_001db360(entryB, paramB, 1) == 0) {
+            if ((func_00242800(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64), (s32)kind) & 0x1000000) == 0) {
+                curScore = 0.0f;
+                goto scored;
+            }
+        } else {
+            dmg = func_00235520(skill & 0xFFFF, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), 1, 1, 1, 0, 1);
+            hp = func_00231ed0(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64)) & 0xFFFF;
+            maxHp = func_00231f80(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64)) & 0xFFFF;
+            neg = -dmg;
+            if (hp < neg) {
+                curScore = curScore + (f32)hp / (f32)maxHp + 1.0f;
+            } else {
+                curScore += (f32)neg / (f32)maxHp;
+            }
+        }
+        idxB = (idxB + 1) & 0xFFFF;
+        goto innerB_test;
+    }
+scored:
+    if (bestScore <= curScore) {
+        if (bestScore == curScore) {
+            if ((func_0023dd90(*(u8 **)(unit + 0xA64), skill & 0xFFFF) & 0xFFFF) == 2) {
+                cost = func_0023d9b0(*(u8 **)(unit + 0xA64), skill & 0xFFFF);
+                if (cost < bestCost) {
+                    bestSkill = skillStore;
+                    bestTarget = innerBest;
+                    bestScore = curScore;
+                    bestCost = cost;
+                }
+            }
+        } else {
+            bestSkill = skillStore;
+            bestTarget = innerBest;
+            bestScore = curScore;
+        }
+    }
+    goto outer_next;
+outer_next:
+    outer = (u16)(outer + 1);
+outer_test:
+    if ((s32)outer < (s32)outerCount) {
+        goto outer_body;
+    }
+    if (bestSkill != -1) {
+        if (bestSkill == 0) {
+            func_001de640(work, work + 0x38, 0x8000);
+        } else {
+            func_001de640(work, work + 0x38, bestSkill & 0xFFFF);
+        }
+        if (bestTarget != 0) {
+            *(u8 **)(work + 0x38) = func_001b0cc0(bestTarget);
+            *(u16 *)(work + 0x6A) = 1;
+        } else {
+            func_001dbf20(work, 0);
+        }
+    }
+    func_0029cf50(bestSkill);
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001e9950);
+#endif
 // FUN_001E9F20
 s32 func_001e9f20(void) {
     extern s32 func_0029cc00(s32 arg0);

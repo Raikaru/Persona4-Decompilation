@@ -99,6 +99,7 @@ RULES = {
     "H009": ("error", "inline asm emitting ordinary instructions (not syscall/privileged/COP2/VU0); use honest C"),
     # ---- M: marker hygiene -------------------------------------------------
     "M001": ("error", "marker hygiene: malformed FUN_ address or duplicate address in one file"),
+    "M002": ("error", "NONMATCHING body with no INCLUDE_ASM fallback; drops the whole unit from the C link"),
     # ---- P: pragma balance -------------------------------------------------
     "P001": ("error", "pragma push/pop stack underflow or unclosed push"),
 }
@@ -641,6 +642,38 @@ def check_markers(src):
                           f"(lines {', '.join(map(str, lines))})")
 
 
+def check_nonmatching_fallback(src):
+    """M002: a NONMATCHING body must keep an INCLUDE_ASM fallback.
+
+    `tools/build.py` refuses to place any translation unit containing a
+    function marked NONMATCHING that has no INCLUDE_ASM arm, because a
+    real-but-wrong body would corrupt the image.  The failure is silent in
+    `verify.py`, which still reports every other function in the file as
+    MATCH -- so a single bare NONMATCHING body can unlink a hundred matched
+    functions from the C build without any counter moving.  The guarded
+    shape (`#ifdef NON_MATCHING` body `#else` INCLUDE_ASM `#endif`) keeps the
+    unit linkable.
+    """
+    marks = []
+    for i, line in enumerate(src.lines):
+        m = MARKER_RE.match(line)
+        if m:
+            marks.append((i, m))
+    for n, (i, m) in enumerate(marks):
+        if "NONMATCHING" not in m.group(3):
+            continue
+        end = marks[n + 1][0] if n + 1 < len(marks) else len(src.lines)
+        symbol = "func_%s" % m.group(2).lower()
+        if any(INCLUDE_ASM_RE.match(src.lines[j]) and symbol in src.lines[j]
+               for j in range(i, end)):
+            continue
+        yield Finding("M002", src.rel(), i + 1,
+                      "NONMATCHING body has no INCLUDE_ASM fallback; "
+                      "tools/build.py will drop this whole translation unit "
+                      "from the C link",
+                      src.lines[i].strip())
+
+
 # ------------------------------------------------------------ pragma balance
 
 PUSH_RE = re.compile(r"^\s*#\s*pragma\s+push\b")
@@ -670,6 +703,7 @@ CHECKS = (
     check_asm_instructions,
     check_asm_function_body,
     check_markers,
+    check_nonmatching_fallback,
     check_pragma_balance,
 )
 
