@@ -845,8 +845,10 @@ typedef s64 M2C_UNK64;
 #define MULTU_HI(a, b) (0)
 #define CLZ(x) (0)
 u8 *func_00145270(s32);                  /* extern */
+/* measured 00288af0: `opt_common_subs off` inside the guard is worth 14 words (276 -> 262); retail rematerialises what b210 hoists. */
 // FUN_00288AF0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_common_subs off
 s32 func_00288af0(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
     void func_00146e60(u64, u64, u64);
     s32 func_00268f20(u32, void *, u32, u8);
@@ -946,6 +948,7 @@ s32 func_00288af0(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
         return 1;
     }
 }
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_00288af0);
 #endif

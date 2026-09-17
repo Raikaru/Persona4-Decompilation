@@ -828,8 +828,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002ba080);
 /* Effect-line floor (928B window). First probe nd 207 (object 888B);
    frame (-0xD0 vs -0xC0) and saved-reg rotation verified. Open: one
    extra saved reg, frame size, and scheduler ordering. See Lane doc. */
+/* measured 002ba5d0: `opt_common_subs off` inside the guard is worth 21 words (207 -> 186); retail rematerialises what b210 hoists. */
 // FUN_002BA5D0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_common_subs off
 /* Closest plain-C probe archived before restoring INCLUDE_ASM: saved-register allocation and stack layout remained non-matching (object 888B vs retail 928B; frame 0xD0 vs 0xC0). */
 void func_002ba5d0(u8 *arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s64 arg5, f32 fparg0)
 {
@@ -926,6 +928,7 @@ void func_002ba5d0(u8 *arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s64 arg5, f
         *(s16 *)(slot + 0x104) = *(s16 *)(slot + 0x104) & ~1;
     }
 }
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002ba5d0);
 #endif

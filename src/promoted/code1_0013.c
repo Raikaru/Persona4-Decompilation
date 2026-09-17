@@ -273,8 +273,10 @@ s32 func_00130600(u8 *arg0) {
    pragmas, unmerge split, pp+4. Resume: declaration-order/allocator key
    for f12t, then t30 narrow.
 */
+/* measured 00130680: `opt_common_subs off` inside the guard is worth 4 words (304 -> 300); retail rematerialises what b210 hoists. */
 // FUN_00130680 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_common_subs off
 void func_00130680(u8 *arg0, s32 arg1)
 {
     s16 t30;
@@ -421,6 +423,7 @@ void func_00130680(u8 *arg0, s32 arg1)
     func_0034f2e0(*(void **)(arg0 + 0x1BE0), f12t, f13t,
                   pb2[0], pb2[1], pb2[2], vfin);
 }
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00130680);
 #endif
