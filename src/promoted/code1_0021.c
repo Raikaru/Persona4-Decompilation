@@ -1177,7 +1177,7 @@ void func_00213e20(u8 *arg0, u8 *arg1)
 }
 // FUN_002142B0
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002142b0);
-/* measured 00215c10: banked floor obj 1464B/window 1472B via `python tools/measure_guarded.py src/promoted/code1_0021.c func_00215c10` (366/366 instrs, 21 edits +1 reloc-only via fnalign); opclass no surplus for this floor via `python tools/opclass.py src/promoted/code1_0021.c` (4 floors scanned, 2 surplus elsewhere at 00210c70/0021a7b0); MAC reassociations neutral (nd 79 base, mulSwap 81) and pragmas worse (schedule 1047, prop 1084) probed pre-bank via recon_probe; frame -0x60 correct, residual prologue park order, s16 sh/dsll32 order, FPU coloring (f23 vs f12, f2 vs f3), 85/conversion coloring. Best legal plain-C; parked as compiler floor. */
+/* measured 00215c10: banked floor obj 1464B/window 1472B via `python tools/measure_guarded.py src/promoted/code1_0021.c func_00215c10` (366/366 instrs, 13 edits +1 reloc-only via `python tools/fnalign.py src/promoted/code1_0021.c func_00215c10 --candidate /tmp/cand_both_reload.c` after s16 reload 21->13; park intsFirst/floatsFirst/pin neutral at 21/13; MAC neutral 79/81; pragmas schedule 431/prop 62/loopInv 21/commonSubs 226 by EDIT count; frame -0x60 correct, residual prologue park order, FPU coloring, 85/conversion coloring. Best legal plain-C; parked as compiler floor. */
 // FUN_00215C10 NONMATCHING
 #ifdef NON_MATCHING
 void func_00215c10(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
@@ -1213,16 +1213,14 @@ void func_00215c10(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
     var_flag = *(s32 *)(var_s18 + 0xA10);
     if ((var_flag & 0x14) != 0) {
         if ((var_flag & 0x4) != 0) {
-            s16 tmp = *(s16 *)(var_s18 + 0xA1C) + 1;
-            *(s16 *)(var_s18 + 0xA1C) = tmp;
-            if (tmp >= 0x18) {
+            *(s16 *)(var_s18 + 0xA1C) += 1;
+            if (*(s16 *)(var_s18 + 0xA1C) >= 0x18) {
                 *(s32 *)(var_s18 + 0xA10) &= ~4;
                 *(s16 *)(var_s18 + 0xA1C) = 0x18;
             }
         } else if ((var_flag & 0x10) != 0) {
-            s16 tmp = *(s16 *)(var_s18 + 0xA1C) - 1;
-            *(s16 *)(var_s18 + 0xA1C) = tmp;
-            if (tmp < 0xB) {
+            *(s16 *)(var_s18 + 0xA1C) -= 1;
+            if (*(s16 *)(var_s18 + 0xA1C) < 0xB) {
                 *(s32 *)(var_s18 + 0xA10) &= ~0x10;
                 *(s16 *)(var_s18 + 0xA1C) = 0xA;
             }
