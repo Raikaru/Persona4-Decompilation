@@ -1582,10 +1582,22 @@ void func_00196ce0(u8 *arg0)
 }
 
 // FUN_00196D00
+/* floor P4_00196D00 2026-09-16: object 1708B / window 1744B (36B short = 9 padding words), 245 differing words reloc-masked, frame 0x80 exact, 10 relocations all correct targets.
+ * Target: func_00196d00 @0x00196d00, owner src/promoted/code1_0019.c (146 MATCH/5 ASM, markers 151).
+ * Candidate: local/probe_00196d00/cand_v5.c sha256 e380f5e015be034e7587dd13aa393640181eb2ef9484fcf5bb661bf42c4ada1f; TU src/promoted/code1_0019.c sha256 dfa162135af3d758ab950256488662911f6de14a2e5e39b7871117cbc0463413.
+ * Compiler: b210 -O2 (default, no pragmas).
+ * Commands: python3 tools/probe_variants.py src/promoted/code1_0019.c func_00196d00 --candidate lane=local/probe_00196d00/cand_lane.c --candidate v2=local/probe_00196d00/cand_v2.c (lane 366, v2 238); --candidate v3/v4/v5 (v3 248, v4 245, v5 245); python3 tools/fndiff.py <scratch> func_00196d00; python3 tools/verify.py src/promoted/code1_0019.c; python3 tools/decomp_lint.py src/promoted/code1_0019.c.
+ * Levers: switch fallthrough for state0->init and init->4F0 check plus second state increment for 4F0==2/3 (lane 366 -> v2 238); Vec3 aggregates for pure triples (fixed 120-140 bulk lwc1 f2/f1/f0, shifted forward branches, v2 238 -> v3 248); mask/active booleanization for C8 sltu (standalone test_two_bool gives andi/sltu/bnez exactly, +16B, v3 248 -> v4 245); honest s32/f32 signatures for eed10/ef110/3e40b0 (v4 245 -> v5 245, no code change).
+ * Residual: 245 words. Major classes: FPR coloring for vec70/vec60 delta math ($f4 vs $f5, load/store order), 0.0f-0.0f folds to sw vs retail sub.s $f4,$f4+swc1 (standalone shows folding even with propagation off, remains open), pair staging order, branch-target shifts from 36B shortfall, C8 sltu now exact but later branches shifted.
+ * Next: recover mtc1 $0,$f4 live range for 0-0 via distinct zero variable with scope, then declaration-order probe for saved-reg rotation, then knob_sweep for schedule/propagation.
+ * Semantic: 10 callees all correct targets/arity (194ff0 in-TU, eec50 void, eed10/ef110 s32, 3e40b0 f32, 96040 void); unit/packet offsets match BtlUnit/BtlUnitPacketMove (btlUnit.c); C4/C8/4EC/4F0/98 flag semantics preserved; no volatile/asm; no load moved across unknown-mutating call; returns honest (1 for dead, 0 with timer increment).
+ * TU eligibility: unverified (still INCLUDE_ASM, not C-linked). Retail identity: unverified (fallback hashes unchanged).
+ * Production retains INCLUDE_ASM; this archive is the measured floor, not a MATCH. Say "not matched under tested conditions", never "impossible".
+ */
 extern void func_001eec50(u8 *arg0);
-extern void func_001eed10(u8 *arg0, f32 *arg1, f32 *arg2, f32 fparg0);
-extern void func_001ef110(u8 *arg0, f32 *arg1, f32 *arg2, f32 *arg3);
-extern void func_003e40b0(f32 *arg0, f32 *arg1);
+extern s32 func_001eed10(u8 *route, f32 *start, f32 *end, f32 radius);
+extern s32 func_001ef110(u8 *route, const f32 *startXZ, const f32 *endXZ, const f32 *centerXZ);
+extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
 s32 func_00196d00(u8 *arg0)
 {
     struct P4_196D00_Frame {
@@ -1603,6 +1615,8 @@ s32 func_00196d00(u8 *arg0)
     u16 state;
     s32 flags;
     u16 work_state;
+    s32 mask;
+    u8 active;
     u8 *work;
     u16 index;
 
@@ -1610,43 +1624,28 @@ s32 func_00196d00(u8 *arg0)
     flags = *(s32 *)(arg0 + 0x10);
     if ((flags & 8) != 0) {
         state = *(u16 *)(arg0 + 0x14);
-        if (state == 2) {
-            goto flags_state2;
-        }
-        if (state == 1) {
-            goto init;
-        }
-        if (state == 0) {
-            goto state0;
-        }
-        goto done;
-init:
-        func_001eec50(unit + 0xEC);
-        *(f32 *)(unit + 0xE8) = *(f32 *)(arg0 + 0x1C);
-        *(s32 *)(unit + 0xC4) = *(s32 *)(arg0 + 0x10);
-        *(f32 *)(unit + 0xCC) = 2.0f * (13.5f * *(f32 *)(arg0 + 0x20));
-        if ((*(s32 *)(unit + 0xC4) & 1) == 0) {
-            *(f32 *)(unit + 0xEC) = *(f32 *)(unit + 4);
-            *(f32 *)(unit + 0xF0) = *(f32 *)(unit + 0xC);
-            *(f32 *)(unit + 0xF4) = *(f32 *)(arg0 + 4);
-            *(f32 *)(unit + 0xF8) = *(f32 *)(arg0 + 0xC);
-            *(u16 *)(unit + 0x4EC) = 2;
-            *(u16 *)(unit + 0xC8) &= 0xFFDF;
-            *(u16 *)(unit + 0xC8) |= 1;
-            *(u16 *)(unit + 0xC8) |= 0x10;
-            frame.vec70[0] = *(f32 *)(unit + 4) - *(f32 *)(arg0 + 4);
-            frame.vec70[1] = *(f32 *)(unit + 8) - *(f32 *)(arg0 + 8);
-            frame.vec70[2] = *(f32 *)(unit + 0xC) - *(f32 *)(arg0 + 0xC);
-            frame.vec70[1] = 0.0f;
-            func_003e40b0(frame.vec70, frame.vec70);
-            frame.vec70[0] *= *(f32 *)(arg0 + 0x1C);
-            frame.vec70[1] *= *(f32 *)(arg0 + 0x1C);
-            frame.vec70[2] *= *(f32 *)(arg0 + 0x1C);
-            *(f32 *)(unit + 0xDC) = *(f32 *)(arg0 + 4) + frame.vec70[0];
-            *(f32 *)(unit + 0xE0) = *(f32 *)(arg0 + 8) + frame.vec70[1];
-            *(f32 *)(unit + 0xE4) = *(f32 *)(arg0 + 0xC) + frame.vec70[2];
-        } else {
-            if (*(f32 *)(arg0 + 0x1C) != 0.0f) {
+        switch (state) {
+        case 0:
+            if ((flags & 0x10) != 0) {
+                func_00194ff0(unit, (u8 *)frame.vec50, NULL, NULL);
+                *(P4_95730_Vec3 *)(arg0 + 4) = *(P4_95730_Vec3 *)frame.vec50;
+            }
+            *(u16 *)(arg0 + 0x14) = *(u16 *)(arg0 + 0x14) + 1;
+            /* fallthrough */
+        case 1:
+            func_001eec50(unit + 0xEC);
+            *(f32 *)(unit + 0xE8) = *(f32 *)(arg0 + 0x1C);
+            *(s32 *)(unit + 0xC4) = *(s32 *)(arg0 + 0x10);
+            *(f32 *)(unit + 0xCC) = 2.0f * (13.5f * *(f32 *)(arg0 + 0x20));
+            if ((*(s32 *)(unit + 0xC4) & 1) == 0) {
+                *(f32 *)(unit + 0xEC) = *(f32 *)(unit + 4);
+                *(f32 *)(unit + 0xF0) = *(f32 *)(unit + 0xC);
+                *(f32 *)(unit + 0xF4) = *(f32 *)(arg0 + 4);
+                *(f32 *)(unit + 0xF8) = *(f32 *)(arg0 + 0xC);
+                *(u16 *)(unit + 0x4EC) = 2;
+                *(u16 *)(unit + 0xC8) &= 0xFFDF;
+                *(u16 *)(unit + 0xC8) |= 1;
+                *(u16 *)(unit + 0xC8) |= 0x10;
                 frame.vec70[0] = *(f32 *)(unit + 4) - *(f32 *)(arg0 + 4);
                 frame.vec70[1] = *(f32 *)(unit + 8) - *(f32 *)(arg0 + 8);
                 frame.vec70[2] = *(f32 *)(unit + 0xC) - *(f32 *)(arg0 + 0xC);
@@ -1655,133 +1654,141 @@ init:
                 frame.vec70[0] *= *(f32 *)(arg0 + 0x1C);
                 frame.vec70[1] *= *(f32 *)(arg0 + 0x1C);
                 frame.vec70[2] *= *(f32 *)(arg0 + 0x1C);
-                frame.vec50[0] = *(f32 *)(arg0 + 4) + frame.vec70[0];
-                frame.vec50[1] = *(f32 *)(arg0 + 8) + frame.vec70[1];
-                frame.vec50[2] = *(f32 *)(arg0 + 0xC) + frame.vec70[2];
+                *(f32 *)(unit + 0xDC) = *(f32 *)(arg0 + 4) + frame.vec70[0];
+                *(f32 *)(unit + 0xE0) = *(f32 *)(arg0 + 8) + frame.vec70[1];
+                *(f32 *)(unit + 0xE4) = *(f32 *)(arg0 + 0xC) + frame.vec70[2];
             } else {
-                frame.vec50[0] = *(f32 *)(arg0 + 4);
-                frame.vec50[1] = *(f32 *)(arg0 + 8);
-                frame.vec50[2] = *(f32 *)(arg0 + 0xC);
+                if (*(f32 *)(arg0 + 0x1C) != 0.0f) {
+                    frame.vec70[0] = *(f32 *)(unit + 4) - *(f32 *)(arg0 + 4);
+                    frame.vec70[1] = *(f32 *)(unit + 8) - *(f32 *)(arg0 + 8);
+                    frame.vec70[2] = *(f32 *)(unit + 0xC) - *(f32 *)(arg0 + 0xC);
+                    frame.vec70[1] = 0.0f;
+                    func_003e40b0(frame.vec70, frame.vec70);
+                    frame.vec70[0] *= *(f32 *)(arg0 + 0x1C);
+                    frame.vec70[1] *= *(f32 *)(arg0 + 0x1C);
+                    frame.vec70[2] *= *(f32 *)(arg0 + 0x1C);
+                    frame.vec50[0] = *(f32 *)(arg0 + 4) + frame.vec70[0];
+                    frame.vec50[1] = *(f32 *)(arg0 + 8) + frame.vec70[1];
+                    frame.vec50[2] = *(f32 *)(arg0 + 0xC) + frame.vec70[2];
+                } else {
+                    *(P4_95730_Vec3 *)frame.vec50 = *(P4_95730_Vec3 *)(arg0 + 4);
+                }
+                frame.vec50[1] = *(f32 *)(unit + 8);
+                *(P4_95730_Vec3 *)(unit + 4) = *(P4_95730_Vec3 *)frame.vec50;
+                *(s32 *)(unit + 0xC4) &= ~1;
+                *(u16 *)(unit + 0xC8) &= 0xFFDF;
+                *(u16 *)(unit + 0xC8) &= 0xFFFE;
+                *(u16 *)(unit + 0xC8) &= 0xFFEF;
+                *(P4_95730_Vec3 *)(unit + 0xDC) = *(P4_95730_Vec3 *)frame.vec50;
             }
-            frame.vec50[1] = *(f32 *)(unit + 8);
-            *(f32 *)(unit + 4) = frame.vec50[0];
-            *(f32 *)(unit + 8) = frame.vec50[1];
-            *(f32 *)(unit + 0xC) = frame.vec50[2];
-            *(s32 *)(unit + 0x98) |= 4;
-            *(s32 *)(unit + 0xC4) &= ~1;
-            *(u16 *)(unit + 0xC8) &= 0xFFDF;
-            *(u16 *)(unit + 0xC8) &= 0xFFFE;
-            *(u16 *)(unit + 0xC8) &= 0xFFEF;
-            *(f32 *)(unit + 0xDC) = frame.vec50[0];
-            *(f32 *)(unit + 0xE0) = frame.vec50[1];
-            *(f32 *)(unit + 0xE4) = frame.vec50[2];
-        }
-        *(u16 *)(arg0 + 0x14) = *(u16 *)(arg0 + 0x14) + 1;
-        goto done;
-    }
-    goto no_flags;
-state0:
-    if ((flags & 0x10) != 0) {
-        func_00194ff0(unit, (u8 *)frame.vec50, NULL, NULL);
-        *(f32 *)(arg0 + 4) = frame.vec50[0];
-        *(f32 *)(arg0 + 8) = frame.vec50[1];
-        *(f32 *)(arg0 + 0xC) = frame.vec50[2];
-    }
-    *(u16 *)(arg0 + 0x14) = *(u16 *)(arg0 + 0x14) + 1;
-    goto init;
-
-flags_state2:
-    work_state = *(u16 *)(unit + 0xC8);
-    if ((work_state & 1) != 0 || (work_state & 2) != 0) {
-        goto done;
-    }
-    return 1;
-no_flags:
-    state = *(u16 *)(arg0 + 0x14);
-    if (state == 3) {
-        work_state = *(u16 *)(unit + 0xC8);
-        if ((work_state & 1) != 0 || (work_state & 2) != 0) {
+            *(u16 *)(arg0 + 0x14) = *(u16 *)(arg0 + 0x14) + 1;
+            goto done;
+        case 2:
+            work_state = *(u16 *)(unit + 0xC8);
+            mask = work_state & 1;
+            active = (mask != 0);
+            if (active != 0) {
+                goto done;
+            }
+            mask = work_state & 2;
+            active = (mask != 0);
+            if (active != 0) {
+                goto done;
+            }
+            return 1;
+        default:
             goto done;
         }
-        return 1;
-    }
-    if (state == 2 || state == 1) {
-        goto init_no_flags;
-    }
-    if (state == 0) {
-        if ((flags & 0x10) != 0) {
-            func_00194ff0(unit, (u8 *)frame.vec50, NULL, NULL);
-            *(f32 *)(arg0 + 4) = frame.vec50[0];
-            *(f32 *)(arg0 + 8) = frame.vec50[1];
-            *(f32 *)(arg0 + 0xC) = frame.vec50[2];
+    } else {
+        state = *(u16 *)(arg0 + 0x14);
+        switch (state) {
+        case 0:
+            if ((flags & 0x10) != 0) {
+                func_00194ff0(unit, (u8 *)frame.vec50, NULL, NULL);
+                *(P4_95730_Vec3 *)(arg0 + 4) = *(P4_95730_Vec3 *)frame.vec50;
+            }
+            *(u16 *)(arg0 + 0x14) = *(u16 *)(arg0 + 0x14) + 1;
+            /* fallthrough */
+        case 1:
+            func_001eec50(unit + 0xEC);
+            *(f32 *)(unit + 0xE8) = *(f32 *)(arg0 + 0x1C);
+            *(s32 *)(unit + 0xC4) = *(s32 *)(arg0 + 0x10);
+            *(f32 *)(unit + 0xCC) = 2.0f * (13.5f * *(f32 *)(arg0 + 0x20));
+            frame.pair48[0] = *(f32 *)(unit + 4);
+            frame.pair48[1] = *(f32 *)(unit + 0xC);
+            frame.pair40[0] = *(f32 *)(arg0 + 4);
+            frame.pair40[1] = *(f32 *)(arg0 + 0xC);
+            if ((*(s32 *)(arg0 + 0x10) & 0x80) == 0) {
+                func_001eed10(unit + 0xEC, frame.pair48, frame.pair40, 50.0f);
+            } else {
+                func_00196040(3, 1, (void *)frame.vec50, 0, 0, 1);
+                frame.pair38[0] = frame.vec50[0];
+                frame.pair38[1] = frame.vec50[2];
+                func_001ef110(unit + 0xEC, frame.pair48, frame.pair40, frame.pair38);
+            }
+            index = *(u16 *)(unit + 0x4EC);
+            if (index == 0) {
+                *(P4_95730_Vec3 *)(unit + 0xDC) = *(P4_95730_Vec3 *)(arg0 + 4);
+            } else {
+                work = unit + index * 8;
+                frame.vec70[0] = *(f32 *)(work + 0xDC);
+                frame.vec70[1] = 0.0f;
+                frame.vec70[2] = *(f32 *)(work + 0xE0);
+                frame.vec60[0] = *(f32 *)(arg0 + 4);
+                frame.vec60[1] = *(f32 *)(arg0 + 8);
+                frame.vec60[2] = *(f32 *)(arg0 + 0xC);
+                frame.vec60[1] = 0.0f;
+                frame.vec70[0] = frame.vec70[0] - frame.vec60[0];
+                frame.vec70[1] = 0.0f - 0.0f;
+                frame.vec70[2] = frame.vec70[2] - frame.vec60[2];
+                func_003e40b0(frame.vec70, frame.vec70);
+                frame.vec70[0] *= *(f32 *)(arg0 + 0x1C);
+                frame.vec70[1] *= *(f32 *)(arg0 + 0x1C);
+                frame.vec70[2] *= *(f32 *)(arg0 + 0x1C);
+                frame.vec60[0] += frame.vec70[0];
+                frame.vec60[1] += frame.vec70[1];
+                frame.vec60[2] += frame.vec70[2];
+                *(P4_95730_Vec3 *)(unit + 0xDC) = *(P4_95730_Vec3 *)frame.vec60;
+            }
+            *(u16 *)(arg0 + 0x14) = *(u16 *)(arg0 + 0x14) + 1;
+            /* fallthrough */
+        case 2:
+            work_state = *(u8 *)(unit + 0x4F0);
+            if (work_state == 2) {
+                *(u16 *)(unit + 0xC8) &= 0xFFDF;
+                *(u16 *)(unit + 0xC8) |= 1;
+                *(u16 *)(unit + 0xC8) |= 0x10;
+                *(u16 *)(arg0 + 0x14) = *(u16 *)(arg0 + 0x14) + 1;
+                goto done;
+            } else if (work_state == 3) {
+                *(f32 *)(unit + 0xEC) = *(f32 *)(unit + 4);
+                *(f32 *)(unit + 0xF0) = *(f32 *)(unit + 0xC);
+                *(f32 *)(unit + 0xF4) = *(f32 *)(arg0 + 4);
+                *(f32 *)(unit + 0xF8) = *(f32 *)(arg0 + 0xC);
+                *(u16 *)(unit + 0x4EC) = 2;
+                *(u16 *)(unit + 0xC8) &= 0xFFDF;
+                *(u16 *)(unit + 0xC8) |= 1;
+                *(u16 *)(unit + 0xC8) |= 0x10;
+                *(u16 *)(arg0 + 0x14) = *(u16 *)(arg0 + 0x14) + 1;
+                goto done;
+            }
+            goto done;
+        case 3:
+            work_state = *(u16 *)(unit + 0xC8);
+            mask = work_state & 1;
+            active = (mask != 0);
+            if (active != 0) {
+                goto done;
+            }
+            mask = work_state & 2;
+            active = (mask != 0);
+            if (active != 0) {
+                goto done;
+            }
+            return 1;
+        default:
+            goto done;
         }
-        *(u16 *)(arg0 + 0x14) = *(u16 *)(arg0 + 0x14) + 1;
-        goto init_no_flags;
-    }
-    goto done;
-init_no_flags:
-    func_001eec50(unit + 0xEC);
-    *(f32 *)(unit + 0xE8) = *(f32 *)(arg0 + 0x1C);
-    *(s32 *)(unit + 0xC4) = *(s32 *)(arg0 + 0x10);
-    *(f32 *)(unit + 0xCC) = 2.0f * (13.5f * *(f32 *)(arg0 + 0x20));
-    frame.pair48[0] = *(f32 *)(unit + 4);
-    frame.pair48[1] = *(f32 *)(unit + 0xC);
-    frame.pair40[0] = *(f32 *)(arg0 + 4);
-    frame.pair40[1] = *(f32 *)(arg0 + 0xC);
-    if ((*(s32 *)(arg0 + 0x10) & 0x80) == 0) {
-        func_001eed10(unit + 0xEC, frame.pair48, frame.pair40, 50.0f);
-    } else {
-        func_00196040(3, 1, (void *)frame.vec50, 0, 0, 1);
-        frame.pair38[0] = frame.vec50[0];
-        frame.pair38[1] = frame.vec50[2];
-        func_001ef110(unit + 0xEC, frame.pair48, frame.pair40, frame.pair38);
-    }
-    index = *(u16 *)(unit + 0x4EC);
-    if (index == 0) {
-        *(f32 *)(unit + 0xDC) = *(f32 *)(arg0 + 4);
-        *(f32 *)(unit + 0xE0) = *(f32 *)(arg0 + 8);
-        *(f32 *)(unit + 0xE4) = *(f32 *)(arg0 + 0xC);
-    } else {
-        work = unit + index * 8;
-        frame.vec70[0] = *(f32 *)(work + 0xDC);
-        frame.vec70[1] = 0.0f;
-        frame.vec70[2] = *(f32 *)(work + 0xE0);
-        frame.vec60[0] = *(f32 *)(arg0 + 4);
-        frame.vec60[1] = *(f32 *)(arg0 + 8);
-        frame.vec60[2] = *(f32 *)(arg0 + 0xC);
-        frame.vec60[1] = 0.0f;
-        frame.vec70[0] = frame.vec70[0] - frame.vec60[0];
-        frame.vec70[1] = 0.0f - 0.0f;
-        frame.vec70[2] = frame.vec70[2] - frame.vec60[2];
-        func_003e40b0(frame.vec70, frame.vec70);
-        frame.vec70[0] *= *(f32 *)(arg0 + 0x1C);
-        frame.vec70[1] *= *(f32 *)(arg0 + 0x1C);
-        frame.vec70[2] *= *(f32 *)(arg0 + 0x1C);
-        frame.vec60[0] += frame.vec70[0];
-        frame.vec60[1] += frame.vec70[1];
-        frame.vec60[2] += frame.vec70[2];
-        *(f32 *)(unit + 0xDC) = frame.vec60[0];
-        *(f32 *)(unit + 0xE0) = frame.vec60[1];
-        *(f32 *)(unit + 0xE4) = frame.vec60[2];
-    }
-    *(u16 *)(arg0 + 0x14) = *(u16 *)(arg0 + 0x14) + 1;
-    work_state = *(u8 *)(unit + 0x4F0);
-    if (work_state == 2) {
-        *(u16 *)(unit + 0xC8) &= 0xFFDF;
-        *(u16 *)(unit + 0xC8) |= 1;
-        *(u16 *)(unit + 0xC8) |= 0x10;
-        goto done;
-    }
-    if (work_state == 3) {
-        *(f32 *)(unit + 0xEC) = *(f32 *)(unit + 4);
-        *(f32 *)(unit + 0xF0) = *(f32 *)(unit + 0xC);
-        *(f32 *)(unit + 0xF4) = *(f32 *)(arg0 + 4);
-        *(f32 *)(unit + 0xF8) = *(f32 *)(arg0 + 0xC);
-        *(u16 *)(unit + 0x4EC) = 2;
-        *(u16 *)(unit + 0xC8) &= 0xFFDF;
-        *(u16 *)(unit + 0xC8) |= 1;
-        *(u16 *)(unit + 0xC8) |= 0x10;
-        goto done;
     }
 done:
     *(s32 *)(arg0 + 0x18) += 1;
