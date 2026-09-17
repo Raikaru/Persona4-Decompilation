@@ -123,7 +123,7 @@ u8 *func_0028fb90(void)
     return work;
 }
 
-/* Floor: 5 differing words over 4 fnalign edits, 522 emitted against
+/* measured, floor: 5 differing words over 4 fnalign edits, 522 emitted against
    retail's 522 (0.0%, 2096B against 2096B).  Levers that moved it:
    propagation-off copy locals recover retail's saved-register colouring
    (d2/d3/d4 = s5/s4/s3, idx = s2, c0/wk = s1/s0); declaring the switch
@@ -139,10 +139,11 @@ u8 *func_0028fb90(void)
    only the emission order of the home block differs, and it is invariant
    under declaration order, initialiser-vs-assignment form, assignment
    order, K&R definition form, and direct-parameter-vs-copy models (all
-   measured, all 5 words). */
+   measured, all 5 words). Pragma re-probe on the 5wd body: propag removal
+   202, loop-inv removal 14 (confirms 14 -> 5), cse-off 458, sched-on 489. */
 // FUN_0028FC40 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: floor nd14 obj2088B/window2096B (8B short, 0.38% emitted; 14/524 words 2.67%) via fndiff.py; first two loops match, third-loop + prologue floor. */
+/* measured: propag-off above is load-bearing (removal 5 -> 202); the loop-invariants pair below closes 14 -> 5; body is 5wd exact at 522/522 instrs (2096B/2096B). */
 #pragma opt_propagation off
 u8 *func_0028fc40(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4)
 {
