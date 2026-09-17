@@ -15,7 +15,7 @@ extern s32 func_00247cb0(s16 arg0);
 extern u16 func_00107ac0(s32 arg0);
 extern void func_00209d40(u8 *arg0, u8 *arg1);
 extern u16 func_00209dc0(u8 *arg0, u8 *arg1);
-extern void func_00209fa0(void);
+extern void func_00209fa0(s32 arg0, u8 *arg1, f32 *arg2);
 extern void func_00209f90(void);
 extern void func_0020a5c0(void);
 extern void func_00202d20();
@@ -3289,8 +3289,170 @@ u16 func_00209dc0(u8 *arg0, u8 *arg1)
 void func_00209f90(void)
 {
 }
-// FUN_00209FA0
+/* Floor: 219 differing words over 92 edits, 392 emitted against retail's 392 (plus 2 reloc-only); probe a(v3)=300 -> b(block-scope+staged)=219. Levers: nested-block loop counters/pointers, per-statement float staging into s1/s2 temporaries, 5-arg 205ff0 direct-jal via block-scope shadow decl (no extra move a3,s1), isolated MAC idioms (2*c-c*c via mula+msub, 357+0.5*(138-x) via sub+adda+madd, 402-150*x via adda+msub, (u8)f via 2.1e9 check); opt_propagation bracket removed (219->219 without it, not load-bearing). WALL: s-allocation rotation (retail s1=arg0/s0=arg2/s3=arg1/s2=temp vs object s3/s2/s1, temp_2 lands in s1); div.s dest f1 vs f0 with extra mov.s and c.ole/c.olt operand swap; 1.0/2.0 into saved f22/f23 cascading FPU dest rotation; D_00887300 base stays temp (lui $v0+lw vs retail lui $s0+lw) at 3 sites. */
+// FUN_00209FA0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00209fa0(s32 arg0, u8 *arg1, f32 *arg2)
+{
+    extern u8 *func_00452560(s32 arg0);
+    extern void func_00205ff0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, void (*callback)(void));
+    extern s32 func_00105f00(s16 arg0);
+    extern s32 func_0010d6d0(s16 arg0);
+    extern s32 func_002738d0(u8 *arg0);
+    extern u8 *func_00274cd0(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, f32 f0, f32 f1, f32 f2);
+    extern void func_00272950(u8 *arg0, s32 arg1, s32 arg2);
+    extern void func_00273170(u8 *arg0, s32 arg1, s32 arg2);
+    extern void func_00271b70(u8 *arg0);
+    void (**base)(u32, u32);
+    Work4 work;
+    u8 *temp_2;
+    u8 *res;
+    f32 f21;
+    f32 f20;
+    u8 alpha;
+    s32 ival;
+    s32 sval;
+    s32 dval;
+    s32 chr;
+    temp_2 = func_00452560(*(s32 *)(arg1 + 0x5B0));
+    func_002012d0(temp_2, arg2[0], arg2[1]);
+    if (*(u16 *)arg1 != 2) {
+        func_00205ff0(arg1, (u8 *)arg0, arg2[0], arg2[1], (void (*)(void))func_00205e00);
+    }
+    {
+        s16 ct0;
+        s16 ct1;
+        s16 ct2;
+        s16 ct3;
+        s16 ct4;
+        s16 ct5;
+        ct0 = *(s16 *)(arg1 + 0x20);
+        if (ct0 < 4) {
+            *(s16 *)(arg1 + 0x20) = ct0 + 1;
+        }
+        ct1 = *(s16 *)(arg1 + 0x22);
+        if (ct1 < 0xA) {
+            *(s16 *)(arg1 + 0x22) = ct1 + 1;
+        }
+        if ((*(s32 *)(arg1 + 4) & 4) != 0) {
+            ct2 = *(s16 *)(arg1 + 0x16);
+            if (ct2 < 4) {
+                *(s16 *)(arg1 + 0x16) = ct2 + 1;
+            }
+            ct3 = *(s16 *)(arg1 + 0x18);
+            if (ct3 < 7) {
+                *(s16 *)(arg1 + 0x18) = ct3 + 1;
+            }
+        } else {
+            ct4 = *(s16 *)(arg1 + 0x16);
+            if (ct4 > 0) {
+                *(s16 *)(arg1 + 0x16) = ct4 - 1;
+            }
+            ct5 = *(s16 *)(arg1 + 0x18);
+            if (ct5 > 0) {
+                *(s16 *)(arg1 + 0x18) = ct5 - 1;
+            }
+        }
+    }
+    {
+        f32 c;
+        c = (f32)*(s16 *)(arg1 + 0x1C) / 5.0f;
+        if (c > 1.0f) {
+            c = 1.0f;
+        } else if (c < 0.0f) {
+            c = 0.0f;
+        }
+        f21 = 1.0f - (2.0f * c - c * c);
+    }
+    {
+        f32 s1;
+        f32 s2;
+        f20 = 36.0f * f21;
+        s1 = 324.0f + f20;
+        s2 = s1;
+        func_00201650(temp_2, 9, 0x4E, 491.0f, s2, 0xFE, 0xFF, 0x22, 0xFF);
+    }
+    if (f21 > 0.0f) {
+        base = D_00887300;
+        base[0](1, 0);
+        base[0](8, 1);
+        work.colors.c0 = 0;
+        work.colors.c1 = 0;
+        work.colors.c2 = 0xFF;
+        work.colors.c3 = 0;
+        work.value3 = 0x64;
+        {
+            f32 s1;
+            f32 s2;
+            s1 = 330.0f + f20;
+            s2 = s1 - 40.0f;
+            work.value0 = (s32)s2;
+        }
+        work.value1 = 0x1A4;
+        work.value2 = 0x28;
+        func_0045d6e0((u8 *)&work.colors, (f32 *)(void *)&work.value3, 0.0f, 0);
+        base[0](8, 0);
+    }
+    base = D_00887300;
+    base[0](6, 1);
+    func_002019e0(temp_2, 50.0f);
+    func_00201650(temp_2, 9, 0x3B, 493.0f, 330.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+    chr = (s16)func_00105f00(*(s16 *)(*(u8 **)(arg1 + 0x190) + 0xA4)) + 0x3F;
+    func_00201650(temp_2, 9, chr, 168.0f, 334.0f, 0xFE, 0xFF, 0x22, 0xFF);
+    func_00272c60(0x40);
+    dval = func_0010d6d0(*(s16 *)(*(u8 **)(arg1 + 0x190) + 0xA4));
+    res = func_00274cd0(-1, 0, 1, dval, 0, 0, 357.0f, 332.0f, 50.0f);
+    sval = func_002738d0(res);
+    {
+        f32 s1;
+        f32 s2;
+        f32 s3;
+        s1 = (f32)sval;
+        s2 = 138.0f - s1;
+        s3 = 0.5f * s2;
+        s1 = 357.0f + s3;
+        s2 = 16.0f * s1;
+        ival = (s32)s2;
+    }
+    func_00272950(res, ival, 0xA60);
+    func_00273170(res, 1, 0);
+    func_00271b70(res);
+    func_00272c80(0x40);
+    base[0](6, 0);
+    func_002019e0(temp_2, 0.0f);
+    {
+        f32 c;
+        f32 tmp;
+        f32 fa;
+        f32 fb;
+        c = (f32)*(s16 *)(arg1 + 0x1E) / 10.0f;
+        if (c > 1.0f) {
+            c = 1.0f;
+        } else if (c < 0.0f) {
+            c = 0.0f;
+        }
+        tmp = 2.0f * c - c * c;
+        fa = 1.0f - tmp;
+        fb = 1.0f - fa;
+        alpha = (u8)(255.0f * fb);
+        func_00201650(temp_2, 9, 0x44, 402.0f - 150.0f * fa, 308.0f, 0xFE, 0xFF, 0x22, alpha);
+    }
+    {
+        s16 ct6;
+        s16 ct7;
+        ct6 = *(s16 *)(arg1 + 0x1C);
+        if (ct6 < 5) {
+            *(s16 *)(arg1 + 0x1C) = ct6 + 1;
+        }
+        ct7 = *(s16 *)(arg1 + 0x1E);
+        if (ct7 < 0xA) {
+            *(s16 *)(arg1 + 0x1E) = ct7 + 1;
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00209fa0);
+#endif
 // FUN_0020A5C0
 void func_0020a5c0(void)
 {
