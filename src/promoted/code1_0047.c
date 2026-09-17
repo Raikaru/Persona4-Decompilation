@@ -246,28 +246,12 @@ s32 func_0047ae90(u8 *arg0, u16 arg1)
 
 
 
-/* Floor: 2 differing words, 146 of 146 instructions against a 592-byte
-   window with an 8-byte zero tail and 14 relocations.  Three shapes carried
-   it: reading the 0x40 field directly rather than through a staged pointer
-   (65 words to 47), inlining the success path of case 2 instead of
-   branching to a shared tail (65 to 23), and spelling the func_0047e450
-   destination as integer arithmetic, `(u8 *)((u32)arg0 + 0x2D0)`, which
-   moves the `addiu $a0` to the head of the argument block where retail
-   has it (5 to 2).  Loading the header fields with `lhu` rather than `lh`
-   is also load-bearing, as is the declaration of func_0047e450 above
-   with s32 second and third parameters, matching its provider in mdlSE.c.
-   WALL: the fifth argument `lw $t0, 0x4C($sp)` is retail's last setup
-   instruction, after `daddu $a3, $v0`; this build loads it before the
-   move.  Nesting the func_00455ea0 call versus staging it in a temp,
-   dropping the (u32) cast, and every width for the third, fourth and
-   fifth parameters (u16, s16, s32, pointer and K&R) were measured at 2. */
-// FUN_0047CE00 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_0047CE00
 s32 func_0047ce00(u8 *arg0)
 {
     s32 ret;
     u8 *obj;
-    s32 sp4C;
+    u32 sp4C;
 
     obj = *(u8 **)(arg0 + 0x30C);
     if (obj == NULL) {
@@ -287,10 +271,10 @@ s32 func_0047ce00(u8 *arg0)
                 *(s32 *)(obj + 0x2C) = *(s32 *)(*(u8 **)(obj + 0x38) + 0x110);
                 *(s32 *)(obj + 0x30) = *(s32 *)(*(u8 **)(obj + 0x38) + 0x118);
             } else {
-                *(s32 *)(obj + 0x2C) = (s32)func_00455ea0(*(u8 **)(obj + 0x38), 0, &sp4C);
+                *(s32 *)(obj + 0x2C) = (s32)func_00455ea0(*(u8 **)(obj + 0x38), 0, (s32 *)&sp4C);
                 *(s32 *)(obj + 0x30) = sp4C;
                 func_0047e450((u8 *)((u32)arg0 + 0x2D0), *(u16 *)(arg0 + 0xD4), *(u16 *)(arg0 + 0xD6),
-                              (s32)func_00455ea0(*(u8 **)(obj + 0x38), 1, &sp4C), (u32)sp4C);
+                              (s32)func_00455ea0(*(u8 **)(obj + 0x38), 1, (s32 *)&sp4C), sp4C);
             }
             *(u8 *)(obj + 0x3C) = 2;
         }
@@ -342,9 +326,6 @@ L_after_c3:
         return ret;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047ce00);
-#endif
 // FUN_0047D050
 void func_0047d050(s32 arg0)
 {
