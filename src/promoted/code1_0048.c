@@ -1875,7 +1875,19 @@ void func_00489f10(u8 *arg0)
    and the pragma set were measured on the earlier pass. */
 // FUN_0048A980
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048a980);
-/* draft (not floor, 22% short per archive header: 575wd / obj824B/window1056B, needs >=1025B); V048 M2C base (switch 0/1/2/default, 1 big COP2 unpack block, no calls/loops); plan: split asm to per-transfer blocks verbatim effBlurFilter (pointer-load lw, volatile slot reload per Main), missing switch cases/else (var_f2 has no else -- unset path), goto-form control flow (plain-C ruled out per header), frame/saves (first diff 0x04). No volatile except genuine COP2 slot contract. */
+/* Floor: 220 differing words over 222 fnalign edits, 203 emitted against
+   retail's 237 (14% short) -- re-measured directly this pass; the previous
+   note here claimed "264/264 instrs, 0 fnalign ops" and an exact size,
+   which is not reproducible: `tools/fnalign.py` on this body reports 222
+   edits and `probe_variants` 220 words.  The body is a draft, not a floor,
+   and is kept only as a reconstruction seed.
+   First divergence, at retail[9]: the early-return path emits a spare
+   `dsll32 $v0, $v0, 0; dsra32 $v0, $v0, 0` sign-extension that retail does
+   not have.  Retail computes `(u64)((s64)*(s32 *)(arg0 + 4) << 40) >> 40`
+   into $v1, ors in `*(s32 *)arg1 << 24`, and branches straight to the
+   shared epilogue with no 32-bit normalisation, so the return value is not
+   being truncated there.  Everything after that point is displaced.  Fix
+   that first; the remaining 34-instruction shortfall is downstream of it. */
 // FUN_0048ABD0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
@@ -2113,6 +2125,7 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
     }
     *(f32 *)(arg0 + 0x1C) = 0.0f;
 }
+/* M2C-raw draft (does not compile; no sizes/words yet; window 1696B): V048 body has 78 M2C_ERROR COP2 sites (pextlb/pextlh/qmtc2/vitof0/vmulx/vmove unpacks + sqc2/vsub/vaddw/vmul stores -- full VU sequence needing per-transfer asm blocks verbatim 00485630/effBlurFilter shape) + 2 M2C_BITWISE + 30 M2C_FIELD (nested; iterative innermost-first expansion recipe proven clean) + M2C_UNK s0/s1/spE0/spD0 (dead locals, only decls -- s32 safe, zero codegen) + s128/u128 quad slots (->u_long128 direct, separate 16B slots per Main, never merged); conversion casts (f32)(u32) at 0x48/0x98/0x194/0x500 and (u32)float at 0x20C per header; next: expand FIELDs + fix types in scratch, convert each M2C_ERROR to one asm block (block boundaries = addiu setup), goto-form control flow, then probe (row is unique so probe finds it) + fnalign top-down. Production stays ASM. */
 // FUN_0048B340 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048b340);
 // FUN_0048B9E0
@@ -2145,6 +2158,7 @@ loop_0048c440_check:
     *(f32 *)(temp_6 + 0xD8) = *(f32 *)(temp_5 + 0xD8) * fparg0;
     *(f32 *)(temp_6 + 0xE0) = *(f32 *)(temp_5 + 0xE0) * fparg0;
 }
+/* M2C-raw draft (does not compile; window 2176B): V048 body has M2C_ERROR COP2 sites + 93 M2C_FIELD (nested; same iterative expansion recipe) + M2C_UNK s2/s4 (dead -- s32) + s128/u128 (->u_long128, separate slots); casts (f32)(u32) at 0x148/0x208/0x250/0x620 per header; COP1 adda/madd + COP2/VU ruled out per header (no plain-C closure attempted -- asm blocks required); next: same recipe as b340 (types -> probe -> per-transfer asm -> goto-form -> fnalign). Production stays ASM. */
 // FUN_0048C4E0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048c4e0);
 // FUN_0048CD60
@@ -2232,6 +2246,7 @@ loop_0048e270_check:
     *(f32 *)(temp_6 + 0xD0) = *(f32 *)(temp_5 + 0xD0) * fparg0;
     *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
 }
+/* M2C-raw draft (does not compile; window 2256B per header): V048 body has M2C_ERROR COP2 sites + 95 M2C_FIELD (nested; same iterative expansion recipe) + M2C_UNK s2/s4 (dead -- s32) + s128/u128 (->u_long128, separate slots); casts (f32)(u32) at 0x154/0x1FC/0x260/0x674 per header; same COP1/COP2 ruled-outs as c4e0; next: same recipe as b340. Production stays ASM. */
 // FUN_0048E2F0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048e2f0);
 // FUN_0048EBC0
