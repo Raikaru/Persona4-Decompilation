@@ -518,11 +518,12 @@ void func_001a06d0(u8 *arg0) {
         func_001b0800(arg0, *(u16 *)(arg0 + 0x14));
     }
 }
-/* measured: live object 1064B/window 1088B, normalized_diff 232 (guard below). Solved: twin-idiom calls, local externs, s64 arg0, memset-grounded stack, Ghidra nested tail (else-form), alternating unit-address spellings. Walls: frame 0x80 vs retail 0x70 (5 saved regs vs 3; temp live values overflow into s-regs), sp6E uninit-OR kept in reg ($s4 ori) vs retail stack slot (lhu/ori/sh), first-global lw symbol/offset. Ruled out today: baseline opts without the cs-off/prop-off pair (233, frame balloons to 0xa0), sp6E declared last (232, lateral), volatile sp6E (236). Production stays ASM; banked as floor. */
+/* measured: live object 1064B/window 1088B, normalized_diff 230 (guard below; schedule on inside the guard is worth 2 words, 232 -> 230, sweep-measured). Solved: twin-idiom calls, local externs, s64 arg0, memset-grounded stack, Ghidra nested tail (else-form), alternating unit-address spellings. Walls: frame 0x80 vs retail 0x70 (5 saved regs vs 3; temp live values overflow into s-regs), sp6E uninit-OR kept in reg ($s4 ori) vs retail stack slot (lhu/ori/sh), first-global lw symbol/offset. Ruled out today: baseline opts without the cs-off/prop-off pair (233, frame balloons to 0xa0), sp6E declared last (232, lateral), volatile sp6E (236). Production stays ASM; banked as floor. */
 // FUN_001A0B00 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
 #pragma opt_propagation off
+#pragma schedule on
 void func_001a0b00(s64 *arg0) {
     extern void func_001f0a10(u8 *arg0);
     extern u8 *func_001f36e0(s32 arg0, s32 arg1, void *arg2, s16 arg3, s16 arg4);
@@ -612,6 +613,7 @@ void func_001a0b00(s64 *arg0) {
         }
     }
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a0b00);
 #endif
@@ -1244,7 +1246,7 @@ void func_001a31a0(u8 *arg0)
     *(s32 *)(arg0 + 0x41C) = 1;
     *(s32 *)(arg0 + 0x420) = 0;
 }
-/* measured 001a31e0: `opt_common_subs off` inside the guard is worth 36 words (330 -> 294); retail rematerialises what b210 hoists. */
+/* measured 001a31e0: `opt_common_subs off` inside the guard is worth 36 words (330 -> 294); retail rematerialises what b210 hoists. s64 temp_17 (honest: eb4a0 takes s64) deletes the s32->s64 extension pair (294 -> 278); s32 t214/t216 pin downstream coloring, ruled out (326 each). Banked as floor (278). */
 // FUN_001A31E0 NONMATCHING
 #ifdef SKIP_ASM
 #pragma opt_common_subs off
@@ -1253,7 +1255,7 @@ void func_001a31e0(u8 *arg0) {
     u8 *func_0019a980(u8 *arg0);
     s32 sp6C;
     s32 sp60;
-    s32 temp_17;
+    s64 temp_17;
     s32 var_17;
     s32 var_5;
     u8 *temp_2;
@@ -1407,7 +1409,7 @@ void func_001a31e0(u8 *arg0) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a31e0);
 #endif
-/* measured 001a3840: `opt_common_subs off` inside the guard is worth 6 words (279 -> 273); retail rematerialises what b210 hoists. */
+/* measured 001a3840: `opt_common_subs off` inside the guard is worth 6 words (279 -> 273); retail rematerialises what b210 hoists. s32 st (275) and s32 spB0 (274) ruled out: the extension pairs pin downstream rotation coloring. Banked as floor (273). */
 // FUN_001A3840 NONMATCHING
 #ifdef SKIP_ASM
 #pragma opt_common_subs off
@@ -1681,7 +1683,7 @@ void func_001a4390(void)
 {
 }
 
-/* measured 001a43a0: live object 1092B/window 1104B, normalized_diff 162 (guard below). `opt_loop_invariants on` inside the guard is worth 56 words (218 -> 162), the loop-preheader constant hoist. Remainder is a self-consistent 5-cycle saved-register rotation (banked wall) plus the s16-slot sh/lh pair (retail sh + lh vs this build sign-extend + sw + lw). Ruled out today: volatile s16 spB0 (219), u16 res23 (215), s16 res23 (163, neutral). Banked as floor. */
+/* measured 001a43a0: live object 1092B/window 1104B, normalized_diff 161 (guard below; fnalign 273/273 instrs, 83 edits). `opt_loop_invariants on` inside the guard is worth 56 words (218 -> 162), the loop-preheader constant hoist; `temp_18 > 1` for `>= 2` fixes the slti destination to $at (162 -> 161). Remainder is a self-consistent 5-cycle saved-register rotation (banked wall) plus the s16-slot sh/lh pair (retail sh + lh vs this build sign-extend + sw + lw). Ruled out today: volatile s16 spB0 (219), u16 res23 (215), s16 res23 (163, neutral), s32 spB0 (219), opt_common_subs off (223). Banked as floor. */
 // FUN_001A43A0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
@@ -1785,7 +1787,7 @@ void func_001a43a0(u8 *arg0) {
                 *(u16 *)(arg0 + 0x6A) = 0;
                 var_16_2 = 0;
             }
-            if (temp_18 >= 2) {
+            if (temp_18 > 1) {
                 if (temp_18 == 2) {
                     var_19 = 1;
                 } else {
@@ -1823,7 +1825,7 @@ void func_001a47f0(void)
 }
 
 /* measured: live object 1164B/window 1152B, normalized_diff 219 (installed guard below; prior nd232 note at 1168B; object exceeds window by 12B). Restructured the scan loop per retail: bound check as the while condition (init + branch-over-to-test), skip-chain as separate early-outs to incr with the != 1 arm exiting to donecheck (goto-loop + OR-combined chain miscompiled the branch tree). Unmasked increment (232 -> 223 -> 219). Open walls: frame 0x60 vs 0x50, s-reg rotation, body-index mask folded away (unmasked counter proves it redundant; separate/temp/three-mask/O1 spellings all tie), slt stays signed per retail. Ruled out today: masked-incr while (223), three-mask tail temp (219 tie), O1 on both (223/219 ties). Banked as floor. */
-/* measured 001a4800: `opt_common_subs off` inside the guard is worth 45 words (219 -> 174); retail rematerialises what b210 hoists. */
+/* measured 001a4800: opt_common_subs off (219 -> 174); byte-load at unit+0xA2 for word-then-byte (174 -> 163), u8 at +0x24 (163 -> 162), honest globals iGpffffb3b8 table base and temp_4=iGpffffb3ac for single gp loads (162 -> 107); u16 index kept (neutral, faithful); masked incr ruled out (+5/+16). Open: commutative addu order, cs-off remat reload, frame 0x60 vs 0x50. Banked as floor (107). */
 // FUN_001A4800 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -1871,7 +1873,7 @@ donecheck:
                 /* fallthrough */
             case 9:
                 func_001f14f0(arg0);
-                if ((*( u16*)((u8 *)((((*( u8*)((u8 *)(arg0) + 0x6E)) * 0x28) + (*( s32*)((u8 *)(iGpffffb3ac) + -0x4C48)))) + 0x24)) == 5) {
+                if ((*( u8*)((u8 *)((((*( u16*)((u8 *)(arg0) + 0x6E)) * 0x28) + (iGpffffb3b8))) + 0x24)) == 5) {
                     func_001b0800(arg0, 0x20U);
                 } else if ((*( s32*)((u8 *)(arg0) + 0xE8)) == 1) {
                     func_001b0800(arg0, 0x17U);
@@ -1889,13 +1891,13 @@ donecheck:
                 func_001b0800(arg0, 0x19U);
                 break;
             case 6:
-                if ((s32)((*( u8**)((u8 *)((*( u8*)((u8 *)(arg0) + 0x30))) + 0xA2))) == (s32)(0)) {
+                if ((s32)((*( u8*)((*( u8**)((u8 *)(arg0) + 0x30)) + 0xA2))) == (s32)(0)) {
                     if ((s32)(func_00106330(0x38)) != (s32)(0)) {
                         var_2 = 5;
                     } else {
                         var_2 = 8;
                     }
-                    if (((s32)(func_0010ce10(func_0010a900(var_2 & 0xFFFF), 0x114)) != (s32)(-1)) || ((temp_4 = (*( u8**)((u8 *)(iGpffffb3ac) + -0x4C54)), ((*( u16*)((u8 *)(temp_4) + 0x1A)) == 1)) && ((*( u16*)((u8 *)(temp_4) + 0x290)) & 2))) {
+                    if (((s32)(func_0010ce10(func_0010a900(var_2 & 0xFFFF), 0x114)) != (s32)(-1)) || ((temp_4 = (iGpffffb3ac), ((*( u16*)((u8 *)(temp_4) + 0x1A)) == 1)) && ((*( u16*)((u8 *)(temp_4) + 0x290)) & 2))) {
                         func_00194590(func_001f5f70(arg0, 8, 0, 0, 3), 1);
                         func_00194590(func_001bc920(arg0, 8), 0);
                         func_001b0850(arg0, 0x1D, 0xC);
@@ -3083,8 +3085,10 @@ void func_001ade10(s64 *arg0)
 void func_001ade90(void)
 {
 }
+/* measured 001adea0: schedule on inside the guard is worth 1 word (271 -> 270, sweep-measured); body remains distant (277/327 instrs, 189 edits, 50 short) with unrecovered dispatch structure and needs reconstruction; sp64 dead store pre-existing (H007). Production stays ASM. */
 // FUN_001ADEA0 NONMATCHING
 #ifdef SKIP_ASM
+#pragma schedule on
 void func_001adea0(u8 *arg0)
 {
     u8 *t18;
@@ -3196,6 +3200,7 @@ void func_001adea0(u8 *arg0)
         }
     }
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001adea0);
 #endif
@@ -3524,10 +3529,7 @@ void func_001afa50(u8 *arg0)
     }
     *(u16 *)(arg0 + 0x18) &= 0xC7FF;
 }
-/* Battle-state floor (1232B window). First probe nd 219 (obj 1240B,
-   8B overrun); frame/prologue verified. Open: branch-target
-   cascade, scheduler ordering. Array-free; mask-literal 0xFFF7
-   measured better than ~8. Triple-built. */
+/* Battle-state floor (1232B window). Measured nd 208 (guard below; obj 1236B, 4B overrun; fnalign 308/309 instrs, 139 edits +3 reloc-only, 1 long; prior nd219 note at 1240B). Frame/prologue verified. Open: branch-target cascade (layout inversion at retail bnez-far pair vs inline 40-instr arm needs reconstruction), scheduler ordering. Array-free; mask-literal 0xFFF7 measured better than ~8; no width/slti/dead-arm pattern in residual. Triple-built. */
 // FUN_001AFB50 NONMATCHING
 #ifdef NON_MATCHING
 void func_001afb50(u8 *arg0)
