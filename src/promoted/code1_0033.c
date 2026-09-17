@@ -98,6 +98,22 @@ extern void func_0045eb20(void *, void *, f32, s32, s32, s32, s32, s16,
                          f32, f32, f32, void *);
 extern u8 D_00794A80[];
 extern u8 D_00794AB0[];
+extern u8 func_002e78a0(void);
+extern u8 func_002e78e0(void);
+extern s32 func_002be100(u8 arg0);
+extern u16 func_00107ac0(s32 arg0);
+extern s8 func_002bab80(void *arg0);
+extern void func_002badc0(s8 arg0, s32 arg1);
+extern s32 func_00106600(s16 arg0);
+extern void func_00106620(s32 arg0, s32 arg1);
+extern s32 func_002bb680(s8 arg0);
+extern void func_002bbcf0(s8 arg0);
+extern void func_002bb550(s8 arg0);
+extern void func_003329e0(u8 *arg0);
+extern u8 D_00644ED0[];
+extern u8 D_00645090[];
+extern u8 D_00645240[];
+extern u8 D_0064A000[];
 
 // FUN_00331560
 s32 func_00331560(void)
@@ -270,14 +286,137 @@ s32 func_003319c0(void) {
     return r;
 }
 
-/* Floor: 26 differing words, object 1388B against a 1392-byte window with
-   51 relocations and a 4-byte zero tail.  Residual is register colour -
+/* Floor: 24 differing words (probe_variants), object 1388B against a 1392-byte window with
+   51 relocations and a 4-byte zero tail. Residual is register colour -
    retail's work pointer and level counter sit in $s2/$s3 where this build
-   swaps them, and the bound test goes to $at rather than $v0.  A nine-case
-   consumer smoke over the recovered body passes.  Body at
-   docs/probe_archive/Z033_00331a20_body.c; production stays ASM. */
-// FUN_00331A20
+   swaps them, and the bound test goes to $at rather than $v0. Best is
+   min_flip (archived 26->24 via `min > level` for `level < min`); order_swap 27,
+   max_flip 28, min_order 25, min_max 26. Nine-case smoke passes. Body banked
+   below (min_flip); production stays ASM. Re-measured 2026-09-17. */
+// FUN_00331A20 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00331a20(u8 *arg0)
+{
+    s8 *work;
+    s8 i;
+    s8 j;
+    s32 level;
+    s16 level_value;
+    s16 min;
+    s16 max;
+    u8 *entry;
+    u8 *entry2;
+
+    work = *(s8 **)(arg0 + 0x38);
+    level_value = (s16)(100 * (func_002be100(func_002e78a0()) & 0xFF) + (func_002e78e0() & 0xFF));
+    switch (*work) {
+    case 0:
+        goto state_zero;
+    case 1:
+        goto state_one;
+    case 2:
+        goto state_two;
+    default:
+        goto done;
+    }
+state_zero:
+    if (func_00106330(0x1C0) == 0) {
+        work[1] = func_002bab80(D_00645240);
+        func_002badc0(work[1], 0);
+        (*work)++;
+        func_00106390(0x1C0, 1);
+        return 0;
+    }
+    if (((func_00107ac0(0x13) & 0xFFFF) == 6 || (func_00107ac0(0x13) & 0xFFFF) == 7)) {
+        u8 *e;
+
+        e = D_00645090 + ((func_00107ac0(0x13) & 0xFFFF) - 6) * 0x10;
+        if (func_00106330(*(s32 *)(e + 12)) != 0 || *(s32 *)(e + 12) == 0) {
+            work[1] = func_002bab80(D_00645240);
+            func_002badc0(work[1], *(s16 *)e);
+            func_00106620(*(s16 *)(e + 2), ((func_00106600(*(s16 *)(e + 2)) & 0xFF) + 1) & 0xFF);
+            func_00106390(*(s32 *)(e + 4), 1);
+            func_00106390(*(s32 *)(e + 8), 0);
+            (*work)++;
+            return 0;
+        }
+    }
+    i = 0;
+    level = level_value;
+    do {
+        entry = D_00644ED0 + (i * 0x10);
+        min = (s16)(entry[9] + 100 * (func_002be100(entry[8]) & 0xFF));
+        max = (s16)(entry[11] + 100 * (func_002be100(entry[10]) & 0xFF));
+        if (*(s16 *)entry == -1) {
+            goto scan_next;
+        }
+        if (func_00106330(*(s32 *)(entry + 12)) != 0) {
+            goto scan_next;
+        }
+        if (func_00106330(*(s32 *)(entry + 4)) == 0 && *(s32 *)(entry + 4) != 0) {
+            goto scan_next;
+        }
+        if (min > level) {
+            goto scan_next;
+        }
+        if (max < level) {
+            goto scan_next;
+        }
+        work[1] = func_002bab80(D_00645240);
+        func_002badc0(work[1], *(s16 *)entry);
+        func_00106390(*(s32 *)(entry + 12), 1);
+        (*work)++;
+        return 0;
+scan_next:
+        i++;
+    } while (*(s16 *)entry != -1);
+    if (func_00106330(0x1324) != 0) {
+        *work = 2;
+        func_003329e0(arg0);
+        return 0;
+    }
+    j = 0;
+    do {
+        entry2 = D_00644ED0 + (j * 0x10);
+        min = (s16)(entry2[9] + 100 * (func_002be100(entry2[8]) & 0xFF));
+        max = (s16)(entry2[11] + 100 * (func_002be100(entry2[10]) & 0xFF));
+        if (*(s16 *)entry2 == -1) {
+            goto scan_next2;
+        }
+        if (func_00106330(*(s32 *)(entry2 + 4)) == 0 && *(s32 *)(entry2 + 4) != 0) {
+            goto scan_next2;
+        }
+        if (min > level) {
+            goto scan_next2;
+        }
+        if (max < level) {
+            goto scan_next2;
+        }
+        work[1] = func_002bab80(D_00645240);
+        func_002badc0(work[1], *(s16 *)entry2);
+        (*work)++;
+        return 0;
+scan_next2:
+        j++;
+    } while (*(s16 *)entry2 != -1);
+    return -1;
+state_one:
+    if (func_002bb680(work[1]) != 0) {
+        func_002bbcf0(work[1]);
+        goto done;
+    }
+    func_002bb550(work[1]);
+    return -1;
+state_two:
+    if (func_00452380((s8 *)D_0064A000) == 0) {
+        return -1;
+    }
+done:
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0033", func_00331a20);
+#endif
 // FUN_00331F90
 void func_00331f90(u8 *arg0)
 {

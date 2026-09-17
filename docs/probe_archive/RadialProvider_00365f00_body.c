@@ -1,30 +1,36 @@
 /* Radial provider continuation: func_00365f00
- * Owner src/shdMisc.c; retail window00365F00..00366380.
- * Complete preferred C:1148/1152 bytes,17 independently resolved relocations,
- * 4 zero tail bytes,31 differing bytes. All executable instructions are covered.
- * Production remains ASM: this is a measured register-allocation floor, not
- * an impossibility claim and not a new matching recovery.
- * 
- * Initial eager byte-snapshot candidate1216/1152,nd794. Promoted color snapshots
- * and deferred center-red read reach1180/nd789. A typed row cursor reaches1164/
- * nd758. Direct unsigned-byte views fold stack addresses and reach1148/nd55.
- * Float declaration order reachesnd44; reading the actual position.y subobject
- * at its source point reachesnd31. All remaining differences are this cycle:
- *  generated edgeA=s3,edgeB=s2,edgeG=s6,edgeR=s7,count=fp;
- *  retail edgeA=s2,edgeB=s6,edgeG=s7,edgeR=fp,count=s3.
- * Signed/unsigned promoted colors, cast/halfword loop count, declaration moves
- * and while-loop spelling tie. Positive assertion form adds one difference;
- * early count snapshot and propagation-off regress. No padding or binding.
- * 
- * ABI is shared Vec2f position,depth,packed32 center/edge colors,radius,angle,
- * full u32 segments,xscale,yscale,mode. The loop and assertion use low16 count;
- * the angle divisor uses all32 segment bits. Preserve102 rows of16 floats
- * (0x1980 bytes),the previous-row reciprocal store,and late callback/global
- * reloads. Only fields written by retail are initialized. Unsupported counts
- * and unwritten vertex fields are not silently normalized or filled.
- * GP -7E20 is2*pi (40C90FDB); GP -5418 is the64-bit render flag word.
- * The reconstruction has compiler/relocation evidence only; no radial geometry
- * runtime or PS2 graphical presentation claim is made.
+ * Owner src/shdMisc.c; retail window 00365F00..00366380.
+ * Banked guarded floor (// FUN_00365F00 NONMATCHING): compiles to 1148/1152
+ * bytes, 17 independently resolved relocations, normalized diff 25.
+ * Reproduce: `python3 tools/probe_variants.py src/shdMisc.c func_00365f00
+ * --candidate base=<this body>` scores 25; `python3 tools/measure_guarded.py
+ * src/shdMisc.c func_00365f00` replays 25 from the banked source.
+ * opclass on the banked floor reports no opcode-class surplus: the residual
+ * is register coloring only, not width/signedness/call shape.
+ * All 25 differing words are one five-register color/count rotation:
+ * generated edge_a=$s3 edge_b=$s2 edge_g=$s6 edge_r=$s7 count=$fp against
+ * retail edge_a=$s2 edge_b=$s6 edge_g=$s7 edge_r=$fp count=$s3. Frame,
+ * spills, FP schedule and relocations are otherwise identical.
+ * Ten further declaration/type spellings tie at 25 (edge swap, count-first,
+ * count-after-edge, reversed edges, edge_a-last, i-last, u16 count,
+ * edge/center interleave, init-at-declaration, u32 count mask), closing the
+ * floor verdict: saved-register coloring floor, not an ordering oversight.
+ * Earlier path, retained: byte-snapshot 1216/nd794; promoted color snapshots
+ * and deferred center-red 1180/nd789; typed row cursor 1164/nd758; direct
+ * unsigned-byte views 1148/nd55; float declaration order nd44; position.y
+ * subobject read nd31->25 with the integer rotation isolated as the sole
+ * remainder. Positive assertion form +1; early count snapshot and
+ * propagation-off regress. No padding or binding.
+ *
+ * ABI is shared Vec2f position, depth, packed32 center/edge colors, radius,
+ * angle, full u32 segments, xscale, yscale, mode. The loop and assertion use
+ * low16 count; the angle divisor uses all32 segment bits. Preserve 102 rows
+ * of 16 floats (0x1980 bytes), the previous-row reciprocal store, and late
+ * callback/global reloads. Only fields written by retail are initialized.
+ * Unsupported counts and unwritten vertex fields are not silently normalized
+ * or filled. GP -7E20 is 2*pi (40C90FDB); GP -5418 is the 64-bit render flag
+ * word. Compiler/relocation evidence only; no radial geometry runtime or PS2
+ * graphical presentation claim is made.
  *
  */
 
