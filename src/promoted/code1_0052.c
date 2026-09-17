@@ -245,5 +245,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052cab0);
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052cc18);
 // FUN_0052CD18
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052cd18);
+/* Floor: 2 differing words.  This unit is ee-gcc 2.96 -O2 -G0, not MWCC.
+   The accumulator is a { s64 total; s64 min; s64 max; s32 count; } struct
+   and the body is 60 bytes of code against a 96-byte window whose tail is
+   36 zero bytes.  Retail schedules the conditional moves movn-max, daddu,
+   movn-min; this build emits movn-max, movn-min, daddu - one adjacent
+   swap.  All 24 source orders of min/max/total/count give the same NND
+   under 2.96; MWCC b210 and b119 produce branches rather than movn, and
+   ee-gcc 3.2 gives NND with different temp colours (14 words).  Body at
+   docs/probe_archive/GA52_0052d9a0_body.c. */
 // FUN_0052D9A0
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052d9a0);

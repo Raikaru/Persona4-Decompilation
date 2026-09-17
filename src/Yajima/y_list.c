@@ -571,6 +571,17 @@ loop_56:
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4ac0);
 #endif
 
+/* measured: clean floor at 90 differing words (docs/probe_archive/YL_002e5000_body.c, */
+/* object 604B/window 624B, retail 152 instrs vs object 151, fnalign 46 edits plus */
+/* 6 reloc-only). Saved-order dst,nextp,i,j,base,row,outer_offset (reverse-assigns */
+/* to retail s6..s0) moved 103 -> 90 with outer-invariant order row,nextp,outer_offset; */
+/* for-loop form kept (goto variant 131, no-active-temp variant 137, offset/pragma/temp */
+/* permutations neutral). Residual is temp colouring and scheduling: move $a1,$s2 vs */
+/* $a2,$s2, slot-base lw/addu $a1 vs $a2, outer addu/addiu $a1/$a3 vs $v1/$t0, slot2 */
+/* addu $v0,$v1 vs $a3, inner-bound reload addiu. Production stays INCLUDE_ASM. */
+/* Semantic: D_00882F70[0] is correct per retail HI16/LO16 (iGpffffb58c would be GPREL, */
+/* wrong symbol); func_003129b0 takes 3 args (u8 *,s32,s32), M2C's 4th arg is the dead */
+/* $a3 (outer) leftover, not a parameter. */
 // FUN_002E5000
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e5000);
 // FUN_002E5270

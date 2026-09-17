@@ -863,5 +863,154 @@ void func_0036d230(u8 *arg0) {
 }
 
 // Archived C body: build/WBHygiene_func_0036d3e0_archive.txt; no current park body remains.
-// FUN_0036D3E0
+/* Floor: 244 differing words over 119 edit instructions, 283 emitted against
+   retail's 285, from a first reconstruction.  The pixel-format switch's
+   labels are written in reverse inside each group as well as across groups -
+   `case 20: case 36: case 44:` is what emits retail's 0x2C, 0x24, 0x14 chain -
+   which took the edit distance from 125 to 119, and the source pointer is
+   initialised from arg0 before the depth is cleared and advanced by 0x40
+   later, which is retail's `move $s5,$s0` plus `addiu $s0,$s0,0x40`.
+   WALL: saved-register rotation.  Retail holds arg0 in $s0, the clut flag in
+   $s1, the depth in $s3 and the source pointer in $s5; this build rotates
+   them to $s2/$s5/$s0.  250 declaration orders were measured, and writing
+   the flag word as `hasClut |= 1` or building the GS flags as `flags = 0;
+   flags |= 4;` - both of which match retail's `ori` spelling - are neutral
+   and worse (270) respectively. */
+// FUN_0036D3E0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0036d3e0(u8 *arg0)
+{
+    u8 *clut;
+    u8 *src;
+    u8 *dst;
+    s32 tex;
+    s32 depth;
+    s32 flags;
+    s32 hasClut;
+    s32 i;
+    s32 j;
+
+    hasClut = 0;
+    src = arg0;
+    depth = 0;
+    switch (arg0[0x16]) {
+    case 0:
+        depth = 0x20;
+        break;
+    case 1:
+        depth = 0x18;
+        break;
+    case 2:
+    case 10:
+        depth = 0x10;
+        break;
+    case 19:
+    case 27:
+        depth = 8;
+        break;
+    case 20:
+    case 36:
+    case 44:
+        depth = 4;
+        break;
+    }
+    if (depth == 0) {
+        func_0046d730(D_0064E4E0, 0x409);
+    }
+    src += 0x40;
+    switch (depth) {
+    case 8:
+        clut = src;
+        src += arg0[0x10] << 0xA;
+        hasClut = 1;
+        break;
+    case 4:
+        clut = src;
+        src += arg0[0x10] << 6;
+        hasClut = 1;
+        break;
+    }
+    flags = 4;
+    switch (depth) {
+    case 32:
+        flags = 4 | 0x500;
+        break;
+    case 24:
+        flags = 4 | 0x600;
+        break;
+    case 8:
+        flags = 4 | 0x2500;
+        break;
+    case 4:
+        flags = 4 | 0x4500;
+        break;
+    default:
+        func_0046d730(D_0064E4E0, 0x431);
+        break;
+    }
+    tex = (s32)func_003ec590(*(u16 *)(arg0 + 0x12), *(u16 *)(arg0 + 0x14), depth, flags);
+    if (hasClut & 1) {
+        dst = (u8 *)func_003ec3d0((void *)tex, 1);
+        switch (depth) {
+        case 8:
+            for (i = 0; i < 0x100; i++) {
+                *(s32 *)dst = *(s32 *)clut;
+                clut += 4;
+                dst += 4;
+            }
+            break;
+        case 4:
+            for (i = 0; i < 0x10; i++) {
+                *(s32 *)dst = *(s32 *)clut;
+                clut += 4;
+                dst += 4;
+            }
+            break;
+        }
+        func_003ec2e0((void *)tex);
+    }
+    dst = (u8 *)func_003ec6a0((void *)tex, 0, 1);
+    switch (depth) {
+    case 32:
+        for (i = 0; i < *(u16 *)(arg0 + 0x14); i++) {
+            for (j = 0; j < *(u16 *)(arg0 + 0x12); j++) {
+                *(s32 *)dst = *(s32 *)src;
+                src += 4;
+                dst += 4;
+            }
+        }
+        break;
+    case 24:
+        for (i = 0; i < *(u16 *)(arg0 + 0x14); i++) {
+            for (j = 0; j < *(u16 *)(arg0 + 0x12) * 3; j++) {
+                *dst = *src;
+                src += 1;
+                dst += 1;
+            }
+        }
+        break;
+    case 8:
+        for (i = 0; i < *(u16 *)(arg0 + 0x14); i++) {
+            for (j = 0; j < *(u16 *)(arg0 + 0x12); j++) {
+                *dst = *src;
+                src += 1;
+                dst += 1;
+            }
+        }
+        break;
+    case 4:
+        for (i = 0; i < *(u16 *)(arg0 + 0x14); i++) {
+            for (j = 0; j < (*(u16 *)(arg0 + 0x12) >> 3); j++) {
+                *(s32 *)dst = *(s32 *)src;
+                src += 4;
+                dst += 4;
+            }
+        }
+        break;
+    }
+    func_003ec2a0((void *)tex);
+    return tex;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/pscRes", func_0036d3e0);
+#endif

@@ -1,49 +1,54 @@
-/* Best candidate archived after HoH458CE0Try34; target remained non-MATCH. */
-/* Retail saved registers: $s0, $s1, $s2, $s3, $s4; $s1 = arg0, $s0 = arg1, $s4 = created property, $s3 = current item, $s2 = loop index/address. */
-/* Tried: typed helper/global declarations; pointer-backed and array-backed float locals; scalar-address locals; opt_propagation off; opt_common_subs off; O0/O1/O2 probes; condition/literal/goto/struct/union forms. Best measured candidate was 36 differing words (reloc-masked), 516B object versus 544B retail window; opt_common_subs off duplicated clamp constants but disturbed prefix codegen. */
+/* Accepted recovery for func_00458ce0 (0x00458CE0), owner src/promoted/code1_0045.c. */
+/* Prior best after HoH458CE0Try34 remained non-MATCH (36 differing words reloc-masked, 516B object vs 544B window). */
+/* Retail saved registers: $s0 = scale/arg1, $s1 = material/arg0, $s2 = loop index, $s3 = current item, $s4 = created property. */
+/* Final: 540/544 bytes, 19 relocations (6x D_00711890_abs HI/LO + 13x func R_MIPS_26), 0 differing words reloc-masked, 4-byte retail zero tail. */
+/* Decisive levers: `#pragma opt_scalarize off` keeps the prop triple in stack spill slots (0x60/0x64/0x68($sp)) instead of $f20/$f21; struct assignment `*(Code45Vec3 *)(material + 0xC) = prop` gives retail's batched lwc1 f2,f1,f0 / swc1 f2,f1,f0 final copy (per-field stores interleave). Clamp form `if (!(x <= 1.0f)) x = 1.0f` retains retail c.le.s/bc1t. Bottom-test goto loop matches retail b/bnez layout. */
+/* Semantic note: `current` is uninitialized on paper when the search loop trips zero times, matching retail's reuse of incoming $s3 (beqz $s3). Reachable materials always carry at least one counted userdata: either the pre-existing per3modelMatProp entry (HasData != 0) or the entry just created via func_003bcfa0(...,2,3) (HasData == 0), so the loop always defines `current` before the `!= 0` test. Initializing it would add a move $s3,$zero retail does not have. Same uninitialized-search pattern as MATCHed sibling func_004586f0. */
+/* Non-goal func_00452870 untouched (banked 4-word floor, still ASM). */
 
-u8 *func_00458ce0(u8 *arg0, f32 *arg1)
-{
-    f32 values[3];
-    s32 temp_2;
+u8 *func_00458ce0(u8 *material, u8 *data) {
+    Code45Vec3 prop;
+    s32 created;
     s32 i;
     s32 current;
-    u8 *temp_18;
-
-    if (func_00457a90(arg0, D_00711890) == 0) {
-        temp_18 = arg0 + 0xC;
-        temp_2 = func_003bd000(arg0, func_003bcfa0(arg0, D_00711890, 2, 3));
-        func_003bd0f0(temp_2, 0, *(f32 *)temp_18);
-        func_003bd0f0(temp_2, 1, *(f32 *)(temp_18 + 4));
-        func_003bd0f0(temp_2, 2, *(f32 *)(temp_18 + 8));
+    f32 *materialColor;
+    if (func_00457a90((const RpMaterial *)material, (const char *)D_00711890_abs) == 0) {
+        materialColor = (f32 *)(material + 0xC);
+        created = (s32)func_003bd000((const RpMaterial *)material, func_003bcfa0((RpMaterial *)material, (char *)D_00711890_abs, 2, 3));
+        func_003bd0f0((u8 *)created, 0, materialColor[0]);
+        func_003bd0f0((u8 *)created, 1, materialColor[1]);
+        func_003bd0f0((u8 *)created, 2, materialColor[2]);
     }
     i = 0;
-    while (i < func_003bcfb0(arg0)) {
-        current = func_003bd000(arg0, i);
-        if (func_004426e8(func_003bd040(current), D_00711890) == 0) {
-            break;
-        }
-        i += 1;
+    goto loop_test;
+loop_body:
+    current = (s32)func_003bd000((const RpMaterial *)material, i);
+    if (func_004426e8(func_003bd040((RpUserDataArray *)current), (const char *)D_00711890_abs) == 0) {
+        goto loop_done;
     }
+    i += 1;
+loop_test:
+    if (i < func_003bcfb0((const RpMaterial *)material)) {
+        goto loop_body;
+    }
+loop_done:
     if (current != 0) {
-        *(f32 *)&values[0] = func_003bd090(current, 0);
-        *(f32 *)&values[1] = func_003bd090(current, 1);
-        *(f32 *)&values[2] = func_003bd090(current, 2);
-        *(f32 *)&values[0] *= arg1[0];
-        *(f32 *)&values[1] *= arg1[1];
-        *(f32 *)&values[2] *= arg1[2];
-        if (*(f32 *)&values[0] > 1.0f) {
-            *(f32 *)&values[0] = 1.0f;
+        prop.x = func_003bd090((u8 *)current, 0);
+        prop.y = func_003bd090((u8 *)current, 1);
+        prop.z = func_003bd090((u8 *)current, 2);
+        prop.x = prop.x * *(f32 *)(data + 0);
+        prop.y = prop.y * *(f32 *)(data + 4);
+        prop.z = prop.z * *(f32 *)(data + 8);
+        if (!(prop.x <= 1.0f)) {
+            prop.x = 1.0f;
         }
-        if (*(f32 *)&values[1] > 1.0f) {
-            *(f32 *)&values[1] = 1.0f;
+        if (!(prop.y <= 1.0f)) {
+            prop.y = 1.0f;
         }
-        if (*(f32 *)&values[2] > 1.0f) {
-            *(f32 *)&values[2] = 1.0f;
+        if (!(prop.z <= 1.0f)) {
+            prop.z = 1.0f;
         }
-        *(f32 *)(arg0 + 0xC) = *(f32 *)&values[0];
-        *(f32 *)(arg0 + 0x10) = *(f32 *)&values[1];
-        *(f32 *)(arg0 + 0x14) = *(f32 *)&values[2];
+        *(Code45Vec3 *)(material + 0xC) = prop;
     }
-    return arg0;
+    return material;
 }

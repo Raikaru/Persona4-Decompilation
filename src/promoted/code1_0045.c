@@ -83,7 +83,7 @@ extern void func_0043f810(void *dst, void *src, s32 size);
 extern void func_00442428(void *arg0, void *arg1);
 extern void func_00456400(u8 *arg0, u8 *arg1, s32 arg2, void *arg3);
 extern void *func_00458c40(void *arg0, void *arg1);
-extern void func_00458ce0(void);
+extern u8 *func_00458ce0(u8 *material, u8 *data);
 extern void *func_00458f00(void *arg0, void *arg1);
 extern u8 D_007117B0[];
 extern u8 D_00711738[];
@@ -92,6 +92,9 @@ extern u8 D_00711720[];
 extern s32 func_003bcfa0(RpMaterial *material, char *name, s32 format, s32 numElements);
 extern void func_003bd0d0(u8 *userData, s32 index, s32 value);
 extern s32 D_00711870_abs[];
+extern s32 D_00711890_abs[];
+extern f32 func_003bd090(u8 *userData, s32 index);
+extern void func_003bd0f0(u8 *userData, s32 index, f32 value);
 extern void func_00430e28(void);
 extern void func_00430f80();
 extern void func_0043bb70();
@@ -1419,7 +1422,56 @@ void func_00458cb0(void *arg0, void *arg1)
     func_003ca270(arg0, func_004587d0, arg1);
 }
 // FUN_00458CE0
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00458ce0);
+/* measured: opt_scalarize off keeps the prop triple in stack spill slots with direct sp-relative accesses. */
+#pragma push
+#pragma opt_scalarize off
+u8 *func_00458ce0(u8 *material, u8 *data) {
+    Code45Vec3 prop;
+    s32 created;
+    s32 i;
+    s32 current;
+    f32 *materialColor;
+    if (func_00457a90((const RpMaterial *)material, (const char *)D_00711890_abs) == 0) {
+        materialColor = (f32 *)(material + 0xC);
+        created = (s32)func_003bd000((const RpMaterial *)material, func_003bcfa0((RpMaterial *)material, (char *)D_00711890_abs, 2, 3));
+        func_003bd0f0((u8 *)created, 0, materialColor[0]);
+        func_003bd0f0((u8 *)created, 1, materialColor[1]);
+        func_003bd0f0((u8 *)created, 2, materialColor[2]);
+    }
+    i = 0;
+    goto loop_test;
+loop_body:
+    current = (s32)func_003bd000((const RpMaterial *)material, i);
+    if (func_004426e8(func_003bd040((RpUserDataArray *)current), (const char *)D_00711890_abs) == 0) {
+        goto loop_done;
+    }
+    i += 1;
+loop_test:
+    if (i < func_003bcfb0((const RpMaterial *)material)) {
+        goto loop_body;
+    }
+loop_done:
+    if (current != 0) {
+        prop.x = func_003bd090((u8 *)current, 0);
+        prop.y = func_003bd090((u8 *)current, 1);
+        prop.z = func_003bd090((u8 *)current, 2);
+        prop.x = prop.x * *(f32 *)(data + 0);
+        prop.y = prop.y * *(f32 *)(data + 4);
+        prop.z = prop.z * *(f32 *)(data + 8);
+        if (!(prop.x <= 1.0f)) {
+            prop.x = 1.0f;
+        }
+        if (!(prop.y <= 1.0f)) {
+            prop.y = 1.0f;
+        }
+        if (!(prop.z <= 1.0f)) {
+            prop.z = 1.0f;
+        }
+        *(Code45Vec3 *)(material + 0xC) = prop;
+    }
+    return material;
+}
+#pragma pop
 // FUN_00458F00
 void *func_00458f00(void *object, void *arg1)
 {

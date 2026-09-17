@@ -878,11 +878,34 @@ void func_0048a340(f32 param_1)
         : "r"(raw + 0x10)
         : "$vf28", "$vf29", "$vf30", "memory");
 }
-/* Faithful C/hardware-transfer floor: docs/probe_archive/W49MdlEffect_0048a460_body.c.
-   Object/window 176B/176B, 15 differing words, no missing tail.
-   Callers consume vf10, not a stack-pointer return. The former 11-word
-   candidate escaped local storage and is not an accepted floor.
-   FPR allocation and v0/v1 transfer-address allocation remain unresolved. */
+/* measured floor: honest void 15 words, object 176B / window 176B, no tail gap. */
+/* Candidate docs/probe_archive/W49MdlEffect_0048a460_body.c recompiled here */
+/* scores 15 (reloc-masked) via tools/probe_archive.py; prologue, D_00713D10/ */
+/* 14/18 loads, call setup (addiu $a2,$v0,0x20 / $a0,$sp,0x30 / $a1,$sp,0x20), */
+/* zero stores (sw $zero,0x18/0x1C(sp)) and epilogue exact. Residual is FPR */
+/* rotation + transfer-address GPR, retail first: */
+/*  off84 lwc1 $f0,0x38(sp) [z divisor] vs obj $f2; off88 lwc1 $f1,0x30(sp) */
+/*  [x] vs obj $f0; off92 div.s $f2,$f1,$f0 vs obj $f1,$f0,$f2; off96 lui */
+/*  $v0,0x4420 [640] vs obj $v1; off100 mtc1 $v0,$f1 vs obj $v1,$f0; off108 */
+/*  mul.s $f1,$f1,$f2 vs obj $f0,$f0,$f1; off112 swc1 $f1,0x10(sp) vs obj $f0; */
+/*  off116 lwc1 $f1,0x34(sp) [y] vs obj $f0; off120 div.s $f2,$f1,$f0 vs obj */
+/*  $f1,$f0,$f2; off124 lui $v0,0x43e0 [448] vs obj $v1; off128 mtc1 $v0,$f1 */
+/*  vs obj $v1,$f0; off136 mul.s $f1,$f1,$f2 vs obj $f0,$f0,$f1; off140 swc1 */
+/*  $f1,0x14(sp) vs obj $f0; off152 addiu $v0,$sp,0x10 vs obj $v1; off156 */
+/*  lqc2 $vf10,0($v0) vs obj ($v1). So retail divisor $f0 / dividend+const+ */
+/*  product $f1 / quotient $f2 / addr $v0; b210 gives $f2 / $f0 / $f1 / $v1. */
+/* 11-vs-15: returning-local-array bodies (docs/probe_archive/QFCL_0048a460_ */
+/*  body.c, docs/probe_archive/W5CMDL_0048a460_body.c) score 11 with addr $v0 */
+/*  matching, but return dangling stack address retail never returns: callers */
+/*  in asm/nonmatchings/code1_0048/func_0048b220.s do lqc2 $vf10 in / jal / */
+/*  vmove+vsub on $vf10 with no $a0/$v0 use. False prototype, rejected; 15 */
+/*  is the real floor, 11 is not a candidate. */
+/* Inert here (all retain 11 returning / 15 void): 6x temp_f0/f1/f2 decl */
+/*  orders, mul operand swap, direct nested 640*(x/z), quot/div-reuse, f32 */
+/*  raw[12] vs u8 raw[0x30] vs structs, opt_propagation/common_subs/dead_ */
+/*  assignments/loop_invariants/schedule, -O1/-O3, two-base micro, census: no */
+/*  MATCH function has lwc1 $f0 + lwc1 $f1 + div.s $f2,$f1,$f0 from two mem */
+/*  loads (only this target); b210 named-reuse always yields divisor $f2. */
 // FUN_0048A460
 INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a460);
 // FUN_0048A510
