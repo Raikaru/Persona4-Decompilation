@@ -17,6 +17,7 @@ extern f32 D_0064E31C[];
 extern f32 D_008872F8[];
 extern f32 iGpffff8094;
 extern f32 iGpffff81e0;
+extern f32 iGpffff83d4;
 extern void (*D_00887300[])(u32 state, u32 value);
 extern s32 (*D_00887310[])(s32, void *, s32);
 
@@ -295,12 +296,120 @@ void func_003657d0(Vec2f arg0, f32 fparg0, s32 arg1, f32 fparg1, f32 fparg2, s32
 
 
 // FUN_00365AC0
-INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00365ac0);
+#pragma opt_propagation off
+#pragma opt_loop_invariants on
+void func_00365ac0(Vec2f position, f32 depth, s32 color, f32 width, f32 height, f32 angle, s32 mode)
+{
+    f32 vertices[10][16];
+    f32 far_depth;
+    f32 sine;
+    f32 reciprocal;
+    f32 origin_x;
+    f32 origin_y;
+    f32 cosine;
+    s32 red, green, blue, alpha;
+    s32 i;
+    s32 r1;
+    s32 r2;
+    s32 q1;
+    s32 q1x;
+    s32 cc1;
+    s32 r1p1;
+    s32 q1b;
+    s32 h1;
+    s32 q2;
+    s32 q2x;
+    s32 cc2;
+    s32 r2p1;
+    s32 q2b;
+    s32 h2;
+    s32 s1;
+    s32 s2;
+    f32 fh1;
+    f32 fc1;
+    f32 acc1;
+    f32 fs1;
+    f32 fx;
+    f32 fh2;
+    f32 fc2;
+    f32 acc2;
+    f32 fs2;
+    f32 fy;
+    f32 x;
+    f32 y;
+    f32 *vertex;
+    f32 width_s;
+    origin_x = position.x;
+    origin_y = position.y;
+    reciprocal = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    far_depth = D_008872F8[0];
+    sine = func_0044b7b0(angle);
+    cosine = func_0044b610(angle);
+    width_s = width * iGpffff83d4;
+    red = (s32)(u8)(((u32)color & 0xFF000000) >> 24);
+    green = (s32)(u8)(((u32)color & 0x00FF0000) >> 16);
+    blue = (s32)(u8)(((u32)color & 0x0000FF00) >> 8);
+    alpha = color & 0xFF;
+    far_depth -= depth;
+    for (i = 0; i < 10; i++) {
+        r1 = i % 8;
+        r2 = (i + 6) % 8;
+        q1 = r1 % 4;
+        q1x = q1 ^ 1;
+        cc1 = (u32)q1x < 1U;
+        r1p1 = r1 + 1;
+        q1b = r1p1 % 4;
+        h1 = q1b / 2;
+        fh1 = (f32)h1;
+        fc1 = (f32)cc1;
+        acc1 = width_s * fh1 + height * fc1;
+        if (r1 < 4) {
+            s1 = 1;
+        } else {
+            s1 = -1;
+        }
+        fs1 = (f32)s1;
+        fx = fs1 * acc1;
+        q2 = r2 % 4;
+        q2x = q2 ^ 1;
+        cc2 = (u32)q2x < 1U;
+        r2p1 = r2 + 1;
+        q2b = r2p1 % 4;
+        h2 = q2b / 2;
+        fh2 = (f32)h2;
+        fc2 = (f32)cc2;
+        acc2 = width_s * fh2 + height * fc2;
+        if (r2 < 4) {
+            s2 = 1;
+        } else {
+            s2 = -1;
+        }
+        fs2 = (f32)s2;
+        fy = fs2 * acc2;
+        x = fx;
+        y = fy;
+        vertex = vertices[i];
+        vertex[0] = (0.0f + origin_x) + x * cosine - y * sine;
+        vertex[1] = (0.0f + origin_y) + y * cosine + x * sine;
+        vertex[2] = far_depth;
+        vertex[8] = (f32)(u32)red;
+        vertex[9] = (f32)(u32)green;
+        vertex[10] = (f32)(u32)blue;
+        vertex[11] = (f32)(u32)alpha;
+        vertex[6] = reciprocal;
+    }
+    D_00887300[0](1, 0);
+    if (mode != 0 && alpha == 255) {
+        iGpffffabe8 |= 0x80;
+    }
+    D_00887310[0](4, vertices, 10);
+    if (mode != 0 && alpha == 255) {
+        iGpffffabe8 &= ~0x80;
+    }
+}
+#pragma opt_loop_invariants off
+#pragma opt_propagation on
 
-/* measured: complete source reaches 1148/1152 bytes with 17 independently
-   resolved relocations and four zero alignment bytes. A five-register
-   color/count cycle leaves 31 differing bytes. Retain retail ASM; complete
-   source and probe evidence: docs/probe_archive/RadialProvider_00365f00_body.c. */
 // FUN_00365F00
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00365f00);
 
