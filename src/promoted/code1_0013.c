@@ -1040,8 +1040,115 @@ void func_00135520(u8 *arg0, PackedVec2f arg1, u32 arg2, s32 arg3)
         func_00134f40(arg0, arg1.packed, 1, arg2);
     }
 }
-// FUN_0013AD40
+// FUN_0013AD40 NONMATCHING
+#ifdef NON_MATCHING
+void func_0013ad40(u8 *arg0, s32 arg1, s32 arg2) {
+    s16 spD0;
+    s16 spD6;
+    s32 spD8;
+    f32 spC8;
+    f32 spCC;
+    f32 f22;
+    f32 f21;
+    f32 f20;
+    f32 fA;
+    f32 fB;
+    f32 fDiv;
+    f32 fProd;
+    u8 t0;
+    u8 c0;
+    u8 c1;
+    s32 col;
+    s32 colB;
+    s32 col8;
+    s16 idx0;
+    s32 k;
+    u8 *pal;
+    u8 *palB;
+    u8 *ptab;
+    u8 *e;
+    u8 *e2;
+    s32 flag;
+    s32 cnt;
+    s32 cntB;
+    flag = 0;
+    fDiv = 1.0f;
+    idx0 = *(s16 *)(arg0 + arg1 * 2 + 0xF4);
+    f22 = *(f32 *)(arg0 + 4);
+    f21 = *(f32 *)(arg0 + 8);
+    t0 = *(u8 *)(arg0 + 0);
+    func_0011fd30(&spD0);
+    spD8 = 1;
+    spD0 = idx0;
+    if (*(s16 *)(arg0 + arg2 * 2 + 0x5C) == arg1 || (*(s32 *)(arg0 + 0x1C) & 0x100) != 0) {
+        if (arg2 == 0 && (*(s32 *)(arg0 + 0x1C) & 0x10) != 0) {
+            spD6 = 2;
+            pal = D_0064B2F4;
+            palB = D_0064B2F0;
+            ptab = D_0064B30C;
+        } else {
+            flag = 1;
+            spD6 = 1;
+            pal = D_0064B2E8;
+            palB = D_0064B2EC;
+            ptab = D_0064B2FC;
+        }
+    } else {
+        spD6 = 0;
+        pal = D_0064B2E0;
+        palB = D_0064B2F0;
+        ptab = D_0064B308;
+        fDiv = 1.0f;
+    }
+    if (arg2 == 0) { cnt = 5; cntB = 1; } else { cnt = 0x1C; cntB = 0x18; }
+    e = arg0 + (cnt + arg1) * 0x30;
+    spC8 = 67.0f + (f22 + *(f32 *)(e + 0x594));
+    f20 = 75.0f * (f32)arg1;
+    spCC = 24.0f + (f21 + *(f32 *)(e + 0x598)) + f20;
+    c0 = e[0x59E];
+    if ((s32)c0 >= 0) { fProd = (f32)c0; } else { fProd = (f32)((c0 >> 1) | (c0 & 1)); fProd = fProd + fProd; }
+    fProd = fProd * fDiv;
+    col = (u8)(u32)fProd;
+    func_0011fd50(*(s64 *)&spC8, col & 0xFF, &spD0, 0, 0.0f);
+    e2 = arg0 + (cntB + arg1) * 0x30;
+    c1 = e2[0x59E];
+    if ((s32)c1 >= 0) { fProd = (f32)c1; } else { fProd = (f32)((c1 >> 1) | (c1 & 1)); fProd = fProd + fProd; }
+    fProd = fProd * fDiv;
+    colB = (u8)(u32)fProd;
+    k = colB & 0xFF;
+    fA = 60.0f + (f22 + *(f32 *)(e2 + 0x594));
+    spC8 = fA;
+    fB = 21.0f + (f21 + *(f32 *)(e2 + 0x598)) + f20;
+    spCC = fB;
+    func_0034f2e0(*(void **)(arg0 + 0x12BC), fA, fB, pal[0], pal[1], pal[2], k);
+    if (flag != 0) {
+        fA = 2.0f + (f22 + *(f32 *)(e2 + 0x594));
+        spC8 = fA;
+        fB = 27.0f + (f21 + *(f32 *)(e2 + 0x598)) + f20;
+        spCC = fB;
+        func_0034f2e0(*(void **)(arg0 + 0x12C0), 0x4C, 0x4C, 0x4C, k, fA, fB);
+    }
+    fA = 43.0f + (f22 + *(f32 *)(e2 + 0x594));
+    spC8 = fA;
+    spCC = 25.0f + (f21 + *(f32 *)(e2 + 0x598)) + f20;
+    k = (s32)(s8)(func_00104c70(idx0) & 0xFF);
+    if (k < 0xA) { spC8 = fA - 11.0f; }
+    while (k > 0) {
+        func_0034f2e0(*(void **)(arg0 + (k % 10) * 4 + 0x12C4), palB[0], palB[1], palB[2], k, spC8, spCC);
+        spC8 = spC8 - 22.0f;
+        k = k / 10;
+    }
+    fA = 37.0f + (f22 + *(f32 *)(e2 + 0x594));
+    spC8 = fA;
+    spCC = 53.0f + (f21 + *(f32 *)(e2 + 0x598)) + f20;
+    if ((s32)k >= 0) { fB = (f32)k; } else { fB = (f32)((k >> 1) | (k & 1)); fB = fB + fB; }
+    fB = fB * fDiv;
+    col8 = (u8)(u32)fB;
+    func_0034f2e0(*(void **)(arg0 + 0x1330), spC8, spCC, ptab[0], ptab[1], ptab[2], col8);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013ad40);
+#endif
 // FUN_0013B370
 /* measured: family substitution reuses the exact 176-byte byte-color shape. */
 #pragma opt_propagation off
