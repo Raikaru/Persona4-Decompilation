@@ -1055,8 +1055,98 @@ void func_0038b530(u8 *arg0, s32 arg1, f32 *arg2)
 }
 // FUN_0038BAB0
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038bab0);
-// FUN_0038C100
+/* Floor: 361 differing words over 97 edit instructions, 397 emitted against
+   retail's 409, from a first reconstruction.  arg0 is a `u8 *`: m2c types it
+   `u8 **` and then scales `arg0 + 0x1A4` by four, while retail's `$s1` is
+   `arg0 + 0x1A4` in bytes and every field read here is relative to it.
+   The window animation carries TWO scale factors, not one - retail saves
+   both $f20 and $f21 across the calls and multiplies 4096.0f by each - and
+   the second is 1.0f in every arm of this function; writing it as the
+   literal folds the whole conversion away and costs 22 instructions, so it
+   is assigned in each arm (371 words to 361).
+   WALL: twelve instructions still missing, spread over eight sites of one
+   or two, plus register colour in the prologue.  The unsigned-to-float
+   conversions are already exact - `(f32)(u32)*(u16 *)state` reproduces
+   retail's bltz/srl/or sequence - and opt_propagation, dead-assignment,
+   lifetimes, common-subexpression and tree-transformation were measured. */
+// FUN_0038C100 NONMATCHING
+#ifdef NON_MATCHING
+void func_0038c100(u8 *arg0)
+{
+    extern void func_0034f460(s32 h, s32 id, s32 a, s32 b, s32 c, s32 alpha, f32 x, f32 y);
+    extern void func_0034f4a0(s32 h, s32 id, s32 a, s32 b, s32 c, s32 alpha, s32 sx, s32 sy,
+                              f32 x, f32 y, s32 d, f32 z, s32 e, s32 f);
+    extern f32 func_00373cb0(s32 mode, f32 t, f32 a, f32 b);
+    u8 *ctx;
+    u8 *state;
+    u8 *info;
+    s32 handle;
+    s32 alpha;
+    f32 scale;
+    f32 first;
+    f32 scaleY;
+    u16 flags;
+    u16 step;
+
+    state = arg0 + 0x1A4;
+    ctx = *(u8 **)arg0;
+    handle = *(s32 *)(ctx + 0x1F2AC);
+    if (*(s32 *)(ctx + 0x1F2FC) != 3) {
+        func_0046d730(D_0064F0E0, 0x44D);
+    }
+    info = ctx + 0x1F1D0;
+    flags = *(u16 *)(state + 2);
+    if (!(flags & 1)) {
+        scaleY = 1.0f;
+        scale = func_00373cb0(0, (f32)(u32)*(u16 *)state, 4.0f, 8.0f);
+        alpha = (u8)(u32)(255.0f * func_00373cb0(1, (f32)(u32)*(u16 *)state, 0.0f, 8.0f));
+        step = *(u16 *)state + 1;
+        *(u16 *)state = step;
+        if (step >= 8) {
+            *(u16 *)(state + 2) = *(u16 *)(state + 2) | 1;
+            *(u16 *)state = 0;
+        }
+    } else if (flags & 2) {
+        scaleY = 1.0f;
+        scale = 1.0f;
+        alpha = (u8)(u32)(255.0f * (1.0f - func_00373cb0(1, (f32)(u32)*(u16 *)state, 0.0f, 5.0f)));
+        step = *(u16 *)state + 1;
+        *(u16 *)state = step;
+        if (step >= 5) {
+            *(u16 *)(state + 4) = *(u16 *)(state + 4) & 0xFFFD;
+        }
+    } else if (flags & 4) {
+        scaleY = 1.0f;
+        first = func_00373cb0(0, (f32)(u32)*(u16 *)state, 4.0f, 8.0f);
+        scale = 1.0f + (first - func_00373cb0(0, (f32)(u32)*(u16 *)state, 0.0f, 4.0f));
+        alpha = 0xFF;
+        step = *(u16 *)state + 1;
+        *(u16 *)state = step;
+        if (step >= 8) {
+            *(u16 *)(state + 2) = *(u16 *)(state + 2) & 0xFFFB;
+            *(u16 *)state = 0;
+        } else if (*(u16 *)state == 4) {
+            *(u16 *)(state + 4) = *(u16 *)(info + 8);
+        }
+    } else {
+        scaleY = 1.0f;
+        scale = 1.0f;
+        alpha = 0xFF;
+        if (*(u16 *)(info + 8) != *(u16 *)(state + 4)) {
+            *(u16 *)(state + 2) = flags | 4;
+        }
+    }
+    func_0034f460(handle, 0x2B, 0x8E, 0x31, 0, alpha, 578.0f, 417.0f);
+    func_0034f460(handle, 0x2A, 0x8E, 0x31, 0, alpha, 543.0f, 408.0f);
+    func_0034f460(handle, *(u16 *)(info + 0xA) + 0x1F, 0x8E, 0x31, 0, alpha, 559.0f, 414.0f);
+    func_0034f4a0(handle, (*(u16 *)(info + 0xA) + 0x2D) - *(u16 *)(state + 4), 0, 0, 0, alpha,
+                  (u16)(u32)(4096.0f * scale), (u16)(u32)(4096.0f * scaleY),
+                  515.0f + (((1.0f - scale) * 29.0f) / 2.0f),
+                  407.0f + (((1.0f - scaleY) * 26.0f) / 2.0f), 0, 0.0f, 0, 0);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038c100);
+#endif
 // FUN_0038C770
 void func_0038c770(u8 *arg0)
 {
