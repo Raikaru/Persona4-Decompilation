@@ -53,7 +53,7 @@ extern s32 func_00121af0(void);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(char *name, u8 *task);
 extern void func_001221a0(void *arg0, u8 *arg1);
-extern void func_00122a40(void);
+extern void func_00122a40(void *arg0, u8 *arg1);
 extern char D_00796340[];
 extern char D_00795F50[];
 extern s64 func_001060b0(void);
@@ -730,6 +730,11 @@ void func_00122a10(void *arg0)
 
 
 
+/* Floor: 324 differing words, 804 of 804 instructions with all 46
+   relocations resolved.  Body at docs/probe_archive/Lane0012_00122a40_body.c;
+   production stays ASM.  The declaration of func_00122a40 above is part of
+   this measurement - it takes (void *, u8 *), not (void) - and changing it
+   is neutral for the rest of the unit. */
 // FUN_00122A40
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00122a40);
 // FUN_001236E0
