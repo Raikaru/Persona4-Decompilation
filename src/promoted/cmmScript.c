@@ -1016,14 +1016,90 @@ s32 func_0024bb00(s32 arg0) {
 }
 /* measured: restore the translation-unit optimization level after func_0024bb00. */
 #pragma optimization_level 2
-/* Archived C body: docs/probe_archive/WSCR2_0024be40_body.c; 168 instrs each; */
-/* eight reloc-masked differing words. Remaining: single $s0/$s2 */
-/* saved-register swap; instruction stream is otherwise retail's with no */
-/* inserts or deletes. Best of 250 declaration permutations; eight documented */
-/* pragmas measured inert on top. Fnalign edit 8 plus four reloc-only pairs; */
-/* production remains ASM. */
+/* Floor (re-measured 2026-09-17): probe_variants 8 reloc-masked differing */
+/* words; fnalign retail 168 instrs / object 168 instrs, 8 edits plus 4 */
+/* reloc-only (168*4 = 672B = window, exact size, no tail). Residual is a */
+/* single $s0/$s2 saved-register swap (found-pointer against the second-loop */
+/* counter); the instruction stream is otherwise retail's with no inserts or */
+/* deletes. Declaration order is the archive's best of 250 permutations */
+/* (docs/probe_archive/WSCR2_0024be40_body.c, banked verbatim below); the */
+/* eight documented pragmas and the slti-<= spellings stay worse on top of */
+/* it (both/j-only/i-only <=5 forms give 23/10/21 words). Semantic gate: the */
+/* block-scope s32(s32) for func_00246e10 matches the MATCHED provider */
+/* src/cmmMisc.c:294; the file-scope u8*(u16) is retained untouched for the */
+/* other caller func_00250940. K&R void* for func_00452560 ties the */
+/* prototyped u32(void*)/void*(void*) spellings at 8 words (measured */
+/* 2026-09-17) and follows this file's bare-call idiom; production stays */
+/* ASM. */
 // FUN_0024BE40 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0024be40(void)
+{
+    extern void* func_00452560();
+    s32 month;
+    extern s32 func_00246e10(s32 arg0);
+    s32 sum;
+    u8* work;
+    s32 j;
+    f32 random_f;
+    u8* found;
+    s32 i;
+    s32 day;
+    f32 product;
+    s32 index;
+    u8* base;
+    s32 sum2;
+    f32 sum_f;
+
+    found = 0;
+    index = 0;
+    func_001104d0(func_001060b0(), &month, &day);
+    base = (u8*)func_00246e10((u16)month);
+    if ((func_001060c0() & 0xFF) == 5) {
+        index = 2;
+    }
+    if ((s8)func_00110960(func_001060b0(), func_001060c0() & 0xFF) == 1) {
+        found = (u8*)1;
+    }
+    index = index + (s32)found;
+    sum = 0;
+    j = 0;
+    {
+        found = base + index * 6;
+        while (j < 6) {
+            if ((j != 0) || (func_00106330(2703) != 0)) {
+                sum += *(s8*)(found + j);
+            }
+            j++;
+        }
+        random_f = (f32)(u32)func_003b7060();
+        random_f /= 2147483648.0f;
+        sum_f = (f32)(u32)sum;
+        product = sum_f * random_f;
+        sum = (u32)product;
+        sum2 = 0;
+        i = 0;
+        while (i < 6) {
+            if ((i != 0) || (func_00106330(2703) != 0)) {
+                sum2 += *(s8*)(found + i);
+                if ((s32)sum < (s32)sum2) {
+                    sum = i;
+                    break;
+                }
+            }
+            i++;
+        }
+    }
+    work = (u8*)(u32)func_00452560((void*)(u32)func_00452380((s8*)D_00635A78));
+    if (work == 0) {
+        func_0046d730(D_006359F0, 1041);
+    }
+    *(s32*)(work + 32) = sum;
+    return sum;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024be40);
+#endif
 // FUN_0024C0E0
 s32 func_0024c0e0(u8 *arg0, u8 *arg1)
 {

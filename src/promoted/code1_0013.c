@@ -1607,10 +1607,11 @@ s32 func_0013caa0(u32 *arg0, s32 *arg1, u8 *arg2) {
     }
     return 0;
 }
-/* State-machine floor (864B window). First probe nd 169 (object 880B);
-   frame and prologue verified against retail. Open: s-reg assignment,
-   index-arith shape, call sequence alignment, and object overrun.
-   See V013_0013c700_body.c for ruled-out variants. */
+/* State-machine floor (864B window; widened obj 856B fndiff 150 verify 443 fnalign 98 plus 4
+   retail 214/object 214 exact; width win 2026-09-17: six s16 locals -> s32 deletes 17->0
+   object dsll pairs (retail 3), 168->150. Loopinv 177->168 kept underneath. Pragmas on widened:
+   schedule 178 worse, cse_off 159 worse. Open: s-reg assignment, index-arith shape, call
+   sequence alignment. See V013_0013c700_body.c for ruled-out variants. */
 /* measured 0013c700: `opt_loop_invariants on` inside the guard is worth 9 words (177 -> 168), the loop-preheader constant hoist. */
 // FUN_0013C700 NONMATCHING
 #ifdef NON_MATCHING
@@ -1628,12 +1629,12 @@ s32 func_0013c700(s32 arg0, s16 arg1, u8 *arg2)
     s32 state;
     s32 index_count;
     s32 index;
-    s16 item;
-    s16 item_type;
-    s16 entry_index;
-    s16 remaining;
-    s16 total;
-    s16 updated;
+    s32 item;
+    s32 item_type;
+    s32 entry_index;
+    s32 remaining;
+    s32 total;
+    s32 updated;
     u8 *entry;
 
     state = 1;
@@ -2176,19 +2177,14 @@ s32 func_0013e8e0(u8 *arg0, s32 *arg1) {
     }
     return 0;
 }
-/* Floor: 473 differing words over 86 edits, 693 emitted against retail's
-   684.  Same menu-state-machine family as func_0013caa0 and func_0013d8b0
-   above; m2c's seven-argument calls are stale registers and all of them
-   take one or two.  The find here is that m2c DROPPED two switch label
-   sets - it printed `switch (x) { <body> <body> }` with no `case` lines -
-   and retail's compare chain recovers them: an s8 result tested 3, 2, 1,
-   0 then a default branch, where case 2 re-arms the panel and case 3
-   returns 2.  Writing them `case 0: case 1: case 2: case 3:` restores 52
-   of the 43 missing instructions.
-   WALL: nine instructions over, from the inner switch's 0/1 arms
-   branching to the switch end and then to the function's shared exit
-   where retail jumps straight there, plus an $s0/$s1 colour swap on the
-   two slot indices. */
+/* Floor: 402 differing words (was 473) over 73 edits plus 12 reloc-only (was 88+12),
+   689 emitted against retail 684 (was 693, 9 long now 5 long; obj 2756B/window 2736B
+   verify 1260, was 1514/2772). Same menu-state-machine family as func_0013caa0 and
+   func_0013d8b0; m2c seven-arg calls are stale registers. Width win 2026-09-17: six s16
+   slot/index temps -> s32 deletes 16 spurious dsll/dsra pairs (obj 20->0, retail 4),
+   473->402. Pragmas on widened: schedule 554 worse, cse_off 547 worse, loopinv 402 neutral.
+   WALL: inner-switch 0/1 arms via shared exit vs direct, $s0/$s1 colour swap on slot indices.
+*/
 // FUN_0013EA20 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
@@ -2202,12 +2198,12 @@ s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
     u8 buf[0x30];
     f32 temp_f1;
     f32 var_f1;
-    s16 temp_17;
-    s16 temp_2;
-    s16 temp_3;
-    s16 temp_7;
-    s16 temp_8;
-    s16 temp_9;
+    s32 temp_17;
+    s32 temp_2;
+    s32 temp_3;
+    s32 temp_7;
+    s32 temp_8;
+    s32 temp_9;
     s32 temp_16;
     s32 temp_16_2;
     s32 temp_2_2;

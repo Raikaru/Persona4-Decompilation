@@ -1240,8 +1240,10 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003768e0);
    phantoms killed (per-iter div, +C0 store, denormal).
    Quad-built, retail-arbitrated; prior nd-15 note on file. */
 /* measured 00377930: `schedule on` inside the guard is worth 38 words (378 -> 340). */
+/* measured 00377930: `opt_propagation off` inside the guard is worth 2 words (340 -> 338). */
 // FUN_00377930 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_propagation off
 #pragma schedule on
 void func_00377930(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4)
 {
@@ -1371,6 +1373,7 @@ void func_00377930(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4)
     func_003e0f40(matrix);
 }
 #pragma schedule off
+#pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00377930);
 #endif
