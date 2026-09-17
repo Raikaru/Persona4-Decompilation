@@ -11,6 +11,12 @@ extern s32 func_00451fc0(s32 arg0, const void *arg1, s32 arg2, s32 arg3,
 extern u8 D_0063B5A0[];
 extern u8 D_0063B5C0[];
 extern s32 func_0026db60(void);
+extern void func_0026c960(f32 fparg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f32 *arg5, f32 *arg6);
+extern f32 fGpffff82d4;
+extern f32 fGpffff83d0;
+extern f32 fGpffff842c;
+extern void func_0026c860(f32 *arg0, f32 *arg1);
+extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
 extern void func_0026dc30(void);
 extern s32 func_0026dee0(void);
 extern u8 *func_001452b0(s32 arg0);
@@ -192,6 +198,7 @@ void func_002605a0(f32 fparg0, f32 fparg1, f32 fparg2,
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00260600);
 extern f32 D_007612C4;
 extern u8 D_006375C0[];
+/* draft (not floor, >3% over): fresh probe C26 451wd / obj2208B/window1792B (416B over, 23% over, needs ~1792B); oversized frame/code vs retail; need shrink to window (remove extra saves/loops, match frame), then inclusive/dead-arm/cast/loop-invariants/schedule/(s64)0 checklist top-down. No volatile/asm. */
 // FUN_00260E60
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00260e60);
 // FUN_00261560
@@ -457,6 +464,7 @@ block_25:
     func_00264cb0(arg0, *(s32 *)(temp_2 + 8));
     return 0;
 }
+/* measured this session: fresh probe 285wd (was ~289 stale) / obj1372B/window1408B (36B under, 2.6% short, within 3% gate); slti inclusive (i<8 to <=7) neutral 285 tie; opt_loop_invariants on worse 314wd (+29, ruled out); short-by-N hunt checked (9 short, not 1-4 trailing dead-arm per top-down fnalign; stack/frame wall). Honest s-map rotation + slot/OR/GPREL walls per archive header; banked. No volatile/asm. */
 // FUN_00263730 NONMATCHING
 #ifdef SKIP_ASM
 void func_00263730(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, u32 *arg5, f32 fparg0)
@@ -1118,6 +1126,7 @@ void func_00268ad0(u8 *arg0)
     jtbl_008873EC[0](temp_16);
 }
 
+/* draft (not floor, >3% short): fresh probe L26 277wd / obj1088B/window1296B (208B short, 16% short, needs >=1257B); gap-zero worse 287wd (ruled out, scratch uninit); array [4]->[8] frame-only 276wd (+64B frame to -0x160, still -0x170, 1-word win, no code); top-down fnalign 322v272 (50 short): earliest frame/FPR/lb, then retail[188:196] 8-instr float temps (3x sub.s sp+0x140-0x154 to 0xC8-0xD0 + jal 003e4180) + retail[302:307] 5-instr lb-bound loop (addiu/lb/slt/bnez); need whole-window with missing lb-loop + float temps, Work-gap, CopyPair lw/sw, never lwc1 for 8B copies. No volatile/asm. */
 // FUN_0026CEF0
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026cef0);
 /* measured: optimization_level 1 register-coloring probe for func_0026db60. */

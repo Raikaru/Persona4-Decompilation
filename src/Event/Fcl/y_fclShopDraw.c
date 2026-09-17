@@ -670,27 +670,286 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d1590);
    then mov.s; (3) the sp58 f32-pair stores: mwcc always loads in reverse
    store order (lwc1 0x5C before 0x58, first-loaded binds $f1) - tried f32
    temps in all declaration/assignment orders. Scheduling floor. */
-/* measured (this wave re-test): three fresh spellings from the m2c draft --
-   individual u64 slots (nd 462), Vec2f *b reassigned per group over u64
-   slots (nd 461), Vec2f buf[19] + `Vec2f *b` reassigned over the array
-   (nd 463) -- all reproduce the documented pre-recipe-B baseline, NOT the
-   recipe-B nd 9; the exact working structure from the re-test note above is
-   not recoverable from the description (the global-base-cache-in-$s0 aspect
-   requires the D_0063F5xx insns themselves, which mwcc rematerialises).
-   Confirmed lever-1: func_002e0660 is (void*, u8, u8, u8, s16, s64) and
-   func_002e0690 is (void*, s32, s32, s32, f32, f32) -- both match their
-   declarations. Func_002e26f0 extern is s16 -- matches retail's per-site
-   sign-extension split. Continuous scheduling+hoist floor. */
-// FUN_002D3EE0
+/* measured: MWCC -O2 plain, object 2172B/window 2176B, normalized_diff 8 (fndiff 4 words). Switch ascending + Vec2f*b-per-group + raw DBC loops best (v0 inline-D 1426->1134-30, switch 10, raw 8, 826.0f honest). Levers: i<3 (i<=2 +12 worse), b->x+740 flipped 0, decl swap 0. Remaining 0690 call-arg setup floor (f12/mov.s order). Combine Vec2f*b+raw+switch transferable; if-chain/inline-D/array/i<=2 do NOT transfer. No volatile/asm. Staged /tmp/push_3ee0_full.c via NearGA.Fcl3ee0. */
+// FUN_002D3EE0 NONMATCHING
+#ifdef NON_MATCHING
+void func_002d3ee0(void *arg0) {
+    u64 spC8;
+    u64 spC0;
+    u64 spB8;
+    u64 spB0;
+    u64 spA8;
+    u64 spA0;
+    u64 sp98;
+    u64 sp90;
+    u64 sp88;
+    u64 sp80;
+    u64 sp78;
+    u64 sp70;
+    u64 sp68;
+    u64 sp60;
+    u64 sp58;
+    u64 sp50;
+    u64 sp48;
+    u64 sp40;
+    u64 sp38;
+    ShopWork *work;
+    u8 *t;
+    Vec2f *b;
+    s16 i;
+    s8 v7;
+    work = *(ShopWork **)((u8 *)arg0 + 0x38);
+    b = (Vec2f *)D_0063F5B0;
+    func_002e09e0(work->field_C60, 0x41, 109.0f);
+    func_002b2970(&spC8, b->x, b->y);
+    func_002b2970(&spC0, b->x - 740.0f, b->y);
+    func_002e0620(work->field_C60, spC8, spC0, 0, 4, 0);
+    b = (Vec2f *)D_0063F5F0;
+    func_002e09e0(work->field_C80, 0x41, 109.0f);
+    func_002b2970(&spB8, b->x, b->y);
+    func_002b2970(&spB0, b->x - 740.0f, b->y);
+    func_002e0620(work->field_C80, spB8, spB0, 0, 4, 0);
+    b = (Vec2f *)D_0063F5D0;
+    func_002e09e0(work->field_C70, 0x41, 111.0f);
+    func_002b2970(&spA8, b->x, b->y);
+    func_002b2970(&spA0, b->x - 740.0f, b->y);
+    func_002e0620(work->field_C70, spA8, spA0, 0, 4, 0);
+    for (i = 0; i < 3; i++) {
+        func_002e04f0(*(void **)((u8 *)work + 0xE88 + i * 4), 0, 1);
+    }
+    func_002e04f0(work->field_EA4, 0, 1);
+    func_002e04f0(work->field_EA8, 0, 1);
+    v7 = *(s8 *)((u8 *)work + 7);
+    switch (v7) {
+    case 0:
+        func_002e04f0(work->field_CA0, 0, 1);
+        func_002e04f0(work->field_CA8, 0, 1);
+        func_002e04f0(work->field_E98, 0, 1);
+        func_002e04f0(work->field_EA0, 0, 1);
+        break;
+    case 1:
+        func_002e04f0(work->field_C9C, 0, 1);
+        func_002e04f0(work->field_CA4, 0, 1);
+        func_002e04f0(work->field_E94, 0, 1);
+        func_002e04f0(work->field_E9C, 0, 1);
+        break;
+    case 2:
+        func_002e04f0(work->field_CB8, 0, 1);
+        func_002e04f0(work->field_EAC, 0, 1);
+        func_002e04f0(work->field_CBC, 0, 1);
+        func_002e04f0(work->field_EB0, 0, 1);
+        break;
+    }
+        func_002e09e0(work->field_E80, 0x41, 109.0f);
+    func_002b2970(&sp98, 86.0f, 242.0f);
+    func_002b2970(&sp90, 826.0f, 242.0f);
+    func_002e0620(work->field_E80, sp98, sp90, 0, 4, 0);
+    b = (Vec2f *)D_0063F5F8;
+    func_002e09e0(work->field_C84, 0x41, 112.0f);
+    func_002b2970(&sp88, b->x, b->y);
+    func_002b2970(&sp80, 740.0f + b->x, b->y);
+    func_002e0620(work->field_C84, sp88, sp80, 0, 4, 0);
+    b = (Vec2f *)D_0063F5D8;
+    func_002e09e0(work->field_C74, 0x41, 113.0f);
+    func_002b2970(&sp78, b->x, b->y);
+    func_002b2970(&sp70, 740.0f + b->x, b->y);
+    func_002e0620(work->field_C74, sp78, sp70, 0, 4, 0);
+    b = (Vec2f *)D_0063F5E0;
+    func_002e09e0(work->field_C78, 0x41, 114.0f);
+    func_002b2970(&sp68, b->x, b->y);
+    func_002b2970(&sp60, 740.0f + b->x, b->y);
+    func_002e0620(work->field_C78, sp68, sp60, 0, 4, 0);
+    for (i = 0; i < 3; i++) {
+        func_002e04f0(*(void **)((u8 *)work + 0xDBC + i * 4), 0, 1);
+    }
+    func_002e04f0(work->field_CAC, 0, 1);
+    func_002e04f0(work->field_E84, 0, 1);
+    func_002e04f0(work->field_C94, 0, 1);
+    func_002e04f0(work->field_C98, 0, 1);
+    func_002e04f0(work->field_E60, 0, 1);
+    func_002e04f0(work->field_DE0, 0, 1);
+    func_002e0940(work->field_D6C, -110.0f, -14.0f, 0, 4, 0);
+    func_002e0690(work->field_D70, 0, 0, 0, 1.0f, 1.0f);
+    func_002e0660(work->field_D70, 0, 0xFF, 0, 8, 6);
+    func_002b2970(&sp58, 46.0f, 294.0f);
+    t = (u8 *)func_002e04e0(work->field_D70);
+    *(Vec2f *)(t + 0x2C) = *(Vec2f *)&sp58;
+    func_002e0660(work->field_D7C, 0, 0xFF, 0, 8, 6);
+    t = (u8 *)func_002e04e0(work->field_C8C);
+    func_002e0660(work->field_C8C, t[0x62], 0xFF, 0, 8, 0);
+    t = (u8 *)func_002e04e0(work->field_C90);
+    func_002e0660(work->field_C90, t[0x62], 0xFF, 0, 8, 0);
+    b = (Vec2f *)D_0063F880;
+    func_002b2970(&sp50, 700.0f + b->x, b->y + (f32)(work->field_4 << 5));
+    func_002b2970(&sp48, b->x, b->y + (f32)(work->field_4 << 5));
+    func_002e0620(work->field_DC8, sp50, sp48, 1, 3, 3);
+    t = (u8 *)func_002e04e0(work->field_C8C);
+    func_002e0660(work->field_DC8, t[0x62], 0xFF, 0, 8, 0);
+    b = (Vec2f *)D_0063F890;
+    func_002b2970(&sp40, 700.0f + b->x, b->y + (f32)(work->field_4 << 5));
+    func_002b2970(&sp38, b->x, b->y + (f32)(work->field_4 << 5));
+    func_002e0620(work->field_DD0, sp40, sp38, 1, 3, 3);
+    t = (u8 *)func_002e04e0(work->field_C8C);
+    func_002e0660(work->field_DD0, t[0x62], 0xFF, 0, 8, 0);
+    func_002e0660(work->field_C64, 0, 0xCC, 0, 8, 0);
+    func_002e04f0(work->field_DE4, 0, 0);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d3ee0);
+#endif
 
-/* measured: faithful floor banked docs/probe_archive/ShopDraw_002d4760_body.c (probe nd 399, object 511 vs retail 500 instrs, frame 0x100 matches). */
-/* Shape: u8 colorA/B[3][4], s16 primary/secondary[3], s16 y[3][2], s16 thirdY[3], s8 ret/i-d, u8 *work; init order matches retail (adds missing y[0][1]/y[2][1]=0x87); */
-/* first-loop D>= reverse (2,1,0) + selected forward (FF/96/01 etc), s8 d kept live, second D>= via flat ((u8*)colorA)[i*4+..] to drop 0x110 spill; */
-/* second loop goto (checks 2,1,0 to L2/L1/L0, bodies 0/EC4/EC8/E38 1/EB4/EB8/CC4 2/EBC/EC0/CC0, L2 fallthrough) for retail beq chain; switch=431, if-else=418. */
-/* Residual is register-color + scheduling (work $s4 vs $s3, D/addr swap, init temps). Production stays INCLUDE_ASM. */
-// FUN_002D4760
+/* measured: MWCC -O2 plain, object 1948B/window 2000B, normalized_diff 389 (VSHD baseline 399/2044B -> s32-i -10, s32+(s16)cast -8). Shape u8 colorA/B[3][4], s16 primary/secondary/y/thirdY, s8 ret/i-d, u8 *work, frame 0x100 matches. Levers: s32/u32/int, switch/ifelse, derived/void/work/decl/d/ret/indexed/forward/reload/y/primary/RGBA as reported. Remaining work $s4-vs-$s3, init $v0-vs-$v1, 0x2D scheduling, D swap, second-loop temps. Combine RGBA transfer fails (+5/+15), u8[3][4] optimal. No volatile/asm. Staged /tmp/push_4760_full.c via NearGA.Fcl4760. */
+// FUN_002D4760 NONMATCHING
+#ifdef NON_MATCHING
+s8 func_002d4760(void *arg0, s8 arg1) {
+    u8 colorA[3][4];
+    u8 colorB[3][4];
+    s16 primary[3];
+    s16 secondary[3];
+    s16 y[3][2];
+    s16 thirdY[3];
+    s8 ret;
+    s32 i;
+    s8 d;
+    u8 *work;
+
+    ret = arg1;
+    work = *(u8 **)((u8 *)arg0 + 0x38);
+    colorA[2][0] = 0xBD;
+    colorA[0][0] = 0xBD;
+    colorA[2][1] = 0x68;
+    colorA[0][1] = 0x68;
+    colorA[2][2] = 3;
+    colorA[0][2] = 3;
+    primary[2] = 0x56;
+    primary[0] = 0x56;
+    y[2][0] = 0x86;
+    y[0][0] = 0x86;
+    y[2][1] = 0x87;
+    y[0][1] = 0x87;
+    colorB[2][0] = 0x2D;
+    colorB[0][0] = 0x2D;
+    colorB[2][1] = 0x2D;
+    colorB[0][1] = 0x2D;
+    colorB[2][2] = 0x2D;
+    colorB[0][2] = 0x2D;
+    secondary[2] = 0x57;
+    secondary[0] = 0x57;
+    thirdY[2] = 0x85;
+    thirdY[0] = 0x85;
+    colorA[1][0] = 0x90;
+    colorA[1][1] = 0x4F;
+    colorA[1][2] = 1;
+    primary[1] = 0x41;
+    y[1][0] = 0x89;
+    y[1][1] = 0x8A;
+    colorB[1][0] = 0x2D;
+    colorB[1][1] = 0x2D;
+    colorB[1][2] = 0x2D;
+    secondary[1] = 0x42;
+    thirdY[1] = 0x88;
+    for (i = 0; i < 3; i++) {
+        d = D_00748908[i];
+        if (d >= func_002e26f0(*(void **)(work + 0xF18 + i * 4))) {
+            colorA[i][2] = 0x2D;
+            colorA[i][1] = 0x2D;
+            colorA[i][0] = 0x2D;
+            if (i == 1) {
+                colorA[i][2] = 0;
+                colorA[i][1] = 0;
+                colorA[i][0] = 0;
+            }
+            colorB[i][2] = 0x6F;
+            colorB[i][1] = 0x6F;
+            colorB[i][0] = 0x6F;
+        }
+        if (i == arg1) {
+            colorA[i][0] = 0xFF;
+            colorA[i][1] = 0x96;
+            colorA[i][2] = 1;
+            primary[i] = 0x57;
+            y[i][0] = 0x83;
+            y[i][1] = 0x84;
+            colorB[i][0] = 0xFF;
+            colorB[i][1] = 0xF2;
+            colorB[i][2] = 0x95;
+            secondary[i] = primary[i] + 1;
+            thirdY[i] = 0x82;
+            if (d >= func_002e26f0(*(void **)(work + 0xF18 + i * 4))) {
+                ((u8 *)colorA)[i * 4 + 2] = 0x9C;
+                ((u8 *)colorA)[i * 4 + 1] = 0x9C;
+                ((u8 *)colorA)[i * 4 + 0] = 0x9C;
+                ((u8 *)colorB)[i * 4 + 2] = 0xFF;
+                ((u8 *)colorB)[i * 4 + 1] = 0xFF;
+                ((u8 *)colorB)[i * 4 + 0] = 0xFF;
+            }
+        }
+    }
+    for (i = 0; i < 3; i++) {
+        if (i == 2) {
+            goto L2;
+        }
+        if (i == 1) {
+            goto L1;
+        }
+        if (i == 0) {
+            goto L0;
+        }
+        goto Lend;
+L0: *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 0xFC) = primary[i];
+            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 8) = (f32)y[i][0];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 0x79) = colorA[i][0];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 0x7A) = colorA[i][1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC4)) + 0x7B) = colorA[i][2];
+            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 0xFC) = primary[i];
+            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 8) = (f32)y[i][1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 0x79) = colorA[i][0];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 0x7A) = colorA[i][1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC8)) + 0x7B) = colorA[i][2];
+            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 0xFC) = secondary[i];
+            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 8) = (f32)thirdY[i];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 0x79) = colorB[i][0];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 0x7A) = colorB[i][1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xE38)) + 0x7B) = colorB[i][2];
+        goto Lend;
+L1: *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 0xFC) = primary[i];
+            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 8) = (f32)y[i][0];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 0x79) = colorA[i][0];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 0x7A) = colorA[i][1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB4)) + 0x7B) = colorA[i][2];
+            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 0xFC) = primary[i];
+            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 8) = (f32)y[i][1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 0x79) = colorA[i][0];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 0x7A) = colorA[i][1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEB8)) + 0x7B) = colorA[i][2];
+            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 0xFC) = secondary[i];
+            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 8) = (f32)thirdY[i];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 0x79) = colorB[i][0];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 0x7A) = colorB[i][1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC4)) + 0x7B) = colorB[i][2];
+        goto Lend;
+L2: *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 0xFC) = primary[i];
+            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 8) = (f32)y[i][0];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 0x79) = colorA[i][0];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 0x7A) = colorA[i][1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEBC)) + 0x7B) = colorA[i][2];
+            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 0xFC) = primary[i];
+            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 8) = (f32)y[i][1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 0x79) = colorA[i][0];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 0x7A) = colorA[i][1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xEC0)) + 0x7B) = colorA[i][2];
+            *(s32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 0xFC) = secondary[i];
+            *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 8) = (f32)thirdY[i];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 0x79) = colorB[i][0];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 0x7A) = colorB[i][1];
+            *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCC0)) + 0x7B) = colorB[i][2];
+Lend: ;
+    }
+    return ret;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d4760);
+#endif
 
 // FUN_002D4F30
 s32 func_002d4f30(s16 arg0) {
