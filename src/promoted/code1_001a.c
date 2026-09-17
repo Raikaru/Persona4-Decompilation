@@ -1073,32 +1073,22 @@ void func_001a2c70(u8 *arg0)
 void func_001a2d60(void)
 {
 }
-/* Floor: 1072B window, 25 differing words (was 231), and an
-   instruction-level alignment reports only three items.  What moved it:
-   the return value and the two state locals are s32, not the s64 m2c
-   emitted - every s64 local here costs a dsll32/dsra32 normalisation
-   pair - the state selections are spelled `if (unit[0xA2] == 0)` so the
-   branch tests zero the way retail does, the switch subject is a masked
-   local, and `opt_common_subs off` stops this build from folding the
-   repeated `*(u8 **)(unit + 0xA64)` loads that retail reloads.
-   func_00194590 is declared s32, not the s64 m2c emitted: truncating its
-   result cost a dsll32/dsra32 normalisation pair, and correcting the
-   declaration took this floor from 25 differing words to 2 with no other
-   change in the unit (52 matched functions before and after).
-   WALL: the last two words are retail's `bltz` jump-table range check,
-   dead after the `andi 0xff`, which this build omits.  No subject
-   spelling reproduces it - s8/s16/s32/s64/u8/u32 locals, masked, cast or
-   switched on directly, a u8 return declaration on func_00235320,
-   `% 0x100`, and the propagation, dead-assignment, rebuild-conditionals,
-   lifetime and size pragmas were all measured. */
-// FUN_001A2D70 NONMATCHING
-#ifdef NON_MATCHING
+/* MATCHED: 1072 bytes of code and the 64-byte table at 0x00746FD0 resolve
+   exactly.  This is D_005f6e20[10].update, a void action callback, so the
+   packet UID that func_00194590 returns is discarded here.  The u8
+   conversion plus the explicit signed guard reproduce retail's redundant
+   `bltz` range check - the two words an earlier pass could not place -
+   and opt_propagation off with opt_common_subs off keep that lowering
+   together with the repeated `*(u8 **)(unit + 0xA64)` loads that retail
+   reloads rather than folding. */
+// FUN_001A2D70
 #pragma push
 #pragma opt_common_subs off
-s32 func_001a2d70(s64 *arg0) {
-    extern s32 func_001b0800(u8 *, s32);
+#pragma opt_propagation off
+void func_001a2d70(u8 *arg0) {
+    extern void func_001b0800(u8 *, u16);
+    extern u8 *func_001bc920(u8 *, u16);
 
-    s32 result;
     s32 state;
     s32 kind;
     u8 *unit;
@@ -1107,10 +1097,12 @@ s32 func_001a2d70(s64 *arg0) {
     void func_00233880(u8 *arg0, s32 arg1);
     u8 *func_00202400(s32 arg0, s32 arg1);
 
-    result = func_00193cd0(0x506);
-    if (result == 0) {
+    if (func_00193cd0(0x506) == 0) {
         unit = *(u8 **)((u8 *)arg0 + 0x30);
-        kind = func_00235320(*(u8 **)(unit + 0xA64)) & 0xFF;
+        kind = (u8)func_00235320(*(u8 **)(unit + 0xA64));
+        if (kind < 0) {
+            goto fallback;
+        }
         switch (kind) {
         case 0:
         case 1:
@@ -1233,25 +1225,24 @@ s32 func_001a2d70(s64 *arg0) {
             break;
         }
         if (state != 0) {
-            func_001a03b0(arg0);
+            func_001a03b0((s64 *)arg0);
             packet = func_001bc920((u8 *)arg0, 10);
             *(s64 *)(packet + 0x60) = *(s64 *)arg0;
             func_00194590(packet, 0);
             packet = func_00202400(*(s32 *)((u8 *)arg0 + 0x30), (s32)state);
             *(s64 *)(packet + 0x60) = *(s64 *)arg0;
-            result = func_00194590(packet, 3);
-        } else if (func_001f6770((u8 *)arg0) != 0) {
-            result = func_001b0800((u8 *)arg0, 11);
+            func_00194590(packet, 3);
         } else {
-            result = func_001b0800((u8 *)arg0, 3);
+fallback:
+            if (func_001f6770((u8 *)arg0) != 0) {
+                func_001b0800((u8 *)arg0, 11);
+            } else {
+                func_001b0800((u8 *)arg0, 3);
+            }
         }
     }
-    return result;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a2d70);
-#endif
 // FUN_001A31A0
 void func_001a31a0(u8 *arg0)
 {
