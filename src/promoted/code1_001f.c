@@ -1130,7 +1130,7 @@ s32 func_001f3b80(s32 arg0) {
                                           (u32)temp_5) + 4);
     return (s32)addBaseFirst((u32)temp_5, (u32)value);
 }
-/* measured: func_001f3bb0 Shape A >=6 to >5 at first guard (slti $at, same constant 6): probe 222->222 words (delta 0), fnalign 78->77 edits (+4 reloc-only both), retail 236/object 242 instrs (944/968B) unchanged; slti $at now matches (retail slti $at vs $v0 fixed, bnez $at now exact, remaining $s2 vs $s5 allocator). Banked guarded floor. */
+/* measured: func_001f3bb0 live with `opt_common_subs off` and `s32 i` (was `s16 i`) measures probe 147 words via `tools/probe_variants.py --candidate`, fnalign retail 234/object 234 (exact) with 80 edits (+2 reloc-only) via `tools/fnalign.py --candidate` (window 944B). History: Shape A `count >=6` to `count >5` at first guard fixed `slti $at` destination (retail slti $at vs $v0, bnez $at now exact) at probe 222->222 (delta 0), fnalign 78->77 edits (+4 both, retail 236/object 242, 944/968B); sweep then took 222->186 (-36, nopragma 222 reproduced, with-pragma 236/248 at 93+2 edits, 12 long from `s16` dsll32/dsra32 per increment); narrowing `s16 i` to `s32 i` then took 186->147 (-39) to exact size, removing both loops' normalization pairs. Second inclusive site N/A: all remaining `slti $at`/`sltiu $at` rows already match ($at vs $at, $v0 vs $v0); `level_advantage >=4` to `>3` and `i <8` to `i <=7` both tie at 147. Wall is saved-register color rotation ($s2 vs $s0, $s4 vs $s1, $s3 vs $s2) plus stack offsets. Banked guarded floor. */
 /* measured 001f3bb0: `opt_common_subs off` inside the guard is worth 36 words (222 -> 186); retail rematerialises what b210 hoists. */
 // FUN_001F3BB0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1147,7 +1147,7 @@ s32 func_001f3bb0(void)
     u16 flags;
     s32 val1;
     s32 val2;
-    s16 i;
+    s32 i;
 
     count = func_001ef720(2, 0x80000) & 0xFFFF;
     if (count > 5) {

@@ -845,6 +845,10 @@ typedef s64 M2C_UNK64;
 #define MULTU_HI(a, b) (0)
 #define CLZ(x) (0)
 u8 *func_00145270(s32);                  /* extern */
+/* Floor: 262 differing words (probe_variants) over 169 fnalign edits, retail 268 vs object 314 (+46, frame 0x80 vs 0x50). */
+/* WALL: frame plus int-float round-trip and spill scheduling plus branch-displacement cascade; no integer slti in */
+/* retail (float compares use bc1, so no slti-$at lever); float-copy variant (drop (s32) from six case-0 inits) */
+/* neutral at 263 words with 310 object instrs. */
 /* measured 00288af0: `opt_common_subs off` inside the guard is worth 14 words (276 -> 262); retail rematerialises what b210 hoists. */
 // FUN_00288AF0 NONMATCHING
 #ifdef NON_MATCHING

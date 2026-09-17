@@ -573,6 +573,23 @@ INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4ac0);
 
 /* measured: object 604B/window 624B/normalized_diff 260 (90 differing words, fnalign per current tree). */
 /* measured: saved-order dst-nextp-i-j-base-row-outer_offset plus outer-invariant row-nextp-outer_offset and for-loop form already applied per archive (103 to 90); slti-at N-A (both sides sltiu-at with a1-vs-a2 input), no 2-3-instr short tail (151 vs 152 instrs), arg-setup already fixed to 3-arg func_003129b0 with D_00882F70-zero symbol, opt_loop_invariants neutral; residual is a1-a2 slot-base plus a3-t0 outer plus v1-a3 slot2 coloring with inner-bound reload and scheduling. */
+/* measured (this pass): chased the 1-instruction shortfall to its mechanism instead of
+   repeating the register work. fnalign shows the only length-changing sites are
+   retail[68:73]/object[68:71] (5-vs-3: retail rematerializes D_00882F70/active2/bound
+   with lui+lw+lw+lw+sltiu, the build reuses a loop-carried $a1 = D[0]+0x38 with
+   lw+lw+sltiu) and retail[124:127]/object[121:125] (3-vs-4: the build keeps a dead
+   `addiu $a1,$v1,0x38` at the inner latch) plus one trailing alignment nop; net
+   151-vs-152. The $a1 is set at the inner back-edge and consumed by the mid-body
+   active2 reload with no call between, so the forward CSE is valid and retail's twin
+   reloads cannot be forced from any same-iteration duplicate-load spelling. Killed
+   leads, all scored by probe_variants: while+bottom-reload and reload-first (both
+   141); for+body-tail and body-top reloads (141/143); commutative `0x38 + D[0]` and
+   scoped opt_common_subs off around the active2 reload (both neutral at 90). Any
+   change to the assignment-in-condition collapses loop codegen into the 131-143
+   family (same as the recorded explicit-goto 131), so the latch sharing is
+   structural. No empty if/else arm exists for the trailing-dead-arm lever: all three
+   switches carry complete default paths and the call-test is a plain bne+sb. The
+   90-word / 151-vs-152 / 46+6 floor stands. */
 // FUN_002E5000 NONMATCHING
 #ifdef NON_MATCHING
 // func_002e5000 (0x002e5000-0x002e5270, 624B) — clean floor at 90 differing words.

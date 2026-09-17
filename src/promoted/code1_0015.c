@@ -372,12 +372,23 @@ u16 func_00156190(u8 *arg0)
     return *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x20);
 }
 
-/* Field-init floor (1168B window). First probe nd 173 (obj 1208B, 40B overrun) improved to nd 171 via slti inclusive (temp_2<3 -> <=2 fixes slti $at,$v0,3 vs $v0,$v0,3; fnalign 123->121 edits); frame/prologue verified incl DSP words. Open: $at/$v0 temp homes, lhu/lw order, scheduler ordering. Reloc-column rows are retail-side display (obj addend-0). */
+/* Field-init floor (1168B window). First probe nd 173 (obj 1208B, 40B overrun)
+   to nd 171 via slti inclusive (temp_2<3 -> <=2 fixes slti $at,$v0,3 vs
+   $v0,$v0,3; fnalign 123->121 edits, 302 vs 292 10-long); honest s16/s64/s32
+   decls + (s64)/(s64)(s8)/(s16) extends give 163wd / 54 edits (296 vs 292
+   4-long, installed); extra was dsll32/dsra32 0 pairs from shift idioms +
+   s64->s32 truncs; frame/prologue verified incl DSP words. Open: $at/$v0 temp
+   homes, lhu/lw order, scheduler ordering. Reloc-column rows are retail-side
+   display (obj addend-0). */
 // FUN_001561A0 NONMATCHING
 #ifdef NON_MATCHING
 /* Closest non-MATCH candidate archived before reverting; lverify report had MISMATCH. */
 s32 func_001561a0(u8 *arg0)
 {
+    extern s16 func_001060b0(void);
+    extern s64 func_00110960(s32 arg0, u32 arg1);
+    extern s32 func_00248e20(s32 arg0, s32 arg1, s32 arg2);
+    extern void func_00123aa0(s16 arg0);
     extern s32 D_007D3D64[];
     extern s32 D_007D3D68[];
     extern s32 iGpffffb268;
@@ -454,34 +465,32 @@ after_check:
                         var_17 = -1;
                         var_18 = 0;
                         if (*(s32 *)(temp_16 + 4) == 1) {
-                            temp_18 = (s64)(func_001060b0() << 0x30) >> 0x30;
+                            temp_18 = (s64)func_001060b0();
                             var_17 =
                                 (s64)(s32)func_00248e20(
                                     *(s32 *)(temp_16 + 0x10),
                                     *(s32 *)(temp_16 + 0x14),
-                                    (s64)(func_00110960(
+                                    (s64)(s8)func_00110960(
                                               temp_18,
-                                              func_001060c0() & 0xFF) << 0x38) >>
-                                        0x38);
+                                              func_001060c0() & 0xFF));
                             if (var_17 != -1) {
                                 if (var_17 & 0x8000) {
                                     var_18 = var_17 & 0x7FF;
                                 } else {
                                     iGpffffb20c = 1;
                                     func_00123aa0(
-                                        (s64)(var_17 << 0x30) >> 0x30);
+                                        (s16)var_17);
                                 }
                             }
                         }
                         if (var_18 == 0) {
                             if (var_17 == -1) {
                                 temp_17 =
-                                    (s64)(func_001060b0() << 0x30) >> 0x30;
+                                    (s64)func_001060b0();
                                 var_17 =
-                                    (s64)(func_00110960(
+                                    (s64)(s8)func_00110960(
                                               temp_17,
-                                              func_001060c0() & 0xFF) << 0x38) >>
-                                    0x38;
+                                              func_001060c0() & 0xFF);
                             }
                             *(s16 *)(temp_16 + 0xE) =
                                 func_00154720(*(u16 *)(temp_16 + 8),
@@ -605,12 +614,12 @@ void func_00156750(u8 *arg0)
 
 
 
-/* Tile-shuffle floor (1264B window). First probe nd 304
-   (obj 1200B, in-window); frameless leaf vs -0x10 retail
-   (rotation-temp spills unreproduced). Open: spill pressure,
-   switch lowering, scheduler ordering. Table base D_005F0000
-   verified (%hi/%lo); Ghidra &0x1F masks refuted (bare sllv);
-   IDA word-widths refuted (lh/sh pairs). Triple-built. */
+/* Tile-shuffle floor (1264B window). Re-measured 302wd / 263 edits (300 vs 315
+   instrs, 15 short, obj 1200B in-window; first probe nd 304); frameless leaf
+   vs -0x10 retail (rotation-temp spills unreproduced). Open: spill pressure,
+   switch lowering, scheduler ordering. Table base D_005F0000 verified
+   (%hi/%lo); Ghidra &0x1F masks refuted (bare sllv); IDA word-widths refuted
+   (lh/sh pairs). Triple-built. */
 // FUN_00156800 NONMATCHING
 #ifdef NON_MATCHING
 void func_00156800(void *arg0_v, u32 arg1)
@@ -946,8 +955,16 @@ fits:
    build folds both into the earlier promotions.  Shift/multiply/index
    spellings, u32 casts and moving the store ahead of the copies were all
    measured (221 to 184-208 words with worse structure). */
-/* measured this session: fresh probe 221wd / fnalign 26 edits (250 vs 246 instrs, 4 short) confirms note (no stale); triaged dead-arm hunt checked -- no trailing if/else-if chain ending 2-3 short (shortfall early at move $s1/$a1 + addu/sll recompute per top-down fnalign); slti $at inclusive checked (no convertible <N range dispatch in this window). Banked. */
-/* measured 00157310: `opt_common_subs off` inside the guard is worth 39 words (221 -> 182); retail rematerialises what b210 hoists. */
+/* measured this session: fresh probe 221wd / fnalign 26 edits (250 vs 246
+   instrs, 4 short) confirms note (no stale); dead-arm duplicate tail probe
+   190wd regresses (+8, no trailing dead arm, shortfall early at move $s1/$a1
+   + addu/sll recompute per top-down fnalign); slti $at inclusive checked (no
+   convertible <N range dispatch in this window); x_save/y_save raw keeps +
+   opt_common_subs off give 86wd / 39 edits (251 vs 251 exact, installed). */
+/* measured 00157310: `opt_common_subs off` inside the guard is worth 39 words
+   on the old body (221 -> 182, 31 edits 252 vs 254); with x_save/y_save raw
+   keeps it is 221 -> 86 (39 edits 251 vs 251 exact); retail rematerialises
+   what b210 hoists. */
 // FUN_00157310 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -960,6 +977,8 @@ void func_00157310(u8 *shape, u16 x0, u16 y0, s16 kind)
     s32 placed;
     s32 px;
     s32 py;
+    s32 x_save;
+    s32 y_save;
     s32 y;
     s32 x;
     s32 rowbase;
@@ -974,15 +993,17 @@ void func_00157310(u8 *shape, u16 x0, u16 y0, s16 kind)
     u8 *row;
 
     placed = 0;
-    px = x0;
+    x_save = x0;
+    px = x_save & 0xFFFF;
     if (px + shape[1] - 1 >= 0x10) {
         func_0046d730(D_005F05E8, 0x20B);
     }
-    py = y0;
+    y_save = y0;
+    py = y_save & 0xFFFF;
     if (py + shape[2] - 1 >= 0x18) {
         func_0046d730(D_005F05E8, 0x20C);
     }
-    *((u8 *)func_00155280() + (y0 << 8) + (x0 * 0x10) + 0x55) = 1;
+    *((u8 *)func_00155280() + (y_save << 8) + (x_save * 0x10) + 0x55) = 1;
     for (y = 0; y < shape[2]; y++) {
         for (x = 0, rowbase = (py + y) << 8, flags = shape + y * 3, rule = shape + y * 0xC; x < shape[1]; x++) {
             colofs = (px + x) * 0x10;
@@ -1379,11 +1400,11 @@ y_test:
 /* measured: closes the opt_propagation bracket for func_001579b0. */
 #pragma opt_propagation on
 /* Mapgen floor (1248B window). First probe nd 209 (obj 1264B,
-   16B overrun); frame/prologue verified. Model: pure-integer
-   fn (no FP saves/fusion), 8 int-saves, 24 fresh 155280 calls,
-   all-int call classes, divu mods, vestigial 3rd param. Open:
-   saved-reg coloring ($s0-home), branch cascade, scheduler
-   ordering. GPREL relocs verified present (.rel.text).
+   16B overrun; re-measured 209wd / 118 edits 312 vs 316 4-long);
+   frame/prologue verified. Model: pure-integer fn (no FP saves/fusion),
+   8 int-saves, 24 fresh 155280 calls, all-int call classes, divu mods,
+   vestigial 3rd param. Open: saved-reg coloring ($s0-home), branch cascade,
+   scheduler ordering. GPREL relocs verified present (.rel.text).
    Triple-built, retail-arbitrated. */
 // FUN_001582F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2448,7 +2469,8 @@ body:
 /* no $s2, preserved); west/east 7/8 limit4 and type-3 bits keep depth; gp mode */
 /* via existing iGpffff9db0 (0x2C/0x40). All-direct board loads (no row/col cache), */
 /* matching sibling func_00157700. Decisive: s32 limits -4, (u8) keep -11, */
-/* all-direct -61, u16 limits -16 (376->284). Residual is double-andi (6 sites), */
+/* all-direct -61, u16 limits -16 (376->284; re-measured 284wd / 71 edits */
+/* 445 vs 445 exact length). Residual is double-andi (6 sites), */
 /* limit sh/lhu/daddiu vs sb/lbu/addiu, call-setup extra move, scheduling/colour. */
 /* Body at docs/probe_archive/Flood_0015B3E0_body.c. Production stays INCLUDE_ASM. */
 /* Non-goals func_00156cf0/func_001561a0 untouched. */
@@ -2923,7 +2945,8 @@ u16 *func_0015d2c0(u32 arg0)
 }
 
 /* HBN-record floor (1056B window). First probe nd 122 (obj 1084B,
-   28B overrun); frame/prologue verified. Open: branch-target cascade
+   28B overrun; re-measured 122wd / 94 edits 264 vs 271 7-long);
+   frame/prologue verified. Open: branch-target cascade
    from overrun, sign-extend idiom, s-reg rotation. See L15 doc. */
 // FUN_0015D310 NONMATCHING
 #ifdef NON_MATCHING

@@ -257,7 +257,8 @@ s32 func_00130600(u8 *arg0) {
     return flag & func_0034c210();
 }
 /* Model floor (1456B window; obj 1452B). Probe 304 words (verify nd 918),
-   fnalign 433 edits (was 445; shortfall vanished 361-vs-359 -> 363-vs-363).
+   fnalign 433 edits plus 7 reloc-only, retail 363/object 363 exact via dead-arm store
+   (was 445; shortfall vanished 361-vs-359 -> 363-vs-363).
    WINS this round: spd 12B array (matched func_00367940 tmp[12] idiom;
    208/214/216 exact, +14 layout fixed, dead li+sw/sh kept via alias),
    loop %10 without fresh andi (retail reuses test $2, no extra andi).
@@ -270,8 +271,10 @@ s32 func_00130600(u8 *arg0) {
    s/f-rotations, f12t offset (220 vs 200), temp-reg names. D_0064 rows
    are reloc phantoms. This round inert: final-reassign, loop-mask alone,
    slti-inclusive, dead else-if, i21/bb orders, decl reorder, b2 order,
-   pragmas, unmerge split, pp+4. Resume: declaration-order/allocator key
-   for f12t, then t30 narrow.
+   pragmas, unmerge split, pp+4. Re-measured 2026-09-17: cse_off fndiff 300
+   verify 888 obj 1508 fnalign 463 retail 364/object 377; +loopinv 300 neutral,
+   +schedule 345 worse, +nobl 300 neutral. Resume: declaration-order key for f12t,
+   then t30 narrow.
 */
 /* measured 00130680: `opt_common_subs off` inside the guard is worth 4 words (304 -> 300); retail rematerialises what b210 hoists. */
 // FUN_00130680 NONMATCHING
@@ -452,11 +455,13 @@ void func_00130c30(u8 *arg0, s64 arg1, s32 arg2)
 }
 /* measured: close opt_propagation for func_00130c30 probe. */
 #pragma opt_propagation on
-/* Model floor (1488B window; obj 1264B). Probe nd 317;
-   trunc-idiom, reassign int->float, 30c30 family shapes.
-   Open: DSE-wall (dead v10/v10b convs), CSE-wall (fmul
-   conv merged), arm-flip (bc1f vs bc1t), s-map rotation,
-   union layout. Dead t3 in 2nd 34f320 kept literal. */
+/* Model floor (1488B window; plain obj 1264B fndiff 307 verify 845 fnalign 224
+   retail 368/object 316; trunc-idiom, reassign int->float, 30c30 family shapes.
+   Open: DSE-wall (dead v10/v10b convs), CSE-wall (fmul conv merged), arm-flip
+   (bc1f vs bc1t), s-map rotation, union layout. Dead t3 in 2nd 34f320 kept literal.
+   Re-measured 2026-09-17: plain 307 best; cse_off 317 worse, o1 314 worse, loopinv neutral,
+   sched/nobl neutral-or-worse on verify; prior 317 now reproduces as cse_off fndiff.
+*/
 // FUN_00130CE0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00130ce0(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3)
@@ -900,17 +905,21 @@ void func_00134f40(u8 *arg0, s64 arg1, s64 arg2, u32 arg3)
 }
 /* measured: close neighboring mixed-ABI palette branch pragma. */
 #pragma opt_propagation on
-/* Model floor (1008B window; obj 876B). Best probe nd 227.
-   WINS: 135520 PackedVec2f-union call, D_00887300[0] table call,
-   45d6e0 proto, K&R 1069d0, trunc idiom, int-form 457.0f,
-   32/81/179 consts, direct t0, no-a3 112300 shape.
-   WALLS: merged identical D_0064 branch arms, f21v-dead
-   coalescing (no $f23 save), bbuf/fa0 layout rotation,
-   dead zd branch (DSE wall), temp-reg names, GPREL/absolute
-   display phantoms (relocs ok).
+/* Model floor (1008B window; plain obj 876B fndiff 227 verify 678, o1 obj 924B
+   fndiff 216 verify 664 best via level-1 keep-separate. WINS: 135520 PackedVec2f-union
+   call, D_00887300[0] table call, 45d6e0 proto, K&R 1069d0, trunc idiom, int-form 457.0f,
+   32/81/179 consts, direct t0, no-a3 112300 shape. WALLS: merged identical D_0064 branch
+   arms, f21v-dead coalescing (no $f23 save), bbuf/fa0 layout rotation, dead zd branch
+   (DSE wall), temp-reg names, GPREL/absolute display phantoms (relocs ok). Extra
+   2026-09-17: cse_off 229 worse, loopinv 227 neutral, sched 230 worse (verify 598 but
+   tail penalty), nobl 227 neutral, o1_sched 232 worse; o1 227->216 applied below.
 */
+/* measured 00135130: `optimization_level 1` inside the guard is worth 11 words (227 -> 216); level 1 keeps separate what -O2 coalesces. */
 // FUN_00135130 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: -O2 coalesces two values retail keeps in separate registers
+   and folds a mask retail re-issues; level 1 does neither. */
+#pragma optimization_level 1
 void func_00135130(u8 *arg0, s64 arg1, s32 arg2, u8 *arg3)
 {
     extern void func_002bc7a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
@@ -981,6 +990,8 @@ void func_00135130(u8 *arg0, s64 arg1, s32 arg2, u8 *arg3)
     fa4 = 81.0f + f20t;
     func_002bc4b0(*(s16 *)arg3, (s32)fa0, (s32)fa4, (arg2 & 0xFF) | ~0xFF, 1, 8, 0.0f);
 }
+/* measured: closes the level 1 scope above at the file's -O2 baseline. */
+#pragma optimization_level 2
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00135130);
 #endif
@@ -2509,8 +2520,151 @@ s32 func_0013f620(s16 arg0, s32 arg1, u8 *arg2) {
     }
     return var_19;
 }
-// FUN_0013F720
+/* Model floor (1072B window; plain obj 1172B fndiff 232 verify 766 fnalign 111 plus 6
+   reloc-only retail 268/object 293, cse_off obj 1176B fndiff 226 verify 770 fnalign 113
+   plus 6 retail 268/object 294 best. WINS: 4-arg s32/s64/s32/u8* sig from retail a0-a3
+   use, temp_3 scaled 0xC plus 0x100/0x102 spill, 0xF6/-1 branch cascade, loop_11 goto
+   shape, var_19 s8 result switch. WALLS: s0/s1 colour swap on slot indices, addu order
+   (base+index vs index+base), inner-switch 0/1 arms via shared exit vs direct, loop-hoist
+   remat. Extra 2026-09-17: loopinv 232 neutral, nobl 232 neutral, sched 231/322 worse,
+   o1 226 tie; cse_off 232->226 applied below.
+*/
+/* measured 0013f720: `opt_common_subs off` inside the guard is worth 6 words (232 -> 226); retail rematerialises what b210 hoists. */
+// FUN_0013F720 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_common_subs off
+s32 func_0013f720(s32 arg0, s64 arg1, s32 arg2, u8 *arg3) {
+    u8 *spC0;
+    u8 *spB0;
+    u8 *spA0;
+    s64 var_19;
+    s64 var_18;
+    s64 temp_17;
+    s64 temp_22;
+    s64 temp_23;
+    s64 temp_30;
+    s64 var_22;
+    s64 var_16;
+    s64 var_17;
+    s64 temp_16;
+    s64 temp_17_2;
+    s64 temp_17_3;
+    s64 temp_3_3;
+    s64 var_16_2;
+    s64 temp_22_2;
+    s64 temp_23_2;
+    u8 *temp_3;
+    u8 *temp_3_2;
+
+    var_19 = 1;
+    var_18 = -1;
+    temp_3 = arg3 + arg2 * 0xC;
+    spC0 = temp_3 + 0x102;
+    temp_17 = *(u16 *)(temp_3 + 0x102);
+    spB0 = temp_3 + 0x100;
+    temp_22 = *(s16 *)(temp_3 + 0x100);
+    temp_23 = *(s32 *)(temp_3 + 0x104);
+    temp_30 = *(s32 *)(temp_3 + 0x108);
+    if (temp_22 != -1) {
+        var_18 = (s64)((func_0010b510() << 0x30) >> 0x30);
+        func_0010b3b0(temp_22);
+    }
+    if ((temp_17 & 0xFFFF) == 0xF6) {
+        if (func_00354010() != 0) {
+            var_19 = 3;
+        } else {
+            var_19 = 0;
+        }
+    } else if (((s64)(arg1 << 0x30) >> 0x30) == -1) {
+        var_22 = 0;
+        var_16 = 0;
+loop_11:
+        if (var_16 < *(s16 *)(arg3 + 0xFC)) {
+            temp_3_2 = arg3 + var_16 * 2;
+            spA0 = temp_3_2 + 0xF4;
+            if (func_0010f930(arg0, *(s16 *)(temp_3_2 + 0xF4), temp_17, 0) == 0) {
+                func_0010f770(arg0, *(s16 *)spA0, temp_17, 0);
+                var_22 += 1;
+            }
+            var_16 += 1;
+            goto loop_11;
+        }
+        if (var_22 == 0) {
+            var_19 = 0;
+        }
+    } else if (func_0010f930(arg0, (s16)arg1, temp_17, 0) == 0) {
+        func_0010f770(arg0, (s16)arg1, temp_17, 0);
+    } else {
+        var_19 = 0;
+    }
+    temp_16 = (s64)(((s64)var_19 << 0x38) >> 0x38);
+    if (temp_16 > 0) {
+        if (temp_23 > 0) {
+            temp_17_2 = (func_00104ce0(arg0) & 0xFFFF) - temp_23;
+            if (temp_17_2 <= 0) {
+                func_0046d730(D_005ED9F0, 0x25B);
+            }
+            func_001056e0(arg0, (s16)((temp_17_2 << 0x30) >> 0x30));
+        }
+        if (temp_30 > 0) {
+            temp_17_3 = (func_00104d50(arg0) & 0xFFFF) - temp_30;
+            if (temp_17_3 < 0) {
+                func_0046d730(D_005ED9F0, 0x261);
+            }
+            func_00105730(arg0, (s16)((temp_17_3 << 0x30) >> 0x30));
+        }
+        if (temp_16 == 3) {
+            func_00106390(0x1401, 1);
+        } else {
+            var_17 = 1;
+            var_16_2 = -1;
+            temp_23_2 = *(u16 *)spC0;
+            temp_22_2 = *(s16 *)spB0;
+            if (func_0010f540(temp_23_2) == 0) {
+                var_17 = 0;
+            } else {
+                if (((s64)((s64)temp_22_2 << 0x30) >> 0x30) != -1) {
+                    var_16_2 = (s64)((func_0010b510() << 0x30) >> 0x30);
+                    func_0010b3b0(temp_22_2);
+                }
+                if (func_0010f6a0(arg0, temp_23_2) != 0) {
+                    var_17 = 0;
+                }
+                if (((s64)(var_16_2 << 0x30) >> 0x30) != -1) {
+                    func_0010b3b0((s16)var_16_2);
+                }
+            }
+            if (var_17 == 0) {
+                var_19 = 2;
+            } else {
+                func_0013aa90(arg3);
+            }
+        }
+    }
+    if (((s64)(var_18 << 0x30) >> 0x30) != -1) {
+        func_0010b3b0((s16)var_18);
+    }
+    temp_3_3 = (s64)(((s64)var_19 << 0x38) >> 0x38);
+    switch (temp_3_3) {
+    case 3:
+        break;
+    case 0:
+        func_0045af60(0, 0, 0, 8);
+        break;
+    case 2:
+    case 1:
+        func_0045af60(1, 3, 2, 0x16);
+        break;
+    default:
+        func_0046d730(D_005ED9F0, 0x28C);
+        break;
+    }
+    return var_19;
+}
+#pragma opt_common_subs on
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013f720);
+#endif
 /* Model floor (1072B window, size-exact). Probe nd 215;
    fea0 float->s16 idiom, absolute consts via array decls.
    Open: loop-hoist wall (C/0x8000/base remat per iter),
