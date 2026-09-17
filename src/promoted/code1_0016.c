@@ -637,6 +637,9 @@ done:
 }
 /* measured: all six census declarations corrected; candidate object 1428B/window 1456B, normalized_diff 917. Residual is hundreds, so the body is archived in build/F162_00162680_body.c and the bare retail fallback is retained. */
 /* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
+/* The second switch's labels are written in reverse: MWCC emits a compare
+   chain in the reverse of the source order, which is worth 4 words here
+   (306 -> 302). */
 // FUN_00162680 NONMATCHING
 #ifdef NON_MATCHING
 u8 *func_00162680(u16 arg0, u16 arg1, s32 arg2)
@@ -709,20 +712,20 @@ loop_done:
                        ((temp_16_3 == 7) && ((arg1 & 0xFFFF) == 3))) {
                 var_18 = 9;
                 temp_2_2 = func_00110d60((s16)func_001060b0());
-                switch (temp_2_2) {
-                case 0:
-                    var_17 = 0x10B;
+                switch (temp_2_2) {                case 3:
+                    var_17 = 0x10C;
+                    break;
+                                case 1:
+                    var_17 = 0x10A;
                     break;
                 case 2:
                     var_17 = 0x10D;
                     break;
-                case 1:
-                    var_17 = 0x10A;
+
+                case 0:
+                    var_17 = 0x10B;
                     break;
-                case 3:
-                    var_17 = 0x10C;
-                    break;
-                }
+}
             } else {
                 var_18 = 9;
                 temp_2_3 = func_00110d60((s16)func_001060b0());

@@ -428,13 +428,15 @@ s32 func_0036eda0(s32 arg0)
     return i + 1;
 }
 
-/* measured: shuffle-state-machine; the three s16 lists (sp+0xF0/0x2F0/0x4F0)
- * and four s128 locals (spD0/spC0/spB0/spA0) reproduce the m2c logic but the
- * frame comes out 0x30 short (0x6C0 vs retail 0x6F0) and the object 96B short
- * (obj 1360B vs 1456B): retail stores 32-bit values directly into the s128
- * slots with sq (no widening pair), while b210 emits a dsll32/dsrl32 widening
- * pair before each sq -- the documented quadword write-side floor. Frame and
- * every s128 store/load sit at the wrong offset. Quadword-store floor. */
+/* measured: honest shuffle-state-machine (three s16[256] lists, s16/u16 temps,
+ * B/C/A draw arms, shared emit tail) probes nd 292 at obj 1448B vs window
+ * 1456B (frame 0x6D0 vs retail 0x6F0): retail spills hi/lo and two shuffle
+ * rands to s128 slots with sq/lq, but b210 has no 128-bit C type (__int128 is
+ * rejected; 16B struct copies lower to ld/sd; members scalar-replace), and
+ * retail's B draw arm (F2F0-F318) sits behind an unconditional `b` while b210
+ * deletes goto-skipped blocks -- both micro-measured. Spill victims are
+ * immobile too (arg1/nA spill in every declaration order tried). Best body at
+ * docs/probe_archive/BtlShuffle_0036EE60_body.c. Quadword + dead-block floor. */
 // FUN_0036EE60
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036ee60);
 
