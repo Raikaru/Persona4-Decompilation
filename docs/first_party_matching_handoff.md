@@ -382,6 +382,26 @@ costs seventeen.
   `if (state == 3) { p->state = 3; goto do_state3; }` with `do_state3:`
   beside `case 3:` reproduces retail's `bne`, `sw`, `b`; the same store
   written after an `if (state != 3) {...}` block lands after the else arm.
+- **Integer arguments five through eight arrive in `$t0`-`$t3`.** This is
+  the MIPS EABI, not o32: a function whose asm never touches the incoming
+  stack can still take eight integer parameters. `func_00256460` reads
+  `$4`-`$7` and `$9`/`$10` and forwards `$8` to its callee without ever
+  loading it, which is exactly what an argument the body only passes
+  through looks like - seven ints and five floats, where m2c printed six.
+  Count the `$t` registers read before their first definition.
+- **A clamp written `> LITERAL` and one written `>= LITERAL+1` allocate
+  differently.** `if (tier > 9)` keeps the compared value in `$v0` with
+  the test in `$at`; `if (tier >= 0xA)` moves it to `$v1`. Identical
+  semantics, twelve words apart - this was the last edit on
+  `func_00245030`.
+- **A local array's size sets the next local's stack slot.** An off-by-one
+  frame usually means a buffer is larger than the loop that fills it:
+  `func_00256460` writes sixteen colour entries but the buffer is
+  `u8 [20][4]`, which is what places the position array at `0xC0` and
+  makes the frame `0x140`.
+- **An 8-byte struct copy through a typed pointer emits `lwc1`/`swc1`.**
+  Where retail uses `lw`/`sw`, stage the two words through `u32` locals
+  instead of writing `*dst++ = *src++`.
 - **An induction variable is zeroed before the invariants beside it.**
   Retail's `for` prologues read `move $s2,$zero` and only then compute the
   row pointer and the row's base coordinate. Writing the invariants as
