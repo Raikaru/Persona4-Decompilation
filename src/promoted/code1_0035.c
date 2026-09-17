@@ -1749,7 +1749,24 @@ u8 *func_0035bf10(s32 arg0, u16 arg1, s32 arg2)
     func_0035c480((s32)temp_16, arg1, arg2);
     return temp_16;
 }
-// FUN_0035C040
+/* measured: live body obj 1088B/window 1088B (exact size, 272/272 instrs);
+ * probe_variants 15 differing words; fnalign 12 edit instructions (+9 reloc-only).
+ * Reconstructed from retail asm + Ghidra/IDA + same-file func_00354ba0 idioms
+ * (Q40 quads at sp+0x50/0x90/0xD0/0x110, 00457120 no-arg+0x80, 0044b7b0 f12,
+ * 00364680 s32,s32*,s32,s32+7 floats with 256.0f extents last, D_00887300/310
+ * single-call forms). Levers that landed: ||-in-arms flag materialization for
+ * the early-out (direct || folds short), ++*(u16*) counter inc, <=9 inclusive
+ * bound for slti $at, corrected 364680 float-arg order (extents last, shared
+ * via mov). Residual: 4x add.s const/load operand orientation at packet +256
+ * sites (both source orders compile identically), mtc1 $f12 0.0f 4 slots late,
+ * $a1/$a2/$a3 int-setup 4 slots early. Tried and neutral: swapped 256.0f
+ * operand order at all 4 sites (identical objects), shared c256 local for the
+ * call extents, col / col+zf pre-call hoists (probe 15, same composition),
+ * per-site temp for the +256 adds (probe 15), opt_loop_invariants on (neutral),
+ * opt_propagation off (no gain); schedule on and opt_common_subs off both
+ * catastrophic (250+). */
+// FUN_0035C040 NONMATCHING
+#ifdef NON_MATCHING
 f32 func_0035c040(u8 *arg0, s32 arg1)
 {
     extern u8 *func_00457120(void);
@@ -1847,12 +1864,15 @@ f32 func_0035c040(u8 *arg0, s32 arg1)
     qs[3].u = 0x3F800000;
     qs[3].v = 0x3F800000;
     qs[3].q = q;
-    func_00364680(*(s32 *)(p + 0x28) | (arg1 & 0xFF), *(s32 **)(p + 0x3C), 1, 0, 0.0f, *(f32 *)(p + 0x18) + -30.0f, 256.0f, *(f32 *)(p + 0x1C), *(f32 *)p, *(f32 *)(p + 4), 256.0f);
+    func_00364680(*(s32 *)(p + 0x28) | (arg1 & 0xFF), *(s32 **)(p + 0x3C), 1, 0, 0.0f, *(f32 *)(p + 0x18) + -30.0f, *(f32 *)(p + 0x1C), *(f32 *)p, *(f32 *)(p + 4), 256.0f, 256.0f);
     func_0034f1e0();
     D_00887300[0](1, **(s32 **)(p + 0x3C));
     D_00887310[0](4, &qs[0], 4);
     return ret;
-}
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035c040);
+#endif
 /* measured: opt_propagation off preserves paired field-load order. */
 #pragma push
 #pragma opt_propagation off

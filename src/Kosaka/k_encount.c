@@ -247,6 +247,120 @@ u32 func_00161630(u32 arg1, u32 arg0, u32 arg2, u32 arg3)
 INCLUDE_ASM("asm/nonmatchings/k_encount", func_00161630);
 #endif
 
-/* measured: cold reconstruction from the m2c draft + matched sibling 61bb0 idioms reaches probe/fndiff reloc-masked nd 243 (verify nd ~730), object ~1132B/window 1184B, fnalign 295 vs ~283 instrs. Banked in docs/probe_archive/KEn80_00161c80_body.c. Flat across hoist/mask/narrow/color variants; loop_invariants and propagation pragmas catastrophic; literal table addresses neutral. Open walls: base-spill/found-reg coloring, sunk base loads, saved-register rotation. Production stays ASM. */
-// FUN_00161C80
+/* measured: cold reconstruction from the m2c draft + matched sibling 61bb0 idioms reaches probe/fndiff reloc-masked nd 243 (verify nd ~730), object ~1132B/window 1184B, fnalign 295 vs ~283 instrs. Banked in docs/probe_archive/KEn80_00161c80_body.c (guarded v1 spelling in owner). Scale note: probe/fndiff and verify normalized_diff run ~3x apart on this body (243 vs ~730); compare like with like. Flat across hoist/mask/narrow/color variants; loop_invariants and propagation pragmas catastrophic; literal table addresses neutral. Open walls: base-spill/found-reg coloring, sunk base loads, saved-register rotation. Production stays ASM. */
+// FUN_00161C80 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_00161c80(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+{
+    extern s32 func_00106600(s16 id);
+    u8 *base;
+    u8 *rec;
+    u8 *slot;
+    u8 *cand;
+    u8 *found;
+    u32 rnd;
+    u32 total;
+    s32 cond;
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 t;
+    s32 lim;
+    s32 acc;
+    s32 hit;
+    s32 present;
+    u16 code;
+    u16 idx;
+
+    found = NULL;
+    if ((func_0014a230() == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
+        idx = (u16)(arg2 & 0xFFFF);
+        base = iGpffffb424 + *(u16 *)(iGpffffb41c + idx * 10 + 6) * 0x15C;
+        if (idx == 0) {
+            return NULL;
+        }
+        total = 0;
+        cond = arg3 & 0xFFFF;
+        for (i = 0; i < 0x1D; i++) {
+            rec = base + i * 0xC;
+            code = *(u16 *)(rec + 2);
+            if (code != 0) {
+                hit = 0;
+                for (j = 0; ((s16 *)D_005F1260)[j] != -1; j++) {
+                    if ((s32)(s16)code == ((s16 *)D_005F1260)[j] && ((func_00106600((s16)code) & 0xFF) > 0)) {
+                        hit = 1;
+                        break;
+                    }
+                }
+                if (hit == 0 && func_00161bb0((s16)code) == 0) {
+                    present = 0;
+                    for (k = 0; k < 8; k++) {
+                        slot = D_007E80A0 + k * 0x168;
+                        cand = *(u8 **)(slot + 0x160);
+                        if (*(s32 *)(slot + 0) != 0 && cand != NULL && *(s32 *)(slot + 8) != 1 && (s16)code == *(u16 *)(cand + 2)) {
+                            present = 1;
+                            break;
+                        }
+                    }
+                    if (present == 0) {
+                        if (*(u8 *)(rec + 7) & 1) {
+                            if (cond == 1 || cond == 2) {
+                                total += *(u16 *)(rec + 0);
+                            }
+                        } else if (cond == 0 || cond == 2) {
+                            total += *(u16 *)(rec + 0);
+                        }
+                    }
+                }
+            }
+        }
+        if (total == 0) {
+            func_0046d730(D_005F12C8, 0x166);
+        }
+        rnd = func_003b7060() % total;
+        acc = 0;
+        for (i = 0; i < 0x1D; i++) {
+            rec = base + i * 0xC;
+            code = *(u16 *)(rec + 2);
+            if (code != 0) {
+                hit = 0;
+                for (j = 0; ((s16 *)D_005F1260)[j] != -1; j++) {
+                    if ((s32)(s16)code == ((s16 *)D_005F1260)[j] && ((func_00106600((s16)code) & 0xFF) > 0)) {
+                        hit = 1;
+                        break;
+                    }
+                }
+                if (hit == 0 && func_00161bb0((s16)code) == 0) {
+                    present = 0;
+                    for (k = 0; k < 8; k++) {
+                        slot = D_007E80A0 + k * 0x168;
+                        cand = *(u8 **)(slot + 0x160);
+                        if (*(s32 *)(slot + 0) != 0 && cand != NULL && *(s32 *)(slot + 8) != 1 && (s16)code == *(u16 *)(cand + 2)) {
+                            present = 1;
+                            break;
+                        }
+                    }
+                    if (present == 0) {
+                        if (*(u8 *)(rec + 7) & 1) {
+                            if (cond == 1 || cond == 2) {
+                                acc += *(u16 *)(rec + 0);
+                            }
+                        } else if (cond == 0 || cond == 2) {
+                            acc += *(u16 *)(rec + 0);
+                        }
+                        if (rnd < acc) {
+                            found = rec;
+                        } else {
+                            continue;
+                        }
+                    }
+                }
+            }
+        }
+        return found;
+    }
+    return NULL;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/k_encount", func_00161c80);
+#endif
