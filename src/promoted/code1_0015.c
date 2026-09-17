@@ -932,8 +932,105 @@ fits:
     *arg2 = saved_y;
     return 1;
 }
-// FUN_00157310
+/* Floor: 221 differing words over 26 edits, 246 emitted against retail's
+   250, frame 0xD0 exact with the two row pointers spilled through sq/lq
+   as retail does.  Built from func_00156cf0 above: the same
+   `(u8 *)func_00155280() + (by << 8) + (bx * 0x10)` cell addressing, the
+   5-wide shape rows at +0x18, the 3-wide flag rows at +0xD and the
+   0xC-stride rule rows at +0x32.  Both loop pairs match once the outer
+   counter is declared before the inner one (y then x, c then r), which is
+   what gives the inner index the lower saved register; each store's value
+   is read into a saved register before the func_00155280 call that
+   produces its address.  px/py as s32 copies of the u16 parameters give
+   the two early promotions and the frame; u16 copies cost 0x60 of stack.
+   WALL: retail keeps the raw x0/y0 parameters in $s1/$s0 and promotes
+   them afresh for the first cell store (`andi` after the call) and
+   recomputes (px + x) * 0x10 before the first store inside the if; this
+   build folds both into the earlier promotions.  Shift/multiply/index
+   spellings, u32 casts and moving the store ahead of the copies were all
+   measured (221 to 184-208 words with worse structure). */
+// FUN_00157310 NONMATCHING
+#ifdef NON_MATCHING
+void func_00157310(u8 *shape, u16 x0, u16 y0, s16 kind)
+{
+    extern s32 iGpffffb230;
+    extern s32 iGpffffb22c;
+    extern s32 iGpffffb228;
+    extern s32 iGpffffb224;
+    s32 placed;
+    s32 px;
+    s32 py;
+    s32 y;
+    s32 x;
+    s32 rowbase;
+    s32 colofs;
+    u8 *flags;
+    u8 *rule;
+    u8 *entry;
+    s32 c;
+    s32 r;
+    s32 by;
+    s32 bx;
+    u8 *row;
+
+    placed = 0;
+    px = x0;
+    if (px + shape[1] - 1 >= 0x10) {
+        func_0046d730(D_005F05E8, 0x20B);
+    }
+    py = y0;
+    if (py + shape[2] - 1 >= 0x18) {
+        func_0046d730(D_005F05E8, 0x20C);
+    }
+    *((u8 *)func_00155280() + (y0 << 8) + (x0 * 0x10) + 0x55) = 1;
+    for (y = 0; y < shape[2]; y++) {
+        for (x = 0, rowbase = (py + y) << 8, flags = shape + y * 3, rule = shape + y * 0xC; x < shape[1]; x++) {
+            colofs = (px + x) * 0x10;
+            if (*((u8 *)func_00155280() + rowbase + colofs + 0x54) == 0) {
+                row = shape + (y - *(s8 *)(shape + 0x17)) * 5;
+                if (row[(x - *(s8 *)(shape + 0x16)) + 0x18] == 1) {
+                    colofs = (px + x) * 0x10;
+                    *((u8 *)func_00155280() + rowbase + colofs + 0x54) = 1;
+                    *((u8 *)func_00155280() + rowbase + colofs + 0x55) |= flags[x + 0xD];
+                    entry = rule + x * 4;
+                    *((u8 *)func_00155280() + rowbase + colofs + 0x5E) = entry[0x32];
+                    *((u8 *)func_00155280() + rowbase + colofs + 0x5A) = shape[1];
+                    *((u8 *)func_00155280() + rowbase + colofs + 0x5B) = shape[2];
+                    *((u8 *)func_00155280() + rowbase + colofs + 0x58) = *(s8 *)(shape + 0);
+                    *((u8 *)func_00155280() + rowbase + colofs + 0x59) = (u8)kind;
+                    *((u8 *)func_00155280() + rowbase + colofs + 0x5F) = entry[0x33];
+                    placed = 1;
+                }
+            }
+        }
+    }
+    if (placed == 1) {
+        for (r = 0; r < 5; r++) {
+            for (c = 0, by = py + r, row = shape + r * 5; c < 5; c++) {
+                if (*(s8 *)(shape + 0x17) + by < 0x18) {
+                    bx = px + c;
+                    if (*(s8 *)(shape + 0x16) + bx < 0x10) {
+                        if (*((u8 *)func_00155280() + ((*(s8 *)(shape + 0x17) + by) << 8) + ((*(s8 *)(shape + 0x16) + bx) * 0x10) + 0x54) == 0 &&
+                            row[c + 0x18] != 0) {
+                            *((u8 *)func_00155280() + ((*(s8 *)(shape + 0x17) + by) << 8) + ((*(s8 *)(shape + 0x16) + bx) * 0x10) + 0x54) = 2;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    iGpffffb230 += 1;
+    if (*(s8 *)(shape + 0) == 2) {
+        iGpffffb228 += 1;
+    }
+    if (*(s8 *)(shape + 0) >= 9) {
+        iGpffffb22c += 1;
+    }
+    iGpffffb224 += shape[1] * shape[2];
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_00157310);
+#endif
 /* Measured: 684/688 bytes, 12 resolved call relocations and four zero tail bytes.
  * Capture exits before output writes; reload categories after earlier recursion. */
 // FUN_00157700
