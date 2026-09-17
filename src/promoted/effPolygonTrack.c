@@ -38,11 +38,11 @@ extern void func_00484350(void *arg0, void *arg1, void *arg2, f32 arg3);
 extern void func_00487fb0(void *arg0, f32 arg1);
 extern void func_00495090(void *arg0, u32 arg1);
 extern void func_00492d10(void *arg0);
-extern s32 func_00494710(void *arg0, u32 arg1);
-extern void func_00494740(void *arg0, u32 arg1, void *arg2, f32 arg3);
-extern void func_004940d0(void *arg0, u32 arg1, void *arg2);
-extern void func_004946f0(void *arg0, u32 arg1);
-extern void func_004946d0(void *arg0, u32 arg1);
+extern s32 func_00494710(void *arg0, u16 arg1);
+extern void func_00494740(void *arg0, u16 arg1, void *arg2, f32 arg3);
+extern void func_004940d0(void *arg0, u16 arg1, void *arg2);
+extern void func_004946f0(void *arg0, u16 arg1);
+extern void func_004946d0(void *arg0, u16 arg1);
 extern void func_00494f90(void *arg0);
 extern void func_00494ff0(void *arg0);
 extern u8 *func_00483e10(u16 arg0, u16 arg1, void *arg2, s32 arg3, s32 arg4);
@@ -399,10 +399,136 @@ void func_004938b0(u8 *arg0)
     }
 }
 
-/* measured: candidate VU reconstruction reaches object 720B/window 688B,
-   normalized_diff 478; oversized body discarded per lane budget. */
-// FUN_004938E0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/effPolygonTrack", func_004938e0);
+/* MATCHED.  Three shapes carried it.  `opt_common_subs off` is required: with
+   it on, b210 hoists the `andi $a1, $s2, 0xffff` index mask into a saved
+   register and moves it to $a1 at each of the six call sites, which costs an
+   extra saved register and 0x10 of frame; retail rematerialises the mask at
+   every call.  Narrowing the five per-index callees above to `u16 arg1` is
+   what makes the mask a parameter promotion rather than a common
+   subexpression, and it also removes the double `lwc1 $f20` that
+   `opt_common_subs off` alone introduced (152 words -> 98 with exact 171/171
+   instruction counts).  The last four words were the `mode == -1 ||
+   mode == 0` test: b210 folds it to the range trick `addiu $v0, $v1, 1;
+   sltiu $at, $v0, 2; beqz $at`, while retail keeps two explicit compares
+   (`addiu $v0, $zero, -1; beq; nop; bnez`), which only the goto form
+   reproduces - `opt_rebuildconditionals off` does not.  The COP2 colour
+   unpack follows the established idiom in src/Graphics/Effect/effBlurFilter.c;
+   the `sw $2, 0x90($sp)` slot and its volatile reload are part of it. */
+// FUN_004938E0
+void func_004938e0(u8 *arg0)
+{
+    extern f32 fGpffff8044;
+    extern void func_00487c30(void *arg0, f32 arg1);
+    s32 sp9C;
+    s32 sp98;
+    s32 sp94;
+    s32 sp90;
+    f32 sp80[3];
+    u8 sp70[16] __attribute__((aligned(16)));
+    s32 *pt;
+    f32 scale;
+    u8 *track;
+    u8 *entry;
+    s32 i;
+    u8 *owner;
+    s32 count;
+    s32 mode;
+
+    if (*(s32 *)arg0 == 0) {
+        return;
+    }
+    func_00492d10(*(void **)(arg0 + 0x30));
+    track = *(u8 **)(arg0 + 0x30);
+    sp98 = *(s32 *)(arg0 + 4);
+    pt = &sp98;
+    scale = fGpffff8044;
+    __asm__ volatile(
+        "lw $2, 0(%0)          \n"
+        "pextlb $2, $0, $2     \n"
+        "pextlh $2, $0, $2     \n"
+        "qmtc2.ni $2, $vf10    \n"
+        "vitof0.xyzw $vf10, $vf10 \n"
+        "mfc1 $2, %1           \n"
+        "nop                   \n"
+        "qmtc2.ni $2, $vf2     \n"
+        "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+        :
+        : "r"(pt), "f"(scale)
+        : "$2", "$vf2", "$vf10", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(sp70) : "$vf10", "memory");
+    entry = *(u8 **)(track + 0x18);
+    count = *(s32 *)arg0;
+    owner = *(u8 **)(arg0 + 0x28);
+    func_00494f90(owner);
+    for (i = 0; i < count; i++, entry += 0x20) {
+        if (func_00494710(owner, i) != 0) {
+            continue;
+        }
+        mode = *(s32 *)(entry + 0x10);
+        if (mode == -2) {
+            func_00494740(owner, i, D_00922D80, 0.0f);
+            func_004940d0(owner, i, &iGpffffbb64);
+            func_004946f0(owner, i);
+            continue;
+        }
+        if (mode == -1) {
+            goto clear_entry;
+        }
+        if (mode != 0) {
+            goto draw_entry;
+        }
+clear_entry:
+        func_00494740(owner, i, D_00922D80, 0.0f);
+        func_004940d0(owner, i, &iGpffffbb64);
+        func_004946d0(owner, i);
+        continue;
+draw_entry:
+        sp80[0] = *(f32 *)(entry + 0);
+        sp80[1] = *(f32 *)(entry + 4);
+        sp80[2] = *(f32 *)(entry + 8);
+        func_00494740(owner, i, sp80, *(f32 *)(entry + 0x18));
+        sp94 = *(s32 *)(entry + 0x14);
+        pt = &sp94;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            :
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "memory");
+        __asm__ volatile(
+            "lqc2 $vf11, 0(%0)     \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0x90($sp)      \n"
+            :
+            : "r"(sp70)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        sp9C = *(volatile s32 *)&sp90;
+        func_004940d0(owner, i, &sp9C);
+    }
+    func_00494ff0(owner);
+    if (*(u8 **)(arg0 + 0x2C) == NULL) {
+        return;
+    }
+    if (*(u32 *)(*(u8 **)(arg0 + 0x30) + 0x10) < *(u32 *)(arg0 + 0x10)) {
+        return;
+    }
+    func_00489f40(*(void **)(arg0 + 0x2C), *(u32 *)(arg0 + 4));
+    func_00487c30(*(void **)(arg0 + 0x2C), *(f32 *)(arg0 + 0x24) / 10.0f);
+}
 // FUN_00493B90
 void func_00493b90(u8 *arg0)
 {
