@@ -881,6 +881,39 @@ The hardware-bound `func_0048a460`, `func_0048a980`, and `func_004ad030`
 floors are documented in the VU/COP2 section above. Do not return them to the
 ordinary source-shaping queue while the clean-C policy remains in force.
 
+## Triage banked floors by residual signature, not by word count
+
+A floor's differing-word count is a poor priority signal: most of it is
+usually branch-displacement cascade from one early divergence.  The useful
+signal is the *shape* of the residual, and two shapes each have a known,
+cheap cure, so it pays to scan every banked floor for them mechanically
+rather than reading notes.
+
+For each `// FUN_<ADDR> NONMATCHING` in the tree, lift the body from between
+`#ifdef NON_MATCHING` and `#else`, write it to a scratch file outside the
+repo, and run:
+
+```
+python3 -E -s tools/fnalign.py <owner.c> func_<addr> --candidate <scratch.c>
+```
+
+Then classify the output:
+
+- `retail slti $at` against `object slti $v0`/`$v1` — flip the bound to the
+  inclusive form.  One-line fix.
+- `retail N instrs  object M instrs` with `N - M` in 1..4 — a trailing dead
+  arm whose redundant store must be spelled out.  Also a one-shape fix, and
+  it usually collapses the whole cascade: two floors went from two
+  instructions short to an exact instruction count this way.
+- `retail slt $at, $zero, $aN` — the loop entry guard; try `(s64)0 < count`
+  with the counter init hoisted above it, but measure, because it regresses
+  as often as it helps.
+
+Three workers over ~290 floors takes about fifteen minutes and returns
+roughly forty hits, ordered by `edit instructions:` from the same output.
+Work the lowest edit counts first — they are the ones where the residual
+really is one shape rather than a pile.
+
 ## Resume checklist
 
 1. Refresh the first-party fallback inventory from the current tree.
