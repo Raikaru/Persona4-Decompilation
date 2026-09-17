@@ -1156,8 +1156,157 @@ done:
    pair at every call site in this unit. */
 // FUN_0018C7E0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018c7e0);
+/* MATCHED: the dispatch reads the pair at iGpffff9db0 with only the first
+   word cached - retail reloads *(s32 *)(ctx + 4) at every test, so the
+   long (major, minor) chains are written out rather than staged in a
+   local.  The story flag is `s8`, which re-extends on each read the way
+   retail does, and the sub-state is `u8`, whose reads carry the andi. */
 // FUN_0018CED0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018ced0);
+s32 func_0018ced0(void)
+{
+    extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
+    extern void func_0045b2e0(s32 arg0);
+    u8 *ctx;
+    s32 major;
+    s32 result;
+    s32 mode;
+    s8 kind;
+    u8 sub;
+
+    result = 0;
+    mode = func_0015a160();
+    kind = (s8)func_00110960((s16)func_001060b0(), func_001060c0() & 0xFF);
+    sub = (u8)func_001060c0();
+    if (func_00106330(0x3E0) == 1) {
+        func_0045aac0(3, 0, 0x1E);
+        return 0;
+    }
+    if (mode == 0) {
+        ctx = iGpffff9db0;
+        major = *(s32 *)ctx;
+        if (major == 7 && *(s32 *)(ctx + 4) == 3) {
+            if (kind == 1 || kind == 3) {
+                result = 0x3D;
+            } else if (sub == 0) {
+                if (func_0014bdb0(7, 0x1B, 8, 0x1F) == 1) {
+                    if (kind == 0) {
+                        result = 2;
+                    } else if (kind == 2) {
+                        result = 6;
+                    }
+                } else {
+                    result = 6;
+                }
+            } else if (sub == 5) {
+                if (func_0014bdb0(7, 0x17, 8, 0x1F) == 1) {
+                    result = 0xB;
+                } else if (func_0014bdb0(9, 1, 0xA, 0x12) == 1) {
+                    result = 4;
+                } else {
+                    result = 0xA;
+                }
+            }
+        } else if (((major == 6 && *(s32 *)(ctx + 4) == 0xF) ||
+                    (major == 0xA && *(s32 *)(ctx + 4) == 3) ||
+                    (major == 0xA && *(s32 *)(ctx + 4) == 4)) &&
+                   (kind == 0 || kind == 2) && sub == 0) {
+            if (func_0014bdb0(7, 0x1B, 8, 0x1F) == 1) {
+                if (kind == 0) {
+                    result = 2;
+                } else if (kind == 2) {
+                    result = 6;
+                }
+            } else {
+                result = 6;
+            }
+        } else if ((major == 9 && *(s32 *)(ctx + 4) == 1) ||
+                   (major == 9 && *(s32 *)(ctx + 4) == 2) ||
+                   (major == 9 && *(s32 *)(ctx + 4) == 3) ||
+                   (major == 9 && *(s32 *)(ctx + 4) == 4)) {
+            result = 0x3F;
+        } else if (kind == 1 || kind == 3) {
+            if (major == 1 ||
+            (major == 6 && *(s32 *)(ctx + 4) == 9) ||
+            (major == 6 && *(s32 *)(ctx + 4) == 0xE) ||
+            (major == 6 && *(s32 *)(ctx + 4) == 0xF) ||
+            (major == 7 && *(s32 *)(ctx + 4) == 1) ||
+            (major == 8 && *(s32 *)(ctx + 4) == 1) ||
+            (major == 8 && *(s32 *)(ctx + 4) == 2) ||
+            (major == 8 && *(s32 *)(ctx + 4) == 9) ||
+            (major == 0xA && *(s32 *)(ctx + 4) == 1) ||
+            (major == 0xA && *(s32 *)(ctx + 4) == 2) ||
+            (major == 0xA && *(s32 *)(ctx + 4) == 3) ||
+            (major == 0xA && *(s32 *)(ctx + 4) == 4) ||
+            (major == 0xB && *(s32 *)(ctx + 4) == 1) ||
+            (major == 0xD && *(s32 *)(ctx + 4) == 8) ||
+            (major == 0x11 && *(s32 *)(ctx + 4) == 1) ||
+            (major == 0x11 && *(s32 *)(ctx + 4) == 3)) {
+                result = 8;
+            } else if (major == 7 && *(s32 *)(ctx + 4) == 2) {
+                result = 0x3D;
+            } else if ((major == 4 && *(s32 *)(ctx + 4) == 1) ||
+            (major == 4 && *(s32 *)(ctx + 4) == 2) ||
+            (major == 4 && *(s32 *)(ctx + 4) == 3) ||
+            (major == 6 && *(s32 *)(ctx + 4) == 1) ||
+            (major == 6 && *(s32 *)(ctx + 4) == 2) ||
+            (major == 6 && *(s32 *)(ctx + 4) == 3) ||
+            (major == 6 && *(s32 *)(ctx + 4) == 4) ||
+            (major == 6 && *(s32 *)(ctx + 4) == 5) ||
+            (major == 6 && *(s32 *)(ctx + 4) == 6) ||
+            (major == 6 && *(s32 *)(ctx + 4) == 0xA) ||
+            (major == 6 && *(s32 *)(ctx + 4) == 0xB) ||
+            (major == 6 && *(s32 *)(ctx + 4) == 0xC) ||
+            (major == 6 && *(s32 *)(ctx + 4) == 0xD) ||
+            (major == 6 && *(s32 *)(ctx + 4) == 0x10) ||
+            (major == 6 && *(s32 *)(ctx + 4) == 0x11) ||
+            (major == 8 && *(s32 *)(ctx + 4) == 5) ||
+            (major == 8 && *(s32 *)(ctx + 4) == 7) ||
+            (major == 8 && *(s32 *)(ctx + 4) == 8) ||
+            (major == 0xB && *(s32 *)(ctx + 4) == 2) ||
+            (major == 0xC && *(s32 *)(ctx + 4) == 2) ||
+            (major == 0xC && *(s32 *)(ctx + 4) == 3) ||
+            (major == 0xC && *(s32 *)(ctx + 4) == 4) ||
+            (major == 0xD && *(s32 *)(ctx + 4) == 1)) {
+                result = 0x3E;
+            }
+        } else if (kind == 0) {
+            if ((major == 6 && *(s32 *)(ctx + 4) == 9) ||
+            (major == 6 && *(s32 *)(ctx + 4) == 0xE) ||
+            (major == 6 && *(s32 *)(ctx + 4) == 0xF) ||
+            (major == 7 && *(s32 *)(ctx + 4) == 1) ||
+            (major == 8 && *(s32 *)(ctx + 4) == 1) ||
+            (major == 8 && *(s32 *)(ctx + 4) == 2) ||
+            (major == 8 && *(s32 *)(ctx + 4) == 9) ||
+            (major == 0xA && *(s32 *)(ctx + 4) == 1) ||
+            (major == 0xA && *(s32 *)(ctx + 4) == 2) ||
+            (major == 0xA && *(s32 *)(ctx + 4) == 3) ||
+            (major == 0xA && *(s32 *)(ctx + 4) == 4) ||
+            (major == 0xB && *(s32 *)(ctx + 4) == 1) ||
+            (major == 0xD && *(s32 *)(ctx + 4) == 8) ||
+            (major == 0x11 && *(s32 *)(ctx + 4) == 1) ||
+            (major == 0x11 && *(s32 *)(ctx + 4) == 3)) {
+                if (func_0014bdb0(7, 0x1B, 8, 0x1F) == 1 && (sub == 3 || sub == 4)) {
+                    result = 2;
+                } else if (sub == 4) {
+                    if (func_0014bdb0(9, 1, 9, 7) == 1) {
+                        result = 3;
+                    } else if (func_0014bdb0(9, 8, 0xA, 5) == 1) {
+                        result = 4;
+                    }
+                }
+            }
+        }
+    } else if (mode == 0x9F) {
+        result = 0x15;
+    }
+    if (result > 0) {
+        func_004598e0(0x1E);
+        func_0045b2e0(result);
+        return 1;
+    }
+    func_0045aac0(3, 0, 0x1E);
+    return 0;
+}
 /* MATCH: stage the s32 byte count without a conflicting callee prototype.
    Unsigned elapsed subtraction preserves retail timer wrap. 332B/336B,
    normalized_diff 0; only four zero-tail bytes are absent. */

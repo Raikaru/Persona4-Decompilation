@@ -618,8 +618,104 @@ void func_00256040(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
    declaration order reproduces offsets that separate locals do not. */
 // FUN_002561F0
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_002561f0);
-// FUN_00256460
+/* Floor: 48 differing words over 57 edit instructions, 153 emitted against
+   retail's 153, from a first reconstruction.  The signature is 7 ints and 5
+   floats: the MIPS EABI passes integer arguments 5-8 in $t0-$t3, which is
+   where arg4..arg6 live, and arg4 is forwarded to func_0045e6a0 untouched -
+   retail never reloads it.  The vertex table is copied with an explicit
+   two-word CopyPair loop; letting MWCC copy the 8-byte struct directly
+   emits lwc1/swc1 where retail uses lw/sw.  The colour buffer is
+   `u8 color[20][4]`, which is what puts the position array at 0xC0 and
+   makes the frame 0x140.  Hoisting the four base-colour bytes above the
+   loop took 66 words to 48.
+   WALL: FPU scheduling.  Retail issues both `255.0f * (f32)argN` products
+   before the main colour and only then the two divisions; this build sinks
+   each product onto its own division, so the two chains are emitted whole
+   one after the other.  opt_propagation off (158), opt_serializeassignments
+   and folding the divide into the product were all measured. */
+// FUN_00256460 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma opt_loop_invariants on
+void func_00256460(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
+                   s32 arg6, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
+                   f32 fparg4)
+{
+    f32 pos[16][2];
+    u8 color[20][4];
+    CopyPair *src;
+    CopyPair *dst;
+    u32 w0;
+    u32 w1;
+    u32 rgb;
+    u32 main;
+    u32 lower;
+    u32 upper;
+    s32 n;
+    u32 i;
+    f32 scaled2;
+    f32 scaled3;
+    s32 b0;
+    s32 b1;
+    s32 b2;
+    s32 b3;
+
+    src = (CopyPair *)D_00636390;
+    dst = (CopyPair *)pos;
+    n = 0x10;
+    do {
+        w0 = src->w0;
+        w1 = src->w1;
+        src++;
+        n--;
+        dst->w0 = w0;
+        dst->w1 = w1;
+        dst++;
+    } while (n > 0);
+    i = 0;
+    rgb = arg0 << 8;
+    b0 = (rgb >> 0x18) & 0xFF;
+    b1 = (rgb >> 0x10) & 0xFF;
+    b2 = arg0 & 0xFF;
+    b3 = rgb & 0xFF;
+    scaled2 = 255.0f * (f32)arg2;
+    scaled3 = 255.0f * (f32)arg3;
+    main = rgb | arg1;
+    lower = rgb | (s32)(scaled3 / 255.0f);
+    upper = rgb | (s32)(scaled2 / 255.0f);
+    while (i < 0x10U) {
+        pos[i][0] = pos[i][0] + fparg0;
+        pos[i][1] = pos[i][1] + fparg1;
+        if (i == 0 || i == 1 || (u32)(i - 0xE) < 2U) {
+            color[i][0] = (u8)b0;
+            color[i][1] = (u8)b1;
+            color[i][2] = (u8)b2;
+            color[i][3] = (u8)b3;
+        } else if ((u32)(i - 6) < 4U) {
+            color[i][0] = (u8)(upper >> 0x18);
+            color[i][1] = (u8)(upper >> 0x10);
+            color[i][2] = (u8)(upper >> 8);
+            color[i][3] = (u8)upper;
+        } else if ((u32)(i - 0xA) < 4U) {
+            color[i][0] = (u8)(lower >> 0x18);
+            color[i][1] = (u8)(lower >> 0x10);
+            color[i][2] = (u8)(lower >> 8);
+            color[i][3] = (u8)lower;
+        } else {
+            color[i][0] = (u8)((main >> 0x18) & 0xFF);
+            color[i][1] = (u8)((main >> 0x10) & 0xFF);
+            color[i][2] = (u8)((main >> 8) & 0xFF);
+            color[i][3] = (u8)(main & 0xFF);
+        }
+        i++;
+    }
+    func_0045e6a0(color, pos, fparg2, 0x10, 4, arg4, (s16)arg5, (s16)arg6,
+                  0.0f, fparg3, fparg4);
+}
+#pragma pop
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00256460);
+#endif
 
 
 
