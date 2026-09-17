@@ -27,7 +27,8 @@
     "slice-canonical": "Same slice with recovered function names mapped back to func_<address> using tracked symbol_addrs and canonical windows, preserving historical extraction naming.",
     "synthesis": "Existing extractor synthesise semantics: retail little-endian words with canonical JAL R_MIPS_26 relocation annotations. Explicit choice preserves earlier boundary-repair extractions even where current splat could slice.",
     "corrections": "33 path-local historical differences: eight adjacent-nullsub spans, eighteen symbol spelling sets, six glabel spellings, one GNU-as retail-word repair. Reasons reside with each correction; these are not arbitrary text patches.",
-    "retained": "Hand-maintained relocation fixture and hand-carried jump table remain tracked, checked, never regenerated or removed."
+    "retained": "Hand-maintained relocation fixture and hand-carried jump table remain tracked, checked, never regenerated or removed.",
+    "inputs-verify.py": "tools/verify.py is a generator input only through is_generated(), which tools/extract_nonmatching_asm.py calls to skip non-source files while scanning src/**/*.c. The fdc4ce4edc38 -> a646226c6bb9 bump adds tools/probe_variants.py's staged copies (src/**/.<owner>.probe_<token>.c) to that skip set alongside the permuter's. Those files are transient, gitignored, and absent from any clean checkout: enumerating src/**/*.c under both predicates on a fresh clone yields the same 394 sources, so the corpus is unchanged."
   },
   "inputs": {
     "requirements-python.txt": "5060d9e5c5cae77d328b65eed5f586fcda9139f66331e6ff62c8bd2c22956166",
@@ -37,7 +38,7 @@
     "tools/slus21782_functions.json": "43d17bf206f4c878e34ed335aa8a715e09b94a6060321f32c22e04ad72284b5a",
     "tools/extract_nonmatching_asm.py": "78cde4a7fded07dff5fd8151ebdcef2aa903d864e8a217669e04d78f27bd40eb",
     "tools/asm.py": "75670b3a6ddfa7761a0734b5a4d4b2692f365eaf04f8f8a5a2d6d8802ac5ab70",
-    "tools/verify.py": "fdc4ce4edc38fe9bba9933fb756a4b92f559dc8b990a052152735ae141a83f7b"
+    "tools/verify.py": "a646226c6bb92658ba867bee48edd1b945d67e95c9118ab0e8dd88ec9244efce"
   },
   "generated": [
     {
