@@ -22,6 +22,8 @@ otherwise 1.  A matching candidate is reported but never installed.
 from __future__ import annotations
 import argparse
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
+import fcntl
+import hashlib
 import io
 import os
 import re
@@ -263,6 +265,29 @@ def _has_include_fallback(text: str, function: str) -> bool:
     return False
 
 
+@contextmanager
+def _owner_lock(logical_source: Path):
+    """Serialise compiles that share one owning translation unit.
+
+    Two probes against the same owner run the compiler on two scratch copies
+    in the same directory, and MWCCPS2 keeps per-directory scratch of its
+    own.  Concurrent runs then produce a compile error on every slot or,
+    worse, a candidate that compiles but scores wrong: one lane measured a
+    phantom 233 for a body whose serial score is 330.  A per-owner lock
+    keeps parallel lanes on *different* files fully parallel while making
+    same-owner probes safe by construction rather than by discipline.
+    """
+    directory = Path(os.environ.get("TMPDIR", tempfile.gettempdir()))
+    token = hashlib.sha256(str(logical_source).encode()).hexdigest()[:16]
+    path = directory / ("p4probe-%s.lock" % token)
+    handle = open(path, "w")
+    try:
+        fcntl.flock(handle, fcntl.LOCK_EX)
+        yield
+    finally:
+        handle.close()
+
+
 def _compile_in_context(
     candidate: Path,
     logical_source: Path,
@@ -272,22 +297,23 @@ def _compile_in_context(
     """Compile CANDIDATE with flags selected for LOGICAL_SOURCE."""
     logical_source = logical_source.resolve()
     candidate = candidate.resolve()
-    if verify.is_gcc_unit(logical_source):
-        return verify._compile_gcc(candidate, cfg, output)
+    with _owner_lock(logical_source):
+        if verify.is_gcc_unit(logical_source):
+            return verify._compile_gcc(candidate, cfg, output)
 
-    command = verify._mwccgap_command(logical_source, cfg, output)
-    # `_mwccgap_command` deliberately receives the original path so compiler
-    # version/speed-unit flags stay attached to the owning TU.  Only its input
-    # path is redirected to the isolated copy.
-    command[2] = str(candidate)
-    process = subprocess.run(
-        command,
-        cwd=REPO,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-    )
-    return process.returncode == 0 and output.is_file(), process.stdout
+        command = verify._mwccgap_command(logical_source, cfg, output)
+        # `_mwccgap_command` deliberately receives the original path so
+        # compiler version/speed-unit flags stay attached to the owning TU.
+        # Only its input path is redirected to the isolated copy.
+        command[2] = str(candidate)
+        process = subprocess.run(
+            command,
+            cwd=REPO,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        return process.returncode == 0 and output.is_file(), process.stdout
 
 
 def run_fndiff(
