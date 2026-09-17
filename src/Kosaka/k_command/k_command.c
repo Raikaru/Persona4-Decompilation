@@ -368,6 +368,13 @@ s32 func_001773d0(void)
 
 
 
+/* Floor: 183 differing words over 27 edit instructions, object 1380B with
+   345 of 345 instructions against a 1392-byte window whose tail is three
+   alignment nops, and all 49 jal relocations resolved to retail targets.
+   Frame 0xB0 and the saved-register roles match; the residual is stack
+   slot placement - the config block sits at 0x70 against retail's 0x80
+   and the two scratch pairs are correspondingly shifted.  Body at
+   docs/probe_archive/KCM_001774a0_body.c. */
 // FUN_001774A0
 INCLUDE_ASM("asm/nonmatchings/k_command", func_001774a0);
 

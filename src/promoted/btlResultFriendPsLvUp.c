@@ -5,7 +5,7 @@
 
 void func_0046d730(u8 *arg0, s32 arg1);
 
-extern u8 *func_00452560(void);
+extern u8 *func_00452560(s32 arg0);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern s32 func_00452380(u8 *arg0);
 extern s32 func_00117780(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4);
@@ -29,8 +29,8 @@ extern void func_0011f580(s32 arg0);
 extern s32 func_0021de60(void);
 extern u8 D_00795F20[];
 extern u8 D_005E4810[];
-extern u16 D_008C024C;
-extern u16 D_008C024E;
+extern u16 D_008C024C[];
+extern u16 D_008C024E[];
 extern u8 D_00629720[];
 
 
@@ -60,5 +60,16 @@ s32 func_002238f0(s64 arg0)
     }
 }
 
+/* Floor: 179 differing words, object 1328B over a 1328-byte window with
+   332 of 332 instructions and 134 edits.  A switch dispatch measures 250,
+   a base-plus-zw shape 186 with the frame exact, and staging the scratch
+   as s32 gives 179; removing the index goes back to 248 and reloading to
+   242.  Residual is a saved-register colour permutation between $s2 and
+   $s3 plus scheduling - `sh` before `andi`, the load order, and the addu
+   orientation - over a single dead float store.  Body at
+   docs/probe_archive/BRF2_002239a0_body.c.
+   The two declaration fixes above are part of this measurement:
+   func_00452560 takes an s32 (per its provider in sdkTask.c) and the two
+   D_008C024x pad words are arrays, matching the sibling unit. */
 // FUN_002239A0
 INCLUDE_ASM("asm/nonmatchings/btlResultFriendPsLvUp", func_002239a0);
