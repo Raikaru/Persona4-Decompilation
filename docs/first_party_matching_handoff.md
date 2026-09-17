@@ -417,6 +417,42 @@ is the only definition in its file and the calls below it pass diverse
 types, K&R is not a style choice — it is what retail used and what lets the
 unit build.
 
+**"Saved-register rotation" is usually a symptom, not a wall.** A floor on
+`func_0047e0f0` (`mdlSE.c`) carried a careful note describing a full cyclic
+shift of six callee-saved assignments and listed six source shapes that did
+not move it.  `#pragma opt_loop_invariants on` took the same body from 166
+differing words to 10 and every saved register snapped onto retail's.  The
+rotation was the downstream shadow of one unmeasured pragma.  Before writing
+"rotation" in a note, measure all four pragmas on that exact body.
+
+**Give an address-arithmetic temp two definitions to pin it.**  The last two
+words of that same function were retail computing `col*12` into `$a0` ahead
+of the base load while b210 sank it past.  Eight spellings failed — temps in
+either declaration order, `col*12` against `(col*3)*4`, a `u8 (*)[8][12]`
+grid, a 12-byte struct row base, `&base[row*96 + col*12]`, forced
+parentheses, add-assignment, and hoisting the multiply above the bound
+check.  What worked was defeating propagation by assigning the offset
+through the destination:
+
+```c
+entry = (u8 *)((col * 3) * 4);
+entry = *(u8 **)(arg0 + 12) + (row * 3) * 32 + (u32)entry;
+```
+
+A single-use temp is folded into the address tree and rescheduled; a
+variable with two defs is pinned where it is written.  Reach for it whenever
+`fnalign` shows an address chain scheduled after a load retail puts it
+before.  With `s8 sb[4]` for retail's `lb` (not `u8`/`lbu`), that closed the
+function to an exact 212/212.
+
+**Re-derive an inherited body before you measure it.**  The archived
+`func_0047e0f0` body contained a fabricated five-argument call to
+`func_003b7060` — the no-argument RNG every other caller in the tree uses,
+against an invented 5-arg extern — an index of `entry[writeIndex]` where
+retail reads `entry[(u16)i]`, and a `default:` arm the switch does not have.
+A wrong body measures a wrong wall, and nothing in the gate set re-checks a
+banked body against the disassembly.
+
 **Sweep the cheap pragmas, never reason about them.** Each of these costs
 one compile against a body you already have, so wrapping the guarded body
 and re-measuring is strictly cheaper than deciding whether it "should"
