@@ -1178,6 +1178,11 @@ void func_00213e20(u8 *arg0, u8 *arg1)
 // FUN_002142B0
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002142b0);
 /* measured 00215c10: banked floor obj 1464B/window 1472B via `python tools/measure_guarded.py src/promoted/code1_0021.c func_00215c10` (366/366 instrs, 13 edits +1 reloc-only via `python tools/fnalign.py src/promoted/code1_0021.c func_00215c10 --candidate /tmp/cand_both_reload.c` after s16 reload 21->13; park intsFirst/floatsFirst/pin neutral at 21/13; MAC neutral 79/81; pragmas schedule 431/prop 62/loopInv 21/commonSubs 226 by EDIT count; frame -0x60 correct, residual prologue park order, FPU coloring, 85/conversion coloring. Best legal plain-C; parked as compiler floor. */
+/* measured 2026-09-17 full pragma_sweep --pairs: banked 20 via measure_guarded; */
+/* best stays 20 (ties: loopinv on, strength off, unroll off and pairs; 172 dead */
+/* group, 309-335 schedule group, 342-343 peephole ties, 348 prop group, 350 csoff */
+/* group, 358-369 high). No pair wins; prologue move $s1,$a2 + FPU/85 coloring floor. */
+/* `python3 -E -s tools/pragma_sweep.py src/promoted/code1_0021.c func_00215c10 --pairs`. */
 // FUN_00215C10 NONMATCHING
 #ifdef NON_MATCHING
 void func_00215c10(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
