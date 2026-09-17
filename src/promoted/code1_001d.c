@@ -1300,24 +1300,24 @@ void func_001d53e0(s32 arg0) {
         f32 spC0[4];
         f32 spD0[4];
     } frame;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 var_f12;
-    s32 *var_18;
+    u8 *base;
+    u8 *temp_16;
     s32 temp_22;
-    s32 temp_4;
+    u32 temp_19;
+    s32 *var_18;
+    u8 *var_17;
     s32 var_21;
     s32 var_23;
     u16 temp_30;
-    u32 temp_19;
+    s32 temp_4;
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 var_f12;
     u8 temp_3;
     u8 temp_4_3;
     u8 temp_5;
     u8 temp_5_2;
-    u8 *temp_16;
     u8 *temp_4_2;
-    u8 *var_17;
-    u8 *base;
 
     base = (u8 *)arg0;
     temp_16 = *(u8 **)(base + 0x18);
@@ -1364,9 +1364,7 @@ void func_001d53e0(s32 arg0) {
     var_18 = *(s32 **)(base + 0x58);
     temp_30 = *(u16 *)(base + 0x54);
     var_17 = *(u8 **)(base + 4) + 0x14;
-    var_21 = 0;
-loop_62:
-    if ((var_21 & 0xFFFF) < (s32)temp_30) {
+    for (var_21 = 0; (var_21 & 0xFFFF) < temp_30; var_21 = (var_21 + 1) & 0xFFFF, var_17 += 0x18, var_18 += 1) {
         if ((u32)*(u32 *)(var_17 + 0x10) < temp_19) {
             temp_5 = *(u8 *)(var_17 + 0);
             if (temp_5 != 0xFE) {
@@ -1410,11 +1408,10 @@ loop_62:
                             func_00486400((u8 *)*var_18, var_f12);
                         }
                     }
-                    if (var_23 == 0) {
-                        goto block_51;
+                    if (var_23 != 0) {
+                        continue;
                     }
-                } else {
-block_51:
+                }
                     if ((*(u16 *)(var_17 + 0xE) != 1) || ((*(s32 *)(base + 8) & 0x1E) == 0 && (s32)*(u8 *)(base + 0x14) >= 0x32)) {
                         if ((*(s32 *)(base + 8) & 0x20000) == 0) {
                             D_00609500[*(u8 *)(var_17 + 8)](base, temp_16, var_17, (u8 *)frame.spB0);
@@ -1436,13 +1433,8 @@ block_51:
                         func_004865c0(*var_18, (u32)temp_22);
                         func_00485630(*var_18);
                     }
-                }
             }
         }
-        var_21 = (var_21 + 1) & 0xFFFF;
-        var_17 += 0x18;
-        var_18 += 1;
-        goto loop_62;
     }
     *(u32 *)(base + 0xC) = *(u32 *)(base + 0xC) + 1;
 }

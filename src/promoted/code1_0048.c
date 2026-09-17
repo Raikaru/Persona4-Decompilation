@@ -1865,16 +1865,105 @@ void func_00489f10(u8 *arg0)
 {
     func_00492e10(*(u8 **)(arg0 + 0x4C));
 }
-/* measured: 5 differing words, object 584B against a 592-byte window.  The
-   residual is the destination register of a `cvt.w.s`, and it is the same
-   wall as func_00311930 and func_0034ddf0 - anything that moves one moves
-   all three.  Re-certified with four negative probes: swapping the sqrt
-   operand order, taking the argument as u8, staging the vector through a
-   stack struct, and widening the integer temporaries are all inert or
-   worse, and every one leaves the identical residual.  Declaration orders
-   and the pragma set were measured on the earlier pass. */
+/* Floor (measured 2026-09-17, source-repo only): probe_variants base 5 words (v2_retail 7, v1_ghidra 110, v4/v5 7, v6 50, v7 s8 99, v8 struct3 142, v9 doubledef neutral), fnalign 146/146/6, emitted 584B/window 592B (98.6%). Four-pragma sweep on best: base wins (loop/sched neutral, prop/common worse). wscan 0, opclass N/A (no guard). Residual is FPR destination selection (cvt.w.s/mfc1 colors + branch); recorded cvt wall re-derived and rejected as shared-wall claim (same shape as 00311930/0034ddf0 but per-function levers differ). Banked as guarded floor; production stays ASM. */
 // FUN_0048A980
+#ifdef NON_MATCHING
+/* Best re-derived body for func_0048a980: 5 differing words (reloc-masked),
+   146/146 instrs, 6 fnalign edits. Plain C + terminal lqc2 per VU handoff.
+   Terminal transfer is C-shaping target; no interior VU pipeline.
+   Owner TU supplies code1_0048_mul; add helper retained for standalone replay. */
+static inline f32 code1_0048_add(f32 left, f32 right) {
+    return left + right;
+}
+
+void func_0048a980(f32 *arg0)
+{
+    extern f32 sqrtf(f32 arg0);
+    f32 sp[4];
+    f32 temp_f0;
+    f32 temp_f1;
+    f32 temp_f2;
+    f32 temp_f2_2;
+    f32 temp_f5;
+    f32 temp_f2_3;
+    f32 temp_f3;
+    f32 temp_f4;
+    s32 temp_3;
+    s32 temp_5;
+    s32 temp_6;
+    s32 temp_7;
+    s32 temp_8;
+    u8 var_6;
+    s32 var_3;
+    u8 *temp_5_2;
+    u8 *temp_7_2;
+    u8 *temp_9;
+    u8 next2;
+    s32 temp_10;
+
+    temp_f3 = arg0[5];
+    temp_f2 = arg0[0];
+    temp_f4 = arg0[10];
+    temp_f1 = 1.0f;
+    temp_f0 = temp_f2 + temp_f3;
+    temp_f0 = code1_0048_add(temp_f4, temp_f0);
+    temp_f0 = code1_0048_add(temp_f1, temp_f0);
+    if (!(temp_f0 < temp_f1)) {
+        temp_f2_2 = 2.0f * sqrtf(temp_f0);
+        sp[3] = -(temp_f2_2 / 4.0f);
+        sp[0] = (arg0[6] - arg0[9]) / temp_f2_2;
+        sp[1] = (arg0[8] - arg0[2]) / temp_f2_2;
+        sp[2] = (arg0[1] - arg0[4]) / temp_f2_2;
+    } else {
+        var_3 = (temp_f2 > temp_f3) ? 1 : 0;
+        var_6 = (var_3 ^ 1) & 0xFF;
+        if (!(temp_f4 <= *(f32 *)((u8 *)arg0 + (var_6 * 0x10) +
+                                  (var_6 * 4)))) {
+            var_6 = 2;
+        }
+        temp_7 = var_6 & 0xFF;
+        temp_5 = ((s32)(temp_7 + 1) % 3) & 0xFF;
+        temp_10 = (s32)(temp_5 + 1) % 3;
+        next2 = temp_10 & 0xFF;
+        temp_3 = temp_5 * 4;
+        temp_9 = (u8 *)arg0 + (temp_5 * 0x10);
+        temp_f1 = *(f32 *)(temp_9 + temp_3);
+        temp_8 = temp_7 * 4;
+        temp_7_2 = (u8 *)arg0 + (temp_7 * 0x10);
+        temp_f0 = *(f32 *)(temp_7_2 + temp_8);
+        temp_f1 = temp_f0 - temp_f1;
+        temp_6 = next2 * 4;
+        temp_5_2 = (u8 *)arg0 + (next2 * 0x10);
+        temp_f0 = *(f32 *)(temp_5_2 + temp_6);
+        temp_f0 = temp_f1 - temp_f0;
+        temp_f1 = 1.0f;
+        temp_f0 = code1_0048_add(temp_f1, temp_f0);
+        temp_f2_3 = sqrtf(temp_f0);
+        temp_f0 = 2.0f;
+        temp_f2_3 = code1_0048_mul(temp_f0, temp_f2_3);
+        if (temp_f2_3 != 0.0f) {
+            *(f32 *)((u8 *)sp + temp_8) = temp_f2_3 / 4.0f;
+            *(f32 *)((u8 *)sp + temp_3) =
+                (*(f32 *)(temp_7_2 + temp_3) + *(f32 *)(temp_9 + temp_8)) /
+                temp_f2_3;
+            *(f32 *)((u8 *)sp + temp_6) =
+                (*(f32 *)(temp_7_2 + temp_6) + *(f32 *)(temp_5_2 + temp_8)) /
+                temp_f2_3;
+            sp[3] = -((*(f32 *)(temp_9 + temp_6) -
+                       *(f32 *)(temp_5_2 + temp_3)) /
+                      temp_f2_3);
+        } else {
+            *(f32 *)((u8 *)sp + temp_8) = temp_f1;
+            *(f32 *)((u8 *)sp + temp_3) = 0.0f;
+            *(f32 *)((u8 *)sp + temp_6) = 0.0f;
+            sp[3] = 0.0f;
+        }
+    }
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(sp) : "$vf10", "memory");
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048a980);
+#endif
 /* Floor: 220 differing words over 222 fnalign edits, 203 emitted against
    retail's 237 (14% short) -- re-measured directly this pass; the previous
    note here claimed "264/264 instrs, 0 fnalign ops" and an exact size,

@@ -1966,18 +1966,104 @@ void func_00167530(void)
 
 
 
-/* measured: nd ~200 after four attempts. Retail recomputes the slot pointer
-   inside the if-branch (temp_2 = D_007E8C00 + var_21*0x750, fresh mult) even
-   though the loop head computed the identical value into temp_17; mwcc b210
-   CSEs the recomputation and reuses $17, losing 6 words (same
-   CSE-of-recomputation floor as func_00164fa0; tried pointer arithmetic,
-   (s32)&-int-cast spellings, temp_5/temp_5_2 fresh forms — the int-cast also
-   grows the frame to 0x90). Everything else (the (s32) cvt conversions, the
-   ±3/±2 comparison chains, the 0xE1F/0xE3C guards, D_007E8020 sw stores)
-   matches; only var_21/var_20 and the sltu-on-var_5 check registers remain
-   after the CSE issue. */
-// FUN_00167560
+/* measured: nd ~200 after four attempts. Retail recomputes the slot pointer */
+/*   inside the if-branch (temp_2 = D_007E8C00 + var_21*0x750, fresh mult) even */
+/*   though the loop head computed the identical value into temp_17; mwcc b210 */
+/*   CSEs the recomputation and reuses $17, losing 6 words (same */
+/*   CSE-of-recomputation floor as func_00164fa0; tried pointer arithmetic, */
+/*   (s32)&-int-cast spellings, temp_5/temp_5_2 fresh forms — the int-cast also */
+/*   grows the frame to 0x90). Everything else (the (s32) cvt conversions, the */
+/*   ±3/±2 comparison chains, the 0xE1F/0xE3C guards, D_007E8020 sw stores) */
+/*   matches; only var_21/var_20 and the sltu-on-var_5 check registers remain */
+/*   after the CSE issue. */
+/* 2026-09-17 reconstruction from the m2c draft (guarded v1): nd 243; int temps */
+/*   for the (600+x)/1200 lanes (kills float spills/cvt.s.w, mfc1 homes), u32 */
+/*   flag loads, <<4/<<8 map idiom. Guarded-body levers all flat: deref provider */
+/*   args 256, materialized u32 entry guard (no sltu either way), (u32)hit cast. */
+/*   Open wall per fnalign: per-site slot mult recompute (CSE merges it) + the */
+/*   s6=slot+0x50 precompute for the call arg. Production stays ASM. */
+// FUN_00167560 NONMATCHING
+#ifdef NON_MATCHING
+void func_00167560(void)
+{
+    f32 fx0;
+    f32 fz0;
+    f32 fx;
+    f32 fz;
+    f32 fx2;
+    f32 fz2;
+    s32 var_20;
+    s32 var_20_2;
+    s32 var_21;
+    s32 var_21_2;
+    s32 t;
+    u8 *slot;
+    u8 *slot2;
+    u8 *e;
+    u8 *e2;
+    u8 *q;
+    u8 *q2;
+    u8 *hit;
+
+    func_0043f9c8(D_007E8020, 0, 0x40);
+    if (*(u32 *)D_007EF9F8 != 0 && *(u32 *)D_007EFA04 != 0) {
+        fx0 = (f32)(s32)((600.0f + *(f32 *)(func_0047a2f0((s32)D_007EFA00) + 0x30)) / 1200.0f);
+        fz0 = (f32)(s32)((600.0f + *(f32 *)(func_0047a2f0((s32)D_007EFA00) + 0x38)) / 1200.0f);
+        var_21 = 0;
+        var_20 = 0;
+        while (var_21 < 0xF) {
+            hit = NULL;
+            slot = D_007E8C00 + var_21 * 0x750;
+            if (*(s32 *)(slot + 0x48) != 0 && *(s32 *)(slot + 0x54) != 0) {
+                hit = (u8 *)1;
+            }
+            if (hit != NULL) {
+                e = D_007E8C00 + var_21 * 0x750;
+                fx = (f32)(s32)((600.0f + *(f32 *)(func_0047a2f0(*(s32 *)(e + 0x50)) + 0x30)) / 1200.0f);
+                fz = (f32)(s32)((600.0f + *(f32 *)(func_0047a2f0(*(s32 *)(e + 0x50)) + 0x38)) / 1200.0f);
+                q = func_00145270(*(u16 *)((u8 *)func_00155280() + ((s32)fz << 8) + ((s32)fx << 4) + 0x56));
+                if ((s32)fx >= (s32)fx0 - 3 && (s32)fx0 + 3 >= (s32)fx && (s32)fz >= (s32)fz0 - 3 && (s32)fz0 + 3 >= (s32)fz && q != NULL && (*(s32 *)(q + 0x28) & 2)) {
+                    if (var_20 >= 8) {
+                        func_0046d730(D_005F1500, 0xE1F);
+                    }
+                    e2 = D_007E8C00 + var_21 * 0x750;
+                    *(s32 *)(e2 + 0x40) |= 1;
+                    *(u8 **)(D_007E8020 + var_20 * 4) = e2;
+                    var_20 += 1;
+                } else {
+                    *(s32 *)(slot + 0x40) &= ~1;
+                }
+            }
+            var_21 += 1;
+        }
+        var_21_2 = 0;
+        var_20_2 = 0;
+        while (var_21_2 < 8) {
+            t = var_21_2 * 0x168;
+            slot2 = D_007E80A0 + t;
+            if (*(s32 *)(slot2 + 0) != 0) {
+                fx2 = (f32)(s32)((600.0f + *(f32 *)(slot2 + 0x150)) / 1200.0f);
+                fz2 = (f32)(s32)((600.0f + *(f32 *)(slot2 + 0x158)) / 1200.0f);
+                q2 = func_00145270(*(u16 *)((u8 *)func_00155280() + t + ((s32)fz2 << 8) + ((s32)fx2 << 4) + 0x56));
+                if ((s32)fx2 >= (s32)fx0 - 2 && (s32)fx0 + 2 >= (s32)fx2 && (s32)fz2 >= (s32)fz0 - 2 && (s32)fz0 + 2 >= (s32)fz2 && q2 != NULL && (*(s32 *)(q2 + 0x28) & 2)) {
+                    if (var_20_2 >= 8) {
+                        func_0046d730(D_005F1500, 0xE3C);
+                    }
+                    q = D_007E80A0 + var_21_2 * 0x168;
+                    *(s32 *)(q + 4) |= 1;
+                    *(u8 **)(D_007E8020 + 0x20 + var_20_2 * 4) = q;
+                    var_20_2 += 1;
+                } else {
+                    *(s32 *)(slot2 + 4) &= ~1;
+                }
+            }
+            var_21_2 += 1;
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00167560);
+#endif
 
 
 

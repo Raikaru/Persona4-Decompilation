@@ -971,21 +971,7 @@ void func_00473870(u8 *arg0)
 extern void func_00473870(u8* a);
 extern void func_003d5e90(void* a, void* b, void* c, f32 d);
 extern void func_00397c40_1(void* a);
-/* measured: nd 244 after 4 attempts; registers/decl-order/chains/calls all
-   match (off16:$s0, idx:$s1, obj:$s4, arg1:$s3, arg2:$s2; dsll32/dsra32 sIdx
-   materializations; func_003d5e90/5840/5bc0/5e40 sites; 0x73E74 chain2 and
-   the 0x73F48 block; switch of 0x73E74 chain1+2 logic; sp[3]...). Remaining:
-   (1) the u16 v18 sign test (0x73D30/0x73E18): retail emits lhu;bltz on the
-   raw register; mwcc b210 emits andi 0xffff load-normalization + dsll32/
-   dsra32 (s16) cast materializations, or dead bgez/beqz folds when it range-
-   tracks the u16 load — probed 8 spellings (u16/u32/s32 locals, (s16)/(s32)
-   casts, inline loads, <0 and >=0 forms, -O2), none give lhu;bltz (2 blocks
-   x 3+ words); (2) single-use X+0x40 bases fold into the load displacement
-   (lw 0x40) where retail keeps addiu;addu;lw 0 — only two-use bases (CSE'd,
-   e.g. 0x73C80 chain) keep the addiu (3 sites, 1 word each); (3) the
-   adda/madd block: retail loads iGpffff8040 before the value and colors the
-   cvt result $f1 vs b210's value-load-first + $f2 rotation; (4) 0x73E74
-   chain2 loads the base before the sll chain, b210 emits chain-first. */
+/* Draft (measured 2026-09-17, source-repo only): probe_variants v3_ticksS16 298 words BEST (v1 317, v2 305, decl neutral, sentinel +12 reject), fnalign 357/345/177 (+5), emitted 1380B/window 1440B (60B/4.2% short). Four-pragma sweep flat-to-negative (prop/cse bloat, loop/rebuild inert). wscan 0 vs 4 shortfall + daddu 0 vs 12 (single-use +0x40 fold, lhu;bltz dead-branch floor). More than 3% short, so left as plain INCLUDE_ASM draft; prior nd244 claim not reproduced (+54). See docs/probe_archive/CMsgWin_00473b20_body.c. */
 // FUN_00473B20
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473b20);
 extern void func_003d59a0(void* a, void* b);

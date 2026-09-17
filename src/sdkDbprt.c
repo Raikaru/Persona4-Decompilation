@@ -102,31 +102,289 @@ void H_Dbprt_Flush()
         curr = next;
     }
 }
-/* measured: retail keeps the D_00887300 render-vtable base in $s1 and the
-   D_008BF720 grid row base (grid + var_18*0x35) hoisted in $s0 across the
-   glyph loop, and loads iGpffffb9e0 into caller-saved $a0 (reloaded at the
-   func_003e8110 tail); mwcc b210 with the u32-cast base hoist lands the base
-   in $s0, keeps iGpffffb9e0 in saved $s3 across the body, and re-orders the
-   glyph quad/UV position arithmetic (the 12x12 cell corners and 0.0625/0.046875
-   UV block) differently from retail. Frame (0x190) and the D_00887300 calls
-   match; nf-diff 175. */
-/* measured: the best retained exploratory C scored nd 175; its object size
-   was not recorded (retail window 880B), and the discarded body is not kept. */
+/* Floor (measured 2026-09-17, source-repo only): probe_variants w2 163 words BEST (w1 202, w3 s64 230, loop 219, sched 196, nobl 163 neutral, prop 211), fnalign 220/230/87 (+8), emitted 920B/window 880B (+40 over from flat quads+while copy restoring frame 0x190; not short so banked per 100+word rule). Frame MATCH, vtBase hoist restores 7+1 jalr, dead low branch kept. Prior nd175 claim had no body and wrong-tree scores discarded. Banked as guarded floor; production stays ASM. */
 // FUN_0044F720
-INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044f720);
+#ifdef NON_MATCHING
+void func_0044f720(void)
+{
+    extern s32 func_003e8120(s32 arg0);
+    extern void func_003e8110(s32 arg0);
+    extern void func_0044fa90(void);
+    extern void func_00450630(void);
+    extern void (*D_00887300[])(u32, u32);
+    extern void (*D_00887304[])(s32, s32 *);
+    extern s32 (*D_00887310[])(s32, void *, s32);
+    extern f32 D_008872F8[];
+    f32 uv[8];
+    f32 quads[64];
+    s32 save;
+    f32 inv;
+    f32 rowY;
+    f32 rowY1;
+    s32 row;
+    s32 col;
+    u32 vtBase;
+    u8 *gridRow;
 
-/* measured: retail iterates the iGpffffb9dc nodes and renders each glyph into */
-/* measured: the 4x0x40 quad buffer (sp+0x40) with the byte-color conversion */
-/* measured: (lbu + bltz guard, then cvt.w.s or srl/or + doubling) and the same */
-/* measured: 12x12-cell / 0.0625 UV block as func_0044f720; mwcc b210 reorders */
-/* measured: only the color-conversion register colors and glyph FPR colors   */
-/* measured: across the two scale paths (f21 vs scaled f20). Frame 0x160 and   */
-/* measured: sp+0x40/0x140 bases match; fnalign 146 edits, 366 vs 367 instrs. */
-/* measured: best faithful floor v8 scores nd 314 (obj 1464B/window 1472B,    */
-/* measured: 12 relocs all resolved to retail targets); banked in             */
-/* measured: docs/probe_archive/sdkDbprt_0044fa90_body.c; production stays ASM. */
+    inv = 1.0f / *(f32 *)((u8 *)iGpffffb9e0 + 0x80);
+    if (func_003e8120((s32)iGpffffb9e0) != 0) {
+        D_00887304[0](14, &save);
+        vtBase = (u32)D_00887300;
+        ((void (*)(u32, u32))*(u32 *)vtBase)(14, 0);
+        ((void (*)(u32, u32))*(u32 *)vtBase)(6, 1);
+        ((void (*)(u32, u32))*(u32 *)vtBase)(7, 2);
+        ((void (*)(u32, u32))*(u32 *)vtBase)(8, 1);
+        ((void (*)(u32, u32))*(u32 *)vtBase)(9, 1);
+        ((void (*)(u32, u32))*(u32 *)vtBase)(12, 1);
+        ((void (*)(u32, u32))*(u32 *)vtBase)(1, (u32)iGpffffb9e8);
+        {
+            s32 i;
+            for (i = 0; i < 4; i++) {
+                quads[i * 16 + 6] = inv;
+                *(s32 *)&quads[i * 16 + 8] = 0x437F0000;
+                *(s32 *)&quads[i * 16 + 9] = 0x437F0000;
+                *(s32 *)&quads[i * 16 + 10] = 0x437F0000;
+                *(s32 *)&quads[i * 16 + 11] = 0x437F0000;
+                quads[i * 16 + 2] = D_008872F8[0];
+            }
+        }
+        for (row = 0; row < 0x28; row++) {
+            gridRow = (u8 *)((u32)D_008BF720 + (u32)(row * 0x35));
+            rowY = 12.0f * (f32)row;
+            rowY1 = 11.0f + rowY;
+            for (col = 0; col < 0x35; col++) {
+                u8 ch;
+                ch = *(u8 *)((u8 *)gridRow + col);
+                if (ch != 0x20) {
+                    u32 v;
+                    f32 x0;
+                    f32 x1;
+                    s32 low;
+                    s32 tmp;
+                    f32 u0;
+                    f32 vv0;
+                    s32 k;
+                    v = (ch - 0x20) & 0xFF;
+                    if ((s32)v >= 0x80) {
+                        v = (v - 0x20) & 0xFF;
+                    }
+                    x0 = 12.0f * (f32)col;
+                    x1 = 11.0f + x0;
+                    quads[0] = x0;
+                    quads[1] = rowY;
+                    quads[16] = x1;
+                    quads[17] = rowY;
+                    quads[32] = x0;
+                    quads[33] = rowY1;
+                    quads[48] = x1;
+                    quads[49] = rowY1;
+                    low = (s32)((v & 0xFF) & 0xF);
+                    tmp = (s32)(v & 0xFF);
+                    if (tmp < 0 && low != 0) {
+                        low -= 0x10;
+                    }
+                    u0 = 0.0625f * (f32)low;
+                    vv0 = 0.0625f * (f32)(s32)((v & 0xFF) >> 4);
+                    uv[0] = u0;
+                    uv[1] = vv0;
+                    uv[2] = 0.046875f + u0;
+                    uv[3] = vv0;
+                    uv[4] = u0;
+                    uv[5] = 0.046875f + vv0;
+                    uv[6] = 0.046875f + u0;
+                    uv[7] = 0.046875f + vv0;
+                    k = 0;
+                    while (k < 4) {
+                        f32 *quad;
+                        f32 *uvp;
+                        quad = &quads[k * 16];
+                        uvp = &uv[k * 2];
+                        quad[4] = uvp[0];
+                        quad[5] = uvp[1];
+                        k += 1;
+                    }
+                    D_00887310[0](4, quads, 4);
+                }
+            }
+        }
+        func_0044fa90();
+        func_00450630();
+        ((void (*)(u32, u32))*(u32 *)vtBase)(14, save);
+        func_003e8110((s32)iGpffffb9e0);
+    }
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044f720);
+#endif
+
+/* Floor (measured 2026-09-17, source-repo only): probe_variants s_best 314 words / 132 edits / 366 vs 367 BEST faithful (bare 353/464, levers unfaithful despite words wins), fnalign 367/366/132 (+5), emitted 1464B/window 1472B (99.5%). Four-pragma sweep: bare wins (loop +1w/-6ed noted, cse/sched catastrophic, nobl neutral). wscan 0/0, opclass 0/0. Residual is coloring/scheduling/orientation + daddu. Re-derived sibling v8 floor; production stays ASM. Banked as guarded floor. */
 // FUN_0044FA90
+#ifdef NON_MATCHING
+/* Target: func_0044fa90 -- source-repo faithful floor (banked, production stays ASM).
+ * Owner: src/sdkDbprt.c (source/Persona4-Decompilation, CRLF; candidates LF, probe normalises).
+ * Retail: 0x0044FA90, window 1472B (0x5C0), 368 words / 367 instrs after padding strip.
+ * Measured (source): probe_variants 314 words (reloc-masked), fnalign 132 edits (+5 reloc-only), obj 366 vs retail 367 (1464B/1472B).
+ * Shape: uv[8] then quads[64] (reverse-alloc bases sp+0x140/sp+0x40), mixed scale forms (field outer / byte inner, 0x160 frame), split x0 (mul+add), byte text, dead low-nibble branch kept, unsigned colors, (s32) high, (s32)v>=0x80.
+ * No owner edits; no pragma (bare wins words+edits jointly). See report.md for full sweep.
+ */
+void func_0044fa90(void) {
+    extern void (*D_00887300[])(u32, u32);
+    extern s32 (*D_00887310[])(s32, void *, s32);
+    extern f32 D_008872F8[];
+    extern f32 func_00450490(f32);
+    typedef struct Ext Ext;
+    struct Ext { HDbText3D *next; f32 x; f32 y; f32 scale; u8 text[256]; f32 unk110; u8 col[4]; };
+    HDbText3D *node;
+    s32 idx;
+    f32 invW;
+    f32 scaled;
+    f32 uv[8];
+    f32 quads[64];
+    invW = 1.0f / *(f32 *)((u8 *)iGpffffb9e0 + 0x80);
+    node = iGpffffb9dc;
+    D_00887300[0](1, (u32)iGpffffb9e8);
+    while (node != NULL) {
+        if (((Ext *)node)->scale != 0.0f) {
+            scaled = func_00450490(((Ext *)node)->scale);
+        }
+        idx = 0;
+        while (idx < 0x100) {
+            u8 ch;
+            ch = *(u8 *)((u8 *)node + 0x10 + idx);
+            if (ch == 0) {
+                break;
+            }
+            if (ch != 0x20) {
+                if (*(f32 *)((u8 *)node + 0xC) == 0.0f) {
+                    u32 v;
+                    f32 x0;
+                    f32 y0;
+                    f32 x1;
+                    f32 y1;
+                    s32 low;
+                    s32 tmp;
+                    f32 u0;
+                    f32 vv0;
+                    s32 j;
+                    v = (ch - 0x20) & 0xFF;
+                    if ((s32)v >= 0x80) {
+                        v = (v - 0x20) & 0xFF;
+                    }
+                    x0 = 12.0f * (f32)idx;
+                    x0 += ((Ext *)node)->x;
+                    y0 = ((Ext *)node)->y;
+                    x1 = 11.0f + x0;
+                    y1 = 11.0f + y0;
+                    low = (s32)((v & 0xFF) & 0xF);
+                    tmp = (s32)(v & 0xFF);
+                    if (tmp < 0 && low != 0) {
+                        low -= 0x10;
+                    }
+                    u0 = 0.0625f * (f32)low;
+                    vv0 = 0.0625f * (f32)(s32)((v & 0xFF) >> 4);
+                    quads[0] = x0;
+                    quads[1] = y0;
+                    quads[16] = x1;
+                    quads[17] = y0;
+                    quads[32] = x0;
+                    quads[33] = y1;
+                    quads[48] = x1;
+                    quads[49] = y1;
+                    uv[0] = u0;
+                    uv[1] = vv0;
+                    uv[2] = 0.046875f + u0;
+                    uv[3] = vv0;
+                    uv[4] = u0;
+                    uv[5] = 0.046875f + vv0;
+                    uv[6] = 0.046875f + u0;
+                    uv[7] = 0.046875f + vv0;
+                    j = 0;
+                    while (j < 4) {
+                        f32 *quad;
+                        f32 *uvp;
+                        quad = &quads[j * 16];
+                        uvp = &uv[j * 2];
+                        quad[2] = D_008872F8[0] - ((Ext *)node)->unk110;
+                        quad[8] = (f32)(u32)((Ext *)node)->col[0];
+                        quad[9] = (f32)(u32)((Ext *)node)->col[1];
+                        quad[10] = (f32)(u32)((Ext *)node)->col[2];
+                        quad[11] = (f32)(u32)((Ext *)node)->col[3];
+                        quad[6] = invW;
+                        quad[4] = uvp[0];
+                        quad[5] = uvp[1];
+                        j += 1;
+                    }
+                    D_00887310[0](4, quads, 4);
+                } else {
+                    u32 v;
+                    f32 x0;
+                    f32 y0;
+                    f32 x1;
+                    f32 y1;
+                    s32 low;
+                    s32 tmp;
+                    f32 u0;
+                    f32 vv0;
+                    s32 j;
+                    v = (ch - 0x20) & 0xFF;
+                    if ((s32)v >= 0x80) {
+                        v = (v - 0x20) & 0xFF;
+                    }
+                    x0 = 12.0f * (f32)idx;
+                    x0 += ((Ext *)node)->x;
+                    y0 = ((Ext *)node)->y;
+                    x1 = 11.0f + x0;
+                    y1 = 11.0f + y0;
+                    low = (s32)((v & 0xFF) & 0xF);
+                    tmp = (s32)(v & 0xFF);
+                    if (tmp < 0 && low != 0) {
+                        low -= 0x10;
+                    }
+                    u0 = 0.0625f * (f32)low;
+                    vv0 = 0.0625f * (f32)(s32)((v & 0xFF) >> 4);
+                    quads[0] = x0;
+                    quads[1] = y0;
+                    quads[16] = x1;
+                    quads[17] = y0;
+                    quads[32] = x0;
+                    quads[33] = y1;
+                    quads[48] = x1;
+                    quads[49] = y1;
+                    uv[0] = u0;
+                    uv[1] = vv0;
+                    uv[2] = 0.046875f + u0;
+                    uv[3] = vv0;
+                    uv[4] = u0;
+                    uv[5] = 0.046875f + vv0;
+                    uv[6] = 0.046875f + u0;
+                    uv[7] = 0.046875f + vv0;
+                    j = 0;
+                    while (j < 4) {
+                        f32 *quad;
+                        f32 *uvp;
+                        quad = &quads[j * 16];
+                        uvp = &uv[j * 2];
+                        quad[2] = scaled;
+                        quad[8] = (f32)(u32)((Ext *)node)->col[0];
+                        quad[9] = (f32)(u32)((Ext *)node)->col[1];
+                        quad[10] = (f32)(u32)((Ext *)node)->col[2];
+                        quad[11] = (f32)(u32)((Ext *)node)->col[3];
+                        quad[6] = invW;
+                        quad[4] = uvp[0];
+                        quad[5] = uvp[1];
+                        j += 1;
+                    }
+                    D_00887310[0](4, quads, 4);
+                }
+            }
+            idx += 1;
+        }
+        node = node->next;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044fa90);
+#endif
 
 /* measured: declaration order maps temp_16/var_17/var_18/var_19 to retail
    $s0/$s1/$s2/$s3; integer-domain grid indexing and the stack-base expression

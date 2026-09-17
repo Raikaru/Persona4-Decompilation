@@ -1067,8 +1067,90 @@ void func_0013b370(u8 *arg0, s64 arg1, s32 arg2)
 }
 /* measured: close family opt_propagation bracket. */
 #pragma opt_propagation on
-// FUN_0013B420
+/* measured 0013b420 (banked honest body: s64 two-float + s32 colour + s16* tail, recipe-A u8/u16->float, 204/255/24/5/34/325/340/22/54 constants with (f32)0x159 int form, 0034f320 x2 with 0.0f third float + 0034f2e0 x4 + 00113790 s64-tail + 002bc860 clamp-tail): measure_guarded 341 words obj 1364B/window 1488B; fnalign --candidate 304 edits, retail 369 vs object 341 instrs; opclass lbu -16 sb -12 lwc1 -7 swc1 -5 with cvt/mfc1 residue. Two validated findings: float->u8/u16 MUST be (u8/u16)(u32)x (unsigned lowering with the 2.147e9 check; signed form misses 6 checked sequences); the donor's opt_propagation off HURTS here (355 with, 341 without). Standing wall is frame 0xD0+7th saved/5th float vs retail 0xB0/6/4 with spill shift plus scheduling across 369 instrs. Production stays ASM. */
+// FUN_0013B420 NONMATCHING
+#ifdef NON_MATCHING
+void func_0013b420(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3) {
+    f32 base2;
+    f32 base;
+    f32 c0;
+    f32 c1;
+    f32 fx;
+    f32 fy;
+    f32 fz;
+    f32 fw;
+    f32 fw2;
+    u8 b0;
+    u8 b1;
+    u8 b2;
+    u8 b3;
+    u8 t0;
+    u8 col;
+    u16 hcol;
+    u16 h1;
+    u16 h2;
+    u8 c2;
+    base2 = ((f32 *)&arg1)[1];
+    t0 = *(u8 *)(arg0 + 0);
+    if ((s32)t0 >= 0) {
+        c0 = (f32)t0;
+    } else {
+        c0 = 2.0f * (f32)((t0 >> 1) | (t0 & 1));
+    }
+    c1 = c0 / 255.0f;
+    b0 = 0x14;
+    b1 = 0x14;
+    b2 = 0x14;
+    fx = 204.0f * c1;
+    col = (u8)(u32)fx;
+    b3 = col;
+    hcol = *(u16 *)(arg0 + 0xBAA);
+    if ((s32)hcol >= 0) {
+        fy = (f32)hcol;
+    } else {
+        fy = 2.0f * (f32)((hcol >> 1) | (hcol & 1));
+    }
+    base = ((f32 *)&arg1)[0];
+    fz = base - 1.0f;
+    fw = 24.0f + base2;
+    h1 = (u16)(u32)fy;
+    func_0034f320(*(u8 **)(arg0 + 0x1324), fz, fw, 0.0f, b0, b1, b2, b3, 0x1000, h1, 0, 0.0f, 0);
+    h2 = (u16)(u32)fy;
+    func_0034f320(*(u8 **)(arg0 + 0x1328), (f32)0x159 + fz, fw, 0.0f, b0, b1, b2, b3, 0x1000, h2, 0, 0.0f, 0);
+    fz = 5.0f + base + *(f32 *)(arg0 + 0xC84);
+    fw2 = 34.0f + base2 + *(f32 *)(arg0 + 0xC88);
+    b0 = 0x68;
+    b1 = 0x68;
+    b2 = 0x68;
+    if (arg2 >= 0) {
+        c0 = (f32)arg2;
+    } else {
+        c0 = 2.0f * (f32)(((u32)arg2 >> 1) | (arg2 & 1));
+    }
+    fw = c0 * c1;
+    col = (u8)(u32)fw;
+    b3 = col;
+    func_0034f2e0(*(u8 **)(arg0 + 0x131C), fz, fw2, b0, b1, b2, b3);
+    func_0034f2e0(*(u8 **)(arg0 + 0x1320), 325.0f + fz, fw2, b0, b1, b2, b3);
+    fz = base;
+    b0 = D_0064B2E8[0];
+    b1 = D_0064B2E8[1];
+    b2 = D_0064B2E8[2];
+    fx = 255.0f * c1;
+    col = (u8)(u32)fx;
+    b3 = col;
+    func_0034f2e0(*(u8 **)(arg0 + 0x1288), fz, base2, b0, b1, b2, 0);
+    func_0034f2e0(*(u8 **)(arg0 + 0x128C), 340.0f + fz, base2, b0, b1, b2, 0);
+    fz = fz - 2.0f;
+    func_00113790(*(s64 *)&fz, b3, arg3, 1, 0.0f);
+    c2 = (u8)(u32)fw;
+    fz = 22.0f + base;
+    fw = 54.0f + base2;
+    func_002bc860((s32)(0xFFFFFF00 | c2), 1, 8, *(u16 *)(arg3 + 0xA), (f32)(s32)fz, (f32)(s32)fw, 0.0f);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013b420);
+#endif
 static inline s32 code13GroupBefore(u8 *arg0, s32 index)
 {
     u32 selected;

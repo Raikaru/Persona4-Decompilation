@@ -1105,6 +1105,7 @@ void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
    function-level and block-scoped local spellings, with and without hoisted
    x6/x7 s16 extensions - retail's arg6/arg7 extensions are hoisted temps
    used only at 0x82/0xA0). No source spelling forces fresh per-branch slots. */
+/* measured 002b83e0 (banked honest four-leaf body: u8* + f2 p1 + u4/u4 + u8/u8 + s16/s16 + 2x f32 + 2x s8 stack, 0x88-0x9C 1.0f/gp pattern per leaf with 94/98 swap in sp0!=0 leaves, 2970 f2 + 8270-pattern stores with 18/20 swap, u4 byte copies, 0x7E s6/2 sra in B/D, fparg1 tail + |=1): measure_guarded 360 words obj 1336B/window 1472B (136 short); fnalign --candidate 314 edits, retail 366 vs object 334 instrs; opclass lwc1 -17 swc1 -15 lbu -12 shortfalls with beqz +3/bnez -3. Earliest hunk is prologue saves + spill shift (sd a1 0x50->0x90); dropping the entry alias re-measured identical 360. Wall is retail's fresh per-branch f2/u4 stack slots (0x60-0xDF band, frame 0xE0) vs mwcc's merged band (frame 0xD0) -- no honest spelling forces fresh slots. Production stays ASM. */
 // FUN_002B83E0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, s16 arg6, s16 arg7, f32 fparg0, f32 fparg1, s8 arg_sp0, s8 arg_sp8) {

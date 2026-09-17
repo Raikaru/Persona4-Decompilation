@@ -37,6 +37,12 @@ extern s32 func_0010aa80(s32 arg0);
 extern u16 *func_0010ac10(s32 arg0);
 
 extern void func_0010cad0(u8 *dest, u16 id);
+extern s32 func_0010b5b0(void);
+extern s32 func_0010abd0(s16 arg0);
+extern u16 *func_0010ace0(s16 arg0);
+extern s32 func_0010a900(u16 arg0);
+extern void func_0010ffa0(s32 arg0);
+extern s32 func_002e5270(u8 *arg0, u8 *arg1);
 extern s16 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_00311d00(u16 id);
 extern s32 func_00311d60(u16 id);
@@ -248,8 +254,97 @@ INCLUDE_ASM("asm/nonmatchings/y_list", func_002e2a10);
 // FUN_002E3560
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e3560);
 
-// FUN_002E4090
+/* measured: de-noised m2c floor with truthful externs (0010b5b0/0010abd0/0010ace0/0010a900/0010ffa0/002e5270), s16 counters, (u16)/(void *)(u32) casts, for-loop form, iGpffffb3d4+i*0xE idiom; 74 differing words (was 310 implicit); production stays ASM. */
+// FUN_002E4090 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_002e4090(u8 *arg0) {
+    u8 sp40[0x30];
+    u8 sp70[0x30];
+    s16 i;
+    s32 tmp;
+    u8 *p;
+    u32 sw;
+    p = *(u8 **)(arg0 + 0x38);
+    if (*(s8 *)p == 1) {
+        return 0;
+    }
+    *(s32 *)(p + 8) = 0;
+    sw = *(u32 *)(p + 4);
+    switch (sw) {
+    case 0:
+        for (i = 1; i < 0xC; i++) {
+            func_0010cad0(p + ((i - 1) * 0x30) + 0x14, (u16)i);
+            *(s32 *)(p + 8) += 1;
+        }
+        break;
+    case 1:
+        for (i = 0; i < (func_0010b5b0() & 0xFFFF); i++) {
+            if (func_0010abd0(i) == 1) {
+                func_0043f9c8(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
+                func_0043f810(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, (void *)(u32)func_0010ace0(i), 0x30);
+                *(s32 *)(p + 8) += 1;
+            }
+        }
+        break;
+    case 2:
+        for (i = 0; i < 0x100; i++) {
+            if ((void *)(u32)func_0010fcb0(i) != 0) {
+                func_0043f9c8(p + (*(s32 *)(p + 8) * 0x30) + 0x14, 0, 0x30);
+                func_0043f810(p + (*(s32 *)(p + 8) * 0x30) + 0x14, (void *)(u32)func_0010fcb0(i), 0x30);
+                *(s32 *)(p + 8) += 1;
+            }
+        }
+        break;
+    case 5:
+        for (i = 0; i < (func_0010b5b0() & 0xFFFF); i++) {
+            if (func_0010abd0(i) == 1) {
+                tmp = func_0010a900(1);
+                if (tmp != (s32)(u32)func_0010ace0(i)) {
+                    func_0043f9c8(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
+                    func_0043f810(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, (void *)(u32)func_0010ace0(i), 0x30);
+                    *(s32 *)(p + 8) += 1;
+                }
+            }
+        }
+        break;
+    case 6:
+        for (i = 0; i < (func_0010b5b0() & 0xFFFF); i++) {
+            if (func_0010abd0(i) == 1) {
+                func_0043f810(sp40, (void *)(u32)func_0010ace0(i), 0x30);
+                if (*(u8 *)(iGpffffb3d4 + i * 0xE + 2) < 0x16) {
+                    func_0043f810(sp70, (void *)(u32)func_0010fcb0(i), 0x30);
+                    if (func_002e5270(sp40, sp70) == 1) {
+                        func_0043f9c8(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
+                        func_0043f810(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, (void *)(u32)func_0010ace0(i), 0x30);
+                        *(s32 *)(p + 8) += 1;
+                    }
+                }
+            }
+        }
+        break;
+    case 7:
+        for (i = 1; i < 0xC0; i++) {
+            func_0010cad0(p + ((i - 1) * 0x30) + 0x14, (u16)i);
+            *(s32 *)(p + 8) += 1;
+        }
+        break;
+    case 8:
+        func_0010ffa0(1);
+        for (i = 1; i < 0xC0; i++) {
+            func_0010cad0(p + ((i - 1) * 0x30) + 0x14, (u16)i);
+            *(s32 *)(p + 8) += 1;
+        }
+        break;
+    default:
+        break;
+    }
+    *p = 1;
+    return 0;
+}
+
+#else
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4090);
+#endif
 
 // FUN_002E45E0
 void func_002e45e0(void *arg0) {

@@ -235,8 +235,133 @@ resolve_test:
    registers (nd 309). The m2c draft's s128/s64 stack values (sq 0xB0/0xA0/
    0xC0) and the ld/sd swap collapse to different register coloring. Tried
    the m2c body converted to C89 — frame/register allocation floor. */
-// FUN_00138490
+/* measured: candidate object 300 instrs/retail 397 instrs (1200B/1600B, 97 short), probe reloc-masked 306 words (guard below, NON_MATCHING so production stays ASM; fnalign 287 edits +2 reloc-only). 0x100 frame with 10 saves ($fp/s7..s0) plus nested 8-loops over 0xC skill entries with 0010b510/0010b6f0/0010ace0/00113520 and 001094d0/0010fa80 sort tail. Banked as floor. */
+// FUN_00138490 NONMATCHING
+#ifdef NON_MATCHING
+void func_00138490(void *arg0)
+{
+    u8 *b = (u8 *)arg0;
+    s16 sel;
+    s32 count;
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 idx;
+    u8 *p;
+    u8 *q;
+    s32 v;
+    s32 w;
+    u16 key;
+    u16 cur;
+    s32 a;
+    s32 bv;
+    s32 res;
+    s32 tmp[4];
+
+    count = 0;
+    sel = -1;
+    v = *(s16 *)((u8 *)arg0 + 0x5C);
+    v = *(s16 *)((u8 *)arg0 + v * 2 + 0xF4);
+    if (v == 1) {
+        sel = func_0010b510();
+        for (i = 0; (u32)i < (func_0010b6f0() & 0xFFFF); i++) {
+            v = func_0010ace0((s16)i);
+            if (v != 0) {
+                func_0010b3b0((s16)i);
+                for (j = 0; j < 8; j++) {
+                    p = b + count * 12;
+                    if (func_00113520(1, v, j, p + 0x100) != 0) {
+                        *(s16 *)(p + 0x100) = (s16)i;
+                        count++;
+                    }
+                }
+            }
+        }
+    } else {
+        w = func_0010a900((u16)v);
+        for (i = 0; i < 8; i++) {
+            p = b + count * 12;
+            if (func_00113520(v, w, i, p + 0x100) != 0) {
+                *(s16 *)(p + 0x100) = -1;
+                count++;
+            }
+        }
+    }
+    for (i = 0; i < count; i++) {
+        p = b + i * 12;
+        cur = *(u16 *)(p + 0x102);
+        for (j = i + 1; j < count; j++) {
+            q = b + j * 12;
+            key = *(u16 *)(q + 0x102);
+            if (cur == key) {
+                if (cur < 0x1B8 && sel != -1) {
+                    v = func_0010ace0(*(s16 *)(p + 0x100));
+                    a = (s32)func_001094d0(v);
+                    res = 0;
+                    for (k = 0; k < 8; k++) {
+                        if (*(s16 *)(a + k * 2) == 0x20A) {
+                            res = 1;
+                            break;
+                        }
+                    }
+                    if (res == 0) {
+                        v = func_0010ace0(*(s16 *)(q + 0x100));
+                        bv = (s32)func_001094d0(v);
+                        res = 0;
+                        for (k = 0; k < 8; k++) {
+                            if (*(s16 *)(bv + k * 2) == 0x20A) {
+                                res = 1;
+                                break;
+                            }
+                        }
+                        if (res != 0) {
+                            *(s32 *)(p + 0x100) = *(s32 *)(q + 0x100);
+                            *(s32 *)(p + 0x104) = *(s32 *)(q + 0x104);
+                            *(s32 *)(p + 0x108) = *(s32 *)(q + 0x108);
+                        } else {
+                            func_0010b3b0(*(s16 *)(p + 0x100));
+                            func_0010fa80(v, v, *(u16 *)(p + 0x102), 0, tmp, 0, 0);
+                            func_0010b3b0(*(s16 *)(q + 0x100));
+                            func_0010fa80(v, v, *(u16 *)(q + 0x102), 0, tmp + 2, 0, 0);
+                            if (tmp[0] < tmp[2]) {
+                                *(s32 *)(p + 0x100) = *(s32 *)(q + 0x100);
+                                *(s32 *)(p + 0x104) = *(s32 *)(q + 0x104);
+                                *(s32 *)(p + 0x108) = *(s32 *)(q + 0x108);
+                            }
+                        }
+                    }
+                }
+                count--;
+                p = b + count * 12;
+                *(s32 *)(q + 0x100) = *(s32 *)(p + 0x100);
+                *(s32 *)(q + 0x104) = *(s32 *)(p + 0x104);
+                *(s32 *)(q + 0x108) = *(s32 *)(p + 0x108);
+                *(s32 *)(p + 0x104) = 0;
+                *(s32 *)(p + 0x108) = 0;
+                *(u16 *)(p + 0x102) = 0;
+                *(s16 *)(p + 0x100) = -1;
+            }
+        }
+    }
+    for (i = 0; i < count; i++) {
+        p = b + i * 12;
+        *(f32 *)(p + 0x100) = *(f32 *)(p + 0x100);
+        *(f32 *)(p + 0x104) = *(f32 *)(p + 0x104);
+        *(f32 *)(p + 0x108) = *(f32 *)(p + 0x108);
+    }
+    if (sel != -1) {
+        func_0010b3b0(sel);
+    }
+    if (*(s16 *)((u8 *)arg0 + 0x580) > 0x60) {
+        func_0046d730(D_005ED9C0, 0x336);
+    }
+    *(s16 *)((u8 *)arg0 + 0x580) = (s16)count;
+    func_0013a040((s16 *)arg0, 1, 0);
+    func_0013a040((s16 *)arg0, 2, 0);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_00138490);
+#endif
 
 // FUN_00138AD0
 s32 func_00138ad0(u8 *arg0) {

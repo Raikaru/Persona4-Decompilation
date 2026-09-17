@@ -227,4 +227,4 @@ void func_002b0b10(u8 *arg0, YVec2f arg1, u8 arg2, s32 arg3, s8 arg4, s32 arg5, 
     }
 }
 
-Reverted (322 rows, obj 940B/1424B under-484, frame -144 vs -192; inferior to prior documented 99-floor with YVec2f+s8/s32 protos, 4-arg 461390, D_008872F8-hoist + s2/s3 walls). Draft used correct protos but condensed switches/loop (frame under). Do not re-probe without full faithful body. D_00793E80 decl kept (correct).
+// Reverted (322 rows, obj 940B/1424B under-484, frame -144 vs -192; inferior to prior documented 99-floor with YVec2f+s8/s32 protos, 4-arg 461390, D_008872F8-hoist + s2/s3 walls). Draft used correct protos but condensed switches/loop (frame under). Do not re-probe without full faithful body. D_00793E80 decl kept (correct).

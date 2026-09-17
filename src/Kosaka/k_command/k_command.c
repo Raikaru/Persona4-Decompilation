@@ -368,15 +368,153 @@ s32 func_001773d0(void)
 
 
 
-/* Floor: 183 differing words over 27 edit instructions, object 1380B with
-   345 of 345 instructions against a 1392-byte window whose tail is three
-   alignment nops, and all 49 jal relocations resolved to retail targets.
-   Frame 0xB0 and the saved-register roles match; the residual is stack
-   slot placement - the config block sits at 0x70 against retail's 0x80
-   and the two scratch pairs are correspondingly shifted.  Body at
-   docs/probe_archive/KCM_001774a0_body.c. */
-// FUN_001774A0
+/* Floor: 183 differing words over 27 edit instructions, object 1380B with */
+/*   345 of 345 instructions against a 1392-byte window whose tail is three */
+/*   alignment nops, and all 49 jal relocations resolved to retail targets. */
+/*   Frame 0xB0 and the saved-register roles match; the residual is stack */
+/*   slot placement - the config block sits at 0x70 against retail's 0x80 */
+/*   and the two scratch pairs are correspondingly shifted.  Body at */
+/*   docs/probe_archive/KCM_001774a0_body.c. */
+/* 2026-09-17 guarded tern variant: nd 170 at 343/345 instrs. `x = (A && B) ? 1 : 0` */
+/*   with u32 x produces retail's sltu (on the &&-temp, v0 not a0) where nested-if */
+/*   and fused-&& spellings stay plain beqz (all 183). Getting the sltu onto a0 */
+/*   (x live in the arg temp, not a home) is open, as is the cfg/m/zz slot cycle */
+/*   (retail cfg:0x80 m:0x60 zz:0x50 vs object 0x70/0x50/0x80). Production stays ASM. */
+// FUN_001774A0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_001774a0(void)
+{
+    s32 v;
+    s32 id;
+    u8 *s2;
+    struct { s64 lo; f32 hi; } cfg;
+    s32 k;
+    f32 a[3];
+    f32 neg[3];
+    v = func_0029cc00(0);
+    id = func_0029cc00(1);
+    s2 = func_001452b0(14);
+    cfg.lo = D_005F1868[0];
+    cfg.hi = D_005F1870[0];
+    if (s2 == 0) {
+        func_0046d730(D_005F1858, 0x2C3);
+    }
+    while (s2 != 0) {
+        if ((*(u16 *)s2 & 0x3FF) == id) {
+            break;
+        }
+        s2 = *(u8 **)(s2 + 0x138);
+    }
+    k = (v & 0xFFC00) >> 10;
+    switch (k) {
+    case 1:
+    {
+        u8 *p;
+        u8 *q;
+        f32 m[4];
+        s32 i;
+        u32 x;
+        u8 *r;
+        u8 *t;
+        p = func_00145270(v & 0xFFFF);
+        if (p != 0) {
+            q = func_0047a2f0(*(s32 *)(p + 0x164));
+            *(Vec3f *)a = *(Vec3f *)(q + 0x30);
+            neg[0] = -1.0f * a[0];
+            neg[1] = -1.0f * a[1];
+            neg[2] = -1.0f * a[2];
+            func_0047a180(*(s32 *)(p + 0x164), neg, 2);
+            func_0047a1a0(*(s32 *)(p + 0x164), &cfg, *(f32 *)(s2 + 0x14C), 0);
+            func_0047a180(*(s32 *)(p + 0x164), a, 2);
+            q = func_0047a2f0(*(s32 *)(p + 0x164));
+            *(Vec3f *)(q + 0x30) = *(Vec3f *)(s2 + 0x140);
+            func_003e0380(m);
+            func_003e03e0(func_0047a2f0(*(s32 *)(p + 0x164)), m);
+            func_003e05d0(func_0047a2f0(*(s32 *)(p + 0x164)));
+            func_00168c00(*(s32 *)(p + 0x220));
+            func_0015bae0();
+            for (i = 0; i < 3; i++) {
+                x = 0;
+                r = D_007EF9B0 + i * 0x750;
+                x = (*(s32 *)(r + 0x798) != 0 && *(s32 *)(r + 0x7A4) != 0) ? 1 : 0;
+                if (x != 0 && *(s32 *)(r + 0x900) != 0) {
+                    func_0017e9b0(*(s32 *)(r + 0x900));
+                }
+            }
+            t = func_00155280();
+            if (*(s32 *)(t + 4) != 0) {
+                func_0016ec90(*(s32 *)(func_00155280() + 4));
+            }
+        }
+        break;
+    }
+    case 3:
+    {
+        u8 *p;
+        u8 *q;
+        f32 m[4];
+        f32 z;
+        f32 zz[3];
+        p = func_00145270(v & 0xFFFF);
+        if (p != 0) {
+            q = func_0047a2f0(*(s32 *)(p + 0x164));
+            *(Vec3f *)a = *(Vec3f *)(q + 0x30);
+            neg[0] = -1.0f * a[0];
+            neg[1] = -1.0f * a[1];
+            neg[2] = -1.0f * a[2];
+            func_0047a180(*(s32 *)(p + 0x164), neg, 2);
+            func_0047a1a0(*(s32 *)(p + 0x164), &cfg, *(f32 *)(s2 + 0x14C), 2);
+            func_0047a180(*(s32 *)(p + 0x164), a, 2);
+            q = func_0047a2f0(*(s32 *)(p + 0x164));
+            *(Vec3f *)(q + 0x30) = *(Vec3f *)(s2 + 0x140);
+            func_003e0380(m);
+            func_003e03e0(func_0047a2f0(*(s32 *)(p + 0x164)), m);
+            func_003e05d0(func_0047a2f0(*(s32 *)(p + 0x164)));
+            if (*(s32 *)(p + 0x22C) != 0) {
+                z = func_00168770(*(s32 *)(p + 0x228));
+                zz[2] = z;
+                zz[1] = z;
+                zz[0] = z;
+                func_0047a1a0(*(s32 *)(p + 0x22C), &cfg, *(f32 *)(s2 + 0x14C), 2);
+                func_0047a1e0(*(s32 *)(p + 0x22C), zz, 2);
+                func_0047a180(*(s32 *)(p + 0x22C), s2 + 0x140, 2);
+                func_00478e70(*(s32 *)(p + 0x22C));
+            }
+        }
+        break;
+    }
+    case 10:
+    {
+        u8 *p;
+        u8 *q;
+        f32 m[4];
+        p = func_00145270(v & 0xFFFF);
+        if (p != 0) {
+            q = func_0047a2f0(*(s32 *)(p + 0x144));
+            *(Vec3f *)a = *(Vec3f *)(q + 0x30);
+            neg[0] = -1.0f * a[0];
+            neg[1] = -1.0f * a[1];
+            neg[2] = -1.0f * a[2];
+            func_0047a180(*(s32 *)(p + 0x144), neg, 2);
+            func_0047a1a0(*(s32 *)(p + 0x144), &cfg, *(f32 *)(s2 + 0x14C), 0);
+            func_0047a180(*(s32 *)(p + 0x144), a, 2);
+            q = func_0047a2f0(*(s32 *)(p + 0x144));
+            *(Vec3f *)(q + 0x30) = *(Vec3f *)(s2 + 0x140);
+            func_003e0380(m);
+            func_003e03e0(func_0047a2f0(*(s32 *)(p + 0x144)), m);
+            func_003e05d0(func_0047a2f0(*(s32 *)(p + 0x144)));
+        }
+        break;
+    }
+    default:
+        func_0046d730(D_005F1858, 0x337);
+        break;
+    }
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/k_command", func_001774a0);
+#endif
 
 // FUN_00177A10
 u32 K_Cmd_CREATE_FLD_MDL()

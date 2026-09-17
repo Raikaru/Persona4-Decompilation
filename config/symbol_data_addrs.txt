@@ -826,3 +826,6 @@ fGpffff81c8 = 0x007612b8; // type:data evidence: retail code1_0046 func_0046a7f0
 fGpffff81cc = 0x007612bc; // type:data evidence: retail code1_0046 func_0046a7f0 lwc1 gp -0x7e34; contiguous coefficient table with fGpffff81b0 at 0x007612a0; gp base 0x007690F0
 iGpffffa6a0 = 0x00763790; // type:data evidence: retail func_0025dd30 lw $7,-0x5960($28) (0x00763790) as func_00274ed0 str arg; gp base 0x007690F0
 iGpffffa6a4 = 0x00763794; // type:data evidence: retail func_0025dd30 lw $7,-0x595C($28) (0x00763794) as func_00274ed0 str arg; gp base 0x007690F0
+D_0064A2B0 = 0x0064a2b0; // type:data evidence: retail func_0033c490 lui/addiu %hi/%lo(D_0064A2B0) float table base; absolute address encoded by symbol name
+D_0064A2B8 = 0x0064a2b8; // type:data evidence: retail func_0033c490 lui/addiu %hi/%lo(D_0064A2B8) float table base; absolute address encoded by symbol name
+D_00795E60 = 0x00795e60; // type:data evidence: retail func_0033c490 lui/addiu %hi/%lo(D_00795E60) table base for 25ecd0/275520 calls; absolute address encoded by symbol name

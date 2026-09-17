@@ -1177,8 +1177,148 @@ void func_00213e20(u8 *arg0, u8 *arg1)
 }
 // FUN_002142B0
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002142b0);
-// FUN_00215C10
+/* measured 00215c10: banked floor obj 1464B/window 1472B via `python tools/measure_guarded.py src/promoted/code1_0021.c func_00215c10` (366/366 instrs, 21 edits +1 reloc-only via fnalign); opclass no surplus for this floor via `python tools/opclass.py src/promoted/code1_0021.c` (4 floors scanned, 2 surplus elsewhere at 00210c70/0021a7b0); MAC reassociations neutral (nd 79 base, mulSwap 81) and pragmas worse (schedule 1047, prop 1084) probed pre-bank via recon_probe; frame -0x60 correct, residual prologue park order, s16 sh/dsll32 order, FPU coloring (f23 vs f12, f2 vs f3), 85/conversion coloring. Best legal plain-C; parked as compiler floor. */
+// FUN_00215C10 NONMATCHING
+#ifdef NON_MATCHING
+void func_00215c10(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
+{
+    extern f32 D_007615A4;
+    extern f32 D_007615A8;
+    extern f32 fGpffff8218;
+    extern f32 func_00201950(u8 *arg0, s32 arg1, s32 arg2);
+    extern f32 func_00201990(u8 *arg0, s32 arg1, s32 arg2);
+    extern void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1, u8 arg5, u8 arg6, u8 arg7, u8 arg8);
+    s32 *var_s19;
+    u8 *var_s18;
+    f32 var_f23;
+    f32 var_f22;
+    s32 var_s17;
+    u8 *var_s16;
+    f32 var_f21;
+    f32 var_f20;
+    f32 var_f12;
+    f32 var_f4;
+    f32 var_f2;
+    f32 var_f3;
+    f32 var_f1;
+    f32 var_f0;
+    s32 var_flag;
+
+    var_s19 = arg0;
+    var_s18 = arg1;
+    var_f23 = fparg0;
+    var_f22 = fparg1;
+    var_s17 = arg2;
+    var_s16 = (u8 *)var_s19 + 0x80C;
+    var_flag = *(s32 *)(var_s18 + 0xA10);
+    if ((var_flag & 0x14) != 0) {
+        if ((var_flag & 0x4) != 0) {
+            s16 tmp = *(s16 *)(var_s18 + 0xA1C) + 1;
+            *(s16 *)(var_s18 + 0xA1C) = tmp;
+            if (tmp >= 0x18) {
+                *(s32 *)(var_s18 + 0xA10) &= ~4;
+                *(s16 *)(var_s18 + 0xA1C) = 0x18;
+            }
+        } else if ((var_flag & 0x10) != 0) {
+            s16 tmp = *(s16 *)(var_s18 + 0xA1C) - 1;
+            *(s16 *)(var_s18 + 0xA1C) = tmp;
+            if (tmp < 0xB) {
+                *(s32 *)(var_s18 + 0xA10) &= ~0x10;
+                *(s16 *)(var_s18 + 0xA1C) = 0xA;
+            }
+        }
+        var_f1 = (f32)*(s16 *)(var_s18 + 0xA1C);
+        var_f0 = var_f1 / 24.0f;
+        var_f21 = var_f0 * var_f0;
+    } else {
+        var_f21 = 1.0f;
+    }
+    if (*(s16 *)(var_s18 + 0xA14) < 9) {
+        var_f1 = (f32)*(s16 *)(var_s18 + 0xA14);
+        if (var_f1 > 6.0f) {
+            var_f2 = 1.0f;
+        } else if (var_f1 < 0.0f) {
+            var_f2 = 0.0f;
+        } else {
+            var_f2 = var_f1 / 6.0f;
+        }
+        var_f4 = 2.0f * var_f2 - var_f2 * var_f2;
+        var_f23 = var_f23 + var_f4 * (D_007615A4 - var_f23);
+        var_f3 = 85.0f;
+        var_f2 = (f32)(u32)var_s17;
+        var_f0 = D_007615A8 + var_f2 * var_f3;
+        var_f0 = var_f0 - var_f22;
+        var_f22 = var_f22 + var_f4 * var_f0;
+        var_f12 = 1.0f - fGpffff8218 * var_f4;
+    } else {
+        var_f12 = 1.0f;
+    }
+
+    func_002019d0((u8 *)var_s19, var_f12, var_f12);
+    if (*(s16 *)(var_s18 + 0xA16) < 0x19) {
+        var_f1 = (f32)(s16)(*(s16 *)(var_s18 + 0xA16) - (var_s17 & 0xFFFF) * 2);
+        if (var_f1 > 8.0f) {
+            var_f3 = 1.0f;
+        } else if (var_f1 < 0.0f) {
+            var_f3 = 0.0f;
+        } else {
+            var_f3 = var_f1 / 8.0f;
+        }
+        var_f0 = 2.0f * var_f3 - var_f3 * var_f3;
+        var_f1 = 1.0f - var_f0;
+        var_f23 = var_f23 + 180.0f * var_f1;
+        var_f22 = var_f22 + 80.0f * var_f1;
+    }
+    if (*(s16 *)(var_s16 + 4) > 0) {
+        if ((*(s32 *)var_s16 & 4) != 0) {
+            var_f1 = (f32)*(s16 *)(var_s16 + 4);
+            if (var_f1 > 10.0f) {
+                var_f2 = 1.0f;
+            } else if (var_f1 < 0.0f) {
+                var_f2 = 0.0f;
+            } else {
+                var_f2 = var_f1 / 10.0f;
+            }
+            var_f2 = 2.0f * var_f2 - var_f2 * var_f2;
+        } else {
+            var_f1 = (f32)*(s16 *)(var_s16 + 4) - 2.5f;
+            if (var_f1 > 10.0f) {
+                var_f3 = 1.0f;
+            } else if (var_f1 < 0.0f) {
+                var_f3 = 0.0f;
+            } else {
+                var_f3 = var_f1 / 10.0f;
+            }
+            var_f1 = 1.0f - var_f3;
+            var_f0 = 2.0f * var_f1 - var_f1 * var_f1;
+            var_f2 = 1.0f - var_f0;
+        }
+        var_f23 = var_f23 + 180.0f * var_f2;
+    }
+
+    var_f20 = 1.0f;
+    func_00201300(var_s19, var_f23, var_f22, 136.0f, 136.0f);
+    if (var_f20 == var_f21) {
+        func_00201650((u8 *)var_s19, 8, 0xE, 29.0f, 27.0f, 0xFE, 0xFF, 0x22, 0xFF);
+    } else {
+        f32 ret1;
+        f32 ret2;
+        f32 f2;
+        var_f20 = 1.0f - var_f21;
+        ret1 = func_00201950((u8 *)var_s19, 8, 0xE);
+        f2 = 0.5f * ret1;
+        var_f22 = 29.0f + var_f20 * f2;
+        ret2 = func_00201990((u8 *)var_s19, 8, 0xE);
+        f2 = 0.5f * ret2;
+        var_f20 = 27.0f + var_f20 * f2;
+        func_00201720(var_s19, var_f21, var_f21);
+        func_00201650((u8 *)var_s19, 8, 0xE, var_f22, var_f20, 0xFE, 0xFF, 0x22, 0xFF);
+        func_00201720(var_s19, 1.0f, 1.0f);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00215c10);
+#endif
 /* measured: plain-C reconstruction reaches object 1564B against the 1568B retail window at 21 differing words (reloc-masked, fnalign 14 edits + 3 reloc-only). Frame 0x70, saves s16-s20 + f20-f22, parks s20/s19/f22/f21/s18/s16, forward CFG, FMA adda/madda/madd/msub/div chains and (u8) clamps via cvt.w.s/mfc1/andi with or-0x80000000 path all match; residual is prologue park order, commutative add.s, param-vs-saved FPU coloring (f12 vs f22, f13 vs f21) and 85/conversion f2/f3 coloring. Mined MATCH neighbours for helper prototypes and flag offsets; probe_variants top-down 29->21 via u8 s17 (fixes daddiu 0xFF and andi/move). Endgame levers tried in order, no loop so invariants/guard N/A. Best legal plain-C body; parked as compiler floor. */
 // FUN_002161D0 NONMATCHING
 #ifdef NON_MATCHING
