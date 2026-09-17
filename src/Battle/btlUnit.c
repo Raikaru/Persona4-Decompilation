@@ -1056,8 +1056,10 @@ void func_0019acd0(u8 *arg0)
         *(s32 *)(p + 0x98) = *(s32 *)(p + 0x98) & ~2;
     }
 }
+/* measured 0019ae20: `schedule on` inside the guard is worth 4 words (398 -> 394). */
 // FUN_0019AE20 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
 s32 func_0019ae20(u8 *arg0) {
     extern f32 func_0047a000(void *a, s32 b, s64 c);
     extern u8 *iGpffffb3cc;
@@ -1220,6 +1222,7 @@ s32 func_0019ae20(u8 *arg0) {
     }
     return 0;
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/btlUnit", func_0019ae20);
 #endif

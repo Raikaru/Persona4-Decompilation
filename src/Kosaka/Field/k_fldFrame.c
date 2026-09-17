@@ -14,7 +14,7 @@ extern s32 func_0014a270(void);
 extern void* func_00155280(void);
 extern s32 func_001687d0(s32 arg0);
 extern s32 func_001687e0(s32 arg0);
-extern s32 func_00169780(s32 collisionWorld, f32* origin,
+extern s32 func_00169780(void* collisionWorld, f32* origin,
                          f32* vector, f32 fraction);
 extern s32 func_0016a110(s32 collisionWorld, f32* origin,
                          f32* vector, f32 fraction, s32 fieldId);
@@ -289,7 +289,7 @@ s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
     }
     if ((*(s32*)object & 1) != 0)
     {
-        return func_00169780(*(s32*)(object + 0xc), origin, vector, fraction);
+        return func_00169780((void*)(*(s32*)(object + 0xc)), origin, vector, fraction);
     }
 
     collisionWorld = 0;
