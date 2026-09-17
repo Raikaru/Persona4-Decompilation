@@ -1439,8 +1439,9 @@ void func_001b39f0(void)
 {
 }
 
+/* measured: fnalign retail 318 instrs object 318 instrs 94 edits (+16 reloc-only) -> 86 edits (+16 reloc-only) after Shape A; slti $at vs $v0 row at retail[208:210] (clamp d >= 6) fixed by d >= 6 -> d > 5 earliest-first (only inclusive bound); probe_variants 259 words unchanged (positional); object still 318/318 (0 short) so Shape B skipped; banked guarded floor. */
 // FUN_001B3A00 NONMATCHING
-#ifdef SKIP_ASM
+#ifdef NON_MATCHING
 s32 func_001b3a00(void)
 {
     u16 st;
@@ -1528,7 +1529,7 @@ st2:
                 s16 d = *(s16 *)((u8 *)iGpffffb3ac +  3296) - (s16)func_00231e20(*(s32 *)(*(u8 **)(*(u8 **)((u8 *)iGpffffb3ac +  368) + 48) + 2660));
                 if (d < 0) {
                     d = 0;
-                } else if (d >= 6) {
+                } else if (d > 5) {
                     d = 5;
                 }
                 *(s16 *)((u8 *)iGpffffb3ac +  3260) = *(u8 *)(*(s32 *)(iGpffffb3ac + -0x4BF0) + d);

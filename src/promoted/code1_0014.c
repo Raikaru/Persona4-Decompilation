@@ -629,7 +629,7 @@ void func_001424b0(Float2_0014 pos, f32 fparg0, u32 arg1, u8 *arg2, s32 arg3)
 // FUN_001427C0 NONMATCHING
 #ifdef SKIP_ASM
 #pragma opt_loop_invariants on
-/* 001427c0 floor (1076B/1072B, nd 225, edits 213+4 reloc-only; 269 vs 268 instrs, 14 relocs); honest Float2 pos with u32 byte conversions, i%5 packet build and 5-sprite second loop. Production stays ASM. See docs/probe_archive/C14_001427c0_body.c. */
+/* 001427c0 floor (1076B/1072B, nd 183 fresh (was 225; opt_loop_invariants hoist worth 42), edits 115+4 reloc-only fresh (was 213+4 stale); 266 vs 265 instrs (1 short) fresh; honest Float2 pos with u32 byte conversions, i%5 packet build and 5-sprite second loop. Triaged dead-arm hunt checked -- no trailing if/else-if chain ending 2-3 short (shortfall is frame -0x250 vs -0x230 + saves, not trailing per top-down fnalign). Production stays ASM. See docs/probe_archive/C14_001427c0_body.c. */
 void func_001427c0(Float2_0014 pos, s32 arg1, u8 *arg2, f32 fparg0)
 {
     extern u8 D_0064B2E8[];

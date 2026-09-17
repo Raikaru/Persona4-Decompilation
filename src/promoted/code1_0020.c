@@ -1903,9 +1903,8 @@ extern f32 fGpffff836c;
 extern void func_00364c50(void);
 extern void func_00364c70(void);
 
-/* Inclined-strip floor (944B window). First probe nd 210 (frame/prologue
-   verified); structure and callee conventions per archived notes. Open:
-   s-reg/f-reg rotation and scheduler ordering. See FreshPanelStrip doc. */
+/* measured: object 864B/window 944B/normalized_diff 628 (210 differing words, live re-measured current tree). */
+/* measured: 234 vs 216 instrs (minus 18, 7pt short, draft-short pending plus-11 via s0-s1 decl swap and f23-f26 FPR coloring to reach floor); loop-invariant on worsens 210 to 221; slti-at N-A, no trailing short cascade beyond distributed coloring, arg-setup per archived conventions, schedule neutral. */
 // FUN_00204DC0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1998,6 +1997,8 @@ void func_00204dc0(s32 index, f32 x, f32 y, f32 depth, f32 angle, s32 extend)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00204dc0);
 #endif
+/* measured: object 1100B/window 1120B/normalized_diff 617 (208 differing words, live re-measured current tree). */
+/* measured: frame-prologue plus call-order floor; levers checked top-down with no gain over current 208-word body; full-size (1100 vs 1120, minus 1pt) floor. */
 // FUN_00205170 NONMATCHING
 #ifdef NON_MATCHING
 void func_00205170(u8 *arg0, s32 arg1, f32 fx, f32 fy, s32 arg2, s32 arg3, s32 arg4) {
@@ -2314,10 +2315,8 @@ void func_00205e00(u8 *panel, s32 index, f32 x, f32 y,
 #pragma pop
 // FUN_00205FF0
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205ff0);
-/* Panel-draw callback floor (880B window). First probe nd 85;
-   frame and prologue verified against retail. Open: vtable-base reuse
-   (redundant per-call rematerialization) and arg-order scheduling.
-   See W42c20_00206dd0_body.c for tried levers. */
+/* measured: object 868B/window 880B/normalized_diff 291 (85 differing words, live re-measured current tree). */
+/* measured: entry tall-branch plus callback-arg setup floor; slti-at, dead-store trailing-arm, arg-cast audit, loop-invariant and schedule levers checked top-down via fnalign with no gain over current 85-word body; full-size (868 vs 880, minus 1pt) floor. */
 // FUN_00206DD0 NONMATCHING
 #ifdef NON_MATCHING
 /* lane W42c20 probe for func_00206dd0 (0x00206dd0)
@@ -4708,11 +4707,8 @@ f32 func_00201990(u8 *arg0, s32 arg1, s32 arg2);
  * definitions already have the truthful signatures used by body.c.
  */
 
-/* Panel-segment renderer floor (832B window). First probe nd 199;
-   structure, loop nests and callee conventions verified against retail.
-   Open: frame size, s-reg/f-reg assignment, absolute data symbols vs
-   stack locals, loop lowering, and scheduler ordering. Absolute externs
-   D_00626C40/50/70 registered but inert. See FreshPanelDraw doc. */
+/* measured: object 836B/window 832B/normalized_diff 616 (199 differing words, live re-measured current tree). */
+/* measured: top fnalign is absolute-data vs stack-immediate plus frame -0xe0 vs -0x100; extern-load variant improves 199 to 196 but goes 10pt short (182 vs 204 instrs, draft) so kept stack-immediate floor (209 vs 204 instrs, plus 2pt over, good size); slti-at N-A (no lt range, sltiu-at with a1-a2 input coloring), no 2-3 short tail (209 vs 204), arg-setup fixed (Color4 by value, 3-arg providers), loop-invariant neutral. */
 // FUN_0020F730 NONMATCHING
 #ifdef NON_MATCHING
 void func_0020f730(u8 *arg0, u8 *arg1, Color4 arg2, s32 arg3)

@@ -40,6 +40,11 @@ static inline void fclZero8(u8 *p)
 
 
 
+/* Combine-draw conventions (established from MATCHed 00315310/00316e80 and retail 00314ef0):
+   Work struct is { RGBA/col[16] at sp+0x70; u8 gap[16] at sp+0xB0; Pair/pos[16] at sp+0xC0 } (frame 0x140 for 16-entry windows).
+   Colours are FclByte4 (4x u8); UV/pos are FclVec2 pairs copied as two u32 words (lw/sw, never lwc1).
+   s64 params retain raw in s-reg (raw=arg1), normalize via (s16)raw to u32 base, loop increment as i=(s16)(i+1), offset-first address via addOff(idx*2,(u32)t).
+   16-entry dispatch is flat sltiu (i-14<2,i-6<4,i-10<4,else) to sp+0x70+i*4; use inclusive (<=1U/<=3U) if slti dest is $v0 not $at. */
 extern void func_0044ea90(const void *arg0, u32 arg1);
 extern void *func_0043f9c8(void *dest, s32 value, s32 size);
 extern void *func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);

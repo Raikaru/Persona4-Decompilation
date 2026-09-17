@@ -194,6 +194,14 @@ s32 func_0014ef80(void)
  * D_005F05B8+var17 preheader ($a3) with lbu -0x28($a3) and lb 2($v1) form (ours folds +2 into addiu and
  * uses lb 0), second loop needs hoisted D_007E8060 base in $a1 (ours rematerialises inside). Daddu home-move
  * order left as-is per wall note (invariant under declaration/initialiser/assignment/K&R models).
+ * 2026-09-17 fnalign re-measure (base): retail 210 instrs vs object 206 instrs (4 short) + tail cascade,
+ * edit 44 (+29 reloc-only), probe 127 words; confirms scan (second-strongest, 4-short/44-edit).
+ * Shape B at flag-chain end (`else if (var16 < 0x100)` + dead `else {*(0x24) = 0;}`): 127->134 words (+7),
+ * 44->51 edits (+7), 206->212 object instrs (212/212, 0 short) with object-only `slti $at,$s0,0x100` /
+ * `sw $zero` plus extra `b` cascade and no retail counterpart; regresses, not adopted.
+ * Shape A (`<= 0xFF` vs `< 0x100`): 134->134 (0, inert); no retail slti-$at row to fix (baseline 0 slti,
+ * only `slt $2,$7,$2` register form, B1 slti is object-only), so lever has no target; not adopted.
+ * Honest floor stays base (824B/848B, 2.83% short, within size gate, no SIZE_MISMATCH).
  * Guards as NONMATCHING with ASM fallback so verify stays 0 MISMATCH. */
 // FUN_0014EFC0 NONMATCHING
 #ifdef NON_MATCHING

@@ -105,19 +105,8 @@ u16 func_00109470(s32 arg0)
     return *p;
 }
 
-/* Floor: 105 differing words, and an instruction-level alignment
-   (tools/fnalign.py) reports the stream is retail's - every residual is a
-   register name, the saved-register map rotated one slot (retail keeps arg0
-   in $s1 and arg2 in $s6, this build uses $s0/$s7).  What closed the
-   structure: the candidate-count local is left uninitialised the way retail
-   leaves it (an explicit `last = 0` costs an instruction), `level` is a
-   plain 32-bit local so the base-level subtraction is not masked, the
-   reach (`level + room`) is computed once after the if/else join as retail
-   does, and `opt_loop_invariants on` hoists the constant 1 that both
-   `found = 1` and `span = 1` reuse.  Measured inert afterwards: 250
-   declaration orders, the goto-shaped second loop, and the
-   opt_dead_assignments, opt_propagation, opt_common_subs, schedule and
-   optimize_for_size pragmas. */
+/* measured: object 676B/window 688B/normalized_diff 252 (105 differing words, live re-measured current tree). */
+/* measured: 170 vs 169 instrs (1 short) with tail inserts at 148 and 170 plus colouring (s1-s0, s6-s7, t3-t1); slti-v0 both sides (s3-vs-s2 input) so inclusive N-A; dead-arm redundant-store hunt at chain end plus arg-setup and loop-invariant to follow. */
 // FUN_00109510 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1127,21 +1116,8 @@ s32 func_0010be20(u8 *arg0)
     return 0;
 }
 
-/* Floor: tools/probe_variants.py v2 scores 445 differing words (reloc-masked),
-   object 1812B/window 1856B (44B short, 97.6%, within ~3%); v3 reuses level/
-   expsum/pidoff for first/found/span and scores 440/1808B. Frame is retail
-   -0xA0 (8 saved + ra, u16 stat[5] at sp+0x90) vs this build -0xC0 (9 saved
-   + ra incl. s8, array at sp+0xB0): one extra saved reg (skills in s8 vs
-   retail s7) plus 32B spill; every residual is register/stack-offset, no
-   missing control flow. No jtbl_ in asm (only jr $31); skill-type switch
-   recovered from the compare chain as if-else 4,3,2,1 in retail order, with
-   type-2 inserting when already known (C4F0 beq) vs type-1 when new (C458
-   bne) preserved. Reuses sibling conventions: iGpffffb3dc/b3d4/b3e4 tables,
-   (u16)i masked loops, D_005E4318 asserts (8: 0x56D,0x1DE,0x268,0x299,0x59F,
-   0x604,0x614,0x61F) from P4_UNIT_0010BE60 (281 draft lines, noise 8).
-   Measured inert: declaration-order perms v3a/b/c all 440, u8/s8 stat mixes,
-   (u8 *)iGpffffb3e4 + 0x7A growth-byte casts. */
-/* measured 0010be60: `opt_loop_invariants on` inside the guard is worth 2 words (445 -> 443), the loop-preheader constant hoist. */
+/* measured: object 1820B/window 1856B/normalized_diff 1426 (443 differing words, live re-measured current tree). */
+/* measured: re-measured live confirms 443 words (was 445, loop-invariants on inside guard worth 2, preheader hoist retained); slti-at hit with inclusive-bound flip to be tried top-down; full-size floor. */
 // FUN_0010BE60 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on

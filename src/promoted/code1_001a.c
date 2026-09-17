@@ -518,13 +518,7 @@ void func_001a06d0(u8 *arg0) {
         func_001b0800(arg0, *(u16 *)(arg0 + 0x14));
     }
 }
-/* In recovery: plain-C candidate (~233 reloc-masked differing words).
- * Solved: twin-idiom calls, local externs, s64 arg0, memset-grounded stack,
- * Ghidra nested tail (else-form, fixes bgez/bltz + layout), alternating
- * unit-address spellings (no-op per micro-test, kept for CSE insurance).
- * Wall: allocation count (5 saved regs vs retail 3; temp_2_3/extra live
- * values overflow temps into s-regs; small-case reverse-decl rule breaks
- * under this pressure). Production stays ASM. */
+/* measured: live object 1064B/window 1088B, normalized_diff 232 (guard below). Solved: twin-idiom calls, local externs, s64 arg0, memset-grounded stack, Ghidra nested tail (else-form), alternating unit-address spellings. Walls: frame 0x80 vs retail 0x70 (5 saved regs vs 3; temp live values overflow into s-regs), sp6E uninit-OR kept in reg ($s4 ori) vs retail stack slot (lhu/ori/sh), first-global lw symbol/offset. Ruled out today: baseline opts without the cs-off/prop-off pair (233, frame balloons to 0xa0), sp6E declared last (232, lateral), volatile sp6E (236). Production stays ASM; banked as floor. */
 // FUN_001A0B00 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -1681,7 +1675,7 @@ void func_001a4390(void)
 {
 }
 
-/* measured 001a43a0: `opt_loop_invariants on` inside the guard is worth 56 words (218 -> 162), the loop-preheader constant hoist. */
+/* measured 001a43a0: live object 1092B/window 1104B, normalized_diff 162 (guard below). `opt_loop_invariants on` inside the guard is worth 56 words (218 -> 162), the loop-preheader constant hoist. Remainder is a self-consistent 5-cycle saved-register rotation (banked wall) plus the s16-slot sh/lh pair (retail sh + lh vs this build sign-extend + sw + lw). Ruled out today: volatile s16 spB0 (219), u16 res23 (215), s16 res23 (163, neutral). Banked as floor. */
 // FUN_001A43A0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
@@ -1822,9 +1816,7 @@ void func_001a47f0(void)
 {
 }
 
-/* Battle-update floor (1152B window). First probe nd 232 (obj 1168B,
-   frame -0x60 vs -0x50 retail, 16B over). Open: frame size,
-   scheduler ordering. See notes. */
+/* measured: live object 1164B/window 1152B, normalized_diff 219 (installed guard below; prior nd232 note at 1168B; object exceeds window by 12B). Restructured the scan loop per retail: bound check as the while condition (init + branch-over-to-test), skip-chain as separate early-outs to incr with the != 1 arm exiting to donecheck (goto-loop + OR-combined chain miscompiled the branch tree). Unmasked increment (232 -> 223 -> 219). Open walls: frame 0x60 vs 0x50, s-reg rotation, body-index mask folded away (unmasked counter proves it redundant; separate/temp/three-mask/O1 spellings all tie), slt stays signed per retail. Ruled out today: masked-incr while (223), three-mask tail temp (219 tie), O1 on both (223/219 ties). Banked as floor. */
 // FUN_001A4800 NONMATCHING
 #ifdef NON_MATCHING
 void func_001a4800(u8 *arg0)
@@ -1838,15 +1830,24 @@ void func_001a4800(u8 *arg0)
     u8 *temp_4;
     if (((s32)(func_00193cd0(0x506)) == (s32)(0)) && ((s32)(func_00193cd0(0xC05)) == (s32)(0))) {
         var_18 = 0;
-loop_8:
-        temp_16 = var_18 & 0xFFFF;
-        if ((s32)(temp_16) < (s32)((s32) (*( u16*)((u8 *)(arg0) + 0x6A)))) {
-            temp_17 = (u8 *)((*( u8**)((u8 *)(((s32)(arg0) + ((var_18 & 0xFFFF) * 4))) + 0x38)));
-            if (((s32)(arg0) == (s32)(temp_17)) || !((*( u16*)((u8 *)(temp_17) + 0x1A)) & 1) || ((s32)(func_002428f0((*( u8**)((u8 *)((*( s32*)((u8 *)(temp_17) + 0x30))) + 0xA64)), 0)) != (s32)(0)) || ((*( u16*)((u8 *)(temp_17) + 0xC)) == 1)) {
-                var_18 = (var_18 + 1) & 0xFFFF;
-                goto loop_8;
+        while ((s32)(temp_16 = var_18 & 0xFFFF) < (s32)(*(u16 *)((u8 *)arg0 + 0x6A))) {
+            temp_17 = (u8 *)((*(u8 **)((u8 *)(((s32)(arg0) + ((var_18 & 0xFFFF) * 4))) + 0x38)));
+            if ((s32)(arg0) == (s32)(temp_17)) {
+                goto incr;
             }
+            if (!((*(u16 *)((u8 *)(temp_17) + 0x1A)) & 1)) {
+                goto incr;
+            }
+            if (((s32)(func_002428f0((*(u8 **)((u8 *)((*(s32 *)((u8 *)(temp_17) + 0x30))) + 0xA64)), 0)) != (s32)(0))) {
+                goto incr;
+            }
+            if ((*(u16 *)((u8 *)(temp_17) + 0xC)) != 1) {
+                goto donecheck;
+            }
+incr:
+            var_18 = var_18 + 1;
         }
+donecheck:
         if (temp_16 == (*( u16*)((u8 *)(arg0) + 0x6A))) {
             if (!((*( u16*)((u8 *)(arg0) + 0x18)) & 4)) {
                 func_001eb420((s32)(arg0) + 0x38);
@@ -2477,9 +2478,7 @@ void func_001ac6a0(u8 *arg0) {
 void func_001ac6f0(void)
 {
 }
-/* Action-set dispatch floor (1040B window). First probe nd 154
-   (frame/prologue verified). Open: s-reg rotation, const-init width
-   (addiu vs daddiu), and missing const paths. See Lane001a doc. */
+/* measured: live object 1040B/window 1040B, normalized_diff 155 (installed guard below completes the tail; prior nd154 draft note was 52B short). Tail completed per retail: f68e0 != 0 calls 0x1B and returns, else the 0x6C ==2/==3/==1 chain assigns 0x20 twice and calls once. Both chain arms load the same 0x20, so the dispatch is vestigial but reproduced. Open walls: s-reg rotation (self-consistent, banked), addiu-vs-daddiu small-const loads (s64/u64/O-level/propagation all give addiu), 2nd/3rd beq forms (braced == gives bne-over, unbraced gotos merge the last test to bne). Ruled out today: goto-diamond (155), unbraced-goto (155, beq+beq+bne), u64 cmd (155). Banked as floor. */
 // FUN_001AC700 NONMATCHING
 #ifdef NON_MATCHING
 void func_001ac700(u8 *arg0) {
@@ -2626,9 +2625,19 @@ void func_001ac700(u8 *arg0) {
         return;
     }
     temp_3 = *(u16 *)(arg0 + 0x6C);
-    if ((temp_3 != 2) && (temp_3 != 3) && (temp_3 != 1)) {
+    {
+        s64 cmd;
+        if (temp_3 == 2) {
+            cmd = 0x20;
+        } else if (temp_3 == 3) {
+            cmd = 0x20;
+        } else if (temp_3 == 1) {
+            cmd = 0x20;
+        } else {
+            cmd = 0x20;
+        }
+        func_001b0800(arg0, cmd);
     }
-    func_001b0800(arg0, 0x20);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001ac700);
@@ -3186,11 +3195,122 @@ s32 func_001ae3c0(u8 *arg0)
 {
     return *(s32 *)(arg0 + 0x428);
 }
-// FUN_001AE3D0
-#ifdef SKIP_ASM
+// FUN_001AE3D0 NONMATCHING
+/* measured: live object 1076B/window 1072B, normalized_diff 123 (installed guard below; first real floor, replaces the SKIP_ASM stub; object exceeds window by 4B). Recovery from docs/probe_archive/L1A_001ae3d0_body.c: list-node packet fill, ==0/arg-first arm swap, v=0-first structure, u32 sel. Open walls: s3-hoist of the 2672-half before the 1d15a0 call, deep-lookahead temp coloring, pr-stack-slot layout, bne-operand canonicalization; the (s16)-cast extend pair is load-bearing. Banked as floor. */
+#ifdef NON_MATCHING
 void func_001ae3d0(u8 *arg0)
 {
-    INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001ae3d0);
+    u8 *lst;
+    u8 *found;
+    u32 entry;
+    u8 *entryp;
+    u8 *pkt;
+    u16 pr[2];
+    u32 sel;
+    s32 v;
+    u32 t;
+    s16 h2;
+    s32 cu;
+
+    lst = *(u8 **)(iGpffffb3ac + 372);
+    while (lst != NULL) {
+        if (func_001a05f0(lst) != 0) {
+            pkt = func_0019b6a0((s32)*(u8 **)(*(u8 **)(lst + 48) + 2572));
+            *(s64 *)(pkt + 96) = *(s64 *)lst;
+            func_00194590(pkt, 1);
+        }
+        lst = *(u8 **)(lst + 1104);
+    }
+    found = NULL;
+    if (*(u8 *)(*(u8 **)(arg0 + 48) + 162) == 0) {
+        sel = (u32)arg0;
+    } else {
+        sel = (u32)*(u8 **)(arg0 + 56);
+    }
+    if (sel != 0) {
+        u32 n = *(u16 *)(iGpffffb3ac + 3160);
+        u16 i = 0;
+        while (((i & 0xFFFF)) < n) {
+            if (*(u32 *)(iGpffffb3ac + ((i & 0xFFFF) * 4) + 3144) == sel) {
+                found = (u8 *)sel;
+                break;
+            }
+            i = (i + 1) & 0xFFFF;
+        }
+    }
+    if (found == NULL) {
+        found = *(u8 **)(iGpffffb3ac + (func_00231d70(*(u16 *)(iGpffffb3ac + 3160)) & 0xFFFF) * 4 + 3144);
+    }
+    pr[0] = 1;
+    pr[1] = *(u16 *)(*(u8 **)(found + 48) + 164);
+    pkt = func_001fa720((u8 *)pr);
+    *(s64 *)(pkt + 96) = *(s64 *)arg0;
+    func_00194590(pkt, 1);
+    v = 0;
+    if (*(u8 *)(*(u8 **)(arg0 + 48) + 162) == 0) {
+        if (*(s16 *)(iGpffffb3ac + 2672) != -1) {
+            t = func_001ef720(2, 0x80000) & 0xFFFF;
+            if ((u32)((s16)(*(s16 *)(iGpffffb3ac + 2674) >> 1)) < t) {
+                v = 0;
+            } else {
+                h2 = *(s16 *)(iGpffffb3ac + 2672);
+                if (h2 == (s16)func_001d15a0((s32)t)) {
+                    v = 0;
+                } else {
+                    v = 1;
+                }
+            }
+        }
+    }
+    if (v != 0) {
+        pkt = (u8 *)func_001d3900(1);
+        *(s64 *)(pkt + 96) = *(s64 *)arg0;
+        func_00194590(pkt, 0);
+    }
+    pkt = func_00199ee0(*(u8 **)(*(u8 **)(iGpffffb3ac + 368) + 48), 0, 0, 1, 1.0f);
+    *(s64 *)(pkt + 96) = *(s64 *)arg0;
+    func_00194590(pkt, 0);
+    cu = 0;
+    while (((cu & 0xFFFF)) < *(u16 *)(iGpffffb3ac + 3160)) {
+        entryp = *(u8 **)(iGpffffb3ac + ((cu & 0xFFFF) * 4) + 3144);
+        pkt = func_00199ee0(*(u8 **)(entryp + 48), 0, 0, 1, 1.0f);
+        *(s64 *)(pkt + 96) = *(s64 *)arg0;
+        func_00194590(pkt, 0);
+        cu = (cu + 1) & 0xFFFF;
+    }
+    pkt = (u8 *)func_001d3700(3, 0xFFF);
+    *(s64 *)(pkt + 96) = *(s64 *)arg0;
+    func_00194590(pkt, 0);
+    pkt = func_0019e9f0(0, 3);
+    *(s64 *)(pkt + 96) = *(s64 *)arg0;
+    func_00194590(pkt, 1);
+    pkt = func_0019e7c0(0, 3);
+    *(s64 *)(pkt + 96) = *(s64 *)arg0;
+    func_00194590(pkt, 1);
+    pkt = func_001d3d00(arg0);
+    *(s64 *)(pkt + 96) = *(s64 *)arg0;
+    func_00194590(pkt, 0);
+    pkt = (u8 *)func_001ba090(0);
+    *(s64 *)(pkt + 96) = *(s64 *)arg0;
+    func_00194590(pkt, 0);
+    pkt = func_001bc920(arg0, 7);
+    *(s64 *)(pkt + 96) = *(s64 *)arg0;
+    func_00194590(pkt, 0);
+    entry = *(u32 *)(iGpffffb3ac + 12);
+    entry = entry & 0xFFBFFFFF;
+    *(u32 *)(iGpffffb3ac + 12) = entry;
+    *(u16 *)(iGpffffb3ac + 24) = 0;
+    if (func_001eb860() == 1) {
+        entry = *(u32 *)(iGpffffb3ac + 12);
+        entry = entry & ~0x2000;
+        *(u32 *)(iGpffffb3ac + 12) = entry;
+        func_00212240(*(u8 **)(iGpffffb3ac + 3540), 0);
+    }
+    *(u8 **)(arg0 + 1052) = found;
+    *(s32 *)(arg0 + 1056) = 0;
+    *(s32 *)(arg0 + 1060) = 0;
+    *(s32 *)(arg0 + 1064) = 0;
+    *(u16 *)(arg0 + 1068) = 12;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001ae3d0);
