@@ -1807,6 +1807,7 @@ void func_00467880(u8 *arg0)
         func_003e8110(func_00457120());
     }
 }
+/* measured this session: fresh probe 277wd / fnalign 344 edits; slti $at hunt checked -- retail slti $v0,$v1,0x100 + slti $at,$v0,2 both already match object dests ($v0 then $at), no inclusive flip needed (tried <256/>=2 forms per se, neutral); short-by-N hunt checked (no 1-4 short trailing chain per top-down fnalign). Saved-reg/frame wall per guard body; banked. */
 // FUN_00467BD0 NONMATCHING
 #ifdef SKIP_ASM
 s32 func_00467bd0(u8 *arg0)

@@ -185,6 +185,7 @@ void func_001546a0(u16 arg0, u16 arg1)
    emits one inverted branch), which opt_rebuildconditionals,
    no_branch_likely, schedule, propagation and dead-assignment do not
    move. */
+/* measured this session: fresh probe 177wd / fnalign 193 edits (was 154 stale) confirms floor; slti inclusive (value>=3&&<9 -> >2&&<=8 fixes slti $at,$s3,3 dest to $at, tie 177wd; second $at already matches); short-by-N hunt checked (251 vs 250, 1 short, but shortfall is switch common-block layout per top-down fnalign, not trailing dead-arm chain). Banked. */
 // FUN_00154720 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00154720(u16 arg0, u16 arg1, s64 arg2)
@@ -289,7 +290,7 @@ common:
         if (state == 2) {
             value = 1;
         }
-        if ((s32)value >= 3 && (s32)value < 9) {
+        if ((s32)value > 2 && (s32)value <= 8) {
             return value;
         }
         goto common;
