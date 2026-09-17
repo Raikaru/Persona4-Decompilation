@@ -2095,8 +2095,331 @@ INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a7720);
 void func_001abba0(void)
 {
 }
-// FUN_001ABBB0
+/* Floor: 449 differing words of 596, 2384 emitted bytes against retail's
+   2384-byte window, frame -0x170 with all ten saves (sd ra@0x90, sq
+   s0-s7+fp@0x00-0x80) verified identical.  The frame is what the pragma
+   stack buys: common-subs off + propagation off + loop-invariants on
+   lands -0x170 and 449 words, where no-pragma and both-on land 0x1A0 and
+   480, and the two both-off variants land 0x160 and 488.  Other levers
+   that held: s16 auxRaw at +0x6E so the aux offset emits retail's
+   dsll32/dsra32+sll (s32 loses them, 486); the +0x58 parentUID comes
+   from the func_001d5eb0 packet, not the func_001d6240 one (a semantic
+   fix, not just a word count); unit position at +0x04/+0x08/+0x0C is
+   f32, copied lwc1/swc1 rather than lw/sw; the tail's three-way empty
+   if preserves retail's redundant branches.
+   WALL: first residual at offset 56 is propagation-off emitting
+   `move $a0,$s4` before jal func_001a03b0 where retail passes $a0
+   directly - propagation on removes the move but costs the frame - and
+   the rest is scattered saved-register colour and scheduling across
+   thirty packet calls with no bulk left.  Fourteen variants measured;
+   full evidence in docs/probe_archive/C1A_001abbb0_body.c. */
+// FUN_001ABBB0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
+#pragma opt_loop_invariants on
+void func_001abbb0(s64 *arg0) {
+    extern s32 func_001d3d50(s32 arg0);
+    extern u8 *func_00202010(s32 arg0, u16 arg1);
+    extern u8 *func_001f3b20(u8 *arg0);
+    extern s16 func_001991c0(u8 *arg0, s32 arg1, f32 arg2);
+    extern void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2);
+    extern s32 func_001b7080(s32 arg0);
+    extern s32 func_001b7090(s32 arg0);
+    extern void func_001b70a0(u32 arg0, s32 *arg1, s32 *arg2);
+    extern u8 *func_001b7880(s32 arg0, s32 arg1, s32 arg2);
+    extern u8 *func_001b83f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+    extern u8 *func_001b9560(s32 arg0, s32 arg1);
+    extern u8 *func_001b9de0(u8 *arg0, u16 arg1, s32 arg2);
+    extern void func_001d69f0(s32 arg0, void *arg1);
+    extern u8 *func_001d5eb0(s32 arg0, void *arg1, s32 arg2);
+    extern u8 *func_001f8000(s32 arg0, s32 arg1);
+    extern u8 *func_00194b60(void);
+    extern u8 *func_001f8140(s32 arg0);
+    extern u8 *func_0019f5f0(s32 arg0, s64 arg1, u16 *arg2);
+    extern void func_0019ea60(u8 *arg0, s32 arg1);
+    extern u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2);
+    extern u8 *func_0019c030(u8 *arg0, u16 arg1, u16 arg2);
+    extern u8 *func_00202400(s32 arg0, s32 arg1);
+    extern u8 *func_001b7e20(s32 arg0);
+    extern u8 *func_001b9360(s32 arg0, s32 arg1);
+    extern u8 *func_001b99a0(s32 arg0);
+    extern s32 func_001f68e0(u8 *arg0);
+    extern void func_001b0800(u8 *arg0, u16 arg1);
+    extern u8 *iGpffffb3ac;
+    extern u8 *iGpffffb3bc;
+    extern s32 func_002317a0(u8 *arg0, u16 arg1);
+    s64 uid;
+    s16 auxRaw;
+    u16 aux;
+    s32 handle;
+    s32 outHi;
+    s32 outLo;
+    u8 workBuf[136];
+    s32 firstDone;
+    s16 scaleTmp;
+    u8 *evPkt;
+    u8 *holdJ;
+    u8 *tailPkt;
+    s64 cur58;
+    u8 *tmp;
+    s32 tmpS;
+    u16 tailId;
+    s32 off;
+    s32 idx;
+    u8 *pktI_save;
+    auxRaw = *(s16 *)((u8 *)arg0 + 0x6E);
+    uid = *arg0;
+    func_001a03b0(arg0);
+    handle = func_001d3d50(1);
+    aux = (u16)(auxRaw & 0xFFFF);
+    tmp = func_00202010(*(s32 *)((u8 *)arg0 + 0x30), aux);
+    *(s64 *)(tmp + 0x60) = uid;
+    func_00194590(tmp, 3);
+    tmp = func_001f3b20((u8 *)arg0);
+    *(s64 *)(tmp + 0x60) = uid;
+    func_00194590(tmp, 1);
+    tmp = func_001f3870(arg0, 0);
+    *(s64 *)(tmp + 0x60) = uid;
+    func_00194590(tmp, 1);
+    evPkt = func_00199ee0(*(u8 **)((u8 *)arg0 + 0x30), 8, 6, 0, 1.0f);
+    *(s64 *)(evPkt + 0x60) = uid;
+    func_00194590(evPkt, 0);
+    tmp = func_001bc920((u8 *)arg0, 0x15);
+    *(tmp + 0) = 4;
+    *(s64 *)(tmp + 8) = *(s64 *)(evPkt + 0x58);
+    *(s64 *)(tmp + 0x60) = uid;
+    func_00194590(tmp, 0);
+    cur58 = *(s64 *)(evPkt + 0x58);
+    scaleTmp = func_001991c0(*(u8 **)((u8 *)arg0 + 0x30), 8, 1.0f);
+    func_001b7060(aux, &outHi, &outLo);
+    tmp = func_001b7880(outHi, outLo, 0x10);
+    *(tmp + 0) = 4;
+    *(s64 *)(tmp + 8) = cur58;
+    *(s64 *)(tmp + 0x60) = uid;
+    func_00194590(tmp, 1);
+    tmpS = func_001b7080(aux);
+    func_001b70a0(aux, &outHi, &outLo);
+    tmp = func_001b83f0(tmpS, outHi, outLo, 0x10, 0);
+    *(tmp + 0) = 4;
+    *(s64 *)(tmp + 8) = cur58;
+    *(s64 *)(tmp + 0x60) = uid;
+    func_00194590(tmp, 1);
+    tmp = func_001b9560(func_001b7090(aux), 0x10);
+    *(tmp + 0) = 4;
+    *(s64 *)(tmp + 8) = cur58;
+    *(s64 *)(tmp + 0x60) = uid;
+    func_00194590(tmp, 1);
+    tmp = func_001b9de0((u8 *)arg0, aux, 0x10);
+    *(tmp + 0) = 4;
+    *(s64 *)(tmp + 8) = cur58;
+    *(s64 *)(tmp + 0x60) = uid;
+    func_00194590(tmp, 1);
+    func_001d69f0(aux, workBuf);
+    pktI_save = func_001d5eb0(handle, workBuf, 0);
+    *(pktI_save + 0) = 4;
+    *(s64 *)(pktI_save + 8) = 0;
+    *(s16 *)(pktI_save + 0x48) = (s16)(scaleTmp + 6);
+    *(s64 *)(pktI_save + 0x60) = uid;
+    func_00194590(pktI_save, 1);
+    holdJ = func_001f8000(aux, 0);
+    *(holdJ + 0) = 4;
+    *(s64 *)(holdJ + 8) = *(s64 *)(pktI_save + 0x58);
+    func_00194590(holdJ, 1);
+    {
+        u8 *pk;
+        pk = (u8 *)func_001d6240((u32)handle, (u32)*(u8 **)((u8 *)arg0 + 0x30), (u32)*(u8 **)((u8 *)arg0 + 0x30), 0, 0);
+        *(pk + 0) = 4;
+        *(s64 *)(pk + 8) = *(s64 *)(pktI_save + 0x58);
+        *(pk + 0x10) = 4;
+        *(s64 *)(pk + 0x18) = *(s64 *)(holdJ + 0x58);
+        func_00194590(pk, 2);
+        tmp = pk;
+    }
+    {
+        u8 *pk2;
+        pk2 = func_001f8140(0);
+        *(pk2 + 0) = 5;
+        *(s64 *)(pk2 + 8) = *(s64 *)(tmp + 0x58);
+        func_00194590(pk2, 1);
+    }
+    cur58 = *(s64 *)(pktI_save + 0x58);
+    {
+        u8 *pk3;
+        pk3 = func_00194b60();
+        *(pk3 + 0) = 4;
+        *(s64 *)(pk3 + 8) = cur58;
+        *(s16 *)(pk3 + 0x48) = 0x18;
+        *(s64 *)(pk3 + 0x60) = uid;
+        func_00194590(pk3, 1);
+        tmp = pk3;
+    }
+    tailPkt = func_001d65d0(*(s32 *)(iGpffffb3ac + 0xD40), *(s32 *)((u8 *)arg0 + 0x30), 0, *(s64 *)(tmp + 0x58), 0x100);
+    *(tailPkt + 0) = 4;
+    *(s64 *)(tailPkt + 8) = *(s64 *)(evPkt + 0x58);
+    *(s64 *)(tailPkt + 0x60) = uid;
+    func_00194590(tailPkt, 1);
+    tmp = (u8 *)func_001f7c20(10, 2, 7);
+    *(tmp + 0) = 4;
+    *(s64 *)(tmp + 8) = *(s64 *)(evPkt + 0x58);
+    func_00194590(tmp, 1);
+    firstDone = 0;
+    off = ((s32)auxRaw) * 4;
+    idx = 0;
+    goto loop_test;
+loop_body:
+    {
+        u16 curId;
+        u8 *loopPkt;
+        u8 *unit;
+        curId = *(u16 *)((u8 *)arg0 + (idx & 0xFFFF) * 2 + 0x76);
+        if (curId == 0) {
+            goto loop_end;
+        }
+        loopPkt = func_0019f5f0(1, (s64)curId, (u16 *)0);
+        unit = *(u8 **)(loopPkt + 0x30);
+        *(s32 *)(unit + 0xA64) = func_002317a0(*(u8 **)(iGpffffb3ac + 0xC68), curId);
+        func_0019ea60(unit, (s32)(curId & 0xFFFF));
+        *(s16 *)(unit + 0x94) = *(s16 *)(*(u8 **)((u8 *)arg0 + 0x30) + 0x94);
+        *(s16 *)(unit + 0x96) = *(s16 *)(*(u8 **)((u8 *)arg0 + 0x30) + 0x96);
+        *(f32 *)(unit + 4) = *(f32 *)(*(u8 **)((u8 *)arg0 + 0x30) + 4);
+        *(f32 *)(unit + 8) = *(f32 *)(*(u8 **)((u8 *)arg0 + 0x30) + 8);
+        *(f32 *)(unit + 12) = *(f32 *)(*(u8 **)((u8 *)arg0 + 0x30) + 12);
+        if (firstDone == 0) {
+            u8 *r1;
+            u8 *r2;
+            r1 = (u8 *)func_001d3900(0);
+            *(r1 + 0) = 4;
+            *(s64 *)(r1 + 8) = cur58;
+            *(s64 *)(r1 + 0x60) = uid;
+            func_00194590(r1, 0);
+            r2 = (u8 *)func_001d3700(1, 0xFFF);
+            *(r2 + 0) = 4;
+            *(s64 *)(r2 + 8) = cur58;
+            *(s64 *)(r2 + 0x60) = uid;
+            func_00194590(r2, 0);
+            if ((*(u16 *)((u32)iGpffffb3bc + 2U + (u32)off) & 0x40) == 0) {
+                u8 *r3;
+                u8 *r4;
+                r3 = func_001d7a10(5);
+                *(r3 + 0) = 4;
+                *(s64 *)(r3 + 8) = cur58;
+                *(s64 *)(r3 + 0x60) = uid;
+                func_00194590(r3, 0);
+                r4 = func_001bc920((u8 *)arg0, 0x2D);
+                *(r4 + 0) = 4;
+                *(s64 *)(r4 + 8) = cur58;
+                *(s64 *)(r4 + 0x60) = uid;
+                func_00194590(r4, 0);
+            }
+            firstDone = 1;
+        }
+        {
+            u8 *q1;
+            u8 *q2;
+            q1 = func_0019b550(unit, curId, 0x7E);
+            *(q1 + 0) = 4;
+            *(s64 *)(q1 + 8) = cur58;
+            *(s64 *)(q1 + 0x60) = uid;
+            func_00194590(q1, 1);
+            q2 = func_0019c030(unit, curId, 0x10);
+            *(q2 + 0) = 4;
+            *(s64 *)(q2 + 8) = *(s64 *)(q1 + 0x58);
+            func_00194590(q2, 1);
+            {
+                u8 *q3;
+                u8 *q4;
+                q3 = (u8 *)func_001d6240((u32)handle, (u32)*(u8 **)((u8 *)arg0 + 0x30), (u32)*(u8 **)(loopPkt + 0x30), 1, 0x100);
+                *(q3 + 0) = 4;
+                *(s64 *)(q3 + 8) = *(s64 *)(q2 + 0x58);
+                *(q3 + 0x10) = 4;
+                *(s64 *)(q3 + 0x18) = *(s64 *)(holdJ + 0x58);
+                *(s64 *)(q3 + 0x60) = uid;
+                func_00194590(q3, 2);
+                tailPkt = q3;
+                q4 = func_001f8140(1);
+                *(q4 + 0) = 5;
+                *(s64 *)(q4 + 8) = *(s64 *)(q3 + 0x58);
+                func_00194590(q4, 1);
+                if (((idx & 0xFFFF) == 0) && (*(u16 *)((u8 *)arg0 + 0x78) == 0)) {
+                    u8 *q5;
+                    q5 = func_00202400(*(s32 *)(loopPkt + 0x30), 0x9F);
+                    *(q5 + 0) = 5;
+                    *(s64 *)(q5 + 8) = *(s64 *)(q3 + 0x58);
+                    *(s16 *)(q5 + 0x48) = 0x1C;
+                    func_00194590(q5, 3);
+                }
+                {
+                    u8 *q6;
+                    q6 = func_0019bbe0(unit, (u32)-1, 0xC, 0, 3, 1);
+                    *(q6 + 0) = 4;
+                    *(s64 *)(q6 + 8) = *(s64 *)(q2 + 0x58);
+                    *(q6 + 0x10) = 0xB;
+                    *(s64 *)(q6 + 0x18) = *(s64 *)(q3 + 0x58);
+                    *(s16 *)(q6 + 0x48) = 1;
+                    *(s64 *)(q6 + 0x60) = uid;
+                    func_00194590(q6, 1);
+                    cur58 = *(s64 *)(q2 + 0x58);
+                }
+            }
+        }
+    }
+    idx = (idx + 1) & 0xFFFF;
+loop_test:
+    if ((idx & 0xFFFF) < 3) {
+        goto loop_body;
+    }
+loop_end:;
+    {
+        u8 *t1;
+        u8 *t2;
+        u8 *t3;
+        u8 *t4;
+        u8 *t5;
+        t1 = func_001f5f70((u8 *)arg0, 9, 0, 0, 0);
+        *(t1 + 0) = 0xB;
+        *(s64 *)(t1 + 8) = *(s64 *)(tailPkt + 0x58);
+        func_00194590(t1, 1);
+        t2 = func_001b7e20(0x10);
+        *(t2 + 0) = 4;
+        *(s64 *)(t2 + 8) = *(s64 *)(tailPkt + 0x58);
+        *(t2 + 0x47) &= (u8)~0x20;
+        *(s64 *)(t2 + 0x60) = uid;
+        func_00194590(t2, 1);
+        t3 = func_001b9360(0x10, 0);
+        *(t3 + 0) = 4;
+        *(s64 *)(t3 + 8) = *(s64 *)(tailPkt + 0x58);
+        *(t3 + 0x47) &= (u8)~0x20;
+        *(s64 *)(t3 + 0x60) = uid;
+        func_00194590(t3, 1);
+        t4 = func_001b99a0(0x10);
+        *(t4 + 0) = 4;
+        *(s64 *)(t4 + 8) = *(s64 *)(tailPkt + 0x58);
+        *(t4 + 0x47) &= (u8)~0x20;
+        *(s64 *)(t4 + 0x60) = uid;
+        func_00194590(t4, 1);
+        t5 = (u8 *)func_001ba090(8);
+        *(t5 + 0) = 4;
+        *(s64 *)(t5 + 8) = *(s64 *)(tailPkt + 0x58);
+        *(t5 + 0x47) &= (u8)~0x20;
+        *(s64 *)(t5 + 0x60) = uid;
+        func_00194590(t5, 0);
+    }
+    func_001d3e00(handle);
+    if (func_001f68e0((u8 *)arg0) != 0) {
+        func_001b0800((u8 *)arg0, 0x1B);
+        return;
+    }
+    tailId = *(u16 *)((u8 *)arg0 + 0x6C);
+    if ((tailId != 2) && (tailId != 3) && (tailId != 1)) {
+    }
+    func_001b0800((u8 *)arg0, 0x20);
+}
+#pragma pop
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001abbb0);
+#endif
 // FUN_001AC500
 void func_001ac500(s64 *arg0) {
     u8 *temp_2;

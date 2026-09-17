@@ -253,6 +253,18 @@ function's argument *order* can be wrong too. `func_00364320` is
 `(Vec2f, f32 z, s32 colour, s32 num)`; the `0012d630` draft passed colour and
 num swapped, which the register diff exposed as `lbu $a1` versus `lbu $a2`.
 
+Parameter width also steers *argument setup order*, not just promotion masks.
+`func_0013bcf0` (`src/promoted/code1_0013.c`) sat at 2 differing words over
+2224 emitted instructions: at the `func_0013c700` call retail emits the
+`daddu $a0, $v0` move before the `lh $a1, 0x34($v1)` load, and the draft
+emitted the load first. Declaring that callee's second parameter `s16`
+instead of `s32` flipped the order and closed the function. The callee's own
+body is `INCLUDE_ASM`, so only the declaration moved. K&R form
+(`extern s32 func_0013c700();`), `u32` first parameter, `s32` third parameter
+and an `s16` return were all measured and all left the swap in place, so try
+the width of the *loaded* argument first when a call's setup pair is
+transposed.
+
 ### 7d. Measuring a guarded floor
 
 A floor behind `#ifdef NON_MATCHING`/`#ifdef SKIP_ASM` compiles its
