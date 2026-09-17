@@ -88,24 +88,105 @@ s32 func_0015f9b0(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3)
     }
     return 1;
 }
-/* measured: retail loads the u32 field at entry+4 through an unaligned
-   lwr $6,0x4($17)/lwl $6,0x7($17) pair at BOTH func_00145d60/func_00145e90
-   call sites (2 pairs, 4 words); mwcc b210 emits plain `lw` for every
-   construct tried at a 4-aligned displacement: byte- and halfword-
-   pointer cast derefs, packed structs (#pragma pack 1/2, #pragma
-   options align=packed, __attribute__((packed))) with the field at
-   packed offset 4, local vs
-   parameter bases, and (u32) of a u64 load — b210 emits lwl/lwr ONLY at
-   displacements %4 != 0 (packed offset 2) while retail 2.4.1 tracks the
-   byte-derived base alignment. Everything else in this function matched
-   exactly (registers s3/s2/s1/s0/s4 via decl order, if/else-if switch
-   chain, all 8 loops, sltu conditions); the u32-arg load is also emitted
-   before the lwc1 args where retail places lwr/lwl after them, and the 2
-   missing pairs cascade the branch targets, nd 189. Unaligned-load
-   codegen-version floor, same family as the ldr/ldl notes in
-   y_fclCombineDraw.c/shdPersona.c. */
-// FUN_0015FB00
+/* measured: retail loads the u32 field at entry+4 through an unaligned */
+/*   lwr $6,0x4($17)/lwl $6,0x7($17) pair at BOTH func_00145d60/func_00145e90 */
+/*   call sites (2 pairs, 4 words); prior passes found b210 emits plain `lw` */
+/*   for every construct tried at a 4-aligned displacement while retail 2.4.1 */
+/*   tracks the byte-derived base alignment (same family as the ldr/ldl notes */
+/*   in y_fclCombineDraw.c/shdPersona.c). */
+/* 2026-09-17 reconstruction (guarded v6, cold start from the m2c draft): nd 108 at */
+/*   263/263 instrs exact size, so the old nd-189 cascade reading is superseded. */
+/*   `*(u32 *)(r + 7)` emits lwr alone (lwl companion still open); */
+/*   `*(u32 *)(r + 4)` is plain lw. Grouped pointer/counter lives (r13/c1, */
+/*   r2/c2/c3 with boundary copies, matching retail's two daddu copies) moved */
+/*   190 to 108 with branch displacements exact; declaration order is inert */
+/*   (112/112). Remaining is a stable 4-home color cycle (retail arg0:s3 */
+/*   arg1:s2 r:s1 ctr:s0 vs object s1/s4/s0/s3). Production stays ASM. */
+// FUN_0015FB00 NONMATCHING
+#ifdef NON_MATCHING
+void func_0015fb00(u8 *arg0, s32 arg1)
+{
+    extern s32 func_00145d60(u16 arg0, f32 *arg1, s32 arg2, f32 fparg0, f32 fparg1, f32 fparg2);
+    extern s32 func_00145e90(u16 arg0, f32 *arg1, s32 arg2, f32 fparg0, f32 fparg1, f32 fparg2);
+    extern s32 func_00145fc0(u16 arg0, f32 *arg1, f32 fparg0);
+    extern s32 func_00146080(u16 arg0, f32 *arg1, f32 fparg0);
+    extern s32 func_00146140(u16 arg0, f32 *arg1, f32 fparg0);
+    extern s32 func_00146200(u16 arg0, f32 *arg1, f32 fparg0);
+    extern s32 func_001462c0(u16 arg0, f32 *arg1, f32 fparg0);
+    extern s32 func_00146380(u16 arg0, f32 *arg1, f32 fparg0);
+    extern u8 *func_00145270(s32 arg0);
+    extern s32 func_0014a200(void);
+    extern s32 func_0014a270(void);
+    u8 *r13;
+    u32 c1;
+    u8 *r2;
+    u32 c2;
+    u32 c3;
+
+    if (arg0 != NULL) {
+        if (*(u32 *)(arg0 + 4) == 0x10000) {
+            r13 = arg0 + 0x28;
+        } else if (*(u32 *)(arg0 + 4) == 0x10001) {
+            r13 = arg0 + 0x30;
+        } else if (*(u32 *)(arg0 + 4) == 0x10002) {
+            r13 = arg0 + 0x38;
+        } else {
+            r13 = arg0 + 0x48;
+        }
+        for (c1 = 0; c1 < *(u32 *)(arg0 + 8); c1++) {
+            if ((((func_0014a200() == 0) && (func_0014a270() == 0)) || (arg1 == 1)) && ((arg1 != 1) || (((*(u16 *)r13 & 0x3FF) != 0x3FE) && ((*(u16 *)r13 & 0x3FF) != 0x3FF)))) {
+                func_00145d60(*(u16 *)r13 & 0x3FF, (f32 *)(r13 + 8), *(u32 *)(r13 + 7), *(f32 *)(r13 + 0x14), *(f32 *)(r13 + 0x18), *(f32 *)(r13 + 0x1C));
+            }
+            r13 += 0x20;
+        }
+        r2 = r13;
+        for (c2 = 0; c2 < *(u32 *)(arg0 + 0x10); c2++) {
+            if ((((func_0014a200() == 0) && (func_0014a270() == 0)) || (arg1 == 1)) && ((arg1 != 1) || ((*(u16 *)r2 & 0x3FF) != 0x3FF))) {
+                func_00145fc0(*(u16 *)r2 & 0x3FF, (f32 *)(r2 + 4), *(f32 *)(r2 + 0x10));
+            }
+            r2 += 0x14;
+        }
+        if (((func_0014a200() == 0) && (func_0014a270() == 0)) || (((func_0014a270() == 1) && (arg1 == 1)))) {
+            for (c2 = 0; c2 < *(u32 *)(arg0 + 0x18); c2++) {
+                func_00146080(*(u16 *)r2 & 0x3FF, (f32 *)(r2 + 4), *(f32 *)(r2 + 0x10));
+                r2 += 0x14;
+            }
+        }
+        if (((func_0014a200() == 0) && (func_0014a270() == 0)) || (arg1 == 1)) {
+            for (c3 = 0; c3 < *(u32 *)(arg0 + 0x20); c3++) {
+                func_00146140(*(u16 *)r2 & 0x3FF, (f32 *)(r2 + 4), *(f32 *)(r2 + 0x10));
+                r2 += 0x14;
+            }
+            if (*(u32 *)(arg0 + 4) >= 0x10001U) {
+                for (c3 = 0; c3 < *(u32 *)(arg0 + 0x28); c3++) {
+                    func_00146200(*(u16 *)r2 & 0x3FF, (f32 *)(r2 + 4), *(f32 *)(r2 + 0x10));
+                    r2 += 0x14;
+                }
+            }
+            if (*(u32 *)(arg0 + 4) >= 0x10002U) {
+                r13 = r2;
+                for (c1 = 0; c1 < *(u32 *)(arg0 + 0x30); c1++) {
+                    func_00145e90(*(u16 *)r13 & 0x3FF, (f32 *)(r13 + 8), *(u32 *)(r13 + 7), *(f32 *)(r13 + 0x14), *(f32 *)(r13 + 0x18), *(f32 *)(r13 + 0x1C));
+                    *(s32 *)(func_00145270(((*(u16 *)r13 & 0x3FF) | 0x5400) & 0xFFFF) + 0x18C) = *(u16 *)(r13 + 2);
+                    r13 += 0x20;
+                }
+            }
+            if (*(u32 *)(arg0 + 4) >= 0x10003U) {
+                for (c1 = 0; c1 < *(u32 *)(arg0 + 0x38); c1++) {
+                    func_001462c0(*(u16 *)r13 & 0x3FF, (f32 *)(r13 + 4), *(f32 *)(r13 + 0x10));
+                    r13 += 0x14;
+                }
+                for (c1 = 0; c1 < *(u32 *)(arg0 + 0x40); c1++) {
+                    func_00146380(*(u16 *)r13 & 0x3FF, (f32 *)(r13 + 4), *(f32 *)(r13 + 0x10));
+                    r13 += 0x14;
+                }
+            }
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/k_fldHBN", func_0015fb00);
+#endif
 // FUN_0015FF20
 u8 *func_0015ff20(u16 arg0, s32 arg1)
 {

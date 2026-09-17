@@ -50,6 +50,15 @@ extern s32 D_00713F24[];
 extern u32 D_00713F14[];
 extern u32 D_00713F10[];
 extern void func_0049a6c0(void *arg0);
+extern u8 *func_003c2290(u8 *arg0, s32 arg1);
+extern void func_003c22f0(void *arg0);
+extern f32 func_0044b610(f32 arg0);
+extern f32 func_0044b7b0(f32 arg0);
+extern f32 fGpffff80d0;
+extern f32 fabsf(f32 x);
+extern f32 D_00713D10[];
+extern f32 D_00713D14[];
+extern f32 D_00713D18[];
 
 
 
@@ -111,8 +120,171 @@ void func_00498ec0(void **arg0)
    Tried var_16 declared first/last/mid, pointer pair swapped - the pair never
    leaves $s0/$s1. Same recorded allocator-pool floor family as
    effPolygonFlash FUN_0049D360/0049E150 (5 declaration orders tried there). */
-// FUN_00498F10
+// FUN_00498F10 NONMATCHING
+/* measured: banked reconstruction v1 (split VU0 blocks per thunder
+   func_00495f80 idiom, FMA/doubling per in-file note). Score below. */
+#ifdef NON_MATCHING
+void func_00498f10(u8 *arg0)
+{
+    u_long128 pair;
+    u_long128 slot80;
+    u_long128 slot70;
+    u_long128 slot60;
+    f32 var_f5;
+    f32 temp_f0;
+    f32 temp_f4;
+    f32 temp_f3;
+    f32 var_f1;
+    f32 temp_f22;
+    f32 var_f21;
+    f32 temp_f20;
+    f32 sum0;
+    f32 sum1;
+    f32 sum2;
+    s32 temp_3;
+    s32 temp_4;
+    s16 temp_2;
+    s32 temp_2_2;
+    s32 q;
+    s32 var_16;
+    u32 var_18;
+    u8 *temp_16;
+    u8 *temp_17;
+    u8 *temp_18;
+    u8 *var_19;
+
+    temp_17 = *(u8 **)(*(u8 **)(arg0 + 0x3C));
+    temp_18 = *(u8 **)(arg0 + 0x40);
+    temp_4 = *(s32 *)(arg0 + 0x34);
+    temp_3 = *(s32 *)(temp_18 + 0x34);
+    if ((temp_3 >= temp_4) || (temp_3 == 0)) {
+        if (*(u8 *)(temp_18 + 0x68) != 0) {
+            var_f5 = (f32)(temp_3 - temp_4);
+        } else {
+            var_f5 = (f32)temp_4;
+        }
+        temp_f3 = fabsf(*(f32 *)(temp_18 + 0x60));
+        temp_f4 = *(f32 *)(temp_18 + 0x64);
+        if (temp_f4 < 0.0f) {
+            temp_f0 = 0.5f * (-temp_f3 / (0.5f * temp_f4));
+            if (!(var_f5 <= temp_f0)) {
+                var_f5 = temp_f0;
+            }
+        }
+        sum2 = temp_f4 * var_f5;
+        temp_f0 = 0.5f * sum2 + temp_f3;
+        temp_f22 = var_f5 * temp_f0;
+        temp_f22 += *(f32 *)(temp_18 + 0x40);
+        temp_2 = *(s16 *)(temp_17 + 8);
+        var_16 = temp_2 >> 2;
+        if (temp_2 < 0) {
+            var_16 = (temp_2 + 3) >> 2;
+        }
+        func_003c2290(*(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18), 2);
+        var_19 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18) + 0x5C) + 0x14);
+        var_f21 = 0.0f;
+        temp_2_2 = *(s32 *)(temp_18 + 0x38);
+        if (temp_2_2 >= 0) {
+            var_f1 = (f32)temp_2_2;
+        } else {
+            q = (u32)temp_2_2 >> 1;
+            q |= temp_2_2 & 1;
+            var_f1 = (f32)q + (f32)q;
+        }
+        temp_f20 = fGpffff80d0 / var_f1;
+        ((s32 *)&pair)[1] = 0;
+        ((s32 *)&pair)[3] = 0x3F800000;
+        sum0 = *(f32 *)(temp_18 + 0x50) + temp_f22;
+        sum1 = sum0 + *(f32 *)(temp_18 + 0x54);
+        sum2 = sum1 + *(f32 *)(temp_18 + 0x58);
+        __asm__ volatile(
+            "lqc2 $vf10, 0(%0) \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            "mfc1 $2, %1 \n"
+            "nop \n"
+            "qmtc2.ni $2, $vf2 \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            :
+            : "r"(D_00713CE0), "f"(sum0)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&slot80) : "memory");
+        __asm__ volatile(
+            "vmove.xyzw $vf10, $vf11 \n"
+            "mfc1 $2, %0 \n"
+            "nop \n"
+            "qmtc2.ni $2, $vf2 \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "mfc1 $2, %1 \n"
+            "nop \n"
+            "qmtc2.ni $2, $vf2 \n"
+            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
+            :
+            : "f"(sum1), "f"(sum2)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&slot70) : "memory");
+        __asm__ volatile("sqc2 $vf11, 0(%0)" : : "r"(&slot60) : "memory");
+        var_18 = 0;
+        while (var_18 < (u32)var_16) {
+            ((f32 *)&pair)[0] = func_0044b610(var_f21);
+            ((f32 *)&pair)[2] = func_0044b7b0(var_f21);
+            __asm__ volatile(
+                "lqc2 $vf10, 0(%0) \n"
+                "vmove.xyzw $vf11, $vf10 \n"
+                "mfc1 $2, %1 \n"
+                "nop \n"
+                "qmtc2.ni $2, $vf2 \n"
+                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                :
+                : "r"(&pair), "f"(temp_f22)
+                : "$2", "$vf2", "$vf10", "$vf11", "memory");
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(D_00713D10) : "memory");
+            *(f32 *)(var_19 + 0) = D_00713D10[0];
+            *(f32 *)(var_19 + 4) = D_00713D14[0];
+            *(f32 *)(var_19 + 8) = D_00713D18[0];
+            __asm__ volatile(
+                "lqc2 $vf10, 0(%0) \n"
+                "vmul.xyzw $vf10, $vf10, $vf11 \n"
+                :
+                : "r"(&slot80)
+                : "$vf10", "$vf11", "memory");
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(D_00713D10) : "memory");
+            *(f32 *)(var_19 + 0xC) = D_00713D10[0];
+            *(f32 *)(var_19 + 0x10) = D_00713D14[0];
+            *(f32 *)(var_19 + 0x14) = D_00713D18[0];
+            __asm__ volatile(
+                "lqc2 $vf10, 0(%0) \n"
+                "vmul.xyzw $vf10, $vf10, $vf11 \n"
+                :
+                : "r"(&slot70)
+                : "$vf10", "$vf11", "memory");
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(D_00713D10) : "memory");
+            *(f32 *)(var_19 + 0x18) = D_00713D10[0];
+            *(f32 *)(var_19 + 0x1C) = D_00713D14[0];
+            *(f32 *)(var_19 + 0x20) = D_00713D18[0];
+            __asm__ volatile(
+                "lqc2 $vf10, 0(%0) \n"
+                "vmul.xyzw $vf10, $vf10, $vf11 \n"
+                :
+                : "r"(&slot60)
+                : "$vf10", "$vf11", "memory");
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(D_00713D10) : "memory");
+            *(f32 *)(var_19 + 0x24) = D_00713D10[0];
+            *(f32 *)(var_19 + 0x28) = D_00713D14[0];
+            *(f32 *)(var_19 + 0x2C) = D_00713D18[0];
+            var_f21 += temp_f20;
+            var_18 += 1;
+            var_19 += 0x30;
+        }
+        temp_16 = *(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18);
+        func_003c22f0(temp_16);
+        if (*(u16 *)temp_17 & 4) {
+            *(u16 *)(temp_16 + 0xC) = *(u16 *)(temp_16 + 0xC) | 1;
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_00498f10);
+#endif
 
 /* Ported from P3FES mdlEffect.c FUN_00338360 (twin of func_0049a1a0).
    The VU0 colour-modulate block is genuine hardware asm (Category B) ported
