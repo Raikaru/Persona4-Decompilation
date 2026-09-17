@@ -113,7 +113,39 @@ extern void func_004544b0(void);
 extern void func_004559b0(void);
 extern s32 func_00457120(void);
 extern u8 D_005DD680[];
-extern f32 D_008872F8;
+/* RenderWare keeps its engine instance in the `ourGlobals` array
+   (retail 0x008872E0) and reaches device state through
+   RWSRCGLOBAL(dOpenDevice): the near Z is at +0x18, the render-state and
+   Im2D entry points from +0x20.  The prefix of RwGlobals/RwDevice from
+   rwplcore.h is what makes a member access address it absolutely with the
+   %lo folded into the load, which is retail's loop shape. */
+typedef struct {
+    f32 gammaCorrection;
+    void *fpSystem;
+    f32 zBufferNear;
+    f32 zBufferFar;
+    void *fpRenderStateSet;
+    void *fpRenderStateGet;
+    void *fpIm2DRenderLine;
+    void *fpIm2DRenderTriangle;
+    void *fpIm2DRenderPrimitive;
+    void *fpIm2DRenderIndexedPrimitive;
+} RwDeviceHead_0010;
+typedef struct {
+    void *curCamera;
+    void *curWorld;
+    u16 renderFrame;
+    u16 lightFrame;
+    u16 pad[2];
+    RwDeviceHead_0010 dOpenDevice;
+} RwGlobalsHead_0010;
+extern u32 ourGlobals[];
+#define RwIm2DGetNearScreenZ() \
+    (((RwGlobalsHead_0010 *)ourGlobals)->dOpenDevice.zBufferNear)
+typedef struct {
+    f32 x;
+    f32 y;
+} Float2_0010;
 extern u8 D_00796460[];
 extern u8 *func_00460b60(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
@@ -913,8 +945,183 @@ void func_00103c40(u8 *slot)
         break;
     }
 }
+/* Matched.  Three shapes carried it past the draft: the four colour bytes
+   are u32 locals, so `(f32)r` is the bltz/srl/or/cvt/add.s unsigned
+   conversion with the mtc1 and `& 1` hoisted; the loop index and quad
+   pointer live in a block scope inside each half, which is what puts the
+   hoisted lui in $v0 and the counter in $t1 (function-scope counters take
+   $v0 first and rotate every temporary); and the position pair is an
+   f32[2] filled by an 8-byte struct copy, which stops MWCC folding
+   `256.0f + x` and the y reload across the two halves into $f21/$f20.  The
+   y coordinate is read into its own local before the add so the load
+   precedes the constant.  RwIm2DGetNearScreenZ() is the retail near-Z read
+   in the loop; an array element there hoists the whole load. */
 // FUN_00103F00
-INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00103f00);
+void func_00103f00(u8 *arg0)
+{
+    s32 table[6];
+    f32 pos[2];
+    f32 depth;
+    f32 inverse;
+    f32 half_w;
+    f32 half_h;
+    f32 left;
+    f32 top;
+    f32 right;
+    f32 bottom;
+    f32 x0;
+    f32 y0;
+    f32 fx;
+    f32 fy;
+    f32 offset;
+    u32 r;
+    u32 g;
+    u32 b;
+    u32 a;
+    s32 *src;
+    s32 *dst;
+    s32 lo;
+    s32 hi;
+    s32 n;
+    s32 count;
+    s32 index;
+
+    func_00457120();
+    a = arg0[0x1F];
+    if (a != 0) {
+        depth = *(f32 *)(arg0 + 0x20);
+        b = arg0[0x1E];
+        g = arg0[0x1D];
+        r = arg0[0x1C];
+        inverse = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+        {
+            s32 i;
+            u8 *quad;
+
+            for (i = 0; i < 4; i++) {
+                quad = arg0 + (i << 6);
+                *(f32 *)(quad + 0x180) = (f32)r;
+                *(f32 *)(quad + 0x184) = (f32)g;
+                *(f32 *)(quad + 0x188) = (f32)b;
+                *(f32 *)(quad + 0x18C) = (f32)a;
+                *(f32 *)(quad + 0x168) = RwIm2DGetNearScreenZ() - depth;
+                *(f32 *)(quad + 0x178) = inverse;
+            }
+        }
+        *(Float2_0010 *)pos = *(Float2_0010 *)(arg0 + 0xC);
+        half_w = (512.0f * *(f32 *)(arg0 + 0x28)) / 2.0f;
+        half_h = (256.0f * *(f32 *)(arg0 + 0x2C)) / 2.0f;
+        fx = pos[0];
+        x0 = 256.0f + fx;
+        left = x0 - half_w;
+        *(f32 *)(arg0 + 0x160) = left;
+        fy = pos[1];
+        y0 = 128.0f + fy;
+        top = y0 - half_h;
+        *(f32 *)(arg0 + 0x164) = top;
+        right = (x0 + half_w) - 1.0f;
+        *(f32 *)(arg0 + 0x1A0) = right;
+        *(f32 *)(arg0 + 0x1A4) = top;
+        *(f32 *)(arg0 + 0x1E0) = left;
+        bottom = (y0 + half_h) - 1.0f;
+        *(f32 *)(arg0 + 0x1E4) = bottom;
+        *(f32 *)(arg0 + 0x220) = right;
+        *(f32 *)(arg0 + 0x224) = bottom;
+        func_00457120();
+        *(s32 *)(arg0 + 0x170) = 0;
+        *(s32 *)(arg0 + 0x174) = 0;
+        *(s32 *)(arg0 + 0x1B0) = 0x3F800000;
+        *(s32 *)(arg0 + 0x1B4) = 0;
+        *(s32 *)(arg0 + 0x1F0) = 0;
+        *(s32 *)(arg0 + 0x1F4) = 0x3F800000;
+        *(s32 *)(arg0 + 0x230) = 0x3F800000;
+        *(s32 *)(arg0 + 0x234) = 0x3F800000;
+        func_00460b60(D_00796460, 1, **(s32 **)(arg0 + 0x14));
+        func_00461390(D_00796460, 4, arg0 + 0x160, 4);
+        if (*(s32 *)(arg0 + 0x4C) >= 2) {
+            a = arg0[0x1F];
+            if (a == 0xFF && *(s32 *)(arg0 + 0x50) != 0) {
+                if (*(s32 *)(arg0 + 0x54) != 0) {
+                    depth = *(f32 *)(arg0 + 0x20);
+                    b = arg0[0x1E];
+                    g = arg0[0x1D];
+                    r = arg0[0x1C];
+                    inverse = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+                    {
+                        s32 i;
+                        u8 *quad;
+
+                        for (i = 0; i < 4; i++) {
+                            quad = arg0 + (i << 6);
+                            *(f32 *)(quad + 0x280) = (f32)r;
+                            *(f32 *)(quad + 0x284) = (f32)g;
+                            *(f32 *)(quad + 0x288) = (f32)b;
+                            *(f32 *)(quad + 0x28C) = (f32)a;
+                            *(f32 *)(quad + 0x268) = RwIm2DGetNearScreenZ() - depth;
+                            *(f32 *)(quad + 0x278) = inverse;
+                        }
+                    }
+                    offset = (f32)*(s32 *)(arg0 + 0x360);
+                    half_w = (512.0f * *(f32 *)(arg0 + 0x28)) / 2.0f;
+                    half_h = (64.0f * *(f32 *)(arg0 + 0x2C)) / 2.0f;
+                    fx = pos[0];
+                    x0 = 256.0f + fx;
+                    left = x0 - half_w;
+                    *(f32 *)(arg0 + 0x260) = left;
+                    fy = pos[1];
+                    y0 = 32.0f + fy;
+                    top = offset + (y0 - half_h);
+                    *(f32 *)(arg0 + 0x264) = top;
+                    right = (x0 + half_w) - 1.0f;
+                    *(f32 *)(arg0 + 0x2A0) = right;
+                    *(f32 *)(arg0 + 0x2A4) = top;
+                    *(f32 *)(arg0 + 0x2E0) = left;
+                    bottom = (offset + (y0 + half_h)) - 1.0f;
+                    *(f32 *)(arg0 + 0x2E4) = bottom;
+                    *(f32 *)(arg0 + 0x320) = right;
+                    *(f32 *)(arg0 + 0x324) = bottom;
+                    func_00457120();
+                    *(s32 *)(arg0 + 0x270) = 0;
+                    *(s32 *)(arg0 + 0x274) = 0;
+                    *(s32 *)(arg0 + 0x2B0) = 0x3F800000;
+                    *(s32 *)(arg0 + 0x2B4) = 0;
+                    *(s32 *)(arg0 + 0x2F0) = 0;
+                    *(s32 *)(arg0 + 0x2F4) = 0x3F800000;
+                    *(s32 *)(arg0 + 0x330) = 0x3F800000;
+                    *(s32 *)(arg0 + 0x334) = 0x3F800000;
+                    func_00460b60(D_00796460, 1, **(s32 **)(arg0 + 0x18));
+                    func_00461390(D_00796460, 4, arg0 + 0x260, 4);
+                }
+                src = (s32 *)D_005DD680;
+                dst = table;
+                n = 3;
+                do {
+                    lo = src[0];
+                    hi = src[1];
+                    src += 2;
+                    n--;
+                    dst[0] = lo;
+                    dst[1] = hi;
+                    dst += 2;
+                } while (n > 0);
+                count = *(s32 *)(arg0 + 0x58) - 1;
+                *(s32 *)(arg0 + 0x58) = count;
+                if (count <= 0) {
+                    if (*(s32 *)(arg0 + 0x54) != 0) {
+                        *(s32 *)(arg0 + 0x54) = 0;
+                    } else {
+                        *(s32 *)(arg0 + 0x54) = 1;
+                    }
+                    index = *(s32 *)(arg0 + 0x5C) + 1;
+                    *(s32 *)(arg0 + 0x5C) = index;
+                    index = index % 6;
+                    *(s32 *)(arg0 + 0x5C) = index;
+                    *(s32 *)(arg0 + 0x58) = table[index];
+                }
+            }
+        }
+    }
+}
 // FUN_001044D0
 void func_001044d0(s64 arg0) {
     *(s16 *)(D_00796700 + ((s16)arg0 * 0x370)) = 5;

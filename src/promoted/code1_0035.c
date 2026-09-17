@@ -2132,5 +2132,273 @@ loop_test:
     func_0035fd60(arg0);
     return var_16;
 }
-// FUN_0035FD60
+/* Floor: 5056 differing bytes (~1264 words), 6816B emitted against a 7184B window (1704/1793 instructions, -89), frame exact 0x1A0, 591 fnalign edits (was 989 at 1386 instrs). NOT the menu state machine family: `void func_0035fd60(u8 *)` with a single `jr $ra` and no `$v0` result (void, not `s32 (u32 *, s32 *, u8 *)` with a shared `return 0` / fade `return 2`); frame 0x1A0 saving $s16-$s20/$f20-$f26, not `u8 buf[0x30]` with a `+0x24` query read; `lbu $3,0x0($18)` feeds `cvt.s.w`/`div.s` (`*arg0/255.0f` alpha scale), not a `switch (*arg0)` dispatch (no jump table); phases gated on `*(s32 *)(arg0+0x1C)` bits 1/2/4 (with &8 nested inside &4), 14 callees, 0xB/3/6 loops, no `func_00453670/004538e0/00453960` query. Levers that landed, prologue-down via fnalign --candidate: cached scale ($f22 exact) with inlined float recompute fixing the skeleton (arg0 $s2, spills 0x190/0x194); direct `(u8)float` overflow branches (`c.le.s`/`cvt.w.s` sub-paths) at all 21 float->u8 sites closing count 1386->1704 (-407->-89); 34f2e0 canonical (ptr,x,y,r,g,b,a) at 24 sites; 34f9d0 (s64,0.0f,alpha,s16,handle) union-packed with 34c270 (s64,s8,flag,0.0f); 274ed0 (x,y,0.0f,color,7,1,buf,2,0); 2bc7a0 `(f32)(s32)` + 0.0f; 45d6e0 0.0f; 275980 `D_0064D448[idx]`; globals u8 arrays, `D_00887300` array, GP `fGpffff8170`/`fGpffff8554` (relocs masked); all offsets/bounds/constants, 0x122 alpha saved across shadow.
+   WALL: register color (base $f24/$f23 vs $f21/$f20, one float save short of $f26; declaration order), unsigned-branch staging/FPU choice with s64 packing, and `andi $s1` masking/re-read scheduling. */
+// FUN_0035FD60 NONMATCHING
+#ifdef NON_MATCHING
+void func_0035fd60(u8 *arg0) {
+    extern void func_0034f1e0(void);
+    extern void func_0034c270(s64 pos, s8 alpha, s32 flag, f32 zero);
+    extern void func_0034f2e0(void *ptr, f32 x, f32 y, u8 r, u8 g, u8 b, u32 a);
+    extern void func_0034f9d0(s64 pos, f32 z, u32 alpha, s32 arg2, s32 arg3);
+    extern void func_00275980(void *src, void *dst, s32 n);
+    extern void func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s32 a, s32 b, void *buf, s32 c, s32 d);
+    extern void func_002bc7a0(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, f32 f0, f32 f1, f32 f2);
+    extern void func_00361d20(s32 idx, u8 *ctx);
+    extern void func_003f6440(s32 cmd, s32 val);
+    extern void func_0045c870(u8 *color, s32 flag);
+    extern void func_0045d6e0(u8 *color, u8 *rect, s32 flag, f32 zero);
+    extern void func_00489f80(void);
+    extern void func_0048a000(void);
+    extern u8 D_0064B2E8[];
+    extern u8 D_0064B2EC[];
+    extern u8 D_0064B300[];
+    extern u8 D_0064B2E0[];
+    extern void *D_0064D448[];
+    extern s32 (*D_00887300[])(s32, s32);
+    extern f32 fGpffff8170;
+    extern f32 fGpffff8554;
+    typedef union {
+        f32 f[2];
+        s64 s;
+    } PosBits;
+    u8 col[4];
+    f32 posX;
+    f32 posY;
+    u8 textbuf[0x100];
+    struct {
+        f32 x;
+        f32 y;
+        s32 w;
+        s32 h;
+    } rect;
+    PosBits pos;
+    f32 baseX;
+    f32 baseY;
+    f32 scale;
+    f32 fx;
+    f32 fy;
+    f32 f26;
+    f32 f25;
+    s32 flag;
+    s32 alpha;
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 color;
+    s32 v0;
+    s32 v1;
+    u8 *row;
+    u8 a0;
+    u8 alpha122;
+    func_0034f1e0();
+    baseX = *(f32 *)(arg0 + 4);
+    baseY = *(f32 *)(arg0 + 8);
+    scale = (f32)*(u8 *)arg0 / 255.0f;
+    flag = *(s32 *)(arg0 + 0x10);
+    if (flag != 0) {
+        pos.f[0] = baseX;
+        pos.f[1] = baseY;
+        alpha = (u8)(255.0f * scale);
+        func_0034c270(pos.s, (s8)alpha, flag, 0.0f);
+    }
+    if (*(s32 *)(arg0 + 0x1C) & 1) {
+        posX = baseX + *(f32 *)(arg0 + 0x178) + 90.0f;
+        posY = baseY + *(f32 *)(arg0 + 0x17C) + 91.0f;
+        alpha = (u8)((f32)*(u8 *)(arg0 + 0x182) * scale);
+        func_0034f2e0(*(void **)(arg0 + 0x6FC), posX, posY, 0xFF, 0xFF, 0xFF, alpha);
+    }
+    if (*(s32 *)(arg0 + 0x1C) & 2) {
+        f26 = 23.0f + (595.0f + (baseX + *(f32 *)(arg0 + 0x148)));
+        f25 = 280.0f + (baseY + *(f32 *)(arg0 + 0x14C));
+        alpha = (u8)((f32)*(u8 *)(arg0 + 0x152) * scale);
+
+        for (i = 0; i < 0xB; i++) {
+            posX = f26 - (f32)(i * 0x2D);
+            row = arg0 + i * 0xA;
+            for (j = 0; j < *(s16 *)(row + 0x5EA); j++) {
+                if (j == *(s16 *)(row + 0x5EA) - 1) {
+                    col[0] = 0xFF;
+                    col[1] = 0xFF;
+                    col[2] = 0xA4;
+                    col[3] = (u8)(fGpffff8170 * (f32)alpha);
+                } else if (j < *(s16 *)(row + 0x5EE)) {
+                    col[0] = 0xFE;
+                    col[1] = 0xFF;
+                    col[2] = 0x56;
+                    col[3] = (u8)(0.5f * (f32)alpha);
+                } else {
+                    continue;
+                }
+                fy = f25 - (f32)(j * 0x11);
+                func_0034f2e0(*(void **)(arg0 + 0x678), posX, fy, col[0], col[1], col[2], col[3]);
+            }
+        }
+        for (i = 0; i < 3; i++) {
+            k = i * 0x30;
+            row = arg0 + k;
+            posX = 144.0f + (baseX + *(f32 *)(row + 0x58));
+            posY = 136.0f + (baseY + *(f32 *)(row + 0x5C) + (f32)k);
+            a0 = (u8)((f32)*(u8 *)(row + 0x62) * scale);
+            func_0034f2e0(*(void **)(arg0 + i * 8 + 0x65C), posX, posY, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], a0);
+        }
+        fx = *(f32 *)(arg0 + 0x40);
+        fy = *(f32 *)(arg0 + 0x44);
+        *(f32 *)(arg0 + 0x40) = fx + (((303.0f + baseX) - fx) * 0.5f);
+        *(f32 *)(arg0 + 0x44) = fy + (((133.0f + baseY + (f32)(*(s16 *)(arg0 + 0x28) * 0x30)) - fy) * 0.5f);
+        posX = *(f32 *)(arg0 + 0x118) + *(f32 *)(arg0 + 0x40);
+        posY = *(f32 *)(arg0 + 0x11C) + *(f32 *)(arg0 + 0x44);
+        a0 = (u8)((f32)*(u8 *)(arg0 + 0x122) * scale);
+        alpha122 = a0;
+        func_0034f2e0(*(void **)(arg0 + 0x658), posX, posY, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], a0);
+        func_00489f80();
+        D_00887300[0](1, 0);
+        col[0] = D_0064B2E8[0];
+        col[1] = D_0064B2E8[1];
+        col[2] = D_0064B2E8[2];
+        col[3] = 0;
+        func_0045c870(col, 0);
+        func_0034f2e0(*(void **)(arg0 + 0x658), posX, posY, col[0], col[1], col[2], 0xFF);
+        func_0048a000();
+        func_003f6440(3, 0x2D801);
+        func_003f6440(2, 0x44);
+        for (i = 0; i < 3; i++) {
+            k = i * 0x30;
+            row = arg0 + k;
+            posX = 144.0f + (baseX + *(f32 *)(row + 0x58));
+            posY = 136.0f + (baseY + *(f32 *)(row + 0x5C) + (f32)k);
+            a0 = (u8)((f32)*(u8 *)(row + 0x62) * scale);
+            func_0034f2e0(*(void **)(arg0 + i * 8 + 0x65C), posX, posY, D_0064B2EC[0], D_0064B2EC[1], D_0064B2EC[2], a0);
+        }
+        func_003f6440(3, 0x717FB);
+        func_003f6440(2, 0x44);
+        for (i = 0; i < 3; i++) {
+            k = i * 0x30;
+            row = arg0 + k;
+            fx = 144.0f + (baseX + *(f32 *)(row + 0x58));
+            fy = 136.0f + (baseY + *(f32 *)(row + 0x5C) + (f32)k);
+            func_0034f2e0(*(void **)(arg0 + i * 8 + 0x660), fx + 4.0f, fy + 20.0f, 0x80, 0x80, 0x80, alpha122);
+        }
+        posX = 468.0f + (baseX + *(f32 *)(arg0 + 0xE8));
+        posY = 139.0f + (baseY + *(f32 *)(arg0 + 0xEC));
+        a0 = (u8)((f32)*(u8 *)(arg0 + 0xF2) * scale);
+        func_0034f2e0(*(void **)(arg0 + 0x674), posX, posY, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], a0);
+        posX = 53.0f + (567.0f + (baseX + *(f32 *)(arg0 + 0xE8)));
+        posY = 269.0f + (baseY + *(f32 *)(arg0 + 0xEC));
+        a0 = (u8)((f32)*(u8 *)(arg0 + 0xF2) * scale);
+        func_00275980(D_0064D448[*(s16 *)(arg0 + 0x28)], textbuf, 0x100);
+        func_00274ed0(posX, posY, 0.0f, (a0 | ~0xFF), 7, 1, textbuf, 2, 0);
+        pos.f[0] = 640.0f + (baseX + *(f32 *)(arg0 + 0x1A8));
+        pos.f[1] = 400.0f + (baseY + *(f32 *)(arg0 + 0x1AC));
+        a0 = (u8)((f32)*(u8 *)(arg0 + 0x1B2) * scale);
+        func_0034f9d0(pos.s, 0.0f, a0, *(s16 *)(arg0 + 0x34), *(s32 *)(arg0 + 0x700));
+    }
+    if (*(s32 *)(arg0 + 0x1C) & 4) {
+        f26 = 23.0f + (595.0f + (baseX + *(f32 *)(arg0 + 0x148)));
+        f25 = 430.0f + (baseY + *(f32 *)(arg0 + 0x14C));
+        alpha = (u8)((f32)*(u8 *)(arg0 + 0x152) * scale);
+        func_003f6440(3, 0x71801);
+        func_003f6440(2, 0x48);
+
+        for (i = 0; i < 0xB; i++) {
+            posX = f26 - (f32)(i * 0x2D);
+            row = arg0 + i * 0xA;
+            for (j = 0; j < *(s16 *)(row + 0x5EA); j++) {
+                if (j == *(s16 *)(row + 0x5EA) - 1) {
+                    col[0] = 0xFF;
+                    col[1] = 0xFF;
+                    col[2] = 0xF0;
+                    col[3] = (u8)(0.5f * (f32)alpha);
+                } else if (j < *(s16 *)(row + 0x5EE)) {
+                    col[0] = 0xFF;
+                    col[1] = 0xFC;
+                    col[2] = 0x40;
+                    col[3] = (u8)(fGpffff8554 * (f32)alpha);
+                } else {
+                    continue;
+                }
+                fy = f25 - (f32)(j * 0x11);
+                func_0034f2e0(*(void **)(arg0 + 0x678), posX, fy, col[0], col[1], col[2], col[3]);
+            }
+        }
+        func_003f6440(3, 0x717FB);
+        func_003f6440(2, 0x44);
+        posX = 29.0f + (baseX + *(f32 *)(arg0 + 0x3B8));
+        posY = -13.0f + (54.0f + (baseY + *(f32 *)(arg0 + 0x3BC)));
+        a0 = (u8)((f32)*(u8 *)(arg0 + 0x3C2) * scale);
+        func_0034f2e0(*(void **)(arg0 + 0x6DC), posX, posY, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], a0);
+        func_0034f2e0(*(void **)(arg0 + 0x6E0), posX + 73.0f, posY, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], a0);
+        func_0034f2e0(*(void **)(arg0 + 0x6D8), posX + 19.0f, posY + 2.0f, D_0064B2EC[0], D_0064B2EC[1], D_0064B2EC[2], a0);
+        posX = 89.0f + (baseX + *(f32 *)(arg0 + 0x3B8));
+        posY = -13.0f + (86.0f + (baseY + *(f32 *)(arg0 + 0x3BC)));
+        a0 = (u8)((f32)*(u8 *)(arg0 + 0x3C2) * scale);
+        fy = posY + 4.0f;
+        func_0034f2e0(*(void **)(arg0 + 0x68C), posX - 6.0f, fy, D_0064B300[0], D_0064B300[1], D_0064B300[2], a0);
+        func_0034f2e0(*(void **)(arg0 + 0x690), posX + 41.0f, fy, D_0064B300[0], D_0064B300[1], D_0064B300[2], a0);
+        func_0034f2e0(*(void **)(arg0 + 0x680), posX, posY, D_0064B300[0], D_0064B300[1], D_0064B300[2], a0);
+        func_0034f2e0(*(void **)(arg0 + 0x67C), posX, posY, D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], a0);
+        posX = 302.0f + (baseX + *(f32 *)(arg0 + 0x3B8));
+        posY = -13.0f + (79.0f + (baseY + *(f32 *)(arg0 + 0x3BC)));
+        a0 = (u8)((f32)*(u8 *)(arg0 + 0x3C2) * scale);
+        fy = posY + 11.0f;
+        func_0034f2e0(*(void **)(arg0 + 0x694), posX - 157.0f, fy, D_0064B300[0], D_0064B300[1], D_0064B300[2], a0);
+        func_0034f2e0(*(void **)(arg0 + 0x698), posX + 255.0f, fy, D_0064B300[0], D_0064B300[1], D_0064B300[2], a0);
+        func_0034f2e0(*(void **)(arg0 + 0x688), posX, posY, D_0064B300[0], D_0064B300[1], D_0064B300[2], a0);
+        func_0034f2e0(*(void **)(arg0 + 0x684), posX, posY, D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], a0);
+        fx = 583.0f + (*(f32 *)(arg0 + 0x5C8) + (baseX + *(f32 *)(arg0 + 0x328)));
+        fy = (f32)(s32)((-13.0f + (132.0f + (*(f32 *)(arg0 + 0x5CC) + (baseY + *(f32 *)(arg0 + 0x32C))))) - 17.0f);
+        a0 = (u8)((f32)*(u8 *)(arg0 + 0x332) * scale);
+        func_0034f2e0(*(void **)(arg0 + 0x6F0), fx, fy, 0xFF, 0xFF, 0xFF, a0);
+        fy = fy + 165.0f;
+        func_0034f2e0(*(void **)(arg0 + 0x6F4), fx, fy, 0xFF, 0xFF, 0xFF, a0);
+        fy = fy - 165.0f + 3.0f;
+        fy = (f32)(s32)(fy + (f32)((s32)(*(s16 *)(arg0 + 0x2C) * 0x86) / (s32)(*(s32 *)(arg0 + 0x38) - 6)));
+        func_0034f2e0(*(void **)(arg0 + 0x6EC), fx, fy, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], a0);
+        for (i = 0; i < 6; i++) {
+            if ((*(s16 *)(arg0 + 0x2C) + i) < *(s32 *)(arg0 + 0x38)) {
+                func_00361d20(i, arg0);
+            }
+        }
+        fx = baseX + *(f32 *)(arg0 + 0x598);
+        fy = baseY + *(f32 *)(arg0 + 0x59C);
+        a0 = (u8)((f32)*(u8 *)(arg0 + 0x5A2) * scale);
+        rect.x = 73.0f + fx;
+        rect.y = 297.0f + fy;
+        rect.w = 0x241;
+        rect.h = 0x55;
+        col[0] = D_0064B2E8[0];
+        col[1] = D_0064B2E8[1];
+        col[2] = D_0064B2E8[2];
+        col[3] = a0;
+        D_00887300[0](1, 0);
+        func_0045d6e0(col, (u8 *)&rect, 0, 0.0f);
+        posX = 212.0f + fx;
+        posY = (304.0f + fy) - 5.0f;
+        v0 = (s32)(*(s16 *)(arg0 + 0x2A) + *(s16 *)(arg0 + 0x2C));
+        if (func_00106330(v0 + 0x100) != 0) {
+            if (func_00106330(v0 + 0x140) != 0) {
+                color = (a0 | 0xADADAD00);
+            } else {
+                color = (a0 | ~0xFF);
+            }
+            v1 = v0 + 1;
+        } else {
+            color = (a0 | 0xADADAD00);
+            v1 = 0;
+        }
+        func_002bc7a0(v1, color, 1, 8, 8, (f32)(s32)posX, (f32)(s32)posY, 0.0f);
+        if (*(s32 *)(arg0 + 0x1C) & 8) {
+            posX = 85.0f + (baseX + *(f32 *)(arg0 + 0x388));
+            posY = 325.0f + (baseY + *(f32 *)(arg0 + 0x38C));
+            a0 = (u8)((f32)*(u8 *)(arg0 + 0x392) * scale);
+            func_0034f2e0(*(void **)(arg0 + 0x6E4), posX, posY, 0xFF, 0xE9, 0x2C, a0);
+        }
+        pos.f[0] = 640.0f + (baseX + *(f32 *)(arg0 + 0x568));
+        pos.f[1] = 400.0f + (baseY + *(f32 *)(arg0 + 0x56C));
+        a0 = (u8)((f32)*(u8 *)(arg0 + 0x572) * scale);
+        func_0034f9d0(pos.s, 0.0f, a0, *(s16 *)(arg0 + 0x34), *(s32 *)(arg0 + 0x700));
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035fd60);
+#endif
