@@ -393,6 +393,30 @@ Measure the file-wide form before scoping one: `opt_dead_assignments off` for
 all of `btlOrder_grouped.c` costs a match, and `-O2,p` for `btlAICommand.c`
 costs seventeen.
 
+**A guarded body that does not compile is not a floor, and only one gate
+catches it.** `verify.py` and `decomp_lint.py` both pass on a broken
+guarded arm, because production takes the `#else INCLUDE_ASM` branch.
+Compile the owner with `-DNON_MATCHING` after every edit, note-only edits
+included.  A sweep of all 68 owners holding first-party floors found one
+failure, `func_001dbba0` in `btlAICommand.c`, whose note claimed a measured
+nd 204 for a body that had never built.
+
+**A K&R definition does not create a prototype, and that is sometimes
+load-bearing.** That same function is called below its definition with
+heterogeneous function-pointer arguments; the prototyped form rejects every
+one of them with `illegal implicit conversion`, while the K&R form
+
+```c
+s32 func_001dbba0(arg0, arg1, arg2, arg3, arg4, arg5)
+s32 arg0; s32 arg1; s32 arg2; s32 arg3; s32 arg4; code arg5;
+```
+
+compiles and measures 7 differing words at an exact 222/222.  The inclusive
+bound (`count > 1` for `count >= 2`) then took it to 2.  When a guarded body
+is the only definition in its file and the calls below it pass diverse
+types, K&R is not a style choice — it is what retail used and what lets the
+unit build.
+
 **Sweep the cheap pragmas, never reason about them.** Each of these costs
 one compile against a body you already have, so wrapping the guarded body
 and re-measuring is strictly cheaper than deciding whether it "should"
