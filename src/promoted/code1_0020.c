@@ -2463,25 +2463,35 @@ void func_00207140(u16 *flags, u8 *work)
     }
     *(u16 *)(work + 0x5A6) = itemCount;
 }
-/* Floor: 310 differing words, 505 emitted instructions against retail's 504,
-   from a first reconstruction (no prior body).  What the retail stream
-   dictated: the outer dispatch is an if/else-if chain, not a switch - each
-   arm's body sits inline behind its own `bne` and the 1/5/6 arms fall
-   through to a single `return 1` - while the inner dispatch on
+/* Floor: 72 differing words over 111 fnalign edits (plus 3 reloc-only), 502
+   emitted instructions against retail's 502 (equal).  Width pass fixed three
+   defects (135 -> 111 edits, pairs 4 -> 2 = retail, size 505/504 -> equal):
+   (1) `func_0010b6f0` declared `s8` here but its definition returns `u16`,
+   which emitted dsll32/dsra32 with shift 24 where retail has shift 16;
+   declaring `u16` reproduces retail's 16-pair.  (2) case 6 hoisted
+   `n = *(s16 *)(arg1 + 0x5A6)` ahead of the `func_001f0620` call, costing an
+   early `lh` into $s2 plus a re-extension pair where retail loads $a2 after
+   the call and reuses it for the `func_00202c60` argument with no reload;
+   loading after the call in the `||` RHS and passing the load directly
+   reproduces retail's `lh $a2` / `lh $v0` with no pair and no extra load.
+   (3) `(func_001ef720(1, 0) & 0xFFFF) < 2` emitted `sltiu` where retail has
+   `slti`; a no-op `(s32)` cast on the masked value flips the comparison
+   signed with identical behavior (values 0..0xFFFF) and no pair.
+   What the retail stream dictated (unchanged): the outer dispatch is an
+   if/else-if chain, not a switch, while the inner dispatch on
    *(s16 *)(arg0 + 4) is a real jump table whose 3/7/2/0 arms break to one
-   shared `return 4`.  Writing those arms as `return 4` costs a word each.
-   func_001f0620 takes two arguments, not the six m2c prints; retail simply
-   reuses the compare constants still sitting in $a1/$a3.  The list counter
-   is 32-bit with an explicit `& 0xFFFF`, which gives retail's `andi` pair
-   instead of the dsll32/dsra32 that a s16 counter emits.
+   shared `return 4`.  func_001f0620 takes two arguments; retail reuses the
+   compare constants in $a1/$a3.  The list counter stays 32-bit with an
+   explicit `& 0xFFFF` (retail's `andi`, not dsll32/dsra32).
    WALL: saved-register rotation.  Retail numbers them arg1=$s0, arg2=$s1,
-   arg0=$s2 - the order their live ranges end, longest last - and this
-   build numbers arg1=$s1, arg0=$s0.  250 declaration orders, all pragmas,
-   and local aliases for both pointer parameters (MWCC coalesces the copy)
-   were measured; the only other difference is the 0x18C store scheduling
-   one instruction later than retail's; `opt_loop_invariants on` is worth
-   one word here, which does not pay for a non-baseline pragma. */
-/* measured 00207320: `opt_loop_invariants on` inside the guard is worth 1 words (311 -> 310), the loop-preheader constant hoist. */
+   arg0=$s2 and this build numbers arg1=$s1, arg2=$s0, arg0=$s2; frames and
+   saves are otherwise identical (0x40, ra+s0/s1/s2).  250 declaration orders,
+   all pragmas, and local aliases for both pointer parameters (MWCC coalesces
+   the copy) were measured pre-fix; the only other difference is the 0x18C
+   store scheduling one instruction later than retail's (pair before `sh`,
+   retail `sh` first).  Removing `opt_loop_invariants` costs 6 edits, so the
+   bracket stays. */
+/* measured 00207320: `opt_loop_invariants on` inside the guard is worth 6 edits against the fixed body; width pass 135 -> 111 edits, pairs equal at 2, sizes equal at 502. */
 // FUN_00207320 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on

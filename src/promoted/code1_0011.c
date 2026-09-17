@@ -1211,7 +1211,6 @@ void func_00112830(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
     s32 i;
     s64 positions[9];
     u8 colors[9][4];
-    extern u8 D_005E4750[];
 
     positions[0] = arg0;
     table = D_005E4750 + (*(s16 *)(arg2 + 0x16) * 4);
@@ -1401,29 +1400,38 @@ void func_00112830(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00112830);
 #endif
-/* Floor: 448B window, obj 440B, 7 differing words. Registers, frame,
-   both calls and the whole loop match retail; the only residual is a
-   scheduling group swap - retail emits the two colour read-backs
-   (lbu 0xde/0xdd(sp)) before the alpha arithmetic, this build emits
-   them after.
-   WINS: writing the alpha as `255 - (arg1 & 0xFF)` on a u8 parameter
-   makes MWCC evaluate the masked operand first (andi, then the 0xFF
-   constant, then `subu $s2,$v0,$v1`), which is retail's operand order;
-   the bare `255 - arg1` form materialises the constant first and
-   reverses the subu operands. Keeping alpha_byte assigned before the
-   two colour locals preserves retail's $s2/$s1/$s0 assignment, which
-   follows definition order here (declaration order is inert in this
-   function; six permutations measured).
-   WALL: moving the colour reads above the alpha statement makes the
-   instruction stream exact - an instruction-level alignment then
-   reports no inserts, deletes or reordering - but rotates the same
-   three registers ($s2/$s1/$s0 against retail's $s1/$s0/$s2), scoring
-   11 words against this shape's 5.  Measured inert on that variant:
-   400 declaration permutations, every colour/alpha type combination
-   in {u8,u16,s16,u32,s32}, and the pragmas opt_dead_assignments,
-   opt_lifetimes, optimize_for_size and opt_strength_reduction.
-   `#pragma schedule on` (105) and `opt_propagation off` (78) are
-   worse still. */
+/* Floor (re-measured 2026-09-17): probe_variants 5 reloc-masked differing */
+/* words; fnalign retail 110 instrs / object 110 instrs, 4 edits plus 5 */
+/* reloc-only (110*4 = 440B in the 448B window; the 2-word suffix is retail */
+/* zero-tail nop/nop). Registers, frame, both calls and the whole loop match */
+/* retail; the only residual is a scheduling group swap - retail emits the */
+/* two colour read-backs (lbu 0xde/0xdd(sp)) before the alpha arithmetic, */
+/* this build emits them after. */
+/*   WINS: writing the alpha as `255 - (arg1 & 0xFF)` on a u8 parameter */
+/*   makes MWCC evaluate the masked operand first (andi, then the 0xFF */
+/*   constant, then `subu $s2,$v0,$v1`), which is retail's operand order; */
+/*   the bare `255 - arg1` form materialises the constant first and */
+/*   reverses the subu operands. Keeping alpha_byte assigned before the */
+/*   two colour locals preserves retail's $s2/$s1/$s0 assignment, which */
+/*   follows definition order here (declaration order is inert in this */
+/*   function; six permutations measured). */
+/*   Width audit 2026-09-17 (tools/wscan_pairs): object dsll32/dsra32 pairs */
+/*   1 = retail 1, the shared legitimate (s16)temp_21 sign-extension before */
+/*   the sprintf call; the u8 arg1 carries no extension cost and the andi */
+/*   count is 5 = 5, so u8 stands. s32-with-mask and u8-bare both score 5 */
+/*   words but 6 fnalign edits (reversed subu) against this shape's 4. */
+/*   WALL: moving the colour reads above the alpha statement makes the */
+/*   instruction stream exact - an instruction-level alignment then */
+/*   reports no inserts, deletes or reordering - but rotates the same */
+/*   three registers ($s2/$s1/$s0 against retail's $s1/$s0/$s2), scoring */
+/*   11 words against this shape's 5.  Measured inert on that variant: */
+/*   400 declaration permutations, every colour/alpha type combination */
+/*   in {u8,u16,s16,u32,s32}, and the pragmas opt_dead_assignments, */
+/*   opt_lifetimes, optimize_for_size and opt_strength_reduction. */
+/*   Sweep complete 2026-09-17: `opt_common_subs off` and */
+/*   `opt_loop_invariants on` are neutral (5 words / 4 edits, identical */
+/*   stream); `#pragma schedule on` (105) and `opt_propagation off` (78) */
+/*   are worse still. */
 // FUN_001130C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)

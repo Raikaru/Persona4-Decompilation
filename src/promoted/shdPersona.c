@@ -3499,7 +3499,7 @@ void func_0011c630(u8 *arg0);
    args/hallucinated 3-arg calls m2c invented from leftover registers
    (func_002bb7c0/00115380/00115020/002bb4e0 are 1- or 2-arg, and the switch
    needs the empty case 8 for sltiu 9) — the colouring itself is the floor. */
-/* measured: MWCC -O2 plain, object 1504B/window 1520B, normalized_diff 122 (v2 baseline 268 -> absolute/!!/shared-else-if/outer-!=1 to 122). Requires file-scope extern u16 D_008C024E[] array-absolute + s32/u8* casts. Minimal args, empty case 8 for sltiu 9. Remaining off 44 lw s1-vs-s2 colouring floor + exit cascades from 16B-short. Saved-reg/addiu-SP wall holds (frame exact), banked. No volatile/asm. Mined 0011fb90/0011f560/0011f580 neighbours. Staged /tmp/push_11f5a0_full.c via NearGA.Shd11f5a0. */
+/* measured: MWCC -O2 plain, object 1504B/window 1520B, fndiff 118 verify 338 fnalign 53 plus 8 reloc-only retail 376/object 376 exact (was normalized_diff 122; v2 baseline 268 -> absolute/!!/shared-else-if/outer-!=1 to 122->118 with current tree). Requires file-scope extern u16 D_008C024E[] array-absolute + s32/u8* casts. Minimal args, empty case 8 for sltiu 9. Width 2026-09-17: u16 a->u32 244 worse, u16 vv->u32 118 neutral, keep narrow; obj 5/retail 3 pairs are allocation-tied. Pragmas: schedule 304 worse, cse_off 323 worse, loopinv 118 neutral. Remaining off 44 lw s1-vs-s2 colouring floor + exit cascades from 16B-short. Saved-reg/addiu-SP wall holds (frame exact), banked. No volatile/asm. Mined 0011fb90/0011f560/0011f580 neighbours. */
 // FUN_0011F5A0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0011f5a0(u8 *arg0)

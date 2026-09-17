@@ -1109,19 +1109,21 @@ void func_00165b00(void)
 
 
 
-/* measured: nd 133 after four retries (recipe B retest). The D_007E8BE0
-   scan loop is now byte-identical in shape (base hoist + addiu $v1,$a1,8 +
-   sw 0($v1) reproduced via `*((s32 *)p + 2)` element addressing — the +8
-   materializes instead of folding); the ONLY scan-loop residual is retail
-   hoisting the ==1 compare constant into the preheader (register cascade:
-   retail a3/a2/a1/a0, mwcc b210 a2/a1/a0/$v0-with-const-in-body) — every
-   spelling (named local, literal, pragma on/off) sinks the constant to its
-   use inside the body; constant-materialization floor. (2) The big loop
-   keeps var_17_2 in $s2 / temp_18+temp_2 in $s1 where retail has them
-   swapped — declaration orders, limit local, merged variable, all nd >= 130.
-   (3) temp_19_2's address is materialized after the NULL check in retail,
-   before it in mwcc. Saved-register + constant-materialization floors;
-   recipe B itself (typed base pointer) works for the base hoist. */
+/* Floor: 182 differing words (reloc-masked fndiff), obj 968B/window 976B, 242 vs
+   241 instrs. Cold reconstruction from the retail window (244/244 exact on the
+   first attempt); the recorded nd-133 body was never archived and is not
+   reproducible. Banked body in docs/probe_archive/W65FldUnit_00165be0_body.c:
+   entry guards, phase-1 D_007E8BE8/BE0 checks, node-count walk with dead
+   count==0 message arm, count%2 message, divu-remainder scan with element
+   addressing for the +8 store, conditional limit reload, blind node walk, and
+   the two-iteration big loop with test-then-materialise slot recompute and the
+   correct *(*slot+0x110) double dereference. A 152-word variant reading the
+   wrong *(slot+0x110) address is documented in the archive, not banked.
+   Killed this pass: entry goto/nesting (189/203); hoisted/split temp bases
+   (206/151); cast-index form (195); decl reversal (162); count>>1+lim (194);
+   CSE-off (199), loop-invariants-on (194), propagation-off (152 neutral).
+   Open walls: saved rotation, gp-relative arena bases (sized shadows rejected
+   by the compiler), entry polarity, ==1 const sinking. Production stays ASM. */
 // FUN_00165BE0
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00165be0);
 

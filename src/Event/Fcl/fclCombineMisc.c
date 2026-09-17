@@ -397,11 +397,14 @@ s32 func_00312bc0(s8 arg0) {
 }
 #pragma opt_rebuildconditionals on
 
-/* Floor: 221 differing words (the earlier discarded probe measured 924 with
-   a 0xB0 frame).  What closed most of it: the third parameter is s32 with a
-   single hoisted `(s8)` cast - retail sign-extends it once into $s4 rather
-   than per iteration - the deck row and the u16 cell are pointer locals so
-   the inner accesses reuse retail's $s5/$s7, the inner index is zeroed
+/* Floor: 221 differing words via measure_guarded (reproduces) / 170 edits via
+   fnalign (288 retail vs 297 obj instrs, 9 long); wscan dsll32/dsra32 20 vs 16
+   retail (0x10 pairs 13 vs 13 equal; 0x18 excess 7 vs 3). Pragma sweep all
+   same/worse (common_subs 285, sched 261, loopinv 221 same, prop 221 same).
+   What closed most of it (from 924 with a 0xB0 frame): the third parameter is
+   s32 with a single hoisted `(s8)` cast - retail sign-extends it once into $s4
+   rather than per iteration - the deck row and the u16 cell are pointer locals
+   so the inner accesses reuse retail's $s5/$s7, the inner index is zeroed
    before the row is computed, and the frame is retail's 0xA0 again.
    `opt_loop_invariants on` carries the rest; the residual is the saved- and
    temporary-register map through the weighted pick loop. */

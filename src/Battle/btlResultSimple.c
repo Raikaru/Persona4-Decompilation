@@ -497,6 +497,15 @@ s32 func_0021f790(u8 *arg0) {
         return 0;
     }
 }
+/* Floor: 222 words via measure_guarded / 130 edits via fnalign (280 retail vs
+   292 obj instrs, 12 long). wscan dsll32/dsra32 1 vs 0 retail (one spurious
+   0x10 pair); the remaining 10 come from table-address rematerialization
+   (lui +6, addu +5, addiu +4) plus float/div/branch scheduling (lw/sw vs
+   lwc1/swc1, div vs divu, slt $v0 vs $at). Pragma sweep all same/worse
+   (common_subs 261, sched 254, loopinv 222 same, prop 242). Width probes all
+   flat (float-copy 222, divu 222, no-(s16)-cast 222; branch <= to <+1 worse at
+   254). nd>25: spelling will not close this; banked as floor.
+*/
 // FUN_0021FA40 NONMATCHING
 #ifdef NON_MATCHING
 void func_0021fa40(u8 *arg0) {

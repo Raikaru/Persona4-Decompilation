@@ -1159,8 +1159,10 @@ s32 func_00308e50(u8 *arg0) {
    instrs, window 1712B); frame 0x70 vs 0x60 + saved-reg rotation remain the WALL. */
 /* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
 /* measured 00308f40: `schedule on` inside the guard is worth 15 words (356 -> 341). */
+/* measured 00308f40: `opt_propagation off` inside the guard is worth 10 words (341 -> 331). */
 // FUN_00308F40 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_propagation off
 #pragma schedule on
 void func_00308f40(void) {
     s32 raw;
@@ -1280,6 +1282,7 @@ void func_00308f40(void) {
     }
 }
 #pragma schedule off
+#pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00308f40);
 #endif
@@ -1359,8 +1362,10 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_003097e0);
    (386 -> 139 words, 583 -> 90 edits [+6 reloc]; fnalign retail 468 / object 470
    instrs, window 1872B / object 1880B). Residual WALL is frame-size + rotation plus
    the 4-byte colour load-all-store-all vs interleaved lbu/sb schedule and 8B size shift. */
+/* measured 0030b060: `opt_loop_invariants on` inside the guard is worth 4 words (139 -> 135). */
 // FUN_0030B060 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_loop_invariants on
 void func_0030b060(u8 *arg0)
 {
     u8 *p;
@@ -1496,6 +1501,7 @@ void func_0030b060(u8 *arg0)
         break;
     }
 }
+#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030b060);
 #endif

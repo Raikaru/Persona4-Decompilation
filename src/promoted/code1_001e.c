@@ -1488,7 +1488,7 @@ loop_test:
 s32 func_001e9950(void) {
     extern s32 func_0029cc00(s32 arg0);
     extern void func_0029cf50(s32 arg0);
-    extern s32 func_0023d6e0(s16 arg0);
+    extern s32 func_0023d6e0(s32 arg0);
     extern s32 func_0023df70(s32 arg0);
     extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
     extern s32 func_0023dd90(u8 *arg0, s32 arg1);
@@ -1555,8 +1555,8 @@ outer_body:
     if (skillStore >= 0x1B8) {
         goto outer_next;
     }
-    kind = (s64)(func_0023d8e0(*(u8 **)(unit + 0xA64), skill) << 0x30) >> 0x30;
-    if ((func_0023d6e0((s16)kind) & 0x7E) == 0) {
+    kind = (s16)func_0023d8e0(*(u8 **)(unit + 0xA64), skill);
+    if ((func_0023d6e0((s32)kind) & 0x7E) == 0) {
         goto outer_next;
     }
     if (((s64)(kind << 0x30) >> 0x30) == 0) {
@@ -1581,7 +1581,7 @@ check_targets:
     if ((func_001d7f10(work, (u8 *)&tgt, skill, 0) & 0xFFFF) == 0) {
         curScore = 0.0f;
         idxA = 0;
-        paramA = (s32)((s64)(kind << 0x30) >> 0x30);
+        paramA = (s16)kind;
 innerA_test:
         if ((idxA & 0xFFFF) >= (s32)(tgt.count & 0xFFFF)) {
             goto scored;
@@ -1607,14 +1607,14 @@ innerA_test:
     } else {
         curScore = 0.0f;
         idxB = 0;
-        paramB = (s32)((s64)(kind << 0x30) >> 0x30);
+        paramB = (s16)kind;
 innerB_test:
         if ((idxB & 0xFFFF) >= (s32)(tgt.count & 0xFFFF)) {
             goto scored;
         }
         entryB = tgt.entries[(idxB & 0xFFFF)];
         if (func_001db360(entryB, paramB, 1) == 0) {
-            if ((func_00242800(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64), (s32)kind) & 0x1000000) == 0) {
+            if ((func_00242800(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64), paramB) & 0x1000000) == 0) {
                 curScore = 0.0f;
                 goto scored;
             }
