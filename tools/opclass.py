@@ -51,8 +51,12 @@ from verify import RetailElf, load_config, _read_json, scan_markers, window_for 
 from measure_guarded import extract_guarded_body  # noqa: E402
 import tempfile  # noqa: E402
 
+# A floor's marker and its `#ifdef` are often separated by measured-note
+# comments, so allow any run of blank or comment lines between them.
 GUARD = re.compile(
-    r"// FUN_([0-9A-Fa-f]{8}) NONMATCHING\s*\r?\n#ifdef (NON_MATCHING|SKIP_ASM)")
+    r"// FUN_([0-9A-Fa-f]{8}) NONMATCHING[^\n]*\n"
+    r"(?:[ \t]*(?://[^\n]*|/\*(?:[^*]|\*(?!/))*\*/)?[ \t]*\n)*"
+    r"[ \t]*#\s*ifdef\s+(NON_MATCHING|SKIP_ASM)")
 
 # opcodes whose surplus in the object names a specific, fixable cause
 INTERESTING = {
