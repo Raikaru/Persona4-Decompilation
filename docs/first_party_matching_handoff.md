@@ -376,6 +376,47 @@ costs seventeen.
 
 ### 7i. Declaration levers found while reconstructing untried functions
 
+- **`slti $at` versus `slti $v0`: spell the bound inclusively.** Retail's
+  branch-if-true range tests land the compare in `$at`; this build puts it
+  in `$v0`/`$v1` when the bound is written exclusively and in `$at` when it
+  is written inclusively.  The emitted `slti ..., $sN, N` is identical
+  either way.  `dungeon < 6` gave 2 differing words on `func_0018c7e0` and
+  `dungeon <= 5` gave 0; `6 > dungeon`, `!(dungeon >= 6)` and
+  `(dungeon < 6) != 0` all keep `$v0`.  The same flip in the other direction
+  (`>= 5` to `> 4`, `>= 6` to `> 5`, `>= 3 && < 9` to `> 2 && <= 8`) fixed
+  the destination on `func_001dbf20`, `func_001b3a00`, `func_001f3bb0`,
+  `func_00383f80` and `func_00154720`.  `< 1U`/`< 2U` is the unsigned form,
+  and it took `func_00513380` from 3 words to 2.  Note this does NOT apply
+  to the register-to-register `slt $at, $zero, $aN` loop entry guard, which
+  has its own cure below.  An automated scan for the pattern is worth
+  running over every banked floor: `tools/fnalign.py` output with
+  `retail slti $at` against `object slti $v` is a one-lever fix.
+- **A trailing dead arm must carry its dead store.** Retail often ends an
+  if/else-if chain with a compare whose result nothing consumes
+  (`slti $at, $s3, 0xa0` immediately followed by the shared tail).  That is
+  NOT an empty `else if (x < N) { }`: b210 deletes an empty arm compare and
+  all, which costs the compare plus its `b`/`nop` and shifts every later
+  branch displacement, so the object comes out 1-4 instructions short of
+  retail with a large word count that is almost entirely cascade.  Write the
+  arm with the store that is redundant on that path — `else if (x < 0xA0)
+  { res = 0; }` when `res` is already 0 there — and b210 removes the store
+  but keeps the compare, which is exactly retail.  That single change was 40
+  differing words to 2 on `func_0018c7e0`, and took `func_001fbb50` from
+  two instructions short to an exact 405/405 and 336 words to 320.
+  `opt_dead_assignments off`, `opt_dead_code off`, `opt_propagation off`,
+  `opt_rebuildconditionals off` and optimization levels 1 and 3 all fail to
+  reproduce it; only the source shape does.  "Object N instructions short of
+  retail" with N in 1..4 is the signature to scan for.
+- **`(s64)0 < count` fixes the `slt $at, $zero, $aN` loop entry guard.**
+  When retail's loop entry guard is `slt $at, $zero, $aN` followed by
+  `beqz` and this build gives `slt $v0`/`slt $v1` or a plain `blez`, write
+  the guard with a 64-bit zero on the left and hoist the counter init above
+  it so it lands in the branch delay slot.  `func_003bcd50` is the worked
+  example in the tree and carries the accompanying `schedule on`,
+  `no_branch_likely on`, `opt_rebuildconditionals off`,
+  `opt_propagation off` set.  It does not transfer everywhere: measured as a
+  regression on `func_003b4230` (2 to 42 words), `func_003bce50`,
+  `func_003b31a0` and `func_003bcc80`, so measure before keeping it.
 - **A cast at a call site, not the scheduler, is what moves an argument
   load.** On `func_0047ce00` the whole two-word residual was that retail
   ends the argument block with the trailing stack load — `daddu $a3, $v0`
