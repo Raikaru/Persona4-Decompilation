@@ -200,7 +200,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442de8);
 // FUN_00442FA8
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442fa8);
 
-// FUN_00443010
+// FUN_00443010 NONMATCHING
 #ifdef NON_MATCHING
 s8 *func_00443010(s8 *arg0, s8 *arg1) {
     s32 counter;
@@ -271,7 +271,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444488);
 // FUN_00444570
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444570);
 
-// FUN_00444700
+// FUN_00444700 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00444700(u8 *arg0, u8 *arg1) {
     extern s32 func_0043e608(u8 *arg0, u8 *arg1);

@@ -966,7 +966,7 @@ loop_00485630_check:
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485630);
 #endif
-// FUN_00485870
+// FUN_00485870 NONMATCHING
 #ifdef SKIP_ASM
 /* measured: 616B obj vs 624B window, 11 differing words reloc-masked (probe cand4).
  * Baseline PoB archive nd388; cleaned honest-C cand1 125; u8[16] save slot for
@@ -1866,7 +1866,7 @@ void func_00489f10(u8 *arg0)
     func_00492e10(*(u8 **)(arg0 + 0x4C));
 }
 /* Floor (measured 2026-09-17, source-repo only): probe_variants base 5 words (v2_retail 7, v1_ghidra 110, v4/v5 7, v6 50, v7 s8 99, v8 struct3 142, v9 doubledef neutral), fnalign 146/146/6, emitted 584B/window 592B (98.6%). Four-pragma sweep on best: base wins (loop/sched neutral, prop/common worse). wscan 0, opclass N/A (no guard). Residual is FPR destination selection (cvt.w.s/mfc1 colors + branch); recorded cvt wall re-derived and rejected as shared-wall claim (same shape as 00311930/0034ddf0 but per-function levers differ). Banked as guarded floor; production stays ASM. */
-// FUN_0048A980
+// FUN_0048A980 NONMATCHING
 #ifdef NON_MATCHING
 /* Best re-derived body for func_0048a980: 5 differing words (reloc-masked),
    146/146 instrs, 6 fnalign edits. Plain C + terminal lqc2 per VU handoff.

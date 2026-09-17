@@ -227,7 +227,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c99a0);
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9a28);
 // FUN_004C9B80
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9b80);
-// FUN_004C9BB8
+// FUN_004C9BB8 NONMATCHING
 #ifdef NON_MATCHING
 u32 func_004c9bb8(u32 arg0)
 {
