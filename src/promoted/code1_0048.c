@@ -1607,6 +1607,14 @@ void func_00489f10(u8 *arg0)
 {
     func_00492e10(*(u8 **)(arg0 + 0x4C));
 }
+/* measured: 5 differing words, object 584B against a 592-byte window.  The
+   residual is the destination register of a `cvt.w.s`, and it is the same
+   wall as func_00311930 and func_0034ddf0 - anything that moves one moves
+   all three.  Re-certified with four negative probes: swapping the sqrt
+   operand order, taking the argument as u8, staging the vector through a
+   stack struct, and widening the integer temporaries are all inert or
+   worse, and every one leaves the identical residual.  Declaration orders
+   and the pragma set were measured on the earlier pass. */
 // FUN_0048A980
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048a980);
 // FUN_0048ABD0 NONMATCHING
