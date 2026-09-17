@@ -555,8 +555,287 @@ void func_0037ab50(u8 *arg0, s32 arg1, f32 *arg2) {
     func_00375fa0(arg0, arg1, 0, &work.sp50, &work.sp60,
                   &work.sp70, zero, zero);
 }
-// FUN_0037AD10
+extern s32 func_00378a70(u8 *arg0, s32 arg1);
+extern s32 func_00379240(u8 *arg0);
+extern s32 func_00379420(u8 *arg0);
+extern void func_0038d060(u8 *arg0);
+extern void func_0038d0d0(u8 *arg0, s32 arg1);
+extern void func_0038d0a0(u8 *arg0);
+extern s32 func_00375970(u8 *arg0);
+extern s32 func_00375910(u8 *arg0);
+extern void func_00375b40(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void func_00375890(u8 *arg0, s32 arg1, s32 arg2);
+extern void func_00376290(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_00376590(u8 *arg0, u8 *arg1);
+extern void func_00388f40(u8 *arg0);
+extern void func_00389110(u8 *arg0);
+extern s32 func_00389160(u8 *arg0);
+extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void func_0046d730(const void *file, u32 line);
+extern char D_0064EAE0[];
+extern u16 D_008C024E;
+extern s32 func_00106330(s32 arg0);
+extern void func_00106390(s32 arg0, s32 arg1);
+extern u16 func_00378bf0(void);
+extern s32 func_00378c80(u8 *arg0, s32 arg1, s32 arg2);
+extern void func_00378df0(u8 *arg0, s32 arg1);
+extern void func_003798d0(u8 *arg0, s32 arg1);
+extern s32 func_00379920(u8 *arg0);
+extern void func_003799d0(u8 *arg0);
+extern s32 func_00379a70(u8 *arg0);
+extern s32 func_00379c70(u8 *arg0, s32 arg1);
+extern s32 func_00379d70(u8 *arg0);
+// measured: shuffle-draw state machine fully recovered (16-state switch on *(u32*)(arg0+0x1F2F8) with 1->2 and 4->5->7->8->9 plus 10->11 and 12->13 fallthroughs, 0.6f/0.7f/0.8f pool at gp-0x7E90/-0x7F64/-0x7C74 confirmed at orig 0x761260/0x76118c/0x76147c, (f32)(u32) u16 at +2, 0.0f+(360/count)*(count-sel) adda/madd for func_00375fa0); floor object 2956B/window 2992B (36B short, 1.2%), normalized_diff 2343, frame 0xE0 vs retail 0xF0 (6 vs 7 saved, arg0 in $s4 vs $s1); remaining walls are saved-reg coloring and scheduling residuals. Keep ASM until coloring closes.
+// FUN_0037AD10 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0037ad10(u8 *arg0) {
+    struct Vec3 {
+        f32 x;
+        f32 y;
+        f32 z;
+    };
+    struct {
+        struct Vec3 base;
+        struct Vec3 first;
+        struct Vec3 second;
+        struct Vec3 output;
+        struct Vec3 v0;
+        struct Vec3 v1;
+        struct Vec3 v2;
+    } work;
+    f32 factor;
+    f32 f0;
+    f32 f1;
+    u8 *sbase;
+    u8 *sbase2;
+    u8 *deck;
+    s32 mod;
+    s32 i;
+    s32 sel;
+    s32 m;
+    s32 parity;
+    u16 dur;
+    sbase = arg0 + 0x1F1D0;
+    mod = ((s32)*(u16 *)(sbase + 2) / *(s32 *)(arg0 + 0x1F304)) & 0xFFFF;
+    switch (*(u32 *)(arg0 + 0x1F2F8)) {
+    case 0:
+        if (func_00378a70(arg0, *(s32 *)(arg0 + 0x1F304)) == 0) {
+            break;
+        }
+        sbase2 = sbase;
+        switch (*(s32 *)(arg0 + 0x1F300)) {
+        case 0:
+            *(u16 *)(sbase2 + 2) = 0x1A;
+            factor = 0.6f;
+            break;
+        case 1:
+            *(u16 *)(sbase2 + 2) = 0x14;
+            factor = 0.7f;
+            break;
+        case 2:
+            *(u16 *)(sbase2 + 2) = 0x10;
+            factor = 0.8f;
+            break;
+        default:
+            func_0046d730(D_0064EAE0, 0x3A);
+            break;
+        }
+        dur = *(u16 *)(sbase2 + 2);
+        f0 = (f32)(u32)dur;
+        f1 = factor * (f32)(*(s32 *)(arg0 + 0x1F304) - 3) / 5.0f;
+        f1 = 1.0f + f1;
+        f1 = f0 * f1;
+        *(u16 *)(sbase2 + 2) = (u16)f1;
+        *(s32 *)(sbase + 0xC) = -1;
+        if (func_00379240(arg0) != 0) {
+            *(u32 *)(arg0 + 0x1F2F8) = 1;
+        } else {
+            *(u32 *)(arg0 + 0x1F2F8) = 2;
+        }
+        break;
+    case 1:
+        if (func_00379420(arg0) == 0) {
+            break;
+        }
+        *(u32 *)(arg0 + 0x1F2F8) = 2;
+    case 2: {
+        u16 tmp = *(u16 *)(arg0 + 0x1F2F0) + 1;
+        *(u16 *)(arg0 + 0x1F2F0) = tmp;
+        if (((s32)(tmp & 0xFFFF) < 0)) {
+            break;
+        }
+        deck = *(u8 **)(arg0 + 0x1F298);
+        func_0038d060(deck);
+        func_0038d0d0(deck, 1);
+        *(u32 *)(arg0 + 0x1F2F8) = 3;
+        break;
+    }
+    case 3:
+        if ((D_008C024E & 0x40) != 0) {
+            deck = *(u8 **)(arg0 + 0x1F298);
+            func_0038d0a0(deck);
+            *(u16 *)(arg0 + 0x1F2F0) = 0;
+            *(u32 *)(arg0 + 0x1F2F8) = 4;
+            *(s32 *)(sbase + 8) = 0;
+            for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
+                f32 x_off = 150.0f;
+                parity = i & 1;
+                if ((i < 0) && (parity != 0)) {
+                    parity -= 2;
+                }
+                if (parity == 0) {
+                    x_off = x_off * -1.0f;
+                }
+                work.base = *(struct Vec3 *)(arg0 + i * 0xE8 + 0x1D6B8);
+                func_0037ab50(arg0, 0, &work.output.x);
+                work.first.x = x_off + (work.base.x + (work.output.x - work.base.x) / 3.0f);
+                work.first.y = 100.0f + (work.base.y + (work.output.y - work.base.y) / 3.0f);
+                work.first.z = work.base.z + (work.output.z - work.base.z);
+                work.second.x = x_off + (work.base.x + (2.0f * (work.output.x - work.base.x)) / 3.0f);
+                work.second.y = 100.0f + (work.base.y + (2.0f * (work.output.y - work.base.y)) / 3.0f);
+                work.second.z = work.first.z;
+                m = (mod * i) & 0xFFFF;
+                func_00375e50(arg0, i, m & 0xFFFF, (m + 0x14) & 0xFFFF, &work.base.x);
+            }
+            func_0045af60(0, 4, 0, 1);
+        } else if ((D_008C024E & 0x20) != 0) {
+            func_003799d0(arg0);
+            *(u32 *)(arg0 + 0x1F2F8) = 0xE;
+        }
+        break;
+    case 4:
+        for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
+            if (func_00375970(arg0 + i * 0xE8 + 0x1D6A0) != 0) {
+                func_00375b40(arg0, i, 0, 0xA);
+                sel = *(s32 *)(sbase + 8);
+                m = (mod * (*(s32 *)(arg0 + 0x1F304) - sel)) & 0xFFFF;
+                if (sel >= *(s32 *)(arg0 + 0x1F304)) {
+                    func_0046d730(D_0064EAE0, 0x6B);
+                }
+                func_0037ab50(arg0, i, (f32 *)0);
+                work.v2 = *(struct Vec3 *)(arg0 + i * 0xE8 + 0x1D6CC);
+                work.v1 = *(struct Vec3 *)(arg0 + i * 0xE8 + 0x1D6D8);
+                work.v0 = *(struct Vec3 *)(arg0 + i * 0xE8 + 0x1D6E4);
+                func_00375fa0(arg0, i, m, &work.v2.x, &work.v1.x, &work.v0.x, 0.0f, 0.0f + (360.0f / (f32)*(s32 *)(arg0 + 0x1F304)) * (f32)(*(s32 *)(arg0 + 0x1F304) - sel));
+                (*(s32 *)(sbase + 8))++;
+            }
+        }
+        *(u16 *)(arg0 + 0x1F2F0) = *(u16 *)(arg0 + 0x1F2F0) + 1;
+        if (*(s32 *)(sbase + 8) != *(s32 *)(arg0 + 0x1F304)) {
+            break;
+        }
+        *(u32 *)(arg0 + 0x1F2F8) = 5;
+        *(u16 *)(sbase + 0) = *(u16 *)(sbase + 0) | 1;
+        *(u16 *)(arg0 + 0x1F2F0) = 0;
+        *(u16 *)(sbase + 4) = func_00378bf0();
+    case 5: {
+        u16 tmp = *(u16 *)(arg0 + 0x1F2F0) + 1;
+        *(u16 *)(arg0 + 0x1F2F0) = tmp;
+        if ((tmp & 0xFFFF) < *(u16 *)(sbase + 4)) {
+            break;
+        }
+        *(u32 *)(arg0 + 0x1F2F8) = 7;
+    }
+    case 7:
+        if (func_00106330(0x1431) == 0) {
+            func_003798d0(arg0, 1);
+            *(u32 *)(arg0 + 0x1F2F8) = 0xF;
+            *(u16 *)(arg0 + 0x1F2F0) = 0;
+            *(u16 *)(arg0 + 0x1F2F4) = *(u16 *)(arg0 + 0x1F2F4) | 2;
+            break;
+        }
+        func_00389110(*(u8 **)(arg0 + 0x1F294));
+        *(u32 *)(arg0 + 0x1F2F8) = 8;
+    case 8:
+        if (func_00389160(*(u8 **)(arg0 + 0x1F294)) == 0) {
+            break;
+        }
+        deck = *(u8 **)(arg0 + 0x1F298);
+        func_0038d060(deck);
+        func_0038d0d0(deck, 2);
+        *(u32 *)(arg0 + 0x1F2F8) = 9;
+    case 9:
+        if ((D_008C024E & 0x40) == 0) {
+            break;
+        }
+        *(s32 *)(sbase + 0xC) = func_00376590(arg0, (u8 *)0);
+        func_00388f40(*(u8 **)(arg0 + 0x1F294));
+        func_0038d0a0(*(u8 **)(arg0 + 0x1F298));
+        func_0045af60(1, 2, 2, 0xD);
+        *(u32 *)(arg0 + 0x1F2F8) = 0xA;
+        break;
+    case 10:
+        if (func_00375970(arg0 + (*(s32 *)(sbase + 0xC) * 0xE8) + 0x1D6A0) == 0) {
+            break;
+        }
+        func_00378df0(arg0, *(s32 *)(sbase + 0xC));
+        for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
+            if (i != *(s32 *)(sbase + 0xC)) {
+                func_00376290(arg0, i, 0xF, 0xFF, 0);
+            }
+        }
+        func_0045af60(1, 0, 5, 1);
+        *(u32 *)(arg0 + 0x1F2F8) = 0xB;
+    case 11:
+        if (func_00375910(arg0 + (*(s32 *)(sbase + 0xC) * 0xE8) + 0x1D6A0) == 0) {
+            break;
+        }
+        for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
+            if (i != *(s32 *)(sbase + 0xC)) {
+                func_00375890(arg0, i, 0);
+            }
+        }
+        *(u16 *)(sbase + 0) = *(u16 *)(sbase + 0) & 0xFFFE;
+        func_00379c70(arg0, *(s32 *)(sbase + 0xC));
+        *(u32 *)(arg0 + 0x1F2F8) = 0xC;
+        break;
+    case 12:
+        if (func_00379d70(arg0) == 0) {
+            break;
+        }
+        *(u32 *)(arg0 + 0x1F2F8) = 0xD;
+    case 13:
+        return 1;
+    case 14:
+        if (func_00379a70(arg0) == 0) {
+            break;
+        }
+        if (*(s32 *)(arg0 + 0x1F248) != 0) {
+            *(u32 *)(arg0 + 0x1F2F8) = 0xD;
+        } else {
+            *(u32 *)(arg0 + 0x1F2F8) = 3;
+        }
+        break;
+    case 15:
+        if (func_00379920(arg0) == 0) {
+            break;
+        }
+        if (*(u16 *)(arg0 + 0x1F2F4) & 2) {
+            *(u16 *)(arg0 + 0x1F2F4) = *(u16 *)(arg0 + 0x1F2F4) & 0xFFFD;
+        }
+        *(u16 *)(arg0 + 0x1F2F0) = *(u16 *)(arg0 + 0x1F2F0) + 1;
+        if ((*(u16 *)(arg0 + 0x1F2F0) & 0xFFFF) < 0x1E) {
+            break;
+        }
+        func_00106390(0x1431, 1);
+        *(u32 *)(arg0 + 0x1F2F8) = 7;
+        break;
+    default:
+        func_0046d730(D_0064EAE0, 0x19E);
+        break;
+    }
+    if (*(u16 *)(sbase + 0) & 1) {
+        for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
+            if (i != *(s32 *)(sbase + 0xC)) {
+                func_00378c80(arg0, i, mod);
+            }
+        }
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0037", func_0037ad10);
+#endif
 // FUN_0037B8C0
 void func_0037b8c0(u8 *arg0, s32 arg1, f32 *arg2) {
     struct {

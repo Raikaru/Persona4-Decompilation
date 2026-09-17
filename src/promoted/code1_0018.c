@@ -57,7 +57,7 @@ extern s32 func_00470e20(s32 handle);
 extern void func_001582f0(s32 mode, s32 value, s32 arg2);
 extern void func_00450340(s64 arg0, s32 arg1, ...);
 extern void func_0017d1f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3,
-                           s32 arg4, f32 arg5, f32 arg6, f32 arg7);
+                           f32 arg5, f32 arg6, f32 arg7, s32 arg4);
 extern void func_0014def0(u8 *arg0, u8 *arg1, f32 *arg2, s32 arg3, s32 arg4,
                           f32 farg0, f32 farg1, f32 farg2, f32 farg3,
                           f32 farg4, f32 farg5, f32 farg6, f32 farg7,
@@ -1429,8 +1429,149 @@ void func_0018e4d0(u8 *arg0)
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
-// FUN_0018E810
+/* Floor: 95 differing words over 42 fnalign edits, 451 emitted against
+   retail's 451 (0.0%).  Levers that moved it: pointer-typed state base
+   instead of (s32), block-scoped row/column counters, the func_0017d1f0
+   prototype above reordered so the trailing s32 follows the three f32s
+   (that reorder alone is worth 34 words and is required by the two
+   func_0018f950 call sites as well).  WALL: saved-register colour
+   rotation across the case 1 / case 4 bodies -- retail keeps the packet
+   pointer in s3 and the row cursor in s2 for the whole function while
+   b210 recolours them per case, which no source spelling reaches. */
+// FUN_0018E810 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0018e810(u8 *arg0)
+{
+    extern s64 iGpffff9fd0;
+    extern f32 iGpffff9fd8;
+    extern u8 iGpffff9fdc;
+    extern s32 iGpffffb240;
+    extern s32 func_00470e20(s32 handle);
+    extern void func_001582f0(s32 mode, s32 value, s32 arg2);
+    f32 spCC[1];
+    u8 *state;
+    s32 index;
+
+    state = *(u8 **)(arg0 + 0x38);
+    switch (*(s32 *)state) {
+    case 0:
+        *(s32 *)(state + 0x1B438) = func_00470250(arg0, 0x100, 0x40);
+        func_00470810(*(s32 *)(state + 0x1B438), D_005F5730, 4);
+        func_00470430(*(s32 *)(state + 0x1B438), 0x14);
+        func_004703c0(*(s32 *)(state + 0x1B438), 4);
+        func_004703d0(*(s32 *)(state + 0x1B438), 1);
+        *(u8 **)(state + 0x1B434) = D_007E3720;
+        *(s32 *)state += 1;
+        break;
+    case 1:
+        if (D_008C024E[0] & 0x40) {
+            switch (func_00470e20(*(s32 *)(state + 0x1B438))) {
+            case 0:
+                *((u8 *)func_00155280() + 0x4A) =
+                    *((u8 *)(*func_00470bd0(*(s32 *)(state + 0x1B438), 3) * 0x10) +
+                      (u32)*(u8 **)(state + 0x1B434) + 8);
+                *((u8 *)func_00155280() + 0x4B) =
+                    *((u8 *)(*func_00470bd0(*(s32 *)(state + 0x1B438), 3) * 0x10) +
+                      (u32)*(u8 **)(state + 0x1B434) + 9);
+                *(s32 *)(state + 4) = 2;
+                func_001582f0(*(s32 *)(state + 4),
+                              *func_00470bd0(*(s32 *)(state + 0x1B438), 0), 0);
+                func_00452080(*(s32 *)(state + 0x1B438));
+                *(s32 *)state += 1;
+                break;
+            case 1:
+                *((u8 *)func_00155280() + 0x4A) =
+                    *((u8 *)(*func_00470bd0(*(s32 *)(state + 0x1B438), 3) * 0x10) +
+                      (u32)*(u8 **)(state + 0x1B434) + 8);
+                *((u8 *)func_00155280() + 0x4B) =
+                    *((u8 *)(*func_00470bd0(*(s32 *)(state + 0x1B438), 3) * 0x10) +
+                      (u32)*(u8 **)(state + 0x1B434) + 9);
+                *(s32 *)(state + 4) = 0;
+                func_001582f0(*(s32 *)(state + 4),
+                              *func_00470bd0(*(s32 *)(state + 0x1B438), 1), 0);
+                func_00452080(*(s32 *)(state + 0x1B438));
+                *(s32 *)state += 1;
+                break;
+            case 2:
+                *((u8 *)func_00155280() + 0x4A) =
+                    *((u8 *)(*func_00470bd0(*(s32 *)(state + 0x1B438), 3) * 0x10) +
+                      (u32)*(u8 **)(state + 0x1B434) + 8);
+                *((u8 *)func_00155280() + 0x4B) =
+                    *((u8 *)(*func_00470bd0(*(s32 *)(state + 0x1B438), 3) * 0x10) +
+                      (u32)*(u8 **)(state + 0x1B434) + 9);
+                *(s32 *)(state + 4) = 1;
+                func_001582f0(*(s32 *)(state + 4),
+                              *func_00470bd0(*(s32 *)(state + 0x1B438), 2), 0);
+                func_00452080(*(s32 *)(state + 0x1B438));
+                *(s32 *)state += 1;
+                break;
+            }
+        }
+        break;
+    case 2:
+        *(s32 *)state += 1;
+        break;
+    case 3:
+        *(s32 *)state += 1;
+        break;
+    case 4:
+        if (D_008C024E[0] & 0x8000) {
+            *(s32 *)(state + 0x1B430) -= 1;
+        } else if (D_008C024E[0] & 0x2000) {
+            *(s32 *)(state + 0x1B430) += 1;
+        }
+        if (*(s32 *)(state + 0x1B430) < 0) {
+            *(s32 *)(state + 0x1B430) = 3;
+        }
+        if (*(s32 *)(state + 0x1B430) > 3) {
+            *(s32 *)(state + 0x1B430) = 0;
+        }
+        if (D_008C024E[0] & 0x40) {
+            func_001582f0(*(s32 *)(state + 4), 0, 0);
+        }
+        func_00450340(iGpffff9fd0, (s32)&iGpffff9fdc, iGpffffb240);
+        {
+            s32 y;
+            s32 x;
+            s32 ty;
+            u8 *panels;
+            s32 colofs;
+            s32 type;
+            s32 off;
+            f32 fx;
+            f32 fy;
+
+            for (y = 0; y < 0x18; y++) {
+                for (x = 0, ty = y * 0x12, panels = state + y * 0x1200; x < 0x10; x++) {
+                    if (*((u8 *)func_00155280() + (y << 8) + x * 0x10 + 0x54) != 0 &&
+                        (*((u8 *)func_00155280() + (y << 8) + x * 0x10 + 0x55) & 0xF) == 1) {
+                        off = x * 0x10;
+                        type = *((u8 *)func_00155280() + (y << 8) + off + 0x58);
+                        fx = (f32)(x * 0x12);
+                        fy = (f32)ty;
+                        func_0017d1f0(D_007966D0, panels + x * 0x120 + 0x10, type, 0,
+                                      fx, fy, 0.0f,
+                                      *((u8 *)func_00155280() + (y << 8) + off + 0x59));
+                    }
+                    if (*((u8 *)func_00155280() + (y << 8) + x * 0x10 + 0x54) == 2) {
+                        spCC[0] = iGpffff9fd8;
+                        func_0014def0(D_007966D0, panels + x * 0x120 + 0x10, spCC, 0, 0,
+                                      (f32)(x * 0x12), (f32)ty, 0.0f, 18.0f, 18.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f);
+                    }
+                }
+            }
+        }
+        if (D_008C024E[0] & 0x20) {
+            *(s32 *)state = 0;
+        }
+        break;
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018e810);
+#endif
 // FUN_0018EF20
 void func_0018ef20(u8 *arg0)
 {
@@ -1794,16 +1935,16 @@ s32 func_0018f950(u8 *arg0)
                 if (cell[0x2C] != 0 && (cell[0x2D] & 0xF) == 1) {
                     func_0017d1f0(D_007966D0,
                                   panels + x * 0x120 + 0x1D10,
-                                  cell[0x30], 0, cell[0x31],
-                                  80.0f + (f32)(x * 0x12), fy, 0.0f);
+                                  cell[0x30], 0,
+                                  80.0f + (f32)(x * 0x12), fy, 0.0f, cell[0x31]);
                 }
             }
         }
         func_0017d1f0(D_007966D0, temp_20 + 0x1990,
                       (u8)*(s32 *)(temp_20 + 0x1D00), 0,
-                      (u8)*(s32 *)(temp_20 + 0x1AB8),
                       80.0f + 18.0f * (f32)*(s32 *)(temp_20 + 0x1AB0),
-                      6.0f + 18.0f * (f32)*(s32 *)(temp_20 + 0x1AB4), 0.0f);
+                      6.0f + 18.0f * (f32)*(s32 *)(temp_20 + 0x1AB4), 0.0f,
+                      (u8)*(s32 *)(temp_20 + 0x1AB8));
         break;
     case 5:
         return -1;
