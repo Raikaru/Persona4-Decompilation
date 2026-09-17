@@ -3887,31 +3887,31 @@ void func_0014dd80(u8 *arg0, u8 *arg1) {
 }
 /* measured probe: restore opt_propagation after 0014dd80. */
 #pragma opt_propagation on
-/* Sprite-draw floor (944B window). Re-measured nd 203; extensive lever
-   list exhausted per archived notes (param order, global spellings,
-   conversion copy, counters, stores, propagation). See W44c14 doc. */
-// FUN_0014DEF0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma push
-#pragma opt_propagation off
-/*
- * W44c14 probe archive: func_0014def0 (0x0014def0)
- * object: 936B; retail window: 944B; best nd: 34 (reloc-masked)
- * A scoped `opt_propagation off` closed the global load spelling: with
- * propagation on, the address of D_008872F8 is folded into the load and
- * materialised a second time beside the pointer this body keeps, which is
- * the 0x74/0x78 pair.  With it off the instruction stream is retail's -
- * tools/fnalign.py reports 234 against 234 with no inserts or deletes - and
- * every remaining word is a caller-saved temporary name in the conversion
- * loop (retail holds the index in $a1, this build in $v0).  200 declaration
- * orders are inert on that.
- * levers tried: interleaved EE/FPU parameter declaration order; grouped and
- *   address-of/volatile/cast global-pointer spellings; recipe-A s32/u32
- *   conversion copy; s16 and s32 loop counters; loop-local declaration
- *   permutations; direct stores; scoped opt_propagation probe; float-local
- *   declaration order. The archived body is the best compiled no-macro
- *   candidate without temporary pragmas.
- */
+typedef struct {
+    f32 gammaCorrection;
+    void *fpSystem;
+    f32 zBufferNear;
+    f32 zBufferFar;
+} RwDeviceHead_0014;
+typedef struct {
+    void *curCamera;
+    void *curWorld;
+    u16 renderFrame;
+    u16 lightFrame;
+    u16 pad[2];
+    RwDeviceHead_0014 dOpenDevice;
+} RwGlobalsHead_0014;
+extern u32 ourGlobals[];
+#define RwIm2DGetNearScreenZ() \
+    (((RwGlobalsHead_0014 *)ourGlobals)->dOpenDevice.zBufferNear)
+/* Matched.  The near Z is RwIm2DGetNearScreenZ(), a member of RenderWare's
+   ourGlobals reached through the RwGlobals/RwDevice prefix above: read
+   twice around the camera call it keeps its address in $s5 without the
+   volatile pointer the old floor used.  The colour loop's counter and
+   vertex pointer are block-scoped, which is what puts the index in $a1
+   instead of $v0, and the four bytes convert as (f32)(u32) so MWCC emits
+   its own bltz/srl/or/cvt/add.s sequence.  No pragma. */
+// FUN_0014DEF0
 void func_0014def0(s32 arg0, u8 *arg1,
                    f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
                    f32 fparg4, u8 *arg2, s32 arg3,
@@ -3919,170 +3919,110 @@ void func_0014def0(s32 arg0, u8 *arg1,
                    f32 arg_sp0)
 {
     extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
-    volatile f32 *global;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f0_3;
-    f32 temp_f0_4;
-    f32 temp_f1;
-    f32 temp_f1_2;
-    f32 temp_f1_3;
-    f32 temp_f1_4;
-    f32 var_f3;
-    f32 temp_f2;
-    f32 var_f0;
-    f32 var_f0_2;
-    f32 var_f0_3;
-    f32 var_f0_4;
-    s32 var_5;
-    s32 v;
-    u32 c;
-    u8 *temp_4;
-    u8 *temp_2_5;
- 
- 
- 
+    f32 z;
+    f32 inverse;
+    f32 right;
+    f32 bottom;
+    u8 *entry;
 
-    global = &D_008872F8[0];
-    var_f3 = *(f32 *)((u8 *)global + 0) - fparg2;
+    z = RwIm2DGetNearScreenZ() - fparg2;
     if (fparg2 == 0.0f) {
-        var_f3 = *(f32 *)((u8 *)global + 0) - *(f32 *)(func_00457120() + 0x80);
+        z = RwIm2DGetNearScreenZ() - *(f32 *)(func_00457120() + 0x80);
     }
-    temp_f2 = 1.0f / var_f3;
+    inverse = 1.0f / z;
     switch (arg4) {
     case 0:
         *(f32 *)(arg1 + 0) = fparg0;
         *(f32 *)(arg1 + 4) = fparg1;
-        *(f32 *)(arg1 + 8) = var_f3;
-        temp_f1 = fparg0 + fparg3;
-        *(f32 *)(arg1 + 0x40) = temp_f1;
+        *(f32 *)(arg1 + 8) = z;
+        right = fparg0 + fparg3;
+        *(f32 *)(arg1 + 0x40) = right;
         *(f32 *)(arg1 + 0x44) = fparg1;
-        *(f32 *)(arg1 + 0x48) = var_f3;
+        *(f32 *)(arg1 + 0x48) = z;
         *(f32 *)(arg1 + 0x80) = fparg0;
-        temp_f0 = fparg1 + fparg4;
-        *(f32 *)(arg1 + 0x84) = temp_f0;
-        *(f32 *)(arg1 + 0x88) = var_f3;
-        *(f32 *)(arg1 + 0xC0) = temp_f1;
-        *(f32 *)(arg1 + 0xC4) = temp_f0;
-        *(f32 *)(arg1 + 0xC8) = var_f3;
+        bottom = fparg1 + fparg4;
+        *(f32 *)(arg1 + 0x84) = bottom;
+        *(f32 *)(arg1 + 0x88) = z;
+        *(f32 *)(arg1 + 0xC0) = right;
+        *(f32 *)(arg1 + 0xC4) = bottom;
+        *(f32 *)(arg1 + 0xC8) = z;
         break;
     case 1:
         *(f32 *)(arg1 + 0x40) = fparg0;
         *(f32 *)(arg1 + 0x44) = fparg1;
-        *(f32 *)(arg1 + 0x48) = var_f3;
-        temp_f1_2 = fparg0 + fparg3;
-        *(f32 *)(arg1 + 0xC0) = temp_f1_2;
+        *(f32 *)(arg1 + 0x48) = z;
+        right = fparg0 + fparg3;
+        *(f32 *)(arg1 + 0xC0) = right;
         *(f32 *)(arg1 + 0xC4) = fparg1;
-        *(f32 *)(arg1 + 0xC8) = var_f3;
+        *(f32 *)(arg1 + 0xC8) = z;
         *(f32 *)(arg1 + 0) = fparg0;
-        temp_f0_2 = fparg1 + fparg4;
-        *(f32 *)(arg1 + 4) = temp_f0_2;
-        *(f32 *)(arg1 + 8) = var_f3;
-        *(f32 *)(arg1 + 0x80) = temp_f1_2;
-        *(f32 *)(arg1 + 0x84) = temp_f0_2;
-        *(f32 *)(arg1 + 0x88) = var_f3;
+        bottom = fparg1 + fparg4;
+        *(f32 *)(arg1 + 4) = bottom;
+        *(f32 *)(arg1 + 8) = z;
+        *(f32 *)(arg1 + 0x80) = right;
+        *(f32 *)(arg1 + 0x84) = bottom;
+        *(f32 *)(arg1 + 0x88) = z;
         break;
     case 2:
         *(f32 *)(arg1 + 0xC0) = fparg0;
         *(f32 *)(arg1 + 0xC4) = fparg1;
-        *(f32 *)(arg1 + 0xC8) = var_f3;
-        temp_f1_3 = fparg0 + fparg3;
-        *(f32 *)(arg1 + 0x80) = temp_f1_3;
+        *(f32 *)(arg1 + 0xC8) = z;
+        right = fparg0 + fparg3;
+        *(f32 *)(arg1 + 0x80) = right;
         *(f32 *)(arg1 + 0x84) = fparg1;
-        *(f32 *)(arg1 + 0x88) = var_f3;
+        *(f32 *)(arg1 + 0x88) = z;
         *(f32 *)(arg1 + 0x40) = fparg0;
-        temp_f0_3 = fparg1 + fparg4;
-        *(f32 *)(arg1 + 0x44) = temp_f0_3;
-        *(f32 *)(arg1 + 0x48) = var_f3;
-        *(f32 *)(arg1 + 0) = temp_f1_3;
-        *(f32 *)(arg1 + 4) = temp_f0_3;
-        *(f32 *)(arg1 + 8) = var_f3;
+        bottom = fparg1 + fparg4;
+        *(f32 *)(arg1 + 0x44) = bottom;
+        *(f32 *)(arg1 + 0x48) = z;
+        *(f32 *)(arg1 + 0) = right;
+        *(f32 *)(arg1 + 4) = bottom;
+        *(f32 *)(arg1 + 8) = z;
         break;
     case 3:
         *(f32 *)(arg1 + 0x80) = fparg0;
         *(f32 *)(arg1 + 0x84) = fparg1;
-        *(f32 *)(arg1 + 0x88) = var_f3;
-        temp_f1_4 = fparg0 + fparg3;
-        *(f32 *)(arg1 + 0) = temp_f1_4;
+        *(f32 *)(arg1 + 0x88) = z;
+        right = fparg0 + fparg3;
+        *(f32 *)(arg1 + 0) = right;
         *(f32 *)(arg1 + 4) = fparg1;
-        *(f32 *)(arg1 + 8) = var_f3;
+        *(f32 *)(arg1 + 8) = z;
         *(f32 *)(arg1 + 0xC0) = fparg0;
-        temp_f0_4 = fparg1 + fparg4;
-        *(f32 *)(arg1 + 0xC4) = temp_f0_4;
-        *(f32 *)(arg1 + 0xC8) = var_f3;
-        *(f32 *)(arg1 + 0x40) = temp_f1_4;
-        *(f32 *)(arg1 + 0x44) = temp_f0_4;
-        *(f32 *)(arg1 + 0x48) = var_f3;
+        bottom = fparg1 + fparg4;
+        *(f32 *)(arg1 + 0xC4) = bottom;
+        *(f32 *)(arg1 + 0xC8) = z;
+        *(f32 *)(arg1 + 0x40) = right;
+        *(f32 *)(arg1 + 0x44) = bottom;
+        *(f32 *)(arg1 + 0x48) = z;
         break;
     }
-    *(f32 *)(arg1 + 0x18) = temp_f2;
-    *(f32 *)(arg1 + 0x58) = temp_f2;
-    *(f32 *)(arg1 + 0x98) = temp_f2;
-    *(f32 *)(arg1 + 0xD8) = temp_f2;
-    var_5 = 0;
-    goto loop_test;
-loop_body:
-    temp_4 = arg1 + (var_5 << 6);
-    v = *(u8 *)(arg2 + 0);
-    if (v >= 0) {
-        var_f0 = (f32)v;
-    } else {
-        c = v;
-        c = (c >> 1) | (c & 1);
-        var_f0 = (f32)(s32)c;
-        var_f0 += var_f0;
-    }
-    *(f32 *)(temp_4 + 0x20) = var_f0;
-    v = *(u8 *)(arg2 + 1);
-    if (v >= 0) {
-        var_f0 = (f32)v;
-    } else {
-        c = v;
-        c = (c >> 1) | (c & 1);
-        var_f0 = (f32)(s32)c;
-        var_f0 += var_f0;
-    }
-    *(f32 *)(temp_4 + 0x24) = var_f0;
-    v = *(u8 *)(arg2 + 2);
-    if (v >= 0) {
-        var_f0 = (f32)v;
-    } else {
-        c = v;
-        c = (c >> 1) | (c & 1);
-        var_f0 = (f32)(s32)c;
-        var_f0 += var_f0;
-    }
-    *(f32 *)(temp_4 + 0x28) = var_f0;
-    v = *(u8 *)(arg2 + 3);
-    if (v >= 0) {
-        var_f0 = (f32)v;
-    } else {
-        c = v;
-        c = (c >> 1) | (c & 1);
-        var_f0 = (f32)(s32)c;
-        var_f0 += var_f0;
-    }
-    *(f32 *)(temp_4 + 0x2C) = var_f0;
-    var_5++;
-loop_test:
-    if (var_5 < 4) {
-        goto loop_body;
+    *(f32 *)(arg1 + 0x18) = inverse;
+    *(f32 *)(arg1 + 0x58) = inverse;
+    *(f32 *)(arg1 + 0x98) = inverse;
+    *(f32 *)(arg1 + 0xD8) = inverse;
+    {
+        s32 i;
+        u8 *vertex;
+
+        for (i = 0; i < 4; i++) {
+            vertex = arg1 + (i << 6);
+            *(f32 *)(vertex + 0x20) = (f32)(u32)arg2[0];
+            *(f32 *)(vertex + 0x24) = (f32)(u32)arg2[1];
+            *(f32 *)(vertex + 0x28) = (f32)(u32)arg2[2];
+            *(f32 *)(vertex + 0x2C) = (f32)(u32)arg2[3];
+        }
     }
     *(s32 *)(arg1 + 0x100) = arg3;
-    *(f32 *)(arg1 + 0x104) = temp_f2;
+    *(f32 *)(arg1 + 0x104) = inverse;
     *(f32 *)(arg1 + 0x108) = fparg5;
     *(f32 *)(arg1 + 0x10C) = fparg6;
     *(f32 *)(arg1 + 0x110) = fparg7;
     *(f32 *)(arg1 + 0x114) = arg_sp0;
     *(s32 *)(arg1 + 0x118) = arg4;
-    temp_2_5 = func_00461390((void *)arg0, 4, arg1, 4);
-    *(void **)(temp_2_5 + 8) = (void *)func_0014dd80;
-    *(u8 **)(temp_2_5 + 0x10) = arg1;
+    entry = func_00461390((void *)arg0, 4, arg1, 4);
+    *(void **)(entry + 8) = (void *)func_0014dd80;
+    *(u8 **)(entry + 0x10) = arg1;
 }
-#pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014def0);
-#endif
 // FUN_0014E2A0
 s32 func_0014e2a0(u8 *arg0) {
     extern s32 func_004553c0(u8 *arg0);
