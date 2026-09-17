@@ -2305,8 +2305,10 @@ void func_001b6a20(void)
     }
 }
 /* measured (this session): cold reconstruction v2 object 380/retail 348 instrs (9% over, not short); probe_variants 357 words/79 edits; probe_search 120 orders flat (propagation/rebuild/no_branch/dead/loop/lifetimes/strength/size/unroll all 357, common_subs worse 397); fnalign $at none (float/bltz tail, slti $at lever N/A); residual is stack layout (0x160 frame pads) and u32->float halving (bltz) vs dead-store elimination; banked guarded floor. */
+/* measured 001b6ab0: `schedule on` inside the guard is worth 25 words (357 -> 332). */
 // FUN_001B6AB0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
 void func_001b6ab0(void) {
     extern s32 func_003f6440(s32 arg0, s32 arg1);
     extern void (*D_00887300[])(u32 arg0, u32 arg1);
@@ -2385,6 +2387,7 @@ void func_001b6ab0(void) {
     buf.f10c = (f32)c3;
     D_00887300[4](4, &buf, 4);
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b6ab0);
 #endif

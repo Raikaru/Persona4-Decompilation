@@ -4712,8 +4712,10 @@ f32 func_00201990(u8 *arg0, s32 arg1, s32 arg2);
 
 /* measured: object 836B/window 832B/normalized_diff 616 (199 differing words, live re-measured current tree). */
 /* measured: top fnalign is absolute-data vs stack-immediate plus frame -0xe0 vs -0x100; extern-load variant improves 199 to 196 but goes 10pt short (182 vs 204 instrs, draft) so kept stack-immediate floor (209 vs 204 instrs, plus 2pt over, good size); slti-at N-A (no lt range, sltiu-at with a1-a2 input coloring), no 2-3 short tail (209 vs 204), arg-setup fixed (Color4 by value, 3-arg providers), loop-invariant neutral. */
+/* measured 0020f730: `schedule on` inside the guard is worth 5 words (199 -> 194). */
 // FUN_0020F730 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
 void func_0020f730(u8 *arg0, u8 *arg1, Color4 arg2, s32 arg3)
 {
     f32 corners[2][2] = {
@@ -4782,6 +4784,7 @@ void func_0020f730(u8 *arg0, u8 *arg1, Color4 arg2, s32 arg3)
         }
     }
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020f730);
 #endif

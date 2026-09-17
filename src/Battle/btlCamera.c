@@ -1865,8 +1865,10 @@ void func_001cdaf0(u8 *camera)
                   (f32 *)&work.targetPosition, 1);
     func_001bbef0(camera, 0.75f);
 }
+/* measured 001cde50: `schedule on` inside the guard is worth 1 words (312 -> 311). */
 // FUN_001CDE50 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
 void func_001cde50(u8 *arg0) {
     extern void func_001bd560(f32 *out, f32 *in);
     extern void func_001bd780(void *out, const void *first, const void *second, const void *config);
@@ -1987,6 +1989,7 @@ void func_001cde50(u8 *arg0) {
     func_001bac20((u16 *)arg0, v25, v27, 1);
     func_001bbef0(arg0, 0.75f);
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cde50);
 #endif

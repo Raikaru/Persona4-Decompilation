@@ -839,8 +839,10 @@ void func_00151f80(u8 *arg0)
    of those calls because the address is a link-time constant it can fold;
    `opt_propagation off` stops it and reaches 165 words, but perturbs 71
    instructions elsewhere, so it is not worth a non-baseline pragma. */
+/* measured 00152170: `schedule on` inside the guard is worth 14 words (241 -> 227). */
 // FUN_00152170 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
 void func_00152170(s32 arg0, u8 *arg1)
 {
     typedef struct { u32 w0; u32 w1; } CopyPair;
@@ -931,6 +933,7 @@ void func_00152170(s32 arg0, u8 *arg1)
         gs[0](0x10, 1);
     }
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00152170);
 #endif
