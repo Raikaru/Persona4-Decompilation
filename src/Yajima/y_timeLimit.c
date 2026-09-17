@@ -150,7 +150,7 @@ static inline int yTimeLess(int lhs, int rhs)
   return lhs < rhs;
 }
 extern f32 func_0044b7b0(f32 fparg0);
-extern f32 fGpffff8110;
+extern f32 fGpffff8110;
 extern f32 fGpffff8094;
 // FUN_002A2980
 u32 func_002a2980(int param_1)
