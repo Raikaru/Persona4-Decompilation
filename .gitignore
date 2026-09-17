@@ -65,3 +65,7 @@ src/**/_lane*
 src/**/*.lane*_bak
 *.bak
 *.orig
+
+# Per-lane scratch banks; never part of the build.
+/local/
+p4-matching-agent-kit-v2.zip
