@@ -145,7 +145,7 @@ extern RwV3d *func_003e4320(RwV3d *dst, const RwV3d *src,
 extern f32 func_0044b7b0(f32 arg0);
 extern void func_003f6440(s32 arg0, s32 arg1);
 extern s32 D_0064E440[];
-extern f32 D_008872F8;
+extern f32 D_008872F8[];
 extern P4RenderState66C70 D_00887300[];
 extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
 extern f32 iGpffff8040;
@@ -812,9 +812,147 @@ void func_00366960(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
         }
     }
 }
-#pragma pop
+/* Matched inside the same opt_propagation-off region as func_00366960: with
+   propagation on MWCC folds the four edge differences into the mula.s/msub.s
+   operands and evaluates them lazily, where retail computes dx1, dy1, dx2,
+   dy2 in order first.  z is the third parameter (ABI-identical to the
+   draft's order: ints fill $a0-$t3 and floats $f12 independently), which
+   is what homes it in $f21 at the prologue; the identity matrix is
+   RwMatrixSetIdentity's chained-assignment order; the render-state table
+   goes through a u8 * copy so its address stays in $s0 across the calls;
+   D_008872F8 is read as an absolute array element. */
 // FUN_00366C70
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00366c70);
+s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
+                  s32 alpha, s32 mode, s16 centerX, s16 centerY,
+                  struct RwMatrixTag *matrix, s32 texture, f32 (*uv)[2])
+{
+    typedef struct {
+        RwV3d right;
+        u32 flags;
+        RwV3d up;
+        u32 pad1;
+        RwV3d at;
+        u32 pad2;
+        RwV3d pos;
+        u32 pad3;
+    } P4Matrix;
+    RwV3d transformed;
+    f32 points[4][2] = { 0.0f };
+    f32 defaultUv[4][2];
+    P4Vertex66C70 vertices[4];
+    P4Matrix identity;
+    s32 *src;
+    s32 *dst;
+    s32 lo;
+    s32 hi;
+    s32 count;
+    f32 depth;
+    f32 inverse;
+    u32 packed;
+    u32 r;
+    u32 g;
+    u32 b;
+    u32 a;
+    u32 i;
+    f32 cross;
+    f32 dx1;
+    f32 dy1;
+    f32 dx2;
+    f32 dy2;
+    u8 *table;
+
+    points[1][0] = (f32)width;
+    points[2][1] = (f32)height;
+    points[3][0] = points[1][0];
+    points[3][1] = points[2][1];
+    src = D_0064E440;
+    dst = (s32 *)defaultUv;
+    count = 4;
+    do {
+        lo = src[0];
+        hi = src[1];
+        src += 2;
+        count -= 1;
+        dst[0] = lo;
+        dst[1] = hi;
+        dst += 2;
+    } while (count > 0);
+    if (matrix == NULL) {
+        identity.right.x = identity.up.y = identity.at.z = 1.0f;
+        identity.right.y = identity.right.z = identity.up.x = 0.0f;
+        identity.up.z = identity.at.x = identity.at.y = 0.0f;
+        identity.pos.x = identity.pos.y = identity.pos.z = 0.0f;
+        identity.flags |= 0x20003;
+        matrix = (struct RwMatrixTag *)&identity;
+    }
+    if (uv == NULL) {
+        uv = defaultUv;
+    }
+    inverse = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    depth = D_008872F8[0] - z;
+    packed = ((u32)rgb << 8) | (u32)alpha;
+    r = (packed >> 24) & 0xFF;
+    g = (packed >> 16) & 0xFF;
+    b = (packed >> 8) & 0xFF;
+    a = packed & 0xFF;
+    i = 0;
+    while (i < 4) {
+        u8 *point;
+        P4Vertex66C70 *vertex;
+
+        point = (u8 *)points + i * 8;
+        transformed.x = *(f32 *)(point + 0) - (f32)centerX;
+        transformed.y = *(f32 *)(point + 4) - (f32)centerY;
+        transformed.z = 0.0f;
+        func_003e4320(&transformed, &transformed, matrix);
+        transformed.x = transformed.x + (f32)x;
+        transformed.y = transformed.y + (f32)y;
+        vertex = &vertices[i];
+        vertex->x = transformed.x;
+        vertex->y = transformed.y;
+        vertex->z = depth;
+        vertex->r = (f32)r;
+        vertex->g = (f32)g;
+        vertex->b = (f32)b;
+        vertex->a = (f32)a;
+        vertex->u = *(f32 *)((u8 *)uv + i * 8);
+        vertex->v = *(f32 *)((u8 *)uv + i * 8 + 4);
+        vertex->w = inverse;
+        i++;
+    }
+    dx1 = vertices[1].x - vertices[0].x;
+    dy1 = vertices[1].y - vertices[0].y;
+    dx2 = vertices[2].x - vertices[0].x;
+    dy2 = vertices[2].y - vertices[0].y;
+    cross = dx1 * dy2 - dy1 * dx2;
+    if (mode & 2) {
+        if (cross <= 0.0f) {
+            return 0;
+        }
+    } else if ((mode & 4) && cross >= 0.0f) {
+        return 0;
+    }
+    if (mode & 1) {
+        table = (u8 *)D_00887300;
+        (*(P4RenderState66C70 *)table)(6, 1);
+        (*(P4RenderState66C70 *)table)(7, 2);
+        (*(P4RenderState66C70 *)table)(8, 1);
+        (*(P4RenderState66C70 *)table)(9, 2);
+        (*(P4RenderState66C70 *)table)(0xC, 1);
+        (*(P4RenderState66C70 *)table)(0xB, 6);
+        (*(P4RenderState66C70 *)table)(0xA, 5);
+        (*(P4RenderState66C70 *)table)(2, 4);
+        (*(P4RenderState66C70 *)table)(0xE, 0);
+        func_003f6440(3, 0x7000D);
+        func_003f6440(2, 0x44);
+    }
+    table = (u8 *)D_00887300;
+    (*(P4RenderState66C70 *)table)(1, texture);
+    D_00887310[0](4, vertices, 4);
+    (*(P4RenderState66C70 *)table)(1, 0);
+    return 1;
+}
+#pragma pop
 // FUN_003671D0
 void func_003671d0(s16 *arg0)
 {
