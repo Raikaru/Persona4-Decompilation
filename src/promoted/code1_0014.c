@@ -208,7 +208,7 @@ extern void func_0034bd60(s32 arg0);
 extern void func_00353fb0(void);
 extern void func_00353fe0(void);
 extern s32 func_00354030(void);
-extern void func_00355190(u8 *arg0, u16 arg1);
+extern void func_00355190(u8 *arg0, s32 arg1);
 extern void func_003671d0(void *arg0);
 extern void func_003672d0(void *arg0, s16 pcId);
 extern void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -274,7 +274,7 @@ static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
 // FUN_001400F0
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001400f0);
 // FUN_00141CF0
-s32 func_00141cf0(u8 *arg0, s32 arg1, s16 arg2) {
+s32 func_00141cf0(u8 *arg0, s32 arg1, s32 arg2) {
     u8 *temp_3;
 
     temp_3 = p4_00141cf0_add((u32)(arg1 * 2), arg0);
@@ -717,8 +717,197 @@ void func_00142d80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     }
     func_00355370(arg0, NULL);
 }
+/* MATCHED: same menu state machine as func_003627b0, func_0035e8b0, func_0035f0c0 and func_0013d8b0 - `*arg1 = (resultFlag = 1);`, switch on u32 `*arg0` (sltiu) breaking to shared `return 0`, fade returning 2. Party-slot address uses `p4_00141cf0_add` for retail's index-then-base `addu`; 7-word copy uses temp-split `tmp = *src++; n--; *dst++ = tmp;` for retail's load-decrement-store schedule; func_00141cf0 third param is s32 (word `lw`, low 16 stored) and func_00355190 second is s32 (hoisted `lhu` before `lw`), both value-preserving and precedent-backed. */
 // FUN_00142F20
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00142f20);
+s32 func_00142f20(u32 *arg0, s32 *arg1, u8 *arg2)
+{
+    u8 query[0x30];
+    f32 alpha;
+    s32 resultFlag;
+    s32 queryResult;
+
+    *arg1 = (resultFlag = 1);
+    switch (*arg0) {
+    case 0:
+        func_0013fb50(arg2);
+        *arg0 = 1;
+        *arg1 = 0;
+        break;
+    case 1:
+        if ((func_0013ff80(arg2) & func_0034c210()) != 0) {
+            *arg0 = 3;
+            func_0034bb20(0x15);
+        } else {
+            *arg1 = 0;
+        }
+        break;
+    case 2:
+        if (func_00142340(arg2) != 0) {
+            func_001422b0(arg2);
+            return 1;
+        }
+        break;
+    case 3:
+        if (func_00142340(arg2) != 0) {
+            func_00141d80(arg2, 2);
+            *arg0 = 4;
+            func_00353fe0();
+            func_00142d80(*(u8 **)(arg2 + 0x3C), 0, 1, 0);
+        }
+        break;
+    case 4:
+        if (D_008C024E[0] & 0x20) {
+            func_00141d80(arg2, 1);
+            *arg0 = 2;
+            func_00353fb0();
+            func_0034bb20(0x17);
+            func_00142d80(*(u8 **)(arg2 + 0x3C), 0, 0, 1);
+            func_0045af60(0, 2, 0, 4);
+        } else if (D_008C024E[0] & 0x40) {
+            u8 *base4;
+            s32 *lsrc4;
+            s32 *ldst4;
+            s32 n4;
+            s32 tmp4;
+            func_00141d80(arg2, 3);
+            func_00142090(arg2);
+            *arg0 = 5;
+            func_0034bb20(0x16);
+            base4 = arg2 + 0x1878;
+            func_003671d0(base4);
+            func_003672d0(base4, *(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
+            lsrc4 = (s32 *)(arg2 + 0x1878);
+            ldst4 = (s32 *)(arg2 + 0x1894);
+            n4 = 7;
+            do {
+                tmp4 = *lsrc4++;
+                n4--;
+                *ldst4++ = tmp4;
+            } while (n4 > 0);
+            func_00142d80(*(u8 **)(arg2 + 0x3C), 1, 0, 0);
+            func_0045af60(0, 0, 0, 1);
+        } else if (D_008C024E[0] & 0x10) {
+            *(s32 *)(arg2 + 0x10) = func_00354030();
+            *arg0 = 9;
+        } else {
+            func_00453670(query, *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x34), 0);
+            func_004538e0(query, 0x4000, 0x1000, 0, 0);
+            if (func_00453960(query) != 0) {
+                func_00141cf0(arg2, 0, *(s32 *)(query + 0x24));
+                func_00355190(*(u8 **)(arg2 + 0x3C), *(u16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
+                func_0045af60(0, 1, 0, 0);
+            }
+        }
+        break;
+    case 5:
+        if (func_00142340(arg2) != 0) {
+            func_00141d80(arg2, 4);
+            *arg0 = 6;
+            func_00142d80(*(u8 **)(arg2 + 0x3C), 2, 1, 0);
+        }
+        break;
+    case 6:
+        if (D_008C024E[0] & 0x20) {
+            func_00141d80(arg2, 2);
+            *arg0 = 3;
+            func_0034bd60(0x15);
+            func_00142d80(*(u8 **)(arg2 + 0x3C), 2, 0, 1);
+            func_0045af60(0, 0, 0, 2);
+        } else if (D_008C024E[0] & 0x10) {
+            *(s32 *)(arg2 + 0x10) = func_00354030();
+            *arg0 = 9;
+        } else if (D_008C024E[0] & 0x80) {
+            if (*(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22) == 1) {
+                func_00141d80(arg2, 5);
+                func_00142230(arg2);
+                *arg0 = 7;
+                func_0034bb20(0x18);
+                func_00142d80(*(u8 **)(arg2 + 0x3C), 2, 0, 1);
+                func_0045af60(0, 2, 0, 3);
+            }
+        } else {
+            s32 *lsrc6;
+            s32 *ldst6;
+            s32 n6;
+            s32 tmp6;
+            u8 *base6;
+            func_00453670(query, *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x34), 0);
+            func_00453760(query, 0);
+            func_004538e0(query, 8, 4, 0, 0);
+            queryResult = func_00453960(query);
+            if (queryResult > 0) {
+                func_00141cf0(arg2, 0, *(s32 *)(query + 0x24));
+                if (queryResult == 2) {
+                    func_00142130(arg2);
+                } else if (queryResult == 1) {
+                    func_001421b0(arg2);
+                }
+                lsrc6 = (s32 *)(arg2 + 0x1878);
+                ldst6 = (s32 *)(arg2 + 0x1894);
+                n6 = 7;
+                do {
+                    tmp6 = *lsrc6++;
+                    n6--;
+                    *ldst6++ = tmp6;
+                } while (n6 > 0);
+                base6 = arg2 + 0x1878;
+                func_003671d0(base6);
+                func_003672d0(base6, *(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
+                if (*(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22) == 1) {
+                    *(s16 *)(arg2 + 0x38) = 6;
+                } else {
+                    *(s16 *)(arg2 + 0x38) = 5;
+                }
+                func_00355190(*(u8 **)(arg2 + 0x3C), *(u16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
+                func_0045af60(0, 1, 0, 5);
+            }
+        }
+        break;
+    case 7:
+        if (*(s16 *)(arg2 + 0x20) == 1) {
+            func_00142d80(*(u8 **)(arg2 + 0x3C), 3, 1, 0);
+        }
+        if (func_00142340(arg2) != 0) {
+            func_00141d80(arg2, 6);
+            *arg0 = 8;
+        }
+        break;
+    case 8:
+        if (D_008C024E[0] & 0x80) {
+            func_00141d80(arg2, 3);
+            *arg0 = 5;
+            func_0034bd60(0x16);
+            func_00142d80(*(u8 **)(arg2 + 0x3C), 3, 0, 1);
+            func_0045af60(0, 2, 0, 4);
+        } else if (D_008C024E[0] & 0x10) {
+            *(s32 *)(arg2 + 0x10) = func_00354030();
+            *arg0 = 9;
+        } else if (D_008C024E[0] & 0x20) {
+            func_00141d80(arg2, 3);
+            *arg0 = 5;
+            func_0034bd60(0x16);
+            func_00142d80(*(u8 **)(arg2 + 0x3C), 3, 0, 1);
+            func_0045af60(0, 2, 0, 4);
+        }
+        break;
+    case 9:
+        if ((++*(u16 *)(arg2 + 0xC) & 0xFFFF) >= 3) {
+            resultFlag = 1;
+        } else {
+            alpha = (1.0f - ((f32)*(u16 *)(arg2 + 0xC) / 3.0f)) * 255.0f;
+            queryResult = (u8)alpha;
+            *(u8 *)arg2 = queryResult;
+            resultFlag = 0;
+        }
+        if (resultFlag != 0) {
+            return 2;
+        }
+        break;
+    default:
+        break;
+    }
+    return 0;
+}
 // FUN_001437B0
 void func_001437b0(u8 *arg0, s32 arg1, s32 arg2) {
     extern f32 D_00761184;
