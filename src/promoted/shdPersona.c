@@ -547,6 +547,7 @@ void func_00116610(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
    bare INCLUDE_ASM until a separately measured reconstruction closes the
    retail loop tail. */
 /* measured: MWCC -O2 plain, object 1288B/window 1312B, normalized_diff 119 (24B short; P4-adapted archive 301 from HW 943/1236B, loop-f 301->137, inv two-statement 137->135, decl/id/tail/idfix/P3/u32-i 135->119 best). Walls: s64-for-Vec2f and u8-arg1 compile errors confirm s32; inv-u8 +129 and inv-recompute +166 (frame B0->C0) banked. Remaining off 796 andi/move/addiu wall (missing inv recompute). No volatile/asm. Mined s64-family call at line 351. Staged /tmp/push_16820_full.c via NearGA.Shd116820. */
+/* fresh 2026-09-17: cur 119wd confirmed; inclusive le_i(i<7U-><=6U) 121 (+2 out), le_inv(inv<5U-><=4U) 119 tie (kept cur), gt_n(n>=0->>-1) 122 (+3 out); dead-arm N/A (3-short is straight-line inv recompute andi/addiu/subu [199:202] (no branch) + float hoist (10) [258:268] + mov.s (1) [234] -- no compare/branch/store delete site; inv-recompute +166 (frame B0->C0) stays banked); parent 4938e0 levers N/A (mask is 0xFF single recompute (CSE wall), frame matches (no reg symptom); no || anywhere; no COP2); fnalign 325v322 (3 short, 14 ops). Guard kept as floor. */
 // FUN_00116820 NONMATCHING
 #ifdef NON_MATCHING
 void func_00116820(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)

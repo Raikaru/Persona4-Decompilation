@@ -629,13 +629,13 @@ void func_001424b0(Float2_0014 pos, f32 fparg0, u32 arg1, u8 *arg2, s32 arg3)
 // FUN_001427C0 NONMATCHING
 #ifdef SKIP_ASM
 #pragma opt_loop_invariants on
-/* 001427c0 floor (1076B/1072B, nd 183 fresh (was 225; opt_loop_invariants hoist worth 42), edits 115+4 reloc-only fresh (was 213+4 stale); 266 vs 265 instrs (1 short) fresh; honest Float2 pos with u32 byte conversions, i%5 packet build and 5-sprite second loop. Triaged dead-arm hunt checked -- no trailing if/else-if chain ending 2-3 short (shortfall is frame -0x250 vs -0x230 + saves, not trailing per top-down fnalign). Production stays ASM. See docs/probe_archive/C14_001427c0_body.c. */
+/* 001427c0 floor (nd 182 fresh frame buf[0x1E0] (was 183 at [0x1C0]; frame addiu -0x250 now exact, saves stay 0x50); post-loop *(buf+0x18)=recip dead store +10 ruled out (retail keeps it in-loop, LICM defeat not source-reachable); for-form loops +4 ruled out (no auto-vectorization); parent 4938e0 levers N/A (no 0xFFFF-at-calls + frame-reg symptom -- mask here is 0xFF single-use, frame delta is buf-size; no || anywhere; no COP2); WALLS: quad saves below ra (`??`+`subu.qb`, 2xSQ 128-bit unreachable from plain C) + byte-combining (retail lbux3 vs build lw+extract) + colours/loop-structural; 266 vs 265 instrs (1 short) fresh; honest Float2 pos with u32 byte conversions, i%5 packet build and 5-sprite second loop. Triaged dead-arm hunt checked -- no trailing if/else-if chain ending 2-3 short (shortfall is frame -0x250 vs -0x230 + saves, not trailing per top-down fnalign). Production stays ASM. See docs/probe_archive/C14_001427c0_body.c. */
 void func_001427c0(Float2_0014 pos, s32 arg1, u8 *arg2, f32 fparg0)
 {
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2F4[];
     extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u32 arg4);
-    u8 buf[0x1C0];
+    u8 buf[0x1E0];
     f32 base;
     f32 recip;
     f32 x;
