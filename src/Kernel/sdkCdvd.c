@@ -10,7 +10,36 @@ void func_00454d20(void* a0, void* a1);
 void func_00454e10(void* a0, void* a1, void* a2);
 s32 func_004c74f8(void* a0, void* a1, void* a2, void* a3);
 void func_0043f810(void* dst, void* src, u32 size);
-extern u8 D_008C8780[];
+typedef void *ADXF;
+
+typedef struct HCdvd {
+    struct HCdvd *prev;          /* 0x000 */
+    struct HCdvd *next;          /* 0x004 */
+    s32 hasExternalMemory;       /* 0x008 */
+    s32 readState;               /* 0x00C */
+    char path[0x100];            /* 0x010 */
+    void *fileMemory;            /* 0x110 */
+    void *unalignedFileMemory;   /* 0x114 */
+    s32 fileSize;                /* 0x118 */
+    s32 unk11C;                  /* 0x11C */
+    s32 unk120;                  /* 0x120 */
+    s32 readByteSize;            /* 0x124 */
+    u8 unk128[0x2C];             /* 0x128 */
+    ADXF adxf;                   /* 0x154 */
+    char fileName[0x100];        /* 0x158 */
+    u8 dir[0x102];               /* 0x258 */
+    s16 refCount;                /* 0x35A */
+    s16 pendingDestroyCount;     /* 0x35C */
+    s16 readPollCount;           /* 0x35E */
+} HCdvd;                         /* 0x360 */
+
+typedef struct HCdvdCache {
+    s32 isValid;                 /* 0x00 */
+    s32 *requestData;            /* 0x04 */
+    u8 data[0x8C];               /* 0x08 */
+} HCdvdCache;                    /* 0x94 */
+
+extern HCdvdCache D_008C8780[];
 extern u8 D_008C8784[];
 extern u8 D_008C8808[];
 extern u8 D_008C880C[];
@@ -31,28 +60,11 @@ extern u8* D_008D1B84[];
 extern char D_00710900[];
 extern char D_00710910[];
 
-/* Floor: 5 differing words (the earlier attempt measured 103).  The
-   state-machine shapes that closed it: `case 3` is a top-level label whose
-   body follows the state-4 block, reached by an explicit
-   `if (state == 3) { readState = 3; goto do_state3; }` so the store lands
-   on the branch path as retail's does; the reference count is a compound
-   `-=`, which loads 0x35C before 0x35A the way retail does, and the
-   difference is stored before the sign extension that feeds the test; the
-   archive handle is stored straight from the call and re-read into the
-   local.  `opt_loop_invariants on` hoists the slot-scan base and the
-   `node + 8` target out of the loop.
-   The scan loop's base belongs in the `for` header: hoisting it there
-   while the pragma still lifts `node + 8` puts both values in retail's
-   registers ($a0 target, $a1 base) and drops the floor from 5 words to 3.
-   WALL: the two hoists are emitted in the wrong order - retail materialises
-   the target first, this build the base.  Hoisting the target instead, or
-   first, restores the order but swaps the registers back, because MWCC
-   numbers them by first use in the loop body and retail's C evidently used
-   the target first.  Both manual hoists in both orders, a target hoisted
-   above the loop, a reversed comparison, the fully inlined index form and
-   150 declaration orders were measured. */
-// FUN_00454640 NONMATCHING
-#ifdef NON_MATCHING
+/* Measured: 1052/1056 bytes, 46 resolved relocations, four zero tail bytes.
+ * Typed cache indexing gives the retail request/base hoist order; an explicit
+ * base initializer leaves three words different. The compound refCount -=
+ * preserves the RHS-first loads and store before the signed comparison. */
+// FUN_00454640
 #pragma push
 #pragma opt_loop_invariants on
 void func_00454640(void)
@@ -61,24 +73,24 @@ void func_00454640(void)
     extern void func_00468d10(void);
     extern void func_00455230(void *arg0);
     extern void func_00455b70(void *arg0);
-    extern s32 func_004c85a0(void *arg0, s32 arg1);
-    extern void func_004c8a60(s32 handle);
-    extern s32 func_004c9010(s32 handle, s32 count, s32 buffer);
-    extern s32 func_004c95f8(s32 handle);
-    extern s32 func_004c9670(s32 handle);
-    extern s32 func_004c9820(s32 handle);
-    extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+    extern ADXF func_004c85a0(void *name, s32 mode);
+    extern void func_004c8a60(ADXF handle);
+    extern s32 func_004c9010(ADXF handle, s32 count, void *buffer);
+    extern s32 func_004c95f8(ADXF handle);
+    extern s32 func_004c9670(ADXF handle);
+    extern s32 func_004c9820(ADXF handle);
+    extern void *(*jtbl_008873E8[])(u32 size, u32 hint);
     extern void (*jtbl_008873EC[])(void *ptr);
     extern char D_00710880[];
     extern char D_007108A0[];
     extern char D_007108C0[];
     extern char D_007108E0[];
-    u8 *node;
-    u8 *next;
-    u8 *prev;
-    u8 *link;
-    u8 *slot;
-    s32 handle;
+    HCdvd *node;
+    HCdvd *next;
+    HCdvd *prev;
+    HCdvd *link;
+    HCdvdCache *slot;
+    ADXF handle;
     s32 offset;
     s32 buffer;
     s32 blocks;
@@ -86,35 +98,34 @@ void func_00454640(void)
     s32 spare;
     s32 state;
     s16 i;
-    u8 *base;
 
     func_00468a50();
     func_00468d10();
-    node = D_008D1B84[0];
+    node = (HCdvd *)D_008D1B84[0];
     if (node == NULL) {
         return;
     }
 loop:
-    if (*(s32 *)(node + 0xC) != 4) {
-        switch (*(s32 *)(node + 0xC)) {
+    if (node->readState != 4) {
+        switch (node->readState) {
         case 0:
-            *(s16 *)(node + 0x35E) = 0;
-            func_00455230(node + 0x258);
-            *(s32 *)(node + 0x154) = func_004c85a0(node + 0x158, 0);
-            handle = *(s32 *)(node + 0x154);
-            if (handle == 0) {
+            node->readPollCount = 0;
+            func_00455230(node->dir);
+            node->adxf = func_004c85a0(node->fileName, 0);
+            handle = node->adxf;
+            if (handle == NULL) {
                 goto tail;
             }
             offset = func_004c9670(handle);
-            *(s32 *)(node + 0x124) = offset;
-            *(s32 *)(node + 0x118) = offset;
-            *(s32 *)(node + 0xC) = 1;
+            node->readByteSize = offset;
+            node->fileSize = offset;
+            node->readState = 1;
         case 1:
-            if (*(s32 *)(node + 0x110) == 0) {
+            if (node->fileMemory == NULL) {
                 func_0044ea90(D_00710870, 0xFA);
                 buffer = (s32)(*jtbl_008873E8)(
-                    (func_004c95f8(*(s32 *)(node + 0x154)) << 0xB) + 0x40, 0x40000);
-                *(s32 *)(node + 0x114) = buffer;
+                    ((u32)func_004c95f8(node->adxf) << 0xB) + 0x40U, 0x40000);
+                node->unalignedFileMemory = (void *)buffer;
                 if (buffer == 0) {
                     func_0046d740(D_00710880, D_00710870, 0xFF);
                     return;
@@ -122,42 +133,42 @@ loop:
                 aligned = buffer / 0x40 * 0x40;
                 spare = buffer % 0x40;
                 if (spare != 0) {
-                    aligned += 0x40;
+                    aligned = (s32)((u32)aligned + 0x40U);
                 }
-                *(s32 *)(node + 0x110) = aligned;
+                node->fileMemory = (void *)aligned;
             }
-            blocks = func_004c9010(*(s32 *)(node + 0x154),
-                                   func_004c95f8(*(s32 *)(node + 0x154)),
-                                   *(s32 *)(node + 0x110));
-            if (blocks != func_004c95f8(*(s32 *)(node + 0x154))) {
-                func_004c8a60(*(s32 *)(node + 0x154));
-                *(s32 *)(node + 0x154) = 0;
-                if (*(s32 *)(node + 8) == 0) {
-                    (*jtbl_008873EC)(*(void **)(node + 0x114));
-                    *(s32 *)(node + 0x110) = 0;
-                    *(s32 *)(node + 0x114) = 0;
+            blocks = func_004c9010(node->adxf,
+                                   func_004c95f8(node->adxf),
+                                   node->fileMemory);
+            if (blocks != func_004c95f8(node->adxf)) {
+                func_004c8a60(node->adxf);
+                node->adxf = NULL;
+                if (node->hasExternalMemory == 0) {
+                    (*jtbl_008873EC)(node->unalignedFileMemory);
+                    node->fileMemory = NULL;
+                    node->unalignedFileMemory = NULL;
                 }
-                *(s32 *)(node + 0xC) = 0;
+                node->readState = 0;
                 goto tail;
             }
-            *(s32 *)(node + 0xC) = 2;
+            node->readState = 2;
         case 2:
-            *(s16 *)(node + 0x35E) = (s16)(*(s16 *)(node + 0x35E) + 1);
-            state = func_004c9820(*(s32 *)(node + 0x154));
+            node->readPollCount = (s16)(node->readPollCount + 1);
+            state = func_004c9820(node->adxf);
             if (state == 3) {
-                *(s32 *)(node + 0xC) = 3;
+                node->readState = 3;
                 goto do_state3;
             }
             {
                 if (state == 4) {
                     func_00440b68(D_007108A0);
-                    func_004c8a60(*(s32 *)(node + 0x154));
-                    *(s32 *)(node + 0x154) = 0;
-                    *(s32 *)(node + 0xC) = 0;
-                    if (*(s32 *)(node + 8) == 0) {
-                        (*jtbl_008873EC)(*(void **)(node + 0x114));
-                        *(s32 *)(node + 0x110) = 0;
-                        *(s32 *)(node + 0x114) = 0;
+                    func_004c8a60(node->adxf);
+                    node->adxf = NULL;
+                    node->readState = 0;
+                    if (node->hasExternalMemory == 0) {
+                        (*jtbl_008873EC)(node->unalignedFileMemory);
+                        node->fileMemory = NULL;
+                        node->unalignedFileMemory = NULL;
                     }
                     return;
                 }
@@ -165,45 +176,45 @@ loop:
             }
 do_state3:
         case 3:
-            func_00455b70(node + 8);
-            *(s32 *)(node + 0xC) = 4;
-            func_004c8a60(*(s32 *)(node + 0x154));
-            *(s32 *)(node + 0x154) = 0;
-            func_00440b68(D_007108C0, node + 0x10);
+            func_00455b70(&node->hasExternalMemory);
+            node->readState = 4;
+            func_004c8a60(node->adxf);
+            node->adxf = NULL;
+            func_00440b68(D_007108C0, node->path);
             goto tail;
         }
         goto tail;
     }
 tail:
-    if (*(s32 *)(node + 0xC) == 4) {
-        next = *(u8 **)(node + 4);
-        *(s16 *)(node + 0x35A) -= *(s16 *)(node + 0x35C);
-        if (*(s16 *)(node + 0x35A) < 0) {
+    if (node->readState == 4) {
+        next = node->next;
+        node->refCount -= node->pendingDestroyCount;
+        if (node->refCount < 0) {
             func_00440b68(D_007108E0);
         }
-        *(s16 *)(node + 0x35C) = 0;
-        if (*(s16 *)(node + 0x35A) <= 0) {
-            prev = *(u8 **)(node + 0);
-            link = *(u8 **)(node + 4);
-            *(u8 **)(prev + 4) = link;
+        node->pendingDestroyCount = 0;
+        if (node->refCount <= 0) {
+            prev = node->prev;
+            link = node->next;
+            prev->next = link;
             if (link != NULL) {
-                *(u8 **)link = prev;
+                link->prev = prev;
             }
-            if (*(s32 *)(node + 0x110) != 0 && *(s32 *)(node + 8) == 0) {
-                (*jtbl_008873EC)(*(void **)(node + 0x114));
-                *(s32 *)(node + 0x110) = 0;
-                *(s32 *)(node + 0x114) = 0;
+            if (node->fileMemory != NULL && node->hasExternalMemory == 0) {
+                (*jtbl_008873EC)(node->unalignedFileMemory);
+                node->fileMemory = NULL;
+                node->unalignedFileMemory = NULL;
             }
-            for (i = 0, base = D_008C8780; i < 0x100; i++) {
-                slot = base + i * 0x94;
-                if (*(s32 *)slot != 0 && *(s32 *)(slot + 4) == (s32)(node + 8)) {
-                    *(s32 *)slot = 0;
+            for (i = 0; i < 0x100; i++) {
+                slot = &D_008C8780[i];
+                if (slot->isValid != 0 && slot->requestData == &node->hasExternalMemory) {
+                    slot->isValid = 0;
                 }
             }
-            handle = *(s32 *)(node + 0x154);
-            if (handle != 0) {
+            handle = node->adxf;
+            if (handle != NULL) {
                 func_004c8a60(handle);
-                *(s32 *)(node + 0x154) = 0;
+                node->adxf = NULL;
             }
             (*jtbl_008873EC)(node);
         }
@@ -214,9 +225,6 @@ tail:
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/sdkCdvd", func_00454640);
-#endif
 
 // FUN_00454A60
 u8* func_00454a60(u8* arg0, s32 arg1) {
@@ -449,13 +457,13 @@ void func_00455d70(u8* arg0, u8* arg1, u8* arg2, u8* arg3) {
     s32 i;
 
     for (i = 0; i < 0x100; i++) {
-        if (*(s32*)(D_008C8780 + i * 0x94) == 0) {
-            *(s32*)(D_008C8780 + i * 0x94) = 1;
+        if (*(s32*)((u8*)D_008C8780 + i * 0x94) == 0) {
+            *(s32*)((u8*)D_008C8780 + i * 0x94) = 1;
             *(s32*)(D_008C8784 + i * 0x94) = (s32)arg0;
             *(s32*)(D_008C8808 + i * 0x94) = (s32)arg1;
             *(s32*)(D_008C880C + i * 0x94) = (s32)arg2;
             *(s32*)(D_008C8810 + i * 0x94) = 0;
-            func_0043f810(D_008C8780 + i * 0x94 + 8, arg3, 0x80);
+            func_0043f810((u8*)D_008C8780 + i * 0x94 + 8, arg3, 0x80);
             return;
         }
         if (i == 0xFF) {
@@ -505,8 +513,8 @@ s32 func_00455f70(s32 arg0, s32* arg1) {
     func_00454d20((void*)arg0, buf1);
     func_00455100(buf1, buf2);
     for (i = 0; i < 0x100; i++) {
-        if (*(s32*)(D_008C8780 + i * 0x94) != 0) {
-            func_00455100(D_008C8780 + i * 0x94 + 8, buf3);
+        if (*(s32*)((u8*)D_008C8780 + i * 0x94) != 0) {
+            func_00455100((u8*)D_008C8780 + i * 0x94 + 8, buf3);
             if (func_004426e8(buf3, buf2) == 0) {
                 *arg1 = *(s32*)(D_008C880C + i * 0x94);
                 return *(s32*)(D_008C8808 + i * 0x94);
@@ -529,13 +537,13 @@ void func_00456400(s32 arg0, s32 arg1, s32 arg2, u8* arg3) {
     s32 i;
 
     for (i = 0; i < 0x100; i++) {
-        if (*(s32*)(D_008C8780 + i * 0x94) == 0) {
-            *(s32*)(D_008C8780 + i * 0x94) = 1;
+        if (*(s32*)((u8*)D_008C8780 + i * 0x94) == 0) {
+            *(s32*)((u8*)D_008C8780 + i * 0x94) = 1;
             *(s32*)(D_008C8784 + i * 0x94) = arg0;
             *(s32*)(D_008C8808 + i * 0x94) = arg1;
             *(s32*)(D_008C880C + i * 0x94) = arg2;
             *(s32*)(D_008C8810 + i * 0x94) = 0;
-            func_0043f810(D_008C8780 + i * 0x94 + 8, arg3, 0x80);
+            func_0043f810((u8*)D_008C8780 + i * 0x94 + 8, arg3, 0x80);
             return;
         }
         if (i == 0xFF) {
