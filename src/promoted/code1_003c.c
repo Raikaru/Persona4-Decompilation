@@ -127,16 +127,89 @@ extern s32 D_007647BC;
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
    unfilled (nop); retail fills it with the final store (nd 15 -> 0). */
 
-/* func_003c0050 archive: current body is object 136B/window 144B,
-   normalized_diff 35; differing offsets 38-46,54,84,94,98,100-105.
-   The stale nd 13 body still has the same size, but declaration order and
-   dependent initialization did not move the end/node/next register and load
-   order; schedule off is oversized at 156B/144B, nd 106. See
-   build/W4C3C_003c0050_body.c. */
+/* measured (this session): probe_variants Lane119e3c_003c0050_body.c scores 26 differing words (144B/144B window; b119 candidate improves on W4C3C nd 13/136B; residual is ,p alignment nop after filled back-edge delay slot which plain -O2 cannot emit; decl-order/dependent-init ruled out, schedule off oversized 156B/nd 106); banked guarded. See docs/probe_archive/Lane119e3c_003c0050_body.c. */
 // FUN_003C0050 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+u8 *func_003c0050(u8 *arg0, s32 (*arg1)(s32, s32), s32 arg2) {
+    extern s32 iGpffffb6b4;
+    u8 *end;
+    s32 *node;
+    s32 next;
+
+    end = arg0 + 0x10;
+    node = *(s32 **)(arg0 + 0x10);
+    if (node == (s32 *)end)
+        return arg0;
+loop:
+    next = *node;
+    if (arg1((s32)((u8 *)node - 4) - iGpffffb6b4, arg2) == 0)
+        return arg0;
+    node = (s32 *)next;
+    if (next != (s32)end)
+        goto loop;
+    return arg0;
+}
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0050);
-// FUN_003C0210
+#endif
+/* measured (this session): probe_variants P3C_003c0210_body.c scores 25 differing words (obj 196B/window 208B, nd 23); census clean (same four calls), float block register-coloured differently (retail loads f3 first from +4); declaration/load-order/store-order/nesting/hoist ruled out (480-variant sweep floor at nd 23); banked guarded. See docs/probe_archive/P3C_003c0210_body.c. */
+// FUN_003C0210 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_003c0210(u8 *arg0, u8 *arg1, s32 arg2) {
+    extern void func_003c2a60(u8 *arg0);
+    extern void func_003c2a80(u8 *arg0);
+    extern s32 func_003cbce0(s32 arg0);
+    extern void func_003e9680(u8 *arg0);
+    f32 f1;
+    f32 f2;
+    f32 f3;
+    f32 f0;
+    u8 *temp;
+    u8 *temp_2;
+
+    if (arg1 == *(u8 **)(arg0 + 0x18)) {
+        goto end;
+    }
+    if (arg1 != NULL) {
+        func_003c2a60(arg1);
+    }
+    temp = *(u8 **)(arg0 + 0x18);
+    if (temp != NULL) {
+        func_003c2a80(temp);
+    }
+    *(u8 **)(arg0 + 0x18) = arg1;
+    if ((arg2 & 1) == 0) {
+        if (arg1 != NULL) {
+            temp_2 = *(u8 **)(arg1 + 0x5C);
+            f0 = *(f32 *)(temp_2 + 0x10);
+            f1 = *(f32 *)(temp_2 + 0xC);
+            f3 = *(f32 *)(temp_2 + 4);
+            f2 = *(f32 *)(temp_2 + 8);
+            *(f32 *)(arg0 + 0x1C) = f3;
+            *(f32 *)(arg0 + 0x20) = f2;
+            *(f32 *)(arg0 + 0x28) = f0;
+            *(f32 *)(arg0 + 0x24) = f1;
+        }
+    }
+    temp = *(u8 **)(arg0 + 4);
+    if (temp == NULL) {
+        goto end;
+    }
+    if (func_003cbce0((s32)arg0) != 0) {
+        func_003e9680(temp);
+    }
+end:
+    return arg0;
+}
+#pragma no_branch_likely off
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0210);
+#endif
 /* measured: schedule on fills callback argument delay slots. */
 #pragma schedule on
 /* measured: no_branch_likely on keeps the cleanup tests as plain branches. */
@@ -349,11 +422,31 @@ u8 *func_003c1b90(u8 *arg0, u8 *arg1, s32 arg2) {
 }
 /* measured: schedule off closes this function's bracket. */
 #pragma schedule off
-/* func_003c1bd0 archive: current body is object 160B/window 160B,
-   normalized_diff 70; differing offsets 28,48,69,71-83. Residual is
-   branch/call layout; archived schedule/no_branch body remeasured unchanged. */
+/* measured (this session): probe_variants K3C1_003c1bd0_body.c scores 20 differing words (obj 160B/window 160B, nd 70; offsets 28,48,69,71-83); residual is branch/call layout; schedule/no_branch body remeasured unchanged; banked guarded. See docs/probe_archive/K3C1_003c1bd0_body.c. */
 // FUN_003C1BD0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003c1bd0(u8 *arg0) {
+    extern s32 func_003ce2e0(u8 *arg0);
+    u8 *temp_16;
+    temp_16 = *(u8 **)(arg0 + 0x18);
+    if (*(s32 *)(temp_16 + 0x18) == 1) {
+        if ((*(s32 *)(temp_16 + 8) & 0x01000000) != 0)
+            return 1;
+        func_003ce2e0(temp_16);
+        *(s32 *)(temp_16 + 8) |= 0x02000000;
+        ((void (*)(u8 *))(*(void **)(arg0 + 0x48)))(arg0);
+        *(s32 *)(temp_16 + 8) = (*(s32 *)(temp_16 + 8) & 0xFDFFFFFF) | 0x01000000;
+        return 1;
+    }
+    return 0;
+}
+#pragma no_branch_likely off
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1bd0);
+#endif
 /* measured: schedule on and no_branch_likely on reproduce the saved self,
    plain null branch, and final callback order. */
 #pragma schedule on
@@ -749,12 +842,23 @@ u8 *func_003c40d0(u8 *arg0) {
 // baseline for the rest of the file.
 #pragma schedule off
 
-/* func_003c4220 archive: current body is object 148B/window 144B,
-   normalized_diff 81; first differing offsets 4,6-15,20,22-26. The object
-   is oversized, so the stale nd 28 reconstruction is archived without
-   further probes. */
+/* measured (this session): probe_variants K3C1_003c4220_body.c scores 30 differing words (obj 148B/window 144B oversized, nd 81; first diffs 4,6-15,20,22-26); stale nd 28 reconstruction archived without further probes due to oversize; banked guarded. See docs/probe_archive/K3C1_003c4220_body.c. */
 // FUN_003C4220 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003c4220(u8 *arg0) {
+    extern u8 *func_003c42b0(u8 **arg0, u8 *arg1);
+    if (*(s16 *)(arg0 + 0x18) != 1) {
+        *(s16 *)(arg0 + 0x18) -= 1;
+        return 1;
+    }
+    func_003e3c20(D_0070AFF0, arg0);
+    func_003c42b0((u8 **)arg0, NULL);
+    jtbl_008873FC[0](*(u8 **)(D_008872E0 + iGpffffb6c0), arg0);
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4220);
+#endif
 /* measured: schedule on fills the branch and jr delay slots (nd 53 -> 4) and
    no_branch_likely on stops b210 emitting beql on the two null tests. */
 #pragma schedule on
@@ -808,30 +912,63 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4390);
    identical at nd 8: naming the inner pointer in a local before the guard;
    folding the 0x28 into both arms of an if/else is much worse (nd 42).
    Prologue scheduling floor. Committed at nd 8. */
-/* measured: archived scheduled body reaches object 92B/window 96B and
-   normalized_diff 8; residual words are +0x0C/+0x10 (prologue move/sq
-   order). No real C body was retained, so the bare INCLUDE_ASM fallback
-   remains. */
-/* measured: archived body in build/FP3C_003c47c0_body.c reaches object 92B
-   against the 96B retail window, normalized_diff 8. Residual words are
-   +0x0C/+0x10: retail interleaves move $s1,$a0 between sq saves; MWCC b210
-   emits both saves first. The corrected callee prototype was measured and
-   does not remove this prologue-only residual. */
-// FUN_003C47C0
+/* measured (this session): probe_variants W3CA_003c47c0_body.c scores 21 differing words (obj 92B/window 96B, nd 8); residual words +0x0C/+0x10: retail interleaves `move $s1,$a0` between sq saves while b210 emits both saves first; block-scope callee typing, schedule-on shape, decl-order reversal, and delayed param read ruled out; prologue-order floor, banked guarded. See docs/probe_archive/W3CA_003c47c0_body.c. */
+// FUN_003C47C0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003c47c0(u8 *arg0) {
+    extern s32 func_003e6240(u8 *arg0);
+    s32 total;
+
+    total = 0x28;
+    if (*(u8 **)arg0 != NULL) {
+        total += func_003e6240(*(u8 **)arg0) + 0xC;
+    }
+    return total + (func_003e3370(D_0070AFF0, arg0) + 0xC);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c47c0);
+#endif
 
 // FUN_003C4820
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4820);
 
-/* measured: archived c49a0 body is object 148B/window 160B, normalized_diff
-   74; differing offsets 0x20,0x2c,0x2d,0x2e,0x30,0x33,0x35,0x36,0x37,
-   0x3c-0x40,0x42-0x43. Declaration/order, loop shape, callback teardown,
-   and schedule probes were ruled out; see build/K3C1_003c49a0_body.c. */
-// FUN_003C49A0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c49a0);
+/* measured (this session): probe_variants K3C1_003c49a0_body.c scores 27 differing words (obj 148B/window 160B, nd 74; offsets 0x20,0x2c-0x2e,0x30,0x33,0x35-0x37,0x3c-0x40,0x42-0x43); typed callee, decl/order, straight/do-while loops, cursor/index locals, callback teardown, and schedule ruled out; residual entry slt/beq guard, branch layout, callback target; banked guarded. See docs/probe_archive/K3C1_003c49a0_body.c. */
+// FUN_003C49A0 NONMATCHING
+#ifdef NON_MATCHING
 #pragma schedule on
-/* measured: closes the bracket noted above the marker. */
+u8 *func_003c49a0(u8 *arg0) {
+    extern s32 func_003c4220(u8 *arg0);
+    u8 **items;
+    s32 index;
+    u8 **cursor;
+    s32 count;
+    u8 *self;
+
+    self = arg0;
+    items = *(u8 ***)(self + 0);
+    if (items != NULL) {
+        count = *(s32 *)(self + 4);
+        index = 0;
+        cursor = items;
+        if (count > 0) {
+            do {
+                func_003c4220(*cursor);
+                index += 1;
+                *cursor = NULL;
+                cursor += 1;
+            } while (index < count);
+        }
+        jtbl_008873EC[0](items);
+        *(u8 ***)(self + 0) = NULL;
+    }
+    *(s32 *)(self + 4) = 0;
+    *(s32 *)(self + 8) = 0;
+    return self;
+}
 #pragma schedule off
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c49a0);
+#endif
 
 extern s32 D_007647EC;
 
@@ -960,8 +1097,51 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c6080);
 // FUN_003C6280
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c6280);
 
-// FUN_003C65B0
+/* measured (this session): probe_variants Q3CC_003c65b0_v6_body.c scores 35 differing words (obj 256B/window 272B, nd 77; offsets 46,48,50,66,78,90,102,144,150,154,158,166,167,170,174,175); residual is register-coloring and indirect-callee order; movz/movn, COP1-MAC, standalone-MMI, framed-tail-jump, sd-saved-register ruled out; banked guarded. See docs/probe_archive/Q3CC_003c65b0_v6_body.c. */
+// FUN_003C65B0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
+void func_003c65b0(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, u32 arg4, u8 *arg5) {
+    extern void *(*D_008873F8[])(s32 arg0, s32 arg1);
+    u8 *node;
+    u8 **slot;
+    u32 key2;
+    u32 key3;
+    u32 type;
+
+    node = *arg1;
+    if (node != NULL) {
+        key2 = (u32)arg2 & 0xFFFF;
+        key3 = (u32)arg3 & 0xFFFF;
+        do {
+            if ((key2 == *(u16 *)(node + 2)) &&
+                (key3 == *(u16 *)(node + 0)) &&
+                (*(u8 **)(node + 8) == NULL)) {
+                slot = (u8 **)(arg5 + (arg4 * 4));
+                *(u8 *)(*(u8 **)(node + 4) + 0x20) += 1;
+                *(u8 *)(*slot + 0x20) += 1;
+                *(u8 **)(node + 8) = *slot;
+                return;
+            }
+            node = *(u8 **)(node + 0xC);
+        } while (node != NULL);
+    }
+    type = 0x30502;
+    node = D_008873F8[0]((s32)arg0, type);
+    *(u16 *)(node + 0) = (u16)arg2;
+    slot = (u8 **)(arg5 + (arg4 * 4));
+    *(u16 *)(node + 2) = (u16)arg3;
+    *(u8 **)(node + 4) = *slot;
+    *(s32 *)(node + 8) = 0;
+    *(u8 **)(node + 0xC) = *arg1;
+    *arg1 = node;
+}
+#pragma no_branch_likely off
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c65b0);
+#endif
 
 // FUN_003C66C0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c66c0);
@@ -1113,13 +1293,40 @@ s32 func_003c9530(s32 arg0) {
 /* measured: close schedule */
 #pragma schedule off
 
-/* measured: archived c9640 body is object 132B/window 144B,
-   normalized_diff 46; differing offsets 0x10,0x30-0x32,0x34,0x37,
-   0x39,0x3b-0x3c,0x50-0x51,0x53,0x5a-0x5b,0x5e. Guard, goto,
-   base-local, schedule/no_branch_likely, and conditional-rebuild probes
-   were ruled out; see build/K3C1_003c9640_body.c. */
+/* measured (this session): probe_variants K3C1_003c9640_body.c scores 18 differing words (obj 132B/window 144B, nd 46); residual is movz/branch and out-of-line block layout; guard/goto/base-local/schedule/no_branch_likely/rebuildconditionals probes ruled out; banked guarded. See docs/probe_archive/K3C1_003c9640_body.c. */
 // FUN_003C9640 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma opt_rebuildconditionals off
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_003c9640(u8 *arg0) {
+    extern s32 func_004114d0(s32 arg0, u8 *arg1, s32 arg2);
+    u8 *base;
+    s32 value;
+    if (*(u16 *)(arg0 + 0x84) <= 0)
+        goto done;
+    value = *(s32 *)(arg0 + 0x7C);
+    if (value == 0)
+        goto fallback;
+call:
+    if (func_004114d0(value, arg0, 1) == 0)
+        arg0 = NULL;
+    return arg0;
+fallback:
+    base = *(u8 **)D_008872E4;
+    value = *(s32 *)(base + 0x6C);
+    if (value != 0)
+        goto call;
+    value = *(s32 *)(D_008872E0 + iGpffffb9b8 + 0x40);
+    goto call;
+done:
+    return arg0;
+}
+#pragma pop
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9640);
+#endif
 // FUN_003C96D0
 extern u8 D_008872E4[];
 /* measured: probe schedule */
@@ -1268,19 +1475,42 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9d40);
 // FUN_003C9EB0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9eb0);
 
-/* measured: best reconstruction archived in build/K3C2_003ca270_body.c;
-   object 160B/window 176B, normalized_diff 92. The residual is the
-   initial/loop branch polarity and trampoline layout; declaration order,
-   schedule, no_branch_likely, direct comparisons, and boolean/trampoline
-   variants were ruled out. */
-/* func_003ca320 archive: current body is object 168B/window 176B,
-   normalized_diff 28; differing offsets 104,107,112-126. The residual is
-   callback branch polarity/layout and continuation/epilogue displacement.
-   Inverted callback guard/switch reduced object to 160B (nd 24), while a
-   common finish label was 164B (nd 34); pragma order was unchanged. See
-   build/K3C2_003ca320_body.c for the near-match and ruled-out probes. */
+/* measured (this session): probe_variants K3C2_003ca320_body.c scores 31 differing words (obj 168B/window 176B, nd 28; offsets 104,107,112-126); residual is callback branch polarity/layout and continuation/epilogue displacement; inverted guard/switch 160B/nd 24, common finish 164B/nd 34, pragma order unchanged, decl/volatile/asm ruled out; banked guarded. See docs/probe_archive/K3C2_003ca320_body.c. */
 // FUN_003CA320 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_003ca320(u8 *arg0, s32 (*arg1)(u8 *, s32), s32 arg2) {
+    u8 *stack[64];
+    s32 depth;
+    s32 value;
+    u8 *current;
+
+    current = *(u8 **)(arg0 + 0x1C);
+    depth = 0;
+loop:
+    if (*(s32 *)current < 0)
+        goto callback;
+    value = *(s32 *)(current + 0xC);
+    depth += 1;
+    current = *(u8 **)(current + 8);
+    stack[depth] = (u8 *)value;
+check:
+    if (depth >= 0)
+        goto loop;
+    goto finish;
+finish:
+    return arg0;
+callback:
+    if (arg1(current, arg2) != 0)
+        goto callback_continue;
+    return arg0;
+callback_continue:
+    current = stack[depth];
+    depth -= 1;
+    goto check;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca320);
+#endif
 // FUN_003CA3D0
 #pragma schedule on
 #pragma tailcall on
@@ -2146,12 +2376,35 @@ void func_003f32d0();
    expression, or positive-branch form did not alter nd 4; the comparison
    `<= 0` versus `< 1` also stayed nd 4. The base body remains the lowest
    park. Committed at nd 4. */
+/* measured (this session): probe_variants Y3CA_003cc250_body.c scores 2 differing words (obj 104B/window 112B, nd 4); retail schedules `lw $v1, 0($a1)` between `addiu $sp, $sp, -0x10` and `sd $ra, 0($sp)` while b210 saves $ra first; dropping the pragmas, schedule off, and no_branch_likely off all leave it at 2 or regress it: prologue-order floor, banked guarded. */
 /* measured: schedule on fills cc250's helper-call and return delay slots. */
 #pragma schedule on
 /* measured: no_branch_likely on keeps cc250's tests as plain branches. */
 #pragma no_branch_likely on
 // FUN_003CC250 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003cc250(s32 arg0, u8 **arg1) {
+    extern void (*D_00887300[])(u32 arg0, u32 arg1);
+    u8 *temp_3;
+
+    temp_3 = *arg1;
+    if ((s32)*(u16 *)(temp_3 + 0) <= 0)
+        goto zero;
+    *(s32 *)(temp_3 + 0x18) = *(s32 *)(temp_3 + 4);
+    if ((*(s32 *)(temp_3 + 0xC) & 1) == 0)
+        goto call;
+    goto one;
+one:
+    return 1;
+zero:
+    return 0;
+call:
+    D_00887300[0](1, 0);
+    goto one;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc250);
+#endif
 /* measured: no_branch_likely off closes cc250's branch-form bracket. */
 #pragma no_branch_likely off
 /* measured: schedule off closes cc250's delay-slot bracket. */
@@ -2229,9 +2482,10 @@ void func_003cc460(void) {
 }
 /* measured: closes schedule-on probe for cc460 and restores file default. */
 #pragma schedule off
-/* measured: best retained body object 136B/window 96B, normalized_diff 99;
-   differing word offsets 9, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26,
-   28, 30, 31. Retail's compact branch-likely chain remains unmatched. */
+/* measured (this session): probe_variants H3CC_003cc500_body.c scores 31 differing words (obj 136B/window 96B over-window, nd 99; offsets 9,14-16,18-26,28,30,31); retail compact beql chain vs b210 if/goto (ascending/descending, s64 temp, prologue pragmas ruled out); branch-likely floor, banked guarded. See docs/probe_archive/H3CC_003cc500_body.c. */
+/* measured: best retained body object 136B/window 96B, normalized_diff 99; */
+/* differing word offsets 9, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, */
+/* 28, 30, 31. Retail's compact branch-likely chain remains unmatched. */
 // FUN_003CC500 NONMATCHING
 #ifdef NON_MATCHING
 void func_003cc500(s32 arg0) {
@@ -2267,8 +2521,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc500);
 
 // FUN_003CC560 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc560);
+/* measured (this session): probe_variants H3CC_003cc680_body.c scores 22 differing words (obj 96B/window 96B); retail uses pexew/ppacw MMI (load x/y/z, scale by 0x437F0001, pexew pairs, ppacw, SQ, GP +16) which MWCCPS2 cannot emit from plain C; mixed decl order, exact scale, output-global, int-domain pointer, and scalar packed stores tried (F3C1 obj 124B/nd 103, over window); MMI compiler floor, banked guarded. See docs/probe_archive/H3CC_003cc680_body.c. */
 // FUN_003CC680 NONMATCHING
+#ifdef NON_MATCHING
+void func_003cc680(u8 *arg0, f32 arg1) {
+    /* Retail sequence: load x/y/z, scale by 0x437F0001, pexew the first
+       pair, pexew the second pair, ppacw into the packet, SQ the result, and
+       advance the GP packet pointer by 16 bytes. */
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc680);
+#endif
 
 /* measured: the null-first `block_body`/`block_null` graph plus
    no_branch_likely and schedule reproduce retail's out-of-line null branch,
@@ -2321,8 +2584,50 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ce050);
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ce170);
 // FUN_003CE230 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ce230);
+/* measured (this session): probe_variants Y3CB_003ce2e0_body.c scores 36 differing words (obj 196B/window 192B over-window, nd 36; offsets 0x1C-0x34,0x3C-0x40,0x48-0x58,0x60-0x80,0x88-0xC0); explicit false-branch/null-check shape ruled out (oversized-object archive condition); banked guarded. See docs/probe_archive/Y3CB_003ce2e0_body.c. */
 // FUN_003CE2E0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003ce2e0(u8 *arg0) {
+    extern u32 **func_003ce050(u32 **arg0, u32 arg1, u8 *arg2);
+    extern void func_003e1ea0(u8 *arg0);
+    extern s32 iGpffffb730;
+    u32 **var_2;
+    u32 *temp_3;
+    u32 *var_17;
+    u32 temp_16;
+    u32 var_18;
+    u8 *temp_4;
+    u8 *var_6;
+
+    var_2 = (u32 **)(arg0 + iGpffffb730);
+    temp_3 = *var_2;
+    if ((temp_3 == NULL) ||
+        (*(u16 *)(*(u8 **)(arg0 + 0x54) + 4) != *temp_3)) {
+        var_6 = NULL;
+    } else {
+        var_6 = (u8 *)1;
+    }
+    if (var_6 != NULL) {
+    } else {
+        var_2 = func_003ce050(var_2, *(u16 *)(*(u8 **)(arg0 + 0x54) + 4), var_6);
+    }
+    var_17 = *var_2;
+    temp_16 = *var_17;
+    var_18 = 0;
+    if (temp_16 != 0) {
+        do {
+            temp_4 = *(u8 **)(var_17 + 1);
+            if (temp_4 != NULL)
+                func_003e1ea0(temp_4);
+            var_18 += 1;
+            var_17 += 1;
+        } while (var_18 < temp_16);
+    }
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ce2e0);
+#endif
 // FUN_003CE3A0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ce3a0);
 // FUN_003CE560

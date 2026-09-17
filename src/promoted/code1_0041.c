@@ -73,9 +73,27 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00412e90);
 // FUN_00412FB0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00412fb0);
 
-/* measured: MWCC frameless (no callee-saved registers); object 164B/window 192B, normalized_diff 79. Archived body: build/K414_00413290_body.c. */
-// FUN_00413290
+/* measured: MWCC frameless, object 164B/window 192B, normalized_diff 35; archived body keeps retail null-check chain and index staging. Parent strict-vs-inclusive lever tried: `> count-1` measures nd 36 vs `>= count` nd 35, so the sltu $v0/$at coloring is not the main residual; the dominant residual is div-vs-magic for /40 (object div, retail mult magic). No loop entry-guard slt $at pattern, so the parent (s64)0 lever does not apply. Body at docs/probe_archive/K414_00413290_body.c. */
+// FUN_00413290 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_00413290(u8 *arg0, u32 *arg1, u8 **arg2) {
+    u8 *base;
+    s32 index;
+
+    if (arg0 == NULL || *(s32 *)arg0 == 0 || arg1 == NULL || *arg1 != -1 || arg2 == NULL || *(s32 *)arg2 == 0) {
+        return NULL;
+    }
+    base = *(u8 **)(arg0 + 8);
+    index = ((u8 *)arg2 - base) / 40;
+    if (base + index * 40 != (u8 *)arg2 || (u32)index >= *(u32 *)(arg0 + 4)) {
+        return NULL;
+    }
+    *arg1 = index;
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413290);
+#endif
 
 /* measured: MWCC frameless (no callee-saved registers); object 192B/window 192B, normalized_diff 120. Archived body: build/K414_00413350_body.c. */
 // FUN_00413350
@@ -84,9 +102,51 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413350);
 // FUN_00413410
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413410);
 
-/* measured: MWCC frameless (no callee-saved registers); object 196B/window 192B, normalized_diff 73. Archived body: build/K414_00413640_body.c. */
-// FUN_00413640
+/* measured: MWCC frameless, object 196B/window 192B, normalized_diff 24; archived body keeps retail list-traversal staging. No constant-bound slti $at vs $v0 pattern and no loop entry-guard slt $at, so parent <= and (s64)0 levers do not apply; no trailing if/else-if dead-arm chain, so the dead-store lever does not apply. Body at docs/probe_archive/K414_00413640_body.c. */
+// FUN_00413640 NONMATCHING
+#ifdef NON_MATCHING
+void func_00413640(u8 **arg0, u8 **arg1, u8 **arg2) {
+    u8 *var_4;
+    u8 *var_5;
+    u8 *var_6;
+    u8 *var_7;
+    u8 *var_3;
+
+    var_4 = (u8 *)(arg0);
+    var_5 = (u8 *)(arg1);
+    var_6 = (u8 *)(arg2);
+    if (*(s32 *)(var_5 + 0xC) != 0) {
+        do {
+            var_5 = *(u8 **)(var_5 + 0xC);
+        } while (*(s32 *)(var_5 + 0xC) != 0);
+    }
+    if (*(s32 *)(var_6 + 0xC) != 0) {
+        do {
+            var_6 = *(u8 **)(var_6 + 0xC);
+        } while (*(s32 *)(var_6 + 0xC) != 0);
+    }
+    if ((s32)(var_5) != (s32)(var_6)) {
+        var_7 = var_5;
+        if (*(s32 *)(var_5 + 4) != 0) {
+            do {
+                var_7 = *(u8 **)(var_7 + 4);
+            } while (*(s32 *)(var_7 + 4) != 0);
+        }
+        *(u8 **)(var_7 + 4) = (u8 *)(var_6);
+        *(u8 **)(var_6 + 0xC) = (u8 *)(var_5);
+        var_3 = *(u8 **)(var_4);
+        if ((s32)(var_3) != (s32)(var_6)) {
+            do {
+                var_4 = (u8 *)(var_3 + 8);
+                var_3 = *(u8 **)(var_3 + 8);
+            } while ((s32)(var_3) != (s32)(var_6));
+        }
+        *(u8 **)(var_4) = *(u8 **)(var_3 + 8);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413640);
+#endif
 
 // FUN_00413700
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413700);
@@ -147,8 +207,26 @@ done:
 // FUN_004143F0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004143f0);
 
-// FUN_004147A0
+/* measured: MWCC sq $s0 prologue, object 132B/window 128B, normalized_diff 15; archived body keeps retail call sequence with old-style callees. Hoisted-sp2C variant fails to compile against the file-scope prototyped helpers without the archived local old-style shadowing; nested/early/goto/switch, typed/old-style, hidden-return, and pragma wrappers were previously ruled out. No loop slt $at guard or trailing dead-arm chain, so parent levers do not apply beyond the checked hoist. Body at docs/probe_archive/H414_004147a0_body.c. */
+// FUN_004147A0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00413700();
+s32 func_00413b80();
+s32 func_00413e50();
+s32 func_004140f0();
+void func_004143f0();
+void func_004147a0(s32 arg0) {
+    s32 sp2C;
+    if (func_00413700() != 0) return;
+    sp2C = 0;
+    if (func_00413b80(arg0) != 0) return;
+    if (func_00413e50(arg0, &sp2C) != 0) return;
+    if (func_004140f0(arg0, &sp2C) != 0) return;
+    func_004143f0();
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004147a0);
+#endif
 
 
 // FUN_00414820
@@ -161,9 +239,62 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414930);
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414a30);
 
 
-/* measured: MWCC candidate archived at object 200B/window 192B, normalized_diff 102; fndiff differing offsets 0x0C, 0x2A, 0x2C, 0x34-0xC4. Compiler check was frameless (no callee-saved save; no sq/sd diagnostic), so this pre-transition function is retained as MWCC candidate. Body archived in build/Y041_00414b50_body.c after schedule-on, no_branch_likely-on, opt_rebuildconditionals-off, typed-body, and cast/order probes. */
+/* measured: MWCC frameless, object 200B/window 192B, normalized_diff 38; docs/probe_archive body improves the prior build-archived nd 102. Cast, order, schedule-on, no_branch_likely-on, and opt_rebuildconditionals-off probes previously tried. No constant-bound slti $at vs $v0 and no loop slt $at entry guard, so parent <= and (s64)0 levers do not apply; if/else with shared tail is not an if/else-if dead-arm chain, so the dead-store lever does not apply. Body at docs/probe_archive/Y041_00414b50_body.c. */
 // FUN_00414B50 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_00414b50(u8 *arg0, u8 **arg1, u32 arg2)
+{
+    u8 *temp_2_2;
+    u8 *temp_4;
+    u8 *temp_7;
+    u8 *temp_3_2;
+    u8 *var_2;
+    f32 temp_f1;
+    f32 temp_f0;
+    s32 temp_6;
+    u8 *temp_3;
+    u32 temp_2;
+    u8 *temp_2_3;
+
+    temp_2 = (u32)arg1[0] - arg2;
+    if (temp_2 < 0x100U) {
+        temp_6 = *(s32 *)(arg0 + 0x14);
+        temp_3 = *(u8 **)(arg0 + 0xC);
+        if ((u8 *)arg1 != temp_3 + ((temp_6 - 1) * 8)) {
+            temp_2_2 = temp_3 + (temp_6 * 8);
+            temp_7 = arg1[1];
+            temp_f1 = *(f32 *)(temp_2_2 - 8);
+            temp_f0 = *(f32 *)(temp_2_2 - 4);
+            *(f32 *)arg1 = temp_f1;
+            *(f32 *)(arg1 + 1) = temp_f0;
+            *(u8 **)(temp_7 + 0xC) = (u8 *)arg1;
+        }
+        var_2 = arg1[1] + 0x20;
+        *(s32 *)(arg0 + 0x14) -= 1;
+    } else {
+        temp_7 = arg1[1];
+        temp_4 = (u8 *)(arg2 + (u32)temp_7);
+        *(s32 *)(temp_4 + 0x28) = temp_2 - 0x20;
+        temp_3_2 = temp_4 + 0x20;
+        *(u8 **)(temp_4 + 0x20) = temp_7;
+        *(u8 **)(temp_4 + 0x24) = *(u8 **)(temp_7 + 4);
+        *(u8 **)(temp_4 + 0x2C) = (u8 *)arg1;
+        *(u32 *)(temp_7 + 8) = arg2;
+        *(u8 **)(temp_7 + 4) = temp_3_2;
+        temp_2_3 = *(u8 **)(temp_4 + 0x24);
+        if (temp_2_3 != NULL) {
+            *(u8 **)temp_2_3 = temp_3_2;
+        }
+        arg1[1] = temp_3_2;
+        var_2 = temp_7 + 0x20;
+        arg1[0] = *(u8 **)(temp_3_2 + 8);
+    }
+    *(u8 **)(arg1[1] + 0xC) = 0;
+    return var_2;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414b50);
+#endif
 
 // FUN_00414C10
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414c10);
@@ -176,9 +307,37 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414e10);
 // FUN_00414EF0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414ef0);
 
-/* measured: MWCC sq-prologue; object 160B/window 160B, normalized_diff 93. Archived body: build/K414_00414fd0_body.c. */
-// FUN_00414FD0
+/* measured: MWCC sq-prologue, object 160B/window 160B, normalized_diff 37; docs/probe_archive body improves the prior build-archived nd 93. Global jump-table pointer and saved-local coloring previously ruled out. No loop slt $at entry guard, no constant-bound slti $at, and no trailing dead-arm chain, so parent levers do not apply. Body at docs/probe_archive/K414_00414fd0_body.c. */
+// FUN_00414FD0 NONMATCHING
+#ifdef NON_MATCHING
+extern void (*jtbl_008873EC[])(void *ptr);
+void func_00414fd0(u32 *arg0) {
+    u32 *temp_17;
+    u32 *temp_4;
+    u32 *var_4;
+
+    if (arg0 != NULL) {
+        temp_4 = (u32 *)(*(u32 **)((s8 *)arg0 + 0xC));
+        if (temp_4 != NULL) {
+            (*jtbl_008873EC)(temp_4);
+            *(u32 **)((s8 *)arg0 + 0xC) = NULL;
+        }
+        var_4 = (u32 *)(*(u32 **)((s8 *)arg0 + 4));
+        if (var_4 != NULL) {
+            do {
+                temp_17 = (u32 *)(*(u32 **)((s8 *)var_4 + 8));
+                if (var_4 != NULL) {
+                    (*jtbl_008873EC)(var_4);
+                }
+                var_4 = temp_17;
+            } while (temp_17 != NULL);
+        }
+        (*jtbl_008873EC)(arg0);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414fd0);
+#endif
 
 // FUN_00415070
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415070);

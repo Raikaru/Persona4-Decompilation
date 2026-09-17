@@ -1,8 +1,12 @@
-/* Floor: 8 differing words (was 11).  The declaration order below is the
-   best of 250 measured permutations; the residual is a single $s0/$s2
-   saved-register swap - the instruction stream is retail's, 168 against
-   168 with no inserts or deletes.  The eight documented pragmas were
-   measured on top of it and none moves the pair. */
+/* Floor: 8 differing words (was 11). Re-measured 2026-09-17: probe_archive 8 words; */
+/* fnalign edit 8 plus four reloc-only pairs. The declaration order below is the */
+/* best of 250 measured permutations; the residual is a single $s0/$s2 */
+/* saved-register swap - the instruction stream is retail's, 168 against */
+/* 168 with no inserts or deletes. The eight documented pragmas were */
+/* measured on top of it and none moves the pair. slti-<= lever checked */
+/* 2026-09-17: while (j<=5)/while (i<=5) give 23/10/21 words (both/j-only/i-only) */
+/* vs 8 for while (j<6)/while (i<6); retail uses slti $v0 with constant 6, so the */
+/* <=5/$at form is worse here. No slt-$at entry-guard wall in this TU. */
 s32 func_0024be40(void)
 {
     extern void* func_00452560();

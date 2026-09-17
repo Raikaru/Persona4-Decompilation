@@ -92,8 +92,18 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005128a0);
 // FUN_00512B08
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512b08);
 
-// FUN_00512B90
+/* measured: object 32B/window 32B/normalized_diff 10 (3 differing words, first diffs 20-24,26-28). */
+/* measured: two-load forwarding fix: retail lw $v0,0x2004($a0) then lw $a0,0($v0) + tail-jump j 004d6910 with frame intact; banked body was one-load and semantically wrong, replaced with *(s32**)(*(u8**)(arg0+0x2004)) forwarding tail body per Main. */
+/* measured: sole residual is jal+jr vs j+frame (retail 7 instrs addiu/sd/lw/ld/lw/j/addiu vs object jal+jr); tailcall on deletes frame (6 words, worse), opt 0/1/3/dead/lifetimes/schedule-off all fail per Main; banked at 3. */
+// FUN_00512B90 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00512b90(u8 *arg0, s32 arg1, s32 arg2) {
+    extern s32 func_004d6910(u8 *arg0, s32 arg1, s32 arg2);
+    return func_004d6910((u8 *)(*(s32 **)(*(u8 **)(arg0 + 0x2004))), arg1, arg2);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512b90);
+#endif
 // FUN_00512BB0
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512bb0);
 
@@ -110,9 +120,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512ea8);
 // FUN_00512EF8
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512ef8);
 
-/* xori/sltiu scheduling residual: retail computes xori before ld ra while b210
-   delays both boolean operations until after the epilogue under all tried source
-   spellings and scheduler settings. Committed at nd 6. */
+/* measured: object 40B/window 40B/normalized_diff 6 (2 differing words, first diffs 20,22-24,26-27). */
+/* measured: xori/sltiu scheduling floor (retail xori before ld ra, b210 delays both until after epilogue); slti-at N/A (sltiu $v0, no $at range), no short chain (10/10 instrs), arg-setup reorder (inner s32-star-star and local variants) stays at 2, opt_loop_invariants N/A (no loop). Committed at 2. */
 // FUN_00512FA0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00512fa0(u8 *arg0) {
@@ -150,13 +159,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005132a8);
 
 // FUN_005132C8
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005132c8);
-/* xori/sltiu scheduling residual: retail computes xori before ld ra while b210
-   delays both boolean operations until after the epilogue under all tried source
-   spellings and scheduler settings. Committed at nd 7. */
+/* measured: object 36B/window 40B/normalized_diff 6 (2 differing words, first diffs 16,18-20,22-23, 4B zero tail). */
+/* measured: second boolean as <1U (not ==0) fixes sltiu-vs-xori (was 3 words with xori $v0,$v0,1, now sltiu $v0,$v0,1 matching retail); >1U alternate stays at 3. */
+/* measured: remaining is ld-ra scheduling (same 2-word floor as func_00512fa0); no short chain (9/9 instrs), arg N/A, loop N/A. Updated from 3 to 2. */
 // FUN_00513380 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00513380(void) {
-    return (func_004d43f8() < 2U) == 0;
+    return (func_004d43f8() < 2U) < 1U;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00513380);
@@ -326,23 +335,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519df0);
 
 // FUN_00519E90
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519e90);
+/* measured: object 12B/window 16B/normalized_diff 2 (2 differing words, first diffs 2,10). */
+/* measured: schedule on places second lw in jr delay slot (was 3 words off-schedule, now 2); s32/u32 local variants stay at 3. */
+/* measured: remaining is tiny-accessor coloring ($v0 vs $v1, same floor as func_0051f5e8); no slti range, no chain shortfall, loop N/A. Updated from 3 to 2. */
 // FUN_00519EE0 NONMATCHING
-/* measured: exhaustive C spellings (direct chain; u8/s32/u32/void pointer locals;
-   base/result locals; typed argument variants; explicit assignments and casts)
-   all produce object 12B/16B at nd 2; schedule-off and O1 both worsen to nd 7
-   with a 16B object. Retail words: 0 7c1f838c lw $3, 0x1f7c($4); 4 0800e003
-   jr $31; 8 2000628c lw $2, 0x20($3) in the delay slot; 12 00000000 nop.
-   The intermediate pointer remains in $v0 instead of retail's $v1; this is
-   the irreducible tiny-accessor coloring floor. Committed at nd 2. */
 #ifdef NON_MATCHING
+#pragma schedule on
 s32 func_00519ee0(u8 *arg0) {
-    s32 value;
-    u8 *p;
-
-    p = *(u8 **)(arg0 + 0x1F7C);
-    value = *(s32 *)(p + 0x20);
-    return value;
+    u8 *p = *(u8 **)(arg0 + 0x1F7C);
+    return *(s32 *)(p + 0x20);
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519ee0);
 #endif
@@ -365,9 +368,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519fa0);
 // FUN_0051A090
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_0051a090);
 
-/* measured: tiny delayed global-getter floor for func_0051F5E8. The best
-   schedule-on candidate is object/window 12/16 at nd 2; retail names the
-   delayed-load base in $v1 while b210 colors it in $v0. Committed at nd 2. */
+/* measured: object 12B/window 16B/normalized_diff 2 (2 differing words, first diffs 2,10). */
+/* measured: tiny delayed global-getter floor (retail $v1 vs b210 $v0, schedule on retains delay-slot lw); s32/u32/schedule-off variants ruled out per prior exhaustive + current lever order (slti N/A, no chain, arg types stay at 2-3, no loop). Committed at 2. */
 // FUN_0051F5E8 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: schedule-on probe for the delayed pointer accessor. */

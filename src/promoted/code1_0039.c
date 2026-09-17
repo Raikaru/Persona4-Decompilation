@@ -179,15 +179,60 @@ s32 func_00390280(s32 arg0, s32 arg1)
     *(s32 *)(arg0 + arg1) = 0;
     return arg0;
 }
+/* measured: func_00390290 floor -- probe_archive LANE_90290_F_00390290_body.c: obj 56B / window 64B / 11 reloc-masked differing words; fnalign 3 edits (prologue sd $ra in beqz delay slot vs hoisted + trailing nop). */
+/* measured: ruled out -- schedule-on archive plus new probes A=staged s32 v + early ==0 return, B=explicit goto ret0, C=pointer p/NULL form -- all 11wd. Delay-slot prologue wall; banked. */
 // FUN_00390290 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma schedule on
+s32 func_00390290(s32 arg0, s32 arg1)
+{
+    if (*(s32 *)(arg0 + arg1) != 0) {
+        return func_0038fb20((u8 *)*(s32 *)(arg0 + arg1)) + 0x10;
+    }
+    return 0;
+}
+#pragma pop
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390290);
+#endif
 /* measured: closing no_branch_likely for func_00390230. */
 #pragma no_branch_likely off
 /* measured: closing schedule for func_00390230. */
 #pragma schedule off
 
+/* measured: func_003902d0 floor -- probe_archive F390_003902d0_body.c: obj 120B/window 128B/24 reloc-masked differing words (fresh); fnalign 15 edits (frame/saves + branch/call layout; no slt/slti $at, no trailing dead-arm chain). */
+/* measured: ruled out -- archive (schedule on+nbl on, block-scope 8fb50 proto, opposite guard/inner layouts, O1/O3 neutral); transfer from 98350 scheduler and 96890/b830 s64 cures checked (no range guard to convert). Banked. */
 // FUN_003902D0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003902d0(s32 arg0, s32 unused, s32 arg2, s32 arg3)
+{
+    s32 sp3C;
+    u8 **temp_16;
+    extern u8 *func_0038fb50(u8 *arg0, s32 arg1);
+    temp_16 = (u8 **)(arg2 + arg3);
+    if (*temp_16 != NULL) {
+        goto retry;
+    }
+done:
+    return arg0;
+retry:
+    sp3C = func_003e8920();
+    if (func_003df240(arg0, &sp3C, 4) != 0) {
+        goto check;
+    }
+    goto zero;
+check:
+    if (func_0038fb50(*temp_16, arg0) != 0) {
+        goto retry;
+    }
+    goto zero;
+zero:
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003902d0);
+#endif
 /* measured: b210's O2 strength-reduces this constant multiply; O1 preserves
    the retail MMI multiply. schedule on places it in the jr delay slot, and
    the inline helper presents the multiplier first for retail operand order. */
@@ -339,10 +384,47 @@ s32 func_00396870(s32 arg0)
 }
 /* measured: schedule off closes the scoped schedule bracket. */
 #pragma schedule off
-/* measured: archived 96890 reconstruction in build/K399_00396890_body.c;
-   object 156B / window 176B / normalized_diff 75. */
+/* measured: func_00396890 floor -- archive K399_00396890_body.c 26wd (obj 156B/window 176B per stale header, fresh 26wd; fnalign 25 edits) improved to 15wd via (s64)0<count + 4-pragma set (schedule on, nbl on, opt_rebuild off, opt_prop off) + var_3 hoisted before guard / var_5 inside (fnalign 9 edits: beqz displacement + beq-vs-bne+jal call layout + b/jal/nop/sw tail). */
+/* measured: ruled out -- archive (m2c expansion, counter/pointer lifetimes, do-while/goto, >0/0</<1 guards, O1, schedule-on) plus dup-store if/else (15wd neutral) and transfer from bcd50 slt $at cure (signed improve 26->15). Out-of-line 97120 call + shared -1 tail wall; banked improved floor. */
 // FUN_00396890 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
+#pragma opt_rebuildconditionals off
+#pragma opt_propagation off
+s32 func_00396890(s32 arg0)
+{
+    s32 var_3;
+    s32 var_5;
+    u8 *temp_16;
+    u8 *temp_4;
+    temp_16 = (u8 *)(arg0 + iGpffffb5d8);
+    temp_4 = *(u8 **)(temp_16 + 4);
+    if (temp_4 != NULL) {
+        var_3 = 0;
+        if ((s64)0 < *(s32 *)(temp_4 + 4)) {
+            var_5 = 0;
+            do {
+                var_3 += 1;
+                *(s32 *)(*(u8 **)(temp_4 + 0x10) + var_5 + 0xC) = 0;
+                var_5 += 0x10;
+            } while (var_3 < *(s32 *)(temp_4 + 4));
+        }
+        if (*(s32 *)(temp_4 + 0x14) == arg0) {
+            func_00397120(temp_4);
+        }
+        *(u8 **)(temp_16 + 4) = NULL;
+    }
+    *(s32 *)temp_16 = -1;
+    return arg0;
+}
+#pragma opt_propagation on
+#pragma opt_rebuildconditionals on
+#pragma no_branch_likely off
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396890);
+#endif
 
 // FUN_00396940
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396940);
@@ -352,9 +434,45 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396a40);
 
 // FUN_00396C00
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396c00);
-/* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
+/* measured: func_00396e80 floor -- probe_archive F390_00396e80_body.c: obj 132B / window 128B (object exceeds window) / 11 reloc-masked differing words; fnalign 10 edits + 1 reloc-only (branch-displacement + addiu/nop + extra b/nop tail). */
+/* measured: ruled out -- archive O1 probe (O2/O3, schedule, no_branch_likely, branch/layout, boolean and pointer variants neutral); transfer from 98350/90290 scheduler wall (declaration/branch levers inert on this shape). Banked. */
 // FUN_00396E80 NONMATCHING
+#ifdef NON_MATCHING
+#pragma optimization_level 1
+s32 func_00396e80(u8 *arg0)
+{
+    s32 flag;
+    s32 result;
+    s32 value;
+    u8 *base;
+
+    base = arg0 + iGpffffb5d8;
+    flag = (s32)(~*(s32 *)base != 0);
+    if (flag == 0) {
+        flag = (s32)(*(s32 *)(base + 4) != 0);
+    }
+    if (flag != 0) {
+        arg0 = *(u8 **)(base + 4);
+        result = 4;
+        if (arg0 != NULL) {
+            result = 12;
+            if ((*(s32 *)arg0 & 1) == 0) {
+                value = *(s32 *)(arg0 + 4);
+                arg0 = (u8 *)(result + 8);
+                result = value * 3 * 4 + (s32)(u32)arg0;
+            }
+        } else {
+            result = 12;
+        }
+    } else {
+        result = 0;
+    }
+    return result;
+}
+#pragma optimization_level 2
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396e80);
+#endif
 // measured: schedule and branch-shape probes for 982e0.
 #pragma schedule on
 // measured: retail uses plain branches in the 982e0 dispatch.
@@ -406,8 +524,49 @@ s32 func_00397120(u8 *arg0)
 // FUN_003971D0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003971d0);
 
-// FUN_00397390
+/* measured: func_00397390 floor -- archive W4C39_00397390_body.c 29wd (obj 176B/window 208B, fnalign 16 edits +2 reloc: entry slt $at,$zero,$v0 + loop/callback layout) improved to 26wd via (s64)0 guard + 4-pragma set + while->if/do conversion (var_17 hoisted, var_16 inside). */
+/* measured: ruled out -- archive loop/callback shape plus transfer from bcd50 slt $at cure (signed improve 29->26, loop-update/register wall remains). Banked improved floor. */
+// FUN_00397390 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
+#pragma opt_rebuildconditionals off
+#pragma opt_propagation off
+u8 *func_00397390(u8 *arg0)
+{
+    extern void func_003e9680(u8 *arg0);
+    extern u8 *func_003e9af0(u8 *arg0, s32 (*arg1)(u8 *, s32), s32 arg2);
+    extern s32 func_00397470(u8 *arg0);
+    extern s32 func_00396680(s32 arg0, u8 *arg1);
+    u8 *temp_18;
+    s32 *temp_21;
+    s32 temp_20;
+    s32 var_17;
+    s32 var_16;
+    temp_18 = *(u8 **)(arg0 + 0x14);
+    var_17 = 0;
+    if ((s64)0 < *(s32 *)(arg0 + 4)) {
+        var_16 = 0;
+        do {
+            temp_21 = (s32 *)(*(u8 **)(arg0 + 0x10) + var_16);
+            temp_20 = *temp_21;
+            if (temp_20 == func_00397470(temp_18))
+                temp_21[3] = (s32)temp_18;
+            var_17 += 1;
+            var_16 += 0x10;
+        } while (var_17 < *(s32 *)(arg0 + 4));
+    }
+    func_003e9680(temp_18);
+    func_003e9af0(temp_18, (s32 (*)(u8 *, s32))func_00396680, (s32)arg0);
+    return arg0;
+}
+#pragma opt_propagation on
+#pragma opt_rebuildconditionals on
+#pragma no_branch_likely off
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00397390);
+#endif
 
 // FUN_00397470
 s32 func_00397470(u8 *arg0)
@@ -450,10 +609,40 @@ init:
 /* measured: retail uses a plain beqz for the entry test. */
 #pragma no_branch_likely on
 
-/* object 148 / window 160 / nd 6; only differing words are offsets 0x40 and 0x44: retail emits lw $a3,-0x55F4($gp) before lui $v0,0x4, while the candidate emits the reverse in func_003e1220(0x90, iGpffffaa08, 0x10, iGpffffaa0c, D_00884A90, 0x40120). */
-/* Ruled out: canonical and unnamed prototypes, unsuffixed constant, direct scalar globals, declaration-order swap, plain and static-inline reordered helper, constant and GP temp lifetimes, result register, scoped opt_loop, optimization_level, named locals for both arguments in argument order and retail hardware order with all six adjacent assignments, asymmetric naming of the GP global in a named s32 with inline 0x40120U and the opposite pairing, extern s32 iGpffffaa0c[] read via [0] (obj 152 / nd 21), and #pragma schedule off (nd 39). */
+/* measured: baseline 145 scanned / 70 MATCH / 75 ASM / 0 MISMATCH before touch. */
+/* measured: func_00398350 floor -- probe_archive LANE_98350_G_00398350_body.c: obj 148B / window 160B / 2 reloc-masked differing words at 0x40,0x44 (retail lw $a3,-0x55F4($gp) before lui $v0,4; candidate reverse); fnalign 5 edits + 8 reloc-only (argument-setup order swap). */
+/* measured: ruled out -- archive list (canonical/unnamed prototypes, unsuffixed constant, scalar globals, decl-order swap, plain/static-inline reordered helper, const/GP temp lifetimes, result register, scoped opt_loop, O-level, 6-local staging in arg and retail-hw order, asymmetric GP naming, array-form GP read obj152/21wd, schedule off 39wd) plus new probes A=unsuffixed 0x40120, B=staged a1/a3, C=block u8* 5th param, D=staged a3/cval, E=K&R callee, F=s16 4th param (3wd), G2=&D_00884A90[0], H=6-local retail-order staging -- all 2wd (F 3wd). Scheduler argument-order wall; banked. */
 // FUN_00398350 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma opt_propagation off
+s32 func_00398350(s32 arg0)
+{
+    s32 temp_2;
+
+    if (D_00884A7C[0] == 0)
+        goto alloc;
+block_1:
+    D_00884A7C[0] += 1;
+    return arg0;
+alloc:
+    temp_2 = func_003e1220(0x90, iGpffffaa08, 0x10, iGpffffaa0c,
+                           D_00884A90, 0x40120U);
+    D_00884A80[0] = temp_2;
+    if (temp_2 == 0)
+        goto block_5;
+    if (func_0039aa30() != 0)
+        goto block_1;
+    goto done_zero;
+done_zero:
+    return 0;
+block_5:
+    return 0;
+}
+#pragma pop
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00398350);
+#endif
 // FUN_003983F0
 s32 func_003983f0(s32 arg0)
 {
@@ -675,14 +864,68 @@ docall:
 /* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 
-/* measured: nd 43 against retail's 112-byte window. The control flow is right -
-   set the flag and return the object when the initialiser succeeds, otherwise
-   return zero - but retail places the already-initialised case out of line
-   while b210 inlines it, and the two returns are coloured the other way round.
-   Committed at nd 43. */
-
+/* measured: func_00399470 floor -- probe_archive P390_00399470_body.c: obj 188B/window 192B/40 reloc-masked differing words (fresh; stale nd43/nd97 notes replaced); fnalign 63 edits (slti $at,$t2,0x1e + slti $v1,$t1,2 vs slti $at,$t1,0x1e + slti $at,$t0,2 plus stream/pointer materialisation wall). */
+/* measured: ruled out -- archive (signed-byte loads, int pointer materialisation, O1, schedule-on, nbl, labels, pointer-local order, split locals, arg2 reuse) plus strict-bound transfer (>0x1D for >=0x1E, <=1 for <2, both 40wd neutral) and 98350/96890/b830 scheduler/s64 cures checked. Banked. */
 // FUN_00399470 NONMATCHING
+#ifdef NON_MATCHING
+void func_00399470(s8 *arg0, u8 *arg1, u8 *arg2)
+{
+    s8 *streams[2];
+    s32 var_10;
+    s32 var_9;
+    s8 **var_6;
+    s8 *var_4;
+    s32 temp_3_2;
+    var_4 = arg0;
+    var_10 = 0;
+    if (arg1 == NULL) {
+        goto null_init;
+    }
+    streams[0] = (s8 *)(arg1 + 0x10);
+    streams[1] = (s8 *)(arg2 + 0x10);
+loop_3:
+    arg2 = (u8 *)streams;
+test:
+    if (var_10 >= 0x1E) {
+        goto end;
+    }
+    if (((s8 **)arg2)[0][0] == 0) {
+        goto second_check;
+    }
+body_outer:
+    var_9 = 0;
+    var_6 = (s8 **)arg2;
+inner_loop:
+    arg1 = (u8 *)*var_6;
+    if (*(s8 *)arg1 != 0) {
+        goto inner_body;
+    }
+inner_increment:
+    var_9 += 1;
+    var_6 += 1;
+    if (var_9 < 2) {
+        goto inner_loop;
+    }
+    goto test;
+null_init:
+    streams[1] = (s8 *)(arg2 + 0x10);
+    streams[0] = streams[1];
+    goto loop_3;
+inner_body:
+    *var_4 = *(s8 *)arg1;
+    var_10 += 1;
+    var_4 += 1;
+    *var_6 = (s8 *)arg1 + 1;
+second_check:
+    if (*streams[1] != 0) {
+        goto body_outer;
+    }
+end:
+    *var_4 = 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399470);
+#endif
 
 
 // FUN_00399530
@@ -1839,8 +2082,42 @@ s32 func_0039ae30(s32 arg0)
 /* measured: retail uses a plain beqz for the initialization test. */
 #pragma no_branch_likely on
 
+/* measured: func_0039ae90 floor -- probe_archive Y039_0039ae90_body.c: obj 156B/window 176B/37 reloc-masked differing words (fresh); fnalign 24 edits (no slt/slti $at entry guard, no trailing dead-arm chain; allocator/call layout wall). */
+/* measured: ruled out -- archive (block-scope 43f810, decl order, result/local staging, branch polarity/goto, arg staging, O1) plus transfer from 98350 scheduler, 96890/b830 s64 (no range guard), 99470 strict bounds and f0e0 dead-arm checked (no convertible chain). Banked. */
 // FUN_0039AE90 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0039ae90(s32 arg0, s32 arg1)
+{
+    extern void func_0043f810(void *dst, void *src, u32 size);
+    s32 temp_18;
+    s32 temp_2;
+    s32 temp_4;
+    u8 *temp_16;
+    u8 *temp_17;
+    u8 *temp_19;
+    s32 temp_20;
+    temp_2 = iGpffffb5f0;
+    temp_16 = (u8 *)(arg1 + temp_2);
+    temp_4 = *(s32 *)temp_16;
+    temp_17 = (u8 *)(arg0 + temp_2);
+    if (temp_4 <= 0) {
+        goto block_1;
+    }
+    temp_18 = temp_4 * 0x14;
+    *(u8 **)(temp_17 + 8) = (*jtbl_008873E8)((u32)temp_18, 0x30105);
+    if (*(u8 **)(temp_17 + 8) == NULL) {
+        return 0;
+    }
+    temp_20 = *(s32 *)temp_16;
+    temp_19 = (u8 *)(*(s32 *)(temp_16 + 8));
+    *(s32 *)temp_17 = temp_20;
+    func_0043f810(*(u8 **)(temp_17 + 8), temp_19, temp_18);
+block_1:
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039ae90);
+#endif
 // FUN_0039AF40
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039af40);
 // FUN_0039B080
@@ -1886,8 +2163,38 @@ s32 func_0039b290(s32 arg0)
     *(s32 *)(p + 4) = (s32)func_0039b250;
     return arg0;
 }
+/* measured: func_0039b2c0 floor -- probe_archive P390_0039b2c0_body.c: obj 176B/window 192B/26 reloc-masked differing words (fresh); fnalign 20 edits (saved-register colouring/source-order near-miss; no slt/slti $at, no trailing dead-arm chain). */
+/* measured: ruled out -- archive (block-scope 43f9c8, decl permutations, result-local, direct param/pointer typing, schedule-off obj200B, O1 obj204B) plus transfer from 98350 scheduler and 96890/b830 s64 cures checked (no range guard to convert). Banked. */
 // FUN_0039B2C0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0039b2c0(s32 arg0, s32 arg1)
+{
+    s32 result;
+    s32 temp_17;
+    u8 *temp_16;
+    u8 *temp_4;
+    extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+    result = arg0;
+    temp_16 = (u8 *)(result + iGpffffb5e0);
+    temp_4 = *(u8 **)(temp_16 + 8);
+    if (temp_4 != NULL) {
+        jtbl_008873EC[0](temp_4);
+        *(s32 *)temp_16 = 0;
+        *(u8 **)(temp_16 + 8) = NULL;
+    }
+    temp_17 = arg1 * 0x14;
+    temp_4 = (u8 *)jtbl_008873E8[0](temp_17, 0x30105);
+    *(u8 **)(temp_16 + 8) = temp_4;
+    if (temp_4 == NULL) {
+        return 0;
+    }
+    *(s32 *)temp_16 = arg1;
+    func_0043f9c8(*(u8 **)(temp_16 + 8), 0, temp_17);
+    return result;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b2c0);
+#endif
 // FUN_0039B380
 s32 func_0039b380(void)
 {
@@ -2080,10 +2387,53 @@ ret0:
 #pragma no_branch_likely off
 /* measured: closes the schedule-on b6e0 probe. */
 #pragma schedule off
-/* measured: archived b720 reconstruction in build/K399_0039b720_body.c;
-   object 148B / window 160B / normalized_diff 81. */
-// FUN_0039B720
+/* measured: func_0039b720 floor -- probe_archive K399_0039b720_body.c: obj 148B/window 160B/38 reloc-masked differing words (fresh; stale nd81 note replaced); fnalign 32 edits (entry sltu $at,$zero,$v1 + second sltu $v0,$a3,$v1 vs sltu $at,$a3,$v1; unsigned entry wall). */
+/* measured: ruled out -- archive (u8 expansion, 3rd param/4-reg bdf0 call, schedule-on, nbl-on, 0U</0U< reversals, goto guard, decl/local reorder) plus transfer from bb70/b830 unsigned s64 regress (s64 21wd on bb70) -- unsigned sltu wall stands, signed cure not applicable. Banked. */
+// FUN_0039B720 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_0039bdf0();
+void func_0039b720(u8 *arg0, u8 *arg1, u32 arg3) {
+    u8 *var_5;
+    s32 temp_6;
+    u32 temp_3;
+    u32 var_7;
+    u8 *temp_4;
+    var_5 = arg1;
+    var_7 = arg3;
+    if (*(s32 *)(arg0 + 0xC) == 2) {
+        temp_6 = *(s32 *)(arg0 + 4);
+        temp_4 = *(u8 **)arg0;
+        if (temp_6 != 0) {
+            temp_3 = *(u32 *)(var_5 + 4);
+            var_7 = 0;
+            if (0U < temp_3)
+                goto has_entries;
+            goto after_entries;
+has_entries:
+            var_5 = *(u8 **)var_5;
+loop_4:
+            if (temp_6 == *(s32 *)(var_5 + 8)) {
+                *(s32 *)(temp_4 + 0x10) = *(s32 *)(var_5 + 0x10);
+            } else {
+                var_7 += 1;
+                var_5 += 0x14;
+                if (var_7 < temp_3) {
+                    goto loop_4;
+                }
+            }
+            goto after_entries;
+after_entries:
+            ;
+        } else {
+            *(s32 *)(temp_4 + 0x10) = 0;
+        }
+        *(u8 **)(arg0 + 0x10) = func_0039bdf0(temp_4, var_5, temp_6, var_7);
+        *(s32 *)(*(u8 **)(arg0 + 0x10) + 0x30) = *(s32 *)(arg0 + 8);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b720);
+#endif
 // FUN_0039B7C0
 /* measured: schedule on probes b7c0's retail branch delay-slot materialization. */
 #pragma schedule on
@@ -2107,14 +2457,79 @@ common:
 }
 /* measured: closes schedule-on probe for func_0039b7c0. */
 #pragma schedule off
-// FUN_0039B830
+/* measured: func_0039b830 floor -- archive K399_0039b830_body.c 23wd (obj 160B/window 160B, fnalign 16 edits) improved to 2wd via (s64)0 entry guard + 4-pragma set + var_17 hoisted before guard (obj 152B/window 160B, fnalign 2 edits: lwu+slt vs retail lw+sltu at 0x10-0x14). */
+/* measured: ruled out -- archive (m2c expansion, decl-order, base pointer, unsigned guards, goto loop, schedule-on) plus 0U<s32 and (u64)0<s32 (both 10wd/beqz), (u32)0<(u32)s32 cast (10wd/beqz); transfer from bcd50 slt $at cure (signed improve, unsigned stands). lw+sltu vs lwu+slt wall; banked improved floor. */
+// FUN_0039B830 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
+#pragma opt_rebuildconditionals off
+#pragma opt_propagation off
+void func_0039b830(u8 *arg0) {
+    s32 temp_4;
+    u32 var_17;
+    s32 var_16;
+    u8 *base;
+    var_17 = 0;
+    if ((s64)0 < *(u32 *)(arg0 + 4))
+        goto loop_start;
+    goto after_loop;
+loop_start:
+    var_16 = 0;
+loop_items:
+    base = *(u8 **)arg0;
+    temp_4 = *(s32 *)(base + var_16 + 0x10);
+    if (temp_4 != 0) {
+        func_00411670(temp_4);
+    }
+    var_17 += 1;
+    var_16 += 0x14;
+    if (var_17 < *(u32 *)(arg0 + 4))
+        goto loop_items;
+after_loop:
+    jtbl_008873EC[0](*(void **)arg0);
+    *(s32 *)(arg0 + 8) = 0;
+    *(u32 *)(arg0 + 4) = 0;
+    *(u8 **)arg0 = NULL;
+    *(s32 *)(arg0 + 0xC) = 0;
+}
+#pragma opt_propagation on
+#pragma opt_rebuildconditionals on
+#pragma no_branch_likely off
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b830);
+#endif
 // FUN_0039B8D0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b8d0);
 // FUN_0039BA80
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039ba80);
+/* measured: func_0039bb70 floor -- probe_archive Y39BB_0039bb70_body.c: obj 92B / window 96B / 14 reloc-masked differing words (fresh re-measure); fnalign 13 edits (entry sltu $at,$zero,$a2+beqz vs beqz+nop, branch-displacement cascade, trailing nop/nop). */
+/* measured: ruled out -- s64 entry guard (s64)0<count with 4-pragma set 21wd, 0<count 14wd neutral, s32+(s64)0 20wd, 0<count+4-pragmas 17wd; transfer from b830/96890 s64 cure (unsigned counts regress, signed improve) -- unsigned sltu wall stands. Banked. */
 // FUN_0039BB70 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_0039bb70(u8 **arg0, s32 arg1)
+{
+    u8 *base;
+    u8 *entry;
+    u32 count;
+    u32 index;
+    count = *(u32 *)((u8 *)arg0 + 4);
+    index = 0;
+    if (count != 0) {
+        base = *arg0;
+        entry = base;
+        do {
+            if (arg1 == *(s32 *)(entry + 8)) return base + index * 0x14;
+            index += 1;
+            entry += 0x14;
+        } while (index < count);
+    }
+    return NULL;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039bb70);
+#endif
 // FUN_0039BBD0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039bbd0);
 /* measured: schedule on preserves the bdf0 call and delay-slot order. */
@@ -2160,8 +2575,31 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039d360);
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039dcc0);
 // FUN_0039E740
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039e740);
+/* measured: func_0039f0e0 floor -- archive H399_0039f0e0_body.c 30wd (obj 124B/window 128B, fnalign 21 edits) improved to 25wd via switch->if/else-if with trailing dead arm carrying redundant store (value=0, res already 0) per 0018c7e0 dead-arm cure (40->2 there). */
+/* measured: ruled out -- archive (typed/untyped callees, scalar/array globals, const, switch/if/goto, result local, decl order, O1/O2/O3, schedule, nbl, conditional-rebuild) plus strict-bound transfer checked (no slti $at range to convert). Trailing-compare/displacement wall remains; banked improved floor. */
 // FUN_0039F0E0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0039f0e0(u8 *arg0, s32 *arg1)
+{
+    extern void func_003d0fa0(void);
+    extern void func_0039c000(u8 *arg0, s32 arg1, s32 arg2);
+    extern s32 D_00886498[];
+    u8 *p;
+    s32 value;
+    value = 0;
+    p = *(u8 **)(*(u8 **)(arg0 + 8) + 0x18);
+    if ((*(s32 *)(p + 8) & 0x01000000) == 0) {
+        value = *(s32 *)(p + D_00886498[0]);
+        func_003d0fa0();
+        func_0039c000(*(u8 **)(arg0 + 0x2C), value, *arg1);
+    } else if ((*(s32 *)(p + 8) & 0x01000000) < 0x01000001) {
+        value = 0;
+    }
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039f0e0);
+#endif
 // FUN_0039F160
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039f160);
 // FUN_0039F9D0

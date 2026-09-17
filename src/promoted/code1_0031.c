@@ -44,6 +44,11 @@ void func_00311900(s64 arg0)
 {
     func_00246830(arg0 & 0xFFFF);
 }
+/* Archived C body: docs/probe_archive/C31B_00311930_body.c; object 596B; */
+/* retail window 608B; five reloc-masked differing words plus three zero-tail */
+/* words. Remaining: cvt.w.s destination-register wall (candidate $f1 where */
+/* retail uses $f0 at 0x70/0x74 and 0x88/0x8C/0x90). Fnalign edit 5 plus six */
+/* reloc-only pairs; production remains ASM. */
 // FUN_00311930 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0031", func_00311930);
 /* measured: b210 -O2 with loop-invariant hoisting gives 364B/368B,
