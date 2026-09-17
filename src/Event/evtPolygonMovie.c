@@ -141,6 +141,7 @@ u8 *func_0028fb90(void)
    order, K&R definition form, and direct-parameter-vs-copy models (all
    measured, all 5 words). Pragma re-probe on the 5wd body: propag removal
    202, loop-inv removal 14 (confirms 14 -> 5), cse-off 458, sched-on 489. */
+/* measured: pair sweep 2026-09-17 `python3 -E -s tools/pragma_sweep.py src/Event/evtPolygonMovie.c func_0028fc40 --pairs` banked 5 (already carries opt_propagation off + opt_loop_invariants on); best 5 is the loop+propag pair reproducing the installed combo, so no new win. Stripped singles: propag-off alone 14 (+4 pairs 14), loop-inv alone 202 (+4 pairs 201-202), dead/strength/unroll/peephole singles + 6 pairs 209, commons block 455-458, schedule block 489-495. Confirms both installed pragmas load-bearing (5 -> 14 without loop, 5 -> 202 without propag). Home-move order wall stands at 522/522. */
 // FUN_0028FC40 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: propag-off above is load-bearing (removal 5 -> 202); the loop-invariants pair below closes 14 -> 5; body is 5wd exact at 522/522 instrs (2096B/2096B). */

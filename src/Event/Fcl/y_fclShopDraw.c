@@ -671,6 +671,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d1590);
    store order (lwc1 0x5C before 0x58, first-loaded binds $f1) - tried f32
    temps in all declaration/assignment orders. Scheduling floor. */
 /* measured: MWCC -O2 plain, object 2172B/window 2176B, normalized_diff 8 (fndiff 4 words at 1496-1508: retail mov.s f13,f12 first then GP zeros vs object GP first). Re-push: A/B/C (0U/named-one/casts) all 4, cse-off 387, prop-off 413, loopinv-on 4, rebuild-off 4, schedule-on 451. No shortfall (543/543 fnalign, 1-word window pad only), so dead-arm N/A; no casts to delete; loopinv neutral. Scheduling wall holds (float-copy vs GP-imm order), banked rather than grinding. Switch+Vec2f*b+raw best stands. No volatile/asm. */
+/* measured: pair sweep 2026-09-17 `python3 -E -s tools/pragma_sweep.py src/Event/Fcl/y_fclShopDraw.c func_002d3ee0 --pairs` banked 4; best ties 4 (loop-inv, strength-off, unroll-off singles + 3 pairs among them: loop+strength, loop+unroll, strength+unroll). All 28 pairs neutral or worse: peephole block 361 (single + 3 pairs), commons block 387 (single + 5 pairs), propag block 413 (single + 4 pairs + loop+propag 413), schedule block 451-454 (single + 5 pairs + common 454), dead block 454 (single + 3 pairs + peephole 461/463). No win; fndiff mov.s-vs-GP scheduling wall stands. */
 // FUN_002D3EE0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002d3ee0(void *arg0) {

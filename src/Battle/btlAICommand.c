@@ -1475,6 +1475,18 @@ next:
 #pragma pop
 /* measured: object 1748B/window 1760B/normalized_diff 39 (39 differing words, live re-measured current tree). */
 /* measured: earliest fnalign is saved-reg coloring s0-s1 (437 vs 437 instrs); paired slti dest already $at both sides for 0x1B8 (input s1-vs-s0 coloring only) so inclusive flip N-A — re-verified this wave via fnalign slti dest (retail slti $at vs object slti $at; 0x240 pair retail slti $v0 vs object slti $v0, same dest): cmd<0x1B8 to cmd<=0x1B7 / 0x1B8>cmd / !(cmd>=0x1B8) all stay 39/39w 437/437; decl swap neutral (39), s32 result 317w / s32 count 330w, init swap 40 per sibling; no short tail, arg N-A, loop neutral; Main 004938e0 levers N-A (frame exact, no andi-CSE; no adjacent-OR fold); wall is colour rotation. */
+/* measured 001dd920 (pragma exhaustion): all eight cheap pragmas and all
+   twenty-eight pairs measured with `tools/pragma_sweep.py --pairs`; every
+   configuration ties the banked 39 or is worse, so this is not the
+   `opt_dead_assignments off` case that closed func_001dbba0 above.
+   WALL, all 39 words at an exact 437/437: a pure two-register exchange.
+   Retail keeps `result` (the -1/0/1/2 selector) in $s0 and `count`
+   (`andi $v0, 0xffff` from func_0023e130) in $s1; b210 assigns them the
+   other way round and the swap then shows at every one of the nineteen
+   sites that touch either.  Declaration order is inert: `result` first,
+   `count` last, `result` second, and the original order all measure 39;
+   swapping the two initialisers costs 40.  opclass reports no surplus on
+   this floor. */
 // FUN_001DD920 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)

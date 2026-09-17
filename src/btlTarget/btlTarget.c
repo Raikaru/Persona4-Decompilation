@@ -193,6 +193,7 @@ s32 func_001ec8c0(f32* first, f32* second, f32* point, f32 threshold)
 /* corner/midpoint declaration swap 23, edge/next reorder 35, no-held-entry */
 /* recompute 223, edge double-def (mdlSE pattern) 230: pinning adds a live */
 /* range and spills instead of freeing vertex. Saved-register coloring floor. */
+/* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/btlTarget/btlTarget.c func_001eca10 --pairs` banked 23; best ties 23 (opt_dead_assignments off, opt_loop_invariants on, opt_strength_reduction off, opt_unroll_loops off and six pairwise combos among them); all 28 pairs neutral or worse (peephole forms 25, commons 160-162, schedule 206, propagation 208-209/212/215). fnalign retail/object 241/241 per assignment. Floor stands; production stays ASM. */
 // FUN_001ECA10 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001eca10(u8 *first, u8 *second)

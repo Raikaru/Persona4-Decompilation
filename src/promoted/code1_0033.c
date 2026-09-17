@@ -293,6 +293,7 @@ s32 func_003319c0(void) {
    min_flip (archived 26->24 via `min > level` for `level < min`); order_swap 27,
    max_flip 28, min_order 25, min_max 26. Nine-case smoke passes. Body banked
    below (min_flip); production stays ASM. Re-measured 2026-09-17. */
+/* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/promoted/code1_0033.c func_00331a20 --pairs` banked 24; best ties 24 (opt_dead_assignments off, opt_loop_invariants on, opt_strength_reduction off, opt_unroll_loops off and six pairwise combos among them); all 28 pairs neutral or worse (commons 64, propagation 260, schedule 284-295, peephole 308-313). Singles schedule/propagation/commons regress per archive; three two-definition work-pointer pins flat per assignment. Pairs were the only axis left and are also flat. fnalign retail/object 347/347 per assignment. Floor stands; production stays ASM. */
 // FUN_00331A20 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00331a20(u8 *arg0)
