@@ -1440,8 +1440,10 @@ void func_001b39f0(void)
 }
 
 /* measured: fnalign retail 318 instrs object 318 instrs 94 edits (+16 reloc-only) -> 86 edits (+16 reloc-only) after Shape A; slti $at vs $v0 row at retail[208:210] (clamp d >= 6) fixed by d >= 6 -> d > 5 earliest-first (only inclusive bound); probe_variants 259 words unchanged (positional); object still 318/318 (0 short) so Shape B skipped; banked guarded floor. */
+/* measured 001b3a00: `opt_propagation off` inside the guard is worth 4 words (259 -> 255). */
 // FUN_001B3A00 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_propagation off
 s32 func_001b3a00(void)
 {
     u16 st;
@@ -1573,6 +1575,7 @@ retsw:
         return 14;
     }
 }
+#pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b3a00);
 #endif
@@ -2756,8 +2759,10 @@ u32 func_001b7520(void *arg0)
 /* Effect-blend floor (1104B window). First probe nd 242 (obj 1140B,
    36B overrun); frame/prologue verified. Open: u32-float temp rotation,
    scheduler ordering. See L1B doc. */
+/* measured 001ba0e0: `opt_propagation off` inside the guard is worth 27 words (242 -> 215). */
 // FUN_001BA0E0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_propagation off
 /* Closest candidate archive; reverted because lverify normalized_diff was 817 (object 1140B, window 1104B). */
 s32 func_001ba0e0(u8 *arg0)
 {
@@ -2796,6 +2801,7 @@ s32 func_001ba0e0(u8 *arg0)
     }
     func_00457140(arg0[0], arg0[1], arg0[2], arg0[3]); return 1;
 }
+#pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001ba0e0);
 #endif

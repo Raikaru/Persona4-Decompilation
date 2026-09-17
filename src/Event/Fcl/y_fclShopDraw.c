@@ -1694,8 +1694,13 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002de5a0);
    scoped) is ignored by b210; #pragma peephole off restores beq+b (aligned) but
    costs +46 elsewhere (265). Orders 1,2,0 score 250. Archive: v11 floor banked
    in docs/probe_archive/ShopDraw_002df020_body.c (62 lines). */
+/* measured 002df020: `opt_propagation off` inside the guard is worth 4 words (219 -> 215). */
+/* measured 002df020 width: block-scope (arg1 s32, 106880 s32, 0046a770 pointer; keep 106a90 s16 + outer s16) removes all six excess pairs */
+/* (wscan obj 8 -> 2 matching retail) but trades 215 words / 207 edits for 232 / 191 -- do not install; remaining is work/tmp colouring, */
+/* bnez vs beqz+b, GP ld and lbu schedule. Correct but not yet profitable; prerequisite for the rest. */
 // FUN_002DF020 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_propagation off
 void func_002df020(void *arg0, s64 arg1, s32 arg2) {
     extern u8 iGpffffa890[];
     extern u8 D_0063FAA0[];
@@ -1758,6 +1763,7 @@ Ljoin:
     tmp = (s32)func_0046a770(D_0063FAA0);
     func_002cacd0(sp70, 1.0f, spB4, 0x1B, 0, arg2 & 0xFF, 0x2F, 0, tmp, (s32)func_0046a770(D_0063FAA0), 0xA9);
 }
+#pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002df020);
 #endif

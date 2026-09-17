@@ -721,7 +721,9 @@ void func_004a77b0(void) {
 /* measured: h 19 (`#pragma opt_loop_invariants on` before `for`, off after loop: 19->19 no-op), */
 /* measured: l 20 (`u32 idx/temp_17`), m 127 (`delta[idx]`/`initial[idx]` vs byte-offset). */
 /* measured: parent levers: loop-invariants 19->19 no-op here; cast-moves-load not applicable */
-/* measured: (tail `&vec[0]` already bare, no cast); scheduler not touched per parent (2->120 risk). */
+/* measured: (tail `&vec[0]` already bare, no cast); full pragma sweep 2026-09-17 on floor g: */
+/* measured: `opt_common_subs off` 110, `schedule on` 116, `opt_propagation off` 122 (all worse), */
+/* measured: re-confirmed cur 19 words (fnalign 133/133 instrs, 19 edits + 11 reloc-only). */
 /* measured: floor g: object 532B/window 544B (12B short), 19 words: `addiu $s0 vs $v0` at 0x6C, */
 /* measured: `lui 0.5f` hoisting (`move $a0` vs `lui` at 0x88), float colouring $f1/$f2/$f3 swaps */
 /* measured: at 0xC0-0x100 (`lwc1/abs/c.lt/c.le/add/sub`). Walls; Keep ASM until colouring closes. */

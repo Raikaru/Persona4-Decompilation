@@ -1087,12 +1087,77 @@ void func_0034db60(u8 *arg0, f32 fparg0, s32 arg1) {
 /* measured: disabling common-subexpression elimination preserves retail's
    per-call corner recomputation. */
 #pragma opt_common_subs off
-/* Archived C body: docs/probe_archive/VNLN_0034ddf0_body.c; object 700B;
-   retail window 704B; six reloc-masked differing words. Remaining:
-   five alpha-conversion register assignments and one trailing word.
-   Native geometry and mutating-callback smoke evidence is in the archive. */
+/* Floor (re-measured 2026-09-17): probe_variants 5 reloc-masked differing */
+/* words; fnalign retail 175 instrs / object 175 instrs, 5 edits plus 6 */
+/* reloc-only (175*4 = 700B in the 704B window; the 1-word suffix is retail */
+/* zero tail). All five edits sit in the alpha float-to-int clamp: retail */
+/* `cvt.w.s $f1,$f2` against object `cvt.w.s $f2,$f2`, cascading through the */
+/* high-path sub.s/cvt/mfc1 FPR colour. That is destination selection, not */
+/* source shape: sibling func_00311930 (code1_0031.c) measures 149/149 with */
+/* 5 words / 5 edits over the same cvt.w.s/mfc1 colour wall (re-measured */
+/* 2026-09-17), so this floor is banked with that evidence rather than */
+/* ground further. Body banked verbatim from */
+/* docs/probe_archive/VNLN_0034ddf0_body.c; its native geometry and */
+/* mutating-callback smoke evidence stays in the archive. Pragma sweep */
+/* 2026-09-17: `opt_propagation off` is load-bearing (bare body scores 140), */
+/* the file `opt_common_subs off` region is load-bearing (forcing it on */
+/* scores 161), `schedule on` scores 158, `opt_loop_invariants on` ties at */
+/* 5 words / 5 edits with an identical stream and is omitted for simplicity. */
+/* Semantic gate: (u8*,s32) signature matches retail and both headstarts; */
+/* the alpha-narrowing idiom mirrors MATCHED sibling func_0034d890 above. */
 // FUN_0034DDF0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_propagation off
+void func_0034ddf0(u8 *arg0, s32 arg1) {
+    f32 temp_f2;
+    f32 temp_f21;
+    f32 temp_f20;
+    struct { f32 reciprocal; f32 depth; } projection;
+    f32 temp_f24;
+    f32 temp_f1;
+    f32 temp_f2_2;
+    f32 var_f0;
+    f32 var_f1;
+    s32 temp_16;
+    u8 temp_2;
+    u8 temp_3;
+
+    temp_f2 = *(f32 *)(arg0 + 0x1688);
+    if (*(s32 *)(arg0 + 0x1690) == 0) {
+        temp_f1 = (f32)*(s16 *)(arg0 + 0x1684);
+        if (temp_f1 < temp_f2) {
+            var_f0 = func_0044b7b0((iGpffff8094 * temp_f1) / temp_f2);
+        } else {
+            var_f0 = 1.0f;
+        }
+    } else {
+        var_f0 = 1.0f;
+    }
+    if (arg1 == 0) {
+        var_f0 = 1.0f - var_f0;
+    }
+    temp_f21 = 171.0f * var_f0;
+    temp_2 = *(u8 *)(arg0 + 0x994);
+    var_f1 = (f32)(u32)temp_2;
+    temp_f2_2 = var_f1 * var_f0;
+    temp_16 = (u8)temp_f2_2;
+    *(s32 *)(arg0 + 0x990) = 0;
+    temp_f1 = iGpffff8220 - (171.0f * var_f0) / 2.0f;
+    temp_f20 = addF(temp_f1, *(f32 *)(arg0 + 0x9A0));
+    temp_f24 = 77.0f + *(f32 *)(arg0 + 0x99C);
+    projection.depth = D_008872F8[0] - D_0088467C[0];
+    projection.reciprocal = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    temp_3 = (u8)temp_16;
+    func_0034f0d0(arg0 + 0x690, temp_f24, temp_f20, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, temp_3);
+    temp_f21 = addF(temp_f20, temp_f21);
+    func_0034f0d0(arg0 + 0x6D0, temp_f24, temp_f21, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, temp_3);
+    func_0034f0d0(arg0 + 0x710, addF(temp_f24, 580.0f), temp_f21, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, temp_3);
+    func_0034f0d0(arg0 + 0x750, addF(temp_f24, 580.0f), temp_f20, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, temp_3);
+}
+#pragma opt_propagation on
+#else
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034ddf0);
+#endif
 /* measured: closes ddf0 common-subexpression scope after its archived body. */
 #pragma opt_common_subs on
 /* measured: snapshot alpha before the camera callback, then narrow for the

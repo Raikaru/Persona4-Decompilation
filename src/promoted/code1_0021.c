@@ -150,8 +150,10 @@ static inline f32 ws14_sub(f32 left, f32 right)
    opt_treetransformation, opt_movepostops, opt_propagation, lifetimes,
    dead-assignments, size and strength-reduction were all measured. */
 /* measured 00210c70: `schedule on` inside the guard is worth 5 words (367 -> 362). */
+/* measured 00210c70: `opt_propagation off` on top of `schedule on` is worth 1 word (362 -> 361). */
 // FUN_00210C70 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_propagation off
 #pragma schedule on
 void func_00210c70(u8 *arg0, u8 *arg1)
 {
@@ -289,6 +291,7 @@ void func_00210c70(u8 *arg0, u8 *arg1)
     }
 }
 #pragma schedule off
+#pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00210c70);
 #endif
