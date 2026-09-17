@@ -1750,7 +1750,109 @@ u8 *func_0035bf10(s32 arg0, u16 arg1, s32 arg2)
     return temp_16;
 }
 // FUN_0035C040
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035c040);
+f32 func_0035c040(u8 *arg0, s32 arg1)
+{
+    extern u8 *func_00457120(void);
+    extern f32 D_008872F8[];
+    extern void func_00364680(s32 arg0, s32 *arg1, s32 arg2, s32 arg3, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5, f32 f6);
+    extern void func_0034f1e0(void);
+    extern s32 (*D_00887300[])(s32, s32);
+    extern void (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
+    typedef struct {
+        f32 x;
+        f32 y;
+        f32 z;
+        s32 _c;
+        s32 u;
+        s32 v;
+        f32 q;
+        s32 _1c;
+        s32 r;
+        s32 g;
+        s32 b;
+        f32 a;
+        s32 _pad[4];
+    } Q40;
+    u8 *p;
+    f32 z;
+    f32 q;
+    f32 ret;
+    s16 v;
+    Q40 qs[4];
+
+    p = *(u8 **)(arg0 + 0x38);
+    z = D_008872F8[0];
+    q = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    {
+        u8 *t = *(u8 **)(arg0 + 0x38);
+        s32 flag;
+        if ((*(s32 *)(t + 0x2C) == 0) || (*(u16 *)(t + 0x20) == 0)) {
+            flag = 0;
+        } else {
+            flag = 1;
+        }
+        if (flag == 0) {
+            return 0.0f;
+        }
+    }
+    v = *(s16 *)(p + 0x22);
+    if (v <= 9) {
+        *(s16 *)(p + 0x22) = v + 1;
+    }
+    ret = func_0044b7b0(fGpffff84a4 * ((f32)*(s16 *)(p + 0x22) / 10.0f));
+    if ((ret < 0.0f) || (ret > 1.0f)) {
+        func_0046d730(&D_0064CC98, 0x936);
+    }
+    *(f32 *)p = *(f32 *)(p + 8) + ret * (*(f32 *)(p + 0x10) - *(f32 *)(p + 8));
+    *(f32 *)(p + 4) = *(f32 *)(p + 0xC) + ret * (*(f32 *)(p + 0x14) - *(f32 *)(p + 0xC));
+    *(f32 *)(p + 0x18) = *(f32 *)(p + 0x18) + 0.25f * (*(f32 *)p - *(f32 *)(p + 0x18));
+    *(f32 *)(p + 0x1C) = *(f32 *)(p + 0x1C) + 0.25f * (*(f32 *)(p + 4) - *(f32 *)(p + 0x1C));
+    qs[0].x = *(f32 *)p;
+    qs[0].y = *(f32 *)(p + 4);
+    qs[0].z = z;
+    qs[0].r = 0x437F0000;
+    qs[0].g = 0x437F0000;
+    qs[0].b = 0x437F0000;
+    qs[0].a = (f32)(u32)arg1;
+    qs[0].u = 0;
+    qs[0].v = 0;
+    qs[0].q = q;
+    qs[1].x = 256.0f + *(f32 *)p;
+    qs[1].y = *(f32 *)(p + 4);
+    qs[1].z = z;
+    qs[1].r = 0x437F0000;
+    qs[1].g = 0x437F0000;
+    qs[1].b = 0x437F0000;
+    qs[1].a = (f32)(u32)arg1;
+    qs[1].u = 0x3F800000;
+    qs[1].v = 0;
+    qs[1].q = q;
+    qs[2].x = *(f32 *)p;
+    qs[2].y = 256.0f + *(f32 *)(p + 4);
+    qs[2].z = z;
+    qs[2].r = 0x437F0000;
+    qs[2].g = 0x437F0000;
+    qs[2].b = 0x437F0000;
+    qs[2].a = (f32)(u32)arg1;
+    qs[2].u = 0;
+    qs[2].v = 0x3F800000;
+    qs[2].q = q;
+    qs[3].x = 256.0f + *(f32 *)p;
+    qs[3].y = 256.0f + *(f32 *)(p + 4);
+    qs[3].z = z;
+    qs[3].r = 0x437F0000;
+    qs[3].g = 0x437F0000;
+    qs[3].b = 0x437F0000;
+    qs[3].a = (f32)(u32)arg1;
+    qs[3].u = 0x3F800000;
+    qs[3].v = 0x3F800000;
+    qs[3].q = q;
+    func_00364680(*(s32 *)(p + 0x28) | (arg1 & 0xFF), *(s32 **)(p + 0x3C), 1, 0, 0.0f, *(f32 *)(p + 0x18) + -30.0f, 256.0f, *(f32 *)(p + 0x1C), *(f32 *)p, *(f32 *)(p + 4), 256.0f);
+    func_0034f1e0();
+    D_00887300[0](1, **(s32 **)(p + 0x3C));
+    D_00887310[0](4, &qs[0], 4);
+    return ret;
+}
 /* measured: opt_propagation off preserves paired field-load order. */
 #pragma push
 #pragma opt_propagation off

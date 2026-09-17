@@ -339,8 +339,157 @@ void func_002b0220(void *arg0) {
    (a7+j)<<8 loop-invariant needs the opt_loop_invariants pragma to hoist at
    retail's position. All switch bodies, the v>=7/v==2/default chains, and
    the nested byte-scan loop match when aligned. */
-// FUN_002B0250
+/* measured: first full C body for this function (guard below) scores nd 279
+   (obj 1372B/window 1360B; fnalign 275 edits over retail 340 instrs).
+   Prologue, frame, all call sites, float immediates and the tile loop match;
+   the gap to the prior nd-178 best (unarchived body, stands) is the prologue
+   saved-register rotation (a1-a5 to $s6/$s7/$s3/$s2/$s1 vs retail
+   $s7/$fp/$s4/$s3/$s2, arg6 saved to $fp vs spilled to stack) cascading
+   through every later use. Pragma sweep on this exact body (loop-invariant
+   on/off, schedule off, opt_propagation off, declaration-order swap) is
+   neutral at 279-281, and
+   the masked ==1/!=3 shared-fallthrough spelling of the 13/14 arm is neutral
+   (279 -> 280), so the dispatch shape is second-order. Rotation plus
+   callee-saved-spill-choice floor. */
+// FUN_002B0250 NONMATCHING
+#ifdef NON_MATCHING
+void func_002afbc0();
+u8 *func_002b0250(u8 *arg0, s8 arg1, s8 arg2, u8 arg3, s8 arg4, s8 arg5, u8 arg6, u8 arg7) {
+    u8 buf[8];
+    u8 *ret;
+    u8 *blk;
+    s32 v;
+    s16 i;
+    s16 j;
+    u8 *q;
+    func_002b2bd0((f32 *)buf, 0, 126.0f, 126.0f, 21.0f, 22.0f);
+    v = arg3 & 0xFF;
+    if (v == 0xFF) {
+        return NULL;
+    }
+    func_0044ea90(D_0063EF60, 0x5C4);
+    blk = D_008873F4[0](1, 0x160, 0x40000);
+    ret = (u8 *)func_00451fc0((s32)arg0, D_0063EFD8, 0xF, 0, 0, (void (*)(u8 *))func_002afbc0, (void (*)(u8 *))func_002b0220, blk);
+    *(u8 **)blk = blk;
+    *(blk + 4) = arg3;
+    *(blk + 5) = (u8)arg4;
+    *(blk + 0x18) = (u8)arg5;
+    *(s32 *)(blk + 0x34) = 0x3F800000;
+    *(blk + 0x140) = (u8)arg1;
+    *(blk + 0x141) = (u8)arg2;
+    *(blk + 0x142) = 0;
+    *(blk + 0x143) = 0;
+    *(blk + 0x144) = 0;
+    *(s32 *)(blk + 0x14) = 0;
+    *(s32 *)(blk + 0x10) = 0;
+    if (v < 9) {
+        if (v < 7) {
+            if (v == 2) {
+                if (arg4 == 1) {
+                    *(s32 *)(blk + 0x24) = 0x3C800000;
+                    *(s32 *)(blk + 0x28) = 0x3C800000;
+                    *(s32 *)(blk + 0x1C) = 0x3F140000;
+                    *(s32 *)(blk + 0x20) = 0x3F140000;
+                    *(s32 *)(blk + 0x2C) = 0x42140000;
+                    *(s32 *)(blk + 0x30) = 0x42140000;
+                    if (arg5 == 2 || arg5 == 1) {
+                        *(blk + 0x142) = 2;
+                    }
+                } else if (arg4 == 2) {
+                    *(s32 *)(blk + 0x28) = 0x3E980000;
+                    *(s32 *)(blk + 0x24) = 0x3E980000;
+                    *(s32 *)(blk + 0x20) = 0x3F140000;
+                    *(s32 *)(blk + 0x1C) = 0x3F140000;
+                    *(s32 *)(blk + 0x30) = 0x41980000;
+                    *(s32 *)(blk + 0x2C) = 0x41980000;
+                }
+            } else {
+                *(s32 *)(blk + 0x24) = 0x3D000000;
+                *(s32 *)(blk + 0x28) = 0x3D000000;
+                *(s32 *)(blk + 0x20) = 0x3F180000;
+                *(s32 *)(blk + 0x1C) = 0x3F180000;
+                *(s32 *)(blk + 0x30) = 0x41980000;
+                *(s32 *)(blk + 0x2C) = 0x41980000;
+            }
+        } else {
+            *(s32 *)(blk + 0x24) = 0x3C800000;
+            *(s32 *)(blk + 0x28) = 0x3C800000;
+            *(s32 *)(blk + 0x20) = 0x3F140000;
+            *(s32 *)(blk + 0x1C) = 0x3F140000;
+            *(s32 *)(blk + 0x30) = 0x42140000;
+            *(s32 *)(blk + 0x2C) = 0x42140000;
+        }
+    } else if (v == 9 || v == 10) {
+        if (arg4 == 1) {
+            *(s32 *)(blk + 0x28) = 0x3D000000;
+            *(s32 *)(blk + 0x24) = 0x3D000000;
+            *(s32 *)(blk + 0x20) = 0x3F180000;
+            *(s32 *)(blk + 0x1C) = 0x3F180000;
+            *(s32 *)(blk + 0x30) = 0x41980000;
+            *(s32 *)(blk + 0x2C) = 0x41980000;
+        } else if (arg4 == 2) {
+            *(s32 *)(blk + 0x24) = 0x3E980000;
+            *(s32 *)(blk + 0x28) = 0x3C800000;
+            *(f32 *)(blk + 0x1C) = *(f32 *)(blk + 0x24) + 0.578125f;
+            *(f32 *)(blk + 0x20) = *(f32 *)(blk + 0x28) + 0.578125f;
+            *(s32 *)(blk + 0x30) = 0x42140000;
+            *(s32 *)(blk + 0x2C) = 0x42140000;
+        }
+    } else if (v == 11 || v == 12) {
+        if (arg4 == 1) {
+            *(s32 *)(blk + 0x28) = 0x3C800000;
+            *(s32 *)(blk + 0x24) = 0x3C800000;
+            *(s32 *)(blk + 0x1C) = 0x3E980000;
+            *(s32 *)(blk + 0x20) = 0x3F5C0000;
+            *(s32 *)(blk + 0x2C) = 0x41980000;
+            *(s32 *)(blk + 0x30) = 0x425C0000;
+            *(blk + 0x142) = 1;
+        } else if (arg4 == 2) {
+            *(s32 *)(blk + 0x24) = 0x3E980000;
+            *(s32 *)(blk + 0x28) = 0x3C800000;
+            *(f32 *)(blk + 0x1C) = *(f32 *)(blk + 0x24) + 0.578125f;
+            *(f32 *)(blk + 0x20) = *(f32 *)(blk + 0x28) + 0.578125f;
+            *(s32 *)(blk + 0x30) = 0x42140000;
+            *(s32 *)(blk + 0x2C) = 0x42140000;
+        }
+    } else if (v == 13 || v == 14) {
+        if (arg4 == 1 || arg4 == 3) {
+            *(s32 *)(blk + 0x28) = 0x3D000000;
+            *(s32 *)(blk + 0x24) = 0x3D000000;
+            *(s32 *)(blk + 0x20) = 0x3F180000;
+            *(s32 *)(blk + 0x1C) = 0x3F180000;
+            *(s32 *)(blk + 0x30) = 0x41980000;
+            *(s32 *)(blk + 0x2C) = 0x41980000;
+        } else if (arg4 == 2) {
+            *(s32 *)(blk + 0x24) = 0x3E980000;
+            *(s32 *)(blk + 0x28) = 0x3E980000;
+            *(s32 *)(blk + 0x1C) = 0x3F5C0000;
+            *(s32 *)(blk + 0x20) = 0x3F5C0000;
+            *(s32 *)(blk + 0x30) = 0x42140000;
+            *(s32 *)(blk + 0x2C) = 0x42140000;
+        }
+    }
+    *(blk + 0x14C) = 0;
+    if (arg4 == 2 && arg6 == *(u8 *)(func_00155280() + 0x46) && arg7 == *(u8 *)(func_00155280() + 0x47)) {
+        for (i = 0; i < 2; i = (s16)(i + 1)) {
+            for (j = 0; j < 2; j = (s16)(j + 1)) {
+                q = func_00155280();
+                if ((*(u8 *)(((arg7 + i) << 8) + (u32)q + (arg6 + j) * 0x10 + 0x55) >> 4) == 2) {
+                    *(s32 *)(blk + 0x150) = 0x41100000;
+                    *(s32 *)(blk + 0x154) = 0x41100000;
+                    *(blk + 0x158) = (u8)j;
+                    *(blk + 0x159) = (u8)i;
+                    *(blk + 0x14C) = 1;
+                    return ret;
+                }
+            }
+        }
+    }
+    return ret;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b0250);
+#endif
 
 // FUN_002B07A0
 void func_002b07a0(u8 *arg0, u8 *arg1) {
