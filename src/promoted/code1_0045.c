@@ -1666,8 +1666,95 @@ s32 func_0045ce40(f32 *out, u8 *colors, s32 *pos, f32 z)
     v7[54] = inv;
     return result;
 }
-// FUN_0045D370
+/* Floor for FUN_0045D370 (retail 880B, 219 instrs): best honest in-scope probe
+ * measures 158 differing words (reloc-masked) with executable prefix exact
+ * through the prologue scaling and angle setup; residual is FPR coloring
+ * (retail inv $f21/depth $f23/angle $f22 vs object inv $f22/depth $f21/angle
+ * $f23) plus coords ACC scheduling (retail adda+madd per coord vs object
+ * mul+add+add for the 8-coordHoisted shared products) and loop-tail addressing.
+ * Reconstructs from the retail window; copies MATCHed neighbour conventions:
+ * func_0045ce40 (D_008872F8_abs, func_00457120()+0x80 inv, 64B vertex stride,
+ * (f32)(u32)colors unsigned branch like sdkPrimitive func_0045dd30),
+ * func_0045ee00 (fGpffff8200*angle, func_0044b7b0 sine then func_0044b610 cosine,
+ * negSine, center+(x*cos+y*sin) shape), loop uses u32 i with sltiu like neighbours.
+ * measured: probe_archive FreshPrimitiveBuilder_0045d370_body.c claims 852/880B
+ * nd455; our s32 explicit-B-temp v1 measured 164; inline-B v2/v3 measured 161;
+ * #pragma opt_loop_invariants on before the loop measured 161->158 on the s32
+ * base (parent lever 1, genuinely OFF at b210 -O2 baseline); s16-ox/oy signature
+ * with the same loop pragma measured 150 (8 words better) but needs the
+ * src/sdkPrimitive.c func_0045d370 extern widened s32->s16 and is out of scope
+ * here (this file exclusively), so the banked floor keeps s32 params with
+ * explicit (s16) casts (retail dsll32/dsra32 + negu preserved) and no caller change.
+ * measured neutral, banked, do not repeat: scalar declaration-order permutations
+ * (coords-first vs scalars-first, inv/depth/angle rotations, nx/ny and x0/y0 and
+ * w/h swaps, negSine-last) all 150/158; x-first vs y-first inner sums both 161;
+ * #pragma opt_propagation off and #pragma opt_scalarize off scoped inside the
+ * body both neutral at 150. Parent lever 2 (cast-at-call-site arg-setup
+ * reordering) is N/A here: the three calls are func_00457120() (no args) and
+ * func_0044b7b0(angle)/func_0044b610(angle) passing bare angle (no cast), and
+ * fnalign shows no daddu/lw-$t0 trailing-arg swap; parent-measured no-ops (K&R
+ * redeclaration, fifth-param width) are N/A (max 1 arg). Parent home-move wall
+ * noted: int daddu s4-s0 block already matches; remaining float moves differ in
+ * destination regs, not just order. Production stays ASM; floor is for measurement. */
+// FUN_0045D370 NONMATCHING
+#ifdef NON_MATCHING
+void func_0045d370(f32 *out, u8 *colors, s32 *pos, s32 arg3, s32 arg4, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3)
+{
+    f32 coords[8];
+    f32 inv;
+    f32 depth;
+    f32 angle;
+    f32 sine;
+    f32 cosine;
+    f32 negSine;
+    f32 nx;
+    f32 ny;
+    f32 x0;
+    f32 y0;
+    f32 w;
+    f32 h;
+    u32 i;
+
+    inv = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+    depth = D_008872F8_abs[0] - fparg0;
+    pos[2] = (s32)((f32)pos[2] * fparg2);
+    pos[3] = (s32)((f32)pos[3] * fparg3);
+    angle = fGpffff8200 * fparg1;
+    sine = func_0044b7b0(angle);
+    cosine = func_0044b610(angle);
+    nx = (f32)(-(s16)arg3);
+    ny = (f32)(-(s16)arg4);
+    x0 = (f32)(pos[0] + (s16)arg3);
+    y0 = (f32)(pos[1] + (s16)arg4);
+    w = (f32)(pos[2] - (s16)arg3);
+    h = (f32)(pos[3] - (s16)arg4);
+    negSine = -sine;
+    coords[0] = x0 + (ny * sine + nx * cosine);
+    coords[1] = y0 + (ny * cosine + nx * negSine);
+    coords[2] = x0 + (ny * sine + w * cosine);
+    coords[3] = y0 + (ny * cosine + w * negSine);
+    coords[4] = x0 + (h * sine + nx * cosine);
+    coords[5] = y0 + (h * cosine + nx * negSine);
+    coords[6] = x0 + (h * sine + w * cosine);
+    coords[7] = y0 + (h * cosine + w * negSine);
+#pragma opt_loop_invariants on
+    for (i = 0; i < 4; i++) {
+        f32 *dst;
+        dst = (f32 *)((u8 *)out + i * 64);
+        dst[0] = coords[i * 2];
+        dst[1] = coords[i * 2 + 1];
+        dst[2] = depth;
+        dst[8] = (f32)(u32)colors[0];
+        dst[9] = (f32)(u32)colors[1];
+        dst[10] = (f32)(u32)colors[2];
+        dst[11] = (f32)(u32)colors[3];
+        dst[6] = inv;
+    }
+}
+#pragma opt_loop_invariants off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_0045d370);
+#endif
 // FUN_0045D6E0
 void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2)
 {

@@ -846,7 +846,144 @@ INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484bb0);
 // FUN_00485630
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485630);
 // FUN_00485870
+#ifdef SKIP_ASM
+/* measured: 616B obj vs 624B window, 11 differing words reloc-masked (probe cand4).
+ * Baseline PoB archive nd388; cleaned honest-C cand1 125; u8[16] save slot for
+ * stack (frame 0xA0->0xB0 fixed) cand2 120; scoped dst/src temps cand3 120;
+ * shared save_slot live across (u_long128 *save_slot = (u_long128 *)sp70) cand4 11.
+ * Parent loop_invariants lever measured 11->11 neutral (genuinely OFF at -O2, omitted
+ * to avoid H003 warn); struct-field restore 120 (worse); u_long128[1] save slot 120
+ * (worse); u8* signature COMPILE ERROR against extern s32 (confirms s32 correct, keeps
+ * caller 85ae0 MATCH with no change). Trailing out-params already bare (&sp80/&sp90 as
+ * u_long128*, no casts) so second parent lever (delete trailing cast) already optimal.
+ * Conventions copied from MATCHed neighbours: u_long128 quads + lqc2/sqc2/vadd/vmulx/
+ * qmtc2/mfc1+nop VU idioms verbatim from 861f0/86400; goto loop_check + D_00713480 +
+ * (kind<<6)+off table + !=NULL guards from 86060/860f0; s32 arg0 with (u8*) casts per
+ * 81d80 s32-as-pointer file convention.
+ * Residual wall (save/restore quad copy, off 104-152): retail materialises stack slot
+ * sp+0x70 twice with volatiles (addiu $v1,sp,0x70 + lq/sq 0($v1) for save, addiu
+ * $v0,sp,0x70 + lq 0($v0) for restore, arg accesses direct 80($s4)), while honest C
+ * with shared save_slot gives saved $s1 shared (1 addiu, not 2) plus extra arg pointer
+ * addiu $s0,$s4,0x50 for restore store via sq 0($s0) vs direct 80($s4). Single-use
+ * short-lived GPR quad pointer form (addiu+0-disp with volatile) folds to sp+OFF direct
+ * in every honest spelling tried (array, struct-field, pointer-temp, volatile array,
+ * opt_propagation/common_subs/loop_invariants); double DATA use in one block forces it
+ * (micro12: p[0],p[1] -> addiu $a1,sp + 0/16-disp with volatile) but save/restore each
+ * single-use; "" : "+r"(p) barrier gives retail form (micro10) but H002-banned.
+ * Pointer-temp vs direct-index wall per handoff 7a (both forms same function). */
+void func_00485870(s32 arg0)
+{
+    extern u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2);
+    extern u_long128 func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2);
+    extern void func_00486330(u8 *arg0, u8 *arg1);
+    u_long128 spA0;
+    u_long128 sp90;
+    u_long128 sp80;
+    u8 sp70[16] __attribute__((aligned(16)));
+    f32 scale;
+    f32 five;
+    u8 *child;
+    s32 flags;
+    s32 count_minus_1;
+    u32 mask;
+    u8 *temp_4;
+    void (*temp_2)(s32, void *);
+    void (*temp_3)(s32, void *);
+    void (*temp_4fn)(s32);
+    s32 child_flags;
+
+    if (*(s32 *)((u8 *)arg0 + 0x84) <= 0) {
+        return;
+    }
+    flags = *(s32 *)((u8 *)arg0 + 0x68);
+    __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"((u8 *)arg0) : "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"((u8 *)arg0) : "$vf11", "memory");
+    __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&spA0) : "$vf10", "memory");
+    if ((flags & 0x60) != 0) {
+        if ((flags & 0x80000000) == 0) {
+            u_long128 *save_slot = (u_long128 *)sp70;
+            *save_slot = *(u_long128 *)((u8 *)arg0 + 0x50);
+            func_00486970((u8 *)arg0, (u8 *)&spA0, &sp80);
+            func_00486330((u8 *)arg0, (u8 *)&sp80);
+            *(u_long128 *)((u8 *)arg0 + 0x50) = *save_slot;
+        }
+    }
+    count_minus_1 = *(s32 *)((u8 *)arg0 + 0x84) - 1;
+    scale = *(f32 *)((u8 *)arg0 + 0x60) * *(f32 *)((u8 *)arg0 + 0x74);
+    child = *(u8 **)((u8 *)arg0 + 0x8C);
+    mask = 0x80000000;
+    five = 5.0f;
+    goto loop_00485870_check;
+loop_00485870_body:
+    if (count_minus_1 < *(s32 *)(child + 0x80)) {
+        goto loop_00485870_next;
+    }
+    if ((*(s32 *)(child + 0x84) & 2) != 0) {
+        goto loop_00485870_next;
+    }
+    if ((flags & mask) != 0) {
+        goto callback_0c;
+    }
+    if ((*(s32 *)(child + 0x68) & 0x18) != 0) {
+        func_00486840(child, (u8 *)&spA0, &sp90);
+        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&spA0) : "$vf10", "memory");
+        child_flags = *(s32 *)(child + 0x68);
+        if ((child_flags & 4) != 0) {
+            __asm__ volatile(
+                "mfc1 $2, %0       \n"
+                "nop               \n"
+                "qmtc2.ni $2, $vf2 \n"
+                "vaddx.y $vf10, $vf0, $vf2x \n"
+                :
+                : "f"(five)
+                : "$2", "$vf2", "$vf10", "memory");
+        }
+        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&sp90) : "$vf11", "memory");
+        if ((child_flags & 0x80) != 0) {
+            __asm__ volatile(
+                "mfc1 $2, %0       \n"
+                "nop               \n"
+                "qmtc2.ni $2, $vf2 \n"
+                "vmulx.xyzw $vf11, $vf11, $vf2x \n"
+                :
+                : "f"(scale)
+                : "$2", "$vf2", "$vf11", "memory");
+        }
+        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp90) : "$vf10", "memory");
+        temp_4 = *(u8 **)(child + 0x90);
+        temp_2 = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x20);
+        if (temp_2 != NULL) {
+            temp_2(*(s32 *)(temp_4 + 8), &sp90);
+        }
+    }
+    if ((*(s32 *)(child + 0x68) & 0x60) != 0) {
+        func_00486970(child, (u8 *)&spA0, &sp80);
+        temp_4 = *(u8 **)(child + 0x90);
+        temp_3 = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x24);
+        if (temp_3 != NULL) {
+            temp_3(*(s32 *)(temp_4 + 8), &sp80);
+        }
+    }
+callback_0c:
+    temp_4 = *(u8 **)(child + 0x90);
+    temp_4fn = *(void (**)(s32))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x0C);
+    temp_4fn(*(s32 *)(temp_4 + 8));
+loop_00485870_next:
+    child = *(u8 **)(child + 0xAC);
+loop_00485870_check:
+    if (child != NULL) {
+        goto loop_00485870_body;
+    }
+    {
+        u32 v = *(u32 *)((u8 *)arg0 + 0x68);
+        *(u32 *)((u8 *)arg0 + 0x68) = v & 0x7fffffffU;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485870);
+#endif
 // FUN_00485AE0
 void func_00485ae0(s32 arg0)
 {
