@@ -1058,8 +1058,173 @@ void func_00193d30(void)
     }
 }
 
+#pragma opt_loop_invariants on
+static inline u8 *search_58_10(u64 uid)
+{
+    u8 *node;
+    u8 *btl;
+    u32 i;
+    u64 mask = (1ULL << 62) - 1;
+    i = 0;
+    btl = iGpffffb3ac;
+    while (i < 4) {
+        node = *(u8 **)(btl + i * 8 + 0x19C);
+        while (node != NULL) {
+            if (uid == (*(u64 *)(node + 0x58) & mask) && (*(u8 *)(node + 0x47) & 0x20) != 0) {
+                return node;
+            }
+            node = *(u8 **)(node + 0x7C);
+        }
+        i++;
+    }
+    return NULL;
+}
+static inline u8 *search_60_10(u64 uid)
+{
+    u8 *node;
+    u8 *btl;
+    u32 i;
+    u64 mask = (1ULL << 62) - 1;
+    i = 0;
+    btl = iGpffffb3ac;
+    while (i < 4) {
+        node = *(u8 **)(btl + i * 8 + 0x19C);
+        while (node != NULL) {
+            if (uid == (*(u64 *)(node + 0x60) & mask) && (*(u8 *)(node + 0x47) & 0x20) != 0) {
+                return node;
+            }
+            node = *(u8 **)(node + 0x7C);
+        }
+        i++;
+    }
+    return NULL;
+}
+static inline u8 *search_40_10(u16 key)
+{
+    u8 *node;
+    u8 *btl;
+    u32 i;
+    i = 0;
+    btl = iGpffffb3ac;
+    while (i < 4) {
+        node = *(u8 **)(btl + i * 8 + 0x19C);
+        while (node != NULL) {
+            if (*(u16 *)(node + 0x40) == key && (*(u8 *)(node + 0x47) & 0x20) != 0) {
+                return node;
+            }
+            node = *(u8 **)(node + 0x7C);
+        }
+        i++;
+    }
+    return NULL;
+}
 // FUN_00193D90
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00193d90);
+s32 func_00193d90(u8 *arg0, s32 arg1)
+{
+    s32 result;
+    u64 uid;
+    u16 key;
+    u8 *node;
+    s32 (*cb)(u8 *);
+    result = 0;
+    switch (*(u8 *)arg0) {
+    case 1:
+        result = 1;
+        break;
+    case 2:
+        if (*(s32 *)(arg0 + 8) <= arg1) {
+            result = 1;
+        }
+        break;
+    case 3:
+        uid = *(u64 *)(arg0 + 8);
+        node = search_58_10(uid);
+        if (node != NULL) {
+            result = 1;
+        }
+        break;
+    case 4:
+        uid = *(u64 *)(arg0 + 8);
+        node = search_58_10(uid);
+        if (node == NULL) {
+            result = 1;
+        }
+        break;
+    case 5:
+        result = 1;
+        uid = *(u64 *)(arg0 + 8);
+        node = search_58_10(uid);
+        if (node != NULL && *(u8 *)(node + 0x45) != 2) {
+            result = 0;
+        }
+        break;
+    case 6:
+        uid = *(u64 *)(arg0 + 8);
+        node = search_60_10(uid);
+        if (node != NULL) {
+            result = 1;
+        }
+        break;
+    case 7:
+        uid = *(u64 *)(arg0 + 8);
+        node = search_60_10(uid);
+        if (node == NULL) {
+            result = 1;
+        }
+        break;
+    case 8:
+        result = 1;
+        uid = *(u64 *)(arg0 + 8);
+        node = search_60_10(uid);
+        if (node != NULL && *(u8 *)(node + 0x45) != 2) {
+            result = 0;
+        }
+        break;
+    case 9:
+        key = *(u16 *)(arg0 + 8);
+        node = search_40_10(key);
+        if (node != NULL) {
+            result = 1;
+        }
+        break;
+    case 10:
+        key = *(u16 *)(arg0 + 8);
+        node = search_40_10(key);
+        if (node == NULL) {
+            result = 1;
+        }
+        break;
+    case 11:
+        result = 1;
+        uid = *(u64 *)(arg0 + 8);
+        node = search_58_10(uid);
+        if (node != NULL) {
+            cb = *(s32 (**)(u8 *))(node + 0x74);
+            if (cb != NULL) {
+                result = cb(*(u8 **)(node + 0x78));
+            } else {
+                result = 0;
+            }
+        }
+        break;
+    case 12:
+        result = 1;
+        uid = *(u64 *)(arg0 + 8);
+        node = search_60_10(uid);
+        if (node != NULL) {
+            cb = *(s32 (**)(u8 *))(node + 0x74);
+            if (cb != NULL) {
+                result = cb(*(u8 **)(node + 0x78));
+            } else {
+                result = 0;
+            }
+        }
+        break;
+    }
+    return result;
+}
+#pragma opt_loop_invariants off
+
 /* measured: optimization_level 1 with the index and value locals declared
    before the loop reproduces func_00194470 exactly, object 284 bytes against
    the 288-byte window at nd 0; -O2 reorders the initialisation. */

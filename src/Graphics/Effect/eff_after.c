@@ -28,6 +28,10 @@ extern f32 func_004bc1e0(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_004bb1d0(void *arg0, s32 arg1);
 extern void func_004b7dc0(u8 *arg0, s32 arg1, EffAfterVec *arg2);
 extern void func_004b7830(u8 *arg0, s32 arg1, s32 arg2, EffAfterVec *arg3);
+extern s32 func_003c2130(s32 obj, u8 *buf, u16 a, u16 b, u16 c);
+extern s32 func_003c2150(s32 obj, u8 *buf, s32 arg2);
+extern u8 *func_003c2630(s32 nVtx, s32 nIdx, u32 flags);
+extern void func_004bc540(u8 *work, s32 side, u8 *out, f32 t);
 
 // FUN_004B7460
 void func_004b7460(u8 *data, f32 distance, u32 *section, f32 *fraction) {
@@ -377,8 +381,337 @@ void func_004b7dc0(u8 *work, s32 section, EffAfterVec *output) {
         }
     }
 }
-// FUN_004B8350
+/* measured: floor for func_004b8350 (obj 2660B vs window 2720B, probe_variants 623 differing words reloc-masked, fnalign 665 vs 679 instrs).
+   Frame 0xF0 vs retail 0x100 (-16B, -2.2% emitted, within ~3%); logic confirmed against retail asm (asm/nonmatchings/eff_after/func_004b8350.s via `grep -rl func_004b8350 asm/`),
+   and M2C P4_UNIT_004B8350 in src/generated/code1_004b.c (406 draft lines, noise 6 lui-constructed 0.5f/1.0f + int 1e9 via cvt.s.w, no gp-relative loads to bank).
+   Phases: flags 0x4A/0x4E, nVtx/nIdx per mode ((n-1)*2+1/n*2+1 vs n*4+4/n*3+6), 19x func_003c2130 sites (case0 2-call loop + tail, case1/2 2+4+2 with sq/lq spills at 0xD0/0xC0/0xB0/0xA0), 1x func_003c2150 loop over nIdx, func_004bc540 colors (case0) else byte-zero, alpha phase (asserts 0x226/0x234, 6-word header/trailer + strided loops), tail vec{0,0,0,(f32)1e9} to *(obj+0x5C).
+   Residual is compiler floor per docs/matching.md: quadword-slot spills (retail sq/lq for 32-bit temps vs b210 sw), saved-reg rotation, branch-target shifts from duplicated mode1/2 blocks, and call-site reuse ($a3=2 leftover for first (0,3,2) vs explicit). u16 prototype for func_003c2130 recovers retail andi (vs s16 dsll/dsra) and saves ~40 instrs (710->665). Exhausted s16 vs u16, hoisted vs reloaded n, struct-vs-raw probes.
+   No pooled float constants to bank (only lui 0x3F000000/0x3F800000/0x3B9ACA00, no gp-relative loads).
+   Unit confirmed via `grep -rl func_004b8350 asm/` -> asm/nonmatchings/eff_after/func_004b8350.s.
+   Production stays INCLUDE_ASM fallback; body preserved here as NON_MATCHING seed. */
+// FUN_004B8350 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_004b8350(u8 *arg0, s32 arg1)
+{
+    u8 *cfg;
+    u8 *obj;
+    u8 *idxBase;
+    u8 *idxPtr;
+    u8 *colorBase;
+    u8 *colorPtr;
+    u8 *alphaBase;
+    u8 *alphaPtr;
+    u8 *tailBase;
+    s32 n;
+    s32 nVtx;
+    s32 nIdx;
+    s32 flags;
+    s32 mode;
+    s32 i;
+    s32 j;
+    s32 base;
+    s32 nxt;
+    s32 t1;
+    s32 t2;
+    s32 cur;
+    s32 iter;
+    f32 t;
+    f32 denom;
+    f32 inv;
+    f32 half;
+    f32 curF;
+    f32 zeros[4];
+
+    cfg = *(u8 **)arg0;
+    flags = 0x4A;
+    if ((**(s32 **)(cfg + 4) & 1) != 0) {
+        flags = 0x4A | 4;
+    }
+    nIdx = 0;
+    nVtx = 0;
+    mode = *(s16 *)(arg0 + 0x38);
+    n = *(s32 *)(cfg + 0xC);
+    switch (mode) {
+    case 0:
+        nIdx = (n - 1) * 2 + 1;
+        nVtx = n * 2 + 1;
+        break;
+    case 1:
+        nIdx = n * 4 + 4;
+        nVtx = n * 3 + 6;
+        break;
+    case 2:
+        nIdx = n * 4 + 4;
+        nVtx = n * 3 + 6;
+        break;
+    }
+    obj = func_003c2630(nVtx, nIdx, flags);
+    idxBase = *(u8 **)(obj + 0x2C);
+    mode = *(s16 *)(arg0 + 0x38);
+    switch (mode) {
+    case 0:
+        i = 0;
+        idxPtr = idxBase;
+        while (i < (*(s32 *)(*(u8 **)arg0 + 0xC) - 1)) {
+            base = i * 2;
+            nxt = base + 2;
+            cur = base + 1;
+            func_003c2130((s32)obj, idxPtr, base, cur, nxt);
+            func_003c2130((s32)obj, idxPtr + 8, cur, base + 3, nxt);
+            idxPtr += 0x10;
+            i++;
+        }
+        base = i * 2;
+        func_003c2130((s32)obj, idxPtr, base, base + 1, base + 2);
+        break;
+    case 1:
+        func_003c2130((s32)obj, idxBase, 0, 3, 2);
+        func_003c2130((s32)obj, idxBase + 8, 2, 4, 1);
+        idxPtr = idxBase + 0x10;
+        cur = 2;
+        iter = 0;
+        while (iter < *(s32 *)(*(u8 **)arg0 + 0xC)) {
+            base = cur & 0xFFFF;
+            nxt = base + 3;
+            t1 = base + 1;
+            func_003c2130((s32)obj, idxPtr, cur, t1, nxt);
+            t2 = base + 2;
+            func_003c2130((s32)obj, idxPtr + 8, cur, nxt, t2);
+            func_003c2130((s32)obj, idxPtr + 0x10, t1, base + 4, nxt);
+            func_003c2130((s32)obj, idxPtr + 0x18, t2, nxt, base + 5);
+            idxPtr += 0x20;
+            cur = (cur + 3) & 0xFFFF;
+            iter++;
+        }
+        base = cur & 0xFFFF;
+        nxt = base + 3;
+        func_003c2130((s32)obj, idxPtr, cur, base + 1, nxt);
+        func_003c2130((s32)obj, idxPtr + 8, cur, nxt, base + 2);
+        break;
+    case 2:
+        func_003c2130((s32)obj, idxBase, 0, 3, 2);
+        func_003c2130((s32)obj, idxBase + 8, 2, 4, 1);
+        idxPtr = idxBase + 0x10;
+        cur = 2;
+        iter = 0;
+        while (iter < *(s32 *)(*(u8 **)arg0 + 0xC)) {
+            base = cur & 0xFFFF;
+            nxt = base + 3;
+            t1 = base + 1;
+            func_003c2130((s32)obj, idxPtr, cur, t1, nxt);
+            t2 = base + 2;
+            func_003c2130((s32)obj, idxPtr + 8, cur, nxt, t2);
+            func_003c2130((s32)obj, idxPtr + 0x10, t1, base + 4, nxt);
+            func_003c2130((s32)obj, idxPtr + 0x18, t2, nxt, base + 5);
+            idxPtr += 0x20;
+            cur = (cur + 3) & 0xFFFF;
+            iter++;
+        }
+        base = cur & 0xFFFF;
+        nxt = base + 3;
+        func_003c2130((s32)obj, idxPtr, cur, base + 1, nxt);
+        func_003c2130((s32)obj, idxPtr + 8, cur, nxt, base + 2);
+        break;
+    }
+    idxBase = *(u8 **)(obj + 0x2C);
+    i = 0;
+    while (i < nIdx) {
+        func_003c2150((s32)obj, idxBase, arg1);
+        i++;
+        idxBase += 8;
+    }
+    mode = *(s16 *)(arg0 + 0x38);
+    switch (mode) {
+    case 0:
+        colorBase = *(u8 **)(obj + 0x30);
+        i = 0;
+        colorPtr = colorBase;
+        while (i < *(s32 *)(*(u8 **)arg0 + 0xC)) {
+            n = *(s32 *)(*(u8 **)arg0 + 0xC);
+            if (i == 0) {
+                t = (f32)i / (f32)(n - 1);
+            } else {
+                t = ((f32)i - 0.5f) / (f32)(n - 1);
+            }
+            func_004bc540(arg0, 0, colorPtr, t);
+            i++;
+            colorPtr += 8;
+        }
+        func_004bc540(arg0, 0, colorPtr, 1.0f);
+        colorPtr = *(u8 **)(obj + 0x30) + 4;
+        j = 0;
+        while (j < *(s32 *)(*(u8 **)arg0 + 0xC)) {
+            n = *(s32 *)(*(u8 **)arg0 + 0xC);
+            t = (f32)j / (f32)(n - 1);
+            func_004bc540(arg0, 1, colorPtr, t);
+            j++;
+            colorPtr += 8;
+        }
+        break;
+    case 1:
+        colorBase = *(u8 **)(obj + 0x30);
+        i = 0;
+        colorPtr = colorBase;
+        while (i < nVtx) {
+            colorPtr[0] = 0;
+            colorPtr[1] = 0;
+            colorPtr[2] = 0;
+            colorPtr[3] = 0;
+            i++;
+            colorPtr += 4;
+        }
+        break;
+    case 2:
+        colorBase = *(u8 **)(obj + 0x30);
+        i = 0;
+        colorPtr = colorBase;
+        while (i < nVtx) {
+            colorPtr[0] = 0;
+            colorPtr[1] = 0;
+            colorPtr[2] = 0;
+            colorPtr[3] = 0;
+            i++;
+            colorPtr += 4;
+        }
+        break;
+    }
+    cfg = *(u8 **)arg0;
+    if ((**(s32 **)(cfg + 4) & 1) != 0) {
+        mode = *(s16 *)(arg0 + 0x38);
+        switch (mode) {
+        case 0:
+            alphaBase = *(u8 **)(obj + 0x34);
+            i = 0;
+            alphaPtr = alphaBase;
+            while (i < *(s32 *)(*(u8 **)arg0 + 0xC)) {
+                n = *(s32 *)(*(u8 **)arg0 + 0xC);
+                if ((n - 1) <= 0) {
+                    func_0046d730(D_007146E0, 0x226);
+                }
+                if (i == 0) {
+                    *(f32 *)(alphaPtr + 0) = (f32)i / (f32)(n - 1);
+                } else {
+                    *(f32 *)(alphaPtr + 0) = ((f32)i - 0.5f) / (f32)(n - 1);
+                }
+                *(s32 *)(alphaPtr + 4) = 0;
+                i++;
+                alphaPtr += 0x10;
+            }
+            *(s32 *)(alphaPtr + 0) = 0x3F800000;
+            *(s32 *)(alphaPtr + 4) = 0;
+            alphaPtr = *(u8 **)(obj + 0x34) + 8;
+            j = 0;
+            while (j < *(s32 *)(*(u8 **)arg0 + 0xC)) {
+                n = *(s32 *)(*(u8 **)arg0 + 0xC);
+                if ((n - 1) <= 0) {
+                    func_0046d730(D_007146E0, 0x234);
+                }
+                *(f32 *)(alphaPtr + 0) = (f32)j / (f32)(n - 1);
+                *(s32 *)(alphaPtr + 4) = 0x3F800000;
+                j++;
+                alphaPtr += 0x10;
+            }
+            break;
+        case 1:
+            alphaBase = *(u8 **)(obj + 0x34);
+            n = *(s32 *)(cfg + 0xC);
+            denom = 0.5f + (f32)n;
+            *(s32 *)(alphaBase + 0) = 0;
+            *(s32 *)(alphaBase + 4) = 0;
+            *(s32 *)(alphaBase + 8) = 0;
+            *(s32 *)(alphaBase + 0xC) = 0x3F800000;
+            *(s32 *)(alphaBase + 0x10) = 0;
+            *(s32 *)(alphaBase + 0x14) = 0x3F000000;
+            tailBase = alphaBase + ((n * 3 + 6) * 8);
+            *(s32 *)(tailBase - 0x18) = 0x3F800000;
+            *(s32 *)(tailBase - 0x14) = 0;
+            *(s32 *)(tailBase - 0x10) = 0x3F800000;
+            *(s32 *)(tailBase - 0xC) = 0x3F800000;
+            *(s32 *)(tailBase - 8) = 0x3F800000;
+            *(s32 *)(tailBase - 4) = 0x3F000000;
+            inv = 1.0f / denom;
+            half = 0.5f / denom;
+            alphaPtr = alphaBase + 0x18;
+            i = 0;
+            curF = half;
+            while (i < *(s32 *)(*(u8 **)arg0 + 0xC)) {
+                *(f32 *)(alphaPtr + 0) = curF;
+                *(s32 *)(alphaPtr + 4) = 0;
+                *(f32 *)(alphaPtr + 8) = curF;
+                *(s32 *)(alphaPtr + 0xC) = 0x3F800000;
+                alphaPtr += 0x18;
+                i++;
+                curF += inv;
+            }
+            alphaPtr = alphaBase + 0x28;
+            j = 0;
+            curF = inv;
+            while (j < *(s32 *)(*(u8 **)arg0 + 0xC)) {
+                *(f32 *)(alphaPtr + 0) = curF;
+                *(s32 *)(alphaPtr + 4) = 0x3F000000;
+                j++;
+                curF += inv;
+                alphaPtr += 0x18;
+            }
+            break;
+        case 2:
+            alphaBase = *(u8 **)(obj + 0x34);
+            n = *(s32 *)(cfg + 0xC);
+            denom = 0.5f + (f32)n;
+            *(s32 *)(alphaBase + 0) = 0;
+            *(s32 *)(alphaBase + 4) = 0;
+            *(s32 *)(alphaBase + 8) = 0;
+            *(s32 *)(alphaBase + 0xC) = 0x3F800000;
+            *(s32 *)(alphaBase + 0x10) = 0;
+            *(s32 *)(alphaBase + 0x14) = 0x3F000000;
+            tailBase = alphaBase + ((n * 3 + 6) * 8);
+            *(s32 *)(tailBase - 0x18) = 0x3F800000;
+            *(s32 *)(tailBase - 0x14) = 0;
+            *(s32 *)(tailBase - 0x10) = 0x3F800000;
+            *(s32 *)(tailBase - 0xC) = 0x3F800000;
+            *(s32 *)(tailBase - 8) = 0x3F800000;
+            *(s32 *)(tailBase - 4) = 0x3F000000;
+            inv = 1.0f / denom;
+            half = 0.5f / denom;
+            alphaPtr = alphaBase + 0x18;
+            i = 0;
+            curF = half;
+            while (i < *(s32 *)(*(u8 **)arg0 + 0xC)) {
+                *(f32 *)(alphaPtr + 0) = curF;
+                *(s32 *)(alphaPtr + 4) = 0;
+                *(f32 *)(alphaPtr + 8) = curF;
+                *(s32 *)(alphaPtr + 0xC) = 0x3F800000;
+                alphaPtr += 0x18;
+                i++;
+                curF += inv;
+            }
+            alphaPtr = alphaBase + 0x28;
+            j = 0;
+            curF = inv;
+            while (j < *(s32 *)(*(u8 **)arg0 + 0xC)) {
+                *(f32 *)(alphaPtr + 0) = curF;
+                *(s32 *)(alphaPtr + 4) = 0x3F000000;
+                j++;
+                curF += inv;
+                alphaPtr += 0x18;
+            }
+            break;
+        }
+    }
+    zeros[0] = 0.0f;
+    zeros[1] = 0.0f;
+    zeros[2] = 0.0f;
+    zeros[3] = (f32)1000000000;
+    tailBase = *(u8 **)(obj + 0x5C);
+    *(f32 *)(tailBase + 4) = zeros[0];
+    *(f32 *)(tailBase + 8) = zeros[1];
+    *(f32 *)(tailBase + 0xC) = zeros[2];
+    *(f32 *)(tailBase + 0x10) = zeros[3];
+    return obj;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b8350);
+#endif
 
 // FUN_004B8DF0
 void func_004b8df0(u8 *arg0, u8 *arg1) {
