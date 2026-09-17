@@ -1052,7 +1052,7 @@ second_check:
 done:
     return 0;
 }
-/* measured (this session): cold reconstruction v2 exact size 386/386 instrs; probe_variants 242 words -> probe_search decl-order 196 words/162 edits (200 orders; propagation/rebuild/no_branch/dead/lifetimes/strength/size/unroll tried, common_subs worse 310, loop_invariants 198); fnalign $at none (slti $at lever N/A for sltiu loops), s64 entry-guard N/A for fixed 4/6 loops; residual is saved-reg coloring ($s1/$s3 etc.) and branch-displacement cascade; banked guarded floor. */
+/* measured (this session): cold reconstruction v2 exact size 386/386 instrs; probe_variants 242 words -> probe_search decl-order 196 words/162 edits (200 orders; propagation/rebuild/no_branch/dead/lifetimes/strength/size/unroll tried, common_subs worse 310, loop_invariants 198); fnalign $at none (slti $at lever N/A for sltiu loops), s64 entry-guard N/A for fixed 4/6 loops; residual is saved-reg coloring ($s1/$s3 etc.) and branch-displacement cascade; banked guarded floor. Width 2026-09-17: r2/s1tmp/r1/id s16/u16->s32/u32 196 neutral, keep narrow; pragmas schedule 325/cse 310/loopinv 198/prop 196 all worse-or-neutral. */
 // FUN_001B1D70 NONMATCHING
 #ifdef NON_MATCHING
 void func_001b1d70(void) {
