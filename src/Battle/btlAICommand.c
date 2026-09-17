@@ -570,19 +570,32 @@ s32 func_001dbb90(void) {
     return 1;
 }
 
-/* measured: three compounding blocks — (1) mwcc b210 CSEs the duplicated
-   arg3&0xFFFF into one register while retail keeps flags($17) and
-   flags16($23) separate; (2) assigning the s32 masks into u_long128 locals
-   makes mwcc emit dsll32/dsra32 widening pairs before each sq (retail stores
-   the andi result directly), 8 extra words; (3) the saved-register rotation
-   (arg1->$s6/arg2->$s7/arg4->$fp vs retail arg1->$s4/arg2->$fp/arg3->$s0)
-   then cascades through the whole body. The K&R signature is required (a
-   typed prototype errors on the heterogeneous u64/u32/... call sites) and
-   everything else — call shapes, loop, tail — compiles correctly. Tried
-   s32/s64 arg1 and u32/(u_long128) mask spellings; best nd 204. */
+/* Floor: 2 differing words over 2 fnalign edits, 222 emitted against
+   retail's 222.  The previous note claimed nd 204 and said "the K&R
+   signature is required"; the banked body was nevertheless written with a
+   prototyped signature, which made the whole translation unit fail to
+   build under -DNON_MATCHING - every call site below passes a different
+   function-pointer type to `code arg5`, and only the unprototyped form
+   accepts them.  So the old number was never measurable.  Writing the
+   definition K&R as the note intended both fixes the build and drops it to
+   7 words, and spelling the group test `count > 1` rather than `count >= 2`
+   puts the compare in $at where retail has it, taking it to 2.
+   WALL: retail evaluates the second argument of
+   func_0010f420(*(u16 *)(temp16 + 0xA4), index) first - `andi $a1, $s4,
+   0xffff` then `lhu $a0, 0xa4($s0)` - and this build goes left to right.
+   The identical call spelling appears in two matched functions in this
+   file, so the order is decided by surrounding register pressure, not by
+   the call: a block-scope unprototyped redeclaration of func_0010f420 and
+   an explicit (u16) cast on the first argument were both measured at 2. */
 // FUN_001DBBA0 NONMATCHING
 #ifdef NON_MATCHING
-s32 func_001dbba0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, code arg5)
+s32 func_001dbba0(arg0, arg1, arg2, arg3, arg4, arg5)
+s32 arg0;
+s32 arg1;
+s32 arg2;
+s32 arg3;
+s32 arg4;
+code arg5;
 {
     s32 f23;
     s32 f17;
@@ -690,7 +703,7 @@ s32 func_001dbba0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, code arg5)
             s32 pick;
 
             pick = 0;
-            if (count >= 2) {
+            if (count > 1) {
                 pick = func_00231d70(count) & 0xFFFF;
             }
             *(u8 **)((u8 *)arg0 + 0x38) = selected[pick & 0xFFFF];

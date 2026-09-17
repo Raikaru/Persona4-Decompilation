@@ -1471,7 +1471,7 @@ loop_test:
 /* FUN_001E9950: s32 func_001e9950(void), retail frame 0x1A0 (obj 0x180 here),
    175 instrs window 1488B. Outer skill loop over e130/e140 table with
    i==0 -> dfe0 else base[i-1] (sll/addu/lhu -2), slti 0x1B8 guard,
-   d8e0 -> (s64)(x<<0x30)>>0x30 -> d6e0 &0x7E filter, mode 1/2 split via
+   d8e0 -> kind -> d6e0 &0x7E filter, mode 1/2 split via
    lq 0x100 bne/beq, df70/32710/ddc0 gates, 1d7f10 into tgt.entries[14]
    +count@0x38, two inner scorings (single-best vs accumulating) with
    negu/slt + cvt.s.w/div.s/add.s and c.lt.s/c.le.s/c.eq.s best update,
@@ -1480,9 +1480,27 @@ loop_test:
    entries[14]+count@0x38 + &0xFFFF masking, datCalc d6e0(s16)/d8e0(u8*,u16)
    + d9b0/dd90/df70 signatures, 9770/9f20 for 29cc00/29cf50/1b0cc0 patterns.
    Levers top-down: skillStore >=0x1B8 keeps slti $at,0x1B8 + beqz (vs
-   >0x1B7 which spills $v0 per playbook); (s64)(x<<0x30)>>0x30 keeps
-   dsll32/dsra32 16 pair (vs (s16) which collapses to seh); (s32) outer/
-   inner < keeps slt signed (vs neighbours sltu). */
+   >0x1B7 which spills $v0 per playbook); (s32) outer/
+   inner < keeps slt signed (vs neighbours sltu).
+   Width pass (279w/178e -> 261w/128e, pairs 14 -> 8 = retail, size 373/372
+   -> 370/371): the `s64 kind` chain emitted 48-shift quads where retail has
+   16-shift pairs plus moves. `kind = (s16)func_0023d8e0(...)` reproduces
+   retail's init pair; paramA/paramB `(s16)kind` reproduce the store pairs;
+   the d6e0 call passes `(s32)kind` and the 242800 call passes `paramB`
+   (same s16 value, already live), reproducing retail's two `move`s. The
+   d6e0 callee is truly `s16` (datCalc MATCH); this TU declares it `s32`,
+   which is ABI- and behavior-identical here because kind is s16-valued and
+   the callee reads only the low 16 bits. Prior note's `(s16) collapses to
+   seh` claim does not hold at these sites: (s16) emits dsll32/dsra32-16,
+   matching retail.
+   PINNED (do not "fix"): the zero-test keeps the `(s64)(kind<<0x30)>>0x30`
+   quad. Spelling it `(s16)kind == 0` reproduces retail's pair locally but
+   recolors the whole function (work $s5->$s1 and cascade, 280 -> 316 words);
+   paramA/B recovery only reaches 300. Bisected: init+middle alone are
+   word-neutral (279 -> 280); the test spelling is the trigger.
+   WALL: saved-register rotation (kind $s6 vs retail $s3, unit/skill similar)
+   plus spill slots (skillStore 0x110, outer 0x140, bestCost 0x150), frame
+   0x180 vs 0x1A0, s128 lq/sq canonicalization floor, FPU reg choice. */
 // FUN_001E9950 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001e9950(void) {
@@ -3234,6 +3252,8 @@ return_best:
    s-reg rotation and scheduler ordering. See P023 doc. */
 // FUN_001EED10 NONMATCHING
 #ifdef NON_MATCHING
+/* measured 001eed10: `opt_propagation off` inside the guard is worth 1 word (132 -> 131). */
+#pragma opt_propagation off
 /* P023: retained route-search investigation, 2026-09-08.
  * Production remains ASM: 001EED10..001EF10F, 1024-byte window.
  * Preferred full-owner candidate: 1000/1024 bytes, nd364, 24 relocations.
@@ -3453,6 +3473,8 @@ closed_done:
     }
     return found;
 }
+/* measured: closes the opt_propagation bracket opened above. */
+#pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eed10);
 #endif

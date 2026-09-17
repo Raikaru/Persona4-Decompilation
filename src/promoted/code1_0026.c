@@ -886,7 +886,7 @@ s32 func_00267800(u8 **arg0, u8 *arg1)
    WALL: callee-saved allocation shift (combined in $s4 vs $s0, the args in
    $s3-$s0 vs $s5-$s2, the table base in $v0 vs $s1), the destination
    addu order in the four point/colour loops (base+index vs index+sp+off
-   with the lwc1/addu pair reordered) and the func_0045e6a0 move order. */
+   with the lwc1/addu pair reordered) and the func_0045e6a0 move order. On propagated base 2026-09-17: schedule 392 worse, cse_off 417 worse, loopinv 309 worse; propagation alone best. */
 /* measured 00267b20: `opt_propagation off` inside the guard is worth 40 words (304 -> 264). */
 // FUN_00267B20 NONMATCHING
 #ifdef NON_MATCHING

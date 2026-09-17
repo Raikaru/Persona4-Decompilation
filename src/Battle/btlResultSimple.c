@@ -591,12 +591,15 @@ INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021fa40);
    stub-only probe measured nd 7 but object_size 8B/5680B, a size-deficit
    result rather than a near miss; no body retained at this scale. */
 /* Faithful C reconstruction of the result-screen renderer (5680B window).
-   Refined post-banking to nd 1307 (late hoist of the 0x64-field load into a
-   caller-saved temp); structure, call sequence, float constants and callee
-   conventions verified against retail. Open: two extra saved regs (s6/s8 vs
-   retail s0-s6: p16+8 CSE materialization and 0x1000 constant hoisting resist
-   commutation, reload and respelling defeats), COP1 madd/adda fusion in the
-   lerp loop, and scheduler ordering throughout. */
+   Reproduces 1291 words via measure_guarded (note said 1307) / 872 edits via
+   fnalign (1418 retail vs 1326 obj instrs, 92 short); wscan dsll32/dsra32
+   24 vs 8 retail (obj all 0x0 s32->s64, retail all 0x10 s16->s64). Width fix
+   s64->s32 removes ten excess pairs (wscan obj 24->14 toward 8) but trades
+   1291 words for 1323, so not installed; banked with both numbers. Pragma
+   sweep all worse (common_subs 1331, sched 1329, loopinv 1318, prop 1324).
+   Structure, call sequence, float constants and callee conventions verified
+   against retail. Open: two extra saved regs (s6/s8 vs retail s0-s6),
+   COP1 madd/adda fusion in the lerp loop, and scheduler ordering throughout. */
 // FUN_0021FEA0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0021fea0(u8 *arg0, u8 *arg1)
