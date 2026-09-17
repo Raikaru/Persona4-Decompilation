@@ -570,25 +570,26 @@ s32 func_001dbb90(void) {
     return 1;
 }
 
-/* Floor: 2 differing words over 2 fnalign edits, 222 emitted against
-   retail's 222.  The previous note claimed nd 204 and said "the K&R
-   signature is required"; the banked body was nevertheless written with a
-   prototyped signature, which made the whole translation unit fail to
-   build under -DNON_MATCHING - every call site below passes a different
-   function-pointer type to `code arg5`, and only the unprototyped form
-   accepts them.  So the old number was never measurable.  Writing the
-   definition K&R as the note intended both fixes the build and drops it to
-   7 words, and spelling the group test `count > 1` rather than `count >= 2`
-   puts the compare in $at where retail has it, taking it to 2.
-   WALL: retail evaluates the second argument of
-   func_0010f420(*(u16 *)(temp16 + 0xA4), index) first - `andi $a1, $s4,
-   0xffff` then `lhu $a0, 0xa4($s0)` - and this build goes left to right.
-   The identical call spelling appears in two matched functions in this
-   file, so the order is decided by surrounding register pressure, not by
-   the call: a block-scope unprototyped redeclaration of func_0010f420 and
-   an explicit (u16) cast on the first argument were both measured at 2. */
-// FUN_001DBBA0 NONMATCHING
-#ifdef NON_MATCHING
+/* MATCH.  `opt_dead_assignments off` is the whole difference: with it the
+   two remaining words - retail evaluating the second argument of
+   func_0010f420(*(u16 *)(temp16 + 0xA4), index) first, `andi $a1, $s4,
+   0xffff` before `lhu $a0, 0xa4($s0)` - come out in retail's order.  Found by
+   a pairwise sweep; the pragma is not in the usual four and had never been
+   measured anywhere in this tree.  `opt_strength_reduction off` alone is
+   neutral at 2, the pair is also 0, so the single pragma is what is kept.
+   The two source levers that got it from unmeasurable to 2 stay load-bearing:
+   the definition must be K&R, because every call site below passes a
+   differently-typed function pointer to `code arg5` and a prototyped form
+   fails the whole translation unit under -DNON_MATCHING; and the group test
+   is `count > 1` rather than `count >= 2`, which puts the compare in $at
+   where retail has it.  Measured and rejected on the last two words before
+   the pragma was found: inlining `(u16)arg1` at the call, a two-definition
+   pin on `index`, hoisting the halfword load into a named local, spelling the
+   mask `arg1 & 0xFFFF`, and all four of `schedule on` (199),
+   `opt_loop_invariants on` (147), `opt_common_subs off` (193) and
+   `opt_propagation off` (191). */
+// FUN_001DBBA0
+#pragma opt_dead_assignments off
 s32 func_001dbba0(arg0, arg1, arg2, arg3, arg4, arg5)
 s32 arg0;
 s32 arg1;
@@ -721,9 +722,8 @@ code arg5;
         return 1;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbba0);
-#endif
+#pragma opt_dead_assignments on
+
 /* measured: object 1096B/window 1120B/normalized_diff 769 (247 differing words, live re-measured current tree). */
 /* measured: slti-at s4-5 dest fixed via >=5 to >4 flip (fnalign slti line gone, 143 to 142) with net words unchanged at 247 due to branch shape — banked >4 this wave; 4-short (278 vs 274) plus inserts at 181-261-278 in FP/sort/weight region, not trailing dead-arm (g-chain empty then-arm preserves non-constant v8 so no dead store; trailing c18==m both store); branch-polarity flip to (v8==0 && v7<5) worsens 247 to 250; Main 004938e0 levers N-A (frame exact -0xF0, no andi-CSE; g-chain adjacents keep explicit compares, no fold); arg-cast/loop-invariant to follow top-down. */
 // FUN_001DBF20 NONMATCHING
