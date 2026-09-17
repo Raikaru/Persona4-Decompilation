@@ -98,6 +98,8 @@ RwV3d* func_00169200(RwV3d* dst, const RwV3d* point,
 
 
 
+/* measured: floor 155 differing words (reloc-masked), object 1112B vs 1120B window (8B retail zero tail). */
+/* LFF 268 -> 155 via truthful contracts: extern f32 fabsf(f32) gives retail abs.s (undeclared fabsf emitted a call + cvt), extern s32 func_00168ec0(void*,void*,void*) and extern f32 func_003e4180(f32*) keep call setup, separate edgedist preserves second-path FPR live range (merging to one distance regresses to 160), and the retail store asymmetry is reproduced (new entries store projected at 0x80, existing store edgePoint at 0x70; the prior archive stored edgePoint for both and left second-path distance stale). Residual: index in $v0 vs $a0 with count in $a0 vs $v1, distance in $f2 vs $f3, and batched vs interleaved lwc1/swc1 for the 12B record stores. Archived in docs/probe_archive/LFF_00169320_body.c; production stays ASM. */
 // FUN_00169320
 INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_00169320);
 // FUN_00169780

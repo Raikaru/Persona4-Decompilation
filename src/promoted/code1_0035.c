@@ -1951,8 +1951,140 @@ void func_0035f020(u8 *arg0)
     }
     func_0035c480(*(s32 *)(arg0 + 0x1310), temp_4, var_6);
 }
+/* MATCHED: built from func_0035e8b0 in this file, which is the same state
+   machine - `*arg1 = (resultFlag = 1);`, a switch on `*arg0` whose arms
+   `break` to a shared `return 0`, and the fade arm returning 2.  Three of
+   m2c's call arguments are stale registers: func_0035c830, func_0035cfb0,
+   func_0035dcc0 and func_0035dd40 all take the context alone.  The inner
+   `*(s32 *)(arg2 + 0x1C)` switches are written `case 0:` before `case 1:`
+   so the compare chain comes out 1-then-0 the way retail's does, and the
+   two query arguments are full words, not the s16 narrowings m2c printed. */
 // FUN_0035F0C0
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035f0c0);
+s32 func_0035f0c0(u32 *arg0, s32 *arg1, u8 *arg2)
+{
+    extern u16 D_008C024E[];
+    extern u16 D_008C0276[];
+    extern s32 func_00354030(void);
+    u8 query[0x30];
+    f32 alpha;
+    s32 resultFlag;
+    s32 kind;
+    s32 hit;
+    s32 value;
+
+    *arg1 = (resultFlag = 1);
+    switch (*arg0) {
+    case 0:
+        *(s32 *)(arg2 + 8) = 0;
+        *(s32 *)(arg2 + 0xC) = 0;
+        *(u8 *)arg2 = 0xFF;
+        func_0035c830(arg2);
+        *arg0 = 1;
+        *arg1 = 0;
+        break;
+    case 1:
+        if (func_0035cfb0(arg2) & func_0034c210()) {
+            *arg0 = 3;
+            func_0034bb20(0x21);
+        } else {
+            *arg1 = 0;
+        }
+        break;
+    case 2:
+        if (func_0035dcc0(arg2) != 0) {
+            func_0035e6a0(arg2);
+            return 1;
+        }
+        break;
+    case 3:
+        if (func_0035dcc0(arg2) != 0) {
+            switch (*(s32 *)(arg2 + 0x1C)) {
+            case 0:
+                func_00353fe0();
+                break;
+            case 1:
+                break;
+            }
+            func_0035ce10(arg2, 2);
+            *arg0 = 4;
+            goto do_state4;
+        }
+        break;
+    case 4:
+    do_state4:
+        if (D_008C024E[0] & 0x40) {
+            kind = *(s32 *)(arg2 + 0x30);
+            if (kind == 6) {
+                func_0035dd40(arg2);
+                func_0035ce10(arg2, 1);
+                *arg0 = 2;
+                func_0034bb20(0x22);
+                switch (*(s32 *)(arg2 + 0x1C)) {
+                case 0:
+                    func_00353fb0();
+                    break;
+                case 1:
+                    break;
+                }
+                func_0045af60(0, 0, 0, 1);
+            } else if (func_0035cb00(arg2, kind) != 0) {
+                func_0045af60(0, 0, 0, 1);
+            }
+        } else if (D_008C024E[0] & 0x20) {
+            func_0035ce10(arg2, 1);
+            *arg0 = 2;
+            func_0034bb20(0x22);
+            switch (*(s32 *)(arg2 + 0x1C)) {
+            case 0:
+                func_00353fb0();
+                break;
+            case 1:
+                break;
+            }
+            func_0045af60(0, 0, 0, 2);
+        } else if (D_008C024E[0] & 0x10) {
+            if (*(s32 *)(arg2 + 0x1C) == 0) {
+                *(s32 *)(arg2 + 0x14) = func_00354030();
+                *arg0 = 5;
+            }
+        } else {
+            func_00453670(query, 7, 7, *(s32 *)(arg2 + 0x30), 0);
+            func_004538e0(query, 0x4000, 0x1000, 0, 0);
+            if (func_00453960(query) != 0) {
+                func_0035cab0(arg2, 0, *(s32 *)(query + 0x24));
+                func_0045af60(0, 1, 0, 0);
+            } else {
+                kind = *(s32 *)(arg2 + 0x30);
+                if (kind != 6) {
+                    hit = 0;
+                    if (D_008C0276[0] & 0x8000) {
+                        hit = func_0035cc80(arg2, kind, 1);
+                    } else if (D_008C0276[0] & 0x2000) {
+                        hit = func_0035cc80(arg2, kind, 0);
+                    }
+                    if (hit != 0) {
+                        func_0045af60(0, 0, 0, 1);
+                    }
+                }
+            }
+        }
+        break;
+    case 5:
+        if ((++*(u16 *)(arg2 + 0x10) & 0xFFFF) >= 3) {
+            resultFlag = 1;
+        } else {
+            alpha = (1.0f - ((f32)*(u16 *)(arg2 + 0x10) / 3.0f)) * 255.0f;
+            value = (u8)alpha;
+            *(u8 *)arg2 = value;
+            resultFlag = 0;
+        }
+        if (resultFlag != 0) {
+            return 2;
+        }
+        break;
+    }
+    return 0;
+}
 // FUN_0035FC40
 s32 func_0035fc40(u8 *arg0)
 {
