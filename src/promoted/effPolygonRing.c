@@ -133,6 +133,7 @@ void func_00498ec0(void **arg0)
    declaration-order floor per in-file note) + 4 words or/cvt coalescing
    (`or` dest $v0 vs $v1 with mtc1/cvt/add following; `|=` and operand swap
    tried, same floor as wind func_004A4450). Beats the prior claimed nd 46. */
+/* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/promoted/effPolygonRing.c func_00498f10 --pairs` banked 34; best ties 34 (opt_dead_assignments off, opt_loop_invariants on, opt_propagation off, opt_strength_reduction off, opt_unroll_loops off and ten pairwise combos among them); all 28 pairs neutral or worse (schedule 195-202, commons 198-223, peephole 202-223). Confirms saved-GPR rotation + or/cvt floor per above. Floor stands; production stays ASM. */
 #ifdef NON_MATCHING
 void func_00498f10(u8 *arg0)
 {

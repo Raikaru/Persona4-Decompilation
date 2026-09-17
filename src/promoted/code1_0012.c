@@ -2374,11 +2374,16 @@ void func_0012d410(u8 *arg0)
    (pos, z, color, num), so the palette byte is the colour argument and
    -1 the number - the previous body had those two swapped, which was a
    real ABI error, not just a codegen difference.
-   WALL: the remaining rows are evaluation-order artifacts - retail
-   computes `index + base` (addu $v1,$v0,$s1) and converts the 0x17D
-   constant before loading its float addend, this build does both the
-   other way round. Integer-cast pointer arithmetic, operand swaps and
-   named temporaries for either side were all measured inert. */
+/*   WALL: the remaining rows are evaluation-order artifacts - retail */
+/*   computes `index + base` (addu $v1,$v0,$s1) and converts the 0x17D */
+/*   constant before loading its float addend, this build does both the */
+/*   other way round. Integer-cast pointer arithmetic, operand swaps and */
+/*   named temporaries for either side were all measured inert. Pairs */
+/*   2026-09-17 (`tools/pragma_sweep.py --pairs`, 8 singles + 28 pairs, */
+/*   banked 13): ties at 13 among loopinv/strength_off/unroll_off + 3 pairs */
+/*   among them; dead 37, prop 61, cse 307, sched 315, peephole 332 */
+/*   (pairs 37-357). Three causes stand: addu order, lbu/sd-mtc1 */
+/*   scheduling, cvt.s.w into $f1; floor stands at 13 (337/337). */
 // FUN_0012D630 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0012d630(u8 *arg0)

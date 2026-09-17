@@ -90,7 +90,7 @@ s32 func_00268990(s32 arg0) {
    func_002e2170, and the 0x4F000000 range-guard (f32)(s32) idiom in case 2.
    The m2c draft is not compilable (M2C_ERROR blocks); full reconstruction not
    attempted beyond FPU decode. */
-/* measured: candidate object 399 instrs/retail 399 instrs (1596B/1600B, 1 short), probe reloc-masked 12 words (guard below, NON_MATCHING so production stays ASM; fnalign 20 edits +19 reloc-only). Earliest hunks are lwc1 GP-relative pool offsets and D_0063AA80 lq vs immediate color/rect construction; insert at 288 is extra 0043f810 call block. Within 12-variant probe budget for future closing. Banked as floor. */
+/* measured: candidate object 399 instrs/retail 399 instrs (1596B/1600B, 1 short), probe reloc-masked 12 words (guard below, NON_MATCHING so production stays ASM; fnalign 20 edits +19 reloc-only). Earliest hunks are lwc1 GP-relative pool offsets and D_0063AA80 lq vs immediate color/rect construction; insert at 288 is extra 0043f810 call block. Within 12-variant probe budget for future closing. Banked as floor. Pairs 2026-09-17 (`tools/pragma_sweep.py --pairs`, 8 singles + 28 pairs, banked 12): ties at 12 among dead_off/loopinv/strength_off/unroll_off + 6 pairs among them; peephole 286, cse_off 370, sched 374, prop 423 (pairs 286-441). No pair beats the singles; opclass clean, floor stands. */
 // FUN_00268230 NONMATCHING
 #ifdef NON_MATCHING
 typedef struct DungeonInColor { u8 r, g, b, a; } DungeonInColor;

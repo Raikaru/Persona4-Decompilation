@@ -183,6 +183,7 @@ extern void (*D_00887300[])(s32, s32);
    49. Semantic gate: s32 return (retail daddu $2,$0), s8 increments (signed lb),
    gp-relative `&iGpffffa938` first call arg; every call uses the file-scope
    prototypes, no block-scope prototype changes. Production stays ASM. */
+/* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/promoted/y_CmbCardEff.c func_0033e5c0 --pairs` banked 36; best ties 36 (opt_dead_assignments off, opt_loop_invariants on, opt_propagation off, opt_strength_reduction off, opt_unroll_loops off and nine pairwise combos among them); all 28 pairs neutral or worse (schedule 105-110, commons 114-122, peephole 110-122). opclass `python3 -E -s tools/opclass.py src/promoted/y_CmbCardEff.c`: 3 floors scanned, 1 with surplus (00348c40), func_0033e5c0 clean — high 36-word count on small 125/125-instr body is register color + scheduler swap per above, not a whole-function width/signedness defect. Floor stands; production stays ASM. */
 // FUN_0033E5C0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0033e5c0(u8 *arg0) {
