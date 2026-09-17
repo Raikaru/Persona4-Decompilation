@@ -187,8 +187,12 @@ s32 func_001ec8c0(f32* first, f32* second, f32* point, f32 threshold)
 /* plus one reloc-only pair; production remains ASM. */
 /* Re-measured 2026-09-17 in this TU (static leaf + matched ece50 present): */
 /* still 23. schedule on 206, schedule+no_branch_likely 216, no_branch_likely */
-/* 23 (neutral); wscan_pairs 0 extension pairs both sides; corner/midpoint */
-/* declaration swap 23, edge/next reorder 35. Saved-register coloring floor. */
+/* 23 (neutral); loop_invariants on 23 (neutral: rotation persists, unlike */
+/* mdlSE 0047e0f0 where it dissolved 166->10); propagation off 209, */
+/* loopinv+prop 208; wscan_pairs 0 extension pairs both sides; */
+/* corner/midpoint declaration swap 23, edge/next reorder 35, no-held-entry */
+/* recompute 223, edge double-def (mdlSE pattern) 230: pinning adds a live */
+/* range and spills instead of freeing vertex. Saved-register coloring floor. */
 // FUN_001ECA10
 INCLUDE_ASM("asm/nonmatchings/btlTarget", func_001eca10);
 // FUN_001ECDE0

@@ -1034,6 +1034,7 @@ void func_0038a3e0(u8 *arg0)
     *(u8 *)(temp_16 + 0x22) = 0x15;
     *(u8 *)(temp_16 + 0x23) = 0xFF;
 }
+/* measured: retail 0x4C0/1216B window, 0x2110 frame (131-entry vertex array per Ghidra afStack_2088); COP1 accumulator-chain floor per policy - retail pre-loop mula.s/msub.s/adda.s/msub.s + repeated adda.s/madd.s chains plain MWCC C cannot emit (archive docs/probe_archive/P038_0038a480_body.c, no source probing); integer tail slti $1,$17,0x41 + bnez + slti $1,$16,0x83 + bnez already $at with exclusive <65/<131 so lever 4 inclusive (<=64/<=130) N/A (would regress to $v0 per handoff 7i); short-by-N hunt N/A (frame-exact, not short); banked as cold INCLUDE_ASM with note (no guard body per COP1 policy). */
 // FUN_0038A480
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038a480);
 /* Measured: 904/912 bytes, eleven resolved relocations and eight zero
@@ -2072,9 +2073,320 @@ s32 func_0038fb20(u8 *arg0) {
 // already compiled, so this off only satisfies decomp_lint P001 balance.
 #pragma schedule off
 
-// FUN_0038FB50
+/* measured: probe_variants func_0038fb50 bare 86wd, truthful (5-arg deff0, 3-arg e2ab0/df270) 86wd tie (keeps faithful, fixes old-style () per semantic gate), sched 94wd regress, loop_invariants 86wd tie, guard levers s64-zero-lt 100wd regress (does not transfer per handoff 7i), u32-zero-lt/zero-lt/ge1/outer-ge1 tie 86wd; fnalign truthful 98 edits (sltu $at+beqz vs beqz inner !=0 guard, var16 materialisation order, six-float store rotation); lever 4 (slti inclusive) N/A - no slti, sltu sites need (s64)0 lever which regresses; lb/lbu N/A; double-def offset (addu base+off after lw) remains + float rotation; re-derived (Ghidra/IDA 5,3,3 confirmed, no fabrications); archive docs/probe_archive/IoE_0038fb50_body.c (stale nd262, fresh 86wd). Banked guarded floor (no pragmas, sched regresses). */
+// FUN_0038FB50 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_0038fb50(u8 *arg0, s32 arg1)
+{
+    extern s32 func_003deff0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+    extern s32 func_003e2ab0(s32 arg0, void *arg1, s32 arg2);
+    extern s32 func_003df270(s32 arg0, void *arg1, s32 arg2);
+    struct {
+        s32 f0;
+        f32 f10;
+        f32 f14;
+        f32 f18;
+        f32 f4;
+        f32 f8;
+        f32 fC;
+        s32 f1C;
+        s32 f1E;
+    } header;
+    struct {
+        s32 f0;
+        f32 f4;
+        f32 f8;
+        f32 fC;
+    } entry;
+    u32 count;
+    s32 offset;
+    u16 temp_2;
+    u8 *temp_2_2;
+
+    offset = 0x30;
+    offset += *(u16 *)(arg0 + 0x1E) * 0x10;
+    if (*(s32 *)arg0 & 1) {
+        offset += *(u16 *)(arg0 + 0x1C) * 2;
+    }
+#pragma push
+/* measured: schedule on fills the first two call delay slots only. */
+#pragma schedule on
+    if (func_003deff0(arg1, 0x2C, offset, 0x37002, 0x37) == 0) {
+        goto block_17;
+    }
+    if (func_003deff0(arg1, 1, offset - 0xC, 0x37002, 0x37) == 0) {
+        goto block_17;
+    }
+#pragma pop
+    header.f10 = *(f32 *)(arg0 + 0x10);
+    header.f0 = *(s32 *)arg0;
+    header.f14 = *(f32 *)(arg0 + 0x14);
+    header.f1C = *(u16 *)(arg0 + 0x1C);
+    header.f18 = *(f32 *)(arg0 + 0x18);
+    header.f1E = *(u16 *)(arg0 + 0x1E);
+    header.f4 = *(f32 *)(arg0 + 4);
+    header.f8 = *(f32 *)(arg0 + 8);
+    header.fC = *(f32 *)(arg0 + 0xC);
+    if (func_003e2ab0(arg1, (u8 *)&header, 0x24) == 0) {
+        goto block_17;
+    }
+    temp_2 = *(u16 *)(arg0 + 0x1E);
+    if ((s32)temp_2 > 0) {
+        count = 0;
+        if (temp_2 != 0) {
+            offset = 0;
+            do {
+                temp_2_2 = (u8 *)(*(s32 *)(arg0 + 0x20) + offset);
+                entry.f0 = *(s32 *)temp_2_2;
+                entry.f4 = *(f32 *)(temp_2_2 + 4);
+                entry.f8 = *(f32 *)(temp_2_2 + 8);
+                entry.fC = *(f32 *)(temp_2_2 + 0xC);
+                if (func_003e2ab0(arg1, (u8 *)&entry, 0x10) == 0) {
+                    goto block_17;
+                }
+                count += 1;
+                offset += 0x10;
+                if (count >= *(u16 *)(arg0 + 0x1E)) {
+                    goto block_13;
+                }
+            } while (1);
+        }
+    }
+block_13:
+    if (*(s32 *)arg0 & 1) {
+        if (func_003df270(arg1, *(u8 **)(arg0 + 0x24),
+                          *(u16 *)(arg0 + 0x1C) * 2) == 0) {
+            goto block_17;
+        }
+        return arg0;
+    }
+block_17:
+    return NULL;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038fb50);
-// FUN_0038FD30
+#endif
+/* measured: probe_variants src/promoted/code1_0038.c func_0038fd30 bare 88wd, sched (schedule on + no_branch_likely on) 9wd, sched+common_subs off 74wd regress, sched inclusive (>0 -> >=1) 9wd tie, sched direct-copy 9wd tie, sched+loop_invariants 9wd tie, loop_invariants alone 88wd tie; fnalign sched 11 edits (float-load rotation lwc1 f5/f4/f3 vs f2/f1/f0 + store order, plus 4 reloc-only); lever 4 (slti inclusive) N/A - no slti in window, >0 vs >=1 tie confirms bgtz correct; parent mdlSE lesson: all four pragmas measured on exact body (schedule on required 88->9, common_subs off regresses 9->74 per handoff 7h duplication, loop_invariants tie); lb/lbu N/A (no single-byte loads); double-def N/A (no col*12 chain); re-derived (4-arg df050, 3-arg e2910/df2a0 truthful, no fabrications per Ghidra/IDA two-copy rotation); archive docs/probe_archive/DcG_0038fd30_body.c (stale 12wd, fresh 9wd). Banked guarded floor with sched bracket. */
+// FUN_0038FD30 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_0038fd30(u8 *arg0)
+{
+    extern s32 func_003df050(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3);
+    extern s32 func_003e2910(u8 *arg0, void *arg1, s32 arg2);
+    extern s32 func_003df2a0(u8 *arg0, void *arg1, s32 arg2);
+    struct Input {
+        s32 size;
+        f32 values[6];
+        u16 count1;
+        u8 pad7E[2];
+        u16 count2;
+        u8 padding[8];
+    } input;
+    struct Output {
+        f32 v0;
+        f32 v1;
+        f32 v2;
+        f32 v3;
+        f32 v4;
+        f32 v5;
+        f32 v6;
+        f32 v7;
+    } output;
+    f32 temp_f5;
+    f32 temp_f4;
+    f32 temp_f3;
+    f32 temp_f2;
+    f32 temp_f1;
+    f32 temp_f0;
+    u8 status[4];
+    s32 temp_18;
+    u16 temp_2_2;
+    u8 *temp_2;
+
+    if (func_003df050(arg0, 1, 0, status) != 0) {
+        goto read_header;
+    }
+    return NULL;
+
+read_header:
+    if (func_003e2910(arg0, &input, 0x24) == 0x24) {
+        goto make_output;
+    }
+    return NULL;
+
+make_output:
+    temp_f5 = input.values[0];
+    temp_f4 = input.values[1];
+    temp_f3 = input.values[2];
+    temp_f2 = input.values[3];
+    temp_f1 = input.values[4];
+    temp_f0 = input.values[5];
+    output.v3 = temp_f5;
+    output.v4 = temp_f4;
+    output.v5 = temp_f3;
+    output.v0 = temp_f2;
+    output.v1 = temp_f1;
+    output.v2 = temp_f0;
+    temp_2 = func_0038f990(input.count1, input.count2,
+                            (f32 *)&output.v0, input.size);
+    if (temp_2 == NULL) {
+        goto result_null;
+    }
+    temp_2_2 = *(u16 *)(temp_2 + 0x1E);
+    if ((s32)temp_2_2 > 0) {
+        goto read_data;
+    }
+
+check_flags:
+    if ((*(s32 *)temp_2 & 1) != 0) {
+        goto read_flags;
+    }
+
+return_result:
+    return temp_2;
+
+result_null:
+    return NULL;
+
+read_data:
+    temp_18 = temp_2_2 * 0x10;
+    if (temp_18 == func_003e2910(arg0, *(void **)(temp_2 + 0x20), temp_18)) {
+        goto check_flags;
+    }
+    jtbl_008873EC[0](temp_2);
+    return NULL;
+
+read_flags:
+    if (func_003df2a0(arg0, *(void **)(temp_2 + 0x24),
+                      *(u16 *)(temp_2 + 0x1C) * 2) != 0) {
+        goto return_result;
+    }
+    jtbl_008873EC[0](temp_2);
+    return NULL;
+}
+#pragma schedule off
+#pragma no_branch_likely off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038fd30);
-// FUN_0038FE90
+#endif
+/* measured: probe_variants func_0038fe90 fixed (externs corrected, jtbl redeclare removed) 216wd (vs stale archive 732wd oversized), sched 191wd win (-25), loop_invariants 215wd tie, sched inclusive (value<0xF0 -> <=0xEF) 191wd tie (fndiff both slti $at, exclusive already $at so lever neutral here); fnalign sched 246 edits (frame 0x140 vs retail 0x110 + scheduling + address chains, plus 4 reloc-only); lever 4 tie per above; parent lesson: schedule measured, common_subs off COMPILE ERROR (pragma+body interaction, banked without it), loop_invariants tie; lb (lbu correct for u8 record bytes) checked; double-def offset (addu base+off after lw at 28FF24/28FF30) remains; re-derived (5-arg f990, 3-arg df360/df300, 1-arg e2ce0, jtbl void* per file-scope, Ghidra/IDA 5-arg confirmed); archive docs/probe_archive/P038_0038fe90_body.c (stale oversized). Banked guarded floor with sched bracket. */
+// FUN_0038FE90 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_0038fe90(u8 *arg0, u32 arg1, s32 arg2, f32 *arg3, s32 *arg4)
+{
+    extern s32 func_003df300(u8 *arg0, void *arg1, s32 arg2);
+    extern s32 func_003df360(u8 *arg0, void *arg1, s32 arg2);
+    extern u8 *func_003df4d0(s32 *arg0);
+    extern s32 func_003df590(s32 arg0, ...);
+    extern s32 func_003e2ce0(u8 *arg0, s32 arg1);
+    u8 *stream;
+    u8 *obj;
+    u8 *data;
+    u8 *record;
+    u8 **records;
+    u8 scratch[176];
+    u32 input0;
+    u32 input1;
+    u32 input2;
+    u32 input3;
+    u32 failure0;
+    u32 failure1;
+    s32 depth;
+    s32 i;
+    s32 j;
+    s32 value;
+    u16 count;
+
+    stream = arg0;
+    *arg4 = 0;
+    obj = func_0038f990(arg1 & 0xFFFF, arg2 & 0xFFFF, arg3, 1);
+    if (obj == NULL) {
+        return NULL;
+    }
+    count = *(u16 *)(obj + 0x1E);
+    if (count > 0) {
+        data = *(u8 **)(obj + 0x20);
+        i = 0;
+        while (1) {
+            if (func_003df360(stream, &input0, 4) == 0 ||
+                func_003df360(stream, &input1, 4) == 0 ||
+                func_003df300(stream, data + 4, 4) == 0 ||
+                func_003df300(stream, data + 0xC, 4) == 0) {
+                jtbl_008873EC[0](obj);
+                return NULL;
+            }
+            data[8] = input0 >> 16;
+            data[0] = data[8] | 1;
+            *(s16 *)(data + 0xA) = input1;
+            *(s16 *)(data + 2) = input1 >> 16;
+            data[1] = (((input0 >> 8) & 0xFF) == 2) ? 0xFF : 0;
+            data[9] = ((u8)input0 == 2) ? 0xFF : 0;
+            i++;
+            data += 0x10;
+            if (i >= count) {
+                break;
+            }
+        }
+    } else if (func_003e2ce0(stream, 4) == 0) {
+        jtbl_008873EC[0](obj);
+        return NULL;
+    }
+    records = (u8 **)scratch;
+    record = scratch + 0x98;
+    record[0] = 0;
+    record[1] = 0xFF;
+    depth = 1;
+    while (1) {
+        if (record[1] == 0xFF) {
+            record = *(u8 **)(*(u8 **)(obj + 0x20) +
+                              (*(u16 *)(record + 2) * 0x10));
+            records[depth++] = record + 8;
+            continue;
+        }
+        if (func_003df360(stream, &input2, 4) == 0) {
+            jtbl_008873EC[0](obj);
+            return NULL;
+        }
+        value = (input2 >> 16) & 0xFFFF;
+        if (value < 0xF0) {
+            record[1] = value;
+            depth--;
+            *(u16 *)(record + 2) = input2;
+            record = records[depth];
+            if (depth == 0) {
+                break;
+            }
+            continue;
+        }
+        *arg4 = 1;
+        jtbl_008873EC[0](obj);
+        failure0 = 0x11D;
+        failure1 = func_003df590(1);
+        func_003df4d0((s32 *)&failure0);
+        return NULL;
+    }
+    if ((*(s32 *)obj & 1) != 0) {
+        j = 0;
+        count = *(u16 *)(obj + 0x1C);
+        i = 0;
+        while (i < count) {
+            if (func_003df360(stream, &input3, 4) == 0) {
+                jtbl_008873EC[0](obj);
+                return NULL;
+            }
+            *(u8 *)(*(u32 *)(obj + 0x24) + j) = (s16)input3;
+            i++;
+            j += 2;
+        }
+    }
+    return obj;
+}
+#pragma schedule off
+#pragma no_branch_likely off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038fe90);
+#endif

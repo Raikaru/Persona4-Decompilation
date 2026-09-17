@@ -384,11 +384,14 @@ void func_00252230(Sp120 *out, Sp120 *a, Sp120 *b, f32 t)
 
 
 /* measured: fresh complete callback reconstruction, 864B / 848B window,
-   all 24 relocations resolved; 203 executable words differ, plus 16B overrun.
-   Context is the third callback argument, not a return from func_00252230:
-   that interpolation leaf returns void. func_0025f360 returns a 32-bit handle.
-   Candidate frame 0x100 versus retail 0xF0; external-leaf preservation and
-   render-state base allocation remain different. Production stays ASM. */
+   all 24 relocations resolved; 202 differing words (reloc-masked probe),
+   plus 16B overrun. Context is the third callback argument, not a return
+   from func_00252230: that interpolation leaf returns void. func_0025f360
+   returns a 32-bit handle. Candidate frame 0x100 versus retail 0xF0;
+   external-leaf preservation and render-state base allocation remain
+   different. Pragma sweep on this exact body (opt_loop_invariants on,
+   schedule off, opt_propagation off) is neutral at 202 - the wall is the
+   call-clobber frame, not rotation/scheduling. Production stays ASM. */
 // FUN_00252710
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252710);
 
