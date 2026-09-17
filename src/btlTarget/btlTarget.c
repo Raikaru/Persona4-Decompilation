@@ -185,6 +185,10 @@ s32 func_001ec8c0(f32* first, f32* second, f32* point, f32 threshold)
 /* $s2/$s6 and related). Scope/declaration/identity-type/pointer-reuse/goto */
 /* variants plus propagation-off and CSE-off measured inert. Fnalign edit 32 */
 /* plus one reloc-only pair; production remains ASM. */
+/* Re-measured 2026-09-17 in this TU (static leaf + matched ece50 present): */
+/* still 23. schedule on 206, schedule+no_branch_likely 216, no_branch_likely */
+/* 23 (neutral); wscan_pairs 0 extension pairs both sides; corner/midpoint */
+/* declaration swap 23, edge/next reorder 35. Saved-register coloring floor. */
 // FUN_001ECA10
 INCLUDE_ASM("asm/nonmatchings/btlTarget", func_001eca10);
 // FUN_001ECDE0

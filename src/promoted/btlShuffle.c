@@ -117,21 +117,182 @@ extern u16 func_0010b6f0(void);
 extern u8 func_00109920(u8 *arg0, u16 arg1);
 extern u8 func_001099f0(u8 *arg0, u16 arg1);
 extern s32 func_0010a780(u8 *arg0, u16 arg1, s8 arg2);
+extern u8 D_00793E80[];
+
+extern s32 iGpffffa9c0;
+
+extern void func_00460ac0(u8 *arg0, u8 *arg1);
+
+extern void func_003741f0(u8 *arg0);
+
+extern s32 func_003742b0(u8 *arg0);
+
+extern void func_003740b0(u8 *arg0, u8 *arg1);
+
+extern s32 func_0036d960(void);
+
+extern void func_00374960(u8 *arg0);
+
+extern void func_00374730(u8 *arg0);
+
+extern s32 func_00213a80(void);
+
+extern s32 func_00379b70(u8 *arg0);
+
+extern void func_002baac0(s32 arg0);
+
+extern void func_002bad10(s32 arg0);
+
+extern void func_002bb7c0(s32 arg0);
+
+extern s32 func_002bb600(void);
+
+extern void func_002bb1e0(s32 arg0);
+
+extern void func_002bb4e0(void);
+
+extern void func_003798d0(u8 *arg0, s32 arg1);
+
+extern s32 func_00379920(u8 *arg0);
 
 
 
-/* measured: 10-state fallthrough switch machine; jump table jtbl_00752920
- * decoded entry-by-entry (state 0->1f0, 1->200, 2->350, 3->364, 4->3ac,
- * 5->408, 6->558, 7->430, 8->488, 9->504) and the case bodies + first loop
- * reproduce retail's structure (obj 1072B vs 1088B). Residual nd 158:
- * (1) iGpffffa9c0 as an array gives absolute lui/addiu where retail uses the
- * GP-relative addiu $gp,-0x5640 (scalar &iGpffffa9c0 form was worse, nd 197);
- * (2) the for-loop's i++ is scheduled as a separate instruction while retail
- * puts addiu $s1,1 in the jal delay slot, shifting the whole object by 4 bytes;
- * (3) the u16/s32 counter increments and the shared-return block land in
- * different registers/offsets. Loop-scheduling + gp-relative-array floor. */
 // FUN_0036E140
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036e140);
+s32 func_0036e140(void)
+{
+    u8 *work = (u8 *)func_00452560();
+    s32 i;
+    u16 flags;
+    u16 cnt;
+
+    for (i = 0; i < 2; i++) {
+        u8 *p = work + i * 0x30;
+        *(s32 *)(p + 0xC) = 0;
+        *(s32 *)(p + 0x10) = 0;
+        func_00460ac0((u8 *)D_00793E80 + *(s32 *)((u8 *)&iGpffffa9c0 + i * 4) * 0x30, p + 0xC);
+    }
+    switch (*(s32 *)(work + 8)) {
+    case 0:
+        *(s32 *)(work + 8) = 1;
+        break;
+    case 1:
+        flags = *(u16 *)work;
+        if ((flags & 1) != 0) {
+            if ((flags & 8) != 0) {
+                goto case2_body;
+            }
+        }
+        if ((flags & 4) == 0) {
+            break;
+        }
+        if (((flags & 0x10) == 0) && ((flags & 0x80) == 0)) {
+            func_003741f0(work + 0x70);
+            *(u16 *)work |= 0x80;
+        }
+        if (((*(u16 *)work) & 0x80) != 0) {
+            if (func_003742b0(work + 0x70) != 0) {
+                *(u16 *)work |= 0x10;
+                *(u16 *)work &= (u16)~0x80;
+            }
+        }
+        flags = *(u16 *)work;
+        if (((flags & 0x20) == 0) && ((flags & 0x40) == 0) && ((flags & 0x10) != 0)) {
+            func_003740b0(work + 0x70, work + 0x1F2C0);
+            *(u16 *)work |= 0x40;
+        }
+        if (((*(u16 *)work) & 0x40) != 0) {
+            if (func_0036d960() != 0) {
+                *(u16 *)work |= 0x20;
+                *(u16 *)work &= (u16)~0x40;
+            }
+        }
+        flags = *(u16 *)work;
+        if (((flags & 0x10) != 0) && ((flags & 0x20) != 0)) {
+            *(u16 *)work = flags | 8;
+            *(u16 *)work &= (u16)~4;
+        }
+        break;
+    case 2:
+case2_body:
+        func_00374960(work + 0x70);
+        *(s32 *)(work + 8) = 3;
+        /* fallthrough */
+    case 3:
+        func_00374730(work + 0x70);
+        *(u16 *)work |= 2;
+        if (func_00106330(0x1430) == 0) {
+            *(s32 *)(work + 4) = 0;
+            *(s32 *)(work + 8) = 7;
+            break;
+        }
+        *(s32 *)(work + 8) = 4;
+        /* fallthrough */
+    case 4:
+        if (((*(u16 *)work) & 0x100) == 0) {
+            if (func_00213a80() != 0) {
+                break;
+            }
+            *(u16 *)work |= 0x100;
+        }
+        if (func_00379b70(work + 0x70) != 0) {
+            *(u16 *)work &= (u16)~1;
+            *(s32 *)(work + 8) = 6;
+        }
+        break;
+    case 5:
+        cnt = ++*(u16 *)(work + 2);
+        if ((cnt & 0xFFFF) < 0xA) {
+            break;
+        }
+        return -1;
+    case 6:
+        break;
+    case 7:
+        if (func_00213a80() != 0) {
+            break;
+        }
+        cnt = ++*(u16 *)(work + 2);
+        if ((cnt & 0xFFFF) < 0x1E) {
+            break;
+        }
+        *(u16 *)(work + 2) = 0;
+        func_002baac0(*(s32 *)(work + 0x1F354));
+        func_002bad10(0);
+        *(s32 *)(work + 8) = 8;
+        /* fallthrough */
+    case 8:
+        func_002bb7c0(1);
+        if (func_002bb600() == 0) {
+            func_002bb1e0(1);
+            {
+                s32 t = *(s32 *)(work + 4) + 1;
+                *(s32 *)(work + 4) = t;
+                if (t < 4) {
+                    func_002bad10(*(s32 *)(work + 4));
+                } else {
+                    func_002bb4e0();
+                    func_003798d0(work + 0x70, 0);
+                    *(s32 *)(work + 8) = 9;
+                }
+            }
+        }
+        break;
+    case 9:
+        if (func_00379920(work + 0x70) == 0) {
+            break;
+        }
+        cnt = ++*(u16 *)(work + 2);
+        if ((cnt & 0xFFFF) < 0x1E) {
+            break;
+        }
+        *(s32 *)(work + 8) = 4;
+        break;
+    default:
+        func_0046d730(D_0064E790, 0x178);
+        break;
+    }
+    return 0;
+}
 
 // FUN_0036E580
 void func_0036e580(u8 *arg0, u16 *arg1)

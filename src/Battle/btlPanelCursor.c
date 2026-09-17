@@ -426,6 +426,7 @@ void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
 /* measured triage: no real C body was produced for the 2416B retail window;
    prior ring/MAC probes were discarded rather than parked because object-size
    closeness was not established. */
+/* measured 0020d6a0 (WColdC): `>=5`->`>4` + `>=4`->`>3` on the two else-if re-reads gives retail `slti $at` dests (was `$v1`; one src now `$a0` exact, one `$v1` colour), words 526 via `tools/measure_guarded.py` unchanged, 522/600 (-78) 547 edits (+2 reloc-only) via `tools/fnalign.py --candidate` unchanged; pragmas via `tools/probe_variants.py` (at-flip base 526): `schedule on` 550, `opt_common_subs off` 563, `opt_loop_invariants on` 526 neutral, `opt_propagation off` 555; `tools/wscan_pairs.py` 0 vs 0 (retail `daddu` 28 is `move` alias, not width). */
 // FUN_0020D6A0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position) {
@@ -467,7 +468,7 @@ void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position) {
                 if (cntA == 3) {
                     *(u16 *)(cursor + 16) |= 4;
                     *(u16 *)(cursor + 16) |= 2;
-                } else if (*(u16 *)(cursor + 4) >= 5) {
+                } else if (*(u16 *)(cursor + 4) > 4) {
                     *(u32 *)(cursor + 20) = 0;
                 } else {
                     t = 1.0f - (f32)((s32)cnt - 3) / 2.0f;
@@ -479,7 +480,7 @@ void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position) {
             if (cntA >= 2) {
                 if (cntA == 2) {
                     *(u16 *)(cursor + 16) |= 8;
-                } else if (*(u16 *)(cursor + 4) >= 4) {
+                } else if (*(u16 *)(cursor + 4) > 3) {
                     *(f32 *)(cursor + 24) = 1.0f;
                 } else {
                     *(f32 *)(cursor + 24) = 1.5f - 0.5f * (f32)((s32)cnt - 2) / 3.0f;

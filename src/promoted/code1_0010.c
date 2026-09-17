@@ -205,6 +205,18 @@ extern u8 iGpffff85d0;
 
 
 
+/* PERMANENT ASM, not a matching candidate.  This is the crt0 entry stub.
+   0x00100008-0x001001b8 zeroes all 32 GPRs with `padduw rX, $zero, $zero`
+   (the 128-bit form, so the upper halves are cleared too), then HI/LO and
+   their pipeline-1 twins via mthi/mthi1/mtlo/mtlo1, then SA via mtsah,
+   then all 32 FPRs via mtc1, then flushes the FPU accumulator with
+   `adda.s $f0,$f1` and clears FCR31 with `ctc1 $zero,$31`.  No C
+   construct names $at, $k0, $gp, $sp, $ra or the COP1 control register as
+   a destination, and no compiler emits mthi1/mtlo1/mtsah at all.  The
+   tail then byte- and quad-zeroes the bss span 0x00764280-0x00948a00,
+   issues syscall 60 (SetGsCrt/ExecPS2 thread setup) and syscall 61, and
+   enables interrupts with `ei` - all privileged or register-exact
+   sequences.  Retail's own crt0 was hand-written assembly; leave it. */
 // FUN_00100008
 INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00100008);
 // FUN_00100218
