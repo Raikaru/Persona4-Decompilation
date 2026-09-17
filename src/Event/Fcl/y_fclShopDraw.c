@@ -684,6 +684,11 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d1590);
 // FUN_002D3EE0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d3ee0);
 
+/* measured: faithful floor banked docs/probe_archive/ShopDraw_002d4760_body.c (probe nd 399, object 511 vs retail 500 instrs, frame 0x100 matches). */
+/* Shape: u8 colorA/B[3][4], s16 primary/secondary[3], s16 y[3][2], s16 thirdY[3], s8 ret/i-d, u8 *work; init order matches retail (adds missing y[0][1]/y[2][1]=0x87); */
+/* first-loop D>= reverse (2,1,0) + selected forward (FF/96/01 etc), s8 d kept live, second D>= via flat ((u8*)colorA)[i*4+..] to drop 0x110 spill; */
+/* second loop goto (checks 2,1,0 to L2/L1/L0, bodies 0/EC4/EC8/E38 1/EB4/EB8/CC4 2/EBC/EC0/CC0, L2 fallthrough) for retail beq chain; switch=431, if-else=418. */
+/* Residual is register-color + scheduling (work $s4 vs $s3, D/addr swap, init temps). Production stays INCLUDE_ASM. */
 // FUN_002D4760
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d4760);
 

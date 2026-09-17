@@ -6055,6 +6055,7 @@ D_007107b0 = 0x007107b0; // type:data
 D_007113e0 = 0x007113e0; // type:data
 D_007117a0 = 0x007117a0; // type:data
 D_00711870_abs = 0x00711870; // type:data
+D_00711890_abs = 0x00711890; // type:data
 D_00712508 = 0x00712508; // type:data
 D_00712510 = 0x00712510; // type:data
 D_00712620 = 0x00712620; // type:data

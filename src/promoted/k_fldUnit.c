@@ -707,6 +707,7 @@ s32 func_00164570(u32 arg0, s32 arg1)
 
 
 
+/* measured: floor 313 differing words (reloc-masked), object 1688B vs 1728B window, 45/45 relocs; L003b 370 -> 313 via Frame v70/v80/v90/vA0 aggregates, block-scope u32 003b7060 (divu), opt_common_subs/propagation off + slot+0x50 temps, grouped f2/f1/f0 loads, index-before-reload order, var_16-last decl. Residual: sltu $2,$0,$4 at 0xF4/0x284/0x4F4 vs beqz $a0; $s1/$s2 outer/index rotation with mfhi $s0 vs $s2; entry b vs sltiu+beqz; 3-nop count-loop pad. Archived in docs/probe_archive/W50FldUnit_00164880_body.c; production stays ASM. */
 // FUN_00164880
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00164880);
 
