@@ -1,6 +1,7 @@
 /*
  * Probe archive for func_001679d0.
- * Best measured candidate: attempt 6, obj 772B, normalized_diff 184.
+ * Best measured candidate: attempt 6, obj 772B, 175 differing words (reloc-masked;
+ * 193 vs 225 instrs, 119 fnalign edits, re-measured 2026-09-17 on current tree).
  * Attempt 7 (explicit pointer/lifetime lever): obj 776B, normalized_diff 193.
  * Earlier floors: attempt 1 nd 203, attempt 2 nd 197, attempt 3 nd 197,
  * attempt 4 nd 199, attempt 5 nd 199.

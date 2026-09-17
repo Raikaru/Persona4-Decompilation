@@ -615,11 +615,12 @@ void func_00156750(u8 *arg0)
 
 
 /* Tile-shuffle floor (1264B window). Re-measured 302wd / 263 edits (300 vs 315
-   instrs, 15 short, obj 1200B in-window; first probe nd 304); frameless leaf
-   vs -0x10 retail (rotation-temp spills unreproduced). Open: spill pressure,
-   switch lowering, scheduler ordering. Table base D_005F0000 verified
-   (%hi/%lo); Ghidra &0x1F masks refuted (bare sllv); IDA word-widths refuted
-   (lh/sh pairs). Triple-built. */
+   instrs, 15 short, obj 1200B in-window; first probe nd 304); csuboff 318
+   regresses (+16, no rematerialisation win); frameless leaf vs -0x10 retail
+   (rotation-temp spills unreproduced, 15-short is frame wall not trailing
+   dead arm). Open: spill pressure, switch lowering, scheduler ordering. Table
+   base D_005F0000 verified (%hi/%lo); Ghidra &0x1F masks refuted (bare sllv);
+   IDA word-widths refuted (lh/sh pairs). Triple-built. */
 // FUN_00156800 NONMATCHING
 #ifdef NON_MATCHING
 void func_00156800(void *arg0_v, u32 arg1)
@@ -1399,12 +1400,13 @@ y_test:
 }
 /* measured: closes the opt_propagation bracket for func_001579b0. */
 #pragma opt_propagation on
-/* Mapgen floor (1248B window). First probe nd 209 (obj 1264B,
-   16B overrun; re-measured 209wd / 118 edits 312 vs 316 4-long);
-   frame/prologue verified. Model: pure-integer fn (no FP saves/fusion),
-   8 int-saves, 24 fresh 155280 calls, all-int call classes, divu mods,
-   vestigial 3rd param. Open: saved-reg coloring ($s0-home), branch cascade,
-   scheduler ordering. GPREL relocs verified present (.rel.text).
+/* Mapgen floor (1248B window). First probe nd 209 (obj 1264B, 16B overrun;
+   re-measured 209wd / 118 edits 312 vs 316 4-long); honest u32 i/j + u32 byte
+   compares give 209wd / 114 edits (all slt/slti now sltu/sltiu, only coloring
+   left; installed); frame/prologue verified. Model: pure-integer fn (no FP
+   saves/fusion), 8 int-saves, 24 fresh 155280 calls, all-int call classes,
+   divu mods, vestigial 3rd param. Open: saved-reg coloring ($s0-home), branch
+   cascade, scheduler ordering. GPREL relocs verified present (.rel.text).
    Triple-built, retail-arbitrated. */
 // FUN_001582F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1430,8 +1432,8 @@ void func_001582f0(s32 arg0, s32 arg1, s32 arg2)
     u16 *tab;
     u16 *dst;
     s32 n;
-    s32 i;
-    s32 j;
+    u32 i;
+    u32 j;
     s32 r1;
     s32 r2;
     u32 maxv;
@@ -1543,15 +1545,15 @@ void func_001582f0(s32 arg0, s32 arg1, s32 arg2)
             iGpffffb238 = 1;
         }
         t = (u8 *)func_00155280();
-        if (*(t + 0x4B) < iGpffffb224) {
+        if ((u32)*(t + 0x4B) < (u32)iGpffffb224) {
             iGpffffb238 = 1;
         } else {
             t = (u8 *)func_00155280();
-            if (iGpffffb224 < *(t + 0x4A)) {
+            if ((u32)iGpffffb224 < (u32)*(t + 0x4A)) {
                 iGpffffb238 = 1;
             }
         }
-        if (iGpffffb22c < 2) {
+        if ((u32)iGpffffb22c < 2U) {
             iGpffffb238 = 1;
         }
     }
@@ -2470,8 +2472,10 @@ body:
 /* via existing iGpffff9db0 (0x2C/0x40). All-direct board loads (no row/col cache), */
 /* matching sibling func_00157700. Decisive: s32 limits -4, (u8) keep -11, */
 /* all-direct -61, u16 limits -16 (376->284; re-measured 284wd / 71 edits */
-/* 445 vs 445 exact length). Residual is double-andi (6 sites), */
-/* limit sh/lhu/daddiu vs sb/lbu/addiu, call-setup extra move, scheduling/colour. */
+/* 445 vs 445 exact length). Levers regress: a4-hoist 399/402, u8 limits 331, */
+/* csuboff 389 (no width/dsll pairs, no slti $at, exact length so no dead arm). */
+/* Residual is double-andi (6 sites), limit sh/lhu/daddiu vs sb/lbu/addiu, */
+/* call-setup extra move, scheduling/colour. */
 /* Body at docs/probe_archive/Flood_0015B3E0_body.c. Production stays INCLUDE_ASM. */
 /* Non-goals func_00156cf0/func_001561a0 untouched. */
 // FUN_0015B3E0 NONMATCHING
@@ -2944,15 +2948,18 @@ u16 *func_0015d2c0(u32 arg0)
     return record;
 }
 
-/* HBN-record floor (1056B window). First probe nd 122 (obj 1084B,
-   28B overrun; re-measured 122wd / 94 edits 264 vs 271 7-long);
-   frame/prologue verified. Open: branch-target cascade
-   from overrun, sign-extend idiom, s-reg rotation. See L15 doc. */
+/* HBN-record floor (1056B window). First probe nd 122 (obj 1084B, 28B overrun;
+   re-measured 122wd / 94 edits 264 vs 271 7-long); honest s16/s64 decls +
+   (s64)(s8) extends give 97wd / 48 edits (267 vs 264 3-long, installed);
+   extra was dsll32/dsra32 0 pairs from <<0x38>>0x38 idiom; frame/prologue
+   verified. Open: branch-target cascade, s-reg rotation. See L15 doc. */
 // FUN_0015D310 NONMATCHING
 #ifdef NON_MATCHING
 /* Closest non-MATCH candidate archived before reverting; lverify report had MISMATCH. */
 u8 *func_0015d310(u16 *arg0)
 {
+    extern s16 func_001060b0(void);
+    extern s64 func_00110960(s32 arg0, u32 arg1);
     s32 sp8C;
     s32 sp88;
     s32 temp_4_3;
@@ -3031,8 +3038,8 @@ loop_body:
                     temp_3 = *(u8 *)(var_16 + 0xB);
                     if (temp_3 == 1) {
                         temp_22 = (s16)func_001060b0();
-                        var_2 = (s64)(func_00110960(temp_22,
-                                                     func_001060c0() & 0xFF) << 0x38) >> 0x38;
+                        var_2 = (s64)(s8)func_00110960(temp_22,
+                                                     func_001060c0() & 0xFF);
                         temp_3_2 = var_2 & 1;
                         if ((var_2 < 0) && (temp_3_2 != 0)) {
                             temp_3_2 -= 2;
@@ -3044,8 +3051,8 @@ loop_body:
                     }
                     if (temp_3 == 2) {
                         temp_22_2 = (s16)func_001060b0();
-                        var_2_2 = (s64)(func_00110960(temp_22_2,
-                                                       func_001060c0() & 0xFF) << 0x38) >> 0x38;
+                        var_2_2 = (s64)(s8)func_00110960(temp_22_2,
+                                                       func_001060c0() & 0xFF);
                         temp_3_3 = var_2_2 & 1;
                         if ((var_2_2 < 0) && (temp_3_3 != 0)) {
                             temp_3_3 -= 2;

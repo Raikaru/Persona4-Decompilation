@@ -353,10 +353,9 @@ u32 func_003147d0(u8 *arg0) {
     return *(u32 *)(*(u8 **)(arg0 + 0x38) + 4);
 }
 
-/* measured: nd 1419 with a full C body, object 1896B OVER the 1808B window.
-   Wave 7 ran out of turns here and left it uncommitted, so this is a
-   partial adaptation rather than a floor: re-attempt from the m2c draft
-   with the wave's recipes before treating any of it as settled. */
+/* No banked body archived; retained as bare INCLUDE_ASM. Prior full-body attempt is gone (m2c starting */
+/* point in build/m2c/func_003147e0.c does not compile, pragma sweep blocked pending compilable body). */
+/* Partial-adaptation wall (re-attempt from m2c draft with wave recipes before treating as settled). */
 // FUN_003147E0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003147e0);
 /* measured: nd 156 cascades from two allocation/scheduling decisions in the first
@@ -1007,7 +1006,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00320b80);
 /* (+3 reloc-only), retail 368 vs object 375 (+7, frames 0xF0 vs 0x100). New dsll/dsra lever: s16 i/j -> s32 */
 /* (331->321 words, 154->139 edits, 381->375 object). WALL remains slot-layout + scheduling (u8 groups alias, */
 /* byte-copy interleave vs batched, var_16 4-instr vs clean pair, u8 arg1 andi, u_long128 widening). Base G */
-/* body 331/154/381; old nd332 best-of-4 essentially reproduced. */
+/* body 331/154/381 (both archives exist and reproduce). */
 // FUN_003212E0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003212e0);
 
@@ -1218,8 +1217,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00325450);
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00329310);
 /* Draft docs/probe_archive/P01C_003297f0_body.c measures 325 differing words (probe_variants) over 251 fnalign */
 /* edits, object 257 vs retail 400 (143 short, 36% short, not bankable as floor per 3% rule). Retained as bare */
-/* INCLUDE_ASM. Prior nd322 best-of-4 (full-body rebuild recipe-B 322, struct-by-value CE, FclByte4 358, */
-/* decl-reorder 343) references a missing full body and is not currently reproducible. WALL per prior work: */
+/* INCLUDE_ASM. Prior full-body rebuild is gone (no archive). WALL per prior work: */
 /* f32* q lands in saved reg once but FIRST use rematerialized in $v0 (frame 0xE0->0xF0); five ldr/ldl 0x38/0x3F */
 /* not reproducible (plain ld for s64 reads at 8-aligned displacements; struct-by-value blocked by shared s64 */
 /* extern of func_002b69f0); (s8)arg2 split to $s1/$s2 vs retail in-place; spDC hoisted to $s4 vs reload. */
@@ -1512,12 +1510,12 @@ void func_0032f060(u8 *arg0, s32 arg1) {
 /* Floor: 287 differing words (probe_variants docs/probe_archive/F_0032f4d0_body.c) over 88 fnalign edits, */
 /* 343 emitted against retail's 343 (100% in 1376B window). WALL: (1) Six sh-index addus: retail addu */
 /* $v0,$v0,$s0 (scaled index + t) vs object addu $v0,$s0,$v0 (t + index), invariant under ix-local lever */
-/* (s32 ix = X*2; ix + t gave 151 words); (2) loop-CSE of (s16)i normalize (object once at bottom vs retail */
+/* (s32 ix = X*2; ix + t gave worse); (2) loop-CSE of (s16)i normalize (object once at bottom vs retail */
 /* top AND test); (3) stack ldr/ldl 0x50/0x57 vs object ld (heap-base rule, stack base always ld); plus */
 /* saved-reg rotation t $s0 vs $s1 and lb/lbu for 0xB7 counter. Reusable skeleton in conventions note above */
 /* (spA0..sp78 s64 locals, tbl FclVec2[5] at 0x50, nested 0x1305/0x1306, third 2970 block, t->0xB7 re-read, */
-/* f20=-14 last, r s16, for(i=0;(s16)i<t->0xB7;i=(s16)(i+1)) with n=(s16)i and func_003147e0 call). Old nd130 */
-/* claim superseded (no archive; F body measures 287/88). Lever checklist: slti-$at N/A (no integer slti); */
+/* f20=-14 last, r s16, for(i=0;(s16)i<t->0xB7;i=(s16)(i+1)) with n=(s16)i and func_003147e0 call). Old claim */
+/* superseded (no archive; F body measures 287/88). Lever checklist: slti-$at N/A (no integer slti); */
 /* dead-arm N/A (exact 343/343); opt_common_subs off 287->289 worse; opt_loop_invariants neutral. */
 // FUN_0032F4D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032f4d0);
