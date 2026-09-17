@@ -139,16 +139,202 @@ s32 func_003645c0(char *out, s32 value)
 
 
 
-/* measured: multi-issue floor. Retail 1488B; mwcc-compiled candidate 1840B
-   (352B over) via 4x0x10 struct-array + separate struct-field stores. The
-   D_00887300/D_00887310 base-hoist recipes and the D_0064E2F8 array decl
-   match retail exactly; the bltz color-byte pattern needs the `f = f + f`
-   doubling (retail add.s f0,f0,f0) not `2.0f *` (mul.s). Remaining issues:
-   f26/f25 float-register swap (sub.s/div.s), arg-prologue int-vs-float move
-   order, arg3 switch test order (retail tests ==1 then ==0), and the third
-   D_00887310 call's base-hoist timing. Tried 1 spelling (struct array). */
-// FUN_00364680
+/* measured (mwcc b210 -O2): guarded body scores 411 differing words via
+   `python3 tools/probe_variants.py src/shdMisc.c func_00364680
+   --candidate v3=/var/tmp/cand_00364680_v3.c` (replay with
+   `python3 tools/measure_guarded.py src/shdMisc.c func_00364680`).
+   Fully decoded 3-pass quad renderer (white pre-pass + white/alpha main +
+   full-color final, 4x64B structs at sp+0xC0); ABI (s32 color + u8 ptr +
+   s32 arg2/arg3 + f32 depth + f32x6), CFG (NULL assert, early flag, base-
+   hoisted sw/draw tables, arg3 switch testing ==1 then ==0, redundant
+   refills), bltz color idiom with f+f doubling, and all call sequences
+   verify. Supersedes the 1840B struct-array attempt. WALL is the same
+   integer-allocation family as 365ac0: candidate frame 0x1B0 (one sq short
+   of retail 0x1C0, so every struct offset shifts), bytes land s3-s0 not
+   s5-s2, args rotate s4/s7/s6 not s6/fp/s7, moves come out addu-grouped.
+   Seven declaration-order variants all tie or regress (411-462); bases-
+   first does not recover the fp save; drawbase hoist timing still off;
+   switch (1,0,default) tests in retail order but arms lay out (0,1).
+   No dsll32/dsra32, no volatile/asm. Complete source and probe evidence:
+   docs/probe_archive/LaneShdMisc_00364680_v3_body.c. Production stays ASM. */
+// FUN_00364680 NONMATCHING
+#ifdef NON_MATCHING
+void func_00364680(s32 color, u8 *ptr, s32 arg2, s32 arg3, f32 depth, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, f32 fparg6) {
+    void (**swbase)(u32, u32);
+    s32 (**drawbase)(s32, void *, s32);
+    f32 verts[4][16];
+    f32 temp_f24;
+    f32 temp_f23;
+    f32 temp_f22;
+    f32 temp_f27;
+    f32 temp_f21;
+    f32 temp_f20;
+    f32 temp_f26;
+    f32 temp_f25;
+    s32 temp_21;
+    s32 temp_20;
+    s32 temp_19;
+    s32 temp_18;
+    s32 flag;
+    s32 i;
+    s32 bit0;
+    s32 b3;
+    s32 b2;
+    s32 b1;
+    s32 b0;
+    f32 hh;
+    temp_f24 = fparg1;
+    temp_f23 = fparg2;
+    temp_f22 = fparg3;
+    temp_f27 = fparg4;
+    temp_f21 = fparg5;
+    temp_f20 = fparg6;
+    temp_f26 = D_008872F8[0] - depth;
+    temp_f25 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    if (ptr == NULL) {
+        func_0046d730(D_0064E2F8, 153);
+    }
+    temp_21 = (s32)(u8)(((u32)color & 0xFF000000) >> 24);
+    temp_20 = (s32)(u8)(((u32)color & 0x00FF0000) >> 16);
+    temp_19 = (s32)(u8)(((u32)color & 0x0000FF00) >> 8);
+    temp_18 = color & 0xFF;
+    flag = (temp_18 ^ 0xFF) != 0;
+    if (flag) {
+        flag = arg2 != 0;
+    }
+    verts[0][2] = temp_f26;
+    verts[1][2] = temp_f26;
+    verts[2][2] = temp_f26;
+    verts[3][2] = temp_f26;
+    verts[0][6] = temp_f25;
+    verts[1][6] = temp_f25;
+    verts[2][6] = temp_f25;
+    verts[3][6] = temp_f25;
+    ((u32 *)verts)[4] = 0;
+    ((u32 *)verts)[5] = 0;
+    ((u32 *)verts)[1 * 16 + 4] = 0x3F800000;
+    ((u32 *)verts)[1 * 16 + 5] = 0;
+    ((u32 *)verts)[2 * 16 + 4] = 0x3F800000;
+    ((u32 *)verts)[2 * 16 + 5] = 0x3F800000;
+    ((u32 *)verts)[3 * 16 + 4] = 0;
+    ((u32 *)verts)[3 * 16 + 5] = 0x3F800000;
+    swbase = D_00887300;
+    drawbase = D_00887310;
+    swbase[0](7, 2);
+    swbase[0](6, 0);
+    swbase[0](8, 0);
+    swbase[0](0xE, 0);
+    swbase[0](9, 2);
+    swbase[0](0xC, 1);
+    swbase[0](1, *(s32 *)ptr);
+    func_003f6440(2, 0x44);
+    func_00489f80();
+    if (flag) {
+        verts[0][0] = temp_f22;
+        verts[0][1] = temp_f27;
+        verts[1][0] = temp_f22 + temp_f21;
+        verts[1][1] = temp_f27;
+        verts[2][0] = temp_f22 + temp_f21;
+        verts[2][1] = temp_f27 + temp_f20;
+        verts[3][0] = temp_f22;
+        verts[3][1] = temp_f27 + temp_f20;
+        for (i = 0; i < 4; i++) {
+            ((u32 *)verts)[i * 16 + 8] = 0x437F0000;
+            ((u32 *)verts)[i * 16 + 9] = 0x437F0000;
+            ((u32 *)verts)[i * 16 + 10] = 0x437F0000;
+            ((u32 *)verts)[i * 16 + 11] = 0x437F0000;
+        }
+        func_003f6440(3, 0x31801);
+        drawbase[0](5, verts, 4);
+    }
+    verts[0][0] = temp_f24;
+    verts[0][1] = temp_f23;
+    verts[1][0] = temp_f24 + temp_f21;
+    verts[1][1] = temp_f23;
+    verts[2][0] = temp_f24 + temp_f21;
+    verts[2][1] = temp_f23 + temp_f20;
+    verts[3][0] = temp_f24;
+    verts[3][1] = temp_f23 + temp_f20;
+    bit0 = temp_18 & 1;
+    for (i = 0; i < 4; i++) {
+        ((u32 *)verts)[i * 16 + 8] = 0x437F0000;
+        ((u32 *)verts)[i * 16 + 9] = 0x437F0000;
+        ((u32 *)verts)[i * 16 + 10] = 0x437F0000;
+        if (temp_18 >= 0) {
+            verts[i][11] = (f32)(u32)temp_18;
+        } else {
+            hh = (f32)(((u32)temp_18 >> 1) | bit0);
+            verts[i][11] = hh + hh;
+        }
+    }
+    if (flag) {
+        func_003f6440(3, 0x35801);
+    } else {
+        func_003f6440(3, 0x31801);
+    }
+    drawbase[0](5, verts, 4);
+    func_0048a000();
+    swbase[0](1, 0);
+    switch (arg3) {
+    case 1:
+        func_003f6440(2, 0x58);
+        break;
+    case 0:
+        func_003f6440(2, 0x54);
+        break;
+    default:
+        func_0046d730(D_0064E2F8, 265);
+        break;
+    }
+    if (flag) {
+        func_003f6440(3, 0x35801);
+    } else {
+        func_003f6440(3, 0x31801);
+    }
+    verts[0][0] = temp_f24;
+    verts[0][1] = temp_f23;
+    verts[1][0] = temp_f24 + temp_f21;
+    verts[1][1] = temp_f23;
+    verts[2][0] = temp_f24 + temp_f21;
+    verts[2][1] = temp_f23 + temp_f20;
+    verts[3][0] = temp_f24;
+    verts[3][1] = temp_f23 + temp_f20;
+    b3 = temp_21 & 1;
+    b2 = temp_20 & 1;
+    b1 = temp_19 & 1;
+    b0 = temp_18 & 1;
+    for (i = 0; i < 4; i++) {
+        f32 *row = &verts[i][0];
+        if (temp_21 >= 0) {
+            row[8] = (f32)(u32)temp_21;
+        } else {
+            hh = (f32)(((u32)temp_21 >> 1) | b3);
+            row[8] = hh + hh;
+        }
+        if (temp_20 >= 0) {
+            row[9] = (f32)(u32)temp_20;
+        } else {
+            hh = (f32)(((u32)temp_20 >> 1) | b2);
+            row[9] = hh + hh;
+        }
+        if (temp_19 >= 0) {
+            row[10] = (f32)(u32)temp_19;
+        } else {
+            hh = (f32)(((u32)temp_19 >> 1) | b1);
+            row[10] = hh + hh;
+        }
+        if (temp_18 >= 0) {
+            row[11] = (f32)(u32)temp_18;
+        } else {
+            hh = (f32)(((u32)temp_18 >> 1) | b0);
+            row[11] = hh + hh;
+        }
+    }
+    drawbase[0](4, verts, 4);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00364680);
+#endif
 
 // FUN_00364C50
 void func_00364c50(void) {
@@ -295,8 +481,129 @@ void func_003657d0(Vec2f arg0, f32 fparg0, s32 arg1, f32 fparg1, f32 fparg2, s32
 }
 
 
-// FUN_00365AC0
+/* measured (mwcc b210 -O2): guarded body scores 305 differing words via
+   `python3 tools/probe_variants.py src/shdMisc.c func_00365ac0
+   --candidate v9=/var/tmp/cand_00365ac0_v9.c` (replay with
+   `python3 tools/measure_guarded.py src/shdMisc.c func_00365ac0`).
+   Frame (0x310), saves (s0-s4, f20-f27), ABI (Vec2f+s32+s32+f32x4), CFG,
+   modulo idioms (plain signed % reproduces the andi/bgez/beqz/addiu -8/-4
+   chains), extraction, vertex MAC shapes (adda/madda/msub/madd fuse from
+   364C90-style `(0.0f + pos) + X*cos - Y*sin` expressions) and epilogue
+   calls all verify against retail. WALL is global integer-temp allocation:
+   i lands in $t0 (retail reuses freed $a1), bits land in $a3-a0 (retail
+   $t1/$t0/$a3/$a2), mod-temps shift one slot, and the int moves come out
+   addu-grouped-early (retail daddu, $a1-move first then $a2-move after the
+   float moves). Nine variants tie at 304-306 (explicit/nested temps,
+   declaration orders, init styles, u32-count, shared +/-1); declaration
+   order moves float coloring but not int temps; nesting does not change
+   allocation; opt_propagation off (165→323) and opt_loop_invariants on
+   (→312) both regress; single-statement MAC fuses mula/madd but evaluates
+   f26-first (retail f25-first), swapped order does not fuse, two-statement
+   sequencing does not fuse (304). No dsll32/dsra32, no volatile/asm.
+   Complete source and probe evidence:
+   docs/probe_archive/LaneShdMisc_00365ac0_v9_body.c. Production stays ASM. */
+// FUN_00365AC0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00365ac0(Vec2f position, s32 color, s32 mode, f32 depth, f32 angle, f32 wid, f32 hgt) {
+    f32 output[160];
+    f32 temp_f27;
+    f32 temp_f26;
+    f32 temp_f25;
+    f32 temp_f24;
+    f32 temp_f23;
+    f32 temp_f22;
+    f32 pos_x;
+    f32 pos_y;
+    f32 cos_a;
+    f32 zero;
+    s32 temp_16;
+    s32 temp_17;
+    s32 temp_18;
+    s32 temp_19;
+    s32 temp_9;
+    s32 temp_8;
+    s32 temp_7;
+    s32 temp_6;
+    s32 i;
+    u8 *camera;
+    temp_f27 = angle;
+    temp_f26 = wid;
+    temp_f25 = hgt;
+    pos_y = position.y;
+    pos_x = position.x;
+    temp_f26 = temp_f26 * iGpffff83d4;
+    temp_f24 = D_008872F8[0] - depth;
+    camera = func_00457120();
+    temp_f23 = 1.0f / *(f32 *)(camera + 0x80);
+    temp_19 = (s32)(u8)(((u32)color & 0xFF000000) >> 24);
+    temp_18 = (s32)(u8)(((u32)color & 0x00FF0000) >> 16);
+    temp_17 = (s32)(u8)(((u32)color & 0x0000FF00) >> 8);
+    temp_16 = color & 0xFF;
+    temp_f22 = func_0044b7b0(temp_f27);
+    cos_a = func_0044b610(temp_f27);
+    zero = 0.0f;
+    i = 0;
+    temp_9 = temp_19 & 1;
+    temp_8 = temp_18 & 1;
+    temp_7 = temp_17 & 1;
+    temp_6 = temp_16 & 1;
+    for (; i < 10; i++) {
+        s32 mod8a = i % 8;
+        s32 mod8b = (i + 6) % 8;
+        f32 xh1 = (f32)(((mod8a + 1) % 4) / 2);
+        f32 cf1 = (f32)(((u32)((mod8a % 4) ^ 1)) < 1);
+        f32 X;
+        f32 xh2 = (f32)(((mod8b + 1) % 4) / 2);
+        f32 cf2 = (f32)(((u32)((mod8b % 4) ^ 1)) < 1);
+        f32 Y;
+        f32 *row;
+        f32 hh;
+        xh1 = temp_f25 * cf1 + temp_f26 * xh1;
+        X = (f32)((mod8a < 4) ? 1 : -1) * xh1;
+        xh2 = temp_f25 * cf2 + temp_f26 * xh2;
+        Y = (f32)((mod8b < 4) ? 1 : -1) * xh2;
+        row = &output[i * 16];
+        row[0] = (zero + pos_x) + X * cos_a - Y * temp_f22;
+        row[1] = (zero + pos_y) + Y * cos_a + X * temp_f22;
+        row[2] = temp_f24;
+        row[6] = temp_f23;
+        if (temp_19 >= 0) {
+            row[8] = (f32)(u32)temp_19;
+        } else {
+            hh = (f32)(((u32)temp_19 >> 1) | temp_9);
+            row[8] = hh + hh;
+        }
+        if (temp_18 >= 0) {
+            row[9] = (f32)(u32)temp_18;
+        } else {
+            hh = (f32)(((u32)temp_18 >> 1) | temp_8);
+            row[9] = hh + hh;
+        }
+        if (temp_17 >= 0) {
+            row[10] = (f32)(u32)temp_17;
+        } else {
+            hh = (f32)(((u32)temp_17 >> 1) | temp_7);
+            row[10] = hh + hh;
+        }
+        if (temp_16 >= 0) {
+            row[11] = (f32)(u32)temp_16;
+        } else {
+            hh = (f32)(((u32)temp_16 >> 1) | temp_6);
+            row[11] = hh + hh;
+        }
+    }
+    D_00887300[0](1, 0);
+    if (mode != 0 && (temp_16 & 0xFF) == 0xFF) {
+        iGpffffabe8 |= 0x80;
+    }
+    D_00887310[0](4, output, 10);
+    if (mode != 0 && (temp_16 & 0xFF) == 0xFF) {
+        iGpffffabe8 &= ~0x80;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00365ac0);
+#endif
 
 /* measured (mwcc b210 -O2): guarded body compiles to 1148B over the 1152B
    window with 17 independently resolved relocations, normalized diff 25.

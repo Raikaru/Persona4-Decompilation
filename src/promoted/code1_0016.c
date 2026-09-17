@@ -645,6 +645,7 @@ done:
    length); reverse second switch 306 -> 302; var_16 <= 2 (283) and var_4 <= 4
    (282) inclusive flips neutral, slti $at/$v0 + daddiu/addiu + coloring remain;
    retail rematerialises what b210 hoists. */
+/* measured 00162680 2026-09-17 via `python3 tools/measure_guarded.py src/promoted/code1_0016.c func_00162680`: 282wd (obj 1456B, exact length 364 vs 364); opclass addiu +19, daddiu -16, lbu +6 (was +16 per assignment, now +19 with fixed opclass). Single-declaration s64 probes disprove one-declaration fix: s64 var_17/var_18 -> addiu +19/daddiu -16 unchanged (obj 1480B, +24B); s64 var_16 -> +17/-14 (clears 2, obj 1468B); s64 var_4 -> +18/-15 (clears 1). No single s32->s64 clears 16; remaining is scheduling/coloring + second-switch order, not one width. */
 // FUN_00162680 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
