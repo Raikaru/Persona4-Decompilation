@@ -2520,6 +2520,8 @@ s32 func_0021be60(void)
 void func_0021be70(void)
 {
 }
+/* measured 0021be80: object 3236B vs retail window 5568B; retail 1392 instrs vs object 809 instrs (-41.9%, gate needs 1350-1433); differing words 1248 reloc-masked (GUARDED_SCORE), fnalign 1353 edits +9 reloc-only. Archive claimed object 3228B vs 5568B nd 2356 (sizes ~match +8B from truthful D_008872F8[0]/ctx casts, score disagrees, not copied). Frame object 0x180 vs retail 0x2F0 (368B short). JAL retail 53 (1x452560,1x201350,8x21b500,18x21b630,2x21bbb0,3x3b7060,4x3f6440,2x457120,2x45af60,8x46d730,4x indirect) vs object ~31 (missing 6x21b500 static,7x21b630,2x457120 inv,7x46d730). */
+/* shortfall clusters: largest retail[320:670] 351 vs object[240:243] 4, next retail[989:1138] 150 vs 3, plus dozens of 5-35 replaces for (s32)(4.0f/2.0f scaled)&mask clamps and fGpffff84cc sign mul chains. Excluded: dropped else (mode&1/frame<0x30/==1 arms present), off-by-one (0x30/0xC/4/12/6 intact), folded switch (none), omitted-call as sole cause (22 missing jal ~300 instrs, not 583), unsigned/narrow/field bloat (signed, no s16, per-field). Truthful compile fixes (D_008872F8[0], (u8*)ctx casts) kept for measure; lying 21b500 (7 vs 8 args)/21b630 (s32 vs union)/21bbb0 (s32 vs u16) noted, production stays ASM. */
 // FUN_0021BE80
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021be80);
 // FUN_0021D440

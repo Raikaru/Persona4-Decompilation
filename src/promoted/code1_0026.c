@@ -103,7 +103,7 @@ extern void func_002674b0(s32 arg0, u8 *arg1);
 extern char D_00637348[];
 extern s32 func_00452380(void *arg0);
 extern void func_00452080(s32 arg0);
-extern void func_00263cb0(s32 arg0);
+extern void func_00263cb0(s32 arg0, u8 *arg1);
 extern void func_00274660(u32 param_1, int param_2);
 extern s32 func_00266950(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00266a40(u32 arg0, s32 arg1);
@@ -819,6 +819,8 @@ void func_00263730(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, u32 *arg5, 
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00263730);
 #endif
+/* measured 00263cb0: object 3232B vs retail 4084B; retail 1021 vs object 808 instrs (-20.9%, gate needs 990-1052); differing words 914 reloc-masked, fnalign 695 edits +2 reloc-only. Archive 262 lines compiles after truthful s128 typedef+aligned(16) and (s32,u8*) per prologue daddu $4,$5 + callee deref; Ghidra/IDA 2-arg agree. Frame retail 0xF0; JAL retail 61 vs object ~39. */
+/* shortfall: VU lq 0xC0->0xD0/0xA0->0xB0 + float adda/madd chains + scheduling across 8 switch arms; excluded folded switch (jump table intact), omitted-call as sole cause, unsigned/narrow bloat (signed, per-field). Production stays ASM. */
 // FUN_00263CB0
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00263cb0);
 // FUN_00264CB0
@@ -827,7 +829,7 @@ void func_00264cb0(s32 arg0, s32 arg1)
     u8 *temp_2;
 
     temp_2 = func_00460990();
-    *(void (**)(s32))(temp_2 + 8) = func_00263cb0;
+    *(void (**)(s32, u8 *))(temp_2 + 8) = func_00263cb0;
     *(s32 *)(temp_2 + 0x10) = arg0;
     func_00460ac0((u8 *)arg1, temp_2);
 }

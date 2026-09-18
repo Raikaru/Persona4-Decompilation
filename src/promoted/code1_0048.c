@@ -1243,6 +1243,16 @@ loop_00485630_check:
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485630);
 #endif
+/* 2026-09-18 re-probe; floor stands at 10.  Six of the alignment rows are
+   `bbit032`/`bbit132` branch-target lines, which are capstone mis-decodes of
+   relocated words rather than real differences.  The one real row is an
+   extra `addiu $s0, $s4, 0x50`: this body materialises the save-slot address
+   where retail addresses the quadword directly.  Every way of removing the
+   pointer is far worse - storing through `*(u_long128 *)sp70` inline 120, a
+   plain `u_long128 saved` local 125, and assigning `save_slot` once instead
+   of twice 120.  The redundant-looking second `save_slot = (u_long128 *)sp70`
+   is load bearing: it is what keeps the address out of a saved register
+   across the two calls. */
 // FUN_00485870 NONMATCHING
 #ifdef SKIP_ASM
 /* measured: 616B obj vs 624B window, 11 differing words reloc-masked (probe cand4).

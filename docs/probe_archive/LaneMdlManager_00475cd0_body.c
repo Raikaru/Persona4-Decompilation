@@ -1,5 +1,20 @@
-/* Closest reconstruction candidate for func_00475cd0; retained for future work. */
+/* LaneMdlManager func_00475cd0 best: sched 4028B/4000B nd 915 (base 4524B nd 1014).
+ * Retail window 4000B frame 0x1A0; candidate frame 0x1D0 (3 extra saved s5-s7).
+ * First diffs sched at 0 (frame), 56 (sltu vs slt head), 64 (sb via $a2 vs direct 0x280),
+ * 132+ (color alpha div/mul order), 260+ (flags CSE), 340+ (jal/addiu order).
+ * Measured probe_variants (serial, isolated TU copies, source unchanged):
+ *   base 1014, 77260-u64->void* 1014, noflags 1021, split-i/j/has 1014,
+ *   csub_off 1057, prop_off 1024, loopinv 1014, sched_on 915 (-99, 4524->4028B),
+ *   sched+csub 967, sched+prop 918, sched+nobrlikely 924, sched+loopinv 915,
+ *   s32 915, u8cast 921, swap_ij 915, modellast 915, hasfirst 915, u8param 915, idx 916.
+ * Floor: address-CSE (param+0x280/$a2, +0x260/s2, +0xD3/s7 saved vs retail direct),
+ *   saved-coloring (param s4 vs s0, 8 vs 5 regs), branch-likely under sched (beql vs beqz),
+ *   value(0x80)+result(0x90,40B) vs merged interpolation, easing two-stage vs independent curves.
+ * Production remains INCLUDE_ASM; owner 126 markers, 120 MATCH/6 ASM unchanged. func_00479100 untouched (29-word floor).
+ */
 // FUN_00475CD0
+/* measured: schedule on 1014->915 (-99, 4524->4028B, 28B over window; frame still 0x1D0 vs 0x1A0). */
+#pragma schedule on
 void func_00475cd0(void* param_1)
 {
     extern void func_00397c40();
@@ -560,3 +575,4 @@ void func_00475cd0(void* param_1)
 #undef quaternion
 #undef color
 
+#pragma schedule off

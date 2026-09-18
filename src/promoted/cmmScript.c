@@ -149,7 +149,7 @@ extern s32 func_0024f790(u8* arg0);
 extern s32 func_0024b870(void);
 extern void func_0024b990(void);
 extern s32 func_0024c0e0(u8* arg0, u8* arg1);
-extern s32 func_0024c460(u8 *arg0);
+extern s32 func_0024c460(u8* arg0, u8* arg1);
 extern s32 func_0024d1f0(void);
 typedef struct { f32 x, y, z, w; } Vec4f;
 
@@ -1206,6 +1206,7 @@ block_20:
 /* measured: neighbours mined: MATCHed func_0024a200 etc. plus externs D_00635A78 D_006359F0 D_00794E70 func_0025ecd0 func_0044b7b0 func_00452380 func_00452560 func_0046d730 and f32 iGpffff8094-809c already declared; conventions are u8-star state access and explicit s32 index vars. */
 /* measured: m2c draft at src-generated code1_0024 line 5714 mirrors prologue/fork (00452380 double-call, 0046d730 guards, 00452560 deref) but carries adda-madd-msub MAC M2C_ERROR plus saved_reg_gp (-0x7F6C maps to iGpffff8094, -0x7F64 maps to iGpffff809c) in value-range scan 0-5-0xF-0x14-0x1E; retail slti-at at 0x24c51c (slti r1 r2 5) wants inclusive <=4 spelling per lever; dead-store and loop-invariant levers to be worked top-down via fnalign. First reconstruction in progress, retained ASM pending MAC lowering; any body will be kept full-size. */
 /* retail 3472B window to func_0024d1f0, frame 0x50 (sq s16-s18 ra plus swc1 f20-f21); GP iGpffff8094 for -0x7F6C and iGpffff809c for -0x7F64 mapped; residual is MAC staging as explicit acc-diff locals in retail order. */
+/* refuse 2026-09-18: guarded LaneCmmScript_0024c460_body.c fails 20x illegal u8[]-to-int at func_0025ecd0 (int-first calls vs current float-first decl); retail 3472B/868 instrs vs object 0B (-100%, outside +-3%); archive claimed 3420B/855 instrs nd2423 stale (pre-08-30 decl); arity two per prologue daddu $17,$5,$0 + caller q->func(p,q). */
 // FUN_0024C460
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024c460);
 /* measured: same H1 FPU FMA floor as FUN_0024C460 -- the func_0025ecd0 calls
