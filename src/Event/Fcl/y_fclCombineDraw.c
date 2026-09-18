@@ -2009,8 +2009,179 @@ void func_00324410(u8 *arg0, s16 arg1, s8 arg2) {
 
 
 // measured: nd N/A (draw-family, s64-param floor). 19x 6a70 + 19x 6150 + 19x 2970 + 17x 2a60 + 15x 6c30: same s64-arg normalization floor; externs locked by matched callers. s64-param-normalization floor.
-// FUN_00324680
+/* measured: probe_variants 316 differing words reloc-masked via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_00324680 --candidate V4=/var/tmp/cold324680/v4.c`; fnalign retail 573 vs object 573 instrs exact (0 short, 0% within 3% rule) via `python3 tools/fnalign.py src/Event/Fcl/y_fclCombineDraw.c func_00324680 --candidate /var/tmp/cold324680/v4.c --quiet`; live measure_guarded GUARDED_SCORE func_00324680: 316. Prior file note nd N/A was bare INCLUDE_ASM with no banked body (no archive); this is the first banked floor since bare. */
+/* Walls (same rotation+scheduling as siblings 31d630/32a960/23d00, now at 316): t in $s7 vs retail $s2, arg1 in $s4 vs $s0, arg2 in $s3 vs $s4, loop i/j and colour-temp rotation shifting every lbu/sb + lh base and loop slt; colour stores retail batched lbu/lbu/lbu then sb/sb/sb vs object interleaved lbu/sb per byte; D_ absolute lui/addiu + lwc1 pair vs object GP-relative plus FPR-colour swap (f0/f1) and cvt scheduling; 0xBC w0/w1 recompute matches retail re-materialisation (reuse would drop 8 instrs). */
+/* Repro: `python3 -E -s tools/m2c_decompile.py src/Event/Fcl/y_fclCombineDraw.c func_00324680 -o /var/tmp/cold324680/m2c.c` (186 lines, (u8*,s64,s32) residues de-noised to (u8*,s32,s32) + (s8)/(s16) casts, u8[4] per-byte colours, FclByte4 for 2ba970 word, s16 i + s32 k with block-scope s16 a/b2/c2 per 23d00 lever, D_ arrays by word index, heap-chain p297/p28B/p27D per retail lbu/sb); `python3 -E -s tools/romwright_decompile.py func_00324680 -o /var/tmp/cold324680/rom.c` (230 lines, (ulonglong,short,ulonglong) residues, same chains confirmed); probe V4 316 driven by fnalign edit script (count first: 573/573 exact, then shapes). */
+/* Rounds: v1 422 (direct 23d00 port with stack-to-heap colours); v2 353 (-69 via heap-to-heap p297/p28B/p27D chain); v3 488 worse (explicit s16 a1s hoist); v4 316 (-37 via w0/w1 recompute before 0xBC, count 573/573 exact); v5 377 worse (s16 k) + v6 316 tie (decl-order neutral) batch; v7 500 worse (s32 first loop) + v8 440 worse (double-truncation) batch. Stopped after two consecutive non-lowering rounds (v5/v6 + v7/v8). Banked v4 as guarded floor (exact count, compiles clean under -DNON_MATCHING). */
+// FUN_00324680 NONMATCHING
+#ifdef NON_MATCHING
+void func_00324680(u8 *arg0, s32 arg1, s32 arg2) {
+    extern void func_00316470(u8 *, s32, s32);
+    extern f32 D_006443D8[];
+    u8 c11C[4];
+    u8 c118[4];
+    FclByte4 c114;
+    u8 c110[4];
+    u8 c10C[4];
+    u8 c108[4];
+    u8 c104[4];
+    u8 c100[4];
+    u8 cFC[4];
+    u8 cF8[4];
+    s64 spF0;
+    s64 spE8;
+    s64 spE0;
+    s64 spD8;
+    s64 spD0;
+    s64 spC8;
+    s64 spC0;
+    s64 spB8;
+    s64 spB0;
+    s64 spA8;
+    s64 spA0;
+    s16 i;
+    u8 *p;
+    u8 *t;
+    t = *(u8 **)(arg0 + 0x38);
+    func_00316470(arg0, 0, arg2);
+    func_002b2970(&spF0, 6.0f, 104.0f);
+    func_0031e5b0(arg0, spF0, 0, arg2, 0, 1, 2);
+    func_002b2970(&spE8, 315.0f, 104.0f);
+    func_0031e5b0(arg0, spE8, 0, arg2, 1, 0, 0);
+    for (i = 0; (s16)i < 12; i = (s16)(i + 1)) {
+        u16 w = *(u16 *)(func_002e48a0(0, (s16)i) + 2);
+        u8 b = *(u8 *)(func_002e48a0(0, (s16)i) + 4);
+        func_002b2970(&spE0, 315.0f, 128.0f);
+        func_003191c0(arg0, spE0, (s8)i, w, b, (s16)(i * arg1), arg2, *(s8 *)(func_002e4870(0) + 8));
+    }
+    func_002b2970(&spD8, 6.0f, 195.0f);
+    {
+        u16 w = *(u16 *)(func_002e48a0(1, 0) + 2);
+        u8 b = *(u8 *)(func_002e48a0(1, 0) + 4);
+        func_0031ac10(arg0, spD8, 0, 0, w, b, 0, arg2, 0, 0xCC);
+    }
+    if ((s8)arg2 == 0) {
+        u8 *p297;
+        u8 *p28B;
+        u8 *p27D;
+        func_002b2a60(c11C, 0xCC, 0xFF, 0x33, 0xFF);
+        p297 = func_002b6150(0x297);
+        p297[0x85] = c11C[0];
+        p297[0x86] = c11C[1];
+        p297[0x87] = c11C[2];
+        p297[0x88] = c11C[3];
+        p28B = func_002b6150(0x28B);
+        p28B[0x85] = p297[0x85];
+        p28B[0x86] = p297[0x86];
+        p28B[0x87] = p297[0x87];
+        p28B[0x88] = p297[0x88];
+        p27D = func_002b6150(0x27D);
+        p27D[0x85] = p28B[0x85];
+        p27D[0x86] = p28B[0x86];
+        p27D[0x87] = p28B[0x87];
+        p27D[0x88] = p28B[0x88];
+        p = func_002b6150(0x270);
+        p[0x85] = p27D[0x85];
+        p[0x86] = p27D[0x86];
+        p[0x87] = p27D[0x87];
+        p[0x88] = p27D[0x88];
+        func_002b2a60(c118, 0x2D, 0x2D, 0x2D, 0xFF);
+        p = func_002b6150(0x2A3);
+        p[0x85] = c118[0];
+        p[0x86] = c118[1];
+        p[0x87] = c118[2];
+        p[0x88] = c118[3];
+        func_002b2a60(&c114, 0x2D, 0x2D, 0x2D, 0xFF);
+        func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), *(s32 *)&c114);
+    }
+    func_002b2970(&spD0, D_006440F8[0], D_006440F8[1]);
+    func_002b6c30(0x71, spD0, 0x41, 138.0f);
+    func_002b2a60(c110, 0x33, 0xCD, 0xFF, 0xFF);
+    p = func_002b6150(0x71);
+    p[0x85] = c110[0];
+    p[0x86] = c110[1];
+    p[0x87] = c110[2];
+    p[0x88] = c110[3];
+    {
+        s32 v0 = (1 - (s8)arg2) * 0xFF;
+        s32 v1 = (s8)arg2 * 0xFF;
+        func_002b6a70(0x71, v1 & 0xFF, v0 & 0xFF, 0, 0, 0);
+        func_002b2970(&spC8, D_006440F0[0], D_006440F0[1]);
+        func_002b6c30(0x70, spC8, 0x41, 139.0f);
+        func_002b2a60(c10C, 0x33, 0xCD, 0xFF, 0xFF);
+        p = func_002b6150(0x70);
+        p[0x85] = c10C[0];
+        p[0x86] = c10C[1];
+        p[0x87] = c10C[2];
+        p[0x88] = c10C[3];
+        func_002b6a70(0x70, v1 & 0xFF, v0 & 0xFF, 0, 0, 0);
+        {
+            s32 k = 0;
+            while (k < 2) {
+                s16 a = (s16)(k + 0x2BB);
+                func_002b2970(&spC0, D_00644290[0] + (f32)(k * 0x139), D_00644290[1]);
+                func_002b6c30(a, spC0, 0x41, 140.0f);
+                func_002b2a60(c108, 0x33, 0xCD, 0xFF, 0xFF);
+                p = func_002b6150(a);
+                p[0x85] = c108[0];
+                p[0x86] = c108[1];
+                p[0x87] = c108[2];
+                p[0x88] = c108[3];
+                func_002b6a70(a, v1 & 0xFF, v0 & 0xFF, 0, 0, 0);
+                {
+                    s16 b2 = (s16)(k + 0x2BD);
+                    func_002b2970(&spB8, D_00644298[0] + (f32)(k * 0x14A), D_00644298[1]);
+                    func_002b6c30(b2, spB8, 0x41, 141.0f);
+                    func_002b2a60(c104, 0x33, 0xCD, 0xFF, 0xFF);
+                    p = func_002b6150(b2);
+                    p[0x85] = c104[0];
+                    p[0x86] = c104[1];
+                    p[0x87] = c104[2];
+                    p[0x88] = c104[3];
+                    func_002b6a70(b2, v1 & 0xFF, v0 & 0xFF, 0, 0, 0);
+                }
+                {
+                    s16 c2 = (s16)(k + 0x2BF);
+                    func_002b2970(&spB0, D_00644350[0] + (f32)(k * 0xE), D_00644350[1]);
+                    func_002b6c30(c2, spB0, 0x41, 142.0f);
+                    func_002b2a60(c100, 0x33, 0xCD, 0xFF, 0xFF);
+                    p = func_002b6150(c2);
+                    p[0x85] = c100[0];
+                    p[0x86] = c100[1];
+                    p[0x87] = c100[2];
+                    p[0x88] = c100[3];
+                    func_002b6a70(c2, v1 & 0xFF, v0 & 0xFF, 0, 0, 0);
+                }
+                k++;
+            }
+        }
+        {
+            s32 w0 = (1 - (s8)arg2) * 0xFF;
+            s32 w1 = (s8)arg2 * 0xFF;
+            func_002b2970(&spA8, 28.0f + D_00644350[0], D_00644350[1]);
+            func_002b6c30(0xBC, spA8, 0x41, 142.0f);
+            func_002b2a60(cFC, 0x33, 0xCD, 0xFF, 0xFF);
+            p = func_002b6150(0xBC);
+            p[0x85] = cFC[0];
+            p[0x86] = cFC[1];
+            p[0x87] = cFC[2];
+            p[0x88] = cFC[3];
+            func_002b6a70(0xBC, w1 & 0xFF, w0 & 0xFF, 0, 0, 0);
+        }
+    }
+    func_002b2970(&spA0, D_006443D8[0], D_006443D8[1]);
+    func_002b6c30(0xCD, spA0, 0x41, 143.0f);
+    func_002b6a70(0xCD, ((s8)arg2 * 0xFF) & 0xFF, ((1 - (s8)arg2) * 0xFF) & 0xFF, 1, 0xF, 0);
+    func_002b2a60(cF8, 0x49, 0x72, 0xFF, 0xFF);
+    p = func_002b6150(0xCD);
+    p[0x85] = cF8[0];
+    p[0x86] = cF8[1];
+    p[0x87] = cF8[2];
+    p[0x88] = cF8[3];
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00324680);
+#endif
 
 // FUN_00324F80
 void func_00324f80(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3) {
