@@ -251,17 +251,292 @@ void func_00363540(u8* arg0, u8* arg1) {
 }
 
 
-/* measured: mwcc b210 vs retail MW 2.4.1.01 codegen gaps (nd 583):
-   (1) case 0 keeps obj+i*0x28 in $s3 for the p[0x2C] store where retail
-   re-materializes sll/addu/sll/addu+addiu between the two calls (CSE);
-   (2) case 3's readiness-scan loop: retail hoists the lh count before the
-   loop, b210 sinks it per-iteration (load-sinking floor); (3) saved/scratch
-   register rotations in the case 2/3/4/5 loops (n2/i2, v5, nw) plus
-   s16-count extension placement at the n2==c2 compare. Structure, FPU
-   ADDA/MSUB fusion (338.0f - 63.0f*x), stack layout (pos pairs, tbl,
-   wbufs, cbuf) all match; only these allocation/scheduling residuals. */
-// FUN_00363610
+/* measured: probe 614 words, retail 692 vs object 677 instrs (15 short, 2.2% inside gate;
+   fnalign 760 edits +14 reloc-only). Stack 0x3B0 matches via reverse decl order
+   tbl,p4,p3,p2,p1,p0,wbuf,b2,b1,b0 giving 80,336,592,848,896,904,912,920,928,936;
+   FPU ADDA/MSUB fusion via 338.0f-63.0f*(f32)((count-1)-i) with (f32)565 and 640.0f.
+   Free pragmas: loopInv 618->614 (-4, kept), unrollOff/schedOff neutral,
+   commonSubsOff 612->707 worse, propOff neutral. Subscript p vs recomputed neutral.
+   Register swaps (i/ready etc.) neutral. s64 loops 612->643 worse. Prior nd583 gaps
+   remain: case0 CSE recompute (5), count hoist, saved/scratch rotations, s16 ext,
+   lwc1 vs lw, bnez vs beqz. m2c needs jtbl (fails); romwright+IDA/Ghidra used. */
+// FUN_00363610 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_loop_invariants on
+s32 func_00363610(u8* arg0)
+{
+    u8* obj = *(u8**)(arg0 + 0x38);
+    s16 tbl[4];
+    f32 p4[2];
+    f32 p3[2];
+    f32 p2[2];
+    f32 p1[2];
+    f32 p0[2];
+    s32 wbuf[10];
+    u8 b2[256];
+    u8 b1[256];
+    u8 b0[256];
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 m;
+    s32 n;
+    s32 c;
+    s32 q;
+    s16 id;
+    s32 h;
+    s32 ready;
+    u8* p;
+    u8* dst;
+    u8* src;
+    s32* d32;
+    s32* s32p;
+    s32* w;
+    s32* w2;
+    u8* e;
+    s32 a;
+    s32 b;
+
+    *(s32*)(obj + 0xB0) = 0;
+    *(s32*)(obj + 0xB4) = 0;
+    func_00460ac0(D_00794960, obj + 0xB0);
+    switch (*(s32*)(obj + 0x4)) {
+    case 0:
+        *(s32*)(obj + 0xC) = func_0046aea0(D_0064E2C0);
+        *(s16*)(obj + 0xA) = func_00353b50(tbl);
+        for (i = 0; i < *(s16*)(obj + 0xA); i++) {
+            p4[0] = (f32)565;
+            p4[1] = 338.0f - 63.0f * (f32)((*(s16*)(obj + 0xA) - 1) - i);
+            id = tbl[i];
+            func_00362fd0(obj + i * 0x28 + 0x10, p4, p4, 0);
+            *(s16*)(obj + i * 0x28 + 0x34) = id;
+            *(s32*)(obj + i * 0x28 + 0x30) = 0;
+            if (id != 0) {
+                func_00442088(b2, D_0064E2A0, (s64)id);
+                h = func_0046aea0(b2);
+                *(s32*)(obj + i * 0x28 + 0x2C) = h;
+                if (h == 0) {
+                    func_0046d730(D_0064E290, 0x166);
+                }
+            }
+        }
+        *(u16*)(obj + 0x0) |= 1;
+        *(s32*)(obj + 0x4) = 1;
+        break;
+    case 1:
+        if (func_0046a750(*(void**)(obj + 0xC)) == 0) {
+            return 0;
+        }
+        *(s32*)(obj + 0x4) = 2;
+        /* fallthrough */
+    case 2:
+        ready = 0;
+        for (i = 0; i < *(s16*)(obj + 0xA); i++) {
+            if (func_0046a750(*(void**)(obj + i * 0x28 + 0x2C)) != 0) {
+                *(s32*)(obj + i * 0x28 + 0x30) = 1;
+                ready++;
+            }
+        }
+        if (ready == *(s16*)(obj + 0xA)) {
+            *(s32*)(obj + 0x4) = 3;
+            for (j = 0; j < *(s16*)(obj + 0xA); j++) {
+                p3[0] = (f32)565;
+                p3[1] = 338.0f - 63.0f * (f32)((*(s16*)(obj + 0xA) - 1) - j);
+                func_00362fd0(obj + j * 0x28 + 0x10, NULL, p3, 8);
+            }
+        }
+        break;
+    case 3:
+        if ((*(u16*)(obj + 0x0) & 2) != 0) {
+            *(s32*)(obj + 0x4) = 6;
+            break;
+        }
+        for (i = 0; i < *(s16*)(obj + 0xA); i++) {
+            if (*(s16*)(obj + i * 0x28 + 0x28) < *(s16*)(obj + i * 0x28 + 0x2A)) {
+                return 0;
+            }
+        }
+        c = func_00353b50(tbl);
+        if (*(s16*)(obj + 0xA) == c) {
+            for (m = 0; m < c && *(s16*)(obj + m * 0x28 + 0x34) == tbl[m]; m++) {
+            }
+            if (m < c) {
+                p = obj + m * 0x28;
+                p4[0] = 640.0f;
+                p4[1] = 338.0f - 63.0f * (f32)((*(s16*)(obj + 0xA) - 1) - m);
+                *(f32*)(p + 0x10) = *(f32*)(p + 0x20);
+                *(f32*)(p + 0x14) = *(f32*)(p + 0x24);
+                *(f32*)(p + 0x18) = p4[0];
+                *(f32*)(p + 0x1C) = p4[1];
+                *(f32*)(p + 0x20) = *(f32*)(p + 0x10);
+                *(f32*)(p + 0x24) = *(f32*)(p + 0x14);
+                *(s16*)(p + 0x28) = 0;
+                *(s16*)(p + 0x2A) = 8;
+                *(s16*)(obj + 0x8) = (s16)m;
+                *(s32*)(obj + 0x4) = 5;
+            }
+        } else if (c < *(s16*)(obj + 0xA)) {
+            for (n = 0; n < 4 && *(s16*)(obj + n * 0x28 + 0x34) == tbl[n]; n++) {
+            }
+            p = obj + n * 0x28;
+            p4[0] = 640.0f;
+            p4[1] = 338.0f - 63.0f * (f32)((*(s16*)(obj + 0xA) - 1) - n);
+            *(f32*)(p + 0x10) = *(f32*)(p + 0x20);
+            *(f32*)(p + 0x14) = *(f32*)(p + 0x24);
+            *(f32*)(p + 0x18) = p4[0];
+            *(f32*)(p + 0x1C) = p4[1];
+            *(f32*)(p + 0x20) = *(f32*)(p + 0x10);
+            *(f32*)(p + 0x24) = *(f32*)(p + 0x14);
+            *(s16*)(p + 0x28) = 0;
+            *(s16*)(p + 0x2A) = 8;
+            *(s16*)(obj + 0x8) = (s16)n;
+            *(s32*)(obj + 0x4) = 4;
+        } else {
+            for (m = 0; m < 4 && *(s16*)(obj + m * 0x28 + 0x34) == tbl[m]; m++) {
+            }
+            k = *(s16*)(obj + 0xA);
+            while (m < k) {
+                dst = obj + k * 0x28 + 0x10;
+                src = obj + k * 0x28 - 0x18;
+                d32 = (s32*)dst;
+                s32p = (s32*)src;
+                q = 5;
+                do {
+                    s32 a = s32p[0];
+                    s32 b = s32p[1];
+                    s32p += 2;
+                    q--;
+                    d32[0] = a;
+                    d32[1] = b;
+                    d32 += 2;
+                } while (q > 0);
+                k--;
+            }
+            *(s16*)(obj + 0xA) += 1;
+            p4[0] = 640.0f;
+            p4[1] = 338.0f - 63.0f * (f32)((*(s16*)(obj + 0xA) - 1) - m);
+            id = tbl[m];
+            func_00362fd0(obj + m * 0x28 + 0x10, p4, p4, 0);
+            *(s16*)(obj + m * 0x28 + 0x34) = id;
+            *(s32*)(obj + m * 0x28 + 0x30) = 0;
+            if (id != 0) {
+                func_00442088(b1, D_0064E2A0, (s64)id);
+                h = func_0046aea0(b1);
+                *(s32*)(obj + m * 0x28 + 0x2C) = h;
+                if (h == 0) {
+                    func_0046d730(D_0064E290, 0x166);
+                }
+            }
+            *(s32*)(obj + 0x4) = 2;
+        }
+        break;
+    case 4: {
+        e = obj + *(s16*)(obj + 0x8) * 0x28;
+        if (*(s16*)(e + 0x2A) <= *(s16*)(e + 0x28)) {
+            d32 = (s32*)(e + 0x10);
+            w = wbuf;
+            q = 5;
+            do {
+                a = d32[0];
+                b = d32[1];
+                d32 += 2;
+                q--;
+                w[0] = a;
+                w[1] = b;
+                w += 2;
+            } while (q > 0);
+            *(s16*)(obj + 0xA) -= 1;
+            for (k = *(s16*)(obj + 0x8); k < *(s16*)(obj + 0xA); k++) {
+                dst = obj + k * 0x28 + 0x10;
+                src = obj + k * 0x28 + 0x38;
+                d32 = (s32*)dst;
+                s32p = (s32*)src;
+                q = 5;
+                do {
+                    s32 a = s32p[0];
+                    s32 b = s32p[1];
+                    s32p += 2;
+                    q--;
+                    d32[0] = a;
+                    d32[1] = b;
+                    d32 += 2;
+                } while (q > 0);
+            }
+            dst = obj + k * 0x28 + 0x10;
+            w2 = wbuf;
+            d32 = (s32*)dst;
+            q = 5;
+            do {
+                a = w2[0];
+                b = w2[1];
+                w2 += 2;
+                q--;
+                d32[0] = a;
+                d32[1] = b;
+                d32 += 2;
+            } while (q > 0);
+            *(s16*)(obj + k * 0x28 + 0x34) = 0;
+            *(s32*)(obj + k * 0x28 + 0x30) = 0;
+            if (*(s32*)(obj + k * 0x28 + 0x2C) != 0) {
+                func_0046b0d0(*(void**)(obj + k * 0x28 + 0x2C));
+                *(s32*)(obj + k * 0x28 + 0x2C) = 0;
+            }
+            p2[0] = *(f32*)(obj + k * 0x28 + 0x20);
+            p2[1] = *(f32*)(obj + k * 0x28 + 0x24);
+            func_00362fd0(obj + k * 0x28 + 0x10, p2, p2, 0);
+            for (i = 0; i < *(s16*)(obj + 0xA); i++) {
+                p1[0] = (f32)565;
+                p1[1] = 338.0f - 63.0f * (f32)((*(s16*)(obj + 0xA) - 1) - i);
+                func_00362fd0(obj + i * 0x28 + 0x10, NULL, p1, 8);
+            }
+            *(s32*)(obj + 0x4) = 3;
+        }
+        break;
+    }
+    case 5: {
+        e = obj + *(s16*)(obj + 0x8) * 0x28;
+        if (*(s16*)(e + 0x2A) <= *(s16*)(e + 0x28)) {
+            (void)func_00353b50(tbl);
+            p = obj + *(s16*)(obj + 0x8) * 0x28;
+            *(s16*)(p + 0x34) = 0;
+            *(s32*)(p + 0x30) = 0;
+            if (*(s32*)(p + 0x2C) != 0) {
+                func_0046b0d0(*(void**)(p + 0x2C));
+                *(s32*)(p + 0x2C) = 0;
+            }
+            p0[0] = *(f32*)(p + 0x20);
+            p0[1] = *(f32*)(p + 0x24);
+            func_00362fd0(p + 0x10, p0, p0, 0);
+            n = *(s16*)(obj + 0x8);
+            p4[0] = 640.0f;
+            p4[1] = 338.0f - 63.0f * (f32)((*(s16*)(obj + 0xA) - 1) - n);
+            id = tbl[n];
+            func_00362fd0(obj + n * 0x28 + 0x10, p4, p4, 0);
+            *(s16*)(obj + n * 0x28 + 0x34) = id;
+            *(s32*)(obj + n * 0x28 + 0x30) = 0;
+            if (id != 0) {
+                func_00442088(b0, D_0064E2A0, (s64)id);
+                h = func_0046aea0(b0);
+                *(s32*)(obj + n * 0x28 + 0x2C) = h;
+                if (h == 0) {
+                    func_0046d730(D_0064E290, 0x166);
+                }
+            }
+            *(s32*)(obj + 0x4) = 2;
+        }
+        break;
+    }
+    case 6:
+        return -1;
+    default:
+        break;
+    }
+    return 0;
+}
+#pragma opt_loop_invariants off
+#else
 INCLUDE_ASM("asm/nonmatchings/cmpPartyPanel", func_00363610);
+#endif
 
 
 // FUN_003640F0

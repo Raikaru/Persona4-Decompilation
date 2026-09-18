@@ -896,6 +896,19 @@ void func_0048a340(f32 param_1)
    of the closing lqc2 operand (plain, no `m`, `=m` output, `&output[0]`,
    a u8* local), and the ten-pragma sweep - everything ties at 15 except
    opt_common_subs off and optimization_level 1 (22) and level 3 (34). */
+/* 2026-09-18 lead pass, 5 measured variants; floor confirmed at 15 words.
+   44/44 instructions.  The residual is an FP/GPR rotation around the two
+   perspective divides: retail loads the divisor into $f0 and the dividend
+   into $f1 with the quotient in $f2 and the 448.0f constant through $v0,
+   while this body uses $f2/$f0 -> $f1 and $v1.  The remaining rows are the
+   absolute-address `lui`/`lwc1` pairs, which fnalign shows as differences
+   only because the candidate's relocations are zeroed.
+   Not reachable from source: `(x / z) * 640.0f` instead of
+   `640.0f * (x / z)` ties at 15, splitting the struct declaration ties at
+   15, `640.0f * x / z` costs 15 -> 22, reordering the two zero stores costs
+   15 -> 17, and hoisting them above the divides costs 15 -> 19.  The two
+   inline-asm blocks are genuine terminal COP2 transfers per the VU handoff,
+   not a shortcut. */
 // FUN_0048A460 NONMATCHING
 #ifdef NON_MATCHING
 void func_0048a460(void)
