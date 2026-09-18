@@ -1101,22 +1101,221 @@ void func_002e5960(s8 arg0) {
     *(s32 *)(p + 8) = 0;
 }
 
-/* measured: structure fully recovered (slotp/entry/p chain, func_002e5960
-   calls, the 0xC0 i-loop with the iGpffffb3d4+i*14 entry2 checks, the
-   311d00/311d60/2e6230 gates, the func_002e48a0 j-loop, the 311e40 gate,
-   the spE0/spD0 range compare and the two jump-table switches with
-   memset/cad0 + p->8++, the 0x3C tail gate and the 5-iteration do-loop with
-   spC0/spB0/spA0 slot writes) but the five 16-byte stack slots spE0/spD0/
-   spC0/spB0/spA0 hold s16-extended values: retail sq's the value directly
-   after its dsll32/dsra32 and lq's it into a raw 32-bit compare (slt), while
-   mwcc b210 emits a dsll32/dsrl32 widening pair before every sq and after
-   every lq of a u_long128 local holding a 32-bit value. Same mixed-width
-   u_long128 floor measured in this file at func_002e4ac0 (nd 302, best of
-   u_long128/s128/u64/aligned-u64 with direct/(u64)/(u32) casts and
-   typed-alias reads) and recorded in mdlManager func_0047c660 / mdlMatAnim
-   func_00480670 / P3 W414. Not transcribed further; floor. */
-// FUN_002E5AE0
+/* measured (real tree): guarded de-noised floor GUARDED_SCORE 393 (measure_guarded */
+/* measured: live in source/Persona4-Decompilation; verify 30 MATCH/7 ASM/0 MISMATCH, */
+/* measured: decomp_lint 0 errors +1 pre-existing H003 warn elsewhere). Mirror */
+/* measured: probe_variants: v1 cached-gp 405 -> v2 uncached-iGpffffb3d4 with duplicate */
+/* measured: i*0xE entry+2/entry+3 loads 393; round2 decl-order 393 neutral, s32 */
+/* measured: hi/lo 400 worse; round3 (h*3)*0x10 vs h*0x30 and i*14 vs i*0xE and */
+/* measured: (outer*4+outer)+10 vs outer*5+10 all 393 neutral. Two unproductive */
+/* measured: rounds, stop. fnalign live: retail 464 instrs vs object 435 (29 short), */
+/* measured: 285 edits +1 reloc-only, frame 0x100 vs 0x110. Retail window 468 words */
+/* measured: (0x750 incl. 4 trailing nops per asm size). m2c single-function run fails */
+/* measured: (jr without jump table); bulk src/generated/code1_002e.c candidate used as */
+/* measured: the de-noise source. Production stays INCLUDE_ASM. */
+/* measured: structure fully recovered (slotp/entry/p chain, func_002e5960 calls, the */
+/* measured: 0xC0 i-loop with the iGpffffb3d4+i*14 entry checks, the 311d00/311d60/2e6230 */
+/* measured: gates, the func_002e48a0 j-loop, the 311e40 gate, the hi/lo range compare and */
+/* measured: the two jump-table switches with memset/cad0 + p->8++, the 0x3C tail gate and */
+/* measured: the do-loop with outer*5+10 / outer+1 hi2/lo2 plus the second 0xC0 loop; file */
+/* measured: idiom kept (u8 *, *(u8 **)(x+0x38), D_00882F70[arg0], iGpffffb3d4+i*0xE, */
+/* measured: *(u16 *)(...+2), *(s16 *)(p+8)/(*(s32 *)(p+8)), 0/2/7/8/default -> +0x14 vs */
+/* measured: 1/5/6/10 -> +0xA4). Floor is the five 16-byte stack slots holding s16 values: */
+/* measured: retail sq's directly after dsll32/dsra32 and lq's into a raw slt, while mwcc */
+/* measured: b210 spills plain-s16 locals via sw/lw (u_long128 locals would add */
+/* measured: dsll32/dsrl32 widening pairs instead, same mixed-width floor as func_002e4ac0 */
+/* measured: nd 302 in this file); residual also carries saved-reg coloring/scheduling. */
+// FUN_002E5AE0 NONMATCHING
+#ifdef NON_MATCHING
+extern s32 func_002e6230(u16 arg0, u16 *arg1);
+void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
+    u8 **slotp;
+    u8 *p;
+    s16 lo;
+    s16 hi;
+    s16 i;
+    s16 j;
+    s32 found;
+    u16 id;
+    u8 *q;
+    s16 h;
+    u32 sw1;
+    u32 sw2;
+    u8 *dst1;
+    u8 *dst2;
+    s16 lo2;
+    s16 hi2;
+    s16 outer;
+    s16 inner;
+    slotp = &D_00882F70[arg0];
+    if (*slotp == NULL) {
+        return;
+    }
+    p = *(u8 **)(*slotp + 0x38);
+    func_002e5960(arg0);
+    lo = (s16)func_002b2d00(arg2, 10, 1, 0x63, 1);
+    hi = func_002b2cb0(arg2, 1, 0x63, 1, 1);
+    for (i = 0; i < 0xC0; i++) {
+        if (*(u8 *)(iGpffffb3d4 + i * 0xE + 2) < 2 || *(u8 *)(iGpffffb3d4 + i * 0xE + 2) >= 0x16) {
+            continue;
+        }
+        id = (u16)i;
+        if (func_00311d00(id) == 0) {
+            continue;
+        }
+        if (func_00311d60(id) == 0) {
+            continue;
+        }
+        if (func_002e6230(id, arg1) != 0) {
+            continue;
+        }
+        found = 0;
+        if (*slotp != NULL) {
+            for (j = 0; j < *(s32 *)(*(u8 **)(*slotp + 0x38) + 8); j++) {
+                if (i == *(u16 *)(func_002e48a0(arg0, j) + 2)) {
+                    found = 1;
+                    break;
+                }
+            }
+        }
+        if (found != 0) {
+            continue;
+        }
+        if (func_00311e40(id) != 0) {
+            continue;
+        }
+        if (hi < *(u8 *)(iGpffffb3d4 + i * 0xE + 3) || *(u8 *)(iGpffffb3d4 + i * 0xE + 3) < lo) {
+            continue;
+        }
+        h = *(s16 *)(p + 8);
+        q = *(u8 **)(*slotp + 0x38);
+        sw1 = *(u32 *)(q + 4);
+        switch (sw1) {
+        case 0:
+        case 2:
+        case 7:
+        case 8:
+        default:
+            dst1 = q + h * 0x30 + 0x14;
+            break;
+        case 1:
+        case 5:
+        case 6:
+        case 10:
+            dst1 = q + h * 0x30 + 0xA4;
+            break;
+        }
+        func_0043f9c8(dst1, 0, 0x30);
+        h = *(s16 *)(p + 8);
+        q = *(u8 **)(*slotp + 0x38);
+        sw2 = *(u32 *)(q + 4);
+        switch (sw2) {
+        case 0:
+        case 2:
+        case 7:
+        case 8:
+        default:
+            dst2 = q + h * 0x30 + 0x14;
+            break;
+        case 1:
+        case 5:
+        case 6:
+        case 10:
+            dst2 = q + h * 0x30 + 0xA4;
+            break;
+        }
+        func_0010cad0(dst2, id);
+        *(s32 *)(p + 8) = *(s32 *)(p + 8) + 1;
+    }
+    if (arg2 >= 0x3C && *(s32 *)(p + 8) < 3) {
+        func_002e5960(arg0);
+    }
+    if (*(s32 *)(p + 8) != 0) {
+        return;
+    }
+    outer = 0;
+    do {
+        lo2 = (s16)func_002b2d00(arg2, outer * 5 + 10, 1, 0x63, 1);
+        hi2 = func_002b2cb0(arg2, outer + 1, 0x63, 1, 1);
+        func_002e5960(arg0);
+        for (inner = 0; inner < 0xC0; inner++) {
+            if (*(u8 *)(iGpffffb3d4 + inner * 0xE + 2) < 2 || *(u8 *)(iGpffffb3d4 + inner * 0xE + 2) >= 0x16) {
+                continue;
+            }
+            id = (u16)inner;
+            if (func_00311d00(id) == 0) {
+                continue;
+            }
+            if (func_00311d60(id) == 0) {
+                continue;
+            }
+            if (func_002e6230(id, arg1) != 0) {
+                continue;
+            }
+            found = 0;
+            if (*slotp != NULL) {
+                for (j = 0; j < *(s32 *)(*(u8 **)(*slotp + 0x38) + 8); j++) {
+                    if (inner == *(u16 *)(func_002e48a0(arg0, j) + 2)) {
+                        found = 1;
+                        break;
+                    }
+                }
+            }
+            if (found != 0) {
+                continue;
+            }
+            if (func_00311e40(id) != 0) {
+                continue;
+            }
+            if (hi2 < *(u8 *)(iGpffffb3d4 + inner * 0xE + 3) || *(u8 *)(iGpffffb3d4 + inner * 0xE + 3) < lo2) {
+                continue;
+            }
+            h = *(s16 *)(p + 8);
+            q = *(u8 **)(*slotp + 0x38);
+            sw1 = *(u32 *)(q + 4);
+            switch (sw1) {
+            case 0:
+            case 2:
+            case 7:
+            case 8:
+            default:
+                dst1 = q + h * 0x30 + 0x14;
+                break;
+            case 1:
+            case 5:
+            case 6:
+            case 10:
+                dst1 = q + h * 0x30 + 0xA4;
+                break;
+            }
+            func_0043f9c8(dst1, 0, 0x30);
+            h = *(s16 *)(p + 8);
+            q = *(u8 **)(*slotp + 0x38);
+            sw2 = *(u32 *)(q + 4);
+            switch (sw2) {
+            case 0:
+            case 2:
+            case 7:
+            case 8:
+            default:
+                dst2 = q + h * 0x30 + 0x14;
+                break;
+            case 1:
+            case 5:
+            case 6:
+            case 10:
+                dst2 = q + h * 0x30 + 0xA4;
+                break;
+            }
+            func_0010cad0(dst2, id);
+            *(s32 *)(p + 8) = *(s32 *)(p + 8) + 1;
+        }
+        outer++;
+    } while (*(s32 *)(p + 8) < 6);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e5ae0);
+#endif
 
 // FUN_002E6230
 s32 func_002e6230(u16 arg0, u16 *arg1) {

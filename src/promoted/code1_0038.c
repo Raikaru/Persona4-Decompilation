@@ -1681,8 +1681,205 @@ void func_0038b530(u8 *arg0, s32 arg1, f32 *arg2)
         break;
     }
 }
-// FUN_0038BAB0
+/* measured: port from hardware-asm mirror honest reconstruction per func_0038a480 levers (scalar fGpffff83a8/ac/b0/b4/b8, (f32)(u16) counters bltz/srl/cvt/add.s double, sequential < guards empty else, block-scoped u16, shift/or s64 packing, plain ADDA+MADD arithmetic no COP1 exemption; cold38bab0 R1 v_ld 368w/324o/190e v_reload 382w/406o/198e unproductive, R2 v_ge 353w/405o/182e v_s32next 356w/404-exact/197e unproductive stop after two rounds; decls reused here (373cb0 f32,f32,f32,s32 per btlShuffleCalc.c:1179, 64c90 s64,s32,s32,f32*4 per generated/code1_0036.c:1812, b530 u8*,s32,f32* per this file:1621); real-tree measure_guarded 350 via `python3 -E -s tools/measure_guarded.py src/promoted/code1_0038.c func_0038bab0`, verify 0 MISMATCH (95 scanned 79 MATCH 16 ASM; first-party 90 scanned 77 MATCH 13 ASM) via `python3 -E -s tools/verify.py src/promoted/code1_0038.c --show-mismatches`, lint 0 errors via `python3 -E -s tools/decomp_lint.py src/promoted/code1_0038.c`. */
+// FUN_0038BAB0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_propagation off
+void func_0038bab0(u8 *arg0)
+{
+    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern void func_00364c90(s64 pos, s32 color, s32 mode, f32 rotation, f32 width, f32 height, f32 alpha);
+    extern void func_0038b530(u8 *arg0, s32 arg1, f32 *arg2);
+    extern f32 fGpffff83a8;
+    extern f32 fGpffff83ac;
+    extern f32 fGpffff83b0;
+    extern f32 fGpffff83b4;
+    extern f32 fGpffff83b8;
+    u8 *state;
+    u16 flags;
+    f32 var_f28;
+    f32 var_f21;
+    f32 var_f27;
+    f32 var_f26;
+    f32 var_f22;
+    f32 var_f20;
+    f32 var_f25;
+    f32 var_f24;
+    f32 var_f23;
+    f32 sp68;
+    f32 sp6C;
+    f32 var_f12;
+    state = arg0 + 0x190;
+    flags = *(u16 *)(arg0 + 0x194);
+    if ((flags & 1) == 0) {
+        u16 c0;
+        u16 c1;
+        c0 = *(u16 *)state;
+        var_f12 = (f32)c0;
+        var_f28 = func_00373cb0(var_f12, 0.0f, 8.0f, 2);
+        c1 = *(u16 *)state;
+        var_f12 = (f32)c1;
+        var_f21 = func_00373cb0(var_f12, 2.0f, 10.0f, 2);
+        {
+            u16 next;
+            next = *(u16 *)state + 1;
+            *(u16 *)state = next;
+            if ((next & 0xFFFF) < 0xA) {
+                if (next == 8) {
+                    *(u16 *)(state + 4) = (u16)(*(u16 *)(state + 4) | 0x10);
+                }
+            } else {
+                *(u16 *)(state + 4) = (u16)(*(u16 *)(state + 4) | 1);
+                *(u16 *)state = 0;
+            }
+        }
+    } else {
+        if ((flags & 0x20) != 0) {
+            var_f28 = 1.0f;
+            var_f21 = var_f28;
+        } else if ((flags & 4) == 0) {
+            var_f28 = 1.0f;
+            var_f21 = var_f28;
+        } else {
+            u16 c0;
+            u16 c1;
+            c0 = *(u16 *)state;
+            var_f12 = (f32)c0;
+            var_f28 = 1.0f - func_00373cb0(var_f12, 0.0f, 5.0f, 2);
+            c1 = *(u16 *)state;
+            var_f12 = (f32)c1;
+            var_f21 = 1.0f - func_00373cb0(var_f12, 2.0f, 7.0f, 2);
+            {
+                u16 next;
+                next = *(u16 *)state + 1;
+                *(u16 *)state = next;
+                if ((next & 0xFFFF) < 7) {
+                } else {
+                    *(u16 *)(arg0 + 4) = (u16)(*(u16 *)(arg0 + 4) & 0xFFFE);
+                }
+            }
+        }
+    }
+    {
+        u16 sflags;
+        sflags = *(u16 *)(state + 4);
+        if ((sflags & 0x10) == 0) {
+            var_f27 = 0.0f;
+            var_f26 = 0.0f;
+        } else {
+            if ((sflags & 8) == 0) {
+                u16 c2;
+                c2 = *(u16 *)(state + 2);
+                var_f12 = (f32)c2;
+                var_f27 = func_00373cb0(var_f12, 0.0f, 5.0f, 1);
+                {
+                    u16 next;
+                    next = *(u16 *)(state + 2) + 1;
+                    *(u16 *)(state + 2) = next;
+                    if ((next & 0xFFFF) < 5) {
+                    } else {
+                        *(u16 *)(state + 4) = (u16)(*(u16 *)(state + 4) | 8);
+                        *(u16 *)(state + 2) = 0;
+                    }
+                }
+            } else {
+                var_f27 = 1.0f;
+            }
+            if ((*(u16 *)(state + 4) & 0x20) == 0) {
+                var_f26 = 0.0f;
+            } else {
+                u16 c3;
+                c3 = *(u16 *)(state + 2);
+                var_f12 = (f32)c3;
+                var_f26 = func_00373cb0(var_f12, 0.0f, 5.0f, 1);
+                {
+                    u16 next;
+                    next = *(u16 *)(state + 2) + 1;
+                    *(u16 *)(state + 2) = next;
+                    if ((next & 0xFFFF) < 5) {
+                    } else {
+                        *(u16 *)(state + 4) = (u16)(*(u16 *)(state + 4) & 0xFFDF);
+                        *(u16 *)(state + 4) = (u16)(*(u16 *)(state + 4) & 0xFFEF);
+                        *(u16 *)(state + 2) = 0;
+                    }
+                }
+            }
+        }
+    }
+    if (*(s32 *)(state + 8) == 3) {
+        var_f22 = -48.0f;
+    } else {
+        var_f22 = 0.0f;
+    }
+    if ((*(u16 *)(state + 4) & 2) != 0) {
+        var_f25 = 130.0f;
+        var_f24 = 170.0f;
+        var_f23 = -100.0f;
+    } else {
+        var_f25 = 100.0f;
+        var_f24 = 120.0f;
+        var_f23 = -70.0f;
+    }
+    var_f20 = 0.0f;
+    sp68 = fGpffff83a8 + (410.0f + var_f20);
+    {
+        f32 base;
+        f32 add;
+        base = fGpffff83ac + (517.0f + var_f22);
+        add = var_f25 * (1.0f - var_f21);
+        sp6C = base + add;
+    }
+    {
+        s64 pos;
+        pos = ((s64)(*(u32 *)&sp68) << 32) | (u32)(*(u32 *)&sp6C);
+        func_00364c90(pos, 0xFF0000FF, 1, 0.0f, 430.0f, 5.0f, fGpffff83b0);
+    }
+    {
+        f32 t21;
+        t21 = fGpffff83b4 + (300.0f + var_f20);
+        sp68 = t21;
+        var_f21 = t21;
+    }
+    {
+        f32 sub;
+        f32 prod;
+        f32 base;
+        sub = 1.0f - var_f28;
+        prod = var_f25 * sub;
+        var_f20 = prod;
+        base = fGpffff83b8 + ((553.0f + var_f22) + prod);
+        sp6C = base;
+    }
+    {
+        s64 pos;
+        pos = ((s64)(*(u32 *)&sp68) << 32) | (u32)(*(u32 *)&sp6C);
+        func_00364c90(pos, 0xFF, 1, 0.0f, 430.0f, 21.0f, fGpffff83b0);
+    }
+    if ((*(u16 *)(state + 4) & 2) != 0) {
+        sp68 = var_f21;
+        sp6C = fGpffff83b8 + ((524.0f + var_f22) + var_f20);
+        {
+            s64 pos;
+            pos = ((s64)(*(u32 *)&sp68) << 32) | (u32)(*(u32 *)&sp6C);
+            func_00364c90(pos, 0xFF, 1, 0.0f, 430.0f, 21.0f, fGpffff83b0);
+        }
+    }
+    {
+        s32 mode;
+        mode = *(s32 *)(state + 8);
+        if (mode != 0) {
+            f32 t;
+            t = (1.0f - var_f27) - var_f26;
+            sp68 = var_f24 * t;
+            sp6C = var_f23 * t;
+            func_0038b530(arg0, mode, &sp68);
+        }
+    }
+}
+#pragma opt_propagation on
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038bab0);
+#endif
 /* Floor: 361 differing words over 97 edit instructions, 397 emitted against
    retail's 409, from a first reconstruction.  arg0 is a `u8 *`: m2c types it
    `u8 **` and then scales `arg0 + 0x1A4` by four, while retail's `$s1` is

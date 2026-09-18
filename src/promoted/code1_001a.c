@@ -3336,8 +3336,208 @@ done:
 void func_001ad540(void)
 {
 }
-// FUN_001AD550
+/* measured: live object 1616B/window 1584B (32B over, 2.0% within 3%), fndiff 319 differing words with peephole off (guard below; frame -0x110 vs -0xF0, obj 403 vs retail 396 instrs, edit 198 +2 reloc-only). Re-derived from retail plus matched packet idiom (a03b0/bc920/94590 chain, 95850/94ff0/dcb40 second loop); truthful externs (f32 for 8218/8350 scale floats, void-ptr plus RwV3d for dcb40, s32 for A4 index, s16 kept for +0x22). Walls: s-reg rotation (obj 8 vs retail 7), stack-slot shift (+0x20/+0x30), lh plus dsll/dsra vs retail lh. Ruled out today: nocache 369, reorder tie 320, lim-hoist 325, loopinv 325, for-tie 318, u16-tbl 319 (rejected: lh-to-lhu opcode untruthful; combined 318 not taken); prior O0/1/3/4 458/368/349/349 (O2 342), pragma sched 348/cs 368/li 348/prop 357/sr-dead-unroll tie 342, peephole off 320-to-319 (applied: s32 a4 plus void-ptr/RwV3d). Production stays ASM; banked as floor. Real-tree re-measure 319, probe r5 319 vs nocache 369, verify 53M/18A/0MM, lint 0E. */
+// FUN_001AD550 NONMATCHING
+#ifdef NON_MATCHING
+#pragma peephole off
+void func_001ad550(s64 *arg0)
+{
+    extern void func_00195850(u8 *arg0, f32 *arg1);
+    extern void func_003dcb40(void *out, const void *in, s32 count, const void *quat);
+    extern u8 *func_001973f0(u8 *arg0, f32 *arg1, s32 arg2, f32 arg3);
+    extern u8 *func_00193770(s32 arg0);
+    extern u8 *func_001f7d10(s32 arg0, s32 arg1, s32 arg2);
+    extern RwV3d D_0060A100;
+    extern f32 fGpffff8218;
+    extern f32 fGpffff8350;
+    u8 *collected[12];
+    f32 posD0[3];
+    f32 vecC0[3];
+    f32 outE0[3];
+    f32 quat80[4];
+    u8 *unit30;
+    u8 *tmp;
+    u8 *iter;
+    u8 kind;
+    s32 var5;
+    s32 var21;
+    s32 var16;
+    s32 idx;
+    s64 var18;
+
+    func_001a03b0(arg0);
+    tmp = func_002022e0((u32)*(u8 **)((u8 *)arg0 + 0x30), 6);
+    *(s64 *)(tmp + 0x60) = *arg0;
+    func_00194590(tmp, 3);
+    var5 = 0;
+    var21 = 0;
+    var16 = 0;
+    var18 = 0;
+    unit30 = *(u8 **)((u8 *)arg0 + 0x30);
+    kind = *(u8 *)(unit30 + 0xA2);
+    if (kind == 1) {
+        goto case_one;
+    }
+    if (kind != 0) {
+        goto after_switch;
+    }
+    if (*(u16 *)((u8 *)arg0 + 0x6C) == 0xC) {
+        goto case_one;
+    }
+    *(u16 *)(D_0076449C + 0xC5E) = *(u16 *)(D_0076449C + 0xC5E) + 1;
+    var21 = 1;
+    iter = *(u8 **)(D_0076449C + 0x174);
+    goto loop_check;
+loop_body:
+    if ((*(u16 *)(iter + 0x1A) & 1) != 0) {
+        u8 *u = *(u8 **)(iter + 0x30);
+        if (*(u8 *)(u + 0xA2) == 0) {
+            if (func_002428f0(*(u8 **)(u + 0xA64), 0) == 0) {
+                if (func_00232710((s32)*(u8 **)(u + 0xA64), 0x100001) == 0) {
+                    collected[(var16 & 0xFFFF)] = iter;
+                    var16 = (var16 + 1) & 0xFFFF;
+                }
+            }
+        }
+    }
+    iter = *(u8 **)(iter + 0x450);
+loop_check:
+    if (iter != NULL) {
+        goto loop_body;
+    }
+    var5 = 1;
+    goto after_switch;
+case_one:
+    collected[0] = (u8 *)arg0;
+    var16 = 1 & 0xFFFF;
+    *(u16 *)((u8 *)arg0 + 0x18) |= 0x20;
+    *(u16 *)((u8 *)arg0 + 0x1A) &= 0xFFF7;
+after_switch:
+    if (var5 == 0) {
+        u8 *q = func_001bc920(collected[0], 0xA);
+        *(s64 *)(q + 0x60) = *arg0;
+        func_00194590(q, 0);
+    }
+    unit30 = *(u8 **)((u8 *)arg0 + 0x30);
+    if (*(u8 *)(unit30 + 0xA2) == 0) {
+        u8 *r = func_001f7d10(0xF, 2, 0);
+        *r = 5;
+        *(s64 *)(r + 8) = *(s64 *)(tmp + 0x58);
+        *(u16 *)(r + 0x48) = 0x1A;
+        *(s64 *)(r + 0x60) = *arg0;
+        func_00194590(r, 1);
+        if (*(u16 *)((u8 *)arg0 + 0x6C) == 0xC) {
+            u8 *s = (u8 *)func_001f5f70((u8 *)arg0, 7, 0, 0, 0);
+            *(s64 *)(s + 0x60) = *arg0;
+            func_00194590(s, 1);
+        } else if (var21 == 1) {
+            u8 *t = func_00202850();
+            *t = 5;
+            *(s64 *)(t + 8) = *(s64 *)(tmp + 0x58);
+            *(u16 *)(t + 0x48) = 0x10;
+            *(s64 *)(t + 0x60) = *arg0;
+            func_00194590(t, 1);
+        }
+    } else {
+        u8 *r = (u8 *)func_001f7c20(0xC, 2, 0xF);
+        *r = 5;
+        *(s64 *)(r + 8) = *(s64 *)(tmp + 0x58);
+        *(u16 *)(r + 0x48) = 0x16;
+        *(s64 *)(r + 0x60) = *arg0;
+        func_00194590(r, 1);
+        {
+            u8 *s = (u8 *)func_001f5f70((u8 *)arg0, 6, 0, 0, 0);
+            *(u16 *)(s + 0x48) = 0xC;
+            *(s64 *)(s + 0x60) = *arg0;
+            func_00194590(s, 1);
+        }
+    }
+    idx = 0;
+    goto second_check;
+second_body:
+    {
+        u8 *cur = collected[(idx & 0xFFFF)];
+        u8 *u30 = *(u8 **)(cur + 0x30);
+        u8 *qpkt;
+        func_00195850(u30, posD0);
+        func_00194ff0(u30, NULL, quat80, NULL);
+        func_003dcb40(vecC0, &D_0060A100, 1, quat80);
+        unit30 = *(u8 **)((u8 *)arg0 + 0x30);
+        if (*(u8 *)(unit30 + 0xA2) == 0) {
+            vecC0[0] = vecC0[0] * 500.0f;
+            vecC0[1] = vecC0[1] * 500.0f;
+            vecC0[2] = vecC0[2] * 500.0f;
+            outE0[0] = posD0[0] + vecC0[0];
+            outE0[1] = posD0[1] + vecC0[1];
+            outE0[2] = posD0[2] + vecC0[2];
+            qpkt = func_001973f0(u30, outE0, 0, 0.5f);
+            goto qpkt_done;
+        } else {
+            u8 *u2 = *(u8 **)(cur + 0x30);
+            s32 a4 = *(u16 *)(u2 + 0xA4);
+            s32 e = ((a4 << 3) - a4) << 2;
+            e = (e + a4) << 3;
+            {
+                u8 *tbase = iGpffffb3cc;
+                u8 *ent = tbase + e;
+                if (*(s16 *)(ent + 0x22) != 1) {
+                    f32 k = fGpffff8350;
+                    vecC0[0] = vecC0[0] * k;
+                    vecC0[1] = vecC0[1] * k;
+                    vecC0[2] = vecC0[2] * k;
+                    outE0[0] = posD0[0] + vecC0[0];
+                    outE0[1] = posD0[1] + vecC0[1];
+                    outE0[2] = posD0[2] + vecC0[2];
+                } else {
+                    outE0[0] = posD0[0];
+                    outE0[1] = posD0[1];
+                    outE0[2] = posD0[2];
+                }
+            }
+            qpkt = func_001973f0(u30, outE0, 4, fGpffff8218);
+        }
+qpkt_done:
+        *qpkt = 5;
+        *(s64 *)(qpkt + 8) = *(s64 *)(tmp + 0x58);
+        *(u16 *)(qpkt + 0x48) = 0x10;
+        *(s64 *)(qpkt + 0x60) = *arg0;
+        func_00194590(qpkt, 1);
+        {
+            u8 *bpkt = (u8 *)func_0019bbe0(u30, 0xFFFFFF, 8, 0, 4, 0);
+            *bpkt = 5;
+            *(s64 *)(bpkt + 8) = *(s64 *)(qpkt + 0x58);
+            *(u16 *)(bpkt + 0x48) = 0xC;
+            *(s64 *)(bpkt + 0x60) = *arg0;
+            func_00194590(bpkt, 1);
+            var18 = *(s64 *)(bpkt + 0x58);
+        }
+    }
+    idx = (idx + 1) & 0xFFFF;
+second_check:
+    if ((idx & 0xFFFF) < (var16 & 0xFFFF)) {
+        goto second_body;
+    }
+    if (var21 != 0) {
+        u8 *z = func_00193770(0x80);
+        *z = 4;
+        *(s64 *)(z + 8) = var18;
+        *(z + 0x10) = 0xA;
+        *(u16 *)(z + 0x18) = 0x801;
+        *(s64 *)(z + 0x60) = *arg0;
+        func_00194590(z, 1);
+        *(u16 *)(D_0076449C + 0x1C) = 3;
+    }
+    {
+        u8 *f = func_001f3870(arg0, 0);
+        *(s64 *)(f + 0x60) = *arg0;
+        func_00194590(f, 1);
+    }
+    func_001b0800((u8 *)arg0, 0x20);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001ad550);
+#endif
+#pragma peephole on
 /* Measured: 644/656 bytes, 22 resolved relocations and 12 zero tail bytes.
  * Packet submissions retain callback-visible unit, UID and global reloads. */
 #pragma push
