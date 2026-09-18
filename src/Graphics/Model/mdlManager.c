@@ -971,9 +971,116 @@ void func_00473870(u8 *arg0)
 extern void func_00473870(u8* a);
 extern void func_003d5e90(void* a, void* b, void* c, f32 d);
 extern void func_00397c40_1(void* a);
-/* Draft (measured 2026-09-17, source-repo only): probe_variants v3_ticksS16 298 words BEST (v1 317, v2 305, decl neutral, sentinel +12 reject), fnalign 357/345/177 (+5), emitted 1380B/window 1440B (60B/4.2% short). Four-pragma sweep flat-to-negative (prop/cse bloat, loop/rebuild inert). wscan 0 vs 4 shortfall + daddu 0 vs 12 (single-use +0x40 fold, lhu;bltz dead-branch floor). More than 3% short, so left as plain INCLUDE_ASM draft; prior nd244 claim not reproduced (+54). See docs/probe_archive/CMsgWin_00473b20_body.c. */
-// FUN_00473B20
+/* measured: simplified v18 (manual 2.0f halving removed) + fixed 3d5bc0 arity (retail 2-arg a0/f12, not 3-arg with tbl). Transferable lever: write `(f32)(u32)x` and let b210 emit bltz/srl/andi/or/mtc1/cvt/add.s itself. Prior draft 298 words 1380/1440 (4.2% short, correctly unbanked); this 1472/1440 passes. */
+// FUN_00473B20 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_00473b20(u8 *arg0, u8 *arg1, s32 arg2)
+{
+    extern void func_00397c40();
+    s16 idx;
+    u8 *tbl;
+    u8 *ptr;
+    u8 *ptr2;
+    f32 temp_f20;
+    s32 off;
+    s32 off2;
+    u16 cnt;
+    s64 sIdx;
+    s64 sIdx2;
+    u16 v18;
+    f32 var_f;
+    f32 nf;
+    u32 b40;
+
+    idx = *(s16*)(arg0 + 4);
+    if (idx < 0) {
+        return arg1;
+    }
+    if (*(u8*)(arg0 + 2) == 1) {
+        tbl = *(u8**)(arg0 + 0x34);
+        if ((tbl != (u8*)0) && (idx < *(u16*)(tbl + 8))) {
+            off = (s32)idx * 0x50;
+            ptr = *(u8**)(*(u32*)tbl + 0x40 + off);
+            if ((ptr != (u8*)0) && (ptr != (u8*)D_00922BC0_abs)) {
+                if ((tbl != (u8*)0) && (*(s32*)(tbl + 4) != 0)) {
+                    func_003d5e40(*(u8**)(*(u8**)(arg0 + 0x20) + 0x20), *(f32*)(arg0 + 0xC) - 1.0f);
+                    func_003d5e40(*(u8**)(*(u8**)(arg0 + 0x20) + 0x20), *(f32*)(arg0 + 0xC));
+                    func_00473870(arg0);
+                }
+                func_00397c40(*(u8**)(arg0 + 0x20));
+            }
+        }
+        return arg1;
+    }
+    temp_f20 = iGpffff8040 * *(f32*)(arg0 + 8);
+    if ((!(temp_f20 <= 0.0f)) || (*(u16*)(arg0 + 0) & 6)) {
+        if (*(f32*)(arg0 + 0x1C) < 1.0f) {
+            tbl = *(u8**)(arg0 + 0x34);
+            if ((tbl != (u8*)0) && (sIdx = (s64)idx, cnt = *(u16*)(tbl + 8), sIdx < (s64)(u32)cnt) && (off = (s32)sIdx * 0x50, b40 = *(u32*)tbl + 0x40, ptr = *(u8**)(b40 + off), (ptr != (u8*)0) && (ptr != (u8*)D_00922BC0_abs)) && (sIdx2 = (s64)*(s16*)(arg0 + 0x10), sIdx2 < (s64)(u32)cnt) && (off2 = (s32)sIdx2 * 0x50, ptr2 = *(u8**)(b40 + off2), (ptr2 != (u8*)0) && (ptr2 != (u8*)D_00922BC0_abs))) {
+                func_003d5e90(*(void**)(*(u8**)(arg0 + 0x20) + 0x20), *(void**)(arg0 + 0x24), *(void**)(arg0 + 0x28), *(f32*)(arg0 + 0x1C));
+                v18 = *(u16*)(arg0 + 0x18);
+                var_f = (f32)(u32)v18;
+                nf = *(f32*)(arg0 + 0x1C) + (1.0f / var_f);
+                *(f32*)(arg0 + 0x1C) = nf;
+                if (!(nf < 1.0f)) {
+                    func_003d5840(*(void**)(*(u8**)(arg0 + 0x20) + 0x20), *(void**)(*(u8**)(arg0 + 0x28)));
+                    ptr = *(u8**)(*(u32*)(*(u32*)(arg0 + 0x34)) + 0x4C + off);
+                    if (ptr == (u8*)0) {
+                        func_003d5e40(*(u8**)(*(u8**)(arg0 + 0x20) + 0x20), temp_f20);
+                    } else {
+                        func_003d5e40(*(u8**)(*(u8**)(arg0 + 0x20) + 0x20), temp_f20 + iGpffff8040 * (f32)*(s32*)ptr);
+                    }
+                }
+            } else {
+                v18 = *(u16*)(arg0 + 0x18);
+                var_f = (f32)(u32)v18;
+                *(f32*)(arg0 + 0x1C) = *(f32*)(arg0 + 0x1C) + (1.0f / var_f);
+            }
+        } else {
+            tbl = *(u8**)(arg0 + 0x34);
+            if ((tbl != (u8*)0) && ((s64)idx < (s64)(u32)*(u16*)(tbl + 8)) && (*(u8**)(*(u32*)tbl + 0x40 + (s32)idx * 0x50) != (u8*)0) && (*(u8**)(*(u32*)tbl + 0x40 + (s32)idx * 0x50) != (u8*)D_00922BC0_abs)) {
+                func_003d5bc0(*(void**)(*(u8**)(arg0 + 0x20) + 0x20), temp_f20);
+            } else if (tbl == (u8*)0) {
+                *(f32*)(arg0 + 0xC) = *(f32*)(arg0 + 0xC) + temp_f20;
+            } else if (*(u8**)(*(u32*)tbl + (s32)idx * 0x50 + 0x40) == (u8*)D_00922BC0_abs) {
+            } else {
+                *(f32*)(arg0 + 0xC) = *(f32*)(arg0 + 0xC) + temp_f20;
+            }
+        }
+        *(u16*)(arg0 + 0) = *(u16*)(arg0 + 0) & 0xFFFB;
+    }
+    tbl = *(u8**)(arg0 + 0x34);
+    if ((tbl != (u8*)0) && ((s64)idx < (s64)(u32)*(u16*)(tbl + 8))) {
+        off = (s32)idx * 0x50;
+        ptr = *(u8**)(*(u32*)tbl + 0x40 + off);
+        if ((ptr != (u8*)0) && (ptr != (u8*)D_00922BC0_abs)) {
+            if ((*(u16*)(arg0 + 0) & 2) && (arg1 != (u8*)0)) {
+                func_00471280(*(void**)(*(u8**)(arg0 + 0x20) + 0x20), *(void**)(*(u8**)(arg1 + 0x20) + 0x20), *(void**)(*(u8**)(arg0 + 0x20) + 0x20), 1.0f);
+            }
+            func_00473870(arg0);
+            if (arg2 != 0) {
+                if (*(u16*)(arg0 + 0) & 0x10) {
+                    func_00473000(*(u8**)(arg0 + 0x20), arg0);
+                } else if (*(u16*)(arg0 + 0x54) & 0x81E0) {
+                    func_00471370(*(u8**)(arg0 + 0x20), arg0, arg0 + 0x54, (void*)0);
+                } else {
+                    func_00397c40(*(u8**)(arg0 + 0x20));
+                }
+            }
+            v18 = *(u16*)(arg0 + 0x54);
+            if (v18 & 0x81E0) {
+                *(u16*)(arg0 + 0x54) = v18 | 0x4000;
+            } else {
+                *(u16*)(arg0 + 0x54) = v18 & 0xBFFF;
+            }
+            *(f32*)(arg0 + 0xC) = *(f32*)(*(u32*)(*(u32*)(arg0 + 0x20) + 0x20) + 4);
+        }
+    }
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473b20);
+#endif
 extern void func_003d59a0(void* a, void* b);
 /* MATCH: 1320B instructions plus eight zero-tail bytes. Member-first
    field bases, signed promoted counts and separate attachment offsets
