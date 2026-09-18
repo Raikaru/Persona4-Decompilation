@@ -621,6 +621,16 @@ INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00365ac0);
    Complete source and probe evidence:
    docs/probe_archive/RadialProvider_00365f00_body.c. Production stays ASM. */
 /* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/shdMisc.c func_00365f00 --pairs` banked 25; best ties 25 (all 8 singles except schedule/peephole plus 13 pairs among them); all 28 pairs neutral or worse (peephole forms 237, schedule forms 269-271). Ten declaration spellings already tie per above; pairs confirm saved-register coloring floor. fnalign retail/object 287/287 per assignment. Floor stands; production stays ASM. */
+/* 25 -> 13 (2026-09-18): assigning `edge_r` first of the four edge bytes.
+   The four `(f32)(u32)edge_*` conversion blocks are emitted in the order the
+   locals are defined, not the order the stores are written, so with the
+   alpha-first grouping b210 put the vertex[1][8] block 15 instructions after
+   retail's.  Measured and rejected: the full r,g,b,a order for both colour
+   groups (31), inlining `((u8 *)&edgeColor)[0]` into the loop the way the
+   centre red byte is inlined (202), moving `num_segments` above or into the
+   colour group (251 - its range check has to stay where it is), declaring
+   edge_r last (25).  Remaining 13 words are one saved-register exchange:
+   retail colours edge_r $fp and num_segments $s3, b210 the other way. */
 // FUN_00365F00 NONMATCHING
 #ifdef NON_MATCHING
 void func_00365f00(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
@@ -644,10 +654,10 @@ void func_00365f00(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
     s32 center_b;
     s32 center_g;
     s32 num_segments;
+    edge_r = ((u8 *)&edgeColor)[0];
     edge_a = ((u8 *)&edgeColor)[3];
     edge_b = ((u8 *)&edgeColor)[2];
     edge_g = ((u8 *)&edgeColor)[1];
-    edge_r = ((u8 *)&edgeColor)[0];
     center_a = ((u8 *)&centerColor)[3];
     center_b = ((u8 *)&centerColor)[2];
     center_g = ((u8 *)&centerColor)[1];
