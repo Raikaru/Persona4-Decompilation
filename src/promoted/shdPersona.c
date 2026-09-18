@@ -1393,8 +1393,131 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00119210);
    func_00274ed0 9-arg s64-odd-register call, the func_0034f4a0 14-arg
    call, var_18 = (s64)(8 << 0x38) >> 0x38 (dsll32/dsra32) and the
    func_0046d4c0 11-arg calls all verify against retail. */
-// FUN_00119810
+/* measured: cold 2026-09-18 00119810 — GUARDED_SCORE 197 in real tree via `python3 -E -s tools/measure_guarded.py src/promoted/shdPersona.c func_00119810` (probe 197 differing words, object 380 instrs/window 380 instrs exact count, fnalign --candidate edit 79 +3 reloc-only, 384-instr window). Full-C from P4_UNIT_00119810 m2c draft with s32 cnt (removes chain-1 extra abs bltz, 343->237), s32 b (408->386 count, 234->209), explicit fb+=fb for 2.0f*add (209->197, recovers recorded 197 floor). Frame 0x70 matches retail (no extra saved). R1 mode (343 tie-3), R2 cnt (237), R3 FP perms (234 best perm3 var_f23,var_f22,var_f20), R4 regs tie, R5 b s32 (209), R6 add (197), R7 regs tie, R8 tie/worse (341/197/199) — two consecutive non-lowerings, stop. verify.py 91 MATCH/11 ASM/0 MISMATCH; decomp_lint 0 errors. Reused existing decls (iGpffff8094/iGpffff8368, 0034f4a0 14-arg, 0046d4c0 11-arg, 00274ed0 9-arg, 00243840 u16, 0045af60 s16), no new globals. Walls: FP rotation [1.0f->$f20 vs $f21 etc], srl-vs-sra (retail srl, sra scores -24), overflow-guard elimination (2x7B, range-bounded 0..255), sh-before-andi order, lb/addiu colouring, dsll32 param extend. */
+// FUN_00119810 NONMATCHING
+#ifdef NON_MATCHING
+void func_00119810(u8 *arg0)
+{
+    u8 *p;
+    f32 var_f23;
+    f32 var_f22;
+    f32 var_f20;
+    s32 col;
+    s64 mode;
+    u16 flags;
+    s32 cnt;
+    f32 v0;
+    f32 f1;
+    f32 f2;
+
+    p = arg0 + 0x4F0;
+    if (*(u16 *)(arg0 + 0x4F4) == 0) {
+        return;
+    }
+    flags = *(u16 *)p;
+    if (!(flags & 1)) {
+        cnt = *(u16 *)(p + 2) + 1;
+        *(u16 *)(p + 2) = cnt;
+        if ((cnt & 0xFFFF) >= 0x28) {
+            *(u16 *)p = *(u16 *)p | 1;
+        }
+        if (*(u16 *)(p + 2) == 8) {
+            func_0045af60(1, 3, 3, 2);
+        }
+        cnt = *(u16 *)(p + 2);
+        if ((s32)cnt < 0) {
+            v0 = 0.0f;
+        } else if ((s32)cnt < 8) {
+            v0 = 1.0f - func_0044b610(iGpffff8094 * ((f32)cnt / 8.0f));
+        } else {
+            v0 = 1.0f;
+        }
+        var_f20 = 1.0f - v0;
+        cnt = *(u16 *)(p + 2);
+        if ((s32)cnt < 8) {
+            f1 = 0.0f;
+        } else if ((s32)cnt < 0xF) {
+            f1 = func_0044b7b0(iGpffff8094 * ((f32)(cnt - 8) / 7.0f));
+        } else {
+            f1 = 1.0f;
+        }
+        var_f23 = f1;
+        cnt = *(u16 *)(p + 2);
+        if ((s32)cnt < 8) {
+            f2 = 0.0f;
+        } else if ((s32)cnt < 0x28) {
+            f2 = func_0044b7b0(iGpffff8094 * ((f32)(cnt - 8) / 32.0f));
+        } else {
+            f2 = 1.0f;
+        }
+        var_f22 = f2;
+    } else if (flags & 2) {
+        var_f20 = 0.0f;
+        var_f23 = 1.0f;
+        var_f22 = 0.0f;
+        *(s32 *)(arg0 + 0x534) = *(s32 *)(arg0 + 0x534) & ~0x100000;
+    } else {
+        var_f20 = 0.0f;
+        var_f23 = 1.0f;
+        var_f22 = 0.0f;
+    }
+    var_f20 = 90.0f * var_f20;
+    func_0034f4a0(*(s32 *)(arg0 + 0x2C8), 0xB, (f32)0x19B, 296.0f, 0.0f, 0xFF, 0xFF, 0xFF, *(u8 *)(arg0 + 0x505), 0x1000, 0x1000, var_f20, (s16)0x12E, (s16)0x21);
+    if (var_f22 > 0.0f && var_f22 < 1.0f) {
+        s32 b;
+        f32 fb;
+        f32 prod;
+        b = *(u8 *)(arg0 + 0x505);
+        if ((s32)b >= 0) {
+            fb = (f32)b;
+        } else {
+            fb = (f32)((b >> 1) | (b & 1));
+            fb += fb;
+        }
+        prod = 0.5f * fb * (1.0f - var_f22);
+        if (!(prod >= 2.1474836e9f)) {
+            col = ((s32)prod) & 0xFF;
+        } else {
+            col = (((s32)(prod - 2.1474836e9f)) | 0x80000000) & 0xFF;
+        }
+        func_003f6440(3, 0x71801);
+        func_003f6440(2, 0x48);
+        func_0034f4a0(*(s32 *)(arg0 + 0x2C8), 0xB, (f32)0x19B, 296.0f, 0.0f, 0xFF, 0xFF, 0xFF, col, 0x1000, 0x1000, var_f20, (s16)0x12E, (s16)0x21);
+        func_003f6440(3, 0x717FB);
+        func_003f6440(2, 0x44);
+    }
+    if (*(s8 *)(arg0 + 0x88) == 8) {
+        mode = ((s64)8 << 0x38) >> 0x38;
+        col = 0xFF - *(u8 *)(arg0 + 0x505);
+        func_0046d4c0(0, *(s32 *)(arg0 + 0x2BC), 0x5C, (f32)0x1A5, (f32)0x147, col & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+        func_0046d4c0(0, *(s32 *)(arg0 + 0x2BC), 0x5D, (f32)0x25B, (f32)0x147, col & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+    } else {
+        mode = 7;
+    }
+    {
+        s32 b2;
+        f32 fb2;
+        f32 prod2;
+        b2 = *(u8 *)(arg0 + 0x505);
+        if ((s32)b2 >= 0) {
+            fb2 = (f32)b2;
+        } else {
+            fb2 = (f32)((b2 >> 1) | (b2 & 1));
+            fb2 += fb2;
+        }
+        prod2 = fb2 * var_f23;
+        if (!(prod2 >= 2.1474836e9f)) {
+            col = ((s32)prod2) & 0xFF;
+        } else {
+            col = (((s32)(prod2 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+        }
+        col = (col & 0xFF) | -0x100;
+    }
+    func_00274ed0(iGpffff8368, (f32)0x145, 0.0f, col, (s8)mode, 1, func_00243840(*(u16 *)(p + 4)), 8, 0);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00119810);
+#endif
 void func_0011ac70(u8 *);
 void func_0011ae90(u8 *);
 void func_0011c780(u8 *);
