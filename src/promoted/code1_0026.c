@@ -596,6 +596,11 @@ block_25:
     return 0;
 }
 /* measured this session: fresh probe 285wd (was ~289 stale) / obj1372B/window1408B (36B under, 2.6% short, within 3% gate); slti inclusive (i<8 to <=7) neutral 285 tie; opt_loop_invariants on worse 314wd (+29, ruled out); short-by-N hunt checked (9 short, not 1-4 trailing dead-arm per top-down fnalign; stack/frame wall). Honest s-map rotation + slot/OR/GPREL walls per archive header; banked. No volatile/asm. */
+/* 285 -> 274 (2026-09-18): the hand-written float-to-unsigned conversion(s)
+   replaced by the plain cast.  b210 generates the same compare / subtract /
+   or-0x80000000 sequence for the cast and colours its temporaries the way
+   retail does; the m2c-expanded copy colours them the other way.  Same lever
+   as func_00348330 in src/promoted/y_CmbCardEff.c. */
 // FUN_00263730 NONMATCHING
 #ifdef SKIP_ASM
 void func_00263730(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, u32 *arg5, f32 fparg0)
@@ -628,12 +633,7 @@ void func_00263730(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, u32 *arg5, 
             if (s7v != (func_00110c50(t22, arg3 + 1) & 0xFFFF)) {
                 f1 = (f32)func_0043c6a0(arg0) / 94.0f;
                 f1 = 255.0f - f1;
-                if (!(2147483648.0f <= f1)) {
-                    cv = (s32)f1 & 0xFF;
-                } else {
-                    cv = ((s32)(f1 - 2147483648.0f)) | 0x80000000;
-                    cv &= 0xFF;
-                }
+                cv = (u8)f1;
                 sp110 = cv & 0xFF;
                 s8v = arg0 + i * 0x5E;
                 v22 = s8v + 15;
@@ -641,12 +641,7 @@ void func_00263730(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, u32 *arg5, 
                 spF0 = *(s32 *)((u8 *)arg5 + 4);
                 func_00261560(s8v, arg1 + 295, fparg0, sp110, func_00110c50(s7v, arg3) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, spF0, 0);
                 f1 = (f32)func_0043c6a0(arg0) / 94.0f;
-                if (!(2147483648.0f <= f1)) {
-                    cv = (s32)f1 & 0xFF;
-                } else {
-                    cv = ((s32)(f1 - 2147483648.0f)) | 0x80000000;
-                    cv &= 0xFF;
-                }
+                cv = (u8)f1;
                 sp100 = cv & 0xFF;
                 func_00262de0(v22, arg1 + 245, fparg0, sp100, s7v, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)((u8 *)arg5 + 4), 0);
                 spE0 = *(s32 *)((u8 *)arg5 + 4);

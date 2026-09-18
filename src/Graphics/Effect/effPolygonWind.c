@@ -680,6 +680,11 @@ void func_004a4380(u8 *arg0)
    inline u32 cast nd 181 (mwcc recursively re-applies its sign idiom to
    the inner cast), named s32 intermediate nd 161, s32 loop counter
    nd 47 (converged), probe batch best nd 48. */
+/* 74 -> 66 (2026-09-18): the hand-written float-to-unsigned conversion(s)
+   replaced by the plain cast.  b210 generates the same compare / subtract /
+   or-0x80000000 sequence for the cast and colours its temporaries the way
+   retail does; the m2c-expanded copy colours them the other way.  Same lever
+   as func_00348330 in src/promoted/y_CmbCardEff.c. */
 // FUN_004A4450 NONMATCHING
 /* measured: live object 824B/window 832B, normalized_diff 67 (installed guard below; replaces bare ASM). Recovery: XWND skeleton fixed to compile ((u32) 3rd f810 args per file convention) plus #pragma opt_loop_invariants on (128 -> 67, the file's own 004a4380/004a3010 idiom). Open walls: saved-register rotation (args $s0/$s1 vs $s3/$s4 class), or-dest regs ($t3 vs $t2 at both conversion sites), 2^31 clamp compare form. Ruled out: s32 loop counters (tie alone and on loopinv base), or-operand commutation (tie), (u32)(s32) conversion two-step (160). Prior in-file note's nd47 batch is not on disk; closest reproduced here is 67. Banked as floor. */
 #ifdef NON_MATCHING
@@ -755,11 +760,7 @@ void func_004a4450(u8 *arg0, u8 *arg1)
             }
             *(s32 *)var_19 = 0xFFFFFF;
             temp_f0 = temp_f2 * var_f0_2;
-            if (two31 <= temp_f0) {
-                var_10 = (s32)(temp_f0 - two31) | 0x80000000;
-            } else {
-                var_10 = (s32)temp_f0;
-            }
+            var_10 = (u32)temp_f0;
             *(s32 *)(var_19 + 4) = (var_10 << 24) | 0xFFFFFF;
             *(u8 *)(var_19 + 8) = *(u8 *)(var_19 + 4);
             *(u8 *)(var_19 + 9) = *(u8 *)(var_19 + 5);
