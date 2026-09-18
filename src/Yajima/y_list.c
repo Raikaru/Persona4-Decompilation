@@ -689,6 +689,16 @@ INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4ac0);
    structural. No empty if/else arm exists for the trailing-dead-arm lever: all three
    switches carry complete default paths and the call-test is a plain bne+sb. The
    90-word / 151-vs-152 / 46+6 floor stands. */
+/* 2026-09-18 measurement, not installed: reloading
+   `*(u8 **)(D_00882F70[0] + 0x38)` into a second local before the third
+   switch (instead of reusing active2) makes the object exactly 152/152
+   instructions - retail re-reads the chain there - and drops the edit-group
+   count 46 -> 34, but raises the word score 90 -> 97 because the residual
+   becomes pure $a1/$a2/$v0/$v1 colouring.  All 15 single-declaration moves
+   and the full reversal were swept on that body: every one scores 97, so
+   the colouring is caller-saved and declaration order cannot reach it.
+   Candidate kept at /var/tmp/tri/AFreload.c shape; the 90-word body below
+   is one instruction short of retail. */
 // FUN_002E5000 NONMATCHING
 #ifdef NON_MATCHING
 // func_002e5000 (0x002e5000-0x002e5270, 624B) — clean floor at 90 differing words.
