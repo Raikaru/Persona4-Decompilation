@@ -9,8 +9,15 @@ rather than the `#else INCLUDE_ASM` arm.
 
 Writes the ranked list to /var/tmp/floorboard.txt as `words name owner`.
 
+`--audit` additionally reports every floor whose note never states the score
+the floor actually measures.  A note that claims 16 differing words on a body
+that measures 295 does not merely mislead the next reader, it sends them after
+a residual that does not exist; fifty-nine floors were in that state when the
+check was first written.
+
 Usage:
   python3 -E -s tools/floorboard.py
+  python3 -E -s tools/floorboard.py --audit
 """
 import concurrent.futures as cf
 import re
@@ -56,6 +63,36 @@ def score(item):
     return (path, name, int(m.group(1)), None, None, None)
 
 
+NUMBER = re.compile(r"(\d+)\s+differing words|\bnd\s*(\d+)|GUARDED_SCORE[^:]*:\s*(\d+)")
+
+
+def note_above(path: Path, name: str) -> str:
+    """The comment block immediately above a floor's marker."""
+    addr = name[5:].upper()
+    text = path.read_text(errors="replace")
+    lines = text.split("\n")
+    for i, line in enumerate(lines):
+        if ("// FUN_" + addr) in line and "NONMATCHING" in line:
+            return "\n".join(lines[max(0, i - 60):i])
+    return ""
+
+
+def audit(rows):
+    stale = []
+    for path, name, words, _a, _b, _c in rows:
+        if words is None:
+            continue
+        note = note_above(REPO / path, name)
+        claims = {int(g) for m in NUMBER.finditer(note) for g in m.groups() if g}
+        if claims and words not in claims:
+            stale.append((words, name, path, sorted(claims)[-5:]))
+    print("\nfloors whose note never states the measured score: %d" % len(stale))
+    for words, name, path, claims in sorted(stale, reverse=True,
+                                            key=lambda r: max(r[3]) - r[0]):
+        print("  %-15s %-44s measures %5d, note claims %s"
+              % (name, path, words, claims))
+
+
 def main():
     items = collect()
     print("scoring %d guarded first-party floors" % len(items), flush=True)
@@ -72,6 +109,8 @@ def main():
         print("%4d  %5d  %-15s %s" % (i, words, name, path))
     Path("/var/tmp/floorboard.txt").write_text(
         "\n".join("%d %s %s" % (w, n, p) for p, n, w, _a, _b, _c in ok))
+    if "--audit" in sys.argv:
+        audit(rows)
     print("\nunder 20 words: %d   under 50: %d   total: %d"
           % (sum(1 for r in ok if r[2] < 20),
              sum(1 for r in ok if r[2] < 50), len(ok)))
