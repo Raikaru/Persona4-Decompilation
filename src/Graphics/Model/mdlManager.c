@@ -3320,9 +3320,19 @@ void func_00479080(void* param_1, void* param_2)
    retail's shape, and weakening them is a large regression - all eight to
    `(f32)(s32)` costs 312, the three `model[0x300..0x302]` ones 255, the four
    `color.*` ones 314, and `model[0x303]` alone 202.  Leave them alone.  The
-   zero materialisations come from somewhere else in the frame setup and the
-   next pass should locate them by aligning instructions 280-300 rather than
-   by touching the colour arithmetic. */
+   zero materialisations are the FPU accumulator prime described in handoff
+   7r, and aligning instructions 272-300 says exactly what the difference is:
+   both bodies are identical through instruction 283, where each primes
+   `mtc1 $zero, $f3` before the first channel's `adda.s`/`madd.s` pair.
+   Retail then keeps that zeroed register live and reuses it for the other
+   three channels; this body re-primes into $f2, $f1 and $f0.  So it is not
+   the expression shape - `a * b + c` always costs the prime, and no spelling
+   avoids it (7r measures six).  It is whether the allocator keeps one zero
+   live across the four conversions.  Measured and not moved: writing the
+   products first, `maximum * red + bias`, ties at 29; computing the four
+   floats into temporaries and converting afterwards costs 31; an explicit
+   shared `f32 zero` local costs 196.  Treat as constant-rematerialisation
+   colouring unless someone finds a source form that pins the zero. */
 // FUN_00479100 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push

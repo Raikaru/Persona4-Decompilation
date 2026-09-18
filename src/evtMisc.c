@@ -449,10 +449,457 @@ void func_0028d390(s32 arg0, s32 type, u8 *arg2)
     }
 }
 
-/* No real C body was produced for this 4560-byte window. The nd 7 result came
-   from an 8-byte empty stub and is a size-deficit artifact, not a near miss. */
-// FUN_0028DC30
+/* measured: probe 1095 words, fnalign 265 edits (+10 reloc-only), retail 1140 instrs vs object 1147 (+7, +0.6% inside 3%).
+   v1 exact-count 1139/1139 with 272 edits but missing case2 active and wrong case3 extra, so functionally wrong; v4 fixes active.
+   Free pragmas singly via probe_variants (base 1095): opt_common_subs off 1150 (+55 worse, 1218 instrs +6.8% outside gate), opt_loop_invariants on 1095 tie, opt_unroll_loops off 1095 tie, schedule off 1095 tie; none kept.
+   Subscript via probe_variants: index-for 11-block 1089 (-6 words) but 1151 instrs (+11) and 276 edits (+11) with for-branch vs retail bgtz, rejected; statement-order variant tie.
+   Fresh counters already per-block (7n); colouring addr_else/addr_first tie at 1095/265, s3 hoisting persists (retail addiu $a1,sp,filter each use, object addiu $s3 once then move $a1,$s3), time-boxed per 7m. Hoist-removal round 2026-09-18 per 7k (batched probe_variants base + 3): else-&extra[-0xC0], else-extra-192, first-&extra[-0xC0] all tie at 1095 words / 1147 instrs / 265 edits with s3 and 0x7d0 frame unchanged; compiler folds all address forms to one CSE, so 7k subscript scheduling does not apply to this address hoist.
+   Residual: frame 0x7d0 vs 0x7c0 (+16 systematic, all stack immediates +16), extra saved s3 (dpa/sq/lq) +7 instrs, register names ($s0 vs $s1 etc), 10 reloc-only. Decompilers: m2c 635 lines, romwright 560 lines; arity 3 (s32, type, u8*) from prologue $4/$5/$6, void return. */
+// FUN_0028DC30 NONMATCHING
+#ifdef NON_MATCHING
+void func_0028dc30(s32 arg0, s32 type, u8 *arg2)
+{
+    extern u8 *func_004aaee0();
+    extern u8 D_0063C660[];
+    typedef struct { EvtFilterParams params; u8 extra[0x28]; } F28;
+    typedef struct { EvtFilterParams params; u8 extra[0x2C]; } F2C;
+    F28 f1;
+    F2C f2;
+    F2C f3;
+    F28 f5;
+    u8 s1[0x28];
+    u8 s2[0x2C];
+    u8 s3[0x2C];
+    u8 s5[0x28];
+    EvtFilterParams p1;
+    EvtFilterParams p2;
+    EvtFilterParams p3;
+    EvtFilterParams p5;
+    s32 argSave;
+    s32 mode;
+    s32 *task;
+    u8 *tmp;
+
+    switch (type) {
+    case 1:
+        mode = 0;
+        if (arg2[0x1B] & 1) {
+            mode = 1;
+            if (arg2[0x1B] & 2) {
+                mode = 2;
+            }
+        }
+        {
+            u8 *var;
+            s32 remaining;
+            var = (u8 *)&p1;
+            remaining = sizeof(p1);
+            if (var != NULL) {
+                do {
+                    *var = 0;
+                    var++;
+                    remaining--;
+                } while (remaining != 0);
+            }
+        }
+        p1.type = mode;
+        p1.color0 = (arg2[0x1A] << 16) | 0xFF000000 | (arg2[0x19] << 8) | arg2[0x18];
+        p1.color1 = (arg2[0x26] << 16) | 0xFF000000 | (arg2[0x25] << 8) | arg2[0x24];
+        p1.color2 = (arg2[0x1E] << 16) | 0xFF000000 | (arg2[0x1D] << 8) | arg2[0x1C];
+        p1.alpha0 = (f32)arg2[0x1F] / 100.0f;
+        p1.color3 = (arg2[0x22] << 16) | 0xFF000000 | (arg2[0x21] << 8) | arg2[0x20];
+        p1.alpha1 = (f32)arg2[0x23] / 100.0f;
+        p1.value24 = arg2[0x27];
+        p1.value28 = arg2[0x1B] >> 4;
+        p1.value2C = (f32)arg2[0x28] / 100.0f;
+        p1.value30 = (f32)arg2[0x29] / 100.0f;
+        p1.value38 = (f32)*(s16 *)(arg2 + 0x30) / 10.0f;
+        p1.value3C = (f32)*(s16 *)(arg2 + 0x32) / 10.0f;
+        p1.value64 = (f32)*(s16 *)(arg2 + 0x34) / 10.0f;
+        p1.value68 = (f32)*(s16 *)(arg2 + 0x36) / 10.0f;
+        p1.value90 = (f32)*(s16 *)(arg2 + 0x2C) / 10.0f;
+        p1.value94 = (f32)*(s16 *)(arg2 + 0x2E) / 10.0f;
+        p1.valueB8 = *(s16 *)(arg2 + 0x10);
+        {
+            EvtU128 *source;
+            EvtU128 *destination;
+            EvtU128 value0;
+            EvtU128 value1;
+            s32 blocks;
+            source = (EvtU128 *)&p1;
+            destination = (EvtU128 *)&f1.params;
+            blocks = 6;
+            do {
+                value0 = source[0];
+                value1 = source[1];
+                source += 2;
+                blocks--;
+                destination[0] = value0;
+                destination[1] = value1;
+                destination += 2;
+            } while (blocks > 0);
+        }
+        {
+            u8 *var;
+            s32 remaining;
+            var = s1;
+            remaining = sizeof(s1);
+            if (var != NULL) {
+                do {
+                    *var = 0;
+                    var++;
+                    remaining--;
+                } while (remaining != 0);
+            }
+        }
+        {
+            u32 *source;
+            u32 *destination;
+            u32 value0;
+            u32 value1;
+            s32 blocks;
+            source = (u32 *)s1;
+            destination = (u32 *)f1.extra;
+            blocks = 5;
+            do {
+                value0 = source[0];
+                value1 = source[1];
+                source += 2;
+                blocks--;
+                destination[0] = value0;
+                destination[1] = value1;
+                destination += 2;
+            } while (blocks > 0);
+        }
+        func_0044ea90(D_0063C638, 0x11E0);
+        task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
+        task[0] = 1;
+        task[1] = (s32)func_004aaee0(1, (s32)&f1.params);
+        task[3] = f1.params.valueB8;
+        func_00451fc0(arg0, D_0063C648, 0xF, 0, 0, (s32 (*)(u8 *))func_0028d280, (void (*)(u8 *))func_0028d310, task);
+        break;
+    case 2:
+        mode = 0;
+        if (arg2[0x1B] & 1) {
+            mode = 1;
+            if (arg2[0x1B] & 2) {
+                mode = 2;
+            }
+        }
+        {
+            u8 *var;
+            s32 remaining;
+            var = (u8 *)&p2;
+            remaining = sizeof(p2);
+            if (var != NULL) {
+                do {
+                    *var = 0;
+                    var++;
+                    remaining--;
+                } while (remaining != 0);
+            }
+        }
+        p2.type = mode;
+        p2.color0 = (arg2[0x1A] << 16) | 0xFF000000 | (arg2[0x19] << 8) | arg2[0x18];
+        p2.color1 = (arg2[0x26] << 16) | 0xFF000000 | (arg2[0x25] << 8) | arg2[0x24];
+        p2.color2 = (arg2[0x1E] << 16) | 0xFF000000 | (arg2[0x1D] << 8) | arg2[0x1C];
+        p2.alpha0 = (f32)arg2[0x1F] / 100.0f;
+        p2.color3 = (arg2[0x22] << 16) | 0xFF000000 | (arg2[0x21] << 8) | arg2[0x20];
+        p2.alpha1 = (f32)arg2[0x23] / 100.0f;
+        p2.value24 = arg2[0x27];
+        p2.value28 = arg2[0x1B] >> 4;
+        p2.value2C = (f32)arg2[0x28] / 100.0f;
+        p2.value30 = (f32)arg2[0x29] / 100.0f;
+        p2.value38 = (f32)*(s16 *)(arg2 + 0x30) / 10.0f;
+        p2.value3C = (f32)*(s16 *)(arg2 + 0x32) / 10.0f;
+        p2.value64 = (f32)*(s16 *)(arg2 + 0x34) / 10.0f;
+        p2.value68 = (f32)*(s16 *)(arg2 + 0x36) / 10.0f;
+        p2.value90 = (f32)*(s16 *)(arg2 + 0x2C) / 10.0f;
+        p2.value94 = (f32)*(s16 *)(arg2 + 0x2E) / 10.0f;
+        p2.valueB8 = *(s16 *)(arg2 + 0x10);
+        {
+            EvtU128 *source;
+            EvtU128 *destination;
+            EvtU128 value0;
+            EvtU128 value1;
+            s32 blocks;
+            source = (EvtU128 *)&p2;
+            destination = (EvtU128 *)&f2.params;
+            blocks = 6;
+            do {
+                value0 = source[0];
+                value1 = source[1];
+                source += 2;
+                blocks--;
+                destination[0] = value0;
+                destination[1] = value1;
+                destination += 2;
+            } while (blocks > 0);
+        }
+        f2.params.active = 1;
+        {
+            u8 *var;
+            s32 remaining;
+            var = s2;
+            remaining = sizeof(s2);
+            if (var != NULL) {
+                do {
+                    *var = 0;
+                    var++;
+                    remaining--;
+                } while (remaining != 0);
+            }
+        }
+        {
+            u32 *source;
+            u32 *destination;
+            u32 value;
+            s32 blocks;
+            source = (u32 *)s2;
+            destination = (u32 *)f2.extra;
+            blocks = 11;
+            do {
+                value = *source;
+                source++;
+                blocks--;
+                *destination = value;
+                destination++;
+            } while (blocks > 0);
+        }
+        argSave = arg2[0x2A];
+        tmp = func_004aaee0(2, (s32)&f2.params);
+        *(s32 *)(tmp + 0x28) = func_004ab960(&argSave, 4);
+        func_0044ea90(D_0063C638, 0x11E0);
+        task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
+        task[0] = 1;
+        if (tmp != NULL) {
+            task[1] = (s32)tmp;
+        } else {
+            task[1] = (s32)func_004aaee0(2, (s32)&f2.params);
+        }
+        task[3] = f2.params.valueB8;
+        func_00451fc0(arg0, D_0063C648, 0xF, 0, 0, (s32 (*)(u8 *))func_0028d280, (void (*)(u8 *))func_0028d310, task);
+        break;
+    case 3:
+        mode = 0;
+        if (arg2[0x1B] & 1) {
+            mode = 1;
+            if (arg2[0x1B] & 2) {
+                mode = 2;
+            }
+        }
+        {
+            u8 *var;
+            s32 remaining;
+            var = (u8 *)&p3;
+            remaining = sizeof(p3);
+            if (var != NULL) {
+                do {
+                    *var = 0;
+                    var++;
+                    remaining--;
+                } while (remaining != 0);
+            }
+        }
+        p3.type = mode;
+        p3.color0 = (arg2[0x1A] << 16) | 0xFF000000 | (arg2[0x19] << 8) | arg2[0x18];
+        p3.color1 = (arg2[0x26] << 16) | 0xFF000000 | (arg2[0x25] << 8) | arg2[0x24];
+        p3.color2 = (arg2[0x1E] << 16) | 0xFF000000 | (arg2[0x1D] << 8) | arg2[0x1C];
+        p3.alpha0 = (f32)arg2[0x1F] / 100.0f;
+        p3.color3 = (arg2[0x22] << 16) | 0xFF000000 | (arg2[0x21] << 8) | arg2[0x20];
+        p3.alpha1 = (f32)arg2[0x23] / 100.0f;
+        p3.value24 = arg2[0x27];
+        p3.value28 = arg2[0x1B] >> 4;
+        p3.value2C = (f32)arg2[0x28] / 100.0f;
+        p3.value30 = (f32)arg2[0x29] / 100.0f;
+        p3.value38 = (f32)*(s16 *)(arg2 + 0x30) / 10.0f;
+        p3.value3C = (f32)*(s16 *)(arg2 + 0x32) / 10.0f;
+        p3.value64 = (f32)*(s16 *)(arg2 + 0x34) / 10.0f;
+        p3.value68 = (f32)*(s16 *)(arg2 + 0x36) / 10.0f;
+        p3.value90 = (f32)*(s16 *)(arg2 + 0x2C) / 10.0f;
+        p3.value94 = (f32)*(s16 *)(arg2 + 0x2E) / 10.0f;
+        p3.valueB8 = *(s16 *)(arg2 + 0x10);
+        {
+            EvtU128 *source;
+            EvtU128 *destination;
+            EvtU128 value0;
+            EvtU128 value1;
+            s32 blocks;
+            source = (EvtU128 *)&p3;
+            destination = (EvtU128 *)&f3.params;
+            blocks = 6;
+            do {
+                value0 = source[0];
+                value1 = source[1];
+                source += 2;
+                blocks--;
+                destination[0] = value0;
+                destination[1] = value1;
+                destination += 2;
+            } while (blocks > 0);
+        }
+        f3.params.active = 1;
+        {
+            EvtU128 *source;
+            EvtU128 *destination;
+            EvtU128 value;
+            s32 blocks;
+            source = (EvtU128 *)D_0063C660;
+            destination = (EvtU128 *)s3;
+            blocks = 2;
+            do {
+                value = source[0];
+                source += 1;
+                blocks--;
+                destination[0] = value;
+                destination += 1;
+            } while (blocks > 0);
+        }
+        *(s64 *)(s3 + 0x20) = *(s64 *)(D_0063C660 + 0x20);
+        *(f32 *)(s3 + 0x28) = *(f32 *)(D_0063C660 + 0x28);
+        *(s32 *)(s3 + 0x00) = arg2[0x2B];
+        *(s32 *)(s3 + 0x04) = *(s16 *)(arg2 + 0x14);
+        *(f32 *)(s3 + 0x08) = (f32)arg2[0x13] / 100.0f;
+        *(s32 *)(s3 + 0x28) = *(s16 *)(arg2 + 0x16);
+        {
+            u32 *source;
+            u32 *destination;
+            u32 value;
+            s32 blocks;
+            source = (u32 *)s3;
+            destination = (u32 *)f3.extra;
+            blocks = 11;
+            do {
+                value = *source;
+                source++;
+                blocks--;
+                *destination = value;
+                destination++;
+            } while (blocks > 0);
+        }
+        argSave = arg2[0x2A];
+        tmp = func_004aaee0(3, (s32)&f3.params);
+        *(s32 *)(tmp + 0x28) = func_004ab960(&argSave, 4);
+        func_0044ea90(D_0063C638, 0x11E0);
+        task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
+        task[0] = 1;
+        if (tmp != NULL) {
+            task[1] = (s32)tmp;
+        } else {
+            task[1] = (s32)func_004aaee0(3, (s32)&f3.params);
+        }
+        task[3] = f3.params.valueB8;
+        func_00451fc0(arg0, D_0063C648, 0xF, 0, 0, (s32 (*)(u8 *))func_0028d280, (void (*)(u8 *))func_0028d310, task);
+        break;
+    case 5:
+        mode = 0;
+        if (arg2[0x1B] & 1) {
+            mode = 1;
+            if (arg2[0x1B] & 2) {
+                mode = 2;
+            }
+        }
+        {
+            u8 *var;
+            s32 remaining;
+            var = (u8 *)&p5;
+            remaining = sizeof(p5);
+            if (var != NULL) {
+                do {
+                    *var = 0;
+                    var++;
+                    remaining--;
+                } while (remaining != 0);
+            }
+        }
+        p5.type = mode;
+        p5.color0 = (arg2[0x1A] << 16) | 0xFF000000 | (arg2[0x19] << 8) | arg2[0x18];
+        p5.color1 = (arg2[0x26] << 16) | 0xFF000000 | (arg2[0x25] << 8) | arg2[0x24];
+        p5.color2 = (arg2[0x1E] << 16) | 0xFF000000 | (arg2[0x1D] << 8) | arg2[0x1C];
+        p5.alpha0 = (f32)arg2[0x1F] / 100.0f;
+        p5.color3 = (arg2[0x22] << 16) | 0xFF000000 | (arg2[0x21] << 8) | arg2[0x20];
+        p5.alpha1 = (f32)arg2[0x23] / 100.0f;
+        p5.value24 = arg2[0x27];
+        p5.value28 = arg2[0x1B] >> 4;
+        p5.value2C = (f32)arg2[0x28] / 100.0f;
+        p5.value30 = (f32)arg2[0x29] / 100.0f;
+        p5.value38 = (f32)*(s16 *)(arg2 + 0x30) / 10.0f;
+        p5.value3C = (f32)*(s16 *)(arg2 + 0x32) / 10.0f;
+        p5.value64 = (f32)*(s16 *)(arg2 + 0x34) / 10.0f;
+        p5.value68 = (f32)*(s16 *)(arg2 + 0x36) / 10.0f;
+        p5.value90 = (f32)*(s16 *)(arg2 + 0x2C) / 10.0f;
+        p5.value94 = (f32)*(s16 *)(arg2 + 0x2E) / 10.0f;
+        p5.valueB8 = *(s16 *)(arg2 + 0x10);
+        {
+            EvtU128 *source;
+            EvtU128 *destination;
+            EvtU128 value0;
+            EvtU128 value1;
+            s32 blocks;
+            source = (EvtU128 *)&p5;
+            destination = (EvtU128 *)&f5.params;
+            blocks = 6;
+            do {
+                value0 = source[0];
+                value1 = source[1];
+                source += 2;
+                blocks--;
+                destination[0] = value0;
+                destination[1] = value1;
+                destination += 2;
+            } while (blocks > 0);
+        }
+        {
+            u8 *var;
+            s32 remaining;
+            var = s5;
+            remaining = sizeof(s5);
+            if (var != NULL) {
+                do {
+                    *var = 0;
+                    var++;
+                    remaining--;
+                } while (remaining != 0);
+            }
+        }
+        {
+            u32 *source;
+            u32 *destination;
+            u32 value0;
+            u32 value1;
+            s32 blocks;
+            source = (u32 *)s5;
+            destination = (u32 *)f5.extra;
+            blocks = 5;
+            do {
+                value0 = source[0];
+                value1 = source[1];
+                source += 2;
+                blocks--;
+                destination[0] = value0;
+                destination[1] = value1;
+                destination += 2;
+            } while (blocks > 0);
+        }
+        argSave = 0;
+        tmp = func_004aaee0(5, (s32)&f5.params);
+        *(s32 *)(tmp + 0x28) = func_004ab960(&argSave, 4);
+        func_0044ea90(D_0063C638, 0x11E0);
+        task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
+        task[0] = 1;
+        if (tmp != NULL) {
+            task[1] = (s32)tmp;
+        } else {
+            task[1] = (s32)func_004aaee0(5, (s32)&f5.params);
+        }
+        task[3] = f5.params.valueB8;
+        func_00451fc0(arg0, D_0063C648, 0xF, 0, 0, (s32 (*)(u8 *))func_0028d280, (void (*)(u8 *))func_0028d310, task);
+        break;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/evtMisc", func_0028dc30);
+#endif
 
 // FUN_0028EE00
 s32 func_0028ee00(u8 *arg0)
