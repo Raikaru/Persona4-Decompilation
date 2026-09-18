@@ -790,6 +790,15 @@ void func_00499df0(void **arg0)
 }
 
 /* measured: re-derived via probe (this wave): direct (f32)*(u32*)(0x38) unsigned, tmp2/4 direct, opt_propagation off. Probe 94 differing words (`python3 source/Persona4-Decompilation/tools/probe_variants.py source/Persona4-Decompilation/src/promoted/effPolygonRing.c func_00499e40 --candidate src99fixed=/tmp/src99e40_candidate2.c`); GUARDED_SCORE 94 (`python3 source/Persona4-Decompilation/tools/measure_guarded.py source/Persona4-Decompilation/src/promoted/effPolygonRing.c func_00499e40`); hw-TU verify obj868/win864 (0.5% within 3%) nd246. Guarded floor (GPR/FP rotation + VU interleave remain). */
+/* 94 -> 93 (2026-09-18): the three quad slots declared high-to-low
+   (sp80, sp70, sp60) instead of low-to-high, plus one adjacent swap in the
+   scalar block.  The quad order alone is a tie on words but drops the edit
+   groups 92 -> 73: it puts the COP2 transfer slots at retail's frame
+   offsets (0x60/0x70/0x80 with the scalars above at 0x94/0x9c) instead of
+   0x70/0x80/0x90 with the scalars below.  All 22 adjacent declaration swaps
+   were swept on that body; only this one moves.  Remaining: one extra
+   `addiu $v0, $sp, 0x80` + `lqc2` pair (object 217 vs retail 216) and the
+   $f20/$f22 exchange. */
 // FUN_00499E40 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
@@ -815,9 +824,9 @@ void func_00499e40(u8 *arg0)
     f32 f2;
     f32 f1;
     f32 f0;
-    f32 sp60[4];
     f32 sp70[4];
     f32 sp80[4];
+    f32 sp60[4];
     s32 stk[4];
     f32 cosv;
     f32 sinv;
