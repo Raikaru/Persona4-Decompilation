@@ -598,6 +598,7 @@ void func_00452760(void)
    (3), `u8` instead of `s8` (3), widening it to `s8[4]` (3), and
    `aligned(8)` (3).  Aligning the pressed pair as well is also 0, so the
    actuator alignment alone is the cause. */
+// FUN_00452870
 void func_00452870(void *arg0)
 {
     extern void func_0042ffa0(u16 port, u16 slot, u8 *out);
