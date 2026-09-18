@@ -1347,8 +1347,158 @@ INCLUDE_ASM("asm/nonmatchings/mc", func_002a4f20);
    measured nd 1647 (object 2240B against the 2256B window) because its frame
    and saved-register layout diverge. The candidate was not retained; this
    remains bare pending a structurally correct body. */
-// FUN_002A5630
+/* Cold reconstruction from m2c + romwright drafts (guarded v2, best): probe 478wd / fnalign 246 edits (557 vs 563 instrs, 6 short, 1.1% — bankable). */
+/*   Retail has no jump table and no sceMc* calls (this mc.c family is effect/sprite code, not memory-card); */
+/*   calls verified against mc.c decls + shdSprite.c 0025f430 decl: 0025f430 as 8 ints + 6 floats direct, */
+/*   002a7920 ints-first, 002a9f50/002a66d0 floats-first, 002a6960/6b10/6b60/6c30/7710 ints. */
+/*   Globals: D_00761184 for -0x7F6C, iGpffff8214/8218/821c for -0x7DEC/-0x7DE8/-0x7DE4, */
+/*   iGpffff8084/8030 for -0x7F7C/-0x7FD0 (sibling 002a4f20 spellings). Second loop is <6 (not <7). */
+/*   v1 480wd; v2 direct-00452560 514wd (keep cast jalr); v3 fscope tie; v4 temp_2/alpha-last reorder 478wd. */
+/*   Pragma sweep on v1: all ties/regressions (dead 480, strength 480, unroll 480, peephole 486, loop-inv 497, prop 510, schedule 515, common-subs 517, O1 517, O3/4 518, O0 559). */
+/*   Unhandled: adda.s/madd.s 131+47*f21 pair (plain C), saved-reg rotation ($s1/$s4 etc) + FPR coloring. */
+// FUN_002A5630 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_002a5630(s32 arg0)
+{
+    extern f32 D_00761184;
+    extern f32 iGpffff8214;
+    extern f32 iGpffff8218;
+    extern f32 iGpffff821c;
+    extern f32 iGpffff8084;
+    extern f32 iGpffff8030;
+    extern s32 func_0025f430(s32, s32, s32, s32, u8 *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
+    s32 frame;
+    f32 f0;
+    f32 f21;
+    f32 f20;
+    s32 t19;
+    s32 t23;
+    s32 c;
+    s32 s17;
+    s32 s20;
+    s32 i;
+    s32 t;
+    u8 *temp_2;
+    s32 alpha;
+
+    temp_2 = ((u8 *(*)(void))func_00452560)();
+    frame = *(s32 *)(temp_2 + 0x568);
+    if (frame < 0x0B) {
+        f0 = 0.0f;
+    } else if (frame < 0x1E) {
+        f0 = (f32)(frame - 10) / 20.0f;
+    } else {
+        f0 = 1.0f;
+    }
+    func_002a6b10(0, 0, (s32)(255.0f * (1.0f - f0)), temp_2);
+    frame = *(s32 *)(temp_2 + 0x568);
+    if (frame < 0x0A) {
+        f0 = (f32)frame / 10.0f;
+    } else {
+        f0 = 1.0f;
+    }
+    func_002a7710((s32)(255.0f * (1.0f - f0)), temp_2);
+    frame = *(s32 *)(temp_2 + 0x568);
+    if (frame < 0x0A) {
+        f0 = (f32)frame / 10.0f;
+    } else {
+        f0 = 1.0f;
+    }
+    f0 = 255.0f * (1.0f - f0);
+    func_002a6b60(0, 0, (s32)f0, temp_2);
+    func_002a6c30(0, 0, (s32)f0, temp_2);
+    frame = *(s32 *)(temp_2 + 0x568);
+    if (frame < 0x0A) {
+        f20 = (f32)frame / 10.0f;
+    } else {
+        f20 = 1.0f;
+    }
+    f21 = func_0044b7b0(D_00761184 * f20);
+    frame = *(s32 *)(temp_2 + 0x568);
+    if (frame < 2) {
+        f0 = func_0044b7b0(D_00761184 * ((f32)frame / 2.0f));
+        alpha = (s32)(255.0f * (1.0f - f0));
+    } else {
+        alpha = 0;
+    }
+    if (f20 < 1.0f) {
+        t19 = *(s32 *)(temp_2 + 0x3AC) << 16;
+        t23 = *(s32 *)(temp_2 + 0x3B4);
+        if (t23 != t19) {
+            c = t19 - t23;
+            if ((f32)func_0043c6a0(c) <= iGpffff8214 * (f32)t19) {
+                *(s32 *)(temp_2 + 0x3B4) = t19;
+            } else {
+                f32 tf = (f32)c;
+                f32 fv = iGpffff8218 * tf;
+                if (fv < iGpffff821c) {
+                    fv = tf * 0.5f;
+                }
+                *(s32 *)(temp_2 + 0x3B4) += (s32)fv;
+            }
+        }
+        s17 = *(s32 *)(temp_2 + 0x3B4) >> 16;
+        s20 = s17 << 16;
+        i = 0;
+        while (i < 7) {
+            t = (s17 + i) - 3;
+            if ((t >= 0) && (t < 0x10) && (((i != 0) && (i != 6)) || ((u16)*(s32 *)(temp_2 + 0x3B4) != 0))) {
+                s32 d = s20 - *(s32 *)(temp_2 + 0x3B4);
+                f32 f23 = -59.0f + (f32)(i * 0x1A) + ((f32)(d * 0x1A) / 65536.0f);
+                f32 f22 = -152.0f + (f32)(i * 0x5E) + ((f32)(d * 0x5E) / 65536.0f);
+                func_002a6960(0, 0, 0x280, 0x1C0, 5.0f);
+                func_002a6960(0, 0, 0x280, 0x2D, 0.0f);
+                func_002a6960(0, 0x195, 0x280, 0x30, 0.0f);
+                func_002a7920(0xFF, temp_2 + 0x14, t, 0, temp_2, f23 - (400.0f * f21), f22, 0.0f, 1.0f);
+                func_002a9f50(f23, f22, 5.0f, alpha, temp_2 + 0x14, t, 0, temp_2);
+            }
+            i += 1;
+        }
+        func_0025f430(0xFFFFFF, 0xFF, 0x22, 0, *(u8 **)(temp_2 + 0x398), 1, 0, 0, 0.0f, 131.0f + 47.0f * f21, 0.0f, 0.0f, 1.0f, 1.0f - f21);
+        i = 0;
+        while (i < 6) {
+            t = (s17 + i) - 3;
+            if ((t >= 0) && (t < 0x10)) {
+                s32 d = s20 - *(s32 *)(temp_2 + 0x3B4);
+                f32 f23 = -59.0f + (f32)(i * 0x1A) + ((f32)(d * 0x1A) / 65536.0f);
+                f32 f22 = -152.0f + (f32)(i * 0x5E) + ((f32)(d * 0x5E) / 65536.0f);
+                if ((t == s17) || (t == s17 + 1)) {
+                    func_002a6960(0, 0, 0x280, 0x1C0, 0.0f);
+                    func_002a6960(0, 0x83, 0x280, 0x5E, 10.0f);
+                    func_002a9f50(f23, f22, 5.0f, alpha, temp_2 + 0x14, t, 1, temp_2);
+                }
+            }
+            i += 1;
+        }
+        if ((*(s32 *)(temp_2 + 0x3AC) + 1) != 0) {
+            func_002a6960(0, 0, 0x280, 0x1C0, 0.0f);
+            {
+                s32 bv = *(s32 *)(temp_2 + 0x3B8);
+                if (bv > 0) {
+                    *(s32 *)(temp_2 + 0x3B8) = bv - 1;
+                }
+            }
+            {
+                f32 f22b = 1.0f + (iGpffff8030 * func_0044b7b0(iGpffff8084 * ((f32)*(s32 *)(temp_2 + 0x3B8) / 10.0f)));
+                f32 f20b = 350.0f * f21;
+                func_002a66d0(72.0f - f20b, 179.0f, 0.0f, 124.0f * f22b, 116.0f * f22b, 0x2D2D2D, 0xFF, 1);
+                func_002a7920(0xFF, temp_2 + 0x14, *(s32 *)(temp_2 + 0x3AC), 1, temp_2, 19.0f - f20b, 130.0f, 0.0f, f22b);
+            }
+        }
+    }
+    {
+        s32 n = *(s32 *)(temp_2 + 0x568) + 1;
+        *(s32 *)(temp_2 + 0x568) = n;
+        if (n >= 0x1E) {
+            *(s32 *)(temp_2 + 0x568) = 0;
+            return 1;
+        }
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a5630);
+#endif
 
 /* measured: retail colors p->$s0, s17->$s1, s18->$s2, s19->$s3, s20->$s4; mwcc
    b210 graph-colors a cyclic rotation (p->$s2, s17->$s0, s18->$s1, s20->$s0,

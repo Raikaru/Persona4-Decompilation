@@ -1273,12 +1273,361 @@ void func_004a6e50(int param_1)
 
 
 
-// FUN_004A6E70
+/* measured: first guarded reconstruction from retail + Ghidra + IDA + romwright-raw + m2c-bulk (TMPDIR /var/tmp/cold4a6e70/). */
+/* File idiom: f32 proj/gmul[4] __attribute__((aligned(16))) for the 16B VU vectors; s128 whole copy */
+/* (*(s128c *)proj = *(s128c *)arg0, lq/sq) rather than field-by-field, per this unit's convention; */
+/* MdlCol iGpffffbb64 struct for the 0x00724C54 color state as in effLineNova/effPolygonWind. */
+/* Retail 572 instrs per fnalign; v6a object 589 instrs (+17, +2.97%, within 3% gate), GUARDED_SCORE 566 */
+/* (v5 564/590 +18 over gate; v4 564/590; v3 566/595; v2 760/794; v1 compile-error). Fixes in order: */
+/* s32 for color bytes removed unsigned cvt bloat (794 to 595, minus 199, 760 to 566 words); literal */
+/* 390.60977 plus scale reuse (595 to 590); s128 copy for the entry vector (590 to 589, within gate). */
+/* VU color arithmetic (pextlb/vitof0/vmul/vftoi0/ppach) stays ordinary-C shifts/masks/cvt/mul; FPU */
+/* accumulator and gp-relative immediates plus float colour remain. Caller func_004a7760 fixed to */
+/* pass arg0 (was no-arg placeholder while callee was unknown). INCLUDE_ASM retained. */
+// FUN_004A6E70 NONMATCHING
+#ifdef NON_MATCHING
+void func_004a6e70(u8 *arg0)
+{
+    extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
+    extern void func_003c2290(u8 *a, s32 b);
+    extern void func_003c22f0(u8 *a);
+    extern void func_003c42b0(u8 *a, s32 b);
+    extern s32 func_00481300(u8 b);
+    extern s32 func_004814d0(u16 b);
+    extern void func_00460ac0(void *a, void *b);
+    extern void func_003e9cb0(s32 a, void *b, s32 c);
+    extern u8 *func_00457120(void);
+    extern u8 *func_003e9700(s32 a);
+    extern f32 sqrtf(f32 x);
+    extern u8 D_007141B0[];
+    extern f32 D_00922D80[];
+    extern f32 D_00922D84[];
+    extern f32 D_00922D88[];
+    typedef struct { u8 c0; u8 c1; u8 c2; u8 c3; } MdlCol;
+    extern MdlCol iGpffffbb64;
+    f32 proj[4] __attribute__((aligned(16)));
+    f32 gmul[4] __attribute__((aligned(16)));
+    f32 dx;
+    f32 dy;
+    f32 dist;
+    f32 maxD;
+    f32 base;
+    f32 scale;
+    s32 cnt10;
+    s32 cnt50;
+    u8 *listBase;
+    s32 colA;
+    s32 colB;
+    u8 *vtxBase;
+    u8 *vtxCur;
+    u32 *auxBase;
+    u32 *auxCur;
+    u8 *entry;
+    u8 *entryBase;
+    u32 outer;
+    u32 inner;
+    s32 tmpX;
+    s32 tmpY;
+    f32 fx;
+    f32 fy;
+    f32 f0;
+    f32 f1;
+    f32 vx0;
+    f32 vy0;
+    f32 gw;
+    s32 isz;
+    s32 packed;
+    u8 b0;
+    u8 b1;
+    u8 b2;
+    u8 b3;
+    u8 *slot;
+    f32 *fp;
+    u32 j;
+
+    typedef signed __int128 s128c;
+    *(s128c *)proj = *(s128c *)arg0;
+    if (func_0048a510() == 0) {
+        return;
+    }
+    dx = proj[0] - 320.0f;
+    dy = proj[1] - 224.0f;
+    cnt50 = *(s32 *)(arg0 + 0x50);
+    cnt10 = *(s32 *)(arg0 + 0x10);
+    listBase = *(u8 **)(arg0 + 0x58);
+    if (!(cnt50 <= 0 || cnt10 < cnt50)) {
+        return;
+    }
+    dist = sqrtf(dx * dx + dy * dy);
+    if (!(dist > 0.0f)) {
+        return;
+    }
+    maxD = 390.60977f;
+    base = *(f32 *)(arg0 + 0x4C);
+    scale = (maxD - dist) / maxD * base;
+    colA = func_0048abd0(arg0 + 0x18, arg0 + 0x3C, cnt10, cnt50);
+    colB = *(s32 *)(arg0 + 0x14);
+    {
+        s32 ca = colA;
+        s32 cb = colB;
+        f32 fa0 = (f32)(s32)(u8)ca;
+        f32 fa1 = (f32)(s32)(u8)(ca >> 8);
+        f32 fa2 = (f32)(s32)(u8)(ca >> 16);
+        f32 fa3 = (f32)(s32)(u8)(ca >> 24);
+        f32 fb0 = (f32)(s32)(u8)cb;
+        f32 fb1 = (f32)(s32)(u8)(cb >> 8);
+        f32 fb2 = (f32)(s32)(u8)(cb >> 16);
+        f32 fb3 = (f32)(s32)(u8)(cb >> 24);
+        f32 k = 0.0039215689f;
+        gmul[0] = (fa0 * k) * (fb0 * k);
+        gmul[1] = (fa1 * k) * (fb1 * k);
+        gmul[2] = (fa2 * k) * (fb2 * k);
+        gmul[3] = (fa3 * k) * (fb3 * k);
+    }
+    {
+        u8 *p = *(u8 **)(listBase + 0x10);
+        u8 *q = *(u8 **)(p + 0x18);
+        func_003c2290(q, 0xFF2);
+        vtxBase = *(u8 **)(*(u8 **)(*(u8 **)(listBase + 0x10) + 0x18) + 0x5C);
+        vtxBase = *(u8 **)((u8 *)vtxBase + 0x14);
+        auxBase = *(u32 **)(*(u8 **)(*(u8 **)(listBase + 0x10) + 0x18) + 0x34);
+        vtxCur = vtxBase;
+        auxCur = auxBase;
+        entryBase = D_007141B0 + (s32)*(u8 *)(arg0 + 0x54) * 0xD0;
+        for (outer = 0; outer < 13; outer++) {
+            entry = entryBase + outer * 0x10;
+            if ((*(s32 *)(entry + 0xC) & 0xFF000000) == 0) {
+                auxCur = (u32 *)((u8 *)auxCur + 0x80);
+                for (inner = 0; inner < 4; inner++) {
+                    *(f32 *)(vtxCur + 0x0) = D_00922D80[0];
+                    *(f32 *)(vtxCur + 0x4) = D_00922D84[0];
+                    *(f32 *)(vtxCur + 0x8) = D_00922D88[0];
+                    *(f32 *)(vtxCur + 0xC) = D_00922D80[0];
+                    *(f32 *)(vtxCur + 0x10) = D_00922D84[0];
+                    *(f32 *)(vtxCur + 0x14) = D_00922D88[0];
+                    *(f32 *)(vtxCur + 0x18) = D_00922D80[0];
+                    *(f32 *)(vtxCur + 0x1C) = D_00922D84[0];
+                    *(f32 *)(vtxCur + 0x20) = D_00922D88[0];
+                    *(f32 *)(vtxCur + 0x24) = D_00922D80[0];
+                    *(f32 *)(vtxCur + 0x28) = D_00922D84[0];
+                    *(f32 *)(vtxCur + 0x2C) = D_00922D88[0];
+                    vtxCur += 0x30;
+                }
+                {
+                    u8 *tbl = *(u8 **)(listBase + 0x54);
+                    u8 *sl = *(u8 **)(tbl + (outer & 0xFFFF) * 4);
+                    if (iGpffffbb64.c3 != 0xFF) {
+                        sl[4] = iGpffffbb64.c0;
+                        sl[5] = iGpffffbb64.c1;
+                        sl[6] = iGpffffbb64.c2;
+                        sl[7] = iGpffffbb64.c3;
+                    } else {
+                        iGpffffbb64.c3 = 0xFE;
+                        sl[4] = iGpffffbb64.c0;
+                        sl[5] = iGpffffbb64.c1;
+                        sl[6] = iGpffffbb64.c2;
+                        sl[7] = iGpffffbb64.c3;
+                        iGpffffbb64.c3 = 0xFF;
+                    }
+                }
+            } else {
+                s32 idx = (outer & 0xFFFF) * 4;
+                u8 *tbl = *(u8 **)(listBase + 0x54);
+                s32 dev = func_00481300(*(u8 *)(entry + 8));
+                func_003c42b0(*(u8 **)(tbl + idx), dev);
+                fx = dx * *(f32 *)(entry + 0x0);
+                fy = dy * *(f32 *)(entry + 0x0);
+                f0 = fx * fx + fy * fy;
+                f0 = sqrtf(f0);
+                f1 = (f0 / dist) * scale;
+                {
+                    f32 ey = *(f32 *)(entry + 0x4);
+                    f0 = 128.0f * ey * f1 * 0.5f;
+                }
+                tmpX = (s32)(320.0f + fx);
+                tmpY = (s32)(224.0f + fy);
+                isz = ((s32)f0 >> 1) - 1;
+                {
+                    f32 h = 255.0f * sqrtf(f0);
+                    s32 hi;
+                    if (h >= 2147483648.0f) {
+                        hi = (s32)(h - 2147483648.0f) | 0x80000000;
+                    } else {
+                        hi = (s32)h;
+                    }
+                    packed = (hi << 24) | 0xFFFFFF;
+                }
+                {
+                    s32 pc = packed;
+                    f32 pa0 = (f32)(s32)(u8)pc;
+                    f32 pa1 = (f32)(s32)(u8)(pc >> 8);
+                    f32 pa2 = (f32)(s32)(u8)(pc >> 16);
+                    f32 pa3 = (f32)(s32)(u8)(pc >> 24);
+                    s32 ec = *(s32 *)(entry + 0xC);
+                    f32 ea0 = (f32)(s32)(u8)ec;
+                    f32 ea1 = (f32)(s32)(u8)(ec >> 8);
+                    f32 ea2 = (f32)(s32)(u8)(ec >> 16);
+                    f32 ea3 = (f32)(s32)(u8)(ec >> 24);
+                    f32 k = 0.0039215689f;
+                    f32 ra0 = (ea0 * k) * (pa0 * k) * gmul[0] - 255.0f;
+                    f32 ra1 = (ea1 * k) * (pa1 * k) * gmul[1] - 255.0f;
+                    f32 ra2 = (ea2 * k) * (pa2 * k) * gmul[2] - 255.0f;
+                    f32 ra3 = (ea3 * k) * (pa3 * k) * gmul[3] - 255.0f;
+                    s32 ia0 = (s32)ra0;
+                    s32 ia1 = (s32)ra1;
+                    s32 ia2 = (s32)ra2;
+                    s32 ia3 = (s32)ra3;
+                    s32 out = ia0 | (ia1 << 8) | (ia2 << 16) | (ia3 << 24);
+                    b0 = (u8)out;
+                    b1 = (u8)(out >> 8);
+                    b2 = (u8)(out >> 16);
+                    b3 = (u8)(out >> 24);
+                    if (b3 == 0xFF) {
+                        slot = *(u8 **)(tbl + idx);
+                        slot[4] = b0;
+                        slot[5] = b1;
+                        slot[6] = b2;
+                        slot[7] = 0xFE;
+                    } else {
+                        slot = *(u8 **)(tbl + idx);
+                        slot[4] = b0;
+                        slot[5] = b1;
+                        slot[6] = b2;
+                        slot[7] = b3;
+                    }
+                }
+                auxCur[0] = 0;
+                auxCur[1] = 0;
+                auxCur[2] = 0x3F700000;
+                auxCur[3] = 0;
+                auxCur[4] = 0;
+                auxCur[5] = 0x3F700000;
+                auxCur[6] = 0x3F700000;
+                auxCur[7] = 0x3F700000;
+                vx0 = (f32)(tmpX - isz);
+                vy0 = (f32)(tmpY - isz);
+                gw = (f32)isz;
+                *(f32 *)(vtxCur + 0x0) = vx0;
+                *(f32 *)(vtxCur + 0x4) = vy0;
+                *(f32 *)(vtxCur + 0xC) = vx0 + gw;
+                *(f32 *)(vtxCur + 0x10) = vy0;
+                *(f32 *)(vtxCur + 0x18) = vx0;
+                *(f32 *)(vtxCur + 0x1C) = vy0 + gw;
+                *(f32 *)(vtxCur + 0x24) = vx0 + gw;
+                *(f32 *)(vtxCur + 0x28) = vy0 + gw;
+                auxCur[8] = 0x3F700000;
+                auxCur[9] = 0;
+                auxCur[10] = 0;
+                auxCur[11] = 0;
+                auxCur[12] = 0x3F700000;
+                auxCur[13] = 0x3F700000;
+                auxCur[14] = 0;
+                auxCur[15] = 0x3F700000;
+                {
+                    f32 vx1 = (f32)tmpX;
+                    *(f32 *)(vtxCur + 0x30) = vx1;
+                    *(f32 *)(vtxCur + 0x34) = vy0;
+                    *(f32 *)(vtxCur + 0x3C) = vx1 + gw;
+                    *(f32 *)(vtxCur + 0x40) = vy0;
+                    *(f32 *)(vtxCur + 0x48) = vx1;
+                    *(f32 *)(vtxCur + 0x4C) = vy0 + gw;
+                    *(f32 *)(vtxCur + 0x54) = vx1 + gw;
+                    *(f32 *)(vtxCur + 0x58) = vy0 + gw;
+                }
+                auxCur[16] = 0;
+                auxCur[17] = 0x3F700000;
+                auxCur[18] = 0x3F700000;
+                auxCur[19] = 0x3F700000;
+                auxCur[20] = 0;
+                auxCur[21] = 0;
+                auxCur[22] = 0x3F700000;
+                auxCur[23] = 0;
+                {
+                    f32 vy1 = (f32)tmpY;
+                    *(f32 *)(vtxCur + 0x60) = vx0;
+                    *(f32 *)(vtxCur + 0x64) = vy1;
+                    *(f32 *)(vtxCur + 0x6C) = vx0 + gw;
+                    *(f32 *)(vtxCur + 0x70) = vy1;
+                    *(f32 *)(vtxCur + 0x78) = vx0;
+                    *(f32 *)(vtxCur + 0x7C) = vy1 + gw;
+                    *(f32 *)(vtxCur + 0x84) = vx0 + gw;
+                    *(f32 *)(vtxCur + 0x88) = vy1 + gw;
+                }
+                auxCur[24] = 0x3F700000;
+                auxCur[25] = 0x3F700000;
+                auxCur[26] = 0;
+                auxCur[27] = 0x3F700000;
+                auxCur[28] = 0x3F700000;
+                auxCur[29] = 0;
+                auxCur[30] = 0;
+                auxCur[31] = 0;
+                {
+                    f32 vx1 = (f32)tmpX;
+                    f32 vy1 = (f32)tmpY;
+                    *(f32 *)(vtxCur + 0x90) = vx1;
+                    *(f32 *)(vtxCur + 0x94) = vy1;
+                    *(f32 *)(vtxCur + 0x9C) = vx1 + gw;
+                    *(f32 *)(vtxCur + 0xA0) = vy1;
+                    *(f32 *)(vtxCur + 0xA8) = vx1;
+                    *(f32 *)(vtxCur + 0xAC) = vy1 + gw;
+                    *(f32 *)(vtxCur + 0xB4) = vx1 + gw;
+                    *(f32 *)(vtxCur + 0xB8) = vy1 + gw;
+                }
+                vtxCur += 0xC0;
+                auxCur += 0x20;
+            }
+        }
+    }
+    {
+        u8 *c = (u8 *)func_00457120();
+        f32 cx = *(f32 *)(c + 0x80);
+        u8 *d = (u8 *)func_00457120();
+        f32 cy = *(f32 *)(d + 0x84);
+        f32 tz = cy - cx;
+        f32 k2 = (tz * -65535.0f * cy) / (cy * -65535.0f - (cy - cx) * -255.0f);
+        u8 *e = (u8 *)func_00457120();
+        f32 ex = *(f32 *)(e + 0x68);
+        f32 ey = *(f32 *)(e + 0x6C);
+        f32 fA = 2.0f * (ex * k2);
+        f32 fB = 2.0f * (ey * k2);
+        f32 fC = k2 + 1.0f;
+        fp = (f32 *)vtxBase;
+        for (j = 0; j < 0xD0; j++) {
+            fp[0] = (-fp[0] / 640.0f + 0.5f) * fA;
+            fp[1] = (-fp[1] / 448.0f + 0.5f) * fB;
+            fp[2] = fC;
+            fp += 3;
+        }
+    }
+    {
+        u8 *p = *(u8 **)(listBase + 0x10);
+        u8 *q = *(u8 **)(p + 0x18);
+        func_003c22f0(q);
+        if ((*(u16 *)listBase & 4) != 0) {
+            *(u16 *)(q + 0xC) |= 1;
+        }
+        {
+            u8 *r = (u8 *)func_00457120();
+            u8 *s2 = func_003e9700(*(s32 *)(r + 4));
+            func_003e9cb0(*(s32 *)(listBase + 0xC), s2, 0);
+        }
+        {
+            u16 id = *(u16 *)(arg0 + 0x40);
+            void *wd = (void *)func_004814d0(id);
+            *(s32 *)(listBase + 0x18) = 0;
+            *(s32 *)(listBase + 0x1C) = 0;
+            func_00460ac0(wd, listBase + 0x18);
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_004a6e70);
+#endif
+
 // FUN_004A7760
 void func_004a7760(u8 *arg0) {
     (*(s32 *)(arg0 + 0x10))++;
-    func_004a6e70();
+    func_004a6e70(arg0);
 }
 // FUN_004A7790
 u_long128 func_004a7790(u_long128 *arg0, u_long128 *arg1)

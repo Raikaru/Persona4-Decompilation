@@ -2694,8 +2694,364 @@ void func_004a0bb0(u8 *arg0) {
 /* Named compiler floor: retail's standalone R5900 MMI pextlb/pextlh pair widens
    packed scalar color data before the COP2 block; b210 cannot emit this sequence
    from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
-// FUN_004A0C00
+/* Floor (measured 2026-09-18, source-repo only): measure_guarded 492 words (loop), fnalign 552/540/250 (retail/object/edits), emitted 2160B/window 2208B (97.83% PASS by 48B). Pragma sweep: bare 523, prop 504, loop 492 WINNER, subs 560, sched 519, dead 511; loop+prop 504/203ed (fewer edits but more words, loop stands by words). Micro-priced casts: (s32)(f*(f32)n) 8 instrs vs (u32) 21 (saves 13 per fade); color packing via single VU bridge per loop (lui 0x437F) not per-channel unsigned casts (saves 60+, cf. func_004aed70 815->493 via signed s32 word arithmetic). Residual is saved-GPR/FP pool rotation + COP2 slot addresses + standalone MMI pextlb/pextlh + s128-canonicalization + daddu zero-idiom. Banked as guarded floor; production stays ASM. */
+// FUN_004A0C00 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_loop_invariants on
+void func_004a0c00(u8 *arg0)
+{
+    u8 *tmp17;
+    u32 tmp34;
+    u32 arg34;
+    s32 *pi;
+    f32 *pif;
+    u16 *pu3;
+    s32 cnt38;
+    s32 cnt4C;
+    s32 spFC;
+    s32 spF8;
+    s32 spE0;
+    s32 sp110;
+    s32 sp100;
+    s32 sp130;
+    s32 var22;
+    f32 *vertex;
+    u32 *color;
+    s32 sp19C;
+    s32 sp198;
+    s128 colA;
+    s128 colB;
+    s128 q140;
+    s128 q150;
+    s128 q160;
+    s128 packA;
+    s128 packB;
+    s128 spD0;
+    f32 scale;
+    f32 f80d0;
+    f32 f30;
+    u8 cVar1;
+    s32 loop;
+    s32 cur;
+    s32 tmp;
+    f32 ftmp;
+    f32 fC;
+    f32 f1t;
+    f32 fD;
+
+    tmp17 = *(u8 **)(arg0 + 0x40);
+    tmp34 = *(u32 *)(tmp17 + 0x34);
+    arg34 = *(u32 *)(arg0 + 0x34);
+    if ((tmp34 >= arg34) || (tmp34 == 0)) {
+        pi = *(s32 **)(arg0 + 0x3C);
+        pif = (f32 *)pi;
+        pu3 = (u16 *)(*(u32 **)(arg0 + 0x3C))[1];
+        cnt38 = *(s32 *)(tmp17 + 0x38);
+        cnt4C = *(s32 *)(tmp17 + 0x4C);
+        if (cnt4C != 0) {
+            if (*(u8 *)(tmp17 + 0x94) != 0) {
+                spFC = cnt4C;
+                spF8 = 0;
+                spE0 = -1;
+                sp110 = (s32)((1.0f - *(f32 *)(tmp17 + 0x48)) * (f32)cnt4C);
+                sp100 = (s32)((1.0f - *(f32 *)(tmp17 + 0x44)) * (f32)cnt4C);
+            } else {
+                spFC = 0;
+                spF8 = cnt4C;
+                spE0 = 1;
+                sp110 = (s32)(*(f32 *)(tmp17 + 0x44) * (f32)cnt4C);
+                sp100 = (s32)(*(f32 *)(tmp17 + 0x48) * (f32)cnt4C);
+            }
+            if ((*(u8 *)(tmp17 + 0x55) == 0) || (arg34 != 0)) {
+                sp130 = 0;
+                var22 = *(s32 *)(tmp17 + 0x50);
+            } else {
+                sp130 = 1;
+                var22 = cnt38;
+            }
+            func_003c2290(*(u8 **)(*(u8 **)(pu3 + 8) + 0x18), 10);
+            vertex = (f32 *)(*(u8 **)(*(u8 **)(*(u8 **)(pu3 + 8) + 0x18) + 0x5C) + 0x14);
+            color = (u32 *)(*(u8 **)(*(u8 **)(pu3 + 8) + 0x18) + 0x30);
+            sp19C = *(s32 *)(tmp17 + 0x58);
+            scale = fGpffff8044;
+            __asm__ volatile(
+                "lw $2, 0(%0)          \n"
+                "pextlb $2, $0, $2     \n"
+                "pextlh $2, $0, $2     \n"
+                "qmtc2 $2, $vf10       \n"
+                "vitof0.xyzw $vf10, $vf10 \n"
+                "mfc1 $2, %1           \n"
+                "nop                   \n"
+                "qmtc2 $2, $vf2        \n"
+                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                "sqc2 $vf10, 0(%2)     \n"
+                :
+                : "r"(&sp19C), "f"(scale), "r"(&colA)
+                : "$2", "$vf2", "$vf10", "memory");
+            sp198 = *(s32 *)(tmp17 + 0x5C);
+            __asm__ volatile(
+                "lw $2, 0(%0)          \n"
+                "pextlb $2, $0, $2     \n"
+                "pextlh $2, $0, $2     \n"
+                "qmtc2 $2, $vf10       \n"
+                "vitof0.xyzw $vf10, $vf10 \n"
+                "mfc1 $2, %1           \n"
+                "nop                   \n"
+                "qmtc2 $2, $vf2        \n"
+                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                "sqc2 $vf10, 0(%2)     \n"
+                :
+                : "r"(&sp198), "f"(scale), "r"(&colB)
+                : "$2", "$vf2", "$vf10", "memory");
+            f30 = *(f32 *)(tmp17 + 0x90);
+            cVar1 = *(u8 *)(tmp17 + 0x54);
+            spD0 = (s128)(s32)cVar1;
+            f80d0 = fGpffff80d0;
+            ((f32 *)&q160)[0] = 0.0f;
+            ((f32 *)&q160)[1] = 0.0f;
+            ((s32 *)&q160)[1] = 0;
+            ((s32 *)&q160)[3] = 0;
+            loop = 0;
+            while (loop < cnt38) {
+                cur = pi[0];
+                if (cur != -2) {
+                    if (cur == -1) {
+                        if (var22 != 0) {
+                            ftmp = func_004bd0b0(0);
+                            pif[2] = f80d0 * ftmp;
+                            fC = *(f32 *)(tmp17 + 0x6C);
+                            ftmp = func_004bd0b0(0);
+                            pif[3] = *(f32 *)(tmp17 + 0x68) * (0.0f + (1.0f - fC) + fC * ftmp);
+                            fC = *(f32 *)(tmp17 + 0x74);
+                            ftmp = func_004bd0b0(0);
+                            f1t = *(f32 *)(tmp17 + 0x70) * (0.0f + (1.0f - fC) + fC * ftmp);
+                            pif[4] = f1t;
+                            fC = *(f32 *)(tmp17 + 0x7C);
+                            ftmp = func_004bd0b0(0);
+                            fD = *(f32 *)(tmp17 + 0x78) * (0.0f + (1.0f - fC) + fC * ftmp);
+                            pif[5] = (fD - f1t) / (f32)cnt4C;
+                            fC = *(f32 *)(tmp17 + 0x8C);
+                            ftmp = func_004bd0b0(0);
+                            pif[1] = *(f32 *)(tmp17 + 0x88) * (0.0f + (1.0f - fC) + fC * ftmp);
+                            fC = *(f32 *)(tmp17 + 0x64);
+                            ftmp = func_004bd0b0(0);
+                            pif[7] = *(f32 *)(tmp17 + 0x60) * (0.0f + (1.0f - fC) + fC * ftmp);
+                            fC = *(f32 *)(tmp17 + 0x84);
+                            ftmp = func_004bd0b0(0);
+                            pif[6] = *(f32 *)(tmp17 + 0x80) * (0.0f + (1.0f - fC) + fC * ftmp);
+                            if (sp130 != 0) {
+                                tmp = func_004bd050(0);
+                                pi[0] = (s32)(tmp % (u32)cnt4C);
+                            } else {
+                                pi[0] = spFC;
+                            }
+                            var22 -= 1;
+                        }
+                    } else if (cur == spF8) {
+                        s32 k;
+                        k = 0;
+                        while (k < 4) {
+                            vertex[k * 3 + 0] = 0.0f;
+                            vertex[k * 3 + 1] = 0.0f;
+                            vertex[k * 3 + 2] = 0.0f;
+                            color[k] = 0;
+                            k++;
+                        }
+                        if ((s32)spD0 == 0) {
+                            cur = -2;
+                        } else {
+                            cur = -1;
+                        }
+                        pi[0] = cur;
+                    } else {
+                        f32 curf;
+                        f32 pi1;
+                        f32 f3;
+                        f32 f1m;
+                        f32 f0m;
+                        f32 f29v;
+                        f32 f21v;
+                        f32 pi4;
+                        f32 pi5;
+                        f32 pi6;
+                        f32 s;
+                        f32 c;
+                        f32 fade;
+
+                        curf = (f32)cur;
+                        pi1 = pif[1];
+                        f3 = curf;
+                        if (f30 < 0.0f) {
+                            f32 comp;
+                            comp = 0.5f * (-(pi1) / (0.5f * f30));
+                            if (curf > comp) {
+                                f3 = comp;
+                            }
+                        }
+                        f1m = f30 * f3;
+                        f0m = 0.0f + pi1 + 0.5f * f1m;
+                        f29v = f3 * f0m;
+                        pi4 = pif[4];
+                        pi5 = pif[5];
+                        f21v = pi4 + pi5 * f3;
+                        pi6 = pif[6];
+                        s = func_0044b610(pif[2]);
+                        c = func_0044b7b0(pif[2]);
+                        ((f32 *)&q160)[0] = s * pi6;
+                        ((f32 *)&q160)[1] = 1.0f - pi6;
+                        ((f32 *)&q160)[2] = c * pi6;
+                        __asm__ volatile(
+                            "lqc2 $vf10, 0(%0)        \n"
+                            "vmove.xyzw $vf11, $vf10  \n"
+                            "lw $2, 12(%1)            \n"
+                            "qmtc2 $2, $vf2           \n"
+                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                            "sqc2 $vf10, 0(%2)        \n"
+                            "vmove.xyzw $vf10, $vf11  \n"
+                            "mfc1 $2, %3              \n"
+                            "nop                      \n"
+                            "qmtc2 $2, $vf2           \n"
+                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                            "sqc2 $vf10, 0(%0)        \n"
+                            :
+                            : "r"(&q160), "r"(pi), "r"(&q140), "f"(f29v)
+                            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+                        ((f32 *)&q160)[0] = ((f32 *)&q160)[0] + s * f21v;
+                        ((f32 *)&q160)[2] = ((f32 *)&q160)[2] + c * f21v;
+                        __asm__ volatile(
+                            "mfc1 $2, %0              \n"
+                            "nop                      \n"
+                            "qmtc2 $2, $vf2           \n"
+                            "vaddx.x $vf10, $vf0, $vf2x \n"
+                            "mfc1 $2, %1              \n"
+                            "nop                      \n"
+                            "qmtc2 $2, $vf2           \n"
+                            "vaddx.y $vf10, $vf0, $vf2x \n"
+                            "mfc1 $2, %2              \n"
+                            "nop                      \n"
+                            "qmtc2 $2, $vf2           \n"
+                            "vaddx.z $vf10, $vf0, $vf2x \n"
+                            "lw $2, 28(%3)            \n"
+                            "qmtc2 $2, $vf2           \n"
+                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                            "sqc2 $vf10, 0(%4)        \n"
+                            "lqc2 $vf12, 0(%5)        \n"
+                            "lqc2 $vf10, 0(%6)        \n"
+                            "vadd.xyzw $vf10, $vf10, $vf12 \n"
+                            "lqc2 $vf11, 0(%4)        \n"
+                            "vadd.xyzw $vf10, $vf10, $vf11 \n"
+                            "sqc2 $vf10, 0(%7)        \n"
+                            "lwc1 $f0, 0(%7)          \n"
+                            "swc1 $f0, 0(%8)          \n"
+                            "lwc1 $f0, 4(%7)          \n"
+                            "swc1 $f0, 4(%8)          \n"
+                            "lwc1 $f0, 8(%7)          \n"
+                            "swc1 $f0, 8(%8)          \n"
+                            "vsub.xyzw $vf10, $vf10, $vf11 \n"
+                            "vsub.xyzw $vf10, $vf10, $vf11 \n"
+                            "sqc2 $vf10, 0(%7)        \n"
+                            "lwc1 $f0, 0(%7)          \n"
+                            "swc1 $f0, 12(%8)         \n"
+                            "lwc1 $f0, 4(%7)          \n"
+                            "swc1 $f0, 16(%8)         \n"
+                            "lwc1 $f0, 8(%7)          \n"
+                            "swc1 $f0, 20(%8)         \n"
+                            "lqc2 $vf10, 0(%6)        \n"
+                            "vsub.xyz $vf10, $vf0, $vf10 \n"
+                            "vadd.xyzw $vf10, $vf10, $vf12 \n"
+                            "lqc2 $vf11, 0(%4)        \n"
+                            "vadd.xyzw $vf10, $vf10, $vf11 \n"
+                            "sqc2 $vf10, 0(%7)        \n"
+                            "lwc1 $f0, 0(%7)          \n"
+                            "swc1 $f0, 24(%8)         \n"
+                            "lwc1 $f0, 4(%7)          \n"
+                            "swc1 $f0, 28(%8)         \n"
+                            "lwc1 $f0, 8(%7)          \n"
+                            "swc1 $f0, 32(%8)         \n"
+                            "vsub.xyzw $vf10, $vf10, $vf11 \n"
+                            "vsub.xyzw $vf10, $vf10, $vf11 \n"
+                            "sqc2 $vf10, 0(%7)        \n"
+                            "lwc1 $f0, 0(%7)          \n"
+                            "swc1 $f0, 36(%8)         \n"
+                            "lwc1 $f0, 4(%7)          \n"
+                            "swc1 $f0, 40(%8)         \n"
+                            "lwc1 $f0, 8(%7)          \n"
+                            "swc1 $f0, 44(%8)         \n"
+                            :
+                            : "f"(c), "f"(0.0f), "f"(-(s)), "r"(pi), "r"(&q150), "r"(&q160), "r"(&q140), "r"(D_00713D10), "r"(vertex)
+                            : "$2", "$vf2", "$vf10", "$vf11", "$vf12", "$f0", "memory");
+                        if (cur < sp110) {
+                            fade = (f32)cur / (f32)sp110;
+                        } else {
+                            fade = 1.0f;
+                            if (sp100 < cur) {
+                                fade = (f32)(cnt4C - cur) / (f32)(cnt4C - sp100);
+                            }
+                        }
+                        __asm__ volatile(
+                            "lqc2 $vf11, 0(%0)        \n"
+                            "mfc1 $2, %1              \n"
+                            "nop                      \n"
+                            "qmtc2 $2, $vf2           \n"
+                            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
+                            "lqc2 $vf10, 0(%2)        \n"
+                            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+                            "mfc1 $2, %3              \n"
+                            "nop                      \n"
+                            "qmtc2 $2, $vf2           \n"
+                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                            "vftoi0.xyzw $vf10, $vf10 \n"
+                            "qmfc2 $2, $vf10          \n"
+                            "ppach $2, $0, $2         \n"
+                            "ppacb $2, $0, $2         \n"
+                            "sw $2, 0(%4)             \n"
+                            :
+                            : "r"(D_00713CE0), "f"(fade), "r"(&colB), "f"(255.0f), "r"(&packA)
+                            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+                        color[0] = *(u32 *)&packA;
+                        color[1] = *(u32 *)&packA;
+                        __asm__ volatile(
+                            "lqc2 $vf10, 0(%0)        \n"
+                            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+                            "mfc1 $2, %1              \n"
+                            "nop                      \n"
+                            "qmtc2 $2, $vf2           \n"
+                            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                            "vftoi0.xyzw $vf10, $vf10 \n"
+                            "qmfc2 $2, $vf10          \n"
+                            "ppach $2, $0, $2         \n"
+                            "ppacb $2, $0, $2         \n"
+                            "sw $2, 0(%2)             \n"
+                            :
+                            : "r"(&colA), "f"(255.0f), "r"(&packB)
+                            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+                        color[2] = *(u32 *)&packB;
+                        color[3] = *(u32 *)&packB;
+                        pi[0] = cur + spE0;
+                    }
+                }
+                pi += 8;
+                pif = (f32 *)pi;
+                vertex += 12;
+                color += 4;
+                loop++;
+            }
+            {
+                u8 *tail;
+                tail = *(u8 **)(*(u8 **)(pu3 + 8) + 0x18);
+                func_003c22f0(tail);
+                if (*(u16 *)pu3 & 4) {
+                    *(u16 *)(tail + 0xC) = *(u16 *)(tail + 0xC) | 1;
+                }
+            }
+        }
+    }
+}
+
+#pragma opt_loop_invariants off
+#else
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_004a0c00);
+#endif
 // FUN_004A14A0
 void func_004a14a0(u8 *arg0)
 {
