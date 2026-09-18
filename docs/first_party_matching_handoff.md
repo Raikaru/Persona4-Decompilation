@@ -218,6 +218,67 @@ second access to an adjacent element onto the first materialized pointer
 (`addiu v0,a0,0x52; lh v0,0(v0)`). Fourteen addressing shapes, both compiler
 builds, every opt level and the `opt_*` pragmas fold.
 
+### 7a-bis. Argument setup is emitted in source-declaration order
+
+Four of the five MATCHes landed on 2026-09-18 came from this one rule, so it is
+worth checking before any register-allocation theory.
+
+b210 lays down call-argument setup in the order the parameters appear in the
+*callee's declaration*, not in ABI register order. The PS2 EABI gives integer
+and float arguments independent register files (`$a0-$a3`/`$t0-$t3` and
+`$f12-$f19`), so two declarations that interleave them differently produce the
+**same registers** and different **emission order**. That makes the emission
+order direct evidence for the real parameter list.
+
+- Read the retail argument block. If `mov.s $f13, $f12` or `mtc1 $zero, $f12`
+  sits between `lw $a0, ...` and `move $a1, $zero`, the floats are arguments 2
+  and 3, not the trailing pair an m2c reconstruction usually produces.
+- Confirm with a five-line micro-experiment (`tools/micro_codegen.py` compiles a
+  standalone file with the project's mwcc and prints one function) before
+  touching the tree; permuting a prototype there costs a second.
+- Then fix *both* sides. Reordering the callee's own parameters is ABI-neutral,
+  so a MATCHed definition stays byte-exact - verify it, then keep the two
+  spellings consistent instead of leaving a lie in the caller.
+- Worked examples: `func_002e0690` in `src/promoted/code1_002e.c` is
+  `(u8 *, f32, f32, s8, s16, s64)` and that MATCHed `func_002d3ee0`;
+  `func_00364680` is `(f32, s32, f32, f32, f32, f32, f32, f32, s32 *, s32,
+  s32)` - the spelling `src/promoted/shdPersona.c` already carried - and that
+  MATCHed both `func_0035c040` and `func_00354ba0`.
+- `tools`-free scans that find candidates: compare every declaration of a
+  callee across the tree and flag conflicting float positions; or look for a
+  residual whose moved instructions write an argument register.
+
+**A cast address argument is evaluated before the plain arguments.** Writing
+`f(1, 0, 0, (s32)&frame.max, (s32)&frame.min, 1)` emits the two `addiu
+$aN, $sp, ...` *first*; declaring those parameters as pointers and dropping the
+casts restores retail's left-to-right order. This closed `func_001c79f0` from
+7 to 2 words (`func_00196040`'s out-parameters are `f32 *`, exactly as the
+MATCHed definition in `src/Battle/btlUnit.c` always said) and MATCHed
+`func_0046ec70` (`func_004501f0`/`func_00450340` take a pointer for their
+format argument). Grep floors for `(s32)&` inside a call: every hit is a
+candidate.
+
+**K&R declarations are not the same lever and usually break the ABI.** An
+unprototyped callee promotes `f32` to `double`; measured 329 differing words on
+`func_00354ba0`. Only reach for it when the callee genuinely has no prototype.
+
+### 7a-ter. Emission order of straight-line blocks follows definition order
+
+Where a function converts several bytes and stores them (`vertex[8..11] =
+(f32)(u32)edge_*`), b210 emits the conversion blocks in the order the locals
+were *defined*, not the order the stores are written. `func_00365f00` in
+`src/shdMisc.c` had the alpha byte defined first and its red-byte block landed
+15 instructions after retail's; defining `edge_r` first took it from 25 to 13
+words. Check the definition order before blaming the scheduler.
+
+**Splitting an accumulate into two statements fixes float operand order.**
+`x = a * b;` with one operand a constant or a `$gp` load puts the constant in
+`rs`; `x = a; x = x * b;` puts `a` there, which is what retail does. Same for
+`+`: the four `256.0f + load` adds in `func_0035c040` needed
+`tx = *(f32 *)p; tx = tx + 256.0f;`. Commuting the operands in the single
+expression is inert - b210 canonicalises it.
+
+
 ### 7b. Census a codegen signature before inventing a source shape
 
 When a residual is a codegen shape rather than a semantic difference, ask
