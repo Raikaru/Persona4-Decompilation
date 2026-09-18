@@ -340,8 +340,158 @@ exit:
     temp_4 = temp_3;
     return temp_4;
 }
-// FUN_00222210
+// FUN_00222210 NONMATCHING
+/* measured: cold 2026-09-18 -- probe 643 differing words via `python3 tools/probe_variants.py src/promoted/code1_0022.c func_00222210 --candidate v3=/var/tmp/cold222210/v3.c` (retail 705 instrs/object 670 instrs, fnalign 223 edits +3 reloc-only via `python3 tools/fnalign.py src/promoted/code1_0022.c func_00222210 --candidate /var/tmp/cold222210/v3.c`). Frame 0x120 matches retail (addiu identical); residual is $s0-$s2/$s5 coloring plus f20-f24 rotation and per-use 16-bit masks. Levers: (f32)(u32)u16 unsigned lowering, (f32)0x177/0x109/0x119/0x185 int-form constants, 292.0f/348.0f/220.0f float immediates, f32-first 45dfd0 decl per sdkPrimitive, s16 tail casts. Walls: B0/C0 coords vs 0xD0 object offsets, 0.0f sw vs swc1, sh-before-andi ordering. Production stays ASM. */
+#ifdef NON_MATCHING
+void func_00222210(u8 *work, u32 alpha)
+{
+    typedef struct { f32 x, y; } Vec2f_2210;
+    typedef union { u8 b[4]; f32 f; u32 w; } ColorWord_2210;
+    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern s32 func_003f6440(s32 arg0, s32 arg1);
+    extern void func_00364c50(void);
+    extern void func_00364c70(void);
+    extern void func_0045dfd0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4);
+    extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u32 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+    extern f32 fGpffff8384;
+    extern f32 fGpffff8388;
+    f32 var_f24;
+    f32 var_f22;
+    f32 var_f21;
+    f32 var_f23;
+    f32 var_f20;
+    f32 coords[6];
+    u8 colors[12];
+    Vec2f_2210 base;
+    Vec2f_2210 delta;
+    Vec2f_2210 workBase;
+    Vec2f_2210 workDelta;
+    ColorWord_2210 colOrig;
+    ColorWord_2210 colLoop;
+    u8 gLoop;
+    u8 bLoop;
+    u8 aLoop;
+    s32 resLoop;
+    s32 loop;
+    s32 i;
+    f32 x0;
+    f32 y0;
+    f32 qx;
+
+    if ((*(u16 *)work & 8) == 0) {
+        var_f24 = 1.0f - func_00373cb0((f32)(u32)*(u16 *)(work + 0x46), 0.0f, 6.0f, 1);
+        var_f22 = 1.0f - func_00373cb0((f32)(u32)*(u16 *)(work + 0x46), 0.0f, 6.0f, 1);
+        var_f21 = 1.0f - func_00373cb0((f32)(u32)*(u16 *)(work + 0x46), 7.0f, 17.0f, 1);
+        var_f23 = 1.0f - func_00373cb0((f32)(u32)*(u16 *)(work + 0x46), 13.0f, 25.0f, 1);
+        if (*(u16 *)(work + 0x46) >= 7) {
+            u16 next;
+            next = *(u16 *)(work + 0x48) + 1;
+            *(u16 *)(work + 0x48) = next;
+            if ((next & 0xFFFF) >= 0x28) {
+                *(u16 *)(work + 0x48) = 0;
+            }
+            var_f20 = func_00373cb0((f32)(u32)*(u16 *)(work + 0x48), 0.0f, 40.0f, 0);
+        }
+    } else {
+        var_f24 = 0.0f;
+        var_f22 = 0.0f;
+        var_f21 = 0.0f;
+        var_f23 = 0.0f;
+        {
+            u16 next;
+            next = *(u16 *)(work + 0x48) + 1;
+            *(u16 *)(work + 0x48) = next;
+            if ((next & 0xFFFF) >= 0x28) {
+                *(u16 *)(work + 0x48) = 0;
+            }
+            var_f20 = func_00373cb0((f32)(u32)*(u16 *)(work + 0x48), 0.0f, 40.0f, 0);
+        }
+    }
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x44);
+    base.x = (f32)0x109 + (f32)0x177 * var_f22;
+    base.y = 0.0f;
+    coords[0] = base.x;
+    coords[1] = 0.0f;
+    coords[2] = (f32)0x177 + base.x;
+    coords[3] = 0.0f;
+    coords[4] = (f32)0x177 + base.x;
+    coords[5] = (f32)0x119;
+    for (i = 0; i < 3; i++) {
+        colors[i * 4] = 0xFF;
+        colors[i * 4 + 1] = 0xFF;
+        colors[i * 4 + 2] = 0xFF;
+        colors[i * 4 + 3] = (u8)alpha;
+    }
+    func_00364c50();
+    func_0045dfd0(colors, (u8 *)coords, 0.0f, 3, 5, 0);
+    func_00364c70();
+    base.x = 348.0f + 292.0f * var_f24;
+    base.y = 0.0f;
+    coords[0] = base.x;
+    coords[1] = 0.0f;
+    coords[2] = 292.0f + base.x;
+    coords[3] = 0.0f;
+    coords[4] = 292.0f + base.x;
+    coords[5] = 220.0f;
+    for (i = 0; i < 3; i++) {
+        colors[i * 4] = 0xED;
+        colors[i * 4 + 1] = 0x36;
+        colors[i * 4 + 2] = 0x11;
+        colors[i * 4 + 3] = (u8)alpha;
+    }
+    func_00364c50();
+    func_0045dfd0(colors, (u8 *)coords, 0.0f, 3, 5, 0);
+    func_00364c70();
+    base.x = (fGpffff8384 * var_f21 + 220.0f) - 9.0f;
+    base.y = fGpffff8388 * var_f21 + -94.0f;
+    delta.x = -(394.0f * var_f20);
+    delta.y = 0.0f;
+    colOrig.b[0] = 0xFF;
+    colOrig.b[1] = 0xD4;
+    colOrig.b[2] = 0x00;
+    colOrig.b[3] = (u8)alpha;
+    workBase = base;
+    colLoop.f = colOrig.f;
+    gLoop = colLoop.b[1];
+    bLoop = colLoop.b[2];
+    aLoop = colLoop.b[3];
+    resLoop = *(s32 *)(work + 0x50);
+    for (loop = 0; loop < 3; loop++) {
+        workDelta = delta;
+        x0 = workDelta.x + workBase.x;
+        y0 = workDelta.y + workBase.y;
+        func_0034f4a0(*(s32 *)(work + 0x54), 0x1D, x0, y0, 0.0f, colLoop.b[0], gLoop, bLoop, aLoop, 0x1000, 0x1000, 37.0f, (s16)(s32)(workBase.x - x0), (s16)(s32)(workBase.y - y0));
+        qx = (x0 + 207.0f) - 6.0f;
+        func_0034f4a0(resLoop, 0xB2, qx, y0, 0.0f, colLoop.b[0], gLoop, bLoop, aLoop, 0x1000, 0x1000, 37.0f, (s16)(s32)(workBase.x - qx), (s16)(s32)(workBase.y - y0));
+        qx = (x0 + 300.0f) - 6.0f;
+        func_0034f4a0(resLoop, 0xB3, qx, y0, 0.0f, colLoop.b[0], gLoop, bLoop, aLoop, 0x1000, 0x1000, 37.0f, (s16)(s32)(workBase.x - qx), (s16)(s32)(workBase.y - y0));
+        qx = (x0 + 314.0f) - 6.0f;
+        func_0034f4a0(resLoop, 0xB3, qx, y0, 0.0f, colLoop.b[0], gLoop, bLoop, aLoop, 0x1000, 0x1000, 37.0f, (s16)(s32)(workBase.x - qx), (s16)(s32)(workBase.y - y0));
+        delta.x = delta.x + 394.0f;
+    }
+    base.x = 1.0f + (fGpffff8384 * var_f23 + (f32)0x185);
+    base.y = (fGpffff8388 * var_f23 + -5.0f) - 1.0f;
+    delta.x = 0.0f;
+    delta.y = 0.0f;
+    colOrig.b[0] = 0xFF;
+    colOrig.b[1] = 0xFF;
+    colOrig.b[2] = 0xFF;
+    colOrig.b[3] = (u8)alpha;
+    colLoop.f = colOrig.f;
+    x0 = delta.x + base.x;
+    y0 = delta.y + base.y;
+    func_0034f4a0(*(s32 *)(work + 0x54), 0x1D, x0, y0, 0.0f, colLoop.b[0], colLoop.b[1], colLoop.b[2], colLoop.b[3], 0x1000, 0x1000, 37.0f, (s16)(s32)(base.x - x0), (s16)(s32)(base.y - y0));
+    qx = (x0 + 207.0f) - 6.0f;
+    func_0034f4a0(resLoop, 0xB2, qx, y0, 0.0f, colLoop.b[0], colLoop.b[1], colLoop.b[2], colLoop.b[3], 0x1000, 0x1000, 37.0f, (s16)(s32)(base.x - qx), (s16)(s32)(base.y - y0));
+    qx = (x0 + 300.0f) - 6.0f;
+    func_0034f4a0(resLoop, 0xB3, qx, y0, 0.0f, colLoop.b[0], colLoop.b[1], colLoop.b[2], colLoop.b[3], 0x1000, 0x1000, 37.0f, (s16)(s32)(base.x - qx), (s16)(s32)(base.y - y0));
+    qx = (x0 + 314.0f) - 6.0f;
+    func_0034f4a0(resLoop, 0xB3, qx, y0, 0.0f, colLoop.b[0], colLoop.b[1], colLoop.b[2], colLoop.b[3], 0x1000, 0x1000, 37.0f, (s16)(s32)(base.x - qx), (s16)(s32)(base.y - y0));
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00222210);
+#endif
 /* 896/896 bytes and all 17 relocations resolve exactly.
  * Keep the opaque byte branch-local, snapshot coordinates before opacity
  * conversion, and pack the color before preparing the overlay dimensions. */

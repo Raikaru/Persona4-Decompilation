@@ -628,6 +628,18 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00302770);
    j/k across $s5/$s3, while this build holds j in $s3 throughout.  Block-scoped per-case counters (240)
    and 200 declaration orders were measured. */
 /* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/Event/Fcl/y_fclCombine.c func_00303610 --pairs` banked 27 (already carries opt_loop_invariants on); best ties 27 (loopinv alone plus four loopinv+second combos); bare without loopinv is 132, so the banked pragma stays load-bearing. All 28 pairs neutral or worse (commons 240-261, schedule 235-247, peephole 275-339). fnalign retail/object 259/259 per assignment. Floor stands; production stays ASM. */
+/* 2026-09-18 lead pass, 4 measured variants; floor confirmed at 27 words.
+   259/259 instructions.  Two residual classes, both allocation:
+   (a) retail keeps one `s16` loop counter in the caller-saved $a1 while this
+   body keeps it in the callee-saved $s3 - that loop contains no call in
+   either stream, so retail simply had a temp free where this body did not;
+   (b) a $s3/$s5 exchange on the later counter and the `lh 4($s1)` load,
+   the ordinary section 7m pair.
+   All four declaration permutations of the five `s16` locals tie at 27 with
+   a byte-identical stream, so neither class is reachable by reordering.
+   Register class, not register number, is the interesting half here: a
+   future pass should look for what keeps a temp live across that loop in
+   this body and not in retail. */
 // FUN_00303610 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push

@@ -1058,8 +1058,266 @@ void func_00387750(u8 *arg0)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00387750);
 #endif
-// FUN_00387E70
+/* measured: honest first reconstruction per func_0038bab0/89640/84cc0/87750 idiom (u8* base/outer/state at +0x18, s32 resource/han0/han1, (f32)(s32) counters, plain (u8) clamps, sequential guards empty else, block-scoped idx/yoff, plain arithmetic no COP1 exemption, s64 pos via sp68/sp6C packing per bab0; m2c+romwright into /var/tmp/cold387e70 (m2c 248 lines + rom 210 lines + raw 192 lines, arity 1 pointer trusted); probe_variants v1 667 base, v2 649 (-18 &han0==0 per micro_addr), v3 644 (-5 secX stacking), pragmas tie, v_sub 653 regress, v_swap tie, v4 s32 colors 643 but 693 outside gate not adopted, v5 switch 660 regress, v6 branch flip 656 regress, v7 for tie; stop after two non-improving rounds per batch; fnalign v3c retail 719/object 698 (21 short 2.9% within 3%, 626 edits +6 reloc-only, frame 0x100, $s/$f color + GP offsets + COP1 mula/msub/adda/madd + sq/lq floor remain); providers verified (46a770 s32(void*) per cmpSystem, 10b5b0 s32(void) per cmpPersona, 109220 u8*(u16) per this file:19, 109280 u8(s32) per code1_0010, 109390 s32(s32) per datCalc, 275020 per frFontEx, 364c90 s64 per bab0, 34f460/34f4a0/46d730/D_0064EEB0 file-scope, D_005E5810/5850 u8[] per cmpMain, fGp83dc/83b0 f32 per image, jal 22==22); Ghidra/IDA agree on CFG/switch/call order, differ on 364c90/275020 prototypes and GP naming (used file idiom); lever 4 N/A (float, no slti); lhu correct; double-def offset remains + COP1 chains; re-derived, no fabrications; archive P038_00387e70_body.c stale placeholder. Banked guarded floor. */
+// FUN_00387E70 NONMATCHING
+#ifdef NON_MATCHING
+void func_00387e70(u8 *arg0)
+{
+    extern s32 func_0046a770(void *arg0);
+    extern s32 func_0010b5b0(void);
+    extern u8 func_00109280(s32 arg0);
+    extern s32 func_00109390(s32 arg0);
+    extern int func_00275020(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int charWidth);
+    extern void func_00364c90(s64 pos, s32 color, s32 mode, f32 rotation, f32 width, f32 height, f32 alpha);
+    extern u8 D_005E5810[];
+    extern u8 D_005E5850[];
+    extern f32 fGpffff83dc;
+    extern f32 fGpffff83b0;
+    u8 *base;
+    u8 *outer;
+    u8 *state;
+    s32 resource;
+    s32 han0;
+    s32 han1;
+    s32 selSum;
+    f32 t0;
+    f32 eased0;
+    f32 t1;
+    f32 eased1;
+    s32 slot;
+    f32 secX;
+    f32 secY;
+    s32 idx;
+    f32 yoff;
+    u8 colA;
+    u8 colB;
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 alpha;
+    u8 icon;
+    base = *(u8 **)arg0;
+    outer = *(u8 **)(base + 0x1F290);
+    state = *(u8 **)(outer + 0x38) + 0x18;
+    resource = *(s32 *)(base + 0x1F2AC);
+    if (&han0 == 0) {
+        func_0046d730(D_0064EEB0, 0x50B);
+    }
+    han0 = func_0046a770(D_005E5810);
+    han1 = func_0046a770(D_005E5850);
+    selSum = *(s32 *)(state + 4) + *(s32 *)(state + 8);
+    t0 = (f32)(*(s32 *)(state + 16) - 12) / 12.0f;
+    eased0 = 1.0f;
+    if (t0 <= 1.0f) {
+        eased0 = 0.0f;
+        if (t0 >= 0.0f) {
+            eased0 = t0 * 2.0f - t0 * t0;
+        }
+    }
+    if (eased0 != 1.0f) {
+        eased1 = 0.0f;
+    } else {
+        t1 = (f32)(*(s32 *)(state + 16) - 28) / 12.0f;
+        eased1 = 1.0f;
+        if (t1 <= 1.0f) {
+            eased1 = t1;
+            if (t1 < 0.0f) {
+                eased1 = 0.0f;
+            }
+        }
+        {
+            s32 v;
+            v = func_0010b5b0() & 0xFFFF;
+            if (v == 12) {
+                slot = 0x19;
+                secX = 154.0f;
+                secY = 386.0f;
+            } else if (v == 10) {
+                slot = 0x3F;
+                secX = 154.0f;
+                secY = 330.0f;
+            } else if (v == 8) {
+                slot = 0x3E;
+                secX = 154.0f;
+                secY = 274.0f;
+            } else if (v == 6) {
+                slot = 0x3D;
+                secX = 154.0f;
+                secY = 218.0f;
+            } else {
+                slot = 0x19;
+                secX = 154.0f;
+                secY = 386.0f;
+            }
+        }
+        {
+            f32 m;
+            u8 a0;
+            u8 a1;
+            m = fGpffff83dc * eased1;
+            a0 = (u8)m;
+            func_0034f460(resource, slot, secX, 43.0f, 0xEA, 0x7C, 0, a0);
+            a1 = (u8)m;
+            func_0034f460(resource, 0x1A, secX, secY, 0xEA, 0x7C, 0, a1);
+        }
+    }
+    idx = *(s32 *)(state + 12) - 1;
+    yoff = (f32)(idx * 28);
+    while (idx >= 0) {
+        f32 cur;
+        cur = yoff * eased0;
+        if ((idx != selSum) || (*(s32 *)(state + 20) != 0)) {
+            colA = 0xFF;
+            colB = 0x81;
+            r = 0xE7;
+            g = 0x8C;
+            b = 0x20;
+        } else {
+            colA = 0x2D;
+            colB = 0x2D;
+            r = 0xFF;
+            g = 0xFF;
+            b = 0xFF;
+        }
+        if (idx == 0) {
+            f32 y;
+            y = cur + 49.0f;
+            func_0034f460(resource, 0x17, 154.0f, y, 0xFF, 0, 0, 0xFF);
+            func_0034f460(resource, 0x18, 526.0f, y, 0xFF, 0, 0, 0xFF);
+            r = 0xFF;
+            g = 0xFF;
+            b = 0xFF;
+        }
+        if ((idx != 0) || ((selSum == 0) && (*(s32 *)(state + 20) == 0))) {
+            f32 y;
+            y = cur + 49.0f;
+            func_0034f460(resource, 0x15, 154.0f, y, colA, colA, colB, 0xFF);
+            func_0034f460(resource, 0x16, 526.0f, y, colA, colA, colB, 0xFF);
+        }
+        if (idx == 0) {
+            alpha = 0xFF;
+        } else {
+            f32 tt;
+            f32 ee;
+            tt = (f32)((*(s32 *)(state + 16) - 18) - idx) / 6.0f;
+            ee = 1.0f;
+            if (tt <= 1.0f) {
+                ee = tt;
+                if (tt < 0.0f) {
+                    ee = 0.0f;
+                }
+            }
+            alpha = (u8)(ee * 255.0f);
+            if ((idx == *(s32 *)(state + 12) - 1) && (alpha == 0xFF)) {
+                *(s32 *)(state + 20) = 0;
+            }
+        }
+        if (alpha != 0) {
+            u8 *entry;
+            u16 pid;
+            entry = state + idx * 4;
+            pid = *(u16 *)(*(u8 **)(entry + 0x4C) + 2);
+            icon = func_00109280(pid) & 0xFF;
+            if ((icon == 0) || (icon >= 0x20)) {
+                func_0046d730(D_0064EEB0, 0x588);
+            }
+            {
+                f32 y;
+                s32 islot;
+                u8 *str;
+                s32 lvl;
+                s32 lv;
+                y = cur + 55.0f;
+                islot = ((icon - 1) & 0xFFFF) + 0x21;
+                func_0034f460(han0, islot, 168.0f, y, r, g, b, alpha);
+                str = func_00109220(pid);
+                {
+                    s32 packed;
+                    packed = (alpha & 0xFF) | ((b & 0xFF) << 8) | ((r & 0xFF) << 24) | ((g & 0xFF) << 16);
+                    func_00275020(269.0f, y - 3.0f, 0.0f, packed, 0, 1, (const char *)str, 0, -1);
+                }
+                lvl = func_00109390(*(s32 *)(entry + 0x4C)) & 0xFF;
+                if (lvl >= 100) {
+                    lvl = 99;
+                }
+                lv = lvl & 0xFFFF;
+                if (lv >= 10) {
+                    func_0034f460(han1, lv / 10 + 0x1D, 471.0f, cur + 58.0f, r, g, b, alpha);
+                }
+                func_0034f460(han1, lv % 10 + 0x1D, 493.0f, cur + 58.0f, r, g, b, alpha);
+            }
+        }
+        yoff -= 28.0f;
+        idx -= 1;
+    }
+    {
+        f32 tt;
+        f32 ee;
+        f32 temp;
+        f32 px;
+        f32 py;
+        f32 sp68;
+        f32 sp6C;
+        tt = (f32)*(s32 *)(state + 16) / 6.0f;
+        ee = 1.0f;
+        if (tt <= 1.0f) {
+            ee = tt;
+        }
+        temp = (1.0f - (ee * 2.0f - ee * ee)) * 160.0f;
+        px = -116.0f;
+        py = 30.0f - temp;
+        sp68 = px;
+        sp6C = py;
+        {
+            s64 pos;
+            pos = ((s64)(*(u32 *)&sp68) << 32) | (u32)(*(u32 *)&sp6C);
+            func_00364c90(pos, 0xFF0000FF, 1, 0.0f, 684.0f, 313.0f, fGpffff83b0);
+        }
+        px = -132.0f;
+        py = 14.0f - temp;
+        sp68 = px;
+        sp6C = py;
+        {
+            s64 pos;
+            pos = ((s64)(*(u32 *)&sp68) << 32) | (u32)(*(u32 *)&sp6C);
+            func_00364c90(pos, 0xFF, 1, 0.0f, 684.0f, 313.0f, fGpffff83b0);
+        }
+        tt = (f32)(*(s32 *)(state + 16) - 14) / 6.0f;
+        ee = 1.0f;
+        if (tt <= 1.0f) {
+            ee = tt;
+            if (tt < 0.0f) {
+                ee = 0.0f;
+            }
+        }
+        ee = 1.0f - (ee * 2.0f - ee * ee);
+        {
+            f32 x;
+            f32 y;
+            x = ee * 200.0f + 6.0f;
+            y = 90.0f - ee * 120.0f;
+            sp68 = x;
+            sp6C = y;
+            func_0034f4a0(resource, 0x1C, x, y, 0.0f, 0xFF, 0, 0, 0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
+        }
+        tt = (f32)(*(s32 *)(state + 16) - 6) / 6.0f;
+        ee = 1.0f;
+        if (tt <= 1.0f) {
+            ee = tt;
+            if (tt < 0.0f) {
+                ee = 0.0f;
+            }
+        }
+        ee = 1.0f - (ee * 2.0f - ee * ee);
+        func_0034f460(resource, 0x1B, ee * 170.0f + 109.0f, 19.0f - ee * 90.0f, 0xFF, 0xFF, 0xFF, 0xFF);
+        if ((*(s32 *)(state + 20) != 0) || (eased1 < 1.0f)) {
+            *(s32 *)(state + 16) = *(s32 *)(state + 16) + 1;
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00387e70);
+#endif
 // FUN_003889B0
 void func_003889b0(s32 arg0, u8 *arg1)
 {

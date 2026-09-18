@@ -542,6 +542,16 @@ void func_00487c00(int param_1)
 // Archived C body: build/WBHygiene_func_00487c30_archive.txt; no current park body remains.
 /* measured: 27 differing words, 223/223 instrs, fnalign 49ed, obj892B/window896B; loopinv 27wd/49ed tie, schedule 194 (764B), commons 27 tie, prop 27 tie; decl-swap var_16-front 64ed (worse); temp_17/var_16 $s0/$s1 vs retail $s1/$s0 rotation stands from earliest hunk (retail[18] lw $s0 vs object $s1); no lb/lbu so s8 N/A; no sunk address chain so double-def N/A; VU0 lqc2/sqc2 split blocks reproduce. Banked near-match. */
 /* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/promoted/effParticle.c func_00487c30 --pairs` banked 27; best ties 27 (all 8 singles except schedule/peephole plus 13 pairs among them); all 28 pairs neutral or worse (peephole 175-191, schedule 190-194). Singles loopinv/commons/prop already tie per above; pairs confirm $s0/$s1 rotation floor. fnalign retail/object 223/223 per assignment. Floor stands; production stays ASM. */
+/* 2026-09-18 lead pass; section 7m exchanged-register-pair class, floor
+   confirmed at 27 words.  223/223 instructions and every differing word is
+   an instruction naming `var_16` or `temp_17`: retail puts the pointer
+   loaded from `0x18(temp_18)` in $s0 and the count from `8(temp_18)` in
+   $s1, this body has them the other way round.  The load order already
+   matches retail, so it is the allocation and not the sequence.
+   Declaration order does not reach it: moving `temp_17` above `var_19` ties
+   at 27, while swapping `var_16` with `temp_18` costs 27 -> 42 and moving
+   `var_16` after `var_19` costs the same.  One more member of the class
+   documented in handoff 7m; stop here. */
 // FUN_00487C30 NONMATCHING
 #ifdef NON_MATCHING
 void func_00487c30(u8 *arg0, f32 arg1)
