@@ -1456,6 +1456,8 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00320b80);
 /* body 331/154/381 (both archives exist and reproduce). */
 /* Fresh 2026-09-17 PTR lever (this lane): u_long128 spC0/spB0 -> plain u8* (spC0=temp_18+(s32)var_16, spB0=temp_18+temp_22, temp_2=spB0+(s32)j, (s8*)(spC0+0x18C)) measures 317w over 136 fnalign edits (+3 reloc-only), retail 367 vs object 367 exact (frame fixed 0x100->0xF0) via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_003212e0 --candidate PTR=/tmp/fcl3212_ptr.c` (WIDE 321 same command) and `python3 tools/fnalign.py ... --candidate /tmp/fcl3212_ptr.c --quiet`. FclByte4 struct lever on the same base fails to compile (u8[4] decays to u8* for 2b2a60, struct needs & + .bN; plus wrong shape lw/sw vs retail lbu/sb) -- documented in conventions above, not re-probed. 317 is the new measured best; WALL now slot-layout + scheduling minus widening (var_16/u8-arg1/byte-interleave remain). Production stays INCLUDE_ASM per floor policy; archives unchanged (WIDE still reproduces 321). */
 /* measured (even lane 2026-09-17): 317 differing words via `python3 -E -s tools/measure_guarded.py src/Event/Fcl/y_fclCombineDraw.c func_003212e0` (GUARDED_SCORE func_003212e0: 317); banked as guarded floor per 3% rule -- probe 317w via docs/probe_archive/PTR_003212e0_body.c, fnalign 136 edits (+3 reloc), retail 367 vs object 367 exact (0%). */
+/* 2026-09-18: the hand-written float-to-u8 conversion replaced by the plain
+   cast.  Tie at 317 words, edit groups 136 -> 120. */
 // FUN_003212E0 NONMATCHING
 #ifdef NON_MATCHING
 void func_003212e0(u8 *arg0, u8 arg1, s8 arg2) {
@@ -1539,11 +1541,7 @@ void func_003212e0(u8 *arg0, u8 arg1, s8 arg2) {
         f20 = (f32)(s32)*(s16 *)((u8 *)func_002b6150((s16)(i + 0x21C)) + 0x42);
         f15 = (f32)(s32)*(s16 *)((u8 *)func_002b6150((s16)(i + 0x21C)) + 0x40);
         temp_f0 = func_002b2aa0(0, 0.0f, 255.0f, f20, f15);
-        if (temp_f0 >= 2147483648.0f) {
-            var_3 = ((s32)(temp_f0 - 2147483648.0f) | 0x80000000) & 0xFF;
-        } else {
-            var_3 = (s32)temp_f0 & 0xFF;
-        }
+        var_3 = (u8)temp_f0;
         temp_7 = var_3 & 0xFF;
         if (*(s16 *)((u8 *)temp_18 + 0x11E) == i) {
             var_3 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);

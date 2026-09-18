@@ -2474,6 +2474,9 @@ void func_00347b30(u8 *arg0, u8 *arg1) {
    Remaining 56 floor (fnalign earliest hunk loop preheader, nothing after is real until it is gone): lui-only hoist granularity (retail lui $v0 alone at entry + lwc1/sub per iter; pragma hoists whole lui+lwc1+sub to preheader, direct keeps lui in body) + or/mtc1 coloring ($v1 vs $a0, dest $a0 vs $a1, counter $a1 vs $a2, srl/andi/or/mtc1 x4 + final mfc1/or/sb $v0 vs $v1) + branch displacement cascade. Same family as prior 263 note + y_draw 002b7f20 + y_smap 002b0b10. Tried p/raw/off+base/while/dtab/recipeA/decl orders, all measured. Production stays INCLUDE_ASM per floor policy; best faithful body banked as docs/probe_archive/yCmb_00347c70_body.c (LF) with push/pop pragma. No live body, no TEMP-PROBE, externs preserved, CRLF preserved. */
 /* Fresh 2026-09-17 (this lane, in order after 004941f0): `python3 tools/probe_archive.py docs/probe_archive/yCmb_00347c70_body.c src/promoted/y_CmbCardEff.c` re-measures 56, source unchanged — banked body still reproduces. Two fresh levers via `python3 tools/probe_variants.py src/promoted/y_CmbCardEff.c func_00347c70 --candidate v_s32=/tmp/cmb_v_s32.c --candidate v_nop=/tmp/cmb_v_nop.c`: v_s32 (func_00348330 exact guarded idiom `s32 v; if (2.1474836e9f > fres) { v=(s32)fres; v&=0xFF; } else { v=(s32)(fres-K)|0x80000000; v&=0xFF; } *(u8*)=(u8)v;` replacing archive `u8 cv` direct) ties at 56 — the tail mfc1/or/sb $v0-vs-$v1 coloring wall persists across u8/s32 spellings, same family as 00348330 nd15 (3 sites x 5 words there, 1 site here within the 56); v_nop (strip push/loop_invariants) regresses to 265, confirming the banked pragma stays load-bearing 265->56 (matches inherited v9 raw 265). No new win; 56 floor stands, production stays INCLUDE_ASM per floor policy, archive unchanged. */
 /* measured: banked yCmb_00347c70_body.c verbatim (301/301 instrs, 0.0% deviation, within 3% gate; 1204B/1216B, 56 differing words reloc-masked, 58 fnalign edits +4 reloc-only). 3% check: |301-301|/301 = 0.0% <= 3%, so guarded floor per handoff banking rule. Body keeps file conventions: obj = *(u8**)(arg0+0x38), raw (s32)obj+(s32)i*0x40+off, s16 i, ((x&N)>>k)==1 flags, reload FMA, (u8)(s32)fres guard shared with func_00348330 nd15 idiom. Residual is hoist-granularity + or/mtc1 coloring + tail conversion coloring, same family as 00348330. Verified via probe_archive 56 and fnalign 301/301. Production stays guarded (not MATCH) per floor policy. */
+/* 56 -> 51 (2026-09-18): the hand-written float-to-u8 conversion replaced by
+   the plain `(u8)fres` cast, which b210 expands itself and colours the way
+   retail does.  Same lever as func_00348330 above. */
 // FUN_00347C70 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -2527,13 +2530,7 @@ s32 func_00347c70(u8 *arg0)
         f32 f14 = (f32)*(s16 *)(obj + 0x19C);
         f32 f15 = (f32)(*(s16 *)(obj + 0x19E) / 2);
         f32 fres = func_002b2aa0(1, f12, f13, f14, f15);
-        u8 cv;
-        if (2147483648.0f > fres) {
-            cv = (u8)(s32)fres;
-        } else {
-            cv = (u8)((s32)(fres - 2147483648.0f) | 0x80000000);
-        }
-        *(u8 *)(obj + 0x19B) = cv;
+        *(u8 *)(obj + 0x19B) = (u8)fres;
         if (*(s16 *)(obj + 0x19C) < *(s16 *)(obj + 0x19E)) {
             *(s16 *)(obj + 0x19C) = func_002b2cb0(*(s16 *)(obj + 0x19C), 1, *(s16 *)(obj + 0x19E), 0, 1);
         } else {
