@@ -586,11 +586,18 @@ void func_00452760(void)
     }
 }
 #pragma pop
-/* measured: 3wd floor at 282/282 instrs (was 4; opclass lh+1/lhu-1 + fnalign showed retail lhu $v1,0x4c($sp) vs object lh, so the pressed-pair read is unsigned: (u16)*(s16 *)pressed -> *(u16 *)pressed measures 4 -> 3 with identical 282/282 counts, no shrink). Remaining 3 are one cause, the two-byte actuator pair: retail sb $a2,0x40($sp); sb $a1,0x41($sp); addiu $a2,$sp,0x40 vs object 0x48/0x49/0x48 (fnalign retail[197:199] + retail[201:202]). First reconstruction measured 265; pad-snapshot globals as arrays (not m2c scalars, which went gp-relative) removed ~250; declaration order below is the best of 250 measured permutations. */
-/* measured: ruled out on the 3wd body -- actuator-after-pressed 6, actuator-swapped-with-pressed 6; pragmas loop-inv-on 3, propag-off 3 (ties), common-subs-off 249, schedule-on 259 (both catastrophic: CSE load-bearing). Array sizes and separate scalars in draft slot order measured per prior note. No volatile/asm; honest 3wd allocator wall kept. */
-/* measured: pair sweep 2026-09-17 `python3 -E -s tools/pragma_sweep.py src/promoted/code1_0045.c func_00452870 --pairs` banked 3; best ties 3 (dead, loop-inv, propag-off, strength-off, unroll-off singles + 10 pairs among them: dead+unroll, loop+dead/prop/strength/unroll, propag+dead/strength/unroll, strength+dead/unroll). All 28 pairs neutral or worse: commons block 249 (single + 5 pairs + schedule+common 261), schedule block 259 (single + 5 pairs + peephole 259), peephole block 266 (single + 4 pairs) / propag+peephole 277 / common+peephole 292. No win; fnalign 282/282 actuator pair stands (retail sb 0x40/0x41 + addiu 0x40 vs object 0x48/0x49 + 0x48). */
-// FUN_00452870 NONMATCHING
-#ifdef NON_MATCHING
+/* MATCH.  The last three differing words were a frame-slot placement: retail
+   puts the actuator pair at sp+0x40 and b210 put it at sp+0x48, with the
+   pressed pair at sp+0x4C in both.  0x40 is sixteen-byte aligned and 0x48 is
+   not, and `s8 actuator[2] __attribute__((aligned(16)))` is what reproduces
+   it - a two-byte buffer whose address is handed to func_00430630, which is
+   pad-actuator DMA, so the alignment is a real requirement rather than a
+   decoration.  Measured and rejected first: all thirteen declaration
+   positions for the array (3 everywhere except the first two slots, which
+   cost 6), block-scoping it at its use (3), declaring it `u16` and casting
+   (3), `u8` instead of `s8` (3), widening it to `s8[4]` (3), and
+   `aligned(8)` (3).  Aligning the pressed pair as well is also 0, so the
+   actuator alignment alone is the cause. */
 void func_00452870(void *arg0)
 {
     extern void func_0042ffa0(u16 port, u16 slot, u8 *out);
@@ -618,7 +625,7 @@ void func_00452870(void *arg0)
     u16 state;
     u16 slot;
     u16 x;
-    s8 actuator[2];
+    s8 actuator[2] __attribute__((aligned(16)));
     u16 y;
     s32 status;
     s32 analog;
@@ -754,9 +761,7 @@ void func_00452870(void *arg0)
     *(u8 *)(pad + 0x1C) = 0x80;
     *(u8 *)(pad + 0x1D) = 0x80;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00452870);
-#endif
+
 // FUN_00452CE0
 void func_00452ce0(void) {
     s32 var_16;
