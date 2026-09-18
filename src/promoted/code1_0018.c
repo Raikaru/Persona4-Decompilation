@@ -1107,8 +1107,378 @@ void func_00185830(void)
     func_0048a000();
 }
 
-// FUN_00185850
+/* measured: honest first reconstruction per 00182310/838d0 idiom (u8* ctx at +0x38, s32 state/status at +0x0/+0x4, f32 stores via ((f32*)pi), plain arithmetic for adda/madd 850/750/450/250 +500/300; m2c 455 lines + rom 357 lines + raw 338 lines into /var/tmp/cold185850, arity 1 pointer trusted; probe_variants v1 1074 base (int stores), v2 954 float stores (-120), v3 861 f-suffix+D-float (-93), loopinv 858 (-3 adopted), nounroll 861 tie, sched 861 tie, v4 861 blez tie (<=0), v5 860 switch (-1); fnalign v3 retail 880/object 916 (36 over) 963 edits +3 reloc-only; residual is saved-reg colour + frame 0x90 vs 0x60; stop after one improving round per 7l. */
+#pragma opt_loop_invariants on
+// FUN_00185850 NONMATCHING
+#ifdef NON_MATCHING
+void func_00185850(u8 *arg0)
+{
+    extern u8 D_00794930[];
+    extern u8 D_005F1DA0[];
+    extern u8 D_005F1DC0[];
+    extern u8 D_005F1DE0[];
+    extern f32 iGpffff8214;
+    extern s32 iGpffff8424;
+    extern f32 fGpffff84d4;
+    extern f32 fGpffff84d8;
+    extern f32 fGpffff84dc;
+    extern s32 uGpffffb314;
+    extern u32 func_003b7060(void);
+    extern s32 func_003ef6d0(void);
+    extern s32 func_003ef650(s32 arg0, u8 *arg1);
+    extern u8 *func_00401b80(void);
+    extern f32 func_0044b610(f32 arg0);
+    extern f32 func_0044b7b0(f32 arg0);
+    extern u8 *func_00460990(void);
+    extern void func_00460ac0(void *arg0, void *arg1);
+    extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
+    extern void func_001853e0(u8 *arg0, u8 *arg1);
+    extern void func_001854f0(u8 *arg0, u8 *arg1);
+    extern void func_00185600(void);
+    extern void func_00185620(u8 *arg0, u8 *arg1);
+    extern void func_00185730(void);
+    extern void func_00185830(void);
+    u8 *tmp;
+
+/* honest baseline from romwright+m2c */
+  s32 *piVar1;
+  s32 temp_v0;
+  u32 temp_v1;
+  u8 *pbVar4;
+  s32 *piVar5;
+  s32 temp_v2;
+  s32 temp_v3;
+  s32 temp_v4;
+  f32 temp_v5;
+  f32 temp_v6;
+  
+  piVar1 = *(s32 **)(arg0 + 0x38);
+  if (piVar1[1] == 0) {
+    if (*piVar1 == 1) {
+      tmp = func_00461390(D_00794930,4,piVar1 + 0x1590,4);
+      *(void (**)(void))(tmp + 8) = func_00185730;
+      *(s32 **)(tmp + 0x10) = piVar1;
+      tmp = func_00461390(D_00794930,4,piVar1 + 0x1e10,0x42);
+      *(void (**)(void))(tmp + 8) = func_00185730;
+      *(s32 **)(tmp + 0x10) = piVar1;
+      *(void (**)(void))(tmp + 0xc) = func_00185830;
+      *(s32 **)(tmp + 0x14) = piVar1;
+      tmp = func_00461390(D_00794930,4,piVar1 + 0x1548,4);
+      *(void (**)(u8 *, u8 *))(tmp + 8) = func_00185620;
+      *(s32 **)(tmp + 0x10) = piVar1;
+      pbVar4 = (u8 *)func_00460990();
+      *(void (**)(void))(pbVar4 + 8) = func_00185600;
+      *(s32 **)(pbVar4 + 0x10) = piVar1;
+      func_00460ac0(D_00794930,pbVar4);
+      tmp = func_00461390(D_00794930,4,piVar1 + 0x1590,4);
+      *(void (**)(void))(tmp + 8) = func_00185730;
+      *(s32 **)(tmp + 0x10) = piVar1;
+      tmp = func_00461390(D_00794930,4,piVar1 + 0x19f0,0x42);
+      *(void (**)(void))(tmp + 8) = func_00185730;
+      *(s32 **)(tmp + 0x10) = piVar1;
+      *(void (**)(void))(tmp + 0xc) = func_00185830;
+      *(s32 **)(tmp + 0x14) = piVar1;
+      pbVar4 = (u8 *)func_00460990();
+      *(void (**)(u8 *, u8 *))(pbVar4 + 8) = func_001854f0;
+      *(s32 **)(pbVar4 + 0x10) = piVar1;
+      func_00460ac0(D_00794930,pbVar4);
+      for (temp_v0 = 0; temp_v0 < 0xe; temp_v0 = temp_v0 + 1) {
+        for (temp_v4 = 0; temp_v4 < 1; temp_v4 = temp_v4 + 1) {
+          func_00461390(D_00794930,4,piVar1 + temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11c8,4);
+        }
+      }
+      pbVar4 = (u8 *)func_00460990();
+      *(void (**)(void))(pbVar4 + 8) = func_00185600;
+      *(s32 **)(pbVar4 + 0x10) = piVar1;
+      func_00460ac0(D_00794930,pbVar4);
+      tmp = func_00461390(D_00794930,4,piVar1 + 0x15d0,0x42);
+      *(void (**)(void))(tmp + 0xc) = func_00185830;
+      *(s32 **)(tmp + 0x14) = piVar1;
+      uGpffffb314 = uGpffffb314 != 0 ^ 1;
+      pbVar4 = (u8 *)func_00460990();
+      *(void (**)(u8 *, u8 *))(pbVar4 + 8) = func_001853e0;
+      *(s32 **)(pbVar4 + 0x10) = piVar1;
+      func_00460ac0(D_00794930,pbVar4);
+      for (temp_v0 = 0; temp_v0 < 7; temp_v0 = temp_v0 + 1) {
+        for (temp_v4 = 0; temp_v4 < 10; temp_v4 = temp_v4 + 1) {
+          piVar5 = piVar1 + temp_v0 * 10 + temp_v4 + 2;
+          temp_v2 = piVar1[temp_v0 * 10 + temp_v4 + 2];
+          for (temp_v3 = 0; temp_v3 < 4; temp_v3 = temp_v3 + 1) {
+            if (3 < temp_v2) {
+              temp_v2 = 0;
+            }
+            ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + temp_v3 * 0x10 + 0x4c] =
+                 *(f32 *)(D_005F1DA0 + temp_v2 * 8);
+            ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + temp_v3 * 0x10 + 0x4d] =
+                 *(f32 *)(D_005F1DA0 + temp_v2 * 8 + 4);
+            temp_v2 = temp_v2 + 1;
+          }
+          if (uGpffffb314 != 0) {
+            *piVar5 = *piVar5 + 1;
+          }
+          if (3 < *piVar5) {
+            *piVar5 = 0;
+          }
+          func_00461390(D_00794930,4,piVar1 + temp_v0 * 0x280 + temp_v4 * 0x40 + 0x48,4);
+        }
+      }
+    }
+    else if (*piVar1 == 0) {
+      temp_v0 = func_003ef6d0();
+      temp_v0 = func_003ef650(temp_v0,D_005F1DC0);
+      piVar1[0x2230] = temp_v0;
+      temp_v0 = func_003ef6d0();
+      temp_v0 = func_003ef650(temp_v0,D_005F1DE0);
+      piVar1[0x2231] = temp_v0;
+      tmp = func_00401b80();
+      *(u8 **)(piVar1 + 0x2232) = tmp;
+      for (temp_v0 = 0; temp_v0 < 7; temp_v0 = temp_v0 + 1) {
+        for (temp_v4 = 0; temp_v4 < 10; temp_v4 = temp_v4 + 1) {
+          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x48] = (float)(temp_v4 << 6);
+          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x49] = (float)(temp_v0 << 6);
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x4a] = 0x447a0000;
+          temp_v6 = (float)((temp_v4 + 1) * 0x40);
+          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x58] = temp_v6;
+          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x59] = (float)(temp_v0 << 6);
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x5a] = 0x447a0000;
+          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x68] = (float)(temp_v4 << 6);
+          temp_v5 = (float)((temp_v0 + 1) * 0x40);
+          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x69] = temp_v5;
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x6a] = 0x447a0000;
+          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x78] = temp_v6;
+          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x79] = temp_v5;
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x7a] = 0x447a0000;
+          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x4e] = iGpffff8214;
+          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x5e] = iGpffff8214;
+          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x6e] = iGpffff8214;
+          ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x7e] = iGpffff8214;
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x50] = 0x437f0000;
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x51] = 0x437f0000;
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x52] = 0x437f0000;
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x53] = 0x42800000;
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x60] = 0x437f0000;
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x61] = 0x437f0000;
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x62] = 0x437f0000;
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 99] = 0x42800000;
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x70] = 0x437f0000;
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x71] = 0x437f0000;
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x72] = 0x437f0000;
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x73] = 0x42800000;
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x80] = 0x437f0000;
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x81] = 0x437f0000;
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x82] = 0x437f0000;
+          piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x83] = 0x42800000;
+          temp_v1 = func_003b7060();
+          piVar1[temp_v0 * 10 + temp_v4 + 2] = temp_v1 & 3;
+        }
+      }
+      for (temp_v0 = 0; temp_v0 < 0xe; temp_v0 = temp_v0 + 1) {
+        temp_v6 = (float)((temp_v0 + 1) * 0x20);
+        temp_v4 = 0;
+        while (temp_v4 < 1) {
+          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11c8] = (float)(temp_v4 * 0x280);
+          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11c9] = (float)(temp_v0 << 5);
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11ca] = 0x447a0000;
+          temp_v5 = (float)((temp_v4 + 1) * 0x280);
+          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11d8] = temp_v5;
+          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11d9] = (float)(temp_v0 << 5);
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11da] = 0x447a0000;
+          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11e8] = (float)(temp_v4 * 0x280);
+          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11e9] = temp_v6;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11ea] = 0x447a0000;
+          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11f8] = temp_v5;
+          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11f9] = temp_v6;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11fa] = 0x447a0000;
+          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11ce] = iGpffff8214;
+          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11de] = iGpffff8214;
+          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11ee] = iGpffff8214;
+          ((f32 *)piVar1)[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11fe] = iGpffff8214;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11d0] = 0x437f0000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11d1] = 0x437f0000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11d2] = 0x437f0000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11d3] = 0x42000000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11e0] = 0x437f0000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11e1] = 0x437f0000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11e2] = 0x437f0000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11e3] = 0x42000000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11f0] = 0x437f0000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11f1] = 0x437f0000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11f2] = 0x437f0000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11f3] = 0x42000000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x1200] = 0x437f0000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x1201] = 0x437f0000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x1202] = 0x437f0000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x1203] = 0x42000000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11cc] = 0;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11cd] = 0;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11dc] = 0x3f800000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11dd] = 0;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11ec] = 0;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11ed] = 0x3f800000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11fc] = 0x3f800000;
+          piVar1[temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11fd] = 0x3f800000;
+          temp_v4 = temp_v4 + 1;
+        }
+      }
+      temp_v6 = 0.0f;
+      for (temp_v0 = 0; temp_v0 < 0x42; temp_v0 = temp_v0 + 2) {
+        temp_v5 = (float)func_0044b610(temp_v6);
+        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x15d0] = (temp_v5 * 850.0f * 0.5f + 320.0f);
+        temp_v5 = (float)func_0044b7b0(temp_v6);
+        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x15d1] = (temp_v5 * 750.0f * 0.5f + 224.0f);
+        piVar1[temp_v0 * 0x10 + 0x15d2] = 0x447a0000;
+        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x15d6] = iGpffff8214;
+        piVar1[temp_v0 * 0x10 + 0x15d8] = 0;
+        piVar1[temp_v0 * 0x10 + 0x15d9] = 0x437f0000;
+        piVar1[temp_v0 * 0x10 + 0x15da] = 0;
+        piVar1[temp_v0 * 0x10 + 0x15db] = 0x43000000;
+        temp_v5 = (float)func_0044b610(temp_v6);
+        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x15e0] = (temp_v5 * 450.0f * 0.5f + 320.0f);
+        temp_v5 = (float)func_0044b7b0(temp_v6);
+        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x15e1] = (temp_v5 * 250.0f * 0.5f + 224.0f);
+        piVar1[temp_v0 * 0x10 + 0x15e2] = 0x447a0000;
+        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x15e6] = iGpffff8214;
+        piVar1[temp_v0 * 0x10 + 0x15e8] = 0;
+        piVar1[temp_v0 * 0x10 + 0x15e9] = 0x437f0000;
+        piVar1[temp_v0 * 0x10 + 0x15ea] = 0;
+        piVar1[temp_v0 * 0x10 + 0x15eb] = 0;
+        temp_v6 = temp_v6 + fGpffff84d4;
+      }
+      temp_v6 = 0.0f;
+      piVar1[0x1590] = 0;
+      piVar1[0x1591] = 0;
+      piVar1[0x1592] = 0x447a0000;
+      piVar1[0x15a0] = 0x44200000;
+      piVar1[0x15a1] = 0;
+      piVar1[0x15a2] = 0x447a0000;
+      piVar1[0x15b0] = 0;
+      piVar1[0x15b1] = 0x43e00000;
+      piVar1[0x15b2] = 0x447a0000;
+      piVar1[0x15c0] = 0x44200000;
+      piVar1[0x15c1] = 0x43e00000;
+      piVar1[0x15c2] = 0x447a0000;
+      ((f32 *)piVar1)[0x1596] = iGpffff8214;
+      ((f32 *)piVar1)[0x15a6] = iGpffff8214;
+      ((f32 *)piVar1)[0x15b6] = iGpffff8214;
+      ((f32 *)piVar1)[0x15c6] = iGpffff8214;
+      piVar1[0x1598] = 0x437f0000;
+      piVar1[0x1599] = 0x437f0000;
+      piVar1[0x159a] = 0x437f0000;
+      piVar1[0x159b] = 0;
+      piVar1[0x15a8] = 0x437f0000;
+      piVar1[0x15a9] = 0x437f0000;
+      piVar1[0x15aa] = 0x437f0000;
+      piVar1[0x15ab] = 0;
+      piVar1[0x15b8] = 0x437f0000;
+      piVar1[0x15b9] = 0x437f0000;
+      piVar1[0x15ba] = 0x437f0000;
+      piVar1[0x15bb] = 0;
+      piVar1[0x15c8] = 0x437f0000;
+      piVar1[0x15c9] = 0x437f0000;
+      piVar1[0x15ca] = 0x437f0000;
+      piVar1[0x15cb] = 0;
+      for (temp_v0 = 0; temp_v0 < 0x42; temp_v0 = temp_v0 + 2) {
+        temp_v5 = (float)func_0044b610(temp_v6);
+        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x19f0] = (temp_v5 * 850.0f * 0.5f + 320.0f);
+        temp_v5 = (float)func_0044b7b0(temp_v6);
+        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x19f1] = (temp_v5 * 750.0f * 0.5f + 224.0f);
+        piVar1[temp_v0 * 0x10 + 0x19f2] = 0x447a0000;
+        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x19f6] = iGpffff8214;
+        piVar1[temp_v0 * 0x10 + 0x19f8] = 0;
+        piVar1[temp_v0 * 0x10 + 0x19f9] = 0x437f0000;
+        piVar1[temp_v0 * 0x10 + 0x19fa] = 0;
+        piVar1[temp_v0 * 0x10 + 0x19fb] = 0x42800000;
+        temp_v5 = (float)func_0044b610(temp_v6);
+        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x1a00] = (temp_v5 * 500.0f * 0.5f + 320.0f);
+        temp_v5 = (float)func_0044b7b0(temp_v6);
+        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x1a01] = (temp_v5 * 300.0f * 0.5f + 224.0f);
+        piVar1[temp_v0 * 0x10 + 0x1a02] = 0x447a0000;
+        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x1a06] = iGpffff8214;
+        piVar1[temp_v0 * 0x10 + 0x1a08] = 0;
+        piVar1[temp_v0 * 0x10 + 0x1a09] = 0x437f0000;
+        piVar1[temp_v0 * 0x10 + 0x1a0a] = 0;
+        piVar1[temp_v0 * 0x10 + 0x1a0b] = 0;
+        temp_v6 = temp_v6 + fGpffff84d4;
+      }
+      temp_v6 = 0.0f;
+      for (temp_v0 = 0; temp_v0 < 0x42; temp_v0 = temp_v0 + 2) {
+        temp_v5 = (float)func_0044b610(temp_v6);
+        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x1e10] = (temp_v5 * 850.0f * 0.5f + 320.0f);
+        temp_v5 = (float)func_0044b7b0(temp_v6);
+        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x1e11] = (temp_v5 * 750.0f * 0.5f + 224.0f);
+        piVar1[temp_v0 * 0x10 + 0x1e12] = 0x447a0000;
+        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x1e16] = iGpffff8214;
+        piVar1[temp_v0 * 0x10 + 0x1e18] = 0;
+        piVar1[temp_v0 * 0x10 + 0x1e19] = 0x437f0000;
+        piVar1[temp_v0 * 0x10 + 0x1e1a] = 0;
+        piVar1[temp_v0 * 0x10 + 0x1e1b] = 0x43700000;
+        temp_v5 = (float)func_0044b610(temp_v6);
+        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x1e20] = (temp_v5 * 450.0f * 0.5f + 320.0f);
+        temp_v5 = (float)func_0044b7b0(temp_v6);
+        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x1e21] = (temp_v5 * 250.0f * 0.5f + 224.0f);
+        piVar1[temp_v0 * 0x10 + 0x1e22] = 0x447a0000;
+        ((f32 *)piVar1)[temp_v0 * 0x10 + 0x1e26] = iGpffff8214;
+        piVar1[temp_v0 * 0x10 + 0x1e28] = 0;
+        piVar1[temp_v0 * 0x10 + 0x1e29] = 0x437f0000;
+        piVar1[temp_v0 * 0x10 + 0x1e2a] = 0;
+        piVar1[temp_v0 * 0x10 + 0x1e2b] = 0;
+        temp_v6 = temp_v6 + fGpffff84d4;
+      }
+      piVar1[0x1548] = 0;
+      piVar1[0x1549] = 0;
+      piVar1[0x154a] = 0x447a0000;
+      piVar1[0x1558] = 0x44200000;
+      piVar1[0x1559] = 0;
+      piVar1[0x155a] = 0x447a0000;
+      piVar1[0x1568] = 0;
+      piVar1[0x1569] = 0x43e00000;
+      piVar1[0x156a] = 0x447a0000;
+      piVar1[0x1578] = 0x44200000;
+      piVar1[0x1579] = 0x43e00000;
+      piVar1[0x157a] = 0x447a0000;
+      ((f32 *)piVar1)[0x154e] = iGpffff8214;
+      ((f32 *)piVar1)[0x155e] = iGpffff8214;
+      ((f32 *)piVar1)[0x156e] = iGpffff8214;
+      ((f32 *)piVar1)[0x157e] = iGpffff8214;
+      piVar1[0x1550] = 0x437f0000;
+      piVar1[0x1551] = 0x437f0000;
+      piVar1[0x1552] = 0x437f0000;
+      piVar1[0x1553] = 0x42c00000;
+      piVar1[0x1560] = 0x437f0000;
+      piVar1[0x1561] = 0x437f0000;
+      piVar1[0x1562] = 0x437f0000;
+      piVar1[0x1563] = 0x42c00000;
+      piVar1[0x1570] = 0x437f0000;
+      piVar1[0x1571] = 0x437f0000;
+      piVar1[0x1572] = 0x437f0000;
+      piVar1[0x1573] = 0x42c00000;
+      piVar1[0x1580] = 0x437f0000;
+      piVar1[0x1581] = 0x437f0000;
+      piVar1[0x1582] = 0x437f0000;
+      piVar1[0x1583] = 0x42c00000;
+      ((f32 *)piVar1)[0x158a] = (0.5f / (float)*(int *)(piVar1[0x2232] + 0xc));
+      ((f32 *)piVar1)[0x158b] = (0.5f / (float)*(int *)(piVar1[0x2232] + 0x10));
+      ((f32 *)piVar1)[0x158c] = (fGpffff84d8 / (float)*(int *)(piVar1[0x2232] + 0xc));
+      ((f32 *)piVar1)[0x158d] = (fGpffff84dc / (float)*(int *)(piVar1[0x2232] + 0x10));
+      piVar1[0x1589] = iGpffff8424;
+      ((f32 *)piVar1)[0x154c] = ((float)piVar1[0x158a] + (float)piVar1[0x1589]);
+      ((f32 *)piVar1)[0x154d] = ((float)piVar1[0x158b] + (float)piVar1[0x1589]);
+      ((f32 *)piVar1)[0x155c] = ((float)piVar1[0x158c] - (float)piVar1[0x1589]);
+      ((f32 *)piVar1)[0x155d] = ((float)piVar1[0x158b] + (float)piVar1[0x1589]);
+      ((f32 *)piVar1)[0x156c] = ((float)piVar1[0x158a] + (float)piVar1[0x1589]);
+      ((f32 *)piVar1)[0x156d] = ((float)piVar1[0x158d] - (float)piVar1[0x1589]);
+      ((f32 *)piVar1)[0x157c] = ((float)piVar1[0x158c] - (float)piVar1[0x1589]);
+      ((f32 *)piVar1)[0x157d] = ((float)piVar1[0x158d] - (float)piVar1[0x1589]);
+      *piVar1 = *piVar1 + 1;
+    }
+  }
+  return;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00185850);
+#endif
+/* measured: close loop-invariant hoisting around the 00185850 reconstruction. */
+#pragma opt_loop_invariants off
 // FUN_00186610
 void func_00186610(u8 *arg0)
 {

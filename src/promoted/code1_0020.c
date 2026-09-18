@@ -3008,8 +3008,208 @@ s32 func_00207320(u8 *arg0, u8 *arg1, u8 **arg2)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00207320);
 #endif
-// FUN_00207B00
+/* measured: GUARDED_SCORE 760 differing words (probe_variants baseline), retail 860 vs object 863 instrs (+3, +0.35% over, within gate); fnalign 532 edits (+1 reloc-only). Pragmas in order: opt_common_subs off 760->819 worsens, opt_loop_invariants on ties 760, opt_unroll_loops off ties 760, schedule off ties 760. Subscript direct/off-hoist/flat all tie 760. Fresh single-counter 760->767 (+7, dual kept). Colour idx/val swap and f1/f20 swap both tie 760. Remaining: saved-reg rotation (retail s8/s1/s4 vs build s7/s2), FPR colouring (retail f26/f25/f24 vs build f22/f21/f20), frame -0xD0 vs -0xB0, stack pos 0xC0 vs 0xA8, D_00887300 base materialisation. */
+// FUN_00207B00 NONMATCHING
+#ifdef NON_MATCHING
+void func_00207b00(u8 *arg0, u8 *arg1, f32 *arg2)
+{
+    extern s32 func_001f0620(u8 *arg0, s32 arg1);
+    extern s32 func_001eb860(void);
+    extern s32 func_0044dcd8(f32 value);
+    extern s32 func_0044b310(s32 value);
+    extern s16 D_00626BD0[];
+    u8 *pb;
+    u32 bits;
+    s32 isAlt;
+    f32 f26;
+    f32 f1;
+    f32 f20;
+    s16 s19;
+    s32 idx;
+    s32 val;
+    s32 tmp;
+    u32 raw;
+    u8 alpha;
+    u8 c1;
+    u8 c2;
+    u8 c3;
+    Vec2f pos;
+    f32 px;
+    f32 py;
+    f32 t;
+    f32 u;
+    f32 v;
+
+    pb = (u8 *)func_00452560(*(s32 *)(arg1 + 0x5B0));
+    bits = *(u32 *)(iGpffffb3ac + 0xC) & 0x10000;
+    if (*(u8 **)(arg1 + 0x38) != arg1 + 0x40 || (isAlt = 1, *(u16 *)arg1 != 1) || bits != 0) {
+        f26 = (f32)*(s16 *)(arg1 + 0x12) / 6.0f;
+        isAlt = 0;
+    }
+    px = -10.0f;
+    func_002012d0(pb, arg2[0] + -10.0f, arg2[1] + 28.0f);
+    D_00887300[0](8, 1);
+    D_00887300[0](1, 0);
+    if ((s16)(*(s16 *)(arg1 + 0xC) - 2) < 2) {
+        t = (f32)(s16)(*(s16 *)(arg1 + 0xC) - 2) / 2.0f;
+        if (t > 1.0f) {
+            u = 1.0f;
+        } else if (t < 0.0f) {
+            u = 0.0f;
+        } else {
+            u = t;
+        }
+        f1 = u * 2.0f - u * u;
+    } else {
+        f1 = 1.0f;
+    }
+    py = px + 96.0f;
+    pos.x = py;
+    pos.y = 346.0f;
+    func_00365f00(pos, 150.0f, 0xFF1B1B1B, 0xFF1B1B1B, f1 * 81.0f, 0.0f, 0x30, 1.0f, 1.0f, 1);
+    f1 = 1.0f;
+    if (*(s16 *)(arg1 + 0xC) < 2) {
+        t = (f32)*(s16 *)(arg1 + 0xC) / 2.0f;
+        u = 0.0f;
+        if (t <= 1.0f) {
+            if (t >= 0.0f) {
+                u = t;
+            }
+        } else {
+            u = 1.0f;
+        }
+        f1 = u * 2.0f - u * u;
+    }
+    f20 = f1;
+    v = f20 * 78.0f;
+    pos.x = py;
+    pos.y = 346.0f;
+    func_00365f00(pos, 150.0f, 0xFF22FFFE, 0xFF22FFFE, v, 0.0f, 0x30, 1.0f, 1.0f, 1);
+    pos.x = py;
+    pos.y = 346.0f;
+    func_00365f00(pos, 150.0f, 0x0022FFFE, 0x0022FFFE, v + 1.0f, 0.0f, 0x30, 1.0f, 1.0f, 1);
+    D_00887300[0](8, 0);
+    D_00887300[0](6, 0);
+    func_002019e0(pb, 0.0f);
+    if (isAlt != 0) {
+        t = (f32)*(s16 *)(arg1 + 0xE) / 2.0f;
+        u = 1.0f;
+        if (t <= 1.0f) {
+            u = 0.0f;
+            if (t >= 0.0f) {
+                u = t;
+            }
+        }
+        f20 = u;
+        t = f20 * 255.0f;
+        if (t >= 2.1474836e9f) {
+            t = t - 2.1474836e9f;
+        }
+        raw = (u32)t;
+        alpha = raw & 0xFF;
+        if (alpha == 0) {
+            D_00887300[0](6, 1);
+            func_00204dc0(3, px, 28.0f, 110.0f, (1.0f - f20) * 45.0f, 0);
+            D_00887300[0](6, 0);
+        } else {
+            v = 259.0f;
+            val = 0;
+            idx = 0;
+            for (; idx < 8; idx++) {
+                tmp = func_001f0620(*(u8 **)(arg1 + 0x178), D_00626BD0[val]);
+                if (tmp == 0 || (val == 6 && *(s16 *)(arg1 + 0x5A6) <= 0)) {
+                    c1 = 0x96;
+                } else {
+                    c1 = 0x1B;
+                }
+                tmp = func_0044dcd8((f32)*(s16 *)(arg1 + 0x14) / 3.0f);
+                func_0044b310(tmp);
+                func_00201650(pb, 9, val + 8, 52.0f, v - 1.0f, c1, c1, c1, alpha);
+                v += 15.0f;
+                val++;
+            }
+            s19 = *(s16 *)(arg0 + 4);
+            D_00887300[0](6, 1);
+            func_00204dc0(3, px, ((f32)s19 - 3.0f) * 15.0f + 28.0f, 110.0f, 0.0f, 0);
+            D_00887300[0](6, 0);
+            if (alpha == 0xFF) {
+                tmp = func_001f0620(*(u8 **)(arg1 + 0x178), D_00626BD0[s19]);
+                if (tmp == 0 || (s19 == 6 && *(s16 *)(arg1 + 0x5A6) <= 0)) {
+                    c1 = 0x62;
+                    c2 = 0x62;
+                    c3 = 0x62;
+                } else {
+                    c1 = 0xFE;
+                    c2 = 0xFF;
+                    c3 = 0x22;
+                }
+                func_00201650(pb, 9, s19, 33.0f, (f32)s19 * 15.0f + 258.0f, c1, c2, c3, 0xFF);
+                func_00201410(pb, 9, s19 + 0x10, 196.0f - px, 383.0f - 1.0f);
+            }
+        }
+        if (f20 >= 1.0f && bits == 0 && func_001eb860() != 0) {
+            func_00201650(pb, 9, 0x18, 110.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+            func_00201410(pb, 9, 0x1C, 110.0f, 383.0f);
+            func_00201650(pb, 9, 0x1A, 129.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+            func_00201410(pb, 9, 0x19, 129.0f, 383.0f);
+        }
+    } else {
+        D_00887300[0](6, 1);
+        func_00204dc0(3, px, 28.0f, 110.0f, f26 * 90.0f, 1);
+        D_00887300[0](6, 0);
+        if (bits == 0) {
+            if (*(u16 *)arg1 == 2 && *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) == 10) {
+                s19 = 0;
+            } else {
+                s19 = *(s16 *)(arg0 + 4);
+            }
+            if (s19 == 0) {
+                func_002012d0(pb, arg2[0], arg2[1]);
+                func_00201650(pb, 9, 0x1E, 75.0f, 317.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+                D_00887300[0](6, 1);
+                func_002019e0(pb, 120.0f);
+                func_00201650(pb, 9, 0x34, 8.0f, 297.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+                D_00887300[0](6, 0);
+                func_002012d0(pb, arg2[0] + px, arg2[1] + 28.0f);
+                isAlt = 1;
+            } else if (s19 == 3) {
+                func_002012d0(pb, arg2[0], arg2[1]);
+                func_00201650(pb, 9, 0x20, 75.0f, 317.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+                D_00887300[0](6, 1);
+                func_002019e0(pb, 120.0f);
+                func_00201650(pb, 9, 0x36, 8.0f, 297.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+                D_00887300[0](6, 0);
+                func_002019e0(pb, 0.0f);
+                func_002012d0(pb, arg2[0] + px, arg2[1] + 28.0f);
+                isAlt = 1;
+            } else {
+                isAlt = 0;
+            }
+            if (isAlt != 0) {
+                func_00201410(pb, 9, 0x32, 215.0f - px, 384.0f);
+                func_00201410(pb, 9, 0x33, 193.0f - px, 384.0f);
+                func_00201410(pb, 9, 0x33, 413.0f - px, 384.0f);
+                if (f20 >= 1.0f && func_001eb860() != 0) {
+                    func_00201650(pb, 9, 0x18, 110.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+                    func_00201410(pb, 9, 0x1C, 110.0f, 383.0f);
+                    func_00201650(pb, 9, 0x1A, 129.0f, 383.0f, 0x1B, 0x1B, 0x1B, 0xFF);
+                    func_00201410(pb, 9, 0x19, 129.0f, 383.0f);
+                }
+            }
+        }
+    }
+    tmp = *(s16 *)(arg1 + 0x14);
+    if (tmp > 0) {
+        *(s16 *)(arg1 + 0x14) = tmp - 1;
+        return;
+    }
+    if (tmp < 0) {
+        *(s16 *)(arg1 + 0x14) = tmp + 1;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00207b00);
+#endif
 /* measured: the float argument to func_0045d6e0 is 0.0f - retail only ever clears
    $f12, and that hoisted zero is also the `<= 0.0f` compare operand and the
    accumulator seed of the adda.s/madd.s (the old archive passed temp_f4, nd10). */

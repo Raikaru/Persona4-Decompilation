@@ -2416,6 +2416,16 @@ loop:
    combining both changes costs 162.  `while (wrapped)` and an explicit
    `!(ang >= -180.0f)` tie at 19; `while (wrapped == 1)` costs one word.
    The body is at a local optimum in every direction tried. */
+/* 2026-09-18 probe; floor stands at 19.  Two of the differing words are
+   branch polarity - retail `bc1f`/`bnez` where this body emits `bc1t`/`beqz`
+   - and the rest is a seven-instruction attachment-table block this body
+   issues before the `add.s` that retail issues after.  The polarity is not
+   reachable by inverting the source test: `over = ang > 180.0f` instead of
+   `!(ang <= 180.0f)` costs 163, swapping the arms of the if/else costs 28,
+   and spelling the second test `!(ang >= -180.0f)` costs 161.  This is the
+   same measurement recorded in handoff 7l, on the same function, and it is
+   worth repeating: the comparison spelling that scores is the one already
+   here. */
 // FUN_0046A7F0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on

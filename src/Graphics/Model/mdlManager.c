@@ -3313,6 +3313,16 @@ void func_00479080(void* param_1, void* param_2)
 }
 
 /* measured cold479100+4: sanitized m2c (K&R->ANSI) 187 lines COP2 M2C_ERROR; k_draw raw idiom (Model/RwRGBA/MdlCloneLayer/MdlWpnSlot, no new struct). Gap 477/477. R3: blez<=0 29 (adopts opcode), noCSE 414, nopragma 414, CSEonly 246, volatile 29. R4 widths via casts: ae90-narrow 101, wide-cast 99, loaded-u32 29, d7e0-u32 29, child-u16 31 (empty () correct, no andi). R5: reorder 36, layer-s32 172, uncolored/flags-s32 29, void-cmd COMPILE ERROR (u8* required). R6 floats: alpha-first 135, merged-alpha 80, signed-300 29, perchan-literal 190, hoisted-inv 309 (separate lifetimes/order correct). fnalign 477/477 15+18; resid 0x48c-0x500 3x mtc1/nop + addiu shift + blez-offset/jal at 0x4f4. Best 29. Archive COLD_00479100_body.c. Production ASM. */
+/* 2026-09-18 probe; floor stands at 29.  The residual is three extra
+   `mtc1 $zero, $fN` + `nop` pairs this body emits around instruction 291-309
+   and one `addiu $a1, $sp, 0x6c` issued a slot early.  They are NOT the
+   unsigned-conversion idiom: the `(f32)(u32)` casts on the colour bytes are
+   retail's shape, and weakening them is a large regression - all eight to
+   `(f32)(s32)` costs 312, the three `model[0x300..0x302]` ones 255, the four
+   `color.*` ones 314, and `model[0x303]` alone 202.  Leave them alone.  The
+   zero materialisations come from somewhere else in the frame setup and the
+   next pass should locate them by aligning instructions 280-300 rather than
+   by touching the colour arithmetic. */
 // FUN_00479100 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
