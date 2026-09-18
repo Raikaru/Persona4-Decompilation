@@ -603,14 +603,22 @@ u8 *func_00354a50(s32 arg0, u16 arg1) {
 /* best stays 16 (ties: loopinv on, strength off, unroll off and pairs; 81 prop */
 /* group, 238 dead group, 272-279 schedule group, 276 peephole ties, 283 csoff */
 /* group, 292-308 peephole/csoff high). No pair wins; floor stands. */
-/* `python3 -E -s tools/pragma_sweep.py src/promoted/code1_0035.c func_00354ba0 --pairs`. */
-// FUN_00354BA0 NONMATCHING
-#ifdef NON_MATCHING
+/* MATCHED 2026-09-18.  func_00364680's parameter order is
+   (f32, s32, f32, f32, f32, f32, f32, f32, s32 *, s32, s32) - the spelling
+   already used in src/promoted/shdPersona.c and src/promoted/code1_0022.c -
+   not the ints-first shape that was here.  b210 emits call-argument setup in
+   source order, so the trailing `mtc1 $zero, $f12` and the early
+   `lw $a1, 0x150($s1)` were reading back the wrong argument list; the EABI
+   gives integer and float arguments separate register files, so the two
+   spellings are the same ABI.  The alpha divisor also has to stay inside the
+   colour expression: hoisting it to a local costs the scheduler the slot
+   retail fills with `mtc1 $zero, $f12`. */
+// FUN_00354BA0
 void func_00354ba0(u8 *arg0) {
     extern u8 *func_00457120(void);
     extern f32 D_008872F8[];
     extern f32 D_00761470;
-    extern void func_00364680(s32 arg0, s32 *arg1, s32 arg2, s32 arg3, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5, f32 f6);
+    extern void func_00364680(f32 depth, s32 color, f32 x, f32 y, f32 sx, f32 sy, f32 w, f32 h, s32 *tex, s32 mode, s32 flag);
     extern void func_003f6440(s32 arg0, s32 arg1);
     extern u8 D_00887300[];
     extern void (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
@@ -640,7 +648,6 @@ void func_00354ba0(u8 *arg0) {
     f32 sy;
     u8 alpha;
     u32 col;
-    u32 adiv;
     u32 base;
 
     p = *(u8 **)(arg0 + 0x38);
@@ -706,10 +713,7 @@ void func_00354ba0(u8 *arg0) {
     qs[3].u = 0x3F800000;
     qs[3].v = 0x3F800000;
     qs[3].q = q;
-    col = *(u32 *)(p + 0xC);
-    adiv = *(u8 *)(p + 0xA);
-    col = (col & ~0xFF) | ((((col & 0xFF) * 0xFF) / adiv) & 0xFF);
-    func_00364680(col, *(s32 **)(p + 0x150), 1, 0, 0.0f, *(f32 *)(p + 0x28) + *(f32 *)(p + 0x30), *(f32 *)(p + 0x2C) + *(f32 *)(p + 0x34), *(f32 *)(p + 0x10), *(f32 *)(p + 0x14), sx, sy);
+    func_00364680(0.0f, (*(u32 *)(p + 0xC) & ~0xFF) | (((((*(u32 *)(p + 0xC)) & 0xFF) * 0xFF) / *(u8 *)(p + 0xA)) & 0xFF), *(f32 *)(p + 0x28) + *(f32 *)(p + 0x30), *(f32 *)(p + 0x2C) + *(f32 *)(p + 0x34), *(f32 *)(p + 0x10), *(f32 *)(p + 0x14), sx, sy, *(s32 **)(p + 0x150), 1, 0);
     base = (u32)D_00887300;
     ((void (*)(u32, u32))*(u32 *)base)(6, 0);
     ((void (*)(u32, u32))*(u32 *)base)(7, 2);
@@ -725,9 +729,6 @@ void func_00354ba0(u8 *arg0) {
     ((void (*)(u32, u32))*(u32 *)base)(1, *(*(u32 **)(p + 0x150)));
     D_00887310[0](4, &qs[0], 4);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00354ba0);
-#endif
 // FUN_00355070
 void func_00355070(u8 *arg0, u8 *arg1) {
     u8 *temp_3;
@@ -1897,45 +1898,25 @@ u8 *func_0035bf10(s32 arg0, u16 arg1, s32 arg2)
     func_0035c480((s32)temp_16, arg1, arg2);
     return temp_16;
 }
-/* measured: live body obj 1088B/window 1088B (exact size, 272/272 instrs);
- * probe_variants 15 differing words; fnalign 12 edit instructions (+9 reloc-only).
- * Reconstructed from retail asm + Ghidra/IDA + same-file func_00354ba0 idioms
- * (Q40 quads at sp+0x50/0x90/0xD0/0x110, 00457120 no-arg+0x80, 0044b7b0 f12,
- * 00364680 s32,s32*,s32,s32+7 floats with 256.0f extents last, D_00887300/310
- * single-call forms). Levers that landed: ||-in-arms flag materialization for
- * the early-out (direct || folds short), ++*(u16*) counter inc, <=9 inclusive
- * bound for slti $at, corrected 364680 float-arg order (extents last, shared
- * via mov). Residual: 4x add.s const/load operand orientation at packet +256
- * sites (both source orders compile identically), mtc1 $f12 0.0f 4 slots late,
- * $a1/$a2/$a3 int-setup 4 slots early. Tried and neutral: swapped 256.0f
- * operand order at all 4 sites (identical objects), shared c256 local for the
- * call extents, col / col+zf pre-call hoists (probe 15, same composition),
- * per-site temp for the +256 adds (probe 15), opt_loop_invariants on (neutral),
- * opt_propagation off (no gain); schedule on and opt_common_subs off both
-   catastrophic (250+).
-   2026-09-18: the four `256.0f + load` adds are fixed by splitting each one
-   into a load statement and an accumulate statement through an f32 local
-   (`tx = *(f32 *)p; tx = tx + 256.0f; qs[1].x = tx;`).  Written as one
-   expression MWCC puts the constant in rs whichever way the operands are
-   spelled; written as an accumulate it puts the loaded value there, as retail
-   does.  15 -> 11 words / 9 edits.  Measured and rejected on top of that:
-   `qs[n].x = *(f32 *)p; qs[n].x += 256.0f;` straight to the struct field
-   (141 - the field round-trips through memory), a shared `big = 256.0f` local
-   (11, ties but invents a constant), `- 30.0f` for `+ -30.0f` in the
-   func_00364680 call (13), a temp for that same subtrahend (16), and a local
-   for `*(s32 **)(p + 0x3C)` shared with the D_00887300 call below (64).
-   Remaining 11 words are two argument-emission orders in that one call:
-   retail sets $f12 before $a0 and emits $a1/$a2/$a3 after the $f14-$f18
-   block, b210 does the reverse. */
-// FUN_0035C040 NONMATCHING
-#ifdef NON_MATCHING
+/* MATCHED 2026-09-18.  Two levers, both measured:
+   1. the four `256.0f + load` adds needed splitting into a load statement and
+      an accumulate statement through an f32 local (`tx = *(f32 *)p;
+      tx = tx + 256.0f;`) - written as one expression b210 puts the constant
+      in rs whichever way the operands are spelled (15 -> 11);
+   2. func_00364680 takes (f32, s32, f32, f32, f32, f32, f32, f32, s32 *,
+      s32, s32), as src/promoted/shdPersona.c already had it, not the
+      ints-first list that was here (11 -> 0).  Argument setup is emitted in
+      source order, so the late `mtc1 $zero, $f12` and early `lw $a1` were
+      pure argument-list evidence.  Same registers either way: the EABI keeps
+      integer and float arguments in separate files. */
+// FUN_0035C040
 f32 func_0035c040(u8 *arg0, s32 arg1)
 {
     f32 tx;
     f32 ty;
     extern u8 *func_00457120(void);
     extern f32 D_008872F8[];
-    extern void func_00364680(s32 arg0, s32 *arg1, s32 arg2, s32 arg3, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5, f32 f6);
+    extern void func_00364680(f32 depth, s32 color, f32 x, f32 y, f32 sx, f32 sy, f32 w, f32 h, s32 *tex, s32 mode, s32 flag);
     extern void func_0034f1e0(void);
     extern s32 (*D_00887300[])(s32, s32);
     extern void (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
@@ -2036,15 +2017,12 @@ f32 func_0035c040(u8 *arg0, s32 arg1)
     qs[3].u = 0x3F800000;
     qs[3].v = 0x3F800000;
     qs[3].q = q;
-    func_00364680(*(s32 *)(p + 0x28) | (arg1 & 0xFF), *(s32 **)(p + 0x3C), 1, 0, 0.0f, *(f32 *)(p + 0x18) + -30.0f, *(f32 *)(p + 0x1C), *(f32 *)p, *(f32 *)(p + 4), 256.0f, 256.0f);
+    func_00364680(0.0f, *(s32 *)(p + 0x28) | (arg1 & 0xFF), *(f32 *)(p + 0x18) + -30.0f, *(f32 *)(p + 0x1C), *(f32 *)p, *(f32 *)(p + 4), 256.0f, 256.0f, *(s32 **)(p + 0x3C), 1, 0);
     func_0034f1e0();
     D_00887300[0](1, **(s32 **)(p + 0x3C));
     D_00887310[0](4, &qs[0], 4);
     return ret;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035c040);
-#endif
 /* measured: opt_propagation off preserves paired field-load order. */
 #pragma push
 #pragma opt_propagation off
