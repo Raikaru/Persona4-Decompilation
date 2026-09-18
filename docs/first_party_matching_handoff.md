@@ -521,6 +521,28 @@ above — so singles are exhausted in that band and **pairs are the open
 ground**.  The win was itself found by a pair sweep and then narrowed to a
 single pragma, which is the order to work in.
 
+**The 3% gate is on the instruction count, and it is not a formality.** Three
+bodies were banked in one round at 48% short, 16% over and 3.8% over.  A body
+emitting 257 instructions against retail's 490 is not a floor with a 428-word
+residual, it is half a function: the word score is meaningless and the next
+agent will try to grind down a number whose real cause is two hundred missing
+instructions.  Over is the same problem mirrored — the object is doing work
+retail does not, and every differing word after the first surplus instruction
+is displacement noise.  `fnalign`'s header line prints both counts; compute
+the percentage before writing the guard.  Outside 3%, leave plain
+`INCLUDE_ASM` with a factual note saying how far off it is and what is
+missing.  That note has value; a fake floor does not.
+
+**Hand a lane your decode, not your target.** `func_0046ec70` is 400
+instructions of debug-overlay text layout with two five-case switches and a
+function-pointer dispatch.  Reading the disassembly into prose — the frame
+layout, the two `f32` at `sp+0x158` forming an 8-byte pair passed by value as
+`ld $a0`, which cases add `ctx + 0x28` and which do not, which use the
+unsigned `(f32)(u32)` conversion idiom and which the plain signed one — took
+one pass, and a lane then wrote and measured it to **20 differing words at an
+exact 400/400** from cold.  The expensive part of a large cold window is the
+decode, and it transfers perfectly in text.
+
 **Sharing one counter across disjoint loops is a live-range bug.** An
 m2c-derived body usually declares every temporary at function scope, so a
 single `s32 k` reused by three separate five-iteration loops has a live range
