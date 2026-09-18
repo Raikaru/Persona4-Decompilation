@@ -37,7 +37,7 @@ extern void func_001062f0(s32 a);
 extern s32 func_00110580(s32 arg0);
 extern s32 func_001105b0(s32 arg0);
 extern s32 func_00110600(s32 arg0, s32 arg1);
-extern void func_0045d6e0(void *arg0, void *arg1, s32 arg2, f32 farg0);
+extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
 extern s32 iGpffff9c54;
 extern const char *D_005E5010[];
 extern u8 D_005E5028[];
@@ -192,7 +192,7 @@ s32 func_00121690(void)
     if (*(s32 *)(work + 4) == 0) return 0;
     color[0] = 0x40; color[1] = 0x40; color[2] = 0x40; color[3] = 0xff;
     dim[0] = 100; dim[1] = 100; dim[2] = 250; dim[3] = 100;
-    func_0045d6e0(color, dim, 1, 0.0f);
+    func_0045d6e0(color, dim, 0.0f, 1);
     func_001104d0(*(s32 *)(work + 8), &month, &day);
     weekday = func_00110580(func_00110600(month, 1));
     current = func_00110580(*(s32 *)(work + 8));
@@ -200,7 +200,7 @@ s32 func_00121690(void)
     offset = offset + (func_001105b0(*(s32 *)(work + 8)) - 1) * 12;
     color[0] = 0x40; color[1] = 0x80; color[2] = 0x80; color[3] = 0xff;
     dim[0] = current * 36 + 100; dim[1] = offset + 124; dim[2] = 36; dim[3] = 12;
-    func_0045d6e0(color, dim, 1, 0.0f);
+    func_0045d6e0(color, dim, 0.0f, 1);
     pos.xy.x = 100.0f; pos.xy.y = 100.0f;
     func_00450dd0(pos, 0.0f, D_005E5028, month, D_005E5010[func_001060c0()]);
     pos.xy.x = 0.0f + 100.0f + 36.0f * (f32)weekday;

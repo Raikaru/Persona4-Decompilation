@@ -70,7 +70,7 @@ typedef struct {
     s16 f22;
 } Sp120;
 extern u_long128 D_00636730;
-extern void func_0045d6e0(void *arg0, void *arg1, s32 arg2, f32 fparg0);
+extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
 extern void func_0045e6a0(void *arg0, void *arg1, f32 fparg0, s32 arg2,
                           s32 arg3, s32 arg4, s32 arg5, s32 arg6,
                           f32 fparg1, f32 fparg2, f32 fparg3);
@@ -1248,7 +1248,7 @@ void func_002570f0(s32 arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1, f32 fpa
     func_003f6440(3, 0x31003);
     func_003f6440(2, 0x44);
     func_00489f80();
-    func_0045d6e0(&sp1B8, &sp90, 0, 10.0f);
+    func_0045d6e0(&sp1B8, &sp90, 10.0f, 0);
     func_0048a000();
     spB0 = D_00636560;
     spC0 = spB0;
@@ -1300,7 +1300,7 @@ void func_002570f0(s32 arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1, f32 fpa
     func_003f6440(3, 0x31003);
     func_003f6440(2, 0x44);
     func_00489f80();
-    func_0045d6e0(&sp1B0, &sp70, 0, 10.0f);
+    func_0045d6e0(&sp1B0, &sp70, 10.0f, 0);
     func_0048a000();
     spA0 = D_00636570;
     spC0 = spA0;
@@ -1418,7 +1418,7 @@ void func_0025b0f0(s32 arg0, u8 *arg1) {
     *(u_long128 *)&arr[0] = quad;
     arr16 = (u_long128 *)&arr[16];
     *(u_long128 *)&arr[16] = quad;
-    func_0045d6e0(pfbuf, arr16, 1, 0.0f);
+    func_0045d6e0(pfbuf, arr16, 0.0f, 1);
     switch (*(u32 *)(sp + 4)) {
     case 0:
     case 1:
