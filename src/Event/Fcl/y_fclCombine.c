@@ -639,7 +639,10 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00302770);
    a byte-identical stream, so neither class is reachable by reordering.
    Register class, not register number, is the interesting half here: a
    future pass should look for what keeps a temp live across that loop in
-   this body and not in retail. */
+   this body and not in retail.  Tried and tied at 27: giving the first
+   `for (j = 0; j < count; j++)` loop its own counter, which is the fix that
+   took func_0013fb50 from 34 to 28 on exactly this symptom.  So the shared
+   counter is not the cause here. */
 // FUN_00303610 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push

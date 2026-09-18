@@ -591,6 +591,21 @@ void func_004a5f90(u8 *arg0)
 void func_004a5fa0(u8 *arg0) {
     (*(s32 *)(arg0 + 0x2C))++;
 }
+/* measured: first reconstruction 2026-09-18, not banked (outside 3% gate). */
+/* best v2 (no UV stores): 666 words, object 414 vs retail 755 (-45%, -341). */
+/* v5 (with 8 UV stores + inv divs): 878 words, object 923 vs retail 756 (+22%, +167). */
+/* retail frame 0x120; v2 frame 0x100 (32B short), v5 frame 0x180 (96B over). */
+/* excluded: jal counts equal (14 == 14), no switch (if/else + 3-way D0/CC/839d0 branch), */
+/* no per-lane collapse (straight-line VU + matrix), identical early-out shape. */
+/* VU islands are the func_004adb50 sibling idiom (D_00761134 scale, 0x437F pack, */
+/* 0x110 store, 0xFE/0xFF byte fixup); pragma probes tie (loopinv 666, unroll 666, */
+/* commonsubs 664); decl reorder (count/objs/total) ties at 666. */
+/* gap lives in UV/stack allocation: adding UV swings -341 to +167, i.e. ~64 instrs */
+/* per UV line here vs ~13 in retail; u16->float lhu/bltz dance micro-priced at 16 each */
+/* and matches retail shape, but the float live set grows ($f26/$f27 extra saves). */
+/* next pass: union the D0/CC/839d0 blocks at 0xC0/0xA0/0x100 and shrink the float */
+/* live set before re-adding UV in retail store order (2,3,0,1,6,7,4,5). Candidates */
+/* archived at /var/tmp/cold4a5fc0/v2.c (666) and v5.c (878). */
 // FUN_004A5FC0
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a5fc0);
 // FUN_004A6B90
