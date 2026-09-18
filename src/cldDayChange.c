@@ -347,6 +347,10 @@ void func_00265f40(s32 arg0, s32 arg1, u32 arg2, s32 arg3, u8 *arg4,
 /* No real C body was produced for this 1600-byte window. The nd 7 result came
    from an 8-byte empty stub and is a size-deficit artifact, not a near miss. */
 /* measured: candidate object 400 instrs/retail 400 instrs (1600B/1600B exact), probe reloc-masked 332 words (guard below, NON_MATCHING so production stays ASM; fnalign 207 edits). Eleven Pair copies (0x28/0x3D/0x58/0x35/0x57/0x6A/0x19/0x66/0x5D/0x26/0x41) plus 13-entry jtbl_00747FE0 dispatch (case0->tail) with 00265f40 calls and 0045d6e0 tail. Table-dispatch shape copies MATCHed 00265110 conventions. Banked as floor. */
+/* re-measured 00266050: `python3 -E -s tools/measure_guarded.py src/cldDayChange.c func_00266050`
+   reports 332 differing words today.  The figures in the note above are
+   from earlier bodies and no longer describe what is banked here; they
+   are kept only as history.  Flagged by `tools/floorboard.py --audit`. */
 // FUN_00266050 NONMATCHING
 #ifdef NON_MATCHING
 void func_00266050(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 fparg0)
