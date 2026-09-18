@@ -1230,5 +1230,330 @@ void func_00487fb0(u8 *arg0, f32 arg1)
 #else
 INCLUDE_ASM("asm/nonmatchings/effParticle", func_00487fb0);
 #endif
-// FUN_00488D70
+/* measured v3u: 1024 differing words (reloc-masked), retail 1060 vs object 1089 instrs (+29, +2.7% inside 3% gate), fnalign 1652 edits +6 reloc-only. VU parent (mfc1 $2) + VU colour (lui 0x437F first loop, mfc1 full second via stack 255.0f) from effObjectParticle 004aed70 idiom; 16 per-channel (f32)(u32) reloads per loop (not hoisted c0) to hold size - hoisting to 4 reloads falls to 729 instr (-31% outside gate, v2 965). Signed colour v3s 946 words but 641 instr (-39% outside gate, fake win, opclass trap like 00479100 where (f32)(u32) is retail and weakening costs 312). Pragmas: loopinv 1038 (+14), unroll 1024 tie, schedule 1024 tie, commons 1076 (+52), prop 1015 (-9, not adopted, still 1088 inside gate), strength 1024 tie, dead 1024 tie, peephole 1062 (+38). Subscript P[i] 1024 tie, reload count 1022 (-2 tie). Exchange 8 declaration orders o1 1024, o2 1024, o3 1024, o4 1024, o5 1024, o6 1024, o7 1024, o8 1024 (all tie, not exchange class). Biggest residuals: prologue frame 0x270 vs 0x1F0 + saved-reg colour, buffer stride reloads (0x268 vs 0x274 etc.), D_00887300/10 absolute lui. Banked as guarded floor. */
+// FUN_00488D70 NONMATCHING
+#ifdef NON_MATCHING
+void func_00488d70(u8 *arg0)
+{
+    extern u8 *func_00457120(void);
+    extern void func_00492df0(void *a, void *b);
+    extern void func_00492db0(void *a, void *b);
+    extern void func_004bceb0(void);
+    extern void func_00482ad0(u8 *a, s32 b, void *c);
+    extern void (*D_00887300[])(u32, u32);
+    extern s32 (*D_00887310[])(s32, void *, s32);
+    extern f32 func_0044b610(f32);
+    extern f32 func_0044b7b0(f32);
+    extern void func_003e42a0(void *a, void *b, void *c);
+    extern void func_0046d730(void *a, s32 b);
+    extern f32 fGpffff81f4;
+    extern f32 D_008872F8[];
+    extern f32 D_008872FC[];
+    extern u8 D_00713CD0[];
+    extern u8 D_00713D10[];
+    typedef unsigned int u_long128 __attribute__((mode(TI)));
+    f32 parent[4] __attribute__((aligned(16)));
+    u8 snapA[16] __attribute__((aligned(16)));
+    u8 snapB[16] __attribute__((aligned(16)));
+    u8 base[64] __attribute__((aligned(16)));
+    u8 outA0[32];
+    f32 qb[64];
+    f32 tmpPos[4];
+    f32 tmpOut[4];
+    u8 *temp_19;
+    u8 *var_18;
+    s32 temp_16;
+    s32 i;
+    f32 f21;
+    f32 f22;
+    f32 f23;
+    f32 f24;
+    u32 packed;
+    {
+        s32 w = *(s32 *)(arg0 + 4);
+        f32 sc = fGpffff81f4;
+        __asm__ volatile(
+            "lw $2, 0(%0)\n"
+            "pextlb $2, $0, $2\n"
+            "pextlh $2, $0, $2\n"
+            "qmtc2.ni $2, $vf10\n"
+            "vitof0.xyzw $vf10, $vf10\n"
+            "mfc1 $2, %1\n"
+            "nop\n"
+            "qmtc2.ni $2, $vf2\n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+            "sqc2 $vf10, 0(%2)\n"
+            : : "r"(&w), "f"(sc), "r"(parent) : "$2", "$vf2", "$vf10", "memory");
+    }
+    temp_19 = *(u8 **)(arg0 + 0x4C);
+    var_18 = *(u8 **)(temp_19 + 0x18);
+    f23 = D_008872FC[0];
+    f24 = D_008872F8[0];
+    f21 = *(f32 *)(func_00457120() + 0x84);
+    f22 = *(f32 *)(func_00457120() + 0x80);
+    temp_16 = *(s32 *)(temp_19 + 8);
+    if (*(u16 *)(arg0 + 0xC) != 7) {
+        func_0046d730(D_00713CD0, 0x4F3);
+    } else if ((*(s32 *)(temp_19 + 0xC) & 1) == 0) {
+        f32 diff25;
+        f32 diff24;
+        diff25 = f22 - f21;
+        diff24 = f24 - f23;
+        i = 0;
+        while (i < temp_16) {
+            if (*(s32 *)(var_18 + 0x10) >= 0) {
+                s32 cw2 = *(s32 *)(var_18 + 0x14);
+                u32 pk;
+                f32 sc2 = fGpffff81f4;
+                __asm__ volatile(
+                    "lw $2, 0(%0)\n"
+                    "pextlb $2, $0, $2\n"
+                    "pextlh $2, $0, $2\n"
+                    "qmtc2.ni $2, $vf10\n"
+                    "vitof0.xyzw $vf10, $vf10\n"
+                    "mfc1 $2, %1\n"
+                    "nop\n"
+                    "qmtc2.ni $2, $vf2\n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+                    "lqc2 $vf11, 0(%2)\n"
+                    "vmul.xyzw $vf10, $vf10, $vf11\n"
+                    "lui $2, 0x437F\n"
+                    "qmtc2.ni $2, $vf2\n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+                    "vftoi0.xyzw $vf10, $vf10\n"
+                    "qmfc2.ni $2, $vf10\n"
+                    "ppach $2, $0, $2\n"
+                    "ppacb $2, $0, $2\n"
+                    "sw $2, 0(%3)\n"
+                    : : "r"(&cw2), "f"(sc2), "r"(parent), "r"(&pk) : "$2", "$vf2", "$vf10", "$vf11", "memory");
+                packed = pk;
+                if (*(u8 *)((u8 *)&packed + 3) != 0) {
+                    f32 f29;
+                    f32 f28;
+                    u8 *pb = (u8 *)&packed;
+                    func_00482ad0(*(u8 **)(arg0 + 0x48), *(s32 *)(var_18 + 0x10), outA0);
+                    D_00887300[0](1, *(u32 *)(*(u8 **)(outA0 + 0x10)));
+                    f29 = *(f32 *)(var_18 + 0x18) * ((*(f32 *)(outA0 + 8) / 32.0f) * *(f32 *)(outA0 + 0));
+                    f28 = *(f32 *)(var_18 + 0x18) * ((*(f32 *)(outA0 + 12) / 32.0f) * *(f32 *)(outA0 + 4));
+                    qb[0] = (f32)(u32)pb[0];
+                    qb[1] = (f32)(u32)pb[1];
+                    qb[2] = (f32)(u32)pb[2];
+                    qb[3] = (f32)(u32)pb[3];
+                    qb[4] = (f32)(u32)pb[0];
+                    qb[5] = (f32)(u32)pb[1];
+                    qb[6] = (f32)(u32)pb[2];
+                    qb[7] = (f32)(u32)pb[3];
+                    qb[8] = (f32)(u32)pb[0];
+                    qb[9] = (f32)(u32)pb[1];
+                    qb[10] = (f32)(u32)pb[2];
+                    qb[11] = (f32)(u32)pb[3];
+                    qb[12] = (f32)(u32)pb[0];
+                    qb[13] = (f32)(u32)pb[1];
+                    qb[14] = (f32)(u32)pb[2];
+                    qb[15] = (f32)(u32)pb[3];
+                    tmpPos[0] = *(f32 *)(var_18 + 0);
+                    tmpPos[1] = *(f32 *)(var_18 + 4);
+                    tmpPos[2] = *(f32 *)(var_18 + 8);
+                    func_003e42a0(tmpOut, tmpPos, (void *)(func_00457120() + 0x20));
+                    {
+                        f32 rx = tmpOut[0] / tmpOut[3];
+                        f32 ry = tmpOut[1] / tmpOut[3];
+                        s32 bad;
+                        if (rx < -2.0f || rx > 2.0f || ry < -2.0f || ry > 2.0f) {
+                            bad = 1;
+                        } else {
+                            bad = 0;
+                        }
+                        if (bad == 0) {
+                            f32 f20;
+                            f32 inv;
+                            f32 a0;
+                            f32 a1;
+                            f32 b0;
+                            f32 b1;
+                            f20 = (f22 / tmpOut[3]) * ((tmpOut[3] - f21) * (diff24 / diff25)) + f23;
+                            if (f20 < 0.0f) {
+                                f20 = 0.0f;
+                            }
+                            inv = 1.0f / f20;
+                            a0 = func_0044b610(*(f32 *)(var_18 + 0x1C));
+                            a1 = func_0044b7b0(*(f32 *)(var_18 + 0x1C));
+                            b0 = f29 * a0;
+                            b1 = f28 * a0;
+                            f29 = f29 * a1;
+                            f28 = f28 * a1;
+                            qb[16] = 0; qb[17] = 0;
+                            qb[20] = 1.0f; qb[21] = 0;
+                            qb[24] = 0; qb[25] = 0; qb[26] = 1.0f; qb[27] = 0;
+                            qb[28] = 1.0f; qb[29] = 1.0f;
+                            {
+                                f32 x = tmpOut[0];
+                                f32 y = tmpOut[1];
+                                f32 z = tmpOut[3];
+                                qb[32] = ((x + (-b0 + f28)) / z) * 640.0f;
+                                qb[33] = ((y - (-f29 - b1)) / z) * 448.0f;
+                                qb[34] = f20;
+                                qb[35] = inv;
+                                qb[36] = ((x + (b0 + f28)) / z) * 640.0f;
+                                qb[37] = ((y - (f29 - b1)) / z) * 448.0f;
+                                qb[38] = f20;
+                                qb[39] = inv;
+                                qb[40] = ((x + (-b0 - f28)) / z) * 640.0f;
+                                qb[41] = ((y - (-f29 + b1)) / z) * 448.0f;
+                                qb[42] = f20;
+                                qb[43] = inv;
+                                qb[44] = ((x + (b0 - f28)) / z) * 640.0f;
+                                qb[45] = ((y - (f29 + b1)) / z) * 448.0f;
+                                qb[46] = f20;
+                                qb[47] = inv;
+                            }
+                            D_00887310[0](4, qb, 4);
+                        }
+                    }
+                }
+            }
+            i++;
+            var_18 += 0x20;
+        }
+    } else {
+        f32 full = 255.0f;
+        f32 neg2 = -2.0f;
+        f32 pos2 = 2.0f;
+        f32 zero = 0.0f;
+        f32 one = 1.0f;
+        f32 s640 = 640.0f;
+        f32 s448 = 448.0f;
+        f32 scale32 = 32.0f;
+        func_00492df0(temp_19, snapA);
+        func_00492db0(temp_19, snapB);
+        __asm__ volatile("lqc2 $vf10, 0(%0)\n" : : "r"(snapA) : "$vf10", "memory");
+        func_004bceb0();
+        __asm__ volatile("lqc2 $vf31, 0(%0)\n" : : "r"(snapB) : "$vf31", "memory");
+        __asm__ volatile("sqc2 $vf28, 0(%0)\nsqc2 $vf29, 16(%0)\nsqc2 $vf30, 32(%0)\nsqc2 $vf31, 48(%0)\n" : : "r"(base) : "$vf28", "$vf29", "$vf30", "$vf31", "memory");
+        i = 0;
+        while (i < temp_16) {
+            if (*(s32 *)(var_18 + 0x10) >= 0) {
+                __asm__ volatile("lqc2 $vf28, 0(%0)\nlqc2 $vf29, 16(%0)\nlqc2 $vf30, 32(%0)\nlqc2 $vf31, 48(%0)\nlqc2 $vf10, 0(%1)\nvmulax.xyzw $ACC, $vf28, $vf10x\nvmadday.xyzw $ACC, $vf29, $vf10y\nvmaddaz.xyzw $ACC, $vf30, $vf10z\nvmaddw.xyzw $vf10, $vf31, $vf0w\n" : : "r"(base), "r"(var_18) : "$vf28", "$vf29", "$vf30", "$vf31", "$vf10", "ACC", "memory");
+                __asm__ volatile("sqc2 $vf10, 0(%0)\n" : : "r"(D_00713D10) : "$vf10", "memory");
+                tmpPos[0] = *(f32 *)(D_00713D10 + 0);
+                tmpPos[1] = *(f32 *)(D_00713D10 + 4);
+                tmpPos[2] = *(f32 *)(D_00713D10 + 8);
+                {
+                    s32 cw3 = *(s32 *)(var_18 + 0x14);
+                    u32 pk2;
+                    f32 sc3 = fGpffff81f4;
+                    __asm__ volatile(
+                        "lw $2, 0(%0)\n"
+                        "pextlb $2, $0, $2\n"
+                        "pextlh $2, $0, $2\n"
+                        "qmtc2.ni $2, $vf10\n"
+                        "vitof0.xyzw $vf10, $vf10\n"
+                        "mfc1 $2, %1\n"
+                        "nop\n"
+                        "qmtc2.ni $2, $vf2\n"
+                        "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+                        "lqc2 $vf11, 0(%2)\n"
+                        "vmul.xyzw $vf10, $vf10, $vf11\n"
+                        "mfc1 $2, %3\n"
+                        "nop\n"
+                        "qmtc2.ni $2, $vf2\n"
+                        "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+                        "vftoi0.xyzw $vf10, $vf10\n"
+                        "qmfc2.ni $2, $vf10\n"
+                        "ppach $2, $0, $2\n"
+                        "ppacb $2, $0, $2\n"
+                        "sw $2, 0(%4)\n"
+                        : : "r"(&cw3), "f"(sc3), "r"(parent), "f"(full), "r"(&pk2) : "$2", "$vf2", "$vf10", "$vf11", "memory");
+                    packed = pk2;
+                    if (*(u8 *)((u8 *)&packed + 3) != 0) {
+                        f32 g0;
+                        f32 g1;
+                        u8 *pb2 = (u8 *)&packed;
+                        func_00482ad0(*(u8 **)(arg0 + 0x48), *(s32 *)(var_18 + 0x10), outA0);
+                        D_00887300[0](1, *(u32 *)(*(u8 **)(outA0 + 0x10)));
+                        g0 = *(f32 *)(var_18 + 0x18) * ((*(f32 *)(outA0 + 8) / scale32) * *(f32 *)(outA0 + 0));
+                        g1 = *(f32 *)(var_18 + 0x18) * ((*(f32 *)(outA0 + 12) / scale32) * *(f32 *)(outA0 + 4));
+                        qb[0] = (f32)(u32)pb2[0];
+                        qb[1] = (f32)(u32)pb2[1];
+                        qb[2] = (f32)(u32)pb2[2];
+                        qb[3] = (f32)(u32)pb2[3];
+                        qb[4] = (f32)(u32)pb2[0];
+                        qb[5] = (f32)(u32)pb2[1];
+                        qb[6] = (f32)(u32)pb2[2];
+                        qb[7] = (f32)(u32)pb2[3];
+                        qb[8] = (f32)(u32)pb2[0];
+                        qb[9] = (f32)(u32)pb2[1];
+                        qb[10] = (f32)(u32)pb2[2];
+                        qb[11] = (f32)(u32)pb2[3];
+                        qb[12] = (f32)(u32)pb2[0];
+                        qb[13] = (f32)(u32)pb2[1];
+                        qb[14] = (f32)(u32)pb2[2];
+                        qb[15] = (f32)(u32)pb2[3];
+                        func_003e42a0(tmpOut, tmpPos, (void *)(func_00457120() + 0x20));
+                        {
+                            f32 rx2 = tmpOut[0] / tmpOut[3];
+                            f32 ry2 = tmpOut[1] / tmpOut[3];
+                            s32 bad2;
+                            if (rx2 < neg2 || rx2 > pos2 || ry2 < neg2 || ry2 > pos2) {
+                                bad2 = 1;
+                            } else {
+                                bad2 = 0;
+                            }
+                            if (bad2 == 0) {
+                                f32 f10;
+                                f32 inv2;
+                                f32 e0;
+                                f32 e1;
+                                f32 f0b;
+                                f32 f1b;
+                                f10 = (f22 / tmpOut[3]) * ((tmpOut[3] - f21) * ((f24 - f23) / (f22 - f21))) + f23;
+                                if (f10 < zero) {
+                                    f10 = zero;
+                                }
+                                inv2 = one / f10;
+                                e0 = func_0044b610(*(f32 *)(var_18 + 0x1C));
+                                e1 = func_0044b7b0(*(f32 *)(var_18 + 0x1C));
+                                f0b = g0 * e0;
+                                f1b = g1 * e0;
+                                g0 = g0 * e1;
+                                g1 = g1 * e1;
+                                qb[16] = 0; qb[17] = 0;
+                                qb[20] = one; qb[21] = 0;
+                                qb[24] = 0; qb[25] = 0; qb[26] = one; qb[27] = 0;
+                                qb[28] = one; qb[29] = one;
+                                {
+                                    f32 x2 = tmpOut[0];
+                                    f32 y2 = tmpOut[1];
+                                    f32 z2 = tmpOut[3];
+                                    qb[32] = ((x2 + (-f0b + g1)) / z2) * s640;
+                                    qb[33] = s448 * ((y2 - (-g0 - f1b)) / z2);
+                                    qb[34] = f10;
+                                    qb[35] = inv2;
+                                    qb[36] = ((x2 + (f0b + g1)) / z2) * s640;
+                                    qb[37] = s448 * ((y2 - (g0 - f1b)) / z2);
+                                    qb[38] = f10;
+                                    qb[39] = inv2;
+                                    qb[40] = ((x2 + (-f0b - g1)) / z2) * s640;
+                                    qb[41] = s448 * ((y2 - (-g0 + f1b)) / z2);
+                                    qb[42] = f10;
+                                    qb[43] = inv2;
+                                    qb[44] = ((x2 + (f0b - g1)) / z2) * s640;
+                                    qb[45] = s448 * ((y2 - (g0 + f1b)) / z2);
+                                    qb[46] = f10;
+                                    qb[47] = inv2;
+                                }
+                                D_00887310[0](4, qb, 4);
+                            }
+                        }
+                    }
+                }
+            }
+            i++;
+            var_18 += 0x20;
+        }
+    }
+    D_00887300[0](1, 0);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/effParticle", func_00488d70);
+#endif
