@@ -212,6 +212,7 @@ extern u8 D_00749350[];
    order floor (also blocked the 0xB0 stack hole: retail frames the five
    16-byte func_002b29e0 outputs at 0x60-0xA0 and the ten s64s at 0xB8+,
    mwcc reproduces that exactly). */
+/* measured: GUARDED_SCORE 84 via `python3 tools/measure_guarded.py src/Event/Fcl/y_fclCombine.c func_002e8410` (pwd source/Persona4-Decompilation; obj 814I == retail 814I, differing words 84; fnalign 90 edits +6 reloc-only). History nd 12 retained below as evidence of 5x 5c90 move-vs-ld arg-order floor (10I) + colour-copy 6I + rotation; current vB candidate details below marker. */
 // FUN_002E8410 NONMATCHING
 /* measured: vB candidate — obj 814I == retail 814I, probe 84 words, fnalign 90 edits (+6 reloc-only). Decl-search 10 variants (out/task/i/k perms + s16 + stack orders); best k,i,task,out (84 vs v1 143, others 107-149, s16 651, stack same). Earliest divergence saved-reg rotation arg0=$s3 vs $s2/out=$s2 vs $s0 (all decl orders probed). Residuals: rotation + colour-copy load-all vs interleave (6I) + 5x 5c90 move-vs-ld argument order (10I floor per prior note). Prior best nd 12 retained as reference. New levers N-A (see fnalign): single andi 0xFFFF (no CSE/frame+0x10), no adjacent-OR sltiu fold, no COP2. */
 #ifdef NON_MATCHING

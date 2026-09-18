@@ -304,23 +304,85 @@ void func_002afb70(u8 *arg0, s8 arg1) {
 
 
 
-/* measured: recipe C re-test (4 attempts, nd 333->349->352; best body below
-   is the if-chain variant, nd 349, obj 1644B/window 1632B). The ldr/ldl pair
-   IS reproduced by the 8-byte YVec2f-by-value arg (recipe C mechanism 1:
-   func_002b0b10(arg0, *(YVec2f *)(t17 + 8), ...) at 8-aligned disp 0x8), the
-   frame is 0x70 with retail's saved-reg set, and the recipe-A guard compiles
-   as a single bare bltz with the doubled arm out of line. Residuals, all
-   scheduling/allocation families: (1) the buf[2]=buf[0]/buf[3]=buf[1] copy
-   emits load-store-load-store (or with temps, loads 0x64-before-0x60 with
-   $f1/$f0 swapped) vs retail load-load-store-store; (2) the doubled arm
-   allocates or/mtc1/cvt into $v0/$f0 then add.s $f3,$f0,$f0 vs retail's
-   $v1/$f3 with add.s $f3,$f3,$f3 (4 words); (3) the if-chain dispatch adds a
-   move $v1,$v0 after the lb (a named s8 sw local instead spills $s0 and
-   emits dsll32/dsra32 — 2 words worse); (4) func_0025ecd0's $t3 (D_00794DB0)
-   materializes before mov.s $f17; (5) func_002b0b10's GPR args emit grouped
-   before the FP args where retail interleaves (f12,f13,a2,f15,a3,t0,t1). */
-// FUN_002AFBC0
+/* measured: re-derived if-chain variant (probe_variants v2 nd 199; measure_guarded obj 1640B/window 1632B nd 199 within 3% 1583-1681B; fnalign 46 edits +9 reloc-only retail 408 obj 410). ldr/ldl via YVec2f-by-value at disp 0x8, frame 0x70, bltz guard; prior note nd349/obj1644 retained as history, re-derived same shape without permuting spellings. Residuals: buf copy load-store vs load-load; doubled-arm $v0/$f0 vs $v1/$f3; if-chain move $v1,$v0; t3 before mov.s f17; GPR-grouped vs interleaved FP args. Repro: `python3 tools/probe_variants.py src/promoted/y_smap.c func_002afbc0 --candidate v2=/tmp/cand_afbc0_v2.c` -> 199; `python3 tools/measure_guarded.py src/promoted/y_smap.c func_002afbc0` -> obj 1640B/window 1632B GUARDED_SCORE 199; `python3 tools/fnalign.py src/promoted/y_smap.c func_002afbc0 --candidate /tmp/guarded_afbc0.c --quiet` -> 46 edits; `python3 tools/verify.py src/promoted/y_smap.c` -> 28 MATCH/8 ASM unchanged (production stays ASM via #else INCLUDE_ASM, no pragma); `python3 tools/decomp_lint.py src/promoted/y_smap.c` -> clean. */
+// FUN_002AFBC0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_002afbc0(u8 *arg0) {
+    u8 *s3;
+    u8 *s1;
+    s32 s2;
+    s32 s0;
+    s32 s4;
+    f32 buf[4];
+    s32 flag;
+    s3 = arg0;
+    s1 = *(u8 **)(arg0 + 0x38);
+    s2 = func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF);
+    func_002b2bd0(buf, 0, 126.0f, 126.0f, 21.0f, 22.0f);
+    buf[2] = buf[0];
+    buf[3] = buf[1];
+    if (D_0076464C == 0) {
+        return 0;
+    }
+    if (func_00106330(0x1417) != 0) {
+        return 0;
+    }
+    if (*(s8 *)(s1 + 0x144) == 0) {
+        if (func_00106330(0x1416) == 0) {
+            if (*(s8 *)(s1 + 0x143) == 0) {
+                return 0;
+            }
+        }
+        if (*(s8 *)(s1 + 0x15A) == 0) {
+            return 0;
+        }
+        *(f32 *)(s1 + 8) = 7.0f + 18.0f * (f32)(u32)*(u8 *)(s1 + 0x140) + buf[2] - (f32)(D_00764660 * 18) + 15.0f + *(f32 *)(s1 + 0x10) - 10.0f;
+        *(f32 *)(s1 + 0xC) = 227.0f + 18.0f * (f32)(u32)*(u8 *)(s1 + 0x141) + buf[3] - (f32)(D_0076465C * 18) + 15.0f + *(f32 *)(s1 + 0x14) + 16.0f;
+        if (*(s8 *)(s1 + 0x14C) == 1) {
+            s0 = ((*(u8 *)(func_00155280() + 0x47) + *(s8 *)(s1 + 0x159)) & 0xFF);
+            s4 = ((*(u8 *)(func_00155280() + 0x46) + *(s8 *)(s1 + 0x158)) & 0xFF);
+            if (func_00106330(0x1416) != 0) {
+                flag = 1;
+            } else {
+                flag = (s8)(((1 << (s4 & 0xFF)) & 0xFFFF & ((u16 *)D_00764658)[s0 & 0xFF]) >> (s4 & 0xFF));
+            }
+            if ((s8)flag == 1) {
+                func_0025ecd0(*(f32 *)(s1 + 8) + *(f32 *)(s1 + 0x150), *(f32 *)(s1 + 0xC) + *(f32 *)(s1 + 0x154), 60007.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0x13, (u8 *)(u32)D_00764644, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
+            }
+        }
+        func_002b0b10(s3, *(YVec2f *)(s1 + 8), *(u8 *)(s1 + 0x18), s2, *(s8 *)(s1 + 0x142), 0x50, *(f32 *)(s1 + 0x2C), *(f32 *)(s1 + 0x30), 60008.0f, *(f32 *)(s1 + 0x34));
+        *(u8 *)(s1 + 0x15A) = 0;
+        return 0;
+    } else {
+        if (*(s8 *)(s1 + 0x144) != 1) {
+            return 0;
+        }
+        if (func_00106330(0x1416) == 0) {
+            if (*(s8 *)(s1 + 0x143) == 0) {
+                return 0;
+            }
+        }
+        *(f32 *)(s1 + 8) = 172.0f + 18.0f * (f32)(u32)*(u8 *)(s1 + 0x140);
+        *(f32 *)(s1 + 0xC) = 9.0f + 18.0f * (f32)(u32)*(u8 *)(s1 + 0x141);
+        if (*(s8 *)(s1 + 0x14C) == 1) {
+            s0 = ((*(u8 *)(func_00155280() + 0x47) + *(s8 *)(s1 + 0x159)) & 0xFF);
+            s4 = ((*(u8 *)(func_00155280() + 0x46) + *(s8 *)(s1 + 0x158)) & 0xFF);
+            if (func_00106330(0x1416) != 0) {
+                flag = 1;
+            } else {
+                flag = (s8)(((1 << (s4 & 0xFF)) & 0xFFFF & ((u16 *)D_00764658)[s0 & 0xFF]) >> (s4 & 0xFF));
+            }
+            if ((s8)flag == 1) {
+                func_0025ecd0(*(f32 *)(s1 + 8) + *(f32 *)(s1 + 0x150), *(f32 *)(s1 + 0xC) + *(f32 *)(s1 + 0x154), 60007.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0x13, (u8 *)(u32)D_00764644, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
+            }
+        }
+        func_002b0b10(s3, *(YVec2f *)(s1 + 8), *(u8 *)(s1 + 0x18), s2, *(s8 *)(s1 + 0x142), 0x4C, *(f32 *)(s1 + 0x2C), *(f32 *)(s1 + 0x30), 60008.0f, *(f32 *)(s1 + 0x34));
+        return 0;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002afbc0);
+#endif
 
 // FUN_002B0220
 void func_002b0220(void *arg0) {
@@ -353,7 +415,7 @@ void func_002b0220(void *arg0) {
    callee-saved-spill-choice floor. */
 // FUN_002B0250 NONMATCHING
 #ifdef NON_MATCHING
-void func_002afbc0();
+s32 func_002afbc0(u8 *arg0);
 u8 *func_002b0250(u8 *arg0, s8 arg1, s8 arg2, u8 arg3, s8 arg4, s8 arg5, u8 arg6, u8 arg7) {
     u8 buf[8];
     u8 *ret;

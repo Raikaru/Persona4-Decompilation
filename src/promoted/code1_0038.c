@@ -1225,9 +1225,146 @@ void func_0038a3e0(u8 *arg0)
     *(u8 *)(temp_16 + 0x22) = 0x15;
     *(u8 *)(temp_16 + 0x23) = 0xFF;
 }
-/* measured: retail 0x4C0/1216B window, 0x2110 frame (130-entry Vertex[64B] at sp+0x70, 65x2 outer/inner, Ghidra for i<0x41/j<0x83 exclusive already $at); probe_variants full honest (Vertex[130], (f32)(u32) bytes, plain a+b*c second-addend-first, struct12b tie) 264wd/70instr, sched 257wd/172instr best (-7), FPU reverse tie 264, struct12b tie 264, inclusive (<=64/<=130) 264 tie (lever neutral, exclusive already $at); fnalign sched 172 vs 300 (128 short, 43% short, stays out per 3% rule, body in /var/tmp/a480/full_sched.c); COP1 adda/madd/mula/msub reconstruct exactly per 0046a7f0 rules (adda $f2,0 seed for coeff+prev*x2, operand order literal, mula+msub single expr, 0.0f reused) tried - remaining shortfall missing work (second entry per iteration + tail + 12B pinning), not wall (?? +3 is capstone COP1 MMI); opclass N/A (note-only, no banked body); banked cold INCLUDE_ASM with note (no guard body, 43% short stays out, no invented figures). */
-// FUN_0038A480
+/* measured: honest double-entry reconstruction (Vertex[130] 64B at sp+0x70, 65x2 outer/inner, exclusive i<0x41/j<0x83 already $at) with full tail; probe_variants 290 differing words (obj 1232B/window 1216B, 16B over), fnalign retail 304/object 308 instrs (4 over, 1.3% within 3%), edits 237 (+3 reloc-only) via `python3 tools/probe_variants.py src/promoted/code1_0038.c func_0038a480 --candidate v1=/tmp/a480_auth_v1.c` + `python3 tools/fnalign.py src/promoted/code1_0038.c func_0038a480 --candidate /tmp/a480_auth_v1.c --quiet` + guarded `python3 tools/measure_guarded.py src/promoted/code1_0038.c func_0038a480`. Retail shape: daddu arg save, lui D_008872F8+lwc1 f23, call 00457120, 1.0f/ *(+0x80) div f22, zero triple+1.0f at sp+20F0/F4/F8, pre-loop mula+msub single expr (z*x-y*x) with adda 0.0f/1.0f seed and (1.0f-x*x) operand-order literal building f21, call 003e0f80, 003e0870(*(arg+0xC),handle,sp+20F0,0), per-iter one 0044b7b0/0044b610 pair on (iGpffff81e0*i/64.0f scalar, not array per 0036e140 lever) with neg+muls into sp+2100/2104 triple, 003e42a0, lbu colors as (f32)(u32), (0.0f+prev)+tmp*mult adda/madd second-addend-first with second-entry f21-sub (sub.s), swc1+f23 depth, 4x bltz/cvt/add.s-double unsigned colors, f22 scale+0x18, tail slti j<0x83 sequential < guard (not >=) with 0046d730(D_0064F0E0,0x21E), 003e0f40, (DAT_00887300)(1,0), 00364c50, (DAT_00887310)(4,batch,count), 00364c70. Block-scope i/j, exclusive bounds, (u8*)(u32)/(s16)/(s64)/(f32) casts fixed, no asm/volatile. Prior single-entry honest (plain a+b*c) was 264w/172vs300 (128 short) from missing second entry; this adds both entries+tail to land 295-313. Banked as guarded floor per 3% rule. */
+// FUN_0038A480 NONMATCHING
+#ifdef NON_MATCHING
+void func_0038a480(u8 *arg0)
+{
+    extern f32 D_008872F8[];
+    extern u8 *func_00457120(void);
+    extern s32 func_003e0f80(void);
+    extern void func_003e0870(f32 fparg0, s32 a1, void *a2, s32 a3);
+    extern f32 func_0044b7b0(f32 fparg0);
+    extern f32 func_0044b610(f32 fparg0);
+    extern void func_003e42a0(void *a0, void *a1, void *a2);
+    extern void func_003e0f40(void *a0);
+    extern void func_00364c50(void);
+    extern void func_00364c70(void);
+    extern void func_0046d730(void *file, s32 line);
+    extern u8 D_0064F0E0[];
+    extern f32 iGpffff81e0;
+    extern void (*D_00887300[])(u32 state, u32 value);
+    extern s32 (*D_00887310[])(s32 kind, void *base, s32 count);
+    typedef struct {
+        f32 x;
+        f32 y;
+        f32 z;
+        u32 pad0;
+        u32 pad1;
+        u32 pad2;
+        f32 scale;
+        u32 pad3;
+        f32 color[4];
+        u32 tail[4];
+    } Vertex;
+    Vertex work[130];
+    s32 sp20;
+    s32 sp1c;
+    s32 sp18;
+    f32 tmpX;
+    f32 tmpY;
+    s32 tmpZ;
+    f32 depth;
+    f32 scale;
+    f32 chain;
+    f32 x;
+    f32 y;
+    f32 z;
+    s32 handle;
+    depth = D_008872F8[0];
+    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    sp20 = 0;
+    sp1c = 0;
+    sp18 = 0x3F800000;
+    x = *(f32 *)(arg0 + 0x1C);
+    y = *(f32 *)(arg0 + 0x4);
+    z = *(f32 *)(arg0 + 0x8);
+    chain = (1.0f - x * x) * (z * x - y * x);
+    handle = func_003e0f80();
+    func_003e0870(*(f32 *)(arg0 + 0xC), handle, &sp20, 0);
+    {
+        s32 i;
+        s32 j;
+        j = 0;
+        for (i = 0; i < 0x41; i++) {
+            f32 ang;
+            f32 s;
+            f32 c;
+            ang = (iGpffff81e0 * (f32)i) / 64.0f;
+            s = func_0044b7b0(ang);
+            c = func_0044b610(ang);
+            tmpX = -s * *(f32 *)(arg0 + 0x18);
+            tmpY = c * *(f32 *)(arg0 + 0x1C);
+            tmpZ = 0;
+            func_003e42a0(&tmpX, &tmpX, (void *)handle);
+            {
+                u8 b0;
+                u8 b1;
+                u8 b2;
+                u8 b3;
+                f32 prevX;
+                f32 prevY;
+                f32 mult;
+                b0 = *(u8 *)(arg0 + 0x20);
+                b1 = *(u8 *)(arg0 + 0x21);
+                b2 = *(u8 *)(arg0 + 0x22);
+                b3 = *(u8 *)(arg0 + 0x23);
+                mult = *(f32 *)(arg0 + 0x8);
+                prevX = *(f32 *)(arg0 + 0x10);
+                prevY = *(f32 *)(arg0 + 0x14);
+                work[j].x = (0.0f + prevX) + tmpX * mult;
+                work[j].y = (0.0f + prevY) + tmpY * mult;
+                work[j].z = depth;
+                work[j].color[0] = (f32)(u32)b0;
+                work[j].color[1] = (f32)(u32)b1;
+                work[j].color[2] = (f32)(u32)b2;
+                work[j].color[3] = (f32)(u32)b3;
+                work[j].scale = scale;
+            }
+            tmpX = -s * *(f32 *)(arg0 + 0x18);
+            tmpY = c * *(f32 *)(arg0 + 0x1C);
+            tmpZ = 0;
+            func_003e42a0(&tmpX, &tmpX, (void *)handle);
+            {
+                u8 b0;
+                u8 b1;
+                u8 b2;
+                u8 b3;
+                f32 prevX;
+                f32 prevY;
+                f32 mult;
+                b0 = *(u8 *)(arg0 + 0x20);
+                b1 = *(u8 *)(arg0 + 0x21);
+                b2 = *(u8 *)(arg0 + 0x22);
+                b3 = *(u8 *)(arg0 + 0x23);
+                mult = *(f32 *)(arg0 + 0x4);
+                prevX = *(f32 *)(arg0 + 0x10);
+                prevY = *(f32 *)(arg0 + 0x14);
+                work[j + 1].x = (0.0f + prevX) + tmpX * mult;
+                work[j + 1].y = ((0.0f + prevY) + tmpY * mult) - chain;
+                work[j + 1].z = depth;
+                work[j + 1].color[0] = (f32)(u32)b0;
+                work[j + 1].color[1] = (f32)(u32)b1;
+                work[j + 1].color[2] = (f32)(u32)b2;
+                work[j + 1].color[3] = (f32)(u32)b3;
+                work[j + 1].scale = scale;
+            }
+            j += 2;
+        }
+        if (j < 0x83) {
+        } else {
+            func_0046d730(D_0064F0E0, 0x21E);
+        }
+        func_003e0f40((void *)handle);
+        D_00887300[0](1, 0);
+        func_00364c50();
+        D_00887310[0](4, work, j);
+        func_00364c70();
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038a480);
+#endif
 /* Measured: 904/912 bytes, eleven resolved relocations and eight zero
  * alignment bytes. D_00761490 is the retail scalar 0xBD872B00, not the
  * rounded -0.066f literal; keep the five-frame and 300-frame reloads. */
