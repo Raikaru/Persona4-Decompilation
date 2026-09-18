@@ -1342,6 +1342,22 @@ INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c5500);
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c5b80);
 // FUN_001C79E0
 void func_001c79e0(void) {}
+/* 2026-09-18 lead pass, 14 measured variants, floor confirmed at 2 words.
+   The entire residual is one pair of independent loads at offsets 406-407.
+   Retail issues `lwc1 $f1, 0x13c($sp)` (pos138[1]) before
+   `lwc1 $f0, 0x12c($sp)` (dir128[1]); this body issues them the other way.
+   Both feed the same later add, neither depends on the other, and the rest of
+   the 448 instructions are identical.
+   The source cannot reach it.  Measured, all at 2 and byte-identical:
+   `schedule off`, `opt_loop_invariants on`, `opt_unroll_loops off`, an
+   explicit `tmpMul` temporary, a reassociated
+   `dir128[1] * var_f20 + pos138[1]`, and fully parenthesised operands.
+   Measured and worse: reordering the three `outC0[i]` assignments (021 -> 17,
+   102 -> 8), hoisting `pos138[1]` into a local (5), splitting the add into
+   `= pos; += dir * f` (40), `schedule on` (388), `peephole off` (402),
+   `opt_propagation off` (397), `opt_common_subs off` (401).
+   This is a scheduler coin-flip on two independent loads, not a source
+   defect.  Do not reorder this body again. */
 // FUN_001C79F0 NONMATCHING
 /* 9 -> 7 -> 2 (2026-09-18).  Three levers, all measured:
    1. splitting the trailing gp multiply into its own statement -
