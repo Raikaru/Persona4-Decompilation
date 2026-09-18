@@ -543,6 +543,45 @@ one pass, and a lane then wrote and measured it to **20 differing words at an
 exact 400/400** from cold.  The expensive part of a large cold window is the
 decode, and it transfers perfectly in text.
 
+**`#pragma optimization_level` is a real third axis, and it is exhausted on
+the close floors.** Levels 0, 1, 3 and 4 each compile differently from the -O2
+baseline — on a 218-instruction body they produce 253, 228, 179 and 179
+instructions respectively, so level 3 is an 18% shrink and is the direction a
+candidate that is *over* retail's size needs to move.  `tools/pragma_sweep.py`
+measures all four automatically.  Swept across every floor at or under thirty
+differing words, **none of them beats the baseline**: twenty-one floors, all
+ties.  Record that as settled for the close band and reach for the levels only
+on a body whose size is wrong.
+
+**mwcc accepts unknown pragmas silently, with no diagnostic.** `#pragma
+bogus_pragma_name on` compiles clean and changes nothing, and so do
+`inline_depth(0)` and `optimize_for_size on`, which look plausible but are
+ignored by this compiler.  A misspelled pragma is a no-op that is
+indistinguishable from a measurement that found nothing.  Verify a new pragma
+name changes the object before believing a tie:
+
+```python
+import sys, hashlib; sys.path.insert(0, "tools")
+import fnalign, verify
+body, _ = fnalign._object_for(owner, fn, candidate, verify.load_config())
+print(hashlib.sha1(body).hexdigest()[:12], len(body) // 4)
+```
+
+`register` is in the same category: mwcc ignores the storage class at -O2,
+identical object bytes, so an inherited body carrying it is not tainted.
+
+Also note that a pragma already inside a banked body silently overrides a
+leading one added for a probe.  `pragma_sweep` strips existing scaffolding
+first; a hand-rolled probe does not, and will report a tie that is really the
+inner pragma winning.
+
+**Write `(f32)(u32)x` and let the compiler emit the conversion.** Retail's
+`bltz` / `srl 1` / `andi 1` / `or` / `mtc1` / `cvt.s.w` / `add.s` block is
+b210's unsigned-to-float idiom.  Hand-writing the halving and doubling
+produces ten extra copies of it: `func_00495160`'s `opclass` read
+`mtc1 +12, cvt +10, srl +10, andi +10, or +10, add.s +10, b +10, bltz +10`
+until the manual sequence was replaced by the cast.
+
 **Sharing one counter across disjoint loops is a live-range bug.** An
 m2c-derived body usually declares every temporary at function scope, so a
 single `s32 k` reused by three separate five-iteration loops has a live range
