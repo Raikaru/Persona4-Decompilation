@@ -1912,11 +1912,27 @@ u8 *func_0035bf10(s32 arg0, u16 arg1, s32 arg2)
  * call extents, col / col+zf pre-call hoists (probe 15, same composition),
  * per-site temp for the +256 adds (probe 15), opt_loop_invariants on (neutral),
  * opt_propagation off (no gain); schedule on and opt_common_subs off both
- * catastrophic (250+). */
+   catastrophic (250+).
+   2026-09-18: the four `256.0f + load` adds are fixed by splitting each one
+   into a load statement and an accumulate statement through an f32 local
+   (`tx = *(f32 *)p; tx = tx + 256.0f; qs[1].x = tx;`).  Written as one
+   expression MWCC puts the constant in rs whichever way the operands are
+   spelled; written as an accumulate it puts the loaded value there, as retail
+   does.  15 -> 11 words / 9 edits.  Measured and rejected on top of that:
+   `qs[n].x = *(f32 *)p; qs[n].x += 256.0f;` straight to the struct field
+   (141 - the field round-trips through memory), a shared `big = 256.0f` local
+   (11, ties but invents a constant), `- 30.0f` for `+ -30.0f` in the
+   func_00364680 call (13), a temp for that same subtrahend (16), and a local
+   for `*(s32 **)(p + 0x3C)` shared with the D_00887300 call below (64).
+   Remaining 11 words are two argument-emission orders in that one call:
+   retail sets $f12 before $a0 and emits $a1/$a2/$a3 after the $f14-$f18
+   block, b210 does the reverse. */
 // FUN_0035C040 NONMATCHING
 #ifdef NON_MATCHING
 f32 func_0035c040(u8 *arg0, s32 arg1)
 {
+    f32 tx;
+    f32 ty;
     extern u8 *func_00457120(void);
     extern f32 D_008872F8[];
     extern void func_00364680(s32 arg0, s32 *arg1, s32 arg2, s32 arg3, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5, f32 f6);
@@ -1982,7 +1998,9 @@ f32 func_0035c040(u8 *arg0, s32 arg1)
     qs[0].u = 0;
     qs[0].v = 0;
     qs[0].q = q;
-    qs[1].x = 256.0f + *(f32 *)p;
+    tx = *(f32 *)p;
+    tx = tx + 256.0f;
+    qs[1].x = tx;
     qs[1].y = *(f32 *)(p + 4);
     qs[1].z = z;
     qs[1].r = 0x437F0000;
@@ -1993,7 +2011,9 @@ f32 func_0035c040(u8 *arg0, s32 arg1)
     qs[1].v = 0;
     qs[1].q = q;
     qs[2].x = *(f32 *)p;
-    qs[2].y = 256.0f + *(f32 *)(p + 4);
+    ty = *(f32 *)(p + 4);
+    ty = ty + 256.0f;
+    qs[2].y = ty;
     qs[2].z = z;
     qs[2].r = 0x437F0000;
     qs[2].g = 0x437F0000;
@@ -2002,8 +2022,12 @@ f32 func_0035c040(u8 *arg0, s32 arg1)
     qs[2].u = 0;
     qs[2].v = 0x3F800000;
     qs[2].q = q;
-    qs[3].x = 256.0f + *(f32 *)p;
-    qs[3].y = 256.0f + *(f32 *)(p + 4);
+    tx = *(f32 *)p;
+    tx = tx + 256.0f;
+    qs[3].x = tx;
+    ty = *(f32 *)(p + 4);
+    ty = ty + 256.0f;
+    qs[3].y = ty;
     qs[3].z = z;
     qs[3].r = 0x437F0000;
     qs[3].g = 0x437F0000;
