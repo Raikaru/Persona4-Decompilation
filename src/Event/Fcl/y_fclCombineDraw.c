@@ -59,6 +59,7 @@ static inline void fclZero8(u8 *p)
 /* Width check on all four: (s8) counters/args via lb with dsll24/dsra24, heap bytes via lbu/lhu; no s8/u8 mixups remain. */
 /* Fresh 2026-09-17 (3212e0 lane, after 004941f0/00347c70 in order): pointer slots holding heap+offset (retail sq 0xC0/0xB0 on 3212e0) are plain u8* locals, not u_long128 -- u_long128 widens frame 0xF0->0x100 and costs 4 words (WIDE 321w/139ed/375B -> PTR 317w/136ed+3reloc/367B exact, retail 368/367). Byte-copy colours where retail shows batched lbu/sb stay u8[4] with per-byte copies; FclByte4 &c + struct-assign gives lw/sw and only applies where retail shows word copies (MATCHed 315310 idiom) -- trying FclByte4 here fails to compile (needs & + .bN rewrites) and would be the wrong shape. Guarded (u8)(s32)f conversion uses the same normal-first 2.1474836e9f > f + per-arm andi idiom as y_CmbCardEff 00348330 (shared across owners; polarity >= vs > is equality-edge only, both match retail c.le.s/bc1t). */
 /* Even-lane 2026-09-17 guarded floors (within 3% per parent policy, NONMATCHING kept): 212e0 PTR 317w 367/367 exact via docs/probe_archive/PTR_003212e0_body.c, 297f0 356w 414/404 via docs/probe_archive/EVEN_003297f0_body.c, 18840 394w 457/444 via docs/probe_archive/EVEN_00318840_body.c; repro probe_variants --candidate CAND=<path> + fnalign --candidate <path> --quiet + measure_guarded; levers: (1) sq slots as plain u8* never u_long128 (212e0 0x100->0xF0), (2) heap *(FclVec2*)(p+0x38) emits ldr/ldl, (3) if-chain for 6/7/8 not switch plus s32 t16/t17/v18 reuse and word sw for 0x8. */
+/* C147E0 lane 2026-09-17 (coldest owner, smallest-first): 147e0 367w 465/452 (+13, +2.88% PASS) via docs/probe_archive/C147E0_003147e0_body.c + `#pragma optimization_level 1` wrapper in src (bare O2 body 369w 463/452); repro probe_variants --candidate C147E0=<path> + fnalign --candidate <path> --quiet + measure_guarded; levers: (1) m2c 12-arg 77d0 carries a phantom M2C_ERROR 12th arg -- drop to the 11-arg extern, (2) function-local `extern void func_002b77d0(s16,s64,s16,s32,s64,s32,s64,s64,f32,s16,s32)` (1st/3rd s16 + 6th s32, no shared-top edit; global s64/s64/s64 costs per-call dsll32-0 extends, 469->463), (3) v19=(s8)arg1 reuse for 14ef0 2nd arg + lia=(s16)(li+0x174) share for loop a0/a2 + s16 temps for 7750, (4) s32 colour words (lw for 77d0 4th arg) + f32 spF0[4] for 29e0 16B with heap swc1 stores + slot=(u8**)(t+v19*4+0x258) with *slot for the five 81f0 calls. Frame note: retail is 0x160 but this body makes 0x150 (16 short -- c0/t as s64/u8* instead of 16B sq slots); the plain-u8* lever is 212e0-specific (0xF0), not universal, so a later lane can reclaim frame words with 16B slots without changing the count. Full pragma_sweep on the banked body: O1 367 <-- better, bare 369, O3/O4 393, schedule-on 394, peephole-off 413, O0 494. O3 wrapper on the pre-bank candidate measured 389w / 417 vs 449 (-7.1% short, FAIL) -- O-level-3 shrinkage overshoots here, so O3 is a measured negative on this body. Trap (parent-verified): mwcc silently ignores unknown pragmas (`inline_depth(0)`, `optimize_for_size on`, any misspelling) -- verify a new pragma changes object bytes (sha1/len via fnalign._object_for) before believing a tie. Next-cold decode (330060, 1872B): signature (u8*,s32) per y_fclCombine.c callers (arg0,0..5); head is three u8[4] byte-copy colours (lbu/sb, second copy sourced from first 6150 result p1, never re-call) + sb 1,0x13A + sltiu (s8)arg1<6 guard with plain switch (port arms from MATCHed 307b0 in this file, which has the same 6-case shape but a table address arg2 and t17 that 330060 lacks -- read constants off retail, do not copy t17); tail (+176B vs 307b0) is a 9-iteration 68d0 loop, an (0x11E-0x120) loop with 2970/6c30/68d0/6d60/2a60/6150, four colour restores, and the 0xA9/0xB1/0xB5 lwc1/madd/swc1 float chain reusing f20/f21. */
 extern void func_0044ea90(const void *arg0, u32 arg1);
 extern void *func_0043f9c8(void *dest, s32 value, s32 size);
 extern void *func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
@@ -363,11 +364,140 @@ u32 func_003147d0(u8 *arg0) {
     return *(u32 *)(*(u8 **)(arg0 + 0x38) + 4);
 }
 
-/* No banked body archived; retained as bare INCLUDE_ASM. Prior full-body attempt is gone (m2c starting */
-/* point in build/m2c/func_003147e0.c does not compile, pragma sweep blocked pending compilable body). */
-/* Partial-adaptation wall (re-attempt from m2c draft with wave recipes before treating as settled). */
-// FUN_003147E0
+/* measured (C147E0 lane 2026-09-17): probe_variants 367 differing words reloc-masked with `#pragma optimization_level 1` wrapper (bare O2 body 369w via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_003147e0 --candidate C147E0=docs/probe_archive/C147E0_003147e0_body.c`); fnalign retail 452 vs object 465 instrs (+13, +2.88% PASS) via fnalign --candidate /tmp/b147e0_o1.c --quiet; full pragma_sweep on banked floor: O1 367 <-- better, bare 369, O3/O4 393, schedule-on 394, peephole-off 413, O0 494. Signature (u8*,s8,s64,s16,s32,s32) per retail daddu/dsll24/dsra24 + 14ef0 addiu $7; local extern for 002b77d0(s16,s64,s16,s32,s64,s32,s64,s64,f32,s16,s32) inside body (no shared-top edit); s32 colours with lw; f32 spF0[4] for 29e0. Prior nd-156 body lost (bare INCLUDE_ASM, m2c seed does not compile); this is first compilable floor since. O3 wrapper measured 389w / 417 vs 449 (-7.1% short, FAIL, not banked). Wall remains rotation + normalization-placement per preserved note. */
+// FUN_003147E0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma optimization_level 1
+void func_003147e0(u8 *arg0, s8 arg1, s64 arg2, s16 arg3, s32 arg4, s32 arg5) {
+    extern void func_002b77d0(s16, s64, s16, s32, s64, s32, s64, s64, f32, s16, s32);
+    s32 c15C;
+    s32 c158;
+    s32 c154;
+    s32 c150;
+    s32 c14C;
+    s32 c148;
+    s32 c144;
+    s64 sp138;
+    s64 sp130;
+    s64 sp128;
+    s64 sp120;
+    s64 sp118;
+    s64 sp110;
+    s64 sp108;
+    s64 sp100;
+    f32 spF0[4];
+    s64 spE8;
+    s64 c0;
+    u8 *t;
+    u8 *h;
+    u8 *q;
+    u8 *q2;
+    u8 *q3;
+    u8 *q4;
+    u8 *q5;
+    u8 **slot;
+    s64 v19;
+    s64 v23;
+    s64 v21;
+    s64 v20;
+    s64 v30;
+    s16 temp_16;
+    s16 temp_16_2;
+    s16 temp_16_3;
+    f32 f20;
+    f32 f21;
+    s32 i;
+    s64 li;
+    s64 lia;
+    spE8 = arg2;
+    t = *(u8 **)(arg0 + 0x38);
+    v19 = (s8)arg1;
+    c0 = (s16)(v19 * 5 + 0x66);
+    v21 = (s16)arg3;
+    if (v21 == 0x16C) {
+        func_002b2970(&sp128, 67.0f, 175.0f);
+        func_00314ef0(arg0, v19, sp128, 0x16C, arg4, arg5);
+        return;
+    }
+    v23 = v19 * 2;
+    temp_16 = (s16)(v23 + 0x1F4);
+    func_002b7750(temp_16, 0x1AC);
+    v20 = (s16)c0;
+    v30 = v20 + 2;
+    f20 = *((f32 *)&spE8 + 1);
+    func_002b2970(&sp120, *(f32 *)&spE8, f20);
+    func_002b2a60(&c15C, 0, 0, 0x66, 0xFF);
+    func_002b77d0(temp_16, sp120, 0x1AC, c15C, (s16)v30, arg5, 3, 3, 154.0f, arg4, func_00331560());
+    temp_16_2 = (s16)(v23 + 0x1F5);
+    func_002b7750(temp_16_2, 0x1AF);
+    func_002b2970(&sp130, 258.0f + *(f32 *)&spE8, f20);
+    func_002b2a60(&c158, 0, 0, 0x66, 0xFF);
+    func_002b77d0(temp_16_2, sp130, 0x1AF, c158, (s16)v30, arg5, 3, 3, 154.0f, arg4, func_00331560());
+    func_002b2970(&sp138, *(f32 *)&sp130 - 28.0f, *((f32 *)&sp130 + 1));
+    temp_16_3 = (s16)(v19 + 0x2FB);
+    func_002b7750(temp_16_3, 0x131);
+    func_002b2970(&sp130, 266.0f + *(f32 *)&spE8, f20);
+    func_002b2a60(&c154, 0x25, 0x2F, 0x94, 0xFF);
+    func_002b77d0(temp_16_3, sp138, 0x131, c154, (s16)(v20 + 3), arg5, 3, 3, 153.0f, arg4, func_00331560());
+    func_002b68d0(temp_16_3, 0xE, 0);
+    h = func_0046d200(func_00331560(), 0x131);
+    slot = (u8 **)(t + v19 * 4 + 0x258);
+    q = func_002b81f0(*slot);
+    *(f32 *)(q + 0) = *(f32 *)&sp138;
+    *(f32 *)(q + 4) = *((f32 *)&sp138 + 1);
+    f21 = func_0046b260(h);
+    func_002b29e0((u8 *)spF0, f21, func_0046b2f0(h));
+    q2 = func_002b81f0(*slot);
+    *(f32 *)(q2 + 8) = spF0[0];
+    *(f32 *)(q2 + 12) = spF0[1];
+    *(f32 *)(q2 + 16) = spF0[2];
+    *(f32 *)(q2 + 20) = spF0[3];
+    q3 = func_002b81f0(*slot);
+    *(s32 *)(q3 + 0x120) = (s32)v20;
+    q4 = func_002b81f0(*slot);
+    *(f32 *)(q4 + 0x18) = 152.0f;
+    q5 = func_002b81f0(*slot);
+    *(u8 *)(q5 + 0x124) = 0;
+    func_0046d280(h);
+    if (v21 == -1) {
+        return;
+    }
+    if (v21 == 0x174) {
+        v20 = v20 + 4;
+        f21 = 4.0f + f20;
+        f20 = 6.0f + *(f32 *)&spE8;
+        i = 0;
+        while ((s16)i < 2) {
+            li = (s64)(s16)i;
+            lia = (s16)(li + 0x174);
+            func_002b2970(&sp118, f20 + (f32)(li * 0x67), f21);
+            func_002b2a60(&c150, 0xCC, 0xFF, 0xFF, 0xFF);
+            func_002b77d0((s16)lia, sp118, (s16)lia, c150, (s16)v20, arg5, 3, 3, 152.0f, arg4, func_00331560());
+            i = (s16)(i + 1);
+        }
+        return;
+    }
+    if ((func_00106330(0x1305) != 0) && (v21 == 0x160)) {
+        v20 = v20 + 4;
+        f21 = 4.0f + f20;
+        f20 = 6.0f + *(f32 *)&spE8;
+        func_002b2970(&sp110, f20, f21);
+        func_002b2a60(&c14C, 0xCC, 0xFF, 0xFF, 0xFF);
+        func_002b77d0(0x160, sp110, 0x160, c14C, (s16)v20, arg5, 3, 3, 152.0f, arg4, func_00331560());
+        func_002b7750(0x2EB, 0x16F);
+        func_002b2970(&sp108, 100.0f + f20, f21);
+        func_002b2a60(&c148, 0xCC, 0xFF, 0xFF, 0xFF);
+        func_002b77d0(0x2EB, sp108, 0x16F, c148, (s16)v20, arg5, 3, 3, 152.0f, arg4, func_00331560());
+        return;
+    }
+    func_002b2970(&sp100, 6.0f + *(f32 *)&spE8, 4.0f + f20);
+    func_002b2a60(&c144, 0xCC, 0xFF, 0xFF, 0xFF);
+    func_002b77d0((s16)v21, sp100, (s16)v21, c144, (s16)(v20 + 4), arg5, 3, 3, 152.0f, arg4, func_00331560());
+}
+#pragma optimization_level 2
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003147e0);
+#endif
 /* measured: nd 156 cascades from two allocation/scheduling decisions in the first
    block: (1) retail allocates v22 (v17*2) to $s6 and the CSE'd v16+2 to $s7, mwcc
    b210 always reverses them; (2) retail normalizes v16 (dsll32/dsra32 in place) and

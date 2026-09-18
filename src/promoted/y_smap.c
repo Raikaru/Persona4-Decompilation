@@ -95,6 +95,25 @@ extern u8 *func_002b2940(s32);
 extern s64 iGpffffa840;  /* gp-relative, -0x57C0 */
 extern s64 iGpffffa848;  /* gp-relative, -0x57B8 */
 extern f32 iGpffff84f4;  /* gp-relative, -0x7B0C */
+/* func_002add90 callees (re-derived v2, probe nd 354) */
+extern u8 *D_007EFA04;
+extern u8 D_007E8C00[];
+extern u8 D_00794C30[];
+extern u8 D_00794E10[];
+extern u8 *func_00460990(void);
+extern void func_002b2290(u8 *);
+extern s16 func_002b2cb0(s32, s32, s32, s32, s32);
+extern s32 func_002b6850(u8 *);
+extern void func_002b67a0(u8 *, s32, s32);
+extern s32 func_002b4a10(u8 *, s8);
+extern void func_002ac750(s32, s32);
+extern void func_002b31a0(u8 *, u8 *, u8 *);
+extern s32 func_00452490(u8 *);
+extern void func_002b10a0(u8 *, YVec2f);
+extern void func_002b10e0(u8 *, s8);
+extern void func_002b2240(u8 *);
+extern int func_002B11C0();
+extern int func_002B1210();
 
 typedef struct RwV3d RwV3d;
 struct RwV3d
@@ -228,18 +247,181 @@ void func_002add60(u8 *arg0, u8 *arg1) {
 
 
 
-/* measured: full state-machine structure reconstructed (nd 409 -> 327 ->
-   315; best 315 with 3 declaration orders, all identical). Residuals:
-   (1) pervasive saved-register rotation — p in $s2 vs retail $s1, arg0 in
-   $s7 vs $s5, x/$s4 vs $s2, y/$s3 vs $s4, t19/$s6 vs $s3, t16/$s1 vs $s0;
-   reordering locals 3 ways (incl. i-first) never moved a single register —
-   saved-register-rotation floor family; (2) the i-loop: retail materialises
-   q+0xD8 into a saved reg before func_002b4a10 and stores through it, mwcc
-   folds the displacement into lw/sw (loop body 1 word short; obj 1928B vs
-   window 1936B); forcing the address into a local made it worse (nd 347).
-   Stack layout, switch dispatch, and all call sites otherwise match. */
-// FUN_002ADD90
+/* measured: re-derived v2 (probe_variants v1 386 -> v2 354; measure_guarded obj 1928B/window 1936B GUARDED_SCORE 354; fnalign retail 482 obj 482, 203 edits +8 reloc-only). 3% check: window 1936B range 1878-1994B, obj 1928B within (0.4% under) — bankable floor. pragma_sweep singles (incl. optimization_level 0/1/3/4): base 354; loop_invariants on 354 tie, propagation off 354 tie, strength off 354 tie, unroll off 354 tie; dead_assign off 366, level4 400, schedule on 402, level3 404, common_subs off 450, level1 450, peephole off 451, level0 549 — all regress/tie, keep base (level 2, no pragma). TU-strict: (u8 *)(u32)/ (s8)/(s16)/YVec2f-by-value/u8 buf[0xC]+v. Residuals: saved-reg rotation, i-loop folding, ok-beqz vs sltu, D_EFA04 gp-vs-abs. Prior 315 body lost, history. verify ASM (prod stays ASM), lint 0e/1w (pre-existing 2290 H003), -DNON_MATCHING compiles. */
+// FUN_002ADD90 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_002add90(u8 *arg0) {
+    u8 buf[0xC];
+    YVec3f v;
+    f32 spA8;
+    f32 sp98;
+    f32 spD8;
+    f32 spDC;
+    u8 *p;
+    u8 *tmp;
+    u8 *tmp2;
+    u8 *q;
+    s32 t16;
+    s32 t18;
+    s32 t19;
+    s32 t20;
+    s32 t22;
+    s32 t23;
+    s32 t182;
+    s32 t192;
+    s32 t222;
+    s32 ok;
+    s32 var16;
+    s16 var18;
+    s16 var19;
+    s16 tt;
+    s16 tt2;
+    p = *(u8 **)(arg0 + 0x38);
+    func_001687f0(buf, *(u8 **)(D_007EFA04 + 0x220));
+    v = *(YVec3f *)buf;
+    tmp = (u8 *)func_00460990();
+    *(void (**)(s32, u8 *))((u8 *)tmp + 8) = (void (*)(s32, u8 *))func_002add10;
+    *(u8 **)((u8 *)tmp + 0x10) = p;
+    func_00460ac0(D_00794C30, tmp);
+    tmp2 = (u8 *)func_00460990();
+    *(void (**)(u8 *, u8 *))((u8 *)tmp2 + 8) = (void (*)(u8 *, u8 *))func_002add60;
+    *(u8 **)((u8 *)tmp2 + 0x10) = p;
+    func_00460ac0(D_00794E10, tmp2);
+    switch (*(s8 *)(p + 4)) {
+    case 0:
+        func_002b2290(arg0);
+        *(s8 *)(p + 4) = (s8)(*(s8 *)(p + 4) + 1);
+        return 0;
+    case 2:
+        *(s16 *)(p + 0x766) = func_002b2cb0((s32)*(s16 *)(p + 0x766), 1, 5, 0, 1);
+        if ((s8)func_002b6850(*(u8 **)(p + 0x748)) == 0) {
+            func_002b67a0(*(u8 **)(p + 0x748), 0, 1);
+        }
+        if ((s8)func_002b6850(*(u8 **)(p + 0x74C)) == 0) {
+            func_002b67a0(*(u8 **)(p + 0x74C), 0, 1);
+        }
+        /* fallthrough */
+    case 5:
+        *(s16 *)(p + 0x764) = func_002b2cb0((s32)*(s16 *)(p + 0x764), 1, 0xA, 0, 1);
+        /* fallthrough */
+    case 1:
+        *(s8 *)(p + 0xB8) = 0;
+        var16 = 0;
+        while (var16 < 0xF) {
+            ok = 0;
+            q = (u8 *)((u8 *)&D_007E8C00 + var16 * 0x750);
+            if (*(s32 *)(q + 0x48) != 0 && *(s32 *)(q + 0x54) != 0) {
+                ok = 1;
+            }
+            if ((ok != 0) == 1) {
+                if (*(s32 *)((u8 *)p + var16 * 4 + 0xD8) == 0) {
+                    *(s32 *)((u8 *)p + var16 * 4 + 0xD8) = func_002b4a10(arg0, (s8)var16);
+                }
+            }
+            var16 += 1;
+        }
+        t18 = func_002B11C0(v) & 0xFF;
+        t20 = func_002B1210(v) & 0xFF;
+        func_002ac750(t18, t20);
+        t16 = (t20 & 0xFF) << 8;
+        t19 = t18 & 0xFF;
+        t23 = t19 * 0x10;
+        if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t23 + 0x64) == 1) {
+            if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t23 + 0x5E) & 8) {
+                if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t23 + 0x5F) & 8) {
+                    if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t23 + 0x5F) & 0x80) {
+                        func_002ac750((t19 + 1) & 0xFF, t20);
+                    }
+                } else {
+                    func_002ac750((t19 + 1) & 0xFF, t20);
+                }
+            }
+        }
+        if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t23 + 0x44) == 1) {
+            t22 = (t18 & 0xFF) * 0x10;
+            if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t22 + 0x5E) & 2) {
+                if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t22 + 0x5F) & 2) {
+                    if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t22 + 0x5F) & 0x20) {
+                        func_002ac750((t19 - 1) & 0xFF, t20);
+                    }
+                } else {
+                    func_002ac750((t19 - 1) & 0xFF, t20);
+                }
+            }
+        }
+        t182 = t20 & 0xFF;
+        t222 = t182 << 8;
+        t192 = (t18 & 0xFF) * 0x10;
+        if (*(u8 *)((u8 *)(u32)func_00155280() + t222 + t192 - 0xAC) == 1) {
+            if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t192 + 0x5E) & 1) {
+                if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t192 + 0x5F) & 1) {
+                    if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t192 + 0x5F) & 0x10) {
+                        func_002ac750(t18, (t182 - 1) & 0xFF);
+                    }
+                } else {
+                    func_002ac750(t18, (t182 - 1) & 0xFF);
+                }
+            }
+        }
+        if (*(u8 *)((u8 *)(u32)func_00155280() + t222 + t192 + 0x154) == 1) {
+            if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t192 + 0x5E) & 4) {
+                if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t192 + 0x5F) & 4) {
+                    if (*(u8 *)((u8 *)(u32)func_00155280() + t16 + t192 + 0x5F) & 0x40) {
+                        func_002ac750(t18, (t182 + 1) & 0xFF);
+                    }
+                } else {
+                    func_002ac750(t18, (t182 + 1) & 0xFF);
+                }
+            }
+        }
+        func_002b31a0((u8 *)&spA8, p + 8, (u8 *)&v);
+        spD8 = (f32)(spA8 / *(f32 *)((u8 *)&iGpffff84f4 + 4));
+        func_002b31a0((u8 *)&sp98, p + 8, (u8 *)&v);
+        spDC = (f32)(sp98 / *(f32 *)((u8 *)&iGpffff84f4 + 4));
+        var18 = 0;
+        while (var18 < 0xD) {
+            var19 = 0;
+            while (var19 < 0xD) {
+                tt = (s16)(var18 + (s16)((s32)func_001687d0(*(u8 **)(D_007EFA04 + 0x220)) - 6));
+                tt2 = (s16)(var19 + (s16)((s32)func_001687e0(*(u8 **)(D_007EFA04 + 0x220)) - 6));
+                if ((s32)tt > 0) {
+                    if ((s32)tt2 > 0 && (s32)tt < 0x10 && (s32)tt2 < 0x18) {
+                        q = (u8 *)p + ((s32)tt2 << 6) + ((s32)tt * 4);
+                        if (func_00452490(*(u8 **)(q + 0x148)) == 1) {
+                            if ((((1 << ((s32)tt & 0xFF)) & 0xFFFF & ((u16 *)D_00764658)[(s32)tt2 & 0xFF]) >> ((s32)tt & 0xFF)) == 1) {
+                                func_002b10e0(*(u8 **)(q + 0x148), 1);
+                            }
+                            {
+                                YVec2f vv;
+                                *(s64 *)&vv = *(s64 *)&spD8;
+                                func_002b10a0(*(u8 **)(q + 0x148), vv);
+                            }
+                        }
+                    }
+                }
+                var19 = (s16)(var19 + 1);
+            }
+            var18 = (s16)(var18 + 1);
+        }
+        func_002b2240(arg0);
+        return 0;
+    case 3:
+        *(s16 *)(p + 0x766) = func_002b2cb0((s32)*(s16 *)(p + 0x766), 1, 5, 0, 1);
+        /* fallthrough */
+    case 6:
+        *(s16 *)(p + 0x764) = func_002b2cb0((s32)*(s16 *)(p + 0x764), 1, 5, 0, 1);
+        /* fallthrough */
+    case 4:
+        func_002b2240(arg0);
+        return 0;
+    case 7:
+        return -1;
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002add90);
+#endif
 
 // FUN_002AE520
 void func_002ae520(u8 *arg0) {
