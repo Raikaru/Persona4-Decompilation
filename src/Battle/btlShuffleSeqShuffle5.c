@@ -319,9 +319,11 @@ s32 func_0037f550(u8 *arg0)
    vs sw/lw), stack-frame size (-0x120 vs -0x170), s-reg assignment, COP1
    madd/msub fusion, and scheduler ordering throughout. */
 /* measured 0037f6e0: `opt_loop_invariants on` inside the guard is worth 9 words (1047 -> 1038), the loop-preheader constant hoist. */
+/* measured 0037f6e0: pair `opt_common_subs off + opt_dead_assignments off` 1038 -> 1008 (-30, exact 1191/1191 instrs via fnalign, 4764B/4768B with one zero tail word). Singles: dead_assignments off 1027 (-11), common_subs off 1040 (+2 neutral), loop_invariants on baseline 1038. Validates opclass lui -31/addu -28 shortfall as rematerialisation territory, but only as pair. */
 // FUN_0037F6E0 NONMATCHING
 #ifdef NON_MATCHING
-#pragma opt_loop_invariants on
+#pragma opt_common_subs off
+#pragma opt_dead_assignments off
 s32 func_0037f6e0(u8 *arg0)
 {
     u8 *temp_19;
@@ -812,7 +814,8 @@ loop_123:
     }
 
 }
-#pragma opt_loop_invariants off
+#pragma opt_dead_assignments on
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeqShuffle5", func_0037f6e0);
 #endif

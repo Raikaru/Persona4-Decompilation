@@ -823,11 +823,137 @@ void func_002b5c60(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
-/* Archive docs/probe_archive/LaneEffLineNovaCode1_002ba080_body.c measures 361 differing words (probe_variants) */
-/* over 514 fnalign edits, retail 340 vs object 381 (+41, frames 0x130 vs 0x170). WALL: frame plus saved-GPR/FP */
-/* rotation and scheduling cascade. Plain INCLUDE_ASM retained (12% oversize, not bankable as floor). */
-// FUN_002BA080
+/* Floor: 288 differing words (probe_variants) over 278 fnalign edits, 335 emitted against */
+/* retail 336 (99.7%, 1340B/1360B window, 20B short). WALL: spill-offset rotation (retail src@0xF0/pos@0x120 */
+/* vs object src@0xE0/spC0@0xF0, invariant under decl/assign reorder) plus scheduling cascade; frame 0x130 both */
+/* sides, single saved-FP f20 (extra f21 fixed via int->float 9th arg). Honest levers: (f32)src.w cvt.s.w from */
+/* 0xFC (+15 instrs 320->335, 311->288 words), 22.0f/17.0f/284.0f/6.0f/18.0f/1.0f, s16 indices/s8 flags, block-scope */
+/* offsets, tmpCol byte-3 alpha, tmpA intermediate, swapped (0,alpha)/(alpha,0) 12-arg 002b83e0 calls. Ruled out: */
+/* opt_common_subs off (288->337 with cvt), srctemp (+21), !flag (+16), no-tmpCol (+10), f32-cast/mulswap neutral. */
+/* measured: python3 tools/probe_variants.py src/promoted/code1_002b.c func_002ba080 --candidate v2=/tmp/a080_probe/v2_cvt.c */
+/* measured: python3 tools/fnalign.py src/promoted/code1_002b.c func_002ba080 --candidate /tmp/a080_probe/v2_cvt.c */
+/* measured: python3 tools/measure_guarded.py src/promoted/code1_002b.c func_002ba080 (after install) */
+// FUN_002BA080 NONMATCHING
+#ifdef NON_MATCHING
+void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s64 arg6, s16 arg7, f32 fparg0, s8 arg_sp0)
+{
+    extern void func_002b83e0(u8 *arg0, s64 arg1, s32 arg2, s32 arg3, u8 arg4, u8 arg5, s64 arg6, s64 arg7, f32 fparg0, f32 fparg1, s8 arg_sp0, s8 arg_sp8);
+    struct Src4 { f32 x; f32 y; s32 z; s32 w; } src;
+    struct Float4 { f32 x; f32 y; f32 z; f32 w; } copy1, copy2;
+    struct Float2 { f32 x; f32 y; } pos1, pos2, tmpA, tmpB, tmpC;
+    s64 field;
+    u8 *object;
+    s64 spC0;
+    s32 spCC;
+    s32 tmpCol1;
+    s32 tmpCol2;
+    s16 value;
+    s16 pair_index;
+    s16 next_index;
+    s8 ones;
+    s8 tens;
+    s8 flag;
+    object = arg0;
+    field = arg6;
+    (void)field;
+    spC0 = arg3;
+    spCC = arg4;
+    func_002b29e0((u8 *)&src, 22.0f, 17.0f);
+    func_002b2970((u8 *)&pos1, *(f32 *)((u8 *)&spC0) + 284.0f, *(f32 *)((u8 *)&spC0 + 4) + 6.0f);
+    value = (s16)arg2;
+    if ((value == -1) || (value == 0)) { ones = 10; tens = 10; }
+    else { ones = (s8)(value % 10); tens = (s8)(value / 10); }
+    pair_index = (s16)((s16)arg1 * 2);
+    next_index = (s16)(pair_index + 1);
+    flag = arg_sp0;
+    if (flag == 0) {
+        u8 *digit; u8 *slot; s32 offset;
+        offset = (s32)pair_index * 0x220;
+        digit = D_0063F1F0 + ((s32)ones * 0x10);
+        slot = *(u8 **)(object + 0x38) + offset;
+        *(f32 *)(slot + 0x1F4) = *(f32 *)(digit + 0);
+        *(f32 *)(slot + 0x1F8) = *(f32 *)(digit + 4);
+        *(f32 *)(slot + 0x1FC) = *(f32 *)(digit + 8);
+        *(f32 *)(slot + 0x200) = *(f32 *)(digit + 0xC);
+        copy1 = *(struct Float4 *)&src;
+        *(f32 *)(slot + 0x12C) = pos1.x;
+        *(f32 *)(slot + 0x130) = pos1.y;
+        *(f32 *)(slot + 0x1A0) = 1.0f;
+        *(f32 *)(slot + 0x194) = 1.0f;
+        tmpCol1 = spCC;
+        *(u8 *)(slot + 0x162) = ((u8 *)&tmpCol1)[3];
+        *(u8 *)(slot + 0x179) = ((u8 *)&spCC)[0];
+        *(u8 *)(slot + 0x17A) = ((u8 *)&spCC)[1];
+        *(u8 *)(slot + 0x17B) = ((u8 *)&spCC)[2];
+        *(u8 *)(slot + 0x17C) = ((u8 *)&spCC)[3];
+        *(s32 *)(slot + 0x1C4) = 0;
+        *(f32 *)(slot + 0x108) = fparg0;
+        *(s16 *)(slot + 0x104) = (s16)(*(s16 *)(slot + 0x104) | 1);
+        *(f32 *)(slot + 0x204) = copy1.x;
+        *(f32 *)(slot + 0x208) = copy1.y;
+        *(f32 *)(slot + 0x20C) = copy1.z;
+        *(f32 *)(slot + 0x210) = copy1.w;
+        *(s16 *)(slot + 0x100) = arg7;
+        func_002b83e0(slot + 0x104, *(s64 *)((u8 *)&pos1), spCC, spCC, 0, ((u8 *)&spCC)[3], arg5, arg6, (f32)src.w, fparg0, arg_sp0, 0);
+    } else {
+        u8 *slot;
+        s32 offset;
+        offset = (s32)pair_index * 0x220;
+        slot = *(u8 **)(object + 0x38) + offset;
+        if ((*(s16 *)(slot + 0x104) & 1) == 1) {
+            u8 *a0 = slot + 0x104;
+            func_002b83e0(a0, *(s64 *)(a0 + 0x28), *(s32 *)(a0 + 0x75), *(s32 *)(a0 + 0x75), *(u8 *)(a0 + 0x5E), 0, arg5, arg6, (f32)src.w, fparg0, arg_sp0, 0);
+        }
+    }
+    if (flag == 0) {
+        if ((value >= 10) || (value == 0)) {
+            u8 *digit; u8 *slot; s32 offset;
+            offset = (s32)next_index * 0x220;
+            digit = D_0063F1F0 + ((s32)tens * 0x10);
+            slot = *(u8 **)(object + 0x38) + offset;
+            *(f32 *)(slot + 0x1F4) = *(f32 *)(digit + 0);
+            *(f32 *)(slot + 0x1F8) = *(f32 *)(digit + 4);
+            *(f32 *)(slot + 0x1FC) = *(f32 *)(digit + 8);
+            *(f32 *)(slot + 0x200) = *(f32 *)(digit + 0xC);
+            func_002b2970((u8 *)&pos2, pos1.x - 18.0f, pos1.y);
+            tmpA = pos2;
+            copy2 = *(struct Float4 *)&src;
+            tmpCol2 = spCC;
+            *(f32 *)(slot + 0x12C) = tmpA.x;
+            *(f32 *)(slot + 0x130) = tmpA.y;
+            *(f32 *)(slot + 0x1A0) = 1.0f;
+            *(f32 *)(slot + 0x194) = 1.0f;
+            *(u8 *)(slot + 0x162) = ((u8 *)&tmpCol2)[3];
+            *(u8 *)(slot + 0x179) = ((u8 *)&spCC)[0];
+            *(u8 *)(slot + 0x17A) = ((u8 *)&spCC)[1];
+            *(u8 *)(slot + 0x17B) = ((u8 *)&spCC)[2];
+            *(u8 *)(slot + 0x17C) = ((u8 *)&spCC)[3];
+            *(s32 *)(slot + 0x1C4) = 0;
+            *(f32 *)(slot + 0x108) = fparg0;
+            *(s16 *)(slot + 0x104) = (s16)(*(s16 *)(slot + 0x104) | 1);
+            *(f32 *)(slot + 0x204) = copy2.x;
+            *(f32 *)(slot + 0x208) = copy2.y;
+            *(f32 *)(slot + 0x20C) = copy2.z;
+            *(f32 *)(slot + 0x210) = copy2.w;
+            *(s16 *)(slot + 0x100) = arg7;
+            func_002b2970((u8 *)&tmpB, pos1.x - 18.0f, pos1.y);
+            func_002b83e0(slot + 0x104, *(s64 *)((u8 *)&tmpB), spCC, spCC, 0, ((u8 *)&spCC)[3], arg5, arg6, (f32)src.w, fparg0, arg_sp0, 0);
+        }
+    } else {
+        u8 *slot;
+        s32 offset;
+        offset = (s32)next_index * 0x220;
+        slot = *(u8 **)(object + 0x38) + offset;
+        if ((*(s16 *)(slot + 0x104) & 1) == 1) {
+            u8 *a0 = slot + 0x104;
+            func_002b2970((u8 *)&tmpC, pos1.x - 18.0f, *(f32 *)(a0 + 0x2C));
+            func_002b83e0(a0, *(s64 *)((u8 *)&tmpC), *(s32 *)(a0 + 0x75), *(s32 *)(a0 + 0x75), *(u8 *)(a0 + 0x5E), 0, arg5, arg6, (f32)src.w, fparg0, arg_sp0, 0);
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002ba080);
+#endif
 /* Floor: 186 differing words (probe_variants) over 207 fnalign edits (+2 reloc-only), 230 emitted against */
 /* retail's 230 (100%, 8B zero tail in 928B window). WALL: saved-register rotation (retail s1=a2/s2=t1 */
 /* vs object s2=a2/s1=t1, invariant under field/value decl swap) plus spill offsets (sd a3 96 vs 152, */
