@@ -474,6 +474,28 @@ Grep every alignment for object-only `dsll32` runs before anything else;
 it is a one-line fix and it was worth 39, 24 and 10 words on three
 different functions in one afternoon.
 
+### 7n. A counter shared across two loops forces a callee-saved register
+
+Retail sometimes keeps a loop counter in a caller-saved register ($a1, $a3)
+where the candidate uses a callee-saved one ($s3, $s4).  That is not the
+7m exchange class - it is a register *class* difference, and it has a source
+cause worth checking: **one variable serving both a call-free loop and a
+later loop that makes calls**.  The shared live range crosses a call, so the
+allocator must pick a callee-saved register for the whole thing, including
+the loop where retail used a temp.
+
+On `func_0013fb50` the same `k` ran `while (k < 0x6C)` (no calls) and
+`while (k < 0x19)` (three calls per iteration).  Giving the first loop its own
+counter was worth **34 -> 28 words**, and the counter moved to $a3 as retail
+has it.  It has to be a *fresh* variable: reusing the earlier `i` costs 33 and
+reusing `j` costs 96.
+
+Check for it whenever the alignment shows the same instruction with an $aN in
+retail and an $sN in the candidate.  It does not always apply - on
+`func_00303610`, which shows the identical $a1-versus-$s3 symptom, splitting
+the shared `j` ties at 27, so the cause there is something else.  One probe
+settles it either way.
+
 ### 7m. The exchanged-register-pair class, and how to recognise it
 
 Six floors turned out to be the same thing, and it is worth naming so nobody

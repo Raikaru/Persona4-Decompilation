@@ -2871,6 +2871,18 @@ INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013f720);
    src/promoted/y_CmbCardEff.c.  Remaining 34 words: retail keeps the second
    loop counter in $a3 where b210 uses $s4, and a fourteen-instruction
    error-path call block sits earlier in retail. */
+/* 2026-09-18 lead pass: 34 -> 28 words.  The first `while (k < 0x6C)` loop
+   and the later `while (k < 0x19)` loop shared one `k`, which forced the
+   counter into a callee-saved register because the second loop contains
+   calls; retail keeps the first loop's counter in the caller-saved $a3.
+   Giving the first loop its own `n` is worth 6 words.  Reusing `i` instead
+   costs 33 and reusing `j` costs 96, so it has to be a fresh variable.
+   Neutral on top of that (all tie at 28): `!resource` instead of
+   `resource == 0`, reversing the three resource declarations, moving the
+   `slot` declaration last.  Moving the `arg0 + 0x1874` store after its
+   guard costs 28 -> 33.  Residual is the resource-fetch block at retail
+   offsets 130-144, where retail copies each fetch result into a saved
+   register before testing it. */
 // FUN_0013FB50 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
@@ -2878,6 +2890,7 @@ void func_0013fb50(u8 *arg0) {
     s16 i;
     s16 j;
     s16 k;
+    s16 n;
     s32 value;
     f32 f;
     s32 resource0;
@@ -2916,14 +2929,14 @@ void func_0013fb50(u8 *arg0) {
         j++;
     }
 
-    k = 0;
-    while (k < 0x6C) {
-        slot = (s32 *)(arg0 + k * 0x14 + 0xFA4);
-        *slot = k % 9;
+    n = 0;
+    while (n < 0x6C) {
+        slot = (s32 *)(arg0 + n * 0x14 + 0xFA4);
+        *slot = n % 9;
         *(s32 *)((u8 *)slot + 8) = 9;
-        *(s32 *)((u8 *)slot + 4) = k / 9;
+        *(s32 *)((u8 *)slot + 4) = n / 9;
         *(s32 *)((u8 *)slot + 0xC) = 0xC;
-        k++;
+        n++;
     }
 
     *(s16 *)(arg0 + 0x32) = func_00353c10((s16 *)(arg0 + 0x22));

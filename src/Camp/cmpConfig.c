@@ -356,8 +356,163 @@ void func_0035d000(u8* arg0, u8* arg1) {
     func_0035d0a0(arg1);
 }
 
-// FUN_0035D0A0
+/* measured: GUARDED_SCORE 496 via measure_guarded (probe_variants base 533 -> v2c 496), obj 3092B window 3104B (99.6% within 3%), fnalign 773/773 instrs 370 edits +1 reloc-only; pragmas singly: loopinv 533 tie, nounroll 533 tie, nosched 533 tie, nocommon 736 (+203); subscript off-form tie; floats-first tie; x/y elimination -37. Residual: frame 0xE0 vs 0xD0, arg0 $s0 vs $s4, COP1 adda/madd scheduling, D_ word-copy (lwc1 vs lbu/sb), saved-reg colouring ($s0/$s5 vs $s4/$s0, $s3/$s4 vs $s3/$s4 class, time-boxed per 7m). No retail jump table (loops only); text/sprite helpers grepped from frFontEx.c (00274ed0/00275020) and cmpConfig idiom (0034c270/0034f2e0/0034f9d0/0035dfb0); decompilers m2c.c (303 lines) + rom.c (207 lines) + --types in /var/tmp/cold35d0a0/. Verify 17 MATCH 1 ASM (guarded self), lint 0 errors. */
+// FUN_0035D0A0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0035d0a0(u8 *arg0) {
+    extern int func_00274ed0(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int charWidth);
+    extern int func_00275020(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int charWidth);
+    s32 sel;
+    s32 flag;
+    s32 i;
+    s32 j;
+    s32 prev;
+    s32 isSel;
+    u8 *row;
+    u8 *sprite;
+    u8 *colPtr;
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 alpha;
+    Vec2f pos;
+    f32 fade;
+    f32 baseX;
+    f32 baseY;
+    f32 x0;
+    f32 y0;
+    f32 f21;
+    f32 f20;
+
+    func_0034f1e0();
+    baseX = *(f32 *)(arg0 + 8);
+    baseY = *(f32 *)(arg0 + 0xC);
+    fade = (f32)*arg0 / 255.0f;
+    sel = *(s32 *)(arg0 + 0x30);
+    flag = *(s32 *)(arg0 + 0x14);
+    if (flag != 0) {
+        pos.x = baseX;
+        pos.y = baseY;
+        alpha = (u8)(255.0f * fade);
+        func_0034c270(pos, alpha, flag, 0.0f);
+    }
+    if ((*(u32 *)(arg0 + 0x24) & 1) != 0) {
+        pos.x = 26.0f + (baseX + *(f32 *)(arg0 + 0x88));
+        pos.y = 388.0f + (baseY + *(f32 *)(arg0 + 0x8C));
+        alpha = (u8)((f32)*(u8 *)(arg0 + 0x92) * fade);
+        func_0034f2e0(*(void **)(arg0 + 0x448), pos.x, pos.y, 0x5E, 0x37, 0xFF, alpha);
+    }
+    if ((*(u32 *)(arg0 + 0x24) & 2) != 0) {
+        x0 = (baseX + *(f32 *)(arg0 + 0x3B8)) - 23.0f;
+        y0 = baseY + *(f32 *)(arg0 + 0x3BC);
+        alpha = (u8)((f32)*(u8 *)(arg0 + 0x3C2) * fade);
+        sprite = *(u8 **)(arg0 + 0x470);
+        f21 = iGpffff8170 * (f32)alpha;
+        f20 = 0.5f * (f32)alpha;
+        for (i = 0; i < 11; i++) {
+            pos.x = x0 + (f32)(i * 45);
+            row = arg0 + i * 10;
+            for (j = 0; j < *(s16 *)(row + 0x3DA); j++) {
+                if (j == *(s16 *)(row + 0x3DA) - 1) {
+                    r = 0xFF;
+                    g = 0xFF;
+                    b = 0xA4;
+                    alpha = (u8)f21;
+                    pos.y = y0 + (f32)(j * 17);
+                    func_0034f2e0(sprite, pos.x, pos.y, r, g, b, alpha);
+                } else if (j < *(s16 *)(row + 0x3DE)) {
+                    r = 0xFE;
+                    g = 0xFF;
+                    b = 0x56;
+                    alpha = (u8)f20;
+                    pos.y = y0 + (f32)(j * 17);
+                    func_0034f2e0(sprite, pos.x, pos.y, r, g, b, alpha);
+                }
+            }
+        }
+        prev = -1;
+        for (i = 0; i < 7; i++) {
+            row = arg0 + i * 48;
+            x0 = baseX + *(f32 *)(row + 0xB8);
+            y0 = (f32)i * 32.0f + (baseY + *(f32 *)(row + 0xBC));
+            pos.x = 219.0f + x0;
+            pos.y = 119.0f + y0;
+            alpha = (u8)((f32)*(u8 *)(row + 0xC2) * fade);
+            if ((i == 2) && (*(s32 *)(arg0 + 0x4C) == 0)) {
+                r = 0xA0;
+                g = 0xA0;
+                b = 0xA0;
+            } else {
+                r = D_0064B2E0[0];
+                g = D_0064B2E0[1];
+                b = D_0064B2E0[2];
+            }
+            func_0034f2e0(*(void **)(arg0 + 0x44C), pos.x, pos.y, r, g, b, alpha);
+            func_0034f2e0(*(void **)(arg0 + 0x450), 380.0f + pos.x, pos.y, r, g, b, alpha);
+            if (i == sel) {
+                isSel = 1;
+                func_0034f2e0(*(void **)(arg0 + 0x460), pos.x, pos.y, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], alpha);
+                func_0034f2e0(*(void **)(arg0 + 0x468), 247.0f + pos.x, pos.y, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], alpha);
+                if ((i == 2) && (*(s32 *)(arg0 + 0x4C) == 0)) {
+                    flag = (alpha & 0xFF) | 0xB4B4B400;
+                } else {
+                    flag = (alpha & 0xFF) | 0xFFFFFF00;
+                }
+            } else {
+                isSel = 0;
+                if (i == 2) {
+                    flag = (alpha & 0xFF) | 0x80808000;
+                } else {
+                    flag = (alpha & 0xFF) | 0x80808000;
+                }
+            }
+            x0 = (f32)0x1C7 + x0;
+            y0 = 122.0f + y0;
+            func_00275020(x0, y0, 0.0f, flag, 8, 1, (const char *)D_0064D230[i], 2, -1);
+            if (i != 6) {
+                if (*(u16 *)(arg0 + i * 2 + 0x3A) < 5) {
+                    if (prev != -1) {
+                        func_0035dfb0(arg0, prev, 1);
+                        func_0035dfb0(arg0, prev, 2);
+                    }
+                    prev = i;
+                    *(u16 *)(arg0 + i * 2 + 0x3A) = *(u16 *)(arg0 + i * 2 + 0x3A) + 1;
+                } else {
+                    func_0035dfb0(arg0, i, 0);
+                }
+            } else {
+                row = arg0 + i * 48;
+                pos.x = (f32)0x1CF + (baseX + *(f32 *)(row + 0x208));
+                pos.y = (f32)0x137 + (baseY + *(f32 *)(row + 0x20C));
+                func_0034f2e0(*(void **)(arg0 + 0x464), pos.x, pos.y, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], alpha);
+                func_0034f2e0(*(void **)(arg0 + 0x468), 150.0f + pos.x, pos.y, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], alpha);
+                pos.x = (f32)0x205 + (baseX + *(f32 *)(row + 0x208));
+                pos.y = (f32)0x13F + (baseY + *(f32 *)(row + 0x20C));
+                if (isSel != 0) {
+                    colPtr = D_0064B2EC;
+                } else {
+                    colPtr = D_0064B304;
+                }
+                func_0034f2e0(*(void **)(arg0 + 0x46C), pos.x, pos.y, colPtr[0], colPtr[1], colPtr[2], alpha);
+            }
+        }
+        if (prev != -1) {
+            func_0035dfb0(arg0, prev, 1);
+            func_0035dfb0(arg0, prev, 2);
+        }
+        pos.x = (f32)0x26B + (baseX + *(f32 *)(arg0 + 0x358));
+        pos.y = (f32)0x15B + (baseY + *(f32 *)(arg0 + 0x35C));
+        alpha = (u8)((f32)*(u8 *)(arg0 + 0x362) * fade);
+        func_00274ed0(pos.x, pos.y, 0.0f, (alpha | ~0xFF), 6, 1, (const char *)D_0064D380[sel], 2, 0);
+    }
+    pos.x = 640.0f + (baseX + *(f32 *)(arg0 + 0x388));
+    pos.y = 400.0f + (baseY + *(f32 *)(arg0 + 0x38C));
+    alpha = (u8)((f32)*(u8 *)(arg0 + 0x392) * fade);
+    func_0034f9d0(pos, 0.0f, alpha, *(u16 *)(arg0 + 0x38), *(s32 *)(arg0 + 0x474));
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmpConfig", func_0035d0a0);
+#endif
 
 // FUN_0035DCC0
 s32 func_0035dcc0(u8 *arg0) {

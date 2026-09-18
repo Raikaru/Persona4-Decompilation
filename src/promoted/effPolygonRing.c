@@ -121,6 +121,13 @@ void func_00498ec0(void **arg0)
    Tried var_16 declared first/last/mid, pointer pair swapped - the pair never
    leaves $s0/$s1. Same recorded allocator-pool floor family as
    effPolygonFlash FUN_0049D360/0049E150 (5 declaration orders tried there). */
+/* 2026-09-18 lead pass; section 7m exchanged-register-pair class, floor
+   confirmed at 34 words.  Retail holds the pointer loaded from
+   `*(u8 **)(*(u8 **)(arg0 + 0x3C))` in $s2 where this body uses $s0, and
+   every differing word is an instruction naming it.  Both declaration
+   permutations of the `temp_16`/`temp_17` pair tie at 34.  Not the 7n
+   shared-counter case either - the register class matches, only the number
+   differs.  Two probes is the right budget for this class. */
 // FUN_00498F10 NONMATCHING
 /* measured: banked reconstruction scores GUARDED_SCORE 34
    (`python3 tools/measure_guarded.py src/promoted/effPolygonRing.c

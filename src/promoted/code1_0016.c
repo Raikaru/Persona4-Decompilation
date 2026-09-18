@@ -40,6 +40,13 @@ extern u8 D_007E8060[];
 extern u8 D_007E8020[];
 extern u8 *iGpffffb2b0;
 extern s32 iGpffffb2b8;
+extern s32 D_007643A4;
+extern s32 D_007643AC;
+extern f32 D_007643B0;
+extern f32 D_007643B4;
+extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
+extern u8 D_007943C0[];
+extern u8 D_00794960[];
 extern s32 iGpffffba48;
 extern u8 iGpffffba4c;
 extern u8 iGpffffba50;
@@ -342,8 +349,249 @@ void func_001607e0(void)
 }
 /* measured: closes the function-scoped opt_propagation probe. */
 #pragma opt_propagation on
-// FUN_00160880
+/* measured: 655wd via probe_variants (fnalign retail 760 vs object 779, +19 +2.5% inside 3% gate, 527 edits +8 reloc); opt_common_subs off 677->655 load-bearing; opt_loop_invariants on 677->699 regress, opt_unroll_loops off/schedule off tie at 677, direct subscript ((s32*)P)[j+N] 655->687 regress so materialized p=base+row+j*4 kept, decl swaps i/j and curOff/prevOff tie at 655; residual is saved-reg coloring + FPU lerp/madd ordering + lbu/sb scheduling, time-boxed per batch recipe. */
+// FUN_00160880 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_common_subs off
+void func_00160880(void)
+{
+    s32 cur;
+    f32 blend;
+    f32 nb;
+    f32 b;
+    f32 inv;
+    s32 curOff;
+    s32 prevOff;
+    s32 i;
+    s32 j;
+    s32 k;
+    u8 *base;
+    u8 *p;
+    s32 w0;
+    s32 w1;
+    s32 w2;
+    s32 w3;
+    s32 r0;
+    s32 g0;
+    s32 b0;
+    s32 r1;
+    s32 g1;
+    s32 b1;
+    s32 r2;
+    s32 g2;
+    s32 b2;
+    s32 r3;
+    s32 g3;
+    s32 b3;
+    s32 a0;
+    s32 a1;
+    s32 a2;
+    s32 a3;
+    s32 sr0;
+    s32 sg0;
+    s32 sb0;
+    s32 sr1;
+    s32 sg1;
+    s32 sb1;
+    s32 sr2;
+    s32 sg2;
+    s32 sb2;
+    s32 sr3;
+    s32 sg3;
+    s32 sb3;
+    s32 sa0;
+    s32 sa1;
+    s32 sa2;
+    s32 sa3;
+    s32 bright;
+    s32 alpha;
+    u8 colsA[16];
+    u8 colsB[16];
+    u8 *vtx;
+    u8 *res;
+
+    cur = iGpffffb2b8;
+    if (cur == 0) {
+        return;
+    }
+    blend = D_007643B0;
+    if (blend < 1.0f) {
+        nb = blend + 1.0f / D_007643B4;
+        D_007643B0 = nb;
+        if (nb > 1.0f) {
+            D_007643B0 = 1.0f;
+            D_007643AC = cur;
+        }
+    }
+    b = D_007643B0;
+    inv = 1.0f - b;
+    curOff = cur * 0x124;
+    prevOff = D_007643AC * 0x124;
+    base = iGpffffb2b0;
+    bright = D_007643A4;
+    alpha = iGpffff9ef8;
+    for (i = 0; i < 7; i++) {
+        s32 curRow = curOff + i * 0x24;
+        s32 prevRow = prevOff + i * 0x24;
+        u8 *vtxRow = D_007E4320 + (i << 11);
+        for (j = 0; j < 8; j++) {
+            p = base + curRow + j * 4;
+            w0 = *(s32 *)(p + 4);
+            r0 = w0 & 0xFF;
+            g0 = (w0 >> 8) & 0xFF;
+            b0 = (w0 >> 16) & 0xFF;
+            w1 = *(s32 *)(p + 8);
+            r1 = w1 & 0xFF;
+            g1 = (w1 >> 8) & 0xFF;
+            b1 = (w1 >> 16) & 0xFF;
+            w2 = *(s32 *)(p + 0x2C);
+            r2 = w2 & 0xFF;
+            g2 = (w2 >> 8) & 0xFF;
+            b2 = (w2 >> 16) & 0xFF;
+            w3 = *(s32 *)(p + 0x28);
+            r3 = w3 & 0xFF;
+            g3 = (w3 >> 8) & 0xFF;
+            b3 = (w3 >> 16) & 0xFF;
+            a0 = ((w0 >> 24) & 0xFF) + bright;
+            a1 = ((w1 >> 24) & 0xFF) + bright;
+            a2 = ((w2 >> 24) & 0xFF) + bright;
+            a3 = ((w3 >> 24) & 0xFF) + bright;
+            if (a0 < 0) { a0 = 0; }
+            if (a0 >= 256) { a0 = 255; }
+            if (a1 < 0) { a1 = 0; }
+            if (a1 >= 256) { a1 = 255; }
+            if (a2 < 0) { a2 = 0; }
+            if (a2 >= 256) { a2 = 255; }
+            if (b < 1.0f) {
+                u8 *q = base + prevRow + j * 4;
+                s32 v0 = *(s32 *)(q + 4);
+                s32 v1 = *(s32 *)(q + 8);
+                s32 v2 = *(s32 *)(q + 0x2C);
+                s32 v3 = *(s32 *)(q + 0x28);
+                sr0 = v0 & 0xFF;
+                sg0 = (v0 >> 8) & 0xFF;
+                sb0 = (v0 >> 16) & 0xFF;
+                sr1 = v1 & 0xFF;
+                sg1 = (v1 >> 8) & 0xFF;
+                sb1 = (v1 >> 16) & 0xFF;
+                sr2 = v2 & 0xFF;
+                sg2 = (v2 >> 8) & 0xFF;
+                sb2 = (v2 >> 16) & 0xFF;
+                sr3 = v3 & 0xFF;
+                sg3 = (v3 >> 8) & 0xFF;
+                sb3 = (v3 >> 16) & 0xFF;
+                sa0 = ((v0 >> 24) & 0xFF) + bright;
+                sa1 = ((v1 >> 24) & 0xFF) + bright;
+                sa2 = ((v2 >> 24) & 0xFF) + bright;
+                if (sa0 < 0) { sa0 = 0; }
+                if (sa0 >= 256) { sa0 = 255; }
+                if (sa1 < 0) { sa1 = 0; }
+                if (sa1 >= 256) { sa1 = 255; }
+                if (sa2 < 0) { sa2 = 0; }
+                if (sa2 >= 256) { sa2 = 255; }
+                r0 = (s32)((f32)r0 * b + (f32)sr0 * inv);
+                g0 = (s32)((f32)g0 * b + (f32)sg0 * inv);
+                b0 = (s32)((f32)b0 * b + (f32)sb0 * inv);
+                a0 = (s32)((f32)a0 * b + (f32)sa0 * inv);
+                r1 = (s32)((f32)r1 * b + (f32)sr1 * inv);
+                g1 = (s32)((f32)g1 * b + (f32)sg1 * inv);
+                b1 = (s32)((f32)b1 * b + (f32)sb1 * inv);
+                a1 = (s32)((f32)a1 * b + (f32)sa1 * inv);
+                r2 = (s32)((f32)r2 * b + (f32)sr2 * inv);
+                g2 = (s32)((f32)g2 * b + (f32)sg2 * inv);
+                b2 = (s32)((f32)b2 * b + (f32)sb2 * inv);
+                a2 = (s32)((f32)a2 * b + (f32)sa2 * inv);
+                r3 = (s32)((f32)r3 * b + (f32)sr3 * inv);
+                g3 = (s32)((f32)g3 * b + (f32)sg3 * inv);
+                b3 = (s32)((f32)b3 * b + (f32)sb3 * inv);
+                a3 = (s32)((f32)a3 * b + (f32)(((v3 >> 24) & 0xFF) + bright) * inv);
+            }
+            if (alpha != 255) {
+                r0 = r0 * alpha / 255;
+                g0 = g0 * alpha / 255;
+                b0 = b0 * alpha / 255;
+                a0 = a0 * alpha / 255;
+                r1 = r1 * alpha / 255;
+                g1 = g1 * alpha / 255;
+                b1 = b1 * alpha / 255;
+                a1 = a1 * alpha / 255;
+                r2 = r2 * alpha / 255;
+                g2 = g2 * alpha / 255;
+                b2 = b2 * alpha / 255;
+                a2 = a2 * alpha / 255;
+                r3 = r3 * alpha / 255;
+                g3 = g3 * alpha / 255;
+                b3 = b3 * alpha / 255;
+                a3 = a3 * alpha / 255;
+            }
+            if (*(s32 *)(base + curOff) == 3) {
+                for (k = 0; k < 16; k++) { colsA[k] = 0; }
+                colsA[0] = (u8)r0;
+                colsA[1] = (u8)g0;
+                colsA[2] = (u8)b0;
+                colsA[3] = (u8)a0;
+                colsA[4] = (u8)r1;
+                colsA[5] = (u8)g1;
+                colsA[6] = (u8)b1;
+                colsA[7] = (u8)a1;
+                colsA[8] = (u8)r3;
+                colsA[9] = (u8)g3;
+                colsA[10] = (u8)b3;
+                colsA[11] = (u8)a3;
+                colsA[12] = (u8)r2;
+                colsA[13] = (u8)g2;
+                colsA[14] = (u8)b2;
+                colsA[15] = (u8)a2;
+                vtx = vtxRow + (j << 8);
+                for (k = 0; k < 4; k++) {
+                    *(f32 *)(vtx + (k << 6) + 0x20) = (f32)colsA[k * 4];
+                    *(f32 *)(vtx + (k << 6) + 0x24) = (f32)colsA[k * 4 + 1];
+                    *(f32 *)(vtx + (k << 6) + 0x28) = (f32)colsA[k * 4 + 2];
+                    *(f32 *)(vtx + (k << 6) + 0x2C) = (f32)colsA[k * 4 + 3];
+                }
+                res = func_00461390(D_007943C0, 4, vtx, 4);
+            } else {
+                for (k = 0; k < 16; k++) { colsB[k] = 0; }
+                colsB[0] = (u8)r0;
+                colsB[1] = (u8)g0;
+                colsB[2] = (u8)b0;
+                colsB[3] = (u8)a0;
+                colsB[4] = (u8)r1;
+                colsB[5] = (u8)g1;
+                colsB[6] = (u8)b1;
+                colsB[7] = (u8)a1;
+                colsB[8] = (u8)r3;
+                colsB[9] = (u8)g3;
+                colsB[10] = (u8)b3;
+                colsB[11] = (u8)a3;
+                colsB[12] = (u8)r2;
+                colsB[13] = (u8)g2;
+                colsB[14] = (u8)b2;
+                colsB[15] = (u8)a2;
+                vtx = vtxRow + (j << 8);
+                for (k = 0; k < 4; k++) {
+                    *(f32 *)(vtx + (k << 6) + 0x20) = (f32)colsB[k * 4];
+                    *(f32 *)(vtx + (k << 6) + 0x24) = (f32)colsB[k * 4 + 1];
+                    *(f32 *)(vtx + (k << 6) + 0x28) = (f32)colsB[k * 4 + 2];
+                    *(f32 *)(vtx + (k << 6) + 0x2C) = (f32)colsB[k * 4 + 3];
+                }
+                res = func_00461390(D_00794960, 4, vtx, 4);
+            }
+            if ((j == 0) && (i == 0)) {
+                *(void **)(res + 8) = (void *)func_00160680;
+                *(s32 *)(res + 16) = 0;
+            }
+            if ((j == 7) && (i == 6) && (*(s32 *)(base + cur * 0x124) == 3)) {
+                *(void **)(res + 12) = (void *)func_001607e0;
+                *(s32 *)(res + 20) = 0;
+            }
+        }
+    }
+}
+#pragma opt_common_subs on
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_00160880);
+#endif
 // FUN_001614D0
 s32 func_001614d0(void)
 {
