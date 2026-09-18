@@ -154,10 +154,294 @@ void func_004b3470(u8 *arg0) {
 }
 
 
-/* Shortfall: retail 440 instrs vs object 511 instrs (+71, +16% over; obj 2044B vs window 1760B). Object does work retail does not (plain-C FPU expansion of VU cross/normalize: 2 VF vopmula/vopmsub -> 9 FPU mul/sub, plus extra live float temps); every differing word after the first surplus instr is displacement noise. */
-/* Logic sketch holds for major blocks (colour-unpack verbatim with sw $2,0x150($sp)+volatile reload, FE/FF, early exit, dual 00457120, 0x7C switch, loop via 003c2290, tail) but NOT banked: outside 3% instruction-count gate, word score (487) is not rankable. Candidate preserved at /var/tmp/efflane/cand_004b36b0_v3.c for next agent to trim FPU expansion back toward 440. */
-// FUN_004B36B0
+/* measured: cold m2c 250 lines de-noised to ordinary C in file idiom; include holds canonical RwV3d-RwMatrix-RwRGBA in include-rw-inc-rwplcore.h, file idiom for VU fns (sibling 4430) uses plain u8 plus f32 plus u_long128 so no new structs invented. Real-tree baseline fnalign retail 440 vs object 440 (18 plus 29 reloc-only, byte-identical). Mirror v1 pure-C 423, v2 with H009 VU colour pack (effBlurFilter fGpffff8044 idiom) 411 (minus 12, count 438 vs 437). Port to real idiom (void 2-arg dead-a0, inside externs u8 arrays, hardcoded sw 0x150 plus volatile) scores 390 in real tree (better than preserved 487), fnalign 438 vs 431 (minus 7, inside 3 percent gate vs preserved plus 71 outside). Mirror v3a-v3b float colour (near-first, sX-sY swap) 411 and v4a-v4b (decl-neg-counter) 411 — two unproductive rounds, stop. Residual is VU loop (lqc2-sqc2-qmtc2-vopmula normalize plus cross, FPU expansion) plus float colour plus frame. No byte-exact candidate retained. */
+// FUN_004B36B0 NONMATCHING
+#ifdef NON_MATCHING
+void func_004b36b0(u8 *arg0, u8 *arg1)
+{
+    typedef unsigned int u_long128 __attribute__((mode(TI)));
+    extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
+    extern u8 *func_00457120(void);
+    extern void func_003e42a0(u8 *a, u8 *b, u8 *c);
+    extern void func_003c2290(u8 *a, s32 b);
+    extern void func_003c22f0(u8 *a);
+    extern void func_003e9700(u8 *a);
+    extern void func_003e9cb0(u8 *a, u8 *b, s32 c);
+    extern f32 fGpffff8044;
+    extern u8 D_00713CF0[];
+    extern u8 D_00713D10[];
+    extern u8 D_00713D14[];
+    extern u8 D_00713D18[];
+    s32 sp158;
+    s32 sp154;
+    s32 sp150;
+    s32 sp15C;
+    f32 sp148;
+    f32 sp144;
+    f32 sp140;
+    f32 baseX[5];
+    f32 baseY[5];
+    f32 baseZ[5];
+    f32 projX;
+    f32 projY;
+    f32 projZ;
+    f32 outX;
+    f32 outY;
+    f32 outZ;
+    f32 w;
+    u_long128 spD0;
+    u_long128 spC0;
+    u_long128 spB0;
+    u_long128 spA0;
+    u_long128 spE0q;
+    u8 *tmp19;
+    u8 *tmp18;
+    u8 *tmp16;
+    u8 *tmp17;
+    s32 tmp;
+    s32 *pt;
+    f32 scale;
+    u8 mode;
+    s32 i;
+    u8 *dst;
+    f32 f6;
+    f32 f5;
+    f32 f4;
+    f32 f3;
+    f32 f2;
+    f32 f1;
+    f32 f0;
+    u32 count;
+    u8 *arr;
+    u8 *verts;
+    u8 *aPtr;
+    u8 *bPtr;
+    u8 *cPtr;
+    u8 b2;
+    f32 fb2;
+    f32 sX;
+    f32 sY;
+    tmp19 = *(u8 **)(arg1 + 0x20);
+    tmp18 = *(u8 **)(arg1 + 0x24);
+    tmp16 = *(u8 **)(tmp19 + 4);
+    tmp = func_0048abd0(tmp18, tmp18 + 0x24, *(s32 *)(arg1 + 0x14), *(s32 *)(tmp18 + 0x34));
+    sp158 = *(s32 *)(arg1 + 0x10);
+    pt = &sp158;
+    scale = fGpffff8044;
+    __asm__ volatile(
+        "lw $2, 0(%0)          \n"
+        "pextlb $2, $0, $2     \n"
+        "pextlh $2, $0, $2     \n"
+        "qmtc2.ni $2, $vf10    \n"
+        "vitof0.xyzw $vf10, $vf10 \n"
+        "mfc1 $2, %1           \n"
+        "nop                   \n"
+        "qmtc2.ni $2, $vf2     \n"
+        "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+        "vmove.xyzw $vf11, $vf10 \n"
+        :
+        : "r"(pt), "f"(scale)
+        : "$2", "$vf2", "$vf10", "$vf11", "memory");
+    sp154 = tmp;
+    __asm__ volatile(
+        "lw $2, 0(%0)          \n"
+        "pextlb $2, $0, $2     \n"
+        "pextlh $2, $0, $2     \n"
+        "qmtc2.ni $2, $vf10    \n"
+        "vitof0.xyzw $vf10, $vf10 \n"
+        "mfc1 $2, %1           \n"
+        "nop                   \n"
+        "qmtc2.ni $2, $vf2     \n"
+        "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+        "vmul.xyzw $vf10, $vf10, $vf11 \n"
+        "lui $2, 0x437F        \n"
+        "qmtc2.ni $2, $vf2     \n"
+        "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+        "vftoi0.xyzw $vf10, $vf10 \n"
+        "qmfc2.ni $2, $vf10    \n"
+        "ppach $2, $0, $2      \n"
+        "ppacb $2, $0, $2      \n"
+        "sw $2, 0x150($sp)      \n"
+        :
+        : "r"(&sp154), "f"(scale)
+        : "$2", "$vf2", "$vf10", "$vf11", "memory");
+    sp15C = *(volatile s32 *)&sp150;
+    if (((u8 *)&sp15C)[3] != 0xFF) {
+        dst = *(u8 **)(tmp16 + 0x14);
+        dst[4] = ((u8 *)&sp15C)[0];
+        dst[5] = ((u8 *)&sp15C)[1];
+        dst[6] = ((u8 *)&sp15C)[2];
+        dst[7] = ((u8 *)&sp15C)[3];
+    } else {
+        ((u8 *)&sp15C)[3] = 0xFE;
+        dst = *(u8 **)(tmp16 + 0x14);
+        dst[4] = ((u8 *)&sp15C)[0];
+        dst[5] = ((u8 *)&sp15C)[1];
+        dst[6] = ((u8 *)&sp15C)[2];
+        dst[7] = 0xFE;
+        ((u8 *)&sp15C)[3] = 0xFF;
+    }
+    if (*(u8 *)(*(u8 **)(tmp16 + 0x14) + 7) == 0) {
+        return;
+    }
+    tmp17 = func_00457120() + 0x68;
+    f6 = *(f32 *)(func_00457120() + 0x80);
+    f5 = *(f32 *)(tmp17 + 0);
+    f4 = f5 * f6;
+    f3 = *(f32 *)(tmp17 + 4);
+    f2 = f3 * f6;
+    f1 = -f4;
+    f0 = -f2;
+    baseX[0] = f1; baseY[0] = f0; baseZ[0] = f6;
+    baseX[1] = f4; baseY[1] = f0; baseZ[1] = f6;
+    baseX[2] = f4; baseY[2] = f2; baseZ[2] = f6;
+    baseX[3] = f1; baseY[3] = f2; baseZ[3] = f6;
+    baseX[4] = 0.0f; baseY[4] = 0.0f; baseZ[4] = f6;
+    mode = *(u8 *)(tmp18 + 0x7C);
+    if (mode == 1) {
+        f32 k;
+        f32 fx;
+        f32 fy;
+        k = 300.0f * f6;
+        fx = ((f32)*(s16 *)(tmp18 + 0x7E) / 640.0f) - 0.5f;
+        fy = ((f32)*(s16 *)(tmp18 + 0x80) / 448.0f) - 0.5f;
+        sp140 = 2.0f * -(f5 * k) * fx;
+        sp144 = 2.0f * -(f3 * k) * fy;
+        sp148 = k;
+        projX = sp140; projY = sp144; projZ = sp148;
+    } else if (mode == 0) {
+        u8 outBuf[16];
+        func_003e42a0(outBuf, arg1, func_00457120() + 0x20);
+        outX = *(f32 *)(outBuf + 0);
+        outY = *(f32 *)(outBuf + 4);
+        outZ = *(f32 *)(outBuf + 8);
+        w = outZ;
+        sp140 = 2.0f * -(f5 * w) * ((outX / w) - 0.5f);
+        sp144 = 2.0f * -(f3 * w) * ((outY / w) - 0.5f);
+        sp148 = w;
+        projX = sp140; projY = sp144; projZ = sp148;
+    } else {
+        sp140 = f1 + f4;
+        sp144 = f0 + f2;
+        sp148 = f6 + f6;
+        projX = 0.0f; projY = 0.0f; projZ = f6;
+    }
+    count = *(u32 *)(tmp18 + 0x38);
+    arr = *(u8 **)tmp19;
+    aPtr = *(u8 **)(tmp16 + 0x10);
+    bPtr = *(u8 **)(aPtr + 0x18);
+    func_003c2290(bPtr, 2);
+    cPtr = *(u8 **)(bPtr + 0x5C);
+    verts = *(u8 **)(cPtr + 0x14);
+    b2 = *(arr + 2);
+    if ((s32)b2 >= 0) {
+        fb2 = (f32)b2;
+    } else {
+        fb2 = (f32)((b2 >> 1) | (b2 & 1));
+        fb2 += fb2;
+    }
+    fb2 = fb2 / 255.0f;
+    sX = *(f32 *)(tmp18 + 0x5C) * fb2;
+    sY = *(f32 *)(tmp18 + 0x60) * fb2;
+    spD0 = (u_long128)(u32)count;
+    spC0 = (u_long128)0x710000;
+    spB0 = (u_long128)0x710000;
+    spA0 = (u_long128)0x710000;
+    spE0q = (u_long128)0;
+    i = 0;
+    while (i < (s32)count) {
+        f32 pax;
+        f32 pay;
+        f32 paz;
+        f32 pbx;
+        f32 pby;
+        f32 pbz;
+        f32 dx;
+        f32 dy;
+        f32 dz;
+        f32 len2;
+        f32 len;
+        f32 inv;
+        f32 nx;
+        f32 ny;
+        f32 nz;
+        f32 cx;
+        f32 cy;
+        f32 cz;
+        f32 f;
+        u16 v0;
+        f32 cvx;
+        f32 cvy;
+        f32 cvz;
+        cvx = *(f32 *)D_00713CF0;
+        cvy = *(f32 *)(D_00713CF0 + 4);
+        cvz = *(f32 *)(D_00713CF0 + 8);
+        pax = baseX[i & 3]; pay = baseY[i & 3]; paz = baseZ[i & 3];
+        pbx = baseX[(i + 1) & 3]; pby = baseY[(i + 1) & 3]; pbz = baseZ[(i + 1) & 3];
+        dx = pax - pbx;
+        dy = pay - pby;
+        dz = paz - pbz;
+        len2 = dx * dx + dy * dy + dz * dz;
+        len = len2;
+        v0 = *(u16 *)arr;
+        if ((s32)v0 >= 0) {
+            f = (f32)v0;
+        } else {
+            f = (f32)((v0 >> 1) | (v0 & 1));
+            f += f;
+        }
+        f = f / 65535.0f;
+        f = len * f;
+        inv = 1.0f;
+        if (len2 > 0.0f) {
+            inv = 1.0f / len2;
+        }
+        nx = dx * inv;
+        ny = dy * inv;
+        nz = dz * inv;
+        cx = ny * cvz - nz * cvy;
+        cy = nz * cvx - nx * cvz;
+        cz = nx * cvy - ny * cvx;
+        *(f32 *)(verts + 0x30) = *(f32 *)D_00713D10 + cx * sX;
+        *(f32 *)(verts + 0x34) = *(f32 *)D_00713D14 + cy * sX;
+        *(f32 *)(verts + 0x38) = *(f32 *)D_00713D18 + cz * sX;
+        *(f32 *)(verts + 0x24) = *(f32 *)D_00713D10 + cx * sX + f;
+        *(f32 *)(verts + 0x28) = *(f32 *)D_00713D14 + cy * sX + f;
+        *(f32 *)(verts + 0x2C) = *(f32 *)D_00713D18 + cz * sX + f;
+        *(f32 *)(verts + 0x3C) = *(f32 *)D_00713D10 - cx * sX;
+        *(f32 *)(verts + 0x40) = *(f32 *)D_00713D14 - cy * sX;
+        *(f32 *)(verts + 0x44) = *(f32 *)D_00713D18 - cz * sX;
+        *(f32 *)(verts + 0x0C) = *(f32 *)D_00713D10 + cx * sY;
+        *(f32 *)(verts + 0x10) = *(f32 *)D_00713D14 + cy * sY;
+        *(f32 *)(verts + 0x14) = *(f32 *)D_00713D18 + cz * sY;
+        *(f32 *)(verts + 0x00) = projX + cx;
+        *(f32 *)(verts + 0x04) = projY + cy;
+        *(f32 *)(verts + 0x08) = projZ + cz;
+        *(f32 *)(verts + 0x18) = *(f32 *)D_00713D10;
+        *(f32 *)(verts + 0x1C) = *(f32 *)D_00713D14;
+        *(f32 *)(verts + 0x20) = *(f32 *)D_00713D18;
+        i++;
+        arr += 8;
+        verts += 0x48;
+    }
+    {
+        u8 *tail;
+        tail = *(u8 **)(*(u8 **)(tmp16 + 0x10) + 0x18);
+        func_003c22f0(tail);
+        if ((*(u16 *)tmp16 & 4) != 0) {
+            *(u16 *)(tail + 0x0C) = *(u16 *)(tail + 0x0C) | 1;
+        }
+    }
+    {
+        u8 *cam;
+        cam = func_00457120();
+        func_003e9700(*(u8 **)(cam + 4));
+        func_003e9cb0(*(u8 **)(tmp16 + 0x0C), func_00457120(), 0);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b36b0);
+#endif
 
 
 // FUN_004B3D90

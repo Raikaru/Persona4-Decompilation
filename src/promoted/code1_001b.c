@@ -4064,8 +4064,171 @@ process:
 done:
     ;
 }
-// FUN_001BF5E0
+/* measured: GUARDED_SCORE 235 via tools/measure_guarded.py src/promoted/code1_001b.c func_001bf5e0 (fnalign retail 353/object 351 instrs, 60 edits +14 reloc-only; live 1404B/window 1424B, 20B short). De-noised tools/m2c_decompile.py output (/var/tmp/cold1bf5e0/m2c_real.c, 200 lines, 38 VU adda/madd/mula unknowns) alongside fnalign retail stream into file idiom (no M2C_*, no s128/stack slots, no goto-loops, file-scope bd560/bd780/195850/fGp/D_0060A0E0/003dcc70 reused, locals only for 003e4180/41e0/40b0/001ec2b0/003dcb40/001bac20 as u16 per btlMain provider plus 001c idiom with (u16*)arg0 cast/001bbef0/D_0060A100 as u8[] per 001c idiom; first/view arms per btlCamera slerp plus m2c). Biggest-first probe_variants: diff 0.0f to posB-posA CSEs to retail sub (mirror 268 to 254), diff times fiveRad plus eye equals pos plus diff for exact count (mirror 254 to 245, real 235), then mul-order/branch/nob0 all tie (fail 1), arm-truthfulness plus struct-copy plus decl-orders all tie (fail 2, third confirmatory). Walls: VU blocks as plain mul/add, gp-literal reloc-only, s/f coloring, stack slots, grouped versus interleaved 4-float copies. Production stays ASM. */
+// FUN_001BF5E0 NONMATCHING
+#ifdef NON_MATCHING
+void func_001bf5e0(u8 *arg0)
+{
+    extern f32 func_003e4180(f32 *arg0);
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+    extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
+    extern f32 func_001ec2b0(void *arg0, void *arg1);
+    extern void func_003dcb40(void *arg0, const void *arg1, s32 arg2, const void *arg3);
+    extern void func_001bac20(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
+    extern void func_001bbef0(u8 *arg0, f32 arg1);
+    extern u8 D_0060A100[];
+    struct Frame {
+        f32 save50[2];
+        f32 horiz58[2];
+        f32 first60[7];
+        f32 final7C[3];
+        f32 view88[4];
+        u8 pad98[8];
+        f32 scurA0[4];
+        f32 snextB0[4];
+        f32 sangleC0;
+        s32 smodeC4;
+        u8 padC8[8];
+        f32 selD0[4];
+        f32 posBE0[3];
+        u8 padEC[4];
+        f32 posAF0[3];
+        u8 padFC[4];
+        f32 tgt100[3];
+        u8 pad10C[4];
+        f32 diff110[3];
+        u8 pad11C[4];
+        f32 eye120[3];
+    } frame;
+    u8 *b0;
+    u8 *unitA;
+    u8 *unitB;
+    f32 rad;
+    f32 len;
+    f32 dist;
+    f32 dot;
+    f32 blend;
+    f32 t;
+    f32 inv;
+    f32 f4;
+    f32 f3;
+    f32 f0;
+    f32 f1;
+    f32 fiveRad;
+    b0 = *(u8 **)(arg0 + 0xE0);
+    unitA = *(u8 **)(b0 + 0x30);
+    unitB = *(u8 **)(*(u8 **)(b0 + 0x38) + 0x30);
+    func_001bd560(frame.first60, (f32 *)(arg0 + 0x9C));
+    func_00195850(unitA, frame.posAF0);
+    func_00195850(unitB, frame.posBE0);
+    frame.posAF0[1] = frame.posAF0[1] + 0.2f * (*(f32 *)(unitA + 0x8C) * *(f32 *)(unitA + 0x2C));
+    if (frame.posAF0[1] < 100.0f) {
+        frame.posAF0[1] = 100.0f;
+    }
+    frame.diff110[0] = frame.first60[0] - frame.posAF0[0];
+    frame.diff110[1] = frame.first60[1] - frame.posAF0[1];
+    frame.diff110[2] = frame.first60[2] - frame.posAF0[2];
+    len = func_003e4180(frame.diff110);
+    dist = len * 0.65f;
+    frame.horiz58[0] = frame.diff110[0];
+    frame.horiz58[1] = frame.diff110[2];
+    func_003e41e0(frame.horiz58, frame.horiz58);
+    frame.posBE0[1] = frame.posAF0[1];
+    frame.diff110[0] = frame.posBE0[0] - frame.posAF0[0];
+    frame.diff110[1] = frame.posBE0[1] - frame.posAF0[1];
+    frame.diff110[2] = frame.posBE0[2] - frame.posAF0[2];
+    func_003e40b0(frame.diff110, frame.diff110);
+    frame.save50[0] = frame.diff110[0];
+    frame.save50[1] = frame.diff110[2];
+    dot = frame.horiz58[0] * frame.save50[0] + frame.horiz58[1] * frame.save50[1];
+    if (dot < 0.0f) {
+        frame.diff110[0] = -frame.diff110[0];
+        frame.diff110[1] = -frame.diff110[1];
+        frame.diff110[2] = -frame.diff110[2];
+    }
+    rad = *(f32 *)(unitA + 0x90) * *(f32 *)(unitA + 0x2C);
+    frame.tgt100[0] = frame.posAF0[0] + frame.diff110[0] * rad;
+    frame.tgt100[1] = frame.posAF0[1] + frame.diff110[1] * rad;
+    frame.tgt100[2] = frame.posAF0[2] + frame.diff110[2] * rad;
+    fiveRad = 5.0f * rad;
+    frame.diff110[0] = frame.diff110[0] * fiveRad;
+    frame.diff110[1] = frame.diff110[1] * fiveRad;
+    frame.diff110[2] = frame.diff110[2] * fiveRad;
+    frame.eye120[0] = frame.posAF0[0] + frame.diff110[0];
+    frame.eye120[1] = frame.posAF0[1] + frame.diff110[1];
+    frame.eye120[2] = frame.posAF0[2] + frame.diff110[2];
+    rad = *(f32 *)(unitB + 0x8C) * *(f32 *)(unitB + 0x2C);
+    frame.eye120[1] = frame.posBE0[1] + 0.5f * rad;
+    frame.diff110[0] = frame.eye120[0] - frame.posAF0[0];
+    frame.diff110[1] = frame.eye120[1] - frame.posAF0[1];
+    frame.diff110[2] = frame.eye120[2] - frame.posAF0[2];
+    func_003e40b0(frame.diff110, frame.diff110);
+    func_001bd780(frame.view88, frame.eye120, frame.tgt100, D_0060A0E0);
+    blend = func_001ec2b0(&frame.first60[3], frame.view88);
+    if (blend > 1.0471976f) {
+        t = 1.0471976f / blend;
+        func_003dcc70(&frame.first60[3], frame.view88, frame.scurA0);
+        if (t <= 0.0f) {
+            frame.selD0[0] = frame.first60[3];
+            frame.selD0[1] = frame.first60[4];
+            frame.selD0[2] = frame.first60[5];
+            frame.selD0[3] = frame.first60[6];
+        } else if (t >= 1.0f) {
+            frame.selD0[0] = frame.view88[0];
+            frame.selD0[1] = frame.view88[1];
+            frame.selD0[2] = frame.view88[2];
+            frame.selD0[3] = frame.view88[3];
+        } else {
+            inv = 1.0f - t;
+            if (frame.smodeC4 == 0) {
+                f4 = inv * frame.sangleC0;
+                f3 = f4 * f4;
+                f0 = fGpffff8104 * f3 + fGpffff8054;
+                f0 = f3 * f0 + fGpffff8058;
+                f0 = f3 * f0 + fGpffff805c;
+                f0 = f3 * f0 + fGpffff8060;
+                f1 = f3 * f0 + fGpffff8108;
+                f0 = f3 * f4;
+                inv = f0 * f1 + f4;
+                f4 = t * frame.sangleC0;
+                f3 = f4 * f4;
+                f0 = fGpffff8104 * f3 + fGpffff8054;
+                f0 = f3 * f0 + fGpffff8058;
+                f0 = f3 * f0 + fGpffff805c;
+                f0 = f3 * f0 + fGpffff8060;
+                f1 = f3 * f0 + fGpffff8108;
+                f0 = f3 * f4;
+                t = f0 * f1 + f4;
+            }
+            frame.selD0[0] = frame.scurA0[0] * inv;
+            frame.selD0[1] = frame.scurA0[1] * inv;
+            frame.selD0[2] = frame.scurA0[2] * inv;
+            frame.selD0[0] = frame.snextB0[0] * t + frame.selD0[0];
+            frame.selD0[1] = frame.snextB0[1] * t + frame.selD0[1];
+            frame.selD0[2] = frame.snextB0[2] * t + frame.selD0[2];
+            frame.selD0[3] = frame.scurA0[3] * inv + frame.snextB0[3] * t;
+        }
+        func_003dcb40(frame.diff110, D_0060A100, 1, frame.selD0);
+        frame.eye120[0] = frame.tgt100[0] + frame.diff110[0];
+        frame.eye120[1] = frame.tgt100[1] + frame.diff110[1];
+        frame.eye120[2] = frame.tgt100[2] + frame.diff110[2];
+        func_001bd780(frame.view88, frame.eye120, frame.tgt100, D_0060A0E0);
+    }
+    if (dist < 600.0f) {
+        dist = 600.0f;
+    }
+    frame.diff110[0] = frame.diff110[0] * dist;
+    frame.diff110[1] = frame.diff110[1] * dist;
+    frame.diff110[2] = frame.diff110[2] * dist;
+    frame.final7C[0] = frame.tgt100[0] + frame.diff110[0];
+    frame.final7C[1] = frame.tgt100[1] + frame.diff110[1];
+    frame.final7C[2] = frame.tgt100[2] + frame.diff110[2];
+    func_001bac20((u16 *)arg0, frame.first60, frame.final7C, 1);
+    func_001bbef0(arg0, 1.0f);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001bf5e0);
+#endif
 // FUN_001BFB70
 void func_001bfb70(u8 *arg0)
 {

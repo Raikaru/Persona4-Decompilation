@@ -164,12 +164,226 @@ s32 func_0017ea10(u8 *arg0)
     return 0;
 }
 
-/* measured: nd 679 with a full C body (object 1832B against a 1872B window).
-   Wave 9 ran out of turns here and left it uncommitted, so this is a partial
-   adaptation rather than a settled floor -- re-attempt from the m2c draft with
-   the brief's recipes before treating any of it as established. */
-// FUN_0017ED40
+/* measured: GUARDED_SCORE 435 (obj 1608B/window 1872B; retail 466 instrs/object 402 instrs). Cold-start m2c de-noise in file idiom with existing externs; probed cell-copy staging, hit scalar/struct, > vs !(<=) and temp-expanded adds. Count gap held across two further probe rounds, stopping per brief. */
+// FUN_0017ED40 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0017ed40(u8 *arg0) {
+    f32 sp50;
+    f32 sp54;
+    f32 sp58;
+    f32 sp5C;
+    f32 sp60;
+    f32 sp64;
+    f32 sp68;
+    f32 sp6C;
+    f32 sp70;
+    f32 sp74;
+    f32 sp80;
+    f32 sp84;
+    f32 sp88;
+    f32 sp8C;
+    f32 sp90;
+    f32 sp94;
+    FldAIVec3 hit;
+    f32 tmpF0;
+    f32 tmpF1;
+    f32 tmpF2;
+    f32 tmpF3;
+    f32 tmpF4;
+    f32 tmpF0b;
+    s32 tmp3;
+    s32 tmp4;
+    s32 cnt5;
+    s32 par;
+    s32 ret;
+    s32 bit;
+    u8 *tmpP;
+    u8 *cellA;
+    u8 *tabA;
+    u8 *tabB;
+    s32 cellX;
+    s32 cellZ;
+
+    cellX = 0;
+    cellZ = 0;
+    ret = 1;
+    if (*(s32 *)(arg0 + 0x4C) < 0x10) {
+        tmpP = *(u8 **)(arg0 + 0xC);
+        tmpF2 = *(f32 *)(tmpP + 0x19C);
+        tmpF1 = *(f32 *)(tmpP + 0x1A0);
+        tmpF0 = *(f32 *)(tmpP + 0x1A4);
+        sp80 = tmpF2;
+        sp84 = tmpF1;
+        sp88 = tmpF0;
+        sp8C = tmpF2;
+        sp90 = tmpF1;
+        sp94 = tmpF0;
+        if (*(s32 *)(arg0 + 0x4C) >= 4) {
+            cellX = (s32)((600.0f + sp80) / 1200.0f);
+            cellZ = (s32)((600.0f + sp88) / 1200.0f);
+            cellA = func_00155280() + (cellZ << 8) + (cellX * 0x10);
+            sp50 = *(f32 *)(cellA + 0x54);
+            sp54 = *(f32 *)(cellA + 0x58);
+            sp58 = *(f32 *)(cellA + 0x5C);
+            sp5C = *(f32 *)(cellA + 0x60);
+            cnt5 = *(s32 *)(arg0 + 0x4C);
+            bit = cnt5 & 3;
+            if ((cnt5 < 0) && (bit != 0)) {
+                bit -= 4;
+            }
+            tmp3 = 1 << bit;
+            if ((((u8 *)&sp50)[10] & tmp3) == 0 || ((((u8 *)&sp50)[11] & tmp3) != 0)) {
+                goto tail;
+            }
+        }
+tab:
+        tmp4 = *(s32 *)(arg0 + 0x4C);
+        tabA = D_005F1B40 + (tmp4 * 0x18);
+        sp60 = *(f32 *)(tabA + 0x0);
+        sp64 = *(f32 *)(tabA + 0x4);
+        sp68 = *(f32 *)(tabA + 0x8);
+        if ((tmp4 >= 4) && (*(s32 *)(arg0 + 0x4C) < 8)) {
+            if (sp60 < 0.0f) {
+                sp60 = (1200.0f * (f32)(cellX - 1)) - sp80;
+            } else if (!(sp60 <= 0.0f)) {
+                sp60 = (1200.0f * (f32)(cellX + 1)) - sp80;
+            }
+            if (sp68 < 0.0f) {
+                sp68 = (1200.0f * (f32)(cellZ - 1)) - sp88;
+            } else if (!(sp68 <= 0.0f)) {
+                sp68 = (1200.0f * (f32)(cellZ + 1)) - sp88;
+            }
+        }
+        tmpF4 = sp80 + sp60;
+        sp80 = tmpF4;
+        { f32 t = sp84 + sp64; sp84 = t; }
+        tmpF3 = sp88 + sp68;
+        sp88 = tmpF3;
+        tabB = D_005F1B4C + (*(s32 *)(arg0 + 0x4C) * 0x18);
+        tmpF0b = *(f32 *)(tabB + 0x8);
+        sp6C = *(f32 *)(tabB + 0x0);
+        sp70 = *(f32 *)(tabB + 0x4);
+        sp74 = tmpF0b;
+        { f32 t = sp8C + sp6C; sp8C = t; }
+        { f32 t = sp90 + sp70; sp90 = t; }
+        { f32 t = sp94 + tmpF0b; sp94 = t; }
+        {
+            s32 nx = (s32)((600.0f + tmpF4) / 1200.0f);
+            s32 nz = (s32)((600.0f + tmpF3) / 1200.0f);
+            u8 *cellB = func_00155280() + (nz << 8) + (nx * 0x10);
+            if (*(u8 *)(cellB + 0x54) == 1) {
+                par = 0;
+                if (func_0016b8a0(&sp80, &hit) == 1) {
+                    s32 c2 = *(s32 *)(arg0 + 0x4C);
+                    if (c2 >= 4) {
+                        par = c2 & 1;
+                        if ((c2 < 0) && (par != 0)) {
+                            par -= 2;
+                        }
+                    }
+                    if (c2 < 8) {
+                        s32 o = par * 0x18;
+                        u8 *b = arg0 + o;
+                        if (*(f32 *)(b + 0x18) < hit.x) {
+                            *(f32 *)(b + 0x18) = hit.x;
+                        }
+                        if (*(f32 *)(b + 0x1C) < hit.y) {
+                            *(f32 *)(b + 0x1C) = hit.y;
+                        }
+                        if (*(f32 *)(b + 0x20) < hit.z) {
+                            *(f32 *)(b + 0x20) = hit.z;
+                        }
+                        if (!(*(f32 *)(b + 0x24) <= hit.x)) {
+                            *(f32 *)(b + 0x24) = hit.x;
+                        }
+                        if (!(*(f32 *)(b + 0x28) <= hit.y)) {
+                            *(f32 *)(b + 0x28) = hit.y;
+                        }
+                        if (!(*(f32 *)(b + 0x2C) <= hit.z)) {
+                            *(f32 *)(b + 0x2C) = hit.z;
+                        }
+                        if (*(s32 *)(arg0 + 0x4C) < 4) {
+                            *(f32 *)(arg0 + 0x30) = *(f32 *)(arg0 + 0x18);
+                            *(f32 *)(arg0 + 0x34) = *(f32 *)(arg0 + 0x1C);
+                            *(f32 *)(arg0 + 0x38) = *(f32 *)(arg0 + 0x20);
+                            *(f32 *)(arg0 + 0x3C) = *(f32 *)(arg0 + 0x24);
+                            *(f32 *)(arg0 + 0x40) = *(f32 *)(arg0 + 0x28);
+                            *(f32 *)(arg0 + 0x44) = *(f32 *)(arg0 + 0x2C);
+                        }
+                    } else if (c2 < 0xC) {
+                        if (par == 0) {
+                            u8 *b = arg0 + (par * 0x18);
+                            if (*(f32 *)(b + 0x24) < hit.x) {
+                                *(f32 *)(b + 0x24) = hit.x;
+                            }
+                        } else {
+                            u8 *b = arg0 + (par * 0x18);
+                            if (*(f32 *)(b + 0x2C) < hit.z) {
+                                *(f32 *)(b + 0x2C) = hit.z;
+                            }
+                        }
+                    } else if (par == 0) {
+                        u8 *b = arg0 + (par * 0x18);
+                        if (!(*(f32 *)(b + 0x18) <= hit.x)) {
+                            *(f32 *)(b + 0x18) = hit.x;
+                        }
+                    } else {
+                        u8 *b = arg0 + (par * 0x18);
+                        if (!(*(f32 *)(b + 0x20) <= hit.z)) {
+                            *(f32 *)(b + 0x20) = hit.z;
+                        }
+                    }
+                } else {
+                    s32 c3 = *(s32 *)(arg0 + 0x4C);
+                    if (c3 >= 4) {
+                        par = c3 & 1;
+                        if ((c3 < 0) && (par != 0)) {
+                            par -= 2;
+                        }
+                    }
+                    if (c3 < 8) {
+                        s32 o = par * 0x18;
+                        u8 *b = arg0 + o;
+                        if (*(f32 *)(b + 0x18) < sp8C) {
+                            *(f32 *)(b + 0x18) = sp8C;
+                        }
+                        if (*(f32 *)(b + 0x1C) < sp90) {
+                            *(f32 *)(b + 0x1C) = sp90;
+                        }
+                        if (*(f32 *)(b + 0x20) < sp94) {
+                            *(f32 *)(b + 0x20) = sp94;
+                        }
+                        if (!(*(f32 *)(b + 0x24) <= sp8C)) {
+                            *(f32 *)(b + 0x24) = sp8C;
+                        }
+                        if (!(*(f32 *)(b + 0x28) <= sp90)) {
+                            *(f32 *)(b + 0x28) = sp90;
+                        }
+                        if (!(*(f32 *)(b + 0x2C) <= sp94)) {
+                            *(f32 *)(b + 0x2C) = sp94;
+                        }
+                        if (*(s32 *)(arg0 + 0x4C) < 4) {
+                            *(f32 *)(arg0 + 0x30) = *(f32 *)(arg0 + 0x18);
+                            *(f32 *)(arg0 + 0x34) = *(f32 *)(arg0 + 0x1C);
+                            *(f32 *)(arg0 + 0x38) = *(f32 *)(arg0 + 0x20);
+                            *(f32 *)(arg0 + 0x3C) = *(f32 *)(arg0 + 0x24);
+                            *(f32 *)(arg0 + 0x40) = *(f32 *)(arg0 + 0x28);
+                            *(f32 *)(arg0 + 0x44) = *(f32 *)(arg0 + 0x2C);
+                        }
+                    }
+                }
+            }
+        }
+tail:
+        *(s32 *)(arg0 + 0x4C) = *(s32 *)(arg0 + 0x4C) + 1;
+    } else {
+        ret = 0;
+    }
+    return ret;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/k_fldAI", func_0017ed40);
+#endif
 
 // FUN_0017F490
 INCLUDE_ASM("asm/nonmatchings/k_fldAI", func_0017f490);
