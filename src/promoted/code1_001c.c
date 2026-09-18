@@ -1531,8 +1531,196 @@ void func_001c79f0(u8 *arg0, s32 arg1)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c79f0);
 #endif
-// FUN_001C80F0
+/* measured 001c80f0: 329 differing words guarded via `python3 tools/measure_guarded.py src/promoted/code1_001c.c func_001c80f0` (GUARDED_SCORE 329); probe 329 via `python3 tools/probe_variants.py src/promoted/code1_001c.c func_001c80f0 --candidate v1=/var/tmp/cold1c80f0/v1.c`; fnalign retail 502 vs object 494 instrs, 156 edits (+17 reloc-only) via `python3 tools/fnalign.py src/promoted/code1_001c.c func_001c80f0 --candidate /var/tmp/cold1c80f0/v1.c --quiet`. M2C via `python3 -E -s tools/m2c_decompile.py src/promoted/code1_001c.c func_001c80f0 -o /var/tmp/cold1c80f0/m2c.c`; de-noised to file idiom reusing existing decls (func_001bd560, func_00195850, func_00196040, func_003dcb40, func_003e40b0, func_001bd780, func_0044b868, tanf, func_001958f0, func_001bcd40, func_001bab00, func_001bac20, func_001bbef0, D_0060A0D0/D_0060A0E0/D_0060A100, fGpffff8110/8100/811c). Frame 0x180. Within 3% size gate (494/502=98.4%), banked as floor; residual is FPU coloring, adda/madd scheduling, ld/sd copy, and poly chain. Round2 v2 block-scope+copy_pair 374 (+45), v3 copy_pair-only 374, v4 scope-only 329 tie; Round3 v5 p4_cacd0_mul tie (329, same 156+17 edits), v6 inclusive 50.0 compare 352 (+23). Two unproductive rounds, stopping. Top remaining: FPU color shift (retail $f23/$f21 vs object $f22/$f23, $f20/$f22 vs $f20/$f21), COP1 adda/madd+msub vs mul/add, ld/sd vs lw/sw copy, double 003e40b0 call, poly adda/madd chain. */
+// FUN_001C80F0 NONMATCHING
+#ifdef NON_MATCHING
+void func_001c80f0(u8 *arg0, s32 arg1)
+{
+    struct Frame {
+        f32 quat70[4];
+        f32 slerp80[8];
+        f32 angleA0;
+        s32 modeA4;
+        u8 padA8[8];
+        f32 outB0[3];
+        f32 quatBC[4];
+        f32 copyCC[3];
+        f32 quatD8[4];
+        u8 padE8[8];
+        f32 poseF0[7];
+        f32 out10C[3];
+        f32 interp118[4];
+        u8 pad128[8];
+        f32 center130[3];
+        f32 pad13C;
+        f32 actor140[3];
+        f32 pad14C;
+        f32 cand150[3];
+        f32 pad15C;
+        f32 diff160[3];
+        f32 pad16C;
+        f32 dir170[3];
+        f32 top17C;
+    } frame;
+    extern f32 fGpffff8118;
+    extern f32 fGpffff80bc;
+    extern f32 fGpffff8120;
+    extern f32 fGpffff8124;
+    extern f32 fGpffff8104;
+    extern f32 fGpffff8054;
+    extern f32 fGpffff8058;
+    extern f32 fGpffff805c;
+    extern f32 fGpffff8060;
+    extern f32 fGpffff8108;
+    extern f32 func_0044b868(f32 arg0);
+    extern void func_001ec1c0(void *arg0, void *arg1, void *arg2);
+    extern void func_003dcc70(void *arg0, void *arg1, void *arg2);
+    extern void func_001bd5e0(f32 *arg0, f32 *arg1);
+    f32 var_f24;
+    f32 var_f23;
+    f32 var_f22;
+    f32 var_f21;
+    f32 var_f20;
+    f32 minReq;
+    f32 scaleTmp;
+    f32 polyA;
+    f32 polyB;
+    f32 sqA;
+    f32 sqB;
+    u8 *saved_arg0;
+    s32 saved_flag;
+    u8 *unit;
+    u8 *next;
+    u8 *unit2;
+
+    saved_arg0 = arg0;
+    saved_flag = arg1;
+    unit = *(u8 **)(*(u8 **)(saved_arg0 + 0xE0) + 0x30);
+    next = func_001d8bc0(*(u8 **)(saved_arg0 + 0xE0) + 0x98);
+    func_001bd560(frame.poseF0, saved_arg0 + 0x9C);
+    func_00195850(unit, frame.actor140);
+    var_f23 = *(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C) * 2.0f;
+    frame.actor140[1] = frame.actor140[1] + fGpffff8118 * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C)) + 0.0f;
+    var_f20 = func_00196040(2, 0, frame.center130, &frame.top17C, NULL, 1);
+    frame.top17C = frame.top17C * fGpffff8100;
+    frame.center130[1] = frame.top17C;
+    func_001ec1c0(frame.quat70, frame.actor140, frame.center130);
+    func_003dcb40((RwV3d *)frame.dir170, (const RwV3d *)D_0060A0D0, 1, (const RtQuat *)frame.quat70);
+    frame.dir170[0] = frame.dir170[0] * var_f23;
+    frame.dir170[1] = frame.dir170[1] * var_f23;
+    frame.dir170[2] = frame.dir170[2] * var_f23;
+    frame.actor140[0] = frame.actor140[0] + frame.dir170[0];
+    frame.actor140[1] = frame.actor140[1] + frame.dir170[1];
+    frame.actor140[2] = frame.actor140[2] + frame.dir170[2];
+    frame.diff160[0] = frame.actor140[0] - frame.center130[0];
+    frame.diff160[1] = frame.actor140[1] - frame.center130[1];
+    frame.diff160[2] = frame.actor140[2] - frame.center130[2];
+    var_f22 = func_003e40b0((RwV3d *)frame.diff160, (const RwV3d *)frame.diff160);
+    scaleTmp = fGpffff811c * var_f22;
+    frame.cand150[0] = frame.diff160[0] * scaleTmp + frame.center130[0];
+    frame.cand150[1] = frame.diff160[1] * scaleTmp + frame.center130[1];
+    frame.cand150[2] = frame.diff160[2] * scaleTmp + frame.center130[2];
+    frame.dir170[0] = frame.actor140[0];
+    frame.dir170[1] = frame.actor140[1];
+    frame.dir170[2] = frame.actor140[2];
+    func_001bd780(frame.quatBC, frame.dir170, frame.cand150, D_0060A0E0);
+    var_f21 = 0.5f * *(f32 *)(saved_arg0 + 0xB8);
+    if (*(u16 *)(saved_arg0 + 0x106) == 0) {
+        var_f24 = 0.75f * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
+        var_f24 = var_f24 / tanf(var_f21);
+        minReq = (0.75f * var_f20) / tanf(var_f21);
+    } else {
+        var_f24 = fGpffff811c * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
+        var_f24 = var_f24 / tanf(var_f21);
+        minReq = (fGpffff811c * var_f20) / tanf(var_f21);
+    }
+    var_f20 = var_f24 + var_f22;
+    if (var_f20 <= minReq) {
+        var_f20 = minReq;
+    }
+    func_003dcb40((RwV3d *)frame.dir170, (const RwV3d *)D_0060A100, 1, (const RtQuat *)frame.quatBC);
+    scaleTmp = var_f20 * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8))) * 0.109375f * fGpffff80bc;
+    frame.center130[0] = frame.center130[0] + frame.dir170[2] * scaleTmp + 0.0f;
+    frame.center130[2] = (frame.center130[2] + 0.0f) - frame.dir170[0] * scaleTmp;
+    frame.dir170[0] = frame.dir170[0] * var_f20;
+    frame.dir170[1] = frame.dir170[1] * var_f20;
+    frame.dir170[2] = frame.dir170[2] * var_f20;
+    frame.outB0[0] = frame.center130[0] + frame.dir170[0];
+    frame.outB0[1] = frame.center130[1] + frame.dir170[1];
+    frame.outB0[2] = frame.center130[2] + frame.dir170[2];
+    if (*(u16 *)(saved_arg0 + 0x106) == 0) {
+        unit2 = *(u8 **)(next + 0x30);
+        func_001958f0(unit2, frame.center130);
+        if (frame.center130[1] < 50.0f) {
+            frame.center130[1] = 50.0f;
+        }
+        func_001ec1c0(frame.quat70, frame.actor140, frame.center130);
+        func_003dcb40((RwV3d *)frame.dir170, (const RwV3d *)D_0060A0D0, 1, (const RtQuat *)frame.quat70);
+        frame.dir170[0] = frame.dir170[0] * var_f23;
+        frame.dir170[1] = frame.dir170[1] * var_f23;
+        frame.dir170[2] = frame.dir170[2] * var_f23;
+        frame.actor140[0] = frame.actor140[0] + frame.dir170[0];
+        frame.actor140[1] = frame.actor140[1] + frame.dir170[1];
+        frame.actor140[2] = frame.actor140[2] + frame.dir170[2];
+        frame.diff160[0] = frame.actor140[0] - frame.center130[0];
+        frame.diff160[1] = frame.actor140[1] - frame.center130[1];
+        frame.diff160[2] = frame.actor140[2] - frame.center130[2];
+        func_003e40b0((RwV3d *)frame.diff160, (const RwV3d *)frame.diff160);
+        scaleTmp = fGpffff811c * func_003e40b0((RwV3d *)frame.diff160, (const RwV3d *)frame.diff160);
+        frame.cand150[0] = frame.diff160[0] * scaleTmp + frame.center130[0];
+        frame.cand150[1] = frame.diff160[1] * scaleTmp + frame.center130[1];
+        frame.cand150[2] = frame.diff160[2] * scaleTmp + frame.center130[2];
+        frame.dir170[0] = frame.actor140[0];
+        frame.dir170[1] = frame.actor140[1];
+        frame.dir170[2] = frame.actor140[2];
+        func_001bd780(frame.quatD8, frame.dir170, frame.cand150, D_0060A0E0);
+        frame.copyCC[0] = frame.outB0[0];
+        frame.copyCC[1] = frame.outB0[1];
+        frame.copyCC[2] = frame.outB0[2];
+        func_003dcc70(frame.quatBC, frame.quatD8, frame.slerp80);
+        polyA = fGpffff8120;
+        polyB = fGpffff8124;
+        if (frame.modeA4 == 0) {
+            sqA = polyA * frame.angleA0;
+            sqA = sqA * sqA;
+            polyA = sqA * sqA * (sqA * (sqA * (sqA * (sqA * (fGpffff8104 * sqA + fGpffff8054 + 0.0f) + fGpffff8058 + 0.0f) + fGpffff805c + 0.0f) + fGpffff8060 + 0.0f) + fGpffff8108 + 0.0f) + sqA + 0.0f;
+            sqB = polyB * frame.angleA0;
+            sqB = sqB * sqB;
+            polyB = sqB * sqB * (sqB * (sqB * (sqB * (sqB * (fGpffff8104 * sqB + fGpffff8054 + 0.0f) + fGpffff8058 + 0.0f) + fGpffff805c + 0.0f) + fGpffff8060 + 0.0f) + fGpffff8108 + 0.0f) + sqB + 0.0f;
+        }
+        frame.interp118[0] = frame.slerp80[0] * polyA + frame.slerp80[4] * polyB + 0.0f;
+        frame.interp118[1] = frame.slerp80[1] * polyA + frame.slerp80[5] * polyB + 0.0f;
+        frame.interp118[2] = frame.slerp80[2] * polyA + frame.slerp80[6] * polyB + 0.0f;
+        frame.interp118[3] = frame.slerp80[3] * polyA + frame.slerp80[7] * polyB;
+        frame.outB0[0] = frame.outB0[0] * polyA;
+        frame.outB0[1] = frame.outB0[1] * polyA;
+        frame.outB0[2] = frame.outB0[2] * polyA;
+        frame.copyCC[0] = frame.copyCC[0] * polyB;
+        frame.copyCC[1] = frame.copyCC[1] * polyB;
+        frame.copyCC[2] = frame.copyCC[2] * polyB;
+        frame.out10C[0] = frame.outB0[0] + frame.copyCC[0];
+        frame.out10C[1] = frame.outB0[1] + frame.copyCC[1];
+        frame.out10C[2] = frame.outB0[2] + frame.copyCC[2];
+    } else {
+        func_001bd5e0(frame.out10C, frame.outB0);
+    }
+    if (frame.poseF0[1] < 25.0f) {
+        frame.poseF0[1] = 25.0f;
+    }
+    if (frame.out10C[1] < 25.0f) {
+        frame.out10C[1] = 25.0f;
+    }
+    func_001bcd40(*(u8 **)(saved_arg0 + 0xE0), NULL, NULL, 0.0f, 0xE0);
+    if (saved_flag != 0) {
+        func_001bab00(saved_arg0, frame.out10C);
+        return;
+    }
+    func_001bac20((u16 *)saved_arg0, frame.poseF0, frame.out10C, 1);
+    func_001bbef0(saved_arg0, 0.75f);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c80f0);
+#endif
 // FUN_001C88D0
 s32 func_001c88d0(u8 *arg0, s32 *arg1, f32 *arg2, u8 *arg3)
 {

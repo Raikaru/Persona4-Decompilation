@@ -303,7 +303,279 @@ void func_004aec80(u8 *arg0)
     }
 }
 
-/* Shortfall: retail 490 instrs vs object 257 instrs (-233, -48% short; obj 1028B vs window 1968B). Half a function: word score (428) is meaningless for ranking. Missing ~200 instrs of VU second-half loop (mula/madd 12-float if/else, vf28-31 reloads + vmulax, tail D_00713D20/24/28 constants via 003e0a90/003e0c90) plus quadword/FPU expansion. */
-/* Sketch holds for prologue/colour (f25 scale sqc2 0x1C0, loop colour sw $2,0x21C($sp)+volatile), early exits, 00492df0/004bceb0 + 64B spill, but NOT banked: outside 3% gate. Candidate preserved at /var/tmp/efflane/cand_004aed70_v2.c for next agent to add the missing loop work toward 490. */
+/* measured clean_v4: retail 492 vs object 493 (+1, +0.2% inside 3% gate), probe 455 words, fnalign 678 edits. Fix chain: v1 scalar 815/782 -> v3 signed colour (s32 word+mask unpack, s32 pack with shifts) 553/523 -> v4 single VU bridge per loop after call (unpack+modulate+pack, lui 0x437F first loop, mfc1 full second) 493/455. Parent stays signed s32+mask (20 instrs vs VU 9) to hold size. Banked as guarded floor. */
 // FUN_004AED70
+#ifdef NON_MATCHING
+void func_004aed70(u8 *arg0)
+{
+    extern void func_00492df0(void *a, void *b);
+    extern void func_00492db0(void *a, void *b);
+    extern void func_004bceb0(void);
+    extern void func_004ae2f0(u8 *a, u8 *b, s32 c);
+    extern u32 *func_004ae020(u32 *a, u8 *b);
+    extern void func_003bff30(void *a, void *b, void *c);
+    extern void func_003bfe90(void *a);
+    extern void func_003e0870(void *a, void *b, s32 c, f32 d);
+    extern void *func_003e05f0(void *a, void *b, void *c);
+    extern void func_003e0a90(void *a, void *b, s32 c);
+    extern void func_003e0c90(void *a, void *b, s32 c);
+    extern void func_003e9cb0(void *a, void *b, s32 c);
+    extern void func_004813f0(void);
+    extern f32 fGpffff81f4;
+    extern f32 fGpffff8048;
+    extern u8 D_00713D20[];
+    extern u8 D_00713D24[];
+    extern u8 D_00713D28[];
+    typedef unsigned int u_long128 __attribute__((mode(TI)));
+    f32 parent[4] __attribute__((aligned(16)));
+    u8 snapA[16];
+    u8 snapB[16];
+    f32 snap[16];
+    f32 base[12];
+    f32 matA[16];
+    f32 matB[16];
+    f32 axis[4];
+    f32 scale[3];
+    f32 pos[3];
+    u8 *tmp4;
+    s32 cnt;
+    u8 *p18;
+    u8 *p17;
+    u8 *tmp16;
+    f32 inv;
+    s32 k;
+    {
+        s32 w = *(s32 *)(arg0 + 4);
+        parent[0] = fGpffff81f4 * (f32)(w & 0xFF);
+        parent[1] = fGpffff81f4 * (f32)((w >> 8) & 0xFF);
+        parent[2] = fGpffff81f4 * (f32)((w >> 16) & 0xFF);
+        parent[3] = fGpffff81f4 * (f32)((w >> 24) & 0xFF);
+    }
+    tmp4 = *(u8 **)(arg0 + 0x58);
+    cnt = *(s32 *)(tmp4 + 8);
+    if (cnt == 0 || *(s32 *)(tmp4 + 0x10) == 0) {
+        return;
+    }
+    p18 = *(u8 **)(tmp4 + 0x18);
+    p17 = *(u8 **)(arg0 + 0x5C);
+    tmp16 = *(u8 **)(arg0 + 0x54);
+    {
+        f32 v = *(f32 *)(arg0 + 8);
+        if (v == 0.0f) {
+            inv = 1.0f;
+        } else {
+            inv = 1.0f / v;
+        }
+    }
+    if (*(u16 *)(arg0 + 0x0C) != 3) {
+        func_0046d730(D_00714520, 0x2A2);
+    } else if ((*(s32 *)(tmp4 + 0x0C) & 1) == 0) {
+        s32 i;
+        func_00492df0(tmp4, snapA);
+        func_004bceb0();
+        for (i = 0; i < 12; i++) {
+            base[i] = snap[i];
+        }
+        k = 0;
+        while (k < cnt) {
+            if (*(s32 *)(p18 + 0x10) >= 0) {
+                s32 cw = *(s32 *)(p18 + 0x14);
+                u32 packed;
+                f32 f;
+                f32 cscale = fGpffff81f4;
+                if (*(s8 *)(p17 + 0x14) >= 0) {
+                    func_004ae2f0(arg0, p17, *(s32 *)(p18 + 0x10));
+                }
+                __asm__ volatile(
+                    "lw $2, 0(%0)          \n"
+                    "pextlb $2, $0, $2     \n"
+                    "pextlh $2, $0, $2     \n"
+                    "qmtc2.ni $2, $vf10    \n"
+                    "vitof0.xyzw $vf10, $vf10 \n"
+                    "mfc1 $2, %1           \n"
+                    "nop                   \n"
+                    "qmtc2.ni $2, $vf2     \n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "lqc2 $vf11, 0(%2)     \n"
+                    "vmul.xyzw $vf10, $vf10, $vf11 \n"
+                    "lui $2, 0x437F        \n"
+                    "qmtc2.ni $2, $vf2     \n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "vftoi0.xyzw $vf10, $vf10 \n"
+                    "qmfc2.ni $2, $vf10    \n"
+                    "ppach $2, $0, $2      \n"
+                    "ppacb $2, $0, $2      \n"
+                    "sw $2, 0(%3)          \n"
+                    :
+                    : "r"(&cw), "f"(cscale), "r"(parent), "r"(&packed)
+                    : "$2", "$vf2", "$vf10", "$vf11", "memory");
+                func_003bff30(tmp16, func_004ae020, &packed);
+                {
+                    f32 idf = (f32)*(s32 *)(p18 + 0x10);
+                    f = *(f32 *)(p17 + 0x10) * idf + 0.5f * (idf * (*(f32 *)(arg0 + 0x2C) * idf));
+                }
+                if (f < 0.0f) {
+                    matA[0] = 1.0f;
+                    matA[1] = 0.0f;
+                    matA[2] = 0.0f;
+                    matA[3] = 0.0f;
+                    matA[4] = 0.0f;
+                    matA[5] = 1.0f;
+                    matA[6] = 0.0f;
+                    matA[7] = 0.0f;
+                    matA[8] = 0.0f;
+                    matA[9] = 0.0f;
+                    matA[10] = 1.0f;
+                    matA[11] = 0.0f;
+                    matA[12] = 0.0f;
+                    matA[13] = 0.0f;
+                    matA[14] = 0.0f;
+                    matA[15] = 0.0f;
+                    *(s32 *)&matA[3] |= 0x20003;
+                } else {
+                    axis[0] = *(f32 *)(p17 + 0);
+                    axis[1] = *(f32 *)(p17 + 4);
+                    axis[2] = *(f32 *)(p17 + 8);
+                    func_003e0870(matA, axis, 0, fGpffff8048 * (f + *(f32 *)(p17 + 0x0C)));
+                }
+                func_003e05f0(matB, matA, base);
+                if (*(u16 *)(arg0 + 0x30) == 0) {
+                    f32 s = *(f32 *)(p18 + 0x18);
+                    scale[0] = *(f32 *)D_00713D20 * s;
+                    scale[1] = *(f32 *)D_00713D24 * s;
+                    scale[2] = *(f32 *)D_00713D28 * s;
+                } else {
+                    f32 s = *(f32 *)(p18 + 0x18) * inv;
+                    scale[0] = *(f32 *)D_00713D20 * s;
+                    scale[1] = *(f32 *)D_00713D24 * s;
+                    scale[2] = *(f32 *)D_00713D28 * s;
+                }
+                func_003e0a90(matB, scale, 2);
+                pos[0] = *(f32 *)(p18 + 0);
+                pos[1] = *(f32 *)(p18 + 4);
+                pos[2] = *(f32 *)(p18 + 8);
+                func_003e0c90(matB, pos, 2);
+                func_003e9cb0(*(void **)(tmp16 + 4), matB, 0);
+                func_003bfe90(tmp16);
+            }
+            k++;
+            p18 += 0x20;
+            p17 += 0x18;
+        }
+    } else {
+        f32 half = 0.5f;
+        f32 zero = 0.0f;
+        f32 full = 255.0f;
+        s32 mask = 0x20003;
+        f32 gscale = fGpffff8048;
+        s32 i;
+        func_00492df0(tmp4, snapA);
+        func_00492db0(*(u8 **)(arg0 + 0x58), snapB);
+        func_004bceb0();
+        for (i = 0; i < 12; i++) {
+            base[i] = snap[i];
+        }
+        k = 0;
+        while (k < cnt) {
+            if (*(s32 *)(p18 + 0x10) >= 0) {
+                s32 cw = *(s32 *)(p18 + 0x14);
+                u32 packed;
+                f32 f;
+                {
+                    f32 px = *(f32 *)(p18 + 0);
+                    f32 py = *(f32 *)(p18 + 4);
+                    f32 pz = *(f32 *)(p18 + 8);
+                    f32 pw = *(f32 *)(p18 + 0x0C);
+                    f32 rx = base[0] * px + base[4] * py + base[8] * pz + base[12] * pw;
+                    f32 ry = base[1] * px + base[5] * py + base[9] * pz + base[13] * pw;
+                    f32 rz = base[2] * px + base[6] * py + base[10] * pz + base[14] * pw;
+                    pos[0] = rx;
+                    pos[1] = ry;
+                    pos[2] = rz;
+                }
+                {
+                    f32 cscale = fGpffff81f4;
+                    if (*(s8 *)(p17 + 0x14) >= 0) {
+                        func_004ae2f0(arg0, p17, *(s32 *)(p18 + 0x10));
+                    }
+                    __asm__ volatile(
+                        "lw $2, 0(%0)          \n"
+                        "pextlb $2, $0, $2     \n"
+                        "pextlh $2, $0, $2     \n"
+                        "qmtc2.ni $2, $vf10    \n"
+                        "vitof0.xyzw $vf10, $vf10 \n"
+                        "mfc1 $2, %1           \n"
+                        "nop                   \n"
+                        "qmtc2.ni $2, $vf2     \n"
+                        "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                        "lqc2 $vf11, 0(%2)     \n"
+                        "vmul.xyzw $vf10, $vf10, $vf11 \n"
+                        "mfc1 $2, %3           \n"
+                        "nop                   \n"
+                        "qmtc2.ni $2, $vf2     \n"
+                        "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                        "vftoi0.xyzw $vf10, $vf10 \n"
+                        "qmfc2.ni $2, $vf10    \n"
+                        "ppach $2, $0, $2      \n"
+                        "ppacb $2, $0, $2      \n"
+                        "sw $2, 0(%4)          \n"
+                        :
+                        : "r"(&cw), "f"(cscale), "r"(parent), "f"(full), "r"(&packed)
+                        : "$2", "$vf2", "$vf10", "$vf11", "memory");
+                }
+                func_003bff30(tmp16, func_004ae020, &packed);
+                {
+                    f32 idf = (f32)*(s32 *)(p18 + 0x10);
+                    f = *(f32 *)(p17 + 0x10) * idf + half * (idf * (*(f32 *)(arg0 + 0x2C) * idf));
+                }
+                if (f < zero) {
+                    matB[0] = 1.0f;
+                    matB[1] = zero;
+                    matB[2] = zero;
+                    matB[3] = zero;
+                    matB[4] = zero;
+                    matB[5] = 1.0f;
+                    matB[6] = zero;
+                    matB[7] = zero;
+                    matB[8] = zero;
+                    matB[9] = zero;
+                    matB[10] = 1.0f;
+                    matB[11] = zero;
+                    matB[12] = zero;
+                    matB[13] = zero;
+                    matB[14] = zero;
+                    matB[15] = zero;
+                    *(s32 *)&matB[3] |= mask;
+                } else {
+                    axis[0] = *(f32 *)(p17 + 0);
+                    axis[1] = *(f32 *)(p17 + 4);
+                    axis[2] = *(f32 *)(p17 + 8);
+                    func_003e0870(matB, axis, 0, gscale * (f + *(f32 *)(p17 + 0x0C)));
+                }
+                if (*(u16 *)(arg0 + 0x30) == 0) {
+                    f32 s = *(f32 *)(p18 + 0x18);
+                    scale[0] = *(f32 *)D_00713D20 * s;
+                    scale[1] = *(f32 *)D_00713D24 * s;
+                    scale[2] = *(f32 *)D_00713D28 * s;
+                } else {
+                    f32 s = *(f32 *)(p18 + 0x18) * inv;
+                    scale[0] = *(f32 *)D_00713D20 * s;
+                    scale[1] = *(f32 *)D_00713D24 * s;
+                    scale[2] = *(f32 *)D_00713D28 * s;
+                }
+                func_003e0a90(matB, scale, 2);
+                func_003e0c90(matB, pos, 2);
+                func_003e9cb0(*(void **)(tmp16 + 4), matB, 0);
+                func_003bfe90(tmp16);
+            }
+            k++;
+            p18 += 0x20;
+            p17 += 0x18;
+        }
+    }
+    func_004813f0();
+}
+
+#else
 INCLUDE_ASM("asm/nonmatchings/effObjectParticle", func_004aed70);
+#endif
