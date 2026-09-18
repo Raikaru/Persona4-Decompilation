@@ -1858,6 +1858,13 @@ void func_00125e80(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
    retail 322/object 322 exact; width check 2026-09-17: no dsll/dsra pairs, clean.
    Open: stack-address scheduling (sp+0x7c/0x74/0x60 ordering), gp-relative immediates
    are reloc-only phantoms. Triple-built m2c+IDA+Ghidra; frame exact. */
+/* 155 -> 148 (2026-09-18): the three scratch-slot addresses retail
+   materialises before the statement that fills the slot are pointer locals
+   (`q7C`, `q74`, `q60`), not argument expressions - b210 emits argument
+   setup at the call, so `func_002aaf20(sp7C, ...)` put `addiu $a0, $sp,
+   0x7c` seven slots after retail's.  Measured and rejected: assigning the
+   pointer but storing through the array instead (155 - the pointer folds
+   away), pointer locals only for the func_0045d6e0 pair (155). */
 // FUN_00126090 NONMATCHING
 #ifdef NON_MATCHING
 void func_00126090(s32 arg0, u8 *arg1)
@@ -1914,6 +1921,9 @@ extern void func_0025f430(f32 farg0, f32 farg1, f32 farg2, s32 arg0, s32 arg1, s
     s32 n;
     s32 temp_2;
     f32 temp_f20;
+    f32 *q7C;
+    u8 *q74;
+    s32 *q60;
     f32 temp_f21;
     s16 radius;
     f32 r64;
@@ -1927,8 +1937,9 @@ extern void func_0025f430(f32 farg0, f32 farg1, f32 farg2, s32 arg0, s32 arg1, s
             n--;
         } while (n != 0);
     }
-    *(f32 *)sp7C = *(f32 *)sp78;
-    func_002aaf20(sp7C, 0.0f, 0.0f, 0.0f, 640.0f, 480.0f, 0x12, 0);
+    q7C = (f32 *)sp7C;
+    *q7C = *(f32 *)sp78;
+    func_002aaf20(q7C, 0.0f, 0.0f, 0.0f, 640.0f, 480.0f, 0x12, 0);
     func_00489f80();
     func_0025f3f0(0.0f, 0.0f, 0.0f, 0xFFFFFF, arg0 & 0xFF, 0x1000C, 0,
                   *(s32 *)(arg1 + 0x3C), 1);
@@ -1944,13 +1955,16 @@ extern void func_0025f430(f32 farg0, f32 farg1, f32 farg2, s32 arg0, s32 arg1, s
         } while (n != 0);
     }
     sp70[3] = 0;
-    *(f32 *)sp74 = *(f32 *)sp70;
+    q74 = sp74;
+    *(f32 *)q74 = *(f32 *)sp70;
     *(s128 *)sp50 = D_005E5590;
-    *(s128 *)sp60 = D_005E5590;
-    func_0045d6e0(sp74, sp60, 0, 0.0f);
+    q60 = sp60;
+    *(s128 *)q60 = D_005E5590;
+    func_0045d6e0(q74, q60, 0, 0.0f);
     *(s128 *)sp40 = D_005E55A0;
-    *(s128 *)sp60 = D_005E55A0;
-    func_0045d6e0(sp74, sp60, 0, 0.0f);
+    q60 = sp60;
+    *(s128 *)q60 = D_005E55A0;
+    func_0045d6e0(q74, q60, 0, 0.0f);
     func_0048a000();
     temp_2 = *(s32 *)(arg1 + 0x80) + 1;
     *(s32 *)(arg1 + 0x80) = temp_2;
