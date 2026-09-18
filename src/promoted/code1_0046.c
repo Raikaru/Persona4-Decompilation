@@ -3000,7 +3000,161 @@ void func_0046ea60(u8 *arg0, u8 *arg1)
 #undef sp4
 #undef sp8
 #undef spC
-// FUN_0046EC70
+/* measured: 62 differing words at an exact 400/400 instructions, from a full rewrite per the retail disassembly.
+   Reproducible with `tools/probe_variants.py src/promoted/code1_0046.c func_0046ec70 --candidate p=/tmp/cand_auth.c`
+   (62) plus `tools/fnalign.py src/promoted/code1_0046.c func_0046ec70 --candidate /tmp/cand_auth.c`
+   (retail 400 instrs object 400 instrs). Levers that paid: real `switch` on *(node + 4) (MWCC emits the
+   4,3,2,1,0 compare chain), `(f32)(u32)v` for the unsigned cases and plain `(f32)v` for the signed cases,
+   literal `*9`/`*11`/`*8` letting strength reduction do the sll/addu shape, scalar `&iGp...` gp-relative form,
+   and `*(s64 *)pos` for the ld-by-value pair. Nine gp slots (iGpffffb064/b068/b078/b080/b088/b098/b0a0/b0a4/b0b0)
+   are new in config/symbol_data_addrs.txt. */
+// FUN_0046EC70 NONMATCHING
+#ifdef NON_MATCHING
+void func_0046ec70(u8 *arg0) {
+    extern char *func_00442830(char *dst, const char *src);
+    extern s32 func_00442948(const void *str);
+    extern s32 func_0044dcd8(f32 value);
+    extern void func_004501f0(s64 arg0, s32 arg1, s32 arg2, ...);
+    extern void func_00450340(s64 arg0, s32 arg1, ...);
+    extern s32 iGpffffb064;
+    extern char iGpffffb068;
+    extern char iGpffffb06c;
+    extern char iGpffffb070;
+    extern char iGpffffb078;
+    extern char iGpffffb080;
+    extern char iGpffffb088;
+    extern char iGpffffb090;
+    extern char iGpffffb098;
+    extern char iGpffffb0a0;
+    extern char iGpffffb0a4;
+    extern char iGpffffb0a8;
+    extern char iGpffffb0b0;
+    u8 *ctx;
+    s32 i;
+    u8 *node;
+    s32 w;
+    char buf[0x108];
+    f32 pos[2];
+    ctx = *(u8 **)(arg0 + 0x38);
+    node = *(u8 **)(ctx + 0x144);
+    pos[0] = (f32)(*(s32 *)(ctx + 0x18) + 2);
+    pos[1] = (f32)(*(s32 *)(ctx + 0x1C) + 2);
+    for (i = 0; node != NULL; i++) {
+        s32 first;
+        first = *(s32 *)(ctx + 0x138);
+        if (i < first) {
+            node = *(u8 **)(node + 0x228);
+            continue;
+        }
+        if (first + *(s32 *)(ctx + 0x13C) - 1 < i) {
+            return;
+        }
+        if (*(s32 *)(ctx + 0x154) != 0) {
+            ((void (*)(f32 *, void *, void *))*(void **)(ctx + 0x154))(pos, &iGpffffb068, node + 8);
+            switch (*(s32 *)(node + 4)) {
+            case 0:
+                break;
+            case 1: {
+                func_00442088(buf, &iGpffffb06c, node + 0x108);
+                w = *(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2;
+                pos[0] = (f32)(*(s32 *)(ctx + 0x28) + (w - ((s32 (*)(char *))*(void **)(ctx + 0x158))(buf)));
+                ((void (*)(f32 *, void *, void *))*(void **)(ctx + 0x154))(pos, &iGpffffb064, buf);
+                break;
+            }
+            case 2: {
+                func_00442830(buf, &iGpffffb070);
+                w = *(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2;
+                pos[0] = (f32)(*(s32 *)(ctx + 0x28) + (w - ((s32 (*)(char *))*(void **)(ctx + 0x158))(buf)));
+                if (*(s32 *)(node + 0x208) == 1) {
+                    ((void (*)(f32 *, void *, void *))*(void **)(ctx + 0x154))(pos, &iGpffffb064, &iGpffffb078);
+                } else {
+                    ((void (*)(f32 *, void *, void *))*(void **)(ctx + 0x154))(pos, &iGpffffb064, &iGpffffb080);
+                }
+                break;
+            }
+            case 3: {
+                if (*(s32 *)(node + 0x218) == 0) {
+                    func_00442088(buf, &iGpffffb088, *(s32 *)(node + 0x208));
+                    w = *(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2;
+                    pos[0] = (f32)(w - ((s32 (*)(char *))*(void **)(ctx + 0x158))(buf));
+                    ((void (*)(f32 *, void *, void *))*(void **)(ctx + 0x154))(pos, &iGpffffb064, buf);
+                } else {
+                    func_00442088(buf, &iGpffffb090, *(s32 *)(node + 0x208));
+                    w = *(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2;
+                    pos[0] = (f32)(w - ((s32 (*)(char *))*(void **)(ctx + 0x158))(buf));
+                    ((void (*)(f32 *, void *, void *))*(void **)(ctx + 0x154))(pos, &iGpffffb064, buf);
+                }
+                break;
+            }
+            case 4: {
+                s32 v;
+                v = func_0044dcd8(*(f32 *)(node + 0x20C));
+                func_00442088(buf, &iGpffffb098, v);
+                w = *(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2;
+                pos[0] = (f32)(w - ((s32 (*)(char *))*(void **)(ctx + 0x158))(buf));
+                ((void (*)(f32 *, void *, void *))*(void **)(ctx + 0x154))(pos, &iGpffffb064, buf);
+                break;
+            }
+            }
+        } else {
+            func_00450340(*(s64 *)pos, (s32)&iGpffffb0a0, node + 8);
+            switch (*(s32 *)(node + 4)) {
+            case 0:
+                break;
+            case 1: {
+                s32 n;
+                s32 v;
+                n = func_00442948(node + 0x108) + 1;
+                v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * n);
+                pos[0] = (f32)(u32)v;
+                func_004501f0(*(s64 *)pos, iGpffffb064, (s32)&iGpffffb0a4, node + 0x108);
+                break;
+            }
+            case 2: {
+                s32 n;
+                s32 v;
+                n = func_00442948(&iGpffffb0a8) + 1;
+                v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * n);
+                pos[0] = (f32)(u32)v;
+                if (*(s32 *)(node + 0x208) == 1) {
+                    func_004501f0(*(s64 *)pos, iGpffffb064, (s32)&iGpffffb078);
+                } else {
+                    func_004501f0(*(s64 *)pos, iGpffffb064, (s32)&iGpffffb080);
+                }
+                break;
+            }
+            case 3: {
+                if (*(s32 *)(node + 0x218) == 0) {
+                    s32 v;
+                    v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * 9);
+                    pos[0] = (f32)v;
+                    func_004501f0(*(s64 *)pos, iGpffffb064, (s32)&iGpffffb088, *(s32 *)(node + 0x208));
+                } else {
+                    s32 v;
+                    v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * 11);
+                    pos[0] = (f32)v;
+                    func_004501f0(*(s64 *)pos, iGpffffb064, (s32)&iGpffffb0b0, *(s32 *)(node + 0x208));
+                }
+                break;
+            }
+            case 4: {
+                s32 v;
+                s32 r;
+                v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * 8);
+                pos[0] = (f32)v;
+                r = func_0044dcd8(*(f32 *)(node + 0x20C));
+                func_004501f0(*(s64 *)pos, iGpffffb064, (s32)&iGpffffb098, r);
+                break;
+            }
+            }
+        }
+        pos[0] = (f32)(*(s32 *)(ctx + 0x18) + 2);
+        pos[1] = pos[1] + (f32)*(s32 *)(ctx + 0x2C);
+        node = *(u8 **)(node + 0x228);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046ec70);
+#endif
 // FUN_0046F2B0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046f2b0);
