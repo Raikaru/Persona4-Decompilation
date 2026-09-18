@@ -3000,26 +3000,20 @@ void func_0046ea60(u8 *arg0, u8 *arg1)
 #undef sp4
 #undef sp8
 #undef spC
-/* measured: 20 differing words at an exact 400/400 instructions, from a full rewrite per the retail disassembly.
-   Reproducible with `tools/measure_guarded.py src/promoted/code1_0046.c func_0046ec70` (20) plus
-   `tools/fnalign.py src/promoted/code1_0046.c func_0046ec70 --candidate /tmp/cand_D1.c`
-   (retail 400 instrs object 400 instrs). Levers that paid: real `switch` on *(node + 4) (MWCC emits the
-   4,3,2,1,0 compare chain), `(f32)(u32)v` for the unsigned cases and plain `(f32)v` for the signed cases,
-   literal `*9`/`*11`/`*8` letting strength reduction do the sll/addu shape, scalar `&iGp...` gp-relative form,
-   `*(s64 *)pos` for the ld-by-value pair, declaring `node` before `i` so retail's $s2/$s1 colouring holds
-   (62 -> 38), `i > first + ... - 1` so the slt goes through $at (38 -> 36), and inlining the strlen+1
-   multiplier so `n` never becomes a named local (36 -> 20). Nine gp slots (iGpffffb064/b068/b078/b080/b088/b098/b0a0/b0a4/b0b0)
-   are new in config/symbol_data_addrs.txt. Pragma sweep measured on the 20-word floor, all eight singles:
-   opt_propagation off 20, opt_strength_reduction off 20, opt_unroll_loops off 20, peephole off 42,
-   opt_dead_assignments off 45, opt_common_subs off 346, schedule on 362, opt_loop_invariants on 377; no win. */
-// FUN_0046EC70 NONMATCHING
-#ifdef NON_MATCHING
+/* MATCHED 2026-09-18.  The last 20 words were `addiu $aN, $gp, ...` emitted
+   one slot before the `lw $a1, ...($gp)` that should precede it, at every
+   func_004501f0 and func_00450340 call.  Both take a pointer for the format
+   argument, not an s32: b210 evaluates a cast address ahead of the plain
+   arguments, so `(s32)&iGpffffb0xx` pulled the `addiu` forward.  Declaring
+   the parameter `const void *` and dropping the casts restores retail's
+   order.  Same lever as func_00196040's out-parameters in code1_001c.c. */
+// FUN_0046EC70
 void func_0046ec70(u8 *arg0) {
     extern char *func_00442830(char *dst, const char *src);
     extern s32 func_00442948(const void *str);
     extern s32 func_0044dcd8(f32 value);
-    extern void func_004501f0(s64 arg0, s32 arg1, s32 arg2, ...);
-    extern void func_00450340(s64 arg0, s32 arg1, ...);
+    extern void func_004501f0(s64 arg0, s32 arg1, const void *arg2, ...);
+    extern void func_00450340(s64 arg0, const void *arg1, ...);
     extern s32 iGpffffb064;
     extern char iGpffffb068;
     extern char iGpffffb06c;
@@ -3101,7 +3095,7 @@ void func_0046ec70(u8 *arg0) {
             }
             }
         } else {
-            func_00450340(*(s64 *)pos, (s32)&iGpffffb0a0, node + 8);
+            func_00450340(*(s64 *)pos, &iGpffffb0a0, node + 8);
             switch (*(s32 *)(node + 4)) {
             case 0:
                 break;
@@ -3109,7 +3103,7 @@ void func_0046ec70(u8 *arg0) {
                 s32 v;
                 v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * (func_00442948(node + 0x108) + 1));
                 pos[0] = (f32)(u32)v;
-                func_004501f0(*(s64 *)pos, iGpffffb064, (s32)&iGpffffb0a4, node + 0x108);
+                func_004501f0(*(s64 *)pos, iGpffffb064, &iGpffffb0a4, node + 0x108);
                 break;
             }
             case 2: {
@@ -3117,9 +3111,9 @@ void func_0046ec70(u8 *arg0) {
                 v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * (func_00442948(&iGpffffb0a8) + 1));
                 pos[0] = (f32)(u32)v;
                 if (*(s32 *)(node + 0x208) == 1) {
-                    func_004501f0(*(s64 *)pos, iGpffffb064, (s32)&iGpffffb078);
+                    func_004501f0(*(s64 *)pos, iGpffffb064, &iGpffffb078);
                 } else {
-                    func_004501f0(*(s64 *)pos, iGpffffb064, (s32)&iGpffffb080);
+                    func_004501f0(*(s64 *)pos, iGpffffb064, &iGpffffb080);
                 }
                 break;
             }
@@ -3128,12 +3122,12 @@ void func_0046ec70(u8 *arg0) {
                     s32 v;
                     v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * 9);
                     pos[0] = (f32)v;
-                    func_004501f0(*(s64 *)pos, iGpffffb064, (s32)&iGpffffb088, *(s32 *)(node + 0x208));
+                    func_004501f0(*(s64 *)pos, iGpffffb064, &iGpffffb088, *(s32 *)(node + 0x208));
                 } else {
                     s32 v;
                     v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * 11);
                     pos[0] = (f32)v;
-                    func_004501f0(*(s64 *)pos, iGpffffb064, (s32)&iGpffffb0b0, *(s32 *)(node + 0x208));
+                    func_004501f0(*(s64 *)pos, iGpffffb064, &iGpffffb0b0, *(s32 *)(node + 0x208));
                 }
                 break;
             }
@@ -3143,7 +3137,7 @@ void func_0046ec70(u8 *arg0) {
                 v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * 8);
                 pos[0] = (f32)v;
                 r = func_0044dcd8(*(f32 *)(node + 0x20C));
-                func_004501f0(*(s64 *)pos, iGpffffb064, (s32)&iGpffffb098, r);
+                func_004501f0(*(s64 *)pos, iGpffffb064, &iGpffffb098, r);
                 break;
             }
             }
@@ -3153,8 +3147,5 @@ void func_0046ec70(u8 *arg0) {
         node = *(u8 **)(node + 0x228);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046ec70);
-#endif
 // FUN_0046F2B0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046f2b0);
