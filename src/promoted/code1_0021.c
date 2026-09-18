@@ -151,6 +151,13 @@ static inline f32 ws14_sub(f32 left, f32 right)
    dead-assignments, size and strength-reduction were all measured. */
 /* measured 00210c70: `schedule on` inside the guard is worth 5 words (367 -> 362). */
 /* measured 00210c70: `opt_propagation off` on top of `schedule on` is worth 1 word (362 -> 361). */
+/* 2026-09-18: func_0020e420 and func_0020e690 now carry the parameter order
+   of their live definitions in src/promoted/code1_0020.c (floats second and
+   third, and fourth and fifth, respectively); the ints-first spelling here
+   was a lie.  Measured neutral at 361 words - the EABI keeps integer and
+   float arguments in separate register files - but the order is what b210
+   emits argument setup in, so it has to be right before the rest of this
+   floor can be read. */
 // FUN_00210C70 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
@@ -164,8 +171,8 @@ void func_00210c70(u8 *arg0, u8 *arg1)
     extern void func_0020ea60(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
     extern void func_0020ef10(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
     extern void func_0020f4d0(u8 *arg0, u8 *arg1, f32 x, f32 y);
-    extern void func_0020e690(u8 *arg0, u8 *arg1, u8 *arg2, s32 a, f32 *out, f32 x, f32 y);
-    extern void func_0020e420(s32 *arg0, s32 a, s32 b, s32 c, f32 x, f32 y);
+    extern void func_0020e690(u8 *arg0, u8 *arg1, u8 *arg2, f32 x, f32 y, s32 a, f32 *out);
+    extern void func_0020e420(s32 *arg0, f32 x, f32 y, s32 a, s32 b, s32 c);
     extern void func_0021aeb0(s32 a, u8 *b, s32 c, f32 d, f32 e, f32 f);
     u8 info[0x18];
     f32 pos[2];
@@ -257,12 +264,12 @@ void func_00210c70(u8 *arg0, u8 *arg1)
                     colour = 0xFFD92F00;
                 }
                 if (first != 0) {
-                    func_0020e690(arg0, arg1, work, 0xFF, (f32 *)info, pos[0] - 86.0f, pos[1] - 86.0f);
+                    func_0020e690(arg0, arg1, work, pos[0] - 86.0f, pos[1] - 86.0f, 0xFF, (f32 *)info);
                     first = 0;
                 }
                 if (*(s32 *)(info + 4) > 0) {
-                    func_0020e420(panel, value, 1, colour | *(s32 *)(info + 4), 86.0f,
-                                  shift + (83.0f + *(f32 *)info));
+                    func_0020e420(panel, 86.0f, shift + (83.0f + *(f32 *)info),
+                                  value, 1, colour | *(s32 *)(info + 4));
                 }
                 if (*(s32 *)(info + 8) != 0) {
                     unit = *(u8 **)arg1;
@@ -280,11 +287,11 @@ void func_00210c70(u8 *arg0, u8 *arg1)
                     colour = 0xB7FF3600;
                 }
                 if (first != 0) {
-                    func_0020e690(arg0, arg1, work, 0xFF, (f32 *)info, pos[0] - 86.0f, pos[1] - 86.0f);
+                    func_0020e690(arg0, arg1, work, pos[0] - 86.0f, pos[1] - 86.0f, 0xFF, (f32 *)info);
                 }
                 if (*(s32 *)(info + 4) > 0) {
-                    func_0020e420(panel, value, 1, colour | *(s32 *)(info + 4), 86.0f,
-                                  shift + (base + *(f32 *)info));
+                    func_0020e420(panel, 86.0f, shift + (base + *(f32 *)info),
+                                  value, 1, colour | *(s32 *)(info + 4));
                 }
             }
         }
