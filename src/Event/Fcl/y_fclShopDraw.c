@@ -222,7 +222,7 @@ void func_0043f9c8(void *, s32, s32);
 void func_0025ec90(f32, f32, f32, s32, u8, s32, void *, s32, void *);
 void func_002e0700(void *, s32, f32, f32, s32, s32, s32);
 void func_002e09e0(void *, s32, f32);
-void func_002e0690(void *, s32, s32, s32, f32, f32);
+void func_002e0690(void *, f32, f32, s32, s32, s32);
 void func_002e0660(void *, u8, u8, u8, s16, s64);
 s32 func_002e26f0(void *);
 void func_002e06d0(void *, f32, f32, f32, f32, s32, s32, s32);
@@ -670,10 +670,15 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d1590);
    then mov.s; (3) the sp58 f32-pair stores: mwcc always loads in reverse
    store order (lwc1 0x5C before 0x58, first-loaded binds $f1) - tried f32
    temps in all declaration/assignment orders. Scheduling floor. */
-/* measured: MWCC -O2 plain, object 2172B/window 2176B, normalized_diff 8 (fndiff 4 words at 1496-1508: retail mov.s f13,f12 first then GP zeros vs object GP first). Re-push: A/B/C (0U/named-one/casts) all 4, cse-off 387, prop-off 413, loopinv-on 4, rebuild-off 4, schedule-on 451. No shortfall (543/543 fnalign, 1-word window pad only), so dead-arm N/A; no casts to delete; loopinv neutral. Scheduling wall holds (float-copy vs GP-imm order), banked rather than grinding. Switch+Vec2f*b+raw best stands. No volatile/asm. */
-/* measured: pair sweep 2026-09-17 `python3 -E -s tools/pragma_sweep.py src/Event/Fcl/y_fclShopDraw.c func_002d3ee0 --pairs` banked 4; best ties 4 (loop-inv, strength-off, unroll-off singles + 3 pairs among them: loop+strength, loop+unroll, strength+unroll). All 28 pairs neutral or worse: peephole block 361 (single + 3 pairs), commons block 387 (single + 5 pairs), propag block 413 (single + 4 pairs + loop+propag 413), schedule block 451-454 (single + 5 pairs + common 454), dead block 454 (single + 3 pairs + peephole 461/463). No win; fndiff mov.s-vs-GP scheduling wall stands. */
-// FUN_002D3EE0 NONMATCHING
-#ifdef NON_MATCHING
+/* MATCHED 2026-09-18.  The last 4 words were `mov.s $f13, $f12` three slots
+   late.  b210 emits call-argument setup in source order, so retail's copy
+   landing between `lw $a0` and `move $a1` means func_002e0690's two floats
+   are arguments 2 and 3, not 5 and 6; the EABI gives integer and float
+   arguments separate register files, so the reordered prototype is the same
+   ABI and leaves the MATCHed callee in src/promoted/code1_002e.c byte-exact.
+   Everything else here was already exact: switch dispatch, Vec2f-by-value
+   arguments, and the raw u64 stack slots. */
+// FUN_002D3EE0
 void func_002d3ee0(void *arg0) {
     u64 spC8;
     u64 spC0;
@@ -770,7 +775,7 @@ void func_002d3ee0(void *arg0) {
     func_002e04f0(work->field_E60, 0, 1);
     func_002e04f0(work->field_DE0, 0, 1);
     func_002e0940(work->field_D6C, -110.0f, -14.0f, 0, 4, 0);
-    func_002e0690(work->field_D70, 0, 0, 0, 1.0f, 1.0f);
+    func_002e0690(work->field_D70, 1.0f, 1.0f, 0, 0, 0);
     func_002e0660(work->field_D70, 0, 0xFF, 0, 8, 6);
     func_002b2970(&sp58, 46.0f, 294.0f);
     t = (u8 *)func_002e04e0(work->field_D70);
@@ -795,9 +800,6 @@ void func_002d3ee0(void *arg0) {
     func_002e0660(work->field_C64, 0, 0xCC, 0, 8, 0);
     func_002e04f0(work->field_DE4, 0, 0);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d3ee0);
-#endif
 
 /* measured: MWCC -O2 plain, object 1948B/window 2000B, normalized_diff 389 (VSHD baseline 399/2044B -> s32-i -10, s32+(s16)cast -8). Shape u8 colorA/B[3][4], s16 primary/secondary/y/thirdY, s8 ret/i-d, u8 *work, frame 0x100 matches. Levers: s32/u32/int, switch/ifelse, derived/void/work/decl/d/ret/indexed/forward/reload/y/primary/RGBA as reported. Remaining work $s4-vs-$s3, init $v0-vs-$v1, 0x2D scheduling, D swap, second-loop temps. Combine RGBA transfer fails (+5/+15), u8[3][4] optimal. No volatile/asm. Staged /tmp/push_4760_full.c via NearGA.Fcl4760. */
 // FUN_002D4760 NONMATCHING

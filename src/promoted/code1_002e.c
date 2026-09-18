@@ -114,7 +114,13 @@ void func_002e0660(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s64 arg5)
 
 
 // FUN_002E0690
-void func_002e0690(u8 *arg0, s8 arg1, s16 arg2, s64 arg3, f32 fparg0, f32 fparg1)
+/* Parameter order taken from the caller at func_002d3ee0 in
+   src/Event/Fcl/y_fclShopDraw.c: b210 emits argument setup in source order, and
+   retail emits `mov.s $f13, $f12` between `lw $a0` and `move $a1`, which only
+   happens when the two floats are arguments 2 and 3.  The EABI assigns integer
+   and float arguments to their own register files, so this order compiles to
+   the same object as the ints-first spelling (measured: identical bytes). */
+void func_002e0690(u8 *arg0, f32 fparg0, f32 fparg1, s8 arg1, s16 arg2, s64 arg3)
 {
     extern void func_002b8300(u8 *arg0, s8 arg1, s16 arg2, s16 arg3,
                               f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
