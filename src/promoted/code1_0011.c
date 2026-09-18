@@ -1439,6 +1439,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00112830);
 /*   beats the singles; floor stands at 5. Opclass 2026-09-17 (tools/opclass.py on this owner): */
 /*   this floor carries no opcode-class surplus - both sides emit the lbu */
 /*   pair, so the residual is genuinely scheduling, not an lb/lbu fix. */
+/* 2026-09-18 lead pass, 9 measured variants, floor confirmed at 5 words.
+   110/110 instructions.  The whole residual is placement: retail reloads the
+   two colour bytes (`lbu $s1, 0xde($sp)` / `lbu $s0, 0xdd($sp)`) immediately
+   after storing the struct and before computing `255 - (arg1 & 0xFF)`, while
+   this body computes the subtraction first and reloads three instructions
+   later.  Everything else agrees.
+   The source order is already retail's and must not be "fixed": moving the
+   two colour reads above the alpha statement costs 5 -> 11, swapping the two
+   reads as well costs 5 -> 10, and inlining the alpha expression into the
+   call costs 5 -> 28.  Pragmas do not reach it either - `schedule off`,
+   `opt_loop_invariants on`, `opt_unroll_loops off` and `opt_common_subs off`
+   all tie at 5 with a byte-identical stream, `opt_dead_assignments off`
+   costs 58 and `opt_propagation off` costs 75. */
 // FUN_001130C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
