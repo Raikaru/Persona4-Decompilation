@@ -496,7 +496,57 @@ retail and an $sN in the candidate.  It does not always apply - on
 the shared `j` ties at 27, so the cause there is something else.  One probe
 settles it either way.
 
+### 7o. Uninitialised declaration plus statement order breaks a register exchange
+
+**This supersedes the pessimism in 7m.**  The exchanged-register-pair class is
+not always a wall.  `func_001eca10` sat at 11 words for two sessions with a
+note saying the pair was "fixed by liveness, not by the order the locals are
+written", after a 28-pair pragma sweep and eight declaration permutations.
+It matches.  Three changes together close it, and *all three* are required:
+
+1. the pointer lives at **function scope**, declared between the two loop
+   counters (`s32 i; f32 *next; s32 j;`);
+2. the other pointer in the pair is declared **without an initialiser**;
+3. both are **assigned as statements**, in the order retail computes them.
+
+```c
+    for (j = 0; j < 4; j++) {
+        s32 wrap = (j + 1) & 3;
+        f32 *edge;                 /* no initialiser */
+        s32 intersects;
+        s32 side_a;
+        s32 side_b;
+        next = (f32 *)(node + wrap * 0x130 + 8);   /* next assigned first */
+        edge = (f32 *)(node + j * 0x130 + 8);
+```
+
+Any two of the three leave the exchange in place: hoisting `next` alone scores
+11, hoisting it after `j` scores 11, keeping `edge` initialised at its
+declaration scores 13, and folding both loops onto one `next` scores 19.
+
+The reason the earlier sweeps missed it is that they varied *declaration*
+order only.  An initialised declaration is also a **statement position**, and
+b210 colours the pair from the order the two values become live, not from the
+order the names appear.  This is section 7l one level down: statement order is
+load-bearing where declaration order is not.
+
+So the procedure for an exchange-class floor is no longer "two probes, then
+stop".  It is:
+
+  1. name the two registers and the two source values they hold;
+  2. strip the initialiser from both declarations;
+  3. assign them as statements, in retail's computation order, then in the
+     reverse order;
+  4. try each at block scope and at function scope.
+
+That is eight probes, not two, and it is worth spending on any floor whose
+`class`/`perm` count from `tools/residual_signature.py` is most of its edits.
+
 ### 7m. The exchanged-register-pair class, and how to recognise it
+
+**Read 7o first.**  The conclusion recorded below - that this class does not
+move - was wrong on at least one floor, and the counter-example is cheap to
+try on the rest.
 
 Six floors turned out to be the same thing, and it is worth naming so nobody
 spends another afternoon on one.  The signature is exact: **the differing-word

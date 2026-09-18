@@ -178,52 +178,33 @@ s32 func_001ec8c0(f32* first, f32* second, f32* point, f32 threshold)
 }
 /* measured: opt_propagation on restores the unit baseline after this match. */
 #pragma opt_propagation on
-/* Archived C body: docs/probe_archive/P022_001eca10_body.c; object 964B; */
-/* retail window 976B; 23 reloc-masked differing words confined to GPR */
-/* allocation with no missing executable instruction. Remaining: first-loop */
-/* corner/link and second-loop index/next-corner register exchanges ($s2/$s3, */
-/* $s2/$s6 and related). Scope/declaration/identity-type/pointer-reuse/goto */
-/* variants plus propagation-off and CSE-off measured inert. Fnalign edit 32 */
-/* plus one reloc-only pair; production remains ASM. */
-/* Re-measured 2026-09-17 in this TU (static leaf + matched ece50 present): */
-/* still 23. schedule on 206, schedule+no_branch_likely 216, no_branch_likely */
-/* 23 (neutral); loop_invariants on 23 (neutral: rotation persists, unlike */
-/* mdlSE 0047e0f0 where it dissolved 166->10); propagation off 209, */
-/* loopinv+prop 208; wscan_pairs 0 extension pairs both sides; */
-/* corner/midpoint declaration swap 23, edge/next reorder 35, no-held-entry */
-/* recompute 223, edge double-def (mdlSE pattern) 230: pinning adds a live */
-/* range and spills instead of freeing vertex. Saved-register coloring floor. */
-/* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/btlTarget/btlTarget.c func_001eca10 --pairs` banked 23; best ties 23 (opt_dead_assignments off, opt_loop_invariants on, opt_strength_reduction off, opt_unroll_loops off and six pairwise combos among them); all 28 pairs neutral or worse (peephole forms 25, commons 160-162, schedule 206, propagation 208-209/212/215). fnalign retail/object 241/241 per assignment. Floor stands; production stays ASM. */
-/* 23 -> 11 (2026-09-18): declaring `corner` last in the first inner block.
-   b210 colours block-scoped pointers in reverse declaration order, so with
-   `corner` declared first it took $s2 and `midpointX` took $s6, the mirror
-   of retail.  Measured and rejected: reversing the whole block (11, same
-   composition), swapping only corner and midpointX (23), swapping `edge`
-   and `next` in the second loop (23), and moving the function-scope `j`
-   first or last (11).  Remaining 11 words are the same exchange one level
-   down: retail colours `j` $s2 and `next` $s3 in the second loop, b210 the
-   other way, and no declaration position reached by measurement flips it. */
-/* 2026-09-18 lead pass, 8 measured variants; floor confirmed at 11 words.
-   241/241 instructions and the entire residual is one saved-register swap:
-   retail allocates the inner loop counter to $s2 and the `corner` pointer to
-   $s3, this body has them the other way round, and the eleven differing
-   words are the eleven instructions that name them.
-   Declaration order does not drive it.  Moving `corner` to the end of its
-   block ties at 11, `&node[i * 0x130]` ties at 11, swapping `i`/`j` ties at
-   11; moving `corner` to the top of the block costs 11 -> 23, hoisting `i`
-   above `node` costs 11 -> 40, and spelling `corner` as
-   `node + i * 0x130 + 8` instead of `vertex + 8` costs 11 -> 223.  Inlining
-   `corner` at its three uses does not compile (it is compared as `u8 *`).
-   Same class as func_0024be40 and func_001b11c0: the register pair is fixed
-   by liveness, not by the order the locals are written. */
-// FUN_001ECA10 NONMATCHING
-#ifdef NON_MATCHING
+/* MATCH.  Reject a graph edge when it crosses an active link or an obstacle
+   edge.  The last eleven words were one saved-register exchange: retail
+   colours the second loop's counter $s2 and its next-corner pointer $s3,
+   this body had them the other way round.  Three things together close it
+   and all three are needed - `next` lives at function scope declared between
+   `i` and `j`, `edge` is declared without an initialiser, and the two are
+   assigned as statements with `next` first.  Declaring `next` after `j`
+   keeps the exchange; leaving `edge` initialised at its declaration keeps it
+   too.  Same statement-order sensitivity as handoff 7l, one level below
+   declaration order.  The first loop keeps its own block-scoped `next`;
+   folding both onto one variable costs 19.  Keep the private orientation
+   leaf defined below this caller - moving it above changes the compiler's
+   clobber knowledge and costs 920/976 bytes.
+   Earlier measurements on the way down, kept because they bound the search:
+   23 -> 11 came from declaring `corner` last in the first inner block;
+   at 11, reversing that whole block tied, `&node[i * 0x130]` tied, swapping
+   `i`/`j` tied, moving `corner` to the top of its block cost 23, hoisting
+   `i` above `node` cost 40, and spelling `corner` as `node + i * 0x130 + 8`
+   cost 223.  A 28-pair pragma sweep was entirely neutral or worse. */
+// FUN_001ECA10
 s32 func_001eca10(u8 *first, u8 *second)
 {
     extern f32 func_003e41b0(const f32 *vector);
     u8 *node;
     s32 blocked;
     s32 i;
+    f32 *next;
     s32 j;
     f32 delta[2];
     f32 coordinate;
@@ -305,11 +286,14 @@ s32 func_001eca10(u8 *first, u8 *second)
         }
         for (j = 0; j < 4; j++) {
             s32 wrap = (j + 1) & 3;
-            f32 *next = (f32 *)(node + wrap * 0x130 + 8);
-            f32 *edge = (f32 *)(node + j * 0x130 + 8);
+            f32 *edge;
             s32 intersects;
-            s32 side_a = func_001ecde0(edge, next, (f32 *)(first + 8));
-            s32 side_b = func_001ecde0(edge, next, (f32 *)(second + 8));
+            s32 side_a;
+            s32 side_b;
+            next = (f32 *)(node + wrap * 0x130 + 8);
+            edge = (f32 *)(node + j * 0x130 + 8);
+            side_a = func_001ecde0(edge, next, (f32 *)(first + 8));
+            side_b = func_001ecde0(edge, next, (f32 *)(second + 8));
 
             if (side_a != side_b) {
                 side_a = func_001ecde0((f32 *)(first + 8),
@@ -332,9 +316,6 @@ s32 func_001eca10(u8 *first, u8 *second)
     }
     return blocked;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlTarget", func_001eca10);
-#endif
 // FUN_001ECDE0
 /* Private leaf: all twelve retail calls belong to this geometry unit. */
 static s32 func_001ecde0(const f32* param_1, const f32* param_2, const f32* param_3)

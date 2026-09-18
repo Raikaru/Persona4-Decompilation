@@ -127,7 +127,16 @@ void func_00498ec0(void **arg0)
    every differing word is an instruction naming it.  Both declaration
    permutations of the `temp_16`/`temp_17` pair tie at 34.  Not the 7n
    shared-counter case either - the register class matches, only the number
-   differs.  Two probes is the right budget for this class. */
+   differs.
+   Re-probed 2026-09-18 against the new handoff 7o lever, which took
+   func_001eca10 from 11 to a match: it does not apply here, because both
+   pointers of the pair are *already* in 7o form - uninitialised declarations
+   assigned as statements at function scope.  The only remaining half of the
+   lever is computation order, and swapping it is a regression: assigning
+   `temp_18` before `temp_17` costs 34 -> 44, with or without the matching
+   declaration swap (44) or `var_19` hoisted first (44).  Moving `var_19`
+   above the pair with the original order ties at 34.  Retail computes the
+   0x3C chain first exactly as this body does, so the floor stands. */
 // FUN_00498F10 NONMATCHING
 /* measured: banked reconstruction scores GUARDED_SCORE 34
    (`python3 tools/measure_guarded.py src/promoted/effPolygonRing.c
