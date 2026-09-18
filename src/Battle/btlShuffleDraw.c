@@ -636,6 +636,12 @@ void func_00374d20(u8 *arg0) {
    200 (183w/99e vs 188w/115e). Residual floors: saved-color rotation
    var_18 $s5 vs $s2 + siblings, arg-order lw-sp vs constants, loop CSE hoist
    differences. Production stays ASM. */
+/* 183 -> 181 (2026-09-18): the hand-expanded unsigned-to-float conversion
+   replaced by `(f32)(u32)var_17`.  b210 generates the same bltz / srl / andi
+   / or / cvt.s.w / add.s sequence for the cast; the expanded copy colours
+   its temporaries differently.  Companion to the float-to-unsigned lever in
+   handoff 7a-quinquies - measured across the floors that carry it, this one
+   and func_002566d0 (228 -> 249, rejected) are the only two that move. */
 // FUN_003753F0 NONMATCHING
 #ifdef NON_MATCHING
 void func_003753f0(u8 *arg0) {
@@ -702,12 +708,7 @@ void func_003753f0(u8 *arg0) {
         } else if (temp_5 == 0) {
             var_17 = *(u16 *)(arg0 + 0x1F1D2);
         }
-        if ((s32)var_17 >= 0) {
-            var_f0 = (f32)var_17;
-        } else {
-            var_f0 = (f32)((var_17 >> 1) | (var_17 & 1));
-            var_f0 += var_f0;
-        }
+        var_f0 = (f32)(u32)var_17;
         var_f20 = var_f2 * ((0.5f * var_f0) / (f32)var_6);
     }
     if (!(var_f20 <= 0.0f)) {
