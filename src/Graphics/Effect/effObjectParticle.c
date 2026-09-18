@@ -303,5 +303,7 @@ void func_004aec80(u8 *arg0)
     }
 }
 
+/* Shortfall: retail 490 instrs vs object 257 instrs (-233, -48% short; obj 1028B vs window 1968B). Half a function: word score (428) is meaningless for ranking. Missing ~200 instrs of VU second-half loop (mula/madd 12-float if/else, vf28-31 reloads + vmulax, tail D_00713D20/24/28 constants via 003e0a90/003e0c90) plus quadword/FPU expansion. */
+/* Sketch holds for prologue/colour (f25 scale sqc2 0x1C0, loop colour sw $2,0x21C($sp)+volatile), early exits, 00492df0/004bceb0 + 64B spill, but NOT banked: outside 3% gate. Candidate preserved at /var/tmp/efflane/cand_004aed70_v2.c for next agent to add the missing loop work toward 490. */
 // FUN_004AED70
 INCLUDE_ASM("asm/nonmatchings/effObjectParticle", func_004aed70);
