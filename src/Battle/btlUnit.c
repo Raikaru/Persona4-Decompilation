@@ -1057,9 +1057,11 @@ void func_0019acd0(u8 *arg0)
     }
 }
 /* measured 0019ae20: `schedule on` inside the guard is worth 4 words (398 -> 394). */
+/* measured 0019ae20: `schedule on + no_branch_likely on` 394 -> 390 (-4, fnalign retail 448 instrs object 385 instrs, still 14% short draft). `no_branch_likely on` alone 398 (+4 worse). Validates likely-branch loop-shape hint (opclass nop -64/beqz -19/beql +18), but only with schedule. */
 // FUN_0019AE20 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
+#pragma no_branch_likely on
 s32 func_0019ae20(u8 *arg0) {
     extern f32 func_0047a000(void *a, s32 b, s64 c);
     extern u8 *iGpffffb3cc;
@@ -1222,6 +1224,7 @@ s32 func_0019ae20(u8 *arg0) {
     }
     return 0;
 }
+#pragma no_branch_likely off
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/btlUnit", func_0019ae20);
