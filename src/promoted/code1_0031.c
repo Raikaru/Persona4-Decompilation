@@ -19,7 +19,7 @@ static inline s32 func_0031_ne(s32 value, s32 target)
 extern u32 func_0010c750(void *persona, u16 level);
 extern s32 func_00106330(s32 arg0);
 extern s32 func_00106600(s16 id);
-extern u16 func_00107ac0(s32 arg0);
+extern u16 func_00107ac0(u16 arg0);
 extern u8 D_006432B0[];
 extern u8 func_002e78a0(void);
 extern u8 func_002e78e0(void);
@@ -44,64 +44,24 @@ void func_00311900(s64 arg0)
 {
     func_00246830(arg0 & 0xFFFF);
 }
-/* Floor: 5 differing words over 5 fnalign edits, 149 emitted against */
-/* retail's 149 (100%). Levers that moved it: u16/u8-ptr/s8 param types, */
-/* scoped optimization_level 1, saved-reg audit order. U8-decl of temp_19 */
-/* worsened 5->100 this session. WALL: cvt.w.s destination selection ($f1 */
-/* b210 vs $f0 retail) in the (u8) conversion idiom at 0x70/0x74 and the */
-/* taken-path sub at 0x88/0x8C/0x90; invariant under direct-u8 conversion, */
-/* int/const-float initializers, reversed float decl order, result-domain decl. */
-/* Pragma sweep 2026-09-17: schedule off, opt_propagation off, */
-/* opt_common_subs off and opt_loop_invariants on each tie at 5 words / */
-/* 5 edits with a byte-identical stream (probe_variants + fnalign --candidate). */
-/* Pairs 2026-09-17 (`tools/pragma_sweep.py --pairs`, 8 singles + 28 pairs, */
-/* banked 5): all 36 tie at 5 words with a byte-identical stream. First */
-/* complete pragma exhaustion proof for this cvt.w.s wall; floor stands. */
-/* 2026-09-18: the five words are caused by the pragma, not by the source.
-   `optimization_level 1` (like `opt_common_subs off`) makes b210 allocate the
-   float-to-integer conversion temporary out of the CSE table, so `(u8)temp_f1`
-   compiles to `cvt.w.s $f1, $f1` instead of retail's `cvt.w.s $f0, $f1`; every
-   other setting, plain -O2 included, writes the fresh register (measured with
-   tools/micro_codegen.py on a five-line snippet).  Plain -O2 costs 32 words
-   because b210 then keeps `arg0 & 0xFFFF` in a ninth saved register while
-   retail rematerialises the `andi` at each of the three func_00107ac0 calls;
-   -O2 plus `opt_common_subs off` is 5 again with the same conversion residual,
-   and dropping the mask (`func_00107ac0(arg0)` or a u16 local) does not stop
-   the CSE.  A real MATCH needs a body whose saved-register demand is retail's
-   eight values at plain -O2; the pragma is a crutch, not a floor.
-   2026-09-18 follow-up, all at plain -O2 and all 32 words: a u16-parameter
-   prototype for func_00107ac0 (148/148 instructions but then no `andi` at
-   all), an s32-parameter prototype with and without the explicit mask, a K&R
-   prototype, an s32 `arg0` with `(u16)arg0` at each call, and an s32 `arg0`
-   with the mask kept.  b210 always folds the three masks into one saved
-   register where retail rematerialises `andi $a0, $s5, 0xffff` at each call.
-   Both compilers use eight saved values, so this is not register pressure:
-   retail keeps `arg0` raw and pays three `andi`, b210 keeps the masked value.
-   At optimization_level 1 the conversion always clobbers its own source
-   register - micro-tested with the value live afterwards, with a second float
-   in flight, and with a second use of the integer result - so the five words
-   are not reachable from either setting with this body shape. */
-// FUN_00311930 NONMATCHING
-#ifdef NON_MATCHING
-/* Re-certified under scoped optimization_level 1: object 596B / window */
-/* 608B, raw fndiff 8 words = five executable words and three zero-tail */
-/* words. The historical normalized_diff=6 counts differing bytes, not */
-/* words. Executable offsets: 0x70, 0x74, 0x88, 0x8C, 0x90; candidate */
-/* cvt.w.s/mfc1 and sub.s/cvt.w.s/mfc1 use $f1 where retail uses $f0. */
-/* Direct u8 conversion of the same table expression, a direct integer */
-/* initializer, and a const float initializer all leave this unchanged. */
-/* Preserve both lookups, the u8 conversion, and the later unsigned */
-/* integer-to-float conversion. Reversed float declaration order also */
-/* failed previously. Retain ASM. */
-/* Independent retail review confirms low-u16 community ID, input-only */
-/* persona pointer, low-s8 scaling flag and full s32 result. Correcting */
-/* these parameter types preserves the five-word floor. Native semantic */
-/* smoke: 42,735 scenarios / 204,435 helper calls, including independent */
-/* rank snapshots, assignment-loop behavior and division before scaling. */
-/* saved-register audit: retail s7=arg2, s6=temp_17 (scaled delta), s5=arg0, s4=arg1, s3=temp_19 (byte count), s2=var_18 (accumulator), s1=var_17 (then var_3), s0=temp_16 (count); this list matches exactly under optimization_level 1. No opt_propagation-off three-part recipe is needed: no parameter-derived local is materialized. */
-#pragma push
-#pragma optimization_level 1
-s32 func_00311930(u16 arg0, u8 *arg1, s8 arg2)
+/* MATCH.  Two levers, both measured on 2026-09-18:
+   1. The float-to-unsigned conversion temporary is allocated out of the CSE
+      table, so `optimization_level 1` / `opt_common_subs off` compile
+      `(u8)temp_f1` to `cvt.w.s $f1, $f1` while retail has `cvt.w.s $f0, $f1`.
+      Plain -O2 (levels 2 and 3) writes the fresh register; the pragma that
+      used to sit here was the cause of the last five words, not a crutch for
+      them.  Isolated with tools/micro_codegen.py on a five-line snippet.
+   2. At plain -O2 b210 folded the three `func_00107ac0` argument masks into a
+      ninth saved register where retail rematerialises `andi $a0, $s5, 0xffff`
+      at each call.  Declaring the callee's parameter as `u16` turns the mask
+      into an argument conversion instead of a common subexpression, and an
+      argument conversion is re-emitted at every call site.  `arg0` is `s32`
+      here so that the raw value, not the masked one, is what lives in $s5 -
+      exactly retail's saved-register assignment.
+   Retail review confirms the low u16 community ID, the input-only persona
+   pointer, the low-s8 scaling flag and the full s32 result. */
+// FUN_00311930
+s32 func_00311930(s32 arg0, u8 *arg1, s8 arg2)
 {
     extern s32 func_00115890(u8 *arg0, s32 arg1);
     extern f32 D_007494D0[];
@@ -115,9 +75,9 @@ s32 func_00311930(u16 arg0, u8 *arg1, s8 arg2)
     s32 var_17;
     s32 temp_16;
     s32 var_3;
-    temp_f1 = D_00749500[func_00107ac0(arg0 & 0xFFFF)];
+    temp_f1 = D_00749500[func_00107ac0(arg0)];
     temp_19 = (u8)temp_f1;
-    temp_f1_2 = D_00749500[func_00107ac0(arg0 & 0xFFFF)];
+    temp_f1_2 = D_00749500[func_00107ac0(arg0)];
     var_f0 = (f32)(u32)temp_19;
     temp_17 = (s16)(10.0f * (temp_f1_2 - var_f0));
     var_18 = 0;
@@ -135,12 +95,8 @@ s32 func_00311930(u16 arg0, u8 *arg1, s8 arg2)
     if ((s8)arg2 == 0) {
         return var_18;
     }
-    return (s32)((f32)var_18 * D_007494D0[func_00107ac0(arg0 & 0xFFFF)]);
+    return (s32)((f32)var_18 * D_007494D0[func_00107ac0(arg0)]);
 }
-#pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0031", func_00311930);
-#endif
 /* measured: b210 -O2 with loop-invariant hoisting gives 364B/368B,
    normalized diff 0; the remaining retail word is zero tail padding.
    Entries contain a signed 10-bit value and independent bit-14 category
