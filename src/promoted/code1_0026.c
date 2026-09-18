@@ -795,6 +795,10 @@ s32 func_00266ba0(u8 *arg0)
     return 0;
 }
 /* measured (2026-09-18): probe_variants 429 differing words reloc-masked via `python3 tools/probe_variants.py src/promoted/code1_0026.c func_00266cc0 --candidate FIX2=/tmp/cand66cc_fix2.c`; fnalign retail 506 vs object 495 instrs (273 edits +3 reloc) via `python3 tools/fnalign.py src/promoted/code1_0026.c func_00266cc0 --candidate /tmp/cand66cc_fix2.c --quiet`; -11 short (2.2% within 3% rule). Signature (s32,s32) per top extern (u8*->s32 cast for 00452560); s16 temp_date dsll16/dsra16 per prologue; fGpffff84a4 mul/div + 0044b7b0 sin chains; 255/5.0f/15.0f/20.0f scales; float-to-int overflow c.le/bc1t checks per retail (direct (s32) omits 21, 455->495); local externs for 0025f430 (s32 x8+f32 x6)/0025f2c0/0044b7b0 fix 416B-style overrun. Wall remains call/setup + FPU scheduling. No volatile/asm. */
+/* 2026-09-18: the three hand-written float-to-unsigned conversions replaced by
+   plain `(u32)` casts.  Measured a tie at 429 words but the edit-group count
+   drops 273 -> 263, so the remaining residual is elsewhere; the expanded form
+   was an m2c artifact, not evidence. */
 // FUN_00266CC0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00266cc0(s32 arg0, s32 arg1)
@@ -848,7 +852,7 @@ void func_00266cc0(s32 arg0, s32 arg1)
         temp_3_2 = *(s32 *)(temp_2 + 0x14);
         if (temp_3_2 >= 0xB) {
             temp_f1 = 255.0f * ((f32)(temp_3_2 - 0xA) / 5.0f);
-            if (temp_f1 < 2147483648.0f) { var_3 = (s32)temp_f1; } else { var_3 = ((s32)(temp_f1 - 2147483648.0f) | 0x80000000); }
+            var_3 = (u32)temp_f1;
             func_0025f430(0, var_3 & 0xFF, var_18 + 1, 0,
                           *(u8 **)(temp_2 + 4), 1,
                           0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -901,7 +905,7 @@ void func_00266cc0(s32 arg0, s32 arg1)
         temp_f0_2 = func_0044b7b0((fGpffff84a4 * (f32)(temp_3 - 0x28)) / 20.0f);
         temp_f16 = 1.0f - temp_f0_2;
         temp_f2 = 255.0f * temp_f16;
-        if (temp_f2 < 2147483648.0f) { var_3_2 = (s32)temp_f2; } else { var_3_2 = ((s32)(temp_f2 - 2147483648.0f) | 0x80000000); }
+        var_3_2 = (u32)temp_f2;
         func_0025f430(0xFFFFFF, var_3_2 & 0xFF, 0, 0,
                       *(u8 **)(temp_2 + 4), 1,
                       0, 0, -200.0f * temp_f0_2, 0.0f, 0.0f, 0.0f,
@@ -910,7 +914,7 @@ void func_00266cc0(s32 arg0, s32 arg1)
         if (temp_3_3 < 0x2D) {
             temp_f1_2 = 255.0f *
                         (1.0f - (f32)(temp_3_3 - 0x28) / 5.0f);
-            if (temp_f1_2 < 2147483648.0f) { var_3_3 = (s32)temp_f1_2; } else { var_3_3 = ((s32)(temp_f1_2 - 2147483648.0f) | 0x80000000); }
+            var_3_3 = (u32)temp_f1_2;
             func_0025f430(0, var_3_3 & 0xFF, var_17 + 1, 0,
                           *(u8 **)(temp_2 + 4), 1,
                           0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
