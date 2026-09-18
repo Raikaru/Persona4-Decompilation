@@ -1059,8 +1059,122 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031cce0);
 // the s8 args at every site, rotating every loop/color-store register. All call
 // shapes (1ddf0/2a30/ba970/75820/4ae50/4b810) match; pure saved-register
 // allocation + s8-arg-extraction floor. */
-// FUN_0031D630
+/* measured: probe_variants 290 differing words reloc-masked (V1 best; V2 420 worse, V3/V4 290 tie batch); fnalign retail 494 vs object 493 instrs (1 short, within 3% PASS; 126 edits +3 reloc-only) via `python3 tools/fnalign.py src/Event/Fcl/y_fclCombineDraw.c func_0031d630 --candidate /var/tmp/cold31d630/v1.c --quiet`; live measure_guarded GUARDED_SCORE func_0031d630: 290. Prior file notes nd 466/194 and source-repo 271 were bare INCLUDE_ASM with no banked body (no archive); this is the first banked floor since bare. */
+/* Walls (same rotation as prior notes, now at 290): t in $s2 vs $s1, v in $s1 vs $s2, ret/off/base/i/j rotation shifting every lbu/sb + lh base and loop slt; constants retail addiu +0xFF/+0xA5/+0xCC vs object addiu -1/-91/-52 (u8 vs s8 store choice neutral, v2 u8-0x5E worse 420) plus extra move $a1 for (s8)i CSE. All logic matches: outer 6970==0 gate, 11E==v dispatch to 31ddf0 1/0 + 34b810 1/0, both arg4==0 loops with 34ae50 &4>>2 gate and 2e4870+off12+i+0x14 lb test, arg2==v||arg3==v block with six FclByte4 chains and tail 275820 text call. */
+/* Repro: `python3 -E -s tools/m2c_decompile.py src/Event/Fcl/y_fclCombineDraw.c func_0031d630 -o /var/tmp/cold31d630/m2c.c` (176 lines, (void*,s64x4) + s8/s16 residues de-noised to (u8*,s64,s64,s64,s64) + (s8) casts, FclByte4 groups, s16 v/i/j, base+off12 hoist per 3212e0 PTR lever, 34b810 local extern u8*(u8*)); `python3 -E -s tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_0031d630 --candidate V1=/var/tmp/cold31d630/v1.c` (290) driven by fnalign edit script (count first: 493/494 exact-ish, then shapes). */
+/* Rounds: v1 290 (FclByte4 groups, s16 v/i/j with separate i/j, s8 0x6E -1 and s8/u8 0x5E per retail immediates, base+off12 hoist); v2 420 worse (inline t+v*4 base, u8 0x5E stores, single i reuse: 505/496 +367 edits); v3/v4 290 tie (declaration-order neutral: t/v swap and ret-first, all 290). Pragma sweep already measured on this family (loop_invariants neutral, common_subs off worse, schedule on worse per prior 271 note; rotation persists) so not re-swept. Stopped after two consecutive non-lowering rounds (v2 worse + v3/v4 tie batch). Banked v1 as guarded floor (within 3%, compiles clean under -DNON_MATCHING). */
+// FUN_0031D630 NONMATCHING
+#ifdef NON_MATCHING
+void func_0031d630(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4) {
+    FclByte4 cDC;
+    FclByte4 cD8;
+    FclByte4 cD4;
+    FclByte4 cD0;
+    FclByte4 cCC;
+    FclByte4 cC8;
+    FclByte4 cC4;
+    FclByte4 cC0;
+    FclByte4 cBC;
+    FclByte4 cB8;
+    extern u8 *func_0034b810(u8 *);
+    u8 *t;
+    s16 v;
+    s16 i;
+    s16 j;
+    u8 *p;
+    u8 *q;
+    u8 *e;
+    s32 ret;
+    f32 f;
+    t = *(u8 **)(arg0 + 0x38);
+    v = (s8)arg1;
+    if ((s16)func_002b6970(*(s16 *)(func_002b6150((s16)(v + 0x21C)) + 0x10), 1) != 0) {
+        return;
+    }
+    if (*(s16 *)(t + 0x11E) == v) {
+        ret = func_0031ddf0(arg0, arg1, 1, 0xFF);
+        *(s8 *)(func_0034b810(*(u8 **)(t + (s32)v * 4 + 0x21C)) + 0xF00) = 1;
+        if ((s8)arg4 == 0) {
+            u8 *base = t + (s32)v * 4;
+            s32 off12 = (s32)v * 12;
+            for (i = 0; (s16)i < (u16)func_0010b5b0(); i = (s16)(i + 1)) {
+                e = func_0034ae50(*(u8 **)(base + 0x154), (s8)i);
+                if (((*(s16 *)e & 4) >> 2) == 0) {
+                    func_002b2a60(&cDC, 0x2D, 0x2D, 0x2D, 0xFF);
+                    p = func_0034ae50(*(u8 **)(base + 0x154), (s8)i);
+                    *(FclByte4 *)(p + 0x75) = cDC;
+                    *(s8 *)(func_0034ae50(*(u8 **)(base + 0x154), (s8)i) + 0x5E) = -1;
+                    if (*(s8 *)(func_002e4870(0) + off12 + (s16)i + 0x14) > 0) {
+                        func_002b2a60(&cD8, 0xCC, 0xFF, 0x33, 0xFF);
+                        p = func_0034ae50(*(u8 **)(base + 0x154), (s8)i);
+                        *(FclByte4 *)(p + 0x75) = cD8;
+                    }
+                }
+            }
+        }
+    } else {
+        ret = func_0031ddf0(arg0, arg1, 0, 0xFF);
+        if (v >= *(s32 *)(func_002e4870(0) + 8)) {
+            func_002b2a60(&cD4, 0x24, 0x3F, 0x9F, 0xFF);
+            p = func_002b6150((s16)(v + 0x244));
+            *(FclByte4 *)(p + 0x85) = cD4;
+            q = func_002b6150((s16)(v + 0x238));
+            *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x85);
+            *(s8 *)(func_0034b810(*(u8 **)(t + (s32)v * 4 + 0x21C)) + 0xF00) = 0;
+        }
+        if ((s8)arg2 == v || (s8)arg3 == v) {
+            s16 v22b = (s16)(v + 0x22B);
+            s16 v21c = (s16)(v + 0x21C);
+            func_002b2a60(&cD0, 0x8C, 0xE2, 0xFF, 0xFF);
+            p = func_002b6150(v22b);
+            *(FclByte4 *)(p + 0x85) = cD0;
+            q = func_002b6150(v21c);
+            *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x85);
+            *(s8 *)(func_002b6150(v22b) + 0x6E) = -1;
+            *(s8 *)(func_002b6150(v21c) + 0x6E) = -1;
+            func_002b2a60(&cCC, 0x8C, 0xE2, 0xFF, 0xFF);
+            p = func_002b6150((s16)(v + 0x244));
+            *(FclByte4 *)(p + 0x85) = cCC;
+            q = func_002b6150((s16)(v + 0x238));
+            *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x85);
+            func_002b2a60(&cC8, 0x8C, 0xE2, 0xFF, 0xFF);
+            p = func_0034ae50(*(u8 **)(t + 0x188), arg1);
+            *(FclByte4 *)(p + 0x75) = cC8;
+            func_002b2a60(&cC4, 0, 0, 0x66, 0xFF);
+            p = func_002b6150((s16)(v + 0x39));
+            *(FclByte4 *)(p + 0x85) = cC4;
+            ret = func_002b2a30(0, 0, 0x66, 0xFF);
+            func_002b2a60(&cC0, 0, 0, 0x66, 0xFF);
+            func_002ba970(*(u8 **)(t + 0x2BC), (s8)arg1, *(s32 *)&cC0);
+        }
+        if ((s8)arg4 == 0) {
+            u8 *base = t + (s32)v * 4;
+            s32 off12 = (s32)v * 12;
+            for (j = 0; (s16)j < (u16)func_0010b5b0(); j = (s16)(j + 1)) {
+                e = func_0034ae50(*(u8 **)(base + 0x154), (s8)j);
+                if (((*(s16 *)e & 4) >> 2) == 0) {
+                    func_002b2a60(&cBC, 0, 0, 0x99, 0xA5);
+                    p = func_0034ae50(*(u8 **)(base + 0x154), (s8)j);
+                    *(FclByte4 *)(p + 0x75) = cBC;
+                    *(s8 *)(func_0034ae50(*(u8 **)(base + 0x154), (s8)j) + 0x5E) = 0xA5;
+                    if (*(s8 *)(func_002e4870(0) + off12 + (s16)j + 0x14) > 0) {
+                        func_002b2a60(&cB8, 0x49, 0x72, 0xFF, 0xA5);
+                        p = func_0034ae50(*(u8 **)(base + 0x154), (s8)j);
+                        *(FclByte4 *)(p + 0x75) = cB8;
+                        *(s8 *)(func_0034ae50(*(u8 **)(base + 0x154), (s8)j) + 0x5E) = 0xCC;
+                    }
+                }
+            }
+        }
+    }
+    if (v < *(s32 *)(func_002e4870(0) + 8)) {
+        f = (f32)((s32)v * 0x17 + 0x80);
+        func_00275820(113.0f, f, 43.0f, ret, 0, 2, (const char *)((u8 *)iGpffffb440 + (u16)(*(u16 *)(func_002e48a0(0, (s16)v) + 2)) * 0x11), 0, 0, D_00795E60, 0x15);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031d630);
+#endif
 
 /* measured: nd 194 — the whole body (both branches, all copy chains, call
    shapes) matches except a fixed saved-register rotation (6-declaration-order

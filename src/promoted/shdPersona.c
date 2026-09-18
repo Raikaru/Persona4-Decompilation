@@ -3203,8 +3203,219 @@ extern s32 (*D_00887310[])(s32, void *, s32);
    registers descending $s5(temp_21)..$s1(temp_17), mwcc puts temp_18 in $s5
    (declaration orders tried); (3) loop FP temp choices ($f1/$f2 vs $f0).
    Declarations kept: D_008872F8 (GPREL scalar), D_00887310, func_00457120. */
-// FUN_0011D5B0
+/* measured: cold 2026-09-18 0011d5b0 — GUARDED_SCORE 289 in real tree via `python3 -E -s tools/measure_guarded.py src/promoted/shdPersona.c func_0011d5b0` (probe 289 differing words, object 434 instrs/window 424 instrs exact count, fnalign --candidate edit 281 +4 reloc-only, 424-instr window). Full-C from m2c draft (/var/tmp/cold11d5b0/m2c.c) with u8 sp1E0[256]/spE0[256]/f32 spA0[16] layout (reversed decl puts spA0 at 0xA0, spE0 at 0xE0, sp1E0 at 0x1E0; frame 0x2E0 matches), single u32 tblbase assigned after temps and reused for both tables (base-in-$s0), c += c for 2.0f doubling (add.s not mul.s), full-mask (u32)(arg0 & mask)>>N extracts (lui/and/srl/andi), signed-outer (f32)(s32)(((u32)x >> 1) | bit) conversions (srl/or/mtc1/cvt/add, no inner guard; micro_codegen conv_e proves bare (f32)(u32-or) emits the 10-instr inner bltz block, outer (s32) cast removes it, 605->434 instrs), hoisted b21-b18 in loop vs inline after, spA0 fill order A0,A4,B8,BC,A8,AC,B0,B4,C0,C4,D8,DC,C8,CC,D0,D4. R1 count (v1 643, v2 586, -57); R2 frame (v3a/b 589 tie, 1st non-lowering); R3 late base (v4 537, -49); R4 layout (v5a 537 tie, fnalign 502->464); R5 regs (v6 ties, 2nd non-lowering, stop); R6 Main review: insert-cluster is 16x inner-guard surplus (181 words), fix outer (s32) cast (v7 356/429, -181) then masks (v8 289/434, -67); R7 regs (v10/v11 ties, stop). verify.py src/promoted/shdPersona.c 91 MATCH/11 ASM/0 MISMATCH; decomp_lint 0 errors (5 pre-existing warns elsewhere). Reused existing decls, no new globals. Walls: s5-s1 colouring, FP temps, D_008872F8 GPREL. */
+// FUN_0011D5B0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0011d5b0(f32 fparg0, s32 arg0, s32 arg1, f32 fparg1, f32 fparg2, s32 arg2, s32 arg3, s32 arg4) {
+    u8 sp1E0[256];
+    u8 spE0[256];
+    f32 spA0[16];
+    s32 temp_21;
+    s32 temp_20;
+    s32 temp_19;
+    s32 temp_18;
+    s32 temp_17;
+    s32 b21;
+    s32 b20;
+    s32 b19;
+    s32 b18;
+    f32 temp_f20;
+    f32 temp_f5;
+    f32 temp_f2;
+    f32 temp_f1;
+    f32 temp_f0;
+    f32 c;
+    s32 var_4;
+    u32 tblbase;
+    temp_f20 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    temp_21 = (s32)(((u32)(arg0 & 0xFF000000) >> 24) & 0xFF);
+    temp_20 = (s32)(((u32)(arg0 & 0xFF0000) >> 16) & 0xFF);
+    temp_19 = (s32)(((u32)(arg0 & 0xFF00) >> 8) & 0xFF);
+    temp_18 = arg0 & 0xFF;
+    temp_17 = arg1 & 0xFF;
+    tblbase = (u32)D_00887300;
+    ((s32 (**)(s32, void *))tblbase)[0](6, (void *)0);
+    ((s32 (**)(s32, void *))tblbase)[0](7, (void *)2);
+    ((s32 (**)(s32, void *))tblbase)[0](8, (void *)0);
+    ((s32 (**)(s32, void *))tblbase)[0](9, (void *)2);
+    ((s32 (**)(s32, void *))tblbase)[0](0xC, (void *)1);
+    ((s32 (**)(s32, void *))tblbase)[0](0xB, (void *)6);
+    ((s32 (**)(s32, void *))tblbase)[0](0xA, (void *)5);
+    ((s32 (**)(s32, void *))tblbase)[0](2, (void *)4);
+    func_003f6440(2, 0x44);
+    func_003f6440(3, 0x717FB);
+    spA0[0] = fparg1;
+    spA0[1] = fparg2;
+    temp_f2 = 256.0f + fparg1;
+    spA0[6] = temp_f2;
+    temp_f1 = fparg2 + (f32)arg3;
+    spA0[7] = temp_f1;
+    spA0[2] = temp_f2;
+    spA0[3] = fparg2;
+    spA0[4] = fparg1;
+    spA0[5] = temp_f1;
+    spA0[8] = temp_f2;
+    spA0[9] = fparg2;
+    temp_f0 = 256.0f + temp_f2;
+    spA0[14] = temp_f0;
+    spA0[15] = temp_f1;
+    spA0[10] = temp_f0;
+    spA0[11] = fparg2;
+    spA0[12] = temp_f2;
+    spA0[13] = temp_f1;
+    var_4 = 0;
+    temp_f5 = D_008872F8 - fparg0;
+    b21 = temp_21 & 1;
+    b20 = temp_20 & 1;
+    b19 = temp_19 & 1;
+    b18 = temp_18 & 1;
+    while (var_4 < 4) {
+        *(f32 *)(spE0 + (var_4 << 6) + 8) = temp_f5;
+        *(f32 *)(spE0 + (var_4 << 6) + 0x18) = temp_f20;
+        if (temp_21 >= 0) {
+            c = (f32)temp_21;
+        } else {
+            c = (f32)(s32)(((u32)temp_21 >> 1) | (u32)b21);
+            c += c;
+        }
+        *(f32 *)(spE0 + (var_4 << 6) + 0x20) = c;
+        if (temp_20 >= 0) {
+            c = (f32)temp_20;
+        } else {
+            c = (f32)(s32)(((u32)temp_20 >> 1) | (u32)b20);
+            c += c;
+        }
+        *(f32 *)(spE0 + (var_4 << 6) + 0x24) = c;
+        if (temp_19 >= 0) {
+            c = (f32)temp_19;
+        } else {
+            c = (f32)(s32)(((u32)temp_19 >> 1) | (u32)b19);
+            c += c;
+        }
+        *(f32 *)(spE0 + (var_4 << 6) + 0x28) = c;
+        if (temp_18 >= 0) {
+            c = (f32)temp_18;
+        } else {
+            c = (f32)(s32)(((u32)temp_18 >> 1) | (u32)b18);
+            c += c;
+        }
+        *(f32 *)(spE0 + (var_4 << 6) + 0x2C) = c;
+        *(f32 *)(spE0 + (var_4 << 6) + 0) = spA0[var_4 * 2];
+        *(f32 *)(spE0 + (var_4 << 6) + 4) = spA0[var_4 * 2 + 1];
+        *(f32 *)(sp1E0 + (var_4 << 6) + 8) = temp_f5;
+        *(f32 *)(sp1E0 + (var_4 << 6) + 0x18) = temp_f20;
+        if (temp_21 >= 0) {
+            c = (f32)temp_21;
+        } else {
+            c = (f32)(s32)(((u32)temp_21 >> 1) | (u32)b21);
+            c += c;
+        }
+        *(f32 *)(sp1E0 + (var_4 << 6) + 0x20) = c;
+        if (temp_20 >= 0) {
+            c = (f32)temp_20;
+        } else {
+            c = (f32)(s32)(((u32)temp_20 >> 1) | (u32)b20);
+            c += c;
+        }
+        *(f32 *)(sp1E0 + (var_4 << 6) + 0x24) = c;
+        if (temp_19 >= 0) {
+            c = (f32)temp_19;
+        } else {
+            c = (f32)(s32)(((u32)temp_19 >> 1) | (u32)b19);
+            c += c;
+        }
+        *(f32 *)(sp1E0 + (var_4 << 6) + 0x28) = c;
+        if (temp_18 >= 0) {
+            c = (f32)temp_18;
+        } else {
+            c = (f32)(s32)(((u32)temp_18 >> 1) | (u32)b18);
+            c += c;
+        }
+        *(f32 *)(sp1E0 + (var_4 << 6) + 0x2C) = c;
+        *(f32 *)(sp1E0 + (var_4 << 6) + 0) = spA0[var_4 * 2 + 8];
+        *(f32 *)(sp1E0 + (var_4 << 6) + 4) = spA0[var_4 * 2 + 9];
+        var_4 += 1;
+    }
+    if (temp_21 >= 0) {
+        c = (f32)temp_21;
+    } else {
+        c = (f32)(s32)(((u32)temp_21 >> 1) | (temp_21 & 1));
+        c += c;
+    }
+    *(f32 *)(spE0 + 0x20) = c;
+    if (temp_20 >= 0) {
+        c = (f32)temp_20;
+    } else {
+        c = (f32)(s32)(((u32)temp_20 >> 1) | (temp_20 & 1));
+        c += c;
+    }
+    *(f32 *)(spE0 + 0x24) = c;
+    if (temp_19 >= 0) {
+        c = (f32)temp_19;
+    } else {
+        c = (f32)(s32)(((u32)temp_19 >> 1) | (temp_19 & 1));
+        c += c;
+    }
+    *(f32 *)(spE0 + 0x28) = c;
+    if (temp_17 >= 0) {
+        c = (f32)temp_17;
+    } else {
+        c = (f32)(s32)(((u32)temp_17 >> 1) | (temp_17 & 1));
+        c += c;
+    }
+    *(f32 *)(spE0 + 0x2C) = c;
+    if (temp_21 >= 0) {
+        c = (f32)temp_21;
+    } else {
+        c = (f32)(s32)(((u32)temp_21 >> 1) | (temp_21 & 1));
+        c += c;
+    }
+    *(f32 *)(spE0 + 0xA0) = c;
+    if (temp_20 >= 0) {
+        c = (f32)temp_20;
+    } else {
+        c = (f32)(s32)(((u32)temp_20 >> 1) | (temp_20 & 1));
+        c += c;
+    }
+    *(f32 *)(spE0 + 0xA4) = c;
+    if (temp_19 >= 0) {
+        c = (f32)temp_19;
+    } else {
+        c = (f32)(s32)(((u32)temp_19 >> 1) | (temp_19 & 1));
+        c += c;
+    }
+    *(f32 *)(spE0 + 0xA8) = c;
+    if (temp_17 >= 0) {
+        c = (f32)temp_17;
+    } else {
+        c = (f32)(s32)(((u32)temp_17 >> 1) | (temp_17 & 1));
+        c += c;
+    }
+    *(f32 *)(spE0 + 0xAC) = c;
+    *(s32 *)(spE0 + 0x10) = 0;
+    *(s32 *)(spE0 + 0x14) = 0;
+    *(s32 *)(spE0 + 0x50) = 0x3F000000;
+    *(s32 *)(spE0 + 0x54) = 0;
+    *(s32 *)(spE0 + 0x90) = 0;
+    *(s32 *)(spE0 + 0x94) = 0x3F800000;
+    *(s32 *)(spE0 + 0xD0) = 0x3F000000;
+    *(s32 *)(spE0 + 0xD4) = 0x3F800000;
+    *(s32 *)(sp1E0 + 0x10) = 0x3F000000;
+    *(s32 *)(sp1E0 + 0x14) = 0;
+    *(s32 *)(sp1E0 + 0x50) = 0x3F800000;
+    *(s32 *)(sp1E0 + 0x54) = 0;
+    *(s32 *)(sp1E0 + 0x90) = 0x3F000000;
+    *(s32 *)(sp1E0 + 0x94) = 0x3F800000;
+    *(s32 *)(sp1E0 + 0xD0) = 0x3F800000;
+    *(s32 *)(sp1E0 + 0xD4) = 0x3F800000;
+    ((s32 (**)(s32, void *))tblbase)[0](1, (void *)*(s32 *)arg4);
+    tblbase = (u32)D_00887310;
+    ((s32 (**)(s32, void *, s32))tblbase)[0](4, spE0, 4);
+    ((s32 (**)(s32, void *, s32))tblbase)[0](4, sp1E0, 4);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011d5b0);
+#endif
 
 
 

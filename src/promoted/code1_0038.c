@@ -518,8 +518,127 @@ void func_00383f80(u8 *arg0)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00383f80);
 #endif
-// FUN_00384CC0
+/* measured: honest first reconstruction per func_0038bab0/89640 idiom (u8* state at +0x24, Vec2f point, (f32)(u16) bltz, plain (u8) clamps, sequential <13 mask, block-scoped next, plain arithmetic; probe_variants v1 381w/44e, R1 v_s32 360w/39e win (-21/-5, s32 quad/icon for $s allocation adopted), v_loop 407w regress, R2 v_prop 348w/56e words-win but fnalign worse not adopted per 85380 precedent, v_reorder 364w regress; stop after two rounds (R1 productive, R2 unproductive after fnalign gate) per batch; fnalign v_s32 retail 429/object 428 (39 edits +4 reloc-only, within 3%, frame 0xB0, sh/andi order + $s0/$s4 + GP offsets + COP1 floor remain); providers verified (373cb0 f32,f32,f32,s32 per btlShuffleCalc.c:43, 64c90 Vec2f per shdMisc.c:351, 34f460 s32,s32,f32,f32,u8,u8,u8,u32 per this file:73, 3f6440/46d730/D_0064EEB0 file-scope, D_0064ECC0 + fGp83c0/83c4 block-scope, 5.0/3.0/5.0-10.0 constants per retail immediates, quad $20/icon1 $19/icon2 $18 per retail $s map); Ghidra/IDA agree on CFG/call order, differ on 34f460/373cb0 prototypes and GP naming (used file idiom); lever 4 exclusive <13 already $at; lhu correct; double-def offset remains + FPR color; re-derived, no fabrications; archive P038_00384cc0_body.c stale (swapped quad/icon + doubled constants). Banked guarded floor. */
+// FUN_00384CC0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00384cc0(u8 *arg0)
+{
+    typedef struct { f32 x; f32 y; } Vec2f_4cc0;
+    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern void func_00364c90(Vec2f_4cc0 pos, f32 depth, s32 color, f32 width, f32 height, f32 angle, s32 mode);
+    extern f32 fGpffff83c0;
+    extern f32 fGpffff83c4;
+    extern u8 D_0064ECC0[];
+    u8 *state;
+    u8 *base;
+    u8 *info;
+    s32 resource;
+    Vec2f_4cc0 point;
+    u16 flags;
+    u16 next;
+    f32 progress;
+    s32 quad;
+    s32 icon1;
+    s32 icon2;
+    s32 packed;
+    s32 mask;
+    s32 i;
+    u8 *entry;
+    f32 x;
+    f32 y;
+    state = arg0 + 0x24;
+    base = *(u8 **)arg0;
+    info = base + 0x1F1D0;
+    resource = *(s32 *)(base + 0x1F2AC);
+    mask = 0;
+    if (*(s32 *)(base + 0x1F2FC) != 4) {
+        func_0046d730(D_0064EEB0, 459);
+    }
+    flags = *(u16 *)state;
+    if ((flags & 1) == 0) {
+        quad = 0;
+        progress = (f32)*(u16 *)(state + 2);
+        icon1 = (u8)(255.0f * func_00373cb0(progress, 0.0f, 5.0f, 1));
+        icon2 = 0;
+        next = *(u16 *)(state + 2) + 1;
+        *(u16 *)(state + 2) = next;
+        if ((next & 0xFFFF) >= 5) {
+            *(u16 *)state = *(u16 *)state | 1;
+            *(u16 *)state = *(u16 *)state | 2;
+            *(u16 *)(state + 2) = 0;
+        }
+    } else if (flags & 2) {
+        progress = (f32)*(u16 *)(state + 2);
+        quad = (u8)(255.0f * func_00373cb0(progress, 0.0f, 3.0f, 1));
+        icon1 = 0xFF;
+        progress = (f32)*(u16 *)(state + 2);
+        icon2 = (u8)(255.0f * (1.0f - func_00373cb0(progress, 5.0f, 10.0f, 1)));
+        next = *(u16 *)(state + 2) + 1;
+        *(u16 *)(state + 2) = next;
+        if ((next & 0xFFFF) >= 10) {
+            *(u16 *)state = *(u16 *)state & 0xFFFD;
+            *(u16 *)(state + 2) = 0;
+        }
+    } else if (flags & 4) {
+        progress = (f32)*(u16 *)(state + 2);
+        quad = (u8)(255.0f * (1.0f - func_00373cb0(progress, 0.0f, 5.0f, 1)));
+        icon2 = quad;
+        icon1 = quad;
+        next = *(u16 *)(state + 2) + 1;
+        *(u16 *)(state + 2) = next;
+        if ((next & 0xFFFF) >= 10) {
+            *(u16 *)(arg0 + 0x4C) = *(u16 *)(arg0 + 0x4C) & 0xFFBF;
+            *(u16 *)(state + 2) = 0;
+        }
+    } else {
+        quad = 0xFF;
+        icon1 = 0xFF;
+        icon2 = 0;
+    }
+    point.x = 314.0f;
+    point.y = 237.0f;
+    packed = (quad & 0xFF) | 0x3767FF00;
+    func_003f6440(3, 0x71801);
+    func_003f6440(2, 0x48);
+    if (*(u16 *)info & 0x20) {
+        if (quad != 0) {
+            func_00364c90(point, 0.0f, packed, 403.0f, 2.0f, 0.0f, 1);
+        }
+        mask = (mask | 0x1F) & 0xFFFF;
+    }
+    point.x = 314.0f;
+    point.y = 236.0f;
+    if (*(u16 *)info & 0x10) {
+        if (quad != 0) {
+            func_00364c90(point, 0.0f, packed, 485.0f, 2.0f, fGpffff83c0, 1);
+        }
+        mask = (mask | 0x1E1) & 0xFFFF;
+    }
+    point.x = 316.0f;
+    point.y = 236.0f;
+    if (*(u16 *)info & 0x40) {
+        if (quad != 0) {
+            func_00364c90(point, 0.0f, packed, 485.0f, 2.0f, fGpffff83c4, 1);
+        }
+        mask = (mask | 0x1E01) & 0xFFFF;
+    }
+    for (i = 0; i < 13; i++) {
+        if (mask & (1 << i)) {
+            entry = D_0064ECC0 + i * 8;
+            x = *(f32 *)entry;
+            y = *(f32 *)(entry + 4);
+            func_0034f460(resource, 55, x, y, 0xFF, 0xFF, 0xFF, icon1);
+            if (icon2 != 0) {
+                func_0034f460(resource, 55, x, y, 0xFF, 0xFF, 0xFF, icon2);
+            }
+        }
+    }
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x44);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00384cc0);
+#endif
 /* measured: probe_variants func_00385380 base 336wd honest (exclusive <0x12, Vec2f{318,231}, plain accumulators, (u8)/(u16) clamps), inclusive (>0x12/slti 0x13) 336wd tie (no $at site, lever N/A beyond exclusivity), pragma_schedule 335wd (-1 churn, fnalign 411 vs 193 edits worse, not adopted); fnalign base retail 377/object 320 (193 edits +1 reloc-only; frame 0x90->0x80, s3->s2, accumulator madd chains); providers verified (373cb0, 3f6440, 64c90, 34f4a0, 44b7b0/610, DAT_007613F8/fGp82cc/80bc/83c8 per Draft5380); Ghidra/IDA agree; archive docs/probe_archive/P038_00385380_body.c (COP1 floor note, consistent); lever 4 tie; banked guarded floor for opclass measurability (object 320/377, 15% short noted plainly, stays out per 3% rule for MATCH but in as floor for triage). */
 // FUN_00385380 NONMATCHING
 #ifdef NON_MATCHING

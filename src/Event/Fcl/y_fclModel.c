@@ -42,10 +42,10 @@ extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 fla
 extern s32 func_00106330(s32);
 extern s32 func_00348be0(u8 *);
 extern s32 func_00348c10(u8 *);
-extern void func_001102f0(void *, s32, s32, s32);
+extern u8 *func_001102f0(u8 *, s32, s32, f32);
 extern void func_002b2a60(void *, s32, s32, s32, s32);
 extern void func_003489c0(u8 *, void *, s32, s32, s32, f32, f32, f32, f32);
-extern s32 func_00285b30(u8 *);
+extern s32 func_00285b30(void);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *, void *);
 extern s16 func_002b2cb0(s32, s32, s32, s32, s32);
@@ -352,15 +352,230 @@ void func_00349b90(u8 *arg0, u8 *arg1)
     }
 }
 
-/* measured: state-machine switch on object[0] with nested switch on object[4]
-   and a shared return-0 block. Retail frame is 0x50; b210 emits 0x30 because the
-   case-1 stack locals (sp28/sp38/sp44/sp48/sp4C) are dead-store-eliminated (only
-   sp28's address is taken; the sp44->sp4C byte copy and sp48/sp4C color stores
-   vanish). Same lever-4 dead-store elimination as func_0034a4f0. Shared-return
-   restructure (cases 0/1/2/4 -> break + trailing return 0) only moved 378->374;
-   frame and byte-copy residuals remain. INCLUDE_ASM retained. */
-// FUN_00349C50
+/* measured: cold m2c via bulk path (direct m2c_decompile fails: jr without jtbl_00749820;
+   combined prepared asm + .word .L targets for 6 entries at 0x749820). De-noised to file
+   idiom (u8*+offsets, s8/s16/u16/s32; file-scope 001102f0 to (u8*,s32,s32,f32)->u8* per
+   g_data.c and 00285b30 to (void)->s32 per y_CmbCardEff; 300.0f/0.0f/1.0f/700.0f floats;
+   s32 (not u32) for sp48/sp4C colors; u8[4] per-byte sp44->sp4C copy for retail lbu/sb).
+   probe_variants: v1/v9w 229 best (v3 317/v4 314/v5 317 with explicit case-4 switch+stack
+   swaps; v6 if-chain 388; v7 guard+switch 381; v8 lh-split 399). fnalign v1: retail 521
+   vs object 521 instrs, edit 67 +16 reloc. Frame 0x50 both. Residuals: missing explicit
+   inner c==4 check (3w, explicit guard/5th case triggers jump-table penalty +88); lhu
+   $a0 vs $v1 + sll/lw order + lh scheduling; mov.s scheduling; sp28 0x20 vs 0x28 and
+   sp44/sp4C swap (stack allocation); sb $a0 reuse vs addiu+sb; branch offsets. Float
+   coloring (mov.s) follows count. Floor per matching.md (alloc/sched/order/FPU).
+   INCLUDE_ASM retained. */
+// FUN_00349C50 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00349c50(u8 *arg0)
+{
+    u8 sp28[16];
+    u8 sp38[12];
+    u8 sp44[4];
+    s32 sp48;
+    s32 sp4C;
+    u8 *obj;
+    obj = *(u8 **)(arg0 + 0x38);
+    switch (*(s8 *)obj) {
+    case 0:
+        if (*(s8 *)(obj + 6) == 1) {
+            *(s8 *)obj = 4;
+        }
+        break;
+    case 1:
+        *(u8 **)(obj + 0xC) = func_00478140(0xB, *(u16 *)(obj + 8), 0);
+        *(s8 *)obj = 2;
+        break;
+    case 2:
+        if (func_004782b0(*(u8 **)(obj + 0xC)) != 0) {
+            if (*(s8 *)(obj + 0x28) == 1) {
+                func_00479940(*(u8 **)(obj + 0xC), 0, 0, 0, 1);
+            } else {
+                *(s8 *)(obj + 4) = 0;
+            }
+            *(s16 *)(obj + 2) = 0;
+            *(s8 *)obj = 3;
+            if (*(s8 *)(obj + 6) == 1) {
+                *(s8 *)obj = 4;
+            }
+        }
+        break;
+    case 3:
+        if (*(s8 *)(obj + 6) == 1) {
+            *(s8 *)obj = 4;
+            return 0;
+        }
+        if (*(s8 *)(obj + 1) == 1) {
+            return 0;
+        }
+        if (*(s8 *)(obj + 0x28) == 0) {
+            *(s32 *)(obj + 0xE8) = 0x29;
+            if (func_00106330(0x1450) == 0) {
+                return 0;
+            }
+            switch (*(s8 *)(obj + 4)) {
+            case 0:
+                if (func_00348be0(*(u8 **)(obj + 0xEC)) == 0) {
+                    return 0;
+                }
+                if (func_00348be0(*(u8 **)(obj + 0xF0)) == 0) {
+                    return 0;
+                }
+                if (*(s8 *)(obj + 5) == 1) {
+                    u16 a = *(u16 *)(obj + 8);
+                    if (a == 0x16) {
+                        u8 *base = *(u8 **)(obj + 0x10);
+                        s16 an = *(s16 *)(base + (a << 5) + 6);
+                        func_00479940(*(u8 **)(obj + 0xC), 0, an, 0, 0);
+                    } else {
+                        u8 *base = *(u8 **)(obj + 0x10);
+                        s16 an = *(s16 *)(base + (a << 5) + 6);
+                        func_00479940(*(u8 **)(obj + 0xC), 0, an, 10, 0);
+                    }
+                }
+                *(s8 *)(obj + 4) = 1;
+                break;
+            case 1:
+                if (func_00348c10(*(u8 **)(obj + 0xEC)) == 0) {
+                    func_001102f0(sp38, 0x140, 0xA5, 300.0f);
+                    func_002b2a60(&sp48, 0xFF, 0xFF, 0xFF, 0xFF);
+                    func_003489c0(*(u8 **)(obj + 0xEC), sp38, sp48, 0, -1, 0.0f, 0.0f, 0.0f, 1.0f);
+                }
+                if (func_00348c10(*(u8 **)(obj + 0xF0)) == 0) {
+                    func_002b2a60(sp44, 0xFF, 0xFF, 0xFF, 0xFF);
+                    ((u8 *)&sp4C)[0] = sp44[0];
+                    ((u8 *)&sp4C)[1] = sp44[1];
+                    ((u8 *)&sp4C)[2] = sp44[2];
+                    ((u8 *)&sp4C)[3] = sp44[3];
+                    func_001102f0(sp28, 0x140, 0xA5, 300.0f);
+                    switch (*(u16 *)(obj + 8)) {
+                    case 0x59:
+                        func_002b2a60(&sp4C, 0xFF, 0xFF, 0xFF, 0xCD);
+                        break;
+                    case 0xA:
+                        func_002b2a60(&sp4C, 0xFF, 0xFF, 0xFF, 0xA);
+                        break;
+                    case 0x5F:
+                        func_002b2a60(&sp4C, 0xFF, 0xFF, 0xFF, 0xAA);
+                        break;
+                    default:
+                        break;
+                    }
+                    func_003489c0(*(u8 **)(obj + 0xF0), sp28, sp4C, 0, -1, 0.0f, 0.0f, 0.0f, 1.0f);
+                }
+                if (*(s8 *)(obj + 5) == 1) {
+                    u16 v = *(u16 *)(obj + 8);
+                    if ((v == 4) || (v == 0xB) || (v == 0x16) || (v == 0x2D) || (v == 0x53) ||
+                        (v == 0x6B) || (v == 0x9A) || (v == 0x57) || (v == 0xA6) || (v == 0xBA) ||
+                        (v == 0xBD) || (v == 0x15) || (v == 0x43) || (v == 0x68) || (v == 0x8D) ||
+                        (v == 0x93) || (v == 0x71) || (v == 0x7D) || (v == 0x8A) || (v == 0xA3) ||
+                        (v == 0x39)) {
+                        *(s8 *)(obj + 4) = 2;
+                        *(s8 *)(obj + 5) = 0;
+                    } else {
+                        *(s8 *)(obj + 4) = 3;
+                    }
+                } else {
+                    *(s8 *)(obj + 4) = 4;
+                }
+                break;
+            case 2:
+                if (*(u8 *)(*(u8 **)(obj + 0xC) + 0xEE) == 1) {
+                    *(s8 *)(obj + 5) = 0;
+                    *(s8 *)(obj + 4) = 4;
+                } else if ((f32)func_00285b30() >= 700.0f) {
+                    *(s8 *)(obj + 5) = 0;
+                    *(s8 *)(obj + 4) = 4;
+                }
+                break;
+            case 3:
+                {
+                    u8 *mdl = *(u8 **)(obj + 0xC);
+                    if (*(u8 *)(mdl + 0xEE) == 1) {
+                        func_00479940(mdl, 0, 0, 30, 1);
+                        *(s8 *)(obj + 5) = 0;
+                        *(s8 *)(obj + 4) = 4;
+                    } else if ((f32)func_00285b30() >= 700.0f) {
+                        func_00479940(*(u8 **)(obj + 0xC), 0, 0, 30, 1);
+                        *(s8 *)(obj + 5) = 0;
+                        *(s8 *)(obj + 4) = 4;
+                    }
+                }
+                break;
+            default:
+                break;
+            }
+        } else {
+            *(s32 *)(obj + 0xE8) = 0xB3;
+        }
+        {
+            void *tmp1 = func_00460990();
+            *(void **)((u8 *)tmp1 + 8) = (void *)func_00349440;
+            *(u8 **)((u8 *)tmp1 + 0x10) = obj;
+            func_00460ac0(&D_00793E80[(*(s32 *)(obj + 0xE8) - 1) * 0x30], tmp1);
+            {
+                s16 cur = *(s16 *)(obj + 2);
+                if (cur < 3) {
+                    *(s16 *)(obj + 2) = func_002b2cb0(cur, 1, 3, 0, 1);
+                } else {
+                    func_00479100(&D_00793E80[(*(s32 *)(obj + 0xE8)) * 0x30], *(u8 **)(obj + 0xC));
+                    if (*(s8 *)(obj + 0x28) == 0) {
+                        func_0047aa30(*(u8 **)(obj + 0xC), D_005DCA70);
+                    } else {
+                        func_0047aa30(*(u8 **)(obj + 0xC), D_005DCA1C);
+                    }
+                }
+            }
+            {
+                void *tmp2 = func_00460990();
+                *(void **)((u8 *)tmp2 + 8) = (void *)func_00349b90;
+                *(u8 **)((u8 *)tmp2 + 0x10) = obj;
+                func_00460ac0(&D_00793E80[(*(s32 *)(obj + 0xE8) + 1) * 0x30], tmp2);
+            }
+        }
+        break;
+    case 4:
+        {
+            u8 *p1 = *(u8 **)(obj + 0xC);
+            if (p1 != NULL) {
+                func_004787e0(p1);
+                *(u8 **)(obj + 0xC) = NULL;
+            }
+            {
+                u8 *p2 = *(u8 **)(obj + 0x14);
+                if (p2 != NULL) {
+                    func_00104a00(p2);
+                    *(u8 **)(obj + 0x14) = NULL;
+                }
+            }
+            if (*(s8 *)(obj + 0x28) == 0) {
+                u8 *p3 = *(u8 **)(obj + 0xEC);
+                if (p3 != NULL) {
+                    func_00452080(p3);
+                    *(u8 **)(obj + 0xEC) = NULL;
+                }
+                {
+                    u8 *p4 = *(u8 **)(obj + 0xF0);
+                    if (p4 != NULL) {
+                        func_00452080(p4);
+                        *(u8 **)(obj + 0xF0) = NULL;
+                    }
+                }
+            }
+            *(s8 *)(obj + 6) = 0;
+            *(s8 *)obj = 0;
+        }
+        break;
+    case 5:
+        return -1;
+    default:
+        break;
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclModel", func_00349c50);
+#endif
 // FUN_0034A480
 void func_0034a480(u8 *arg0)
 {
