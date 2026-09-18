@@ -884,6 +884,18 @@ void func_0048a340(f32 param_1)
 /* and their pairs; 22 csoff group, 23 peephole group, 34-35 schedule group). */
 /* No pair wins; floor stands. */
 /* `python3 -E -s tools/pragma_sweep.py src/Graphics/Model/mdlEffect.c func_0048a460 --pairs`. */
+/* 2026-09-18: confirmed 15-word register-colouring wall.  The whole residual
+   is inside instructions 21-39: retail keeps the divisor in $f0, the
+   dividend in $f1 and the quotient in $f2 and uses $v0 for the two float
+   constants and the final `addiu`, where b210 uses $f2/$f0/$f1 and $v1.
+   Measured and rejected: a local for transformed.z, locals for the two
+   quotients, accumulate-split divisions in three shapes, commuting the
+   multiplies, dropping the parentheses (22), storing output[2]/[3] first
+   (19), reversing the transformed/input declaration order (20), inlining
+   mdlEffect_camera_matrix (18) or hoisting it to a local, four spellings
+   of the closing lqc2 operand (plain, no `m`, `=m` output, `&output[0]`,
+   a u8* local), and the ten-pragma sweep - everything ties at 15 except
+   opt_common_subs off and optimization_level 1 (22) and level 3 (34). */
 // FUN_0048A460 NONMATCHING
 #ifdef NON_MATCHING
 void func_0048a460(void)
