@@ -3170,5 +3170,28 @@ void func_0046ec70(u8 *arg0) {
         node = *(u8 **)(node + 0x228);
     }
 }
+/* Shortfall +97 LONG, not banked: retail 984 vs object 1081 (band 954-1013).
+ * Candidate at /var/tmp/cold46f2b0/cand_base_honest.c (honest step + D_00761514 madd shape;
+ * fnalign at /var/tmp/cold46f2b0/fnalign_honest.txt; S1-S8 variants alongside).
+ * Insert-side audit, all measured not assumed:
+ * - unsigned (f32)(u32): 0 in body (all (f32)(s32)/(f32)u8; func_00479100 caution noted,
+ *   kept retail (f32)(s32) shape, no weakening tried -> excluded, 0 cost.
+ * - dsll32/dsra32: 0 in fnalign object (grep 0) and 0 in built .o func_0046f2b0 (objdump 0) -> excluded.
+ * - field-by-field vs aggregate: rect 4x s32 + colours 2x f32 + 8x work floats all field-by-field
+ *   in both retail and candidate (retail sw/swc1 x same counts) -> excluded, no aggregate win.
+ * - defensive C: 4x &sp rect null + 1x +0x14C cb + 3x 70e20/70d10 null + 1x +0x21C null = 9 checks,
+ *   all match retail beqz, plus clamps/re-reads match c.le/c.lt/bc1t -> excluded (0 extra).
+ * Found bloat (insert-side): absolute 0x007641xx 28 uses (8x f32 loads + 20x u8 stores, each +1 lui
+ *   in probe object; built .o shows gp-relative via small-data so probe-only, ~+28) + 2.0f*mul vs
+ *   retail add.s (+2 per of 6 u8->float convs, ~+12; pure inserts object[593:605] len12 and
+ *   object[628:640] len12 are the mul-side sra/andi/or/mtc1/cvt/lui/mtc1/mul blocks) + switch/madd
+ *   scheduling drift (largest inserts: [349:349]->[443:453] len10 for 0xB0 chain, [117:117]->[123:125]
+ *   len2 for a2/a3 setup, plus [640]/[761]/[680]/[801]/[874] len2/1/2/1/1; largest net replaces:
+ *   [343:348]->[412:442] +25, [26:29]->[22:46] +21, [241:244]->[243:263] +17, [265:268]->[303:323] +17).
+ * Frame retail 0xE0 (224) vs probe object 0xB0 (176), -48 smaller -> excluded, not bloat.
+ * Eight-variant decl-order sweep on honest base cannot fix shape overshoot (colouring, not shape):
+ * S1 func decl20 retail 985, S2 func decl21 retail 985 (tie), S3 func decl20 reverse 998 (+13),
+ * S4 func decl21 reverse 998, S5 block decl20 retail 985 (tie), S6 block decl21 retail 985,
+ * S7 block decl20 reverse 998, S8 block decl21 reverse 998 (pair $f20/$f21 temp_f21 vs temp_f20). */
 // FUN_0046F2B0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046f2b0);

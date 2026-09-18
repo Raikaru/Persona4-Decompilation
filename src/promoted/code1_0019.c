@@ -3691,8 +3691,225 @@ void func_0019c010(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }
 
-// FUN_0019C0D0
+/* measured: first reconstruction from m2c bulk + romwright (void(void) per prologue $a0 overwritten, 22 jals match, 0x38-0x3B never loaded so skipped). probe 867 differing words, fnalign retail 951/object 951 (0 short, 0% inside 3% gate). `opt_common_subs off` inside guard is worth 868->951 instrs into gate (base 871/867, ccs_off 875/950); reload of *(entry+0xA00) for subs loop is worth 871->867 (-4). Near-miss: opt_loop_invariants on 869, opt_unroll_loops off 871, schedule off 871, subscript off=i*8 871, stackcopy 871, inv_outer 870, inv37 869, register 871, while1 864 (best diff but 867 count outside gate), funcscope 871, nocachek 871, grow2 871; with pragma: while1_ccsoff 871, inv37_ccsoff 874. Residual is saved-reg colouring ($s3/$s4 vs $s1/$s0), VU adda/madd vs mul/add (matrix 3, color 12), stack frame -0xB0 vs -0x90, and lhu/blez vs bnez polarity. Production stays guarded (not MATCH). */
+// FUN_0019C0D0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_common_subs off
+void func_0019c0d0(void)
+{
+    extern u32 func_00196610(u8 *arg0);
+    extern void func_00230170(u8 *arg0);
+    extern void func_0014b150(u16 arg0, u32 arg1);
+    extern void func_001b70c0(u8 *arg0);
+    extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
+    extern void func_0047a1e0(void *arg0, void *arg1, s32 arg2);
+    extern void func_0047a180(void *arg0, void *arg1, s32 arg2);
+    extern void func_00478e70(void *arg0);
+    extern s32 func_001ee490(u8 *arg0);
+    extern u32 func_0019d130(u8 *arg0);
+    extern s32 func_001d72e0(s32 arg0);
+    extern s16 func_001d7130(s32 arg0);
+    extern void func_001d7400(s32 arg0, u8 *arg1);
+    extern void func_001d7100(u8 *arg0, s16 arg1);
+    extern void func_001d72c0(void *arg0, u32 arg1);
+    extern void func_001d7140(u8 *arg0);
+    extern f32 fGpffff81f4;
+    s32 i;
+    u8 *entry;
+    i = 0;
+    while ((u32)i < 4U) {
+        entry = *(u8 **)(D_0076449C + (i * 8) + 0x17C);
+        while (entry != NULL) {
+            func_00196610(entry);
+            func_00198380(entry);
+            if (i == 2) {
+                if ((*(s32 *)(entry + 0x98) & 2) != 0) {
+                    if (*(u16 *)(entry + 0x9FE) != 0) {
+                        func_0014b150(*(u16 *)(entry + 0x9FE), (u32)(*(u8 *)(entry + 0xAC) == 1));
+                    }
+                }
+            } else if (i == 1) {
+                func_00230170(entry);
+            }
+            if ((*(s32 *)(entry + 0x98) & 2) != 0) {
+                func_001b70c0(entry);
+                {
+                    u16 v = *(u16 *)entry;
+                    if (((v & 3) == 0) || ((v & 4) != 0)) {
+                        u8 t = *(u8 *)(entry + 0x37);
+                        if (t != 0xFF) {
+                            if (t < 0xDF) {
+                                *(u8 *)(entry + 0x37) = (u8)(t + 0x20);
+                            } else {
+                                *(u8 *)(entry + 0x37) = 0xFF;
+                            }
+                            *(s32 *)(entry + 0x98) |= 4;
+                        }
+                    } else {
+                        u8 base;
+                        if ((v & 8) == 0) {
+                            base = 0;
+                        } else {
+                            base = 0x58;
+                        }
+                        if ((u8)(base + 0x20) < *(u8 *)(entry + 0x37)) {
+                            *(u8 *)(entry + 0x37) = (u8)(*(u8 *)(entry + 0x37) - 0x20);
+                        } else {
+                            *(u8 *)(entry + 0x37) = base;
+                        }
+                        *(s32 *)(entry + 0x98) |= 4;
+                    }
+                }
+                if (*(u16 *)(entry + 0x4C) > 0) {
+                    f32 ft;
+                    f32 fdiv;
+                    f32 f1;
+                    u8 b48;
+                    u8 b49;
+                    u8 b4a;
+                    ft = (f32)*(u16 *)(entry + 0x4C);
+                    fdiv = ft / 8.0f;
+                    b48 = *(u8 *)(entry + 0x48);
+                    f1 = fdiv * (f32)(s32)((s32)*(u8 *)(entry + 0x44) - (s32)b48);
+                    *(u8 *)(entry + 0x40) = (u8)((u32)b48 + (u32)f1);
+                    b49 = *(u8 *)(entry + 0x49);
+                    f1 = fdiv * (f32)(s32)((s32)*(u8 *)(entry + 0x45) - (s32)b49);
+                    *(u8 *)(entry + 0x41) = (u8)((u32)b49 + (u32)f1);
+                    b4a = *(u8 *)(entry + 0x4A);
+                    f1 = fdiv * (f32)(s32)((s32)*(u8 *)(entry + 0x46) - (s32)b4a);
+                    *(u8 *)(entry + 0x42) = (u8)((u32)b4a + (u32)f1);
+                    *(s32 *)(entry + 0x98) |= 4;
+                    *(u16 *)(entry + 0x4C) = (u16)(*(u16 *)(entry + 0x4C) - 1);
+                }
+                if ((*(s32 *)(entry + 0x98) & 4) != 0) {
+                    f32 f14 = *(f32 *)(entry + 0x1C);
+                    f32 f15 = *(f32 *)(entry + 0x20);
+                    f32 f12 = *(f32 *)(entry + 0x24);
+                    f32 f13 = *(f32 *)(entry + 0x28);
+                    f32 m[9];
+                    s32 z[3];
+                    s32 poly;
+                    f32 sp[3];
+                    u8 col[4];
+                    f32 k;
+                    m[0] = 1.0f - (f15 * f15 + f12 * f12) * 2.0f;
+                    m[1] = (f14 * f15 + f13 * f12) * 2.0f;
+                    m[2] = (f12 * f14 - f13 * f15) * 2.0f;
+                    m[3] = (f14 * f15 - f13 * f12) * 2.0f;
+                    m[4] = 1.0f - (f14 * f14 + f12 * f12) * 2.0f;
+                    m[5] = (f15 * f12 + f13 * f14) * 2.0f;
+                    m[6] = (f12 * f14 + f13 * f15) * 2.0f;
+                    m[7] = (f15 * f12 - f13 * f14) * 2.0f;
+                    m[8] = 1.0f - (f14 * f14 + f15 * f15) * 2.0f;
+                    z[0] = 0;
+                    z[1] = 0;
+                    z[2] = 0;
+                    poly = 3;
+                    func_0047a1c0(*(u8 **)(entry + 0xA00), m, 0);
+                    sp[0] = sp[1] = sp[2] = *(f32 *)(entry + 0x2C);
+                    func_0047a1e0(*(u8 **)(entry + 0xA00), sp, 2);
+                    sp[0] = *(f32 *)(entry + 4) + *(f32 *)(entry + 0x10);
+                    sp[1] = *(f32 *)(entry + 8) + *(f32 *)(entry + 0x14);
+                    sp[2] = *(f32 *)(entry + 0xC) + *(f32 *)(entry + 0x18);
+                    func_0047a180(*(u8 **)(entry + 0xA00), sp, 2);
+                    k = fGpffff81f4;
+                    {
+                        f32 a0 = (f32)*(u8 *)(entry + 0x30);
+                        f32 a1 = (f32)*(u8 *)(entry + 0x31);
+                        f32 a2 = (f32)*(u8 *)(entry + 0x32);
+                        f32 a3 = (f32)*(u8 *)(entry + 0x33);
+                        f32 b0 = (f32)*(u8 *)(entry + 0x34);
+                        f32 b1 = (f32)*(u8 *)(entry + 0x35);
+                        f32 b2 = (f32)*(u8 *)(entry + 0x36);
+                        f32 b3 = (f32)*(u8 *)(entry + 0x37);
+                        f32 c0 = (f32)*(u8 *)(entry + 0x3C);
+                        f32 c1 = (f32)*(u8 *)(entry + 0x3D);
+                        f32 c2 = (f32)*(u8 *)(entry + 0x3E);
+                        f32 c3 = (f32)*(u8 *)(entry + 0x3F);
+                        f32 d0 = (f32)*(u8 *)(entry + 0x40);
+                        f32 d1 = (f32)*(u8 *)(entry + 0x41);
+                        f32 d2 = (f32)*(u8 *)(entry + 0x42);
+                        f32 d3 = (f32)*(u8 *)(entry + 0x43);
+                        s32 t0 = ((s32)(k * a0 * k * b0 * 255.0f + 0.5f)) & 0xFF;
+                        s32 t1 = ((s32)(k * a1 * k * b1 * 255.0f + 0.5f)) & 0xFF;
+                        s32 t2 = ((s32)(k * a2 * k * b2 * 255.0f + 0.5f)) & 0xFF;
+                        s32 t3 = ((s32)(k * a3 * k * b3 * 255.0f + 0.5f)) & 0xFF;
+                        s32 u0 = ((s32)(k * (f32)t0 * k * c0 * 255.0f + 0.5f)) & 0xFF;
+                        s32 u1 = ((s32)(k * (f32)t1 * k * c1 * 255.0f + 0.5f)) & 0xFF;
+                        s32 u2 = ((s32)(k * (f32)t2 * k * c2 * 255.0f + 0.5f)) & 0xFF;
+                        s32 u3 = ((s32)(k * (f32)t3 * k * c3 * 255.0f + 0.5f)) & 0xFF;
+                        col[0] = (u8)(s32)(k * (f32)u0 * k * d0 * 255.0f + 0.5f);
+                        col[1] = (u8)(s32)(k * (f32)u1 * k * d1 * 255.0f + 0.5f);
+                        col[2] = (u8)(s32)(k * (f32)u2 * k * d2 * 255.0f + 0.5f);
+                        col[3] = (u8)(s32)(k * (f32)u3 * k * d3 * 255.0f + 0.5f);
+                    }
+                    if (col[3] < 0xFE) {
+                        if (i != 2) {
+                            *(s32 *)(*(u8 **)(entry + 0xA00) + 0xE8) = 0x737FB;
+                            func_0019d7a0(entry, 2);
+                            func_0019d7a0(entry, 5);
+                        }
+                    } else {
+                        col[3] = 0xFF;
+                        *(s32 *)(*(u8 **)(entry + 0xA00) + 0xE8) = 0x737FB;
+                        func_0019d990(entry, 2);
+                        func_0019d990(entry, 5);
+                    }
+                    {
+                        u8 *obj = *(u8 **)(entry + 0xA00);
+                        if (*(s32 *)(obj + 0xE8) != 0x737FB) {
+                            s32 j;
+                            *(s32 *)(obj + 0xE8) = 0x737FB;
+                            for (j = 0; j < 5; j++) {
+                                u8 *objR = *(u8 **)(entry + 0xA00);
+                                u8 *sub = *(u8 **)(objR + (j * 0xC) + 0x290);
+                                if (sub != NULL) {
+                                    *(s32 *)(sub + 0xE8) = 0x737FB;
+                                }
+                            }
+                        }
+                    }
+                    *(u8 *)(entry + 0x4E) = col[0];
+                    *(u8 *)(entry + 0x4F) = col[1];
+                    *(u8 *)(entry + 0x50) = col[2];
+                    *(u8 *)(entry + 0x51) = col[3];
+                    func_0047a220(*(u8 **)(entry + 0xA00), (s32 *)col);
+                    func_001ee490(entry);
+                    *(s32 *)(entry + 0x98) &= ~4;
+                }
+                if ((*(s32 *)(*(u8 **)(entry + 0xA00) + 0xD8) & 4) != 0) {
+                    func_00478e70(*(u8 **)(entry + 0xA00));
+                }
+                if ((*(s32 *)(entry + 0xA04) != 0) && (func_0019d130(entry) != 0)) {
+                    u8 *p = *(u8 **)(entry + 0xA64);
+                    if (p != NULL) {
+                        s32 v = *(s32 *)(p + 0xC);
+                        s32 hi = (s32)((((s64)(v << 12)) >> 44) & 0xFFFFFFFF);
+                        s32 chk = func_001d72e0(hi >> 12);
+                        s16 cur = func_001d7130(*(s32 *)(entry + 0xA04));
+                        if ((s16)chk != cur) {
+                            func_001d7400((u32)hi >> 12, entry + 0x48);
+                            *(u8 *)(entry + 0x44) = *(u8 *)(entry + 0x40);
+                            *(u8 *)(entry + 0x45) = *(u8 *)(entry + 0x41);
+                            *(u8 *)(entry + 0x46) = *(u8 *)(entry + 0x42);
+                            *(u8 *)(entry + 0x47) = *(u8 *)(entry + 0x43);
+                            *(u16 *)(entry + 0x4C) = 8;
+                            func_001d7100(*(u8 **)(entry + 0xA04), (s16)chk);
+                        }
+                    }
+                    func_001d72c0(*(u8 **)(entry + 0xA04), *(u32 *)(entry + 0x4E));
+                    func_001d7140(*(u8 **)(entry + 0xA04));
+                }
+            }
+            entry = *(u8 **)(entry + 0xA68);
+        }
+        i += 1;
+    }
+}
+#pragma opt_common_subs on
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019c0d0);
+#endif
 // FUN_0019CFB0
 void func_0019cfb0(void) {
     u32 i;

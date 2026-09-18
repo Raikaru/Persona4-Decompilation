@@ -1143,6 +1143,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484bb0);
    scoped to the block.  The declaration of func_00485630 above carries the
    real `u8 *` parameter that retail passes in $a0; func_00485ae0's call site
    was updated to pass it and still matches. */
+/* 2026-09-18 probe; floor stands at 13.  Retail recomputes `addiu $v1, $sp,
+   0x50` at each use where this body keeps the save-slot address in $s0, so
+   the obvious fix is the one that works on the sibling func_00485870 three
+   hundred lines up - assign `save_slot` twice, once before the calls and
+   once before the restore.  It does not transfer: the double assignment
+   costs 13 -> 112 here, the trailing-assignment-only form 112, and dropping
+   the pointer entirely for `*(u_long128 *)sp50` 118.
+   The two functions are near-identical in shape and want opposite spellings,
+   so do not copy this idiom between them without measuring.  The remaining
+   rows are `bbit032`/`bbit132` branch-target lines, which are capstone
+   mis-decodes of relocated words rather than real differences. */
 // FUN_00485630 NONMATCHING
 #ifdef NON_MATCHING
 void func_00485630(u8 *arg0)
