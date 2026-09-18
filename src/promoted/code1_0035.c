@@ -2545,7 +2545,7 @@ void func_0035fd60(u8 *arg0) {
     extern void func_00361d20(s32 idx, u8 *ctx);
     extern void func_003f6440(s32 cmd, s32 val);
     extern void func_0045c870(u8 *color, s32 flag);
-    extern void func_0045d6e0(u8 *color, u8 *rect, s32 flag, f32 zero);
+    extern void func_0045d6e0(u8 *color, u8 *rect, f32 zero, s32 flag);
     extern void func_00489f80(void);
     extern void func_0048a000(void);
     extern u8 D_0064B2E8[];
@@ -2769,7 +2769,7 @@ void func_0035fd60(u8 *arg0) {
         col[2] = D_0064B2E8[2];
         col[3] = a0;
         D_00887300[0](1, 0);
-        func_0045d6e0(col, (u8 *)&rect, 0, 0.0f);
+        func_0045d6e0(col, (u8 *)&rect, 0.0f, 0);
         posX = 212.0f + fx;
         posY = (304.0f + fy) - 5.0f;
         v0 = (s32)(*(s16 *)(arg0 + 0x2A) + *(s16 *)(arg0 + 0x2C));
