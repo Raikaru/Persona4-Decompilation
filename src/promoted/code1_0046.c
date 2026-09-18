@@ -3000,13 +3000,15 @@ void func_0046ea60(u8 *arg0, u8 *arg1)
 #undef sp4
 #undef sp8
 #undef spC
-/* measured: 62 differing words at an exact 400/400 instructions, from a full rewrite per the retail disassembly.
-   Reproducible with `tools/probe_variants.py src/promoted/code1_0046.c func_0046ec70 --candidate p=/tmp/cand_auth.c`
-   (62) plus `tools/fnalign.py src/promoted/code1_0046.c func_0046ec70 --candidate /tmp/cand_auth.c`
+/* measured: 20 differing words at an exact 400/400 instructions, from a full rewrite per the retail disassembly.
+   Reproducible with `tools/measure_guarded.py src/promoted/code1_0046.c func_0046ec70` (20) plus
+   `tools/fnalign.py src/promoted/code1_0046.c func_0046ec70 --candidate /tmp/cand_D1.c`
    (retail 400 instrs object 400 instrs). Levers that paid: real `switch` on *(node + 4) (MWCC emits the
    4,3,2,1,0 compare chain), `(f32)(u32)v` for the unsigned cases and plain `(f32)v` for the signed cases,
    literal `*9`/`*11`/`*8` letting strength reduction do the sll/addu shape, scalar `&iGp...` gp-relative form,
-   and `*(s64 *)pos` for the ld-by-value pair. Nine gp slots (iGpffffb064/b068/b078/b080/b088/b098/b0a0/b0a4/b0b0)
+   `*(s64 *)pos` for the ld-by-value pair, declaring `node` before `i` so retail's $s2/$s1 colouring holds
+   (62 -> 38), `i > first + ... - 1` so the slt goes through $at (38 -> 36), and inlining the strlen+1
+   multiplier so `n` never becomes a named local (36 -> 20). Nine gp slots (iGpffffb064/b068/b078/b080/b088/b098/b0a0/b0a4/b0b0)
    are new in config/symbol_data_addrs.txt. */
 // FUN_0046EC70 NONMATCHING
 #ifdef NON_MATCHING
@@ -3030,8 +3032,8 @@ void func_0046ec70(u8 *arg0) {
     extern char iGpffffb0a8;
     extern char iGpffffb0b0;
     u8 *ctx;
-    s32 i;
     u8 *node;
+    s32 i;
     s32 w;
     char buf[0x108];
     f32 pos[2];
@@ -3046,7 +3048,7 @@ void func_0046ec70(u8 *arg0) {
             node = *(u8 **)(node + 0x228);
             continue;
         }
-        if (first + *(s32 *)(ctx + 0x13C) - 1 < i) {
+        if (i > first + *(s32 *)(ctx + 0x13C) - 1) {
             return;
         }
         if (*(s32 *)(ctx + 0x154) != 0) {
@@ -3102,19 +3104,15 @@ void func_0046ec70(u8 *arg0) {
             case 0:
                 break;
             case 1: {
-                s32 n;
                 s32 v;
-                n = func_00442948(node + 0x108) + 1;
-                v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * n);
+                v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * (func_00442948(node + 0x108) + 1));
                 pos[0] = (f32)(u32)v;
                 func_004501f0(*(s64 *)pos, iGpffffb064, (s32)&iGpffffb0a4, node + 0x108);
                 break;
             }
             case 2: {
-                s32 n;
                 s32 v;
-                n = func_00442948(&iGpffffb0a8) + 1;
-                v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * n);
+                v = (*(s32 *)(ctx + 0x18) + *(s32 *)(ctx + 0x20) - 2) - (*(s32 *)(ctx + 0x28) * (func_00442948(&iGpffffb0a8) + 1));
                 pos[0] = (f32)(u32)v;
                 if (*(s32 *)(node + 0x208) == 1) {
                     func_004501f0(*(s64 *)pos, iGpffffb064, (s32)&iGpffffb078);
