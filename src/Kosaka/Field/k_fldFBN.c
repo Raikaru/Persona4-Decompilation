@@ -155,8 +155,167 @@ u8 *func_0015e870(s32 arg0, s32 arg1, s16 arg2)
 /* measured: archived faithful reconstruction had the residual recorded in
    the notes above; re-measured for nd_audit coverage.
    Committed at nd 1014. */
-// FUN_0015E960
+/* 2026-09-17 cold reconstruction from the m2c draft (guarded v1): nd 331 at */
+/*   428/424 instrs (1712B/1696B, +0.9% within 3% window 1645-1747B). TU globals */
+/*   honest via gp base 0x007690F0 (D_0076439C/-0x4D54, D_00764340/-0x4DB0, */
+/*   D_00764388/-0x4D68, D_00762FD8/-0x6118 + iGp trio); block-scoped counters, */
+/*   sequential < guards, break-on-match inner searches, dual-NULL dead branch */
+/*   kept. Paid: correct heap sizes (4/0x1C), FbnEntry kind/ptr/idx + 0015d100. */
+/*   Open: s3/s4 param colouring, s2/s4 out colouring, sp+0xB8 vs 0xBC tmp/float */
+/*   slots + FPU spill. Production stays ASM. */
+// FUN_0015E960 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
+{
+    char buf[0x40];
+    f32 f0;
+    f32 f1;
+    f32 f2;
+    u32 tmp;
+    u8 *fbn;
+    u8 *p;
+    s32 out;
+
+    D_0076439C = 0;
+    if (arg0 == NULL) {
+        return 1;
+    }
+    *arg1 = NULL;
+    if ((func_0014eec0() == 0) && (func_004553c0(arg0) == 0)) {
+        return 0;
+    }
+    if (func_0014eec0() == 0) {
+        fbn = *(u8 **)(arg0 + 0x110);
+    } else {
+        func_00442088(buf, D_005F10B0, arg2 & 0xFFFF, arg3 & 0xFFFF, (s16)arg4);
+        fbn = func_00455f70(buf, &tmp);
+        if (fbn == NULL) {
+            return 1;
+        }
+        if (fbn == NULL) {
+            func_0046d700(D_005F1068, 0x10D, &D_00762FD8, buf);
+        }
+        *arg1 = fbn;
+    }
+    iGpffffb2a8 = *(u32 *)(fbn + 8);
+    if (*(u32 *)(fbn + 8) != 0) {
+        func_0044ea90(D_005F1068, 0x117);
+        iGpffffb2a4 = D_008873F4[0](1, *(u32 *)(fbn + 8) * 4, 0x40000);
+        func_0044ea90(D_005F1068, 0x118);
+        iGpffffb2a0 = D_008873F4[0](1, *(u32 *)(fbn + 8) * 0x1C, 0x40000);
+    }
+    p = fbn + 0x18;
+    out = 0;
+    {
+        s32 i;
+        for (i = 0; (u32)i < *(u32 *)(fbn + 8); i++) {
+            u16 type = *(u16 *)(p + 4);
+            u16 flags = *(u16 *)(p + 6);
+            if ((type == 4) && (flags == 0xFFFF)) {
+                if (D_00764340 == 1) {
+                    iGpffffb2a4[out] = func_00477e80(4, 0xFFFF, D_005F10D0, 0);
+                    (iGpffffb2a0 + out)->field_8 = i;
+                    out++;
+                }
+            } else {
+                iGpffffb2a4[out] = func_00478140(type, flags, 0);
+                (iGpffffb2a0 + out)->field_8 = i;
+                out++;
+            }
+            p += *(s32 *)(fbn + 0xC);
+        }
+    }
+    if (D_00764340 == 0) {
+        void *head = func_0015ca30();
+        if (head != NULL) {
+            AnimEntry *ae = func_0015cbe0(*(s32 *)((u8 *)head + 0xC));
+            for (; ae->field_0 != 0xFFFF; ae++) {
+                s32 fl = ae->field_10;
+                if ((fl == -1) || (func_00106330(fl) != 1)) {
+                    s32 kind = ae->field_18;
+                    s32 search = 1;
+                    if (kind == 1) {
+                        s8 r = func_00110960((s16)func_001060b0(), func_001060c0() & 0xFF);
+                        if ((r % 2) != 0) {
+                            search = 0;
+                        }
+                    } else if (kind == 2) {
+                        s8 r = func_00110960((s16)func_001060b0(), func_001060c0() & 0xFF);
+                        if ((r % 2) == 0) {
+                            search = 0;
+                        }
+                    }
+                    if (search) {
+                        u16 want = (ae->field_0 & 0x3FF) | 0xC00;
+                        {
+                            s32 j;
+                            u8 *q = fbn + 0x18;
+                            for (j = 0; (u32)j < *(u32 *)(fbn + 8); j++) {
+                                if ((*(u16 *)(q + 4) == 4) && (*(u16 *)(q + 6) == 0xFFFF) && (*(u16 *)(q + 8) == want)) {
+                                    if ((ae->field_2 != 0) || (ae->field_4 != 0)) {
+                                        D_0076439C = 1;
+                                        iGpffffb2a4[out] = func_00478140(ae->field_2, ae->field_4, 0);
+                                        (iGpffffb2a0 + out)->kind = 1;
+                                        (iGpffffb2a0 + out)->field_4 = (s32)ae;
+                                        (iGpffffb2a0 + out)->field_8 = j;
+                                        out++;
+                                    }
+                                    break;
+                                }
+                                q += *(s32 *)(fbn + 0xC);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        {
+            s32 k;
+            for (k = 0; (u32)k < D_00764388; k++) {
+                AnimEntry2 *e2 = func_0015d310(func_0015d2c0(k));
+                if (e2 != NULL) {
+                    u16 want = (e2->field_0 & 0x3FF) | 0xC00;
+                    {
+                        s32 j;
+                        u8 *q = fbn + 0x18;
+                        for (j = 0; (u32)j < *(u32 *)(fbn + 8); j++) {
+                            if ((*(u16 *)(q + 4) == 4) && (*(u16 *)(q + 6) == 0xFFFF) && (*(u16 *)(q + 8) == want)) {
+                                if ((e2->field_68 != 0) || (e2->field_6A != 0)) {
+                                    D_0076439C = 1;
+                                    iGpffffb2a4[out] = func_00478140(e2->field_68, e2->field_6A, 0);
+                                    (iGpffffb2a0 + out)->kind = 2;
+                                    (iGpffffb2a0 + out)->field_4 = (s32)e2;
+                                    (iGpffffb2a0 + out)->field_8 = j;
+                                    (iGpffffb2a0 + out)->field_10 = k;
+                                    func_0015d100(iGpffffb2a0 + out, k);
+                                    out++;
+                                }
+                                break;
+                            }
+                            q += *(s32 *)(fbn + 0xC);
+                        }
+                    }
+                }
+            }
+        }
+        iGpffffb2a8 = out;
+    }
+    {
+        s32 m;
+        for (m = 0; (u32)m < *(u32 *)(fbn + 0x10); m++) {
+            s32 id = func_001453a0(*(u16 *)(p + 0x50) & 0x3FF) & 0xFFFF;
+            f0 = func_0014b660(p + 0x10);
+            f1 = func_0014b5d0(p + 0x10);
+            f2 = func_0014b6f0(p + 0x10);
+            func_00146e60(id, p + 0x40, &f0);
+            p += 0x60;
+        }
+    }
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/k_fldFBN", func_0015e960);
+#endif
 
 
 /* 2026-09-17 cold reconstruction from the m2c draft (guarded v1): nd 309 at */
