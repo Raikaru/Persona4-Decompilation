@@ -2623,9 +2623,14 @@ void func_003482d0(u8 *arg0, CmbVec2f arg1, CmbVec2f arg2, u16 arg3) {
 /* best stays 15 (ties: loopinv on, strength off, unroll off and pairs; 26-group */
 /* prop/dead pairs; 234-235 csoff group, 277-281 schedule group, 310-331 peephole */
 /* group). No pair wins; floor stands. */
-/* `python3 -E -s tools/pragma_sweep.py src/promoted/y_CmbCardEff.c func_00348330 --pairs`. */
-// FUN_00348330 NONMATCHING
-#ifdef NON_MATCHING
+/* MATCHED 2026-09-18.  The three `*(u8 *)(obj + 0x38) = ...` sites had the
+   float-to-unsigned-byte conversion written out by hand (compare against
+   2.1474836e9f, subtract, or in 0x80000000, mask).  b210 generates exactly
+   that sequence for a plain `(u8)f0` cast, and its own version colours the
+   result $v1 with the constant in $v0 - the hand-written form does the
+   reverse, which was the whole 15-word residual.  Writing the cast fixes all
+   three at once; fixing only the two shallow sites leaves 5. */
+// FUN_00348330
 s32 func_00348330(u8 *arg0) {
     u8 *obj = *(u8 **)(arg0 + 0x38);
     switch (*(s8 *)(obj + 4)) {
@@ -2672,26 +2677,10 @@ s32 func_00348330(u8 *arg0) {
             u8 mode = *(u8 *)(obj + 0x39);
             if (mode == 0) {
                 f32 f0 = func_002b2aa0(0, 0.0f, *(f32 *)(obj + 0x40), (f32)*(s16 *)(obj + 0x3C), (f32)*(s16 *)(obj + 0x3A));
-                s32 v;
-                if (2.1474836e9f > f0) {
-                    v = (s32)f0;
-                    v &= 0xFF;
-                } else {
-                    v = (s32)(f0 - 2.1474836e9f) | 0x80000000;
-                    v &= 0xFF;
-                }
-                *(u8 *)(obj + 0x38) = (u8)v;
+                *(u8 *)(obj + 0x38) = (u8)f0;
             } else if (mode == 1) {
                 f32 f0 = func_002b2aa0(0, *(f32 *)(obj + 0x40), 0.0f, (f32)*(s16 *)(obj + 0x3C), (f32)*(s16 *)(obj + 0x3A));
-                s32 v;
-                if (2.1474836e9f > f0) {
-                    v = (s32)f0;
-                    v &= 0xFF;
-                } else {
-                    v = (s32)(f0 - 2.1474836e9f) | 0x80000000;
-                    v &= 0xFF;
-                }
-                *(u8 *)(obj + 0x38) = (u8)v;
+                *(u8 *)(obj + 0x38) = (u8)f0;
                 if (*(s16 *)(obj + 0x3C) >= *(s16 *)(obj + 0x3A)) {
                     *(s8 *)(obj + 4) = 3;
                 }
@@ -2700,15 +2689,7 @@ s32 func_00348330(u8 *arg0) {
                 s32 half = h / 2;
                 {
                     f32 f0 = func_002b2aa0(1, 0.0f, 255.0f, (f32)*(s16 *)(obj + 0x3C), (f32)half);
-                    s32 v;
-                    if (2.1474836e9f > f0) {
-                        v = (s32)f0;
-                        v &= 0xFF;
-                    } else {
-                        v = (s32)(f0 - 2.1474836e9f) | 0x80000000;
-                        v &= 0xFF;
-                    }
-                    *(u8 *)(obj + 0x38) = (u8)v;
+                    *(u8 *)(obj + 0x38) = (u8)f0;
                 }
             }
         }
@@ -2751,9 +2732,6 @@ s32 func_00348330(u8 *arg0) {
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_00348330);
-#endif
 // FUN_00348840
 void func_00348840(u8 *arg0) {
     u8 *obj = *(u8 **)(arg0 + 0x38);
