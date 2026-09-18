@@ -46,7 +46,12 @@ extern f32 iGpffff81d0;
 
 
 // FUN_0045DA40
-void func_0045da40(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, f32 fparg0) {
+/* Parameter order taken from the MATCHed caller func_0027d660 in
+   src/promoted/itfMsgProcedure_Window.c: b210 emits call-argument setup in
+   source order, and that caller only matches with the float third.  The EABI
+   keeps integer and float arguments in separate register files, so this
+   spelling is the same ABI and leaves this body byte-exact. */
+void func_0045da40(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3) {
     PrimFloat4 pos;
     struct {
         PrimByte4 col;
