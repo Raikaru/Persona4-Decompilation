@@ -48,6 +48,18 @@ extern s32 func_00311d00(u16 id);
 extern s32 func_00311d60(u16 id);
 extern s32 func_00311e40(u16 id);
 extern void func_0043f810(void *dst, void *src, u32 size);
+extern s32 func_00106600(s16 arg0);
+extern u32 func_00106880(s16 arg0);
+extern u32 func_00106a60(s16 arg0);
+extern u32 func_00106b20(s16 arg0);
+extern u32 func_00106b50(s16 arg0);
+extern s32 func_00106330(s32 arg0);
+extern u8 func_00110830(s32 arg0);
+extern void func_00110810(s32 arg0, u8 arg1);
+extern s32 func_002bdff0(s16 arg0);
+extern s32 func_002be160(s32 arg0, s32 arg1);
+extern s16 func_002be1b0(s16 arg0);
+extern s32 func_002b3230(s16 *arg0, s16 *arg1);
 
 /* 228/240 bytes; fifteen resolved relocations and twelve zero alignment bytes. */
 // FUN_002E24A0
@@ -248,11 +260,249 @@ s8 func_002e2a00(void *arg0) {
 // FUN_002E2A10
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e2a10);
 
-/* measured: closest clean-C probe was object 2780B over a 2864B window
-   (normalized diff 639); retail frame 0x3070 and saved-register allocation
-   remained different, so the archived probe is intentionally not committed. */
-// FUN_002E3560
+/* measured (real tree): de-noised m2c+romwright floor, GUARDED_SCORE 602 (was 631 bare, 639 Lane archive). */
+/* measured: retail 715 instrs vs object 714 (1 short, 0.14% - within 3% gate); frame 0x3070 exact. */
+/* measured: fnalign 560 edits +2 reloc-only; saved-reg rotation wall (retail p=$s0 mode=$s1 arg0=$s2 vs object p=$s1 mode=$s2 arg0=$s3 class). */
+/* measured: structure fully recovered (p=e+0x38 with four state stores, descending-test switch 4/3/2/1 with four 0x600 loops and 4-way ok-chains, case-2 6b20/6b50/2be160/2bdff0/1462 chains, 2b2cb0 count stores, mode==1 -1-init/compaction with 10830/10810 into reorder[0x600], mode==2 sortbuf copy + 40bb8 sort + re-store; case order 1,2,3,4 reproduces descending chain and ascending bodies). */
+/* measured: file idiom kept (u8 *, *(u8 **)(x+0x38), *(s32 *)(p+4/8), *(s8 *)(p+1), *(s16 *)(p+2), *(s16 *)(entry+0x0E/0x10), s16 counters with dsll32/dsra32 guards, for-loop form). */
+/* measured: decisive lever is #pragma opt_common_subs off (631 -> 602 words, 674 -> 714 instrs, frame 0x3080 -> 0x3070 exact); without it b210 CSEs retail's rematerialised extends (same 7h-ter class as func_002e5000 in this file). opt_loop_invariants on ties at 631, schedule on regresses to 643. */
+/* measured: declaration order out_count,mode,n,k,j,i,count,type,value,ok,flags_b,flags_a,entry,p (reverse-assign) 610 -> 602 neutral-to-win; swapped arrays 611 neutral; no float temp here so cse carries no 7h-bis cost. s16 type/mode keep retail lb/dsll32-24 shape; s32 out_count/value keep retail addiu/sll shape. */
+/* measured: truthful externs for 00106600(s16)/00106880(s16)/00106a60(s16)/00106b20(s16)/00106b50(s16)/00106330(s32)/00110830(s32->u8)/00110810(s32,u8)/002bdff0(s16)/002be160(s32,s32)/002be1b0(s16->s16)/002b3230(s16*,s16*); 002b2cb0 stays s16/s32 per file header to avoid TU churn for 002e5ae0/002e6280 (s32/s8 truth is codegen-neutral here: last-arg 0 emits same daddu). 002be1b0(s16) reproduces retail daddu $a0 + s16 $v0 use; void form would be 1 short. */
+/* measured: bulk src/generated/code1_002e.c candidate + single-function m2c (/var/tmp/cold2e3560/m2c_002e3560.c) + romwright (/var/tmp/cold2e3560/rom_002e3560.c) all agree on arity 5 and ok/type/value shape; retail $a0/$a1/$a2/$a3/$t0 maps to (u8 *,s32,s32,s8,s8). Production stays INCLUDE_ASM. */
+#pragma opt_common_subs off
+// FUN_002E3560 NONMATCHING
+#ifdef NON_MATCHING
+void func_002e3560(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
+    s32 reorder[0x600];
+    s32 sortbuf[0x600];
+    s32 out_count;
+    s8 mode;
+    s16 n;
+    s16 k;
+    s16 j;
+    s16 i;
+    s16 count;
+    s16 type;
+    s32 value;
+    s32 ok;
+    s32 flags_b;
+    s32 flags_a;
+    u8 *entry;
+    u8 *p;
+    p = *(u8 **)(arg0 + 0x38);
+    *(s32 *)(p + 4) = arg1;
+    *(s32 *)(p + 8) = arg2;
+    *(s8 *)(p + 1) = arg3;
+    *(s16 *)(p + 2) = 0;
+    type = *(s8 *)(p + 1);
+    count = 0;
+    switch (type) {
+    case 1:
+        for (i = 0; i < 0x600; i++) {
+            entry = p + ((s32)i * 4);
+            *(s16 *)(entry + 0x10) = 0;
+            *(s16 *)(entry + 0x0E) = 0;
+            if ((func_00106600(i) & 0xFF) > 0) {
+                p = *(u8 **)(arg0 + 0x38);
+                flags_a = *(s32 *)(p + 4);
+                flags_b = *(s32 *)(p + 8);
+                if ((flags_a == 0) && (flags_b == 0)) {
+                    ok = 1;
+                } else if ((flags_a == 0) && (flags_b & func_00106a60(i))) {
+                    ok = 1;
+                } else if ((flags_b == 0) && (flags_a & func_00106880(i))) {
+                    ok = 1;
+                } else if ((flags_a & func_00106880(i)) &&
+                           (flags_b & func_00106a60(i))) {
+                    ok = 1;
+                } else {
+                    ok = 0;
+                }
+                if ((ok == 1) && !(func_00106a60(i) & 0x2000)) {
+                    entry = p + ((s32)*(s16 *)(p + 2) * 4);
+                    *(s16 *)(entry + 0x0E) = i;
+                    *(s16 *)(entry + 0x10) = func_00106600(i) & 0xFF;
+                    count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
+                    *(s16 *)(p + 2) = count;
+                }
+            }
+        }
+        break;
+    case 2:
+        for (i = 0; i < 0x600; i++) {
+            p = *(u8 **)(arg0 + 0x38);
+            flags_a = *(s32 *)(p + 4);
+            flags_b = *(s32 *)(p + 8);
+            if ((flags_a == 0) && (flags_b == 0)) {
+                ok = 1;
+            } else if ((flags_a == 0) && (flags_b & func_00106a60(i))) {
+                ok = 1;
+            } else if ((flags_b == 0) && (flags_a & func_00106880(i))) {
+                ok = 1;
+            } else if ((flags_a & func_00106880(i)) &&
+                       (flags_b & func_00106a60(i))) {
+                ok = 1;
+            } else {
+                ok = 0;
+            }
+            if (ok == 1) {
+                type = (s16)func_002be1b0(i);
+                if ((type != 0x10) && (type != 0x11) && (type != 0x12)) {
+                    if (func_00106330(0x1462) == 0) {
+                        value = (func_00106b20(i) & 0xFFF00) >> 8;
+                        if (func_002be160(value, func_00106b20(i) & 0xFF) == 1) {
+                            value = (func_00106b50(i) & 0xFFF00) >> 8;
+                            if (func_002be160(value, func_00106b50(i) & 0xFF) == 1) {
+                                entry = p + ((s32)i * 4);
+                                *(s16 *)(entry + 0x10) = 0;
+                                entry = p + ((s32)*(s16 *)(p + 2) * 4);
+                                *(s16 *)(entry + 0x0E) = i;
+                                count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
+                                *(s16 *)(p + 2) = count;
+                            }
+                        }
+                    } else {
+                        entry = p + ((s32)i * 4);
+                        *(s16 *)(entry + 0x10) = 0;
+                        entry = p + ((s32)*(s16 *)(p + 2) * 4);
+                        *(s16 *)(entry + 0x0E) = i;
+                        count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
+                        *(s16 *)(p + 2) = count;
+                    }
+                } else if (func_00106330(0x1462) == 0) {
+                    if (func_002bdff0(i) == 1) {
+                        entry = p + ((s32)i * 4);
+                        *(s16 *)(entry + 0x10) = 0;
+                        entry = p + ((s32)*(s16 *)(p + 2) * 4);
+                        *(s16 *)(entry + 0x0E) = i;
+                        count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
+                        *(s16 *)(p + 2) = count;
+                    }
+                } else {
+                    entry = p + ((s32)i * 4);
+                    *(s16 *)(entry + 0x10) = 0;
+                    entry = p + ((s32)*(s16 *)(p + 2) * 4);
+                    *(s16 *)(entry + 0x0E) = i;
+                    count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
+                    *(s16 *)(p + 2) = count;
+                }
+            }
+        }
+        break;
+    case 3:
+        for (i = 0; i < 0x600; i++) {
+            entry = p + ((s32)i * 2);
+            *(s16 *)(entry + 0x0E) = 0;
+            p = *(u8 **)(arg0 + 0x38);
+            flags_a = *(s32 *)(p + 4);
+            flags_b = *(s32 *)(p + 8);
+            if ((flags_a == 0) && (flags_b == 0)) {
+                ok = 1;
+            } else if ((flags_a == 0) && (flags_b & func_00106a60(i))) {
+                ok = 1;
+            } else if ((flags_b == 0) && (flags_a & func_00106880(i))) {
+                ok = 1;
+            } else if ((flags_a & func_00106880(i)) &&
+                       (flags_b & func_00106a60(i))) {
+                ok = 1;
+            } else {
+                ok = 0;
+            }
+            if (ok == 1) {
+                entry = p + ((s32)*(s16 *)(p + 2) * 2);
+                *(s16 *)(entry + 0x0E) = i;
+                count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
+                *(s16 *)(p + 2) = count;
+            }
+        }
+        break;
+    case 4:
+        count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
+        *(s16 *)(p + 2) = count;
+        for (i = 0; i < 0x600; i++) {
+            entry = p + ((s32)i * 4);
+            *(s16 *)(entry + 0x10) = 0;
+            *(s16 *)(entry + 0x0E) = 0;
+            if ((func_00106600(i) & 0xFF) > 0) {
+                p = *(u8 **)(arg0 + 0x38);
+                flags_a = *(s32 *)(p + 4);
+                flags_b = *(s32 *)(p + 8);
+                if ((flags_a == 0) && (flags_b == 0)) {
+                    ok = 1;
+                } else if ((flags_a == 0) && (flags_b & func_00106a60(i))) {
+                    ok = 1;
+                } else if ((flags_b == 0) && (flags_a & func_00106880(i))) {
+                    ok = 1;
+                } else if ((flags_a & func_00106880(i)) &&
+                           (flags_b & func_00106a60(i))) {
+                    ok = 1;
+                } else {
+                    ok = 0;
+                }
+                if (ok == 1) {
+                    entry = p + ((s32)*(s16 *)(p + 2) * 4);
+                    *(s16 *)(entry + 0x0E) = i;
+                    *(s16 *)(entry + 0x10) = func_00106600(i) & 0xFF;
+                    count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
+                    *(s16 *)(p + 2) = count;
+                }
+            }
+        }
+        break;
+    default:
+        break;
+    }
+    mode = arg4;
+    if (mode == 1) {
+        out_count = 0;
+        for (n = 0; n < 0x600; n++) {
+            reorder[n] = -1;
+        }
+        for (i = 0; i < *(s16 *)(p + 2); i++) {
+            entry = p + ((s32)i * 4);
+            if ((func_00110830(*(s16 *)(entry + 0x0E)) & 0xFF) & 1) {
+                reorder[out_count] = *(s16 *)(entry + 0x0E);
+                value = func_00110830(reorder[out_count]);
+                func_00110810(*(s16 *)(entry + 0x0E), (value | 2) & 0xFF);
+                *(s16 *)(entry + 0x0E) = -1;
+                *(s16 *)(entry + 0x10) = 1;
+                out_count += 1;
+            }
+        }
+        for (j = 0; j < *(s16 *)(p + 2); j++) {
+            entry = p + ((s32)j * 4);
+            if (*(s16 *)(entry + 0x0E) != -1) {
+                reorder[out_count] = *(s16 *)(entry + 0x0E);
+                *(s16 *)(entry + 0x10) = 0;
+                out_count += 1;
+            }
+        }
+        for (k = 0; k < *(s16 *)(p + 2); k++) {
+            entry = p + ((s32)k * 4);
+            *(s16 *)(entry + 0x0E) = (s16)reorder[k];
+        }
+    }
+    if (mode == 2) {
+        for (n = 0; n < *(s16 *)(p + 2); n++) {
+            sortbuf[n] = *(s16 *)(p + ((s32)n * 4) + 0x0E);
+        }
+        func_00440bb8(sortbuf, *(s16 *)(p + 2), 4, func_002b3230);
+        for (n = 0; n < *(s16 *)(p + 2); n++) {
+            entry = p + ((s32)n * 4);
+            *(s16 *)(entry + 0x0E) = (s16)sortbuf[n];
+            *(s16 *)(entry + 0x10) = 0;
+            if ((func_00110830(*(s16 *)(entry + 0x0E)) & 0xFF) & 1) {
+                *(s16 *)(entry + 0x10) = 1;
+                value = func_00110830(*(s16 *)(entry + 0x0E));
+                func_00110810(*(s16 *)(entry + 0x0E), (value | 2) & 0xFF);
+            }
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e3560);
+#endif
+#pragma opt_common_subs on
 
 /* measured: de-noised m2c floor with truthful externs (0010b5b0/0010abd0/0010ace0/0010a900/0010ffa0/002e5270), s16 counters, (u16)/(void *)(u32) casts, for-loop form, iGpffffb3d4+i*0xE idiom; 74 differing words (was 310 implicit); production stays ASM. */
 // FUN_002E4090 NONMATCHING

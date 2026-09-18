@@ -2276,8 +2276,305 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
 // FUN_0048B340 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048b340);
 /* Decode 0048b9e0 (window 2656B=664w, gate 2576-2736B/644-683w; frame 0x140=320B same as ec50; void(u8*) family template: +4 count, +C flags, +10 s32, +14 acc, +18 nodes stride 0x20, +1C out stride 7, +20 config). Calls: bceb0, bd0b0 x9, 44b7b0, bd050 x2, b220 x2, 43f810, b340. 11 VU ops: lqc2 0x10(config) pre-bceb0 + lqc2/sqc2 on 0x110/0x120/0x130 + normalize (vmul.xyz/mulax.w/madday.w/maddz.w/vrsqrt/vwaitq/vmulq.xyz) + vmulax.xyzw chain + vmul.xyzw/vadd.xyzw + sqc2 to node (same skeleton as ec50, fewer GP sites). GP via $28: 7F80/7F84 only (2 constants); immediates hoisted to f20-27. 3 unsigned (f32)(u32) branchless sites. Reuse ec50 v2 verbatim, adjust out indices/config offsets (notably no 0xE4/0xE0 e4/e0 pair handling differences per retail diff) and drop ec50-specific 0xD8 vsub gate if absent. 3 slots only, one asm per transfer, compiler addresses, memory+exact clobbers, scalar in C, vf0/lane/broadcast/W=0. Outside 3% stays ASM with factual note. Production stays ASM. */
-// FUN_0048B9E0
+/* measured: GUARDED_SCORE 619 via probe_variants (v1 629/691 outside gate 644-683, prop off 619/677 inside kept; loopinv 631, common 699, peep 666 worse, sched/strength/dead/unroll tie; subscript out[] vs *(out+) 619 tie kept idiom; decl tmp120/tmp130 swap 619 tie kept original; levels 1 697/3 623 worse). Retail 664/obj 677 (+13 +2.0% inside); frame 0x140 exact; fnalign 664/677, 479 edits. Biggest remaining: daddu 0 vs 28 shared with d8c0/cdf0, saved-reg rotation, VU colours, branch/scheduling. */
+// FUN_0048B9E0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma opt_propagation off
+void func_0048b9e0(u8 *arg0)
+{
+    extern s32 func_004bceb0(void);
+    extern f32 func_004bd0b0(s32 arg0);
+    extern s32 func_004bd050(s32 arg0);
+    extern f32 func_0044b7b0(f32 arg0);
+    extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
+    extern void func_0043f810(void *dst, void *src, u32 size);
+    extern void func_0048b340(u8 *arg0, u8 *arg1);
+    extern f32 fGpffff807c;
+    extern f32 fGpffff8080;
+    extern u8 D_00713D30[];
+    u_long128 b220buf;
+    f32 tmp120[4] __attribute__((aligned(16)));
+    f32 tmp130[4] __attribute__((aligned(16)));
+    u32 count;
+    u32 flags;
+    u8 *nodes;
+    u8 *nodesBase;
+    f32 *out;
+    u8 *config;
+    s32 limitB8;
+    s32 saved20;
+    u8 mode9C;
+    u8 modeBD;
+    f32 d4val;
+    s32 v15;
+    s32 v14;
+    u32 idx;
+    s32 tmp;
+    f32 ftmp1;
+    f32 ftmp2;
+    s32 node10;
+    s32 c0;
+    s32 c4;
+    s32 nmult;
+    u8 *clear;
+    s32 ci;
+    f32 a;
+    f32 b;
+    f32 c;
+    count = *(u32 *)(arg0 + 4);
+    flags = *(u32 *)(arg0 + 12);
+    nodesBase = *(u8 **)(arg0 + 24);
+    nodes = nodesBase;
+    out = *(f32 **)(arg0 + 28);
+    config = *(u8 **)(arg0 + 32);
+    limitB8 = *(s32 *)(config + 184);
+    if (limitB8 == 0) {
+        return;
+    }
+    saved20 = *(s32 *)(config + 32);
+    mode9C = *(u8 *)(config + 156);
+    modeBD = *(u8 *)(config + 189);
+    d4val = *(f32 *)(config + 212);
+    idx = 0;
+    tmp120[3] = 0.0f;
+    __asm__ volatile("lqc2 $vf10, 0x10(%0)" : : "r"(config), "m"(*(u_long128 *)(config + 16)) : "$vf10", "memory");
+    func_004bceb0();
+    if ((saved20 != 0) && (*(s32 *)(arg0 + 16) >= saved20)) {
+        v14 = 0;
+        v15 = 0;
+        goto main_check;
+    }
+    if ((*(s32 *)(arg0 + 16) != 0) || (modeBD == 0)) {
+        v14 = 0;
+        if (*(f32 *)(config + 40) <= 0.0f) {
+            tmp = *(s32 *)(config + 36);
+            ftmp1 = (f32)(u32)tmp;
+            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
+        } else {
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            tmp = *(s32 *)(config + 36);
+            ftmp2 = (f32)(u32)tmp;
+            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp2 * ftmp1;
+        }
+        ftmp1 = *(f32 *)(arg0 + 20);
+        if (ftmp1 < 0.0f) {
+            ftmp1 = -ftmp1;
+        }
+        v15 = (s32)ftmp1;
+        *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) - (f32)v15;
+        if (*(f32 *)(arg0 + 20) < 0.0f) {
+            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + (f32)v15 + (f32)v15;
+        }
+        goto main_check;
+    } else {
+        v14 = 1;
+        if (*(f32 *)(config + 40) <= 0.0f) {
+            v15 = (s32)count;
+        } else {
+            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp2 = (f32)(u32)count;
+            v15 = (s32)(ftmp2 * ftmp1);
+        }
+        goto main_check;
+    }
+main_body:
+    if (*(s32 *)(nodes + 16) < limitB8) {
+        goto skip_clear;
+    }
+    if (saved20 == 0) {
+        tmp = -1;
+    } else {
+        tmp = -2;
+    }
+    *(s32 *)(nodes + 16) = tmp;
+    c0 = *(s32 *)(config + 192);
+    c4 = *(s32 *)(config + 196);
+    nmult = c0 * c4;
+    if (nmult != 0) {
+        clear = nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * nmult);
+        ci = 0;
+        goto clear_check;
+clear_body:
+        *(s32 *)(clear + 16) = -1;
+        clear += 32;
+        ci += 1;
+clear_check:
+        if (ci < nmult) {
+            goto clear_body;
+        }
+    }
+skip_clear:
+    node10 = *(s32 *)(nodes + 16);
+    if (node10 == -2) {
+        goto next_iter;
+    }
+    if (node10 != -1) {
+        goto else_branch;
+    }
+    if (v15 == 0) {
+        goto next_iter;
+    }
+    if ((flags & 1) == 0) {
+        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(D_00713D30), "m"(*(u_long128 *)D_00713D30) : "$vf10", "memory");
+        __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf10x \n" "vmadday.xyzw $ACC, $vf29, $vf10y \n" "vmaddz.xyzw $vf10, $vf30, $vf10z \n" : : : "$vf10", "ACC", "memory");
+        __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp130) : "r"(tmp130) : "$vf10", "memory");
+        out[0] = tmp130[0];
+        out[1] = tmp130[1];
+        out[2] = tmp130[2];
+    } else {
+        out[0] = 0.0f;
+        out[1] = 1.0f;
+        out[2] = 0.0f;
+    }
+    b = func_004bd0b0(0);
+    tmp130[0] = 2.0f * (b - 0.5f);
+    tmp130[1] = 0.0f;
+    b = func_004bd0b0(0);
+    tmp130[2] = 2.0f * (b - 0.5f);
+    tmp130[3] = 0.0f;
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp130), "m"(*(u_long128 *)tmp130) : "$vf10", "memory");
+    __asm__ volatile(
+        "vmul.xyz $vf2, $vf10, $vf10 \n"
+        "vmulax.w $ACC, $vf0, $vf2x \n"
+        "vmadday.w $ACC, $vf0, $vf2y \n"
+        "vmaddz.w $vf2, $vf0, $vf2z \n"
+        "vrsqrt $Q, $vf0w, $vf2w \n"
+        "vwaitq \n"
+        "vmulq.xyz $vf10, $vf10, $Q \n"
+        : : : "$vf2", "$vf10", "ACC", "Q", "memory");
+    if ((flags & 1) == 0) {
+        __asm__ volatile(
+            "vmulax.xyzw $ACC, $vf28, $vf10x \n"
+            "vmadday.xyzw $ACC, $vf29, $vf10y \n"
+            "vmaddz.xyzw $vf10, $vf30, $vf10z \n"
+            : : : "$vf10", "ACC", "memory");
+    }
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp130) : "r"(tmp130) : "$vf10", "memory");
+    out[3] = tmp130[0];
+    out[4] = tmp130[1];
+    out[5] = tmp130[2];
+    a = *(f32 *)(config + 208);
+    b = func_004bd0b0(0);
+    out[11] = *(f32 *)(config + 204) * ((1.0f - a) + a * b);
+    a = *(f32 *)(config + 220);
+    b = func_004bd0b0(0);
+    c = *(f32 *)(config + 216) * ((1.0f - a) + a * b);
+    out[8] = c;
+    a = *(f32 *)(config + 228);
+    b = func_004bd0b0(0);
+    out[9] = (*(f32 *)(config + 224) * ((1.0f - a) + a * b) - c) / (f32)limitB8;
+    a = *(f32 *)(config + 236);
+    b = func_004bd0b0(0);
+    out[10] = *(f32 *)(config + 232) * ((1.0f - a) + a * b);
+    b = func_004bd0b0(0);
+    out[6] = fGpffff8080 * b;
+    out[7] = func_0044b7b0(out[6]);
+    b = func_004bd0b0(0);
+    c = *(f32 *)(config + 200) * (2.0f * (b - 0.5f));
+    tmp120[0] = c;
+    tmp120[1] = c;
+    tmp120[2] = c;
+    if ((flags & 1) == 0) {
+        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp130), "m"(*(u_long128 *)tmp130) : "$vf10", "memory");
+        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(tmp120), "m"(*(u_long128 *)tmp120) : "$vf11", "memory");
+        __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(config), "m"(*(u_long128 *)config) : "$vf11", "memory");
+        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+    } else {
+        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp130), "m"(*(u_long128 *)tmp130) : "$vf10", "memory");
+        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(tmp120), "m"(*(u_long128 *)tmp120) : "$vf11", "memory");
+        __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+    }
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
+    a = *(f32 *)(config + 108);
+    b = func_004bd0b0(0);
+    out[12] = (1.0f - a) + a * b;
+    if (mode9C == 2) {
+        out[13] = 0.0f;
+        out[14] = 1.0f;
+    } else {
+        a = *(f32 *)(config + 152);
+        b = func_004bd0b0(0);
+        out[14] = (1.0f - a) + a * b;
+        if (mode9C == 1) {
+            b = func_004bd0b0(0);
+            out[13] = fGpffff8080 * b;
+            if ((func_004bd050(0) & 1) != 0) {
+                out[14] = out[14] * -1.0f;
+            }
+        } else {
+            out[13] = 0.0f;
+        }
+    }
+    *(s32 *)(nodes + 16) = 0;
+    b220buf = *(u_long128 *)nodes;
+    if (v14 != 0) {
+        tmp = func_004bd050(0) % limitB8;
+        ftmp1 = (f32)(u32)tmp;
+        ftmp2 = out[11] * ftmp1 - ftmp1 * d4val * ftmp1 * 0.5f;
+        *(f32 *)(nodes + 0) = *(f32 *)(nodes + 0) + out[0] * ftmp2;
+        *(f32 *)(nodes + 4) = *(f32 *)(nodes + 4) + out[1] * ftmp2;
+        *(f32 *)(nodes + 8) = *(f32 *)(nodes + 8) + out[2] * ftmp2;
+        out[6] = out[6] + out[10] * ftmp1;
+        out[8] = out[8] + out[9] * ftmp1;
+        a = func_0044b7b0(out[6]);
+        c = out[8] * a;
+        *(f32 *)(nodes + 0) = *(f32 *)(nodes + 0) + out[3] * c;
+        *(f32 *)(nodes + 4) = *(f32 *)(nodes + 4) + out[4] * c;
+        *(f32 *)(nodes + 8) = *(f32 *)(nodes + 8) + out[5] * c;
+        out[6] = out[6] + out[10];
+        out[8] = out[8] + out[9];
+        out[7] = a;
+        *(s32 *)(nodes + 16) = (s32)ftmp1;
+    }
+    func_0048b220(nodes, config, *(s32 *)(nodes + 16), &b220buf);
+    *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[12];
+    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[14];
+    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[13];
+    if (v14 != 0) {
+        if (*(s32 *)(config + 192) * *(s32 *)(config + 196) != 0) {
+            func_0043f810(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
+            *(s32 *)(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)) + 16) = -1;
+        }
+        *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
+    }
+    v15 -= 1;
+    goto next_iter2;
+else_branch:
+    b220buf = *(u_long128 *)nodes;
+    ftmp1 = func_0044b7b0(out[6]);
+    ftmp2 = out[8] * (ftmp1 - out[7]);
+    *(f32 *)(nodes + 0) = *(f32 *)(nodes + 0) + out[3] * ftmp2;
+    *(f32 *)(nodes + 4) = *(f32 *)(nodes + 4) + out[4] * ftmp2;
+    *(f32 *)(nodes + 8) = *(f32 *)(nodes + 8) + out[5] * ftmp2;
+    ftmp2 = out[11] - d4val * (f32)node10;
+    *(f32 *)(nodes + 0) = *(f32 *)(nodes + 0) + out[0] * ftmp2;
+    *(f32 *)(nodes + 4) = *(f32 *)(nodes + 4) + out[1] * ftmp2;
+    *(f32 *)(nodes + 8) = *(f32 *)(nodes + 8) + out[2] * ftmp2;
+    out[6] = out[6] + out[10];
+    out[8] = out[8] + out[9];
+    out[7] = ftmp1;
+    func_0048b220(nodes, config, node10, &b220buf);
+    *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[12];
+    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[14];
+    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[13];
+    func_0048b340(arg0, nodes);
+    *(s32 *)(nodes + 16) = node10 + 1;
+next_iter2:
+next_iter:
+    idx += 1;
+    out += 15;
+    nodes += 32;
+main_check:
+    if (idx < count) {
+        goto main_body;
+    }
+}
+#pragma pop
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048b9e0);
+#endif
 // FUN_0048C440
 void func_0048c440(u8 *arg0, f32 fparg0) {
     s32 temp_4;

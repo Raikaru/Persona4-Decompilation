@@ -725,6 +725,19 @@ INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00365ac0);
    colour group (251 - its range check has to stay where it is), declaring
    edge_r last (25).  Remaining 13 words are one saved-register exchange:
    retail colours edge_r $fp and num_segments $s3, b210 the other way. */
+/* 2026-09-18 lead pass, 5 measured variants; floor confirmed at 13 words.
+   287/287 instructions.  The residual is one saved-register swap plus the
+   load slot that follows from it: retail keeps `edge_g` in $fp and
+   `num_segments` in $s3 and loads `edge_g` three instructions later than
+   this body does; here the two registers are exchanged.
+   Statement order is load-bearing and must not be touched: moving
+   `num_segments = (s32)(segments & 0xFFFF)` above the colour extractions
+   costs 13 -> 251, moving it between the edge and centre extractions costs
+   the same, and moving `edge_g`'s extraction after it costs the same again.
+   Declaration order does not reach the pair at all - hoisting
+   `num_segments` above `i` and moving `edge_g` to the end of the list both
+   tie at 13.  Same class as func_0024be40, func_001b11c0 and
+   func_001eca10. */
 // FUN_00365F00 NONMATCHING
 #ifdef NON_MATCHING
 void func_00365f00(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,

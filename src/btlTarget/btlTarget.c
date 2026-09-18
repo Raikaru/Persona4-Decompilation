@@ -203,6 +203,19 @@ s32 func_001ec8c0(f32* first, f32* second, f32* point, f32 threshold)
    first or last (11).  Remaining 11 words are the same exchange one level
    down: retail colours `j` $s2 and `next` $s3 in the second loop, b210 the
    other way, and no declaration position reached by measurement flips it. */
+/* 2026-09-18 lead pass, 8 measured variants; floor confirmed at 11 words.
+   241/241 instructions and the entire residual is one saved-register swap:
+   retail allocates the inner loop counter to $s2 and the `corner` pointer to
+   $s3, this body has them the other way round, and the eleven differing
+   words are the eleven instructions that name them.
+   Declaration order does not drive it.  Moving `corner` to the end of its
+   block ties at 11, `&node[i * 0x130]` ties at 11, swapping `i`/`j` ties at
+   11; moving `corner` to the top of the block costs 11 -> 23, hoisting `i`
+   above `node` costs 11 -> 40, and spelling `corner` as
+   `node + i * 0x130 + 8` instead of `vertex + 8` costs 11 -> 223.  Inlining
+   `corner` at its three uses does not compile (it is compared as `u8 *`).
+   Same class as func_0024be40 and func_001b11c0: the register pair is fixed
+   by liveness, not by the order the locals are written. */
 // FUN_001ECA10 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001eca10(u8 *first, u8 *second)
