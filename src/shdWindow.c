@@ -14,9 +14,6 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00637190[];
 extern u8 D_00637248[];
 extern f32 D_00637260[];
-extern f32 D_00637264[];
-extern f32 D_00637268[];
-extern f32 D_0063726C[];
 extern u8 D_00637270[];
 extern u8 *iGpffffa6a0;
 extern u8 *iGpffffa6a4;
@@ -129,28 +126,33 @@ s32 func_0025db00(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
 // `python3 -E -s tools/pragma_sweep.py src/shdWindow.c func_0025dd30 --pairs`.
 extern s8 func_00275a40(char param_1);
 extern void func_0025d850(f32 farg0, f32 farg1, f32 farg2, s32 arg0);
+// 14 -> 6 (2026-09-18).  The four-float block is a struct copy, not four
+// element assignments: `*(struct ShdWindowQuad *)table =
+// *(struct ShdWindowQuad *)D_00637260;` emits retail's four `lui`/`lwc1`
+// into $f3..$f0 followed by the four `swc1`, because b210 evaluates every
+// field of a struct assignment before storing any of it.  Written as
+// element assignments - with or without temps, in any order, with any
+// pragma - propagation folds each temp into its own store and interleaves
+// the pairs; that is what the previous note called a wall.  The `lui` is
+// re-emitted per field even though all four fields come from one symbol,
+// so the old four-separate-externs reading was reading that, not four
+// objects; D_00637264/68/6C are gone.  Measured and rejected on top:
+// building the quad in a local struct first (244 - it costs a frame slot),
+// func_00366670 prototypes with the floats at arguments 5-8 (14) or 2-5
+// (20).  Remaining 6 words are two `mtc1 $zero, $f12` emitted two slots
+// after retail's at the two func_00366670 calls.
 // FUN_0025DD30 NONMATCHING
 #ifdef NON_MATCHING
 void func_0025dd30(f32 param_1, f32 param_2, s32 color, u8 *data) {
+    struct ShdWindowQuad { f32 a, b, c, d; };
     f32 table[4];
-    f32 t1a;
-    f32 t1b;
-    f32 t1c;
-    f32 t1d;
     s32 y;
     s32 kind;
     f32 var;
     f32 xprog;
     s32 ret;
 
-    t1a = D_00637260[0];
-    t1b = D_00637264[0];
-    t1c = D_00637268[0];
-    t1d = D_0063726C[0];
-    table[0] = t1a;
-    table[1] = t1b;
-    table[2] = t1c;
-    table[3] = t1d;
+    *(struct ShdWindowQuad *)table = *(struct ShdWindowQuad *)D_00637260;
     func_00275a40(2);
     y = *(s32 *)(data + 12);
     if (y >= 0x17) {
