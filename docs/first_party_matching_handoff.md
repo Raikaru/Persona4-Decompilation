@@ -454,6 +454,39 @@ Grep every alignment for object-only `dsll32` runs before anything else;
 it is a one-line fix and it was worth 39, 24 and 10 words on three
 different functions in one afternoon.
 
+### 7h-ter. The open blocker: retail rematerialises where b210 CSEs
+
+Five floors have now been traced to the same cause, and it is not a source
+shape.  Retail recomputes a value that b210 keeps in a register:
+
+- `func_002e5000` (`src/Yajima/y_list.c`) - `D_00882F70[0]->0x38` before the
+  third switch.  Adding the reload makes the object exactly 152/152 but costs
+  7 words of caller-saved colouring; all 15 declaration moves score 97.
+- `func_00169780` (`src/Kosaka/Field/k_fldFrame.c`) - the array element address
+  across a call.  Four re-spellings each cost 22 words.
+- `func_00164230` (`src/promoted/k_fldUnit.c`) - `D_007F16F0 + i * 8`, twice
+  inside one loop body; retail emits `sll / lui / addiu / addu` again.
+- `func_003742b0` (`src/Battle/btlShuffleDraw.c`) - a store address before two
+  calls.  A pointer local fixes the count but costs 126 -> 158.
+- `func_00311930` (`src/promoted/code1_0031.c`) - `arg0 & 0xFFFF` at three call
+  sites.  Retail pays three `andi` and keeps `arg0` raw; b210 keeps the mask.
+
+Ruled out by measurement: every opt level, all eight `opt_*` pragmas,
+`scheduling`, and the unknown-but-silently-accepted `opt_lifetimes`,
+`global_optimizer`, `opt_pointer_analysis`, `opt_partial_redundancy`,
+`opt_cse`, `optimize_for_size`, `opt_vectorize_loops` (all no-ops - verify any
+new pragma changes object bytes before believing it).  Register pressure is not
+the cause either: on `func_00311930` both compilers use eight saved values.
+The `cw3.0.1b119` build configured for the RenderWare units CSEs the mask
+exactly like b210, so it is not that build either.
+
+`opt_common_subs off` and `optimization_level 1` do reproduce the
+rematerialisation, but they also move the float-to-integer conversion
+temporary (7h-bis), so they trade one residual for another.  A different
+MWCCPS2 build, or an option that weakens CSE without touching the conversion
+temporary, is the missing piece; this is worth more than further source
+probing on those five.
+
 ### 7h-bis. Two pragmas silently change the float-to-integer temporary
 
 `opt_common_subs off` and `optimization_level 1` make b210 emit the
