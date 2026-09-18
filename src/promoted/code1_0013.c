@@ -929,7 +929,7 @@ void func_00135130(u8 *arg0, s64 arg1, s32 arg2, u8 *arg3)
     extern void func_002bc7a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                               s32 arg4, f32 fparg0, f32 fparg1, f32 fparg2);
     extern s32 func_001069d0();
-    extern void func_0045d6e0(u8 *arg0, u8 *arg1, s32 arg2, f32 fparg0);
+    extern void func_0045d6e0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2);
     s32 wbuf[4];
     f32 fa0;
     f32 fa4;
@@ -958,7 +958,7 @@ void func_00135130(u8 *arg0, s64 arg1, s32 arg2, u8 *arg3)
     wbuf[2] = 470;
     wbuf[3] = 39;
     D_00887300[0](1, 0);
-    func_0045d6e0(bbuf, (u8 *)wbuf, 0, 0.0f);
+    func_0045d6e0(bbuf, (u8 *)wbuf, 0.0f, 0);
     f20t = 4.0f + fa0;
     f21v = 10.0f + fa4;
     func_0034f2e0(*(void **)(arg0 + 0x1548), f20t, f21v, bbuf[0], bbuf[1], bbuf[2], arg2);

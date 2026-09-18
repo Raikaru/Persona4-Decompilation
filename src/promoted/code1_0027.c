@@ -1701,7 +1701,7 @@ s32 func_0027bf10(s32 arg0)
 void func_0027bf30(u8 *arg0, u8 *arg1) {
     extern u8 *func_002833b0(s32 arg0);
     extern f32 func_0044b7b0(f32 arg0);
-    extern void func_0045d6e0(void *arg0, void *arg1, s32 arg2, f32 farg0);
+    extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
     extern void *func_0046a770(void *arg0);
     extern void (*D_00887300[])(s32 arg0, s32 arg1);
     extern void func_003f6440(s32 arg0, s32 arg1);
@@ -1767,7 +1767,7 @@ void func_0027bf30(u8 *arg0, u8 *arg1) {
             sp104 = *(f32 *)sp100;
             spC0 = D_0063BFA0;
             spF0 = D_0063BFA0;
-            func_0045d6e0(&sp104, &spF0, 1, 10.0f);
+            func_0045d6e0(&sp104, &spF0, 10.0f, 1);
             tmp = *(s32 *)(arg1 + 0x10);
             mod4 = tmp % 4;
             {

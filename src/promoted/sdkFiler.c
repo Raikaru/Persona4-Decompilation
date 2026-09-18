@@ -25,7 +25,7 @@ extern u16 D_008C024E[];
 extern u16 D_008C0252[];
 extern u16 D_008C0256[];
 extern u8 *D_00712AA0[];
-extern void func_0045d6e0(void *arg0, void *arg1, s32 arg2, f32 farg0);
+extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
 extern char iGpffffb030;
 
 void func_004685c0(u8 *arg0);
@@ -168,7 +168,7 @@ void func_004685c0(u8 *arg0) {
     work.pos[1] = (s32)(*(f32 *)(arg0 + 0x2C) - 12.0f);
     work.size[0] = 0xF0;
     work.size[1] = 0x0C;
-    func_0045d6e0(work.color.rgba, work.pos, 1, 0.0f);
+    func_0045d6e0(work.color.rgba, work.pos, 0.0f, 1);
 
     work.color.rgba[3] = 0x80;
     work.color.rgba[2] = 0;
@@ -178,7 +178,7 @@ void func_004685c0(u8 *arg0) {
     work.pos[1] = (s32)*(f32 *)(arg0 + 0x2C);
     work.size[0] = 0x78;
     work.size[1] = 0x30;
-    func_0045d6e0(work.color.rgba, work.pos, 1, 0.0f);
+    func_0045d6e0(work.color.rgba, work.pos, 0.0f, 1);
 
     work.color.rgba[3] = 0x80;
     work.color.rgba[2] = 0x50;
@@ -190,7 +190,7 @@ void func_004685c0(u8 *arg0) {
                         *(f32 *)(arg0 + 0x2C) + 0.0f);
     work.size[0] = 0x0C;
     work.size[1] = 0x0C;
-    func_0045d6e0(work.color.rgba, work.pos, 1, 0.0f);
+    func_0045d6e0(work.color.rgba, work.pos, 0.0f, 1);
 
     work.position.xy.x = *(f32 *)(arg0 + 0x28);
     work.position.xy.y = *(f32 *)(arg0 + 0x2C);

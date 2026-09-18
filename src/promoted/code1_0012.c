@@ -12,7 +12,7 @@ extern u8 iGpffffb1d8;
 extern u8 iGpffffb1d4;
 extern u8 iGpffffb1d0;
 extern f32 func_0044b7b0();
-extern void func_0045d6e0(void *arg0, s32 *arg1, s32 arg2, f32 arg3);
+extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
 extern void func_0045dfd0(void *arg0, void *arg1, f32 fparg0, s32 arg2,
                           s32 arg3, s32 arg4);
 extern f32 fGpffff8478;
@@ -188,7 +188,7 @@ void func_001203a0(s64 arg0, s8 arg1, u8 *arg2, s32 arg3, s32 arg4, f32 fparg0)
     extern u32 func_00104e30(s32 arg0);
     extern void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 z, s32 arg6);
     extern void func_0046d2b0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, f32 z, s32 arg3);
-    extern void func_0045d6e0(void *arg0, s32 *arg1, s32 arg2, f32 arg3);
+    extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
     extern void func_00120ae0(s64 arg0, f32 fparg0, s32 arg1, u32 arg2, s32 arg3);
     extern u8 D_005E5830[];
     extern u8 D_005E5850[];
@@ -306,7 +306,7 @@ void func_001203a0(s64 arg0, s8 arg1, u8 *arg2, s32 arg3, s32 arg4, f32 fparg0)
     {
         s32 blkD[4];
         blkD[0] = spD0; blkD[1] = spD4; blkD[2] = spD8; blkD[3] = spDC;
-        func_0045d6e0(blkF8, blkD, 1, 0.0f);
+        func_0045d6e0(blkF8, blkD, 0.0f, 1);
     }
     temp_6_3 = func_00104d50(temp_18) & 0xFFFF;
     spE8 = temp_f20;
@@ -342,7 +342,7 @@ void func_001203a0(s64 arg0, s8 arg1, u8 *arg2, s32 arg3, s32 arg4, f32 fparg0)
         spC4 = (s32)(4.0f + spEC);
     }
     blkF8[0] = 0x2D; blkF8[1] = 0x2D; blkF8[2] = 0x2D; blkF8[3] = (u8)arg1;
-    func_0045d6e0(blkF8, &spC0, 1, 0.0f);
+    func_0045d6e0(blkF8, &spC0, 0.0f, 1);
 }
 
 #pragma opt_common_subs on
@@ -611,7 +611,7 @@ void func_00121de0(void)
         sp.c1c = iGpffffb1d8;
         sp.c1d = iGpffffb1d4;
         sp.c1e = iGpffffb1d0;
-        func_0045d6e0(&sp.c1c, &sp.s0, 1, 0.0f);
+        func_0045d6e0(&sp.c1c, &sp.s0, 0.0f, 1);
     }
 }
 // FUN_00121F20
@@ -750,7 +750,7 @@ void func_001221a0(void *arg0, u8 *arg1)
             sp.c1c = iGpffffb1d8;
             sp.c1d = iGpffffb1d4;
             sp.c1e = iGpffffb1d0;
-            func_0045d6e0(&sp.c1c, &sp.s0, 1, 0.0f);
+            func_0045d6e0(&sp.c1c, &sp.s0, 0.0f, 1);
         }
         goto done;
     state2:
@@ -1960,11 +1960,11 @@ extern void func_0025f430(f32 farg0, f32 farg1, f32 farg2, s32 arg0, s32 arg1, s
     *(s128 *)sp50 = D_005E5590;
     q60 = sp60;
     *(s128 *)q60 = D_005E5590;
-    func_0045d6e0(q74, q60, 0, 0.0f);
+    func_0045d6e0(q74, q60, 0.0f, 0);
     *(s128 *)sp40 = D_005E55A0;
     q60 = sp60;
     *(s128 *)q60 = D_005E55A0;
-    func_0045d6e0(q74, q60, 0, 0.0f);
+    func_0045d6e0(q74, q60, 0.0f, 0);
     func_0048a000();
     temp_2 = *(s32 *)(arg1 + 0x80) + 1;
     *(s32 *)(arg1 + 0x80) = temp_2;
@@ -2141,7 +2141,7 @@ void func_0012b9a0(s32 unused, s32 arg1)
         stack.sp60 = D_005E5740;
         sp70_ptr = (s32 *)&stack.sp70;
         stack.sp70 = D_005E5740;
-        func_0045d6e0(sp8c_ptr, sp70_ptr, 1, 0.0f);
+        func_0045d6e0(sp8c_ptr, sp70_ptr, 0.0f, 1);
         temp_17 = *(s32 *)(temp_2 + 0x10);
         temp_16 = (u8 *)func_00452560(temp_17);
         if (func_00452490(temp_17) == 0) {
@@ -2163,7 +2163,7 @@ void func_0012b9a0(s32 unused, s32 arg1)
         stack.sp50 = D_005E5750;
         sp70_ptr = (s32 *)&stack.sp70;
         stack.sp70 = D_005E5750;
-        func_0045d6e0(sp8c_ptr, sp70_ptr, 1, 0.0f);
+        func_0045d6e0(sp8c_ptr, sp70_ptr, 0.0f, 1);
         temp_17_2 = *(s32 *)(temp_2 + 0x14);
         temp_16_2 = (u8 *)func_00452560(temp_17_2);
         if (func_00452490(temp_17_2) == 0) {
