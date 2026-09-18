@@ -68,7 +68,7 @@ extern void *func_0043f9c8(void *dst, s32 value, u32 size);
 extern s32 func_0046aea0(void *arg0);
 extern u8 D_00626C30[];
 extern u8 D_00626CA0[];
-extern void func_00212270(u8 *arg0);
+extern void func_00212270(u8 *arg0, u8 *arg1);
 
 
 
@@ -726,6 +726,8 @@ void func_00212240(u8 *arg0, s32 arg1) {
 
 
 
+/* measured 00212270: object 3244B vs retail window 5248B; retail 1311 instrs vs object 811 instrs (-38.1%, gate needs 1272-1350); differing words 1149 reloc-masked (GUARDED_SCORE), fnalign 1066 edits. Archive claimed object 3244B vs 5248B (sizes match) but nd 2519 vs our 1149 (score disagrees, not copied). Frame object 0x390 vs retail 0x3A0 (16B short; missing f22/f23 saves, s3 vs s4 arg1 park, f20 vs f23 div.s coloring). JAL retail 22 (1x201350,4x201820,2x34f460,2x34f4a0,4x364fb0,1x366c70,2x3e0870,2x457120,1x46d5f0,3x indirect D_00887310) vs object 21 (missing second func_00457120 inv recompute; cached-pointer-recompute accounts for ~5 instrs, not 500). */
+/* shortfall clusters in straight-line float/color/packet work, not calls: largest retail[113:433] 321 instrs vs object[122:126] 5 instrs (early packet/color/inv phase ~0x1C4-0x6C4, second 457120+div.s plus per-channel srl/andi/mtc1/cvt.s.w/add.s unpack and swc1 packet spills); next retail[435:478] 44 vs 19; dozens of 4-18 instr replaces throughout for (s32)(204/255/4096-scaled smooth)&mask clamps (retail lui 0x4f00/mtc1/c.ole/bc1t/cvt.w.s/mfc1/andi/or-0x80000000 vs object compact cvt.w.s/mfc1/andi). Excluded: dropped else arm (all 7 special/non-special pairs present: mode<6/21, mode<0xB/13, mode<0xD/14, mode<0xB/15, mode<=0/8 smooth variants, mode<0xF/8 with 34f460 vs 34f4a0 tails); off-by-one bound (thresholds 6,21,0x25/0x24,0xB,13,0xD,14,0xF,8 intact); folded switch (no switch); omitted-call as main cause (only 1/22 missing); unsigned-cast bloat (all casts signed (s32) with &0xFF/&0xFFFF, no unsigned float casts); narrow-local dsll32/dsra32 pairs (no s16 locals); field-by-field bloat (archive already field-by-field packet[6]/bars[4], retail similar). No pragmas in archive, none kept. Refused: outside 3% gate, production stays ASM; best C remains in Lane0021Full_00212270_body.c. Extern corrected to (u8*,u8*) per retail $a1 use (saved to s4, (void)arg0). */
 // FUN_00212270
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00212270);
 // FUN_002136F0
@@ -1184,6 +1186,7 @@ void func_00213e20(u8 *arg0, u8 *arg1)
         return;
     }
 }
+/* measured 002142b0: retail 1624 instrs (6496B window), object 1636 instrs (6544B), 809 edits +4 reloc-only via `python3 -E -s tools/fnalign.py src/promoted/code1_0021.c func_002142b0 --candidate docs/probe_archive/Lane0021Full_002142b0_body.c` (was 1155 +4/object 1816). Truthful fixes: 00201650 floats-middle + u8 colors, 00201300 136.0f, 002016b0 s32, 0043f9c8 void*, 85.0*(f32)arg2. CFG hoist regresses 809->911 so kept. Frame -0x180 vs -0x170 + parks/coloring residual. Floor banked in Lane0021Full_002142b0_body.c (428 lines); production stays ASM. */
 // FUN_002142B0
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002142b0);
 /* measured 00215c10: banked floor obj 1464B/window 1472B via `python tools/measure_guarded.py src/promoted/code1_0021.c func_00215c10` (366/366 instrs, 13 edits +1 reloc-only via `python tools/fnalign.py src/promoted/code1_0021.c func_00215c10 --candidate /tmp/cand_both_reload.c` after s16 reload 21->13; park intsFirst/floatsFirst/pin neutral at 21/13; MAC neutral 79/81; pragmas schedule 431/prop 62/loopInv 21/commonSubs 226 by EDIT count; frame -0x60 correct, residual prologue park order, FPU coloring, 85/conversion coloring. Best legal plain-C; parked as compiler floor. */

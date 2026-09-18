@@ -1,4 +1,21 @@
-/* Closest attempted candidate for func_00216e60; reverted because it did not match retail (object 4472B vs 4864B, nd 3317). */
+/* Floor for func_00216e60 (retail 1213 instrs / 4864B window). Truthful-fix of the
+   closest attempted candidate (was: object 4472B vs 4864B, nd 3317): D_00887300
+   (u32,u32)->(s32,s32) to match owner, explicit (u8 *)/(void **) casts on the
+   two func_00452560 calls (provider u32 func_00452560(void *) in
+   src/Kernel/sdkTask.c:986), added missing truthful externs (func_00201350,
+   func_002787d0(s32 x4) per src/itfMesManager.c:1183, func_00201650 per
+   include/btl_panel_internal.h, func_00201720 per owner), and 42.0f->50.0f for
+   func_00274a20 (retail lui 0x4248/mtc1 $f12; Ghidra 0x42480000).
+   Measured 2026-09-18 via `python3 -E -s tools/fnalign.py
+   src/promoted/code1_0021.c func_00216e60 --candidate <this file>` (private
+   splice, pristine 3182-line owner): object 1119 instrs, 424 edits +10
+   reloc-only (was 425 before the 42->50 fix). Baseline without candidate is
+   trivially 0 (INCLUDE_ASM). Residual classes: missing swc1 $f22 save,
+   $s0<->$s2 / $v1<->$s1 color permutation, 1-first vs retail 2-first dispatch
+   + fallthrough (extra index re-test), FPR coloring, branch-polarity flips,
+   float-constant materialization. Next levers (not yet measured): switch/case
+   fallthrough for index dispatch, declaration-order permutation for the
+   $s0/$s2 cycle. Production stays INCLUDE_ASM. */
 void func_00216e60(u8 *arg0, u8 *arg1)
 {
     typedef struct {
@@ -39,8 +56,12 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                              s32 arg5, s32 arg6, s32 arg7, s32 arg8);
     extern s32 func_00279690(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     extern void func_0045d6e0(void *arg0, void *arg1, s32 arg2, f32 arg3);
+    extern void func_00201350(void);
+    extern s32 func_002787d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    extern void func_00201650(u8 *work, s32 mode, s32 tile, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
+    extern void func_00201720(void *arg0, f32 arg1, f32 arg2);
     extern u16 D_008C024E;
-    extern void (*D_00887300[])(u32, u32);
+    extern void (*D_00887300[])(s32 arg0, s32 arg1);
     extern s32 iGpffffb4b0;
     extern f32 fGpffff8478;
     extern f32 fGpffff847c;
@@ -66,7 +87,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
     f32 pulsef;
 
     (void)arg0;
-    ctx = func_00452560(*(s32 *)(arg1 + 0x3C));
+    ctx = (u8 *)func_00452560(*(void **)(arg1 + 0x3C));
     p = (s32 *)ctx;
     if ((*p & 1) == 0) {
         return;
@@ -128,7 +149,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
             } else {
                 func_00272950(*(s32 *)arg1, (0x130 - half) << 4, 0x2A0);
             }
-            func_00274a20(*(s32 *)arg1, 42.0f);
+            func_00274a20(*(s32 *)arg1, 50.0f);
             func_00272ba0(*(s32 *)arg1, -1);
         }
         *(s32 *)(arg1 + 0xC) = half;
@@ -142,7 +163,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
             old = *(s32 *)(arg1 + 8);
             *(s32 *)(arg1 + 8) = old + 1;
             if (old >= *(s32 *)(arg1 + 4)) {
-                subctx = func_00452560(*(s32 *)(arg1 + 0x3C)) + 0x84C;
+                subctx = (u8 *)func_00452560(*(void **)(arg1 + 0x3C)) + 0x84C;
                 if (*(s32 *)subctx != 0) {
                     func_00271b70(*(s32 *)subctx);
                     *(s32 *)subctx = 0;

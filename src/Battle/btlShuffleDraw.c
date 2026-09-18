@@ -1261,6 +1261,28 @@ void func_00376880(u8 **arg0) {
 }
 
 
+/* measured 003768e0: archived LaneBtlShuffleDraw_fclCombineMisc_003768e0_body.c */
+/* (725 lines, raw m2c with M2C_FIELD/M2C_BITWISE, goto loops, s64 arg2) does */
+/* not compile as-is: s64 vs existing s32 prototype, missing M2C defines, */
+/* missing D_0060A0E0/E4/E8 and iGpffff8400/8404/8408/8308, D_00887300 */
+/* render_table indirection vs existing array-of-fn-ptr, (s32) casts needed */
+/* for the six func_00410420 pointer args. Fixed candidate */
+/* /var/tmp/bank3768e0/candidate.c (s32 arg2 with */
+/* (s64)((s64)arg2<<0x38)>>0x38, M2C defines, 7 missing f32 externs, */
+/* D_00887300[0] direct, 6x(s32)&stack casts) compiles. fnalign retail 1042 */
+/* vs object 997 (45 short, 4.3%, outside +-3% gate 1011-1073), edit 813 */
+/* (+2 reloc-only) via `python3 -E -s tools/fnalign.py */
+/* src/Battle/btlShuffleDraw.c func_003768e0 --candidate */
+/* /var/tmp/bank3768e0/candidate.c`. jal counts exact both sides (28: */
+/* 3x0036de70, 3x0036deb0, 3x003764b0, 1x003e9700, 4x003f6440, 6x00410420, */
+/* 6x004106a0, 1x00457120, 1x0046d730 + 3xjalr D_00887300), switch/loop */
+/* bounds intact (0x15 and 4-iteration loops present), so excluded: dropped */
+/* else arm, off-by-one bound, omitted call, folded switch, collapsed */
+/* per-lane vector. Gap is distributed FP/stack-spill shape (early */
+/* dsll/dsra 2->4 expansion vs 7->2 div collapse, large replaces in the */
+/* 0x15-loop tails and final 52-word replace), not a single deleted block. */
+/* Archive header claims no score (only "rejected after scoped mismatch"), */
+/* so no disagreement. Production stays ASM. */
 // FUN_003768E0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003768e0);
 

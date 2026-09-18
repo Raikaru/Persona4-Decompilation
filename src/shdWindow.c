@@ -34,8 +34,8 @@ extern void func_00272ba0(u8 *, s32);
 extern void func_00271b70(u8 *);
 extern f32 iGpffff8094;
 extern f32 func_0044b7b0(f32);
-extern void func_00366670(s32, s32, s32, s32, s32, s32, s32, s32,
-                         s16, void *, f32, f32, f32, f32);
+extern void func_00366670(s32, s32, f32, s32, s32, s32, s32, s32, s32,
+                         s16, void *, f32, f32, f32);
 extern void func_0025dd30(f32, f32, s32, u8 *);
 
 
@@ -126,56 +126,32 @@ s32 func_0025db00(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
 // `python3 -E -s tools/pragma_sweep.py src/shdWindow.c func_0025dd30 --pairs`.
 extern s8 func_00275a40(char param_1);
 extern void func_0025d850(f32 farg0, f32 farg1, f32 farg2, s32 arg0);
-// 14 -> 6 (2026-09-18).  The four-float block is a struct copy, not four
-// element assignments: `*(struct ShdWindowQuad *)table =
-// *(struct ShdWindowQuad *)D_00637260;` emits retail's four `lui`/`lwc1`
-// into $f3..$f0 followed by the four `swc1`, because b210 evaluates every
-// field of a struct assignment before storing any of it.  Written as
-// element assignments - with or without temps, in any order, with any
-// pragma - propagation folds each temp into its own store and interleaves
-// the pairs; that is what the previous note called a wall.  The `lui` is
-// re-emitted per field even though all four fields come from one symbol,
-// so the old four-separate-externs reading was reading that, not four
-// objects; D_00637264/68/6C are gone.  Measured and rejected on top:
-// building the quad in a local struct first (244 - it costs a frame slot),
-// func_00366670 prototypes with the floats at arguments 5-8 (14) or 2-5
-// (20).  Remaining 6 words are two `mtc1 $zero, $f12` emitted two slots
-// after retail's at the two func_00366670 calls.
-// 2026-09-18: that argument-order axis is now closed by proof, not by
-// exhaustion.  func_00366670 is also called at lines 333 and 342 from two
-// functions in this same file that are byte-exact MATCHes, and those calls
-// pass the floats last.  A MATCHed caller pins a callee's parameter order
-// (section 7c), so the declaration at line 37 is correct and no float-first
-// spelling can be retail's.  Reordering it also fails to compile the file,
-// because those two callers share the prototype.  The remaining six words
-// are the emission slot of `mtc1 $zero, $f12`, not the signature.
-// 2026-09-18 section 7o re-probe, 8 variants, floor stands at 6.
-// Exchanged-pair identification: `python3 -E -s tools/residual_signature.py
-// src/shdWindow.c func_0025dd30` prints `4 0 0 0 0 4` with no register
-// mapping - 0 mask/cvt/class/perm, 4 other. `tools/fnalign.py --candidate`
-// confirms why: not a colouring exchange but a scheduling move, `delete
-// retail[112] mtc1 $zero,$f12 / insert object[114] mtc1 $zero,$f12` and the
-// same at `retail[182]/object[184]`; `measure_guarded` counts 6 words (3 per
-// func_00366670 call site: `srl $t0,$v1,8` / `andi $t1,$v1,0xFF` /
-// `mtc1 $zero,$f12` rotated so retail has the mtc1 first, this body last).
-// The two source values are `u32 combined = (color & 0xFF) | -256` (the srl
-// /andi pair) versus the `0.0f` float argument (the mtc1); retail order is
-// zero-before-combined. All eight strip combined's initialiser, introduce
-// `f32 z; z = 0.0f;` passed as `z, z` for the two `0.0f` args, and vary 2
-// orders x 2 combined-scopes x 2 z-scopes (both `if/else` branches changed
-// identically; function-scope decls sit after `ret`, block-scope decls at
-// the top of each branch):
-// v1 FF retail (z before combined, both function) 6; v2 FF reverse 6;
-// v3 FB retail (combined function, z block) 6; v4 FB reverse 6;
-// v5 BF retail (combined block, z function) 6; v6 BF reverse 6;
-// v7 BB retail (both block, z before combined) 6; v8 BB reverse 6.
-// One batched `tools/probe_variants.py` call, baseline excluded (INCLUDE_ASM
-// fallback, not a score), best 6, no candidate matched. Introducing the zero
-// temp alone changes nothing and neither order nor scope moves the mtc1, so
-// the 7o uninitialised-declaration-plus-statement-order lever is inert on
-// this scheduling slot. Floor stands; production stays ASM.
-// FUN_0025DD30 NONMATCHING
-#ifdef NON_MATCHING
+// MATCH.  The last six words were the emission slot of `mtc1 $zero, $f12`
+// at the two func_00366670 calls: retail materialises that first float
+// argument before the packed-colour shift/mask pair, this file did it after.
+// The fix is in the callee's signature - move ONLY func_00366670's first
+// float, the depth, ahead of the integer arguments, and update the shared
+// prototype at the top of this file, the definition in
+// src/promoted/code1_0036.c and all four call sites together.
+//
+// This overturns the "closed by proof" note that used to sit here.  That
+// note argued two byte-exact MATCHed callers in this same file pin the
+// parameter order (section 7c) and that reordering would not even compile.
+// Both halves were wrong: the prototype is shared, so changing it and every
+// caller at once compiles fine, and those callers' expressions are
+// insensitive to moving the first float - they stay byte-identical.  What
+// the earlier pass actually measured was moving *groups* of floats
+// (positions 5-8 scored 14, positions 2-5 scored 20); moving one float is a
+// different axis.  Section 7c pins a callee's parameter order only when a
+// matched caller's code would change, which has to be measured, not assumed.
+//
+// The whole provider object in code1_0036.c is byte-identical across the
+// change, all 34 functions and both data sections, and this file's other
+// seven functions are unchanged.  The recovery does not uniquely fix the
+// original textual position: the first float placed before the integers, or
+// after one, two, three or four of them, all compile identically.  After
+// five it scores 4, after six or more it scores 6 again.
+// FUN_0025DD30
 void func_0025dd30(f32 param_1, f32 param_2, s32 color, u8 *data) {
     struct ShdWindowQuad { f32 a, b, c, d; };
     f32 table[4];
@@ -204,12 +180,12 @@ void func_0025dd30(f32 param_1, f32 param_2, s32 color, u8 *data) {
     case 2:
         if (*(s32 *)(data + 20) == 0) {
             u32 combined = (color & 0xFF) | -256;
-            func_00366670((s32)(110.0f + param_1), y, 106, 26, combined >> 8, combined & 0xFF, 1, 0, 0, NULL, 0.0f, 0.0f, 1.0f, 1.0f);
+            func_00366670((s32)(110.0f + param_1), y, 0.0f, 106, 26, combined >> 8, combined & 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
             func_00274ed0(163.0f + param_1, (f32)(y - 5), 0.0f, color | 0x64F0FF00, ((s8 *)table)[*(s32 *)(data + 20) * 8], 0, (const char *)iGpffffa6a0, 8, 0);
             func_00274ed0((f32)293 + param_1, (f32)(y - 5), 0.0f, color | -256, ((s8 *)table)[*(s32 *)(data + 20) * 8 + 4], 1, (const char *)iGpffffa6a4, 8, 0);
         } else {
             u32 combined = (color & 0xFF) | -256;
-            func_00366670((s32)(240.0f + param_1), y, 106, 26, combined >> 8, combined & 0xFF, 1, 0, 0, NULL, 0.0f, 0.0f, 1.0f, 1.0f);
+            func_00366670((s32)(240.0f + param_1), y, 0.0f, 106, 26, combined >> 8, combined & 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
             func_00274ed0(163.0f + param_1, (f32)(y - 5), 0.0f, color | -256, ((s8 *)table)[*(s32 *)(data + 20) * 8], 1, (const char *)iGpffffa6a0, 8, 0);
             func_00274ed0(3.0f + ((f32)293 + param_1), (f32)(y - 5), 0.0f, color | 0x64F0FF00, ((s8 *)table)[*(s32 *)(data + 20) * 8 + 4], 0, (const char *)iGpffffa6a4, 8, 0);
         }
@@ -219,9 +195,6 @@ void func_0025dd30(f32 param_1, f32 param_2, s32 color, u8 *data) {
         break;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/shdWindow", func_0025dd30);
-#endif
 // FUN_0025E170
 s32 func_0025e170(s32 arg0)
 {
@@ -363,7 +336,7 @@ void func_0025e4a0(s32 arg0, s32 arg1)
         count = *(s32 *)(temp_5 + 0x10);
         count = count < 3 ? count : 3;
         temp_f20 = func_0044b7b0((iGpffff8094 * (f32)count) / 3.0f);
-        func_00366670(92, (s32)(74.0f + 150.0f * (1.0f - temp_f20)), 456, (s32)(300.0f * temp_f20), 0x2D2D2D, 255, 1, 0, 0, 0, 0.0f, 0.0f, 1.0f, 1.0f);
+        func_00366670(92, (s32)(74.0f + 150.0f * (1.0f - temp_f20)), 0.0f, 456, (s32)(300.0f * temp_f20), 0x2D2D2D, 255, 1, 0, 0, 0, 0.0f, 1.0f, 1.0f);
         func_0025dd30(92.0f, 74.0f, (s32)(255.0f * temp_f20), p);
         break;
     case 0:
@@ -372,7 +345,7 @@ void func_0025e4a0(s32 arg0, s32 arg1)
         frac = (f32)count / 3.0f;
         temp_f20 = 255.0f * frac;
         color = 0x2D2D2D00 | (((s8)(s32)(255.0f * frac)) & 0xFF);
-        func_00366670(92, (s32)(74.0f + 150.0f * (1.0f - frac)), 456, (s32)(10.0f + 290.0f * frac), color >> 8, color & 0xFF, 1, 0, 0, 0, 0.0f, 0.0f, 1.0f, 1.0f);
+        func_00366670(92, (s32)(74.0f + 150.0f * (1.0f - frac)), 0.0f, 456, (s32)(10.0f + 290.0f * frac), color >> 8, color & 0xFF, 1, 0, 0, 0, 0.0f, 1.0f, 1.0f);
         func_0025dd30(92.0f, 74.0f, (s32)temp_f20, p);
         break;
     }

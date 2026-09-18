@@ -799,7 +799,7 @@ void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
  * the entry halfword load; the paired offset assignment preserves both real
  * primitive ABIs. Keep i = 0 before splitting the unsigned packed color.
  */
-void func_00366670(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s16 arg8, void *arg9, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) { extern s64 iGpffffabe8;
+void func_00366670(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s16 arg8, void *arg9, f32 fparg1, f32 fparg2, f32 fparg3) { extern s64 iGpffffabe8;
 extern u8 D_0064E3B0[];
 extern void func_0045eb20(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
 extern void func_0045e8e0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
