@@ -37,6 +37,7 @@ wall and is not.
 from __future__ import annotations
 
 import argparse
+import re
 import subprocess
 import sys
 import tempfile
@@ -82,8 +83,25 @@ def _floors() -> list[tuple[Path, str]]:
     return found
 
 
+CALLER_SAVED = ({f"$a{n}" for n in range(4)} | {f"$t{n}" for n in range(10)}
+                | {f"$v{n}" for n in range(2)})
+CALLEE_SAVED = {f"$s{n}" for n in range(9)}
+REGISTER = re.compile(r"\$(?:[a-z]{1,2}\d|zero|sp|ra|fp|gp|at)")
+
+
+def _register_pairs(left: str, right: str) -> list[tuple[str, str]] | None:
+    """Register substitutions turning `left` into `right`, or None if the two
+    instructions differ by more than their register names."""
+    left_registers, right_registers = REGISTER.findall(left), REGISTER.findall(right)
+    if len(left_registers) != len(right_registers):
+        return None
+    if REGISTER.sub("$", left) != REGISTER.sub("$", right):
+        return None
+    return [pair for pair in zip(left_registers, right_registers) if pair[0] != pair[1]]
+
+
 def classify(source: Path, function: str, candidate: Path, cfg: dict,
-             elf: RetailElf, bounds: list[int]) -> tuple[int, int]:
+             elf: RetailElf, bounds: list[int]) -> dict:
     body, relocations = _object_for((REPO / source).resolve(), function,
                                     candidate.resolve(), cfg)
     address = int(function[5:], 16)
@@ -94,16 +112,31 @@ def classify(source: Path, function: str, candidate: Path, cfg: dict,
     retail_text, object_text = decode(retail, address), decode(body, 0)
     relocated = {relocation["offset"] // 4 for relocation in relocations}
     script, edits, _reloc = align(retail_text, object_text, relocated)
-    signature = 0
+    counts = {"mask": 0, "cvt": 0, "class": 0, "perm": 0, "other": 0}
+    mapping: dict[str, set[str]] = {}
     for tag, i1, i2, j1, j2 in script:
         if tag not in ("replace", "delete", "insert"):
             continue
         left, right = " ".join(retail_text[i1:i2]), " ".join(object_text[j1:j2])
         if "cvt." in left and "cvt." in right:
-            signature += 1
+            counts["cvt"] += 1
+            continue
         if ("andi" in left and "move" in right) or ("move" in left and "andi" in right):
-            signature += 1
-    return edits, signature
+            counts["mask"] += 1
+            continue
+        pairs = _register_pairs(left, right) if i2 - i1 == j2 - j1 == 1 else None
+        if not pairs:
+            counts["other"] += 1
+            continue
+        for retail_register, object_register in pairs:
+            mapping.setdefault(retail_register, set()).add(object_register)
+        if any(a in CALLER_SAVED and b in CALLEE_SAVED
+               or a in CALLEE_SAVED and b in CALLER_SAVED for a, b in pairs):
+            counts["class"] += 1          # handoff 7n: a live range crossing a call
+        else:
+            counts["perm"] += 1           # handoff 7m: same class, different number
+    stable = {a: next(iter(b)) for a, b in mapping.items() if len(b) == 1}
+    return {"edits": edits, "counts": counts, "mapping": stable}
 
 
 def main() -> None:
@@ -127,7 +160,7 @@ def main() -> None:
     elf = RetailElf(cfg["retail_elf"], _read_json(TARGET), windows["sha1"])
     bounds = _boundaries(windows)
 
-    rows: list[tuple[int, int, str, str]] = []
+    rows: list[tuple[int, str, str, dict]] = []
     with tempfile.TemporaryDirectory() as tmp:
         for source, function in targets:
             candidate = Path(tmp) / f"{function}.c"
@@ -137,15 +170,30 @@ def main() -> None:
             if not candidate.is_file():
                 continue
             try:
-                edits, signature = classify(source, function, candidate, cfg, elf, bounds)
+                result = classify(source, function, candidate, cfg, elf, bounds)
             except BaseException:  # noqa: BLE001 - _die raises SystemExit
                 continue
-            rows.append((edits, signature, function, str(source)))
+            rows.append((result["edits"], function, str(source), result))
 
-    for edits, signature, function, source in sorted(rows):
-        print(f"{edits:5d}  sig={signature:2d}  {function}  {source}")
-    flagged = sum(1 for row in rows if row[1])
-    print(f"\n{len(rows)} floors measured, {flagged} carry a mask/conversion signature")
+    print(f"{'edits':>5}  {'mask':>4} {'cvt':>4} {'class':>5} {'perm':>4} {'other':>5}"
+          "  function        source")
+    for edits, function, source, result in sorted(rows):
+        counts = result["counts"]
+        mapping = " ".join(f"{a}->{b}" for a, b in sorted(result["mapping"].items())[:4])
+        print(f"{edits:5d}  {counts['mask']:4d} {counts['cvt']:4d} {counts['class']:5d} "
+              f"{counts['perm']:4d} {counts['other']:5d}  {function}  {source}"
+              + (f"   [{mapping}]" if mapping else ""))
+
+    def tally(key: str) -> int:
+        return sum(1 for row in rows if row[3]["counts"][key])
+
+    print(f"\n{len(rows)} floors measured")
+    print(f"  {tally('mask') + tally('cvt'):3d} carry a mask or conversion signature "
+          "(handoff 7h-sexies / 7h-quinquies)")
+    print(f"  {tally('class'):3d} carry a caller-versus-callee-saved register class "
+          "difference (handoff 7n: check for a counter shared across two loops)")
+    print(f"  {tally('perm'):3d} carry a same-class register permutation "
+          "(handoff 7m: two probes, then stop)")
 
 
 if __name__ == "__main__":
