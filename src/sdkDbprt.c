@@ -102,7 +102,7 @@ void H_Dbprt_Flush()
         curr = next;
     }
 }
-/* Floor (measured 2026-09-17, source-repo only): quad-base hoist (qf/qi locals over quads[i*16]) 163 -> 124 words, fnalign 218/218/74; the +10-instr over-emission is gone (was 230 obj vs 220 retail: the four qi stores each recomputed (i*16+k)*4, the sll+5/addu+4/addiu+3 opclass surplus). Singles sweep on the 163 body: opt_unroll_loops off, opt_strength_reduction off, opt_dead_assignments off all neutral (genuinely inert, verified byte-identical objects; b210 ignores them here), peephole off 166, cse 192, sched 196, prop 211, loop-inv 219. Tried: f878/white const hoists (125, white rematerialises per-iter). Prior: w2 163 best (w1 202, w3 s64 230, loop 219, sched 196, prop 211). Frame MATCH, vtBase hoist restores 7+1 jalr, dead low branch kept. Banked as guarded floor; production stays ASM. */
+/* Floor (measured 2026-09-17, source-repo only): quad-base hoist (qf/qi locals over quads[i*16]) 163 -> 124 words, fnalign 218/218/74; the +10-instr over-emission is gone (was 230 obj vs 220 retail: the four qi stores each recomputed (i*16+k)*4, the sll+5/addu+4/addiu+3 opclass surplus). Singles sweep on the 163 body: opt_unroll_loops off, opt_strength_reduction off, opt_dead_assignments off all neutral (genuinely inert, verified byte-identical objects; b210 ignores them here), peephole off 166, cse 192, sched 196, prop 211, loop-inv 219. Re-sweep on the 124 body: same three neutral, cse 173, loop-inv 171, peephole 140, sched 198, prop 199. Tried: f878/white const hoists (125, white rematerialises per-iter), block-scoped row/col counters (neutral at 124). Prior: w2 163 best (w1 202, w3 s64 230, loop 219, sched 196, prop 211). Frame MATCH, vtBase hoist restores 7+1 jalr, dead low branch kept. Banked as guarded floor; production stays ASM. */
 // FUN_0044F720 NONMATCHING
 #ifdef NON_MATCHING
 void func_0044f720(void)
@@ -219,7 +219,7 @@ void func_0044f720(void)
 INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044f720);
 #endif
 
-/* Floor (measured 2026-09-17, source-repo only): probe_variants s_best 314 words / 132 edits / 366 vs 367 BEST faithful (bare 353/464, levers unfaithful despite words wins), fnalign 367/366/132 (+5), emitted 1464B/window 1472B (99.5%). Four-pragma sweep: bare wins (loop +1w/-6ed noted, cse/sched catastrophic, nobl neutral). wscan 0/0, opclass 0/0. Residual is coloring/scheduling/orientation + daddu. Re-derived sibling v8 floor; production stays ASM. Banked as guarded floor. */
+/* Floor (measured 2026-09-17, source-repo only): probe_variants s_best 314 words / 132 edits / 366 vs 367 BEST faithful (bare 353/464, levers unfaithful despite words wins), fnalign 367/366/132 (+5), emitted 1464B/window 1472B (99.5%). Four-pragma sweep: bare wins (loop +1w/-6ed noted, cse/sched catastrophic, nobl neutral). Eight-singles re-sweep 2026-09-17: dead/prop/strength/unroll neutral at 314, loop-inv 315, sched 337, peephole 341, cse 377. Object-longer blocks are float spills (9x swc1 f3-f7); residual is coloring/scheduling/orientation + daddu. Re-derived sibling v8 floor; production stays ASM. Banked as guarded floor. */
 // FUN_0044FA90 NONMATCHING
 #ifdef NON_MATCHING
 /* Target: func_0044fa90 -- source-repo faithful floor (banked, production stays ASM).
