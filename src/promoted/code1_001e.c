@@ -3055,8 +3055,257 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
     *(u8 **)(p4_slot_001eb320((u16)count * 4, node) + 0x30) = 0;
     return count;
 }
-// FUN_001ED700
+/* measured: object 2744B vs window 2752B (object 686 vs retail 687 instrs),
+ * probe 632 words; frame 0xF0 vs retail 0x100; saves f20-f27 (8) vs retail
+ * f20-f26 (7). Retail recomputes group+i*0x130 inline; prior cached-pointer
+ * body was 642. Remaining classes: branch polarity (beq/bne, bc1t/bc1f,
+ * c.ole/c.olt), ld/sd 64-bit copies (3 vs 1), scheduling (lwc1 +3, addiu +2,
+ * lui -3, move -2, sll -2). Banked at 0.15% under the 3% gate; production
+ * stays ASM. Prior exclusions: per-lane 25 mul.s/add.s each side, equal jal
+ * 11 == 11, matching case counts, romwright recovered 72B frame identical to
+ * own layout. New exclusions: pointer caching 642 -> 686 via inline
+ * group+i*0x130 (partial 679 +19, full +44; v11 addu +14/sll +9/lw +7 vs
+ * full addu -3/sll -2/lw 0); quantize retail[105:112] 7 vs object 1 excluded
+ * as inlined helper (hoisted-locals c_hoist.c still 686/1-vs-7,
+ * opt_loop_invariants on 679, func_001ee250 is >12/1750 round-nearest vs
+ * here ceil !=0/500/25); romwright if-else 3,2,1,0 already adopted over m2c
+ * switch 0,1,2,3 (CONCAT44/u64 ld/sd kept separate: c_s64.c 682; separate
+ * s16 +9 v1 660 vs v2 651 but dsll 41 vs 21, lh/sh 8/0 vs 24/16; struct
+ * gives dsll 22 vs 21, lh/sh match); residual 1 instr + 0x10 frame + 1 float
+ * reg is polarity/ld-sd/scheduling only. Candidate
+ * /var/tmp/cold1ed700b/c_struct_full.c. Do not re-litigate without new
+ * evidence.
+ */
+// FUN_001ED700 NONMATCHING
+#ifdef NON_MATCHING
+void func_001ed700(f32 radius)
+{
+    extern f32 func_003e41e0(f32 *out, f32 *in);
+    extern f32 func_003e41b0(f32 *vec);
+    extern f32 D_0060A120[];
+    extern f32 fGpffff8330;
+    struct { s16 x; s16 y; } corners[4];
+    f32 bounds[4];
+    f32 curX;
+    f32 curZ;
+    f32 delta[2];
+    f32 norm[2];
+    f32 bestDir[2];
+    f32 wpos[2];
+    u8 *node;
+    u8 *group;
+    u8 *other;
+    u8 *best;
+    s32 i;
+    s32 j;
+    s32 t;
+    s16 tx;
+    s16 ty;
+    s16 q;
+    f32 dist;
+    f32 bestDist;
+    f32 bestX;
+    f32 bestZ;
+    f32 bestH;
+    s32 first;
+    f32 f0;
+
+    first = 0;
+    for (node = *(u8 **)(iGpffffb3ac + 0x318); node != NULL; node = *(u8 **)(node + 0x4CC)) {
+        if (first == 0) {
+            corners[0].x = *(s16 *)(node + 0);
+            corners[1].x = corners[0].x;
+            corners[2].x = corners[0].x;
+            corners[3].x = corners[0].x;
+            corners[0].y = *(s16 *)(node + 2);
+            corners[1].y = corners[0].y;
+            corners[2].y = corners[0].y;
+            corners[3].y = corners[0].y;
+            f0 = *(f32 *)(node + 4);
+            bounds[0] = f0;
+            bounds[1] = f0;
+            bounds[2] = f0;
+            bounds[3] = f0;
+            first = 1;
+        } else {
+            tx = *(s16 *)(node + 0);
+            ty = *(s16 *)(node + 2);
+            if ((corners[0].x >= tx) && (corners[0].y >= ty)) {
+                corners[0].x = tx;
+                corners[0].y = ty;
+                bounds[0] = *(f32 *)(node + 4);
+            }
+            if ((tx >= corners[1].x) && (corners[1].y >= ty)) {
+                corners[1].x = tx;
+                corners[1].y = ty;
+                bounds[1] = *(f32 *)(node + 4);
+            }
+            if ((tx >= corners[2].x) && (ty >= corners[2].y)) {
+                corners[2].x = tx;
+                corners[2].y = ty;
+                bounds[2] = *(f32 *)(node + 4);
+            }
+            if ((corners[3].x >= tx) && (ty >= corners[3].y)) {
+                corners[3].x = tx;
+                corners[3].y = ty;
+                bounds[3] = *(f32 *)(node + 4);
+            }
+        }
+    }
+    for (i = 0; i < 4; i++) {
+        t = (s32)(bounds[i] + 500.0f);
+        q = (s16)(t / 25);
+        if (t % 25 != 0) {
+            q = (s16)(q + 1);
+        }
+        if (i == 3) {
+            tx = (s16)(corners[i].x - q);
+            ty = (s16)(q + corners[i].y);
+            if (tx < 0) {
+                tx = 0;
+            }
+        } else if (i == 2) {
+            tx = (s16)(q + corners[i].x);
+            ty = (s16)(q + corners[i].y);
+        } else if (i == 1) {
+            tx = (s16)(q + corners[i].x);
+            ty = (s16)(corners[i].y - q);
+            if (ty < 0) {
+                ty = 0;
+            }
+        } else {
+            tx = (s16)(corners[i].x - q);
+            ty = (s16)(corners[i].y - q);
+            if (tx < 0) {
+                tx = 0;
+            }
+            if (ty < 0) {
+                ty = 0;
+            }
+        }
+        *(f32 *)(iGpffffb3ac + i * 0x130 + 0x31C) = (f32)(tx * 25 - 1750);
+        *(f32 *)(iGpffffb3ac + i * 0x130 + 0x320) = (f32)(ty * 25 - 1750);
+    }
+    for (group = *(u8 **)(iGpffffb3ac + 0x318); group != NULL; group = *(u8 **)(group + 0x4CC)) {
+        for (i = 0; i < 4; i++) {
+            best = NULL;
+            bestDist = 7000.0f;
+            curX = *(f32 *)(group + i * 0x130 + 8);
+            curZ = *(f32 *)(group + i * 0x130 + 12);
+            for (other = *(u8 **)(iGpffffb3ac + 0x318); other != NULL; other = *(u8 **)(other + 0x4CC)) {
+                if (group != other) {
+                    for (j = 0; j < 4; j++) {
+                        delta[0] = *(f32 *)(other + j * 0x130 + 8) - curX;
+                        delta[1] = *(f32 *)(other + j * 0x130 + 12) - curZ;
+                        dist = func_003e41e0(norm, delta);
+                        if ((fGpffff8330 < norm[0] * D_0060A120[i * 2 + 0] + norm[1] * D_0060A120[i * 2 + 1]) && (dist < bestDist)) {
+                            if (func_001ed060((float *)(group + i * 0x130 + 8), (float *)(other + j * 0x130 + 8)) == 0) {
+                                bestDir[0] = norm[0];
+                                bestDir[1] = norm[1];
+                                best = other + j * 0x130 + 8;
+                                bestDist = dist;
+                                bestX = (f32)(*(s16 *)(other + 0) * 25 - 1750);
+                                bestZ = (f32)(*(s16 *)(other + 2) * 25 - 1750);
+                                bestH = *(f32 *)(other + 4);
+                            }
+                        }
+                    }
+                }
+            }
+            for (j = 0; j < 4; j++) {
+                delta[0] = *(f32 *)(iGpffffb3ac + j * 0x130 + 0x31C) - curX;
+                delta[1] = *(f32 *)(iGpffffb3ac + j * 0x130 + 0x320) - curZ;
+                dist = func_003e41e0(norm, delta);
+                if (((fGpffff8330 < norm[0] * D_0060A120[i * 2 + 0] + norm[1] * D_0060A120[i * 2 + 1]) && (dist < bestDist)) && (func_001ed060((float *)(group + i * 0x130 + 8), (float *)(iGpffffb3ac + j * 0x130 + 0x31C)) == 0)) {
+                    bestDir[0] = norm[0];
+                    bestDir[1] = norm[1];
+                    best = iGpffffb3ac + j * 0x130 + 0x31C;
+                    bestDist = dist;
+                    bestX = *(f32 *)(iGpffffb3ac + j * 0x130 + 0x31C);
+                    bestZ = *(f32 *)(iGpffffb3ac + j * 0x130 + 0x320);
+                    bestH = 0.0f;
+                }
+            }
+            if (best != NULL) {
+                f32 half;
+                f32 dx;
+                f32 dz;
+                half = 0.5f * bestDist;
+                dx = bestDir[0] * half;
+                bestDir[0] = dx;
+                dz = bestDir[1] * half;
+                bestDir[1] = dz;
+                *(f32 *)(group + i * 0x130 + 0x10) = curX + dx;
+                *(f32 *)(group + i * 0x130 + 0x14) = curZ + dz;
+                *(u8 **)(group + i * 0x130 + 0x18) = best;
+                *(f32 *)(group + i * 0x130 + 0x1C) = bestDist;
+                dx = (f32)(*(s16 *)(group + 0) * 25 - 1750);
+                dz = (f32)(*(s16 *)(group + 2) * 25 - 1750);
+                delta[0] = dx - bestX;
+                delta[1] = dz - bestZ;
+                *(f32 *)(group + i * 0x130 + 0x20) = func_003e41b0(delta) - (*(f32 *)(group + 4) + bestH);
+            } else {
+                *(f32 *)(group + i * 0x130 + 0x1C) = -1.0f;
+            }
+        }
+    }
+    for (i = 0; i < 4; i++) {
+        wpos[0] = *(f32 *)(iGpffffb3ac + i * 0x130 + 0x31C);
+        wpos[1] = *(f32 *)(iGpffffb3ac + i * 0x130 + 0x320);
+        best = NULL;
+        bestDist = 7000.0f;
+        for (group = *(u8 **)(iGpffffb3ac + 0x318); group != NULL; group = *(u8 **)(group + 0x4CC)) {
+            for (j = 0; j < 4; j++) {
+                delta[0] = *(f32 *)(group + j * 0x130 + 8) - wpos[0];
+                delta[1] = *(f32 *)(group + j * 0x130 + 12) - wpos[1];
+                dist = func_003e41b0(delta);
+                if (dist < bestDist) {
+                    func_003e41e0(bestDir, delta);
+                    best = group + j * 0x130 + 8;
+                    bestDist = dist;
+                }
+            }
+        }
+        if (best == NULL) {
+            *(f32 *)(iGpffffb3ac + i * 0x130 + 0x330) = -1.0f;
+        } else {
+            if (*(u8 **)(best + 0x10) == iGpffffb3ac + i * 0x130 + 0x31C) {
+                *(f32 *)(iGpffffb3ac + i * 0x130 + 0x330) = -1.0f;
+            } else {
+                f32 half;
+                half = 0.5f * bestDist;
+                bestDir[0] = bestDir[0] * half;
+                bestDir[1] = bestDir[1] * half;
+                *(f32 *)(iGpffffb3ac + i * 0x130 + 0x324) = wpos[0] + bestDir[0];
+                *(f32 *)(iGpffffb3ac + i * 0x130 + 0x328) = wpos[1] + bestDir[1];
+                *(u8 **)(iGpffffb3ac + i * 0x130 + 0x32C) = best;
+                *(f32 *)(iGpffffb3ac + i * 0x130 + 0x330) = bestDist;
+                *(f32 *)(iGpffffb3ac + i * 0x130 + 0x334) = 500.0f;
+            }
+        }
+    }
+    for (group = *(u8 **)(iGpffffb3ac + 0x318); group != NULL; group = *(u8 **)(group + 0x4CC)) {
+        for (i = 0; i < 4; i++) {
+            if ((*(f32 *)(group + i * 0x130 + 0x1C) <= 0.0f) || (*(f32 *)(group + i * 0x130 + 0x20) < radius)) {
+                *(s32 *)(group + i * 0x130 + 0x38) = 0;
+            } else {
+                func_001ed3a0(group + i * 0x130 + 8, radius);
+            }
+        }
+    }
+    for (i = 0; i < 4; i++) {
+        if (0.0f < *(f32 *)(iGpffffb3ac + i * 0x130 + 0x330)) {
+            func_001ed3a0(iGpffffb3ac + i * 0x130 + 0x31C, radius);
+        } else {
+            *(s32 *)(iGpffffb3ac + i * 0x130 + 0x34C) = 0;
+        }
+    }
+    func_001ed3a0(iGpffffb3ac + 0x7DC, radius);
+    func_001ed3a0(iGpffffb3ac + 0x90C, radius);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ed700);
+#endif
 // FUN_001EE1C0
 void func_001ee1c0(void) {
     f32 temp_f0;

@@ -294,6 +294,17 @@ s32 func_003319c0(void) {
    max_flip 28, min_order 25, min_max 26. Nine-case smoke passes. Body banked
    below (min_flip); production stays ASM. Re-measured 2026-09-17. */
 /* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/promoted/code1_0033.c func_00331a20 --pairs` banked 24; best ties 24 (opt_dead_assignments off, opt_loop_invariants on, opt_strength_reduction off, opt_unroll_loops off and six pairwise combos among them); all 28 pairs neutral or worse (commons 64, propagation 260, schedule 284-295, peephole 308-313). Singles schedule/propagation/commons regress per archive; three two-definition work-pointer pins flat per assignment. Pairs were the only axis left and are also flat. fnalign retail/object 347/347 per assignment. Floor stands; production stays ASM. */
+/* 2026-09-18 lead pass; section 7m exchanged-register-pair class, floor
+   confirmed at 24 words.  347/347 instructions and all 24 differing words
+   are the 24 instructions that name the `work` pointer: retail holds it in
+   $s2, this body in $s3, and nothing else differs.
+   Declaration order does not reach it - moving `work` to the end of the
+   list ties at 24 and hoisting `level_value` above it ties at 24 - while
+   computing `level_value` before `work` costs 24 -> 38, so the statement
+   order is load-bearing as usual.  The permuter's mutation set and the
+   twenty-two declaration permutations measured across the other five
+   members of this class all failed the same way; one or two probes here is
+   the right budget. */
 // FUN_00331A20 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00331a20(u8 *arg0)

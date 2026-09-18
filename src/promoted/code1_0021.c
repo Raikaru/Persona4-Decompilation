@@ -1199,6 +1199,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002142b0);
    `move $s1, $a2` parameter save, two slots early, and the 85.0f constant
    that retail materialises before the (f32)(u32) conversion block and b210
    sinks to its use. */
+/* 2026-09-18 lead pass, 5 measured variants; floor confirmed at 18 words.
+   366/366 instructions.  Three residual slots, all scheduler decisions and
+   all insensitive to source order: the `move $s1, $a2` parameter save lands
+   two instructions early, retail materialises the 85.0f constant
+   (`lui 0x42aa` / `mtc1`) before the two `cvt.s.w` conversions where this
+   body materialises it after, and the conversion destination is $f2 in
+   retail against $f3 here (a consequence of the second).
+   Every reordering ties at 18 with a byte-identical stream: hoisting
+   `var_f3 = 85.0f` above the `var_f4` statement, hoisting it to the top of
+   the function, swapping it with `var_f2 = (f32)(u32)var_s17`, and both
+   permutations of the three parameter-save assignments.  Its sibling
+   `func_002161d0` carries the same three slots and the same five ties.
+   Section 7m class; not where the next MATCH is. */
 // FUN_00215C10 NONMATCHING
 #ifdef NON_MATCHING
 void func_00215c10(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
