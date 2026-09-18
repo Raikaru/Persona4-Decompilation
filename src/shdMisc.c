@@ -157,18 +157,19 @@ s32 func_003645c0(char *out, s32 value)
    switch (1,0,default) tests in retail order but arms lay out (0,1).
    No dsll32/dsra32, no volatile/asm. Complete source and probe evidence:
    docs/probe_archive/LaneShdMisc_00364680_v3_body.c. Production stays ASM. */
+/* 411 -> 402 (2026-09-18): the parameter list is
+   (f32, s32, f32, f32, f32, f32, f32, f32, u8 *, s32, s32), proved by the two
+   callers this order MATCHed - func_0035c040 and func_00354ba0 in
+   src/promoted/code1_0035.c - not the ints-first spelling m2c produced.
+   The six float parameters are also used directly instead of through
+   temp_f2x copies, which b210 propagates away (that alone is a tie at 411;
+   the order is what moves it). */
 // FUN_00364680 NONMATCHING
 #ifdef NON_MATCHING
-void func_00364680(s32 color, u8 *ptr, s32 arg2, s32 arg3, f32 depth, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, f32 fparg6) {
+void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, f32 fparg6, u8 *ptr, s32 arg2, s32 arg3) {
     void (**swbase)(u32, u32);
     s32 (**drawbase)(s32, void *, s32);
     f32 verts[4][16];
-    f32 temp_f24;
-    f32 temp_f23;
-    f32 temp_f22;
-    f32 temp_f27;
-    f32 temp_f21;
-    f32 temp_f20;
     f32 temp_f26;
     f32 temp_f25;
     s32 temp_21;
@@ -183,12 +184,6 @@ void func_00364680(s32 color, u8 *ptr, s32 arg2, s32 arg3, f32 depth, f32 fparg1
     s32 b1;
     s32 b0;
     f32 hh;
-    temp_f24 = fparg1;
-    temp_f23 = fparg2;
-    temp_f22 = fparg3;
-    temp_f27 = fparg4;
-    temp_f21 = fparg5;
-    temp_f20 = fparg6;
     temp_f26 = D_008872F8[0] - depth;
     temp_f25 = 1.0f / *(f32 *)(func_00457120() + 0x80);
     if (ptr == NULL) {
@@ -230,14 +225,14 @@ void func_00364680(s32 color, u8 *ptr, s32 arg2, s32 arg3, f32 depth, f32 fparg1
     func_003f6440(2, 0x44);
     func_00489f80();
     if (flag) {
-        verts[0][0] = temp_f22;
-        verts[0][1] = temp_f27;
-        verts[1][0] = temp_f22 + temp_f21;
-        verts[1][1] = temp_f27;
-        verts[2][0] = temp_f22 + temp_f21;
-        verts[2][1] = temp_f27 + temp_f20;
-        verts[3][0] = temp_f22;
-        verts[3][1] = temp_f27 + temp_f20;
+        verts[0][0] = fparg3;
+        verts[0][1] = fparg4;
+        verts[1][0] = fparg3 + fparg5;
+        verts[1][1] = fparg4;
+        verts[2][0] = fparg3 + fparg5;
+        verts[2][1] = fparg4 + fparg6;
+        verts[3][0] = fparg3;
+        verts[3][1] = fparg4 + fparg6;
         for (i = 0; i < 4; i++) {
             ((u32 *)verts)[i * 16 + 8] = 0x437F0000;
             ((u32 *)verts)[i * 16 + 9] = 0x437F0000;
@@ -247,14 +242,14 @@ void func_00364680(s32 color, u8 *ptr, s32 arg2, s32 arg3, f32 depth, f32 fparg1
         func_003f6440(3, 0x31801);
         drawbase[0](5, verts, 4);
     }
-    verts[0][0] = temp_f24;
-    verts[0][1] = temp_f23;
-    verts[1][0] = temp_f24 + temp_f21;
-    verts[1][1] = temp_f23;
-    verts[2][0] = temp_f24 + temp_f21;
-    verts[2][1] = temp_f23 + temp_f20;
-    verts[3][0] = temp_f24;
-    verts[3][1] = temp_f23 + temp_f20;
+    verts[0][0] = fparg1;
+    verts[0][1] = fparg2;
+    verts[1][0] = fparg1 + fparg5;
+    verts[1][1] = fparg2;
+    verts[2][0] = fparg1 + fparg5;
+    verts[2][1] = fparg2 + fparg6;
+    verts[3][0] = fparg1;
+    verts[3][1] = fparg2 + fparg6;
     bit0 = temp_18 & 1;
     for (i = 0; i < 4; i++) {
         ((u32 *)verts)[i * 16 + 8] = 0x437F0000;
@@ -291,14 +286,14 @@ void func_00364680(s32 color, u8 *ptr, s32 arg2, s32 arg3, f32 depth, f32 fparg1
     } else {
         func_003f6440(3, 0x31801);
     }
-    verts[0][0] = temp_f24;
-    verts[0][1] = temp_f23;
-    verts[1][0] = temp_f24 + temp_f21;
-    verts[1][1] = temp_f23;
-    verts[2][0] = temp_f24 + temp_f21;
-    verts[2][1] = temp_f23 + temp_f20;
-    verts[3][0] = temp_f24;
-    verts[3][1] = temp_f23 + temp_f20;
+    verts[0][0] = fparg1;
+    verts[0][1] = fparg2;
+    verts[1][0] = fparg1 + fparg5;
+    verts[1][1] = fparg2;
+    verts[2][0] = fparg1 + fparg5;
+    verts[2][1] = fparg2 + fparg6;
+    verts[3][0] = fparg1;
+    verts[3][1] = fparg2 + fparg6;
     b3 = temp_21 & 1;
     b2 = temp_20 & 1;
     b1 = temp_19 & 1;
