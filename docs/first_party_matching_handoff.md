@@ -8,25 +8,18 @@ The objective is a clean C replacement for each first-party `INCLUDE_ASM` functi
 
 ## Current checkpoint
 
-- Latest published recovery: `func_0020b6d0`, commit `de42a42d`.
-- Measured target: 812 emitted bytes in an 816-byte retail window.
-- Relocations: 14, all resolved to the retail targets.
-- Residual window suffix: one four-byte retail zero word after the candidate body.
-- Owner isolation: all other 145 functions in `src/promoted/code1_0020.c` retained identical bytes and relocation metadata.
-- Caller isolation: changing `func_0020b6d0`'s fourth parameter declaration from `s32` to the retail `s16` contract changed no bytes or relocations in the 71-function `src/promoted/code1_001a.c` owner.
-- Estimated remaining first-party fallbacks after that recovery: 548.
-
-The initial direct proof ran while `tools/mwccgap/mwccgap.py` was absent from
-the user working tree, so it used the already-imported `gap.process_c_file`
-path plus direct ELF and relocation comparison. After the tool was restored,
-this command passed:
-
-```text
-python tools/verify.py src/promoted/code1_0020.c src/promoted/code1_001a.c --show-mismatches
-```
-
-It scanned 217 first-party functions and reported 186 `MATCH`, 31 healthy
-`ASM`, and no failures.
+- 2026-09-18: **503 first-party `INCLUDE_ASM` left**, 6357 of 6860 MATCH (92.7%).
+  Image `3d1d3d2b9d6ccb60836db239ab49674223025a78` and SLUS
+  `4eeec0360cf2715535d9f7e52eb69d786fb0158c` byte-exact; 544 tests OK; lint 0 errors.
+- MATCHed that day: `func_0027cae0` (itfMsgProcedure_Window), `func_002d3ee0`
+  (y_fclShopDraw), `func_0035c040` and `func_00354ba0` (code1_0035),
+  `func_0046ec70` (code1_0046).  Four of the five came from the argument
+  emission-order rule in 7a-bis; read that section before anything else.
+- Floors improved the same day: `func_001c79f0` 9 -> 2, `func_0025dd30` 14 -> 6,
+  `func_00365f00` 25 -> 13, `func_00126090` 155 -> 148.
+- New tool: `tools/micro_codegen.py` compiles a standalone snippet with the
+  project mwcc and prints one function, for isolating a codegen rule in
+  seconds instead of re-probing a whole recovery.
 
 ## Non-negotiable acceptance rules
 
