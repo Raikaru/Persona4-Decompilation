@@ -510,6 +510,27 @@ pointer parameter, e.g.
 
 which reads an `RwV3d *` straight off the load/store widths.
 
+**Feed the tree back before you use it.**  `tools/romwright_feedback.py`
+pushes every matched function's real name and signature into the analysis
+database as an *asserted* fact, which no later inference round can overwrite:
+
+```
+python tools/romwright_feedback.py            # after any batch of MATCHes
+python tools/romwright_feedback.py --dry-run  # see what would be pushed
+```
+
+Only live, unguarded bodies are pushed - a guarded NON_MATCHING body is a
+draft and its signature is a hypothesis, and asserting a hypothesis would
+launder a guess into a fact.  Signatures are rewritten into the decompiler's
+own core type names (`u8` -> `byte`, `u32` -> `uint`, `s64` -> `longlong`);
+anything that does not map exactly is skipped rather than approximated.
+
+Measured over 25 untried functions, with 6622 signatures fed back:
+"Supplied declaration required" notes fell from **212 to 65**, and typed
+callee declarations rose from **94 placeholder `FUN_` forms to 207 real named
+ones**.  Re-run it after every batch of MATCHes: each one improves the context
+the next reconstruction starts from.
+
 **Trust the arity, not the widths.**  Checked against three functions whose
 real signatures are known from MATCHes (`func_00311930`, `func_00348330`,
 `func_0035c040`) it got the argument count right every time, pointer-vs-scalar

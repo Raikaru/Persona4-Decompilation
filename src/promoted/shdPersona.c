@@ -1105,8 +1105,179 @@ extern f32 iGpffff8094;
    func_00364c50/70 are 0-arg (m2c's 3-arg call is a hallucination from
    stale loop registers); func_001187b0 is (u8*, s64, u8, s64, f32);
    iGpffff8364 = gp-0x7C9C = 0x00761454 (added to symbol_data_addrs). */
-// FUN_00118A20
+/* measured: cold 2026-09-18 00118a20 -- GUARDED_SCORE 214 in real tree via `python3 -E -s tools/measure_guarded.py src/promoted/shdPersona.c func_00118a20` (probe 214 differing words, object 430 instrs/window 435 instrs, fnalign --candidate edit 82 +6 reloc-only, 435-instr window, retail window 1744B/436 instrs). Full-C from P4 m2c draft (/var/tmp/cold118a20/m2c.c) + rw raw (/var/tmp/cold118a20/rw.c, default m2c-shaped fails CONCAT44) + types (void*, 0x505/0x520/0x522/0x524/0x534) with named FMA locals (135+516*f25 then 516+x, -21-131*f24, 552+461*f23-15 etc, m11 shared for -11 stores + 484+m11), temp+join lerp chains, 0-arg 364c50/70, s64 casts for 1187b0. Frame 0xA0 matches retail. R1 c461/c413 int-cast 215 tie (1st non-lowering); R2 decl/stack (v3a 215 tie, v3b 226, v3c 214 lowering via reversed sp90/sp80/sp60, 112->82 edits); R3 pragmas (prop-off 398, loopinv 214 tie, both 394, 1st non-lowering); R4 pointer/seed ties 214 (2nd consecutive non-lowering, stop). verify.py 91 MATCH/11 ASM/0 MISMATCH; decomp_lint 0 errors (5 pre-existing warns elsewhere). Reused existing decls (0044b7b0 f32, 0045dfd0 f32-first, 001187b0 s64/u8/s64, iGpffff8094/8364), no new globals. Walls: s1/s2 colouring, 0x522/0x524 sh-before-extend, -11 mtc1-before-sw + 473 fold, FP temps. */
+// FUN_00118a20 NONMATCHING
+#ifdef NON_MATCHING
+void func_00118a20(u8 *arg0)
+{
+    void func_00364c50(void);
+    void func_00364c70(void);
+    f32 f25;
+    f32 f24;
+    f32 f23;
+    f32 f22;
+    f32 f21;
+    f32 f20;
+    f32 x1;
+    f32 y1;
+    f32 m11;
+    f32 x2;
+    f32 c337;
+    f32 y2a;
+    f32 y2b;
+    f32 t90;
+    f32 t94;
+    f32 t98;
+    f32 u90;
+    f32 u94;
+    f32 u98;
+    f32 sp90[4];
+    u8 sp80[16];
+    f32 sp60[6];
+    u8 b505;
+    s32 k;
+    s16 v;
+    f32 x;
+    if ((*(s32 *)(arg0 + 0x534) & 0x10000) != 0) {
+        v = *(s16 *)(arg0 + 0x520);
+        if (v < 0) {
+            x = 0.0f;
+        } else if (v < 6) {
+            x = func_0044b7b0(iGpffff8094 * ((f32)v / 6.0f));
+        } else {
+            x = 1.0f;
+        }
+        f25 = 1.0f - x;
+        v = *(s16 *)(arg0 + 0x520);
+        if (v < 3) {
+            x = 0.0f;
+        } else if (v < 9) {
+            x = func_0044b7b0(iGpffff8094 * ((f32)(v - 3) / 6.0f));
+        } else {
+            x = 1.0f;
+        }
+        f24 = 1.0f - x;
+        v = *(s16 *)(arg0 + 0x520);
+        if (v < 7) {
+            x = 0.0f;
+        } else if (v < 0x11) {
+            x = func_0044b7b0(iGpffff8094 * ((f32)(v - 7) / 10.0f));
+        } else {
+            x = 1.0f;
+        }
+        f23 = 1.0f - x;
+        v = *(s16 *)(arg0 + 0x520);
+        if (v < 9) {
+            x = 0.0f;
+        } else if (v < 0x13) {
+            x = func_0044b7b0(iGpffff8094 * ((f32)(v - 9) / 10.0f));
+        } else {
+            x = 1.0f;
+        }
+        f22 = 1.0f - x;
+        if (*(s16 *)(arg0 + 0x520) >= 7) {
+            *(s16 *)(arg0 + 0x522) = *(s16 *)(arg0 + 0x522) + 1;
+            if (*(s16 *)(arg0 + 0x522) >= 0x46) {
+                *(s16 *)(arg0 + 0x522) = 0;
+            }
+            v = *(s16 *)(arg0 + 0x522);
+            if (v < 0) {
+                f21 = 0.0f;
+            } else if (v < 0x46) {
+                f21 = (f32)v / 70.0f;
+            } else {
+                f21 = 1.0f;
+            }
+        }
+        if (*(s16 *)(arg0 + 0x520) >= 9) {
+            *(s16 *)(arg0 + 0x524) = *(s16 *)(arg0 + 0x524) + 1;
+            if (*(s16 *)(arg0 + 0x524) >= 0x28) {
+                *(s16 *)(arg0 + 0x524) = 0;
+            }
+            v = *(s16 *)(arg0 + 0x524);
+            if (v < 0) {
+                f20 = 0.0f;
+            } else if (v < 0x28) {
+                f20 = (f32)v / 40.0f;
+            } else {
+                f20 = 1.0f;
+            }
+        }
+    }
+    b505 = *(arg0 + 0x505);
+    m11 = -11.0f;
+    x1 = 135.0f + 516.0f * f25;
+    sp90[2] = x1;
+    sp90[3] = m11;
+    sp60[0] = x1;
+    sp60[1] = m11;
+    y1 = 516.0f + x1;
+    sp60[2] = y1;
+    sp60[3] = m11;
+    sp60[4] = y1;
+    sp60[5] = 484.0f + m11;
+    {
+        s32 i;
+        for (i = 0; i < 3; i++) {
+            sp80[i * 4] = 0xED;
+            sp80[i * 4 + 1] = 0x36;
+            sp80[i * 4 + 2] = 0x11;
+            sp80[i * 4 + 3] = b505;
+        }
+    }
+    func_00364c50();
+    func_0045dfd0(0.0f, sp80, sp60, 3, 5, 0);
+    func_00364c70();
+    x2 = -21.0f - 131.0f * f24;
+    sp90[2] = x2;
+    c337 = (f32)0x151;
+    sp90[3] = c337;
+    sp60[0] = x2;
+    sp60[1] = c337;
+    sp60[2] = x2;
+    y2a = 123.0f + c337;
+    sp60[3] = y2a;
+    y2b = 131.0f + x2;
+    sp60[4] = y2b;
+    sp60[5] = y2a;
+    {
+        s32 i;
+        for (i = 0; i < 3; i++) {
+            sp80[i * 4] = 0xFF;
+            sp80[i * 4 + 1] = 0x36;
+            sp80[i * 4 + 2] = 0x11;
+            sp80[i * 4 + 3] = b505;
+        }
+    }
+    func_00364c50();
+    func_0045dfd0(0.0f, sp80, sp60, 3, 5, 0);
+    func_00364c70();
+    t90 = 552.0f + 461.0f * f23 - 15.0f;
+    t94 = 10.0f + 413.0f * f23;
+    t98 = -(400.0f * f21);
+    sp90[0] = t90;
+    sp90[1] = t94;
+    sp90[2] = t98;
+    sp90[3] = 0.0f;
+    for (k = 0; k < 2; k++) {
+        func_001187b0(arg0, *(s64 *)&sp90[2], b505, *(s64 *)&sp90[0], iGpffff8364);
+        sp90[2] = sp90[2] + 400.0f;
+    }
+    u90 = 219.0f + 461.0f * f22 + 90.0f - 30.0f;
+    u94 = 10.0f + 413.0f * f22;
+    u98 = -(400.0f * f20);
+    sp90[0] = u90;
+    sp90[1] = u94;
+    sp90[2] = u98;
+    sp90[3] = 0.0f;
+    for (k = 0; k < 3; k++) {
+        func_001187b0(arg0, *(s64 *)&sp90[2], b505, *(s64 *)&sp90[0], iGpffff8364);
+        sp90[2] = sp90[2] + 400.0f;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00118a20);
+#endif
 
 
 
