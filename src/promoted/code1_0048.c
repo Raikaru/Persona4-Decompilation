@@ -842,8 +842,284 @@ u_long128 func_00484b30(u8 *arg0)
 }
 #pragma pop
 /* Decode 00484bb0 (window 2688B=672w, gate 2607-2769B/651-692w; frame 0xF0=240B; s32(u32) single-arg, returns s32 resource (alloc pointer as int; callers in btlCutin/btlFormation/effHelper store as s32/u32)). Retail calls in order: 44ea90, jtbl alloc 144/192/44, 43f9c8, 84b30, lq/sq GPR quad copies, 86740/867e0/86780/86710, 442830, then 861f0/86330/86400/865c0 sequence. Single VU op: sqc2 vf0,0(sp+0xE0) to init the 861f0/86330 quad param as (0,0,0,1.0), never zero quad (W=1). No GP floats via $28, no (f32)(u32) sites, no normalize. Integer list build with 0xC0=192 stride per child, 0x80/0x84 counters, 0x88/0x8C/0xB0 links. Template: Code48InitialState-style typed state + one u_long128 (aligned16) for the vf0 quad only (extra slot costs 0x10 frame), single asm block `sqc2 vf0,0(%0)` with compiler address + =m + memory (vf0 needs no clobber, follow 84b30 idiom), all allocation/traversal/callbacks/reloads/scalar arithmetic in C. Expect obj ~672w; outside 3% stays INCLUDE_ASM with factual note. Production stays ASM. Do NOT touch 85870/8a980 per assignment. */
-// FUN_00484BB0
+/* measured: GUARDED_SCORE 187 via probe_variants (v1 408, v5 187 best; prop off 187 vs on 594 load-bearing; loopinv/sched tie 187 kept simpler; common off 581 worse; decl swaps tie kept original; >0x20 190 worse kept >=0x21; frame 0xF0 exact; fnalign 670/670 exact, 197 edits +76 reloc-only; biggest remaining saved-reg rotation + branch/scheduling; no daddu 28 (no $28 floats per decode) and no VU colours (single vf0 op); callees/globals reused from tree: 44ea90/46d730/43f9c8/jtbl_008873E8/D_00713470/D_00713480 via top decls, 84b30/861f0/86330/86400/865c0/86710 via same TU, 86740/867e0/86780 via mdlEffect/same TU, 442830 strcpy; template Code48InitialState quads + single vf0 u_long128 as decode). Retail 672w/obj 670w (-2 -0.3% inside gate 651-692). Production stays ASM. */
+// FUN_00484BB0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma opt_propagation off
+u8 *func_00484bb0(u8 *arg0)
+{
+    extern s32 func_004861f0(u8 *arg0, f32 *arg1);
+    extern void func_00486330(u8 *arg0, u8 *arg1);
+    extern void func_00486400(u8 *arg0, f32 arg1);
+    extern void func_004865c0(u8 *arg0, s32 arg1);
+    extern void func_00486710(u8 *arg0, u8 *arg1);
+    extern void func_00442830(u8 *arg0, u8 *arg1);
+    u8 *func_00486740(u8 *arg0, s32 arg1);
+    s32 func_004867e0(u8 *arg0, u8 *arg1);
+    u8 *func_00486780(u8 *arg0, s32 arg1);
+    u_long128 vf0quad;
+    void *(**alloc)(u32, u32);
+    u8 *clone;
+    u8 *node;
+    u8 *nodeClone;
+    u8 *src;
+    u8 *prim;
+    u16 kind;
+    u8 *found;
+    s32 idx;
+    u8 *csrc;
+    s32 count;
+    u8 *base;
+    u8 *cur;
+    s32 i;
+    u8 *slot;
+    u8 *target;
+    u8 *addr20;
+    u8 *addr24;
+    s32 idx94;
+    u8 *var2;
+    s32 tmp;
+    func_0044ea90(D_00713470, 0x546);
+    alloc = jtbl_008873E8;
+    clone = (u8 *)alloc[0](0x90, 0x40000);
+    if (clone == NULL) {
+        func_0046d730(D_00713470, 0x547);
+    }
+    func_0043f9c8(clone, 0, 0x90);
+    *(s32 *)(clone + 0x80) = 0;
+    *(s32 *)(clone + 0x84) = 0;
+    func_00484b30(clone);
+    *(u_long128 *)clone = *(u_long128 *)arg0;
+    *(u_long128 *)(clone + 0x10) = *(u_long128 *)(arg0 + 0x10);
+    *(f32 *)(clone + 0x74) = *(f32 *)(arg0 + 0x74);
+    *(s32 *)(clone + 0x68) = *(s32 *)(arg0 + 0x68);
+    if (*(u8 **)(arg0 + 0x8C) != NULL) {
+        for (node = *(u8 **)(arg0 + 0x8C); node != NULL; node = *(u8 **)(node + 0xAC)) {
+            func_0044ea90(D_00713470, 0x559);
+            nodeClone = (u8 *)alloc[0](0xC0, 0x40000);
+            if (nodeClone == NULL) {
+                func_0046d730(D_00713470, 0x55A);
+            }
+            func_0043f9c8(nodeClone, 0, 0xC0);
+            func_0043f9c8(nodeClone, 0, 0x90);
+            *(s32 *)(nodeClone + 0x84) = 1;
+            *(u8 *)(nodeClone + 0x88) = 8;
+            *(u8 *)(nodeClone + 0x89) = 0;
+            *(u8 *)(nodeClone + 0x8A) = 0;
+            func_00484b30(nodeClone);
+            if ((*(s32 *)(node + 0x98) & 1) == 0) {
+                src = *(u8 **)(node + 0x90);
+                if (*(u32 *)src > 0xD2) {
+                    func_0046d730(D_00713470, 0x2D7);
+                }
+                kind = *(u16 *)(src + 4);
+                func_0044ea90(D_00713470, 0x21);
+                prim = (u8 *)alloc[0](0x2C, 0x40000);
+                if (prim == NULL) {
+                    func_0046d730(D_00713470, 0x22);
+                }
+                func_0043f9c8(prim, 0, 0x2C);
+                *(s32 *)prim = 0xD2;
+                *(u16 *)(prim + 4) = kind;
+                *(u16 *)(prim + 0xC) = *(u16 *)(src + 0xC);
+                *(u16 *)(prim + 0x1C) = *(u16 *)(src + 0x1C);
+                if (*(u16 *)(prim + 4) >= 0x21) {
+                    func_0046d730(D_00713470, 0x2DD);
+                }
+                if (*(s32 *)(D_00713480 + (*(u16 *)(prim + 4) << 6)) == 0) {
+                    func_0046d730(D_00713470, 0x2DE);
+                }
+                *(s32 *)(prim + 8) =
+                    (*(s32 (**)(u8 *))(D_00713480 + (*(u16 *)(prim + 4) << 6)))(src);
+                *(u8 **)(nodeClone + 0x90) = prim;
+            } else {
+                found = func_00486740(arg0, *(s32 *)(node + 0x90));
+                idx = func_004867e0(arg0, found);
+                csrc = *(u8 **)(func_00486780(clone, idx) + 0x90);
+                if (*(u32 *)csrc > 0xD2) {
+                    func_0046d730(D_00713470, 0x318);
+                }
+                kind = *(u16 *)(csrc + 4);
+                func_0044ea90(D_00713470, 0x21);
+                prim = (u8 *)alloc[0](0x2C, 0x40000);
+                if (prim == NULL) {
+                    func_0046d730(D_00713470, 0x22);
+                }
+                func_0043f9c8(prim, 0, 0x2C);
+                *(s32 *)prim = 0xD2;
+                *(u16 *)(prim + 4) = kind;
+                *(u16 *)(prim + 0xC) = *(u16 *)(csrc + 0xC);
+                *(u16 *)(prim + 0x1C) = *(u16 *)(csrc + 0x1C);
+                if (*(s32 *)(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14) == 0) {
+                    func_0046d730(D_00713470, 0x321);
+                }
+                *(s32 *)(prim + 8) =
+                    (*(s32 (**)(s32))(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14))(*(s32 *)(csrc + 8));
+                *(u8 **)(nodeClone + 0x90) = prim;
+            }
+            func_00486710(nodeClone, node);
+            func_00442830(nodeClone + 0x9C, node + 0x9C);
+            *(s32 *)(nodeClone + 0xAC) = 0;
+            if (*(u8 **)(clone + 0x88) != NULL) {
+                *(u8 **)(*(u8 **)(clone + 0x88) + 0xAC) = nodeClone;
+                *(u8 **)(nodeClone + 0xB0) = *(u8 **)(clone + 0x88);
+            } else {
+                *(u8 **)(clone + 0x8C) = nodeClone;
+                *(u8 **)(nodeClone + 0xB0) = NULL;
+            }
+            *(u8 **)(clone + 0x88) = nodeClone;
+            *(s32 *)(clone + 0x80) += 1;
+        }
+    } else {
+        count = *(s32 *)(arg0 + 0x80);
+        base = arg0 + *(s32 *)(arg0 + 0x88);
+        cur = base;
+        i = 0;
+        goto indexed_check;
+indexed_body:
+        func_0044ea90(D_00713470, 0x559);
+        nodeClone = (u8 *)alloc[0](0xC0, 0x40000);
+        if (nodeClone == NULL) {
+            func_0046d730(D_00713470, 0x55A);
+        }
+        func_0043f9c8(nodeClone, 0, 0xC0);
+        func_0043f9c8(nodeClone, 0, 0x90);
+        *(s32 *)(nodeClone + 0x84) = 1;
+        *(u8 *)(nodeClone + 0x88) = 8;
+        *(u8 *)(nodeClone + 0x89) = 0;
+        *(u8 *)(nodeClone + 0x8A) = 0;
+        func_00484b30(nodeClone);
+        tmp = *(s32 *)(cur + 0x98);
+        if ((tmp & 1) == 0) {
+            src = arg0 + *(s32 *)(cur + 0x90);
+            if ((tmp & 2) != 0) {
+                addr24 = src + 0x24;
+                if (*(s32 *)addr24 != 0) {
+                    func_0046d730(D_00713470, 0x5BB);
+                }
+                addr20 = src + 0x20;
+                if (*(s32 *)addr20 != 0) {
+                    func_0046d730(D_00713470, 0x5BC);
+                }
+                idx94 = *(s32 *)(cur + 0x94);
+                slot = base + idx94 * 0xC0;
+                target = arg0 + *(s32 *)(slot + 0x90);
+                if (*(s32 *)(target + 0x24) == 0) {
+                    func_0046d730(D_00713470, 0x5BE);
+                }
+                *(s32 *)addr24 = *(s32 *)(target + 0x24);
+                if (*(s32 *)(target + 0x28) != 0) {
+                    var2 = *(u8 **)(target + 0x20);
+                } else if (*(s32 *)(target + 0x20) != 0) {
+                    var2 = target + *(s32 *)(target + 0x20);
+                } else {
+                    var2 = NULL;
+                }
+                *(s32 *)addr20 = (s32)(var2 - src);
+                if (*(u32 *)src > 0xD2) {
+                    func_0046d730(D_00713470, 0x2D7);
+                }
+                kind = *(u16 *)(src + 4);
+                func_0044ea90(D_00713470, 0x21);
+                prim = (u8 *)alloc[0](0x2C, 0x40000);
+                if (prim == NULL) {
+                    func_0046d730(D_00713470, 0x22);
+                }
+                func_0043f9c8(prim, 0, 0x2C);
+                *(s32 *)prim = 0xD2;
+                *(u16 *)(prim + 4) = kind;
+                *(u16 *)(prim + 0xC) = *(u16 *)(src + 0xC);
+                *(u16 *)(prim + 0x1C) = *(u16 *)(src + 0x1C);
+                if (*(u16 *)(prim + 4) >= 0x21) {
+                    func_0046d730(D_00713470, 0x2DD);
+                }
+                if (*(s32 *)(D_00713480 + (*(u16 *)(prim + 4) << 6)) == 0) {
+                    func_0046d730(D_00713470, 0x2DE);
+                }
+                *(s32 *)(prim + 8) =
+                    (*(s32 (**)(u8 *))(D_00713480 + (*(u16 *)(prim + 4) << 6)))(src);
+                *(u8 **)(nodeClone + 0x90) = prim;
+                *(s32 *)addr24 = 0;
+                *(s32 *)addr20 = 0;
+            } else {
+                if (*(u32 *)src > 0xD2) {
+                    func_0046d730(D_00713470, 0x2D7);
+                }
+                kind = *(u16 *)(src + 4);
+                func_0044ea90(D_00713470, 0x21);
+                prim = (u8 *)alloc[0](0x2C, 0x40000);
+                if (prim == NULL) {
+                    func_0046d730(D_00713470, 0x22);
+                }
+                func_0043f9c8(prim, 0, 0x2C);
+                *(s32 *)prim = 0xD2;
+                *(u16 *)(prim + 4) = kind;
+                *(u16 *)(prim + 0xC) = *(u16 *)(src + 0xC);
+                *(u16 *)(prim + 0x1C) = *(u16 *)(src + 0x1C);
+                if (*(u16 *)(prim + 4) >= 0x21) {
+                    func_0046d730(D_00713470, 0x2DD);
+                }
+                if (*(s32 *)(D_00713480 + (*(u16 *)(prim + 4) << 6)) == 0) {
+                    func_0046d730(D_00713470, 0x2DE);
+                }
+                *(s32 *)(prim + 8) =
+                    (*(s32 (**)(u8 *))(D_00713480 + (*(u16 *)(prim + 4) << 6)))(src);
+                *(u8 **)(nodeClone + 0x90) = prim;
+            }
+        } else {
+            csrc = *(u8 **)(func_00486780(clone, *(s32 *)(cur + 0x90)) + 0x90);
+            if (*(u32 *)csrc > 0xD2) {
+                func_0046d730(D_00713470, 0x318);
+            }
+            kind = *(u16 *)(csrc + 4);
+            func_0044ea90(D_00713470, 0x21);
+            prim = (u8 *)alloc[0](0x2C, 0x40000);
+            if (prim == NULL) {
+                func_0046d730(D_00713470, 0x22);
+            }
+            func_0043f9c8(prim, 0, 0x2C);
+            *(s32 *)prim = 0xD2;
+            *(u16 *)(prim + 4) = kind;
+            *(u16 *)(prim + 0xC) = *(u16 *)(csrc + 0xC);
+            *(u16 *)(prim + 0x1C) = *(u16 *)(csrc + 0x1C);
+            if (*(s32 *)(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14) == 0) {
+                func_0046d730(D_00713470, 0x321);
+            }
+            *(s32 *)(prim + 8) =
+                (*(s32 (**)(s32))(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14))(*(s32 *)(csrc + 8));
+            *(u8 **)(nodeClone + 0x90) = prim;
+        }
+        func_00486710(nodeClone, cur);
+        func_00442830(nodeClone + 0x9C, cur + 0x9C);
+        *(s32 *)(nodeClone + 0xAC) = 0;
+        if (*(u8 **)(clone + 0x88) != NULL) {
+            *(u8 **)(*(u8 **)(clone + 0x88) + 0xAC) = nodeClone;
+            *(u8 **)(nodeClone + 0xB0) = *(u8 **)(clone + 0x88);
+        } else {
+            *(u8 **)(clone + 0x8C) = nodeClone;
+            *(u8 **)(nodeClone + 0xB0) = NULL;
+        }
+        *(u8 **)(clone + 0x88) = nodeClone;
+        *(s32 *)(clone + 0x80) += 1;
+        cur += 0xC0;
+        i += 1;
+indexed_check:
+        if (i < count) {
+            goto indexed_body;
+        }
+    }
+    __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(&vf0quad) : "memory");
+    func_004861f0(clone, (f32 *)&vf0quad);
+    func_00486330(clone, (u8 *)&vf0quad);
+    func_00486400(clone, 1.0f);
+    func_004865c0(clone, -1);
+    return clone;
+}
+#pragma pop
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484bb0);
+#endif
 /* Floor: 140 emitted against retail's 140, with three real deltas and one
    consequent nop; everything else is byte-identical once the relocations are
    masked.  The reconstruction follows its sibling func_00485870 below, with

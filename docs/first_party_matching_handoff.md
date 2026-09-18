@@ -474,6 +474,39 @@ Grep every alignment for object-only `dsll32` runs before anything else;
 it is a one-line fix and it was worth 39, 24 and 10 words on three
 different functions in one afternoon.
 
+### 7m. The exchanged-register-pair class, and how to recognise it
+
+Six floors turned out to be the same thing, and it is worth naming so nobody
+spends another afternoon on one.  The signature is exact: **the differing-word
+count equals the number of instructions that name two registers, and those
+instructions are identical apart from the two register numbers being
+exchanged.**
+
+| floor | words | pair | what it holds |
+|---|---|---|---|
+| `func_001b11c0` | 5 | $t1 / $t3 | masked argument vs inner counter |
+| `func_0024be40` | 8 | $s0 / $s2 | `found` pointer vs loop counter |
+| `func_001eca10` | 11 | $s2 / $s3 | inner counter vs `corner` pointer |
+| `func_00365f00` | 13 | $s3 / $fp | `edge_g` byte vs `num_segments` |
+| `func_0048a460` | 15 | $f0-$f2 / $v0 | perspective-divide temporaries |
+| `func_0025dd30` | 6 | - | float argument setup slot |
+
+**Declaration order does not drive it.**  Twenty-two permutations were measured
+across the first five: every one either tied byte-for-byte or regressed.  The
+pair is fixed by liveness - retail keeps one value live across a point where
+the candidate does not, which frees the lower register there and not here -
+and no ordering of the declarations changes that.
+
+**Statement order, by contrast, is load-bearing and must not be touched.**  On
+`func_00365f00` moving `num_segments = (s32)(segments & 0xFFFF)` above the
+colour extractions costs **13 -> 251**; on `func_001eca10` hoisting the counter
+costs 11 -> 40 and re-spelling a pointer costs 11 -> 223; on `func_0024be40`
+hoisting the counter costs 8 -> 20.
+
+So: recognise the signature, spend one or two probes on it, write the pair and
+the rejected variants into the note, and move on.  These are not where the next
+MATCH is.
+
 ### 7l. Do not tidy a body that is already scoring
 
 The single most expensive habit on a banked floor is cleaning up source that
