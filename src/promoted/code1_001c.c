@@ -49,7 +49,7 @@ extern f32 func_003e4180(f32 *arg0);
 extern void func_001bd560();
 extern void func_001958f0(u8 *arg0, f32 *arg1);
 extern void func_001959d0(BtlUnit *arg0, RwV3d *arg1);
-extern f32 func_00196040(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5);
+extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, void *outCenter, f32 *outTop, f32 *outBottom, u32 options);
 extern RwMatrix *func_003e0870(RwMatrix *arg0, const RwV3d *arg1, f32 arg2, s32 arg3);
 extern RwV3d *func_003e4320(RwV3d *arg0, const RwV3d *arg1, const RwMatrix *arg2);
 extern void func_001bc3a0(f32 *arg0, f32 *arg1);
@@ -566,7 +566,7 @@ void func_001c1040(u8 *arg0, s32 arg1)
     func_001bd560(first, arg0 + 0x9C);
     unit = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
     func_00195850(unit, unitCenter.c);
-    radius = func_00196040(3, 1, (u8 *)center.c, (s32)&top, 0, 0);
+    radius = func_00196040(3, 1, center.c, &top, 0, 0);
     if (func_001bc240(arg0) != 0 || func_001bc1b0(arg0) != 0) {
         resource = *(u8 **)(unit + 0xA0C);
         if (resource != 0) {
@@ -1167,24 +1167,32 @@ INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c5b80);
 // FUN_001C79E0
 void func_001c79e0(void) {}
 // FUN_001C79F0 NONMATCHING
-/* measured 001c79f0: 9 differing words via `python3 tools/probe_variants.py src/promoted/code1_001c.c func_001c79f0 --candidate d1=/var/tmp/main/c79f0_d1.c`; fnalign retail 448 vs object 448, 10 edits (+24 reloc-only); emitted 1792B/window 1792B; opclass no surplus for 79F0. */
-/* 9 -> 7 (2026-09-18): splitting the trailing gp multiply into its own
-   statement - `var_f20 = p4_cacd0_mul(chain, 0.21875f); var_f20 = var_f20 *
-   fGpffff812c;` - fixes both `mul.s $f20, $f1, $f0` operand orders at 143
-   and 380 at once.  Written inline, MWCC puts the gp load in rs; written as
-   its own statement it puts the chain there, as retail does.  Measured and
-   rejected: swapping the factors inline (9, and the edit count rises 11 ->
-   13), wrapping the outer multiply in p4_cacd0_mul with the chain first (22)
-   or the constant first (35), and splitting only one of the two sites (8).
-   Remaining 7 words, both pure argument-evaluation order: retail sets
-   $a0/$a1/$a2 before $a3/$t0 at the func_00196040 call at 29-34 and b210
-   materialises the two frame addresses first, and the same at 406.  Measured
-   and rejected on that: two-definition pins on both address arguments (7),
-   plain pointer locals (7), deriving one address from the other (7),
-   materialising the constant arguments through a local (7), replacing the
-   two floats with a two-element array (7); swapping their declaration order
-   costs 10. */
-/* 272->12 via if-branch outC0 add; 12->9 via p4_cacd0_mul gp-first for 81 plus second-mul helper for both 0.21875 chains (81 reloc-only, 379 first-mul fixed). Pragmas: loopinv/sched_off tie, sched_on worse, cse_off error -- none installed. Pairs 2026-09-17 (`tools/pragma_sweep.py --pairs`, 8 singles + 28 pairs, banked 9): ties at 9 among loopinv/strength_off/unroll_off + 3 pairs among them; dead 237, prop 397, sched 388, cse 406, peephole 402 (pairs 187-419). No pair moves the strongest position. Wall (all measured, ties fail): exact two-def pin ties 9w (j=0 folds; 12/96-from-same-base has no 4-offset); third-mul helper prev*gp worsens to 24w, gp*prev swap ties 9w; lwc1 struct 64w/70w worse, reorder 50w worse (temp-split untried). Remaining: addiu hoist 29/32:34 (4), third-mul 143:145 (2) + 380:382 (2), lwc1 order 406 (2). */
+/* 9 -> 7 -> 2 (2026-09-18).  Three levers, all measured:
+   1. splitting the trailing gp multiply into its own statement -
+      `var_f20 = p4_cacd0_mul(chain, 0.21875f); var_f20 = var_f20 *
+      fGpffff812c;` - fixes both `mul.s $f20, $f1, $f0` operand orders at
+      143 and 380 at once (9 -> 7).  Written inline b210 puts the gp load in
+      rs whichever way the factors are spelled; written as an accumulate it
+      puts the chain there, as retail does.  Rejected: inline swap (9, edits
+      11 -> 13), wrapping the outer multiply in p4_cacd0_mul chain-first (22)
+      or constant-first (35), splitting only one of the two sites (8).
+   2. func_00196040's out-parameters are pointers, as the MATCHed definition
+      in src/Battle/btlUnit.c has always said - `(u32, u32, RwV3d *, f32 *,
+      f32 *, u32)`.  This file declared arguments 4 and 5 as s32 and cast the
+      addresses; b210 evaluates a cast address before the plain arguments, so
+      the two `addiu $aN, $sp, ...` landed four slots early.  Dropping the
+      casts restores retail's order (7 -> 2).  Rejected first: two-definition
+      pins on both addresses, plain pointer locals, deriving one address from
+      the other, a local for the constant arguments, a two-element array -
+      all 7, and swapping the two float declarations costs 10.
+   3. Remaining 2 words are the two loads at 406-407: for
+      `frame.outC0[1] = frame.pos138[1] + frame.dir128[1] * var_f20;` retail
+      loads the addend first, b210 the multiplicand.  Only index 1 has both
+      operands in memory, so this is the only site that shows it.  Measured
+      and rejected: a temp for the addend (2), explicit parentheses (2), a
+      pointer-spelled load (2), commuting the multiply (3), swapping the two
+      statements (17), a three-iteration loop (57), moving the later
+      outC0[1] store ahead of this one (17). */
 #ifdef NON_MATCHING
 void func_001c79f0(u8 *arg0, s32 arg1)
 {
@@ -1240,8 +1248,8 @@ void func_001c79f0(u8 *arg0, s32 arg1)
     if (*(u16 *)(saved_arg0 + 0x106) != 0) {
         func_001bd560(frame.poseA0, (f32 *)(saved_arg0 + 0x9C));
         var16 = *(u8 **)(*(u8 **)(saved_arg0 + 0xE0) + 0x30);
-        var_f20 = func_00196040(3, 0, (u8 *)frame.target118, 0, 0, 1);
-        func_00196040(1, 0, (u8 *)0, (s32)&frame.max14C, (s32)&frame.min148, 1);
+        var_f20 = func_00196040(3, 0, frame.target118, 0, 0, 1);
+        func_00196040(1, 0, NULL, &frame.max14C, &frame.min148, 1);
         frame.target118[1] = frame.min148 + 0.5f * (frame.max14C - frame.min148);
         var_f20 = (0.75f * var_f20) / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
         func_001958f0(var16, frame.actorE8);
@@ -2484,7 +2492,7 @@ void func_001ce8c0(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
     f32 scale;
 
     if (*(s32 *)(arg0 + 0x120) != 0) {
-        func_00196040(2, 1, (u8 *)frame.target, 0, 0, 1);
+        func_00196040(2, 1, frame.target, 0, 0, 1);
         *(f32 *)(arg0 + 0x11C) =
             func_00196040(3, 0, arg0 + 0x104, 0, 0, 2);
         *(f32 *)(arg0 + 0x108) = 0.0f;
@@ -2602,7 +2610,7 @@ void func_001cece0(u8 *arg0)
 
     work = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
     func_001bd560(frame.first, arg0 + 0x9C);
-    scale = func_00196040(3, 1, (u8 *)frame.target, 0, 0, 1);
+    scale = func_00196040(3, 1, frame.target, 0, 0, 1);
     frame.target[1] = 0.0f;
     func_001958f0(work, frame.source);
     frame.source[1] +=
