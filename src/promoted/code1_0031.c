@@ -57,6 +57,18 @@ void func_00311900(s64 arg0)
 /* Pairs 2026-09-17 (`tools/pragma_sweep.py --pairs`, 8 singles + 28 pairs, */
 /* banked 5): all 36 tie at 5 words with a byte-identical stream. First */
 /* complete pragma exhaustion proof for this cvt.w.s wall; floor stands. */
+/* 2026-09-18: the five words are caused by the pragma, not by the source.
+   `optimization_level 1` (like `opt_common_subs off`) makes b210 allocate the
+   float-to-integer conversion temporary out of the CSE table, so `(u8)temp_f1`
+   compiles to `cvt.w.s $f1, $f1` instead of retail's `cvt.w.s $f0, $f1`; every
+   other setting, plain -O2 included, writes the fresh register (measured with
+   tools/micro_codegen.py on a five-line snippet).  Plain -O2 costs 32 words
+   because b210 then keeps `arg0 & 0xFFFF` in a ninth saved register while
+   retail rematerialises the `andi` at each of the three func_00107ac0 calls;
+   -O2 plus `opt_common_subs off` is 5 again with the same conversion residual,
+   and dropping the mask (`func_00107ac0(arg0)` or a u16 local) does not stop
+   the CSE.  A real MATCH needs a body whose saved-register demand is retail's
+   eight values at plain -O2; the pragma is a crutch, not a floor. */
 // FUN_00311930 NONMATCHING
 #ifdef NON_MATCHING
 /* Re-certified under scoped optimization_level 1: object 596B / window */
