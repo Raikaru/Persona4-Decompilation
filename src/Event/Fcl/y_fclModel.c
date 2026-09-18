@@ -23,7 +23,7 @@ extern s32 func_00451fc0(s32 arg0, const void *name, s32 prio, s32 a3, s32 a4,
                          void (*init)(u8 *), void (*close)(u8 *), u8 *work);
 extern void func_00349340(u8 *arg0);
 extern void func_00349380(u8 *arg0);
-extern void func_00349440(u8 *arg0);
+extern void func_00349440(u8 *arg0, u8 *arg1);
 extern void func_004787e0(u8 *arg0);
 extern void func_00104a00(u8 *arg0);
 extern s32 func_004782b0(u8 *arg0);
@@ -66,15 +66,275 @@ void func_003493b0(s32 arg0)
     func_00451fc0(arg0, D_0064A630, 0xF, 0, 0, func_00349340, func_00349380, work);
 }
 
-/* measured: retail uses the FPU accumulator idiom (mula.s $f4,$f4 / madda.s
-   $f12,$f12 / madda.s $f11,$f11 / madd.s $f1,$f3,$f3) to compute the rotation
-   matrix sum-of-squares; m2c marks it M2C_ERROR and no C float spelling
-   reproduces it byte-for-byte (recorded FPU FMA-fusion floor, same as
-   btlPanelAnalyze func_00481360 / btlShuffleSeqShuffle4). Also uses gp-relative
-   stores at |gp-0x4A60| (iGpffffb5a0) and |gp-0x7AE8| (iGpffff8518) and s128
-   quadword copies. INCLUDE_ASM retained. */
-// FUN_00349440
+/* measured: de-noised m2c (TMPDIR /var/tmp/cold349440/m2c.c) into file idiom */
+/* (u8 trans/scale/axis/mat arrays as in func_0034a4f0; s64+f32 Pair loads for */
+/* the 12B vectors; RwMatrix/RwV3d layout from mdlManager checked for matQ */
+/* flags at 0x0C=3 and pos at 0x30=0; s128 lq/sq idiom from fclCombineMisc and */
+/* aligned(16) from mdlEffect/k_fldFrame for the 16B/64B copies). Retail 464 */
+/* instrs per fnalign; v11 object 462 instrs (-2), GUARDED_SCORE 392 (v10 396, */
+/* v9 420, v8 424, v5 539, v2 540, v1 553). FPU accumulator floor */
+/* (mula.s/madda.s/madd.s sum-of-squares, M2C_ERROR) is unmatchable; */
+/* gp-relative immediates and 12B ld-then-lwc1 order plus float colour remain. */
+/* Fixes in order: u32 to s32 for color bytes removed unsigned cvt bloat */
+/* (539 to 424, minus 115, 617 to 506 instrs); s128 whole copies for col and */
+/* quat plus M64 struct copy (420, 491 instrs); s128 plus aligned(16) for */
+/* col/quat/mat (396, 464/464); parent single-expr plus M64 as s128x4 (392, */
+/* 462/464, within two). v12 scale-descending 393 (unproductive). Two-arg */
+/* (u8*,u8*) signature with a1 as obj as in func_00349b90; first arg unused. */
+/* INCLUDE_ASM retained. */
+// FUN_00349440 NONMATCHING
+#ifdef NON_MATCHING
+void func_00349440(u8 *arg0, u8 *arg1)
+{
+    extern s32 func_004782b0(u8 *a);
+    extern void *func_00457120(void);
+    extern void *func_004571a0(void);
+    extern void *func_004571b0(void);
+    extern f32 func_00457850(void *a);
+    extern void func_004577d0(void *a, f32 b);
+    extern void func_003c38b0(void *a, void *b);
+    extern void func_003e9cb0(s32 a, void *b, s32 c);
+    extern void func_003e0870(void *a, void *b, s32 c, f32 d);
+    extern void func_003e0c90(void *a, void *b, s32 c);
+    extern void *func_003e05f0(void *a, void *b, void *c);
+    extern void func_0047a1c0(void *a, void *b, s32 c);
+    extern void func_0047a1a0(void *a, void *b, s32 c, f32 d);
+    extern void func_0047a1e0(void *a, void *b, s32 c);
+    extern void func_0043f810(void *dst, void *src, u32 size);
+    extern s32 func_00457190(void);
+    extern s32 func_004571c0(void);
+    extern void func_003cbf30(s32 a, s32 b);
+    extern void func_003e8130(void *a, void *b);
+    extern u8 D_0064A648[];
+    extern u8 D_0064A650[];
+    extern u8 D_0064A658[];
+    extern u8 D_0064A660[];
+    extern u8 D_0064A668[];
+    extern u8 D_0064A670[];
+    extern u8 D_0064A680[];
+    extern u8 D_0064A690[];
+    extern u8 D_0064A6A0[];
+    typedef signed __int128 s128;
+    typedef struct { s32 w[4]; } Q16;
+    typedef struct { s128 w[4]; } M64;
+    extern f32 iGpffffb5a0;
+    extern f32 iGpffff8518;
+    u8 trans[12];
+    u8 scale[12];
+    u8 axisX[12];
+    u8 axisY[12];
+    u8 mat[64] __attribute__((aligned(16)));
+    u8 tmpA[64] __attribute__((aligned(16)));
+    s128 colA __attribute__((aligned(16)));
+    s128 colB __attribute__((aligned(16)));
+    s128 quat __attribute__((aligned(16)));
+    u8 pad[12];
+    f32 win[2];
+    u8 matQ[64] __attribute__((aligned(16)));
+    u8 matB[64] __attribute__((aligned(16)));
+    u8 *obj;
+    u8 *parent;
+    (void)arg0;
+    obj = arg1;
+    {
+        u8 *p = trans;
+        s32 n = 12;
+        if (p != NULL) {
+            do {
+                *p = 0;
+                p += 1;
+                n -= 1;
+            } while (n != 0);
+        }
+    }
+    {
+        s64 xy = *(s64 *)&D_0064A648[0];
+        f32 z = *(f32 *)&D_0064A650[0];
+        *(s64 *)&scale[0] = xy;
+        *(f32 *)&scale[8] = z;
+    }
+    if ((*(u8 **)(obj + 0xC) == NULL) || (func_004782b0(*(u8 **)(obj + 0xC)) == 0)) {
+        return;
+    }
+    {
+        s64 xy = *(s64 *)&D_0064A658[0];
+        f32 z = *(f32 *)&D_0064A660[0];
+        *(s64 *)&axisX[0] = xy;
+        *(f32 *)&axisX[8] = z;
+    }
+    {
+        s64 xy = *(s64 *)&D_0064A668[0];
+        f32 z = *(f32 *)&D_0064A670[0];
+        *(s64 *)&axisY[0] = xy;
+        *(f32 *)&axisY[8] = z;
+    }
+    parent = *(u8 **)((u8 *)func_00457120() + 4) + 0x10;
+    {
+        u8 *entry = *(u8 **)(obj + 0x10) + ((s32)*(u16 *)(obj + 8) << 5);
+        *(f32 *)&trans[0] += (f32)*(s16 *)(entry + 0);
+        *(f32 *)&trans[4] += (f32)*(s16 *)(entry + 2);
+        *(f32 *)&trans[8] += (f32)*(s16 *)(entry + 4);
+        {
+            f32 s = *(f32 *)(entry + 8);
+            *(f32 *)&scale[0] = s;
+            *(f32 *)&scale[4] = s;
+            *(f32 *)&scale[8] = s;
+        }
+        {
+            s32 *sp = (s32 *)(obj + 0x30);
+            s32 *dp = (s32 *)mat;
+            s32 cnt = 8;
+            do {
+                s32 a = sp[0];
+                s32 b = sp[1];
+                sp += 2;
+                cnt -= 1;
+                dp[0] = a;
+                dp[1] = b;
+                dp += 2;
+            } while (cnt > 0);
+        }
+        func_003e0870(mat, axisY, 1, *(f32 *)(entry + 0xC));
+    }
+    func_003e0c90(mat, trans, 2);
+    func_003e05f0(tmpA, mat, parent);
+    *(M64 *)mat = *(M64 *)tmpA;
+    func_0047a1c0(*(u8 **)(obj + 0xC), mat, 0);
+    func_0047a1e0(*(u8 **)(obj + 0xC), scale, 1);
+    {
+        u16 idx = *(u16 *)(obj + 8);
+        if (idx == 0x1B) {
+            iGpffffb5a0 = 10.0f;
+        } else if (idx == 0xA1) {
+            iGpffffb5a0 = 7.0f;
+        } else if (idx == 0x8D) {
+            iGpffffb5a0 = iGpffff8518;
+        } else {
+            iGpffffb5a0 = 0.0f;
+        }
+    }
+    func_0047a1a0(*(u8 **)(obj + 0xC), axisX, 1, iGpffffb5a0);
+    colA = *(s128 *)D_0064A680;
+    colB = *(s128 *)D_0064A690;
+    quat = *(s128 *)D_0064A6A0;
+    {
+        u8 *p = pad;
+        s32 n = 12;
+        if (p != NULL) {
+            do {
+                *p = 0;
+                p += 1;
+                n -= 1;
+            } while (n != 0);
+        }
+    }
+    parent = *(u8 **)((u8 *)func_00457120() + 4) + 0x10;
+    *(f32 *)(obj + 0x70) = func_00457850(func_00457120());
+    {
+        u8 *cam = (u8 *)func_004571a0();
+        *(f32 *)(obj + 0x74) = *(f32 *)(cam + 0x18);
+        *(f32 *)(obj + 0x78) = *(f32 *)(cam + 0x1C);
+        *(f32 *)(obj + 0x7C) = *(f32 *)(cam + 0x20);
+        *(f32 *)(obj + 0x80) = *(f32 *)(cam + 0x24);
+    }
+    {
+        u8 *cam = (u8 *)func_004571b0();
+        *(f32 *)(obj + 0x84) = *(f32 *)(cam + 0x18);
+        *(f32 *)(obj + 0x88) = *(f32 *)(cam + 0x1C);
+        *(f32 *)(obj + 0x8C) = *(f32 *)(cam + 0x20);
+        *(f32 *)(obj + 0x90) = *(f32 *)(cam + 0x24);
+    }
+    {
+        u8 *src = *(u8 **)((u8 *)func_004571b0() + 4);
+        s32 *sp = (s32 *)(src + 0x10);
+        s32 *dp = (s32 *)(obj + 0xA0);
+        s32 cnt = 8;
+        do {
+            s32 a = sp[0];
+            s32 b = sp[1];
+            sp += 2;
+            cnt -= 1;
+            dp[0] = a;
+            dp[1] = b;
+            dp += 2;
+        } while (cnt > 0);
+    }
+    {
+        u8 *cam = (u8 *)func_00457120();
+        *(f32 *)(obj + 0xE0) = *(f32 *)(cam + 0x78);
+        *(f32 *)(obj + 0xE4) = *(f32 *)(cam + 0x7C);
+    }
+    {
+        u8 *entry = *(u8 **)(obj + 0x10) + ((s32)*(u16 *)(obj + 8) << 5);
+        s32 c1 = *(s32 *)(entry + 0x14);
+        ((f32 *)&colA)[0] = (f32)((c1 >> 24) & 0xFF) / 255.0f;
+        ((f32 *)&colA)[1] = (f32)((c1 >> 16) & 0xFF) / 255.0f;
+        ((f32 *)&colA)[2] = (f32)((c1 >> 8) & 0xFF) / 255.0f;
+        ((f32 *)&colA)[3] = (f32)(c1 & 0xFF) / 255.0f;
+        {
+            s32 c2 = *(s32 *)(entry + 0x18);
+            ((f32 *)&colB)[0] = (f32)((c2 >> 24) & 0xFF) / 255.0f;
+            ((f32 *)&colB)[1] = (f32)((c2 >> 16) & 0xFF) / 255.0f;
+            ((f32 *)&colB)[2] = (f32)((c2 >> 8) & 0xFF) / 255.0f;
+            ((f32 *)&colB)[3] = (f32)(c2 & 0xFF) / 255.0f;
+        }
+        win[0] = (f32)*(s16 *)(entry + 0x1C) / 640.0f;
+        win[1] = (f32)*(s16 *)(entry + 0x1E) / 448.0f;
+    }
+    func_004577d0(func_00457120(), 40.0f);
+    func_003c38b0((u8 *)func_004571a0(), (u8 *)&colA);
+    func_003c38b0((u8 *)func_004571b0(), (u8 *)&colB);
+    {
+        u8 *base = *(u8 **)(obj + 0x10);
+        u16 idx2 = *(u16 *)(obj + 8);
+        u8 *entry2 = base + ((s32)idx2 << 5);
+        s16 qidx = *(s16 *)(entry2 + 0x12);
+        if (qidx == -1) {
+            func_0043f810((u8 *)&quat, obj + 0x18, 16);
+        } else {
+            u8 *tbl = *(u8 **)(obj + 0x14);
+            if (qidx < *(s32 *)(tbl + 4)) {
+                func_0043f810((u8 *)&quat, *(u8 **)(tbl + 0xC) + ((s32)qidx * 16), 16);
+            } else {
+                func_0043f810((u8 *)&quat, *(u8 **)(tbl + 0xC), 16);
+            }
+        }
+    }
+    {
+        f32 qx = ((f32 *)&quat)[0];
+        f32 qy = ((f32 *)&quat)[1];
+        f32 qz = ((f32 *)&quat)[2];
+        f32 qw = ((f32 *)&quat)[3];
+        f32 sum = qx * qx + qy * qy + qz * qz + qw * qw;
+        f32 inv = 2.0f / sum;
+        f32 sz = qz * inv;
+        f32 sy = qy * inv;
+        f32 sx = qx * inv;
+        ((f32 *)matQ)[0] = 1.0f - (qy * sy + qz * sz);
+        ((f32 *)matQ)[1] = qx * sy + sz * qw;
+        ((f32 *)matQ)[2] = qz * sx - sy * qw;
+        ((f32 *)matQ)[4] = qx * sy - sz * qw;
+        ((f32 *)matQ)[5] = 1.0f - (qz * sz + qx * sx);
+        ((f32 *)matQ)[6] = qy * sz + sx * qw;
+        ((f32 *)matQ)[8] = qz * sx + sy * qw;
+        ((f32 *)matQ)[9] = qy * sz - sx * qw;
+        ((f32 *)matQ)[10] = 1.0f - (qx * sx + qy * sy);
+        *(s32 *)&matQ[0x30] = 0;
+        *(s32 *)&matQ[0x34] = 0;
+        *(s32 *)&matQ[0x38] = 0;
+        *(s32 *)&matQ[0x0C] = 3;
+    }
+    func_003e05f0(matB, matQ, parent);
+    *(M64 *)matQ = *(M64 *)matB;
+    func_003e9cb0(*(s32 *)((u8 *)func_004571b0() + 4), matQ, 0);
+    *(u8 *)((u8 *)func_004571b0() + 2) = 3;
+    (void)func_004571b0();
+    func_003cbf30(func_00457190(), func_004571c0());
+    func_003e8130(func_00457120(), win);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclModel", func_00349440);
+#endif
 
 // FUN_00349B90
 void func_00349b90(u8 *arg0, u8 *arg1)

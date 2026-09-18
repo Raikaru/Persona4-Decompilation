@@ -200,8 +200,209 @@ u8 *func_001823c0(void)
 {
     return &iGpffffb310;
 }
-// FUN_001823D0
+/* Floor: 342 differing words (reloc-masked) via measure_guarded.py, 210 fnalign
+   edits (+13 reloc-only), 481 emitted against retail's 476 (1.1% over, within
+   3%). Probes: v1 396, v2 408, v3 343, v4 342, v5 444 (probe_variants).
+   Levers that moved it: u8-array D_005F1D00/D_005F1D08 derefs via u64/f32
+   temporaries plus LocalFrame with padAC (retail ld+lwc1 with separate luis,
+   sd at 0xA0/swc1 at 0xA8, 4-byte gap to spB0 at 0xB0), s64 stat for the
+   func_00479c30 mask, u16-masked slot id with (s16) func_0045af60 args, and
+   mode==8-first if/else dispatch. Stopped after two unproductive rounds
+   (v4 -1 word/+1 instr, v5 +102). WALL: loop-preheader addiu $a2,$sp,0xA0
+   scheduling (retail before the D_005F1D00 loads, b210 after the stores),
+   lwc1-before-ld order, s64/s32 sign-extension residuals at the stat compares
+   (dsll32/dsra32), and saved-register recolouring across the five slot arms. */
+// FUN_001823D0 NONMATCHING
+#ifdef NON_MATCHING
+void func_001823d0(u8 *arg0, s32 arg1, s32 arg2)
+{
+    extern u8 *func_001452b0(s32 arg0);
+    extern s32 func_00168ec0(void *arg0, void *arg1, void *arg2);
+    extern s32 func_0016fe80(s32 arg0);
+    extern s32 func_0016ffd0(s32 arg0);
+    extern s32 func_0014c4c0(u8 *arg0, u8 *arg1, f32 arg2);
+    extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    extern f32 func_0047a080(s32 arg0, s32 arg1);
+    extern u32 D_005F08B0[];
+    extern u8 D_005F1D00[];
+    extern u8 D_005F1D08[];
+    extern s32 D_007F1760[];
+    typedef struct {
+        u64 spA0;
+        f32 spA8;
+        s32 padAC;
+        u8 *spB0;
+        u8 *spB4;
+        u8 *spB8;
+    } LocalFrame;
+    LocalFrame frame;
+    u64 xy;
+    f32 z;
+    f32 temp_f20;
+    f32 temp_f2;
+    f32 temp_f3;
+    s32 *slot;
+    s64 stat;
+    s32 mode;
+    s32 index;
+    s32 offset;
+    s32 entry;
+    s32 var_21;
+    s32 status;
+    u8 *pos;
+    u8 *node;
+    u8 *mat;
+
+    status = *(u16 *)(arg0 + 0xD4);
+    stat = func_00479c30((s32)arg0, 0) & 0xFFFF;
+    temp_f20 = func_0047a080((s32)arg0, 0);
+    if (*(s32 *)iGpffff9db0 < 0xC8) {
+        pos = func_0047a2f0((u32)arg0) + 0x30;
+        node = func_001452b0(0x15);
+        index = *(s32 *)iGpffff9db0;
+        offset = *(s32 *)(iGpffff9db0 + 4);
+        entry = *(s32 *)((u8 *)D_005F08B0 + index * 4);
+        if (entry == 0) {
+            var_21 = 0;
+        } else {
+            var_21 = *(u8 *)(entry + offset);
+        }
+        for (; node != NULL; node = *(u8 **)(node + 0x138)) {
+            xy = *(u64 *)D_005F1D00;
+            z = *(f32 *)D_005F1D08;
+            frame.spA0 = xy;
+            frame.spA8 = z;
+            frame.spB0 = node + 0x15C;
+            frame.spB4 = node + 0x168;
+            frame.spB8 = node + 0x174;
+            if ((func_00168ec0(pos, &frame.spB0, &frame.spA0) == 1) &&
+                (temp_f3 = *(f32 *)(frame.spB0 + 4), temp_f2 = *(f32 *)(pos + 4),
+                 (temp_f2 < (100.0f + temp_f3))) &&
+                !(temp_f2 <= (temp_f3 - 100.0f))) {
+                var_21 = *(s32 *)(node + 0x18C);
+                break;
+            }
+            frame.spB0 = node + 0x168;
+            frame.spB4 = node + 0x174;
+            frame.spB8 = node + 0x180;
+            if ((func_00168ec0(pos, &frame.spB0, &frame.spA0) == 1) &&
+                (temp_f3 = *(f32 *)(frame.spB0 + 4), temp_f2 = *(f32 *)(pos + 4),
+                 (temp_f2 < (100.0f + temp_f3))) &&
+                !(temp_f2 <= (temp_f3 - 100.0f))) {
+                var_21 = *(s32 *)(node + 0x18C);
+                break;
+            }
+        }
+        mode = arg1 & 0xFFFF;
+        if (mode == 8) {
+            if ((status & 0xFFFF) == 1) {
+                mat = func_0047a2f0((u32)arg0);
+                if ((func_0014c4c0(mat + 0x30, func_0047a2f0(D_007EFA00[0]) + 0x30, 1600.0f) != 0) &&
+                    ((stat & 0xFFFF) == func_0016ffd0(mode)) &&
+                    ((!(temp_f20 <= 8.0f) && (temp_f20 < 9.0f)) ||
+                     (!(temp_f20 <= 18.0f) && (temp_f20 < 19.0f)))) {
+                    {
+                        u16 masked = (u16)arg2;
+                        s32 id = masked & 0x3FF;
+                        s32 value;
+
+                        slot = &D_007F1760[id];
+                        func_0045af60(0, (s16)(id + 4), 2, (s16)(*slot + 0x18));
+                        value = *slot + 1;
+                        *slot = value;
+                        if (value >= 4) {
+                            *slot = 0;
+                            return;
+                        }
+                    }
+                }
+            }
+        } else if (mode == 1) {
+            if ((status & 0xFFFF) == 9) {
+                if ((stat & 0xFFFF) == func_0016fe80(mode)) {
+                    if ((!(temp_f20 <= 7.0f) && (temp_f20 < 8.0f)) ||
+                        (!(temp_f20 <= 21.0f) && (temp_f20 < 22.0f))) {
+                        {
+                            u16 masked = (u16)arg2;
+                            s32 id = masked & 0x3FF;
+                            s32 value;
+
+                            slot = &D_007F1760[id];
+                            func_0045af60(0, (s16)(id + 4), 1, (s16)(*slot + var_21 * 4));
+                            value = *slot + 1;
+                            *slot = value;
+                            if (value >= 4) {
+                                *slot = 0;
+                                return;
+                            }
+                        }
+                    }
+                } else if (((stat & 0xFFFF) == func_0016ffd0(mode)) &&
+                           ((!(temp_f20 <= 9.0f) && (temp_f20 < 10.0f)) ||
+                            (!(temp_f20 <= 19.0f) && (temp_f20 < 20.0f)))) {
+                    {
+                        u16 masked = (u16)arg2;
+                        s32 id = masked & 0x3FF;
+                        s32 value;
+
+                        slot = &D_007F1760[id];
+                        func_0045af60(0, (s16)(id + 4), 1, (s16)(*slot + var_21 * 4));
+                        value = *slot + 1;
+                        *slot = value;
+                        if (value >= 4) {
+                            *slot = 0;
+                            return;
+                        }
+                    }
+                }
+            } else if ((status & 0xFFFF) == 1) {
+                if (((stat & 0xFFFF) == func_0016ffd0(mode)) &&
+                    ((!(temp_f20 <= 9.0f) && (temp_f20 < 10.0f)) ||
+                     (!(temp_f20 <= 19.0f) && (temp_f20 < 20.0f)))) {
+                    {
+                        u16 masked = (u16)arg2;
+                        s32 id = masked & 0x3FF;
+                        s32 value;
+
+                        slot = &D_007F1760[id];
+                        func_0045af60(0, (s16)(id + 4), 1, (s16)(*slot + var_21 * 4));
+                        value = *slot + 1;
+                        *slot = value;
+                        if (value >= 4) {
+                            *slot = 0;
+                            return;
+                        }
+                    }
+                }
+            }
+        } else {
+            if ((status & 0xFFFF) == 1) {
+                mat = func_0047a2f0((u32)arg0);
+                if ((func_0014c4c0(mat + 0x30, func_0047a2f0(D_007EFA00[0]) + 0x30, 1600.0f) != 0) &&
+                    ((stat & 0xFFFF) == func_0016ffd0(mode)) &&
+                    ((!(temp_f20 <= 8.0f) && (temp_f20 < 9.0f)) ||
+                     (!(temp_f20 <= 18.0f) && (temp_f20 < 19.0f)))) {
+                    {
+                        u16 masked = (u16)arg2;
+                        s32 id = masked & 0x3FF;
+                        s32 value;
+
+                        slot = &D_007F1760[id];
+                        func_0045af60(0, (s16)(id + 4), 2, (s16)(*slot + var_21 * 4));
+                        value = *slot + 1;
+                        *slot = value;
+                        if (value >= 4) {
+                            *slot = 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_001823d0);
+#endif
 /* measured probe: opt_propagation off tests caching the repeated render callback base. */
 #pragma opt_propagation off
 // FUN_00182B40
