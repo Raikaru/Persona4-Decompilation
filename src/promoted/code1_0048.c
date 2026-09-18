@@ -1031,10 +1031,13 @@ void func_00485870(s32 arg0)
     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&spA0) : "$vf10", "memory");
     if ((flags & 0x60) != 0) {
         if ((flags & 0x80000000) == 0) {
-            u_long128 *save_slot = (u_long128 *)sp70;
+            u_long128 *save_slot = (u_long128 *)0;
+
+            save_slot = (u_long128 *)sp70;
             *save_slot = *(u_long128 *)((u8 *)arg0 + 0x50);
             func_00486970((u8 *)arg0, (u8 *)&spA0, &sp80);
             func_00486330((u8 *)arg0, (u8 *)&sp80);
+            save_slot = (u_long128 *)sp70;
             *(u_long128 *)((u8 *)arg0 + 0x50) = *save_slot;
         }
     }
