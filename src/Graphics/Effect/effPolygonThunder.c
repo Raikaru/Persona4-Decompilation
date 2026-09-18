@@ -774,11 +774,449 @@ void func_00496810(u8 *arg0)
 }
 
 
-/* measured: retail contains COP2/VU0 normalize, cross-product, and matrix work;
-   H009 permits inline asm. The FPU setup remains plain C; no byte-exact body
-   was retained in this wave. */
-// FUN_004968A0
+/* measured: GUARDED_SCORE 666 via tools/measure_guarded.py
+   src/Graphics/Effect/effPolygonThunder.c func_004968a0 (fnalign retail
+   752/object 752 instrs, exact count inside 3% gate;
+   probe 666 via tools/probe_variants.py --candidate v2=/var/tmp/cold4968a0/v2.c).
+   M2C 424 lines + romwright --types (8 vector args from VF live-ins, retail
+   GPR single u8* wins) + --raw 651 lines (cross/normalize + af40/af20[8]);
+   de-noised to file idiom (plain (f32)(u32) per micro_codegen 14, sqrtf for
+   sqrt.s+mula/madd, c10/cNeg1/c075/c025/c05/c20 hoisted, D_00713D10 bridges,
+   VU lqc2/vopmula/vrsqrt in genuine COP2 asm, FPU MAC plain C). Count v1
+   788/752 (690w) -> v2 770/752 candidate (666w, retail-ordered early,
+   single-sc fix, dummy-free) -> installed 752/752 exact. Pragma probes
+   loopinv 679/nounroll 657 tie/nosched 657 tie/nocommon 726 -- no help.
+   Subscript off=i*12 tie 657, colour hdr/ctrl swap 659 worse -- two fails,
+   stopping rule above 60 met. Remaining: saved-reg perm, FPR colour,
+   scheduling. */
+// FUN_004968A0 NONMATCHING
+#ifdef NON_MATCHING
+void func_004968a0(u8 *arg0)
+{
+    extern void func_0048a1f0(u8 *arg0);
+    extern u32 func_004bd050(u32 arg0);
+    extern f32 func_004bd0b0(u32 arg0);
+    extern f32 func_0044b610(f32 arg0);
+    extern f32 func_0044b7b0(f32 arg0);
+    extern f32 func_0044b938(f32 arg0);
+    extern f32 func_0044b340(f32 arg0);
+    extern f32 sqrtf(f32 arg0);
+    extern void func_004bd1a0(f32 arg0);
+    extern void func_004bd3c0(f32 arg0);
+    extern void func_004bd450(void);
+    extern void func_004bd380(u8 *axis, f32 angle);
+    extern void func_003c2290(u8 *a, s32 b);
+    extern void func_003c22f0(u8 *a);
+    extern f32 fGpffff804c;
+    extern f32 fGpffff8084;
+    extern f32 fGpffff8098;
+    extern f32 fGpffff809c;
+    extern f32 fGpffff80d4;
+    extern f32 fGpffff80d8;
+    extern f32 fGpffff80dc;
+    extern f32 fGpffff80e0;
+    extern f32 D_00713D10[];
+    extern f32 D_00713D14[];
+    extern f32 D_00713D18[];
+    u8 *hdr;
+    u8 *ctrl;
+    u8 *list;
+    u32 cnt34;
+    s32 n;
+    s32 outerCount;
+    s32 divisor;
+    f32 f30;
+    f32 f84div;
+    f32 f4c;
+    f32 f10c;
+    f32 f50;
+    f32 fA8;
+    f32 gp804c;
+    f32 gp8084;
+    f32 gp8098;
+    f32 gp809c;
+    f32 gp80d4;
+    f32 gp80d8;
+    f32 gp80dc;
+    f32 gp80e0;
+    f32 hdr4;
+    f32 c10;
+    f32 cNeg1;
+    f32 c075;
+    f32 c025;
+    f32 c05;
+    f32 c20;
+    f32 sp108s;
+    f32 af40[8];
+    f32 af20[8];
+    f32 sp160[4];
+    f32 sp150[4];
+    f32 sp140[4];
+    f32 sp130[4];
+    f32 sp180[4];
+    f32 sp170[4];
+    u8 mode88;
+    s32 i;
+    s32 j;
+    s32 k;
+    f32 tmpF;
+    hdr = *(u8 **)(arg0 + 0x30);
+    ctrl = *(u8 **)(arg0 + 0x34);
+    list = *(u8 **)hdr;
+    cnt34 = *(u32 *)(ctrl + 0x34);
+    n = *(s32 *)(arg0 + 0x28);
+    if ((cnt34 < (u32)n) && (cnt34 != 0)) {
+        return;
+    }
+    outerCount = *(s32 *)(ctrl + 0x38);
+    divisor = *(s32 *)(ctrl + 0x40);
+    f30 = (f32)*(u32 *)(ctrl + 0x3C);
+    f84div = *(f32 *)(ctrl + 0x84) / f30;
+    f4c = (f32)*(u32 *)(ctrl + 0x4C);
+    gp8084 = fGpffff8084;
+    f10c = (gp8084 * f4c) / f30;
+    f50 = *(f32 *)(ctrl + 0x50);
+    fA8 = *(f32 *)(ctrl + 0xA8);
+    mode88 = *(u8 *)(ctrl + 0x88);
+    if (!(f84div > 0.0f)) {
+        return;
+    }
+    func_0048a1f0((u8 *)sp160);
+    gp804c = fGpffff804c;
+    tmpF = f84div / 10.0f;
+    sp108s = -(gp804c * tmpF);
+    af40[0] = 0.0f;
+    tmpF = *(f32 *)(ctrl + 0x80);
+    af40[1] = tmpF;
+    tmpF = tmpF + *(f32 *)(ctrl + 0x7C);
+    af40[2] = tmpF;
+    tmpF = tmpF + *(f32 *)(ctrl + 0x7C);
+    af40[3] = tmpF;
+    af40[4] = tmpF + *(f32 *)(ctrl + 0x80);
+    c10 = 1.0f;
+    cNeg1 = -1.0f;
+    hdr4 = *(f32 *)(hdr + 4);
+    *(f32 *)(hdr + 4) = hdr4 + *(f32 *)(hdr + 8);
+    i = 0;
+    c05 = 0.5f;
+    c20 = 2.0f;
+    c075 = 0.75f;
+    c025 = 0.25f;
+    gp8098 = fGpffff8098;
+    gp809c = fGpffff809c;
+    gp80d4 = fGpffff80d4;
+    gp80d8 = fGpffff80d8;
+    gp80dc = fGpffff80dc;
+    gp80e0 = fGpffff80e0;
+    while (1) {
+        f32 f22;
+        f32 f23;
+        f32 f27;
+        f32 f28;
+        f32 f29;
+        f32 f30loc;
+        if (i >= outerCount) {
+            return;
+        }
+        if (*(s32 *)(list + 0x14) == -1) {
+            f32 r;
+            f32 a4;
+            a4 = *(f32 *)(ctrl + 0xA4);
+            r = func_004bd0b0(0);
+            *(f32 *)(list + 0x24) = *(f32 *)(ctrl + 0xA0) * (a4 * r + (c10 - a4));
+            *(f32 *)(list + 0x28) = 0.0f;
+            if (mode88 == 0) {
+                r = func_004bd0b0(0);
+                *(f32 *)(list + 0x1C) = gp8084 * (c20 * (r - c05));
+                *(f32 *)(list + 0x2C) = 0.0f;
+            } else {
+                r = func_004bd0b0(0);
+                *(f32 *)(list + 0x1C) = gp80dc * (c20 * (r - c05));
+                r = func_004bd0b0(0);
+                *(f32 *)(list + 0x2C) = *(f32 *)(ctrl + 0x9C) * r;
+            }
+            r = func_004bd0b0(0);
+            *(f32 *)(list + 0x20) = gp8084 * (c20 * (r - c05));
+            func_004bd1a0(*(f32 *)(list + 0x1C));
+            func_004bd3c0(*(f32 *)(list + 0x20));
+            func_004bd450();
+            {
+                f32 ang = *(f32 *)(list + 0x28);
+                f32 cx = hdr4 * func_0044b610(ang);
+                f32 sx = hdr4 * func_0044b7b0(ang);
+                sp150[0] = cx;
+                sp150[1] = 0.0f;
+                sp150[2] = sx;
+                __asm__ volatile(
+                    "lqc2 $vf10, 0(%0)\n"
+                    "vmulax.xyzw $ACC, $vf28, $vf10x\n"
+                    "vmadday.xyzw $ACC, $vf29, $vf10y\n"
+                    "vmaddz.xyzw $vf10, $vf30, $vf10z\n"
+                    "sqc2 $vf10, 0(%0)\n"
+                    : : "r"(sp150) : "$vf10", "memory");
+                *(f32 *)(list + 0x4) = sp150[0];
+                *(f32 *)(list + 0x8) = sp150[1];
+                *(f32 *)(list + 0xC) = sp150[2];
+            }
+            *(s32 *)(list + 0x18) = -1;
+        } else {
+            s32 timer = *(s32 *)(list + 0x18);
+            if ((u32)(timer & 0xFF000000) >= 0x40000001U) {
+                u8 *e0;
+                s32 segs;
+                u8 *vtx;
+                *(s32 *)(list + 0x18) = timer + 0xC0000000;
+                e0 = *(u8 **)list;
+                segs = *(s16 *)(e0 + 8) / 5;
+                func_003c2290(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18), 2);
+                vtx = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18) + 0x5C) + 0x14);
+                {
+                    u32 rnd = func_004bd050(0);
+                    if ((rnd & 1) != 0) {
+                        f50 = f50 * cNeg1;
+                    }
+                }
+                f27 = f50;
+                f29 = gp8084 * func_004bd0b0(0);
+                {
+                    f32 r = func_004bd0b0(0);
+                    f28 = f27 * (gp80d4 * r + gp80e0);
+                }
+                {
+                    f32 s1 = f28 * func_0044b7b0(f29);
+                    f29 = f29 + f10c;
+                    f28 = f28 * func_0044b7b0(f29);
+                    f22 = s1;
+                    f23 = f28 - s1;
+                    {
+                        f32 len = f23 * f23 + f84div * f84div;
+                        f32 sq = sqrtf(len);
+                        f30loc = func_0044b938(f23 / sq);
+                        f30loc = f30loc + *(f32 *)(list + 0xC);
+                    }
+                    {
+                        f32 r;
+                        f32 sc;
+                        f32 ang2;
+                        r = func_004bd0b0(0);
+                        sc = sp108s * (gp809c * r + gp8098);
+                        ang2 = ((f32)(*(s32 *)(list + 0x14) + 1) * (fA8 * (f32)(*(s32 *)(list + 0x14) + 1) * c05 + *(f32 *)(list + 0x24))) + *(f32 *)(list + 0x28);
+                        func_004bd1a0(*(f32 *)(list + 0x1C));
+                        func_004bd3c0(*(f32 *)(list + 0x20));
+                        func_004bd450();
+                        {
+                            f32 cx = hdr4 * func_0044b610(ang2);
+                            f32 sx = hdr4 * func_0044b7b0(ang2);
+                            sp150[0] = cx;
+                            sp150[1] = 0.0f;
+                            sp150[2] = sx;
+                            __asm__ volatile(
+                                "lqc2 $vf10, 0(%0)\n"
+                                "vmulax.xyzw $ACC, $vf28, $vf10x\n"
+                                "vmadday.xyzw $ACC, $vf29, $vf10y\n"
+                                "vmaddz.xyzw $vf10, $vf30, $vf10z\n"
+                                "sqc2 $vf10, 0(%0)\n"
+                                : : "r"(sp150) : "$vf10", "memory");
+                            __asm__ volatile(
+                                "lqc2 $vf10, 0(%0)\n"
+                                "vmul.xyz $vf2, $vf10, $vf10\n"
+                                "vmulax.w $ACC, $vf0, $vf2x\n"
+                                "vmadday.w $ACC, $vf0, $vf2y\n"
+                                "vmaddz.w $vf2, $vf0, $vf2z\n"
+                                "vrsqrt $Q, $vf0w, $vf2w\n"
+                                "vwaitq\n"
+                                "vmulq.xyz $vf10, $vf10, $Q\n"
+                                "sqc2 $vf10, 0(%1)\n"
+                                : : "r"(sp150), "r"(sp140) : "$vf2", "$vf10", "memory");
+                        }
+                        {
+                            f32 ax = sp140[0] - *(f32 *)(list + 0x4);
+                            f32 ay = sp140[1] - *(f32 *)(list + 0x8);
+                            f32 az = sp140[2] - *(f32 *)(list + 0xC);
+                            __asm__ volatile(
+                                "lqc2 $vf10, 0(%0)\n"
+                                "vmul.xyz $vf2, $vf10, $vf10\n"
+                                "vmulax.w $ACC, $vf0, $vf2x\n"
+                                "vmadday.w $ACC, $vf0, $vf2y\n"
+                                "vmaddz.w $vf2, $vf0, $vf2z\n"
+                                "vrsqrt $Q, $vf0w, $vf2w\n"
+                                "vwaitq\n"
+                                "vmulq.xyz $vf10, $vf10, $Q\n"
+                                "vmove.xyzw $vf12, $vf10\n"
+                                "lqc2 $vf11, 0(%1)\n"
+                                "sqc2 $vf10, 0(%2)\n"
+                                "vopmula.xyz $ACC, $vf10, $vf11\n"
+                                "vopmsub.xyz $vf10, $vf11, $vf10\n"
+                                "sqc2 $vf10, 0(%2)\n"
+                                : : "r"(sp140), "r"(sp160), "r"(sp130) : "$vf10", "$vf11", "$vf12", "$vf2", "memory");
+                            {
+                                f32 bx = sp160[0];
+                                f32 by = sp160[1];
+                                f32 bz = sp160[2];
+                                f32 cx = by * az - bz * ay;
+                                f32 cy = bz * ax - bx * az;
+                                f32 cz = bx * ay - by * ax;
+                                f32 dot = cx * cx + cy * cy + cz * cz;
+                                f32 inv = 1.0f;
+                                if (dot > 0.0f) {
+                                    inv = c10 / dot;
+                                }
+                                sp130[0] = cx * inv;
+                                sp130[1] = cy * inv;
+                                sp130[2] = cz * inv;
+                            }
+                            __asm__ volatile(
+                                "lqc2 $vf11, 0(%0)\n"
+                                "vmove.xyzw $vf10, $vf12\n"
+                                "vopmula.xyz $ACC, $vf10, $vf11\n"
+                                "vopmsub.xyz $vf10, $vf11, $vf10\n"
+                                "vmul.xyz $vf2, $vf10, $vf10\n"
+                                "vmulax.w $ACC, $vf0, $vf2x\n"
+                                "vmadday.w $ACC, $vf0, $vf2y\n"
+                                "vmaddz.w $vf2, $vf0, $vf2z\n"
+                                "vrsqrt $Q, $vf0w, $vf2w\n"
+                                "vwaitq\n"
+                                "vmulq.xyz $vf10, $vf10, $Q\n"
+                                "vmove.xyzw $vf12, $vf10\n"
+                                "vmove.xyzw $vf11, $vf10\n"
+                                : : "r"(sp130) : "$vf10", "$vf11", "$vf12", "$vf2", "memory");
+                            {
+                                f32 s = *(f32 *)(ctrl + 0x7C) + *(f32 *)(ctrl + 0x80);
+                                __asm__ volatile(
+                                    "qmtc2.ni %0, $vf2\n"
+                                    "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+                                    "sqc2 $vf10, 0(%1)\n"
+                                    : : "r"(*(u32 *)&s), "r"(&D_00713D10) : "$vf10", "$vf2", "memory");
+                                vtx[0] = D_00713D10[0];
+                                vtx[1] = D_00713D14[0];
+                                vtx[2] = D_00713D18[0];
+                            }
+                            {
+                                f32 s = *(f32 *)(ctrl + 0x7C);
+                                __asm__ volatile(
+                                    "qmtc2.ni %0, $vf2\n"
+                                    "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+                                    "sqc2 $vf10, 0(%1)\n"
+                                    : : "r"(*(u32 *)&s), "r"(&D_00713D10) : "$vf10", "$vf2", "memory");
+                                *(f32 *)(vtx + 0x30) = D_00713D10[0];
+                                *(f32 *)(vtx + 0x34) = D_00713D14[0];
+                                *(f32 *)(vtx + 0x38) = D_00713D18[0];
+                            }
+                            vtx[0x18] = 0.0f;
+                            vtx[0x1C] = 0.0f;
+                            vtx[0x20] = 0.0f;
+                            sp150[1] = sp150[1] + *(f32 *)(list + 0x2C);
+                            for (j = 0; j < 5; j++) {
+                                u8 *p = vtx + j * 12;
+                                D_00713D10[0] = *(f32 *)(p + 0);
+                                D_00713D14[0] = *(f32 *)(p + 4);
+                                D_00713D18[0] = *(f32 *)(p + 8);
+                                __asm__ volatile(
+                                    "lqc2 $vf10, 0(%0)\n"
+                                    "vadd.xyzw $vf10, $vf10, $vf11\n"
+                                    "sqc2 $vf10, 0(%0)\n"
+                                    : : "r"(&D_00713D10) : "$vf10", "$vf11", "memory");
+                                *(f32 *)(p + 0) = D_00713D10[0];
+                                *(f32 *)(p + 4) = D_00713D14[0];
+                                *(f32 *)(p + 8) = D_00713D18[0];
+                                af20[j] = 0.0f;
+                            }
+                            {
+                                u8 *nxt = vtx + 0x3C;
+                                s32 it = 1;
+                                f32 curA = f30loc;
+                                f32 curB = f28;
+                                while (it < segs) {
+                                    f32 rr = func_004bd0b0(0);
+                                    f32 sc2 = gp80d8 * (rr * c075 + c025);
+                                    u32 rnd2 = func_004bd050(0);
+                                    if ((rnd2 & 1) != 0) {
+                                        gp80d8 = gp80d8 * cNeg1;
+                                    }
+                                    f29 = f29 + f10c;
+                                    if (!(f29 < gp8084)) {
+                                        f29 = f29 - gp8084;
+                                        f27 = f27 * cNeg1;
+                                        r = func_004bd0b0(0);
+                                        f28 = f27 * (gp80d4 * r + gp80e0);
+                                        r = func_004bd0b0(0);
+                                        sc = sp108s * (gp809c * r + gp8098);
+                                    }
+                                    {
+                                        f32 nb = f28 * func_0044b7b0(f29);
+                                        f32 l2 = nb * nb + f84div * f84div;
+                                        f32 sq2 = sqrtf(l2);
+                                        nb = func_0044b938(nb / sq2);
+                                        curA = nb + sc2 + *(f32 *)(list + 0xC);
+                                    }
+                                    func_004bd380((u8 *)sp180, curA);
+                                    __asm__ volatile(
+                                        "lqc2 $vf10, 0(%0)\n"
+                                        "vmulax.xyzw $ACC, $vf28, $vf10x\n"
+                                        "vmadday.xyzw $ACC, $vf29, $vf10y\n"
+                                        "vmaddz.xyzw $vf10, $vf30, $vf10z\n"
+                                        "sqc2 $vf10, 0(%0)\n"
+                                        : : "r"(sp180) : "$vf10", "memory");
+                                    func_004bd380((u8 *)sp170, sc);
+                                    __asm__ volatile(
+                                        "lqc2 $vf10, 0(%0)\n"
+                                        "vmulax.xyzw $ACC, $vf28, $vf10x\n"
+                                        "vmadday.xyzw $ACC, $vf29, $vf10y\n"
+                                        "vmaddz.xyzw $vf10, $vf30, $vf10z\n"
+                                        "sqc2 $vf10, 0(%0)\n"
+                                        : : "r"(sp170) : "$vf10", "memory");
+                                    {
+                                        f32 d = (curA - f30loc) * c05;
+                                        f32 w = func_0044b340(d);
+                                        for (k = 0; k < 5; k++) {
+                                            f32 ww = w * af40[k];
+                                            af20[k] = af20[k] + ww;
+                                            *(f32 *)(nxt + k * 12 + 0) = *(f32 *)(nxt + k * 12 - 0x3C + 0) + ww;
+                                            *(f32 *)(nxt + k * 12 + 4) = *(f32 *)(nxt + k * 12 - 0x3C + 4) + ww;
+                                            *(f32 *)(nxt + k * 12 + 8) = *(f32 *)(nxt + k * 12 - 0x3C + 8) + ww;
+                                            D_00713D10[0] = *(f32 *)(nxt + k * 12 - 0x3C + 0);
+                                            D_00713D14[0] = *(f32 *)(nxt + k * 12 - 0x3C + 4);
+                                            D_00713D18[0] = *(f32 *)(nxt + k * 12 - 0x3C + 8);
+                                            __asm__ volatile(
+                                                "lqc2 $vf10, 0(%0)\n"
+                                                "vadd.xyzw $vf10, $vf10, $vf11\n"
+                                                "sqc2 $vf10, 0(%0)\n"
+                                                : : "r"(&D_00713D10) : "$vf10", "$vf11", "memory");
+                                            *(f32 *)(nxt + k * 12 + 0) = D_00713D10[0];
+                                            *(f32 *)(nxt + k * 12 + 4) = D_00713D14[0];
+                                            *(f32 *)(nxt + k * 12 + 8) = D_00713D18[0];
+                                            af20[k] = ww;
+                                        }
+                                        f30loc = curA;
+                                        curB = f28 * func_0044b7b0(f29);
+                                    }
+                                    it++;
+                                    nxt += 0x3C;
+                                }
+                            }
+                            func_003c22f0(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18));
+                            if ((*(u16 *)e0 & 4) != 0) {
+                                *(u16 *)(*(u8 **)(*(u8 **)(e0 + 0x10) + 0x18) + 0xC) |= 1;
+                            }
+                        }
+                    }
+                }
+                *(s32 *)(list + 0x14) += 1;
+            } else {
+                *(s32 *)(list + 0x14) = -1;
+                if (divisor > 0) {
+                    *(s32 *)(list + 0x14) -= func_004bd050(0) % (u32)divisor;
+                }
+            }
+        }
+        i++;
+        list += 0x30;
+    }
+}
+
+#else
 INCLUDE_ASM("asm/nonmatchings/effPolygonThunder", func_004968a0);
+#endif
 
 
 // FUN_00497460

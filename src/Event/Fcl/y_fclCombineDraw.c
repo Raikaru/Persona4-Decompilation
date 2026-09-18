@@ -3109,9 +3109,124 @@ void func_003297f0(u8 *arg0, s64 arg1, s32 arg2, f32 fparg0, f32 fparg1) {
 #else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003297f0);
 #endif
-// measured: nd N/A (ldr/ldl + COP2). M2C_ERROR on ldr/ldl 0x38/0x3f and adda.s; draw-family s64-arg normalization floor. Unaligned-load + COP2 + s64-param floor.
-// FUN_00329E40
+/* measured: probe_variants 481 differing words reloc-masked via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_00329e40 --candidate S32=/var/tmp/cold329e40/v_s32_common.c` (V1 609 u8+s64+local-s64-10th 713/712 +1 465 edits, V2 609 tie via (f32)0x1DF, GLOBAL 612 worse, S64COPY 584 worse, S32 bare 617 worse; S32+common-off 481 best); fnalign retail 710 vs object 710 instrs exact (0 short, 0% within 3% rule, 99 edits) via `python3 tools/fnalign.py src/Event/Fcl/y_fclCombineDraw.c func_00329e40 --candidate /var/tmp/cold329e40/v_s32_common.c --quiet`; count first PASS. Shapes: s64 2970 homes, s32 colours with lw for 77d0 4th arg (u8[4] per-byte 556 worse), f32 base copies via *(f32 *)&sp (s64 copy 584 worse), local extern for 77d0 (s64 10th, no shared-top edit; global s16 10th 612 worse), (f32)0x1DF integer conversion, s8 load for 0x123*0x101. */
+/* Rounds in batch order (count first): v1 609 (u8 colours, s64 temps, f32 copies, local s64 10th); v2 609 tie (0x1DF); s32 bare 617 worse + s32+common-off 481 (-136, 710/710 exact). Step2 pragmas on s32: opt_common_subs off 481 <-- better (vs 617 bare), opt_propagation off 481 tie, opt_loop_invariants on 481 tie, opt_unroll_loops off 481 tie, peephole off 481 tie, schedule on 597 worse, O1 481 tie, O0 750 worse. Step3 subscript tie: ((f32 *)&sp)[0]/[1] 481 tie. Step4 decl-order tie: t-first 481 tie, colours reverse 489 worse. Stopped after two consecutive non-improving rounds above 60 (subscript+decl). Banked s32+common-off as guarded floor (exact count, compiles clean under -DNON_MATCHING). */
+/* Walls (same rotation+scheduling as siblings 31cce0/3233d0/324680, now at 481): saved-reg rotation shifting every ld/lw base and loop; colour stores retail batched lbu x4 then sb x4 vs object lw/sw word (s32) or interleaved per-byte (u8); base copy retail load-load-store-store lwc1 batch vs object interleaved load-store-load-store; float scheduling retail mtc1-offset + lwc1-base vs object lwc1-base + mtc1-offset plus extra lwc1; move-reuse vs addiu rematerialisation for 2a60/77d0 immediates. All logic matches: 23x 2970 + 13x 2a60 + 18x 77d0 + 12x 7750 + 2x 68d0 straight-line fusion UI draw with 0x123*0x101 offsets and 31560 tail. */
+// FUN_00329E40 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_common_subs off
+void func_00329e40(u8 *arg0, s64 arg1, s64 arg2) {
+    extern void func_002b77d0(s64, s64, s64, s32, s64, s64, s64, s64, f32, s64, s32);
+    s32 c11C;
+    s32 c118;
+    s32 c114;
+    s32 c110;
+    s32 c10C;
+    s32 c108;
+    s32 c104;
+    s32 c100;
+    s32 cFC;
+    s32 cF8;
+    s32 cF4;
+    s32 cF0;
+    s64 spE8;
+    s64 spE0;
+    s64 spD8;
+    s64 spD0;
+    s64 spC8;
+    s64 spC0;
+    s64 spB8;
+    s64 spB0;
+    s64 spA8;
+    s64 spA0;
+    s64 sp98;
+    s64 sp90;
+    s64 sp88;
+    s64 sp80;
+    s64 sp78;
+    s64 sp70;
+    s64 sp68;
+    s64 sp60;
+    s64 sp58;
+    u8 *t;
+    t = *(u8 **)(arg0 + 0x38);
+    func_002b2970(&spE0, 79.0f, 97.0f);
+    *(f32 *)&spE8 = *(f32 *)&spE0;
+    *((f32 *)&spE8 + 1) = *((f32 *)&spE0 + 1);
+    func_002b2a60(&c114, 0, 0, 0x99, 0xFF);
+    c11C = c114;
+    func_002b2a60(&c110, 0xFF, 0xFF, 0xFF, 0xFF);
+    c118 = c110;
+    func_002b2a60(&c118, 0x2D, 0x2D, 0x2D, 0xFF);
+    func_002b77d0(0x21C, spE8, 0x193, c11C, 0x41, arg2, 6, 3, 191.0f, arg1, func_00331560());
+    func_002b2970(&spD8, (f32)0x1DF + *(f32 *)&spE8, *((f32 *)&spE8 + 1));
+    func_002b77d0(0x1A3, spD8, 0x1A3, c11C, 0x41, arg2, 6, 3, 191.0f, arg1, func_00331560());
+    func_002b2970(&spD0, 20.0f + *(f32 *)&spE8, 3.0f + *((f32 *)&spE8 + 1));
+    func_002b77d0(0x120, spD0, 0x120, c118, 0x56, arg2, 6, 3, 184.0f, arg1, func_00331560());
+    func_002b7750(0x2E8, 0x120);
+    func_002b2970(&spC8, 30.0f + *(f32 *)&spE8, 3.0f + *((f32 *)&spE8 + 1));
+    func_002b77d0(0x2E8, spC8, 0x120, c118, 0x56, arg2, 6, 3, 184.0f, arg1, func_00331560());
+    func_002b2970(&spC0, 47.0f + *(f32 *)&spE8, 2.0f + *((f32 *)&spE8 + 1));
+    func_002b77d0(0x11F, spC0, 0x11F, c118, 0x56, arg2, 6, 3, 183.0f, arg1, func_00331560());
+    func_002b2970(&spE8, 314.0f, 97.0f);
+    func_002b2970(&spB8, 214.0f + *(f32 *)&spE8, 3.0f + *((f32 *)&spE8 + 1));
+    func_002b77d0(0x121, spB8, 0x121, c118, 0x56, arg2, 6, 3, 185.0f, arg1, func_00331560());
+    func_002b7750(0x2E9, 0x121);
+    func_002b2970(&spB0, 224.0f + *(f32 *)&spE8, 3.0f + *((f32 *)&spE8 + 1));
+    func_002b77d0(0x2E9, spB0, 0x121, c118, 0x56, arg2, 6, 3, 185.0f, arg1, func_00331560());
+    func_002b2970(&spA8, 97.0f + *(f32 *)&spE8, 3.0f + *((f32 *)&spE8 + 1));
+    func_002b77d0(0x11E, spA8, 0x11E, c118, 0x56, arg2, 6, 3, 182.0f, arg1, func_00331560());
+    func_002b2a60(&c11C, 0xCC, 0xFF, 0x33, 0xFF);
+    func_002b2970(&spE8, 79.0f, 97.0f);
+    func_002b7750(0x2EA, 0x193);
+    func_002b2970(&spA0, *(f32 *)&spE8 + (f32)(*(s8 *)(t + 0x123) * 0x101), *((f32 *)&spE8 + 1));
+    func_002b77d0(0x2EA, spA0, 0x193, c11C, 0x41, arg2, 6, 3, 187.0f, arg1, func_00331560());
+    func_002b7750(0x2EB, 0x19C);
+    func_002b2970(&sp98, 220.0f + *(f32 *)&spE8 + (f32)(*(s8 *)(t + 0x123) * 0x101), *((f32 *)&spE8 + 1));
+    func_002b77d0(0x2EB, sp98, 0x19C, c11C, 0x41, arg2, 6, 3, 187.0f, arg1, func_00331560());
+    func_002b2970(&spE8, 79.0f, 97.0f);
+    func_002b7750(0x2EC, 0x11F);
+    func_002b2970(&sp90, 47.0f + *(f32 *)&spE8, 2.0f + *((f32 *)&spE8 + 1));
+    func_002b2a60(&c10C, 0xFF, 0xFF, 0xFF, 0xFF);
+    func_002b77d0(0x2EC, sp90, 0x11F, c10C, 0x5A, arg2, 6, 3, 181.0f, arg1, func_00331560());
+    func_002b7750(0x2E4, 0x120);
+    func_002b2970(&sp88, 20.0f + *(f32 *)&spE8, 3.0f + *((f32 *)&spE8 + 1));
+    func_002b2a60(&c108, 0xFF, 0xFF, 0xFF, 0xFF);
+    func_002b77d0(0x2E4, sp88, 0x120, c108, 0x5A, arg2, 6, 3, 181.0f, arg1, func_00331560());
+    func_002b7750(0x2E5, 0x120);
+    func_002b2970(&sp80, 30.0f + *(f32 *)&spE8, 3.0f + *((f32 *)&spE8 + 1));
+    func_002b2a60(&c104, 0xFF, 0xFF, 0xFF, 0xFF);
+    func_002b77d0(0x2E5, sp80, 0x120, c104, 0x5A, arg2, 6, 3, 181.0f, arg1, func_00331560());
+    func_002b2970(&spE8, 314.0f, 97.0f);
+    func_002b7750(0x2E1, 0x11E);
+    func_002b2970(&sp78, 97.0f + *(f32 *)&spE8, 3.0f + *((f32 *)&spE8 + 1));
+    func_002b2a60(&c100, 0xFF, 0xFF, 0xFF, 0xFF);
+    func_002b77d0(0x2E1, sp78, 0x11E, c100, 0x5A, arg2, 6, 3, 181.0f, arg1, func_00331560());
+    func_002b7750(0x2E6, 0x121);
+    func_002b2970(&sp70, 214.0f + *(f32 *)&spE8, 3.0f + *((f32 *)&spE8 + 1));
+    func_002b2a60(&cFC, 0xFF, 0xFF, 0xFF, 0xFF);
+    func_002b77d0(0x2E6, sp70, 0x121, cFC, 0x5A, arg2, 6, 3, 181.0f, arg1, func_00331560());
+    func_002b7750(0x2E7, 0x121);
+    func_002b2970(&sp68, 224.0f + *(f32 *)&spE8, 3.0f + *((f32 *)&spE8 + 1));
+    func_002b2a60(&cF8, 0xFF, 0xFF, 0xFF, 0xFF);
+    func_002b77d0(0x2E7, sp68, 0x121, cF8, 0x5A, arg2, 6, 3, 181.0f, arg1, func_00331560());
+    func_002b2a60(&c11C, 0xCC, 0xFF, 0x33, 0xFF);
+    func_002b2970(&spE8, 79.0f, 97.0f);
+    func_002b7750(0x2E2, 0x193);
+    func_002b2970(&sp60, *(f32 *)&spE8 + (f32)(*(s8 *)(t + 0x123) * 0x101), *((f32 *)&spE8 + 1));
+    func_002b2a60(&cF4, 0xCC, 0xFF, 0x33, 0);
+    func_002b77d0(0x2E2, sp60, 0x193, cF4, 0x59, arg2, 6, 3, 180.0f, arg1, func_00331560());
+    func_002b68d0(0x2E2, 0xD, 0);
+    func_002b7750(0x2E3, 0x19C);
+    func_002b2970(&sp58, 220.0f + *(f32 *)&spE8 + (f32)(*(s8 *)(t + 0x123) * 0x101), *((f32 *)&spE8 + 1));
+    func_002b2a60(&cF0, 0xCC, 0xFF, 0x33, 0);
+    func_002b77d0(0x2E3, sp58, 0x19C, cF0, 0x59, arg2, 6, 3, 180.0f, arg1, func_00331560());
+    func_002b68d0(0x2E3, 0xD, 0);
+}
+#pragma opt_common_subs on
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00329e40);
+#endif
 
 /* measured: nd 356 — the frame stays 0x60 vs retail 0x70 because mwcc b210
    refuses two saved values: (1) the per-block 0x66 constant (sb p+0x6E + 6a70
