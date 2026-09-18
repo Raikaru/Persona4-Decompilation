@@ -194,6 +194,7 @@ void func_002605a0(f32 fparg0, f32 fparg1, f32 fparg2,
                       *(f32 *)(arg5 + 4), *(f32 *)(arg5 + 8), *(f32 *)(arg5 + 0xC));
     }
 }
+/* draft (not floor, 42% short): probe_variants 479wd via `python3 tools/probe_variants.py src/promoted/code1_0026.c func_00260600 --candidate V3=/tmp/cand606_v3.c`; fnalign retail 533 vs object 307 instrs (417 edits) via `python3 tools/fnalign.py src/promoted/code1_0026.c func_00260600 --candidate /tmp/cand606_v3.c --quiet`; -226 short (42% short, needs ~533). Frame -0x240 with 9 saves +5 FPU; 2x0x18 copy loops + 3x0xC draw loops + FMA mul/add pairs per Cold001x. Missing ~226 instrs ofSwitch/loop/call work; V3 collapses cases and mis-sizes tables (384 vs 192). Do not bank; re-attempt from m2c with correct table sizes and per-iteration cos/sin/FMA placement. No volatile/asm. */
 // FUN_00260600
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00260600);
 extern f32 D_007612C4;
