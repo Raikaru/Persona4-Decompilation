@@ -1168,6 +1168,22 @@ INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c5b80);
 void func_001c79e0(void) {}
 // FUN_001C79F0 NONMATCHING
 /* measured 001c79f0: 9 differing words via `python3 tools/probe_variants.py src/promoted/code1_001c.c func_001c79f0 --candidate d1=/var/tmp/main/c79f0_d1.c`; fnalign retail 448 vs object 448, 10 edits (+24 reloc-only); emitted 1792B/window 1792B; opclass no surplus for 79F0. */
+/* 9 -> 7 (2026-09-18): splitting the trailing gp multiply into its own
+   statement - `var_f20 = p4_cacd0_mul(chain, 0.21875f); var_f20 = var_f20 *
+   fGpffff812c;` - fixes both `mul.s $f20, $f1, $f0` operand orders at 143
+   and 380 at once.  Written inline, MWCC puts the gp load in rs; written as
+   its own statement it puts the chain there, as retail does.  Measured and
+   rejected: swapping the factors inline (9, and the edit count rises 11 ->
+   13), wrapping the outer multiply in p4_cacd0_mul with the chain first (22)
+   or the constant first (35), and splitting only one of the two sites (8).
+   Remaining 7 words, both pure argument-evaluation order: retail sets
+   $a0/$a1/$a2 before $a3/$t0 at the func_00196040 call at 29-34 and b210
+   materialises the two frame addresses first, and the same at 406.  Measured
+   and rejected on that: two-definition pins on both address arguments (7),
+   plain pointer locals (7), deriving one address from the other (7),
+   materialising the constant arguments through a local (7), replacing the
+   two floats with a two-element array (7); swapping their declaration order
+   costs 10. */
 /* 272->12 via if-branch outC0 add; 12->9 via p4_cacd0_mul gp-first for 81 plus second-mul helper for both 0.21875 chains (81 reloc-only, 379 first-mul fixed). Pragmas: loopinv/sched_off tie, sched_on worse, cse_off error -- none installed. Pairs 2026-09-17 (`tools/pragma_sweep.py --pairs`, 8 singles + 28 pairs, banked 9): ties at 9 among loopinv/strength_off/unroll_off + 3 pairs among them; dead 237, prop 397, sched 388, cse 406, peephole 402 (pairs 187-419). No pair moves the strongest position. Wall (all measured, ties fail): exact two-def pin ties 9w (j=0 folds; 12/96-from-same-base has no 4-offset); third-mul helper prev*gp worsens to 24w, gp*prev swap ties 9w; lwc1 struct 64w/70w worse, reorder 50w worse (temp-split untried). Remaining: addiu hoist 29/32:34 (4), third-mul 143:145 (2) + 380:382 (2), lwc1 order 406 (2). */
 #ifdef NON_MATCHING
 void func_001c79f0(u8 *arg0, s32 arg1)
@@ -1254,7 +1270,8 @@ void func_001c79f0(u8 *arg0, s32 arg1)
         frame.dir128[0] = frame.dir128[0] * var_f20;
         frame.dir128[1] = frame.dir128[1] * var_f20;
         frame.dir128[2] = frame.dir128[2] * var_f20;
-        var_f20 = p4_cacd0_mul(var_f20 * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8))), 0.21875f) * fGpffff812c;
+        var_f20 = p4_cacd0_mul(var_f20 * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8))), 0.21875f);
+        var_f20 = var_f20 * fGpffff812c;
         frame.horizE0[0] = frame.dir128[0];
         frame.horizE0[1] = frame.dir128[2];
         func_003e41e0(frame.horizE0, frame.horizE0);
@@ -1311,7 +1328,8 @@ void func_001c79f0(u8 *arg0, s32 arg1)
         func_003dcb40((RwV3d *)frame.dir128, (const RwV3d *)D_0060A0F0, 1, (const RtQuat *)(var16 + 0x1C));
         func_003e0870((RwMatrix *)frame.mat60, (const RwV3d *)D_0060A0E0, var_f21, 0);
         func_003e4320((RwV3d *)frame.dir128, (const RwV3d *)frame.dir128, (const RwMatrix *)frame.mat60);
-        var_f21 = p4_cacd0_mul(var_f20 * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8))), 0.21875f) * fGpffff8118;
+        var_f21 = p4_cacd0_mul(var_f20 * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8))), 0.21875f);
+        var_f21 = var_f21 * fGpffff8118;
         frame.horizE0[0] = frame.dir128[0];
         frame.horizE0[1] = frame.dir128[2];
         func_003e41e0(frame.horizE0, frame.horizE0);
