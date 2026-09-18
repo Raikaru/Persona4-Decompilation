@@ -1331,6 +1331,22 @@ INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00215c10);
 #endif
 /* measured: plain-C reconstruction reaches object 1564B against the 1568B retail window at 21 differing words (reloc-masked, fnalign 14 edits + 3 reloc-only). Frame 0x70, saves s16-s20 + f20-f22, parks s20/s19/f22/f21/s18/s16, forward CFG, FMA adda/madda/madd/msub/div chains and (u8) clamps via cvt.w.s/mfc1/andi with or-0x80000000 path all match; residual is prologue park order, commutative add.s, param-vs-saved FPU coloring (f12 vs f22, f13 vs f21) and 85/conversion f2/f3 coloring. Mined MATCH neighbours for helper prototypes and flag offsets; probe_variants top-down 29->21 via u8 s17 (fixes daddiu 0xFF and andi/move). Endgame levers tried in order, no loop so invariants/guard N/A. Best legal plain-C body; parked as compiler floor. */
 /* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/promoted/code1_0021.c func_002161d0 --pairs` banked 21; best ties 21 (opt_loop_invariants on, opt_strength_reduction off, opt_unroll_loops off and their three pairwise combos); all 28 pairs neutral or worse (next 327, worst opt_common_subs off + peephole off 430). fnalign retail/object 391/391, 14 edits + 3 reloc-only. Floor stands; production stays ASM. */
+/* 21 -> 18 (2026-09-18).  Two measured levers:
+   1. the two float parameters are used directly instead of being copied into
+      var_f22/var_f21 locals.  b210 propagates the copies away and then keeps
+      the values in $f12/$f13, where retail has them in the callee-saved
+      $f22/$f21; dropping the copies makes b210 save them the same way.
+      A two-definition pin on the copies is inert (20).
+   2. `*(f32 *)(var_s19 + 0xA24) = var_f1 + 360.0f;` split into an
+      accumulate (`var_f1 = var_f1 + 360.0f;` then the store) puts the
+      variable in rs of the `add.s`, as retail does; commuting the operands
+      in place is inert and `+=` on the memory destination costs 234.
+   Remaining 18 words: the `move $s2, $a2` parameter save is two slots early,
+   and retail materialises the 85.0f constant before the (f32)(u32)
+   conversion block while b210 sinks it to its use.  Measured and rejected on
+   that: a two-definition pin on var_f3 (18), hoisting its assignment above
+   the var_f4 statement (18), inlining the literal (19), commuting the
+   multiply (19). */
 // FUN_002161D0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002161d0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
@@ -1342,8 +1358,6 @@ void func_002161d0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
     extern f32 fGpffff8218;
     s32 *var_s20;
     u8 *var_s19;
-    f32 var_f22;
-    f32 var_f21;
     u32 var_s18;
     u8 *var_s16;
     f32 var_f20;
@@ -1358,8 +1372,6 @@ void func_002161d0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
 
     var_s20 = arg0;
     var_s19 = arg1;
-    var_f22 = fparg0;
-    var_f21 = fparg1;
     var_s18 = arg2;
     var_s16 = (u8 *)var_s20 + 0x80C;
     var_f20 = 1.0f;
@@ -1394,7 +1406,8 @@ void func_002161d0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
     var_f1 = *(f32 *)(var_s19 + 0xA24) - var_f3;
     *(f32 *)(var_s19 + 0xA24) = var_f1;
     if (var_f1 < -180.0f) {
-        *(f32 *)(var_s19 + 0xA24) = var_f1 + 360.0f;
+        var_f1 = var_f1 + 360.0f;
+        *(f32 *)(var_s19 + 0xA24) = var_f1;
     }
     if (*(s16 *)(var_s19 + 0xA14) < 9) {
         var_f1 = (f32)*(s16 *)(var_s19 + 0xA14);
@@ -1406,12 +1419,12 @@ void func_002161d0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
             var_f2 = var_f1 / 6.0f;
         }
         var_f4 = 2.0f * var_f2 - var_f2 * var_f2;
-        var_f22 = var_f22 + var_f4 * (D_007615A4 - var_f22);
+        fparg0 = fparg0 + var_f4 * (D_007615A4 - fparg0);
         var_f3 = 85.0f;
         var_f2 = (f32)var_s18;
         var_f0 = D_007615A8 + var_f2 * var_f3;
-        var_f0 = var_f0 - var_f21;
-        var_f21 = var_f21 + var_f4 * var_f0;
+        var_f0 = var_f0 - fparg1;
+        fparg1 = fparg1 + var_f4 * var_f0;
         var_f12 = 1.0f - fGpffff8218 * var_f4;
     } else {
         var_f12 = 1.0f;
@@ -1428,8 +1441,8 @@ void func_002161d0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
         }
         var_f0 = 2.0f * var_f3 - var_f3 * var_f3;
         var_f1 = 1.0f - var_f0;
-        var_f22 = var_f22 + 180.0f * var_f1;
-        var_f21 = var_f21 + 80.0f * var_f1;
+        fparg0 = fparg0 + 180.0f * var_f1;
+        fparg1 = fparg1 + 80.0f * var_f1;
     }
     if (*(s16 *)(var_s16 + 4) > 0) {
         if ((*(s32 *)var_s16 & 4) != 0) {
@@ -1455,9 +1468,9 @@ void func_002161d0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
             var_f0 = 2.0f * var_f1 - var_f1 * var_f1;
             var_f2 = 1.0f - var_f0;
         }
-        var_f22 = var_f22 + 180.0f * var_f2;
+        fparg0 = fparg0 + 180.0f * var_f2;
     }
-    func_00201300(var_s20, var_f22, var_f21, 136.0f, 136.0f);
+    func_00201300(var_s20, fparg0, fparg1, 136.0f, 136.0f);
     func_002016e0((u8 *)var_s20, 0x42, 0x41, *(f32 *)(var_s19 + 0xA24));
     func_00201650((u8 *)var_s20, 8, 0xD, 13.0f, 12.0f, 0xFE, 0xFF, 0x22, var_s17);
     func_002016e0((u8 *)var_s20, 0, 0, 0.0f);
