@@ -412,6 +412,26 @@ Grep every alignment for object-only `dsll32` runs before anything else;
 it is a one-line fix and it was worth 39, 24 and 10 words on three
 different functions in one afternoon.
 
+### 7h-bis. Two pragmas silently change the float-to-integer temporary
+
+`opt_common_subs off` and `optimization_level 1` make b210 emit the
+`(u8)`/`(u32)`-of-float idiom with the conversion writing back into the value
+register (`cvt.w.s $f1, $f1`); every other setting, including plain `-O2`,
+`opt_propagation off`, `opt_dead_assignments off`, `opt_peephole off`,
+`scheduling off`, `opt_loop_invariants on`, `opt_strength_reduction off` and
+`opt_unroll_loops off`, writes a fresh register (`cvt.w.s $f0, $f1`) - the
+conversion temporary is allocated out of the common-subexpression table.
+Confirmed with `tools/micro_codegen.py` on a five-line snippet.
+
+Consequence: a floor whose only residual is that one register, and whose body
+carries either pragma, has a **pragma-induced** residual. Do not look for a
+source shape for the register; the real work is a source shape that does not
+need the pragma. `func_00311930` (`src/promoted/code1_0031.c`, 5 words,
+`optimization_level 1`) and `func_004b2a00` (`src/promoted/code1_004b.c`, 15
+words, `opt_common_subs off`) are both in that state; measured, dropping the
+pragma costs 32 and 240 words respectively, because b210 then hoists
+`arg0 & 0xFFFF` into a ninth saved register that retail rematerialises.
+
 ### 7h. Pragmas that changed a result, with their signatures
 
 - `opt_propagation off` — retail keeps a fold this build removes (a constant

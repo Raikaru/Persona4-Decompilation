@@ -627,6 +627,14 @@ s32 func_004b2780(u8 *arg0) {
 /* /var/tmp/pairteen/earliest_b.c`; inclusive flip >-1 243 and u32 t2a 241 both */
 /* worse (probe_variants a 243, c 241, b 15). Remaining 15 are the second or-site */
 /* onward plus f-reg wall; stop per earliest-hunk-only. */
+/* 2026-09-18: part of this floor is caused by `opt_common_subs off`, not by the
+   source.  That pragma makes b210 allocate the float-to-integer conversion
+   temporary out of the CSE table, so the `(u8)`-of-float idiom emits
+   `cvt.w.s $f1, $f1` where retail has `cvt.w.s $f0, $f1` (measured with
+   tools/micro_codegen.py; every other setting writes the fresh register).
+   Removing it costs 240 words and removing both pragmas costs 171, so it
+   stays for now - but the conversion rows here are not a source-shape
+   residual and should not be probed as one. */
 // FUN_004B2A00 NONMATCHING
 #ifdef SKIP_ASM
 #pragma opt_propagation off
