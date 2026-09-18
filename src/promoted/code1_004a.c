@@ -732,6 +732,16 @@ void func_004a77b0(void) {
 /* 108-110 csoff group, 116-117 schedule/peephole group, 121-124 prop group, 129 */
 /* csoff+peephole). No pair wins; 532B vs 544B shortfall kept (do not shrink). */
 /* `python3 -E -s tools/pragma_sweep.py src/promoted/code1_004a.c func_004a7830 --pairs`. */
+/* 2026-09-18 lead pass, 4 measured variants, floor confirmed at 19 words.
+   133/133 instructions.  Residual: retail computes the `D_00724C78 + i*4`
+   address into `$v0` for the first load and keeps a saved copy in `$s0` for
+   the later ones, where this body uses `$s0` throughout; plus retail
+   materialises 0.5f once into `$f21` and this body rebuilds it, which
+   cascades into an FP register rotation ($f0/$f1/$f2/$f3).
+   Inlining the pointer at its first use ties at 19, computing it after the
+   first load ties at 19, and inlining it everywhere does not compile (the
+   expression needs the local's type).  The separate `amplitude` local is
+   load-bearing: folding it into `temp_f20` costs 19 -> 99. */
 // FUN_004A7830 NONMATCHING
 #ifdef NON_MATCHING
 void func_004a7830(void)

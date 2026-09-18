@@ -40,6 +40,7 @@ extern u8 D_008E3FD0[];
 extern u8 D_008E3FD4[];
 extern u8 D_008E3FD8[];
 extern u8 D_008E4090[];
+extern u8 D_008E4094[];
 extern u8 D_008E4098[];
 extern u8 D_008E409C[];
 extern u8 D_008E40A0[];
@@ -47,6 +48,7 @@ extern u8 D_008E40A4[];
 extern u8 D_008E40A8[];
 extern u8 D_008E40AC[];
 extern u8 D_008E40B0[];
+extern u8 D_008E40B4[];
 extern u8 D_008E40B8[];
 extern u8 D_008E40BC[];
 extern u8 D_008E40C0[];
@@ -137,20 +139,226 @@ s32 func_0045b650(s32 handle, void *data, s32 size)
     return size;
 }
 
-/* measured: retail func_0045b7c0 rematerializes the per-slot base address
-   (lui/addiu/addu of D_008E4090 + i*0x44) after every call and materializes
-   store-address registers before calls (addiu $17/$18/$19, slot+0x4/0xC/0x2C/0x30,
-   including slot+0x10 reuse for case 8); mwcc b210 CSEs the slot address across
-   the calls, keeps it in one callee-saved register, and emits direct lw/sw
-   field offsets, producing a structurally leaner object (1908-2536B vs retail
-   2416B) with a rotated saved-register set (i in $s5 vs $s4, 7 vs 9 saved regs,
-   frame 0x90 vs 0xC0). Tried: slot variable kept/reassigned per case, byte-
-   array D_008E4090[i*0x44+k] expressions, SFD() macro per-use expressions,
-   split symbols (sSfdDecodeSlots_abs dispatch vs D_008E4090 recomputes),
-   declaration-order permutations. Register-allocation/rematerialization floor,
-   best nd 1351. */
-// FUN_0045B7C0
+/* measured: guarded 504 words (reloc-masked), obj 2444B/window 2416B (+28B, 1.2% within 3% gate), */
+/* fnalign retail 604/object 611 instrs (+7, 23 reloc-only, 556 edits). Retail rematerializes */
+/* the slot base (lui/addiu/addu D_008E4090+i*0x44 with dsll32/dsra32) after every call */
+/* (wscan retail 16 dsll32 pairs + 51 daddu vs object 2 + 0); b210 CSEs the slot into one */
+/* saved reg with direct offsets, frame 0xD0 vs 0xC0 (i in $s7 vs $s4). Pragma sweep ties */
+/* at 504 (all singles neutral/regress). Switch keeps jtbl_00756550 order 0,2-8 */
+/* (case 1 falls to tail); m2c with hand-supplied jtbl + romwright second opinion; */
+/* file byte-array idiom with D_008E4094/D_008E40B4 completing the split table. */
+// FUN_0045B7C0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0045b7c0(void)
+{
+    s16 i;
+    s32 spBC;
+    s32 off;
+    s16 fileIndex;
+    void *src;
+    u8 *p1;
+    u8 *p2;
+    s32 h;
+    s32 h2;
+    s32 dst;
+    s32 rem;
+    for (i = 0; i < 6; i++) {
+        off = i * 0x44;
+        switch (*(s16 *)&D_008E4090[off]) {
+        case 0:
+            *(s16 *)&D_008E4090[off] = 1;
+            break;
+        case 2:
+            func_00440b68(&D_00764030, D_00712408, 0x11F);
+            fileIndex = *(s16 *)&D_008E4098[off];
+            *(s32 *)&D_008E4094[off] = func_00454a60(*(void **)&D_00712390[fileIndex * 0xC], 0);
+            *(s16 *)&D_008E4090[off] = 3;
+            break;
+        case 3:
+            if (func_004553c0(*(s32 *)&D_008E4094[off]) != 0) {
+                fileIndex = *(s16 *)&D_008E4098[off];
+                src = func_00455f70(*(void **)&D_00712390[fileIndex * 0xC], &spBC);
+                h = func_00429d10(0, spBC, 0);
+                if (h == 0) {
+                    func_0046d730(D_00712408, 0x129);
+                }
+                func_0043f810(D_008D3FD0, src, spBC);
+                func_0045b650(h, D_008D3FD0, spBC);
+                func_00454bd0(*(void **)&D_008E4094[off]);
+                *(s32 *)&D_008E40AC[off] = h;
+                *(s32 *)&D_008E40B0[off] = spBC;
+                *(s32 *)&D_008E4094[off] = 0;
+                *(s16 *)&D_008E4090[off] = 4;
+            }
+            break;
+        case 4:
+            func_00440b68(&D_00764030, D_00712408, 0x136);
+            fileIndex = *(s16 *)&D_008E4098[off];
+            *(s32 *)&D_008E4094[off] = func_00454a60(*(void **)&D_00712390[fileIndex * 0xC + 4], 0);
+            *(s16 *)&D_008E4090[off] = 5;
+            break;
+        case 5:
+            if (func_004553c0(*(s32 *)&D_008E4094[off]) != 0) {
+                fileIndex = *(s16 *)&D_008E4098[off];
+                src = func_00455f70(*(void **)&D_00712390[fileIndex * 0xC + 4], &spBC);
+                h = func_00429d10(0, 0x1000, 0);
+                if (h == 0) {
+                    func_0046d730(D_00712408, 0x140);
+                }
+                dst = *(s32 *)&D_008E40B4[off];
+                *(s32 *)&D_008E40B8[off] = spBC;
+                rem = spBC;
+                p1 = (u8 *)src;
+                do {
+                    if (rem < 0x1001) {
+                        spBC = rem;
+                        rem = 0;
+                    } else {
+                        spBC = 0x1000;
+                        rem -= 0x1000;
+                    }
+                    func_0045b650(h, p1, spBC);
+                    func_0043c180(1, h, dst, spBC);
+                    p1 += spBC;
+                    dst += spBC;
+                } while (rem != 0);
+                func_00454bd0(*(void **)&D_008E4094[off]);
+                *(s32 *)&D_008E4094[off] = 0;
+                func_00429d90(h);
+                *(s16 *)&D_008E4090[off] = 6;
+            }
+            break;
+        case 6:
+            func_00440b68(&D_00764030, D_00712408, 0x15B);
+            fileIndex = *(s16 *)&D_008E4098[off];
+            *(s32 *)&D_008E4094[off] = func_00454a60(*(void **)&D_00712390[fileIndex * 0xC + 8], 0);
+            *(s16 *)&D_008E4090[off] = 7;
+            break;
+        case 7:
+            if (func_004553c0(*(s32 *)&D_008E4094[off]) != 0) {
+                s32 r1;
+                s32 r2;
+                s32 r3;
+                s32 r4;
+                fileIndex = *(s16 *)&D_008E4098[off];
+                src = func_00455f70(*(void **)&D_00712390[fileIndex * 0xC + 8], &spBC);
+                h = func_00429d10(0, spBC, 0);
+                if (h == 0) {
+                    func_0046d730(D_00712408, 0x165);
+                }
+                func_0045b650(h, src, spBC);
+                func_00454bd0(*(void **)&D_008E4094[off]);
+                *(s32 *)&D_008E40BC[off] = h;
+                *(s32 *)&D_008E40C0[off] = spBC;
+                *(s32 *)&D_008E4094[off] = 0;
+                r1 = func_0043c230(3, -1, *(s32 *)&D_008E40AC[off], *(s32 *)&D_008E40B0[off], *(s32 *)&D_008E40B4[off], *(s32 *)&D_008E40B8[off]);
+                *(s32 *)&D_008E409C[off] = r1;
+                if (r1 < 0) {
+                    func_0046d730(D_00712408, 0x16F);
+                }
+                r2 = func_0043c230(5, -1, *(s32 *)&D_008E409C[off], 0);
+                *(s32 *)&D_008E40A0[off] = r2;
+                if (r2 < 0) {
+                    func_0046d730(D_00712408, 0x174);
+                }
+                r3 = func_0043c3b0(0, -1, *(s32 *)&D_008E40BC[off], *(s32 *)&D_008E40C0[off]);
+                *(s32 *)&D_008E40A4[off] = r3;
+                if (r3 < 0) {
+                    func_0046d730(D_00712408, 0x178);
+                }
+                r4 = func_0043c3b0(5, *(s32 *)&D_008E40A0[off], *(s32 *)&D_008E40A4[off]);
+                *(s32 *)&D_008E40D0[off] = r4;
+                *(s32 *)&D_008E40A8[off] = 1;
+                *(s16 *)&D_008E4090[off] = 1;
+            }
+            break;
+        case 8:
+            {
+                void *res;
+                s32 sz;
+                s32 h1;
+                void *s2;
+                s32 sz2;
+                s32 hb;
+                s32 d2;
+                s32 rem2;
+                void *s3;
+                s32 sz3;
+                s32 hc;
+                s32 q;
+                s32 o;
+                s32 d;
+                s32 c;
+                res = *(void **)&D_008E40C4[off];
+                sz = *(s32 *)&D_008E40B0[off];
+                spBC = sz;
+                h1 = func_00429d10(0, sz, 0);
+                if (h1 == 0) {
+                    func_0046d730(D_00712408, 0x189);
+                }
+                func_0045b650(h1, res, spBC);
+                *(s32 *)&D_008E40AC[off] = h1;
+                *(s32 *)&D_008E40B0[off] = spBC;
+                s2 = *(void **)&D_008E40C8[off];
+                sz2 = *(s32 *)&D_008E40B8[off];
+                spBC = sz2;
+                hb = func_00429d10(0, 0x1000, 0);
+                if (hb == 0) {
+                    func_0046d730(D_00712408, 0x193);
+                }
+                d2 = *(s32 *)&D_008E40B4[off];
+                rem2 = sz2;
+                p1 = (u8 *)s2;
+                p2 = (u8 *)d2;
+                do {
+                    if (rem2 < 0x1001) {
+                        s32 t;
+                        spBC = rem2;
+                        t = rem2 + 0x7F;
+                        if (t < 0) {
+                            t = rem2 + 0xFE;
+                        }
+                        spBC = (t >> 7) << 7;
+                        rem2 = 0;
+                    } else {
+                        spBC = 0x1000;
+                        rem2 -= 0x1000;
+                    }
+                    func_0045b650(hb, p1, spBC);
+                    func_0043c180(1, hb, p2, spBC);
+                    p1 += spBC;
+                    p2 += spBC;
+                } while (rem2 != 0);
+                func_00429d90(hb);
+                s3 = *(void **)&D_008E40CC[off];
+                sz3 = *(s32 *)&D_008E40C0[off];
+                spBC = sz3;
+                hc = func_00429d10(0, sz3, 0);
+                if (hc == 0) {
+                    func_0046d730(D_00712408, 0x1AB);
+                }
+                func_0045b650(hc, s3, spBC);
+                *(s32 *)&D_008E40BC[off] = hc;
+                q = func_0043c230(3, -1, *(s32 *)&D_008E40AC[off], *(s32 *)&D_008E40B0[off], *(s32 *)&D_008E40B4[off], *(s32 *)&D_008E40B8[off]);
+                *(s32 *)&D_008E409C[off] = q;
+                o = func_0043c230(5, -1, q, 0);
+                *(s32 *)&D_008E40A0[off] = o;
+                d = func_0043c3b0(0, -1, *(s32 *)&D_008E40BC[off], *(s32 *)&D_008E40C0[off]);
+                *(s32 *)&D_008E40A4[off] = d;
+                c = func_0043c3b0(5, *(s32 *)&D_008E40A0[off], d);
+                *(s32 *)&D_008E40D0[off] = c;
+                *(s32 *)&D_008E40A8[off] = 1;
+                *(s16 *)&D_008E4090[off] = 1;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/sdkSndcom", func_0045b7c0);
+#endif
 // FUN_0045C130
 void func_0045c130(s16 index, s16 fileIndex)
 {
