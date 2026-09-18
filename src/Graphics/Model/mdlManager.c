@@ -4450,16 +4450,251 @@ extern u32 func_0047f9f0(void* a);
 extern s32 func_004800d0(void *stream, u8 **head, u32 kind, void *clump);
 extern void func_00463100(void* a);
 extern u8 D_0070B610;
-/* measured: nd ~409 after 4 attempts; all structure transcribed (the three
-   alloc blocks, the 0xC list loop, the 0x234/0x254 slot tables, the 8-word
-   copy, the func_0047d200/7dc30 calls, the sq/lq u_long128 stack slots spE0/
-   spD0/spC0/spB0, the 0x667d0 10-arg call). Blocked by a 5-way saved-register
-   rotation: b210 pins t17:$s0, p:$s2, obj:$s4, v20:$s5, cnt:$s6, cnt2:$s7,
-   v30:$s8 in EVERY declaration order tried (incl. m2c-verbatim and inline
-   size expressions) while retail is sz:$s0, t17:$s1, p:$s2, v19:$s3, v20:$s4,
-   obj:$s5, cnt:$s6, cnt2:$s7, v30:$s8 — the {t17,sz} and {v19,v20,obj} groups
-   rotate together (saved-register-rotation floor family). Also: the spE0
-   u32->u_long128 cast emits dsll32/dsrl32 before sq where retail sq's
-   directly (mixed-width u_long128 floor, cf mdlMatAnim 0x480670). */
-// FUN_0047C660
+/* measured cold47c660: sanitized m2c (3x K&R->ANSI) 282 lines; raw u8* idiom (no new struct,
+   alloc/free/memset via DAT_008873e8[0]/DAT_008873ec[0]/func_0043f9c8, single-arg d200/dc30).
+   Count first: fndiff window 1952B (488 words incl. 3 trailing nops), fnalign retail 485 instrs.
+   R1: v1 de-noised 366 words / 464 instrs / 309 edits+6 reloc-only, frame 0xD0 vs 0x100.
+   R2: v3 explicit outer/mapBase/cntBase/layer (tbl k-stride fix) 364 / 464 / 294+6 (best, -2/-15).
+   R3: Model-clump idiom 373 (+9 regress, raw kept); u_long128 spills v2 400/480 and v4 400/471
+   (+36 regress, mixed-width dsll32/dsrl32 before sq where retail sq's directly, cf 0x480670).
+   R4 pragmas on v3: propoff 364 tie (466 instrs), loopinv 364 tie, csuboff 461, schedon 443.
+   Two unproductive families (pragmas, spills/idiom) after one productive (explicit locals), stop.
+   fnalign best (v3): retail 485 vs object 464 (21 short, 4.3% short), 294 edits+6 reloc-only.
+   Residual: 5-way saved-reg rotation (retail sz:$s0/t17:$s1/p:$s2/v19:$s3/v20:$s4/obj:$s5/cnt:$s6/cnt2:$s7
+   vs b210 t17:$s0/p:$s2/obj:$s4/v20:$s5...), D_0070B610 scalar gp-relative vs retail lui (1 word),
+   and 4x sq/lq 32-bit spills emitted as sw/lw (frame 0xD0 vs 0x100). Prior nd~409 floor retained
+   below as context; production stays ASM. */
+/* prior floor context (retained): three alloc blocks, 0xC list loop, 0x234/0x254 slot tables,
+   8-word 0x50 copy, d200/dc30 1-arg calls, 0x667d0 10-arg call, sq/lq u_long128 spE0/D0/C0/B0,
+   rotation groups {t17,sz} and {v19,v20,obj} rotate together in every declaration order tried. */
+// FUN_0047C660 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0047c660(u8 *arg0)
+{
+    u8 *owner;
+    s32 ok;
+    s32 okA;
+    s32 okB;
+    u32 size;
+    u32 res;
+    u32 ready;
+    void *handle;
+    u16 cnt;
+    u32 i;
+    u32 j;
+    u32 k;
+    u8 *slot;
+    u8 *base;
+    s16 map;
+    u32 srcIdx;
+    u32 dstIdx;
+    s32 srcOff;
+    s32 dstOff;
+    u8 *srcEnt;
+    u8 *dstEnt;
+    s32 n;
+    u8 *s;
+    u8 *d;
+    u32 anim;
+    u8 *tbl;
+    u8 *node;
+    u8 *next;
+    u8 *outer;
+    u8 *mapBase;
+    u8 *cntBase;
+    u8 *layer;
+
+    owner = *(u8 **)(arg0 + 0x30C);
+    ok = 1;
+    okA = 1;
+    okB = 1;
+    if (*(u32 *)(owner + 4) != 0) {
+        res = func_004669d0(*(u32 *)(owner + 4), &ready, (u32 *)&handle);
+        if (ready == 1) {
+            func_003ef260((void *)res, func_00463100, owner + 0x34);
+            func_003ef1b0((void *)res);
+            func_003e2e40(handle, 0);
+            *(u32 *)(owner + 4) = 0;
+        } else {
+            okA = 0;
+            ok = 0;
+        }
+    }
+    if (*(u32 *)(owner + 8) != 0) {
+        res = func_004669d0(*(u32 *)(owner + 8), &ready, (u32 *)&handle);
+        if (ready == 1) {
+            if (*(void **)(arg0 + 0x254) == 0) {
+                cnt = *(u16 *)(owner + 0x20);
+                size = (u32)cnt * 8 + 0x10;
+                func_0044ea90(D_00713138, 0x908);
+                slot = ((void *(*)(int, int))DAT_008873e8[0])((int)size, 0x40000);
+                func_0043f9c8(slot, 0, (int)size);
+                *(u8 **)(slot + 0) = slot + 0x10;
+                *(u16 *)(slot + 0xC) = cnt;
+                *(u16 *)(slot + 0xE) = 1;
+                *(u8 **)(arg0 + 0x254) = slot;
+            }
+            *(u32 *)(*(u8 **)(arg0 + 0x254) + 4) = res;
+            func_003d60e0(&D_0070B610, (s32)res);
+            func_003e2e40(handle, 0);
+            *(u32 *)(owner + 8) = 0;
+        } else {
+            ok = 0;
+            okB = 0;
+        }
+    }
+    if (*(u32 *)(owner + 0xC) != 0) {
+        i = 0;
+        while (i < *(u16 *)(owner + 0x20)) {
+            if (*(u32 *)(*(u8 **)(owner + 0xC) + i * 4) != 0) {
+                res = func_004669d0(*(u32 *)(*(u8 **)(owner + 0xC) + i * 4), &ready, (u32 *)&handle);
+                if (ready == 1) {
+                    if (*(void **)(arg0 + 0x254) == 0) {
+                        cnt = *(u16 *)(owner + 0x20);
+                        size = (u32)cnt * 8 + 0x10;
+                        func_0044ea90(D_00713138, 0x908);
+                        slot = ((void *(*)(int, int))DAT_008873e8[0])((int)size, 0x40000);
+                        func_0043f9c8(slot, 0, (int)size);
+                        *(u8 **)(slot + 0) = slot + 0x10;
+                        *(u16 *)(slot + 0xC) = cnt;
+                        *(u16 *)(slot + 0xE) = 1;
+                        *(u8 **)(arg0 + 0x254) = slot;
+                    }
+                    base = *(u8 **)(*(u8 **)(arg0 + 0x254) + 0);
+                    *(u32 *)(base + (i & 0xFFFF) * 8) = res;
+                    func_003e2e40(handle, 0);
+                    *(u32 *)(*(u8 **)(owner + 0xC) + i * 4) = 0;
+                } else {
+                    ok = 0;
+                }
+            }
+            i++;
+        }
+    }
+    if (*(u32 *)(owner + 0x14) != 0 || *(u32 *)(owner + 0x10) != 0) {
+        if (okA == 1 && okB == 1) {
+            if (*(u32 *)(owner + 0x14) != 0) {
+                *(u32 *)(owner + 0x10) = (u32)func_004667d0(2, 0, 0, 0, *(s32 *)(owner + 0x14), 0, 0, 0, 0, 0);
+                *(u32 *)(owner + 0x14) = 0;
+                ok = 0;
+            } else {
+                res = func_004669d0(*(u32 *)(owner + 0x10), &ready, (u32 *)&handle);
+                if (ready == 1) {
+                    *(u32 *)(arg0 + 0xDC) = res;
+                    func_003e2e40(handle, 0);
+                    *(u32 *)(owner + 0x10) = 0;
+                } else {
+                    ok = 0;
+                }
+            }
+        } else {
+            ok = 0;
+        }
+    }
+    node = *(u8 **)(owner + 0x18);
+    if (node != 0) {
+        if (*(void **)(arg0 + 0xDC) != 0) {
+            while (node != 0) {
+                if (*(void **)(arg0 + 0x234) == 0) {
+                    cnt = *(u16 *)(owner + 0x20);
+                    size = (u32)cnt * 8 + 8;
+                    func_0044ea90(D_00713138, 0x850);
+                    slot = ((void *(*)(int, int))DAT_008873e8[0])((int)size, 0x40000);
+                    func_0043f9c8(slot, 0, (int)size);
+                    *(u8 **)(slot + 0) = slot + 8;
+                    *(u16 *)(slot + 4) = cnt;
+                    *(u16 *)(slot + 6) = 1;
+                    *(u8 **)(arg0 + 0x234) = slot;
+                }
+                base = *(u8 **)(arg0 + 0x234);
+                if (*(u32 *)(*(u8 **)(base + 0) + *(u16 *)(node + 4) * 8) == 0) {
+                    *(u32 *)(*(u8 **)(base + 0) + *(u16 *)(node + 4) * 8) = (u32)func_0047f9f0(base);
+                }
+                func_004800d0(*(void **)(node + 8), (u8 **)*(void **)(*(u8 **)(base + 0) + *(u16 *)(node + 4) * 8), *(u32 *)(node + 0), *(void **)(arg0 + 0xDC));
+                func_003e2e40(*(void **)(node + 8), 0);
+                next = *(u8 **)(node + 0xC);
+                DAT_008873ec[0](node);
+                node = next;
+            }
+            *(u8 **)(owner + 0x18) = 0;
+        } else {
+            ok = 0;
+        }
+    }
+    if (ok == 1) {
+        k = 0;
+        while (k < 2) {
+            outer = owner + k * 4;
+            cntBase = owner + k * 2;
+            layer = arg0 + k * 0xA4;
+            if (*(u32 *)(outer + 0x24) != 0) {
+                j = 0;
+                while (j < *(u16 *)(cntBase + 0x20)) {
+                    mapBase = *(u8 **)(outer + 0x24);
+                    map = *(s16 *)(mapBase + j * 2);
+                    if (map != -1) {
+                        srcIdx = (u16)map;
+                        dstIdx = (u16)j;
+                        srcOff = (s32)srcIdx * 0x50;
+                        dstOff = (s32)dstIdx * 0x50;
+                        base = *(u8 **)(layer + 0x120);
+                        srcEnt = *(u8 **)base + srcOff;
+                        dstEnt = *(u8 **)base + dstOff;
+                        s = srcEnt;
+                        d = dstEnt;
+                        n = 8;
+                        do {
+                            *(u32 *)(d + 0) = *(u32 *)(s + 0);
+                            *(u32 *)(d + 4) = *(u32 *)(s + 4);
+                            s += 8;
+                            n--;
+                            d += 8;
+                        } while (n > 0);
+                        base = *(u8 **)base;
+                        anim = *(u32 *)(base + srcOff + 0x40);
+                        if (anim != 0) {
+                            *(u32 *)(base + dstOff + 0x40) = anim;
+                        }
+                        *(u32 *)(base + dstOff + 0x44) |= 1;
+                        if (k == 0) {
+                            if (*(void **)(arg0 + 0x234) != 0) {
+                                if ((s32)map < (s32)*(u16 *)(*(u8 **)(arg0 + 0x234) + 4)) {
+                                    base = *(u8 **)(*(u8 **)(arg0 + 0x234) + 0);
+                                    if (*(u32 *)(base + (u32)(u16)map * 8) != 0) {
+                                        *(u32 *)(base + (j & 0xFFFF) * 8) = *(u32 *)(base + (u32)(u16)map * 8);
+                                        *(u8 *)(base + (j & 0xFFFF) * 8 + 4) |= 1;
+                                    }
+                                }
+                            }
+                            if (*(void **)(arg0 + 0x254) != 0) {
+                                if ((s32)(s64)map < (s32)*(u16 *)(*(u8 **)(arg0 + 0x254) + 0xC)) {
+                                    base = *(u8 **)(*(u8 **)(arg0 + 0x254) + 0);
+                                    if (*(u32 *)(base + (u32)(u16)map * 8) != 0) {
+                                        *(u32 *)(base + (j & 0xFFFF) * 8) = *(u32 *)(base + (u32)(u16)map * 8);
+                                        *(u8 *)(base + (j & 0xFFFF) * 8 + 4) |= 1;
+                                    }
+                                }
+                            }
+                            tbl = *(u8 **)(layer + 0x124);
+                            if (tbl != 0) {
+                                if (*(void **)(tbl + 0x14 + (u32)(u16)map * 4) != 0) {
+                                    *(void **)(tbl + 0x14 + (u16)j * 4) = func_0047d200(*(void **)(tbl + 0x14 + (u32)(u16)map * 4));
+                                }
+                                if (*(void **)(tbl + 0x20 + (u32)(u16)map * 4) != 0) {
+                                    *(void **)(tbl + 0x20 + (u16)j * 4) = func_0047dc30(*(void **)(tbl + 0x20 + (u32)(u16)map * 4));
+                                }
+                            }
+                        }
+                    }
+                    j++;
+                }
+                DAT_008873ec[0](*(void **)(outer + 0x24));
+            }
+            k++;
+        }
+    }
+    return ok;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047c660);
+#endif
