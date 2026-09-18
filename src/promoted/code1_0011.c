@@ -1452,6 +1452,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00112830);
    `opt_loop_invariants on`, `opt_unroll_loops off` and `opt_common_subs off`
    all tie at 5 with a byte-identical stream, `opt_dead_assignments off`
    costs 58 and `opt_propagation off` costs 75. */
+/* 2026-09-18, handoff 7p probe; floor stands at 5.  The four differing words
+   are the two `lbu` loads of the green and blue colour bytes: retail issues
+   them at instruction 27-28, this body at 30-31, five slots later.  Moving
+   the snapshot is what fixed func_001c79f0, so it was tried four ways here
+   and every one is a large regression: assigning the loop copies right after
+   `color2`/`color1` costs 45, dropping the loop copies and using
+   `color1`/`color2` directly in the loop costs 37, assigning them just after
+   `alpha_byte` costs 50, and reading `stack.color.g`/`.b` into them straight
+   after the struct copy costs 43.  The current split - two u32s before the
+   first call, two u8 copies after it - is the cheapest arrangement; the
+   remaining five-slot delay is scheduling. */
 // FUN_001130C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)

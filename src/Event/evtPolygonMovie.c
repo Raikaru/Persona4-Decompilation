@@ -164,6 +164,14 @@ u8 *func_0028fb90(void)
    and `opt_unroll_loops off` all tie at 5 with a byte-identical stream, while
    `schedule on` costs 489 and `opt_common_subs off` 458.  The two pragmas
    already on the body stay load-bearing. */
+/* 2026-09-18, handoff 7p probe; floor stands at 5.  522/522 instructions and
+   the four differing words are the two parameter saves `move $s1, $a0` and
+   `move $s0, $a1`: retail issues them at instruction 8-9, this body at 11-12.
+   Reordering the parameter copies does not move them - assigning `d2` first
+   ties at 5, swapping `c0`/`wk` ties at 5, assigning `d2` last ties at 5 -
+   and deferring the other four copies until after the null early-out costs
+   35.  The slot is chosen by the scheduler, not by the order the parameters
+   are read. */
 // FUN_0028FC40 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: propag-off above is load-bearing (removal 5 -> 202); the loop-invariants pair below closes 14 -> 5; body is 5wd exact at 522/522 instrs (2096B/2096B). */

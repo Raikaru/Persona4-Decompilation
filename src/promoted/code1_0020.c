@@ -1701,8 +1701,316 @@ void func_002038c0(s32 task) {
     *(s16 *)b = 0;
 }
 
-// FUN_00203930
+/* measured: GUARDED_SCORE 765 differing words, retail 856 vs object 874 instrs (+18, 2.1% over, within gate); fnalign 236 edits (+35 reloc-only). Pragmas in order: opt_loop_invariants on 899->765, opt_unroll_loops off ties 899, schedule off ties 899, opt_common_subs off worsens to 956. Subscript direct/off-hoist/flat all tie 765. Fresh init/init_lo ties 765. Colour lo-hi swap and base-reciprocal swap both tie 765. Remaining: saved-reg rotation (retail s4/s3/s2/s1 vs build s3/s2/s1/s0), FPR colouring (retail f25/f24 vs build f21/f20, div f24 vs f20), stack offsets (retail 0xB00/0x80 vs build 0x70/0x1470), VU adda/madd scheduling. */
+// FUN_00203930 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma opt_loop_invariants on
+void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
+{
+    extern f32 fGpffff8488;
+    extern f32 fGpffff848c;
+    extern f32 fGpffff8490;
+    extern f32 fGpffff8494;
+    extern f32 D_006267F0[][2];
+    extern f32 D_00626930[][2];
+    extern f32 D_006269E0[][2];
+    extern f32 D_00626A90[][2];
+    extern f32 D_00626B30[][2];
+    extern void func_00364c50(void);
+    extern void func_00364c70(void);
+    f32 lo[42][16];
+    f32 hi[80][16];
+    f32 sx2;
+    f32 sy2;
+    f32 sx3;
+    f32 sy3;
+    f32 base;
+    f32 reciprocal;
+    u32 init;
+    u32 vertex;
+
+    scaleX *= fGpffff8488;
+    scaleY *= fGpffff848c;
+    sx2 = fGpffff8490 * scaleX;
+    sy2 = fGpffff8490 * scaleY;
+    sx3 = fGpffff8494 * scaleX;
+    sy3 = fGpffff8494 * scaleY;
+    base = D_008872F8[0];
+    reciprocal = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    D_00887300[0](1, 0);
+    if ((a & 0xFF) == 0xFF) {
+        func_00364c50();
+        for (init = 0; init < 80; init++) {
+            f32 *out = hi[init];
+            out[2] = base;
+            out[6] = reciprocal;
+            out[8] = (f32)r;
+            out[9] = (f32)g;
+            out[10] = (f32)b;
+            ((s32 *)out)[11] = 0x437F0000;
+        }
+        vertex = 0;
+        {
+            s32 i;
+            for (i = 0; (u32)i < 20; i++) {
+                f32 *point = D_006267F0[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + scaleX * point[0];
+                out[1] = (0.0f + 211.0f) - scaleY * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 18; i >= 0; i--) {
+                f32 *point = D_006267F0[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + scaleX * -point[0];
+                out[1] = (0.0f + 211.0f) - scaleY * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 1; (u32)i < 20; i++) {
+                f32 *point = D_006267F0[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + scaleX * -point[0];
+                out[1] = (0.0f + 211.0f) + scaleY * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 18; i >= 0; i--) {
+                f32 *point = D_006267F0[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + scaleX * point[0];
+                out[1] = (0.0f + 211.0f) + scaleY * point[1];
+                vertex++;
+            }
+        }
+        D_00887310[0](2, hi, vertex);
+        vertex = 0;
+        {
+            s32 i;
+            for (i = 0; (u32)i < 20; i++) {
+                f32 *point = D_006267F0[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + sx2 * point[0];
+                out[1] = (0.0f + 211.0f) - sy2 * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 18; i >= 0; i--) {
+                f32 *point = D_006267F0[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + sx2 * -point[0];
+                out[1] = (0.0f + 211.0f) - sy2 * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 1; (u32)i < 20; i++) {
+                f32 *point = D_006267F0[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + sx2 * -point[0];
+                out[1] = (0.0f + 211.0f) + sy2 * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 18; i >= 0; i--) {
+                f32 *point = D_006267F0[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + sx2 * point[0];
+                out[1] = (0.0f + 211.0f) + sy2 * point[1];
+                vertex++;
+            }
+        }
+        D_00887310[0](2, hi, vertex);
+        vertex = 0;
+        {
+            s32 i;
+            for (i = 0; (u32)i < 20; i++) {
+                f32 *point = D_00626890[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + scaleX * point[0];
+                out[1] = (0.0f + 211.0f) - scaleY * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 18; i >= 0; i--) {
+                f32 *point = D_00626890[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + scaleX * -point[0];
+                out[1] = (0.0f + 211.0f) - scaleY * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 1; (u32)i < 20; i++) {
+                f32 *point = D_00626890[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + scaleX * -point[0];
+                out[1] = (0.0f + 211.0f) + scaleY * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 18; i >= 0; i--) {
+                f32 *point = D_00626890[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + scaleX * point[0];
+                out[1] = (0.0f + 211.0f) + scaleY * point[1];
+                vertex++;
+            }
+        }
+        D_00887310[0](2, hi, vertex);
+        vertex = 0;
+        {
+            s32 i;
+            for (i = 0; (u32)i < 20; i++) {
+                f32 *point = D_00626890[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + sx3 * point[0];
+                out[1] = (0.0f + 211.0f) - sy3 * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 18; i >= 0; i--) {
+                f32 *point = D_00626890[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + sx3 * -point[0];
+                out[1] = (0.0f + 211.0f) - sy3 * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 1; (u32)i < 20; i++) {
+                f32 *point = D_00626890[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + sx3 * -point[0];
+                out[1] = (0.0f + 211.0f) + sy3 * point[1];
+                vertex++;
+            }
+        }
+        {
+            s32 i;
+            for (i = 18; i >= 0; i--) {
+                f32 *point = D_00626890[i];
+                f32 *out = hi[vertex];
+                out[0] = (0.0f + 320.0f) + sx3 * point[0];
+                out[1] = (0.0f + 211.0f) + sy3 * point[1];
+                vertex++;
+            }
+        }
+        D_00887310[0](2, hi, vertex);
+        func_00364c70();
+    }
+    for (init = 0; init < 42; init++) {
+        f32 *out = lo[init];
+        out[2] = base;
+        out[6] = reciprocal;
+        out[8] = (f32)r;
+        out[9] = (f32)g;
+        out[10] = (f32)b;
+        out[11] = (f32)(u32)a;
+    }
+    {
+        u32 idx;
+        u32 cursor;
+        cursor = 0;
+        idx = 0;
+        while (idx < 21) {
+            f32 *point = D_00626930[idx];
+            f32 *point2 = D_006269E0[idx];
+            f32 *out = lo[cursor];
+            f32 *out2 = lo[cursor + 1];
+            out[0] = (0.0f + 320.0f) + sx2 * point[0];
+            out[1] = (0.0f + 211.0f) - sy2 * point[1];
+            out2[0] = (0.0f + 320.0f) + sx3 * point2[0];
+            out2[1] = (0.0f + 211.0f) - sy3 * point2[1];
+            cursor += 2;
+            idx++;
+        }
+    }
+    D_00887310[0](4, lo, 42);
+    {
+        u32 idx;
+        u32 cursor;
+        cursor = 0;
+        idx = 0;
+        while (idx < 21) {
+            f32 *point = D_00626930[idx];
+            f32 *point2 = D_006269E0[idx];
+            f32 *out = lo[cursor];
+            f32 *out2 = lo[cursor + 1];
+            out[0] = (0.0f + 320.0f) + sx2 * point[0];
+            out[1] = (0.0f + 211.0f) + sy2 * point[1];
+            out2[0] = (0.0f + 320.0f) + sx3 * point2[0];
+            out2[1] = (0.0f + 211.0f) + sy3 * point2[1];
+            cursor += 2;
+            idx++;
+        }
+    }
+    D_00887310[0](4, lo, 42);
+    {
+        u32 idx;
+        u32 cursor;
+        cursor = 0;
+        idx = 0;
+        while (idx < 19) {
+            f32 *point = D_00626A90[idx];
+            f32 *point2 = D_00626B30[idx];
+            f32 *out = lo[cursor];
+            f32 *out2 = lo[cursor + 1];
+            out[0] = (0.0f + 320.0f) + sx2 * point[0];
+            out[1] = (0.0f + 211.0f) - sy2 * point[1];
+            out2[0] = (0.0f + 320.0f) + sx3 * point2[0];
+            out2[1] = (0.0f + 211.0f) - sy3 * point2[1];
+            cursor += 2;
+            idx++;
+        }
+    }
+    D_00887310[0](4, lo, 38);
+    {
+        u32 idx;
+        u32 cursor;
+        cursor = 0;
+        idx = 0;
+        while (idx < 19) {
+            f32 *point = D_00626A90[idx];
+            f32 *point2 = D_00626B30[idx];
+            f32 *out = lo[cursor];
+            f32 *out2 = lo[cursor + 1];
+            out[0] = (0.0f + 320.0f) + sx2 * -point[0];
+            out[1] = (0.0f + 211.0f) - sy2 * point[1];
+            out2[0] = (0.0f + 320.0f) + sx3 * -point2[0];
+            out2[1] = (0.0f + 211.0f) - sy3 * point2[1];
+            cursor += 2;
+            idx++;
+        }
+    }
+    D_00887310[0](4, lo, 38);
+}
+
+#pragma pop
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00203930);
+#endif
 /*
  * measured: 916/928 bytes, 15 resolved relocations, 12 zero alignment bytes.
  * The initialization loop covers 81 real vertex records; the four geometry

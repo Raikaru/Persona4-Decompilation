@@ -1109,6 +1109,16 @@ void func_0034db60(u8 *arg0, f32 fparg0, s32 arg1) {
 /* dead 144, sched 156, peephole 146/205. No pair beats prop_off; floor stands. */
 /* Semantic gate: (u8*,s32) signature matches retail and both headstarts; */
 /* the alpha-narrowing idiom mirrors MATCHED sibling func_0034d890 above. */
+/* 2026-09-18, handoff 7h-quinquies and 7p probes; floor stands at 5.  The
+   residual is conversion-register selection: retail lands `cvt.w.s` in $f1
+   at instructions 70 and 77, this body lands it in $f2, reusing the source
+   register.  The 7h-quinquies pragma lever does not reach it here -
+   `opt_common_subs off`, `opt_propagation off` and `schedule off` all tie at
+   5, and `optimization_level 1` costs 121.  Nor does the source form of the
+   conversion: folding the product into the cast ties at 5, assigning the
+   product back into `var_f1` costs 9, and forcing an explicit integer
+   intermediate - `(u8)(s32)temp_f2_2` or a separate `s32 conv` - costs 101
+   both ways, because it materialises a second conversion. */
 // FUN_0034DDF0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off

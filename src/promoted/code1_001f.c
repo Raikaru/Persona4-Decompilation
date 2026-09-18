@@ -1883,6 +1883,18 @@ extern u8 *func_001b0c80(s32 arg0);
    the body below keeps the form that matches retail's comparison.
    Resume: that rematerialization lever.
 */
+/* 2026-09-18 diagnosis for the next pass; floor unchanged at 57.  The
+   residual has one dominant shape and it is the reverse of pointer caching:
+   retail materialises a row address and then loads at offset zero -
+   `addu $a0, $v0, $sp` / `addiu $v0, $a0, 0x50` / `lh $a1, ($v0)`, and again
+   `addiu $v0, $a0, 0x52` / `lh $v0, ($v0)` - where this body folds the
+   element offset into the load, `lh $v0, 2($a0)`.  The `spbuf` reads are
+   written as `b[0]` and `b[1]` off one pointer; retail's shape is two
+   separate element pointers, each dereferenced at zero.  That is the
+   experiment to run next: `s16 *b0 = &spbuf[k]; s16 *b1 = &spbuf[k + 1];`
+   at the read sites, not the write sites, which already agree.  The rest of
+   the rows are one-instruction branch displacements that will follow the
+   address shape. */
 // FUN_001F4E50 NONMATCHING
 #ifdef NON_MATCHING
 s64 func_001f4e50(u8 *arg0) {

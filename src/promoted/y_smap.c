@@ -1381,8 +1381,198 @@ f32 func_002b1480(YVec3f *arg0, f32 arg1) {
    (2) the fill-loop guard (2^31 const + c.ole.s + lui 0x8000) is NOT hoisted
    out of the loop by b210 here (retail hoists it before the loop-entry
    branch); (3) the clear-loop counters land in $s2/$s1 vs retail $s3/$s2. */
-// FUN_002B1520
+/* measured: cold2b1520 first reconstruction (bare INCLUDE_ASM, recipe-B 603 lost, no archived body). */
+/* Target: src/promoted/y_smap.c func_002b1520 retail 0x002b1520 window 3360B (840 instrs). */
+/* Candidate: /var/tmp/cold2b1520/v_minloc_loopon.c sha256 10aa44ed3ab051af (6666B). */
+/* Compiler: mwccps2 3.0.1 b210 -O2 -Iinclude, scoped #pragma opt_loop_invariants on/off (624->619). */
+/* Commands: m2c single fails on jr/jtbl (no m2c.c); romwright body+--types saved 175 lines; */
+/*   probe_variants v0 714, common_off 796, loop_on 713, unroll_off 714, sched_off 714, subscript 713, */
+/*   fresh 701, col1 700, minloc 624, loopon 619 best, sub 625, loopon+sub 639 (two non-improving, stop). */
+/*   fnalign retail 838 obj 831 (3324B/window 3360B, 1.1% under, bankable) 172 edits+8 reloc-only. */
+/* TU: guarded floor, prod stays ASM; verify ASM, lint clean, -DNON_MATCHING compiles. */
+/* Semantic: switch 0/1 empty + default for jtbl_007488A0 (2..6, 3->4 fallthrough); u32 base hoist; */
+/*   u8 sp[0x10] s64 dead loads + high-word spills; (f32)327/341/395/443 via int cvt; */
+/*   explicit if (2.1474836e9f > x) u8/u16 guards; 9 fresh s16 counters; tail pp double-deref reload. */
+/* Residuals: guard mfc1 $v0 vs $v1 (4w/guard), fill-loop hoist, clear $s2/$s1 vs $s3/$s2. */
+// FUN_002B1520 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_loop_invariants on
+void func_002b1520(s32 arg0, u8 *q) {
+    u32 base;
+    u8 sp[0x10];
+    f32 b;
+    f32 a;
+    f32 c;
+    s16 i1;
+    s16 j1;
+    s16 i2;
+    s16 j2;
+    s16 i3;
+    s16 j3;
+    s16 i4;
+    s16 j4;
+    s16 k;
+    (void)arg0;
+    *(s64 *)(sp + 0) = iGpffffa840;
+    *(s64 *)(sp + 8) = iGpffffa848;
+    a = 1.0f;
+    b = 120.0f;
+    c = (f32)395;
+    base = (u32)D_00887300;
+    ((void (*)(s32, s32))*(u32 *)base)(6, 1);
+    ((void (*)(s32, s32))*(u32 *)base)(7, 2);
+    ((void (*)(s32, s32))*(u32 *)base)(8, 1);
+    ((void (*)(s32, s32))*(u32 *)base)(9, 2);
+    ((void (*)(s32, s32))*(u32 *)base)(0xC, 1);
+    ((void (*)(s32, s32))*(u32 *)base)(0xB, 6);
+    ((void (*)(s32, s32))*(u32 *)base)(0xA, 5);
+    ((void (*)(s32, s32))*(u32 *)base)(2, 4);
+    func_003f6440(2, 0x44);
+    func_003f6440(3, 0x717FB);
+    switch (*(s8 *)(q + 4)) {
+    case 0:
+    case 1:
+        break;
+    case 2: {
+        f32 t1;
+        f32 t2;
+        f32 t3;
+        f32 t4;
+        u8 bv;
+        t1 = func_002b2aa0(0, 179.0f, 312.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
+        t2 = func_002b2aa0(0, (f32)443, 312.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
+        t3 = func_002b2aa0(0, 255.0f, 0.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
+        t4 = func_002b2aa0(0, 255.0f, 0.0f, (f32)*(s16 *)(q + 0x766), 5.0f);
+        *(f32 *)(*(u8 **)(q + 0x7C) + 8) = t1;
+        *(f32 *)(*(u8 **)(q + 0x80) + 8) = t2;
+        t3 = 255.0f - t3;
+        if (2.1474836e9f > t3) {
+            bv = (u8)(s32)t3;
+        } else {
+            bv = (u8)(s32)(t3 - 2.1474836e9f);
+        }
+        *(u8 *)(*(u8 **)(q + 0x80) + 0x10) = bv;
+        *(u8 *)(*(u8 **)(q + 0x7C) + 0x10) = bv;
+        t4 = 255.0f - t4;
+        for (i1 = 0; i1 < 3; i1++) {
+            for (j1 = 0; j1 < 6; j1++) {
+                u8 vv;
+                if (2.1474836e9f > t4) {
+                    vv = (u8)(s32)t4;
+                } else {
+                    vv = (u8)(s32)(t4 - 2.1474836e9f);
+                }
+                *(u8 *)(*(u8 **)(q + (s32)i1 * 0x18 + (s32)j1 * 4 + 0x34) + 0x10) = vv;
+            }
+        }
+        func_0046b380(*(u8 **)(q + 0x7C), 0);
+        func_0046b380(*(u8 **)(q + 0x80), 0);
+        for (i2 = 0; i2 < 3; i2++) {
+            for (j2 = 0; j2 < 6; j2++) {
+                func_0046b380(*(u8 **)(q + (s32)i2 * 0x18 + (s32)j2 * 4 + 0x34), 0);
+            }
+        }
+        *(f32 *)(sp + 4) = func_002b2aa0(0, (f32)327, 264.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
+        *(f32 *)(sp + 12) = func_002b2aa0(0, (f32)327, (f32)341, (f32)*(s16 *)(q + 0x764), 10.0f);
+        a = func_002b2aa0(0, iGpffff84f4, 1.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
+        b = func_002b2aa0(0, 183.0f, 120.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
+        c = func_002b2aa0(0, 332.0f, (f32)395, (f32)*(s16 *)(q + 0x764), 10.0f);
+        break;
+    }
+    case 3: {
+        f32 t1;
+        f32 t2;
+        f32 t3;
+        f32 t4;
+        u8 bv;
+        t1 = func_002b2aa0(0, 312.0f, 179.0f, (f32)*(s16 *)(q + 0x764), 5.0f);
+        t2 = func_002b2aa0(0, 312.0f, (f32)443, (f32)*(s16 *)(q + 0x764), 5.0f);
+        t3 = func_002b2aa0(0, 0.0f, 255.0f, (f32)*(s16 *)(q + 0x764), 5.0f);
+        t4 = func_002b2aa0(0, 0.0f, 255.0f, (f32)*(s16 *)(q + 0x766), 5.0f);
+        *(f32 *)(*(u8 **)(q + 0x7C) + 8) = t1;
+        *(f32 *)(*(u8 **)(q + 0x80) + 8) = t2;
+        t3 = 255.0f - t3;
+        if (2.1474836e9f > t3) {
+            bv = (u8)(s32)t3;
+        } else {
+            bv = (u8)(s32)(t3 - 2.1474836e9f);
+        }
+        *(u8 *)(*(u8 **)(q + 0x80) + 0x10) = bv;
+        *(u8 *)(*(u8 **)(q + 0x7C) + 0x10) = bv;
+        t4 = 255.0f - t4;
+        for (i3 = 0; i3 < 3; i3++) {
+            for (j3 = 0; j3 < 6; j3++) {
+                u8 vv;
+                if (2.1474836e9f > t4) {
+                    vv = (u8)(s32)t4;
+                } else {
+                    vv = (u8)(s32)(t4 - 2.1474836e9f);
+                }
+                *(u8 *)(*(u8 **)(q + (s32)i3 * 0x18 + (s32)j3 * 4 + 0x34) + 0x10) = vv;
+            }
+        }
+        *(f32 *)(sp + 4) = func_002b2aa0(0, 264.0f, (f32)327, (f32)*(s16 *)(q + 0x764), 5.0f);
+        *(f32 *)(sp + 12) = func_002b2aa0(0, (f32)341, (f32)327, (f32)*(s16 *)(q + 0x764), 5.0f);
+        a = func_002b2aa0(0, 1.0f, iGpffff84f4, (f32)*(s16 *)(q + 0x764), 5.0f);
+        b = func_002b2aa0(0, 120.0f, 183.0f, (f32)*(s16 *)(q + 0x764), 5.0f);
+        c = func_002b2aa0(0, (f32)395, 332.0f, (f32)*(s16 *)(q + 0x764), 5.0f);
+        /* fallthrough */
+    }
+    case 4:
+        func_0046b380(*(u8 **)(q + 0x7C), 0);
+        func_0046b380(*(u8 **)(q + 0x80), 0);
+        for (i4 = 0; i4 < 3; i4++) {
+            for (j4 = 0; j4 < 6; j4++) {
+                func_0046b380(*(u8 **)(q + (s32)i4 * 0x18 + (s32)j4 * 4 + 0x34), 0);
+            }
+        }
+        break;
+    case 5:
+        *(f32 *)(sp + 4) = func_002b2aa0(0, (f32)327, 264.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
+        *(f32 *)(sp + 12) = func_002b2aa0(0, (f32)327, (f32)341, (f32)*(s16 *)(q + 0x764), 10.0f);
+        a = func_002b2aa0(0, iGpffff84f4, 1.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
+        b = func_002b2aa0(0, 183.0f, 120.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
+        c = func_002b2aa0(0, 332.0f, (f32)395, (f32)*(s16 *)(q + 0x764), 10.0f);
+        func_002b3c60((s32)*(u8 **)(q + 0xCC), 0);
+        break;
+    case 6:
+        *(f32 *)(sp + 4) = func_002b2aa0(0, 264.0f, (f32)327, (f32)*(s16 *)(q + 0x764), 5.0f);
+        *(f32 *)(sp + 12) = func_002b2aa0(0, (f32)341, (f32)327, (f32)*(s16 *)(q + 0x764), 5.0f);
+        a = func_002b2aa0(0, 1.0f, iGpffff84f4, (f32)*(s16 *)(q + 0x764), 5.0f);
+        b = func_002b2aa0(0, 120.0f, 183.0f, (f32)*(s16 *)(q + 0x764), 5.0f);
+        c = func_002b2aa0(0, (f32)395, 332.0f, (f32)*(s16 *)(q + 0x764), 5.0f);
+        func_002b3c60((s32)*(u8 **)(q + 0xCC), 1);
+        break;
+    default:
+        break;
+    }
+    if (iGpffff84f4 < a) {
+        f32 se = *(f32 *)(sp + 4);
+        f32 sf = *(f32 *)(sp + 12);
+        *(f32 *)(*(u8 **)(q + 0x28) + 0xC) = se;
+        *(f32 *)(*(u8 **)(q + 0x24) + 0xC) = se;
+        *(f32 *)(*(u8 **)(q + 0x30) + 0xC) = sf;
+        *(f32 *)(*(u8 **)(q + 0x2C) + 0xC) = sf;
+        a = a * 4096.0f;
+        for (k = 0; k < 4; k++) {
+            u8 **pp = (u8 **)(q + (s32)k * 4 + 0x24);
+            u16 ww;
+            if (2.1474836e9f > a) {
+                ww = (u16)(s32)a;
+            } else {
+                ww = (u16)(s32)(a - 2.1474836e9f);
+            }
+            *(u16 *)(*pp + 0x22) = ww;
+            func_0046b380(*pp, 0);
+        }
+    }
+    *(f32 *)(func_002b2940((s32)*(u8 **)(q + 0xBC)) + 0x10) = b;
+    *(f32 *)(func_002b2940((s32)*(u8 **)(q + 0xC4)) + 8) = c;
+}
+#pragma opt_loop_invariants off
+#else
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b1520);
+#endif
 
 // FUN_002B2240
 void func_002b2240(u8 *arg0) {
