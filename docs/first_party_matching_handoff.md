@@ -251,6 +251,18 @@ MATCHed definition in `src/Battle/btlUnit.c` always said) and MATCHed
 format argument). Grep floors for `(s32)&` inside a call: every hit is a
 candidate.
 
+**When a caller and a callee disagree, the caller decides.** Reordering a
+callee's own parameter list is ABI-neutral and leaves its body byte-exact, so a
+MATCHed definition proves nothing about the order; a MATCHed *caller* does,
+because its argument setup is emitted in that order. `func_0045da40` in
+`src/sdkPrimitive.c` was declared floats-last and its MATCHed caller
+`func_0027d660` in `src/promoted/itfMsgProcedure_Window.c` passes the float
+third; rewriting the caller to the definition's order turned it into a
+MISMATCH, so the definition was corrected instead. Scan for these by comparing
+every declaration of a callee against its live (unguarded) definition and
+flagging differing float positions - 67 such disagreements were still open on
+2026-09-18.
+
 **K&R declarations are not the same lever and usually break the ABI.** An
 unprototyped callee promotes `f32` to `double`; measured 329 differing words on
 `func_00354ba0`. Only reach for it when the callee genuinely has no prototype.
