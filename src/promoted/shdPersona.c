@@ -1036,11 +1036,25 @@ void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
    homes at 0x70/0x78) and the whole body shifts (nd 147, obj 8B over window).
    Tried declaration orders — identical. FP/GP colouring floor. */
 /* measured: MWCC -O2 plain, object 564B/window 624B, normalized_diff 393. Signature (u8*,s64,u8,s64,f32). Wall frame 0x70/homes 0x60,0x68 vs retail 0x60/0x50,0x58; first diff at 0 in all variants; addiu-sp-rematerialisation + FP/GP colouring floor, banked per wall rule rather than grinding. Levers: s64/u8 baseline 395, s64/s8/s32 +45, Vec2f +45, callee u8/s32 -2, decl orders +2/0, hy2-reload +84, s16-swapped -7, schedule +42, loopinv 0. No volatile/asm. Mined s64-family neighbours (00116190/001162f0/001163e0) and odd-register mapping. Staged /tmp/push_1187b0_full.c via NearGA.Shd1187b0. */
+/* 130 -> 114 (2026-09-18), and the object goes from eleven instructions
+   short of retail to one.  Two measured levers:
+   1. func_0034f4a0's parameter list is
+      (s32, s32, f32, f32, f32, u8, u8, u8, u32, u16, u16, f32, s16, s16), the
+      live definition in src/promoted/code1_0034.c, not the ints-first
+      spelling that was here; b210 emits argument setup in source order
+      (130 -> 122).
+   2. the two trailing stack arguments are `(s16)(expr)`, not
+      `(s16)(s32)(expr)`.  With the extra s32 step b210 hoists the
+      loop-invariant `hy2 - f20` conversion out of all four calls where
+      retail recomputes it per call (122 -> 114, edits 66 -> 36).
+   Remaining: `move $s1, $a2` - retail copies arg2 into a saved register and
+   b210 does not; a `u8 kind = arg2;` local in either declaration position
+   is inert. */
 // FUN_001187B0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001187b0(u8 *arg0, s64 arg1, u8 arg2, s64 arg3, f32 fparg0)
 {
-    void func_0034f4a0(s32, s32, u8, u8, u8, s64, s64, s16, f32, f32, f32, f32, s16, s16);
+    void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u32 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
     s32 tmp;
     f32 f21;
     f32 f20;
@@ -1052,13 +1066,13 @@ void func_001187b0(u8 *arg0, s64 arg1, u8 arg2, s64 arg3, f32 fparg0)
     f21 = *(f32 *)&arg1 + *(f32 *)&arg3;
     f20 = *((f32 *)&arg1 + 1) + *((f32 *)&arg3 + 1);
     hy2 = *((f32 *)&arg3 + 1);
-    func_0034f4a0(*(s32 *)(arg0 + 0x2C4), 0x1D, 0xBD, 0x29, 0, arg2, 0x1000, 0x1000, f21, f20, 0, fparg0, (s16)(s32)(*(f32 *)&arg3 - f21), (s16)(s32)(hy2 - f20));
+    func_0034f4a0(*(s32 *)(arg0 + 0x2C4), 0x1D, f21, f20, 0, 0xBD, 0x29, 0, arg2, 0x1000, 0x1000, fparg0, (s16)(s32)(*(f32 *)&arg3 - f21), (s16)(hy2 - f20));
     f12a = 207.0f + f21;
-    func_0034f4a0(tmp, 0xB2, 0xBD, 0x29, 0, arg2, 0x1000, 0x1000, f12a, f20, 0, fparg0, (s16)(s32)(*(f32 *)&arg3 - f12a), (s16)(s32)(hy2 - f20));
+    func_0034f4a0(tmp, 0xB2, f12a, f20, 0, 0xBD, 0x29, 0, arg2, 0x1000, 0x1000, fparg0, (s16)(s32)(*(f32 *)&arg3 - f12a), (s16)(hy2 - f20));
     f12b = 300.0f + f21;
-    func_0034f4a0(tmp, 0xB3, 0xBD, 0x29, 0, arg2, 0x1000, 0x1000, f12b, f20, 0, fparg0, (s16)(s32)(*(f32 *)&arg3 - f12b), (s16)(s32)(hy2 - f20));
+    func_0034f4a0(tmp, 0xB3, f12b, f20, 0, 0xBD, 0x29, 0, arg2, 0x1000, 0x1000, fparg0, (s16)(s32)(*(f32 *)&arg3 - f12b), (s16)(hy2 - f20));
     f12c = 314.0f + f21;
-    func_0034f4a0(tmp, 0xB3, 0xBD, 0x29, 0, arg2, 0x1000, 0x1000, f12c, f20, 0, fparg0, (s16)(s32)(*(f32 *)&arg3 - f12c), (s16)(s32)(hy2 - f20));
+    func_0034f4a0(tmp, 0xB3, f12c, f20, 0, 0xBD, 0x29, 0, arg2, 0x1000, 0x1000, fparg0, (s16)(s32)(*(f32 *)&arg3 - f12c), (s16)(hy2 - f20));
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001187b0);
