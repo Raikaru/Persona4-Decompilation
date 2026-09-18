@@ -909,6 +909,23 @@ void func_0048a340(f32 param_1)
    15 -> 17, and hoisting them above the divides costs 15 -> 19.  The two
    inline-asm blocks are genuine terminal COP2 transfers per the VU handoff,
    not a shortcut. */
+/* 2026-09-18 section 7o eight-probe pass; floor stays 15. */
+/* Exchanged pair per fnalign (retail[21:26][27:33][34:36][38:40]): retail keeps */
+/* divisor (transformed.z, 0x38($sp)) in $f0, dividend (transformed.x 0x30 / y 0x34) */
+/* in $f1, quotient in $f2, constants (640.0f lui 0x4420, 448.0f lui 0x43e0) and */
+/* output pointer (addiu $sp,0x10) in $v0, where this body uses $f2/$f0 -> $f1 and */
+/* $v1. residual_signature reports edits 20 mask 0 cvt 0 class 0 perm 0 other 5 */
+/* with no stable mapping because fnalign groups the rotation into multi-instruction */
+/* replace blocks (single-register rows would be perm); the mapping above is the pair. */
+/* Two values tried: qx = transformed.x / transformed.z, qy = transformed.y / */
+/* transformed.z, declared without initialiser and assigned as statements, retail */
+/* order (qx then qy) vs reverse, at function scope vs block scope. All eight via */
+/* probe_variants in one batch, each 15 -> 16 (one extra word; quotient locals hurt): */
+/* v1 fn-both retail (qx,qy top, qx then qy) 16; v2 fn-both reverse (qy then qx) 16; */
+/* v3 blk-both retail ({qx,qy} block, qx then qy) 16; v4 blk-both reverse 16; */
+/* v5 qx-fn/qy-blk retail (qx top, qy block, qx then qy) 16; v6 same split reverse 16; */
+/* v7 qx-blk/qy-fn retail (qy top, qx block, qx then qy) 16; v8 same split reverse 16. */
+/* No variant reaches zero; 7o does not close this FP/GPR rotation. Floor untouched. */
 // FUN_0048A460 NONMATCHING
 #ifdef NON_MATCHING
 void func_0048a460(void)

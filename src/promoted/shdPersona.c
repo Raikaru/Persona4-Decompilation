@@ -1728,8 +1728,301 @@ void func_0034f9d0(Vec2f unused, f32 fparg0, u32 arg1, s32 arg2, s32 arg3);
    and the family calls (16610/163e0/16820/16d40/14e50/13ef0/14460/34f9d0)
    decode per the draft; the `(u32)(b18 * 0xFF) / 255U` and
    `*(*(u16 **)arg1) & 4` shapes reproduced. */
-// FUN_00119E10
+/* measured: cold 2026-09-18 00119e10 -- GUARDED_SCORE 415 in real tree via `python3 -E -s tools/measure_guarded.py src/promoted/shdPersona.c func_00119e10` (probe 415 differing words, object 802 instrs/window 802 instrs exact count per fnalign, 804-instr retail window). Full-C from P4 m2c draft (/var/tmp/cold119e10/m2c.c) + rw raw (/var/tmp/cold119e10/rw.c) + Ghidra/IDA headstarts, de-noised to file idiom (raw u8 work offsets, PackedVec2f position + e400buf[2] + s64 sp78/sp70/sp68 copies, u32 tblbase single-base D_00887300 idiom, (f32)(s32) truncations for 114/2 per 0011d5b0 lesson, plain (u8) for 204*(1-f20) per 7a-quinquies, (u32)(alpha*0xFF)/255U + color|~0xFF per 00116190 sibling, block-scope 113ef0/14460/14e50/274ed0 decls to keep file-scope untouched). Frame 0xA0 vs retail 0x90 (+1 saved GP) + homes 0x98/0x9C vs 0x88/0x8C shift + $s1/$s2/$s3 colour permutation are the floor. Reused existing decls (00364680 f32-first, 0046d2b0 8-arg, 0046d4c0 11-arg, 00116610/163e0/16820 s64-family, 00116d40 Vec2f-family, 0034f9d0 Vec2f-family), no new globals. Rounds in batch order: (1) pragmas tie 415 (loopinv/strength/unroll tie, dead 547, prop 703, sched 720, cse 733, levels worse); (2) scoping cnt/flags block-local tie 415 (1st non-lowering); (3) decl orders tie 415 (b/tblbase swap, u32*-base, position/e400 swap; 2nd consecutive non-lowering but continued for diagnosis); (4) tblbase-direct 630 (+215, confirms single-base idiom) + (u8)(s32) 521 (+106, confirms plain (u8) per 7a-quinquies); (5) hoisted row 432 (+17, confirms direct b[i+..] per 7k Step3) + e400 scalars 421 (+6, confirms e400buf[2] array). verify.py src/promoted/shdPersona.c 91 MATCH/11 ASM/0 MISMATCH pre/post (now 91/11 with target ASM floor counted among 11); decomp_lint clean; -DNON_MATCHING compiles. Walls: systematic $s1->$s2/$s2->$s3/$s3->$s4 shift (extra saved, decl-order inert per 7m), FP mov.s shortfall 7, move/addiu surplus 3. */
+// FUN_00119E10 NONMATCHING
+#ifdef NON_MATCHING
+void func_00119e10(u8 *arg0, u8 *arg1)
+{
+    void func_00113ef0(Vec2f, f32, u8, u8 *, u8, f32);
+    void func_00114460(Vec2f, f32, u8, u8 *, f32);
+    void func_00114e50(Vec2f, f32, s32, s32);
+    void func_00274ed0(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
+    PackedVec2f position;
+    f32 e400buf[2];
+    s64 sp78;
+    s64 sp70;
+    s64 sp68;
+    u8 *b;
+    u32 tblbase;
+    s32 flags;
+    s16 cnt;
+
+    b = arg1;
+    flags = *(s32 *)(b + 0x534);
+    if (((flags & 1) == 0) || ((flags & 8) == 0)) {
+        return;
+    }
+    cnt = *(s16 *)(b + 0x526);
+    *(s16 *)(b + 0x526) = cnt + 1;
+    if (*(s32 *)b == 0) {
+        func_0046d730(D_005E4868, 0x933);
+    }
+    cnt = *(s16 *)(b + 0x508);
+    if (cnt < 0x64) {
+        *(s16 *)(b + 0x508) = cnt + 1;
+    }
+    flags = *(s32 *)(b + 0x534);
+    if ((flags & 2) != 0) {
+        func_0011ac70(b);
+    } else if ((flags & 4) != 0) {
+        func_0011ae90(b);
+    }
+    if ((*(s32 *)(b + 0x534) & 0x800) != 0) {
+        cnt = *(s16 *)(b + 0x514);
+        if (cnt < 0x64) {
+            *(s16 *)(b + 0x514) = cnt + 1;
+        }
+        flags = *(s32 *)(b + 0x534);
+        if ((flags & 0x1000) != 0) {
+            func_0011c780(b);
+        } else if ((flags & 0x2000) != 0) {
+            func_0011c930(b);
+        }
+    }
+    if ((*(s32 *)(b + 0x534) & 0x4000) != 0) {
+        cnt = *(s16 *)(b + 0x516);
+        if (cnt < 0x64) {
+            *(s16 *)(b + 0x516) = cnt + 1;
+        }
+        func_0011c3e0(b);
+    }
+    if ((*(s32 *)(b + 0x534) & 0x8000) != 0) {
+        cnt = *(s16 *)(b + 0x518);
+        if (cnt < 0x64) {
+            *(s16 *)(b + 0x518) = cnt + 1;
+        }
+        func_0011cd20(b);
+    }
+    if ((*(s32 *)(b + 0x534) & 0x200) != 0) {
+        cnt = *(s16 *)(b + 0x520);
+        if (cnt < 0x64) {
+            *(s16 *)(b + 0x520) = cnt + 1;
+        }
+        func_0011ce50(b);
+    }
+    tblbase = (u32)D_00887300;
+    ((s32 (**)(s32, void *))tblbase)[0](6, (void *)0);
+    ((s32 (**)(s32, void *))tblbase)[0](7, (void *)2);
+    ((s32 (**)(s32, void *))tblbase)[0](8, (void *)0);
+    ((s32 (**)(s32, void *))tblbase)[0](9, (void *)2);
+    ((s32 (**)(s32, void *))tblbase)[0](0xC, (void *)1);
+    ((s32 (**)(s32, void *))tblbase)[0](0xB, (void *)6);
+    ((s32 (**)(s32, void *))tblbase)[0](0xA, (void *)5);
+    ((s32 (**)(s32, void *))tblbase)[0](2, (void *)4);
+    ((s32 (**)(s32, void *))tblbase)[0](0xE, (void *)0);
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x44);
+    if ((*(s32 *)(b + 0x534) & 0x10) != 0) {
+        func_0011b110(b);
+    }
+    if ((*(s32 *)(b + 0x534) & 0x400000) == 0) {
+        func_0011de40(*(u8 **)(b + 0x4F8), *(u8 *)(b + 0x505));
+        if ((*(s32 *)(b + 0x534) & 0x800000) != 0) {
+            func_0011dd50(*(u8 **)(b + 0x4F8));
+        }
+        if ((*(s32 *)(b + 0x534) & 0x200) != 0) {
+            func_00118a20(b);
+        }
+        if ((*(s32 *)(b + 0x534) & 0x200000) != 0) {
+            func_0011dc50(*(u8 **)(b + 0x4F8));
+        }
+        if ((*(s32 *)(b + 0x534) & 0x200) != 0) {
+            u8 *work2;
+            f32 f20;
+            s32 packed;
+            s32 id;
+            work2 = *(u8 **)(b + 0x4F8);
+            if (((*(s32 *)(b + 0x534) & 0x10000) != 0) && (*(s16 *)(b + 0x520) >= 0x14) && (func_0011e3e0(work2) != 0)) {
+                f32 t;
+                f20 = func_001174a0(*(s16 *)(b + 0x520), 0x17, 0x32, 2);
+                func_0011e400(work2, (u8 *)e400buf);
+                t = 204.0f * (1.0f - f20);
+                packed = ((u8)t & 0xFF) | 0xFF8C3200;
+                id = func_0011e460(work2);
+                func_00364680(0.0f, packed, e400buf[0], e400buf[1], e400buf[0], e400buf[1], 512.0f, 512.0f, id, 0, 1);
+                func_003f6440(3, 0x717FB);
+                func_003f6440(2, 0x44);
+            }
+        }
+        if ((*(s32 *)(b + 0x534) & 0x100) != 0) {
+            func_00119210(b);
+        }
+        flags = *(s32 *)(b + 0x534);
+        if ((flags & 0x200000) != 0) {
+            if ((flags & 0x80000) != 0) {
+                func_00117980(b);
+            } else if ((*(u16 *)*(u32 *)b & 4) != 0) {
+                *(s32 *)(b + 0x534) = flags | 0x80000;
+                func_0043f9c8(b + 0x458, 0, 0x68);
+            }
+        }
+        if ((*(s32 *)(b + 0x534) & 0x400) != 0) {
+            f32 px;
+            f32 py;
+            px = 16.0f + *(f32 *)(b + 0x36C);
+            py = 17.0f + *(f32 *)(b + 0x370);
+            position.xy.x = px;
+            position.xy.y = py;
+            func_0046d2b0(0, *(s32 *)(b + 0x2C4), 3, px, py, (0xFF - *(u8 *)(b + 0x376)) & 0xFF, 0.0f, 0);
+        }
+        if ((*(s32 *)(b + 0x534) & 0x80) != 0) {
+            f32 px;
+            f32 py;
+            u8 alpha;
+            u32 color;
+            s32 id;
+            f32 x;
+            f32 y;
+            px = *(f32 *)(b + 0x2DC);
+            py = 43.0f + *(f32 *)(b + 0x2E0);
+            position.xy.x = px;
+            position.xy.y = py;
+            alpha = *(u8 *)(b + 0x2E6);
+            sp78 = position.packed;
+            color = (u32)((alpha * 0xFF) / 255U);
+            if (*(u16 *)(b + 0xC) != 0) {
+                id = *(s32 *)(b + 0x2BC);
+                if (id == 0) {
+                    func_0046d730(D_005E4868, 0x171);
+                }
+                func_0046d4c0(0, id, 0x59, 207.0f + *(f32 *)&sp78, *((f32 *)&sp78 + 1), (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+                x = (f32)(s32)(114.0f + *(f32 *)&sp78);
+                y = (f32)(s32)(2.0f + *((f32 *)&sp78 + 1));
+                func_00274ed0(x, y, 0.0f, color | ~0xFF, 8, 1, (const char *)func_0010d6d0(*(s16 *)(b + 0xC)), 8, 0);
+            }
+        }
+        if ((*(s32 *)(b + 0x534) & 0x40) != 0) {
+            f32 px;
+            f32 py;
+            u8 alpha;
+            s32 id;
+            s32 inv;
+            px = -23.0f + *(f32 *)(b + 0x300);
+            py = 76.0f + *(f32 *)(b + 0x304);
+            position.xy.x = px;
+            position.xy.y = py;
+            func_00116610(position.packed, 0.0f, *(u8 *)(b + 0x30A), b + 0xC, (s32 *)(b + 0x2B8));
+            px = -23.0f + *(f32 *)(b + 0x348);
+            py = 76.0f + *(f32 *)(b + 0x34C);
+            position.xy.x = px;
+            position.xy.y = py;
+            alpha = *(u8 *)(b + 0x352);
+            sp70 = position.packed;
+            id = *(s32 *)(b + 0x2B8);
+            if (id == 0) {
+                func_0046d730(D_005E4868, 0x197);
+            }
+            inv = 0xFF - (alpha & 0xFF);
+            func_0046d4c0(0, id, 0x47, *(f32 *)&sp70, *((f32 *)&sp70 + 1), inv & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+            func_0046d4c0(0, id, 0x41, 126.0f + *(f32 *)&sp70, *((f32 *)&sp70 + 1), inv & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+            px = -23.0f + *(f32 *)(b + 0x324);
+            py = 76.0f + *(f32 *)(b + 0x328);
+            position.xy.x = px;
+            position.xy.y = py;
+            func_001163e0(position.packed, 0.0f, *(u8 *)(b + 0x32E), b + 0xC, (s32 *)(b + 0x2B8));
+            if ((*(s32 *)(b + 0x534) & 0x4000) != 0) {
+                px = -23.0f + *(f32 *)(b + 0x3D8);
+                py = 76.0f + *(f32 *)(b + 0x3DC);
+                position.xy.x = px;
+                position.xy.y = py;
+                func_00116610(position.packed, 0.0f, *(u8 *)(b + 0x3E2), b + 0x48, (s32 *)(b + 0x2B8));
+                px = -23.0f + *(f32 *)(b + 0x420);
+                py = 76.0f + *(f32 *)(b + 0x424);
+                position.xy.x = px;
+                position.xy.y = py;
+                alpha = *(u8 *)(b + 0x42A);
+                sp68 = position.packed;
+                id = *(s32 *)(b + 0x2B8);
+                if (id == 0) {
+                    func_0046d730(D_005E4868, 0x197);
+                }
+                inv = 0xFF - (alpha & 0xFF);
+                func_0046d4c0(0, id, 0x47, *(f32 *)&sp68, *((f32 *)&sp68 + 1), inv & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+                func_0046d4c0(0, id, 0x41, 126.0f + *(f32 *)&sp68, *((f32 *)&sp68 + 1), inv & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+                px = -23.0f + *(f32 *)(b + 0x3FC);
+                py = 76.0f + *(f32 *)(b + 0x400);
+                position.xy.x = px;
+                position.xy.y = py;
+                func_001163e0(position.packed, 0.0f, *(u8 *)(b + 0x406), b + 0x48, (s32 *)(b + 0x2B8));
+            }
+            {
+                f32 qx;
+                f32 qy;
+                u8 b39A;
+                qx = (f32)0x131 + *(f32 *)(b + 0x390);
+                qy = 139.0f + *(f32 *)(b + 0x394);
+                position.xy.x = qx;
+                position.xy.y = qy;
+                b39A = *(u8 *)(b + 0x39A);
+                func_00116820(position.packed, 0.0f, b39A, b + 0xC, (s32 *)(b + 0x2B8));
+                {
+                    s32 i;
+                    for (i = 0; i < 5; i++) {
+                        f32 rx;
+                        f32 ry;
+                        rx = 88.0f + *(f32 *)(b + 0x390);
+                        ry = 203.0f + *(f32 *)(b + 0x394) + (f32)(i * 19);
+                        position.xy.x = rx;
+                        position.xy.y = ry;
+                        func_00116d40(position.xy, b39A, b[i + 0x13], b[i + 0x18], *(s16 *)(b + 0x526), *(s32 *)(b + 0x2B8), 0.0f);
+                    }
+                }
+            }
+        }
+        if ((*(s32 *)(b + 0x534) & 0x800) != 0) {
+            f32 px;
+            f32 py;
+            cnt = *(s16 *)(b + 0x514);
+            if (cnt < 0x64) {
+                *(s16 *)(b + 0x514) = cnt + 1;
+            }
+            px = 18.0f + *(f32 *)(b + 0x444);
+            py = 194.0f + *(f32 *)(b + 0x448);
+            position.xy.x = px;
+            position.xy.y = py;
+            func_00114e50(position.xy, 0.0f, *(u8 *)(b + 0x505), func_0011ccb0(b));
+        }
+        if ((*(s32 *)(b + 0x534) & 0x20) != 0) {
+            f32 px;
+            f32 py;
+            u8 alpha;
+            f32 fade;
+            px = *(f32 *)(b + 0x3B4);
+            py = *(f32 *)(b + 0x3B8);
+            position.xy.x = px;
+            position.xy.y = py;
+            alpha = *(u8 *)(b + 0x3BE);
+            {
+                s32 j;
+                for (j = 0; j < 8; j++) {
+                    if (((*(s32 *)(b + 0x534) & 0x8000) != 0) && (*(s16 *)(b + 0x51A) == j)) {
+                        fade = *(f32 *)(b + 0x51C);
+                    } else {
+                        fade = 0.0f;
+                    }
+                    func_00113ef0(position.xy, 0.0f, alpha, b + 0x84, j & 0xFF, fade);
+                }
+                if (((*(s32 *)(b + 0x534) & 0x8000) != 0) && (*(s16 *)(b + 0x51A) == 8)) {
+                    fade = *(f32 *)(b + 0x51C);
+                } else {
+                    fade = 0.0f;
+                }
+                func_00114460(position.xy, 0.0f, alpha, b + 0x84, fade);
+            }
+            if ((*(s32 *)(b + 0x534) & 0x100000) != 0) {
+                func_00119810(b);
+            }
+        }
+        if ((*(s32 *)(b + 0x534) & 0x40000) != 0) {
+            position.xy.x = 0.0f;
+            position.xy.y = 0.0f;
+            func_0034f9d0(position.xy, 0.0f, *(u8 *)(b + 0x505), *(s32 *)(b + 0x528), *(s32 *)(b + 0x2C4));
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00119e10);
+#endif
 
 
 
