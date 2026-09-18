@@ -383,8 +383,221 @@ s32 func_00169780(void* collisionWorld, f32* origin,
 #else
 INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_00169780);
 #endif
-// FUN_00169A30
+/* measured: first reconstruction from retail + m2c + 00169320 conventions (RwV3d tri/comp/edge/delta, buf[3]/ptrs[3], block-scoped index/count/record/fraction, fabsf->abs.s, D_0076122C threshold at gp-0x7EC4, bare &tri.x, a00 materialization per gate 2). fnalign retail 416/object 407 (deficit 9, 2.16% deviation, within 3% gate), probe_variants nd 354. 3% check: |416-407|/416 = 2.16% <= 3%, so guarded floor per handoff banking rule. Residual is register color + folded-vs-materialized + ACC vs mul/add + displacement cascade. Production stays guarded (not MATCH). */
+// FUN_00169A30 NONMATCHING
+#ifdef NON_MATCHING
+void *func_00169a30(const RwV3d *point, const void *triangle, void *collector)
+{
+    extern f32 fabsf(f32 x);
+    extern s32 func_00168ec0(void *arg0, void *arg1, void *arg2);
+    extern f32 func_003e4180(f32 *vec);
+    extern void func_003e4360(void *dst, const void *src, s32 n, void *mat);
+    extern void func_003e42e0(void *dst, void *src, s32 n, void *mat);
+    extern f32 D_0076122C;
+    typedef struct FldFrameTri169a30
+    {
+        RwV3d pos;
+        u8 gap[0x10];
+        void *verts[3];
+    } FldFrameTri169a30;
+    u8 *ctx;
+    FldFrameTri169a30 *triData;
+    RwV3d tri;
+    RwV3d comp;
+    RwV3d edge;
+    RwV3d delta;
+    RwV3d buf[3];
+    void *ptrs[3];
+    void *mat;
+    f32 dot;
+    f32 dotV;
+    f32 dotP;
+    f32 proj;
+    f32 edgedist;
+    s32 i;
+    ctx = (u8 *)collector;
+    triData = (FldFrameTri169a30 *)triangle;
+    tri.x = ((RwV3d *)triangle)->x;
+    tri.y = ((RwV3d *)triangle)->y;
+    tri.z = ((RwV3d *)triangle)->z;
+    {
+        u8 *tmpPtr = *(u8 **)(ctx + 0xB34);
+        s32 tmpId = *(s32 *)(tmpPtr + 4);
+        mat = func_003e9700(tmpId);
+    }
+    func_003e4360(&tri, triangle, 1, mat);
+    func_003e40b0(&tri.x, &tri.x);
+    for (i = 0; i < 3; i++)
+    {
+        func_003e42e0(&buf[i], triData->verts[i], 1, mat);
+        ptrs[i] = &buf[i];
+    }
+    dot = tri.y * *(f32 *)(ctx + 0xB10) + tri.x * *(f32 *)(ctx + 0xB0C) + tri.z * *(f32 *)(ctx + 0xB14);
+    if (dot >= 0.0f && *(s32 *)(ctx + 0xB00) == 0)
+    {
+        return (void *)triangle;
+    }
+    if (fabsf(tri.y) > D_0076122C)
+    {
+        return (void *)triangle;
+    }
+    {
+        RwV3d *v0 = (RwV3d *)ptrs[0];
+        dotV = v0->y * tri.y + v0->x * tri.x + v0->z * tri.z;
+        dotP = point->y * tri.y + point->x * tri.x + point->z * tri.z;
+        proj = dotV - dotP;
+    }
+    comp.x = tri.x * proj + point->x;
+    comp.y = tri.y * proj + point->y;
+    comp.z = tri.z * proj + point->z;
+    if (func_00168ec0(&comp, ptrs, &tri) != 0)
+    {
+        f32 dist = fabsf(proj);
+        {
+        s32 index;
+        s32 count;
+        f32* record;
+        f32* fraction;
+        u8* fbase;
+        u8* a00;
+        index = 0;
+        count = *(s32*)(ctx + 0xb04);
+        while (index < count)
+        {
+            record = (f32*)(ctx + 12 * index);
+            if (record[192] == tri.x && record[193] == tri.y && record[194] == tri.z)
+                goto found1;
+            index++;
+        }
+        index = -1;
+found1:
+        if (index >= 0)
+        {
+            fraction = (f32*)((u8*)(4 * index) + (u32)ctx + 0x600);
+            if (dist < *fraction)
+            {
+                record = (f32*)(ctx + 12 * index);
+                *(RwV3d*)record = comp;
+                *(RwV3d*)(record + 192) = *(RwV3d*)triangle;
+                *fraction = dist;
+                if (*(s32*)(ctx + 0xB00) == 1)
+                {
+                    fbase = (u8*)(4 * index) + (u32)ctx;
+                    a00 = fbase + 0xA00;
+                    if (*(s32*)a00 == 0)
+                    {
+                        (*(s32*)(ctx + 0xB08))++;
+                    }
+                    *(s32*)a00 = 1;
+                }
+            }
+        }
+        else
+        {
+            fraction = (f32*)((u8*)(4 * count) + (u32)ctx + 0x600);
+            if (dist < *fraction)
+            {
+                record = (f32*)(ctx + 12 * count);
+                *(RwV3d*)record = comp;
+                record = (f32*)((u8*)(12 * *(s32*)(ctx + 0xb04)) + (u32)ctx);
+                *(RwV3d*)(record + 192) = *(RwV3d*)triangle;
+                fraction = (f32*)((u8*)(4 * *(s32*)(ctx + 0xb04)) + (u32)ctx + 0x600);
+                *fraction = dist;
+                if (*(s32*)(ctx + 0xB00) == 1)
+                {
+                    fbase = (u8*)(4 * *(s32*)(ctx + 0xb04)) + (u32)ctx;
+                    a00 = fbase + 0xA00;
+                    if (*(s32*)a00 == 0)
+                    {
+                        (*(s32*)(ctx + 0xB08))++;
+                    }
+                    *(s32*)a00 = 1;
+                }
+                (*(s32*)(ctx + 0xb04))++;
+            }
+        }
+        }
+    }
+    else
+    {
+        for (i = 0; i < 3; i++)
+        {
+            func_00169200(&edge, &comp, (RwV3d*)ptrs[i], (RwV3d*)ptrs[(i + 1) % 3]);
+            delta.x = point->x - edge.x;
+            delta.y = point->y - edge.y;
+            delta.z = point->z - edge.z;
+            edgedist = func_003e4180((f32*)&delta);
+            {
+            s32 index;
+            s32 count;
+            f32* record;
+            f32* fraction;
+            u8* fbase;
+        u8* a00;
+            index = 0;
+            count = *(s32*)(ctx + 0xb04);
+            while (index < count)
+            {
+                record = (f32*)(ctx + 12 * index);
+                if (record[192] == tri.x && record[193] == tri.y && record[194] == tri.z)
+                    goto found2;
+                index++;
+            }
+            index = -1;
+found2:
+            if (index >= 0)
+            {
+                fraction = (f32*)((u8*)(4 * index) + (u32)ctx + 0x600);
+                if (edgedist < *fraction)
+                {
+                    record = (f32*)(ctx + 12 * index);
+                    *(RwV3d*)record = edge;
+                    *(RwV3d*)(record + 192) = *(RwV3d*)triangle;
+                    *fraction = edgedist;
+                    if (*(s32*)(ctx + 0xB00) == 1)
+                    {
+                        fbase = (u8*)(4 * index) + (u32)ctx;
+                    a00 = fbase + 0xA00;
+                        if (*(s32*)a00 == 0)
+                        {
+                            (*(s32*)(ctx + 0xB08))++;
+                        }
+                        *(s32*)a00 = 1;
+                    }
+                }
+            }
+            else
+            {
+                fraction = (f32*)((u8*)(4 * count) + (u32)ctx + 0x600);
+                if (edgedist < *fraction)
+                {
+                    record = (f32*)(ctx + 12 * count);
+                    *(RwV3d*)record = comp;
+                    record = (f32*)((u8*)(12 * *(s32*)(ctx + 0xb04)) + (u32)ctx);
+                    *(RwV3d*)(record + 192) = *(RwV3d*)triangle;
+                    fraction = (f32*)((u8*)(4 * *(s32*)(ctx + 0xb04)) + (u32)ctx + 0x600);
+                    *fraction = edgedist;
+                    if (*(s32*)(ctx + 0xB00) == 1)
+                    {
+                        fbase = (u8*)(4 * *(s32*)(ctx + 0xb04)) + (u32)ctx;
+                    a00 = fbase + 0xA00;
+                        if (*(s32*)a00 == 0)
+                        {
+                            (*(s32*)(ctx + 0xB08))++;
+                        }
+                        *(s32*)a00 = 1;
+                    }
+                    (*(s32*)(ctx + 0xb04))++;
+                }
+            }
+            }
+        }
+    }
+    return (void *)triangle;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_00169a30);
+#endif
 // FUN_0016A0C0
 void* func_0016a0c0(void* collisionWorld, void* state)
 {
