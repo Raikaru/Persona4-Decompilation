@@ -2000,6 +2000,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00204dc0);
 /* measured: object 1100B/window 1120B/normalized_diff 614 (206 differing words fndiff, fnalign 275/278 3-short 106e+18 reloc; baseline parked 617/208/115e). Best type_u16_temp17 (s32 temp_17->u16 temp_17 single-line, -2w/-3B/-9e). */
 /* measured: dead-arm head/lo/lo2/21 redundant-store shapes all neutral DCE (208w); slti inclusive, <1U/<2U, s16-cast, loopinv, schedule, s64, commsub, u16-narrowing (owner-edit N/A), adjacent-OR (no ||/-1), COP2 (N/A), index-mask/CSE (no andi-CSE/frame diff) all tried per checklist; remaining Path2 CSE + preheader + second-loop hoist + displacement cascade walls. No volatile/asm. Staged /tmp/push_205170_full.c via NearGA.Dead205170. */
 /* measured 00205170 2026-09-17 via `python3 tools/measure_guarded.py src/promoted/code1_0020.c func_00205170`: 204wd before and after (obj 1100B/window 1120B, 1.8% short, honest); s8 var_16 -> u8 var_16 clears mask surplus (opclass andi +23 -> +8, move -21 -> -6, score 26 -> 11; fnalign 127 -> 109 edits). Values 0x96/0xFF overflow s8 range as signed; u8 needs no zero-extension. Remaining andi +8/move -6 are temp_17/u16 and sb spills. `opt_common_subs off` still worth 2wd (206 -> 204). */
+/* 2026-09-18: the in-body prototype for func_00114dc0 now carries the live
+   definition's parameter order (shdSkill.c, float second).  Word score is a
+   tie at 204 with edit groups 109 -> 107; b210 emits argument setup in source
+   order, so the order has to be right before the rest can be read. */
 // FUN_00205170 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -2008,7 +2012,7 @@ void func_00205170(u8 *arg0, s32 arg1, f32 fx, f32 fy, s32 arg2, s32 arg3, s32 a
     extern s32 func_0023ddc0(u8 *arg0, s32 arg1);
     extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
     extern s32 func_0023dd90(u8 *arg0, s32 arg1);
-    extern void func_00114dc0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, f32 fx);
+    extern void func_00114dc0(s32 arg0, f32 fx, s32 arg1, s32 arg2, u8 *arg3);
     extern void func_002bc860(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 fx, f32 fy, f32 fz);
     f32 spB0;
     f32 spB4;
@@ -2049,7 +2053,7 @@ void func_00205170(u8 *arg0, s32 arg1, f32 fx, f32 fy, s32 arg2, s32 arg3, s32 a
     spBD = var_16;
     spBE = var_16;
     spBF = arg2;
-    func_00114dc0((s32)(*(s64 *)&spB0), *(s32 *)&spBC, temp_17 & 0xFFFF, *(u8 **)(temp_19 + 0x60), 50.0f);
+    func_00114dc0((s32)(*(s64 *)&spB0), 50.0f, *(s32 *)&spBC, temp_17 & 0xFFFF, *(u8 **)(temp_19 + 0x60));
     func_00272c60(0x40);
     temp_22 = arg2 & 0xFF;
     temp_f20 = 42.0f + fx;
@@ -3303,6 +3307,8 @@ void func_00209f90(void)
 {
 }
 /* Floor: 219 differing words over 92 edits, 392 emitted against retail's 392 (plus 2 reloc-only); probe a(v3)=300 -> b(block-scope+staged)=219. Levers: nested-block loop counters/pointers, per-statement float staging into s1/s2 temporaries, 5-arg 205ff0 direct-jal via block-scope shadow decl (no extra move a3,s1), isolated MAC idioms (2*c-c*c via mula+msub, 357+0.5*(138-x) via sub+adda+madd, 402-150*x via adda+msub, (u8)f via 2.1e9 check); opt_propagation bracket removed (219->219 without it, not load-bearing). WALL: s-allocation rotation (retail s1=arg0/s0=arg2/s3=arg1/s2=temp vs object s3/s2/s1, temp_2 lands in s1); div.s dest f1 vs f0 with extra mov.s and c.ole/c.olt operand swap; 1.0/2.0 into saved f22/f23 cascading FPU dest rotation; D_00887300 base stays temp (lui $v0+lw vs retail lui $s0+lw) at 3 sites. */
+/* 2026-09-18: func_00274cd0's in-body prototype now matches the live
+   definition in src/frFontEx.c (three leading floats).  Measured tie at 219. */
 // FUN_00209FA0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00209fa0(s32 arg0, u8 *arg1, f32 *arg2)
@@ -3312,7 +3318,7 @@ void func_00209fa0(s32 arg0, u8 *arg1, f32 *arg2)
     extern s32 func_00105f00(s16 arg0);
     extern s32 func_0010d6d0(s16 arg0);
     extern s32 func_002738d0(u8 *arg0);
-    extern u8 *func_00274cd0(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, f32 f0, f32 f1, f32 f2);
+    extern u8 *func_00274cd0(f32 f0, f32 f1, f32 f2, s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5);
     extern void func_00272950(u8 *arg0, s32 arg1, s32 arg2);
     extern void func_00273170(u8 *arg0, s32 arg1, s32 arg2);
     extern void func_00271b70(u8 *arg0);
@@ -3414,7 +3420,7 @@ void func_00209fa0(s32 arg0, u8 *arg1, f32 *arg2)
     func_00201650(temp_2, 9, chr, 168.0f, 334.0f, 0xFE, 0xFF, 0x22, 0xFF);
     func_00272c60(0x40);
     dval = func_0010d6d0(*(s16 *)(*(u8 **)(arg1 + 0x190) + 0xA4));
-    res = func_00274cd0(-1, 0, 1, dval, 0, 0, 357.0f, 332.0f, 50.0f);
+    res = func_00274cd0(357.0f, 332.0f, 50.0f, -1, 0, 1, dval, 0, 0);
     sval = func_002738d0(res);
     {
         f32 s1;

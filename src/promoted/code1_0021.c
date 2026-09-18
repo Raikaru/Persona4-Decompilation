@@ -158,6 +158,8 @@ static inline f32 ws14_sub(f32 left, f32 right)
    float arguments in separate register files - but the order is what b210
    emits argument setup in, so it has to be right before the rest of this
    floor can be read. */
+/* 361 -> 359 (2026-09-18): func_00201650's in-body prototype now matches the
+   live definition in src/promoted/code1_0020.c (floats fourth and fifth). */
 // FUN_00210C70 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
@@ -167,7 +169,7 @@ void func_00210c70(u8 *arg0, u8 *arg1)
     extern s32 func_001ec4a0(f32 *arg0, f32 *arg1);
     extern f32 func_0020e5c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     extern void func_00195ea0(u8 *arg0, u8 *arg1);
-    extern void func_00201650(s32 *arg0, s32 a, s32 b, u32 r, u32 g, u32 bl, u32 al, f32 x, f32 y);
+    extern void func_00201650(s32 *arg0, s32 a, s32 b, f32 x, f32 y, u32 r, u32 g, u32 bl, u32 al);
     extern void func_0020ea60(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
     extern void func_0020ef10(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
     extern void func_0020f4d0(u8 *arg0, u8 *arg1, f32 x, f32 y);
@@ -228,8 +230,8 @@ void func_00210c70(u8 *arg0, u8 *arg1)
                 if (!(func_0020e5c0(stage, 0, 4, 0) <= 0.0f)) {
                     scale = 2.2f - 1.2f * func_0020e5c0(stage, 0, 4, 0);
                     func_002019d0((u8 *)icon, scale, scale);
-                    func_00201650(icon, 0xA, 0xF, 0x15U, 0x15U, 0x15U, 0xFFU, 57.0f, 63.0f);
-                    func_00201650(icon, 0xA, 0x10, 0x15U, 0x15U, 0x15U, 0xFFU, 86.0f, 63.0f);
+                    func_00201650(icon, 0xA, 0xF, 57.0f, 63.0f, 0x15U, 0x15U, 0x15U, 0xFFU);
+                    func_00201650(icon, 0xA, 0x10, 86.0f, 63.0f, 0x15U, 0x15U, 0x15U, 0xFFU);
                     func_002019d0((u8 *)icon, 1.0f, 1.0f);
                 }
                 rate = func_0020e5c0(stage, 5, 7, 0);
@@ -237,8 +239,8 @@ void func_00210c70(u8 *arg0, u8 *arg1)
                     alpha = 255.0f * rate;
                     fade = 20.0f * (1.0f - rate);
                     height = 75.0f + fade;
-                    func_00201650(icon, 0xA, 0xA, 0x15U, 0x15U, 0x15U, (u8)(u32)alpha, 47.0f, height);
-                    func_00201650(icon, 0xA, 9, 0xFFU, 0xFU, 2U, (u8)(u32)alpha, 47.0f, height);
+                    func_00201650(icon, 0xA, 0xA, 47.0f, height, 0x15U, 0x15U, 0x15U, (u8)(u32)alpha);
+                    func_00201650(icon, 0xA, 9, 47.0f, height, 0xFFU, 0xFU, 2U, (u8)(u32)alpha);
                 }
                 drew = 1;
             }
