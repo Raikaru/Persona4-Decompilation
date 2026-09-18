@@ -480,6 +480,19 @@ the cause either: on `func_00311930` both compilers use eight saved values.
 The `cw3.0.1b119` build configured for the RenderWare units CSEs the mask
 exactly like b210, so it is not that build either.
 
+The mwcc option axis was probed directly on 2026-09-18.  `-opt display`
+reports that the project's `-O2` is **global optimizer level 2 plus optimize
+for size**, and MWCCPS2 3.0.1 exposes the speed/size axis only as `-O2p`
+(`-opt speed`) / `-O2s`; `-opt speed` is not accepted as a `-opt` keyword in
+b210, and no pragma spelling reaches it (`optimize_for_size on|off`,
+`opt_for_size`, `optimizeforsize` are all silently ignored - object bytes
+identical).  `-O2p` *does* produce the rematerialisation: the three-call mask
+micro-test goes from 4 `andi` to 9.  But it is not what retail used - it also
+flips the float-to-integer conversion temporary the wrong way, and on real
+bodies it inflates them badly: `func_00311930` 152 -> 170 instructions,
+`func_00169780` 169 -> 229, `func_002e5000` 152 -> 190.  Size optimization is
+correct for this tree.
+
 `opt_common_subs off` and `optimization_level 1` do reproduce the
 rematerialisation, but they also move the float-to-integer conversion
 temporary (7h-bis), so they trade one residual for another.  A different
