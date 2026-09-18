@@ -151,6 +151,19 @@ u8 *func_0028fb90(void)
    twelve-local micro-experiment with the same declaration and assignment
    order emits retail's order, so the reordering is emergent from this
    body's register pressure, not from the declaration list. */
+/* 2026-09-18 lead pass: the five words are one thing only, and it is not the
+   register map.  Retail emits the five parameter saves in declaration order
+   at offsets 8-12 (`move $s1,$a0; move $s0,$a1; move $s5,$a2; move $s4,$a3;
+   move $s3,$t0`); this body emits the same five moves to the same five
+   registers in first-use order (`$a2,$a3,$t0` first, because the first
+   statement tests arg2).  All 522 instructions otherwise agree.
+   Not reachable from source: copying every parameter into a local declared in
+   order at the top of the body coalesces back into the same five moves and
+   stays at 5.  Not reachable from pragmas either - `schedule off`,
+   `opt_dead_assignments off`, `peephole off`, `opt_strength_reduction off`
+   and `opt_unroll_loops off` all tie at 5 with a byte-identical stream, while
+   `schedule on` costs 489 and `opt_common_subs off` 458.  The two pragmas
+   already on the body stay load-bearing. */
 // FUN_0028FC40 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: propag-off above is load-bearing (removal 5 -> 202); the loop-invariants pair below closes 14 -> 5; body is 5wd exact at 522/522 instrs (2096B/2096B). */
