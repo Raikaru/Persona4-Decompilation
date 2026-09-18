@@ -227,6 +227,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c99a0);
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9a28);
 // FUN_004C9B80
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9b80);
+/* measured: 2 differing words, object 6 instrs / retail 6, exact size (third-party unit, so floorboard/opclass skip it). Retail keeps (arg0<<2) in $a0; b210 spills it to $v1. Tried: pure-rvalue, s32-param, named-temp and folded-constant spellings (all 2 edits), all 8 singles + all 28 pragma pairs (all 2). Register-allocation wall. */
 // FUN_004C9BB8 NONMATCHING
 #ifdef NON_MATCHING
 u32 func_004c9bb8(u32 arg0)
