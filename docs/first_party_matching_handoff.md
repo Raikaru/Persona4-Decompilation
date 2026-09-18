@@ -1175,7 +1175,31 @@ Private artifacts:
 
 ## Current high-value queue
 
-516 first-party functions still fall back to `INCLUDE_ASM`.  Derive the list
+### Next actions, in priority order (2026-09-18)
+
+1. **Finish the parameter-order audit.** 67 declarations still disagree with a
+   live definition's float positions (43 files; `src/promoted/shdPersona.c`,
+   `src/Battle/btlResultSimple.c` and `src/promoted/code1_0012.c` hold four to
+   six each).  Rule: a MATCHed *caller* proves the order, a MATCHed definition
+   does not - reordering a definition's own parameters is byte-neutral.  Fix
+   each side so they agree, then re-verify the owner; every fix so far has
+   been free and four of them produced MATCHes.
+2. **Floors whose residual is a displaced argument-register write.** Compile
+   each floor, align it with `tools/fnalign.py`, and flag any insert/delete
+   group whose moved instructions write `$a0-$a3`, `$t0-$t3` or `$f12-$f19`.
+   On 2026-09-18 that flagged 188 floors; the largest are `func_00252710`
+   (188 words, 18 moves), `func_0020f730` (194, 16), `func_00126090` (148,
+   13) and `func_002afbc0` (199, 10).
+3. **Do not grind a residual that a pragma is causing.** See 7h-bis:
+   `opt_common_subs off` and `optimization_level 1` change the float-to-integer
+   conversion temporary, and 29 floors carry one of them.
+4. Remaining sub-20 board after the day's work: `func_00375f00` 2,
+   `func_001c79f0` 2, five at 5, `func_0025dd30` 6, `func_0024be40` 8,
+   `func_00485870` 10, `func_001eca10` 11, `func_00268230` 12,
+   `func_0012d630` 13, `func_00365f00` 13, three at 15, two at 19.
+
+
+503 first-party functions still fall back to `INCLUDE_ASM`.  Derive the list
 authoritatively — do NOT guess from the file path:
 
 ```python
