@@ -712,14 +712,14 @@ void func_00116d40(Vec2f arg0, s32 arg1, u8 arg2, u8 arg3, s16 arg4, s32 arg5, f
     spA0[2] = 214 - temp;
     spA0[3] = 9;
     D_00887300[0](1, 0);
-    func_0045d6e0(&colors[4], spA0, 0, fparg0);
+    func_0045d6e0(&colors[4], spA0, fparg0, 0);
     if ((arg3 & 0xFF) > 0) {
         spA0[0] = (s32)*(f32 *)&arg0;
         spA0[1] = (s32)(5.0f + high);
         spA0[2] = (((arg3 & 0xFF) * 0xCC) / 99);
         spA0[3] = 7;
         D_00887300[0](1, 0);
-        func_0045d6e0(&colors[0], spA0, 0, fparg0);
+        func_0045d6e0(&colors[0], spA0, fparg0, 0);
         *(f32 *)&arg0 += (f32)(((arg3 & 0xFF) * 0xCC) / 99);
     }
     func_0046d4c0(0, arg5, 0x40, *(f32 *)&arg0, high, (0xFF - colors[3]) & 0xFF, colors[0], colors[1], colors[2], fparg0, 0);
@@ -1516,7 +1516,7 @@ void func_0011b110(u8 *arg0)
         color[2] = 0x2C;
         color[3] = *(u8 *)(arg0 + 0x505);
         D_00887300[0](1, 0);
-        func_0045d6e0(color, work, 0, 0.0f);
+        func_0045d6e0(color, work, 0.0f, 0);
         return;
     default:
         func_0046d730(D_005E4868, 0xB3D);
