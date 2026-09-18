@@ -194,6 +194,15 @@ s32 func_001ec8c0(f32* first, f32* second, f32* point, f32 threshold)
 /* recompute 223, edge double-def (mdlSE pattern) 230: pinning adds a live */
 /* range and spills instead of freeing vertex. Saved-register coloring floor. */
 /* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/btlTarget/btlTarget.c func_001eca10 --pairs` banked 23; best ties 23 (opt_dead_assignments off, opt_loop_invariants on, opt_strength_reduction off, opt_unroll_loops off and six pairwise combos among them); all 28 pairs neutral or worse (peephole forms 25, commons 160-162, schedule 206, propagation 208-209/212/215). fnalign retail/object 241/241 per assignment. Floor stands; production stays ASM. */
+/* 23 -> 11 (2026-09-18): declaring `corner` last in the first inner block.
+   b210 colours block-scoped pointers in reverse declaration order, so with
+   `corner` declared first it took $s2 and `midpointX` took $s6, the mirror
+   of retail.  Measured and rejected: reversing the whole block (11, same
+   composition), swapping only corner and midpointX (23), swapping `edge`
+   and `next` in the second loop (23), and moving the function-scope `j`
+   first or last (11).  Remaining 11 words are the same exchange one level
+   down: retail colours `j` $s2 and `next` $s3 in the second loop, b210 the
+   other way, and no declaration position reached by measurement flips it. */
 // FUN_001ECA10 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001eca10(u8 *first, u8 *second)
@@ -212,11 +221,11 @@ s32 func_001eca10(u8 *first, u8 *second)
          node = *(u8 **)(node + 0x4CC)) {
         for (i = 0; i < 4; i++) {
             u8 *vertex = node + i * 0x130;
-            f32 *corner;
             f32 *midpointX;
             f32 *midpointY;
             f32 *edge;
             f32 *next;
+            f32 *corner;
             s32 side_a;
             s32 side_b;
             s32 intersects;
