@@ -496,6 +496,46 @@ retail and an $sN in the candidate.  It does not always apply - on
 the shared `j` ties at 27, so the cause there is something else.  One probe
 settles it either way.
 
+### 7q. Two failure modes of banked work: stale archives, and claims without writes
+
+`docs/probe_archive/` is a graveyard, not a library.  A sweep on 2026-09-18
+took fifteen archived bodies whose functions were still bare `INCLUDE_ASM`
+and tried to install all of them.  Four went in - `func_00100670` turned out
+to be an exact **MATCH** at 472/472 the moment it was compiled against the
+current tree, and `func_00122a40` (324), `func_0031fa20` (635) and
+`func_002a03b0` (876) banked as floors.  The rest were stale in ways that
+only a compile reveals:
+
+  * a two-argument body against a tree that now declares one argument;
+  * `s128` used before the typedef the tree now carries;
+  * `D_00887300` redeclared `(u32,u32)` against the owner's `(s32,s32)`;
+  * twenty illegal `u8[]`-to-`int` conversions at a provider whose signature
+    changed on 2026-08-30, which the archive predates;
+  * an archive header naming the wrong owner file entirely.
+
+**Archived scores are not evidence.** Four of the fifteen proof headers
+disagreed with fresh measurement, two by more than a factor of two: nd 2356
+against a measured 1248, nd 2519 against 1149.  Always re-measure; quote the
+disagreement in the note rather than copying the claim.
+
+The second failure mode is worse because it is silent: **a worker can report
+banking a floor and leave the tree untouched.**  It happened three times in
+one day - `func_00122a40` and `func_0031fa20` reported "banked" with the body
+only in `/var/tmp`, and `func_0048f5f0` reported "banked as guarded floor at
+790" with the owner still holding a bare `INCLUDE_ASM`.  All three were
+recoverable because the candidate was still on disk, but the work would have
+been lost on the next reboot.
+
+So after any batch, audit the tree rather than the reports.  Regenerating the
+cold list is enough - filter for markers still followed directly by
+`INCLUDE_ASM` and compare against what the batch claimed:
+
+```
+grep -n "// FUN_<ADDR>" -A 2 <owner>     # banked bodies carry NONMATCHING
+```
+
+A claim of "completed" means the agent yielded, not that an artifact exists.
+
 ### 7p. Two ways to fix operand order, and a correction to 7c
 
 Both came from closing floors that earlier passes had declared unreachable,
