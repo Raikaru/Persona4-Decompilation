@@ -1,4 +1,13 @@
-/* Closest attempted candidate for func_002142b0; reverted because it did not match retail (object 7264B vs 6496B, nd 5666). */
+/* Floor for func_002142b0 (2026-09-18 batch, truthful fixes over 414-line draft).
+   fnalign `python3 -E -s tools/fnalign.py src/promoted/code1_0021.c func_002142b0 --candidate docs/probe_archive/Lane0021Full_002142b0_body.c`:
+   retail 1624 instrs (6496B window), object 1636 instrs (6544B), 809 edits +4 reloc-only (was 1155 +4, object 1816).
+   Fixes: func_00201650 calls reordered floats-middle to match live (u8*,s32,s32,f32,f32,u8,u8,u8,u8) in
+   src/promoted/code1_0020.c; prototype s32->u8 for colors; func_00201300 0x43080000->136.0f;
+   func_002016b0 (u8*)->(s32) plus call-site cast; func_0043f9c8 void->void* per owner; 42.0*(f32)(arg2*2)
+   ->85.0*(f32)arg2 per retail lui 0x42AA. CFG restructure (hoist loops/outer-else, fade 1.0-...) measured
+   809->911 (regresses) so original nesting kept; remaining is prologue frame/parks (-0x180 vs -0x170,
+   extra f25/s7, s/f coloring), stat sq/ext, branch/div coloring. Best legal plain-C floor;
+   production stays INCLUDE_ASM. */
 void func_002142b0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
 {
     typedef struct {
@@ -18,9 +27,9 @@ void func_002142b0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
     extern void func_00201410(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0,
                               f32 fparg1);
     extern void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0,
-                              f32 fparg1, s32 arg5, s32 arg6, s32 arg7,
-                              s32 arg8);
-    extern void func_002016b0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+                              f32 fparg1, u8 arg5, u8 arg6, u8 arg7,
+                              u8 arg8);
+    extern void func_002016b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     extern void func_00201820(s32 arg0);
     extern void func_002019d0(u8 *arg0, f32 fparg0, f32 fparg1);
     extern s32 func_00231ed0(s32 arg0);
@@ -31,7 +40,7 @@ void func_002142b0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
                              s32 arg4, s32 arg5, s32 arg6, s16 arg7,
                              f32 fparg0, s16 arg_sp0, s32 *arg_sp8,
                              s32 arg_sp10, s32 *arg_sp18);
-    extern void func_0043f9c8(void *dst, s32 value, u32 size);
+    extern void *func_0043f9c8(void *dst, s32 value, u32 size);
     extern f32 fGpffff815c;
     extern f32 fGpffff8218;
     extern f32 fGpffff84b4;
@@ -89,8 +98,8 @@ void func_002142b0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
             }
             smooth = 2.0f * t - t * t;
             fparg0 = fparg0 + smooth * (fGpffff84b4 - fparg0);
-            t = (f32)(arg2 * 2);
-            fparg1 = fparg1 + smooth * (fGpffff84b8 + 42.0f * t - fparg1);
+            t = (f32)arg2;
+            fparg1 = fparg1 + smooth * (fGpffff84b8 + 85.0f * t - fparg1);
             fade = fGpffff8218 - fGpffff8218 * smooth;
             func_002019d0((u8 *)arg0, fade, fade);
             value = (f32)frame;
@@ -171,8 +180,8 @@ void func_002142b0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
                 }
                 smooth = 2.0f * t - t * t;
                 fparg0 = fparg0 + smooth * (fGpffff84b4 - fparg0);
-                t = (f32)(arg2 * 2);
-                fparg1 = fparg1 + smooth * (fGpffff84b8 + 42.0f * t - fparg1);
+                t = (f32)arg2;
+                fparg1 = fparg1 + smooth * (fGpffff84b8 + 85.0f * t - fparg1);
                 fade = fGpffff8218 - fGpffff8218 * smooth;
                 func_002019d0((u8 *)arg0, fade, fade);
                 func_0043f9c8(work.offset, 0, 0x18);
@@ -272,49 +281,54 @@ void func_002142b0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
         } else {
             func_0043f9c8(work.effect, 0, 0x18);
         }
-        func_00201300(arg0, fparg0, fparg1, 0x43080000, 0x43080000);
+        func_00201300(arg0, fparg0, fparg1, 136.0f, 136.0f);
         if (*(s32 *)(arg1 + 0xA10) & 0x200) {
-            func_00201650((u8 *)arg0, 8, 0xE, 0x9D, 0xFF, 0x22, 0xFF,
-                          29.0f, 27.0f);
+            func_00201650((u8 *)arg0, 8, 0xE, 29.0f, 27.0f, 0x9D, 0xFF,
+                          0x22, 0xFF);
         }
         if (*(s32 *)(arg1 + 0xA10) & 2) {
             temp = (f32)D_00626F60[(*(s16 *)(arg1 + 0xA1A)) * 4];
             alpha = (s32)(160.0f * temp) & 0xFF;
             alpha2 = (s32)(255.0f * temp) & 0xFF;
-            func_00201650((u8 *)arg0, 8, 0xE, 0x9D, 0xFF, 0x22, alpha,
-                          29.0f, 27.0f);
+            func_00201650((u8 *)arg0, 8, 0xE, 29.0f, 27.0f, 0x9D, 0xFF,
+                          0x22, alpha);
             *(s16 *)(arg1 + 0xA1A) += 1;
             if (*(s16 *)(arg1 + 0xA1A) >= 0x18) {
                 *(s32 *)(arg1 + 0xA10) &= ~2;
             }
         }
         if (work.status != 0) {
-            func_00201650((u8 *)arg0, 0xB, 0, work.color[0xC],
-                          work.color[0xD], work.color[0xE], 0xFF,
+            func_00201650((u8 *)arg0, 0xB, 0,
                           29.0f + work.effect[0] + work.offset[0],
-                          27.0f + work.effect[1] + work.offset[1]);
+                          27.0f + work.effect[1] + work.offset[1],
+                          work.color[0xC], work.color[0xD],
+                          work.color[0xE], 0xFF);
         }
-        func_00201650((u8 *)arg0, tile, 1, work.color[4], work.color[5],
-                      work.color[6], 0xFF, 27.0f + work.effect[6] + work.y[6],
-                      16.0f + work.effect[7] + work.y[7]);
-        func_00201650((u8 *)arg0, tile, 1, work.color[0], work.color[1],
-                      work.color[2], 0xFF, 20.0f + work.effect[4] + work.y[4],
-                      20.0f + work.effect[5] + work.y[5]);
+        func_00201650((u8 *)arg0, tile, 1,
+                      27.0f + work.effect[6] + work.y[6],
+                      16.0f + work.effect[7] + work.y[7], work.color[4],
+                      work.color[5], work.color[6], 0xFF);
+        func_00201650((u8 *)arg0, tile, 1,
+                      20.0f + work.effect[4] + work.y[4],
+                      20.0f + work.effect[5] + work.y[5], work.color[0],
+                      work.color[1], work.color[2], 0xFF);
         func_00201410((u8 *)arg0, tile, 0,
                       20.0f + work.effect[0] + work.offset[0],
                       20.0f + work.effect[1] + work.offset[1]);
         if (work.status != 0) {
             func_00201820(2);
-            func_00201650((u8 *)arg0, tile, 0, work.color[8],
-                          work.color[9], work.color[0xA], 0xFF,
+            func_00201650((u8 *)arg0, tile, 0,
                           20.0f + work.effect[0] + work.offset[0],
-                          20.0f + work.effect[1] + work.offset[1]);
+                          20.0f + work.effect[1] + work.offset[1],
+                          work.color[8], work.color[9], work.color[0xA],
+                          0xFF);
             func_00201820(0);
         }
         if (*(s32 *)(arg1 + 0xA10) & 3) {
             func_00201820(2);
-            func_00201650((u8 *)arg0, tile, 0, 0xFF, 0xFF, 0xFF, alpha,
-                          20.0f + work.effect[0], 20.0f + work.effect[1]);
+            func_00201650((u8 *)arg0, tile, 0, 20.0f + work.effect[0],
+                          20.0f + work.effect[1], 0xFF, 0xFF, 0xFF,
+                          alpha);
             func_00201820(0);
         }
         if (work.status != 0) {
@@ -369,27 +383,27 @@ void func_002142b0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
                 break;
             }
         }
-        func_00201650((u8 *)arg0, 8, 0xA, work.color[0x10],
-                      work.color[0x11], work.color[0x12], 0xFF,
-                      63.0f + baseX, 82.0f + baseY);
-        func_00201650((u8 *)arg0, 8, 0xB, 0x26, 0x26, 0x26, 0xFF,
-                      66.0f + baseX, 85.0f + baseY);
+        func_00201650((u8 *)arg0, 8, 0xA, 63.0f + baseX, 82.0f + baseY,
+                      work.color[0x10], work.color[0x11],
+                      work.color[0x12], 0xFF);
+        func_00201650((u8 *)arg0, 8, 0xB, 66.0f + baseX, 85.0f + baseY,
+                      0x26, 0x26, 0x26, 0xFF);
         value = (f32)work.stat0[0];
         temp = 54.0f * (f32)hp / value;
         if (temp < 5.0f) {
             value = 0.0f;
         }
-        func_002016b0((u8 *)arg0, 8, 0xC, (s32)value);
-        func_00201650((u8 *)arg0, 8, 0xC, 0xFF, 0xE0, 0x51, 0xFF,
-                      70.0f + baseX, 88.0f + baseY);
+        func_002016b0((s32)arg0, 8, 0xC, (s32)value);
+        func_00201650((u8 *)arg0, 8, 0xC, 70.0f + baseX, 88.0f + baseY,
+                      0xFF, 0xE0, 0x51, 0xFF);
         value2 = (f32)work.stat1[0];
         temp = 54.0f * (f32)sp / value2;
         if (temp < 5.0f) {
             value2 = 0.0f;
         }
-        func_002016b0((u8 *)arg0, 8, 0xC, (s32)value2);
-        func_00201650((u8 *)arg0, 8, 0xC, 0xB7, 0xFF, 0x54, 0xFF,
-                      70.0f + baseX, 94.0f + baseY);
+        func_002016b0((s32)arg0, 8, 0xC, (s32)value2);
+        func_00201650((u8 *)arg0, 8, 0xC, 70.0f + baseX, 94.0f + baseY,
+                      0xB7, 0xFF, 0x54, 0xFF);
         func_00201410((u8 *)arg0, 8, sp % 10,
                       121.0f + work.x[0], 64.0f + work.x[1]);
         if (sp / 10 != 0) {

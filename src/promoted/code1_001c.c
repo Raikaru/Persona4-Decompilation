@@ -1586,50 +1586,24 @@ INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c5b80);
 #endif
 // FUN_001C79E0
 void func_001c79e0(void) {}
-/* 2026-09-18 lead pass, 14 measured variants, floor confirmed at 2 words.
-   The entire residual is one pair of independent loads at offsets 406-407.
-   Retail issues `lwc1 $f1, 0x13c($sp)` (pos138[1]) before
-   `lwc1 $f0, 0x12c($sp)` (dir128[1]); this body issues them the other way.
-   Both feed the same later add, neither depends on the other, and the rest of
-   the 448 instructions are identical.
-   The source cannot reach it.  Measured, all at 2 and byte-identical:
-   `schedule off`, `opt_loop_invariants on`, `opt_unroll_loops off`, an
-   explicit `tmpMul` temporary, a reassociated
-   `dir128[1] * var_f20 + pos138[1]`, and fully parenthesised operands.
-   Measured and worse: reordering the three `outC0[i]` assignments (021 -> 17,
-   102 -> 8), hoisting `pos138[1]` into a local (5), splitting the add into
-   `= pos; += dir * f` (40), `schedule on` (388), `peephole off` (402),
-   `opt_propagation off` (397), `opt_common_subs off` (401).
-   This is a scheduler coin-flip on two independent loads, not a source
-   defect.  Do not reorder this body again. */
-// FUN_001C79F0 NONMATCHING
-/* 9 -> 7 -> 2 (2026-09-18).  Three levers, all measured:
-   1. splitting the trailing gp multiply into its own statement -
-      `var_f20 = p4_cacd0_mul(chain, 0.21875f); var_f20 = var_f20 *
-      fGpffff812c;` - fixes both `mul.s $f20, $f1, $f0` operand orders at
-      143 and 380 at once (9 -> 7).  Written inline b210 puts the gp load in
-      rs whichever way the factors are spelled; written as an accumulate it
-      puts the chain there, as retail does.  Rejected: inline swap (9, edits
-      11 -> 13), wrapping the outer multiply in p4_cacd0_mul chain-first (22)
-      or constant-first (35), splitting only one of the two sites (8).
-   2. func_00196040's out-parameters are pointers, as the MATCHed definition
-      in src/Battle/btlUnit.c has always said - `(u32, u32, RwV3d *, f32 *,
-      f32 *, u32)`.  This file declared arguments 4 and 5 as s32 and cast the
-      addresses; b210 evaluates a cast address before the plain arguments, so
-      the two `addiu $aN, $sp, ...` landed four slots early.  Dropping the
-      casts restores retail's order (7 -> 2).  Rejected first: two-definition
-      pins on both addresses, plain pointer locals, deriving one address from
-      the other, a local for the constant arguments, a two-element array -
-      all 7, and swapping the two float declarations costs 10.
-   3. Remaining 2 words are the two loads at 406-407: for
-      `frame.outC0[1] = frame.pos138[1] + frame.dir128[1] * var_f20;` retail
-      loads the addend first, b210 the multiplicand.  Only index 1 has both
-      operands in memory, so this is the only site that shows it.  Measured
-      and rejected: a temp for the addend (2), explicit parentheses (2), a
-      pointer-spelled load (2), commuting the multiply (3), swapping the two
-      statements (17), a three-iteration loop (57), moving the later
-      outC0[1] store ahead of this one (17). */
-#ifdef NON_MATCHING
+/* MATCH.  The last two words were the order of two operand loads feeding one
+   add: retail loads the position Y coordinate into $f1 before the direction Y
+   coordinate into $f0, this body did the reverse.  Snapshotting the position
+   Y into an ordinary float local immediately before the first Y output, and
+   using it in both Y expressions, gives retail's order - retail reuses that
+   value in the final height calculation, which is why it loads it first.
+   The position of the snapshot is the whole trick: taken before the X output
+   it scores 5, and before the position X update 20, which is why the earlier
+   pass recorded "hoisting pos138[1] into a local (5)" and concluded the load
+   pair was a scheduler coin-flip.  It was not.
+   Also measured at 2 and byte-identical on the way here: `schedule off`,
+   `opt_loop_invariants on`, `opt_unroll_loops off`, an explicit `tmpMul`
+   temporary, a reassociated `dir128[1] * var_f20 + pos138[1]`, and fully
+   parenthesised operands.  Worse: reordering the three `outC0[i]` assignments
+   (17 and 8), splitting the add into `= pos; += dir * f` (40), `schedule on`
+   (388), `peephole off` (402), `opt_propagation off` (397),
+   `opt_common_subs off` (401). */
+// FUN_001C79F0
 void func_001c79f0(u8 *arg0, s32 arg1)
 {
     struct Frame {
@@ -1675,6 +1649,7 @@ void func_001c79f0(u8 *arg0, s32 arg1)
     f32 var_f22;
     f32 var_f21;
     f32 var_f20;
+    f32 positionY;
     u8 *saved_arg0;
     u8 *var17;
     u8 *var16;
@@ -1780,17 +1755,15 @@ void func_001c79f0(u8 *arg0, s32 arg1)
         frame.pos138[0] = frame.horizE0[1] * var_f21 + frame.pos138[0] + 0.0f;
         frame.pos138[2] = (frame.pos138[2] + 0.0f) - frame.horizE0[0] * var_f21;
         frame.outC0[0] = frame.pos138[0] + frame.dir128[0] * var_f20;
-        frame.outC0[1] = frame.pos138[1] + frame.dir128[1] * var_f20;
+        positionY = frame.pos138[1];
+        frame.outC0[1] = positionY + frame.dir128[1] * var_f20;
         frame.outC0[2] = frame.pos138[2] + frame.dir128[2] * var_f20;
-        frame.outC0[1] = frame.pos138[1] + var_f24 * var_f22;
+        frame.outC0[1] = positionY + var_f24 * var_f22;
         func_001bd780((void *)frame.quatCC, (void *)frame.outC0, (void *)frame.pos138, (void *)D_0060A0E0);
         func_001bcd40(var17, (u8 *)0, (u8 *)0, 0.0f, 1);
         func_001bab00(saved_arg0, (void *)frame.outC0);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c79f0);
-#endif
 /* measured 001c80f0: 329 differing words guarded via `python3 tools/measure_guarded.py src/promoted/code1_001c.c func_001c80f0` (GUARDED_SCORE 329); probe 329 via `python3 tools/probe_variants.py src/promoted/code1_001c.c func_001c80f0 --candidate v1=/var/tmp/cold1c80f0/v1.c`; fnalign retail 502 vs object 494 instrs, 156 edits (+17 reloc-only) via `python3 tools/fnalign.py src/promoted/code1_001c.c func_001c80f0 --candidate /var/tmp/cold1c80f0/v1.c --quiet`. M2C via `python3 -E -s tools/m2c_decompile.py src/promoted/code1_001c.c func_001c80f0 -o /var/tmp/cold1c80f0/m2c.c`; de-noised to file idiom reusing existing decls (func_001bd560, func_00195850, func_00196040, func_003dcb40, func_003e40b0, func_001bd780, func_0044b868, tanf, func_001958f0, func_001bcd40, func_001bab00, func_001bac20, func_001bbef0, D_0060A0D0/D_0060A0E0/D_0060A100, fGpffff8110/8100/811c). Frame 0x180. Within 3% size gate (494/502=98.4%), banked as floor; residual is FPU coloring, adda/madd scheduling, ld/sd copy, and poly chain. Round2 v2 block-scope+copy_pair 374 (+45), v3 copy_pair-only 374, v4 scope-only 329 tie; Round3 v5 p4_cacd0_mul tie (329, same 156+17 edits), v6 inclusive 50.0 compare 352 (+23). Two unproductive rounds, stopping. Top remaining: FPU color shift (retail $f23/$f21 vs object $f22/$f23, $f20/$f22 vs $f20/$f21), COP1 adda/madd+msub vs mul/add, ld/sd vs lw/sw copy, double 003e40b0 call, poly adda/madd chain. */
 // FUN_001C80F0 NONMATCHING
 #ifdef NON_MATCHING
