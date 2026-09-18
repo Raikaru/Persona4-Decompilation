@@ -157,8 +157,291 @@ void func_002a02f0(u8 *arg0, s32 arg1) {
     func_0029fbb0(arg0, 4);
     func_0029fbb0(arg0, 5);
 }
-// FUN_002A03B0
+/* Floor for func_002a03b0 (retail 3888B/971 instrs @0x002A03B0, window 3888B).
+   Candidate (modernized Lane0041_002a_002a03b0_body.c:156-414, 259-line range only; other FUNs untouched):
+   3864B emitted / 3888B window (24B short), fnalign 966/971 instrs (5 short, 0.5% gap, within ~3%),
+   278 edit instrs +40 reloc-only, probe 876 differing words. Production guarded to ASM (0 MISMATCH overall).
+   Modernization vs archived snapshot (required for compile, not tuning): honest e9e0 ints-first
+   (s32,s32,s32,void*,s32,f32,f32,f32 per code1_0025, 28 calls translated from floats-first),
+   iGpffffb540 for gp-0x4AC0, iGpffffb538 (was *(s32*)0x0 null deref) for gp-0x4AC8 UI index,
+   iGpffffb528 buffer for gp-0x4AD8 string path, inside-function externs for 274ed0/442de8/442948/29f790
+   (file-scope lacks them; inside keeps edit inside function per batch discipline).
+   7o exchange probes on tail s2/s3 pair (var_18_3/var_19 + var_18_4/var_19_2, bare decls + statement assigns
+   already in 7o form): func/block x decl-retail/decl-reverse x assign-retail/assign-reverse = 8 probes,
+   all 876 ties (F_R_R 876, F_R_V 876, F_V_R 876, F_V_V 876, B_R_R 876, B_R_V 876, B_V_R 876, B_V_V 876).
+   Reversal never improves here; residual is pervasive (float-conv shapes, slti-at vs slti-v0, s2/s4 + FPR
+   colour, gp-lui vs gp-addiu for undefined b528 buffer) not a single exchange. Next: argument-setup order
+   and conversion-register levers top-down per 7a-bis/7a-quinquies, not declaration permutation. */
+// FUN_002A03B0 NONMATCHING
+#ifdef NON_MATCHING
+void func_002a03b0(u8 *arg0) {
+    extern u8 iGpffffb528[];
+    extern s32 iGpffffb538;
+    extern s32 func_0029f790(u8 *arg0);
+    extern s32 func_00442948(const void *arg0);
+    extern void func_00442de8(void *arg0, const void *arg1, s32 arg2);
+    extern s32 func_00274ed0(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, void *arg6, s32 arg7, s32 arg8);
+    f32 sp9c;
+    f32 sp98;
+    f32 temp_f1;
+    f32 temp_f1_2;
+    f32 temp_f20;
+    f32 temp_f20_2;
+    f32 temp_f21;
+    f32 temp_f21_2;
+    f32 var_f12;
+    f32 var_f2;
+    s16 temp_2_2;
+    s32 temp_18_2;
+    s32 temp_20_3;
+    s32 temp_21;
+    s32 temp_22;
+    s32 temp_2;
+    s32 temp_3;
+    s32 temp_3_2;
+    s32 temp_5;
+    s32 temp_lo;
+    s32 temp_lo_2;
+    s32 var_16;
+    s32 var_16_2;
+    s32 var_18;
+    s32 var_18_2;
+    s32 var_18_3;
+    s32 var_18_4;
+    s32 var_20;
+    s32 var_20_2;
+    s32 var_2;
+    s32 var_3;
+    s32 var_3_2;
+    s32 var_3_3;
+    u32 temp_16;
+    u32 temp_16_2;
+    u32 var_19;
+    u32 var_19_2;
+    u8 *temp_18;
+    u8 *temp_19;
+    u8 *temp_20;
+    u8 *temp_20_2;
+    s32 sum;
+
+    temp_19 = *(u8 **)(arg0 + 0x38);
+    func_0025e9e0(0xFFFFFF, 0xFF, 0xA4, iGpffffb540, 1, 0.0f, 0.0f, 0.0f);
+    temp_2 = *(s32 *)(temp_19 + 0x1C68) + 1;
+    *(s32 *)(temp_19 + 0x1C68) = temp_2;
+    if (temp_2 >= 0x5A1) {
+        *(s32 *)(temp_19 + 0x1C68) = 0;
+    }
+    func_0025ea20(-78.0f, -82.0f, 0.0f, 0x4972FF, 0xFF, 0xB1,
+                  iGpffffb540, 1, 0x5B, 0x5B,
+                  (f32)(*(s32 *)(temp_19 + 0x1C68) * -0x168) / 1440.0f,
+                  1.0f, 1.0f);
+    func_0025ea20(540.0f, 347.0f, 0.0f, 0x4972FF, 0xFF, 0xB1,
+                  iGpffffb540, 1, 0x5B, 0x15B,
+                  (f32)(*(s32 *)(temp_19 + 0x1C68) * -0x168) / 1440.0f,
+                  1.0f, 1.0f);
+    func_0025e9e0(0xFFFFFF, 0xFF, 0xAF, iGpffffb540, 1, 0.0f, 0.0f, 0.0f);
+    func_0025e9e0(0xFFFFFF, 0xFF, 0xAE, iGpffffb540, 1, 0.0f, 346.0f, 0.0f);
+    func_002a2980(temp_19 + 0x2A8);
+    temp_f1 = 255.0f * func_002a2cd0(temp_19 + 0x2A8);
+    if (!(temp_f1 >= 2.1474836e9f)) {
+        var_3 = 0x4F000000 & 0xFF;
+    } else {
+        var_3 = ((s32)(temp_f1 - 2.1474836e9f) | 0x80000000) & 0xFF;
+    }
+    var_16 = var_3 & 0xFF;
+    func_002a2c10(temp_19 + 0x2A8, &sp98);
+    temp_3 = *(s32 *)(temp_19 + 0x1C34);
+    switch (temp_3) {
+    case 0:
+        var_20 = var_16 & 0xFF;
+        var_18 = 0;
+        break;
+    case 1:
+        var_18 = var_16 & 0xFF;
+        var_20 = ((0xFF - var_18) >> 2) & 0xFF;
+        break;
+    case 2:
+        var_20 = var_16 & 0xFF;
+        var_18 = ((0xFF - var_20) >> 2) & 0xFF;
+        break;
+    }
+    func_0025e9e0(0xFFFFFF, var_20, 0x13, iGpffffb540, 1, sp98, sp9c, 0.0f);
+    temp_f20 = 105.0f + sp98;
+    func_0025e9e0(0xFFFFFF, var_20, 0x11, iGpffffb540, 1, temp_f20, sp9c, 0.0f);
+    temp_f21 = sp9c + 3.0f;
+    func_0025e9e0(0xFFFFFF, var_18, 0x13, iGpffffb540, 1, sp98, temp_f21, 0.0f);
+    func_0025e9e0(0xFFFFFF, var_18, 0x12, iGpffffb540, 1, temp_f20, temp_f21, 0.0f);
+    func_002a02f0(arg0, 0);
+    if (*(s32 *)(temp_19 + 0x1C34) != 0) {
+        var_16 = 0xFF;
+    }
+    temp_18 = *(u8 **)(arg0 + 0x38);
+    func_0025e9e0(0x4972FF, var_16, 0x17, iGpffffb540, 1, 229.0f, 150.0f, 0.0f);
+    func_0025e9e0(0x4972FF, var_16, 0x17, iGpffffb540, 1, 229.0f, 182.0f, 0.0f);
+    if (*(s32 *)(temp_18 + 0x14) != 3) {
+        temp_3_2 = iGpffffb538;
+        if (temp_3_2 < 8) {
+            var_3_2 = (temp_3_2 * 0x1C) + 0xE3;
+            var_2 = 0x97;
+        } else {
+            var_3_2 = ((temp_3_2 - 8) * 0x1C) + 0xE3;
+            var_2 = 0xB7;
+        }
+        func_0025e9e0(0xCCFF33, var_16, 0x18, iGpffffb540, 1, (f32)var_3_2, (f32)var_2, 0.0f);
+    }
+    func_002a2cd0(temp_19 + 0x210);
+    func_002a2c10(temp_19 + 0x210, &sp98);
+    temp_18_2 = *(s32 *)(temp_19 + 0x24) / 5;
+    temp_21 = *(s32 *)(temp_19 + 0x30) / 5;
+    temp_22 = *(s32 *)(temp_19 + 0x3C) / 5;
+    var_16_2 = 0;
+    while (var_16_2 < 0x18) {
+        temp_f21_2 = (f32)(((var_16_2 / 6) * 0x94) + 0x19);
+        temp_f20_2 = (f32)(((var_16_2 % 6) * 0x19) + 0xE3);
+        func_0025e9e0(0x4972FF, 0xFF, 1, iGpffffb540, 1, temp_f21_2, temp_f20_2, 0.0f);
+        if (var_16_2 == 0) {
+            func_0025e9e0(0x4972FF, 0xFF, 0x1B, iGpffffb540, 1, 18.0f, 219.0f, 0.0f);
+        }
+        if (var_16_2 == 5) {
+            func_0025e9e0(0x4972FF, 0xFF, 0x1C, iGpffffb540, 1, 18.0f, 366.0f, 0.0f);
+        }
+        if (var_16_2 == 0x12) {
+            func_0025e9e0(0x4972FF, 0xFF, 0x1D, iGpffffb540, 1, (f32)0x24A, 219.0f, 0.0f);
+        }
+        if (var_16_2 == 0x17) {
+            func_0025e9e0(0x4972FF, 0xFF, 0x1E, iGpffffb540, 1, (f32)0x24A, 366.0f, 0.0f);
+        }
+        if (*(s32 *)(temp_19 + 0x14) != 3) {
+            if ((temp_18_2 != temp_21) && (var_16_2 == temp_22)) {
+                temp_20 = temp_19 + (var_16_2 * 0x98) + 0x340;
+                func_002a2780((s32)temp_20);
+                func_002a27c0((s32)temp_20, 0, 0, 0, 0,
+                              fGpffff8204, 0, 0, 0x14);
+            }
+            temp_20_2 = temp_19 + (var_16_2 * 0x98) + 0x340;
+            func_002a2980(temp_20_2);
+            if (var_16_2 == temp_18_2) {
+                func_0025e9e0(0x49AFFD, 0xFF, 1, iGpffffb540, 1, temp_f21_2, temp_f20_2, 0.0f);
+                if (var_16_2 == 0) {
+                    func_0025e9e0(0x49AFFD, 0xFF, 0x1B, iGpffffb540, 1, 18.0f, sp9c, 0.0f);
+                }
+                if (var_16_2 == 5) {
+                    func_0025e9e0(0x49AFFD, 0xFF, 0x1C, iGpffffb540, 1, 18.0f, (171.0f + sp9c) - 24.0f, 0.0f);
+                }
+                if (var_16_2 == 0x12) {
+                    func_0025e9e0(0x49AFFD, 0xFF, 0x1D, iGpffffb540, 1, (f32)0x24A, sp9c, 0.0f);
+                }
+                if (var_16_2 == 0x17) {
+                    func_0025e9e0(0x49AFFD, 0xFF, 0x1E, iGpffffb540, 1, (f32)0x24A, (171.0f + sp9c) - 24.0f, 0.0f);
+                }
+            } else if (func_002a2c70(temp_20_2) != 0) {
+                temp_f1_2 = 255.0f * (1.0f - func_002a2cd0(temp_20_2));
+                if (!(temp_f1_2 >= 2.1474836e9f)) {
+                    var_3_3 = 0x4F000000 & 0xFF;
+                } else {
+                    var_3_3 = ((s32)(temp_f1_2 - 2.1474836e9f) | 0x80000000) & 0xFF;
+                }
+                temp_20_3 = var_3_3 & 0xFF;
+                func_0025e9e0(0x49AFFD, temp_20_3, 1, iGpffffb540, 1, temp_f21_2, temp_f20_2, 0.0f);
+                if (var_16_2 == 0) {
+                    func_0025e9e0(0x49AFFD, temp_20_3, 0x1B, iGpffffb540, 1, 18.0f, sp9c, 0.0f);
+                }
+                if (var_16_2 == 5) {
+                    func_0025e9e0(0x49AFFD, temp_20_3, 0x1C, iGpffffb540, 1, 18.0f, (171.0f + sp9c) - 24.0f, 0.0f);
+                }
+                if (var_16_2 == 0x12) {
+                    func_0025e9e0(0x49AFFD, temp_20_3, 0x1D, iGpffffb540, 1, (f32)0x24A, sp9c, 0.0f);
+                }
+                if (var_16_2 == 0x17) {
+                    func_0025e9e0(0x49AFFD, temp_20_3, 0x1E, iGpffffb540, 1, (f32)0x24A, (171.0f + sp9c) - 24.0f, 0.0f);
+                }
+            }
+        }
+        var_16_2 += 1;
+    }
+    func_0029f790(arg0);
+    if (*(s32 *)(temp_19 + 0x14) != 3) {
+        temp_5 = *(s32 *)(temp_19 + 0x1C);
+        var_f2 = (f32)((temp_5 % 5) * 0x1B);
+        temp_lo = temp_5 / 5;
+        switch (temp_lo) {
+        case 0:
+            var_f2 += 30.0f;
+            break;
+        case 1:
+            var_f2 += 178.0f;
+            break;
+        case 2:
+            var_f2 += 326.0f;
+            break;
+        case 3:
+            var_f2 += 474.0f;
+            break;
+        }
+        func_0025e9e0(0xCCFF33, 0xFF, 0xF, iGpffffb540, 1, var_f2 - 12.0f, (f32)((*(s32 *)(temp_19 + 0x20) * 0x19) + 0xE5) - 12.0f, 0.0f);
+    }
+    var_20_2 = 0;
+    while (var_20_2 < 6) {
+        var_18_2 = 0;
+        while (var_18_2 < 0x14) {
+            temp_2_2 = *(s16 *)(D_007485D0 + (var_20_2 * 0x28) + (var_18_2 * 2));
+            if (temp_2_2 >= 0) {
+                var_f12 = (f32)((var_18_2 % 5) * 0x1B);
+                temp_lo_2 = var_18_2 / 5;
+                switch (temp_lo_2) {
+                case 0:
+                    var_f12 += 30.0f;
+                    break;
+                case 1:
+                    var_f12 += 178.0f;
+                    break;
+                case 2:
+                    var_f12 += 326.0f;
+                    break;
+                case 3:
+                    var_f12 += 474.0f;
+                    break;
+                }
+                func_0025e9e0(0x2D2D2D, 0xFF, temp_2_2 + 0x20, iGpffffb540, 1, var_f12, (f32)((var_20_2 * 0x19) + 0xE5), 0.0f);
+            }
+            var_18_2 += 1;
+        }
+        var_20_2 += 1;
+    }
+    if ((*(s32 *)(temp_19 + 0x14) == 3) &&
+        (*(s32 *)(temp_19 + 8) == 0)) {
+        func_0025e9e0(0xFFFFFF, 0xFF, 0xAC, iGpffffb540, 1, 0.0f, 102.0f, 0.0f);
+    }
+    if ((func_00442948(D_00882EF0) >> 1) != 0) {
+        temp_16 = (u32)(func_00442948(D_00882EF0) >> 1);
+        var_18_3 = 0xE7;
+        var_19 = 0;
+        sum = 0;
+        while (var_19 < temp_16) {
+            func_00442de8(iGpffffb528, D_00882EF0 + (var_19 * 2), 2);
+            sum += func_00274ed0((f32)var_18_3, 121.0f, 0.0f,
+                                 0xCCFFFFFF, 0, 0, iGpffffb528, 0, 0);
+            var_18_3 += 0x1C;
+            var_19 += 1;
+        }
+    }
+    if ((func_00442948(D_00882ED0) >> 1) != 0) {
+        temp_16_2 = (u32)(func_00442948(D_00882ED0) >> 1);
+        var_18_4 = 0xE7;
+        var_19_2 = 0;
+        sum = 0;
+        while (var_19_2 < temp_16_2) {
+            func_00442de8(iGpffffb528, D_00882ED0 + (var_19_2 * 2), 2);
+            sum += func_00274ed0((f32)var_18_4, 153.0f, 0.0f,
+                                 0xCCFFFFFF, 0, 0, iGpffffb528, 0, 0);
+            var_18_4 += 0x1C;
+            var_19_2 += 1;
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a03b0);
+#endif
 /* Floor for func_002a12e0 (retail 1840B/456 instrs @0x002A12E0, window 1840B).
    Candidate (this C body, measured via probe splice): 1780B emitted / 1840B window (60B short),
    fnalign 445/456 instrs (11 short, 2.4% gap, within ~3%), 190 edit instrs +6 reloc-only,

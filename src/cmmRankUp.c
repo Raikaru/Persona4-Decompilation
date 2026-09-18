@@ -471,8 +471,29 @@ s32 func_00252710(s32 arg0, u8 *work, u8 *ctx)
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252710);
 #endif
 
-/* measured: skipped; aggregate-stack candidate archived in
-   build/LRankUp_00252a60_body.c but remained a frame/register mismatch. */
+/* measured: refused (2026-09-18): archived LRankUp_00252a60_body.c installed
+   guarded, fixed one compile error (`*(s32 *)(arg2+0x10)` -> `*(u8 **)` to match
+   current `func_0025f360(s32,s32,u8*)`, as elsewhere in this file), then measured
+   GUARDED_SCORE 983 (reloc-masked, 762 edits +2 reloc-only via
+   `python3 -E -s tools/measure_guarded.py src/cmmRankUp.c func_00252a60`);
+   fnalign retail 892 vs object 1069 instrs (+177, +19.8%, outside the 3% gate of
+   +/-27 via `python3 -E -s tools/fnalign.py src/cmmRankUp.c func_00252a60
+   --candidate /var/tmp/bank52a60/cand.c --quiet`). Frame retail 0x240 vs object
+   0x250 (+16B, one extra sq); prologue colours retail $s3/$s2/$s1 vs object
+   $s0/$s3/$fp with GPR rotation through the body. No omitted call: all retail
+   jal/jalr sites (43, incl. 2x func_00252230, 4x func_003e0870, 6x func_00366c70,
+   vtable jalr x4, func_0025f360/func_0035afa0/func_003e05f0/func_0044b7b0/
+   func_0044b610/func_00251570/func_00251850/func_003f6440) are present in the
+   body. Longer direction points at insert runs: eight int-to-float sites with
+   the `2.0f*(f32)(((u32)x>>1)|(x&1))` negative-path doubling (~10 instrs each),
+   the aggregate RankUpLocals struct vs retail separate buffers, and FP saved-reg
+   rotation. Archive health: 353 lines on disk (brief said 354); code is lines
+   1-352, line 353 is a bare trailing note without comment delimiters, the `}` closer and
+   the RankUpLocals typedef (0x28/0x20/0x20/0x40/0x40/0x40+Sp120+s64/f32/f32/f32/
+   s64/f32, from .probe/Rank52710Recovery/owner_LRankUp_00252a60.c:398-412) are
+   both missing from the archive and were supplied from the probe file; the
+   archive's `*(s32 *)` spelling for the func_0025f360 arg was the only other
+   difference from that probe. Production stays ASM. */
 // FUN_00252A60
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252a60);
 

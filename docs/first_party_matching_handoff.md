@@ -496,6 +496,56 @@ retail and an $sN in the candidate.  It does not always apply - on
 the shared `j` ties at 27, so the cause there is something else.  One probe
 settles it either way.
 
+### 7p. Two ways to fix operand order, and a correction to 7c
+
+Both came from closing floors that earlier passes had declared unreachable,
+and both are about the order operands are *materialised*, not about registers.
+
+**Where you snapshot a value decides which operand loads first.**
+`func_001c79f0` sat at 2 words: retail loaded the position Y coordinate into
+$f1 before the direction Y coordinate into $f0, the candidate did the reverse.
+Retail reuses that position value further down, which is why it loads it
+first.  Snapshotting it into an ordinary float local recovers the order - but
+only from one place:
+
+| snapshot placement | words |
+| --- | ---: |
+| before the X output | 5 |
+| **immediately before the first Y output** | **0** |
+| before the position X update | 20 |
+
+The old note on that function recorded "hoisting `pos138[1]` into a local (5)"
+and concluded the load pair was "a scheduler coin-flip on two independent
+loads, not a source defect".  It had measured one placement.  When a hoist
+looks like the right idea and scores badly, **move it before you discard it** -
+the statement it sits in front of is part of the experiment.
+
+**Moving one float parameter fixes argument materialisation order.**
+`func_0025dd30` sat at 6 words, three per call site, where retail emitted
+`mtc1 $zero, $f12` before the packed-colour `srl`/`andi` pair and the
+candidate emitted it after.  The fix was in the *callee's* signature: move
+only `func_00366670`'s first float ahead of the integer arguments, updating
+the shared prototype, the definition in the provider file and all four call
+sites together.  Moving groups of floats had been tried and scored 14 and 20;
+moving exactly one had not.
+
+**Correction to section 7c.**  That function's note used to claim the axis was
+"closed by proof": two byte-exact MATCHed callers in the same file pass the
+floats last, a matched caller pins a callee's parameter order, therefore no
+float-first spelling can be retail's - and reordering "also fails to compile
+the file, because those two callers share the prototype".  Both halves were
+wrong.  The prototype being shared is exactly why it compiles: change it and
+every caller at once.  And those callers' expressions turned out to be
+*insensitive* to the move - they stay byte-identical, so they never pinned
+anything.
+
+The rule as it should be stated: **a matched caller pins a callee's parameter
+order only where the caller's own code would change.**  Whether it would is a
+measurement - reorder the prototype, the definition and every call site
+together, then re-verify the callers - not an inference.  Here the first float
+placed before the integers, or after one, two, three or four of them, all
+compile identically; after five it scores 4, after six or more it returns to 6.
+
 ### 7o. Uninitialised declaration plus statement order breaks a register exchange
 
 **This supersedes the pessimism in 7m.**  The exchanged-register-pair class is
