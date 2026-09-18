@@ -239,6 +239,14 @@ void func_003741f0(u8 *arg0) {
    (lw sp vs constants first); (2) loop2 hoist retail $18-before vs mwcc sink
    as lui $v1,2/sw -0xd54 (tried, +30w); (3) saved-color rotation arg0 $s3 vs
    $s0 + branch-orientation beqz+b vs bnez. Production stays ASM. */
+/* 2026-09-18 measurement, not installed: retail materialises
+   `arg0 + i * 4 + 0x1F2AC` into a saved register before the two calls in
+   the second loop (`sll / addu / lui / ori / addu s2`), where b210 forms it
+   at the store.  A pointer local for that store takes the object from three
+   instructions short to two (210 vs 212) but costs 126 -> 158 words in
+   colouring; doing the same for the later read as well is 176.  Same
+   structural-fix-costs-words pattern as func_002e5000 in src/Yajima/
+   y_list.c. */
 // FUN_003742B0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003742b0(u8 *arg0)
