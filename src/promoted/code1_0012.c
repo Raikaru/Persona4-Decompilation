@@ -1948,8 +1948,401 @@ void func_00124bb0(s32 arg0,
 }
 #pragma opt_propagation on
 #pragma pop
-// FUN_00124F70
+/* Floor: 900 differing words, 993 of 964 instrs re-measured by the lead
+   (the worker reported 992).  That is +3.01%, one instruction past the +3%
+   band edge of 992.92.  Kept as a banked floor deliberately, on the same
+   rounding-edge precedent as func_0048ec50 in code1_0048.c ("+19 +3.1% at
+   gate 602-638, 1 over by rounding"): the gate exists to reject bodies whose
+   shape is wrong, and a single instruction of overshoot is not that.  The
+   next pass should still treat the 29-instruction excess as the first thing
+   to find - it is 3% of the function and it is where the score is.
+   Body also at docs/probe_archive/Lane0012_00124f70_body.c; production stays ASM. */
+/* measured 2026-09-18: reconstructed from bare marker (retail 0x00124F70, 3856B window, 964 instrs). v1c baseline 921 (Ghidra-direct, [6] frame exact at 0x360; [8] gave 0x370 at 922). v2 908 (-13: D_5530/40 array not scalar + 002aaf20 640/448 not 512/480,512/1216). v3 904 (-4: flag beqz polarity + col order + buffers address-ascending). v4 903 (-1: buffers descending, first-declared highest per micro stacktest2). v5 900 (-3: explicit p5234/5230/524C/5248/5244/5240/523C/5238 locals, first two spill to 0xA0/0xB0). Free pragmas tie/worse: loopinv 922 (+1), nounroll 921 tie, sched 921 tie, propoff 943 (+22), commonsubs 940 (+19). 7o eight skipped: body already in 7o form (bare decls + statement assigns, no Type name = ...; initialisers). Full proof in archive. */
+// FUN_00124F70 NONMATCHING
+#ifdef NON_MATCHING
+void func_00124f70(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4)
+{
+    extern void func_002aaf20(void *arg0, f32 farg0, f32 farg1, f32 farg2, f32 farg3, f32 farg4, s32 arg1, s32 arg2);
+    extern s32 func_0025f3f0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+    extern void func_002aaac0(void);
+    extern s32 func_003f6440(s32 arg0, s32 arg1);
+    extern void func_00124bb0(s32 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, u32 arg1, u32 arg2, f32 fparg6, s32 arg3, u32 *arg4);
+    extern u8 D_005E5530[];
+    extern u8 D_005E5540[];
+    extern u8 D_005E5230[];
+    extern u8 D_005E5234[];
+    extern u8 D_005E5238[];
+    extern u8 D_005E523C[];
+    extern u8 D_005E5240[];
+    extern u8 D_005E5244[];
+    extern u8 D_005E5248[];
+    extern u8 D_005E524C[];
+    u32 b340[6];
+    u32 b320[6];
+    u32 b300[6];
+    u32 b2E0[6];
+    u32 b2C0[6];
+    u32 b2A0[6];
+    u32 b280[6];
+    u32 b260[6];
+    u32 b240[6];
+    u32 b220[6];
+    u32 b200[6];
+    u32 b1E0[6];
+    u32 b1C0[6];
+    u32 b1A0[6];
+    u32 b180[6];
+    u32 b160[6];
+    u32 b140[6];
+    u32 b120[6];
+    u32 b100[6];
+    u32 bE0[6];
+    u32 bC0[6];
+    u8 colBuf[4];
+    u8 col4[4];
+    u8 *p;
+    s32 n;
+    s32 *src;
+    s32 *dst;
+    s32 count;
+    s32 t1;
+    s32 t2;
+    s32 idx;
+    s32 *tbl;
+    s32 vidx;
+    u32 word;
+    s32 r;
+    s32 g;
+    s32 b;
+    u8 c0;
+    u8 c1;
+    u8 c2;
+    f32 f0;
+    f32 f1;
+    f32 f2;
+    u8 *p5234;
+    u8 *p5230;
+    u8 *p524C;
+    u8 *p5248;
+    u8 *p5244;
+    u8 *p5240;
+    u8 *p523C;
+    u8 *p5238;
+    s32 flag;
+    (void)arg2;
+    if (arg3 != 0) {
+        flag = 0;
+    } else {
+        flag = 0x10000;
+    }
+    p = col4;
+    n = 4;
+    if (p != NULL) {
+        do {
+            *p = 0;
+            p++;
+            n--;
+        } while (n != 0);
+    }
+    *(f32 *)colBuf = *(f32 *)col4;
+    func_002aaf20(colBuf, 0.0f, 0.0f, 0.0f, 640.0f, 448.0f, 0x12, 0);
+    *(s128 *)b140 = *(s128 *)D_005E5530;
+    *(s64 *)(b140 + 4) = *(s64 *)D_005E5540;
+    src = (s32 *)b140;
+    dst = (s32 *)b1C0;
+    count = 3;
+    do {
+        t1 = src[0];
+        t2 = src[1];
+        src += 2;
+        count--;
+        dst[0] = t1;
+        dst[1] = t2;
+        dst += 2;
+    } while (count > 0);
+    idx = arg0 * 0x28;
+    tbl = (s32 *)(D_005E524C + idx);
+    p524C = D_005E524C + idx;
+    p5248 = D_005E5248 + idx;
+    p5244 = D_005E5244 + idx;
+    p5240 = D_005E5240 + idx;
+    p523C = D_005E523C + idx;
+    p5238 = D_005E5238 + idx;
+    p5234 = D_005E5234 + idx;
+    p5230 = D_005E5230 + idx;
+    vidx = *tbl * 4;
+    word = *(u32 *)((u8 *)b1C0 + vidx);
+    src = (s32 *)b140;
+    dst = (s32 *)b1A0;
+    count = 3;
+    do {
+        t1 = src[0];
+        t2 = src[1];
+        src += 2;
+        count--;
+        dst[0] = t1;
+        dst[1] = t2;
+        dst += 2;
+    } while (count > 0);
+    r = (word >> 0x18) & 0xFF;
+    g = (word >> 0x10) & 0xFF;
+    b = (word >> 8) & 0xFF;
+    f0 = (f32)(u8)((f32)(0xFF - r) * 1.0f + (f32)r);
+    f1 = (f32)(u8)((f32)(0xFF - g) * 1.0f + (f32)g);
+    f2 = (f32)(u8)((f32)(0xFF - b) * 1.0f + (f32)b);
+    {
+        s32 a0 = (s32)*(f32 *)p5230;
+        u32 a1 = (*(u32 *)((u8 *)b1A0 + vidx) & 0xFFFFFF00) | 0xFF;
+        u32 a2 = ((u32)(u8)f2 << 8) | ((u32)(u8)f0 << 0x18) | ((u32)(u8)f1 << 0x10) | 0xFF;
+        func_00124bb0(a0, *(f32 *)p5234, 0.0f, *(f32 *)p5238, *(f32 *)p523C, *(f32 *)p5240, *(f32 *)p5244, a1, a2, *(f32 *)p5248, 0x10052, (u32 *)arg4);
+    }
+    *(s128 *)b120 = *(s128 *)D_005E5530;
+    *(s64 *)(b120 + 4) = *(s64 *)D_005E5540;
+    src = (s32 *)b120;
+    dst = (s32 *)b180;
+    count = 3;
+    do {
+        t1 = src[0];
+        t2 = src[1];
+        src += 2;
+        count--;
+        dst[0] = t1;
+        dst[1] = t2;
+        dst += 2;
+    } while (count > 0);
+    vidx = *tbl * 4;
+    word = *(u32 *)((u8 *)b180 + vidx);
+    src = (s32 *)b120;
+    dst = (s32 *)b160;
+    count = 3;
+    do {
+        t1 = src[0];
+        t2 = src[1];
+        src += 2;
+        count--;
+        dst[0] = t1;
+        dst[1] = t2;
+        dst += 2;
+    } while (count > 0);
+    r = (word >> 0x18) & 0xFF;
+    g = (word >> 0x10) & 0xFF;
+    b = (word >> 8) & 0xFF;
+    f0 = (f32)(u8)((f32)(0xFF - r) * 1.0f + (f32)r);
+    f1 = (f32)(u8)((f32)(0xFF - g) * 1.0f + (f32)g);
+    f2 = (f32)(u8)((f32)(0xFF - b) * 1.0f + (f32)b);
+    {
+        s32 a0 = (s32)*(f32 *)p5230;
+        u32 a1 = (*(u32 *)((u8 *)b160 + vidx) & 0xFFFFFF00) | 0xFF;
+        u32 a2 = ((u32)(u8)f2 << 8) | ((u32)(u8)f0 << 0x18) | ((u32)(u8)f1 << 0x10) | 0xFF;
+        func_00124bb0(a0, *(f32 *)p5234, 0.0f, *(f32 *)p5238, *(f32 *)p523C, *(f32 *)p5240, *(f32 *)p5244, a1, a2, *(f32 *)p5248, flag | 0x12, (u32 *)arg4);
+    }
+    *(s128 *)b100 = *(s128 *)D_005E5530;
+    *(s64 *)(b100 + 4) = *(s64 *)D_005E5540;
+    src = (s32 *)b100;
+    dst = (s32 *)b340;
+    count = 3;
+    do {
+        t1 = src[0];
+        t2 = src[1];
+        src += 2;
+        count--;
+        dst[0] = t1;
+        dst[1] = t2;
+        dst += 2;
+    } while (count > 0);
+    vidx = *tbl * 4;
+    colBuf[0] = (u8)(*(u32 *)((u8 *)b340 + vidx) >> 0x18);
+    src = (s32 *)b100;
+    dst = (s32 *)b320;
+    count = 3;
+    do {
+        t1 = src[0];
+        t2 = src[1];
+        src += 2;
+        count--;
+        dst[0] = t1;
+        dst[1] = t2;
+        dst += 2;
+    } while (count > 0);
+    colBuf[1] = (u8)(*(u32 *)((u8 *)b320 + vidx) >> 0x10);
+    src = (s32 *)b100;
+    dst = (s32 *)b300;
+    count = 3;
+    do {
+        t1 = src[0];
+        t2 = src[1];
+        src += 2;
+        count--;
+        dst[0] = t1;
+        dst[1] = t2;
+        dst += 2;
+    } while (count > 0);
+    colBuf[2] = (u8)(*(u32 *)((u8 *)b300 + vidx) >> 8);
+    src = (s32 *)b100;
+    dst = (s32 *)b2E0;
+    count = 3;
+    do {
+        t1 = src[0];
+        t2 = src[1];
+        src += 2;
+        count--;
+        dst[0] = t1;
+        dst[1] = t2;
+        dst += 2;
+    } while (count > 0);
+    colBuf[3] = (u8)*(u32 *)((u8 *)b2E0 + vidx);
+    colBuf[0] = (u8)arg1;
+    colBuf[1] = (u8)arg1;
+    colBuf[2] = (u8)arg1;
+    func_002aaac0();
+    func_003f6440(3, 0x53001);
+    func_003f6440(2, 0x52);
+    {
+        s32 c = arg1 & 0xFF;
+        s32 rep = (c << 24) | (c << 16) | (c << 8) | 0xFF;
+        func_0025f3f0(-1.0f, -1.0f, 0.0f, rep >> 8, 0xFF, 0, 0, *(s32 *)(arg4 + 0x3C), 0);
+    }
+    *(s128 *)bE0 = *(s128 *)D_005E5530;
+    *(s64 *)(bE0 + 4) = *(s64 *)D_005E5540;
+    src = (s32 *)bE0;
+    dst = (s32 *)b2C0;
+    count = 3;
+    do {
+        t1 = src[0];
+        t2 = src[1];
+        src += 2;
+        count--;
+        dst[0] = t1;
+        dst[1] = t2;
+        dst += 2;
+    } while (count > 0);
+    vidx = *tbl * 4;
+    colBuf[0] = (u8)(*(u32 *)((u8 *)b2C0 + vidx) >> 0x18);
+    src = (s32 *)bE0;
+    dst = (s32 *)b2A0;
+    count = 3;
+    do {
+        t1 = src[0];
+        t2 = src[1];
+        src += 2;
+        count--;
+        dst[0] = t1;
+        dst[1] = t2;
+        dst += 2;
+    } while (count > 0);
+    colBuf[1] = (u8)(*(u32 *)((u8 *)b2A0 + vidx) >> 0x10);
+    src = (s32 *)bE0;
+    dst = (s32 *)b280;
+    count = 3;
+    do {
+        t1 = src[0];
+        t2 = src[1];
+        src += 2;
+        count--;
+        dst[0] = t1;
+        dst[1] = t2;
+        dst += 2;
+    } while (count > 0);
+    colBuf[2] = (u8)(*(u32 *)((u8 *)b280 + vidx) >> 8);
+    src = (s32 *)bE0;
+    dst = (s32 *)b260;
+    count = 3;
+    do {
+        t1 = src[0];
+        t2 = src[1];
+        src += 2;
+        count--;
+        dst[0] = t1;
+        dst[1] = t2;
+        dst += 2;
+    } while (count > 0);
+    colBuf[3] = (u8)*(u32 *)((u8 *)b260 + vidx);
+    {
+        f32 base = (f32)arg1 / 255.0f;
+        f32 v0 = (f32)colBuf[0] * base;
+        f32 v1 = (f32)colBuf[1] * base;
+        f32 v2 = (f32)colBuf[2] * base;
+        colBuf[0] = (u8)v0;
+        colBuf[1] = (u8)v1;
+        colBuf[2] = (u8)v2;
+    }
+    func_002aaac0();
+    func_003f6440(3, 0x53001);
+    func_003f6440(2, 0x58);
+    func_002aaf20(colBuf, 0.0f, 0.0f, 0.0f, 640.0f, 448.0f, 0x300, 0);
+    *(s128 *)bC0 = *(s128 *)D_005E5530;
+    *(s64 *)(bC0 + 4) = *(s64 *)D_005E5540;
+    src = (s32 *)bC0;
+    dst = (s32 *)b240;
+    count = 3;
+    do {
+        t1 = src[0];
+        t2 = src[1];
+        src += 2;
+        count--;
+        dst[0] = t1;
+        dst[1] = t2;
+        dst += 2;
+    } while (count > 0);
+    vidx = *tbl * 4;
+    {
+        u32 w0 = *(u32 *)((u8 *)b240 + vidx);
+        colBuf[0] = (u8)(((w0 & 0xFFFFFF00) | (u32)(u8)arg1) >> 0x18);
+    }
+    src = (s32 *)bC0;
+    dst = (s32 *)b220;
+    count = 3;
+    do {
+        t1 = src[0];
+        t2 = src[1];
+        src += 2;
+        count--;
+        dst[0] = t1;
+        dst[1] = t2;
+        dst += 2;
+    } while (count > 0);
+    {
+        u32 w1 = *(u32 *)((u8 *)b220 + vidx);
+        colBuf[1] = (u8)(((w1 & 0xFFFFFF00) | (u32)(u8)arg1) >> 0x10);
+    }
+    src = (s32 *)bC0;
+    dst = (s32 *)b200;
+    count = 3;
+    do {
+        t1 = src[0];
+        t2 = src[1];
+        src += 2;
+        count--;
+        dst[0] = t1;
+        dst[1] = t2;
+        dst += 2;
+    } while (count > 0);
+    {
+        u32 w2 = *(u32 *)((u8 *)b200 + vidx);
+        colBuf[2] = (u8)(((w2 & 0xFFFFFF00) | (u32)(u8)arg1) >> 8);
+    }
+    src = (s32 *)bC0;
+    dst = (s32 *)b1E0;
+    count = 3;
+    do {
+        t1 = src[0];
+        t2 = src[1];
+        src += 2;
+        count--;
+        dst[0] = t1;
+        dst[1] = t2;
+        dst += 2;
+    } while (count > 0);
+    {
+        u32 w3 = *(u32 *)((u8 *)b1E0 + vidx);
+        colBuf[3] = (u8)((w3 & 0xFFFFFF00) | (u32)(u8)arg1);
+    }
+    func_002aaac0();
+    func_002aaf20(colBuf, 0.0f, 0.0f, 1.0f, 640.0f, 448.0f, 1, 0);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00124f70);
+#endif
 extern s32 func_0025f3f0(f32 farg0, f32 farg1, f32 farg2,
                          s32 arg0, u8 arg1, s32 arg2, s32 arg3,
                          s32 arg4, s32 arg5);
