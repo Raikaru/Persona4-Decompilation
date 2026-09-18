@@ -2754,6 +2754,15 @@ void func_0012d410(u8 *arg0)
 /*   among them; dead 37, prop 61, cse 307, sched 315, peephole 332 */
 /*   (pairs 37-357). Three causes stand: addu order, lbu/sd-mtc1 */
 /*   scheduling, cvt.s.w into $f1; floor stands at 13 (337/337). */
+/*   7o 2026-09-18 (`tools/residual_signature.py src/promoted/code1_0012.c func_0012d630`: */
+/*   edits 12 mask 0 cvt 1 class 1 perm 0 other 6 [$s1->$v0 $v0->$s1], probe 13 words; */
+/*   class/perm 1/12 not majority - single addu operand swap (retail $v0,$v0,$s1 */
+/*   vs object $v0,$s1,$v0 for p+sel*4) plus lbu/sd-mtc1 scheduling and cvt.s.w. */
+/*   Eight q/idx probes (strip q init, q before idx vs idx before q, F/B scopes, */
+/*   one batched probe_variants call, all truthful): v1_FF_retail 13, v2_FF_rev 44, */
+/*   v3_FB_retail 13, v4_FB_rev 44, v5_BF_retail 13, v6_BF_rev 44, */
+/*   v7_BB_retail 13, v8_BB_rev 44. Retail ties, reverse 13->44, scopes neutral. */
+/*   Floor stands at 13 (337/337). */
 // FUN_0012D630 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0012d630(u8 *arg0)

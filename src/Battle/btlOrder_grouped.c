@@ -310,6 +310,7 @@ void func_001b1020(s32 arg0)
    t-register numbering is not declaration-driven here; it would take a
    different number of live temporaries to rotate, and every shape that
    changes that count also changes the instruction stream. */
+/* 2026-09-18 section 7o (exchange $t1/$t3: key vs i): residual_signature 5 perm [$t1->$t3 $t3->$t1], fnalign 5 at +0x34,+0x4c,+0x88,+0x9c,+0xa4 (retail key $t3, i $t1). Eight probe_variants (key recomputed inside do, same value): v1 FF retail 5, v2 FF rev 5, v3 FB retail 11, v4 FB rev 11, v5 BF retail 5, v6 BF rev 5, v7 BB retail 11, v8 BB rev 11 (F=function scope, B=do-block scope; retail=key then i, rev=i then key). i must stay function scope (block costs 5->11); key scope and statement order neutral. Floor stands at 5. */
 // FUN_001B11C0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
