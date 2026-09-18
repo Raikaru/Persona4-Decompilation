@@ -2403,6 +2403,19 @@ loop:
    Seven gp coefficient slots (fGpffff81b4..fGpffff81cc, the sin/cos Horner
    table contiguous with the known fGpffff81b0 at 0x007612a0) are new in
    config/symbol_data_addrs.txt. */
+/* 2026-09-18 lead pass, 8 measured variants, floor confirmed at 19 words.
+   Two residual classes at 211/211 instructions.  (a) Branch polarity at
+   offsets 43 and 47: retail has `bc1f`/`bnez` where this body emits
+   `bc1t`/`beqz`.  (b) The `o[0]`/`o[1]` sums: retail evaluates strictly left
+   to right, adding the first two terms and only then loading the table term,
+   while this body hoists that load ahead of the first add.
+   Neither is reachable from source.  `!(ang <= 180.0f)` is load-bearing -
+   rewriting it as `(ang > 180.0f)` costs 19 -> 163, and moving the negation
+   onto the `if` costs the same.  Splitting the sums into `o[i] = a + b;
+   o[i] += c;` to force the load after the first add costs 19 -> 55, and
+   combining both changes costs 162.  `while (wrapped)` and an explicit
+   `!(ang >= -180.0f)` tie at 19; `while (wrapped == 1)` costs one word.
+   The body is at a local optimum in every direction tried. */
 // FUN_0046A7F0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
