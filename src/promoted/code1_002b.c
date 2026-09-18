@@ -814,10 +814,205 @@ void func_002b5120(s32 arg0, u8 *arg1)
 }
 /* measured: restores opt_propagation after func_002b5120. */
 #pragma opt_propagation on
-/* Archive docs/probe_archive/LaneEffLineNovaCode1_002b52a0_body.c does not compile (wrong func_002b2aa0 arity, */
-/* undefined D_008872F8, plus syntax errors); 624-instr window, no bankable floor. Plain INCLUDE_ASM retained. */
-// FUN_002B52A0
+/* measured: first C reconstruction (m2c 222 + rw 190 + types 3-vs-2 de-noised to file idiom, truthful externs D_008872F8[]/00461390(void*,s32,void*,s32) per tree, s32(u8*) + s8/u16/s16 + (s32)int-store + (u8)color + branchy u8-to-f32 + quad + (void*)callback, corrected active!=0 early-return without shared tail and mode3/4 folded); retail 624 object 632 (8 over, 1.3% in 3% gate) probe 548 via probe_variants, 304 edits +4 reloc-only via fnalign --candidate /var/tmp/cold2b52a0/guarded_extracted.c; step2 pragma singles all tie/regress (548 tie dead/prop/strength/unroll, 555 loop_invariants, 584 schedule, 611 common_subs, 627 L1, 676 peephole, 810 L0) and pairs best 548 tie via pragma_sweep; step3 subscript v3a direct/v3b off-local/v3c P-index all 548 tie; step4 colouring v4a count/half, v4b floats, v4c ptrs/bytes, v4d counters-first all 548 tie; residual is dispatch polarity (beq vs bne + addiu -1), sra $v0/$v1 swap, float mov.s surplus, folded mode3/4 vs retail duplicated blocks, vertex sub.s order; above 60 so two-tie stop met. */
+// FUN_002B52A0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_002b52a0(u8 *arg0)
+{
+    extern f32 D_008872F8[];
+    extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
+    u8 *work;
+    s8 state;
+    u16 active;
+    s16 mode;
+    s16 frame;
+    s32 count;
+    s32 half;
+    s32 v;
+    s32 i;
+    u8 b0;
+    u8 b1;
+    u8 b2;
+    u8 b3;
+    f32 x0;
+    f32 y0;
+    f32 f0;
+    f32 factor;
+    u8 *item;
+    u8 *node;
+    u8 *pkt;
+    work = *(u8 **)(arg0 + 0x38);
+    if (*(s8 *)(work + 0x154) == 1) {
+        return 0;
+    }
+    state = *(s8 *)work;
+    if (state == 3) {
+        return -1;
+    }
+    if (state == 0 || state == 1) {
+        goto shared;
+    }
+    if (state != 2) {
+        return 0;
+    }
+    active = *(u16 *)(work + 0x182);
+    if (active != 0) {
+        *(u16 *)(work + 0x182) = func_002b2d00(active, 1, 0, 0, 1);
+        return 0;
+    }
+    mode = *(s16 *)(work + 0x156);
+    if (mode == 0) {
+        x0 = *(f32 *)(work + 0x13C);
+        count = *(s32 *)(work + 0x170);
+        half = count >> 1;
+        if (count < 0) {
+            half = (count + 1) >> 1;
+        }
+        *(f32 *)(work + 0x134) = func_002b2aa0(0, x0 + (f32)half, x0, (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
+        x0 = *(f32 *)(work + 0x140);
+        count = *(s32 *)(work + 0x174);
+        half = count >> 1;
+        if (count < 0) {
+            half = (count + 1) >> 1;
+        }
+        *(f32 *)(work + 0x138) = func_002b2aa0(0, x0 + (f32)half, x0, (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
+        *(s32 *)(work + 0x128) = (s32)func_002b2aa0(0, (f32)*(s32 *)(work + 0x160), (f32)*(s32 *)(work + 0x170), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
+        *(s32 *)(work + 0x12C) = (s32)func_002b2aa0(0, (f32)*(s32 *)(work + 0x164), (f32)*(s32 *)(work + 0x174), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
+    } else if (mode == 1) {
+        x0 = *(f32 *)(work + 0x13C);
+        count = *(s32 *)(work + 0x160);
+        half = count >> 1;
+        if (count < 0) {
+            half = (count + 1) >> 1;
+        }
+        *(f32 *)(work + 0x134) = func_002b2aa0(0, x0, x0 + (f32)half, (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
+        x0 = *(f32 *)(work + 0x140);
+        count = *(s32 *)(work + 0x164);
+        half = count >> 1;
+        if (count < 0) {
+            half = (count + 1) >> 1;
+        }
+        *(f32 *)(work + 0x138) = func_002b2aa0(0, x0, x0 + (f32)half, (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
+        *(s32 *)(work + 0x128) = (s32)func_002b2aa0(0, (f32)*(s32 *)(work + 0x160), (f32)*(s32 *)(work + 0x170), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
+        *(s32 *)(work + 0x12C) = (s32)func_002b2aa0(0, (f32)*(s32 *)(work + 0x164), (f32)*(s32 *)(work + 0x174), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
+    } else if (mode == 2) {
+        *(f32 *)(work + 0x134) = func_002b2aa0(0, *(f32 *)(work + 0x13C), *(f32 *)(work + 0x144), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
+        *(f32 *)(work + 0x138) = func_002b2aa0(0, *(f32 *)(work + 0x140), *(f32 *)(work + 0x148), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
+    } else if (mode == 3 || mode == 4) {
+        *(f32 *)(work + 0x134) = func_002b2aa0(0, *(f32 *)(work + 0x13C), *(f32 *)(work + 0x144), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
+        *(f32 *)(work + 0x138) = func_002b2aa0(0, *(f32 *)(work + 0x140), *(f32 *)(work + 0x148), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
+        *(s32 *)(work + 0x128) = (s32)func_002b2aa0(0, (f32)*(s32 *)(work + 0x160), (f32)*(s32 *)(work + 0x170), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
+        *(s32 *)(work + 0x12C) = (s32)func_002b2aa0(0, (f32)*(s32 *)(work + 0x164), (f32)*(s32 *)(work + 0x174), (f32)*(s16 *)(work + 0x14C), (f32)*(s32 *)(work + 0x150));
+    }
+    if (*(u8 *)(work + 0x180) == 1) {
+        b0 = *(u8 *)(work + 0x178);
+        if ((s32)b0 >= 0) {
+            x0 = (f32)b0;
+        } else {
+            u32 t = ((u32)b0 >> 1) | ((u32)b0 & 1);
+            x0 = (f32)(s32)t;
+            x0 = x0 + x0;
+        }
+        b1 = *(u8 *)(work + 0x179);
+        if ((s32)b1 >= 0) {
+            y0 = (f32)b1;
+        } else {
+            u32 t = ((u32)b1 >> 1) | ((u32)b1 & 1);
+            y0 = (f32)(s32)t;
+            y0 = y0 + y0;
+        }
+        *(u8 *)(work + 0x113) = (u8)func_002b2aa0(2, x0, y0, (f32)*(s16 *)(work + 0x17A), (f32)*(s32 *)(work + 0x17C));
+        v = 1;
+        while (v < 4) {
+            *(u8 *)(work + v * 4 + 0x113) = *(u8 *)(work + 0x113);
+            v += 1;
+        }
+        v = func_002b2cb0(*(s16 *)(work + 0x17A), 1, *(s32 *)(work + 0x17C), 0, 1);
+        *(s16 *)(work + 0x17A) = (s16)v;
+        if ((s16)v >= *(s32 *)(work + 0x17C)) {
+            *(u8 *)(work + 0x113) = *(u8 *)(work + 0x179);
+            v = 1;
+            while (v < 4) {
+                *(u8 *)(work + v * 4 + 0x113) = *(u8 *)(work + 0x113);
+                v += 1;
+            }
+            *(u8 *)(work + 0x180) = 0;
+        }
+    }
+    frame = *(s16 *)(work + 0x14C);
+    if (frame < *(s32 *)(work + 0x150)) {
+        *(s16 *)(work + 0x14C) = frame + 1;
+    } else {
+        *(s16 *)(work + 0x156) = -1;
+        if (*(s32 *)(work + 0x128) == 0 || *(s32 *)(work + 0x12C) == 0) {
+            *(s8 *)(work + 0x154) = 1;
+        }
+        if (*(u8 *)(work + 0x180) == 0 && *(s16 *)(work + 0x156) == -1) {
+            *(s8 *)work = 1;
+        }
+    }
+shared:
+    factor = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    v = 0;
+    while (v < 4) {
+        item = work + (v << 6);
+        *(f32 *)(item + 0x18) = D_008872F8[0] - *(f32 *)(work + 0x130);
+        *(f32 *)(item + 0x28) = factor;
+        node = work + v * 4;
+        b0 = *(u8 *)(node + 0x110);
+        if ((s32)b0 >= 0) {
+            f0 = (f32)b0;
+        } else {
+            u32 t = ((u32)b0 >> 1) | ((u32)b0 & 1);
+            f0 = (f32)(s32)t;
+            f0 = f0 + f0;
+        }
+        *(f32 *)(item + 0x30) = f0;
+        b1 = *(u8 *)(node + 0x111);
+        if ((s32)b1 >= 0) {
+            f0 = (f32)b1;
+        } else {
+            u32 t = ((u32)b1 >> 1) | ((u32)b1 & 1);
+            f0 = (f32)(s32)t;
+            f0 = f0 + f0;
+        }
+        *(f32 *)(item + 0x34) = f0;
+        b2 = *(u8 *)(node + 0x112);
+        if ((s32)b2 >= 0) {
+            f0 = (f32)b2;
+        } else {
+            u32 t = ((u32)b2 >> 1) | ((u32)b2 & 1);
+            f0 = (f32)(s32)t;
+            f0 = f0 + f0;
+        }
+        *(f32 *)(item + 0x38) = f0;
+        b3 = *(u8 *)(node + 0x113);
+        if ((s32)b3 >= 0) {
+            f0 = (f32)b3;
+        } else {
+            u32 t = ((u32)b3 >> 1) | ((u32)b3 & 1);
+            f0 = (f32)(s32)t;
+            f0 = f0 + f0;
+        }
+        *(f32 *)(item + 0x3C) = f0;
+        v += 1;
+    }
+    *(f32 *)(work + 0x10) = *(f32 *)(work + 0x134);
+    *(f32 *)(work + 0x14) = *(f32 *)(work + 0x138);
+    *(f32 *)(work + 0x50) = *(f32 *)(work + 0x134) + (f32)*(s32 *)(work + 0x128);
+    *(f32 *)(work + 0x54) = *(f32 *)(work + 0x138);
+    *(f32 *)(work + 0x90) = *(f32 *)(work + 0x134);
+    *(f32 *)(work + 0x94) = *(f32 *)(work + 0x138) + (f32)*(s32 *)(work + 0x12C);
+    *(f32 *)(work + 0xD0) = *(f32 *)(work + 0x134) + (f32)*(s32 *)(work + 0x128);
+    *(f32 *)(work + 0xD4) = *(f32 *)(work + 0x138) + (f32)*(s32 *)(work + 0x12C);
+    pkt = func_00461390(D_00793E80 + *(s32 *)(work + 0x188) * 0x30, 4, work + 0x10, 4);
+    *(void **)(pkt + 8) = (void *)func_002b5120;
+    *(u8 **)(pkt + 0x10) = work;
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b52a0);
+#endif
 // FUN_002B5C60
 void func_002b5c60(u8 *arg0)
 {

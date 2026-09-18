@@ -110,17 +110,318 @@ u8 *func_004a21e0(u8 *arg0)
     return work;
 }
 
-/* measured: same s128-canonicalization floor family as func_004A4A10 in
-   this file (and the floored effPolygonFlash FUN_0049AA30 family): retail
-   `sq $3,0x120($29)` (3A2390) stores a 32-bit value into a 16-byte slot
-   with a bare sq, and the loop re-reads the slots with bare lq + sltu;
-   mwcc b210 always inserts the dsll32/dsra32 pair on both sides
-   (probe-verified on this toolchain, 5 spellings - no bare sq is
-   reachable). Not attempted separately: the identical mechanism is
-   measured in func_004A4A10 (nd 1927 attempt) and the floor is provable
-   at the toolchain level. */
-// FUN_004A2310
+/* measured: GUARDED_SCORE 563, fnalign retail 607/obj 589 (-18, -3.0% within 3% gate 589-625), edits 825, object frame 0x130 vs retail 0x170. Recovery: m2c (309 lines, VU unknowns) + romwright --types/--raw (export-c fails _lqc2, raw 324 lines, 3-arg float(void*,int,void*) wrong arity; retail single u8* wins per sibling idiom) de-noised to file idiom (u8*+u32/f32/s16, plain (f32)u32 unsigned, (f32)(s32)state signed, plain (1.0f-x)+x*r FMA chains for ten spawn interpolations plus dual FMA for both pairs, plain-C inner stores via D_00713D10/14/18 per-vertex reloads plus scalar div/madd tail; VU normalize pipeline omitted and sq/lq 16B slots as u32 sw/lw to hold count. Callee fix: func_004bd1a0(f32) per file note. Chain: v1 574/579 outside (-28, -4.6%) -> v5 575/597 inside (+18 via per-vertex D_ reloads, 12 loads vs 3) -> loopinv 563/589 (-12). Ties recorded: unroll off 575, schedule off 575, P[i] subscript 563, var_18/17 swap 563, base/tmp swap 563. Regressed/over and not banked: full VU 616/692 (+84 over), minimal VU 592-597/662-667 over. Open walls: 55-word VU/square delete (retail 360:415), s128-canonicalization floor (bare sq 0x120/0x110/0x100 + lq/sltu + paddub for sp130, same family as 4a4a10 nd1927 probe, 5 spellings no bare sq reachable), saved-register rotation, frame 0x40 short. Gates: verify 14/4 0 MISMATCH, lint 0e (3 pre-existing H003 elsewhere), -DNON_MATCHING ok. */
+// FUN_004A2310 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma opt_loop_invariants on
+void func_004a2310(u8 *arg0)
+{
+    u32 outer;
+    u32 flag2;
+    u32 innerCnt;
+    s32 flag;
+    u32 budget;
+    f32 dc;
+    f32 base98;
+    f32 baseE4;
+    f32 scale;
+    f32 quarter;
+    f32 div1;
+    f32 base8;
+    f32 scl;
+    f32 p28;
+    f32 p2c;
+    f32 var_f0;
+    f32 var_f25;
+    f32 acc0;
+    f32 div2;
+    f32 ang;
+    s16 hcount;
+    u32 state;
+    u32 tmp5;
+    u32 outerCount;
+    u32 divisor;
+    u32 var_19;
+    u32 var_30;
+    u8 *ctx2;
+    u8 *base;
+    u8 *pvar20;
+    u8 *ctx;
+    u8 *tmp;
+    u8 *var_18;
+    u8 *var_17;
+    f32 fA4;
+    u32 c;
+    u32 v;
+    f32 xC0;
+    f32 r0;
+    f32 yBC;
+    f32 xC8;
+    f32 r1;
+    f32 yC4;
+    f32 xD0;
+    f32 r2;
+    f32 yCC;
+    f32 xD8;
+    f32 r3;
+    f32 yD4;
+    f32 xE0;
+    f32 r4;
+    f32 yE8;
+    f32 r5;
+    f32 xF0;
+    f32 r6;
+    f32 yEC;
+    f32 xB4;
+    f32 r7;
+    f32 yB0;
+    f32 xAC;
+    f32 r8;
+    f32 yA8;
+    f32 x9C;
+    f32 r9;
+    f32 y98;
+    u32 rr;
+    u32 idx;
+    f32 a;
+    f32 b;
+    f32 idf;
+    u8 *dst;
+    f32 st;
+    f32 e18;
+    f32 e1C;
+    f32 s10a;
+    f32 s10b;
+    f32 e18v;
+    f32 e24;
+    f32 d1;
+    f32 d2;
+    f32 c0;
+    f32 s0;
+    f32 fi;
+    f32 ftmp;
+    f32 f23tmp;
+    f32 f24tmp;
+    base = *(u8 **)(arg0 + 0x40);
+    tmp5 = *(u32 *)(arg0 + 0x34);
+    outerCount = *(u32 *)(base + 0x34);
+    if ((outerCount < tmp5) && (outerCount != 0)) {
+        return;
+    }
+    {
+        c = *(u32 *)(base + 0x38);
+        outer = c;
+    }
+    divisor = *(u32 *)(base + 0x80);
+    if (divisor == 0) {
+        return;
+    }
+    if ((*(u8 *)(base + 0xB8) == 0) || (tmp5 != 0)) {
+        flag = 0;
+        budget = *(u32 *)(base + 0x84);
+    } else {
+        flag = 1;
+        budget = *(u32 *)(base + 0x38);
+    }
+    tmp = *(u8 **)(arg0 + 0x3C);
+    pvar20 = *(u8 **)tmp;
+    ctx = *(u8 **)(tmp + 4);
+    flag2 = (u32)*(u8 *)(base + 0x88);
+    dc = *(f32 *)(base + 0xF4);
+    {
+        u8 *p10;
+        u8 *p18;
+        p10 = *(u8 **)(*(u8 **)(ctx + 0x10) + 0x18);
+        func_003c2290(p10, 0xFF2);
+        p18 = *(u8 **)(*(u8 **)(ctx + 0x10) + 0x18);
+        var_18 = *(u8 **)(*(u8 **)(p18 + 0x5C) + 0x14);
+        var_17 = *(u8 **)(p18 + 0x34);
+        hcount = *(s16 *)(ctx + 8);
+        v = *(u32 *)(base + 0x8C) + 1;
+        innerCnt = v;
+        var_f25 = (f32)v;
+        base98 = *(f32 *)(base + 0x98);
+        baseE4 = *(f32 *)(base + 0xE4);
+        fA4 = *(f32 *)(base + 0xA4);
+        var_30 = 0;
+        scale = iGpffff8080;
+        quarter = 0.25f;
+        while (var_30 < outer) {
+            state = *(u32 *)pvar20;
+            if (state == 0xFFFFFFFEU) {
+                goto next_outer;
+            }
+            if (state == 0xFFFFFFFFU) {
+                func_0043f9c8(var_18, 0, (s32)hcount * 12);
+                if (budget != 0) {
+                    xC0 = *(f32 *)(base + 0xC0);
+                    r0 = func_004bd0b0(0);
+                    yBC = *(f32 *)(base + 0xBC);
+                    ftmp = yBC * ((1.0f - xC0) + xC0 * r0);
+                    xC8 = *(f32 *)(base + 0xC8);
+                    r1 = func_004bd0b0(0);
+                    yC4 = *(f32 *)(base + 0xC4);
+                    var_f0 = (f32)divisor;
+                    *(f32 *)(pvar20 + 0xC) = (yC4 * ((1.0f - xC8) + xC8 * r1) - ftmp) / var_f0;
+                    *(f32 *)(pvar20 + 0x8) = ftmp;
+                    xD0 = *(f32 *)(base + 0xD0);
+                    r2 = func_004bd0b0(0);
+                    yCC = *(f32 *)(base + 0xCC);
+                    ftmp = yCC * ((1.0f - xD0) + xD0 * r2);
+                    xD8 = *(f32 *)(base + 0xD8);
+                    r3 = func_004bd0b0(0);
+                    yD4 = *(f32 *)(base + 0xD4);
+                    *(f32 *)(pvar20 + 0x14) = (yD4 * ((1.0f - xD8) + xD8 * r3) - ftmp) / var_f0;
+                    *(f32 *)(pvar20 + 0x10) = ftmp;
+                    xE0 = *(f32 *)(base + 0xE0);
+                    r4 = func_004bd0b0(0);
+                    yE8 = *(f32 *)(base + 0xE8);
+                    *(f32 *)(pvar20 + 0x28) = yE8 * ((1.0f - xE0) + xE0 * r4);
+                    r5 = func_004bd0b0(0);
+                    *(f32 *)(pvar20 + 0x1C) = scale * r5;
+                    xF0 = *(f32 *)(base + 0xF0);
+                    r6 = func_004bd0b0(0);
+                    yEC = *(f32 *)(base + 0xEC);
+                    *(f32 *)(pvar20 + 0x18) = yEC * ((1.0f - xF0) + xF0 * r6);
+                    xB4 = *(f32 *)(base + 0xB4);
+                    r7 = func_004bd0b0(0);
+                    yB0 = *(f32 *)(base + 0xB0);
+                    *(f32 *)(pvar20 + 0x20) = yB0 * ((1.0f - xB4) + xB4 * r7);
+                    xAC = *(f32 *)(base + 0xAC);
+                    r8 = func_004bd0b0(0);
+                    yA8 = *(f32 *)(base + 0xA8);
+                    *(f32 *)(pvar20 + 0x24) = yA8 * ((1.0f - xAC) + xAC * r8);
+                    x9C = *(f32 *)(base + 0x9C);
+                    r9 = func_004bd0b0(0);
+                    y98 = *(f32 *)(base + 0x98);
+                    *(f32 *)(pvar20 + 0x2C) = y98 * ((1.0f - x9C) + x9C * r9);
+                    if (flag != 0) {
+                        rr = func_004bd050(0);
+                        idx = rr % divisor;
+                        *(u32 *)pvar20 = idx;
+                        {
+                            a = *(f32 *)(pvar20 + 0x14);
+                            b = *(f32 *)(pvar20 + 0x10);
+                            idf = (f32)(s32)idx;
+                            *(f32 *)(pvar20 + 0x10) = a * idf + b;
+                        }
+                        {
+                            a = *(f32 *)(pvar20 + 0xC);
+                            b = *(f32 *)(pvar20 + 0x8);
+                            idf = (f32)(s32)idx;
+                            *(f32 *)(pvar20 + 0x8) = a * idf + b;
+                        }
+                    } else {
+                        *(u32 *)pvar20 = 0;
+                    }
+                    budget -= 1;
+                }
+                goto next_outer;
+            }
+            if (state >= divisor) {
+                if (flag2 != 0) {
+                    *(u32 *)pvar20 = 0xFFFFFFFFU;
+                } else {
+                    func_0043f9c8(var_18, 0, (s32)hcount * 12);
+                    *(u32 *)pvar20 = 0xFFFFFFFEU;
+                }
+                {
+                    if (iGpffffbb64.c3 != 0xFF) {
+                        dst = *(u8 **)(*(u8 **)(ctx + 0x54) + (var_30 & 0xFFFF) * 4);
+                        *(PolygonWindColor *)(dst + 4) = iGpffffbb64;
+                    } else {
+                        iGpffffbb64.c3 = 0xFE;
+                        {
+                            dst = *(u8 **)(*(u8 **)(ctx + 0x54) + (var_30 & 0xFFFF) * 4);
+                            *(PolygonWindColor *)(dst + 4) = iGpffffbb64;
+                        }
+                        iGpffffbb64.c3 = 0xFF;
+                    }
+                }
+                goto next_outer;
+            }
+            {
+                st = (f32)(s32)state;
+                e18 = *(f32 *)(pvar20 + 0x18);
+                e1C = *(f32 *)(pvar20 + 0x1C);
+                ang = st * (e18 + 0.5f * (dc * st)) + e1C;
+                s10a = *(f32 *)(pvar20 + 0x10) + *(f32 *)(pvar20 + 0x14);
+                *(f32 *)(pvar20 + 0x10) = s10a;
+                s10b = *(f32 *)(pvar20 + 0x8) + *(f32 *)(pvar20 + 0xC);
+                *(f32 *)(pvar20 + 0x8) = s10b;
+                scl = quarter * *(f32 *)(pvar20 + 0x20);
+                e18v = *(f32 *)(pvar20 + 0x18);
+                e24 = *(f32 *)(pvar20 + 0x24);
+                if (e18v < 0.0f) {
+                    d2 = -e24 / var_f25;
+                } else {
+                    d2 = e24 / var_f25;
+                }
+                d1 = s10a / var_f25;
+                acc0 = 0.0f;
+                div2 = d2;
+                base8 = *(f32 *)(pvar20 + 0x8);
+                p28 = *(f32 *)(pvar20 + 0x28);
+                p2c = *(f32 *)(pvar20 + 0x2C);
+                var_19 = 0;
+                while (var_19 < innerCnt) {
+                    fi = (f32)var_19;
+                    ftmp = fi / var_f25 - baseE4;
+                    f23tmp = p28 * (ftmp * ftmp);
+                    f24tmp = base8 + f23tmp;
+                    c0 = func_0044b610(ang);
+                    s0 = func_0044b7b0(ang);
+                    *(f32 *)(var_18 + 0xC) = D_00713D10[0];
+                    *(f32 *)(var_18 + 0x10) = D_00713D14[0];
+                    *(f32 *)(var_18 + 0x14) = D_00713D18[0];
+                    *(f32 *)var_18 = D_00713D10[0];
+                    *(f32 *)(var_18 + 4) = D_00713D14[0];
+                    *(f32 *)(var_18 + 8) = D_00713D18[0];
+                    *(f32 *)(var_18 + 0x18) = D_00713D10[0];
+                    *(f32 *)(var_18 + 0x1C) = D_00713D14[0];
+                    *(f32 *)(var_18 + 0x20) = D_00713D18[0];
+                    *(f32 *)(var_18 + 0x24) = D_00713D10[0];
+                    *(f32 *)(var_18 + 0x28) = D_00713D14[0];
+                    *(f32 *)(var_18 + 0x2C) = D_00713D18[0];
+                    var_18 += 0x30;
+                    {
+                        fi = (f32)var_19;
+                        {
+                            v = base98 * (fi / var_f25) + p2c;
+                            *(f32 *)(var_17 + 4) = v;
+                            *(f32 *)(var_17 + 0xC) = v;
+                            *(f32 *)(var_17 + 0x14) = v;
+                            *(f32 *)(var_17 + 0x1C) = v;
+                        }
+                    }
+                    var_17 += 0x20;
+                    ang += div2;
+                    acc0 += d1;
+                    var_19 += 1;
+                }
+                *(f32 *)(pvar20 + 0x2C) = *(f32 *)(pvar20 + 0x2C) + fA4;
+                *(u32 *)pvar20 = state + 1;
+            }
+next_outer:
+            {
+                var_18 += (s32)hcount * 12;
+                var_17 += (s32)hcount * 8;
+            }
+            var_30 += 1;
+            pvar20 += 0x30;
+        }
+        ctx2 = *(u8 **)(*(u8 **)(ctx + 0x10) + 0x18);
+        func_003c22f0(ctx2);
+        if ((*(u16 *)ctx & 4) != 0) {
+            *(u16 *)(ctx2 + 0xC) = *(u16 *)(ctx2 + 0xC) | 1;
+        }
+    }
+}
+#pragma pop
+#else
 INCLUDE_ASM("asm/nonmatchings/effPolygonWind", func_004a2310);
+#endif
 
 // FUN_004A2C90
 void func_004a2c90(u8 *arg0)

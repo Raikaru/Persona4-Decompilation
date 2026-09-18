@@ -73,6 +73,8 @@ extern s32 func_00426cf0(void *path, s32 a, s32 b);
 extern s32 func_00442948(void *buf);
 extern s32 sceWrite(s32 fd, void *buf, s32 n);
 extern s32 sceRead(s32 fd, void *buf, s32 n);
+extern s32 func_00427338(s32 fd, void *buf, s32 n);
+extern s32 func_004275a8(s32 fd, void *buf, s32 n);
 extern void func_00426f80(s32 fd);
 extern void func_00428f08(void *a, s32 b);
 extern void func_00151f80(void *hdr);
@@ -261,19 +263,218 @@ loop_check:
     }
 }
 
-// measured: not attempted to a measured nd (m2c draft written but the measurement was lost to a
-// file-overwrite accident; reverted to INCLUDE_ASM). Largest function in the file (2480 B).
-// State machine dispatched by a jump table (jtbl_00746EC0) on *(u32*)(*arg0+0x38) with 9 cases
-// (0..8). gp-relative symbols verified: `saved_reg_gp - 0x5FB8/0x5FB4/0x5FB0/0x5FA8/0x5FA0/0x5FC0`
-// = 0x00763138/0x13C/0x140/0x148/0x150/0x130 = &D_00763138/3C/40/48/50/30, and `-0x4C58` = 0x00764498
-// = &D_00764498. Complex: nested loops over 0x254/0xA58 element lists, sceRead/sceWrite file I/O,
-// and the func_00190680/func_001909f0/func_00190c10 cross-call chain. High risk of the same
-// argument-order floor as the other four functions; left for a dedicated pass.
-// QTEX lane: full state-machine candidate object 2444/window 2480, normalized_diff 1628;
-// its 0x8F0 frame versus retail 0x6F0 triggered automatic archive as a materially
-// different reconstruction. No confirmed compiler-floor instruction was present.
-// FUN_00190C10
+/* measured: GUARDED_SCORE 518 (retail 618 instrs / object 617 instrs; obj 2468B/window 2480B). 9-case switch on work[0] (jtbl_00746EC0, cases 0..8), 6x0x100 char buffers, s32 temps for func_00458430 integer compare (0/1), wrappers func_00427338/004275a8 for file I/O (nonmatchings asm mislabels as sceRead/sceWrite; code1.s confirms wrapper addrs). Levers tried, all recorded: opt_loop_invariants on 519->518 (kept, scoped); opt_unroll_loops off tie 519; schedule off tie 519; subscript hdr[i+7] vs ent[7] tie 518; byte-base ((s32*)((u8*)work+off))[i] vs work[i+k] tie 518; explicit off=i*4 tie 518; decl-order swaps (work-first, full reverse) tie 518; stat-size frame probes (64/64,48/48 tie 518; mismatched 64+48 hits 517 but rejected as unfaithful different-sized same-struct). Frame 0x6A0 vs retail 0x6F0 (80 short; stat struct size unknown, kept minimal matched [4]). Biggest remaining classes: saved-reg coloring (work in $s4 vs retail $s0, all branch displacements cascade) and stack-offset immediates from frame; only 2 insert (surplus) rows, rest replaces. m2c failed (jump table not provided, log in /var/tmp/cold190c10/m2c_log.txt); romwright gave complete 9-case structure, stack extents, and wrapper arities in /var/tmp/cold190c10/rw.c. */
+// FUN_00190C10 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_loop_invariants on
+s32 func_00190c10(u8 *arg0)
+{
+    char bufA0[0x100];
+    char buf1A0[0x100];
+    char buf2A0[0x100];
+    char buf3A0[0x100];
+    char buf4A0[0x100];
+    char buf5A0[0x100];
+    s32 outA[2];
+    s32 outB[2];
+    s32 stat1[4];
+    s32 stat2[4];
+    s32 *work;
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 tmp;
+    s32 *hdr;
+    u8 *p;
+    u8 *q;
+
+    work = *(s32 **)(arg0 + 0x38);
+    switch (work[0]) {
+    case 0:
+        work[1] = func_00428550(D_005F61D0);
+        if (work[1] < 0) {
+            return -1;
+        }
+        work[0]++;
+        break;
+    case 1:
+        tmp = func_00428780(work[1], (void *)&work[2]);
+        if (tmp <= 0) {
+            work[0] = 8;
+        } else {
+            if (func_004426e8((void *)&work[0x12], &D_00763138) != 0 &&
+                func_004426e8((void *)&work[0x12], &D_0076313C) != 0) {
+                for (p = (u8 *)&work[0x12]; *p != '.' && *p != 0; p++) {
+                }
+                if (func_004426e8(p, &D_00763140) == 0) {
+                    func_00442830((void *)&work[0x53], D_005F61F8);
+                    func_00442428((void *)&work[0x53], (void *)&work[0x12]);
+                    work[0x93] = (s32)func_00150970((void *)&work[0x53]);
+                    func_00440b68(D_005F6210, &work[0x53]);
+                    work[0] = 2;
+                }
+            }
+        }
+        break;
+    case 2:
+        if (func_00150c80((void *)work[0x93]) != 0) {
+            func_00150ce0((void *)work[0x93]);
+            work[0] = 3;
+        }
+        break;
+    case 3:
+        if (func_001510c0((void *)work[0x93]) != 0) {
+            work[0x95] = 0;
+            work[0x296] = 0;
+            hdr = (s32 *)work[0x93];
+            for (i = 0; i < hdr[6]; i++) {
+                s32 *ent = (s32 *)((u8 *)hdr + i * 4);
+                tmp = func_004581a0((void *)ent[7], D_005F6230);
+                for (j = 0; j < tmp; j++) {
+                    func_00458430(outA, (void *)ent[7], D_005F6230, j);
+                    if (outA[0] == 0) {
+                        func_00458430(outB, (void *)ent[7], D_005F6250, j);
+                        work[work[0x95] + 0x96] = outB[0];
+                        work[0x95]++;
+                    } else if (outA[0] == 1) {
+                        func_00458430(outB, (void *)ent[7], D_005F6250, j);
+                        work[work[0x296] + 0x297] = outB[0];
+                        work[0x296]++;
+                    }
+                }
+            }
+            work[0] = 4;
+        }
+        break;
+    case 4:
+        func_00442830(buf5A0, D_005F6270);
+        for (p = (u8 *)&work[0x53]; *p != 0; p++) {
+        }
+        for (; *p != '/'; p--) {
+        }
+        func_00442428(buf5A0, p + 1);
+        for (q = (u8 *)buf5A0; *q != '.'; q++) {
+        }
+        func_00442830(q, &D_00763148);
+        D_00764498 = func_00426cf0(buf5A0, 0x603, 0x1FF);
+        if (D_00764498 >= 0) {
+            work[0x399] = 0;
+            work[0x39A] = 0;
+            hdr = (s32 *)work[0x93];
+            func_00442088(buf4A0, D_005F62A0, ((s16 *)hdr)[2], ((s16 *)hdr)[3]);
+            tmp = func_00442948(buf4A0);
+            func_004275a8(D_00764498, buf4A0, tmp);
+            for (i = 0; i < work[0x95]; i++) {
+                if (work[i + 0x96] != 0) {
+                    func_00442088(buf4A0, D_005F62B0, ((s16 *)hdr)[2]);
+                    tmp = func_00442948(buf4A0);
+                    func_004275a8(D_00764498, buf4A0, tmp);
+                }
+            }
+            for (i = 0; i < work[0x296]; i++) {
+                func_00442088(buf4A0, D_005F62C0, ((s16 *)hdr)[2], work[i + 0x297]);
+                tmp = func_00442948(buf4A0);
+                func_004275a8(D_00764498, buf4A0, tmp);
+                func_00442088(buf5A0, D_005F62D0, ((s16 *)hdr)[2], work[i + 0x297]);
+                func_004288d8(buf5A0, stat1);
+                func_00442088(buf3A0, D_005F6310, ((s16 *)hdr)[2], work[i + 0x297]);
+                func_004288d8(buf5A0, stat2);
+                func_0044ea90(D_005F6168, 0x166);
+                tmp = (s32)D_008873F4[0](1, stat2[2], 0x40000);
+                if (tmp != 0) {
+                    k = func_00426cf0(buf5A0, 1, 0x1FF);
+                    if (k >= 0) {
+                        func_00427338(k, (void *)tmp, stat2[2]);
+                        func_00426f80(k);
+                        func_00428f08(&D_00763130, 0);
+                    }
+                    k = func_00426cf0(buf3A0, 0x603, 0x1FF);
+                    if (k >= 0) {
+                        func_004275a8(k, (void *)tmp, stat2[2]);
+                        func_00426f80(k);
+                        func_00428f08(&D_00763130, 0);
+                    }
+                    jtbl_008873EC[0]((void *)tmp);
+                }
+            }
+        }
+        work[0x397] = 0;
+        work[0] = 5;
+        break;
+    case 5:
+        if (work[0x397] < work[0x95]) {
+            if (work[work[0x397] + 0x96] == 0) {
+                work[0x397]++;
+            } else {
+                func_00442088(buf2A0, D_005F6350, ((s16 *)((s32 *)work[0x93]))[2]);
+                func_00440b68(&D_00763150, D_005F6168, 0x263);
+                p = func_00454a60(buf2A0, 0);
+                work[0x398] = (s32)p;
+                func_00456150(p);
+                work[0] = 6;
+            }
+        } else {
+            func_00151f80((void *)work[0x93]);
+            hdr = (s32 *)work[0x93];
+            hdr = (s32 *)hdr[0x291];
+            func_00463250((void *)hdr[0x4A]);
+            hdr = (s32 *)work[0x93];
+            jtbl_008873EC[0]((void *)hdr[0x291]);
+            hdr = (s32 *)work[0x93];
+            hdr[0x291] = 0;
+            work[0x93] = 0;
+            work[0] = 7;
+        }
+        break;
+    case 6:
+        hdr = (s32 *)work[0x93];
+        func_00442088(buf1A0, D_005F6370, ((s16 *)hdr)[2], work[work[0x397] + 0x96]);
+        tmp = func_00190680((u8 *)work[0x398], buf1A0);
+        work[work[0x397] + 0x196] = tmp;
+        func_00454bd0((void *)work[0x398]);
+        work[0x398] = 0;
+        work[0x397]++;
+        work[0] = 5;
+        break;
+    case 7:
+        func_00440b68(&D_00763150, D_005F6168, 0x2A0);
+        p = func_00454a60((void *)&work[0x53], 0);
+        work[0x94] = (s32)p;
+        func_00456150(p);
+        func_00442830(bufA0, D_005F63B0);
+        for (p = (u8 *)&work[0x53]; *p != 0; p++) {
+        }
+        for (; *p != '/'; p--) {
+        }
+        func_00442428(bufA0, p + 1);
+        func_001909f0((u8 *)work[0x94], bufA0, (u8 *)work);
+        func_00454bd0((void *)work[0x94]);
+        func_00442830(bufA0, D_005F63B0);
+        for (p = (u8 *)&work[0x53]; *p != 0; p++) {
+        }
+        for (; *p != '/'; p--) {
+        }
+        func_00442428(bufA0, p + 1);
+        func_004288d8(bufA0, stat1);
+        work[0x39A] += stat1[2];
+        for (i = 0; i < work[0x95]; i++) {
+            if (work[i + 0x196] != 0) {
+                func_003ef1b0(work[i + 0x196]);
+                work[i + 0x196] = 0;
+            }
+        }
+        func_00426f80(D_00764498);
+        work[0] = 1;
+        break;
+    case 8:
+        return -1;
+    }
+    return 0;
+}
+#pragma opt_loop_invariants off
+#else
 INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_00190c10);
+#endif
 
 // FUN_001915C0
 void func_001915c0(u8 *arg0)

@@ -474,6 +474,72 @@ Grep every alignment for object-only `dsll32` runs before anything else;
 it is a one-line fix and it was worth 39, 24 and 10 words on three
 different functions in one afternoon.
 
+### 7k. The subscript form decides `lw`/`sll` order
+
+`func_00153d60` (592 instructions, untried until 2026-09-18) went from a 538
+word first draft to a byte-exact MATCH, and the last three steps are a recipe
+worth following in order on any table-walking loop.
+
+**Step 1, the free pragma probes.**  One variant each, cost about two seconds:
+`opt_loop_invariants on`, `opt_unroll_loops off`, `schedule off`.  On this
+function `opt_loop_invariants on` alone was worth **21 -> 7** and the other two
+tied.  Record the ties; a measured tie is a finding.
+
+**Step 2, the subscript form.**  Where retail emits `lw` before `sll` and the
+candidate emits `sll` before `lw` (or the reverse), the cause is how the index
+is spelled, not the scheduler:
+
+| spelling | effect |
+|---|---|
+| `P[i]` | index and load fuse; retail's usual shape |
+| `((s32 *)P)[i + 26]` | same, with the constant folded into the subscript |
+| `off = i * 4; ... P + off` | separate `sll`, emitted early |
+| `row = P + i;` hoisted out of the loop | **regressed 21 -> 257** |
+
+Switching to `P[i]` was worth **7 -> 4**, and spelling the two remaining
+0x68/0x78 accesses as `((s32 *)P)[i + 26]` and `[i + 30]` closed the function
+**4 -> 0**.
+
+**Step 3, never hoist what retail reloads.**  A base pointer or count that
+retail re-reads every iteration must be re-read in the source too.  Hoisting
+`P` into a local cost 21 -> 257 here, and hoisting the count cost 21 -> 535 on
+the same body.  The tell is an object that is *shorter* than retail inside the
+loop and longer in the preheader.
+
+Two floors were proved closed by this pass and should not be re-litigated:
+`func_00375f00` (2 words: retail reuses a base pointer where b210 recomputes,
+and every way of getting the reuse kills the frame - 14 variants measured) and
+`func_001c79f0` (2 words: one pair of independent loads the scheduler issues in
+the other order, source-invariant across 14 variants).  Both notes list the
+rejected variants with their scores.
+
+**Where else this occurs.**  A scan of every banked floor for the transposed
+load/shift pair found **30 of them**, smallest residual first:
+
+```
+  54 edits  lwsll= 1  func_00169780  src/Kosaka/Field/k_fldFrame.c
+     56 edits  lwsll= 1  func_001ae3d0  src/promoted/code1_001a.c
+     82 edits  lwsll= 1  func_001f3bb0  src/promoted/code1_001f.c
+     87 edits  lwsll= 1  func_00109510  src/Main/Battle/Data/datPersona.c
+     87 edits  lwsll= 3  func_00473b20  src/Graphics/Model/mdlManager.c
+    132 edits  lwsll= 1  func_0016abc0  src/Kosaka/Field/k_fldFrame.c
+    146 edits  lwsll= 1  func_002239a0  src/promoted/btlResultFriendPsLvUp.c
+    150 edits  lwsll= 1  func_002e6280  src/Yajima/y_list.c
+    169 edits  lwsll= 1  func_00179fc0  src/promoted/code1_0017.c
+    170 edits  lwsll= 2  func_001b1d70  src/promoted/code1_001b.c
+    176 edits  lwsll= 2  func_00161c80  src/Kosaka/k_encount.c
+    197 edits  lwsll= 1  func_002b77d0  src/promoted/y_draw.c
+  ...
+```
+
+Two were probed by hand on 2026-09-18 and did not move, which narrows what the
+signature means: on `func_001ae3d0` the loop rewrite (plain `u16 i` with the
+masks left to the compiler, `s32` bound for the signed `slt`, subscript form)
+was neutral at 123 -> 124 because the real residual is one surplus saved
+register, and on `func_00169780` all four declaration orders tie at 88 because
+its saved-register permutation is not declaration-driven. Treat the signature
+as a hint that the index spelling is worth one probe round, not as a fix.
+
 ### 7j. A second decompiler, for the functions m2c cannot reach
 
 `tools/m2c_decompile.py` is still the first thing to run on an untried
