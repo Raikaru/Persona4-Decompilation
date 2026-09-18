@@ -762,17 +762,9 @@ u8 *func_004a3510(u8 *arg0)
     return work;
 }
 
-/* measured: same s128-canonicalization floor family as func_004A4A10 in
-   this file (and the floored effPolygonFlash FUN_0049AA30 family): retail
-   `sq $3,0x110($29)` (3A36C0) stores a 32-bit value into a 16-byte slot
-   with a bare sq and re-reads it with bare lq + sltu; mwcc b210 always
-   inserts the dsll32/dsra32 pair on both sides (probe-verified on this
-   toolchain, 5 spellings - no bare sq is reachable). Not attempted
-   separately: the identical mechanism is measured in func_004A4A10
-   (nd 1927 attempt) and the floor is provable at the toolchain level. */
+/* honest no-body per Main 2026-09-18: best faithful guarded draft 562/542 (unsigned st/idf, loopinv+p2choist) still -78 (-12.6% outside 3% gate 601-639 for fnalign retail 620; assignment retail 624), v1 584/514 (-106), loopinv 562/504 (-116). Recovery m2c 298 + romwright 376 (7-arg wrong arity, single u8* wins). File idiom u8*+u32/f32/s16, (f32)u32 unsigned (st/idf unsigned +38 vs signed, faithful per retail srl/andi/or), (1.0f-x)+x*r, D_ per-vertex 12 loads, var_17 tail hoisted p2c (-1). Ties: unroll/schedule off, P[i], var18/17, base/tmp. Regressed: s128a/b, periter unfaithful. Open walls: 163-word VU/square (retail 350:404 49 + 409:432 20 + 443:470 26 + 471:499 27 + 97:110 12, incl. two-stage e23 div/sub/mul, swc1 to 0x150($sp), bbit/dmtc2/dpau/lui 0x71), s128 bare sq/lq+sltu/paddub (5 spellings no bare sq), saved-reg rotation, frame 0x50 short. Banked 561/504 draft 19% short must not stay per Main; reverting to plain. */
 // FUN_004A3640
 INCLUDE_ASM("asm/nonmatchings/effPolygonWind", func_004a3640);
-
 // FUN_004A4000
 void func_004a4000(u8 *arg0)
 {

@@ -474,6 +474,35 @@ Grep every alignment for object-only `dsll32` runs before anything else;
 it is a one-line fix and it was worth 39, 24 and 10 words on three
 different functions in one afternoon.
 
+### 7l. Do not tidy a body that is already scoring
+
+The single most expensive habit on a banked floor is cleaning up source that
+looks redundant.  Three floors were probed exhaustively on 2026-09-18 and
+every "obvious" simplification made them dramatically worse:
+
+| floor | the tidy-up | cost |
+|---|---|---|
+| `func_00268230` | hoist a repeated `entries[i].current` into a local | 12 -> **373** |
+| `func_00268230` | use the existing `entry->current` pointer instead | 12 -> **375** |
+| `func_00268230` | inline the `initial`/`target` locals into their calls | 12 -> **379** |
+| `func_0046a7f0` | rewrite `!(ang <= 180.0f)` as `(ang > 180.0f)` | 19 -> **163** |
+| `func_0046a7f0` | split a three-term sum to force retail's load order | 19 -> **55** |
+| `func_004a7830` | fold a redundant-looking `amplitude` local into its source | 19 -> **99** |
+
+A repeated subscript, a doubly-negated float comparison and a local that is
+read exactly once are frequently *what the original source looked like*.  The
+double negation in particular is how a programmer writes a NaN-safe test, and
+mwcc compiles `!(a <= b)` and `(a > b)` to different branch polarities.
+
+Two practical rules follow.  Measure every simplification with
+`probe_variants.py` before adopting it - a variant costs about two seconds and
+a wrong cleanup costs an afternoon.  And when a floor resists, record the
+rejected variants **with their scores** in the note, because "the body is at a
+local optimum in every direction tried" is a finding, and the next reader
+would otherwise spend the same afternoon rediscovering it.
+
+The three notes above now carry exactly that list.
+
 ### 7k. The subscript form decides `lw`/`sll` order
 
 `func_00153d60` (592 instructions, untried until 2026-09-18) went from a 538

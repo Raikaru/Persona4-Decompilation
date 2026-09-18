@@ -141,6 +141,14 @@ extern void func_0025d850(f32 farg0, f32 farg1, f32 farg2, s32 arg0);
 // func_00366670 prototypes with the floats at arguments 5-8 (14) or 2-5
 // (20).  Remaining 6 words are two `mtc1 $zero, $f12` emitted two slots
 // after retail's at the two func_00366670 calls.
+// 2026-09-18: that argument-order axis is now closed by proof, not by
+// exhaustion.  func_00366670 is also called at lines 333 and 342 from two
+// functions in this same file that are byte-exact MATCHes, and those calls
+// pass the floats last.  A MATCHed caller pins a callee's parameter order
+// (section 7c), so the declaration at line 37 is correct and no float-first
+// spelling can be retail's.  Reordering it also fails to compile the file,
+// because those two callers share the prototype.  The remaining six words
+// are the emission slot of `mtc1 $zero, $f12`, not the signature.
 // FUN_0025DD30 NONMATCHING
 #ifdef NON_MATCHING
 void func_0025dd30(f32 param_1, f32 param_2, s32 color, u8 *data) {
