@@ -1120,8 +1120,208 @@ INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00256be0);
    the retail andi/bltz exactly (verified on b210 after this was written).
    Also: s16 arg7/stack s16s, s64 vs s32 arg_sp10 (s64 shifts every stack arg
    and is worse). */
-// FUN_002570F0
+/* measured (2026-09-18): probe_variants 431 differing words reloc-masked via `python3 tools/probe_variants.py src/cmmRankUp.c func_002570f0 --candidate FIX14=/tmp/cand570_fix14.c`; fnalign retail 460 vs object 472 instrs (263 edits) via `python3 tools/fnalign.py src/cmmRankUp.c func_002570f0 --candidate /tmp/cand570_fix14.c --quiet`; +12 over (2.6% within 3% rule). Signature s32 x3 + f32 x4 (s64->s32 saves 4 per opclass width wall; true s64 per prior note shifts stack and is worse); neg lever temp_f20=-temp_f21 saves 2 vs -80*mul; (u32) alpha + s16 narrowing per prior nd189 walls; copy/zero/0045d6e0/0045db40/00366c70 shapes per prior note. Wall remains vt-hoist + FPU/scheduling + frame 0x180 vs 0x1C0 (64 short, top-relative match). No volatile/asm. */
+// FUN_002570F0 NONMATCHING
+#ifdef NON_MATCHING
+
+void func_002570f0(s32 arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
+    s8 sp1BC;
+    f32 sp1B8;
+    f32 sp1B4;
+    f32 sp1B0;
+    f32 sp1AC;
+    Sp120 sp180;
+    Sp120 sp154;
+    Sp120 sp130;
+    u8 sp110[32];
+    u8 spD0[64];
+    u_long128 spC0;                                      /* compiler-managed */
+    u_long128 spB0;
+    u_long128 spA0;
+    u_long128 sp90;
+    s32 sp8C;
+    s32 sp88;
+    s32 sp84;
+    s32 sp80;
+    u_long128 sp70;
+    s32 sp6C;
+    s32 sp68;
+    s32 sp64;
+    s32 sp60;
+    u8 *var_6_2;
+    u8 *var_6;
+    f32 *var_3_2;
+    f32 *var_3_4;
+    f32 temp_2;
+    f32 temp_3;
+    f32 temp_f20;
+    f32 temp_f21;
+    f32 temp_f22;
+    f32 var_f0;
+    f32 var_f0_2;
+    s32 *var_3_3;
+    s32 *var_3_5;
+    s32 temp_2_2;
+    s32 temp_2_3;
+    s32 temp_2_4;
+    s32 temp_3_2;
+    s32 var_2;
+    s32 var_2_2;
+    s32 var_2_3;
+    s32 var_2_4;
+    s32 var_2_5;
+    s32 var_4;
+    s32 var_4_2;
+    s8 *var_3;
+    u8 *var_7;
+    u8 *var_7_2;
+
+    var_7 = D_006364F0;
+    var_6 = (u8 *)&sp130;
+    var_4 = 9;
+    do {
+        temp_3 = *(f32 *)var_7;
+        temp_2 = *(f32 *)(var_7 + 4);
+        var_7 += 8;
+        var_4 -= 1;
+        *(f32 *)var_6 = temp_3;
+        *(f32 *)(var_6 + 4) = temp_2;
+        var_6 += 8;
+    } while (var_4 > 0);
+    var_7_2 = D_00636540;
+    var_6_2 = sp110;
+    var_4_2 = 4;
+    do {
+        temp_3_2 = *(s32 *)var_7_2;
+        temp_2_2 = *(s32 *)(var_7_2 + 4);
+        var_7_2 += 8;
+        var_4_2 -= 1;
+        *(s32 *)var_6_2 = temp_3_2;
+        *(s32 *)(var_6_2 + 4) = temp_2_2;
+        var_6_2 += 8;
+    } while (var_4_2 > 0);
+    var_3 = &sp1BC;
+    var_2 = 4;
+    if (var_3 != NULL) {
+        do {
+            *var_3 = 0;
+            var_3 += 1;
+            var_2 -= 1;
+        } while (var_2 != 0);
+    }
+    temp_f22 = (f32) arg1 / 255.0f;
+    func_00252230(&sp180, &sp130, &sp154, 0.0f);
+    func_003e0870(&spD0, &sp180.fC, sp180.f1C, 0);
+    temp_f21 = 80.0f * fparg3;
+    temp_f20 = -temp_f21;
+    var_3_2 = &sp1B4;
+    var_2_2 = 4;
+    if (var_3_2 != NULL) {
+        do {
+            *var_3_2 = 0;
+            var_3_2 += 1;
+            var_2_2 -= 1;
+        } while (var_2_2 != 0);
+    }
+    sp1B8 = sp1B4;
+    var_3_3 = &sp80;
+    var_2_3 = 0x10;
+    if (var_3_3 != NULL) {
+        do {
+            *var_3_3 = 0;
+            var_3_3 += 1;
+            var_2_3 -= 1;
+        } while (var_2_3 != 0);
+    }
+    sp80 = 0;
+    sp84 = 0;
+    sp88 = 0x280;
+    sp8C = 0x1E0;
+    sp90 = (u_long128) sp80;
+    D_00887300[0](0xEU, 0U);
+    D_00887300[0](0xCU, 1U);
+    D_00887300[0](7U, 2U);
+    D_00887300[0](9U, 1U);
+    D_00887300[0](0x14U, 1U);
+    D_00887300[0](6U, 0U);
+    D_00887300[0](8U, 1U);
+    func_003f6440(3, 0x31003);
+    func_003f6440(2, 0x44);
+    func_00489f80();
+    func_0045d6e0(&sp1B8, &sp90, 0, 10.0f);
+    func_0048a000();
+    spB0 = D_00636560;
+    spC0 = spB0;
+    *(f32 *)&spC0 = *(f32 *)&spC0 + temp_f21;
+    spC0 = (f32) spC0 + temp_f20;
+    D_00887300[0](6U, 1U);
+    D_00887300[0](8U, 1U);
+    func_003f6440(3, 0x71003);
+    func_003f6440(2, 0x44);
+    func_0045db40(&sp1BC, &spC0, 0, 0xC8, 0, 0.0f, 45.0f, 1.0f, 1.0f);
+    temp_2_3 = (u32)sp180.f18 & 0xFF;
+    if (temp_2_3 >= 0) {
+        var_f0 = (f32) temp_2_3;
+    } else {
+        var_f0 = (f32)(((u32)temp_2_3 >> 1) | (temp_2_3 & 1)); var_f0 += var_f0;
+    }
+    func_00366c70((s32) (sp180.f4 + temp_f21), (s32) (sp180.f8 + temp_f20), (s32) sp180.f20, (s32) sp180.f22, (s32) ((u32) sp180.f18 >> 8), (s32) (var_f0 * temp_f22), 1, (s16)(sp180.f20 >> 1), 5.0f, (s16)(sp180.f22 >> 1), &spD0, arg2, &sp110);
+    var_3_4 = &sp1AC;
+    var_2_4 = 4;
+    if (var_3_4 != NULL) {
+        do {
+            *var_3_4 = 0;
+            var_3_4 += 1;
+            var_2_4 -= 1;
+        } while (var_2_4 != 0);
+    }
+    sp1B0 = sp1AC;
+    var_3_5 = &sp60;
+    var_2_5 = 0x10;
+    if (var_3_5 != NULL) {
+        do {
+            *var_3_5 = 0;
+            var_3_5 += 1;
+            var_2_5 -= 1;
+        } while (var_2_5 != 0);
+    }
+    sp60 = 0;
+    sp64 = 0;
+    sp68 = 0x280;
+    sp6C = 0x1E0;
+    sp70 = (u_long128) sp60;
+    D_00887300[0](0xEU, 0U);
+    D_00887300[0](0xCU, 1U);
+    D_00887300[0](7U, 2U);
+    D_00887300[0](9U, 1U);
+    D_00887300[0](0x14U, 1U);
+    D_00887300[0](6U, 0U);
+    D_00887300[0](8U, 1U);
+    func_003f6440(3, 0x31003);
+    func_003f6440(2, 0x44);
+    func_00489f80();
+    func_0045d6e0(&sp1B0, &sp70, 0, 10.0f);
+    func_0048a000();
+    spA0 = D_00636570;
+    spC0 = spA0;
+    *(f32 *)&spC0 = *(f32 *)&spC0 - temp_f21;
+    spC0 = (f32) spC0 + (-temp_f20 - 200.0f);
+    D_00887300[0](6U, 1U);
+    D_00887300[0](8U, 1U);
+    func_003f6440(3, 0x71003);
+    func_003f6440(2, 0x44);
+    func_0045db40(&sp1BC, &spC0, 0, 0xC8, 0xC8, 0.0f, 45.0f, 1.0f, 1.0f);
+    temp_2_4 = (u32)sp180.f18 & 0xFF;
+    if (temp_2_4 >= 0) {
+        var_f0_2 = (f32) temp_2_4;
+    } else {
+        var_f0_2 = (f32)(((u32)temp_2_4 >> 1) | (temp_2_4 & 1)); var_f0_2 += var_f0_2;
+    }
+    func_00366c70((s32) (sp180.f4 - temp_f21), (s32) (sp180.f8 - temp_f20), (s32) sp180.f20, (s32) sp180.f22, (s32) ((u32) sp180.f18 >> 8), (s32) (var_f0_2 * temp_f22), 1, (s16)(sp180.f20 >> 1), 5.0f, (s16)(sp180.f22 >> 1), &spD0, arg2, &sp110);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_002570f0);
+#endif
 
 // FUN_00257820
 s32 func_00257820(s32 arg0, void *arg1) {

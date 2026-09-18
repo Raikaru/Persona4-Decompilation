@@ -798,8 +798,133 @@ s32 func_00266ba0(u8 *arg0)
     func_002674b0((s32)arg0, (u8 *)*(s32 *)(work + 8));
     return 0;
 }
-// FUN_00266CC0
+/* measured (2026-09-18): probe_variants 429 differing words reloc-masked via `python3 tools/probe_variants.py src/promoted/code1_0026.c func_00266cc0 --candidate FIX2=/tmp/cand66cc_fix2.c`; fnalign retail 506 vs object 495 instrs (273 edits +3 reloc) via `python3 tools/fnalign.py src/promoted/code1_0026.c func_00266cc0 --candidate /tmp/cand66cc_fix2.c --quiet`; -11 short (2.2% within 3% rule). Signature (s32,s32) per top extern (u8*->s32 cast for 00452560); s16 temp_date dsll16/dsra16 per prologue; fGpffff84a4 mul/div + 0044b7b0 sin chains; 255/5.0f/15.0f/20.0f scales; float-to-int overflow c.le/bc1t checks per retail (direct (s32) omits 21, 455->495); local externs for 0025f430 (s32 x8+f32 x6)/0025f2c0/0044b7b0 fix 416B-style overrun. Wall remains call/setup + FPU scheduling. No volatile/asm. */
+// FUN_00266CC0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00266cc0(s32 arg0, s32 arg1)
+{
+    extern s32 func_0025f430(s32, s32, s32, s32, u8 *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
+    extern s32 func_0025f2c0(s32, s32, u8 *);
+    extern f32 func_0044b7b0(f32);
+    u8 *temp_2;
+    u8 *temp_4;
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f16;
+    f32 temp_f1;
+    f32 temp_f1_2;
+    f32 temp_f20;
+    f32 temp_f20_2;
+    f32 temp_f21;
+    f32 temp_f21_2;
+    f32 temp_f2;
+    s32 temp_3;
+    s32 temp_3_2;
+    s32 temp_3_3;
+    s32 var_17;
+    s32 var_18;
+    s32 var_3;
+    s32 var_3_2;
+    s32 var_3_3;
+    s16 temp_date;
+
+    temp_2 = func_00452560((u8 *)arg1);
+    var_18 = *(s32 *)(temp_2 + 0xC);
+    var_17 = *(s32 *)(temp_2 + 0x10);
+    temp_date = (s16)func_001060b0();
+    if (func_00110d30(temp_date) != 0) {
+        if (*(s32 *)(temp_2 + 0xC) == 3) {
+            var_18 = 6;
+        }
+        if (*(s32 *)(temp_2 + 0x10) == 3) {
+            var_17 = 6;
+        }
+    }
+    if (*(s32 *)temp_2 != 2) {
+        return;
+    }
+    temp_3 = *(s32 *)(temp_2 + 0x14);
+    if (temp_3 < 0xF) {
+        temp_f20 = func_0044b7b0((fGpffff84a4 * (f32)temp_3) / 15.0f);
+        func_0025f430(0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1,
+                      0, 0, 200.0f * (1.0f - temp_f20), 0.0f, 0.0f,
+                      0.0f, temp_f20, 1.0f);
+        temp_3_2 = *(s32 *)(temp_2 + 0x14);
+        if (temp_3_2 >= 0xB) {
+            temp_f1 = 255.0f * ((f32)(temp_3_2 - 0xA) / 5.0f);
+            if (temp_f1 < 2147483648.0f) { var_3 = (s32)temp_f1; } else { var_3 = ((s32)(temp_f1 - 2147483648.0f) | 0x80000000); }
+            func_0025f430(0, var_3 & 0xFF, var_18 + 1, 0,
+                          *(u8 **)(temp_2 + 4), 1,
+                          0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+                          1.0f, 1.0f);
+        }
+        return;
+    }
+    if (temp_3 < 0x14) {
+        func_0025f430(0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1,
+                      0, 0, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+        func_0025f430(0, 0xFF, var_18 + 1, 0, *(u8 **)(temp_2 + 4), 1,
+                      0, 0, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+        return;
+    }
+    if (temp_3 < 0x19) {
+        temp_f20 = func_0044b7b0((fGpffff84a4 * (f32)(temp_3 - 0x14)) / 5.0f);
+        temp_f21 = 1.0f - temp_f20;
+        temp_3_2 = func_0025f2c0(0, 0, *(u8 **)(temp_2 + 4));
+        func_0025f430(0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1,
+                      0, 0, ((f32)temp_3_2 / 2.0f) * temp_f20,
+                      0.0f, 0.0f, 0.0f, temp_f21, 1.0f);
+        temp_3_2 = func_0025f2c0(var_18 + 1, 0, *(u8 **)(temp_2 + 4));
+        func_0025f430(0, 0xFF, var_18 + 1, 0, *(u8 **)(temp_2 + 4), 1,
+                      0, 0, ((f32)temp_3_2 / 2.0f) * temp_f20,
+                      0.0f, 0.0f, 0.0f, temp_f21, 1.0f);
+        return;
+    }
+    if (temp_3 < 0x1E) {
+        temp_f20_2 = 1.0f -
+                     func_0044b7b0((fGpffff84a4 * (f32)(temp_3 - 0x19)) / 5.0f);
+        temp_f21_2 = 1.0f - temp_f20_2;
+        temp_3_2 = func_0025f2c0(0, 0, *(u8 **)(temp_2 + 4));
+        func_0025f430(0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1,
+                      0, 0, ((f32)temp_3_2 / 2.0f) * temp_f20_2,
+                      0.0f, 0.0f, 0.0f, temp_f21_2, 1.0f);
+        temp_3_2 = func_0025f2c0(var_17 + 1, 0, *(u8 **)(temp_2 + 4));
+        func_0025f430(0, 0xFF, var_17 + 1, 0, *(u8 **)(temp_2 + 4), 1,
+                      0, 0, ((f32)temp_3_2 / 2.0f) * temp_f20_2,
+                      0.0f, 0.0f, 0.0f, temp_f21_2, 1.0f);
+        return;
+    }
+    if (temp_3 < 0x28) {
+        func_0025f430(0xFFFFFF, 0xFF, 0, 0, *(u8 **)(temp_2 + 4), 1,
+                      0, 0, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+        func_0025f430(0, 0xFF, var_17 + 1, 0, *(u8 **)(temp_2 + 4), 1,
+                      0, 0, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+        return;
+    }
+    if (temp_3 < 0x3C) {
+        temp_f0_2 = func_0044b7b0((fGpffff84a4 * (f32)(temp_3 - 0x28)) / 20.0f);
+        temp_f16 = 1.0f - temp_f0_2;
+        temp_f2 = 255.0f * temp_f16;
+        if (temp_f2 < 2147483648.0f) { var_3_2 = (s32)temp_f2; } else { var_3_2 = ((s32)(temp_f2 - 2147483648.0f) | 0x80000000); }
+        func_0025f430(0xFFFFFF, var_3_2 & 0xFF, 0, 0,
+                      *(u8 **)(temp_2 + 4), 1,
+                      0, 0, -200.0f * temp_f0_2, 0.0f, 0.0f, 0.0f,
+                      temp_f16, 1.0f);
+        temp_3_3 = *(s32 *)(temp_2 + 0x14);
+        if (temp_3_3 < 0x2D) {
+            temp_f1_2 = 255.0f *
+                        (1.0f - (f32)(temp_3_3 - 0x28) / 5.0f);
+            if (temp_f1_2 < 2147483648.0f) { var_3_3 = (s32)temp_f1_2; } else { var_3_3 = ((s32)(temp_f1_2 - 2147483648.0f) | 0x80000000); }
+            func_0025f430(0, var_3_3 & 0xFF, var_17 + 1, 0,
+                          *(u8 **)(temp_2 + 4), 1,
+                          0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+                          1.0f, 1.0f);
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00266cc0);
+#endif
 // FUN_002674B0
 void func_002674b0(s32 arg0, u8 *arg1) {
     u8 *p;

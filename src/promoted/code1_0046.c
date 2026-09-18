@@ -3009,7 +3009,9 @@ void func_0046ea60(u8 *arg0, u8 *arg1)
    `*(s64 *)pos` for the ld-by-value pair, declaring `node` before `i` so retail's $s2/$s1 colouring holds
    (62 -> 38), `i > first + ... - 1` so the slt goes through $at (38 -> 36), and inlining the strlen+1
    multiplier so `n` never becomes a named local (36 -> 20). Nine gp slots (iGpffffb064/b068/b078/b080/b088/b098/b0a0/b0a4/b0b0)
-   are new in config/symbol_data_addrs.txt. */
+   are new in config/symbol_data_addrs.txt. Pragma sweep measured on the 20-word floor, all eight singles:
+   opt_propagation off 20, opt_strength_reduction off 20, opt_unroll_loops off 20, peephole off 42,
+   opt_dead_assignments off 45, opt_common_subs off 346, schedule on 362, opt_loop_invariants on 377; no win. */
 // FUN_0046EC70 NONMATCHING
 #ifdef NON_MATCHING
 void func_0046ec70(u8 *arg0) {
