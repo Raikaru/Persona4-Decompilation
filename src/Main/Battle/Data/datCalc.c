@@ -612,8 +612,132 @@ done_value:
    floor) — opt_propagation-off + index-first helper combo not applicable;
    m2c draft signature (s32 func_00232d80(u8*)) matches the asm (no lever-1
    defect). */
-// FUN_00232D80
+/* measured 00232d80: `opt_loop_invariants on` inside the guard is worth 12
+   words (90 -> 78) at the same 1304B/1312B, fnalign 78 edits via
+   tools/fnalign.py --candidate, measure_guarded 78 via
+   tools/measure_guarded.py src/Main/Battle/Data/datCalc.c func_00232d80;
+   the loop-preheader constant hoist. */
+// FUN_00232D80 NONMATCHING
+#ifdef SKIP_ASM
+#pragma opt_loop_invariants on
+s32 func_00232d80(u8 *arg0)
+{
+    s32 acc;
+    s32 temp_18;
+    s32 var_5;
+    u8 *base;
+    s32 limit;
+    s32 result;
+    s32 found;
+    acc = 0;
+    temp_18 = func_0023e130(arg0) & 0xFFFF;
+    base = func_0023e140(arg0);
+    var_5 = 0;
+    limit = temp_18 & 0xFFFF;
+    while ((var_5 & 0xFFFF) < limit) {
+        if (*(u16 *)(base + ((u16)var_5 * 2)) == 0x1F9) { found = 1; goto done1; }
+        var_5 = (var_5 + 1) & 0xFFFF;
+    }
+    if (!(*(u16 *)arg0 & 4)) {
+        result = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+        if (result >= 0) {
+            if (func_001069a0((s16)result) == 0x1F9) { found = 1; goto done1; }
+        }
+    }
+    found = 0;
+done1:
+    if (found != 0) { acc |= 1; }
+    temp_18 = func_0023e130(arg0) & 0xFFFF;
+    base = func_0023e140(arg0);
+    var_5 = 0;
+    limit = temp_18 & 0xFFFF;
+    while ((var_5 & 0xFFFF) < limit) {
+        if (*(u16 *)(base + ((u16)var_5 * 2)) == 0x1FA) { found = 1; goto done2; }
+        var_5 = (var_5 + 1) & 0xFFFF;
+    }
+    if (!(*(u16 *)arg0 & 4)) {
+        result = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+        if (result >= 0) {
+            if (func_001069a0((s16)result) == 0x1FA) { found = 1; goto done2; }
+        }
+    }
+    found = 0;
+done2:
+    if (found != 0) { acc |= 2; }
+    temp_18 = func_0023e130(arg0) & 0xFFFF;
+    base = func_0023e140(arg0);
+    var_5 = 0;
+    limit = temp_18 & 0xFFFF;
+    while ((var_5 & 0xFFFF) < limit) {
+        if (*(u16 *)(base + ((u16)var_5 * 2)) == 0x1FB) { found = 1; goto done3; }
+        var_5 = (var_5 + 1) & 0xFFFF;
+    }
+    if (!(*(u16 *)arg0 & 4)) {
+        result = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+        if (result >= 0) {
+            if (func_001069a0((s16)result) == 0x1FB) { found = 1; goto done3; }
+        }
+    }
+    found = 0;
+done3:
+    if (found != 0) { acc |= 4; }
+    temp_18 = func_0023e130(arg0) & 0xFFFF;
+    base = func_0023e140(arg0);
+    var_5 = 0;
+    limit = temp_18 & 0xFFFF;
+    while ((var_5 & 0xFFFF) < limit) {
+        if (*(u16 *)(base + ((u16)var_5 * 2)) == 0x1FC) { found = 1; goto done4; }
+        var_5 = (var_5 + 1) & 0xFFFF;
+    }
+    if (!(*(u16 *)arg0 & 4)) {
+        result = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+        if (result >= 0) {
+            if (func_001069a0((s16)result) == 0x1FC) { found = 1; goto done4; }
+        }
+    }
+    found = 0;
+done4:
+    if (found != 0) { acc |= 8; }
+    temp_18 = func_0023e130(arg0) & 0xFFFF;
+    base = func_0023e140(arg0);
+    var_5 = 0;
+    limit = temp_18 & 0xFFFF;
+    while ((var_5 & 0xFFFF) < limit) {
+        if (*(u16 *)(base + ((u16)var_5 * 2)) == 0x1FD) { found = 1; goto done5; }
+        var_5 = (var_5 + 1) & 0xFFFF;
+    }
+    if (!(*(u16 *)arg0 & 4)) {
+        result = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+        if (result >= 0) {
+            if (func_001069a0((s16)result) == 0x1FD) { found = 1; goto done5; }
+        }
+    }
+    found = 0;
+done5:
+    if (found != 0) { acc |= 0x10; }
+    temp_18 = func_0023e130(arg0) & 0xFFFF;
+    base = func_0023e140(arg0);
+    var_5 = 0;
+    limit = temp_18 & 0xFFFF;
+    while ((var_5 & 0xFFFF) < limit) {
+        if (*(u16 *)(base + ((u16)var_5 * 2)) == 0x1FE) { found = 1; goto done6; }
+        var_5 = (var_5 + 1) & 0xFFFF;
+    }
+    if (!(*(u16 *)arg0 & 4)) {
+        result = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+        if (result >= 0) {
+            if (func_001069a0((s16)result) == 0x1FE) { found = 1; goto done6; }
+        }
+    }
+    found = 0;
+done6:
+    if (found != 0) { acc |= 0x20; }
+    return acc;
+}
+#pragma opt_loop_invariants off
+#else
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232d80);
+#endif
 
 // FUN_002332A0
 s8 func_002332a0(u8 *arg0, s32 arg1)
