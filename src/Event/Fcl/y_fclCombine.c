@@ -604,14 +604,295 @@ s32 func_003026c0(s32 arg0, s32 arg1)
     return arg1;
 }
 
-/* measured (re-tested wave C): the old floor note was STALE — b210 DOES emit
-   the pair at 0-mod-8 displacements for an 8-byte struct passed BY VALUE
-   (probe: take(0x151, *(FclVec2f *)(p + 0x38), *sp, 1, 4, 0) -> ldr $a1,0x38 /
-   ldl $a1,0x3F, byte-identical to retail's 4 pairs here at 0x38/0x3F feeding
-   func_002b69f0; plain s64 gives ld). Full body still INCLUDE_ASM: ~950-line
-   asm state machine; no full-body nd measured. */
-// FUN_00302770
+/* measured: GUARDED_SCORE 728 via `python3 tools/measure_guarded.py src/Event/Fcl/y_fclCombine.c func_00302770` with scoped `#pragma peephole off` (baseline 787 -> 728, -59); obj 3828B / window 3744B. fnalign 957 vs 936 instrs (+21, +2.24% PASS), 385 edits +2 reloc-only. Band is 908-964 (936 +-3%): baseline v3 929 inside, peephole 957 inside, cse_off 732 at 962/936 (420ed) inside but worse than peephole so reject; loopinv_on/unroll_off/sched_off 787 tie; subscript ((u8**)p)[i+0x96] 787 tie, heap ((s64*)q)[7] 787 tie; colouring declswap/sporder 787 tie. m2c fails on jr/jtbl so romwright switch (0x6E-0x74, 0x6F last per jtbl_007492E0 order 6E,70,71,72,73,74,6F) de-noised: 38 s64 2970 homes, FclVec2f fv0-7 force -50 spill, f32 word copies, (s16)6970, (s32) casts. Residuals: heap 69f0 ldr/ldl vs ld (4 sites), gp fmt iGpffffa8a0 (addiu gp,0 vs -0x5760, 2 words), s0/s3 rotation vs s1/s3. */
+// FUN_00302770 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma peephole off
+void func_00302770(u8 *arg0) {
+    extern u8 *func_002b81f0(u8 *arg0);
+    extern void func_00325450(u8 *arg0, s32 arg1, s32 arg2);
+    extern void func_0032c660(u8 *arg0, s32 arg1, s64 arg2, s64 arg3, s32 arg4, s32 arg5);
+    extern void func_0032e570(u8 *arg0);
+    extern void func_0033e540(u8 *arg0, s64 arg1, s64 arg2, s32 arg3, s32 arg4);
+    extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    extern void func_00442088(void *dst, void *fmt, s32 value);
+    extern u16 D_008C024E[];
+    extern char iGpffffa8a0;
+    s64 sp250;
+    s64 sp248;
+    s64 sp240;
+    s64 sp238;
+    s64 sp230;
+    s64 sp228;
+    s64 sp220;
+    s64 sp218;
+    s64 sp210;
+    s64 sp208;
+    s64 sp200;
+    s64 sp1F8;
+    s64 sp1F0;
+    s64 sp1E8;
+    s64 sp1E0;
+    s64 sp1D8;
+    s64 sp1D0;
+    s64 sp1C8;
+    s64 sp1C0;
+    s64 sp1B8;
+    s64 sp1B0;
+    s64 sp1A8;
+    s64 sp1A0;
+    s64 sp198;
+    s64 sp190;
+    s64 sp188;
+    s64 sp180;
+    s64 sp178;
+    s64 sp170;
+    s64 sp168;
+    s64 sp160;
+    s64 sp158;
+    s64 sp130;
+    s64 sp128;
+    s64 sp150;
+    s64 sp148;
+    s64 sp140;
+    s64 sp138;
+    FclVec2f fv0;
+    FclVec2f fv1;
+    FclVec2f fv2;
+    FclVec2f fv3;
+    FclVec2f fv4;
+    FclVec2f fv5;
+    FclVec2f fv6;
+    FclVec2f fv7;
+    char buf[128];
+    u8 *p;
+    u8 *q;
+    u8 *r;
+    s8 v;
+    u16 d;
+    s16 i;
+
+    p = *(u8 **)(arg0 + 0x38);
+    switch (p[1]) {
+    case 0x6E:
+        func_003205f0(arg0, 0x1E7, 0x96);
+        if (func_00106330(0x131A) == 0) {
+            v = func_002bab80((void *)func_00331660());
+            *(s8 *)(p + 0xD) = v;
+            func_002badc0(v, 0x4E);
+            func_00106390(0x131A, 1);
+            p[1] = 0x6F;
+            return;
+        }
+        p[1] = 0x70;
+        func_002b2970(&sp250, 640.0f, 98.0f);
+        func_002b2970(&sp248, 413.0f, 99.0f);
+        func_0033e540(*(u8 **)(p + 0x250), sp250, sp248, 6, 0);
+        func_00316e80((s32)arg0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0);
+        /* fallthrough */
+    case 0x70:
+        func_00313b50((s32)arg0);
+        v = func_002bab80((void *)func_00331660());
+        *(s8 *)(p + 0xD) = v;
+        func_00442088(buf, &iGpffffa8a0, func_002e78a0());
+        func_002bbd80(*(s8 *)(p + 0xD), 0, buf);
+        func_00442088(buf, &iGpffffa8a0, func_002e78e0());
+        func_002bbd80(*(s8 *)(p + 0xD), 1, buf);
+        func_002badc0(*(s8 *)(p + 0xD), 0x4A);
+        p[1] = 0x71;
+        break;
+    case 0x71:
+        if (func_002bb680(*(s8 *)(p + 0xD)) == 0) {
+            func_002bb550(*(s8 *)(p + 0xD));
+            p[1] = 0x72;
+            v = func_002bab80((void *)func_00331660());
+            *(s8 *)(p + 0xD) = v;
+            func_002badc0(v, 0x4B);
+            func_00325450(arg0, 2, 0);
+            func_002b2970(&sp240, 57.0f, 72.0f);
+            func_002b2970(&sp238, -346.0f, 72.0f);
+            func_0032c660(arg0, 0, sp240, sp238, 1, 0);
+            func_002b2970(&sp230, 460.0f, 72.0f);
+            func_002b2970(&sp228, 460.0f, 72.0f);
+            func_0032c660(arg0, 1, sp230, sp228, 1, 0);
+            func_002b6140(*(s32 *)(p + 0x28C), 1);
+            func_002b6140(*(s32 *)(p + 0x290), 1);
+            func_00315600(arg0, 1);
+            func_00320970(arg0, 1);
+        } else {
+            func_002bbcf0(*(s8 *)(p + 0xD));
+        }
+        break;
+    case 0x72:
+        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
+            func_002bbcf0(*(s8 *)(p + 0xD));
+        } else {
+            func_002bb550(*(s8 *)(p + 0xD));
+            p[1] = 0x73;
+        }
+        /* fallthrough */
+    case 0x73:
+        func_0032e570(arg0);
+        q = func_002b6150(0x2E3);
+        fv0 = *(FclVec2f *)(q + 0x38);
+        func_002b2970(&sp220, fv0.x - 50.0f, fv0.y - 50.0f);
+        r = func_002b81f0(*(u8 **)(p + 0x258));
+        *(f32 *)(r + 0) = *(f32 *)&sp220;
+        *(f32 *)(r + 4) = *((f32 *)&sp220 + 1);
+        q = func_002b6150(0x2E2);
+        fv1 = *(FclVec2f *)(q + 0x38);
+        func_002b2970(&sp218, fv1.x - 50.0f, fv1.y - 50.0f);
+        r = func_002b81f0(*(u8 **)(p + 0x25C));
+        *(f32 *)(r + 0) = *(f32 *)&sp218;
+        *(f32 *)(r + 4) = *((f32 *)&sp218 + 1);
+        q = func_002b6150(0x2E9);
+        fv2 = *(FclVec2f *)(q + 0x38);
+        func_002b2970(&sp210, fv2.x - 50.0f, fv2.y - 50.0f);
+        r = func_002b81f0(*(u8 **)(p + 0x260));
+        *(f32 *)(r + 0) = *(f32 *)&sp210;
+        *(f32 *)(r + 4) = *((f32 *)&sp210 + 1);
+        q = func_002b6150(0x2EF);
+        fv3 = *(FclVec2f *)(q + 0x38);
+        func_002b2970(&sp208, fv3.x - 50.0f, fv3.y - 50.0f);
+        r = func_002b81f0(*(u8 **)(p + 0x264));
+        *(f32 *)(r + 0) = *(f32 *)&sp208;
+        *(f32 *)(r + 4) = *((f32 *)&sp208 + 1);
+        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x1CA) + 0x10), 1) != 1) {
+            d = D_008C024E[0];
+            if ((d & 8) != 0) {
+                if (*(s8 *)(p + 0x122) != 1) {
+                    break;
+                }
+                func_0045af60(0, 0, 0, 5);
+                q = func_002b6150(0x150);
+                func_002b2970(&sp200, 321.0f, 16.0f);
+                func_002b69f0(0x150, *(s64 *)(q + 0x38), sp200, 1, 4, 0);
+                q = func_002b6150(0x2E0);
+                func_002b2970(&sp1F8, 321.0f, 16.0f);
+                func_002b69f0(0x2E0, *(s64 *)(q + 0x38), sp1F8, 1, 4, 0);
+                func_002b2970(&sp1F0, 57.0f, 72.0f);
+                func_002b2970(&sp1E8, -346.0f, 72.0f);
+                func_0032c660(arg0, 0, sp1F0, sp1E8, 0, 1);
+                func_002b2970(&sp1E0, 460.0f, 72.0f);
+                func_002b2970(&sp1D8, 460.0f, 72.0f);
+                func_0032c660(arg0, 1, sp1E0, sp1D8, 0, 0);
+                *(s8 *)(p + 0x122) = 0;
+            } else if ((d & 4) != 0) {
+                if (*(s8 *)(p + 0x122) != 0) {
+                    break;
+                }
+                func_0045af60(0, 0, 0, 5);
+                q = func_002b6150(0x150);
+                func_002b2970(&sp1D0, 107.0f, 16.0f);
+                func_002b69f0(0x150, *(s64 *)(q + 0x38), sp1D0, 1, 4, 0);
+                q = func_002b6150(0x2E0);
+                func_002b2970(&sp1C8, 107.0f, 16.0f);
+                func_002b69f0(0x2E0, *(s64 *)(q + 0x38), sp1C8, 1, 4, 0);
+                func_002b2970(&sp1C0, 57.0f, 72.0f);
+                func_002b2970(&sp1B8, -346.0f, 72.0f);
+                func_0032c660(arg0, 0, sp1C0, sp1B8, 0, 0);
+                func_002b2970(&sp1B0, 460.0f, 72.0f);
+                func_002b2970(&sp1A8, 460.0f, 72.0f);
+                func_0032c660(arg0, 1, sp1B0, sp1A8, 0, 1);
+                *(s8 *)(p + 0x122) = 1;
+            } else {
+                if ((d & 0x20) == 0) {
+                    break;
+                }
+                if (p[1] != 0x73) {
+                    break;
+                }
+                func_002bb550(*(s8 *)(p + 0xD));
+                func_0045af60(0, 0, 0, 2);
+                func_00325450(arg0, 2, 1);
+                if (*(s8 *)(p + 0x122) == 1) {
+                    func_002b2970(&sp1A0, 57.0f, 72.0f);
+                    func_002b2970(&sp198, 940.0f, 72.0f);
+                    func_0032c660(arg0, 0, sp1A0, sp198, 0, 1);
+                    func_002b2970(&sp190, 460.0f, 72.0f);
+                    func_002b2970(&sp188, 940.0f, 72.0f);
+                    func_0032c660(arg0, 1, sp190, sp188, 0, 1);
+                    func_002b68d0(0x2E8, 0, 1);
+                    func_002b68d0(0x2EE, 0, 1);
+                } else if (*(s8 *)(p + 0x122) == 0) {
+                    func_002b2970(&sp180, 57.0f, 72.0f);
+                    func_002b2970(&sp178, -640.0f, 72.0f);
+                    func_0032c660(arg0, 0, sp180, sp178, 0, 1);
+                    func_002b2970(&sp170, 460.0f, 72.0f);
+                    func_002b2970(&sp168, -640.0f, 72.0f);
+                    func_0032c660(arg0, 1, sp170, sp168, 0, 1);
+                }
+                func_002eb270(arg0, 0);
+                p[1] = 0x74;
+                func_00316e80((s32)arg0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                func_002b2970(&sp160, 413.0f, 99.0f);
+                func_002b2970(&sp158, 640.0f, 98.0f);
+                func_0033e540(*(u8 **)(p + 0x250), sp160, sp158, 6, 0);
+                func_00315600(arg0, 0);
+                func_00320970(arg0, 0);
+            }
+        }
+        break;
+    case 0x74:
+        q = func_002b6150(0x2E3);
+        fv4 = *(FclVec2f *)(q + 0x38);
+        func_002b2970(&sp150, fv4.x - 50.0f, fv4.y - 50.0f);
+        r = func_002b81f0(*(u8 **)(p + 0x258));
+        *(f32 *)(r + 0) = *(f32 *)&sp150;
+        *(f32 *)(r + 4) = *((f32 *)&sp150 + 1);
+        q = func_002b6150(0x2E2);
+        fv5 = *(FclVec2f *)(q + 0x38);
+        func_002b2970(&sp148, fv5.x - 50.0f, fv5.y - 50.0f);
+        r = func_002b81f0(*(u8 **)(p + 0x25C));
+        *(f32 *)(r + 0) = *(f32 *)&sp148;
+        *(f32 *)(r + 4) = *((f32 *)&sp148 + 1);
+        q = func_002b6150(0x2E9);
+        fv6 = *(FclVec2f *)(q + 0x38);
+        func_002b2970(&sp140, fv6.x - 50.0f, fv6.y - 50.0f);
+        r = func_002b81f0(*(u8 **)(p + 0x260));
+        *(f32 *)(r + 0) = *(f32 *)&sp140;
+        *(f32 *)(r + 4) = *((f32 *)&sp140 + 1);
+        q = func_002b6150(0x2EF);
+        fv7 = *(FclVec2f *)(q + 0x38);
+        func_002b2970(&sp138, fv7.x - 50.0f, fv7.y - 50.0f);
+        r = func_002b81f0(*(u8 **)(p + 0x264));
+        *(f32 *)(r + 0) = *(f32 *)&sp138;
+        *(f32 *)(r + 4) = *((f32 *)&sp138 + 1);
+        if ((s16)func_002b6970(*(s16 *)(func_002b6150(0x1CA) + 0x10), 1) != 1) {
+            i = 0;
+            while ((s16)i < 4) {
+                r = func_002b81f0(*(u8 **)(p + (s16)i * 4 + 0x258));
+                *(u8 *)(r + 0x124) = 1;
+                i = (s16)(i + 1);
+            }
+            func_003205f0(arg0, 0x96, 0x1E7);
+            func_002b6140(*(s32 *)(p + 0x28C), 0);
+            func_002b6140(*(s32 *)(p + 0x290), 0);
+            *p = 0;
+            p[1] = 0x1A;
+        }
+        break;
+    case 0x6F:
+        if (func_002bb680(*(s8 *)(p + 0xD)) == 0) {
+            func_002bb550(*(s8 *)(p + 0xD));
+            p[1] = 0x70;
+            func_002b2970(&sp130, 640.0f, 98.0f);
+            func_002b2970(&sp128, 413.0f, 99.0f);
+            func_0033e540(*(u8 **)(p + 0x250), sp130, sp128, 6, 0);
+            func_00316e80((s32)arg0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0);
+        } else {
+            func_002bbcf0(*(s8 *)(p + 0xD));
+        }
+        break;
+    default:
+        break;
+    }
+}
+#pragma pop
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00302770);
+#endif
 
 /* wave 14: signature re-checked via the m2c oracle and the retail prologue
    (dsll32 $16,$5,24 / dsra32 = byte sign-extend): arg1 IS s8; the m2c's

@@ -1916,7 +1916,17 @@ extern u8 *func_001b0c80(s32 arg0);
    arrays of this function into one row struct and index that.  Byte-offset
    spellings do not reach it: a saved `boff` with `*(s16 *)((u8 *)spbuf +
    boff)` and `+ boff + 2` costs 57, and mixing it with the pointer form ties
-   at 13. */
+   at 13.
+   Closed out 2026-09-18: the row-struct hypothesis is wrong.  Retail's write
+   sites use the same shape this body already produces - `addiu $3, $2, 0x50`
+   then `sh 0x0($3)` and `sh 0x2($3)` - and they align exactly, so `spbuf` is
+   a single array at frame offset 0x50 in retail too.  The difference is only
+   that at the read site retail derives BOTH element addresses from the row
+   base `$sp + index*4` (adding 0x50 and 0x52) where this body derives the
+   second from the first (`$v0 + 2`).  C cannot name `$sp + index*4`: every
+   spelling that tries goes through the array and is worse - mirroring the
+   write-site index form at both reads 64 with an s32 index and 64 with u16,
+   and `b3[1]` for the second read 57.  Treat the remaining 13 as codegen. */
 // FUN_001F4E50 NONMATCHING
 #ifdef NON_MATCHING
 s64 func_001f4e50(u8 *arg0) {
