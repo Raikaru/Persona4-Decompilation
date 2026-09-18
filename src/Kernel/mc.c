@@ -2239,16 +2239,196 @@ void func_002a9100(f32 fparg0, f32 fparg1, f32 fparg2,
 }
 #pragma opt_common_subs on
 
-/* measured: retail frame is 0x140 with saved regs $s0-$s5 + f20-f23; mwcc b210
-   over-allocates the frame to 0x180, mis-allocates saved regs ($s6/$s7/$fp
-   garbage) and the D_00887300 render-vtable base is hoisted into two different
-   saved regs ($21 then $16) across the two call groups. Tried the parent
-   advisory's #pragma opt_propagation off + typed base local for the vtable
-   hoist, all callee arg orders (incl. func_0025f6b0/5f3f0 floats-first), and the
-   struct-field stack layout; best nd 657 with frame over-alloc. Frame +
-   saved-register rotation floor. */
-// FUN_002A95C0
+/* measured: cold de-noised m2c+romwright (guarded v1): measure_guarded 340wd / fnalign 219 edits +6 reloc-only (retail 611/object 610 instrs, 1 short, 0.2% — bankable). */
+/*   Calls floats-first per mc.c decls + 002a9100 sibling: 0025f6b0/0025f3f0 floats-first, 00275020 floats-first, 002a9100 floats-first, 0045d6e0 (ptr,ptr,float,int). */
+/*   Stack per romwright extents (tmp128[8]/tmp110[12]/tmpF0[16]) + 6960 idioms (memset loops, Quad4 rectCopy, setState base). R1 pragma probes: loop_invariants on 343 (+3), unroll off 340 tie, schedule off 340 tie (strength off 340 tie). R2 subscript: hoist keys 368 (+28), tbl base 427 (+87), off=i*0xC 429 (+89) — keep P[i*3], do not hoist. R3 colour: baseY/baseX 539 (+199), var_5/var_6 swap 358 (+18), var_22/colMid + temp_2/temp_16 ties at 340 — baseline best. */
+/*   Remaining: saved-reg rotation ($s5/$s3, $s1/$s0, $s2/$s1, $s0/$s7) + FPR rotation ($f22/$f21/$f20) + add.s operand transpose for fparg0+const + switch 0x1B/0x1C layout + table-loop lbu hoist + D_00887300 single base vs retail two regs. */
+// FUN_002A95C0 NONMATCHING
+#ifdef NON_MATCHING
+void func_002a95c0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, u8 *arg3, u8 *arg4)
+{
+    u8 tmp128[8];
+    s16 tmp110[12];
+    s16 tmpF0[16];
+    s16 *var_6;
+    s16 *var_6_2;
+    s16 *var_5;
+    s16 *var_5_2;
+    s16 t3a;
+    s16 t2a;
+    s16 t3b;
+    s16 t2b;
+    s32 month;
+    s32 day;
+    s32 var_18;
+    s32 var_22;
+    s32 var_30;
+    s32 colMid;
+    s32 temp_17;
+    s32 temp_18;
+    s32 var_4;
+    s32 var_4_2;
+    s32 i;
+    s32 baseSpill;
+    f32 baseX;
+    f32 baseY;
+    f32 tmpY2;
+    f32 tmpX2;
+    u8 *temp_2;
+    u8 *temp_16;
+    u8 *str;
+    u8 *handle;
+    u8 mode;
+    f32 single;
+    f32 singleCopy;
+    Quad4 rect;
+    Quad4 rectCopy;
+    u8 *p;
+    s32 n;
+    u8 *p2;
+    s32 n2;
+    void *setState;
+    baseSpill = arg1;
+    temp_2 = (u8 *)(arg1 + arg2 * 0x34);
+    temp_16 = temp_2 + 0x40;
+    func_001104d0(*(s16 *)(temp_2 + 0x40), &month, &day);
+    var_18 = func_00110580(*(s16 *)(temp_2 + 0x40));
+    if (var_18 < 0) {
+        var_18 = 6;
+    }
+    if (arg3 != NULL) {
+        var_22 = (arg0 & 0xFF) | 0xFFE92C00;
+    } else {
+        var_22 = (arg0 & 0xFF) | 0xFFAE2000;
+    }
+    if (arg3 != NULL) {
+        colMid = (arg0 & 0xFF) | 0x52BDFF00;
+    } else {
+        colMid = (arg0 & 0xFF) | 0x6984A300;
+    }
+    if (arg3 != NULL) {
+        var_30 = (arg0 & 0xFF) | 0xFF74AC00;
+    } else {
+        var_30 = (arg0 & 0xFF) | 0xDE6D9D00;
+    }
+    baseX = fparg0 + 107.0f;
+    baseY = fparg1 + 17.0f;
+    func_00442088(tmp128, &iGpffffa824, month);
+    handle = *(u8 **)(arg4 + 0x398);
+    var_6 = D_0063EB30;
+    var_5 = tmp110;
+    var_4 = 6;
+    do {
+        t3a = var_6[0];
+        t2a = var_6[1];
+        var_6 += 2;
+        var_4 -= 1;
+        var_5[0] = t3a;
+        var_5[1] = t2a;
+        var_5 += 2;
+    } while (var_4 > 0);
+    temp_17 = var_22 >> 8;
+    func_0025f6b0((baseX + 23.0f) - 2.0f, baseY - 1.0f, fparg2, temp_17, (u8)arg0, tmp128, 2, tmp110, func_002a2e10, handle);
+    func_0025f3f0(baseX + 45.0f, baseY - 2.0f, fparg2, temp_17, (u8)arg0, 0x4B, 0, *(s32 *)(arg4 + 0x398), 1);
+    func_00442088(tmp128, &iGpffffa824, day);
+    handle = *(u8 **)(arg4 + 0x398);
+    var_6_2 = D_0063EB30;
+    var_5_2 = tmpF0;
+    var_4_2 = 6;
+    do {
+        t3b = var_6_2[0];
+        t2b = var_6_2[1];
+        var_6_2 += 2;
+        var_4_2 -= 1;
+        var_5_2[0] = t3b;
+        var_5_2[1] = t2b;
+        var_5_2 += 2;
+    } while (var_4_2 > 0);
+    func_0025f6b0((baseX + 61.0f + 24.0f) - 2.0f, (baseY + 1.0f) - 2.0f, fparg2, temp_17, (u8)arg0, tmp128, 2, tmpF0, func_002a2e10, handle);
+    func_0025f3f0(baseX + 109.0f, baseY - 2.0f, fparg2, temp_17, (u8)arg0, 0x15, 0, *(s32 *)(arg4 + 0x398), 1);
+    if ((var_18 == 0) || (func_00110d30(*(s16 *)(temp_2 + 0x40)) != 0)) {
+        handle = *(u8 **)(arg4 + 0x398);
+        func_0025f3f0((baseX + 129.0f) - (f32)func_0025f2c0(0xE, var_18, handle) / 2.0f, baseY - 2.0f, fparg2, var_30 >> 8, (u8)arg0, 0xE, var_18, *(s32 *)(arg4 + 0x398), 1);
+    } else if (var_18 == 6) {
+        handle = *(u8 **)(arg4 + 0x398);
+        func_0025f3f0((baseX + 129.0f) - (f32)func_0025f2c0(0xE, 6, handle) / 2.0f, baseY - 2.0f, fparg2, colMid >> 8, (u8)arg0, 0xE, 6, *(s32 *)(arg4 + 0x398), 1);
+    } else {
+        handle = *(u8 **)(arg4 + 0x398);
+        func_0025f3f0((baseX + 129.0f) - (f32)func_0025f2c0(0xE, var_18, handle) / 2.0f, baseY - 2.0f, fparg2, temp_17, (u8)arg0, 0xE, var_18, *(s32 *)(arg4 + 0x398), 1);
+    }
+    func_0025f3f0(baseX + 136.0f, baseY - 2.0f, fparg2, temp_17, (u8)arg0, 0x16, 0, *(s32 *)(arg4 + 0x398), 1);
+    i = 1;
+    str = D_0063EA68;
+    while (i < 0xD) {
+        if (*(s32 *)&D_0063EA60[i * 3] == temp_16[0x30] && *(s32 *)&D_0063EA60[i * 3 + 1] == temp_16[0x31]) {
+            str = (u8 *)D_0063EA60[i * 3 + 2];
+            break;
+        }
+        i += 1;
+    }
+    func_00275020(baseX + 151.0f, ((baseY - 2.0f) - 6.0f) + 2.0f, fparg2, var_22 | arg0, 0, 1, (const char *)str, 0, -1);
+    temp_18 = var_22 >> 8;
+    func_002a9100(baseX, baseY, fparg2, temp_18, arg0, (u8 *)baseSpill, arg2, arg4);
+    p = (u8 *)&single;
+    n = 4;
+    if (p != NULL) {
+        do {
+            *p = 0;
+            p++;
+            n--;
+        } while (n != 0);
+    }
+    singleCopy = single;
+    p2 = (u8 *)&rect;
+    n2 = 0x10;
+    if (p2 != NULL) {
+        do {
+            *p2 = 0;
+            p2++;
+            n2--;
+        } while (n2 != 0);
+    }
+    rect.a = (s32)(baseX - 16.0f);
+    rect.b = (s32)(baseY - 16.0f);
+    rect.c = 0x20;
+    rect.d = 0x80;
+    rectCopy = rect;
+    setState = (void *)D_00887300;
+    (*(void (**)(u32, u32))setState)(0xE, 0);
+    (*(void (**)(u32, u32))setState)(0xC, 1);
+    (*(void (**)(u32, u32))setState)(7, 2);
+    (*(void (**)(u32, u32))setState)(9, 1);
+    (*(void (**)(u32, u32))setState)(0x14, 1);
+    (*(void (**)(u32, u32))setState)(6, 0);
+    (*(void (**)(u32, u32))setState)(8, 1);
+    func_003f6440(3, 0x31003);
+    func_003f6440(2, 0x44);
+    func_00489f80();
+    func_0045d6e0(&singleCopy, &rectCopy, 0.0f, 0);
+    func_0048a000();
+    func_00489f80();
+    tmpY2 = baseY + 48.0f;
+    tmpX2 = (f32)0x129 + baseX;
+    func_0025f3f0(tmpX2, tmpY2, fparg2, temp_18, (u8)arg0, 0x1E, 0, *(s32 *)(arg4 + 0x398), 1);
+    mode = temp_16[9];
+    if (mode == 1) {
+        func_0025f3f0(tmpX2 + 17.0f, tmpY2 + 4.0f, fparg2, temp_17, (u8)arg0, 0x1C, 0, *(s32 *)(arg4 + 0x398), 1);
+    } else if (mode == 0) {
+        func_0025f3f0(tmpX2 + 11.0f, tmpY2 + 4.0f, fparg2, temp_17, (u8)arg0, 0x1B, 0, *(s32 *)(arg4 + 0x398), 1);
+    } else {
+        func_0025f3f0(tmpX2 + 21.0f, tmpY2 + 3.0f, fparg2, temp_17, (u8)arg0, 0x1D, 0, *(s32 *)(arg4 + 0x398), 1);
+    }
+    func_0048a000();
+    setState = (void *)D_00887300;
+    (*(void (**)(u32, u32))setState)(6, 0);
+    (*(void (**)(u32, u32))setState)(8, 1);
+    func_003f6440(3, 0x30003);
+    func_003f6440(2, 0x54);
+    func_0025f3f0(tmpX2, tmpY2, fparg2, temp_17, (u8)arg0, 0x1E, 0, *(s32 *)(arg4 + 0x398), 0);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a95c0);
+#endif
 
 /* measured: cyclic saved-register rotation in the 5-int/3-float prologue --
    retail colors arg0->$s0, arg1->$s4, arg2->$s3, arg4->$s2; mwcc b210 always

@@ -91,6 +91,20 @@ s32 func_00268990(s32 arg0) {
    The m2c draft is not compilable (M2C_ERROR blocks); full reconstruction not
    attempted beyond FPU decode. */
 /* measured: candidate object 399 instrs/retail 399 instrs (1596B/1600B, 1 short), probe reloc-masked 12 words (guard below, NON_MATCHING so production stays ASM; fnalign 20 edits +19 reloc-only). Earliest hunks are lwc1 GP-relative pool offsets and D_0063AA80 lq vs immediate color/rect construction; insert at 288 is extra 0043f810 call block. Within 12-variant probe budget for future closing. Banked as floor. Pairs 2026-09-17 (`tools/pragma_sweep.py --pairs`, 8 singles + 28 pairs, banked 12): ties at 12 among dead_off/loopinv/strength_off/unroll_off + 6 pairs among them; peephole 286, cse_off 370, sched 374, prop 423 (pairs 286-441). No pair beats the singles; opclass clean, floor stands. */
+/* 2026-09-18 lead pass, 7 measured variants, floor confirmed at 12 words.
+   The residual is one address: retail computes `addiu $s4, $v0, 0xd0` before
+   the third `func_0043f810` call and derives the fourth destination from it
+   (`addiu $s1, $s4, 0x1c`), where this body recomputes both from the node
+   base after the call.  Same CSE-versus-rematerialise family as 7h-ter.
+   The repeated `entries[i].current` subscript in the two middle copies is
+   LOAD-BEARING and must not be tidied: hoisting it into a local costs
+   12 -> 373, and using `entry->current` instead costs 12 -> 375.  Inlining
+   the `initial`/`target` locals back into their calls costs 12 -> 379, and
+   dropping the `entry` pointer entirely costs 12 -> 21.  Spelling the three
+   scalar reads as `entries[i].mode/.duration/.kind` costs 12 -> 14; spelling
+   `initial`/`target` that way ties at 12.
+   In short the body is at a local optimum in every direction tried; only the
+   pre-call address survives. */
 // FUN_00268230 NONMATCHING
 #ifdef NON_MATCHING
 typedef struct DungeonInColor { u8 r, g, b, a; } DungeonInColor;

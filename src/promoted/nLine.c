@@ -1209,20 +1209,213 @@ s16 func_0034e290(u8 *arg0, s32 arg1) {
     return val;
 }
 
-/* measured: four attempts, best nd 592. With the corrected f0d0 prototype the
-   whole body compiles structurally correct (loop bodies, mult/div alpha
-   chains, sq/lq s128 sp110/sp100 at 0x110/0x100, spFC..spD4 slots, switch
-   dispatch 5,4,3,2,1 all match instruction-for-instruction) but mwcc b210
-   permutes the saved-GPR and saved-FP allocation: temp_16 lands $s2 and
-   temp_18 $s0 (retail $s0/$s2), the four float params rotate to
-   $f25/$f24/$f21/$f20 (retail $f21/$f20/$f23/$f22), f27/f26 to $f30/$f31,
-   and the coalescing cascade spills arg0 to 0x13C (frame 0x140 vs retail
-   0x120) instead of $s7 — tried m2c declaration order, temp_16 first, GPR
-   reorders, and all four params copied to named locals; identical nd 592.
-   Saved-register-rotation floor (same family as func_0034e0b0). Re-attacked
-   wave 14: the f0d0 extern is confirmed floats-first (u8*,f32,f32,f32,f32,u8,
-   u8,u8,u8) from f0d0's own prologue — but e360 is a saved-register/FP rotation
-   floor (mwcc permutes the trivial saved-GPR/FP allocation), not a signature
-   issue; the 20+ f0d0 callsites are byte-correct with the floats-first extern. */
-// FUN_0034E360
+/* measured: GUARDED_SCORE 331 via tools/measure_guarded.py */
+/* src/promoted/nLine.c func_0034e360; fnalign retail 662/object 662 instrs */
+/* exact (2648B emitted/window 2656B, 8B zero tail), 233 edits +11 reloc-only. */
+/* De-noised /var/tmp/cold34e360/m2c.c (259 lines, s128 sp110/sp100, spFC..spD4, */
+/* goto-loops) + romwright.c (211 lines, arity 5) + romwright_raw.c (198 lines) */
+/* + romwright_types.txt (arg0 +0x994/+0x998/+0x99A) + ghidra nLine.c:464-659 + */
+/* ida nLine.c:335-449 + docs/probe_archive/VNLN_0034e360_body.c (334) into file */
+/* idiom (Vec2f, s32 return, 44B NLineDecorationStyle, floats-first f0d0, */
+/* iGpffffa950). Neighbouring opt_loop_invariants/opt_propagation/opt_common_subs */
+/* regions read (ba30, bd60, bea0/c120, c270, d070/d280/d490/d690, ddf0); none */
+/* kept without measurement. Step1 counts exact: no float-to-unsigned lui 0x4f00, */
+/* s16 mode/index correct (retail 3 dsll32), no struct-copy widen, no defensive */
+/* init (directions unset on custom-size path). Step2 pragma_sweep banked 331: */
+/* strength/unroll tie 331, loop 496, dead 498, prop 562, subs 574, peephole 594, */
+/* schedule 616, O3/O4 617, O1 624, O0 767 — no keep. Step3 subscript: byte-offset */
+/* *(f32*)((u8*)style+24+i*4) 493 regress (+162), array-idx tie 334 — P[i] stands; */
+/* base pointer not hoisted (retail reloads each iteration). Step4 decl order: */
+/* direction_y before direction_x 334->331 WINNER (-3, edits 249->233); depth/vert */
+/* ties 334; second round (mode/start/vert-top) all tie 331; expr mulswap + */
+/* split-center tie 331 — two consecutive non-improving (decl2+expr) so bank 331. */
+/* Biggest residual: saved-GPR/FP rotation + stack-slot shifts + slti $at vs $v0 */
+/* at 0x34 + add.s/mul.s operand orientation. verify 26 MATCH/2 ASM/0 MISMATCH; */
+/* lint 0 errors (1 pre-existing H007 warn at c270:449). */
+// FUN_0034E360 NONMATCHING
+#ifdef NON_MATCHING
+typedef struct {
+    s16 count;
+    s32 colors[5];
+    f32 offsets[5];
+} NLineDecorationStyle;
+
+/* Styles 1-4 require a full-width or full-height translated edge. Retail */
+/* does not initialize directions on the custom-size path; style 5 does */
+/* not use them. Do not invent a direction for unsupported combinations. */
+s32 func_0034e360(u8 *arg0, f32 x, f32 y, f32 width, f32 height) {
+    s16 mode;
+    s16 index;
+    Vec2f start;
+    f32 depth;
+    f32 reciprocal;
+    s32 direction_y;
+    s32 direction_x;
+    u8 *vertices;
+
+    mode = *(s16 *)(arg0 + 0x998);
+    index = (s16)(mode - 1);
+    if (mode == 0) {
+        return 0;
+    }
+    depth = D_008872F8[0] - D_0088467C[0];
+    reciprocal = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    vertices = arg0 + 0x9B0;
+    if (width != 640.0f && height != 448.0f) {
+        start.x = x;
+        start.y = y;
+        x += width;
+        y += height;
+    } else if (x < 0.0f) {
+        start.x = 640.0f + x;
+        start.y = y;
+        x = start.x;
+        y = 448.0f + y;
+        direction_x = 1;
+        direction_y = 0;
+    } else if (!(x <= 0.0f)) {
+        start.x = x;
+        start.y = 448.0f + y;
+        direction_x = -1;
+        direction_y = 0;
+    } else if (!(y <= 0.0f)) {
+        start.x = x;
+        start.y = y;
+        x = 640.0f + x;
+        direction_x = 0;
+        direction_y = -1;
+    } else if (y < 0.0f) {
+        start.x = 640.0f + x;
+        start.y = y;
+        direction_x = 0;
+        direction_y = 1;
+    } else {
+        return 0;
+    }
+    switch (mode) {
+    case 1:
+    case 2:
+    case 3:
+    case 4: {
+        NLineDecorationStyle *style;
+        s32 count;
+        s32 selected;
+        s32 i;
+        s32 n;
+        Vec2f center;
+        Vec2f peak_offset;
+        Vec2f gap_offset;
+        style = (NLineDecorationStyle *)D_00752600 + index;
+        count = style->count;
+        selected = *(s16 *)(arg0 + 0x99A);
+        i = 0;
+        n = 0;
+        if (count > 0) {
+            center.x = (start.x + x) / 2.0f;
+            center.y = (start.y + y) / 2.0f;
+            peak_offset.y = 200.0f * (f32)direction_y;
+            peak_offset.x = 200.0f * (f32)direction_x;
+            gap_offset.x = 30.0f * (f32)direction_x;
+            gap_offset.y = 30.0f * (f32)direction_y;
+            while (i < count) {
+                f32 distance;
+                Vec2f shift;
+                u8 *color;
+                u32 alpha;
+                u8 byte_alpha;
+                distance = style->offsets[i];
+                shift.x = (f32)direction_x * distance;
+                shift.y = (f32)direction_y * distance;
+                color = D_00749AC0 + style->colors[i] * 4;
+                if (i == selected) {
+                    alpha = 0;
+                } else {
+                    alpha = (u8)((color[3] * arg0[0x994]) / 255);
+                }
+                byte_alpha = (u8)alpha;
+                if (i == 0) {
+                    func_0034f0d0(vertices + (n++ << 6), x, y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
+                    func_0034f0d0(vertices + (n++ << 6), peak_offset.x + (center.x + shift.x), peak_offset.y + (center.y + shift.y), depth, reciprocal, color[0], color[1], color[2], byte_alpha);
+                    func_0034f0d0(vertices + (n++ << 6), start.x, start.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
+                } else {
+                    f32 previous;
+                    Vec2f previous_shift;
+                    Vec2f peak;
+                    Vec2f edge;
+                    Vec2f inner_peak;
+                    Vec2f other;
+                    previous = 30.0f + style->offsets[i - 1];
+                    previous_shift.x = (f32)direction_x * previous;
+                    previous_shift.y = (f32)direction_y * previous;
+                    shift.x += gap_offset.x;
+                    shift.y += gap_offset.y;
+                    func_0034f0d0(vertices + (n++ << 6), x + shift.x, y + shift.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
+                    peak.y = peak_offset.y + (center.y + shift.y);
+                    peak.x = peak_offset.x + (center.x + shift.x);
+                    func_0034f0d0(vertices + (n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
+                    edge.y = y + previous_shift.y;
+                    edge.x = x + previous_shift.x;
+                    func_0034f0d0(vertices + (n++ << 6), edge.x, edge.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
+                    func_0034f0d0(vertices + (n++ << 6), edge.x, edge.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
+                    func_0034f0d0(vertices + (n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
+                    inner_peak.y = peak_offset.y + (center.y + previous_shift.y);
+                    inner_peak.x = peak_offset.x + (center.x + previous_shift.x);
+                    func_0034f0d0(vertices + (n++ << 6), inner_peak.x, inner_peak.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
+                    func_0034f0d0(vertices + (n++ << 6), inner_peak.x, inner_peak.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
+                    func_0034f0d0(vertices + (n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
+                    other.y = start.y + previous_shift.y;
+                    other.x = start.x + previous_shift.x;
+                    func_0034f0d0(vertices + (n++ << 6), other.x, other.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
+                    func_0034f0d0(vertices + (n++ << 6), other.x, other.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
+                    func_0034f0d0(vertices + (n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
+                    func_0034f0d0(vertices + (n++ << 6), start.x + shift.x, start.y + shift.y, depth, reciprocal, color[0], color[1], color[2], byte_alpha);
+                }
+                ++i;
+            }
+        }
+        if (n >= 0x34) {
+            func_0046d730(&iGpffffa950, 0x67E);
+        }
+        return n;
+    }
+    case 5: {
+        NLineDecorationStyle *style;
+        s32 i;
+        s32 n;
+        style = (NLineDecorationStyle *)D_00752600 + index;
+        i = style->count - 1;
+        n = 0;
+        while (i >= 0) {
+            f32 distance;
+            Vec2f top_left;
+            Vec2f bottom_right;
+            u8 *color;
+            u8 alpha;
+            distance = style->offsets[i];
+            color = D_00749AC0 + style->colors[i] * 4;
+            alpha = (u8)((color[3] * arg0[0x994]) / 255);
+            top_left.y = start.y - distance;
+            top_left.x = start.x - distance;
+            func_0034f0d0(vertices + (n++ << 6), top_left.x, top_left.y, depth, reciprocal, color[0], color[1], color[2], alpha);
+            bottom_right.x = x + distance;
+            func_0034f0d0(vertices + (n++ << 6), bottom_right.x, top_left.y, depth, reciprocal, color[0], color[1], color[2], alpha);
+            bottom_right.y = y + distance;
+            func_0034f0d0(vertices + (n++ << 6), bottom_right.x, bottom_right.y, depth, reciprocal, color[0], color[1], color[2], alpha);
+            func_0034f0d0(vertices + (n++ << 6), top_left.x, top_left.y, depth, reciprocal, color[0], color[1], color[2], alpha);
+            func_0034f0d0(vertices + (n++ << 6), bottom_right.x, bottom_right.y, depth, reciprocal, color[0], color[1], color[2], alpha);
+            func_0034f0d0(vertices + (n++ << 6), top_left.x, bottom_right.y, depth, reciprocal, color[0], color[1], color[2], alpha);
+            --i;
+        }
+        if (n >= 0x34) {
+            func_0046d730(&iGpffffa950, 0x6AC);
+        }
+        return n;
+    }
+    default:
+        func_0046d730(&iGpffffa950, 0x6AF);
+        return 0;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034e360);
+#endif
