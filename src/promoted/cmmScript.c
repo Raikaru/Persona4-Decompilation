@@ -1035,6 +1035,19 @@ s32 func_0024bb00(s32 arg0) {
 /* prototyped u32(void*)/void*(void*) spellings at 8 words (measured */
 /* 2026-09-17) and follows this file's bare-call idiom; production stays */
 /* ASM. */
+/* 2026-09-18 lead pass, 4 more measured variants on top of the permuter's
+   14160 compiles; floor confirmed at 8 words.  168/168 instructions and the
+   whole residual is one saved-register swap: retail allocates the second
+   loop counter to $s0 and the `found` pointer to $s2, this body has them the
+   other way round, and the eight differing words are the eight instructions
+   that name them.
+   Declaration order does not drive it.  Moving `i` above `found` ties at 8,
+   `&base[index * 6]` instead of `base + index * 6` ties at 8, moving `found`
+   to the end of the declaration list costs 8 -> 13, and hoisting `i` to the
+   top of the function costs 8 -> 20.  Retail keeps `base` live past the
+   `found` assignment and this body does not, which is what frees the lower
+   register for the counter there and not here; no source shape tried
+   reproduces that without changing the stream. */
 // FUN_0024BE40 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0024be40(void)
