@@ -954,6 +954,24 @@ void func_00375ec0(u8 *arg0, s32 arg1) {
    `q = p` before each store, a single `q = p` hoisted, storing through `p`
    directly, an s32 intermediate, and s64/u64 intermediates (those add
    dsll32/dsrl32 pairs).  optimization_level 0/2/3/4 are 40/36/36/36. */
+/* 2026-09-18 lead pass, 14 measured variants, floor confirmed at 2 words.
+   The only two differing instructions are offsets 18 and 28: retail has
+   `move $v1, $s2` / `move $a0, $s2`, reusing the base pointer it computed at
+   offset 11 (`addu $s2, $s1, $s0`), where this body recomputes
+   `addu $v1, $s1, $s0`.  Everything else, including the 0x40 frame and the
+   s0/s1/s2 assignment, is identical.
+   The reuse and the frame are mutually exclusive here.  Writing `p->` at the
+   two store sites does produce the copy, but it also makes `arg0` and `idx`
+   dead, so the frame collapses to 0x20 and the score goes to 36; so does a
+   `q = p` pointer copy, a `u8 *` copy, and separate `q1`/`q2` copies.  Turning
+   CSE on has the same effect from the other direction: `opt_common_subs on`,
+   `opt_common_subs on` + `opt_propagation off`, optimization_level 2 and 3,
+   and level 2 + `opt_dead_assignments off` are all 36.  `opt_propagation on`
+   and `opt_dead_assignments off` at level 1 tie at 2.
+   Retail therefore keeps `arg0` and `idx` live across both calls *and* reuses
+   the sum, which b210 will not do from any source shape tried.  Do not spend
+   another session reordering this body; the open question is what third use
+   of `arg0`/`idx` retail's source had. */
 // FUN_00375F00 NONMATCHING
 #ifdef NON_MATCHING
 #pragma optimization_level 1
