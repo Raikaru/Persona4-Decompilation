@@ -267,6 +267,24 @@ flagging differing float positions - 67 such disagreements were still open on
 unprototyped callee promotes `f32` to `double`; measured 329 differing words on
 `func_00354ba0`. Only reach for it when the callee genuinely has no prototype.
 
+### 7a-quinquies. Never expand a float-to-unsigned cast by hand
+
+m2c writes `(u8)f` out as a compare against 2147483648.0f, a subtract, an
+`| 0x80000000` and a mask.  b210 generates that same sequence for the plain
+cast - and its own version colours the temporaries the way retail does, where
+the expanded copy colours them the other way round.  Replacing the expansion
+with `(u8)f` / `(u16)f` / `(u32)f` MATCHed `func_00348330`
+(`src/promoted/y_CmbCardEff.c`, 15 -> 0) and moved `func_0013fb50` 95 -> 34,
+`func_004a4450` 74 -> 66, `func_00263730` 285 -> 274, `func_00130ce0`
+307 -> 299 and `func_00347c70` 56 -> 51.  Two more (`func_00266cc0`,
+`func_003212e0`) tie on words with materially fewer edit groups, and only
+`func_00130680` got worse (300 -> 306).
+
+Grep floors for `| 0x80000000` together with `2147483648.0f` or `2.1474836e9f`;
+the expansion appears in at least six different spellings (`<=`, `>=`, `<`,
+`!(... <= ...)`, a named 2^31 local, and a one-line form), so match on the
+`0x80000000` and read the branch rather than on any one shape.
+
 ### 7a-quater. Do not copy a float parameter into a local
 
 m2c routinely emits `var_f22 = fparg0;` at the top of a function.  b210
