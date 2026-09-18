@@ -1895,6 +1895,28 @@ extern u8 *func_001b0c80(s32 arg0);
    at the read sites, not the write sites, which already agree.  The rest of
    the rows are one-instruction branch displacements that will follow the
    address shape. */
+/* 57 -> 13 (2026-09-18) by handoff 7p, and the next experiment is named
+   below.  Retail forms a row address once and then derives each element
+   address from it at its use - `addu $a0, $v0, $sp` / `addiu $v0, $a0, 0x50`
+   / `lh ($v0)`, later `addiu $v0, $a0, 0x52` / `lh ($v0)` - where this body
+   used to fold the element offset into the load, `lh 2($a0)`.
+   Two element pointers, each dereferenced at offset zero, is worth 57 -> 14,
+   and assigning the second one lazily rather than at its declaration takes
+   it to 13.  Placement of that assignment is load bearing in the same way as
+   func_001c79f0's snapshot: before the `iGpffffb3ac` read 13, right after
+   the first read 13, either side of the `pa68` computation 13, before the
+   first read 14, at the declaration 14, before `*pa68 = var_5` 57, and
+   `b4 = &b3[1]` instead of `b3 + 1` 57.  Rejected: `*(b3 + 1)` without a
+   second pointer 57, byte-offset casts 57, indexing `spbuf[k3]` and
+   `spbuf[k3 + 1]` off a saved index 64.
+   The remaining 13 words say retail's long-lived base is the *row*, not the
+   array: it holds `$sp + index*4` in $a0 and adds 0x50 and 0x52 to it, which
+   means `spbuf` is at offset 0x50 inside a per-row stack structure rather
+   than a standalone `s16 spbuf[128]`.  The next pass should merge the stack
+   arrays of this function into one row struct and index that.  Byte-offset
+   spellings do not reach it: a saved `boff` with `*(s16 *)((u8 *)spbuf +
+   boff)` and `+ boff + 2` costs 57, and mixing it with the pointer form ties
+   at 13. */
 // FUN_001F4E50 NONMATCHING
 #ifdef NON_MATCHING
 s64 func_001f4e50(u8 *arg0) {
@@ -2044,16 +2066,18 @@ s64 func_001f4e50(u8 *arg0) {
     {
         s16 *b3 = &spbuf[((func_00231d70(var_17 & 0xFFFF) & 0xFFFF)) * 2];
         s16 aux;
+        s16 *b4;
         u8 *t215;
         s32 *pa68;
-        var_5 = b3[0];
+        var_5 = *b3;
+        b4 = b3 + 1;
         t215 = iGpffffb3ac;
         pa68 = (s32 *)(t215 + 0xA68);
         if (*(s32 *)(t215 + 0xA68) == var_5) {
             return -1;
         }
         *pa68 = var_5;
-        aux = b3[1];
+        aux = *b4;
         if (aux >= 0) {
             switch (aux) {
             case 2:

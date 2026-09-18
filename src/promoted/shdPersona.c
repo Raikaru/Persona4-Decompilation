@@ -1003,26 +1003,7 @@ void func_0045dfd0(f32, void *, void *, s32, s32, s32);
 void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg2, u8 arg3, u8 arg4, u32 arg5,
                    u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
-/* measured: fully decoded, best nd 858 (obj 2992B / window 3632B) at attempt 2.
-   The sp120-sp12B byte block and the spE0-spF4 float block must be ARRAYS
-   (`u8 sp120[16]; f32 spE0[6];`) or mwcc dead-store-eliminates all but the
-   address-taken element (frame drops to 0xD0 vs retail 0x140). Remaining
-   floors, all documented families: (1) the (u8)(s32) 0x4F000000 overflow
-   branches on `255.0f * (f/255.0f)` and `(f1/30.0f) * ((f*f)/255.0f)` style
-   products are eliminated by mwcc's float range analysis (the func_00119210
-   family — retail keeps them); the bltz abs-else on the raw lbu 0x505 DOES
-   survive; (2) the mula.s/msub.s accumulator pairs (the f21 = a*b - c*d
-   chains in the <5 branch and the sp134 = f - f21*f1 expressions) need the
-   exact product-operand order; (3) the D_00887300 base hoist (same as
-   19e10 — retail caches the base in a saved reg, mwcc rematerialises);
-   (4) the loop's adda.s/madd.s fusions for sp130/sp134 (91.0f/0x22D seeds
-   are mwcc's acc seeds — the source is `0.0f + seed + a*b` forms per the
-   func_00118a20 finding). func_0044b7b0 calls in the loop are ONE-arg
-   (m2c's 2-arg forms were hallucinations); func_00117980 is
-   (u8 *) single-arg (the m2c's 2-arg call in func_00119e10 was stale
-   registers); func_0045dfd0's first arg is the f32 0.0f. New symbols:
-   iGpffff9c10-13 = gp-0x63F0..-0x63ED = 0x00762D00..03, iGpffff81e0 =
-   gp-0x7E20 = 0x007612D0 (added to symbol_data_addrs). */
+/* refused: cold 2026-09-18 00117980 -- object 839 vs retail 907 = -68 (-7.5%), band 880-934 (3% gate), must not bank. Candidate at /var/tmp/cold117980/final_noblock.c (379 lines; also v1.c/guarded.c/m2c.c/rw.c in same dir), fnalign --candidate edit 721 +4 reloc-only, probe GUARDED_SCORE 833. Gross 284 retail-long minus 216 object-long = 68 net. Largest retail-long by index/length: replace [321:366] 45-vs-1 net+44 (lbu-0x505/bltz/cvt/div/mul/c.le/bc1t/cvt.w/mfc1/andi/sub/cvt.w/mfc1/or/andi overflow chain for (1-f20)*255*(b505/255) in the pu&2==0 arm), replace [271:300] 29-vs-1 net+28 (cvt.s.w/srl/andi/or/mtc1/cvt/add + 437f div/mul + 4f00 c.le/bc1t/cvt.w/mfc1/andi/sub chain for col=(int)(fc*f20)), replace [493:513] 20-vs-1 net+19 (div.s + div/div-mfhi/bnez + b34d/1353 lui-ori color select + div/mflo/mfhi/sll/addu for i/3 lane index), replace [753:770] 17-vs-1 and [863:880] 17-vs-1 net+16 each (c.le/bc1t/cvt.w/mfc1/andi/sub/cvt.w/mfc1/or/andi + sd-zero spills for f20*4096 and f20*af*4096 before the two 0034f4a0 calls), delete [409:425] 16-vs-0 (sp120/spE0 init sb/sw block; object has same 16 at insert [408:408] 0-vs-16, scheduling move only), delete [67:76] 9-vs-0 and [481:490] 9-vs-0 (srl/andi/or/mtc1/cvt/add unsigned-conversion tails for the two lbu-0x505 sites) plus [62:64] 2-vs-0 (bltz), [463:466] 3, [745:746]/[855:856] 1 each. jal: retail 15 (4x003f6440, 3x003657d0, 2x0034f4a0, 3x0044b7b0, 1x0044b610, 1x0045dfd0, 1x003b7060) vs object 16 (same +1 extra 0044b7b0 from duplicated cnt<4/5 handling) -- omitted-call excluded (object has every retail call). Excluded: dropped else arm (3/3 arms pu&1==0 / pu&2==0 / else present), off-by-one loop bound (24/4/3/5 match: i<0x18, k<4, n=3 B0 copy, n=5 sp100 copy), per-lane collapse (3/3 static 003657d0: 24-loop + 4-loop + final; no lane folded), folded switch (no switch; if/else chain counts match), cached pointer (retail caches 0x458 base in $s1 `addiu $s1,$s4,0x458` then `lhu ($s1)/2($s1)`, object recomputes `0x458($s4)/0x45c/0x45a` -- makes object LONGER, e.g. [239:240] 1-vs-36 net-35 and [749:751]/[859:861] 2-vs-20 net-18 each, so excluded as shortfall cause; second-pass caching would close excess not shortfall, unlike the 642->686 worker), missing aggregate spills (frame both 0x140, addiu at index0 matches and drops out of diff; ra spill 0xa0 vs 0x90 is saved-reg coloring $s6/$s5 vs $s5/$s4 plus object f25/f24/f23 spills at 0x1c-0x24, not size; unlike the -341->+167 UV case, sp120[16]/spE0[6] arrays already hold 0x140 and more stores would overshoot). Cause is mwcc float-range elimination of the 0x4F000000 guards and unsigned tails (00119210 family): retail keeps 16-45 instrs per guard, object folds to 1 (cvt.s.w or sub.s). Next pass starts from the saved candidate and must recover one guard chain without adding UV/stack. */
 // FUN_00117980
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00117980);
 

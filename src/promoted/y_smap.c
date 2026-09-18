@@ -470,8 +470,218 @@ void func_002ae520(u8 *arg0) {
    002b1480 (recorded above). Rest of the draft (func_002b0250 8-arg tile
    loop, func_002b2970/2a60/2830/3990 calls, D_007E8C00/D_007E80A0 loops)
    is intact but untestable without the two expressions. */
-// FUN_002AE630
+/* measured: cold2ae630 first reconstruction (876 instrs). m2c fails outright on jr/jtbl at line 129 (jtbl_00748820 6 entries 0:1f0,2:380,4:50c) so romwright carried it (299 lines, arity 1 pointer, 43 tile-loop 00155280 sites matching retail 43). De-noised to file idiom reusing YVec3f/YVec2f/D_007E80A0/D_007E8C00/D_007EFA04/D_00764644/5C/60/00155280/002b2970/00451fc0. v0 783 (single hoisted q, 677/874 -22% short, missing jals). v1 expanded to 43 calls 810 but 916/876 +4.6% over. Free pragmas on v1: common_off 831, loop_on 813, unroll/sched tie 810 (none kept). Subscript ((u8**)(blk+0x148))[tny*16+tnx] 810->777 (-33, kept) and 916->888. s16 counters 777->842 regress. Minloc drop dead dx/dy/nx/ny tie 777. loop_on on minloc 777->791 regress. Two colourings (blk/res swap, f1/f2 swap) tie 777. Best minloc 777, obj 888/retail 876 +1.4% inside gate (850-902), fnalign 729 edits+22 reloc-only. Residuals: 4 missing 2830 stores (void callee, cannot use return without breaking its MATCH), FPU madd adda/madd canonicalization in D_007E80A0 loop, callee-saved spill choices, s128 staging. */
+// FUN_002AE630 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_002ae630(u8 *arg0) {
+    extern s8 D_0063EEE0[];
+    extern s8 D_0063EF00[];
+    extern s8 D_0063EF20[];
+    extern s8 D_0063EF40[];
+    extern u8 *func_002b0250(u8 *, s8, s8, u8, s8, s8, u8, u8);
+    extern void func_002b2830(u8 *, YVec2f, f32, f32, u32);
+    extern void func_002B1100(void *, u32, u32);
+    extern f32 func_002b13e0(YVec3f *, f32);
+    extern f32 func_002b1480(YVec3f *, f32);
+    extern s32 func_002b3990(s32);
+    extern s32 func_002b4140(s32, s8, u8 *);
+    extern s32 func_002b4fe0(s32, s64, s8);
+    extern s32 func_002b6590(s32, s16, s32);
+    extern void *func_0047a2f0(s32);
+    extern u8 *func_001452b0(s32);
+    extern void func_002b2a60(u8 *, s32, s32, s32, s32);
+    extern s32 func_002add90(u8 *);
+    extern void func_002ae520(u8 *);
+    u8 *blk;
+    u8 *res;
+    s32 t1;
+    s32 t2;
+    YVec3f v0;
+    YVec2f w1;
+    YVec2f w2;
+    YVec2f w3;
+    YVec2f w4;
+    u32 c1;
+    u32 c2;
+    u32 c3;
+    u32 c4;
+    f32 f1;
+    f32 f2;
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 m;
+    u8 *node;
+    s32 idx;
+    u8 *tmp;
+    u8 *v2;
+    func_0044ea90(D_0063EF60, 0x389);
+    blk = D_008873F4[0](1, 0x768, 0x40000);
+    res = (u8 *)func_00451fc0((s32)arg0, D_0063EFD8, 0xF, 0, 0, (void (*)(u8 *))func_002add90, (void (*)(u8 *))func_002ae520, blk);
+    *(u8 **)blk = blk;
+    *(blk + 4) = 0;
+    t1 = func_001687d0(*(u8 **)(D_007EFA04 + 0x220)) & 0xFF;
+    t2 = func_001687e0(*(u8 **)(D_007EFA04 + 0x220)) & 0xFF;
+    func_002B1100(&v0, (u32)t1, (u32)t2);
+    *(YVec3f *)(blk + 8) = v0;
+    D_00764660 = (u8)func_002B11C0(*(RwV3d *)(blk + 8));
+    D_0076465C = (u8)func_002B1210(*(RwV3d *)(blk + 8));
+    *(blk + 0x20) = 0x12;
+    for (i = 0; i < 0x18; i++) {
+        u8 *row;
+        s32 base;
+        row = blk + (i << 6);
+        base = i << 8;
+        for (j = 0; j < 0x10; j++) {
+            s32 col;
+            col = j * 0x10;
+            if (*(u8 *)(base + (u32)func_00155280() + col + 0x54) != 0 && ((*(u8 *)(base + (u32)func_00155280() + col + 0x55) & 0xF) == 1)) {
+                if (*(u8 *)(base + (u32)func_00155280() + col + 0x58) < 9) {
+                    if (*(s8 *)(base + (u32)func_00155280() + col + 0x58) == 2) {
+                        s8 tdx;
+                        s8 tdy;
+                        s32 tnx;
+                        s32 tny;
+                        tdx = D_0063EF40[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2];
+                        tdy = D_0063EF40[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 1];
+                        tnx = j + (s32)tdx;
+                        tny = i + (s32)tdy;
+                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (s8)(tnx & 0xFF), (s8)(tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        tdx = D_0063EF40[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 8];
+                        tdy = D_0063EF40[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 9];
+                        tnx = j + (s32)tdx;
+                        tny = i + (s32)tdy;
+                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (s8)(tnx & 0xFF), (s8)(tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                    } else {
+                        ((u8 **)(blk + 0x148))[i * 16 + j] = func_002b0250(res, (s8)j, (s8)i, *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                    }
+                } else {
+                    switch (*(u8 *)(base + (u32)func_00155280() + col + 0x58)) {
+                    case 9:
+                    case 10: {
+                        s8 tdx;
+                        s8 tdy;
+                        s32 tnx;
+                        s32 tny;
+                        tdx = D_0063EEE0[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2];
+                        tdy = D_0063EEE0[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 1];
+                        tnx = j + (s32)tdx;
+                        tny = i + (s32)tdy;
+                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (s8)(tnx & 0xFF), (s8)(tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        tdx = D_0063EEE0[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 8];
+                        tdy = D_0063EEE0[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 9];
+                        tnx = j + (s32)tdx;
+                        tny = i + (s32)tdy;
+                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (s8)(tnx & 0xFF), (s8)(tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        break;
+                    }
+                    case 11:
+                    case 12: {
+                        s8 tdx;
+                        s8 tdy;
+                        s32 tnx;
+                        s32 tny;
+                        tdx = D_0063EF00[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2];
+                        tdy = D_0063EF00[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 1];
+                        tnx = j + (s32)tdx;
+                        tny = i + (s32)tdy;
+                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (s8)(tnx & 0xFF), (s8)(tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        tdx = D_0063EF00[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 8];
+                        tdy = D_0063EF00[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 9];
+                        tnx = j + (s32)tdx;
+                        tny = i + (s32)tdy;
+                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (s8)(tnx & 0xFF), (s8)(tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        break;
+                    }
+                    case 13:
+                    case 14: {
+                        s8 tdx;
+                        s8 tdy;
+                        s32 tnx;
+                        s32 tny;
+                        tdx = D_0063EF20[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2];
+                        tdy = D_0063EF20[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 1];
+                        tnx = j + (s32)tdx;
+                        tny = i + (s32)tdy;
+                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (s8)(tnx & 0xFF), (s8)(tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        tdx = D_0063EF20[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 8];
+                        tdy = D_0063EF20[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 9];
+                        tnx = j + (s32)tdx;
+                        tny = i + (s32)tdy;
+                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (s8)(tnx & 0xFF), (s8)(tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        tdx = D_0063EF20[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 0x10];
+                        tdy = D_0063EF20[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 0x11];
+                        tnx = j + (s32)tdx;
+                        tny = i + (s32)tdy;
+                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (s8)(tnx & 0xFF), (s8)(tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 3, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        break;
+                    }
+                    }
+                }
+            }
+        }
+    }
+    func_002b2970(&w1, 17.0f, 150.0f);
+    func_002b2a60((u8 *)&c1, 0x80, 0x80, 0x80, 0);
+    func_002b2830(res, w1, 240.0f, 120.0f, c1);
+    func_002b2970(&w2, 148.0f, 249.0f);
+    func_002b2a60((u8 *)&c2, 0x80, 0, 0, 0);
+    func_002b2830(res, w2, 150.0f, 231.0f, c2);
+    func_002b2970(&w3, 0.0f, 395.0f);
+    func_002b2a60((u8 *)&c3, 0, 0x80, 0, 0);
+    func_002b2830(res, w3, 151.0f, 121.0f, c3);
+    func_002b2970(&w4, 0.0f, 150.0f);
+    func_002b2a60((u8 *)&c4, 0, 0, 0x80, 0);
+    func_002b2830(res, w4, 23.0f, 395.0f, c4);
+    *(s32 *)(blk + 0xCC) = func_002b3990((s32)res);
+    for (k = 0; k < 0xF; k++) {
+        s32 ok;
+        u8 *e;
+        ok = 0;
+        e = D_007E8C00 + k * 0x750;
+        if (*(s32 *)(e + 0x48) != 0 && *(s32 *)(e + 0x54) != 0) {
+            ok = 1;
+        }
+        if (ok == 1) {
+            *(s32 *)(blk + k * 4 + 0xD8) = func_002b4a10(res, (s8)k);
+        }
+    }
+    tmp = func_0046d200(D_00764644, 0x12);
+    for (m = 0; m < 8; m++) {
+        u8 *e;
+        e = D_007E80A0 + m * 0x168;
+        if (*(s32 *)e != 0) {
+            YVec3f *p;
+            s32 ti;
+            f32 tf;
+            p = (YVec3f *)(e + 0x150);
+            ti = func_002B11C0(*(RwV3d *)p);
+            tf = func_002b13e0(p, 18.0f);
+            f1 = ((f32)ti * 18.0f + 172.0f - tf) - 2.0f;
+            ti = func_002B1210(*(RwV3d *)p);
+            tf = func_002b1480(p, 18.0f);
+            f2 = ((f32)ti * 18.0f + 9.0f - tf) - 2.0f;
+            *(s32 *)(blk + m * 4 + 0x114) = func_002b4fe0((s32)res, *(s64 *)&f1, (s8)m);
+        }
+    }
+    func_0046d280(tmp);
+    *(s32 *)(blk + 0x748) = func_002b6590((s32)res, 0xC, D_00764644);
+    *(s32 *)(blk + 0x74C) = func_002b6590((s32)res, 0xD, D_00764644);
+    node = func_001452b0(3);
+    idx = 0;
+    *(s32 *)(blk + 0xD4) = 0;
+    *(s32 *)(blk + 0xD0) = 0;
+    while (node != NULL) {
+        v2 = func_0047a2f0(*(s32 *)(node + 0x164));
+        *(s32 *)(blk + idx * 4 + 0xD0) = func_002b4140((s32)res, (s8)idx, (u8 *)(v2 + 0x30));
+        idx++;
+        node = *(u8 **)(node + 0x138);
+    }
+    return res;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002ae630);
+#endif
 
 /* measured: re-derived v1 (probe_variants 410 base; prior 414->405->408 history stands; measure_guarded base obj 1916B/window 1936B 410; fnalign base retail 482 obj 479, 266 edits). 3% check base: 1916B in 1878-1994B (1.0% under) — bankable. pragma_sweep singles (incl. level 0/1/3/4): dead_assign off 406 + loop_invariants on 406 (both -4, best), strength/unroll 410 tie, schedule on 416, propagation off/level4 423, level3 428, peephole 434, common/level1 466, level0 532. Banked with opt_loop_invariants on (one of the three gated singles): measure_guarded obj 1944B/window 1936B GUARDED_SCORE 406 (0.4% over, 1878-1994B within); fnalign retail 484 obj 486, 254 edits. TU-strict: (s32)/(s8)/(s16)/(f32)/(u8 *)(u32)/YVec2f-by-value/(s32)46d200 casts. Residuals: j/k/row rotation + ok-beqz vs sltu. verify ASM (prod ASM), lint 0e/1w (pre-existing 2290 H003; guarded pragma hidden), -DNON_MATCHING compiles (28K). */
 // FUN_002AF3E0 NONMATCHING
