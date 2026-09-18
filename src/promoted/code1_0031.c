@@ -68,7 +68,19 @@ void func_00311900(s64 arg0)
    -O2 plus `opt_common_subs off` is 5 again with the same conversion residual,
    and dropping the mask (`func_00107ac0(arg0)` or a u16 local) does not stop
    the CSE.  A real MATCH needs a body whose saved-register demand is retail's
-   eight values at plain -O2; the pragma is a crutch, not a floor. */
+   eight values at plain -O2; the pragma is a crutch, not a floor.
+   2026-09-18 follow-up, all at plain -O2 and all 32 words: a u16-parameter
+   prototype for func_00107ac0 (148/148 instructions but then no `andi` at
+   all), an s32-parameter prototype with and without the explicit mask, a K&R
+   prototype, an s32 `arg0` with `(u16)arg0` at each call, and an s32 `arg0`
+   with the mask kept.  b210 always folds the three masks into one saved
+   register where retail rematerialises `andi $a0, $s5, 0xffff` at each call.
+   Both compilers use eight saved values, so this is not register pressure:
+   retail keeps `arg0` raw and pays three `andi`, b210 keeps the masked value.
+   At optimization_level 1 the conversion always clobbers its own source
+   register - micro-tested with the value live afterwards, with a second float
+   in flight, and with a second use of the integer result - so the five words
+   are not reachable from either setting with this body shape. */
 // FUN_00311930 NONMATCHING
 #ifdef NON_MATCHING
 /* Re-certified under scoped optimization_level 1: object 596B / window */
