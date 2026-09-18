@@ -305,6 +305,19 @@ s32 func_003319c0(void) {
    twenty-two declaration permutations measured across the other five
    members of this class all failed the same way; one or two probes here is
    the right budget. */
+/* 2026-09-18: probed against handoff 7o (the lever that took func_001eca10
+   from 11 to a match) and the floor stands at 24.  The pair is the same
+   $s2/$s3 exchange: retail colours `work` $s2 and `level` $s3, this body has
+   them the other way round, and 22 of the 24 differing words are the
+   instructions naming them.  7o does not apply because both are already in
+   its form - uninitialised declarations assigned as statements.  Measured:
+   declaring `level` first ties at 24, declaring `work` last ties at 24,
+   assigning `level = level_value` next to the computation instead of at the
+   loop costs 202 (with either declaration order), assigning `work` after
+   `level_value` costs 38.  The value form is not it either: `level` as s16
+   costs 169, dropping `level` and comparing `level_value` directly costs 133,
+   and folding the two into one s32 costs 202.  Retail re-extends the s16 at
+   each use where this body extends once; that is the residual. */
 // FUN_00331A20 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00331a20(u8 *arg0)

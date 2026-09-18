@@ -235,8 +235,249 @@ void func_004afc80(u8 *arg0, u8 *arg1) {
     *(f32 *)(arg1 + 0x18) = (1.0f - temp_f20_3) + temp_f20_3 * func_004bd0b0(0);
 }
 
-// FUN_004AFE20
+/* measured GUARDED_SCORE 725: retail 792 vs object 796 (+4, +0.5% inside 3% gate), probe 725 words, fnalign 884 edits (+2 reloc-only). Priced casts via micro_codegen (u8->f32 14 vs s32 mask 4, u32 14 vs s32 3, srl+andi long 17 vs sra short 6); kept per-channel unsigned (lbu+bltz) to match retail long. Free pragmas tie (loopinv/unrolloff/schedoff 746, comsuboff 824 worse); subscript byte-offset wins 746->725 (-21), direct ties; colours tie (both 725). Branch order alpha-first 746 wins vs unpack-first 755. Frame -0x1E0 vs -0x1D0 (+16) with extra f25, UV single-base vs 8 separate lui, FPR $f24 vs $f21 and saved-reg perm. Verify 0 MISMATCH (11 MATCH/1 ASM), lint 0 errors. Banked as guarded floor. */
+// FUN_004AFE20 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, s32 arg6, s32 arg7)
+{
+    extern void func_003f6690(s32 param, void *out);
+    extern void func_003f6440(s32 param, s32 value);
+    extern f32 func_0044b610(f32 param);
+    extern f32 func_0044b7b0(f32 param);
+    extern u8 *func_00457120(void);
+    extern void func_003e42a0(void *a, void *b, void *c);
+    extern void func_00489f80(void);
+    extern void func_0048a000(void);
+    extern void func_0048a0e0(void);
+    extern s32 (*D_00887310[])(s32, void *, s32);
+    extern f32 D_008872F8;
+    extern f32 D_008872FC;
+    extern f32 fGpffff8084;
+    extern f32 fGpffff80f0;
+    extern f32 D_00714570[];
+    s32 cw_stack;
+    s32 packed;
+    s32 packed_copy;
+    s32 st2;
+    s32 st3;
+    f32 t0;
+    f32 t1;
+    f32 f22;
+    f32 f23;
+    f32 base;
+    f32 c0;
+    f32 c1;
+    f32 v0;
+    f32 v1;
+    s32 mode;
+    u8 *cam;
+    f32 in_x[3];
+    f32 out_x[3];
+    f32 depth;
+    f32 inv;
+    f32 ang;
+    f32 s0;
+    f32 c0b;
+    f32 f8;
+    f32 f7;
+    f32 f6;
+    f32 f5;
+    f32 verts[64];
+    s32 is_out;
+    s32 uv_off;
+    cw_stack = *(s32 *)((u8 *)arg2 + 0x14);
+    {
+        s32 scale = iGpffff81f4;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "nop                   \n"
+            "qmtc2.ni %1, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "lqc2 $vf11, 0(%2)     \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0(%3)          \n"
+            :
+            : "r"(&cw_stack), "r"(scale), "r"(arg4), "r"(&packed)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+    }
+    packed_copy = packed;
+    if (((u8 *)&packed_copy)[3] == 0) {
+        return 0;
+    }
+    func_003f6690(2, &st2);
+    func_003f6690(3, &st3);
+    base = *(f32 *)((u8 *)arg2 + 0x18);
+    c0 = *(f32 *)(arg1 + 0x0);
+    v0 = *(f32 *)(arg1 + 0x8);
+    t0 = base + v0 * func_0044b610(c0);
+    c1 = *(f32 *)(arg1 + 0xC);
+    v1 = *(f32 *)(arg1 + 0x14);
+    t1 = base + v1 * func_0044b610(c1);
+    mode = arg6 & 0xFF;
+    if (mode == 1) {
+        u32 denom;
+        u32 abyte;
+        f32 alpha;
+        if (*(f32 *)(arg0 + 0x28) < fGpffff80f0) {
+            return 0;
+        }
+        if (*(f32 *)(arg0 + 0x2C) < fGpffff80f0) {
+            return 0;
+        }
+        cam = func_00457120();
+        denom = *(u32 *)(*(u8 **)(*(u8 **)(arg0 + 0x5C) + 0x20) + 0x50);
+        abyte = (u32)*(s32 *)((u8 *)arg2 + 0x14) >> 24;
+        alpha = (255.0f * (f32)abyte) / (f32)denom;
+        if (alpha >= 2147483648.0f) {
+            ((u8 *)&packed_copy)[3] = (u8)(s32)(alpha - 2147483648.0f);
+        } else {
+            ((u8 *)&packed_copy)[3] = (u8)(s32)alpha;
+        }
+        f23 = *(f32 *)(arg1 + 0x18) * (*(f32 *)(arg0 + 0x28) * ((((f32 *)arg5)[0] * t0) / 32.0f));
+        f22 = *(f32 *)(arg1 + 0x18) * (*(f32 *)(arg0 + 0x2C) * ((((f32 *)arg5)[1] * t1) / 32.0f));
+        verts[0*16+8] = 255.0f;
+        verts[0*16+9] = 255.0f;
+        verts[0*16+10] = 255.0f;
+        verts[0*16+11] = (f32)((u8 *)&packed_copy)[3];
+        verts[1*16+8] = 255.0f;
+        verts[1*16+9] = 255.0f;
+        verts[1*16+10] = 255.0f;
+        verts[1*16+11] = (f32)((u8 *)&packed_copy)[3];
+        verts[2*16+8] = 255.0f;
+        verts[2*16+9] = 255.0f;
+        verts[2*16+10] = 255.0f;
+        verts[2*16+11] = (f32)((u8 *)&packed_copy)[3];
+        verts[3*16+8] = 255.0f;
+        verts[3*16+9] = 255.0f;
+        verts[3*16+10] = 255.0f;
+        verts[3*16+11] = (f32)((u8 *)&packed_copy)[3];
+    } else if (mode == 0) {
+        f23 = (((f32 *)arg5)[0] * t0) / 32.0f;
+        f22 = (((f32 *)arg5)[1] * t1) / 32.0f;
+        verts[0*16+8] = (f32)((u8 *)&packed_copy)[0];
+        verts[0*16+9] = (f32)((u8 *)&packed_copy)[1];
+        verts[0*16+10] = (f32)((u8 *)&packed_copy)[2];
+        verts[0*16+11] = (f32)((u8 *)&packed_copy)[3];
+        verts[1*16+8] = (f32)((u8 *)&packed_copy)[0];
+        verts[1*16+9] = (f32)((u8 *)&packed_copy)[1];
+        verts[1*16+10] = (f32)((u8 *)&packed_copy)[2];
+        verts[1*16+11] = (f32)((u8 *)&packed_copy)[3];
+        verts[2*16+8] = (f32)((u8 *)&packed_copy)[0];
+        verts[2*16+9] = (f32)((u8 *)&packed_copy)[1];
+        verts[2*16+10] = (f32)((u8 *)&packed_copy)[2];
+        verts[2*16+11] = (f32)((u8 *)&packed_copy)[3];
+        verts[3*16+8] = (f32)((u8 *)&packed_copy)[0];
+        verts[3*16+9] = (f32)((u8 *)&packed_copy)[1];
+        verts[3*16+10] = (f32)((u8 *)&packed_copy)[2];
+        verts[3*16+11] = (f32)((u8 *)&packed_copy)[3];
+    }
+    in_x[0] = *(f32 *)((u8 *)arg3 + 0x0);
+    in_x[1] = *(f32 *)((u8 *)arg3 + 0x4);
+    in_x[2] = *(f32 *)((u8 *)arg3 + 0x8);
+    cam = func_00457120();
+    func_003e42a0(out_x, in_x, cam + 0x20);
+    {
+        f32 nx = out_x[1] / out_x[2];
+        f32 ny = out_x[0] / out_x[2];
+        if (ny < -2.0f || ny > 2.0f || nx < -2.0f || nx > 2.0f) {
+            is_out = 1;
+        } else {
+            is_out = 0;
+        }
+        if (is_out != 0) {
+            return 0;
+        }
+    }
+    {
+        u8 *c2;
+        f32 zf;
+        f32 wf;
+        depth = D_008872FC;
+        wf = D_008872F8;
+        c2 = func_00457120();
+        zf = *(f32 *)(c2 + 0x84);
+        c2 = func_00457120();
+        depth = (*(f32 *)(c2 + 0x80) / out_x[2]) * (out_x[2] - zf) * ((wf - depth) / (*(f32 *)(c2 + 0x80) - zf)) + depth;
+        if (depth < 0.0f) {
+            depth = 0.0f;
+        }
+        inv = 1.0f / depth;
+        ang = *(f32 *)((u8 *)arg2 + 0x1C) + fGpffff8084;
+        s0 = func_0044b610(ang);
+        c0b = func_0044b7b0(ang);
+        f8 = f23 * s0;
+        f7 = f22 * s0;
+        f6 = f23 * c0b;
+        f5 = f22 * c0b;
+        verts[0*16+4] = 0.0f;
+        verts[0*16+5] = 0.0f;
+        verts[1*16+4] = 1.0f;
+        verts[1*16+5] = 0.0f;
+        verts[2*16+4] = 0.0f;
+        verts[2*16+5] = 1.0f;
+        verts[3*16+4] = 1.0f;
+        verts[3*16+5] = 1.0f;
+        verts[0*16+0] = 640.0f * ((out_x[0] + (-f8 + f5)) / out_x[2]);
+        verts[0*16+1] = 448.0f * ((out_x[1] - (-f6 - f7)) / out_x[2]);
+        verts[0*16+2] = depth;
+        verts[0*16+6] = inv;
+        verts[1*16+0] = 640.0f * ((out_x[0] + (f8 + f5)) / out_x[2]);
+        verts[1*16+1] = 448.0f * ((out_x[1] - (f6 - f7)) / out_x[2]);
+        verts[1*16+2] = depth;
+        verts[1*16+6] = inv;
+        verts[2*16+0] = 640.0f * ((out_x[0] + (-f8 - f5)) / out_x[2]);
+        verts[2*16+1] = 448.0f * ((out_x[1] - (-f6 + f7)) / out_x[2]);
+        verts[2*16+2] = depth;
+        verts[2*16+6] = inv;
+        verts[3*16+0] = 640.0f * ((out_x[0] + (f8 - f5)) / out_x[2]);
+        verts[3*16+1] = 448.0f * ((out_x[1] - (f6 + f7)) / out_x[2]);
+        verts[3*16+2] = depth;
+        verts[3*16+6] = inv;
+        if (mode == 1) {
+            func_003f6440(2, 0x42);
+            D_00887310[0](4, verts, 4);
+        } else if (mode == 0) {
+            u8 *tbl;
+            tbl = (u8 *)func_00481300(0x15);
+            D_00887300[0](1, *(u32 *)tbl);
+            func_00489f80();
+            func_003f6440(2, 0x44);
+            func_003f6440(3, 0x31001);
+            D_00887310[0](4, verts, 4);
+            func_0048a000();
+            D_00887300[0](1, *(u32 *)(arg0 + 0x60));
+            func_003f6440(2, st2 | 0x10);
+            uv_off = (arg7 & 0xFF) << 5;
+            verts[0*16+4] = *(f32 *)((u8 *)D_00714570 + uv_off + 0);
+            verts[0*16+5] = *(f32 *)((u8 *)D_00714570 + uv_off + 4);
+            verts[1*16+4] = *(f32 *)((u8 *)D_00714570 + uv_off + 8);
+            verts[1*16+5] = *(f32 *)((u8 *)D_00714570 + uv_off + 12);
+            verts[2*16+4] = *(f32 *)((u8 *)D_00714570 + uv_off + 16);
+            verts[2*16+5] = *(f32 *)((u8 *)D_00714570 + uv_off + 20);
+            verts[3*16+4] = *(f32 *)((u8 *)D_00714570 + uv_off + 24);
+            verts[3*16+5] = *(f32 *)((u8 *)D_00714570 + uv_off + 28);
+            D_00887310[0](4, verts, 4);
+            func_0048a0e0();
+        }
+        func_003f6440(2, st2);
+        func_003f6440(3, st3);
+        return 0;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/effDistortParticle", func_004afe20);
+#endif
 
 // FUN_004B0A80
 void func_004b0a80(u8 *arg0) {

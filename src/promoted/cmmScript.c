@@ -1048,6 +1048,14 @@ s32 func_0024bb00(s32 arg0) {
    `found` assignment and this body does not, which is what frees the lower
    register for the counter there and not here; no source shape tried
    reproduces that without changing the stream. */
+/* 2026-09-18, handoff 7o re-probe by a dedicated worker; floor stands at 8.
+   168/168 instructions, 672/672 bytes, and the pair is $s0/$s2: retail holds
+   the second loop's counter in $s0 and the found-pointer in $s2, this body
+   the other way round.  All eight 7o variants measured - bare declarations
+   in retail computation order at function scope 8 (tie), reversed order 76,
+   found-pointer at block scope 11 / 79, counter at block scope 13 / 81, both
+   at block scope 16 / 84.  Every reversal of the assignment order is a large
+   regression, so the order this body already uses is retail's. */
 // FUN_0024BE40 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0024be40(void)

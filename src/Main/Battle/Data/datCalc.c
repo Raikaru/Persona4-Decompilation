@@ -3170,22 +3170,364 @@ s32 func_00242800(u8 *arg0, s32 arg1)
     return func_0023a6b0(arg0, arg1);
 }
 
-/* measured: nd 170 after 4 attempts. All 8 skill-search loops match
-   (while+goto-done form, opt_loop_invariants hoist, (u16)var_5 body
-   masks), the 0x231/0x232/0x210/0x20F/0x211-0x222 dispatch and the
-   func_00106600/0x3C-0x3E checks compile in retail shape, but the
-   0x210/0x20F block section lays out ~0x90 earlier (block_161 and the
-   &4-else goto target shifts, branch targets differ) and the
-   return-0x231/-1 early returns share the final move block instead of
-   retail's per-site moves. The (s16)var_17==-1 tests, 47cb0/107ac0 tail
-   and index-first addu need the off-local form.
-   Wave 14: no m2c draft found for 0x42990; the asm head confirms a
-   2-arg signature (s32 arg1 in $5, masked to $16) — no lever-1 width
-   defect. Residual verified as block-layout + shared-return-move
-   placement (not base-load sinking; pragma+helper not applicable).
-   Corroborated layout floor. */
-// FUN_00242990
+/* measured: fndiff 1 word (reloc-masked), fnalign 2 edits (plus 43 reloc-only), obj 813 instrs / retail 813 instrs (window 3264B, 12B under, 0.4% inside 3% gate). Baseline 172 edits / 750 words at 812/812; all-fresh counters 172->68 edits; loopinv 68->20; head temp_16 reuse 20->14; s16 value 14->3 edits / 558->2 words; tail (u16) mask 2->1 word / 3->2 edits. Free pragmas: loopinv 752, unroll/sched tie 750, commonsubs 578 words but 207 edits (rejected for edits). Subscript P[i] neutral 172; reuse temp_16 alone 246 edits (rejected). Decl swaps tie 172; fresh-first 159. All 8 skill-search loops match (while+goto-done, (u16)var_5 masks, fresh counters per loop, loopinv hoist); 0x231/0x232 early returns, 0x20/0x800/0x400 guards, 6/7 dispatch with 0x340/0x3C-0x38 checks, 0x211/0x221 + 0x212/0x222 with 50% random, 0x210/0x20F tail and 47cb0/107ac0 >=9 all in retail shape. Remaining: single addu $v0,$v1,$v0 vs $v0,$v0,$v1 orientation (commutative, source-invariant across both orders, floor) + lw addend masked as reloc-only. Supersedes prior nd-170 layout floor. */
+/* 2026-09-18 lead pass on top of the reconstruction: the floor is ONE word.
+   813/813 instructions, 2 fnalign edits of which one is reloc-only, and the
+   single real difference is the operand orientation of one commutative add:
+   retail 0x00242CEC is `addu $v0, $v1, $v0` (offset, base) where this body
+   emits `addu $v0, $v0, $v1` (base, offset).  Same registers, same values,
+   same everything else.
+   Three other sites in this function compute the identical address shape
+   (`lhu; sll 4; subu; sll 2; lw -0x4C3C($gp); addu`) and retail spells all
+   three base-first, exactly as this body does - so the source cannot be
+   choosing the orientation.  Ten spellings of the one differing site all tie
+   at 1: global first, global-plus-0x38 first, constant first (570, the only
+   regression), a separate offset temp, a separate base temp, the array form
+   `((u8 *)iGpffffb3c4)[idx * 0x3C + 0x38]`, and the four permutations of
+   those.  This is commutative-operand selection inside the code generator,
+   not an expression the source can reach. */
+// FUN_00242990 NONMATCHING
+#ifdef SKIP_ASM
+#pragma opt_loop_invariants on
+s32 func_00242990(u8 *arg0, s32 arg1)
+{
+    s32 temp_16;
+    s32 temp_2;
+    s32 found;
+    u8 *var_2;
+    s32 var_5_2;
+    s32 var_5_3;
+    s32 var_5_4;
+    s32 var_5_5;
+    s32 var_5_6;
+    s32 var_5_7;
+    s32 var_5_8;
+    s32 var_5_9;
+    s16 value;
+    s32 tmp;
+    s32 var_17;
+
+    var_17 = -1;
+    temp_16 = arg1 & 0xFFFF;
+    if ((temp_16 < 0x1B8) && (iGpffffb3b8[temp_16 * 0x28 + 0x24] == 0xD)) {
+        return -1;
+    }
+    if (!(*(u16 *)arg0 & 4)) {
+        if (*(u16 *)(arg0 + 2) >= 0xB) {
+            func_0046d730(D_00635938, 0xFA5);
+        }
+        var_2 = func_001094e0(*(u16 *)(arg0 + 2));
+    } else {
+        if (*(u16 *)(arg0 + 2) >= 0x150) {
+            func_0046d730(D_00635938, 0xFA8);
+        }
+        var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
+    }
+    var_5_2 = 0;
+    while ((var_5_2 & 0xFFFF) < 8) {
+        if (*(u16 *)(var_2 + (u16)var_5_2 * 2) == 0x231) {
+            found = 1;
+            goto done1;
+        }
+        var_5_2 = (var_5_2 + 1) & 0xFFFF;
+    }
+    if (!(*(u16 *)arg0 & 4)) {
+        temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+        if (temp_2 >= 0) {
+            if (func_001069a0((s16)temp_2) == 0x231) {
+                found = 1;
+                goto done1;
+            }
+        }
+    }
+    found = 0;
+done1:
+    if (found != 0) {
+        return 0x231;
+    }
+    if (!(*(u16 *)arg0 & 4)) {
+        if (*(u16 *)(arg0 + 2) >= 0xB) {
+            func_0046d730(D_00635938, 0xFA5);
+        }
+        var_2 = func_001094e0(*(u16 *)(arg0 + 2));
+    } else {
+        if (*(u16 *)(arg0 + 2) >= 0x150) {
+            func_0046d730(D_00635938, 0xFA8);
+        }
+        var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
+    }
+    var_5_3 = 0;
+    while ((var_5_3 & 0xFFFF) < 8) {
+        if (*(u16 *)(var_2 + (u16)var_5_3 * 2) == 0x232) {
+            found = 1;
+            goto done2;
+        }
+        var_5_3 = (var_5_3 + 1) & 0xFFFF;
+    }
+    if (!(*(u16 *)arg0 & 4)) {
+        temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+        if (temp_2 >= 0) {
+            if (func_001069a0((s16)temp_2) == 0x232) {
+                found = 1;
+                goto done2;
+            }
+        }
+    }
+    found = 0;
+done2:
+    if (found != 0) {
+        return 0x232;
+    }
+    if (*(u16 *)arg0 & 0x20) {
+        return 0;
+    }
+    if ((arg0 != 0) && (temp_16 < 0x1B8) && ((iGpffffb3b8[(u16)arg1 * 0x28] & 2) != 0)) {
+        if (*(u16 *)arg0 & 4) {
+            value = *(u8 *)((*(u16 *)(arg0 + 2) * 0x3C) + iGpffffb3c4 + 0x38);
+        } else {
+            value = (s16)func_00106a30((s16)((u16)func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF));
+        }
+    } else {
+        value = *(s8 *)(iGpffffb3b4 + (u32)(u16)arg1 * 2);
+    }
+    if ((s16)value == 6) {
+        if (*(u16 *)arg0 & 4) {
+            tmp = 0;
+        } else {
+            tmp = (func_00106600(0x340) & 0xFF) > 0;
+        }
+        if (tmp != 0) {
+            var_17 = 0x154;
+        }
+        if (!(*(u16 *)arg0 & 4)) {
+            if (*(u16 *)(arg0 + 2) >= 0xB) {
+                func_0046d730(D_00635938, 0xFA5);
+            }
+            var_2 = func_001094e0(*(u16 *)(arg0 + 2));
+        } else {
+            if (*(u16 *)(arg0 + 2) >= 0x150) {
+                func_0046d730(D_00635938, 0xFA8);
+            }
+            var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
+        }
+        var_5_4 = 0;
+        while ((var_5_4 & 0xFFFF) < 8) {
+            if (*(u16 *)(var_2 + (u16)var_5_4 * 2) == 0x211) {
+                found = 1;
+                goto done3;
+            }
+            var_5_4 = (var_5_4 + 1) & 0xFFFF;
+        }
+        if (!(*(u16 *)arg0 & 4)) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x211) {
+                    found = 1;
+                    goto done3;
+                }
+            }
+        }
+        found = 0;
+done3:
+        if ((found != 0) && ((s32)(func_003b7060() % 100U) < 0x32)) {
+            var_17 = 0x211;
+        }
+        if (!(*(u16 *)arg0 & 4)) {
+            if (*(u16 *)(arg0 + 2) >= 0xB) {
+                func_0046d730(D_00635938, 0xFA5);
+            }
+            var_2 = func_001094e0(*(u16 *)(arg0 + 2));
+        } else {
+            if (*(u16 *)(arg0 + 2) >= 0x150) {
+                func_0046d730(D_00635938, 0xFA8);
+            }
+            var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
+        }
+        var_5_5 = 0;
+        while ((var_5_5 & 0xFFFF) < 8) {
+            if (*(u16 *)(var_2 + (u16)var_5_5 * 2) == 0x221) {
+                found = 1;
+                goto done4;
+            }
+            var_5_5 = (var_5_5 + 1) & 0xFFFF;
+        }
+        if (!(*(u16 *)arg0 & 4)) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x221) {
+                    found = 1;
+                    goto done4;
+                }
+            }
+        }
+        found = 0;
+done4:
+        if (found != 0) {
+            var_17 = 0x221;
+        }
+    } else if ((s16)value == 7) {
+        if (*(u16 *)arg0 & 4) {
+            tmp = 0;
+        } else {
+            tmp = (func_00106600(0x340) & 0xFF) > 0;
+        }
+        if (tmp != 0) {
+            var_17 = 0x154;
+        }
+        if (!(*(u16 *)arg0 & 4)) {
+            if (*(u16 *)(arg0 + 2) >= 0xB) {
+                func_0046d730(D_00635938, 0xFA5);
+            }
+            var_2 = func_001094e0(*(u16 *)(arg0 + 2));
+        } else {
+            if (*(u16 *)(arg0 + 2) >= 0x150) {
+                func_0046d730(D_00635938, 0xFA8);
+            }
+            var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
+        }
+        var_5_6 = 0;
+        while ((var_5_6 & 0xFFFF) < 8) {
+            if (*(u16 *)(var_2 + (u16)var_5_6 * 2) == 0x212) {
+                found = 1;
+                goto done5;
+            }
+            var_5_6 = (var_5_6 + 1) & 0xFFFF;
+        }
+        if (!(*(u16 *)arg0 & 4)) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x212) {
+                    found = 1;
+                    goto done5;
+                }
+            }
+        }
+        found = 0;
+done5:
+        if ((found != 0) && ((s32)(func_003b7060() % 100U) < 0x32)) {
+            var_17 = 0x212;
+        }
+        if (!(*(u16 *)arg0 & 4)) {
+            if (*(u16 *)(arg0 + 2) >= 0xB) {
+                func_0046d730(D_00635938, 0xFA5);
+            }
+            var_2 = func_001094e0(*(u16 *)(arg0 + 2));
+        } else {
+            if (*(u16 *)(arg0 + 2) >= 0x150) {
+                func_0046d730(D_00635938, 0xFA8);
+            }
+            var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
+        }
+        var_5_7 = 0;
+        while ((var_5_7 & 0xFFFF) < 8) {
+            if (*(u16 *)(var_2 + (u16)var_5_7 * 2) == 0x222) {
+                found = 1;
+                goto done6;
+            }
+            var_5_7 = (var_5_7 + 1) & 0xFFFF;
+        }
+        if (!(*(u16 *)arg0 & 4)) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x222) {
+                    found = 1;
+                    goto done6;
+                }
+            }
+        }
+        found = 0;
+done6:
+        if (found != 0) {
+            var_17 = 0x222;
+        }
+    }
+    if ((s16)var_17 != -1) {
+        goto tail;
+    }
+    if (!(*(u16 *)arg0 & 0x800)) {
+        if (!(*(u16 *)arg0 & 4)) {
+            if (*(u16 *)(arg0 + 2) >= 0xB) {
+                func_0046d730(D_00635938, 0xFA5);
+            }
+            var_2 = func_001094e0(*(u16 *)(arg0 + 2));
+        } else {
+            if (*(u16 *)(arg0 + 2) >= 0x150) {
+                func_0046d730(D_00635938, 0xFA8);
+            }
+            var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
+        }
+        var_5_8 = 0;
+        while ((var_5_8 & 0xFFFF) < 8) {
+            if (*(u16 *)(var_2 + (u16)var_5_8 * 2) == 0x210) {
+                found = 1;
+                goto done7;
+            }
+            var_5_8 = (var_5_8 + 1) & 0xFFFF;
+        }
+        if (!(*(u16 *)arg0 & 4)) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x210) {
+                    found = 1;
+                    goto done7;
+                }
+            }
+        }
+        found = 0;
+done7:
+        if (found != 0) {
+            var_17 = 0x210;
+            goto tail;
+        }
+    }
+    if (*(u16 *)arg0 & 0x400) {
+        goto tail;
+    }
+    if (!(*(u16 *)arg0 & 4)) {
+        if (*(u16 *)(arg0 + 2) >= 0xB) {
+            func_0046d730(D_00635938, 0xFA5);
+        }
+        var_2 = func_001094e0(*(u16 *)(arg0 + 2));
+    } else {
+        if (*(u16 *)(arg0 + 2) >= 0x150) {
+            func_0046d730(D_00635938, 0xFA8);
+        }
+        var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
+    }
+    var_5_9 = 0;
+    while ((var_5_9 & 0xFFFF) < 8) {
+        if (*(u16 *)(var_2 + (u16)var_5_9 * 2) == 0x20F) {
+            found = 1;
+            goto done8;
+        }
+        var_5_9 = (var_5_9 + 1) & 0xFFFF;
+    }
+    if (!(*(u16 *)arg0 & 4)) {
+        temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+        if (temp_2 >= 0) {
+            if (func_001069a0((s16)temp_2) == 0x20F) {
+                found = 1;
+                goto done8;
+            }
+        }
+    }
+    found = 0;
+done8:
+    if (found != 0) {
+        var_17 = 0x20F;
+    }
+tail:
+    if (((s16)var_17 == -1) && (!(*(u16 *)arg0 & 4)) && (*(u16 *)(arg0 + 2) != 1) && (!(*(u16 *)arg0 & 0x400))) {
+        if ((s32)(func_00107ac0((u16)(func_00247cb0((s16)*(u16 *)(arg0 + 2)) & 0xFFFF)) & 0xFFFF) >= 9) {
+            var_17 = 0x20F;
+        }
+    }
+    return var_17;
+}
+#pragma opt_loop_invariants off
+#else
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00242990);
+#endif
 
 // FUN_00243650
 u8 func_00243650(u8 *arg0, s32 arg1, s32 arg2)

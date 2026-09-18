@@ -149,6 +149,31 @@ extern void func_0025d850(f32 farg0, f32 farg1, f32 farg2, s32 arg0);
 // spelling can be retail's.  Reordering it also fails to compile the file,
 // because those two callers share the prototype.  The remaining six words
 // are the emission slot of `mtc1 $zero, $f12`, not the signature.
+// 2026-09-18 section 7o re-probe, 8 variants, floor stands at 6.
+// Exchanged-pair identification: `python3 -E -s tools/residual_signature.py
+// src/shdWindow.c func_0025dd30` prints `4 0 0 0 0 4` with no register
+// mapping - 0 mask/cvt/class/perm, 4 other. `tools/fnalign.py --candidate`
+// confirms why: not a colouring exchange but a scheduling move, `delete
+// retail[112] mtc1 $zero,$f12 / insert object[114] mtc1 $zero,$f12` and the
+// same at `retail[182]/object[184]`; `measure_guarded` counts 6 words (3 per
+// func_00366670 call site: `srl $t0,$v1,8` / `andi $t1,$v1,0xFF` /
+// `mtc1 $zero,$f12` rotated so retail has the mtc1 first, this body last).
+// The two source values are `u32 combined = (color & 0xFF) | -256` (the srl
+// /andi pair) versus the `0.0f` float argument (the mtc1); retail order is
+// zero-before-combined. All eight strip combined's initialiser, introduce
+// `f32 z; z = 0.0f;` passed as `z, z` for the two `0.0f` args, and vary 2
+// orders x 2 combined-scopes x 2 z-scopes (both `if/else` branches changed
+// identically; function-scope decls sit after `ret`, block-scope decls at
+// the top of each branch):
+// v1 FF retail (z before combined, both function) 6; v2 FF reverse 6;
+// v3 FB retail (combined function, z block) 6; v4 FB reverse 6;
+// v5 BF retail (combined block, z function) 6; v6 BF reverse 6;
+// v7 BB retail (both block, z before combined) 6; v8 BB reverse 6.
+// One batched `tools/probe_variants.py` call, baseline excluded (INCLUDE_ASM
+// fallback, not a score), best 6, no candidate matched. Introducing the zero
+// temp alone changes nothing and neither order nor scope moves the mtc1, so
+// the 7o uninitialised-declaration-plus-statement-order lever is inert on
+// this scheduling slot. Floor stands; production stays ASM.
 // FUN_0025DD30 NONMATCHING
 #ifdef NON_MATCHING
 void func_0025dd30(f32 param_1, f32 param_2, s32 color, u8 *data) {

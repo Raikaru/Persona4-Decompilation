@@ -105,6 +105,23 @@ s32 func_00268990(s32 arg0) {
    `initial`/`target` that way ties at 12.
    In short the body is at a local optimum in every direction tried; only the
    pre-call address survives. */
+/* 2026-09-18 section 7o pass, 8 measured variants, floor stands at 12 words.
+   `tools/residual_signature.py src/cldDungeonIn.c func_00268230` prints
+   20 edits with 0 mask/0 cvt/0 class/0 perm/6 other and an empty mapping:
+   there is no exchanged pair to name. `tools/measure_guarded.py` confirms
+   12 reloc-masked words at +1152..+1200: retail hoists the entry-base
+   `addiu $s4, $v0, 0xd0` above the third `func_0043f810` call and derives
+   `addiu $s1, $s4, 0x1c` from it, where this body sinks the recompute below
+   the call (`addiu $v0, $v0, 0xd0` / `addiu $s1, $v0, 0x1c`). Address
+   CSE-versus-rematerialise across a call, not a 7m/7o register exchange.
+   Probed the closest 7o-shaped pair anyway (`f32 *initial` / `f32 *target`,
+   both uninitialised and assigned as statements) in one batched
+   `tools/probe_variants.py` call (8 candidates): v1 FF retail 12 (tie),
+   v2 FF rev 64, v3 FB retail 12 (tie), v4 FB rev 64, v5 BF retail 63,
+   v6 BF rev 19, v7 BB retail 12 (tie), v8 BB rev 64. Scopes: F=function top,
+   B=inside `for (i...)` body; retail order `initial` then `target`, rev the
+   reverse. No variant beats 12; the three ties confirm the current
+   function-scope retail-order spelling. */
 // FUN_00268230 NONMATCHING
 #ifdef NON_MATCHING
 typedef struct DungeonInColor { u8 r, g, b, a; } DungeonInColor;

@@ -542,6 +542,33 @@ stop".  It is:
 That is eight probes, not two, and it is worth spending on any floor whose
 `class`/`perm` count from `tools/residual_signature.py` is most of its edits.
 
+**How far it generalises, measured.**  Seven other exchange-class floors were
+re-probed with the full eight-variant procedure on 2026-09-18, one worker
+each: `func_0024be40` (8), `func_001b11c0` (5), `func_0025dd30` (6),
+`func_00268230` (12), `func_0012d630` (13), `func_00365f00` (13),
+`func_0048a460` (15), plus `func_00224450` (32), `func_00331a20` (24),
+`func_00498f10` (34) and `func_0048a980` (5) probed from the lead side.
+**Every one of them tied at its old score.**  So 7o is a real lever but not a
+general solvent for the class.
+
+Two things came out of those 88 measurements that are worth knowing:
+
+  * **Reversing the assignment order is always a large regression** - 8 to 76,
+    13 to 44, 32 to 49, 5 to 17, 24 to 202.  The order these bodies already
+    use is retail's.  If you find a floor where reversal *improves*, you have
+    found something genuinely new.
+  * **Most of the parked floors are already in 7o form.**  They were written
+    with bare declarations and statement assignments to begin with, so there
+    is nothing for the lever to change.  Check that first - `grep` the body
+    for `Type name = ...;` declarations - and skip the eight probes if there
+    are none.  `func_001eca10` was unusual in having an initialised
+    declaration inside the loop that mattered.
+
+The floors still carrying initialised declarations, and therefore still worth
+the eight probes, are listed by
+`python3 -E -s tools/residual_signature.py --list <floors>` combined with that
+grep; as of 2026-09-18 that is 18 of the 87 scanned floors.
+
 ### 7m. The exchanged-register-pair class, and how to recognise it
 
 **Read 7o first.**  The conclusion recorded below - that this class does not

@@ -2177,6 +2177,16 @@ void func_00489f10(u8 *arg0)
    padding the float declaration list all tie at 5 with a byte-identical
    stream.  FP temp numbering here follows the count of live float values,
    which no source shape tried changes without changing the stream. */
+/* 2026-09-18, handoff 7o re-probe; floor stands at 5.  146/146 instructions
+   and the residual is an FPR pair, not a GPR one: retail holds the 1.0f in
+   $f1 and the sqrt result in $f2, this body has them $f3 and $f1.  The 7o
+   lever does not reach floating-point colouring here - declaring the sqrt
+   temporary first among the float locals ties at 5, declaring it before
+   `temp_f0` ties at 5, reusing `temp_f2_2` for the sqrt result instead of a
+   fresh temporary ties at 5, and giving the difference chain its own
+   temporary so the 1.0f stays live across it ties at 5.  One of the six
+   fnalign rows is a `bbit032` branch-target line, which is a capstone
+   mis-decode of a relocated word, not a real difference. */
 // FUN_0048A980 NONMATCHING
 #ifdef NON_MATCHING
 /* Best re-derived body for func_0048a980: 5 differing words (reloc-masked),

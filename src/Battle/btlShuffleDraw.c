@@ -972,6 +972,16 @@ void func_00375ec0(u8 *arg0, s32 arg1) {
    the sum, which b210 will not do from any source shape tried.  Do not spend
    another session reordering this body; the open question is what third use
    of `arg0`/`idx` retail's source had. */
+/* 2026-09-18: re-probed against handoff 7o, floor stands at 2.  The two
+   residual words are retail keeping `arg0 + idx` in the callee-saved $s2 and
+   spelling both uses `move`, where this body keeps `arg0` and `idx` in $s1
+   and $s0 and re-adds them.  Every way of naming the sum once is far worse,
+   because it also removes the separate `idx` live range: `p` used for the two
+   stores as well 36, a second pointer `q` for the stores 36, a `u8 *base` for
+   the stores 36, one pointer and no `idx` at all 36, `arg0 +=` in place 36,
+   `register` on the pointer 36.  The mirror - calls through the recomputed
+   expression, stores through `p` - is 18.  Converting the two declarations to
+   uninitialised form with statement assignments (the 7o lever) ties at 2. */
 // FUN_00375F00 NONMATCHING
 #ifdef NON_MATCHING
 #pragma optimization_level 1

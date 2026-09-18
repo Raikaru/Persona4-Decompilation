@@ -738,6 +738,12 @@ INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00365ac0);
    `num_segments` above `i` and moving `edge_g` to the end of the list both
    tie at 13.  Same class as func_0024be40, func_001b11c0 and
    func_001eca10. */
+/* 2026-09-18, handoff 7o re-probe; floor stands at 13.  287/287 instructions
+   and the pair is $fp/$s3 - retail colours `edge_g` $s3 and the segment
+   count $fp, this body the reverse.  Eight variants without initialisers:
+   all four scope arrangements tie at 13 in retail computation order and all
+   four cost 17 reversed.  Scope is inert here and reversal is a regression,
+   so the body already has retail's order. */
 // FUN_00365F00 NONMATCHING
 #ifdef NON_MATCHING
 void func_00365f00(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
