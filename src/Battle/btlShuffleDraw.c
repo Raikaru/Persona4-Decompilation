@@ -933,6 +933,18 @@ void func_00375ec0(u8 *arg0, s32 arg1) {
 /* measured: typed O1 floor 156B/160B/2wd (fresh probe_archive D375 + fnalign 2: move $v1/$a0,$s2 vs addu $v1/$a0,$s1,$s0 at +0x48/+0x70). Retail CSEs base in $s2 with 3 saves ($16 idx,$17 arg0,$18 base); O1 recomputes, O2 folds to 1 saved. */
 /* measured: ruled out this session -- O2 plain u8*base (36wd), O2 register base (36wd), O2 opt_common_subs off base (36wd), O2 differ struct-p vs arg0+idx (36wd), O2 register differ (36wd), O2 s64 idx (32wd); archive 16 combos (same-order 36wd/1-saved, differ 20wd/3-saved recompute) plus u8*base 36wd and p-reuse 24/36wd per owner note; O1-bracket re-probe on the typed body: loop-inv 2, propag-off 2, cse-off 2, sched-on 33 (baseline 2). No volatile/asm; honest 2wd floor kept. */
 /* measured: pair sweep 2026-09-17 `python3 -E -s tools/pragma_sweep.py src/Battle/btlShuffleDraw.c func_00375f00 --pairs` banked 2; all 8 singles and all 28 pairs 2 (neutral, no win). Two-def pins on this body per assignment all flat: p-reuse 36, p two-def 36, C90 idx pin 2 tie, split-decl pin 2 tie, C90 base pin 36. fnalign retail/object 39/39 (move $v1/$a0,$s2 vs addu $v1/$a0,$s1,$s0 at retail[18:19]+[28:29]). Honest 2wd floor stands. */
+/* 2026-09-18 micro-experiment (tools/micro_codegen.py, optimization_level 1):
+   the two words are a copy-versus-rematerialise choice that no spelling tried
+   reaches.  Retail keeps `arg0 + idx` in $s2 and copies it into the store's
+   base (`daddu $v1, $s2, zero`), which is one instruction more than the
+   minimal form; b210 either recomputes `addu $v1, $s1, $s0` (this body, 2
+   words) or drops the separate base entirely and addresses off $s0 (every
+   spelling that names the pointer: 36 words).  Level 1 has no CSE, so the
+   recompute is expected; what retail does implies a source-level temporary
+   that stays distinct from the pointer.  Measured and rejected in the micro:
+   `q = p` before each store, a single `q = p` hoisted, storing through `p`
+   directly, an s32 intermediate, and s64/u64 intermediates (those add
+   dsll32/dsrl32 pairs).  optimization_level 0/2/3/4 are 40/36/36/36. */
 // FUN_00375F00 NONMATCHING
 #ifdef NON_MATCHING
 #pragma optimization_level 1
