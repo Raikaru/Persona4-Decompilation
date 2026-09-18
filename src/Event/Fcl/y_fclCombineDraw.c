@@ -2965,21 +2965,151 @@ void func_0032fbc0(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032fbc0);
 #endif
 
-/* measured: nd 126 — three interlocked register/scheduling rotations; all
-   logic (jtbl switch cases, both loops, the FclByte4 chains, the tail
-   adda.s/madd.s FPU-fusion store) matches. (1) p (the *(u8**)(arg0+0x38) load)
-   lands in $s4 in mwcc b210 vs $s3 in retail: mwcc gives the loop's (s16)j
-   normalized copy a fresh saved register ($s2) where retail reuses arg1's dead
-   $s1, shifting t18->$s3/p->$s4. (2) loop 22's counter: retail keeps the raw
-   counter in $s0 and normalizes into a temp per use; mwcc keeps the raw in a
-   temp and the normalized copy in $s0. (3) case stores: retail stores the raw
-   2cb0/2d00 result (sh $v0) BEFORE the (s16) normalize for the 2d50 arg; mwcc
-   always normalizes first. Tried: declaration orders, s16/s32 r and lim (lim
-   MUST be s32 — s16 adds a spurious normalize and grew nd to 243->126 cascade;
-   r s32/s16 no effect), named lim local (kills the per-iteration t18+6
-   recompute — big win, 414->243). Saved-register rotation + scheduling floor. */
+/* measured: probe_variants 418 differing words reloc-masked; fnalign retail 468 vs object 468 instrs exact (PASS); */
+/* live measure_guarded GUARDED_SCORE func_00330060: 418. Prior nd-126 note did not reproduce (re-measured 418 */
+/* on the described shape; 414->243 named-lim win already included). All logic matches: 6-case jtbl switch */
+/* (sltiu 6, cases 0..5, no default), both loops, six FclByte4 chains, tail adda.s/madd.s FPU-fusion store. */
+/* Walls (same three rotations as noted, now at 418): (1) t (*(u8**)(arg0+0x38)) in $s0 vs retail $s3: mwcc */
+/* gives second-loop (s16)jj a fresh saved ($s1) where retail reuses dead arg1 $s1, shifting diff/cur/lim/bid; */
+/* (2) first-loop counter raw in temp ($v1) + normalized in saved ($s1) vs retail raw in $s0 + temp per use; */
+/* second-loop bid as s32 (definition (s16)cur+0x179, use (s16)bid) matches retail single-normalize, s16 bid */
+/* costs an extra dsll (v1 421 -> v2 418); (3) case stores: retail sh $v0 before (s16) normalize for 2d50 arg, */
+/* mwcc normalizes into $a0 first (s16 v local). Frame/stack shift persists (object 0xA0 vs retail 0xB0 region) */
+/* so every lbu/sb + lh base differs by register/offset. */
+/* Repro: m2c_decompile fails on bare .s (jr without jtbl at line 89); fixed by inserting .L003301B8/22C/29C/2EC/338/3B0 */
+/* labels + .rdata jtbl_00749660 (.word .L...) via /var/tmp/cold330060/combined2.s -> /var/tmp/cold330060/m2c.c */
+/* (164 lines, (void*,s64) + (s8)arg1 switch, M2C_ERROR on adda/madd tail de-noised to base*diff_f+fv / 52+fv2). */
+/* Rounds (probe_variants driven by fnalign, count gap closed first: v1 466/467 1-short -> v2 468/468 exact): */
+/* v1 421 (FclByte4 groups, s16 diff/cur/jj, s32 lim, s16 bid, double-cast 68d0), v2 418 (-3 via s32 bid + */
+/* single-cast (s16)(i+0x179)/(s16)(cur+0x179)), v3 425 (s32 i/cur/jj/bid/v worse), pragma_sweep O4 412 / O3 414 / */
+/* schedule 414 but 413 instrs (11% short, reject per 3% gate), isolated tailswap/v-s32/diff-s32 ties 418, i-s32 */
+/* 427 worse. Stopped after two consecutive non-lowering rounds (v3 + v4-v7 tie batch). Banked v2 as guarded */
+/* floor (exact count, compiles clean under -DNON_MATCHING, verify 37 MATCH / 33 ASM unchanged). */
 // FUN_00330060
+#ifdef NON_MATCHING
+void func_00330060(u8 *arg0, s64 arg1) {
+    FclByte4 cAC;
+    FclByte4 cA8;
+    FclByte4 cA4;
+    FclByte4 cA0;
+    FclByte4 c9C;
+    FclByte4 c98;
+    s64 sp90;
+    u8 *t;
+    u8 *p;
+    u8 *p1;
+    s16 i;
+    s16 diff;
+    s16 cur;
+    s16 jj;
+    s32 lim;
+    s32 bid;
+    s16 v;
+    f32 diff_f;
+    f32 base;
+    f32 fv;
+    f32 fv2;
+    t = *(u8 **)(arg0 + 0x38);
+    func_002b2a60(&cAC, 0, 0, 0x66, 0xFF);
+    p = func_002b6150((s16)(*(s16 *)(t + 0x120) * 2 + 0x1F5));
+    *(FclByte4 *)(p + 0x85) = cAC;
+    p1 = func_002b6150((s16)(*(s16 *)(t + 0x120) * 2 + 0x1F4));
+    *(FclByte4 *)(p1 + 0x85) = *(FclByte4 *)(p + 0x85);
+    func_002b2a60(&cA8, 0x25, 0x2F, 0x94, 0xFF);
+    p = func_002b6150((s16)(*(s16 *)(t + 0x120) + 0x2FB));
+    *(FclByte4 *)(p + 0x85) = cA8;
+    *(u8 *)(t + 0x13A) = 1;
+    switch ((s8)arg1) {
+    case 0:
+        if (*(s16 *)(t + 0x11E) != 7) {
+            func_0045af60(0, 0, 0, 0);
+        }
+        v = (s16)func_002b2cb0(*(s16 *)(t + 0x11E), 1, 7, 0, 1);
+        *(s16 *)(t + 0x11E) = v;
+        *(s16 *)(t + 0x120) = func_002b2d50((s16)v, *(s16 *)(t + 0x120), 7, 6, 1);
+        break;
+    case 1:
+        if (*(s16 *)(t + 0x11E) != 0) {
+            func_0045af60(0, 0, 0, 0);
+        }
+        v = (s16)func_002b2d00(*(s16 *)(t + 0x11E), 1, 0, 0, 1);
+        *(s16 *)(t + 0x11E) = v;
+        *(s16 *)(t + 0x120) = func_002b2d50((s16)v, *(s16 *)(t + 0x120), 7, 6, -1);
+        break;
+    case 2:
+        if (*(s16 *)(t + 0x11E) != 7) {
+            func_0045af60(0, 0, 0, 0);
+        }
+        func_002b2e70(*(s16 *)(t + 0x11E), *(s16 *)(t + 0x120), 8, 6, (s16 *)(t + 0x11E), (s16 *)(t + 0x120));
+        break;
+    case 3:
+        if (*(s16 *)(t + 0x11E) != 0) {
+            func_0045af60(0, 0, 0, 0);
+        }
+        func_002b2f90(*(s16 *)(t + 0x11E), *(s16 *)(t + 0x120), 8, 6, (s16 *)(t + 0x11E), (s16 *)(t + 0x120));
+        break;
+    case 4:
+        func_0045af60(0, 0, 0, 0);
+        v = (s16)func_002b2cb0(*(s16 *)(t + 0x11E), 1, 7, 0, 2);
+        *(s16 *)(t + 0x11E) = v;
+        if ((s16)v == 0) {
+            *(s16 *)(t + 0x120) = 0;
+        } else {
+            *(s16 *)(t + 0x120) = func_002b2d50((s16)v, *(s16 *)(t + 0x120), 7, 6, 1);
+        }
+        break;
+    case 5:
+        func_0045af60(0, 0, 0, 0);
+        if (*(s16 *)(t + 0x11E) == 0) {
+            *(s16 *)(t + 0x11E) = (s16)func_002b2d00(*(s16 *)(t + 0x11E), 1, 0, 7, 2);
+            *(s16 *)(t + 0x120) = 5;
+        } else {
+            v = (s16)func_002b2d00(*(s16 *)(t + 0x11E), 1, 0, 7, 2);
+            *(s16 *)(t + 0x11E) = v;
+            *(s16 *)(t + 0x120) = func_002b2d50((s16)v, *(s16 *)(t + 0x120), 7, 6, -1);
+        }
+        break;
+    }
+    for (i = 0; (s16)i < 9; i = (s16)(i + 1)) {
+        func_002b68d0((s16)(i + 0x179), 0, 1);
+    }
+    diff = (s16)(*(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120));
+    cur = diff;
+    jj = 0;
+    lim = diff + 6;
+    while ((s16)cur < lim) {
+        bid = (s16)cur + 0x179;
+        func_002b2970(&sp90, 32.0f, (f32)(jj * 34 + 0x5B));
+        func_002b6c30((s16)bid, sp90, jj * 5 + 0x6A, 152.0f);
+        func_002b68d0((s16)bid, 0, 0);
+        func_002b6d60((s16)bid);
+        func_002b2a60(&cA4, 0xCC, 0xFF, 0xFF, 0xFF);
+        p = func_002b6150((s16)bid);
+        *(FclByte4 *)(p + 0x85) = cA4;
+        cur = (s16)(cur + 1);
+        jj = (s16)(jj + 1);
+    }
+    func_002b2a60(&cA0, 0xC6, 0xEE, 1, 0xFF);
+    p = func_002b6150((s16)(*(s16 *)(t + 0x120) * 2 + 0x1F5));
+    *(FclByte4 *)(p + 0x85) = cA0;
+    p1 = func_002b6150((s16)(*(s16 *)(t + 0x120) * 2 + 0x1F4));
+    *(FclByte4 *)(p1 + 0x85) = *(FclByte4 *)(p + 0x85);
+    func_002b2a60(&c9C, 0x2D, 0x2D, 0x2D, 0xFF);
+    p = func_002b6150((s16)(diff + 0x179 + *(s16 *)(t + 0x120)));
+    *(FclByte4 *)(p + 0x85) = c9C;
+    func_002b2a60(&c98, 0x92, 0xC8, 7, 0xFF);
+    p = func_002b6150((s16)(*(s16 *)(t + 0x120) + 0x2FB));
+    *(FclByte4 *)(p + 0x85) = c98;
+    diff_f = (f32)(*(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120));
+    base = *(f32 *)(t + 0x124);
+    fv = *(f32 *)(func_002b6150(0xA9) + 0x3C);
+    *(f32 *)(func_002b6150(0xB1) + 0x3C) = base * diff_f + fv;
+    fv2 = *(f32 *)(func_002b6150(0xB1) + 0x3C);
+    *(f32 *)(func_002b6150(0xB5) + 0x3C) = fv2 + 52.0f;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00330060);
+#endif
 
 /* measured: nd 4 (4 attempts: separate-u8 slots 371, FclByte4 groups 212,
    s64 t17/t16 fix 185, t16 as s32 -> 4). MATCH-QUALITY: everything byte-
