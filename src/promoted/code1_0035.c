@@ -73,7 +73,7 @@ extern void func_00454bd0(u8 *arg0);
 extern void func_003ef3a0(void *arg0);
 extern void func_0043f9c8(void *dst, s32 value, s32 size);
 extern void func_00355740(u8 *arg0, s64 arg1);
-extern void func_00355920(u8 *arg0);
+extern void func_00355920(u8 *arg0, u8 *arg1);
 extern void func_0035bc10(u8 *arg0, s8 arg1, s32 arg2);
 extern void func_0035c480(s32 arg0, u16 arg1, s32 arg2);
 extern void func_001437b0(void *arg0, s32 arg1, s32 arg2);
@@ -1084,8 +1084,236 @@ ret0:
     return 0;
 }
 
-// FUN_00355920
+/* measured: object 2096B/window 2080B (+16B, +0.77%); probe_variants 306 differing words (reloc-masked); fnalign 520/524 instrs, 213 edits (+10 reloc-only). */
+/* Reconstructed from retail asm + m2c + IDA/Ghidra in this file's idiom (union s64/Vec2f xy, union w/b col, u32 base hoist, plain (u8)f casts). Two-arg ABI (arg0 unused in $4, struct in $5) matches retail daddu $19,$5; file-scope decl updated. Switches for 0/1/2+default (reverse 2,1,0), if/else for 0/1 pairs in retail order. GP fGp8504/-7AFC, fGp8540/-7AC0, fGp84A4, iGp8544/-7ABC, fGp8548/-7AB8. Residuals are call-arg-setup + scheduling + FPR-color floors; siblings 35c040/54ba0 untouched. Counted 520 retail instrs first. */
+// FUN_00355920 NONMATCHING
+#ifdef NON_MATCHING
+void func_00355920(u8 *arg0, u8 *arg1) {
+    extern u8 D_00887300[];
+    extern void func_00489f80(void);
+    extern void func_0048a000(void);
+    extern void func_003f6440(s32 arg0, s32 arg1);
+    extern void func_0045c870(u8 *arg0, s32 arg1);
+    extern f32 func_0044b610(f32 arg0);
+    extern void func_00356170(s64 arg0, f32 f0, f32 f1, f32 f2, s32 arg1, s32 arg2, s32 arg3);
+    extern void func_003561d0(Vec2f arg0, s32 arg1, s32 arg2, s32 arg3, f32 dummy, f32 f0, f32 f1);
+    extern f32 fGpffff8504;
+    extern f32 fGpffff8540;
+    extern f32 fGpffff8548;
+    u8 *p;
+    s32 isZero;
+    u8 alpha;
+    u32 base;
+    s32 i;
+    f32 f20;
+    f32 f21;
+    union { s64 bits; Vec2f vec; } xy;
+    union { s32 w; u8 b[4]; } col;
+    (void)arg0;
+    p = arg1;
+    alpha = 0xFF;
+    isZero = (*(s32 *)(p + 4) == 0);
+    base = (u32)D_00887300;
+    ((void (*)(u32, u32))*(u32 *)base)(7, 2);
+    ((void (*)(u32, u32))*(u32 *)base)(6, 0);
+    ((void (*)(u32, u32))*(u32 *)base)(8, 0);
+    ((void (*)(u32, u32))*(u32 *)base)(0xE, 0);
+    ((void (*)(u32, u32))*(u32 *)base)(9, 2);
+    ((void (*)(u32, u32))*(u32 *)base)(0xC, 1);
+    ((void (*)(u32, u32))*(u32 *)base)(1, 0);
+    if (isZero != 0) {
+        func_00489f80();
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x31801);
+        col.b[0] = 0xFF;
+        col.b[1] = 0xFF;
+        col.b[2] = 0xFF;
+        col.b[3] = 0;
+        func_0045c870(col.b, 0);
+    }
+    if ((*(s32 *)(p + 8) & 2) != 0) {
+        *(s16 *)(p + 0x12) += 1;
+        switch (*(s32 *)(p + 4)) {
+        case 0: {
+            s16 cnt = *(s16 *)(p + 0x12);
+            s16 limit = *(s16 *)(p + 0xE);
+            if (!((f32)cnt < fGpffff8504 * (f32)limit)) {
+                if ((s64)limit < (s64)cnt) {
+                    *(s32 *)(p + 8) |= 4;
+                } else {
+                    f32 ratio;
+                    f32 c;
+                    f32 s;
+                    xy.vec.x = 320.0f;
+                    xy.vec.y = 224.0f;
+                    col.b[3] = 0xFF;
+                    ratio = ((f32)cnt - fGpffff8504 * (f32)limit) / (fGpffff8540 * (f32)limit);
+                    f20 = fGpffff84a4 * ratio;
+                    c = func_0044b610(f20);
+                    f21 = iGpffff8544 * (1.0f - c);
+                    s = func_0044b7b0(f20);
+                    if (*(s16 *)p == 1) {
+                        func_003561d0(xy.vec, col.w, 0, 0, 0.0f, 800.0f * s, f21);
+                    } else if (*(s16 *)p == 0) {
+                        func_00356170(xy.bits, 0.0f, 800.0f * s, 0.0f, col.w, 0x30, 0);
+                    }
+                }
+            }
+            break;
+        }
+        case 1:
+            if (*(s16 *)(p + 0x12) >= *(s16 *)(p + 0xE)) {
+                *(s32 *)(p + 8) |= 4;
+            }
+            break;
+        case 2: {
+            s16 limit = *(s16 *)(p + 0xE);
+            s16 cnt = *(s16 *)(p + 0x12);
+            if (cnt < limit) {
+                alpha = (u8)(255.0f * (1.0f - (f32)cnt / (f32)limit));
+            } else {
+                *(s32 *)(p + 8) |= 4;
+            }
+            break;
+        }
+        default:
+            func_0046d730(D_0064B310, 0x712);
+            break;
+        }
+    }
+    if (isZero != 0) {
+        func_0048a000();
+        func_003f6440(3, 0x35801);
+        func_003f6440(2, 0x44);
+    } else {
+        func_003f6440(3, 0x717FB);
+        func_003f6440(2, 0x44);
+    }
+    if ((*(s32 *)(p + 8) & 1) != 0) {
+        s16 nw = *(s16 *)(p + 0x10) + 1;
+        s16 lim;
+        *(s16 *)(p + 0x10) = nw;
+        lim = *(s16 *)(p + 0xC);
+        if (lim < nw) {
+            u32 tmp = *(u32 *)(p + 8);
+            *(u32 *)(p + 8) = tmp & ~1u;
+            *(u32 *)(p + 8) = (tmp & ~1u) | 2u;
+        } else {
+            s32 mode = *(s32 *)(p + 4);
+            switch (mode) {
+            case 0: {
+                u32 fl = *(u32 *)(p + 8);
+                if (((fl & 2) == 0) && ((lim / 3) < nw)) {
+                    *(s32 *)(p + 8) |= 2;
+                }
+                break;
+            }
+            case 1:
+            case 2: {
+                if ((*(s32 *)(p + 8) & 2) == 0) {
+                    s32 doSet;
+                    if (*(s16 *)p == 0) {
+                        s32 t = lim * 3;
+                        s32 q = t / 4;
+                        if (q < nw) {
+                            doSet = 1;
+                        } else {
+                            doSet = 0;
+                        }
+                    } else if (*(s16 *)p == 1) {
+                        s32 q = lim / 2;
+                        if (q < nw) {
+                            doSet = 1;
+                        } else {
+                            doSet = 0;
+                        }
+                    } else {
+                        doSet = 0;
+                    }
+                    if (doSet != 0) {
+                        *(s32 *)(p + 8) |= 2;
+                    }
+                }
+                break;
+            }
+            default:
+                func_0046d730(D_0064B310, 0x73A);
+                break;
+            }
+        }
+    }
+    if ((*(s32 *)(p + 8) & 4) != 0) {
+        return;
+    }
+    col.b[0] = *(u8 *)(p + 0x14);
+    col.b[1] = *(u8 *)(p + 0x15);
+    col.b[2] = *(u8 *)(p + 0x16);
+    col.b[3] = alpha;
+    {
+        s32 doCall;
+        if (*(s16 *)p == 0) {
+            s32 t = *(s16 *)(p + 0xC) * 3;
+            s32 q = t / 4;
+            if (q < *(s16 *)(p + 0x10)) {
+                doCall = 1;
+            } else {
+                doCall = 0;
+            }
+        } else if (*(s16 *)p == 1) {
+            s32 q = *(s16 *)(p + 0xC) / 2;
+            if (q < *(s16 *)(p + 0x10)) {
+                doCall = 1;
+            } else {
+                doCall = 0;
+            }
+        } else {
+            doCall = 0;
+        }
+        if (doCall != 0) {
+            func_0045c870(col.b, 0);
+            return;
+        }
+    }
+    for (i = 0; i < 0xF; i++) {
+        f32 e30;
+        f32 e34;
+        f32 ctr;
+        u8 *e;
+        f32 f13;
+        xy.vec.x = 320.0f + 160.0f * (f32)(i % 5 - 2);
+        xy.vec.y = 224.0f + 160.0f * (f32)(i / 5 - 1);
+        e = p + (i << 5);
+        e30 = *(f32 *)(e + 0x30);
+        ctr = (f32)*(s16 *)(p + 0x10);
+        if (ctr < e30) {
+            f20 = 0.0f;
+            f13 = 0.0f;
+        } else {
+            e34 = *(f32 *)(e + 0x34);
+            if (ctr < e34) {
+                f32 num = ctr - e30;
+                f32 den = e34 - e30;
+                f32 r = (fGpffff84a4 * num) / den;
+                f32 co = func_0044b610(r);
+                f20 = iGpffff8544;
+                f13 = 280.0f * (1.0f - co);
+                /* keep r for f20? retail keeps f20 as GP, f13 as 280*(1-co) */
+                (void)r;
+            } else {
+                f20 = fGpffff8548;
+                f13 = 280.0f;
+            }
+        }
+        if (*(s16 *)p == 1) {
+            func_00356170(xy.bits, 0.0f, f13, 0.0f, col.w, 0x30, 1);
+        } else if (*(s16 *)p == 0) {
+            func_003561d0(xy.vec, col.w, 1, 1, 0.0f, f13, f20);
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00355920);
+#endif
 // FUN_00356140
 void func_00356140(u8 *arg0)
 {

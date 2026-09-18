@@ -474,6 +474,57 @@ Grep every alignment for object-only `dsll32` runs before anything else;
 it is a one-line fix and it was worth 39, 24 and 10 words on three
 different functions in one afternoon.
 
+### 7j. A second decompiler, for the functions m2c cannot reach
+
+`tools/m2c_decompile.py` is still the first thing to run on an untried
+function: it emits MIPS-flavoured C with this project's declarations in scope.
+It has two blind spots that have each cost a session - it gives up on some
+jump tables, and it does not recover stack aggregate sizes, so an unexplained
+retail stack gap reads as noise instead of as a declared array.
+
+`tools/romwright_decompile.py` wraps a native Rust port of the Ghidra
+decompiler and fails in different places.  Import once
+(`python tools/romwright_decompile.py --import`, about three minutes into the
+gitignored `build/romwright`), then:
+
+```
+python tools/romwright_decompile.py func_0016a110          # m2c-shaped C
+python tools/romwright_decompile.py func_0016a110 --types  # signature + fields
+python tools/romwright_decompile.py func_0016a110 --raw    # Ghidra-shaped
+```
+
+The default mode emits **m2c-shaped** C: gp-relative globals already spelled
+the way this tree spells them (`fGpffff82b4`), `extern` declarations for every
+callee, `temp_vN` locals, and the complete stack frame with array extents
+(`float afStack_bb0 [192]`).  That last part is the one m2c cannot give you,
+and it is exactly the evidence the `func_002561f0` note asks for: an
+unexplained retail stack gap is a real declared object.
+
+`--types` prints the inferred signature plus the structural layout of each
+pointer parameter, e.g.
+
+```
+  arg1: *struct{+0x0: top, +0x4: float32, +0x8: float32}
+  arg2: *struct{+0x0: float32, +0x4: float32, +0x8: float32}
+```
+
+which reads an `RwV3d *` straight off the load/store widths.
+
+**Trust the arity, not the widths.**  Checked against three functions whose
+real signatures are known from MATCHes (`func_00311930`, `func_00348330`,
+`func_0035c040`) it got the argument count right every time, pointer-vs-scalar
+mostly right, and the exact widths and the float return wrong more often than
+not.  Retail evidence wins over any inference.
+
+Coverage on this image was 38 of 197 untried functions until 2026-09-18, when
+the worker's packed-attribute decoder was fixed upstream: `PackedEncode`
+writes booleans and special (stack/spacebase) address spaces with their value
+in the type byte's low nibble and no payload, and the decoder was reading that
+nibble as a payload length, desynchronising the rest of the element. Coverage
+is now 197 of 197, switch recovery went from about 160 failures to none, and
+import finds 14457 functions instead of 14388.  If a query ever fails as
+"bad packed <addr>" again, `ROMWRIGHT_TRACE_ADDR=1` dumps the payload.
+
 ### 7h-sexies. Narrow callee parameters rematerialise; expressions get CSEd
 
 This refines §7c with the rule that decides which way to turn the lever, and

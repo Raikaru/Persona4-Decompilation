@@ -69,12 +69,14 @@ extern void func_004538e0(void *buf, s32 a, s32 b, s32 c, s32 d);
 extern void func_00453860(void *buf, s32 a, s32 b, s32 c, s32 d);
 extern void func_00453760(void *buf, s32 a);
 extern s32 func_00453960(void *buf);
+extern void func_0038d060(s32 a);
+extern void func_0038d0d0(s32 a, s32 b);
 extern void func_0038d0a0(s32 a);
 extern void func_00388d20(s32 a);
 extern void func_00388d40(s32 a);
 extern void func_0010ad80(s32 a);
 extern u8 *func_0010b060(u16 personaId);
-extern u16 D_008C024E;
+extern u16 D_008C024E[];
 extern s32 func_00106330(s32 a);
 extern s32 func_00107890(s32 a);
 extern s32 func_0015a190(void);
@@ -115,19 +117,217 @@ extern void func_00106390(s32 a, s32 b);
 
 
 
-/* measured: retail hoists the case-0 loop's slot-address computation
-   (sll/addu/addiu -> $s6, a 7th saved register, frame -0xB0) ABOVE the
-   func_0010ace0 jal and stores through $s6 after it; mwcc b210 always sinks
-   the address to the store after the call (sll/addu/sw in $v1, 6 saved regs,
-   frame -0xA0) no matter the spelling — named slotp local before the call,
-   inline store, while/for shapes. Same load-sinking floor family as
-   func_00381830; every other byte matched in the 0x840 function (jump-table
-   dispatch, arg order, var_20/var_21/temp_18 register assignment, dsll32 /
-   dsra32 at the func_0010ace0 call reproduced by the s32->s16 param
-   conversion, s64->s32 counter compare with plain slt, spA4/spA8 buffer
-   reads at 0xA4/0xA8). nd 387-421. */
-// FUN_00380EA0
+/* measured: r3b_u16 271 words (probe_variants), retail 528 instrs vs object 529 */
+/* (1 over, 0.2%, banks per 3% rule); fnalign 125 edits +10 reloc-only, */
+/* frame 0xA0 vs retail 0xB0. m2c failed (jr without jump table at line 28); */
+/* reconstructed from retail + Ghidra/IDA + sibling btlShuffle idiom. */
+/* Wins: D_008C024E scalar -> array (absolute lui+lhu, exact count) and */
+/* s32 cnt/cur &0xFFFF -> u16 (430->271). */
+/* Tried and tied/worse, do not repeat: sum 0x1C+0x20 swap, slot addu */
+/* state-first/sum-first casts, slot reuse vs recompute (worse), for vs while, */
+/* block-scope counters, s16 i (worse), decl swap, u32 sum, u32 buf, u16 j */
+/* (worse), (s16) compare (worse). */
+/* Walls: retail hoists case-0 slot-address (sll/addu/addiu -> $s6, 7 saved */
+/* regs) above func_0010ace0 jal; b210 sinks to store after (6 regs) in all */
+/* spellings; remaining addu rs/rt swaps and loop extra andis are downstream. */
+// FUN_00380EA0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00380ea0(u8 *arg0)
+{
+    u8 *state;
+    s32 sum;
+    u16 cnt;
+    u16 cur;
+    s32 i;
+    s32 j;
+    u16 *slotp;
+    u8 buf[0x30];
+    s32 res;
+
+    state = arg0 + 0x18;
+    sum = *(s32 *)(arg0 + 0x1C) + *(s32 *)(arg0 + 0x20);
+    switch (*(s32 *)state) {
+    case 0:
+        func_0010cad0(state + 0x1C, *(u16 *)(arg0 + 0x10));
+        *(u8 **)(state + 0x4C) = state + 0x1C;
+        cnt = (u16)func_0010b5b0();
+        cur = (u16)func_0010b460();
+        j = 1;
+        for (i = 0; i < cnt; i++) {
+            slotp = func_0010ace0((s16)i);
+            *(u16 **)(state + j * 4 + 0x4C) = slotp;
+            if (*(u16 *)((u8 *)slotp + 2) != cur) {
+                j++;
+            }
+        }
+        res = func_00117780(*(s32 *)(*(u8 **)arg0 + 0x1F290), 0x12, 2, 5, 5);
+        *(s32 *)(state + 0x18) = res;
+        *(s32 *)(state + 0x0C) = j;
+        *(s32 *)state = 1;
+        *(s32 *)(state + 0x10) = 0;
+        *(s32 *)(state + 0x14) = 1;
+        /* fallthrough */
+    case 1:
+        func_002bb7c0(1);
+        if (func_002bb600() == 0) {
+            func_002bb1e0(1);
+            *(s32 *)state = 2;
+            {
+                s32 v;
+                v = *(s32 *)(*(u8 **)arg0 + 0x1F298);
+                {
+                    func_0038d060(v);
+                    func_0038d0d0(v, 4);
+                }
+                func_00388d20(*(s32 *)(*(u8 **)arg0 + 0x1F294));
+            }
+        }
+        break;
+    case 2:
+        if (*(s32 *)(state + 0x14) == 0) {
+            if (D_008C024E[0] & 0x40) {
+                u8 *txt;
+                txt = func_00109220(*(u16 *)(*(u8 **)(state + sum * 4 + 0x4C) + 2));
+                func_002bbd20(0, txt);
+                func_002bad10(4);
+                func_002baf40(5);
+                func_002bb050(1);
+                func_002bbf60();
+                *(s32 *)state = 5;
+                func_0045af60(0, 4, 0, 1);
+                func_0045af60(0, 4, 0, 1);
+            } else if (D_008C024E[0] & 0x80) {
+                func_0011b480(*(s32 *)(state + 0x18), 1, *(u8 **)(state + sum * 4 + 0x4C), 0);
+                func_0011bb90(*(s32 *)(state + 0x18));
+                *(s32 *)state = 3;
+            } else {
+                func_00453670(buf, 0xC, *(s32 *)(state + 0x0C));
+                func_004538e0(buf, 0x4000, 0x1000, 0, 0);
+                if (func_00453960(buf) != 0) {
+                    *(s32 *)(state + 4) = *(s32 *)(buf + 0x24);
+                    *(s32 *)(state + 8) = *(s32 *)(buf + 0x28);
+                    func_0045af60(0, 4, 0, 0);
+                }
+            }
+        }
+        break;
+    case 3:
+        if (D_008C024E[0] & 0x40) {
+            func_0011bc70(*(s32 *)(state + 0x18));
+            {
+                u8 *txt;
+                txt = func_00109220(*(u16 *)(*(u8 **)(state + (*(s32 *)(state + 4) + *(s32 *)(state + 8)) * 4 + 0x4C) + 2));
+                func_002bbd20(0, txt);
+                func_002bad10(4);
+                func_002baf40(5);
+                func_002bb050(1);
+                func_002bbf60();
+                *(s32 *)state = 5;
+                func_0045af60(0, 4, 0, 1);
+            }
+        } else if (D_008C024E[0] & 0x20) {
+            func_0011bc70(*(s32 *)(state + 0x18));
+            *(s32 *)state = 2;
+            func_0045af60(0, 4, 0, 4);
+        } else if (D_008C024E[0] & 0x80) {
+            func_0011c630(*(s32 *)(state + 0x18));
+            *(s32 *)state = 4;
+        } else {
+            func_00453670(buf, 0xC, *(s32 *)(state + 0x0C));
+            func_00453860(buf, 8, 4, 0, 0);
+            func_00453760(buf, 0);
+            res = func_00453960(buf);
+            if (res > 0) {
+                *(s32 *)(state + 4) = *(s32 *)(buf + 0x24);
+                *(s32 *)(state + 8) = *(s32 *)(buf + 0x28);
+                if (res == 2) {
+                    func_0011c180(*(s32 *)(state + 0x18), 1, *(u8 **)(state + (*(s32 *)(state + 4) + *(s32 *)(state + 8)) * 4 + 0x4C), 0);
+                } else if (res == 1) {
+                    func_0011c2c0(*(s32 *)(state + 0x18), 1, *(u8 **)(state + (*(s32 *)(state + 4) + *(s32 *)(state + 8)) * 4 + 0x4C), 0);
+                }
+            }
+        }
+        break;
+    case 4:
+        if ((D_008C024E[0] & 0x80) || (D_008C024E[0] & 0x20)) {
+            func_0011c6e0(*(s32 *)(state + 0x18), 1);
+            *(s32 *)state = 3;
+        } else if (D_008C024E[0] & 0x40) {
+            func_0011bc70(*(s32 *)(state + 0x18));
+            {
+                u8 *txt;
+                txt = func_00109220(*(u16 *)(*(u8 **)(state + (*(s32 *)(state + 4) + *(s32 *)(state + 8)) * 4 + 0x4C) + 2));
+                func_002bbd20(0, txt);
+                func_002bad10(4);
+                func_002baf40(5);
+                func_002bb050(1);
+                func_002bbf60();
+                *(s32 *)state = 5;
+                func_0045af60(0, 4, 0, 1);
+            }
+        } else {
+            func_00453670(buf, 0xC, *(s32 *)(state + 0x0C));
+            func_00453860(buf, 8, 4, 0, 0);
+            func_00453760(buf, 0);
+            res = func_00453960(buf);
+            if (res <= 0) {
+                func_0011caf0(*(s32 *)(state + 0x18));
+            } else {
+                *(s32 *)(state + 4) = *(s32 *)(buf + 0x24);
+                *(s32 *)(state + 8) = *(s32 *)(buf + 0x28);
+                if (res == 2) {
+                    func_0011c180(*(s32 *)(state + 0x18), 1, *(u8 **)(state + (*(s32 *)(state + 4) + *(s32 *)(state + 8)) * 4 + 0x4C), 0);
+                } else if (res == 1) {
+                    func_0011c2c0(*(s32 *)(state + 0x18), 1, *(u8 **)(state + (*(s32 *)(state + 4) + *(s32 *)(state + 8)) * 4 + 0x4C), 0);
+                }
+                *(s32 *)state = 3;
+            }
+        }
+        break;
+    case 5:
+        func_002bb7c0(1);
+        if (func_002bb600() == 0) {
+            res = func_002bb140();
+            if (res == 1) {
+                func_002bb1e0(1);
+                *(s32 *)state = 2;
+            } else if (res == 0) {
+                func_0011b360(*(s32 *)(state + 0x18));
+                *(s32 *)(state + 0x18) = 0;
+                func_0038d0a0(*(s32 *)(*(u8 **)arg0 + 0x1F298));
+                func_00388d40(*(s32 *)(*(u8 **)arg0 + 0x1F294));
+                {
+                    u8 *slot;
+                    u8 *txt;
+                    slot = *(u8 **)(state + sum * 4 + 0x4C);
+                    txt = func_00109220(*(u16 *)(slot + 2));
+                    func_002bbd20(0, txt);
+                    func_002bad10(6);
+                    *(s32 *)state = 6;
+                    if (sum != 0) {
+                        func_0010ad80(*(u16 *)(slot + 2));
+                        func_0010b060(*(u16 *)(arg0 + 0x10));
+                    }
+                }
+            }
+        }
+        break;
+    case 6:
+        func_002bb7c0(1);
+        if (func_002bb600() == 0) {
+            func_002bb1e0(1);
+            return 1;
+        }
+        break;
+    default:
+        func_0046d730(D_0064EC70, 0x3F4);
+        break;
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleResult", func_00380ea0);
+#endif
 
 // FUN_003816E0
 s32 func_003816e0(u8 *arg0) {
