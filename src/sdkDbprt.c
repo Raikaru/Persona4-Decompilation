@@ -102,7 +102,7 @@ void H_Dbprt_Flush()
         curr = next;
     }
 }
-/* Floor (measured 2026-09-17, source-repo only): probe_variants w2 163 words BEST (w1 202, w3 s64 230, loop 219, sched 196, nobl 163 neutral, prop 211), fnalign 220/230/87 (+8), emitted 920B/window 880B (+40 over from flat quads+while copy restoring frame 0x190; not short so banked per 100+word rule). Frame MATCH, vtBase hoist restores 7+1 jalr, dead low branch kept. Prior nd175 claim had no body and wrong-tree scores discarded. Banked as guarded floor; production stays ASM. */
+/* Floor (measured 2026-09-17, source-repo only): quad-base hoist (qf/qi locals over quads[i*16]) 163 -> 124 words, fnalign 218/218/74; the +10-instr over-emission is gone (was 230 obj vs 220 retail: the four qi stores each recomputed (i*16+k)*4, the sll+5/addu+4/addiu+3 opclass surplus). Singles sweep on the 163 body: opt_unroll_loops off, opt_strength_reduction off, opt_dead_assignments off all neutral (genuinely inert, verified byte-identical objects; b210 ignores them here), peephole off 166, cse 192, sched 196, prop 211, loop-inv 219. Tried: f878/white const hoists (125, white rematerialises per-iter). Prior: w2 163 best (w1 202, w3 s64 230, loop 219, sched 196, prop 211). Frame MATCH, vtBase hoist restores 7+1 jalr, dead low branch kept. Banked as guarded floor; production stays ASM. */
 // FUN_0044F720 NONMATCHING
 #ifdef NON_MATCHING
 void func_0044f720(void)
@@ -140,12 +140,14 @@ void func_0044f720(void)
         {
             s32 i;
             for (i = 0; i < 4; i++) {
-                quads[i * 16 + 6] = inv;
-                *(s32 *)&quads[i * 16 + 8] = 0x437F0000;
-                *(s32 *)&quads[i * 16 + 9] = 0x437F0000;
-                *(s32 *)&quads[i * 16 + 10] = 0x437F0000;
-                *(s32 *)&quads[i * 16 + 11] = 0x437F0000;
-                quads[i * 16 + 2] = D_008872F8[0];
+                f32 *qf = &quads[i * 16];
+                s32 *qi = (s32 *)qf;
+                qf[6] = inv;
+                qi[8] = 0x437F0000;
+                qi[9] = 0x437F0000;
+                qi[10] = 0x437F0000;
+                qi[11] = 0x437F0000;
+                qf[2] = D_008872F8[0];
             }
         }
         for (row = 0; row < 0x28; row++) {

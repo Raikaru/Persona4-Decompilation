@@ -146,7 +146,7 @@ extern MsgProcWindowF2 D_0063C030[10];
 
 
 
-/* Floor (measured 2026-09-17, source-repo only): probe_variants 10 reloc-masked words (bare), fnalign 465/465/11 (+34 reloc-only), emitted 1860B/window 1872B (99.4%%, exact instruction count). Four-pragma sweep on exact body: bare 10/11, loop_invariants 10/11, no_branch_likely 10/11, common_subs 446, schedule 418 -- bare wins, no pragma installed. Residual is saved-register rotation (ret $s2 vs $s0, v0/v1 $s0/$s1 vs $s1/$s2) + inner-switch ascending-vs-descending compares; COP1 adda/madd/msub chains, mov.s scheduling, float->u8 clamp, lb/lbu and dsll32 all match (0/0). TWIN COP1-floor claim outdated with authoritative s16/floats-first signatures. Banked as guarded floor; production stays ASM. */
+/* Floor (measured 2026-09-18, source-repo only): probe_variants 10 reloc-masked words (bare), fnalign 465/465/11 (+34 reloc-only), emitted 1860B/window 1872B (99.4%%, exact instruction count). Full 8+28 pragma sweep on exact body: banked 10 ties with loop_invariants 10, strength 10, unroll 10 + loop+strength/loop+unroll/strength+unroll 10; peephole 250, prop 360, dead 370, schedule 418, cse 446, no pair beats 10 -- bare wins, no pragma installed (dead_off 370 does not help here, unlike the 2w MATCH elsewhere). Inner 1/2/3 dispatch is already a real switch (3,2,1 descending source); switch 10 beats goto-chain 18 (restores descending compares but keeps rotation) and if-chain 256 (interleaved vs grouped compares). Residual is saved-register rotation (ret $s2 vs $s0, v0/v1 $s0/$s1 vs $s1/$s2) + inner-switch ascending-vs-descending compares (object 1,2,3 vs retail 3,2,1; bodies mirrored); COP1 adda/madd/msub chains, mov.s scheduling, float->u8 clamp, lb/lbu and dsll32 all match (0/0). Banked as guarded floor; production stays ASM. */
 // FUN_0027CAE0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0027cae0(MsgProcWindowEntry *arg)
@@ -555,9 +555,11 @@ void func_002818a0(u32 arg0, s32 arg1) {
     }
 }
 
-/* Floor (measured 2026-09-17, source-repo only): probe_variants base 485 words, fnalign 601/594/179 (+47 reloc), emitted 2376B/window 2416B (98.3%%, 2376>=2344 PASS). Four-pragma sweep on exact body: base 485/179, loop 485/179, sched 485/179, prop 486/183 -- base wins, no pragma installed. TWIN 608B triage stale vs 2416B window. Residual is FPU-chain scheduling + saved/FP coloring; dsll32 1/1 exact, signature neutral. Banked as guarded floor; production stays ASM. */
+/* Floor (measured 2026-09-18, source-repo only): banked 485 words, fnalign 601/594/179 (+47 reloc), emitted 2376B/window 2416B (98.3%% PASS). Full 8+28 sweep: prop+peephole 443 BEST, peephole 449, dead+peephole 451, loop+dead 474, dead 475, loop/strength/unroll 485 tie, prop 486, cse 502, schedule 519 -- installed prop+peephole (peephole gives exact count 602/602 vs base 594/601 short, un-merging the six bec0 bodies; words -42, edits 179->197 +37 reloc, size 2376B->2408B/2416B 99.7%%). TWIN 608B triage stale vs 2416B window. Residual is FPU-chain scheduling + saved/FP coloring (s0/a0 vs s2/a0 swap persists); dsll32 1/1 exact, signature neutral. Banked as guarded floor; production stays ASM. */
 // FUN_002818E0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_propagation off
+#pragma peephole off
 s32 func_002818e0(u8 *arg0, s32 arg1)
 {
     s32 ret;
@@ -734,6 +736,8 @@ found:
     }
     return ret;
 }
+#pragma peephole on
+#pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_002818e0);
 #endif
@@ -829,7 +833,7 @@ s32 func_002833b0(s32 arg0)
 // FUN_00283490
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_00283490);
 
-/* Floor (measured 2026-09-17, source-repo only): probe_variants plain 189 / loop_invariants 182 WINNER (cseoff 365, both 365), fnalign plain 522/519/54 (+114 reloc) / loop 522/519/52 (+114), emitted 2076B/window 2096B (99.05%%, 2076>=2034 PASS). measured: opt_loop_invariants on inside guard is worth 7 words / 2 edits (scan-loop base hoist); cseoff hurts (+176). Residual is register/branch-form only (case8 saved-vs-v0, scan-loop bnez/b vs beqz, gp sltu join, case17 double-branch); dsll32 2/2 exact, var_2 join exact, jtbl exact. Banked as guarded floor; production stays ASM. */
+/* Floor (measured 2026-09-18, source-repo only): banked 182 words (loop_invariants), fnalign 522/519/52 (+114 reloc), emitted 2076B/window 2096B (99.05%% PASS). Full 8+28 sweep: loop 182 ties with loop+dead/loop+prop/loop+strength/loop+unroll 182; bare/new singles 189, cse 365, peephole 418, schedule 446, no pair beats 182 -- installed loop stands (worth 7w/2ed via scan-loop base hoist; cseoff +176, peephole +236). Residual is register/branch-form only (case8 saved-vs-v0, scan-loop bnez/b vs beqz, gp sltu join, case17 double-branch); dsll32 2/2 exact, var_2 join exact, jtbl exact. Banked as guarded floor; production stays ASM. */
 // FUN_002848C0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on

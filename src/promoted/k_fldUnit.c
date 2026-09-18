@@ -2067,21 +2067,146 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00167560);
 
 
 
-/* measured: func_001679d0's best honest C is 772B at 175 differing words */
-/*   (reloc-masked fndiff; obj 772B/window 912B, 193 vs 225 instrs, 119 fnalign */
-/*   edits). Switch layout, local lifetimes, pointer splitting, and ready-test */
-/*   widths did not close the register/control-flow scheduling residual. This pass: */
-/*   scoped opt_common_subs off (alone and with propagation off) rematerialises the */
-/*   per-site slot addresses exactly like retail (sll/lui/addiu/addu at the collapse */
-/*   sites) but cascades to 209 words, so the 175-word archive stands; the full */
-/*   per-assignment recipe that matched sibling func_00165380 was not ported. */
-/*   2026-09-17 pass: ready as narrow/unsigned/u32-load (flat 175, braced narrow 185), */
-/*   p/slot declaration swap (flat), held kind-pointer (184, extra live range costs), */
-/*   slot recompute after calls (flat: file subs ON re-merges it), loop_invariants on */
-/*   inert by BOTH metrics (175 words, 119 edits — unlike mdlSE 0047e0f0, no snap). */
-/*   Archived in docs/probe_archive/W47FldUnit_001679d0_body.c; production stays ASM. */
-// FUN_001679D0
+/* measured: 153 differing words at an exact 228/228.  This replaces an
+   archived draft that emitted 772B against the 912B window - 15% short, so it
+   was never a floor - with a full re-derivation from the disassembly.
+   Levers that paid, in order: `opt_common_subs off` 191 -> 158, because retail
+   rematerialises `D_007F16F0 + i * 8` a second time inside the kind-3 arm
+   where b210 keeps the first result live; and declaring the three inner
+   five-iteration counters at block scope rather than sharing one function-scope
+   `k`, 158 -> 153, which stops the counter claiming a callee-saved register
+   where retail uses $a1.  Writing the kind compare as
+   `*(u16 *)(unit + 0x728) != *(s32 *)(work + j * 4 + 4)` puts the word load
+   first as retail has it.  The switch is a real `switch` with case 1 falling
+   through into case 2's `return -1`, which is what produces retail's
+   descending 2/1/0 compare chain ahead of the three ascending bodies.
+   WALL 1: retail materialises the any-slot test as `sltu $v0, $zero, $a0`
+   followed by `beqz $v0`, while b210 folds it to a bare `beqz $a0`.  Measured
+   and rejected: `(0U < (u32)used) != 0` (153), `(u32)used > 0U` (153),
+   assigning it to an `s32 any` first (153), and doing the same at both test
+   sites (188).
+   WALL 2: a two-position saved-register rotation - retail holds the work
+   pointer in $s2, the outer index in $s3 and the unit pointer in $s1, and
+   b210 uses $s0, $s1 and $s2 for the same three.  Four declaration orders
+   measured, all 153.  Pragmas on the `opt_common_subs off` base: propagation,
+   strength-reduction, loop-invariants, dead-assignments and unroll-loops all
+   tie at 158 before the block-scope fix; `schedule on` 209 and `peephole off`
+   197.  Two-definition pinning of the pair pointer ties at 158. */
+// FUN_001679D0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_common_subs off
+s32 func_001679d0(u8 *arg0)
+{
+    extern void func_0047ae10(s32 arg0, u16 arg1);
+    extern void func_0047d140(s32 arg0);
+    u8 *work;
+    u8 *unit;
+    u8 *pair;
+    u8 *kindp;
+    s32 i;
+    s32 j;
+    s32 used;
+    s32 n;
+
+    work = *(u8 **)(arg0 + 0x38);
+    switch (*(s32 *)work) {
+    case 0:
+        for (i = 0; i < 4; i++) {
+            used = 0;
+            unit = D_007EF9B0 + i * 1872;
+            if (*(s32 *)(unit + 0x48) != 0) {
+                if (*(s32 *)(unit + 0x54) != 0) {
+                    used = 1;
+                }
+            }
+            if (0U < (u32)used) {
+                for (j = 0; j < 4; j++) {
+                    if (*(u16 *)(unit + 0x728) != *(s32 *)(work + j * 4 + 4)) {
+                        continue;
+                    }
+                    kindp = unit + 0x728;
+                    if (*(u16 *)(unit + 0x728) == 3) {
+                        func_00165670(unit, 0);
+                        pair = D_007F16F0 + i * 8;
+                        if (*(s32 *)(pair + 4) != 0) {
+                            s32 k;
+
+                            for (k = 0; k < 5; k++) {
+                                *(u8 *)(*(s32 *)(pair + 4) + k * 12 + 0x28C) |= 1;
+                            }
+                            pair = D_007F16F0 + i * 8;
+                            unit = pair + 4;
+                            func_004787e0(*(s32 *)(pair + 4));
+                            *(s32 *)unit = 0;
+                            *(s16 *)(pair + 0) = 0;
+                            *(s16 *)(pair + 2) = 0;
+                        }
+                        unit = D_007EF9B0 + i * 1872;
+                        *(u8 **)(unit + 0x50) =
+                            func_00162680(*(u16 *)iGpffff9db0,
+                                          *(u16 *)(iGpffff9db0 + 4),
+                                          *(u16 *)kindp);
+                    } else {
+                        s32 k;
+
+                        for (k = 0; k < 5; k++) {
+                            func_0047ae10(*(s32 *)(unit + 0x50), k & 0xFFFF);
+                        }
+                        func_0047d140(*(s32 *)(unit + 0x50));
+                    }
+                    n = *(s32 *)(work + 0x14);
+                    *(s32 *)(work + n * 4 + 0x18) = i;
+                    *(s32 *)(work + 0x14) = *(s32 *)(work + 0x14) + 1;
+                    break;
+                }
+            }
+        }
+        *(s32 *)work = *(s32 *)work + 1;
+        return 0;
+    case 1:
+        for (i = 0; (u32)i < (u32)*(s32 *)(work + 0x14); i++) {
+            pair = work + i * 4;
+            kindp = pair + 0x18;
+            unit = D_007EF9B0 + *(s32 *)(pair + 0x18) * 1872;
+            if (*(u16 *)(unit + 0x728) == 3) {
+                if (func_004782b0(*(s32 *)(unit + 0x50)) == 0) {
+                    return 0;
+                }
+                used = 0;
+                unit = D_007EF9B0 + *(s32 *)kindp * 1872;
+                if (*(s32 *)(unit + 0x48) != 0) {
+                    if (*(s32 *)(unit + 0x54) != 0) {
+                        used = 1;
+                    }
+                }
+                if (!(0U < (u32)used)) {
+                    func_00164fa0(*(s32 *)kindp);
+                }
+            } else {
+                s32 k;
+
+                for (k = 0; k < 5; k++) {
+                    if (func_0047ae90(
+                            *(s32 *)(D_007EF9B0 + *(s32 *)(pair + 0x18) * 1872 +
+                                     0x50),
+                            k & 0xFFFF) == 0) {
+                        return 0;
+                    }
+                }
+            }
+        }
+        *(s32 *)work = *(s32 *)work + 1;
+        /* fallthrough */
+    case 2:
+        return -1;
+    }
+    return 0;
+}
+
+#pragma opt_common_subs on
+#else
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_001679d0);
+#endif
 
 // FUN_00167D60
 void func_00167d60(u8 *arg0)

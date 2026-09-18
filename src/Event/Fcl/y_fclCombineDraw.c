@@ -1103,8 +1103,109 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003212e0);
 /* with 2e4870(0)+sp100+(s16)j+0x14 lb test, 83e0 6-call block, for(i=0;(s16)i<(u16)func_0010b5b0();i=(s16)(i+1)) */
 /* with m=n*23, 25E/14E/7F constants, sq'd sp120 = v+3 reloaded as (s16) for 6a70. */
 /* Fresh 2026-09-17 (this lane, last in order after 004941f0/00347c70/003212e0): no new source probing -- prior best-of-3 body still missing so no --candidate re-measurement possible (P01C placeholder still 1-line, verified). 3212e0 PTR lever in this same file applies verbatim here per the sq/lq spill line above: use s32/u8* locals, never source u_long128, for the 0x120..0xC0 slots (u_long128 would widen frame 0x170 further, same family as 3212e0 0xF0->0x100); lwr/lwl stay plain *(u32*)(p+0x75) per preserved shapes (do not re-try u8-byte or s32-index forms); guarded (u8)(s32)f where present uses the shared 2.1474836e9f idiom per conventions. Production stays INCLUDE_ASM; wall stands as documented (heap unaligned-load + loop-CSE/spill/saved-reg rotation). */
-// FUN_003218A0
+/* measured (FclDrawB 2026-09-17): probe_variants 264 differing words reloc-masked via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_003218a0 --candidate V1=/var/tmp/drawB/c218a0_v1.c`; fnalign retail 366 vs object 357 instrs (206 edits) via `python3 tools/fnalign.py src/Event/Fcl/y_fclCombineDraw.c func_003218a0 --candidate /var/tmp/drawB/c218a0_v1.c --quiet`; 9 short (2.5% within 3% rule). Ports 003212e0 PTR lever (plain u8* for sq slots, never u_long128; u8[4] per-byte colours for lbu/sb; s32 v=(s16)arg1 raw to 6af0/69f0; iGpffff8504 for 6af0 7th arg). Prior best 273; this 264 is new best. Wall remains loop-CSE/spill/rotation per preserved note. */
+// FUN_003218A0 NONMATCHING
+#ifdef NON_MATCHING
+void func_003218a0(u8 *arg0, s64 arg1) {
+    u8 c16C[4];
+    u8 c168[4];
+    u8 c164[4];
+    u8 c160[4];
+    u8 c15C[4];
+    u8 c158[4];
+    s64 sp150;
+    s64 sp148;
+    s64 sp140;
+    s64 sp138;
+    s32 sp120;
+    s32 sp110;
+    s32 sp100;
+    s32 spF0;
+    u8 *spE0;
+    u8 *spD0;
+    u8 *spC0;
+    u8 *t;
+    s32 v;
+    s32 i;
+    s32 j;
+    s32 m;
+    s16 m2;
+    u8 *h;
+    u8 *e;
+    u8 *p;
+    t = *(u8 **)(arg0 + 0x38);
+    v = (s16)arg1;
+    sp120 = v + 3;
+    i = 0;
+    while ((s16)i < (s16)(u16)func_0010b5b0()) {
+        m = (s16)i * 23;
+        e = func_0034ae50(*(u8 **)(t + 0x184), (s8)i);
+        func_002b2970(&sp150, (f32)(m + 0x149), 104.0f);
+        func_002b2a60(c16C, 0, 0, 0x99, 0xFF);
+        func_002b2a60(c168, 0, 0, 0x99, 0xFF);
+        func_002b83e0(e, sp150, *(s32 *)c16C, *(s32 *)c168, 0xFF, 0xFF, 2, v, 32.0f, 159.0f, 0, 0);
+        m2 = (s16)((s16)i + 0x25E);
+        h = func_0046d200(func_00331560(), 0x39);
+        func_002b6a70(m2, 0, 0xFF, 0, 0, (s16)sp120);
+        func_002b6af0(m2, 0, 3, arg1, 1.0f, 1.0f, iGpffff8504, 1.0f);
+        sp110 = m + 0x14E;
+        func_002b2970(&sp148, (f32)sp110, 110.0f + func_0046b2f0(h) / 2.0f);
+        func_002b2970(&sp140, (f32)sp110, 110.0f);
+        func_002b69f0(m2, *(FclVec2 *)&sp148, *(FclVec2 *)&sp140, 0, 3, arg1);
+        func_002b68d0(m2, 0, 0);
+        func_0046d280(h);
+        j = 0;
+        p = t + (s16)i * 4;
+        sp100 = (s16)i * 12;
+        spF0 = m + 0x7F;
+        while ((s16)j < (s16)(u16)func_0010b5b0()) {
+            if (*(s16 *)(t + 0x11E) == (s16)i) {
+                func_002b2a60(c164, 0x2D, 0x2D, 0x2D, 0xFF);
+                e = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
+                e[0x75] = c164[0];
+                e[0x76] = c164[1];
+                e[0x77] = c164[2];
+                e[0x78] = c164[3];
+                if (*(s8 *)(func_002e4870(0) + sp100 + (s16)j + 0x14) > 0) {
+                    func_002b2a60(c160, 0xCC, 0xFF, 0x33, 0xFF);
+                    e = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
+                    e[0x75] = c160[0];
+                    e[0x76] = c160[1];
+                    e[0x77] = c160[2];
+                    e[0x78] = c160[3];
+                }
+            } else {
+                func_002b2a60(c15C, 0, 0, 0x99, 0xA5);
+                e = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
+                e[0x75] = c15C[0];
+                e[0x76] = c15C[1];
+                e[0x77] = c15C[2];
+                e[0x78] = c15C[3];
+                if (*(s8 *)(func_002e4870(0) + sp100 + (s16)j + 0x14) > 0) {
+                    func_002b2a60(c158, 0x49, 0x72, 0xFF, 0xCC);
+                    e = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
+                    e[0x75] = c158[0];
+                    e[0x76] = c158[1];
+                    e[0x77] = c158[2];
+                    e[0x78] = c158[3];
+                }
+            }
+            spE0 = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
+            func_002b2970(&sp138, (f32)((s16)j * 23 + 0x149), (f32)spF0);
+            e = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
+            spD0 = e;
+            e = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
+            spC0 = e;
+            e = func_0034ae50(*(u8 **)(p + 0x154), (s8)j);
+            func_002b83e0(spE0, sp138, *(u32 *)(spD0 + 0x75), *(u32 *)(spC0 + 0x75), *(u8 *)(spD0 + 0x78), *(u8 *)(spC0 + 0x78), 3, v, 32.0f, *(f32 *)(e + 4), 0, 0);
+            j = (s16)(j + 1);
+        }
+        i = (s16)(i + 1);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003218a0);
+#endif
 
 // measured: nd N/A (ldr/ldl unaligned 8B loads + draw-family). M2C_ERROR on ldr/ldl at 0x28/0x2f; the 6c30/69f0/6a70 s64-arg normalization floor also applies. Unaligned-load + s64-param floor.
 // FUN_00321E60
