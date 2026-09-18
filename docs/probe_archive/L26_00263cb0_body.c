@@ -2,16 +2,17 @@
 // FUN_00263CB0
 void func_00263cb0(s32 arg0, u8 *arg1)
 {
+    typedef signed __int128 s128;
     f32 spEC;
     f32 spE8;
     f32 spE4;
     f32 spE0;
-    s128 spD0;
+    s128 spD0 __attribute__((aligned(16)));
 s32 spCC;
 s32 spC8;
 s32 spC4;
 s32 spC0;
-    s128 spB0;
+    s128 spB0 __attribute__((aligned(16)));
 s32 spAC;
 s32 spA8;
 s32 spA4;

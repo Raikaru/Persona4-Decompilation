@@ -100,7 +100,7 @@ s32 func_00451fc0();
 
 /* Forward declarations for asm-fallback siblings referenced by C bodies. */
 void func_00253850();
-void func_00254a70();
+s32 func_00254a70();
 void func_0025b240();
 void func_0025c100();
 
@@ -510,11 +510,397 @@ INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252a60);
 // FUN_00253850
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00253850);
 
-/* measured: skipped; D_00887300 base rematerialization and saved-register
-   rotation remained a compiler-floor mismatch. Candidate archived in
-   build/LRankUp_00254a70_body.c. */
-// FUN_00254A70
+/* measured: banked (2026-09-18): archived docs/probe_archive/LRankUp_00254a70_body.c
+   (332 lines on disk, code 1-331, line 332 bare trailing note stripped) installed
+   guarded. GUARDED_SCORE 931 (reloc-masked via `python3 -E -s tools/measure_guarded.py
+   src/cmmRankUp.c func_00254a70 --save-candidate /tmp/cand54a70_banked2.c`); fnalign
+   retail 1060 vs object 1070 instrs (+10, +0.9% within 3% gate +/-32 via `python3 -E -s
+   tools/fnalign.py src/cmmRankUp.c func_00254a70 --candidate /tmp/cand54a70_banked2.c --quiet`)
+   with 481 edits +13 reloc-only, body 4280B vs retail 4240B (+40B), 102 relocs, frame
+   both 0x170. "Content fails" concretely: 931 differing words / 481 edits dominated by
+   (a) D_00887300 vtable-base rematerialization (retail hoists base to $18 once per
+   7-call block, MWCC emits lui/addiu per jalr), (b) saved-GPR/FPR color rotation
+   (retail $s/$f allocation vs MWCC reverse-decl order), (c) scheduling (copy-loop
+   load/store batching, float interpolation and call-arg materialization order).
+   Frame matches, no missing calls (15 jal targets +14 vtable jalr all present).
+   Repairs from archive: supplied RankUp54Locals (not sibling RankUpLocals: 13 fields
+   240B covering 0x80-0x170), 4 data externs above, fixed forward decl `void`->`s32`
+   `func_00254a70()` (K&R kept as archived `s32(arg0,arg1,arg2)`; 0-arg caller in
+   func_00255b00 still allowed via unspecified args; modernizing would prototype the
+   caller and break the 0-arg call, so kept K&R), added `(char *)/(void *)/(s32)` casts
+   for 0046a770/0025e9e0 sites (same moves), reordered 2x func_00274ed0 calls
+   to header order (fr_font_internal.h floats-first, same $a/$f mapping), supplied 7
+   prototypes above (0025f3f0/0025f430 from shdSprite, 0045dfd0 from mc, 0046a770 from
+   promoted/code1_0046 `u8*(char*)`, 0046b1f0 from shdSprite/sdkSpr `f32(void*,s32)`,
+   00246830 from cmmMisc `u8*(s32)`); no func_0025f360 calls so sibling `*(s32*)` fix
+   N/A. No dummy locals (all used), no volatile/asm. Correctness doubt for Main:
+   func_0025e9e0 has no recovered definition (still ASM in code1_0025); prototype
+   `void(s32x4+void*+s32+f32x3)` inferred from two retail call sites ($a0-$a3+$t0 and
+   $f12-$f14 with $f14=0.0f via mtc1 $0) and matching generated call shapes; return
+   assumed void (unused). If verified definition required, treat as doubt.
+   Production stays ASM via guard (build unchanged); next pass starts from this floor. */
+// FUN_00254A70 NONMATCHING
+#ifdef NON_MATCHING
+typedef struct {
+    u8 sp80[0x10];
+    u8 sp90[0x20];
+    u8 spB0[0x10];
+    u8 spC0[0x20];
+    u8 spE0[0x10];
+    u8 spF0[0x10];
+    u8 sp100[0x10];
+    u_long128 sp110;
+    u8 sp120[0x40];
+    u32 sp160;
+    u32 sp164;
+    u32 sp168;
+    u32 sp16C;
+} RankUp54Locals;
+extern u8 D_006362D0[];
+extern u8 D_00635CC0[];
+extern u8 D_00635CE0[];
+extern f32 D_0076118C;
+s32 func_0025f3f0(s32 a0, s32 a1, s32 a2, s32 a3, u8 *a4, s32 a5, f32 f0, f32 f1, f32 f2);
+s32 func_0025f430(s32 a0, s32 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s32 a6, s32 a7, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5);
+void func_0045dfd0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4);
+u8 *func_0046a770(char *arg0);
+f32 func_0046b1f0(void *ptr, s32 idx);
+void func_0025e9e0(s32 a0, s32 a1, s32 a2, void *a3, s32 a4, f32 f0, f32 f1, f32 f2);
+u8 *func_00246830(s32 arg0);
+s32 func_00254a70(arg0, arg1, arg2)
+s32 arg0;
+u8 *arg1;
+u8 *arg2;
+{
+    RankUp54Locals sp;
+    s32 var_16;
+    s32 temp_17;
+    s32 i;
+    s32 color;
+    s32 temp_s0;
+    s32 font;
+    s32 asset;
+    s32 count;
+    f32 temp_f0;
+    f32 temp_f1;
+    f32 temp_f12;
+    f32 temp_f13;
+    f32 temp_f14;
+    f32 temp_f20;
+    f32 temp_f21;
+    void (**vtable)(u32, u32);
+    u8 *src;
+    u8 *dst;
+    u8 *p;
+    s32 n;
+
+    var_16 = 0;
+    if (*(s32 *)(arg2 + 8) == 0xA) {
+        var_16 = 1;
+    }
+    temp_17 = *(s32 *)(arg1 + 4) - 0x3C;
+    if (temp_17 < 0x13) {
+        src = D_006362D0;
+        dst = sp.sp120;
+        n = 8;
+        do {
+            *(s32 *)dst = *(s32 *)src;
+            *(s32 *)(dst + 4) = *(s32 *)(src + 4);
+            src += 8;
+            dst += 8;
+            n--;
+        } while (n > 0);
+
+        p = (u8 *)&sp.sp168;
+        n = 4;
+        if (p != NULL) {
+            do {
+                *p++ = 0;
+                n--;
+            } while (n != 0);
+        }
+        sp.sp16C = sp.sp168;
+
+        p = sp.sp100;
+        n = 0x10;
+        if (p != NULL) {
+            do {
+                *p++ = 0;
+                n--;
+            } while (n != 0);
+        }
+        ((s32 *)sp.sp100)[0] = 0x15E;
+        ((s32 *)sp.sp100)[1] = 0x17C;
+        ((s32 *)sp.sp100)[2] = 0x122;
+        ((s32 *)sp.sp100)[3] = 0x64;
+        sp.sp110 = *(u_long128 *)sp.sp100;
+
+        vtable = D_00887300;
+        vtable[0](0xE, 0);
+        vtable[0](0xC, 1);
+        vtable[0](7, 2);
+        vtable[0](9, 1);
+        vtable[0](0x14, 1);
+        vtable[0](6, 0);
+        vtable[0](8, 1);
+        func_003f6440(3, 0x31003);
+        func_003f6440(2, 0x44);
+        func_00489f80();
+        func_0045d6e0(&sp.sp16C, &sp.sp110, 0, 5.0f);
+        func_0048a000();
+
+        i = 0;
+        while (i < 8) {
+            if (temp_17 < i) {
+                func_0025f3f0(0xFFFFFF, 0xFF, i + 0xD, 0,
+                              *(void **)(arg2 + 0x10), 1,
+                              ((f32 *)sp.sp120)[i * 2],
+                              ((f32 *)sp.sp120)[i * 2 + 1], 10.0f);
+            } else if (temp_17 - i < 9) {
+                temp_f0 = func_0044b7b0((D_00761184 * (f32)(temp_17 - i)) / 8.0f);
+                temp_f1 = ((f32 *)sp.sp120)[i * 2 + 1];
+                temp_f13 = temp_f1 + 50.0f * temp_f0;
+                func_0025f3f0(0xFFFFFF, 0xFF, i + 0xD, 0,
+                              *(void **)(arg2 + 0x10), 1,
+                              ((f32 *)sp.sp120)[i * 2], temp_f13, 10.0f);
+            }
+            i++;
+        }
+
+        p = (u8 *)&sp.sp160;
+        n = 4;
+        if (p != NULL) {
+            do {
+                *p++ = 0;
+                n--;
+            } while (n != 0);
+        }
+        sp.sp164 = sp.sp160;
+
+        p = sp.spE0;
+        n = 0x10;
+        if (p != NULL) {
+            do {
+                *p++ = 0;
+                n--;
+            } while (n != 0);
+        }
+        ((s32 *)sp.spE0)[0] = 0x15E;
+        ((s32 *)sp.spE0)[1] = 0x17C;
+        ((s32 *)sp.spE0)[2] = 0x122;
+        ((s32 *)sp.spE0)[3] = 0x64;
+        *(u_long128 *)sp.spF0 = *(u_long128 *)sp.spE0;
+
+        vtable = D_00887300;
+        vtable[0](0xE, 0);
+        vtable[0](0xC, 1);
+        vtable[0](7, 2);
+        vtable[0](9, 1);
+        vtable[0](0x14, 1);
+        vtable[0](6, 0);
+        vtable[0](8, 1);
+        func_003f6440(3, 0x31003);
+        func_003f6440(2, 0x44);
+        func_00489f80();
+        func_0045d6e0(&sp.sp164, &sp.spF0, 0, 0.0f);
+        func_0048a000();
+    }
+
+    if (temp_17 < 0x19) {
+        func_0025f3f0(0xFFFFFF, 0xFF, 0x29, 0,
+                      *(void **)(arg2 + 0x10), 1, 0.0f, 375.0f, 0.0f);
+    } else if (temp_17 < 0x24) {
+        temp_f0 = func_0044b7b0((D_00761184 * (f32)(temp_17 - 0x19)) / 10.0f);
+        temp_f12 = 640.0f * temp_f0;
+        func_0025f3f0(0xFFFFFF, 0xFF, 0x29, 0,
+                      *(void **)(arg2 + 0x10), 1, temp_f12, 375.0f, 0.0f);
+    }
+    if (temp_17 < 0x1E) {
+        func_0025f3f0(0xFFFFFF, 0xFF, var_16 + 0x2A, 0,
+                      *(void **)(arg2 + 0x10), 1, 0.0f, 380.0f, 0.0f);
+    } else if (temp_17 < 0x24) {
+        temp_f0 = func_0044b7b0((D_00761184 * (f32)(temp_17 - 0x1E)) / 5.0f);
+        temp_f12 = 380.0f;
+        temp_f13 = 375.0f + 10.0f * temp_f0;
+        temp_f14 = temp_f12;
+        func_0025f430(0xFFFFFF, 0xFF, var_16 + 0x2A, 0,
+                      *(void **)(arg2 + 0x10), 1, 0, 0,
+                      temp_f12, temp_f13, temp_f14, temp_f14, 1.0f,
+                      1.0f - temp_f0);
+    }
+
+    if (temp_17 < 0x14) {
+        if (var_16 == 0) {
+            func_0025f3f0(0xFFFFFF, 0xFF, 1, 0,
+                          *(void **)(arg2 + 0x10), 1, 188.0f, 375.0f, 0.0f);
+        } else {
+            func_0025f3f0(0xFFFFFF, 0xFF, 0x1A, 0,
+                          *(void **)(arg2 + 0x10), 1, 184.0f, 336.0f, 0.0f);
+        }
+        if (var_16 == 0) {
+            func_0025f3f0(0xFFFFFF, 0xFF, *(s32 *)(arg2 + 8) + 1, 0,
+                          *(void **)(arg2 + 0x10), 1, 277.0f, 350.0f, 0.0f);
+        }
+    } else if (temp_17 < 0x1A) {
+        temp_f0 = func_0044b7b0((D_00761184 * (f32)(temp_17 - 0x14)) / 5.0f);
+        temp_f20 = (f32)(s32)temp_f0;
+        temp_f21 = 1.0f - temp_f0;
+        if (var_16 == 0) {
+            temp_f14 = 188.0f;
+            temp_f13 = 375.0f + 28.0f * temp_f20;
+            func_0025f430(0xFFFFFF, 0xFF, 1, 0,
+                          *(void **)(arg2 + 0x10), 1, 0, 0,
+                          temp_f14, temp_f13, temp_f14, temp_f14, 1.0f,
+                          temp_f21);
+        } else {
+            temp_f14 = 184.0f;
+            temp_f13 = 368.0f + 28.0f * temp_f20;
+            func_0025f430(0xFFFFFF, 0xFF, 0x1A, 0,
+                          *(void **)(arg2 + 0x10), 1, 0, 0,
+                          temp_f14, temp_f13, temp_f14, temp_f14, 1.0f,
+                          temp_f21);
+        }
+        if (var_16 == 0) {
+            temp_f14 = 277.0f;
+            temp_f13 = 350.0f + 28.0f * temp_f20;
+            func_0025f430(0xFFFFFF, 0xFF, *(s32 *)(arg2 + 8) + 1, 0,
+                          *(void **)(arg2 + 0x10), 1, 0, 0,
+                          temp_f14, temp_f13, temp_f14, temp_f14, 1.0f,
+                          temp_f21);
+        }
+    }
+
+    if (temp_17 < 5) {
+        src = D_00635CC0;
+        dst = sp.spC0;
+        n = 4;
+        do {
+            *(s32 *)dst = *(s32 *)src;
+            *(s32 *)(dst + 4) = *(s32 *)(src + 4);
+            src += 8;
+            dst += 8;
+            n--;
+        } while (n > 0);
+        i = 0;
+        while (i < 4) {
+            ((f32 *)sp.spC0)[i * 2] += 218.0f;
+            ((f32 *)sp.spC0)[i * 2 + 1] += 406.0f;
+            p = sp.spB0 + i * 4;
+            p[0] = 0;
+            p[1] = 0;
+            p[2] = 0;
+            p[3] = 0x99;
+            i++;
+        }
+        func_0045dfd0(sp.spB0, sp.spC0, 4.0f, 4, 1, 0);
+        temp_s0 = *(s32 *)(arg2 + 4);
+        asset = *(s32 *)(arg2 + 0x10);
+        font = (s32)func_0046a770((char *)D_00635CE0);
+        if (font == 0) {
+            func_0046d730(D_00635CF8, 0x1E4);
+        }
+        temp_f20 = (f32)(299 - (((s32)func_0046b1f0(
+            (void *)font,
+            (s32)(((u8 *)func_002467b0(temp_s0 & 0xFFFF))[8]) + 0x20)) >> 1));
+        func_0025e9e0(0xFFFFFF, 0xFF,
+                      (s32)(((u8 *)func_002467b0(temp_s0 & 0xFFFF))[8]) + 0x20,
+                      (void *)font, 1, temp_f20, 407.0f, 0.0f);
+        func_0025f3f0(0xFFFFFF, 0xFF, 0x16, 0, (void *)asset, 1,
+                      355.0f, 411.0f, 0.0f);
+        func_00274ed0(392.0f, 403.0f, 0.0f, -1, 0, 1, (const char *)func_00246830(temp_s0 & 0xFFFF),
+                      0, 0);
+
+        i = 0;
+        while (i < 0xA) {
+            if (i >= *(s32 *)(arg2 + 8)) {
+                color = 0xDE7201;
+            } else {
+                color = 0xFFFFFF;
+            }
+            func_0025f3f0(color, 0xFF, 0x15, 0, (void *)asset, 1,
+                          (f32)(i * 0x17 + 0x162), 381.0f, 0.0f);
+            i++;
+        }
+        count = *(s16 *)(arg2 + 0x3E) + 1;
+        *(s16 *)(arg2 + 0x3E) = (s16)count;
+        if ((s16)count >= 0x2D) {
+            *(s16 *)(arg2 + 0x3E) = 0;
+        }
+        temp_f0 = func_0044b7b0(D_007612CC +
+                                (D_007612D0 * (f32)*(s16 *)(arg2 + 0x3E)) / 45.0f);
+        temp_f1 = (D_0076118C + D_00761288 * ((temp_f0 + 1.0f) / 2.0f));
+        temp_f1 = 255.0f * temp_f1 *
+                  (1.0f - (f32)temp_17 / 5.0f);
+        if (!(temp_f1 >= 2147483648.0f)) {
+            count = (s32)temp_f1 & 0xFF;
+        } else {
+            count = ((s32)(temp_f1 - 2147483648.0f) | 0x80000000) & 0xFF;
+        }
+        func_0025f3f0(color, count, 0x1C, 0, (void *)asset, 1,
+                      (f32)((*(s32 *)(arg2 + 8) - 1) * 0x17 + 0x15D),
+                      376.0f, 0.0f);
+    } else if (temp_17 < 0x15) {
+        temp_f20 = func_0044b7b0((D_00761184 * (f32)(temp_17 - 5)) / 15.0f);
+        src = D_00635CC0;
+        dst = sp.sp90;
+        n = 4;
+        do {
+            *(s32 *)dst = *(s32 *)src;
+            *(s32 *)(dst + 4) = *(s32 *)(src + 4);
+            src += 8;
+            dst += 8;
+            n--;
+        } while (n > 0);
+        i = 0;
+        while (i < 4) {
+            ((f32 *)sp.sp90)[i * 2] += 218.0f + 500.0f * temp_f20;
+            ((f32 *)sp.sp90)[i * 2 + 1] += 406.0f;
+            p = sp.sp80 + i * 4;
+            p[0] = 0;
+            p[1] = 0;
+            p[2] = 0;
+            p[3] = 0x99;
+            i++;
+        }
+        func_0045dfd0(sp.sp80, sp.sp90, 4.0f, 4, 1, 0);
+        temp_s0 = *(s32 *)(arg2 + 4);
+        asset = *(s32 *)(arg2 + 0x10);
+        font = (s32)func_0046a770((char *)D_00635CE0);
+        if (font == 0) {
+            func_0046d730(D_00635CF8, 0x1E4);
+        }
+        temp_f0 = func_0046b1f0(
+            (void *)font,
+            (s32)(((u8 *)func_002467b0(temp_s0 & 0xFFFF))[8]) + 0x20);
+        temp_s0 = (s32)(500.0f * temp_f20);
+        temp_f21 = (f32)(temp_s0 + 299 - ((s32)temp_f0 >> 1));
+        func_0025e9e0(0xFFFFFF, 0xFF,
+                      (s32)(((u8 *)func_002467b0((*(s32 *)(arg2 + 4)) & 0xFFFF))[8]) + 0x20,
+                      (void *)font, 1, temp_f21, 407.0f, 0.0f);
+        func_0025f3f0(0xFFFFFF, 0xFF, 0x16, 0, (void *)asset, 1,
+                      (f32)(temp_s0 + 355), 411.0f, 0.0f);
+        func_00274ed0((f32)(temp_s0 + 392), 403.0f, 0.0f,
+                      -1, 0, 1, (const char *)func_00246830((*(s32 *)(arg2 + 4)) & 0xFFFF),
+                      0, 0);
+
+        i = 0;
+        while (i < 0xA) {
+            if (i >= *(s32 *)(arg2 + 8)) {
+                color = 0xDE7201;
+            } else {
+                color = 0xFFFFFF;
+            }
+            func_0025f3f0(color, 0xFF, 0x15, 0, (void *)asset, 1,
+                          (f32)(i * 0x17 + 0x162) + temp_f20,
+                          381.0f, 0.0f);
+            i++;
+        }
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00254a70);
+#endif
 
 // FUN_00255B00
 s32 func_00255b00(s32 arg0, s32 *arg1) {
