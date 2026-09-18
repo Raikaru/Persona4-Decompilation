@@ -521,6 +521,37 @@ above — so singles are exhausted in that band and **pairs are the open
 ground**.  The win was itself found by a pair sweep and then narrowed to a
 single pragma, which is the order to work in.
 
+**Sharing one counter across disjoint loops is a live-range bug.** An
+m2c-derived body usually declares every temporary at function scope, so a
+single `s32 k` reused by three separate five-iteration loops has a live range
+spanning the whole function and claims a callee-saved register where retail
+uses `$a1`.  Declaring a counter inside each loop took `func_001679d0` from
+158 differing words to 153 and removed a saved register from the frame.
+Check every function-scope temporary that is written in more than one
+unrelated place.
+
+**Compare operand order decides load order.** On the same function,
+`*(u16 *)(unit + 0x728) != *(s32 *)(work + j * 4 + 4)` emits the word load
+first as retail does; the mirrored spelling emits the halfword first.  When
+`fnalign` shows two loads swapped ahead of a `bne`, swap the comparison.
+
+**A real `switch` with fallthrough produces retail's dispatch shape.**  Cases
+2, 1, 0 compared in descending order followed by three bodies in ascending
+order is what MWCC emits for a `switch`; an if/else chain interleaves compare,
+body and branch instead.  `func_001679d0`'s case 1 falls through into case 2's
+`return -1`, and writing that literally is what reproduced the chain.
+
+**Banking rule, because it keeps being reinvented.** There is no score
+threshold below which a body is worth keeping.  Byte-exact goes live with no
+guard; anything that compiles and lands within 3% of retail's emitted
+instruction count is banked as a guarded floor whatever it scores; only a body
+materially short or materially over is a draft, and then the note says so in
+plain terms with no invented numbers.  A 300-word floor in the tree beats a
+90-word body in `/var/tmp`, because the floor is what the next agent starts
+from and the only thing `floorboard.py` and `opclass.py` can measure.  Ten
+compiling bodies were discarded under an invented "nd > 25 gate" in one round,
+six of them into `build/`, which is gitignored.
+
 **Sweep the cheap pragmas, never reason about them.** Each of these costs
 one compile against a body you already have, so wrapping the guarded body
 and re-measuring is strictly cheaper than deciding whether it "should"
