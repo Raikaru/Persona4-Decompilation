@@ -969,25 +969,212 @@ s32 func_002d4f30(s16 arg0) {
     return 0;
 }
 
-/* measured: func_002d5040's full body was reconstructed (the 2a30/0b20/75680
-   chain, the three-case switch on work[7], the eight func_002cacd0 digit
-   calls) and compiles; nd 814 after four variants, dominated by ONE missing
-   instruction per 75680 group: retail sign-extends the func_002e2740/
-   func_00106cd0 result (dsll32/dsra32 16) before func_001067f0, and mwcc b210
-   emits nothing for an (s16) cast passed straight into a call arg (tried s16
-   and s32 params on func_001067f0) -- the value must be assigned to an s32
-   local first, `s32 c16 = (s16)func_002e2740(...);` (the func_002caa10 t21
-   pattern, which does emit the pair), then passed. That one word per group
-   shifts the rest of the stream; the lbu-vs-lb on the work[8]/work[7] byte
-   reads should then fall out of the alignment. Four-attempt budget
-   exhausted; missing-sign-extension floor. */
-/* lever-1 audit (this wave): func_002d5040 is void (void *arg0); the 8
-   func_002cacd0 calls now use the corrected 12-arg decl (last s32 arg_sp8 =
-   D_00793E80 + arg_sp8*0x30, was missing). func_001067f0 is void*(s32) and
-   func_002e2740 is s32(s32) -- both match; the documented fix (s32 c16 =
-   (s16)func_002e2740(...) local before func_001067f0) still stands. */
-// FUN_002D5040
+/* measured: probe_variants 924 differing words reloc-masked (V5 workFirst with opt_propagation off; bare V1 964, V4 handle 926, V6 tmpLast 924 tie); fnalign retail 1105 vs object 1090 instrs (-15, -1.36% PASS, 691 edits +32 reloc-only via --candidate v5_workFirst.c --quiet); verify/lint clean. Count-first PASS (within 3%). */
+/* Repro: `python3 -E -s tools/m2c_decompile.py src/Event/Fcl/y_fclShopDraw.c func_002d5040 -o /var/tmp/cold2d5040/m2c.c` (193 lines, void(void*) + s64 homes) + `python3 -E -s tools/romwright_decompile.py func_002d5040 -o /var/tmp/cold2d5040/rom.c` (277 lines, (void*) arity confirmed, CONCAT44/stack extents confirmed); `python3 -E -s tools/probe_variants.py src/Event/Fcl/y_fclShopDraw.c func_002d5040 --candidate V5=/var/tmp/cold2d5040/v5_workFirst.c` (924) + `python3 -E -s tools/fnalign.py src/Event/Fcl/y_fclShopDraw.c func_002d5040 --candidate /var/tmp/cold2d5040/v5_workFirst.c --quiet` (1105/1090) + `python3 -E -s tools/measure_guarded.py src/Event/Fcl/y_fclShopDraw.c func_002d5040`. */
+/* Rounds in batch order (count first): v1 964 (m2c+rom de-noise, Vec2f/u64/RGBA homes, s32 c16=(s16)2740/106cd0 locals for dsll32/dsra32, byte-first addu (*(s8*)((u8*)(*(s8*)(work+8)+(u32)work)+0xF73)), 1153/1108 +45 FAIL); v1 propOff 927 (-37, 1090/1105 -15 PASS) <-- family convention (31fa20 needs propOff; 315600 deadOff 762->755; 302770 peephole 787->728); v1 deadOff 973 worse, peephole 1141 worse; v2 dual-04e0 999 worse (1165 +57 FAIL); v3 u16-mask 931 worse; v4 h0-handle 926 (-1, s32 h0=(s32)46a770 first-call save to $s2); v5 workFirst 924 (-2, best PASS) + v6 tmpLast 924 tie; v5 schedOn 923 (-1) but 942/1105 -163 FAIL unbankable; v7 noDoubleExt 927 worse. Step3 subscript tie (Vec2f/u64/RGBA already retail ld/lw forms); Step4 decl-order tie (workFirst/tmpLast). Stopped after three non-improving rounds above 60. Banked v5+propOff as guarded floor. */
+/* Walls (same float-hoist+scheduling as sibling de5a0, now at 924): retail f20 hoisted vs object f12 rematerialised per 2970 pair (lui+lwc1 hoist vs interleaved lwc1/lui); retail lwc1/swc1 Vec2f copy vs object ld/sd; retail andi vs object ori/and under propOff (&0xFFFF); $s0/$s1 colouring (work/tmp/h0/dA/dB) persists -- body already in 7o form (bare decls, statement assigns in retail order) so eight probes are ties per handoff 7o; all logic matches: 2a30/0b20/75680 chain + three-case switch on work[7] (68b0/68e0 vs 6940/6970) + eight cacd0 digits (22.0f/0xF/0/0x1E/0x7B/h0/h1/0xA9) + blez/bgez tail pair (360+87/245/23). Prior nd-814 note superseded (sign-extension locals now in place via s32 cA/cB/c16); lever-1 audit void(void*) kept, cacd0 11-arg file decl kept (12-arg claim was wrong: 8 int regs + 2 stack + 1 float = 11). */
+// FUN_002D5040 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_propagation off
+void func_002d5040(void *arg0) {
+    extern s16 func_002e2740(s32 arg0);
+    Vec2f sp108;
+    Vec2f sp100;
+    Vec2f spF8;
+    Vec2f spF0;
+    Vec2f spE8;
+    Vec2f spE0;
+    Vec2f spD8;
+    Vec2f spD0;
+    Vec2f spC8;
+    Vec2f spC0;
+    u64 spA8;
+    u64 spA0;
+    u64 sp98;
+    u64 sp90;
+    u64 sp88;
+    u64 sp80;
+    u64 sp78;
+    u64 sp70;
+    RGBA sp12C;
+    RGBA sp128;
+    RGBA sp124;
+    RGBA sp120;
+    RGBA sp11C;
+    RGBA sp118;
+    RGBA sp114;
+    RGBA sp110;
+    Vec2f cB8;
+    Vec2f cB0;
+    u8 *work;
+    s32 tmp;
+    s32 t0;
+    s32 t1;
+    s32 c16;
+    s32 cA;
+    s32 cB;
+    s32 nA;
+    s32 h0;
+    s32 dA;
+    s32 dB;
+    u8 *pCE4;
+    u8 *pEDC;
+    work = *(u8 **)((u8 *)arg0 + 0x38);
+    cA = (s16)func_002e2740(*(s16 *)(work + 2));
+    cB = (s16)func_00106880((s16)cA);
+    tmp = func_002d4f30((s16)cB) & 0xFFFF;
+    pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
+    func_002b2970(&sp108, 37.0f + *(f32 *)(pCE4 + 0x2C), 35.0f + *(f32 *)(pCE4 + 0x30));
+    pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
+    func_002e0b20(tmp, sp108, 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+    t0 = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
+    pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
+    func_002b2970(&sp100, 79.0f + *(f32 *)(pCE4 + 0x2C), 34.0f + *(f32 *)(pCE4 + 0x30));
+    cB8 = sp100;
+    cA = (s16)func_002e2740(*(s16 *)(work + 2));
+    func_00275680(cB8.x, cB8.y, 31.0f, t0, 0, 1, (const char *)func_001067f0(cA), 0, 0, D_00795E30, -1);
+    t1 = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
+    pEDC = func_002e04e0(*(void **)(work + 0xEDC));
+    func_002b2970(&spF8, 79.0f + *(f32 *)(pEDC + 0x2C), 34.0f + *(f32 *)(pEDC + 0x30));
+    cB0 = spF8;
+    c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), *(s8 *)(work + 7));
+    func_00275680(cB0.x, cB0.y, 31.0f, t1, 0, 1, (const char *)func_001067f0(c16), 0, 0, D_00795E30, -1);
+    if (*(s8 *)(work + 7) == 0) {
+        pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
+        cA = (s16)func_002e2740(*(s16 *)(work + 2));
+        cB = (s16)func_001068b0((s16)cA);
+        tmp = cB & 0xFFFF;
+        nA = func_002b3170(tmp);
+        func_002b2970(&spA8, 51.0f + (296.0f + *(f32 *)(pCE4 + 0x2C)) + (f32)((s16)(nA - 1) * 8), 263.0f);
+        func_002b2a60(&sp12C, 0x2D, 0x2D, 0x2D, 0xFF);
+        h0 = (s32)func_0046a770(D_0063FB50);
+        func_002cacd0(spA8, 22.0f, sp12C, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
+        pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
+        cA = (s16)func_002e2740(*(s16 *)(work + 2));
+        cB = (s16)func_001068e0((s16)cA);
+        tmp = cB & 0xFFFF;
+        nA = func_002b3170(tmp);
+        func_002b2970(&spA0, 87.0f + (51.0f + (296.0f + *(f32 *)(pCE4 + 0x2C))) + (f32)((s16)(nA - 1) * 8), 263.0f);
+        func_002b2a60(&sp128, 0x2D, 0x2D, 0x2D, 0xFF);
+        h0 = (s32)func_0046a770(D_0063FB50);
+        func_002cacd0(spA0, 22.0f, sp128, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
+        pEDC = func_002e04e0(*(void **)(work + 0xEDC));
+        func_002b2970(&spF0, 37.0f + *(f32 *)(pEDC + 0x2C), 35.0f + *(f32 *)(pEDC + 0x30));
+        pEDC = func_002e04e0(*(void **)(work + 0xEDC));
+        func_002e0b20(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF7C), spF0, 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+        pEDC = func_002e04e0(*(void **)(work + 0xEDC));
+        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0);
+        cB = (s16)func_001068b0(c16);
+        tmp = cB & 0xFFFF;
+        nA = func_002b3170(tmp);
+        func_002b2970(&sp98, 51.0f + (296.0f + *(f32 *)(pEDC + 0x2C)) + (f32)((s16)(nA - 1) * 8), 149.0f);
+        func_002b2a60(&sp124, 0x2D, 0x2D, 0x2D, 0xFF);
+        h0 = (s32)func_0046a770(D_0063FB50);
+        func_002cacd0(sp98, 22.0f, sp124, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
+        pEDC = func_002e04e0(*(void **)(work + 0xEDC));
+        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0);
+        cB = (s16)func_001068e0(c16);
+        tmp = cB & 0xFFFF;
+        nA = func_002b3170(tmp);
+        func_002b2970(&sp90, 87.0f + (51.0f + (296.0f + *(f32 *)(pEDC + 0x2C))) + (f32)((s16)(nA - 1) * 8), 149.0f);
+        func_002b2a60(&sp120, 0x2D, 0x2D, 0x2D, 0xFF);
+        h0 = (s32)func_0046a770(D_0063FB50);
+        func_002cacd0(sp90, 22.0f, sp120, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
+        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0);
+        tmp = func_001068b0(c16) & 0xFFFF;
+        cA = (s16)func_002e2740(*(s16 *)(work + 2));
+        cB = (s16)func_001068b0((s16)cA);
+        dB = (s16)((cB & 0xFFFF) - tmp);
+        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0);
+        tmp = func_001068e0(c16) & 0xFFFF;
+        cA = (s16)func_002e2740(*(s16 *)(work + 2));
+        cB = (s16)func_001068e0((s16)cA);
+        dA = (s16)((cB & 0xFFFF) - tmp);
+    } else if (*(s8 *)(work + 7) == 1) {
+        pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
+        cA = (s16)func_002e2740(*(s16 *)(work + 2));
+        cB = (s16)func_00106940((s16)cA);
+        tmp = cB & 0xFFFF;
+        nA = func_002b3170(tmp);
+        func_002b2970(&sp88, 51.0f + (296.0f + *(f32 *)(pCE4 + 0x2C)) + (f32)((s16)(nA - 1) * 8), 263.0f);
+        func_002b2a60(&sp11C, 0x2D, 0x2D, 0x2D, 0xFF);
+        h0 = (s32)func_0046a770(D_0063FB50);
+        func_002cacd0(sp88, 22.0f, sp11C, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
+        pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
+        cA = (s16)func_002e2740(*(s16 *)(work + 2));
+        cB = (s16)func_00106970((s16)cA);
+        tmp = cB & 0xFFFF;
+        nA = func_002b3170(tmp);
+        func_002b2970(&sp80, 87.0f + (51.0f + (296.0f + *(f32 *)(pCE4 + 0x2C))) + (f32)((s16)(nA - 1) * 8), 263.0f);
+        func_002b2a60(&sp118, 0x2D, 0x2D, 0x2D, 0xFF);
+        h0 = (s32)func_0046a770(D_0063FB50);
+        func_002cacd0(sp80, 22.0f, sp118, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
+        pEDC = func_002e04e0(*(void **)(work + 0xEDC));
+        func_002b2970(&spE8, 37.0f + *(f32 *)(pEDC + 0x2C), 35.0f + *(f32 *)(pEDC + 0x30));
+        func_002e0b20(0x1B, spE8, 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+        pEDC = func_002e04e0(*(void **)(work + 0xEDC));
+        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1);
+        cB = (s16)func_00106940(c16);
+        tmp = cB & 0xFFFF;
+        nA = func_002b3170(tmp);
+        func_002b2970(&sp78, 51.0f + (296.0f + *(f32 *)(pEDC + 0x2C)) + (f32)((s16)(nA - 1) * 8), 149.0f);
+        func_002b2a60(&sp114, 0x2D, 0x2D, 0x2D, 0xFF);
+        h0 = (s32)func_0046a770(D_0063FB50);
+        func_002cacd0(sp78, 22.0f, sp114, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
+        pEDC = func_002e04e0(*(void **)(work + 0xEDC));
+        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1);
+        cB = (s16)func_00106970(c16);
+        tmp = cB & 0xFFFF;
+        nA = func_002b3170(tmp);
+        func_002b2970(&sp70, 87.0f + (51.0f + (296.0f + *(f32 *)(pEDC + 0x2C))) + (f32)((s16)(nA - 1) * 8), 149.0f);
+        func_002b2a60(&sp110, 0x2D, 0x2D, 0x2D, 0xFF);
+        h0 = (s32)func_0046a770(D_0063FB50);
+        func_002cacd0(sp70, 22.0f, sp110, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
+        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1);
+        tmp = func_00106940(c16) & 0xFFFF;
+        cA = (s16)func_002e2740(*(s16 *)(work + 2));
+        cB = (s16)func_00106940((s16)cA);
+        dB = (s16)((cB & 0xFFFF) - tmp);
+        c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1);
+        tmp = func_00106970(c16) & 0xFFFF;
+        cA = (s16)func_002e2740(*(s16 *)(work + 2));
+        cB = (s16)func_00106970((s16)cA);
+        dA = (s16)((cB & 0xFFFF) - tmp);
+    } else if (*(s8 *)(work + 7) == 2) {
+        pEDC = func_002e04e0(*(void **)(work + 0xEDC));
+        func_002b2970(&spE0, 37.0f + *(f32 *)(pEDC + 0x2C), 35.0f + *(f32 *)(pEDC + 0x30));
+        func_002e0b20(0x1C, spE0, 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+        dA = 0;
+        dB = 0;
+    } else {
+        dA = 0;
+        dB = 0;
+    }
+    if (dB > 0) {
+        pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
+        func_002b2970(&spD8, 360.0f + *(f32 *)(pCE4 + 0x2C), 245.0f);
+        func_002e0b20(0x28, spD8, 23.0f, func_002b2a30(0, 0xFA, 0x22, 0x3A), 0xFF, 0, D_00795E60);
+    } else if (dB < 0) {
+        pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
+        func_002b2970(&spD0, 360.0f + *(f32 *)(pCE4 + 0x2C), 245.0f);
+        func_002e0b20(0x29, spD0, 23.0f, func_002b2a30(0, 0x67, 0x67, 0x67), 0xFF, 0, D_00795E60);
+    }
+    if (dA > 0) {
+        pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
+        func_002b2970(&spC8, 87.0f + (360.0f + *(f32 *)(pCE4 + 0x2C)), 245.0f);
+        func_002e0b20(0x28, spC8, 23.0f, func_002b2a30(0, 0xFA, 0x22, 0x3A), 0xFF, 0, D_00795E60);
+        return;
+    }
+    if (dA < 0) {
+        pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
+        func_002b2970(&spC0, 87.0f + (360.0f + *(f32 *)(pCE4 + 0x2C)), 245.0f);
+        func_002e0b20(0x29, spC0, 23.0f, func_002b2a30(0, 0x67, 0x67, 0x67), 0xFF, 0, D_00795E60);
+    }
+}
+#pragma opt_propagation on
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d5040);
+#endif
 
 /* measured: full body reconstructed (19 RGBA color groups + 0a60/2a60/04e0/
    2970/0620 chains, 48 u64 slots, 2 ifs + 3-case switch); frame 0x200 and all

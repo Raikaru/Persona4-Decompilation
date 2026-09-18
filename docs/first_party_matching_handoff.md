@@ -496,6 +496,53 @@ retail and an $sN in the candidate.  It does not always apply - on
 the shared `j` ties at 27, so the cause there is something else.  One probe
 settles it either way.
 
+### 7r. When b210 uses the FPU accumulator, and what suppresses it
+
+Several floors carry a residual described as "FPU adda/madd canonicalisation"
+or "extra `mtc1 $zero, $fN` + nop".  It is not canonicalisation and it is not
+noise - b210 picks between three shapes by a rule that is easy to measure and
+easy to hit from source.  Measured with `tools/micro_codegen.py` on standalone
+snippets, `-O2`, b210 (capstone renders `adda.s`/`madd.s`/`mula.s` as `??`,
+which is the same mis-decode class as `bbit032`):
+
+| source | emitted |
+| --- | --- |
+| `a * b` | `mul.s` (1) |
+| `a + b` | `add.s` (1) |
+| `a * b + c` | `mtc1 $zero, $f0`, `nop`, `adda.s`, `madd.s` (4) |
+| `c + a * b` | identical 4 - spelling order does not matter |
+| `f32 t = a * b; t + c` | identical 4 |
+| `t = c; t += a * b` | identical 4 |
+| `p[0] + a * b` | `lwc1` then the same 4 |
+| `-(a * b) + c` | the same 4 |
+| `a * b + c * 1.0f` | the same 4 |
+| **`a * b + c * d`** | **`mula.s`, `madd.s` (2)** |
+| `a * b + c * d + e` | `mula.s`, `madd.s`, `add.s` (3) |
+| **product used twice** | **`mul.s` once, then `add.s` per use - no accumulator at all** |
+
+Two rules fall out.
+
+**A single product plus a non-product costs a `mtc1 $zero` accumulator
+prime.** There is no way to spell `a * b + c` that avoids it - memory operand,
+temporary, `+=`, negation and multiplying the addend by 1.0f were all measured
+and all emit the same four instructions.  So if your candidate has extra
+`mtc1 $zero, $fN` + `nop` pairs that retail does not, **retail's expression is
+not `a * b + c`**: it is either two products (`a * b + c * d`) or a product
+that is used more than once.  Look for the second product in the surrounding
+retail code rather than trying to respell the one you have.
+
+**Reusing a product suppresses the accumulator entirely.**  Writing
+`out[0] = a * b + c; out[1] = a * b + d;` emits one `mul.s` and two `add.s` -
+no `adda`, no `madd`, no prime.  That is the fastest explanation for a floor
+where retail has plain `mul.s`/`add.s` and the candidate has `adda`/`madd`, or
+the reverse: the two bodies disagree about whether the product is shared.
+
+This also settles `func_00479100`'s residual, which is three extra
+`mtc1 $zero, $fN` + `nop` pairs.  The colour arithmetic there was suspected
+and cleared by measurement - weakening the `(f32)(u32)` casts costs 202 to 314
+- so by the rule above the three sites are single-product expressions in this
+body and multi-product or shared-product expressions in retail.
+
 ### 7q. Two failure modes of banked work: stale archives, and claims without writes
 
 `docs/probe_archive/` is a graveyard, not a library.  A sweep on 2026-09-18
