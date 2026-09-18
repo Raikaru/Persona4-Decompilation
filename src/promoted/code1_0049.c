@@ -884,8 +884,425 @@ void func_00494680(void *arg0)
 
 
 
-// FUN_00494740
+// FUN_00494740 NONMATCHING
+/* Floor v1 (measured 2026-09-18, authoritative tree): probe_variants 456 words, obj 532 vs retail 532 instrs (exact, banks per 3% rule 516-548); */
+/* fnalign 298 edits (+20 reloc-only), frame/values/CFG per retail; VU dot/normalize/matrix/tail blocks as */
+/* genuine VU0 inline asm (each <=5 ordinary vs >=5 hardware, H009-clean); COP1 div/mul/add/sub/cvt stays plain C */
+/* with (f32)(u32) casts per 7a-quinquies. Re-measured commands (pwd source/Persona4-Decompilation): */
+/* python3 -E -s tools/probe_variants.py src/promoted/code1_0049.c func_00494740 --candidate v4=/var/tmp/cold494740/cand_v4.c */
+/* python3 -E -s tools/fnalign.py src/promoted/code1_0049.c func_00494740 --candidate /var/tmp/cold494740/cand_v4.c --quiet */
+/* python3 tools/measure_guarded.py src/promoted/code1_0049.c func_00494740 (after install) */
+/* Decompilers (into /var/tmp/cold494740/): m2c src/promoted/code1_0049.c func_00494740 -o m2c.c (256 lines, VU as M2C_ERROR); */
+/* romwright --raw -o rw_raw.c (433 lines, p-code VU intrinsics) + --types (5 args, float param). Counted 532 retail first. */
+/* Other cold in this owner still ASM, NOT claimed here: func_00490c40, func_004916f0, func_00492100. */
+#ifdef NON_MATCHING
+void func_00494740(u8 *arg0, u32 arg1, u8 *arg2, f32 fparg0) {
+    extern void func_0048a340(f32 arg0);
+    extern u_long128 D_00713D00;
+    extern f32 D_00713D10[];
+    extern f32 D_00713D14[];
+    extern f32 D_00713D18[];
+    extern f32 fGpffff8094;
+    extern f32 fGpffff80bc;
+    extern f32 fGpffff80c0;
+    extern f32 fGpffff80c4;
+    extern f32 fGpffff80c8;
+    extern f32 fGpffff80cc;
+    u_long128 stackA0 __attribute__((aligned(16)));
+    u_long128 stackB0 __attribute__((aligned(16)));
+    u8 *arg0save;
+    u32 idxMask;
+    u8 *base;
+    u8 *srcHi;
+    u8 *dstHi;
+    u32 cnt;
+    u32 i3;
+    s32 qdiv;
+    u32 bound;
+    u8 *cntPtr;
+    u32 cntVal;
+    u8 *cur;
+    u8 *curBase;
+    f32 f20;
+    f32 f21;
+    f32 f22;
+    f32 f23;
+    f32 ftmp;
+    u32 j;
+    u32 jbound;
+    u32 k;
+    u8 *dst2;
+    f32 a;
+    f32 b;
+    f32 u1;
+    f32 u2;
+
+    arg0save = arg0;
+    idxMask = arg1 & 0xFFFF;
+    {
+        u8 *t10 = *(u8 **)(arg0 + 0x10);
+        cnt = *(u16 *)(t10 + 8);
+        {
+            u8 *t1 = *(u8 **)(t10 + 0x10);
+            u8 *t2 = *(u8 **)(t1 + 0x18);
+            u8 *t3 = *(u8 **)(t2 + 0x5C);
+            u8 *tab = *(u8 **)(t3 + 0x14);
+            base = tab + (u32)cnt * idxMask * 12;
+        }
+        srcHi = base + ((s32)(s32)cnt - 5) * 12;
+        dstHi = base + ((s32)(s32)cnt - 2) * 12;
+    }
+    i3 = 3;
+    goto chk_shift;
+sh_body:
+    *(f32 *)dstHi = *(f32 *)srcHi;
+    *(f32 *)(dstHi + 4) = *(f32 *)(srcHi + 4);
+    *(f32 *)(dstHi + 8) = *(f32 *)(srcHi + 8);
+    srcHi -= 0x24;
+    dstHi -= 0x24;
+    i3 = (i3 + 3) & 0xFFFF;
+chk_shift:
+    if ((i3 & 0xFFFF) < cnt) {
+        goto sh_body;
+    }
+    *(f32 *)(base + 12) = *(f32 *)arg2;
+    *(f32 *)(base + 16) = *(f32 *)(arg2 + 4);
+    *(f32 *)(base + 20) = *(f32 *)(arg2 + 8);
+    qdiv = (s32)cnt / 3 - 1;
+    bound = (u32)qdiv & 0xFFFF;
+    cntPtr = *(u8 **)(arg0 + 0x18) + (idxMask * 2);
+    cntVal = *(u16 *)cntPtr;
+    if (bound >= cntVal) {
+        u32 nv = cntVal + 1;
+        cntVal = nv & 0xFFFF;
+        *(u16 *)cntPtr = (u16)nv;
+    }
+    curBase = base;
+    cur = base;
+    f21 = 0.0f;
+    __asm__ volatile("sqc2 $vf0, 0(%0)" : : "r"(&stackB0) : "memory");
+    __asm__ volatile("sqc2 $vf0, 0(%0)" : : "r"(&stackA0) : "memory");
+    j = 0;
+    if ((cntVal & 0xFFFF) < 2) {
+        goto tail_copy;
+    }
+    {
+        f32 c1 = (f32)(u32)cntVal;
+        f32 b1 = (f32)(u32)bound;
+        f23 = c1 / b1;
+        f22 = f23 / (f32)(u32)cntVal;
+        f21 = fparg0 * f23;
+    }
+    jbound = (cntVal - 1) & 0xFFFF;
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&D_00713D00), "m"(D_00713D00) : "$vf10", "memory");
+    __asm__ volatile(
+        "vmove.xyzw $vf24, $vf10 \n"
+        : : : "$vf24", "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(arg0save), "m"(*(u_long128 *)arg0save) : "$vf11", "memory");
+    __asm__ volatile(
+        "vmul.xyz $vf2, $vf10, $vf11 \n"
+        "vaddy.x $vf2, $vf2, $vf2y \n"
+        "vaddz.x $vf2, $vf2, $vf2z \n"
+        : : : "$vf2", "memory");
+    {
+        f32 fbits;
+        __asm__ volatile(
+            "qmfc2 $2, $vf2 \n"
+            "mtc1 $2, %0 \n"
+            : "=f"(fbits) : : "$2", "$vf2", "memory");
+        f20 = fGpffff8094 * fbits;
+    }
+    D_00713D10[0] = *(f32 *)(cur + 12);
+    D_00713D14[0] = *(f32 *)(cur + 16);
+    D_00713D18[0] = *(f32 *)(cur + 20);
+    __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(&D_00713D10), "m"(D_00713D10) : "$vf12", "memory");
+    D_00713D10[0] = *(f32 *)(cur + 48);
+    D_00713D14[0] = *(f32 *)(cur + 52);
+    D_00713D18[0] = *(f32 *)(cur + 56);
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&D_00713D10), "m"(D_00713D10) : "$vf10", "memory");
+    __asm__ volatile(
+        "vsub.xyzw $vf10, $vf10, $vf12 \n"
+        "vmul.xyz $vf2, $vf10, $vf10 \n"
+        "vmulax.w $ACC, $vf0, $vf2x \n"
+        "vmadday.w $ACC, $vf0, $vf2y \n"
+        "vmaddz.w $vf2, $vf0, $vf2z \n"
+        "vrsqrt $Q, $vf0w, $vf2w \n"
+        "vwaitq \n"
+        "vmulq.xyz $vf10, $vf10, $Q \n"
+        : : : "$vf2", "$vf10", "$vf12", "ACC", "Q", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(stackB0) : "r"(&stackB0) : "$vf10", "memory");
+    func_0048a340(f20);
+    __asm__ volatile(
+        "vmove.xyzw $vf10, $vf24 \n"
+        "vmulax.xyzw $ACC, $vf28, $vf10x \n"
+        "vmadday.xyzw $ACC, $vf29, $vf10y \n"
+        "vmaddz.xyzw $vf10, $vf30, $vf10z \n"
+        : : : "$vf10", "$vf24", "ACC", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(stackA0) : "r"(&stackA0) : "$vf10", "memory");
+    {
+        f32 bx = f21;
+        u32 bits;
+        __asm__ volatile("mfc1 %0, %1" : "=r"(bits) : "f"(bx));
+        __asm__ volatile("qmtc2 %0, $vf2" : : "r"(bits) : "$vf2", "memory");
+        __asm__ volatile(
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vadd.xyzw $vf12, $vf12, $vf10 \n"
+            : : : "$vf10", "$vf12", "$vf2", "memory");
+    }
+    __asm__ volatile("sqc2 $vf12, 0(%0)" : : "r"(&D_00713D10) : "$vf12", "memory");
+    *(f32 *)cur = D_00713D10[0];
+    *(f32 *)(cur + 4) = D_00713D14[0];
+    *(f32 *)(cur + 8) = D_00713D18[0];
+    __asm__ volatile(
+        "vsub.xyzw $vf12, $vf12, $vf10 \n"
+        "vsub.xyzw $vf12, $vf12, $vf10 \n"
+        : : : "$vf12", "$vf10", "memory");
+    __asm__ volatile("sqc2 $vf12, 0(%0)" : : "r"(&D_00713D10) : "$vf12", "memory");
+    *(f32 *)(cur + 24) = D_00713D10[0];
+    *(f32 *)(cur + 28) = D_00713D14[0];
+    *(f32 *)(cur + 32) = D_00713D18[0];
+    f23 = f23 - f22;
+    cur += 0x24;
+    j = 1 & 0xFFFF;
+    goto chk_vu;
+vu_body:
+    D_00713D10[0] = *(f32 *)(cur + 12);
+    D_00713D14[0] = *(f32 *)(cur + 16);
+    D_00713D18[0] = *(f32 *)(cur + 20);
+    __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(&D_00713D10), "m"(D_00713D10) : "$vf12", "memory");
+    D_00713D10[0] = *(f32 *)(cur + 48);
+    D_00713D14[0] = *(f32 *)(cur + 52);
+    D_00713D18[0] = *(f32 *)(cur + 56);
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&D_00713D10), "m"(D_00713D10) : "$vf10", "memory");
+    __asm__ volatile(
+        "vsub.xyzw $vf10, $vf10, $vf12 \n"
+        "vmul.xyz $vf2, $vf10, $vf10 \n"
+        "vmulax.w $ACC, $vf0, $vf2x \n"
+        "vmadday.w $ACC, $vf0, $vf2y \n"
+        "vmaddz.w $vf2, $vf0, $vf2z \n"
+        "vrsqrt $Q, $vf0w, $vf2w \n"
+        "vwaitq \n"
+        "vmulq.xyz $vf10, $vf10, $Q \n"
+        : : : "$vf2", "$vf10", "$vf12", "ACC", "Q", "memory");
+    func_0048a340(f20);
+    __asm__ volatile(
+        "vmove.xyzw $vf10, $vf24 \n"
+        "vmulax.xyzw $ACC, $vf28, $vf10x \n"
+        "vmadday.xyzw $ACC, $vf29, $vf10y \n"
+        "vmaddz.xyzw $vf10, $vf30, $vf10z \n"
+        : : : "$vf10", "$vf24", "ACC", "memory");
+    {
+        f32 t = fparg0 * f23;
+        u32 bits;
+        __asm__ volatile("mfc1 %0, %1" : "=r"(bits) : "f"(t));
+        __asm__ volatile("qmtc2 %0, $vf2" : : "r"(bits) : "$vf2", "memory");
+        __asm__ volatile(
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vadd.xyzw $vf12, $vf12, $vf10 \n"
+            : : : "$vf10", "$vf12", "$vf2", "memory");
+    }
+    __asm__ volatile("sqc2 $vf12, 0(%0)" : : "r"(&D_00713D10) : "$vf12", "memory");
+    {
+        u8 *dst = cur + 36;
+        *(f32 *)dst = D_00713D10[0];
+        *(f32 *)(dst + 4) = D_00713D14[0];
+        *(f32 *)(dst + 8) = D_00713D18[0];
+    }
+    __asm__ volatile(
+        "vsub.xyzw $vf12, $vf12, $vf10 \n"
+        "vsub.xyzw $vf12, $vf12, $vf10 \n"
+        : : : "$vf12", "$vf10", "memory");
+    __asm__ volatile("sqc2 $vf12, 0(%0)" : : "r"(&D_00713D10) : "$vf12", "memory");
+    *(f32 *)(cur + 36 + 24) = D_00713D10[0];
+    *(f32 *)(cur + 36 + 28) = D_00713D14[0];
+    *(f32 *)(cur + 36 + 32) = D_00713D18[0];
+    f23 = f23 - f22;
+    cur += 0x24;
+    j = (j + 1) & 0xFFFF;
+chk_vu:
+    if ((j & 0xFFFF) < (jbound & 0xFFFF)) {
+        goto vu_body;
+    }
+tail_copy:
+    *(f32 *)cur = *(f32 *)(cur + 12);
+    *(f32 *)(cur + 4) = *(f32 *)(cur + 16);
+    *(f32 *)(cur + 8) = *(f32 *)(cur + 20);
+    *(f32 *)(cur + 24) = *(f32 *)(cur + 12);
+    *(f32 *)(cur + 28) = *(f32 *)(cur + 16);
+    *(f32 *)(cur + 32) = *(f32 *)(cur + 20);
+    {
+        u8 *nxt = cur + 0x24;
+        k = j;
+        goto chk_tail;
+tail_body:
+        *(f32 *)nxt = *(f32 *)cur;
+        *(f32 *)(nxt + 4) = *(f32 *)(cur + 4);
+        *(f32 *)(nxt + 8) = *(f32 *)(cur + 8);
+        *(f32 *)(nxt + 12) = *(f32 *)(cur + 12);
+        *(f32 *)(nxt + 16) = *(f32 *)(cur + 16);
+        *(f32 *)(nxt + 20) = *(f32 *)(cur + 20);
+        *(f32 *)(nxt + 24) = *(f32 *)(cur + 24);
+        *(f32 *)(nxt + 28) = *(f32 *)(cur + 28);
+        *(f32 *)(nxt + 32) = *(f32 *)(cur + 32);
+        nxt += 0x24;
+        k = (k + 1) & 0xFFFF;
+chk_tail:
+        if ((k & 0xFFFF) < (bound & 0xFFFF)) {
+            goto tail_body;
+        }
+        {
+            u8 *t = *(u8 **)(arg0save + 0x14);
+            u32 c2 = *(u16 *)(t + 8);
+            u8 *t1 = *(u8 **)(t + 0x10);
+            u8 *t2 = *(u8 **)(t1 + 0x18);
+            u8 *t3 = *(u8 **)(t2 + 0x5C);
+            u8 *tab2 = *(u8 **)(t3 + 0x14);
+            dst2 = tab2 + (u32)c2 * idxMask * 12;
+            u1 = *(f32 *)(curBase + 12);
+            u2 = *(f32 *)(curBase + 16);
+            *(f32 *)dst2 = u1;
+            *(f32 *)(dst2 + 4) = u2;
+            *(f32 *)(dst2 + 8) = *(f32 *)(curBase + 20);
+            *(f32 *)(dst2 + 12) = *(f32 *)curBase;
+            *(f32 *)(dst2 + 16) = *(f32 *)(curBase + 4);
+            *(f32 *)(dst2 + 20) = *(f32 *)(curBase + 8);
+            *(f32 *)(dst2 + 84) = *(f32 *)(curBase + 24);
+            *(f32 *)(dst2 + 88) = *(f32 *)(curBase + 28);
+            *(f32 *)(dst2 + 92) = *(f32 *)(curBase + 32);
+        }
+        {
+            f32 bx;
+            f32 by;
+            f32 bz;
+            f32 bw;
+            __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&stackB0), "m"(stackB0) : "$vf11", "memory");
+            __asm__ volatile("vsub.xyz $vf11, $vf0, $vf11" : : : "$vf11", "memory");
+            a = 2.0f * f21;
+            {
+                u32 bits;
+                __asm__ volatile("mfc1 %0, %1" : "=r"(bits) : "f"(a));
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(bits) : "$vf2", "memory");
+                __asm__ volatile("vmulx.xyzw $vf11, $vf11, $vf2x" : : : "$vf11", "$vf2", "memory");
+            }
+            D_00713D10[0] = *(f32 *)(curBase + 12);
+            D_00713D14[0] = *(f32 *)(curBase + 16);
+            D_00713D18[0] = *(f32 *)(curBase + 20);
+            __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(&D_00713D10), "m"(D_00713D10) : "$vf12", "memory");
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&stackA0), "m"(stackA0) : "$vf10", "memory");
+            b = fGpffff80bc * f21;
+            {
+                u32 bits;
+                __asm__ volatile("mfc1 %0, %1" : "=r"(bits) : "f"(b));
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(bits) : "$vf2", "memory");
+                __asm__ volatile("vmulx.xyzw $vf10, $vf10, $vf2x" : : : "$vf10", "$vf2", "memory");
+            }
+            {
+                u32 bits;
+                __asm__ volatile("mfc1 %0, %1" : "=r"(bits) : "f"(fGpffff80c0));
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(bits) : "$vf2", "memory");
+                __asm__ volatile(
+                    "vsubx.w $vf3, $vf0, $vf2x \n"
+                    "vmulax.xyzw $ACC, $vf11, $vf2x \n"
+                    "vmaddw.xyzw $vf10, $vf10, $vf3w \n"
+                    "vadd.xyzw $vf10, $vf10, $vf12 \n"
+                    : : : "$vf3", "$vf10", "$vf11", "$vf12", "$vf2", "ACC", "memory");
+            }
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&D_00713D10) : "$vf10", "memory");
+            *(f32 *)(dst2 + 24) = D_00713D10[0];
+            *(f32 *)(dst2 + 28) = D_00713D14[0];
+            *(f32 *)(dst2 + 32) = D_00713D18[0];
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&stackA0), "m"(stackA0) : "$vf10", "memory");
+            b = fGpffff80c4 * f21;
+            {
+                u32 bits;
+                __asm__ volatile("mfc1 %0, %1" : "=r"(bits) : "f"(b));
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(bits) : "$vf2", "memory");
+                __asm__ volatile("vmulx.xyzw $vf10, $vf10, $vf2x" : : : "$vf10", "$vf2", "memory");
+            }
+            {
+                u32 bits;
+                __asm__ volatile("mfc1 %0, %1" : "=r"(bits) : "f"(fGpffff80c8));
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(bits) : "$vf2", "memory");
+                __asm__ volatile(
+                    "vsubx.w $vf3, $vf0, $vf2x \n"
+                    "vmulax.xyzw $ACC, $vf11, $vf2x \n"
+                    "vmaddw.xyzw $vf10, $vf10, $vf3w \n"
+                    "vadd.xyzw $vf10, $vf10, $vf12 \n"
+                    : : : "$vf3", "$vf10", "$vf11", "$vf12", "$vf2", "ACC", "memory");
+            }
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&D_00713D10) : "$vf10", "memory");
+            *(f32 *)(dst2 + 36) = D_00713D10[0];
+            *(f32 *)(dst2 + 40) = D_00713D14[0];
+            *(f32 *)(dst2 + 44) = D_00713D18[0];
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&stackA0), "m"(stackA0) : "$vf10", "memory");
+            {
+                u32 bits;
+                __asm__ volatile("mfc1 %0, %1" : "=r"(bits) : "f"(b));
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(bits) : "$vf2", "memory");
+                __asm__ volatile(
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "vsub.xyz $vf10, $vf0, $vf10 \n"
+                    : : : "$vf10", "$vf2", "memory");
+            }
+            {
+                u32 bits;
+                __asm__ volatile("mfc1 %0, %1" : "=r"(bits) : "f"(fGpffff80c0));
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(bits) : "$vf2", "memory");
+                __asm__ volatile(
+                    "vsubx.w $vf3, $vf0, $vf2x \n"
+                    "vmulax.xyzw $ACC, $vf11, $vf2x \n"
+                    "vmaddw.xyzw $vf10, $vf10, $vf3w \n"
+                    "vadd.xyzw $vf10, $vf10, $vf12 \n"
+                    : : : "$vf3", "$vf10", "$vf11", "$vf12", "$vf2", "ACC", "memory");
+            }
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&D_00713D10) : "$vf10", "memory");
+            *(f32 *)(dst2 + 72) = D_00713D10[0];
+            *(f32 *)(dst2 + 76) = D_00713D14[0];
+            *(f32 *)(dst2 + 80) = D_00713D18[0];
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&stackA0), "m"(stackA0) : "$vf10", "memory");
+            {
+                f32 t2 = fGpffff80c4 * f21;
+                u32 bits;
+                __asm__ volatile("mfc1 %0, %1" : "=r"(bits) : "f"(t2));
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(bits) : "$vf2", "memory");
+                __asm__ volatile(
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "vsub.xyz $vf10, $vf0, $vf10 \n"
+                    : : : "$vf10", "$vf2", "memory");
+            }
+            {
+                u32 bits;
+                __asm__ volatile("mfc1 %0, %1" : "=r"(bits) : "f"(fGpffff80c8));
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(bits) : "$vf2", "memory");
+                __asm__ volatile(
+                    "vsubx.w $vf3, $vf0, $vf2x \n"
+                    "vmulax.xyzw $ACC, $vf11, $vf2x \n"
+                    "vmaddw.xyzw $vf10, $vf10, $vf3w \n"
+                    "vadd.xyzw $vf10, $vf10, $vf12 \n"
+                    : : : "$vf3", "$vf10", "$vf11", "$vf12", "$vf2", "ACC", "memory");
+            }
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&D_00713D10) : "$vf10", "memory");
+            *(f32 *)(dst2 + 60) = D_00713D10[0];
+            *(f32 *)(dst2 + 64) = D_00713D14[0];
+            *(f32 *)(dst2 + 68) = D_00713D18[0];
+            {
+                u32 bits = *(u32 *)&fGpffff80cc;
+                __asm__ volatile("qmtc2 %0, $vf2" : : "r"(bits) : "$vf2", "memory");
+                __asm__ volatile(
+                    "vmulx.xyzw $vf11, $vf11, $vf2x \n"
+                    "vadd.xyzw $vf11, $vf11, $vf12 \n"
+                    : : : "$vf11", "$vf12", "$vf2", "memory");
+            }
+            __asm__ volatile("sqc2 $vf11, 0(%0)" : : "r"(&D_00713D10) : "$vf11", "memory");
+            *(f32 *)(dst2 + 48) = D_00713D10[0];
+            *(f32 *)(dst2 + 52) = D_00713D14[0];
+            *(f32 *)(dst2 + 56) = D_00713D18[0];
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0049", func_00494740);
+#endif
 // FUN_00494F90
 void func_00494f90(u8 *arg0) {
     func_0048a1f0();
