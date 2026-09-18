@@ -534,13 +534,184 @@ s32 func_001c0e50(u8 *arg0) {
     }
     return 5;
 }
-/* measured: first complete C reconstruction, 1876B / 1888B window;
-   48 relocations resolved, 312 executable word positions differ including
-   eight missing executable bytes. Ordinary C emits both retail COP1
-   accumulator pairs; the former ASM-only floor claim was false.
-   Reference: docs/probe_archive/P01C_001c1040_body.c. Production stays ASM. */
-// FUN_001C1040
+/* measured 001c1040: 298 differing words guarded via `python3 tools/measure_guarded.py src/promoted/code1_001c.c func_001c1040` (GUARDED_SCORE 298); probe 298 via `python3 tools/probe_variants.py src/promoted/code1_001c.c func_001c1040 --candidate r1040=$HOME/cand_1040r.c`; fnalign retail 470 vs object 469 instrs, 197 edits (+8 reloc-only) via `python3 tools/fnalign.py src/promoted/code1_001c.c func_001c1040 --candidate $HOME/cand_1040r.c --quiet`. Re-measured (archived note claimed 312/1876B; drifted). Repair to current contracts: block `extern f32 fGpffff8128/fGpffff807c/func_0044b868(f32)` (truthful float return, avoids mtc1/cvt cascade per 001c5500 171w lesson), (u8*)center.c/(s32)&top for six-arg func_00196040, (BtlUnitStateWork*)resource, (RwV3d*)/(RwMatrix*)/(u16*) casts per 001c79f0 idioms. Extern audit: func_00196040(s32,s32,u8*,s32,s32,s32)->f32 (mov.s $f0), func_0044b868(f32)->f32, func_003e40b0/4320/0870 (RwV3d/RwMatrix), func_0019de70(BtlUnitStateWork*,u16). Ordinary C emits both adda/madd+adda/msub pairs as mul/add (prior ASM-only claim false); residual is FPU-register/scheduling wall. Frame 0x150. */
+// FUN_001C1040 NONMATCHING
+#ifdef NON_MATCHING
+void func_001c1040(u8 *arg0, s32 arg1)
+{
+    extern f32 fGpffff8128;
+    extern f32 fGpffff807c;
+    extern f32 func_0044b868(f32 arg0);
+    union MotionVector {
+        f32 c[3];
+        struct { s64 xy; f32 z; } bits;
+    } unitCenter, center, target, direction, delta, focus, flat1, flat2;
+    f32 top;
+    f32 horizontal[2];
+    f32 matrix[16];
+    f32 second[7];
+    f32 first[7];
+    f32 radius;
+    f32 distance;
+    f32 half;
+    f32 angleScale;
+    f32 side;
+    f32 scale;
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 *unit;
+    u8 *resource;
+
+    func_001bd560(first, arg0 + 0x9C);
+    unit = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
+    func_00195850(unit, unitCenter.c);
+    radius = func_00196040(3, 1, (u8 *)center.c, (s32)&top, 0, 0);
+    if (func_001bc240(arg0) != 0 || func_001bc1b0(arg0) != 0) {
+        resource = *(u8 **)(unit + 0xA0C);
+        if (resource != 0) {
+            func_0019de70((BtlUnitStateWork *)resource, 0);
+            *(u8 **)(arg0 + 0x12C) = *(u8 **)(unit + 0xA0C);
+            *(s16 *)(arg0 + 0x130) = 1;
+        }
+        center.c[1] = 0.75f * top;
+        unitCenter.c[1] = center.c[1];
+        half = 0.5f;
+        angleScale = fGpffff8110;
+        distance = radius / func_0044b868(angleScale * (half * *(f32 *)(arg0 + 0xB8)));
+        if (distance < 1000.0f) distance = 1000.0f;
+        if (center.c[0] == unitCenter.c[0] && center.c[2] == unitCenter.c[2]) {
+            func_001c_copy_pair(&direction.bits.xy, &direction.bits.z,
+                               (s64 *)D_0060A0F0, (f32 *)(D_0060A0F0 + 8));
+        } else {
+            direction.c[0] = center.c[0] - unitCenter.c[0];
+            direction.c[1] = center.c[1] - unitCenter.c[1];
+            direction.c[2] = center.c[2] - unitCenter.c[2];
+            func_003e40b0((RwV3d *)direction.c, (const RwV3d *)direction.c);
+        }
+        x = direction.c[0] * radius;
+        direction.c[0] = x;
+        y = direction.c[1] * radius;
+        direction.c[1] = y;
+        z = direction.c[2] * radius;
+        direction.c[2] = z;
+        target.c[0] = center.c[0] + x;
+        target.c[1] = center.c[1] + y;
+        target.c[2] = center.c[2] + z;
+        target.c[1] = 1.25f * top;
+    } else {
+        resource = *(u8 **)(unit + 0xA0C);
+        if (resource != 0) {
+            func_0019de70((BtlUnitStateWork *)resource, 0);
+            *(u8 **)(arg0 + 0x12C) = *(u8 **)(unit + 0xA0C);
+            *(s16 *)(arg0 + 0x130) = 1;
+        }
+        center.c[1] = 0.75f * top;
+        unitCenter.c[1] = center.c[1];
+        half = 0.5f;
+        angleScale = fGpffff8110;
+        distance = radius / func_0044b868(angleScale * (half * *(f32 *)(arg0 + 0xB8)));
+        if (distance < 1200.0f) distance = 1200.0f;
+        if (center.c[0] == unitCenter.c[0] && center.c[2] == unitCenter.c[2]) {
+            func_001c_copy_pair(&direction.bits.xy, &direction.bits.z,
+                               (s64 *)D_0060A0F0, (f32 *)(D_0060A0F0 + 8));
+        } else {
+            direction.c[0] = center.c[0] - unitCenter.c[0];
+            direction.c[1] = center.c[1] - unitCenter.c[1];
+            direction.c[2] = center.c[2] - unitCenter.c[2];
+            func_003e40b0((RwV3d *)direction.c, (const RwV3d *)direction.c);
+        }
+        x = direction.c[0] * radius;
+        direction.c[0] = x;
+        y = direction.c[1] * radius;
+        direction.c[1] = y;
+        z = direction.c[2] * radius;
+        direction.c[2] = z;
+        target.c[0] = center.c[0] + x;
+        target.c[1] = center.c[1] + y;
+        target.c[2] = center.c[2] + z;
+        target.c[1] = fGpffff807c * top;
+        if (!(target.c[1] <= 200.0f)) target.c[1] = 200.0f;
+        func_001c_copy_pair(&flat1.bits.xy, &flat1.bits.z,
+                           &target.bits.xy, &target.bits.z);
+        flat1.c[1] = center.c[1];
+        delta.c[0] = flat1.c[0] - center.c[0];
+        delta.c[1] = flat1.c[1] - center.c[1];
+        delta.c[2] = flat1.c[2] - center.c[2];
+        scale = fGpffff8128 * func_003e40b0((RwV3d *)delta.c, (const RwV3d *)delta.c);
+        x = delta.c[0] * scale;
+        focus.c[0] = x;
+        y = delta.c[1] * scale;
+        focus.c[1] = y;
+        z = delta.c[2] * scale;
+        focus.c[2] = z;
+        focus.c[0] = x + center.c[0];
+        focus.c[1] = y + center.c[1];
+        focus.c[2] = z + center.c[2];
+    }
+    func_001c_copy_pair(&flat2.bits.xy, &flat2.bits.z,
+                       &target.bits.xy, &target.bits.z);
+    flat2.c[1] = center.c[1];
+    delta.c[0] = flat2.c[0] - center.c[0];
+    delta.c[1] = flat2.c[1] - center.c[1];
+    delta.c[2] = flat2.c[2] - center.c[2];
+    scale = fGpffff8128 * func_003e40b0((RwV3d *)delta.c, (const RwV3d *)delta.c);
+    x = delta.c[0] * scale;
+    focus.c[0] = x;
+    y = delta.c[1] * scale;
+    focus.c[1] = y;
+    z = delta.c[2] * scale;
+    focus.c[2] = z;
+    focus.c[0] = x + center.c[0];
+    focus.c[1] = y + center.c[1];
+    focus.c[2] = z + center.c[2];
+    func_001bd780(second + 3, target.c, focus.c, D_0060A0E0);
+    direction.c[0] = target.c[0] - focus.c[0];
+    direction.c[1] = target.c[1] - focus.c[1];
+    direction.c[2] = target.c[2] - focus.c[2];
+    func_003e40b0((RwV3d *)direction.c, (const RwV3d *)direction.c);
+    side = (distance * func_0044b868(angleScale * (half * *(f32 *)(arg0 + 0xB8)))) * 0.21875f;
+    horizontal[0] = direction.c[0];
+    horizontal[1] = direction.c[2];
+    func_003e41e0(horizontal, horizontal);
+    focus.c[0] = (0.0f + focus.c[0]) + horizontal[1] * side;
+    focus.c[2] = (0.0f + focus.c[2]) - horizontal[0] * side;
+    x = direction.c[0] * distance;
+    delta.c[0] = x;
+    y = direction.c[1] * distance;
+    delta.c[1] = y;
+    z = direction.c[2] * distance;
+    delta.c[2] = z;
+    second[0] = focus.c[0] + x;
+    second[1] = focus.c[1] + y;
+    second[2] = focus.c[2] + z;
+    if (func_004bd050(0) & 1) {
+        func_003e0870((RwMatrix *)matrix, (const RwV3d *)D_0060A0E0, -30.0f, 0);
+    } else {
+        func_003e0870((RwMatrix *)matrix, (const RwV3d *)D_0060A0E0, 30.0f, 0);
+    }
+    func_003e4320((RwV3d *)delta.c, (const RwV3d *)direction.c, (const RwMatrix *)matrix);
+    x = delta.c[0] * distance;
+    delta.c[0] = x;
+    y = delta.c[1] * distance;
+    delta.c[1] = y;
+    z = delta.c[2] * distance;
+    delta.c[2] = z;
+    first[0] = focus.c[0] + x;
+    first[1] = focus.c[1] + y;
+    first[2] = focus.c[2] + z;
+    func_001bd780(first + 3, first, focus.c, D_0060A0E0);
+    func_004b3110(8);
+    func_001bc3a0(first, first);
+    func_001bc3a0(second, second);
+    if (first[1] < 25.0f) first[1] = 25.0f;
+    if (second[1] < 25.0f) second[1] = 25.0f;
+    func_001bac20((u16 *)arg0, first, second, 1);
+    func_001bbef0(arg0, 10.0f);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c1040);
+#endif
 // FUN_001C17A0
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c17a0);
 // FUN_001C1F70
