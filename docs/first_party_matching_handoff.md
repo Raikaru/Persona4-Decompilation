@@ -1207,6 +1207,17 @@ Private artifacts:
 
 ### Next actions, in priority order (2026-09-18)
 
+0. **Scope check, measured 2026-09-18.** Exactly one of the remaining
+   first-party `INCLUDE_ASM` functions is not expressible in C:
+   `func_00100008` in `src/promoted/code1_0010.c`, the crt0 entry - it clears
+   every GPR and FPR with `padduw`/`mtc1` (including `sp`, `gp` and `ra`),
+   uses `mthi`/`mtlo`/`mtsah`/`ctc1`/`sync.p`/`ei`, and tail-jumps to
+   `0x43dc60`.  A disassembly sweep of all 502 for privileged or
+   register-exact opcodes (`ei`, `di`, `eret`, `mtc0`, `mfc0`, `tlbwi`,
+   `cache`, `sync.*`, `ctc1`, `mtsah`, `padduw`, `syscall`, `break`) returns
+   that function and nothing else.  Everything else in the queue is ordinary
+   C and is expected to match.
+
 1. **Finish the parameter-order audit.** 67 declarations still disagree with a
    live definition's float positions (43 files; `src/promoted/shdPersona.c`,
    `src/Battle/btlResultSimple.c` and `src/promoted/code1_0012.c` hold four to
