@@ -142,10 +142,20 @@ u8 *func_0028fb90(void)
    measured, all 5 words). Pragma re-probe on the 5wd body: propag removal
    202, loop-inv removal 14 (confirms 14 -> 5), cse-off 458, sched-on 489. */
 /* measured: pair sweep 2026-09-17 `python3 -E -s tools/pragma_sweep.py src/Event/evtPolygonMovie.c func_0028fc40 --pairs` banked 5 (already carries opt_propagation off + opt_loop_invariants on); best 5 is the loop+propag pair reproducing the installed combo, so no new win. Stripped singles: propag-off alone 14 (+4 pairs 14), loop-inv alone 202 (+4 pairs 201-202), dead/strength/unroll/peephole singles + 6 pairs 209, commons block 455-458, schedule block 489-495. Confirms both installed pragmas load-bearing (5 -> 14 without loop, 5 -> 202 without propag). Home-move order wall stands at 522/522. */
+/* 2026-09-18: the `opt_loop_invariants on` pragma now sits with the other
+   pragma above the function instead of in the middle of the body.  b210
+   applies optimization pragmas per function, and the two placements
+   compile to the same bytes (measured, 5 words either way); removing the
+   pragma costs 14, so it stays.  The 5 words are still the two parameter
+   copies: retail saves $a0/$a1 before $a2/$a3/$t0, b210 after.  A
+   twelve-local micro-experiment with the same declaration and assignment
+   order emits retail's order, so the reordering is emergent from this
+   body's register pressure, not from the declaration list. */
 // FUN_0028FC40 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: propag-off above is load-bearing (removal 5 -> 202); the loop-invariants pair below closes 14 -> 5; body is 5wd exact at 522/522 instrs (2096B/2096B). */
 #pragma opt_propagation off
+#pragma opt_loop_invariants on
 u8 *func_0028fc40(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4)
 {
     u8 *d2;
@@ -390,7 +400,6 @@ u8 *func_0028fc40(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4)
     if (d4 == NULL) {
         return wk;
     }
-#pragma opt_loop_invariants on
     for (k = 0; k < *(s32 *)(*(u8 **)(wk + 0x9C) + 0x10); k++) {
         b3 = *(u8 **)(wk + 0xA0);
         entry = b3 + k * 0x10;
