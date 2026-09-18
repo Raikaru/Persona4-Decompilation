@@ -466,6 +466,11 @@ void func_00130c30(u8 *arg0, s64 arg1, s32 arg2)
    Re-measured 2026-09-17: plain 307 best; cse_off 317 worse, o1 314 worse, loopinv neutral,
    sched/nobl neutral-or-worse on verify; prior 317 now reproduces as cse_off fndiff.
 */
+/* 307 -> 299 (2026-09-18): the hand-written float-to-unsigned conversion(s)
+   replaced by the plain cast.  b210 generates the same compare / subtract /
+   or-0x80000000 sequence for the cast and colours its temporaries the way
+   retail does; the m2c-expanded copy colours them the other way.  Same lever
+   as func_00348330 in src/promoted/y_CmbCardEff.c. */
 // FUN_00130CE0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00130ce0(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3)
@@ -510,11 +515,7 @@ void func_00130ce0(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3)
     u.b[5] = 0x14;
     u.b[6] = 0x14;
     t204 = 204.0f * f22;
-    if (2147483648.0f <= t204) {
-        v8 = (((s32)(t204 - 2147483648.0f)) | 0x80000000) & 0xFF;
-    } else {
-        v8 = (s32)(t204) & 0xFF;
-    }
+    v8 = (u8)t204;
     u.b[7] = v8;
     tu1 = *(u16 *)(arg0 + 0x15FE);
     if (tu1 >= 0) {
@@ -526,22 +527,14 @@ void func_00130ce0(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3)
     }
     fa0 = ((f32 *)&a1s)[0] - 1.0f;
     fa4 = 24.0f + fhi;
-    if (2147483648.0f <= f23) {
-        v10 = (((s32)(f23 - 2147483648.0f)) | 0x80000000) & 0xFFFF;
-    } else {
-        v10 = (s32)(f23) & 0xFFFF;
-    }
+    v10 = (u16)f23;
     c7 = u.b[7];
     c6 = u.b[6];
     c5 = u.b[5];
     func_0034f320(*(u8 **)(arg0 + 0x1BD4), fa0, fa4, 0.0f,
                   u.b[4], c5, c6, c7,
                   0x1000, 0, 0, 0.0f, 0);
-    if (2147483648.0f <= f23) {
-        v10b = (((s32)(f23 - 2147483648.0f)) | 0x80000000) & 0xFFFF;
-    } else {
-        v10b = (s32)(f23) & 0xFFFF;
-    }
+    v10b = (u16)f23;
     func_0034f320(*(u8 **)(arg0 + 0x1BD8), (f32)0x159 + fa0, fa4, 0.0f,
                   u.b[4], c5, c6, c7,
                   0x1000, 0, 0, 0.0f, 0);
@@ -558,11 +551,7 @@ void func_00130ce0(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3)
         fa2 += fa2;
     }
     fmul = fa2 * f22;
-    if (2147483648.0f <= fmul) {
-        v8 = (((s32)(fmul - 2147483648.0f)) | 0x80000000) & 0xFF;
-    } else {
-        v8 = (s32)(fmul) & 0xFF;
-    }
+    v8 = (u8)fmul;
     u.b[7] = v8;
     c7 = u.b[7];
     c6 = u.b[6];
@@ -577,11 +566,7 @@ void func_00130ce0(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3)
     u.b[5] = D_0064B2E8[1];
     u.b[6] = D_0064B2E8[2];
     t204 = 255.0f * f22;
-    if (2147483648.0f <= t204) {
-        v8 = (((s32)(t204 - 2147483648.0f)) | 0x80000000) & 0xFF;
-    } else {
-        v8 = (s32)(t204) & 0xFF;
-    }
+    v8 = (u8)t204;
     u.b[7] = v8;
     u.f = *(f32 *)&u.b[4];
     t98 = *(s64 *)&fa0;
@@ -596,11 +581,7 @@ void func_00130ce0(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3)
     func_00112300(*(s64 *)&fa0, u.b[7], (u8 *)arg3, 0.0f);
     fa0 = 22.0f + ((f32 *)&a1s)[0];
     fa4 = 54.0f + fhi;
-    if (2147483648.0f <= fmul) {
-        vfin = (((s32)(fmul - 2147483648.0f)) | 0x80000000) & 0xFF;
-    } else {
-        vfin = (s32)(fmul) & 0xFF;
-    }
+    vfin = (u8)fmul;
     func_002bc4b0(*arg3, (s32)fa0, (s32)fa4, (vfin & 0xFF) | ~0xFF,
                   1, 8, 0.0f);
 }
