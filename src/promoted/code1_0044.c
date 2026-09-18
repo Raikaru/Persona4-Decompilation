@@ -200,6 +200,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442de8);
 // FUN_00442FA8
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442fa8);
 
+/* measured: 25 differing words, object 26 instrs / retail 22 (third-party unit, so floorboard/opclass skip it; strstr-shaped). Retail opens with lb/jr/movn (conditional move no C spelling emits here) and runs a rolled beq loop; b210 emits likely-branches plus a forward skip. Tried: nested-loop respelling (23 edits, worse), all 8 singles + all 28 pragma pairs (best 25; peephole off 38-41, cse off 28). Entry movn is the wall. */
 // FUN_00443010 NONMATCHING
 #ifdef NON_MATCHING
 s8 *func_00443010(s8 *arg0, s8 *arg1) {
@@ -271,6 +272,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444488);
 // FUN_00444570
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444570);
 
+/* measured: 15 differing words, object 17 instrs / retail 17, exact count (third-party unit, so floorboard/opclass skip it). Control shape matches (delay-slot move, shared epilogue); residual is frame/saves and lw/sw register picks. Tried: loc/tag-hoist respelling (16 edits, neutral), all 8 singles + all 28 pragma pairs (all 15; peephole off 17). Retail saves $s0 with sd, b210 emits sq (file-top toolchain note): ~6 save/frame words permanently blocked. */
 // FUN_00444700 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00444700(u8 *arg0, u8 *arg1) {
