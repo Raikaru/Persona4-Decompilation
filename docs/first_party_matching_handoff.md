@@ -454,6 +454,32 @@ Grep every alignment for object-only `dsll32` runs before anything else;
 it is a one-line fix and it was worth 39, 24 and 10 words on three
 different functions in one afternoon.
 
+### 7h-quater. The repo permuter is exhausted on the small floors
+
+`tools/permute.py` was run on the eight smallest floors at 30000 iterations
+each on 2026-09-18 - roughly 123000 compiles in total - and found **no match**
+on any of them:
+
+| floor | compiles | best |
+|---|---|---|
+| `func_00375f00` | 13657 | 4 |
+| `func_001b11c0` | 16379 | 5 |
+| `func_0048a980` | 9731 | 5 |
+| `func_0034ddf0` | 15723 | 6 |
+| `func_0024be40` | 14160 | 8 |
+| `func_001130c0` | 18386 | 10 |
+| `func_001eca10` | 17313 | 11 |
+| `func_0025dd30` | 17812 | 24 |
+
+Its mutation set is exactly the one a human would reach for - optimization
+level pragma cycling, local-declaration reordering, adjacent statement
+reordering, commutative operand swaps, additive reassociation - so this is a
+strong negative: these residuals are not reachable from the current bodies by
+reordering anything.  Do not spend another session permuting them.  Note the
+permuter reports `normalized_diff`, not the reloc-masked word score
+`tools/measure_guarded.py` prints, so its numbers are not comparable to the
+floorboard's.
+
 ### 7h-ter. The open blocker: retail rematerialises where b210 CSEs
 
 Five floors have now been traced to the same cause, and it is not a source
