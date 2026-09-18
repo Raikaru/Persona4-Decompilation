@@ -8,18 +8,30 @@ The objective is a clean C replacement for each first-party `INCLUDE_ASM` functi
 
 ## Current checkpoint
 
-- 2026-09-18: **503 first-party `INCLUDE_ASM` left**, 6357 of 6860 MATCH (92.7%).
+- 2026-09-18: **501 first-party `INCLUDE_ASM` left**, 6359 of 6860 MATCH (92.7%).
   Image `3d1d3d2b9d6ccb60836db239ab49674223025a78` and SLUS
   `4eeec0360cf2715535d9f7e52eb69d786fb0158c` byte-exact; 544 tests OK; lint 0 errors.
 - MATCHed that day: `func_0027cae0` (itfMsgProcedure_Window), `func_002d3ee0`
   (y_fclShopDraw), `func_0035c040` and `func_00354ba0` (code1_0035),
-  `func_0046ec70` (code1_0046).  Four of the five came from the argument
-  emission-order rule in 7a-bis; read that section before anything else.
+  `func_0046ec70` (code1_0046), `func_00348330` (y_CmbCardEff) and
+  `func_00311930` (code1_0031).  Four came from the argument emission-order
+  rule in 7a-bis and one from 7h-sexies; read those two sections first.
 - Floors improved the same day: `func_001c79f0` 9 -> 2, `func_0025dd30` 14 -> 6,
   `func_00365f00` 25 -> 13, `func_00126090` 155 -> 148.
-- New tool: `tools/micro_codegen.py` compiles a standalone snippet with the
+- **The residual splits in two.**  276 functions are banked floors with a
+  measured body; the other 221 have no C body at all - a bare `// FUN_` marker
+  and a plain `INCLUDE_ASM`.  Every one of those 221 is large (356 instructions
+  at the smallest, 1221 on average, 271k instructions in total), which is why
+  they were left: they are the biggest functions in the game, not the hardest.
+  A first reconstruction there is worth more than another pass over a
+  five-word floor, and `tools/m2c_decompile.py` plus the 7i declaration levers
+  is the route in.
+- New tools: `tools/micro_codegen.py` compiles a standalone snippet with the
   project mwcc and prints one function, for isolating a codegen rule in
-  seconds instead of re-probing a whole recovery.
+  seconds instead of re-probing a whole recovery.  `tools/residual_signature.py`
+  classifies every banked floor's residual as mask-rematerialisation,
+  conversion-register selection, or neither, so the two fixable classes can be
+  found without reading 276 alignments by hand.
 
 ## Non-negotiable acceptance rules
 
@@ -361,6 +373,14 @@ and an `s16` return were all measured and all left the swap in place, so try
 the width of the *loaded* argument first when a call's setup pair is
 transposed.
 
+Section 7h-sexies is the same lever seen from the other side, with the rule
+that decides which way to turn it: the *callee's* parameter narrow makes the
+mask an argument conversion that is re-emitted at every call, while the
+*caller's own* parameter narrow makes it one hoisted value in a saved
+register. Retail's choice is visible in the alignment - repeated
+`andi $a0, $sN, 0xffff` means the first, a single `andi` plus `move $a0, $sN`
+at each call means the second.
+
 ### 7d. Measuring a guarded floor
 
 A floor behind `#ifdef NON_MATCHING`/`#ifdef SKIP_ASM` compiles its
@@ -456,8 +476,9 @@ different functions in one afternoon.
 
 ### 7h-sexies. Narrow callee parameters rematerialise; expressions get CSEd
 
-This is the lever that finally broke the §7h-ter class, found on 2026-09-18
-while matching `func_00311930`.
+This refines §7c with the rule that decides which way to turn the lever, and
+it is what finally broke the §7h-ter class, found on 2026-09-18 while matching
+`func_00311930`.
 
 Retail is full of call sequences that keep a wide value in a saved register and
 re-emit the narrowing mask at every call site:
