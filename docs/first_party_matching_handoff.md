@@ -454,6 +454,84 @@ Grep every alignment for object-only `dsll32` runs before anything else;
 it is a one-line fix and it was worth 39, 24 and 10 words on three
 different functions in one afternoon.
 
+### 7h-sexies. Narrow callee parameters rematerialise; expressions get CSEd
+
+This is the lever that finally broke the §7h-ter class, found on 2026-09-18
+while matching `func_00311930`.
+
+Retail is full of call sequences that keep a wide value in a saved register and
+re-emit the narrowing mask at every call site:
+
+```
+move  $s5, $a0            ; arg0 kept raw
+...
+andi  $a0, $s5, 0xffff    ; masked again at call 1
+...
+andi  $a0, $s5, 0xffff    ; masked again at call 2
+```
+
+Writing that as a source-level expression - `f(arg0 & 0xFFFF)`, `f((u16)arg0)`,
+or a `u16` parameter used directly - never reproduces it.  b210's global CSE
+computes the mask once into a saved register and emits `move $a0, $sN` at each
+call, which also costs a saved register and renumbers every other one:
+
+```
+andi  $s1, $a0, 0xffff    ; hoisted
+move  $a0, $s1            ; at every call
+```
+
+The fix is to stop making the mask a user expression at all.  Declare the
+**callee's** parameter narrow:
+
+```c
+extern u16 func_00107ac0(u16 arg0);   /* not (s32) */
+s32 func_00311930(s32 arg0, ...)      /* caller keeps the raw value */
+{
+    ... func_00107ac0(arg0) ...       /* implicit argument conversion */
+}
+```
+
+Now the mask is an *argument conversion*, which mwcc re-emits at each call site
+and never enters the CSE table.  The caller's parameter must stay wide (`s32`)
+so that the raw value is what lives in the saved register.  A micro-test
+(`tools/micro_codegen.py`, three calls to `idx`) makes the rule explicit:
+
+| caller param | callee prototype | `andi` emitted |
+|---|---|---|
+| `u16 k` | `s32 idx(s32)` | 1 (hoisted) |
+| `s32 k` | `s32 idx(s32)`, call `idx(k & 0xFFFF)` | 1 (hoisted) |
+| `s32 k` | `s32 idx(s32)`, call `idx((u16)k)` | 1 (hoisted) |
+| `u16 k` | `s32 idx(u16)` | 0 |
+| **`s32 k`** | **`s32 idx(u16)`** | **3 (retail's shape)** |
+
+Both `u16` and `u8` parameters behave this way, and the same reasoning applies
+to `s8`/`s16` (`sll`/`sra` pairs instead of `andi`).  When a floor's fndiff
+shows retail re-masking where the candidate has `move`, look at the callee
+prototype before anything else.
+
+### 7h-quinquies. optimization_level 1 moves the float-to-unsigned temporary
+
+The second half of the `func_00311930` match.  b210 allocates the destination
+of a float-to-unsigned conversion out of the CSE table, so the level changes
+which register the conversion writes:
+
+```
+                      level 0/1                 level 2/3 (and plain -O2)
+   c.ole.s $f0, $f1   c.ole.s $f0, $f1          c.ole.s $f0, $f1
+   cvt.w.s ...        cvt.w.s $f1, $f1          cvt.w.s $f0, $f1
+   sub.s   ...        sub.s   $f1, $f1, $f0     sub.s   $f0, $f1, $f0
+```
+
+Retail has the level-2 form.  So a scoped `#pragma optimization_level 1` or
+`#pragma opt_common_subs off` - both of which take the conversion out of the
+CSE table - will *introduce* a permanent two-to-five word residual on any body
+that casts a float to an unsigned type.  `func_00311930` carried such a pragma
+for months and the five words it "floored at" were caused by the pragma itself.
+
+Rule: if a floor's residual is only the destination register of a `cvt.w.s`,
+delete the optimization pragma first and re-measure; the cost of removing it
+usually shows up as the §7h-sexies CSE problem, which now has a fix.
+
 ### 7h-quater. The repo permuter is exhausted on the small floors
 
 `tools/permute.py` was run on the eight smallest floors at 30000 iterations
