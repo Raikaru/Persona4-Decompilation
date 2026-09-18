@@ -105,7 +105,7 @@ void func_0049a9e0(u8 *arg0)
 /* Named compiler floor: retail's standalone R5900 MMI pextlb/pextlh pair widens
    packed scalar color data before the COP2 block; b210 cannot emit this sequence
    from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
-/* Floor (measured 2026-09-17, source-repo only): probe_variants bare 514 / loop 487 / prop 511 / sched 517 / branch 514 / u8+loop 488 FINAL (v3+double-def neutral), fnalign final 540/528/297 (bare 540/529/354, loop 540/529/300), emitted 2112B/window 2176B (97.06%%, 2112>=2111 PASS by 1B). measured: opt_loop_invariants on inside guard is worth 27 words / 54 edits (rotation collapses); u8 truthful for lbu loads. Residual is s128-canonicalization (b210 dsll32/dsra32 after (s32)s128 lq/mfc1) + standalone MMI pextlb/pextlh + interior VU vitof/vmul/vftoi/ppach pipeline + daddu zero-idiom; frame/reloc tail exact. Banked as guarded floor; production stays ASM. */
+/* Floor (measured 2026-09-18, source-repo only): banked 488 words (u8+loop), fnalign 540/528/297, emitted 2112B/window 2176B (97.06%% PASS by 1B). Full 8+28 sweep: loop 488 ties with loop+dead/loop+strength/loop+unroll 488; peephole 491, loop+prop 503, dead/prop/strength/unroll 513, cse 520, schedule 516, no pair beats 488 -- installed loop stands (worth 27w/54ed, rotation collapses; u8 truthful for lbu). Residual is s128-canonicalization + standalone MMI pextlb/pextlh + interior VU vitof/vmul/vftoi/ppach + daddu zero-idiom; opclass daddu 0-vs-9, dsll32 0/0. Banked as guarded floor; production stays ASM. */
 // FUN_0049AA30 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
@@ -1742,10 +1742,10 @@ void func_0049e100(u8 *arg0)
 /* Named compiler floor: retail's standalone R5900 MMI pextlb/pextlh pair widens
    packed scalar color data before the COP2 block; b210 cannot emit this sequence
    from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
-/* Floor (measured 2026-09-17, source-repo only): probe_variants p3_both (loop+prop) 495 words BEST (p0 523/520ed, p1 530/511ed, p2 520/509ed), fnalign 500/546/466, emitted 2184B/window 2000B (+9.2% over from scalar VU expansion of compact VU; not short so banked per 100+word rule). measured: loop+prop together worth 28w/54ed (loop alone hurts words helps edits, prop helps both slightly). wscan OBJ 6 dsll32/dsra32 vs RETAIL 0 (s128 width wall) + standalone MMI + interior VU pipeline, frame -0x120 vs -0x190, rotation persists. Banked as guarded floor despite over; production stays ASM. See docs/probe_archive/CMsgWin_0049e150_body.c. */
+/* Floor (measured 2026-09-18, source-repo only): banked 495 words (loop+prop), fnalign 500/546/466, emitted 2184B/window 2000B (+9.2%% over from scalar VU expansion). Full 8+28 sweep: schedule+prop 483 BEST, schedule 494, loop+prop 495, prop 520, loop 530, dead 565, peephole 552, cse 669 -- installed schedule+prop (replaces loop+prop; words -12, size 546->506 instrs 2184B->2024B/2000B +1.2%% over, edits 466->784 from rescheduling). Over is surplus scalar work: opclass cvt.w.s +25/mfc1 +17/mtc1 +8 (scalar conversions for compact VU vitof/vmul/vftoi/ppach) + dsll32/dsra32 +6/+6 (s128 width wall) + ?? -35 (missing VU/MMI); lb+3/lbu-3 (s8 vs retail lbu) kept s8 for words (u8 +4). Frame -0x110 vs -0x190, rotation persists. Banked as guarded floor despite over; production stays ASM. */
 // FUN_0049E150 NONMATCHING
 #ifdef NON_MATCHING
-#pragma opt_loop_invariants on
+#pragma schedule on
 #pragma opt_propagation off
 void func_0049e150(u8 *arg0)
 {
@@ -1979,7 +1979,7 @@ void func_0049e150(u8 *arg0)
 }
 
 #pragma opt_propagation on
-#pragma opt_loop_invariants off
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049e150);
 #endif
