@@ -383,9 +383,12 @@ s32 func_00169780(void* collisionWorld, f32* origin,
 #else
 INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_00169780);
 #endif
-/* measured: first reconstruction from retail + m2c + 00169320 conventions (RwV3d tri/comp/edge/delta, buf[3]/ptrs[3], block-scoped index/count/record/fraction, fabsf->abs.s, D_0076122C threshold at gp-0x7EC4, bare &tri.x, a00 materialization per gate 2). fnalign retail 416/object 407 (deficit 9, 2.16% deviation, within 3% gate), probe_variants nd 354. 3% check: |416-407|/416 = 2.16% <= 3%, so guarded floor per handoff banking rule. Residual is register color + folded-vs-materialized + ACC vs mul/add + displacement cascade. Production stays guarded (not MATCH). */
+/* measured: first reconstruction from retail + m2c + 00169320 conventions (RwV3d tri/comp/edge/delta, buf[3]/ptrs[3], block-scoped index/count/record/fraction, fabsf->abs.s, D_0076122C threshold at gp-0x7EC4, bare &tri.x, a00 materialization per gate 2). fnalign retail 416/object 407 (deficit 9, 2.16% deviation, within 3% gate; v6 with pragma still 407/416), probe_variants nd 354 -> 352 with propagation-off. 3% check: |416-407|/416 = 2.16% <= 3%, so guarded floor per handoff banking rule. Residual is register color + folded-vs-materialized + ACC vs mul/add + displacement cascade. Production stays guarded (not MATCH). */
+/* measured: pragma_sweep singles: opt_propagation off 352 (baseline 354, -2); loop_invariants on/strength off/unroll off tie 354; dead off 369, peephole off 376, schedule on 398, level3/4 398/399, commons off 413, level1 413, level0 525. Banking propagation-off (load-bearing -2, preserves COP1 chain colouring per code1_0019 00197a80 precedent). measure_guarded 352, fnalign retail 416/object 407 (2.16%) with pragma, still within 3%. */
 // FUN_00169A30 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_propagation off
 void *func_00169a30(const RwV3d *point, const void *triangle, void *collector)
 {
     extern f32 fabsf(f32 x);
@@ -595,6 +598,7 @@ found2:
     }
     return (void *)triangle;
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_00169a30);
 #endif

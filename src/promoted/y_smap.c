@@ -473,10 +473,7 @@ void func_002ae520(u8 *arg0) {
 // FUN_002AE630
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002ae630);
 
-/* measured: re-derived v1 (probe_variants 410; prior 414->405->408 history stands).
-   s32 arg1 + s16 loop counters + (ok!=0)==1 + (s8)arg1 guards + (u8 *)&D_ arrays +
-   YVec2f-by-value for 69b0/6be0/10a0 + (u8 *)(u32) idioms where needed.
-   3% check + measure/fnalign pending (banking to measure). */
+/* measured: re-derived v1 (probe_variants 410 base; prior 414->405->408 history stands; measure_guarded base obj 1916B/window 1936B 410; fnalign base retail 482 obj 479, 266 edits). 3% check base: 1916B in 1878-1994B (1.0% under) — bankable. pragma_sweep singles (incl. level 0/1/3/4): dead_assign off 406 + loop_invariants on 406 (both -4, best), strength/unroll 410 tie, schedule on 416, propagation off/level4 423, level3 428, peephole 434, common/level1 466, level0 532. Banked with opt_loop_invariants on (one of the three gated singles): measure_guarded obj 1944B/window 1936B GUARDED_SCORE 406 (0.4% over, 1878-1994B within); fnalign retail 484 obj 486, 254 edits. TU-strict: (s32)/(s8)/(s16)/(f32)/(u8 *)(u32)/YVec2f-by-value/(s32)46d200 casts. Residuals: j/k/row rotation + ok-beqz vs sltu. verify ASM (prod ASM), lint 0e/1w (pre-existing 2290 H003; guarded pragma hidden), -DNON_MATCHING compiles (28K). */
 // FUN_002AF3E0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
