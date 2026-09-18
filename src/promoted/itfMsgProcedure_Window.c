@@ -146,14 +146,12 @@ extern MsgProcWindowF2 D_0063C030[10];
 
 
 
-/* Floor (measured 2026-09-18, source-repo only): probe_variants 10 reloc-masked words (bare), fnalign 465/465/11 (+34 reloc-only), emitted 1860B/window 1872B (99.4%%, exact instruction count). Full 8+28 pragma sweep on exact body: banked 10 ties with loop_invariants 10, strength 10, unroll 10 + loop+strength/loop+unroll/strength+unroll 10; peephole 250, prop 360, dead 370, schedule 418, cse 446, no pair beats 10 -- bare wins, no pragma installed (dead_off 370 does not help here, unlike the 2w MATCH elsewhere). Inner 1/2/3 dispatch is already a real switch (3,2,1 descending source); switch 10 beats goto-chain 18 (restores descending compares but keeps rotation) and if-chain 256 (interleaved vs grouped compares). Residual is saved-register rotation (ret $s2 vs $s0, v0/v1 $s0/$s1 vs $s1/$s2) + inner-switch ascending-vs-descending compares (object 1,2,3 vs retail 3,2,1; bodies mirrored); COP1 adda/madd/msub chains, mov.s scheduling, float->u8 clamp, lb/lbu and dsll32 all match (0/0). Banked as guarded floor; production stays ASM. */
-// FUN_0027CAE0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_0027CAE0
 s32 func_0027cae0(MsgProcWindowEntry *arg)
 {
     s32 ret;
-    s32 v0;
     s32 v1;
+    s32 v0;
     float f;
     float g;
     u8 *tmp;
@@ -182,17 +180,17 @@ s32 func_0027cae0(MsgProcWindowEntry *arg)
     case 2:
     case 3:
         switch (arg->field4) {
-        case 3:
-            v0 = 0x76;
-            v1 = 0xB;
+        case 1:
+            v0 = 0x45;
+            v1 = 0xD;
             break;
         case 2:
             v0 = 0x51;
             v1 = 0xC;
             break;
-        case 1:
-            v0 = 0x45;
-            v1 = 0xD;
+        case 3:
+            v0 = 0x76;
+            v1 = 0xB;
             break;
         default:
             break;
@@ -248,9 +246,6 @@ s32 func_0027cae0(MsgProcWindowEntry *arg)
     }
     return ret;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027cae0);
-#endif
 
 // FUN_0027D230
 s32 func_0027d230(void)
