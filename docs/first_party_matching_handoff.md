@@ -267,6 +267,18 @@ flagging differing float positions - 67 such disagreements were still open on
 unprototyped callee promotes `f32` to `double`; measured 329 differing words on
 `func_00354ba0`. Only reach for it when the callee genuinely has no prototype.
 
+### 7a-quater. Do not copy a float parameter into a local
+
+m2c routinely emits `var_f22 = fparg0;` at the top of a function.  b210
+propagates that copy away and then keeps the value in the argument register
+`$f12`/`$f13`, where retail has it in a callee-saved `$f20`-`$f31`.  Using the
+parameter directly makes b210 save it the way retail does.  This took
+`func_002161d0` from 21 to 18 words and `func_00215c10` from 20 to 18 in
+`src/promoted/code1_0021.c`; a two-definition pin on the copies is inert.
+
+Signature to scan for: a `replace` group where retail names `$f2x` and the
+object names `$f1x` in otherwise identical instructions.
+
 ### 7a-ter. Emission order of straight-line blocks follows definition order
 
 Where a function converts several bytes and stores them (`vertex[8..11] =
