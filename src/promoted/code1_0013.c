@@ -277,6 +277,10 @@ s32 func_00130600(u8 *arg0) {
    then t30 narrow.
 */
 /* measured 00130680: `opt_common_subs off` inside the guard is worth 4 words (304 -> 300); retail rematerialises what b210 hoists. */
+/* re-measured 00130680: `python3 -E -s tools/measure_guarded.py src/promoted/code1_0013.c func_00130680`
+   reports 300 differing words today.  The figures in the note above are
+   from earlier bodies and no longer describe what is banked here; they
+   are kept only as history.  Flagged by `tools/floorboard.py --audit`. */
 // FUN_00130680 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off

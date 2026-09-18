@@ -969,6 +969,10 @@ fits:
    on the old body (221 -> 182, 31 edits 252 vs 254); with x_save/y_save raw
    keeps it is 221 -> 86 (39 edits 251 vs 251 exact); retail rematerialises
    what b210 hoists. */
+/* re-measured 00157310: `python3 -E -s tools/measure_guarded.py src/promoted/code1_0015.c func_00157310`
+   reports 86 differing words today.  The figures in the note above are
+   from earlier bodies and no longer describe what is banked here; they
+   are kept only as history.  Flagged by `tools/floorboard.py --audit`. */
 // FUN_00157310 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off

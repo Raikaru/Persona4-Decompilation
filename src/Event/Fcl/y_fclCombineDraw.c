@@ -58,6 +58,7 @@ static inline void fclZero8(u8 *p)
 /* Pragma check on all four exact bodies: loop_invariants neutral (220->220, 249->250, 271->271, 307->307), common_subs off and schedule on worse except f4d0 cse_off 307->287 (ties prior F floor, noted not committed); rotation persists, so it stands as a measured wall here unlike mdlSE 0047e0f0 where loop_invariants dissolved it. */
 /* Width check on all four: (s8) counters/args via lb with dsll24/dsra24, heap bytes via lbu/lhu; no s8/u8 mixups remain. */
 /* Fresh 2026-09-17 (3212e0 lane, after 004941f0/00347c70 in order): pointer slots holding heap+offset (retail sq 0xC0/0xB0 on 3212e0) are plain u8* locals, not u_long128 -- u_long128 widens frame 0xF0->0x100 and costs 4 words (WIDE 321w/139ed/375B -> PTR 317w/136ed+3reloc/367B exact, retail 368/367). Byte-copy colours where retail shows batched lbu/sb stay u8[4] with per-byte copies; FclByte4 &c + struct-assign gives lw/sw and only applies where retail shows word copies (MATCHed 315310 idiom) -- trying FclByte4 here fails to compile (needs & + .bN rewrites) and would be the wrong shape. Guarded (u8)(s32)f conversion uses the same normal-first 2.1474836e9f > f + per-arm andi idiom as y_CmbCardEff 00348330 (shared across owners; polarity >= vs > is equality-edge only, both match retail c.le.s/bc1t). */
+/* Even-lane 2026-09-17 guarded floors (within 3% per parent policy, NONMATCHING kept): 212e0 PTR 317w 367/367 exact via docs/probe_archive/PTR_003212e0_body.c, 297f0 356w 414/404 via docs/probe_archive/EVEN_003297f0_body.c, 18840 394w 457/444 via docs/probe_archive/EVEN_00318840_body.c; repro probe_variants --candidate CAND=<path> + fnalign --candidate <path> --quiet + measure_guarded; levers: (1) sq slots as plain u8* never u_long128 (212e0 0x100->0xF0), (2) heap *(FclVec2*)(p+0x38) emits ldr/ldl, (3) if-chain for 6/7/8 not switch plus s32 t16/t17/v18 reuse and word sw for 0x8. */
 extern void func_0044ea90(const void *arg0, u32 arg1);
 extern void *func_0043f9c8(void *dest, s32 value, s32 size);
 extern void *func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
@@ -739,8 +740,127 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00317900);
    rest of the function (if/else chains, 6150/2970/68d0/6c30 chains, the
    adda.s/msub.s FPU-fusion expression (5.0f+sp108)-2.0f*(46b260(h)/10.0f), the
    FclByte4 copies) matches. FP saved-register rotation floor. */
-// FUN_00318840
+/* measured (even lane 2026-09-17): 394 differing words via `python3 -E -s tools/measure_guarded.py src/Event/Fcl/y_fclCombineDraw.c func_00318840` (GUARDED_SCORE func_00318840: 394); banked as guarded floor per 3% rule -- probe 394w via docs/probe_archive/EVEN_00318840_body.c, fnalign 194 edits, retail 444 vs object 457 (+13, +2.93% PASS). */
+// FUN_00318840 NONMATCHING
+#ifdef NON_MATCHING
+void func_00318840(u8 *arg0, s64 arg1, s64 arg2, s32 arg3, s64 arg4) {
+    FclByte4 c11C;
+    FclByte4 c118;
+    FclByte4 c114;
+    FclByte4 c110;
+    f32 sp10C;
+    f32 sp108;
+    s64 sp100;
+    s64 spF8;
+    s64 spF0;
+    s64 spE8;
+    s64 spE0;
+    s64 spD8;
+    s64 spD0;
+    s64 spC8;
+    s64 spC0;
+    s64 spB8;
+    f32 f20;
+    f32 f21;
+    f32 f22;
+    f32 f24;
+    s32 t16;
+    s32 t17;
+    s32 v18;
+    u8 *t;
+    u8 *p;
+    u8 *h;
+    f32 hval;
+    f32 fmsub;
+    t = *(u8 **)(arg0 + 0x38);
+    t17 = (s8)arg2;
+    t16 = t17 + 0x20D;
+    p = func_002b6150((s16)t16);
+    sp108 = *(f32 *)(p + 0x38);
+    sp10C = *(f32 *)(p + 0x3C);
+    v18 = (s16)(t17 * 2 + 0xDF);
+    if ((s8)t17 == 6) {
+        v18 = 0xEF;
+    } else if ((s8)t17 == 7) {
+        v18 = 0xEB;
+    } else if ((s8)t17 == 8) {
+        v18 = 0xED;
+    }
+    if (((s64)(arg1 << 0x38) >> 0x38) == *(s8 *)(t + 0xB4)) {
+        p = func_002b6150(0x1DC);
+        *(FclVec2 *)(p + 0x38) = (FclVec2){sp108, sp10C};
+        f22 = 62.0f + sp10C;
+        f21 = 6.0f + sp108;
+        func_002b2970(&sp100, f21, f22);
+        p = func_002b6150(0x216);
+        *(FclVec2 *)(p + 0x38) = *(FclVec2 *)&sp100;
+        f20 = 33.0f + sp108;
+        func_002b2970(&spF8, f20, f22);
+        p = func_002b6150(0x217);
+        *(FclVec2 *)(p + 0x38) = *(FclVec2 *)&spF8;
+        f24 = 20.0f + sp108;
+        func_002b2970(&spF0, f24, f22);
+        p = func_002b6150(0x218);
+        *(FclVec2 *)(p + 0x38) = *(FclVec2 *)&spF0;
+        f22 = sp10C - 44.0f;
+        func_002b2970(&spE8, f21, f22);
+        p = func_002b6150(0x219);
+        *(FclVec2 *)(p + 0x38) = *(FclVec2 *)&spE8;
+        func_002b2970(&spE0, f20, f22);
+        p = func_002b6150(0x21A);
+        *(FclVec2 *)(p + 0x38) = *(FclVec2 *)&spE0;
+        func_002b2970(&spD8, f24, f22);
+        p = func_002b6150(0x21B);
+        *(FclVec2 *)(p + 0x38) = *(FclVec2 *)&spD8;
+        f20 = iGpffff8360;
+        *(f32 *)(func_002b6150((s16)v18) + 0xA0) = f20;
+        *(f32 *)(func_002b6150((s16)v18) + 0xAC) = f20;
+        *(f32 *)(func_002b6150((s16)v18) + 0x14) = 59.0f;
+        *(s32 *)(func_002b6150((s16)v18) + 0x8) = 0xAB;
+        h = func_0046d200(func_00331560(), (u32)v18);
+        hval = func_0046b260(h);
+        fmsub = (5.0f + sp108) - 2.0f * (hval / 10.0f);
+        func_002b2970(&spD0, fmsub, sp10C - 3.0f);
+        p = func_002b6150((s16)v18);
+        *(FclVec2 *)(p + 0x38) = *(FclVec2 *)&spD0;
+        func_0046d280(h);
+        func_002b2a60(&c11C, 0xE0, 0xFF, 0x33, 0xFF);
+        *(FclByte4 *)(func_002b6150((s16)v18) + 0x85) = c11C;
+        /* reuse t17 */
+        func_002b68d0((s16)t16, 0, 1);
+        func_002b68d0((s16)(t17 + 0xF2), 0, 1);
+        func_002b2970(&spC8, sp108 - 12.0f, 104.0f + sp10C);
+        func_002b6c30((s16)(t17 + 0xFD), spC8, 0xAC, 59.0f);
+        if (t17 < 6) {
+            func_002b2970(&spC0, sp108 - 12.0f, 123.0f + sp10C);
+            func_002b6c30(0xFC, spC0, 0xAC, 59.0f);
+            func_002b2a60(&c118, 0xE0, 0xFF, 0x33, 0xFF);
+            *(FclByte4 *)(func_002b6150(0xFC) + 0x85) = c118;
+            return;
+        }
+        func_002b68d0(0xFC, 0, 1);
+        return;
+    }
+    /* reuse t17 */
+    func_002b68d0((s16)(t17 + 0xFD), 0, 1);
+    func_002b68d0((s16)t16, 0, 0);
+    t16 = t17 + 0xF2;
+    func_002b68d0((s16)t16, 0, 0);
+    func_002b2a60(&c114, 0x42, 0x6E, 0xFF, 0xFF);
+    *(FclByte4 *)(func_002b6150((s16)t16) + 0x85) = c114;
+    *(f32 *)(func_002b6150((s16)v18) + 0xA0) = 1.0f;
+    *(f32 *)(func_002b6150((s16)v18) + 0xAC) = 1.0f;
+    *(f32 *)(func_002b6150((s16)v18) + 0x14) = (f32)arg3;
+    *(s32 *)(func_002b6150((s16)v18) + 0x8) = (s32)arg4 + 1;
+    func_002b2970(&spB8, 6.0f + sp108, 4.0f + sp10C);
+    p = func_002b6150((s16)v18);
+    *(FclVec2 *)(p + 0x38) = *(FclVec2 *)&spB8;
+    func_002b2a60(&c110, 0x42, 0x6E, 0xFF, 0xFF);
+    *(FclByte4 *)(func_002b6150((s16)v18) + 0x85) = c110;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00318840);
+#endif
 
 // FUN_00318F30
 void func_00318f30(s16 arg0) {
@@ -1205,7 +1325,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00320b80);
 /* byte-copy interleave vs batched, var_16 4-instr vs clean pair, u8 arg1 andi, u_long128 widening). Base G */
 /* body 331/154/381 (both archives exist and reproduce). */
 /* Fresh 2026-09-17 PTR lever (this lane): u_long128 spC0/spB0 -> plain u8* (spC0=temp_18+(s32)var_16, spB0=temp_18+temp_22, temp_2=spB0+(s32)j, (s8*)(spC0+0x18C)) measures 317w over 136 fnalign edits (+3 reloc-only), retail 367 vs object 367 exact (frame fixed 0x100->0xF0) via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_003212e0 --candidate PTR=/tmp/fcl3212_ptr.c` (WIDE 321 same command) and `python3 tools/fnalign.py ... --candidate /tmp/fcl3212_ptr.c --quiet`. FclByte4 struct lever on the same base fails to compile (u8[4] decays to u8* for 2b2a60, struct needs & + .bN; plus wrong shape lw/sw vs retail lbu/sb) -- documented in conventions above, not re-probed. 317 is the new measured best; WALL now slot-layout + scheduling minus widening (var_16/u8-arg1/byte-interleave remain). Production stays INCLUDE_ASM per floor policy; archives unchanged (WIDE still reproduces 321). */
-/* measured (even lane 2026-09-17): banked as guarded floor per 3% rule -- probe 317w via docs/probe_archive/PTR_003212e0_body.c, fnalign 136 edits (+3 reloc), retail 367 vs object 367 exact (0%). */
+/* measured (even lane 2026-09-17): 317 differing words via `python3 -E -s tools/measure_guarded.py src/Event/Fcl/y_fclCombineDraw.c func_003212e0` (GUARDED_SCORE func_003212e0: 317); banked as guarded floor per 3% rule -- probe 317w via docs/probe_archive/PTR_003212e0_body.c, fnalign 136 edits (+3 reloc), retail 367 vs object 367 exact (0%). */
 // FUN_003212E0 NONMATCHING
 #ifdef NON_MATCHING
 void func_003212e0(u8 *arg0, u8 arg1, s8 arg2) {
@@ -1804,8 +1924,113 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00329310);
 /* not reproducible (plain ld for s64 reads at 8-aligned displacements; struct-by-value blocked by shared s64 */
 /* extern of func_002b69f0); (s8)arg2 split to $s1/$s2 vs retail in-place; spDC hoisted to $s4 vs reload. */
 /* All 2970/6c30/2a60/6150/69f0 chains, f12 pass-through, switch and branch shapes byte-correct. */
-// FUN_003297F0
+/* measured (even lane 2026-09-17): 356 differing words via `python3 -E -s tools/measure_guarded.py src/Event/Fcl/y_fclCombineDraw.c func_003297f0` (GUARDED_SCORE func_003297f0: 356); banked as guarded floor per 3% rule -- probe 356w via docs/probe_archive/EVEN_003297f0_body.c, fnalign 151 edits, retail 404 vs object 414 (+10, +2.48% PASS). */
+// FUN_003297F0 NONMATCHING
+#ifdef NON_MATCHING
+void func_003297f0(u8 *arg0, s64 arg1, s32 arg2, f32 fparg0, f32 fparg1) {
+    FclByte4 cDC;
+    FclByte4 cD8;
+    s64 spD0;
+    s64 spC8;
+    s64 spC0;
+    s64 spB8;
+    s64 spB0;
+    s64 spA8;
+    s64 spA0;
+    s64 sp98;
+    s64 sp90;
+    s64 sp88;
+    s64 sp80;
+    s64 sp78;
+    s64 sp70;
+    s64 sp68;
+    s64 sp60;
+    s64 t16;
+    s64 t4;
+    u8 *p;
+    u8 *q;
+    func_002b2970(&spD0, fparg0, D_006440B8[1]);
+    t16 = (s64)((s64)arg2 << 0x38) >> 0x38;
+    if (t16 == 0) {
+        func_002b6c30(0x69, spD0, 0x56, 132.0f);
+        func_002b2a60(&cDC, 0x49, 0x72, 0xFF, 0xFF);
+        p = func_002b6150(0x69);
+        *(FclByte4 *)(p + 0x85) = cDC;
+        func_002b2970(&spC0, *(f32 *)&spD0 + fparg1, D_006440B8[1]);
+        func_002b2970(&spB8, *(f32 *)&spD0, D_006440B8[1]);
+        func_002b69f0(0x69, *(FclVec2 *)&spC0, *(FclVec2 *)&spB8, 0, 8, 0);
+    } else {
+        p = func_002b6150(0x69);
+        func_002b2970(&spB0, *(f32 *)&spD0 + fparg1, D_006440B8[1]);
+        func_002b69f0(0x69, *(FclVec2 *)(p + 0x38), *(FclVec2 *)&spB0, 0, 8, 0);
+    }
+    func_002b2970(&spC8, 17.0f + *(f32 *)&spD0, 9.0f + *((f32 *)&spD0 + 1));
+    if (t16 == 0) {
+        func_002b6c30(0x1AD, spC8, 0x41, 135.0f);
+        func_002b2a60(&cD8, 0xE, 0x17, 0x49, 0xFF);
+        q = func_002b6150(0x1AD);
+        *(FclByte4 *)(q + 0x85) = cD8;
+        *(u8 *)(func_002b6150(0x1AD) + 0x6E) = 0x80;
+        func_002b2970(&spA8, *(f32 *)&spC8 + fparg1, *((f32 *)&spC8 + 1));
+        func_002b69f0(0x1AD, *(FclVec2 *)&spA8, *(FclVec2 *)&spC8, 0, 8, 0);
+    } else {
+        p = func_002b6150(0x1AD);
+        func_002b2970(&spA0, *(f32 *)&spC8 + fparg1, *((f32 *)&spC8 + 1));
+        func_002b69f0(0x1AD, *(FclVec2 *)(p + 0x38), *(FclVec2 *)&spA0, 0, 8, 0);
+    }
+    t4 = (s64)(arg1 << 0x38) >> 0x38;
+    switch ((s8)t4) {
+    case 0:
+        func_002b2970(&spC8, 67.0f + *(f32 *)&spD0, 13.0f + *((f32 *)&spD0 + 1));
+        if (t16 == 0) {
+            func_002b6c30(0x109, spC8, 0x56, 134.0f);
+            func_002b2970(&sp98, *(f32 *)&spC8 + fparg1, *((f32 *)&spC8 + 1));
+            func_002b69f0(0x109, *(FclVec2 *)&sp98, *(FclVec2 *)&spC8, 0, 8, 0);
+        } else {
+            p = func_002b6150(0x109);
+            func_002b2970(&sp90, *(f32 *)&spC8 + fparg1, *((f32 *)&spC8 + 1));
+            func_002b69f0(0x109, *(FclVec2 *)(p + 0x38), *(FclVec2 *)&sp90, 0, 8, 0);
+        }
+        func_002b2970(&spC8, 95.0f + *(f32 *)&spD0, 15.0f + *((f32 *)&spD0 + 1));
+        if (t16 == 0) {
+            func_002b6c30(0x10A, spC8, 0x56, 133.0f);
+            func_002b2970(&sp88, *(f32 *)&spC8 + fparg1, *((f32 *)&spC8 + 1));
+            func_002b69f0(0x10A, *(FclVec2 *)&sp88, *(FclVec2 *)&spC8, 0, 8, 0);
+            return;
+        }
+        p = func_002b6150(0x10A);
+        func_002b2970(&sp80, *(f32 *)&spC8 + fparg1, *((f32 *)&spC8 + 1));
+        func_002b69f0(0x10A, *(FclVec2 *)(p + 0x38), *(FclVec2 *)&sp80, 0, 8, 0);
+        return;
+    case 1:
+        func_002b2970(&spC8, 114.0f + *(f32 *)&spD0, 11.0f + *((f32 *)&spD0 + 1));
+        if (t16 == 0) {
+            func_002b6c30(0x11C, spC8, 0x56, 134.0f);
+            func_002b2970(&sp78, *(f32 *)&spC8 + fparg1, *((f32 *)&spC8 + 1));
+            func_002b69f0(0x11C, *(FclVec2 *)&sp78, *(FclVec2 *)&spC8, 0, 8, 0);
+        } else {
+            p = func_002b6150(0x11C);
+            func_002b2970(&sp70, *(f32 *)&spC8 + fparg1, *((f32 *)&spC8 + 1));
+            func_002b69f0(0x11C, *(FclVec2 *)(p + 0x38), *(FclVec2 *)&sp70, 0, 8, 0);
+        }
+        func_002b2970(&spC8, 50.0f + *(f32 *)&spD0, 16.0f + *((f32 *)&spD0 + 1));
+        if (t16 == 0) {
+            func_002b6c30(0x11B, spC8, 0x56, 133.0f);
+            func_002b2970(&sp68, *(f32 *)&spC8 + fparg1, *((f32 *)&spC8 + 1));
+            func_002b69f0(0x11B, *(FclVec2 *)&sp68, *(FclVec2 *)&spC8, 0, 8, 0);
+            return;
+        }
+        p = func_002b6150(0x11B);
+        func_002b2970(&sp60, *(f32 *)&spC8 + fparg1, *((f32 *)&spC8 + 1));
+        func_002b69f0(0x11B, *(FclVec2 *)(p + 0x38), *(FclVec2 *)&sp60, 0, 8, 0);
+        return;
+    default:
+        break;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003297f0);
+#endif
 // measured: nd N/A (ldr/ldl + COP2). M2C_ERROR on ldr/ldl 0x38/0x3f and adda.s; draw-family s64-arg normalization floor. Unaligned-load + COP2 + s64-param floor.
 // FUN_00329E40
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00329e40);

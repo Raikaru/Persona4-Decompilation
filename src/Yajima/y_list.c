@@ -468,6 +468,10 @@ void func_002e4960(u8 *arg0, s8 arg1, s16 arg2) {
 
 
 
+/* re-measured 002e4ac0: `python3 -E -s tools/measure_guarded.py src/Yajima/y_list.c func_002e4ac0`
+   reports 295 differing words today.  The figures in the note above are
+   from earlier bodies and no longer describe what is banked here; they
+   are kept only as history.  Flagged by `tools/floorboard.py --audit`. */
 // FUN_002E4AC0 NONMATCHING
 #ifdef SKIP_ASM
 void func_002e4ac0(s32 arg0, s32 arg1) {
