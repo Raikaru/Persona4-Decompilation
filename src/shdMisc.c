@@ -410,11 +410,110 @@ void func_00364c90(Vec2f position, f32 depth, s32 color,
 
 
 
-/* measured: clean-C probe was object 1488B over a 2080B window (nd 495).
-   Retail's vertex path contains COP1 accumulator adda/msub/madd sequences;
-   the archived plain-C probe is not byte-exact and remains uncommitted. */
-// FUN_00364FB0
+/* measured (mwcc b210 -O2): guarded body scores 251 differing words via */
+/* `python3 tools/probe_variants.py src/shdMisc.c func_00364fb0 */
+/* --candidate v5=/var/tmp/cold364fb0/v5.c` (replay with */
+/* `python3 tools/measure_guarded.py src/shdMisc.c func_00364fb0`). */
+/* fnalign retail/object 517/514 instrs (3 short, 0.58%), 15 edits (+8 */
+/* reloc-only): early float-colour tie resolved by declaring `sine` before */
+/* `far_depth`; long-lived `z`/`xoff`/`yoff` removed so `far_depth - depth` */
+/* recomputes per vertex and `71.0f * cos/sin` stays CSE-shared; vertex MACs */
+/* use 364c90-style `(0.0f + pos) +/- K * sin/cos` (402.0f float, 473 int via */
+/* cvt) to fuse adda/msub/madd. Colours are shift-then-mask */
+/* `(s32)(u8)(((u32)color >> N) & 0xFF)` with plain `(f32)(u32)x` stores. */
+/* WALL is rematerialisation: retail reloads `origin_x` (`lwc1 $f3,0x68`) and */
+/* re-adds `xoff` per far vertex while b210 reuses the CSE-held sum; the */
+/* trailing `add $f0,$f0,$f1` operand order and one `add $f1` dest colour */
+/* resisted operand swaps, split accumulates, position.x reloads and all 8 */
+/* single pragmas (schedule/csoff/propoff/peephole regress, rest tie). */
+/* Complete source: /var/tmp/cold364fb0/v5.c. Production stays ASM. */
+// FUN_00364FB0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00364fb0(Vec2f position, f32 depth, s32 color, f32 angle, s32 arg2, s32 arg3) {
+    f32 vertices[4][16];
+    f32 sine;
+    f32 far_depth;
+    f32 reciprocal;
+    f32 origin_x;
+    f32 origin_y;
+    f32 cosine;
+    s32 red;
+    s32 green;
+    s32 blue;
+    s32 alpha;
+
+    origin_x = position.x;
+    origin_y = position.y;
+    far_depth = D_008872F8[0] - depth;
+    reciprocal = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    sine = func_0044b7b0(angle);
+    cosine = func_0044b610(angle);
+    red = (s32)(u8)(((u32)color >> 24) & 0xFF);
+    green = (s32)(u8)(((u32)color >> 16) & 0xFF);
+    blue = (s32)(u8)(((u32)color >> 8) & 0xFF);
+    alpha = color & 0xFF;
+    vertices[0][0] = origin_x;
+    vertices[0][1] = origin_y;
+    vertices[0][2] = far_depth - depth;
+    vertices[0][8] = (f32)(u32)red;
+    vertices[0][9] = (f32)(u32)green;
+    vertices[0][10] = (f32)(u32)blue;
+    vertices[0][11] = (f32)(u32)alpha;
+    vertices[0][6] = reciprocal;
+    vertices[1][0] = origin_x + 71.0f * cosine;
+    vertices[1][1] = origin_y + 71.0f * sine;
+    vertices[1][2] = far_depth - depth;
+    vertices[1][8] = (f32)(u32)red;
+    vertices[1][9] = (f32)(u32)green;
+    vertices[1][10] = (f32)(u32)blue;
+    vertices[1][11] = (f32)(u32)alpha;
+    vertices[1][6] = reciprocal;
+    if (arg3 != 0) {
+        vertices[2][0] = (0.0f + origin_x) - 402.0f * sine;
+        vertices[2][1] = (0.0f + origin_y) + 402.0f * cosine;
+        vertices[2][2] = far_depth - depth;
+        vertices[2][8] = (f32)(u32)red;
+        vertices[2][9] = (f32)(u32)green;
+        vertices[2][10] = (f32)(u32)blue;
+        vertices[2][11] = (f32)(u32)alpha;
+        vertices[2][6] = reciprocal;
+        vertices[3][0] = (0.0f + (origin_x + 71.0f * cosine)) - 473 * sine;
+        vertices[3][1] = ((0.0f + origin_y) + 473 * cosine) + 71.0f * sine;
+        vertices[3][2] = far_depth - depth;
+        vertices[3][8] = (f32)(u32)red;
+        vertices[3][9] = (f32)(u32)green;
+        vertices[3][10] = (f32)(u32)blue;
+        vertices[3][11] = (f32)(u32)alpha;
+        vertices[3][6] = reciprocal;
+    } else {
+        vertices[2][0] = (0.0f + origin_x) - 473 * sine;
+        vertices[2][1] = (0.0f + origin_y) + 473 * cosine;
+        vertices[2][2] = far_depth - depth;
+        vertices[2][8] = (f32)(u32)red;
+        vertices[2][9] = (f32)(u32)green;
+        vertices[2][10] = (f32)(u32)blue;
+        vertices[2][11] = (f32)(u32)alpha;
+        vertices[2][6] = reciprocal;
+        vertices[3][0] = (0.0f + (origin_x + 71.0f * cosine)) - 402.0f * sine;
+        vertices[3][1] = ((0.0f + origin_y) + 402.0f * cosine) + 71.0f * sine;
+        vertices[3][2] = far_depth - depth;
+        vertices[3][8] = (f32)(u32)red;
+        vertices[3][9] = (f32)(u32)green;
+        vertices[3][10] = (f32)(u32)blue;
+        vertices[3][11] = (f32)(u32)alpha;
+        vertices[3][6] = reciprocal;
+    }
+    if (arg2 != 0) {
+        iGpffffabe8 |= 0x80;
+    }
+    D_00887310[0](4, vertices, 4);
+    if (arg2 != 0) {
+        iGpffffabe8 &= ~0x80;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00364fb0);
+#endif
 
 /* measured: Vec2f-by-value preserves the exact 752-byte body and 14 relocations.
    The canonical declaration is shared with the panel transition caller. */
