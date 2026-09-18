@@ -1423,11 +1423,19 @@ void func_00377e60(u8 *arg0) {
    Re-measured 2026-09-15 at nd 120 (s-reg work/p/arg1 rotation plus the loop
    rotation; decl and assignment swaps inert); banked as guarded floor. */
 /* measured 00377eb0: `opt_loop_invariants on` inside the guard is worth 2 words (119 -> 117), the loop-preheader constant hoist. */
+/* 117 -> 112 (2026-09-18), and the object goes from three instructions short
+   of retail to exact (199/199).  The first loop's three-float copy out of
+   stack.spA0 is a struct assignment, not three element stores: written as
+   elements b210 forwards the three stores it just made into spA0 and never
+   reloads, where retail reloads all three from the stack before storing.
+   Same lever as func_0025dd30 in src/shdWindow.c.  Measured and rejected:
+   applying it to the second loop's sp90 copy as well (115). */
 // FUN_00377EB0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
 s32 func_00377eb0(u8 *arg0, s32 arg1)
 {
+    struct ShuffleDrawVec3 { f32 x, y, z; };
     struct ShuffleDrawStack {
         s32 sp40[4];
         s32 sp50[4];
@@ -1490,9 +1498,7 @@ s32 func_00377eb0(u8 *arg0, s32 arg1)
         stack.spA0[1] = *(f32 *)(q + 4);
         stack.spA0[2] = *(f32 *)(q + 8);
         q = p + i * 0x24;
-        *(f32 *)(q + 0x120) = stack.spA0[0];
-        *(f32 *)(q + 0x124) = stack.spA0[1];
-        *(f32 *)(q + 0x128) = stack.spA0[2];
+        *(struct ShuffleDrawVec3 *)(q + 0x120) = *(struct ShuffleDrawVec3 *)stack.spA0;
         q[0x12C] = 0xFF;
         q[0x12D] = 0xFF;
         q[0x12E] = 0xFF;
