@@ -2882,6 +2882,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013f720);
    Open: loop-hoist wall (C/0x8000/base remat per iter),
    s0/s5 arg0-home swap with counter-temp cascade. */
 /* measured 0013fb50: `opt_loop_invariants on` inside the guard is worth 120 words (215 -> 95), the loop-preheader constant hoist. */
+/* 95 -> 34 (2026-09-18): the two float-to-u16 conversions were written out
+   by hand (compare against 2147483648.0f, subtract, or in 0x80000000, mask
+   0xFFFF).  b210 generates exactly that sequence for a plain `(u16)f` cast
+   and colours its temporaries the way retail does, where the expanded form
+   colours them the other way - the same lever that MATCHed func_00348330 in
+   src/promoted/y_CmbCardEff.c.  Remaining 34 words: retail keeps the second
+   loop counter in $a3 where b210 uses $s4, and a fourteen-instruction
+   error-path call block sits earlier in retail. */
 // FUN_0013FB50 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
@@ -2918,18 +2926,10 @@ void func_0013fb50(u8 *arg0) {
         *(f32 *)(dst + 0x50) = *(f32 *)(src + 0);
         *(f32 *)(dst + 0x54) = *(f32 *)(src + 4);
         f = *(f32 *)(src + 8);
-        if (2147483648.0f <= f) {
-            value = (((s32)(f - 2147483648.0f)) | 0x80000000) & 0xFFFF;
-        } else {
-            value = (s32)f & 0xFFFF;
-        }
+        value = (u16)f;
         *(s16 *)(dst + 0x60) = value;
         f = *(f32 *)(src + 0xC);
-        if (2147483648.0f <= f) {
-            value = (((s32)(f - 2147483648.0f)) | 0x80000000) & 0xFFFF;
-        } else {
-            value = (s32)f & 0xFFFF;
-        }
+        value = (u16)f;
         *(s16 *)(dst + 0x66) = value;
         *(u8 *)(dst + 0x5A) = *(u8 *)(src + 0x10);
         j++;
