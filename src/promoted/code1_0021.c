@@ -1190,6 +1190,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002142b0);
 /* group, 309-335 schedule group, 342-343 peephole ties, 348 prop group, 350 csoff */
 /* group, 358-369 high). No pair wins; prologue move $s1,$a2 + FPU/85 coloring floor. */
 /* `python3 -E -s tools/pragma_sweep.py src/promoted/code1_0021.c func_00215c10 --pairs`. */
+/* 20 -> 18 (2026-09-18): same lever as the sibling func_002161d0 - the two
+   float parameters are used directly instead of through var_f23/var_f22
+   copies, which b210 propagates away before leaving the values in $f12/$f13
+   where retail keeps them in $f23/$f22.  Remaining 18 words are the
+   `move $s1, $a2` parameter save, two slots early, and the 85.0f constant
+   that retail materialises before the (f32)(u32) conversion block and b210
+   sinks to its use. */
 // FUN_00215C10 NONMATCHING
 #ifdef NON_MATCHING
 void func_00215c10(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
@@ -1202,8 +1209,6 @@ void func_00215c10(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
     extern void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1, u8 arg5, u8 arg6, u8 arg7, u8 arg8);
     s32 *var_s19;
     u8 *var_s18;
-    f32 var_f23;
-    f32 var_f22;
     s32 var_s17;
     u8 *var_s16;
     f32 var_f21;
@@ -1218,8 +1223,6 @@ void func_00215c10(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
 
     var_s19 = arg0;
     var_s18 = arg1;
-    var_f23 = fparg0;
-    var_f22 = fparg1;
     var_s17 = arg2;
     var_s16 = (u8 *)var_s19 + 0x80C;
     var_flag = *(s32 *)(var_s18 + 0xA10);
@@ -1253,12 +1256,12 @@ void func_00215c10(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
             var_f2 = var_f1 / 6.0f;
         }
         var_f4 = 2.0f * var_f2 - var_f2 * var_f2;
-        var_f23 = var_f23 + var_f4 * (D_007615A4 - var_f23);
+        fparg0 = fparg0 + var_f4 * (D_007615A4 - fparg0);
         var_f3 = 85.0f;
         var_f2 = (f32)(u32)var_s17;
         var_f0 = D_007615A8 + var_f2 * var_f3;
-        var_f0 = var_f0 - var_f22;
-        var_f22 = var_f22 + var_f4 * var_f0;
+        var_f0 = var_f0 - fparg1;
+        fparg1 = fparg1 + var_f4 * var_f0;
         var_f12 = 1.0f - fGpffff8218 * var_f4;
     } else {
         var_f12 = 1.0f;
@@ -1276,8 +1279,8 @@ void func_00215c10(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
         }
         var_f0 = 2.0f * var_f3 - var_f3 * var_f3;
         var_f1 = 1.0f - var_f0;
-        var_f23 = var_f23 + 180.0f * var_f1;
-        var_f22 = var_f22 + 80.0f * var_f1;
+        fparg0 = fparg0 + 180.0f * var_f1;
+        fparg1 = fparg1 + 80.0f * var_f1;
     }
     if (*(s16 *)(var_s16 + 4) > 0) {
         if ((*(s32 *)var_s16 & 4) != 0) {
@@ -1303,11 +1306,11 @@ void func_00215c10(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
             var_f0 = 2.0f * var_f1 - var_f1 * var_f1;
             var_f2 = 1.0f - var_f0;
         }
-        var_f23 = var_f23 + 180.0f * var_f2;
+        fparg0 = fparg0 + 180.0f * var_f2;
     }
 
     var_f20 = 1.0f;
-    func_00201300(var_s19, var_f23, var_f22, 136.0f, 136.0f);
+    func_00201300(var_s19, fparg0, fparg1, 136.0f, 136.0f);
     if (var_f20 == var_f21) {
         func_00201650((u8 *)var_s19, 8, 0xE, 29.0f, 27.0f, 0xFE, 0xFF, 0x22, 0xFF);
     } else {
@@ -1317,12 +1320,12 @@ void func_00215c10(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
         var_f20 = 1.0f - var_f21;
         ret1 = func_00201950((u8 *)var_s19, 8, 0xE);
         f2 = 0.5f * ret1;
-        var_f22 = 29.0f + var_f20 * f2;
+        fparg1 = 29.0f + var_f20 * f2;
         ret2 = func_00201990((u8 *)var_s19, 8, 0xE);
         f2 = 0.5f * ret2;
         var_f20 = 27.0f + var_f20 * f2;
         func_00201720(var_s19, var_f21, var_f21);
-        func_00201650((u8 *)var_s19, 8, 0xE, var_f22, var_f20, 0xFE, 0xFF, 0x22, 0xFF);
+        func_00201650((u8 *)var_s19, 8, 0xE, fparg1, var_f20, 0xFE, 0xFF, 0x22, 0xFF);
         func_00201720(var_s19, 1.0f, 1.0f);
     }
 }
