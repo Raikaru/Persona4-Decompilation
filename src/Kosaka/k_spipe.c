@@ -401,6 +401,10 @@ void* func_001791d0(void* ignored0, void* ignored1, u8* tri, u8* work)
     return triSaved;
 }
 /* measured: floor v20_bound MISMATCH nd660 obj1800/win1808 (8B 2-word zero tail, >=1754 threshold, not draft); fnalign 450/450 exact, probe 243w, first diff off 220; overflow cnt>0x255U adopted (-2), loop stays exclusive; schedule/subs-off rejected; MAC dot/adda-msub/u8-f staged idioms adopted, no asm. */
+/* re-measured 00179860: `python3 -E -s tools/measure_guarded.py src/Kosaka/k_spipe.c func_00179860`
+   reports 243 differing words today.  The figures in the note above are
+   from earlier bodies and no longer describe what is banked here; they
+   are kept only as history.  Flagged by `tools/floorboard.py --audit`. */
 // FUN_00179860 NONMATCHING
 #ifdef NON_MATCHING
 void* func_00179860(void* ignored, const FldShadowTriangle* triangle, FldShadowAtomicContext* context)
