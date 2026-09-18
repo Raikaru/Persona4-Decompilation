@@ -1924,8 +1924,226 @@ void func_001c8d50(u8 *arg0)
         return;
     }
 }
-// FUN_001C8E90
+/* measured 001c8e90: 499 differing words guarded via `python3 tools/measure_guarded.py src/promoted/code1_001c.c func_001c8e90` (GUARDED_SCORE 499); probe 499 via `python3 tools/probe_variants.py src/promoted/code1_001c.c func_001c8e90 --candidate v1=/var/tmp/cold1c8e90/v1.c`; fnalign retail 556 vs object 555 instrs, 321 edits (+16 reloc-only) via `python3 tools/fnalign.py src/promoted/code1_001c.c func_001c8e90 --candidate /var/tmp/cold1c8e90/v1.c --quiet`. M2C via `python3 -E -s tools/m2c_decompile.py src/promoted/code1_001c.c func_001c8e90 -o /var/tmp/cold1c8e90/m2c.c`; romwright raw via `python3 tools/romwright_decompile.py func_001c8e90 --raw -o /var/tmp/cold1c8e90/rw_raw.c` (m2c-shaped fails on CONCAT44 intrinsic); de-noised to file idiom reusing existing decls (func_001bd560, func_003e40b0, func_001bd780, func_003dcb40, D_0060A0E0/D_0060A100, fGpffff8110/fGpffff8118). Frame 0x160 with slerp70[8]+angle90+mode94+pad98+quatA0+quatB0+quatC0+padD0+vecD8+padE4+pairE8+valF0+padF4+pairF8+val100+pad104+out108+pad114+diff118+pad124+vec128+pad134+vec138+pad144+vec148+pad154+vec158 (0xF0 locals). Round1 v1 499 (556 vs 555, 321+16). Round2 v2 527 (s64 split, +28, frame 0x170 spill), v3 504 (lean s64, +5), v4 507 (split out108 temps, +8). Round3 v5 499 tie (reversed float decls), v6 505 (p4_cacd0_mul, +6), v7 499 tie (dot order [1]+[0]+[2]). Two unproductive rounds, stopping. Top remaining: FPU color shift, COP1 adda/madd+msub vs mul/add chains, ld/sd vs lw/sw copy, polynomial chain, branch layout. */
+// FUN_001C8E90 NONMATCHING
+#ifdef NON_MATCHING
+void func_001c8e90(u8 *arg0, f32 *arg1, f32 *arg2)
+{
+    struct Frame {
+        f32 slerp70[8];
+        f32 angle90;
+        s32 mode94;
+        u8 pad98[8];
+        f32 quatA0[4];
+        f32 quatB0[4];
+        f32 quatC0[4];
+        u8 padD0[8];
+        f32 vecD8[3];
+        u8 padE4[4];
+        s64 pairE8;
+        f32 valF0;
+        u8 padF4[4];
+        s64 pairF8;
+        f32 val100;
+        u8 pad104[4];
+        f32 out108[3];
+        u8 pad114[4];
+        f32 diff118[3];
+        u8 pad124[4];
+        f32 vec128[3];
+        u8 pad134[4];
+        f32 vec138[3];
+        u8 pad144[4];
+        f32 vec148[3];
+        u8 pad154[4];
+        f32 vec158[2];
+    } frame;
+    extern f32 fGpffff8118;
+    extern f32 fGpffff815c;
+    extern f32 iGpffff804c;
+    extern f32 fGpffff8110;
+    extern f32 fGpffff8104;
+    extern f32 fGpffff8054;
+    extern f32 fGpffff8058;
+    extern f32 fGpffff805c;
+    extern f32 fGpffff8060;
+    extern f32 fGpffff8108;
+    extern f32 iGpffff8160;
+    extern f32 func_0044b868(f32 arg0);
+    extern f32 func_001ec2b0(void *arg0, void *arg1);
+    extern void func_003dcc70(void *arg0, void *arg1, void *arg2);
+    extern void func_003dc740(u8 *arg0, u8 *arg1, s32 arg2, f32 arg3);
+    extern f32 func_003e41b0(f32 *arg0);
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+    extern void func_00195aa0(u8 *arg0, u8 *arg1, f32 *arg2);
+    u8 *work;
+    u8 *unitA;
+    u8 *tmp;
+    u8 *unitB;
+    f32 heightSum;
+    f32 widthSum;
+    f32 dotA;
+    f32 blend;
+    f32 thresh;
+    f32 t;
+    f32 oneMinus;
+    f32 sqA;
+    f32 sqB;
+    f32 polyA;
+    f32 polyB;
+    f32 len;
+    f32 inv;
+    f32 dotB;
+    f32 dotC;
+    f32 absA;
+    f32 absB;
+    f32 dist;
+    f32 scale2;
+
+    work = *(u8 **)(arg0 + 0xE0);
+    unitA = *(u8 **)(work + 0x30);
+    tmp = *(u8 **)(work + 0x38);
+    unitB = *(u8 **)(tmp + 0x30);
+    *(u8 **)(arg0 + 0x124) = tmp;
+    func_001bd560(arg1, arg0 + 0x9C);
+    frame.pairE8 = *(s64 *)(unitA + 0xDC);
+    frame.valF0 = *(f32 *)(unitA + 0xE4);
+    func_00195aa0(unitB, unitA, frame.vecD8);
+    heightSum = fGpffff8118 * (*(f32 *)(unitA + 0x8C) * *(f32 *)(unitA + 0x2C)) + 0.0f + fGpffff8118 * (*(f32 *)(unitB + 0x8C) * *(f32 *)(unitB + 0x2C)) + 0.0f;
+    widthSum = *(f32 *)(unitA + 0xE8) + 0.0f + *(f32 *)(unitA + 0x90) * *(f32 *)(unitA + 0x2C) + *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C) + 0.0f;
+    frame.vecD8[1] = 0.0f;
+    *(f32 *)((u8 *)&frame.pairE8 + 4) = 0.0f;
+    frame.vec128[0] = *(f32 *)(unitA + 0xDC) - frame.vecD8[0];
+    frame.vec128[1] = *(f32 *)(unitA + 0xE0) - 0.0f;
+    frame.vec128[2] = *(f32 *)(unitA + 0xE4) - frame.valF0;
+    func_003e40b0((RwV3d *)frame.vec128, (const RwV3d *)frame.vec128);
+    dotA = 0.25f * widthSum;
+    frame.out108[0] = frame.vec128[0] * dotA + frame.vecD8[0];
+    frame.out108[1] = frame.vec128[1] * dotA + 0.0f;
+    frame.out108[2] = frame.vec128[2] * dotA + frame.valF0;
+    heightSum = 0.5f * heightSum;
+    frame.out108[1] = heightSum;
+    frame.vec138[0] = arg1[0];
+    frame.vec138[1] = arg1[1];
+    frame.vec138[2] = arg1[2];
+    frame.vec138[1] = heightSum;
+    *(f32 *)(arg0 + 0x10C) = 0.5f * *(f32 *)(unitA + 0xE8);
+    *(f32 *)(arg0 + 0x100) = frame.out108[0];
+    *(f32 *)(arg0 + 0x104) = heightSum;
+    *(f32 *)(arg0 + 0x108) = frame.out108[2];
+    func_001bd780(arg2 + 3, frame.vec138, frame.out108, D_0060A0E0);
+    heightSum = *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C) + *(f32 *)(unitA + 0x90) * *(f32 *)(unitA + 0x2C) + widthSum + 0.0f;
+    blend = func_001ec2b0(arg1 + 3, arg2 + 3);
+    thresh = fGpffff815c;
+    if (!(blend <= thresh)) {
+        t = thresh / blend;
+        func_003dcc70(arg1 + 3, arg2 + 3, frame.slerp70);
+        if (t <= 0.0f) {
+            frame.quatC0[0] = arg1[3];
+            frame.quatC0[1] = arg1[4];
+            frame.quatC0[2] = arg1[5];
+            frame.quatC0[3] = arg1[6];
+        } else if (t >= 1.0f) {
+            frame.quatC0[0] = arg2[3];
+            frame.quatC0[1] = arg2[4];
+            frame.quatC0[2] = arg2[5];
+            frame.quatC0[3] = arg2[6];
+        } else {
+            oneMinus = 1.0f - t;
+            if (frame.mode94 == 0) {
+                sqA = oneMinus * frame.angle90;
+                sqA = sqA * sqA;
+                polyA = sqA * sqA * (sqA * (sqA * (sqA * (sqA * (fGpffff8104 * sqA + fGpffff8054 + 0.0f) + fGpffff8058 + 0.0f) + fGpffff805c + 0.0f) + fGpffff8060 + 0.0f) + fGpffff8108 + 0.0f) + sqA + 0.0f;
+                sqB = t * frame.angle90;
+                sqB = sqB * sqB;
+                polyB = sqB * sqB * (sqB * (sqB * (sqB * (sqB * (fGpffff8104 * sqB + fGpffff8054 + 0.0f) + fGpffff8058 + 0.0f) + fGpffff805c + 0.0f) + fGpffff8060 + 0.0f) + fGpffff8108 + 0.0f) + sqB + 0.0f;
+                oneMinus = polyA;
+                t = polyB;
+            }
+            frame.quatC0[0] = frame.slerp70[4] * t + frame.slerp70[0] * oneMinus + 0.0f;
+            frame.quatC0[1] = frame.slerp70[5] * t + frame.slerp70[1] * oneMinus + 0.0f;
+            frame.quatC0[2] = frame.slerp70[6] * t + frame.slerp70[2] * oneMinus + 0.0f;
+            frame.quatC0[3] = frame.slerp70[7] * t + frame.slerp70[3] * oneMinus;
+        }
+        func_003dcb40((RwV3d *)frame.vec138, (const RwV3d *)D_0060A100, 1, (const RtQuat *)frame.quatC0);
+        frame.vec138[0] = frame.vec138[0] + frame.out108[0];
+        frame.vec138[1] = frame.vec138[1] + frame.out108[1];
+        frame.vec138[2] = frame.vec138[2] + frame.out108[2];
+        func_001bd780(arg2 + 3, frame.vec138, frame.out108, D_0060A0E0);
+    } else if (blend < iGpffff804c) {
+        func_003dc740((u8 *)(arg2 + 3), D_0060A0E0, 2, iGpffff8160);
+    }
+    if (heightSum < 450.0f) {
+        heightSum = 450.0f;
+    }
+    inv = (0.5f * heightSum) / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+    func_003dcb40((RwV3d *)frame.vec138, (const RwV3d *)D_0060A100, 1, (const RtQuat *)(arg2 + 3));
+    frame.vec128[1] = frame.vec138[1];
+    func_003e40b0((RwV3d *)frame.vec128, (const RwV3d *)frame.vec128);
+    dotB = frame.vec138[2] * frame.vec128[2] + frame.vec138[0] * frame.vec128[0] + frame.vec138[1] * frame.vec128[1];
+    if (!(dotB < 0.0f)) {
+        dotA = *(f32 *)(unitA + 0x90) * *(f32 *)(unitA + 0x2C);
+        frame.pairF8 = frame.pairE8;
+        frame.val100 = frame.valF0;
+    } else {
+        dotA = *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C);
+        frame.pairF8 = *(s64 *)frame.vecD8;
+        frame.val100 = frame.vecD8[2];
+    }
+    frame.vec148[0] = frame.vecD8[0] + 0.0f + frame.vec128[2] * dotA + 0.0f;
+    frame.vec148[1] = frame.out108[1];
+    frame.vec148[2] = (frame.valF0 + 0.0f) - frame.vec128[0] * dotA;
+    frame.diff118[0] = frame.vec148[0] - frame.out108[0];
+    frame.diff118[1] = frame.vec148[1] - frame.vec148[1];
+    frame.diff118[2] = frame.vec148[2] - frame.out108[2];
+    func_003e40b0((RwV3d *)frame.diff118, (const RwV3d *)frame.diff118);
+    dotC = frame.diff118[2] * frame.vec128[2] + frame.diff118[0] * frame.vec128[0] + frame.diff118[1] * frame.vec128[1];
+    absA = dotB < 0.0f ? -dotB : dotB;
+    absB = dotC < 0.0f ? -dotC : dotC;
+    if (!(absA <= absB) && dotC != 0.0f && dotB != 0.0f) {
+        frame.vec158[0] = frame.out108[0] - *(f32 *)&frame.pairF8;
+        frame.vec158[1] = frame.out108[2] - frame.val100;
+        dist = func_003e41b0(frame.vec158);
+        frame.vec148[1] = frame.out108[1] + (heightSum * dist) / inv;
+        frame.vec148[0] = *(f32 *)&frame.pairF8 + 0.0f + frame.vec128[2] * dotA + 0.0f;
+        frame.vec148[2] = (frame.val100 + 0.0f) - frame.vec128[0] * dotA;
+        func_001bd780(frame.quatA0, frame.vec148, frame.out108, D_0060A0E0);
+        blend = func_001ec2b0(arg1 + 3, frame.quatA0);
+        frame.vec148[0] = (*(f32 *)&frame.pairF8 + 0.0f) - frame.vec128[2] * dotA;
+        frame.vec148[2] = frame.vec128[0] * dotA + frame.val100 + 0.0f;
+        func_001bd780(frame.quatB0, frame.vec148, frame.out108, D_0060A0E0);
+        scale2 = func_001ec2b0(arg1 + 3, frame.quatB0);
+        if (blend < scale2) {
+            arg2[3] = frame.quatA0[0];
+            arg2[4] = frame.quatA0[1];
+            arg2[5] = frame.quatA0[2];
+            arg2[6] = frame.quatA0[3];
+        } else {
+            arg2[3] = frame.quatB0[0];
+            arg2[4] = frame.quatB0[1];
+            arg2[5] = frame.quatB0[2];
+            arg2[6] = frame.quatB0[3];
+        }
+        func_003dcb40((RwV3d *)frame.vec138, (const RwV3d *)D_0060A100, 1, (const RtQuat *)(arg2 + 3));
+    }
+    frame.vec138[0] = frame.vec138[0] * inv;
+    frame.vec138[1] = frame.vec138[1] * inv;
+    frame.vec138[2] = frame.vec138[2] * inv;
+    len = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+    scale2 = inv * len * 0.21875f * 0.5f;
+    frame.vec158[0] = frame.vec138[0];
+    frame.vec158[1] = frame.vec138[2];
+    func_003e41e0(frame.vec158, frame.vec158);
+    frame.out108[0] = frame.vec158[1] * scale2 + frame.out108[0] + 0.0f + frame.vec138[0];
+    frame.out108[1] = frame.vec148[1] + frame.vec138[1];
+    frame.out108[2] = ((frame.out108[2] + 0.0f) - frame.vec158[0] * scale2) + frame.vec138[2];
+    arg2[0] = frame.out108[0];
+    arg2[1] = frame.out108[1];
+    arg2[2] = frame.out108[2];
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c8e90);
+#endif
 // FUN_001C9750
 void func_001c9750(u8 *arg0)
 {

@@ -783,8 +783,143 @@ void func_003874c0(s32 arg0, u8 *arg1)
         func_00386c00(arg1);
     }
 }
-// FUN_00387750
+/* measured: honest first reconstruction per func_0038bab0/89640/84cc0 idiom (u8* state at +0x46 plus base, (f32)(u16) counters bltz double, plain (u8) clamps, sequential <15/<35/<4 guards empty else, block-scoped next/i/j, plain arithmetic no COP1 exemption, Vertex[4] 64B work at sp+0x60 with scale/color idiom per 0038a480; probe_variants v1 262w base honest, R1 v_u32 264w (+2) but fnalign 431->454 exact and v_u32b 264w/453o/257e adopted for 3% gate (v1 431o 5% short unbankable), R2 inclusive 266w/262e regress, aiu32/reorder 264w/257e ties unproductive; stop after two rounds (R1 productive for count, R2 unproductive after fnalign gate) per batch; fnalign v_u32b retail 454/object 453 (1 short 0.2% within 3%, 257 edits +2 reloc-only, sh/andi order + $s/$f color + GP offsets + COP1 adda/madd floor remain); providers verified (373cb0 f32,f32,f32,s32 per btlShuffleCalc.c:43, 44b7b0/610 f32 per btlShuffleCalc.c:27/26, 457120 u8* per btlShuffleCalc.c:9, 377930 u8*,s32,s32,u8*,s32 per this file:24, 3f6440 s32,s32 per this file:25, 45c870 void*,s32 per this file:796, 489f80/48a000 void per cmpConfig.c:35/37, 89180 u8* per this file:14, D_008872F8 f32[] per this file:56, D_00887310 s32,void*,s32 per this file:58, fGp82fc pi/82cc 0.4/83d8 pi/2 per image.bin, 15.0/28.0/30.0/10.0/255.0/192.0/211.0/316.0 per retail immediates); Ghidra/IDA agree on CFG/call order, differ on 373cb0 arg order and GP naming (used file idiom); lever 4 exclusive <15/<35/<4 already $v0 (inclusive regresses); lhu correct; double-def offset remains + COP1 chains; re-derived, no fabrications; archive P038_00387750_body.c stale COP1-floor note. Banked guarded floor. */
+// FUN_00387750 NONMATCHING
+#ifdef NON_MATCHING
+void func_00387750(u8 *arg0)
+{
+    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern f32 func_0044b7b0(f32 fparg0);
+    extern void func_00489f80(void);
+    extern void func_0048a000(void);
+    extern void func_0045c870(void *arg0, s32 arg1);
+    extern f32 fGpffff82cc;
+    extern f32 fGpffff82fc;
+    extern f32 fGpffff83d8;
+    typedef struct {
+        f32 x;
+        f32 y;
+        f32 z;
+        u32 pad0;
+        u32 pad1;
+        u32 pad2;
+        f32 scale;
+        u32 pad3;
+        f32 color[4];
+        u32 tail[4];
+    } Vertex_7750;
+    u8 *base;
+    u8 *state;
+    f32 depth;
+    f32 scale;
+    f32 spin;
+    f32 blend0;
+    f32 blend1;
+    u8 colors[4];
+    Vertex_7750 work[4];
+    base = *(u8 **)arg0;
+    state = arg0 + 0x46;
+    depth = D_008872F8[0];
+    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    *(u16 *)(state + 2) = (*(u16 *)(state + 2) + 1) % 10;
+    spin = (fGpffff82fc * (f32)*(u16 *)(state + 2)) / 10.0f;
+    if ((*(u16 *)(state + 4) & 1) == 0) {
+        blend0 = func_00373cb0((f32)*(u16 *)state, 0.0f, 15.0f, 0);
+        blend1 = 0.0f;
+        {
+            u16 next;
+            next = *(u16 *)state + 1;
+            *(u16 *)state = next;
+            if ((next & 0xFFFF) < 0xF) {
+            } else {
+                *(u16 *)state = 0;
+                *(u16 *)(state + 4) = *(u16 *)(state + 4) | 1;
+            }
+        }
+    } else if ((*(u16 *)(state + 4) & 2) == 0) {
+        blend0 = 1.0f;
+        blend1 = 0.0f;
+    } else {
+        blend0 = 1.0f - func_00373cb0((f32)*(u16 *)state, 0.0f, 28.0f, 0);
+        blend1 = func_00373cb0((f32)*(u16 *)state, 0.0f, 30.0f, 0);
+        {
+            u16 next;
+            next = *(u16 *)state + 1;
+            *(u16 *)state = next;
+            if ((next & 0xFFFF) < 0x23) {
+            } else {
+                *(u16 *)(arg0 + 0x4C) = *(u16 *)(arg0 + 0x4C) & 0xFBFF;
+                func_00389180(*(u8 **)(base + 0x1F294));
+            }
+        }
+    }
+    colors[0] = 0xFF;
+    colors[1] = 0;
+    colors[2] = 0;
+    colors[3] = (u8)(255.0f * (fGpffff82cc * blend0 + blend1));
+    func_00377930(base, *(s32 *)(base + 0x1F308), 0, colors, 0);
+    colors[0] = 0xFF;
+    colors[1] = 0;
+    colors[2] = 0;
+    colors[3] = 0;
+    func_00489f80();
+    func_003f6440(3, 0x31801);
+    func_0045c870(colors, 0);
+    colors[3] = 0xFF;
+    func_00377930(base, *(s32 *)(base + 0x1F308), 0, colors, 0);
+    func_0048a000();
+    func_003f6440(3, 0x3F801);
+    func_003f6440(2, 0x48);
+    {
+        s32 i;
+        for (i = 0; i < 4; i++) {
+            s32 ai;
+            f32 ang;
+            f32 s;
+            f32 c;
+            ai = (u8)(255.0f * ((f32)(i & 1) * blend0));
+            ang = spin + fGpffff83d8 * (f32)i;
+            s = func_0044b7b0(ang);
+            c = func_0044b610(ang);
+            work[i].x = 316.0f + 192.0f * c;
+            work[i].y = 211.0f + 192.0f * s;
+            work[i].z = depth;
+            work[i].scale = scale;
+            work[i].color[0] = 255.0f;
+            work[i].color[1] = 0.0f;
+            work[i].color[2] = 0.0f;
+            work[i].color[3] = (f32)(u32)ai;
+        }
+    }
+    D_00887310[0](5, work, 4);
+    {
+        s32 j;
+        for (j = 0; j < 4; j++) {
+            s32 ai;
+            f32 ang;
+            f32 s;
+            f32 c;
+            ai = (u8)(255.0f * (fGpffff82cc * (f32)(j & 1) * blend0));
+            ang = spin + fGpffff83d8 * (f32)j;
+            s = func_0044b7b0(ang);
+            c = func_0044b610(ang);
+            work[j].x = 316.0f + 192.0f * c;
+            work[j].y = 211.0f + 192.0f * s;
+            work[j].z = depth;
+            work[j].scale = scale;
+            work[j].color[0] = 255.0f;
+            work[j].color[1] = 0.0f;
+            work[j].color[2] = 0.0f;
+            work[j].color[3] = (f32)(u32)ai;
+        }
+    }
+    D_00887310[0](5, work, 4);
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x44);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00387750);
+#endif
 // FUN_00387E70
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00387e70);
 // FUN_003889B0
