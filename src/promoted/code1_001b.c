@@ -4266,8 +4266,219 @@ void func_001bdeb0(u8 *arg0)
         }
     }
 }
-// FUN_001BE050
+/* measured: GUARDED_SCORE 497 via tools/measure_guarded.py src/promoted/code1_001b.c func_001be050 (fnalign retail 540/object 529 instrs, 172 edits +19 reloc-only; live 2116B/window 2176B, 60B short). De-noised m2c.c (271 lines, 46 VU adda/madd/mula/msub unknowns) + rw.c (237 lines) + rw_raw.c (205 lines) alongside ghidra/ida into file idiom (no M2C_*, no s128/stack slots, no goto-loops, file-scope bd560/bd780/195850/fGp/D_0060A0E0/003dcc70 reused, locals only for 003e4180/41e0/40b0/001ec2b0/003dcb40/001bac20 as u16 per btlMain plus 0044b868/bc3a0/cfed0/4b3110/D_0060A0F0-100/fGp807c-110-118-128-140-16c-180 per btlCamera; Frame first50/final6C/view78/scur90/snextA0/sangleB0/smodeB4/selC0/horizD8/posE0/centerF0/diff100/scaled110 per bf5e0 hex offsets; void(u8*,f32,f32) per btlCamera angle/distance, no float-param copy per 7a-quater). Count-first: sched 493 but 485/540 10% short not bankable, cse 579, others tie, keep bare. Residual FPR coloring, dead-store scheduling, gp-literal reloc-only. Production ASM. */
+// FUN_001BE050 NONMATCHING
+#ifdef NON_MATCHING
+void func_001be050(u8 *arg0, f32 arg1, f32 arg2)
+{
+    extern f32 func_003e4180(f32 *arg0);
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+    extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
+    extern f32 func_001ec2b0(void *arg0, void *arg1);
+    extern void func_003dcb40(void *arg0, const void *arg1, s32 arg2, const void *arg3);
+    extern void func_001bac20(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
+    extern void func_001bbef0(u8 *arg0, f32 arg1);
+    extern f32 func_0044b868(f32 x);
+    extern u32 func_001bc3a0(f32 *arg0, f32 *arg1);
+    extern void func_001cfed0(u8 *arg0);
+    extern s32 func_004b3110(s16 arg0);
+    extern u8 D_0060A0F0[];
+    extern u8 D_0060A100[];
+    extern f32 fGpffff807c;
+    extern f32 fGpffff8110;
+    extern f32 fGpffff8118;
+    extern f32 fGpffff8128;
+    extern f32 fGpffff8140;
+    extern f32 fGpffff816c;
+    extern f32 fGpffff8180;
+    struct Frame {
+        f32 first50[7];
+        f32 final6C[3];
+        f32 view78[4];
+        u8 pad88[8];
+        f32 scur90[4];
+        f32 snextA0[4];
+        f32 sangleB0;
+        s32 smodeB4;
+        u8 padB8[8];
+        f32 selC0[4];
+        u8 padD0[8];
+        f32 horizD8[2];
+        f32 posE0[3];
+        u8 padEC[4];
+        f32 centerF0[3];
+        u8 padFC[4];
+        f32 diff100[3];
+        u8 pad10C[4];
+        f32 scaled110[3];
+        u8 pad11C[4];
+    } frame;
+    u8 *unit;
+    f32 rad;
+    f32 h;
+    f32 tmp;
+    f32 len;
+    f32 scale;
+    f32 dist;
+    f32 blend;
+    f32 t;
+    f32 inv;
+    f32 f0;
+    f32 f1;
+    f32 f3;
+    f32 f4;
+    u16 mode;
+    unit = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
+    rad = *(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C);
+    func_001bd560(frame.first50, (f32 *)(arg0 + 0x9C));
+    func_00195850(unit, frame.posE0);
+    h = *(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C);
+    tmp = h * 0.5f + frame.posE0[1];
+    if (rad < 180.0f) {
+        frame.posE0[1] = fGpffff8118 * h + frame.posE0[1];
+        scale = (rad * 1.5f) / func_0044b868(*(f32 *)(arg0 + 0xB8) * 0.5f);
+    } else {
+        frame.posE0[1] = h * 0.25f + frame.posE0[1];
+        scale = (rad * 2.5f) / func_0044b868(*(f32 *)(arg0 + 0xB8) * 0.5f);
+    }
+    frame.diff100[0] = frame.first50[0] - frame.posE0[0];
+    frame.diff100[1] = frame.first50[1] - frame.posE0[1];
+    frame.diff100[2] = frame.first50[2] - frame.posE0[2];
+    len = func_003e4180(frame.diff100);
+    dist = scale;
+    if (scale <= len * fGpffff8140) {
+        dist = len * fGpffff8140;
+    }
+    func_003dcb40(frame.diff100, D_0060A0F0, 1, unit + 0x1C);
+    rad = rad * 0.5f;
+    frame.centerF0[0] = frame.posE0[0] + frame.diff100[0] * rad;
+    frame.centerF0[1] = frame.posE0[1] + frame.diff100[1] * rad;
+    frame.centerF0[2] = frame.posE0[2] + frame.diff100[2] * rad;
+    frame.scaled110[0] = frame.diff100[0] * scale + frame.posE0[0];
+    frame.scaled110[2] = frame.diff100[2] * scale + frame.posE0[2];
+    frame.scaled110[1] = fGpffff8128 * h + frame.diff100[1] * scale + frame.posE0[1];
+    frame.diff100[0] = frame.scaled110[0] - frame.posE0[0];
+    frame.diff100[1] = frame.scaled110[1] - frame.posE0[1];
+    frame.diff100[2] = frame.scaled110[2] - frame.posE0[2];
+    func_003e40b0(frame.diff100, frame.diff100);
+    frame.scaled110[0] = frame.diff100[0] * scale + frame.centerF0[0];
+    frame.scaled110[1] = frame.diff100[1] * scale + frame.centerF0[1];
+    frame.scaled110[2] = frame.diff100[2] * scale + frame.centerF0[2];
+    func_001bd780(frame.view78, frame.scaled110, frame.centerF0, D_0060A0E0);
+    blend = func_001ec2b0(&frame.first50[3], frame.view78);
+    arg1 = fGpffff816c * arg1;
+    if (arg1 < blend) {
+        if ((fGpffff816c * arg2 < blend) && ((mode = *(u16 *)(arg0 + 0xE4)) != 2) && (mode != 0x29) && (mode != 0x24) && (mode != 0x22) && (mode != 0x21)) {
+            func_001cfed0(arg0);
+            func_004b3110(5);
+            return;
+        }
+        frame.scaled110[0] = frame.first50[0];
+        frame.scaled110[2] = frame.first50[2];
+        if (tmp < frame.first50[1]) {
+            frame.scaled110[1] = (frame.first50[1] - tmp) * 0.25f + tmp;
+        } else {
+            frame.scaled110[1] = frame.first50[1];
+        }
+        func_001bd780(frame.selC0, frame.scaled110, frame.centerF0, D_0060A0E0);
+        blend = func_001ec2b0(&frame.first50[3], frame.selC0);
+        if (blend <= arg1) {
+            frame.view78[0] = frame.selC0[0];
+            frame.view78[1] = frame.selC0[1];
+            frame.view78[2] = frame.selC0[2];
+            frame.view78[3] = frame.selC0[3];
+        } else {
+            t = arg1 / blend;
+            func_003dcc70(&frame.first50[3], frame.view78, frame.scur90);
+            if (t <= 0.0f) {
+                frame.selC0[0] = frame.first50[3];
+                frame.selC0[1] = frame.first50[4];
+                frame.selC0[2] = frame.first50[5];
+                frame.selC0[3] = frame.first50[6];
+            } else if (t >= 1.0f) {
+                frame.selC0[0] = frame.view78[0];
+                frame.selC0[1] = frame.view78[1];
+                frame.selC0[2] = frame.view78[2];
+                frame.selC0[3] = frame.view78[3];
+            } else {
+                inv = 1.0f - t;
+                if (frame.smodeB4 == 0) {
+                    f4 = inv * frame.sangleB0;
+                    f3 = f4 * f4;
+                    f0 = fGpffff8180 * f3 + fGpffff8054;
+                    f0 = f3 * f0 + fGpffff8058;
+                    f0 = f3 * f0 + fGpffff805c;
+                    f0 = f3 * f0 + fGpffff8060;
+                    f1 = f3 * f0 + fGpffff8108;
+                    f0 = f3 * f4;
+                    inv = f0 * f1 + f4;
+                    f4 = t * frame.sangleB0;
+                    f3 = f4 * f4;
+                    f0 = fGpffff8180 * f3 + fGpffff8054;
+                    f0 = f3 * f0 + fGpffff8058;
+                    f0 = f3 * f0 + fGpffff805c;
+                    f0 = f3 * f0 + fGpffff8060;
+                    f1 = f3 * f0 + fGpffff8108;
+                    f0 = f3 * f4;
+                    t = f0 * f1 + f4;
+                }
+                frame.selC0[0] = frame.scur90[0] * inv;
+                frame.selC0[1] = frame.scur90[1] * inv;
+                frame.selC0[2] = frame.scur90[2] * inv;
+                frame.selC0[0] = frame.snextA0[0] * t + frame.selC0[0];
+                frame.selC0[1] = frame.snextA0[1] * t + frame.selC0[1];
+                frame.selC0[2] = frame.snextA0[2] * t + frame.selC0[2];
+                frame.selC0[3] = frame.scur90[3] * inv + frame.snextA0[3] * t;
+            }
+            func_003dcb40(frame.diff100, D_0060A100, 1, frame.selC0);
+            frame.scaled110[0] = frame.centerF0[0] + frame.diff100[0];
+            frame.scaled110[1] = frame.centerF0[1] + frame.diff100[1];
+            frame.scaled110[2] = frame.centerF0[2] + frame.diff100[2];
+            func_001bd780(frame.view78, frame.scaled110, frame.centerF0, D_0060A0E0);
+        }
+    }
+    if (dist < 550.0f) {
+        dist = 550.0f;
+    }
+    func_003dcb40(frame.diff100, D_0060A100, 1, frame.view78);
+    frame.diff100[0] = frame.diff100[0] * dist;
+    frame.diff100[1] = frame.diff100[1] * dist;
+    frame.diff100[2] = frame.diff100[2] * dist;
+    scale = func_0044b868(fGpffff8110 * *(f32 *)(arg0 + 0xB8) * 0.5f);
+    dist = dist * scale * 0.21875f;
+    frame.horizD8[0] = frame.diff100[0];
+    frame.horizD8[1] = frame.diff100[2];
+    func_003e41e0(frame.horizD8, frame.horizD8);
+    frame.centerF0[0] = frame.horizD8[1] * dist + frame.centerF0[0];
+    frame.centerF0[2] = frame.centerF0[2] - frame.horizD8[0] * dist;
+    frame.final6C[0] = frame.centerF0[0] + frame.diff100[0];
+    frame.final6C[1] = frame.centerF0[1] + frame.diff100[1];
+    frame.final6C[2] = frame.centerF0[2] + frame.diff100[2];
+    if (frame.first50[1] < 100.0f) {
+        frame.first50[1] = 100.0f;
+    }
+    if (frame.final6C[1] < 100.0f) {
+        frame.final6C[1] = 100.0f;
+    }
+    blend = func_001ec2b0(&frame.first50[3], frame.view78);
+    dist = 1.75f;
+    if (0.0f < blend) {
+        dist = fGpffff807c;
+        if (1.0f < arg1 / blend) {
+            dist = (arg1 / blend) * fGpffff807c;
+        }
+        if (1.75f < dist) {
+            dist = 1.75f;
+        }
+    }
+    func_001bc3a0(frame.first50, frame.first50);
+    func_001bc3a0(frame.final6C, frame.final6C);
+    func_001bac20((u16 *)arg0, frame.first50, frame.final6C, 1);
+    func_001bbef0(arg0, dist);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001be050);
+#endif
 // FUN_001BE900
 void func_001be900(u8 *arg0)
 {

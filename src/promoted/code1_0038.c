@@ -717,8 +717,146 @@ INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00385380);
 #endif
 // FUN_00385970
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00385970);
-// FUN_00386C00
+/* measured: honest first reconstruction per func_0038bab0/89640/84cc0/87750 idiom (u8* state at +0x04 plus base, (f32)(u16) counters bltz double, plain (u8) clamps, sequential <28/<20/<16 guards empty else, block-scoped next/i, plain arithmetic no COP1 exemption, Vec2f pos at sp+0x88 with scale/color idiom per 0038a480; m2c+romwright into /var/tmp/cold386c00 (m2c_386c00.c 501instr + rom_386c00.c/rom_raw + types float(void*) arity trusted); probe_variants v1 513w base honest, R1 swap 513w tie/151e tie + branch 526w regress (+13) but 136e win (-15, not adopted to keep simplest honest per 85380 precedent where words/fnalign disagree), R2 inclusive 513w tie/154e regress, frev 513w tie/146e churn (-5 tie unproductive), s64 514w regress (+1/155e); stop after two rounds (R1 no win, R2 unproductive after fnalign gate) per batch; pragma sweep singles lvl3/4 508w (-5) but fnalign 474o/556r 14.7% short +685e worse and sched 511w (-2) but 481o 13.5% short +692e worse not adopted per 3%+fnalign, pairs common_subs+peephole 496w but 592o/560r 5.7% over +198e worse and loop_invariants+prop 498w but 544o/556r 242e worse not adopted; fnalign v1 retail 556/object 555 (1 short 0.2% within 3%, 151 edits +1 reloc-only, frame 0x90->0x80 s3->s2, $s0/$s1 swap + $f color + GP offsets + COP1 mula/msub+adda/madd floor remain); providers verified (373cb0 f32,f32,f32,s32 per btlShuffleCalc.c:43, 65ac0 Vec2f per shdMisc.c:601, 34f4a0 per this file:73, 3f6440 s32,s32 per this file:25, 44b7b0 f32 per btlShuffleCalc, fGp812c/83d0/837c/81e0 per romwright, D_0064EDF0 12B table); Ghidra/IDA agree on CFG/call order, differ on 65ac0/34f4a0 prototypes and GP naming (used file idiom); lever 4 exclusive <28/<20/<16 already $v0 (inclusive tie/regress); lhu correct; double-def offset remains + COP1 chains; re-derived, no fabrications. Banked guarded floor. */
+// FUN_00386C00 NONMATCHING
+#ifdef NON_MATCHING
+void func_00386c00(u8 *arg0)
+{
+    typedef struct { f32 x; f32 y; } Vec2f_6c00;
+    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern void func_003f6440(s32 arg0, s32 arg1);
+    extern void func_00365ac0(Vec2f_6c00 position, s32 color, s32 mode, f32 depth, f32 angle, f32 wid, f32 hgt);
+    extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u32 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+    extern f32 func_0044b7b0(f32 fparg0);
+    extern f32 fGpffff812c;
+    extern f32 fGpffff83d0;
+    extern f32 fGpffff837c;
+    extern f32 fGpffff81e0;
+    extern u8 D_0064EDF0[];
+    u8 *base;
+    u8 *state;
+    s32 resource;
+    Vec2f_6c00 pos;
+    f32 var_f22;
+    f32 var_f21;
+    f32 var_f23;
+    f32 var_f20;
+    f32 var_f24;
+    f32 angle0;
+    f32 angle1;
+    f32 mid;
+    f32 mx;
+    f32 my;
+    base = *(u8 **)arg0;
+    state = arg0 + 4;
+    resource = *(s32 *)(base + 0x1F2AC);
+    if ((*(u16 *)state & 1) == 0) {
+        f32 tmpA;
+        f32 tmpB;
+        var_f22 = func_00373cb0((f32)*(u16 *)(state + 2), 10.0f, 20.0f, 2);
+        var_f21 = func_00373cb0((f32)*(u16 *)(state + 2), 10.0f, 20.0f, 2);
+        tmpA = func_00373cb0((f32)*(u16 *)(state + 2), 19.0f, 21.0f, 2);
+        tmpB = func_00373cb0((f32)*(u16 *)(state + 2), 14.0f, 19.0f, 1);
+        var_f23 = fGpffff812c * tmpB - fGpffff83d0 * tmpA;
+        var_f20 = func_00373cb0((f32)*(u16 *)(state + 2), 13.0f, 20.0f, 1);
+        var_f24 = var_f21;
+        {
+            u16 next;
+            next = *(u16 *)(state + 2) + 1;
+            *(u16 *)(state + 2) = next;
+            if ((next & 0xFFFF) < 0x1C) {
+            } else {
+                *(u16 *)state = *(u16 *)state | 1;
+                *(u16 *)(state + 2) = 0;
+            }
+        }
+    } else if ((*(u16 *)state & 2) == 0) {
+        var_f23 = 1.0f;
+        var_f22 = 1.0f;
+        var_f21 = 1.0f;
+        var_f20 = 1.0f;
+        var_f24 = 1.0f;
+    } else {
+        f32 t0;
+        f32 t1;
+        f32 t2;
+        t0 = func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 13.0f, 2);
+        var_f22 = t0 * 3.0f + 1.0f;
+        t1 = func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 13.0f, 2);
+        var_f21 = t1 * 3.0f + 1.0f;
+        t2 = func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 10.0f, 2);
+        var_f23 = t2 * 2.0f + 1.0f;
+        var_f20 = 1.0f - func_00373cb0((f32)*(u16 *)(state + 2), 0.0f, 10.0f, 1);
+        var_f24 = var_f21;
+        {
+            u16 next;
+            next = *(u16 *)(state + 2) + 1;
+            *(u16 *)(state + 2) = next;
+            if ((next & 0xFFFF) < 0x14) {
+            } else {
+                *(u16 *)(arg0 + 0x4C) = *(u16 *)(arg0 + 0x4C) & 0xFFFD;
+                *(u16 *)(state + 2) = 0;
+            }
+        }
+    }
+    pos.x = 316.0f;
+    pos.y = 211.0f;
+    if (var_f22 > 0.0f) {
+        angle0 = fGpffff837c * (1.0f + var_f22);
+        func_003f6440(3, 0x71801);
+        func_003f6440(2, 0x48);
+        func_00365ac0(pos, 0xAE545AFF, 0, 0.0f, angle0, 111.5f * var_f22, 92.0f);
+    }
+    if (var_f21 > 0.0f) {
+        angle1 = fGpffff837c * (1.0f + var_f24);
+        func_003f6440(3, 0x717FB);
+        func_003f6440(2, 0x44);
+        func_00365ac0(pos, 0x4A2400FF, 1, 0.0f, angle1, 98.0f * var_f21, 18.0f);
+    }
+    mid = (var_f23 - 1.0f) * 300.0f;
+    mx = mid + 359.0f;
+    my = mid + 14.0f;
+    pos.x = mx;
+    pos.y = my;
+    func_0034f4a0(resource, 0x3A, pos.x, pos.y, 0.0f, 0x4A, 0x24, 0, 0xFF, 0x1000, 0x1000, 45.0f, 0, 0);
+    mx = 119.0f - mid;
+    my = 184.0f - mid;
+    pos.x = mx;
+    pos.y = my;
+    func_0034f4a0(resource, 0x39, pos.x, pos.y, 0.0f, 0x4A, 0x24, 0, 0xFF, 0x1000, 0x1000, 45.0f, 0, 0);
+    func_003f6440(3, 0x71801);
+    func_003f6440(2, 0x48);
+    *(u16 *)(state + 4) = (*(u16 *)(state + 4) + 1) % 60;
+    {
+        s32 i;
+        for (i = 0; i < 16; i++) {
+            u8 *entry;
+            f32 fx;
+            f32 fy;
+            f32 ff;
+            f32 s;
+            f32 t;
+            f32 af;
+            s32 alpha;
+            entry = D_0064EDF0 + i * 12;
+            fx = *(f32 *)entry;
+            fy = *(f32 *)(entry + 4);
+            ff = *(f32 *)(entry + 8);
+            s = func_0044b7b0((fGpffff81e0 * (ff * 60.0f + (f32)*(u16 *)(state + 4))) / 60.0f);
+            t = (s + 1.0f) / 2.0f;
+            af = ((t + 1.0f) * 255.0f) / 2.0f * var_f20;
+            alpha = (u8)af;
+            pos.x = fx;
+            pos.y = fy;
+            func_0034f4a0(resource, 0x3C, pos.x, pos.y, 0.0f, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0.0f, 0, 0);
+        }
+    }
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x44);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00386c00);
+#endif
 // FUN_003874C0
 void func_003874c0(s32 arg0, u8 *arg1)
 {
