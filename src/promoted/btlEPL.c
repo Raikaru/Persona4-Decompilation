@@ -449,8 +449,355 @@ void func_001fce80(void *arg0) {
 // f1 vs retail f0, or-dest $v1 vs $a0; no declaration order tried moved it
 // (FP-rotation floor, same family as func_001ff490/001fec00).
 // measured: see floor note above; nd recorded there.
-// FUN_001FCEB0
+// measured: first C reconstruction (m2c de-noised + romwright dispatch, file idiom: scale block + switch 0/1/2 + sp7C word + (u32)b>>1/(s32)-first/h+h byte idiom + V4 copies); retail 563 object 555 (8 short, 1.4% in 3% gate) edit 368 via `python3 tools/fnalign.py src/promoted/btlEPL.c func_001fceb0 --candidate /var/tmp/cold1fceb0/cand_v12.c`; probe 329 via `python3 tools/probe_variants.py src/promoted/btlEPL.c func_001fceb0 --candidate v12=/var/tmp/cold1fceb0/cand_v12.c`; pragma opt_common_subs off 329->314 via `python3 -E -s tools/pragma_sweep.py src/promoted/btlEPL.c func_001fceb0` (pairs neutral); decl-order/u32/direct-blend neutral/regress (v13 523, v14 329, v15 329); residual is s-reg rotation (matBase/count swap, or-$v1 vs $a0, sltu-$v1 vs $at) + mula/madd FP-scheduling floor as predicted (cf. func_001fc630/func_001fd790).
+// FUN_001FCEB0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_common_subs off
+void func_001fceb0(u8 *arg0)
+{
+    s32 s0;
+    s32 count;
+    u8 *param;
+    u8 *matBase;
+    u8 *buf0;
+    u8 *buf1;
+    u8 mode;
+    f32 scale;
+    f32 inv;
+    u8 sp7C[4];
+
+    count = *(s32 *)(arg0 + 0x28);
+    param = *(u8 **)(arg0 + 0x38);
+    matBase = *(u8 **)(arg0 + 0x30);
+    s0 = *(s32 *)(param + 0x00);
+    if ((u32)s0 < (u32)count) {
+        if (s0 != 0) {
+            return;
+        }
+    }
+    buf0 = func_001b7030();
+    buf1 = func_001b7040();
+    mode = 0;
+    if (s0 != 0) {
+        s32 a4;
+        a4 = *(u16 *)(param + 0x04);
+        if ((u32)a4 >= (u32)count) {
+            if (a4 > 0) {
+                f32 fc;
+                f32 fa;
+                if (count >= 0) {
+                    fc = (f32)(s32)count;
+                } else {
+                    u32 t = ((u32)count >> 1) | ((u32)count & 1);
+                    fc = (f32)(s32)t;
+                    fc = fc + fc;
+                }
+                if (a4 >= 0) {
+                    fa = (f32)(s32)a4;
+                } else {
+                    u32 t = ((u32)a4 >> 1) | ((u32)a4 & 1);
+                    fa = (f32)(s32)t;
+                    fa = fa + fa;
+                }
+                scale = fc / fa;
+                mode = 1;
+            } else {
+                scale = 1.0f;
+                mode = 1;
+            }
+        } else {
+            s32 a6;
+            s32 diff1;
+            a6 = *(u16 *)(param + 0x06);
+            diff1 = s0 - a6;
+            if ((u32)count >= (u32)diff1) {
+                if (a6 > 0) {
+                    s32 diff2;
+                    f32 fc;
+                    f32 fa;
+                    diff2 = s0 - count;
+                    if (diff2 >= 0) {
+                        fc = (f32)(s32)diff2;
+                    } else {
+                        u32 t = ((u32)diff2 >> 1) | ((u32)diff2 & 1);
+                        fc = (f32)(s32)t;
+                        fc = fc + fc;
+                    }
+                    if (a6 >= 0) {
+                        fa = (f32)(s32)a6;
+                    } else {
+                        u32 t = ((u32)a6 >> 1) | ((u32)a6 & 1);
+                        fa = (f32)(s32)t;
+                        fa = fa + fa;
+                    }
+                    scale = fc / fa;
+                    mode = 2;
+                } else {
+                    scale = 0.0f;
+                    mode = 2;
+                }
+            }
+        }
+    }
+    {
+        s32 modeM = mode & 0xFF;
+        switch (modeM) {
+        case 0:
+
+            if (count != 0) {
+                return;
+            }
+            {
+                *(s32 *)sp7C = *(s32 *)(param + 0x08);
+                {
+                    s32 b0 = sp7C[0];
+                    f32 h0;
+                    if (b0 >= 0) {
+                        h0 = (f32)(s32)b0;
+                    } else {
+                        u32 t = ((u32)b0 >> 1) | ((u32)b0 & 1);
+                        h0 = (f32)(s32)t;
+                        h0 = h0 + h0;
+                    }
+                    ((f32 *)(buf0 + 0x00))[0] = D_0076129C * h0;
+                }
+                {
+                    s32 b1 = sp7C[1];
+                    f32 h1;
+                    if (b1 >= 0) {
+                        h1 = (f32)(s32)b1;
+                    } else {
+                        u32 t = ((u32)b1 >> 1) | ((u32)b1 & 1);
+                        h1 = (f32)(s32)t;
+                        h1 = h1 + h1;
+                    }
+                    ((f32 *)(buf0 + 0x00))[1] = D_0076129C * h1;
+                }
+                {
+                    s32 b2 = sp7C[2];
+                    f32 h2;
+                    if (b2 >= 0) {
+                        h2 = (f32)(s32)b2;
+                    } else {
+                        u32 t = ((u32)b2 >> 1) | ((u32)b2 & 1);
+                        h2 = (f32)(s32)t;
+                        h2 = h2 + h2;
+                    }
+                    ((f32 *)(buf0 + 0x00))[2] = D_0076129C * h2;
+                }
+                {
+                    s32 b3 = sp7C[3];
+                    f32 h3;
+                    if (b3 >= 0) {
+                        h3 = (f32)(s32)b3;
+                    } else {
+                        u32 t = ((u32)b3 >> 1) | ((u32)b3 & 1);
+                        h3 = (f32)(s32)t;
+                        h3 = h3 + h3;
+                    }
+                    ((f32 *)(buf0 + 0x00))[3] = D_0076129C * h3;
+                }
+                *(s32 *)sp7C = *(s32 *)(param + 0x0C);
+                {
+                    s32 b0 = sp7C[0];
+                    f32 h0;
+                    if (b0 >= 0) {
+                        h0 = (f32)(s32)b0;
+                    } else {
+                        u32 t = ((u32)b0 >> 1) | ((u32)b0 & 1);
+                        h0 = (f32)(s32)t;
+                        h0 = h0 + h0;
+                    }
+                    ((f32 *)(buf0 + 0x10))[0] = D_0076129C * h0;
+                }
+                {
+                    s32 b1 = sp7C[1];
+                    f32 h1;
+                    if (b1 >= 0) {
+                        h1 = (f32)(s32)b1;
+                    } else {
+                        u32 t = ((u32)b1 >> 1) | ((u32)b1 & 1);
+                        h1 = (f32)(s32)t;
+                        h1 = h1 + h1;
+                    }
+                    ((f32 *)(buf0 + 0x10))[1] = D_0076129C * h1;
+                }
+                {
+                    s32 b2 = sp7C[2];
+                    f32 h2;
+                    if (b2 >= 0) {
+                        h2 = (f32)(s32)b2;
+                    } else {
+                        u32 t = ((u32)b2 >> 1) | ((u32)b2 & 1);
+                        h2 = (f32)(s32)t;
+                        h2 = h2 + h2;
+                    }
+                    ((f32 *)(buf0 + 0x10))[2] = D_0076129C * h2;
+                }
+                {
+                    s32 b3 = sp7C[3];
+                    f32 h3;
+                    if (b3 >= 0) {
+                        h3 = (f32)(s32)b3;
+                    } else {
+                        u32 t = ((u32)b3 >> 1) | ((u32)b3 & 1);
+                        h3 = (f32)(s32)t;
+                        h3 = h3 + h3;
+                    }
+                    ((f32 *)(buf0 + 0x10))[3] = D_0076129C * h3;
+                }
+            }
+        
+            break;
+        case 1:
+
+            if (count == 0) {
+                *(V4 *)(matBase + 0x00) = *(V4 *)(buf0 + 0x00);
+                *(V4 *)(matBase + 0x10) = *(V4 *)(buf0 + 0x10);
+            }
+            inv = 1.0f - scale;
+            *(s32 *)sp7C = *(s32 *)(param + 0x08);
+            {
+                s32 b0 = sp7C[0];
+                s32 b1 = sp7C[1];
+                s32 b2 = sp7C[2];
+                s32 b3 = sp7C[3];
+                f32 h0; f32 h1; f32 h2; f32 h3;
+                f32 s0f; f32 s1f; f32 s2f; f32 s3f;
+                f32 t0; f32 t1; f32 t2;
+                if (b0 >= 0) {
+                    h0 = (f32)(s32)b0;
+                } else {
+                    u32 t = ((u32)b0 >> 1) | ((u32)b0 & 1);
+                    h0 = (f32)(s32)t;
+                    h0 = h0 + h0;
+                }
+                s0f = D_0076129C * h0;
+                if (b1 >= 0) {
+                    h1 = (f32)(s32)b1;
+                } else {
+                    u32 t = ((u32)b1 >> 1) | ((u32)b1 & 1);
+                    h1 = (f32)(s32)t;
+                    h1 = h1 + h1;
+                }
+                s1f = D_0076129C * h1;
+                if (b2 >= 0) {
+                    h2 = (f32)(s32)b2;
+                } else {
+                    u32 t = ((u32)b2 >> 1) | ((u32)b2 & 1);
+                    h2 = (f32)(s32)t;
+                    h2 = h2 + h2;
+                }
+                s2f = D_0076129C * h2;
+                if (b3 >= 0) {
+                    h3 = (f32)(s32)b3;
+                } else {
+                    u32 t = ((u32)b3 >> 1) | ((u32)b3 & 1);
+                    h3 = (f32)(s32)t;
+                    h3 = h3 + h3;
+                }
+                s3f = D_0076129C * h3;
+                t0 = ((f32 *)(matBase + 0x00))[0] * inv;
+                t1 = ((f32 *)(matBase + 0x00))[1] * inv;
+                t2 = ((f32 *)(matBase + 0x00))[2] * inv;
+                ((f32 *)(buf0 + 0x00))[0] = t0 + s0f * scale;
+                ((f32 *)(buf0 + 0x00))[1] = t1 + s1f * scale;
+                ((f32 *)(buf0 + 0x00))[2] = t2 + s2f * scale;
+                ((f32 *)(buf0 + 0x00))[3] = ((f32 *)(matBase + 0x00))[3] * inv + s3f * scale;
+            }
+            *(s32 *)sp7C = *(s32 *)(param + 0x0C);
+            {
+                s32 b0 = sp7C[0];
+                s32 b1 = sp7C[1];
+                s32 b2 = sp7C[2];
+                s32 b3 = sp7C[3];
+                f32 h0; f32 h1; f32 h2; f32 h3;
+                f32 s0f; f32 s1f; f32 s2f; f32 s3f;
+                f32 t0; f32 t1; f32 t2;
+                if (b0 >= 0) {
+                    h0 = (f32)(s32)b0;
+                } else {
+                    u32 t = ((u32)b0 >> 1) | ((u32)b0 & 1);
+                    h0 = (f32)(s32)t;
+                    h0 = h0 + h0;
+                }
+                s0f = D_0076129C * h0;
+                if (b1 >= 0) {
+                    h1 = (f32)(s32)b1;
+                } else {
+                    u32 t = ((u32)b1 >> 1) | ((u32)b1 & 1);
+                    h1 = (f32)(s32)t;
+                    h1 = h1 + h1;
+                }
+                s1f = D_0076129C * h1;
+                if (b2 >= 0) {
+                    h2 = (f32)(s32)b2;
+                } else {
+                    u32 t = ((u32)b2 >> 1) | ((u32)b2 & 1);
+                    h2 = (f32)(s32)t;
+                    h2 = h2 + h2;
+                }
+                s2f = D_0076129C * h2;
+                if (b3 >= 0) {
+                    h3 = (f32)(s32)b3;
+                } else {
+                    u32 t = ((u32)b3 >> 1) | ((u32)b3 & 1);
+                    h3 = (f32)(s32)t;
+                    h3 = h3 + h3;
+                }
+                s3f = D_0076129C * h3;
+                t0 = ((f32 *)(matBase + 0x10))[0] * inv;
+                t1 = ((f32 *)(matBase + 0x10))[1] * inv;
+                t2 = ((f32 *)(matBase + 0x10))[2] * inv;
+                ((f32 *)(buf0 + 0x10))[0] = t0 + s0f * scale;
+                ((f32 *)(buf0 + 0x10))[1] = t1 + s1f * scale;
+                ((f32 *)(buf0 + 0x10))[2] = t2 + s2f * scale;
+                ((f32 *)(buf0 + 0x10))[3] = ((f32 *)(matBase + 0x10))[3] * inv + s3f * scale;
+            }
+        
+            break;
+        case 2:
+
+            if (count == (s0 - *(u16 *)(param + 0x06))) {
+                *(V4 *)(matBase + 0x00) = *(V4 *)(buf0 + 0x00);
+                *(V4 *)(matBase + 0x10) = *(V4 *)(buf0 + 0x10);
+            }
+            inv = 1.0f - scale;
+            {
+                f32 t0 = ((f32 *)(buf1 + 0x00))[0] * inv;
+                f32 t1 = ((f32 *)(buf1 + 0x00))[1] * inv;
+                f32 t2 = ((f32 *)(buf1 + 0x00))[2] * inv;
+                f32 s0f = ((f32 *)(matBase + 0x00))[0] * scale;
+                f32 s1f = ((f32 *)(matBase + 0x00))[1] * scale;
+                f32 s2f = ((f32 *)(matBase + 0x00))[2] * scale;
+                ((f32 *)(buf0 + 0x00))[0] = t0 + s0f;
+                ((f32 *)(buf0 + 0x00))[1] = t1 + s1f;
+                ((f32 *)(buf0 + 0x00))[2] = t2 + s2f;
+                ((f32 *)(buf0 + 0x00))[3] = ((f32 *)(buf1 + 0x00))[3] * inv + ((f32 *)(matBase + 0x00))[3] * scale;
+            }
+            {
+                f32 t0 = ((f32 *)(buf1 + 0x10))[0] * inv;
+                f32 t1 = ((f32 *)(buf1 + 0x10))[1] * inv;
+                f32 t2 = ((f32 *)(buf1 + 0x10))[2] * inv;
+                f32 s0f = ((f32 *)(matBase + 0x10))[0] * scale;
+                f32 s1f = ((f32 *)(matBase + 0x10))[1] * scale;
+                f32 s2f = ((f32 *)(matBase + 0x10))[2] * scale;
+                ((f32 *)(buf0 + 0x10))[0] = t0 + s0f;
+                ((f32 *)(buf0 + 0x10))[1] = t1 + s1f;
+                ((f32 *)(buf0 + 0x10))[2] = t2 + s2f;
+                ((f32 *)(buf0 + 0x10))[3] = ((f32 *)(buf1 + 0x10))[3] * inv + ((f32 *)(matBase + 0x10))[3] * scale;
+            }
+        
+            break;
+        default:
+            break;
+        }
+    }
+}
+#pragma opt_common_subs on
+#else
 INCLUDE_ASM("asm/nonmatchings/btlEPL", func_001fceb0);
+#endif
 // FUN_001FD780
 void func_001fd780(void)
 {

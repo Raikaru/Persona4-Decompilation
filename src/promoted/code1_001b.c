@@ -4750,8 +4750,234 @@ void func_001bfb70(u8 *arg0)
                       0.25f * (*(f32 *)(temp16 + 0x90) * *(f32 *)(temp16 + 0x2C)));
     }
 }
-// FUN_001BFC00
+/* measured: GUARDED_SCORE 512 via tools/measure_guarded.py src/promoted/code1_001b.c func_001bfc00 (fnalign retail 564/object 575 instrs, 312 edits +16 reloc-only; live 2300B/window 2256B, 44B over 1.9% within 3% gate). De-noised m2c via btlAct_SKILL_RECITE_E (266 lines, 63 VU adda/madd/mula/msub unknowns) + rw_raw (227 lines, shaped CONCAT44 fail) alongside ghidra/ida/generated into file idiom (no M2C_*, file-scope bd560/bd780/195850/D_0060A0E0/003dcc70/fGp8054-8108 reused, locals only for 003e40b0/41b0/41e0/001ec2b0/003dcb40/003dc740/0044b868/001bc3a0/001bac20/001bbef0 + fGp8118/815c/iGp804c/8110/iGp8160/8180/D_0060A100 per btlCamera/001c; Frame first50/final6C/view78/scur90/snextA0/sangleB0/smodeB4/quatC0/quatD0/selE0/posF8/save108/base118/out128/diff138/diff148/vec158/eye168/horiz178 per retail sp; void(u8*) dual-unit per bf5e0, no float copy, no unsigned casts, no narrow locals). Probe v1 513, v2 height-split tie, v3 split-tail tie, v4 swapdecl 517 worse, v5 swapheight 512 best, v6 swapsel tie; 2-tie stop above 60 met. Residual VU-vs-FPU, ld/sq vs field copies, branch polarity, FPU coloring (f22/f23), gp reloc-only. Production ASM. */
+// FUN_001BFC00 NONMATCHING
+#ifdef NON_MATCHING
+void func_001bfc00(u8 *arg0)
+{
+    struct Frame {
+        f32 first50[7];
+        f32 final6C[3];
+        f32 view78[4];
+        u8 pad88[8];
+        f32 scur90[4];
+        f32 snextA0[4];
+        f32 sangleB0;
+        s32 smodeB4;
+        u8 padB8[8];
+        f32 quatC0[4];
+        f32 quatD0[4];
+        f32 selE0[4];
+        u8 padF0[8];
+        f32 posF8[3];
+        u8 pad104[4];
+        f32 save108[3];
+        u8 pad114[4];
+        f32 base118[3];
+        u8 pad124[4];
+        f32 out128[3];
+        u8 pad134[4];
+        f32 diff138[3];
+        u8 pad144[4];
+        f32 diff148[3];
+        u8 pad154[4];
+        f32 vec158[3];
+        u8 pad164[4];
+        f32 eye168[3];
+        u8 pad174[4];
+        f32 horiz178[2];
+    } frame;
+    extern f32 fGpffff8118;
+    extern f32 fGpffff815c;
+    extern f32 iGpffff804c;
+    extern f32 fGpffff8110;
+    extern f32 fGpffff8180;
+    extern f32 fGpffff8054;
+    extern f32 fGpffff8058;
+    extern f32 fGpffff805c;
+    extern f32 fGpffff8060;
+    extern f32 fGpffff8108;
+    extern f32 iGpffff8160;
+    extern f32 func_0044b868(f32 arg0);
+    extern f32 func_001ec2b0(void *arg0, void *arg1);
+    extern void func_003dcb40(void *arg0, const void *arg1, s32 arg2, const void *arg3);
+    extern void func_003dc740(u8 *arg0, u8 *arg1, s32 arg2, f32 arg3);
+    extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
+    extern f32 func_003e41b0(f32 *arg0);
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+    extern void func_001bac20(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
+    extern void func_001bbef0(u8 *arg0, f32 arg1);
+    extern u8 D_0060A100[];
+    u8 *b0;
+    u8 *unitA;
+    u8 *unitB;
+    f32 height;
+    f32 width;
+    f32 dot;
+    f32 blend;
+    f32 thresh;
+    f32 t;
+    f32 inv;
+    f32 sqA;
+    f32 sqB;
+    f32 polyA;
+    f32 polyB;
+    f32 len;
+    f32 scale;
+    f32 dotB;
+    f32 dotC;
+    f32 absA;
+    f32 absB;
+    f32 dist;
+    b0 = *(u8 **)(arg0 + 0xE0);
+    unitA = *(u8 **)(b0 + 0x30);
+    unitB = *(u8 **)(*(u8 **)(b0 + 0x38) + 0x30);
+    func_001bd560(frame.first50, (f32 *)(arg0 + 0x9C));
+    frame.save108[0] = *(f32 *)(unitA + 0xDC);
+    frame.save108[1] = *(f32 *)(unitA + 0x84) * *(f32 *)(unitA + 0x2C);
+    frame.save108[2] = *(f32 *)(unitA + 0xE4);
+    func_00195850(unitB, frame.posF8);
+    height = fGpffff8118 * (*(f32 *)(unitB + 0x8C) * *(f32 *)(unitB + 0x2C)) + frame.posF8[1] + 0.0f + fGpffff8118 * (*(f32 *)(unitA + 0x8C) * *(f32 *)(unitA + 0x2C)) + frame.save108[1] + 0.0f;
+    width = *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C) + *(f32 *)(unitA + 0x90) * *(f32 *)(unitA + 0x2C) + *(f32 *)(unitA + 0xE8) + 0.0f;
+    frame.posF8[1] = 0.0f;
+    frame.save108[1] = 0.0f;
+    frame.diff148[0] = *(f32 *)(unitA + 0xDC) - frame.posF8[0];
+    frame.diff148[1] = *(f32 *)(unitA + 0xE0) - 0.0f;
+    frame.diff148[2] = *(f32 *)(unitA + 0xE4) - frame.posF8[2];
+    func_003e40b0(frame.diff148, frame.diff148);
+    dot = 0.25f * width;
+    frame.out128[0] = frame.diff148[0] * dot + frame.posF8[0];
+    frame.out128[1] = frame.diff148[1] * dot + 0.0f;
+    frame.out128[2] = frame.diff148[2] * dot + frame.posF8[2];
+    height = 0.5f * height;
+    frame.out128[1] = height;
+    frame.vec158[0] = frame.first50[0];
+    frame.vec158[1] = frame.first50[1];
+    frame.vec158[2] = frame.first50[2];
+    frame.vec158[1] = height;
+    *(f32 *)(arg0 + 0x10C) = 0.5f * *(f32 *)(unitA + 0xE8);
+    *(f32 *)(arg0 + 0x100) = frame.out128[0];
+    *(f32 *)(arg0 + 0x104) = height;
+    *(f32 *)(arg0 + 0x108) = frame.out128[2];
+    func_001bd780(frame.view78, frame.vec158, frame.out128, D_0060A0E0);
+    height = *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C) + *(f32 *)(unitA + 0x90) * *(f32 *)(unitA + 0x2C) + width + 0.0f;
+    blend = func_001ec2b0(&frame.first50[3], frame.view78);
+    thresh = fGpffff815c;
+    if (!(blend <= thresh)) {
+        t = thresh / blend;
+        func_003dcc70(&frame.first50[3], frame.view78, frame.scur90);
+        if (t <= 0.0f) {
+            frame.selE0[0] = frame.first50[3];
+            frame.selE0[1] = frame.first50[4];
+            frame.selE0[2] = frame.first50[5];
+            frame.selE0[3] = frame.first50[6];
+        } else if (t >= 1.0f) {
+            frame.selE0[0] = frame.view78[0];
+            frame.selE0[1] = frame.view78[1];
+            frame.selE0[2] = frame.view78[2];
+            frame.selE0[3] = frame.view78[3];
+        } else {
+            inv = 1.0f - t;
+            if (frame.smodeB4 == 0) {
+                sqA = inv * frame.sangleB0;
+                sqA = sqA * sqA;
+                polyA = sqA * sqA * (sqA * (sqA * (sqA * (sqA * (fGpffff8180 * sqA + fGpffff8054 + 0.0f) + fGpffff8058 + 0.0f) + fGpffff805c + 0.0f) + fGpffff8060 + 0.0f) + fGpffff8108 + 0.0f) + sqA + 0.0f;
+                sqB = t * frame.sangleB0;
+                sqB = sqB * sqB;
+                polyB = sqB * sqB * (sqB * (sqB * (sqB * (sqB * (fGpffff8180 * sqB + fGpffff8054 + 0.0f) + fGpffff8058 + 0.0f) + fGpffff805c + 0.0f) + fGpffff8060 + 0.0f) + fGpffff8108 + 0.0f) + sqB + 0.0f;
+                inv = polyA;
+                t = polyB;
+            }
+            frame.selE0[0] = frame.scur90[0] * inv + frame.snextA0[0] * t + 0.0f;
+            frame.selE0[1] = frame.scur90[1] * inv + frame.snextA0[1] * t + 0.0f;
+            frame.selE0[2] = frame.scur90[2] * inv + frame.snextA0[2] * t + 0.0f;
+            frame.selE0[3] = frame.scur90[3] * inv + frame.snextA0[3] * t;
+        }
+        func_003dcb40(frame.vec158, D_0060A100, 1, frame.selE0);
+        frame.vec158[0] = frame.vec158[0] + frame.out128[0];
+        frame.vec158[1] = frame.vec158[1] + frame.out128[1];
+        frame.vec158[2] = frame.vec158[2] + frame.out128[2];
+        func_001bd780(frame.view78, frame.vec158, frame.out128, D_0060A0E0);
+    } else if (blend < iGpffff804c) {
+        func_003dc740((u8 *)frame.view78, D_0060A0E0, 2, iGpffff8160);
+    }
+    if (height < 600.0f) {
+        height = 600.0f;
+    }
+    scale = (1.5f * (0.5f * height)) / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+    func_003dcb40(frame.vec158, D_0060A100, 1, frame.view78);
+    frame.diff148[1] = frame.vec158[1];
+    func_003e40b0(frame.diff148, frame.diff148);
+    dotB = frame.vec158[2] * frame.diff148[2] + frame.vec158[0] * frame.diff148[0] + frame.vec158[1] * frame.diff148[1];
+    if (!(dotB < 0.0f)) {
+        dot = *(f32 *)(unitA + 0x90) * *(f32 *)(unitA + 0x2C);
+        frame.base118[0] = frame.save108[0];
+        frame.base118[1] = frame.save108[1];
+        frame.base118[2] = frame.save108[2];
+    } else {
+        dot = *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C);
+        frame.base118[0] = frame.posF8[0];
+        frame.base118[1] = frame.posF8[1];
+        frame.base118[2] = frame.posF8[2];
+    }
+    frame.eye168[0] = frame.posF8[0] + 0.0f + frame.diff148[2] * dot + 0.0f;
+    frame.eye168[1] = frame.out128[1];
+    frame.eye168[2] = (frame.save108[2] + 0.0f) - frame.diff148[0] * dot;
+    frame.diff138[0] = frame.eye168[0] - frame.out128[0];
+    frame.diff138[1] = frame.eye168[1] - frame.eye168[1];
+    frame.diff138[2] = frame.eye168[2] - frame.out128[2];
+    func_003e40b0(frame.diff138, frame.diff138);
+    dotC = frame.diff138[2] * frame.diff148[2] + frame.diff138[0] * frame.diff148[0] + frame.diff138[1] * frame.diff148[1];
+    absA = dotB < 0.0f ? -dotB : dotB;
+    absB = dotC < 0.0f ? -dotC : dotC;
+    if (!(absA <= absB) && dotC != 0.0f && dotB != 0.0f) {
+        frame.horiz178[0] = frame.out128[0] - *(f32 *)&frame.base118[0];
+        frame.horiz178[1] = frame.out128[2] - frame.base118[2];
+        dist = func_003e41b0(frame.horiz178);
+        frame.eye168[1] = frame.out128[1] + (height * dist) / scale;
+        frame.eye168[0] = *(f32 *)&frame.base118[0] + 0.0f + frame.diff148[2] * dot + 0.0f;
+        frame.eye168[2] = (frame.base118[2] + 0.0f) - frame.diff148[0] * dot;
+        func_001bd780(frame.quatC0, frame.eye168, frame.out128, D_0060A0E0);
+        blend = func_001ec2b0(&frame.first50[3], frame.quatC0);
+        frame.eye168[0] = (*(f32 *)&frame.base118[0] + 0.0f) - frame.diff148[2] * dot;
+        frame.eye168[2] = frame.diff148[0] * dot + frame.base118[2] + 0.0f;
+        func_001bd780(frame.quatD0, frame.eye168, frame.out128, D_0060A0E0);
+        scale = func_001ec2b0(&frame.first50[3], frame.quatD0);
+        if (blend < scale) {
+            frame.view78[0] = frame.quatC0[0];
+            frame.view78[1] = frame.quatC0[1];
+            frame.view78[2] = frame.quatC0[2];
+            frame.view78[3] = frame.quatC0[3];
+        } else {
+            frame.view78[0] = frame.quatD0[0];
+            frame.view78[1] = frame.quatD0[1];
+            frame.view78[2] = frame.quatD0[2];
+            frame.view78[3] = frame.quatD0[3];
+        }
+        func_003dcb40(frame.vec158, D_0060A100, 1, frame.view78);
+    }
+    frame.vec158[0] = frame.vec158[0] * scale;
+    frame.vec158[1] = frame.vec158[1] * scale;
+    frame.vec158[2] = frame.vec158[2] * scale;
+    len = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+    dist = scale * len * 0.21875f;
+    frame.horiz178[0] = frame.vec158[0];
+    frame.horiz178[1] = frame.vec158[2];
+    func_003e41e0(frame.horiz178, frame.horiz178);
+    frame.out128[0] = frame.horiz178[1] * dist + frame.out128[0] + 0.0f + frame.vec158[0];
+    frame.out128[1] = frame.eye168[1] + frame.vec158[1];
+    frame.out128[2] = ((frame.out128[2] + 0.0f) - frame.horiz178[0] * dist) + frame.vec158[2];
+    frame.final6C[0] = frame.out128[0];
+    frame.final6C[1] = frame.out128[1];
+    frame.final6C[2] = frame.out128[2];
+    func_001bc3a0(frame.first50, frame.first50);
+    func_001bc3a0(frame.final6C, frame.final6C);
+    func_001bac20((u16 *)arg0, frame.first50, frame.final6C, 1);
+    func_001bbef0(arg0, 2.0f);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001bfc00);
+#endif
 // FUN_001C04D0
 void func_001c04d0(void)
 {
