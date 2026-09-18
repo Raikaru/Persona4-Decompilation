@@ -12,6 +12,18 @@ seconds.
 Pairs matter too: two pragmas together are a different allocation from either
 alone, and `--pairs` measures all 28 combinations.
 
+`#pragma optimization_level` is a third axis and is always measured: 0, 1, 3
+and 4 each compile differently from the -O2 baseline. Level 3 shrinks a
+218-instruction body to 179, which is the direction a candidate that is over
+retail's size needs to move. `decomp_lint` treats a non-2 level as an H003
+warning, not an error, so it is allowed with a measured justification like any
+other non-baseline pragma.
+
+Beware that mwcc accepts unknown pragmas silently with no diagnostic: a
+misspelling is a no-op that looks like a measurement. `inline_depth(0)` and
+`optimize_for_size on` are both ignored by this compiler, as is any invented
+name.
+
 Usage:
   python3 -E -s tools/pragma_sweep.py src/foo.c func_00123456
   python3 -E -s tools/pragma_sweep.py src/foo.c func_00123456 --pairs
@@ -30,6 +42,12 @@ import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
+
+# `optimization_level` is a separate axis from the on/off switches: every one
+# of 0, 1, 3 and 4 produces different code from the -O2 baseline, and none of
+# them had ever been measured in this tree. Level 3 and 4 are identical to each
+# other on every body tested so far but both differ from 2.
+LEVELS = [0, 1, 3, 4]
 
 PRAGMAS = [
     ("schedule on", "schedule off"),
@@ -91,6 +109,10 @@ def sweep(owner: str, func: str, pairs: bool, scratch: Path, quiet: bool = False
     bare, existing = _strip(body)
     jobs = [(owner, func, "#pragma %s\n" % on + bare + "\n#pragma %s\n" % off, on,
              scratch) for on, off in PRAGMAS]
+    jobs += [(owner, func,
+              "#pragma optimization_level %d\n" % lvl + bare +
+              "\n#pragma optimization_level 2\n",
+              "optimization_level %d" % lvl, scratch) for lvl in LEVELS]
     if pairs:
         for (on_a, off_a), (on_b, off_b) in itertools.combinations(PRAGMAS, 2):
             jobs.append((owner, func,
