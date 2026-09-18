@@ -789,23 +789,145 @@ void func_00499df0(void **arg0)
     jtbl_008873EC[0](arg0);
 }
 
-/* measured: the VU0 chains reproduce byte-exact when written as split asm
-   blocks (lqc2/vmove/mfc1/qmtc2/vmulx, then a separate sqc2 block per stack
-   slot so mwcc interleaves the operand addiu like retail) and the loop's
-   three 0.0f stores need a named `zero` variable (bare 0.0f stores compile
-   to sw $zero; retail keeps the float in saved $f20). The residual is the
-   allocator pools starting one register lower than retail: saved GPRs
-   temp_17/temp_18 land in $s0/$s1 (retail $s1/$s2, var_16 then wraps to the
-   top), the FP temp pool gives var_f5 $f3 / fabs $f5 (retail $f5/$f3), and
-   with the zero placed late the FP saved pool becomes {fade $f22, acc $f21,
-   step $f20, zero $f23} (retail {zero $f20, step $f21, acc $f22, fade
-   $f23}); early zero assignment fixes $f20 but hoists the mtc1 above the
-   guard (retail materializes it right before the loop). Declaration orders
-   tried rotate var_16 between $s2/$s3 but never below the pointer pair
-   (nd 100+ / 162 with var_16 first). allocator-pool floor family (same
-   rotation as the func_004992a0/0049a1a0 twins). */
-// FUN_00499E40
+/* measured: re-derived via probe (this wave): direct (f32)*(u32*)(0x38) unsigned, tmp2/4 direct, opt_propagation off. Probe 94 differing words (`python3 source/Persona4-Decompilation/tools/probe_variants.py source/Persona4-Decompilation/src/promoted/effPolygonRing.c func_00499e40 --candidate src99fixed=/tmp/src99e40_candidate2.c`); GUARDED_SCORE 94 (`python3 source/Persona4-Decompilation/tools/measure_guarded.py source/Persona4-Decompilation/src/promoted/effPolygonRing.c func_00499e40`); hw-TU verify obj868/win864 (0.5% within 3%) nd246. Guarded floor (GPR/FP rotation + VU interleave remain). */
+// FUN_00499E40 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_propagation off
+void func_00499e40(u8 *arg0)
+{
+    u8 *temp_18;
+    u8 *temp_17;
+    s32 temp_4;
+    s32 temp_3;
+    s16 tmp2;
+    s32 var_16;
+    u32 var_18;
+    u8 *var_19;
+    f32 var_f5;
+    f32 temp_f0;
+    f32 temp_f4;
+    f32 temp_f3;
+    f32 var_f1;
+    f32 zero;
+    f32 step;
+    f32 phase;
+    f32 fade;
+    f32 f2;
+    f32 f1;
+    f32 f0;
+    f32 sp60[4];
+    f32 sp70[4];
+    f32 sp80[4];
+    s32 stk[4];
+    f32 cosv;
+    f32 sinv;
+    u8 *tmp16;
+
+    {
+        u8 *tmp3p = *(u8 **)(arg0 + 0x3C);
+        temp_18 = *(u8 **)(arg0 + 0x40);
+        temp_17 = *(u8 **)tmp3p;
+        temp_4 = *(s32 *)(arg0 + 0x34);
+        temp_3 = *(s32 *)(temp_18 + 0x34);
+    }
+    if ((temp_3 >= temp_4) || (temp_3 == 0)) {
+        if (*(u8 *)(temp_18 + 0x64) != 0) {
+            var_f5 = (f32)(temp_3 - temp_4);
+        } else {
+            var_f5 = (f32)temp_4;
+        }
+        temp_f3 = fabsf(*(f32 *)(temp_18 + 0x5C));
+        temp_f4 = *(f32 *)(temp_18 + 0x60);
+        if (temp_f4 < 0.0f) {
+            temp_f0 = 0.5f * (-temp_f3 / (0.5f * temp_f4));
+            if (var_f5 > temp_f0) {
+                var_f5 = temp_f0;
+            }
+        }
+        f2 = temp_f4 * var_f5;
+        f0 = temp_f3 + 0.5f * f2;
+        f1 = var_f5 * f0;
+        fade = f1 + *(f32 *)(temp_18 + 0x40);
+        tmp2 = *(s16 *)(temp_17 + 8);
+        var_16 = tmp2 / 4;
+        func_003c2290(*(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18), 2);
+        var_19 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18) + 0x5C) + 0x14);
+        phase = 0.0f;
+        var_f1 = (f32)*(u32 *)(temp_18 + 0x38);
+        step = fGpffff80d0 / var_f1;
+        zero = 0.0f;
+        stk[1] = 0;
+        stk[3] = 0x3F800000;
+        f2 = *(f32 *)(temp_18 + 0x50) + fade;
+        f1 = f2 + *(f32 *)(temp_18 + 0x54);
+        f0 = f1 + *(f32 *)(temp_18 + 0x58);
+        __asm__ volatile(
+            "lqc2 $vf10, 0(%0) \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            "mfc1 $2, %1 \n"
+            "nop \n"
+            "qmtc2.ni $2, $vf2 \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            : : "r"(D_00713CE0), "f"(f2) : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(sp80) : "$vf10", "memory");
+        __asm__ volatile(
+            "vmove.xyzw $vf10, $vf11 \n"
+            "mfc1 $2, %0 \n"
+            "nop \n"
+            "qmtc2.ni $2, $vf2 \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            : : "f"(f1) : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(sp70) : "$vf10", "memory");
+        __asm__ volatile(
+            "mfc1 $2, %0 \n"
+            "nop \n"
+            "qmtc2.ni $2, $vf2 \n"
+            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
+            : : "f"(f0) : "$2", "$vf2", "$vf11", "memory");
+        __asm__ volatile("sqc2 $vf11, 0(%0)" : : "r"(sp60) : "$vf11", "memory");
+        var_18 = 0;
+        while (var_18 < (u32)var_16) {
+            cosv = func_0044b610(phase);
+            sinv = func_0044b7b0(phase);
+            *(f32 *)&stk[0] = cosv;
+            *(f32 *)&stk[2] = sinv;
+            *(f32 *)(var_19 + 0) = zero;
+            *(f32 *)(var_19 + 4) = zero;
+            *(f32 *)(var_19 + 8) = zero;
+            __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(stk) : "$vf11", "memory");
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(sp80) : "$vf10", "memory");
+            __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" ::: "$vf10", "$vf11", "memory");
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(D_00713D10) : "$vf10", "memory");
+            *(f32 *)(var_19 + 0xC) = D_00713D10[0];
+            *(f32 *)(var_19 + 0x10) = D_00713D14[0];
+            *(f32 *)(var_19 + 0x14) = D_00713D18[0];
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(sp70) : "$vf10", "memory");
+            __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" ::: "$vf10", "$vf11", "memory");
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(D_00713D10) : "$vf10", "memory");
+            *(f32 *)(var_19 + 0x18) = D_00713D10[0];
+            *(f32 *)(var_19 + 0x1C) = D_00713D14[0];
+            *(f32 *)(var_19 + 0x20) = D_00713D18[0];
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(sp60) : "$vf10", "memory");
+            __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" ::: "$vf10", "$vf11", "memory");
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(D_00713D10) : "$vf10", "memory");
+            *(f32 *)(var_19 + 0x24) = D_00713D10[0];
+            *(f32 *)(var_19 + 0x28) = D_00713D14[0];
+            *(f32 *)(var_19 + 0x2C) = D_00713D18[0];
+            phase = phase + step;
+            var_18 += 1;
+            var_19 += 0x30;
+        }
+        tmp16 = *(u8 **)(*(u8 **)(temp_17 + 0x10) + 0x18);
+        func_003c22f0(tmp16);
+        if (*(u16 *)temp_17 & 4) {
+            *(u16 *)(tmp16 + 0xC) = *(u16 *)(tmp16 + 0xC) | 1;
+        }
+    }
+}
+#pragma opt_propagation on
+#else
 INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_00499e40);
+#endif
 
 /* Ported from P3FES mdlEffect.c FUN_00338360 (twin of func_004992a0).
    Same VU0 inline-asm + constraint-pointer shape as its twin. MATCH. */

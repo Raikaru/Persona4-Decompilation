@@ -593,17 +593,173 @@ s32 func_0036eda0(s32 arg0)
     return i + 1;
 }
 
-/* measured: honest shuffle-state-machine (three s16[256] lists, s16/u16 temps,
- * B/C/A draw arms, shared emit tail) probes nd 292 at obj 1448B vs window
- * 1456B (frame 0x6D0 vs retail 0x6F0): retail spills hi/lo and two shuffle
- * rands to s128 slots with sq/lq, but b210 has no 128-bit C type (__int128 is
- * rejected; 16B struct copies lower to ld/sd; members scalar-replace), and
- * retail's B draw arm (F2F0-F318) sits behind an unconditional `b` while b210
- * deletes goto-skipped blocks -- both micro-measured. Spill victims are
- * immobile too (arg1/nA spill in every declaration order tried). Best body at
- * docs/probe_archive/BtlShuffle_0036EE60_body.c. Quadword + dead-block floor. */
-// FUN_0036EE60
+/* Floor (measured 2026-09-18): probe_variants honest 292 words, obj 1448B / window 1456B */
+/* (362 vs 363 retail instrs, 0.3% short, banks per 3% rule); fnalign 295 edits +2 reloc-only, */
+/* frame 0x6D0 vs retail 0x6F0. Quadword + dead-block floor: retail spills hi/lo and two */
+/* shuffle rands to s128 slots with sq/lq (no 128-bit C type reaches them; 16B copies lower to */
+/* ld/sd, members scalar-replace), and the B draw arm sits behind an unconditional `b` that b210 */
+/* deletes. Spill victims arg1/nA immobile across declaration orders. Re-measured commands: */
+/* python3 tools/probe_variants.py src/promoted/btlShuffle.c func_0036ee60 --candidate honest=docs/probe_archive/BtlShuffle_0036EE60_body.c */
+/* python3 -E -s tools/fnalign.py src/promoted/btlShuffle.c func_0036ee60 --candidate docs/probe_archive/BtlShuffle_0036EE60_body.c */
+/* python3 tools/measure_guarded.py src/promoted/btlShuffle.c func_0036ee60 (after install). */
+/* Prior archive note (2026-09-16, same 292/1448/1456/362-vs-363) retained at */
+/* docs/probe_archive/BtlShuffle_0036EE60_body.c; this floor is that body, banked. */
+// FUN_0036EE60 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0036ee60(u8 *arg0, s16 arg1)
+{
+    extern s32 func_00104c70(s32);
+    extern u8 D_0064E76F[];
+    extern u8 *iGpffffb3d4;
+    s16 listA[256];
+    s16 listB[256];
+    s16 listC[256];
+    s16 cap;
+    s16 hi;
+    s16 lo;
+    u16 nC;
+    u16 nB;
+    u16 nA;
+    s16 mlvl;
+    s32 i;
+    s16 lvl;
+    s32 total;
+    s32 nDraw;
+    s32 k;
+    u16 r1;
+    u16 r2;
+    s16 tmp;
+    u16 cIdx;
+    u16 aIdx;
+    u16 e;
+    u16 bIdx;
+    s32 w;
+    s32 i2;
+    lvl = (s16)(func_00104c70(1) & 0xFF);
+    if ((lvl > 0) && ((u32)lvl < 10)) {
+        hi = D_0064E76F[lvl];
+        lo = 1;
+    } else if (lvl >= arg1) {
+        hi = arg1 - 5;
+        lo = arg1 - 10;
+    } else {
+        hi = lvl - 5;
+        lo = lvl - 10;
+    }
+    cap = lvl + 3;
+    if (cap > 99) {
+        cap = 99;
+    }
+    if (lo < 0) {
+        lo = 0;
+    }
+    if (hi < 0) {
+        hi = 0;
+    }
+    nC = 0;
+    nB = 0;
+    nA = 0;
+    i = 0;
+    while (i < 256) {
+        u8 *rec = (u8 *)((s32)iGpffffb3d4 + i * 14);
+        if ((*(u16 *)rec & 0xDB) == 0) {
+            mlvl = *(u8 *)(rec + 3);
+            if ((cap >= mlvl) && ((lvl < mlvl) || ((hi >= mlvl) && (mlvl >= lo)))) {
+                if ((s16)func_0010aa80((s16)i) != -1) {
+                    listA[nA] = (s16)i;
+                    nA = (nA + 1) & 0xFFFF;
+                } else if (lvl < mlvl) {
+                    listB[nB] = (s16)i;
+                    nB = (nB + 1) & 0xFFFF;
+                } else {
+                    listC[nC] = (s16)i;
+                    nC = (nC + 1) & 0xFFFF;
+                }
+            }
+        }
+        i++;
+    }
+    {
+        s32 bCount = nB & 0xFFFF;
+        s32 cCount = nC & 0xFFFF;
+        s32 aCount = nA & 0xFFFF;
+        total = aCount + (cCount + bCount);
+        if (total == 0) {
+            return 0;
+        }
+        if (cCount > 1) {
+            for (k = 0; k < cCount; k++) {
+                r1 = func_00231d70(cCount) & 0xFFFF;
+                r2 = func_00231d70(cCount) & 0xFFFF;
+                if (r1 != r2) {
+                    tmp = listC[r1];
+                    listC[r1] = listC[r2];
+                    listC[r2] = tmp;
+                }
+            }
+        }
+        if (bCount > 1) {
+            for (k = 0; k < bCount; k++) {
+                r1 = func_00231d70(bCount) & 0xFFFF;
+                r2 = func_00231d70(bCount) & 0xFFFF;
+                if (r1 != r2) {
+                    tmp = listB[r1];
+                    listB[r1] = listB[r2];
+                    listB[r2] = tmp;
+                }
+            }
+        }
+        if (aCount > 1) {
+            for (k = 0; k < aCount; k++) {
+                r1 = func_00231d70(aCount) & 0xFFFF;
+                r2 = func_00231d70(aCount) & 0xFFFF;
+                if (r1 != r2) {
+                    tmp = listA[r1];
+                    listA[r1] = listA[r2];
+                    listA[r2] = tmp;
+                }
+            }
+        }
+        *(s32 *)(arg0 + 0x10) = func_0036e920(arg1 & 0xFF);
+        *(s32 *)(arg0 + 0x14) = func_0036eb50(*(s32 *)(arg0 + 0x10), arg1 & 0xFF);
+        w = func_0036ea00(*(s32 *)(arg0 + 0x10), arg1 & 0xFF);
+        *(s32 *)(arg0 + 0xC) = w;
+        nDraw = func_0036eda0(w);
+        if (total < nDraw) {
+            nDraw = total;
+        }
+        cIdx = 0;
+        aIdx = 0;
+        e = 0;
+        bIdx = 0;
+        for (i2 = 0; i2 < nDraw; i2++) {
+            s16 item;
+            func_00231d70(0x64);
+            if (bIdx < bCount) {
+                item = listB[bIdx++];
+            } else if (cIdx < cCount) {
+                item = listC[cIdx++];
+            } else if (aIdx < aCount) {
+                item = listA[aIdx++];
+            } else {
+                continue;
+            }
+            *(s16 *)(arg0 + (s32)e * 2) = item;
+            e++;
+        }
+        if (e == 0) {
+            return 0;
+        }
+        *(s32 *)(arg0 + 8) = e;
+        if ((aIdx != e) || (func_00231d70(0x64) < 0x14)) {
+            return 1;
+        }
+        return 0;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036ee60);
+#endif
 
 typedef struct {
     f32 a;
