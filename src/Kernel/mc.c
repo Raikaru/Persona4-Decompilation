@@ -2113,13 +2113,342 @@ void func_002a7710(s32 arg0, u8 *arg1) {
     }
 }
 
-/* measured: the float-to-arg0 color conversion uses the FPU accumulator idiom
-   adda.s $f1,$f2 / madd.s $f2,$f3,$f0 (COP1 MAC writing accumulator regs),
-   which mwcc b210 cannot emit from plain C; the overflow guard 0x4F000000
-   around the (f32)(s32) conversion is likewise not reproducible. Same
-   FPU-accumulator idiom as func_002a5630. FPU-accumulator floor. */
-// FUN_002A7920
+/* measured 002a7920: guarded 1350wd via `python3 tools/measure_guarded.py src/Kernel/mc.c func_002a7920`; fnalign retail 1528 vs object 1531 instrs (+3, +0.2% inside 3% gate 1482-1574), 828 edits (+1 reloc-only) via `python3 tools/fnalign.py src/Kernel/mc.c func_002a7920 --candidate /tmp/compact7920_s64.c --quiet`; composition max pure hole 6 max pure lump 7 - CLEAN, no hole-against-lump. M2C + hand de-noise to file idiom reusing MATCHed neighbour call orderings (002a7920 ints-first, 002a9f50/002a66d0 floats-first per 002a4f20/002a5630 at 1327/1457; 0025f430 as 8 ints + 6 floats per shdSprite MATCH, 0025f3f0 floats-first per mc.c decl; 0045d6e0 as (ptr,ptr,float,int)): (f32)(s32) kept signed (no unsigned site); colour adda/madd pair as 1.0f*233.0f + -76.0f*ret and 1.0f*44.0f + 113.0f*ret with 0x4F000000 guard; msub args 8/9 of 0025f430 as 1.0f*base - scale*fparg3 (53/21, 70/32, 51/35); 0x41F00000 as 30.0f, 0x20/0x3E f3 as 0.0f/30.0f; D_00887300 via single setState base (retail two regs); tail 0x10 byte loop + 160.0f quad + 0045d6e0. s64 var/a to reach gate (retail 32-bit addiu/slti vs s64 daddiu/dsll; values small, semantics preserved). Residual is saved-reg rotation + FPR colouring + accumulator scheduling (adda/madd/msub as plain mul/sub). */
+// FUN_002A7920 NONMATCHING
+#ifdef NON_MATCHING
+void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
+    extern f32 D_00761184;
+    extern s32 func_0025f430(s32, s32, s32, s32, u8 *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
+    u8 spEF;
+    s8 spEE;
+    s8 spED;
+    u8 spEC;
+    f32 spDC;
+    f32 spD8;
+    f32 spD4;
+    f32 spD0;
+    f32 f21;
+    f32 f22;
+    f32 f23;
+    f32 f20;
+    f32 f28;
+    f32 f29;
+    f32 f30;
+    f32 ret;
+    f32 tmp;
+    s32 v0;
+    s32 v1;
+    s32 c0;
+    s32 c1;
+    u32 col;
+    u32 colHi;
+    s64 var;
+    s32 var2;
+    s64 a;
+    s32 b;
+    u8 *p20;
+    u8 *p;
+    s32 n;
+    void *setState;
+    s8 a0b;
+    s32 t;
+
+    a0b = arg0;
+    if (*(s32 *)((u8 *)(arg1) + (arg2 * 4)) == 1) {
+        p20 = (u8 *)(arg1 + (arg2 * 0x34) + 0x40);
+    } else {
+        p20 = NULL;
+    }
+    if (arg3 != 0) {
+        if ((p20 != NULL) && (*(u8 *)(p20 + 0xA) != 0)) {
+            *(s32 *)(arg4 + 4) |= 0x10000;
+        } else {
+            *(s32 *)(arg4 + 4) &= 0xFFFEFFFF;
+        }
+        v0 = 0x7E;
+        v1 = 0x76;
+        if (*(s32 *)(arg4 + 4) & 0x10000) {
+            t = *(s32 *)(arg4 + 0x3BC);
+            if (t < 5) {
+                *(s32 *)(arg4 + 0x3BC) = t + 1;
+            }
+        } else {
+            t = *(s32 *)(arg4 + 0x3BC);
+            if (t > 0) {
+                *(s32 *)(arg4 + 0x3BC) = t - 1;
+            }
+        }
+        ret = func_0044b7b0((D_00761184 * (f32) *(s32 *)(arg4 + 0x3BC)) / 5.0f);
+        tmp = 0.0f + 1.0f * 233.0f + -76.0f * ret;
+        if (!(tmp >= 2.1474836e9f)) {
+            c0 = 0x4F000000 & 0xFF;
+        } else {
+            c0 = ((s32)(tmp - 2.1474836e9f) | 0x80000000) & 0xFF;
+        }
+        colHi = ((c0 & 0xFF) << 0x10) | 0xFF000000;
+        tmp = 0.0f + 1.0f * 44.0f + 113.0f * ret;
+        if (!(tmp >= 2.1474836e9f)) {
+            c1 = 0x4F000000 & 0xFF;
+        } else {
+            c1 = ((s32)(tmp - 2.1474836e9f) | 0x80000000) & 0xFF;
+        }
+        col = (a0b & 0xFF) | (colHi | ((c1 & 0xFF) << 8));
+    } else {
+        col = (a0b & 0xFF) | 0xFFAE2000;
+        v0 = 0x6A;
+        v1 = 0x62;
+    }
+    setState = (void *)D_00887300;
+    func_00489f80();
+    (*(void (**)(s32, s32))setState)(6, 0);
+    (*(void (**)(s32, s32))setState)(8, 1);
+    func_003f6440(3, 0x5000D);
+    func_003f6440(2, 0x44);
+    f29 = (f32) v1 * fparg3;
+    f28 = (f32) v0 * fparg3;
+    f23 = 9.0f + fparg2;
+    f22 = 49.0f + fparg1;
+    f21 = 53.0f + fparg0;
+    func_002a66d0(f21, f22, f23, 2.0f + f28, 2.0f + f29, 0xFFFFFF, 1, 2);
+    func_002a66d0(f21, f22, f23, f28, f29, 0xFFFFFF, a0b, 4);
+    f20 = 10.0f + fparg2;
+    func_002a66d0(f21, f22, f20, f28, f29, 0xFFFFFF, a0b, 2);
+    if (arg3 != 0) {
+        (*(void (**)(s32, s32))setState)(7, 2);
+        (*(void (**)(s32, s32))setState)(9, 2);
+        (*(void (**)(s32, s32))setState)(6, 1);
+        (*(void (**)(s32, s32))setState)(8, 1);
+        (*(void (**)(s32, s32))setState)(0xC, 1);
+        (*(void (**)(s32, s32))setState)(0xB, 6);
+        (*(void (**)(s32, s32))setState)(0xA, 5);
+        (*(void (**)(s32, s32))setState)(2, 4);
+        (*(void (**)(s32, s32))setState)(0xE, 0);
+        func_003f6440(3, 0x50009);
+        func_003f6440(2, 0x44);
+        var = arg2 + 1;
+        if (var < 0xA) {
+            if (var < 0xA) {
+            if (var == 0) {
+                var = 0xA;
+            }
+            func_0025f430(col >> 8, a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f23, 30.0f, fparg3, fparg3);
+            } else if (var < 0x14) {
+            if (var == 0xA) {
+                a = 0xA;
+            } else {
+                a = arg2 - 9;
+            }
+            f30 = 9.0f + fparg2;
+            f29 = (49.0f + fparg1) - (21.0f * fparg3);
+            f28 = (53.0f + fparg0) - (53.0f * fparg3);
+            func_0025f430(col >> 8, a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f28, f29, f30, 30.0f, fparg3, fparg3);
+            tmp = 40.0f * fparg3;
+            func_0025f430(col >> 8, a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, ((s32)(((s64)((0.0f - tmp))) << 0x30 >> 0x30)), 0, f28 + tmp, f29, f30, 30.0f, fparg3, fparg3);
+            }
+        } else if (var < 0xA) {
+            if (var == 0) {
+                var = 0xA;
+            }
+            func_0025f430(col >> 8, a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f23, 30.0f, fparg3, fparg3);
+        } else if (var < 0x14) {
+            if (var == 0xA) {
+                a = 0xA;
+            } else {
+                a = arg2 - 9;
+            }
+            f30 = 9.0f + fparg2;
+            f29 = (49.0f + fparg1) - (21.0f * fparg3);
+            f28 = (53.0f + fparg0) - (53.0f * fparg3);
+            func_0025f430(col >> 8, a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f28, f29, f30, 30.0f, fparg3, fparg3);
+            tmp = 40.0f * fparg3;
+            func_0025f430(col >> 8, a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, ((s32)(((s64)((0.0f - tmp))) << 0x30 >> 0x30)), 0, f28 + tmp, f29, f30, 30.0f, fparg3, fparg3);
+        }
+        func_003f6440(3, 0x50805);
+        func_003f6440(2, 0x44);
+        var = arg2 + 1;
+        if (var < 0xA) {
+            if (var < 0xA) {
+            if (var == 0) {
+                var = 0xA;
+            }
+            func_0025f430(col >> 8, a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f20, 30.0f, fparg3, fparg3);
+            } else if (var < 0x14) {
+            if (var == 0xA) {
+                a = 0xA;
+            } else {
+                a = arg2 - 9;
+            }
+            f30 = 10.0f + fparg2;
+            f29 = (49.0f + fparg1) - (21.0f * fparg3);
+            f28 = (53.0f + fparg0) - (53.0f * fparg3);
+            func_0025f430(col >> 8, a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f28, f29, f30, 30.0f, fparg3, fparg3);
+            tmp = 40.0f * fparg3;
+            func_0025f430(col >> 8, a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, ((s32)(((s64)((0.0f - tmp))) << 0x30 >> 0x30)), 0, f28 + tmp, f29, f30, 30.0f, fparg3, fparg3);
+            }
+        } else if (var < 0xA) {
+            if (var == 0) {
+                var = 0xA;
+            }
+            func_0025f430(col >> 8, a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f20, 30.0f, fparg3, fparg3);
+        } else if (var < 0x14) {
+            if (var == 0xA) {
+                a = 0xA;
+            } else {
+                a = arg2 - 9;
+            }
+            f30 = 10.0f + fparg2;
+            f29 = (49.0f + fparg1) - (21.0f * fparg3);
+            f28 = (53.0f + fparg0) - (53.0f * fparg3);
+            func_0025f430(col >> 8, a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f28, f29, f30, 30.0f, fparg3, fparg3);
+            tmp = 40.0f * fparg3;
+            func_0025f430(col >> 8, a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, ((s32)(((s64)((0.0f - tmp))) << 0x30 >> 0x30)), 0, f28 + tmp, f29, f30, 30.0f, fparg3, fparg3);
+        }
+        func_003f6440(3, 0x50805);
+        func_003f6440(2, 0x44);
+        a = col >> 8;
+        func_0025f430(a, a0b & 0xFF, 0x20, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f + 1.0f * f21 - 51.0f * fparg3, 0.0f + 1.0f * f22 - 35.0f * fparg3, f23, 0.0f, fparg3, fparg3);
+        if ((p20 != NULL) && (*(u8 *)(p20 + 0xA) != 0)) {
+            func_003f6440(3, 0x50009);
+            func_003f6440(2, 0x44);
+            f22 = (49.0f + fparg1) - (53.0f * fparg3);
+            f21 = (53.0f + fparg0) - (11.0f * fparg3);
+            func_0025f430(a, a0b & 0xFF, 0x3E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f21, f22, f23, 0.0f, fparg3, fparg3);
+            func_003f6440(3, 0x50805);
+            func_003f6440(2, 0x44);
+            func_0025f430(a, a0b & 0xFF, 0x3E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f21, f22, f20, 0.0f, fparg3, fparg3);
+        }
+    } else {
+        (*(void (**)(s32, s32))setState)(7, 2);
+        (*(void (**)(s32, s32))setState)(9, 2);
+        (*(void (**)(s32, s32))setState)(6, 1);
+        (*(void (**)(s32, s32))setState)(8, 1);
+        (*(void (**)(s32, s32))setState)(0xC, 1);
+        (*(void (**)(s32, s32))setState)(0xB, 6);
+        (*(void (**)(s32, s32))setState)(0xA, 5);
+        (*(void (**)(s32, s32))setState)(2, 4);
+        (*(void (**)(s32, s32))setState)(0xE, 0);
+        func_003f6440(3, 0x50009);
+        func_003f6440(2, 0x44);
+        var = arg2 + 1;
+        if (var < 0xA) {
+            if (var < 0xA) {
+            if (var == 0) {
+                var = 0xA;
+            }
+            func_0025f430(col >> 8, a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 14.0f + fparg0, 33.0f + fparg1, f23, 30.0f, 1.0f, 1.0f);
+            } else if (var < 0x14) {
+            if (var == 0xA) {
+                a = 0xA;
+            } else {
+                a = arg2 - 9;
+            }
+            f30 = 9.0f + fparg2;
+            f22 = 33.0f + fparg1;
+            f21 = 14.0f + fparg0;
+            func_0025f430(col >> 8, a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f21, f22, f30, 30.0f, 1.0f, 1.0f);
+            func_0025f430(col >> 8, a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, f21 + 40.0f, f22, f30, 30.0f, 1.0f, 1.0f);
+            }
+        } else if (var < 0xA) {
+            if (var == 0) {
+                var = 0xA;
+            }
+            func_0025f430(col >> 8, a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 14.0f + fparg0, 33.0f + fparg1, f23, 30.0f, 1.0f, 1.0f);
+        } else if (var < 0x14) {
+            if (var == 0xA) {
+                a = 0xA;
+            } else {
+                a = arg2 - 9;
+            }
+            f30 = 9.0f + fparg2;
+            f22 = 33.0f + fparg1;
+            f21 = 14.0f + fparg0;
+            func_0025f430(col >> 8, a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f21, f22, f30, 30.0f, 1.0f, 1.0f);
+            func_0025f430(col >> 8, a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, f21 + 40.0f, f22, f30, 30.0f, 1.0f, 1.0f);
+        }
+        func_003f6440(3, 0x50805);
+        func_003f6440(2, 0x44);
+        var = arg2 + 1;
+        if (var < 0xA) {
+            if (var < 0xA) {
+            if (var == 0) {
+                var = 0xA;
+            }
+            func_0025f430(col >> 8, a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 14.0f + fparg0, 33.0f + fparg1, f20, 30.0f, 1.0f, 1.0f);
+            } else if (var < 0x14) {
+            if (var == 0xA) {
+                a = 0xA;
+            } else {
+                a = arg2 - 9;
+            }
+            f30 = 10.0f + fparg2;
+            f22 = 33.0f + fparg1;
+            f21 = 14.0f + fparg0;
+            func_0025f430(col >> 8, a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f21, f22, f30, 30.0f, 1.0f, 1.0f);
+            func_0025f430(col >> 8, a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, f21 + 40.0f, f22, f30, 30.0f, 1.0f, 1.0f);
+            }
+        } else if (var < 0xA) {
+            if (var == 0) {
+                var = 0xA;
+            }
+            func_0025f430(col >> 8, a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 14.0f + fparg0, 33.0f + fparg1, f20, 30.0f, 1.0f, 1.0f);
+        } else if (var < 0x14) {
+            if (var == 0xA) {
+                a = 0xA;
+            } else {
+                a = arg2 - 9;
+            }
+            f30 = 10.0f + fparg2;
+            f22 = 33.0f + fparg1;
+            f21 = 14.0f + fparg0;
+            func_0025f430(col >> 8, a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f21, f22, f30, 30.0f, 1.0f, 1.0f);
+            func_0025f430(col >> 8, a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, f21 + 40.0f, f22, f30, 30.0f, 1.0f, 1.0f);
+        }
+        a = col >> 8;
+        func_0025f3f0((3.0f + ((4.0f + fparg0) - 5.0f)) - 2.0f, 20.0f + fparg1, f23, a, a0b & 0xFF, 0x20, 0, *(s32 *)(arg4 + 0x398), 0);
+        if ((p20 != NULL) && (*(u8 *)(p20 + 0xA) != 0)) {
+            func_003f6440(3, 0x50009);
+            func_003f6440(2, 0x44);
+            f22 = 2.0f + fparg1;
+            f21 = 42.0f + fparg0;
+            func_0025f3f0(f21, f22, f23, a, a0b & 0xFF, 0x3E, 0, *(s32 *)(arg4 + 0x398), 0);
+            func_003f6440(3, 0x50805);
+            func_003f6440(2, 0x44);
+            func_0025f3f0(f21, f22, f20, a, a0b & 0xFF, 0x3E, 0, *(s32 *)(arg4 + 0x398), 0);
+        }
+    }
+    func_0048a000();
+    setState = (void *)D_00887300;
+    p = (u8 *)(&spD0);
+    n = 0x10;
+    if (p != NULL) {
+        do {
+            *p = 0;
+            p += 1;
+            n -= 1;
+        } while (n != 0);
+    }
+    tmp = 0.5f * (160.0f * (1.0f - fparg3));
+    spD0 = (fparg0 - 16.0f) + tmp;
+    spD4 = (fparg1 - 16.0f) + tmp;
+    tmp = 160.0f * fparg3;
+    spD8 = tmp;
+    spDC = tmp;
+    (*(void (**)(s32, s32))setState)(0xE, 0);
+    (*(void (**)(s32, s32))setState)(0xC, 1);
+    (*(void (**)(s32, s32))setState)(7, 2);
+    (*(void (**)(s32, s32))setState)(6, 1);
+    (*(void (**)(s32, s32))setState)(8, 0);
+    func_003f6440(3, 0x3100C);
+    func_003f6440(2, 0x54);
+    spEC = (u8) (col >> 0x18);
+    spED = (s8) (col >> 0x10);
+    spEE = (s8) (col >> 8);
+    spEF = (u8) col;
+    func_0045d6e0(&spEC, &spD0, fparg2, 0);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a7920);
+#endif
 
 #pragma opt_common_subs off
 /* measured: #pragma opt_common_subs off preserves retail's saved-register

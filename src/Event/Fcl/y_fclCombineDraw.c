@@ -1746,7 +1746,7 @@ s32 func_003190d0(u8 *arg0) {
 }
 // measured: nd N/A (draw-family, s64-param floor). 22x 2970 + 16x 6150 + 16x 2a60 + 13x 6a70 + 8x 6af0: same s64-arg normalization floor as func_00315600; externs locked by matched callers. s64-param-normalization floor.
 // FUN_003191C0 NONMATCHING
-/* Cr001f 3191c0_v6 (406 lines): probe 1478w via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_003191c0 --candidate V6=/tmp/3191c0_v6.c`; fnalign retail 1684 vs object 1734 (+50, +2.97% PASS by 1, 883 edits) via `python3 tools/fnalign.py src/Event/Fcl/y_fclCombineDraw.c func_003191c0 --candidate /tmp/3191c0_v6.c --quiet`; frame object 0x270 vs retail 0x2A0, jal 183 jalr 0, hole 33 lump 12 (no hole+lump cancel); `#pragma opt_dead_assignments off` scoped off/on around guard per 00317900 convention. Integrated verbatim by Cr0033; numbers re-verified in-tree before install. */
+/* Cr001f 3191c0_v7 (414 lines): probe 1417w (-61 vs v6) via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_003191c0 --candidate V7=/tmp/3191c0_v7.c`; fnalign retail 1684 vs object 1726 (+42, +2.49% PASS by 9, 745 edits, -138 vs v6) via `python3 tools/fnalign.py src/Event/Fcl/y_fclCombineDraw.c func_003191c0 --candidate /tmp/3191c0_v7.c --quiet`; frame 0x2A0 exact, jal 183 jalr 0 exact, hole max10 lump max12+9 (hole33 lump12 eliminated, no runs >=25); pragma scoped off/on per 00317900. Replaced v6 sequentially by Cr0033; numbers re-verified in-tree before install. */
 #pragma opt_dead_assignments off
 #ifdef NON_MATCHING
 extern void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s64 arg6, s16 arg7, f32 fparg0, s8 arg_sp0);
@@ -1754,6 +1754,8 @@ extern void func_0034b820(u8 *arg0, s64 arg1, s16 arg2, s32 arg3, f32 fparg0);
 extern void func_0034b880(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s16 arg4, s16 arg5);
 extern u8 *func_0034b810(u8 *arg0);
 void func_003191c0(u8 *arg0, s64 arg1, s32 arg2, u16 arg3, u8 arg4, s32 arg5, s32 arg6, s8 arg7) {
+    extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s32);
+    extern void func_0034b880(u8 *, u8, u8, u8, s32, s32);
     u8 c298[4];
     u8 c294[4];
     u8 c290[4];
@@ -1827,6 +1829,9 @@ void func_003191c0(u8 *arg0, s64 arg1, s32 arg2, u16 arg3, u8 arg4, s32 arg5, s3
     s8 c;
     s16 id;
     s32 special;
+    s16 snapArg;
+    u_long128 snapE0;
+    u_long128 snapD0;
     t = *(u8 **)(arg0 + 0x38);
     special = 0;
     if (*(u8 *)(func_0034ae50(*(u8 **)(t + 0x188), arg2) + 0x75) == 0x8C) {
@@ -2032,9 +2037,10 @@ void func_003191c0(u8 *arg0, s64 arg1, s32 arg2, u16 arg3, u8 arg4, s32 arg5, s3
         func_002b2a60(c25C, 0xCC, 0xFF, 0x33, 0xFF);
         func_002b83e0(e, sp190, *(s32 *)c260, *(s32 *)c25C, 0xFF, 0xFF, 3, arg5, 32.0f, 159.0f, arg6, 0);
     } else if (special == 1) {
-        tmpE0 = func_0034ae50(*(u8 **)(t + 0x188), arg2);
+        *(u_long128 *)&snapE0 = (u_long128)(u32)func_0034ae50(*(u8 **)(t + 0x188), arg2);
         func_002b2970(&sp188, *(f32 *)&sp120, *((f32 *)&sp120 + 1));
         e = func_0034ae50(*(u8 **)(t + 0x188), arg2);
+        tmpE0 = (u8 *)(u32)*(u32 *)&snapE0;
         func_002b83e0(tmpE0, sp188, *(s32 *)(e + 0x75), *(s32 *)(func_0034ae50(*(u8 **)(t + 0x188), arg2) + 0x75), 0xFF, 0xFF, 3, arg5, 32.0f, 159.0f, arg6, 0);
     } else {
         e = func_0034ae50(*(u8 **)(t + 0x188), arg2);
@@ -2086,8 +2092,10 @@ void func_003191c0(u8 *arg0, s64 arg1, s32 arg2, u16 arg3, u8 arg4, s32 arg5, s3
     func_0046d280(hF8);
     if (c < arg7) {
         id = (s16)(c + 0x250);
-        tmpD0 = func_00331560();
-        hFC = func_0046d200(tmpD0, (s16)((func_00109280(arg3) & 0xFF) + 0x1B));
+        *(u_long128 *)&snapD0 = (u_long128)(u32)func_00331560();
+        snapArg = (s16)((func_00109280(arg3) & 0xFF) + 0x1B);
+        tmpD0 = (u32)*(u32 *)&snapD0;
+        hFC = func_0046d200(tmpD0, snapArg);
         if ((s8)arg6 == 1) {
             func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg5 + 3));
             func_002b6af0(id, 0, 3, arg5, 1.0f, 1.0f, 1.0f, iGpffff8504);
