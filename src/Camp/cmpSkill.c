@@ -60,7 +60,7 @@ void func_0043f9c8(void *, s32, s32);
 s32 func_0013a040(s16 *, s32, s16);
 void func_0013a060(void *);
 void func_0013a4a0(void *);
-void func_00138bf0(void *);
+void func_00138bf0(u8 *);
 s32 func_0013a530(u8 *, s32);
 void func_00138490(void *);
 extern char D_005ED9C0[];
@@ -454,11 +454,273 @@ s32 func_00138b20(u8 *arg0)
     func_00138bf0(arg0);
     return result;
 }
-/* measured: retail uses VU0/COP2 FMAC (adda.s/madd.s) and raw .word COP2
-   opcodes in the skill-render loops; m2c emits M2C_ERROR for these. VU0/COP2
-   — not matchable in plain C, standard skip. */
-// FUN_00138BF0
+/* Floor (measured 2026-09-19, source-repo only, draft): reconstruction from ghidra+m2c with file idioms; unsigned (f32)(u8)/(f32)(u16) kept for bltz/srl/or sites, signed (f32)(s16) for lh sites; float-first draw ABIs per header; 0xA0 frame via locals. Banked as guarded floor; production stays ASM. */
+// FUN_00138BF0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00138bf0(u8 *arg0)
+{
+    extern s32 func_0013ac30(u16 arg0);
+    extern s8 iGpffff9cd0[];
+    s32 i;
+    s32 j;
+    u8 *sprite;
+    f32 fx;
+    f32 fy;
+    f32 opacity;
+    u8 alpha;
+    f32 f0;
+    f32 f1;
+    s32 n;
+    u8 buf[8];
+    f32 sp90;
+    f32 sp94;
+    s16 st30;
+    s16 st2e;
+    s16 st2c;
+    s32 st28;
+    s32 st24;
+    s32 st20;
+    u8 *pu;
+    s32 tmp;
+    func_0034f1e0();
+    fx = *(f32 *)(arg0 + 4);
+    fy = *(f32 *)(arg0 + 8);
+    opacity = (f32)*(u8 *)arg0 / 255.0f;
+    if (*(s32 *)(arg0 + 0x10) != 0) {
+        Vec2f pos;
+        sp90 = fx;
+        sp94 = fy;
+        f0 = 255.0f * opacity;
+        alpha = (u8)f0;
+        pos.x = sp90;
+        pos.y = sp94;
+        func_0034c270(pos, alpha, 0.0f);
+    }
+    if ((*(u32 *)(arg0 + 0x1C) & 0x1000) != 0) {
+        s8 *gsrc;
+        s8 *gdst;
+        u8 *handle;
+        gsrc = (s8 *)iGpffff9cd0;
+        gdst = (s8 *)buf;
+        n = 4;
+        do {
+            s8 b0;
+            s8 b1;
+            b0 = gsrc[0];
+            b1 = gsrc[1];
+            gsrc += 2;
+            n--;
+            gdst[0] = b0;
+            gdst[1] = b1;
+            gdst += 2;
+        } while (n > 0);
+        handle = *(u8 **)(arg0 + 0x12EC);
+        for (i = 0; i < 0x14; i++) {
+            u8 *row;
+            u8 *tbl;
+            u8 b0;
+            u8 b1;
+            u8 b2;
+            u16 u0;
+            u16 u1;
+            row = arg0 + i * 0x30;
+            tbl = D_005ED790 + i * 0x14;
+            sp90 = fx + *(f32 *)(row + 0xCB4) + *(f32 *)(tbl + 0);
+            sp94 = fy + *(f32 *)(row + 0xCB8) + *(f32 *)(tbl + 4);
+            f0 = (f32)*(u8 *)(row + 0xCBE) * opacity;
+            alpha = (u8)f0;
+            tmp = (*(s32 *)(tbl + 0x10) * 4);
+            pu = (u8 *)(tmp + (s32)buf + 0x88);
+            b0 = pu[0];
+            b1 = pu[1];
+            b2 = pu[2];
+            u0 = (u16)(1.0f + ((f32)*(u16 *)(row + 0xCC4) * *(f32 *)(tbl + 8)) / 100.0f);
+            u1 = (u16)(((f32)*(u16 *)(row + 0xCCA) * *(f32 *)(tbl + 0xC)) / 100.0f);
+            func_0034f320(handle, sp90, sp94, 0.0f, b0, b1, b2, alpha, u0, u1, 0, 0.0f, 0);
+        }
+    }
+    if ((*(u32 *)(arg0 + 0x1C) & 1) != 0) {
+        sp90 = 16.0f + (fx + *(f32 *)(arg0 + 0x594));
+        sp94 = 368.0f + (fy + *(f32 *)(arg0 + 0x598));
+        f0 = (f32)*(u8 *)(arg0 + 0x59E) * opacity;
+        alpha = (u8)f0;
+        func_0034f2e0(*(void **)(arg0 + 0x132C), sp90, sp94, 0xFF, 0xFF, 0xFF, alpha);
+    }
+    if ((*(u32 *)(arg0 + 0x1C) & 0x200) != 0) {
+        sp90 = 14.0f + (fx + *(f32 *)(arg0 + 0xBC4));
+        sp94 = 405.0f + (fy + *(f32 *)(arg0 + 0xBC8));
+        f0 = (f32)*(u8 *)(arg0 + 0xBCE) * opacity;
+        alpha = (u8)f0;
+        func_0034f2e0(*(void **)(arg0 + 0x12B0), sp90, sp94, 0xFF, 0xFF, 0xFF, alpha);
+    }
+    if ((*(u32 *)(arg0 + 0x1C) & 0x400) != 0) {
+        sp90 = 14.0f + (fx + *(f32 *)(arg0 + 0xBF4));
+        sp94 = 405.0f + (fy + *(f32 *)(arg0 + 0xBF8));
+        f0 = (f32)*(u8 *)(arg0 + 0xBFE) * opacity;
+        alpha = (u8)f0;
+        func_0034f2e0(*(void **)(arg0 + 0x12B4), sp90, sp94, 0xFF, 0xFF, 0xFF, alpha);
+    }
+    if ((*(u32 *)(arg0 + 0x1C) & 0x800) != 0) {
+        sp90 = 71.0f + (fx + *(f32 *)(arg0 + 0xC24));
+        sp94 = 405.0f + (fy + *(f32 *)(arg0 + 0xC28));
+        f0 = (f32)*(u8 *)(arg0 + 0xC2E) * opacity;
+        alpha = (u8)f0;
+        func_0034f2e0(*(void **)(arg0 + 0x12B8), sp90, sp94, 0xFF, 0xFF, 0xFF, alpha);
+    }
+    if ((*(u32 *)(arg0 + 0x1C) & 2) != 0) {
+        for (i = 0; i < *(s16 *)(arg0 + 0xFC); i++) {
+            func_0013ad40(arg0, i, 0);
+        }
+    }
+    if ((*(u32 *)(arg0 + 0x1C) & 0x20) != 0) {
+        Vec2f pos;
+        u8 c0;
+        u8 c1;
+        u8 c2;
+        sp90 = 257.0f + (fx + *(f32 *)(arg0 + 0x8C4));
+        sp94 = 21.0f + (fy + *(f32 *)(arg0 + 0x8C8));
+        f0 = (f32)*(u8 *)(arg0 + 0x8CE) * opacity;
+        alpha = (u8)f0;
+        c0 = D_0064B2F4[0];
+        c1 = D_0064B2F4[1];
+        c2 = D_0064B2F4[2];
+        pos.x = sp90;
+        pos.y = sp94;
+        func_0013b370(arg0, pos, (u32)c0 | ((u32)c1 << 8) | ((u32)c2 << 16) | ((u32)alpha << 24));
+        sp90 = 255.0f + (fx + *(f32 *)(arg0 + 0x8C4));
+        sp94 = 21.0f + (fy + *(f32 *)(arg0 + 0x8C8));
+        func_00113730(&st30);
+        st30 = 1;
+        st2e = 4;
+        st2c = 1;
+        tmp = (s32)*(s16 *)(arg0 + 0x60) + (s32)*(s16 *)(arg0 + 0x5E);
+        st28 = *(s32 *)(arg0 + tmp * 0xC + 0x100);
+        st24 = *(s32 *)(arg0 + tmp * 0xC + 0x104);
+        st20 = *(s32 *)(arg0 + tmp * 0xC + 0x108);
+        pos.x = sp90;
+        pos.y = sp94;
+        func_00113790(pos, alpha, &st30, 1, 0.0f);
+    }
+    if ((*(u32 *)(arg0 + 0x1C) & 0x2000) != 0) {
+        f32 fy2;
+        u8 a2;
+        f32 fx2;
+        fy2 = *(f32 *)(arg0 + 0x1228) + fy + *(f32 *)(arg0 + 0x898);
+        f0 = (f32)*(u8 *)(arg0 + 0x89E) * opacity;
+        a2 = (u8)f0;
+        fx2 = *(f32 *)(arg0 + 0x1224) + fx + *(f32 *)(arg0 + 0x894) + 607.0f;
+        sp90 = fx2;
+        sp94 = fy2 + 32.0f;
+        func_0034f2e0(*(void **)(arg0 + 0x1270), sp90, sp94, 0xFF, 0xFF, 0xFF, a2);
+        sp94 = fy2 + 197.0f;
+        func_0034f2e0(*(void **)(arg0 + 0x1274), sp90, sp94, 0xFF, 0xFF, 0xFF, a2);
+        sp94 = fy2 + 35.0f;
+        if (*(s16 *)(arg0 + 0x580) - 6 > 0) {
+            sp94 += (f32)((*(s16 *)(arg0 + 0x60) * 0x42 + (s32)*(s16 *)(arg0 + 0x60)) * 2) / (f32)(*(s16 *)(arg0 + 0x580) - 6);
+        }
+        func_0034f2e0(*(void **)(arg0 + 0x1278), sp90, sp94, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], a2);
+    }
+    if ((*(u32 *)(arg0 + 0x1C) & 8) != 0) {
+        if (*(u8 *)(arg0 + 0x11FE) != 0) {
+            f32 bx;
+            f32 by;
+            bx = fx + *(f32 *)(arg0 + 0x11F4);
+            by = fy + *(f32 *)(arg0 + 0x11F8);
+            func_0034f320(*(u8 **)(arg0 + 0x1244), bx, by, 0.0f, D_0064B2E4[0], D_0064B2E4[1], D_0064B2E4[2], *(u8 *)(arg0 + 0x11FE), 0x1000, 0x1000, 0, 0.0f, 0);
+        }
+        for (j = 0; j < 6; j++) {
+            if ((s32)(j + *(s16 *)(arg0 + 0x60)) < (s32)*(s16 *)(arg0 + 0x580)) {
+                if (*(s16 *)(arg0 + 0x5E) == (s16)j && ((*(u32 *)(arg0 + 0x1C) & 0x10) != 0)) {
+                    if ((*(u32 *)(arg0 + 0x1C) & 0x80) == 0) {
+                        Vec2f p2;
+                        sp90 = 257.0f + (fx + *(f32 *)(arg0 + 0x744));
+                        sp94 = 21.0f + (f32)*(s16 *)(arg0 + 0x5E) * 34.0f + fy + *(f32 *)(arg0 + 0x748);
+                        f0 = (f32)*(u8 *)(arg0 + 0x74E) * opacity;
+                        alpha = (u8)f0;
+                        p2.x = sp90;
+                        p2.y = sp94;
+                        func_0013b370(arg0, p2, (u32)D_0064B2E8[0] | ((u32)D_0064B2E8[1] << 8) | ((u32)D_0064B2E8[2] << 16) | ((u32)alpha << 24));
+                    }
+                } else {
+                    u8 *hand;
+                    hand = *(u8 **)(arg0 + 0x1244);
+                    sp90 = 255.0f + (fx + *(f32 *)(arg0 + j * 0x30 + 0x8F4));
+                    sp94 = 21.0f + (f32)j * 34.0f + fy + *(f32 *)(arg0 + j * 0x30 + 0x8F8);
+                    f0 = (f32)*(u8 *)(arg0 + j * 0x30 + 0x8FE) * opacity;
+                    alpha = (u8)f0;
+                    func_0034f320(hand, sp90, sp94, 0.0f, D_0064B2E4[0], D_0064B2E4[1], D_0064B2E4[2], alpha, 0x1000, *(u16 *)(arg0 + j * 0x30 + 0x90A), 0, 0.0f, 0);
+                }
+                tmp = func_0013ac30(*(u16 *)(arg0 + (*(s16 *)(arg0 + 0x60) + j) * 0xC + 0x102));
+                if (tmp > 0) {
+                    u8 *hand2;
+                    hand2 = *(u8 **)(arg0 + tmp * 4 + 0x1244);
+                    sp90 = 258.0f + (fx + *(f32 *)(arg0 + j * 0x30 + 0x8F4));
+                    sp94 = 23.0f + (f32)j * 34.0f + fy + *(f32 *)(arg0 + j * 0x30 + 0x8F8);
+                    f0 = (f32)*(u8 *)(arg0 + j * 0x30 + 0x8FE) * opacity;
+                    alpha = (u8)f0;
+                    func_0034f320(hand2, sp90, sp94, 0.0f, D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], alpha, 0x1000, *(u16 *)(arg0 + j * 0x30 + 0x90A), 0, 0.0f, 0);
+                }
+                sp90 = 300.0f + (fx + *(f32 *)(arg0 + j * 0x30 + 0x774));
+                sp94 = 21.0f + (f32)j * 34.0f + fy + *(f32 *)(arg0 + j * 0x30 + 0x778);
+                f0 = (f32)*(u8 *)(arg0 + j * 0x30 + 0x77E) * opacity;
+                alpha = (u8)f0;
+                func_00113730(&st30);
+                st30 = 1;
+                if (*(s16 *)(arg0 + 0x5E) == (s16)j && ((*(u32 *)(arg0 + 0x1C) & 0x10) != 0)) {
+                    st2e = 3;
+                } else {
+                    st2e = 2;
+                }
+                tmp = (s32)*(s16 *)(arg0 + 0x60) + j;
+                st28 = *(s32 *)(arg0 + tmp * 0xC + 0x100);
+                st24 = *(s32 *)(arg0 + tmp * 0xC + 0x104);
+                st20 = *(s32 *)(arg0 + tmp * 0xC + 0x108);
+                {
+                    Vec2f p3;
+                    p3.x = sp90;
+                    p3.y = sp94;
+                    func_00113790(p3, alpha, &st30, 1, 0.0f);
+                }
+            }
+        }
+    }
+    if ((*(u32 *)(arg0 + 0x1C) & 0x40) != 0) {
+        for (i = 0; i < *(s16 *)(arg0 + 0xFC); i++) {
+            func_0013ad40(arg0, i, 3);
+        }
+    }
+    if ((*(u32 *)(arg0 + 0x1C) & 0x80) != 0) {
+        Vec2f p4;
+        sp90 = 257.0f + (fx + *(f32 *)(arg0 + 0x744));
+        sp94 = 21.0f + (f32)*(s16 *)(arg0 + 0x5E) * 34.0f + fy + *(f32 *)(arg0 + 0x748);
+        f0 = (f32)*(u8 *)(arg0 + 0xB9E) * opacity;
+        alpha = (u8)f0;
+        func_00113730(&st30);
+        st30 = 1;
+        st2e = 3;
+        st2c = 1;
+        tmp = (s32)*(s16 *)(arg0 + 0x60) + (s32)*(s16 *)(arg0 + 0x5E);
+        st28 = *(s32 *)(arg0 + tmp * 0xC + 0x100);
+        st24 = *(s32 *)(arg0 + tmp * 0xC + 0x104);
+        st20 = *(s32 *)(arg0 + tmp * 0xC + 0x108);
+        p4.x = sp90;
+        p4.y = sp94;
+        func_0013b420(arg0, p4, alpha, &st30);
+    }
+    {
+        Vec2f p5;
+        sp90 = 640.0f + (fx + *(f32 *)(arg0 + 0xC54));
+        sp94 = 400.0f + (fy + *(f32 *)(arg0 + 0xC58));
+        f0 = (f32)*(u8 *)(arg0 + 0xC5E) * opacity;
+        alpha = (u8)f0;
+        p5.x = sp90;
+        p5.y = sp94;
+        func_0034f9d0(p5, 0.0f, alpha, *(s16 *)(arg0 + 0x582), *(s32 *)(arg0 + 0x1334));
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_00138bf0);
+#endif
 
 // FUN_0013A040
 s32 func_0013a040(s16 *arg0, s32 arg1, s16 arg2)
