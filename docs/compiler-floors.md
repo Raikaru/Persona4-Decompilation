@@ -57,17 +57,35 @@ be source-drivable. Check these before concluding anything is unreachable.
   (An earlier revision of this line pointed at
   `skill://mwccps2-operand-order-inline-helper`, which does not exist.)
 
-  Sometimes it is not drivable at all.  `func_00242990` is 813 instructions,
-  exact count, and differs from retail by **one word**: `addu $v0, $v0, $v1`
-  against retail's `addu $v0, $v1, $v0` at 0x00242CEC, adding a `$gp`-loaded
-  base to an index the two sides compute identically.  Eight spellings have
-  been measured - operand order swapped, the constant written first, the
-  offset hoisted into a `u32` temp, both sides cast to `u32`, array-subscript
-  form, and three liveness reshapes - and all tie at one differing word except
-  the liveness hammer, which regresses to 25.  Three other sites in the same
-  function have the identical address shape and all emit base-first, so the
-  source cannot select an orientation for one of them.  Treat a lone
-  commutative operand order surrounded by identical shapes as a floor.
+  `func_00242990` is the cautionary example.  It sat at 813 instructions,
+  exact count, one differing word - `addu $v0, $v0, $v1` against retail's
+  `addu $v0, $v1, $v0` at 0x00242CEC - and was written up here as a floor
+  after ten spellings all tied at one: operand order swapped, the constant
+  written first, the offset hoisted into a `u32` temp, both sides cast to
+  `u32`, the array-subscript form, and the parenthesisations either way.
+
+  It was not a floor.  The file already defines
+
+      static inline u32 PTDatCalcOffsetAdd(u32 offset, u32 base)
+      { return offset + base; }
+
+  and three of the four sites with this address shape already went through it.
+  Routing the fourth through it as well
+
+      value = *(u8 *)((u8 *)PTDatCalcOffsetAdd(*(u16 *)(arg0 + 2) * 0x3C,
+                                               (u32)iGpffffb3c4) + 0x38);
+
+  takes the function to **zero** and it is now MATCHED.  The parameter
+  boundary is what does it: passing the offset as the first argument fixes
+  which operand becomes live first, and no amount of rewriting the expression
+  in place can express that.  Every spelling that had been tried was still one
+  expression.
+
+  So the lesson is the opposite of what was recorded: when a lone commutative
+  operand order survives every rewrite, look for a call boundary - an existing
+  inline helper in the same file, or the one the siblings already use - before
+  calling it a floor.
+
 - **`addiu` where retail has `daddiu`** on a variable's initialiser. Usually the
   declared type is 64-bit. Note the converse is not reliable: in
   `func_001932f0` retail initialises with `daddiu` and increments the same
