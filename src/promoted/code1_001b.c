@@ -1265,7 +1265,7 @@ s32 func_001b2380(void)
   f32 temp_v13;
   f32 temp_v14;
   f32 temp_v15;
-  f32 afStack_60 [4];
+  f32 afStack_60 [8];
   f32 fStack_50;
   f32 fStack_4c;
   f32 fStack_48;
