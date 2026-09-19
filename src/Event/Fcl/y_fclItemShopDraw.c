@@ -71,6 +71,18 @@ s32 func_002b89a0(void *);
 void *func_00460990(void);
 void func_00460ac0(void *, void *);
 s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
+extern u8 D_00795FE0[];
+extern u8 D_0064A360[];
+extern u8 D_0064A3A0[];
+extern u8 D_00763A18[];
+extern void func_00332b60(u8 *, u8 *);
+extern s32 func_0046aea0(void *);
+extern void func_00440b68(void *, void *, s32);
+extern void *func_00454a60(void *, s32);
+extern s32 func_0046a750(s32);
+extern s32 func_004553c0(void *);
+extern u8 *func_0033d130(void *, s32, s32);
+extern s32 func_00122720(void);
 
 /* measured: func_00332bb0 recon + jump-table recovery (no guarded body installed - see tail). */
 /* retail window 37392B = 9348 instrs, band 9067-9628 (+-3%: 9348*0.97=9067.56, 9348*1.03=9628.44). */
@@ -132,8 +144,189 @@ s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, 
 /*   to TU idiom (u8* work + offsets, Vec2f/u64 slots, s16/s8 widths, file protos) is multi-day; */
 /*   installing a short skeleton would sit outside 9067-9628 and its word score would be */
 /*   uncomparable (gate handoff 7y). This note + the recovered table above is the deliverable. */
-// FUN_00332BB0
+// FUN_00332BB0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00332bb0(u8 *arg0) {
+    u8 *work;
+    void *tmp;
+    s8 state;
+    s64 g;
+    s64 h;
+    s32 i;
+    s32 k;
+    F2_0033 p0;
+    F2_0033 p1;
+
+    work = *(u8 **)(arg0 + 0x38);
+    tmp = func_00460990();
+    *(void **)((u8 *)tmp + 8) = (void *)func_00332b60;
+    *(void **)((u8 *)tmp + 0x10) = work;
+    func_00460ac0(D_00795FE0, tmp);
+    state = *(s8 *)(work + 0);
+    switch (state) {
+    case 0:
+        *(s32 *)(work + 0xC) = func_0046aea0(D_0064A360);
+        func_00440b68(D_00763A18, D_0064A380, 0x17B);
+        *(void **)(work + 0x428) = func_00454a60(D_0064A3A0, 0);
+        *(s8 *)(work + 0) = 1;
+        /* fallthrough */
+    case 1:
+        if (func_0046a750(*(s32 *)(work + 0xC)) != 0 && func_004553c0(*(void **)(work + 0x428)) != 0) {
+            *(s8 *)(work + 0) = 2;
+            g = 0;
+            while (((s64)(g << 0x30) >> 0x30) < 0x5A) {
+                k = (s32)((s64)(g << 0x30) >> 0x30);
+                if (*(void **)(work + k * 4 + 0x10) != 0) {
+                    *(void **)(work + k * 4 + 0x10) = 0;
+                }
+                *(void **)(work + k * 4 + 0x10) = func_0033d130(arg0, k & 0xFFFF, *(s32 *)(work + 0xC));
+                g = (s64)(((s64)(g << 0x30) >> 0x30) + 1);
+            }
+            h = 0;
+            while (((s64)(h << 0x30) >> 0x30) < 0xF) {
+                k = (s32)((s64)(h << 0x30) >> 0x30);
+                if (*(s32 *)(work + k * 4 + 0x178) != 0) {
+                    *(s32 *)(work + k * 4 + 0x178) = 0;
+                }
+                h = (s64)(((s64)(h << 0x30) >> 0x30) + 1);
+            }
+            *(void **)(work + 0x178) = func_0033d130(arg0, 0x2B, *(s32 *)(work + 0xC));
+            *(void **)(work + 0x17C) = func_0033d130(arg0, 0x28, *(s32 *)(work + 0xC));
+            *(void **)(work + 0x180) = func_0033d130(arg0, 0x28, *(s32 *)(work + 0xC));
+            *(void **)(work + 0x184) = func_0033d130(arg0, 0x28, *(s32 *)(work + 0xC));
+        }
+        break;
+    case 2:
+        i = 0;
+        while ((s16)i < 0x24) {
+            *(s8 *)(work + (s16)i + 0x2D8) = 1;
+            i = (s16)(i + 1);
+        }
+        func_0033d320((void *)*(s32 *)(work + 0x110), 0, 0);
+        func_002b2970(&p0, D_0064A090[0], D_0064A090[1]);
+        func_002b2970(&p1, D_0064A090[0], D_0064A090[1]);
+        func_0033d3e0((void *)*(s32 *)(work + 0x110), p0, p1, 0, 0, 0);
+        func_0033d3c0((void *)*(s32 *)(work + 0x110), 17.0f);
+        func_0033d3d0((void *)*(s32 *)(work + 0x110), 0x63);
+        func_0033d320((void *)*(s32 *)(work + 0x114), 0, 0);
+        func_0033d320((void *)*(s32 *)(work + 0x10), 0, 0);
+        func_0033d320((void *)*(s32 *)(work + 0x164), 0, 0);
+        func_0033d320((void *)*(s32 *)(work + 0xB0), 0, 0);
+        *(s8 *)(work + 0) = 3;
+        break;
+    case 3:
+        i = 0;
+        while ((s16)i < 4) {
+            if (func_0033d390((void *)*(s32 *)(work + (s16)i * 4 + 0x1C), 2) == 0) {
+                func_0033d3d0((void *)*(s32 *)(work + (s16)i * 4 + 0x1C), 0xAB);
+            }
+            i = (s16)(i + 1);
+        }
+        func_0033d320((void *)*(s32 *)(work + 0x58), 0, 0);
+        func_0033d3c0((void *)*(s32 *)(work + 0x58), 80.0f);
+        func_0033d3d0((void *)*(s32 *)(work + 0x58), 0x3D);
+        func_0033d320((void *)*(s32 *)(work + 0x5C), 0, 0);
+        func_0033d320((void *)*(s32 *)(work + 0x118), 0, 0);
+        func_0033d320((void *)*(s32 *)(work + 0x11C), 0, 0);
+        *(s8 *)(work + 0) = 4;
+        break;
+    case 4:
+        if (*(s8 *)(work + 2) == 1) {
+            func_0033d320((void *)*(s32 *)(work + 0x60), 0, 0);
+            *(s8 *)(work + 0) = 5;
+        } else {
+            func_0033d320((void *)*(s32 *)(work + 0x60), 0, 1);
+            *(s8 *)(work + 0) = 6;
+        }
+        break;
+    case 5:
+        func_0033d320((void *)*(s32 *)(work + 0x14), 0, 0);
+        func_0033d320((void *)*(s32 *)(work + 0x40), 0, 0);
+        func_0033d320((void *)*(s32 *)(work + 0x44), 0, 0);
+        func_0033d320((void *)*(s32 *)(work + 0x48), 0, 0);
+        func_0033d320((void *)*(s32 *)(work + 0x4C), 0, 0);
+        *(s8 *)(work + 0) = 9;
+        break;
+    case 6:
+        func_0033d320((void *)*(s32 *)(work + 0x14), 0, 1);
+        *(s8 *)(work + 0) = 5;
+        break;
+    case 7:
+        func_0033d320((void *)*(s32 *)(work + 0x14), 0, 2);
+        *(s8 *)(work + 0) = 5;
+        break;
+    case 8:
+        /* shares the default block in retail (.L0033BD80) - kept explicit so the switch still spans 0..18 and mwcc emits sltiu 0x13. */
+        break;
+    case 9:
+        func_0033d320((void *)*(s32 *)(work + 0xB4), 0, 0);
+        func_002b2970(&p0, D_0064A1D8[0], D_0064A1D8[1]);
+        func_002b2970(&p1, -180.0f, D_0064A1D8[1]);
+        func_0033d3e0((void *)*(s32 *)(work + 0xB4), p0, p1, 0, 0xF, 0x16);
+        func_0033d320((void *)*(s32 *)(work + 0xB8), 0, 0);
+        func_0033d320((void *)*(s32 *)(work + 0xBC), 0, 0);
+        *(s8 *)(work + 0) = 10;
+        break;
+    case 10:
+        func_0033d320((void *)*(s32 *)(work + 0x178), 0, 0);
+        func_0033d320((void *)*(s32 *)(work + 0x3C), 0, 0);
+        *(s8 *)(work + 0) = 11;
+        break;
+    case 11:
+        i = 0;
+        while ((s16)i < 3) {
+            func_0033d320((void *)*(s32 *)(work + (s16)i * 4 + 0x17C), 0, 0);
+            i = (s16)(i + 1);
+        }
+        func_0033d320((void *)*(s32 *)(work + 0xB0), 0, 0);
+        *(s8 *)(work + 0) = 12;
+        break;
+    case 12:
+        func_0033d320((void *)*(s32 *)(work + 0x58), 0, 1);
+        func_0033d320((void *)*(s32 *)(work + 0x5C), 0, 1);
+        func_0033d320((void *)*(s32 *)(work + 0x118), 0, 1);
+        *(s8 *)(work + 0) = 13;
+        break;
+    case 13:
+        func_0033d320((void *)*(s32 *)(work + 0x11C), 0, 1);
+        func_0033d3d0((void *)*(s32 *)(work + 0xB0), 0x65);
+        *(s8 *)(work + 0) = 14;
+        break;
+    case 14:
+        func_0033d3d0((void *)*(s32 *)(work + 0x110), 0x65);
+        func_0033d3d0((void *)*(s32 *)(work + 0x114), 0x65);
+        func_0033d3d0((void *)*(s32 *)(work + 0x60), 0x65);
+        *(s8 *)(work + 0) = 15;
+        break;
+    case 15:
+        func_0033d320((void *)*(s32 *)(work + 0x10), 0, 0);
+        func_002b2970(&p0, D_0064A090[0], D_0064A090[1]);
+        func_002b2970(&p1, 650.0f, 241.0f);
+        func_0033d3e0((void *)*(s32 *)(work + 0x10), p0, p1, 0, 0xA, 0);
+        *(s8 *)(work + 0) = 16;
+        break;
+    case 16:
+        func_0033d320((void *)*(s32 *)(work + 0x58), 0, 1);
+        func_0033d320((void *)*(s32 *)(work + 0x5C), 0, 1);
+        *(s8 *)(work + 0) = 17;
+        break;
+    case 17:
+        func_0033d320((void *)*(s32 *)(work + 0x118), 0, 1);
+        func_0033d320((void *)*(s32 *)(work + 0x11C), 0, 1);
+        *(s8 *)(work + 0) = 18;
+        break;
+    case 18:
+        if (func_00122720() != 0) {
+            return;
+        }
+        break;
+    default:
+        break;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclItemShopDraw", func_00332bb0);
+#endif
 
 // FUN_0033BDC0
 void func_0033bdc0(u8 *arg0) {

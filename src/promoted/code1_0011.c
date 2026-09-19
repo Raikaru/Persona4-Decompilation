@@ -1496,6 +1496,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00112830);
    three assignments so the colour reads precede the alpha computation - which is retail's
    emission order, `lbu 0xde`/`lbu 0xdd` at R27-R28 before `andi`/`subu` at R29-R31 - is
    worse, 11 edits.  Genuine allocator floor. */
+/* measured 001130c0 (owner, 2026-09-19): 110/110 exact, **4 edits plus 5 reloc-only**.  All four
+   are b210 hoisting `lbu $s1, 0xde($sp)` / `lbu $s0, 0xdd($sp)` above the `255 - (arg1 & 0xFF)`
+   computation that retail emits first.  The source order already matches retail; four
+   placements of the `alpha_byte` statement were measured (before the colour copy, first
+   statement, after the two colour reads, before `temp_2`) and score 4, 8, 8 and 11 - the
+   current position is the best of them and the scheduler moves the pair regardless. */
 // FUN_001130C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)

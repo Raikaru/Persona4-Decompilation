@@ -3389,6 +3389,12 @@ void func_0012d410(u8 *arg0)
 /*   off 1212: object lbu $a1,0x22E($s1) vs retail mtc1 $zero,$f12. */
 /*   Immediates same (0x17D, 0x228/0x22E), branches same targets, nop/work is */
 /*   FPU scheduling (sched 315, peephole 332, nobranch tie 13). */
+/* measured 0012d630 (owner, 2026-09-19): 337/337 exact, **12 edits**.  Two of them are
+   commutative operand order - retail `addu $v0, $v0, $s1` against the object's
+   `addu $v0, $s1, $v0`, and an `add.s` with its operands the other way round.  Writing the
+   source additions in retail's order (`j * 0x30 + p`, and the 0x228 load before the (f32)
+   cast, separately and together) measures 12 every time: b210 canonicalises commutative
+   operand order before allocation, so it cannot be steered from source. */
 // FUN_0012D630 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0012d630(u8 *arg0)
