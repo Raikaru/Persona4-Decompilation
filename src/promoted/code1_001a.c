@@ -1762,7 +1762,7 @@ void func_001a31e0(u8 *arg0) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a31e0);
 #endif
-/* measured 001a3840: `opt_common_subs off` inside the guard is worth 6 words (279 -> 273); retail rematerialises what b210 hoists. s32 st (275) and s32 spB0 (274) ruled out: the extension pairs pin downstream rotation coloring. Banked as floor (273). */
+/* measured 001a3840 2026-09-19: 23-instr tail (func_001f0a10 + func_001f36e0 + packet at retail 0x1a3cbc-0x1a3d0c, fnalign delete 285:308) was never written; added spD0[32] + tail block. Object 330/retail 324 +1.9% INSIDE, 265 words, 174 edits (+1 reloc-only) (was 301/323 -6.8%, 273 words). Remaining pure deletes: 2-instr s16 extension pairs at 0x1a3b8c (dsll32 $a1,$s2,0x10; dsra32 $a1,$a1,0x10) and 0x1a3bf8 (dsll32 $a1,$fp,0x10; dsra32 $a1,$a1,0x10); tail copy uses same-pkt base (retail ld 0x58($s2) at 0x1a3cf8 from pkt2+88, 1-reg lump). Prior: opt_common_subs off worth 6 words (279->273); s32 st/spB0 ruled out as extension pinning. */
 // FUN_001A3840 NONMATCHING
 #ifdef SKIP_ASM
 #pragma opt_common_subs off
