@@ -1864,8 +1864,220 @@ void func_003599a0(u8 *arg0)
     *(f32 *)(arg0 + 0x34) = D_00761260;
 }
 
-// FUN_003599C0
+/* measured 003599c0: object 1163 instrs against retail 1190 stripped (1192 raw; -27, -2.3%; band
+   1156-1228) via `python3 tools/fnalign.py src/promoted/code1_0035.c func_003599c0 --candidate
+   /tmp/3599c0_v5.c`, 1022 edits (+2 reloc-only), probe 1072 differing words. Frame object 0x130 vs
+   retail 0x120 (long-lived u16 spills quad, not half); calls 17/17 (11x0034f320 + 0046d730/0046b260/
+   0045d6e0/00275020/00246830 + D_00887300 jalr); lwc1 20/20, swc1 12/12. Float landmarks exact
+   (f25/f24/f26/f21/f22/f23/f28/f27/f20/f29/f30, shared madd products per 7r, descending float decls);
+   residual is int-color allocation (params stuck $s0/$s1), v30 stack spill, and two CSE-held recomputes
+   (o2 base, f20 div). Honest: slti for retail slti, sltiu only where retail sltiu (isSelf ==), u8/u16
+   casts, s128 quad move with (u16) narrow, indirect D_00887300[0]; prototypes per recon (0034f320 x13,
+   0045d6e0 x4, 00246830 returns u8 *). No sltiu-for-slti, no s64 flat, no opt_propagation, no volatile,
+   no asm. Mid-function propoff scopes tried for the two recomputes: no-op, removed. */
+// FUN_003599C0 NONMATCHING
+#ifdef NON_MATCHING
+void func_003599c0(s32 arg0, u8 *arg1)
+{
+    typedef signed __int128 s128;
+    extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u32 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+    extern void func_0045d6e0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2);
+    extern u8 *func_00246830(s32 arg0);
+    extern s32 func_00275020(f32 arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5, s32 arg6);
+    extern f32 func_0046b260(u8 *arg0);
+    extern s32 (*D_00887300[])(s32, s32);
+    extern u8 D_0064B2E0;
+    extern u8 D_0064B2E8;
+    extern u8 D_0064B2E9;
+    extern u8 D_0064B2EA;
+    extern u8 D_0064B2EB;
+    extern u8 D_0064B2EC[];
+    extern u8 D_0064B2F8[];
+    u8 col[4];
+    s32 rc[4];
+    u16 f0v;
+    s128 e0;
+    f32 f30;
+    f32 f29;
+    f32 f28;
+    f32 f27;
+    f32 f26;
+    f32 f25;
+    f32 f24;
+    f32 f23;
+    f32 f22;
+    f32 f21;
+    f32 f20;
+    f32 f5;
+    f32 f1t;
+    f32 f4;
+    f32 f3;
+    f32 f2;
+    f32 b5B0;
+    f32 b5B4;
+    f32 c190;
+    f32 c194;
+    f32 c4C0;
+    f32 c4C4;
+    f32 f3b;
+    f32 f1b;
+    f32 f2b;
+    f32 f4b;
+    f32 f1c;
+    f32 fb;
+    u8 *e;
+    u8 *b1;
+    u8 *b2;
+    u8 *b3;
+    s32 v30;
+    u8 t23;
+    s32 isSelf;
+    s32 o1;
+    s32 o2;
+    s32 o3;
+    s32 w3A;
+    u8 *sprE;
+    u8 *sprL;
+    u8 *spr;
+    u8 *ns;
+    s32 i;
+    s32 cnt;
+    s32 av;
+    s32 color;
+    u8 a3;
+    u8 alpha2;
+    u8 *ptab;
+    u8 *ctab;
+    u8 alpha;
+    s32 mode;
+
+    f25 = *(f32 *)(arg1 + 4);
+    f24 = *(f32 *)(arg1 + 8);
+    f26 = (f32)arg1[0] / 255.0f;
+    e = arg1 + (*(s16 *)(arg1 + 0x26) + arg0) * 12;
+    t23 = e[0x38];
+    w3A = *(u16 *)(e + 0x3A);
+    f0v = (u16)w3A;
+    if (t23 >= 0x20) {
+        func_0046d730(D_0064CC98, 0x5D5);
+    }
+    isSelf = (arg0 == *(s16 *)(arg1 + 0x24));
+    mode = *(s32 *)(e + 0x40);
+    o1 = arg0 * 48;
+    b1 = arg1 + o1;
+    b5B0 = *(f32 *)(b1 + 0x5B0);
+    b5B4 = *(f32 *)(b1 + 0x5B4);
+    f5 = f25 + b5B0;
+    f21 = 64.0f * (f32)arg0;
+    f1t = f21 + (f24 + b5B4);
+    f4 = 81.0f + f1t;
+    a3 = (u8)((f32)b1[0x5BA] * f26);
+    f3 = (f32)*(u16 *)(b1 + 0x5C0);
+    f2 = (f32)*(u16 *)(b1 + 0x5C6);
+    if (isSelf) {
+        col[0] = D_0064B2E8;
+        col[1] = D_0064B2E9;
+        col[2] = D_0064B2EA;
+        col[3] = D_0064B2EB;
+    } else {
+        *(f32 *)col = *(f32 *)&D_0064B2E0;
+    }
+    col[3] = (u8)((f32)a3 * f26);
+    rc[0] = (s32)f5;
+    rc[1] = (s32)f4;
+    rc[2] = (s32)(640.0f * f3 / 4096.0f);
+    rc[3] = (s32)(59.0f * f2 / 4096.0f);
+    D_00887300[0](1, 0);
+    func_0045d6e0(col, (u8 *)rc, 0.0f, 0);
+    o2 = arg0 * 48;
+    b2 = arg1 + o2;
+    c190 = *(f32 *)(b2 + 0x190);
+    c194 = *(f32 *)(b2 + 0x194);
+    f23 = 5.0f + (f25 + c190);
+    f22 = 78.0f + (f21 + (f24 + c194));
+    alpha = (u8)((f32)b2[0x19A] * f26);
+    f28 = (f32)*(u16 *)(b2 + 0x1A0);
+    f27 = (f32)*(u16 *)(b2 + 0x1A6);
+    if (isSelf) {
+        ptab = D_0064B2EC;
+        ctab = &D_0064B2E8;
+        v30 = 8;
+    } else {
+        ptab = D_0064B2F8;
+        ctab = &D_0064B2E0;
+        v30 = 6;
+    }
+    f20 = f27 / 4096.0f;
+    if (mode != 1) {
+        func_0034f320(*(u8 **)(arg1 + 0x11E8), 60.0f + f23, f22 + 16.0f * f20, 0.0f,
+                      ptab[0], ptab[1], ptab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
+        func_0034f320(*(u8 **)(arg1 + (u16)e0 * 4 + 0x11EC), 124.0f + f23, f22 + 14.0f * f20, 0.0f,
+                      ptab[0], ptab[1], ptab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
+    }
+    f30 = 59.0f + f23;
+    f20 = f27 / 4096.0f;
+    f29 = f22 + 32.0f * f20;
+    func_0034f320(*(u8 **)(arg1 + 0x1214), f30, f29, 0.0f,
+                  ptab[0], ptab[1], ptab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
+    func_0034f320(*(u8 **)(arg1 + 0x1218), 88.0f + f30, f29, 0.0f,
+                  ptab[0], ptab[1], ptab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
+    f30 = 105.0f + f23;
+    f29 = f22 + 33.0f * f20;
+    sprE = *(u8 **)(arg1 + t23 * 4 + 0x12A0);
+    fb = func_0046b260(sprE);
+    func_0034f320(sprE, f30 - fb / 2.0f, f29, 0.0f,
+                  ctab[0], ctab[1], ctab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
+    f30 = 156.0f + f23;
+    f29 = f22 + 18.0f * f20;
+    func_0034f320(*(u8 **)(arg1 + 0x122C), f30, f29, 0.0f,
+                  ptab[0], ptab[1], ptab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
+    func_0034f320(*(u8 **)(arg1 + 0x1230), 214.0f + f30, f29, 0.0f,
+                  ptab[0], ptab[1], ptab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
+    if (mode == 3) {
+        spr = isSelf ? *(u8 **)(arg1 + 0x1238) : *(u8 **)(arg1 + 0x123C);
+        func_0034f320(spr, 204.0f + f23, f22 + 14.0f * f20, 0.0f,
+                      0xFF, 0xFF, 0xFF, alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
+    } else if (mode == 2) {
+        spr = isSelf ? *(u8 **)(arg1 + 0x1240) : *(u8 **)(arg1 + 0x1244);
+        func_0034f320(spr, 198.0f + f23, f22 + 14.0f * f20, 0.0f,
+                      0xFF, 0xFF, 0xFF, alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
+    } else if ((mode == 1) || (mode == 0)) {
+        f30 = 4.0f + (157.0f + f23);
+        f29 = f22 + 20.0f * f20;
+        sprL = *(u8 **)(arg1 + 0x1234);
+        cnt = (u16)e0;
+        i = 0;
+        while ((i < 10) && (i < cnt)) {
+            func_0034f320(sprL, f30 + (f32)(i * 21), f29, 0.0f,
+                          ctab[0], ctab[1], ctab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
+            i++;
+        }
+    }
+    if (f27 == 4096.0f) {
+        f23 = 157.0f + f23;
+        f20 = f22 + 30.0f * f20;
+        av = ((alpha & 0xFF) * 0xFF) / 255;
+        color = -256;
+        color |= av;
+        ns = func_00246830(f0v);
+        func_00275020(f23, f20, 0.0f, color, v30, 1, ns, 0, -1);
+    }
+    o3 = arg0 * 48;
+    b3 = arg1 + o3;
+    c4C0 = *(f32 *)(b3 + 0x4C0);
+    c4C4 = *(f32 *)(b3 + 0x4C4);
+    f3b = 5.0f + (f25 + c4C0);
+    f1b = f21 + (f24 + c4C4);
+    f2b = 78.0f + f1b;
+    alpha2 = (u8)((f32)b3[0x4CA] * f26);
+    f4b = (f32)*(u16 *)(b3 + 0x4D0);
+    f1c = (f32)*(u16 *)(b3 + 0x4D6);
+    func_0034f320(*(u8 **)(arg1 + mode * 4 + 0x121C), 15.0f + f3b, 2.0f + f2b, 0.0f,
+                  0xFF, 0xFF, 0xFF, alpha2, (u16)f4b, (u16)f1c, 0, 0.0f, 0);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_003599c0);
+#endif
 // FUN_0035AC60
 void func_0035ac60(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 {

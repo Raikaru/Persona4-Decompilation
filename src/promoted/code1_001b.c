@@ -1213,6 +1213,16 @@ void func_001b1d70(void) {
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b1d70);
 #endif
 /* measured: probe 852 differing words (reloc-masked) via tools/probe_variants.py; fnalign retail 1038/object 1014 instrs (1527 edits +7 reloc-only), assignment retail 1040; band 1009-1071 (±3% of 1040), 1014 inside (-26, -2.5%). Baseline 857; free pragmas all tie/worse (commons/loopinv/unroll/schedule 857, peephole 895, dead 923); subscript index/shift tie 857; fresh counters tie 857; addr rowBase 857->852, elem tie; colour swaps tie 852. Biggest remaining: frame -0x100 vs -0xE0, stack slots shifted (0xA0 vs 0xC0, 0xD0 vs 0xD4), saved-reg rotation and FPR colouring, lbu vs lb at 0xA2, andi+sll vs sll. De-noised m2c (425 lines) + romwright (402 lines, arity void, 860 instrs) into file idiom; fixed 973f0/99ee0 float-last order and 195730/194590 nesting per retail. */
+/* 2026-09-19 lifetime experiment (this session, REJECTED): sinking puVar16
+   (recompute iGpffffb414+ID*0x18 at its two uses instead of holding from the
+   head) drops the 9th live int ($fp gone, frame 0x100 -> 0xF0) and takes
+   fnalign 1392 -> 1269 edits (-123), but words explode 847 -> 1000 (+153)
+   and retail refutes the shape: retail computes the base ONCE into $s0 at
+   0x001B23C4-0x001B23E4 and reads it at 0x001B27B0/0x001B323C/0x001B3248, so
+   the value is held, not recomputed (recompute purity across ~30 callees is
+   also unproven). The spare $fp is real but puVar16 is not the spare: the
+   assignment is permuted wholesale ($s0=puVar16 in retail vs $s0=pbVar12 and
+   $fp=rowBase here). Banked floor unchanged. */
 // FUN_001B2380 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001b2380(void)
