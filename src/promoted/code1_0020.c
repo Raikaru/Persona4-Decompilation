@@ -3322,6 +3322,19 @@ s32 func_00207320(u8 *arg0, u8 *arg1, u8 **arg2)
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00207320);
 #endif
 /* measured: GUARDED_SCORE 760 -> 746 differing words via tbl-base hoist (probe_variants), retail 860 vs object 863 -> 855 instrs (+3 -> -5, within gate); fnalign 532 -> 517 edits (+1 reloc-only). Lui per symbol retail 65 vs object 91 surplus 26 (D_00887300 6 hoisted vs 14 per-site, D_00626BD0 2/2 tie); hoisted D_00887300 to tbl at first use (void (**tbl)(u32,u32) = D_00887300, 14 -> 3 bases, lui 91->80 surplus 15, -11): 760->746 words (-14). Prologue init 767 ties-worse, last-site direct 755 worse, px-reuse 779 worse. Remaining: saved-reg rotation (retail s8/s1/s4 vs build s7/s2), FPR colouring (retail f26/f25/f24 vs build f22/f21/f20), frame -0xD0 vs -0xB0, stack pos 0xC0 vs 0xA8, residual float constants (0xc120 +4, 0x3f80 +2). Banked floor; production stays ASM. */
+/* measured 00207b00 (owner, 2026-09-19): fnalign edits **517 -> 470**, frame 0xC0 -> 0xD0
+   **exactly retail's**, and the saved float set now matches: $f23/$f24/$f25/$f26 against
+   retail's same four, where the body previously saved only $f23.
+   `block_move_scan` called the largest pair RECOLOUR at 0.908 - same code, different
+   registers - and `regsave_scan` said retail saves $f24, $f25 and $f26 that the body did
+   not.  Reading retail: `lui 0xc120; mtc1 $f25` and `lui 0x41e0; mtc1 $f24` at R47-R50
+   put the literals **-10.0f** and **28.0f** into callee-saved registers once and keep
+   them for 12 and 15 uses; the third, $f26, is the `/ 6.0f` division at R46, which the
+   body already held in a local.  The body was spelling the two literals inline at every
+   use, so MWCC rematerialised `lui`/`mtc1` each time instead of allocating a register.
+   Hoisting them into named locals initialised once is the whole change.
+   General form: a float literal used a dozen times is a *variable* in the original
+   source, not a constant - retail's saved-float count tells you how many. */
 // FUN_00207B00 NONMATCHING
 #ifdef NON_MATCHING
 void func_00207b00(u8 *arg0, u8 *arg1, f32 *arg2)
@@ -3335,6 +3348,8 @@ void func_00207b00(u8 *arg0, u8 *arg1, f32 *arg2)
     u32 bits;
     s32 isAlt;
     f32 f26;
+    f32 offX;
+    f32 offY;
     f32 f1;
     f32 f20;
     s16 s19;
@@ -3357,11 +3372,13 @@ void func_00207b00(u8 *arg0, u8 *arg1, f32 *arg2)
     pb = (u8 *)func_00452560(*(s32 *)(arg1 + 0x5B0));
     bits = *(u32 *)(iGpffffb3ac + 0xC) & 0x10000;
     if (*(u8 **)(arg1 + 0x38) != arg1 + 0x40 || (isAlt = 1, *(u16 *)arg1 != 1) || bits != 0) {
-        f26 = (f32)*(s16 *)(arg1 + 0x12) / 6.0f;
+        offX = -10.0f;
+    offY = offY;
+    f26 = (f32)*(s16 *)(arg1 + 0x12) / 6.0f;
         isAlt = 0;
     }
-    px = -10.0f;
-    func_002012d0(pb, arg2[0] + -10.0f, arg2[1] + 28.0f);
+    px = offX;
+    func_002012d0(pb, arg2[0] + offX, arg2[1] + offY);
     tbl = D_00887300;
     tbl[0](8, 1);
     tbl[0](1, 0);
@@ -3424,7 +3441,7 @@ void func_00207b00(u8 *arg0, u8 *arg1, f32 *arg2)
         alpha = raw & 0xFF;
         if (alpha == 0) {
             tbl[0](6, 1);
-            func_00204dc0(3, px, 28.0f, 110.0f, (1.0f - f20) * 45.0f, 0);
+            func_00204dc0(3, px, offY, 110.0f, (1.0f - f20) * 45.0f, 0);
             tbl[0](6, 0);
         } else {
             v = 259.0f;
@@ -3445,7 +3462,7 @@ void func_00207b00(u8 *arg0, u8 *arg1, f32 *arg2)
             }
             s19 = *(s16 *)(arg0 + 4);
             tbl[0](6, 1);
-            func_00204dc0(3, px, ((f32)s19 - 3.0f) * 15.0f + 28.0f, 110.0f, 0.0f, 0);
+            func_00204dc0(3, px, ((f32)s19 - 3.0f) * 15.0f + offY, 110.0f, 0.0f, 0);
             tbl[0](6, 0);
             if (alpha == 0xFF) {
                 tmp = func_001f0620(*(u8 **)(arg1 + 0x178), D_00626BD0[s19]);
@@ -3470,7 +3487,7 @@ void func_00207b00(u8 *arg0, u8 *arg1, f32 *arg2)
         }
     } else {
         tbl[0](6, 1);
-        func_00204dc0(3, px, 28.0f, 110.0f, f26 * 90.0f, 1);
+        func_00204dc0(3, px, offY, 110.0f, f26 * 90.0f, 1);
         tbl[0](6, 0);
         if (bits == 0) {
             if (*(u16 *)arg1 == 2 && *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) == 10) {
@@ -3485,7 +3502,7 @@ void func_00207b00(u8 *arg0, u8 *arg1, f32 *arg2)
                 func_002019e0(pb, 120.0f);
                 func_00201650(pb, 9, 0x34, 8.0f, 297.0f, 0x1B, 0x1B, 0x1B, 0xFF);
                 tbl[0](6, 0);
-                func_002012d0(pb, arg2[0] + px, arg2[1] + 28.0f);
+                func_002012d0(pb, arg2[0] + px, arg2[1] + offY);
                 isAlt = 1;
             } else if (s19 == 3) {
                 func_002012d0(pb, arg2[0], arg2[1]);
@@ -3495,7 +3512,7 @@ void func_00207b00(u8 *arg0, u8 *arg1, f32 *arg2)
                 func_00201650(pb, 9, 0x36, 8.0f, 297.0f, 0x1B, 0x1B, 0x1B, 0xFF);
                 tbl[0](6, 0);
                 func_002019e0(pb, 0.0f);
-                func_002012d0(pb, arg2[0] + px, arg2[1] + 28.0f);
+                func_002012d0(pb, arg2[0] + px, arg2[1] + offY);
                 isAlt = 1;
             } else {
                 isAlt = 0;

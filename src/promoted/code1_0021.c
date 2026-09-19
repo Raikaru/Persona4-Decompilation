@@ -723,13 +723,13 @@ void func_00212240(u8 *arg0, s32 arg1) {
 
 
 
-/* measured 00212270: object 3244B vs retail window 5248B; retail 1311 instrs vs object 811 instrs (-38.1%, gate needs 1272-1350); differing words 1149 reloc-masked (GUARDED_SCORE), fnalign 1066 edits. Archive claimed object 3244B vs 5248B (sizes match) but nd 2519 vs our 1149 (score disagrees, not copied). Frame object 0x390 vs retail 0x3A0 (16B short; missing f22/f23 saves, s3 vs s4 arg1 park, f20 vs f23 div.s coloring). JAL retail 22 (1x201350,4x201820,2x34f460,2x34f4a0,4x364fb0,1x366c70,2x3e0870,2x457120,1x46d5f0,3x indirect D_00887310) vs object 21 (missing second func_00457120 inv recompute; cached-pointer-recompute accounts for ~5 instrs, not 500). */
-/* shortfall clusters in straight-line float/color/packet work, not calls: largest retail[113:433] 321 instrs vs object[122:126] 5 instrs (early packet/color/inv phase ~0x1C4-0x6C4, second 457120+div.s plus per-channel srl/andi/mtc1/cvt.s.w/add.s unpack and swc1 packet spills); next retail[435:478] 44 vs 19; dozens of 4-18 instr replaces throughout for (s32)(204/255/4096-scaled smooth)&mask clamps (retail lui 0x4f00/mtc1/c.ole/bc1t/cvt.w.s/mfc1/andi/or-0x80000000 vs object compact cvt.w.s/mfc1/andi). Excluded: dropped else arm (all 7 special/non-special pairs present: mode<6/21, mode<0xB/13, mode<0xD/14, mode<0xB/15, mode<=0/8 smooth variants, mode<0xF/8 with 34f460 vs 34f4a0 tails); off-by-one bound (thresholds 6,21,0x25/0x24,0xB,13,0xD,14,0xF,8 intact); folded switch (no switch); omitted-call as main cause (only 1/22 missing); unsigned-cast bloat (all casts signed (s32) with &0xFF/&0xFFFF, no unsigned float casts); narrow-local dsll32/dsra32 pairs (no s16 locals); field-by-field bloat (archive already field-by-field packet[6]/bars[4], retail similar). No pragmas in archive, none kept. Refused: outside 3% gate, production stays ASM; best C remains in Lane0021Full_00212270_body.c. Extern corrected to (u8*,u8*) per retail $a1 use (saved to s4, (void)arg0). */
-/* gate: func_00212270 is FAR OUTSIDE the +-3% band - object 811 against retail 1311, -38.1%,
-   where the band is 1272-1350.  Two fifths of the function is simply not written.
-   It is kept installed only because the missing code is localised and named: retail[113:433] 321 against 5, the early packet/colour/inverse phase at 0x1C4-0x6C4.
-   Everything else measured against this body is meaningless - the 1149 differing
-   words and 1066 fnalign edits are scores against a body of the wrong length
+/* measured 00212270: object 3864B vs retail window 5248B; retail 1311 instrs vs object 966 instrs (-26.3%, gate needs 1272-1350); differing words 1165 reloc-masked (GUARDED_SCORE), fnalign 1052 edits. Prior 2026-09-19 baseline 3244B/811 instrs/-38.1%/1149 words/1066 edits; delta +620B/+155 instrs/-14 edits from second func_00457120 inv recompute plus 11 unsigned (f32)(u32) byte conversions (b0-b3). Frame object 0x3C0 vs retail 0x3A0 (32B over; was 0x390/16B short; extra inv2+b0-b3 locals plus second-call saves, s3 vs s4 arg1 park, f20 vs f23 div.s coloring). JAL retail 22 (1x201350,4x201820,2x34f460,2x34f4a0,4x364fb0,1x366c70,2x3e0870,2x457120,1x46d5f0,3x indirect D_00887310) vs object 22 (second func_00457120 added; call counts match, shortfall is straight-line packet/data code). */
+/* shortfall (2026-09-19): largest retail[143:430] 287 vs object[120:122] 3 (remaining five packet headers/data 0x2480-0x2934: lui 0x435D/0x43D1/0x43E0/0x41E8 with sw/swc1 plus unsigned unpack/spills; first header at 0xB0 closed via second 457120+11 unsigned, prior largest 321 vs 5); dozens of 4-18 replaces for (s32)(204/255/4096-scaled smooth)&mask clamps (retail 0x4F00/c.ole/bc1t/cvt.w.s/mfc1/andi/or-0x80000000 vs compact). Excluded: all 7 pairs present, thresholds intact; no switch/call/unsigned/narrow/field bloat levers apply. */
+/* gate: func_00212270 is FAR OUTSIDE the +-3% band - object 966 against retail 1311, -26.3%,
+   where the band is 1272-1350.  One quarter of the function is still not written (was two fifths at 811).
+   It is kept installed only because the missing code is localised and named: retail[143:430] 287 against 3, the remaining five packet headers/data at 0x2480-0x2934 (lui 0x435D/0x43D1/0x43E0/0x41E8 with sw/swc1 plus per-channel unsigned unpack and spills; first header at 0xB0 fixed 2026-09-19 via second 457120+11 unsigned).
+   Everything else measured against this body is still outside-gate - the 1165 differing
+   words and 1052 fnalign edits are scores against a body still 345 instrs short
    (handoff 7y), and they must not be quoted as progress or compared with any floor
    inside the gate.  The only work that counts here is writing the missing blocks:
    disassemble each retail range named above, describe what it computes, write it,
@@ -834,6 +834,11 @@ void func_00212270(u8 *arg0, u8 *arg1)
     f32 smooth;
     f32 offset;
     f32 inv;
+    f32 inv2;
+    u32 b0;
+    u32 b1;
+    u32 b2;
+    u32 b3;
 
     (void)arg0;
     temp = func_00457120();
@@ -874,30 +879,36 @@ void func_00212270(u8 *arg0, u8 *arg1)
     alpha = (s32)(204.0f * smooth) & 0xFF;
     color = 0xFF7B0000 | alpha;
     scale = D_008872F8[0];
+    b0 = ((u32)color >> 24) & 0xFF;
+    b1 = ((u32)color >> 16) & 0xFF;
+    b2 = ((u32)color >> 8) & 0xFF;
+    b3 = (u32)color & 0xFF;
+    temp = func_00457120();
+    inv2 = 1.0f / *(f32 *)(temp + 0x80);
     local.packet[0].x = 640.0f;
     local.packet[0].y = 0.0f;
     local.packet[0].z = scale;
-    local.packet[0].w = inv;
-    local.packet[1].x = (f32)((color >> 24) & 0xFF);
-    local.packet[1].y = (f32)((color >> 16) & 0xFF);
-    local.packet[1].z = (f32)((color >> 8) & 0xFF);
-    local.packet[1].w = (f32)(color & 0xFF);
+    local.packet[0].w = inv2;
+    local.packet[1].x = (f32)b0;
+    local.packet[1].y = (f32)b1;
+    local.packet[1].z = (f32)b2;
+    local.packet[1].w = (f32)b3;
     local.packet[2].x = 320.0f;
     local.packet[2].y = 0.0f;
     local.packet[2].z = scale;
-    local.packet[2].w = inv;
-    local.packet[3].x = local.packet[1].x;
-    local.packet[3].y = local.packet[1].y;
-    local.packet[3].z = local.packet[1].z;
+    local.packet[2].w = inv2;
+    local.packet[3].x = (f32)b0;
+    local.packet[3].y = (f32)b1;
+    local.packet[3].z = (f32)b2;
     local.packet[3].w = 0.0f;
     local.packet[4].x = 0.0f;
     local.packet[4].y = 320.0f;
     local.packet[4].z = scale;
-    local.packet[4].w = inv;
-    local.packet[5].x = local.packet[1].x;
-    local.packet[5].y = local.packet[1].y;
-    local.packet[5].z = local.packet[1].z;
-    local.packet[5].w = local.packet[1].w;
+    local.packet[4].w = inv2;
+    local.packet[5].x = (f32)b0;
+    local.packet[5].y = (f32)b1;
+    local.packet[5].z = (f32)b2;
+    local.packet[5].w = (f32)b3;
     D_00887310[0](3, local.packet, 6);
     if (special) {
         *(s32 *)(arg1 + 0x3C) += 1;
