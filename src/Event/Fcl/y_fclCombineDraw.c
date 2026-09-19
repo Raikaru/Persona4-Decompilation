@@ -3338,6 +3338,8 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003218a0);
 #endif
 
 // measured: nd N/A (ldr/ldl unaligned 8B loads + draw-family). M2C_ERROR on ldr/ldl at 0x28/0x2f; the 6c30/69f0/6a70 s64-arg normalization floor also applies. Unaligned-load + s64-param floor.
+/* v1 dispatcher floor (00321e60): m2c + romwright agree on (u8*,s64,u8,u8), D_008C flag arms with early 45af60 returns, 10b5b0-bound s16-counter loops, 34ae50+83e0/46d-mini blocks in 00323d00/003218a0 idiom (s32 colour words, *(s64*)(p+0x28) ldr/ldl pair, global f32 callees, block-scope externs for 2f9c30/2e4ac0/45af60 + u16 D_008C + f32 D_00644150). */
+/* Skeleton correction (asm-grounded, worth -163w/-195 instrs): the first draft duplicated the mode-6 j/k-loop block into BOTH the 80 arm and the 40else arm from m2c symmetry bias; retail has ONE 2e4ac0 and ONE 6150(0x7E), and the 80 untaken path (t11E >= bound) jumps directly to the shared epilogue. Deleted the 38-line phantom 80else block. Rejected: loop-cond de-cast (+38w), 40inner float reuse (+7w), hoist-inline. probe 1125w; fnalign retail 1370 vs object 1363 (-7, -0.51% PASS, 664 edits). Banked as in-gate first draft. */
 // FUN_00321E60 NONMATCHING
 #ifdef NON_MATCHING
 void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
@@ -3470,44 +3472,6 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
             } else {
                 *(u8 *)(t + 0x1) = 0x3E;
             }
-        } else {
-            func_002e4ac0(1, *(s8 *)(t + 0x128));
-            func_002b6a70(0x7E, 0xFF, 0, 0, 6, 0);
-            func_002b6150(0x7E);
-            j = 0;
-            while ((s16)j < (s16)(u16)func_0010b5b0()) {
-                k = 0;
-                m = (s32)j * 12;
-                row = t + (s32)j * 4;
-                while ((s16)k < (s16)(u16)func_0010b5b0()) {
-                    if (*(s32 *)((func_002e4870(0) + m) + (s32)k + 0x14) == 0) {
-                        if (*(s16 *)(t + 0x11E) == j) {
-                            func_002b2a60(&c0, 0x2D, 0x2D, 0x2D, 0xFF);
-                        } else {
-                            func_002b2a60(&c0, 0, 0, 0x99, 0xA5);
-                        }
-                        p0 = func_0034ae50(*(u8 **)(row + 0x154), (s8)k);
-                        func_0034ae50(*(u8 **)(row + 0x154), (s8)k);
-                        func_002b2a60(&c1, 0, 0, 0x99, 0xA5);
-                        func_002b83e0(p0, *(s64 *)(p0 + 0x28), (s64)c1, (s64)c0, *((u8 *)&c0 + 3), *((u8 *)&c0 + 3), 6, 0, 32.0f, *(f32 *)(func_0034ae50(*(u8 **)(row + 0x154), (s8)k) + 4), 1, 1);
-                    } else {
-                        if (*(s16 *)(t + 0x11E) == j) {
-                            func_002b2a60(&c0, 0x2D, 0x2D, 0x2D, 0xFF);
-                        } else {
-                            func_002b2a60(&c0, 0x49, 0x72, 0xFF, 0xCC);
-                        }
-                        p0 = func_0034ae50(*(u8 **)(row + 0x154), (s8)k);
-                        func_0034ae50(*(u8 **)(row + 0x154), (s8)k);
-                        func_002b2a60(&c1, 0, 0, 0x99, 0xCC);
-                        func_002b83e0(p0, *(s64 *)(p0 + 0x28), (s64)c1, (s64)c0, *((u8 *)&c0 + 3), *((u8 *)&c0 + 3), 6, 0, 32.0f, *(f32 *)(func_0034ae50(*(u8 **)(row + 0x154), (s8)k) + 4), 1, 1);
-                    }
-                    k = (s16)(k + 1);
-                }
-                j = (s16)(j + 1);
-            }
-            func_003205f0(arg0, 0x94, 0x93);
-            func_0031e320(arg0, (s64)*(s8 *)(t + 0x128));
-            *(u8 *)(t + 0x1) = sv2;
         }
     } else if (D_008C024C & 0x40) {
         func_0045af60(0, 0, 0, 1);
