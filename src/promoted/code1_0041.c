@@ -106,9 +106,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413350);
 // FUN_00413410
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413410);
 
-/* measured: MWCC frameless, object 196B/window 192B, normalized_diff 24; archived body keeps retail list-traversal staging. No constant-bound slti $at vs $v0 pattern and no loop entry-guard slt $at, so parent <= and (s64)0 levers do not apply; no trailing if/else-if dead-arm chain, so the dead-store lever does not apply. Body at docs/probe_archive/K414_00413640_body.c. */
-// FUN_00413640 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: object 192B/window 192B exact MATCH (0 differing words). The var_7 = var_5 assignment rides in the beqz delay slot via schedule on; no_branch_likely on keeps the two forward beqz/beq branches plain with nop delays instead of beql with the next load sunk into the slot. */
+// FUN_00413640
+#pragma schedule on
+#pragma no_branch_likely on
 void func_00413640(u8 **arg0, u8 **arg1, u8 **arg2) {
     u8 *var_4;
     u8 *var_5;
@@ -148,9 +149,8 @@ void func_00413640(u8 **arg0, u8 **arg1, u8 **arg2) {
         *(u8 **)(var_4) = *(u8 **)(var_3 + 8);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413640);
-#endif
+#pragma no_branch_likely off
+#pragma schedule off
 
 // FUN_00413700
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413700);

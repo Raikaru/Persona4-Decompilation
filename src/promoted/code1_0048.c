@@ -2208,6 +2208,7 @@ void func_00489f10(u8 *arg0)
    temporary so the 1.0f stays live across it ties at 5.  One of the six
    fnalign rows is a `bbit032` branch-target line, which is a capstone
    mis-decode of a relocated word, not a real difference. */
+/* 2026-09-19 re-probe per assignment (single localised cause hunt): re-measured 5 words (obj 584B/window 592B, 146/146 after trim; real diffs at +352 mtc1 f3-vs-f1, +360 add f3-vs-f1, +364 sqrt f1-vs-f2, +380 mul f1-vs-f2, +540 swc1 f3-vs-f1). Tried: drop unused temp_f5 (5), swap second-add operands (5), inline second add (5), inline second mul (5), no-add-helpers (7, worse), f5-for-second-1.0f (5), separate diff temp (12, worse, breaks early sub.s matches). Helpers are load-bearing (inline costs 5->7). WALL stands: long-lived 1.0f gets $f3 here vs $f1 retail, sqrt follows $f1 vs $f2; no honest source shape moves it without changing the stream. */
 // FUN_0048A980 NONMATCHING
 #ifdef NON_MATCHING
 /* Best re-derived body for func_0048a980: 5 differing words (reloc-masked),

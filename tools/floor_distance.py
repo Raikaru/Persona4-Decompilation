@@ -62,7 +62,12 @@ def measure(job: tuple[str, str]) -> dict:
     name = "func_%s" % tag.lower()
     path = REPO / source
     address = int(tag, 16)
-    row: dict = {"function": name, "source": source, "address": tag}
+    # Path is not authorship: `src/promoted/code1_004f.c` is entirely vendor
+    # code, so a floor there is not first-party work no matter how close it
+    # is.  Ask verify for the same function-level attribution its report uses.
+    relative = source[4:] if source.startswith("src/") else source
+    row: dict = {"function": name, "source": source, "address": tag,
+                 "origin": verify.code_origin(relative, address)}
     try:
         cfg = verify.load_config()
         text = path.read_text(errors="replace")
@@ -106,6 +111,8 @@ def main() -> None:
     ap.add_argument("--top", type=int, default=40, help="how many rows to print")
     ap.add_argument("--json", help="write every measurement here")
     ap.add_argument("--jobs", type=int, default=4, help="parallel compiles")
+    ap.add_argument("--first-party", action="store_true",
+                    help="only floors verify attributes to Atlus (origin main)")
     args = ap.parse_args()
 
     jobs = targets({Path(f).resolve() for f in args.files})
@@ -119,16 +126,21 @@ def main() -> None:
     measured = [r for r in rows if "error" not in r]
     measured.sort(key=lambda r: (r["edits"], r["words"]))
     shown = [r for r in measured
-             if args.max_edits is None or r["edits"] <= args.max_edits]
+             if (args.max_edits is None or r["edits"] <= args.max_edits)
+             and (not args.first_party or r.get("origin") == "main")]
     for r in shown[:args.top]:
         exact = "exact" if r["object"] == r["retail"] else "     "
         print(f"  edits {r['edits']:5d}  words {r['words']:5d}"
               f"  {r['object']:5d}/{r['retail']:<5d} {exact}"
               f"  {r['function']}  {r['source']}")
     bodyless = len(rows) - len(measured)
+    origins: dict[str, int] = {}
+    for r in measured:
+        origins[r.get("origin", "?")] = origins.get(r.get("origin", "?"), 0) + 1
     print(f"\n{len(measured)} floors measured, {bodyless} markers carry no C body")
-    if args.max_edits is not None:
-        print(f"{len(shown)} at {args.max_edits} edits or fewer")
+    print("  by origin: " + ", ".join(f"{k} {v}" for k, v in sorted(origins.items())))
+    if args.max_edits is not None or args.first_party:
+        print(f"{len(shown)} shown after filters")
 
 
 if __name__ == "__main__":

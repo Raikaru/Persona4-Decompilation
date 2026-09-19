@@ -2277,10 +2277,6 @@ void func_00146630(u16 arg0) {
 /* Model floor (1104B window). First probe nd 229 (obj 1044B);
    frame -0xE0 vs -0xF0, saves verified. Open: GPREL consts,
    fusion order, scheduler cascade. Quad-built. */
-/* gate: object 261 against retail 274, -4.7% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00146A10 NONMATCHING
 #ifdef NON_MATCHING
 void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
@@ -2299,8 +2295,7 @@ void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
     extern void func_0047a1e0(s32 arg0, void *arg1, s32 arg2);
     extern void func_00146f50(void *arg0, void *arg1, void *arg2);
     extern void func_004b12e0(s32 arg0, void *arg1);
-    s64 pp[4];
-    f32 ff[4];
+    struct { s64 p; f32 f; u32 _pad; } pf[4];
     f32 tr[3];
     u32 c0[16];
     u32 c1[16];
@@ -2312,14 +2307,14 @@ void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
     u32 t0;
     u32 t1;
 
-    pp[0] = D_005EF990[0];
-    ff[0] = D_005EF998[0];
-    pp[1] = D_005EF9A0[0];
-    ff[1] = D_005EF9A8[0];
-    pp[2] = D_005EF9B0[0];
-    ff[2] = D_005EF9B8[0];
-    pp[3] = D_005EF9C0[0];
-    ff[3] = D_005EF9C8[0];
+    pf[0].p = D_005EF990[0];
+    pf[0].f = D_005EF998[0];
+    pf[1].p = D_005EF9A0[0];
+    pf[1].f = D_005EF9A8[0];
+    pf[2].p = D_005EF9B0[0];
+    pf[2].f = D_005EF9B8[0];
+    pf[3].p = D_005EF9C0[0];
+    pf[3].f = D_005EF9C8[0];
     if (arg0 != 0) {
         if (arg1 != 0) {
             *(u32 *)(arg0 + 4) = *(u32 *)arg1;
@@ -2346,9 +2341,9 @@ void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            func_0047a1a0(h, &pp[0], *(f32 *)(arg0 + 0x14), 0);
-            func_0047a1a0(h, &pp[1], *(f32 *)(arg0 + 0x10), 1);
-            func_0047a1a0(h, &pp[2], *(f32 *)(arg0 + 0x18), 1);
+            func_0047a1a0(h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
+            func_0047a1a0(h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
+            func_0047a1a0(h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
             func_0047a1e0(h, tr, 2);
             func_0047a180((RwMatrix *)h, (const RwV3d *)(arg0 + 4), 2);
             return;
@@ -2378,9 +2373,9 @@ void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            func_0047a1a0(h, &pp[0], *(f32 *)(arg0 + 0x14), 0);
-            func_0047a1a0(h, &pp[1], *(f32 *)(arg0 + 0x10), 1);
-            func_0047a1a0(h, &pp[2], *(f32 *)(arg0 + 0x18), 1);
+            func_0047a1a0(h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
+            func_0047a1a0(h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
+            func_0047a1a0(h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
             func_0047a1e0(h, tr, 2);
             func_0047a180((RwMatrix *)h, (const RwV3d *)(arg0 + 4), 2);
             return;
@@ -2390,9 +2385,9 @@ void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            func_0047a1a0(h, &pp[0], *(f32 *)(arg0 + 0x14), 0);
-            func_0047a1a0(h, &pp[1], *(f32 *)(arg0 + 0x10), 1);
-            func_0047a1a0(h, &pp[2], *(f32 *)(arg0 + 0x18), 1);
+            func_0047a1a0(h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
+            func_0047a1a0(h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
+            func_0047a1a0(h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
             func_0047a1e0(h, tr, 2);
             func_0047a180((RwMatrix *)h, (const RwV3d *)(arg0 + 4), 2);
             return;
@@ -2402,9 +2397,9 @@ void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            func_0047a1a0(h, &pp[0], *(f32 *)(arg0 + 0x14), 0);
-            func_0047a1a0(h, &pp[1], *(f32 *)(arg0 + 0x10), 1);
-            func_0047a1a0(h, &pp[2], *(f32 *)(arg0 + 0x18), 1);
+            func_0047a1a0(h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
+            func_0047a1a0(h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
+            func_0047a1a0(h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
             func_0047a1e0(h, tr, 2);
             func_0047a180((RwMatrix *)h, (const RwV3d *)(arg0 + 4), 2);
             return;

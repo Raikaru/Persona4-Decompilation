@@ -839,14 +839,14 @@ void func_00151f80(u8 *arg0)
    of those calls because the address is a link-time constant it can fold;
    `opt_propagation off` stops it and reaches 165 words, but perturbs 71
    instructions elsewhere, so it is not worth a non-baseline pragma. */
-/* measured 00152170: `schedule on` inside the guard is worth 14 words (241 -> 227). */
-/* gate: object 259 against retail 302, -14.2% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 00152170: `schedule on` inside the guard was 241 -> 227 words but */
+/* collapsed the count to object 259 vs retail 302 (-14.2%, 274 fnalign edits): */
+/* branch-likely + delay-slot filling deleted ~46 nops. 2026-09-19 remove both */
+/* schedule pragmas: fnalign retail 304 vs object 305 (+1, inside 293-311 gate, */
+/* 10 edits + 7 reloc-only). Differing-word scores from the short body are not */
+/* comparable (handoff 7y); re-measure words inside the gate. */
 // FUN_00152170 NONMATCHING
 #ifdef NON_MATCHING
-#pragma schedule on
 void func_00152170(s32 arg0, u8 *arg1)
 {
     typedef struct { u32 w0; u32 w1; } CopyPair;
@@ -937,7 +937,6 @@ void func_00152170(s32 arg0, u8 *arg1)
         gs[0](0x10, 1);
     }
 }
-#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00152170);
 #endif

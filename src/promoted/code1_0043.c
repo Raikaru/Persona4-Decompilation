@@ -623,7 +623,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c518);
 // FUN_0043C5E8
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c5e8);
 
-/* measured: live object 40B/window 40B, normalized_diff 2 (installed guard below; prior nd8 note was stale). Schedule on closes the call/return delay slots (8 -> 2); the explicit (s32) narrowing of the s64 callee result is required and codegen-neutral next to the implicit form. Remainder is one swapped pair: b210 restores $ra before the dsll32 $v0,$v0,0 shift, retail interleaves the restore between dsll32 and dsra32 $v0,$v0,0 in the shift-latency slot. Ruled out: no-cast, tailcall, split-return, u32 arg, s64-split local, peephole off, arg-locals, O3, propagation off. Banked as floor. */
+/* measured: live object 40B/window 40B, normalized_diff 2 (installed guard below; prior nd8 note was stale). Schedule on closes the call/return delay slots (8 -> 2); the explicit (s32) narrowing of the s64 callee result is required and codegen-neutral next to the implicit form. Remainder is one swapped pair: b210 restores $ra before the dsll32 $v0,$v0,0 shift, retail interleaves the restore between dsll32 and dsra32 $v0,$v0,0 in the shift-latency slot. Ruled out: no-cast, tailcall, split-return, u32 arg, s64-split local, peephole off, arg-locals, O3, propagation off, dec-10 and two-local spellings (all tie at 2 via probe_variants 2026-09-19); pairs sweep (all schedule-on pairs tie at 2, all schedule-off singles/pairs at 8, O0 at 13). Banked as floor. */
 // FUN_0043C6B0 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: schedule on fills the call and return delay slots. */
@@ -636,7 +636,7 @@ s32 func_0043c6b0(s32 arg0) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c6b0);
 #endif
-/* measured: live object 52B/window 56B, normalized_diff 5 (guard below; prior nd9 note was stale). Retail allocates the -1 sentinel in $t7 and puts the pointer increment in the branch-delay slot; plain C keeps the sentinel in $v1 and emits the increment before the branch. Ruled out today: const/s16/literal sentinel, sentinel-first order swap, opt_loop_invariants on, u32/s8 signature spellings (need file-top prototype edit, not probed); previously postincrement, for-loop, O2, live third-argument, pointer-alias, hoisted-zero. Banked as floor. */
+/* measured: live object 52B/window 56B, normalized_diff 5 (guard below; prior nd9 note was stale). Retail allocates the -1 sentinel in $t7 and puts the pointer increment in the branch-delay slot; plain C keeps the sentinel in $v1 and emits the increment before the branch. Ruled out 2026-09-19: for-loop (10), while-arg1-- (9), schedule-on plus O3 (5) and pointer-local (5) via probe_variants; singles/pairs sweep all tie at 5 across O0/O1/O3/O4 and every cheap pragma. Previously const/s16/literal sentinel, sentinel-first order swap, opt_loop_invariants on, u32/s8 signature spellings (need file-top prototype edit, not probed), postincrement, for-loop, O2, live third-argument, pointer-alias, hoisted-zero. Banked as floor. */
 
 // FUN_0043C6D8 NONMATCHING
 #ifdef NON_MATCHING
@@ -728,14 +728,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043de58);
 // FUN_0043DEC8
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043dec8);
 
-/* measured: live object 32B/window 32B, normalized_diff 5 (guard below; prior nd13/nd7 notes were stale). Retail is a framed tail jump: frame setup, lui $t7 + lw $a0 arg load, early $ra restore, j func_0043DFA0 with the sp teardown in the delay slot. b210 either emits jal+jr+frame (schedule on, 5) or a frameless j (tailcall on, 6); no pragma combination keeps the frame under the jump. Remainder is the frame words plus lui $t7 vs $v0. Ruled out today: tailcall on (6, frameless 12B), tailcall+schedule-off (6), O1 (8)/O3 (6), peephole off (6), arg-local/ptr-arith/byte-offset/deref address spellings (6), s32-return rewrite (6), s32** base local (5). Previously direct array-address, scalar-GP, pointer-cast, void-return, schedule-off. Banked as floor. */
+/* measured: live object 32B/window 32B, normalized_diff 5 (guard below; prior nd13/nd7 notes were stale). Retail is a framed tail jump: frame setup, lui $t7 + lw $a0 arg load from D_00710070[0] (%lo 0x0070), early $ra restore, j func_0043DFA0 with the sp teardown in the delay slot. b210 either emits jal+jr+frame (schedule on, 5) or a frameless j (tailcall on, 6); no pragma combination keeps the frame under the jump. Remainder is the frame words plus lui $t7 vs $v0. Ruled out 2026-09-19: index-0 spelling ties at 5 (same as prior [0x1C], but [0] matches retail %lo and m2c direct per src/generated/code1_0043.c); tailcall on (6, frameless 12B), tailcall+schedule-off (6), O1 (8)/O3 (6), peephole off (6), arg-local/ptr-arith/byte-offset/deref address spellings (6), s32-return rewrite (6), s32** base local (5). Previously direct array-address, scalar-GP, pointer-cast, void-return, schedule-off. Banked as floor; twin of func_0043eb20 (same 8-instr framed-j shape, different callee). */
 
 // FUN_0043DFC0 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: schedule-on indexed pointer-load body is load-bearing for this parked nd 13 body. */
+/* measured: schedule-on indexed pointer-load body is load-bearing for this floor (nd 5). */
 #pragma schedule on
 void func_0043dfc0(void) {
-    func_0043DFA0(D_00710070[0x1C]);
+    func_0043DFA0(D_00710070[0]);
 }
 /* measured: closes the schedule-on scope at the file baseline. */
 #pragma schedule off
@@ -777,11 +777,11 @@ s32 *func_0043eae8(s32 *arg0) {
 // FUN_0043EAF8
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043eaf8);
 
-/* measured: live object 32B/window 32B, normalized_diff 5 (guard below; prior nd13/nd25 notes were stale). Twin of func_0043dfc0: retail is an absolute D_00710070 load in $t7 followed by a framed tail jump, b210 emits jal/epilogue with a $v0 load (schedule on) or a frameless j (tailcall on, 6). Ruled out today: tailcall on (6), arg-local and deref address spellings (6). Banked as floor. */
+/* measured: live object 32B/window 32B, normalized_diff 5 (guard below; prior nd13/nd25 notes were stale). Twin of func_0043dfc0: retail is an absolute D_00710070[0] load (%lo 0x0070) in $t7 followed by a framed tail jump, b210 emits jal/epilogue with a $v0 load (schedule on, 5) or a frameless j (tailcall on, 6). Ruled out 2026-09-19: index-0 confirmed correct per retail %lo (same 8-instr shape as dfc0, different callee/return); tailcall on (6), arg-local and deref address spellings (6). Returning s32* is required per caller *func_0043eb20() in src/generated/code1_0044.c (m2c void is stale). Banked as floor. */
 
 // FUN_0043EB20 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: schedule-on tail-call body is load-bearing for this parked nd 13 body. */
+/* measured: schedule-on tail-call body is load-bearing for this floor (nd 5). */
 #pragma schedule on
 s32 *func_0043eb20(void) {
     return func_0043eae8(D_00710070[0]);
