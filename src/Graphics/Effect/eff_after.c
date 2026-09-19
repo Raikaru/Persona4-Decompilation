@@ -758,6 +758,16 @@ void func_004b8f10(void *arg0) {
    ops and 3 large switch statements. M2C_ERROR in the m2c draft at every FPU
    sequence; the mula/madda/madd dot-product folds cannot be reproduced in plain
    C by b210. FPU-accumulate + quadword-slot floor. */
+/* Cold 004b8f40 (1932 instrs, frame -0x1A0 s19-s23/s30): no probe_archive */
+/* entry; m2c (u8*,void**) + romwright (u8*,int*) agree on signature (pointer */
+/* + pointer-to-pointer), m2c has 63 M2C_ERROR (mula/madd/msub) vs rw 0 errors */
+/* with counted fors (correct, not do/while). Stripped rw skeleton (FUN_->D_, */
+/* true->1, ._4_4_->u32>>32, void*+int->(u8*)*+int, externs stripped): retail */
+/* 1932/object 2721 (+40%, +789) edits 4101+6 gate outside (needs 1874-1990). */
+/* Surplus is one 436-instr pure lump [503] (duplicated phase where retail */
+/* shares) + 21 lq/sq field-by-field (+147) + (u32)float dances (+100) + FPU */
+/* mula folds (+63) =746; 2721-746=1975 inside. Front-load (s32) everywhere */
+/* (<2^31) + whole u_long128 moves + share duplicated block. Not banked. */
 // FUN_004B8F40
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b8f40);
 

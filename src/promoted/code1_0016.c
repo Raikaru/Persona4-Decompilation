@@ -1848,6 +1848,15 @@ next_cell:
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016b8a0);
 #endif
+/* Cold 0016bdd0 (2320 instrs, frame -0x360 s16-s21): no probe_archive entry; */
+/* m2c needs jtbl_00746D20 (8 entries: 0,2,5->BF08; 3,4->C210; 6->C88C; 7->DAB8; */
+/* 1->E0C0) and still internal-errors on the switch even with absolute words */
+/* (no .L labels for jr targets); romwright rw.c 1073 lines compiles after */
+/* FUN_007146e0->D_007146E0 but signature is u64/u64 vs file void (void*) — */
+/* use void (u8*) with (u8*) casts for byte arithmetic (void*+int illegal). */
+/* Skeleton: switch + 14 unstructured edges/13 gotos, counted fors where */
+/* present; front-load (s32) on every float conversion (<2^31, plain */
+/* mtc1/cvt) over (u32) dance (~16). Not banked: count outside band. */
 // FUN_0016BDD0
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016bdd0);
 // FUN_0016E210

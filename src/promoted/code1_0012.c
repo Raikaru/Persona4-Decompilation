@@ -4040,8 +4040,468 @@ loop_test_0012e900:
     func_0012e9d0(arg0);
     return var_16;
 }
-// FUN_0012E9D0
+// FUN_0012E9D0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0012e9d0(u8 *arg0)
+{
+    typedef struct {
+        f32 x;
+        f32 y;
+    } V2_0012e9d0;
+    typedef union {
+        s64 s;
+        f32 f[2];
+    } Pack_0012e9d0;
+    extern void func_0034f1e0(void);
+    extern void func_0034c270(V2_0012e9d0 arg0, s32 arg1, s32 arg2, f32 fparg0);
+    extern void func_003f6440(s32 arg0, s32 arg1);
+    extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u32 arg4);
+    extern f32 func_0034f720(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
+    extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u32 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+    extern void func_00130c30(u8 *arg0, s64 arg1, s32 arg2);
+    extern void func_001125d0(u8 *arg0);
+    extern void func_00112300(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2);
+    extern void func_00130680(u8 *arg0, s32 arg1);
+    extern u32 func_00106880(s16 arg0);
+    extern void func_00274ed0(s32 color, s32 font, s32 mode, s32 glyph, s32 arg4, s32 arg5, f32 x, f32 y, f32 scale);
+    extern void func_00130ce0(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3);
+    extern void func_0034f9d0(V2_0012e9d0 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3);
+    extern u8 D_005E76B0[];
+    extern u8 D_0064B2E8[];
+    extern u8 D_0064B2E4[];
+    extern u8 D_0064B2EC[];
+    extern u8 D_0064B2E0[];
+    extern u8 D_0064B2F4[];
+    extern u8 D_005E5BD0[];
+    V2_0012e9d0 pos;
+    Pack_0012e9d0 pack;
+    f32 f23;
+    f32 f22;
+    f32 f24;
+    s32 tu;
+    f32 fs;
+    f32 fmul;
+    s32 aval;
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 m;
+    s32 n;
+    s32 temp21;
+    void *h19;
+    u8 *q;
+    u8 *r;
+    f32 fx;
+    f32 fy;
+    f32 f20;
+    f32 f21;
+    f32 f25;
+    f32 fret;
+    u8 col0;
+    u8 col1;
+    u8 col2;
+    u8 stack[0x30];
+    s32 idx;
+    s16 s16a;
+    s16 s16b;
+    u32 uret;
+    u8 *tab;
+    s32 divd;
+    s32 divn;
+    func_0034f1e0();
+    f23 = *(f32 *)(arg0 + 4);
+    f22 = *(f32 *)(arg0 + 8);
+    tu = *(u8 *)(arg0 + 0);
+    if (tu >= 0) {
+        fs = (f32)tu;
+    } else {
+        fs = (f32)(((u32)tu >> 1) | (tu & 1));
+        fs += fs;
+    }
+    f24 = fs / 255.0f;
+    if (*(s32 *)(arg0 + 0x10) != 0) {
+        pos.x = f23;
+        pos.y = f22;
+        fmul = 255.0f * f24;
+        if (!(2147483648.0f <= fmul)) {
+            aval = (s32)fmul & 0xFF;
+        } else {
+            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
+        }
+        func_0034c270(pos, aval & 0xFF, *(s32 *)(arg0 + 0x10), 0.0f);
+    }
+    temp21 = *(s16 *)(arg0 + 0x24) + *(s16 *)(arg0 + 0x22);
+    if ((*(s32 *)(arg0 + 0x14) & 0x200) != 0) {
+        h19 = *(void **)(arg0 + 0x1B50);
+        func_003f6440(3, 0x71801);
+        func_003f6440(2, 0x48);
+        fmul = 190.0f * f24;
+        if (!(2147483648.0f <= fmul)) {
+            aval = (s32)fmul & 0xFF;
+        } else {
+            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
+        }
+        m = aval & 0xFF;
+        for (i = 0; i < 0xC; i++) {
+            q = arg0 + i * 0x30;
+            fx = 363.0f + (f23 + *(f32 *)(q + 0x1888));
+            fy = 8.0f + (f22 + *(f32 *)(q + 0x188C));
+            func_0034f2e0(h19, fx, fy, 0, 0xFF, 0x64, (u32)m);
+        }
+        func_003f6440(3, 0x717FB);
+        func_003f6440(2, 0x44);
+        fx = 363.0f + (f23 + *(f32 *)(arg0 + 0x17F8));
+        fy = 8.0f + (f22 + *(f32 *)(arg0 + 0x17FC));
+        tu = *(u8 *)(arg0 + 0x1802);
+        if (tu >= 0) {
+            fs = (f32)tu;
+        } else {
+            fs = (f32)(((u32)tu >> 1) | (tu & 1));
+            fs += fs;
+        }
+        fmul = fs * f24;
+        if (!(2147483648.0f <= fmul)) {
+            aval = (s32)fmul & 0xFF;
+        } else {
+            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
+        }
+        m = aval & 0xFF;
+        for (j = 0; j < 0x54; j++) {
+            r = arg0 + j * 0x14;
+            if (*(s16 *)(r + 0xC48) >= 0) {
+                f21 = fx + (f32)(*(s32 *)(r + 0xC4C) * 44);
+                f25 = fy + (f32)(*(s32 *)(r + 0xC50) * 37);
+                fret = func_0034f720(r + 0xC48, 0.3f, 0.3f, 0.6f);
+                tab = D_005E76B0 + *(s16 *)(r + 0xC48) * 4;
+                col0 = tab[0];
+                col1 = tab[1];
+                col2 = tab[2];
+                tu = m;
+                if (tu >= 0) {
+                    fs = (f32)tu;
+                } else {
+                    fs = (f32)(((u32)tu >> 1) | (tu & 1));
+                    fs += fs;
+                }
+                fmul = fs * fret;
+                if (!(2147483648.0f <= fmul)) {
+                    aval = (s32)fmul & 0xFF;
+                } else {
+                    aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
+                }
+                func_0034f2e0(h19, f21, f25, tab[0], tab[1], tab[2], (u32)(aval & 0xFF));
+            }
+        }
+    }
+    if ((*(s32 *)(arg0 + 0x14) & 1) != 0) {
+        fx = 152.0f + (f23 + *(f32 *)(arg0 + 0x12E8));
+        fy = 370.0f + (f22 + *(f32 *)(arg0 + 0x12EC));
+        tu = *(u8 *)(arg0 + 0x12F2);
+        if (tu >= 0) {
+            fs = (f32)tu;
+        } else {
+            fs = (f32)(((u32)tu >> 1) | (tu & 1));
+            fs += fs;
+        }
+        fmul = fs * f24;
+        if (!(2147483648.0f <= fmul)) {
+            aval = (s32)fmul & 0xFF;
+        } else {
+            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
+        }
+        func_0034f2e0(*(void **)(arg0 + 0x1BDC), fx, fy, 0xFF, 0xFF, 0xFF, (u32)(aval & 0xFF));
+    }
+    if ((*(s32 *)(arg0 + 0x14) & 0x40) != 0) {
+        fx = 16.0f + (f23 + *(f32 *)(arg0 + 0x1798));
+        fy = 405.0f + (f22 + *(f32 *)(arg0 + 0x179C));
+        tu = *(u8 *)(arg0 + 0x17A2);
+        if (tu >= 0) {
+            fs = (f32)tu;
+        } else {
+            fs = (f32)(((u32)tu >> 1) | (tu & 1));
+            fs += fs;
+        }
+        fmul = fs * f24;
+        if (!(2147483648.0f <= fmul)) {
+            aval = (s32)fmul & 0xFF;
+        } else {
+            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
+        }
+        func_0034f2e0(*(void **)(arg0 + 0x1B88), fx, fy, 0xFF, 0xFF, 0xFF, (u32)(aval & 0xFF));
+    }
+    if ((*(s32 *)(arg0 + 0x14) & 0x80) != 0) {
+        fx = 62.0f + (f23 + *(f32 *)(arg0 + 0x17C8));
+        fy = 405.0f + (f22 + *(f32 *)(arg0 + 0x17CC));
+        tu = *(u8 *)(arg0 + 0x17D2);
+        if (tu >= 0) {
+            fs = (f32)tu;
+        } else {
+            fs = (f32)(((u32)tu >> 1) | (tu & 1));
+            fs += fs;
+        }
+        fmul = fs * f24;
+        if (!(2147483648.0f <= fmul)) {
+            aval = (s32)fmul & 0xFF;
+        } else {
+            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
+        }
+        func_0034f2e0(*(void **)(arg0 + 0x1B8C), fx, fy, 0xFF, 0xFF, 0xFF, (u32)(aval & 0xFF));
+    }
+    if ((*(s32 *)(arg0 + 0x14) & 8) != 0) {
+        fx = 271.0f + (f23 + *(f32 *)(arg0 + 0x1468));
+        fy = 21.0f + (f22 + *(f32 *)(arg0 + 0x146C));
+        tu = *(u8 *)(arg0 + 0x1472);
+        if (tu >= 0) {
+            fs = (f32)tu;
+        } else {
+            fs = (f32)(((u32)tu >> 1) | (tu & 1));
+            fs += fs;
+        }
+        fmul = fs * f24;
+        if (!(2147483648.0f <= fmul)) {
+            aval = (s32)fmul & 0xFF;
+        } else {
+            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
+        }
+        col0 = D_0064B2F4[0];
+        col1 = D_0064B2F4[1];
+        col2 = D_0064B2F4[2];
+        pack.f[0] = fx;
+        pack.f[1] = fy;
+        stack[0] = col0;
+        stack[1] = col1;
+        stack[2] = col2;
+        stack[3] = (u8)(aval & 0xFF);
+        func_00130c30(arg0, pack.s, *(s32 *)stack);
+        func_001125d0(stack);
+        q = arg0 + temp21 * 4;
+        *(s16 *)(stack + 0) = *(s16 *)(q + 0x3E);
+        *(s16 *)(stack + 2) = *(s16 *)(q + 0x40);
+        *(s32 *)(stack + 8) = -1;
+        *(s32 *)(stack + 0xC) = 1;
+        *(s32 *)(stack + 0x10) = 0;
+        *(s16 *)(stack + 0x18) = 4;
+        *(s16 *)(stack + 0x14) = 1;
+        *(s16 *)(stack + 0x16) = 4;
+        pack.f[0] = fx + 1.0f;
+        pack.f[1] = fy;
+        func_00112300(pack.s, 0.0f, (u8)(aval & 0xFF), stack);
+    }
+    if ((*(s32 *)(arg0 + 0x14) & 4) != 0) {
+        for (k = 0; k < *(s16 *)(arg0 + 0x3C); k++) {
+            func_00130680(arg0, k);
+        }
+    }
+    if ((*(s32 *)(arg0 + 0x14) & 0x400) != 0) {
+        f20 = *(f32 *)(arg0 + 0x1AFC) + (f22 + *(f32 *)(arg0 + 0x15BC));
+        tu = *(u8 *)(arg0 + 0x15C2);
+        if (tu >= 0) {
+            fs = (f32)tu;
+        } else {
+            fs = (f32)(((u32)tu >> 1) | (tu & 1));
+            fs += fs;
+        }
+        fmul = fs * f24;
+        if (!(2147483648.0f <= fmul)) {
+            aval = (s32)fmul & 0xFF;
+        } else {
+            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
+        }
+        m = aval & 0xFF;
+        f21 = 573.0f + (*(f32 *)(arg0 + 0x1AF8) + (f23 + *(f32 *)(arg0 + 0x15B8)));
+        fx = f21;
+        fy = 32.0f + f20;
+        func_0034f2e0(*(void **)(arg0 + 0x1B44), fx, fy, 0xFF, 0xFF, 0xFF, (u32)m);
+        fy = 197.0f + f20;
+        func_0034f2e0(*(void **)(arg0 + 0x1B48), fx, fy, 0xFF, 0xFF, 0xFF, (u32)m);
+        fy = 35.0f + f20;
+        divd = (s32)*(s16 *)(arg0 + 0xC3E) - 6;
+        if (divd > 0) {
+            divn = (s32)*(s16 *)(arg0 + 0x24) * 134;
+            fy += (f32)(divn / divd);
+        }
+        func_0034f2e0(*(void **)(arg0 + 0x1B4C), fx, fy, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], (u32)m);
+    }
+    if ((*(s32 *)(arg0 + 0x14) & 2) != 0) {
+        if (*(s16 *)(arg0 + 0xC3E) == 0) {
+            fx = 280.0f + (f23 + *(f32 *)(arg0 + 0x1318));
+            fy = 20.0f + (f22 + *(f32 *)(arg0 + 0x131C));
+            func_00274ed0((s32)(*(u8 *)(arg0 + 0x1322) | 0xFFFFFF00), 6, 1, (s32)D_005E5BD0, 0, 0, fx, fy, 0.0f);
+        } else {
+            if (*(u8 *)(arg0 + 0x1AD2) != 0) {
+                fx = f23 + *(f32 *)(arg0 + 0x1AC8);
+                fy = f22 + *(f32 *)(arg0 + 0x1ACC);
+                func_0034f320(*(u8 **)(arg0 + 0x1B18), fx, fy, 0.0f, D_0064B2E4[0], D_0064B2E4[1], D_0064B2E4[2], *(u8 *)(arg0 + 0x1AD2), 0x1000, 0x1000, 0, 0.0f, 0);
+            }
+            for (n = 0; n < 6; n++) {
+                idx = n + *(s16 *)(arg0 + 0x24);
+                if (idx < *(s16 *)(arg0 + 0xC3E)) {
+                    q = arg0 + idx * 4;
+                    s16a = *(s16 *)(q + 0x3E);
+                    s16b = *(s16 *)(q + 0x40);
+                    uret = func_00106880(s16a);
+                    if (n == *(s16 *)(arg0 + 0x22)) {
+                        tab = D_0064B2EC;
+                        if ((*(s32 *)(arg0 + 0x14) & 0x100) == 0) {
+                            fx = 223.0f + (f23 + *(f32 *)(arg0 + 0x1318));
+                            fy = 21.0f + (*(f32 *)(arg0 + 0x131C) + (f22 + 34.0f * (f32)n));
+                            col0 = D_0064B2E8[0];
+                            col1 = D_0064B2E8[1];
+                            col2 = D_0064B2E8[2];
+                            tu = *(u8 *)(arg0 + 0x1322);
+                            if (tu >= 0) {
+                                fs = (f32)tu;
+                            } else {
+                                fs = (f32)(((u32)tu >> 1) | (tu & 1));
+                                fs += fs;
+                            }
+                            fmul = fs * f24;
+                            if (!(2147483648.0f <= fmul)) {
+                                aval = (s32)fmul & 0xFF;
+                            } else {
+                                aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
+                            }
+                            stack[0] = col0;
+                            stack[1] = col1;
+                            stack[2] = col2;
+                            stack[3] = (u8)(aval & 0xFF);
+                            pack.f[0] = fx;
+                            pack.f[1] = fy;
+                            func_00130c30(arg0, pack.s, *(s32 *)stack);
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        tab = D_0064B2E0;
+                        q = arg0 + n * 0x30;
+                        fx = 221.0f + (f23 + *(f32 *)(q + 0x1498));
+                        fy = 21.0f + (*(f32 *)(q + 0x149C) + (f22 + 34.0f * (f32)n));
+                        tu = *(u8 *)(q + 0x14A2);
+                        if (tu >= 0) {
+                            fs = (f32)tu;
+                        } else {
+                            fs = (f32)(((u32)tu >> 1) | (tu & 1));
+                            fs += fs;
+                        }
+                        fmul = fs * f24;
+                        if (!(2147483648.0f <= fmul)) {
+                            aval = (s32)fmul & 0xFF;
+                        } else {
+                            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
+                        }
+                        func_0034f320(*(u8 **)(arg0 + 0x1B18), fx, fy, 0.0f, D_0064B2E4[0], D_0064B2E4[1], D_0064B2E4[2], (u32)(aval & 0xFF), 0x1000, *(u16 *)(q + 0x14AE), 0, 0.0f, 0);
+                    }
+                    q = arg0 + n * 0x30;
+                    fx = 224.0f + (f23 + *(f32 *)(q + 0x1498));
+                    f20 = 34.0f * (f32)n;
+                    fy = f20 + (23.0f + (f22 + *(f32 *)(q + 0x149C)));
+                    tu = *(u8 *)(q + 0x14A2);
+                    if (tu >= 0) {
+                        fs = (f32)tu;
+                    } else {
+                        fs = (f32)(((u32)tu >> 1) | (tu & 1));
+                        fs += fs;
+                    }
+                    fmul = fs * f24;
+                    if (!(2147483648.0f <= fmul)) {
+                        aval = (s32)fmul & 0xFF;
+                    } else {
+                        aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
+                    }
+                    if ((uret & 0x10000) != 0) {
+                        h19 = *(void **)(arg0 + 0x1B9C);
+                    } else if ((uret & 0x20000) != 0) {
+                        h19 = *(void **)(arg0 + 0x1BA0);
+                    } else {
+                        h19 = *(void **)(arg0 + 0x1B98);
+                    }
+                    func_0034f320(h19, fx, fy, 0.0f, tab[0], tab[1], tab[2], (u32)(aval & 0xFF), 0x1000, *(u16 *)(q + 0x14AE), 0, 0.0f, 0);
+                    fx = 266.0f + (f23 + *(f32 *)(q + 0x1348));
+                    fy = 21.0f + (*(f32 *)(q + 0x134C) + (f22 + f20));
+                    pack.f[0] = fx;
+                    pack.f[1] = fy;
+                    func_001125d0(stack);
+                    *(s16 *)(stack + 0) = s16a;
+                    *(s16 *)(stack + 2) = s16b;
+                    *(s32 *)(stack + 8) = -1;
+                    *(s32 *)(stack + 0xC) = 1;
+                    *(s32 *)(stack + 0x10) = 0;
+                    *(s16 *)(stack + 0x18) = 4;
+                    if (n == *(s16 *)(arg0 + 0x22)) {
+                        *(s16 *)(stack + 0x14) = 0;
+                        *(s16 *)(stack + 0x16) = 3;
+                    } else {
+                        *(s16 *)(stack + 0x14) = 0;
+                        *(s16 *)(stack + 0x16) = 2;
+                    }
+                    tu = *(u8 *)(q + 0x1352);
+                    if (tu >= 0) {
+                        fs = (f32)tu;
+                    } else {
+                        fs = (f32)(((u32)tu >> 1) | (tu & 1));
+                        fs += fs;
+                    }
+                    fmul = fs * f24;
+                    if (!(2147483648.0f <= fmul)) {
+                        aval = (s32)fmul & 0xFF;
+                    } else {
+                        aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
+                    }
+                    func_00112300(pack.s, 0.0f, (u8)(aval & 0xFF), stack);
+                }
+            }
+        }
+    }
+    if (((*(s32 *)(arg0 + 0x14) & 0x100) != 0) && (*(s16 *)(arg0 + 0xC3E) != 0)) {
+        fx = 223.0f + (f23 + *(f32 *)(arg0 + 0x1318));
+        fy = 21.0f + (*(f32 *)(arg0 + 0x131C) + (f22 + 34.0f * (f32)*(s16 *)(arg0 + 0x22)));
+        tu = *(u8 *)(arg0 + 0x15F2);
+        if (tu >= 0) {
+            fs = (f32)tu;
+        } else {
+            fs = (f32)(((u32)tu >> 1) | (tu & 1));
+            fs += fs;
+        }
+        fmul = fs * f24;
+        if (!(2147483648.0f <= fmul)) {
+            aval = (s32)fmul & 0xFF;
+        } else {
+            aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
+        }
+        s16a = *(s16 *)(arg0 + 0x24);
+        q = arg0 + (s16a + *(s16 *)(arg0 + 0x22)) * 4;
+        *(s16 *)(stack + 0) = *(s16 *)(q + 0x3E);
+        *(s16 *)(stack + 2) = *(s16 *)(q + 0x40);
+        *(s32 *)(stack + 8) = -1;
+        *(s32 *)(stack + 0xC) = 1;
+        *(s32 *)(stack + 0x10) = 0;
+        *(s16 *)(stack + 0x14) = 1;
+        *(s16 *)(stack + 0x16) = 3;
+        *(s16 *)(stack + 0x18) = 4;
+        pack.f[0] = fx;
+        pack.f[1] = fy;
+        func_00130ce0(arg0, pack.s, aval & 0xFF, (s16 *)stack);
+    }
+    pos.x = 640.0f + (f23 + *(f32 *)(arg0 + 0x1828));
+    pos.y = 400.0f + (f22 + *(f32 *)(arg0 + 0x182C));
+    tu = *(u8 *)(arg0 + 0x1832);
+    if (tu >= 0) {
+        fs = (f32)tu;
+    } else {
+        fs = (f32)(((u32)tu >> 1) | (tu & 1));
+        fs += fs;
+    }
+    fmul = fs * f24;
+    if (!(2147483648.0f <= fmul)) {
+        aval = (s32)fmul & 0xFF;
+    } else {
+        aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
+    }
+    func_0034f9d0(pos, aval & 0xFF, 0.0f, *(s16 *)(arg0 + 0xC40), *(s32 *)(arg0 + 0x1BE4));
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_0012e9d0);
+#endif
 // FUN_0012FDF0
 void func_0012fdf0(u8 *arg0)
 {

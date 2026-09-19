@@ -58,7 +58,7 @@ extern void func_00272730(void *arg0, s32 arg1);
 extern void func_002727a0(void *arg0, s32 arg1);
 extern s32 func_0027b6e0(void *arg0, s32 arg1);
 extern void func_0027b750(void *arg0, s32 a1, s32 a2);
-extern void func_00283490(u8 *arg);
+extern void func_00283490(u8 *arg0, u8 *arg1);
 extern u32 D_00882080[];
 extern s16 D_00882084[];
 extern s16 D_00882088[];
@@ -1092,10 +1092,434 @@ s32 func_002833b0(s32 arg0)
     return 0;
 }
 
-/* Skip: retail contains COP1 adda.s/madd.s/msub.s chains; ordinary FPU-MAC
-   inline asm is prohibited, with no measured plain-C near-match. */
-// FUN_00283490
+/* Floor (measured 2026-09-19, source-repo only, verbatim): `python3 tools/measure_guarded.py src/promoted/itfMsgProcedure_Window.c func_00283490` prints `func_00283490 @ 0x00283490  obj 5044B  window 5168B` and `GUARDED_SCORE func_00283490: 1139`; `python3 tools/fnalign.py src/promoted/itfMsgProcedure_Window.c func_00283490 --candidate /tmp/window_saved.c --quiet` prints `func_00283490 @ 0x00283490  retail 1288 instrs  object 1261 instrs` and `edit instructions: 584 (plus 52 reloc-only)` (-2.1% inside 3% gate, frame 0x140 exact). Draft from m2c+ghidra+IDA plus donor code1_0027 func_0027bf30 idiom; eight COP1 chains as fused a*b+c / c-a*b per handoff 7r. Earlier note claiming 1292/1292 exact and 4 edits measured the production ASM fallback, not the guarded body. Banked as guarded floor; production stays ASM. */
+// FUN_00283490 NONMATCHING
+#ifdef NON_MATCHING
+void func_00283490(u8 *arg0, u8 *arg1)
+{
+    extern s32 func_00452380(void *path);
+    extern void func_0043f9c8(void *a0, s32 a1, s32 a2);
+    extern s32 func_00451fc0(void *a0, const void *a1, s32 a2, s32 a3, s32 a4, void *a5, void *a6, void *a7);
+    extern s32 func_0027bec0(void *arg0);
+    extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
+    extern void *func_0046a770(void *arg0);
+    extern void (*D_00887300[])(s32 arg0, s32 arg1);
+    extern void func_003f6440(s32 arg0, s32 arg1);
+    extern s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, s32 arg5, s32 arg6, f32 farg3, f32 farg4, f32 farg5);
+    extern void func_0025e9e0(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, f32 farg0, f32 farg1, f32 farg2);
+    extern void func_0046d730(const void *file, u32 line);
+    extern void func_00366380(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, s32 t2, s32 t3, s16 s0, void *s1, f32 f0, f32 f1, f32 f2, f32 f3);
+    extern s32 func_00110580(s32 arg0);
+    extern s32 func_00110d30(s32 arg0);
+    extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
+    extern s32 func_00110c50(s32 arg0, s32 arg1);
+    extern void func_00262de0(s32 arg0, s32 arg1, f32 farg0, s32 arg2, s32 arg3, s32 arg4, f32 farg1, f32 farg2, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
+    extern void func_00261560(s32 arg0, s32 arg1, f32 farg0, s32 arg1b, s32 arg2, s32 arg3, f32 fparg1, f32 fparg2, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
+    extern s64 func_001060b0(void);
+    extern f32 iGpffff8094;
+    extern f32 iGpffff803c;
+    extern f32 iGpffff811c;
+    extern f32 iGpffff813c;
+    extern f32 iGpffffa78c;
+    extern char D_0063BFB0[];
+    extern char D_0063C180[];
+    extern u8 D_007482F0[];
+    extern unsigned int D_0063C190 __attribute__((mode(TI)));
+    extern unsigned int D_0063C1C0 __attribute__((mode(TI)));
+    extern u32 D_0063C1A0[];
+    typedef struct { u32 w0; u32 w1; } CopyPair;
+    typedef unsigned int u_long128 __attribute__((mode(TI)));
+    CopyPair *src;
+    CopyPair *dst;
+    CopyPair copy1[3];
+    u32 vals[6];
+    u8 rgba[4];
+    f32 rgba_f;
+    u_long128 spC190a;
+    u_long128 spC190b;
+    u_long128 spC1C0a;
+    u_long128 spC1C0b;
+    s32 n;
+    u32 w0;
+    u32 w1;
+    s32 kind;
+    s16 cnt16;
+    s32 cnt;
+    s32 saved;
+    s32 v;
+    s32 mod;
+    s32 i;
+    s32 alpha;
+    f32 var_f1;
+    f32 f22;
+    f32 f20;
+    f32 f21;
+    f32 f3;
+    f32 f2;
+    f32 f1;
+    f32 t;
+    s32 iv;
+    s32 y;
+    s16 dateBase;
+    s32 loop6;
+    s32 a;
+    s32 b;
+    s32 c;
+    f32 ft;
+    s32 d;
+    s32 wmode;
+    s32 dateTmp;
+    s32 sp108;
+    s32 sp10C;
+    u8 *handle;
+    u8 *handle2;
+    u8 *aptr;
+    s32 tmp;
+    MsgProcWindowWork *work = &D_00882098;
+    src = (CopyPair *)arg1;
+    dst = copy1;
+    n = 3;
+    do {
+        w0 = src->w0;
+        w1 = src->w1;
+        src++;
+        n--;
+        dst->w0 = w0;
+        dst->w1 = w1;
+        dst++;
+    } while (n > 0);
+    kind = *(s32 *)((u8 *)copy1 + 0x14);
+    cnt16 = *(s16 *)((u8 *)copy1 + 4);
+    cnt = (s32)cnt16;
+    saved = *(s32 *)((u8 *)copy1 + 0x10);
+    if (kind == 6) {
+        if (func_00452380(D_0063C180) != 0) {
+            if (work->field0 >= 2) {
+                v = work->field4;
+                goto lab6_chk;
+            }
+        } else {
+            if (func_00452380(D_0063C180) == 0) {
+                func_0043f9c8(work, 0, 12);
+                func_00451fc0((void *)0, D_0063C180, 15, 0, 0, (void *)func_002831c0, (void *)func_002832b0, (void *)0);
+            }
+            goto lab6_zero;
+        }
+lab6_zero:
+        v = 0;
+lab6_chk:;
+        if (v != 0) {
+            func_0027bec0((void *)saved);
+        }
+        return;
+    }
+    if (kind != 5) {
+        if (kind != 4) {
+            return;
+        }
+        {
+            if (func_00452380(D_0063C180) != 0) {
+                if (work->field0 >= 2) {
+                    v = work->field4;
+                    goto lab4_chk;
+                }
+            } else {
+                if (func_00452380(D_0063C180) == 0) {
+                    func_0043f9c8(work, 0, 12);
+                    func_00451fc0((void *)0, D_0063C180, 15, 0, 0, (void *)func_002831c0, (void *)func_002832b0, (void *)0);
+                }
+                goto lab4_zero;
+            }
+lab4_zero:
+            v = 0;
+lab4_chk:;
+        }
+        if (v == 0 || func_0027bec0((void *)saved) == 0) {
+            return;
+        }
+        if (cnt < 10) {
+            var_f1 = (f32)cnt / 10.0f;
+        } else {
+            var_f1 = 1.0f;
+        }
+        {
+            u8 *p;
+            s32 nn;
+            p = rgba;
+            nn = 4;
+            if (p != NULL) {
+                do {
+                    *p = 0;
+                    p += 1;
+                    nn -= 1;
+                } while (nn != 0);
+            }
+        }
+        f22 = 76.5f * var_f1;
+        rgba[3] = (u8)f22;
+        rgba_f = *(f32 *)rgba;
+        spC190a = D_0063C190;
+        spC190b = D_0063C190;
+        func_0045d6e0(&rgba_f, &spC190b, 10.0f, 1);
+        mod = cnt & 3;
+        if (cnt < 0 && mod != 0) {
+            mod -= 4;
+        }
+        {
+            void (**base)(s32, s32);
+            base = D_00887300;
+            base[0](6, 1);
+            base[0](8, 1);
+        }
+        func_003f6440(3, 0x7000D);
+        func_003f6440(2, 0x48);
+        for (i = 0; i < 0x18; i++) {
+            f32 fx;
+            f32 fy;
+            fx = (f32)((i % 6) * 0x7E);
+            fy = (f32)((i / 6) * 0x7E);
+            alpha = (u8)f22;
+            func_0025ea20(fx, fy, 10.0f, 0xFFFFFF, alpha, mod, func_0046a770(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
+            tmp = mod + 1;
+            mod = tmp & 3;
+            if (tmp < 0 && mod != 0) {
+                mod -= 4;
+            }
+        }
+        f20 = iGpffff8094 * (f32)cnt;
+        t = func_0044b7b0(f20 / 15.0f);
+        if (v == 0) {
+            func_0046d730(D_007482F0, 0x59);
+        }
+        f3 = 1.0f - t;
+        f2 = 140.0f * f3;
+        f1 = 255.0f * t;
+        alpha = (u8)f1;
+        func_0025ea20(-59.0f - f2, -103.0f - f2, 10.0f, 0xFFFFFF, alpha, 2, *(void **)(v + 8), 1, 0x80, 0x80, -90.0f * f3, 1.0f, 1.0f);
+        if (cnt < 5) {
+            f32 tt;
+            tt = func_0044b7b0(f20 / 5.0f);
+            iv = (s32)(176.0f + 500.0f * (1.0f - tt));
+            func_00366380(iv, 0x14F, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, (void *)0, 1.0f, iGpffff803c, 0.0f, 0.0f);
+        } else if (cnt < 12) {
+            f32 tt2;
+            tt2 = func_0044b7b0((iGpffff8094 * (f32)(cnt - 5)) / 7.0f);
+            if (v == 0) {
+                func_0046d730(D_007482F0, 0x59);
+            }
+            f1 = 254.0f + 95.0f * (1.0f - tt2);
+            f2 = f1 - 10.0f;
+            func_0025ea20(165.0f, f2, 0.0f, 0, 0xCC, 1, *(void **)(v + 8), 1, 0, 0, 0.0f, 1.0f, tt2);
+            f1 = 281.0f + 64.0f * (1.0f - tt2);
+            iv = (s32)(f1 - 10.0f);
+            func_00366380(0xB0, iv, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, (void *)0, 1.0f, iGpffff803c + iGpffff811c * (1.0f - tt2), 0.0f, 0.0f);
+        } else {
+            if (v == 0) {
+                func_0046d730(D_007482F0, 0x59);
+            }
+            func_0025e9e0(165.0f, 0x43740000, 0, *(void **)(v + 8), 1, 0.0f, 0.0f, 0.0f);
+            func_00366380(0xB0, 0x10F, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, (void *)0, 0.0f, 0.0f, 1.0f, 1.0f);
+        }
+        {
+            if (func_00452380(D_0063C180) != 0) {
+                if (work->field0 >= 2) {
+                    v = work->field8;
+                    goto lab4b_chk;
+                }
+            } else {
+                if (func_00452380(D_0063C180) == 0) {
+                    func_0043f9c8(work, 0, 12);
+                    func_00451fc0((void *)0, D_0063C180, 15, 0, 0, (void *)func_002831c0, (void *)func_002832b0, (void *)0);
+                }
+                goto lab4b_zero;
+            }
+lab4b_zero:
+            v = 0;
+lab4b_chk:;
+        }
+        {
+            CopyPair *s2;
+            CopyPair *d2;
+            s2 = (CopyPair *)D_0063C1A0;
+            d2 = (CopyPair *)vals;
+            n = 3;
+            do {
+                w0 = s2->w0;
+                w1 = s2->w1;
+                s2++;
+                n--;
+                d2->w0 = w0;
+                d2->w1 = w1;
+                d2++;
+            } while (n > 0);
+        }
+        dateBase = (s16)func_001060b0();
+        for (loop6 = 0; loop6 < 6; loop6++) {
+            a = *(s32 *)((u8 *)vals + loop6 * 4);
+            b = cnt;
+            if (b < a) {
+                c = 0;
+            } else {
+                c = b - a;
+                if (c > 6) {
+                    c = 7;
+                }
+            }
+            ft = 1.0f - func_0044b7b0((iGpffff8094 * (f32)c) / 7.0f);
+            d = (s32)dateBase + loop6 + 1;
+            dateTmp = func_00110580(d);
+            if (dateTmp == 0 || func_00110d30(d) != 0) {
+                wmode = 3;
+            } else if (dateTmp == 6) {
+                wmode = 2;
+            } else {
+                wmode = 1;
+            }
+            f20 = 1.0f - ft;
+            func_001104d0(d, &sp10C, &sp108);
+            if (sp108 == 1) {
+                if (v == 0) {
+                    func_0046d730(D_007482F0, 0x59);
+                }
+                alpha = (u8)(255.0f * f20);
+                func_0025ea20((f32)(loop6 * 0x53 + 0x4B), 69.0f, 0.0f, 0xFFE92C, alpha, sp10C + 4, *(void **)(v + 8), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            }
+            f1 = 113.0f + 64.0f * (1.0f - f20);
+            tmp = loop6 * 0x53;
+            func_00366380(tmp + 0x5C, (s32)f1, 0x50, 0x7F, 0xFFE92C, 0xFF, 1, 0, 0, (void *)0, 1.0f, f20, 0.0f, 0.0f);
+            aptr = handle2;
+            func_00262de0(tmp + 0x6B, (s32)f1, 0.0f, 0xFF, d, 1, 1.0f, f20, 0, 0, (s32)aptr, (s32)v);
+            iv = (s32)(163.0f - 5.0f * f20);
+            func_00261560(tmp + 0x5D, iv, 0.0f, func_00110c50(d, (s32)dateBase) & 0xFFFF, 1, 0, 0, 1.0f, f20 * f20, wmode, (s32)aptr, (s32)v);
+        }
+        tmp = func_00110580((s32)dateBase + 3);
+        if (tmp != 0) {
+            func_00110d30((s32)dateBase + 3);
+        }
+        if (cnt < 6) {
+            f32 tt3;
+            f32 f_1mt;
+            f_1mt = 1.0f - (f32)cnt / 6.0f;
+            tt3 = 1.0f - f_1mt;
+            iv = (s32)(300.0f * tt3);
+            y = (s32)(169.0f - 20.0f * tt3);
+            tmp = (s32)(80.0f + 640.0f * f_1mt);
+            func_00366380(iv, y, tmp, 0x7F, 0xFFE92C, 0xFF, 1, 0, 0, (void *)0, 1.0f, 0.5f - iGpffff813c * f_1mt, 0.0f, 0.0f);
+        }
+        return;
+    }
+    {
+        if (func_00452380(D_0063C180) != 0) {
+            if (work->field0 >= 2) {
+                v = work->field4;
+                goto lab5_chk;
+            }
+        } else {
+            if (func_00452380(D_0063C180) == 0) {
+                func_0043f9c8(work, 0, 12);
+                func_00451fc0((void *)0, D_0063C180, 15, 0, 0, (void *)func_002831c0, (void *)func_002832b0, (void *)0);
+            }
+            goto lab5_zero;
+        }
+lab5_zero:
+        v = 0;
+lab5_chk:;
+    }
+    if (v == 0 || func_0027bec0((void *)saved) == 0) {
+        return;
+    }
+    {
+        f32 f0;
+        f0 = iGpffffa78c;
+        rgba_f = f0;
+        *(f32 *)rgba = f0;
+        spC1C0a = D_0063C1C0;
+        spC1C0b = D_0063C1C0;
+        func_0045d6e0(&rgba_f, &spC1C0b, 10.0f, 1);
+    }
+    mod = cnt & 3;
+    if (cnt < 0 && mod != 0) {
+        mod -= 4;
+    }
+    {
+        void (**base)(s32, s32);
+        base = D_00887300;
+        base[0](6, 1);
+        base[0](8, 1);
+    }
+    func_003f6440(3, 0x7000D);
+    func_003f6440(2, 0x48);
+    for (i = 0; i < 0x18; i++) {
+        f32 fx;
+        f32 fy;
+        fx = (f32)((i % 6) * 0x7E);
+        fy = (f32)((i / 6) * 0x7E);
+        func_0025ea20(fx, fy, 10.0f, 0xFFFFFF, 0x4C, mod, func_0046a770(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
+        tmp = mod + 1;
+        mod = tmp & 3;
+        if (tmp < 0 && mod != 0) {
+            mod -= 4;
+        }
+    }
+    if (v == 0) {
+        func_0046d730(D_007482F0, 0x59);
+    }
+    {
+        f32 divf;
+        divf = (f32)cnt / 120.0f;
+        func_0025ea20(-59.0f, -103.0f, 10.0f, 0xFFFFFF, 0xFF, 2, *(void **)(v + 8), 1, 0x80, 0x80, 360.0f * divf, 1.0f, 1.0f);
+    }
+    if (v == 0) {
+        func_0046d730(D_007482F0, 0x59);
+    }
+    func_0025e9e0(165.0f, 0x43740000, 0, *(void **)(v + 8), 1, 0.0f, 0.0f, 0.0f);
+    func_00366380(0xB0, 0x10F, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, (void *)0, 0.0f, 0.0f, 1.0f, 1.0f);
+    {
+        if (func_00452380(D_0063C180) != 0) {
+            if (work->field0 >= 2) {
+                v = work->field8;
+                goto lab5b_chk;
+            }
+        } else {
+            if (func_00452380(D_0063C180) == 0) {
+                func_0043f9c8(work, 0, 12);
+                func_00451fc0((void *)0, D_0063C180, 15, 0, 0, (void *)func_002831c0, (void *)func_002832b0, (void *)0);
+            }
+            goto lab5b_zero;
+        }
+lab5b_zero:
+        v = 0;
+lab5b_chk:;
+    }
+    dateBase = (s16)func_001060b0();
+    for (loop6 = 0; loop6 < 6; loop6++) {
+        d = (s32)dateBase + loop6 + 1;
+        dateTmp = func_00110580(d);
+        if (dateTmp == 0 || func_00110d30(d) != 0) {
+            wmode = 3;
+        } else if (dateTmp == 6) {
+            wmode = 2;
+        } else {
+            wmode = 1;
+        }
+        func_001104d0(d, &sp10C, &sp108);
+        if (sp108 == 1) {
+            if (v == 0) {
+                func_0046d730(D_007482F0, 0x59);
+            }
+            func_0025e9e0((f32)(loop6 * 0x53 + 0x4B), 0x428A0000, 0, *(void **)(v + 8), 1, 0.0f, 0.0f, 0.0f);
+        }
+        tmp = loop6 * 0x53;
+        func_00366380(tmp + 0x5C, 0x71, 0x50, 0x7F, 0xFFE92C, 0xFF, 1, 0, 0, (void *)0, 1.0f, 1.0f, 0.0f, 0.0f);
+        aptr = handle2;
+        func_00262de0(tmp + 0x6B, 0x71, 1.0f, 0xFF, d, 1, 1.0f, 1.0f, 0, 0, (s32)aptr, (s32)v);
+        func_00261560(tmp + 0x5D, 0xA3, 1.0f, func_00110c50(d, (s32)dateBase) & 0xFFFF, 1, 0, 0, 1.0f, 1.0f, wmode, (s32)aptr, (s32)v);
+    }
+    return;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_00283490);
+#endif
 
 /* Floor (measured 2026-09-18, source-repo only): banked 182 words (loop_invariants), fnalign 522/519/52 (+114 reloc), emitted 2076B/window 2096B (99.05%% PASS). Full 8+28 sweep: loop 182 ties with loop+dead/loop+prop/loop+strength/loop+unroll 182; bare/new singles 189, cse 365, peephole 418, schedule 446, no pair beats 182 -- installed loop stands (worth 7w/2ed via scan-loop base hoist; cseoff +176, peephole +236). Residual is register/branch-form only (case8 saved-vs-v0, scan-loop bnez/b vs beqz, gp sltu join, case17 double-branch); dsll32 2/2 exact, var_2 join exact, jtbl exact. Banked as guarded floor; production stays ASM. */
 // FUN_002848C0 NONMATCHING
