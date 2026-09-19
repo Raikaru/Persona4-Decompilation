@@ -373,6 +373,20 @@ void func_001c09a0(void) {}
    the +-3% band (280-296). fnalign 40 edits (+18 reloc-only)
    via `python3 tools/fnalign.py src/promoted/code1_001c.c func_001c09b0 --candidate <body> --quiet`.
    Prior 225/288 (-21.9%, 63 short, 183 edits) recovered via explicit-frame struct. */
+/* measured 001c09b0 (owner, 2026-09-19): 289/289 exact, **34 edits**, and the most
+   structural floor in the near-MATCH tail - tools/tail_classify.py counts 14 structural
+   hunks against 14 register ones, where most tail floors are almost pure rotation.
+   Two shapes account for nearly all of it and both were attacked and both refused:
+     (a) retail batches a three-float copy - `lwc1 $f3/$f2/$f1` then `swc1` x3 - where the
+         object interleaves load/store per component.  Three named temporaries measure 35,
+         and a 12-byte struct assignment through a local `Trio001c09b0` type measures 40.
+     (b) retail spells the float guards `c.ole.s` + `bc1t` where the object emits
+         `c.olt.s` + `bc1f`.  Rewriting `a < b` as `!(b <= a)` measures 37 at the first
+         site, 43 at the second, 42 at the third and 42 with all three together.
+   So the 34 stands and the `c.ole.s` shape here is NOT the same lever as the
+   float-to-unsigned guard, which really does respond to constant-on-the-left spelling
+   (func_003768e0, 677 -> 658).  Two comparisons that look identical in the listing, one
+   source-addressable and one not. */
 // FUN_001C09B0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001c09b0(u8 *arg0)
