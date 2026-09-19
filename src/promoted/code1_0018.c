@@ -870,7 +870,273 @@ void func_001839e0(u8 *arg0, u8 *arg1)
 }
  
 // FUN_00183B80
+#ifdef NON_MATCHING
+#pragma opt_loop_invariants on
+void func_00183b80(u8 *arg0)
+{
+    extern u8 *func_00457120(void);
+    extern u32 func_003b7060(void);
+    extern s32 func_003ef6d0(void);
+    extern s32 func_003ef650(s32 arg0, u8 *arg1);
+    extern u8 *func_00460990(void);
+    extern void func_00460ac0(void *arg0, void *arg1);
+    extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
+    extern void func_001839e0(u8 *arg0, u8 *arg1);
+    extern u8 D_005F1D10[];
+    extern u8 D_00794930[];
+    u8 *ctx;
+    u8 *base;
+    u8 *q;
+    u8 *tmp;
+    u8 *pkt;
+    f32 f21;
+    f32 f20;
+    f32 fj;
+    f32 fj1;
+    f32 fhi;
+    f32 flo;
+    f32 fdiff;
+    f32 fhalf;
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 m;
+    s32 half;
+    s32 prod;
+    s32 iv0;
+    s32 iv1;
+    s32 iv2;
+    s32 iv3;
+
+    ctx = *(u8 **)(arg0 + 0x38);
+    tmp = func_00457120();
+    f21 = *(f32 *)(tmp + 0x80);
+    f20 = 1.0f / f21;
+    if (*(s32 *)(ctx + 4) != 0) {
+        return;
+    }
+    if (*(s32 *)ctx == 0) {
+        *(f32 *)(ctx + 0x428) = *(f32 *)(ctx + 0x424) * (f32)*(s16 *)(ctx + 0x43A) / (f32)*(s16 *)(ctx + 0x438);
+        *(f32 *)(ctx + 0x450) = -*(f32 *)(ctx + 0x424) / 2.0f;
+        *(f32 *)(ctx + 0x454) = -*(f32 *)(ctx + 0x428) / 2.0f;
+        *(f32 *)(ctx + 0x458) = *(f32 *)(ctx + 0x424) / 2.0f;
+        *(f32 *)(ctx + 0x45C) = *(f32 *)(ctx + 0x428) / 2.0f;
+        if (*(f32 *)(ctx + 0x414) == 0.0f) {
+            *(f32 *)(ctx + 0x414) = *(f32 *)(ctx + 0x418) / 5.0f;
+            if ((func_003b7060() & 1) != 0) {
+                *(f32 *)(ctx + 0x414) = *(f32 *)(ctx + 0x414) * -1.0f;
+            }
+        }
+        if (*(f32 *)(ctx + 0x418) == 0.0f) {
+            *(f32 *)(ctx + 0x418) = *(f32 *)(ctx + 0x414) / 5.0f;
+            if ((func_003b7060() & 1) != 0) {
+                *(f32 *)(ctx + 0x418) = *(f32 *)(ctx + 0x418) * -1.0f;
+            }
+        }
+        for (j = 0; j < 2; j++) {
+            base = ctx + (j << 9);
+            fj = (f32)j;
+            fj1 = (f32)(j + 1);
+            for (i = 0; i < 2; i++) {
+                q = base + (i << 8);
+                half = *(s16 *)(ctx + 0x438) / 2;
+                prod = half * i;
+                *(f32 *)(q + 0x10) = (f32)*(s16 *)(ctx + 0x434) + (f32)prod;
+                half = *(s16 *)(ctx + 0x43A) / 2;
+                prod = half * j;
+                *(f32 *)(q + 0x14) = (f32)*(s16 *)(ctx + 0x436) + (f32)prod;
+                *(f32 *)(q + 0x18) = f21;
+                half = *(s16 *)(ctx + 0x438) / 2;
+                prod = half * i;
+                *(f32 *)(q + 0x50) = (f32)*(s16 *)(ctx + 0x438) / 2.0f + ((f32)*(s16 *)(ctx + 0x434) + (f32)prod);
+                half = *(s16 *)(ctx + 0x43A) / 2;
+                prod = half * j;
+                *(f32 *)(q + 0x54) = (f32)*(s16 *)(ctx + 0x436) + (f32)prod;
+                *(f32 *)(q + 0x58) = f21;
+                half = *(s16 *)(ctx + 0x438) / 2;
+                prod = half * i;
+                *(f32 *)(q + 0x90) = (f32)*(s16 *)(ctx + 0x434) + (f32)prod;
+                half = *(s16 *)(ctx + 0x43A) / 2;
+                prod = half * j;
+                *(f32 *)(q + 0x94) = (f32)*(s16 *)(ctx + 0x43A) / 2.0f + ((f32)*(s16 *)(ctx + 0x436) + (f32)prod);
+                *(f32 *)(q + 0x98) = f21;
+                half = *(s16 *)(ctx + 0x438) / 2;
+                prod = half * i;
+                *(f32 *)(q + 0xD0) = (f32)*(s16 *)(ctx + 0x438) / 2.0f + ((f32)*(s16 *)(ctx + 0x434) + (f32)prod);
+                half = *(s16 *)(ctx + 0x43A) / 2;
+                prod = half * j;
+                *(f32 *)(q + 0xD4) = (f32)*(s16 *)(ctx + 0x43A) / 2.0f + ((f32)*(s16 *)(ctx + 0x436) + (f32)prod);
+                *(f32 *)(q + 0xD8) = f21;
+                *(f32 *)(q + 0x28) = f20;
+                *(f32 *)(q + 0x68) = f20;
+                *(f32 *)(q + 0xA8) = f20;
+                *(f32 *)(q + 0xE8) = f20;
+                fhi = (f32)(u32)*(u8 *)(ctx + 0x444);
+                flo = (f32)(u32)*(u8 *)(ctx + 0x440);
+                fdiff = fhi - flo;
+                fhalf = fdiff / 2.0f;
+                iv0 = (s32)((f32)(u32)*(u8 *)(ctx + 0x440) + fj * fhalf);
+                fhi = (f32)(u32)*(u8 *)(ctx + 0x445);
+                flo = (f32)(u32)*(u8 *)(ctx + 0x441);
+                fdiff = fhi - flo;
+                fhalf = fdiff / 2.0f;
+                iv1 = (s32)((f32)(u32)*(u8 *)(ctx + 0x441) + fj * fhalf);
+                fhi = (f32)(u32)*(u8 *)(ctx + 0x446);
+                flo = (f32)(u32)*(u8 *)(ctx + 0x442);
+                fdiff = fhi - flo;
+                fhalf = fdiff / 2.0f;
+                iv2 = (s32)((f32)(u32)*(u8 *)(ctx + 0x442) + fj * fhalf);
+                fhi = (f32)(u32)*(u8 *)(ctx + 0x447);
+                flo = (f32)(u32)*(u8 *)(ctx + 0x443);
+                fdiff = fhi - flo;
+                fhalf = fdiff / 2.0f;
+                iv3 = (s32)((f32)(u32)*(u8 *)(ctx + 0x443) + fj * fhalf);
+                *(f32 *)(q + 0x30) = (f32)iv0;
+                *(f32 *)(q + 0x34) = (f32)iv1;
+                *(f32 *)(q + 0x38) = (f32)iv2;
+                *(f32 *)(q + 0x3C) = (f32)iv3;
+                fhi = (f32)(u32)*(u8 *)(ctx + 0x444);
+                flo = (f32)(u32)*(u8 *)(ctx + 0x440);
+                fdiff = fhi - flo;
+                fhalf = fdiff / 2.0f;
+                iv0 = (s32)((f32)(u32)*(u8 *)(ctx + 0x440) + fj * fhalf);
+                fhi = (f32)(u32)*(u8 *)(ctx + 0x445);
+                flo = (f32)(u32)*(u8 *)(ctx + 0x441);
+                fdiff = fhi - flo;
+                fhalf = fdiff / 2.0f;
+                iv1 = (s32)((f32)(u32)*(u8 *)(ctx + 0x441) + fj * fhalf);
+                fhi = (f32)(u32)*(u8 *)(ctx + 0x446);
+                flo = (f32)(u32)*(u8 *)(ctx + 0x442);
+                fdiff = fhi - flo;
+                fhalf = fdiff / 2.0f;
+                iv2 = (s32)((f32)(u32)*(u8 *)(ctx + 0x442) + fj * fhalf);
+                fhi = (f32)(u32)*(u8 *)(ctx + 0x447);
+                flo = (f32)(u32)*(u8 *)(ctx + 0x443);
+                fdiff = fhi - flo;
+                fhalf = fdiff / 2.0f;
+                iv3 = (s32)((f32)(u32)*(u8 *)(ctx + 0x443) + fj * fhalf);
+                *(f32 *)(q + 0x70) = (f32)iv0;
+                *(f32 *)(q + 0x74) = (f32)iv1;
+                *(f32 *)(q + 0x78) = (f32)iv2;
+                *(f32 *)(q + 0x7C) = (f32)iv3;
+                fhi = (f32)(u32)*(u8 *)(ctx + 0x444);
+                flo = (f32)(u32)*(u8 *)(ctx + 0x440);
+                fdiff = fhi - flo;
+                fhalf = fdiff / 2.0f;
+                iv0 = (s32)((f32)(u32)*(u8 *)(ctx + 0x440) + fj1 * fhalf);
+                fhi = (f32)(u32)*(u8 *)(ctx + 0x445);
+                flo = (f32)(u32)*(u8 *)(ctx + 0x441);
+                fdiff = fhi - flo;
+                fhalf = fdiff / 2.0f;
+                iv1 = (s32)((f32)(u32)*(u8 *)(ctx + 0x441) + fj1 * fhalf);
+                fhi = (f32)(u32)*(u8 *)(ctx + 0x446);
+                flo = (f32)(u32)*(u8 *)(ctx + 0x442);
+                fdiff = fhi - flo;
+                fhalf = fdiff / 2.0f;
+                iv2 = (s32)((f32)(u32)*(u8 *)(ctx + 0x442) + fj1 * fhalf);
+                fhi = (f32)(u32)*(u8 *)(ctx + 0x447);
+                flo = (f32)(u32)*(u8 *)(ctx + 0x443);
+                fdiff = fhi - flo;
+                fhalf = fdiff / 2.0f;
+                iv3 = (s32)((f32)(u32)*(u8 *)(ctx + 0x443) + fj1 * fhalf);
+                *(f32 *)(q + 0xB0) = (f32)iv0;
+                *(f32 *)(q + 0xB4) = (f32)iv1;
+                *(f32 *)(q + 0xB8) = (f32)iv2;
+                *(f32 *)(q + 0xBC) = (f32)iv3;
+                fhi = (f32)(u32)*(u8 *)(ctx + 0x444);
+                flo = (f32)(u32)*(u8 *)(ctx + 0x440);
+                fdiff = fhi - flo;
+                fhalf = fdiff / 2.0f;
+                iv0 = (s32)((f32)(u32)*(u8 *)(ctx + 0x440) + fj1 * fhalf);
+                fhi = (f32)(u32)*(u8 *)(ctx + 0x445);
+                flo = (f32)(u32)*(u8 *)(ctx + 0x441);
+                fdiff = fhi - flo;
+                fhalf = fdiff / 2.0f;
+                iv1 = (s32)((f32)(u32)*(u8 *)(ctx + 0x441) + fj1 * fhalf);
+                fhi = (f32)(u32)*(u8 *)(ctx + 0x446);
+                flo = (f32)(u32)*(u8 *)(ctx + 0x442);
+                fdiff = fhi - flo;
+                fhalf = fdiff / 2.0f;
+                iv2 = (s32)((f32)(u32)*(u8 *)(ctx + 0x442) + fj1 * fhalf);
+                fhi = (f32)(u32)*(u8 *)(ctx + 0x447);
+                flo = (f32)(u32)*(u8 *)(ctx + 0x443);
+                fdiff = fhi - flo;
+                fhalf = fdiff / 2.0f;
+                iv3 = (s32)((f32)(u32)*(u8 *)(ctx + 0x443) + fj1 * fhalf);
+                *(f32 *)(q + 0xF0) = (f32)iv0;
+                *(f32 *)(q + 0xF4) = (f32)iv1;
+                *(f32 *)(q + 0xF8) = (f32)iv2;
+                *(f32 *)(q + 0xFC) = (f32)iv3;
+            }
+        }
+        *(s32 *)(ctx + 0x410) = func_003ef650(func_003ef6d0(), D_005F1D10 + *(s32 *)(ctx + 0x420) * 0x18);
+        *(f32 *)(ctx + 0x42C) = (*(f32 *)(ctx + 0x458) - *(f32 *)(ctx + 0x450)) / 2.0f;
+        *(f32 *)(ctx + 0x430) = (*(f32 *)(ctx + 0x45C) - *(f32 *)(ctx + 0x454)) / 2.0f;
+        *(s32 *)ctx = *(s32 *)ctx + 1;
+        return;
+    }
+    if (*(s32 *)ctx != 1) {
+        return;
+    }
+    pkt = func_00460990();
+    *(void (**)(u8 *, u8 *))(pkt + 8) = func_001839e0;
+    *(u8 **)(pkt + 0x10) = ctx;
+    func_00460ac0(D_00794930, pkt);
+    for (m = 0; m < 2; m++) {
+        base = ctx + (m << 9);
+        for (k = 0; k < 2; k++) {
+            f32 v0;
+            f32 v1;
+            f32 v2;
+            f32 v3;
+            q = base + (k << 8);
+            v0 = *(f32 *)(ctx + 0x42C) * (f32)k + *(f32 *)(ctx + 0x450);
+            v1 = *(f32 *)(ctx + 0x430) * (f32)m + *(f32 *)(ctx + 0x454);
+            v2 = *(f32 *)(ctx + 0x42C) * (f32)(k + 1) + *(f32 *)(ctx + 0x450);
+            v3 = *(f32 *)(ctx + 0x430) * (f32)(m + 1) + *(f32 *)(ctx + 0x454);
+            *(f32 *)(q + 0x20) = v0;
+            *(f32 *)(q + 0x24) = v1;
+            *(f32 *)(q + 0x60) = v2;
+            *(f32 *)(q + 0x64) = v1;
+            *(f32 *)(q + 0xA0) = v0;
+            *(f32 *)(q + 0xA4) = v3;
+            *(f32 *)(q + 0xE0) = v2;
+            *(f32 *)(q + 0xE4) = v3;
+            func_00461390(D_00794930, 4, q + 0x10, 4);
+        }
+    }
+    *(f32 *)(ctx + 0x450) = *(f32 *)(ctx + 0x450) + *(f32 *)(ctx + 0x414);
+    *(f32 *)(ctx + 0x454) = *(f32 *)(ctx + 0x454) + *(f32 *)(ctx + 0x418);
+    *(f32 *)(ctx + 0x458) = *(f32 *)(ctx + 0x458) + *(f32 *)(ctx + 0x414);
+    *(f32 *)(ctx + 0x45C) = *(f32 *)(ctx + 0x45C) + *(f32 *)(ctx + 0x418);
+    {
+        f32 tmp0;
+        f32 tmp1;
+        tmp0 = -*(f32 *)(ctx + 0x424) / 2.0f;
+        tmp1 = *(f32 *)(ctx + 0x450) - tmp0;
+        if (tmp1 < 0.0f) {
+            tmp1 = -tmp1;
+        }
+        if (!(tmp1 < 1.0f)) {
+            *(f32 *)(ctx + 0x450) = tmp0;
+            *(f32 *)(ctx + 0x458) = *(f32 *)(ctx + 0x424) / 2.0f;
+        }
+        tmp0 = -*(f32 *)(ctx + 0x428) / 2.0f;
+        tmp1 = *(f32 *)(ctx + 0x454) - tmp0;
+        if (tmp1 < 0.0f) {
+            tmp1 = -tmp1;
+        }
+        if (!(tmp1 < 1.0f)) {
+            *(f32 *)(ctx + 0x454) = tmp0;
+            *(f32 *)(ctx + 0x45C) = *(f32 *)(ctx + 0x428) / 2.0f;
+        }
+    }
+}
+
+#pragma opt_loop_invariants off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00183b80);
+#endif
 // FUN_00185120
 void func_00185120(u8 *arg0)
 {

@@ -1020,5 +1020,81 @@ class MarkerAdjacency(unittest.TestCase):
         self.assertNotIn("M004", codes(lint_text(text)))
 
 
+class GuardedSchedule(unittest.TestCase):
+    """H010: retail's first-party build fills no delay slots, so the pragma
+    inside a guard can only be deleting nops to shrink the count."""
+
+    GUARDED = (
+        "// FUN_00100010 NONMATCHING\n"
+        "#ifdef NON_MATCHING\n"
+        "{pragma}"
+        "s32 func_00100010(void) {{ return 0; }}\n"
+        "#else\n"
+        'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+        "#endif\n"
+    )
+
+    def test_fires_inside_a_guard(self) -> None:
+        text = self.GUARDED.format(pragma="#pragma schedule on\n")
+        self.assertIn("H010", codes(lint_text(text)))
+
+    def test_clean_without_the_pragma(self) -> None:
+        self.assertNotIn("H010", codes(lint_text(self.GUARDED.format(pragma=""))))
+
+    def test_file_level_pragma_is_left_alone(self) -> None:
+        """Several third-party units really are built with scheduling on."""
+        text = (
+            "#pragma schedule on\n"
+            "// FUN_00100010\n"
+            'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+        )
+        self.assertNotIn("H010", codes(lint_text(text)))
+
+    def test_pragma_in_the_include_asm_arm_is_left_alone(self) -> None:
+        """Only the `#ifdef NON_MATCHING` arm compiles the C body."""
+        text = (
+            "// FUN_00100010 NONMATCHING\n"
+            "#ifdef NON_MATCHING\n"
+            "s32 func_00100010(void) { return 0; }\n"
+            "#else\n"
+            "#pragma schedule on\n"
+            'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+            "#endif\n"
+        )
+        self.assertNotIn("H010", codes(lint_text(text)))
+
+    def test_nested_conditional_does_not_end_the_guard_early(self) -> None:
+        text = (
+            "// FUN_00100010 NONMATCHING\n"
+            "#ifdef NON_MATCHING\n"
+            "#if 1\n"
+            "s32 helper(void) { return 0; }\n"
+            "#endif\n"
+            "#pragma schedule on\n"
+            "s32 func_00100010(void) { return helper(); }\n"
+            "#else\n"
+            'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+            "#endif\n"
+        )
+        self.assertIn("H010", codes(lint_text(text)))
+
+
+    def test_third_party_body_is_left_alone(self) -> None:
+        """The vendor middleware really was built with scheduling on: its 39
+        guarded bodies sit on retail windows with 183 of 260 delay slots
+        filled, against zero of 2909 in first-party code."""
+        text = (
+            "// FUN_003C1BD0 NONMATCHING\n"
+            "#ifdef NON_MATCHING\n"
+            "#pragma schedule on\n"
+            "s32 func_003c1bd0(void) { return 0; }\n"
+            "#else\n"
+            'INCLUDE_ASM("asm/nonmatchings/thing", func_003c1bd0);\n'
+            "#endif\n"
+        )
+        self.assertNotIn("H010", codes(lint_text(text)))
+
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -533,10 +533,18 @@ void func_004b1ab0(u8 *arg0)
 /* stores + call; object keeps 36+30 pack/conversion instead. No inverted-arm pair */
 /* like 00137890 (384->106) or else-move like 003c1bd0 here; recorded so nobody re-runs. */
 /* Mixed widths kept (s32 stk80 / u32 stk84); do not re-flip. Floor stands; stays ASM. */
+/* gate: func_004b1ad0 is OUTSIDE the +-3% band at 909 against retail 796 (+14.2%).  The body previously read
+   802/796, 1044 edits only because `#pragma schedule on` was filling delay slots that retail leaves
+   empty.  Retail's first-party build is entirely unscheduled: across 212 byte-exact MATCH
+   first-party functions there are 2909 branches and **zero** filled delay slots, and this
+   function's own retail window has 76 branches with 76 empty slots and none filled.  The
+   pragma therefore never reproduced retail codegen - it deleted nops to shrink the count, and
+   it was hiding a genuine instruction surplus.  It is removed; the surplus is now visible and
+   has to be written out of the body.  Any differing-word score measured with the pragma in
+   place is not comparable to one measured inside the gate (handoff 7y, 7au). */
 // FUN_004B1AD0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
-#pragma schedule on
 void func_004b1ad0(u8 *arg0)
 {
     extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
