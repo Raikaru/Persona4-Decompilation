@@ -3692,7 +3692,7 @@ void func_0019c010(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }
 
-/* measured: restored in-gate 867 (951 retail / 951 object instrs) with 7r-only fix (hoisted xx..wz reused twice -> plain mul/add; ??+18->0, mul-9->0, add-14->-8; single opt_common_subs off). Rejected 853 attempt (951/884, -67, -7.0% outside 922-980 band): stacked opt_propagation off + hoisted one/two/half/f255 vars removed per-use materialisation (lui+31->-1) per 7u mirror. fGp literals kept direct (24 loads, honest per-use). Remaining sb/lbu/bltz/cvt/or/srl + regs. Banked floor; production stays ASM. */
+/* measured: restored in-gate 867 (951 retail / 951 object instrs) with 7r-only fix (hoisted xx..wz reused twice -> plain mul/add; ??+18->0, mul-9->0, add-14->-8; single opt_common_subs off). Rejected 853 attempt (951/884, -67, -7.0% outside 922-980 band): stacked opt_propagation off + hoisted one/two/half/f255 vars removed per-use materialisation (lui+31->-1) per 7u mirror. Table-base pass 2026-09-19: lui per immediate retail 17 vs object 48 surplus 31 (2.0f 1->9, 255.0f/0.5f 3->12 each, 0x737FB 2->5; no HI16 tables, all GP); hoisted fGpffff81f4 to inv (24 loads -> 1 base, propagation untouched, accumulator fix kept, no one/two/half/f255 hoist): 867->864 words, 951->930 instrs (in 922-980 band), 1088->1069 edits, lui unchanged 48 vs 17. Banked floor; production stays ASM. */
 /* 2026-09-19 composition audit (handoff 7aa).  The count is 951/951 exact
    and the structure is still a third wrong: fnalign shows a pure delete of
    347 instructions at retail[465:812] (0x0019C814-0x0019CD7C) against a pure

@@ -1714,7 +1714,7 @@ void func_002038c0(s32 task) {
     *(s16 *)b = 0;
 }
 
-/* measured: GUARDED_SCORE 765 differing words, retail 856 vs object 874 instrs (+18, 2.1% over, within gate); fnalign 236 edits (+35 reloc-only). Pragmas in order: opt_loop_invariants on 899->765, opt_unroll_loops off ties 899, schedule off ties 899, opt_common_subs off worsens to 956. Subscript direct/off-hoist/flat all tie 765. Fresh init/init_lo ties 765. Colour lo-hi swap and base-reciprocal swap both tie 765. Remaining: saved-reg rotation (retail s4/s3/s2/s1 vs build s3/s2/s1/s0), FPR colouring (retail f25/f24 vs build f21/f20, div f24 vs f20), stack offsets (retail 0xB00/0x80 vs build 0x70/0x1470), VU adda/madd scheduling. */
+/* measured: GUARDED_SCORE 765 -> 697 differing words via draw-base hoist (probe_variants), retail 856 vs object 874 -> 871 instrs (+18 -> +15, within gate); fnalign 236 -> 223 edits (+35 reloc-only). Lui per symbol retail 70 vs object 76 surplus 6 (D_006267F0 8/8 tie, D_00626890 8/8 tie, D_00887310 1 hoisted vs 8 per-site); hoisted D_00887310 to draw at first use (s32 (**draw)(s32,void*,s32) = D_00887310, 8 -> 2 bases, lui 76->70 surplus 0 exact): 765->697 words (-68). Pragmas unchanged (opt_loop_invariants on). Remaining: saved-reg rotation (retail s4/s3/s2/s1 vs build s3/s2/s1/s0), FPR colouring (retail f25/f24 vs build f21/f20), stack offsets, VU adda/madd scheduling. Banked floor; production stays ASM. */
 // FUN_00203930 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -3321,7 +3321,7 @@ s32 func_00207320(u8 *arg0, u8 *arg1, u8 **arg2)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00207320);
 #endif
-/* measured: GUARDED_SCORE 760 differing words (probe_variants baseline), retail 860 vs object 863 instrs (+3, +0.35% over, within gate); fnalign 532 edits (+1 reloc-only). Pragmas in order: opt_common_subs off 760->819 worsens, opt_loop_invariants on ties 760, opt_unroll_loops off ties 760, schedule off ties 760. Subscript direct/off-hoist/flat all tie 760. Fresh single-counter 760->767 (+7, dual kept). Colour idx/val swap and f1/f20 swap both tie 760. Remaining: saved-reg rotation (retail s8/s1/s4 vs build s7/s2), FPR colouring (retail f26/f25/f24 vs build f22/f21/f20), frame -0xD0 vs -0xB0, stack pos 0xC0 vs 0xA8, D_00887300 base materialisation. */
+/* measured: GUARDED_SCORE 760 -> 746 differing words via tbl-base hoist (probe_variants), retail 860 vs object 863 -> 855 instrs (+3 -> -5, within gate); fnalign 532 -> 517 edits (+1 reloc-only). Lui per symbol retail 65 vs object 91 surplus 26 (D_00887300 6 hoisted vs 14 per-site, D_00626BD0 2/2 tie); hoisted D_00887300 to tbl at first use (void (**tbl)(u32,u32) = D_00887300, 14 -> 3 bases, lui 91->80 surplus 15, -11): 760->746 words (-14). Prologue init 767 ties-worse, last-site direct 755 worse, px-reuse 779 worse. Remaining: saved-reg rotation (retail s8/s1/s4 vs build s7/s2), FPR colouring (retail f26/f25/f24 vs build f22/f21/f20), frame -0xD0 vs -0xB0, stack pos 0xC0 vs 0xA8, residual float constants (0xc120 +4, 0x3f80 +2). Banked floor; production stays ASM. */
 // FUN_00207B00 NONMATCHING
 #ifdef NON_MATCHING
 void func_00207b00(u8 *arg0, u8 *arg1, f32 *arg2)
