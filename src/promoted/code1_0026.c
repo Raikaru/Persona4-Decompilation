@@ -846,6 +846,22 @@ INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00263730);
    block-scope here does not conflict. After: same 1021 vs 1000, 999 edits +2 (-15), score 908 unchanged,
    hole gone (no delete >=20), lump still 121 but dsll32 0, sd 5->3, mtc1 6->11, mov.s 3->5;
    opclass 13: lui +10, addiu -9, sw -6, mtc1 -3 (dsll32/sd/mov.s gone). Case-7 recovery untouched. */
+/* 2026-09-19 reg-alloc collapse (Main handoff: lui+10/addiu-9/sw-6 address fold + mtc1-3 check).
+   Before (prototype fix banked): retail 1021 vs object 1000, 999 edits +2, score 908, opclass 13
+   (lui +10, addiu -9, sw -6, mtc1 -3), hole gone, pure lump 121 at retail[478:478] object[729:850].
+   Relocs in 729:850 are only R_MIPS_26 (jal: 2x110C50, 2x25f3f0/263730, loop 262de0/261560 tails);
+   no HI16/LO16/GPREL16 there, so the lump's 7 lui are float consts, not global addresses.
+   Overall lui+10 is D_00887300 base rebuild (object lui $v0,0 + lw per site x14 vs retail
+   lui $s1,0x88 + addiu hoisted + lw per site); writing D_00887300[0] for (*D_00887300) ties
+   (999/908 unchanged), so no preamble of the ((u32)SYM & 0xFFFF0000)-with-negative-offset kind here.
+   Root cause of the pure 121/33 pair was a swapped saved-reg pair: object kept temp_2 in $s1
+   (move $s1,$v0; lw $s0,0x18($s1)) where retail keeps it in $s0, throwing every later anchor
+   (277 vs 398 + 121 + 398 vs 1). Fix: declare u8 *temp_2 + s32 temp_3 first (after externs),
+   choosing $s0 (now move $s0,$v0; lw $s1,0x18($s0), matching retail). After: same 1021 vs 1000
+   (inside 991-1052), 297 edits +2 (-702), score 905 (-3), opclass 13 unchanged (opcodes same,
+   regs fixed), no delete/insert >=20 (largest delete 10 at 205:215, largest inserts 5-6).
+   missing_prototypes.py is clean for this body (all calls declared), so mtc1 -3 is not an
+   undeclared call but const/scheduling residue. Case-7 recovery untouched. */
 // FUN_00263CB0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00263cb0(s32 arg0, u8 *arg1)
@@ -854,6 +870,8 @@ void func_00263cb0(s32 arg0, u8 *arg1)
     extern s32 func_0025f430(s32, s32, s32, s32, u8 *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
     extern s32 func_0025f3f0(s32, s32, s32, s32, u8 *, s32, f32, f32, f32);
     extern void func_00263730(s32, s32, s32, s32, s32, u8 *, f32);
+    u8 *temp_2;
+    s32 temp_3;
     f32 spEC;
     f32 spE8;
     f32 spE4;
@@ -915,8 +933,6 @@ s32 spA0;
     s32 var_2_4;
     s32 temp_20;
     s64 temp_20_2;
-    u8 *temp_2;
-    s32 temp_3;
 
     temp_2 = func_00452560(arg1);
     temp_3 = *(s32 *)(temp_2 + 0);

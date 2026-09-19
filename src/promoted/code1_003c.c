@@ -128,6 +128,18 @@ extern s32 D_007647BC;
    unfilled (nop); retail fills it with the final store (nd 15 -> 0). */
 
 /* measured (this session): probe_variants Lane119e3c_003c0050_body.c scores 26 differing words (144B/144B window; b119 candidate improves on W4C3C nd 13/136B; residual is ,p alignment nop after filled back-edge delay slot which plain -O2 cannot emit; decl-order/dependent-init ruled out, schedule off oversized 156B/nd 106); banked guarded. See docs/probe_archive/Lane119e3c_003c0050_body.c. */
+/* measured 2026-09-19: object 36 instrs against retail 36, exact, 26 differing
+   words, 14 fnalign edits.  The residual is a saved-register exchange plus
+   the branch polarity that follows from it: retail holds the list end in
+   `$s1` and the loaded node in `$s0` and tests `beq $v0, $s1`, where b210
+   holds them the other way round and tests `bne $v0, $s0` with an extra
+   forward branch, and retail's loop tail is `bnez`/`nop`/`b` where b210 emits
+   `bnel` with the value in the delay slot.
+   Six spellings measured, all 26: the three declaration orders of
+   `end`/`node`/`next` (the 7n lever that fixed the same exchange in
+   `func_00263cb0`), `end` typed as `s32` rather than `u8 *`, the two
+   assignments swapped, a `while` loop and a `do`/`while`.  The register
+   choice here does not follow declaration order. */
 // FUN_003C0050 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
@@ -913,8 +925,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4390);
    folding the 0x28 into both arms of an if/else is much worse (nd 42).
    Prologue scheduling floor. Committed at nd 8. */
 /* measured (this session): probe_variants W3CA_003c47c0_body.c scores 21 differing words (obj 92B/window 96B, nd 8); residual words +0x0C/+0x10: retail interleaves `move $s1,$a0` between sq saves while b210 emits both saves first; block-scope callee typing, schedule-on shape, decl-order reversal, and delayed param read ruled out; prologue-order floor, banked guarded. See docs/probe_archive/W3CA_003c47c0_body.c. */
+/* measured 2026-09-19: object 23 instrs against retail 23, exact, 2 differing
+   words, down from 26/24 at 21 words.  Both surplus instructions were `nop`
+   in branch delay slots; `#pragma schedule on` fills them the way retail does
+   and needs no source change (handoff 7ac). */
 // FUN_003C47C0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
 s32 func_003c47c0(u8 *arg0) {
     extern s32 func_003e6240(u8 *arg0);
     s32 total;
@@ -925,6 +942,7 @@ s32 func_003c47c0(u8 *arg0) {
     }
     return total + (func_003e3370(D_0070AFF0, arg0) + 0xC);
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c47c0);
 #endif
@@ -933,6 +951,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c47c0);
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4820);
 
 /* measured (this session): probe_variants K3C1_003c49a0_body.c scores 27 differing words (obj 148B/window 160B, nd 74; offsets 0x20,0x2c-0x2e,0x30,0x33,0x35-0x37,0x3c-0x40,0x42-0x43); typed callee, decl/order, straight/do-while loops, cursor/index locals, callback teardown, and schedule ruled out; residual entry slt/beq guard, branch layout, callback target; banked guarded. See docs/probe_archive/K3C1_003c49a0_body.c. */
+/* measured 2026-09-19: object 38 instrs against retail 38, exact, 7 differing
+   words, down from 27 at 37/38.  The loop was written as a guarded
+   `do`/`while` - `if (count > 0) { do { ... } while (index < count); }` - and
+   retail's loop is a plain counted `for`.  Measured against the guarded
+   do/while (27 words), `if (0 < count)` (27), `count >= 1` (27), an unsigned
+   count (27), `if (count > 0) { while ... }` (28), a bare `while` (8) and the
+   `for` (7).
+   What remains at 7: retail still tests the loop entry with
+   `slt $at, $zero, $s1` / `beqz` where the `for` emits a forward `b`, and
+   retail puts the pointer increment in the `bnez` delay slot with the
+   `sw $zero` ahead of it, where b210 orders them the other way. */
 // FUN_003C49A0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
@@ -950,13 +979,10 @@ u8 *func_003c49a0(u8 *arg0) {
         count = *(s32 *)(self + 4);
         index = 0;
         cursor = items;
-        if (count > 0) {
-            do {
-                func_003c4220(*cursor);
-                index += 1;
-                *cursor = NULL;
-                cursor += 1;
-            } while (index < count);
+        for (index = 0; index < count; index++) {
+            func_003c4220(*cursor);
+            *cursor = NULL;
+            cursor += 1;
         }
         jtbl_008873EC[0](items);
         *(u8 ***)(self + 0) = NULL;

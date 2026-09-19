@@ -43,6 +43,7 @@ extern s32 func_0010b3b0(); /* old-style: target call preserves s64 argument */
 extern u16 func_0010b460(void);
 
 extern u32 func_0010c750(void *persona, u16 level);
+s32 func_0010ceb0(u8 *arg0);
 extern void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2);
 extern void func_0010c5a0(u8 *arg0, u8 *arg1);
 extern void func_0010d150(u8 *arg0);
@@ -1119,13 +1120,11 @@ s32 func_0010be20(u8 *arg0)
 /* measured: object 1820B/window 1856B/normalized_diff 1426 (443 differing words, live re-measured current tree). */
 /* measured: live 443 words / fnalign 388 edits (463 vs 455 instrs, 8 short, 1820B/1856B within 3%); slti inclusive top-down 15 variants all tie except >=0xC0->>0xBF +1 regress (pid, i>=5 x3, level>=0x64/>=2, dispatch, av+sv<0x63, nv+sv>=0x64, j<5, i<3, out>=0x20 x2, id2 dispatch x2); 8 short is layout-inversion delete 60 at dispatch (shadow inline vs retail out-of-line) so dead-arm N-A (ends assert/loop, no retail slti-at trailing dead compare); sltiu 0 so adjacent-== fold N-A (|| are pid==0||>=0x100 and id<0xC0||>=0xD8); frame 0xD0 vs 0xA0 single-site calls and true u32 param for 00231d70 per btlUnit.c so index-mask N-A; banked floor. */
 /* measured 0010be60: `schedule on` inside the guard is worth 10 words (443 -> 433). */
-/* gate: object 413 against retail 463, -10.8% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* gate: object 455 against retail 463, -1.7% - INSIDE the +-3% band (dropped */
+/* `schedule on`: 413->455, edits 514->388; words 433->443 is the outside-gate */
+/* artefact noted above, not a regression). */
 // FUN_0010BE60 NONMATCHING
 #ifdef NON_MATCHING
-#pragma schedule on
 #pragma opt_loop_invariants on
 void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2) {
     u16 stat[5];
@@ -1344,7 +1343,6 @@ void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2) {
     }
 }
 #pragma opt_loop_invariants off
-#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010be60);
 #endif

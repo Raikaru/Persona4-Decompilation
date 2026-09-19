@@ -663,10 +663,10 @@ void func_002b6ea0(void) {
    assignment list showed [nd 0]. The last C-body measurement is nd 350 (above);
    do not treat this function as matched until a C body exists. */
 /* measured 002b6ec0 (banked honest body: s16 i loop 0..0x30B with per-index clear, bit0-guarded 43f810+89a0/0xF0 + 7cd0 prologue, 0x4000/6260 + 0x2000/6180 arms with 460990/460AC0 + A4/B0<=gp-gated spawn vs 7cd0-shaped bit-scan, u8-0x72-gated third spawn with flag 1, s8-nested final clear, count/i tail; true floats-first 0025ecd0 via function-local extern): measure_guarded 356 words obj 1296B/window 1536B; fnalign --candidate 219 edits (+14 reloc-only), retail 380 vs object 324 instrs; opclass addu -21 lw -14 dsll32/dsra32 -5 sll -5 shortfalls. Dropping the hoisted gtable local re-measured identical 356 (mwcc CSEs re-derivations, as the old note predicted). Wall is retail's per-region base re-derivation vs saved-locals plus bit-scan x4 and 14-arg call order. Production stays ASM. */
-/* gate: object 324 against retail 380, -14.7% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 2026-09-19: per-region e re-derivation plus opt_common_subs off recovers the lw/addu hole. */
+/* fnalign retail 380 vs object 375 (-1.3%, inside +-3%); deletes gone (3x4 filled), opclass addu +9 lw -10 (overshoot) vs old addu -21 lw -14. */
+#pragma push
+#pragma opt_common_subs off
 // FUN_002B6EC0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002b6ec0(u8 *arg0) {
@@ -690,10 +690,14 @@ s32 func_002b6ec0(u8 *arg0) {
         off = (s32)i << 8;
         e = *(u8 **)(iGpffffb574 + 0x38) + off;
         if (((*(s16 *)(e + 0x14)) & 1) == 1) {
+            e = *(u8 **)(iGpffffb574 + 0x38) + off;
             func_0043f810(e + 0x14, func_002b89a0(e + 0x14), 0xF0);
+            e = *(u8 **)(iGpffffb574 + 0x38) + off;
             func_002b7cd0(arg0, i, *(s16 *)(e + 8));
+            e = *(u8 **)(iGpffffb574 + 0x38) + off;
             fl = *(s16 *)(e + 0x14);
             if ((s16)((fl & 0x4000) >> 0xE) == 1) {
+                e = *(u8 **)(iGpffffb574 + 0x38) + off;
                 w = func_00460990();
                 *(void (**)(void))(w + 8) = func_002b6260;
                 *(s32 *)(w + 0x10) = 0;
@@ -701,11 +705,14 @@ s32 func_002b6ec0(u8 *arg0) {
                 if (*(f32 *)(e + 0xA4) <= fGpffff8504 || *(f32 *)(e + 0xB0) <= fGpffff8504) {
                     goto bs0;
                 } else {
+                    e = *(u8 **)(iGpffffb574 + 0x38) + off;
                     color = func_002b2a30(0xFF, e[0x89], e[0x8A], e[0x8B]);
+                    e = *(u8 **)(iGpffffb574 + 0x38) + off;
                     func_0025ecd0(*(f32 *)(e + 0x3C), *(f32 *)(e + 0x40), *(f32 *)(e + 0x18), color, e[0x72], *(s16 *)(e + 8), *(void **)(table + 0), 0, *(s16 *)(e + 0x10), *(s16 *)(e + 0x12), *(f32 *)(e + 0xD4), *(f32 *)(e + 0xA4), *(f32 *)(e + 0xB0), D_00793E80 + *(s32 *)(e + 0xC) * 0x30);
                     goto tail;
                 }
 bs0:
+                e = *(u8 **)(iGpffffb574 + 0x38) + off;
                 flags = *(s16 *)(e + 0x14);
                 for (bit = 1; bit < 13; bit++) {
                     if (((flags & (u16)(1 << bit)) >> bit) == 1) { found = 1; goto bs0out; }
@@ -715,6 +722,7 @@ bs0out:
                 if (found == 0) { *(s16 *)(e + 0x14) &= ~1; }
                 goto tail;
             } else if ((s16)((fl & 0x2000) >> 0xD) == 1) {
+                e = *(u8 **)(iGpffffb574 + 0x38) + off;
                 w = func_00460990();
                 *(void (**)(void))(w + 8) = func_002b6180;
                 *(s32 *)(w + 0x10) = 0;
@@ -722,11 +730,14 @@ bs0out:
                 if (*(f32 *)(e + 0xA4) <= fGpffff8504 || *(f32 *)(e + 0xB0) <= fGpffff8504) {
                     goto bs1;
                 } else {
+                    e = *(u8 **)(iGpffffb574 + 0x38) + off;
                     color = func_002b2a30(0xFF, e[0x89], e[0x8A], e[0x8B]);
+                    e = *(u8 **)(iGpffffb574 + 0x38) + off;
                     func_0025ecd0(*(f32 *)(e + 0x3C), *(f32 *)(e + 0x40), *(f32 *)(e + 0x18), color, e[0x72], *(s16 *)(e + 8), *(void **)(table + 0), 0, *(s16 *)(e + 0x10), *(s16 *)(e + 0x12), *(f32 *)(e + 0xD4), *(f32 *)(e + 0xA4), *(f32 *)(e + 0xB0), D_00793E80 + *(s32 *)(e + 0xC) * 0x30);
                     goto tail;
                 }
 bs1:
+                e = *(u8 **)(iGpffffb574 + 0x38) + off;
                 flags = *(s16 *)(e + 0x14);
                 for (bit = 1; bit < 13; bit++) {
                     if (((flags & (u16)(1 << bit)) >> bit) == 1) { found = 1; goto bs1out; }
@@ -735,11 +746,13 @@ bs1:
 bs1out:
                 if (found == 0) { *(s16 *)(e + 0x14) &= ~1; }
                 goto tail;
+            e = *(u8 **)(iGpffffb574 + 0x38) + off;
             } else if (e[0x72] > 0 && *(f32 *)(e + 0xA4) > fGpffff8504 && *(f32 *)(e + 0xB0) > fGpffff8504) {
                 color = func_002b2a30(0xFF, e[0x89], e[0x8A], e[0x8B]);
                 func_0025ecd0(*(f32 *)(e + 0x3C), *(f32 *)(e + 0x40), *(f32 *)(e + 0x18), color, e[0x72], *(s16 *)(e + 8), *(void **)(table + 0), 1, *(s16 *)(e + 0x10), *(s16 *)(e + 0x12), *(f32 *)(e + 0xD4), *(f32 *)(e + 0xA4), *(f32 *)(e + 0xB0), D_00793E80 + *(s32 *)(e + 0xC) * 0x30);
                 goto tail;
             } else {
+                e = *(u8 **)(iGpffffb574 + 0x38) + off;
                 fl = *(s16 *)(e + 0x14);
                 if (fl == 1) {
                     if (*(s8 *)(e + 0x77) == 0) {
@@ -761,6 +774,7 @@ tail:
 #else
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6ec0);
 #endif
+#pragma pop
 
 // FUN_002B74C0
 void func_002b74c0(u8 *arg0) {
@@ -1203,10 +1217,8 @@ void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
    x6/x7 s16 extensions - retail's arg6/arg7 extensions are hoisted temps
    used only at 0x82/0xA0). No source spelling forces fresh per-branch slots. */
 /* measured 002b83e0 (banked honest four-leaf body: u8* + f2 p1 + u4/u4 + u8/u8 + s16/s16 + 2x f32 + 2x s8 stack, 0x88-0x9C 1.0f/gp pattern per leaf with 94/98 swap in sp0!=0 leaves, 2970 f2 + 8270-pattern stores with 18/20 swap, u4 byte copies, 0x7E s6/2 sra in B/D, fparg1 tail + |=1): measure_guarded 360 words obj 1336B/window 1472B (136 short); fnalign --candidate 314 edits, retail 366 vs object 334 instrs; opclass lwc1 -17 swc1 -15 lbu -12 shortfalls with beqz +3/bnez -3. Earliest hunk is prologue saves + spill shift (sd a1 0x50->0x90); dropping the entry alias re-measured identical 360. Wall is retail's fresh per-branch f2/u4 stack slots (0x60-0xDF band, frame 0xE0) vs mwcc's merged band (frame 0xD0) -- no honest spelling forces fresh slots. Production stays ASM. */
-/* gate: object 334 against retail 366, -8.7% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 2026-09-19: f32 fa2/fa3 float-mediated u4 copies recover the swc1/lwc1 hole. */
+/* fnalign retail 366 vs object 362 (-1.1%, inside +-3%); was 334 (-8.7%). Frame 0xC0 vs retail 0xE0; remaining deltas are t/out ld/sd vs lwc1/swc1 and sra vs zero leaves. */
 // FUN_002B83E0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, s16 arg6, s16 arg7, f32 fparg0, f32 fparg1, s8 arg_sp0, s8 arg_sp8) {
@@ -1224,6 +1236,8 @@ void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, s16 arg6
         if ((s32)(s8)arg_sp8 != 0) {
             f2 t;
             f2 out;
+            f32 fa2;
+            f32 fa3;
             *(f32 *)(arg0 + 0x88) = 1.0f;
             *(f32 *)(arg0 + 0x8C) = 1.0f;
             *(f32 *)(arg0 + 0x90) = 1.0f;
@@ -1237,6 +1251,8 @@ void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, s16 arg6
             *(s16 *)arg0 |= 0x10;
             func_002b2970(&t, p1.x, p1.y + fparg0 / 2.0f);
             out = t;
+            fa2 = *(f32 *)&arg2;
+            fa3 = *(f32 *)&arg3;
             *(f32 *)(arg0 + 0x18) = p1.x;
             *(f32 *)(arg0 + 0x1C) = p1.y;
             *(f32 *)(arg0 + 0x20) = out.x;
@@ -1248,15 +1264,15 @@ void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, s16 arg6
             *(s16 *)(arg0 + 0x34) = arg7;
             arg0[0x36] = 1;
             *(s16 *)arg0 |= 2;
-            arg0[0x6D] = arg2.c0;
-            arg0[0x6E] = arg2.c1;
-            arg0[0x6F] = arg2.c2;
-            arg0[0x71] = arg3.c0;
-            arg0[0x72] = arg3.c1;
-            arg0[0x73] = arg3.c2;
-            arg0[0x75] = arg2.c0;
-            arg0[0x76] = arg2.c1;
-            arg0[0x77] = arg2.c2;
+            arg0[0x6D] = ((u8 *)&fa2)[0];
+            arg0[0x6E] = ((u8 *)&fa2)[1];
+            arg0[0x6F] = ((u8 *)&fa2)[2];
+            arg0[0x71] = ((u8 *)&fa3)[0];
+            arg0[0x72] = ((u8 *)&fa3)[1];
+            arg0[0x73] = ((u8 *)&fa3)[2];
+            arg0[0x75] = ((u8 *)&fa2)[0];
+            arg0[0x76] = ((u8 *)&fa2)[1];
+            arg0[0x77] = ((u8 *)&fa2)[2];
             *(s16 *)(arg0 + 0x7A) = 0;
             *(s16 *)(arg0 + 0x7C) = 0;
             *(s16 *)(arg0 + 0x7E) = arg6 / 2;
@@ -1265,6 +1281,8 @@ void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, s16 arg6
         } else {
             f2 t;
             f2 out;
+            f32 fa2;
+            f32 fa3;
             *(f32 *)(arg0 + 0x88) = 1.0f;
             *(f32 *)(arg0 + 0x8C) = 1.0f;
             *(f32 *)(arg0 + 0x90) = 1.0f;
@@ -1278,6 +1296,8 @@ void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, s16 arg6
             *(s16 *)arg0 |= 0x10;
             func_002b2970(&t, p1.x, p1.y + fparg0 / 2.0f);
             out = t;
+            fa2 = *(f32 *)&arg2;
+            fa3 = *(f32 *)&arg3;
             *(f32 *)(arg0 + 0x18) = p1.x;
             *(f32 *)(arg0 + 0x1C) = p1.y;
             *(f32 *)(arg0 + 0x20) = out.x;
@@ -1289,15 +1309,15 @@ void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, s16 arg6
             *(s16 *)(arg0 + 0x34) = arg7;
             arg0[0x36] = 0;
             *(s16 *)arg0 |= 2;
-            arg0[0x6D] = arg2.c0;
-            arg0[0x6E] = arg2.c1;
-            arg0[0x6F] = arg2.c2;
-            arg0[0x71] = arg3.c0;
-            arg0[0x72] = arg3.c1;
-            arg0[0x73] = arg3.c2;
-            arg0[0x75] = arg2.c0;
-            arg0[0x76] = arg2.c1;
-            arg0[0x77] = arg2.c2;
+            arg0[0x6D] = ((u8 *)&fa2)[0];
+            arg0[0x6E] = ((u8 *)&fa2)[1];
+            arg0[0x6F] = ((u8 *)&fa2)[2];
+            arg0[0x71] = ((u8 *)&fa3)[0];
+            arg0[0x72] = ((u8 *)&fa3)[1];
+            arg0[0x73] = ((u8 *)&fa3)[2];
+            arg0[0x75] = ((u8 *)&fa2)[0];
+            arg0[0x76] = ((u8 *)&fa2)[1];
+            arg0[0x77] = ((u8 *)&fa2)[2];
             *(s16 *)(arg0 + 0x7A) = 0;
             *(s16 *)(arg0 + 0x7C) = 0;
             *(s16 *)(arg0 + 0x7E) = 0;
@@ -1307,6 +1327,8 @@ void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, s16 arg6
     } else if ((s32)(s8)arg_sp8 != 0) {
         f2 t;
         f2 out;
+        f32 fa2;
+        f32 fa3;
         *(f32 *)(arg0 + 0x88) = 1.0f;
         *(f32 *)(arg0 + 0x8C) = 1.0f;
         *(f32 *)(arg0 + 0x90) = 1.0f;
@@ -1320,6 +1342,8 @@ void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, s16 arg6
         *(s16 *)arg0 |= 0x10;
         func_002b2970(&t, p1.x, p1.y + fparg0 / 2.0f);
         out = t;
+        fa2 = *(f32 *)&arg2;
+        fa3 = *(f32 *)&arg3;
         *(f32 *)(arg0 + 0x18) = out.x;
         *(f32 *)(arg0 + 0x1C) = out.y;
         *(f32 *)(arg0 + 0x20) = p1.x;
@@ -1331,15 +1355,15 @@ void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, s16 arg6
         *(s16 *)(arg0 + 0x34) = arg7;
         arg0[0x36] = 1;
         *(s16 *)arg0 |= 2;
-        arg0[0x6D] = arg2.c0;
-        arg0[0x6E] = arg2.c1;
-        arg0[0x6F] = arg2.c2;
-        arg0[0x71] = arg3.c0;
-        arg0[0x72] = arg3.c1;
-        arg0[0x73] = arg3.c2;
-        arg0[0x75] = arg2.c0;
-        arg0[0x76] = arg2.c1;
-        arg0[0x77] = arg2.c2;
+        arg0[0x6D] = ((u8 *)&fa2)[0];
+        arg0[0x6E] = ((u8 *)&fa2)[1];
+        arg0[0x6F] = ((u8 *)&fa2)[2];
+        arg0[0x71] = ((u8 *)&fa3)[0];
+        arg0[0x72] = ((u8 *)&fa3)[1];
+        arg0[0x73] = ((u8 *)&fa3)[2];
+        arg0[0x75] = ((u8 *)&fa2)[0];
+        arg0[0x76] = ((u8 *)&fa2)[1];
+        arg0[0x77] = ((u8 *)&fa2)[2];
         *(s16 *)(arg0 + 0x7A) = 0;
         *(s16 *)(arg0 + 0x7C) = 0;
         *(s16 *)(arg0 + 0x7E) = arg6 / 2;
@@ -1348,6 +1372,8 @@ void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, s16 arg6
     } else {
         f2 t;
         f2 out;
+        f32 fa2;
+        f32 fa3;
         *(f32 *)(arg0 + 0x88) = 1.0f;
         *(f32 *)(arg0 + 0x8C) = 1.0f;
         *(f32 *)(arg0 + 0x90) = 1.0f;
@@ -1361,6 +1387,8 @@ void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, s16 arg6
         *(s16 *)arg0 |= 0x10;
         func_002b2970(&t, p1.x, p1.y + fparg0 / 2.0f);
         out = t;
+        fa2 = *(f32 *)&arg2;
+        fa3 = *(f32 *)&arg3;
         *(f32 *)(arg0 + 0x18) = out.x;
         *(f32 *)(arg0 + 0x1C) = out.y;
         *(f32 *)(arg0 + 0x20) = p1.x;
@@ -1372,15 +1400,15 @@ void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, s16 arg6
         *(s16 *)(arg0 + 0x34) = arg7;
         arg0[0x36] = 0;
         *(s16 *)arg0 |= 2;
-        arg0[0x6D] = arg2.c0;
-        arg0[0x6E] = arg2.c1;
-        arg0[0x6F] = arg2.c2;
-        arg0[0x71] = arg3.c0;
-        arg0[0x72] = arg3.c1;
-        arg0[0x73] = arg3.c2;
-        arg0[0x75] = arg2.c0;
-        arg0[0x76] = arg2.c1;
-        arg0[0x77] = arg2.c2;
+        arg0[0x6D] = ((u8 *)&fa2)[0];
+        arg0[0x6E] = ((u8 *)&fa2)[1];
+        arg0[0x6F] = ((u8 *)&fa2)[2];
+        arg0[0x71] = ((u8 *)&fa3)[0];
+        arg0[0x72] = ((u8 *)&fa3)[1];
+        arg0[0x73] = ((u8 *)&fa3)[2];
+        arg0[0x75] = ((u8 *)&fa2)[0];
+        arg0[0x76] = ((u8 *)&fa2)[1];
+        arg0[0x77] = ((u8 *)&fa2)[2];
         *(s16 *)(arg0 + 0x7A) = 0;
         *(s16 *)(arg0 + 0x7C) = 0;
         *(s16 *)(arg0 + 0x7E) = 0;

@@ -446,11 +446,8 @@ s32 func_003b6e00(s32 arg0) {
 /* measured: close no_branch_likely and schedule around func_003b6e00. */
 #pragma no_branch_likely off
 #pragma schedule off
-/* measured: docs/probe_archive/Y3BA_003b6e70_body.c object 164B/window 144B, normalized_diff 39 live this session (installed guard below; object exceeds window by 20B; prior nd122 note was stale). Mismatch is dominated by frame size/addressing, callback/table materialization, and branch/epilogue layout; prior schedule/O1/reload-preserving-base probes ruled out. Banked as floor. */
-/* gate: object 41 against retail 36, +13.9% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured: schedule on fills the jal/branch delay slots retail fills with work (addiu/move in delays) - pragma_sweep 39 -> 28 differing words, object 164B/41 instrs -> 144B/36 instrs, now 36/36 inside the gate. Residual is frame 0x30 vs retail 0x20 (base kept in $s0 vs retail $a1), absolute/GP addressing order, and epilogue coloring; no address-materialisation hack ((u32)SYMBOL & 0xFFFF0000) present, no if/else chain for switch. Banked as floor. */
+#pragma schedule on
 // FUN_003B6E70 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003b6e70(s32 arg0) {
@@ -470,6 +467,7 @@ s32 func_003b6e70(s32 arg0) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6e70);
 #endif
+#pragma schedule off
 /* measured: in-file body recheck is object 280B/window 352B with
    normalized_diff 210, over the park threshold; body archived at
    build/WS19_003b6f00_nd210.c and restored to INCLUDE_ASM. */
@@ -1169,7 +1167,7 @@ s32 func_003bce20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 /* measured: close schedule around func_003bce20. */
 #pragma schedule off
 
-/* measured: docs/probe_archive/B3B_003bce50_body.c object 168B/window 192B, normalized_diff 25 live this session (installed guard below; prior nd71 note was stale). Residual is the entry-guard register (slt $v0 vs retail slt $at,$zero,$v0 + beqz, the same $at-guard floor as func_003b4230/003bcd50), retail's out-of-line func_003bc620 call after the loop exit reached by bnez while every spelling compiles inline with beqz-skip, i = 0 landing after the guard branch instead of in its delay slot, and one trailing nop. Levers: schedule on, no_branch_likely on, opt_rebuildconditionals off, opt_propagation off, cached count with volatile loop-tail reload, single-case switch wrap, goto next, role-swapped counters, declaration permutations. Retried the func_003bcd50 (s64)0 < volatile cure with i = 0 hoisted before the guard: nd26 (beqz $at appears but loop coloring regresses); (s64)0 < count local: nd33. Floor stands. Banked as floor. */
+/* measured: docs/probe_archive/B3B_003bce50_body.c object 168B/window 192B, normalized_diff 25 live this session (installed guard below; prior nd71 note was stale). fnalign --candidate (no --quiet) reports 14 edits with two pure delete runs that are the missing 6 instrs: retail[33:34] at 0x003BCED4 (b .L003BCEF0 with addu $v0,$s4,$s2 in its delay slot - the shared-return branch) and retail[35:40] at 0x003BCEDC jal func_003bc620 + 0x003BCEE0 nop + 0x003BCEE4 b .L003BCEB0 with addu $s2,$s2,$v0 in its delay + 0x003BCEEC nop (the out-of-line call block reached by the loop's bnez $v0,0x003BCEA4->0x003BCEDC). Object inlines the call at loop offset 84 with beqz-skip (jal at object[21:22] + addu at [23:24]) and falls straight into the tail, so it lacks that branch + out-of-line jal/b/addu/nop shape. Every spelling (cached volatile count, single-case switch wrap, goto next, role-swapped counters, declaration permutations) still compiles beqz-skip inline; schedule on, no_branch_likely on, opt_rebuildconditionals off, opt_propagation off already applied. Other residual: entry-guard slt $v0 vs retail slt $at,$zero,$v0 + beqz $at (same $at-guard floor as 003b4230/003bcd50), bnez-vs-beqz polarity, and i = 0 in guard delay vs after branch. Banked as floor. */
 #pragma schedule on
 #pragma no_branch_likely on
 #pragma opt_rebuildconditionals off
@@ -1443,11 +1441,8 @@ do2:
 /* measured: close schedule around func_003bd470. */
 #pragma schedule off
 #pragma no_branch_likely off
-/* measured: docs/probe_archive/Main119_003bd4f0_body.c object 136B/window 112B, normalized_diff 29 live under the current b210 TU (installed guard below; object exceeds window by 24B). The movz ternary and both calls are exact; residual is the lw $v0,OFF($a2) that retail schedules above sd $ra, which no cached MWCC build does for this source (the lw-before-sd prologue wall). The nd5 b119-unit score does not reproduce under b210. Banked as floor. */
-/* gate: object 34 against retail 28, +21.4% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured: all three of func_003bd4f0/003bd610/003be8a0 share one spelling (two func_003df240 calls + movz ternary, only the 0x6C/0x7C offset differs) and one overshoot: without schedule the two jal delays and the b delay are nops (+3) and the b210 movz expands to beqz/b/move (+3) for 34 vs 28. pragma_sweep 29 -> 12 with schedule on (O3 ties at 12 but changes the file baseline, so the local pragma is honest); no address hack and no if/else-for-switch present. With schedule the body is 26/26 after trailing-nop trim, inside the gate; residual is the lw-before-sd prologue wall and b210 movz->beql/bnel (retail has no branch-likely, plain b210 cannot emit movz - the b119 nd5 does not reproduce under b210). Banked as floor. */
+#pragma schedule on
 // FUN_003BD4F0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003bd4f0(s32 arg0, s32 arg1, u8 *arg2) {
@@ -1459,6 +1454,7 @@ s32 func_003bd4f0(s32 arg0, s32 arg1, u8 *arg2) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd4f0);
 #endif
+#pragma schedule off
 
 /* measured: schedule on is required for func_003bd560's return delay slot. */
 #pragma schedule on
@@ -1525,11 +1521,8 @@ do2:
 /* measured: schedule off closes func_003bd590 before the archived ASM sibling. */
 #pragma schedule off
 
-/* measured: docs/probe_archive/Main119_003bd610_body.c object 136B/window 112B, normalized_diff 29 live under the current b210 TU (installed guard below; object exceeds window by 24B). The movz ternary and both calls are exact; residual is the lw $v0,OFF($a2) that retail schedules above sd $ra, which no cached MWCC build does for this source (the lw-before-sd prologue wall). The nd5 b119-unit score does not reproduce under b210. Banked as floor. */
-/* gate: object 34 against retail 28, +21.4% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured: twin of func_003bd4f0 (0x7C offset variant of the same two-call + movz spelling); same schedule-on fix, 34 vs 28 -> 26/26 inside the gate, 29 -> 12 differing words. See func_003bd4f0 note for the shared cause and residual. Banked as floor. */
+#pragma schedule on
 // FUN_003BD610 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003bd610(s32 arg0, s32 arg1, u8 *arg2) {
@@ -1541,6 +1534,7 @@ s32 func_003bd610(s32 arg0, s32 arg1, u8 *arg2) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd610);
 #endif
+#pragma schedule off
 
 /* measured: schedule on opens func_003bd680's independent probe. */
 #pragma schedule on
@@ -1657,11 +1651,8 @@ do2:
 /* measured: schedule off closes func_003be820 before the archived ASM sibling. */
 #pragma schedule off
 
-/* measured: docs/probe_archive/Main119_003be8a0_body.c object 136B/window 112B, normalized_diff 29 live under the current b210 TU (installed guard below; object exceeds window by 24B). The movz ternary and both calls are exact; residual is the lw $v0,OFF($a2) that retail schedules above sd $ra, which no cached MWCC build does for this source (the lw-before-sd prologue wall). The nd5 b119-unit score does not reproduce under b210. Banked as floor. */
-/* gate: object 34 against retail 28, +21.4% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured: twin of func_003bd4f0 (0x6C offset, same two-call + movz spelling as 003bd4f0/003bd610); same schedule-on fix, 34 vs 28 -> 26/26 inside the gate, 29 -> 12 differing words. See func_003bd4f0 note for the shared cause and residual. Banked as floor. */
+#pragma schedule on
 // FUN_003BE8A0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003be8a0(s32 arg0, s32 arg1, u8 *arg2) {
@@ -1673,6 +1664,7 @@ s32 func_003be8a0(s32 arg0, s32 arg1, u8 *arg2) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be8a0);
 #endif
+#pragma schedule off
 
 /* measured: schedule on opens func_003be910's independent probe. */
 #pragma schedule on

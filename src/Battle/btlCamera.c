@@ -1895,12 +1895,14 @@ void func_001cde50(u8 *arg0) {
     extern f32 fGpffff8108;
     extern f32 fGpffff8110;
     u8 *v3;
+    f32 lensave;
     f32 f4;
     f32 f5;
     f32 f6;
     f32 f7;
     f32 f8;
-    f32 lensave;
+    f32 inv;
+    f32 bf;
     f32 v47[3];
     f32 v44[3];
     f32 v41[3];
@@ -1908,7 +1910,7 @@ void func_001cde50(u8 *arg0) {
     f32 v36[2];
     f32 v32[4];
     struct { f32 cur[4]; f32 nxt[4]; f32 angle; s32 mode; } slerp;
-    f32 v28[6];
+    f32 v28[4];
     f32 v27[3];
     f32 v26[4];
     f32 v25[3];
@@ -1942,43 +1944,41 @@ void func_001cde50(u8 *arg0) {
     f7 = func_001ec2b0(v26, v28);
     f8 = fGpffff80dc;
     if (f7 > f8) {
-        f4 = f8 / f7;
+        bf = f8 / f7;
         func_003dcc70(v26, v28, (f32 *)&slerp);
-        if (f4 > 0.0f) {
-            if (f4 < 1.0f) {
-                f6 = 1.0f - f4;
-                if (slerp.mode == 0) {
-                    f6 = f6 * slerp.angle;
-                    f5 = f6 * f6;
-                    f6 = f5 * f6 *
-                        (f5 * (f5 * (f5 * (f5 * (fGpffff8194 * f5 + fGpffff8054 + 0.0f) +
-                                                   fGpffff8058 + 0.0f) + fGpffff805c + 0.0f) +
-                                 fGpffff8060 + 0.0f) + fGpffff8108 + 0.0f) + f6 + 0.0f;
-                    f4 = f4 * slerp.angle;
-                    f5 = f4 * f4;
-                    f4 = f5 * f4 *
-                        (f5 * (f5 * (f5 * (f5 * (fGpffff8194 * f5 + fGpffff8054 + 0.0f) +
-                                                   fGpffff8058 + 0.0f) + fGpffff805c + 0.0f) +
-                                 fGpffff8060 + 0.0f) + fGpffff8108 + 0.0f) + f4 + 0.0f;
-                }
-                v32[0] = slerp.cur[0] * f6;
-                v32[1] = slerp.cur[1] * f6;
-                v32[2] = slerp.cur[2] * f6;
-                v32[0] = v32[0] + 0.0f + slerp.nxt[0] * f4;
-                v32[1] = v32[1] + 0.0f + slerp.nxt[1] * f4;
-                v32[2] = v32[2] + 0.0f + slerp.nxt[2] * f4;
-                v32[3] = slerp.nxt[3] * f4 + slerp.cur[3] * f6;
-            } else {
-                v32[0] = v28[0];
-                v32[1] = v28[1];
-                v32[2] = v28[2];
-                v32[3] = v28[3];
-            }
-        } else {
+        if (bf <= 0.0f) {
             v32[0] = v26[0];
             v32[1] = v26[1];
             v32[2] = v26[2];
             v32[3] = v26[3];
+        } else if (1.0f <= bf) {
+            v32[0] = v28[0];
+            v32[1] = v28[1];
+            v32[2] = v28[2];
+            v32[3] = v28[3];
+        } else {
+            inv = 1.0f - bf;
+            if (slerp.mode == 0) {
+                inv = inv * slerp.angle;
+                f5 = inv * inv;
+                inv = f5 * inv *
+                    (f5 * (f5 * (f5 * (f5 * (fGpffff8194 * f5 + fGpffff8054 + 0.0f) +
+                                               fGpffff8058 + 0.0f) + fGpffff805c + 0.0f) +
+                             fGpffff8060 + 0.0f) + fGpffff8108 + 0.0f) + inv + 0.0f;
+                bf = bf * slerp.angle;
+                f5 = bf * bf;
+                bf = f5 * bf *
+                    (f5 * (f5 * (f5 * (f5 * (fGpffff8194 * f5 + fGpffff8054 + 0.0f) +
+                                               fGpffff8058 + 0.0f) + fGpffff805c + 0.0f) +
+                             fGpffff8060 + 0.0f) + fGpffff8108 + 0.0f) + bf + 0.0f;
+            }
+            v32[0] = slerp.cur[0] * inv;
+            v32[1] = slerp.cur[1] * inv;
+            v32[2] = slerp.cur[2] * inv;
+            v32[0] = v32[0] + 0.0f + slerp.nxt[0] * bf;
+            v32[1] = v32[1] + 0.0f + slerp.nxt[1] * bf;
+            v32[2] = v32[2] + 0.0f + slerp.nxt[2] * bf;
+            v32[3] = slerp.nxt[3] * bf + slerp.cur[3] * inv;
         }
         func_003dcb40(v44, &D_0060A100, 1, v32);
         v47[0] = v41[0] + v44[0];
@@ -1994,7 +1994,7 @@ void func_001cde50(u8 *arg0) {
     v44[0] = v44[0] * f4;
     v44[1] = v44[1] * f4;
     v44[2] = v44[2] * f4;
-    f4 = f4 * func_0044b868(fGpffff8110 * *(f32 *)(arg0 + 0xB8) * 0.5f) * 0.21875f;
+    f4 = f4 * func_0044b868(0.5f * *(f32 *)(arg0 + 0xB8) * fGpffff8110) * 0.21875f;
     v36[0] = v44[0];
     v36[1] = v44[2];
     func_003e41e0(v36, v36);
