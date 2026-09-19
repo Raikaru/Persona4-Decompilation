@@ -2223,6 +2223,7 @@ u8 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
 /* measured: func_001d8010 floor, retail 2992B window (748 instrs), candidate 3000B object (750 instrs, +0.27% size), probe_variants normalized_diff 687 (reloc-masked), 30 retail relocations (D_008C027A/0276, jtbl_00747110, 001d8df0/8bc0, 195850/196040/1ec3d0, 3e42a0/41e0, 457120, 881430, 76449C).
  * Structure: early count<2 return, D_008C027A 0x2000/8000/1000/4000 -> mode 5/4/2/3 with D_008C0276 hasFlag, 1d8df0==1 remap (5/1->3, 4/0->2), switch in object order 4/5,0/1,2/3 sharing bodies via jtbl_00747110, u16 entry idx/chain (Entry[12] at sp+0x90 -> sp+0x120 exactly), three bubble sorts (score/score/chain, descending), chain filter over *(D_0076449C+0x17C) via +0xA68, 1ec3d0 transform for 0/1, shared tail storing *(arg1+0x3A) with +0x3C|1.
  * Phases measured (probe_variants, cwd REPO): v1 separate floats 695, v2 stk[24]+Entry[12] 687 best, v3 s64 mode 699 (regresses, retail daddiu not reached via s64), v4 s32 mode+arg0 reuse+m-inside 687 tie best (banked), v5 u16 counters+dummy s16 687 tie, v6 u16+s16 depth 696 (regresses). (s64)(x<<0x30)>>0x30 tried as s16 depth, regresses.
+ * v7 branch-layout (this session): head PROJ divide == -> != with arms swapped (matches the per-entry != site, div-first + bc1t at both), two score stores < -> >= with arms swapped (POS/dist-first like retail). 720 -> 709 edits (-5 head, -6 stores, additive); words 687 -> 689 (+2 from c.olt->c.ole/bc1f at the two store compares, the documented arms-corrected tradeoff). Rejected: nested else-if remap (722, duplicates mode=3), swapped=1/while/bound sorts (727, +9 instrs), s64 mode/hasFlag (722/720/722).
  * Blockers for MATCH: 0/1 dot uses mula.s/madd.s accumulator (plain C gives mul/add, 2-word MAC floor per compiler-floors), mode sets need daddiu (6 words, s64 tried, still addiu), frame retail -0x180 vs candidate -0x1a0 (+32, extra s7/f22/f23 saves from 8 live ints vs 7), integer/FPR coloring (arg1 s0/mode s1/arg0 s2/hasFlag s3/n s4/i s5/unit s6) and stack offsets (entries 0x90, fixed 0x120-0x17C) remain.
  * Guarded floor, production stays INCLUDE_ASM; verify.py src/promoted/code1_001d.c still 91 MATCH/3 ASM, no regression. */
 #ifdef SKIP_ASM
@@ -2291,12 +2292,12 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
     case 5: {
         arg0 = func_00457120() + 0x20;
         func_003e42a0(PROJ, (f32 *)D_00881430, arg0);
-        if (PROJ[2] == 0.0f) {
-            stk[20] = 640.0f * PROJ[0];
-            stk[21] = 448.0f * PROJ[1];
-        } else {
+        if (PROJ[2] != 0.0f) {
             stk[20] = 640.0f * (PROJ[0] / PROJ[2]);
             stk[21] = 448.0f * (PROJ[1] / PROJ[2]);
+        } else {
+            stk[20] = 640.0f * PROJ[0];
+            stk[21] = 448.0f * PROJ[1];
         }
         n = 0;
         i = 0;
@@ -2316,10 +2317,10 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
             DELTA[0] = stk[22] - stk[20];
             DELTA[1] = stk[23] - stk[21];
             len = func_003e41e0(DELTA, DELTA);
-            if (0.0f < DELTA[0]) {
-                entries[n & 0xFFFF].score = -len;
-            } else {
+            if (0.0f >= DELTA[0]) {
                 entries[n & 0xFFFF].score = len;
+            } else {
+                entries[n & 0xFFFF].score = -len;
             }
             entries[n & 0xFFFF].unit = unit;
             entries[n & 0xFFFF].idx = (u16)(i & 0xFFFF);
@@ -2411,10 +2412,10 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
             DELTA[1] = CURXZ[1] - OUTXZ[1];
             func_003e41e0(DELTA, DELTA);
             dot = DELTA[1] * DIR[1] + DELTA[0] * DIR[0];
-            if (0.0f < dot) {
-                entries[n & 0xFFFF].score = -dist;
-            } else {
+            if (0.0f >= dot) {
                 entries[n & 0xFFFF].score = dist;
+            } else {
+                entries[n & 0xFFFF].score = -dist;
             }
             entries[n & 0xFFFF].unit = unit;
             entries[n & 0xFFFF].idx = (u16)(i & 0xFFFF);
