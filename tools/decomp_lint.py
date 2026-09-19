@@ -701,7 +701,10 @@ def check_guard_tagged(src):
         if "NONMATCHING" in m.group(3):
             continue
         end = marks[n + 1][0] if n + 1 < len(marks) else len(src.lines)
-        if not any(src.lines[j].strip() == "#ifdef NON_MATCHING"
+        # Two guard spellings are in use: `#ifdef NON_MATCHING` and the older
+        # `#ifdef SKIP_ASM`, 26 of which remain.  Both hide a body the audits
+        # only find through the tagged marker.
+        if not any(src.lines[j].strip() in ("#ifdef NON_MATCHING", "#ifdef SKIP_ASM")
                    for j in range(i, end)):
             continue
         yield Finding("M003", src.rel(), i + 1,
