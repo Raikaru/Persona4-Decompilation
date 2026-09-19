@@ -568,9 +568,23 @@ it.  The histogram alone usually identifies what the code *is*:
 
 So the reading order for a one-sided run is: **count the calls first** (equal
 call counts mean nothing is missing, only misplaced), then read the
-histogram.  `dsll32`/`dsra32` is a width error, a `cvt.s.w` cluster is a
-conversion-signedness error, and a `jal` cluster with matching totals is
-misplaced work rather than absent work.
+histogram.  `dsll32`/`dsra32` is a width error, a `jal` cluster with matching
+totals is misplaced work rather than absent work, and a `cvt.s.w` cluster is
+a conversion difference.
+
+**But the histogram says what kind of code the run contains, never why it
+differs.**  I read `cvt.s.w x16` on `func_001fd790` and inferred that retail
+converts those bytes signed where the body does not.  That was wrong: retail
+has `bltz` at 0x001FDA20, 64, A8, EC, 0x001FDB30, 74, B8 and 0x001FDD1C, so
+both sides use the unsigned recipe and casting to `(f32)(s32)` would have
+deleted instructions retail owns.  The real difference was **hoisted against
+interleaved loads** - the body stages all eight values up front, retail loads
+each byte immediately before its own conversion - and scoping each load with
+its conversion took 735 edits to 590.
+
+Same signal, two different causes; `func_001441e0`'s 142-instruction run with
+23 calls was a third (two `if` chains that are `switch` statements, 668 edits
+to 47).  Open both windows before acting.
 
 ### 7bb. Retail's saved-float count tells you how many floats were variables
 
