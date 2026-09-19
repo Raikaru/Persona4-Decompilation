@@ -2925,6 +2925,18 @@ ret0:
     return 0;
 }
 
+/* Cold 0023e6f0 (2732 instrs, frame -0xC0 s17-s23/s30): no probe_archive */
+/* entry; m2c fails on K&R header s32 func_00241bc0(arg0,...) in context */
+/* (not jtbl; no jr except return, switches via if-chains). romwright 1272 */
+/* lines (u32 ret, long/u64/u64/u32 4 args) needs ?-at-line-start (keep */
+/* ternary), sbyte->s8, FUN_00635938->D_00635938, header to file signature, */
+/* temp_v7/temp_v9 int-vs-pointer splits (reused temps hold int at one site */
+/* (func return/random) and pointer (table entry+iGp+off) at another; split */
+/* to int + u8* with non-overlapping live ranges, same count). Read floor */
+/* 00238940 idioms first: s32 clean, (u16)arg0 head split, u16 skill loads */
+/* 0x216-0x220, s16 counters (s32 vs s16 was 207 structural here this week), */
+/* table-walk field-by-field at fixed offsets, s16 fields. Front-load s16 */
+/* counters, counted fors, s32 clean. Not banked: count outside band. */
 // FUN_0023E6F0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e6f0);
 
