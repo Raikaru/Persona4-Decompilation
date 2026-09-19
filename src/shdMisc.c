@@ -164,10 +164,25 @@ s32 func_003645c0(char *out, s32 value)
    The six float parameters are also used directly instead of through
    temp_f2x copies, which b210 propagates away (that alone is a tie at 411;
    the order is what moves it). */
+/* 402 -> 276 words, 499 -> 383 instrs (2026-09-19, inside the 361-383 gate):
+   write `(f32)(u32)x` and let b210 emit its bltz/srl/andi/or/mtc1/cvt/add.s
+   idiom - the hand-written halving/doubling (`if (t >= 0) f=(f32)(u32)t else
+   { hh=(f32)(((u32)t>>1)|bit); f=hh+hh; }`) compiles to ten extra copies of
+   that idiom (opclass mtc1/cvt/srl/or/add.s/b/bltz +10 each, andi +9,
+   nop +35; fnalign 499 vs retail 372). Plain unsigned is 288 words at 384
+   instrs; dropping the dead swbase local (drawbase cached early, swbase via
+   direct `D_00887300[0]`, 7+1 sites) is 276 words at 383 instrs with 160
+   edits - the banked floor. Both directions measured: the signed spelling
+   `(f32)t` on the same body is 334 words at 325 instrs (outside the gate,
+   short), so unsigned is retail's own shape. Replay with
+   `python3 tools/measure_guarded.py src/shdMisc.c func_00364680` and
+   `python3 tools/fnalign.py src/shdMisc.c func_00364680 --candidate
+   docs/probe_archive/LaneShdMisc_00364680_v3_body.c --quiet`. Residual is lui +6, nop +5, addu +1 with
+   bytes in s4-s1 (retail s5-s2) and the swbase loads absolute where retail
+   caches - saved-register coloring/scheduling floor. Production stays ASM. */
 // FUN_00364680 NONMATCHING
 #ifdef NON_MATCHING
 void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, f32 fparg6, u8 *ptr, s32 arg2, s32 arg3) {
-    void (**swbase)(u32, u32);
     s32 (**drawbase)(s32, void *, s32);
     f32 verts[4][16];
     f32 temp_f26;
@@ -178,12 +193,6 @@ void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32
     s32 temp_18;
     s32 flag;
     s32 i;
-    s32 bit0;
-    s32 b3;
-    s32 b2;
-    s32 b1;
-    s32 b0;
-    f32 hh;
     temp_f26 = D_008872F8[0] - depth;
     temp_f25 = 1.0f / *(f32 *)(func_00457120() + 0x80);
     if (ptr == NULL) {
@@ -213,15 +222,14 @@ void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32
     ((u32 *)verts)[2 * 16 + 5] = 0x3F800000;
     ((u32 *)verts)[3 * 16 + 4] = 0;
     ((u32 *)verts)[3 * 16 + 5] = 0x3F800000;
-    swbase = D_00887300;
     drawbase = D_00887310;
-    swbase[0](7, 2);
-    swbase[0](6, 0);
-    swbase[0](8, 0);
-    swbase[0](0xE, 0);
-    swbase[0](9, 2);
-    swbase[0](0xC, 1);
-    swbase[0](1, *(s32 *)ptr);
+    D_00887300[0](7, 2);
+    D_00887300[0](6, 0);
+    D_00887300[0](8, 0);
+    D_00887300[0](0xE, 0);
+    D_00887300[0](9, 2);
+    D_00887300[0](0xC, 1);
+    D_00887300[0](1, *(s32 *)ptr);
     func_003f6440(2, 0x44);
     func_00489f80();
     if (flag) {
@@ -250,17 +258,11 @@ void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32
     verts[2][1] = fparg2 + fparg6;
     verts[3][0] = fparg1;
     verts[3][1] = fparg2 + fparg6;
-    bit0 = temp_18 & 1;
     for (i = 0; i < 4; i++) {
         ((u32 *)verts)[i * 16 + 8] = 0x437F0000;
         ((u32 *)verts)[i * 16 + 9] = 0x437F0000;
         ((u32 *)verts)[i * 16 + 10] = 0x437F0000;
-        if (temp_18 >= 0) {
-            verts[i][11] = (f32)(u32)temp_18;
-        } else {
-            hh = (f32)(((u32)temp_18 >> 1) | bit0);
-            verts[i][11] = hh + hh;
-        }
+        verts[i][11] = (f32)(u32)temp_18;
     }
     if (flag) {
         func_003f6440(3, 0x35801);
@@ -269,7 +271,7 @@ void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32
     }
     drawbase[0](5, verts, 4);
     func_0048a000();
-    swbase[0](1, 0);
+    D_00887300[0](1, 0);
     switch (arg3) {
     case 1:
         func_003f6440(2, 0x58);
@@ -294,36 +296,12 @@ void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32
     verts[2][1] = fparg2 + fparg6;
     verts[3][0] = fparg1;
     verts[3][1] = fparg2 + fparg6;
-    b3 = temp_21 & 1;
-    b2 = temp_20 & 1;
-    b1 = temp_19 & 1;
-    b0 = temp_18 & 1;
     for (i = 0; i < 4; i++) {
         f32 *row = &verts[i][0];
-        if (temp_21 >= 0) {
-            row[8] = (f32)(u32)temp_21;
-        } else {
-            hh = (f32)(((u32)temp_21 >> 1) | b3);
-            row[8] = hh + hh;
-        }
-        if (temp_20 >= 0) {
-            row[9] = (f32)(u32)temp_20;
-        } else {
-            hh = (f32)(((u32)temp_20 >> 1) | b2);
-            row[9] = hh + hh;
-        }
-        if (temp_19 >= 0) {
-            row[10] = (f32)(u32)temp_19;
-        } else {
-            hh = (f32)(((u32)temp_19 >> 1) | b1);
-            row[10] = hh + hh;
-        }
-        if (temp_18 >= 0) {
-            row[11] = (f32)(u32)temp_18;
-        } else {
-            hh = (f32)(((u32)temp_18 >> 1) | b0);
-            row[11] = hh + hh;
-        }
+        row[8] = (f32)(u32)temp_21;
+        row[9] = (f32)(u32)temp_20;
+        row[10] = (f32)(u32)temp_19;
+        row[11] = (f32)(u32)temp_18;
     }
     drawbase[0](4, verts, 4);
 }

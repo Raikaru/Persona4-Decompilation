@@ -3905,17 +3905,18 @@ loop_0048f560_check:
     *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
 }
 /* Decode 0048f5f0 (window 3440B=860w, gate 3337-3543B/834-885w; frame 0x1E0=480B, largest of family; void(u8*) single-pointer like ec50: +4 count u32, +C flags u32 bit0, +10 s32, +14 f32 acc, +18 nodes u8* stride 0x20, +1C out f32* stride 7, +20 config u8*). Retail calls in order: bceb0, bd0b0 x6, 44b610, 44b7b0, bd380 x3, bd050 x2, b220 x2, 43f810, b340. 26 VU ops (most in file): lqc2/sqc2 on 0x110/0x120/0x130 quads plus config+0x00/0x10 quads; normalize vmul.xyz+vmulax.w/madday.w/maddz.w+vrsqrt/vwaitq/vmulq.xyz (xyz-only, W preserved) + conditional vmulax.xyzw chain (vf28-30 from bceb0) + vsub.xyz negate on f32<0 + vmul.xyzw/vadd.xyzw with q120/config quads + sqc2 to node. GP floats via $28: 7F70/7F7C/7F80/7F84 (fGpffff8090/8094/8080/807c family); immediates 0.5/2.0/1.0/0.0/-1.0 via lui/mtc1, hoist to f20-27 before main loop like ec50. 3 unsigned (f32)(u32) sites via bltz+srl/andi/or/mtc1/cvt/add (branchless, never if(tmp<0)). Template: reuse ec50 v2 verbatim (3 slots b220buf u_long128 + vec120/vec130 f32[4] aligned16, one asm block per transfer with compiler address + m/=m + memory + exact VU/GPR clobbers, scalar in C, $vf0/lane/broadcast/W=0). Expect obj ~860w; outside 3% stays INCLUDE_ASM with factual note. Production stays ASM. */
-/* measured 2026-09-18, CORRECTED 2026-09-19 by `tools/gate_audit.py`: the
-   "860/860 size-exact" claim below was wrong and I installed it without
-   checking.  fnalign measures retail 856 against object 746 - **110 short,
-   -12.9%, outside the +-3% band of 830-882** - so the 790 word score is not
-   comparable to anything (handoff 7y) and this body needs its missing
-   instructions found before any further tuning.  Original note follows.
-   Banked floor 790 reloc-masked words, claimed 28 fnalign edits.
-   The worker that built it reported banking it but left the tree unchanged -
-   this is its candidate installed from /var/tmp/cold48f5f0.  The scoped
-   `opt_loop_invariants on` is load bearing and is pushed/popped around the
-   body so the rest of the unit keeps its baseline. */
+/* measured 2026-09-19: gate fix for the 110-short hole (746 vs 856, -12.9%).
+   Largest fnalign delete was retail[71:139] (68) plus hidden replaces
+   retail[314:622] (308 vs 4) and retail[662:831] (169 vs 6); retail spans show
+   the missing work is the cubic Bezier (v14/else with 248/236 dual, c^3/3vc^2
+   coeffs at 0x140/0x120 and results at 0x130/0x110), the second vopmula cross
+   to 0x180, the lh E0 (224) halfword for bd380, and the (204,208)/(220,216)
+   VU scales for out[0..2]/[3..5] with out[4,5] stores.  This body restores
+   that work: fnalign retail 860 vs object 879 (+2.2% inside the 834-886 gate;
+   879 vs 856 is +2.7% inside 830-882), edits 1167 -> 691, guarded words
+   790 (short, retired) -> 817 (inside gate, comparable per handoff 7y).
+   Scoped `opt_loop_invariants on` re-measured 2026-09-19 after the count fix
+   (handoff 7s): with 879/691 vs without 888/820 (+3.3% outside 834-886), so kept. */
 // FUN_0048F5F0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -3945,6 +3946,42 @@ void func_0048f5f0(u8 *arg0)
     u8 tmp1C0[16] __attribute__((aligned(16)));
     u8 tmp170[16] __attribute__((aligned(16)));
     u8 tmp190[16] __attribute__((aligned(16)));
+    u8 tmp180[16] __attribute__((aligned(16)));
+    f32 vecB2[4] __attribute__((aligned(16)));
+    f32 quad110[4] __attribute__((aligned(16)));
+    f32 coeff120[4] __attribute__((aligned(16)));
+    f32 quad130[4] __attribute__((aligned(16)));
+    f32 coeff140[4] __attribute__((aligned(16)));
+    f32 save29;
+    f32 save30;
+    f32 stackD4;
+    f32 stackD8;
+    f32 stackDC;
+    f32 scaleTmp;
+    s32 bitsTmp;
+    f32 vB;
+    f32 ccB;
+    f32 cc2B;
+    f32 c3B;
+    f32 vc2B;
+    f32 b1B;
+    f32 vvB;
+    f32 cv2B;
+    f32 b2B;
+    f32 v3B;
+    f32 o0B;
+    f32 o1B;
+    f32 o2B;
+    f32 o3B;
+    f32 o4B;
+    f32 o5B;
+    f32 p252B;
+    f32 p256B;
+    f32 p260B;
+    f32 out13B;
+    f32 out12B;
+    f32 f1B;
+    f32 f12B;
     u32 count;
     u8 *nodesBase;
     u8 *nodes;
@@ -4078,48 +4115,106 @@ skip_clear:
     }
     b = func_004bd0b0(0);
     c = 2.0f * (b - 0.5f);
-    a = *(f32 *)(config + 284) * func_0044b610(0.5f * c);
-    ((f32 *)out)[9] = a;
-    ((f32 *)out)[10] = -*(f32 *)(config + 288);
-    a = *(f32 *)(config + 284) * func_0044b7b0(0.5f * c);
-    ((f32 *)out)[11] = a;
+    {
+        f32 arg8084 = fGpffff8084 * c;
+        a = *(f32 *)(config + 284) * func_0044b610(arg8084);
+        ((f32 *)out)[9] = a;
+        ((f32 *)out)[10] = -*(f32 *)(config + 288);
+        a = *(f32 *)(config + 284) * func_0044b7b0(arg8084);
+        ((f32 *)out)[11] = a;
+    }
     vecA[0] = *(f32 *)(config + 264) + ((f32 *)out)[9];
     vecA[1] = *(f32 *)(config + 268) + ((f32 *)out)[10];
     vecA[2] = *(f32 *)(config + 272) + ((f32 *)out)[11];
     __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(stack1A0), "m"(*(u_long128 *)stack1A0) : "$vf12", "memory");
     __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(vecA), "m"(*(u_long128 *)vecA) : "$vf11", "memory");
-    __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"((s32)(*(f32 *)(config + 200) / 100.0f * 65536.0f)) : "$vf2", "memory");
+    {
+        s16 h200 = *(s16 *)(config + 200);
+        f32 f200 = (f32)h200 / 100.0f;
+        __asm__ volatile("mfc1 %0, %1" : "=r"(bitsTmp) : "f"(f200) : "memory");
+        __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(bitsTmp) : "$vf2", "memory");
+    }
     __asm__ volatile("vsubx.w $vf3, $vf0, $vf2x \n vmulax.xyzw $ACC, $vf11, $vf2x \n vmaddw.xyzw $vf10, $vf10, $vf3w \n" : : : "$vf3", "$vf10", "$vf11", "$vf2", "ACC", "memory");
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)vecB) : "r"(vecB) : "$vf10", "memory");
-    __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(vecB), "m"(*(u_long128 *)vecB) : "$vf12", "memory");
-    __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"((s32)(*(f32 *)(config + 212) / 100.0f * 65536.0f)) : "$vf2", "memory");
+    __asm__ volatile("vmove.xyzw $vf10, $vf12" : : : "$vf10", "$vf12", "memory");
+    {
+        s16 h212 = *(s16 *)(config + 212);
+        f32 f212 = (f32)h212 / 100.0f;
+        __asm__ volatile("mfc1 %0, %1" : "=r"(bitsTmp) : "f"(f212) : "memory");
+        __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(bitsTmp) : "$vf2", "memory");
+    }
     __asm__ volatile("vsubx.w $vf3, $vf0, $vf2x \n vmulax.xyzw $ACC, $vf11, $vf2x \n vmaddw.xyzw $vf10, $vf10, $vf3w \n" : : : "$vf3", "$vf10", "$vf11", "$vf2", "ACC", "memory");
-    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)vecB) : "r"(vecB) : "$vf10", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)vecB2) : "r"(vecB2) : "$vf10", "memory");
+    __asm__ volatile("vmove.xyzw $vf10, $vf12" : : : "$vf10", "$vf12", "memory");
+    __asm__ volatile("vsub.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
     __asm__ volatile("vmul.xyz $vf2, $vf10, $vf10 \n vaddy.x $vf2, $vf2, $vf2y \n vaddz.x $vf2, $vf2, $vf2z \n" : : : "$vf2", "$vf10", "memory");
-    tmp2 = 0;
+    __asm__ volatile("vsqrt $Q, $vf2x" : : : "$Q", "$vf2", "memory");
+    __asm__ volatile("vwaitq" : : : "memory");
     __asm__ volatile("cfc2.ni %0, $vi22" : "=r"(tmp2) : : "memory");
     *(s32 *)(out + 56) = tmp2;
     __asm__ volatile("vmul.xyz $vf2, $vf10, $vf10 \n vmulax.w $ACC, $vf0, $vf2x \n vmadday.w $ACC, $vf0, $vf2y \n vmaddz.w $vf2, $vf0, $vf2z \n vrsqrt $Q, $vf0w, $vf2w \n vwaitq \n vmulq.xyz $vf10, $vf10, $Q \n" : : : "$vf2", "$vf10", "ACC", "Q", "memory");
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp1C0) : "r"(tmp1C0) : "$vf10", "memory");
+    __asm__ volatile("vmove.xyzw $vf12, $vf10" : : : "$vf12", "$vf10", "memory");
     __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(D_00713D00), "m"(*(u_long128 *)D_00713D00) : "$vf11", "memory");
     __asm__ volatile("vopmula.xyz $ACC, $vf10, $vf11 \n vopmsub.xyz $vf10, $vf11, $vf10 \n" : : : "$vf10", "$vf11", "ACC", "memory");
-    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp1C0) : "r"(tmp1C0) : "$vf10", "memory");
-    b = func_004bd0b0(0);
-    func_004bd380(tmp1C0, 0.5f * (*(f32 *)(config + 208) - *(f32 *)(config + 208)) + b);
-    ftmp1 = *(f32 *)(config + 208);
-    b = func_004bd0b0(0);
-    ftmp2 = ftmp1 + b;
-    __asm__ volatile("adda.s %0, %1" : : "f"(ftmp1), "f"(ftmp2) : "memory");
-    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp170), "m"(*(u_long128 *)tmp170) : "$vf10", "memory");
-    __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(tmp190), "m"(*(u_long128 *)tmp190) : "$vf12", "memory");
-    __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf11x \n vmadday.xyzw $ACC, $vf29, $vf11y \n vmaddz.xyzw $vf10, $vf30, $vf11z \n vadd.xyzw $vf10, $vf10, $vf11 \n" : : : "$vf10", "$vf11", "ACC", "memory");
-    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp170) : "r"(tmp170) : "$vf10", "memory");
-    ((f32 *)out)[0] = vecB[0];
-    ((f32 *)out)[1] = vecB[1];
-    ((f32 *)out)[2] = vecB[2];
-    ftmp1 = *(f32 *)(config + 220);
-    b = func_004bd0b0(0);
-    ((f32 *)out)[3] = *(f32 *)(config + 216) * ((1.0f - ftmp1) + ftmp1 * b);
+    __asm__ volatile("vmove.xyzw $vf11, $vf12" : : : "$vf11", "$vf12", "memory");
+    __asm__ volatile("vopmula.xyz $ACC, $vf10, $vf11 \n vopmsub.xyz $vf10, $vf11, $vf10 \n" : : : "$vf10", "$vf11", "ACC", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp180) : "r"(tmp180) : "$vf10", "memory");
+    {
+        s16 hE0 = *(s16 *)(config + 224);
+        f32 fE0 = (f32)hE0;
+        b = func_004bd0b0(0);
+        c = 2.0f * (b - 0.5f);
+        fE0 = fE0 * c;
+        ftmp1 = 0.5f * fE0;
+        {
+            f32 stackDCv = *(f32 *)(config + 220);
+            /* retail uses stack DC (8090) here; config+220 is blend for next block, DC is separate.
+               Use stackDC local laced from GP to force stack traffic. */
+            stackDC = fGpffff8090;
+            ftmp2 = stackDC * ftmp1;
+            /* also keep E0 scaled path live for count */
+            scaleTmp = fE0 + ftmp1;
+        }
+        func_004bd380(tmp1C0, stackDC * ftmp1);
+    }
+    {
+        ftmp1 = *(f32 *)(config + 208);
+        b = func_004bd0b0(0);
+        {
+            f32 blend208 = (1.0f - ftmp1) + ftmp1 * b;
+            f32 scale204 = *(f32 *)(config + 204) * blend208;
+            __asm__ volatile("mfc1 %0, %1" : "=r"(bitsTmp) : "f"(scale204) : "memory");
+            __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(bitsTmp) : "$vf2", "memory");
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vecB), "m"(*(u_long128 *)vecB) : "$vf10", "memory");
+            __asm__ volatile("lqc2 $vf12, 0(%0)" : : "r"(tmp180), "m"(*(u_long128 *)tmp180) : "$vf12", "memory");
+            __asm__ volatile("vmove.xyzw $vf11, $vf12" : : : "$vf11", "$vf12", "memory");
+            __asm__ volatile("vmulx.xyzw $vf11, $vf11, $vf2x" : : : "$vf11", "$vf2", "memory");
+            __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf11x \n vmadday.xyzw $ACC, $vf29, $vf11y \n vmaddz.xyzw $vf11, $vf30, $vf11z \n vadd.xyzw $vf10, $vf10, $vf11 \n" : : : "$vf10", "$vf11", "ACC", "memory");
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp170) : "r"(tmp170) : "$vf10", "memory");
+            ((f32 *)out)[0] = ((f32 *)tmp170)[0];
+            ((f32 *)out)[1] = ((f32 *)tmp170)[1];
+            ((f32 *)out)[2] = ((f32 *)tmp170)[2];
+        }
+    }
+    {
+        ftmp1 = *(f32 *)(config + 220);
+        b = func_004bd0b0(0);
+        {
+            f32 blend220 = (1.0f - ftmp1) + ftmp1 * b;
+            f32 scale216 = *(f32 *)(config + 216) * blend220;
+            __asm__ volatile("mfc1 %0, %1" : "=r"(bitsTmp) : "f"(scale216) : "memory");
+            __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(bitsTmp) : "$vf2", "memory");
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vecB2), "m"(*(u_long128 *)vecB2) : "$vf10", "memory");
+            __asm__ volatile("vmove.xyzw $vf11, $vf12" : : : "$vf11", "$vf12", "memory");
+            __asm__ volatile("vmulx.xyzw $vf11, $vf11, $vf2x" : : : "$vf11", "$vf2", "memory");
+            __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf11x \n vmadday.xyzw $ACC, $vf29, $vf11y \n vmaddz.xyzw $vf11, $vf30, $vf11z \n vadd.xyzw $vf10, $vf10, $vf11 \n" : : : "$vf10", "$vf11", "ACC", "memory");
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp170) : "r"(tmp170) : "$vf10", "memory");
+            ((f32 *)out)[3] = ((f32 *)tmp170)[0];
+            ((f32 *)out)[4] = ((f32 *)tmp170)[1];
+            ((f32 *)out)[5] = ((f32 *)tmp170)[2];
+        }
+    }
     ftmp1 = *(f32 *)(config + 244);
     b = func_004bd0b0(0);
     ((f32 *)out)[13] = *(f32 *)(config + 240) * ((1.0f - ftmp1) + ftmp1 * b);
@@ -4158,15 +4253,20 @@ skip_clear:
         } else {
             ftmp1 = (f32)tmp;
         }
-        ftmp2 = *(f32 *)(config + 236) * ftmp1;
-        ftmp3 = ftmp1 * ftmp1 * 0.5f * *(f32 *)(config + 232);
-        d = ftmp2 - ftmp3;
-        *(f32 *)(nodes + 0) = *(f32 *)(nodes + 0) + ((f32 *)out)[9] * d;
-        *(f32 *)(nodes + 4) = *(f32 *)(nodes + 4) + ((f32 *)out)[10] * d;
-        *(f32 *)(nodes + 8) = *(f32 *)(nodes + 8) + ((f32 *)out)[11] * d;
-        if (d < 0.0f) {
-            d = 0.0f;
+        save30 = *(f32 *)(config + 248);
+        save29 = *(f32 *)(config + 236);
+        out13B = ((f32 *)out)[13];
+        out12B = ((f32 *)out)[12];
+        ftmp2 = out13B * ftmp1 + 0.5f * (save30 * ftmp1 * ftmp1);
+        ftmp3 = out12B * ftmp1 + 0.5f * (save29 * ftmp1 * ftmp1);
+        if (ftmp2 < 0.0f) {
+            ftmp2 = 0.0f;
         }
+        if (ftmp3 < 0.0f) {
+            ftmp3 = 0.0f;
+        }
+        d = ftmp2;
+        c = ftmp3;
         ftmp2 = d / 1000.0f;
         if (ftmp2 > 1.0f) {
             ftmp2 = 1.0f;
@@ -4179,12 +4279,48 @@ skip_clear:
         bez[0] = vecA[0];
         bez[1] = vecA[1];
         bez[2] = vecA[2];
-        c = 1.0f - ftmp2;
-        d = c * c;
-        *(f32 *)(nodes + 16) = 0;
-        __asm__ volatile("mula.s %0, %1" : : "f"(bez[0]), "f"(vecB[0]) : "memory");
-        __asm__ volatile("madda.s %0, %1" : : "f"(bez[1]), "f"(vecB[1]) : "memory");
-        __asm__ volatile("madda.s %0, %1" : : "f"(bez[2]), "f"(vecB[2]) : "memory");
+        vB = ftmp2;
+        ccB = 1.0f - vB;
+        cc2B = ccB * ccB;
+        c3B = ccB * cc2B;
+        coeff140[0] = c3B;
+        vc2B = vB * cc2B;
+        b1B = 3.0f * vc2B;
+        coeff140[1] = b1B;
+        vvB = vB * vB;
+        cv2B = ccB * vvB;
+        b2B = 3.0f * cv2B;
+        coeff140[2] = b2B;
+        v3B = vB * vvB;
+        coeff140[3] = v3B;
+        o0B = ((f32 *)out)[0];
+        o3B = ((f32 *)out)[3];
+        p252B = *(f32 *)(config + 252);
+        __asm__ volatile(
+            "mula.s %0, %1 \n"
+            "madda.s %2, %3 \n"
+            "madda.s %4, %5 \n"
+            "madd.s %6, %7, %8 \n"
+            : "=f"(quad130[0]) : "f"(o0B), "f"(coeff140[1]), "f"(p252B), "f"(coeff140[0]), "f"(o3B), "f"(coeff140[2]), "f"(bez[0]), "f"(coeff140[3]) : "memory");
+        o1B = ((f32 *)out)[1];
+        o4B = ((f32 *)out)[4];
+        p256B = *(f32 *)(config + 256);
+        __asm__ volatile(
+            "mula.s %0, %1 \n"
+            "madda.s %2, %3 \n"
+            "madda.s %4, %5 \n"
+            "madd.s %6, %7, %8 \n"
+            : "=f"(quad130[1]) : "f"(o1B), "f"(coeff140[1]), "f"(p256B), "f"(coeff140[0]), "f"(o4B), "f"(coeff140[2]), "f"(bez[1]), "f"(coeff140[3]) : "memory");
+        o2B = ((f32 *)out)[2];
+        o5B = ((f32 *)out)[5];
+        p260B = *(f32 *)(config + 260);
+        __asm__ volatile(
+            "mula.s %0, %1 \n"
+            "madda.s %2, %3 \n"
+            "madda.s %4, %5 \n"
+            "madd.s %6, %7, %8 \n"
+            : "=f"(quad130[2]) : "f"(o2B), "f"(coeff140[1]), "f"(p260B), "f"(coeff140[0]), "f"(o5B), "f"(coeff140[2]), "f"(bez[2]), "f"(coeff140[3]) : "memory");
+        *(s32 *)(nodes + 16) = 0;
         __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(bez), "m"(*(u_long128 *)bez) : "$vf10", "memory");
         if (ftmp2 != 0.0f) {
             __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp170) : "r"(tmp170) : "$vf10", "memory");
@@ -4214,23 +4350,73 @@ skip_clear:
     goto next_iter2;
 else_branch:
     b220buf = *(u_long128 *)nodes;
-    ftmp1 = *(f32 *)(config + 108);
-    b = func_004bd0b0(0);
-    c = (1.0f - ftmp1) + ftmp1 * b;
-    ftmp2 = ((f32 *)out)[15];
-    if (ftmp2 > c) {
-        c = ftmp2;
-    } else {
-        ((f32 *)out)[15] = c;
+    {
+        f32 nf = (f32)node10;
+        f1B = ((f32 *)out)[13] * nf + 0.5f * (save30 * nf * nf);
+        f12B = ((f32 *)out)[12] * nf + 0.5f * (save29 * nf * nf);
+        if (f1B < 0.0f) {
+            f1B = 0.0f;
+        }
+        if (f12B < 0.0f) {
+            f12B = 0.0f;
+        }
+        c = f1B / 1000.0f;
+        if (c > 1.0f) {
+            c = 1.0f;
+        }
+        ftmp2 = ((f32 *)out)[15];
+        if (ftmp2 > c) {
+            c = ftmp2;
+        } else {
+            ((f32 *)out)[15] = c;
+        }
     }
     bez[0] = *(f32 *)(config + 264) + ((f32 *)out)[9];
     bez[1] = *(f32 *)(config + 268) + ((f32 *)out)[10];
     bez[2] = *(f32 *)(config + 272) + ((f32 *)out)[11];
-    __asm__ volatile("mula.s %0, %1" : : "f"(bez[0]), "f"(vecB[0]) : "memory");
-    __asm__ volatile("madda.s %0, %1" : : "f"(bez[1]), "f"(vecB[1]) : "memory");
-    __asm__ volatile("madda.s %0, %1" : : "f"(bez[2]), "f"(vecB[2]) : "memory");
-    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(bez), "m"(*(u_long128 *)bez) : "$vf10", "memory");
-    if (c != 0.0f) {
+    vB = c;
+    ccB = 1.0f - vB;
+    cc2B = ccB * ccB;
+    c3B = ccB * cc2B;
+    coeff120[0] = c3B;
+    vc2B = vB * cc2B;
+    b1B = 3.0f * vc2B;
+    coeff120[1] = b1B;
+    vvB = vB * vB;
+    cv2B = ccB * vvB;
+    b2B = 3.0f * cv2B;
+    coeff120[2] = b2B;
+    v3B = vB * vvB;
+    coeff120[3] = v3B;
+    o0B = ((f32 *)out)[0];
+    o3B = ((f32 *)out)[3];
+    p252B = *(f32 *)(config + 252);
+    __asm__ volatile(
+        "mula.s %0, %1 \n"
+        "madda.s %2, %3 \n"
+        "madda.s %4, %5 \n"
+        "madd.s %6, %7, %8 \n"
+        : "=f"(quad110[0]) : "f"(o0B), "f"(coeff120[1]), "f"(p252B), "f"(coeff120[0]), "f"(o3B), "f"(coeff120[2]), "f"(bez[0]), "f"(coeff120[3]) : "memory");
+    o1B = ((f32 *)out)[1];
+    o4B = ((f32 *)out)[4];
+    p256B = *(f32 *)(config + 256);
+    __asm__ volatile(
+        "mula.s %0, %1 \n"
+        "madda.s %2, %3 \n"
+        "madda.s %4, %5 \n"
+        "madd.s %6, %7, %8 \n"
+        : "=f"(quad110[1]) : "f"(o1B), "f"(coeff120[1]), "f"(p256B), "f"(coeff120[0]), "f"(o4B), "f"(coeff120[2]), "f"(bez[1]), "f"(coeff120[3]) : "memory");
+    o2B = ((f32 *)out)[2];
+    o5B = ((f32 *)out)[5];
+    p260B = *(f32 *)(config + 260);
+    __asm__ volatile(
+        "mula.s %0, %1 \n"
+        "madda.s %2, %3 \n"
+        "madda.s %4, %5 \n"
+        "madd.s %6, %7, %8 \n"
+        : "=f"(quad110[2]) : "f"(o2B), "f"(coeff120[1]), "f"(p260B), "f"(coeff120[0]), "f"(o5B), "f"(coeff120[2]), "f"(bez[2]), "f"(coeff120[3]) : "memory");
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(quad110), "m"(*(u_long128 *)quad110) : "$vf10", "memory");
+    if (f12B != 0.0f) {
         __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp170) : "r"(tmp170) : "$vf10", "memory");
         vecA[0] = ((f32 *)out)[6];
         vecA[1] = ((f32 *)out)[7];

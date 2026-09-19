@@ -861,12 +861,9 @@ extern s32 func_00379a70(u8 *arg0);
 extern s32 func_00379c70(u8 *arg0, s32 arg1);
 extern s32 func_00379d70(u8 *arg0);
 // measured: shuffle-draw state machine fully recovered (16-state switch on *(u32*)(arg0+0x1F2F8) with 1->2 and 4->5->7->8->9 plus 10->11 and 12->13 fallthroughs, 0.6f/0.7f/0.8f pool at gp-0x7E90/-0x7F64/-0x7C74 confirmed at orig 0x761260/0x76118c/0x76147c, (f32)(u32) u16 at +2, 0.0f+(360/count)*(count-sel) adda/madd for func_00375fa0); floor object 2956B/window 2992B (36B short, 1.2%), normalized_diff 2343, frame 0xE0 vs retail 0xF0 (6 vs 7 saved, arg0 in $s4 vs $s1); remaining walls are saved-reg coloring and scheduling residuals. Keep ASM until coloring closes.
-/* measured 0037ad10: `schedule on` inside the guard is worth 2 words (683 -> 681). */
-/* measured 0037ad10: `opt_propagation off` inside the guard is worth 1 words (681 -> 680). */
+/* measured 0037ad10: bare guard is the band floor: obj 2956B/window 2992B (739/745 instrs, inside 723-767), census andi -3, ?? -3, lhu +1, lui -1, fnalign edit 256; prop-off/sched-on gives 2552B/638 instrs (outside band), census nop -88, lui -34, beql +13/bnel +7 vs beqz -8/bnez -7, edit 744; schedule off fixes nop/likely, prop on fixes lui; positional 683 vs 680 is shift noise. */
 // FUN_0037AD10 NONMATCHING
 #ifdef NON_MATCHING
-#pragma opt_propagation off
-#pragma schedule on
 s32 func_0037ad10(u8 *arg0) {
     struct Vec3 {
         f32 x;
@@ -1112,8 +1109,6 @@ s32 func_0037ad10(u8 *arg0) {
     }
     return 0;
 }
-#pragma schedule off
-#pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0037", func_0037ad10);
 #endif
