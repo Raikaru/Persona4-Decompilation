@@ -1119,6 +1119,13 @@ void func_0034db60(u8 *arg0, f32 fparg0, s32 arg1) {
    product back into `var_f1` costs 9, and forcing an explicit integer
    intermediate - `(u8)(s32)temp_f2_2` or a separate `s32 conv` - costs 101
    both ways, because it materialises a second conversion. */
+/* 2026-09-19 pair close-out (Main request): fnalign 175/175, 5 edits +6 reloc-only =11 floor_distance edits, 17 words. Frame addiu $sp,-0x50 both sides -- match, closed on frame. */
+/* - reloc-only [22:23] lwc1 $f0,-0x7f6c($gp) vs lwc1 $f0,($gp) (iGpffff8094): immediate. */
+/* - replace [70:72] cvt.w.s $f1,$f2 + mfc1 $v1,$f1 vs cvt.w.s $f2,$f2 + mfc1 $v1,$f2: register-only FPR rotation $f1<->$f2 (conversion-temp selection, 7h-bis). */
+/* - replace [76:79] sub.s $f1,$f2,$f1 + cvt.w.s $f1,$f1 + mfc1 $v1,$f1 vs sub.s $f2,$f2,$f1 + cvt.w.s $f2,$f2 + mfc1 $v1,$f2: register-only FPR rotation (high-path cascade of the same temp). */
+/* - reloc-only [92:93] lwc1 $f0,-0x7de0($gp) vs lwc1 $f0,($gp) (iGpffff8220): immediate. */
+/* - reloc-only [101:105] lui $v0,0x88 + lwc1 $f1,0x72f8($v0) + lui $v0,0x88 + lwc1 $f0,0x467c($v0) vs lui $v0,0 + lwc1 $f1,($v0) + lui $v0,0 + lwc1 $f0,($v0) (D_008872F8/D_0088467C): immediates. */
+/* No $a0-$t0 spill move, no operand-order (mul/div/sub operand order already retail's), no branch-offset (bc1t/bc1f/c.lt/c.le all match), no nop-vs-work (both sides emit cvt+mfc1+andi). Next person: finished on frame/count, open only on $f1/$f2 destination. */
 // FUN_0034DDF0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off

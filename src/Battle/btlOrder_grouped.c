@@ -310,7 +310,16 @@ void func_001b1020(s32 arg0)
    t-register numbering is not declaration-driven here; it would take a
    different number of live temporaries to rotate, and every shape that
    changes that count also changes the instruction stream. */
-/* 2026-09-18 section 7o (exchange $t1/$t3: key vs i): residual_signature 5 perm [$t1->$t3 $t3->$t1], fnalign 5 at +0x34,+0x4c,+0x88,+0x9c,+0xa4 (retail key $t3, i $t1). Eight probe_variants (key recomputed inside do, same value): v1 FF retail 5, v2 FF rev 5, v3 FB retail 11, v4 FB rev 11, v5 BF retail 5, v6 BF rev 5, v7 BB retail 11, v8 BB rev 11 (F=function scope, B=do-block scope; retail=key then i, rev=i then key). i must stay function scope (block costs 5->11); key scope and statement order neutral. Floor stands at 5. */
+/* 2026-09-19 pair close-out (Main request): fnalign 48/48, 5 edits +2 reloc-only =7 floor_distance edits, 7 words. Frame frameless both sides (no addiu $sp) -- match, closed on frame. */
+/* Pairs, all against retail at 0x001b11c0: */
+/* - reloc-only [0:1] lw $v1,-0x4c54($gp) vs lw $v1,($gp): immediate (GP addend, linker-owned). */
+/* - replace [13:14] andi $t3,$a0,0xffff vs andi $t1,$a0,0xffff: register-only rotation $t1<->$t3 (key), exchange class 7m, closed per 7ah. */
+/* - reloc-only [17:18] lw $v1,-0x4c54($gp) vs lw $v1,($gp): immediate (GP addend). */
+/* - replace [19:20] move $t1,$zero vs move $t3,$zero: register-only rotation (i init). */
+/* - replace [34:35] beq $a2,$t3,.+5 vs beq $a2,$t1,.+5: register-only rotation (kind vs key); branch offset identical. */
+/* - replace [39:40] addiu $t1,$t1,1 vs addiu $t3,$t3,1: register-only rotation (i++). */
+/* - replace [41:42] sltu $v1,$t1,$a0 vs sltu $v1,$t3,$a0: register-only rotation (i < count-1). */
+/* No $a0-$t0 spill-order move, no operand-order, no branch-offset, no nop-vs-work in this residual. Five swaps one pair ($t1/$t3 = key/i); next person: finished on frame and count, open only on temp colour. */
 // FUN_001B11C0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on

@@ -1483,6 +1483,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00112830);
    after the struct copy costs 43.  The current split - two u32s before the
    first call, two u8 copies after it - is the cheapest arrangement; the
    remaining five-slot delay is scheduling. */
+/* 2026-09-19 pair close-out (Main request): fnalign 110/110, 4 edits +5 reloc-only =9 floor_distance edits, 14 words (5 masked + HI16/LO16 splits + 8B zero tail). Frame addiu $sp,-0xE0 both sides -- match, closed on frame. */
+/* - reloc-only [16:18] lui $v0,0x5e + addiu $v0,0x4770 vs lui $v0,0 + addiu $v0,0 (D_005E4770): immediate (linker addend). */
+/* - delete [27:29] lbu $s1,0xde($sp) + lbu $s0,0xdd($sp) vs -- : scheduling (order-only, same regs $s1/$s0; retail issues before alpha, body 5 slots later). No nop-vs-work -- both sides emit the pair. */
+/* - insert [32:32]->[30:32] -- vs lbu $s1,0xde($sp) + lbu $s0,0xdd($sp): scheduling counterpart to the delete above; together 4 edits. */
+/* - reloc-only [51:52] addiu $a1,$gp,-0x6414 vs addiu $a1,$gp,0 (iGpffff9bec): immediate. */
+/* - reloc-only [56:58] lui/addiu for D_005E4798: immediate. */
+/* No register rotation (regs $s1/$s0/$s2 correct in this shape; the 11-word colour-first variant rotates them -- see WALL above), no $a0-$t0 spill move, no operand-order (subu order already retail's via 255-(arg1&0xFF)), no branch-offset. Next person: finished on frame/count/regs, open only on 5-slot schedule. */
 // FUN_001130C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)

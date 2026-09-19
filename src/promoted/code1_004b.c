@@ -907,6 +907,13 @@ s32 func_004b2780(u8 *arg0) {
    Removing it costs 240 words and removing both pragmas costs 171, so it
    stays for now - but the conversion rows here are not a source-shape
    residual and should not be probed as one. */
+/* 2026-09-19 frame-first + pairs (masked 15, raw 21/24, 254/254 exact, frame */
+/* both addiu $sp,$sp,-0x150): fnalign 15 (+6 reloc-only); or-dest $v0 vs $v1 at */
+/* 5 sites (off 31,143,169,196,224: object or $v0,$v1,$v0 + mtc1 $v0 vs retail or */
+/* $v1,$v1,$v0 + mtc1 $v1) + FP cvt/mfc/sub (off 53: cvt.w.s $f1 vs $f0, off 59: */
+/* sub.s $f1 vs $f0 + cvt/mfc); stacking sched 230, nobranch 15 tie, peephole */
+/* 242; oru32 single tie 15, orall u32 266 (s32 correct); propag+cs load-bearing */
+/* (removal 240/171 per note, conversion rows pragma-caused per micro_codegen). */
 // FUN_004B2A00 NONMATCHING
 #ifdef SKIP_ASM
 #pragma opt_propagation off
