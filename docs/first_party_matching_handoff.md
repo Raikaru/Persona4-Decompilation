@@ -496,6 +496,31 @@ retail and an $sN in the candidate.  It does not always apply - on
 the shared `j` ties at 27, so the cause there is something else.  One probe
 settles it either way.
 
+### 7y. When the word score and the edit count disagree, check the gate
+
+`tools/measure_guarded.py` counts reloc-masked differing words over a fixed
+window.  `tools/fnalign.py` aligns first and counts edits.  They usually
+agree.  When they do not, **the instruction count decides which one to
+believe**, because a body that is short scores well by being shifted out of
+alignment with the work it is missing.
+
+`func_0035fd60`, measured like for like:
+
+| candidate | words | object vs retail | gate | fnalign edits |
+| --- | ---: | --- | --- | ---: |
+| previous | **1522** | 1707 / 1793, -86 | **-4.8%, outside** | 849 |
+| current | 1689 | 1809 / 1796, +13 | +0.7%, inside | **478** |
+
+The word score rose by 167 while the body got much closer to retail: the
+count came inside the band and the alignment edits nearly halved.  The old
+1522 was never a real floor - it failed the gate and should not have been
+banked.
+
+The same shape appeared on `func_00468ff0`, where edits fell 674 -> 316 while
+words rose 898 -> 911 as correct structure was inserted.  In both cases the
+rule is the same: **a word score measured outside the gate is not comparable
+to one measured inside it.**  Get the count right first, then compare.
+
 ### 7x. An `sd` surplus means one of two things, and the first is free
 
 `sd` (store doubleword) is not a class the census docstring covered, and it
