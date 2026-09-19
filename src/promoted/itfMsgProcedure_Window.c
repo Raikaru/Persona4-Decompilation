@@ -482,10 +482,639 @@ void func_0027d800(s32 a0, s32 a1, s32 a2, s32 a3, s16 t0, s16 t1, f32 f0, f32 f
   func_0045eb20(&work.colors[0], &work.points[0], f0, 10, 4, 1, t0, t1, f1, f2, f3, t2);
 }
 
-/* Skip: retail contains COP1 adda.s/madd.s chains; ordinary FPU-MAC inline asm
-   is prohibited. The plain-C near-match is archived above. */
-// FUN_0027D970
+/* measured 0027d970 (owner, m2c+ida+ghidra adapted floor): 1782 against retail's 1787
+   (-0.3%, band 1735-1841 PASS), 999 edits, 1672 differing words, hole 23/lump 5.
+   Frame 0x590 against retail 0x590; ra 0x70 both; saves s0-s5/f20-f21 exact, no missing/extra.
+   Calls 85 matching retail 85 (278110x1, 2781e0x3, 43f9c8x3, 2e0fb0x1, 2e0f90x2, 27bec0x8,
+   44b610x1, 45eb20x5, 45e8e0x3, 2e0dd0x1, 278fd0x2, 272a10x2, 2728c0x3, 272b00x4, 272ba0x4,
+   278fb0x2, 272b50x1, 27b6e0x1, 27b750x3, 278ff0x4, 44b7b0x4, 279010x4, 277070x3, 25ec90x6,
+   27a490x1, 27a4b0x1, 25ecd0x4, 26e350x1, 272730x1); nop retail 297 (16.6%) vs object 302 (17.0%).
+   Trajectory 1566->1588->1652->1669->1782: +16 from explicit 1.0f/1.0f on all eight 0045 calls,
+   remainder copy/fill liveness in three 16-elem blocks (w5/w6/w7) with array-typed D_00882000/04/06/08
+   (scalar GPREL16 cost one lui per site) and in-bounds F2 y indices (1,3,5,7,9 / 1,3,5,7,9,11,13,15).
+   Residual is COP1 adda/madd/msub chains (7 sites) + scheduling wall; production stays ASM. */
+// FUN_0027D970 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0027d970(s32 arg0, u32 arg1)
+{
+    extern MsgProcWindowF2 D_0063C080[];
+    extern u8 D_00796400[];
+    extern u32 D_00882000[];
+    extern s16 D_00882004[];
+    extern s16 D_00882006[];
+    extern s16 D_00882008[];
+    extern f32 iGpffff81e8;
+    extern f32 iGpffff81ec;
+    extern s32 func_002e0fb0(void);
+    extern void func_002e0f90(void);
+    extern s32 func_0026e350(void);
+    extern s32 func_00278110(void);
+    extern void func_0045e8e0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+    typedef struct { MsgProcWindowRGBA colors[10]; u8 gap[24]; MsgProcWindowF2 points[10]; } Work10;
+    typedef struct { MsgProcWindowRGBA colors[16]; MsgProcWindowF2 points[16]; } Work16;
+    Work10 w0;
+    Work10 w1;
+    Work10 w2;
+    Work10 w3;
+    Work10 w4;
+    Work16 w5;
+    Work16 w6;
+    Work16 w7;
+    MsgProcWindowU32Pair *src;
+    MsgProcWindowU32Pair *dst;
+    MsgProcWindowF2 *p;
+    MsgProcWindowRGBA *c;
+    s32 count;
+    u32 lo;
+    u32 hi;
+    u32 i;
+    s32 ret;
+    s32 tmp;
+    s16 cnt16;
+    s32 cnt32;
+    s16 need;
+    s32 need32;
+    s32 v0;
+    s32 v1;
+    float f;
+    float g;
+    float f1;
+    float f2;
+    float f3;
+    float ftmp;
+    s32 sret;
+    s16 s16tmp;
+
+    ret = 0;
+    sret = func_00278110();
+    switch (arg1) {
+    case 0:
+        func_002781e0((void *)arg0, 0x100000);
+        func_002781e0((void *)arg0, 0x400000);
+        func_002781e0((void *)arg0, 0x800000);
+        if ((void *)D_00882000[0] == (void *)0) {
+            func_0046d730(D_0063BFC0, 0x18F);
+        }
+        func_0043f9c8((void *)D_00882000[0], 0, 0x18);
+        break;
+    case 4:
+        if (func_002e0fb0() != 0) {
+            func_002e0f90();
+        } else if (func_0027bec0((void *)arg0) != 0) {
+            if ((D_00882000[0] & 2) == 0) {
+                D_00882000[0] |= 2;
+                D_00882004[0] = 0;
+            }
+            D_00882004[0]++;
+            if (D_00882004[0] < 11) {
+                func_002e0f90();
+            }
+            if (D_00882004[0] < 11) {
+                f = func_0044b610(iGpffff8094 * (float)D_00882004[0] / 10.0f);
+                src = (MsgProcWindowU32Pair *)D_0063C030;
+                dst = (MsgProcWindowU32Pair *)w0.points;
+                count = 10;
+                do {
+                    lo = src->a;
+                    hi = src->b;
+                    src++;
+                    count--;
+                    dst->a = lo;
+                    dst->b = hi;
+                    dst++;
+                } while (count > 0);
+                w0.points[1].y = 83.0f;
+                w0.points[3].y = 85.0f;
+                w0.points[5].y = 87.0f;
+                w0.points[7].y = 88.0f;
+                w0.points[9].y = 88.0f;
+                for (i = 0; i < 10; i++) {
+                    p = &w0.points[i];
+                    p->x += 37.0f;
+                    p->y += 338.0f;
+                    c = &w0.colors[i];
+                    c->r = 0x42;
+                    c->g = 0x3C;
+                    c->b = 0x2B;
+                    c->a = 0xFF;
+                }
+                func_0045eb20(&w0.colors[0], &w0.points[0], 0.0f, 10, 4, 1, 2000, 0, f * 5.0f, 1.0f, 1.0f, D_00796490);
+            } else if (D_00882004[0] >= 11) {
+                f = 1.0f - (float)(D_00882004[0] - 11) / 3.0f;
+                src = (MsgProcWindowU32Pair *)D_0063C030;
+                dst = (MsgProcWindowU32Pair *)w1.points;
+                count = 10;
+                do {
+                    lo = src->a;
+                    hi = src->b;
+                    src++;
+                    count--;
+                    dst->a = lo;
+                    dst->b = hi;
+                    dst++;
+                } while (count > 0);
+                w1.points[1].y = 83.0f;
+                w1.points[3].y = 85.0f;
+                w1.points[5].y = 87.0f;
+                w1.points[7].y = 88.0f;
+                w1.points[9].y = 88.0f;
+                ftmp = (float)(int)(35.0f + 2.0f * f);
+                f1 = (float)(int)(296.0f + 42.0f * f);
+                for (i = 0; i < 10; i++) {
+                    p = &w1.points[i];
+                    p->x += ftmp;
+                    p->y += f1;
+                    c = &w1.colors[i];
+                    c->r = 0xFF;
+                    c->g = 0xA1;
+                    c->b = 0x07;
+                    c->a = 0xFF;
+                }
+                func_0045eb20(&w1.colors[0], &w1.points[0], 0.0f, 10, 4, 1, 0, 0, iGpffff81e8 * (1.0f - f), 1.0f, 1.0f, D_00796430);
+                src = (MsgProcWindowU32Pair *)D_0063C030;
+                dst = (MsgProcWindowU32Pair *)w2.points;
+                count = 10;
+                do {
+                    lo = src->a;
+                    hi = src->b;
+                    src++;
+                    count--;
+                    dst->a = lo;
+                    dst->b = hi;
+                    dst++;
+                } while (count > 0);
+                w2.points[1].y = 83.0f;
+                w2.points[3].y = 85.0f;
+                w2.points[5].y = 87.0f;
+                w2.points[7].y = 88.0f;
+                w2.points[9].y = 88.0f;
+                for (i = 0; i < 10; i++) {
+                    p = &w2.points[i];
+                    p->x += 37.0f;
+                    p->y += 338.0f;
+                    c = &w2.colors[i];
+                    c->r = 0x42;
+                    c->g = 0x3C;
+                    c->b = 0x2B;
+                    c->a = 0xFF;
+                }
+                func_0045eb20(&w2.colors[0], &w2.points[0], 0.0f, 10, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
+            }
+            if (D_00882004[0] >= 13) {
+                D_00882000[0] &= ~2;
+                D_00882004[0] = 0;
+                ret = 1;
+            }
+        }
+        break;
+    case 5:
+        if (func_0027bec0((void *)arg0) != 0) {
+            src = (MsgProcWindowU32Pair *)D_0063C030;
+            dst = (MsgProcWindowU32Pair *)w3.points;
+            count = 10;
+            do {
+                lo = src->a;
+                hi = src->b;
+                src++;
+                count--;
+                dst->a = lo;
+                dst->b = hi;
+                dst++;
+            } while (count > 0);
+            w3.points[1].y = 83.0f;
+            w3.points[3].y = 85.0f;
+            w3.points[5].y = 87.0f;
+            w3.points[7].y = 88.0f;
+            w3.points[9].y = 88.0f;
+            for (i = 0; i < 10; i++) {
+                p = &w3.points[i];
+                p->x += 35.0f;
+                p->y += 296.0f;
+                c = &w3.colors[i];
+                c->r = 0xFF;
+                c->g = 0xA1;
+                c->b = 0x07;
+                c->a = 0xFF;
+            }
+            func_0045eb20(&w3.colors[0], &w3.points[0], 0.0f, 10, 4, 1, 0, 0, iGpffff81e8, 1.0f, 1.0f, D_00796430);
+            src = (MsgProcWindowU32Pair *)D_0063C030;
+            dst = (MsgProcWindowU32Pair *)w4.points;
+            count = 10;
+            do {
+                lo = src->a;
+                hi = src->b;
+                src++;
+                count--;
+                dst->a = lo;
+                dst->b = hi;
+                dst++;
+            } while (count > 0);
+            w4.points[1].y = 83.0f;
+            w4.points[3].y = 85.0f;
+            w4.points[5].y = 87.0f;
+            w4.points[7].y = 88.0f;
+            w4.points[9].y = 88.0f;
+            for (i = 0; i < 10; i++) {
+                p = &w4.points[i];
+                p->x += 37.0f;
+                p->y += 338.0f;
+                c = &w4.colors[i];
+                c->r = 0x42;
+                c->g = 0x3C;
+                c->b = 0x2B;
+                c->a = 0xFF;
+            }
+            func_0045eb20(&w4.colors[0], &w4.points[0], 0.0f, 10, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
+        }
+        ret = 1;
+        break;
+    case 6: {
+        MsgProcWindowEntry *e;
+        s32 j;
+        if (func_0027bec0((void *)arg0) != 0) {
+            e = (MsgProcWindowEntry *)0;
+            for (j = 0; j < 8; j++) {
+                e = &D_008820B0[j];
+                if ((e->field0 & 1) == 0) {
+                    break;
+                }
+                e = (MsgProcWindowEntry *)0;
+                if (j == 7) {
+                    break;
+                }
+            }
+            if (j < 8) {
+                e = &D_008820B0[j];
+                if ((e->field0 & 1) == 0) {
+                    func_0043f9c8(e, 0, 0x18);
+                    e->field0 |= 1;
+                    e->field10 = 0;
+                    e->field14 = 0;
+                    e->field4 = 0;
+                }
+            }
+        }
+        ret = 1;
+        break;
+    }
+    case 7:
+        func_002e0dd0();
+        if ((sret & 0x200) != 0) {
+            MsgProcWindowEntry *e2;
+            s32 k;
+            e2 = (MsgProcWindowEntry *)0;
+            for (k = 0; k < 8; k++) {
+                if ((D_008820B0[k].field0 & 1) == 0) {
+                    e2 = &D_008820B0[k];
+                    break;
+                }
+            }
+            if (e2 != (void *)0) {
+                func_0043f9c8(e2, 0, 0x18);
+                e2->field0 |= 1;
+                e2->field10 = 0;
+                e2->field14 = 0;
+                e2->field4 = 0;
+            }
+        }
+        break;
+    case 8: {
+        void *t0;
+        void *t1;
+        t0 = (void *)func_00278fd0((void *)arg0);
+        if (t0 != (void *)0) {
+            func_00272a10(t0, 44.0f, 306.0f);
+            func_002728c0(t0, 0);
+            func_00272b00(t0, 0);
+            func_00272ba0(t0, 0x1B1B1BFF);
+        }
+        t1 = (void *)func_00278fb0((void *)arg0);
+        if (t1 != (void *)0) {
+            func_00272a10(t1, 100.0f, 425.0f);
+            func_002728c0(t1, 0);
+            func_00272b50(t1, 0, 0);
+        }
+        ret = 1;
+        break;
+    }
+    case 9: {
+        s32 lvl;
+        lvl = func_0027b6e0((void *)arg0, 0);
+        func_0027b750((void *)arg0, 0, 0x2D0);
+        func_0027b750((void *)arg0, 1, ((5 - lvl) * 0x1E + 0x89) * 8);
+        func_0027b750((void *)arg0, 2, 0xF0);
+        ret = 1;
+        break;
+    }
+    case 10: {
+        void *t;
+        t = (void *)func_00278ff0((void *)arg0);
+        if (t != (void *)0) {
+            func_002728c0(t, 0);
+            func_00272b00(t, 0);
+        }
+        break;
+    }
+    case 11: {
+        s32 lvl2;
+        s32 v;
+        if (func_0027bec0((void *)arg0) != 0) {
+            if ((D_00882000[0] & 8) == 0) {
+                D_00882000[0] |= 8;
+                D_00882006[0] = 0;
+            }
+            D_00882006[0]++;
+            f = func_0044b7b0(iGpffff8094 * (float)D_00882006[0] / 6.0f);
+            lvl2 = func_00279010((void *)arg0);
+            v = (5 - lvl2) * 0x1E + 0x87;
+            src = (MsgProcWindowU32Pair *)D_0063C080;
+            dst = (MsgProcWindowU32Pair *)w5.points;
+            count = 16;
+            do {
+                lo = src->a;
+                hi = src->b;
+                src++;
+                count--;
+                dst->a = lo;
+                dst->b = hi;
+                dst++;
+            } while (count > 0);
+            f1 = 254.0f * (((259.0f - (float)(5 - lvl2) * 30.0f) / 259.0f) * f);
+            w5.points[1].y = f1;
+            w5.points[3].y = f1 + 2.0f;
+            w5.points[5].y = f1 + 4.0f;
+            w5.points[7].y = f1 + 5.0f;
+            w5.points[9].y = f1 + 5.0f;
+            w5.points[11].y = f1 + 4.0f;
+            w5.points[13].y = f1 + 2.0f;
+            w5.points[15].y = f1;
+            ftmp = (float)v + (1.0f - f) * 128.0f;
+            for (i = 0; i < 16; i++) {
+                p = &w5.points[i];
+                p->x += 20.0f;
+                p->y += ftmp;
+                c = &w5.colors[i];
+                c->r = 0x1B;
+                c->g = 0x18;
+                c->b = 0x11;
+                c->a = 0xD8;
+            }
+            func_0045e8e0(&w5.colors[0], &w5.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
+            if (D_00882006[0] >= 6) {
+                D_00882000[0] &= ~8;
+                D_00882006[0] = 0;
+                func_00278fd0((void *)arg0);
+                tmp = func_00278fb0((void *)arg0);
+                if (tmp != 0) {
+                    func_00272ba0((void *)tmp, -128);
+                    func_00272730((void *)tmp, 0);
+                }
+                ret = 1;
+            }
+        }
+        break;
+    }
+    case 12: {
+        s32 a;
+        s32 b;
+        if (func_0027bec0((void *)arg0) != 0) {
+            if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
+                tmp = 1;
+            } else {
+                tmp = 0;
+            }
+            if (tmp != 0) {
+                a = func_00277070((void *)arg0);
+                b = func_00279010((void *)arg0);
+                v0 = (5 - b) * 0x1E + 0x87;
+                src = (MsgProcWindowU32Pair *)D_0063C080;
+                dst = (MsgProcWindowU32Pair *)w6.points;
+                count = 16;
+                do {
+                    lo = src->a;
+                    hi = src->b;
+                    src++;
+                    count--;
+                    dst->a = lo;
+                    dst->b = hi;
+                    dst++;
+                } while (count > 0);
+                f1 = 254.0f * ((259.0f - 30.0f * (float)(5 - b)) / 259.0f);
+                w6.points[1].y = f1;
+                w6.points[3].y = f1 + 2.0f;
+                w6.points[5].y = f1 + 4.0f;
+                w6.points[7].y = f1 + 5.0f;
+                w6.points[9].y = f1 + 5.0f;
+                w6.points[11].y = f1 + 4.0f;
+                w6.points[13].y = f1 + 2.0f;
+                w6.points[15].y = f1;
+                for (i = 0; i < 16; i++) {
+                    p = &w6.points[i];
+                    p->x += 20.0f;
+                    p->y += (float)v0;
+                    c = &w6.colors[i];
+                    c->r = 0x1B;
+                    c->g = 0x18;
+                    c->b = 0x11;
+                    c->a = 0xD8;
+                }
+                func_0045e8e0(&w6.colors[0], &w6.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
+                f2 = (float)a * 30.0f + (float)(v0 + 3) + 0.0f;
+                func_0025ec90(472.0f, f2, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, D_00796400);
+                func_0025ec90(580.0f, f2, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, D_00796400);
+                tmp = func_00278ff0((void *)arg0);
+                if (tmp != 0) {
+                    func_00272b00((void *)tmp, 0);
+                    func_00272ba0((void *)tmp, -1);
+                    func_0027a490((void *)tmp, a, b, 0);
+                    func_0027a4b0((void *)tmp, a, b, 0x1B1B1BFF);
+                }
+            }
+        }
+        ret = 1;
+        break;
+    }
+    case 13: {
+        s32 a2;
+        s32 b2;
+        void *t;
+        t = (void *)func_00278ff0((void *)arg0);
+        if (t != (void *)0) {
+            func_00277070((void *)arg0);
+            func_00279010((void *)arg0);
+            func_00272b00(t, 0);
+            func_00272ba0(t, 0x1B1B1BFF);
+        }
+        if (func_0027bec0((void *)arg0) != 0) {
+            if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
+                tmp = 1;
+            } else {
+                tmp = 0;
+            }
+            if (tmp != 0) {
+                if ((D_00882000[0] & 0x10) == 0) {
+                    D_00882000[0] |= 0x10;
+                    D_00882006[0] = 0;
+                }
+                D_00882006[0]++;
+                a2 = func_00277070((void *)arg0);
+                b2 = func_00279010((void *)arg0);
+                v0 = (b2 - (a2 + 1)) * 0x1E + 0x6D;
+                v1 = a2 * 0x1E;
+                if (v1 < v0) {
+                    f = 14.0f * func_0044b7b0(iGpffff8094 * (float)v0 / 229.0f);
+                } else {
+                    f = 14.0f * func_0044b7b0(iGpffff8094 * (float)a2 * 30.0f / 229.0f);
+                }
+                need32 = (s32)f;
+                if (need32 < 5) {
+                    need32 = 5;
+                }
+                if (D_00882006[0] <= need32) {
+                    g = func_0044b7b0(iGpffff8094 * (float)D_00882006[0] / (float)need32);
+                    f1 = (float)((b2 * 16 - b2) * 2 + 0x6D);
+                    f2 = (f1 / 259.0f) * (1.0f - g * g);
+                    f3 = g * (float)(a2 * 0x1E);
+                    ftmp = (float)((a2 + 1) * 0x1E);
+                    if (f2 * f1 < ftmp - f3) {
+                        f2 = (ftmp - g * ftmp) / 259.0f;
+                    }
+                    if (iGpffff81ec < f2) {
+                        f2 = f2;
+                    } else {
+                        f2 = iGpffff81ec;
+                    }
+                    src = (MsgProcWindowU32Pair *)D_0063C080;
+                    dst = (MsgProcWindowU32Pair *)w7.points;
+                    count = 16;
+                    do {
+                        lo = src->a;
+                        hi = src->b;
+                        src++;
+                        count--;
+                        dst->a = lo;
+                        dst->b = hi;
+                        dst++;
+                    } while (count > 0);
+                    f1 = 254.0f * f2;
+                    w7.points[1].y = f1;
+                    w7.points[3].y = f1 + 2.0f;
+                    w7.points[5].y = f1 + 4.0f;
+                    w7.points[7].y = f1 + 5.0f;
+                    w7.points[9].y = f1 + 5.0f;
+                    w7.points[11].y = f1 + 4.0f;
+                    w7.points[13].y = f1 + 2.0f;
+                    w7.points[15].y = f1;
+                    for (i = 0; i < 16; i++) {
+                        p = &w7.points[i];
+                        p->x += 20.0f;
+                        p->y += (float)((5 - b2) * 0x1E + 0x87) + f3;
+                        c = &w7.colors[i];
+                        c->r = 0x1B;
+                        c->g = 0x18;
+                        c->b = 0x11;
+                        c->a = 0xD8;
+                    }
+                    func_0045e8e0(&w7.colors[0], &w7.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
+                }
+                v0 = (s32)((float)a2 * 30.0f + (float)((5 - b2) * 0x1E + 0x8A) + 0.0f);
+                if (D_00882006[0] < need32 - 5) {
+                    func_0025ec90(472.0f, (float)v0, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, D_00796400);
+                    func_0025ec90(580.0f, (float)v0, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, D_00796400);
+                } else {
+                    f1 = (float)(D_00882006[0] - (need32 - 5)) / 5.0f;
+                    if (f1 > 1.0f) {
+                        f1 = 1.0f;
+                    }
+                    f2 = 1.0f - f1;
+                    f3 = (float)v0 + f1 * 16.0f;
+                    func_0025ecd0(472.0f, f3, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, f2, D_00796400);
+                    func_0025ecd0(580.0f, f3, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, f2, D_00796400);
+                }
+                tmp = func_00278ff0((void *)arg0);
+                if (tmp != 0 && D_00882006[0] >= need32 - 5) {
+                    f1 = (float)(D_00882006[0] - (need32 - 5)) / 5.0f;
+                    func_00272b00((void *)tmp, 0);
+                    func_00272ba0((void *)tmp, ((int)(255.0f * (1.0f - f1)) & 0xFF) | 0x1B1B1B00);
+                }
+                if (D_00882006[0] >= need32) {
+                    D_00882000[0] &= ~0x10;
+                    D_00882006[0] = 0;
+                    ret = 1;
+                }
+            }
+        }
+        break;
+    }
+    case 16: {
+        s16 cur;
+        if (func_0027bec0((void *)arg0) != 0) {
+            if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
+                tmp = 1;
+            } else {
+                tmp = 0;
+            }
+            if (tmp != 0) {
+                cur = D_00882008[0];
+                if ((D_00882000[0] & 0x20) == 0) {
+                    D_00882000[0] |= 0x20;
+                    cur = 0;
+                }
+                cur++;
+                f = func_0044b7b0(iGpffff8094 * (float)cur / 5.0f);
+                func_0025ecd0(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, f * 180.0f, 1.0f, 1.0f, D_00796490);
+                func_0025ec90(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 3, (void *)iGpffffb4d8, 1, D_00796490);
+                if (cur >= 5) {
+                    D_00882000[0] &= ~0x20;
+                    cur = 0;
+                    ret = 1;
+                }
+                D_00882008[0] = cur;
+            }
+        }
+        break;
+    }
+    case 17:
+        if (func_0027bec0((void *)arg0) != 0) {
+            if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
+                func_0025ecd0(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, 180.0f, 1.0f, 1.0f, D_00796490);
+                func_0025ec90(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 3, (void *)iGpffffb4d8, 1, D_00796490);
+            }
+        }
+        break;
+    case 18:
+        if (func_0026e350() == 1) {
+            ret = 1;
+        } else if (func_0027bec0((void *)arg0) != 0) {
+            if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
+                MsgProcWindowEntry *e3;
+                s32 m;
+                e3 = (void *)0;
+                for (m = 0; m < 8; m++) {
+                    if ((D_008820B0[m].field0 & 1) == 0) {
+                        e3 = &D_008820B0[m];
+                        break;
+                    }
+                }
+                if (e3 != (void *)0) {
+                    func_0043f9c8(e3, 0, 0x18);
+                    e3->field0 |= 1;
+                    e3->field10 = 0;
+                    e3->field14 = 0;
+                    e3->field4 = 6;
+                }
+                ret = 1;
+            }
+        }
+        break;
+    default:
+        break;
+    }
+    return ret;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027d970);
+#endif
 
 // FUN_0027F560
 s32 func_0027f560(void)

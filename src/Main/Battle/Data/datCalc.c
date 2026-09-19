@@ -3783,12 +3783,1443 @@ s32 func_0023a620(s32 arg0, s32 arg1)
     }
     return var_2;
 }
+/* measured: forward declarations for func_0023a6b0 (iGpffffb3c8 table, u32-returning func_00109870 whose $v0 retail preserves, and same-TU func_00243e30 defined below). Placed here so earlier implicit uses are unaffected. */
+extern u8 *iGpffffb3c8;
+extern u32 func_00109870(s32 arg0, s32 arg1);
+extern s32 func_00243e30(u16 *arg0);
 
 
 
 
-// FUN_0023A6B0
+/* measured: guarded floor for func_0023a6b0 (retail 12336B window, 3084 instrs). Candidate object 12312B/3078 instrs (-24B/-6, -0.2% inside 3% gate 2991-3177); fndiff 2615 words (reloc-masked), fnalign 2131 edits (+15 reloc-only). Switch 0-15 with empty 0/5 for retail sltiu 0x10 bound (jtbl_00747C40 16 entries; 0,5 share default 0x23D330); 44 fresh s32 counters with while+goto-done, (u16)ctr*2 indexing, (s32)((u32)(u16)00106cd0&0xFFFF)+bltz and (s16)temp_2 dsll32/dsra32 fallback per matched 00242990; s32-only (no s64); val via u32 00109870 ($v0 preserved) else iGpffffb3c8 table with (raw&0xFF00)<<16|(raw&0xFFFF00FF)*5 and (val&0xFFFF)==0 guard per 0023a620. Production stays ASM. */
+// FUN_0023A6B0 NONMATCHING
+#ifdef SKIP_ASM
+s32 func_0023a6b0(u8 *arg0, s32 arg1)
+{
+    s32 temp_16;
+    s32 temp_2;
+    s32 found;
+    u8 *base;
+    s32 cnt;
+    s32 ctr_00;
+    s32 ctr_01;
+    s32 ctr_02;
+    s32 ctr_03;
+    s32 ctr_04;
+    s32 ctr_05;
+    s32 ctr_06;
+    s32 ctr_07;
+    s32 ctr_08;
+    s32 ctr_09;
+    s32 ctr_10;
+    s32 ctr_11;
+    s32 ctr_12;
+    s32 ctr_13;
+    s32 ctr_14;
+    s32 ctr_15;
+    s32 ctr_16;
+    s32 ctr_17;
+    s32 ctr_18;
+    s32 ctr_19;
+    s32 ctr_20;
+    s32 ctr_21;
+    s32 ctr_22;
+    s32 ctr_23;
+    s32 ctr_24;
+    s32 ctr_25;
+    s32 ctr_26;
+    s32 ctr_27;
+    s32 ctr_28;
+    s32 ctr_29;
+    s32 ctr_30;
+    s32 ctr_31;
+    s32 ctr_32;
+    s32 ctr_33;
+    s32 ctr_34;
+    s32 ctr_35;
+    s32 ctr_36;
+    s32 ctr_37;
+    s32 ctr_38;
+    s32 ctr_39;
+    s32 ctr_40;
+    s32 ctr_41;
+    s32 ctr_42;
+    s32 ctr_43;
+    u32 val;
+    u32 acc;
+    s32 hasFlag;
+    s32 b1;
+    s32 b4;
+    u16 raw;
+    u32 high;
+    u32 low;
+    s32 idu;
+    s16 t0;
+
+    acc = 0;
+    hasFlag = 0;
+    b1 = 0;
+    b4 = 0;
+    temp_16 = (s16)arg1;
+    if (temp_16 == 0x12 || temp_16 == 0x11 || temp_16 == 0x10) {
+        return 100;
+    }
+    if (temp_16 == -1) {
+        return 0;
+    }
+    if (arg0 == 0) {
+        func_0046d730(D_00635938, 0xCC1);
+    }
+    if (temp_16 >= 0x13 || temp_16 < 0) {
+        func_0046d730(D_00635938, 0xCC2);
+    }
+    if ((*(u16 *)arg0 & 4) == 0) {
+        val = func_00109870(*(u16 *)(arg0 + 2), temp_16);
+    } else {
+        if (*(u16 *)(arg0 + 4) >= 0x150) {
+            func_0046d730(D_00635938, 0xCCD);
+        }
+        raw = *(u16 *)(iGpffffb3c8 + *(u16 *)(arg0 + 4) * 0x20 + temp_16 * 2);
+        high = (raw & 0xFF00) << 16;
+        low = (raw & 0xFFFF00FF) * 5;
+        val = high | low;
+        if ((val & 0xFFFF) == 0) {
+            if ((high & 0x8000000) != 0) {
+                val |= 0x7D;
+            } else if ((high & 0x27000000) != 0) {
+                val |= 100;
+            } else if ((high & 0x10000000) != 0) {
+                val |= 0x32;
+            }
+        }
+    }
+    if (func_00243e30((u16 *)arg0) != 0) {
+        hasFlag = 1;
+    }
+    if (temp_16 == 0) {
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_00 = 0;
+        while ((ctr_00 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_00 * 2) == 0x1B8) {
+                found = 1;
+                goto done_p0;
+            }
+            ctr_00 = (ctr_00 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1B8) {
+                    found = 1;
+                    goto done_p0;
+                }
+            }
+        }
+        found = 0;
+done_p0:
+        if (found != 0) {
+            acc |= 0x10000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_01 = 0;
+        while ((ctr_01 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_01 * 2) == 0x1B9) {
+                found = 1;
+                goto done_p1;
+            }
+            ctr_01 = (ctr_01 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1B9) {
+                    found = 1;
+                    goto done_p1;
+                }
+            }
+        }
+        found = 0;
+done_p1:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_02 = 0;
+        while ((ctr_02 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_02 * 2) == 0x1BA) {
+                found = 1;
+                goto done_p2;
+            }
+            ctr_02 = (ctr_02 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1BA) {
+                    found = 1;
+                    goto done_p2;
+                }
+            }
+        }
+        found = 0;
+done_p2:
+        if (found != 0) {
+            acc |= 0x2000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_03 = 0;
+        while ((ctr_03 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_03 * 2) == 0x1BB) {
+                found = 1;
+                goto done_p3;
+            }
+            ctr_03 = (ctr_03 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1BB) {
+                    found = 1;
+                    goto done_p3;
+                }
+            }
+        }
+        found = 0;
+done_p3:
+        if (found != 0) {
+            acc |= 0x4000000;
+        }
+    }
+    switch (temp_16) {
+    case 0:
+        break;
+    case 5:
+        break;
+    case 1:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_04 = 0;
+        while ((ctr_04 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_04 * 2) == 0x1BC) {
+                found = 1;
+                goto done_1_0;
+            }
+            ctr_04 = (ctr_04 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1BC) {
+                    found = 1;
+                    goto done_1_0;
+                }
+            }
+        }
+        found = 0;
+done_1_0:
+        if (found != 0) {
+            acc |= 0x10000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_05 = 0;
+        while ((ctr_05 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_05 * 2) == 0x1BD) {
+                found = 1;
+                goto done_1_1;
+            }
+            ctr_05 = (ctr_05 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1BD) {
+                    found = 1;
+                    goto done_1_1;
+                }
+            }
+        }
+        found = 0;
+done_1_1:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_06 = 0;
+        while ((ctr_06 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_06 * 2) == 0x1BE) {
+                found = 1;
+                goto done_1_2;
+            }
+            ctr_06 = (ctr_06 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1BE) {
+                    found = 1;
+                    goto done_1_2;
+                }
+            }
+        }
+        found = 0;
+done_1_2:
+        if (found != 0) {
+            acc |= 0x2000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_07 = 0;
+        while ((ctr_07 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_07 * 2) == 0x1BF) {
+                found = 1;
+                goto done_1_3;
+            }
+            ctr_07 = (ctr_07 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1BF) {
+                    found = 1;
+                    goto done_1_3;
+                }
+            }
+        }
+        found = 0;
+done_1_3:
+        if (found != 0) {
+            acc |= 0x4000000;
+        }
+        if (func_002332a0(arg0, 8) > 0) {
+            b1 = 1;
+        }
+        if (func_002332a0(arg0, 0xC) > 0) {
+            b4 = 1;
+        }
+        break;
+    case 2:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_08 = 0;
+        while ((ctr_08 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_08 * 2) == 0x1C0) {
+                found = 1;
+                goto done_2_0;
+            }
+            ctr_08 = (ctr_08 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1C0) {
+                    found = 1;
+                    goto done_2_0;
+                }
+            }
+        }
+        found = 0;
+done_2_0:
+        if (found != 0) {
+            acc |= 0x10000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_09 = 0;
+        while ((ctr_09 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_09 * 2) == 0x1C1) {
+                found = 1;
+                goto done_2_1;
+            }
+            ctr_09 = (ctr_09 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1C1) {
+                    found = 1;
+                    goto done_2_1;
+                }
+            }
+        }
+        found = 0;
+done_2_1:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_10 = 0;
+        while ((ctr_10 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_10 * 2) == 0x1C2) {
+                found = 1;
+                goto done_2_2;
+            }
+            ctr_10 = (ctr_10 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1C2) {
+                    found = 1;
+                    goto done_2_2;
+                }
+            }
+        }
+        found = 0;
+done_2_2:
+        if (found != 0) {
+            acc |= 0x2000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_11 = 0;
+        while ((ctr_11 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_11 * 2) == 0x1C3) {
+                found = 1;
+                goto done_2_3;
+            }
+            ctr_11 = (ctr_11 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1C3) {
+                    found = 1;
+                    goto done_2_3;
+                }
+            }
+        }
+        found = 0;
+done_2_3:
+        if (found != 0) {
+            acc |= 0x4000000;
+        }
+        if (func_002332a0(arg0, 9) > 0) {
+            b1 = 1;
+        }
+        if (func_002332a0(arg0, 0xD) > 0) {
+            b4 = 1;
+        }
+        break;
+    case 3:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_12 = 0;
+        while ((ctr_12 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_12 * 2) == 0x1C4) {
+                found = 1;
+                goto done_3_0;
+            }
+            ctr_12 = (ctr_12 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1C4) {
+                    found = 1;
+                    goto done_3_0;
+                }
+            }
+        }
+        found = 0;
+done_3_0:
+        if (found != 0) {
+            acc |= 0x10000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_13 = 0;
+        while ((ctr_13 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_13 * 2) == 0x1C5) {
+                found = 1;
+                goto done_3_1;
+            }
+            ctr_13 = (ctr_13 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1C5) {
+                    found = 1;
+                    goto done_3_1;
+                }
+            }
+        }
+        found = 0;
+done_3_1:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_14 = 0;
+        while ((ctr_14 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_14 * 2) == 0x1C6) {
+                found = 1;
+                goto done_3_2;
+            }
+            ctr_14 = (ctr_14 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1C6) {
+                    found = 1;
+                    goto done_3_2;
+                }
+            }
+        }
+        found = 0;
+done_3_2:
+        if (found != 0) {
+            acc |= 0x2000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_15 = 0;
+        while ((ctr_15 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_15 * 2) == 0x1C7) {
+                found = 1;
+                goto done_3_3;
+            }
+            ctr_15 = (ctr_15 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1C7) {
+                    found = 1;
+                    goto done_3_3;
+                }
+            }
+        }
+        found = 0;
+done_3_3:
+        if (found != 0) {
+            acc |= 0x4000000;
+        }
+        if (func_002332a0(arg0, 11) > 0) {
+            b1 = 1;
+        }
+        if (func_002332a0(arg0, 0xE) > 0) {
+            b4 = 1;
+        }
+        break;
+    case 4:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_16 = 0;
+        while ((ctr_16 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_16 * 2) == 0x1C8) {
+                found = 1;
+                goto done_4_0;
+            }
+            ctr_16 = (ctr_16 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1C8) {
+                    found = 1;
+                    goto done_4_0;
+                }
+            }
+        }
+        found = 0;
+done_4_0:
+        if (found != 0) {
+            acc |= 0x10000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_17 = 0;
+        while ((ctr_17 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_17 * 2) == 0x1C9) {
+                found = 1;
+                goto done_4_1;
+            }
+            ctr_17 = (ctr_17 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1C9) {
+                    found = 1;
+                    goto done_4_1;
+                }
+            }
+        }
+        found = 0;
+done_4_1:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_18 = 0;
+        while ((ctr_18 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_18 * 2) == 0x1CA) {
+                found = 1;
+                goto done_4_2;
+            }
+            ctr_18 = (ctr_18 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1CA) {
+                    found = 1;
+                    goto done_4_2;
+                }
+            }
+        }
+        found = 0;
+done_4_2:
+        if (found != 0) {
+            acc |= 0x2000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_19 = 0;
+        while ((ctr_19 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_19 * 2) == 0x1CB) {
+                found = 1;
+                goto done_4_3;
+            }
+            ctr_19 = (ctr_19 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1CB) {
+                    found = 1;
+                    goto done_4_3;
+                }
+            }
+        }
+        found = 0;
+done_4_3:
+        if (found != 0) {
+            acc |= 0x4000000;
+        }
+        if (func_002332a0(arg0, 10) > 0) {
+            b1 = 1;
+        }
+        if (func_002332a0(arg0, 0xF) > 0) {
+            b4 = 1;
+        }
+        break;
+    case 6:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_20 = 0;
+        while ((ctr_20 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_20 * 2) == 0x1CC) {
+                found = 1;
+                goto done_6_0;
+            }
+            ctr_20 = (ctr_20 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1CC) {
+                    found = 1;
+                    goto done_6_0;
+                }
+            }
+        }
+        found = 0;
+done_6_0:
+        if (found != 0) {
+            acc |= 0x10000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_21 = 0;
+        while ((ctr_21 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_21 * 2) == 0x1CD) {
+                found = 1;
+                goto done_6_1;
+            }
+            ctr_21 = (ctr_21 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1CD) {
+                    found = 1;
+                    goto done_6_1;
+                }
+            }
+        }
+        found = 0;
+done_6_1:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_22 = 0;
+        while ((ctr_22 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_22 * 2) == 0x1CE) {
+                found = 1;
+                goto done_6_2;
+            }
+            ctr_22 = (ctr_22 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1CE) {
+                    found = 1;
+                    goto done_6_2;
+                }
+            }
+        }
+        found = 0;
+done_6_2:
+        if (found != 0) {
+            acc |= 0x2000000;
+        }
+        break;
+    case 7:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_23 = 0;
+        while ((ctr_23 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_23 * 2) == 0x1CF) {
+                found = 1;
+                goto done_7_0;
+            }
+            ctr_23 = (ctr_23 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1CF) {
+                    found = 1;
+                    goto done_7_0;
+                }
+            }
+        }
+        found = 0;
+done_7_0:
+        if (found != 0) {
+            acc |= 0x10000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_24 = 0;
+        while ((ctr_24 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_24 * 2) == 0x1D0) {
+                found = 1;
+                goto done_7_1;
+            }
+            ctr_24 = (ctr_24 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1D0) {
+                    found = 1;
+                    goto done_7_1;
+                }
+            }
+        }
+        found = 0;
+done_7_1:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_25 = 0;
+        while ((ctr_25 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_25 * 2) == 0x1D1) {
+                found = 1;
+                goto done_7_2;
+            }
+            ctr_25 = (ctr_25 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1D1) {
+                    found = 1;
+                    goto done_7_2;
+                }
+            }
+        }
+        found = 0;
+done_7_2:
+        if (found != 0) {
+            acc |= 0x2000000;
+        }
+        break;
+    case 8:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_26 = 0;
+        while ((ctr_26 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_26 * 2) == 0x226) {
+                found = 1;
+                goto done_8_a;
+            }
+            ctr_26 = (ctr_26 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x226) {
+                    found = 1;
+                    goto done_8_a;
+                }
+            }
+        }
+        found = 0;
+done_8_a:
+        if (found == 0) {
+            if ((*(u16 *)arg0 & 4) == 0) {
+                idu = *(u16 *)(arg0 + 2);
+                if (idu >= 0xB) {
+                    func_0046d730(D_00635938, 0x23B);
+                }
+                t0 = func_00106cd0((s16)idu, 0);
+                if ((func_001069d0(t0) & 0xFFFF) == 0x4B) {
+                    found = 1;
+                    goto done_8_b;
+                }
+                t0 = func_00106cd0((s16)idu, 1);
+                if ((func_001069d0(t0) & 0xFFFF) == 0x4B) {
+                    found = 1;
+                    goto done_8_b;
+                }
+                found = 0;
+done_8_b:
+                if (found != 0) {
+                    acc |= 0x10000000;
+                }
+            }
+        } else {
+            acc |= 0x10000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_27 = 0;
+        while ((ctr_27 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_27 * 2) == 0x1D2) {
+                found = 1;
+                goto done_8_c;
+            }
+            ctr_27 = (ctr_27 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1D2) {
+                    found = 1;
+                    goto done_8_c;
+                }
+            }
+        }
+        found = 0;
+done_8_c:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        break;
+    case 9:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_28 = 0;
+        while ((ctr_28 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_28 * 2) == 0x225) {
+                found = 1;
+                goto done_9_a;
+            }
+            ctr_28 = (ctr_28 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x225) {
+                    found = 1;
+                    goto done_9_a;
+                }
+            }
+        }
+        found = 0;
+done_9_a:
+        if (found == 0) {
+            if ((*(u16 *)arg0 & 4) == 0) {
+                idu = *(u16 *)(arg0 + 2);
+                if (idu >= 0xB) {
+                    func_0046d730(D_00635938, 0x23B);
+                }
+                t0 = func_00106cd0((s16)idu, 0);
+                if ((func_001069d0(t0) & 0xFFFF) == 0x4C) {
+                    found = 1;
+                    goto done_9_b;
+                }
+                t0 = func_00106cd0((s16)idu, 1);
+                if ((func_001069d0(t0) & 0xFFFF) == 0x4C) {
+                    found = 1;
+                    goto done_9_b;
+                }
+                found = 0;
+done_9_b:
+                if (found != 0) {
+                    acc |= 0x10000000;
+                }
+            }
+        } else {
+            acc |= 0x10000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_29 = 0;
+        while ((ctr_29 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_29 * 2) == 0x1D7) {
+                found = 1;
+                goto done_9_c;
+            }
+            ctr_29 = (ctr_29 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1D7) {
+                    found = 1;
+                    goto done_9_c;
+                }
+            }
+        }
+        found = 0;
+done_9_c:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        break;
+    case 10:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_30 = 0;
+        while ((ctr_30 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_30 * 2) == 0x227) {
+                found = 1;
+                goto done_10_a;
+            }
+            ctr_30 = (ctr_30 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x227) {
+                    found = 1;
+                    goto done_10_a;
+                }
+            }
+        }
+        found = 0;
+done_10_a:
+        if (found == 0) {
+            if ((*(u16 *)arg0 & 4) == 0) {
+                idu = *(u16 *)(arg0 + 2);
+                if (idu >= 0xB) {
+                    func_0046d730(D_00635938, 0x23B);
+                }
+                t0 = func_00106cd0((s16)idu, 0);
+                if ((func_001069d0(t0) & 0xFFFF) == 0x4D) {
+                    found = 1;
+                    goto done_10_b;
+                }
+                t0 = func_00106cd0((s16)idu, 1);
+                if ((func_001069d0(t0) & 0xFFFF) == 0x4D) {
+                    found = 1;
+                    goto done_10_b;
+                }
+                found = 0;
+done_10_b:
+                if (found != 0) {
+                    acc |= 0x10000000;
+                }
+            }
+        } else {
+            acc |= 0x10000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_31 = 0;
+        while ((ctr_31 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_31 * 2) == 0x1D5) {
+                found = 1;
+                goto done_10_c;
+            }
+            ctr_31 = (ctr_31 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1D5) {
+                    found = 1;
+                    goto done_10_c;
+                }
+            }
+        }
+        found = 0;
+done_10_c:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        break;
+    case 11:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_32 = 0;
+        while ((ctr_32 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_32 * 2) == 0x22A) {
+                found = 1;
+                goto done_11_a;
+            }
+            ctr_32 = (ctr_32 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x22A) {
+                    found = 1;
+                    goto done_11_a;
+                }
+            }
+        }
+        found = 0;
+done_11_a:
+        if (found == 0) {
+            if ((*(u16 *)arg0 & 4) == 0) {
+                idu = *(u16 *)(arg0 + 2);
+                if (idu >= 0xB) {
+                    func_0046d730(D_00635938, 0x23B);
+                }
+                t0 = func_00106cd0((s16)idu, 0);
+                if ((func_001069d0(t0) & 0xFFFF) == 0x4E) {
+                    found = 1;
+                    goto done_11_b;
+                }
+                t0 = func_00106cd0((s16)idu, 1);
+                if ((func_001069d0(t0) & 0xFFFF) == 0x4E) {
+                    found = 1;
+                    goto done_11_b;
+                }
+                found = 0;
+done_11_b:
+                if (found != 0) {
+                    acc |= 0x10000000;
+                }
+            }
+        } else {
+            acc |= 0x10000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_33 = 0;
+        while ((ctr_33 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_33 * 2) == 0x1D6) {
+                found = 1;
+                goto done_11_c;
+            }
+            ctr_33 = (ctr_33 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1D6) {
+                    found = 1;
+                    goto done_11_c;
+                }
+            }
+        }
+        found = 0;
+done_11_c:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        break;
+    case 12:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_34 = 0;
+        while ((ctr_34 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_34 * 2) == 0x22B) {
+                found = 1;
+                goto done_12_a;
+            }
+            ctr_34 = (ctr_34 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x22B) {
+                    found = 1;
+                    goto done_12_a;
+                }
+            }
+        }
+        found = 0;
+done_12_a:
+        if (found == 0) {
+            if ((*(u16 *)arg0 & 4) == 0) {
+                idu = *(u16 *)(arg0 + 2);
+                if (idu >= 0xB) {
+                    func_0046d730(D_00635938, 0x23B);
+                }
+                t0 = func_00106cd0((s16)idu, 0);
+                if ((func_001069d0(t0) & 0xFFFF) == 0x4F) {
+                    found = 1;
+                    goto done_12_b;
+                }
+                t0 = func_00106cd0((s16)idu, 1);
+                if ((func_001069d0(t0) & 0xFFFF) == 0x4F) {
+                    found = 1;
+                    goto done_12_b;
+                }
+                found = 0;
+done_12_b:
+                if (found != 0) {
+                    acc |= 0x10000000;
+                }
+            }
+        } else {
+            acc |= 0x10000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_35 = 0;
+        while ((ctr_35 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_35 * 2) == 0x1D8) {
+                found = 1;
+                goto done_12_c;
+            }
+            ctr_35 = (ctr_35 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1D8) {
+                    found = 1;
+                    goto done_12_c;
+                }
+            }
+        }
+        found = 0;
+done_12_c:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        break;
+    case 13:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_36 = 0;
+        while ((ctr_36 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_36 * 2) == 0x228) {
+                found = 1;
+                goto done_13_a;
+            }
+            ctr_36 = (ctr_36 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x228) {
+                    found = 1;
+                    goto done_13_a;
+                }
+            }
+        }
+        found = 0;
+done_13_a:
+        if (found == 0) {
+            if ((*(u16 *)arg0 & 4) == 0) {
+                idu = *(u16 *)(arg0 + 2);
+                if (idu >= 0xB) {
+                    func_0046d730(D_00635938, 0x23B);
+                }
+                t0 = func_00106cd0((s16)idu, 0);
+                if ((func_001069d0(t0) & 0xFFFF) == 0x50) {
+                    found = 1;
+                    goto done_13_b;
+                }
+                t0 = func_00106cd0((s16)idu, 1);
+                if ((func_001069d0(t0) & 0xFFFF) == 0x50) {
+                    found = 1;
+                    goto done_13_b;
+                }
+                found = 0;
+done_13_b:
+                if (found != 0) {
+                    acc |= 0x10000000;
+                }
+            }
+        } else {
+            acc |= 0x10000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_37 = 0;
+        while ((ctr_37 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_37 * 2) == 0x1D3) {
+                found = 1;
+                goto done_13_c;
+            }
+            ctr_37 = (ctr_37 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1D3) {
+                    found = 1;
+                    goto done_13_c;
+                }
+            }
+        }
+        found = 0;
+done_13_c:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        break;
+    case 14:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_38 = 0;
+        while ((ctr_38 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_38 * 2) == 0x229) {
+                found = 1;
+                goto done_14_a;
+            }
+            ctr_38 = (ctr_38 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x229) {
+                    found = 1;
+                    goto done_14_a;
+                }
+            }
+        }
+        found = 0;
+done_14_a:
+        if (found == 0) {
+            if ((*(u16 *)arg0 & 4) == 0) {
+                idu = *(u16 *)(arg0 + 2);
+                if (idu >= 0xB) {
+                    func_0046d730(D_00635938, 0x23B);
+                }
+                t0 = func_00106cd0((s16)idu, 0);
+                if ((func_001069d0(t0) & 0xFFFF) == 0x51) {
+                    found = 1;
+                    goto done_14_b;
+                }
+                t0 = func_00106cd0((s16)idu, 1);
+                if ((func_001069d0(t0) & 0xFFFF) == 0x51) {
+                    found = 1;
+                    goto done_14_b;
+                }
+                found = 0;
+done_14_b:
+                if (found != 0) {
+                    acc |= 0x10000000;
+                }
+            }
+        } else {
+            acc |= 0x10000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_39 = 0;
+        while ((ctr_39 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_39 * 2) == 0x1D9) {
+                found = 1;
+                goto done_14_c;
+            }
+            ctr_39 = (ctr_39 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1D9) {
+                    found = 1;
+                    goto done_14_c;
+                }
+            }
+        }
+        found = 0;
+done_14_c:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        break;
+    case 15:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_40 = 0;
+        while ((ctr_40 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_40 * 2) == 0x22C) {
+                found = 1;
+                goto done_15_a;
+            }
+            ctr_40 = (ctr_40 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x22C) {
+                    found = 1;
+                    goto done_15_a;
+                }
+            }
+        }
+        found = 0;
+done_15_a:
+        if (found == 0) {
+            if ((*(u16 *)arg0 & 4) == 0) {
+                idu = *(u16 *)(arg0 + 2);
+                if (idu >= 0xB) {
+                    func_0046d730(D_00635938, 0x23B);
+                }
+                t0 = func_00106cd0((s16)idu, 0);
+                if ((func_001069d0(t0) & 0xFFFF) == 0x52) {
+                    found = 1;
+                    goto done_15_b;
+                }
+                t0 = func_00106cd0((s16)idu, 1);
+                if ((func_001069d0(t0) & 0xFFFF) == 0x52) {
+                    found = 1;
+                    goto done_15_b;
+                }
+                found = 0;
+done_15_b:
+                if (found != 0) {
+                    acc |= 0x10000000;
+                }
+            }
+        } else {
+            acc |= 0x10000000;
+        }
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_41 = 0;
+        while ((ctr_41 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_41 * 2) == 0x1D4) {
+                found = 1;
+                goto done_15_c;
+            }
+            ctr_41 = (ctr_41 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1D4) {
+                    found = 1;
+                    goto done_15_c;
+                }
+            }
+        }
+        found = 0;
+done_15_c:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        break;
+    }
+    if (temp_16 == 0xE || temp_16 == 0xB || temp_16 == 0xF || temp_16 == 10 || temp_16 == 8) {
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_42 = 0;
+        while ((ctr_42 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_42 * 2) == 0x1DA) {
+                found = 1;
+                goto done_1da;
+            }
+            ctr_42 = (ctr_42 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1DA) {
+                    found = 1;
+                    goto done_1da;
+                }
+            }
+        }
+        found = 0;
+done_1da:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+    }
+    if (temp_16 != 5) {
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_43 = 0;
+        while ((ctr_43 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_43 * 2) == 0x1DB) {
+                found = 1;
+                goto done_1db;
+            }
+            ctr_43 = (ctr_43 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1DB) {
+                    found = 1;
+                    goto done_1db;
+                }
+            }
+        }
+        found = 0;
+done_1db:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+    }
+    if (hasFlag != 0 && (val & 0x8000000) != 0) {
+        val = (val & 0xF7FF0000) | 100;
+    }
+    if (acc != 0) {
+        if ((acc & 0x10000000) != 0 && (val & 0x7000000) == 0) {
+            val = (val & 0xF7FF0000) | 0x10000032;
+        }
+        if ((acc & 0x1000000) != 0 && (val & 0x6000000) == 0) {
+            val = (val & 0xE7FF0000) | 0x1000064;
+        }
+        if ((acc & 0x2000000) != 0 && (val & 0x4000000) == 0) {
+            val = (val & 0xE6FF0000) | 0x2000064;
+        }
+        if ((acc & 0x4000000) != 0) {
+            val = (val & 0xE4FF0000) | 0x4000064;
+        }
+    }
+    if (b1 != 0 && (val & 0x17000000) != 0) {
+        val = (val & 0xE8FF0000) | 100;
+    }
+    if (b4 != 0 && ((val & 0x8000000) != 0 || (val & 0xFF000000) == 0)) {
+        val = (val & 0xFF0000) | 0x10000032;
+    }
+    return (s32)val;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023a6b0);
+#endif
 
 // FUN_0023D6E0
 s32 func_0023d6e0(s16 arg0)

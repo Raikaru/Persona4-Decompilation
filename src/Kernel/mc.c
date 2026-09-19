@@ -2142,9 +2142,9 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
     s32 c1;
     u32 col;
     u32 colHi;
-    s64 var;
+    s32 var;
     s32 var2;
-    s64 a;
+    s32 a;
     s32 b;
     u8 *p20;
     u8 *p;
@@ -2192,9 +2192,9 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
         } else {
             c1 = ((s32)(tmp - 2.1474836e9f) | 0x80000000) & 0xFF;
         }
-        col = (a0b & 0xFF) | (colHi | ((c1 & 0xFF) << 8));
+        col = ((u8)a0b & 0xFF) | (colHi | ((c1 & 0xFF) << 8));
     } else {
-        col = (a0b & 0xFF) | 0xFFAE2000;
+        col = ((u8)a0b & 0xFF) | 0xFFAE2000;
         v0 = 0x6A;
         v1 = 0x62;
     }
@@ -2231,7 +2231,7 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
             if (var == 0) {
                 var = 0xA;
             }
-            func_0025f430(col >> 8, a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f23, 30.0f, fparg3, fparg3);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f23, 30.0f, fparg3, fparg3);
             } else if (var < 0x14) {
             if (var == 0xA) {
                 a = 0xA;
@@ -2241,15 +2241,15 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
             f30 = 9.0f + fparg2;
             f29 = (49.0f + fparg1) - (21.0f * fparg3);
             f28 = (53.0f + fparg0) - (53.0f * fparg3);
-            func_0025f430(col >> 8, a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f28, f29, f30, 30.0f, fparg3, fparg3);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f28, f29, f30, 30.0f, fparg3, fparg3);
             tmp = 40.0f * fparg3;
-            func_0025f430(col >> 8, a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, ((s32)(((s64)((0.0f - tmp))) << 0x30 >> 0x30)), 0, f28 + tmp, f29, f30, 30.0f, fparg3, fparg3);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, ((s32)(((s64)((0.0f - tmp))) << 0x30 >> 0x30)), 0, f28 + tmp, f29, f30, 30.0f, fparg3, fparg3);
             }
         } else if (var < 0xA) {
             if (var == 0) {
                 var = 0xA;
             }
-            func_0025f430(col >> 8, a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f23, 30.0f, fparg3, fparg3);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f23, 30.0f, fparg3, fparg3);
         } else if (var < 0x14) {
             if (var == 0xA) {
                 a = 0xA;
@@ -2259,9 +2259,9 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
             f30 = 9.0f + fparg2;
             f29 = (49.0f + fparg1) - (21.0f * fparg3);
             f28 = (53.0f + fparg0) - (53.0f * fparg3);
-            func_0025f430(col >> 8, a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f28, f29, f30, 30.0f, fparg3, fparg3);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f28, f29, f30, 30.0f, fparg3, fparg3);
             tmp = 40.0f * fparg3;
-            func_0025f430(col >> 8, a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, ((s32)(((s64)((0.0f - tmp))) << 0x30 >> 0x30)), 0, f28 + tmp, f29, f30, 30.0f, fparg3, fparg3);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, ((s32)(((s64)((0.0f - tmp))) << 0x30 >> 0x30)), 0, f28 + tmp, f29, f30, 30.0f, fparg3, fparg3);
         }
         func_003f6440(3, 0x50805);
         func_003f6440(2, 0x44);
@@ -2271,7 +2271,7 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
             if (var == 0) {
                 var = 0xA;
             }
-            func_0025f430(col >> 8, a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f20, 30.0f, fparg3, fparg3);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f20, 30.0f, fparg3, fparg3);
             } else if (var < 0x14) {
             if (var == 0xA) {
                 a = 0xA;
@@ -2281,15 +2281,15 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
             f30 = 10.0f + fparg2;
             f29 = (49.0f + fparg1) - (21.0f * fparg3);
             f28 = (53.0f + fparg0) - (53.0f * fparg3);
-            func_0025f430(col >> 8, a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f28, f29, f30, 30.0f, fparg3, fparg3);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f28, f29, f30, 30.0f, fparg3, fparg3);
             tmp = 40.0f * fparg3;
-            func_0025f430(col >> 8, a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, ((s32)(((s64)((0.0f - tmp))) << 0x30 >> 0x30)), 0, f28 + tmp, f29, f30, 30.0f, fparg3, fparg3);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, ((s32)(((s64)((0.0f - tmp))) << 0x30 >> 0x30)), 0, f28 + tmp, f29, f30, 30.0f, fparg3, fparg3);
             }
         } else if (var < 0xA) {
             if (var == 0) {
                 var = 0xA;
             }
-            func_0025f430(col >> 8, a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f20, 30.0f, fparg3, fparg3);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f + 1.0f * f21 - 53.0f * fparg3, 0.0f + 1.0f * f22 - 21.0f * fparg3, f20, 30.0f, fparg3, fparg3);
         } else if (var < 0x14) {
             if (var == 0xA) {
                 a = 0xA;
@@ -2299,23 +2299,23 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
             f30 = 10.0f + fparg2;
             f29 = (49.0f + fparg1) - (21.0f * fparg3);
             f28 = (53.0f + fparg0) - (53.0f * fparg3);
-            func_0025f430(col >> 8, a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f28, f29, f30, 30.0f, fparg3, fparg3);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f28, f29, f30, 30.0f, fparg3, fparg3);
             tmp = 40.0f * fparg3;
-            func_0025f430(col >> 8, a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, ((s32)(((s64)((0.0f - tmp))) << 0x30 >> 0x30)), 0, f28 + tmp, f29, f30, 30.0f, fparg3, fparg3);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, ((s32)(((s64)((0.0f - tmp))) << 0x30 >> 0x30)), 0, f28 + tmp, f29, f30, 30.0f, fparg3, fparg3);
         }
         func_003f6440(3, 0x50805);
         func_003f6440(2, 0x44);
         a = col >> 8;
-        func_0025f430(a, a0b & 0xFF, 0x20, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f + 1.0f * f21 - 51.0f * fparg3, 0.0f + 1.0f * f22 - 35.0f * fparg3, f23, 0.0f, fparg3, fparg3);
+        func_0025f430(a, (u8)a0b & 0xFF, 0x20, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 0.0f + 1.0f * f21 - 51.0f * fparg3, 0.0f + 1.0f * f22 - 35.0f * fparg3, f23, 0.0f, fparg3, fparg3);
         if ((p20 != NULL) && (*(u8 *)(p20 + 0xA) != 0)) {
             func_003f6440(3, 0x50009);
             func_003f6440(2, 0x44);
             f22 = (49.0f + fparg1) - (53.0f * fparg3);
             f21 = (53.0f + fparg0) - (11.0f * fparg3);
-            func_0025f430(a, a0b & 0xFF, 0x3E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f21, f22, f23, 0.0f, fparg3, fparg3);
+            func_0025f430(a, (u8)a0b & 0xFF, 0x3E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f21, f22, f23, 0.0f, fparg3, fparg3);
             func_003f6440(3, 0x50805);
             func_003f6440(2, 0x44);
-            func_0025f430(a, a0b & 0xFF, 0x3E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f21, f22, f20, 0.0f, fparg3, fparg3);
+            func_0025f430(a, (u8)a0b & 0xFF, 0x3E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f21, f22, f20, 0.0f, fparg3, fparg3);
         }
     } else {
         (*(void (**)(s32, s32))setState)(7, 2);
@@ -2335,7 +2335,7 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
             if (var == 0) {
                 var = 0xA;
             }
-            func_0025f430(col >> 8, a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 14.0f + fparg0, 33.0f + fparg1, f23, 30.0f, 1.0f, 1.0f);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 14.0f + fparg0, 33.0f + fparg1, f23, 30.0f, 1.0f, 1.0f);
             } else if (var < 0x14) {
             if (var == 0xA) {
                 a = 0xA;
@@ -2345,14 +2345,14 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
             f30 = 9.0f + fparg2;
             f22 = 33.0f + fparg1;
             f21 = 14.0f + fparg0;
-            func_0025f430(col >> 8, a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f21, f22, f30, 30.0f, 1.0f, 1.0f);
-            func_0025f430(col >> 8, a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, f21 + 40.0f, f22, f30, 30.0f, 1.0f, 1.0f);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f21, f22, f30, 30.0f, 1.0f, 1.0f);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, f21 + 40.0f, f22, f30, 30.0f, 1.0f, 1.0f);
             }
         } else if (var < 0xA) {
             if (var == 0) {
                 var = 0xA;
             }
-            func_0025f430(col >> 8, a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 14.0f + fparg0, 33.0f + fparg1, f23, 30.0f, 1.0f, 1.0f);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 14.0f + fparg0, 33.0f + fparg1, f23, 30.0f, 1.0f, 1.0f);
         } else if (var < 0x14) {
             if (var == 0xA) {
                 a = 0xA;
@@ -2362,8 +2362,8 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
             f30 = 9.0f + fparg2;
             f22 = 33.0f + fparg1;
             f21 = 14.0f + fparg0;
-            func_0025f430(col >> 8, a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f21, f22, f30, 30.0f, 1.0f, 1.0f);
-            func_0025f430(col >> 8, a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, f21 + 40.0f, f22, f30, 30.0f, 1.0f, 1.0f);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f21, f22, f30, 30.0f, 1.0f, 1.0f);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, f21 + 40.0f, f22, f30, 30.0f, 1.0f, 1.0f);
         }
         func_003f6440(3, 0x50805);
         func_003f6440(2, 0x44);
@@ -2373,7 +2373,7 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
             if (var == 0) {
                 var = 0xA;
             }
-            func_0025f430(col >> 8, a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 14.0f + fparg0, 33.0f + fparg1, f20, 30.0f, 1.0f, 1.0f);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 14.0f + fparg0, 33.0f + fparg1, f20, 30.0f, 1.0f, 1.0f);
             } else if (var < 0x14) {
             if (var == 0xA) {
                 a = 0xA;
@@ -2383,14 +2383,14 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
             f30 = 10.0f + fparg2;
             f22 = 33.0f + fparg1;
             f21 = 14.0f + fparg0;
-            func_0025f430(col >> 8, a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f21, f22, f30, 30.0f, 1.0f, 1.0f);
-            func_0025f430(col >> 8, a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, f21 + 40.0f, f22, f30, 30.0f, 1.0f, 1.0f);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f21, f22, f30, 30.0f, 1.0f, 1.0f);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, f21 + 40.0f, f22, f30, 30.0f, 1.0f, 1.0f);
             }
         } else if (var < 0xA) {
             if (var == 0) {
                 var = 0xA;
             }
-            func_0025f430(col >> 8, a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 14.0f + fparg0, 33.0f + fparg1, f20, 30.0f, 1.0f, 1.0f);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, var + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, 14.0f + fparg0, 33.0f + fparg1, f20, 30.0f, 1.0f, 1.0f);
         } else if (var < 0x14) {
             if (var == 0xA) {
                 a = 0xA;
@@ -2400,20 +2400,20 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
             f30 = 10.0f + fparg2;
             f22 = 33.0f + fparg1;
             f21 = 14.0f + fparg0;
-            func_0025f430(col >> 8, a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f21, f22, f30, 30.0f, 1.0f, 1.0f);
-            func_0025f430(col >> 8, a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, f21 + 40.0f, f22, f30, 30.0f, 1.0f, 1.0f);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f21, f22, f30, 30.0f, 1.0f, 1.0f);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, -0x28, 0, f21 + 40.0f, f22, f30, 30.0f, 1.0f, 1.0f);
         }
         a = col >> 8;
-        func_0025f3f0((3.0f + ((4.0f + fparg0) - 5.0f)) - 2.0f, 20.0f + fparg1, f23, a, a0b & 0xFF, 0x20, 0, *(s32 *)(arg4 + 0x398), 0);
+        func_0025f3f0((3.0f + ((4.0f + fparg0) - 5.0f)) - 2.0f, 20.0f + fparg1, f23, a, (u8)a0b & 0xFF, 0x20, 0, *(s32 *)(arg4 + 0x398), 0);
         if ((p20 != NULL) && (*(u8 *)(p20 + 0xA) != 0)) {
             func_003f6440(3, 0x50009);
             func_003f6440(2, 0x44);
             f22 = 2.0f + fparg1;
             f21 = 42.0f + fparg0;
-            func_0025f3f0(f21, f22, f23, a, a0b & 0xFF, 0x3E, 0, *(s32 *)(arg4 + 0x398), 0);
+            func_0025f3f0(f21, f22, f23, a, (u8)a0b & 0xFF, 0x3E, 0, *(s32 *)(arg4 + 0x398), 0);
             func_003f6440(3, 0x50805);
             func_003f6440(2, 0x44);
-            func_0025f3f0(f21, f22, f20, a, a0b & 0xFF, 0x3E, 0, *(s32 *)(arg4 + 0x398), 0);
+            func_0025f3f0(f21, f22, f20, a, (u8)a0b & 0xFF, 0x3E, 0, *(s32 *)(arg4 + 0x398), 0);
         }
     }
     func_0048a000();

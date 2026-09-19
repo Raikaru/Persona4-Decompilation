@@ -93,7 +93,7 @@ extern s32 func_0010b5b0(void);
 extern void func_0031e5b0(u8 *, s64, s32, s32, s32, s32, s32);
 extern void func_002b6b90(s16, s32, s32, s32, s32, s32);
 extern void func_002b8370(void *, s32, s32, s32, s32, s32);
-extern void func_003147e0(u8 *, s8, s64, s16, s32, s32);
+extern void func_003147e0(u8 *, s8, FclVec2, s16, s32, s32);
 /* The first selection is a signed byte; retail callers load it with lb. */
 extern void func_0031d630(u8 *, s64, s8, s64, s64);
 extern void func_0032fa30(u8 *, s16, u32, u32, u32);
@@ -370,7 +370,7 @@ u32 func_003147d0(u8 *arg0) {
 // FUN_003147E0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma optimization_level 1
-void func_003147e0(u8 *arg0, s8 arg1, s64 arg2, s16 arg3, s32 arg4, s32 arg5) {
+void func_003147e0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s32 arg4, s32 arg5) {
     extern void func_002b77d0(s16, s64, s16, s32, s64, s32, s64, s64, f32, s16, s32);
     s32 c15C;
     s32 c158;
@@ -411,7 +411,7 @@ void func_003147e0(u8 *arg0, s8 arg1, s64 arg2, s16 arg3, s32 arg4, s32 arg5) {
     s32 i;
     s64 li;
     s64 lia;
-    spE8 = arg2;
+    spE8 = *(s64 *)&arg2;
     t = *(u8 **)(arg0 + 0x38);
     v19 = (s8)arg1;
     c0 = (s16)(v19 * 5 + 0x66);
@@ -647,7 +647,7 @@ void func_00315310(u8 *arg0, s64 arg1) {
     for (; (s16)i < 3; i = (s16)(i + 1)) {
         off = (s16)i * 2;
         func_002b2970(&sp60, 26.0f, (f32)((s16)i * 34 + 0x57));
-        func_003147e0(arg0, (s8)(s16)i, sp60, *(s16 *)(t + off + 0xB8), (s16)(base + off), 0);
+        func_003147e0(arg0, (s8)(s16)i, *(FclVec2 *)&sp60, *(s16 *)(t + off + 0xB8), (s16)(base + off), 0);
     }
     func_002b2a60(&c7C, 0xC6, 0xEE, 1, 0xFF);
     p = func_002b6150((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F4));
@@ -7209,16 +7209,17 @@ void func_0032f060(u8 *arg0, s32 arg1) {
 /* superseded (no archive; F body measures 287/88). Lever checklist: slti-$at N/A (no integer slti); */
 /* dead-arm N/A (exact 343/343); opt_common_subs off 287->289 worse; opt_loop_invariants neutral. */
 /* measured (source repo): probe_variants plain 307 differing words (cse_off variant 287, ties prior F-body floor 287; sched 311 worse; loop_invariants 307->307 neutral); live verify plain obj 1348/window 1376 normalized_diff 1002. Prior floor in file 287 words over 88 fnalign edits (343/343 emitted). Residual confirms the recorded wall: six sh-index addus base+scaled vs scaled+base, loop-CSE of (s16)i normalize, stack ldr/ldl vs ld, plus saved-reg rotation and lb/lbu counter. Shapes reproduce per skeleton in conventions note: s64 locals to 2970 cast to FclVec2 tbl[5] at 0x50, nested 1305/1306, f20=-14 last, s16 r, 147e0 6-arg loop, FclByte4 groups with p1/p2 locals (retain 6150 result, never re-call for the copy). Plain parked (cse_off 287 noted as variant, not committed, to avoid a pragma waiver on a far floor). Body re-derived from retail/IDA. Parked as floor. */
-/* measured 0032f4d0 2026-09-19: 341/341 exact and fnalign edits **307 -> 6**.  The body now
-   types each stack position as a union of its FclVec2 and the s64 the call takes, so the
-   aggregate is assigned as a value instead of reinterpreted through a cast, and the three
-   colours the same way over u32.  The id stores go through a small inline helper, which
-   fixes the address operand order the earlier note recorded as an `addu`-order floor.
-   Remaining 6 edits: the scalar `ld` where retail emits an `ldr`/`ldl` pair, which changes
-   its address register and the loop displacements, plus fnalign's trailing-nop edit from
-   zero-tail trimming.  Retail executable code is 1368 bytes followed by 8 zero bytes. */
-// FUN_0032F4D0 NONMATCHING
-#ifdef NON_MATCHING
+/* MATCHED.  1368 bytes of code in the 1376-byte window with all 22 relocations resolved,
+   the remaining 8 bytes zero alignment.  The last six edits were the position transfer:
+   `func_003147e0` takes the two-float position **by value**, not as an `s64`, and passing
+   `FclVec2` reproduces retail's `ldr`/`ldl` pair where a scalar `ld` had been emitted.
+   The positions are therefore plain FclVec2 locals again; only the three colours keep the
+   union, because that call really does take the packed word.  The id stores still go
+   through the inline helper, which is what fixes the address operand order the older note
+   recorded as an `addu`-order floor.
+   Cost elsewhere: `func_003147e0`'s own floor moves 367 -> 374 differing words under the
+   corrected signature.  That is the right trade - the signature is proven by this MATCH,
+   and a floor measured against a wrong prototype was never a real measurement. */
 typedef union {
     FclVec2 position;
     s64 bits;
@@ -7232,6 +7233,7 @@ static inline void fclStoreId0032f4d0(s16 id, s32 offset, u8 *work)
 {
     *(s16 *)((u32)offset + (u32)work + 0xB8) = id;
 }
+// FUN_0032F4D0
 void func_0032f4d0(u8 *arg0) {
     FclPosition0032f4d0 tbl[6];
     FclPosition0032f4d0 spA0;
@@ -7295,7 +7297,7 @@ void func_0032f4d0(u8 *arg0) {
     i = 0;
     for (; (s16)i < *(s8 *)(t + 0xB7); i = (s16)(i + 1)) {
         n = (s16)i;
-        func_003147e0(arg0, (s8)(n + 4), tbl[n].bits, *(s16 *)(t + n * 2 + 0xB8), (s16)(n * 2 + 3), 0);
+        func_003147e0(arg0, (s8)(n + 4), tbl[n].position, *(s16 *)(t + n * 2 + 0xB8), (s16)(n * 2 + 3), 0);
     }
     r = (s16)func_0032fb60(*(s8 *)(t + 0xB6));
     func_002b2a60(&cBC.channels, 0xC6, 0xEE, 1, 0xFF);
@@ -7314,9 +7316,6 @@ void func_0032f4d0(u8 *arg0) {
         *(FclByte4 *)(func_002b6150(0x301) + 0x85) = cA8;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032f4d0);
-#endif
 
 // FUN_0032FA30
 void func_0032fa30(u8 *arg0, s16 arg1, u32 arg2, u32 arg3, u32 arg4) {
