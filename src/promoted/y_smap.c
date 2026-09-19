@@ -1051,6 +1051,14 @@ void func_002ae520(u8 *arg0) {
    type between `s8` and `u8` produces byte-identical code, because each
    loaded byte is immediately assigned to an `s8` local, so the signedness is
    unobservable at those sites.  Do not churn them. */
+/* 2026-09-19 caller prototype fix (this session): func_002b0250's local extern
+   said (s8,s8,..,s8,s8,..) but retail's caller zero-extends all four masked
+   args (andi, no lb/dsll32/dsra32), and both the generated m2c and the def
+   body (byte-stores only) agree the params are u8 except arg4. Extern and def
+   now (u8,u8,u8,s8,u8,u8,u8); the nine (s8)(tnx&0xFF)/(s8)(tny&0xFF) casts
+   dropped, (s8)j/(s8)i spelled (j&0xFF)/(i&0xFF). 729 -> 708 fnalign edits,
+   words 777 -> 766, object 888 -> 850 instrs. Neighbor floor func_002b0250
+   itself is byte-near-neutral (279 -> 280 words, 275 -> 274 edits). */
 // FUN_002AE630 NONMATCHING
 #ifdef NON_MATCHING
 u8 *func_002ae630(u8 *arg0) {
@@ -1058,7 +1066,7 @@ u8 *func_002ae630(u8 *arg0) {
     extern s8 D_0063EF00[];
     extern s8 D_0063EF20[];
     extern s8 D_0063EF40[];
-    extern u8 *func_002b0250(u8 *, s8, s8, u8, s8, s8, u8, u8);
+    extern u8 *func_002b0250(u8 *, u8, u8, u8, s8, u8, u8, u8);
     extern void func_002b2830(u8 *, YVec2f, f32, f32, u32);
     extern void func_002B1100(void *, u32, u32);
     extern f32 func_002b13e0(YVec3f *, f32);
@@ -1126,14 +1134,14 @@ u8 *func_002ae630(u8 *arg0) {
                         tdy = D_0063EF40[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 1];
                         tnx = j + (s32)tdx;
                         tny = i + (s32)tdy;
-                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (s8)(tnx & 0xFF), (s8)(tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                         tdx = D_0063EF40[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 8];
                         tdy = D_0063EF40[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 9];
                         tnx = j + (s32)tdx;
                         tny = i + (s32)tdy;
-                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (s8)(tnx & 0xFF), (s8)(tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                     } else {
-                        ((u8 **)(blk + 0x148))[i * 16 + j] = func_002b0250(res, (s8)j, (s8)i, *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        ((u8 **)(blk + 0x148))[i * 16 + j] = func_002b0250(res, (j & 0xFF), (i & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                     }
                 } else {
                     switch (*(u8 *)(base + (u32)func_00155280() + col + 0x58)) {
@@ -1147,12 +1155,12 @@ u8 *func_002ae630(u8 *arg0) {
                         tdy = D_0063EEE0[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 1];
                         tnx = j + (s32)tdx;
                         tny = i + (s32)tdy;
-                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (s8)(tnx & 0xFF), (s8)(tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                         tdx = D_0063EEE0[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 8];
                         tdy = D_0063EEE0[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 9];
                         tnx = j + (s32)tdx;
                         tny = i + (s32)tdy;
-                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (s8)(tnx & 0xFF), (s8)(tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                         break;
                     }
                     case 11:
@@ -1165,12 +1173,12 @@ u8 *func_002ae630(u8 *arg0) {
                         tdy = D_0063EF00[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 1];
                         tnx = j + (s32)tdx;
                         tny = i + (s32)tdy;
-                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (s8)(tnx & 0xFF), (s8)(tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                         tdx = D_0063EF00[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 8];
                         tdy = D_0063EF00[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 9];
                         tnx = j + (s32)tdx;
                         tny = i + (s32)tdy;
-                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (s8)(tnx & 0xFF), (s8)(tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                         break;
                     }
                     case 13:
@@ -1183,17 +1191,17 @@ u8 *func_002ae630(u8 *arg0) {
                         tdy = D_0063EF20[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 1];
                         tnx = j + (s32)tdx;
                         tny = i + (s32)tdy;
-                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (s8)(tnx & 0xFF), (s8)(tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 1, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                         tdx = D_0063EF20[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 8];
                         tdy = D_0063EF20[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 9];
                         tnx = j + (s32)tdx;
                         tny = i + (s32)tdy;
-                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (s8)(tnx & 0xFF), (s8)(tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 2, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                         tdx = D_0063EF20[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 0x10];
                         tdy = D_0063EF20[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2 + 0x11];
                         tnx = j + (s32)tdx;
                         tny = i + (s32)tdy;
-                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (s8)(tnx & 0xFF), (s8)(tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 3, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
+                        ((u8 **)(blk + 0x148))[tny * 16 + tnx] = func_002b0250(res, (tnx & 0xFF), (tny & 0xFF), *(u8 *)(base + (u32)func_00155280() + col + 0x58), 3, *(u8 *)(base + (u32)func_00155280() + col + 0x59), (u8)j, (u8)i);
                         break;
                     }
                     }
@@ -1544,7 +1552,7 @@ void func_002b0220(void *arg0) {
 // FUN_002B0250 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002afbc0(u8 *arg0);
-u8 *func_002b0250(u8 *arg0, s8 arg1, s8 arg2, u8 arg3, s8 arg4, s8 arg5, u8 arg6, u8 arg7) {
+u8 *func_002b0250(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s8 arg4, u8 arg5, u8 arg6, u8 arg7) {
     u8 buf[8];
     u8 *ret;
     u8 *blk;

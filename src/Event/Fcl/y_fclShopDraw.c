@@ -643,6 +643,13 @@ s32 func_002cb6a0(void *arg0) {
    102 instr and 1070 edits; single extends that retail has are kept via plain
    (s16)/s8 compares. Residual is lui +33 / addiu -21 scheduling wall.
    regsave_scan: retail 2608, frame 0x230 vs object 0x220, body saves spare $f21. */
+/* measured 002cb6c0 (owner, Vec2f/u8 base hoist): 2589 against retail 2608
+   (-0.7%, band 2530-2686 PASS), 567 edits (+12 reloc-only), 2084 differing words.
+   Frame still 0x220 vs 0x230, still saves spare $f21. Hoisted all multi-read
+   Vec2f bases (F5B8/F5A0/F5A8/F7B0/F7B8/F780/F778/F788/F790/F798/F7A0, both
+   F7B0/F7B8 dups) into reassigned `Vec2f *b` and all FA48/50/58/60/68 struct
+   bases into reassigned `u8 *fa`, matching the 002caef0/002d1590 pattern and
+   clearing most of the lui +33 surplus (-25 instr, -101 edits vs trimA). */
 // FUN_002CB6C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002cb6c0(void *arg0, s8 arg1) {
@@ -661,6 +668,8 @@ void func_002cb6c0(void *arg0, s8 arg1) {
     RGBA c9;
     u8 *work;
     u8 *t;
+    Vec2f *b;
+    u8 *fa;
     void *r;
     s32 sp22C;
     u32 sp228;
@@ -1022,21 +1031,24 @@ loop_32:
                 func_002e0660(*(void **)(work + 0xC90), *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xC90)) + 0x62), 0U, 0U, 5, 0);
                 func_002e0660(*(void **)(work + 0xDC8), *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xDC8)) + 0x62), 0U, 0U, 5, 0);
                 func_002e0660(*(void **)(work + 0xDD0), *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xDD0)) + 0x62), 0U, 0U, 5, 0);
-                func_002b2970(&sp1B8, ((Vec2f *)D_0063F5B8)->x, ((Vec2f *)D_0063F5B8)->y);
-                func_002b2970(&sp1B0, ((Vec2f *)D_0063F5B8)->x, 300.0f + ((Vec2f *)D_0063F5B8)->y);
+                b = (Vec2f *)D_0063F5B8;
+                func_002b2970(&sp1B8, b->x, b->y);
+                func_002b2970(&sp1B0, b->x, 300.0f + b->y);
                 func_002e0620(*(void **)(work + 0xC64), sp1B8, sp1B0, 0, 0xA, 0);
                 func_002e0660(*(void **)(work + 0xC64), *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xC64)) + 0x62), 0U, 0U, 0xA, 0);
                 func_002e09e0(*(void **)(work + 0xC58), 0x40, 162.0f);
-                func_002b2970(&sp1A8, ((Vec2f *)D_0063F5A0)->x, ((Vec2f *)D_0063F5A0)->y - 450.0f);
-                func_002b2970(&sp1A0, ((Vec2f *)D_0063F5A0)->x, ((Vec2f *)D_0063F5A0)->y);
+                b = (Vec2f *)D_0063F5A0;
+                func_002b2970(&sp1A8, b->x, b->y - 450.0f);
+                func_002b2970(&sp1A0, b->x, b->y);
                 func_002e0620(*(void **)(work + 0xC58), sp1A8, sp1A0, 0, 4, 0);
                 func_002e0660(*(void **)(work + 0xC58), 0U, 0xCCU, 0U, 2, 0);
                 func_002b2a60(&c9, 0, 0, 0, 0xFF);
                 t = (u8 *)func_002e04e0(*(void **)(work + 0xC58));
                 *(RGBA *)(t + 0x79) = c9;
                 func_002e09e0(*(void **)(work + 0xC5C), 0x40, 163.0f);
-                func_002b2970(&sp198, ((Vec2f *)D_0063F5A8)->x, ((Vec2f *)D_0063F5A8)->y - 450.0f);
-                func_002b2970(&sp190, ((Vec2f *)D_0063F5A8)->x, ((Vec2f *)D_0063F5A8)->y);
+                b = (Vec2f *)D_0063F5A8;
+                func_002b2970(&sp198, b->x, b->y - 450.0f);
+                func_002b2970(&sp190, b->x, b->y);
                 func_002e0620(*(void **)(work + 0xC5C), sp198, sp190, 0, 4, 0);
                 func_002e0660(*(void **)(work + 0xC5C), 0U, 0xCCU, 0U, 2, 0);
                 func_002b2a60(&c8, 0, 0, 0, 0xFF);
@@ -1069,8 +1081,9 @@ loop_102:
                 func_002e09e0(*(void **)(work + 0xD3C), 0x41, 128.0f);
                 func_002e0660(*(void **)(work + 0xD3C), 0U, 0xFFU, 0U, 0xA, 0);
                 func_002e09e0(*(void **)(work + 0xD60), 0x41, 78.0f);
-                func_002b2970(&sp178, ((Vec2f *)D_0063F7B0)->x, ((Vec2f *)D_0063F7B0)->y - (f32) 0x226);
-                func_002b2970(&sp170, ((Vec2f *)D_0063F7B0)->x, ((Vec2f *)D_0063F7B0)->y);
+                b = (Vec2f *)D_0063F7B0;
+                func_002b2970(&sp178, b->x, b->y - (f32) 0x226);
+                func_002b2970(&sp170, b->x, b->y);
                 func_002e0620(*(void **)(work + 0xD60), sp178, sp170, 2, 4, 0);
                 *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD60)) + 0x102) = 0;
                 *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD60)) + 0x100) = (s16)0;
@@ -1079,8 +1092,9 @@ loop_102:
                 t = (u8 *)func_002e04e0(*(void **)(work + 0xD60));
                 *(RGBA *)(t + 0x79) = c7;
                 func_002e09e0(*(void **)(work + 0xD64), 0x41, 78.0f);
-                func_002b2970(&sp168, ((Vec2f *)D_0063F7B8)->x, ((Vec2f *)D_0063F7B8)->y - (f32) 0x226);
-                func_002b2970(&sp160, ((Vec2f *)D_0063F7B8)->x, ((Vec2f *)D_0063F7B8)->y);
+                b = (Vec2f *)D_0063F7B8;
+                func_002b2970(&sp168, b->x, b->y - (f32) 0x226);
+                func_002b2970(&sp160, b->x, b->y);
                 func_002e0620(*(void **)(work + 0xD64), sp168, sp160, 2, 4, 0);
                 *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD64)) + 0x100) = -0x32;
                 *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD64)) + 0x102) = -0xDB;
@@ -1097,8 +1111,9 @@ loop_102:
                 *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xDF0)) + 0x30) = 376.0f;
                 r = func_0046d200(*(void **)(work + 0xF28), 0x44);
                 func_002e09e0(*(void **)(work + 0xD48), 0x56, 53.0f);
-                func_002b2970(&sp158, ((Vec2f *)D_0063F780)->x, -130.0f);
-                func_002b2970(&sp150, ((Vec2f *)D_0063F780)->x, ((Vec2f *)D_0063F780)->y);
+                b = (Vec2f *)D_0063F780;
+                func_002b2970(&sp158, b->x, -130.0f);
+                func_002b2970(&sp150, b->x, b->y);
                 func_002e0620(*(void **)(work + 0xD48), sp158, sp150, 2, 5, 0);
                 func_002b2a60(&c6, 0xE4, 0xFF, 0, 0xFF);
                 t = (u8 *)func_002e04e0(*(void **)(work + 0xD48));
@@ -1110,34 +1125,39 @@ loop_102:
                 func_0046d280(r);
                 r = func_0046d200(*(void **)(work + 0xF28), 0x43);
                 func_002e09e0(*(void **)(work + 0xD44), 0x56, 54.0f);
-                func_002b2970(&sp148, ((Vec2f *)D_0063F778)->x, -189.0f);
-                func_002b2970(&sp140, ((Vec2f *)D_0063F778)->x, ((Vec2f *)D_0063F778)->y);
+                b = (Vec2f *)D_0063F778;
+                func_002b2970(&sp148, b->x, -189.0f);
+                func_002b2970(&sp140, b->x, b->y);
                 func_002e0620(*(void **)(work + 0xD44), sp148, sp140, 2, 5, 3);
                 func_002b2a60(&c5, 0xE4, 0xFF, 0, 0xFF);
                 t = (u8 *)func_002e04e0(*(void **)(work + 0xD44));
                 *(RGBA *)(t + 0x79) = c5;
                                 *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD44)) + 0x100) = (s16)(func_0046b260(r) / 2.0f);
                                 *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD44)) + 0x102) = (s16)(func_0046b2f0(r) / 2.0f);
-                func_002e09b0(*(void **)(work + 0xD44), (s32) *(s16 *)(D_0063FA48 + 6), (f32) *(s16 *)(D_0063FA48 + 4));
-                func_002e0940(*(void **)(work + 0xD44), *(f32 *)D_0063FA48, 0.0f, 2, *(s16 *)(D_0063FA48 + 6) + 5, 3);
+                fa = (u8 *)D_0063FA48;
+                func_002e09b0(*(void **)(work + 0xD44), (s32) *(s16 *)(fa + 6), (f32) *(s16 *)(fa + 4));
+                func_002e0940(*(void **)(work + 0xD44), *(f32 *)fa, 0.0f, 2, *(s16 *)(fa + 6) + 5, 3);
                 func_0046d280(r);
                 r = func_0046d200(*(void **)(work + 0xF28), 0x45);
                 func_002e09e0(*(void **)(work + 0xD4C), 0x56, 55.0f);
-                func_002b2970(&sp138, ((Vec2f *)D_0063F788)->x, -75.0f);
-                func_002b2970(&sp130, ((Vec2f *)D_0063F788)->x, ((Vec2f *)D_0063F788)->y);
+                b = (Vec2f *)D_0063F788;
+                func_002b2970(&sp138, b->x, -75.0f);
+                func_002b2970(&sp130, b->x, b->y);
                 func_002e0620(*(void **)(work + 0xD4C), sp138, sp130, 2, 5, 1);
                 func_002b2a60(&c4, 0xE4, 0xFF, 0, 0xFF);
                 t = (u8 *)func_002e04e0(*(void **)(work + 0xD4C));
                 *(RGBA *)(t + 0x79) = c4;
                                 *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD4C)) + 0x100) = (s16)(func_0046b260(r) / 2.0f);
                                 *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD4C)) + 0x102) = (s16)(func_0046b2f0(r) / 2.0f);
-                func_002e09b0(*(void **)(work + 0xD4C), (s32) *(s16 *)(D_0063FA50 + 6), (f32) *(s16 *)(D_0063FA50 + 4));
-                func_002e0940(*(void **)(work + 0xD4C), *(f32 *)D_0063FA50, 0.0f, 2, *(s16 *)(D_0063FA50 + 6) + 5, 1);
+                fa = (u8 *)D_0063FA50;
+                func_002e09b0(*(void **)(work + 0xD4C), (s32) *(s16 *)(fa + 6), (f32) *(s16 *)(fa + 4));
+                func_002e0940(*(void **)(work + 0xD4C), *(f32 *)fa, 0.0f, 2, *(s16 *)(fa + 6) + 5, 1);
                 func_0046d280(r);
                 r = func_0046d200(*(void **)(work + 0xF28), 0x46);
                 func_002e09e0(*(void **)(work + 0xD50), 0x56, 56.0f);
-                func_002b2970(&sp128, ((Vec2f *)D_0063F790)->x, -165.0f);
-                func_002b2970(&sp120, ((Vec2f *)D_0063F790)->x, ((Vec2f *)D_0063F790)->y);
+                b = (Vec2f *)D_0063F790;
+                func_002b2970(&sp128, b->x, -165.0f);
+                func_002b2970(&sp120, b->x, b->y);
                 func_002e0620(*(void **)(work + 0xD50), sp128, sp120, 2, 5, 4);
                 func_002b2a60(&c3, 0xE4, 0xFF, 0, 0xFF);
                 t = (u8 *)func_002e04e0(*(void **)(work + 0xD50));
@@ -1145,13 +1165,15 @@ loop_102:
                                 *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD50)) + 0x100) = (s16)(func_0046b260(r) / 2.0f);
                                 *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD50)) + 0x102) = (s16)(func_0046b2f0(r) / 2.0f);
                 *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xD50)) + 0xC4) = 0.0f;
-                func_002e09b0(*(void **)(work + 0xD50), (s32) *(s16 *)(D_0063FA58 + 6), (f32) *(s16 *)(D_0063FA58 + 4));
-                func_002e0940(*(void **)(work + 0xD50), *(f32 *)D_0063FA58, 0.0f, 2, *(s16 *)(D_0063FA58 + 6) + 5, 4);
+                fa = (u8 *)D_0063FA58;
+                func_002e09b0(*(void **)(work + 0xD50), (s32) *(s16 *)(fa + 6), (f32) *(s16 *)(fa + 4));
+                func_002e0940(*(void **)(work + 0xD50), *(f32 *)fa, 0.0f, 2, *(s16 *)(fa + 6) + 5, 4);
                 func_0046d280(r);
                 r = func_0046d200(*(void **)(work + 0xF28), 0x47);
                 func_002e09e0(*(void **)(work + 0xD54), 0x56, 57.0f);
-                func_002b2970(&sp118, ((Vec2f *)D_0063F798)->x, -126.0f);
-                func_002b2970(&sp110, ((Vec2f *)D_0063F798)->x, ((Vec2f *)D_0063F798)->y);
+                b = (Vec2f *)D_0063F798;
+                func_002b2970(&sp118, b->x, -126.0f);
+                func_002b2970(&sp110, b->x, b->y);
                 func_002e0620(*(void **)(work + 0xD54), sp118, sp110, 2, 5, 2);
                 func_002b2a60(&c2, 0xE4, 0xFF, 0, 0xFF);
                 t = (u8 *)func_002e04e0(*(void **)(work + 0xD54));
@@ -1159,13 +1181,15 @@ loop_102:
                                 *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD54)) + 0x100) = (s16)(func_0046b260(r) / 2.0f);
                                 *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD54)) + 0x102) = (s16)(func_0046b2f0(r) / 2.0f);
                 *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xD54)) + 0xC4) = 0.0f;
-                func_002e09b0(*(void **)(work + 0xD54), (s32) *(s16 *)(D_0063FA60 + 6), (f32) *(s16 *)(D_0063FA60 + 4));
-                func_002e0940(*(void **)(work + 0xD54), *(f32 *)D_0063FA60, 0.0f, 1, *(s16 *)(D_0063FA60 + 6) + 5, 2);
+                fa = (u8 *)D_0063FA60;
+                func_002e09b0(*(void **)(work + 0xD54), (s32) *(s16 *)(fa + 6), (f32) *(s16 *)(fa + 4));
+                func_002e0940(*(void **)(work + 0xD54), *(f32 *)fa, 0.0f, 1, *(s16 *)(fa + 6) + 5, 2);
                 func_0046d280(r);
                 r = func_0046d200(*(void **)(work + 0xF28), 0x48);
                 func_002e09e0(*(void **)(work + 0xD58), 0x56, 58.0f);
-                func_002b2970(&sp108, ((Vec2f *)D_0063F7A0)->x, -197.0f);
-                func_002b2970(&sp100, ((Vec2f *)D_0063F7A0)->x, ((Vec2f *)D_0063F7A0)->y);
+                b = (Vec2f *)D_0063F7A0;
+                func_002b2970(&sp108, b->x, -197.0f);
+                func_002b2970(&sp100, b->x, b->y);
                 func_002e0620(*(void **)(work + 0xD58), sp108, sp100, 2, 5, 5);
                 func_002b2a60(&c1, 0xE4, 0xFF, 0, 0xFF);
                 t = (u8 *)func_002e04e0(*(void **)(work + 0xD58));
@@ -1173,12 +1197,14 @@ loop_102:
                                 *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD58)) + 0x100) = (s16)(func_0046b260(r) / 2.0f);
                                 *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD58)) + 0x102) = (s16)(func_0046b2f0(r) / 2.0f);
                 *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xD58)) + 0xC4) = 0.0f;
-                func_002e09b0(*(void **)(work + 0xD58), (s32) *(s16 *)(D_0063FA68 + 6), (f32) *(s16 *)(D_0063FA68 + 4));
-                func_002e0940(*(void **)(work + 0xD58), *(f32 *)D_0063FA68, 0.0f, 2, *(s16 *)(D_0063FA68 + 6) + 5, 5);
+                fa = (u8 *)D_0063FA68;
+                func_002e09b0(*(void **)(work + 0xD58), (s32) *(s16 *)(fa + 6), (f32) *(s16 *)(fa + 4));
+                func_002e0940(*(void **)(work + 0xD58), *(f32 *)fa, 0.0f, 2, *(s16 *)(fa + 6) + 5, 5);
                 func_0046d280(r);
                 func_002e09e0(*(void **)(work + 0xD60), 0x41, 78.0f);
-                func_002b2970(&spF8, ((Vec2f *)D_0063F7B0)->x, ((Vec2f *)D_0063F7B0)->y - (f32) 0x226);
-                func_002b2970(&spF0, ((Vec2f *)D_0063F7B0)->x, ((Vec2f *)D_0063F7B0)->y);
+                b = (Vec2f *)D_0063F7B0;
+                func_002b2970(&spF8, b->x, b->y - (f32) 0x226);
+                func_002b2970(&spF0, b->x, b->y);
                 func_002e0620(*(void **)(work + 0xD60), spF8, spF0, 2, 4, 0);
                 *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD60)) + 0x102) = 0;
                 *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD60)) + 0x100) = (s16)0;
@@ -1187,8 +1213,9 @@ loop_102:
                 t = (u8 *)func_002e04e0(*(void **)(work + 0xD60));
                 *(RGBA *)(t + 0x79) = c0;
                 func_002e09e0(*(void **)(work + 0xD64), 0x41, 78.0f);
-                func_002b2970(&spE8, ((Vec2f *)D_0063F7B8)->x, ((Vec2f *)D_0063F7B8)->y - (f32) 0x226);
-                func_002b2970(&spE0, ((Vec2f *)D_0063F7B8)->x, ((Vec2f *)D_0063F7B8)->y);
+                b = (Vec2f *)D_0063F7B8;
+                func_002b2970(&spE8, b->x, b->y - (f32) 0x226);
+                func_002b2970(&spE0, b->x, b->y);
                 func_002e0620(*(void **)(work + 0xD64), spE8, spE0, 2, 4, 0);
                 *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD64)) + 0x100) = -0x32;
                 *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD64)) + 0x102) = -0xDB;
@@ -1216,6 +1243,14 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002cdf80);
    and arg-order scrambling. Hoist + width floor. */
 /* measured: retail 2644 instrs / object 2649 instrs (+0.2%, gate 2565-2723, mid-band), */
 /* fnalign 2201 edits +38 reloc-only, max delete-hole 3; production stays ASM. */
+/* measured 002d1590 (owner, dedup 4 recomputations): 2621 against retail 2644
+   (-0.9%, gate 2565-2723 PASS), 2141 edits (+38 reloc-only), 2194 differing words.
+   regsave_scan clean (no callee-saved mismatch). Removed the second cA/uA pair
+   in each of the four work[7] diff blocks (06940/06970/068b0/068e0): the fnalign
+   script's asymmetric runs (293-vs-2, 446-vs-1 etc.) are difflib confusion over
+   the repeated 0b20/cacd0 chains, but the 30-instr delete at retail[1505:1535]
+   plus the four duplicated jal pairs are real; dropping the 8 redundant calls
+   saves 28 instr and 60 edits (-5 words) with the count still in band. */
 // FUN_002D1590 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002d1590(void *arg0)
@@ -1410,8 +1445,6 @@ LAB1898_skip:
             uA = func_00106940(cA);
             c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1);
             uB = func_00106940((s16)c16);
-            cA = (s16)func_002e2740(*(s16 *)(work + 2));
-            uA = func_00106940(cA);
             diff = (s32)(u16)uA - (s32)(u16)uB;
             if (diff < 0) {
                 func_002b2970(&spF0, spF8.x + 12.0f, spF8.y - 18.0f);
@@ -1433,8 +1466,6 @@ LAB1898_skip:
             uA = func_00106970(cA);
             c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1);
             uB = func_00106970((s16)c16);
-            cA = (s16)func_002e2740(*(s16 *)(work + 2));
-            uA = func_00106970(cA);
             diff = (s32)(u16)uA - (s32)(u16)uB;
             if (diff < 0) {
                 func_002b2970(&spD8, spE0.x + 12.0f, spE0.y - 18.0f);
@@ -1470,8 +1501,6 @@ LAB1898_skip:
             uA = func_001068b0(cA);
             c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0);
             uB = func_001068b0((s16)c16);
-            cA = (s16)func_002e2740(*(s16 *)(work + 2));
-            uA = func_001068b0(cA);
             diff = (s32)(u16)uA - (s32)(u16)uB;
             if (diff < 0) {
                 func_002b2970(&sp120, sp128.x + 12.0f, sp128.y - 18.0f);
@@ -1493,8 +1522,6 @@ LAB1898_skip:
             uA = func_001068e0(cA);
             c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 0);
             uB = func_001068e0((s16)c16);
-            cA = (s16)func_002e2740(*(s16 *)(work + 2));
-            uA = func_001068e0(cA);
             diff = (s32)(u16)uA - (s32)(u16)uB;
             if (diff < 0) {
                 func_002b2970(&sp108, sp110.x + 12.0f, sp110.y - 18.0f);
