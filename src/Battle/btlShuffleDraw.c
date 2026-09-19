@@ -2058,10 +2058,10 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003768e0);
    the +-3% band.  Any differing-word score in this note was measured
    against a body of the wrong length and is not comparable to one
    measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 00377930: `u32 t` -> `s32 t` deletes the largest pure insert (64 instrs at object[248:312], per-conversion double unsigned handling -> single) + drop `schedule on`/`opt_propagation off` (pragma_sweep checked: sched-only 297/387, both 294/390 vs nopragma 316/216): `python3 tools/fnalign.py src/Battle/btlShuffleDraw.c func_00377930 --candidate /tmp/cand_77930_s32_nopragma.c --quiet` retail 312 vs object 316 instrs (216 edits +4 reloc-only); `python3 tools/measure_guarded.py src/Battle/btlShuffleDraw.c func_00377930` 338 -> 298 words. */
+/* gate: object 316 against retail 312, +1.3% - INSIDE the +-3% band (was 358, +14.7% OUTSIDE). */
 // FUN_00377930 NONMATCHING
 #ifdef NON_MATCHING
-#pragma opt_propagation off
-#pragma schedule on
 void func_00377930(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4)
 {
     extern f32 D_008872F8_abs[];
@@ -2137,7 +2137,7 @@ void func_00377930(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4)
     sp80[10] = -halfW;
     sp80[11] = -halfH;
     for (arg2 = 0; arg2 < 4; arg2 = arg2 + 1) {
-        u32 t;
+        s32 t;
         f32 f;
         func_003e42a0(sp1B8v, &sp80[arg2 * 3], matrix);
         func_003717e0(sp1B8v, sp1C8);
@@ -2189,8 +2189,6 @@ void func_00377930(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4)
     }
     func_003e0f40(matrix);
 }
-#pragma schedule off
-#pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00377930);
 #endif
