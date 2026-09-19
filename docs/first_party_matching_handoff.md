@@ -496,6 +496,35 @@ retail and an $sN in the candidate.  It does not always apply - on
 the shared `j` ties at 27, so the cause there is something else.  One probe
 settles it either way.
 
+### 7aa. Passing the gate does not mean the structure is right
+
+The count gate catches a body that is missing work overall.  It does not
+catch a body that is missing work *and* inventing the same amount somewhere
+else - section 7u calls that compensating surplus, and it is not rare.
+
+Scanning every in-gate floor for a pure `delete` run and a pure `insert` run
+in the same body, both at least 25 instructions: **10 floors qualify.**  The
+worst are `func_00387750` (a 99-instruction hole against a 94-instruction
+lump, count 453 against 454) and `func_00463930` (83 against 91, count exact
+at 264/264).  A body can sit at a perfect instruction count and still be
+missing a hundred instructions of retail's code.
+
+Be careful reading this measure.  A `replace` run is a *diverged* region, not
+missing code, and counting replaces as holes inflates the figure from 10 to
+102 - the first version of this scan did exactly that and was wrong.  Only
+pure `delete` (retail-only) and pure `insert` (object-only) runs mean code is
+absent or invented.
+
+The out-of-gate case looks the same but worse: `func_00137890` is only 11.4%
+short, yet fnalign shows a single **177-instruction** `delete` offset by a
+96-instruction `replace` and a 45-instruction `insert`.  Its 252-word score
+describes nothing.
+
+**So the check before trusting any floor is two-part:** the count inside the
+band, *and* no large pure hole paired with a large pure lump.  When both are
+present, recover the missing block and delete the invented one before
+touching anything else.
+
 ### 7z. Undefined behaviour lets the compiler delete retail's stores
 
 `func_002b0b10` was 117 instructions short, a third of the body, with `jal`

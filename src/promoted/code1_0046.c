@@ -135,6 +135,7 @@ extern s32 D_008E4B28[];
 extern s32 D_00712490[];
 extern s64 D_007615DC;
 extern f32 fGpffff82fc;
+extern f32 fGpffff84f0;
 extern f32 func_0044b610(f32 arg0);
 extern f32 func_0044b7b0(f32 arg0);
 extern void func_0045f790(void *arg0, void *arg1, void *arg2, s32 arg3);
@@ -247,129 +248,114 @@ void func_004601c0(u8 *arg0, f32 fparg0, u8 *arg1, s32 arg2) {
 
 
 
-/* gate: object 190 against retail 268, -29.1% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured: fnalign retail 270 vs object 270 (+0, PASS 3% band 260-276, was 190 vs 268 -29.1%); opclass clean (no delta, was swc1 -26/lwc1 -19/add.s -11); frame 0xE0 matches retail (was 0xA0). Shapes: honest aggregates f32 sp80[4]/spD[3]/spB0[3]/spBC[3] + s32 sp90[6] (was scalars + sp90[8] with &sp90[var+36] and byte-load UB, b210 deleted stores per handoff 7z); memory-update adds spB0[0]=spB0[0]+... where retail reloads (was temp-reg adds keeping values in saved regs, +3 swc1); `if (fparg0>fparg1)` max form (was <= with bc1f, retail bc1t, clean census); fGpffff84f0/fGpffff82fc for gp loads (was 0.123f/0.456f literals, same lwc1 class, correct GPREL); distinct fourth-loop temps (was single temp_f0 reuse bug) + word loads (was byte). Walls: saved-reg rotation, scheduling, 97 fnalign edits; production stays ASM. */
 // FUN_004604D0 NONMATCHING
 #ifdef NON_MATCHING
 void func_004604d0(f32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1) {
-    f32 spD8;
-    f32 spD4;
-    f32 spD0;
-    f32 spC4;
-    f32 spC0;
-    f32 spBC;
-    f32 spB8;
-    f32 spB4;
-    f32 spB0;
-    f32 sp8C;
-    f32 sp88;
-    f32 sp84;
-    f32 sp80;
-    s32 sp90[8];
+    f32 spD[3];
+    f32 spBC[3];
+    f32 spB0[3];
+    s32 sp90[6];
+    f32 sp80[4];
     f32 temp_f20;
     f32 temp_f21;
     f32 temp_f22;
     f32 temp_f0;
-    f32 temp_f1;
-    f32 temp_f2;
-    f32 temp_f3;
+    f32 temp_f0_2;
+    f32 temp_f0_3;
     f32 temp_f4;
-    f32 var_f22;
+    f32 temp_f4_2;
+    f32 var_f0;
     f32 var_f20;
+    f32 var_f22;
     u32 var_16;
     u32 var_19;
+    u32 var_19_2;
+    u32 var_19_3;
     u32 var_20;
-    u8 *temp_19;
+    s32 *temp_16;
 
-    if (!(fparg0 <= fparg1)) {
-        temp_f0 = fparg0;
+    if (fparg0 > fparg1) {
+        var_f0 = fparg0;
     } else {
-        temp_f0 = fparg1;
+        var_f0 = fparg1;
     }
-    sp8C = temp_f0;
-    sp80 = arg0[0];
-    sp84 = arg0[1];
-    sp88 = arg0[2];
-    if (func_003e8200(*(s32 *)D_008872E0, (u8 *)&sp80) != 0) {
+    sp80[3] = var_f0;
+    sp80[0] = arg0[0];
+    sp80[1] = arg0[1];
+    sp80[2] = arg0[2];
+    if (func_003e8200(*(s32 *)D_008872E0, (u8 *)&sp80[0]) != 0) {
         if (arg2 != 0) {
             var_20 = 0;
             for (var_20 = 0; var_20 < 6U; var_20++) {
-                temp_19 = (u8 *)&D_00712490[var_20 * 2];
-                D_00887304[0](*(s32 *)temp_19, &sp90[var_20 + 0x24]);
-                D_00887300[0](*(s32 *)temp_19, *(s32 *)(temp_19 + 4));
+                temp_16 = &D_00712490[var_20 * 2];
+                D_00887304[0](temp_16[0], &sp90[var_20]);
+                D_00887300[0](temp_16[0], temp_16[1]);
             }
             D_00887300[0](1, 0);
             func_003f6440(2, 0x48);
             func_003f6440(3, 0x71801);
         }
-        spD0 = arg0[0];
+        spD[0] = arg0[0];
         temp_f20 = 0.5f * fparg1;
-        spD4 = arg0[1] - temp_f20;
-        spD8 = arg0[2];
+        spD[1] = arg0[1] - temp_f20;
+        spD[2] = arg0[2];
         temp_f21 = fparg1 / 7.0f;
         var_19 = 0;
         for (var_19 = 0; var_19 < 8U; var_19++) {
-            func_0045fbe0(&spD0, arg1, 0, 0, fparg0);
-            spD4 += temp_f21;
+            func_0045fbe0(&spD[0], arg1, 0, 0, fparg0);
+            spD[1] += temp_f21;
         }
         var_f22 = 0.0f;
-        var_19 = 0;
+        var_19_2 = 0;
         temp_f21 = 0.5f * -fparg1;
-        for (var_19 = 0; var_19 < 10U; var_19++) {
-            spB0 = fparg0 * func_0044b610(var_f22);
-            spB4 = temp_f21;
+        for (var_19_2 = 0; var_19_2 < 10U; var_19_2++) {
+            spB0[0] = fparg0 * func_0044b610(var_f22);
+            spB0[1] = temp_f21;
             temp_f4 = fparg0 * func_0044b7b0(var_f22);
-            spB8 = temp_f4;
-            spBC = spB0;
-            spC0 = temp_f20;
-            spC4 = temp_f4;
-            temp_f3 = spB0 + arg0[0];
-            spB0 = temp_f3;
-            temp_f2 = arg0[1];
-            spB4 += temp_f2;
-            temp_f1 = temp_f4 + arg0[2];
-            spB8 = temp_f1;
-            spBC = temp_f3;
-            spC0 = temp_f20 + temp_f2;
-            spC4 = temp_f1;
-            func_0045f790(&spB0, &spBC, arg1, 0);
-                        var_f22 += 0.123f;
+            spB0[2] = temp_f4;
+            spBC[0] = spB0[0];
+            spBC[1] = temp_f20;
+            spBC[2] = temp_f4;
+            spB0[0] = spB0[0] + arg0[0];
+            spB0[1] = spB0[1] + arg0[1];
+            spB0[2] = spB0[2] + arg0[2];
+            spBC[0] = spB0[0];
+            spBC[1] = temp_f20 + arg0[1];
+            spBC[2] = spB0[2];
+            func_0045f790(&spB0[0], &spBC[0], arg1, 0);
+            var_f22 += fGpffff84f0;
         }
         var_f20 = 0.0f;
-        var_19 = 0;
-        for (var_19 = 0; var_19 < 5U; var_19++) {
+        var_19_3 = 0;
+        for (var_19_3 = 0; var_19_3 < 5U; var_19_3++) {
             temp_f0 = fparg0 * func_0044b610(var_f20);
-            spB0 = temp_f0;
-            spB4 = temp_f21;
-            temp_f0 = fparg0 * func_0044b7b0(var_f20);
-            spB8 = temp_f0;
-                        temp_f22 = 0.456f + var_f20;
-            temp_f0 = fparg0 * func_0044b610(temp_f22);
-            spBC = temp_f0;
-            spC0 = temp_f21;
-            temp_f0 = fparg0 * func_0044b7b0(temp_f22);
-            spC4 = temp_f0;
-            temp_f3 = arg0[0];
-            spB0 = temp_f0 + temp_f3;
-            temp_f2 = arg0[1];
-            spB4 += temp_f2;
-            temp_f1 = arg0[2];
-            spB8 = temp_f0 + temp_f1;
-            spBC = temp_f0 + temp_f3;
-            spC0 += temp_f2;
-            spC4 = temp_f0 + temp_f1;
-            func_0045f790(&spB0, &spBC, arg1, 0);
-            spB4 += fparg1;
-            spC0 += fparg1;
-            func_0045f790(&spB0, &spBC, arg1, 0);
-                        var_f20 += 0.123f;
+            spB0[0] = temp_f0;
+            spB0[1] = temp_f21;
+            temp_f0_2 = fparg0 * func_0044b7b0(var_f20);
+            spB0[2] = temp_f0_2;
+            temp_f22 = fGpffff82fc + var_f20;
+            temp_f0_3 = fparg0 * func_0044b610(temp_f22);
+            spBC[0] = temp_f0_3;
+            spBC[1] = temp_f21;
+            temp_f4_2 = fparg0 * func_0044b7b0(temp_f22);
+            spBC[2] = temp_f4_2;
+            spB0[0] = spB0[0] + arg0[0];
+            spB0[1] = spB0[1] + arg0[1];
+            spB0[2] = spB0[2] + arg0[2];
+            spBC[0] = spBC[0] + arg0[0];
+            spBC[1] = spBC[1] + arg0[1];
+            spBC[2] = spBC[2] + arg0[2];
+            func_0045f790(&spB0[0], &spBC[0], arg1, 0);
+            spB0[1] = spB0[1] + fparg1;
+            spBC[1] = spBC[1] + fparg1;
+            func_0045f790(&spB0[0], &spBC[0], arg1, 0);
+            var_f20 += fGpffff84f0;
         }
         if (arg2 != 0) {
             var_16 = 0;
             for (var_16 = 0; var_16 < 6U; var_16++) {
-                D_00887300[0](*((u8 *)D_00712490 + var_16 * 8), *(s32 *)((u8 *)sp90 + var_16 * 4));
+                D_00887300[0](D_00712490[var_16 * 2], sp90[var_16]);
             }
         }
     }
