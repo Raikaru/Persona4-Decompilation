@@ -3740,6 +3740,8 @@ void func_0019c0d0(void)
     extern f32 fGpffff81f4;
     s32 i;
     u8 *entry;
+    f32 inv;
+    inv = fGpffff81f4;
     i = 0;
     while ((u32)i < 4U) {
         entry = *(u8 **)(D_0076449C + (i * 8) + 0x17C);
@@ -3861,18 +3863,18 @@ void func_0019c0d0(void)
                         f32 d1 = (f32)*(u8 *)(entry + 0x41);
                         f32 d2 = (f32)*(u8 *)(entry + 0x42);
                         f32 d3 = (f32)*(u8 *)(entry + 0x43);
-                        s32 t0 = ((s32)(fGpffff81f4 * a0 * fGpffff81f4 * b0 * 255.0f + 0.5f)) & 0xFF;
-                        s32 t1 = ((s32)(fGpffff81f4 * a1 * fGpffff81f4 * b1 * 255.0f + 0.5f)) & 0xFF;
-                        s32 t2 = ((s32)(fGpffff81f4 * a2 * fGpffff81f4 * b2 * 255.0f + 0.5f)) & 0xFF;
-                        s32 t3 = ((s32)(fGpffff81f4 * a3 * fGpffff81f4 * b3 * 255.0f + 0.5f)) & 0xFF;
-                        s32 u0 = ((s32)(fGpffff81f4 * (f32)t0 * fGpffff81f4 * c0 * 255.0f + 0.5f)) & 0xFF;
-                        s32 u1 = ((s32)(fGpffff81f4 * (f32)t1 * fGpffff81f4 * c1 * 255.0f + 0.5f)) & 0xFF;
-                        s32 u2 = ((s32)(fGpffff81f4 * (f32)t2 * fGpffff81f4 * c2 * 255.0f + 0.5f)) & 0xFF;
-                        s32 u3 = ((s32)(fGpffff81f4 * (f32)t3 * fGpffff81f4 * c3 * 255.0f + 0.5f)) & 0xFF;
-                        col[0] = (u8)(s32)(fGpffff81f4 * (f32)u0 * fGpffff81f4 * d0 * 255.0f + 0.5f);
-                        col[1] = (u8)(s32)(fGpffff81f4 * (f32)u1 * fGpffff81f4 * d1 * 255.0f + 0.5f);
-                        col[2] = (u8)(s32)(fGpffff81f4 * (f32)u2 * fGpffff81f4 * d2 * 255.0f + 0.5f);
-                        col[3] = (u8)(s32)(fGpffff81f4 * (f32)u3 * fGpffff81f4 * d3 * 255.0f + 0.5f);
+                        s32 t0 = ((s32)(inv * a0 * inv * b0 * 255.0f + 0.5f)) & 0xFF;
+                        s32 t1 = ((s32)(inv * a1 * inv * b1 * 255.0f + 0.5f)) & 0xFF;
+                        s32 t2 = ((s32)(inv * a2 * inv * b2 * 255.0f + 0.5f)) & 0xFF;
+                        s32 t3 = ((s32)(inv * a3 * inv * b3 * 255.0f + 0.5f)) & 0xFF;
+                        s32 u0 = ((s32)(inv * (f32)t0 * inv * c0 * 255.0f + 0.5f)) & 0xFF;
+                        s32 u1 = ((s32)(inv * (f32)t1 * inv * c1 * 255.0f + 0.5f)) & 0xFF;
+                        s32 u2 = ((s32)(inv * (f32)t2 * inv * c2 * 255.0f + 0.5f)) & 0xFF;
+                        s32 u3 = ((s32)(inv * (f32)t3 * inv * c3 * 255.0f + 0.5f)) & 0xFF;
+                        col[0] = (u8)(s32)(inv * (f32)u0 * inv * d0 * 255.0f + 0.5f);
+                        col[1] = (u8)(s32)(inv * (f32)u1 * inv * d1 * 255.0f + 0.5f);
+                        col[2] = (u8)(s32)(inv * (f32)u2 * inv * d2 * 255.0f + 0.5f);
+                        col[3] = (u8)(s32)(inv * (f32)u3 * inv * d3 * 255.0f + 0.5f);
                     }
                     if (col[3] < 0xFE) {
                         if (i != 2) {

@@ -1742,6 +1742,7 @@ void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
     f32 reciprocal;
     u32 init;
     u32 vertex;
+    s32 (**draw)(s32, void *, s32);
 
     scaleX *= fGpffff8488;
     scaleY *= fGpffff848c;
@@ -1804,7 +1805,8 @@ void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
                 vertex++;
             }
         }
-        D_00887310[0](2, hi, vertex);
+        draw = D_00887310;
+        draw[0](2, hi, vertex);
         vertex = 0;
         {
             s32 i;
@@ -1846,7 +1848,7 @@ void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
                 vertex++;
             }
         }
-        D_00887310[0](2, hi, vertex);
+        draw[0](2, hi, vertex);
         vertex = 0;
         {
             s32 i;
@@ -1888,7 +1890,7 @@ void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
                 vertex++;
             }
         }
-        D_00887310[0](2, hi, vertex);
+        draw[0](2, hi, vertex);
         vertex = 0;
         {
             s32 i;
@@ -1930,7 +1932,7 @@ void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
                 vertex++;
             }
         }
-        D_00887310[0](2, hi, vertex);
+        draw[0](2, hi, vertex);
         func_00364c70();
     }
     for (init = 0; init < 42; init++) {
@@ -1960,7 +1962,7 @@ void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
             idx++;
         }
     }
-    D_00887310[0](4, lo, 42);
+    draw[0](4, lo, 42);
     {
         u32 idx;
         u32 cursor;
@@ -1979,7 +1981,7 @@ void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
             idx++;
         }
     }
-    D_00887310[0](4, lo, 42);
+    draw[0](4, lo, 42);
     {
         u32 idx;
         u32 cursor;
@@ -1998,7 +2000,7 @@ void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
             idx++;
         }
     }
-    D_00887310[0](4, lo, 38);
+    draw[0](4, lo, 38);
     {
         u32 idx;
         u32 cursor;
@@ -2017,7 +2019,7 @@ void func_00203930(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
             idx++;
         }
     }
-    D_00887310[0](4, lo, 38);
+    draw[0](4, lo, 38);
 }
 
 #pragma pop
@@ -3345,6 +3347,7 @@ void func_00207b00(u8 *arg0, u8 *arg1, f32 *arg2)
     u8 c2;
     u8 c3;
     Vec2f pos;
+    void (**tbl)(u32, u32);
     f32 px;
     f32 py;
     f32 t;
@@ -3359,8 +3362,9 @@ void func_00207b00(u8 *arg0, u8 *arg1, f32 *arg2)
     }
     px = -10.0f;
     func_002012d0(pb, arg2[0] + -10.0f, arg2[1] + 28.0f);
-    D_00887300[0](8, 1);
-    D_00887300[0](1, 0);
+    tbl = D_00887300;
+    tbl[0](8, 1);
+    tbl[0](1, 0);
     if ((s16)(*(s16 *)(arg1 + 0xC) - 2) < 2) {
         t = (f32)(s16)(*(s16 *)(arg1 + 0xC) - 2) / 2.0f;
         if (t > 1.0f) {
@@ -3399,8 +3403,8 @@ void func_00207b00(u8 *arg0, u8 *arg1, f32 *arg2)
     pos.x = py;
     pos.y = 346.0f;
     func_00365f00(pos, 150.0f, 0x0022FFFE, 0x0022FFFE, v + 1.0f, 0.0f, 0x30, 1.0f, 1.0f, 1);
-    D_00887300[0](8, 0);
-    D_00887300[0](6, 0);
+    tbl[0](8, 0);
+    tbl[0](6, 0);
     func_002019e0(pb, 0.0f);
     if (isAlt != 0) {
         t = (f32)*(s16 *)(arg1 + 0xE) / 2.0f;
@@ -3419,9 +3423,9 @@ void func_00207b00(u8 *arg0, u8 *arg1, f32 *arg2)
         raw = (u32)t;
         alpha = raw & 0xFF;
         if (alpha == 0) {
-            D_00887300[0](6, 1);
+            tbl[0](6, 1);
             func_00204dc0(3, px, 28.0f, 110.0f, (1.0f - f20) * 45.0f, 0);
-            D_00887300[0](6, 0);
+            tbl[0](6, 0);
         } else {
             v = 259.0f;
             val = 0;
@@ -3440,9 +3444,9 @@ void func_00207b00(u8 *arg0, u8 *arg1, f32 *arg2)
                 val++;
             }
             s19 = *(s16 *)(arg0 + 4);
-            D_00887300[0](6, 1);
+            tbl[0](6, 1);
             func_00204dc0(3, px, ((f32)s19 - 3.0f) * 15.0f + 28.0f, 110.0f, 0.0f, 0);
-            D_00887300[0](6, 0);
+            tbl[0](6, 0);
             if (alpha == 0xFF) {
                 tmp = func_001f0620(*(u8 **)(arg1 + 0x178), D_00626BD0[s19]);
                 if (tmp == 0 || (s19 == 6 && *(s16 *)(arg1 + 0x5A6) <= 0)) {
@@ -3465,9 +3469,9 @@ void func_00207b00(u8 *arg0, u8 *arg1, f32 *arg2)
             func_00201410(pb, 9, 0x19, 129.0f, 383.0f);
         }
     } else {
-        D_00887300[0](6, 1);
+        tbl[0](6, 1);
         func_00204dc0(3, px, 28.0f, 110.0f, f26 * 90.0f, 1);
-        D_00887300[0](6, 0);
+        tbl[0](6, 0);
         if (bits == 0) {
             if (*(u16 *)arg1 == 2 && *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) == 10) {
                 s19 = 0;
@@ -3477,19 +3481,19 @@ void func_00207b00(u8 *arg0, u8 *arg1, f32 *arg2)
             if (s19 == 0) {
                 func_002012d0(pb, arg2[0], arg2[1]);
                 func_00201650(pb, 9, 0x1E, 75.0f, 317.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-                D_00887300[0](6, 1);
+                tbl[0](6, 1);
                 func_002019e0(pb, 120.0f);
                 func_00201650(pb, 9, 0x34, 8.0f, 297.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-                D_00887300[0](6, 0);
+                tbl[0](6, 0);
                 func_002012d0(pb, arg2[0] + px, arg2[1] + 28.0f);
                 isAlt = 1;
             } else if (s19 == 3) {
                 func_002012d0(pb, arg2[0], arg2[1]);
                 func_00201650(pb, 9, 0x20, 75.0f, 317.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-                D_00887300[0](6, 1);
+                tbl[0](6, 1);
                 func_002019e0(pb, 120.0f);
                 func_00201650(pb, 9, 0x36, 8.0f, 297.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-                D_00887300[0](6, 0);
+                tbl[0](6, 0);
                 func_002019e0(pb, 0.0f);
                 func_002012d0(pb, arg2[0] + px, arg2[1] + 28.0f);
                 isAlt = 1;
