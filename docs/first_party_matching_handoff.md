@@ -542,6 +542,46 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7ba. `tools/block_move_scan.py`: the relocation lever is exhausted
+
+7aq taught the tree to look for asymmetric runs in the fnalign edit script,
+and it paid three times - `func_001d1f30` 1575 edits to 425, `func_00137890`
+384 to 106, `func_00330060` 726 to 146.  7ay then showed the signal has a
+false positive.  This tool settles which is which mechanically, on two tests:
+
+- **Opcode sequence.**  A real move carries the same opcodes in the same
+  order; a recolouring keeps them and changes the register fields; genuinely
+  different code agrees on neither.
+- **Displacement.**  A move has to *go* somewhere.  Two long runs that start
+  at almost the same index are local divergence that difflib split in half,
+  not a relocation.  `func_002d8a60` scores 0.971 on a 208-against-210 pair
+  and looks like a textbook move until you notice the ranges begin at 958 and
+  945.
+
+Run over the **sixty worst first-party floors**:
+
+| verdict | count |
+|---|---|
+| MIXED - neither a clean move nor a clean recolour | 34 |
+| IN-PLACE - diverges where it stands | 11 |
+| UNPAIRED - one-sided run, code missing or surplus | 11 |
+| RECOLOUR - same code, different registers | 1 |
+| **MOVE** | **0** |
+
+**There is not one genuine relocated block left in the top sixty.**  That
+closes the lever at this end of the list and redirects the work: the
+remaining large floors need code written or removed (UNPAIRED), liveness
+changed (RECOLOUR, and the register work in 7at), or a region understood from
+scratch (MIXED).  Reordering blocks is finished as a strategy here.
+
+Worked example of what MIXED means in practice: `func_001400f0`'s pair is
+retail[1167:1776] (609 instructions) against object[1077:1750] (673) at
+ratio 0.677, and the heads do not correspond at all - retail opens
+`addiu/slti/bnez/nop/lui/lwc1/swc1/swc1/lbu/bltz`, the object opens
+`mul.s/lui/mtc1/nop/c.ole.s/bc1t/nop/cvt.w.s/mfc1/andi`.  A third of that
+function computes something different, and no amount of reordering reaches
+it.
+
 ### 7az. b210 always folds the unsigned conversion of a halfword load
 
 Three functions in `src/Graphics/Model/mdlManager.c` - `func_00471370`,
