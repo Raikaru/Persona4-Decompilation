@@ -2559,6 +2559,15 @@ s32 func_00343cf0(u8 *arg0) {
 /* 0x84-stride state-machine family shares func_0033fc80's stack-alloc floor. */
 // v5 aggregate-removal alone (2026-09-19): v4->v5 retail 2190/object 2038->2038 (+0, still 152 short, 6.9%, outside band 2126-2258; predicted +162 via 50x lwc1 reappearing did NOT materialize), frame -0x6D0->-0x410 (1744->1040, -704, still +64 over retail -0x3D0=976; added 920 vs 864 target +56), words 1911->1911 (+0), edits 997->1009 (+12), jal 104/0 exact, 0 bltz; exact: python3 tools/fnalign.py src/promoted/y_CmbCardEff.c func_00345700 --candidate /tmp/cmb45700_v5.c --quiet + python3 tools/probe_variants.py src/promoted/y_CmbCardEff.c func_00345700 --candidate v5=/tmp/cmb45700_v5.c; residual 49 pure deletes (max 14 at retail[211:225] 0x00345A4C-0x00345A84, e.g. retail[198:202] 0x00345A18-0x00345A28, retail[302:306] 0x00345BB8-0x00345BC8), 1 real insert + tail, no large hole/lump (>=25); production stays INCLUDE_ASM (short, do not bank).
 // storage shape, not arithmetic: retail spills each func_002b2970 scratch result to a low stack slot as it goes (e.g. 0x2D8->0x188, 0x2E0->0x190, 50 sites of 8-byte lwc1/lwc1/swc1/swc1 with varying indices, sequential distinct), where v4/v5 keep one big buffer (Cmb43Work + twork, +768 frame); retail uses a rolling pair of small slots and copies out -- fix is storage shape (smaller slots + per-result copies, +162 to 2200) not conversions (all fourteen genuinely signed, 0 changed).
+/* measured 00345700 (owner, 2026-09-19): the storage-shape hypothesis in the note above is
+   **disproved at this granularity**.  All 36 `func_002b2970` scratch destinations in the
+   0x210-byte `ttmp` buffer are written once and read exactly twice, so each was replaced
+   with its own `CmbVec2f` local - 36 separate two-float objects instead of disjoint slices
+   of one array.  Result: object 2138 and 1141 fnalign edits, **identical to the buffer
+   form**.  MWCC already treats provably disjoint slices of a local array as separate
+   values, so splitting them changes nothing.  If retail's low stack offsets are still the
+   answer, the difference has to come from the *order* the slots are allocated in or from
+   the other 229 `ttmp` offsets, not from the 36 scratch pairs. */
 // FUN_00345700 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00345700(u8 *arg0) {
