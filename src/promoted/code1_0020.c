@@ -2936,6 +2936,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205ff0);
    `18.5f - 18.5f * temp_f20` costs 147, and folding the constant to
    `((f32)0x14D + 18.5f) - 18.5f * temp_f20` costs 146. */
 /* measured 00206dd0 2026-09-19: callback 3rd param s8 -> u8 fixes li -1 to li 0xff (retail 0x0020705c); 85 -> 84 words, 21 -> 20 edits (+2 reloc-only), 217/217 kept. */
+/* 2026-09-19 frame-first + pairs (masked 84, raw 22/99, 217/217 exact, frame */
+/* both addiu $sp,$sp,-0x90): fnalign 20 (+2 reloc-only); home moves object */
+/* move $s2,$a2 first vs retail mov.s $f21,$f12 + mov.s $f20,$f13 first (int vs */
+/* float spill order, independent ABI files); base retail lw $v0,($s0) vs object */
+/* lui $v0,0 + lw $v0,($v0); FP sub.s $f1 vs $f2, lui/mtc1 + cvt/add scheduling, */
+/* lh $a1 scheduling; stacking sched 189, nobranch 84 tie, peephole 153; decl */
+/* float-first tie 84, pos u32 tie 84; s8->u8 85->84 kept. */
 // FUN_00206DD0 NONMATCHING
 #ifdef NON_MATCHING
 /* lane W42c20 probe for func_00206dd0 (0x00206dd0)

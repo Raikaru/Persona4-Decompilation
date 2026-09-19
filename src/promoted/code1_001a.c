@@ -2190,6 +2190,14 @@ void func_001a47f0(void)
 
 /* measured: live object 1164B/window 1152B, normalized_diff 219 (installed guard below; prior nd232 note at 1168B; object exceeds window by 12B). Restructured the scan loop per retail: bound check as the while condition (init + branch-over-to-test), skip-chain as separate early-outs to incr with the != 1 arm exiting to donecheck (goto-loop + OR-combined chain miscompiled the branch tree). Unmasked increment (232 -> 223 -> 219). Open walls: frame 0x60 vs 0x50, s-reg rotation, body-index mask folded away (unmasked counter proves it redundant; separate/temp/three-mask/O1 spellings all tie), slt stays signed per retail. Ruled out today: masked-incr while (223), three-mask tail temp (219 tie), O1 on both (223/219 ties). Banked as floor. */
 /* measured 001a4800 2026-09-19: exact 287/287, 107 words, 19 edits (+2 reloc-only) — no code change (before=after). Systematic cause is one 1-instr shift pair: unmasked incr `addiu $s2,$s2,1` (object) vs masked `addiu $v1,$s2,1 + andi $s2,$v1,0xFFFF` (retail 0x1a48a4) (-1) plus cs-off remat extra `lw $v0,($gp)` at 0x1a4a6c (object 3 vs retail 2: lw/lw/lhu vs lw/lhu) (+1) = net 0 but middle `b/bne/bnez` targets off by 1 (15 of 19 edits); masked incr tried 2026-09-19: 288/288 exact, 19 edits (shifts flip direction, trailing nop delete at 0x1a4c7c; +5/+16 words per prior, no win); addu order swap `product+base`→`base+product` tried: 287/287, 21 edits (worse +2); cs-on+masked: 289/288, 73 edits (worse). Open remains addu `addu $v0,$v1,$v0` (retail 0x1a4944) vs `addu $v0,$v0,$v1` + frame 0x60 vs 0x50. Prior: cs-off 219->174, etc, banked 107. */
+/* 2026-09-19 frame-first + pairs (masked 107, raw 21/142, 287/287 exact, frame */
+/* both addiu $sp,$sp,-0x50 — prior 0x60 vs 0x50 wall now closed): fnalign 19 */
+/* (+2 reloc-only); 15 branch-target off-by-one (b .+25/24, bne .+9/8, bnez */
+/* .-26/-25, bne .+230/231, beqz .+197/198, b .+170/171, .+160/161, .+146/147, */
+/* .+137/138, .+131/132, bnez .+105/106, bne .+11/12, etc.) from one -1/+1 pair: */
+/* retail addiu $v1,$s2,1 + andi $s2,$v1,0xFFFF vs object addiu $s2,$s2,1 (-1) */
+/* plus cs-off remat lw $v0,($gp) extra at 0x1a4a6c (+1), net 0; stacking sched */
+/* 224, nobranch 107 tie, peephole 237 — no win. */
 // FUN_001A4800 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
