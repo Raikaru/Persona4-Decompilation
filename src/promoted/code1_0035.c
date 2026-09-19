@@ -2760,6 +2760,21 @@ loop_test:
    WALL: outer $f24 vs $f26 (two saves short of $f26; f26first $f25 off by 1 gives 482 edits (+4, worse); declaration order), lui +29 (D_0064B2E8/B2EC/B300 rematerialised per byte via $v0 (3 lui, dest $v0 same clobbers) vs hoisted $s1 (1 lui, dest $a1/$a2/$a3 different base preserved); long-lived pB saves 23 lui (160->137, +29->+6) but breaks the frame to 0x1B0 and costs 3232 edits; short-lived p per group saves 2-4 lui with base $s2/frame exact but forwarded (tie, no saving) unless long live across calls (saved, pressure); swc1 -10/lwc1 -3 (need 10/3 more stores/loads, likely fy/fx dead stores with s64 packing), andi +3 (was -2, surplus from u8alpha per-j (4 conversions)), unsigned-branch staging/FPU choice with s64 packing, and `andi $s1` masking/re-read scheduling. */
 /* measured 0035fd60: `opt_loop_invariants on` inside the guard is worth 114 words (1636 -> 1522), the loop-preheader constant hoist. */
 /* measured 0035fd60 (WWidthD): pragmas via `tools/probe_variants.py` singly post-flock on the loopinv base (1522): `schedule on` 1662 (+140), `opt_common_subs off` 1673 (+151), `opt_propagation off` 1657 (+135); `tools/wscan_pairs.py` 1 vs 0 (single 0x18 pair for `(s8)alpha`, ignored until size matches per assignment); slti all `$v0` both sides (no `$at` lever; src `$s1` vs `$s4`/`$s0` colour wall); relocs match retail call sites (24x34f2e0, 8x3f6440, 2x34f9d0, 1x361d20, etc.) so the -86 is in `(u8)` clamping at 21 sites (`c.ole.s`/`bc1t` large-x paths) + FPR colour (`$f25`/`$f24` vs `$f21`/`$f20`, one save short of `$f26`), not missing calls. */
+/* 2026-09-19 lead adjudication of the two candidates, like for like:
+     previous  1522 words, object 1707 against retail 1793 - **-86, -4.8%,
+               OUTSIDE the +-3% band of 1739-1847** - fnalign 849 edits.
+     current   1689 words, object 1809 against retail 1796 - +13, +0.7%,
+               inside the band - fnalign 478 edits (+20 reloc-only).
+   The word score rose by 167 and the body still got much closer to retail.
+   That is not a paradox: `measure_guarded` counts reloc-masked differing
+   words over a fixed window, so a body 86 instructions short scores well by
+   being shifted out of alignment with the parts it is missing.  The previous
+   floor should never have been banked - it failed the count gate.  The
+   current one meets it and halves the alignment edits.
+   When the two metrics disagree, check the counts first: if one candidate is
+   outside the gate, its word score is not comparable to anything.  See also
+   func_00468ff0, where edits fell 674 -> 316 while words rose 898 -> 911 for
+   the same reason. */
 // FUN_0035FD60 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
