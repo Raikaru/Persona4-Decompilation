@@ -303,7 +303,7 @@ void func_004aec80(u8 *arg0)
     }
 }
 
-/* measured clean_v4: retail 492 vs object 493 (+1, +0.2% inside 3% gate), probe 455 words, fnalign 678 edits. Fix chain: v1 scalar 815/782 -> v3 signed colour (s32 word+mask unpack, s32 pack with shifts) 553/523 -> v4 single VU bridge per loop after call (unpack+modulate+pack, lui 0x437F first loop, mfc1 full second) 493/455. Parent stays signed s32+mask (20 instrs vs VU 9) to hold size. Banked as guarded floor. */
+/* measured clean_v4: retail 492 vs object 493 (+1, +0.2% inside 3% gate), probe 455 words, fnalign 678 edits. Fix chain: v1 scalar 815/782 -> v3 signed colour (s32 word+mask unpack, s32 pack with shifts) 553/523 -> v4 single VU bridge per loop after call (unpack+modulate+pack, lui 0x437F first loop, mfc1 full second) 493/455. Parent stays signed s32+mask (20 instrs vs VU 9) to hold size. Banked as guarded floor. Remeasure 2026-09-19: hoist 0.5f in small branch (f32 half=0.5f before loop, use half in f computation) 678->675 (-3, words 479 same, 493/492 same); still missing $f26 (retail 0x230 vs object 0x200, retail saves $f26) so retail holds one more float (likely 0.5f/full/gscale/inv held vs recomputed) - opposite case from sinking floors, needs hoist not sink. */
 // FUN_004AED70 NONMATCHING
 #ifdef NON_MATCHING
 void func_004aed70(u8 *arg0)
@@ -371,6 +371,7 @@ void func_004aed70(u8 *arg0)
         func_0046d730(D_00714520, 0x2A2);
     } else if ((*(s32 *)(tmp4 + 0x0C) & 1) == 0) {
         s32 i;
+        f32 half = 0.5f;
         func_00492df0(tmp4, snapA);
         func_004bceb0();
         for (i = 0; i < 12; i++) {
@@ -412,7 +413,7 @@ void func_004aed70(u8 *arg0)
                 func_003bff30(tmp16, func_004ae020, &packed);
                 {
                     f32 idf = (f32)*(s32 *)(p18 + 0x10);
-                    f = *(f32 *)(p17 + 0x10) * idf + 0.5f * (idf * (*(f32 *)(arg0 + 0x2C) * idf));
+                    f = *(f32 *)(p17 + 0x10) * idf + half * (idf * (*(f32 *)(arg0 + 0x2C) * idf));
                 }
                 if (f < 0.0f) {
                     matA[0] = 1.0f;
