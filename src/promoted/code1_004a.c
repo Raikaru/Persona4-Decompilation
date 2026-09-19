@@ -870,7 +870,6 @@ main_body:
         func_00483490(objs, *(u16 *)(arg0 + 0x58));
     }
 }
-#pragma optimization_level 2
 #pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a5fc0);
