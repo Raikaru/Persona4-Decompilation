@@ -496,6 +496,35 @@ retail and an $sN in the candidate.  It does not always apply - on
 the shared `j` ties at 27, so the cause there is something else.  One probe
 settles it either way.
 
+### 7s. Run the pragma round last, not first
+
+The recipe puts free pragma probes first because they are cheap.  On an
+*incomplete* body they are also worthless, and worse than worthless if you
+believe them.
+
+`func_00263cb0` was reconstructed with an entire switch arm missing - 200
+instructions of `case 7`, leaving the candidate 213 short at 808 against
+1021.  A full pragma sweep on that body measured `opt_common_subs off` at
+909, five words better than the 914 baseline.  Once the missing arm was
+written, the same pragma measured **973 against 915** - a 58-word regression
+where it had looked like a small win.  Every other pragma, every optimisation
+level and all 28 pairs also flipped to ties or regressions.
+
+So the order is: **get the structure right, then tune.**  Concretely, before
+running any pragma probe, check that the instruction count is inside the ±3%
+band.  If it is not, the body is missing or inventing work and no pragma will
+fix that - find the missing arm, the dropped `else`, the omitted call or the
+uncollapsed lane first.  A pragma number measured outside the gate is stale
+the moment the gate is met, and must be re-measured rather than carried
+forward.
+
+The same function is the worked example for closing a count gap in steps,
+each one measured: 808 with the arm missing, 1080 with `case 7` spliced in,
+1055 after sharing the common `else`, 1032 after fixing two call idioms (a
+`0.0f` float argument that retail passes in `$f12`, and the sibling
+`func_00263730` call shape), and 1028 after narrowing one local from `s64` to
+`s32` - landing at +0.4% instead of -21%.
+
 ### 7r. When b210 uses the FPU accumulator, and what suppresses it
 
 Several floors carry a residual described as "FPU adda/madd canonicalisation"
