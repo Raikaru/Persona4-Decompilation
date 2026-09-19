@@ -1184,8 +1184,430 @@ void func_00213e20(u8 *arg0, u8 *arg1)
     }
 }
 /* measured 002142b0: retail 1624 instrs (6496B window), object 1636 instrs (6544B), 809 edits +4 reloc-only via `python3 -E -s tools/fnalign.py src/promoted/code1_0021.c func_002142b0 --candidate docs/probe_archive/Lane0021Full_002142b0_body.c` (was 1155 +4/object 1816). Truthful fixes: 00201650 floats-middle + u8 colors, 00201300 136.0f, 002016b0 s32, 0043f9c8 void*, 85.0*(f32)arg2. CFG hoist regresses 809->911 so kept. Frame -0x180 vs -0x170 + parks/coloring residual. Floor banked in Lane0021Full_002142b0_body.c (428 lines); production stays ASM. */
-// FUN_002142B0
+/* installed 2026-09-19 from docs/probe_archive/Lane0021Full_002142b0_body.c (428 lines, single-function, zero markers): compiles clean with no fixes, fresh 6544B/6496B (1636 vs 1624, +0.7% inside gate), 1468 words. Kept as floor. */
+// FUN_002142B0 NONMATCHING
+#ifdef NON_MATCHING
+void func_002142b0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
+{
+    typedef struct {
+        s64 stat0[2];
+        s64 stat1[2];
+        u8 color[0x14];
+        s32 status;
+        f32 unused[2];
+        f32 x[8];
+        f32 y[8];
+        f32 offset[8];
+        f32 effect[8];
+    } Work;
+    extern void func_002012d0(u8 *arg0, f32 fparg0, f32 fparg1);
+    extern void func_00201300(s32 *arg0, f32 fparg0, f32 fparg1,
+                              f32 fparg2, f32 fparg3);
+    extern void func_00201410(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0,
+                              f32 fparg1);
+    extern void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0,
+                              f32 fparg1, u8 arg5, u8 arg6, u8 arg7,
+                              u8 arg8);
+    extern void func_002016b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    extern void func_00201820(s32 arg0);
+    extern void func_002019d0(u8 *arg0, f32 fparg0, f32 fparg1);
+    extern s32 func_00231ed0(s32 arg0);
+    extern s32 func_00231ee0(s32 arg0);
+    extern s32 func_00231f80(s32 arg0);
+    extern s32 func_00232290(s32 arg0);
+    extern s32 func_00366c70(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                             s32 arg4, s32 arg5, s32 arg6, s16 arg7,
+                             f32 fparg0, s16 arg_sp0, s32 *arg_sp8,
+                             s32 arg_sp10, s32 *arg_sp18);
+    extern void *func_0043f9c8(void *dst, s32 value, u32 size);
+    extern f32 fGpffff815c;
+    extern f32 fGpffff8218;
+    extern f32 fGpffff84b4;
+    extern f32 fGpffff84b8;
+    extern u8 D_00626CC0[];
+    extern u8 D_00626DE0[];
+    extern u8 D_00626F00[];
+    extern u8 D_00626F60[];
+    extern u8 D_00626FC0[];
+    extern u8 D_00626FD0[];
+    Work work;
+    u8 *context;
+    s32 hp;
+    s32 sp;
+    s32 state;
+    s32 frame;
+    s32 i;
+    s32 alpha;
+    s32 alpha2;
+    s32 tile;
+    f32 t;
+    f32 smooth;
+    f32 fade;
+    f32 value;
+    f32 value2;
+    f32 baseX;
+    f32 baseY;
+    f32 temp;
+
+    context = (u8 *)arg0 + 0x80C;
+    func_00213e20(arg1, work.color);
+    hp = func_00231ed0(*(s32 *)(arg1 + 0xA64)) & 0xFFFF;
+    sp = func_00231ee0(*(s32 *)(arg1 + 0xA64)) & 0xFFFF;
+    work.stat0[0] = func_00231f80(*(s32 *)(arg1 + 0xA64)) & 0xFFFF;
+    work.stat1[0] = func_00232290(*(s32 *)(arg1 + 0xA64)) & 0xFFFF;
+    tile = *(u16 *)(arg1 + 0xA4);
+    if (tile < 9) {
+        tile -= 1;
+    } else {
+        tile = 0;
+    }
+    frame = *(s16 *)(arg1 + 0xA16);
+    if (frame < -1) {
+        return;
+    }
+    if (frame < 0x19) {
+        frame = (s16)(frame - (s16)(arg2 * 2));
+        state = *(s16 *)(arg1 + 0xA14);
+        if (state > 0 && state < 9) {
+            t = (f32)state;
+            if (t <= 6.0f) {
+                t = 1.0f;
+            } else {
+                t /= 6.0f;
+            }
+            smooth = 2.0f * t - t * t;
+            fparg0 = fparg0 + smooth * (fGpffff84b4 - fparg0);
+            t = (f32)arg2;
+            fparg1 = fparg1 + smooth * (fGpffff84b8 + 85.0f * t - fparg1);
+            fade = fGpffff8218 - fGpffff8218 * smooth;
+            func_002019d0((u8 *)arg0, fade, fade);
+            value = (f32)frame;
+            for (i = 0; i < 3; i++) {
+                if (value <= 8.0f) {
+                    if (value < 0.0f) {
+                        temp = 0.0f;
+                    } else {
+                        temp = value / 8.0f;
+                    }
+                } else {
+                    temp = 1.0f;
+                }
+                smooth = 1.0f - (2.0f * temp - temp * temp);
+                work.offset[i * 2] = 180.0f * smooth;
+                work.offset[i * 2 + 1] = 80.0f * smooth;
+                if (*(s32 *)context & 1) {
+                    value += 0.75f;
+                } else {
+                    value -= 0.75f;
+                }
+            }
+            value = (f32)(frame - 3);
+            if (value <= 8.0f) {
+                if (value < 0.0f) {
+                    temp = 0.0f;
+                } else {
+                    temp = value / 8.0f;
+                }
+            } else {
+                temp = 1.0f;
+            }
+            smooth = 1.0f - (2.0f * temp - temp * temp);
+            baseX = 180.0f * smooth;
+            baseY = -(80.0f * smooth);
+            value = (f32)frame;
+            for (i = 0; i < 3; i++) {
+                temp = value - 5.0f;
+                if (temp <= 8.0f) {
+                    if (temp < 0.0f) {
+                        fade = 0.0f;
+                    } else {
+                        fade = temp / 8.0f;
+                    }
+                } else {
+                    fade = 1.0f;
+                }
+                smooth = 1.0f - (2.0f * fade - fade * fade);
+                work.y[i * 2] = 180.0f * smooth;
+                work.y[i * 2 + 1] = -(80.0f * smooth);
+                temp = value - 7.0f;
+                if (temp <= 8.0f) {
+                    if (temp < 0.0f) {
+                        fade = 0.0f;
+                    } else {
+                        fade = temp / 8.0f;
+                    }
+                } else {
+                    fade = 1.0f;
+                }
+                smooth = 1.0f - (2.0f * fade - fade * fade);
+                work.x[i * 2] = 180.0f * smooth;
+                work.x[i * 2 + 1] = -(80.0f * smooth);
+                value += 1.0f;
+            }
+        } else {
+            state = *(s16 *)(arg1 + 0xA14);
+            if (state > 0 && state < 9) {
+                if (*(s32 *)(context + 8) != (s32)arg1 &&
+                    (*(s32 *)context & 2)) {
+                    state -= 2;
+                }
+                t = (f32)state;
+                if (t <= 6.0f) {
+                    t = 1.0f;
+                } else {
+                    t /= 6.0f;
+                }
+                smooth = 2.0f * t - t * t;
+                fparg0 = fparg0 + smooth * (fGpffff84b4 - fparg0);
+                t = (f32)arg2;
+                fparg1 = fparg1 + smooth * (fGpffff84b8 + 85.0f * t - fparg1);
+                fade = fGpffff8218 - fGpffff8218 * smooth;
+                func_002019d0((u8 *)arg0, fade, fade);
+                func_0043f9c8(work.offset, 0, 0x18);
+                func_0043f9c8(work.y, 0, 0x18);
+                func_0043f9c8(work.x, 0, 0x18);
+                baseX = 0.0f;
+                baseY = 0.0f;
+            } else {
+                func_002012d0((u8 *)arg0, fparg0, fparg1);
+                func_0043f9c8(work.offset, 0, 0x18);
+                func_0043f9c8(work.y, 0, 0x18);
+                func_0043f9c8(work.x, 0, 0x18);
+                baseX = 0.0f;
+                baseY = 0.0f;
+            }
+        }
+        state = *(s16 *)(context + 4);
+        if (state > 0) {
+            if (*(s32 *)context & 4) {
+                value = (f32)state;
+            } else {
+                value = (f32)state - 2.5f;
+            }
+            if (*(s32 *)context & 4) {
+                if (value <= 10.0f) {
+                    if (value < 0.0f) {
+                        t = 0.0f;
+                    } else {
+                        t = value / 10.0f;
+                    }
+                } else {
+                    t = 1.0f;
+                }
+                smooth = 2.0f * t - t * t;
+            } else {
+                if (value <= 10.0f) {
+                    if (value < 0.0f) {
+                        t = 0.0f;
+                    } else {
+                        t = value / 10.0f;
+                    }
+                } else {
+                    t = 1.0f;
+                }
+                smooth = 1.0f - (2.0f * t - t * t);
+            }
+            fade = 180.0f * smooth;
+            baseX += fade;
+            for (i = 0; i < 3; i++) {
+                if (*(s32 *)context & 4) {
+                    if (value <= 10.0f) {
+                        if (value < 0.0f) {
+                            t = 0.0f;
+                        } else {
+                            t = value / 10.0f;
+                        }
+                    } else {
+                        t = 1.0f;
+                    }
+                    smooth = 2.0f * t - t * t;
+                    value -= 1.25f;
+                } else {
+                    if (value <= 10.0f) {
+                        if (value < 0.0f) {
+                            t = 0.0f;
+                        } else {
+                            t = value / 10.0f;
+                        }
+                    } else {
+                        t = 1.0f;
+                    }
+                    smooth = 1.0f - (2.0f * t - t * t);
+                    value += 1.25f;
+                }
+                work.effect[i * 2] += 102.0f * smooth;
+            }
+        }
+        if (*(s32 *)(arg1 + 0xA10) & 1) {
+            tile = *(u16 *)(arg1 + 0xA18);
+            value = func_0044b610(state) * fGpffff815c;
+            value2 = func_0044b7b0(fGpffff815c);
+            for (i = 0; i < 3; i++) {
+                temp = (f32)D_00626FC0[i] *
+                       (f32)D_00626CC0[tile * 24 + i * 24];
+                work.effect[i * 2] = temp * value;
+                work.effect[i * 2 + 1] = -temp * value2;
+                work.effect[i * 2 + 1] -=
+                    (f32)D_00626FD0[i] *
+                    (f32)D_00626CC0[tile * 24 + i * 24];
+            }
+            alpha = (s32)(64.0f * (f32)D_00626F00[tile]) & 0xFF;
+            tile = (s16)tile + 1;
+            *(u16 *)(arg1 + 0xA18) = (u16)tile;
+            if ((s16)tile >= 0x18) {
+                *(s32 *)(arg1 + 0xA10) &= ~1;
+            }
+        } else {
+            func_0043f9c8(work.effect, 0, 0x18);
+        }
+        func_00201300(arg0, fparg0, fparg1, 136.0f, 136.0f);
+        if (*(s32 *)(arg1 + 0xA10) & 0x200) {
+            func_00201650((u8 *)arg0, 8, 0xE, 29.0f, 27.0f, 0x9D, 0xFF,
+                          0x22, 0xFF);
+        }
+        if (*(s32 *)(arg1 + 0xA10) & 2) {
+            temp = (f32)D_00626F60[(*(s16 *)(arg1 + 0xA1A)) * 4];
+            alpha = (s32)(160.0f * temp) & 0xFF;
+            alpha2 = (s32)(255.0f * temp) & 0xFF;
+            func_00201650((u8 *)arg0, 8, 0xE, 29.0f, 27.0f, 0x9D, 0xFF,
+                          0x22, alpha);
+            *(s16 *)(arg1 + 0xA1A) += 1;
+            if (*(s16 *)(arg1 + 0xA1A) >= 0x18) {
+                *(s32 *)(arg1 + 0xA10) &= ~2;
+            }
+        }
+        if (work.status != 0) {
+            func_00201650((u8 *)arg0, 0xB, 0,
+                          29.0f + work.effect[0] + work.offset[0],
+                          27.0f + work.effect[1] + work.offset[1],
+                          work.color[0xC], work.color[0xD],
+                          work.color[0xE], 0xFF);
+        }
+        func_00201650((u8 *)arg0, tile, 1,
+                      27.0f + work.effect[6] + work.y[6],
+                      16.0f + work.effect[7] + work.y[7], work.color[4],
+                      work.color[5], work.color[6], 0xFF);
+        func_00201650((u8 *)arg0, tile, 1,
+                      20.0f + work.effect[4] + work.y[4],
+                      20.0f + work.effect[5] + work.y[5], work.color[0],
+                      work.color[1], work.color[2], 0xFF);
+        func_00201410((u8 *)arg0, tile, 0,
+                      20.0f + work.effect[0] + work.offset[0],
+                      20.0f + work.effect[1] + work.offset[1]);
+        if (work.status != 0) {
+            func_00201820(2);
+            func_00201650((u8 *)arg0, tile, 0,
+                          20.0f + work.effect[0] + work.offset[0],
+                          20.0f + work.effect[1] + work.offset[1],
+                          work.color[8], work.color[9], work.color[0xA],
+                          0xFF);
+            func_00201820(0);
+        }
+        if (*(s32 *)(arg1 + 0xA10) & 3) {
+            func_00201820(2);
+            func_00201650((u8 *)arg0, tile, 0, 20.0f + work.effect[0],
+                          20.0f + work.effect[1], 0xFF, 0xFF, 0xFF,
+                          alpha);
+            func_00201820(0);
+        }
+        if (work.status != 0) {
+            baseX = work.effect[0] + work.offset[0];
+            baseY = work.effect[1] + work.offset[1];
+            switch (work.status) {
+            case 2:
+                func_00201410((u8 *)arg0, 0xB, 0xA, 89.0f + baseX, 25.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 0xC, 66.0f + baseX, 53.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 0xB, 48.0f + baseX, 22.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 9, 27.0f + baseX, 86.0f + baseY);
+                break;
+            case 4:
+                func_00201410((u8 *)arg0, 0xB, 0xE, 59.0f + baseX, 18.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 0xF, 46.0f + baseX, 77.0f + baseY);
+                break;
+            case 8:
+                func_00201410((u8 *)arg0, 0xB, 0xD, 73.0f + baseX, 25.0f + baseY);
+                break;
+            case 0x10:
+                func_00201410((u8 *)arg0, 0xB, 5, 36.0f + baseX, 27.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 6, 87.0f + baseX, 27.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 8, 32.0f + baseX, 88.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 7, 65.0f + baseX, 67.0f + baseY);
+                break;
+            case 1:
+                func_00201410((u8 *)arg0, 0xB, 0x10, 59.0f + baseX, 21.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 0x12, 109.0f + baseX, 38.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 0x14, 46.0f + baseX, 27.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 0x11, 23.0f + baseX, 76.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 0x13, 38.0f + baseX, 99.0f + baseY);
+                break;
+            case 0x20:
+                func_00201410((u8 *)arg0, 0xB, 1, 82.0f + baseX, 22.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 2, 47.0f + baseX, 23.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 3, 31.0f + baseX, 91.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 4, 31.0f + baseX, 44.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 4, 65.0f + baseX, 84.0f + baseY);
+                break;
+            case 0x40:
+                func_00201410((u8 *)arg0, 0xB, 0x15, 73.0f + baseX, 22.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 0x16, 60.0f + baseX, 51.0f + baseY);
+                break;
+            case 0x80:
+                func_00201410((u8 *)arg0, 0xB, 0x17, 83.0f + baseX, 30.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 0x18, 62.0f + baseX, 50.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 0x19, 78.0f + baseX, 26.0f + baseY);
+                func_00201410((u8 *)arg0, 0xB, 0x1A, 32.0f + baseX, 88.0f + baseY);
+                break;
+            case 0x80000:
+                func_00201410((u8 *)arg0, 0xB, 0x1B, 29.0f + baseX, 27.0f + baseY);
+                break;
+            }
+        }
+        func_00201650((u8 *)arg0, 8, 0xA, 63.0f + baseX, 82.0f + baseY,
+                      work.color[0x10], work.color[0x11],
+                      work.color[0x12], 0xFF);
+        func_00201650((u8 *)arg0, 8, 0xB, 66.0f + baseX, 85.0f + baseY,
+                      0x26, 0x26, 0x26, 0xFF);
+        value = (f32)work.stat0[0];
+        temp = 54.0f * (f32)hp / value;
+        if (temp < 5.0f) {
+            value = 0.0f;
+        }
+        func_002016b0((s32)arg0, 8, 0xC, (s32)value);
+        func_00201650((u8 *)arg0, 8, 0xC, 70.0f + baseX, 88.0f + baseY,
+                      0xFF, 0xE0, 0x51, 0xFF);
+        value2 = (f32)work.stat1[0];
+        temp = 54.0f * (f32)sp / value2;
+        if (temp < 5.0f) {
+            value2 = 0.0f;
+        }
+        func_002016b0((s32)arg0, 8, 0xC, (s32)value2);
+        func_00201650((u8 *)arg0, 8, 0xC, 70.0f + baseX, 94.0f + baseY,
+                      0xB7, 0xFF, 0x54, 0xFF);
+        func_00201410((u8 *)arg0, 8, sp % 10,
+                      121.0f + work.x[0], 64.0f + work.x[1]);
+        if (sp / 10 != 0) {
+            func_00201410((u8 *)arg0, 8, (sp / 10) % 10,
+                          108.0f + work.x[2], 69.0f + work.x[3]);
+        }
+        if (sp / 100 != 0) {
+            func_00201410((u8 *)arg0, 8, (sp / 100) % 10,
+                          95.0f + work.x[4], 74.0f + work.x[5]);
+        }
+        func_00201410((u8 *)arg0, 8, hp % 10,
+                      122.0f + work.y[0], 47.0f + work.y[1]);
+        if (hp / 10 != 0) {
+            func_00201410((u8 *)arg0, 8, (hp / 10) % 10,
+                          109.0f + work.y[2], 52.0f + work.y[3]);
+        }
+        if (hp / 100 != 0) {
+            func_00201410((u8 *)arg0, 8, (hp / 100) % 10,
+                          96.0f + work.y[4], 57.0f + work.y[5]);
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002142b0);
+#endif
 /* measured 00215c10: banked floor obj 1464B/window 1472B via `python tools/measure_guarded.py src/promoted/code1_0021.c func_00215c10` (366/366 instrs, 13 edits +1 reloc-only via `python tools/fnalign.py src/promoted/code1_0021.c func_00215c10 --candidate /tmp/cand_both_reload.c` after s16 reload 21->13; park intsFirst/floatsFirst/pin neutral at 21/13; MAC neutral 79/81; pragmas schedule 431/prop 62/loopInv 21/commonSubs 226 by EDIT count; frame -0x60 correct, residual prologue park order, FPU coloring, 85/conversion coloring. Best legal plain-C; parked as compiler floor. */
 /* measured 2026-09-17 full pragma_sweep --pairs: banked 20 via measure_guarded; */
 /* best stays 20 (ties: loopinv on, strength off, unroll off and pairs; 172 dead */
@@ -2874,8 +3296,251 @@ void func_0021be70(void)
 }
 /* measured 0021be80: object 3236B vs retail window 5568B; retail 1392 instrs vs object 809 instrs (-41.9%, gate needs 1350-1433); differing words 1248 reloc-masked (GUARDED_SCORE), fnalign 1353 edits +9 reloc-only. Archive claimed object 3228B vs 5568B nd 2356 (sizes ~match +8B from truthful D_008872F8[0]/ctx casts, score disagrees, not copied). Frame object 0x180 vs retail 0x2F0 (368B short). JAL retail 53 (1x452560,1x201350,8x21b500,18x21b630,2x21bbb0,3x3b7060,4x3f6440,2x457120,2x45af60,8x46d730,4x indirect) vs object ~31 (missing 6x21b500 static,7x21b630,2x457120 inv,7x46d730). */
 /* shortfall clusters: largest retail[320:670] 351 vs object[240:243] 4, next retail[989:1138] 150 vs 3, plus dozens of 5-35 replaces for (s32)(4.0f/2.0f scaled)&mask clamps and fGpffff84cc sign mul chains. Excluded: dropped else (mode&1/frame<0x30/==1 arms present), off-by-one (0x30/0xC/4/12/6 intact), folded switch (none), omitted-call as sole cause (22 missing jal ~300 instrs, not 583), unsigned/narrow/field bloat (signed, no s16, per-field). Truthful compile fixes (D_008872F8[0], (u8*)ctx casts) kept for measure; lying 21b500 (7 vs 8 args)/21b630 (s32 vs union)/21bbb0 (s32 vs u16) noted, production stays ASM. */
-// FUN_0021BE80
+/* archived Lane0021Full_0021be80_body.c installed 2026-09-19 for fresh measurement (header: 3228/5568 outside gate); leaving out if short. */
+// FUN_0021BE80 NONMATCHING
+#ifdef NON_MATCHING
+void func_0021be80(u8 *arg0, u8 *arg1)
+{
+    extern void func_0021bbb0(s32 color, s32 frame);
+    extern void func_0021b500(void *dst, f32 x, f32 y, f32 z, f32 u, f32 v,
+                              s32 color);
+    extern s32 func_003b7060(void);
+    extern void func_003f6440(s32 arg0, s32 arg1);
+    extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    extern u8 *func_00457120(void);
+    extern void func_0046d730(void *file, s32 line);
+    extern void (*D_00887300[])(s32 arg0, s32 arg1);
+    extern void (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
+    extern void func_0021b630(f32 f0, f32 f1, f32 f2, f32 f3, f32 f4,
+                              f32 f5, f32 f6, f32 f7, s32 color, f32 f8);
+    extern f32 D_00628FD0[];
+    extern f32 D_00628FE8[];
+    extern f32 D_00629000[];
+    extern f32 D_00629018[];
+    extern f32 D_00629030[];
+    extern f32 D_006290B0;
+    extern f32 D_006290B4;
+    extern f32 D_006290B8;
+    extern f32 D_006290BC;
+    extern f32 D_008872F8;
+    extern f32 fGpffff84cc;
+    extern f32 fGpffff84d0;
+    u8 quad[0x100];
+    u8 color0[4];
+    u8 *ctx;
+    f32 *tile;
+    f32 *tex;
+    f32 x0;
+    f32 y0;
+    f32 x1;
+    f32 y1;
+    f32 u0;
+    f32 v0;
+    f32 du;
+    f32 dv;
+    f32 scale;
+    f32 z;
+    f32 randomf;
+    f32 edge;
+    f32 width;
+    f32 height;
+    f32 texw;
+    f32 texh;
+    s32 mode;
+    s32 frame;
+    s32 i;
+    s32 j;
+    s32 bit;
+    s32 id;
+    s32 row;
+    s32 group;
+    s32 side;
+    s32 signx;
+    s32 signy;
+    s32 value;
+    s32 flags;
+    s32 color;
+    s32 base;
+    u16 index;
+
+    (void)arg0;
+    ctx = func_00452560(*(s32 *)(arg1 + 8));
+    func_00201350();
+    mode = *(u16 *)arg1;
+    if (mode & 1) {
+        frame = *(u16 *)(arg1 + 2);
+        if (frame < 0x30) {
+            if (*(u16 *)(iGpffffb3ac + 0x1A) == 1) {
+                if (frame == 4) {
+                    func_0045af60(1, 14, 2, 0);
+                }
+                color = 0xFFFF9F2D;
+                func_0021bbb0(color, frame);
+                D_00887300[0](1, iGpffffb470);
+                func_0021b630(D_00628FD0[0], D_00628FD0[1], 0.0f,
+                              D_00628FD0[2], D_00628FD0[3], D_00628FD0[4],
+                              D_00628FD0[5], D_00628FD0[4] + D_00628FD0[2],
+                              color, D_00628FD0[5] + D_00628FD0[3]);
+                func_0021b630(D_00628FE8[0], D_00628FE8[1], 0.0f,
+                              D_00628FE8[2], D_00628FE8[3], D_00628FE8[4],
+                              D_00628FE8[5], D_00628FE8[4] + D_00628FE8[2],
+                              color, D_00628FE8[5] + D_00628FE8[3]);
+                func_0021b630(D_00629030[0], D_00629030[1], 0.0f,
+                              -fGpffff84cc * D_00629030[2], -D_00629030[3],
+                              D_00629030[4] + D_00629030[2],
+                              D_00629030[5] + D_00629030[3], D_00629030[4],
+                              color, D_00629030[5]);
+                func_0021b630(D_00629030[0], D_00629030[1], 0.0f,
+                              fGpffff84cc * D_00629030[2], -D_00629030[3],
+                              D_00629030[4] + D_00629030[2],
+                              D_00629030[5] + D_00629030[3], D_00629030[4],
+                              color, D_00629030[5]);
+                func_003f6440(2, 0x48);
+                color = 0xFF6B9EFF;
+                index = *(u16 *)(arg1 + 4);
+                if (index >= 0xC) {
+                    func_0046d730((void *)&D_00629030[0], 0xC6);
+                }
+                for (i = 0; i < 4; i++) {
+                    id = (i == 0) ? index : ((i == 1) ? index + 6 :
+                         (i == 2) ? (index + 1) % 6 : ((index + 7) % 6));
+                    row = (id % 6 < 3) ? (id % 3) : (3 - (id % 3));
+                    tile = &D_00628FD0[(row + 5) * 6];
+                    group = id / 6;
+                    side = ((id / 3) + group) & 1;
+                    signx = (side == 0) ? 1 : -1;
+                    signy = (group == 0) ? 1 : -1;
+                    func_0021b630(tile[0], tile[1], 0.0f,
+                                  fGpffff84cc * (f32)(-signx) * tile[2],
+                                  (f32)(-signy) * tile[3],
+                                  tile[4] + tile[2], tile[5] + tile[3], tile[4],
+                                  color, tile[5]);
+                }
+                func_003f6440(2, 0x44);
+                color0[0] = 0x14;
+                color0[1] = 0x14;
+                color0[2] = 0x14;
+                color0[3] = 0xFF;
+                tex = D_00629000;
+                x0 = tex[0];
+                y0 = tex[1];
+                u0 = tex[2];
+                v0 = tex[3];
+                width = tex[4];
+                height = tex[5];
+                z = D_008872F8;
+                for (i = 0; i < 4; i++) {
+                    func_0021b500(quad + i * 0x40,
+                                  x0 + ((i == 1 || i == 3) ? width : 0.0f),
+                                  y0 + ((i >= 2) ? height : 0.0f), z,
+                                  (i == 1 || i == 3) ? width / 256.0f : 0.0f,
+                                  (i >= 2) ? height / 256.0f : 0.0f,
+                                  *(s32 *)color0);
+                }
+                D_00887310[0](4, quad, 4);
+                index = *(u16 *)(arg1 + 4) + 1;
+                *(u16 *)(arg1 + 4) = (index >= 6) ? 0 : index;
+            } else {
+                if (frame == 4) {
+                    func_0045af60(1, 14, 2, 1);
+                }
+                color = 0xFF2324FF;
+                func_0021bbb0(color, frame);
+                D_00887300[0](1, iGpffffb470);
+                func_0021b630(D_00628FD0[0], D_00628FD0[1], 0.0f,
+                              D_00628FD0[2], D_00628FD0[3], D_00628FD0[4],
+                              D_00628FD0[5], D_00628FD0[4] + D_00628FD0[2],
+                              color, D_00628FD0[5] + D_00628FD0[3]);
+                func_0021b630(D_00628FE8[0], D_00628FE8[1], 0.0f,
+                              D_00628FE8[2], D_00628FE8[3], D_00628FE8[4],
+                              D_00628FE8[5], D_00628FE8[4] + D_00628FE8[2],
+                              color, D_00628FE8[5] + D_00628FE8[3]);
+                func_0021b630(D_00629030[0], D_00629030[1], 0.0f,
+                              -fGpffff84cc * D_00629030[2], D_00629030[3],
+                              D_00629030[4] + D_00629030[2],
+                              D_00629030[5] + D_00629030[3], D_00629030[4],
+                              color, D_00629030[5]);
+                func_0021b630(D_00629030[0], D_00629030[1], 0.0f,
+                              fGpffff84cc * D_00629030[2], D_00629030[3],
+                              D_00629030[4] + D_00629030[2],
+                              D_00629030[5] + D_00629030[3], D_00629030[4],
+                              color, D_00629030[5]);
+                func_003f6440(2, 0x48);
+                color = 0xFF2727FF;
+                for (i = 0; i < 12; i++) {
+                    bit = 1 << i;
+                    if (bit & 0xC61) {
+                        value = func_003b7060();
+                        randomf = (value < 0) ? (f32)(2 * (((u32)value >> 1) | (value & 1))) :
+                            (f32)value;
+                        if ((s32)(4.0f * (randomf / 2147483600.0f)) == 0) {
+                            row = (i % 6 < 3) ? (i % 3) : (3 - (i % 3));
+                            tile = &D_00628FD0[(row + 5) * 6];
+                            group = i / 6;
+                            side = ((i / 3) + group) & 1;
+                            signx = (side == 0) ? 1 : -1;
+                            signy = (group == 0) ? 1 : -1;
+                            func_0021b630(tile[0], tile[1], 0.0f,
+                                          fGpffff84cc * (f32)(-signx) * tile[2],
+                                          (f32)(-signy) * tile[3],
+                                          tile[4] + tile[2], tile[5] + tile[3],
+                                          tile[4], color, tile[5]);
+                        }
+                    }
+                    if (*(u16 *)(arg1 + 4) & bit) {
+                        row = (i % 6 < 3) ? (i % 3) : (3 - (i % 3));
+                        tile = &D_00628FD0[(row + 5) * 6];
+                        group = i / 6;
+                        side = ((i / 3) + group) & 1;
+                        signx = (side == 0) ? 1 : -1;
+                        signy = (group == 0) ? 1 : -1;
+                        func_0021b630(tile[0], tile[1], 0.0f,
+                                      fGpffff84cc * (f32)(-signx) * tile[2],
+                                      (f32)(-signy) * tile[3],
+                                      tile[4] + tile[2], tile[5] + tile[3],
+                                      tile[4], color, tile[5]);
+                    }
+                }
+                func_003f6440(2, 0x44);
+                color0[0] = 0x14;
+                color0[1] = 0x14;
+                color0[2] = 0x14;
+                color0[3] = 0xFF;
+                tex = D_00629018;
+                x0 = tex[0];
+                y0 = tex[1];
+                u0 = tex[2];
+                v0 = tex[3];
+                width = tex[4];
+                height = tex[5];
+                z = D_008872F8;
+                for (i = 0; i < 4; i++) {
+                    func_0021b500(quad + i * 0x40,
+                                  x0 + ((i == 1 || i == 3) ? width : 0.0f),
+                                  y0 + ((i >= 2) ? height : 0.0f), z,
+                                  (i == 1 || i == 3) ? width / 256.0f : 0.0f,
+                                  (i >= 2) ? height / 256.0f : 0.0f,
+                                  *(s32 *)color0);
+                }
+                D_00887310[0](4, quad, 4);
+                index = *(u16 *)(arg1 + 2);
+                if ((index & 1) == 0) {
+                    value = func_003b7060();
+                    randomf = (value < 0) ? (f32)(2 * (((u32)value >> 1) | (value & 1))) :
+                        (f32)value;
+                    value = (s32)(2.0f * (randomf / 2147483600.0f));
+                    *(u16 *)(arg1 + 4) = (u16)(func_003b7060() & (0xAAAAA >> value));
+                }
+            }
+            (*(u16 *)(arg1 + 2))++;
+            return;
+        }
+        *(u16 *)arg1 &= (u16)~1;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021be80);
+#endif
 // FUN_0021D440
 void func_0021d440(s32 task)
 {
