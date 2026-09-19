@@ -69,7 +69,13 @@ def splat_entries(path: Path) -> set[int]:
 
 def source_markers() -> dict[int, list[tuple[Path, dict]]]:
     markers: dict[int, list[tuple[Path, dict]]] = defaultdict(list)
-    for path in sorted(p for p in (REPO / "src").rglob("*.c") if not is_generated(p)):
+    # Skip dot-prefixed scratch: `probe_variants.py` writes whole translation
+    # unit copies as `.<unit>.probe_<tag>.c` beside the source so quoted
+    # includes still resolve, and a crashed probe leaves one behind.  Scanning
+    # those reports every marker in the file twice and fails the uniqueness
+    # test naming a function nobody touched.
+    for path in sorted(p for p in (REPO / "src").rglob("*.c")
+                       if not is_generated(p) and not p.name.startswith(".")):
         for marker in scan_markers(path):
             markers[marker["addr"]].append((path.relative_to(REPO), marker))
     return markers

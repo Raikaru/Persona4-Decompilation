@@ -379,7 +379,9 @@ u16 func_00156190(u8 *arg0)
    4-long, installed); extra was dsll32/dsra32 0 pairs from shift idioms +
    s64->s32 truncs; frame/prologue verified incl DSP words. Open: $at/$v0 temp
    homes, lhu/lw order, scheduler ordering. Reloc-column rows are retail-side
-   display (obj addend-0). */
+   display (obj addend-0). Measured: seven dsll32/dsra32 pairs (incl. two
+   <<0>>0 s64-holding-32) and the +4 over-count are independent - all-s32
+   moves words 163->153 but blows edits 83->139 and flips size to -1 short. */
 // FUN_001561A0 NONMATCHING
 #ifdef NON_MATCHING
 /* Closest non-MATCH candidate archived before reverting; lverify report had MISMATCH. */

@@ -1900,6 +1900,7 @@ s32 func_00196d00(u8 *arg0)
                 }
                 frame.vec50[1] = *(f32 *)(unit + 8);
                 *(P4_95730_Vec3 *)(unit + 4) = *(P4_95730_Vec3 *)frame.vec50;
+                *(s32 *)(unit + 0x98) |= 4;
                 *(s32 *)(unit + 0xC4) &= ~1;
                 *(u16 *)(unit + 0xC8) &= 0xFFDF;
                 *(u16 *)(unit + 0xC8) &= 0xFFFE;
@@ -1964,7 +1965,7 @@ s32 func_00196d00(u8 *arg0)
                 frame.vec60[2] = *(f32 *)(arg0 + 0xC);
                 frame.vec60[1] = 0.0f;
                 frame.vec70[0] = frame.vec70[0] - frame.vec60[0];
-                frame.vec70[1] = 0.0f - 0.0f;
+                frame.vec70[1] = frame.vec60[1] - frame.vec60[1];
                 frame.vec70[2] = frame.vec70[2] - frame.vec60[2];
                 func_003e40b0(frame.vec70, frame.vec70);
                 frame.vec70[0] *= *(f32 *)(arg0 + 0x1C);
