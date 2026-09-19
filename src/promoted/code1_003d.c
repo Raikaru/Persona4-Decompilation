@@ -102,11 +102,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d0fa0);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d2010);
 // FUN_003D20D0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d20d0);
-/* measured: object 172B/window 176B/normalized_diff 89 (31 differing words, first diffs 16-20,22,25-26, 4B zero tail). */
-/* measured: repeated pointer-load and tail floor; undersized by one word; schedule-on prologue/call ordering solved */
-/* measured: but load/tail residuals remain (archive). Body archived in docs/probe_archive/K3D5_003d2240_body.c. */
-// FUN_003D2240 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: object 172B/window 176B (41/41 exact MATCH, 0 differing words). Schedule on interleaves the sq saves with arg setup and fills both jal delays plus the epilogue; no_branch_likely on keeps the NULL-check bnez plain; peephole off preserves retail's redundant lw $v0,($s2) reload before the first store (b210's redundant-load peephole otherwise forwards $v0 from the call). */
+// FUN_003D2240
+#pragma schedule on
+#pragma no_branch_likely on
+#pragma peephole off
 u8 *func_003d2240(u8 *arg0, s32 **arg1, s32 arg2, s32 arg3) {
     extern void func_003f3eb0(s32, s32);
     extern u8 *func_003f44c0(s32, s32);
@@ -126,9 +126,9 @@ u8 *func_003d2240(u8 *arg0, s32 **arg1, s32 arg2, s32 arg3) {
     }
     return var_2;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d2240);
-#endif
+#pragma peephole on
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003D22F0
 /* measured: tailcall on reproduces retail's frameless jump wrapper. */
 #pragma tailcall on

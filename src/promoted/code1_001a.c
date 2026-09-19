@@ -518,7 +518,7 @@ void func_001a06d0(u8 *arg0) {
         func_001b0800(arg0, *(u16 *)(arg0 + 0x14));
     }
 }
-/* measured: live object 956B/window 1088B, normalized_diff 230 (guard below; schedule on inside the guard is worth 2 words, 232 -> 230, sweep-measured; schedule fills delay slots so the object compacts 266 -> 239 instrs while fnalign fragments 99 -> 393 edits). Solved: twin-idiom calls, local externs, s64 arg0, memset-grounded stack, Ghidra nested tail (else-form), alternating unit-address spellings. Walls: frame 0x80 vs retail 0x70 (5 saved regs vs 3; temp live values overflow into s-regs), sp6E uninit-OR kept in reg ($s4 ori) vs retail stack slot (lhu/ori/sh), first-global lw symbol/offset. Ruled out today: baseline opts without the cs-off/prop-off pair (233, frame balloons to 0xa0), sp6E declared last (232, lateral), volatile sp6E (236). Production stays ASM; banked as floor. */
+/* measured 001a0b00 2026-09-19: schedule pragmas removed; object 266/retail 271 -1.8% INSIDE, 232 words via `python3 tools/measure_guarded.py src/promoted/code1_001a.c func_001a0b00`, 99 edits via `python3 tools/fnalign.py src/promoted/code1_001a.c func_001a0b00 --candidate /tmp/c0b00_new.c` (was 239, 230 words, 393 edits with schedule on; retail is unscheduled with nop after every branch). Solved: twin-idiom calls, local externs, s64 arg0, memset-grounded stack, Ghidra nested tail (else-form), alternating unit-address spellings. Walls: frame 0x80 vs retail 0x70 (5 saved regs vs 3; temp live values overflow into s-regs), sp6E uninit-OR kept in reg ($s4 ori) vs retail stack slot (lhu/ori/sh), first-global lw symbol/offset. Ruled out today: baseline opts without the cs-off/prop-off pair (233, frame balloons to 0xa0), sp6E declared last (232, lateral), volatile sp6E (236). Production stays ASM; banked as floor (inside gate). */
 // FUN_001A0B00 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -1778,6 +1778,9 @@ void func_001a3840(u8 *arg0)
     s32 v21;
     s32 v22;
     s32 v23;
+    extern void func_001f0a10(u8 *arg0);
+    extern u8 *func_001f36e0(s32 arg0, s32 arg1, void *arg2, s16 arg3, s16 arg4);
+    u8 spD0[32];
     u8 *pkt;
 
     t20 = *(u8 **)(arg0 + 1092);
@@ -1873,6 +1876,14 @@ void func_001a3840(u8 *arg0)
         *(s16 *)(pkt + 72) = v19;
         func_00194590(pkt, 2);
     }
+    func_001f0a10(spD0);
+    *(s32 *)(spD0 + 12) = spC0;
+    pkt = func_001f36e0((s32)t20, (s32)t20, spD0, 1, 1);
+    *(pkt + 0) = 4;
+    *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
+    *(s64 *)(pkt + 96) = *(s64 *)arg0;
+    *(s16 *)(pkt + 72) = v19;
+    func_00194590(pkt, 1);
 }
 #pragma opt_common_subs on
 #else
