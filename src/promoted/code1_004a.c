@@ -606,8 +606,257 @@ void func_004a5fa0(u8 *arg0) {
 /* next pass: union the D0/CC/839d0 blocks at 0xC0/0xA0/0x100 and shrink the float */
 /* live set before re-adding UV in retail store order (2,3,0,1,6,7,4,5). Candidates */
 /* archived at /var/tmp/cold4a5fc0/v2.c (666) and v5.c (878). */
-// FUN_004A5FC0
+// FUN_004A5FC0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma schedule on
+void func_004a5fc0(u8 *arg0)
+{
+    extern void func_00483660(void *arg0, void *arg1, void *arg2, f32 arg3);
+    extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
+    extern f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
+    extern void func_00482730(int arg0, u32 arg1);
+    extern void func_00482700(int arg0, f32 *arg1);
+    extern void func_00482ad0(void *arg0, s32 arg1, f32 *arg2);
+    extern void func_004839d0(void *arg0, u32 *arg1);
+    extern void func_00483490(void *arg0, u16 arg1);
+    extern void func_003c2290(void *arg0, s32 arg1);
+    extern void func_003c22f0(void *arg0);
+    extern void func_003c42b0(void *arg0, s32 arg1);
+    extern f32 func_0044b610(f32 arg0);
+    extern f32 func_0044b7b0(f32 arg0);
+    extern f32 D_00761134;
+    s32 sp11C;
+    s32 sp118;
+    s32 sp114;
+    s32 sp110;
+    u32 blk100[2];
+    f32 blkC0[16];
+    f32 blkA0[8];
+    f32 sp7C;
+    f32 sp78;
+    f32 sp74;
+    f32 sp70;
+    u32 sp84;
+    u32 sp80;
+    u16 sp96;
+    u16 sp94;
+    u16 sp92;
+    u16 sp90;
+    u16 sp8E;
+    u16 sp8C;
+    u16 sp8A;
+    u16 sp88;
+    s32 total;
+    s32 count;
+    u8 *objs;
+    s32 color;
+    s32 tmp24;
+    f32 scale20;
+    f32 scale21;
+    f32 c;
+    f32 s;
+    f32 a;
+    f32 b;
+    f32 e0;
+    f32 e1;
+    f32 f1;
+    f32 f2;
+    f32 t1;
+    f32 t2;
+    u8 *geom;
+    f32 *mat;
+    f32 *uv;
+    total = *(s32 *)(arg0 + 0xBC);
+    count = *(s32 *)(arg0 + 0x2C);
+    objs = *(u8 **)(arg0 + 0xC8);
+    if (count != 0) {
+        if ((count >= total) || (total <= 0)) {
+            goto main_body;
+        }
+        if (*(u8 *)(arg0 + 0x74) != 0) {
+            *(s32 *)(arg0 + 0x2C) = 0;
+            count = 0;
+            goto main_body;
+        }
+        return;
+main_body:
+        func_00483660(objs, arg0, arg0 + 0x10, *(f32 *)(arg0 + 0x20));
+        color = func_0048abd0(arg0 + 0x30, arg0 + 0x54, count, total);
+        tmp24 = *(s32 *)(arg0 + 0x24);
+        sp118 = tmp24;
+        scale20 = D_00761134;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10   \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(&sp118), "f"(scale20)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        sp114 = color;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10   \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0x110($sp)     \n"
+            :
+            : "r"(&sp114), "f"(scale20)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        sp11C = sp110;
+        if (*(u8 *)((u8 *)&sp11C + 3) != 0xFF) {
+            geom = *(u8 **)(objs + 0x14);
+            *(u8 *)(geom + 4) = *(u8 *)&sp11C;
+            *(u8 *)(geom + 5) = *((u8 *)&sp11C + 1);
+            *(u8 *)(geom + 6) = *((u8 *)&sp11C + 2);
+            *(u8 *)(geom + 7) = *((u8 *)&sp11C + 3);
+        } else {
+            *((u8 *)&sp11C + 3) = 0xFE;
+            geom = *(u8 **)(objs + 0x14);
+            *(u8 *)(geom + 4) = *(u8 *)&sp11C;
+            *(u8 *)(geom + 5) = *((u8 *)&sp11C + 1);
+            *(u8 *)(geom + 6) = *((u8 *)&sp11C + 2);
+            *(u8 *)(geom + 7) = 0xFE;
+            *((u8 *)&sp11C + 3) = 0xFF;
+        }
+        scale20 = func_0048aff0(arg0 + 0x64, count, total) * *(f32 *)(arg0 + 0xC0);
+        scale21 = func_0048aff0(arg0 + 0x90, count, total);
+        if (*(s32 *)(arg0 + 0xD0) != 0) {
+            func_00482730(*(s32 *)(arg0 + 0xD0), count);
+            func_00482700(*(s32 *)(arg0 + 0xD0), blkC0);
+            sp88 = (u16)(blkC0[6] * (16.0f * blkC0[12]));
+            sp8A = (u16)(blkC0[7] * (16.0f * blkC0[13]));
+            sp8C = (u16)(blkC0[8] * (16.0f * blkC0[12]));
+            sp8E = (u16)(blkC0[7] * (16.0f * blkC0[13]));
+            sp90 = (u16)(blkC0[8] * (16.0f * blkC0[12]));
+            sp92 = (u16)(blkC0[9] * (16.0f * blkC0[13]));
+            sp94 = (u16)(blkC0[6] * (16.0f * blkC0[12]));
+            sp96 = (u16)(blkC0[8] * (16.0f * blkC0[12]));
+            sp70 = blkC0[0];
+            sp74 = blkC0[1];
+            sp78 = blkC0[2] / 16.0f;
+            sp7C = blkC0[3] / 16.0f;
+            sp80 = (u32)blkC0[12];
+            sp84 = (u32)blkC0[13];
+            scale21 += blkC0[4];
+            func_003c42b0(*(u8 **)(objs + 0x14), *(s32 *)&blkC0[5]);
+        } else if (*(s32 *)(arg0 + 0xCC) != 0) {
+            func_00482ad0(*(void **)(arg0 + 0xCC), count, blkA0);
+            sp88 = 0;
+            sp8A = 0;
+            sp8C = (u16)(16.0f * blkA0[2]);
+            sp8E = 0;
+            sp90 = (u16)(16.0f * blkA0[2]);
+            sp92 = (u16)(16.0f * blkA0[3]);
+            sp94 = 0;
+            sp96 = (u16)(16.0f * blkA0[3]);
+            sp70 = 0.0f;
+            sp74 = 0.0f;
+            sp78 = (f32)((s32)((f32)(u16)(16.0f * blkA0[2]) * blkA0[0]) >> 5) / 16.0f;
+            sp7C = (f32)((s32)((f32)(u16)(16.0f * blkA0[3]) * blkA0[1]) >> 5) / 16.0f;
+            sp80 = (u32)blkA0[2];
+            sp84 = (u32)blkA0[3];
+            func_003c42b0(*(u8 **)(objs + 0x14), *(s32 *)&blkA0[4]);
+        } else {
+            func_004839d0(objs, blk100);
+            sp88 = 0;
+            sp8A = 0;
+            sp8C = (u16)(blk100[0] * 16);
+            sp8E = 0;
+            sp90 = (u16)(blk100[0] * 16);
+            sp92 = (u16)(blk100[1] * 16);
+            sp94 = 0;
+            sp96 = (u16)(blk100[1] * 16);
+            sp70 = 0.0f;
+            sp74 = 0.0f;
+            sp78 = ((f32)(blk100[0] * 16) / 32.0f) / 16.0f;
+            sp7C = ((f32)(blk100[1] * 16) / 32.0f) / 16.0f;
+            sp80 = blk100[0];
+            sp84 = blk100[1];
+        }
+        func_003c2290(*(u8 **)(*(u8 **)(objs + 0x10) + 0x18), 0xFF2);
+        {
+            u8 *tmp = *(u8 **)(*(u8 **)(objs + 0x10) + 0x18);
+            mat = *(f32 **)(*(u8 **)(tmp + 0x5C) + 0x14);
+            uv = *(f32 **)(tmp + 0x34);
+        }
+        a = sp70 * scale20;
+        b = sp74 * scale20;
+        e0 = sp78 * scale20;
+        e1 = sp7C * scale20;
+        c = func_0044b610(scale21);
+        s = func_0044b7b0(scale21);
+        f1 = a + e0;
+        f2 = b + e1;
+        t1 = f2 * s;
+        t2 = f1 * c;
+        mat[0] = t2 - t1;
+        mat[1] = 0.0f;
+        mat[2] = f1 * s + f2 * c;
+        f1 = a - e0;
+        t2 = f1 * c;
+        mat[3] = t2 - t1;
+        mat[4] = 0.0f;
+        t1 = f1 * s;
+        mat[5] = t1 + f2 * c;
+        f2 = b - e1;
+        t1 = f2 * s;
+        mat[9] = t2 - t1;
+        mat[10] = 0.0f;
+        mat[11] = f1 * s + f2 * c;
+        mat[6] = t2 - t1;
+        mat[7] = 0.0f;
+        mat[8] = t2 + t1;
+        {
+            f32 inv1 = 1.0f / (f32)(sp80 * 16);
+            f32 inv2 = 1.0f / (f32)(sp84 * 16);
+            uv[2] = (f32)sp88 * inv1;
+            uv[3] = (f32)sp8A * inv2;
+            uv[0] = (f32)sp8C * inv1;
+            uv[1] = (f32)sp8E * inv2;
+            uv[6] = (f32)sp94 * inv1;
+            uv[7] = (f32)sp96 * inv2;
+            uv[4] = (f32)sp90 * inv1;
+            uv[5] = (f32)sp92 * inv2;
+        }
+        objs = *(u8 **)(arg0 + 0xC8);
+        geom = *(u8 **)(*(u8 **)(objs + 0x10) + 0x18);
+        func_003c22f0(geom);
+        if ((*(u16 *)objs & 4) != 0) {
+            *(u16 *)(geom + 0xC) |= 1;
+        }
+        if (*(u8 *)(arg0 + 0xC4) != 0) {
+            *(u16 *)objs |= 1;
+        } else {
+            *(u16 *)objs &= 0xFFFE;
+        }
+        func_00483490(objs, *(u16 *)(arg0 + 0x58));
+    }
+}
+#pragma pop
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a5fc0);
+#endif
 // FUN_004A6B90
 void func_004a6b90(u8 *arg0) {
     (*(s32 *)(arg0 + 0x2C))++;
