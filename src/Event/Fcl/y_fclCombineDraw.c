@@ -512,6 +512,10 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003147e0);
    Floor confirmed. */
 /* measured: raw M2C seed archived at build/EFCL2_00314ef0_body.c; no live C body. */
 /* temporary body measurement */
+/* gate: object 309 against retail 264, +17.0% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00314EF0 NONMATCHING
 #ifdef NON_MATCHING
 typedef s32 M2C_UNK;

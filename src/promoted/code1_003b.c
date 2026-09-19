@@ -447,6 +447,10 @@ s32 func_003b6e00(s32 arg0) {
 #pragma no_branch_likely off
 #pragma schedule off
 /* measured: docs/probe_archive/Y3BA_003b6e70_body.c object 164B/window 144B, normalized_diff 39 live this session (installed guard below; object exceeds window by 20B; prior nd122 note was stale). Mismatch is dominated by frame size/addressing, callback/table materialization, and branch/epilogue layout; prior schedule/O1/reload-preserving-base probes ruled out. Banked as floor. */
+/* gate: object 41 against retail 36, +13.9% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_003B6E70 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003b6e70(s32 arg0) {
@@ -1170,6 +1174,10 @@ s32 func_003bce20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 #pragma no_branch_likely on
 #pragma opt_rebuildconditionals off
 #pragma opt_propagation off
+/* gate: object 42 against retail 48, -12.5% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_003BCE50 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003bce50(s32 arg0, s32 arg1) {
@@ -1436,6 +1444,10 @@ do2:
 #pragma schedule off
 #pragma no_branch_likely off
 /* measured: docs/probe_archive/Main119_003bd4f0_body.c object 136B/window 112B, normalized_diff 29 live under the current b210 TU (installed guard below; object exceeds window by 24B). The movz ternary and both calls are exact; residual is the lw $v0,OFF($a2) that retail schedules above sd $ra, which no cached MWCC build does for this source (the lw-before-sd prologue wall). The nd5 b119-unit score does not reproduce under b210. Banked as floor. */
+/* gate: object 34 against retail 28, +21.4% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_003BD4F0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003bd4f0(s32 arg0, s32 arg1, u8 *arg2) {
@@ -1514,6 +1526,10 @@ do2:
 #pragma schedule off
 
 /* measured: docs/probe_archive/Main119_003bd610_body.c object 136B/window 112B, normalized_diff 29 live under the current b210 TU (installed guard below; object exceeds window by 24B). The movz ternary and both calls are exact; residual is the lw $v0,OFF($a2) that retail schedules above sd $ra, which no cached MWCC build does for this source (the lw-before-sd prologue wall). The nd5 b119-unit score does not reproduce under b210. Banked as floor. */
+/* gate: object 34 against retail 28, +21.4% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_003BD610 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003bd610(s32 arg0, s32 arg1, u8 *arg2) {
@@ -1642,6 +1658,10 @@ do2:
 #pragma schedule off
 
 /* measured: docs/probe_archive/Main119_003be8a0_body.c object 136B/window 112B, normalized_diff 29 live under the current b210 TU (installed guard below; object exceeds window by 24B). The movz ternary and both calls are exact; residual is the lw $v0,OFF($a2) that retail schedules above sd $ra, which no cached MWCC build does for this source (the lw-before-sd prologue wall). The nd5 b119-unit score does not reproduce under b210. Banked as floor. */
+/* gate: object 34 against retail 28, +21.4% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_003BE8A0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003be8a0(s32 arg0, s32 arg1, u8 *arg2) {

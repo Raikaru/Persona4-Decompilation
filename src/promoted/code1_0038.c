@@ -345,6 +345,10 @@ void func_00383d70(u8 *arg0)
    with 192 edits, rejected as steering).
    Archive: docs/probe_archive/P038_00383f80_body.c. */
 /* measured this session: fresh probe 727wd / fnalign 143 edits (was 145 stale) confirms floor; slti inclusive (v18<3 -> <=2 fixes slti $at,$s2,3 dest to $at, tie 727wd; src $s2 vs $s3 colour wall remains per owner note); short-by-N hunt checked (no 1-4 short trailing chain in this window per top-down fnalign). Banked. */
+/* gate: object 785 against retail 846, -7.2% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00383F80 NONMATCHING
 #ifdef NON_MATCHING
 void func_00383f80(u8 *arg0)
@@ -640,6 +644,10 @@ void func_00384cc0(u8 *arg0)
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00384cc0);
 #endif
 /* measured: probe_variants func_00385380 base 336wd honest (exclusive <0x12, Vec2f{318,231}, plain accumulators, (u8)/(u16) clamps), inclusive (>0x12/slti 0x13) 336wd tie (no $at site, lever N/A beyond exclusivity), pragma_schedule 335wd (-1 churn, fnalign 411 vs 193 edits worse, not adopted); fnalign base retail 377/object 320 (193 edits +1 reloc-only; frame 0x90->0x80, s3->s2, accumulator madd chains); providers verified (373cb0, 3f6440, 64c90, 34f4a0, 44b7b0/610, DAT_007613F8/fGp82cc/80bc/83c8 per Draft5380); Ghidra/IDA agree; archive docs/probe_archive/P038_00385380_body.c (COP1 floor note, consistent); lever 4 tie; banked guarded floor for opclass measurability (object 320/377, 15% short noted plainly, stays out per 3% rule for MATCH but in as floor for triage). */
+/* gate: object 320 against retail 377, -15.1% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00385380 NONMATCHING
 #ifdef NON_MATCHING
 void func_00385380(u8 *arg0)

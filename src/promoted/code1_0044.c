@@ -201,6 +201,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442de8);
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442fa8);
 
 /* measured: 25 differing words, object 26 instrs / retail 22 (third-party unit, so floorboard/opclass skip it; strstr-shaped). Retail opens with lb/jr/movn (conditional move no C spelling emits here) and runs a rolled beq loop; b210 emits likely-branches plus a forward skip. Tried: nested-loop respelling (23 edits, worse), all 8 singles + all 28 pragma pairs (best 25; peephole off 38-41, cse off 28). Entry movn is the wall. */
+/* gate: object 26 against retail 22, +18.2% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00443010 NONMATCHING
 #ifdef NON_MATCHING
 s8 *func_00443010(s8 *arg0, s8 *arg1) {

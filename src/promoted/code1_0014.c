@@ -1092,6 +1092,10 @@ void func_00143b90(void)
 {
 }
 
+/* gate: object 513 against retail 566, -9.4% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_001441E0 NONMATCHING
 #ifdef SKIP_ASM
 /* 001441e0 floor (2068B/2272B, nd 425); truthful s32 return; init plus two display loops with Work-pair s64 arg. Production stays ASM. See docs/probe_archive/C14_001441e0_body.c. */
@@ -2280,6 +2284,10 @@ void func_00146630(u16 arg0) {
 /* Model floor (1104B window). First probe nd 229 (obj 1044B);
    frame -0xE0 vs -0xF0, saves verified. Open: GPREL consts,
    fusion order, scheduler cascade. Quad-built. */
+/* gate: object 261 against retail 274, -4.7% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00146A10 NONMATCHING
 #ifdef NON_MATCHING
 void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
@@ -4029,6 +4037,10 @@ void func_0014c920(void) {
     func_0043f9c8(&D_007D24B0, 0, 0x30);
 }
 /* measured 0014c960: `opt_loop_invariants on` inside the guard is worth 5 words (283 -> 278), the loop-preheader constant hoist. */
+/* gate: object 327 against retail 353, -7.4% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_0014C960 NONMATCHING
 #ifdef SKIP_ASM
 #pragma opt_loop_invariants on

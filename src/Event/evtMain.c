@@ -1438,6 +1438,10 @@ u8 *func_00145270(s32);                  /* extern */
 /*  Contiguous f32[3] groups restore the six swc1/lwc1 and eight div.s. */
 /*  Residual 233 words: 16.0f rematerialised per divide (lui/mtc1 +7), delay-slot nops */
 /*  (-32) and argument-materialisation order; scheduling/saved-register floor. */
+/* gate: object 252 against retail 264, -4.5% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00288AF0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on

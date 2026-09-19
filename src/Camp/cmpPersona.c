@@ -812,6 +812,10 @@ void func_001377e0(u8* arg0) {
    `adda.s $f0,$f1` / `madd.s $f20,$f3,$f2` for the alpha calculation, plus the
    doubled-bltz u16 sign-test pattern. */
 /* measured: candidate object 296 instrs/retail 334 instrs (1184B/1344B, 38 short), probe reloc-masked 252 words (guard below, NON_MATCHING so production stays ASM; fnalign 384 edits +2 reloc-only). Frame 0x160 vs small object frame from fewer live locals across 0034f2e0 calls (8 saves + f20-22 in retail); COP1 adda.s/madd.s alpha chain at 37958/3795C from plain C multiply. Banked as floor. */
+/* gate: object 296 against retail 334, -11.4% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00137890 NONMATCHING
 #ifdef NON_MATCHING
 void func_00137890(u8 *arg0, s32 arg1)

@@ -164,6 +164,10 @@ s32 func_0017ea10(u8 *arg0)
 }
 
 /* measured: GUARDED_SCORE 435 (obj 1608B/window 1872B; retail 466 instrs/object 402 instrs). Cold-start m2c de-noise in file idiom with existing externs; probed cell-copy staging, hit scalar/struct, > vs !(<=) and temp-expanded adds. Count gap held across two further probe rounds, stopping per brief. */
+/* gate: object 402 against retail 466, -13.7% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_0017ED40 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0017ed40(u8 *arg0) {

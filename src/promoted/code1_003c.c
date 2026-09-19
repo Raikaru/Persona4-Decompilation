@@ -1476,6 +1476,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9d40);
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9eb0);
 
 /* measured (this session): probe_variants K3C2_003ca320_body.c scores 31 differing words (obj 168B/window 176B, nd 28; offsets 104,107,112-126); residual is callback branch polarity/layout and continuation/epilogue displacement; inverted guard/switch 160B/nd 24, common finish 164B/nd 34, pragma order unchanged, decl/volatile/asm ruled out; banked guarded. See docs/probe_archive/K3C2_003ca320_body.c. */
+/* gate: object 47 against retail 44, +6.8% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_003CA320 NONMATCHING
 #ifdef NON_MATCHING
 u8 *func_003ca320(u8 *arg0, s32 (*arg1)(u8 *, s32), s32 arg2) {
@@ -2486,6 +2490,10 @@ void func_003cc460(void) {
 /* measured: best retained body object 136B/window 96B, normalized_diff 99; */
 /* differing word offsets 9, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, */
 /* 28, 30, 31. Retail's compact branch-likely chain remains unmatched. */
+/* gate: object 34 against retail 24, +41.7% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_003CC500 NONMATCHING
 #ifdef NON_MATCHING
 void func_003cc500(s32 arg0) {
@@ -2522,6 +2530,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc500);
 // FUN_003CC560 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc560);
 /* measured (this session): probe_variants H3CC_003cc680_body.c scores 22 differing words (obj 96B/window 96B); retail uses pexew/ppacw MMI (load x/y/z, scale by 0x437F0001, pexew pairs, ppacw, SQ, GP +16) which MWCCPS2 cannot emit from plain C; mixed decl order, exact scale, output-global, int-domain pointer, and scalar packed stores tried (F3C1 obj 124B/nd 103, over window); MMI compiler floor, banked guarded. See docs/probe_archive/H3CC_003cc680_body.c. */
+/* gate: object 2 against retail 22, -90.9% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_003CC680 NONMATCHING
 #ifdef NON_MATCHING
 void func_003cc680(u8 *arg0, f32 arg1) {

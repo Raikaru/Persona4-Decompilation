@@ -160,6 +160,10 @@ static inline void func_001c_rotate(RwMatrix *arg0, const RwV3d *arg1,
    ordering. Triple-built (m2c+IDA+Ghidra, retail-arbitrated: 1bcd40 TU-decl order,
    0.5-first 44b868, max-form update). Prior 263 now 248; reproducible with --candidate.
 */
+/* gate: object 219 against retail 301, -27.2% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_001C04E0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001c04e0(u8 *arg0)
@@ -306,6 +310,10 @@ void func_001c09a0(void) {}
    writes sp68+, 3dcc70 writes sp80..sp9C. +0.0f ACC seeds measured worse. Prior 273 now
    261 with current tree; numbers reproducible with --candidate on extracted body.
 */
+/* gate: object 225 against retail 288, -21.9% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_001C09B0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001c09b0(u8 *arg0)
@@ -3283,6 +3291,10 @@ void func_001cb960(void) {}
 /* Mined 48 MATCH neighbours (cb610/cacd0/c04e0): p4_cacd0_mul, func_001c_copy_pair, 0.0f+adda/madd, 100.0f/12.5f/500.0f clamps. */
 /* FMA chains (mula/madd/msub/adda) + 001959d0x2/003e40b0/003e41e0 retained; fnalign top-down, same levers. */
 /* measured 001cb970: `schedule on` inside the guard is worth 10 words (367 -> 357); retail fills delay slots plain -O2 leaves empty. */
+/* gate: object 344 against retail 384, -10.4% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_001CB970 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: retail fills delay slots this function leaves empty at -O2. */

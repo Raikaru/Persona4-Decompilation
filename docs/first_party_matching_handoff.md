@@ -521,6 +521,23 @@ words rose 898 -> 911 as correct structure was inserted.  In both cases the
 rule is the same: **a word score measured outside the gate is not comparable
 to one measured inside it.**  Get the count right first, then compare.
 
+**How widespread this is.**  `tools/gate_audit.py` checks every banked floor.
+Run bare it reports 459 inside the gate and 88 outside, 81 of them
+first-party; only 27 of those 81 notes admitted being short.  The other 54
+quoted a word score as though it meant something.
+
+Note the tolerance: a flat 3% condemns every tiny function - 3% of a
+six-instruction body is a fifth of an instruction - so the audit allows two
+instructions of absolute slack before the percentage applies.  That is the
+smallest difference a prologue or a delay slot can make.
+
+`--annotate` writes a machine-generated stamp above each out-of-gate marker
+recording the real counts and warning that the note's score is not
+comparable.  It is idempotent - re-running replaces its own stamp rather than
+stacking - so it can be re-run after any batch.  **Do not run it against a
+file an agent currently owns**; that is the one-agent-per-file rule from 7w
+applied to tooling.
+
 ### 7x. An `sd` surplus means one of two things, and the first is free
 
 `sd` (store doubleword) is not a class the census docstring covered, and it

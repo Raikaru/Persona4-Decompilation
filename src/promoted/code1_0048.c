@@ -3905,8 +3905,13 @@ loop_0048f560_check:
     *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
 }
 /* Decode 0048f5f0 (window 3440B=860w, gate 3337-3543B/834-885w; frame 0x1E0=480B, largest of family; void(u8*) single-pointer like ec50: +4 count u32, +C flags u32 bit0, +10 s32, +14 f32 acc, +18 nodes u8* stride 0x20, +1C out f32* stride 7, +20 config u8*). Retail calls in order: bceb0, bd0b0 x6, 44b610, 44b7b0, bd380 x3, bd050 x2, b220 x2, 43f810, b340. 26 VU ops (most in file): lqc2/sqc2 on 0x110/0x120/0x130 quads plus config+0x00/0x10 quads; normalize vmul.xyz+vmulax.w/madday.w/maddz.w+vrsqrt/vwaitq/vmulq.xyz (xyz-only, W preserved) + conditional vmulax.xyzw chain (vf28-30 from bceb0) + vsub.xyz negate on f32<0 + vmul.xyzw/vadd.xyzw with q120/config quads + sqc2 to node. GP floats via $28: 7F70/7F7C/7F80/7F84 (fGpffff8090/8094/8080/807c family); immediates 0.5/2.0/1.0/0.0/-1.0 via lui/mtc1, hoist to f20-27 before main loop like ec50. 3 unsigned (f32)(u32) sites via bltz+srl/andi/or/mtc1/cvt/add (branchless, never if(tmp<0)). Template: reuse ec50 v2 verbatim (3 slots b220buf u_long128 + vec120/vec130 f32[4] aligned16, one asm block per transfer with compiler address + m/=m + memory + exact VU/GPR clobbers, scalar in C, $vf0/lane/broadcast/W=0). Expect obj ~860w; outside 3% stays INCLUDE_ASM with factual note. Production stays ASM. */
-/* measured 2026-09-18: reconstructed from a bare marker; banked floor 790
-   reloc-masked words at 860/860 instructions, size-exact, 28 fnalign edits.
+/* measured 2026-09-18, CORRECTED 2026-09-19 by `tools/gate_audit.py`: the
+   "860/860 size-exact" claim below was wrong and I installed it without
+   checking.  fnalign measures retail 856 against object 746 - **110 short,
+   -12.9%, outside the +-3% band of 830-882** - so the 790 word score is not
+   comparable to anything (handoff 7y) and this body needs its missing
+   instructions found before any further tuning.  Original note follows.
+   Banked floor 790 reloc-masked words, claimed 28 fnalign edits.
    The worker that built it reported banking it but left the tree unchanged -
    this is its candidate installed from /var/tmp/cold48f5f0.  The scoped
    `opt_loop_invariants on` is load bearing and is pushed/popped around the

@@ -1208,6 +1208,10 @@ void func_00112610(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4
 /* 11->35 (mismatch 28->4, andi +6->0) costs edits 542->588 with sb 0->16, so it answers the census, */
 /* not the shape. Opclass stays lbu -28/move +16/swc1 -8/lwc1 -8/andi +6/subu -6/sb -5/addiu -4. Floor */
 /* stands at 494 words. */
+/* gate: object 510 against retail 544, -6.2% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00112830 NONMATCHING
 #ifdef NON_MATCHING
 void func_00112830(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)

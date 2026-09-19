@@ -203,6 +203,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390290);
 
 /* measured: func_003902d0 floor -- probe_archive F390_003902d0_body.c: obj 120B/window 128B/24 reloc-masked differing words (fresh); fnalign 15 edits (frame/saves + branch/call layout; no slt/slti $at, no trailing dead-arm chain). */
 /* measured: ruled out -- archive (schedule on+nbl on, block-scope 8fb50 proto, opposite guard/inner layouts, O1/O3 neutral); transfer from 98350 scheduler and 96890/b830 s64 cures checked (no range guard to convert). Banked. */
+/* gate: object 35 against retail 32, +9.4% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_003902D0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003902d0(s32 arg0, s32 unused, s32 arg2, s32 arg3)
@@ -386,6 +390,10 @@ s32 func_00396870(s32 arg0)
 #pragma schedule off
 /* measured: func_00396890 floor -- archive K399_00396890_body.c 26wd (obj 156B/window 176B per stale header, fresh 26wd; fnalign 25 edits) improved to 15wd via (s64)0<count + 4-pragma set (schedule on, nbl on, opt_rebuild off, opt_prop off) + var_3 hoisted before guard / var_5 inside (fnalign 9 edits: beqz displacement + beq-vs-bne+jal call layout + b/jal/nop/sw tail). */
 /* measured: ruled out -- archive (m2c expansion, counter/pointer lifetimes, do-while/goto, >0/0</<1 guards, O1, schedule-on) plus dup-store if/else (15wd neutral) and transfer from bcd50 slt $at cure (signed improve 26->15). Out-of-line 97120 call + shared -1 tail wall; banked improved floor. */
+/* gate: object 38 against retail 41, -7.3% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00396890 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
@@ -2084,6 +2092,10 @@ s32 func_0039ae30(s32 arg0)
 
 /* measured: func_0039ae90 floor -- probe_archive Y039_0039ae90_body.c: obj 156B/window 176B/37 reloc-masked differing words (fresh); fnalign 24 edits (no slt/slti $at entry guard, no trailing dead-arm chain; allocator/call layout wall). */
 /* measured: ruled out -- archive (block-scope 43f810, decl order, result/local staging, branch polarity/goto, arg staging, O1) plus transfer from 98350 scheduler, 96890/b830 s64 (no range guard), 99470 strict bounds and f0e0 dead-arm checked (no convertible chain). Banked. */
+/* gate: object 39 against retail 44, -11.4% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_0039AE90 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0039ae90(s32 arg0, s32 arg1)
@@ -2389,6 +2401,10 @@ ret0:
 #pragma schedule off
 /* measured: func_0039b720 floor -- probe_archive K399_0039b720_body.c: obj 148B/window 160B/38 reloc-masked differing words (fresh; stale nd81 note replaced); fnalign 32 edits (entry sltu $at,$zero,$v1 + second sltu $v0,$a3,$v1 vs sltu $at,$a3,$v1; unsigned entry wall). */
 /* measured: ruled out -- archive (u8 expansion, 3rd param/4-reg bdf0 call, schedule-on, nbl-on, 0U</0U< reversals, goto guard, decl/local reorder) plus transfer from bb70/b830 unsigned s64 regress (s64 21wd on bb70) -- unsigned sltu wall stands, signed cure not applicable. Banked. */
+/* gate: object 43 against retail 40, +7.5% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_0039B720 NONMATCHING
 #ifdef NON_MATCHING
 u8 *func_0039bdf0();

@@ -340,6 +340,10 @@ exit:
     temp_4 = temp_3;
     return temp_4;
 }
+/* gate: object 670 against retail 705, -5.0% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00222210 NONMATCHING
 /* measured: cold 2026-09-18 -- probe 643 differing words via `python3 tools/probe_variants.py src/promoted/code1_0022.c func_00222210 --candidate v3=/var/tmp/cold222210/v3.c` (retail 705 instrs/object 670 instrs, fnalign 223 edits +3 reloc-only via `python3 tools/fnalign.py src/promoted/code1_0022.c func_00222210 --candidate /var/tmp/cold222210/v3.c`). Frame 0x120 matches retail (addiu identical); residual is $s0-$s2/$s5 coloring plus f20-f24 rotation and per-use 16-bit masks. Levers: (f32)(u32)u16 unsigned lowering, (f32)0x177/0x109/0x119/0x185 int-form constants, 292.0f/348.0f/220.0f float immediates, f32-first 45dfd0 decl per sdkPrimitive, s16 tail casts. Walls: B0/C0 coords vs 0xD0 object offsets, 0.0f sw vs swc1, sh-before-andi ordering. Production stays ASM. */
 #ifdef NON_MATCHING
@@ -3771,6 +3775,10 @@ s32 func_0022a6b0(s64 *arg0) {
    ordering. Triple-built (m2c+IDA+Ghidra, retail-arbitrated:
    gp-struct direct, 1973f0 4-arg, masked k-counter). */
 /* measured 0022a730: `schedule on` inside the guard is worth 6 words (259 -> 253). */
+/* gate: object 263 against retail 292, -9.9% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_0022A730 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on

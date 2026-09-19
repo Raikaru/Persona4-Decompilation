@@ -1469,6 +1469,10 @@ u32 func_00421c60(void)
 }
 /* measured: end of the function-local scheduling override. */
 #pragma schedule off
+/* gate: object 33 against retail 36, -8.3% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00421C70 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00421c70(void) {
@@ -1532,6 +1536,10 @@ s64 func_00421d00(void) {
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421d00);
 #endif
 
+/* gate: object 48 against retail 32, +50.0% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00421DA8 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00421da8(s32 arg0, s32 arg1, s32 arg2) {
@@ -1558,6 +1566,10 @@ s32 func_00421da8(s32 arg0, s32 arg1, s32 arg2) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421da8);
 #endif
+/* gate: object 40 against retail 30, +33.3% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00421E28 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00421e28(s32 arg0, s32 arg1, s32 arg2)

@@ -385,6 +385,10 @@ void func_00252230(Sp120 *out, Sp120 *a, Sp120 *b, f32 t)
 
 
 /* measured: fixed solo + schedule on, 188 differing words (was 202), 211/211 exact instrs, 24 relocs resolved; frame 0x100 vs retail 0xF0 (one extra sq), s3/s1/s2/s0 vs s0/v0/s2/t0 coloring, D_00887300 hoist via work reuse, mtc1 zero scheduling; call-clobber floor (retail keeps ctx in v0/special in t0 across func_00252230 which never touches v0/t0, b210 spills to saved). Production stays ASM. */
+/* gate: object 194 against retail 208, -6.7% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00252710 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
@@ -1104,6 +1108,10 @@ void func_00256040(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
    declaration order reproduces offsets that separate locals do not. */
 /* measured: W3CRNK_002561f0_body.c fresh 150wd (obj608B/window624B) vs aggregate 628B/nd484 per owner note; head-start recipe (16x8B down-count loop, colours with trailing andi, 255 round-trip unfolded, sltiu i-14<2/i-6<4/i-10<4 else to sp+0x70+i*4, 0045e6a0(sp+0x70,sp+0xC0,16,4,...)) tried via this body; inclusive-bound/dead-arm/cast/loop-invariant/s64 levers checked (no convertible slt $at range guard; call-setup casts per EABI t0-t3 kept). Honest table/CSE/stack-gap floor; banked. No volatile/asm. */
 /* measured 002561f0: `schedule on` inside the guard is worth 2 words (150 -> 148). */
+/* gate: object 140 against retail 152, -7.9% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_002561F0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on

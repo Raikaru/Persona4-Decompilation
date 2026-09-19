@@ -967,6 +967,10 @@ void func_002e4960(u8 *arg0, s8 arg1, s16 arg2) {
    reports 295 differing words today.  The figures in the note above are
    from earlier bodies and no longer describe what is banked here; they
    are kept only as history.  Flagged by `tools/floorboard.py --audit`. */
+/* gate: object 323 against retail 334, -3.3% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_002E4AC0 NONMATCHING
 #ifdef SKIP_ASM
 void func_002e4ac0(s32 arg0, s32 arg1) {
@@ -1620,6 +1624,10 @@ void func_002e5960(s8 arg0) {
 /* measured: b210 spills plain-s16 locals via sw/lw (u_long128 locals would add */
 /* measured: dsll32/dsrl32 widening pairs instead, same mixed-width floor as func_002e4ac0 */
 /* measured: nd 302 in this file); residual also carries saved-reg coloring/scheduling. */
+/* gate: object 435 against retail 464, -6.2% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_002E5AE0 NONMATCHING
 #ifdef NON_MATCHING
 extern s32 func_002e6230(u16 arg0, u16 *arg1);
@@ -1828,6 +1836,10 @@ s32 func_002e6230(u16 arg0, u16 *arg1) {
 
 /* measured: object 888B/window 944B/normalized_diff 523 (183 differing words, fnalign per current tree). */
 /* measured: current 100-line body re-measured live (was nd73 at 936B in old note, now 888B with TU drift); saved-reg rotation-spill floor with single materialization vs retail v1-retained plus post-j sink and k-join rematerialization; declaration-order, loop-invariant, slti, dead-store and arg-setup levers to be worked top-down via fnalign; full-window body preserved. */
+/* gate: object 222 against retail 233, -4.7% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_002E6280 NONMATCHING
 #ifdef NON_MATCHING
 void func_002e6280(s8 arg0, u8 *arg1, s8 arg2)

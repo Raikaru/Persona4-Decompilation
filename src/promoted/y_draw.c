@@ -663,6 +663,10 @@ void func_002b6ea0(void) {
    assignment list showed [nd 0]. The last C-body measurement is nd 350 (above);
    do not treat this function as matched until a C body exists. */
 /* measured 002b6ec0 (banked honest body: s16 i loop 0..0x30B with per-index clear, bit0-guarded 43f810+89a0/0xF0 + 7cd0 prologue, 0x4000/6260 + 0x2000/6180 arms with 460990/460AC0 + A4/B0<=gp-gated spawn vs 7cd0-shaped bit-scan, u8-0x72-gated third spawn with flag 1, s8-nested final clear, count/i tail; true floats-first 0025ecd0 via function-local extern): measure_guarded 356 words obj 1296B/window 1536B; fnalign --candidate 219 edits (+14 reloc-only), retail 380 vs object 324 instrs; opclass addu -21 lw -14 dsll32/dsra32 -5 sll -5 shortfalls. Dropping the hoisted gtable local re-measured identical 356 (mwcc CSEs re-derivations, as the old note predicted). Wall is retail's per-region base re-derivation vs saved-locals plus bit-scan x4 and 14-arg call order. Production stays ASM. */
+/* gate: object 324 against retail 380, -14.7% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_002B6EC0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002b6ec0(u8 *arg0) {
@@ -1199,6 +1203,10 @@ void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
    x6/x7 s16 extensions - retail's arg6/arg7 extensions are hoisted temps
    used only at 0x82/0xA0). No source spelling forces fresh per-branch slots. */
 /* measured 002b83e0 (banked honest four-leaf body: u8* + f2 p1 + u4/u4 + u8/u8 + s16/s16 + 2x f32 + 2x s8 stack, 0x88-0x9C 1.0f/gp pattern per leaf with 94/98 swap in sp0!=0 leaves, 2970 f2 + 8270-pattern stores with 18/20 swap, u4 byte copies, 0x7E s6/2 sra in B/D, fparg1 tail + |=1): measure_guarded 360 words obj 1336B/window 1472B (136 short); fnalign --candidate 314 edits, retail 366 vs object 334 instrs; opclass lwc1 -17 swc1 -15 lbu -12 shortfalls with beqz +3/bnez -3. Earliest hunk is prologue saves + spill shift (sd a1 0x50->0x90); dropping the entry alias re-measured identical 360. Wall is retail's fresh per-branch f2/u4 stack slots (0x60-0xDF band, frame 0xE0) vs mwcc's merged band (frame 0xD0) -- no honest spelling forces fresh slots. Production stays ASM. */
+/* gate: object 334 against retail 366, -8.7% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_002B83E0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, s16 arg6, s16 arg7, f32 fparg0, f32 fparg1, s8 arg_sp0, s8 arg_sp8) {

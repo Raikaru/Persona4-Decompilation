@@ -1058,6 +1058,10 @@ void func_0019acd0(u8 *arg0)
 }
 /* measured 0019ae20: `schedule on` inside the guard is worth 4 words (398 -> 394). */
 /* measured 0019ae20: `schedule on + no_branch_likely on` 394 -> 390 (-4, fnalign retail 448 instrs object 385 instrs, still 14% short draft). `no_branch_likely on` alone 398 (+4 worse). Validates likely-branch loop-shape hint (opclass nop -64/beqz -19/beql +18), but only with schedule. */
+/* gate: object 385 against retail 448, -14.1% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_0019AE20 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
