@@ -271,7 +271,7 @@ static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
 
 
 
-/* measured 001400f0: object 1792 vs retail 1792 exact (inside 1738-1846 gate, 1991 edits +4 reloc-only, hole 114/lump 0, not both >=25). Single-base record tables + (f32)(u32) lbu sites, if-chains (no table). Production stays ASM. */
+/* measured 001400f0: banked exact 1792/1792 (1991+4, hole114/lump0). Frame disproof: h1818+cE8/cE0 function-wide gives 0x200->0x230 exact, 1791/1791, 2007 edits (+16); cols/alpha still spill with reloads. 7as correction: 00330060 aliased two locals onto one slot (corrupts meaning, whole chain), ours merely offset (uniform shift, once per access); pad cannot make sq $s6. Keeping 1991 floor. */
 // FUN_001400F0 NONMATCHING
 #ifdef NON_MATCHING
 extern u8 D_005EF520[];
