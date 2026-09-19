@@ -1430,29 +1430,30 @@ u8 *func_00145270(s32);                  /* extern */
 /* neutral at 263 words with 310 object instrs. */
 /* measured 00288af0: `opt_common_subs off` inside the guard is worth 14 words (276 -> 262); retail rematerialises what b210 hoists. */
 /* measured 00288af0: `schedule on` inside the guard is worth 26 words (262 -> 236). */
+/* measured 00288af0: opclass 55 -> 18; cvt.w.s/mfc1/swc1/lh/div/beql/beq shortfalls gone. */
+/*  case-0 six floats are direct lwc1 copies (drop (s32) round-trip); case-1 eight /16 use s16 bases; */
+/*  func_00269690 takes (id, f32 0x2C, u16 0x02) and func_002690b0 takes floats-then-ints */
+/*  (var_f12/var_f13/f26/f2A/f24/f28, u16 0x02, s8 0x30); outer if-chain in retail order */
+/*  (2,1,0) and inner (1,0) with `no_branch_likely on` clears beql/bnel/bc1-likely. */
+/*  Contiguous f32[3] groups restore the six swc1/lwc1 and eight div.s. */
+/*  Residual 233 words: 16.0f rematerialised per divide (lui/mtc1 +7), delay-slot nops */
+/*  (-32) and argument-materialisation order; scheduling/saved-register floor. */
 // FUN_00288AF0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
 #pragma opt_common_subs off
+#pragma no_branch_likely on
 s32 func_00288af0(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
-    void func_00146e60(u64, u64, u64);
+    void func_00146e60(u16, void *, void *);
     s32 func_00268f20(u32, void *, u32, u8);
     s32 func_002690b0(u32, u8 *, u8 *, f32, f32, f32, f32, f32, f32, s32, s8);
     s32 func_00269340(u32, void *, u32, u8);
     s32 func_00269690(u32, f32, s32);
     void func_0026bf70(u32);
-    f32 sp78;
-    f32 sp74;
-    f32 sp70;
-    f32 sp68;
-    f32 sp64;
-    f32 sp60;
-    f32 sp58;
-    f32 sp54;
-    f32 sp50;
-    f32 sp48;
-    f32 sp44;
-    f32 sp40;
+    f32 stk70[3];
+    f32 stk60[3];
+    f32 stk50[3];
+    f32 stk40[3];
     f32 temp_f1;
     f32 temp_f1_2;
     f32 var_f12;
@@ -1460,14 +1461,65 @@ s32 func_00288af0(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
     s8 temp_3;
     u8 *temp_2;
 
-    switch (arg0) {                                 /* switch 1; irregular */
-    case 0:                                         /* switch 1 */
+    if (arg0 == 2) {
+        if (M2C_FIELD(arg4, u16 *, 0) != arg1) {
+            return 1;
+        }
+        if ((u8 *)((u8 *)(func_00145270(M2C_FIELD(arg3, u16 *, 0xC)))) == NULL) {
+            return 1;
+        }
+        M2C_FIELD(arg3, s32 *, 0x60) = (s32) M2C_FIELD(arg4, u8 *, 0x34);
+        temp_3 = (s8)(M2C_FIELD(arg4, s8 *, 0x12));
+        if (temp_3 == 1) {
+            func_0026bf70(0x1E58);
+            stk50[0] = (f32) M2C_FIELD(arg4, s16 *, 0x14) / 16.0f;
+            stk50[1] = (f32) M2C_FIELD(arg4, s16 *, 0x16) / 16.0f;
+            stk50[2] = (f32) M2C_FIELD(arg4, s16 *, 0x18) / 16.0f;
+            var_f12 = (f32) M2C_FIELD(arg4, s16 *, 0x1A) / 16.0f;
+            stk40[0] = (f32) M2C_FIELD(arg4, s16 *, 0x1C) / 16.0f;
+            stk40[1] = (f32) M2C_FIELD(arg4, s16 *, 0x1E) / 16.0f;
+            stk40[2] = (f32) M2C_FIELD(arg4, s16 *, 0x20) / 16.0f;
+            var_f13 = (f32) M2C_FIELD(arg4, s16 *, 0x22) / 16.0f;
+            if (M2C_FIELD(arg4, s8 *, 0x34) != 0) {
+                temp_f1 = var_f13 - var_f12;
+                if ((temp_f1 <= 180.0f) && !(temp_f1 < 0.0f)) {
+                    var_f12 += 360.0f;
+                } else if (!(temp_f1 < -180.0f) && (temp_f1 <= 0.0f)) {
+                    var_f12 -= 360.0f;
+                }
+            } else {
+                temp_f1_2 = var_f13 - var_f12;
+                if (!(temp_f1_2 <= 180.0f)) {
+                    var_f13 -= 360.0f;
+                } else if (temp_f1_2 < -180.0f) {
+                    var_f13 += 360.0f;
+                }
+            }
+            func_002690b0(M2C_FIELD(arg3, u16 *, 0xC), (u8 *)&stk50[0], (u8 *)&stk40[0], var_f12, var_f13, (f32) M2C_FIELD(arg4, s16 *, 0x26), (f32) M2C_FIELD(arg4, s16 *, 0x2A), (f32) M2C_FIELD(arg4, s16 *, 0x24), (f32) M2C_FIELD(arg4, s16 *, 0x28), M2C_FIELD(arg4, u16 *, 2), M2C_FIELD(arg4, s8 *, 0x30));
+            func_00269690(M2C_FIELD(arg3, u16 *, 0xC), M2C_FIELD(arg4, f32 *, 0x2C), 0);
+        } else if (temp_3 == 0) {
+            func_0026bf70(0x1E58);
+            stk70[0] = M2C_FIELD(arg4, f32 *, 0x18);
+            stk70[1] = M2C_FIELD(arg4, f32 *, 0x1C);
+            stk70[2] = M2C_FIELD(arg4, f32 *, 0x20);
+            stk60[0] = M2C_FIELD(arg4, f32 *, 0x24);
+            stk60[1] = M2C_FIELD(arg4, f32 *, 0x28);
+            stk60[2] = M2C_FIELD(arg4, f32 *, 0x14);
+            func_00268f20(M2C_FIELD(arg3, u16 *, 0xC), &stk70[0], M2C_FIELD(arg4, u16 *, 2), M2C_FIELD(arg4, s8 *, 0x30));
+            func_00269340(M2C_FIELD(arg3, u16 *, 0xC), &stk60[0], M2C_FIELD(arg4, u16 *, 2), M2C_FIELD(arg4, u8 *, 0x30));
+            func_00269690(M2C_FIELD(arg3, u16 *, 0xC), M2C_FIELD(arg4, f32 *, 0x2C), M2C_FIELD(arg4, u16 *, 2));
+            func_00440b68((char *)&D_0063C540, (s32) M2C_FIELD(arg4, u16 *, 2));
+        }
+        return 1;
+    } else if (arg0 == 1) {
+        return 1;
+    } else if (arg0 == 0) {
         if (D_008821E0[0] != 1) {
             return 0;
         }
         if (arg1 == M2C_FIELD(arg2, s32 *, 0xC)) {
             func_0026bf70(0x1E58);
-            func_00146e60((u64)M2C_FIELD(arg3, u16 *, 0xC), (u64)(arg3 + 0x38), (u64)(arg3 + 0x44));
+            func_00146e60(M2C_FIELD(arg3, u16 *, 0xC), arg3 + 0x38, arg3 + 0x44);
             func_00269740(M2C_FIELD(arg3, u16 *, 0xC));
             temp_2 = (u8 *)(func_00145270(0x1E58U));
             if (temp_2 != NULL) {
@@ -1475,64 +1527,10 @@ s32 func_00288af0(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
             }
         }
         return 1;
-    case 1:                                         /* switch 1 */
-        return 1;
-    case 2:                                         /* switch 1 */
-        if (M2C_FIELD(arg4, u16 *, 0) == arg1) {
-            if ((u8 *)((u8 *)(func_00145270(M2C_FIELD(arg3, u16 *, 0xC)))) == NULL) {
-                return 1;
-            }
-            M2C_FIELD(arg3, s32 *, 0x60) = (s32) M2C_FIELD(arg4, u8 *, 0x34);
-            temp_3 = (s8)(M2C_FIELD(arg4, s8 *, 0x12));
-            switch (temp_3) {                       /* switch 2; irregular */
-            case 0:                                 /* switch 2 */
-                func_0026bf70(0x1E58);
-                sp70 = (f32)(s32)(M2C_FIELD(arg4, f32 *, 0x18));
-                sp74 = (f32)(s32)(M2C_FIELD(arg4, f32 *, 0x1C));
-                sp78 = (f32)(s32)(M2C_FIELD(arg4, f32 *, 0x20));
-                sp60 = (f32)(s32)(M2C_FIELD(arg4, f32 *, 0x24));
-                sp64 = (f32)(s32)(M2C_FIELD(arg4, f32 *, 0x28));
-                sp68 = (f32)(s32)(M2C_FIELD(arg4, f32 *, 0x14));
-                func_00268f20(M2C_FIELD(arg3, u16 *, 0xC), &sp70, M2C_FIELD(arg4, u16 *, 2), M2C_FIELD(arg4, s8 *, 0x30));
-                func_00269340(M2C_FIELD(arg3, u16 *, 0xC), &sp60, (s16) M2C_FIELD(arg4, u16 *, 2), (u8) M2C_FIELD(arg4, s8 *, 0x30));
-                func_00269690(M2C_FIELD(arg3, u16 *, 0xC), M2C_FIELD(arg4, u16 *, 2), M2C_FIELD(arg4, f32 *, 0x2C));
-                func_00440b68((char *)&D_0063C540, (s32) M2C_FIELD(arg4, u16 *, 2));
-                break;
-            case 1:                                 /* switch 2 */
-                func_0026bf70(0x1E58);
-                sp50 = (f32) (s16) M2C_FIELD(arg4, f32 *, 0x14) / 16.0f;
-                sp54 = (f32) M2C_FIELD(arg4, s16 *, 0x16) / 16.0f;
-                sp58 = (f32) (s16) M2C_FIELD(arg4, f32 *, 0x18) / 16.0f;
-                var_f12 = (f32) M2C_FIELD(arg4, s16 *, 0x1A) / 16.0f;
-                sp40 = (f32) (s16) M2C_FIELD(arg4, f32 *, 0x1C) / 16.0f;
-                sp44 = (f32) M2C_FIELD(arg4, s16 *, 0x1E) / 16.0f;
-                sp48 = (f32) (s16) M2C_FIELD(arg4, f32 *, 0x20) / 16.0f;
-                var_f13 = (f32) M2C_FIELD(arg4, s16 *, 0x22) / 16.0f;
-                if ((s8) M2C_FIELD(arg4, u8 *, 0x34) != 0) {
-                    temp_f1 = var_f13 - var_f12;
-                    if ((temp_f1 <= 180.0f) && !(temp_f1 < 0.0f)) {
-                        var_f12 += 360.0f;
-                    } else if (!(temp_f1 < -180.0f) && (temp_f1 <= 0.0f)) {
-                        var_f12 -= 360.0f;
-                    }
-                } else {
-                    temp_f1_2 = var_f13 - var_f12;
-                    if (!(temp_f1_2 <= 180.0f)) {
-                        var_f13 -= 360.0f;
-                    } else if (temp_f1_2 < -180.0f) {
-                        var_f13 += 360.0f;
-                    }
-                }
-                func_002690b0(M2C_FIELD(arg3, u16 *, 0xC), (u8 *)&sp50, (u8 *)&sp40, M2C_FIELD(arg4, u16 *, 2), M2C_FIELD(arg4, s8 *, 0x30), var_f12, var_f13, (f32) M2C_FIELD(arg4, s16 *, 0x26), (f32) M2C_FIELD(arg4, s16 *, 0x2A), (f32) (s16) M2C_FIELD(arg4, f32 *, 0x24), (f32) (s16) M2C_FIELD(arg4, f32 *, 0x28));
-                func_00269690(M2C_FIELD(arg3, u16 *, 0xC), 0U, M2C_FIELD(arg4, f32 *, 0x2C));
-                break;
-            }
-            return 1;
-        }
-    default:                                        /* switch 1 */
-        return 1;
     }
+    return 1;
 }
+#pragma no_branch_likely off
 #pragma opt_common_subs on
 #pragma schedule off
 #else

@@ -2029,7 +2029,7 @@ void func_0049d360(u8 *arg0)
                             piVar16[4] = (s32)((*(f32 *)(temp_2 + 0x68) * (0.0f + (1.0f - f6c) + f6c * temp_24)) / (f32)iVar6);
                             f6c = *(f32 *)(temp_2 + 100);
                             temp_24 = func_004bd0b0(0);
-                            piVar16[5] = (s32)(*(f32 *)(temp_2 + 0x60) * (0.0f + (1.0f - f6c) + f6c * temp_24));
+                            *(f32 *)&piVar16[5] = *(f32 *)(temp_2 + 0x60) * (0.0f + (1.0f - f6c) + f6c * temp_24);
                             if (bVar7 != 0)
                             {
                                 temp_22 = func_004bd050(0);
@@ -2499,7 +2499,7 @@ void func_0049e100(u8 *arg0)
 /* Named compiler floor: retail's standalone R5900 MMI pextlb/pextlh pair widens
    packed scalar color data before the COP2 block; b210 cannot emit this sequence
    from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
-/* Floor (measured 2026-09-18, source-repo only): banked 495 words (loop+prop), fnalign 500/546/466, emitted 2184B/window 2000B (+9.2%% over from scalar VU expansion). Full 8+28 sweep: schedule+prop 483 BEST, schedule 494, loop+prop 495, prop 520, loop 530, dead 565, peephole 552, cse 669 -- installed schedule+prop (replaces loop+prop; words -12, size 546->506 instrs 2184B->2024B/2000B +1.2%% over, edits 466->784 from rescheduling). Over is surplus scalar work: opclass cvt.w.s +25/mfc1 +17/mtc1 +8 (scalar conversions for compact VU vitof/vmul/vftoi/ppach) + dsll32/dsra32 +6/+6 (s128 width wall) + ?? -35 (missing VU/MMI); lb+3/lbu-3 (s8 vs retail lbu) kept s8 for words (u8 +4). Frame -0x110 vs -0x190, rotation persists. Banked as guarded floor despite over; production stays ASM. */
+/* Floor (measured 2026-09-19, source-repo only): banked 479 words (schedule+prop + pi-float), fnalign 499/491/731, emitted 1964B/window 2000B (-1.8%% inside gate). Base schedule+prop 483 (2024B/2000B +1.2%% over, 784 edits) -> pi-float 479 (-4, 1964B, 731 edits). piVar16[1..5] are floats via swc1 (m2c var_20->unk8/unkC/unk10/unk4/unk14 as (f32)(...), retail swc1 0x8/0xC/0x10/0x4/0x14), not (s32) ints: *(f32*)&piVar16[N] saves 5x cvt.w.s/mfc1/sw and adds 5x swc1 (opclass cvt +25->+20, mfc1 +17->+12, sw +19->+14, swc1 -24->-19, nop -27->-31 from rescheduling). Remaining +20/-19/+14/+12 are puVar15 12 float copies (retail lwc1/swc1 triples from D_00713D10, this body (u32) with 0x4F00 clamping) + puVar14 4 unsigned (retail VU vftoi/ppach/ppacb, this body (u32)(fade*255) with c.ole.s/bc1tl/or/lui) + c58/c5c 2 (retail VU pextlb/vitof/vmulx/sqc2 to 0x170/0x160, this body scalar (u32)((f32)(c&0xFF)*scale)): single float-vs-int mechanism ~44 instrs as assigned. dmtc2 -12/dmfc2 -4 (16 qmtc2/qmfc2) + ?? -35 + bbit132/032 -8/-8 are interior VU (vitof0/vmulx/vmove/vadd/vsub/vftoi/ppach + pextlb/h) + GPR lq/sq, not FPU accumulator: capstone renders VU macro-mode as ?? (handoff VU section); retail ??36 = 5 GPR lq/sq +6 FPU adda/madd +2 c1 +23 VU/MMI per mdlEffect 004a6e70 census, obj ??15 = 7 GPR +6 FPU +2 c1 +0 VU. u_long128/s128 aligned(16) emits GPR lq/sq (micro: u_long128 -> andi.b/ext, f32[4] -> lwc1/swc1), never qmtc2/vitof/vmul/vftoi (mdlEffect note); interior pipeline needs genuine COP2 asm bridges as in sibling 0049aa30 (pextlb/qmtc2/vitof/mfc1/qmtc2/vmulx/sqc2 + lqc2/vmove/qmtc2/vmulx/sqc2 + lqc2/vmul/vftoi/qmfc2/ppach, btlMain RwV4d/u_long128 matrix copy is GPR idiom). Tried: V1 pi+puVar15-float 463 but 357 vs 499 (-28%% outside gate); V3b V1+c58-VU(nomask, retail has no &0xFFFFFF unlike sibling) 448 but 386 vs 499 outside; V4 color-VU (D_00713CE0/fade/vec160->pack0 + vec170->pack1, $f20=255) 472 worse (extra addiu for pack pointer, $vf11 persistence); V6 position-VU (vec150[0]=t320/[2]=t328 with [1]/[3]=0 hoisted, lqc2/vmove/qmtc2/vmulx/sqc2 0x130/0x140 + qmfc2/pexew/vaddx + lqc2/vadd/sqc2 D_00713D10 + 4x lwc1/swc1 triples) 463/468 worse (extra per-iter zeros, _f27 move); V9 c58-only 507 worse (+29, 535 vs 500 +7%% outside); V10 pi+c58 488 worse; V5 s32-color ties 448; V7 pi-only 479 stands (inside gate). dsll32/dsra32 +6/+6 s128 width wall (sp100 reused for 0x110+0x100, spC0 (s32) narrowing needs asm lq-read per note), lb+3/lbu-3 kept s8 (u8 +4). Frame -0x110 vs -0x190 (5 vectors short: 0x130/0x140/0x150/0x160/0x170 + 0xC0 sq), rotation persists. Banked as guarded floor; production stays ASM. */
 // FUN_0049E150 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
@@ -2610,19 +2610,19 @@ void func_0049e150(u8 *arg0)
                         if (iVar17 != 0)
                         {
                             temp_24 = func_004bd0b0(0);
-                            piVar16[2] = (s32)(fGpffff80d0 * temp_24);
+                            *(f32 *)&piVar16[2] = fGpffff80d0 * temp_24;
                             f6c = *(f32 *)(temp_2 + 0x6C);
                             temp_24 = func_004bd0b0(0);
-                            piVar16[3] = (s32)(*(f32 *)(temp_2 + 0x68) * (0.0f + (1.0f - f6c) + f6c * temp_24));
+                            *(f32 *)&piVar16[3] = *(f32 *)(temp_2 + 0x68) * (0.0f + (1.0f - f6c) + f6c * temp_24);
                             f6c = *(f32 *)(temp_2 + 0x74);
                             temp_24 = func_004bd0b0(0);
-                            piVar16[4] = (s32)(*(f32 *)(temp_2 + 0x70) * (0.0f + (1.0f - f6c) + f6c * temp_24));
+                            *(f32 *)&piVar16[4] = *(f32 *)(temp_2 + 0x70) * (0.0f + (1.0f - f6c) + f6c * temp_24);
                             f6c = *(f32 *)(temp_2 + 0x7C);
                             temp_24 = func_004bd0b0(0);
-                            piVar16[1] = (s32)(*(f32 *)(temp_2 + 0x78) * (0.0f + (1.0f - f6c) + f6c * temp_24));
+                            *(f32 *)&piVar16[1] = *(f32 *)(temp_2 + 0x78) * (0.0f + (1.0f - f6c) + f6c * temp_24);
                             f6c = *(f32 *)(temp_2 + 100);
                             temp_24 = func_004bd0b0(0);
-                            piVar16[5] = (s32)(*(f32 *)(temp_2 + 0x60) * (0.0f + (1.0f - f6c) + f6c * temp_24));
+                            *(f32 *)&piVar16[5] = *(f32 *)(temp_2 + 0x60) * (0.0f + (1.0f - f6c) + f6c * temp_24);
                             if (bVar != 0)
                             {
                                 temp_22 = func_004bd050(0);

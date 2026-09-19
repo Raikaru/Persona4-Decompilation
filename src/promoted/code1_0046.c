@@ -1825,7 +1825,15 @@ void func_00467880(u8 *arg0)
         func_003e8110(func_00457120());
     }
 }
-/* measured this session: fresh probe 277wd / fnalign 344 edits; slti $at hunt checked -- retail slti $v0,$v1,0x100 + slti $at,$v0,2 both already match object dests ($v0 then $at), no inclusive flip needed (tried <256/>=2 forms per se, neutral); short-by-N hunt checked (no 1-4 short trailing chain per top-down fnalign). Saved-reg/frame wall per guard body; banked. */
+/* measured: base 277wd (reloc-masked) / fnalign 344 edits, obj 976B/window 1264B (-288B), retail 312/object 244 instrs (-68); */
+/* census 48 (opclass, unusually clean): addu -40, lui -27, addiu +7, sll -6, move +5, lbu +4, lh -4, lb -4, bne +3, andi -2, mtc1 +1 (jal +1 from __fixsfdi, sw/lw -2). */
+/* 2026-09-19 addressing pass (7k/7p) following func_0045b7c0 template (slot_cast 439, both_cast 257, decl 228, hoist 523 rejected): */
+/* slot_cast (25 D_00800000+w+off to (char*)D+...) 277 tie, census 48; both_cast (w-based (char*)w+...) 277 tie; subscript (2 u8** to &D[w+...]) 277 tie, census 47 (addu+2/lui+1/addiu+3); fullsub (all 25) 282 regress; */
+/* parens D+(w+off) 282 regress (addu+10/addiu+11); swap/u32w ties; noehoist (e hoist removed) 276 (-1); hoistbase (D+w hoisted) 280 regress, census 50; hoiststr (string base) 277 tie; */
+/* inline_h (h1/h2 inlined for e+3 sites) 282 (+5) but census 40 (-8: addu+9/sll+6/lh+6, sll fixed, lh +2 over) / edits 297 (-47) / 268 instrs (+24); selective 1-site 280/280/277 census 44, 2-site 284/279/279 census 40 (lh 0 exact), 3-site 282 census 40 (lh+2 over); */
+/* best inline_23_sub (sites 2+3 inlined for both 442088 + 2 u8** subscript) 268 (-9) / edits 330 (-14) / 267 instrs (+23) / 1068B (+92) / census 39 (-9: addu -32, lui -26, addiu +13, sll -2, move +3, lbu+4/lb-4, lh 0, bne+3, andi-2, mtc1+1); tie inline_13_sub 268/342 edits; full23sub 285 regress; */
+/* decl placement ties at 277 (6 orders) and at 268 (3 orders on best); pragma ties (loopinv/unroll/sched) and comsubs_off 328 (+51) / inline+comsubs 335 regress; solve_signedness mismatch 12, all flips reject/free (tmp free, st/i/k count moves, h1/h2 +2, flag constrained); slti $at + short-by-N hunts from prior note carry (neutral); */
+/* remaining wall: D_00800000+w hoist (retail rematerializes lui/addu per access, b210 CSEs to saved regs; 25-use respell neutral per archive), frame 0xA0 vs 0x170 (fewer spills; tmp[64] only), __fixsfdi/mtc1+1 + jal+1 from (s64)f1 float pack vs retail lui/sw/ld, iGp HI/LO-vs-GPREL phantoms, st==4/3 empty-arm branch layout; production stays ASM. */
 // FUN_00467BD0 NONMATCHING
 #ifdef SKIP_ASM
 s32 func_00467bd0(u8 *arg0)
@@ -1855,7 +1863,7 @@ s32 func_00467bd0(u8 *arg0)
                         *(s16 *)(D_00800000 + w + 3968) = 1;
                         return 0;
                     }
-                    func_00442088((char *)w, (const char *)iGpffffb028, (char *)w, (char *)(w + (h1 + h2) * 264 + 256));
+                    func_00442088((char *)w, (const char *)iGpffffb028, (char *)w, (char *)(w + (*(s16 *)(D_00800000 + w + 3970) + *(s16 *)(D_00800000 + w + 3972)) * 264 + 256));
                     *(s16 *)(D_00800000 + w + 3968) = 1;
                     return 0;
                 }
@@ -1884,7 +1892,7 @@ s32 func_00467bd0(u8 *arg0)
             }
             if (v == 0) {
                 *(s32 *)(D_00800000 + w + 3976) = 1;
-                func_00442088((char *)(w + 3984), (const char *)iGpffffb028, (char *)w, (char *)(w + (h1 + h2) * 264 + 256));
+                func_00442088((char *)(w + 3984), (const char *)iGpffffb028, (char *)w, (char *)(w + (*(s16 *)(D_00800000 + w + 3970) + *(s16 *)(D_00800000 + w + 3972)) * 264 + 256));
                 *(s16 *)(D_00800000 + w + 3968) = 3;
                 return 0;
             }
@@ -1893,7 +1901,7 @@ s32 func_00467bd0(u8 *arg0)
                 {
                     f32 f1 = 48.0f;
                     f32 f2 = 248.0f;
-                    *(u8 **)(D_00800000 + w + 3984) = func_00468940((s64)f1, st);
+                    *(u8 * *)&D_00800000[w + 3984] = func_00468940((s64)f1, st);
                     *(s16 *)(D_00800000 + w + 3968) = 4;
                 }
             } else if ((D_008C0276 & 0x20) != 0) {
@@ -1916,7 +1924,7 @@ s32 func_00467bd0(u8 *arg0)
     } else if (st == 4) {
         {
             u8 flag;
-            if (func_004688d0(*(u8 **)(D_00800000 + w + 3984), &flag, st) != 0) {
+            if (func_004688d0(*(u8 * *)&D_00800000[w + 3984], &flag, st) != 0) {
                 if (flag == 0) {
                     *(s16 *)(D_00800000 + w + 3968) = 2;
                 } else {

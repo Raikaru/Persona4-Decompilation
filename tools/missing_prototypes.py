@@ -72,9 +72,12 @@ def main() -> None:
         text = path.read_text(errors="replace")
         # Declarations outside any guarded body are visible to every body in
         # the file; block-scope ones are not, which is exactly the trap.
+        # Included headers count as file scope too - missing them reported
+        # four false positives in y_fclShopDraw.c, whose eleven-argument
+        # callee is declared in include/fr_font_internal.h.
         file_scope = {match.group(1) for match in DECL.finditer(text)
-                      if text.count("\n", 0, match.start()) >= 0
-                      and not _inside_function(text, match.start())}
+                      if not _inside_function(text, match.start())}
+        file_scope |= _header_declarations(text)
         for marker in GUARD.finditer(text):
             name = "func_%s" % marker.group(1).lower()
             try:
@@ -113,6 +116,21 @@ def main() -> None:
     print(f"\n{len(worth_it)} bodies call an undeclared function with stack arguments "
           f"(more than four); {len(rows) - len(worth_it)} more call only "
           "narrow ones, where the missing declaration is usually free")
+
+
+def _header_declarations(text: str) -> set[str]:
+    """Symbols declared by the headers this translation unit includes."""
+    found: set[str] = set()
+    for name in re.findall(r'#\s*include\s+"([^"]+)"', text):
+        header = REPO / "include" / name
+        if not header.is_file():
+            continue
+        try:
+            body = header.read_text(errors="replace")
+        except OSError:
+            continue
+        found |= {match.group(1) for match in DECL.finditer(body)}
+    return found
 
 
 def _inside_function(text: str, position: int) -> bool:
