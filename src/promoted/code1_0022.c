@@ -3774,14 +3774,9 @@ s32 func_0022a6b0(s64 *arg0) {
    verified. Open: frame size, branch-target cascade, scheduler
    ordering. Triple-built (m2c+IDA+Ghidra, retail-arbitrated:
    gp-struct direct, 1973f0 4-arg, masked k-counter). */
-/* measured 0022a730: `schedule on` inside the guard is worth 6 words (259 -> 253). */
-/* gate: object 263 against retail 292, -9.9% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 2026-09-19: removed `schedule on` (default off) to fix the count. fnalign 296/304/89 (+6 reloc-only), floor_distance 304/296/95/288, probe 259 words, emitted 1216B/window 1184B (+2.7% inside gate). Prior schedule-on 263/292/374 outside (-9.9%) with probe 253 was incomparable per handoff 7y; the 6-word win was a measurement artefact. Residual is frame 0x90 vs 0xA0, branch-target cascade, scheduler ordering. */
 // FUN_0022A730 NONMATCHING
 #ifdef NON_MATCHING
-#pragma schedule on
 void func_0022a730(u8 *arg0)
 {
     extern u8 *func_0019a0c0();
@@ -3905,7 +3900,6 @@ void func_0022a730(u8 *arg0)
         }
     }
 }
-#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022a730);
 #endif
