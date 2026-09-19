@@ -1307,13 +1307,25 @@ void func_004a6e50(int param_1)
 /* File idiom: f32 proj/gmul[4] __attribute__((aligned(16))) for the 16B VU vectors; s128 whole copy */
 /* (*(s128c *)proj = *(s128c *)arg0, lq/sq) rather than field-by-field, per this unit's convention; */
 /* MdlCol iGpffffbb64 struct for the 0x00724C54 color state as in effLineNova/effPolygonWind. */
-/* Retail 572 instrs per fnalign; v6a object 589 instrs (+17, +2.97%, within 3% gate), GUARDED_SCORE 566 */
-/* (v5 564/590 +18 over gate; v4 564/590; v3 566/595; v2 760/794; v1 compile-error). Fixes in order: */
-/* s32 for color bytes removed unsigned cvt bloat (794 to 595, minus 199, 760 to 566 words); literal */
-/* 390.60977 plus scale reuse (595 to 590); s128 copy for the entry vector (590 to 589, within gate). */
-/* VU color arithmetic (pextlb/vitof0/vmul/vftoi0/ppach) stays ordinary-C shifts/masks/cvt/mul; FPU */
-/* accumulator and gp-relative immediates plus float colour remain. Caller func_004a7760 fixed to */
-/* pass arg0 (was no-arg placeholder while callee was unknown). INCLUDE_ASM retained. */
+/* Retail 572 instrs per fnalign; v6b object 587 instrs (+15, +2.6%, within 3% gate), edits 527 */
+/* (v6a 589/+17/529; v5 564/590 +18 over gate; v4 564/590; v3 566/595; v2 760/794; v1 compile-error). */
+/* Census v6a (opclass obj-retail): lwc1 -30, mul.s +28, nop +24, ?? -21, andi +19, mtc1 +18, */
+/* cvt.s.w +16, sra +15, add.s -12, dmtc2 -9, lw -9, addiu -9, lbu -9, lui -8. v6b: andi +15 (-4), */
+/* sra +12 (-3), lbu -5 (+4), -2 instrs, -2 edits via outWord sw+lbu below. */
+/* 7r-reverse fused variant measured and rejected: fx/fytemps fused into single a*b+c */
+/* (tmpX=320+dx*entry, tmpY=224+dy*entry, f0 double-product duplicated) scores 592/+20 edits 532 */
+/* (+3 worse; ?? -21->-17, mtc1 +18->+19, add.s -12->-14). Both sides already suppress the */
+/* accumulator by reuse (fx/fy feed tmp and f0), so retail tmp adds are plain add.s like here. */
+/* ?? -21 is VU/MMI, not FPU: retail ??36 = 5 GPR lq/sq +6 FPU (mula/madd/msub at dist/f0/tail) */
+/* +2 c1 +23 VU/MMI (pextlb/pextlh/vitof/vmulx/vmul/vftoi/ppach); obj ??15 = 7 GPR +6 FPU +2 c1, */
+/* 0 VU. FPU/c1 equal; net -21 = -23 VU +2 GPR. dmtc2 -9 is qmtc2 x9 (+dmfc2 x1 below threshold). */
+/* u_long128/s128 emits GPR lq/sq (micro: u_long128 loop -> andi.b/ext, f32[4] aligned -> lwc1/swc1), */
+/* never qmtc2/vitof/vmul/vftoi/ppach; interior pipeline needs asm bridges as in effPolygonWind */
+/* func_004a4000 / code1_0048 func_004865c0, kept scalar per VU handoff clean-C rule. btlMain */
+/* u_long128 matrix copy is the GPR idiom already used for the proj s128 copy. */
+/* vtx reload variant fixes lwc1/add.s exactly (627/+9.6% outside gate, lwc1 -30->-4, add.s -12->0, */
+/* edits -2) but needs -38 instrs from color VU to re-enter gate; not banked. Caller func_004a7760 */
+/* fixed to pass arg0. INCLUDE_ASM retained; 51 MATCH in owner intact. */
 // FUN_004A6E70 NONMATCHING
 #ifdef NON_MATCHING
 void func_004a6e70(u8 *arg0)
@@ -1367,6 +1379,7 @@ void func_004a6e70(u8 *arg0)
     f32 gw;
     s32 isz;
     s32 packed;
+    s32 outWord;
     u8 b0;
     u8 b1;
     u8 b2;
@@ -1508,10 +1521,11 @@ void func_004a6e70(u8 *arg0)
                     s32 ia2 = (s32)ra2;
                     s32 ia3 = (s32)ra3;
                     s32 out = ia0 | (ia1 << 8) | (ia2 << 16) | (ia3 << 24);
-                    b0 = (u8)out;
-                    b1 = (u8)(out >> 8);
-                    b2 = (u8)(out >> 16);
-                    b3 = (u8)(out >> 24);
+                    outWord = out;
+                    b0 = *(u8 *)((u8 *)&outWord + 0);
+                    b1 = *(u8 *)((u8 *)&outWord + 1);
+                    b2 = *(u8 *)((u8 *)&outWord + 2);
+                    b3 = *(u8 *)((u8 *)&outWord + 3);
                     if (b3 == 0xFF) {
                         slot = *(u8 **)(tbl + idx);
                         slot[4] = b0;

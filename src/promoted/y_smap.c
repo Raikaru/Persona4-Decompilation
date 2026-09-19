@@ -471,6 +471,16 @@ void func_002ae520(u8 *arg0) {
    loop, func_002b2970/2a60/2830/3990 calls, D_007E8C00/D_007E80A0 loops)
    is intact but untestable without the two expressions. */
 /* measured: cold2ae630 first reconstruction (876 instrs). m2c fails outright on jr/jtbl at line 129 (jtbl_00748820 6 entries 0:1f0,2:380,4:50c) so romwright carried it (299 lines, arity 1 pointer, 43 tile-loop 00155280 sites matching retail 43). De-noised to file idiom reusing YVec3f/YVec2f/D_007E80A0/D_007E8C00/D_007EFA04/D_00764644/5C/60/00155280/002b2970/00451fc0. v0 783 (single hoisted q, 677/874 -22% short, missing jals). v1 expanded to 43 calls 810 but 916/876 +4.6% over. Free pragmas on v1: common_off 831, loop_on 813, unroll/sched tie 810 (none kept). Subscript ((u8**)(blk+0x148))[tny*16+tnx] 810->777 (-33, kept) and 916->888. s16 counters 777->842 regress. Minloc drop dead dx/dy/nx/ny tie 777. loop_on on minloc 777->791 regress. Two colourings (blk/res swap, f1/f2 swap) tie 777. Best minloc 777, obj 888/retail 876 +1.4% inside gate (850-902), fnalign 729 edits+22 reloc-only. Residuals: 4 missing 2830 stores (void callee, cannot use return without breaking its MATCH), FPU madd adda/madd canonicalization in D_007E80A0 loop, callee-saved spill choices, s128 staging. */
+/* 2026-09-18 `tools/solve_signedness.py`: the read at +0x58 was spelled
+   `s8` at one site and `u8` at twelve others; retail loads that offset only
+   with `lbu`, so every site is now `u8`.  Census mismatch 22 -> 20 with the
+   instruction count unchanged; the differing-word score stays 777 because
+   those positions already differ for other reasons, but the type claim is
+   now correct and is asserted back through the feedback path.
+   The four `D_0063EExx` tables are recorded as free: flipping their element
+   type between `s8` and `u8` produces byte-identical code, because each
+   loaded byte is immediately assigned to an `s8` local, so the signedness is
+   unobservable at those sites.  Do not churn them. */
 // FUN_002AE630 NONMATCHING
 #ifdef NON_MATCHING
 u8 *func_002ae630(u8 *arg0) {
@@ -537,7 +547,7 @@ u8 *func_002ae630(u8 *arg0) {
             col = j * 0x10;
             if (*(u8 *)(base + (u32)func_00155280() + col + 0x54) != 0 && ((*(u8 *)(base + (u32)func_00155280() + col + 0x55) & 0xF) == 1)) {
                 if (*(u8 *)(base + (u32)func_00155280() + col + 0x58) < 9) {
-                    if (*(s8 *)(base + (u32)func_00155280() + col + 0x58) == 2) {
+                    if (*(u8 *)(base + (u32)func_00155280() + col + 0x58) == 2) {
                         s8 tdx;
                         s8 tdy;
                         s32 tnx;
