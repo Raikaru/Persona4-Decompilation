@@ -1872,16 +1872,14 @@ void func_001cdaf0(u8 *camera)
                   (f32 *)&work.targetPosition, 1);
     func_001bbef0(camera, 0.75f);
 }
-/* measured 001cde50: `schedule on` inside the guard is worth 1 words (312 -> 311). */
-/* measured 001cde50: `opt_propagation off` inside the guard is worth 2 words (311 -> 309). */
-/* gate: object 269 against retail 333, -19.2% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* gate: object 335 (1340B) against retail 333 (1332B effective, 1344B window), +0.6% - INSIDE */
+/*   the +-3% band 323-343.  Guarded score 231 differing words (reloc-masked), measured */
+/*   inside the gate and comparable (handoff 7y).  Count fixed by: slerp result as 40B */
+/*   cur[4]+nxt[4]+angle+mode (dcc70 writes A0/A4, not v29[4]), v36[2] with 003e41e0, */
+/*   v47[1] (not [2]) for the 811c term, bbef0 1.25f (not 0.75f), preserved lensave */
+/*   (not clobbered f5), two-step v41/v47 and B0/B4/B8 temps, no opt/schedule pragmas. */
 // FUN_001CDE50 NONMATCHING
 #ifdef NON_MATCHING
-#pragma opt_propagation off
-#pragma schedule on
 void func_001cde50(u8 *arg0) {
     extern void func_001bd560(f32 *out, f32 *in);
     extern void func_001bd780(void *out, const void *first, const void *second, const void *config);
@@ -1902,21 +1900,18 @@ void func_001cde50(u8 *arg0) {
     f32 f6;
     f32 f7;
     f32 f8;
-    f32 v25[3];
-    f32 v26[4];
-    f32 v27[3];
-    f32 v28[6];
-    f32 v29[8];
-    s32 polyFlag;
-    f32 v32;
-    f32 v33;
-    f32 v34;
-    f32 v35;
-    f32 v36[4];
-    f32 v38[3];
-    f32 v41[3];
-    f32 v44[3];
+    f32 lensave;
     f32 v47[3];
+    f32 v44[3];
+    f32 v41[3];
+    f32 v38[3];
+    f32 v36[2];
+    f32 v32[4];
+    struct { f32 cur[4]; f32 nxt[4]; f32 angle; s32 mode; } slerp;
+    f32 v28[6];
+    f32 v27[3];
+    f32 v26[4];
+    f32 v25[3];
 
     v3 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
     f6 = *(f32 *)(v3 + 0x90) * *(f32 *)(v3 + 0x2C);
@@ -1925,66 +1920,75 @@ void func_001cde50(u8 *arg0) {
     v44[0] = v25[0] - v38[0];
     v44[1] = v25[1] - v38[1];
     v44[2] = v25[2] - v38[2];
-    f5 = func_003e4180(v44) * 0.5f;
+    lensave = func_003e4180(v44) * 0.5f;
     f7 = func_0044b868(*(f32 *)(arg0 + 0xB8) * 0.5f);
     f4 = (f6 * 1.5f) / f7;
     func_003dcb40(v44, &D_0060A0F0, 1, v3 + 0x1C);
     f6 = f6 * 0.5f;
-    v41[0] = v38[0] + v44[0] * f6;
-    v41[1] = v38[1] + v44[1] * f6;
-    v41[2] = v38[2] + v44[2] * f6;
-    v47[0] = v44[0] * f4 + v41[0];
-    v47[1] = v44[1] * f4 + v41[1];
-    v47[2] = v44[2] * f4 + v41[2];
-    v47[2] = v47[2] + 0.0f + fGpffff811c * (*(f32 *)(v3 + 0x8C) * *(f32 *)(v3 + 0x2C));
+    v47[0] = v44[0] * f6;
+    v47[1] = v44[1] * f6;
+    v47[2] = v44[2] * f6;
+    v41[0] = v38[0] + v47[0];
+    v41[1] = v38[1] + v47[1];
+    v41[2] = v38[2] + v47[2];
+    v47[0] = v44[0] * f4;
+    v47[1] = v44[1] * f4;
+    v47[2] = v44[2] * f4;
+    v47[0] = v47[0] + v41[0];
+    v47[1] = v47[1] + v41[1];
+    v47[2] = v47[2] + v41[2];
+    v47[1] = v47[1] + 0.0f + fGpffff811c * (*(f32 *)(v3 + 0x8C) * *(f32 *)(v3 + 0x2C));
     func_001bd780(v28, v47, v41, &D_0060A0E0);
     f7 = func_001ec2b0(v26, v28);
     f8 = fGpffff80dc;
     if (f7 > f8) {
         f4 = f8 / f7;
-        func_003dcc70(v26, v28, v29);
+        func_003dcc70(v26, v28, (f32 *)&slerp);
         if (f4 > 0.0f) {
             if (f4 < 1.0f) {
                 f6 = 1.0f - f4;
-                if (polyFlag == 0) {
-                    f6 = f6 * v29[4];
+                if (slerp.mode == 0) {
+                    f6 = f6 * slerp.angle;
                     f5 = f6 * f6;
                     f6 = f5 * f6 *
                         (f5 * (f5 * (f5 * (f5 * (fGpffff8194 * f5 + fGpffff8054 + 0.0f) +
                                                    fGpffff8058 + 0.0f) + fGpffff805c + 0.0f) +
                                  fGpffff8060 + 0.0f) + fGpffff8108 + 0.0f) + f6 + 0.0f;
-                    f4 = f4 * v29[4];
+                    f4 = f4 * slerp.angle;
                     f5 = f4 * f4;
                     f4 = f5 * f4 *
                         (f5 * (f5 * (f5 * (f5 * (fGpffff8194 * f5 + fGpffff8054 + 0.0f) +
                                                    fGpffff8058 + 0.0f) + fGpffff805c + 0.0f) +
                                  fGpffff8060 + 0.0f) + fGpffff8108 + 0.0f) + f4 + 0.0f;
                 }
-                v32 = v29[0] * f4 + v26[0] * f6 + 0.0f;
-                v33 = v29[1] * f4 + v26[1] * f6 + 0.0f;
-                v34 = v29[2] * f4 + v26[2] * f6 + 0.0f;
-                v35 = v29[3] * f4 + v26[3] * f6;
+                v32[0] = slerp.cur[0] * f6;
+                v32[1] = slerp.cur[1] * f6;
+                v32[2] = slerp.cur[2] * f6;
+                v32[0] = v32[0] + 0.0f + slerp.nxt[0] * f4;
+                v32[1] = v32[1] + 0.0f + slerp.nxt[1] * f4;
+                v32[2] = v32[2] + 0.0f + slerp.nxt[2] * f4;
+                v32[3] = slerp.nxt[3] * f4 + slerp.cur[3] * f6;
             } else {
-                v32 = v28[0];
-                v33 = v28[1];
-                v34 = v28[2];
-                v35 = v28[3];
+                v32[0] = v28[0];
+                v32[1] = v28[1];
+                v32[2] = v28[2];
+                v32[3] = v28[3];
             }
         } else {
-            v32 = v26[0];
-            v33 = v26[1];
-            v34 = v26[2];
-            v35 = v26[3];
+            v32[0] = v26[0];
+            v32[1] = v26[1];
+            v32[2] = v26[2];
+            v32[3] = v26[3];
         }
-        func_003dcb40(v44, &D_0060A100, 1, &v32);
+        func_003dcb40(v44, &D_0060A100, 1, v32);
         v47[0] = v41[0] + v44[0];
         v47[1] = v41[1] + v44[1];
         v47[2] = v41[2] + v44[2];
         func_001bd780(v28, v47, v41, &D_0060A0E0);
     }
     f4 = 600.0f;
-    if (f5 * 0.5f >= 600.0f) {
-        f4 = f5 * 0.5f;
+    if (lensave >= 600.0f) {
+        f4 = lensave;
     }
     func_003dcb40(v44, &D_0060A100, 1, v28);
     v44[0] = v44[0] * f4;
@@ -1992,18 +1996,16 @@ void func_001cde50(u8 *arg0) {
     v44[2] = v44[2] * f4;
     f4 = f4 * func_0044b868(fGpffff8110 * *(f32 *)(arg0 + 0xB8) * 0.5f) * 0.21875f;
     v36[0] = v44[0];
-    v36[2] = v44[2];
-    func_003e4180(v36);
-    v41[0] = v41[0] + 0.0f + v36[2] * f4;
+    v36[1] = v44[2];
+    func_003e41e0(v36, v36);
+    v41[0] = v41[0] + 0.0f + v36[1] * f4;
     v41[2] = v41[2] + 0.0f - v36[0] * f4;
     v27[0] = v41[0] + v44[0];
     v27[1] = v41[1] + v44[1];
     v27[2] = v41[2] + v44[2];
     func_001bac20((u16 *)arg0, v25, v27, 1);
-    func_001bbef0(arg0, 0.75f);
+    func_001bbef0(arg0, 1.25f);
 }
-#pragma schedule off
-#pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cde50);
 #endif

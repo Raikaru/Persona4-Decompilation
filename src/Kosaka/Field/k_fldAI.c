@@ -163,37 +163,21 @@ s32 func_0017ea10(u8 *arg0)
     return 0;
 }
 
-/* measured: GUARDED_SCORE 435 (obj 1608B/window 1872B; retail 466 instrs/object 402 instrs). Cold-start m2c de-noise in file idiom with existing externs; probed cell-copy staging, hit scalar/struct, > vs !(<=) and temp-expanded adds. Count gap held across two further probe rounds, stopping per brief. */
-/* gate: object 402 against retail 466, -13.7% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured: GUARDED_SCORE 411 (obj 1812B/window 1872B; retail 466 instrs/object 453 instrs, -2.8% inside +-3% band) via measure_guarded + fnalign --candidate. Struct aggregates for v60/v6C/v80/v8C (v8C=v80, v60/v6C struct copies from tables), per-update arg0+par*0x18+off recomputation for the two 6-way min/max blocks (hoisted b saved 12+12); retail recomputes addu/addiu per update (IDA 24*v13 once + per-update adds). Count fixed, word score now comparable (handoff 7y). */
 // FUN_0017ED40 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0017ed40(u8 *arg0) {
-    f32 sp50;
-    f32 sp54;
-    f32 sp58;
-    f32 sp5C;
-    f32 sp60;
-    f32 sp64;
-    f32 sp68;
-    f32 sp6C;
-    f32 sp70;
-    f32 sp74;
-    f32 sp80;
-    f32 sp84;
-    f32 sp88;
-    f32 sp8C;
-    f32 sp90;
-    f32 sp94;
+    FldAIVec4 v50;
+    FldAIVec3 v60;
+    FldAIVec3 v6C;
+    FldAIVec3 v80;
+    FldAIVec3 v8C;
     FldAIVec3 hit;
     f32 tmpF0;
     f32 tmpF1;
     f32 tmpF2;
     f32 tmpF3;
     f32 tmpF4;
-    f32 tmpF0b;
     s32 tmp3;
     s32 tmp4;
     s32 cnt5;
@@ -215,68 +199,61 @@ s32 func_0017ed40(u8 *arg0) {
         tmpF2 = *(f32 *)(tmpP + 0x19C);
         tmpF1 = *(f32 *)(tmpP + 0x1A0);
         tmpF0 = *(f32 *)(tmpP + 0x1A4);
-        sp80 = tmpF2;
-        sp84 = tmpF1;
-        sp88 = tmpF0;
-        sp8C = tmpF2;
-        sp90 = tmpF1;
-        sp94 = tmpF0;
+        v80.x = tmpF2;
+        v80.y = tmpF1;
+        v80.z = tmpF0;
+        v8C = v80;
         if (*(s32 *)(arg0 + 0x4C) >= 4) {
-            cellX = (s32)((600.0f + sp80) / 1200.0f);
-            cellZ = (s32)((600.0f + sp88) / 1200.0f);
+            cellX = (s32)((600.0f + v80.x) / 1200.0f);
+            cellZ = (s32)((600.0f + v80.z) / 1200.0f);
             cellA = func_00155280() + (cellZ << 8) + (cellX * 0x10);
-            sp50 = *(f32 *)(cellA + 0x54);
-            sp54 = *(f32 *)(cellA + 0x58);
-            sp58 = *(f32 *)(cellA + 0x5C);
-            sp5C = *(f32 *)(cellA + 0x60);
+            v50.x = *(f32 *)(cellA + 0x54);
+            v50.y = *(f32 *)(cellA + 0x58);
+            v50.z = *(f32 *)(cellA + 0x5C);
+            v50.w = *(f32 *)(cellA + 0x60);
             cnt5 = *(s32 *)(arg0 + 0x4C);
             bit = cnt5 & 3;
             if ((cnt5 < 0) && (bit != 0)) {
                 bit -= 4;
             }
             tmp3 = 1 << bit;
-            if ((((u8 *)&sp50)[10] & tmp3) == 0 || ((((u8 *)&sp50)[11] & tmp3) != 0)) {
+            if ((((u8 *)&v50.x)[10] & tmp3) == 0 || ((((u8 *)&v50.x)[11] & tmp3) != 0)) {
                 goto tail;
             }
         }
 tab:
         tmp4 = *(s32 *)(arg0 + 0x4C);
         tabA = D_005F1B40 + (tmp4 * 0x18);
-        sp60 = *(f32 *)(tabA + 0x0);
-        sp64 = *(f32 *)(tabA + 0x4);
-        sp68 = *(f32 *)(tabA + 0x8);
+        v60 = *(FldAIVec3 *)tabA;
         if ((tmp4 >= 4) && (*(s32 *)(arg0 + 0x4C) < 8)) {
-            if (sp60 < 0.0f) {
-                sp60 = (1200.0f * (f32)(cellX - 1)) - sp80;
-            } else if (!(sp60 <= 0.0f)) {
-                sp60 = (1200.0f * (f32)(cellX + 1)) - sp80;
+            if (v60.x < 0.0f) {
+                v60.x = (1200.0f * (f32)(cellX - 1)) - v80.x;
+            } else if (!(v60.x <= 0.0f)) {
+                v60.x = (1200.0f * (f32)(cellX + 1)) - v80.x;
             }
-            if (sp68 < 0.0f) {
-                sp68 = (1200.0f * (f32)(cellZ - 1)) - sp88;
-            } else if (!(sp68 <= 0.0f)) {
-                sp68 = (1200.0f * (f32)(cellZ + 1)) - sp88;
+            if (v60.z < 0.0f) {
+                v60.z = (1200.0f * (f32)(cellZ - 1)) - v80.z;
+            } else if (!(v60.z <= 0.0f)) {
+                v60.z = (1200.0f * (f32)(cellZ + 1)) - v80.z;
             }
         }
-        tmpF4 = sp80 + sp60;
-        sp80 = tmpF4;
-        { f32 t = sp84 + sp64; sp84 = t; }
-        tmpF3 = sp88 + sp68;
-        sp88 = tmpF3;
+        tmpF4 = v80.x + v60.x;
+        v80.x = tmpF4;
+        { f32 t = v80.y + v60.y; v80.y = t; }
+        tmpF3 = v80.z + v60.z;
+        v80.z = tmpF3;
         tabB = D_005F1B4C + (*(s32 *)(arg0 + 0x4C) * 0x18);
-        tmpF0b = *(f32 *)(tabB + 0x8);
-        sp6C = *(f32 *)(tabB + 0x0);
-        sp70 = *(f32 *)(tabB + 0x4);
-        sp74 = tmpF0b;
-        { f32 t = sp8C + sp6C; sp8C = t; }
-        { f32 t = sp90 + sp70; sp90 = t; }
-        { f32 t = sp94 + tmpF0b; sp94 = t; }
+        v6C = *(FldAIVec3 *)tabB;
+        { f32 t = v8C.x + v6C.x; v8C.x = t; }
+        { f32 t = v8C.y + v6C.y; v8C.y = t; }
+        { f32 t = v8C.z + v6C.z; v8C.z = t; }
         {
             s32 nx = (s32)((600.0f + tmpF4) / 1200.0f);
             s32 nz = (s32)((600.0f + tmpF3) / 1200.0f);
             u8 *cellB = func_00155280() + (nz << 8) + (nx * 0x10);
             if (*(u8 *)(cellB + 0x54) == 1) {
                 par = 0;
-                if (func_0016b8a0(&sp80, &hit) == 1) {
+                if (func_0016b8a0(&v80.x, &hit) == 1) {
                     s32 c2 = *(s32 *)(arg0 + 0x4C);
                     if (c2 >= 4) {
                         par = c2 & 1;
@@ -285,25 +262,23 @@ tab:
                         }
                     }
                     if (c2 < 8) {
-                        s32 o = par * 0x18;
-                        u8 *b = arg0 + o;
-                        if (*(f32 *)(b + 0x18) < hit.x) {
-                            *(f32 *)(b + 0x18) = hit.x;
+                        if (*(f32 *)(arg0 + par * 0x18 + 0x18) < hit.x) {
+                            *(f32 *)(arg0 + par * 0x18 + 0x18) = hit.x;
                         }
-                        if (*(f32 *)(b + 0x1C) < hit.y) {
-                            *(f32 *)(b + 0x1C) = hit.y;
+                        if (*(f32 *)(arg0 + par * 0x18 + 0x1C) < hit.y) {
+                            *(f32 *)(arg0 + par * 0x18 + 0x1C) = hit.y;
                         }
-                        if (*(f32 *)(b + 0x20) < hit.z) {
-                            *(f32 *)(b + 0x20) = hit.z;
+                        if (*(f32 *)(arg0 + par * 0x18 + 0x20) < hit.z) {
+                            *(f32 *)(arg0 + par * 0x18 + 0x20) = hit.z;
                         }
-                        if (!(*(f32 *)(b + 0x24) <= hit.x)) {
-                            *(f32 *)(b + 0x24) = hit.x;
+                        if (!(*(f32 *)(arg0 + par * 0x18 + 0x24) <= hit.x)) {
+                            *(f32 *)(arg0 + par * 0x18 + 0x24) = hit.x;
                         }
-                        if (!(*(f32 *)(b + 0x28) <= hit.y)) {
-                            *(f32 *)(b + 0x28) = hit.y;
+                        if (!(*(f32 *)(arg0 + par * 0x18 + 0x28) <= hit.y)) {
+                            *(f32 *)(arg0 + par * 0x18 + 0x28) = hit.y;
                         }
-                        if (!(*(f32 *)(b + 0x2C) <= hit.z)) {
-                            *(f32 *)(b + 0x2C) = hit.z;
+                        if (!(*(f32 *)(arg0 + par * 0x18 + 0x2C) <= hit.z)) {
+                            *(f32 *)(arg0 + par * 0x18 + 0x2C) = hit.z;
                         }
                         if (*(s32 *)(arg0 + 0x4C) < 4) {
                             *(f32 *)(arg0 + 0x30) = *(f32 *)(arg0 + 0x18);
@@ -345,25 +320,23 @@ tab:
                         }
                     }
                     if (c3 < 8) {
-                        s32 o = par * 0x18;
-                        u8 *b = arg0 + o;
-                        if (*(f32 *)(b + 0x18) < sp8C) {
-                            *(f32 *)(b + 0x18) = sp8C;
+                        if (*(f32 *)(arg0 + par * 0x18 + 0x18) < v8C.x) {
+                            *(f32 *)(arg0 + par * 0x18 + 0x18) = v8C.x;
                         }
-                        if (*(f32 *)(b + 0x1C) < sp90) {
-                            *(f32 *)(b + 0x1C) = sp90;
+                        if (*(f32 *)(arg0 + par * 0x18 + 0x1C) < v8C.y) {
+                            *(f32 *)(arg0 + par * 0x18 + 0x1C) = v8C.y;
                         }
-                        if (*(f32 *)(b + 0x20) < sp94) {
-                            *(f32 *)(b + 0x20) = sp94;
+                        if (*(f32 *)(arg0 + par * 0x18 + 0x20) < v8C.z) {
+                            *(f32 *)(arg0 + par * 0x18 + 0x20) = v8C.z;
                         }
-                        if (!(*(f32 *)(b + 0x24) <= sp8C)) {
-                            *(f32 *)(b + 0x24) = sp8C;
+                        if (!(*(f32 *)(arg0 + par * 0x18 + 0x24) <= v8C.x)) {
+                            *(f32 *)(arg0 + par * 0x18 + 0x24) = v8C.x;
                         }
-                        if (!(*(f32 *)(b + 0x28) <= sp90)) {
-                            *(f32 *)(b + 0x28) = sp90;
+                        if (!(*(f32 *)(arg0 + par * 0x18 + 0x28) <= v8C.y)) {
+                            *(f32 *)(arg0 + par * 0x18 + 0x28) = v8C.y;
                         }
-                        if (!(*(f32 *)(b + 0x2C) <= sp94)) {
-                            *(f32 *)(b + 0x2C) = sp94;
+                        if (!(*(f32 *)(arg0 + par * 0x18 + 0x2C) <= v8C.z)) {
+                            *(f32 *)(arg0 + par * 0x18 + 0x2C) = v8C.z;
                         }
                         if (*(s32 *)(arg0 + 0x4C) < 4) {
                             *(f32 *)(arg0 + 0x30) = *(f32 *)(arg0 + 0x18);

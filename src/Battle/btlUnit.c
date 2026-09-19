@@ -1056,37 +1056,35 @@ void func_0019acd0(u8 *arg0)
         *(s32 *)(p + 0x98) = *(s32 *)(p + 0x98) & ~2;
     }
 }
-/* measured 0019ae20: `schedule on` inside the guard is worth 4 words (398 -> 394). */
-/* measured 0019ae20: `schedule on + no_branch_likely on` 394 -> 390 (-4, fnalign retail 448 instrs object 385 instrs, still 14% short draft). `no_branch_likely on` alone 398 (+4 worse). Validates likely-branch loop-shape hint (opclass nop -64/beqz -19/beql +18), but only with schedule. */
-/* gate: object 385 against retail 448, -14.1% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 0019ae20: gate 445/448 (-0.7%, inside 435-461 band); words 174, fnalign edits 67+3reloc. */
+/* measured 0019ae20: fixes vs 385 baseline (edits 641->67, words 390->174): float inline (fptodp+2x__fixsfdi -> cvt/mfc1, jal 39->36), t4 reload for D8/stores (lw 32->42), RwMatrix mat for flags/pos (sw 13->17, dead poly/sp40 live), switch 0,1,2 numeric order, GP direct iGpffffb3cc (lw+1 fixed), s8 0x9F4 / u16 0x18 / t16_sts+t16_flags split. No schedule/no_branch_likely (schedule on gives 397, off gives 445). */
+/* gate: object 445 against retail 448, -0.7% - INSIDE the +-3% band (435-461). */
 // FUN_0019AE20 NONMATCHING
 #ifdef NON_MATCHING
-#pragma schedule on
-#pragma no_branch_likely on
 s32 func_0019ae20(u8 *arg0) {
     extern f32 func_0047a000(void *a, s32 b, s64 c);
     extern u8 *iGpffffb3cc;
     extern void func_00479e60(void *a, s32 b, f32 c);
     extern u32 func_00231d70(u32 a);
+    extern void func_00198920(u8 *a, s16 b, u16 c, s16 d, f32 e);
+    extern s16 func_001990d0(u8 *a, u16 b);
+    extern void func_00198dd0(u8 *a, s32 b);
     u8 *t17;
     u8 *t4;
     u8 *made;
     s32 t2;
     s16 v2;
-    s64 v2_2;
+    s16 v2_2;
     s16 s5;
     f32 f0;
-    s32 t16;
+    s16 t16;
+    u16 t16_flags;
+    s32 t16_sts;
     s32 t3_8;
     u8 t3;
     u8 sp80[128];
-    f32 sp40[3];
+    struct { RwV3d right; u32 flags; RwV3d up; u32 pad1; RwV3d at; u32 pad2; RwV3d pos; u32 pad3; } mat;
     f32 sp100[3];
-    f32 m[9];
-    s32 polyFlag;
 
     t17 = *(u8 **)arg0;
     if ((*(s32 *)(t17 + 0x98) & 1) == 0) {
@@ -1113,37 +1111,41 @@ s32 func_0019ae20(u8 *arg0) {
     } else if (func_004782b0(t4) != 0) {
         if (*(u16 *)(arg0 + 8) & 4) {
             t3 = *(u8 *)(t17 + 0xA2);
-            if (t3 == 2) {
-                *(u32 *)(t4 + 0xD8) &= ~0x100;
-                t16 = func_0010fbd0(*(u16 *)(t17 + 0xA4)) & 0xFFFF;
-                if (t16 & 2) {
-                    *(u32 *)(t4 + 0xD8) |= 0x200;
-                } else if (t16 & 4) {
+            switch (t3) {
+            case 0: {
+                *(u16 *)(t17 + 0x9FE) = func_00145510(*(u16 *)(t17 + 0xA4), *(u8 **)(t17 + 0xA00));
+                func_0014a460(*(u16 *)(t17 + 0x9FE), 1);
+                *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) |= 0x400;
+                func_004774e0(func_0047a310(*(u8 **)(t17 + 0xA00)));
+            } break;
+            case 1: {
+                *(u16 *)(t17 + 0x9FE) = func_00145510(func_001925b0(), *(u8 **)(t17 + 0xA00));
+                func_0014a460(*(u16 *)(t17 + 0x9FE), 1);
+                t16_flags = *(u16 *)((*(u16 *)(t17 + 0xA4) * 0xE8) + iGpffffb3cc + 0x18);
+                if (t16_flags & 2) {
+                    *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) |= 0x200;
+                }
+                if (t16_flags & 8) {
+                    *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) |= 0x400;
+                }
+                if (t16_flags & 0x10) {
+                    *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) |= 0x800;
+                }
+            } break;
+            case 2: {
+                *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) &= ~0x100;
+                t16_sts = func_0010fbd0(*(u16 *)(t17 + 0xA4)) & 0xFFFF;
+                if (t16_sts & 2) {
+                    *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) |= 0x200;
+                } else if (t16_sts & 4) {
                     func_0019d990(t17, 2);
                     *(u16 *)(arg0 + 8) &= ~1;
                 }
-                if (t16 & 8) {
-                    *(u32 *)(t4 + 0xD8) |= 0x400;
+                if (t16_sts & 8) {
+                    *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) |= 0x400;
                 }
                 *(u16 *)(t17 + 0x9FE) = func_00145690(*(u16 *)(t17 + 0xA4), *(u8 **)(t17 + 0xA00));
-            } else if (t3 == 1) {
-                *(u16 *)(t17 + 0x9FE) = func_00145510(func_001925b0(), *(u8 **)(t17 + 0xA00));
-                func_0014a460(*(u16 *)(t17 + 0x9FE), 1);
-                t16 = *(u16 *)((*(u16 *)(t17 + 0xA4) * 0xE8) + *(u8 **)iGpffffb3cc + 0x18);
-                if (t16 & 2) {
-                    *(u32 *)(t4 + 0xD8) |= 0x200;
-                }
-                if (t16 & 8) {
-                    *(u32 *)(t4 + 0xD8) |= 0x400;
-                }
-                if (t16 & 0x10) {
-                    *(u32 *)(t4 + 0xD8) |= 0x800;
-                }
-            } else if (t3 == 0) {
-                *(u16 *)(t17 + 0x9FE) = func_00145510(*(u16 *)(t17 + 0xA4), *(u8 **)(t17 + 0xA00));
-                func_0014a460(*(u16 *)(t17 + 0x9FE), 1);
-                *(u32 *)(t4 + 0xD8) |= 0x400;
-                func_004774e0(func_0047a310(*(u8 **)(t17 + 0xA00)));
+            } break;
             }
         }
         t2 = *(s32 *)(t17 + 0x98) & ~1;
@@ -1160,16 +1162,16 @@ s32 func_0019ae20(u8 *arg0) {
             func_0019d7a0(t17, 1);
         }
         if (*(u16 *)(arg0 + 8) & 0x100) {
-            *(u8 *)(t4 + 0x280) = 0;
-            *(u8 *)(t4 + 0x281) = 0;
-            *(u8 *)(t4 + 0x282) = 0;
+            *(u8 *)(*(u8 **)(t17 + 0xA00) + 0x280) = 0;
+            *(u8 *)(*(u8 **)(t17 + 0xA00) + 0x281) = 0;
+            *(u8 *)(*(u8 **)(t17 + 0xA00) + 0x282) = 0;
         }
         if (*(u16 *)(arg0 + 8) & 0x40) {
             func_001ee250(t17, 0);
         }
         if (*(u16 *)(arg0 + 8) & 0x20) {
             func_00198dd0(t17, 0);
-            func_00198920(t17, *(s16 *)(t17 + 0x9EC), 0, *(u8 *)(t17 + 0x9F4), *(f32 *)(t17 + 0x9F0));
+            func_00198920(t17, *(s16 *)(t17 + 0x9EC), 0, *(s8 *)(t17 + 0x9F4), *(f32 *)(t17 + 0x9F0));
             t3_8 = *(s32 *)(t17 + 0x98) & 2;
             if (t3_8 != 0) {
                 v2 = *(s16 *)(t17 + 0x9DA);
@@ -1179,12 +1181,12 @@ s32 func_0019ae20(u8 *arg0) {
             if (t3_8 == 0) {
                 v2_2 = 0;
             } else {
-                s5 = func_001990d0(t17, v2);
+                s5 = func_001990d0(t17, (u16)v2);
                 f0 = func_0047a000(*(u8 **)(t17 + 0xA00), 0, s5);
                 if (s5 < *(u16 *)(t17 + 0x9E4)) {
-                    v2_2 = (s64)(f0 / ((f32)(*(s16 *)(s5 * 10 + *(s32 *)(t17 + 0x9F8) + 2)) / 100.0f));
+                    v2_2 = (s16)(s32)(f0 / (1.0f * ((f32)(*(s16 *)(s5 * 10 + *(s32 *)(t17 + 0x9F8) + 2)) / 100.0f)));
                 } else {
-                    v2_2 = (s64)f0;
+                    v2_2 = (s16)(s32)f0;
                 }
             }
             t16 = func_00231d70((u32)v2_2);
@@ -1201,20 +1203,20 @@ s32 func_0019ae20(u8 *arg0) {
             f32 f15 = *(f32 *)(t17 + 0x20);
             f32 f12 = *(f32 *)(t17 + 0x24);
             f32 f13 = *(f32 *)(t17 + 0x28);
-            m[0] = 1.0f - (f15 * f15 + f12 * f12) * 2.0f;
-            m[1] = (f14 * f15 + f13 * f12) * 2.0f;
-            m[2] = (f12 * f14 - f13 * f15) * 2.0f;
-            m[3] = (f14 * f15 - f13 * f12) * 2.0f;
-            m[4] = 1.0f - (f14 * f14 + f12 * f12) * 2.0f;
-            m[5] = (f15 * f12 + f13 * f14) * 2.0f;
-            m[6] = (f12 * f14 + f13 * f15) * 2.0f;
-            m[7] = (f15 * f12 - f13 * f14) * 2.0f;
-            m[8] = 1.0f - (f14 * f14 + f15 * f15) * 2.0f;
-            sp40[0] = 0;
-            sp40[1] = 0;
-            sp40[2] = 0;
-            polyFlag = 3;
-            func_0047a1c0(*(u8 **)(t17 + 0xA00), m, 0);
+            mat.right.x = 1.0f - (f15 * f15 + f12 * f12) * 2.0f;
+            mat.right.y = (f14 * f15 + f13 * f12) * 2.0f;
+            mat.right.z = (f12 * f14 - f13 * f15) * 2.0f;
+            mat.up.x = (f14 * f15 - f13 * f12) * 2.0f;
+            mat.up.y = 1.0f - (f14 * f14 + f12 * f12) * 2.0f;
+            mat.up.z = (f15 * f12 + f13 * f14) * 2.0f;
+            mat.at.x = (f12 * f14 + f13 * f15) * 2.0f;
+            mat.at.y = (f15 * f12 - f13 * f14) * 2.0f;
+            mat.at.z = 1.0f - (f14 * f14 + f15 * f15) * 2.0f;
+            mat.pos.x = 0;
+            mat.pos.y = 0;
+            mat.pos.z = 0;
+            mat.flags = 3;
+            func_0047a1c0(*(u8 **)(t17 + 0xA00), &mat, 0);
             sp100[0] = sp100[1] = sp100[2] = *(f32 *)(t17 + 0x2C);
             func_0047a1e0(*(u8 **)(t17 + 0xA00), sp100, 2);
             sp100[0] = *(f32 *)(t17 + 4) + *(f32 *)(t17 + 0x10);
@@ -1228,8 +1230,6 @@ s32 func_0019ae20(u8 *arg0) {
     }
     return 0;
 }
-#pragma no_branch_likely off
-#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/btlUnit", func_0019ae20);
 #endif
