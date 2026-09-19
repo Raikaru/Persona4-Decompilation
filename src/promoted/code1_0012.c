@@ -2452,6 +2452,14 @@ void func_00125e80(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
    0x7c` seven slots after retail's.  Measured and rejected: assigning the
    pointer but storing through the array instead (155 - the pointer folds
    away), pointer locals only for the func_0045d6e0 pair (155). */
+/* 148 -> 112 (2026-09-19): the eight func_0025f430 calls stage their s16
+   radius arguments early - retail loads each (s16)fGp const well before its
+   call, so the inline `(s16)fGpXXXX, (s16)fGpXXXX` pairs are hoisted s16
+   temps (`r40`..`r90`, extending the existing `radius` idiom), six sites,
+   25 fnalign edits (plus 21 reloc-only).  Measured and rejected: hoisting
+   the trailing (Fy, Fy) float pairs the same way (112 - the compiler had
+   already commoned the duplicate loads, identical codegen).  Residual is
+   the MMI s128-copy shape plus the f16 load-order pairs per site. */
 // FUN_00126090 NONMATCHING
 #ifdef NON_MATCHING
 void func_00126090(s32 arg0, u8 *arg1)
@@ -2513,6 +2521,12 @@ extern void func_0025f430(f32 farg0, f32 farg1, f32 farg2, s32 arg0, s32 arg1, s
     s32 *q60;
     f32 temp_f21;
     s16 radius;
+    s16 r40;
+    s16 r50;
+    s16 r60;
+    s16 r70;
+    s16 r80;
+    s16 r90;
     f32 r64;
 
     p = sp78;
@@ -2566,14 +2580,20 @@ extern void func_0025f430(f32 farg0, f32 farg1, f32 farg2, s32 arg0, s32 arg1, s
     r64 = 64.0f;
     radius = (s16)fGpffff8230;
     func_0025f430(fGpffff8234, fGpffff8238, 0.0f, 0x202020, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, radius, radius, temp_f20, fGpffff823c, fGpffff823c);
-    func_0025f430(fGpffff8244, fGpffff8248, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, (s16)fGpffff8240, (s16)fGpffff8240, temp_f20, fGpffff824c, fGpffff824c);
-    func_0025f430(fGpffff8254, fGpffff8258, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, (s16)fGpffff8250, (s16)fGpffff8250, temp_f20, fGpffff825c, fGpffff825c);
-    func_0025f430(fGpffff8264, fGpffff8268, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, (s16)fGpffff8260, (s16)fGpffff8260, temp_f20, fGpffff826c, fGpffff826c);
+    r40 = (s16)fGpffff8240;
+    func_0025f430(fGpffff8244, fGpffff8248, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, r40, r40, temp_f20, fGpffff824c, fGpffff824c);
+    r50 = (s16)fGpffff8250;
+    func_0025f430(fGpffff8254, fGpffff8258, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, r50, r50, temp_f20, fGpffff825c, fGpffff825c);
+    r60 = (s16)fGpffff8260;
+    func_0025f430(fGpffff8264, fGpffff8268, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, r60, r60, temp_f20, fGpffff826c, fGpffff826c);
     temp_f20 = -360.0f * temp_f21;
-    func_0025f430(fGpffff8274, fGpffff8278, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, (s16)fGpffff8270, (s16)fGpffff8270, temp_f20, fGpffff827c, fGpffff827c);
-    func_0025f430(fGpffff8284, fGpffff8288, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, (s16)fGpffff8280, (s16)fGpffff8280, temp_f20, fGpffff828c, fGpffff828c);
+    r70 = (s16)fGpffff8270;
+    func_0025f430(fGpffff8274, fGpffff8278, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, r70, r70, temp_f20, fGpffff827c, fGpffff827c);
+    r80 = (s16)fGpffff8280;
+    func_0025f430(fGpffff8284, fGpffff8288, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, r80, r80, temp_f20, fGpffff828c, fGpffff828c);
     func_0025f430(313.0f, 29.0f, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, (s16)r64, (s16)r64, temp_f20, 1.0f, 1.0f);
-    func_0025f430(fGpffff8294, fGpffff8298, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, (s16)fGpffff8290, (s16)fGpffff8290, temp_f20, fGpffff829c, fGpffff829c);
+    r90 = (s16)fGpffff8290;
+    func_0025f430(fGpffff8294, fGpffff8298, 0.0f, 0x808080, 0x80, 0x1000F, 0, *(s32 *)(arg1 + 0x3C), 0, r90, r90, temp_f20, fGpffff829c, fGpffff829c);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00126090);

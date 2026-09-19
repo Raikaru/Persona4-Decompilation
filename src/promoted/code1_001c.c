@@ -1746,6 +1746,8 @@ void func_001c3eb0(u8 *arg0, s32 arg1)
         }
     }
 }
+/* cold 001c3f70 (2026-09-19): first honest pass 1051-1052/1125 (-6.5%), NOT banked (needs +39 to the 1091 floor); composition max pure hole 10 max pure lump 8 - clean; frame matches (0x1A0); all 37 jals present. Real fixes landed: retail pads at 17C/18C, the entire second first-branch 1bd780/3dcb40/ec3d0 sequence, retail-faithful E/B block (8118-focus update, inverted branch order, duplicated 0.25-madds). Diagnosis for next time: object saves $f20-$f27 where retail saves six, so the struct sits at 0xB0 instead of 0xA0, and retail recomputes the height products per use rather than keeping them live - free two float registers by recomputing late. Measurable signature of the recompute: +4 8C-loads in retail over source. */
+/* 114 finding: sp+0x114 is func_001ec3d0's second output word, never explicitly stored, read back as lwc1 0x114 -> swc1 0x138 three times. A callee output that is only ever observed through the frame is exactly the kind of thing that makes a body look correct while producing a hole. */
 // FUN_001C3F70
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c3f70);
 // FUN_001C5110
@@ -1885,6 +1887,7 @@ void func_001c52c0(u8 *arg0)
    $f21 while b210 assigns them the other way round, which also shifts the
    low FPRs by one ($f5/$f6 for the zero compare, $f4/$f5 for the negate,
    $f6/$f7 for three multiplies).  Both are allocation, not spelling. */
+/* measured 001c5500 (stacking): schedule-on alone 381, full triple (schedule on + no_branch_likely on + peephole off) 390, both worse than banked 416 exact - extends the pair-sweep null to the stacking method. Schedule fundamentally changes codegen here; the wall stands as allocation. Do not repeat. */
 // FUN_001C5500 NONMATCHING
 /* measured 001c5500: 78 differing words guarded via `python3 tools/measure_guarded.py src/promoted/code1_001c.c func_001c5500`; fnalign retail 416 vs object 416, 15 edits (+8 reloc-only). Decisive lever: truthful `extern f32 func_0044b868(f32)` block decl (implicit int return emitted mtc1/cvt plus cascade) moved the same body from 249 to 78. Defect class: a missing float return type on an extern, invisible until you spot a stray `cvt.s.w` in your object that retail does not have — check every float-returning callee's declaration when one appears. */
 /* Fresh independent-object layout (251w) beats explicit Frame pads (389w/392w); dot/cross decl swap fixes $f24 (251w to 249w); binary (u8*,s32) ties unary with no caller migration. Pragmas swept scoped on exact body: schedule on 387, commons off 457, loopinv on tie, prop off 306 — neutral/worse, none installed. Top remaining: mtc1 $zero $f5 vs $f6 extra live temp at dot compare, 1.5f ($f23) hoist before base copy, mul $f6 vs $f7, $f20/$f21 cycle (div/cvt region already fixed by 0044b868 prototype). */

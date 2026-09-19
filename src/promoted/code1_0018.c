@@ -2480,6 +2480,14 @@ void func_0018e4d0(u8 *arg0)
    rotation across the case 1 / case 4 bodies -- retail keeps the packet
    pointer in s3 and the row cursor in s2 for the whole function while
    b210 recolours them per case, which no source spelling reaches. */
+/* 95 -> 89 (2026-09-19): case 1's three inner sites stage the
+   func_00470bd0 deref before the state+4 load - retail evaluates
+   `*func_00470bd0(h, N)` into a temp (`v0`) first, so the `lw $a0, 4($s2)`
+   lands one slot later than b210's in-line order; sequencing all three
+   sites through the temp closes the x3 load-scheduling cluster (41 -> 35
+   fnalign edits).  Measured and rejected: hoisting `y << 8` to a y-loop
+   temp (364 - retail keeps the per-use shifts, massive perturbation).
+   Residual is the case-4 addu operand-order x6 + colour rotation wall. */
 // FUN_0018E810 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0018e810(u8 *arg0)
@@ -2492,6 +2500,7 @@ s32 func_0018e810(u8 *arg0)
     extern void func_001582f0(s32 mode, s32 value, s32 arg2);
     f32 spCC[1];
     u8 *state;
+    s32 v0;
     s32 index;
 
     state = *(u8 **)(arg0 + 0x38);
@@ -2516,8 +2525,8 @@ s32 func_0018e810(u8 *arg0)
                     *((u8 *)(*func_00470bd0(*(s32 *)(state + 0x1B438), 3) * 0x10) +
                       (u32)*(u8 **)(state + 0x1B434) + 9);
                 *(s32 *)(state + 4) = 2;
-                func_001582f0(*(s32 *)(state + 4),
-                              *func_00470bd0(*(s32 *)(state + 0x1B438), 0), 0);
+                v0 = *func_00470bd0(*(s32 *)(state + 0x1B438), 0);
+                func_001582f0(*(s32 *)(state + 4), v0, 0);
                 func_00452080(*(s32 *)(state + 0x1B438));
                 *(s32 *)state += 1;
                 break;
@@ -2529,8 +2538,8 @@ s32 func_0018e810(u8 *arg0)
                     *((u8 *)(*func_00470bd0(*(s32 *)(state + 0x1B438), 3) * 0x10) +
                       (u32)*(u8 **)(state + 0x1B434) + 9);
                 *(s32 *)(state + 4) = 0;
-                func_001582f0(*(s32 *)(state + 4),
-                              *func_00470bd0(*(s32 *)(state + 0x1B438), 1), 0);
+                v0 = *func_00470bd0(*(s32 *)(state + 0x1B438), 1);
+                func_001582f0(*(s32 *)(state + 4), v0, 0);
                 func_00452080(*(s32 *)(state + 0x1B438));
                 *(s32 *)state += 1;
                 break;
@@ -2542,8 +2551,8 @@ s32 func_0018e810(u8 *arg0)
                     *((u8 *)(*func_00470bd0(*(s32 *)(state + 0x1B438), 3) * 0x10) +
                       (u32)*(u8 **)(state + 0x1B434) + 9);
                 *(s32 *)(state + 4) = 1;
-                func_001582f0(*(s32 *)(state + 4),
-                              *func_00470bd0(*(s32 *)(state + 0x1B438), 2), 0);
+                v0 = *func_00470bd0(*(s32 *)(state + 0x1B438), 2);
+                func_001582f0(*(s32 *)(state + 4), v0, 0);
                 func_00452080(*(s32 *)(state + 0x1B438));
                 *(s32 *)state += 1;
                 break;
