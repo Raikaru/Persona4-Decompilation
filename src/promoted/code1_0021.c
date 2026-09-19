@@ -725,6 +725,15 @@ void func_00212240(u8 *arg0, s32 arg1) {
 
 /* measured 00212270: object 3244B vs retail window 5248B; retail 1311 instrs vs object 811 instrs (-38.1%, gate needs 1272-1350); differing words 1149 reloc-masked (GUARDED_SCORE), fnalign 1066 edits. Archive claimed object 3244B vs 5248B (sizes match) but nd 2519 vs our 1149 (score disagrees, not copied). Frame object 0x390 vs retail 0x3A0 (16B short; missing f22/f23 saves, s3 vs s4 arg1 park, f20 vs f23 div.s coloring). JAL retail 22 (1x201350,4x201820,2x34f460,2x34f4a0,4x364fb0,1x366c70,2x3e0870,2x457120,1x46d5f0,3x indirect D_00887310) vs object 21 (missing second func_00457120 inv recompute; cached-pointer-recompute accounts for ~5 instrs, not 500). */
 /* shortfall clusters in straight-line float/color/packet work, not calls: largest retail[113:433] 321 instrs vs object[122:126] 5 instrs (early packet/color/inv phase ~0x1C4-0x6C4, second 457120+div.s plus per-channel srl/andi/mtc1/cvt.s.w/add.s unpack and swc1 packet spills); next retail[435:478] 44 vs 19; dozens of 4-18 instr replaces throughout for (s32)(204/255/4096-scaled smooth)&mask clamps (retail lui 0x4f00/mtc1/c.ole/bc1t/cvt.w.s/mfc1/andi/or-0x80000000 vs object compact cvt.w.s/mfc1/andi). Excluded: dropped else arm (all 7 special/non-special pairs present: mode<6/21, mode<0xB/13, mode<0xD/14, mode<0xB/15, mode<=0/8 smooth variants, mode<0xF/8 with 34f460 vs 34f4a0 tails); off-by-one bound (thresholds 6,21,0x25/0x24,0xB,13,0xD,14,0xF,8 intact); folded switch (no switch); omitted-call as main cause (only 1/22 missing); unsigned-cast bloat (all casts signed (s32) with &0xFF/&0xFFFF, no unsigned float casts); narrow-local dsll32/dsra32 pairs (no s16 locals); field-by-field bloat (archive already field-by-field packet[6]/bars[4], retail similar). No pragmas in archive, none kept. Refused: outside 3% gate, production stays ASM; best C remains in Lane0021Full_00212270_body.c. Extern corrected to (u8*,u8*) per retail $a1 use (saved to s4, (void)arg0). */
+/* gate: func_00212270 is FAR OUTSIDE the +-3% band - object 811 against retail 1311, -38.1%,
+   where the band is 1272-1350.  Two fifths of the function is simply not written.
+   It is kept installed only because the missing code is localised and named: retail[113:433] 321 against 5, the early packet/colour/inverse phase at 0x1C4-0x6C4.
+   Everything else measured against this body is meaningless - the 1149 differing
+   words and 1066 fnalign edits are scores against a body of the wrong length
+   (handoff 7y), and they must not be quoted as progress or compared with any floor
+   inside the gate.  The only work that counts here is writing the missing blocks:
+   disassemble each retail range named above, describe what it computes, write it,
+   measure.  Do not tune expressions in the part that exists. */
 // FUN_00212270 NONMATCHING
 #ifdef NON_MATCHING
 void func_00212270(u8 *arg0, u8 *arg1)
@@ -3665,6 +3674,15 @@ void func_0021be70(void)
 }
 /* measured 0021be80: object 3236B vs retail window 5568B; retail 1392 instrs vs object 809 instrs (-41.9%, gate needs 1350-1433); differing words 1248 reloc-masked (GUARDED_SCORE), fnalign 1353 edits +9 reloc-only. Archive claimed object 3228B vs 5568B nd 2356 (sizes ~match +8B from truthful D_008872F8[0]/ctx casts, score disagrees, not copied). Frame object 0x180 vs retail 0x2F0 (368B short). JAL retail 53 (1x452560,1x201350,8x21b500,18x21b630,2x21bbb0,3x3b7060,4x3f6440,2x457120,2x45af60,8x46d730,4x indirect) vs object ~31 (missing 6x21b500 static,7x21b630,2x457120 inv,7x46d730). */
 /* shortfall clusters: largest retail[320:670] 351 vs object[240:243] 4, next retail[989:1138] 150 vs 3, plus dozens of 5-35 replaces for (s32)(4.0f/2.0f scaled)&mask clamps and fGpffff84cc sign mul chains. Excluded: dropped else (mode&1/frame<0x30/==1 arms present), off-by-one (0x30/0xC/4/12/6 intact), folded switch (none), omitted-call as sole cause (22 missing jal ~300 instrs, not 583), unsigned/narrow/field bloat (signed, no s16, per-field). Truthful compile fixes (D_008872F8[0], (u8*)ctx casts) kept for measure; lying 21b500 (7 vs 8 args)/21b630 (s32 vs union)/21bbb0 (s32 vs u16) noted, production stays ASM. */
+/* gate: func_0021be80 is FAR OUTSIDE the +-3% band - object 809 against retail 1389, -41.8%,
+   where the band is 1350-1433.  Two fifths of the function is simply not written.
+   It is kept installed only because the missing code is localised and named: retail[320:670] 351 against 4 and retail[989:1138] 150 against 3.
+   Everything else measured against this body is meaningless - the 1248 differing
+   words and 1353 fnalign edits are scores against a body of the wrong length
+   (handoff 7y), and they must not be quoted as progress or compared with any floor
+   inside the gate.  The only work that counts here is writing the missing blocks:
+   disassemble each retail range named above, describe what it computes, write it,
+   measure.  Do not tune expressions in the part that exists. */
 // FUN_0021BE80 NONMATCHING
 #ifdef NON_MATCHING
 void func_0021be80(u8 *arg0, u8 *arg1)
