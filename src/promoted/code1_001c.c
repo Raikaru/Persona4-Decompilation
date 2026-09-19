@@ -3362,21 +3362,9 @@ void func_001cb960(void) {}
 /* Vector temps at sp+0x110 (delta), sp+0xD8 (camXZ), sp+0xD0 (deltaXZ); Pose at sp+0x90/0xAC, quat at 0xB8. */
 /* Mined 48 MATCH neighbours (cb610/cacd0/c04e0): p4_cacd0_mul, func_001c_copy_pair, 0.0f+adda/madd, 100.0f/12.5f/500.0f clamps. */
 /* FMA chains (mula/madd/msub/adda) + 001959d0x2/003e40b0/003e41e0 retained; fnalign top-down, same levers. */
-/* measured 001cb970: `schedule on` inside the guard is worth 10 words (367 -> 357); retail fills delay slots plain -O2 leaves empty. */
-/* gate: object 385 against retail 385, +0.0% - INSIDE
-   the +-3% band (373-395). fnalign 198 edits (+3 reloc-only), probe 343
-   via `python3 tools/fnalign.py src/promoted/code1_001c.c func_001cb970 --candidate <body> --quiet`.
-   Prior 344/384 (-10.4%, 40 short, 447 edits); 35-hole at 0x1cbd78-0x1cbe00 (targetXZ spill +
-   001ec3d0 + ecRet scaling) closed via explicit-frame struct (7z/7x: retail spills vs reg-held
-   aggregates) + 001ec3d0 arg order a2=F8 sel / a3=F0 out.
-   Residual 4 at 0x1cbd80-0x1cbd8c (retail swc1 0xE0 / lwc1 0x128 / swc1 0xE4 / lwc1 0x100;
-   body load/store pairs at shifted slots): BASE, not order/width — both sides single-word
-   swc1/lwc1 f32 pairs in E0-then-E4 order; pad-base (+32) lost exact 385->344/417 and E4/E0
-   swap lost exact 385->344/395. Count exact, left for next pass. */
+/* measured 001cb970 2026-09-19: landed (was described but never written): explicit frame pad00[0x90] + pad15C[4] at retail 0x90-0x158 + schedule pragmas removed; object 385/retail 385 exact INSIDE, 343 words, 192 edits (+3 reloc-only) (was 344/384 -10.4%, 357 words, 395 edits with schedule on + relative frame). 35-hole at 0x1cbd78-0x1cbe00 (targetXZ spill lwc1 0x120/swc1 0xE0 etc + 001ec3d0(E0,E8,F8,F0) + ecRet mul/adda/madd) closed; a2=F8/a3=F0 already correct in tree. No pure deletes remain (all replaces); residual is base-reg mirror at 0x1cbd80 (E0/E4 spill pair, same order/width, wrong base). Prior schedule note (367->357) superseded — retail is unscheduled here, schedule on compacted 385->344. */
 // FUN_001CB970 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: retail fills delay slots this function leaves empty at -O2. */
-#pragma schedule on
 void func_001cb970(u8 *arg0, f32 fparg0, s32 arg1)
 {
     extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
@@ -3388,6 +3376,7 @@ void func_001cb970(u8 *arg0, f32 fparg0, s32 arg1)
     extern void func_001bcd40(u8 *a0, u8 *a1, u8 *a2, f32 a3, s32 a4);
     extern f32 fGpffff80dc;
     struct {
+        u8 pad00[0x90];
         f32 sp90;
         f32 sp94;
         f32 sp98;
@@ -3438,6 +3427,7 @@ void func_001cb970(u8 *arg0, f32 fparg0, s32 arg1)
         f32 sp150;
         f32 sp154;
         f32 sp158;
+        u8 pad15C[4];
     } frame;
     u8 *camera;
     u8 *unitA;
@@ -3572,8 +3562,6 @@ void func_001cb970(u8 *arg0, f32 fparg0, s32 arg1)
     func_001bac20((u16 *)camera, &frame.sp90, &frame.spAC, 1);
     func_001bbef0(camera, fparg0);
 }
-/* measured: closes the scope above at the file's -O2 baseline. */
-#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cb970);
 #endif
