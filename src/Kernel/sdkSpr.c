@@ -323,6 +323,8 @@ void func_0046b380(u8 *arg0, s32 arg1) {
     extern void func_0046a7f0(u8 *arg0, u8 *arg1);
     extern void (*D_00887300[])(u32 state, u32 value);
     extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
+    void (**tbl300)(u32 state, u32 value);
+    s32 (**tbl310)(s32 arg0, void *arg1, s32 arg2);
     extern f32 D_008872F8[];
     extern u8 D_007130D8[];
     extern f32 fGpffff8084;
@@ -388,16 +390,18 @@ void func_0046b380(u8 *arg0, s32 arg1) {
     parent = *(u8 **)arg0;
     idx = *(s32 *)(arg0 + 4);
     scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    tbl300 = D_00887300;
+    tbl310 = D_00887310;
     if (arg1 != 0) {
-        D_00887300[0](6, 1);
-        D_00887300[0](7, 2);
-        D_00887300[0](8, 1);
-        D_00887300[0](9, 2);
-        D_00887300[0](0xC, 1);
-        D_00887300[0](0xB, 6);
-        D_00887300[0](0xA, 5);
-        D_00887300[0](2, 4);
-        D_00887300[0](0xE, 0);
+        tbl300[0](6, 1);
+        tbl300[0](7, 2);
+        tbl300[0](8, 1);
+        tbl300[0](9, 2);
+        tbl300[0](0xC, 1);
+        tbl300[0](0xB, 6);
+        tbl300[0](0xA, 5);
+        tbl300[0](2, 4);
+        tbl300[0](0xE, 0);
     }
     rec = *(u8 **)(parent + 0x204) + (idx << 7);
     slotidx = *(s32 *)(rec + 0x14) << 2;
@@ -642,11 +646,11 @@ void func_0046b380(u8 *arg0, s32 arg1) {
             ppD[1] = spP[1];
         }
         if ((*(s32 *)(rec + 0x18) & 8) != 0) {
-            D_00887300[0](1, 0);
+            tbl300[0](1, 0);
         } else {
-            D_00887300[0](1, *(s32 *)(parent + 0x104 + slotidx));
+            tbl300[0](1, *(s32 *)(parent + 0x104 + slotidx));
         }
-        D_00887310[0](4, pkt, 4);
+        tbl310[0](4, pkt, 4);
         for (m = 0; m < 4; m++) {
             savedPts[m][0] = pts[m][0];
             savedPts[m][1] = pts[m][1];
@@ -717,11 +721,11 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 pkt[2][4] = uvB0; pkt[2][5] = uvB4;
                 pkt[3][4] = uvB8; pkt[3][5] = uvBC;
                 if ((*(s32 *)(rec + 0x18) & 8) != 0) {
-                    D_00887300[0](1, 0);
+                    tbl300[0](1, 0);
                 } else {
-                    D_00887300[0](1, *(s32 *)(parent + 0x104 + slotidx));
+                    tbl300[0](1, *(s32 *)(parent + 0x104 + slotidx));
                 }
-                D_00887310[0](4, pkt, 4);
+                tbl310[0](4, pkt, 4);
             }
         }
         {
@@ -805,11 +809,11 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 pkt[2][4] = uvB0; pkt[2][5] = uvB4;
                 pkt[3][4] = uvB8; pkt[3][5] = uvBC;
                 if ((*(s32 *)(rec + 0x18) & 8) != 0) {
-                    D_00887300[0](1, 0);
+                    tbl300[0](1, 0);
                 } else {
-                    D_00887300[0](1, *(s32 *)(parent + 0x104 + slotidx));
+                    tbl300[0](1, *(s32 *)(parent + 0x104 + slotidx));
                 }
-                D_00887310[0](4, pkt, 4);
+                tbl310[0](4, pkt, 4);
             }
         }
         {
@@ -882,11 +886,11 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                     pkt[3][4] = uvB8; pkt[3][5] = uvBC;
                     (void)pA0;
                     if ((*(s32 *)(rec + 0x18) & 8) != 0) {
-                        D_00887300[0](1, 0);
+                        tbl300[0](1, 0);
                     } else {
-                        D_00887300[0](1, *(s32 *)(parent + 0x104 + slotidx));
+                        tbl300[0](1, *(s32 *)(parent + 0x104 + slotidx));
                     }
-                    D_00887310[0](4, pkt, 4);
+                    tbl310[0](4, pkt, 4);
                 }
             }
         }
@@ -971,11 +975,11 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 pkt[2][4] = uvB0; pkt[2][5] = uvB4;
                 pkt[3][4] = uvB8; pkt[3][5] = uvBC;
                 if ((*(s32 *)(rec + 0x18) & 8) != 0) {
-                    D_00887300[0](1, 0);
+                    tbl300[0](1, 0);
                 } else {
-                    D_00887300[0](1, *(s32 *)(parent + 0x104 + slotidx));
+                    tbl300[0](1, *(s32 *)(parent + 0x104 + slotidx));
                 }
-                D_00887310[0](4, pkt, 4);
+                tbl310[0](4, pkt, 4);
             }
         }
         for (m = 0; m < 4; m++) {
@@ -993,11 +997,11 @@ void func_0046b380(u8 *arg0, s32 arg1) {
             pkt[2][4] = uvB0; pkt[2][5] = uvB4;
             pkt[3][4] = uvB8; pkt[3][5] = uvBC;
             if ((*(s32 *)(rec + 0x18) & 8) != 0) {
-                D_00887300[0](1, 0);
+                tbl300[0](1, 0);
             } else {
-                D_00887300[0](1, *(s32 *)(parent + 0x104 + slotidx));
+                tbl300[0](1, *(s32 *)(parent + 0x104 + slotidx));
             }
-            D_00887310[0](4, pkt, 4);
+            tbl310[0](4, pkt, 4);
             return;
         }
         if (*(s16 *)(arg0 + 0x14) != 0) {
@@ -1010,11 +1014,11 @@ void func_0046b380(u8 *arg0, s32 arg1) {
             pkt[2][4] = uvB8; pkt[2][5] = uvBC;
             pkt[3][4] = uvB8; pkt[3][5] = uvBC;
             if ((*(s32 *)(rec + 0x18) & 8) != 0) {
-                D_00887300[0](1, 0);
+                tbl300[0](1, 0);
             } else {
-                D_00887300[0](1, *(s32 *)(parent + 0x104 + slotidx));
+                tbl300[0](1, *(s32 *)(parent + 0x104 + slotidx));
             }
-            D_00887310[0](4, pkt, 4);
+            tbl310[0](4, pkt, 4);
         }
     }
 }
