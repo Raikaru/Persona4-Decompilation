@@ -582,6 +582,34 @@ explicit frame struct moved the frame to -0xF0 and recovered twelve
 instructions.  So: match the frame size first, then re-read the listing; a
 rotation that survives a correct frame is the real wall.
 
+### 7aj. What an unsigned float conversion costs
+
+Two agents measured it independently on different functions today and got the
+same answer: **`(f32)(u32)x` costs about fifteen instructions where
+`(f32)(s32)x` costs four.**
+
+The signed form is `mtc1` / `nop` / `cvt.s.w` / `swc1`.  The unsigned form has
+to handle the top bit, so b210 emits `bltz` / `nop` / `mtc1` / `nop` /
+`cvt.s.w` / `b` / `nop` / `srl` / `andi` / `or` / `mtc1` / `nop` / `cvt.s.w` /
+`add.s` / `swc1`.
+
+The consequences are large on a body with several conversions.  On
+`func_004a5fc0`, four conversions declared `u32` instead of `s32` accounted
+for **81 of the 87 surplus instructions** that put the draft outside the gate;
+fixing the two locals' declared types took it from 843 to 762 against retail's
+756.  In the other direction, the archived draft of `func_0035aff0` measures
+46 instructions *short* precisely because it uses a signed flat where retail
+is unsigned.
+
+So when a draft's count is 10% out and the body is float-heavy, count the
+conversions before looking at anything else, and read the retail assembly to
+decide each one: `bltz`/`srl`/`or` around the `mtc1` means the source value is
+unsigned, a bare `mtc1`/`cvt.s.w` means it is signed.  Note also that the
+widths can be **mixed within one function** - on `func_004b1ad0` making both
+locals signed overshoots to 768 against a lower bound of 772, while making one
+signed and leaving the other unsigned lands at 802.  Retail's widths are what
+they are; they are not a tuning knob.
+
 ### 7ai. Mine the archive before drafting anything
 
 `python3 tools/archive_to_guard.py --list` reports every body in
