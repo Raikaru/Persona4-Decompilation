@@ -542,6 +542,35 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7al. Parameter copies are emitted in ABI spill order, not source order
+
+`func_0028fc40` is 522 instructions, exact count, frame matching retail's
+`-0x70`, and **five differing words** - the closest first-party floor found so
+far.  All five are the same five `move` instructions in a different order:
+
+    object   move $s5,$a2   move $s4,$a3   move $s3,$t0   move $s1,$a0   move $s0,$a1
+    retail   move $s1,$a0   move $s0,$a1   move $s5,$a2   move $s4,$a3   move $s3,$t0
+
+The colouring is exact - every parameter lands in the same saved register on
+both sides.  Only the emission order differs: b210 copies in **first-use**
+order, and this body's first statement tests the third argument, while retail
+copies in **argument** order.
+
+Every source form that could plausibly express argument order was measured in
+one `probe_variants` run: five locals initialised from the parameters in
+argument order at the top of the function scores **163**; the same locals
+declared in argument order and assigned in sequence scores **163**; three of
+them initialised and the other two assigned later ties at 5.  Swapping two
+declarations costs 163 as well, which shows the current order is strongly
+load-bearing rather than inert.  Pragmas do not touch it either: `schedule on`
+489, `no_branch_likely` 5, `peephole off` 5, all three 479.
+
+So the conclusion is narrow and worth quoting rather than re-deriving: **the
+order of parameter-to-saved-register copies follows the ABI spill sequence and
+the first use, and no source spelling reaches it.**  A floor whose entire
+residual is this shape is finished; record the five pairs in the note and move
+on.
+
 ### 7ah. The register-rotation wall, and when it is not one
 
 The commonest residual on a near-MATCH floor is now a **register rotation**:

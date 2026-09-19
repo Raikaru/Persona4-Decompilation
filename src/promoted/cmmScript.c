@@ -1056,6 +1056,17 @@ s32 func_0024bb00(s32 arg0) {
    found-pointer at block scope 11 / 79, counter at block scope 13 / 81, both
    at block scope 16 / 84.  Every reversal of the assignment order is a large
    regression, so the order this body already uses is retail's. */
+/* 2026-09-19 verbatim residual, masked 8 (raw 12/25, 168/168 exact, frame */
+/* both addiu $sp,$sp,-0x60): object vs retail, all $s0<->$s2, same targets: */
+/* off 196: object addu $s0,$s0,$v0 vs retail addu $s2,$s0,$v0; */
+/* off 236: object addu $v0,$s0,$s1 vs retail addu $v0,$s2,$s1; */
+/* off 480: object move $s2,$zero vs retail move $s0,$zero; */
+/* off 492: object bnez $s2,0x24c048 vs retail bnez $s0,0x24c048 (same target); */
+/* off 520: object addu $v0,$s0,$s2 vs retail addu $v0,$s2,$s0; */
+/* off 544: object move $s3,$s2 vs retail move $s3,$s0; */
+/* off 556: object addiu $s2,$s2,1 vs retail addiu $s0,$s0,1; */
+/* off 560: object slti $v0,$s2,6 vs retail slti $v0,$s0,6. */
+/* No immediate/branch-offset/nop diff; jal equal, lui/addiu 4 reloc-only. */
 // FUN_0024BE40 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0024be40(void)
