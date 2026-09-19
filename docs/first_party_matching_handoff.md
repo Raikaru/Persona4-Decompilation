@@ -542,6 +542,51 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7an. State of the near band after a full close-in campaign
+
+Twenty-two first-party floors between 2 and 60 fnalign edits were examined
+instruction by instruction in one session, each with its frame compared
+against retail and every differing pair classified.  The result is worth
+stating plainly so nobody re-runs it: **all of them are allocator or scheduler
+floors.**  Not one was a source defect.
+
+The families, with representative functions:
+
+* **Saved-register exchange** - the same instructions against a swapped pair.
+  `func_00487c30` (49 edits, all `$s0`/`$s1`), `func_0024be40` (8 edits, all
+  `$s0`/`$s2`), `func_001b05d0`, `func_0036d3e0`, `func_004b2a00` (five `or`
+  destinations `$v0`/`$v1`).  Declaration order, statement order, operand
+  order, loop shape, `register`, and every pragma have been measured against
+  these; nothing moves them.
+* **FPR rotation** - `func_0048a980` (five pairs: `$f3`/`$f1`, `$f1`/`$f2`,
+  `$f2` source, `$f3` spill), `func_0034ddf0` (`$f1`/`$f2` conversion temp),
+  `func_0048a460` (a whole `$f0`/`$f1`/`$f2` triple through two divisions).
+* **Instruction scheduling** - `func_001130c0` (one `lbu` pair five slots
+  early), `func_0012d630` (FPU staging plus one `addu` operand order),
+  `func_002b4ad0`, `func_00347c70` (loop-preheader hoist granularity).
+* **ABI spill order** - `func_0028fc40`, five `move` instructions, closed in
+  7al.
+* **Genuine one-instruction floor** - `func_00242990`, closed in 7am.
+
+Two useful negatives from the campaign.  **Frames match retail on almost every
+near floor** - of the twenty-two, only `func_001a4800` and `func_001ae3d0` had
+a mismatch, and fixing the first one closed it.  So "check the frame" is a
+cheap first test that usually passes, not a reliable lever.  And **the pragma
+stacking recipe (7ag) did not reproduce** on any of these: it scored worse on
+every one it was tried against (`func_001c5500` 381 and 390 against 416,
+`func_0033e5c0` 105/100/111 against 36, `func_0048a980` 124 against 5).  It
+remains the right thing to try - it produced two MATCHes - but it is not a
+general key.
+
+**What this means for the next session.** The near band is exhausted as a
+source of MATCHes until someone finds a new mechanism for register
+allocation.  The remaining first-party work that can still move is:
+functions with no C body at all (62 at the time of writing, each worth a
+first draft inside the 3% gate), floors still outside the gate where code is
+genuinely missing, and the large in-gate floors with four-figure edit counts
+where the structure is still wrong.  Those three categories are where effort
+belongs; do not spend another session probing spellings at the two-edit end.
+
 ### 7am. One word away: `func_00242990`
 
 The closest non-matching first-party function in the project is 813
