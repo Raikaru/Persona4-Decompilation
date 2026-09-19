@@ -548,6 +548,7 @@ void func_00116610(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
    retail loop tail. */
 /* measured: MWCC -O2 plain, object 1288B/window 1312B, normalized_diff 119 (24B short; P4-adapted archive 301 from HW 943/1236B, loop-f 301->137, inv two-statement 137->135, decl/id/tail/idfix/P3/u32-i 135->119 best). Walls: s64-for-Vec2f and u8-arg1 compile errors confirm s32; inv-u8 +129 and inv-recompute +166 (frame B0->C0) banked. Remaining off 796 andi/move/addiu wall (missing inv recompute). No volatile/asm. Mined s64-family call at line 351. Staged /tmp/push_16820_full.c via NearGA.Shd116820. */
 /* fresh 2026-09-17: cur 119wd confirmed; inclusive le_i(i<7U-><=6U) 121 (+2 out), le_inv(inv<5U-><=4U) 119 tie (kept cur), gt_n(n>=0->>-1) 122 (+3 out); dead-arm N/A (3-short is straight-line inv recompute andi/addiu/subu [199:202] (no branch) + float hoist (10) [258:268] + mov.s (1) [234] -- no compare/branch/store delete site; inv-recompute +166 (frame B0->C0) stays banked); parent 4938e0 levers N/A (mask is 0xFF single recompute (CSE wall), frame matches (no reg symptom); no || anywhere; no COP2); fnalign 325v322 (3 short, 14 ops). Guard kept as floor. */
+/* 2026-09-19 (this lane): the 3-short is andi+subu (call-1 inversion recompute at retail[199:202]) + mov.s $f13,$f22 [234]; the float-hoist block [258:268] is position-only (net 0). Listing shows object computes the inversion ONCE early (shared $s0, both sides agree) while retail ALSO recomputes it at call 1 - but b210 always shares: call-1 inline recompute ties at 119 with byte-identical fnalign (CSE merges it); moving the early computation late regresses to 235 (its position is load-bearing, same family as banked +166); narrow push/pop opt_common_subs off around call 1 ties at 119 byte-identical (mid-function CSE scoping has no effect). Early-share + per-call-recompute is a CSE-aggressiveness difference, not source-reachable - floor. */
 // FUN_00116820 NONMATCHING
 #ifdef NON_MATCHING
 void func_00116820(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
@@ -1362,6 +1363,7 @@ void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
    Remaining: `move $s1, $a2` - retail copies arg2 into a saved register and
    b210 does not; a `u8 kind = arg2;` local in either declaration position
    is inert. */
+/* 2026-09-19 (this lane): `move $s1,$a2` + $s0/$s1 role swap + FPU prologue order inert to two more levers, both tied at 114 with no hunk movement except the delayed load itself: delaying `tmp = *(arg0+0x2C0)` below the f21/f20/hy2 computation (only the lw slides 8 slots, allocation unchanged), and declaring `s32 tmp` after the float locals. With the prior kind-local result, the saved-reg assignment is not source-reachable - allocation wall. */
 // FUN_001187B0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001187b0(u8 *arg0, s64 arg1, u8 arg2, s64 arg3, f32 fparg0)

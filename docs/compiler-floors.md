@@ -72,7 +72,12 @@ be source-drivable. Check these before concluding anything is unreachable.
   declared type is 64-bit. Note the converse is not reliable: in
   `func_001932f0` retail initialises with `daddiu` and increments the same
   variable with 32-bit `addiu`, and no declaration or literal-suffix change
-  reproduced it - that one word remains open.
+  reproduced it - that one word remains open. Second citation: in
+  `func_0015d310` (banked counted-for, 14wd exact 261/261) the six-site
+  `$v0`/`$v1` + `addiu`-against-`daddiu` remnant at fnalign [147:181] in the
+  `(s8)func_00110960` `&1`/`-2` adjust measures 14wd with the holder as
+  `s64`/`s64`, ties at 14wd as `s32`/`s32` and as `s32`-return, and explodes
+  to 112wd mixed (`mixA`/`mixB`) - declaration does not close it either.
 - **A missing `nop` before the final `jr`**, with every following branch
   displacement off by one and the object one word short. Seen on
   `func_003c4bc0` and `func_003b6da0` in different files. Two lanes recorded

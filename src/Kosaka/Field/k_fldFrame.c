@@ -354,7 +354,10 @@ s32 func_00169780(void* collisionWorld, f32* origin,
             work.delta.y = work.query.copy.f[1] - point->y;
             work.delta.z = work.query.copy.f[2] - point->z;
             func_003e40b0(&work.delta.x, &work.delta.x);
-            scale = work.query.copy.f[3] - ((f32*)(work.records + 0x600))[i];
+            {
+                u8 *pr = work.records + 12 * i;
+                scale = work.query.copy.f[3] - *(f32*)(pr + 0x600 - 8 * i);
+            }
             px = work.delta.x * scale;
             py = work.delta.y * scale;
             pz = work.delta.z * scale;
@@ -369,7 +372,7 @@ s32 func_00169780(void* collisionWorld, f32* origin,
                 vector[2] -= pz;
                 result = 1;
             }
-            if (vector[0] == 0.0f && vector[1] == 0.0f && vector[2] == 0.0f)
+            if (vector[2] == 0.0f && vector[1] == 0.0f && vector[0] == 0.0f)
             {
                 vector[0] += px;
                 vector[1] += py;
