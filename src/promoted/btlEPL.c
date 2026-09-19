@@ -924,10 +924,10 @@ void func_001fd790(u8 *arg0)
                             node[0x3B] = node[0x3F];
                         }
                         {
-                            s32 b0 = D_00764C54[0];
-                            s32 b1 = D_00764C54[1];
-                            s32 b2 = D_00764C54[2];
-                            s32 b3 = D_00764C54[3];
+                            s32 b0 = D_007641F8[0];
+                            s32 b1 = D_007641F8[1];
+                            s32 b2 = D_007641F8[2];
+                            s32 b3 = D_007641F8[3];
                             s32 nb0 = node[0x38];
                             s32 nb1 = node[0x39];
                             s32 nb2 = node[0x3A];
@@ -1782,12 +1782,12 @@ void func_001fec00(u8 *arg0)
             }
             {
                 f32 inv = 1.0f - scale;
-                f32 t0 = ((f32 *)target)[0] * inv;
-                f32 t1 = ((f32 *)target)[1] * inv;
-                f32 t2 = ((f32 *)target)[2] * inv;
-                f32 s0f = sp80[0] * scale;
-                f32 s1f = sp80[1] * scale;
-                f32 s2f = sp80[2] * scale;
+                f32 t0 = sp80[0] * inv;
+                f32 t1 = sp80[1] * inv;
+                f32 t2 = sp80[2] * inv;
+                f32 s0f = ((f32 *)target)[0] * scale;
+                f32 s1f = ((f32 *)target)[1] * scale;
+                f32 s2f = ((f32 *)target)[2] * scale;
                 sp70[0] = t0 + s0f;
                 sp70[1] = t1 + s1f;
                 sp70[2] = t2 + s2f;

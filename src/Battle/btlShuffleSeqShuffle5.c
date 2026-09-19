@@ -416,7 +416,7 @@ temp_19 = (u8 *)(arg0 + 0x1F1D0);
             temp_3 = (s32)((*( s32 *)((u8 *)(arg0) + 0x1F300)));
             switch (temp_3) {                       /* switch 2; irregular */
             case 0:                                 /* switch 2 */
-                (*( u16 *)((u8 *)(arg0) + 0x1F1D0)) = (u16) ((*( u16 *)((u8 *)(arg0) + 0x1F1D0)) | 0x70);
+                (*( u16 *)(temp_19)) = (u16) ((*( u16 *)(temp_19)) | 0x70);
                 break;
             case 1:                                 /* switch 2 */
                 temp_2_2 = func_003b7060() & 0xFFF;
@@ -425,8 +425,8 @@ temp_19 = (u8 *)(arg0 + 0x1F1D0);
                 } else {
                     var_f1 = 2.0f * (f32) (((u32) temp_2_2 >> 1) | (temp_2_2 & 1));
                 }
-                (*( u16 *)((u8 *)(arg0) + 0x1F1D0)) = (u16) ((*( u16 *)((u8 *)(arg0) + 0x1F1D0)) | 0x70);
-                (*( u16 *)((u8 *)(arg0) + 0x1F1D0)) = (u16) ((*( u16 *)((u8 *)(arg0) + 0x1F1D0)) & (~(0x10 << (s32)(3.0f * (var_f1 / 4096.0f))) & 0xFFFF));
+                (*( u16 *)(temp_19)) = (u16) ((*( u16 *)(temp_19)) | 0x70);
+                (*( u16 *)(temp_19)) = (u16) ((*( u16 *)(temp_19)) & (~(0x10 << (s32)(3.0f * (var_f1 / 4096.0f))) & 0xFFFF));
                 break;
             case 2:                                 /* switch 2 */
                 temp_2_3 = func_003b7060() & 0xFFF;
@@ -614,7 +614,7 @@ loop_66:
                 var_20_3 = 2 & 0xFFFF;
 block_62:
                 if (!((*( u16 *)((u8 *)(arg0) + 0x1F1D0)) & (var_20_3 & 0xFFFF)) && (func_00375970(arg0 + (var_17_2 * var_18 * 0xE8) + 0x1D6A0) != 0)) {
-                    (*( u16 *)((u8 *)(arg0) + 0x1F1D0)) = (u16) ((*( u16 *)((u8 *)(arg0) + 0x1F1D0)) | var_20_3);
+                    (*( u16 *)(temp_19)) = (u16) ((*( u16 *)(temp_19)) | var_20_3);
                     (*( s32 *)((u8 *)(temp_19) + 8)) = (s32) ((*( s32 *)((u8 *)(temp_19) + 8)) + 1);
                 }
                 var_17_2 += 1;
@@ -673,7 +673,7 @@ block_62:
                         var_2_2 = 0;
                         break;
                     }
-                    (*( u16 *)((u8 *)(arg0) + 0x1F1D0)) = (u16) ((*( u16 *)((u8 *)(arg0) + 0x1F1D0)) & (~(var_2_2 & 0xFFFF) & 0xFFFF));
+                    (*( u16 *)(temp_19)) = (u16) ((*( u16 *)(temp_19)) & (~(var_2_2 & 0xFFFF) & 0xFFFF));
                     func_0045af60(1, 2, 5, 5);
                     temp_2_6 = (u16)((*( u16 *)((u8 *)(temp_19) + 4)) + 1);
                     (*( u16 *)((u8 *)(temp_19) + 4)) = temp_2_6;
@@ -751,7 +751,7 @@ loop_118:
                     var_17_5 += 1;
                     goto loop_118;
                 }
-                (*( u32 *)((u8 *)(arg0) + 0x1F2F8)) = 0xCU;
+                (*( u32 *)((temp_19 + 0x128))) = 0xCU;
             case 12:                                /* switch 1 */
                 if (func_00378a70(arg0, temp_20) != 0) {
                     var_5 = 1;
@@ -763,7 +763,7 @@ loop_123:
                         goto loop_123;
                     }
                     func_00378ec0(arg0, (*( s32 *)((u8 *)(temp_19) + 0xC)));
-                    (*( u16 *)((u8 *)(arg0) + 0x1F1D0)) = (u16) ((*( u16 *)((u8 *)(arg0) + 0x1F1D0)) | 0x80);
+                    (*( u16 *)(temp_19)) = (u16) ((*( u16 *)(temp_19)) | 0x80);
                     func_0045af60(1, 0, 5, 1);
                     (*( u32 *)((u8 *)(arg0) + 0x1F2F8)) = 0xDU;
                 case 13:                            /* switch 1 */
