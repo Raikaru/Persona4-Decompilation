@@ -2370,6 +2370,8 @@ void func_0031e320(u8 *arg0, s64 arg1) {
 
 
 // measured: nd N/A (draw-family, s64-param floor). 20+ 2970/6c30/6a70/6af0/69f0 with packed-float sp148 accumulator (M2C_BITWISE f32) and s64 args: same s64-arg normalization + float-pair hoist floor as func_0031fa20. s64-param + float-pair floor.
+/* v1 skeleton floor (0031e5b0): m2c + romwright agree on 7-arg (u8*,s64,s32 x5), six-block 46d chain (0x193 + var-id + 0x51/0x52/0x53/0x73/0x237 with 0x2B4-0x2BA/0x28A variants), arg6 4-case switch + 7750(id,idB), arg3-conditional duplicate 69f0 blocks; written in the 0031fa20 idiom (s64 sp pairs to 2970, u8[4] per-byte colour stores, *(FclVec2*)&sp to 69f0, global f32 callees, s64 (s8)arg temps, shared h5 across last two blocks). */
+/* probe_variants 1126 differing words reloc-masked (V1 1126, NOY-inline tie 1126); fnalign retail 1307 vs object 1287 (-20, -1.53% PASS, 1561 edits); frame object 0x180 vs retail 0x170. NOY ties on all three numbers so y lives in a register. Remaining walls: saved-reg rotation (object takes an extra s7) and per-use float rematerialisation, same float-hoist + s64-param family as 0031fa20. Banked as in-gate first draft. */
 // FUN_0031E5B0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0031e5b0(u8 *arg0, s64 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {

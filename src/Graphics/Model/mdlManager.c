@@ -9,6 +9,7 @@
    Best probes (object/window, nd): 00477810 232/240 nd169; 004776C0
    264/272 nd6; 00474BA0 316/320 nd153; 00475B90 304/320 nd147;
    00473710 332/352 nd202; 00477FB0 388/400 nd272. */
+/* Pragma state is per-function in this file: opt_common_subs off + opt_propagation off are load-bearing in func_00479100 (29-word floor) but worse in func_00475cd0 (csoff 1057, propoff 1024 vs sched-on 915); func_00475cd0 uses schedule on only. Do not copy pragmas across functions. */
 #include "type.h"
 #include "rw/std/stddef.h"
 #include "Kosaka/k_clump_internal.h"
