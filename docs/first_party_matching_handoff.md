@@ -582,6 +582,38 @@ explicit frame struct moved the frame to -0xF0 and recovered twelve
 instructions.  So: match the frame size first, then re-read the listing; a
 rotation that survives a correct frame is the real wall.
 
+### 7ai. Mine the archive before drafting anything
+
+`python3 tools/archive_to_guard.py --list` reports every body in
+`docs/probe_archive/` that could be installed into a function currently
+carried as bare assembly - 269 of them across 22 files.  Most are vendor
+units, but the first-party intersection is real and was being redrafted from
+scratch by three agents simultaneously before anyone checked:
+
+    func_0017d3c0  k_fldAI.c      398 lines
+    func_00212270  code1_0021.c   642 lines
+    func_002142b0  code1_0021.c   418 lines
+    func_00216e60  code1_0021.c   349 lines
+    func_0021be80  code1_0021.c   239 lines
+    func_00252a60  cmmRankUp.c    353 lines
+    func_0024c460  cmmScript.c
+    func_004b1ad0  code1_004b.c
+    func_0035aff0  code1_0035.c   231 lines
+    func_00475cd0  mdlManager.c   installed today at 1007 against 1000
+
+**So the first step on any function with no C body is to look for an archived
+draft.**  `func_00475cd0` went from bare assembly to a floor inside the gate
+in minutes that way; drafting it would have taken a full round.
+
+Two cautions.  An archive header states its own measurement and it is usually
+honest - `LaneMisc7_0017d3c0_body.c` says "object 4052/window 5248,
+normalized_diff 2803", which is 22% short and nowhere near the gate, so that
+one is a head start rather than a drop-in.  And many archive entries are
+triage comments with no code at all: the three `TWIN_*` files for
+`itfMsgProcedure_Window.c` are single-line notes recording COP1 accumulator
+chains and nothing else.  Check the line count before planning a round around
+one.
+
 ### 7ad. Rank the floors before choosing what to work on
 
 `tools/floor_distance.py` measures every guarded floor in the tree by fnalign

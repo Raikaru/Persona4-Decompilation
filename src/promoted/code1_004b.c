@@ -518,8 +518,287 @@ void func_004b1ab0(u8 *arg0)
 {
     *(s32 *)(arg0 + 8) = *(s32 *)(arg0 + 8) + 1;
 }
-// FUN_004B1AD0
+// FUN_004B1AD0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma schedule on
+void func_004b1ad0(u8 *arg0)
+{
+    extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
+    extern f32 func_0048aff0(u8 *a, s32 b, s32 c);
+    extern void func_00482730(int a, u32 b);
+    extern void func_00482700(int a, float *b);
+    extern void func_00482ad0(u8 *a, s32 b, u8 *c);
+    extern void func_004839d0(int a, u32 *b);
+    extern u8 *func_003c2290(u8 *a, s32 b);
+    extern void func_003c22f0(u8 *a);
+    extern void func_003e9cb0(void *a, void *b, s32 c);
+    extern void func_00460ac0(void *a, void *b);
+    extern s32 func_004814d0(u16 a);
+    extern u8 *func_00457120(void);
+    extern f32 func_0044b610(f32 a);
+    extern f32 func_0044b7b0(f32 a);
+    extern f32 fGpffff8044;
+    extern f32 fGpffff8084;
+    s32 tmp_98;
+    s32 tmp_08;
+    u8 *tmp_a4;
+    s32 tmp_abd0;
+    u32 packed0;
+    u32 packed1;
+    u8 *dst_ptr;
+    f32 scale;
+    f32 div100;
+    f32 off_y;
+    s32 tmp_ac;
+    s32 tmp_a8;
+    f32 stk70;
+    f32 stk74;
+    f32 stk78;
+    f32 stk7c;
+    u32 stk80;
+    u32 stk84;
+    u16 stk88;
+    u16 stk8a;
+    u16 stk8c;
+    u16 stk8e;
+    u16 stk90;
+    u16 stk92;
+    u16 stk94;
+    u16 stk96;
+    f32 buf_c0[7];
+    f32 f_d8;
+    f32 f_dc;
+    f32 f_e0;
+    f32 f_e4;
+    f32 f_f0;
+    f32 f_f4;
+    u32 loc100;
+    u32 loc104;
+    f32 *out_mat;
+    f32 *out_uv;
+    f32 t70;
+    f32 t74;
+    f32 t78;
+    f32 t7c;
+    f32 c_ang;
+    f32 s_ang;
+    f32 f1;
+    f32 f2;
+    s32 i;
+    u8 *tmp2_a4;
+    u8 *ctx18;
+    u8 *cam;
+    f32 cam80;
+    f32 cam84;
+    f32 persp;
+    f32 px;
+    f32 py;
+    f32 inv_w;
+    f32 inv_h;
+    tmp_98 = *(s32 *)(arg0 + 0x98);
+    tmp_08 = *(s32 *)(arg0 + 0x08);
+    tmp_a4 = *(u8 **)(arg0 + 0xA4);
+    if ((tmp_08 != 0) && (tmp_08 < tmp_98)) {
+        tmp_abd0 = func_0048abd0(arg0 + 0x0C, arg0 + 0x30, tmp_08, tmp_98);
+        packed0 = *(u32 *)arg0;
+        scale = fGpffff8044;
+        {
+            u32 c1slot = (u32)tmp_abd0;
+            u32 *p0 = &packed0;
+            u32 *p1 = &c1slot;
+            __asm__ volatile(
+                "lw $2, 0(%1)          \n"
+                "pextlb $2, $0, $2     \n"
+                "pextlh $2, $0, $2     \n"
+                "qmtc2.ni $2, $vf10    \n"
+                "vitof0.xyzw $vf10, $vf10 \n"
+                "mfc1 $2, %2           \n"
+                "nop                   \n"
+                "qmtc2.ni $2, $vf2     \n"
+                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                "vmove.xyzw $vf11, $vf10 \n"
+                :
+                : "r"(p0), "r"(p0), "f"(scale)
+                : "$2", "$vf2", "$vf10", "$vf11", "memory");
+            __asm__ volatile(
+                "lw $2, 0(%1)          \n"
+                "pextlb $2, $0, $2     \n"
+                "pextlh $2, $0, $2     \n"
+                "qmtc2.ni $2, $vf10    \n"
+                "vitof0.xyzw $vf10, $vf10 \n"
+                "mfc1 $2, %2           \n"
+                "nop                   \n"
+                "qmtc2.ni $2, $vf2     \n"
+                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                "vmul.xyzw $vf10, $vf10, $vf11 \n"
+                "lui $2, 0x437F        \n"
+                "qmtc2.ni $2, $vf2     \n"
+                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                "vftoi0.xyzw $vf10, $vf10 \n"
+                "qmfc2.ni $2, $vf10    \n"
+                "ppach $2, $0, $2      \n"
+                "ppacb $2, $0, $2      \n"
+                "move %0, $2           \n"
+                : "=r"(packed1)
+                : "r"(p1), "f"(scale)
+                : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        }
+        packed0 = packed1;
+        if (((packed1 >> 24) & 0xFF) != 0xFF) {
+            dst_ptr = *(u8 **)(tmp_a4 + 0x14);
+            dst_ptr[4] = (u8)(packed1 & 0xFF);
+            dst_ptr[5] = (u8)((packed1 >> 8) & 0xFF);
+            dst_ptr[6] = (u8)((packed1 >> 16) & 0xFF);
+            dst_ptr[7] = (u8)((packed1 >> 24) & 0xFF);
+        } else {
+            u8 b0 = (u8)(packed1 & 0xFF);
+            u8 b1 = (u8)((packed1 >> 8) & 0xFF);
+            u8 b2 = (u8)((packed1 >> 16) & 0xFF);
+            dst_ptr = *(u8 **)(tmp_a4 + 0x14);
+            dst_ptr[4] = b0;
+            dst_ptr[5] = b1;
+            dst_ptr[6] = b2;
+            dst_ptr[7] = 0xFE;
+            packed1 = (packed1 & 0x00FFFFFF) | 0xFF000000;
+            packed0 = packed1;
+        }
+        div100 = func_0048aff0(arg0 + 0x40, tmp_08, tmp_98) / 100.0f;
+        off_y = func_0048aff0(arg0 + 0x6C, tmp_08, tmp_98) + fGpffff8084;
+        tmp_ac = *(s32 *)(arg0 + 0xAC);
+        if (tmp_ac != 0) {
+            func_00482730(tmp_ac, tmp_08);
+            func_00482700(*(s32 *)(arg0 + 0xAC), buf_c0);
+            f_f0 = buf_c0[4];
+            f_f4 = buf_c0[5];
+            f_d8 = buf_c0[3];
+            f_dc = buf_c0[4];
+            f_e0 = buf_c0[5];
+            f_e4 = buf_c0[6];
+            stk8c = (u16)(f_d8 * (16.0f * f_f0));
+            stk8e = (u16)(f_dc * (16.0f * f_f4));
+            stk88 = (u16)(f_e0 * (16.0f * f_f0));
+            stk8a = (u16)(f_dc * (16.0f * f_f4));
+            stk94 = (u16)(f_e0 * (16.0f * f_f0));
+            stk96 = (u16)(f_e4 * (16.0f * f_f4));
+            stk90 = (u16)(f_d8 * (16.0f * f_f0));
+            stk92 = (u16)(f_e4 * (16.0f * f_f0));
+            stk70 = buf_c0[0];
+            stk74 = buf_c0[1];
+            stk78 = buf_c0[2];
+            stk7c = buf_c0[3];
+            stk80 = (u32)f_f0;
+            stk84 = (u32)f_f4;
+            off_y = off_y + buf_c0[2];
+            func_003c42b0(*(s32 *)(tmp_a4 + 0x14), *(s32 *)(&buf_c0[5]));
+        } else {
+            tmp_a8 = *(s32 *)(arg0 + 0xA8);
+            if (tmp_a8 != 0) {
+                f32 spA0[4];
+                func_00482ad0((u8 *)tmp_a8, tmp_08, (u8 *)spA0);
+                stk8c = 0;
+                stk8e = 0;
+                stk88 = (u16)(spA0[1] * 16.0f);
+                stk8a = 0;
+                stk94 = (u16)(spA0[1] * 16.0f);
+                stk96 = (u16)(spA0[2] * 16.0f);
+                stk90 = 0;
+                stk92 = (u16)(spA0[2] * 16.0f);
+                stk70 = 0.0f;
+                stk74 = 0.0f;
+                stk78 = (f32)(u32)((u32)((f32)stk88 * spA0[0]) >> 5);
+                stk7c = (f32)(u32)((u32)((f32)stk96 * spA0[3]) >> 5);
+                stk80 = (u32)spA0[1];
+                stk84 = (u32)spA0[2];
+                func_003c42b0(*(s32 *)(tmp_a4 + 0x14), *(s32 *)(&spA0[3]));
+            } else {
+                u32 out0;
+                u32 out1;
+                func_004839d0((s32)tmp_a4, &out0);
+                stk8c = 0;
+                stk8e = 0;
+                stk88 = (u16)(out0 * 0x10);
+                stk8a = 0;
+                stk94 = (u16)(out0 * 0x10);
+                stk96 = (u16)(out1 * 0x10);
+                stk90 = 0;
+                stk92 = (u16)(out1 * 0x10);
+                stk70 = 0.0f;
+                stk74 = 0.0f;
+                stk78 = (f32)(out0 * 0x10);
+                stk7c = (f32)(out1 * 0x10);
+                stk80 = out0;
+                stk84 = out1;
+            }
+        }
+        func_003c2290(*(u8 **)(*(u8 **)(tmp_a4 + 0x10) + 0x18), 0xFF2);
+        ctx18 = *(u8 **)(*(u8 **)(tmp_a4 + 0x10) + 0x18);
+        out_mat = *(f32 **)(*(u8 **)(ctx18 + 0x5C) + 0x14);
+        out_uv = *(f32 **)(ctx18 + 0x34);
+        t70 = stk70 * div100;
+        t74 = stk74 * div100;
+        t78 = stk78 * div100;
+        t7c = stk7c * div100;
+        c_ang = func_0044b610(off_y);
+        s_ang = func_0044b7b0(off_y);
+        out_mat[0] = ((t70 + t78) * c_ang) - ((t74 + t7c) * s_ang);
+        out_mat[1] = ((t70 + t78) * s_ang) + ((t74 + t7c) * c_ang);
+        out_mat[3] = ((t70 - t78) * c_ang) - ((t74 + t7c) * s_ang);
+        out_mat[4] = ((t70 - t78) * s_ang) + ((t74 + t7c) * c_ang);
+        out_mat[9] = ((t70 - t78) * c_ang) - (((t74 - t7c) * s_ang));
+        out_mat[10] = (((t70 - t78) * s_ang)) + ((t74 - t7c) * c_ang);
+        out_mat[6] = ((t70 + t78) * c_ang) - (((t74 - t7c) * s_ang));
+        out_mat[7] = ((t70 + t78) * s_ang) + (((t74 - t7c) * c_ang));
+        inv_w = 1.0f / (f32)(stk80 * 0x10);
+        inv_h = 1.0f / (f32)(stk84 * 0x10);
+        out_uv[2] = (f32)stk88 * inv_w;
+        out_uv[3] = (f32)stk8a * inv_h;
+        out_uv[0] = (f32)stk8c * inv_w;
+        out_uv[1] = (f32)stk8e * inv_h;
+        out_uv[6] = (f32)stk94 * inv_w;
+        out_uv[7] = (f32)stk96 * inv_h;
+        out_uv[4] = (f32)stk90 * inv_w;
+        out_uv[5] = (f32)stk92 * inv_h;
+        cam = func_00457120();
+        cam80 = *(f32 *)(func_00457120() + 0x80);
+        cam84 = *(f32 *)(func_00457120() + 0x84);
+        f1 = (f32)*(s32 *)(arg0 + 0x9C);
+        f2 = (f32)*(s32 *)(arg0 + 0xA0);
+        persp = ((cam80 * -65535.0f) * cam84) / ((cam84 * -65535.0f) - ((cam84 - cam80) * -31.0f));
+        px = 2.0f * (*(f32 *)(cam + 0x68) * persp);
+        py = 2.0f * (*(f32 *)(cam + 0x6C) * persp);
+        f1 = persp + 1.0f;
+        for (i = 0; i < 4; i++) {
+            out_mat[0] = px * (0.5f - ((out_mat[0] + (f32)*(s32 *)(arg0 + 0x9C)) / 640.0f));
+            out_mat[1] = py * (0.5f - ((out_mat[1] + (f32)*(s32 *)(arg0 + 0xA0)) / 448.0f));
+            out_mat[2] = persp + 1.0f;
+            out_mat += 3;
+        }
+        tmp2_a4 = *(u8 **)(arg0 + 0xA4);
+        ctx18 = *(u8 **)(tmp2_a4 + 0x10);
+        ctx18 = *(u8 **)(ctx18 + 0x18);
+        func_003c22f0(ctx18);
+        if ((*(u16 *)tmp2_a4 & 4) != 0) {
+            *(u16 *)(ctx18 + 0x0C) = *(u16 *)(ctx18 + 0x0C) | 1;
+        }
+        cam = func_00457120();
+        func_003e9cb0((void *)(u32)*(u32 *)(tmp_a4 + 0x0C), (void *)(*(u8 **)(cam + 4) + 0x10), 0);
+        *(u16 *)tmp_a4 = *(u16 *)tmp_a4 & 0xFFFE;
+        tmp_a4[0x18] = 0;
+        tmp_a4[0x19] = 0;
+        tmp_a4[0x1A] = 0;
+        tmp_a4[0x1B] = 0;
+        tmp_a4[0x1C] = 0;
+        tmp_a4[0x1D] = 0;
+        tmp_a4[0x1E] = 0;
+        tmp_a4[0x1F] = 0;
+        func_00460ac0((void *)(u32)func_004814d0(*(u16 *)(arg0 + 0x34)), (void *)(tmp_a4 + 0x18));
+    }
+}
+#pragma pop
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1ad0);
+#endif
 // FUN_004B2740
 void func_004b2740(u8 *arg0)
 {
