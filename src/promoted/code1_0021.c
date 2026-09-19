@@ -725,8 +725,364 @@ void func_00212240(u8 *arg0, s32 arg1) {
 
 /* measured 00212270: object 3244B vs retail window 5248B; retail 1311 instrs vs object 811 instrs (-38.1%, gate needs 1272-1350); differing words 1149 reloc-masked (GUARDED_SCORE), fnalign 1066 edits. Archive claimed object 3244B vs 5248B (sizes match) but nd 2519 vs our 1149 (score disagrees, not copied). Frame object 0x390 vs retail 0x3A0 (16B short; missing f22/f23 saves, s3 vs s4 arg1 park, f20 vs f23 div.s coloring). JAL retail 22 (1x201350,4x201820,2x34f460,2x34f4a0,4x364fb0,1x366c70,2x3e0870,2x457120,1x46d5f0,3x indirect D_00887310) vs object 21 (missing second func_00457120 inv recompute; cached-pointer-recompute accounts for ~5 instrs, not 500). */
 /* shortfall clusters in straight-line float/color/packet work, not calls: largest retail[113:433] 321 instrs vs object[122:126] 5 instrs (early packet/color/inv phase ~0x1C4-0x6C4, second 457120+div.s plus per-channel srl/andi/mtc1/cvt.s.w/add.s unpack and swc1 packet spills); next retail[435:478] 44 vs 19; dozens of 4-18 instr replaces throughout for (s32)(204/255/4096-scaled smooth)&mask clamps (retail lui 0x4f00/mtc1/c.ole/bc1t/cvt.w.s/mfc1/andi/or-0x80000000 vs object compact cvt.w.s/mfc1/andi). Excluded: dropped else arm (all 7 special/non-special pairs present: mode<6/21, mode<0xB/13, mode<0xD/14, mode<0xB/15, mode<=0/8 smooth variants, mode<0xF/8 with 34f460 vs 34f4a0 tails); off-by-one bound (thresholds 6,21,0x25/0x24,0xB,13,0xD,14,0xF,8 intact); folded switch (no switch); omitted-call as main cause (only 1/22 missing); unsigned-cast bloat (all casts signed (s32) with &0xFF/&0xFFFF, no unsigned float casts); narrow-local dsll32/dsra32 pairs (no s16 locals); field-by-field bloat (archive already field-by-field packet[6]/bars[4], retail similar). No pragmas in archive, none kept. Refused: outside 3% gate, production stays ASM; best C remains in Lane0021Full_00212270_body.c. Extern corrected to (u8*,u8*) per retail $a1 use (saved to s4, (void)arg0). */
-// FUN_00212270
+// FUN_00212270 NONMATCHING
+#ifdef NON_MATCHING
+void func_00212270(u8 *arg0, u8 *arg1)
+{
+    typedef struct {
+        f32 x;
+        f32 y;
+        f32 z;
+        u32 pad0[3];
+        f32 w;
+        u32 pad1;
+    } QuadA;
+    typedef struct {
+        f32 x;
+        f32 y;
+        f32 z;
+        u32 pad0[3];
+        f32 w;
+        u32 pad1[9];
+    } QuadB;
+    typedef struct {
+        QuadA packet[6];
+        u8 pad0[0xC0];
+        s32 uv[8];
+        u8 params[0x40];
+        QuadB bars[4];
+        u8 pad1[0x10];
+    } Local;
+    extern void (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
+    extern f32 D_008872F8[];
+    extern u8 D_0060A0E0[];
+    extern u8 D_0060A0F0[];
+    extern f32 fGpffff8370;
+    extern void func_00201350(void);
+    extern void func_00201820(s32 arg0);
+    extern void func_002012d0(u8 *arg0, f32 fparg0, f32 fparg1);
+    extern void func_00201410(u8 *arg0, s32 arg1, s32 arg2,
+                               f32 fparg0, f32 fparg1);
+    extern void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0,
+                               f32 fparg1, s32 arg5, s32 arg6, s32 arg7,
+                               s32 arg8);
+    extern void func_00201720(u8 *arg0, f32 fparg0, f32 fparg1);
+    extern s32 func_002340c0(s32 arg0, s32 arg1);
+    extern void func_00271b70(s32 arg0);
+    extern s32 func_002724d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+    extern void func_00272860(s32 arg0, s32 arg1);
+    extern void func_00272950(s32 arg0, s32 arg1, s32 arg2);
+    extern void func_00272ba0(s32 arg0, s32 arg1);
+    extern void func_00272c60(s32 arg0);
+    extern void func_00272c80(s32 arg0);
+    extern void func_00273170(s32 arg0, s32 arg1, s32 arg2);
+    extern s32 func_002738d0(s32 arg0);
+    extern void func_00274a20(s32 arg0, f32 fparg0);
+    extern void func_00274ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                               s32 arg4, s32 arg5, f32 fparg0, f32 fparg1,
+                               s32 arg8);
+    extern void func_002778c0(s32 arg0, s32 arg1, s32 arg2);
+    extern void func_00277ad0(s32 arg0, s32 arg1);
+    extern void func_00278090(s32 arg0, s32 arg1, s32 arg2);
+    extern void func_00278170(s32 arg0, s32 arg1);
+    extern void func_00278450(u8 *arg0, s32 arg1, u8 *arg2);
+    extern s32 func_002787d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    extern void func_00278ef0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+    extern void func_002791f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                               s32 arg4, s32 arg5, f32 fparg0, f32 fparg1,
+                               s32 arg8);
+    extern void func_00279690(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    extern u8 *func_00457120();
+    extern u8 *func_00452560();
+    extern u8 *func_0019f050(u8 *arg0);
+    extern void func_0045d6e0(void *arg0, void *arg1, s32 arg2, f32 fparg0);
+    extern void func_003e0870(void *arg0, void *arg1, s32 arg2, f32 fparg0);
+    extern s32 func_0034f460(s32 arg0, s32 arg1, s8 arg2, s8 arg3, s8 arg4,
+                             s64 arg5, f32 fparg0, f32 fparg1);
+    extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
+                              f32 fparg2, s8 arg2, s8 arg3, s8 arg4,
+                              s64 arg5, s64 arg6, s32 arg7, f32 fparg3,
+                              s16 arg_sp0, s16 arg_sp8);
+    extern s32 func_00364fb0(s64 arg0, u32 arg1, s32 arg2, s32 arg3,
+                             f32 fparg0, f32 fparg1);
+    extern s32 func_00366c70(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                             s32 arg4, s32 arg5, s32 arg6, s16 arg7,
+                             f32 fparg0, s16 arg_sp0, s32 *arg_sp8,
+                             s32 arg_sp10, s32 *arg_sp18);
+    extern s32 func_0046d5f0(u8 *arg0, s32 arg1);
+    extern u16 D_008C024E;
+    Local local;
+    u8 *temp;
+    s32 mode;
+    s32 special;
+    s32 alpha;
+    s32 i;
+    s32 flags;
+    s32 value;
+    s32 color;
+    f32 scale;
+    f32 t;
+    f32 smooth;
+    f32 offset;
+    f32 inv;
+
+    (void)arg0;
+    temp = func_00457120();
+    inv = 1.0f / *(f32 *)(temp + 0x80);
+    mode = *(s32 *)(arg1 + 0x38);
+    if (mode == 0) {
+        return;
+    }
+    if (mode < 0x25) {
+        special = 1;
+    } else {
+        special = 0;
+        mode -= 0x24;
+    }
+    func_00201350();
+    func_00201820(2);
+    if (special) {
+        if (mode < 6) {
+            t = 0.0f;
+        } else {
+            t = (f32)(mode - 5);
+            if (t >= 21.0f) {
+                t = 1.0f;
+            } else {
+                t /= 21.0f;
+            }
+        }
+    } else {
+        if (mode <= 0) {
+            t = 0.0f;
+        } else if ((f32)mode >= 14.0f) {
+            t = 1.0f;
+        } else {
+            t = (f32)mode / 14.0f;
+        }
+    }
+    smooth = 2.0f * t - t * t;
+    alpha = (s32)(204.0f * smooth) & 0xFF;
+    color = 0xFF7B0000 | alpha;
+    scale = D_008872F8[0];
+    local.packet[0].x = 640.0f;
+    local.packet[0].y = 0.0f;
+    local.packet[0].z = scale;
+    local.packet[0].w = inv;
+    local.packet[1].x = (f32)((color >> 24) & 0xFF);
+    local.packet[1].y = (f32)((color >> 16) & 0xFF);
+    local.packet[1].z = (f32)((color >> 8) & 0xFF);
+    local.packet[1].w = (f32)(color & 0xFF);
+    local.packet[2].x = 320.0f;
+    local.packet[2].y = 0.0f;
+    local.packet[2].z = scale;
+    local.packet[2].w = inv;
+    local.packet[3].x = local.packet[1].x;
+    local.packet[3].y = local.packet[1].y;
+    local.packet[3].z = local.packet[1].z;
+    local.packet[3].w = 0.0f;
+    local.packet[4].x = 0.0f;
+    local.packet[4].y = 320.0f;
+    local.packet[4].z = scale;
+    local.packet[4].w = inv;
+    local.packet[5].x = local.packet[1].x;
+    local.packet[5].y = local.packet[1].y;
+    local.packet[5].z = local.packet[1].z;
+    local.packet[5].w = local.packet[1].w;
+    D_00887310[0](3, local.packet, 6);
+    if (special) {
+        *(s32 *)(arg1 + 0x3C) += 1;
+        if (*(s32 *)(arg1 + 0x3C) == 0x15) {
+            *(s32 *)(arg1 + 0x3C) = 0;
+        }
+        offset = 90.0f - (360.0f * (f32)*(s32 *)(arg1 + 0x3C)) / 21.0f;
+        alpha = 0xFF;
+    } else if (*(s32 *)(arg1 + 0x3C) < 0xC) {
+        *(s32 *)(arg1 + 0x3C) += 1;
+        t = (f32)*(s32 *)(arg1 + 0x3C) / 12.0f;
+        smooth = 2.0f * t - t * t;
+        offset = 90.0f + 180.0f * (1.0f - smooth);
+        alpha = 0xFF;
+    } else {
+        offset = 0.0f;
+        alpha = 0;
+    }
+    if (alpha != 0) {
+        func_003e0870(local.params, D_0060A0F0, 0, fGpffff8370);
+        func_003e0870(local.params, D_0060A0E0, 2, offset);
+        local.uv[0] = 0x3F1E0000;
+        local.uv[1] = 0x3EE00000;
+        local.uv[2] = 0x3F1E0000;
+        local.uv[3] = 0x3F6C0000;
+        local.uv[4] = 0x3B800000;
+        local.uv[5] = 0x3EE00000;
+        local.uv[6] = 0x3B800000;
+        local.uv[7] = 0x3F6C0000;
+        func_00366c70(0x13F, 0xE0, 0x78, 0x98, 0xFFFF761E, alpha,
+                      0, 0x3C, 0, 0x4C, (s32 *)local.params,
+                      func_0046d5f0((u8 *)*(s32 *)(arg1 + 4), 2),
+                      local.uv);
+    }
+    func_00201820(0);
+    if (special) {
+        if (mode < 0xB) {
+            t = 0.0f;
+        } else {
+            t = (f32)(mode - 0xA);
+            if (t >= 13.0f) {
+                t = 1.0f;
+            } else {
+                t /= 13.0f;
+            }
+        }
+        smooth = 2.0f * t - t * t;
+        offset = 300.0f * smooth;
+    } else {
+        if (mode <= 0) {
+            t = 0.0f;
+        } else if ((f32)mode >= 14.0f) {
+            t = 1.0f;
+        } else {
+            t = (f32)mode / 14.0f;
+        }
+        smooth = 2.0f * t - t * t;
+        offset = -600.0f * smooth;
+    }
+    func_00364fb0(((s64)(u32)(*(u32 *)&(f32){563.0f - offset}) << 32) |
+                   *(u32 *)&(f32){224.0f - offset},
+                   0xFF, 0, 1, 0.0f, 0.0f);
+    func_00364fb0(((s64)(u32)(*(u32 *)&(f32){76.0f + offset}) << 32) |
+                   *(u32 *)&(f32){224.0f + offset},
+                   0xFF, 0, 1, 0.0f, 0.0f);
+    func_00201820(2);
+    if (special) {
+        if (mode < 0xD) {
+            t = 0.0f;
+        } else {
+            t = (f32)(mode - 0xC);
+            if (t >= 14.0f) {
+                t = 1.0f;
+            } else {
+                t /= 14.0f;
+            }
+        }
+        smooth = 2.0f * t - t * t;
+        offset = 300.0f * (1.0f - smooth);
+    } else {
+        if (mode <= 0) {
+            t = 0.0f;
+        } else if ((f32)mode >= 14.0f) {
+            t = 1.0f;
+        } else {
+            t = (f32)mode / 14.0f;
+        }
+        smooth = 2.0f * t - t * t;
+        offset = -300.0f * (1.0f + smooth);
+    }
+    func_00364fb0(((s64)(u32)(*(u32 *)&(f32){182.0f - offset}) << 32) |
+                   *(u32 *)&(f32){331.0f - offset},
+                   0xFF6400FF, 0, 0, 0.0f, 0.0f);
+    func_00364fb0(((s64)(u32)(*(u32 *)&(f32){457.0f + offset}) << 32) |
+                   *(u32 *)&(f32){117.0f + offset},
+                   0xFF6400FF, 0, 0, 0.0f, 0.0f);
+    if (special) {
+        if (mode < 0xB) {
+            t = 0.0f;
+        } else {
+            t = (f32)(mode - 0xA);
+            if (t >= 15.0f) {
+                t = 1.0f;
+            } else {
+                t /= 15.0f;
+            }
+        }
+        smooth = 2.0f * t - t * t;
+    } else {
+        if (mode <= 0) {
+            t = 0.0f;
+        } else if ((f32)mode >= 8.0f) {
+            t = 1.0f;
+        } else {
+            t = (f32)mode / 8.0f;
+        }
+        smooth = 2.0f * (1.0f - t) - (1.0f - t) * (1.0f - t);
+    }
+    local.bars[0].x = 0.0f;
+    local.bars[0].y = 92.0f;
+    local.bars[0].z = 0.0f;
+    local.bars[0].w = inv;
+    local.bars[1].x = 255.0f;
+    local.bars[1].y = 100.0f;
+    local.bars[1].z = 0.0f;
+    local.bars[1].w = 0.0f;
+    local.bars[2].x = 640.0f;
+    local.bars[2].y = 92.0f;
+    local.bars[2].z = 0.0f;
+    local.bars[2].w = inv;
+    local.bars[3].x = 255.0f;
+    local.bars[3].y = 100.0f;
+    local.bars[3].z = 0.0f;
+    local.bars[3].w = 0.0f;
+    color = (s32)(204.0f * smooth) & 0xFF;
+    D_00887310[0](4, local.bars, 4);
+    local.bars[0].x = 0.0f;
+    local.bars[0].y = 224.0f;
+    local.bars[0].z = 0.0f;
+    local.bars[0].w = inv;
+    local.bars[1].x = 255.0f;
+    local.bars[1].y = 100.0f;
+    local.bars[1].z = 0.0f;
+    local.bars[1].w = 0.0f;
+    local.bars[2].x = 640.0f;
+    local.bars[2].y = 224.0f;
+    local.bars[2].z = 0.0f;
+    local.bars[2].w = inv;
+    local.bars[3].x = 255.0f;
+    local.bars[3].y = 100.0f;
+    local.bars[3].z = 0.0f;
+    local.bars[3].w = 0.0f;
+    D_00887310[0](4, local.bars, 4);
+    func_00201820(0);
+    if (special) {
+        if (mode < 0xF) {
+            t = 0.0f;
+        } else {
+            t = (f32)(mode - 0xE);
+            if (t >= 8.0f) {
+                t = 1.0f;
+            } else {
+                t /= 8.0f;
+            }
+        }
+        smooth = 2.0f * t - t * t;
+        alpha = (s32)(255.0f * (1.0f - smooth)) & 0xFF;
+        offset = 400.0f * (1.0f - (1.0f - smooth));
+        func_0034f460(*(s32 *)(arg1 + 4), 0, 0, 0, 0, alpha,
+                      165.0f + offset, 170.0f);
+        func_0034f460(*(s32 *)(arg1 + 4), 1, 0, 0, 0, alpha,
+                      313.0f - offset, 224.0f);
+        return;
+    }
+    if (mode <= 0) {
+        t = 0.0f;
+    } else if ((f32)mode >= 8.0f) {
+        t = 1.0f;
+    } else {
+        t = (f32)mode / 8.0f;
+    }
+    offset = 4096.0f * (1.0f - t);
+    value = (s32)offset & 0xFFFF;
+    func_0034f4a0(*(s32 *)(arg1 + 4), 0, 165.0f,
+                  42.0f + 28.0f * t, 0.0f, 0, 0, 0,
+                  0xFF, 0x1000, value, 0.0f, 0, 0);
+    value = (s32)offset & 0xFFFF;
+    func_0034f4a0(*(s32 *)(arg1 + 4), 1, 313.0f,
+                  224.0f + 26.5f * t, 0.0f, 0, 0, 0,
+                  0xFF, 0x1000, value, 0.0f, 0, 0);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00212270);
+#endif
 // FUN_002136F0
 s32 func_002136f0(s32 task)
 {
