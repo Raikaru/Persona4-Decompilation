@@ -518,6 +518,10 @@ void func_004b1ab0(u8 *arg0)
 {
     *(s32 *)(arg0 + 8) = *(s32 *)(arg0 + 8) + 1;
 }
+/* Widths are mixed here on purpose, not a tuning knob: stk80 is `s32` and */
+/* stk84 stays `u32` (D0/CC casts). Both-`s32` overshoots to 768, just below */
+/* the lower band edge, while the single-`s32`/single-`u32` mix lands at 802 */
+/* (retail 796). Retail's widths really are mixed; do not "fix" the odd one. */
 // FUN_004B1AD0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -556,7 +560,7 @@ void func_004b1ad0(u8 *arg0)
     f32 stk74;
     f32 stk78;
     f32 stk7c;
-    u32 stk80;
+    s32 stk80;
     u32 stk84;
     u16 stk88;
     u16 stk8a;
@@ -647,19 +651,10 @@ void func_004b1ad0(u8 *arg0)
         packed0 = packed1;
         if (((packed1 >> 24) & 0xFF) != 0xFF) {
             dst_ptr = *(u8 **)(tmp_a4 + 0x14);
-            dst_ptr[4] = (u8)(packed1 & 0xFF);
-            dst_ptr[5] = (u8)((packed1 >> 8) & 0xFF);
-            dst_ptr[6] = (u8)((packed1 >> 16) & 0xFF);
-            dst_ptr[7] = (u8)((packed1 >> 24) & 0xFF);
+            *(u32 *)(dst_ptr + 4) = packed1;
         } else {
-            u8 b0 = (u8)(packed1 & 0xFF);
-            u8 b1 = (u8)((packed1 >> 8) & 0xFF);
-            u8 b2 = (u8)((packed1 >> 16) & 0xFF);
             dst_ptr = *(u8 **)(tmp_a4 + 0x14);
-            dst_ptr[4] = b0;
-            dst_ptr[5] = b1;
-            dst_ptr[6] = b2;
-            dst_ptr[7] = 0xFE;
+            *(u32 *)(dst_ptr + 4) = (packed1 & 0x00FFFFFF) | 0xFE000000;
             packed1 = (packed1 & 0x00FFFFFF) | 0xFF000000;
             packed0 = packed1;
         }
@@ -687,7 +682,7 @@ void func_004b1ad0(u8 *arg0)
             stk74 = buf_c0[1];
             stk78 = buf_c0[2];
             stk7c = buf_c0[3];
-            stk80 = (u32)f_f0;
+            stk80 = (s32)f_f0;
             stk84 = (u32)f_f4;
             off_y = off_y + buf_c0[2];
             func_003c42b0(*(s32 *)(tmp_a4 + 0x14), *(s32 *)(&buf_c0[5]));
@@ -708,7 +703,7 @@ void func_004b1ad0(u8 *arg0)
                 stk74 = 0.0f;
                 stk78 = (f32)(u32)((u32)((f32)stk88 * spA0[0]) >> 5);
                 stk7c = (f32)(u32)((u32)((f32)stk96 * spA0[3]) >> 5);
-                stk80 = (u32)spA0[1];
+                stk80 = (s32)spA0[1];
                 stk84 = (u32)spA0[2];
                 func_003c42b0(*(s32 *)(tmp_a4 + 0x14), *(s32 *)(&spA0[3]));
             } else {
@@ -760,19 +755,23 @@ void func_004b1ad0(u8 *arg0)
         out_uv[4] = (f32)stk90 * inv_w;
         out_uv[5] = (f32)stk92 * inv_h;
         cam = func_00457120();
-        cam80 = *(f32 *)(func_00457120() + 0x80);
-        cam84 = *(f32 *)(func_00457120() + 0x84);
+        cam80 = *(f32 *)(cam + 0x80);
+        cam84 = *(f32 *)(cam + 0x84);
         f1 = (f32)*(s32 *)(arg0 + 0x9C);
         f2 = (f32)*(s32 *)(arg0 + 0xA0);
         persp = ((cam80 * -65535.0f) * cam84) / ((cam84 * -65535.0f) - ((cam84 - cam80) * -31.0f));
         px = 2.0f * (*(f32 *)(cam + 0x68) * persp);
         py = 2.0f * (*(f32 *)(cam + 0x6C) * persp);
         f1 = persp + 1.0f;
+        {
+            f32 arg9C = (f32)*(s32 *)(arg0 + 0x9C);
+            f32 argA0 = (f32)*(s32 *)(arg0 + 0xA0);
         for (i = 0; i < 4; i++) {
-            out_mat[0] = px * (0.5f - ((out_mat[0] + (f32)*(s32 *)(arg0 + 0x9C)) / 640.0f));
-            out_mat[1] = py * (0.5f - ((out_mat[1] + (f32)*(s32 *)(arg0 + 0xA0)) / 448.0f));
-            out_mat[2] = persp + 1.0f;
+            out_mat[0] = px * (0.5f - ((out_mat[0] + arg9C) / 640.0f));
+            out_mat[1] = py * (0.5f - ((out_mat[1] + argA0) / 448.0f));
+            out_mat[2] = f1;
             out_mat += 3;
+        }
         }
         tmp2_a4 = *(u8 **)(arg0 + 0xA4);
         ctx18 = *(u8 **)(tmp2_a4 + 0x10);
@@ -784,14 +783,8 @@ void func_004b1ad0(u8 *arg0)
         cam = func_00457120();
         func_003e9cb0((void *)(u32)*(u32 *)(tmp_a4 + 0x0C), (void *)(*(u8 **)(cam + 4) + 0x10), 0);
         *(u16 *)tmp_a4 = *(u16 *)tmp_a4 & 0xFFFE;
-        tmp_a4[0x18] = 0;
-        tmp_a4[0x19] = 0;
-        tmp_a4[0x1A] = 0;
-        tmp_a4[0x1B] = 0;
-        tmp_a4[0x1C] = 0;
-        tmp_a4[0x1D] = 0;
-        tmp_a4[0x1E] = 0;
-        tmp_a4[0x1F] = 0;
+        *(u32 *)(tmp_a4 + 0x18) = 0;
+        *(u32 *)(tmp_a4 + 0x1C) = 0;
         func_00460ac0((void *)(u32)func_004814d0(*(u16 *)(arg0 + 0x34)), (void *)(tmp_a4 + 0x18));
     }
 }

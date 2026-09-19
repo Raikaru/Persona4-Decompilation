@@ -603,9 +603,13 @@ void func_004a5fa0(u8 *arg0) {
 /* gap lives in UV/stack allocation: adding UV swings -341 to +167, i.e. ~64 instrs */
 /* per UV line here vs ~13 in retail; u16->float lhu/bltz dance micro-priced at 16 each */
 /* and matches retail shape, but the float live set grows ($f26/$f27 extra saves). */
-/* next pass: union the D0/CC/839d0 blocks at 0xC0/0xA0/0x100 and shrink the float */
 /* live set before re-adding UV in retail store order (2,3,0,1,6,7,4,5). Candidates */
 /* archived at /var/tmp/cold4a5fc0/v2.c (666) and v5.c (878). */
+/* 7v (signedness, worth 81 of the 87 surplus): `(u32)float` costs b210 a */
+/* `bltz`/`srl`/`or` dance of about sixteen instructions where `(s32)float` */
+/* is a plain `mtc1`/`cvt`; narrowing sp80/sp84 (D0/CC casts) from `u32` to */
+/* `s32` took sched 843 -> 762 (+87 -> +6). On a body this size get `(s32)` */
+/* versus `(u32)` right on every float conversion before sweeping pragmas. */
 // FUN_004A5FC0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -637,8 +641,8 @@ void func_004a5fc0(u8 *arg0)
     f32 sp78;
     f32 sp74;
     f32 sp70;
-    u32 sp84;
-    u32 sp80;
+    s32 sp84;
+    s32 sp80;
     u16 sp96;
     u16 sp94;
     u16 sp92;
@@ -756,8 +760,8 @@ main_body:
             sp74 = blkC0[1];
             sp78 = blkC0[2] / 16.0f;
             sp7C = blkC0[3] / 16.0f;
-            sp80 = (u32)blkC0[12];
-            sp84 = (u32)blkC0[13];
+            sp80 = (s32)blkC0[12];
+            sp84 = (s32)blkC0[13];
             scale21 += blkC0[4];
             func_003c42b0(*(u8 **)(objs + 0x14), *(s32 *)&blkC0[5]);
         } else if (*(s32 *)(arg0 + 0xCC) != 0) {
@@ -774,8 +778,8 @@ main_body:
             sp74 = 0.0f;
             sp78 = (f32)((s32)((f32)(u16)(16.0f * blkA0[2]) * blkA0[0]) >> 5) / 16.0f;
             sp7C = (f32)((s32)((f32)(u16)(16.0f * blkA0[3]) * blkA0[1]) >> 5) / 16.0f;
-            sp80 = (u32)blkA0[2];
-            sp84 = (u32)blkA0[3];
+            sp80 = (s32)blkA0[2];
+            sp84 = (s32)blkA0[3];
             func_003c42b0(*(u8 **)(objs + 0x14), *(s32 *)&blkA0[4]);
         } else {
             func_004839d0(objs, blk100);
