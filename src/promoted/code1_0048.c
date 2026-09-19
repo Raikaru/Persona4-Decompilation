@@ -2306,41 +2306,43 @@ void func_0048a980(f32 *arg0)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048a980);
 #endif
-/* Floor: 220 differing words over 222 fnalign edits, 203 emitted against
-   retail's 237 (14% short) -- re-measured directly this pass; the previous
-   note here claimed "264/264 instrs, 0 fnalign ops" and an exact size,
-   which is not reproducible: `tools/fnalign.py` on this body reports 222
-   edits and `probe_variants` 220 words.  The body is a draft, not a floor,
-   and is kept only as a reconstruction seed.
-   First divergence, at retail[9]: the early-return path emits a spare
-   `dsll32 $v0, $v0, 0; dsra32 $v0, $v0, 0` sign-extension that retail does
-   not have.  Retail computes `(u64)((s64)*(s32 *)(arg0 + 4) << 40) >> 40`
-   into $v1, ors in `*(s32 *)arg1 << 24`, and branches straight to the
-   shared epilogue with no 32-bit normalisation, so the return value is not
-   being truncated there.  Everything after that point is displaced.  Fix
-   that first; the remaining 34-instruction shortfall is downstream of it.
-   Update (u64 return installed this pass: def + in-file 0048b220 prototype
-   s32->u64; 0048b220 call discards return so no caller codegen change):
-   re-measured reproducibly via `tools/fnalign.py src/promoted/code1_0048.c
-   func_0048abd0 --candidate <extracted guard body>` +
-   `tools/probe_variants.py` on the same extracted body: 26 fnalign ops
-   (was 222 -- dsll32/dsra32 displacement fixed), 216 words (was 220),
-   retail 260 / object 202 (58 short). The u64 fix realigned everything
-   downstream as predicted. Largest remaining delete is retail[204:224] (20
-   instrs: a THIRD var_f2 arm `else if ((s32)temp_f1 < arg2) { var_f2 =
-   (f32)(arg3-arg2)/(f32)(arg3-(s32)temp_f1); }` with FPU-hazard nops --
-   V048 has only the temp_f1-quotient and temp_f0_2 arms, missing this
-   temp_f1-complement arm) plus retail[141:142] (1) and retail[196:199]
-   (3); adding all three (+24) is the next step, leaving ~34 downstream per
-   Main. Correction accepted: the earlier "264/264, 0 ops" came from
-   running fnalign with no --candidate after guard install (measured the
-   production #else INCLUDE_ASM arm, i.e. retail vs itself); all numbers
-   above/below are via --candidate on the extracted banked body and
-   reproduce.
-   Caller note: the `u64` return is on the guarded definition only.  The
-   block-scope prototype inside func_0048b220 must stay `s32` - widening
-   it there took func_0048b220 from MATCH to a 159-word MISMATCH, since
-   the caller then sign-extends the discarded result.
+/* 0048abd0 count recovery (2026-09-19): before retail 260 / object 202 (58 short,
+   22.3% deficit, worst in tree), 217 fnalign edits via `tools/fnalign.py
+   src/promoted/code1_0048.c func_0048abd0 --candidate <extracted guard body>`
+   without --quiet. The old handoff-7y differing-word score (216 words) was
+   measured against the wrong-length body and is ignored per assignment.
+   Before deletes (retail indices -> addresses via 0x0048ABD0 + i*4):
+   - retail[141:142] @ 0x0048AE04 (1: `lwc1 $f1,-0x7fbc($gp)` = fGpffff8044
+     0x00761134, VU vitof0 scale reused for both spC/sp8 quads; artefact of
+     downstream shift, body has same load at object[113] as `lwc1 $f1,($gp)`).
+   - retail[196:199] @ 0x0048AEE0-0x0048AEE8 (3: `mtc1 $a2,$f0/nop/cvt.s.w
+     $f1,$f0` = (float)arg2 numerator for arg1 true-path var_f2=arg2/v0).
+   - retail[204:224] @ 0x0048AF00-0x0048AF4C (20: `nop,nop,b,nop,slt $at,$v1,$a2/
+     beqz/nop/subu $v0,$a3,$a2/mtc1/cvt/subu $v0,$a3,$v1/mtc1/cvt/div
+     $f2,$f1,$f0/nop,nop,nop/lw $v0,($a1)` = second arg1 var_f2 arm
+     (v1<arg2) $f2=(arg3-arg2)/(arg3-v1) with FPU-hazard nops plus join and the
+     final-stage `lw $v0,($a1)` for temp_2; body has same arm at object[97:111]
+     but misaligned by the switch hole below).
+   Main hole is the replace retail[54:139] @ 0x0048ACA8-0x0048ADFC (85 vs 2):
+   switch-derived vuMix ($f3) that the body never computed. Retail leaves:
+   case0: $f3=(float)arg2/(float)arg3; case1-true: $f3=(float)arg2/(float)v1;
+   case1-false: $f3=(float)(arg2-v1)/(float)(arg3-v1); case2-true1:
+   $f3=(float)arg2/(float)t0; case2-true2: $f3=(float)(arg2-t0)/(float)(v1-t0);
+   case2-false: $f3=(float)(arg2-v1)/(float)(arg3-v1); default: $f3=0.0
+   (clear). Body conflated VU mix with arg1 finalMix (single var_f2) and left
+   VU on the wrong source. Fix: new `vuMix`/`vuInv` per leaf (tmpV1/tmpT0
+   hoisted; case2 second temp lazy inside else to match retail eager/lazy),
+   VU now on vuMix/vuInv, arg1 finalMix block moved after VU (was eager before,
+   retail is lazy after), temp_2 outer `if>=0` collapsed to single
+   `var_f0=(f32)(u32)temp_2` (was duplicate bltz+7, retail single bltz+srl
+   path). After: retail 260 / object 259 (1 short, 0.4%), 111 edits (+57
+   recovered, inside 252-268 gate). Remaining deletes are colouring/placement,
+   not logic: retail[141:142] @ 0x0048AE04 (gp-load $f1 vs object $f3) and
+   retail[198:201] @ 0x0048AEE8-0x0048AEF0 (cvt/mtc1/nop for (float)v0 with
+   $f1/$f0 vs $f0/$f3); net -1 is VU `inv=1.0-mix` in C before VU (lui/sub.s)
+   vs retail inside VU plus sp4 slot 0xC vs 4 and early-return dsll32 $v0 vs
+   $v1. No `gate:` stamp present. Caller note kept: `u64` on guarded def only;
+   0048b220 block prototype stays `s32` (widening regressed it 159 words).
    */
 // FUN_0048ABD0 NONMATCHING
 #ifdef NON_MATCHING
@@ -2360,6 +2362,10 @@ u64 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
     s32 var_9;
     u8 temp_3;
     f32 inv;
+    f32 vuMix;
+    f32 vuInv;
+    s32 tmpV1;
+    s32 tmpT0;
 
     if (arg3 == 0) {
         return ((u64)((s64)*(s32 *)(arg0 + 4) << 40) >> 40) |
@@ -2371,43 +2377,49 @@ u64 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
     case 0:
         var_9 = *(s32 *)(arg0 + 4);
         var_4 = *(s32 *)(arg0 + 8);
+        vuMix = (f32)arg2 / temp_f0;
         break;
     case 1:
-        if (arg2 < (s32)(*(f32 *)(arg0 + 0x10) * temp_f0)) {
+        tmpV1 = (s32)(*(f32 *)(arg0 + 0x10) * temp_f0);
+        if (arg2 < tmpV1) {
             var_9 = *(s32 *)(arg0 + 4);
             var_4 = *(s32 *)(arg0 + 0xC);
+            vuMix = (f32)arg2 / (f32)tmpV1;
         } else {
             var_9 = *(s32 *)(arg0 + 0xC);
             var_4 = *(s32 *)(arg0 + 8);
+            vuMix = (f32)(arg2 - tmpV1) / (f32)(arg3 - tmpV1);
         }
         break;
     case 2:
-        if (arg2 < (s32)(*(f32 *)(arg0 + 0x10) * temp_f0)) {
+        tmpT0 = (s32)(*(f32 *)(arg0 + 0x10) * temp_f0);
+        if (arg2 < tmpT0) {
             var_9 = *(s32 *)(arg0 + 4);
             var_4 = *(s32 *)(arg0 + 0xC);
-        } else if (arg2 < (s32)(*(f32 *)(arg0 + 0x18) * temp_f0)) {
-            var_9 = *(s32 *)(arg0 + 0xC);
-            var_4 = *(s32 *)(arg0 + 0x14);
+            vuMix = (f32)arg2 / (f32)tmpT0;
         } else {
-            var_9 = *(s32 *)(arg0 + 0x14);
-            var_4 = *(s32 *)(arg0 + 8);
+            tmpV1 = (s32)(*(f32 *)(arg0 + 0x18) * temp_f0);
+            if (arg2 < tmpV1) {
+                var_9 = *(s32 *)(arg0 + 0xC);
+                var_4 = *(s32 *)(arg0 + 0x14);
+                vuMix = (f32)(arg2 - tmpT0) / (f32)(tmpV1 - tmpT0);
+            } else {
+                var_9 = *(s32 *)(arg0 + 0x14);
+                var_4 = *(s32 *)(arg0 + 8);
+                vuMix = (f32)(arg2 - tmpV1) / (f32)(arg3 - tmpV1);
+            }
         }
         break;
     default:
         var_9 = *(s32 *)(arg0 + 4);
         var_4 = *(s32 *)(arg0 + 8);
+        vuMix = 0.0f;
         break;
     }
     spC = var_4;
     sp8 = var_9;
-    temp_f1 = *(f32 *)(arg1 + 8) * temp_f0;
-    temp_f0_2 = *(f32 *)(arg1 + 0xC) * temp_f0;
-    if (arg2 < (s32)temp_f1) {
-        var_f2 = (f32)arg2 / (f32)temp_f1;
-    } else if ((s32)temp_f0_2 < arg2) {
-        var_f2 = (f32)(arg3 - arg2) / (f32)(arg3 - (s32)temp_f0_2);
-    }
-    inv = 1.0f - var_f2;
+    vuInv = 1.0f - vuMix;
+    inv = vuInv;
     __asm__ volatile(
         ".set noreorder\n"
         "sw %0, 12($sp)\n"
@@ -2452,15 +2464,18 @@ u64 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
         "sw $2, 4($sp)\n"
         ".set reorder\n"
         :
-        : "r"(spC), "r"(sp8), "f"(fGpffff8044), "f"(inv), "f"(var_f2)
+        : "r"(spC), "r"(sp8), "f"(fGpffff8044), "f"(vuInv), "f"(vuMix)
         : "$2", "$vf2", "$vf10", "$vf11", "memory");
     sp4 = *(s32 *)(void *)((u8 *)&sp4);
-    temp_2 = *(s32 *)(arg1 + 0);
-    if (temp_2 >= 0) {
-        var_f0 = (f32)temp_2;
-    } else {
-        var_f0 = (f32)(u32)temp_2;
+    temp_f1 = *(f32 *)(arg1 + 8) * temp_f0;
+    temp_f0_2 = *(f32 *)(arg1 + 0xC) * temp_f0;
+    if (arg2 < (s32)temp_f1) {
+        var_f2 = (f32)arg2 / (f32)temp_f1;
+    } else if ((s32)temp_f0_2 < arg2) {
+        var_f2 = (f32)(arg3 - arg2) / (f32)(arg3 - (s32)temp_f0_2);
     }
+    temp_2 = *(s32 *)(arg1 + 0);
+    var_f0 = (f32)(u32)temp_2;
     temp_f1_2 = var_f0 * var_f2;
     var_3 = (s32)(u32)temp_f1_2;
     return ((u64)((s64)sp4 << 40) >> 40) | (var_3 << 24);

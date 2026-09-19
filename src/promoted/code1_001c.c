@@ -358,183 +358,197 @@ INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c04e0);
 #endif
 // FUN_001C09A0
 void func_001c09a0(void) {}
-/* Sine-poly camera floor (1168B window; obj 900B fndiff 261 verify 654; width check
-   2026-09-17: no dsll/dsra pairs, clean; frame -0x80 vs -0xF0 retail, thinner). Open:
-   accumulator-chain fusion (mula/madd/adda/msub un-emittable in plain C), saved-reg
+/* Sine-poly camera floor (1168B window; obj 1156B probe 34 fnalign 40; width check
+   2026-09-19: no dsll/dsra pairs, clean; frame -0xF0 matches retail). Open:
+   accumulator-chain fusion (mula/madd/adda/msub via Horner + 0.0f seeds), saved-reg
    pressure, scheduler ordering. Chains decoded from retail to zero-seeded Horner sine
    polys (coeffs iGpffff8054-8108/8180); closed forms cross-checked against IDA Hex-Rays
-   + Ghidra bodies. Spill model: 1bd560 writes sp40+, 1ec2b0 writes sp4C..spA4, 1bd780
-   writes sp68+, 3dcc70 writes sp80..sp9C. +0.0f ACC seeds measured worse. Prior 273 now
-   261 with current tree; numbers reproducible with --candidate on extracted body.
+   + Ghidra bodies. Spill model: 1bd560 writes sp40-sp58, 194ff0 writes spC8-spD0, 1bd780
+   writes sp68-sp77, 3dcc70 writes sp80-spA4 (incl. spA0/A4). Family 7z (stores the compiler
+   deleted as UB: loose scalars overflow callee writes, uninit f20poly/sp48 reads) / 7x
+   (sd deficit tell: retail ld/sd pairs vs few-field assigns; whole-aggregate copy restores).
+   Prior 900B/261 now 1156B/34 with explicit-frame struct; numbers reproducible with --candidate on extracted body.
 */
-/* gate: object 225 against retail 288, -21.9% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* gate: object 289 against retail 289, +0.0% - INSIDE
+   the +-3% band (280-296). fnalign 40 edits (+18 reloc-only)
+   via `python3 tools/fnalign.py src/promoted/code1_001c.c func_001c09b0 --candidate <body> --quiet`.
+   Prior 225/288 (-21.9%, 63 short, 183 edits) recovered via explicit-frame struct. */
 // FUN_001C09B0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001c09b0(u8 *arg0)
 {
-    extern f32 iGpffff8054;
-    extern f32 iGpffff8058;
-    extern f32 iGpffff805C;
-    extern f32 iGpffff8060;
-    extern f32 iGpffff8108;
-    extern f32 iGpffff8180;
-    extern f32 iGpffff8118;
-    extern f32 iGpffff815C;
-    extern f32 iGpffff804C;
-    extern f32 iGpffff8160;
-    extern f32 iGpffff8110;
-    extern f32 iGpffff818C;
-    extern f32 func_001ec2b0();
-    extern f32 func_0044b868();
-    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
-    extern void func_003dc740(u8 *arg0, u8 *arg1, s32 arg2, f32 farg);
+    extern u8 D_0060A0E0[];
     extern u8 D_0060A100[];
-    f32 spEC;
-    f32 spE8;
-    f32 spE0;
-    f32 spD0;
-    f32 spCC;
-    f32 spC8;
-    f32 spBC;
-    f32 spB8;
-    f32 spB4;
-    f32 spB0;
-    f32 sp80;
-    f32 sp68;
-    f32 sp64;
-    f32 sp60;
-    f32 sp5C;
-    f32 sp4C;
-    f32 sp48;
-    f32 sp50;
-    f32 sp54;
-    f32 sp58;
-    f32 sp6C;
-    f32 sp70;
-    f32 sp74;
-    f32 sp84;
-    f32 sp88;
-    f32 sp8C;
-    f32 sp90;
-    f32 sp94;
-    f32 sp98;
-    f32 sp9C;
-    f32 spDC;
-    f32 spA0;
+    extern void func_001bd560(f32 *arg0, f32 *arg1);
+    extern void func_00194ff0(u8 *arg0, u8 *arg1, f32 *arg2, f32 *arg3);
+    extern void func_001bd780(void *arg0, void *arg1, void *arg2, void *arg3);
+    extern f32 func_001ec2b0(f32 *arg0, f32 *arg1);
+    extern f32 func_003dcc70(f32 *arg0, f32 *arg1, f32 *arg2);
+    extern void func_003dcb40(s64 *arg0, s64 *arg1, s32 arg2, u8 *arg3);
+    extern void func_003dc740(u8 *arg0, u8 *arg1, s32 arg2, f32 farg);
+    extern f32 func_0044b868(f32 arg0);
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+    extern f32 fGpffff815c;
+    extern f32 fGpffff804c;
+    extern f32 fGpffff8160;
+    extern f32 fGpffff818c;
+    extern f32 fGpffff8110;
+    extern f32 fGpffff8180;
+    extern f32 fGpffff8054;
+    extern f32 fGpffff8058;
+    extern f32 fGpffff805c;
+    extern f32 fGpffff8060;
+    extern f32 fGpffff8108;
+    extern f32 fGpffff8118;
+
+    struct {
+        f32 sp40;
+        f32 sp44;
+        f32 sp48;
+        f32 sp4C;
+        f32 sp50;
+        f32 sp54;
+        f32 sp58;
+        f32 sp5C;
+        f32 sp60;
+        f32 sp64;
+        f32 sp68;
+        f32 sp6C;
+        f32 sp70;
+        f32 sp74;
+        f32 sp78;
+        f32 sp7C;
+        f32 sp80;
+        f32 sp84;
+        f32 sp88;
+        f32 sp8C;
+        f32 sp90;
+        f32 sp94;
+        f32 sp98;
+        f32 sp9C;
+        f32 spA0;
+        s32 spA4;
+        u8 pad_A8[0x8];
+        f32 spB0;
+        f32 spB4;
+        f32 spB8;
+        f32 spBC;
+        f32 spC0;
+        f32 spC4;
+        f32 spC8;
+        f32 spCC;
+        f32 spD0;
+        f32 spD4;
+        f32 spD8;
+        f32 spDC;
+        f32 spE0;
+        f32 spE4;
+        f32 spE8;
+        f32 spEC;
+    } frame;
+
+    u8 *work;
     f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f0_3;
     f32 temp_f1;
-    f32 temp_f1_2;
-    f32 temp_f1_3;
-    f32 temp_f20;
-    f32 temp_f20_2;
     f32 temp_f2;
     f32 temp_f3;
-    f32 var_f0;
-    f32 chA;
-    f32 chB;
-    f32 tA;
-    f32 xA;
-    f32 tB;
-    f32 xB;
-    f32 f20poly;
-    f32 temp_t;
-    s64 spD8;
-    s64 sp40;
-    s32 spA4;
-    u8 *temp_17;
+    f32 temp_f4;
+    f32 t;
 
-    temp_17 = (*(u8 **)((u8 *)(*(u8 **)(arg0 + 0xE0)) + 0x30));
-    func_001bd560(&sp40, arg0 + 0x9C);
-    func_00194ff0(temp_17, &spC8, 0, 0);
-    temp_t = *(f32 *)(temp_17 + 0x2C);
-    spCC = *(f32 *)(temp_17 + 0x84) * temp_t + iGpffff8118 * (*(f32 *)(temp_17 + 0x8C) * temp_t);
-    spD8 = sp40;
-    spE0 = sp48;
-    spDC = spCC;
-    func_001bd780(&sp68, &spD8, &spC8, D_0060A0E0);
-    temp_f0 = func_001ec2b0(&sp4C, &sp68);
-    temp_f1_2 = (f32)(s32)iGpffff815C;
-    if (temp_f1_2 < temp_f0) {
-        temp_f20 = temp_f1_2 / temp_f0;
-        func_003dcc70(&sp4C, &sp68, &sp80);
-        if (temp_f20 <= 0.0f) {
-            spB0 = sp4C;
-            spB4 = sp50;
-            spB8 = sp54;
-            spBC = sp58;
-        } else if (temp_f20 >= 1.0f) {
-            spB0 = sp68;
-            spB4 = sp6C;
-            spB8 = sp70;
-            spBC = sp74;
+    work = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
+    func_001bd560(&frame.sp40, (f32 *)(arg0 + 0x9C));
+    func_00194ff0(work, (u8 *)&frame.spC8, NULL, NULL);
+    frame.spCC = *(f32 *)(work + 0x84) * *(f32 *)(work + 0x2C) +
+                 fGpffff8118 * (*(f32 *)(work + 0x8C) * *(f32 *)(work + 0x2C));
+    *(s64 *)&frame.spD8 = *(s64 *)&frame.sp40;
+    frame.spE0 = frame.sp48;
+    frame.spDC = frame.spCC;
+    func_001bd780(&frame.sp68, &frame.spD8, &frame.spC8, D_0060A0E0);
+    temp_f0 = func_001ec2b0(&frame.sp4C, &frame.sp68);
+
+    if (fGpffff815c < temp_f0) {
+        t = fGpffff815c / temp_f0;
+        func_003dcc70(&frame.sp4C, &frame.sp68, &frame.sp80);
+
+        if (t <= 0.0f) {
+            frame.spB0 = frame.sp4C;
+            frame.spB4 = frame.sp50;
+            frame.spB8 = frame.sp54;
+            frame.spBC = frame.sp58;
+        } else if (t >= 1.0f) {
+            frame.spB0 = frame.sp68;
+            frame.spB4 = frame.sp6C;
+            frame.spB8 = frame.sp70;
+            frame.spBC = frame.sp74;
         } else {
-            var_f0 = 1.0f - temp_f20;
-            /* spA0/spA4 arrive via the pre-chain call-spill region
-               (1ec2b0 out-struct); m2c, IDA and Ghidra all read the
-               slots with no in-function write. */
-            if (spA4 == 0) {
-                tA = var_f0 * spA0;
-                xA = tA * tA;
-                chA = iGpffff8054 + iGpffff8180 * xA;
-                chA = iGpffff8058 + xA * chA;
-                chA = iGpffff805C + xA * chA;
-                chA = iGpffff8060 + xA * chA;
-                chB = iGpffff8108 + xA * chA;
-                var_f0 = tA + (xA * tA) * chB;
-                tB = temp_f20 * spA0;
-                xB = tB * tB;
-                chA = iGpffff8054 + iGpffff8180 * xB;
-                chA = iGpffff8058 + xB * chA;
-                chA = iGpffff805C + xB * chA;
-                chA = iGpffff8060 + xB * chA;
-                chB = iGpffff8108 + xB * chA;
-                f20poly = tB + (xB * tB) * chB;
+            temp_f0 = 1.0f - t;
+
+            if (frame.spA4 == 0) {
+                temp_f4 = temp_f0 * frame.spA0;
+                temp_f3 = temp_f4 * temp_f4;
+                temp_f0 = fGpffff8180 * temp_f3 + fGpffff8054;
+                temp_f0 = temp_f3 * temp_f0 + fGpffff8058;
+                temp_f0 = temp_f3 * temp_f0 + fGpffff805c;
+                temp_f0 = temp_f3 * temp_f0 + fGpffff8060;
+                temp_f1 = temp_f3 * temp_f0 + fGpffff8108;
+                temp_f0 = temp_f3 * temp_f4;
+                temp_f0 = temp_f0 * temp_f1 + temp_f4;
+
+                temp_f4 = t * frame.spA0;
+                temp_f3 = temp_f4 * temp_f4;
+                temp_f2 = fGpffff8180 * temp_f3 + fGpffff8054;
+                temp_f2 = temp_f3 * temp_f2 + fGpffff8058;
+                temp_f2 = temp_f3 * temp_f2 + fGpffff805c;
+                temp_f2 = temp_f3 * temp_f2 + fGpffff8060;
+                temp_f1 = temp_f3 * temp_f2 + fGpffff8108;
+                temp_f2 = temp_f3 * temp_f4;
+                t = temp_f2 * temp_f1 + temp_f4;
             }
-            spB0 = sp80 * var_f0;
-            spB4 = sp84 * var_f0;
-            spB8 = sp88 * var_f0;
-            spB0 = spB0 + sp90 * f20poly;
-            spB4 = spB4 + sp94 * f20poly;
-            spB8 = spB8 + sp98 * f20poly;
-            spBC = sp9C * f20poly + sp8C * var_f0;
+
+            frame.spB0 = frame.sp80 * temp_f0;
+            frame.spB4 = frame.sp84 * temp_f0;
+            frame.spB8 = frame.sp88 * temp_f0;
+            frame.spB0 = 0.0f + frame.spB0 + frame.sp90 * t;
+            frame.spB4 = 0.0f + frame.spB4 + frame.sp94 * t;
+            frame.spB8 = 0.0f + frame.spB8 + frame.sp98 * t;
+            frame.spBC = frame.sp8C * temp_f0 + frame.sp9C * t;
         }
-        func_003dcb40((RwV3d *)&spD8, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&spB0);
-        *(f32 *)&spD8 = *(f32 *)&spD8 + spC8;
-        spDC = spDC + spCC;
-        spE0 = spE0 + spD0;
-        func_001bd780(&sp68, &spD8, &spC8, D_0060A0E0);
-    } else if (temp_f0 < iGpffff804C) {
-        func_003dc740((u8 *)&sp68, D_0060A0E0, 2, iGpffff8160);
+
+        func_003dcb40((s64 *)&frame.spD8, (s64 *)D_0060A100, 1, (u8 *)&frame.spB0);
+        frame.spD8 = frame.spD8 + frame.spC8;
+        frame.spDC = frame.spDC + frame.spCC;
+        frame.spE0 = frame.spE0 + frame.spD0;
+        func_001bd780(&frame.sp68, &frame.spD8, &frame.spC8, D_0060A0E0);
+    } else if (temp_f0 < fGpffff804c) {
+        func_003dc740((u8 *)&frame.sp68, D_0060A0E0, 2, fGpffff8160);
     }
-    func_003dcb40((RwV3d *)&spD8, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&sp68);
-    temp_f20_2 = (f32)0x177 / func_0044b868(iGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
-    temp_f0_2 = *(f32 *)&spD8 * temp_f20_2;
-    *(f32 *)&spD8 = temp_f0_2;
-    spDC = spDC * temp_f20_2;
-    temp_f0_3 = spE0 * temp_f20_2;
-    spE0 = temp_f0_3;
-    f20poly = temp_f20_2 * func_0044b868(iGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8))) * 0.21875f;
-    spE8 = temp_f0_2;
-    spEC = temp_f0_3;
-    func_003e41e0(&spE8, &spE8);
-    temp_f3 = spC8 + spEC * f20poly;
-    spC8 = temp_f3;
-    temp_f2 = spD0 - spE8 * f20poly;
-    spD0 = temp_f2;
-    sp5C = temp_f3 + *(f32 *)&spD8;
-    temp_f1_3 = spCC + spDC;
-    sp60 = temp_f1_3;
-    sp64 = temp_f2 + spE0;
-    if (temp_f1_3 < 25.0f) {
-        sp60 = 25.0f;
+
+    func_003dcb40((s64 *)&frame.spD8, (s64 *)D_0060A100, 1, (u8 *)&frame.sp68);
+
+    t = 375.0f / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+    frame.spD8 = frame.spD8 * t;
+    frame.spDC = frame.spDC * t;
+    frame.spE0 = frame.spE0 * t;
+
+    temp_f0 = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+    t = t * temp_f0 * 0.21875f;
+
+    frame.spE8 = frame.spD8;
+    frame.spEC = frame.spE0;
+    func_003e41e0(&frame.spE8, &frame.spE8);
+
+    frame.spC8 = 0.0f + frame.spC8 + frame.spEC * t;
+    frame.spD0 = 0.0f + frame.spD0 - frame.spE8 * t;
+    frame.sp5C = frame.spC8 + frame.spD8;
+    frame.sp60 = frame.spCC + frame.spDC;
+    frame.sp64 = frame.spD0 + frame.spE0;
+
+    if (frame.sp60 < 25.0f) {
+        frame.sp60 = 25.0f;
     }
-    func_001bac20((u16 *)arg0, (f32 *)&sp40, &sp5C, 1);
-    func_001bbef0(arg0, iGpffff818C);
+
+    func_001bac20((u16 *)arg0, &frame.sp40, &frame.sp5C, 1);
+    func_001bbef0(arg0, fGpffff818c);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c09b0);
@@ -3348,10 +3362,12 @@ void func_001cb960(void) {}
 /* Mined 48 MATCH neighbours (cb610/cacd0/c04e0): p4_cacd0_mul, func_001c_copy_pair, 0.0f+adda/madd, 100.0f/12.5f/500.0f clamps. */
 /* FMA chains (mula/madd/msub/adda) + 001959d0x2/003e40b0/003e41e0 retained; fnalign top-down, same levers. */
 /* measured 001cb970: `schedule on` inside the guard is worth 10 words (367 -> 357); retail fills delay slots plain -O2 leaves empty. */
-/* gate: object 344 against retail 384, -10.4% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* gate: object 385 against retail 385, +0.0% - INSIDE
+   the +-3% band (373-395). fnalign 198 edits (+3 reloc-only), probe 343
+   via `python3 tools/fnalign.py src/promoted/code1_001c.c func_001cb970 --candidate <body> --quiet`.
+   Prior 344/384 (-10.4%, 40 short, 447 edits); 35-hole at 0x1cbd78-0x1cbe00 (targetXZ spill +
+   001ec3d0 + ecRet scaling) closed via explicit-frame struct (7z/7x: retail spills vs reg-held
+   aggregates) + 001ec3d0 arg order a2=F8 sel / a3=F0 out. */
 // FUN_001CB970 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: retail fills delay slots this function leaves empty at -O2. */
@@ -3366,37 +3382,58 @@ void func_001cb970(u8 *arg0, f32 fparg0, s32 arg1)
     extern void func_001bd560(f32 *arg0, f32 *arg1);
     extern void func_001bcd40(u8 *a0, u8 *a1, u8 *a2, f32 a3, s32 a4);
     extern f32 fGpffff80dc;
-    struct Vec3 {
-        f32 x;
-        f32 y;
-        f32 z;
-    };
-    struct Quat {
-        f32 x;
-        f32 y;
-        f32 z;
-        f32 w;
-    };
-    struct Pose {
-        struct Vec3 pos;
-        struct Quat quat;
-    };
-    struct Work {
-        struct Pose poseOld;
-        struct Pose poseNew;
-        struct Vec3 firstPos;
-        struct Vec3 secondPos;
-        struct Vec3 delta;
-        struct Vec3 scaled;
-        struct Vec3 selPos;
-        struct Vec3 computed;
-        f32 camXZ[2];
-        f32 deltaXZ[2];
-        f32 targetXZ[2];
-        f32 computedXZ[2];
-        f32 selXZ[2];
-        f32 outXZ[2];
-    } work;
+    struct {
+        f32 sp90;
+        f32 sp94;
+        f32 sp98;
+        f32 sp9C;
+        f32 spA0;
+        f32 spA4;
+        f32 spA8;
+        f32 spAC;
+        f32 spB0;
+        f32 spB4;
+        f32 spB8;
+        f32 spBC;
+        f32 spC0;
+        f32 spC4;
+        u8 pad_C8[8];
+        f32 spD0;
+        f32 spD4;
+        f32 spD8;
+        f32 spDC;
+        f32 spE0;
+        f32 spE4;
+        f32 spE8;
+        f32 spEC;
+        f32 spF0;
+        f32 spF4;
+        f32 spF8;
+        f32 spFC;
+        f32 sp100;
+        f32 sp104;
+        f32 sp108;
+        u8 pad_10C[4];
+        f32 sp110;
+        f32 sp114;
+        f32 sp118;
+        u8 pad_11C[4];
+        f32 sp120;
+        f32 sp124;
+        f32 sp128;
+        u8 pad_12C[4];
+        f32 sp130;
+        f32 sp134;
+        f32 sp138;
+        u8 pad_13C[4];
+        f32 sp140;
+        f32 sp144;
+        f32 sp148;
+        u8 pad_14C[4];
+        f32 sp150;
+        f32 sp154;
+        f32 sp158;
+    } frame;
     u8 *camera;
     u8 *unitA;
     u8 *unitB;
@@ -3418,18 +3455,18 @@ void func_001cb970(u8 *arg0, f32 fparg0, s32 arg1)
     action = *(u8 **)(camera + 0xE0);
     unitA = *(u8 **)(action + 0x30);
     unitB = *(u8 **)(*(u8 **)(action + 0x38) + 0x30);
-    func_001959d0((BtlUnit *)unitA, (RwV3d *)&work.firstPos);
-    func_001959d0((BtlUnit *)unitB, (RwV3d *)&work.secondPos);
-    work.delta.x = work.firstPos.x - work.secondPos.x;
-    work.delta.y = work.firstPos.y - work.secondPos.y;
-    work.delta.z = work.firstPos.z - work.secondPos.z;
-    len = func_003e40b0((RwV3d *)&work.delta, (const RwV3d *)&work.delta);
-    work.camXZ[0] = *(f32 *)(camera + 0x9C) - work.firstPos.x;
-    work.camXZ[1] = *(f32 *)(camera + 0xA4) - work.firstPos.z;
-    func_003e41e0(work.camXZ, work.camXZ);
-    work.deltaXZ[0] = work.delta.x;
-    work.deltaXZ[1] = work.delta.z;
-    dot1 = work.deltaXZ[1] * work.camXZ[1] + work.deltaXZ[0] * work.camXZ[0];
+    func_001959d0((BtlUnit *)unitA, (RwV3d *)&frame.sp150);
+    func_001959d0((BtlUnit *)unitB, (RwV3d *)&frame.sp140);
+    frame.sp110 = frame.sp150 - frame.sp140;
+    frame.sp114 = frame.sp154 - frame.sp144;
+    frame.sp118 = frame.sp158 - frame.sp148;
+    len = func_003e40b0((RwV3d *)&frame.sp110, (const RwV3d *)&frame.sp110);
+    frame.spD8 = *(f32 *)(camera + 0x9C) - frame.sp150;
+    frame.spDC = *(f32 *)(camera + 0xA4) - frame.sp158;
+    func_003e41e0(&frame.spD8, &frame.spD8);
+    frame.spD0 = frame.sp110;
+    frame.spD4 = frame.sp118;
+    dot1 = frame.spD4 * frame.spDC + frame.spD0 * frame.spD8;
     if (arg1 != 0) {
         if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0) {
             *(s32 *)(camera + 0x104) = (dot1 >= 0.0f) ? 1 : 0;
@@ -3440,94 +3477,94 @@ void func_001cb970(u8 *arg0, f32 fparg0, s32 arg1)
     if (*(s32 *)(camera + 0x104) == 1) {
         selUnit = unitA;
         otherUnit = unitB;
-        func_001c_copy_pair((s64 *)&work.selPos.x, &work.selPos.z,
-                            (s64 *)&work.firstPos.x, &work.firstPos.z);
+        func_001c_copy_pair((s64 *)&frame.sp130, &frame.sp138,
+                            (s64 *)&frame.sp150, &frame.sp158);
         scaleOther = 1.25f * p4_cacd0_mul(*(f32 *)(unitA + 0x90), *(f32 *)(unitA + 0x2C));
         scaleXZ = 0.35f * len;
         finalMul = 1.35f;
-        work.scaled.x = work.delta.x * scaleXZ;
-        work.scaled.y = work.delta.y * scaleXZ;
-        work.scaled.z = work.delta.z * scaleXZ;
-        if (work.selPos.y < 100.0f) {
-            work.selPos.y = 100.0f;
+        frame.sp120 = frame.sp110 * scaleXZ;
+        frame.sp124 = frame.sp114 * scaleXZ;
+        frame.sp128 = frame.sp118 * scaleXZ;
+        if (frame.sp134 < 100.0f) {
+            frame.sp134 = 100.0f;
         }
-        work.computed.y = work.selPos.y;
+        frame.sp104 = frame.sp134;
     } else {
         selUnit = unitB;
         otherUnit = unitA;
-        func_001c_copy_pair((s64 *)&work.selPos.x, &work.selPos.z,
-                            (s64 *)&work.secondPos.x, &work.secondPos.z);
+        func_001c_copy_pair((s64 *)&frame.sp130, &frame.sp138,
+                            (s64 *)&frame.sp140, &frame.sp148);
         scaleOther = 0.35f * p4_cacd0_mul(*(f32 *)(unitB + 0x90), *(f32 *)(unitB + 0x2C));
         finalMul = 2.5f;
-        work.firstPos.y = (work.firstPos.y + 0.0f) - 0.25f * p4_cacd0_mul(*(f32 *)(unitB + 0x8C), *(f32 *)(unitB + 0x2C));
-        if (work.firstPos.y < 100.0f) {
-            work.firstPos.y = 100.0f;
+        frame.sp154 = (frame.sp154 + 0.0f) - 0.25f * p4_cacd0_mul(*(f32 *)(unitB + 0x8C), *(f32 *)(unitB + 0x2C));
+        if (frame.sp154 < 100.0f) {
+            frame.sp154 = 100.0f;
         }
-        work.delta.x = work.firstPos.x - work.secondPos.x;
-        work.delta.y = work.firstPos.y - work.secondPos.y;
-        work.delta.z = work.firstPos.z - work.secondPos.z;
-        len = func_003e40b0((RwV3d *)&work.delta, (const RwV3d *)&work.delta);
+        frame.sp110 = frame.sp150 - frame.sp140;
+        frame.sp114 = frame.sp154 - frame.sp144;
+        frame.sp118 = frame.sp158 - frame.sp148;
+        len = func_003e40b0((RwV3d *)&frame.sp110, (const RwV3d *)&frame.sp110);
         scaleXZ = 0.25f * len;
-        work.scaled.x = work.delta.x * scaleXZ;
-        work.scaled.y = work.delta.y * scaleXZ;
-        work.scaled.z = work.delta.z * scaleXZ;
-        work.computed.y = work.selPos.y;
+        frame.sp120 = frame.sp110 * scaleXZ;
+        frame.sp124 = frame.sp114 * scaleXZ;
+        frame.sp128 = frame.sp118 * scaleXZ;
+        frame.sp104 = frame.sp134;
     }
-    work.scaled.x = work.scaled.x + work.secondPos.x;
-    work.scaled.y = work.scaled.y + work.secondPos.y;
-    work.scaled.z = work.scaled.z + work.secondPos.z;
-    work.deltaXZ[0] = work.delta.z;
-    work.deltaXZ[1] = -work.delta.x;
-    dot2 = work.deltaXZ[0] * work.camXZ[0] + work.deltaXZ[1] * work.camXZ[1];
+    frame.sp120 = frame.sp120 + frame.sp140;
+    frame.sp124 = frame.sp124 + frame.sp144;
+    frame.sp128 = frame.sp128 + frame.sp148;
+    frame.spD0 = frame.sp118;
+    frame.spD4 = -frame.sp110;
+    dot2 = frame.spD0 * frame.spD8 + frame.spD4 * frame.spDC;
     if (arg1 != 0) {
         *(s32 *)(camera + 0x108) = (dot2 >= 0.0f) ? 1 : 0;
     }
     if (*(s32 *)(camera + 0x108) == 1) {
-        work.computed.x = (work.selPos.x + 0.0f) + work.delta.z * scaleOther;
-        work.computed.z = (work.selPos.z + 0.0f) - work.delta.x * scaleOther;
+        frame.sp100 = (frame.sp130 + 0.0f) + frame.sp118 * scaleOther;
+        frame.sp108 = (frame.sp138 + 0.0f) - frame.sp110 * scaleOther;
     } else {
-        work.computed.x = (work.selPos.x + 0.0f) - work.delta.z * scaleOther;
-        work.computed.z = (work.selPos.z + 0.0f) + work.delta.x * scaleOther;
+        frame.sp100 = (frame.sp130 + 0.0f) - frame.sp118 * scaleOther;
+        frame.sp108 = (frame.sp138 + 0.0f) + frame.sp110 * scaleOther;
     }
-    selZ = work.selPos.z;
-    func_001bd780(&work.poseNew.quat, &work.computed, &work.scaled, D_0060A0E0);
-    func_003dcb40((RwV3d *)&work.delta, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&work.poseNew.quat);
-    work.targetXZ[0] = work.scaled.x;
-    work.targetXZ[1] = work.scaled.z;
-    work.computedXZ[0] = work.computed.x;
-    work.computedXZ[1] = work.computed.z;
-    work.selXZ[0] = work.selPos.x;
-    work.selXZ[1] = selZ;
-    ecRet = func_001ec3d0((u8 *)work.targetXZ, (u8 *)work.computedXZ, (u8 *)work.selXZ, (u8 *)work.outXZ);
+    selZ = frame.sp138;
+    func_001bd780(&frame.spB8, &frame.sp100, &frame.sp120, D_0060A0E0);
+    func_003dcb40((RwV3d *)&frame.sp110, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frame.spB8);
+    frame.spE0 = frame.sp120;
+    frame.spE4 = frame.sp128;
+    frame.spE8 = frame.sp100;
+    frame.spEC = frame.sp108;
+    frame.spF8 = frame.sp130;
+    frame.spFC = selZ;
+    ecRet = func_001ec3d0((u8 *)&frame.spE0, (u8 *)&frame.spE8, (u8 *)&frame.spF8, (u8 *)&frame.spF0);
     ecRet = ecRet + 0.0f + finalMul * p4_cacd0_mul(*(f32 *)(selUnit + 0x90), *(f32 *)(selUnit + 0x2C));
-    work.computed.x = work.outXZ[0];
-    work.computed.y = work.selPos.y;
-    work.computed.z = work.outXZ[1];
+    frame.sp100 = frame.spF0;
+    frame.sp104 = frame.sp134;
+    frame.sp108 = frame.spF4;
     tanRes = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
     finalScale = ecRet / tanRes;
     if (finalScale < 500.0f) {
         finalScale = 500.0f;
     }
-    work.delta.x = work.delta.x * finalScale;
-    work.delta.y = work.delta.y * finalScale;
-    work.delta.z = work.delta.z * finalScale;
-    work.poseNew.pos.x = work.computed.x + work.delta.x;
-    work.poseNew.pos.y = work.computed.y + work.delta.y;
-    work.poseNew.pos.z = work.computed.z + work.delta.z;
-    if (work.poseNew.pos.y < 12.5f) {
-        work.poseNew.pos.y = 12.5f;
+    frame.sp110 = frame.sp110 * finalScale;
+    frame.sp114 = frame.sp114 * finalScale;
+    frame.sp118 = frame.sp118 * finalScale;
+    frame.spAC = frame.sp100 + frame.sp110;
+    frame.spB0 = frame.sp104 + frame.sp114;
+    frame.spB4 = frame.sp108 + frame.sp118;
+    if (frame.spB0 < 12.5f) {
+        frame.spB0 = 12.5f;
     }
-    func_001bd560((f32 *)&work.poseOld, (f32 *)(camera + 0x9C));
+    func_001bd560(&frame.sp90, (f32 *)(camera + 0x9C));
     if (arg1 != 0) {
-        if (func_001ec2b0(&work.poseOld.quat, &work.poseNew.quat) > fGpffff80dc) {
-            func_001bd5e0((u8 *)&work.poseOld, (u8 *)&work.poseNew);
+        if (func_001ec2b0(&frame.sp9C, &frame.spB8) > fGpffff80dc) {
+            func_001bd5e0((u8 *)&frame.sp90, (u8 *)&frame.spAC);
             mode = 3;
         } else {
             mode = 0x83;
         }
-        func_001bcd40(*(u8 **)(camera + 0xE0), otherUnit + 4, (u8 *)&work.poseNew, 50.0f, mode);
+        func_001bcd40(*(u8 **)(camera + 0xE0), otherUnit + 4, (u8 *)&frame.spAC, 50.0f, mode);
     }
-    func_001bac20((u16 *)camera, (f32 *)&work.poseOld, (f32 *)&work.poseNew, 1);
+    func_001bac20((u16 *)camera, &frame.sp90, &frame.spAC, 1);
     func_001bbef0(camera, fparg0);
 }
 /* measured: closes the scope above at the file's -O2 baseline. */

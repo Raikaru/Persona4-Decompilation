@@ -1475,13 +1475,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9d40);
 // FUN_003C9EB0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9eb0);
 
-/* measured (this session): probe_variants K3C2_003ca320_body.c scores 31 differing words (obj 168B/window 176B, nd 28; offsets 104,107,112-126); residual is callback branch polarity/layout and continuation/epilogue displacement; inverted guard/switch 160B/nd 24, common finish 164B/nd 34, pragma order unchanged, decl/volatile/asm ruled out; banked guarded. See docs/probe_archive/K3C2_003ca320_body.c. */
-/* gate: object 47 against retail 44, +6.8% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 2026-09-19: object 41 instrs against retail 42, inside the gate,
+   22 differing words.  Was 47 against 44 (+6.8%, outside) at 31 words, and
+   that score was not comparable (handoff 7y).
+   The whole surplus was three unfilled branch delay slots: `#pragma schedule
+   on` around the function fills them exactly as retail does, taking the count
+   inside and the score 31 -> 22 with no source change at all.  The earlier
+   note's callback branch-polarity and epilogue-displacement residual is what
+   remains at 22.  Prior probe archive: docs/probe_archive/K3C2_003ca320_body.c. */
 // FUN_003CA320 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
 u8 *func_003ca320(u8 *arg0, s32 (*arg1)(u8 *, s32), s32 arg2) {
     u8 *stack[64];
     s32 depth;
@@ -1512,6 +1516,7 @@ callback_continue:
     depth -= 1;
     goto check;
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca320);
 #endif
@@ -2486,43 +2491,46 @@ void func_003cc460(void) {
 }
 /* measured: closes schedule-on probe for cc460 and restores file default. */
 #pragma schedule off
-/* measured (this session): probe_variants H3CC_003cc500_body.c scores 31 differing words (obj 136B/window 96B over-window, nd 99; offsets 9,14-16,18-26,28,30,31); retail compact beql chain vs b210 if/goto (ascending/descending, s64 temp, prologue pragmas ruled out); branch-likely floor, banked guarded. See docs/probe_archive/H3CC_003cc500_body.c. */
-/* measured: best retained body object 136B/window 96B, normalized_diff 99; */
-/* differing word offsets 9, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, */
-/* 28, 30, 31. Retail's compact branch-likely chain remains unmatched. */
-/* gate: object 34 against retail 24, +41.7% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 2026-09-19: object 22 instrs against retail 22, exact; 20 differing
+   words via `python3 tools/measure_guarded.py src/promoted/code1_003c.c
+   func_003cc500`.  The previous body was an if/goto chain that compiled to 34
+   instructions, +41.7% and outside the gate, so its 31-word score was not
+   comparable (handoff 7y).
+   Three findings, each measured with `python3 tools/probe_variants.py`:
+   `no_branch_likely off` with `schedule on` is what produces retail's `beql`
+   chain at all (31 -> 25 words; either pragma alone is worse, 31 and 32);
+   writing the arms as a `switch` instead of an if/else chain takes 25 -> 20 and
+   the count to exact; and the cases must be written in **ascending** order
+   2,3,4,5,6 because b210 emits them in reverse, which is retail's 6,5,4,3,2
+   test order (handoff 7ab).  Default-first ordering is worse at 22, a 64-bit
+   or unsigned switch value worse at 24, unsigned or reversed comparison
+   literals worse at 25.
+   What remains is one instruction class: retail materialises each case
+   constant as `ori $at, $zero, N` and compares `beql $at, $a0`, where b210
+   emits `addiu $v1, $zero, N` and compares `beql $a0, $v1`.  That is the
+   assembler's `$at` expansion of a branch-against-immediate pseudo, which no
+   source spelling tried here reproduces. */
 // FUN_003CC500 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely off
 void func_003cc500(s32 arg0) {
-    s64 temp;
+    s64 masked;
     s64 value;
 
-    temp = iGpffffb8f0;
-    value = temp & ~0x1E0;
-    if (arg0 == 6) {
-        value |= 0x160;
-        goto done;
+    masked = iGpffffb8f0 & ~0x1E0;
+    switch (arg0) {
+    case 2: value = masked | 0x60; break;
+    case 3: value = masked | 0x80; break;
+    case 4: value = masked | 0x120; break;
+    case 5: value = masked | 0xC0; break;
+    case 6: value = masked | 0x160; break;
+    default: value = masked | 0; break;
     }
-    if (arg0 == 5) {
-        value |= 0xC0;
-        goto done;
-    }
-    if (arg0 == 4) {
-        value |= 0x120;
-        goto done;
-    }
-    if (arg0 == 3) {
-        value |= 0x80;
-        goto done;
-    }
-    if (arg0 == 2)
-        value |= 0x60;
-done:
     iGpffffb8f0 = value;
 }
+#pragma no_branch_likely on
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc500);
 #endif
@@ -2530,20 +2538,18 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc500);
 // FUN_003CC560 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc560);
 /* measured (this session): probe_variants H3CC_003cc680_body.c scores 22 differing words (obj 96B/window 96B); retail uses pexew/ppacw MMI (load x/y/z, scale by 0x437F0001, pexew pairs, ppacw, SQ, GP +16) which MWCCPS2 cannot emit from plain C; mixed decl order, exact scale, output-global, int-domain pointer, and scalar packed stores tried (F3C1 obj 124B/nd 103, over window); MMI compiler floor, banked guarded. See docs/probe_archive/H3CC_003cc680_body.c. */
-/* gate: object 2 against retail 22, -90.9% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* The guarded body here was an empty function whose only content was a comment
+   describing retail's instruction sequence.  It compiled to 2 instructions
+   against retail's 22 and registered as a -90.9% floor in every gate audit,
+   which is a fake measurement: there was nothing to measure.  Retail's
+   sequence is `load x/y/z, scale by 0x437F0001, pexew the first pair, pexew
+   the second, ppacw into the packet, SQ, advance the GP packet pointer by 16`.
+   MWCCPS2 emits no MMI from plain C, and the closest scalar spelling compiles
+   to 31 instructions, +41% and outside the gate.  Carried as assembly with no
+   body until someone finds a C construct that makes b210 emit `pexew`/`ppacw`.
+   See docs/probe_archive/H3CC_003cc680_body.c for the scalar attempt. */
 // FUN_003CC680 NONMATCHING
-#ifdef NON_MATCHING
-void func_003cc680(u8 *arg0, f32 arg1) {
-    /* Retail sequence: load x/y/z, scale by 0x437F0001, pexew the first
-       pair, pexew the second pair, ppacw into the packet, SQ the result, and
-       advance the GP packet pointer by 16 bytes. */
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc680);
-#endif
 
 /* measured: the null-first `block_body`/`block_null` graph plus
    no_branch_likely and schedule reproduce retail's out-of-line null branch,
