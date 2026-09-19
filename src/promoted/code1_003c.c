@@ -434,9 +434,28 @@ u8 *func_003c1b90(u8 *arg0, u8 *arg1, s32 arg2) {
 }
 /* measured: schedule off closes this function's bracket. */
 #pragma schedule off
-/* measured (this session): probe_variants K3C1_003c1bd0_body.c scores 20 differing words (obj 160B/window 160B, nd 70; offsets 28,48,69,71-83); residual is branch/call layout; schedule/no_branch body remeasured unchanged; banked guarded. See docs/probe_archive/K3C1_003c1bd0_body.c. */
-// FUN_003C1BD0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured 2026-09-19: MATCH, 40/40, zero differing words, zero edits.
+   The body was a floor at 20 words for two sessions and the residual was
+   filed as "branch/call layout".  It was an arm-placement defect: retail's
+   `bne $v1, $v0, .+9` jumps to a `b`/`move $v0, $zero` pair sitting at
+   instructions 16-18, *after* the inner test, so the zero return is an
+   `else` on the outer test rather than a trailing statement or an early
+   return.  Writing
+
+       if (state == 1) {
+           if ((flags & 0x01000000) != 0) {
+               return 1;
+           }
+       } else {
+           return 0;
+       }
+       ...work...
+       return 1;
+
+   places it exactly there.  Measured on the way: the trailing `return 0`
+   form 20 words, an early `if (state != 1) return 0;` 10, the same with a
+   `goto zero` label 20, and single-return result-variable forms 29. */
+// FUN_003C1BD0
 #pragma schedule on
 #pragma no_branch_likely on
 s32 func_003c1bd0(u8 *arg0) {
@@ -444,21 +463,20 @@ s32 func_003c1bd0(u8 *arg0) {
     u8 *temp_16;
     temp_16 = *(u8 **)(arg0 + 0x18);
     if (*(s32 *)(temp_16 + 0x18) == 1) {
-        if ((*(s32 *)(temp_16 + 8) & 0x01000000) != 0)
+        if ((*(s32 *)(temp_16 + 8) & 0x01000000) != 0) {
             return 1;
-        func_003ce2e0(temp_16);
-        *(s32 *)(temp_16 + 8) |= 0x02000000;
-        ((void (*)(u8 *))(*(void **)(arg0 + 0x48)))(arg0);
-        *(s32 *)(temp_16 + 8) = (*(s32 *)(temp_16 + 8) & 0xFDFFFFFF) | 0x01000000;
-        return 1;
+        }
+    } else {
+        return 0;
     }
-    return 0;
+    func_003ce2e0(temp_16);
+    *(s32 *)(temp_16 + 8) |= 0x02000000;
+    ((void (*)(u8 *))(*(void **)(arg0 + 0x48)))(arg0);
+    *(s32 *)(temp_16 + 8) = (*(s32 *)(temp_16 + 8) & 0xFDFFFFFF) | 0x01000000;
+    return 1;
 }
 #pragma no_branch_likely off
 #pragma schedule off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1bd0);
-#endif
 /* measured: schedule on and no_branch_likely on reproduce the saved self,
    plain null branch, and final callback order. */
 #pragma schedule on

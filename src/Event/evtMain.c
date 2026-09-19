@@ -1091,6 +1091,7 @@ void func_00288020(s32 arg0, u8 *arg1) {
    now `s8` and the census mismatch fell 16 -> 14 at an unchanged instruction
    count.  Word score stays 490.  Measured and rejected: `arg3 + 0xC` to u16
    and `arg4 + 0x14` to u8 both tie, and `arg4 + 0x16` to s16 costs 16 -> 18. */
+/* 2026-09-19 outer 0,1,2 (was 2,1,0) + inner case11 before case5 (order 0,1,4,11,5,6,7,8,9,10, was 0,1,4,5,6,7,8,9,10,11): 479 words (was 490), fnalign 588 vs 605 (-2.8% inside, was 592 vs 605 -2.1% inside), 394 edits (was 1000). Inner 11-first alone 495/430; outer alone 479/762. 108-vs-47 analogue was inner large vs small misordered plus outer 2-first vs 0-first. No promotion (394 remain: scheduling/saved-register floor). */
 // FUN_00288170 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00288170(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
@@ -1161,7 +1162,36 @@ s32 func_00288170(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
     }
     var_16 = NULL;
     var_f20 = 0.0f;
-    if (arg0 == 2) {
+    if (arg0 == 0) {
+        if (D_008821E0[0] != 1) {
+            return 0;
+        }
+        {
+            u8 *r = func_00145270(*(u16 *)(arg3 + 0xC));
+            if (r == NULL) {
+                return 1;
+            }
+            if (((*(s32 *)arg2 & 0x80000000) != 0) && (arg1 == *(s32 *)(arg2 + 0xC))) {
+                func_00146e60(*(u16 *)(arg3 + 0xC), arg3 + 0x38, arg3 + 0x44);
+                *(u32 *)&sp250[0] = 0x3F800000;
+                *(u32 *)&sp250[1] = 0x3F800000;
+                *(u32 *)&sp250[2] = 0x3F800000;
+                func_00146ee0(*(u16 *)(arg3 + 0xC), (u8 *)&sp250[0]);
+                func_00269740(*(u16 *)(arg3 + 0xC));
+                func_00269620(*(u16 *)(arg3 + 0xC), *(u8 *)(arg3 + 0x53), 0, 0);
+                *(s32 *)(arg3 + 0x60) = 0;
+                func_00293270();
+                if ((*(s32 *)(arg3 + 0x54) & 2) == 0) {
+                    func_00269c20(*(u16 *)(arg3 + 0xC), 0);
+                } else {
+                    func_00269c20(*(u16 *)(arg3 + 0xC), 1);
+                }
+            }
+            return 1;
+        }
+    } else if (arg0 == 1) {
+        return 1;
+    } else if (arg0 == 2) {
         if (*(u16 *)arg4 != (u16)arg1) {
             return 1;
         }
@@ -1233,6 +1263,27 @@ s32 func_00288170(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
                 func_00440b68(D_0063C530);
             }
             break;
+        case 11: {
+            p = (u8 *)&spB0[0];
+            n = 16;
+            if (p != NULL) {
+                do {
+                    *p = 0;
+                    p += 1;
+                    n -= 1;
+                } while (n != 0);
+            }
+            spB0[0] = *(s8 *)(arg4 + 0x35);
+            spB0[1] = *(s8 *)(arg4 + 0x36);
+            spB0[2] = *(s8 *)(arg4 + 0x37);
+            spB0[3] = *(s8 *)(arg4 + 0x30);
+            if (*(s8 *)(arg4 + 0x34) != 0) {
+                func_00293710(*(s16 *)(arg3 + 0xC), 4, 0.0f, 0.0f, *(f32 *)(arg4 + 0x14), 0.0f, *(s8 *)(arg4 + 0x36), (u8 *)&spB0[0]);
+            } else {
+                func_00293710(*(s16 *)(arg3 + 0xC), 4, 0.0f, 0.0f, *(f32 *)(arg4 + 0x14), 0.0f, *(s8 *)(arg4 + 0x36), NULL);
+            }
+            break;
+        }
         case 5:
             if ((*(s8 *)(arg4 + 0x15) != 1) && (*(s8 *)(arg4 + 0x15) == 0)) {
                 func_0026bc10(*(u16 *)(arg3 + 0xC), *(u8 *)(arg4 + 0x14));
@@ -1336,60 +1387,10 @@ s32 func_00288170(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
             sp250[2] = *(f32 *)(arg4 + 0x18);
             func_00269440(*(u16 *)(arg3 + 0xC), (u8 *)&sp250[0], *(s16 *)(arg4 + 0x14));
             break;
-        case 11: {
-            p = (u8 *)&spB0[0];
-            n = 16;
-            if (p != NULL) {
-                do {
-                    *p = 0;
-                    p += 1;
-                    n -= 1;
-                } while (n != 0);
-            }
-            spB0[0] = *(s8 *)(arg4 + 0x35);
-            spB0[1] = *(s8 *)(arg4 + 0x36);
-            spB0[2] = *(s8 *)(arg4 + 0x37);
-            spB0[3] = *(s8 *)(arg4 + 0x30);
-            if (*(s8 *)(arg4 + 0x34) != 0) {
-                func_00293710(*(s16 *)(arg3 + 0xC), 4, 0.0f, 0.0f, *(f32 *)(arg4 + 0x14), 0.0f, *(s8 *)(arg4 + 0x36), (u8 *)&spB0[0]);
-            } else {
-                func_00293710(*(s16 *)(arg3 + 0xC), 4, 0.0f, 0.0f, *(f32 *)(arg4 + 0x14), 0.0f, *(s8 *)(arg4 + 0x36), NULL);
-            }
-            break;
-        }
         default:
             break;
         }
         return 1;
-    } else if (arg0 == 1) {
-        return 1;
-    } else if (arg0 == 0) {
-        if (D_008821E0[0] != 1) {
-            return 0;
-        }
-        {
-            u8 *r = func_00145270(*(u16 *)(arg3 + 0xC));
-            if (r == NULL) {
-                return 1;
-            }
-            if (((*(s32 *)arg2 & 0x80000000) != 0) && (arg1 == *(s32 *)(arg2 + 0xC))) {
-                func_00146e60(*(u16 *)(arg3 + 0xC), arg3 + 0x38, arg3 + 0x44);
-                *(u32 *)&sp250[0] = 0x3F800000;
-                *(u32 *)&sp250[1] = 0x3F800000;
-                *(u32 *)&sp250[2] = 0x3F800000;
-                func_00146ee0(*(u16 *)(arg3 + 0xC), (u8 *)&sp250[0]);
-                func_00269740(*(u16 *)(arg3 + 0xC));
-                func_00269620(*(u16 *)(arg3 + 0xC), *(u8 *)(arg3 + 0x53), 0, 0);
-                *(s32 *)(arg3 + 0x60) = 0;
-                func_00293270();
-                if ((*(s32 *)(arg3 + 0x54) & 2) == 0) {
-                    func_00269c20(*(u16 *)(arg3 + 0xC), 0);
-                } else {
-                    func_00269c20(*(u16 *)(arg3 + 0xC), 1);
-                }
-            }
-            return 1;
-        }
     }
     return 1;
 }
@@ -1442,10 +1443,9 @@ u8 *func_00145270(s32);                  /* extern */
    the +-3% band.  Any differing-word score in this note was measured
    against a body of the wrong length and is not comparable to one
    measured inside the gate (handoff 7y).  Fix the count first. */
+/* 2026-09-19 outer 0,1,2 (was 2,1,0) + inner 0,1 (was 1,0) with defaults (only no_branch_likely on; removed schedule on/subs off): 219 words (was 233), fnalign 271 vs 268 (+1.1% inside, was 252 vs 264 -4.5% outside), 119 edits (was 409). Outer alone 246/167, inner alone 236/167 (sched off/subs on); sched on/subs off both 234/199. 108-vs-47 was inner large (8 divides+wrap, object[70:178]) vs retail 0-block+prefix (47, retail[29:75]); arm order alone tied 233-235 in words but inner swap cuts edits 409->239, both->119. No promotion (119 remain: float remat +7, arg order, scheduling floor). */
 // FUN_00288AF0 NONMATCHING
 #ifdef NON_MATCHING
-#pragma schedule on
-#pragma opt_common_subs off
 #pragma no_branch_likely on
 s32 func_00288af0(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
     void func_00146e60(u16, void *, void *);
@@ -1465,7 +1465,23 @@ s32 func_00288af0(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
     s8 temp_3;
     u8 *temp_2;
 
-    if (arg0 == 2) {
+    if (arg0 == 0) {
+        if (D_008821E0[0] != 1) {
+            return 0;
+        }
+        if (arg1 == M2C_FIELD(arg2, s32 *, 0xC)) {
+            func_0026bf70(0x1E58);
+            func_00146e60(M2C_FIELD(arg3, u16 *, 0xC), arg3 + 0x38, arg3 + 0x44);
+            func_00269740(M2C_FIELD(arg3, u16 *, 0xC));
+            temp_2 = (u8 *)(func_00145270(0x1E58U));
+            if (temp_2 != NULL) {
+                M2C_FIELD(temp_2, f32 *, 0x140) = (f32) M2C_FIELD(arg2, f32 *, 0x750);
+            }
+        }
+        return 1;
+    } else if (arg0 == 1) {
+        return 1;
+    } else if (arg0 == 2) {
         if (M2C_FIELD(arg4, u16 *, 0) != arg1) {
             return 1;
         }
@@ -1474,7 +1490,19 @@ s32 func_00288af0(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
         }
         M2C_FIELD(arg3, s32 *, 0x60) = (s32) M2C_FIELD(arg4, u8 *, 0x34);
         temp_3 = (s8)(M2C_FIELD(arg4, s8 *, 0x12));
-        if (temp_3 == 1) {
+        if (temp_3 == 0) {
+            func_0026bf70(0x1E58);
+            stk70[0] = M2C_FIELD(arg4, f32 *, 0x18);
+            stk70[1] = M2C_FIELD(arg4, f32 *, 0x1C);
+            stk70[2] = M2C_FIELD(arg4, f32 *, 0x20);
+            stk60[0] = M2C_FIELD(arg4, f32 *, 0x24);
+            stk60[1] = M2C_FIELD(arg4, f32 *, 0x28);
+            stk60[2] = M2C_FIELD(arg4, f32 *, 0x14);
+            func_00268f20(M2C_FIELD(arg3, u16 *, 0xC), &stk70[0], M2C_FIELD(arg4, u16 *, 2), M2C_FIELD(arg4, s8 *, 0x30));
+            func_00269340(M2C_FIELD(arg3, u16 *, 0xC), &stk60[0], M2C_FIELD(arg4, u16 *, 2), M2C_FIELD(arg4, u8 *, 0x30));
+            func_00269690(M2C_FIELD(arg3, u16 *, 0xC), M2C_FIELD(arg4, f32 *, 0x2C), M2C_FIELD(arg4, u16 *, 2));
+            func_00440b68((char *)&D_0063C540, (s32) M2C_FIELD(arg4, u16 *, 2));
+        } else if (temp_3 == 1) {
             func_0026bf70(0x1E58);
             stk50[0] = (f32) M2C_FIELD(arg4, s16 *, 0x14) / 16.0f;
             stk50[1] = (f32) M2C_FIELD(arg4, s16 *, 0x16) / 16.0f;
@@ -1501,42 +1529,12 @@ s32 func_00288af0(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
             }
             func_002690b0(M2C_FIELD(arg3, u16 *, 0xC), (u8 *)&stk50[0], (u8 *)&stk40[0], var_f12, var_f13, (f32) M2C_FIELD(arg4, s16 *, 0x26), (f32) M2C_FIELD(arg4, s16 *, 0x2A), (f32) M2C_FIELD(arg4, s16 *, 0x24), (f32) M2C_FIELD(arg4, s16 *, 0x28), M2C_FIELD(arg4, u16 *, 2), M2C_FIELD(arg4, s8 *, 0x30));
             func_00269690(M2C_FIELD(arg3, u16 *, 0xC), M2C_FIELD(arg4, f32 *, 0x2C), 0);
-        } else if (temp_3 == 0) {
-            func_0026bf70(0x1E58);
-            stk70[0] = M2C_FIELD(arg4, f32 *, 0x18);
-            stk70[1] = M2C_FIELD(arg4, f32 *, 0x1C);
-            stk70[2] = M2C_FIELD(arg4, f32 *, 0x20);
-            stk60[0] = M2C_FIELD(arg4, f32 *, 0x24);
-            stk60[1] = M2C_FIELD(arg4, f32 *, 0x28);
-            stk60[2] = M2C_FIELD(arg4, f32 *, 0x14);
-            func_00268f20(M2C_FIELD(arg3, u16 *, 0xC), &stk70[0], M2C_FIELD(arg4, u16 *, 2), M2C_FIELD(arg4, s8 *, 0x30));
-            func_00269340(M2C_FIELD(arg3, u16 *, 0xC), &stk60[0], M2C_FIELD(arg4, u16 *, 2), M2C_FIELD(arg4, u8 *, 0x30));
-            func_00269690(M2C_FIELD(arg3, u16 *, 0xC), M2C_FIELD(arg4, f32 *, 0x2C), M2C_FIELD(arg4, u16 *, 2));
-            func_00440b68((char *)&D_0063C540, (s32) M2C_FIELD(arg4, u16 *, 2));
-        }
-        return 1;
-    } else if (arg0 == 1) {
-        return 1;
-    } else if (arg0 == 0) {
-        if (D_008821E0[0] != 1) {
-            return 0;
-        }
-        if (arg1 == M2C_FIELD(arg2, s32 *, 0xC)) {
-            func_0026bf70(0x1E58);
-            func_00146e60(M2C_FIELD(arg3, u16 *, 0xC), arg3 + 0x38, arg3 + 0x44);
-            func_00269740(M2C_FIELD(arg3, u16 *, 0xC));
-            temp_2 = (u8 *)(func_00145270(0x1E58U));
-            if (temp_2 != NULL) {
-                M2C_FIELD(temp_2, f32 *, 0x140) = (f32) M2C_FIELD(arg2, f32 *, 0x750);
-            }
         }
         return 1;
     }
     return 1;
 }
 #pragma no_branch_likely off
-#pragma opt_common_subs on
-#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_00288af0);
 #endif

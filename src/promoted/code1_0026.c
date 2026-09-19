@@ -195,6 +195,7 @@ void func_002605a0(f32 fparg0, f32 fparg1, f32 fparg2,
     }
 }
 /* floor (within 3%): probe_variants 474wd via `python3 tools/probe_variants.py src/promoted/code1_0026.c func_00260600 --candidate V5outer=/var/tmp/cold260600/v5_outer.c`; fnalign retail 533 vs object 525 instrs (722 edits) via `python3 tools/fnalign.py src/promoted/code1_0026.c func_00260600 --candidate /var/tmp/cold260600/v5_outer.c --quiet`; -8 short (1.5% within 3% rule). m2c+romwright agree on 2x0x18 copies + 3x0xC loops; denoised to file idiom with true s32 func_0025f430(s32x8+f32x6) from shdSprite + f32 func_0044b610/7b0 + u8 D_00637440/500 + f32 fGpffff811c/iGpffff81d0/D_007612C4; signature s32x7+f32x3 per 00260e60 caller + retail prologue daddu; per-case 14/16/41/29/12 biases + 18/13 cos/sin + 47/52/57/48 + 22.0/180.0 s16 truncations + 34/36/52/38 epilogues; opt_loop_invariants on -25wd (499->474). Wall remains save-set/colour/scheduling. No volatile/asm. */
+/* measured 00260600: retail checks 2,1,0 descending but handlers 0,1,2 ascending (H0 at R61 14.0f first) vs C 2,1,0 descending handlers descending - one block move to `switch (arg4) {case 0:..;case 1:..;case 2:..;}`: fnalign 525/533,722 -> 527/533,317 (-405, -56%), words 474 -> 478 (GUARDED_SCORE via `python3 tools/measure_guarded.py src/promoted/code1_0026.c func_00260600`); -6 short (1.1% within gate, was -8/1.5%). if/else ascending 0,1,2 gives 525/329/482, switch wins on all three. */
 // FUN_00260600 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
@@ -260,55 +261,8 @@ void func_00260600(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s
         *(s32 *)(dst + 4) = tmpb;
         dst += 8;
     } while (n > 0);
-    if (arg4 == 2) {
-        biasA = (int)((float)arg0 - 12.0f * fparg1);
-        biasB = (int)((float)arg1 + fparg2);
-        gpThird = fGpffff811c * fparg2;
-        gpFiveThird = fGpffff811c * fparg2 * 5.0f;
-        for (i = 0; i < 0xC; i++) {
-            entry2 = fstack[i * 4 + 2];
-            angle = iGpffff81d0 * (90.0f - entry2);
-            cosv = func_0044b610(angle);
-            cosS = 13.0f * cosv;
-            sinv = func_0044b7b0(angle);
-            sinS = 13.0f * (-sinv);
-            entry0 = fstack[i * 4 + 0];
-            entry1 = fstack[i * 4 + 1];
-            entry3 = fstack[i * 4 + 3];
-            fx = (cosS + entry0 + 57.0f) * fparg1 + (float)biasA;
-            fy = (sinS + entry1 + 48.0f) * fparg2 + (float)biasB;
-            sx = (s16)(int)(0.5f * fparg1 * (22.0f * entry3));
-            sy = (s16)(int)gpFiveThird;
-            fmid = entry2 - 180.0f;
-            fhalf = 0.5f * fparg1 * entry3;
-            func_0025f430(arg2, arg3, 0x13, 0, (u8 *)arg5, arg6, sx, sy, fx, fy, fparg0, fmid, fhalf, gpThird);
-        }
-        func_0025f430(arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, fparg1 * 52.0f + (float)biasA, fparg2 * 38.0f + (float)biasB, fparg0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
-    } else if (arg4 == 1) {
-        biasA = (int)((float)arg0 - 41.0f * fparg1);
-        biasB = (int)((float)arg1 - 29.0f * fparg2);
-        gpThird = fGpffff811c * fparg2;
-        gpFiveThird = fGpffff811c * fparg2 * 5.0f;
-        for (i = 0; i < 0xC; i++) {
-            entry2 = fstack[i * 4 + 2];
-            angle = iGpffff81d0 * (90.0f - entry2);
-            cosv = func_0044b610(angle);
-            cosS = 13.0f * cosv;
-            sinv = func_0044b7b0(angle);
-            sinS = 13.0f * (-sinv);
-            entry0 = fstack[i * 4 + 0];
-            entry1 = fstack[i * 4 + 1];
-            entry3 = fstack[i * 4 + 3];
-            fx = (cosS + entry0 + 57.0f) * fparg1 + (float)biasA;
-            fy = (sinS + entry1 + 48.0f) * fparg2 + (float)biasB;
-            sx = (s16)(int)(0.5f * fparg1 * (22.0f * entry3));
-            sy = (s16)(int)gpFiveThird;
-            fmid = entry2 - 180.0f;
-            fhalf = 0.5f * fparg1 * entry3;
-            func_0025f430(arg2, arg3, 0x13, 0, (u8 *)arg5, arg6, sx, sy, fx, fy, fparg0, fmid, fhalf, gpThird);
-        }
-        func_0025f430(arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, fparg1 * 52.0f + (float)biasA, fparg2 * 38.0f + (float)biasB, fparg0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
-    } else if (arg4 == 0) {
+    switch (arg4) {
+    case 0:
         biasA = (int)((float)arg0 - 14.0f * fparg1);
         biasB = (int)((float)arg1 - 16.0f * fparg2);
         halfThird = 0.5f * fparg2;
@@ -332,6 +286,57 @@ void func_00260600(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s
             func_0025f430(arg2, arg3, 0x13, 0, (u8 *)arg5, arg6, sx, sy, fx, fy, fparg0, fmid, fhalf, halfThird);
         }
         func_0025f430(arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, fparg1 * 34.0f + (float)biasA, fparg2 * 36.0f + (float)biasB, fparg0, 0.0f, fparg1, fparg2);
+        break;
+    case 1:
+        biasA = (int)((float)arg0 - 41.0f * fparg1);
+        biasB = (int)((float)arg1 - 29.0f * fparg2);
+        gpThird = fGpffff811c * fparg2;
+        gpFiveThird = fGpffff811c * fparg2 * 5.0f;
+        for (i = 0; i < 0xC; i++) {
+            entry2 = fstack[i * 4 + 2];
+            angle = iGpffff81d0 * (90.0f - entry2);
+            cosv = func_0044b610(angle);
+            cosS = 13.0f * cosv;
+            sinv = func_0044b7b0(angle);
+            sinS = 13.0f * (-sinv);
+            entry0 = fstack[i * 4 + 0];
+            entry1 = fstack[i * 4 + 1];
+            entry3 = fstack[i * 4 + 3];
+            fx = (cosS + entry0 + 57.0f) * fparg1 + (float)biasA;
+            fy = (sinS + entry1 + 48.0f) * fparg2 + (float)biasB;
+            sx = (s16)(int)(0.5f * fparg1 * (22.0f * entry3));
+            sy = (s16)(int)gpFiveThird;
+            fmid = entry2 - 180.0f;
+            fhalf = 0.5f * fparg1 * entry3;
+            func_0025f430(arg2, arg3, 0x13, 0, (u8 *)arg5, arg6, sx, sy, fx, fy, fparg0, fmid, fhalf, gpThird);
+        }
+        func_0025f430(arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, fparg1 * 52.0f + (float)biasA, fparg2 * 38.0f + (float)biasB, fparg0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
+        break;
+    case 2:
+        biasA = (int)((float)arg0 - 12.0f * fparg1);
+        biasB = (int)((float)arg1 + fparg2);
+        gpThird = fGpffff811c * fparg2;
+        gpFiveThird = fGpffff811c * fparg2 * 5.0f;
+        for (i = 0; i < 0xC; i++) {
+            entry2 = fstack[i * 4 + 2];
+            angle = iGpffff81d0 * (90.0f - entry2);
+            cosv = func_0044b610(angle);
+            cosS = 13.0f * cosv;
+            sinv = func_0044b7b0(angle);
+            sinS = 13.0f * (-sinv);
+            entry0 = fstack[i * 4 + 0];
+            entry1 = fstack[i * 4 + 1];
+            entry3 = fstack[i * 4 + 3];
+            fx = (cosS + entry0 + 57.0f) * fparg1 + (float)biasA;
+            fy = (sinS + entry1 + 48.0f) * fparg2 + (float)biasB;
+            sx = (s16)(int)(0.5f * fparg1 * (22.0f * entry3));
+            sy = (s16)(int)gpFiveThird;
+            fmid = entry2 - 180.0f;
+            fhalf = 0.5f * fparg1 * entry3;
+            func_0025f430(arg2, arg3, 0x13, 0, (u8 *)arg5, arg6, sx, sy, fx, fy, fparg0, fmid, fhalf, gpThird);
+        }
+        func_0025f430(arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, fparg1 * 52.0f + (float)biasA, fparg2 * 38.0f + (float)biasB, fparg0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
+        break;
     }
 }
 #pragma opt_loop_invariants off
