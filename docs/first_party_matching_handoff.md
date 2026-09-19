@@ -570,6 +570,18 @@ declaration order, while a *computed temporary* is numbered by the allocator
 in an order source cannot reach.  Try declaration order once on the
 parameter-derived case; do not spend a round on it for a temporary.
 
+**And check the frame before the registers.**  `func_001cde50` went from 231
+differing words to 78 in one round, and the change that did it was not a
+register hint: it was `v28[6]` -> `v28[4]`, which took the frame from 0x120 to
+retail's 0x110.  Allocation follows the frame, not the other way round - the
+prologue's `addiu $sp, $sp, -N` is the cheapest thing on the whole listing to
+compare, and when it disagrees every saved register below it is suspect.  The
+same signal is recorded on `func_0019c0d0` (frame 0xA0 against retail 0xB0,
+`tmp` at 0x9C against 0xAC) and on `func_00112830`, where declaring the
+explicit frame struct moved the frame to -0xF0 and recovered twelve
+instructions.  So: match the frame size first, then re-read the listing; a
+rotation that survives a correct frame is the real wall.
+
 ### 7ad. Rank the floors before choosing what to work on
 
 `tools/floor_distance.py` measures every guarded floor in the tree by fnalign

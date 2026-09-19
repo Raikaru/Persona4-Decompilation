@@ -2935,6 +2935,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205ff0);
    at 85, lifting it into a named local ties at 85, distributing to
    `18.5f - 18.5f * temp_f20` costs 147, and folding the constant to
    `((f32)0x14D + 18.5f) - 18.5f * temp_f20` costs 146. */
+/* measured 00206dd0 2026-09-19: callback 3rd param s8 -> u8 fixes li -1 to li 0xff (retail 0x0020705c); 85 -> 84 words, 21 -> 20 edits (+2 reloc-only), 217/217 kept. */
 // FUN_00206DD0 NONMATCHING
 #ifdef NON_MATCHING
 /* lane W42c20 probe for func_00206dd0 (0x00206dd0)
@@ -2945,7 +2946,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205ff0);
  *   and prologue saved-register copy order for s2 vs f20/f21.
  */
 
-void func_00206dd0(u8 *arg0, u8 *arg1, void (*arg2)(u8 *, s16, s8, s32, s32, f32, f32), f32 fparg0, f32 fparg1)
+void func_00206dd0(u8 *arg0, u8 *arg1, void (*arg2)(u8 *, s16, u8, s32, s32, f32, f32), f32 fparg0, f32 fparg1)
 {
     u8 *temp_2;
     f32 var_f0;

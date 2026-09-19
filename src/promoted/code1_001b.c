@@ -1990,11 +1990,7 @@ s32 func_001b3fb0(void)
     }
     return 0;
 }
-/* measured 001b4060: `opt_common_subs off` inside the guard is worth 2 words (308 -> 306); retail rematerialises what b210 hoists. */
-/* gate: object 355 against retail 371, -4.3% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 001b4060 2026-09-19: explicit frame struct at retail offsets (spA0 0xA0, sp120/124/12C/148/14C) forces spills; object 362/retail 371 -2.4% INSIDE, 314 words, 112 edits (was 355/371 -4.3%, 306 words, 106 edits). Largest hole closed: sp124 4-instr (andi/andi/subu/sw at 0x1b42d4) now spills; remaining pure deletes are 1-instr first-arg moves (0x1b40d4,0x1b4110,0x1b4224,0x1b4368,0x1b43e8,0x1b44a0) + 2-instr ld/lw at 0x1b43f8 (pkt+88 + sp12C reload). Prior: opt_common_subs off 308->306. */
 // FUN_001B4060 NONMATCHING
 #ifdef SKIP_ASM
 #pragma opt_common_subs off
@@ -2004,19 +2000,14 @@ void func_001b4060(void)
     s32 v19;
     s32 t18;
     u8 *pkt;
-    u8 spA0[32];
-    s32 sp14C;
-    s32 sp148;
-    s32 sp12C;
-    s32 sp124;
-    s32 sp120;
+    struct { u8 pad00[0xA0]; u8 spA0[32]; u8 padC0[0x60]; s32 sp120; s32 sp124; u8 pad128[4]; s32 sp12C; u8 pad130[0x18]; s32 sp148; s32 sp14C; } frame;
     u8 *v20;
 
     t16 = *(u8 **)(iGpffffb3ac + 368);
     v19 = 0;
     t18 = func_001d3d50(0);
-    func_001d69f0(317, spA0);
-    pkt = func_001d5eb0(t18, spA0, 0);
+    func_001d69f0(317, frame.spA0);
+    pkt = func_001d5eb0(t18, frame.spA0, 0);
     *(s64 *)(pkt + 96) = *(s64 *)t16;
     func_00194590(pkt, 1);
     pkt = func_001f8000(317, 0);
@@ -2024,13 +2015,13 @@ void func_001b4060(void)
     *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
     *(s64 *)(pkt + 96) = *(s64 *)t16;
     func_00194590(pkt, 1);
-    func_001b7060(317, &sp14C, &sp148);
-    pkt = func_001b7880(sp14C, sp148, 16);
+    func_001b7060(317, &frame.sp14C, &frame.sp148);
+    pkt = func_001b7880(frame.sp14C, frame.sp148, 16);
     *(s64 *)(pkt + 96) = *(s64 *)t16;
     func_00194590(pkt, 1);
     t18 = func_001b7080(317);
-    func_001b70a0(317, &sp14C, &sp148);
-    pkt = func_001b83f0(t18, sp14C, sp148, 16, 0);
+    func_001b70a0(317, &frame.sp14C, &frame.sp148);
+    pkt = func_001b83f0(t18, frame.sp14C, frame.sp148, 16, 0);
     *(s64 *)(pkt + 96) = *(s64 *)t16;
     func_00194590(pkt, 1);
     pkt = func_001b9560(func_001b7090(317), 16);
@@ -2051,13 +2042,13 @@ void func_001b4060(void)
         s32 v0a;
         s32 v1a;
         t21 = (u8 *)func_001b0c80((s32)v20);
-        func_001f0a10((u8 *)&sp120);
+        func_001f0a10((u8 *)&frame.sp120);
         v0a = func_00231f80((DatUnit *)(v20 + 2660)) & 0xFFFF;
         v1a = func_00232290((DatUnit *)(v20 + 2660)) & 0xFFFF;
-        sp120 = (v0a & 0xFFFF) - (func_00231ed0(v20 + 2660) & 0xFFFF);
-        sp124 = (v1a & 0xFFFF) - (func_00231ee0(v20 + 2660) & 0xFFFF);
+        frame.sp120 = (v0a & 0xFFFF) - (func_00231ed0(v20 + 2660) & 0xFFFF);
+        frame.sp124 = (v1a & 0xFFFF) - (func_00231ee0(v20 + 2660) & 0xFFFF);
         if (func_002428f0(*(s32 *)(v20 + 2660), 0) != 0) {
-            sp12C = 0x80000;
+            frame.sp12C = 0x80000;
         }
         pkt = func_00202740(v20);
         *(s64 *)(pkt + 96) = *(s64 *)t16;
@@ -2081,26 +2072,26 @@ void func_001b4060(void)
         *(s16 *)(pkt + 74) = 18;
         *(s64 *)(pkt + 96) = *(s64 *)t16;
         func_00194590(pkt, 0);
-        if ((sp12C & 0x80000) != 0 && (*(s32 *)(v20 + 156) & 0x200) != 0) {
+        if ((frame.sp12C & 0x80000) != 0 && (*(s32 *)(v20 + 156) & 0x200) != 0) {
             pkt = func_00199ee0((u8 *)v20, 20, 0, 0, 1.0f);
             *(pkt + 0) = 11;
             *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
             *(s64 *)(pkt + 96) = *(s64 *)t16;
             func_00194590(pkt, 1);
         }
-        pkt = func_001f36e0((s32)v20, (s32)v20, &sp120, 1, 1);
+        pkt = func_001f36e0((s32)v20, (s32)v20, &frame.sp120, 1, 1);
         *(pkt + 0) = 11;
         *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
         *(s64 *)(pkt + 96) = *(s64 *)t16;
         func_00194590(pkt, 1);
-        if (sp120 != 0) {
+        if (frame.sp120 != 0) {
             pkt = func_00202590((u8 *)v20, 0, 0);
             *(pkt + 0) = 4;
             *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
             *(pkt + 71) = *(pkt + 71) & 0xDF;
             func_00194590(pkt, 3);
         }
-        pkt = func_00201de0((s32)v20, (s32)v20, -1, 0, 0, 0, 1, (u8 *)&sp120, 0);
+        pkt = func_00201de0((s32)v20, (s32)v20, -1, 0, 0, 0, 1, (u8 *)&frame.sp120, 0);
         *(pkt + 0) = 4;
         *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
         *(pkt + 71) = *(pkt + 71) & 0xDF;
