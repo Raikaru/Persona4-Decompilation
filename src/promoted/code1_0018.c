@@ -1376,6 +1376,18 @@ void func_00185830(void)
 
 /* measured: honest first reconstruction per 00182310/838d0 idiom (u8* ctx at +0x38, s32 state/status at +0x0/+0x4, f32 stores via ((f32*)pi), plain arithmetic for adda/madd 850/750/450/250 +500/300; m2c 455 lines + rom 357 lines + raw 338 lines into /var/tmp/cold185850, arity 1 pointer trusted; probe_variants v1 1074 base (int stores), v2 954 float stores (-120), v3 861 f-suffix+D-float (-93), loopinv 858 (-3 adopted), nounroll 861 tie, sched 861 tie, v4 861 blez tie (<=0), v5 860 switch (-1); fnalign v3 retail 880/object 916 (36 over) 963 edits +3 reloc-only; residual is saved-reg colour + frame 0x90 vs 0x60; stop after one improving round per 7l. */
 #pragma opt_loop_invariants on
+/* measured 00185850 (owner, 2026-09-19): 904/880 with 796 fnalign edits, and
+   `block_move_scan` reports the gap as a single **90-instruction surplus in the object**
+   at object[35:125], 0x001858AC, containing 8 calls, shape
+   `addiu x25  sw x16  lui x14  nop x11  jal x8  move x7`.
+   Reading the two sides at that point: retail calls, stores the returned pointer into a
+   global slot (`sw $v0, -0x7740($v1)` after each `jal`) and moves on, while the body
+   calls and then writes four fields on the result inline - `sw $v1, 8($v0)`,
+   `sw $s2, 0x10($v0)`, `sw $v1, 0xc($v0)`, `sw $s2, 0x14($v0)` - before the next call.
+   Call counts agree at 34 on both sides, so nothing is missing: the body is performing
+   initialisation retail performs elsewhere, either inside the callee or in a later loop
+   over the stored pointers.  That is where the 90 instructions are, and it is worth more
+   than the whole rest of the function's distance. */
 // FUN_00185850 NONMATCHING
 #ifdef NON_MATCHING
 void func_00185850(u8 *arg0)

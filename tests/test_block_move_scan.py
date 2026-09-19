@@ -79,5 +79,16 @@ class Opcodes(unittest.TestCase):
                          ["addiu", "nop"])
 
 
+class UnpairedDescription(unittest.TestCase):
+    """An unpaired run is the one verdict that names its own fix, so the
+    report has to say where it is and what it does."""
+
+    def test_opcodes_reduce_to_mnemonics_for_the_histogram(self) -> None:
+        window = ["jal", "nop", "sw $v0, 8($v1)", "sw $s2, 0x10($v1)", "nop"]
+        self.assertEqual(bms.opcodes(window),
+                         ["jal", "nop", "sw", "sw", "nop"])
+
+
+
 if __name__ == '__main__':
     unittest.main()

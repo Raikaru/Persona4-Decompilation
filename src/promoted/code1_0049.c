@@ -791,6 +791,10 @@ void func_004916f0(u8 *arg0)
     u8 mode9C;
     f32 vD8;
     f32 vDC;
+    f32 g84;
+    f32 g80;
+    f32 one;
+    f32 half;
     s32 v15;
     s32 flagBD;
     u32 idx;
@@ -823,6 +827,10 @@ void func_004916f0(u8 *arg0)
     mode9C = *(u8 *)(config + 156);
     vDC = *(f32 *)(config + 220);
     vD8 = *(f32 *)(config + 216);
+    g84 = fGpffff8084;
+    g80 = fGpffff8080;
+    one = 1.0f;
+    half = 0.5f;
     idx = 0;
     vec120[3] = 0.0f;
     __asm__ volatile("lqc2 $vf10, 0x10(%0)" : : "r"(config), "m"(*(u_long128 *)(config + 16)) : "$vf10", "memory");
