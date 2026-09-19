@@ -695,6 +695,11 @@ INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00365ac0);
    all four scope arrangements tie at 13 in retail computation order and all
    four cost 17 reversed.  Scope is inert here and reversal is a regression,
    so the body already has retail's order. */
+/* measured 00365f00 (owner, 2026-09-19): 287/287 exact, **12 edits plus 12 reloc-only**.  The
+   twelve are a $s3/$fp rotation - retail holds `num_segments` in $s3 and the stack-passed
+   `mode` byte in $fp, the object swaps them - plus one `lbu 0xec($sp)` placed three slots
+   early.  Four positions for the `num_segments` declaration were measured (before `i`, right
+   after `vertex`, before `edge_a`, after `center_g`) and all four are neutral at 12. */
 // FUN_00365F00 NONMATCHING
 #ifdef NON_MATCHING
 void func_00365f00(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
