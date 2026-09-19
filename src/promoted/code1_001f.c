@@ -891,6 +891,17 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
 }
 /* measured: GUARDED_SCORE 1416 via `python3 tools/measure_guarded.py src/promoted/code1_001f.c func_001f14f0` (romwright oracle de-noised: single-u8* signature from call sites code1_001a.c:2239/4325; void return per retail epilogue setting no $v0 and callers ignoring it; bare func_0043f9c8 call per retail sw $30 after jal ignoring $v0; u16-outer/u8-inner/s16-found loop counters with explicit &0xFFFF/&0xFF init-test-incr per retail F2A20-F2AF8; load signedness per-offset census 0x6C/0x70/0x6A/0x2C/0x3F4 lhu, 0xA2/0x11/0x14B/0x18B/0x24 lbu, 0xEE lh kept for == -1; (s32)/(u8*) casts per file idiom code1_001f.c:740/817); obj 1556I / retail 1524I (+32, +2.10% PASS, band 1478-1570, headroom 14). fnalign 1492 edits +2 reloc-only. */
 /* wide-store 1416->1387 (-29 words), 1492->1406 edits (-86, -5.8%) via `python3 tools/fnalign.py src/promoted/code1_001f.c func_001f14f0 --candidate /tmp/1f14f0_wide.c`: byte-pair/quad stores widened to retail's half/word form per asymmetric sb/sh/sw runs (sb 96->38, sh deficit +20->+11, sw deficit +21->+11; lui unchanged +3). Sites: pbVar4/pbVar6 0x2c halfword 0, p/pbVar5 0xdc halfword 0, 0xe0/0xe4 word 0, 0xe8 word 0/1 (three 0xe8=1 sites), 0xec halfword 0, 0xee halfword 0xffff, pbVar5 0x3f4 halfword 0x240, pbVar5 0xe4 word 1. Obj 1516I vs retail 1523I (-7, -0.5% PASS, band 1477-1569); frame still 0x2c0 vs retail 0x310 (-80, alias not yet addressed); regsave clean (no GPR/FPR diff); jal still 22 vs 10 and dsll32/dsra32 surplus remain for next pass. Honest: no sltiu-for-slti, no s64 flat, no opt_propagation, no volatile, no asm; window alignment untouched. */
+/* measured 001f14f0 (owner, 2026-09-19): fnalign **1406 -> 1384 edits** and the count from
+   1516 to 1520 against retail 1523, by writing the dispatch as `switch (temp_v12)` with
+   `case 3: case 4:` sharing one body.  The chain spelled it `(temp_v12 == 3) || (temp_v12 ==
+   4)` followed by `else if (== 2)` and `else if (== 1)`, which the switch sweep's converter
+   does not recognise - an OR of two equalities against the same variable is a pair of
+   fallthrough cases, not a compound condition.
+   Case ORDER is the whole lever here: ascending 1/2/3+4 is 1384, but keeping the source's
+   3+4/2/1 order is 1443, worse than the chain it replaces.  Measure both directions.
+   The same shape in func_001b2380 - `(temp_v4 == 1) || (temp_v4 == 0)` then `else if (== 2)`,
+   with a `goto LAB_001b2a6c` from the second arm into the first - was converted the same way
+   and is WORSE (1392 -> 1394, count 1014 -> 1016), so it stays a chain. */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001f14f0(u8 *arg0)
@@ -984,27 +995,8 @@ void func_001f14f0(u8 *arg0)
   *(unsigned short *)(p + 0xee) = 0xffff;
   if ((temp_v18 == 0) && (temp_v12 = func_0023df70((unsigned int)temp_v2), temp_v12 == 0)) {
     temp_v12 = func_0023ddc0(pbVar4,(unsigned int)temp_v2);
-    if ((temp_v12 == 3) || (temp_v12 == 4)) {
-      *(unsigned int *)(p + 0xe8) = 1;
-      if (*(unsigned char *)(*(int *)(p + 0x30) + 0xa2) == '\0') {
-        temp_v9 = 0x3a;
-      }
-      else {
-        temp_v9 = 0x3b;
-      }
-      *(unsigned short *)(p + 0xec) = temp_v9;
-    }
-    else if (temp_v12 == 2) {
-      *(unsigned int *)(p + 0xe8) = 1;
-      if (*(unsigned char *)(*(int *)(p + 0x30) + 0xa2) == '\0') {
-        temp_v9 = 0x38;
-      }
-      else {
-        temp_v9 = 0x39;
-      }
-      *(unsigned short *)(p + 0xec) = temp_v9;
-    }
-    else if (temp_v12 == 1) {
+    switch (temp_v12) {
+    case 1:
       *(unsigned int *)(p + 0xe8) = 1;
       if (*(unsigned char *)(*(int *)(p + 0x30) + 0xa2) == '\0') {
         temp_v9 = 0x36;
@@ -1013,6 +1005,28 @@ void func_001f14f0(u8 *arg0)
         temp_v9 = 0x37;
       }
       *(unsigned short *)(p + 0xec) = temp_v9;
+        break;
+    case 2:
+      *(unsigned int *)(p + 0xe8) = 1;
+      if (*(unsigned char *)(*(int *)(p + 0x30) + 0xa2) == '\0') {
+        temp_v9 = 0x38;
+      }
+      else {
+        temp_v9 = 0x39;
+      }
+      *(unsigned short *)(p + 0xec) = temp_v9;
+        break;
+    case 3:
+    case 4:
+      *(unsigned int *)(p + 0xe8) = 1;
+      if (*(unsigned char *)(*(int *)(p + 0x30) + 0xa2) == '\0') {
+        temp_v9 = 0x3a;
+      }
+      else {
+        temp_v9 = 0x3b;
+      }
+      *(unsigned short *)(p + 0xec) = temp_v9;
+        break;
     }
   }
   if (*(int *)(p + 0xe8) == 1) {
