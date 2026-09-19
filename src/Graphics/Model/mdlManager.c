@@ -3913,7 +3913,12 @@ void func_00479080(void* param_1, void* param_2)
    products first, `maximum * red + bias`, ties at 29; computing the four
    floats into temporaries and converting afterwards costs 31; an explicit
    shared `f32 zero` local costs 196.  Treat as constant-rematerialisation
-   colouring unless someone finds a source form that pins the zero. */
+   colouring unless someone finds a source form that pins the zero.
+   Micro-test lead: the same four lines in isolation prime `mtc1 $zero` once
+   and reuse it, so the re-prime inside this function is register pressure,
+   not expression shape — fewer simultaneously live values across the four
+   channels, a tighter scope around each, or letting one value die before the
+   next is born should keep $f3 live.
 // FUN_00479100 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -4101,7 +4106,6 @@ layers:
     }
 }
 
-#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479100);
 #endif
