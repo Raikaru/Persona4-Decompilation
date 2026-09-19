@@ -869,7 +869,7 @@ void func_001839e0(u8 *arg0, u8 *arg1)
                                       *(s32 *)(*(u8 **)(arg1 + 0x410)));
 }
  
-// FUN_00183B80
+// FUN_00183B80 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
 void func_00183b80(u8 *arg0)

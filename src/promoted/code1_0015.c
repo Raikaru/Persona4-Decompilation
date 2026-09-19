@@ -3423,9 +3423,11 @@ u16 *func_0015d2c0(u32 arg0)
 }
 
 /* HBN-record floor (1056B window). Counted-for inner loops (Main order #1): 97wd / 48+1 edits (267 vs 264 3-long) -> 14wd / 14+1 edits (261/261 exact). Entry-guard blez (#2) ties 97, incr-order swap (#3) ties 97, s16 counters (#4) explode 255. s32 for s64 temps ties 14. Remnant is pure $v0/$v1 + addiu/daddiu in the (s8)func_00110960 &1/-2 adjust (6 sites). Frame -0x90 exact, 7/7 pairs balanced, opclass clean. Production stays ASM. */
-// FUN_0015D310 NONMATCHING
-#ifdef NON_MATCHING
-/* Closest non-MATCH candidate archived before reverting; lverify report had MISMATCH. */
+/* MATCHED.  The last 14 differing words were the hand-expanded signed modulo: the body
+   lowered `x % 2` itself as `x & 1` plus a negative correction and a `-= 2`, which left six
+   sites of $v0/$v1 and addiu/daddiu churn.  Writing `(s32)var_2 % 2` with s32 temporaries
+   lets the compiler emit its own sequence and the function goes to zero. */
+// FUN_0015D310
 u8 *func_0015d310(u16 *arg0)
 {
     extern s16 func_001060b0(void);
@@ -3437,8 +3439,8 @@ u8 *func_0015d310(u16 *arg0)
     s32 temp_4_5;
     s32 var_18;
     s32 var_19_2;
-    s64 temp_3_2;
-    s64 temp_3_3;
+    s32 temp_3_2;
+    s32 temp_3_3;
     s64 var_2;
     s64 var_2_2;
     s32 temp_22;
@@ -3510,10 +3512,7 @@ loop_body:
                         temp_22 = (s16)func_001060b0();
                         var_2 = (s64)(s8)func_00110960(temp_22,
                                                      func_001060c0() & 0xFF);
-                        temp_3_2 = var_2 & 1;
-                        if ((var_2 < 0) && (temp_3_2 != 0)) {
-                            temp_3_2 -= 2;
-                        }
+                        temp_3_2 = (s32)var_2 % 2;
                         if (temp_3_2 != 0) {
                             goto block_50;
                         }
@@ -3523,10 +3522,7 @@ loop_body:
                         temp_22_2 = (s16)func_001060b0();
                         var_2_2 = (s64)(s8)func_00110960(temp_22_2,
                                                        func_001060c0() & 0xFF);
-                        temp_3_3 = var_2_2 & 1;
-                        if ((var_2_2 < 0) && (temp_3_3 != 0)) {
-                            temp_3_3 -= 2;
-                        }
+                        temp_3_3 = (s32)var_2_2 % 2;
                         if (temp_3_3 != 0) {
                             goto block_34;
                         }
@@ -3590,9 +3586,6 @@ loop_test:
     }
     return var_16;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015d310);
-#endif
 // FUN_0015F600
 s32 func_0015f600(void)
 {

@@ -4151,7 +4151,14 @@ void func_0012e9d0(u8 *arg0)
     func_0034f1e0();
     f23 = *(f32 *)(arg0 + 4);
     f22 = *(f32 *)(arg0 + 8);
-    f24 = (f32)(u32)*(u8 *)(arg0 + 0) / 255.0f;
+    tu = *(u8 *)(arg0 + 0);
+    if (tu >= 0) {
+        fs = (f32)tu;
+    } else {
+        fs = (f32)(((u32)tu >> 1) | (tu & 1));
+        fs += fs;
+    }
+    f24 = fs / 255.0f;
     if (*(s32 *)(arg0 + 0x10) != 0) {
         V2_0012e9d0 pos;
         pos.x = f23;
@@ -4432,7 +4439,14 @@ void func_0012e9d0(u8 *arg0)
         V2_0012e9d0 pos;
         pos.x = 640.0f + (f23 + *(f32 *)(arg0 + 0x1828));
     pos.y = 400.0f + (f22 + *(f32 *)(arg0 + 0x182C));
-    fmul = (f32)(u32)*(u8 *)(arg0 + 0x1832) * f24;
+    tu = *(u8 *)(arg0 + 0x1832);
+    if (tu >= 0) {
+        fs = (f32)tu;
+    } else {
+        fs = (f32)(((u32)tu >> 1) | (tu & 1));
+        fs += fs;
+    }
+    fmul = fs * f24;
     if (!(2147483648.0f <= fmul)) {
         aval = (s32)fmul & 0xFF;
     } else {
