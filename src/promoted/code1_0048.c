@@ -3648,6 +3648,19 @@ loop_0048ebc0_check:
 }
 // FUN_0048EC50 NONMATCHING
 /* Floor v2 (measured 2026-09-17): re-derived from retail disassembly (tools/recon_dis.py, asm/nonmatchings/code1_0048/func_0048ec50.s, docs/ida_headstart, docs/ghidra_headstart) + same-file MATCH siblings 861f0/86330/86400 VU idiom. probe_variants cand 536 words (v1 565) via `python3 tools/probe_variants.py src/promoted/code1_0048.c func_0048ec50 --candidate cand=/tmp/cand_ec50v2.c`; measure_guarded GUARDED_SCORE 536, obj 2260B/window 2320B (-60B -2.6% within 3% 2250-2390); fnalign retail 576 instrs/obj 565 instrs, 548 edits (-11 -1.9% within 3% 559-593) via `python3 -E -s tools/fnalign.py src/promoted/code1_0048.c func_0048ec50 --candidate /tmp/cand_ec50v2.c`; verify 60 MATCH/13 ASM (production stays ASM); decomp_lint 0 findings; -DNON_MATCHING TU compile ok (/tmp/c48_nonmatching.o 62K via mwccgap r5900/eabi -O2 -Iinclude -DNON_MATCHING); pragma_sweep singles: loop_invariants on 520 + peephole off 520 (both better than 536), dead/prop/strength/unroll neutral 536, schedule on 549, common_subs off 568, opt_level 3/4 548, 1 568, 0 586 (all worse, baseline -O2 best for size axis, H003 allowed with justification; pairs sweep measured: 9 pairs tie best 520 (dead+peephole, loop+dead, loop+prop, loop+strength, loop+unroll, prop+peephole, strength+peephole, unroll+peephole), loop+peephole together 534 worse than either single (non-additive), all other pairs 536/547-549/563-576, opt_level pairs not run (singles already worse 548/568/586)). 3 u_long128/f32[4] slots (b220buf/vec120/vec130 = retail 0x110/0x120/0x130, no extra), one asm block per lqc2/sqc2/vadd/vmulx/qmtc2/vmove, compiler addresses, no literal stack offsets, memory + exact VU/GPR clobbers, scalar arithmetic in C, $vf0=(0,0,0,1)/lane masks/broadcast/W=0 preserved. */
+/* measured 0048ec50 (owner, 2026-09-19): fnalign edits **548 -> 505** by hoisting the two
+   gp-relative float globals into locals read once.  Retail does exactly that -
+   `lwc1 $f25, -0x7f70($gp)` and `lwc1 $f24, -0x7f6c($gp)` at R165-R166 - and keeps them
+   in callee-saved registers, where the body re-read `fGpffff807c` and `fGpffff8080` at
+   every use.  Frame 0x130 -> 0x140 and the saved set gains $f24.
+   Retail keeps **eight** callee-saved floats ($f24-$f31); the body now keeps two, so this
+   is a third of the way.  The rest: $f28/$f29 hold the 0xE0/0xE4 fields, $f31 the 0xD4
+   field, $f30 a computed difference, $f26/$f27 stack temporaries - each a value the
+   original source held in a variable across calls and this body re-reads.
+   Rejected: folding the two re-reads of `config + 212` into the existing `a` local scores
+   better (502) but requires writing `(a - a) + a * b`, and retail's R231 is
+   `sub.s $f30, $f0, $f24` - a subtraction of the gp global, not of the field from itself.
+   A spelling that scores by asserting something the assembly contradicts is not a fix. */
 #ifdef NON_MATCHING
 void func_0048ec50(u8 *arg0)
 {
@@ -3674,6 +3687,8 @@ void func_0048ec50(u8 *arg0)
     s32 saved20;
     u8 mode9C;
     f32 e4val;
+    f32 g7c;
+    f32 g80;
     f32 e0val;
     s32 v15;
     s32 v14;
@@ -3703,6 +3718,8 @@ void func_0048ec50(u8 *arg0)
     }
     saved20 = *(s32 *)(config + 32);
     mode9C = *(u8 *)(config + 156);
+    g7c = fGpffff807c;
+    g80 = fGpffff8080;
     e4val = *(f32 *)(config + 228);
     e0val = *(f32 *)(config + 224);
     idx = 0;
@@ -3721,7 +3738,7 @@ void func_0048ec50(u8 *arg0)
             ftmp1 = (f32)(u32)tmp;
             *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
         } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp1 = (g7c - *(f32 *)(config + 40)) * func_004bd0b0(0);
             tmp = *(s32 *)(config + 36);
             ftmp2 = (f32)(u32)tmp;
             *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp2 * ftmp1;
@@ -3741,7 +3758,7 @@ void func_0048ec50(u8 *arg0)
         if (*(f32 *)(config + 40) <= 0.0f) {
             v15 = (s32)count;
         } else {
-            ftmp1 = (fGpffff807c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp1 = (g7c - *(f32 *)(config + 40)) * func_004bd0b0(0);
             ftmp2 = (f32)(u32)count;
             v15 = (s32)(ftmp2 * ftmp1);
         }
@@ -3850,7 +3867,7 @@ skip_clear:
         out[6] = (a - *(f32 *)(config + 152)) + *(f32 *)(config + 152) * b;
         if (mode9C == 1) {
             b = func_004bd0b0(0);
-            out[5] = fGpffff8080 * b;
+            out[5] = g80 * b;
             if ((func_004bd050(0) & 1) != 0) {
                 out[6] = out[6] * -1.0f;
             }
