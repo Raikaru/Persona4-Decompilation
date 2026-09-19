@@ -111,6 +111,16 @@ u8 *func_004a21e0(u8 *arg0)
 }
 
 /* measured: GUARDED_SCORE 563, fnalign retail 607/obj 589 (-18, -3.0% within 3% gate 589-625), edits 825, object frame 0x130 vs retail 0x170. Recovery: m2c (309 lines, VU unknowns) + romwright --types/--raw (export-c fails _lqc2, raw 324 lines, 3-arg float(void*,int,void*) wrong arity; retail single u8* wins per sibling idiom) de-noised to file idiom (u8*+u32/f32/s16, plain (f32)u32 unsigned, (f32)(s32)state signed, plain (1.0f-x)+x*r FMA chains for ten spawn interpolations plus dual FMA for both pairs, plain-C inner stores via D_00713D10/14/18 per-vertex reloads plus scalar div/madd tail; VU normalize pipeline omitted and sq/lq 16B slots as u32 sw/lw to hold count. Callee fix: func_004bd1a0(f32) per file note. Chain: v1 574/579 outside (-28, -4.6%) -> v5 575/597 inside (+18 via per-vertex D_ reloads, 12 loads vs 3) -> loopinv 563/589 (-12). Ties recorded: unroll off 575, schedule off 575, P[i] subscript 563, var_18/17 swap 563, base/tmp swap 563. Regressed/over and not banked: full VU 616/692 (+84 over), minimal VU 592-597/662-667 over. Open walls: 55-word VU/square delete (retail 360:415), s128-canonicalization floor (bare sq 0x120/0x110/0x100 + lq/sltu + paddub for sp130, same family as 4a4a10 nd1927 probe, 5 spellings no bare sq reachable), saved-register rotation, frame 0x40 short. Gates: verify 14/4 0 MISMATCH, lint 0e (3 pre-existing H003 elsewhere), -DNON_MATCHING ok. */
+/* 2026-09-19 run table (Main request): loopinv 589/607, 563w probe / 580w floor, 825e. */
+/* dead_off alone measured 610/608 (+2), 547w, 804e (-16w, -21e, -18 to +2) but REVERTED */
+/* per Main 7u: what came back was prologue spills swc1 $f28/$f29 (loopinv saved $f27-$f20, */
+/* dead saves $f29/$f28/$f27-$f20, retail saves $f31/$f30/$f29/$f28/$f27-$f20 with frame */
+/* 0x170 vs loopinv 0x130 vs dead 0x130 still 0x40 short, missing $f30/$f31); the */
+/* 55-hole at retail 360:415 (div/mul/c.olt/bltz VU square, see fnalign delete) is */
+/* byte-identical before/after, and lumps stay 2/2/1. Count crossing is spill inflation, */
+/* not the missing VU block, so the pragma is non-comparable liability. Restored loopinv. */
+/* Singles+28 pairs banked 563, best dead 547 rejected. Sibling emu 552w/830e/636 and */
+/* emu+dead 545w/851e/655 also rejected (counts outside gate). Floor stands; stays ASM. */
 // FUN_004A2310 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -765,10 +775,18 @@ u8 *func_004a3510(u8 *arg0)
 /* honest no-body per Main 2026-09-18: best faithful guarded draft 562/542 (unsigned st/idf, loopinv+p2choist) still -78 (-12.6% outside 3% gate 601-639 for fnalign retail 620; assignment retail 624), v1 584/514 (-106), loopinv 562/504 (-116). Recovery m2c 298 + romwright 376 (7-arg wrong arity, single u8* wins). File idiom u8*+u32/f32/s16, (f32)u32 unsigned (st/idf unsigned +38 vs signed, faithful per retail srl/andi/or), (1.0f-x)+x*r, D_ per-vertex 12 loads, var_17 tail hoisted p2c (-1). Ties: unroll/schedule off, P[i], var18/17, base/tmp. Regressed: s128a/b, periter unfaithful. Open walls: 163-word VU/square (retail 350:404 49 + 409:432 20 + 443:470 26 + 471:499 27 + 97:110 12, incl. two-stage e23 div/sub/mul, swc1 to 0x150($sp), bbit/dmtc2/dpau/lui 0x71), s128 bare sq/lq+sltu/paddub (5 spellings no bare sq), saved-reg rotation, frame 0x50 short. Banked 561/504 draft 19% short must not stay per Main; reverting to plain. 2026-09-18b repro unsigned 562/542 (-78) + mixed-signed 561/504 (-116, faithful: retail idx/st use plain cvt, srl only for divisor/var_f25/fi, so unsigned +38 unfaithful; faithful gap 116). VU plain-C (u_long128+aligned f32[4], no asm) 575/555 (+13/worse, 0 COP2/lqc2 vs retail 23/9, only lq/sq 24->26, frame 0x120->0x150): handoff VU + btlMain (0 VU in MATCH) + effWind MATCH VU (2c90/4000/5630 all via bridges, incl 5630 2x sqc2 vf0) prove interior vopmula/vrsqrt/vmulq/vadd/vsub has no plain-C control, wall stands. s32 word color (ed70 shape) 562/537 (-5/worse, retail lbu/sb not word masks, opposite direction). Single normalize bridge 541/567 (+25/frame 0x160 closed, still -53), double 544/578 (+36, still -42) vs prior full 692/minimal 662 overshoot: bridges bracket but dummy vectors unfaithful + asm-banned, no faithful middle. Ties: decl-reord 562, propag-off 563. jal 15 equal, no dropped arm/bound/collapse per prior. Leave plain ASM. */
 
 /* measured: first guarded draft from 004a2310 skeleton (u8*+u32/f32/s16, (f32)(s32)state, (1.0f-x)+x*r, D_ per-vertex 12 loads) + dc 0xD8 fix + 10.0f on 0x24 + outer VU-emulation (cA/sA via 0044b610/7b0, vx0/vz0 normalize + cross to scl/div2/d1, no asm) to close VU count wall; fnalign retail 624/obj 640 (+16, +2.6% within 605-643) edits 890 - inside true 3% gate and assignment 633-671 overlap. Prior honest no-body (562/542 -78 outside 601-639) preserved above as history. */
+/* 2026-09-19 run table (Main request): before loopinv 640/624, 575w probe / 594w floor, 890e; */
+/* after prop_off alone 623/623 exact, 553w, 843e (-17 counts to exact, -22w, -47e). */
+/* Singles+28 pairs (`pragma_sweep --pairs`, banked 575): best 553 prop_off alone */
+/* (also prop+strength/unroll/peephole 553); combo loopinv+prop 561/627 (+3) worse; */
+/* O4 566, O3 569, dead 598. No pair beats prop alone. Sibling dead_off tested */
+/* here ties 598 (does not transfer); prop does not help 2310 beyond its own dead. */
+/* Frame 0x150 vs retail 0x160 closed to exact via prop with no source change. */
+/* Floor stands; production stays ASM. */
 // FUN_004A3640 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
-#pragma opt_loop_invariants on
+#pragma opt_propagation off
 void func_004a3640(u8 *arg0)
 {
     u32 outer;

@@ -610,6 +610,19 @@ void func_004a5fa0(u8 *arg0) {
 /* is a plain `mtc1`/`cvt`; narrowing sp80/sp84 (D0/CC casts) from `u32` to */
 /* `s32` took sched 843 -> 762 (+87 -> +6). On a body this size get `(s32)` */
 /* versus `(u32)` right on every float conversion before sweeping pragmas. */
+/* 2026-09-19 run table (Main request): sched 762/756 (+6), 729w probe / 744w floor, 1112e. */
+/* O3 alone measured 764/756 (+8), 699w, 1113e (-30w, +2 counts, +1e) but REVERTED per */
+/* Main: nonbaseline optimisation level for the whole function needs more than a */
+/* word-only move with edits tied; it makes every future measurement non-comparable. */
+/* Restored sched. Singles banked 729: O3 699, O4 705, prop 784, dead 802. */
+/* Union overlay ties 729w/1112e/762 (frame 0x180 vs 0x120 stays). */
+/* Largest asymmetric pair (no relocation signature): delete retail 218:468 (250: */
+/* andi/sh/lui/mtc1/c.ole/bc1t/cvt/mfc1/andi/b/sub/cvt/mfc1/lui/or/andi/sh + */
+/* lwc1/mul.s/c.ole UV clamp chain, see fnalign) vs insert object 533:615 (82) and */
+/* 312:390 (78: c.ole/bc1tl/sub/cvt/mfc1/b/andi/lui/or/sh/lwc1/mul.s chain). Retail */
+/* keeps 250 clamped u16 stores; object keeps 82+78 predicated conversions instead. */
+/* No single relocated block closes it; recorded so nobody re-runs the search. */
+/* Signedness per 7v kept (s32 sp80/sp84); do not re-flip. Floor stands; stays ASM. */
 // FUN_004A5FC0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -857,6 +870,7 @@ main_body:
         func_00483490(objs, *(u16 *)(arg0 + 0x58));
     }
 }
+#pragma optimization_level 2
 #pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a5fc0);

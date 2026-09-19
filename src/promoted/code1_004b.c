@@ -522,10 +522,18 @@ void func_004b1ab0(u8 *arg0)
 /* stk84 stays `u32` (D0/CC casts). Both-`s32` overshoots to 768, just below */
 /* the lower band edge, while the single-`s32`/single-`u32` mix lands at 802 */
 /* (retail 796). Retail's widths really are mixed; do not "fix" the odd one. */
+/* 2026-09-19 run table (Main request): before sched 802/796 (+6), 763w probe / 782w floor, */
+/* 1044e; after O3 alone 799/796 (+3), 760w, 1038e (-3 counts, -3w, -6e, all improve). */
+/* Singles (`pragma_sweep`, banked 763): best O3/O4 760; loopinv 842, dead 843, prop 844, */
+/* strength/unroll 845, peephole 865, O1 939, commons 951, O0 991. No pair needed */
+/* (3-word win is scheduling only; pairs would at best tie). Holes 137 at 372:509, */
+/* 70 at 585:655, 32 at 110:142 (UV/matrix/cam-persp chain) stay. Mixed widths per */
+/* above kept (s32 stk80 / u32 stk84); both-s32 768 overshoot confirmed, do not re-flip. */
+/* Floor stands; production stays ASM. */
 // FUN_004B1AD0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
-#pragma schedule on
+#pragma optimization_level 3
 void func_004b1ad0(u8 *arg0)
 {
     extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
@@ -788,6 +796,7 @@ void func_004b1ad0(u8 *arg0)
         func_00460ac0((void *)(u32)func_004814d0(*(u16 *)(arg0 + 0x34)), (void *)(tmp_a4 + 0x18));
     }
 }
+#pragma optimization_level 2
 #pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1ad0);
