@@ -521,6 +521,55 @@ skipped.  Note also that this function is *not* ee-gcc output despite sitting
 in `code1_0044.c` next to reclassified code: it carries neither the absolute
 getter nor the framed tail jump signature.
 
+### 7ag. Stack pragmas one residual at a time
+
+Two functions reached zero today by a method worth copying exactly.  Do not
+sweep pragma combinations; apply one, re-read the aligned listing, and choose
+the next from what is left.
+
+On `func_00413640` (49 against 48, 24 words, 3 edits): `schedule on` filled the
+branch delay slot and took it to 4 words, which exposed two `beql`
+with-load-in-slot differences; `no_branch_likely` removed those and the body
+hit **0 words, 0 edits, 48/48**.
+
+On `func_003d2240` (43/43, 31 words, 12 edits): `schedule on` -> 24 words / 3
+edits, `no_branch_likely` -> 24 / 1, and the last edit was retail's redundant
+`lw $v0, ($s2)` before the first store, which b210's redundant-load peephole
+deletes by forwarding `$v0` from the call - `peephole off` closed it to
+**0 words, 0 edits, 41/41**.
+
+The reason sweeping misses these is that each pragma only reveals the next
+residual: at 24 words a pair sweep sees no improvement worth taking, because
+the win is three pragmas deep.
+
+### 7ah. The register-rotation wall, and when it is not one
+
+The commonest residual on a near-MATCH floor is now a **register rotation**:
+the body emits retail's instructions against registers shifted by one, most
+often `$s0`/`$s1`/`$s2` for integer anchors or `$f0`/`$f1`/`$f2` for a
+float triple.  Examples measured today: `func_003c0050` (36/36 exact, 26
+words) holds the list end in the wrong saved register and tests `bne` where
+retail tests `beq`; `func_0045e8e0` and `func_0045eb20` in `sdkPrimitive.c`
+both keep the work pointer in `$s0` where retail uses `$s2`, repeated at eight
+sites each; `func_0048a460` rotates a float triple, `$f0`/`$f1`/`$f2` against
+`$f2`/`$f0`/`$f1`, through two divisions.
+
+**What does not move it**, measured across those functions: every declaration
+order of the locals involved, swapping the two initialising statements, typing
+a pointer as `s32`, `register` on the pointer, `while` against `do`/`while`
+against counted `for`, operand order in the expression, hoisting the divisor
+into a named local, statement order of unrelated assignments, and - on
+`func_003c0050` - all eight single pragmas and all their pairs with
+`schedule on`.
+
+**What does move it**, and the distinction matters: `func_00263cb0` fell from
+999 edits to 297 when the base pointer was declared first, because that
+changed which value b210 allocated to `$s0`.  The difference appears to be
+that a pointer *derived from a parameter and live across calls* follows
+declaration order, while a *computed temporary* is numbered by the allocator
+in an order source cannot reach.  Try declaration order once on the
+parameter-derived case; do not spend a round on it for a temporary.
+
 ### 7ad. Rank the floors before choosing what to work on
 
 `tools/floor_distance.py` measures every guarded floor in the tree by fnalign
