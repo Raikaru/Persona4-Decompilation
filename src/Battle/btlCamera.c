@@ -1478,6 +1478,21 @@ void func_001ccda0(void)
    the +-3% band.  Any differing-word score in this note was measured
    against a body of the wrong length and is not comparable to one
    measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 001ccdb0 2026-09-19: the `mode` dispatch is a `switch`, not an if-else chain,
+   and correcting it takes fnalign edits **586 -> 328**.  Retail reads the mode with
+   `lhu $v1, 0x1a($a1)` at R14 - so it is u16, not s16 - then compares **descending**,
+   2 at R16, 1 at R19, 0 at R21, default `b` at R23, and lays the arm bodies out
+   **ascending**, cases 0 and 1 immediately at R25 and case 2 at R158.  That is MWCC's
+   switch lowering (handoff 7av) and the chain could not produce it.
+   This also explains what `block_move_scan` reported as an UNPAIRED 218-instruction
+   retail run with no object counterpart: the object was emitting case 2's body 136
+   instructions too early, which the opcode comparison scores at 0.872 - a displaced
+   recolouring, not missing code.
+   Inverting the outer `0x20000000` test was measured and is much worse (775), so the
+   outer arm order is already right.
+   gate: still OUTSIDE at 495 against retail 530 (-6.6%, band 514-546).  The body is
+   about 35 instructions short and that code has to be written; no differing-word score
+   measured against it is comparable to one measured inside (handoff 7y). */
 // FUN_001CCDB0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
@@ -1493,7 +1508,7 @@ void func_001ccdb0(u8 *arg0) {
     extern f32 uGpffff81a0;
     u8 *v2;
     u8 *ac;
-    s16 mode;
+    u16 mode;
     f32 f4;
     f32 f5;
     f32 f4out;
@@ -1519,8 +1534,40 @@ void func_001ccdb0(u8 *arg0) {
     v2 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
     ac = *(u8 **)iGpffffb3ac;
     if ((*(u32 *)(ac + 0xC) & 0x20000000) == 0) {
-        mode = *(s16 *)(ac + 0x1A);
-        if (mode == 2) {
+        mode = *(u16 *)(ac + 0x1A);
+        switch (mode) {
+        case 0:
+        case 1:
+            f4 = func_00196040(3, 0, 0, &f4out, 0, 0);
+            func_00196040(2, 0, v20, 0, 0, 0);
+            fi1c = f4out * 0.25f;
+            func_00195850(v2, v10);
+            fc = (fc + 0.0f) - fGpffff803c * *(f32 *)(v2 + 0x8C) * *(f32 *)(v2 + 0x2C);
+            func_001bd780(m84, v10, v20, &D_0060A0E0);
+            f5 = func_0044b868(fGpffff8110 * *(f32 *)(arg0 + 0xB8) * 0.5f);
+            f20sv = (f4 * 0.75f) / f5;
+            if (*(u8 *)(ac + 0xC64) < 2) {
+                func_003dc740(5.0f, m84, &D_0060A0E0, 2);
+            } else {
+                func_003dc740(20.0f, m84, &D_0060A0E0, 2);
+            }
+            func_003dcb40(v30, &D_0060A100, 1, m84);
+            v30[0] = v30[0] * f20sv;
+            v30[1] = v30[1] * f20sv;
+            v30[2] = v30[2] * f20sv;
+            v90[0] = v20[0] + v30[0];
+            v90[1] = fi1c + v30[1];
+            v90[2] = v20[2] + v30[2];
+            func_001bc3a0(v90, v90);
+            if (v90[1] < 25.0f) {
+                v90[1] = 25.0f;
+            }
+            func_001c6f40(arg0, 1, 1, (s32 *)0, v58);
+            func_001ba790((f32 *)col74, v90, v58, 0.5f);
+            f70 = v90[1];
+            step = uGpffff81a0;
+            break;
+        case 2:
             func_00196040((u32)arg0, 0, v10, &f4out, 0, 0);
             fi2 = fGpffff8128 * f4out;
             func_00195850(v2, v20);
@@ -1566,35 +1613,7 @@ void func_001ccdb0(u8 *arg0) {
             f70 = v58[1];
             func_001c6f40(v2, 1, 1, (s32 *)0, v58);
             step = 3.5f;
-        } else if (mode == 1 || mode == 0) {
-            f4 = func_00196040(3, 0, 0, &f4out, 0, 0);
-            func_00196040(2, 0, v20, 0, 0, 0);
-            fi1c = f4out * 0.25f;
-            func_00195850(v2, v10);
-            fc = (fc + 0.0f) - fGpffff803c * *(f32 *)(v2 + 0x8C) * *(f32 *)(v2 + 0x2C);
-            func_001bd780(m84, v10, v20, &D_0060A0E0);
-            f5 = func_0044b868(fGpffff8110 * *(f32 *)(arg0 + 0xB8) * 0.5f);
-            f20sv = (f4 * 0.75f) / f5;
-            if (*(u8 *)(ac + 0xC64) < 2) {
-                func_003dc740(5.0f, m84, &D_0060A0E0, 2);
-            } else {
-                func_003dc740(20.0f, m84, &D_0060A0E0, 2);
-            }
-            func_003dcb40(v30, &D_0060A100, 1, m84);
-            v30[0] = v30[0] * f20sv;
-            v30[1] = v30[1] * f20sv;
-            v30[2] = v30[2] * f20sv;
-            v90[0] = v20[0] + v30[0];
-            v90[1] = fi1c + v30[1];
-            v90[2] = v20[2] + v30[2];
-            func_001bc3a0(v90, v90);
-            if (v90[1] < 25.0f) {
-                v90[1] = 25.0f;
-            }
-            func_001c6f40(arg0, 1, 1, (s32 *)0, v58);
-            func_001ba790((f32 *)col74, v90, v58, 0.5f);
-            f70 = v90[1];
-            step = uGpffff81a0;
+            break;
         }
     } else {
         func_001c6f40(arg0, 1, 1, (s32 *)0, v58);
