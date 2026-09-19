@@ -84,8 +84,8 @@ extern s32 func_004553c0(void *);
 extern u8 *func_0033d130(void *, s32, s32);
 extern s32 func_00122720(void);
 
-/* measured: func_00332bb0 recon + jump-table recovery (no guarded body installed - see tail). */
-/* retail window 37392B = 9348 instrs, band 9067-9628 (+-3%: 9348*0.97=9067.56, 9348*1.03=9628.44). */
+/* measured: func_00332bb0 recon + jump-table recovery (guarded dispatch skeleton installed - see tail). */
+/* retail window 37392B = 9348 words (37392/4); fnalign decodes 9344 instrs (excludes 4 padding words). Band 9067-9628 (+-3%: 9348*0.97=9067.56, 9348*1.03=9628.44; fnalign band 9064-9624). */
 /* frame 0x770 (addiu $29,$29,-0x770; sq $16-$22 + sd $31 + swc1 $f20). Calls 1214 jal. */
 /* nop 1721/9348 = 18.4%; cond branches 241 (beq/bne/beqz/bnez/bgez/bltz/bgtz/blez/bc1*); */
 /* total branch/jump 1569 (incl j/jal/jr); jr x2 (dispatch jr $2 at 0x00332C34 + return jr $ra). */
@@ -139,11 +139,29 @@ extern s32 func_00122720(void);
 /*   var_16_2 (0x5A loop at .L00332CC4, dsll32/dsra32 at 0x232CFC/0x232D00), var_4 (0xF loop at */
 /*   .L00332D24, pair at 0x232D44/0x232D48), var_16_3 (pair at 0x232D4C/0x232D50) - cf. cdf80 V8 */
 /*   all-s64 3581 FAIL -> narrow temp_18 3545 PASS. */
-/* No guarded body installed: adapting the 2366-line draft (219 sp vars, unk-offset struct via */
-/*   temp_18->unkXXX, gp-relative `saved_reg_gp-0x56D8`, 46 M2C_ERROR, `?` protos, H_Cdvd symbol) */
-/*   to TU idiom (u8* work + offsets, Vec2f/u64 slots, s16/s8 widths, file protos) is multi-day; */
-/*   installing a short skeleton would sit outside 9067-9628 and its word score would be */
-/*   uncomparable (gate handoff 7y). This note + the recovered table above is the deliverable. */
+/* Guarded body installed (this lane): structural dispatch skeleton, TU idiom (u8* work + offsets, */
+/*   s8 state via lb, switch ascending 0..18 with explicit case 8, fallthrough 0->1, s64 g/h for the */
+/*   0x5A/0xF dsll32 loops, per-case summaries with file protos). switch_probe: 0 chains (retail is */
+/*   a real table jr $2 off jtbl_00749720, not an if-chain, so no rewrite; switch ascending is still */
+/*   the lever that reproduces the table). measure_guarded: 7642 differing words (reloc-masked). */
+/*   fnalign --candidate /tmp/guarded_332bb0.c: retail 9344 / object 530 instrs (5.67% of retail, */
+/*   -94.33%, band 9064-9624 FAIL); edit instructions 9213 (+6 reloc-only). Rejected spellings */
+/*   (all fnalign --candidate, retail 9344): chain 572/9218+4 (switch better by 5 edits, -42B); */
+/*   descending switch 534/9698+2 (ascending better by 485 edits - highest-paying lever); missing */
+/*   interior case 8 (still spans 0..18) 530/9213+6 identical (span matters, interior empties do not); */
+/*   s32 state (lw) 530/9213+6 identical at skeleton scale (lb lever needs full scale); s32 loops */
+/*   522/9218+6 (s64 better by 5 edits, +8B for dsll32 pairs). Full 9348-instr recovery remains */
+/*   multi-day (m2c 2294 lines/38 M2C_ERROR via prepare_assembly_block, this lane re-ran 2026-09-19); */
+/*   skeleton is structural (dispatch + call skeleton, ~530 instrs) and sits outside the band by */
+/*   construction - table above + switch shape is the deliverable (gate handoff 7y). */
+/* gate: func_00332bb0 is OUTSIDE the +-3% band at 530 against retail 9344 (-94.3%, band
+   9064-9624).  This is a DISPATCH SKELETON, not a floor: retail dispatches through the real
+   table jtbl_00749720 with 19 cases (case 8 is the default), and only the dispatch plus a few
+   arms are written.  Measured while building it: an if-chain spelling is 572 instrs / 9218
+   edits, descending case order is 534 / 9698, ascending is 530 / 9213 - so ascending is worth
+   485 edits over descending even on a skeleton, and s64 loop counters beat s32 by 5.
+   No word or edit number measured against this body is comparable until the arms are written
+   (handoff 7y). */
 // FUN_00332BB0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00332bb0(u8 *arg0) {

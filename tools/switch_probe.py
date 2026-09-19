@@ -6,14 +6,38 @@ out in **ascending** case order.  An `if (v == c) ... else if` chain cannot
 produce that shape however the arms are ordered in source, so a body that
 writes a chain where the original wrote a switch pays for it in every arm.
 
+Arm count is NOT the discriminator - retail's signature is a three-way with a
+default, which appears at two arms as readily as at twenty.  `func_001441e0`'s
+outer two-arm dispatch was worth 47 -> 34 and an exact 567/567.
+
 Measured both ways across the tree, the lever is large and it is not
 universal:
 
-    func_001441e0   668 -> 47     func_002b0b10    97 -> 114
-    func_00288af0   409 -> 104    func_001b3a00    91 -> 115
-    func_0025b240   276 -> 226    func_00467bd0   368 -> 382
-    func_00146a10   182 -> 99     func_001adea0    49 -> 51
-    func_00233bc0   148 -> 70
+    func_001441e0   668 -> 47     func_0019c0d0  1068 -> 1042
+    func_001fc630   446 -> 311    func_001f14f0  1406 -> 1384
+    func_00288af0   409 -> 104    func_001a4c80   445 -> 427
+    func_00467bd0   368 -> 328    func_001be990   328 -> 318
+    func_0025b240   276 -> 226    func_001d1f30   416 -> 399
+    func_001c2ee0   269 -> 208    func_002b0b10    97 -> 114
+    func_00146a10   182 -> 99     func_001b3a00    91 -> 115
+    func_00233bc0   148 -> 70     func_001adea0    49 -> 51
+    func_001fd790   590 -> 566    func_001b2380  1392 -> 1394
+
+`func_00467bd0` is a correction: this table used to read `368 -> 382` and cite
+it as a counter-example.  That number came from a conversion that neither
+sorted the cases ascending nor mapped the trailing `else` to `default`.  Done
+properly it is 328.  A negative produced by a worse instrument than the one
+that would have produced the positive is not a measurement.
+
+`(v == a) || (v == b)` is two FALLTHROUGH cases sharing a body, not a compound
+condition; on `func_001d1f30` that distinction alone is 413 against 399.
+
+Case order is part of the lever, and ascending is not automatically right.
+For a chain-lowered switch it usually is - `func_001f14f0` is 1384 ascending
+against 1443 in the source's own order.  For a switch that is ALREADY in the
+body, blanket-sorting is a loser: `func_0027f6f0` 2392 -> 2514,
+`func_002142b0` 809 -> 1135, `func_00487fb0` 733 -> 733.  Measure the
+direction; never sort on principle.
 
 So measure, never assume.  This probes one function, or sweeps every
 first-party floor that carries a chain of at least `--min-arms` arms.
