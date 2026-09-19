@@ -542,6 +542,65 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7aw. A pragma's before/after is a pair, and the edits decide
+
+`func_0016bdd0` carried `#pragma optimization_level 1` with a note that read
+"O1 for retail register colour, +131 over O2 base 2072".  Measured both ways:
+
+| | instructions | fnalign edits |
+|---|---|---|
+| `optimization_level 1` | 2252/2319, **inside** the band | **2844** |
+| baseline `-O2` | 2116/2319, **-8.75%, outside** | **1788** |
+
+The pragma added 136 instructions of padding and made the instruction
+agreement **1056 edits worse**.  A pragma that reproduced retail's register
+colouring would lower the edit count; this one raised it by more than half
+again while moving the count.  That is pragma inflation (7u) wearing the
+costume of a measurement.
+
+It is also worse than an honest out-of-gate bank, because the next reader
+sees 2252 against 2319 and believes the body is nearly the right length when
+it is about 200 instructions short.
+
+**Rule: record count and edits together, and if the edits get worse the
+pragma goes whatever the count does.**  Applied this session it removed four
+`#pragma schedule on` (7au), two `optimization_level 3`, one
+`opt_dead_assignments off` whose "recovered" instructions turned out to be
+prologue spill inflation, and this O1.  The one that survived -
+`opt_propagation off` on `func_004a3640` - reached an **exact** 623/623 *and*
+dropped 47 edits.
+
+### 7ax. What the three MATCHes of 2026-09-19 have in common
+
+`func_00242990` (one differing word), `func_0015d310` (14), `func_00152170`
+(241) and `func_003233d0` (366) all closed on the same day, and in every case
+the residual was **a declaration or a boundary, never an expression**:
+
+- `func_00242990` - routing one load through the file's existing
+  `static inline u32 PTDatCalcOffsetAdd(u32, u32)`.  Ten rewrites of the
+  expression had tied at one word; a parameter boundary fixes which operand
+  becomes live first and an expression cannot.
+- `func_0015d310` - deleting a hand-expanded signed modulo (`x & 1`, negative
+  correction, `-= 2`) in favour of `(s32)v % 2`.
+- `func_00152170` - typing the render-state callback as RenderWare types it,
+  `RwBool (*)(RwRenderState, void *)`, and reloading the table address at each
+  of its two lifetimes instead of hoisting it once.
+- `func_003233d0` - a chained store for the paired flags, a union instead of a
+  reinterpreting cast, and plain `(u8)f` instead of a hand-written
+  `2.1474836e9f` guard.
+
+The corollary is a stopping rule: **if you are on your fifth spelling of the
+same statement, stop and check the types of everything it touches.**
+
+Two cautions from the same day.  The union spelling in `func_003233d0` was
+*not* the carrying change - tested alone on `func_0032fbc0` (175 edits) and
+`func_00329310` (152) it is exactly neutral, so there is no sweep to run
+across the 15 floors that pass a reinterpreted aggregate into a call.  And the
+RenderWare typing was likewise neutral on `func_00117980`, `func_003694d0`,
+`func_003768e0` and `func_0021fea0`, so the other 64 callers of `D_00887300`
+do not need touching; `func_00152170` was carried by the address lifetime
+alone.
+
 ### 7av. Descending compares with ascending bodies means `switch`, not a chain
 
 `func_00288af0` was an if-else chain written in source order 0, 1, 2 and it
