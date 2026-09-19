@@ -2776,8 +2776,317 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d8a60);
 /* Archived C reconstruction: build/W8ShopRGBA_func_002da0a0_highnd.c.
    Best measured candidate object 5032/window 4960, normalized_diff 3080;
    bare INCLUDE_ASM restored after ruled-out source-shape probes. */
-// FUN_002DA0A0
+/* measured 002da0a0 (owner, installing archived high-nd body adapted): 1260 against retail's 1240
+   (+1.6%, band 1203-1277), 1199 edits (+2 reloc-only), 1060 differing words. Frame -0x170
+   against retail -0x160; calls 150 against 151, the gap a single 11-instruction hole at
+   retail[209:220] (the ED4 func_002e04e0 + RGBA byte store the archived body never had); one
+   4-instruction object lump at object[173:177] (signed s8-to-float scheduling at the 35.0f
+   sites). Adapted from build/W8ShopRGBA_func_002da0a0_highnd.c (296-line body, 5032B/window
+   4960, nd 3080): the only change is fGpffff7afc to the owner's fGpffff7ad4, matching retail's
+   lwc1 -0x7AD4($gp) at both 002e0940 sites (0x1DA808/0x1DA918) and already used the same way at
+   line 956; the archived symbol was a mislabel as the file's own notes warn. Residuals stay as
+   archived: D_0063F5B8/F65x base hoist into $s1 and (s64)(s32) width casts on 46b260/46b2f0. */
+// FUN_002DA0A0 NONMATCHING
+#ifdef NON_MATCHING
+void func_002da0a0(register u8 *root) {
+    RGBA c0;
+    RGBA c1;
+    RGBA c2;
+    RGBA c3;
+    RGBA c4;
+    RGBA c5;
+    RGBA c6;
+    RGBA c7;
+    RGBA c8;
+    RGBA c9;
+    RGBA c10;
+    RGBA c11;
+    u64 sp128;
+    u64 sp120;
+    u64 sp118;
+    u64 sp110;
+    u64 sp108;
+    u64 sp100;
+    u64 spF8;
+    u64 spF0;
+    u64 spE8;
+    u64 spE0;
+    u64 spD8;
+    u64 spD0;
+    u64 spC8;
+    u64 spC0;
+    u64 spB8;
+    u64 spB0;
+    u64 spA8;
+    u64 spA0;
+    u64 sp98;
+    u64 sp90;
+    u64 sp88;
+    u64 sp80;
+    u64 sp78;
+    u64 sp70;
+    f32 temp_f20;
+    f32 temp_f20_2;
+    f32 f1;
+    f32 f20;
+    s64 width0;
+    s64 width1;
+    s64 i;
+    s32 hi;
+    register u8 *work;
+    void *r;
+    Vec2f *base;
+    u8 *t;
+    work = *(u8 **)(root + 0x38);
+    func_002e04f0(*(void **)(work + 0xDEC), 0, 1);
+
+    base = (Vec2f *)D_0063F5A0;
+    func_002e09e0(*(void **)(work + 0xC58), 0x41, 162.0f);
+    func_002b2970(&sp128, base->x, base->y - 450.0f);
+    func_002b2970(&sp120, base->x, base->y);
+    func_002e0620(*(void **)(work + 0xC58), sp128, sp120, 0, 4, 0);
+    func_002e0660(*(void **)(work + 0xC58), 0, 0xCC, 0, 2, 0);
+    func_002b2a60(&c0, 0, 0, 0, 0xFF);
+    t = (u8 *)func_002e04e0(*(void **)(work + 0xC58));
+    *(RGBA *)(t + 0x79) = c0;
+
+    base = (Vec2f *)D_0063F5A8;
+    func_002e09e0(*(void **)(work + 0xC5C), 0x41, 163.0f);
+    func_002b2970(&sp118, base->x, base->y - 450.0f);
+    func_002b2970(&sp110, base->x, base->y);
+    func_002e0620(*(void **)(work + 0xC5C), sp118, sp110, 0, 4, 0);
+    func_002e0660(*(void **)(work + 0xC5C), 0, 0xCC, 0, 2, 0);
+    func_002b2a60(&c1, 0, 0, 0, 0xFF);
+    t = (u8 *)func_002e04e0(*(void **)(work + 0xC5C));
+    *(RGBA *)(t + 0x79) = c1;
+
+    i = 0;
+    while ((s16)i < *(s8 *)(work + 9)) {
+        *(s16 *)((u8 *)work + ((s16)i * 2) + 0xF46) = 0;
+        *(s16 *)((u8 *)work + ((s16)i * 2) + 0xF58) = 0;
+        *(s8 *)((u8 *)work + (s16)i + 0xF6A) = 0;
+        i++;
+    }
+
+    func_002e09e0(*(void **)(work + 0xED4), 0x41, 126.0f);
+    func_002b2970(&sp108, 47.0f,
+                  (78.0f + 35.0f * (f32)*(s8 *)(work + 8)) - 450.0f);
+    func_002b2970(&sp100, 47.0f,
+                  78.0f + 35.0f * (f32)*(s8 *)(work + 8));
+    func_002e0620(*(void **)(work + 0xED4), sp108, sp100, 0, 6,
+                  *(s16 *)((u8 *)work + ((s32)(s8)*(s8 *)(work + 8) * 2) + 0xF46));
+    func_002b2a60(&c2, 0xFE, 0xC6, 0x31, 0xFF);
+    func_002e09e0(*(void **)(work + 0xED8), 0x41, 127.0f);
+    func_002b2a60(&c3, 0xFE, 0xC6, 0x31, 0xFF);
+    t = (u8 *)func_002e04e0(*(void **)(work + 0xED8));
+    *(RGBA *)(t + 0x79) = c3;
+    func_002b2970(&spF8, 126.0f,
+                  (78.0f + 35.0f * (f32)*(s8 *)(work + 8)) - 450.0f);
+    func_002b2970(&spF0, 126.0f,
+                  78.0f + 35.0f * (f32)*(s8 *)(work + 8));
+    func_002e0620(*(void **)(work + 0xED8), spF8, spF0, 0, 6, 0);
+    root = *(u8 **)(root + 0x38);
+    r = func_0046d200(*(void **)((u8 *)root + 0xF28), 4);
+    width0 = (s64)((79.0f + func_0046b260(r)) / 2.0f);
+    *(s16 *)((u8 *)func_002e04e0(*(void **)((u8 *)root + 0xED4)) + 0x100) =
+        (s16)width0;
+    width1 = (s64)(func_0046b2f0(r) / 2.0f);
+    *(s16 *)((u8 *)func_002e04e0(*(void **)((u8 *)root + 0xED4)) + 0x102) =
+        (s16)width1;
+    width0 = width0 - 79;
+    *(s16 *)((u8 *)func_002e04e0(*(void **)((u8 *)root + 0xED8)) + 0x100) =
+        (s16)width0;
+    width1 = (s64)(func_0046b2f0(r) / 2.0f);
+    *(s16 *)((u8 *)func_002e04e0(*(void **)((u8 *)root + 0xED8)) + 0x102) =
+        (s16)width1;
+
+    hi = (s32)(func_003b7060() % 20U);
+    if (hi >= 0) {
+        f1 = (f32)hi;
+    } else {
+        f1 = 2.0f * (f32)((hi >> 1) | (hi & 1));
+    }
+    f20 = shopAdd(f1 / 10.0f, 1.0f);
+    if (*(f32 *)((u8 *)func_002e04e0(*(void **)((u8 *)root + 0xED4)) + 0xC4) > 0.0f) {
+        f20 = f20 * -1.0f;
+    }
+    func_002e0940(*(void **)((u8 *)root + 0xED4), 0.0f, f20, 0, 0, 0);
+    func_002e0940(*(void **)((u8 *)root + 0xED8), 0.0f, f20, 0, 0, 0);
+    func_0046d280(r);
+
+    func_002e09e0(*(void **)(work + 0xD3C), 0x41, 128.0f);
+    func_002e0660(*(void **)(work + 0xD3C), 0, 0xFF, 0, 0xA, 0);
+
+    base = (Vec2f *)D_0063F7B0;
+    func_002e09e0(*(void **)(work + 0xD60), 0x41, 78.0f);
+    func_002b2970(&spE8, base->x, base->y - 550.0f);
+    func_002b2970(&spE0, base->x, base->y);
+    func_002e0620(*(void **)(work + 0xD60), spE8, spE0, 2, 4, 0);
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD60)) + 0x102) = 0;
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD60)) + 0x100) = 0;
+    func_002e0940(*(void **)(work + 0xD60), -5.0f, fGpffff7ad4, 2, 2, 2);
+    func_002b2a60(&c4, 0xFF, 0x96, 0, 0xFF);
+    t = (u8 *)func_002e04e0(*(void **)(work + 0xD60));
+    *(RGBA *)(t + 0x79) = c4;
+
+    base = (Vec2f *)D_0063F7B8;
+    func_002e09e0(*(void **)(work + 0xD64), 0x41, 78.0f);
+    func_002b2970(&spD8, base->x, base->y - 550.0f);
+    func_002b2970(&spD0, base->x, base->y);
+    func_002e0620(*(void **)(work + 0xD64), spD8, spD0, 2, 4, 0);
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD64)) + 0x100) = -50;
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD64)) + 0x102) = -219;
+    func_002e0940(*(void **)(work + 0xD64), -5.0f, fGpffff7ad4, 2, 2, 2);
+    func_002b2a60(&c5, 0xE4, 0xFF, 0, 0xFF);
+    t = (u8 *)func_002e04e0(*(void **)(work + 0xD64));
+    *(RGBA *)(t + 0x79) = c5;
+
+    func_002e09e0(*(void **)(work + 0xDE8), 0x41, 46.0f);
+    func_002e0660(*(void **)(work + 0xDE8), 0, 0xFF, 0, 6, 0);
+    base = (Vec2f *)D_0063F8C0;
+    temp_f20 = base->x;
+    t = (u8 *)func_002e04e0(*(void **)(work + 0xDE8));
+    *(f32 *)(t + 0x2C) = temp_f20;
+    temp_f20_2 = base->y;
+    t = (u8 *)func_002e04e0(*(void **)(work + 0xDE8));
+    *(f32 *)(t + 0x30) = temp_f20_2;
+
+    func_002e09e0(*(void **)(work + 0xDF0), 0x41, 47.0f);
+    func_002e0660(*(void **)(work + 0xDF0), 0, 0xFF, 0, 6, 0);
+
+    r = func_0046d200(*(void **)(work + 0xF28), 0x44);
+    base = (Vec2f *)D_0063F780;
+    func_002e09e0(*(void **)(work + 0xD48), 0x56, 53.0f);
+    func_002b2970(&spC8, base->x, -130.0f);
+    func_002b2970(&spC0, base->x, base->y);
+    func_002e0620(*(void **)(work + 0xD48), spC8, spC0, 2, 5, 0);
+    func_002b2a60(&c6, 0xE4, 0xFF, 0, 0xFF);
+    t = (u8 *)func_002e04e0(*(void **)(work + 0xD48));
+    *(RGBA *)(t + 0x79) = c6;
+    temp_f20 = (func_0046b260(r)) / 2.0f;
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD48)) + 0x100) =
+        (s16)temp_f20;
+    temp_f20 = (func_0046b2f0(r)) / 2.0f;
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD48)) + 0x102) =
+        (s16)temp_f20;
+    func_002e09b0(*(void **)(work + 0xD48), D_0063FA46,
+                  (f32)D_0063FA44);
+    func_002e0940(*(void **)(work + 0xD48), D_0063FA40, 0.0f,
+                  2, D_0063FA46 + 5, 0);
+    func_0046d280(r);
+
+    r = func_0046d200(*(void **)(work + 0xF28), 0x43);
+    base = (Vec2f *)D_0063F778;
+    func_002e09e0(*(void **)(work + 0xD44), 0x56, 54.0f);
+    func_002b2970(&spB8, base->x, -189.0f);
+    func_002b2970(&spB0, base->x, base->y);
+    func_002e0620(*(void **)(work + 0xD44), spB8, spB0, 2, 5, 3);
+    func_002b2a60(&c7, 0xE4, 0xFF, 0, 0xFF);
+    t = (u8 *)func_002e04e0(*(void **)(work + 0xD44));
+    *(RGBA *)(t + 0x79) = c7;
+    temp_f20 = func_0046b260(r) / 2.0f;
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD44)) + 0x100) =
+        (s16)temp_f20;
+    temp_f20 = func_0046b2f0(r) / 2.0f;
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD44)) + 0x102) =
+        (s16)temp_f20;
+    func_002e09b0(*(void **)(work + 0xD44), *(s16 *)(D_0063FA48 + 6),
+                  (f32)*(s16 *)(D_0063FA48 + 4));
+    func_002e0940(*(void **)(work + 0xD44), *(f32 *)D_0063FA48, 0.0f,
+                  2, *(s16 *)(D_0063FA48 + 6) + 5, 3);
+    func_0046d280(r);
+
+    r = func_0046d200(*(void **)(work + 0xF28), 0x45);
+    base = (Vec2f *)D_0063F788;
+    func_002e09e0(*(void **)(work + 0xD4C), 0x56, 55.0f);
+    func_002b2970(&spA8, base->x, -75.0f);
+    func_002b2970(&spA0, base->x, base->y);
+    func_002e0620(*(void **)(work + 0xD4C), spA8, spA0, 2, 5, 1);
+    func_002b2a60(&c8, 0xE4, 0xFF, 0, 0xFF);
+    t = (u8 *)func_002e04e0(*(void **)(work + 0xD4C));
+    *(RGBA *)(t + 0x79) = c8;
+    temp_f20 = func_0046b260(r) / 2.0f;
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD4C)) + 0x100) =
+        (s16)temp_f20;
+    temp_f20 = func_0046b2f0(r) / 2.0f;
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD4C)) + 0x102) =
+        (s16)temp_f20;
+    func_002e09b0(*(void **)(work + 0xD4C), *(s16 *)(D_0063FA50 + 6),
+                  (f32)*(s16 *)(D_0063FA50 + 4));
+    func_002e0940(*(void **)(work + 0xD4C), *(f32 *)D_0063FA50, 0.0f,
+                  2, *(s16 *)(D_0063FA50 + 6) + 5, 1);
+    func_0046d280(r);
+
+    r = func_0046d200(*(void **)(work + 0xF28), 0x46);
+    base = (Vec2f *)D_0063F790;
+    func_002e09e0(*(void **)(work + 0xD50), 0x56, 56.0f);
+    func_002b2970(&sp98, base->x, -165.0f);
+    func_002b2970(&sp90, base->x, base->y);
+    func_002e0620(*(void **)(work + 0xD50), sp98, sp90, 2, 5, 4);
+    func_002b2a60(&c9, 0xE4, 0xFF, 0, 0xFF);
+    t = (u8 *)func_002e04e0(*(void **)(work + 0xD50));
+    *(RGBA *)(t + 0x79) = c9;
+    temp_f20 = func_0046b260(r) / 2.0f;
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD50)) + 0x100) =
+        (s16)temp_f20;
+    temp_f20 = func_0046b2f0(r) / 2.0f;
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD50)) + 0x102) =
+        (s16)temp_f20;
+    *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xD50)) + 0xC4) = 0.0f;
+    func_002e09b0(*(void **)(work + 0xD50), *(s16 *)(D_0063FA58 + 6),
+                  (f32)*(s16 *)(D_0063FA58 + 4));
+    func_002e0940(*(void **)(work + 0xD50), *(f32 *)D_0063FA58, 0.0f,
+                  2, *(s16 *)(D_0063FA58 + 6) + 5, 4);
+    func_0046d280(r);
+
+    r = func_0046d200(*(void **)(work + 0xF28), 0x47);
+    base = (Vec2f *)D_0063F798;
+    func_002e09e0(*(void **)(work + 0xD54), 0x56, 57.0f);
+    func_002b2970(&sp88, base->x, -126.0f);
+    func_002b2970(&sp80, base->x, base->y);
+    func_002e0620(*(void **)(work + 0xD54), sp88, sp80, 2, 5, 2);
+    func_002b2a60(&c10, 0xE4, 0xFF, 0, 0xFF);
+    t = (u8 *)func_002e04e0(*(void **)(work + 0xD54));
+    *(RGBA *)(t + 0x79) = c10;
+    temp_f20 = func_0046b260(r) / 2.0f;
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD54)) + 0x100) =
+        (s16)temp_f20;
+    temp_f20 = func_0046b2f0(r) / 2.0f;
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD54)) + 0x102) =
+        (s16)temp_f20;
+    *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xD54)) + 0xC4) = 0.0f;
+    func_002e09b0(*(void **)(work + 0xD54), *(s16 *)(D_0063FA60 + 6),
+                  (f32)*(s16 *)(D_0063FA60 + 4));
+    func_002e0940(*(void **)(work + 0xD54), *(f32 *)D_0063FA60, 0.0f,
+                  1, *(s16 *)(D_0063FA60 + 6) + 5, 2);
+    func_0046d280(r);
+
+    r = func_0046d200(*(void **)(work + 0xF28), 0x48);
+    base = (Vec2f *)D_0063F7A0;
+    func_002e09e0(*(void **)(work + 0xD58), 0x56, 58.0f);
+    func_002b2970(&sp78, base->x, -197.0f);
+    func_002b2970(&sp70, base->x, base->y);
+    func_002e0620(*(void **)(work + 0xD58), sp78, sp70, 2, 5, 5);
+    func_002b2a60(&c11, 0xE4, 0xFF, 0, 0xFF);
+    t = (u8 *)func_002e04e0(*(void **)(work + 0xD58));
+    *(RGBA *)(t + 0x79) = c11;
+    temp_f20 = func_0046b260(r) / 2.0f;
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD58)) + 0x100) =
+        (s16)temp_f20;
+    temp_f20 = func_0046b2f0(r) / 2.0f;
+    *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xD58)) + 0x102) =
+        (s16)temp_f20;
+    *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xD58)) + 0xC4) = 0.0f;
+    func_002e09b0(*(void **)(work + 0xD58), *(s16 *)(D_0063FA68 + 6),
+                  (f32)*(s16 *)(D_0063FA68 + 4));
+    func_002e0940(*(void **)(work + 0xD58), *(f32 *)D_0063FA68, 0.0f,
+                  2, *(s16 *)(D_0063FA68 + 6) + 5, 5);
+    func_0046d280(r);
+    *(s8 *)work = 0x14;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002da0a0);
+#endif
 
 /* measured: full m2c draft adapted (40 2970 chains, 46b200/46b260/46b2f0/
    46d280 handle calls, FA70-FA98 f32[2] bases, phantom args dropped) and
