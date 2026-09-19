@@ -201,14 +201,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390290);
 /* measured: closing schedule for func_00390230. */
 #pragma schedule off
 
-/* measured: func_003902d0 floor -- probe_archive F390_003902d0_body.c: obj 120B/window 128B/24 reloc-masked differing words (fresh); fnalign 15 edits (frame/saves + branch/call layout; no slt/slti $at, no trailing dead-arm chain). */
-/* measured: ruled out -- archive (schedule on+nbl on, block-scope 8fb50 proto, opposite guard/inner layouts, O1/O3 neutral); transfer from 98350 scheduler and 96890/b830 s64 cures checked (no range guard to convert). Banked. */
-/* gate: object 35 against retail 32, +9.4% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured: func_003902d0 MATCH -- fnalign 0 edits (32 vs 32); probe 0 differing words. */
+/* measured: cures -- check `goto retry` -> `goto done`; `goto zero` -> `return 0` duplicated; schedule on + nbl on fills delays. */
 // FUN_003902D0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
 s32 func_003902d0(s32 arg0, s32 unused, s32 arg2, s32 arg3)
 {
     s32 sp3C;
@@ -225,15 +223,15 @@ retry:
     if (func_003df240(arg0, &sp3C, 4) != 0) {
         goto check;
     }
-    goto zero;
+    return 0;
 check:
     if (func_0038fb50(*temp_16, arg0) != 0) {
-        goto retry;
+        goto done;
     }
-    goto zero;
-zero:
     return 0;
 }
+#pragma no_branch_likely off
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003902d0);
 #endif
@@ -388,12 +386,8 @@ s32 func_00396870(s32 arg0)
 }
 /* measured: schedule off closes the scoped schedule bracket. */
 #pragma schedule off
-/* measured: func_00396890 floor -- archive K399_00396890_body.c 26wd (obj 156B/window 176B per stale header, fresh 26wd; fnalign 25 edits) improved to 15wd via (s64)0<count + 4-pragma set (schedule on, nbl on, opt_rebuild off, opt_prop off) + var_3 hoisted before guard / var_5 inside (fnalign 9 edits: beqz displacement + beq-vs-bne+jal call layout + b/jal/nop/sw tail). */
-/* measured: ruled out -- archive (m2c expansion, counter/pointer lifetimes, do-while/goto, >0/0</<1 guards, O1, schedule-on) plus dup-store if/else (15wd neutral) and transfer from bcd50 slt $at cure (signed improve 26->15). Out-of-line 97120 call + shared -1 tail wall; banked improved floor. */
-/* gate: object 38 against retail 41, -7.3% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured: func_00396890 floor -- fnalign 11 edits (40 vs 41, -2.4% inside 3%); probe 15 differing words. */
+/* measured: cures -- duplicate `*(temp_16+4)=NULL`; `if (==) goto do_call; store; goto do_tail; do_call: call; store; do_tail:`; 4-pragma set. */
 // FUN_00396890 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
@@ -419,9 +413,15 @@ s32 func_00396890(s32 arg0)
             } while (var_3 < *(s32 *)(temp_4 + 4));
         }
         if (*(s32 *)(temp_4 + 0x14) == arg0) {
-            func_00397120(temp_4);
+            goto do_call;
         }
         *(u8 **)(temp_16 + 4) = NULL;
+        goto do_tail;
+    do_call:
+        func_00397120(temp_4);
+        *(u8 **)(temp_16 + 4) = NULL;
+    do_tail:
+        ;
     }
     *(s32 *)temp_16 = -1;
     return arg0;
@@ -2090,9 +2090,9 @@ s32 func_0039ae30(s32 arg0)
 /* measured: retail uses a plain beqz for the initialization test. */
 #pragma no_branch_likely on
 
-/* measured: func_0039ae90 floor -- probe_archive Y039_0039ae90_body.c: obj 156B/window 176B/37 reloc-masked differing words (fresh); fnalign 24 edits (no slt/slti $at entry guard, no trailing dead-arm chain; allocator/call layout wall). */
-/* measured: ruled out -- archive (block-scope 43f810, decl order, result/local staging, branch polarity/goto, arg staging, O1) plus transfer from 98350 scheduler, 96890/b830 s64 (no range guard), 99470 strict bounds and f0e0 dead-arm checked (no convertible chain). Banked. */
-/* gate: object 39 against retail 44, -11.4% - OUTSIDE
+/* measured: func_0039ae90 floor -- fnalign 14 edits +2 reloc-only (42 vs 44); probe 22 differing words (was 37wd/24 edits at 39 vs 44). */
+/* measured: cures -- `if (>0) goto alloc; ret_stub: return; alloc:`; hoist temp_20/temp_19 before NULL check; `goto ret_stub` backwards. Remaining: retail sw+lw at 0x39AEEC/0x39AEF0 vs v0 reuse; tail b+nop at 0x39AF1C/0x39AF20 vs fallthrough. Banked (needs +1). */
+/* gate: object 42 against retail 44, -4.5% - OUTSIDE
    the +-3% band.  Any differing-word score in this note was measured
    against a body of the wrong length and is not comparable to one
    measured inside the gate (handoff 7y).  Fix the count first. */
@@ -2112,20 +2112,22 @@ s32 func_0039ae90(s32 arg0, s32 arg1)
     temp_16 = (u8 *)(arg1 + temp_2);
     temp_4 = *(s32 *)temp_16;
     temp_17 = (u8 *)(arg0 + temp_2);
-    if (temp_4 <= 0) {
-        goto block_1;
+    if (temp_4 > 0) {
+        goto alloc;
     }
+ret_stub:
+    return arg0;
+alloc:
     temp_18 = temp_4 * 0x14;
     *(u8 **)(temp_17 + 8) = (*jtbl_008873E8)((u32)temp_18, 0x30105);
+    temp_20 = *(s32 *)temp_16;
+    temp_19 = (u8 *)(*(s32 *)(temp_16 + 8));
     if (*(u8 **)(temp_17 + 8) == NULL) {
         return 0;
     }
-    temp_20 = *(s32 *)temp_16;
-    temp_19 = (u8 *)(*(s32 *)(temp_16 + 8));
     *(s32 *)temp_17 = temp_20;
     func_0043f810(*(u8 **)(temp_17 + 8), temp_19, temp_18);
-block_1:
-    return arg0;
+    goto ret_stub;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039ae90);
@@ -2399,16 +2401,16 @@ ret0:
 #pragma no_branch_likely off
 /* measured: closes the schedule-on b6e0 probe. */
 #pragma schedule off
-/* measured: func_0039b720 floor -- probe_archive K399_0039b720_body.c: obj 148B/window 160B/38 reloc-masked differing words (fresh; stale nd81 note replaced); fnalign 32 edits (entry sltu $at,$zero,$v1 + second sltu $v0,$a3,$v1 vs sltu $at,$a3,$v1; unsigned entry wall). */
-/* measured: ruled out -- archive (u8 expansion, 3rd param/4-reg bdf0 call, schedule-on, nbl-on, 0U</0U< reversals, goto guard, decl/local reorder) plus transfer from bb70/b830 unsigned s64 regress (s64 21wd on bb70) -- unsigned sltu wall stands, signed cure not applicable. Banked. */
-/* gate: object 43 against retail 40, +7.5% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured: func_0039b720 floor -- fnalign 20 edits (40 vs 40 exact); probe 24 differing words. */
+/* measured: cures -- 4-arg prototype (s32 unused, arg3 in a3); `var_7 < temp_3` (sltu+beqz); 4-pragma set. */
 // FUN_0039B720 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
+#pragma opt_rebuildconditionals off
+#pragma opt_propagation off
 u8 *func_0039bdf0();
-void func_0039b720(u8 *arg0, u8 *arg1, u32 arg3) {
+void func_0039b720(u8 *arg0, u8 *arg1, s32 unused, u32 arg3) {
     u8 *var_5;
     s32 temp_6;
     u32 temp_3;
@@ -2422,7 +2424,7 @@ void func_0039b720(u8 *arg0, u8 *arg1, u32 arg3) {
         if (temp_6 != 0) {
             temp_3 = *(u32 *)(var_5 + 4);
             var_7 = 0;
-            if (0U < temp_3)
+            if (var_7 < temp_3)
                 goto has_entries;
             goto after_entries;
 has_entries:
@@ -2447,6 +2449,10 @@ after_entries:
         *(s32 *)(*(u8 **)(arg0 + 0x10) + 0x30) = *(s32 *)(arg0 + 8);
     }
 }
+#pragma opt_propagation on
+#pragma opt_rebuildconditionals on
+#pragma no_branch_likely off
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b720);
 #endif

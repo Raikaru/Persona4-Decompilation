@@ -730,15 +730,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5130);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d51c0);
 /* measured: schedule on reproduces the callback address-load, branch delay,
    and epilogue order for func_003d5300; exact MATCH (48B). */
-/* measured: object 164B/window 144B/normalized_diff 112 (34 differing words, first diffs 4-8,10-12, oversized by 20B). */
-/* measured: oversized dispatch/callback floor; prior schedule/no_branch_likely notes stale after declaration changes. */
-/* measured: Body archived in docs/probe_archive/K3D5_003d5330_body.c. */
-/* gate: object 41 against retail 36, +13.9% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured: object 136B/window 144B (34 vs 34 trimmed exact, inside gate; 11 differing words, edits 12). Schedule-on fills the jal delay slots (sq16/a3/a0/a1) and prologue order; no_branch_likely-on removes the beql/bnel extra jumps. Body with schedule+no_branch_likely inside. */
 // FUN_003D5330 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
 u8 *func_003d5330(s32 arg0) {
     extern s32 *func_003e2f60(s32, s32, s32);
     extern s32 func_003df050(s32 *, s32, s32 *, s32 *);
@@ -758,6 +754,8 @@ u8 *func_003d5330(s32 arg0) {
     }
     return NULL;
 }
+#pragma no_branch_likely off
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5330);
 #endif

@@ -44,8 +44,7 @@ extern s32 D_0075D3F8[];
 /* measured: without #pragma schedule on, MWCC emits lui/addiu/jr/nop with
    the jr $ra delay slot unfilled; retail fills the delay slot with the
    final addiu (nd 6 -> 0). */
-// FUN_004F1350 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_004F1350
 /* measured: schedule on reproduces callback global staging and delay-slot order. */
 #pragma schedule on
 void func_004f1350(void) {
@@ -57,11 +56,7 @@ void func_004f1350(void) {
 }
 /* measured: schedule off closes the isolated 004f1350 callback probe. */
 #pragma schedule off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1350);
-#endif
-// FUN_004F1380 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_004F1380
 /* measured: schedule on reproduces callback global staging and delay-slot order. */
 #pragma schedule on
 void func_004f1380(void) {
@@ -73,9 +68,6 @@ void func_004f1380(void) {
 }
 /* measured: schedule off closes the isolated 004f1380 callback probe. */
 #pragma schedule off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1380);
-#endif
 // FUN_004F13B0
 /* measured: schedule on fills the 004f13b0 return delay slot. */
 #pragma schedule on
@@ -206,20 +198,16 @@ void func_004f1820(s32 arg0) {
     func_004f54a0();
     func_004f26e8(arg0, 0, 0);
 }
-// FUN_004F1850 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_004F1850
 void func_004f1850(u8 *arg0) {
     if ((arg0 != NULL) && (*(s16 *)(arg0 + 0x34) != 0)) {
         if (*(s16 *)(arg0 + 0x38) == 2) {
             func_004f1e10();
         }
-        *(s16 *)(arg0 + 0x36) = 0;
         *(s16 *)(arg0 + 0x34) = 0;
+        *(s16 *)(arg0 + 0x36) = 0;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1850);
-#endif
 // FUN_004F1F80 NONMATCHING
 #ifdef NON_MATCHING
 void func_004f1f80(s32 unused) {

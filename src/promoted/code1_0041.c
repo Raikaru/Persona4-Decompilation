@@ -381,13 +381,10 @@ s32 func_00415950(void) { return 1; }
 
 // FUN_00415960
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415960);
-/* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
-/* gate: object 64 against retail 60, +6.7% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured: object 244B/window 240B (61 instrs vs retail 60, +1.7% inside gate; 60 differing words, edits 52). Retail leaves 0x1C/0x2C unstored (garbage); parked body zeroed them (+2). Schedule-on fills the mtc1/nop and jr delay slots (+2). Body without pad1/unused stores under schedule-on. */
 // FUN_00415AD0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
 void func_00415ad0(u8 *arg0, u8 *arg1)
 {
     struct {
@@ -444,11 +441,9 @@ void func_00415ad0(u8 *arg0, u8 *arg1)
     matrix.m10 = (xy - wz) * 2.0f;
     matrix.m11 = 1.0f - (xx + zz) * 2.0f;
     matrix.m12 = (yz + wx) * 2.0f;
-    matrix.pad1 = 0;
     matrix.m20 = (zx + wy) * 2.0f;
     matrix.m21 = (yz - wx) * 2.0f;
     matrix.m22 = 1.0f - (xx + yy) * 2.0f;
-    matrix.unused = 0;
     matrix.pad2 = 0;
     matrix.pad3 = 0;
     matrix.pad4 = 0;
@@ -462,11 +457,9 @@ void func_00415ad0(u8 *arg0, u8 *arg1)
     *(f32 *)(arg0 + 0x10) = matrix.m10;
     *(f32 *)(arg0 + 0x14) = matrix.m11;
     *(f32 *)(arg0 + 0x18) = matrix.m12;
-    *(f32 *)(arg0 + 0x1C) = matrix.pad1;
     *(f32 *)(arg0 + 0x20) = matrix.m20;
     *(f32 *)(arg0 + 0x24) = matrix.m21;
     *(f32 *)(arg0 + 0x28) = matrix.m22;
-    *(s32 *)(arg0 + 0x2C) = matrix.unused;
     *(s32 *)(arg0 + 0x30) = matrix.pad2;
     *(s32 *)(arg0 + 0x34) = matrix.pad3;
     *(s32 *)(arg0 + 0x38) = matrix.pad4;
@@ -474,6 +467,7 @@ void func_00415ad0(u8 *arg0, u8 *arg1)
     *(f32 *)(arg0 + 0x34) = value34;
     *(f32 *)(arg0 + 0x38) = value38;
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415ad0);
 #endif

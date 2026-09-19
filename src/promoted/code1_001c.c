@@ -3367,7 +3367,11 @@ void func_001cb960(void) {}
    via `python3 tools/fnalign.py src/promoted/code1_001c.c func_001cb970 --candidate <body> --quiet`.
    Prior 344/384 (-10.4%, 40 short, 447 edits); 35-hole at 0x1cbd78-0x1cbe00 (targetXZ spill +
    001ec3d0 + ecRet scaling) closed via explicit-frame struct (7z/7x: retail spills vs reg-held
-   aggregates) + 001ec3d0 arg order a2=F8 sel / a3=F0 out. */
+   aggregates) + 001ec3d0 arg order a2=F8 sel / a3=F0 out.
+   Residual 4 at 0x1cbd80-0x1cbd8c (retail swc1 0xE0 / lwc1 0x128 / swc1 0xE4 / lwc1 0x100;
+   body load/store pairs at shifted slots): BASE, not order/width — both sides single-word
+   swc1/lwc1 f32 pairs in E0-then-E4 order; pad-base (+32) lost exact 385->344/417 and E4/E0
+   swap lost exact 385->344/395. Count exact, left for next pass. */
 // FUN_001CB970 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: retail fills delay slots this function leaves empty at -O2. */

@@ -65,6 +65,7 @@ extern void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
 extern u32 func_00106880(s16 arg0);
 extern s32 func_0046a770(void *param);
 extern s32 func_001068b0(s16 arg0);
+extern u16 func_001068e0(s16 arg0);
 extern s32 func_00106940(s16 arg0);
 extern s32 func_00106970(s16 arg0);
 extern s32 func_00106c30(s16 arg0, s16 arg1);
@@ -1208,10 +1209,9 @@ void func_00112610(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4
 /* 11->35 (mismatch 28->4, andi +6->0) costs edits 542->588 with sb 0->16, so it answers the census, */
 /* not the shape. Opclass stays lbu -28/move +16/swc1 -8/lwc1 -8/andi +6/subu -6/sb -5/addiu -4. Floor */
 /* stands at 494 words. */
-/* gate: object 510 against retail 544, -6.2% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* gate: object 540 against retail 544, -0.7% - INSIDE the +-3% band (explicit */
+/* frame struct restores spills: lbu -28->-1, move +16->+5, edits 540->437, words */
+/* 494->480; sb -5->+15 and swc1/lwc1 -8/-8 remain for the word-copy hole). */
 // FUN_00112830 NONMATCHING
 #ifdef NON_MATCHING
 void func_00112830(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
@@ -1231,189 +1231,188 @@ void func_00112830(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
     s32 value;
     s32 digit;
     s32 i;
-    s64 positions[9];
-    u8 colors[9][4];
+    struct { s64 pos[9]; u8 col[9][4]; } fr;
 
-    positions[0] = arg0;
+    fr.pos[0] = arg0;
     table = D_005E4750 + (*(s16 *)(arg2 + 0x16) * 4);
-    colors[8][0] = table[0];
-    colors[8][1] = table[1];
-    colors[8][2] = table[2];
-    colors[8][3] = table[3];
-    colors[8][3] = arg1;
+    fr.col[8][0] = table[0];
+    fr.col[8][1] = table[1];
+    fr.col[8][2] = table[2];
+    fr.col[8][3] = table[3];
+    fr.col[8][3] = arg1;
     kind = func_00106c80(*(s16 *)arg2);
     switch (kind) {
     case 0:
         value = func_001068b0(*(s16 *)arg2) & 0xFFFF;
-        positions[8] = positions[0];
+        fr.pos[8] = fr.pos[0];
         if (value / 100U != 0) {
-            x = 30.0f + *(f32 *)&positions[8];
+            x = 30.0f + *(f32 *)&fr.pos[8];
         } else {
-            x = 22.0f + *(f32 *)&positions[8];
+            x = 22.0f + *(f32 *)&fr.pos[8];
         }
-        y = *(f32 *)((u8 *)&positions[8] + 4);
+        y = *(f32 *)((u8 *)&fr.pos[8] + 4);
         current = value;
-        color_b = colors[7][2];
-        color_g = colors[7][1];
-        colors[7][3] = colors[8][3];
-        colors[7][0] = colors[8][0];
-        colors[7][1] = colors[8][1];
-        colors[7][2] = colors[8][2];
-        alpha = 0xFF - colors[8][3];
+        color_b = fr.col[7][2];
+        color_g = fr.col[7][1];
+        fr.col[7][3] = fr.col[8][3];
+        fr.col[7][0] = fr.col[8][0];
+        fr.col[7][1] = fr.col[8][1];
+        fr.col[7][2] = fr.col[8][2];
+        alpha = 0xFF - fr.col[8][3];
         do {
             digit = ((current & 0xFFFF) % 10) + 0x1E;
             func_0046d4c0(0, arg3, digit, x, y, (u8)alpha,
-                          colors[8][0], color_g, color_b, fparg0, 0);
+                          fr.col[8][0], color_g, color_b, fparg0, 0);
             x -= 15.0f;
             current = (current / 10) & 0xFFFF;
         } while (current > 0);
-        *(f32 *)&positions[0] += 52.0f;
+        *(f32 *)&fr.pos[0] += 52.0f;
         if (*(s16 *)(arg2 + 6) != -1) {
             value = func_001068b0(*(s16 *)(arg2 + 6)) & 0xFFFF;
-            positions[7] = positions[0];
+            fr.pos[7] = fr.pos[0];
             if (value != current) {
                 if (value < current) {
                     mode_a = 40;
                 } else if (current < value) {
                     mode_a = 41;
                 }
-                y = *(f32 *)((u8 *)&positions[7] + 4) - 1.0f;
-                func_0046d4c0(0, arg3, mode_a, *(f32 *)&positions[7], y, (u8)alpha,
-                              colors[8][0], color_g, color_b, fparg0, 0);
+                y = *(f32 *)((u8 *)&fr.pos[7] + 4) - 1.0f;
+                func_0046d4c0(0, arg3, mode_a, *(f32 *)&fr.pos[7], y, (u8)alpha,
+                              fr.col[8][0], color_g, color_b, fparg0, 0);
             }
         }
-        *(f32 *)&positions[0] += 42.0f;
+        *(f32 *)&fr.pos[0] += 42.0f;
         value = func_001068e0(*(s16 *)arg2) & 0xFFFF;
-        positions[6] = positions[0];
+        fr.pos[6] = fr.pos[0];
         if (value / 100U != 0) {
-            x = 30.0f + *(f32 *)&positions[6];
+            x = 30.0f + *(f32 *)&fr.pos[6];
         } else {
-            x = 22.0f + *(f32 *)&positions[6];
+            x = 22.0f + *(f32 *)&fr.pos[6];
         }
-        y = *(f32 *)((u8 *)&positions[6] + 4);
+        y = *(f32 *)((u8 *)&fr.pos[6] + 4);
         current = value;
-        color_b = colors[6][2];
-        color_g = colors[6][1];
-        colors[6][3] = colors[8][3];
-        colors[6][0] = colors[8][0];
-        colors[6][1] = colors[8][1];
-        colors[6][2] = colors[8][2];
-        alpha = 0xFF - colors[8][3];
+        color_b = fr.col[6][2];
+        color_g = fr.col[6][1];
+        fr.col[6][3] = fr.col[8][3];
+        fr.col[6][0] = fr.col[8][0];
+        fr.col[6][1] = fr.col[8][1];
+        fr.col[6][2] = fr.col[8][2];
+        alpha = 0xFF - fr.col[8][3];
         do {
             digit = ((current & 0xFFFF) % 10) + 0x1E;
             func_0046d4c0(0, arg3, digit, x, y, (u8)alpha,
-                          colors[8][0], color_g, color_b, fparg0, 0);
+                          fr.col[8][0], color_g, color_b, fparg0, 0);
             x -= 15.0f;
             current = (current / 10) & 0xFFFF;
         } while (current > 0);
-        *(f32 *)&positions[0] += 52.0f;
+        *(f32 *)&fr.pos[0] += 52.0f;
         if (*(s16 *)(arg2 + 6) != -1) {
             value = func_001068e0(*(s16 *)(arg2 + 6)) & 0xFFFF;
-            positions[5] = positions[0];
+            fr.pos[5] = fr.pos[0];
             if (value != current) {
                 if (value < current) {
                     mode_b = 40;
                 } else if (current < value) {
                     mode_b = 41;
                 }
-                y = *(f32 *)((u8 *)&positions[5] + 4) - 1.0f;
-                func_0046d4c0(0, arg3, mode_b, *(f32 *)&positions[5], y, (u8)alpha,
-                              colors[8][0], color_g, color_b, fparg0, 0);
+                y = *(f32 *)((u8 *)&fr.pos[5] + 4) - 1.0f;
+                func_0046d4c0(0, arg3, mode_b, *(f32 *)&fr.pos[5], y, (u8)alpha,
+                              fr.col[8][0], color_g, color_b, fparg0, 0);
             }
         }
         break;
     case 1:
         value = func_00106940(*(s16 *)arg2) & 0xFFFF;
-        positions[4] = positions[0];
+        fr.pos[4] = fr.pos[0];
         if (value / 100U != 0) {
-            x = 30.0f + *(f32 *)&positions[4];
+            x = 30.0f + *(f32 *)&fr.pos[4];
         } else {
-            x = 22.0f + *(f32 *)&positions[4];
+            x = 22.0f + *(f32 *)&fr.pos[4];
         }
-        y = *(f32 *)((u8 *)&positions[4] + 4);
+        y = *(f32 *)((u8 *)&fr.pos[4] + 4);
         current = value;
-        color_b = colors[5][2];
-        color_g = colors[5][1];
-        colors[5][3] = colors[8][3];
-        colors[5][0] = colors[8][0];
-        colors[5][1] = colors[8][1];
-        colors[5][2] = colors[8][2];
-        alpha = 0xFF - colors[8][3];
+        color_b = fr.col[5][2];
+        color_g = fr.col[5][1];
+        fr.col[5][3] = fr.col[8][3];
+        fr.col[5][0] = fr.col[8][0];
+        fr.col[5][1] = fr.col[8][1];
+        fr.col[5][2] = fr.col[8][2];
+        alpha = 0xFF - fr.col[8][3];
         do {
             digit = ((current & 0xFFFF) % 10) + 0x1E;
             func_0046d4c0(0, arg3, digit, x, y, (u8)alpha,
-                          colors[8][0], color_g, color_b, fparg0, 0);
+                          fr.col[8][0], color_g, color_b, fparg0, 0);
             x -= 15.0f;
             current = (current / 10) & 0xFFFF;
         } while (current > 0);
-        *(f32 *)&positions[0] += 52.0f;
+        *(f32 *)&fr.pos[0] += 52.0f;
         if (*(s16 *)(arg2 + 6) != -1) {
             value = func_00106940(*(s16 *)(arg2 + 6)) & 0xFFFF;
-            positions[3] = positions[0];
+            fr.pos[3] = fr.pos[0];
             if (value != current) {
                 if (value < current) {
                     mode_a = 40;
                 } else if (current < value) {
                     mode_a = 41;
                 }
-                y = *(f32 *)((u8 *)&positions[3] + 4) - 1.0f;
-                func_0046d4c0(0, arg3, mode_a, *(f32 *)&positions[3], y, (u8)alpha,
-                              colors[8][0], color_g, color_b, fparg0, 0);
+                y = *(f32 *)((u8 *)&fr.pos[3] + 4) - 1.0f;
+                func_0046d4c0(0, arg3, mode_a, *(f32 *)&fr.pos[3], y, (u8)alpha,
+                              fr.col[8][0], color_g, color_b, fparg0, 0);
             }
         }
-        *(f32 *)&positions[0] += 42.0f;
+        *(f32 *)&fr.pos[0] += 42.0f;
         value = func_00106970(*(s16 *)arg2) & 0xFFFF;
-        positions[2] = positions[0];
+        fr.pos[2] = fr.pos[0];
         if (value / 100U != 0) {
-            x = 30.0f + *(f32 *)&positions[2];
+            x = 30.0f + *(f32 *)&fr.pos[2];
         } else {
-            x = 22.0f + *(f32 *)&positions[2];
+            x = 22.0f + *(f32 *)&fr.pos[2];
         }
-        y = *(f32 *)((u8 *)&positions[2] + 4);
+        y = *(f32 *)((u8 *)&fr.pos[2] + 4);
         current = value;
-        color_b = colors[4][2];
-        color_g = colors[4][1];
-        colors[4][3] = colors[8][3];
-        colors[4][0] = colors[8][0];
-        colors[4][1] = colors[8][1];
-        colors[4][2] = colors[8][2];
-        alpha = 0xFF - colors[8][3];
+        color_b = fr.col[4][2];
+        color_g = fr.col[4][1];
+        fr.col[4][3] = fr.col[8][3];
+        fr.col[4][0] = fr.col[8][0];
+        fr.col[4][1] = fr.col[8][1];
+        fr.col[4][2] = fr.col[8][2];
+        alpha = 0xFF - fr.col[8][3];
         do {
             digit = ((current & 0xFFFF) % 10) + 0x1E;
             func_0046d4c0(0, arg3, digit, x, y, (u8)alpha,
-                          colors[8][0], color_g, color_b, fparg0, 0);
+                          fr.col[8][0], color_g, color_b, fparg0, 0);
             x -= 15.0f;
             current = (current / 10) & 0xFFFF;
         } while (current > 0);
-        *(f32 *)&positions[0] += 52.0f;
+        *(f32 *)&fr.pos[0] += 52.0f;
         if (*(s16 *)(arg2 + 6) != -1) {
             value = func_00106970(*(s16 *)(arg2 + 6)) & 0xFFFF;
-            positions[1] = positions[0];
+            fr.pos[1] = fr.pos[0];
             if (value != current) {
                 if (value < current) {
                     mode_b = 40;
                 } else if (current < value) {
                     mode_b = 41;
                 }
-                y = *(f32 *)((u8 *)&positions[1] + 4) - 1.0f;
-                func_0046d4c0(0, arg3, mode_b, *(f32 *)&positions[1], y, (u8)alpha,
-                              colors[8][0], color_g, color_b, fparg0, 0);
+                y = *(f32 *)((u8 *)&fr.pos[1] + 4) - 1.0f;
+                func_0046d4c0(0, arg3, mode_b, *(f32 *)&fr.pos[1], y, (u8)alpha,
+                              fr.col[8][0], color_g, color_b, fparg0, 0);
             }
         }
         break;
     case 2:
-        *(f32 *)&positions[0] += 35.0f;
-        *(f32 *)((u8 *)&positions[0] + 4) += 4.0f;
+        *(f32 *)&fr.pos[0] += 35.0f;
+        *(f32 *)((u8 *)&fr.pos[0] + 4) += 4.0f;
         current = 0;
-        color_b = colors[8][2];
-        color_g = colors[8][1];
+        color_b = fr.col[8][2];
+        color_g = fr.col[8][1];
         alpha = 0xFF - (arg1 & 0xFF);
         for (i = 0; i < 4; i++) {
             func_0046d4c0(0, arg3, 60,
-                          *(f32 *)&positions[0],
-                          *(f32 *)((u8 *)&positions[0] + 4), (u8)alpha,
-                          colors[8][0], color_g, color_b, fparg0, 0);
-            *(f32 *)&positions[0] += 34.0f;
+                          *(f32 *)&fr.pos[0],
+                          *(f32 *)((u8 *)&fr.pos[0] + 4), (u8)alpha,
+                          fr.col[8][0], color_g, color_b, fparg0, 0);
+            *(f32 *)&fr.pos[0] += 34.0f;
             current++;
         }
         break;

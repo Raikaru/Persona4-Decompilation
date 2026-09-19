@@ -496,6 +496,85 @@ retail and an $sN in the candidate.  It does not always apply - on
 the shared `j` ties at 27, so the cause there is something else.  One probe
 settles it either way.
 
+### 7ad. Rank the floors before choosing what to work on
+
+`tools/floor_distance.py` measures every guarded floor in the tree by fnalign
+edit distance and prints them closest-first.  It uses edits rather than a
+differing-word score because edits stay meaningful when the counts differ
+(7y), and it runs the compiles in parallel, so the whole tree takes a couple
+of minutes.
+
+    python3 tools/floor_distance.py --max-edits 12
+    python3 tools/floor_distance.py --json /var/tmp/floors.json
+
+The first run of it changed what this project should be doing.  Of 516
+measured floors, **53 sit at twelve edits or fewer**, most with retail's exact
+instruction count - they are register-allocation, scheduling and spelling
+walls two to twelve instructions from byte-exact, not research projects.  They
+were invisible before because a file listing shows a floor at 900 edits and a
+floor at 2 identically, and notes record whatever the last person happened to
+measure.  Twenty-seven markers carry no C body at all.
+
+The practical consequence: work the ranked list, not the file order.  Each
+floor that reaches zero is one function that stops being assembly.
+
+### 7ae. Agents that report work they did not do
+
+One agent this session reported four functions repaired, including a MATCH at
+zero differing words.  The file was byte-identical to before it started: `git
+diff --stat` showed nothing and all four scores were exactly its own "before"
+numbers.  Challenged, it found the cause honestly - it had been working in
+`/home/raikaru/width-work`, a 277 MB copy of the repository made on 17
+September with a `.jj` directory and no git, and every measurement it took was
+real but taken there.
+
+Two lessons.  **Verify every claim from the owner's checkout**, by re-running
+`measure_guarded` on the named function; a claimed score costs seconds to
+check and a fabricated MATCH costs a commit.  And **tell agents the absolute
+repository path and make them prove they are in it** - `git rev-parse
+--show-toplevel` plus an `ls` of a tool they will use - because a stale sibling
+tree absorbs an entire run without any error message.  The old `hardware-asm/`
+mirror was deleted for this exact reason; `width-work` is the next one.
+
+### 7ac. Two count defects that are not missing code
+
+A count outside the gate usually means a block is missing or invented, but two
+causes look identical in the count and are not.
+
+**Unfilled delay slots.**  `func_003ca320` was 47 instructions against retail's
+44, and the whole surplus was three branch delay slots the compiler filled with
+`nop` where retail filled them with work.  `#pragma schedule on` around the
+function took it to 41 against 42 - inside the gate - and 31 -> 22 differing
+words, with **no source change at all**.  Sweep for this with
+`python3 tools/pragma_sweep.py <file> <func>` before restructuring anything.
+
+The caveat is sharp: scheduling removes roughly a tenth of a body's
+instructions, so it is the answer only when the surplus is about the `nop`
+count.  Swept across every out-of-gate surplus floor in the tree, `schedule on`
+overshot on all three that did not already carry the pragma - `func_00365ac0`
+369 -> 245 against 272, `func_0021fa40` 292 -> 255 against 280, `func_00130680`
+377 -> 337 against 361.  A body that is 4% long and 10% unscheduled is 6%
+short once scheduled; fix the missing code first, then schedule.
+
+**Address materialisation the compiler folds.**  `func_00421c70` is three
+instructions short against retail and none of them is code.  Retail builds the
+DMA status register address as `lui $v1, 0x1000` then `ori $v1, $v1, 0xf000`
+and stores at offset 0, once per access; b210 folds the address into the memory
+operand as `lui $v1, 0x1001` with `sw $a0, -0x1000($v1)`, one instruction
+instead of two, at three sites.  Eight spellings were measured - plain cast,
+unsigned constant, `0x10000000 | 0xF000`, a block-scoped `u32` recomputed per
+site, a reassigned pointer local, `#pragma tailcall on`, and an
+`extern volatile u32` at the absolute address - and every one compiles to the
+same folded form at 26 words; `pragma_sweep` ties at 26 across the board.
+
+The reverse direction *is* fixable and is worth checking first: `func_00421da8`
+and `func_00421e28` were +50% and +33% because their bodies computed
+`((u32)D_0070C5D0) & 0xFFFF0000` into a local and addressed the global at
+`-0x3A30` from it, four instructions per site.  Retail just names the symbol.
+Writing `D_0070C5D0[0]` took both to exact counts.  So: a body that *builds* an
+address by hand is a defect; a body that *folds* one retail spells out is a
+compiler difference to document and leave alone.
+
 ### 7ab. What a hole-against-lump actually turns out to be
 
 Eight in-gate floors with a pure hole and a pure lump were worked in one
