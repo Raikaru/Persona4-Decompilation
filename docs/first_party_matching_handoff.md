@@ -496,6 +496,45 @@ retail and an $sN in the candidate.  It does not always apply - on
 the shared `j` ties at 27, so the cause there is something else.  One probe
 settles it either way.
 
+### 7ab. What a hole-against-lump actually turns out to be
+
+Eight in-gate floors with a pure hole and a pure lump were worked in one
+batch.  None of the causes was scheduling, and two were one-line fixes.
+
+**`func_001a17d0`: a swapped block order - and it matched.**  Its hole and
+lump were both exactly 37 instructions, which is the tell: equal sizes mean
+the same code, in the wrong place.  The tail belonged before the `check9`
+block, not after it.  With three other fixes the body went to **zero
+differing words** at 298/298, edits 120 -> 0, and the guard came off:
+
+  * `if`/`else` chain rewritten as `switch (v4 & 0xFFFF)` so the compiler
+    tests `0` first, matching retail's block layout;
+  * the inner switch written in numeric order `1,2,3,10`, which makes the
+    compiler test `10,3,2,1` - again retail's order;
+  * `u16 f` -> `s32 f`, removing an extra `andi` and fixing `$a0` against
+    `$v1`;
+  * the tail moved ahead of `check9`, closing the 37/37 pair.
+
+**`func_00323d00`: a 207-instruction hole from one type width.**  `s32 k` ->
+`s16 k` at three sites took the hole 207 -> 3 and the lump 104 -> 12, with
+edits 556 -> 199.  A counter declared too wide does not merely add
+sign-extension pairs; it changes the code the compiler emits enough that the
+alignment reads it as a missing block.  Scoped `opt_loop_invariants on` then
+added 44 words with the count steady - a real win by the 7u test.
+
+**`func_0019c0d0`: the honest failure.**  Its 347-instruction hole is
+retail's two trailing colour stages spilled through SP+0xAC..0xAF as unsigned
+bytes in channel order 1,2,3,0, against a compact s32-register version at
+0x8C..0x8F in order 0,1,2,3.  Five rewrites were measured; the best closes
+the 347/163 pair outright (largest hole 97, inserts 28, edits 1088 -> 999)
+but drifts +101 instructions outside the band, so it is archived rather than
+banked.  The remaining hole is a frame-slot problem, not colour logic.
+
+**So the diagnosis order for a hole-against-lump is:** equal sizes suggest
+moved code; a hole much larger than the lump suggests missing structure; a
+lump larger than the hole suggests duplication.  Check the cheap type and
+switch-shape fixes before attempting to rewrite a block.
+
 ### 7aa. Passing the gate does not mean the structure is right
 
 The count gate catches a body that is missing work overall.  It does not

@@ -791,13 +791,8 @@ loop_19_test:
     *(u16 *)((u8 *)arg0 + 0x41C) = 0;
     *(s32 *)((u8 *)arg0 + 0x420) = 0;
 }
-/* Battle-dispatch floor (1200B window). First probe nd 124
-   (obj 1176B, in-window); frame/prologue verified. Open:
-   switch-dispatch order, scheduler ordering. Array-form
-   absolute symbol access fixed a 90-word GPREL cascade;
-   redundant-mask variants measured worse. Triple-built. */
-// FUN_001A17D0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured 001a17d0: obj 1192B/window 1200B (-8B, -0.7% inside, 2-instr slack); 0 words via `python3 tools/measure_guarded.py src/promoted/code1_001a.c func_001a17d0`, 0 edits (+28 reloc-only) 298/298 via `python3 tools/fnalign.py src/promoted/code1_001a.c func_001a17d0 --candidate /tmp/candF_f32.c --quiet`; Jal 36 both sides. Switch v4 &0xFFFF reverse 2,0/default (compiler checks 0 first, matching retail layout; was if/else with bne losing andi+beq+b); switch v10 numeric 1,2,3,10 (compiler checks 10,3,2,1, matching retail; was reverse 10,3,2/1 checking 1 first); s32 f (was u16, fixes $a0 vs $v1 + extra andi); tail before check9 (was 9 before tail, fixing 37/37 pure hole/lump exactly equal, 294/297 inside hiding swap, edits 120->0). Production MATCH. */
+// FUN_001A17D0
 void func_001a17d0(u8 *arg0)
 {
     extern u8 *func_001bc920(u8 *arg0, s32 arg1);
@@ -805,7 +800,7 @@ void func_001a17d0(u8 *arg0)
     s32 v4;
     u16 t;
     u16 v10;
-    u16 f;
+    s32 f;
     s32 bVar;
     s16 sVar2;
     u8 *w;
@@ -853,23 +848,21 @@ void func_001a17d0(u8 *arg0)
             func_00194590(w, 0);
         }
     }
-    if (v4 == 0) {
-        goto tail;
-    }
-    if (v4 == 2) {
+    switch (v4 & 0xFFFF) {
+    case 2: {
         v10 = *(u16 *)(arg0 + 0x6C);
         switch (v10) {
-        case 10:
-            f = 0;
+        case 1:
+        case 2:
+            f = (u16)func_001fae80(arg0, *(u16 *)(arg0 + 0x6E), 0);
             bVar = 1;
             break;
         case 3:
             f = (u16)func_001fae80(arg0, *(u16 *)(arg0 + 0x6E), 1);
             bVar = 1;
             break;
-        case 2:
-        case 1:
-            f = (u16)func_001fae80(arg0, *(u16 *)(arg0 + 0x6E), 0);
+        case 10:
+            f = 0;
             bVar = 1;
             break;
         default:
@@ -895,16 +888,11 @@ void func_001a17d0(u8 *arg0)
         }
         goto tail;
     }
-    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x1000) != 0) {
-        func_00212040(*(s32 *)(iGpffffb3ac + 0xDD4));
-        func_00216ca0(*(s32 *)(iGpffffb3ac + 0xDD4));
-        func_002038c0(*(s32 *)(iGpffffb3ac + 0xDD4));
-        func_00213c40(*(s32 *)(iGpffffb3ac + 0xDD4));
-        for (i = *(u8 **)(iGpffffb3ac + 0x174); i != 0; i = *(u8 **)(i + 0x450)) {
-        }
-        func_001b0800(arg0, 9);
+    case 0:
+        goto tail;
+    default:
+        goto check9;
     }
-    return;
 tail:
     *(u16 *)(arg0 + 0x18) = *(u16 *)(arg0 + 0x18) | 2;
     func_00212040(*(s32 *)(iGpffffb3ac + 0xDD4));
@@ -915,10 +903,18 @@ tail:
     }
     func_001b0800(arg0, 15);
     return;
+check9:
+    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x1000) != 0) {
+        func_00212040(*(s32 *)(iGpffffb3ac + 0xDD4));
+        func_00216ca0(*(s32 *)(iGpffffb3ac + 0xDD4));
+        func_002038c0(*(s32 *)(iGpffffb3ac + 0xDD4));
+        func_00213c40(*(s32 *)(iGpffffb3ac + 0xDD4));
+        for (i = *(u8 **)(iGpffffb3ac + 0x174); i != 0; i = *(u8 **)(i + 0x450)) {
+        }
+        func_001b0800(arg0, 9);
+    }
+    return;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a17d0);
-#endif
 // FUN_001A1C80
 void func_001a1c80(u8 *arg0)
 {
