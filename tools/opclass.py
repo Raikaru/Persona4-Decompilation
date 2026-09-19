@@ -86,6 +86,12 @@ def main() -> None:
     boundaries = sorted(boundaries)
     scratch = Path(tempfile.mkdtemp(prefix="opdiff_"))
 
+    # An unrecognised option used to become a path filter that matched no
+    # file, so `opclass.py --help` printed "floors scanned: 0" and looked
+    # like the tool was broken.  There are no options; say so.
+    if any(a.startswith("-") for a in sys.argv[1:]):
+        raise SystemExit("usage: opclass.py [file.c ...]   (no options; "
+                         "omit arguments to scan every guarded floor)")
     only = {Path(a).resolve() for a in sys.argv[1:]}
     rows = []
     for path in sorted(Path("src").rglob("*.c")):
