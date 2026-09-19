@@ -1440,6 +1440,17 @@ void func_00143b90(void)
 {
 }
 
+/* measured 001441e0 (owner, 2026-09-19): fnalign edits **668 -> 47**, object 565 against
+   retail 566.  The two long `if (v == c) ... else if` chains are `switch` statements, and
+   the arms were written in descending order.
+   `block_move_scan` found it: a one-sided run of **142 retail instructions at 0x0014449C
+   containing 23 calls**, shape `nop x46  addiu x24  ld x23  jal x23  b x23`.  Twenty-three
+   near-identical arms, each `func_00450050(pos, &gpGlobal)` with the gp offset stepping by
+   8 - -0x6318, -0x6310, -0x6308, -0x6300, -0x62F8 and so on - laid out in **ascending**
+   order while retail's comparisons run descending.  That is the 7av signature, and the
+   chain form cannot produce it however the arms are ordered in source.
+   Converting both chains to `switch (v)` with the cases sorted ascending is the whole
+   change; the arm bodies are untouched. */
 // FUN_001441E0 NONMATCHING
 #ifdef SKIP_ASM
 /* measured 2026-09-19 (lead): the outer arms were in the wrong order, and the
@@ -1527,61 +1538,165 @@ s32 func_001441e0(u8 *arg0) {
             pos.x = 0x40A00000;
             pos.y = 20.0f + (f32)i;
             v = st->a[i];
-            if (v == 0x44) { func_00450050(*(s64 *)&pos.x, &iGpffff9da0); }
-            else if (v == 0x43) { func_00450050(*(s64 *)&pos.x, &iGpffff9d98); }
-            else if (v == 0x42) { func_00450050(*(s64 *)&pos.x, &iGpffff9d90); }
-            else if (v == 0x41) { func_00450050(*(s64 *)&pos.x, &iGpffff9d88); }
-            else if (v == 0x40) { func_00450050(*(s64 *)&pos.x, &iGpffff9d80); }
-            else if (v == 0x34) { func_00450050(*(s64 *)&pos.x, &iGpffff9d78); }
-            else if (v == 0x33) { func_00450050(*(s64 *)&pos.x, &iGpffff9d70); }
-            else if (v == 0x32) { func_00450050(*(s64 *)&pos.x, &iGpffff9d68); }
-            else if (v == 0x31) { func_00450050(*(s64 *)&pos.x, &iGpffff9d60); }
-            else if (v == 0x30) { func_00450050(*(s64 *)&pos.x, &iGpffff9d58); }
-            else if (v == 0x24) { func_00450050(*(s64 *)&pos.x, &iGpffff9d50); }
-            else if (v == 0x23) { func_00450050(*(s64 *)&pos.x, &iGpffff9d48); }
-            else if (v == 0x22) { func_00450050(*(s64 *)&pos.x, &iGpffff9d40); }
-            else if (v == 0x21) { func_00450050(*(s64 *)&pos.x, &iGpffff9d38); }
-            else if (v == 0x20) { func_00450050(*(s64 *)&pos.x, &iGpffff9d30); }
-            else if (v == 0x14) { func_00450050(*(s64 *)&pos.x, &iGpffff9d28); }
-            else if (v == 0x13) { func_00450050(*(s64 *)&pos.x, &iGpffff9d20); }
-            else if (v == 0x12) { func_00450050(*(s64 *)&pos.x, &iGpffff9d18); }
-            else if (v == 0x11) { func_00450050(*(s64 *)&pos.x, &iGpffff9d10); }
-            else if (v == 0x10) { func_00450050(*(s64 *)&pos.x, &iGpffff9d08); }
-            else if (v == 4) { func_00450050(*(s64 *)&pos.x, &iGpffff9d00); }
-            else if (v == 3) { func_00450050(*(s64 *)&pos.x, &iGpffff9cf8); }
-            else if (v == 2) { func_00450050(*(s64 *)&pos.x, &iGpffff9cf0); }
-            else if (v == 1) { func_00450050(*(s64 *)&pos.x, &iGpffff9ce8); }
-            else if (v == 0) { func_00450050(*(s64 *)&pos.x, &iGpffff9ce4); }
+            switch (v) {
+            case 0:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9ce4);
+                break;
+            case 1:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9ce8);
+                break;
+            case 2:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9cf0);
+                break;
+            case 3:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9cf8);
+                break;
+            case 4:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d00);
+                break;
+            case 16:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d08);
+                break;
+            case 17:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d10);
+                break;
+            case 18:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d18);
+                break;
+            case 19:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d20);
+                break;
+            case 20:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d28);
+                break;
+            case 32:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d30);
+                break;
+            case 33:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d38);
+                break;
+            case 34:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d40);
+                break;
+            case 35:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d48);
+                break;
+            case 36:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d50);
+                break;
+            case 48:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d58);
+                break;
+            case 49:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d60);
+                break;
+            case 50:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d68);
+                break;
+            case 51:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d70);
+                break;
+            case 52:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d78);
+                break;
+            case 64:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d80);
+                break;
+            case 65:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d88);
+                break;
+            case 66:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d90);
+                break;
+            case 67:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d98);
+                break;
+            case 68:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9da0);
+                break;
+            }
         }
         for (i = 0; i < 7; i++) {
             pos.x = 0x41700000;
             pos.y = 20.0f + (f32)i;
             v = st->b[i];
-            if (v == 0x44) { func_00450050(*(s64 *)&pos.x, &iGpffff9da0); }
-            else if (v == 0x43) { func_00450050(*(s64 *)&pos.x, &iGpffff9d70); }
-            else if (v == 0x42) { func_00450050(*(s64 *)&pos.x, &iGpffff9d40); }
-            else if (v == 0x41) { func_00450050(*(s64 *)&pos.x, &iGpffff9d10); }
-            else if (v == 0x40) { func_00450050(*(s64 *)&pos.x, &iGpffff9ce4); }
-            else if (v == 0x34) { func_00450050(*(s64 *)&pos.x, &iGpffff9d70); }
-            else if (v == 0x33) { func_00450050(*(s64 *)&pos.x, &iGpffff9d70); }
-            else if (v == 0x32) { func_00450050(*(s64 *)&pos.x, &iGpffff9d68); }
-            else if (v == 0x31) { func_00450050(*(s64 *)&pos.x, &iGpffff9d60); }
-            else if (v == 0x30) { func_00450050(*(s64 *)&pos.x, &iGpffff9d58); }
-            else if (v == 0x24) { func_00450050(*(s64 *)&pos.x, &iGpffff9d40); }
-            else if (v == 0x23) { func_00450050(*(s64 *)&pos.x, &iGpffff9d48); }
-            else if (v == 0x22) { func_00450050(*(s64 *)&pos.x, &iGpffff9d40); }
-            else if (v == 0x21) { func_00450050(*(s64 *)&pos.x, &iGpffff9d38); }
-            else if (v == 0x20) { func_00450050(*(s64 *)&pos.x, &iGpffff9d30); }
-            else if (v == 0x14) { func_00450050(*(s64 *)&pos.x, &iGpffff9d10); }
-            else if (v == 0x13) { func_00450050(*(s64 *)&pos.x, &iGpffff9d20); }
-            else if (v == 0x12) { func_00450050(*(s64 *)&pos.x, &iGpffff9d18); }
-            else if (v == 0x11) { func_00450050(*(s64 *)&pos.x, &iGpffff9d10); }
-            else if (v == 0x10) { func_00450050(*(s64 *)&pos.x, &iGpffff9d08); }
-            else if (v == 4) { func_00450050(*(s64 *)&pos.x, &iGpffff9ce4); }
-            else if (v == 3) { func_00450050(*(s64 *)&pos.x, &iGpffff9cf8); }
-            else if (v == 2) { func_00450050(*(s64 *)&pos.x, &iGpffff9cf0); }
-            else if (v == 1) { func_00450050(*(s64 *)&pos.x, &iGpffff9ce8); }
-            else if (v == 0) { func_00450050(*(s64 *)&pos.x, &iGpffff9ce4); }
+            switch (v) {
+            case 0:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9ce4);
+                break;
+            case 1:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9ce8);
+                break;
+            case 2:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9cf0);
+                break;
+            case 3:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9cf8);
+                break;
+            case 4:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9ce4);
+                break;
+            case 16:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d08);
+                break;
+            case 17:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d10);
+                break;
+            case 18:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d18);
+                break;
+            case 19:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d20);
+                break;
+            case 20:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d10);
+                break;
+            case 32:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d30);
+                break;
+            case 33:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d38);
+                break;
+            case 34:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d40);
+                break;
+            case 35:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d48);
+                break;
+            case 36:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d40);
+                break;
+            case 48:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d58);
+                break;
+            case 49:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d60);
+                break;
+            case 50:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d68);
+                break;
+            case 51:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d70);
+                break;
+            case 52:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d70);
+                break;
+            case 64:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9ce4);
+                break;
+            case 65:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d10);
+                break;
+            case 66:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d40);
+                break;
+            case 67:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9d70);
+                break;
+            case 68:
+                func_00450050(*(s64 *)&pos.x, &iGpffff9da0);
+                break;
+            }
         }
     }
     return 0;

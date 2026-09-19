@@ -808,6 +808,7 @@ void func_004916f0(u8 *arg0)
     u8 *clear;
     s32 ci;
     f32 a;
+    f32 aD4;
     f32 b;
     f32 c;
     f32 f27;
@@ -909,23 +910,23 @@ skip_clear:
     }
     a = *(f32 *)(config + 224);
     b = func_004bd0b0(0);
-    f27 = (fGpffff8084 * a) * b + 0.5f * (fGpffff8084 * (1.0f - a));
+    f27 = (g84 * a) * b + half * (g84 * (one - a));
     s25 = func_0044b7b0(f27);
     a = *(f32 *)(config + 200);
     b = *(f32 *)(config + 204);
     out[0] = a * s25;
     out[1] = (b * s25 - a * s25) / (f32)limitB8;
     if ((*(u8 *)(config + 228) == 0) || ((idx & 1) != 0)) {
-        a = *(f32 *)(config + 212);
+        aD4 = *(f32 *)(config + 212);
         b = func_004bd0b0(0);
-        out[2] = *(f32 *)(config + 208) * ((1.0f - a) + a * b);
+        out[2] = *(f32 *)(config + 208) * ((one - aD4) + aD4 * b);
     } else {
-        a = *(f32 *)(config + 212);
+        aD4 = *(f32 *)(config + 212);
         b = func_004bd0b0(0);
-        out[2] = -*(f32 *)(config + 208) * ((1.0f - a) + a * b);
+        out[2] = -*(f32 *)(config + 208) * ((one - aD4) + aD4 * b);
     }
     b = func_004bd0b0(0);
-    out[3] = fGpffff8080 * b;
+    out[3] = g80 * b;
     c25 = func_0044b610(f27);
     a = *(f32 *)(config + 200);
     b = *(f32 *)(config + 204);
@@ -949,17 +950,17 @@ skip_clear:
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
     a = *(f32 *)(config + 108);
     b = func_004bd0b0(0);
-    out[6] = (1.0f - a) + a * b;
+    out[6] = (one - a) + a * b;
     if (mode9C == 2) {
         out[7] = 0.0f;
         out[8] = 1.0f;
     } else {
         a = *(f32 *)(config + 152);
         b = func_004bd0b0(0);
-        out[8] = (1.0f - a) + a * b;
+        out[8] = (one - a) + a * b;
         if (mode9C == 1) {
             b = func_004bd0b0(0);
-            out[7] = fGpffff8080 * b;
+            out[7] = g80 * b;
             if ((func_004bd050(0) & 1) != 0) {
                 out[8] = out[8] * -1.0f;
             }
@@ -972,7 +973,7 @@ skip_clear:
     if (flagBD != 0) {
         tmp = (s32)((u32)func_004bd050(0) % (u32)limitB8);
         ftmp1 = (f32)(u32)tmp;
-        out[4] = out[4] - 0.5f * (vDC * ftmp1) * ftmp1;
+        out[4] = out[4] - half * (vDC * ftmp1) * ftmp1;
         out[0] = out[0] + out[1] * ftmp1;
         ftmp1 = out[0];
         vec110[0] = ftmp1 * func_0044b610(out[3]);
@@ -1013,9 +1014,9 @@ else_branch:
     b220buf = *(u_long128 *)nodes;
     ftmp1 = (f32)node10;
     if ((*(u8 *)(config + 228) == 0) || ((idx & 1) != 0)) {
-        ftmp2 = vD8 * ftmp1 * 0.5f + out[2];
+        ftmp2 = vD8 * ftmp1 * half + out[2];
     } else {
-        ftmp2 = out[2] - vD8 * ftmp1 * 0.5f;
+        ftmp2 = out[2] - vD8 * ftmp1 * half;
     }
     c = ftmp1 * ftmp2 + out[3];
     out[4] = out[4] - vDC * ftmp1;
@@ -1137,6 +1138,7 @@ void func_00492100(u8 *arg0)
     f32 a;
     f32 b;
     f32 c;
+    f32 cD8;
     count = *(u32 *)(arg0 + 4);
     flags = *(u32 *)(arg0 + 12);
     nodesBase = *(u8 **)(arg0 + 24);
@@ -1274,14 +1276,14 @@ skip_clear:
     out[11] = *(f32 *)(config + 204) * ((1.0f - a) + a * b);
     a = *(f32 *)(config + 248);
     b = func_004bd0b0(0);
-    out[12] = -*(f32 *)(config + 244) * ((1.0f - a) + a * b);
     a = *(f32 *)(config + 220);
     b = func_004bd0b0(0);
-    c = *(f32 *)(config + 216) * ((1.0f - a) + a * b);
+    cD8 = *(f32 *)(config + 216) * ((1.0f - a) + a * b);
     a = *(f32 *)(config + 228);
     b = func_004bd0b0(0);
     ftmp1 = *(f32 *)(config + 224) * ((1.0f - a) + a * b);
-    out[8] = c;
+    out[8] = cD8;
+    out[9] = (ftmp1 - cD8) / (f32)limitB8;
     out[9] = (ftmp1 - c) / (f32)limitB8;
     a = *(f32 *)(config + 236);
     b = func_004bd0b0(0);
