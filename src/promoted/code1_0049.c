@@ -394,6 +394,7 @@ void func_00490c40(u8 *arg0)
     s32 divD8;
     u8 mode9C;
     f32 vE4;
+    f32 one;
     s32 v15;
     s32 flagBD;
     u32 idx;
@@ -432,6 +433,7 @@ void func_00490c40(u8 *arg0)
     divD8 = *(s32 *)(config + 216);
     mode9C = *(u8 *)(config + 156);
     vE4 = *(f32 *)(config + 228);
+    one = 1.0f;
     idx = 0;
     vec120[3] = 0.0f;
     if ((saved20 != 0) && (*(s32 *)(arg0 + 16) >= saved20)) {
@@ -525,18 +527,18 @@ skip_clear:
     out[2] = vec120[2];
     a = *(f32 *)(config + 224);
     b = func_004bd0b0(0);
-    c = (1.0f - a) + a * b;
+    c = (one - a) + a * b;
     out[5] = *(f32 *)(config + 220) * c;
     if (out[5] < 0.0f) {
         out[5] = -out[5];
     }
     a = *(f32 *)(config + 204);
     b = func_004bd0b0(0);
-    c = (1.0f - a) + a * b;
+    c = (one - a) + a * b;
     out[3] = *(f32 *)(config + 200) * c;
     a = *(f32 *)(config + 212);
     b = func_004bd0b0(0);
-    c = (1.0f - a) + a * b;
+    c = (one - a) + a * b;
     temp = *(f32 *)(config + 208) * c;
     out[4] = (temp - out[3]) / (f32)divD8;
     if (flagBD != 0) {
@@ -577,14 +579,14 @@ skip_clear:
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
     a = *(f32 *)(config + 108);
     b = func_004bd0b0(0);
-    out[6] = (1.0f - a) + a * b;
+    out[6] = (one - a) + a * b;
     if (mode9C == 2) {
         out[7] = 0.0f;
         out[8] = 1.0f;
     } else {
         a = *(f32 *)(config + 152);
         b = func_004bd0b0(0);
-        out[8] = (1.0f - a) + a * b;
+        out[8] = (one - a) + a * b;
         if (mode9C == 1) {
             b = func_004bd0b0(0);
             out[7] = fGpffff8080 * b;
@@ -1123,6 +1125,7 @@ void func_00492100(u8 *arg0)
     f32 vD4;
     f32 vFC;
     f32 vF0;
+    f32 one;
     s32 v15;
     s32 flagBD;
     u32 idx;
@@ -1154,6 +1157,7 @@ void func_00492100(u8 *arg0)
     vD4 = *(f32 *)(config + 212);
     vFC = *(f32 *)(config + 252);
     vF0 = *(f32 *)(config + 240);
+    one = 1.0f;
     idx = 0;
     vec120[3] = 0.0f;
     __asm__ volatile("lqc2 $vf10, 0x10(%0)" : : "r"(config), "m"(*(u_long128 *)(config + 16)) : "$vf10", "memory");
@@ -1273,18 +1277,18 @@ skip_clear:
     out[5] = vec120[2];
     a = *(f32 *)(config + 208);
     b = func_004bd0b0(0);
-    out[11] = *(f32 *)(config + 204) * ((1.0f - a) + a * b);
+    out[11] = *(f32 *)(config + 204) * ((one - a) + a * b);
     a = *(f32 *)(config + 248);
     b = func_004bd0b0(0);
+    out[12] = -*(f32 *)(config + 244) * ((one - a) + a * b);
     a = *(f32 *)(config + 220);
     b = func_004bd0b0(0);
-    cD8 = *(f32 *)(config + 216) * ((1.0f - a) + a * b);
+    cD8 = *(f32 *)(config + 216) * ((one - a) + a * b);
     a = *(f32 *)(config + 228);
     b = func_004bd0b0(0);
-    ftmp1 = *(f32 *)(config + 224) * ((1.0f - a) + a * b);
+    ftmp1 = *(f32 *)(config + 224) * ((one - a) + a * b);
     out[8] = cD8;
     out[9] = (ftmp1 - cD8) / (f32)limitB8;
-    out[9] = (ftmp1 - c) / (f32)limitB8;
     a = *(f32 *)(config + 236);
     b = func_004bd0b0(0);
     out[10] = *(f32 *)(config + 232) * ((1.0f - a) + a * b);
