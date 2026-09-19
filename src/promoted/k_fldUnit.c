@@ -888,8 +888,24 @@ void func_001641d0(void)
    the +-3% band.  Any differing-word score in this note was measured
    against a body of the wrong length and is not comparable to one
    measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 2026-09-19 (lead): object 209 instrs against retail 208, inside the
+   gate, 72 fnalign edits.  Was 199 against 207 - -3.9% and outside - at 80
+   edits and 136 differing words.
+   The deficit was rematerialisation, not missing code.  Retail recomputes the
+   table row after each inner loop: `sll $v1, $s0, 3` / `lui $v0, 0x7f` /
+   `addiu $v0, $v0, 0x16f0` / `addu $s2, $v0, $v1` / `addiu $s1, $s2, 0xc` /
+   `lw $a0, 0xc($s2)` at retail[76:82] and again at retail[182:187], where the
+   body reuses the row pointer it already holds and emits two instructions.
+   `#pragma opt_common_subs off` restores both recomputations and the count
+   with them.  The differing-word score rises 136 -> 161, which is the usual
+   artefact of a count moving by ten instructions (handoff 7y); the edit count
+   is the comparable measure here and it falls.
+   Note the opposite result on `func_00126090` in `code1_0012.c`, where the
+   same pragma costs 303 words against 112 - this compiler flag is per
+   function, never per file. */
 // FUN_00164230 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_common_subs off
 void func_00164230(s32 arg0, s32 arg1, s32 arg2)
 {
     u8 *p;
@@ -979,6 +995,7 @@ void func_00164230(s32 arg0, s32 arg1, s32 arg2)
         }
     }
 }
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00164230);
 #endif
