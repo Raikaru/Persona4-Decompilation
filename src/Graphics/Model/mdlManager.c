@@ -463,16 +463,20 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
 
 
 
-
-/* measured: blocked by the same lhu+bltz u16 sign-test floor as func_00473b20/
-   00479100 (retail: lhu;bltz on the raw register at 0x372BEC; b210
-   double-emits with a duplicated negative path in all 14 probed spellings).
-   Not transcribed: 7104B window with a guaranteed ~6-word mismatch at the
-   sign test cascading through the frame. */
+/* measured 00471370 (owner): the romwright body is NOT banked.  It measures object 2561
+   against retail 1776 - **+44.2%**, where the gate allows 53 instructions - and a body 44%
+   too long is not a floor, it is a different function.  Its word and edit scores (2496 and
+   3645) are meaningless against a body of that length (handoff 7y), and leaving it installed
+   would corrupt every later measurement on this file.  Archived at
+   docs/probe_archive/romwright_func_00471370_R1.c with its diagnosis: float accumulator mul/add where
+   retail uses mula/madd (7r), the lhu+bltz sign-test floor shared with func_00473b20 and
+   func_00479100, saved-register rotation, and an if-else chain where retail has a jump
+   table.  Rebuild from retail's dispatch shape, not from the decompiler's. */
 // FUN_00471370
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471370);
+
 extern void func_00397c40(void* a, void* b);
-extern void func_00471370(void* a, void* b, void* c, void* d);
+extern void func_00471370(u8 *a, u8 *b, u8 *c, void *d);
 // FUN_00472F30
 void func_00472f30(u8* param_1, int param_2)
 {
@@ -5049,8 +5053,508 @@ void func_0047b060(void* param_1)
    (void* (*)(int,int))DAT_008873e8[0]; D_0070B610 is an u8 extern; mwcc C89
    rejects void*+int - cast derefs to u8* first. Switch-layout +
    register-rotation floor. */
-// FUN_0047B0C0
+/* measured 0047b0c0 romwright R1: object 1320/retail 1380 (-60, -4.3% OUTSIDE +-3% gate, 41 allowed); fnalign 2110 edits+2 reloc-only. Frame/regsave pending (see below). Switch dispatch as if-else chain (retail jump table) + saved-reg rotation across ~30 temps. Production guarded, fallback INCLUDE_ASM retained. */
+// FUN_0047B0C0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0047b0c0(u8 *arg0)
+{
+    extern unsigned int func_003c0f20(int);
+    extern unsigned int func_003d53c0(int);
+    extern unsigned int func_003d6350(unsigned int, int);
+    extern unsigned int func_003dc370(int);
+    extern unsigned int func_003e6a90(int);
+    extern unsigned int func_0047d200(void);
+    extern unsigned int func_0047d320(unsigned int, int, unsigned int, unsigned short, unsigned int);
+    extern unsigned int func_0047db50(int, unsigned int);
+    extern unsigned int func_0047dc30(void);
+    extern unsigned int func_0047f9f0(void);
+    extern unsigned int func_003d60e0(unsigned int, unsigned int);
+    extern void func_0044ea90(void);
+    extern unsigned char * func_00470e90(unsigned short);
+    extern void func_00477810(void *, void *);
+    extern unsigned int func_0047d1a0(void);
+    extern int func_004800d0(void *, unsigned char **, unsigned int, void *);
+    extern s32 func_003df3c0();
+    extern s32 func_003e2910();
+    extern s32 func_003e2ce0();
+    extern s32 func_003e2f60();
+    extern s32 func_003ef1b0();
+    extern s32 func_003ef260();
+    extern s32 func_0043f9c8();
+    extern s32 func_004667d0();
+    extern s32 func_0047d460();
+/* irregular: 10 native warning(s); review required */
+  unsigned short temp_v0;
+  int *piVar2;
+  unsigned int temp_v1;
+  unsigned short temp_v2;
+  int temp_v3;
+  unsigned char *pbVar6;
+  unsigned int temp_v4;
+  unsigned int temp_v5;
+  unsigned int *puVar9;
+  int temp_v6;
+  u32 temp_v7;
+  long temp_v8;
+  unsigned int *puVar13;
+  unsigned int *puVar14;
+  int temp_v9;
+  unsigned short *puVar16;
+  int *piVar17;
+  unsigned int uStack_50;
+  unsigned int uStack_4c;
+  unsigned short uStack_30;
+  unsigned short uStack_2e;
+  unsigned int uStack_2c;
+  unsigned int uStack_28;
+  unsigned int uStack_24;
+  int iStack_18;
+  int iStack_14;
+  int uStack_c;
+  unsigned short uStack_6;
+  unsigned short uStack_4;
+  unsigned short uStack_2;
+  
+  piVar2 = *(int **)((int)arg0 + 0x30c);
+  uStack_2 = 0x20;
+  for (temp_v5 = 0; temp_v5 < 2; temp_v5 = (temp_v5 + 1) & 0xffff) {
+    *(unsigned short *)((int)piVar2 + temp_v5 * 2 + 0x20) = 0x20;
+  }
+  while ((temp_v8 = func_003df3c0(*piVar2,&uStack_50), temp_v2 = uStack_2, temp_v8 != 0 &&
+         (uStack_50 != 0))) {
+    if (uStack_50 == 0xf0f00009) {
+      piVar2[0x11] = 1;
+      func_003e2ce0(*piVar2,uStack_4c);
+    }
+    else if ((uStack_50 == 0xf0f00008) || (uStack_50 == 0xf0f00007)) {
+      func_003e2910(*piVar2,&uStack_c,uStack_4c);
+      if (*(int *)(**(int **)((int)arg0 +
+                             ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7))
+                             * 4 + 0x120) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x4c) ==
+          0) {
+        func_0044ea90();
+        temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(8,0x40000);
+        func_0043f9c8(temp_v7,0,8);
+        *(int *)(**(int **)((int)arg0 +
+                           ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) *
+                           4 + 0x120) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x4c) =
+             (int)temp_v7;
+      }
+      if (uStack_50 == 0xf0f00007) {
+        **(unsigned int **)
+          (**(int **)((int)arg0 +
+                     ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 +
+                     0x120) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x4c) = uStack_c;
+      }
+      else {
+        *(unsigned int *)
+         (*(int *)(**(int **)((int)arg0 +
+                             ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7))
+                             * 4 + 0x120) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x4c) + 4
+         ) = uStack_c;
+      }
+    }
+    else if (uStack_50 == 0xf0f000d0) {
+      func_0044ea90();
+      temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(0x4c,0x40000);
+      func_0043f9c8(temp_v7,0,0x4c);
+      temp_v3 = (int)temp_v7;
+      *(unsigned int *)(temp_v3 + 0x30) = 0x3f800000;
+      *(unsigned int *)(temp_v3 + 0x38) = 0x3f800000;
+      *(int *)(**(int **)((int)arg0 +
+                         ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4
+                         + 0x120) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x48) = temp_v3;
+      func_003e2910(*piVar2,*(int *)(**(int **)((int)arg0 +
+                                              ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 +
+                                              (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x120) +
+                                    (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x48) + 0x3c,
+                   uStack_4c);
+      for (temp_v5 = 0; temp_v5 < 4; temp_v5 = (temp_v5 + 1) & 0xffff) {
+        func_003df3c0(*piVar2,&uStack_50);
+        temp_v4 = func_003d53c0(*piVar2);
+        *(unsigned int *)
+         (*(int *)(**(int **)((int)arg0 +
+                             ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7))
+                             * 4 + 0x120) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x48) +
+         temp_v5 * 4) = temp_v4;
+      }
+    }
+    else if (uStack_50 == 0xf0f000e1) {
+      temp_v3 = piVar2[0xb];
+      temp_v9 = *(int *)(*piVar2 + 0xc);
+      if (*(int *)((int)arg0 +
+                  ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x124
+                  ) == 0) {
+        temp_v6 = (unsigned int)uStack_2 * 8 + 0x34;
+        func_0044ea90();
+        temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(temp_v6,0x40000);
+        func_0043f9c8(temp_v7,0,temp_v6);
+        puVar9 = (unsigned int *)temp_v7;
+        *puVar9 = (unsigned int)temp_v2;
+        puVar9[5] = (unsigned int)(puVar9 + 0xd);
+        puVar9[8] = (unsigned int)(puVar9 + 0xd + temp_v2);
+        *(unsigned int **)((int)arg0 +
+                  ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x124
+                  ) = puVar9;
+      }
+      temp_v4 = func_0047db50(temp_v3 + temp_v9,uStack_4c);
+      *(unsigned int *)
+       (*(int *)(*(int *)((int)arg0 +
+                         ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4
+                         + 0x124) + 0x20) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 4) = temp_v4;
+      func_003e2ce0(*piVar2,uStack_4c);
+    }
+    else if (uStack_50 == 0xf0f000e0) {
+      func_003e2910(*piVar2,&uStack_30,0x14);
+      func_003e2ce0(*piVar2,uStack_28);
+      temp_v2 = uStack_2;
+      temp_v3 = piVar2[0xb];
+      temp_v9 = *(int *)(*piVar2 + 0xc);
+      if ((*(int *)((int)arg0 + 0xdc) == 0) && (piVar2[5] == 0)) {
+        if (*(int *)((int)arg0 + 0x2cc) == 0) {
+          temp_v5 = func_0047d1a0();
+          *(unsigned int *)((int)arg0 + 0x2cc) = temp_v5;
+        }
+        temp_v4 = *(unsigned int *)((int)arg0 + 0x2cc);
+      }
+      else {
+        if (*(int *)((int)arg0 +
+                    ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 +
+                    0x124) == 0) {
+          temp_v6 = (unsigned int)uStack_2 * 8 + 0x34;
+          func_0044ea90();
+          temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(temp_v6,0x40000);
+          func_0043f9c8(temp_v7,0,temp_v6);
+          puVar9 = (unsigned int *)temp_v7;
+          *puVar9 = (unsigned int)temp_v2;
+          puVar9[5] = (unsigned int)(puVar9 + 0xd);
+          puVar9[8] = (unsigned int)(puVar9 + 0xd + temp_v2);
+          *(unsigned int **)((int)arg0 +
+                    ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 +
+                    0x124) = puVar9;
+        }
+        if (*(int *)(*(int *)(*(int *)((int)arg0 +
+                                      ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 +
+                                      (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x124) + 0x14) +
+                    (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 4) == 0) {
+          temp_v5 = func_0047d1a0();
+          *(unsigned int *)(*(int *)(*(int *)((int)arg0 +
+                                     ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 +
+                                     (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x124) + 0x14) +
+                   (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 4) = temp_v5;
+        }
+        temp_v4 = *(unsigned int *)
+                 (*(int *)(*(int *)((int)arg0 +
+                                   ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 +
+                                   (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x124) + 0x14) +
+                 (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 4);
+      }
+      temp_v7 = func_0047d320(temp_v4,temp_v3 + temp_v9,uStack_2c,uStack_30,uStack_24);
+      temp_v5 = (unsigned int)uStack_30;
+      while (temp_v5 = (temp_v5 + 1) & 0xffff, temp_v5 < uStack_2e + 1) {
+        func_0047d460(temp_v4,temp_v7,temp_v5);
+      }
+      func_003e2ce0(*piVar2,uStack_2c);
+    }
+    else if (uStack_50 == 0xf0f000f0) {
+      func_003e2910(*piVar2,&uStack_2,uStack_4c);
+      *(unsigned short *)((int)piVar2 + (unsigned int)*(unsigned short *)(piVar2 + 7) * 2 + 0x20) = uStack_2;
+    }
+    else if (uStack_50 == 0xf0f00006) {
+      temp_v3 = *piVar2;
+      func_003e2910(temp_v3,&uStack_6,2);
+      temp_v5 = (unsigned int)uStack_6;
+      func_0044ea90();
+      temp_v9 = (int)((void*(*)(int,int))DAT_008873e8[0])(temp_v5 * 0x50 + 8,0x40000);
+      puVar16 = (unsigned short *)(temp_v9 + (unsigned int)uStack_6 * 0x50);
+      *puVar16 = uStack_6;
+      puVar16[1] = 1;
+      *(int *)(puVar16 + 2) = temp_v9;
+      for (temp_v5 = 0; temp_v5 < uStack_6; temp_v5 = (temp_v5 + 1) & 0xffff) {
+        temp_v9 = temp_v5 * 0x50;
+        func_003e2910(temp_v3,*(int *)(puVar16 + 2) + temp_v9 + 0x40,4);
+        func_003e2910(temp_v3,*(int *)(puVar16 + 2) + temp_v9 + 0x44,4);
+        func_003e2910(temp_v3,*(int *)(puVar16 + 2) + temp_v9,0x40);
+      }
+      *(unsigned short **)((int)arg0 + 0x2c8) = puVar16;
+    }
+    else if (uStack_50 == 0xf0f00070) {
+      func_0044ea90();
+      temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(0x2b8,0x40000);
+      func_003e2910(*piVar2,temp_v7,uStack_4c);
+      func_00477810(arg0,(void *)temp_v7);
+      DAT_008873ec[0](temp_v7);
+    }
+    else if ((((uStack_50 == 0xf0f00082) || (uStack_50 == 0xf0f00083)) || (uStack_50 == 0xf0f00081))
+            || (uStack_50 == 0xf0f00080)) {
+      if ((*(unsigned int *)((int)arg0 + 0xd8) & 0x4000) == 0) {
+        func_0044ea90();
+        puVar9 = (unsigned int *)((void*(*)(int,int))DAT_008873e8[0])(0x10,0x40000);
+        iStack_18 = piVar2[0xb] + *(int *)(*piVar2 + 0xc);
+        iStack_14 = piVar2[0xc] - *(int *)(*piVar2 + 0xc);
+        *puVar9 = uStack_50;
+        *(unsigned short *)(puVar9 + 1) = *(unsigned short *)((int)piVar2 + 0x1e);
+        temp_v5 = func_003e2f60(3,1,&iStack_18);
+        puVar9[2] = temp_v5;
+        func_003e2ce0(*piVar2,uStack_4c);
+        puVar9[3] = piVar2[6];
+        piVar2[6] = (int)puVar9;
+      }
+      else {
+        if (*(int *)((int)arg0 + 0x234) == 0) {
+          temp_v3 = (unsigned int)uStack_2 * 8 + 8;
+          func_0044ea90();
+          temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(temp_v3,0x40000);
+          func_0043f9c8(temp_v7,0,temp_v3);
+          piVar17 = (int *)temp_v7;
+          *piVar17 = (int)(piVar17 + 2);
+          *(unsigned short *)(piVar17 + 1) = temp_v2;
+          *(unsigned short *)((int)piVar17 + 6) = 1;
+          *(int **)((int)arg0 + 0x234) = piVar17;
+        }
+        if (*(int *)(**(int **)((int)arg0 + 0x234) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 8)
+            == 0) {
+          temp_v4 = func_0047f9f0();
+          *(unsigned int *)
+           (**(int **)((int)arg0 + 0x234) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 8) = temp_v4;
+        }
+        func_004800d0((void *)*piVar2,
+                      *(unsigned char ***)
+                       (**(int **)((int)arg0 + 0x234) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 8
+                       ),uStack_50,*(void **)((int)arg0 + 0xdc));
+      }
+    }
+    else if (uStack_50 == 0xf0f00003) {
+      if ((*(unsigned int *)((int)arg0 + 0xd8) & 0x4000) == 0) {
+        func_003e2910(*piVar2,&uStack_4,uStack_4c);
+        if (piVar2[*(unsigned short *)(piVar2 + 7) + 9] == 0) {
+          func_0044ea90();
+          temp_v3 = (u32)((void*(*)(int,int))DAT_008873e8[0])((unsigned int)uStack_2 << 1,0x40000);
+          piVar2[*(unsigned short *)(piVar2 + 7) + 9] = temp_v3;
+          for (temp_v5 = 0; temp_v5 < uStack_2; temp_v5 = (temp_v5 + 1) & 0xffff) {
+            *(unsigned short *)(piVar2[*(unsigned short *)(piVar2 + 7) + 9] + temp_v5 * 2) = 0xffff;
+          }
+        }
+        *(unsigned short *)(piVar2[*(unsigned short *)(piVar2 + 7) + 9] + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 2)
+             = uStack_4;
+      }
+      else {
+        func_003e2910(*piVar2,&uStack_4,uStack_4c);
+        temp_v2 = uStack_4;
+        piVar17 = *(int **)((int)arg0 +
+                           ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) *
+                           4 + 0x120);
+        temp_v9 = (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50;
+        puVar14 = (unsigned int *)(*piVar17 + (unsigned int)uStack_4 * 0x50);
+        puVar13 = (unsigned int *)(*piVar17 + temp_v9);
+        temp_v3 = 8;
+        do {
+          temp_v4 = *puVar14;
+          temp_v1 = puVar14[1];
+          puVar14 = puVar14 + 2;
+          temp_v3 = temp_v3 - 1;
+          *puVar13 = temp_v4;
+          puVar13[1] = temp_v1;
+          puVar13 = puVar13 + 2;
+        } while (0 < temp_v3);
+        temp_v3 = *piVar17;
+        if (*(int *)(temp_v3 + (unsigned int)uStack_4 * 0x50 + 0x40) != 0) {
+          *(unsigned int *)(temp_v3 + temp_v9 + 0x40) =
+               *(unsigned int *)(temp_v3 + (unsigned int)uStack_4 * 0x50 + 0x40);
+        }
+        *(unsigned int *)(*piVar17 + temp_v9 + 0x44) = *(unsigned int *)(*piVar17 + temp_v9 + 0x44) | 1;
+        piVar17 = *(int **)((int)arg0 + 0x234);
+        if ((piVar17 != (int *)0x0) && (uStack_4 < *(unsigned short *)(piVar17 + 1))) {
+          temp_v3 = *(int *)(*piVar17 + (unsigned int)uStack_4 * 8);
+          if (temp_v3 != 0) {
+            temp_v9 = (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 8;
+            *(int *)(*piVar17 + temp_v9) = temp_v3;
+            temp_v9 = *piVar17 + temp_v9;
+            *(unsigned char *)(temp_v9 + 4) = *(unsigned char *)(temp_v9 + 4) | 1;
+          }
+        }
+        piVar17 = *(int **)((int)arg0 + 0x254);
+        if ((piVar17 != (int *)0x0) && (uStack_4 < *(unsigned short *)(piVar17 + 3))) {
+          temp_v3 = *(int *)(*piVar17 + (unsigned int)uStack_4 * 8);
+          if (temp_v3 != 0) {
+            temp_v9 = (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 8;
+            *(int *)(*piVar17 + temp_v9) = temp_v3;
+            temp_v9 = *piVar17 + temp_v9;
+            *(unsigned char *)(temp_v9 + 4) = *(unsigned char *)(temp_v9 + 4) | 1;
+          }
+        }
+        temp_v3 = *(int *)((int)arg0 +
+                        ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 +
+                        0x124);
+        if (temp_v3 != 0) {
+          temp_v0 = *(unsigned short *)((int)piVar2 + 0x1e);
+          if (*(int *)(*(int *)(temp_v3 + 0x14) + (unsigned int)uStack_4 * 4) != 0) {
+            temp_v4 = func_0047d200();
+            *(unsigned int *)(*(int *)(temp_v3 + 0x14) + (unsigned int)temp_v0 * 4) = temp_v4;
+          }
+          if (*(int *)(*(int *)(temp_v3 + 0x20) + (unsigned int)temp_v2 * 4) != 0) {
+            temp_v4 = func_0047dc30();
+            *(unsigned int *)(*(int *)(temp_v3 + 0x20) + (unsigned int)temp_v0 * 4) = temp_v4;
+          }
+        }
+      }
+    }
+    else if (uStack_50 == 0xf0f00002) {
+      *(short *)(piVar2 + 7) = (short)piVar2[7] + 1;
+      *(unsigned short *)((int)piVar2 + 0x1e) = 0;
+      func_003e2ce0(*piVar2,uStack_4c);
+    }
+    else if (uStack_50 == 0xf0f00004) {
+      *(short *)((int)piVar2 + 0x1e) = *(short *)((int)piVar2 + 0x1e) + 1;
+      func_003e2ce0(*piVar2,uStack_4c);
+    }
+    else if (uStack_50 == 0xf0f00005) {
+      if (*(int *)((int)arg0 +
+                  ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x120
+                  ) == 0) {
+        pbVar6 = func_00470e90(uStack_2);
+        *(unsigned char **)((int)arg0 +
+                  ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x120
+                  ) = pbVar6;
+      }
+      func_003e2910(*piVar2,**(int **)((int)arg0 +
+                                     ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 +
+                                     (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x120) +
+                           (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50,uStack_4c);
+    }
+    else if (uStack_50 == 0xf0f00001) {
+      if (*(int *)((int)arg0 +
+                  ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x120
+                  ) == 0) {
+        pbVar6 = func_00470e90(uStack_2);
+        *(unsigned char **)((int)arg0 +
+                  ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x120
+                  ) = pbVar6;
+      }
+      *(void**)(**(int **)((int)arg0 +
+                           ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) *
+                           4 + 0x120) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x40) = (void*)&D_00922BC0;
+      func_003e2ce0(*piVar2,uStack_4c);
+    }
+    else if (uStack_50 != 0x1e) {
+      if (uStack_50 == 0x10) {
+        if ((*(unsigned int *)((int)arg0 + 0xd8) & 0x4000) == 0) {
+          if (((*(int *)((int)arg0 + 0xdc) == 0) && (piVar2[5] == 0)) && (piVar2[4] == 0)) {
+            iStack_18 = piVar2[0xb] + *(int *)(*piVar2 + 0xc);
+            iStack_14 = piVar2[0xc] - *(int *)(*piVar2 + 0xc);
+            temp_v3 = func_003e2f60(3,1,&iStack_18);
+            piVar2[5] = temp_v3;
+          }
+          func_003e2ce0(*piVar2,uStack_4c);
+        }
+        else if (*(int *)((int)arg0 + 0xdc) == 0) {
+          temp_v4 = func_003c0f20(*piVar2);
+          *(unsigned int *)((int)arg0 + 0xdc) = temp_v4;
+        }
+      }
+      else if (uStack_50 == 0x2b) {
+        if ((*(unsigned int *)((int)arg0 + 0xd8) & 0x4000) == 0) {
+          if ((piVar2[5] == 0) && (piVar2[4] == 0)) {
+            iStack_18 = piVar2[0xb] + *(int *)(*piVar2 + 0xc);
+            iStack_14 = piVar2[0xc] - *(int *)(*piVar2 + 0xc);
+            temp_v7 = func_003e2f60(3,1,&iStack_18);
+            temp_v3 = func_004667d0(7,0,0,0,temp_v7,0,0,0);
+            piVar2[2] = temp_v3;
+          }
+          else {
+            if (piVar2[3] == 0) {
+              func_0044ea90();
+              temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])((unsigned int)uStack_2 << 2,0x40000);
+              piVar2[3] = (int)temp_v7;
+              func_0043f9c8(temp_v7,0,(unsigned int)uStack_2 << 2);
+            }
+            iStack_18 = piVar2[0xb] + *(int *)(*piVar2 + 0xc);
+            iStack_14 = piVar2[0xc] - *(int *)(*piVar2 + 0xc);
+            temp_v7 = func_003e2f60(3,1,&iStack_18);
+            temp_v4 = func_004667d0(7,0,0,0,temp_v7,0,0,0);
+            *(unsigned int *)(piVar2[3] + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 4) = temp_v4;
+          }
+          func_003e2ce0(*piVar2,uStack_4c);
+        }
+        else {
+          if (*(int *)((int)arg0 + 0x254) == 0) {
+            temp_v3 = (unsigned int)uStack_2 * 8 + 0x10;
+            func_0044ea90();
+            temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(temp_v3,0x40000);
+            func_0043f9c8(temp_v7,0,temp_v3);
+            piVar17 = (int *)temp_v7;
+            *piVar17 = (int)(piVar17 + 4);
+            *(unsigned short *)(piVar17 + 3) = temp_v2;
+            *(unsigned short *)((int)piVar17 + 0xe) = 1;
+            *(int **)((int)arg0 + 0x254) = piVar17;
+          }
+          temp_v5 = func_003d6350(0x70b610,*piVar2);
+          if (*(int *)((int)arg0 + 0xdc) == 0) {
+            *(unsigned int *)(*(int *)((int)arg0 + 0x254) + 4) = temp_v5;
+            func_003d60e0(0x70b610,temp_v5);
+          }
+          else {
+            *(unsigned int *)(**(int **)((int)arg0 + 0x254) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 8)
+                 = temp_v5;
+          }
+        }
+      }
+      else if (uStack_50 == 0x1b) {
+        if (*(int *)((int)arg0 +
+                    ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 +
+                    0x120) == 0) {
+          pbVar6 = func_00470e90(uStack_2);
+          *(unsigned char **)((int)arg0 +
+                    ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 +
+                    0x120) = pbVar6;
+        }
+        temp_v4 = func_003d53c0(*piVar2);
+        if ((piVar2[0x11] == 0) ||
+           (temp_v3 = *(int *)((int)arg0 +
+                            ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) *
+                            4 + 0x120), *(int *)(temp_v3 + 4) != 0)) {
+          *(unsigned int *)
+           (**(int **)((int)arg0 +
+                      ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 +
+                      0x120) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x40) = temp_v4;
+        }
+        else {
+          *(unsigned int *)(temp_v3 + 4) = temp_v4;
+        }
+      }
+      else if (uStack_50 == 0x23) {
+        temp_v7 = func_003dc370(*piVar2);
+        func_003ef260(temp_v7,0x463100,piVar2 + 0xd);
+        func_003ef1b0(temp_v7);
+      }
+      else if (uStack_50 == 0x16) {
+        if ((*(unsigned int *)((int)arg0 + 0xd8) & 0x4000) == 0) {
+          iStack_18 = piVar2[0xb] + *(int *)(*piVar2 + 0xc);
+          iStack_14 = piVar2[0xc] - *(int *)(*piVar2 + 0xc);
+          temp_v7 = func_003e2f60(3,1,&iStack_18);
+          temp_v3 = func_004667d0(8,0,0,0,temp_v7,0,0,0);
+          piVar2[1] = temp_v3;
+          func_003e2ce0(*piVar2,uStack_4c);
+        }
+        else {
+          temp_v7 = func_003e6a90(*piVar2);
+          func_003ef260(temp_v7,0x463100,piVar2 + 0xd);
+          func_003ef1b0(temp_v7);
+        }
+      }
+      else {
+        func_003e2ce0(*piVar2,uStack_4c);
+      }
+    }
+  }
+  return 1;
+}
+
+
+#else
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047b0c0);
+#endif
+
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 extern u32 func_004669d0(u32 a, u32* b, u32* c);
