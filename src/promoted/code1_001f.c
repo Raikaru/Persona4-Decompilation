@@ -890,6 +890,7 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
     return var_16;
 }
 /* measured: GUARDED_SCORE 1416 via `python3 tools/measure_guarded.py src/promoted/code1_001f.c func_001f14f0` (romwright oracle de-noised: single-u8* signature from call sites code1_001a.c:2239/4325; void return per retail epilogue setting no $v0 and callers ignoring it; bare func_0043f9c8 call per retail sw $30 after jal ignoring $v0; u16-outer/u8-inner/s16-found loop counters with explicit &0xFFFF/&0xFF init-test-incr per retail F2A20-F2AF8; load signedness per-offset census 0x6C/0x70/0x6A/0x2C/0x3F4 lhu, 0xA2/0x11/0x14B/0x18B/0x24 lbu, 0xEE lh kept for == -1; (s32)/(u8*) casts per file idiom code1_001f.c:740/817); obj 1556I / retail 1524I (+32, +2.10% PASS, band 1478-1570, headroom 14). fnalign 1492 edits +2 reloc-only. */
+/* wide-store 1416->1387 (-29 words), 1492->1406 edits (-86, -5.8%) via `python3 tools/fnalign.py src/promoted/code1_001f.c func_001f14f0 --candidate /tmp/1f14f0_wide.c`: byte-pair/quad stores widened to retail's half/word form per asymmetric sb/sh/sw runs (sb 96->38, sh deficit +20->+11, sw deficit +21->+11; lui unchanged +3). Sites: pbVar4/pbVar6 0x2c halfword 0, p/pbVar5 0xdc halfword 0, 0xe0/0xe4 word 0, 0xe8 word 0/1 (three 0xe8=1 sites), 0xec halfword 0, 0xee halfword 0xffff, pbVar5 0x3f4 halfword 0x240, pbVar5 0xe4 word 1. Obj 1516I vs retail 1523I (-7, -0.5% PASS, band 1477-1569); frame still 0x2c0 vs retail 0x310 (-80, alias not yet addressed); regsave clean (no GPR/FPR diff); jal still 22 vs 10 and dsll32/dsra32 surplus remain for next pass. Honest: no sltiu-for-slti, no s64 flat, no opt_propagation, no volatile, no asm; window alignment untouched. */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001f14f0(u8 *arg0)
@@ -966,41 +967,25 @@ void func_001f14f0(u8 *arg0)
   temp_v11 = (unsigned int)temp_v2 * 0x28;
   temp_v0 = *(unsigned char *)(temp_v11 + (s32)iGpffffb3b8 + 0x11);
   pbVar4 = *(unsigned char **)(*(int *)(p + 0x30) + 0xa64);
-  pbVar4[0x2c] = 0;
-  pbVar4[0x2d] = 0;
+  *(unsigned short *)(pbVar4 + 0x2c) = 0;
   if ((*(short *)(p + 0x6c) == 3) && (*(short *)(p + 0x70) != 0)) {
     temp_v18 = 1;
   }
   temp_v12 = func_0023d8e0(pbVar4,temp_v2);
   temp_v21 = (char)temp_v12;
   p[0xd9] = 0;
-  p[0xdc] = 0;
-  p[0xdd] = 0;
-  p[0xe0] = 0;
-  p[0xe1] = 0;
-  p[0xe2] = 0;
-  p[0xe3] = 0;
-  p[0xe4] = 0;
-  p[0xe5] = 0;
-  p[0xe6] = 0;
-  p[0xe7] = 0;
+  *(unsigned short *)(p + 0xdc) = 0;
+  *(unsigned int *)(p + 0xe0) = 0;
+  *(unsigned int *)(p + 0xe4) = 0;
   p[0xdb] = 0;
   p[0xda] = 0;
-  p[0xe8] = 0;
-  p[0xe9] = 0;
-  p[0xea] = 0;
-  p[0xeb] = 0;
-  p[0xec] = 0;
-  p[0xed] = 0;
-  p[0xee] = 0xff;
-  p[0xef] = 0xff;
+  *(unsigned int *)(p + 0xe8) = 0;
+  *(unsigned short *)(p + 0xec) = 0;
+  *(unsigned short *)(p + 0xee) = 0xffff;
   if ((temp_v18 == 0) && (temp_v12 = func_0023df70((unsigned int)temp_v2), temp_v12 == 0)) {
     temp_v12 = func_0023ddc0(pbVar4,(unsigned int)temp_v2);
     if ((temp_v12 == 3) || (temp_v12 == 4)) {
-      p[0xe8] = 1;
-      p[0xe9] = 0;
-      p[0xea] = 0;
-      p[0xeb] = 0;
+      *(unsigned int *)(p + 0xe8) = 1;
       if (*(unsigned char *)(*(int *)(p + 0x30) + 0xa2) == '\0') {
         temp_v9 = 0x3a;
       }
@@ -1010,10 +995,7 @@ void func_001f14f0(u8 *arg0)
       *(unsigned short *)(p + 0xec) = temp_v9;
     }
     else if (temp_v12 == 2) {
-      p[0xe8] = 1;
-      p[0xe9] = 0;
-      p[0xea] = 0;
-      p[0xeb] = 0;
+      *(unsigned int *)(p + 0xe8) = 1;
       if (*(unsigned char *)(*(int *)(p + 0x30) + 0xa2) == '\0') {
         temp_v9 = 0x38;
       }
@@ -1023,10 +1005,7 @@ void func_001f14f0(u8 *arg0)
       *(unsigned short *)(p + 0xec) = temp_v9;
     }
     else if (temp_v12 == 1) {
-      p[0xe8] = 1;
-      p[0xe9] = 0;
-      p[0xea] = 0;
-      p[0xeb] = 0;
+      *(unsigned int *)(p + 0xe8) = 1;
       if (*(unsigned char *)(*(int *)(p + 0x30) + 0xa2) == '\0') {
         temp_v9 = 0x36;
       }
@@ -1083,31 +1062,17 @@ void func_001f14f0(u8 *arg0)
       iStack_60 = 0;
       iStack_ec = 0;
       temp_v6 = 0;
-      pbVar5[0x3f4] = 0x40;
-      pbVar5[0x3f5] = 2;
-      pbVar6[0x2c] = 0;
-      pbVar6[0x2d] = 0;
+      *(unsigned short *)(pbVar5 + 0x3f4) = 0x240;
+      *(unsigned short *)(pbVar6 + 0x2c) = 0;
       pbVar5[0xd9] = 0;
-      pbVar5[0xdc] = 0;
-      pbVar5[0xdd] = 0;
-      pbVar5[0xe0] = 0;
-      pbVar5[0xe1] = 0;
-      pbVar5[0xe2] = 0;
-      pbVar5[0xe3] = 0;
-      pbVar5[0xe4] = 0;
-      pbVar5[0xe5] = 0;
-      pbVar5[0xe6] = 0;
-      pbVar5[0xe7] = 0;
+      *(unsigned short *)(pbVar5 + 0xdc) = 0;
+      *(unsigned int *)(pbVar5 + 0xe0) = 0;
+      *(unsigned int *)(pbVar5 + 0xe4) = 0;
       pbVar5[0xdb] = 0;
       pbVar5[0xda] = 0;
-      pbVar5[0xe8] = 0;
-      pbVar5[0xe9] = 0;
-      pbVar5[0xea] = 0;
-      pbVar5[0xeb] = 0;
-      pbVar5[0xec] = 0;
-      pbVar5[0xed] = 0;
-      pbVar5[0xee] = 0xff;
-      pbVar5[0xef] = 0xff;
+      *(unsigned int *)(pbVar5 + 0xe8) = 0;
+      *(unsigned short *)(pbVar5 + 0xec) = 0;
+      *(unsigned short *)(pbVar5 + 0xee) = 0xffff;
       temp_v14 = func_0023e6f0(pbVar4,pbVar6,temp_v2,temp_v18);
       temp_v14 = temp_v14 & 0xffff;
       pbStack_24 = pbVar6;
@@ -1121,10 +1086,7 @@ void func_001f14f0(u8 *arg0)
         else if (temp_v14 == 0x200) {
           temp_v14 = 0x100;
         }
-        pbVar5[0xe4] = 1;
-        pbVar5[0xe5] = 0;
-        pbVar5[0xe6] = 0;
-        pbVar5[0xe7] = 0;
+        *(unsigned int *)(pbVar5 + 0xe4) = 1;
         pbStack_24 = pbVar4;
         pbStack_4 = p;
       }

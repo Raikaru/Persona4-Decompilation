@@ -542,6 +542,34 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7ay. An asymmetric fnalign run is not always a relocated block
+
+7aq says a long retail run against one object instruction means a relocation,
+and three functions this session confirmed it - `func_001d1f30` 1575 -> 425,
+`func_00137890` 384 -> 106, `func_00330060` 726 -> 146.  But the signal has a
+false positive and it cost an agent most of a round.
+
+`func_001d8010` showed the textbook shape: retail[610:666] (56 instructions)
+against one object instruction, object[613:681] (68) against one retail
+instruction, and the same pattern twice more at 38 instructions each.  I read
+that as two near-identical arms in swapped order and briefed it that way.  It
+was wrong.  Reading the addresses out - retail[610:666] is 0x001D8998 to
+0x001D8A77 - shows the object emits **the same arm content in the same
+order**; the arm order is 5, 1, 2 in both binaries.  What produced the
+asymmetry was **difflib failing to anchor** across a region where every
+register had been recoloured, latching onto a coincidental four-instruction
+anchor at retail[666:670] against object[594:598].
+
+So before acting on an asymmetric run, **read the retail addresses at both
+ends and confirm the content actually differs**.  A wholesale recolouring
+looks identical to a move in the edit script, and the two want opposite fixes:
+a move wants the blocks reordered, a recolouring wants the liveness changed.
+
+The cheap discriminator: a real move leaves the *instruction sequence* intact
+under a different offset, so the two runs read as the same opcodes in the same
+order.  A recolouring changes the register fields throughout while the opcode
+sequence stays put.
+
 ### 7aw. A pragma's before/after is a pair, and the edits decide
 
 `func_0016bdd0` carried `#pragma optimization_level 1` with a note that read
