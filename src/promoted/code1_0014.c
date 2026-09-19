@@ -1092,10 +1092,6 @@ void func_00143b90(void)
 {
 }
 
-/* gate: object 513 against retail 566, -9.4% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_001441E0 NONMATCHING
 #ifdef SKIP_ASM
 /* 001441e0 floor (2068B/2272B, nd 425); truthful s32 return; init plus two display loops with Work-pair s64 arg. Production stays ASM. See docs/probe_archive/C14_001441e0_body.c. */
@@ -1137,7 +1133,6 @@ s32 func_001441e0(u8 *arg0) {
     s32 kind;
     s32 i;
     Pos441e0 pos;
-    s64 pair;
     u16 v;
     s32 t0;
     s32 t1;
@@ -1154,64 +1149,62 @@ s32 func_001441e0(u8 *arg0) {
         for (i = 0; i < 7; i++) {
             pos.x = 0x40A00000;
             pos.y = 20.0f + (f32)i;
-            pair = *(s64 *)&pos.x;
             v = st->a[i];
-            if (v == 0x44) { func_00450050(pair, &iGpffff9da0); }
-            else if (v == 0x43) { func_00450050(pair, &iGpffff9d98); }
-            else if (v == 0x42) { func_00450050(pair, &iGpffff9d90); }
-            else if (v == 0x41) { func_00450050(pair, &iGpffff9d88); }
-            else if (v == 0x40) { func_00450050(pair, &iGpffff9d80); }
-            else if (v == 0x34) { func_00450050(pair, &iGpffff9d78); }
-            else if (v == 0x33) { func_00450050(pair, &iGpffff9d70); }
-            else if (v == 0x32) { func_00450050(pair, &iGpffff9d68); }
-            else if (v == 0x31) { func_00450050(pair, &iGpffff9d60); }
-            else if (v == 0x30) { func_00450050(pair, &iGpffff9d58); }
-            else if (v == 0x24) { func_00450050(pair, &iGpffff9d50); }
-            else if (v == 0x23) { func_00450050(pair, &iGpffff9d48); }
-            else if (v == 0x22) { func_00450050(pair, &iGpffff9d40); }
-            else if (v == 0x21) { func_00450050(pair, &iGpffff9d38); }
-            else if (v == 0x20) { func_00450050(pair, &iGpffff9d30); }
-            else if (v == 0x14) { func_00450050(pair, &iGpffff9d28); }
-            else if (v == 0x13) { func_00450050(pair, &iGpffff9d20); }
-            else if (v == 0x12) { func_00450050(pair, &iGpffff9d18); }
-            else if (v == 0x11) { func_00450050(pair, &iGpffff9d10); }
-            else if (v == 0x10) { func_00450050(pair, &iGpffff9d08); }
-            else if (v == 4) { func_00450050(pair, &iGpffff9d00); }
-            else if (v == 3) { func_00450050(pair, &iGpffff9cf8); }
-            else if (v == 2) { func_00450050(pair, &iGpffff9cf0); }
-            else if (v == 1) { func_00450050(pair, &iGpffff9ce8); }
-            else if (v == 0) { func_00450050(pair, &iGpffff9ce4); }
+            if (v == 0x44) { func_00450050(*(s64 *)&pos.x, &iGpffff9da0); }
+            else if (v == 0x43) { func_00450050(*(s64 *)&pos.x, &iGpffff9d98); }
+            else if (v == 0x42) { func_00450050(*(s64 *)&pos.x, &iGpffff9d90); }
+            else if (v == 0x41) { func_00450050(*(s64 *)&pos.x, &iGpffff9d88); }
+            else if (v == 0x40) { func_00450050(*(s64 *)&pos.x, &iGpffff9d80); }
+            else if (v == 0x34) { func_00450050(*(s64 *)&pos.x, &iGpffff9d78); }
+            else if (v == 0x33) { func_00450050(*(s64 *)&pos.x, &iGpffff9d70); }
+            else if (v == 0x32) { func_00450050(*(s64 *)&pos.x, &iGpffff9d68); }
+            else if (v == 0x31) { func_00450050(*(s64 *)&pos.x, &iGpffff9d60); }
+            else if (v == 0x30) { func_00450050(*(s64 *)&pos.x, &iGpffff9d58); }
+            else if (v == 0x24) { func_00450050(*(s64 *)&pos.x, &iGpffff9d50); }
+            else if (v == 0x23) { func_00450050(*(s64 *)&pos.x, &iGpffff9d48); }
+            else if (v == 0x22) { func_00450050(*(s64 *)&pos.x, &iGpffff9d40); }
+            else if (v == 0x21) { func_00450050(*(s64 *)&pos.x, &iGpffff9d38); }
+            else if (v == 0x20) { func_00450050(*(s64 *)&pos.x, &iGpffff9d30); }
+            else if (v == 0x14) { func_00450050(*(s64 *)&pos.x, &iGpffff9d28); }
+            else if (v == 0x13) { func_00450050(*(s64 *)&pos.x, &iGpffff9d20); }
+            else if (v == 0x12) { func_00450050(*(s64 *)&pos.x, &iGpffff9d18); }
+            else if (v == 0x11) { func_00450050(*(s64 *)&pos.x, &iGpffff9d10); }
+            else if (v == 0x10) { func_00450050(*(s64 *)&pos.x, &iGpffff9d08); }
+            else if (v == 4) { func_00450050(*(s64 *)&pos.x, &iGpffff9d00); }
+            else if (v == 3) { func_00450050(*(s64 *)&pos.x, &iGpffff9cf8); }
+            else if (v == 2) { func_00450050(*(s64 *)&pos.x, &iGpffff9cf0); }
+            else if (v == 1) { func_00450050(*(s64 *)&pos.x, &iGpffff9ce8); }
+            else if (v == 0) { func_00450050(*(s64 *)&pos.x, &iGpffff9ce4); }
         }
         for (i = 0; i < 7; i++) {
             pos.x = 0x41700000;
             pos.y = 20.0f + (f32)i;
-            pair = *(s64 *)&pos.x;
             v = st->b[i];
-            if (v == 0x44) { func_00450050(pair, &iGpffff9da0); }
-            else if (v == 0x43) { func_00450050(pair, &iGpffff9d70); }
-            else if (v == 0x42) { func_00450050(pair, &iGpffff9d40); }
-            else if (v == 0x41) { func_00450050(pair, &iGpffff9d10); }
-            else if (v == 0x40) { func_00450050(pair, &iGpffff9ce4); }
-            else if (v == 0x34) { func_00450050(pair, &iGpffff9d70); }
-            else if (v == 0x33) { func_00450050(pair, &iGpffff9d70); }
-            else if (v == 0x32) { func_00450050(pair, &iGpffff9d68); }
-            else if (v == 0x31) { func_00450050(pair, &iGpffff9d60); }
-            else if (v == 0x30) { func_00450050(pair, &iGpffff9d58); }
-            else if (v == 0x24) { func_00450050(pair, &iGpffff9d40); }
-            else if (v == 0x23) { func_00450050(pair, &iGpffff9d48); }
-            else if (v == 0x22) { func_00450050(pair, &iGpffff9d40); }
-            else if (v == 0x21) { func_00450050(pair, &iGpffff9d38); }
-            else if (v == 0x20) { func_00450050(pair, &iGpffff9d30); }
-            else if (v == 0x14) { func_00450050(pair, &iGpffff9d10); }
-            else if (v == 0x13) { func_00450050(pair, &iGpffff9d20); }
-            else if (v == 0x12) { func_00450050(pair, &iGpffff9d18); }
-            else if (v == 0x11) { func_00450050(pair, &iGpffff9d10); }
-            else if (v == 0x10) { func_00450050(pair, &iGpffff9d08); }
-            else if (v == 4) { func_00450050(pair, &iGpffff9ce4); }
-            else if (v == 3) { func_00450050(pair, &iGpffff9cf8); }
-            else if (v == 2) { func_00450050(pair, &iGpffff9cf0); }
-            else if (v == 1) { func_00450050(pair, &iGpffff9ce8); }
-            else if (v == 0) { func_00450050(pair, &iGpffff9ce4); }
+            if (v == 0x44) { func_00450050(*(s64 *)&pos.x, &iGpffff9da0); }
+            else if (v == 0x43) { func_00450050(*(s64 *)&pos.x, &iGpffff9d70); }
+            else if (v == 0x42) { func_00450050(*(s64 *)&pos.x, &iGpffff9d40); }
+            else if (v == 0x41) { func_00450050(*(s64 *)&pos.x, &iGpffff9d10); }
+            else if (v == 0x40) { func_00450050(*(s64 *)&pos.x, &iGpffff9ce4); }
+            else if (v == 0x34) { func_00450050(*(s64 *)&pos.x, &iGpffff9d70); }
+            else if (v == 0x33) { func_00450050(*(s64 *)&pos.x, &iGpffff9d70); }
+            else if (v == 0x32) { func_00450050(*(s64 *)&pos.x, &iGpffff9d68); }
+            else if (v == 0x31) { func_00450050(*(s64 *)&pos.x, &iGpffff9d60); }
+            else if (v == 0x30) { func_00450050(*(s64 *)&pos.x, &iGpffff9d58); }
+            else if (v == 0x24) { func_00450050(*(s64 *)&pos.x, &iGpffff9d40); }
+            else if (v == 0x23) { func_00450050(*(s64 *)&pos.x, &iGpffff9d48); }
+            else if (v == 0x22) { func_00450050(*(s64 *)&pos.x, &iGpffff9d40); }
+            else if (v == 0x21) { func_00450050(*(s64 *)&pos.x, &iGpffff9d38); }
+            else if (v == 0x20) { func_00450050(*(s64 *)&pos.x, &iGpffff9d30); }
+            else if (v == 0x14) { func_00450050(*(s64 *)&pos.x, &iGpffff9d10); }
+            else if (v == 0x13) { func_00450050(*(s64 *)&pos.x, &iGpffff9d20); }
+            else if (v == 0x12) { func_00450050(*(s64 *)&pos.x, &iGpffff9d18); }
+            else if (v == 0x11) { func_00450050(*(s64 *)&pos.x, &iGpffff9d10); }
+            else if (v == 0x10) { func_00450050(*(s64 *)&pos.x, &iGpffff9d08); }
+            else if (v == 4) { func_00450050(*(s64 *)&pos.x, &iGpffff9ce4); }
+            else if (v == 3) { func_00450050(*(s64 *)&pos.x, &iGpffff9cf8); }
+            else if (v == 2) { func_00450050(*(s64 *)&pos.x, &iGpffff9cf0); }
+            else if (v == 1) { func_00450050(*(s64 *)&pos.x, &iGpffff9ce8); }
+            else if (v == 0) { func_00450050(*(s64 *)&pos.x, &iGpffff9ce4); }
         }
     } else if (kind == 0) {
         for (i = 0; i < 7; i++) {
@@ -4037,13 +4030,8 @@ void func_0014c920(void) {
     func_0043f9c8(&D_007D24B0, 0, 0x30);
 }
 /* measured 0014c960: `opt_loop_invariants on` inside the guard is worth 5 words (283 -> 278), the loop-preheader constant hoist. */
-/* gate: object 327 against retail 353, -7.4% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_0014C960 NONMATCHING
 #ifdef SKIP_ASM
-#pragma opt_loop_invariants on
 s32 func_0014c960(s32 *arg0, s32 *arg1)
 {
     s32 var_20;
@@ -4075,10 +4063,10 @@ s32 func_0014c960(s32 *arg0, s32 *arg1)
     var_20 = iGpffffb1fc;
     while (var_20 < 0x18) {
         var_19 = iGpffffb1f8;
-        temp_17 = var_20 << 8;
-        temp_16 = D_007D24B0 + var_20 * 2;
+        temp_17 = (u16)(var_20 << 8);
+        temp_16 = D_007D24B0 + (u16)(var_20 * 2);
         for (; var_19 < 0x10; var_19++) {
-            temp_18 = var_19 * 0x10;
+            temp_18 = (u16)(var_19 * 0x10);
             if (*(u8 *)(temp_17 + func_00155280() + temp_18 + 84) != 1) {
                 continue;
             }
@@ -4094,8 +4082,8 @@ s32 func_0014c960(s32 *arg0, s32 *arg1)
                 continue;
             }
             {
-                s32 t6 = var_19 + 1;
-                s32 t5 = var_20 + 1;
+                s32 t6 = (u16)(var_19 + 1);
+                s32 t5 = (u16)(var_20 + 1);
                 var_3 = 0;
                 while (var_3 < 8) {
                 temp_8 = D_007E80A0 + var_3 * 0x168;
@@ -4103,12 +4091,10 @@ s32 func_0014c960(s32 *arg0, s32 *arg1)
                     f0a = (s32)(((600.0f + *(f32 *)(temp_8 + 336)) / 1200.0f));
                     f0b = (s32)(((600.0f + *(f32 *)(temp_8 + 344)) / 1200.0f));
                     if ((f0a == var_19 && f0b == var_20) || (f0a == t6 && f0b == var_20) || (f0a == var_19 && f0b == t5) || (f0a == t6 && f0b == t5)) {
-                        b0 = (1 << var_19) & 0xFFFF;
-                        b1 = (1 << (var_19 + 1)) & 0xFFFF;
-                        *(u16 *)temp_16 |= b0;
-                        *(u16 *)temp_16 |= b1;
-                        *(u16 *)(temp_16 + 2) |= b0;
-                        *(u16 *)(temp_16 + 2) |= b1;
+                        *(u16 *)temp_16 |= (1 << var_19) & 0xFFFF;
+                        *(u16 *)temp_16 |= (1 << (var_19 + 1)) & 0xFFFF;
+                        *(u16 *)(temp_16 + 2) |= (1 << var_19) & 0xFFFF;
+                        *(u16 *)(temp_16 + 2) |= (1 << (var_19 + 1)) & 0xFFFF;
                         var_2 = 0;
                         break;
                     }
@@ -4126,12 +4112,10 @@ s32 func_0014c960(s32 *arg0, s32 *arg1)
                         s32 t6 = var_19 + 1;
                         s32 t5 = var_20 + 1;
                     if ((t21 == var_19 && t32 == var_20) || (t21 == t6 && t32 == var_20) || (t21 == var_19 && t32 == t5) || (t21 == t6 && t32 == t5)) {
-                        b0 = (1 << var_19) & 0xFFFF;
-                        b1 = (1 << (var_19 + 1)) & 0xFFFF;
-                        *(u16 *)temp_16 |= b0;
-                        *(u16 *)temp_16 |= b1;
-                        *(u16 *)(temp_16 + 2) |= b0;
-                        *(u16 *)(temp_16 + 2) |= b1;
+                        *(u16 *)temp_16 |= (1 << var_19) & 0xFFFF;
+                        *(u16 *)temp_16 |= (1 << (var_19 + 1)) & 0xFFFF;
+                        *(u16 *)(temp_16 + 2) |= (1 << var_19) & 0xFFFF;
+                        *(u16 *)(temp_16 + 2) |= (1 << (var_19 + 1)) & 0xFFFF;
                         var_22 = 0;
                         break;
                     }
@@ -4151,12 +4135,10 @@ s32 func_0014c960(s32 *arg0, s32 *arg1)
                                 s32 t6 = var_19 + 1;
                                 s32 t5 = var_20 + 1;
                             if ((f0a == var_19 && f0b == var_20) || (f0a == t6 && f0b == var_20) || (f0a == var_19 && f0b == t5) || (f0a == t6 && f0b == t5)) {
-                                b0 = (1 << var_19) & 0xFFFF;
-                                b1 = (1 << (var_19 + 1)) & 0xFFFF;
-                                *(u16 *)temp_16 |= b0;
-                                *(u16 *)temp_16 |= b1;
-                                *(u16 *)(temp_16 + 2) |= b0;
-                                *(u16 *)(temp_16 + 2) |= b1;
+                                *(u16 *)temp_16 |= (1 << var_19) & 0xFFFF;
+                                *(u16 *)temp_16 |= (1 << (var_19 + 1)) & 0xFFFF;
+                                *(u16 *)(temp_16 + 2) |= (1 << var_19) & 0xFFFF;
+                                *(u16 *)(temp_16 + 2) |= (1 << (var_19 + 1)) & 0xFFFF;
                                 var_10 = 0;
                                 break;
                             }
@@ -4167,15 +4149,15 @@ s32 func_0014c960(s32 *arg0, s32 *arg1)
                     if (var_10 != 0) {
                         *arg0 = var_19;
                         *arg1 = var_20;
-                        a1t = 1 << var_19;
-                        o2 = var_20 * 2;
+                        a1t = (u16)(1 << var_19);
+                        o2 = (u16)(var_20 * 2);
                         ae = D_007D24B0 + o2;
                         a2t = a1t & 0xFFFF;
-                        *(u16 *)ae |= a2t;
+                        *(u16 *)(D_007D24B0 + o2) |= a2t;
                         b1t = (1 << (var_19 + 1)) & 0xFFFF;
-                        *(u16 *)ae |= b1t;
-                        *(u16 *)(ae + 2) |= a2t;
-                        *(u16 *)(ae + 2) |= b1t;
+                        *(u16 *)(D_007D24B0 + o2) |= b1t;
+                        *(u16 *)(D_007D24B0 + o2 + 2) |= a2t;
+                        *(u16 *)(D_007D24B0 + o2 + 2) |= b1t;
                         iGpffffb1fc = var_20;
                         iGpffffb1f8 = var_19;
                         return 1;
@@ -4188,7 +4170,6 @@ s32 func_0014c960(s32 *arg0, s32 *arg1)
     }
     return 0;
 }
-#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014c960);
 #endif

@@ -290,7 +290,7 @@ s32 func_00130600(u8 *arg0) {
 #pragma opt_common_subs off
 void func_00130680(u8 *arg0, s32 arg1)
 {
-    s16 t30;
+    s32 t30;
     s32 b2;
     f32 f24g;
     s32 v23;
@@ -973,37 +973,35 @@ void func_00135130(u8 *arg0, s64 arg1, s32 arg2, u8 *arg3)
     f20t = 4.0f + fa0;
     f21v = 10.0f + fa4;
     func_0034f2e0(*(void **)(arg0 + 0x1548), f20t, f21v, bbuf[0], bbuf[1], bbuf[2], arg2);
-    f23v = 41.0f + f21v;
-    fa4 = f23v;
-    func_0034f2e0(*(void **)(arg0 + 0x154C), fa0, fa4, bbuf[0], bbuf[1], bbuf[2], arg2);
+    f23v = 36.0f + fa4;
+    func_0034f2e0(*(void **)(arg0 + 0x154C), fa0, f23v, bbuf[0], bbuf[1], bbuf[2], arg2);
+    f20t = (f32)0x1C9 + fa0;
+    func_0034f2e0(*(void **)(arg0 + 0x1550), f20t, f23v, bbuf[0], bbuf[1], bbuf[2], arg2);
     f22v = 91.0f + f23v;
-    func_0034f2e0(*(void **)(arg0 + 0x1550), fa0, f22v, bbuf[0], bbuf[1], bbuf[2], arg2);
-    fa0 = (f32)0x1C9 + fa0;
-    fa4 = f21v;
-    func_0034f2e0(*(void **)(arg0 + 0x1554), fa0, fa4, bbuf[0], bbuf[1], bbuf[2], arg2);
-    fa0 = 40.0f + fa0;
+    func_0034f2e0(*(void **)(arg0 + 0x1554), fa0, f22v, bbuf[0], bbuf[1], bbuf[2], arg2);
+    func_0034f2e0(*(void **)(arg0 + 0x1558), f20t, f22v, bbuf[0], bbuf[1], bbuf[2], arg2);
+    f21v = 6.0f + fa0;
     fa4 = 2.0f + f23v;
-    func_0034f2e0(*(void **)(arg0 + 0x1558), fa0, fa4, bbuf[0], bbuf[1], bbuf[2], arg2);
+    func_0034f2e0(*(void **)(arg0 + 0x1588), f21v, fa4, bbuf[0], bbuf[1], bbuf[2], arg2);
     fa0 = ((f32 *)&arg1)[0];
-    fa4 = f20t;
+    fa4 = ((f32 *)&arg1)[1];
     pv.packed = *(s64 *)&fa0;
     func_00135520(*(u8 **)(arg0 + 0x1560), pv, arg2, 3);
     fa0 = fa0 - 2.0f;
-    fa4 = f20t;
     func_00112300(*(s64 *)&fa0, bbuf[0], (u8 *)arg3, 0.0f);
     fa0 = 128.0f + ((f32 *)&arg1)[0];
-    fa4 = 32.0f + f20t;
+    fa4 = 32.0f + ((f32 *)&arg1)[1];
     if ((func_00106880(*(s16 *)arg3) & 0x8000) != 0) {
         zd = 0;
     } else {
         zd = func_001069d0(*(s16 *)arg3) & 0xFFFF;
     }
     arg2 = (arg2 & 0xFF) | ~0xFF;
-    func_002bc7a0(*(s32 *)(arg0 + 0x1548), arg2, 1, 6, 3,
+    func_002bc7a0(zd, arg2, 1, 6, 3,
                   (f32)(s32)fa0, (f32)(s32)fa4, 0.0f);
-    fa0 = 179.0f + ((f32 *)&arg1)[0];
-    fa4 = 81.0f + f20t;
-    func_002bc4b0(*(s16 *)arg3, (s32)fa0, (s32)fa4, (arg2 & 0xFF) | ~0xFF, 1, 8, 0.0f);
+    fa0 = 131.0f + ((f32 *)&arg1)[0];
+    fa4 = 81.0f + ((f32 *)&arg1)[1];
+    func_002bc4b0(*(s16 *)arg3, (s32)fa0, (s32)fa4, arg2, 1, 6, 0.0f);
 }
 /* measured: closes the level 1 scope above at the file's -O2 baseline. */
 #pragma optimization_level 2
@@ -1253,6 +1251,7 @@ void func_0013b370(u8 *arg0, s64 arg1, s32 arg2)
    measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_0013B420 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_common_subs off
 void func_0013b420(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3) {
     f32 base2;
     f32 base;
@@ -1263,10 +1262,7 @@ void func_0013b420(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3) {
     f32 fz;
     f32 fw;
     f32 fw2;
-    u8 b0;
-    u8 b1;
-    u8 b2;
-    u8 b3;
+    u8 bcol[4];
     u8 t0;
     u8 col;
     u16 hcol;
@@ -1281,12 +1277,12 @@ void func_0013b420(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3) {
         c0 = 2.0f * (f32)((t0 >> 1) | (t0 & 1));
     }
     c1 = c0 / 255.0f;
-    b0 = 0x14;
-    b1 = 0x14;
-    b2 = 0x14;
+    bcol[0] = 0x14;
+    bcol[1] = 0x14;
+    bcol[2] = 0x14;
     fx = 204.0f * c1;
     col = (u8)(u32)fx;
-    b3 = col;
+    bcol[3] = col;
     hcol = *(u16 *)(arg0 + 0xBAA);
     if ((s32)hcol >= 0) {
         fy = (f32)hcol;
@@ -1297,14 +1293,14 @@ void func_0013b420(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3) {
     fz = base - 1.0f;
     fw = 24.0f + base2;
     h1 = (u16)(u32)fy;
-    func_0034f320(*(u8 **)(arg0 + 0x1324), fz, fw, 0.0f, b0, b1, b2, b3, 0x1000, h1, 0, 0.0f, 0);
+    func_0034f320(*(u8 **)(arg0 + 0x1324), fz, fw, 0.0f, bcol[0], bcol[1], bcol[2], bcol[3], 0x1000, h1, 0, 0.0f, 0);
     h2 = (u16)(u32)fy;
-    func_0034f320(*(u8 **)(arg0 + 0x1328), (f32)0x159 + fz, fw, 0.0f, b0, b1, b2, b3, 0x1000, h2, 0, 0.0f, 0);
+    func_0034f320(*(u8 **)(arg0 + 0x1328), (f32)0x159 + fz, fw, 0.0f, bcol[0], bcol[1], bcol[2], bcol[3], 0x1000, h2, 0, 0.0f, 0);
     fz = 5.0f + base + *(f32 *)(arg0 + 0xC84);
     fw2 = 34.0f + base2 + *(f32 *)(arg0 + 0xC88);
-    b0 = 0x68;
-    b1 = 0x68;
-    b2 = 0x68;
+    bcol[0] = 0x68;
+    bcol[1] = 0x68;
+    bcol[2] = 0x68;
     if (arg2 >= 0) {
         c0 = (f32)arg2;
     } else {
@@ -1312,25 +1308,26 @@ void func_0013b420(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3) {
     }
     fw = c0 * c1;
     col = (u8)(u32)fw;
-    b3 = col;
-    func_0034f2e0(*(u8 **)(arg0 + 0x131C), fz, fw2, b0, b1, b2, b3);
-    func_0034f2e0(*(u8 **)(arg0 + 0x1320), 325.0f + fz, fw2, b0, b1, b2, b3);
+    bcol[3] = col;
+    func_0034f2e0(*(u8 **)(arg0 + 0x131C), fz, fw2, bcol[0], bcol[1], bcol[2], bcol[3]);
+    func_0034f2e0(*(u8 **)(arg0 + 0x1320), 330.0f + fz, fw2, bcol[0], bcol[1], bcol[2], bcol[3]);
     fz = base;
-    b0 = D_0064B2E8[0];
-    b1 = D_0064B2E8[1];
-    b2 = D_0064B2E8[2];
+    bcol[0] = D_0064B2E8[0];
+    bcol[1] = D_0064B2E8[1];
+    bcol[2] = D_0064B2E8[2];
     fx = 255.0f * c1;
     col = (u8)(u32)fx;
-    b3 = col;
-    func_0034f2e0(*(u8 **)(arg0 + 0x1288), fz, base2, b0, b1, b2, 0);
-    func_0034f2e0(*(u8 **)(arg0 + 0x128C), 340.0f + fz, base2, b0, b1, b2, 0);
+    bcol[3] = col;
+    func_0034f2e0(*(u8 **)(arg0 + 0x1288), fz, base2, bcol[0], bcol[1], bcol[2], 0);
+    func_0034f2e0(*(u8 **)(arg0 + 0x128C), 340.0f + fz, base2, bcol[0], bcol[1], bcol[2], 0);
     fz = fz - 2.0f;
-    func_00113790(*(s64 *)&fz, b3, arg3, 1, 0.0f);
+    func_00113790(*(s64 *)&fz, bcol[3], arg3, 1, 0.0f);
     c2 = (u8)(u32)fw;
     fz = 22.0f + base;
     fw = 54.0f + base2;
-    func_002bc860((s32)(0xFFFFFF00 | c2), 1, 8, *(u16 *)(arg3 + 0xA), (f32)(s32)fz, (f32)(s32)fw, 0.0f);
+    func_002bc860((s32)(0xFFFFFF00 | c2), 1, 8, arg3[5], (f32)(s32)fz, (f32)(s32)fw, 0.0f);
 }
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013b420);
 #endif
