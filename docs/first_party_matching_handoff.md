@@ -542,6 +542,28 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7am. One word away: `func_00242990`
+
+The closest non-matching first-party function in the project is 813
+instructions long and differs from retail by **a single word**: at 0x00242CEC
+retail emits `addu $v0, $v1, $v0` and b210 emits `addu $v0, $v0, $v1`, adding
+a `$gp`-loaded base to an index both sides compute identically.  Everything
+else in 813 instructions is byte-identical.
+
+Eight spellings tie at one differing word: operand order swapped, the constant
+written first, the product hoisted into a `u32` temp, both operands cast to
+`u32`, the array-subscript form, and both parenthesisations.  A liveness
+reshape that hoists the offset above the branch regresses to 25.  Three other
+sites in the same function have the identical address shape and all emit
+base-first, which is the decisive evidence: the source cannot select an
+orientation for one site while leaving the others alone.
+
+Worth knowing for two reasons.  It calibrates what "wall" means - this is what
+a genuine one-instruction compiler floor looks like, against which most
+"walls" in the tree are 20-to-150-word allocator differences.  And it is the
+first function anyone should re-try if a new lever ever turns up, because one
+word is the whole distance.
+
 ### 7al. Parameter copies are emitted in ABI spill order, not source order
 
 `func_0028fc40` is 522 instructions, exact count, frame matching retail's
