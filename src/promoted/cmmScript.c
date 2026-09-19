@@ -1207,8 +1207,147 @@ block_20:
 /* measured: m2c draft at src-generated code1_0024 line 5714 mirrors prologue/fork (00452380 double-call, 0046d730 guards, 00452560 deref) but carries adda-madd-msub MAC M2C_ERROR plus saved_reg_gp (-0x7F6C maps to iGpffff8094, -0x7F64 maps to iGpffff809c) in value-range scan 0-5-0xF-0x14-0x1E; retail slti-at at 0x24c51c (slti r1 r2 5) wants inclusive <=4 spelling per lever; dead-store and loop-invariant levers to be worked top-down via fnalign. First reconstruction in progress, retained ASM pending MAC lowering; any body will be kept full-size. */
 /* retail 3472B window to func_0024d1f0, frame 0x50 (sq s16-s18 ra plus swc1 f20-f21); GP iGpffff8094 for -0x7F6C and iGpffff809c for -0x7F64 mapped; residual is MAC staging as explicit acc-diff locals in retail order. */
 /* refuse 2026-09-18: guarded LaneCmmScript_0024c460_body.c fails 20x illegal u8[]-to-int at func_0025ecd0 (int-first calls vs current float-first decl); retail 3472B/868 instrs vs object 0B (-100%, outside +-3%); archive claimed 3420B/855 instrs nd2423 stale (pre-08-30 decl); arity two per prologue daddu $17,$5,$0 + caller q->func(p,q). */
-// FUN_0024C460
+/* v2 cold reconstruction 2026-09-19: v1 skeleton with s32 fade + & implicit narrowing (u8 fade emitted a 16-instr c.ole/bc1t clamp per site where retail uses mul/cvt/mfc1 + andi at use; m2c's (s32)&0xFF at uses was right, rw's u8-local wrong). Measured: object 3428B/window 3472B (857 vs 868, -1.3% inside gate), 765 differing words, 385 edits +12 reloc-only. */
+// FUN_0024C460 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0024c460(u8 *arg0, u8 *arg1)
+{
+    extern f32 func_0044b7b0(f32);
+    u8 *pb4;
+    u8 *pb5;
+    u32 *pu6;
+    void *pv1;
+    f32 f20;
+    f32 f21;
+    f32 f4;
+    f32 f5;
+    s32 fade;
+    s32 c2;
+    s32 c10;
+    s16 cC;
+    s16 cE;
+
+    pb4 = (u8 *)func_00452380((s8 *)D_00635A78);
+    pb5 = (u8 *)func_00452380((s8 *)D_00635A78);
+    if (pb5 == NULL) {
+        func_0046d730(D_006359F0, 0x392);
+    }
+    pu6 = (u32 *)func_00452560(pb5);
+    if ((*pu6 & 1) == 0) {
+        func_0046d730(D_006359F0, 0x39D);
+    }
+    pv1 = *(void **)(func_00452560(pb4) + 0x24);
+    if ((*(u32 *)arg1 & 2) == 0) {
+        if ((*(u32 *)arg1 & 4) == 0) {
+            c2 = *(u32 *)(arg1 + 8);
+            if (c2 < 5) {
+                f20 = func_0044b7b0((iGpffff8094 * (f32)c2) / 5.0f);
+            } else {
+                f20 = 1.0f;
+            }
+            f21 = ((f32)c2 * 0.5f) / 5.0f + 1.0f;
+            fade = (s32)(f20 * 255.0f);
+            func_0025ecd0(433.0f, 163.0f, 0.0f, 0xFFFFFF, fade, 1, pv1, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+            func_0025ecd0(433.0f, 139.0f - f20 * 5.0f, 0.0f, 0xFFFFFF, fade, 2, pv1, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+            f20 = 177.0f - f21 * 24.0f;
+            func_0025ecd0(443.0f - f21 * 60.0f, f20, 0.0f, 0xF27400, fade, 0xC, pv1, 1, 0, 0, 0.0f, f21, f21, D_00794E70);
+            func_0025ecd0(453.0f, f20, 0.0f, 0xF27400, fade, 0xD, pv1, 1, 0, 0, 0.0f, f21, f21, D_00794E70);
+            f20 = 177.0f - f21 * 28.0f;
+            func_0025ecd0(443.0f - f21 * 51.0f, f20, 0.0f, 0xECF54D, fade, 0xA, pv1, 1, 0, 0, 0.0f, f21, f21, D_00794E70);
+            func_0025ecd0(453.0f, f20, 0.0f, 0xECF54D, fade, 0xB, pv1, 1, 0, 0, 0.0f, f21, f21, D_00794E70);
+            c2 = *(u32 *)(arg1 + 8) + 1;
+            *(u32 *)(arg1 + 8) = c2;
+            if (c2 >= 5) {
+                *(u32 *)arg1 &= ~2;
+                *(u32 *)(arg1 + 8) = 0;
+            }
+        } else {
+            c2 = *(u32 *)(arg1 + 8);
+            if (c2 < 5) {
+                f20 = func_0044b7b0((iGpffff8094 * (f32)c2) / 5.0f);
+            } else {
+                f20 = 1.0f;
+            }
+            f21 = ((f32)c2 * 0.5f) / 5.0f + 1.0f;
+            fade = (s32)((1.0f - f20) * 255.0f);
+            func_0025ecd0(433.0f, 163.0f, 0.0f, 0xFFFFFF, fade, 1, pv1, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+            func_0025ecd0(433.0f, 139.0f - f20 * 5.0f, 0.0f, 0xFFFFFF, fade, 2, pv1, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+            f20 = 177.0f - f21 * 24.0f;
+            func_0025ecd0(443.0f - f21 * 60.0f, f20, 0.0f, 0xF27400, fade, 0xC, pv1, 1, 0, 0, 0.0f, f21, f21, D_00794E70);
+            func_0025ecd0(453.0f, f20, 0.0f, 0xF27400, fade, 0xD, pv1, 1, 0, 0, 0.0f, f21, f21, D_00794E70);
+            f20 = 177.0f - f21 * 28.0f;
+            func_0025ecd0(443.0f - f21 * 51.0f, f20, 0.0f, 0xECF54D, fade, 0xA, pv1, 1, 0, 0, 0.0f, f21, f21, D_00794E70);
+            func_0025ecd0(453.0f, f20, 0.0f, 0xECF54D, fade, 0xB, pv1, 1, 0, 0, 0.0f, f21, f21, D_00794E70);
+            c2 = *(u32 *)(arg1 + 8) + 1;
+            *(u32 *)(arg1 + 8) = c2;
+            if (c2 >= 5) {
+                *(u32 *)arg1 &= ~4;
+                *(u32 *)(arg1 + 8) = 0;
+                return 1;
+            }
+        }
+    } else {
+        c2 = *(u32 *)(arg1 + 8);
+        if (c2 < 5) {
+            f20 = func_0044b7b0((iGpffff8094 * (f32)c2) / 5.0f);
+        } else {
+            f20 = 1.0f;
+        }
+        f21 = ((f32)c2 * 0.5f) / 5.0f + 1.0f;
+        fade = (s32)(f20 * 255.0f);
+        func_0025ecd0(433.0f, 163.0f, 0.0f, 0xFFFFFF, fade, 1, pv1, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        func_0025ecd0(433.0f, 139.0f - f20 * 5.0f, 0.0f, 0xFFFFFF, fade, 2, pv1, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        f20 = 177.0f - f21 * 24.0f;
+        func_0025ecd0(443.0f - f21 * 60.0f, f20, 0.0f, 0xF27400, fade, 0xC, pv1, 1, 0, 0, 0.0f, f21, f21, D_00794E70);
+        func_0025ecd0(453.0f, f20, 0.0f, 0xF27400, fade, 0xD, pv1, 1, 0, 0, 0.0f, f21, f21, D_00794E70);
+        f20 = 177.0f - f21 * 28.0f;
+        func_0025ecd0(443.0f - f21 * 51.0f, f20, 0.0f, 0xECF54D, fade, 0xA, pv1, 1, 0, 0, 0.0f, f21, f21, D_00794E70);
+        func_0025ecd0(453.0f, f20, 0.0f, 0xECF54D, fade, 0xB, pv1, 1, 0, 0, 0.0f, f21, f21, D_00794E70);
+        c2 = *(u32 *)(arg1 + 8) + 1;
+        *(u32 *)(arg1 + 8) = c2;
+        if (c2 >= 5) {
+            *(u32 *)arg1 &= ~2;
+            *(u32 *)(arg1 + 8) = 0;
+        }
+    }
+    c10 = *(u32 *)(arg1 + 0x10);
+    if (c10 > 0) {
+        cC = *(s16 *)(arg1 + 0xC);
+        if (cC < 5) {
+            f4 = func_0044b7b0((iGpffff8094 * (f32)cC) / 5.0f);
+            fade = (s32)(f4 * 255.0f);
+        } else if (cC < 0x14) {
+            fade = 0xFF;
+        } else if (cC < 0x1E) {
+            f4 = func_0044b7b0(iGpffff8094 + (iGpffff8094 * (f32)(cC - 0x14)) / 10.0f);
+            fade = (s32)(f4 * 255.0f);
+        }
+        func_0025ecd0(416.0f, 148.0f, 0.0f, 0xFFFFFF, fade, c10 + 0xD, pv1, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        if ((*(u32 *)arg1 & 0x10) != 0) {
+            f5 = (iGpffff809c * (f32)*(s16 *)(arg1 + 0xE)) / 10.0f + 1.0f;
+            c10 = *(u32 *)(arg1 + 0x10);
+            f4 = func_0044b7b0(iGpffff8094 + (iGpffff8094 * (f32)*(s16 *)(arg1 + 0xE)) / 10.0f);
+            func_0025ecd0(448.0f - f5 * 32.0f, 177.0f - f5 * 29.0f, 0.0f, 0xFFFFFF, (s32)(f4 * 127.5f), c10 + 0x10, pv1, 1, 0, 0, 0.0f, f5, f5, D_00794E70);
+            cE = *(s16 *)(arg1 + 0xE) + 1;
+            *(s16 *)(arg1 + 0xE) = cE;
+            if (cE >= 0xA) {
+                *(s16 *)(arg1 + 0xE) = 0;
+                *(u32 *)arg1 &= ~0x10;
+            }
+        }
+        cC = *(s16 *)(arg1 + 0xC) + 1;
+        *(s16 *)(arg1 + 0xC) = cC;
+        if (cC >= 0x1E) {
+            *(s16 *)(arg1 + 0xC) = 0;
+            *(u32 *)(arg1 + 0x10) = 0;
+            *(u32 *)arg1 &= ~0x10;
+        }
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024c460);
+#endif
 /* measured: same H1 FPU FMA floor as FUN_0024C460 -- the func_0025ecd0 calls
    here use adda.s/madd.s chains (m2c M2C_ERROR) inside a branching value-range
    scan (0..5/5..0xF/0xF..0x14/0x14..0x1E). Not attempted: the FMA chain is
