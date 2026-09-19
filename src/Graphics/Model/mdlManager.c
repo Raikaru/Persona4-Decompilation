@@ -4487,6 +4487,10 @@ extern u8 D_0070B610;
 /* prior floor context (retained): three alloc blocks, 0xC list loop, 0x234/0x254 slot tables,
    8-word 0x50 copy, d200/dc30 1-arg calls, 0x667d0 10-arg call, sq/lq u_long128 spE0/D0/C0/B0,
    rotation groups {t17,sz} and {v19,v20,obj} rotate together in every declaration order tried. */
+/* gate: object 464 against retail 485, -4.3% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_0047C660 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0047c660(u8 *arg0)

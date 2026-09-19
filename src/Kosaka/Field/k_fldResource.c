@@ -840,6 +840,10 @@ void func_00151f80(u8 *arg0)
    `opt_propagation off` stops it and reaches 165 words, but perturbs 71
    instructions elsewhere, so it is not worth a non-baseline pragma. */
 /* measured 00152170: `schedule on` inside the guard is worth 14 words (241 -> 227). */
+/* gate: object 259 against retail 302, -14.2% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00152170 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on

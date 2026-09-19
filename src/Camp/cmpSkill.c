@@ -235,7 +235,7 @@ resolve_test:
    registers (nd 309). The m2c draft's s128/s64 stack values (sq 0xB0/0xA0/
    0xC0) and the ld/sd swap collapse to different register coloring. Tried
    the m2c body converted to C89 — frame/register allocation floor. */
-/* measured: candidate object 300 instrs/retail 397 instrs (1200B/1600B, 97 short), probe reloc-masked 306 words (guard below, NON_MATCHING so production stays ASM; fnalign 287 edits +2 reloc-only). 0x100 frame with 10 saves ($fp/s7..s0) plus nested 8-loops over 0xC skill entries with 0010b510/0010b6f0/0010ace0/00113520 and 001094d0/0010fa80 sort tail. Banked as floor. */
+/* measured: candidate object 393 instrs/retail 397 instrs (1572B/1588B window 1600B, -4, -1.0% INSIDE +-3% band 385-409), probe reloc-masked 317 words (guard below, NON_MATCHING so production stays ASM; fnalign 309 edits +2 reloc-only). 0xD0 frame vs retail 0x100 (10 saves $fp/s7..s0); jal 19 vs 19. Restored dropped sort arm: early sh count to 0x580, nested i/j loops over 0xC entries with 0xC0/0x100 range checks and three swap tails (both-in/both-out/in-vs-out) via f32 moves + outerTmp/innerTmp stack temps, matching retail 3887C-38A20. Dedup 12B copies via f32 (lwc1/swc1) and 0x20A loads via u16 (lhu) per retail opcodes; signedness solver 7 fields no accepts so no type-spelling change. Banked as inside-gate floor. */
 // FUN_00138490 NONMATCHING
 #ifdef NON_MATCHING
 void func_00138490(void *arg0)
@@ -299,7 +299,7 @@ void func_00138490(void *arg0)
                     a = (s32)func_001094d0(v);
                     res = 0;
                     for (k = 0; k < 8; k++) {
-                        if (*(s16 *)(a + k * 2) == 0x20A) {
+                        if (*(u16 *)(a + k * 2) == 0x20A) {
                             res = 1;
                             break;
                         }
@@ -309,33 +309,33 @@ void func_00138490(void *arg0)
                         bv = (s32)func_001094d0(v);
                         res = 0;
                         for (k = 0; k < 8; k++) {
-                            if (*(s16 *)(bv + k * 2) == 0x20A) {
+                            if (*(u16 *)(bv + k * 2) == 0x20A) {
                                 res = 1;
                                 break;
                             }
                         }
                         if (res != 0) {
-                            *(s32 *)(p + 0x100) = *(s32 *)(q + 0x100);
-                            *(s32 *)(p + 0x104) = *(s32 *)(q + 0x104);
-                            *(s32 *)(p + 0x108) = *(s32 *)(q + 0x108);
+                            *(f32 *)(p + 0x100) = *(f32 *)(q + 0x100);
+                            *(f32 *)(p + 0x104) = *(f32 *)(q + 0x104);
+                            *(f32 *)(p + 0x108) = *(f32 *)(q + 0x108);
                         } else {
                             func_0010b3b0(*(s16 *)(p + 0x100));
                             func_0010fa80(v, v, *(u16 *)(p + 0x102), 0, tmp, 0, 0);
                             func_0010b3b0(*(s16 *)(q + 0x100));
                             func_0010fa80(v, v, *(u16 *)(q + 0x102), 0, tmp + 2, 0, 0);
                             if (tmp[0] < tmp[2]) {
-                                *(s32 *)(p + 0x100) = *(s32 *)(q + 0x100);
-                                *(s32 *)(p + 0x104) = *(s32 *)(q + 0x104);
-                                *(s32 *)(p + 0x108) = *(s32 *)(q + 0x108);
+                                *(f32 *)(p + 0x100) = *(f32 *)(q + 0x100);
+                                *(f32 *)(p + 0x104) = *(f32 *)(q + 0x104);
+                                *(f32 *)(p + 0x108) = *(f32 *)(q + 0x108);
                             }
                         }
                     }
                 }
                 count--;
                 p = b + count * 12;
-                *(s32 *)(q + 0x100) = *(s32 *)(p + 0x100);
-                *(s32 *)(q + 0x104) = *(s32 *)(p + 0x104);
-                *(s32 *)(q + 0x108) = *(s32 *)(p + 0x108);
+                *(f32 *)(q + 0x100) = *(f32 *)(p + 0x100);
+                *(f32 *)(q + 0x104) = *(f32 *)(p + 0x104);
+                *(f32 *)(q + 0x108) = *(f32 *)(p + 0x108);
                 *(s32 *)(p + 0x104) = 0;
                 *(s32 *)(p + 0x108) = 0;
                 *(u16 *)(p + 0x102) = 0;
@@ -343,19 +343,69 @@ void func_00138490(void *arg0)
             }
         }
     }
+    *(s16 *)(b + 0x580) = (s16)count;
     for (i = 0; i < count; i++) {
-        p = b + i * 12;
-        *(f32 *)(p + 0x100) = *(f32 *)(p + 0x100);
-        *(f32 *)(p + 0x104) = *(f32 *)(p + 0x104);
-        *(f32 *)(p + 0x108) = *(f32 *)(p + 0x108);
+        u8 *outer;
+        f32 outerTmp[3];
+        u16 oKey;
+        outer = b + i * 12;
+        outerTmp[0] = *(f32 *)(outer + 0x100);
+        outerTmp[1] = *(f32 *)(outer + 0x104);
+        outerTmp[2] = *(f32 *)(outer + 0x108);
+        oKey = *(u16 *)((u8 *)outerTmp + 2);
+        for (j = i + 1; j < count; j++) {
+            u8 *inner;
+            f32 innerTmp[3];
+            u16 nKey;
+            inner = b + j * 12;
+            innerTmp[0] = *(f32 *)(inner + 0x100);
+            innerTmp[1] = *(f32 *)(inner + 0x104);
+            innerTmp[2] = *(f32 *)(inner + 0x108);
+            nKey = *(u16 *)((u8 *)innerTmp + 2);
+            if (nKey < 0xC0 || nKey >= 0x100) {
+                if ((oKey < 0xC0 || oKey >= 0x100) && nKey < oKey) {
+                    *(f32 *)(outer + 0x100) = innerTmp[0];
+                    *(f32 *)(outer + 0x104) = innerTmp[1];
+                    *(f32 *)(outer + 0x108) = innerTmp[2];
+                    *(f32 *)(inner + 0x100) = outerTmp[0];
+                    *(f32 *)(inner + 0x104) = outerTmp[1];
+                    *(f32 *)(inner + 0x108) = outerTmp[2];
+                    outerTmp[0] = innerTmp[0];
+                    outerTmp[1] = innerTmp[1];
+                    outerTmp[2] = innerTmp[2];
+                    oKey = nKey;
+                }
+            } else if (oKey < 0xC0 || oKey >= 0x100) {
+                *(f32 *)(outer + 0x100) = innerTmp[0];
+                *(f32 *)(outer + 0x104) = innerTmp[1];
+                *(f32 *)(outer + 0x108) = innerTmp[2];
+                *(f32 *)(inner + 0x100) = outerTmp[0];
+                *(f32 *)(inner + 0x104) = outerTmp[1];
+                *(f32 *)(inner + 0x108) = outerTmp[2];
+                outerTmp[0] = innerTmp[0];
+                outerTmp[1] = innerTmp[1];
+                outerTmp[2] = innerTmp[2];
+                oKey = nKey;
+            } else if (nKey < oKey) {
+                *(f32 *)(outer + 0x100) = innerTmp[0];
+                *(f32 *)(outer + 0x104) = innerTmp[1];
+                *(f32 *)(outer + 0x108) = innerTmp[2];
+                *(f32 *)(inner + 0x100) = outerTmp[0];
+                *(f32 *)(inner + 0x104) = outerTmp[1];
+                *(f32 *)(inner + 0x108) = outerTmp[2];
+                outerTmp[0] = innerTmp[0];
+                outerTmp[1] = innerTmp[1];
+                outerTmp[2] = innerTmp[2];
+                oKey = nKey;
+            }
+        }
     }
     if (sel != -1) {
         func_0010b3b0(sel);
     }
-    if (*(s16 *)((u8 *)arg0 + 0x580) > 0x60) {
+    if (*(s16 *)(b + 0x580) > 0x60) {
         func_0046d730(D_005ED9C0, 0x336);
     }
-    *(s16 *)((u8 *)arg0 + 0x580) = (s16)count;
     func_0013a040((s16 *)arg0, 1, 0);
     func_0013a040((s16 *)arg0, 2, 0);
 }

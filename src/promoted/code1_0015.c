@@ -624,6 +624,10 @@ void func_00156750(u8 *arg0)
    at 0x8/0xA and 0xC/0xE unreproduced). csuboff 318 regresses (+16). Prior
    note claiming u16->s16 moved nothing and IDA word-widths refuted is
    superseded: s16 throughout (temps + *(s16 *)(arg0+...)) is correct. */
+/* gate: object 300 against retail 315, -4.8% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00156800 NONMATCHING
 #ifdef NON_MATCHING
 void func_00156800(void *arg0_v, u32 arg1)

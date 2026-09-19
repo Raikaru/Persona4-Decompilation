@@ -1119,6 +1119,10 @@ s32 func_0010be20(u8 *arg0)
 /* measured: object 1820B/window 1856B/normalized_diff 1426 (443 differing words, live re-measured current tree). */
 /* measured: live 443 words / fnalign 388 edits (463 vs 455 instrs, 8 short, 1820B/1856B within 3%); slti inclusive top-down 15 variants all tie except >=0xC0->>0xBF +1 regress (pid, i>=5 x3, level>=0x64/>=2, dispatch, av+sv<0x63, nv+sv>=0x64, j<5, i<3, out>=0x20 x2, id2 dispatch x2); 8 short is layout-inversion delete 60 at dispatch (shadow inline vs retail out-of-line) so dead-arm N-A (ends assert/loop, no retail slti-at trailing dead compare); sltiu 0 so adjacent-== fold N-A (|| are pid==0||>=0x100 and id<0xC0||>=0xD8); frame 0xD0 vs 0xA0 single-site calls and true u32 param for 00231d70 per btlUnit.c so index-mask N-A; banked floor. */
 /* measured 0010be60: `schedule on` inside the guard is worth 10 words (443 -> 433). */
+/* gate: object 413 against retail 463, -10.8% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_0010BE60 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on

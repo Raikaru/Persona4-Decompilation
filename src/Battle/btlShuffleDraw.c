@@ -2041,6 +2041,10 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003768e0);
    Quad-built, retail-arbitrated; prior nd-15 note on file. */
 /* measured 00377930: `schedule on` inside the guard is worth 38 words (378 -> 340). */
 /* measured 00377930: `opt_propagation off` inside the guard is worth 2 words (340 -> 338). */
+/* gate: object 358 against retail 312, +14.7% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00377930 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off

@@ -507,6 +507,10 @@ s32 func_0021f790(u8 *arg0) {
    flat (float-copy 222, divu 222, no-(s16)-cast 222; branch <= to <+1 worse at
    254). nd>25: spelling will not close this; banked as floor.
 */
+/* gate: object 292 against retail 280, +4.3% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_0021FA40 NONMATCHING
 #ifdef NON_MATCHING
 void func_0021fa40(u8 *arg0) {

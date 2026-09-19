@@ -733,6 +733,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d51c0);
 /* measured: object 164B/window 144B/normalized_diff 112 (34 differing words, first diffs 4-8,10-12, oversized by 20B). */
 /* measured: oversized dispatch/callback floor; prior schedule/no_branch_likely notes stale after declaration changes. */
 /* measured: Body archived in docs/probe_archive/K3D5_003d5330_body.c. */
+/* gate: object 41 against retail 36, +13.9% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_003D5330 NONMATCHING
 #ifdef NON_MATCHING
 u8 *func_003d5330(s32 arg0) {

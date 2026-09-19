@@ -872,6 +872,10 @@ void func_001641d0(void)
    keeps var_16 in $s0 coalesced with temp_2's freed $16 and the slot
    pointer in $a0, b210 gives the freed $16 to temp_4 and pushes var_16 to
    $s1; every declaration order was tried in an earlier pass. */
+/* gate: object 199 against retail 207, -3.9% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00164230 NONMATCHING
 #ifdef NON_MATCHING
 void func_00164230(s32 arg0, s32 arg1, s32 arg2)

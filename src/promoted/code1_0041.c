@@ -74,6 +74,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00412e90);
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00412fb0);
 
 /* measured: MWCC frameless, object 164B/window 192B, normalized_diff 35; archived body keeps retail null-check chain and index staging. Parent strict-vs-inclusive lever tried: `> count-1` measures nd 36 vs `>= count` nd 35, so the sltu $v0/$at coloring is not the main residual; the dominant residual is div-vs-magic for /40 (object div, retail mult magic). No loop entry-guard slt $at pattern, so the parent (s64)0 lever does not apply. Body at docs/probe_archive/K414_00413290_body.c. */
+/* gate: object 41 against retail 47, -12.8% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00413290 NONMATCHING
 #ifdef NON_MATCHING
 u8 *func_00413290(u8 *arg0, u32 *arg1, u8 **arg2) {
@@ -378,6 +382,10 @@ s32 func_00415950(void) { return 1; }
 // FUN_00415960
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415960);
 /* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
+/* gate: object 64 against retail 60, +6.7% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00415AD0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00415ad0(u8 *arg0, u8 *arg1)
