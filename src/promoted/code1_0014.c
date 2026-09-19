@@ -1426,6 +1426,23 @@ void func_00143b90(void)
 
 // FUN_001441E0 NONMATCHING
 #ifdef SKIP_ASM
+/* measured 2026-09-19 (lead): the outer arms were in the wrong order, and the
+   earlier pass rejected the fix on the wrong metric.  Writing `kind == 0`
+   first and `kind == 1` second takes fnalign **1012 edits -> 668** at the same
+   561/566 count, and the differing-word score from 441 to 430.
+   The note below records "outer polarity `kind==0`-first swap 447" and kept
+   the original because 447 > 425 in words - but that comparison was made while
+   the body carried a 487-instruction head lump against retail's single
+   instruction at retail[15:16], with 497 instructions missing at
+   retail[61:558].  A word score does not measure a relocation; the edit count
+   does (handoff 7y and 7aq).  With the arms in retail's order that lump is
+   gone and what remains are two honest holes of 142 and 141 instructions at
+   retail[175:317] and retail[416:557] - real missing code, findable by
+   disassembling those ranges.
+   Also measured: the same swap with a bare `else` instead of `else if
+   (kind == 1)` is 558/566 with 663 edits and 437 words - fewer edits but a
+   worse score and three instructions further from retail, so the explicit
+   second test is kept. */
 /* 001441e0 floor (2068B/2272B, nd 425); truthful s32 return; init plus two display loops with Work-pair s64 arg. Production stays ASM. See docs/probe_archive/C14_001441e0_body.c. */
 /* measured 001441e0 (WWidthD): `s16 t0-t3`+`s8 v0/v1` -> `s32` gives 425 -> 424 words via `tools/measure_guarded.py`, fnalign 968 -> 964 edits at 513/566 (-53, was 517/566 -49) via `tools/fnalign.py --candidate`, `tools/wscan_pairs.py` 8 -> 6 vs retail 6 (exact, one 0x10 + one 0x18 removed); pragmas via `tools/probe_variants.py` (base 425): `schedule on` 454, `opt_common_subs off` 451, `opt_loop_invariants on` 426, `opt_propagation off` 425; outer polarity `kind==0`-first swap 447, nested `kind!=1` 443 (base else-if best; `bne` vs retail `beq` + `$s1`/`$s2` colour walls stand); -53 SHORT (9.4%, draft) from cascade, not one logical block (fnalign +436/-496 misalignment from polarity, net -49). */
 s32 func_001441e0(u8 *arg0) {
@@ -1474,7 +1491,19 @@ s32 func_001441e0(u8 *arg0) {
     s32 v1;
     st = *(State441e0 **)(arg0 + 0x38);
     kind = st->kind;
-    if (kind == 1) {
+    if (kind == 0) {
+        for (i = 0; i < 7; i++) {
+            t0 = func_001060b0();
+            v0 = (s8)func_00110850(i + t0, 3);
+            t1 = func_001060b0();
+            v1 = (s8)func_00110850(i + t1, 0);
+            st->a[i] = (u16)(v0 + v1 * 0x10);
+            t2 = func_001060b0();
+            t3 = func_001060b0();
+            st->b[i] = (u16)func_00110c50(i + t2, t3);
+        }
+        st->kind = 1;
+    } else if (kind == 1) {
         if ((D_008C024E[0] & 0x800) != 0) {
             return -1;
         }
@@ -1538,18 +1567,6 @@ s32 func_001441e0(u8 *arg0) {
             else if (v == 1) { func_00450050(*(s64 *)&pos.x, &iGpffff9ce8); }
             else if (v == 0) { func_00450050(*(s64 *)&pos.x, &iGpffff9ce4); }
         }
-    } else if (kind == 0) {
-        for (i = 0; i < 7; i++) {
-            t0 = func_001060b0();
-            v0 = (s8)func_00110850(i + t0, 3);
-            t1 = func_001060b0();
-            v1 = (s8)func_00110850(i + t1, 0);
-            st->a[i] = (u16)(v0 + v1 * 0x10);
-            t2 = func_001060b0();
-            t3 = func_001060b0();
-            st->b[i] = (u16)func_00110c50(i + t2, t3);
-        }
-        st->kind = 1;
     }
     return 0;
 }

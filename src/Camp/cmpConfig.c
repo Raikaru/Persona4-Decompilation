@@ -372,7 +372,6 @@ void func_0035d0a0(u8 *arg0) {
     u8 *sprite;
     u8 *colPtr;
     u8 *pB2E8;
-    u8 *pB2E0;
     u8 r;
     u8 g;
     u8 b;
@@ -434,7 +433,6 @@ void func_0035d0a0(u8 *arg0) {
         }
         prev = -1;
         pB2E8 = D_0064B2E8;
-        pB2E0 = D_0064B2E0;
         for (i = 0; i < 7; i++) {
             row = arg0 + i * 48;
             x0 = baseX + *(f32 *)(row + 0xB8);
@@ -447,9 +445,9 @@ void func_0035d0a0(u8 *arg0) {
                 g = 0xA0;
                 b = 0xA0;
             } else {
-                r = pB2E0[0];
-                g = pB2E0[1];
-                b = pB2E0[2];
+                r = D_0064B2E0[0];
+                g = D_0064B2E0[1];
+                b = D_0064B2E0[2];
             }
             func_0034f2e0(*(void **)(arg0 + 0x44C), pos.x, pos.y, r, g, b, alpha);
             func_0034f2e0(*(void **)(arg0 + 0x450), 380.0f + pos.x, pos.y, r, g, b, alpha);
