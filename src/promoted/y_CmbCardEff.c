@@ -251,6 +251,13 @@ void func_0033e7c0(u8 *arg0) {
    blocked by the same stack-alloc/register wall as func_0033fc80 (0x84-stride state
    machine, 970-line dispatcher). */
 /* measured: cold reconstruction banked 806 (reloc-masked), retail 912 instrs / object 896 instrs (1.8% inside 3% gate), 166 fnalign edits +6 reloc-only. v1 817 (912/804, 11.8% short: hoisted slot/c, shared rgba, plain 0xFB0) -> v3 810 (912/895, 1.9%: unhoisted per-use obj+k*0x84 and (s8)k, separate rgba0/rgba1, block-scope true protos for 4-arg 003dc740 and 3-arg 0033fa30, D_00794E70/EA0 and D_0064A4C8/D_0064A4D0 externs) -> v3_loopinv 806 (912/896) with #pragma opt_loop_invariants on. Pragmas: commons off 1256 regress, unroll off 810 tie, schedule off 810 tie. Colour: register obj 806 tie, reversed decl order 806 tie. Residual: stack-alloc (frame -0x160 vs -0x170, sp 0x138->0x158, 0x154->0x16C), saved-reg rotation (s2/s3, s1/s2), RGBA lbu/sb interleave vs pairs, D_0064A4C8/D0 lui+ld/lwc1 vs gp ld. m2c plus romwright base, CmbVec2f by-value for 0033fc00 per prior note. */
+/* 2026-09-18 `tools/solve_signedness.py`: the read at `obj + k*0x84 + 0xC`
+   was `u8` where retail loads it signed; flipping it took the census
+   mismatch from 21 to 7 with the instruction count unchanged.  The word
+   score stays 806 because those positions already differ for other reasons -
+   the census is the objective for signedness, not the score.  Two tables,
+   D_00794E70 and D_00794EA0, are free: both spellings compile identically,
+   so their signedness is unobservable here and should not be churned. */
 // FUN_0033E810 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -353,13 +360,13 @@ s32 func_0033e810(u8 *arg0) {
         *(s16 *)(obj + 0x6BC) = func_002b2cb0(*(s16 *)(obj + 0x6BC), 1, 60, 0, 2);
     }
     for (k = 0; k < *(s8 *)(obj + 0x6B9); k++) {
-        if ((*(u8 *)(obj + (s32)k * 0x84 + 0xC) & 1) != 0) {
+        if ((*(s8 *)(obj + (s32)k * 0x84 + 0xC) & 1) != 0) {
             *(f32 *)(obj + (s32)k * 0x84 + 0x20) = func_002b2aa0(0, *(f32 *)(obj + (s32)k * 0x84 + 0x10), *(f32 *)(obj + (s32)k * 0x84 + 0x18), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x2A), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x28));
             *(f32 *)(obj + (s32)k * 0x84 + 0x24) = func_002b2aa0(0, *(f32 *)(obj + (s32)k * 0x84 + 0x14), *(f32 *)(obj + (s32)k * 0x84 + 0x1C), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x2A), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x28));
             if (*(s16 *)(obj + (s32)k * 0x84 + 0x2A) < *(s16 *)(obj + (s32)k * 0x84 + 0x28)) {
                 *(s16 *)(obj + (s32)k * 0x84 + 0x2A) = func_002b2cb0(*(s16 *)(obj + (s32)k * 0x84 + 0x2A), 1, *(s16 *)(obj + (s32)k * 0x84 + 0x28), 0, 1);
-            } else if ((*(u8 *)(obj + (s32)k * 0x84 + 0xC) & 8) == 0) {
-                *(u8 *)(obj + (s32)k * 0x84 + 0xC) ^= 1;
+            } else if ((*(s8 *)(obj + (s32)k * 0x84 + 0xC) & 8) == 0) {
+                *(s8 *)(obj + (s32)k * 0x84 + 0xC) ^= 1;
             } else {
                 func_0033fc00(arg0, (s8)k, *(CmbVec2f *)(obj + (s32)k * 0x84 + 0x20), *(CmbVec2f *)(obj + (s32)*(s8 *)(obj + (s32)k * 0x84 + 0x69) * 0xC + (s32)k * 0x84 + 0x2C), *(u16 *)(obj + (s32)*(s8 *)(obj + (s32)k * 0x84 + 0x69) * 0xC + (s32)k * 0x84 + 0x34));
                 *(f32 *)(obj + (s32)k * 0x84 + 0x20) = func_002b2aa0(0, *(f32 *)(obj + (s32)k * 0x84 + 0x10), *(f32 *)(obj + (s32)k * 0x84 + 0x18), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x2A), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x28));
@@ -367,21 +374,21 @@ s32 func_0033e810(u8 *arg0) {
                 *(s16 *)(obj + (s32)k * 0x84 + 0x2A) = func_002b2cb0(*(s16 *)(obj + (s32)k * 0x84 + 0x2A), 1, *(s16 *)(obj + (s32)k * 0x84 + 0x28), 0, 1);
                 *(s8 *)(obj + (s32)k * 0x84 + 0x69) += 1;
                 if (*(s8 *)(obj + (s32)k * 0x84 + 0x68) <= *(s8 *)(obj + (s32)k * 0x84 + 0x69)) {
-                    *(u8 *)(obj + (s32)k * 0x84 + 0xC) ^= 8;
+                    *(s8 *)(obj + (s32)k * 0x84 + 0xC) ^= 8;
                 }
             }
         }
         func_0033fb10(arg0, (s8)k, *(s64 *)(obj + (s32)k * 0x84 + 0x20));
-        if ((*(u8 *)(obj + (s32)k * 0x84 + 0xC) & 2) != 0) {
+        if ((*(s8 *)(obj + (s32)k * 0x84 + 0xC) & 2) != 0) {
             *(f32 *)(obj + (s32)k * 0x84 + 0x74) = (f32)(s16)(s32)func_002b2aa0(0, *(f32 *)(obj + (s32)k * 0x84 + 0x6C), *(f32 *)(obj + (s32)k * 0x84 + 0x70), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x78), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x7A));
             if (*(s16 *)(obj + (s32)k * 0x84 + 0x78) < *(s16 *)(obj + (s32)k * 0x84 + 0x7A)) {
                 *(s16 *)(obj + (s32)k * 0x84 + 0x78) = func_002b2cb0(*(s16 *)(obj + (s32)k * 0x84 + 0x78), 1, *(s16 *)(obj + (s32)k * 0x84 + 0x7A), 0, 1);
             } else {
-                *(u8 *)(obj + (s32)k * 0x84 + 0xC) ^= 2;
+                *(s8 *)(obj + (s32)k * 0x84 + 0xC) ^= 2;
             }
             func_0033fa30(arg0, (s8)k, *(f32 *)(obj + (s32)k * 0x84 + 0x74));
         }
-        if ((*(u8 *)(obj + (s32)k * 0x84 + 0xC) & 4) != 0) {
+        if ((*(s8 *)(obj + (s32)k * 0x84 + 0xC) & 4) != 0) {
             *(u8 *)(obj + (s32)k * 0x84 + 0x84) = (u8)func_002b2aa0(0, (f32)*(u8 *)(obj + (s32)k * 0x84 + 0x7C), (f32)*(u8 *)(obj + (s32)k * 0x84 + 0x80), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x88), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x8A));
             *(u8 *)(obj + (s32)k * 0x84 + 0x85) = (u8)func_002b2aa0(0, (f32)*(u8 *)(obj + (s32)k * 0x84 + 0x7D), (f32)*(u8 *)(obj + (s32)k * 0x84 + 0x81), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x88), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x8A));
             *(u8 *)(obj + (s32)k * 0x84 + 0x86) = (u8)func_002b2aa0(0, (f32)*(u8 *)(obj + (s32)k * 0x84 + 0x7E), (f32)*(u8 *)(obj + (s32)k * 0x84 + 0x82), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x88), (f32)*(s16 *)(obj + (s32)k * 0x84 + 0x8A));
@@ -389,7 +396,7 @@ s32 func_0033e810(u8 *arg0) {
             if (*(s16 *)(obj + (s32)k * 0x84 + 0x88) < *(s16 *)(obj + (s32)k * 0x84 + 0x8A)) {
                 *(s16 *)(obj + (s32)k * 0x84 + 0x88) = func_002b2cb0(*(s16 *)(obj + (s32)k * 0x84 + 0x88), 1, *(s16 *)(obj + (s32)k * 0x84 + 0x8A), 0, 1);
             } else {
-                *(u8 *)(obj + (s32)k * 0x84 + 0xC) ^= 4;
+                *(s8 *)(obj + (s32)k * 0x84 + 0xC) ^= 4;
             }
             func_0036de40(*(u8 **)(*(u8 **)(obj + 4) + 0x38) + (s32)(s8)k * 0xFB0 + 0x2758, obj + (s32)k * 0x84 + 0x84);
         }

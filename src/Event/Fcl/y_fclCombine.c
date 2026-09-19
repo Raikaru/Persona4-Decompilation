@@ -1826,6 +1826,15 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030b060);
    floor. */
 // FUN_0030B7B0 NONMATCHING
 /* measured: v2 candidate — obj 769I == retail 769I (stripped), probe 475 words, fnalign 119 edits (+40 reloc-only). Earliest divergence now branch-offset only for first 200I; first real divergence at 219 (s16 extend for j) + colour-copy load-all vs interleave + te+1 pointer. Saved-reg rotation fixed vs v1 (arg0=$s1,p=$s0 match). Floor candidate for guarded install; prior best nd 295 retained as reference. */
+/* measured: signedness census 16 -> 0 (`solve_signedness` lb 33/lbu 41 ->
+   41/33, exact; opclass surplus 20 -> 4, only the pre-existing andi +2 /
+   dsll32/dsra32 -1 extension-shape floor remains). The eight retail-lb sites
+   are plain-deref/subscript reads the solver does not group: te[1] x3
+   (1906/1913/2013), *te (0xB compare), D_00882FB0[] (0x2FB), *(p+0x13A) x2,
+   *(te+sidx); all spelled *(s8 *)(base+off) per the file's existing
+   convention (p stays u8*: the *(p+1) kind load is lbu on both sides).
+   Count-neutral (obj 769I). The solver's kind->s8 accept is a trap (switch
+   on 0xC2 breaks) and was not taken. */
 #ifdef NON_MATCHING
 void func_0030b7b0(u8 *arg0) {
     u8 *p;
@@ -1903,14 +1912,14 @@ void func_0030b7b0(u8 *arg0) {
             *(p500 + 0x87) = *(p501 + 0x87);
             *(p500 + 0x88) = *(p501 + 0x88);
             func_002b2a60(&c1, 0xCC, 0xFF, 0xFF, 0xFF);
-            te2 = func_002b6150((s16)(te[1] + 0x168));
+            te2 = func_002b6150((s16)(*(s8 *)(te + 1) + 0x168));
             *(te2 + 0x85) = c1.b0;
             *(te2 + 0x86) = c1.b1;
             *(te2 + 0x87) = c1.b2;
             *(te2 + 0x88) = c1.b3;
-            if (*te == 0xB && func_00106330(0x1308) == 0) {
+            if (*(s8 *)te == 0xB && func_00106330(0x1308) == 0) {
                 func_002b2a60(&c2, 0xFF, 0xCC, 0xFF, 0xFF);
-                te2 = func_002b6150((s16)(te[1] + 0x168));
+                te2 = func_002b6150((s16)(*(s8 *)(te + 1) + 0x168));
                 *(te2 + 0x85) = c2.b0;
                 *(te2 + 0x86) = c2.b1;
                 *(te2 + 0x87) = c2.b2;
@@ -1936,7 +1945,7 @@ void func_0030b7b0(u8 *arg0) {
         *(te + 0x87) = c5.b2;
         *(te + 0x88) = c5.b3;
         func_002b2a60(&c6, 0x92, 0xC8, 7, 0xFF);
-        te = func_002b6150((s16)(D_00882FB0[*(s16 *)(p + 0x11E) * 2] + 0x2FB));
+        te = func_002b6150((s16)(*(s8 *)(D_00882FB0 + *(s16 *)(p + 0x11E) * 2) + 0x2FB));
         *(te + 0x85) = c6.b0;
         *(te + 0x86) = c6.b1;
         *(te + 0x87) = c6.b2;
@@ -1950,7 +1959,7 @@ void func_0030b7b0(u8 *arg0) {
         if ((s16)func_002b6970(*(s16 *)(func_002b6150((s16)(*(s8 *)(D_00882FAE + *(s8 *)(p + 0x139) * 2) * 2 + 500)) + 0x10), 1) != 1) {
             f276 = D_008C0276[0];
             f27a = D_008C027A[0];
-            if ((f276 & 0x1000) && (*(p + 0x13A) == 0)) {
+            if ((f276 & 0x1000) && (*(s8 *)(p + 0x13A) == 0)) {
                 func_003307b0(arg0, 5, D_00882FB0);
                 return;
             }
@@ -1958,7 +1967,7 @@ void func_0030b7b0(u8 *arg0) {
                 func_003307b0(arg0, 1, D_00882FB0);
                 return;
             }
-            if ((f276 & 0x4000) && (*(p + 0x13A) == 0)) {
+            if ((f276 & 0x4000) && (*(s8 *)(p + 0x13A) == 0)) {
                 func_003307b0(arg0, 4, D_00882FB0);
                 return;
             }
@@ -1985,7 +1994,7 @@ void func_0030b7b0(u8 *arg0) {
                     sidx = (s8)(10.0f * func_00109190());
                     te = D_006417E0 + ((func_002e78a0() & 0xFF) - 1) * 0xB;
                     *(p + 0xD) = func_002bab80((void *)func_00331660());
-                    func_002badc0(*(s8 *)(p + 0xD), *(te + sidx) + 2);
+                    func_002badc0(*(s8 *)(p + 0xD), *(s8 *)(te + sidx) + 2);
                     break;
                 case 2:
                     *(p + 0xD) = func_002bab80((void *)func_00331660());
@@ -2010,7 +2019,7 @@ void func_0030b7b0(u8 *arg0) {
                 for (i = 0; i < *(s8 *)(p + 0x139); i++) {
                     te = &D_00882FB0[i * 2];
                     func_002b2970(&v5, 26.0f, (f32)(i * 0x22 + 0x57));
-                    func_003147e0(arg0, *te, v5, (s16)(te[1] + 0x168), (s16)(i * 2 + 2), 1);
+                    func_003147e0(arg0, *te, v5, (s16)(*(s8 *)(te + 1) + 0x168), (s16)(i * 2 + 2), 1);
                 }
                 if (*(s8 *)(p + 0x138) > 0) {
                     func_0032f060(arg0, 1);

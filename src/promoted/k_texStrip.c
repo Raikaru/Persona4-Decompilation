@@ -285,8 +285,8 @@ s32 func_00190c10(u8 *arg0)
     s32 k;
     s32 tmp;
     s32 *hdr;
-    u8 *p;
-    u8 *q;
+    s8 *p;
+    s8 *q;
 
     work = *(s32 **)(arg0 + 0x38);
     switch (work[0]) {
@@ -304,7 +304,7 @@ s32 func_00190c10(u8 *arg0)
         } else {
             if (func_004426e8((void *)&work[0x12], &D_00763138) != 0 &&
                 func_004426e8((void *)&work[0x12], &D_0076313C) != 0) {
-                for (p = (u8 *)&work[0x12]; *p != '.' && *p != 0; p++) {
+                for (p = (s8 *)&work[0x12]; *p != '.' && *p != 0; p++) {
                 }
                 if (func_004426e8(p, &D_00763140) == 0) {
                     func_00442830((void *)&work[0x53], D_005F61F8);
@@ -348,12 +348,12 @@ s32 func_00190c10(u8 *arg0)
         break;
     case 4:
         func_00442830(buf5A0, D_005F6270);
-        for (p = (u8 *)&work[0x53]; *p != 0; p++) {
+        for (p = (s8 *)&work[0x53]; *p != 0; p++) {
         }
         for (; *p != '/'; p--) {
         }
         func_00442428(buf5A0, p + 1);
-        for (q = (u8 *)buf5A0; *q != '.'; q++) {
+        for (q = (s8 *)buf5A0; *q != '.'; q++) {
         }
         func_00442830(q, &D_00763148);
         D_00764498 = func_00426cf0(buf5A0, 0x603, 0x1FF);
@@ -408,7 +408,7 @@ s32 func_00190c10(u8 *arg0)
             } else {
                 func_00442088(buf2A0, D_005F6350, ((s16 *)((s32 *)work[0x93]))[2]);
                 func_00440b68(&D_00763150, D_005F6168, 0x263);
-                p = func_00454a60(buf2A0, 0);
+                p = (s8 *)func_00454a60(buf2A0, 0);
                 work[0x398] = (s32)p;
                 func_00456150(p);
                 work[0] = 6;
@@ -438,11 +438,11 @@ s32 func_00190c10(u8 *arg0)
         break;
     case 7:
         func_00440b68(&D_00763150, D_005F6168, 0x2A0);
-        p = func_00454a60((void *)&work[0x53], 0);
+        p = (s8 *)func_00454a60((void *)&work[0x53], 0);
         work[0x94] = (s32)p;
         func_00456150(p);
         func_00442830(bufA0, D_005F63B0);
-        for (p = (u8 *)&work[0x53]; *p != 0; p++) {
+        for (p = (s8 *)&work[0x53]; *p != 0; p++) {
         }
         for (; *p != '/'; p--) {
         }
@@ -450,7 +450,7 @@ s32 func_00190c10(u8 *arg0)
         func_001909f0((u8 *)work[0x94], bufA0, (u8 *)work);
         func_00454bd0((void *)work[0x94]);
         func_00442830(bufA0, D_005F63B0);
-        for (p = (u8 *)&work[0x53]; *p != 0; p++) {
+        for (p = (s8 *)&work[0x53]; *p != 0; p++) {
         }
         for (; *p != '/'; p--) {
         }

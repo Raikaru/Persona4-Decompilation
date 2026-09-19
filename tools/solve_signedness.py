@@ -41,10 +41,12 @@ from __future__ import annotations
 
 import argparse
 import collections
+import io
 import json
 import re
 import sys
 import tempfile
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
 TOOLS = Path(__file__).resolve().parent
@@ -66,6 +68,16 @@ TRAILING_OFFSET = re.compile(r"\+\s*(0x[0-9a-fA-F]+|\d+)\s*$")
 # array, `extern s8 D_0063EF40[];` then `D_0063EF40[i]`.  The element type of
 # the declaration decides `lb` against `lbu`, so the declaration is the site.
 ARRAY = re.compile(r"\bextern\s+(u8|s8|u16|s16)\s+(\w+)\s*\[\s*\]")
+# A third spelling: cast-then-subscript, `((s16 *)hdr)[2]`.  The signedness
+# lives in the cast, and every subscript through that cast shares it.
+CAST_INDEX = re.compile(
+    r"\(\(\s*(u8|s8|u16|s16)\s*\*\s*\)\s*([A-Za-z_]\w*)\s*\)\s*\[")
+# And a fourth: a narrow pointer or array local, whose declaration decides
+# every subscript and dereference of it.  The bracket group repeats to cover
+# multi-dimensional arrays (`u8 colors[9][4]` in func_00112830); a single
+# trailing `?` misses the second dimension and drops the site entirely.
+LOCAL = re.compile(r"^\s*(u8|s8|u16|s16)\s+\*?\s*(\w+)\s*(?:\[[^\]]*\])*\s*;",
+                   re.M)
 LOAD = re.compile(r"^(lb|lbu|lh|lhu)\s+\$\w+,\s*(?:(-?0x[0-9a-fA-F]+|-?\d+))?\(")
 
 
@@ -128,8 +140,13 @@ class Solver:
     def compile(self, body: str) -> tuple[list[str], bytes]:
         candidate = self.scratch / f"{self.function}.c"
         candidate.write_text(body)
-        obj, _relocations = fnalign._object_for(self.source, self.function,
-                                                candidate, self.cfg)
+        # A rejected trial is expected to fail to compile, and mwcc is loud
+        # about it; the caller turns the exception into a recorded reject, so
+        # the diagnostics would only bury the report.
+        noise = io.StringIO()
+        with redirect_stdout(noise), redirect_stderr(noise):
+            obj, _relocations = fnalign._object_for(self.source, self.function,
+                                                    candidate, self.cfg)
         return fnalign.decode(obj, 0), obj
 
     def retail(self) -> list[str]:
@@ -164,6 +181,14 @@ def groups(body: str) -> dict[tuple[str, int], list[tuple[int, str]]]:
     for match in ARRAY.finditer(body):
         spelling, name = match.group(1), match.group(2)
         found.setdefault((name + "[]", -1), []).append((match.start(1), spelling))
+    for match in CAST_INDEX.finditer(body):
+        spelling, name = match.group(1), match.group(2)
+        found.setdefault((f"(({spelling} *){name})[]", -1), []).append(
+            (match.start(1), spelling))
+    for match in LOCAL.finditer(body):
+        spelling, name = match.group(1), match.group(2)
+        found.setdefault((name + " (local)", -1), []).append(
+            (match.start(1), spelling))
     return found
 
 
@@ -214,6 +239,8 @@ def main() -> None:
     asserted: list[dict] = []
     free: list[str] = []
     rejected: list[str] = []
+    # `solver.compile` writes into a scratch copy of the owning TU, so a
+    # failed trial leaves the tree untouched; only `--apply` writes back.
 
     for (base, offset), sites in sorted(candidates.items(), key=lambda kv: kv[0][1]):
         if not current:
@@ -240,7 +267,17 @@ def main() -> None:
             reason = "ambiguous at the site; decided by recompiling"
 
         trial = rewrite(body, sites, target)
-        text, _obj = solver.compile(trial)
+        try:
+            text, _obj = solver.compile(trial)
+        except BaseException:
+            # A flip that does not compile is still information: the type is
+            # load-bearing somewhere else, usually a pointer passed to a
+            # callee or compared against a differently-signed pointer.  Say
+            # so rather than dying, and leave the site alone.
+            rejected.append(f"{base}: flipping to "
+                            f"{target or SIGNED_OF[sites[0][1]]} does not compile; "
+                            "the type is constrained by a use elsewhere")
+            continue
         trial_counts = census(text)
         trial_mismatch = mismatch(trial_counts, retail_counts)
         shown = target or SIGNED_OF[spelling]

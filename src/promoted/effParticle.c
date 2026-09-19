@@ -1230,7 +1230,7 @@ void func_00487fb0(u8 *arg0, f32 arg1)
 #else
 INCLUDE_ASM("asm/nonmatchings/effParticle", func_00487fb0);
 #endif
-/* measured v3u: 1024 differing words (reloc-masked), retail 1060 vs object 1089 instrs (+29, +2.7% inside 3% gate), fnalign 1652 edits +6 reloc-only. VU parent (mfc1 $2) + VU colour (lui 0x437F first loop, mfc1 full second via stack 255.0f) from effObjectParticle 004aed70 idiom; 16 per-channel (f32)(u32) reloads per loop (not hoisted c0) to hold size - hoisting to 4 reloads falls to 729 instr (-31% outside gate, v2 965). Signed colour v3s 946 words but 641 instr (-39% outside gate, fake win, opclass trap like 00479100 where (f32)(u32) is retail and weakening costs 312). Pragmas: loopinv 1038 (+14), unroll 1024 tie, schedule 1024 tie, commons 1076 (+52), prop 1015 (-9, not adopted, still 1088 inside gate), strength 1024 tie, dead 1024 tie, peephole 1062 (+38). Subscript P[i] 1024 tie, reload count 1022 (-2 tie). Exchange 8 declaration orders o1 1024, o2 1024, o3 1024, o4 1024, o5 1024, o6 1024, o7 1024, o8 1024 (all tie, not exchange class). Biggest residuals: prologue frame 0x270 vs 0x1F0 + saved-reg colour, buffer stride reloads (0x268 vs 0x274 etc.), D_00887300/10 absolute lui. Banked as guarded floor. */
+/* measured v4 hoist_u32: 1009 differing words, retail 1060 vs object 1065 instrs (+5, +0.5% inside 3% gate), fnalign 648 edits +10 reloc-only. Solver retail lb0/lbu10/lh0/lhu1 vs object lb0/lbu34/lh0/lhu1 mismatch24, 0 accepts (2 free D_00713D10/outA0, 5 reject), nothing to apply. Census lbu+24 was colour duplication (16 loads vs retail 4 loads + 12 reuses); hoisting bytes to u32 c0..c3/d0..d3 after call keeps 16 (f32)(u32) conversions, narrow 24->0, words 1024->1009, edits 1652->648. Both directions: signed 940w/645i (-39% reject, confirms (f32)(u32) is retail like 00479100), hoist_conv 931w/734i (-30% reject), hoist_load 1015w/1079i (andi+8). Remainder sw+8/swc1-5/addiu+4 is frame layout (0x280 vs 0x270, qb offsets), no missing/surplus block. Banked floor. */
 // FUN_00488D70 NONMATCHING
 #ifdef NON_MATCHING
 void func_00488d70(u8 *arg0)
@@ -1331,26 +1331,34 @@ void func_00488d70(u8 *arg0)
                     f32 f29;
                     f32 f28;
                     u8 *pb = (u8 *)&packed;
+                    u32 c0;
+                    u32 c1;
+                    u32 c2;
+                    u32 c3;
                     func_00482ad0(*(u8 **)(arg0 + 0x48), *(s32 *)(var_18 + 0x10), outA0);
                     D_00887300[0](1, *(u32 *)(*(u8 **)(outA0 + 0x10)));
                     f29 = *(f32 *)(var_18 + 0x18) * ((*(f32 *)(outA0 + 8) / 32.0f) * *(f32 *)(outA0 + 0));
                     f28 = *(f32 *)(var_18 + 0x18) * ((*(f32 *)(outA0 + 12) / 32.0f) * *(f32 *)(outA0 + 4));
-                    qb[0] = (f32)(u32)pb[0];
-                    qb[1] = (f32)(u32)pb[1];
-                    qb[2] = (f32)(u32)pb[2];
-                    qb[3] = (f32)(u32)pb[3];
-                    qb[4] = (f32)(u32)pb[0];
-                    qb[5] = (f32)(u32)pb[1];
-                    qb[6] = (f32)(u32)pb[2];
-                    qb[7] = (f32)(u32)pb[3];
-                    qb[8] = (f32)(u32)pb[0];
-                    qb[9] = (f32)(u32)pb[1];
-                    qb[10] = (f32)(u32)pb[2];
-                    qb[11] = (f32)(u32)pb[3];
-                    qb[12] = (f32)(u32)pb[0];
-                    qb[13] = (f32)(u32)pb[1];
-                    qb[14] = (f32)(u32)pb[2];
-                    qb[15] = (f32)(u32)pb[3];
+                    c0 = pb[0];
+                    c1 = pb[1];
+                    c2 = pb[2];
+                    c3 = pb[3];
+                    qb[0] = (f32)(u32)c0;
+                    qb[1] = (f32)(u32)c1;
+                    qb[2] = (f32)(u32)c2;
+                    qb[3] = (f32)(u32)c3;
+                    qb[4] = (f32)(u32)c0;
+                    qb[5] = (f32)(u32)c1;
+                    qb[6] = (f32)(u32)c2;
+                    qb[7] = (f32)(u32)c3;
+                    qb[8] = (f32)(u32)c0;
+                    qb[9] = (f32)(u32)c1;
+                    qb[10] = (f32)(u32)c2;
+                    qb[11] = (f32)(u32)c3;
+                    qb[12] = (f32)(u32)c0;
+                    qb[13] = (f32)(u32)c1;
+                    qb[14] = (f32)(u32)c2;
+                    qb[15] = (f32)(u32)c3;
                     tmpPos[0] = *(f32 *)(var_18 + 0);
                     tmpPos[1] = *(f32 *)(var_18 + 4);
                     tmpPos[2] = *(f32 *)(var_18 + 8);
@@ -1469,26 +1477,34 @@ void func_00488d70(u8 *arg0)
                         f32 g0;
                         f32 g1;
                         u8 *pb2 = (u8 *)&packed;
+                        u32 d0;
+                        u32 d1;
+                        u32 d2;
+                        u32 d3;
                         func_00482ad0(*(u8 **)(arg0 + 0x48), *(s32 *)(var_18 + 0x10), outA0);
                         D_00887300[0](1, *(u32 *)(*(u8 **)(outA0 + 0x10)));
                         g0 = *(f32 *)(var_18 + 0x18) * ((*(f32 *)(outA0 + 8) / scale32) * *(f32 *)(outA0 + 0));
                         g1 = *(f32 *)(var_18 + 0x18) * ((*(f32 *)(outA0 + 12) / scale32) * *(f32 *)(outA0 + 4));
-                        qb[0] = (f32)(u32)pb2[0];
-                        qb[1] = (f32)(u32)pb2[1];
-                        qb[2] = (f32)(u32)pb2[2];
-                        qb[3] = (f32)(u32)pb2[3];
-                        qb[4] = (f32)(u32)pb2[0];
-                        qb[5] = (f32)(u32)pb2[1];
-                        qb[6] = (f32)(u32)pb2[2];
-                        qb[7] = (f32)(u32)pb2[3];
-                        qb[8] = (f32)(u32)pb2[0];
-                        qb[9] = (f32)(u32)pb2[1];
-                        qb[10] = (f32)(u32)pb2[2];
-                        qb[11] = (f32)(u32)pb2[3];
-                        qb[12] = (f32)(u32)pb2[0];
-                        qb[13] = (f32)(u32)pb2[1];
-                        qb[14] = (f32)(u32)pb2[2];
-                        qb[15] = (f32)(u32)pb2[3];
+                        d0 = pb2[0];
+                        d1 = pb2[1];
+                        d2 = pb2[2];
+                        d3 = pb2[3];
+                        qb[0] = (f32)(u32)d0;
+                        qb[1] = (f32)(u32)d1;
+                        qb[2] = (f32)(u32)d2;
+                        qb[3] = (f32)(u32)d3;
+                        qb[4] = (f32)(u32)d0;
+                        qb[5] = (f32)(u32)d1;
+                        qb[6] = (f32)(u32)d2;
+                        qb[7] = (f32)(u32)d3;
+                        qb[8] = (f32)(u32)d0;
+                        qb[9] = (f32)(u32)d1;
+                        qb[10] = (f32)(u32)d2;
+                        qb[11] = (f32)(u32)d3;
+                        qb[12] = (f32)(u32)d0;
+                        qb[13] = (f32)(u32)d1;
+                        qb[14] = (f32)(u32)d2;
+                        qb[15] = (f32)(u32)d3;
                         func_003e42a0(tmpOut, tmpPos, (void *)(func_00457120() + 0x20));
                         {
                             f32 rx2 = tmpOut[0] / tmpOut[3];

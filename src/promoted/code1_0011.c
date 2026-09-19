@@ -1191,6 +1191,23 @@ void func_00112610(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4
     }
 }
 /* measured 00112830 2026-09-17 via `python3 tools/measure_guarded.py src/promoted/code1_0011.c func_00112830`: 494wd before and after (obj 2040B/window 2192B); `value / 100` -> `value / 100U` (4 sites) clears division defect (opclass div +4/divu -4 -> 0/0, score 42 -> 34; fnalign 540 -> 540, no regression; u32 value alone flips to div -8/divu +8 with sltu +8/slt -8, so divisor widening not operand widening is correct). Remaining lbu -28/move +16 is spill not signedness: retail has 39 lbu/0 lb (all unsigned); s8 colors probe worsens 540 -> 550 edits, so byte-signedness reading disproved. */
+/* 2026-09-18 `tools/solve_signedness.py src/promoted/code1_0011.c func_00112830`: retail lb 0/lbu 39/lh 10/lhu 0 */
+/* against object lb 0/lbu 11/lh 10/lhu 0, mismatch 28 -> 28 over 7 candidate fields at unchanged 510 */
+/* instrs (retail 548). All flips rejected: D_005E4750[] and table to s8 do not compile (the u8* use */
+/* constrains both); color_b 510->521, color_g 510->519, colors 510->516 (section 7u). Manual probes */
+/* confirm spill, not signedness: s8 colors gives lb 3/lbu 0 (mismatch 28->42, 510->516); color_b/g to */
+/* s8 give lbu 11->7 (28->32, 510->521/519), both give lbu 3 (28->36, 510->530); arg2+0x16 s16->u16 */
+/* gives lh 10->9/lhu 0->1 (28->30, count steady), arg2+6 s16->u16 gives lh 10->6/lhu 0->4 (28->36, */
+/* 510->516). The lh-10-against-zero reading is disproved: retail loads the same three arg2 offsets */
+/* signed (0x16 x1, 0x6 x8, 0x0 x1 for 10 lh), so the halfwords already agree and need no edit. */
+/* Spelling for the solver: the missing lbu are typed array subscripts through locals - `u8 */
+/* colors[9][4]` (2D), `u8 *table` + `table[i]`, `u8 color_b/g`, `extern u8 D_005E4750[]` + `D_...[i]` - */
+/* plus `*(s16 *)(arg2+off)` casts. LOCAL missed the 2D array (a single `[..]?` never matches `[9][4]`); */
+/* fixed to `(?:\[..\])*` so colors now groups and is correctly rejected. No source change: every */
+/* signedness flip either worsens the census or moves the count, and the f32 word-copy that closes lbu */
+/* 11->35 (mismatch 28->4, andi +6->0) costs edits 542->588 with sb 0->16, so it answers the census, */
+/* not the shape. Opclass stays lbu -28/move +16/swc1 -8/lwc1 -8/andi +6/subu -6/sb -5/addiu -4. Floor */
+/* stands at 494 words. */
 // FUN_00112830 NONMATCHING
 #ifdef NON_MATCHING
 void func_00112830(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)

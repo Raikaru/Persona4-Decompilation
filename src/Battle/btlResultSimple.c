@@ -603,19 +603,27 @@ INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021fa40);
    COP1 madd/adda fusion in the lerp loop, and scheduler ordering throughout. */
 /* 1286 -> 1282 (2026-09-18): func_00274ed0's in-body prototype now matches the
    live definition in src/frFontEx.c (three leading floats). */
+/* bisect 2026-09-19 (handoff 7u count band 1375-1461, retail 1418): */
+/* baseline HEAD: 1284 words, obj 1415 / ret 1418 (delta -3, inside). */
+/* G1 protos 0045db40/003f6440/0021e050 to live (s32): 1284 / 1415 (-3) neutral, kept. */
+/* G2 c19/c18/c17/c193/c182/c172 s64->u8 (u8 to 0034f2e0): 1278 / 1415 (-3) neutral, -6 words, kept. */
+/* G3 h2/h1 u32->s32 (v stays u32): 1276 / 1365 (-53) DEFATS -50, below band, DROPPED (words -2 not worth 50). */
+/* G4 vt void(**)->u32 hoist x20 on G1+G2 (matched btlShuffleDraw pattern): 916 / 1396 (-22) inside, -362 words, kept. */
+/* G5 uD0.v dead g1/g12/g13/g14 removal on G1+G2+G4: 888 / 1396 (-22) neutral, -28 words, kept. */
+/* banked G1+G2+G4+G5: 888 words, obj 1396 / ret 1418 (delta -22, inside). Drops G3; retains 396/417 of the 867-inclusive gain. */
 // FUN_0021FEA0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0021fea0(u8 *arg0, u8 *arg1)
 {
     u8 *w;
     u8 *p16;
-    void (**vt)(u32, u32);
-    s64 c19;
-    s64 c18;
-    s64 c17;
-    s64 c193;
-    s64 c182;
-    s64 c172;
+    u32 vt;
+    u8 c19;
+    u8 c18;
+    u8 c17;
+    u8 c193;
+    u8 c182;
+    u8 c172;
     s64 b18;
     u8 bEA;
     u8 b11A;
@@ -688,10 +696,6 @@ void func_0021fea0(u8 *arg0, u8 *arg1)
             f32 f4;
             f32 fc;
             f32 f8;
-    f32 g1;
-    f32 g12;
-    f32 g13;
-    f32 g14;
         } v;
     } uD0;
     s32 sC[4];
@@ -707,14 +711,14 @@ void func_0021fea0(u8 *arg0, u8 *arg1)
     extern f32 fGpffff8418;
     extern void (*D_00887300[])(u32, u32);
     void func_0034f320(u8 *, f32, f32, f32, s32, s32, s32, s64, s32, s32, s32, f32, s64);
-    void func_0045db40(u8 *, u8 *, f32, s32, s64, s64, f32, f32, f32);
+    void func_0045db40(u8 *, u8 *, f32, s32, s32, s32, f32, f32, f32);
     void func_0045d6e0(u8 *, u8 *, f32, s32);
-    s32 func_003f6440(s32, s64);
+    s32 func_003f6440(s32, s32);
     void func_00364c50(void);
     void func_00364c70(void);
     s32 func_00104c70(s32);
     s32 func_0010d6d0(s16);
-    u32 func_0021e050();
+    s32 func_0021e050(u8 *);
     void func_001125d0(u8 *);
     void func_00112300(s64, f32, u8, u8 *);
     int func_00274ed0(f32, f32, f32, s32, s32, s32, s32, s32, s32);
@@ -723,18 +727,18 @@ void func_0021fea0(u8 *arg0, u8 *arg1)
     w = arg1;
 if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
         p16 = (*(u8 **)(w + 0x570));
-        vt = D_00887300;
-        vt[0](6, 0);
-        vt[0](8, 0);
-        vt[0](7, 2);
-        vt[0](9, 2);
-        vt[0](0xC, 1);
-        vt[0](0xB, 6);
-        vt[0](0xA, 5);
-        vt[0](2, 4);
-        vt[0](0xE, 0);
-        vt[0](3, 1);
-        vt[0](4, 1);
+        vt = (u32)D_00887300;
+        ((void (*)(u32, u32))*(u32 *)vt)(6, 0);
+        ((void (*)(u32, u32))*(u32 *)vt)(8, 0);
+        ((void (*)(u32, u32))*(u32 *)vt)(7, 2);
+        ((void (*)(u32, u32))*(u32 *)vt)(9, 2);
+        ((void (*)(u32, u32))*(u32 *)vt)(0xC, 1);
+        ((void (*)(u32, u32))*(u32 *)vt)(0xB, 6);
+        ((void (*)(u32, u32))*(u32 *)vt)(0xA, 5);
+        ((void (*)(u32, u32))*(u32 *)vt)(2, 4);
+        ((void (*)(u32, u32))*(u32 *)vt)(0xE, 0);
+        ((void (*)(u32, u32))*(u32 *)vt)(3, 1);
+        ((void (*)(u32, u32))*(u32 *)vt)(4, 1);
         func_003f6440(3, 0x717FB);
         func_003f6440(2, 0x44);
         sC[0] = (s32)(-224.0f + (*(f32 *)(w + 0x1D0)));
@@ -745,7 +749,7 @@ if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
         c11[1] = 0xEA;
         c11[2] = 0x2C;
         c11[3] = 0xFF;
-        vt[0](1, 0);
+        ((void (*)(u32, u32))*(u32 *)vt)(1, 0);
         func_00364c50();
         func_0045db40(&c11[0], (u8 *)&sC[0], 0.0f, 0, 0, 0, 45.0f, 1.0f, 1.0f);
         func_00364c70();
@@ -758,13 +762,13 @@ if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
         c11[2] = 0x20;
         c11[3] = 0xFF;
         func_00364c50();
-        vt[0](1, 0);
+        ((void (*)(u32, u32))*(u32 *)vt)(1, 0);
         func_0045db40(&c11[0], (u8 *)&sC[0], 0.0f, 0, 0, 0, 45.0f, 1.0f, 1.0f);
         func_00364c70();
         f110[0] =(386.0f + (*(f32 *)(w + 0x1A0)));
         f110[1] =(35.0f + (*(f32 *)(w + 0x1A4)));
         func_0034f2e0((void *)((*(s32 *)(w + 0x4A4))), f110[0], f110[1], 0x32, 0x32, 0x32, (*(u8 *)(w + 0x1AA)));
-        vt[0](1, 0);
+        ((void (*)(u32, u32))*(u32 *)vt)(1, 0);
         sC[0] = (s32)((*(f32 *)(w + 0x1D0)));
         sC[1] = (s32)((*(f32 *)(w + 0x1D4)));
         sC[2] = 0x19F;
@@ -785,7 +789,7 @@ if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
         func_0045d6e0(&c11[0], (u8 *)&sC[0], 0, 0.0f);
         func_0021fa40(w);
         func_003f6440(3, 0x32801);
-        vt[0](8, 1);
+        ((void (*)(u32, u32))*(u32 *)vt)(8, 1);
         sC[0] = 0;
         sC[1] = 0;
         sC[2] = 0x280;
@@ -805,8 +809,8 @@ if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
         c11[3] = 0;
         func_0045d6e0(&c11[0], (u8 *)&sC[0], 0, 0.0f);
         func_003f6440(3, 0x717FB);
-        vt[0](8, 0);
-        vt[0](6, 1);
+        ((void (*)(u32, u32))*(u32 *)vt)(8, 0);
+        ((void (*)(u32, u32))*(u32 *)vt)(6, 1);
         b18 = (*(u8 *)(w + 0x17A));
         f110[0] =(73.0f + (*(f32 *)(w + 0x170)));
         f110[1] = (f32) 0x187 + (*(f32 *)(w + 0x174));
@@ -814,8 +818,8 @@ if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
         f110[0] = (f32) 0x111 + (*(f32 *)(w + 0x170));
         f110[1] = (f32) 0x187 + (*(f32 *)(w + 0x174));
         func_0034f320((u8 *)(*(s32 *)(w + 0x44C)), f110[0], f110[1], 10.0f, 0x2DU, 0x2DU, 0x2DU, b18, 0x1000, 0x1000, 0, 0.0f, (s64)0);
-        vt[0](6, 0);
-        vt[0](6, 1);
+        ((void (*)(u32, u32))*(u32 *)vt)(6, 0);
+        ((void (*)(u32, u32))*(u32 *)vt)(6, 1);
         f110[0] =(76.0f + (*(f32 *)(w + 0x170)));
         f110[1] = (f32) 0x171 + (*(f32 *)(w + 0x174));
         func_0034f320((u8 *)(*(s32 *)(w + 0x434)), f110[0], f110[1], 10.0f, 0x2DU, 0x2DU, 0x2DU, b18, 0x1000, 0x1000, 0, 0.0f, (s64)0);
@@ -841,7 +845,7 @@ if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
         f110[0] =(157.0f + (*(f32 *)(w + 0x170)));
         f110[1] =((366.0f + (*(f32 *)(w + 0x174))) - 2.0f);
         func_00274ed0(f110[0], f110[1], 10.0f, (((u8)b18 & 0xFF) | ~0xFF), 5, 1, func_0010d6d0(1), 0, 0);
-        vt[0](6, 0);
+        ((void (*)(u32, u32))*(u32 *)vt)(6, 0);
         if ((*( u16 *)((u8 *)(p16) + 8)) & 4) {
             c19 = 0x67;
             c18 = 0x5F;

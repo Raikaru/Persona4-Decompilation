@@ -1334,6 +1334,15 @@ void func_00202e60(u8 *arg0, void *arg1)
    scheduler ordering. s32 counter beats s16 (-16); sign-
    extend at checks verified; IDA returns over Ghidra.
    u8 def avoids caller churn; s32 return = int history. */
+/* 2026-09-18 `tools/solve_signedness.py`: declaring `D_008C024E` and
+   `D_008C0276` as `s16` instead of `u16` collapses the census signedness
+   mismatch from 9 to 3, but the differing-word score goes 227 -> 228.
+   Reverted.  Both are array declarations, so retail's own load opcodes name
+   no offset for them - the flip was accepted only because the census
+   improved, which is the solver's weaker "decided by recompiling" path.  A
+   claim with no direct retail evidence that also costs a word is not worth
+   banking; if a later pass finds independent evidence for the signedness,
+   the census says it is worth 6. */
 // FUN_00202E70 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00202e70(u8 *arg0)

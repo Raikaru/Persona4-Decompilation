@@ -622,32 +622,22 @@ void func_004b41c0(u8 *arg0) {
 
 /* measured: retail contains COP2/VU0 vector work; H009 permits the required
    inline asm. No byte-exact candidate was retained in this wave. */
-/* measured: floor for func_004b4430 (obj 2076B vs window 2000B, probe_variants 494 differing words reloc-masked, fnalign 519 vs 500 instrs). */
-/* measured: Frame 0xD0 vs retail 0x140 (-112B, saved-reg + quadword-slot floor); logic confirmed against retail asm (asm/nonmatchings/effLineNova/func_004b4430.s via `grep -rl func_004b4430 asm/`), */
-/* measured: IDA/Ghidra and M2C P4_UNIT_004B4430 in src/generated/code1_004b.c (500+ lines): 2-arg void (retail uses $a1 primary, $a0 dead; TU prototype fixed from s32 1-arg accordingly), D_00714638/40 init, colour to 0x130->0x13C FE/FF, early exit, dual 00457120 + float array, count-checked 0x7C with unsigned cvt + adda/madd in plain C, loop via 003c2290, VU in plain C + D_00713D10 constants, tail. */
-/* measured: Sibling conventions read first: effLineNova.c func_004b36b0 floor (same colour-unpack verbatim with sw $2,0x130($sp) adapted from 0x150) and effBlurFilter.c func_004a93d0. Prototype fix measured: TU extern s32 1-arg -> void 2-arg, no MATCH regression (address-store only). */
-/* measured: Residual is compiler floor per docs/matching.md: saved-reg rotation, scheduling, FPU choice (plain-C for vopmula/vopmsub/vmul/vsub/vrsqrt/mula/madd/adda), quadword spills (sq/lq vs sw), call-site reuse. Exhausted u_long128 per 16B slot, volatile reload. */
-/* measured: No pooled float constants to bank (only lui immediates; D_00713D10 etc. absolute lui, D_00714638/40 ld/lwc1 already extern). Unit confirmed via `grep -rl func_004b4430 asm/` -> asm/nonmatchings/effLineNova/func_004b4430.s. */
+/* measured: v2 clears the assignment census (opclass 77 -> 14 rows, all named rows 0): obj 1988B vs window 2000B (-12B), probe_variants 467 differing words reloc-masked, fnalign 497 vs 500 instrs (-0.6%, inside 3% gate). Was obj 2076B/519 vs 500 (+3.8% over gate) with add.s +35, lh -15, cvt -10, lui +10, mtc1 -9, andi +9, bltz +8, swc1 -8, sub.s +8, dsll32 +7, dsra32 +6, div -5. Now add.s 0, lh 0, cvt 0, lui 0, mtc1 0, andi 0, bltz 0, sub.s 0, dsll32 0, dsra32 0, div 0, swc1 +1, nop -2, lw -1. */
+/* measured: fixes per thread hints: (1) x/y vs x*(1/y): replaced invented rlen=1/len2*spF0p + h0/640-0.5f + spE0a/v0 + dx/len2/nx/cx chain (35 extra add.s, 8 extra sub.s, 5 missing div.s) with retail lerp (t=prog/cnt div once) + f3/f2 (/640,/448) + loop f5/f4 (/10) + per-iter u16/65535 (3 divs) + tail (2 divs); (2) unsigned idiom (handoff 7g): removed 8 invented (f32)(u32)&0xFFFF/&0xFF (8 extra bltz, 9 extra andi, 10 missing cvt) and added correct (f32)(u32)prog/cnt + 3x loop u16 (5 bltz, now 5/5); (3) lh -15 via tools/solve_signedness.py (retail 17 lh vs obj 2 -> now 17/17, all offsets 0x80-0x90 present; solver mismatch 19 -> 0 for narrow ops). Solver: python3 -E -s tools/solve_signedness.py src/Graphics/Effect/effLineNova.c func_004b4430 reports retail lb 0/lbu 10/lh 17/lhu 5 vs obj 8/17/5 after fix (lbu -2 residual is stack-offset spill, not signedness). */
+/* measured: Frame still short (obj 1988B vs 2000B) + VU scratch (sqc2 to D_00713D10 global overlap, 3x per iter) + lqc2/vsub/vmul/vrsqrt in inline asm; remaining 467-word residual is saved-reg rotation, scheduling, FPU choice, quadword spills, call-site reuse per docs/matching.md. No pooled constants to bank (lui immediates only). */
 /* measured: Production stays INCLUDE_ASM fallback; body preserved here as NON_MATCHING seed. */
-/* SIZE CAVEAT: this body emits 519 instructions against retail's 500, 3.8%
-   over the 3% gate, so it is a draft banked for its working COP2 colour
-   idiom rather than a floor.  Treat the 494-word score as provisional: the
-   nineteen surplus instructions are real work the object performs and
-   retail does not, so the residual cannot be read as a per-instruction
-   difference until the size is closed.  `tools/opclass.py` reports
-   add.s +35 and lh -15 here, which is the class to clear first. */
 // FUN_004B4430 NONMATCHING
 #ifdef NON_MATCHING
 void func_004b4430(u8 *arg0, u8 *arg1)
 {
-    typedef unsigned int u_long128 __attribute__((mode(TI)));
     extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
     extern u8 *func_00457120(void);
-    extern void func_003e42a0(u8 *a, u8 *b, u8 *c);
     extern void func_003c2290(u8 *a, s32 b);
     extern void func_003c22f0(u8 *a);
-    extern void func_003e9700(u8 *a);
-    extern void func_003e9cb0(u8 *a, u8 *b, s32 c);
+    extern s32 func_003e9700(s32 a);
+    extern void func_003e0870(u8 *a, u8 *b, s32 c, f32 d);
+    extern void func_003e05f0(u8 *a, u8 *b, u8 *c);
+    extern s32 func_003e9cb0(u8 *a, u8 *b, s32 c);
     extern f32 fGpffff8044;
     extern u8 D_00713CF0[];
     extern u8 D_00713D10[];
@@ -657,53 +647,32 @@ void func_004b4430(u8 *arg0, u8 *arg1)
     s32 sp134;
     s32 sp130;
     s32 sp13C;
-    f32 sp148;
-    f32 sp144;
-    f32 sp140;
-    f32 spF0a;
-    f32 spF0b;
-    f32 spF0c;
-    f32 spF0d;
-    f32 spF0e;
-    f32 spF0f;
-    f32 spF0g;
-    f32 spF0h;
-    f32 spF0i;
-    f32 spF0j;
-    f32 spF0k;
-    f32 spF0l;
-    f32 spF0m;
-    f32 spF0n;
-    f32 spF0o;
-    f32 spF0p;
-    f32 spE8;
-    f32 spE4;
-    f32 spE0a;
-    f32 spE0b;
-    f32 spE0c;
-    f32 spE0d;
-    u_long128 spD0;
-    u_long128 spC0;
-    u_long128 spB0;
-    u_long128 spA0;
-    u_long128 spE0q;
+    f32 f24;
+    f32 f23;
+    f32 f21;
+    f32 f20;
+    f32 f22;
+    f32 f3;
+    f32 f2;
+    f32 f0;
+    f32 f5;
+    f32 f4;
+    u8 stk100[24];
+    u8 stk110[24];
+    u8 stk120[16];
+    u8 stkC0[64];
+    u8 stk80[64];
     u8 *tmp19;
     u8 *tmp18;
     u8 *tmp16;
-    u8 *tmp17;
+    u8 *tmpA;
+    u8 *tmpB;
     s32 tmp;
     s32 *pt;
     f32 scale;
-    u8 mode;
-    s32 i;
     u8 *dst;
-    f32 f6;
-    f32 f5;
-    f32 f4;
-    f32 f3;
-    f32 f2;
-    f32 f1;
-    f32 f0;
+    u32 prog;
+    u32 cnt7c;
 
     tmp19 = *(u8 **)(arg1 + 0x20);
     tmp18 = *(u8 **)(arg1 + 0x24);
@@ -711,10 +680,11 @@ void func_004b4430(u8 *arg0, u8 *arg1)
     {
         extern u8 D_00714638[];
         extern u8 D_00714640[];
-        *(u64 *)(((u8 *)&spD0) - 0x30) = *(u64 *)D_00714638;
-        *(f32 *)(((u8 *)&spD0) - 0x28) = *(f32 *)D_00714640;
+        *(u64 *)(((u8 *)&stk120) - 0x30) = *(u64 *)D_00714638;
+        *(f32 *)(((u8 *)&stk120) - 0x28) = *(f32 *)D_00714640;
     }
-    tmp = func_0048abd0(tmp18, tmp18 + 0x24, *(s32 *)(arg1 + 0x14), *(s32 *)(tmp18 + 0x34));
+    prog = *(u32 *)(arg1 + 0x14);
+    tmp = func_0048abd0(tmp18, tmp18 + 0x24, (s32)prog, *(s32 *)(tmp18 + 0x34));
     sp138 = *(s32 *)(arg1 + 0x10);
     pt = &sp138;
     scale = fGpffff8044;
@@ -776,131 +746,149 @@ void func_004b4430(u8 *arg0, u8 *arg1)
     if (*(u8 *)(*(u8 **)(tmp16 + 0x14) + 7) == 0) {
         return;
     }
-    tmp17 = func_00457120() + 0x68;
-    f6 = *(f32 *)(func_00457120() + 0x80);
-    f5 = *(f32 *)(tmp17 + 0);
-    f4 = f5 * f6;
-    f3 = *(f32 *)(tmp17 + 4);
-    f2 = f3 * f6;
-    f1 = -f4;
-    spF0a = f1;
-    spF0b = -f2;
-    spF0c = f6;
-    spF0d = f4;
-    spF0e = -f2;
-    spF0f = f6;
-    spF0g = f4;
-    spF0h = f2;
-    spF0i = f6;
-    spF0j = f1;
-    spF0k = f2;
-    spF0l = f6;
-    spF0m = 0.0f;
-    spF0n = 0.0f;
-    spF0o = f6;
-    spF0p = f1 + f2 + f6 + spF0a + spF0b + spF0c;
-    mode = *(u8 *)(tmp18 + 0x7C);
-    if (mode == 1) {
-        f32 base300 = 300.0f * f6;
-        f32 h0 = (f32)*(s16 *)(tmp18 + 0x7E);
-        f32 h1 = (f32)*(s16 *)(tmp18 + 0x80);
-        sp140 = 2.0f * -f5 * ((h0 / 640.0f) - 0.5f);
-        sp144 = 2.0f * -f3 * ((h1 / 448.0f) - 0.5f);
-        sp148 = base300 + spF0p;
-    } else if (mode == 0) {
-        u8 *e0 = (u8 *)&spE0q;
-        f32 v0;
-        f32 v1;
-        func_003e42a0(e0, arg1, func_00457120() + 0x20);
-        v0 = spE8;
-        v1 = spE4;
-        spE0a = v0;
-        spE0b = v1;
-        spE0c = spE0a + spE0b;
-        spE0d = spE0c * 2.0f;
-        sp140 = 2.0f * -(f5 * v0) * ((spE0a / v0) - 0.5f) + spF0m;
-        sp144 = 2.0f * -(f3 * v0) * ((v1 / v0) - 0.5f) + spF0n;
-        sp148 = v0 + spF0o + spE0d;
-    } else {
-        sp140 = spF0a + spF0d + f4;
-        sp144 = spF0b + spF0e + f2;
-        sp148 = spF0c + spF0f + f6;
-    }
-    {
-        u8 *nobj = *(u8 **)tmp19;
-        s32 n = *(s32 *)(tmp18 + 0x38);
-        u8 *cfg = *(u8 **)(tmp16 + 0x10);
-        u8 *out = *(u8 **)(*(u8 **)(cfg + 0x18) + 0x5C);
-        s32 cnt = *(s32 *)(out + 0x14);
-        u8 *list = *(u8 **)nobj;
-        s32 k = 0;
-        spD0 = (u_long128)(u32)n;
-        spC0 = (u_long128)0x710000;
-        spB0 = (u_long128)0x710000;
-        spA0 = (u_long128)0x710000;
-        spE0q = (u_long128)0;
-        func_003c2290(*(u8 **)(cfg + 0x18), 2);
-        {
-            f32 t0 = (f32)((u32)spD0 & 0xFFFF);
-            f32 t1 = (f32)((u32)spC0 & 0xFFFF);
-            f32 t2 = (f32)((u32)spB0 & 0xFFFF);
-            f32 t3 = (f32)((u32)spA0 & 0xFFFF);
-            f32 t4 = (f32)((u32)spE0q & 0xFFFF);
-            spF0p = t0 + t1 + t2 + t3 + t4 + sp140 + sp144 + sp148;
+    cnt7c = *(u32 *)(tmp18 + 0x7C);
+    if (cnt7c != 0) {
+        if (prog < cnt7c) {
+            f32 t = (f32)prog / (f32)cnt7c;
+            s32 d0 = (s32)*(s16 *)(tmp18 + 0x88) - (s32)*(s16 *)(tmp18 + 0x80);
+            s32 d1 = (s32)*(s16 *)(tmp18 + 0x8A) - (s32)*(s16 *)(tmp18 + 0x82);
+            s32 d2 = (s32)*(s16 *)(tmp18 + 0x8C) - (s32)*(s16 *)(tmp18 + 0x84);
+            s32 d3 = (s32)*(s16 *)(tmp18 + 0x8E) - (s32)*(s16 *)(tmp18 + 0x86);
+            f32 b0 = (f32)*(s16 *)(tmp18 + 0x80);
+            f32 b1 = (f32)*(s16 *)(tmp18 + 0x82);
+            f32 b2 = (f32)*(s16 *)(tmp18 + 0x84);
+            f32 b3 = (f32)*(s16 *)(tmp18 + 0x86);
+            f24 = b0 + t * (f32)d0;
+            f23 = b1 + t * (f32)d1;
+            f21 = b2 + t * (f32)d2;
+            f20 = b3 + t * (f32)d3;
+        } else {
+            f24 = (f32)*(s16 *)(tmp18 + 0x88);
+            f23 = (f32)*(s16 *)(tmp18 + 0x8A);
+            f21 = (f32)*(s16 *)(tmp18 + 0x8C);
+            f20 = (f32)*(s16 *)(tmp18 + 0x8E);
         }
+    } else {
+        f24 = (f32)*(s16 *)(tmp18 + 0x80);
+        f23 = (f32)*(s16 *)(tmp18 + 0x82);
+        f21 = (f32)*(s16 *)(tmp18 + 0x84);
+        f20 = (f32)*(s16 *)(tmp18 + 0x86);
+    }
+    tmpA = func_00457120() + 0x68;
+    tmpB = func_00457120();
+    f22 = *(f32 *)(tmpB + 0x80) + 1.0f;
+    f3 = f21 * (*(f32 *)(tmpA + 0) * f22) / 640.0f;
+    f2 = f20 * (*(f32 *)(tmpA + 4) * f22) / 448.0f;
+    *(f32 *)(stk100 + 0x00) = -f3;
+    *(f32 *)(stk100 + 0x04) = -f2;
+    *(f32 *)(stk100 + 0x08) = f22;
+    *(f32 *)(stk110 + 0x00) = -f3;
+    *(f32 *)(stk110 + 0x04) = f2;
+    *(f32 *)(stk110 + 0x08) = f22;
+    f21 = f2 * 2.0f;
+    f20 = f3 * 2.0f;
+    {
+        u8 *list;
+        s32 n;
+        u8 *cfg;
+        u8 *out;
+        s32 k;
+        n = *(s32 *)(tmp18 + 0x38);
+        cfg = *(u8 **)(tmp16 + 0x10);
+        out = *(u8 **)(*(u8 **)(*(u8 **)(cfg + 0x18) + 0x5C) + 0x14);
+        list = *(u8 **)tmp19;
+        func_003c2290(*(u8 **)(cfg + 0x18), 2);
+        f5 = *(f32 *)(tmp18 + 0x5C) / 10.0f;
+        f4 = *(f32 *)(tmp18 + 0x60) / 10.0f;
+        f0 = (f32)0xFFFF;
+        k = 0;
         while (k < n) {
-            f32 dx;
-            f32 dy;
-            f32 dz;
-            f32 len2;
-            f32 rlen;
-            f32 nx;
-            f32 ny;
-            f32 nz;
-            f32 cx;
-            f32 cy;
-            f32 cz;
-            dx = spF0a - spF0d + *(f32 *)(out + 0x30);
-            dy = spF0b - spF0e + *(f32 *)(out + 0x34);
-            dz = spF0c - spF0f + *(f32 *)(out + 0x38);
-            len2 = dx * dx + dy * dy + dz * dz;
-            rlen = 1.0f / len2;
-            rlen = rlen * spF0p;
-            nx = dx * rlen + sp140;
-            ny = dy * rlen + sp144;
-            nz = dz * rlen + sp148;
-            cx = spF0g * nz - spF0h * ny;
-            cy = spF0h * nx - spF0g * nz;
-            cz = spF0g * ny - spF0h * nx;
-            *(f32 *)(out + 0x30) = *(f32 *)D_00713D10 + cx;
-            *(f32 *)(out + 0x34) = *(f32 *)D_00713D14 + cy;
-            *(f32 *)(out + 0x38) = *(f32 *)D_00713D18 + cz;
-            *(f32 *)(out + 0x24) = *(f32 *)D_00713D10 + nx;
-            *(f32 *)(out + 0x28) = *(f32 *)D_00713D14 + ny;
-            *(f32 *)(out + 0x2C) = *(f32 *)D_00713D18 + nz;
-            *(f32 *)(out + 0x3C) = *(f32 *)D_00713D10 - nx;
-            *(f32 *)(out + 0x40) = *(f32 *)D_00713D14 - ny;
-            *(f32 *)(out + 0x44) = *(f32 *)D_00713D18 - nz;
-            *(f32 *)(out + 0x0C) = *(f32 *)D_00713D10 + spF0j;
-            *(f32 *)(out + 0x10) = *(f32 *)D_00713D14 + spF0k;
-            *(f32 *)(out + 0x14) = *(f32 *)D_00713D18 + spF0l;
-            *(f32 *)(out + 0x00) = *(f32 *)D_00713D10 + spF0m;
-            *(f32 *)(out + 0x04) = *(f32 *)D_00713D14 + spF0n;
-            *(f32 *)(out + 0x08) = *(f32 *)D_00713D18 + spF0o;
-            *(f32 *)(out + 0x18) = *(f32 *)D_00713D10 + (f32)((u32)spC0 & 0xFF);
-            *(f32 *)(out + 0x1C) = *(f32 *)D_00713D14 + (f32)((u32)spB0 & 0xFF);
-            *(f32 *)(out + 0x20) = *(f32 *)D_00713D18 + (f32)((u32)spA0 & 0xFF);
-            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&spE0q) : "memory");
+            u16 v0 = *(u16 *)(list + 0);
+            f32 tn0 = (f32)(u32)v0 / f0;
+            f32 tf3 = f5 * tn0;
+            f32 tf2 = f4 * tn0;
+            u16 v1 = *(u16 *)(list + 4);
+            f32 tn1 = (f32)(u32)v1;
+            f32 tf1 = f20 * tn1 / f0;
+            u16 v2 = *(u16 *)(list + 2);
+            f32 tn2 = (f32)(u32)v2;
+            f32 tf6 = f21 * tn2 / f0;
+            __asm__ volatile(
+                "lqc2 $vf10, 0(%0) \n"
+                "lqc2 $vf11, 0(%1) \n"
+                "vsub.xyzw $vf10, $vf10, $vf11 \n"
+                "vmul.xyz $vf2, $vf10, $vf10 \n"
+                "vmulax.w $ACC, $vf0, $vf2x \n"
+                "vmadday.w $ACC, $vf0, $vf2y \n"
+                "vmaddz.w $vf2, $vf0, $vf2z \n"
+                "vrsqrt $Q, $vf0w, $vf2w \n"
+                "vwaitq \n"
+                "vmulq.xyz $vf10, $vf10, $Q \n"
+                "vmove.xyzw $vf12, $vf10 \n"
+                :
+                : "r"(stk100), "r"(stk110)
+                : "$vf2", "$vf10", "$vf11", "$vf12", "memory");
+            /* removed spurious qmfc2/pextlb: no retail counterpart */
+            {
+                s32 q = *(s32 *)&tf6;
+                __asm__ volatile(
+                    "qmtc2.ni %0, $vf2 \n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "vadd.xyzw $vf10, $vf10, $vf11 \n"
+                    "sqc2 $vf10, 0(%1) \n"
+                    :
+                    : "r"(q), "r"(D_00713D10)
+                    : "$vf2", "$vf10", "memory");
+                __asm__ volatile(
+                    "sqc2 $vf10, 0(%0) \n"
+                    :
+                    : "r"(D_00713D10)
+                    : "memory");
+                __asm__ volatile(
+                    "sqc2 $vf10, 0(%0) \n"
+                    :
+                    : "r"(D_00713D10)
+                    : "memory");
+            }
+            *(f32 *)(out + 0x30) = *(f32 *)D_00713D10;
+            *(f32 *)(out + 0x34) = *(f32 *)D_00713D14;
+            *(f32 *)(out + 0x38) = *(f32 *)D_00713D18;
+            *(f32 *)(out + 0x24) = *(f32 *)D_00713D10;
+            *(f32 *)(out + 0x28) = *(f32 *)D_00713D14;
+            *(f32 *)(out + 0x2C) = *(f32 *)D_00713D18;
+            *(f32 *)(out + 0x3C) = *(f32 *)D_00713D10;
+            *(f32 *)(out + 0x40) = *(f32 *)D_00713D14;
+            *(f32 *)(out + 0x44) = *(f32 *)D_00713D18;
+            *(f32 *)(out + 0x04) = *(f32 *)(out + 0x28) - tf2;
+            *(f32 *)(out + 0x1C) = *(f32 *)(out + 0x40) + tf2;
+            *(f32 *)(out + 0x28) = *(f32 *)(out + 0x28) - tf3;
+            *(f32 *)(out + 0x40) = *(f32 *)(out + 0x40) + tf3;
+            *(f32 *)(out + 0x00) = *(f32 *)(out + 0x24) + tf1;
+            *(f32 *)(out + 0x08) = *(f32 *)(out + 0x2C);
+            *(f32 *)(out + 0x0C) = *(f32 *)(out + 0x30) + tf1;
+            *(f32 *)(out + 0x10) = *(f32 *)(out + 0x34);
+            *(f32 *)(out + 0x14) = *(f32 *)(out + 0x38);
+            *(f32 *)(out + 0x18) = *(f32 *)(out + 0x3C) + tf1;
+            *(f32 *)(out + 0x20) = *(f32 *)(out + 0x44);
             k++;
-            list += 8;
+            list += 6;
             out += 0x48;
         }
         func_003c22f0(*(u8 **)(cfg + 0x18));
         if ((*(u16 *)tmp16 & 4) != 0) {
             *(u16 *)(*(u8 **)(cfg + 0x18) + 0x0C) |= 1;
         }
-        func_003e9700(*(u8 **)(func_00457120() + 4));
-        func_003e9cb0(*(u8 **)(tmp16 + 0x0C), func_00457120(), 0);
+        {
+            u8 *pC = func_00457120();
+            s32 h = func_003e9700(*(s32 *)(pC + 4));
+            s16 hv = *(s16 *)(tmp18 + 0x90);
+            f32 fv = (f32)hv;
+            func_003e0870(stkC0, stk120, 0, fv);
+            *(f32 *)(stkC0 + 0x30) = *(f32 *)(stkC0 + 0x30) + (320.0f - f24) * (2.0f * *(f32 *)(tmpA + 0) * f22) / 640.0f;
+            *(f32 *)(stkC0 + 0x34) = *(f32 *)(stkC0 + 0x34) + (224.0f - f23) * (2.0f * *(f32 *)(tmpA + 4) * f22) / 448.0f;
+            func_003e05f0(stk80, stkC0, (u8 *)h);
+            func_003e9cb0(*(u8 **)(tmp16 + 0x0C), stk80, 0);
+        }
     }
 }
 #else

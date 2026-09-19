@@ -549,7 +549,7 @@ u8 *func_002ae630(u8 *arg0) {
                 if (*(u8 *)(base + (u32)func_00155280() + col + 0x58) < 9) {
                     if (*(u8 *)(base + (u32)func_00155280() + col + 0x58) == 2) {
                         s8 tdx;
-                        s8 tdy;
+                        u8 tdy;
                         s32 tnx;
                         s32 tny;
                         tdx = D_0063EF40[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2];
@@ -570,7 +570,7 @@ u8 *func_002ae630(u8 *arg0) {
                     case 9:
                     case 10: {
                         s8 tdx;
-                        s8 tdy;
+                        u8 tdy;
                         s32 tnx;
                         s32 tny;
                         tdx = D_0063EEE0[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2];
@@ -588,7 +588,7 @@ u8 *func_002ae630(u8 *arg0) {
                     case 11:
                     case 12: {
                         s8 tdx;
-                        s8 tdy;
+                        u8 tdy;
                         s32 tnx;
                         s32 tny;
                         tdx = D_0063EF00[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2];
@@ -606,7 +606,7 @@ u8 *func_002ae630(u8 *arg0) {
                     case 13:
                     case 14: {
                         s8 tdx;
-                        s8 tdy;
+                        u8 tdy;
                         s32 tnx;
                         s32 tny;
                         tdx = D_0063EF20[*(u8 *)(base + (u32)func_00155280() + col + 0x59) * 2];
