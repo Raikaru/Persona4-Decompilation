@@ -4557,7 +4557,7 @@ loop_44:
             *(s64 *)(t18 + 8) = *(s64 *)(unit30 + 0x58);
             func_00194590(t18, 1);
         }
-        if (*(s16 *)(unit17 + 0xDC) == 0x400) {
+        if (*(u16 *)(unit17 + 0xDC) == 0x400) {
             t19 = (u8 *)func_001d6240(*(u32 *)(iGpffffb3ac + 0xD2C), *(u32 *)(arg0 + 0x30), *(u32 *)(unit19 + 0x30), 1, 0);
             *(t19 + 0) = 0xB;
             *(s64 *)(t19 + 8) = *(s64 *)(unit30 + 0x58);
@@ -4567,7 +4567,7 @@ loop_44:
 loop_42:
         if ((var22 & 0xFFFF) < (s32)*(u8 *)(unit17 + 0xD9)) {
             unit30 = unit17 + ((var22 & 0xFFFF) << 5);
-            t20 = func_00199ee0(*(u8 **)(unit19 + 0x30), (s32)*(u8 *)(unit30 + 0x10C), 0, 0, 1.0f);
+            t20 = func_00199ee0(*(u8 **)(unit19 + 0x30), (s32)*(s8 *)(unit30 + 0x10C), 0, 0, 1.0f);
             pkt = t20;
             *(t20 + 0) = 0xB;
             *(s64 *)(t20 + 8) = *(s64 *)(unit30 + 0x58);
@@ -4579,7 +4579,7 @@ loop_42:
             *(t21 + 0x47) &= (u8)~0x20;
             *(s64 *)(t21 + 0x60) = uid;
             func_00194590(t21, 1);
-            t22 = func_001f36e0((s32)arg0, (s32)unit19, unit30 + 0xF0, *(s16 *)(unit17 + 0xDC), *(s16 *)(unit17 + 0xDE));
+            t22 = func_001f36e0((s32)arg0, (s32)unit19, unit30 + 0xF0, *(u16 *)(unit17 + 0xDC), *(s16 *)(unit17 + 0xDE));
             *(t22 + 0) = 5;
             *(s64 *)(t22 + 8) = *(s64 *)(pkt + 0x58);
             *(s64 *)(t22 + 0x60) = uid;
@@ -4625,7 +4625,7 @@ loop_42:
                     func_00194590(t28, 0);
                 }
             }
-            t29 = func_00201de0(*(s32 *)(arg0 + 0x30), *(s32 *)(unit19 + 0x30), sp100, *(s16 *)(unit17 + 0xDC), *(s16 *)(unit17 + 0xDE), (var22 & 0xFFFF), *(u8 *)(unit17 + 0xD9), *(u8 **)(unit30 + 0xF0), 0);
+            t29 = func_00201de0(*(s32 *)(arg0 + 0x30), *(s32 *)(unit19 + 0x30), sp100, *(u16 *)(unit17 + 0xDC), *(s16 *)(unit17 + 0xDE), (var22 & 0xFFFF), *(u8 *)(unit17 + 0xD9), *(u8 **)(unit30 + 0xF0), 0);
             *(t29 + 0) = 5;
             *(s64 *)(t29 + 8) = *(s64 *)(pkt + 0x58);
             *(t29 + 0x47) &= (u8)~0x20;

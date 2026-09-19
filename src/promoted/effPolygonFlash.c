@@ -2556,7 +2556,7 @@ void func_0049e150(u8 *arg0)
         iVar5 = *(s32 *)(temp_2 + 0x4C);
         if (iVar5 != 0)
         {
-            if (*(s8 *)(temp_2 + 0x84) == 0)
+            if (*(u8 *)(temp_2 + 0x84) == 0)
             {
                 ecVal = 0;
                 e8Val = iVar5;
@@ -2578,7 +2578,7 @@ void func_0049e150(u8 *arg0)
                 iVar20 = (s32)((1.0f - *(f32 *)(temp_2 + 0x44)) * (f32)iVar5);
                 *(s32 *)&spF0 = iVar20;
             }
-            if ((*(s8 *)(temp_2 + 0x55) == 0) || (*(u32 *)(arg0 + 0x34) != 0))
+            if ((*(u8 *)(temp_2 + 0x55) == 0) || (*(u32 *)(arg0 + 0x34) != 0))
             {
                 bVar = 0;
                 iVar17 = *(s32 *)(temp_2 + 0x50);

@@ -424,7 +424,7 @@ s8 func_00312c60(u16 *arg0, u8 *arg1, s32 arg2)
     extern void *(*jtbl_008873E8[])(u32 size, u32 align);
     extern void (*jtbl_008873EC[])(void *ptr);
     extern u8 *iGpffffb3b4;
-    extern u8 D_00641C20[];
+    extern s8 D_00641C20[];
     extern u8 D_00641C40[];
     extern s8 D_00641E60[];
     extern char D_00642F50[];
