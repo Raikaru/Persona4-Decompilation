@@ -99,8 +99,8 @@ extern void func_002019d0(u8 *arg0, f32 arg1, f32 arg2);
 extern s32 func_00243e90(u8 *arg0);
 extern s32 func_001b1540(void);
 extern void func_002142b0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1);
-extern void func_002161d0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1);
-extern void func_00215c10(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1);
+extern void func_002161d0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2);
+extern void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2);
 extern f32 fGpffff84a0;
 extern void func_0021b330(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2);
 extern s32 func_00231f80(s32 arg0);
@@ -1636,7 +1636,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002142b0);
    Section 7m class; not where the next MATCH is. */
 // FUN_00215C10 NONMATCHING
 #ifdef NON_MATCHING
-void func_00215c10(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
+void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
 {
     extern f32 D_007615A4;
     extern f32 D_007615A8;
@@ -1789,7 +1789,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00215c10);
    multiply (19). */
 // FUN_002161D0 NONMATCHING
 #ifdef NON_MATCHING
-void func_002161d0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
+void func_002161d0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
 {
     extern f32 D_007615A4;
     extern f32 D_007615A8;
@@ -2002,8 +2002,8 @@ void func_002167f0(u8 *arg0, u8 *arg1)
             old = *(u8 **)(local + 0x20 + i * 4);
             x = *(f32 *)(local + i * 8);
             y = *(f32 *)(local + 4 + i * 8);
-            if ((*(s32 *)(old + 0xA10) & 0x1C) != 0) func_00215c10(work, old, i & 0xFFFF, x, y);
-            if ((*(s32 *)(old + 0xA10) & 0xE0) != 0) func_002161d0(work, old, i & 0xFFFF, x, y);
+            if ((*(s32 *)(old + 0xA10) & 0x1C) != 0) func_00215c10(work, old, x, y, i & 0xFFFF);
+            if ((*(s32 *)(old + 0xA10) & 0xE0) != 0) func_002161d0(work, old, x, y, i & 0xFFFF);
             i += 1;
         }
         j = 0;
