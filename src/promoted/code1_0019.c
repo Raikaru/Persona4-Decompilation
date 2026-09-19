@@ -3891,9 +3891,9 @@ void func_0019c0d0(void)
                     {
                         u8 *obj = *(u8 **)(entry + 0xA00);
                         if (*(s32 *)(obj + 0xE8) != 0x737FB) {
-                            s32 j;
+                            u32 j;
                             *(s32 *)(obj + 0xE8) = 0x737FB;
-                            for (j = 0; j < 5; j++) {
+                            for (j = 0; j < 5U; j++) {
                                 u8 *objR = *(u8 **)(entry + 0xA00);
                                 u8 *sub = *(u8 **)(objR + (j * 0xC) + 0x290);
                                 if (sub != NULL) {

@@ -235,7 +235,7 @@ void func_004afc80(u8 *arg0, u8 *arg1) {
     *(f32 *)(arg1 + 0x18) = (1.0f - temp_f20_3) + temp_f20_3 * func_004bd0b0(0);
 }
 
-/* measured GUARDED_SCORE 725: retail 792 vs object 796 (+4, +0.5% inside 3% gate), probe 725 words, fnalign 884 edits (+2 reloc-only). Priced casts via micro_codegen (u8->f32 14 vs s32 mask 4, u32 14 vs s32 3, srl+andi long 17 vs sra short 6); kept per-channel unsigned (lbu+bltz) to match retail long. Free pragmas tie (loopinv/unrolloff/schedoff 746, comsuboff 824 worse); subscript byte-offset wins 746->725 (-21), direct ties; colours tie (both 725). Branch order alpha-first 746 wins vs unpack-first 755. Frame -0x1E0 vs -0x1D0 (+16) with extra f25, UV single-base vs 8 separate lui, FPR $f24 vs $f21 and saved-reg perm. Verify 0 MISMATCH (11 MATCH/1 ASM), lint 0 errors. Banked as guarded floor. */
+/* measured GUARDED_SCORE 725: retail 792 vs object 796 (+4, +0.5% inside 3% gate), probe 725 words, fnalign 884 edits (+2 reloc-only). Priced casts via micro_codegen (u8->f32 14 vs s32 mask 4, u32 14 vs s32 3, srl+andi long 17 vs sra short 6); kept per-channel unsigned (lbu+bltz) to match retail long. Free pragmas tie (loopinv/unrolloff/schedoff 746, comsuboff 824 worse); subscript byte-offset wins 746->725 (-21), direct ties; colours tie (both 725). Branch order alpha-first 746 wins vs unpack-first 755. Frame -0x1E0 vs -0x1D0 (+16) with extra f25, UV single-base vs 8 separate lui, FPR $f24 vs $f21 and saved-reg perm. Verify 0 MISMATCH (11 MATCH/1 ASM), lint 0 errors. Banked as guarded floor. Remeasure 2026-09-19: sink t0/t1 into arms worsens 886->930 (+44, 796->813) so retail hoists; keep hoisted. Duplicate ang at uses (recompute *(arg2+0x1C)+8084 for s0/c0b) kills $f25, 886->884 (-2); per-arm packed_copy=packed (early check uses packed, reload after cam/in mode0) kills $s7, 884->666 (-218, frame 0x1E0->0x1D0 match, no spare GPR/FPR). New: retail 792 vs object 798 (+6), words 744, fnalign 666 edits. */
 // FUN_004AFE20 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, s32 arg6, s32 arg7)
@@ -275,7 +275,6 @@ s32 func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *
     f32 out_x[3];
     f32 depth;
     f32 inv;
-    f32 ang;
     f32 s0;
     f32 c0b;
     f32 f8;
@@ -311,8 +310,7 @@ s32 func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *
             : "r"(&cw_stack), "r"(scale), "r"(arg4), "r"(&packed)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
     }
-    packed_copy = packed;
-    if (((u8 *)&packed_copy)[3] == 0) {
+    if (((u8 *)&packed)[3] == 0) {
         return 0;
     }
     func_003f6690(2, &st2);
@@ -338,6 +336,7 @@ s32 func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *
         cam = func_00457120();
         denom = *(u32 *)(*(u8 **)(*(u8 **)(arg0 + 0x5C) + 0x20) + 0x50);
         abyte = (u32)*(s32 *)((u8 *)arg2 + 0x14) >> 24;
+        packed_copy = packed;
         alpha = (255.0f * (f32)abyte) / (f32)denom;
         if (alpha >= 2147483648.0f) {
             ((u8 *)&packed_copy)[3] = (u8)(s32)(alpha - 2147483648.0f);
@@ -363,6 +362,7 @@ s32 func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *
         verts[3*16+10] = 255.0f;
         verts[3*16+11] = (f32)((u8 *)&packed_copy)[3];
     } else if (mode == 0) {
+        packed_copy = packed;
         f23 = (((f32 *)arg5)[0] * t0) / 32.0f;
         f22 = (((f32 *)arg5)[1] * t1) / 32.0f;
         verts[0*16+8] = (f32)((u8 *)&packed_copy)[0];
@@ -413,9 +413,8 @@ s32 func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *
             depth = 0.0f;
         }
         inv = 1.0f / depth;
-        ang = *(f32 *)((u8 *)arg2 + 0x1C) + fGpffff8084;
-        s0 = func_0044b610(ang);
-        c0b = func_0044b7b0(ang);
+        s0 = func_0044b610(*(f32 *)((u8 *)arg2 + 0x1C) + fGpffff8084);
+        c0b = func_0044b7b0(*(f32 *)((u8 *)arg2 + 0x1C) + fGpffff8084);
         f8 = f23 * s0;
         f7 = f22 * s0;
         f6 = f23 * c0b;
