@@ -542,6 +542,37 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7av. Descending compares with ascending bodies means `switch`, not a chain
+
+`func_00288af0` was an if-else chain written in source order 0, 1, 2 and it
+scored **409 fnalign edits** on 268 instructions.  The dispatch in retail
+reads:
+
+    R8   addiu $v0, $zero, 2
+    R9   beq   $a0, $v0, .+42      <- case 2 tested first
+    R12  beq   $a0, $v0, .+37      <- then 1
+    R14  beqz  $a0, .+4            <- then 0
+    R16  b     .+241               <- default
+
+and then the **arm bodies appear in ascending case order**, case 0's
+`D_008821E0` test and `lw 0xc($s2)` immediately after the dispatch.  Compares
+descending, bodies ascending: that is MWCC's switch lowering, and no if-else
+chain reproduces it.
+
+Rewriting as `switch (arg0)` with the cases in ascending source order:
+**409 -> 104 edits**, 273 against 268 (+1.9%, inside).
+
+The diagnostic that makes this cheap to spot: reversing the chain by hand to
+2, 1, 0 gets **part** of the way - 167 edits - because it fixes the compare
+order but leaves the bodies in the wrong place.  **If reversing a chain helps
+but does not close, the construct is a switch.**
+
+Note it is not universal.  `func_00467bd0` has a five-way chain whose retail
+compares also run 4, 3, 2, 1, 0, and there the `switch` spelling is *worse*
+(382 against the chain's 368) - because its arm bodies are laid out in the
+chain's order, not ascending.  Read where the bodies go, not just the
+compares.
+
 ### 7at. `tools/regsave_scan.py`: read the prologue before testing anything
 
 The scanner compares the callee-saved set a guarded body allocates against

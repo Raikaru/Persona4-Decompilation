@@ -2560,7 +2560,769 @@ s32 func_00343cf0(u8 *arg0) {
 // v5 aggregate-removal alone (2026-09-19): v4->v5 retail 2190/object 2038->2038 (+0, still 152 short, 6.9%, outside band 2126-2258; predicted +162 via 50x lwc1 reappearing did NOT materialize), frame -0x6D0->-0x410 (1744->1040, -704, still +64 over retail -0x3D0=976; added 920 vs 864 target +56), words 1911->1911 (+0), edits 997->1009 (+12), jal 104/0 exact, 0 bltz; exact: python3 tools/fnalign.py src/promoted/y_CmbCardEff.c func_00345700 --candidate /tmp/cmb45700_v5.c --quiet + python3 tools/probe_variants.py src/promoted/y_CmbCardEff.c func_00345700 --candidate v5=/tmp/cmb45700_v5.c; residual 49 pure deletes (max 14 at retail[211:225] 0x00345A4C-0x00345A84, e.g. retail[198:202] 0x00345A18-0x00345A28, retail[302:306] 0x00345BB8-0x00345BC8), 1 real insert + tail, no large hole/lump (>=25); production stays INCLUDE_ASM (short, do not bank).
 // storage shape, not arithmetic: retail spills each func_002b2970 scratch result to a low stack slot as it goes (e.g. 0x2D8->0x188, 0x2E0->0x190, 50 sites of 8-byte lwc1/lwc1/swc1/swc1 with varying indices, sequential distinct), where v4/v5 keep one big buffer (Cmb43Work + twork, +768 frame); retail uses a rolling pair of small slots and copies out -- fix is storage shape (smaller slots + per-result copies, +162 to 2200) not conversions (all fourteen genuinely signed, 0 changed).
 // FUN_00345700
+#ifdef NON_MATCHING
+s32 func_00345700(u8 *arg0) {
+    u8 *ret;
+    u8 *table;
+    u8 *table6;
+    u8 *slot;
+    u8 *slot2;
+    u8 *obj;
+    Cmb43Work work;
+    u8 twork[0x400];
+    s16 state;
+    s8 i0;
+    s8 i6;
+    s8 i8;
+    s8 i9;
+    s8 i10;
+    s32 index;
+    s32 index2;
+    f32 fvalue;
+    s32 tmpI;
+    obj = *(u8 **)(arg0 + 0x38);
+    if (*(s8 *)(obj + 0xC) != 0 || *(s8 *)(obj + 0x90) != 0 || *(s8 *)(obj + 0x114) != 0 || *(s8 *)(obj + 0x198) != 0 || *(s8 *)(obj + 0x21C) != 0 || *(s8 *)(obj + 0x2A0) != 0 || *(s8 *)(obj + 0x324) != 0 || *(s8 *)(obj + 0x3A8) != 0 || *(s8 *)(obj + 0x42C) != 0 || *(s8 *)(obj + 0x4B0) != 0 || *(s8 *)(obj + 0x534) != 0 || *(s8 *)(obj + 0x5B8) != 0) {
+        return 0;
+    }
+    if (func_00106330(0x58) != 0) {
+        *(u8 *)(obj + 0x6B8) = 1;
+        i0 = 0;
+        while (i0 < 12) {
+            func_002b2a60(work.bytes + 0x178,
+                          0xFF, 0xFF, 0xFF, 0U);
+            *(CmbRGBA *)(work.bytes + 0x134) =
+                *(CmbRGBA *)(work.bytes + 0x178);
+            func_002b2a60(work.bytes + 0x17C,
+                          0xFF, 0xFF, 0xFF, 0xFFU);
+            *(CmbRGBA *)(work.bytes + 0x138) =
+                *(CmbRGBA *)(work.bytes + 0x17C);
+            slot = *(u8 **)(arg0 + 0x38);
+            slot += (s32)i0 * 0x84;
+            *(CmbRGBA *)(slot + 0x84) =
+                *(CmbRGBA *)(work.bytes + 0x138);
+            *(CmbRGBA *)(slot + 0x7C) =
+                *(CmbRGBA *)(slot + 0x84);
+            *(CmbRGBA *)(slot + 0x80) =
+                *(CmbRGBA *)(work.bytes + 0x134);
+            *(s16 *)(slot + 0x88) = 0;
+            *(s16 *)(slot + 0x8A) = 0;
+            *(s8 *)(slot + 0xC) |= 4;
+            table = obj + (s32)i0 * 4;
+            ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+            *(s32 *)(ret + 0x11C) &= 0xFFFD;
+            i0++;
+        }
+        if (func_00285b30() >= 0x208 &&
+            func_00285b30() < 0x348) {
+            func_00106390(0x1450, 1);
+        }
+        return 0;
+    }
+    state = *(s16 *)(obj + 0x63C);
+    switch (state) {
+    case 0:
+        if (func_00285b30() >= 0x50) {
+        func_002b2970((s64*)&twork[0xf8], 0x141, 70.0f);
+        func_002b2970((s64*)&twork[0xf0], 326.0f, 224.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(f32 *)(slot + 0x20) = (*(f32*)&twork[0xf0]);
+        *(f32 *)(slot + 0x24) = (*(f32*)&twork[0xec]);
+        *(f32 *)(slot + 0x10) = *(f32 *)(slot + 0x20);
+        *(f32 *)(slot + 0x14) = *(f32 *)(slot + 0x24);
+        *(f32 *)(slot + 0x18) = (*(f32*)&twork[0xf8]);
+        *(f32 *)(slot + 0x1c) = (*(f32*)&twork[0xf4]);
+        *(s16 *)(slot + 0x2a) = 0;
+        *(s16 *)(slot + 0x28) = 8;
+        *(s8 *)(slot + 0xc) = *(s8 *)(slot + 0xc) | 1;
+        func_002b2a60(&twork[0x10],0xff,0xff,0xff,0xff);
+        (twork[0x88]) = (twork[0x10]);
+        (twork[0x87]) = (twork[0xf]);
+        (twork[0x86]) = (twork[0xe]);
+        (twork[0x85]) = (twork[0xd]);
+        func_002b2a60(&twork[0xc],0xff,0xff,0xff,0);
+        (twork[0x84]) = (twork[0xc]);
+        (twork[0x83]) = (twork[0xb]);
+        (twork[0x82]) = (twork[0xa]);
+        (twork[0x81]) = (twork[0x9]);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(u8 *)(slot + 0x84) = (twork[0xc]);
+        *(u8 *)(slot + 0x85) = (twork[0xb]);
+        *(u8 *)(slot + 0x86) = (twork[0xa]);
+        *(u8 *)(slot + 0x87) = (twork[0x9]);
+        *(u8 *)(slot + 0x7c) = *(u8 *)(slot + 0x84);
+        *(u8 *)(slot + 0x7d) = *(u8 *)(slot + 0x85);
+        *(u8 *)(slot + 0x7e) = *(u8 *)(slot + 0x86);
+        *(u8 *)(slot + 0x7f) = *(u8 *)(slot + 0x87);
+        *(u8 *)(slot + 0x80) = (twork[0x88]);
+        *(u8 *)(slot + 0x81) = (twork[0x87]);
+        *(u8 *)(slot + 0x82) = (twork[0x86]);
+        *(u8 *)(slot + 0x83) = (twork[0x85]);
+        *(s16 *)(slot + 0x88) = 0;
+        *(s16 *)(slot + 0x8a) = 8;
+        *(s8 *)(slot + 0xc) = *(s8 *)(slot + 0xc) | 4;
+        func_002b2970((s64*)&twork[0x108], 0x141, 70.0f);
+        func_002b2970((s64*)&twork[0x100], 326.0f, 224.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(f32 *)(slot + 0xa4) = (*(f32*)&twork[0x100]);
+        *(f32 *)(slot + 0xa8) = (*(f32*)&twork[0xfc]);
+        *(f32 *)(slot + 0x94) = *(f32 *)(slot + 0xa4);
+        *(f32 *)(slot + 0x98) = *(f32 *)(slot + 0xa8);
+        *(f32 *)(slot + 0x9c) = (*(f32*)&twork[0x108]);
+        *(f32 *)(slot + 0xa0) = (*(f32*)&twork[0x104]);
+        *(s16 *)(slot + 0xae) = 0;
+        *(s16 *)(slot + 0xac) = 8;
+        *(s8 *)(slot + 0x90) = *(s8 *)(slot + 0x90) | 1;
+        func_002b2a60(&twork[0x18],0xff,0xff,0xff,0xff);
+        (twork[0x90]) = (twork[0x18]);
+        (twork[0x8f]) = (twork[0x17]);
+        (twork[0x8e]) = (twork[0x16]);
+        (twork[0x8d]) = (twork[0x15]);
+        func_002b2a60(&twork[0x14],0xff,0xff,0xff,0);
+        (twork[0x8c]) = (twork[0x14]);
+        (twork[0x8b]) = (twork[0x13]);
+        (twork[0x8a]) = (twork[0x12]);
+        (twork[0x89]) = (twork[0x11]);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(u8 *)(slot + 0x108) = (twork[0x14]);
+        *(u8 *)(slot + 0x109) = (twork[0x13]);
+        *(u8 *)(slot + 0x10a) = (twork[0x12]);
+        *(u8 *)(slot + 0x10b) = (twork[0x11]);
+        *(u8 *)(slot + 0x100) = *(u8 *)(slot + 0x108);
+        *(u8 *)(slot + 0x101) = *(u8 *)(slot + 0x109);
+        *(u8 *)(slot + 0x102) = *(u8 *)(slot + 0x10a);
+        *(u8 *)(slot + 0x103) = *(u8 *)(slot + 0x10b);
+        *(u8 *)(slot + 0x104) = (twork[0x90]);
+        *(u8 *)(slot + 0x105) = (twork[0x8f]);
+        *(u8 *)(slot + 0x106) = (twork[0x8e]);
+        *(u8 *)(slot + 0x107) = (twork[0x8d]);
+        *(s16 *)(slot + 0x10c) = 0;
+        *(s16 *)(slot + 0x10e) = 8;
+        *(s8 *)(slot + 0x90) = *(s8 *)(slot + 0x90) | 4;
+        func_002b2970((s64*)&twork[0x110], 250.0f, 95.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        table = *(s8 *)(slot + 0xec) * 0xc + slot;
+        *(f32 *)(table + 0xb0) = (*(f32*)&twork[0x110]);
+        *(f32 *)(table + 0xb4) = (*(f32*)&twork[0x10c]);
+        *(s16 *)(table + 0xb8) = 5;
+        *(s8 *)(slot + 0x90) = *(s8 *)(slot + 0x90) | 8;
+        tmpI = func_002b2cb0(*(s8 *)(slot + 0xec),1,5,0,1);
+        *(s8 *)(slot + 0xec) = tmpI;
+        func_002b2970((s64*)&twork[0x120], 0x141, 70.0f);
+        func_002b2970((s64*)&twork[0x118], 326.0f, 224.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(f32 *)(slot + 0x128) = (*(f32*)&twork[0x118]);
+        *(f32 *)(slot + 0x12C) = (*(f32*)&twork[0x114]);
+        *(f32 *)(slot + 0x118) = *(f32 *)(slot + 0x128);
+        *(s32 *)(slot + 0x11c) = *(f32 *)(slot + 0x12C);
+        *(f32 *)(slot + 0x120) = (*(f32*)&twork[0x120]);
+        *(f32 *)(slot + 0x124) = (*(f32*)&twork[0x11c]);
+        *(s16 *)(slot + 0x132) = 0;
+        *(s16 *)(slot + 0x130) = 8;
+        *(s8 *)(slot + 0x114) = *(s8 *)(slot + 0x114) | 1;
+        func_002b2a60(&twork[0x20],0xff,0xff,0xff,0xff);
+        (twork[0x98]) = (twork[0x20]);
+        (twork[0x97]) = (twork[0x1f]);
+        (twork[0x96]) = (twork[0x1e]);
+        (twork[0x95]) = (twork[0x1d]);
+        func_002b2a60(&twork[0x1c],0xff,0xff,0xff,0);
+        (twork[0x94]) = (twork[0x1c]);
+        (twork[0x93]) = (twork[0x1b]);
+        (twork[0x92]) = (twork[0x1a]);
+        (twork[0x91]) = (twork[0x19]);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(u8 *)(slot + 0x18c) = (twork[0x1c]);
+        *(u8 *)(slot + 0x18d) = (twork[0x1b]);
+        *(u8 *)(slot + 0x18e) = (twork[0x1a]);
+        *(u8 *)(slot + 0x18F) = (twork[0x19]);
+        *(u8 *)(slot + 0x184) = *(u8 *)(slot + 0x18c);
+        *(u8 *)(slot + 0x185) = *(u8 *)(slot + 0x18d);
+        *(u8 *)(slot + 0x186) = *(u8 *)(slot + 0x18e);
+        *(u8 *)(slot + 0x187) = *(u8 *)(slot + 0x18F);
+        *(u8 *)(slot + 0x188) = (twork[0x98]);
+        *(u8 *)(slot + 0x189) = (twork[0x97]);
+        *(u8 *)(slot + 0x18a) = (twork[0x96]);
+        *(u8 *)(slot + 0x18b) = (twork[0x95]);
+        *(s16 *)(slot + 0x190) = 0;
+        *(s16 *)(slot + 0x192) = 8;
+        *(s8 *)(slot + 0x114) = *(s8 *)(slot + 0x114) | 4;
+        func_002b2970((s64*)&twork[0x128], 250.0f, 95.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        table = *(s8 *)(slot + 0x170) * 0xc + slot;
+        *(f32 *)(table + 0x134) = (*(f32*)&twork[0x128]);
+        *(f32 *)(table + 0x138) = (*(f32*)&twork[0x124]);
+        *(s16 *)(table + 0x13c) = 5;
+        *(s8 *)(slot + 0x114) = *(s8 *)(slot + 0x114) | 8;
+        tmpI = func_002b2cb0(*(s8 *)(slot + 0x170),1,5,0,1);
+        *(s8 *)(slot + 0x170) = tmpI;
+        func_002b2970((s64*)&twork[0x130], 175.0f, 141.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        table = *(s8 *)(slot + 0x170) * 0xc + slot;
+        *(f32 *)(table + 0x134) = (*(f32*)&twork[0x130]);
+        *(f32 *)(table + 0x138) = (*(f32*)&twork[0x12c]);
+        *(s16 *)(table + 0x13c) = 5;
+        *(s8 *)(slot + 0x114) = *(s8 *)(slot + 0x114) | 8;
+        tmpI = func_002b2cb0(*(s8 *)(slot + 0x170),1,5,0,1);
+        *(s8 *)(slot + 0x170) = tmpI;
+        func_002b2970((s64*)&twork[0x140], 156.0f, 232.0f);
+        func_002b2970((s64*)&twork[0x138], 326.0f, 224.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(f32 *)(slot + 0x1ac) = (*(f32*)&twork[0x138]);
+        *(f32 *)(slot + 0x1b0) = (*(f32*)&twork[0x134]);
+        *(f32 *)(slot + 0x19c) = *(f32 *)(slot + 0x1ac);
+        *(f32 *)(slot + 0x1a0) = *(f32 *)(slot + 0x1b0);
+        *(f32 *)(slot + 0x1a4) = (*(f32*)&twork[0x140]);
+        *(f32 *)(slot + 0x1a8) = (*(f32*)&twork[0x13c]);
+        *(s16 *)(slot + 0x1b6) = 0;
+        *(s16 *)(slot + 0x1b4) = 8;
+        *(s8 *)(slot + 0x198) = *(s8 *)(slot + 0x198) | 1;
+        func_002b2a60(&twork[0x28],0xff,0xff,0xff,0xff);
+        (twork[0xa0]) = (twork[0x28]);
+        (twork[0x9f]) = (twork[0x27]);
+        (twork[0x9e]) = (twork[0x26]);
+        (twork[0x9d]) = (twork[0x25]);
+        func_002b2a60(&twork[0x24],0xff,0xff,0xff,0);
+        (twork[0x9c]) = (twork[0x24]);
+        (twork[0x9b]) = (twork[0x23]);
+        (twork[0x9a]) = (twork[0x22]);
+        (twork[0x99]) = (twork[0x21]);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(u8 *)(slot + 0x210) = (twork[0x24]);
+        *(u8 *)(slot + 0x211) = (twork[0x23]);
+        *(u8 *)(slot + 0x212) = (twork[0x22]);
+        *(u8 *)(slot + 0x213) = (twork[0x21]);
+        *(u8 *)(slot + 0x208) = *(u8 *)(slot + 0x210);
+        *(u8 *)(slot + 0x209) = *(u8 *)(slot + 0x211);
+        *(u8 *)(slot + 0x20a) = *(u8 *)(slot + 0x212);
+        *(u8 *)(slot + 0x20b) = *(u8 *)(slot + 0x213);
+        *(u8 *)(slot + 0x20c) = (twork[0xa0]);
+        *(u8 *)(slot + 0x20d) = (twork[0x9f]);
+        *(u8 *)(slot + 0x20e) = (twork[0x9e]);
+        *(u8 *)(slot + 0x20f) = (twork[0x9d]);
+        *(s16 *)(slot + 0x214) = 0;
+        *(s16 *)(slot + 0x216) = 8;
+        *(s8 *)(slot + 0x198) = *(s8 *)(slot + 0x198) | 4;
+        func_002b2970((s64*)&twork[0x150], 156.0f, 232.0f);
+        func_002b2970((s64*)&twork[0x148], 326.0f, 224.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(f32 *)(slot + 0x230) = (*(f32*)&twork[0x148]);
+        *(f32 *)(slot + 0x234) = (*(f32*)&twork[0x144]);
+        *(f32 *)(slot + 0x220) = *(f32 *)(slot + 0x230);
+        *(f32 *)(slot + 0x224) = *(f32 *)(slot + 0x234);
+        *(f32 *)(slot + 0x228) = (*(f32*)&twork[0x150]);
+        *(f32 *)(slot + 0x22c) = (*(f32*)&twork[0x14c]);
+        *(s16 *)(slot + 0x23a) = 0;
+        *(s16 *)(slot + 0x238) = 8;
+        *(s8 *)(slot + 0x21c) = *(s8 *)(slot + 0x21c) | 1;
+        func_002b2a60(&twork[0x30],0xff,0xff,0xff,0xff);
+        (twork[0xa8]) = (twork[0x30]);
+        (twork[0xa7]) = (twork[0x2f]);
+        (twork[0xa6]) = (twork[0x2e]);
+        (twork[0xa5]) = (twork[0x2d]);
+        func_002b2a60(&twork[0x2c],0xff,0xff,0xff,0);
+        (twork[0xa4]) = (twork[0x2c]);
+        (twork[0xa3]) = (twork[0x2b]);
+        (twork[0xa2]) = (twork[0x2a]);
+        (twork[0xa1]) = (twork[0x29]);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(u8 *)(slot + 0x294) = (twork[0x2c]);
+        *(u8 *)(slot + 0x295) = (twork[0x2b]);
+        *(u8 *)(slot + 0x296) = (twork[0x2a]);
+        *(u8 *)(slot + 0x297) = (twork[0x29]);
+        *(u8 *)(slot + 0x28c) = *(u8 *)(slot + 0x294);
+        *(u8 *)(slot + 0x28d) = *(u8 *)(slot + 0x295);
+        *(u8 *)(slot + 0x28e) = *(u8 *)(slot + 0x296);
+        *(u8 *)(slot + 0x28f) = *(u8 *)(slot + 0x297);
+        *(u8 *)(slot + 0x290) = (twork[0xa8]);
+        *(u8 *)(slot + 0x291) = (twork[0xa7]);
+        *(u8 *)(slot + 0x292) = (twork[0xa6]);
+        *(u8 *)(slot + 0x293) = (twork[0xa5]);
+        *(s16 *)(slot + 0x298) = 0;
+        *(s16 *)(slot + 0x29a) = 8;
+        *(s8 *)(slot + 0x21c) = *(s8 *)(slot + 0x21c) | 4;
+        func_002b2970((s64*)&twork[0x158], 180.0f, 322.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        table = *(s8 *)(slot + 0x278) * 0xc + slot;
+        *(f32 *)(table + 0x23c) = (*(f32*)&twork[0x158]);
+        *(f32 *)(table + 0x240) = (*(f32*)&twork[0x154]);
+        *(s16 *)(table + 0x244) = 5;
+        *(s8 *)(slot + 0x21c) = *(s8 *)(slot + 0x21c) | 8;
+        tmpI = func_002b2cb0(*(s8 *)(slot + 0x278),1,5,0,1);
+        *(s8 *)(slot + 0x278) = tmpI;
+        func_002b2970((s64*)&twork[0x168], 156.0f, 232.0f);
+        func_002b2970((s64*)&twork[0x160], 326.0f, 224.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(f32 *)(slot + 0x2b4) = (*(f32*)&twork[0x160]);
+        *(f32 *)(slot + 0x2b8) = (*(f32*)&twork[0x15c]);
+        *(f32 *)(slot + 0x2a4) = *(f32 *)(slot + 0x2b4);
+        *(f32 *)(slot + 0x2a8) = *(f32 *)(slot + 0x2b8);
+        *(f32 *)(slot + 0x2ac) = (*(f32*)&twork[0x168]);
+        *(f32 *)(slot + 0x2b0) = (*(f32*)&twork[0x164]);
+        *(s16 *)(slot + 0x2be) = 0;
+        *(s16 *)(slot + 0x2BC) = 8;
+        *(s8 *)(slot + 0x2a0) = *(s8 *)(slot + 0x2a0) | 1;
+        func_002b2a60(&twork[0x38],0xff,0xff,0xff,0xff);
+        (twork[0xb0]) = (twork[0x38]);
+        (twork[0xaf]) = (twork[0x37]);
+        (twork[0xae]) = (twork[0x36]);
+        (twork[0xad]) = (twork[0x35]);
+        func_002b2a60(&twork[0x34],0xff,0xff,0xff,0);
+        (twork[0xac]) = (twork[0x34]);
+        (twork[0xab]) = (twork[0x33]);
+        (twork[0xaa]) = (twork[0x32]);
+        (twork[0xa9]) = (twork[0x31]);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(u8 *)(slot + 0x318) = (twork[0x34]);
+        *(u8 *)(slot + 0x319) = (twork[0x33]);
+        *(u8 *)(slot + 0x31a) = (twork[0x32]);
+        *(u8 *)(slot + 0x31b) = (twork[0x31]);
+        *(u8 *)(slot + 0x310) = *(u8 *)(slot + 0x318);
+        *(u8 *)(slot + 0x311) = *(u8 *)(slot + 0x319);
+        *(u8 *)(slot + 0x312) = *(u8 *)(slot + 0x31a);
+        *(u8 *)(slot + 0x313) = *(u8 *)(slot + 0x31b);
+        *(u8 *)(slot + 0x314) = (twork[0xb0]);
+        *(u8 *)(slot + 0x315) = (twork[0xaf]);
+        *(u8 *)(slot + 0x316) = (twork[0xae]);
+        *(u8 *)(slot + 0x317) = (twork[0xad]);
+        *(s16 *)(slot + 0x31c) = 0;
+        *(s16 *)(slot + 0x31e) = 8;
+        *(s8 *)(slot + 0x2a0) = *(s8 *)(slot + 0x2a0) | 4;
+        func_002b2970((s64*)&twork[0x170], 180.0f, 322.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        table = *(s8 *)(slot + 0x2fc) * 0xc + slot;
+        *(f32 *)(table + 0x2c0) = (*(f32*)&twork[0x170]);
+        *(f32 *)(table + 0x2c4) = (*(f32*)&twork[0x16c]);
+        *(s16 *)(table + 0x2c8) = 5;
+        *(s8 *)(slot + 0x2a0) = *(s8 *)(slot + 0x2a0) | 8;
+        tmpI = func_002b2cb0(*(s8 *)(slot + 0x2fc),1,5,0,1);
+        *(s8 *)(slot + 0x2fc) = tmpI;
+        func_002b2970((s64*)&twork[0x178], 250.0f, 0x16B);
+        slot = *(u8 **)(arg0 + 0x38);
+        table = *(s8 *)(slot + 0x2fc) * 0xc + slot;
+        *(f32 *)(table + 0x2c0) = (*(f32*)&twork[0x178]);
+        *(f32 *)(table + 0x2c4) = (*(f32*)&twork[0x174]);
+        *(s16 *)(table + 0x2c8) = 5;
+        *(s8 *)(slot + 0x2a0) = *(s8 *)(slot + 0x2a0) | 8;
+        tmpI = func_002b2cb0(*(s8 *)(slot + 0x2fc),1,5,0,1);
+        *(s8 *)(slot + 0x2fc) = tmpI;
+        func_002b2970((s64*)&twork[0x188], 0x141, 388.0f);
+        func_002b2970((s64*)&twork[0x180], 326.0f, 224.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(f32 *)(slot + 0x338) = (*(f32*)&twork[0x180]);
+        *(f32 *)(slot + 0x33c) = (*(f32*)&twork[0x17c]);
+        *(f32 *)(slot + 0x328) = *(f32 *)(slot + 0x338);
+        *(f32 *)(slot + 0x32c) = *(f32 *)(slot + 0x33c);
+        *(f32 *)(slot + 0x330) = (*(f32*)&twork[0x188]);
+        *(f32 *)(slot + 0x334) = (*(f32*)&twork[0x184]);
+        *(s16 *)(slot + 0x342) = 0;
+        *(s16 *)(slot + 0x340) = 8;
+        *(s8 *)(slot + 0x324) = *(s8 *)(slot + 0x324) | 1;
+        func_002b2a60(&twork[0x40],0xff,0xff,0xff,0xff);
+        (twork[0xb8]) = (twork[0x40]);
+        (twork[0xb7]) = (twork[0x3f]);
+        (twork[0xb6]) = (twork[0x3e]);
+        (twork[0xb5]) = (twork[0x3d]);
+        func_002b2a60(&twork[0x3c],0xff,0xff,0xff,0);
+        (twork[0xb4]) = (twork[0x3c]);
+        (twork[0xb3]) = (twork[0x3b]);
+        (twork[0xb2]) = (twork[0x3a]);
+        (twork[0xb1]) = (twork[0x39]);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(u8 *)(slot + 0x39c) = (twork[0x3c]);
+        *(u8 *)(slot + 0x39d) = (twork[0x3b]);
+        *(u8 *)(slot + 0x39e) = (twork[0x3a]);
+        *(u8 *)(slot + 0x39f) = (twork[0x39]);
+        *(u8 *)(slot + 0x394) = *(u8 *)(slot + 0x39c);
+        *(u8 *)(slot + 0x395) = *(u8 *)(slot + 0x39d);
+        *(u8 *)(slot + 0x396) = *(u8 *)(slot + 0x39e);
+        *(u8 *)(slot + 0x397) = *(u8 *)(slot + 0x39f);
+        *(u8 *)(slot + 0x398) = (twork[0xb8]);
+        *(u8 *)(slot + 0x399) = (twork[0xb7]);
+        *(u8 *)(slot + 0x39a) = (twork[0xb6]);
+        *(u8 *)(slot + 0x39b) = (twork[0xb5]);
+        *(s16 *)(slot + 0x3a0) = 0;
+        *(s16 *)(slot + 0x3a2) = 8;
+        *(s8 *)(slot + 0x324) = *(s8 *)(slot + 0x324) | 4;
+        func_002b2970((s64*)&twork[0x198], 0x141, 388.0f);
+        func_002b2970((s64*)&twork[0x190], 326.0f, 224.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(f32 *)(slot + 0x3bc) = (*(f32*)&twork[0x190]);
+        *(f32 *)(slot + 0x3c0) = (*(f32*)&twork[0x18c]);
+        *(f32 *)(slot + 0x3ac) = *(f32 *)(slot + 0x3bc);
+        *(f32 *)(slot + 0x3b0) = *(f32 *)(slot + 0x3c0);
+        *(f32 *)(slot + 0x3b4) = (*(f32*)&twork[0x198]);
+        *(f32 *)(slot + 0x3b8) = (*(f32*)&twork[0x194]);
+        *(s16 *)(slot + 0x3c6) = 0;
+        *(s16 *)(slot + 0x3c4) = 8;
+        *(s8 *)(slot + 0x3a8) = *(s8 *)(slot + 0x3a8) | 1;
+        func_002b2a60(&twork[0x48],0xff,0xff,0xff,0xff);
+        (twork[0xc0]) = (twork[0x48]);
+        (twork[0xbf]) = (twork[0x47]);
+        (twork[0xbe]) = (twork[0x46]);
+        (twork[0xbd]) = (twork[0x45]);
+        func_002b2a60(&twork[0x44],0xff,0xff,0xff,0);
+        (twork[0xbc]) = (twork[0x44]);
+        (twork[0xbb]) = (twork[0x43]);
+        (twork[0xba]) = (twork[0x42]);
+        (twork[0xb9]) = (twork[0x41]);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(u8 *)(slot + 0x420) = (twork[0x44]);
+        *(u8 *)(slot + 0x421) = (twork[0x43]);
+        *(u8 *)(slot + 0x422) = (twork[0x42]);
+        *(u8 *)(slot + 0x423) = (twork[0x41]);
+        *(u8 *)(slot + 0x418) = *(u8 *)(slot + 0x420);
+        *(u8 *)(slot + 0x419) = *(u8 *)(slot + 0x421);
+        *(u8 *)(slot + 0x41a) = *(u8 *)(slot + 0x422);
+        *(u8 *)(slot + 0x41b) = *(u8 *)(slot + 0x423);
+        *(u8 *)(slot + 0x41c) = (twork[0xc0]);
+        *(u8 *)(slot + 0x41d) = (twork[0xbf]);
+        *(u8 *)(slot + 0x41e) = (twork[0xbe]);
+        *(u8 *)(slot + 0x41f) = (twork[0xbd]);
+        *(s16 *)(slot + 0x424) = 0;
+        *(s16 *)(slot + 0x426) = 8;
+        *(s8 *)(slot + 0x3a8) = *(s8 *)(slot + 0x3a8) | 4;
+        func_002b2970((s64*)&twork[0x1a0], 0x187, 0x16B);
+        slot = *(u8 **)(arg0 + 0x38);
+        table = *(s8 *)(slot + 0x404) * 0xc + slot;
+        *(f32 *)(table + 0x3c8) = (*(f32*)&twork[0x1a0]);
+        *(f32 *)(table + 0x3cc) = (*(f32*)&twork[0x19c]);
+        *(s16 *)(table + 0x3d0) = 5;
+        *(s8 *)(slot + 0x3a8) = *(s8 *)(slot + 0x3a8) | 8;
+        tmpI = func_002b2cb0(*(s8 *)(slot + 0x404),1,5,0,1);
+        *(s8 *)(slot + 0x404) = tmpI;
+        func_002b2970((s64*)&twork[0x1b0], 0x141, 388.0f);
+        func_002b2970((s64*)&twork[0x1a8], 326.0f, 224.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(f32 *)(slot + 0x440) = (*(f32*)&twork[0x1a8]);
+        *(f32 *)(slot + 0x444) = (*(f32*)&twork[0x1a4]);
+        *(f32 *)(slot + 0x430) = *(f32 *)(slot + 0x440);
+        *(f32 *)(slot + 0x434) = *(f32 *)(slot + 0x444);
+        *(f32 *)(slot + 0x438) = (*(f32*)&twork[0x1b0]);
+        *(f32 *)(slot + 0x43c) = (*(f32*)&twork[0x1ac]);
+        *(s16 *)(slot + 0x44a) = 0;
+        *(s16 *)(slot + 0x448) = 8;
+        *(s8 *)(slot + 0x42c) = *(s8 *)(slot + 0x42c) | 1;
+        func_002b2a60(&twork[0x50],0xff,0xff,0xff,0xff);
+        (twork[0xc8]) = (twork[0x50]);
+        (twork[0xc7]) = (twork[0x4f]);
+        (twork[0xc6]) = (twork[0x4e]);
+        (twork[0xc5]) = (twork[0x4d]);
+        func_002b2a60(&twork[0x4c],0xff,0xff,0xff,0);
+        (twork[0xc4]) = (twork[0x4c]);
+        (twork[0xc3]) = (twork[0x4b]);
+        (twork[0xc2]) = (twork[0x4a]);
+        (twork[0xc1]) = (twork[0x49]);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(u8 *)(slot + 0x4a4) = (twork[0x4c]);
+        *(u8 *)(slot + 0x4a5) = (twork[0x4b]);
+        *(u8 *)(slot + 0x4a6) = (twork[0x4a]);
+        *(u8 *)(slot + 0x4a7) = (twork[0x49]);
+        *(u8 *)(slot + 0x49c) = *(u8 *)(slot + 0x4a4);
+        *(u8 *)(slot + 0x49d) = *(u8 *)(slot + 0x4a5);
+        *(u8 *)(slot + 0x49e) = *(u8 *)(slot + 0x4a6);
+        *(u8 *)(slot + 0x49f) = *(u8 *)(slot + 0x4a7);
+        *(u8 *)(slot + 0x4a0) = (twork[0xc8]);
+        *(u8 *)(slot + 0x4a1) = (twork[0xc7]);
+        *(u8 *)(slot + 0x4a2) = (twork[0xc6]);
+        *(u8 *)(slot + 0x4a3) = (twork[0xc5]);
+        *(s16 *)(slot + 0x4a8) = 0;
+        *(s16 *)(slot + 0x4aa) = 8;
+        *(s8 *)(slot + 0x42c) = *(s8 *)(slot + 0x42c) | 4;
+        func_002b2970((s64*)&twork[0x1b8], 0x187, 0x16B);
+        slot = *(u8 **)(arg0 + 0x38);
+        table = *(s8 *)(slot + 0x488) * 0xc + slot;
+        *(f32 *)(table + 0x44c) = (*(f32*)&twork[0x1b8]);
+        *(f32 *)(table + 0x450) = (*(f32*)&twork[0x1b4]);
+        *(s16 *)(table + 0x454) = 5;
+        *(s8 *)(slot + 0x42c) = *(s8 *)(slot + 0x42c) | 8;
+        tmpI = func_002b2cb0(*(s8 *)(slot + 0x488),1,5,0,1);
+        *(s8 *)(slot + 0x488) = tmpI;
+        func_002b2970((s64*)&twork[0x1c0], 458.0f, 322.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        table = *(s8 *)(slot + 0x488) * 0xc + slot;
+        *(f32 *)(table + 0x44c) = (*(f32*)&twork[0x1c0]);
+        *(f32 *)(table + 0x450) = (*(f32*)&twork[0x1bc]);
+        *(s16 *)(table + 0x454) = 5;
+        *(s8 *)(slot + 0x42c) = *(s8 *)(slot + 0x42c) | 8;
+        tmpI = func_002b2cb0(*(s8 *)(slot + 0x488),1,5,0,1);
+        *(s8 *)(slot + 0x488) = tmpI;
+        func_002b2970((s64*)&twork[0x1d0], 482.0f, 232.0f);
+        func_002b2970((s64*)&twork[0x1c8], 326.0f, 224.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(f32 *)(slot + 0x4c4) = (*(f32*)&twork[0x1c8]);
+        *(f32 *)(slot + 0x4c8) = (*(f32*)&twork[0x1c4]);
+        *(f32 *)(slot + 0x4b4) = *(f32 *)(slot + 0x4c4);
+        *(f32 *)(slot + 0x4b8) = *(f32 *)(slot + 0x4c8);
+        *(f32 *)(slot + 0x4bc) = (*(f32*)&twork[0x1d0]);
+        *(f32 *)(slot + 0x4c0) = (*(f32*)&twork[0x1cc]);
+        *(s16 *)(slot + 0x4ce) = 0;
+        *(s16 *)(slot + 0x4cc) = 8;
+        *(s8 *)(slot + 0x4b0) = *(s8 *)(slot + 0x4b0) | 1;
+        func_002b2a60(&twork[0x58],0xff,0xff,0xff,0xff);
+        (twork[0xd0]) = (twork[0x58]);
+        (twork[0xcf]) = (twork[0x57]);
+        (twork[0xce]) = (twork[0x56]);
+        (twork[0xcd]) = (twork[0x55]);
+        func_002b2a60(&twork[0x54],0xff,0xff,0xff,0);
+        (twork[0xcc]) = (twork[0x54]);
+        (twork[0xcb]) = (twork[0x53]);
+        (twork[0xca]) = (twork[0x52]);
+        (twork[0xc9]) = (twork[0x51]);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(u8 *)(slot + 0x528) = (twork[0x54]);
+        *(u8 *)(slot + 0x529) = (twork[0x53]);
+        *(u8 *)(slot + 0x52a) = (twork[0x52]);
+        *(u8 *)(slot + 0x52b) = (twork[0x51]);
+        *(u8 *)(slot + 0x520) = *(u8 *)(slot + 0x528);
+        *(u8 *)(slot + 0x521) = *(u8 *)(slot + 0x529);
+        *(u8 *)(slot + 0x522) = *(u8 *)(slot + 0x52a);
+        *(u8 *)(slot + 0x523) = *(u8 *)(slot + 0x52b);
+        *(u8 *)(slot + 0x524) = (twork[0xd0]);
+        *(u8 *)(slot + 0x525) = (twork[0xcf]);
+        *(u8 *)(slot + 0x526) = (twork[0xce]);
+        *(u8 *)(slot + 0x527) = (twork[0xcd]);
+        *(s16 *)(slot + 0x52c) = 0;
+        *(s16 *)(slot + 0x52e) = 8;
+        *(s8 *)(slot + 0x4b0) = *(s8 *)(slot + 0x4b0) | 4;
+        func_002b2970((s64*)&twork[0x1e0], 482.0f, 232.0f);
+        func_002b2970((s64*)&twork[0x1d8], 326.0f, 224.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(f32 *)(slot + 0x548) = (*(f32*)&twork[0x1d8]);
+        *(f32 *)(slot + 0x54c) = (*(f32*)&twork[0x1d4]);
+        *(f32 *)(slot + 0x538) = *(f32 *)(slot + 0x548);
+        *(f32 *)(slot + 0x53c) = *(f32 *)(slot + 0x54c);
+        *(f32 *)(slot + 0x540) = (*(f32*)&twork[0x1e0]);
+        *(f32 *)(slot + 0x544) = (*(f32*)&twork[0x1dc]);
+        *(s16 *)(slot + 0x552) = 0;
+        *(s16 *)(slot + 0x550) = 8;
+        *(s8 *)(slot + 0x534) = *(s8 *)(slot + 0x534) | 1;
+        func_002b2a60(&twork[0x60],0xff,0xff,0xff,0xff);
+        (twork[0xd8]) = (twork[0x60]);
+        (twork[0xd7]) = (twork[0x5f]);
+        (twork[0xd6]) = (twork[0x5e]);
+        (twork[0xd5]) = (twork[0x5d]);
+        func_002b2a60(&twork[0x5c],0xff,0xff,0xff,0);
+        (twork[0xd4]) = (twork[0x5c]);
+        (twork[0xd3]) = (twork[0x5b]);
+        (twork[0xd2]) = (twork[0x5a]);
+        (twork[0xd1]) = (twork[0x59]);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(u8 *)(slot + 0x5ac) = (twork[0x5c]);
+        *(u8 *)(slot + 0x5ad) = (twork[0x5b]);
+        *(u8 *)(slot + 0x5ae) = (twork[0x5a]);
+        *(u8 *)(slot + 0x5af) = (twork[0x59]);
+        *(u8 *)(slot + 0x5a4) = *(u8 *)(slot + 0x5ac);
+        *(u8 *)(slot + 0x5a5) = *(u8 *)(slot + 0x5ad);
+        *(u8 *)(slot + 0x5a6) = *(u8 *)(slot + 0x5ae);
+        *(u8 *)(slot + 0x5a7) = *(u8 *)(slot + 0x5af);
+        *(u8 *)(slot + 0x5a8) = (twork[0xd8]);
+        *(u8 *)(slot + 0x5a9) = (twork[0xd7]);
+        *(u8 *)(slot + 0x5aa) = (twork[0xd6]);
+        *(u8 *)(slot + 0x5ab) = (twork[0xd5]);
+        *(s16 *)(slot + 0x5b0) = 0;
+        *(s16 *)(slot + 0x5b2) = 8;
+        *(s8 *)(slot + 0x534) = *(s8 *)(slot + 0x534) | 4;
+        func_002b2970((s64*)&twork[0x1e8], 462.0f, 141.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        table = *(s8 *)(slot + 0x590) * 0xc + slot;
+        *(f32 *)(table + 0x554) = (*(f32*)&twork[0x1e8]);
+        *(f32 *)(table + 0x558) = (*(f32*)&twork[0x1e4]);
+        *(s16 *)(table + 0x55c) = 5;
+        *(s8 *)(slot + 0x534) = *(s8 *)(slot + 0x534) | 8;
+        tmpI = func_002b2cb0(*(s8 *)(slot + 0x590),1,5,0,1);
+        *(s8 *)(slot + 0x590) = tmpI;
+        func_002b2970((s64*)&twork[0x1f8], 482.0f, 232.0f);
+        func_002b2970((s64*)&twork[0x1f0], 326.0f, 224.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(f32 *)(slot + 0x5cc) = (*(f32*)&twork[0x1f0]);
+        *(f32 *)(slot + 0x5d0) = (*(f32*)&twork[0x1ec]);
+        *(f32 *)(slot + 0x5bc) = *(f32 *)(slot + 0x5cc);
+        *(f32 *)(slot + 0x5c0) = *(f32 *)(slot + 0x5d0);
+        *(f32 *)(slot + 0x5c4) = (*(f32*)&twork[0x1f8]);
+        *(f32 *)(slot + 0x5c8) = (*(f32*)&twork[0x1f4]);
+        *(s16 *)(slot + 0x5d6) = 0;
+        *(s16 *)(slot + 0x5d4) = 8;
+        *(s8 *)(slot + 0x5b8) = *(s8 *)(slot + 0x5b8) | 1;
+        func_002b2a60(&twork[0x68],0xff,0xff,0xff,0xff);
+        (twork[0xe0]) = (twork[0x68]);
+        (twork[0xdf]) = (twork[0x67]);
+        (twork[0xde]) = (twork[0x66]);
+        (twork[0xdd]) = (twork[0x65]);
+        func_002b2a60(&twork[0x64],0xff,0xff,0xff,0);
+        (twork[0xdc]) = (twork[0x64]);
+        (twork[0xdb]) = (twork[0x63]);
+        (twork[0xda]) = (twork[0x62]);
+        (twork[0xd9]) = (twork[0x61]);
+        slot = *(u8 **)(arg0 + 0x38);
+        *(u8 *)(slot + 0x630) = (twork[0x64]);
+        *(u8 *)(slot + 0x631) = (twork[0x63]);
+        *(u8 *)(slot + 0x632) = (twork[0x62]);
+        *(u8 *)(slot + 0x633) = (twork[0x61]);
+        *(u8 *)(slot + 0x628) = *(u8 *)(slot + 0x630);
+        *(u8 *)(slot + 0x629) = *(u8 *)(slot + 0x631);
+        *(u8 *)(slot + 0x62a) = *(u8 *)(slot + 0x632);
+        *(u8 *)(slot + 0x62b) = *(u8 *)(slot + 0x633);
+        *(u8 *)(slot + 0x62c) = (twork[0xe0]);
+        *(u8 *)(slot + 0x62d) = (twork[0xdf]);
+        *(u8 *)(slot + 0x62e) = (twork[0xde]);
+        *(u8 *)(slot + 0x62f) = (twork[0xdd]);
+        *(s16 *)(slot + 0x634) = 0;
+        *(s16 *)(slot + 0x636) = 8;
+        *(s8 *)(slot + 0x5b8) = *(s8 *)(slot + 0x5b8) | 4;
+        func_002b2970((s64*)&twork[0x200], 462.0f, 141.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        table = *(s8 *)(slot + 0x614) * 0xc + slot;
+        *(f32 *)(table + 0x5d8) = (*(f32*)&twork[0x200]);
+        *(f32 *)(table + 0x5dc) = (*(f32*)&twork[0x1fc]);
+        *(s16 *)(table + 0x5e0) = 5;
+        *(s8 *)(slot + 0x5b8) = *(s8 *)(slot + 0x5b8) | 8;
+        tmpI = func_002b2cb0(*(s8 *)(slot + 0x614),1,5,0,1);
+        *(s8 *)(slot + 0x614) = tmpI;
+        func_002b2970((s64*)&twork[0x208], 0x187, 95.0f);
+        slot = *(u8 **)(arg0 + 0x38);
+        table = *(s8 *)(slot + 0x614) * 0xc + slot;
+        *(f32 *)(table + 0x5d8) = (*(f32*)&twork[0x208]);
+        *(f32 *)(table + 0x5dc) = (*(f32*)&twork[0x204]);
+        *(s16 *)(table + 0x5e0) = 5;
+        *(s8 *)(slot + 0x5b8) = *(s8 *)(slot + 0x5b8) | 8;
+        tmpI = func_002b2cb0(*(s8 *)(slot + 0x614),1,5,0,1);
+        *(s8 *)(slot + 0x614) = tmpI;
+            *(s16 *)(obj + 0x63C) = 6;
+        }
+        break;
+    case 6:
+        if (func_00285b30() >= 0x73) {
+            i6 = 0;
+            while (i6 < 12) {
+                slot = *(u8 **)(arg0 + 0x38);
+                slot += (s32)i6 * 0x84;
+                *(s32 *)(slot + 0x74) = 0;
+                *(s32 *)(slot + 0x6C) = 0;
+                *(s32 *)(slot + 0x70) = (s32)0xC3340000;
+                *(s16 *)(slot + 0x78) = 0;
+                *(s16 *)(slot + 0x7A) = 3;
+                *(s8 *)(slot + 0xC) |= 2;
+                table6 = obj + (s32)i6 * 4;
+                slot2 = obj + (s32)i6 * 0x84;
+                table = table6 + 0x658;
+                fvalue = *(f32 *)(slot2 + 0x20) + 12.0f;
+                ret = (u8 *)func_00348290(*(u8 **)table);
+                *(f32 *)(ret + 0x134) = fvalue;
+                fvalue = *(f32 *)(slot2 + 0x24);
+                ret = (u8 *)func_00348290(*(u8 **)table);
+                *(f32 *)(ret + 0x138) = fvalue;
+                func_003482a0(*(u8 **)table, 0, 0x80, 0x32);
+                ret = (u8 *)func_00348290(*(u8 **)table);
+                *(f32 *)(ret + 0x1A0) = iGpffff8508;
+                i6++;
+            }
+            *(s16 *)(obj + 0x63C) = 7;
+        }
+        break;
+    case 7:
+        func_0045aeb0(2, D_0064A5B0);
+        func_002b29a0(work.bytes + 0x10, 0.0f, -5.0f, 30.0f);
+        func_002b2a60(work.bytes + 0x144,
+                      0xFF, 0xFF, 0xFF, 0xFFU);
+        func_002b29a0(work.bytes + 0x20, 35.0f, 5.0f, 30.0f);
+        func_002b2a60(work.bytes + 0x148,
+                      0xFF, 0xFF, 0xFF, 0xFFU);
+        func_00348a90(*(u8 **)(obj + 0x64C),
+                      (CmbVec3f *)(work.bytes + 0x10),
+                      *(CmbRGBA *)(work.bytes + 0x144), 0, 0x28,
+                      (CmbVec3f *)(work.bytes + 0x20),
+                      *(CmbRGBA *)(work.bytes + 0x148),
+                      0.0f, 0.0f, 0.0f, iGpffff850c,
+                      0.0f, 0.0f, 31.5f, iGpffff850c);
+        *(s16 *)(obj + 0x63C) = 8;
+        /* fallthrough */
+    case 8:
+        if (func_00452490(*(s32 *)(obj + 0x64C)) != 1) {
+            i8 = 0;
+            while (i8 < 12) {
+                table = obj + (s32)i8 * 4;
+                ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+                *(s32 *)(ret + 0x11C) |= 2;
+                i8++;
+            }
+            *(s16 *)(obj + 0x63C) = 9;
+        }
+        break;
+    case 9:
+        if (func_00285b30() >= 0x1EA) {
+            i9 = 0;
+            while (i9 < 12) {
+                func_002b2970((s64 *)(work.bytes + 0x8), 323.0f, 217.0f);
+                *(CmbVec2f *)&work.f70 =
+                    *(CmbVec2f *)(work.bytes + 0x8);
+                slot = *(u8 **)(arg0 + 0x38);
+                slot += (s32)i9 * 0x84;
+                table = obj + (s32)i9 * 0x84;
+                *(CmbVec2f *)(slot + 0x20) =
+                    *(CmbVec2f *)(table + 0x20);
+                *(CmbVec2f *)(slot + 0x10) =
+                    *(CmbVec2f *)(slot + 0x20);
+                *(CmbVec2f *)(slot + 0x18) =
+                    *(CmbVec2f *)&work.f70;
+                *(s16 *)(slot + 0x2A) = 0;
+                *(s16 *)(slot + 0x28) = 3;
+                *(s8 *)(slot + 0xC) |= 1;
+                table = obj + (s32)i9 * 4;
+                slot2 = table + 0x658;
+                ret = (u8 *)func_00348290(*(u8 **)slot2);
+                func_002b2970((s64 *)(work.bytes + 0x0), 339.0f, 217.0f);
+                func_003482d0(*(u8 **)slot2,
+                              *(CmbVec2f *)(ret + 0x134),
+                              *(CmbVec2f *)(work.bytes + 0x0), 3);
+                i9++;
+            }
+            *(s16 *)(obj + 0x63C) = 10;
+        }
+        break;
+    case 10:
+        *(u8 *)(obj + 0x6B8) = 1;
+        i10 = 0;
+        while (i10 < 12) {
+            func_002b2a60(work.bytes + 0x13C,
+                          0xFF, 0xFF, 0xFF, 0U);
+            *(CmbRGBA *)(work.bytes + 0xFC) =
+                *(CmbRGBA *)(work.bytes + 0x13C);
+            func_002b2a60(work.bytes + 0x140,
+                          0xFF, 0xFF, 0xFF, 0xFFU);
+            *(CmbRGBA *)(work.bytes + 0x100) =
+                *(CmbRGBA *)(work.bytes + 0x140);
+            slot = *(u8 **)(arg0 + 0x38);
+            slot += (s32)i10 * 0x84;
+            *(CmbRGBA *)(slot + 0x84) =
+                *(CmbRGBA *)(work.bytes + 0x100);
+            *(CmbRGBA *)(slot + 0x7C) =
+                *(CmbRGBA *)(slot + 0x84);
+            *(CmbRGBA *)(slot + 0x80) =
+                *(CmbRGBA *)(work.bytes + 0xFC);
+            *(s16 *)(slot + 0x88) = 0;
+            *(s16 *)(slot + 0x8A) = 0;
+            *(s8 *)(slot + 0xC) |= 4;
+            table = obj + (s32)i10 * 4;
+            ret = (u8 *)func_00348290(*(u8 **)(table + 0x658));
+            *(s32 *)(ret + 0x11C) &= 0xFFFD;
+            i10++;
+        }
+        *(s16 *)(obj + 0x63C) = 11;
+        break;
+    case 11:
+        if (func_00285b30() >= 0x208 &&
+            func_00285b30() < 0x348) {
+            func_00106390(0x1450, 1);
+        }
+        break;
+    case 12:
+        *(s8 *)obj += 1;
+        break;
+    }
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_00345700);
+#endif
 
 // FUN_00347940
 void func_00347940(u8 *arg0) {
