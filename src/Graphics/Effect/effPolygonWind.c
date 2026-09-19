@@ -121,6 +121,16 @@ u8 *func_004a21e0(u8 *arg0)
 /* not the missing VU block, so the pragma is non-comparable liability. Restored loopinv. */
 /* Singles+28 pairs banked 563, best dead 547 rejected. Sibling emu 552w/830e/636 and */
 /* emu+dead 545w/851e/655 also rejected (counts outside gate). Floor stands; stays ASM. */
+/* 2026-09-19 assignment (honest f28-f31 attempt, no pragma): delete dead div1, */
+/* collapse div2=d2 copy to ang+=d2 (single name for one value), reorder per-iter */
+/* setup to retail def order ang,acc0,d1,scl,e18v/e24,d2. floor_distance stays */
+/* 825e/580w 589/607 (inside 589-625 gate), frame 0x130 vs 0x170 missing */
+/* $f28/$f29/$f30/$f31. No spill inflation (unlike rejected dead_off prologue */
+/* swc1 $f28/$f29); p2c+fA4 reuse tried 825->823 but pushed object 589->588 */
+/* outside gate so reverted. $f31=scl still dead (VU normalize omitted, 55-hole */
+/* 360:415 byte-identical); $f30=fA4 single-use after inner loop. Next is VU */
+/* scale use for scl, not another pragma. Commands: floor_distance */
+/* src/Graphics/Effect/effPolygonWind.c, regsave_scan ... func_004a2310. */
 // FUN_004A2310 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push

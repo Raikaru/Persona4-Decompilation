@@ -125,7 +125,8 @@ void func_001fc5e0(s32 *arg0) {
 // pragma is silently ignored; node-in-$4 is structurally unreachable.
 // Same-TU-callee-knowledge floor; nd ~468.
 // measured: see floor note above; nd recorded there.
-// measured: first C reconstruction (m2c de-noised, file idiom: D_0072449C list walk + mode dispatch 2/1/0 + V4 copies + (u32)b>>1/(s32)-first/h+h byte idiom); retail 512 object 512 (exact, 0.0% in 3% gate) edit 531 via `python3 tools/fnalign.py src/promoted/btlEPL.c func_001fc630 --candidate /var/tmp/cold1fc630/cand_v1.c`; probe 477 via `python3 tools/probe_variants.py src/promoted/btlEPL.c func_001fc630 --candidate v1=/var/tmp/cold1fc630/cand_v1.c`; decl-order v2-v4 neutral (477/477/477); residual is Same-TU-callee-knowledge floor (node in $4, 0x100 vs 0xF0, f21) + mula/madd FP-scheduling floor as predicted (nd ~468).
+// measured: first C reconstruction (m2c de-noised, file idiom: D_0072449C list walk + mode dispatch 2/1/0 + V4 copies + (u32)b>>1/(s32)-first/h+h byte idiom); retail 512 object 512
+// 2026-09-19 hoisted-vs-interleaved confirmation on func_001fc630 (same lever as func_001fd790): block_move_scan object[190:290]@0x001fc91c shape nopx19/lwc1x9/mtc1x9/swc1x8/cvt.s.wx8; scoping each s32 b load with its convert takes fnalign 525->446 (-79) and guarded 471->473wd (+2 neutral); pattern confirmed, banked. (exact, 0.0% in 3% gate) edit 531 via `python3 tools/fnalign.py src/promoted/btlEPL.c func_001fc630 --candidate /var/tmp/cold1fc630/cand_v1.c`; probe 477 via `python3 tools/probe_variants.py src/promoted/btlEPL.c func_001fc630 --candidate v1=/var/tmp/cold1fc630/cand_v1.c`; decl-order v2-v4 neutral (477/477/477); residual is Same-TU-callee-knowledge floor (node in $4, 0x100 vs 0xF0, f21) + mula/madd FP-scheduling floor as predicted (nd ~468).
 // FUN_001FC630 NONMATCHING
 #ifdef NON_MATCHING
 void func_001fc630(u8 *arg0)
@@ -249,13 +250,9 @@ void func_001fc630(u8 *arg0)
                             *(V4 *)(node + 0x60) = *(V4 *)(node + 0x70);
                         }
                         {
-                            s32 b0 = D_00764C54[0];
-                            s32 b1 = D_00764C54[1];
-                            s32 b2 = D_00764C54[2];
-                            s32 b3 = D_00764C54[3];
-                            f32 h0; f32 h1; f32 h2; f32 h3;
                             f32 s0f; f32 s1f; f32 s2f; f32 s3f;
                             f32 t0; f32 t1; f32 t2;
+                            { s32 b0 = D_00764C54[0]; f32 h0;
                             if (b0 >= 0) {
                                 h0 = (f32)(s32)b0;
                             } else {
@@ -263,7 +260,8 @@ void func_001fc630(u8 *arg0)
                                 h0 = (f32)(s32)t;
                                 h0 = h0 + h0;
                             }
-                            s0f = D_0076129C * h0;
+                            s0f = D_0076129C * h0; }
+                            { s32 b1 = D_00764C54[1]; f32 h1;
                             if (b1 >= 0) {
                                 h1 = (f32)(s32)b1;
                             } else {
@@ -271,7 +269,8 @@ void func_001fc630(u8 *arg0)
                                 h1 = (f32)(s32)t;
                                 h1 = h1 + h1;
                             }
-                            s1f = D_0076129C * h1;
+                            s1f = D_0076129C * h1; }
+                            { s32 b2 = D_00764C54[2]; f32 h2;
                             if (b2 >= 0) {
                                 h2 = (f32)(s32)b2;
                             } else {
@@ -279,7 +278,8 @@ void func_001fc630(u8 *arg0)
                                 h2 = (f32)(s32)t;
                                 h2 = h2 + h2;
                             }
-                            s2f = D_0076129C * h2;
+                            s2f = D_0076129C * h2; }
+                            { s32 b3 = D_00764C54[3]; f32 h3;
                             if (b3 >= 0) {
                                 h3 = (f32)(s32)b3;
                             } else {
@@ -287,7 +287,7 @@ void func_001fc630(u8 *arg0)
                                 h3 = (f32)(s32)t;
                                 h3 = h3 + h3;
                             }
-                            s3f = D_0076129C * h3;
+                            s3f = D_0076129C * h3; }
                             t0 = ((f32 *)(node + 0x60))[0] * scale;
                             t1 = ((f32 *)(node + 0x60))[1] * scale;
                             t2 = ((f32 *)(node + 0x60))[2] * scale;
@@ -303,13 +303,9 @@ void func_001fc630(u8 *arg0)
                         }
                         *(s32 *)spEC = *(s32 *)(param + 0x14);
                         {
-                            s32 b0 = spEC[0];
-                            s32 b1 = spEC[1];
-                            s32 b2 = spEC[2];
-                            s32 b3 = spEC[3];
-                            f32 h0; f32 h1; f32 h2; f32 h3;
                             f32 s0f; f32 s1f; f32 s2f; f32 s3f;
                             f32 t0; f32 t1; f32 t2;
+                            { s32 b0 = spEC[0]; f32 h0;
                             if (b0 >= 0) {
                                 h0 = (f32)(s32)b0;
                             } else {
@@ -317,7 +313,8 @@ void func_001fc630(u8 *arg0)
                                 h0 = (f32)(s32)t;
                                 h0 = h0 + h0;
                             }
-                            s0f = D_0076129C * h0;
+                            s0f = D_0076129C * h0; }
+                            { s32 b1 = spEC[1]; f32 h1;
                             if (b1 >= 0) {
                                 h1 = (f32)(s32)b1;
                             } else {
@@ -325,7 +322,8 @@ void func_001fc630(u8 *arg0)
                                 h1 = (f32)(s32)t;
                                 h1 = h1 + h1;
                             }
-                            s1f = D_0076129C * h1;
+                            s1f = D_0076129C * h1; }
+                            { s32 b2 = spEC[2]; f32 h2;
                             if (b2 >= 0) {
                                 h2 = (f32)(s32)b2;
                             } else {
@@ -333,7 +331,8 @@ void func_001fc630(u8 *arg0)
                                 h2 = (f32)(s32)t;
                                 h2 = h2 + h2;
                             }
-                            s2f = D_0076129C * h2;
+                            s2f = D_0076129C * h2; }
+                            { s32 b3 = spEC[3]; f32 h3;
                             if (b3 >= 0) {
                                 h3 = (f32)(s32)b3;
                             } else {
@@ -341,7 +340,7 @@ void func_001fc630(u8 *arg0)
                                 h3 = (f32)(s32)t;
                                 h3 = h3 + h3;
                             }
-                            s3f = D_0076129C * h3;
+                            s3f = D_0076129C * h3; }
                             t0 = ((f32 *)(node + 0x60))[0] * inv;
                             t1 = ((f32 *)(node + 0x60))[1] * inv;
                             t2 = ((f32 *)(node + 0x60))[2] * inv;
