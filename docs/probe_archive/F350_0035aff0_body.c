@@ -1,3 +1,4 @@
+/* repaired 2026-09-18: compiled clean against current tree (no stale signatures; removed 3 redundant function-local externs now at file scope: func_0044b7b0, D_0064CC98, func_0046d730; probe 449w tie). Fresh re-measure matches header: probe 449w, fnalign retail 692 vs object 646 (-46, -6.6%), 194 edits (+8 reloc-only), frame 0xB10. Disagreements quoted, not copied: task states 696 instrs vs fnalign 692 (window 2784B=696 words; 4-word diff already noted in header), task 317 lines vs file 316 (wc -l 316). Installed as // FUN_0035AFF0 NONMATCHING guarded floor in src/promoted/code1_0035.c (231-line body, production stays ASM). Bounded post-install: pragma_sweep singles best 446 (opt_dead_assignments off) but object 641 instrs (-51) and 225 edits (worse) -- REJECTED as shrinking false win per opclass trap; pairs no better than 446; 7n counter-split 449 tie (keep shared i/j); decl vtx/i swap 449 tie (keep order). opclass: nop -9, daddiu -6, mtc1/cvt -6, lui +5 (folding, not width; no dsll32). residual_signature: 194 edits, mask 1, class 1, perm 4. verify src/promoted/code1_0035.c 74 MATCH/6 ASM, lint 0, -DNON_MATCHING compiles. */
 /* Target: func_0035aff0
    Owner: src/promoted/code1_0035.c
    Retail address/window: 0x0035aff0, 2784B window (692 instrs via fnalign; task states 696)
@@ -92,11 +93,8 @@ f32 func_0035aff0(u8 *arg0, s32 arg1)
     extern void func_003f6440(s32 arg0, s32 arg1);
     extern void func_00489f80(void);
     extern void func_0048a000(void);
-    extern f32 func_0044b7b0(f32 arg0);
     extern f32 func_0044b610(f32 arg0);
     extern f32 func_0035bd20(Float2 first, Float2 second, Float2 origin);
-    extern u8 D_0064CC98[];
-    extern void func_0046d730(const void *module, u32 line);
     extern f32 fGpffff81e0;
     extern f32 fGpffff82fc;
     typedef struct {

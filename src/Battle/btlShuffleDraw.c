@@ -1283,29 +1283,37 @@ void func_00376880(u8 **arg0) {
 /* 0x15-loop tails and final 52-word replace), not a single deleted block. */
 /* Archive header claims no score (only "rejected after scoped mismatch"), */
 /* so no disagreement. Production stays ASM. */
-/* 2026-09-18 second pass, seven-cause sweep; still refused, still ASM.
-   Retail: 1044 instructions, 4176B window, frame -0xF50 (3920B), 28 `jal`
-   plus 3 `jalr` through D_00887300[0] = 31 calls.  The best faithful
-   candidate reaches 3544B with frame -0xDA0, so it is 432B (108 words)
-   short, worse than the earlier 180B/45-word attempt.
-   Excluded by count, not by assertion: all 31 calls present (28+3 both
-   sides); every loop bound matches retail's `slti` immediates; all three
-   outer switch arms and all inner arms present; the 4+4+2 per-lane bodies
-   are separate, not collapsed.
-   Located: retail spends 95 stack spills where the candidate has 70
-   explicit `f32` locals, and 25 of those keep their temporary in an $f
-   register instead of round-tripping through the stack - 25 pairs of
-   `swc1`/`lwc1` is 50 instructions, which is where the shortfall lives.
-   Declaring more locals does not produce them: reversing the stack
-   declarations re-measured byte-identical at 3544B, because the frame is
-   usage-driven.  Retail's spills are register-pressure spills, so the fix
-   is to raise live-float pressure across the inner lane - four temporaries
-   live across each `swc1`/`lwc1` pair - not to add declarations.
-   Two smaller corrections to make first, both nd-only: the `!= 6` early
-   return is written as an if/tail instead of a direct return, and
-   D_00887300's base should be hoisted into a saved register as
-   func_00374d20 does rather than re-materialised per call.
-   Full working notes at /var/tmp/cold3768e0b/NOTE.md. */
+/* 2026-09-18, two passes.  Refused, still ASM.  Read the numbers carefully -
+   the first pass's note conflated two different gaps and named a mechanism
+   that a census then disproved, so this replaces it.
+   Retail: 1042 trimmed instructions (1044 in the 4176B window), frame -0xF50,
+   28 `jal` plus 3 `jalr` through D_00887300[0] = 31 calls.  The best faithful
+   candidate is 45 instructions short (997), which is -4.3% and outside the
+   gate; an earlier fuller attempt was 158 short.  The often-quoted "432B" is
+   the FRAME difference (3920 against 3488), not the code gap - keep the two
+   apart.
+   Structure is complete and that is measured, not assumed: 13 case labels
+   covering the outer 2/1/0 plus default and every inner arm, all 31 calls on
+   both sides, and no large `delete` run - the biggest are four of length 19,
+   nothing like the 200-instruction hole that turned out to be a missing
+   `case 7` in func_00263cb0.  So pragmas are not the story here.
+   The mechanism is per-lane reloads, NOT missing spills.  A census says
+   `swc1` is 150 on both sides - exactly equal - so no spill pair is missing,
+   because a missing pair would move stores too.  The deficit is `lwc1` -24,
+   `nop` -17 and `mfc1` -6, which is 41 of the 45.  Those 24 loads localise to
+   four retail-only blocks of length 19 at candidate indices 343, 401, 459 and
+   517 (retail 0x376E3C, 0x376F24, 0x37700C, 0x3770F4) - four lanes with about
+   six missing loads each - plus one secondary block of length 12.  The
+   candidate stores each lane value once and then carries it in a register
+   where retail reloads it per lane.
+   Next pass: print those four spans against the aligned object code and add
+   the per-lane reloads as array reads, two variants, before anything else.
+   Then audit the six `mfc1` sites.  Only after the reloads land should the
+   `cvt`/`dsll32` width noise be cleaned up, because it currently offsets the
+   shortfall.  The earlier "raise live-float pressure" theory is unmeasured
+   and the census argues against it.
+   Working notes: /var/tmp/cold3768e0b/NOTE.md and the census script at
+   /var/tmp/cold263cb0b/census768e0.py. */
 // FUN_003768E0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003768e0);
 

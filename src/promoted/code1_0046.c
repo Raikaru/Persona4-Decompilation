@@ -2080,6 +2080,28 @@ s32 func_00468fa0(u8 *arg0) {
     return 0;
 }
 
+/* Shortfall -88 SHORT, not banked: retail 1032 vs object 944 (band 1001-1063).
+ * Candidate at /var/tmp/cold468ff0/cand_base_honest.c (honest 2-arg (s32,u8*) + D_00712Cxx/D_007130xx/D_008872F8 array + comsubs-off shape;
+ * fnalign at /var/tmp/cold468ff0/fnalign_honest.txt; pragma/subscript/colour variants alongside).
+ * Delete-side audit, all measured not assumed:
+ * - jal counts equal (50 direct + 24 jalr; per-callee 1:1/3:3/2:2 etc. -> excluded, 0 missing calls).
+ * - 12-entry jtbl_007566F0 switch cases match (0,2,3/4/5,6,7,8,9,10,11 with 1->default; explicit case 0/4/5 added) -> excluded.
+ * - unsigned (f32)(u32): 2 sites as plain (f32)(u32) (retail add.s, not 2.0f*mul) -> excluded, 0 cost.
+ * - dsll32/dsra32 0x10: retail 22 s16 pairs kept as s16 (0x1EA/0x1EE/loop counters) -> excluded.
+ * - field-by-field vs aggregate: 0x100/0x104/0x108 + 0x10C colour stores match retail sw/swc1 counts -> excluded.
+ * - defensive C: no extra null checks beyond retail beqz (all match) -> excluded, 0 extra.
+ * Found shortfall (delete-side): frame retail 0x100 vs object 0xE0 (-32, excluded as smaller not bloat) +
+ *   switch-3 lowering drift (largest net replaces, not deletes) + per-block scheduling drift (largest deletes:
+ *   [577:579] len2, [607:610] len3, [757:759] len2, [776:777] len1; no single large delete).
+ * - absolute-value idiom (~28) and 2.0f* multiply (~12) checked first per brief: body already uses plain
+ *   (f32)(u32) + add.s and D_008872F8[0] absolute, so 0 overshoot there (object is SHORT, not long).
+ * Free pragma probes on honest base (one call): opt_loop_invariants on 929->918 (-11), opt_unroll_loops off tie,
+ *   schedule off tie, opt_common_subs off 929->863 (-66, kept).
+ * Subscript probes tie (P[i] vs ((s32*)P)[i*10] 863->863; store subscript 863->863).
+ * Register colouring 2 probes tie (decl-order swaps 892->892,892->892).
+ * Honesty fixes regress but are faithful: dead switch-2 (863) -> explicit if/switch (892/893, +29/+30) and
+ *   missing switch-3 cases 4/5 added (892->898, +6); dead omitted 0x1C0/0x04/0x05 arms so must keep honest.
+ * Stopping: above 60, subscript tie + colour tie = two consecutive non-improving -> stop. */
 // FUN_00468FF0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00468ff0);
 // FUN_0046A020
