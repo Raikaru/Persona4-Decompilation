@@ -3574,6 +3574,20 @@ s32 func_00242800(u8 *arg0, s32 arg1)
    `((u8 *)iGpffffb3c4)[idx * 0x3C + 0x38]`, and the four permutations of
    those.  This is commutative-operand selection inside the code generator,
    not an expression the source can reach. */
+/* measured 2026-09-19: object 813 instrs against retail 813, exact, and
+   **one differing word** - the closest non-matching first-party function in
+   the tree.  The single difference is at 0x00242CEC: retail emits
+   `addu $v0, $v1, $v0` and b210 emits `addu $v0, $v0, $v1`, adding the
+   `$gp`-loaded base at -0x4c3c to the index both sides compute identically
+   with `sll`/`subu`/`sll` at 211-213.
+   Eight spellings measured, all tying at 1: base-first, the constant 0x38
+   written first, the product hoisted into a `u32` temp, both operands cast to
+   `u32`, the array-subscript form `((u8 *)(off + base))[0x38]`, and the
+   parenthesisations either way.  A liveness reshape that hoists the offset
+   above the branch regresses to 25.  Three other sites in this function have
+   the identical address shape and all emit base-first, so no source spelling
+   can select a different orientation for this one.  See
+   docs/compiler-floors.md; treat as a compiler floor, not a defect. */
 // FUN_00242990 NONMATCHING
 #ifdef SKIP_ASM
 #pragma opt_loop_invariants on
