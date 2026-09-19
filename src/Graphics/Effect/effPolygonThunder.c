@@ -1376,6 +1376,17 @@ void func_004976d0(u8 *arg0)
 
 
 /* measured: fresh simple-cast ported from 495160 with 0x499/0x49A, *0x0C+4, odd-ensure, stride 0x0C, tail +4 single. Transferable lever: write `(f32)(u32)x` and let b210 emit block itself. SU 1216 fail vs UU-fixed 1308/1280 passes. */
+/* measured 00497750 (owner, 2026-09-19): 327/320 with 278 fnalign edits and one missing
+   float save, `$f20`, which `regsave_scan` confirms is live across the call at R90.
+   Retail holds the fade ratio there, initialised **before the outer loop** with
+   `mtc1 $zero, $f20` at R81 - that is `fade = 0.0f` in the source - and then written by
+   the two divisions at R145 and R184, the `mov.s` at R190, and read at R202, R230, R258.
+   Three spellings measured, all exactly 278: inlining the three `(f32)bN * fade`
+   multiplications so they stop sharing the `f0` temporary; initialising `fade = 0.0f`
+   before the outer loop as retail does; and both together.  MWCC deletes the initial
+   store because every path assigns `fade` before reading it, so the body cannot give the
+   value the lifetime retail gives it from this shape.  Whatever keeps it alive in retail
+   is outside this loop - look for a use of the ratio after the loop ends. */
 // FUN_00497750 NONMATCHING
 #ifdef NON_MATCHING
 u8 *func_00497750(u8 *arg0)
