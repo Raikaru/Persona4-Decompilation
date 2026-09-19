@@ -1354,6 +1354,18 @@ void func_00376880(u8 **arg0) {
    Left: six mfc1 (four case-0 head, one case-1, one case-2) and cvt.s.w +5 dsll32 +7 width noise.
    WARNING: cleaning widths first makes count look worse (offsets shortfall); fix mfc1 only after reloads landed.
    Do not disturb func_00375f00. */
+/* measured 003768e0 (owner, 2026-09-19): fnalign **677 -> 658 edits** by spelling the six
+   float-to-unsigned guards the way retail does.  m2c writes the lowering as
+   `if (!(x >= 2.1474836e9f)) A else B`, which b210 compiles to `c.olt.s` plus a negated
+   branch; retail's shape is `c.le.s` with the constant on the LEFT, which is what
+   `if (2.1474836e9f <= x) B else A` produces.  The two are complements, so the arms swap
+   with the comparison and the logic is unchanged.
+   Swept across the 18 first-party floors carrying the pattern (81 sites): this one is the
+   best at -19 for six sites, func_002a7920 / func_002a03b0 / func_00119810 give -2 each,
+   func_00117980 and func_00119210 give -1, func_002f9d90 / func_00254a70 / func_00172e00
+   are neutral and func_00253850 is WORSE by 10.  It is a real lever but a small one -
+   roughly three edits per site here, under one elsewhere - so it only pays where the
+   sites are dense. */
 // FUN_003768E0 NONMATCHING
 #ifdef NON_MATCHING
 #define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((u8 *)(expr) + (offset)))
@@ -1643,38 +1655,38 @@ loop_27:
                 M2C_FIELD(var_20, u8 *, 0xD) = (u8) M2C_FIELD(arg3, u8 *, 1);
                 M2C_FIELD(var_20, u8 *, 0xE) = (u8) M2C_FIELD(arg3, u8 *, 2);
                 temp_f1 = temp_f22 * var_f21_2;
-                if (!(temp_f1 >= 2.1474836e9f)) {
-                    var_3 = 0x4F000000 & 0xFF;
-                } else {
+                if (2.1474836e9f <= temp_f1) {
                     var_3 = (M2C_BITWISE(s32, (temp_f1 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                } else {
+                    var_3 = 0x4F000000 & 0xFF;
                 }
                 M2C_FIELD((var_20 + 0xC), s8 *, 3) = var_3;
                 M2C_FIELD(var_20, u8 *, 0x30) = (u8) M2C_FIELD(arg3, u8 *, 0);
                 M2C_FIELD(var_20, u8 *, 0x31) = (u8) M2C_FIELD(arg3, u8 *, 1);
                 M2C_FIELD(var_20, u8 *, 0x32) = (u8) M2C_FIELD(arg3, u8 *, 2);
                 temp_f2 = temp_f20 * var_f21_2;
-                if (!(temp_f2 >= 2.1474836e9f)) {
-                    var_3_2 = 0x4F000000 & 0xFF;
-                } else {
+                if (2.1474836e9f <= temp_f2) {
                     var_3_2 = (M2C_BITWISE(s32, (temp_f2 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                } else {
+                    var_3_2 = 0x4F000000 & 0xFF;
                 }
                 M2C_FIELD((var_20 + 0x30), s8 *, 3) = var_3_2;
                 M2C_FIELD(var_19, u8 *, 0xC) = (u8) M2C_FIELD(arg3, u8 *, 0);
                 M2C_FIELD(var_19, u8 *, 0xD) = (u8) M2C_FIELD(arg3, u8 *, 1);
                 M2C_FIELD(var_19, u8 *, 0xE) = (u8) M2C_FIELD(arg3, u8 *, 2);
-                if (!(temp_f2 >= 2.1474836e9f)) {
-                    var_3_3 = 0x4F000000 & 0xFF;
-                } else {
+                if (2.1474836e9f <= temp_f2) {
                     var_3_3 = (M2C_BITWISE(s32, (temp_f2 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                } else {
+                    var_3_3 = 0x4F000000 & 0xFF;
                 }
                 M2C_FIELD((var_19 + 0xC), s8 *, 3) = var_3_3;
                 M2C_FIELD(var_19, u8 *, 0x30) = (u8) M2C_FIELD(arg3, u8 *, 0);
                 M2C_FIELD(var_19, u8 *, 0x31) = (u8) M2C_FIELD(arg3, u8 *, 1);
                 M2C_FIELD(var_19, u8 *, 0x32) = (u8) M2C_FIELD(arg3, u8 *, 2);
-                if (!(temp_f1 >= 2.1474836e9f)) {
-                    var_3_4 = 0x4F000000 & 0xFF;
-                } else {
+                if (2.1474836e9f <= temp_f1) {
                     var_3_4 = (M2C_BITWISE(s32, (temp_f1 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                } else {
+                    var_3_4 = 0x4F000000 & 0xFF;
                 }
                 M2C_FIELD((var_19 + 0x30), s8 *, 3) = var_3_4;
                 var_f21_2 += (f32)(s32)(iGpffff8404);
@@ -1827,10 +1839,10 @@ loop_48:
         case 1:                                     /* switch 1 */
             var_20_2 = (u8 *)(&stack.sp7E0);
             var_19_2 = (u8 *)(&stack.sp1F0);
-            if (!(temp_f22 >= 2.1474836e9f)) {
-                var_3_6 = 0x4F000000 & 0xFF;
-            } else {
+            if (2.1474836e9f <= temp_f22) {
                 var_3_6 = (M2C_BITWISE(s32, (temp_f22 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+            } else {
+                var_3_6 = 0x4F000000 & 0xFF;
             }
             temp_23 = var_3_6 & 0xFF;
             var_f24_2 = 0.0f;
@@ -1935,10 +1947,10 @@ loop_70:
             func_003e9700(*(s32 *)((u8 *)func_00457120() + 4));
             var_20_3 = (u8 *)(&stack.sp7E0);
             var_19_3 = (u8 *)(&stack.sp1F0);
-            if (!(temp_f22 >= 2.1474836e9f)) {
-                var_3_8 = 0x4F000000 & 0xFF;
-            } else {
+            if (2.1474836e9f <= temp_f22) {
                 var_3_8 = (M2C_BITWISE(s32, (temp_f22 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+            } else {
+                var_3_8 = 0x4F000000 & 0xFF;
             }
             temp_23_2 = var_3_8 & 0xFF;
             var_f24_3 = 0.0f;

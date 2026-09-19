@@ -200,6 +200,22 @@ def main() -> None:
     if window is None or window > 0x10000:
         _die(f"no plausible function window at {address:#010x}")
 
+    # A function still on its INCLUDE_ASM fallback compiles to the spliced retail
+    # bytes, so with no candidate this aligns retail against itself.  That used to
+    # warn only at 0 edits, which let a guarded floor report `retail 4404 / object
+    # 4404, 80 edits` and be banked as INSIDE when the real body was 3779 and 14%
+    # outside: window trimming and relocations keep the count off zero, so the
+    # warning never fired.  Refuse the measurement instead of qualifying it.
+    if candidate is None and _is_include_asm(source, args.function):
+        _die(f"{args.function} still has an INCLUDE_ASM fallback in {args.file}, so "
+             f"without --candidate the object IS the retail assembly and every number "
+             f"below would be meaningless.\n"
+             f"  To measure a guarded body, extract it first:\n"
+             f"    python3 -E -s tools/measure_guarded.py {args.file} {args.function} "
+             f"--save-candidate /var/tmp/body.c\n"
+             f"    python3 -E -s tools/fnalign.py {args.file} {args.function} "
+             f"--candidate /var/tmp/body.c")
+
     body, relocations = _object_for(source, args.function, candidate, cfg)
     retail_bytes = retail_elf.bytes_at(address, window)
     # Retail pads each function up to its window with zero words; verify.py
@@ -223,13 +239,6 @@ def main() -> None:
                 print(f"   object  {text}")
     print(f"\nedit instructions: {edits}"
           f"{f' (plus {reloc_only} reloc-only)' if reloc_only else ''}")
-
-    # A function still on its INCLUDE_ASM fallback compiles to the spliced
-    # retail bytes, so with no candidate this aligns retail against itself.
-    if candidate is None and edits == 0 and _is_include_asm(source, args.function):
-        print(f"\nWARNING: {args.function} still has an INCLUDE_ASM fallback in "
-              f"{args.file}, so the object IS the retail assembly and this 0 means\n"
-              "         nothing. Pass --candidate <body.c>, or write the C body first.")
 
 
 if __name__ == "__main__":

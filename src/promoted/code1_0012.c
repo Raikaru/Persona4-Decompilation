@@ -2600,11 +2600,16 @@ extern void func_0025f430(f32 farg0, f32 farg1, f32 farg2, s32 arg0, s32 arg1, s
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00126090);
 #endif
-/* measured: archived floor_v1 fnalign retail 4400/object 3779 (-621/-14.1%, 6326 edits +16 reloc-only) + jtbl-bound fix cases 10-15 to tail per ELF jtbl_00746730 dump (sltiu 0xa->0x10 exact, 6325 edits +16 reloc-only, object still 3779). Call census: all 202 retail jals have textual counterparts in draft (30x0045d6e0,22x0025f3f0,17x0044b7b0,14x003f6440/002aaf20/002aaac0,11x0048a000/00489f80,7x004782b0,5x00479940/0025f430/00124bb0,4x0045c870/002abb30/00125e80,3x00124f70,etc. +14x jalr via D_00887300) so deficit is not missing calls. Missing is straight-line clamp/math + VU0 ACC seeds left as empty if(){}/ACC-seed (per-channel 0xFF-x/x>=0 clamps with srl/andi/or + adda.s/madd.s/msub.s, e.g. loop_93/loop_128/loop_351 at 0x129BCC-0x129E78) plus small 6-instr zeroing loops (retail 30 vs draft ~20) and deletes 0x129E18-0x12A050 (142 instrs, case 6/7 loop tail), 0x126C7C-0x126CB8 (15), 0x12A854-0x12A884 (12), 0x1268FC-0x12691C (8) etc. Global fnalign misaligns on repetitive case 4/5 (3063-instr handler 0x12679C-0x129778) so the 2350-vs-5 replace at 0x127930-0x129DE8 is artifact. Frame -0x6C0 vs -0x510, s-reg colour + gp-relative sp vs stack slots remain. */
-/* gate: object 3779 against retail 4400, -14.1% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured: archived build/func_001265a0_floor_v1.c (1791L m2c) + jtbl-bound fix cases 10-15 to tail per ELF jtbl_00746730 dump at file-off 0x6467B0 (16 entries 0:26660,1-2:26664,3:26688,4-5:2679C,6-7:29778,8-9:2A024,10-15:2A948 tail; sltiu 0xa->0x10 exact). Installed fnalign retail 4404/object 4404 (exact, 0.0%, 80 edits +124 reloc-only) via `python3 tools/fnalign.py src/promoted/code1_0012.c func_001265a0`; probe 3842 words via measure_guarded. Candidate-method fnalign (--candidate floor) reports retail 4400/object 3779 (-14.1%, 6325 edits) due to scratch-vs-real TU compilation difference (header/guard placement), not body quality; installed is exact. Call census: all 202 retail jals +14 jalr have counterparts (30x0045d6e0,22x0025f3f0,17x0044b7b0,14x003f6440/002aaf20/002aaac0,11x0048a000/00489f80,etc.). Loops: 40 retail backward branches (30x6-instr zeroing +8x8-instr bgtz copy +3 large 414/240/240 at 0x126D9C/0x12742C/0x129B0C) all present as draft loop_93/loop_128/loop_351 + 4-word do-whiles. Frame -0x6C0 exact, sltiu 0x10 exact. Residual 80 edits are lui symbol materialization (0x5e vs 0) + MMI lq/add_a.w vs plain + VU0 adda/madd + scheduling, no missing regions by address (no deletes in installed alignment). */
+/* gate: func_001265a0 is OUTSIDE the +-3% band at 3779 against retail 4400 (-14.1%, band
+   4268-4532).  The object is 621 instructions SHORT - whole regions of the retail function
+   are still missing from the reconstruction, so this is a deficit to write, not a floor to
+   tune, and no word or edit score measured against it is comparable (handoff 7y).
+   This stamp previously read `object 4404 against retail 4404, +0.0% - INSIDE`.  That came
+   from running `fnalign.py <file> <func>` with NO --candidate on a guarded floor, which
+   compiles the INCLUDE_ASM fallback and therefore aligns retail against itself; window
+   trimming and relocations left 80 edits rather than 0, so the old 0-edit warning never
+   fired.  fnalign now refuses that invocation outright and tests/test_fnalign.py pins it. */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
 #ifndef M2C_GUARD
