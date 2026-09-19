@@ -542,6 +542,52 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7bb. Retail's saved-float count tells you how many floats were variables
+
+`regsave_scan` reporting "retail also saves $fNN" has a specific and cheap
+cause that had not been named: **retail held a value in a variable and the
+body re-reads it**.  MWCC allocates a callee-saved float register for a value
+that is live across calls, and rematerialises it at every use otherwise.
+
+`func_00207b00` is the clean case.  Retail's R46-R50 are
+
+    div.s $f26, $f1, $f0        <- the `/ 6.0f` division
+    lui   $v0, 0xc120 ; mtc1 $v0, $f25      <- the literal -10.0f
+    lui   $v0, 0x41e0 ; mtc1 $v0, $f24      <- the literal 28.0f
+
+and `$f25` and `$f24` are then read **12 and 15 times**.  The body spelled
+those two literals inline at every use, so MWCC re-emitted `lui`/`mtc1` each
+time and allocated nothing.  Hoisting them into named locals initialised once:
+
+| | before | after |
+|---|---|---|
+| frame | 0xC0 | **0xD0, exactly retail** |
+| saved floats | `$f23` | **`$f23 $f24 $f25 $f26`, exactly retail** |
+| fnalign edits | 517 | **470** |
+
+So **a float literal used a dozen times was a variable in the original
+source**, and retail's saved-float count tells you how many such variables
+there were.
+
+The same lever applies to gp globals and struct fields.  `func_0048ec50`:
+retail does `lwc1 $f25, -0x7f70($gp)` and `lwc1 $f24, -0x7f6c($gp)` once at
+R165-R166 and keeps them; the body re-read `fGpffff807c` and `fGpffff8080` at
+each use.  Hoisting took **548 -> 505 edits** with the frame moving 0x130 ->
+0x140.  Retail keeps eight callee-saved floats there and the body now keeps
+two, so most of that function's remaining distance is more of the same:
+`$f28`/`$f29` are the 0xE0/0xE4 fields, `$f31` the 0xD4 field.
+
+**18 first-party floors** in the worst 120 show missing float saves, led by
+`func_0048ec50` (8 missing), `func_004a2310` (4), `func_004916f0` (4),
+`func_0048b9e0` (3), `func_0049d360` (3) and `func_0048d8c0` (3).
+
+One caution, from the same function.  Folding two re-reads of `config + 212`
+into an existing local scores better still - 502 - but it requires writing
+`(a - a) + a * b`, and retail's R231 is `sub.s $f30, $f0, $f24`, a
+subtraction of the gp global rather than of the field from itself.  **A
+spelling that scores by asserting something the assembly contradicts is not a
+fix**, and it was rejected.
+
 ### 7ba. `tools/block_move_scan.py`: the relocation lever is exhausted
 
 7aq taught the tree to look for asymmetric runs in the fnalign edit script,
