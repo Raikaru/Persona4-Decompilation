@@ -1003,9 +1003,340 @@ void func_0045dfd0(f32, void *, void *, s32, s32, s32);
 void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg2, u8 arg3, u8 arg4, u32 arg5,
                    u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
-/* refused: cold 2026-09-18 00117980 -- object 839 vs retail 907 = -68 (-7.5%), band 880-934 (3% gate), must not bank. Candidate at /var/tmp/cold117980/final_noblock.c (379 lines; also v1.c/guarded.c/m2c.c/rw.c in same dir), fnalign --candidate edit 721 +4 reloc-only, probe GUARDED_SCORE 833. Gross 284 retail-long minus 216 object-long = 68 net. Largest retail-long by index/length: replace [321:366] 45-vs-1 net+44 (lbu-0x505/bltz/cvt/div/mul/c.le/bc1t/cvt.w/mfc1/andi/sub/cvt.w/mfc1/or/andi overflow chain for (1-f20)*255*(b505/255) in the pu&2==0 arm), replace [271:300] 29-vs-1 net+28 (cvt.s.w/srl/andi/or/mtc1/cvt/add + 437f div/mul + 4f00 c.le/bc1t/cvt.w/mfc1/andi/sub chain for col=(int)(fc*f20)), replace [493:513] 20-vs-1 net+19 (div.s + div/div-mfhi/bnez + b34d/1353 lui-ori color select + div/mflo/mfhi/sll/addu for i/3 lane index), replace [753:770] 17-vs-1 and [863:880] 17-vs-1 net+16 each (c.le/bc1t/cvt.w/mfc1/andi/sub/cvt.w/mfc1/or/andi + sd-zero spills for f20*4096 and f20*af*4096 before the two 0034f4a0 calls), delete [409:425] 16-vs-0 (sp120/spE0 init sb/sw block; object has same 16 at insert [408:408] 0-vs-16, scheduling move only), delete [67:76] 9-vs-0 and [481:490] 9-vs-0 (srl/andi/or/mtc1/cvt/add unsigned-conversion tails for the two lbu-0x505 sites) plus [62:64] 2-vs-0 (bltz), [463:466] 3, [745:746]/[855:856] 1 each. jal: retail 15 (4x003f6440, 3x003657d0, 2x0034f4a0, 3x0044b7b0, 1x0044b610, 1x0045dfd0, 1x003b7060) vs object 16 (same +1 extra 0044b7b0 from duplicated cnt<4/5 handling) -- omitted-call excluded (object has every retail call). Excluded: dropped else arm (3/3 arms pu&1==0 / pu&2==0 / else present), off-by-one loop bound (24/4/3/5 match: i<0x18, k<4, n=3 B0 copy, n=5 sp100 copy), per-lane collapse (3/3 static 003657d0: 24-loop + 4-loop + final; no lane folded), folded switch (no switch; if/else chain counts match), cached pointer (retail caches 0x458 base in $s1 `addiu $s1,$s4,0x458` then `lhu ($s1)/2($s1)`, object recomputes `0x458($s4)/0x45c/0x45a` -- makes object LONGER, e.g. [239:240] 1-vs-36 net-35 and [749:751]/[859:861] 2-vs-20 net-18 each, so excluded as shortfall cause; second-pass caching would close excess not shortfall, unlike the 642->686 worker), missing aggregate spills (frame both 0x140, addiu at index0 matches and drops out of diff; ra spill 0xa0 vs 0x90 is saved-reg coloring $s6/$s5 vs $s5/$s4 plus object f25/f24/f23 spills at 0x1c-0x24, not size; unlike the -341->+167 UV case, sp120[16]/spE0[6] arrays already hold 0x140 and more stores would overshoot). Cause is mwcc float-range elimination of the 0x4F000000 guards and unsigned tails (00119210 family): retail keeps 16-45 instrs per guard, object folds to 1 (cvt.s.w or sub.s). Next pass starts from the saved candidate and must recover one guard chain without adding UV/stack. */
-// FUN_00117980
+/* measured: bank 2026-09-18 00117980 -- object 885 vs retail 907 = -22 (-2.4%, PASS 3% gate 880-934), fnalign edit 667 +6 reloc-only, frame 0x140 matches (addiu at index0 drops out of diff). Full-C from /var/tmp/cold117980/cand_v1.c (381 lines) with bare-unsigned int-to-float tails (f32)b505/(f32)col/(f32)lim for the six lbu/lhu sites per 0011d5b0 outer-(s32) lesson (each +11, 839->906, +67; manual s32-vb/vc/v if-blocks folded to cvt only vs retail bltz/srl/andi/or/mtc1/cvt/add 9+2), deduped cnt<4/5 t1 to single post-f21 block (4x0044b7b0->3x matching retail 15 jal +1 jalr, 906->885, -21), s8 sp13C for retail lb (670->668), (u32)func_003b7060()%0x14 for retail divu (668->667). Kept (f32)(s32)cnt/4, /15, /3, /400 and manual (s32)af&0xFF/0xFFFF guards where retail is cheap (bare (u32)af folds smaller, 839->836, -3). jal: retail 15 (4x003f6440, 3x003657d0, 2x0034f4a0, 3x0044b7b0, 1x0044b610, 1x0045dfd0, 1x003b7060) +1 jalr tblbase vs object same 15+1 (deduped). Reused existing decls plus local extern D_007611AC/D_00761288 inside body, no new file-scope globals. */
+// FUN_00117980 NONMATCHING
+#ifdef NON_MATCHING
+void func_00117980(u8 *arg0)
+{
+    extern f32 D_007611AC;
+    extern f32 D_00761288;
+    s8 sp13C[4];
+    f32 sp134;
+    f32 sp130;
+    u8 sp120[16];
+    f32 sp110[3];
+    s16 sp100[5];
+    f32 spE0[6];
+    f32 spD0[4];
+    f32 spB0[6];
+    u32 tblbase;
+    u8 *b;
+    u16 cnt;
+    u16 lim;
+    s32 i;
+    s32 k;
+    s32 q;
+    u8 b505;
+    u8 alpha;
+    u8 col;
+    s32 g;
+    f32 f21;
+    f32 f20;
+    f32 f22;
+    f32 a;
+    f32 af;
+    f32 x;
+    f32 y;
+    f32 r0;
+    f32 r1;
+
+    b = arg0;
+    sp13C[0] = iGpffff9c10;
+    sp13C[1] = iGpffff9c11;
+    sp13C[2] = iGpffff9c12;
+    sp13C[3] = iGpffff9c13;
+    spD0[0] = D_005E4D70;
+    spD0[1] = D_005E4D74;
+    spD0[2] = D_005E4D78;
+    spD0[3] = D_005E4D7C;
+    sp110[0] = D_005E4D80;
+    sp110[1] = D_005E4D84;
+    sp110[2] = D_005E4D88;
+    {
+        f32 *src = (f32 *)D_005E4D90;
+        f32 *dst = spB0;
+        s32 n = 3;
+        do {
+            f32 v0 = src[0];
+            f32 v1 = src[1];
+            src += 2;
+            n -= 1;
+            dst[0] = v0;
+            dst[1] = v1;
+            dst += 2;
+        } while (n > 0);
+    }
+    if ((*(u16 *)(b + 0x458) & 1) == 0) {
+        b505 = *(b + 0x505);
+        {
+            f32 fb = (f32)b505;
+            af = 255.0f * (fb / 255.0f);
+            if (!(af >= 2.1474836e9f)) {
+                g = ((s32)af) & 0xFF;
+            } else {
+                g = (((s32)(af - 2.1474836e9f)) | 0x80000000) & 0xFF;
+            }
+            col = g & 0xFF;
+        }
+        cnt = *(u16 *)(b + 0x45A);
+        if ((s32)cnt < 5) {
+            f32 t0;
+            f32 t1;
+            if ((s32)cnt < 0) {
+                f21 = 0.0f;
+            } else if ((s32)cnt < 4) {
+                t0 = func_0044b610(iGpffff8094 * ((f32)(s32)cnt / 4.0f));
+                f21 = 1.0f - t0;
+            } else {
+                f21 = 1.0f;
+            }
+            cnt = *(u16 *)(b + 0x45A);
+            if ((s32)cnt < 4) {
+                t1 = 0.0f;
+            } else if ((s32)cnt < 5) {
+                t1 = func_0044b7b0(iGpffff8094 * ((f32)(s32)(cnt - 4) / 1.0f));
+            } else {
+                t1 = 1.0f;
+            }
+            f21 = D_007611AC * f21 - D_00761288 * t1;
+        } else {
+            f21 = 1.0f;
+        }
+        cnt = *(u16 *)(b + 0x45A);
+        if ((s32)(s16)cnt < 0) {
+            f20 = 0.0f;
+        } else if ((u16)cnt < 0xF) {
+            f20 = (f32)(s32)cnt / 15.0f;
+        } else {
+            f20 = 1.0f;
+        }
+        {
+            f32 fc = (f32)col;
+            af = fc * f20;
+            if (!(af >= 2.1474836e9f)) {
+                g = ((s32)af) & 0xFF;
+            } else {
+                g = (((s32)(af - 2.1474836e9f)) | 0x80000000) & 0xFF;
+            }
+            alpha = g & 0xFF;
+        }
+        cnt = *(s16 *)(b + 0x45A) + 1;
+        *(u16 *)(b + 0x45A) = cnt;
+        if ((cnt & 0xFFFF) > 0xE) {
+            *(u16 *)(b + 0x458) = *(u16 *)(b + 0x458) | 1;
+        }
+        f20 = f21;
+    } else if ((*(u16 *)(b + 0x458) & 2) == 0) {
+        b505 = *(b + 0x505);
+        {
+            f32 fb = (f32)b505;
+            af = 255.0f * (fb / 255.0f);
+            if (!(af >= 2.1474836e9f)) {
+                g = ((s32)af) & 0xFF;
+            } else {
+                g = (((s32)(af - 2.1474836e9f)) | 0x80000000) & 0xFF;
+            }
+            col = g & 0xFF;
+            alpha = col;
+        }
+        f21 = 1.0f;
+        f20 = 1.0f;
+    } else {
+        cnt = *(u16 *)(b + 0x45A);
+        if ((s32)(s16)cnt < 0) {
+            f20 = 0.0f;
+        } else if ((u16)cnt < 3) {
+            f20 = (f32)(s32)cnt / 3.0f;
+        } else {
+            f20 = 1.0f;
+        }
+        b505 = *(b + 0x505);
+        {
+            f32 fb = (f32)b505;
+            af = (1.0f - f20) * 255.0f * (fb / 255.0f);
+            if (!(af >= 2.1474836e9f)) {
+                g = ((s32)af) & 0xFF;
+            } else {
+                g = (((s32)(af - 2.1474836e9f)) | 0x80000000) & 0xFF;
+            }
+            col = g & 0xFF;
+            alpha = col;
+        }
+        cnt = *(s16 *)(b + 0x45A) + 1;
+        *(u16 *)(b + 0x45A) = cnt;
+        f21 = 1.0f;
+        f20 = 1.0f;
+        if ((cnt & 0xFFFF) > 2) {
+            *(s32 *)(b + 0x534) = *(s32 *)(b + 0x534) & 0xFFF7FFFF;
+        }
+    }
+    *(s16 *)(b + 0x45C) = (s16)(((s32)(*(u16 *)(b + 0x45C) + 1)) % 400);
+    cnt = *(u16 *)(b + 0x45C);
+    f22 = (iGpffff81e0 * (f32)(s32)cnt) / 400.0f;
+    func_003f6440(3, 0x71801);
+    func_003f6440(2, 0x48);
+    tblbase = (u32)D_00887300;
+    ((s32 (**)(s32, void *))tblbase)[0](1, (void *)0);
+    spE0[0] = 340.0f;
+    spE0[1] = 0.0f;
+    sp120[0] = 0x1D;
+    sp120[1] = 0x1D;
+    sp120[2] = 0xFF;
+    sp120[3] = 0;
+    spE0[2] = 640.0f;
+    spE0[3] = 0.0f;
+    sp120[4] = 0x1D;
+    sp120[5] = 0x1D;
+    sp120[6] = 0xFF;
+    sp120[7] = alpha;
+    spE0[4] = 640.0f;
+    spE0[5] = (f32)(s32)0x125;
+    sp120[8] = 0x1D;
+    sp120[9] = 0x1D;
+    sp120[10] = 0xFF;
+    sp120[11] = 0;
+    func_0045dfd0(0.0f, sp120, spE0, 3, 5, 0);
+    i = 0;
+    while (i < 0x18) {
+        u8 *elem = b + 0x458 + i * 2;
+        u16 *cntp = (u16 *)(elem + 8);
+        u16 *limp = (u16 *)(elem + 0x38);
+        u16 c = *cntp + 1;
+        *cntp = c;
+        if ((s32)(s16)(c & 0xFFFF) < 0) {
+            a = 0.0f;
+        } else if ((c & 0xFFFF) < (*limp & 0xFFFF)) {
+            a = (f32)(s32)(c & 0xFFFF) / (f32)(s32)(*limp & 0xFFFF);
+        } else {
+            a = 1.0f;
+        }
+        lim = *limp;
+        {
+            f32 fv = (f32)lim;
+            x = fv / 30.0f + 0.5f;
+        }
+        q = i / 3;
+        k = i % 3;
+        {
+            s32 qq = q & 3;
+            if ((q < 0) && (qq != 0)) {
+                qq -= 4;
+            }
+            sp130 = 0.0f + 557.0f + x * a * spB0[k * 2] * spD0[qq];
+        }
+        {
+            s32 qq = (q + 1) & 3;
+            if (((q + 1) < 0) && (qq != 0)) {
+                qq -= 4;
+            }
+            sp134 = 0.0f + 91.0f + x * a * spB0[k * 2 + 1] * spD0[qq];
+        }
+        r0 = func_0044b7b0(D_007613EC * a);
+        {
+            f32 fc = (f32)col;
+            af = (x / 30.0f) * ((fc * r0 * 255.0f) / 255.0f);
+            if (!(af >= 2.1474836e9f)) {
+                g = ((s32)af) & 0xFF;
+            } else {
+                g = (((s32)(af - 2.1474836e9f)) | 0x80000000) & 0xFF;
+            }
+        }
+        {
+            Vec2f pos;
+            s32 color;
+            pos.x = sp130;
+            pos.y = sp134;
+            if ((i % 3) == 0) {
+                color = 0xB34DFF00;
+            } else {
+                color = 0x1353FF00;
+            }
+            func_003657d0(pos, 0.0f, color | (g & 0xFF), 15.0f, sp110[k], 0);
+        }
+        if ((s32)(*cntp & 0xFFFF) >= (s32)(*limp & 0xFFFF)) {
+            *cntp = 0;
+            *limp = (u16)(((u32)func_003b7060() % 0x14) + 0xF);
+        }
+        i += 1;
+    }
+    k = 0;
+    while (k < 4) {
+        s32 qq = k & 3;
+        if ((k < 0) && (qq != 0)) {
+            qq -= 4;
+        }
+        x = (f32)(s32)sp13C[qq] * 54.0f + 557.0f;
+        {
+            s32 qq2 = (k + 1) & 3;
+            if (((k + 1) < 0) && (qq2 != 0)) {
+                qq2 -= 4;
+            }
+            y = (f32)(s32)sp13C[qq2] * 54.0f + 91.0f;
+        }
+        {
+            Vec2f pos;
+            pos.x = x;
+            pos.y = y;
+            func_003657d0(pos, 0.0f, (col & 0xFF) | 0x1353FF00, 24.0f, f22 * 4.0f, 0);
+        }
+        k += 1;
+    }
+    {
+        Vec2f pos;
+        pos.x = 557.0f;
+        pos.y = 91.0f;
+        func_003657d0(pos, 0.0f, (col & 0xFF) | 0xB34DFF00, 41.0f, f22, 0);
+    }
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x44);
+    *(s16 *)(b + 0x45E) = (s16)(((s32)(*(u16 *)(b + 0x45E) + 1)) % 100);
+    sp130 = 523.0f;
+    sp134 = 91.0f - f20 * 30.0f;
+    af = f20 * 4096.0f;
+    if (!(af >= 2.1474836e9f)) {
+        g = ((s32)af) & 0xFFFF;
+    } else {
+        g = (((s32)(af - 2.1474836e9f)) | 0x80000000) & 0xFFFF;
+    }
+    func_0034f4a0(*(s32 *)(b + 0x2C0), 0xB4, sp130, sp134, 0.0f, 0x2D, 0x2D, 0x2D, col & 0xFF, 0x1000, g & 0xFFFF, 0.0f, 0, 0);
+    cnt = *(u16 *)(b + 0x45E);
+    {
+        s16 *src = D_005E4D58;
+        s16 *dst = sp100;
+        s32 n = 5;
+        do {
+            s16 v = *src;
+            src += 1;
+            n -= 1;
+            *dst = v;
+            dst += 1;
+        } while (n > 0);
+    }
+    q = 0;
+    while (1) {
+        if (q > 4) {
+            af = 1.0f;
+            break;
+        }
+        if (((u32)sp100[q] < (u32)cnt) && ((u32)cnt <= (u32)(sp100[q] + 5))) {
+            af = 1.0f - func_0044b7b0((D_007613EC * (f32)(s32)((u32)cnt - (u32)sp100[q])) / 5.0f);
+            break;
+        }
+        q += 1;
+    }
+    sp130 = 542.0f;
+    sp134 = (1.0f - f20 * af) * 20.0f + 76.0f;
+    r1 = f20 * af * 4096.0f;
+    if (!(r1 >= 2.1474836e9f)) {
+        g = ((s32)r1) & 0xFFFF;
+    } else {
+        g = (((s32)(r1 - 2.1474836e9f)) | 0x80000000) & 0xFFFF;
+    }
+    func_0034f4a0(*(s32 *)(b + 0x2C0), 0xB5, sp130, sp134, 0.0f, 0x2D, 0x2D, 0x2D, col & 0xFF, 0x1000, g & 0xFFFF, 0.0f, 0, 0);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00117980);
+#endif
 
 
 
