@@ -806,6 +806,7 @@ void func_00487fb0(u8 *arg0, f32 arg1)
     s32 var_22;
     f32 temp_f21;
     f32 temp_f20;
+    f32 saveA1;
     s32 cw;
     s32 i1; s32 i2; s32 i3; s32 i4; s32 i5; s32 i6;
     {
@@ -824,6 +825,7 @@ void func_00487fb0(u8 *arg0, f32 arg1)
             "sqc2 $vf10, 0(%2)\n"
             : : "r"(&w), "f"(sc), "r"(parent) : "$2", "$3", "$vf2", "$vf10", "memory");
     }
+    saveA1 = arg1;
     temp_19 = *(u8 **)(arg0 + 0x4C);
     temp_16 = *(s32 *)(temp_19 + 8);
     if (temp_16 == 0 || *(s32 *)(temp_19 + 0x10) == 0) {
@@ -834,8 +836,8 @@ void func_00487fb0(u8 *arg0, f32 arg1)
     case 1:
     case 4:
         var_21 = 0;
-        temp_f21 = *(f32 *)(arg0 + 0x54) * arg1;
-        temp_f20 = *(f32 *)(arg0 + 0x58) * arg1;
+        temp_f21 = *(f32 *)(arg0 + 0x54) * saveA1;
+        temp_f20 = *(f32 *)(arg0 + 0x58) * saveA1;
         temp_17 = *(u8 **)(*(u8 **)(arg0 + 0x50) + 0x10);
         temp_22 = *(u8 **)(temp_19 + 0x20);
         func_003a5180(temp_17);
@@ -1020,7 +1022,7 @@ void func_00487fb0(u8 *arg0, f32 arg1)
                             b198_ptr += b198_stride;
                         }
                         {
-                            f32 s = *(f32 *)(var_18 + 0x18) * arg1;
+                            f32 s = *(f32 *)(var_18 + 0x18) * saveA1;
                             *(f32 *)(b188_ptr + 0) = *(f32 *)(tmpB0 + 0x08) * s;
                             *(f32 *)(b188_ptr + 4) = *(f32 *)(tmpB0 + 0x0C) * s;
                             b188_ptr += b188_stride;
@@ -1101,7 +1103,7 @@ void func_00487fb0(u8 *arg0, f32 arg1)
                             b198_ptr += b198_stride;
                         }
                         {
-                            f32 s = *(f32 *)(var_18 + 0x18) * arg1;
+                            f32 s = *(f32 *)(var_18 + 0x18) * saveA1;
                             *(f32 *)(b188_ptr + 0) = *(f32 *)(tmpB0 + 0x08) * s;
                             *(f32 *)(b188_ptr + 4) = *(f32 *)(tmpB0 + 0x0C) * s;
                             b188_ptr += b188_stride;

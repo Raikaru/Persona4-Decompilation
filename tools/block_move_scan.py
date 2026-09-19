@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import difflib
+from collections import Counter
 import json
 import sys
 import tempfile
@@ -107,10 +108,22 @@ def scan(source: Path, function: str, cfg, elf, windows):
     # The counterpart is the largest run on the other side.
     counterparts = [p for p in pairs if p[0] != side]
     if not counterparts:
+        # A one-sided run is code that is simply absent or surplus, which is
+        # the one verdict that names its own fix: write it, or delete it.
+        # Describing the run turns the verdict into a work item - the address
+        # range to disassemble and the calls it makes, which is what made
+        # func_00212270's 321-instruction hole tractable.
+        window = retail[r0:r1] if side == "retail" else objects[o0:o1]
+        histogram = Counter(opcodes(window)).most_common(6)
+        calls = sum(1 for text in map(str, window)
+                    if text.startswith(("jal", "jalr")))
         return {"function": function, "source": str(source), "side": side,
                 "length": length, "ratio": None,
                 "verdict": "UNPAIRED   one-sided run: code is missing or surplus, not moved",
-                "retail_range": (r0, r1), "object_range": (o0, o1)}
+                "retail_range": (r0, r1), "object_range": (o0, o1),
+                "retail_address": f"0x{address + r0 * 4:08x}",
+                "calls": calls,
+                "shape": " ".join(f"{op}x{n}" for op, n in histogram)}
     _, other_len, cr0, cr1, co0, co1 = counterparts[0]
 
     if side == "retail":
@@ -169,6 +182,12 @@ def main() -> int:
         results.append(found)
         if found["ratio"] is None:
             print(f"{found['function']}  {found['verdict']}")
+            print(f"    {found['side']}[{found['retail_range'][0] if found['side'] == 'retail' else found['object_range'][0]}"
+                  f":{found['retail_range'][1] if found['side'] == 'retail' else found['object_range'][1]}]"
+                  f" ({found['length']}) at {found['retail_address']}"
+                  f"  {found['calls']} call(s)")
+            print(f"    shape  {found['shape']}")
+            print(f"    {found['source']}")
             continue
         print(f"{found['function']}  ratio {found['ratio']:.3f}  {found['verdict']}")
         print(f"    retail[{found['retail_range'][0]}:{found['retail_range'][1]}]"

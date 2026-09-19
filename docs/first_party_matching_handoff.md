@@ -542,6 +542,36 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7bc. An UNPAIRED run names its own fix; describe it and it becomes a task
+
+`block_move_scan` now prints the address range, the call count and an opcode
+histogram for every one-sided run, because that verdict is the only one whose
+remedy is unambiguous: the code is absent or surplus, so write it or delete
+it.  The histogram alone usually identifies what the code *is*:
+
+- `func_001fd790` - **173 surplus object instructions** at 0x001FDCB0, no
+  calls, shape `nop x38  mtc1 x19  cvt.s.w x16  lbu x12  b x9`.  That is the
+  unsigned byte-to-float recipe repeated about sixteen times.  7aj prices
+  `(f32)(u32)` at ~15 instructions against ~4 for `(f32)(s32)`, and sixteen
+  sites at eleven instructions apart is the 173.  Retail converts those bytes
+  signed; the body does not.
+- `func_00185850` - **90 surplus** at 0x001858AC with 8 calls, shape
+  `addiu x25  sw x16  lui x14  jal x8`.  Call counts agree at 34 on both
+  sides, so nothing is missing; retail stores each returned pointer into a
+  global slot and moves on, while the body writes four fields on the result
+  inline after every call.  The initialisation belongs somewhere else - in
+  the callee, or in a later loop over the stored pointers.
+- `func_003097e0` - 13 retail instructions with `dsll32 x2  dsra32 x2`: the
+  64-bit narrowing signature, so a local there is `s32` where retail's is
+  `s64`.  `func_003191c0` shows the same pair in the object, meaning the
+  opposite - a local too wide.
+
+So the reading order for a one-sided run is: **count the calls first** (equal
+call counts mean nothing is missing, only misplaced), then read the
+histogram.  `dsll32`/`dsra32` is a width error, a `cvt.s.w` cluster is a
+conversion-signedness error, and a `jal` cluster with matching totals is
+misplaced work rather than absent work.
+
 ### 7bb. Retail's saved-float count tells you how many floats were variables
 
 `regsave_scan` reporting "retail also saves $fNN" has a specific and cheap
