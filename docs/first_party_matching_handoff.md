@@ -496,6 +496,31 @@ retail and an $sN in the candidate.  It does not always apply - on
 the shared `j` ties at 27, so the cause there is something else.  One probe
 settles it either way.
 
+### 7af. Two axes b210 will not expose to source
+
+Both were established by exhausting them, not by argument, and both should be
+quoted rather than re-searched.
+
+**`optimize_for_size` is a no-op in this compiler.**  `pragma_sweep` says so in
+its own header and a direct probe on `func_00413290` confirmed it: the score
+did not move by one word.
+
+**`-O2,p` is reachable only from the command line.**  `func_00413290` differs
+from retail by division against magic-multiply: retail divides, b210 at plain
+`-O2` strength-reduces to a multiply.  With `-O2,p` the body is 46 instructions
+against retail's 47; with the project's flags it is 41 against 47 and no pragma
+spelling reaches the `,p` form.  Every single pragma ties at 35 words
+(`optimization_level 3`, `4` and `schedule on` are worse at 37, level 0 is 59).
+Until the build grows per-file flags, that function is walled - and the note
+says so rather than pretending a search is still open.
+
+The same shape of evidence closed `func_00443010`, where retail selects `movn`
+and b210 does not: every single pragma ties at 25 or worse, and `peephole off`
+makes it 38, which is what proves the axis was actually tested rather than
+skipped.  Note also that this function is *not* ee-gcc output despite sitting
+in `code1_0044.c` next to reclassified code: it carries neither the absolute
+getter nor the framed tail jump signature.
+
 ### 7ad. Rank the floors before choosing what to work on
 
 `tools/floor_distance.py` measures every guarded floor in the tree by fnalign
@@ -505,7 +530,15 @@ differing-word score because edits stay meaningful when the counts differ
 of minutes.
 
     python3 tools/floor_distance.py --max-edits 12
+    python3 tools/floor_distance.py --first-party --max-edits 40
     python3 tools/floor_distance.py --json /var/tmp/floors.json
+
+**Pass `--first-party` when choosing what to work on.**  Path is not
+authorship: `src/promoted/code1_004f.c` contains 87 functions and *none* of
+them is first-party, so three MATCHes won there moved the project metric by
+nothing.  Of 512 measured floors, 414 are Atlus's (`origin main`), 93 are
+vendor and 5 are Sony SDK.  The tool asks `verify.code_origin` for the same
+attribution the published report uses, so the two can never disagree.
 
 The first run of it changed what this project should be doing.  Of 516
 measured floors, **53 sit at twelve edits or fewer**, most with retail's exact

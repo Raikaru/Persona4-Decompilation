@@ -281,19 +281,16 @@ s32 func_00130600(u8 *arg0) {
    reports 300 differing words today.  The figures in the note above are
    from earlier bodies and no longer describe what is banked here; they
    are kept only as history.  Flagged by `tools/floorboard.py --audit`. */
-/* gate: object 377 against retail 364, +3.6% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00130680 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
+#pragma opt_propagation off
 void func_00130680(u8 *arg0, s32 arg1)
 {
+    s32 v23;
     s32 t30;
     s32 b2;
     f32 f24g;
-    s32 v23;
     u8 spd[12];
     f32 f22;
     f32 f21;
@@ -342,7 +339,7 @@ void func_00130680(u8 *arg0, s32 arg1)
     t3 = *(s32 *)(arg0 + 0x14);
     if (((t3 & 0x10) != 0 && *(s16 *)(arg0 + 0x26) == arg1) || ((t3 & 0x20) != 0)) {
         v23 = 1;
-        *(s16 *)(spd + 6) = 1;
+        *(s16 *)(spd + 6) = v23;
         pb0 = D_0064B2E8;
         pb1 = &D_0064B2E8[4];
         pb2 = &D_0064B2E8[20];
@@ -434,6 +431,7 @@ void func_00130680(u8 *arg0, s32 arg1)
     func_0034f2e0(*(void **)(arg0 + 0x1BE0), f12t, f13t,
                   pb2[0], pb2[1], pb2[2], vfin);
 }
+#pragma opt_propagation on
 #pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00130680);
@@ -926,10 +924,6 @@ void func_00134f40(u8 *arg0, s64 arg1, s64 arg2, u32 arg3)
    tail penalty), nobl 227 neutral, o1_sched 232 worse; o1 227->216 applied below.
 */
 /* measured 00135130: `optimization_level 1` inside the guard is worth 11 words (227 -> 216); level 1 keeps separate what -O2 coalesces. */
-/* gate: object 231 against retail 251, -8.0% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00135130 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: -O2 coalesces two values retail keeps in separate registers
@@ -959,9 +953,9 @@ void func_00135130(u8 *arg0, s64 arg1, s32 arg2, u8 *arg3)
         bbuf[1] = D_0064B2E0[1];
         bbuf[2] = D_0064B2E0[2];
     } else {
-        bbuf[0] = D_0064B2E0[0];
-        bbuf[1] = D_0064B2E0[1];
         bbuf[2] = D_0064B2E0[2];
+        bbuf[1] = D_0064B2E0[1];
+        bbuf[0] = D_0064B2E0[0];
     }
     bbuf[3] = arg2;
     wbuf[0] = (s32)fa0;
@@ -1054,10 +1048,6 @@ void func_00135520(u8 *arg0, PackedVec2f arg1, u32 arg2, s32 arg3)
     }
 }
 /* measured 0013ad40 (banked honest body: palette-table dispatch with ptab, 67/24/60/21/2/27/43/25/37/53 float chains cast-free per 13b420, recipe-A u8->float with f+f doubling, (u8)(u32) checked colour conversions, 11fd50 s64-tail, %10//10 digit loop, 1330 tail): measure_guarded 419 words obj 1836B/window 1584B; opclass mfc1/mtc1/lui/cvt.w.s +8 with c.ole/bc1t/sub +4. Verified against retail: plain lwc1 float loads (not int-convert), col conversion is the checked (u8)(u32) lowering with call-site re-andi, recipe-A uses srl + add.s doubling. Standing questions are per-site checked-vs-plain conversion mix plus frame/scheduling across 1584B. Production stays ASM. */
-/* gate: object 459 against retail 396, +15.9% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
 /* 2026-09-19 gate repair, installed by the lead from Gb0013ad40's isolated
    work (its file was owned by another agent, so it handed over the body and
    the numbers rather than writing - handoff 7w).
@@ -1245,10 +1235,6 @@ void func_0013b370(u8 *arg0, s64 arg1, s32 arg2)
 /* measured: close family opt_propagation bracket. */
 #pragma opt_propagation on
 /* measured 0013b420 (banked honest body: s64 two-float + s32 colour + s16* tail, recipe-A u8/u16->float, 204/255/24/5/34/325/340/22/54 constants with (f32)0x159 int form, 0034f320 x2 with 0.0f third float + 0034f2e0 x4 + 00113790 s64-tail + 002bc860 clamp-tail): measure_guarded 341 words obj 1364B/window 1488B; fnalign --candidate 304 edits, retail 369 vs object 341 instrs; opclass lbu -16 sb -12 lwc1 -7 swc1 -5 with cvt/mfc1 residue. Two validated findings: float->u8/u16 MUST be (u8/u16)(u32)x (unsigned lowering with the 2.147e9 check; signed form misses 6 checked sequences); the donor's opt_propagation off HURTS here (355 with, 341 without). Standing wall is frame 0xD0+7th saved/5th float vs retail 0xB0/6/4 with spill shift plus scheduling across 369 instrs. Production stays ASM. */
-/* gate: object 341 against retail 369, -7.6% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_0013B420 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off

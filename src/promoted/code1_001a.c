@@ -523,7 +523,6 @@ void func_001a06d0(u8 *arg0) {
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
 #pragma opt_propagation off
-#pragma schedule on
 void func_001a0b00(s64 *arg0) {
     extern void func_001f0a10(u8 *arg0);
     extern u8 *func_001f36e0(s32 arg0, s32 arg1, void *arg2, s16 arg3, s16 arg4);
@@ -613,7 +612,6 @@ void func_001a0b00(s64 *arg0) {
         }
     }
 }
-#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a0b00);
 #endif

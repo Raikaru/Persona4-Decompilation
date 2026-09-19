@@ -2226,10 +2226,7 @@ extern void func_00364c70(void);
 
 /* measured: object 864B/window 944B/normalized_diff 628 (210 differing words, live re-measured current tree). */
 /* measured: 234 vs 216 instrs (minus 18, 7pt short, draft-short pending plus-11 via s0-s1 decl swap and f23-f26 FPR coloring to reach floor); loop-invariant on worsens 210 to 221; slti-at N-A, no trailing short cascade beyond distributed coloring, arg-setup per archived conventions, schedule neutral. */
-/* gate: object 216 against retail 234, -7.7% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 00204dc0 2026-09-19: zero-variable for extend-block 0.0f terms (was literal-folded) takes object 216 -> 229 vs retail 234 (-2.1%, inside); retail preserves 0.0f*sine/cosine multiplies via ACC while b210 folds literals. */
 // FUN_00204DC0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -2242,6 +2239,7 @@ void func_00204dc0(s32 index, f32 x, f32 y, f32 depth, f32 angle, s32 extend)
     f32 sine;
     f32 width;
     f32 halfWidth;
+    f32 zero;
     D_00887300[0](1, 0);
     reciprocal = 1.0f / *(f32 *)(func_00457120() + 0x80);
     depth = D_008872F8[0] - depth;
@@ -2252,6 +2250,7 @@ void func_00204dc0(s32 index, f32 x, f32 y, f32 depth, f32 angle, s32 extend)
     x = 97.0f + x;
     y += (0.0f + 312.0f) + 15.0f * (f32)((s16)index - 3);
     halfWidth = width + 64.0f;
+    zero = 0.0f;
     vertices[0][0] = ((0.0f + x) + (0.0f + halfWidth) * cosine) - 8.0f * sine;
     vertices[0][1] = ((0.0f + y) + (0.0f + halfWidth) * sine) + 8.0f * cosine;
     vertices[0][2] = depth;
@@ -2289,30 +2288,30 @@ void func_00204dc0(s32 index, f32 x, f32 y, f32 depth, f32 angle, s32 extend)
     func_00364c70();
     if (extend != 0) {
         D_00887300[0](8, 1);
-        vertices[0][0] = ((0.0f + x) + (0.0f + halfWidth) * cosine) - 0.0f * sine;
-        vertices[0][1] = ((0.0f + y) + (0.0f + halfWidth) * sine) + 0.0f * cosine;
-        vertices[1][0] = (0.0f + (x + (0.0f - halfWidth) * cosine)) - 0.0f * sine;
-        vertices[1][1] = (0.0f + (y + (0.0f - halfWidth) * sine)) + 0.0f * cosine;
-        vertices[3][0] = (x + (0.0f - halfWidth) * cosine) - -800.0f * sine;
-        vertices[3][1] = (y + (0.0f - halfWidth) * sine) + -800.0f * cosine;
-        vertices[2][0] = ((0.0f + x) + (0.0f + halfWidth) * cosine) - -800.0f * sine;
-        vertices[2][1] = ((0.0f + y) + (0.0f + halfWidth) * sine) + -800.0f * cosine;
+        vertices[0][0] = ((zero + x) + (zero + halfWidth) * cosine) - zero * sine;
+        vertices[0][1] = ((zero + y) + (zero + halfWidth) * sine) + zero * cosine;
+        vertices[1][0] = (zero + (x + (zero - halfWidth) * cosine)) - zero * sine;
+        vertices[1][1] = (zero + (y + (zero - halfWidth) * sine)) + zero * cosine;
+        vertices[3][0] = (x + (zero - halfWidth) * cosine) - -800.0f * sine;
+        vertices[3][1] = (y + (zero - halfWidth) * sine) + -800.0f * cosine;
+        vertices[2][0] = ((zero + x) + (zero + halfWidth) * cosine) - -800.0f * sine;
+        vertices[2][1] = ((zero + y) + (zero + halfWidth) * sine) + -800.0f * cosine;
         vertices[0][8] = 27.0f;
         vertices[0][9] = 27.0f;
         vertices[0][10] = 27.0f;
-        vertices[0][11] = 0.0f;
+        vertices[0][11] = zero;
         vertices[1][8] = 27.0f;
         vertices[1][9] = 27.0f;
         vertices[1][10] = 27.0f;
-        vertices[1][11] = 0.0f;
+        vertices[1][11] = zero;
         vertices[2][8] = 27.0f;
         vertices[2][9] = 27.0f;
         vertices[2][10] = 27.0f;
-        vertices[2][11] = 0.0f;
+        vertices[2][11] = zero;
         vertices[3][8] = 27.0f;
         vertices[3][9] = 27.0f;
         vertices[3][10] = 27.0f;
-        vertices[3][11] = 0.0f;
+        vertices[3][11] = zero;
         D_00887310[0](4, vertices, 4);
         D_00887300[0](8, 0);
     }
@@ -5539,13 +5538,9 @@ f32 func_00201990(u8 *arg0, s32 arg1, s32 arg2);
 /* measured: object 836B/window 832B/normalized_diff 616 (199 differing words, live re-measured current tree). */
 /* measured: top fnalign is absolute-data vs stack-immediate plus frame -0xe0 vs -0x100; extern-load variant improves 199 to 196 but goes 10pt short (182 vs 204 instrs, draft) so kept stack-immediate floor (209 vs 204 instrs, plus 2pt over, good size); slti-at N-A (no lt range, sltiu-at with a1-a2 input coloring), no 2-3 short tail (209 vs 204), arg-setup fixed (Color4 by value, 3-arg providers), loop-invariant neutral. */
 /* measured 0020f730: `schedule on` inside the guard is worth 5 words (199 -> 194). */
-/* gate: object 191 against retail 204, -6.4% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 0020f730 2026-09-19: remove unscheduled-retail `schedule on` guard (was 191 vs 204, -6.4%); unscheduled object 209 vs 208 (+0.5%, inside), edits 216 -> 96. */
 // FUN_0020F730 NONMATCHING
 #ifdef NON_MATCHING
-#pragma schedule on
 void func_0020f730(u8 *arg0, u8 *arg1, Color4 arg2, s32 arg3)
 {
     f32 corners[2][2] = {
@@ -5614,7 +5609,6 @@ void func_0020f730(u8 *arg0, u8 *arg1, Color4 arg2, s32 arg3)
         }
     }
 }
-#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020f730);
 #endif
