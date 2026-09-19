@@ -1684,6 +1684,21 @@ void func_00256040(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
 /* measured: W3CRNK_002561f0_body.c fresh 150wd (obj608B/window624B) vs aggregate 628B/nd484 per owner note; head-start recipe (16x8B down-count loop, colours with trailing andi, 255 round-trip unfolded, sltiu i-14<2/i-6<4/i-10<4 else to sp+0x70+i*4, 0045e6a0(sp+0x70,sp+0xC0,16,4,...)) tried via this body; inclusive-bound/dead-arm/cast/loop-invariant/s64 levers checked (no convertible slt $at range guard; call-setup casts per EABI t0-t3 kept). Honest table/CSE/stack-gap floor; banked. No volatile/asm. */
 /* measured 002561f0: `schedule on` inside the guard is worth 2 words (150 -> 148). */
 /* measured 002561f0 2026-09-19: remove unscheduled-retail `schedule on` guard (was 140 vs 152, -7.9%); unscheduled object 152 vs 152 (exact, inside 147-157), edits 160 -> 154. */
+/* measured 002561f0 (owner, this session): three honest source corrections, edits 154 -> 148,
+   words 150 unchanged, count still exact at 152/152.
+   (a) `packed`/`packed2`/`packed3`/`packed4` are u32, not s32 - retail extracts the bytes with
+       `srl` (R36/R38/R40/R42), the s32 spelling emitted `sra`.
+   (b) the packed3/packed4 component masks are gone: retail masks only the `packed` and
+       `packed2` sets (`andi` at R22/R24/R26/R27 and R41/R43/R45/R46) because b1 is passed to
+       func_0045e6a0, and leaves the other two unmasked (R53-R55, R61-R63) since `sb` truncates.
+   (c) the `one = 1` dummy local is deleted - `i == 1` measures identically (154 both ways), and
+       retail's `addiu $s0, $zero, 1` at R47 is the allocator hoisting the constant by itself.
+   Remaining wall is register pressure, not structure: retail saves $s0-$s5 (frame 0x140, ra at
+   0x60), the object saves $s0-$s3 (frame 0x120, ra at 0x40).  Retail keeps the `packed` set in
+   temps ($t4/$t3/$v1/$v0), the `packed2` set in $s4-$s1, the constant 1 in $s0 and the per-
+   iteration element pointer in $s5; the object has two fewer saved registers to spend.  Swapping
+   the packed3/packed4 statement order to match retail's R48-R63 emission order was measured and
+   is worse (155), so the source order is already right and the scheduler is reordering. */
 // FUN_002561F0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002561f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s64 arg5, s64 arg6, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4) {
@@ -1692,15 +1707,15 @@ void func_002561f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s64 arg5, s64 arg6, f
     typedef struct { RGBA rgba[16]; u8 scratch[16]; Pair pairs[16]; } Work;
     Work work;
     Pair *pairp; u8 *p; u8 *base; s32 i; s32 count; u32 w0; u32 w1; Pair *src; Pair *dst;
-    s32 packed; s32 packed2; s32 packed3; s32 packed4; f32 value2; f32 value3;
+    u32 packed; u32 packed2; u32 packed3; u32 packed4; f32 value2; f32 value3;
     s32 b0; s32 b1; s32 b2; s32 b3; s32 c0; s32 c1; s32 c2; s32 c3;
-    s32 d0; s32 d1; s32 d2; s32 d3; s32 e0; s32 e1; s32 e2; s32 e3; s32 one;
+    s32 d0; s32 d1; s32 d2; s32 d3; s32 e0; s32 e1; s32 e2; s32 e3;
     src = (Pair *)D_00636310; dst = work.pairs; count = 16; do { w0 = src->w.w0; w1 = src->w.w1; src++; count--; dst->w.w0 = w0; dst->w.w1 = w1; dst++; } while (count > 0);
     i = 0; packed = arg0 << 8; b0 = (packed >> 24) & 0xFF; b1 = (packed >> 16) & 0xFF; b2 = arg0 & 0xFF; b3 = packed & 0xFF;
-    value2 = ((f32)arg2 * 255.0f) / 255.0f; value3 = ((f32)arg3 * 255.0f) / 255.0f; packed2 = packed | arg1; c0 = (packed2 >> 24) & 0xFF; c1 = (packed2 >> 16) & 0xFF; c2 = (packed2 >> 8) & 0xFF; c3 = packed2 & 0xFF; packed4 = packed | (s32)value2; e0 = (packed4 >> 24) & 0xFF; e1 = (packed4 >> 16) & 0xFF; e2 = (packed4 >> 8) & 0xFF; e3 = packed4 & 0xFF; packed3 = packed | (s32)value3; d0 = (packed3 >> 24) & 0xFF; d1 = (packed3 >> 16) & 0xFF; d2 = (packed3 >> 8) & 0xFF; d3 = packed3 & 0xFF; one = 1;
+    value2 = ((f32)arg2 * 255.0f) / 255.0f; value3 = ((f32)arg3 * 255.0f) / 255.0f; packed2 = packed | arg1; c0 = (packed2 >> 24) & 0xFF; c1 = (packed2 >> 16) & 0xFF; c2 = (packed2 >> 8) & 0xFF; c3 = packed2 & 0xFF; packed4 = packed | (s32)value2; e0 = (packed4 >> 24); e1 = (packed4 >> 16); e2 = (packed4 >> 8); e3 = packed4; packed3 = packed | (s32)value3; d0 = (packed3 >> 24); d1 = (packed3 >> 16); d2 = (packed3 >> 8); d3 = packed3;
     while (i < 16) {
       work.pairs[i].f.x += fparg0; work.pairs[i].f.y += fparg1;
-      if (i == 0 || i == one || (u32)(i - 0xE) < 2U) { work.rgba[i].r = b0; work.rgba[i].g = b1; work.rgba[i].b = b2; work.rgba[i].a = b3; }
+      if (i == 0 || i == 1 || (u32)(i - 0xE) < 2U) { work.rgba[i].r = b0; work.rgba[i].g = b1; work.rgba[i].b = b2; work.rgba[i].a = b3; }
       else if ((u32)(i - 6) < 4U) { work.rgba[i].r = e0; work.rgba[i].g = e1; work.rgba[i].b = e2; work.rgba[i].a = e3; }
       else if ((u32)(i - 0xA) < 4U) { work.rgba[i].r = d0; work.rgba[i].g = d1; work.rgba[i].b = d2; work.rgba[i].a = d3; }
       else { work.rgba[i].r = c0; work.rgba[i].g = c1; work.rgba[i].b = c2; work.rgba[i].a = c3; }
