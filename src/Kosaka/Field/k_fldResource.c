@@ -3,6 +3,7 @@
 /* Original translation unit k_fldResource.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "rw/ps2/ostypes.h"
+#include "rw/plcore/barenderstate.h"
 
 typedef struct RwMatrixTolerance {
     f32 Normal;
@@ -29,7 +30,7 @@ extern u8 *func_00460f80(u8 *list, s32 arg1);
 extern u8 *func_00461080(u8 *list, s32 arg1);
 extern u8 *func_00461180(u8 *list, s32 arg1);
 extern u8 *func_003e9d50(u8 *arg0);
-extern void func_00152170(s32 arg0, u8 *arg1);
+extern void func_00152170(u8 *arg0, u8 *arg1);
 extern s32 func_004581a0(void *object, const char *name);
 extern void func_00458430(s32 *out, void *object, const char *name, s32 index);
 extern void func_0046d730(const char *file, s32 line);
@@ -75,10 +76,10 @@ extern s32 func_003dc370(void *arg0);
 extern void func_003ef260(s32 arg0, void (*arg1)(void), void *arg2);
 extern void func_003ef1b0(s32 arg0);
 extern void func_00463100();
-extern void (*D_00887300[])(u32 state, u32 value);
-extern s32 func_00149ca0(void);
-extern s32 func_00149ce0(void);
-extern s32 func_00149d20(void);
+extern RwBool (*D_00887300[])(RwRenderState state, void *value);
+extern u8 *func_00149ca0(void);
+extern u8 *func_00149ce0(void);
+extern u8 *func_00149d20(void);
 extern void func_003f6440(s32 arg0, s32 arg1);
 extern s32 iGpffffba48;
 extern u8 iGpffffba4c;
@@ -1585,30 +1586,18 @@ void func_00151f80(u8 *arg0)
 }
 
 /* Floor: 241 differing words but only 10 edit instructions, 305 emitted
-   against retail's 304, from a first reconstruction.  Three findings are
-   worth more than the number.  The context is the SECOND parameter -
-   retail's `move $s1,$a1` - so the callback is `(s32, u8 *)`, and the
-   seven slots in this file that store it needed a `void (*)(void)` cast.
-   The two four-float camera copies are Vec4 aggregate assignments: retail
-   batches four lwc1 then four swc1, where field-by-field stores
-   interleave them.  And the draw-state table address is held in $s0
-   across the tail calls, which is what the `gs` local is for.
-   WALL: MWCC still rematerialises `lui`/`addiu` for &D_00887300 at four
-   of those calls because the address is a link-time constant it can fold;
-   `opt_propagation off` stops it and reaches 165 words, but perturbs 71
-   instructions elsewhere, so it is not worth a non-baseline pragma. */
-/* measured 00152170: `schedule on` inside the guard was 241 -> 227 words but */
-/* collapsed the count to object 259 vs retail 302 (-14.2%, 274 fnalign edits): */
-/* branch-likely + delay-slot filling deleted ~46 nops. 2026-09-19 remove both */
-/* schedule pragmas: fnalign retail 304 vs object 305 (+1, inside 293-311 gate, */
-/* 10 edits + 7 reloc-only). Differing-word scores from the short body are not */
-/* comparable (handoff 7y); re-measure words inside the gate. */
-// FUN_00152170 NONMATCHING
-#ifdef NON_MATCHING
-void func_00152170(s32 arg0, u8 *arg1)
+/* MATCHED.  The draw-state table has two address lifetimes - one for the call before the
+   render, one shared by the whole tail sequence - so `gs` is reloaded from &D_00887300 at
+   each, which is what stopped MWCC rematerialising `lui`/`addiu` at four call sites.  The
+   earlier note called that a wall and rejected `opt_propagation off` for it; the real fix
+   was typing the callback as RenderWare does, `RwBool (*)(RwRenderState, void *)`, so the
+   arguments go through as pointers rather than `u32`, plus `u8 *` for the first parameter
+   and for the three `func_00149c*` getters, and `u32` casts on the packed colour shifts. */
+// FUN_00152170
+void func_00152170(u8 *arg0, u8 *arg1)
 {
     typedef struct { u32 w0; u32 w1; } CopyPair;
-    void (**gs)(u32 state, u32 value);
+    u8 *gs;
     void *raster;
     u8 *cam;
     CopyPair *src;
@@ -1620,7 +1609,8 @@ void func_00152170(s32 arg0, u8 *arg1)
     s32 light;
 
     raster = func_00457120();
-    D_00887300[0](0x14, 2);
+    gs = (u8 *)D_00887300;
+    (*(RwBool (**)(RwRenderState, void *))gs)(0x14, (void *)2);
     func_003e8110(raster);
     cam = func_004571a0();
     *(Vec4 *)(arg1 + 0xA50) = *(Vec4 *)(cam + 0x18);
@@ -1683,21 +1673,19 @@ void func_00152170(s32 arg0, u8 *arg1)
         func_003cbf30((s32)func_00457190(), func_004571c0());
     }
     func_003e8120(raster);
-    gs = D_00887300;
-    gs[0](6, 1);
-    gs[0](8, 1);
+    gs = (u8 *)D_00887300;
+    (*(RwBool (**)(RwRenderState, void *))gs)(6, (void *)1);
+    (*(RwBool (**)(RwRenderState, void *))gs)(8, (void *)1);
     func_003f6440(2, 0x44);
     func_003f6440(3, 0x717FB);
-    gs[0](0x14, 2);
+    (*(RwBool (**)(RwRenderState, void *))gs)(0x14, (void *)2);
     if (iGpffffba48 == 1) {
-        gs[0](0xE, 1);
-        gs[0](0xF, iGpffffba54 | ((iGpffffba50 << 8) | ((iGpffffba58 << 0x18) | (iGpffffba4c << 0x10))));
-        gs[0](0x10, 1);
+        (*(RwBool (**)(RwRenderState, void *))gs)(0xE, (void *)1);
+        (*(RwBool (**)(RwRenderState, void *))gs)(0xF,
+            (void *)(iGpffffba54 | (((u32)iGpffffba50 << 8) | (((u32)iGpffffba58 << 0x18) | ((u32)iGpffffba4c << 0x10)))));
+        (*(RwBool (**)(RwRenderState, void *))gs)(0x10, (void *)1);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00152170);
-#endif
 
 // FUN_00152630
 void func_00152630(u8 *arg0, u8 *arg1)
