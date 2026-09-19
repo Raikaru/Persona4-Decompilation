@@ -106,6 +106,8 @@ RULES = {
     "M002": ("error", "NONMATCHING body with no INCLUDE_ASM fallback; drops the whole unit from the C link"),
     "M003": ("error", "guarded body under an untagged marker; invisible to every floor audit"),
     "M004": ("error", "comment between a marker and its INCLUDE_ASM; breaks marker ownership"),
+    "M005": ("error", "marker tagged NONMATCHING with no guarded body; every floor audit "
+                      "counts it as attempted and measure_guarded cannot score it"),
     # ---- P: pragma balance -------------------------------------------------
     "P001": ("error", "pragma push/pop stack underflow or unclosed push"),
     # ---- C: the file must still compile ------------------------------------
@@ -794,6 +796,43 @@ def check_guarded_schedule(src):
 check_guarded_schedule.unfiltered = True
 
 
+def check_tag_without_body(src):
+    """M005: the marker claims a body that is not there.
+
+    The inverse of M003.  A bare `INCLUDE_ASM` under a ` NONMATCHING` marker
+    reads as an attempted function to every tool that keys off the tag -
+    `gate_audit.py` counts it as a floor, `floorboard.py` tries to score it,
+    `measure_guarded.py` reports "probe failed", and the bodyless census
+    skips it because the address looks claimed.  Three first-party functions
+    in `code1_0048.c` sat that way and were invisible to the cold-body queue
+    for the whole campaign.
+    """
+    marks = []
+    for i, line in enumerate(src.lines):
+        m = MARKER_RE.match(line)
+        if m:
+            marks.append((i, m))
+    for n, (i, m) in enumerate(marks):
+        if "NONMATCHING" not in m.group(3):
+            continue
+        if not _first_party(src.rel(), m.group(2)):
+            continue
+        end = marks[n + 1][0] if n + 1 < len(marks) else len(src.lines)
+        if any(src.lines[j].strip() in ("#ifdef NON_MATCHING", "#ifdef SKIP_ASM")
+               for j in range(i, end)):
+            continue
+        yield Finding("M005", src.rel(), i + 1,
+                      "marker is tagged NONMATCHING but there is no guarded "
+                      "body; drop the tag or write the body, or the function "
+                      "stays invisible to the cold-body queue",
+                      src.lines[i].strip())
+
+
+# The tag lives outside the guard, so this check needs the unfiltered source
+# for the same reason H010 does.
+check_tag_without_body.unfiltered = True
+
+
 # ------------------------------------------------------------ pragma balance
 
 PUSH_RE = re.compile(r"^\s*#\s*pragma\s+push\b")
@@ -898,6 +937,7 @@ CHECKS = (
     check_markers,
     check_nonmatching_fallback,
     check_guard_tagged,
+    check_tag_without_body,
     check_marker_adjacency,
     check_pragma_balance,
     check_comment_terminated,

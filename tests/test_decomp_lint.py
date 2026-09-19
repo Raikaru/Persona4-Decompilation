@@ -1096,5 +1096,40 @@ class GuardedSchedule(unittest.TestCase):
 
 
 
+class TagWithoutBody(unittest.TestCase):
+    """M005: a ` NONMATCHING` tag over a bare INCLUDE_ASM claims work that
+    does not exist, and every floor audit believes it."""
+
+    def test_tag_with_no_guard_is_reported(self) -> None:
+        text = ("// FUN_00100010 NONMATCHING\n"
+                'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n')
+        self.assertIn("M005", codes(lint_text(text)))
+
+    def test_tag_with_a_guard_is_clean(self) -> None:
+        text = ("// FUN_00100010 NONMATCHING\n"
+                "#ifdef NON_MATCHING\n"
+                "s32 func_00100010(void) { return 0; }\n"
+                "#else\n"
+                'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+                "#endif\n")
+        self.assertNotIn("M005", codes(lint_text(text)))
+
+    def test_untagged_bare_include_is_clean(self) -> None:
+        """A function nobody has attempted is the normal state."""
+        text = ("// FUN_00100010\n"
+                'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n')
+        self.assertNotIn("M005", codes(lint_text(text)))
+
+    def test_the_older_skip_asm_guard_counts(self) -> None:
+        text = ("// FUN_00100010 NONMATCHING\n"
+                "#ifdef SKIP_ASM\n"
+                "s32 func_00100010(void) { return 0; }\n"
+                "#else\n"
+                'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+                "#endif\n")
+        self.assertNotIn("M005", codes(lint_text(text)))
+
+
+
 if __name__ == "__main__":
     unittest.main()
