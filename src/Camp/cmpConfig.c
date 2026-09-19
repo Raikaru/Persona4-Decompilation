@@ -433,6 +433,8 @@ void func_0035d0a0(u8 *arg0) {
             }
         }
         prev = -1;
+        pB2E8 = D_0064B2E8;
+        pB2E0 = D_0064B2E0;
         for (i = 0; i < 7; i++) {
             row = arg0 + i * 48;
             x0 = baseX + *(f32 *)(row + 0xB8);
@@ -445,7 +447,6 @@ void func_0035d0a0(u8 *arg0) {
                 g = 0xA0;
                 b = 0xA0;
             } else {
-                pB2E0 = D_0064B2E0;
                 r = pB2E0[0];
                 g = pB2E0[1];
                 b = pB2E0[2];
@@ -454,7 +455,6 @@ void func_0035d0a0(u8 *arg0) {
             func_0034f2e0(*(void **)(arg0 + 0x450), 380.0f + pos.x, pos.y, r, g, b, alpha);
             if (i == sel) {
                 isSel = 1;
-                pB2E8 = D_0064B2E8;
                 func_0034f2e0(*(void **)(arg0 + 0x460), pos.x, pos.y, pB2E8[0], pB2E8[1], pB2E8[2], alpha);
                 func_0034f2e0(*(void **)(arg0 + 0x468), 247.0f + pos.x, pos.y, pB2E8[0], pB2E8[1], pB2E8[2], alpha);
                 if ((i == 2) && (*(s32 *)(arg0 + 0x4C) == 0)) {
@@ -488,7 +488,6 @@ void func_0035d0a0(u8 *arg0) {
                 row = arg0 + i * 48;
                 pos.x = (f32)0x1CF + (baseX + *(f32 *)(row + 0x208));
                 pos.y = (f32)0x137 + (baseY + *(f32 *)(row + 0x20C));
-                pB2E8 = D_0064B2E8;
                 func_0034f2e0(*(void **)(arg0 + 0x464), pos.x, pos.y, pB2E8[0], pB2E8[1], pB2E8[2], alpha);
                 func_0034f2e0(*(void **)(arg0 + 0x468), 150.0f + pos.x, pos.y, pB2E8[0], pB2E8[1], pB2E8[2], alpha);
                 pos.x = (f32)0x205 + (baseX + *(f32 *)(row + 0x208));

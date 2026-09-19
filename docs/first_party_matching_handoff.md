@@ -542,6 +542,44 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7aq. Rank by edits per instruction to find relocated blocks
+
+A floor whose **fnalign edit count exceeds its instruction count** has the
+right amount of code in the wrong places.  That ratio is the cheapest way to
+find block relocation, and it is invisible to every other measure: the count
+passes the gate, the differing-word score looks like an ordinary floor, and
+the near-band probes find nothing because the individual instructions are
+correct.
+
+Compute it from `tools/floor_distance.py --json` - `edits / retail` - and work
+anything above about 1.3.  The worst in the tree at the time of writing:
+
+    1.79  func_001441e0  561/566    1012 edits
+    1.72  func_001d1f30  900/916    1575 edits
+    1.68  func_0046b380  2007/1952  3276 edits
+    1.65  func_00288170  592/605    1000 edits
+    1.55  func_00330060  468/468     726 edits
+    1.48  func_001b2380  1014/1038  1533 edits
+
+`func_0013b420` shows the shape.  It is 374 instructions against 372 - two
+apart - and the alignment reads:
+
+    replace retail[12:18]   (7)   against object[13:202]  (190)
+    replace retail[61:114]  (54)  against object[236:239] (4)
+    replace retail[115:223] (109) against object[240:243] (4)
+
+183 extra instructions near the top, 155 missing in the middle, cancelling in
+the count.  The head block is pure constant materialisation - `lui 0x4000`,
+`0x437f`, `0x434c`, `0x4f00`+`0x8000` three times, `0x3f80`, `0x41c0`,
+`0x40a0`, `0x4208` - so the body hoists every float constant and conversion to
+the top of the function where retail materialises them inside the arms that
+use them.  The fix is to write each constant and conversion inside its arm,
+with `opt_common_subs off` held on so the compiler does not re-hoist them.
+
+So the diagnosis order on any high-ratio floor is: list every run with **both**
+side lengths, find the largest asymmetric pair, name what kind of code it is,
+and move it in source.  Do not start from spellings.
+
 ### 7ap. Scan for repeated address materialisation - 60 floors have it
 
 `tools/hoist_scan.py` counts relocated `lui` instructions on each side of
