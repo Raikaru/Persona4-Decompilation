@@ -542,6 +542,62 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7at. `tools/regsave_scan.py`: read the prologue before testing anything
+
+The scanner compares the callee-saved set a guarded body allocates against
+retail's, for every measured floor.  **39 of the top 60 differ.**  Neither
+direction shows up in the word score, and neither is reachable by editing the
+body's arithmetic:
+
+- **Retail saves registers the body does not.**  The body is holding those
+  values in memory and reloading them after each call.  `func_001400f0`:
+  retail `sq $fp,0xb0  sq $s7,0xa0  sq $s6,0x90 ... sd $ra,0xc0`, object
+  starts at `$s5` with `$ra` at 0x90 - three registers and 0x30 of frame.
+- **The body saves registers retail does not.**  Retail recomputes them at
+  the use.  `func_00467bd0` saves `$s2`/`$s3`/`$s4` for a frame of 0x1A0
+  against retail's 0x170 - exactly three 16-byte slots - while retail
+  re-emits `lui $v0, 8; addu $v0, $s0, $v0` at every single field access.
+
+Two results this session bound the lever.  `func_00330060`'s frame was short
+**and aliased** `cA8` and `c98` onto slot 0x98; the explicit frame struct took
+it from **726 edits to 146**.  `func_001400f0`'s frame was short but merely
+offset; correcting it to an exact 0x230 with three genuine hoists moved the
+edits the wrong way, 1991 to 2007.  So the rule is narrower than 7as first
+stated: a uniform displacement shift is charged once per access, an alias
+corrupts the dependency chain around both values.  Check for a collision, not
+just a difference.
+
+### 7au. `#pragma schedule on` is a per-unit fact, and it is worth ~100 instructions
+
+Retail was not built with one scheduling setting.  Measuring five first-party
+bodies that carry the pragma, with and against:
+
+| function | with | without |
+|---|---|---|
+| `func_00475cd0` | 1007/1000, 1393 edits | 1131/1000, 1089 edits |
+| `func_0021a7b0` | 418/427, 458 edits | 460/428, 261 edits |
+| `func_004a5fc0` | 762/756, 1112 edits | 851/756, 821 edits |
+| `func_004b1ad0` | 802/796, 1044 edits | 909/796, 1045 edits |
+| `func_0049e150` | 489/499, 661 edits | 531/500, 444 edits |
+
+In all five the pragma is what keeps the count inside the gate - dropping it
+adds 40 to 130 instructions, all of them delay-slot nops - so retail's build
+of those units had scheduling on.  The edit count falls without it in four of
+the five purely because an unscheduled body preserves source order and aligns
+better; that is an artefact of the metric, not evidence, and it must not be
+used to justify removing the pragma.
+
+`func_00308f40` is the opposite case and the reason to always measure both
+directions.  There retail is genuinely unscheduled - `beqz $v0, .+78` followed
+by a bare `nop` at R35, R42, R79 and forty more - and `schedule on` had been
+added because it bought 15 differing words.  It also cost **48 instructions**,
+putting the body at 379 against 427, 11.2% short and outside the gate.
+Removing it: **431/428 inside, edits 323 -> 102.**
+
+So the pragma's before/after must be recorded as a *pair* - count and edits -
+and the count decides.  A word score measured against a body of the wrong
+length is not comparable to one measured inside the gate (7y).
+
 ### 7as. A short frame aliases two locals onto one slot
 
 `func_00330060` was 468/468 - an exact count - with **726 fnalign edits**, more
