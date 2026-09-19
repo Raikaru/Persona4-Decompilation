@@ -2313,6 +2313,11 @@ donecheck:
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a4800);
 #endif
 /* measured 001a4c80 (WCold): m2c + romwright cold drafts de-noised to file idiom (u8* + RwV3d, truthful externs per tree: 95850(u8*,f32*)/95c50(u8*,u8*,RwV3d*)/99d00(s32,u8*,s64,s32)/f1210(u8*,s64,s32)/951f0(u8*,u8*,u8*,s32,f32*,f32*,s32)/95730(u8*,u8*,u8*,s32)/ec1c0(u8*,u8*,u8*)/3e4180(f32*)/3e40b0(f32*,f32*)/243d80(u8*)/f0a50(u8*)/f0bf0(u8*)/f0ff0(u8*)/22fb10(void)/96bd0(f32 local shadow over file s16)/b3bc+iGp8360 locals, D_005F6D20 kept); count first retail 584 vs v1 597 (2.2% over) then v2 586 (0.34% over); v1 525 -> v2 506 (float max/threshold fix) -> v4 487 via address-fold `(u8*)b3bc+off+2` for `lhu 2` (19-word win, 583/583 exact, 0% deviation, 445 edits +3 reloc-only via fnalign --candidate); pragma singles all tie/regress (sched 508, cs 520, prop 521), pair sched+cs 503 but 517/583 (11% short, rejected per 3% gate); scoped-counter v3 511 and s32-idx v5 499 regressed. Open walls: frame 0x140 vs retail 0x120 (spill of var_22/23), s-reg rotation, VU ACC (adda/msuba/madda) vs plain mul/add. Production stays ASM; banked as floor. Evidence in /var/tmp/cold1a4c80/ (m2c.c/rom.c/raw.c/types.txt/cand_v*.c). */
+/* measured 001a4c80 (owner, 2026-09-19): fnalign edits **445 -> 427** by writing the
+   `if (kind == c) ... else if` chain as a `switch (kind)` with the cases ascending and the
+   trailing `else` as `default`.  Swept with a brace-aware converter over the 26
+   highest-edit first-party floors that carry a chain; seven improved, six got worse and
+   the rest have no convertible chain, so this is measured per function. */
 // FUN_001A4C80 NONMATCHING
 #ifdef NON_MATCHING
 void func_001a4c80(u8 *arg0)
@@ -2390,12 +2395,8 @@ void func_001a4c80(u8 *arg0)
         tmp_a64_ptr = *(u8 **)(unit30 + 0xA64);
         tmp_half = *(u16 *)(tmp_a64_ptr + 2);
         var_6 = 1;
-        if (kind == 1) {
-            if (*(s16 *)((u8 *)iGpffffb3cc + (u32)(tmp_half & 0xFFFF) * 0xE8 + 0x22) == 1) {
-            } else {
-                goto first_var6_zero;
-            }
-        } else if (kind == 0) {
+        switch (kind) {
+        case 0:
             tmp_e1f0 = func_0023e1f0(*(u8 **)(unit30 + 0xA64)) & 0xFF;
             if (tmp_e1f0 == 5) {
                 var_6 = 1;
@@ -2404,9 +2405,17 @@ void func_001a4c80(u8 *arg0)
             } else {
                 goto first_var6_zero;
             }
-        } else {
+            break;
+        case 1:
+            if (*(s16 *)((u8 *)iGpffffb3cc + (u32)(tmp_half & 0xFFFF) * 0xE8 + 0x22) == 1) {
+            } else {
+                goto first_var6_zero;
+            }
+            break;
+        default:
 first_var6_zero:
             var_6 = 0;
+            break;
         }
         if (var_6 != 0) {
             unit30 = *(u8 **)((u8 *)arg0 + 0x30);

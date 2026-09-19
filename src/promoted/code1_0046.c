@@ -1849,6 +1849,11 @@ void func_00467880(u8 *arg0)
    three extra 16-byte slots.  Retail recomputes `lui $v0, 8; addu $v0, $s0, $v0` at every single
    field access instead of holding a base.  Inlining h1/h2/e/v at their uses was measured and is
    worse (387), so the surplus liveness is elsewhere. */
+/* measured 00467bd0 (owner, 2026-09-19): fnalign edits **368 -> 328** by writing the
+   `if (st == c) ... else if` chain as a `switch (st)` with the cases ascending and the
+   trailing `else` as `default`.  Swept with a brace-aware converter over the 26
+   highest-edit first-party floors that carry a chain; seven improved, six got worse and
+   the rest have no convertible chain, so this is measured per function. */
 // FUN_00467BD0 NONMATCHING
 #ifdef SKIP_ASM
 s32 func_00467bd0(u8 *arg0)
@@ -1864,22 +1869,17 @@ s32 func_00467bd0(u8 *arg0)
 
     w = *(s32 *)(arg0 + 56);
     st = *(s16 *)(D_00800000 + w + 3968);
-    if (st == 4) {
-        {
-            s8 buf[256];
-            if (func_004688d0(*(u8 * *)&D_00800000[w + 4240], buf) != 0) {
-                if (buf[0] == 0) {
-                    *(s16 *)(D_00800000 + w + 3968) = 2;
-                } else {
-                    *(s32 *)(D_00800000 + w + 3976) = 1;
-                    func_00442088((char *)&D_00800000[w + 3984], (const char *)iGpffffb028, (char *)w, (char *)buf);
-                    *(s16 *)(D_00800000 + w + 3968) = 3;
-                }
-            }
-            func_00467880((u8 *)w);
-        }
-    } else if (st == 3) {
-    } else if (st == 2) {
+    switch (st) {
+    case 0:
+        *(s16 *)(D_00800000 + w + 3968) = 1;
+        break;
+    case 1:
+        func_004673c0((u8 *)w);
+        *(s16 *)(D_00800000 + w + 3972) = 0;
+        *(s16 *)(D_00800000 + w + 3970) = 0;
+        *(s16 *)(D_00800000 + w + 3968) = 2;
+        break;
+    case 2:
         if ((D_008C0276 & 0x40) != 0) {
             h1 = *(s16 *)(D_00800000 + w + 3970);
             h2 = *(s16 *)(D_00800000 + w + 3972);
@@ -1972,13 +1972,24 @@ s32 func_00467bd0(u8 *arg0)
             return 0;
         }
         func_00467880((u8 *)w);
-    } else if (st == 1) {
-        func_004673c0((u8 *)w);
-        *(s16 *)(D_00800000 + w + 3972) = 0;
-        *(s16 *)(D_00800000 + w + 3970) = 0;
-        *(s16 *)(D_00800000 + w + 3968) = 2;
-    } else if (st == 0) {
-        *(s16 *)(D_00800000 + w + 3968) = 1;
+        break;
+    case 3:
+        break;
+    case 4:
+        {
+            s8 buf[256];
+            if (func_004688d0(*(u8 * *)&D_00800000[w + 4240], buf) != 0) {
+                if (buf[0] == 0) {
+                    *(s16 *)(D_00800000 + w + 3968) = 2;
+                } else {
+                    *(s32 *)(D_00800000 + w + 3976) = 1;
+                    func_00442088((char *)&D_00800000[w + 3984], (const char *)iGpffffb028, (char *)w, (char *)buf);
+                    *(s16 *)(D_00800000 + w + 3968) = 3;
+                }
+            }
+            func_00467880((u8 *)w);
+        }
+        break;
     }
     return 0;
 }
