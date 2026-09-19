@@ -2504,6 +2504,7 @@ void func_0049e100(u8 *arg0)
 #ifdef NON_MATCHING
 #pragma schedule on
 #pragma opt_propagation off
+#pragma opt_loop_invariants on
 void func_0049e150(u8 *arg0)
 {
     u8 *temp_2;
@@ -2735,6 +2736,7 @@ void func_0049e150(u8 *arg0)
     }
 }
 
+#pragma opt_loop_invariants off
 #pragma opt_propagation on
 #pragma schedule off
 #else
