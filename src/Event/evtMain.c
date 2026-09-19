@@ -1086,6 +1086,11 @@ void func_00288020(s32 arg0, u8 *arg1) {
     }
 }
 /* measured: probe v5/v8 490 differing words at fnalign retail 605 vs object 592 (2.1% short, inside 3% gate; v1 489 at 605/586 outside gate). Outer switch 0,1,2 ascending gives retail beq 2,1,0 with bodies 0,1,2; inner 12-case jump table kept as switch in retail address order 0,1,4,11,5,6,7,8,9,10 (m2c refuses jr without table, romwright gives frame+arity). 26bda0 (u32,s32,u32,s16,s16,s16) for dsll32 0x10 (retail 3 vs obj 0). Free pragmas tie (loop 490, unroll 489, sched 489); decl swap tie (490); spC0 s8 tie (490); [4] padding regress 503 (frame 0x270); block-scope regress 497; arg1 long tie 489; case10 f32 neutral; daddu 27 vs 0 and stack 0x240 vs 0x218 remain. */
+/* 2026-09-18 `tools/solve_signedness.py`: `arg4 + 0x24` was spelled `s16`
+   at one site and `s8` at another; retail reads it as a byte, so both are
+   now `s8` and the census mismatch fell 16 -> 14 at an unchanged instruction
+   count.  Word score stays 490.  Measured and rejected: `arg3 + 0xC` to u16
+   and `arg4 + 0x14` to u8 both tie, and `arg4 + 0x16` to s16 costs 16 -> 18. */
 // FUN_00288170 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00288170(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
@@ -1222,7 +1227,7 @@ s32 func_00288170(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
             sp240[0] = 0.0f;
             sp240[1] = *(f32 *)(arg4 + 0x14);
             sp240[2] = 0.0f;
-            func_00269340(*(u16 *)(arg3 + 0xC), &sp240[0], *(s16 *)(arg4 + 0x24), 0);
+            func_00269340(*(u16 *)(arg3 + 0xC), &sp240[0], *(s8 *)(arg4 + 0x24), 0);
             if ((*(s8 *)(arg4 + 0x34) & 1) != 0) {
                 func_0026bda0(*(u16 *)(arg3 + 0xC), 2, (*(s8 *)(arg4 + 0x35) + 1) & 0xFF, *(s8 *)(arg4 + 0x36), *(s8 *)(arg4 + 0x37), (*(s8 *)(arg4 + 0x34) >> 1));
                 func_00440b68(D_0063C530);

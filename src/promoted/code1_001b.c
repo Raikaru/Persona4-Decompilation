@@ -1249,7 +1249,7 @@ s32 func_001b2380(void)
   u8 temp_v1;
   u8 temp_v2;
   s8 temp_v3;
-  s16 temp_v4;
+  u16 temp_v4;
   u16 temp_v5;
   u32 temp_v6;
   u8 *temp_v7;
@@ -1285,7 +1285,7 @@ s32 func_001b2380(void)
     func_001f73d0();
     puVar16 = (u32 *)(iGpffffb414 + (u32)*(u16 *)(*(s32 *)(D_0076449C + 0xc68) + 8) * 0x18);
     temp_v7 = (u8 *)func_001b1540();
-    if ((((temp_v7 == 0) || (*(s8 *)(*(s32 *)(temp_v7 + 0x30) + 0xa2) == '\x01')) ||
+    if ((((temp_v7 == 0) || (*(u8 *)(*(s32 *)(temp_v7 + 0x30) + 0xa2) == '\x01')) ||
         (temp_v10 = func_002428f0(*(u32 *)(*(s32 *)(temp_v7 + 0x30) + 0xa64),0), temp_v10 == 1)) ||
        (temp_v10 = func_00232710(*(u32 *)(*(s32 *)(temp_v7 + 0x30) + 0xa64),0x100000), temp_v10 == 1
        )) {
