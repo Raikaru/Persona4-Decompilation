@@ -1450,7 +1450,14 @@ void func_00143b90(void)
    order while retail's comparisons run descending.  That is the 7av signature, and the
    chain form cannot produce it however the arms are ordered in source.
    Converting both chains to `switch (v)` with the cases sorted ascending is the whole
-   change; the arm bodies are untouched. */
+   change; the arm bodies are untouched.
+   Two follow-ups measured against the 47 and rejected: a per-iteration row pointer
+   `u16 *row = (u16 *)st + i` with `row[2]`/`row[9]`, to match retail's hoisted
+   `sll $v0, $s3, 1; addu $s1, $s2, $v0` at R18-R19, ties at 47 while moving the count
+   further from retail (564 against 566, where the installed body is 565); and swapping the
+   outer arms to test `kind == 1` first costs 123.  Retail's `addiu $v0, 1; beq $v1, $v0`
+   at R8-R9 is just how MWCC enters the second arm of `if (kind == 0) ... else if
+   (kind == 1)`, not evidence that the source tests 1 first. */
 // FUN_001441E0 NONMATCHING
 #ifdef SKIP_ASM
 /* measured 2026-09-19 (lead): the outer arms were in the wrong order, and the
