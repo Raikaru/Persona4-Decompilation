@@ -102,6 +102,7 @@ RULES = {
     "M001": ("error", "marker hygiene: malformed FUN_ address or duplicate address in one file"),
     "M002": ("error", "NONMATCHING body with no INCLUDE_ASM fallback; drops the whole unit from the C link"),
     "M003": ("error", "guarded body under an untagged marker; invisible to every floor audit"),
+    "M004": ("error", "comment between a marker and its INCLUDE_ASM; breaks marker ownership"),
     # ---- P: pragma balance -------------------------------------------------
     "P001": ("error", "pragma push/pop stack underflow or unclosed push"),
     # ---- C: the file must still compile ------------------------------------
@@ -771,6 +772,38 @@ def check_comment_terminated(src):
                       if opened_at <= len(src.lines) else "")
 
 
+def check_marker_adjacency(src):
+    """M004: a comment wedged between a marker and its INCLUDE_ASM.
+
+    `verify.scan_markers` pairs a marker with the `INCLUDE_ASM` on the very
+    next line.  Put a note between them and the pair breaks: the marker stops
+    owning its address, the *following* function silently loses its owner too,
+    and `tests/test_reconcile.py` fails with "canonical boundaries without
+    source owners" naming a function nobody touched.  That is a confusing
+    failure a long way from its cause, and it has already happened once.
+
+    Notes belong above the marker, which is where every other note in the tree
+    lives.
+    """
+    for i, line in enumerate(src.lines):
+        if not MARKER_RE.match(line):
+            continue
+        after = src.lines[i + 1] if i + 1 < len(src.lines) else ""
+        if after.lstrip().startswith(("/*", "//")):
+            for j in range(i + 1, min(i + 12, len(src.lines))):
+                if INCLUDE_ASM_RE.match(src.lines[j]):
+                    yield Finding("M004", src.rel(), i + 1,
+                                  "comment between the marker and its "
+                                  "INCLUDE_ASM; the marker stops owning its "
+                                  "address and the next function loses its "
+                                  "owner - put the note above the marker",
+                                  line.strip())
+                    break
+                if src.lines[j].strip() and not src.lines[j].lstrip().startswith(
+                        ("/*", "//", "*")):
+                    break
+
+
 CHECKS = (
     check_volatile,
     check_banned_pragma,
@@ -781,6 +814,7 @@ CHECKS = (
     check_markers,
     check_nonmatching_fallback,
     check_guard_tagged,
+    check_marker_adjacency,
     check_pragma_balance,
     check_comment_terminated,
 )
