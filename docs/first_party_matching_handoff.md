@@ -634,6 +634,33 @@ the evidence is uniform enough to stop paying for it.
   commutative operand order before allocation, so operand order is **not** a
   lever.
 
+`tools/tail_classify.py` answers the "unless a structural difference is
+visible" clause mechanically.  It aligns a guarded body against retail and
+sorts every hunk into `register` (same mnemonic and immediates, different
+register), `schedule` (the same instructions in a different order) or
+`structure` (different mnemonics, a differing operand, or an instruction on
+one side only).  Run over all 34 floors under 60 edits:
+
+- 14 floors are pure rotation with **no** structural hunk - `func_001b11c0`,
+  `func_0048a980`, `func_0034ddf0`, `func_0024be40`, `func_0048a460`,
+  `func_004b2a00`, `func_00331a20`, `func_00487c30`, `func_001b05d0`,
+  `func_001dd920`, `func_0036d3e0` among them.  Those are banked; no source
+  change reaches them.
+- 20 carry structure.  Ranked by structural hunks: `func_001c09b0` 14,
+  `func_0013fb50` 8, `func_0012d630` 7, `func_00479100` 6, `func_00268230` 5,
+  `func_001441e0` 5, `func_0046a7f0` 4, `func_004a7830` 4, `func_0033e5c0` 4,
+  `func_001b6120` 4.
+
+`func_001c09b0` was then worked as the richest of them and did not move off
+34, which is worth knowing before anyone else starts: its two structural
+shapes are a batched three-float copy (three temporaries 35, a 12-byte struct
+assignment 40) and `c.ole.s`/`bc1t` against the object's `c.olt.s`/`bc1f`
+(rewriting `a < b` as `!(b <= a)` measures 37, 43, 42, and 42 for all three
+sites together).  Note the second one carefully: it looks exactly like the
+float-to-unsigned guard lever that pays on `func_003768e0` (677 -> 658), and
+it does not pay here.  Two comparisons that read identically in the listing,
+one source-addressable and one not.
+
 The pattern across all four is that what remains is register *identity*, not
 register *count* or instruction selection - and identity is settled after
 every source-visible decision has been made.  Declaration order moves it
