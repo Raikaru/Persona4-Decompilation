@@ -861,11 +861,797 @@ void func_00269db0(float *param_1, float *param_2)
 }
 #pragma opt_propagation on
 
-/* measured: not attempted — 6720B window with nested switches (jtbl_00748080),
-   half-scaler (u>>1|u&1) patterns and mula/madd MAC chains; complexity exceeds
-   the wave budget. Left as INCLUDE_ASM. */
-// FUN_0026A020
+/* measured 0026a020 2026-09-19: skeleton from retail control flow (Ghidra FUN_0026a020 + IDA sub_26A020 vs m2c code1_0026.c).
+   fnalign retail 1680 vs object 1713 instrs (+33, +1.96%, inside 1630-1730 band), edits 1663 (+2 reloc-only).
+   Frame retail 0x180 vs object 0x160 (6 GPR + 6 FPR saves vs 4+6; c0 kept in s0). All 42 jal sites present;
+   counted loops, nested switches (0x8C via jtbl_00748080, 0x54/0x2C/0x81/0xE8/type/0x2000), half-scaler
+   (u>>1|u&1) with (s32) outer to avoid inner bltz (retail srl/or/mtc1/cvt/add), lerps as base+ratio*(t-b).
+   MAC adda/madd chains as plain C mul/add; remaining wall is scheduling/register coloring. Production stays ASM. */
+// FUN_0026A020 NONMATCHING
+#ifdef NON_MATCHING
+void func_0026a020(u8 *arg0) {
+    extern void func_00269c70(float *out, float *base, float a0, float a1, float a2);
+    extern void func_00269db0(float *a0, float *a1);
+    extern float func_0026cba0(unsigned int a0, float a1, float a2);
+    extern float func_003e4180(float *a0);
+    extern void func_003e40b0(void *a0, void *a1);
+    extern void func_00146a10(u8 *a0, u8 *a1, void *a2, void *a3);
+    extern void func_0026cef0(unsigned int a0, void *a1, void *a2, unsigned int a3, unsigned int a4);
+    extern void func_0026c770(float *a0, float *a1, float *a2);
+    extern void func_0026c680(float *a0);
+    extern unsigned char *func_0047a250(unsigned int a0);
+    extern void func_0047a850(unsigned int a0, unsigned int a1);
+    extern void func_0047a870(unsigned int a0, unsigned int a1);
+    extern void func_0047a220(unsigned int a0, void *a1);
+    extern void func_004b14f0(unsigned int a0, void *a1);
+    extern void func_004b13f0(unsigned int a0, void *a1);
+    extern void func_004b1190(unsigned int a0);
+    extern void func_0045af60(int a0, int a1, int a2, int a3);
+    extern int func_0026ba60(u8 *a0);
+    extern unsigned int func_00269820(unsigned short *a0, int a1, long long a2, long long a3, int a4, int a5, float a6);
+    float f168[3];
+    float f158[3];
+    float f148[3];
+    float f138[3];
+    float f128[3];
+    float f118[3];
+    float f108[3];
+    float fF8[3];
+    float fE8[3];
+    float fD8[3];
+    float fC8[3];
+    float fB8[3];
+    float fA8[3];
+    float f98[3];
+    float f88[3];
+    float f78[3];
+    float f70[3];
+    float f60[3];
+    unsigned char stk78[4];
+    unsigned char stk7C_extra[4];
+    int step;
+    unsigned int flags;
+    unsigned int c0;
+    unsigned int c4;
+    float ratio;
+    float tmpF;
+    float tmpF2;
+    float f20save;
+    int i;
+    int j;
+    int k;
+    unsigned char mode8C;
+    unsigned char mode54;
+    unsigned char mode2C;
+    unsigned char mode81;
+    unsigned char modeE8;
+    unsigned char alpha;
+    unsigned char tmpB0;
+    unsigned char tmpB1;
+    unsigned char tmpB2;
+    unsigned char tmpB3;
+    float *p1;
+    float *p2;
+    if (arg0 == 0) {
+        return;
+    }
+    flags = *(unsigned int *)(arg0 + 0x28);
+    step = 0;
+    if ((flags & 0x20) != 0) {
+        step = *(int *)(arg0 + 0x134);
+        *(unsigned int *)(arg0 + 0x28) = flags & ~0x20U;
+        *(unsigned int *)(arg0 + 0x134) = 0;
+    } else if ((flags & 8) == 0) {
+        step = 1;
+    }
+    if (step < 0) {
+        step = 0;
+    }
+    flags = *(unsigned int *)(arg0 + 0x28);
+    if ((flags & 0x10) != 0) {
+        *(unsigned int *)(arg0 + 0x28) = flags | 0x08000000U;
+        f168[0] = *(float *)(arg0 + 0x90);
+        f168[1] = *(float *)(arg0 + 0x94);
+        f168[2] = *(float *)(arg0 + 0x98);
+        func_00269c70(f138, f168, *(float *)(arg0 + 0xA8), *(float *)(arg0 + 0xB0), *(float *)(arg0 + 0xB8));
+        *(float *)(arg0 + 4) = f138[0];
+        *(float *)(arg0 + 8) = f138[1];
+        *(float *)(arg0 + 0xC) = f138[2];
+        *(float *)(arg0 + 0x10) = *(float *)(arg0 + 0x90);
+        *(float *)(arg0 + 0x14) = *(float *)(arg0 + 0x94);
+        *(float *)(arg0 + 0x18) = *(float *)(arg0 + 0x98);
+        f158[0] = *(float *)(arg0 + 0x9C);
+        f158[1] = *(float *)(arg0 + 0xA0);
+        f158[2] = *(float *)(arg0 + 0xA4);
+        func_00269c70(f128, f158, *(float *)(arg0 + 0xAC), *(float *)(arg0 + 0xB4), *(float *)(arg0 + 0xBC));
+        f108[0] = *(float *)(arg0 + 0x9C) - *(float *)(arg0 + 0x90);
+        f108[1] = *(float *)(arg0 + 0xA0) - *(float *)(arg0 + 0x94);
+        f108[2] = *(float *)(arg0 + 0xA4) - *(float *)(arg0 + 0x98);
+        c0 = *(unsigned int *)(arg0 + 0xC0);
+        if (c0 == 0) {
+            *(float *)(arg0 + 4) = f128[0];
+            *(float *)(arg0 + 8) = f128[1];
+            *(float *)(arg0 + 0xC) = f128[2];
+            f108[0] = f158[0] - f128[0];
+            f108[1] = f158[1] - f128[1];
+            f108[2] = f158[2] - f128[2];
+            func_00269db0((float *)(arg0 + 0x10), f108);
+            flags = *(unsigned int *)(arg0 + 0x28) & ~0x10U;
+            *(unsigned int *)(arg0 + 0x28) = flags;
+            *(unsigned int *)(arg0 + 0x28) = flags & 0xF7FFFFFFU;
+        } else {
+            mode8C = *(unsigned char *)(arg0 + 0x8C);
+            switch (mode8C) {
+            case 0: {
+                float fc4;
+                float fc0;
+                c4 = *(unsigned int *)(arg0 + 0xC4);
+                if ((int)c4 < 0) {
+                    fc4 = 2.0f * (float)(int)(((c4) >> 1) | ((c4) & 1U));
+                } else {
+                    fc4 = (float)(int)c4;
+                }
+                if ((int)c0 < 0) {
+                    fc0 = 2.0f * (float)(int)(((c0) >> 1) | ((c0) & 1U));
+                } else {
+                    fc0 = (float)(int)c0;
+                }
+                ratio = fc4 / fc0;
+                f148[0] = (f158[0] - f168[0]) * ratio + f168[0];
+                f148[1] = (f158[1] - f168[1]) * ratio + f168[1];
+                f148[2] = (f158[2] - f168[2]) * ratio + f168[2];
+                tmpF = (*(float *)(arg0 + 0xAC) - *(float *)(arg0 + 0xA8)) * ratio + *(float *)(arg0 + 0xA8);
+                tmpF2 = (*(float *)(arg0 + 0xB4) - *(float *)(arg0 + 0xB0)) * ratio + *(float *)(arg0 + 0xB0);
+                f70[0] = (*(float *)(arg0 + 0xBC) - *(float *)(arg0 + 0xB8)) * ratio + *(float *)(arg0 + 0xB8);
+                func_00269c70(f118, f148, tmpF, tmpF2, f70[0]);
+                *(float *)(arg0 + 4) = f118[0];
+                *(float *)(arg0 + 8) = f118[1];
+                *(float *)(arg0 + 0xC) = f118[2];
+                *(float *)(arg0 + 0x10) = f148[0];
+                *(float *)(arg0 + 0x14) = f148[1];
+                *(float *)(arg0 + 0x18) = f148[2];
+                break;
+            }
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5: {
+                float fc4;
+                float fc0;
+                float cb;
+                c4 = *(unsigned int *)(arg0 + 0xC4);
+                if ((int)c4 < 0) {
+                    fc4 = 2.0f * (float)(int)(((c4) >> 1) | ((c4) & 1U));
+                } else {
+                    fc4 = (float)(int)c4;
+                }
+                if ((int)c0 < 0) {
+                    fc0 = 2.0f * (float)(int)(((c0) >> 1) | ((c0) & 1U));
+                } else {
+                    fc0 = (float)(int)c0;
+                }
+                cb = func_0026cba0(mode8C, fc0, fc4);
+                if ((int)c0 < 0) {
+                    tmpF = 2.0f * (float)(int)(((c0) >> 1) | ((c0) & 1U));
+                } else {
+                    tmpF = (float)(int)c0;
+                }
+                ratio = cb / tmpF;
+                f148[0] = (f158[0] - f168[0]) * ratio + f168[0];
+                f148[1] = (f158[1] - f168[1]) * ratio + f168[1];
+                f148[2] = (f158[2] - f168[2]) * ratio + f168[2];
+                tmpF = (*(float *)(arg0 + 0xAC) - *(float *)(arg0 + 0xA8)) * ratio + *(float *)(arg0 + 0xA8);
+                tmpF2 = (*(float *)(arg0 + 0xB4) - *(float *)(arg0 + 0xB0)) * ratio + *(float *)(arg0 + 0xB0);
+                f70[0] = (*(float *)(arg0 + 0xBC) - *(float *)(arg0 + 0xB8)) * ratio + *(float *)(arg0 + 0xB8);
+                func_00269c70(f118, f148, tmpF, tmpF2, f70[0]);
+                *(float *)(arg0 + 4) = f118[0];
+                *(float *)(arg0 + 8) = f118[1];
+                *(float *)(arg0 + 0xC) = f118[2];
+                *(float *)(arg0 + 0x10) = f148[0];
+                *(float *)(arg0 + 0x14) = f148[1];
+                *(float *)(arg0 + 0x18) = f148[2];
+                break;
+            }
+            default:
+                break;
+            }
+            c4 = *(unsigned int *)(arg0 + 0xC4);
+            c0 = *(unsigned int *)(arg0 + 0xC0);
+            if (c4 >= c0) {
+                *(float *)(arg0 + 4) = f128[0];
+                *(float *)(arg0 + 8) = f128[1];
+                *(float *)(arg0 + 0xC) = f128[2];
+                f108[0] = f158[0] - f128[0];
+                f108[1] = f158[1] - f128[1];
+                f108[2] = f158[2] - f128[2];
+                func_00269db0((float *)(arg0 + 0x10), f108);
+                flags = *(unsigned int *)(arg0 + 0x28) & ~0x10U;
+                *(unsigned int *)(arg0 + 0x28) = flags;
+                *(unsigned int *)(arg0 + 0x28) = flags & 0xF7FFFFFFU;
+            } else {
+                *(unsigned int *)(arg0 + 0xC4) = c4 + (unsigned int)step;
+            }
+        }
+    } else {
+        if ((flags & 1) != 0) {
+            fF8[0] = *(float *)(arg0 + 0x3C);
+            fF8[1] = *(float *)(arg0 + 0x40);
+            fF8[2] = *(float *)(arg0 + 0x44);
+            fE8[0] = *(float *)(arg0 + 4);
+            fE8[1] = *(float *)(arg0 + 8);
+            fE8[2] = *(float *)(arg0 + 0xC);
+            mode54 = *(unsigned char *)(arg0 + 0x54);
+            switch (mode54) {
+            case 0: {
+                float len;
+                int cnt;
+                fD8[0] = fF8[0] - fE8[0];
+                fD8[1] = fF8[1] - fE8[1];
+                fD8[2] = fF8[2] - fE8[2];
+                len = func_003e4180(fD8);
+                cnt = step;
+                do {
+                    if (len <= *(float *)(arg0 + 0x5C)) {
+                        *(float *)(arg0 + 4) = fF8[0];
+                        *(float *)(arg0 + 8) = fF8[1];
+                        *(float *)(arg0 + 0xC) = fF8[2];
+                        *(unsigned int *)(arg0 + 0x28) &= ~1U;
+                        break;
+                    }
+                    func_003e40b0(fC8, fD8);
+                    if (cnt > 0) {
+                        *(float *)(arg0 + 4) = fC8[0] * *(float *)(arg0 + 0x5C) + *(float *)(arg0 + 4);
+                        *(float *)(arg0 + 8) = fC8[1] * *(float *)(arg0 + 0x5C) + *(float *)(arg0 + 8);
+                        *(float *)(arg0 + 0xC) = fC8[2] * *(float *)(arg0 + 0x5C) + *(float *)(arg0 + 0xC);
+                    }
+                    cnt--;
+                    if (cnt <= 0) {
+                        break;
+                    }
+                    len = func_003e4180(fD8);
+                } while (1);
+                func_00146a10(arg0, arg0 + 4, 0, 0);
+                break;
+            }
+            case 1: {
+                float div0;
+                float div1;
+                float div2;
+                unsigned int total;
+                unsigned char sub;
+                total = *(unsigned int *)(arg0 + 0x64);
+                fD8[0] = fF8[0] - *(float *)(arg0 + 0x30);
+                fD8[1] = fF8[1] - *(float *)(arg0 + 0x34);
+                fD8[2] = fF8[2] - *(float *)(arg0 + 0x38);
+                if (total == 0) {
+                    *(float *)(arg0 + 4) = fF8[0];
+                    *(float *)(arg0 + 8) = fF8[1];
+                    *(float *)(arg0 + 0xC) = fF8[2];
+                    *(unsigned int *)(arg0 + 0x28) &= ~1U;
+                } else {
+                    if ((int)total < 0) {
+                        div0 = 2.0f * (float)(int)(((total) >> 1) | ((total) & 1U));
+                    } else {
+                        div0 = (float)(int)total;
+                    }
+                    fD8[0] /= div0;
+                    if ((int)total < 0) {
+                        div1 = 2.0f * (float)(int)(((total) >> 1) | ((total) & 1U));
+                    } else {
+                        div1 = (float)(int)total;
+                    }
+                    fD8[1] /= div1;
+                    if ((int)total < 0) {
+                        div2 = 2.0f * (float)(int)(((total) >> 1) | ((total) & 1U));
+                    } else {
+                        div2 = (float)(int)total;
+                    }
+                    fD8[2] /= div2;
+                    sub = *(unsigned char *)(arg0 + 0x2C);
+                    switch (sub) {
+                    case 0: {
+                        float f60;
+                        unsigned int cur;
+                        cur = *(unsigned int *)(arg0 + 0x60);
+                        if ((int)cur < 0) {
+                            f60 = 2.0f * (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                        } else {
+                            f60 = (float)(int)cur;
+                        }
+                        *(float *)(arg0 + 4) = fD8[0] * f60 + *(float *)(arg0 + 0x30);
+                        if ((int)cur < 0) {
+                            f60 = 2.0f * (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                        } else {
+                            f60 = (float)(int)cur;
+                        }
+                        *(float *)(arg0 + 8) = fD8[1] * f60 + *(float *)(arg0 + 0x34);
+                        if ((int)cur < 0) {
+                            f60 = 2.0f * (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                        } else {
+                            f60 = (float)(int)cur;
+                        }
+                        *(float *)(arg0 + 0xC) = fD8[2] * f60 + *(float *)(arg0 + 0x38);
+                        break;
+                    }
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5: {
+                        float fc;
+                        float fcur;
+                        float ftot;
+                        unsigned int cur;
+                        cur = *(unsigned int *)(arg0 + 0x60);
+                        if ((int)total < 0) {
+                            ftot = 2.0f * (float)(int)(((total) >> 1) | ((total) & 1U));
+                        } else {
+                            ftot = (float)(int)total;
+                        }
+                        if ((int)cur < 0) {
+                            fcur = 2.0f * (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                        } else {
+                            fcur = (float)(int)cur;
+                        }
+                        fc = func_0026cba0(sub, ftot, fcur);
+                        *(float *)(arg0 + 4) = fD8[0] * fc + *(float *)(arg0 + 0x30);
+                        *(float *)(arg0 + 8) = fD8[1] * fc + *(float *)(arg0 + 0x34);
+                        *(float *)(arg0 + 0xC) = fD8[2] * fc + *(float *)(arg0 + 0x38);
+                        break;
+                    }
+                    default:
+                        break;
+                    }
+                    total = *(unsigned int *)(arg0 + 0x64);
+                    {
+                        unsigned int cur2 = *(unsigned int *)(arg0 + 0x60);
+                        if (cur2 >= total) {
+                            *(float *)(arg0 + 4) = fF8[0];
+                            *(float *)(arg0 + 8) = fF8[1];
+                            *(float *)(arg0 + 0xC) = fF8[2];
+                            *(unsigned int *)(arg0 + 0x28) &= ~1U;
+                        } else {
+                            *(unsigned int *)(arg0 + 0x60) = cur2 + (unsigned int)step;
+                        }
+                    }
+                }
+                func_00146a10(arg0, arg0 + 4, 0, 0);
+                break;
+            }
+            case 2: {
+                float cur;
+                float tot;
+                int sflags;
+                func_0026cef0(*(unsigned int *)(arg0 + 0x58), fB8, fA8, *(unsigned int *)(arg0 + 0x60), *(unsigned int *)(arg0 + 0x64));
+                cur = *(float *)(arg0 + 0x60);
+                tot = *(float *)(arg0 + 0x64);
+                if (!(cur < tot)) {
+                    sflags = *(int *)(arg0 + 0x28);
+                    if ((sflags & 0x40) != 0) {
+                        *(float *)(arg0 + 0x60) = cur - tot;
+                    } else {
+                        *(unsigned int *)(arg0 + 0x28) = (unsigned int)sflags & ~1U;
+                    }
+                }
+                *(float *)(arg0 + 4) = fB8[0];
+                *(float *)(arg0 + 8) = fB8[1];
+                *(float *)(arg0 + 0xC) = fB8[2];
+                i = 0;
+                while (i < step) {
+                    *(float *)(arg0 + 0x60) = *(float *)(arg0 + 0x60) + *(float *)(arg0 + 0x5C);
+                    i++;
+                }
+                func_00146a10(arg0, arg0 + 4, 0, 0);
+                if ((*(unsigned int *)(arg0 + 0x28) & 8) == 0) {
+                    *(float *)(arg0 + 0x10) = fA8[0];
+                    *(float *)(arg0 + 0x14) = fA8[1];
+                    *(float *)(arg0 + 0x18) = fA8[2];
+                    func_00146a10(arg0, 0, arg0 + 0x10, 0);
+                }
+                break;
+            }
+            default:
+                break;
+            }
+        }
+        if ((*(unsigned int *)(arg0 + 0x28) & 4) != 0) {
+            if (*(int *)(arg0 + 0x84) == 0) {
+                *(float *)(arg0 + 0x10) = *(float *)(arg0 + 0x74);
+                *(float *)(arg0 + 0x14) = *(float *)(arg0 + 0x78);
+                *(float *)(arg0 + 0x18) = *(float *)(arg0 + 0x7C);
+                *(unsigned int *)(arg0 + 0x28) &= ~4U;
+                func_00146a10(arg0, 0, arg0 + 0x10, 0);
+            } else {
+                if (*(int *)(arg0 + 0x88) == 0) {
+                    *(int *)(arg0 + 0x88) = step;
+                } else {
+                    float div;
+                    float cba;
+                    func_0026c770((float *)(arg0 + 0x68), (float *)(arg0 + 0x74), f98);
+                    div = (float)(int)*(unsigned int *)(arg0 + 0x84);
+                    if ((int)*(unsigned int *)(arg0 + 0x84) < 0) {
+                        div = 2.0f * (float)(int)(((*(unsigned int *)(arg0 + 0x84)) >> 1) | ((*(unsigned int *)(arg0 + 0x84)) & 1U));
+                    }
+                    f98[0] /= div;
+                    f98[1] /= div;
+                    f98[2] /= div;
+                    mode81 = *(unsigned char *)(arg0 + 0x81);
+                    switch (mode81) {
+                    case 0: {
+                        unsigned int cur;
+                        cur = *(unsigned int *)(arg0 + 0x88);
+                        if ((int)cur < 0) {
+                            tmpF = 2.0f * (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                        } else {
+                            tmpF = (float)(int)cur;
+                        }
+                        f88[0] = f98[0] * tmpF + *(float *)(arg0 + 0x68);
+                        if ((int)cur < 0) {
+                            tmpF = 2.0f * (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                        } else {
+                            tmpF = (float)(int)cur;
+                        }
+                        f88[1] = f98[1] * tmpF + *(float *)(arg0 + 0x6C);
+                        if ((int)cur < 0) {
+                            tmpF = 2.0f * (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                        } else {
+                            tmpF = (float)(int)cur;
+                        }
+                        f88[2] = f98[2] * tmpF + *(float *)(arg0 + 0x70);
+                        break;
+                    }
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5: {
+                        unsigned int tot;
+                        unsigned int cur;
+                        float ftot;
+                        float fcur;
+                        tot = *(unsigned int *)(arg0 + 0x84);
+                        cur = *(unsigned int *)(arg0 + 0x88);
+                        if ((int)tot < 0) {
+                            ftot = 2.0f * (float)(int)(((tot) >> 1) | ((tot) & 1U));
+                        } else {
+                            ftot = (float)(int)tot;
+                        }
+                        if ((int)cur < 0) {
+                            fcur = 2.0f * (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                        } else {
+                            fcur = (float)(int)cur;
+                        }
+                        cba = func_0026cba0(mode81, ftot, fcur);
+                        f88[0] = f98[0] * cba + *(float *)(arg0 + 0x68);
+                        f88[1] = f98[1] * cba + *(float *)(arg0 + 0x6C);
+                        f88[2] = f98[2] * cba + *(float *)(arg0 + 0x70);
+                        break;
+                    }
+                    default:
+                        break;
+                    }
+                    *(float *)(arg0 + 0x10) = f88[0];
+                    *(float *)(arg0 + 0x14) = f88[1];
+                    *(float *)(arg0 + 0x18) = f88[2];
+                    if (*(unsigned int *)(arg0 + 0x88) >= *(unsigned int *)(arg0 + 0x84)) {
+                        *(float *)(arg0 + 0x10) = *(float *)(arg0 + 0x74);
+                        *(float *)(arg0 + 0x14) = *(float *)(arg0 + 0x78);
+                        *(float *)(arg0 + 0x18) = *(float *)(arg0 + 0x7C);
+                        *(unsigned int *)(arg0 + 0x28) &= ~4U;
+                    } else {
+                        *(unsigned int *)(arg0 + 0x88) += (unsigned int)step;
+                    }
+                    if (step != 0) {
+                        func_00146a10(arg0, 0, arg0 + 0x10, 0);
+                    }
+                }
+            }
+        }
+        if ((*(unsigned int *)(arg0 + 0x28) & 0x08000000U) == 0) {
+            func_0026c680((float *)(arg0 + 0x10));
+        }
+    }
+    if ((*(unsigned int *)(arg0 + 0x28) & 0x8000U) != 0) {
+        unsigned int e0;
+        e0 = *(unsigned int *)(arg0 + 0xE0);
+        if (e0 == 0) {
+            *(float *)(arg0 + 0x1C) = *(float *)(arg0 + 0xD4);
+            *(float *)(arg0 + 0x20) = *(float *)(arg0 + 0xD8);
+            *(float *)(arg0 + 0x24) = *(float *)(arg0 + 0xDC);
+            *(unsigned int *)(arg0 + 0x28) &= 0xFFFF7FFFU;
+            func_00146a10(arg0, 0, 0, arg0 + 0x1C);
+        } else {
+            float fE0;
+            float fE4;
+            unsigned int e1C;
+            if ((int)e0 < 0) {
+                fE0 = 2.0f * (float)(int)(((e0) >> 1) | ((e0) & 1U));
+            } else {
+                fE0 = (float)(int)e0;
+            }
+            e1C = *(unsigned int *)(arg0 + 0xE4);
+            if ((int)e1C < 0) {
+                fE4 = 2.0f * (float)(int)(((e1C) >> 1) | ((e1C) & 1U));
+            } else {
+                fE4 = (float)(int)e1C;
+            }
+            ratio = fE4 / fE0;
+            f78[0] = (*(float *)(arg0 + 0xC8) - *(float *)(arg0 + 0xC8 - 0x28)) * ratio + *(float *)(arg0 + 0xC8 - 0x28);
+            f78[1] = (*(float *)(arg0 + 0xCC) - *(float *)(arg0 + 0xCC - 0x28)) * ratio + *(float *)(arg0 + 0xCC - 0x28);
+            f78[2] = (*(float *)(arg0 + 0xD0) - *(float *)(arg0 + 0xD0 - 0x28)) * ratio + *(float *)(arg0 + 0xD0 - 0x28);
+            *(float *)(arg0 + 0x1C) = f78[0];
+            *(float *)(arg0 + 0x20) = f78[1];
+            *(float *)(arg0 + 0x24) = f78[2];
+            e1C = *(unsigned int *)(arg0 + 0xE4);
+            if (e1C >= *(unsigned int *)(arg0 + 0xE0)) {
+                *(float *)(arg0 + 0x1C) = *(float *)(arg0 + 0xD4);
+                *(float *)(arg0 + 0x20) = *(float *)(arg0 + 0xD8);
+                *(float *)(arg0 + 0x24) = *(float *)(arg0 + 0xDC);
+                *(unsigned int *)(arg0 + 0x28) &= 0xFFFF7FFFU;
+            } else {
+                *(unsigned int *)(arg0 + 0xE4) = e1C + (unsigned int)step;
+            }
+            if (step != 0) {
+                func_00146a10(arg0, 0, 0, arg0 + 0x1C);
+            }
+        }
+    }
+    flags = *(unsigned int *)(arg0 + 0x28);
+    if ((flags & 0x4000U) != 0) {
+        unsigned int f8;
+        unsigned int fc;
+        float f_lo;
+        float f_hi;
+        float fdiv;
+        f8 = *(unsigned int *)(arg0 + 0xF8);
+        if (f8 == 0) {
+            alpha = *(unsigned char *)(arg0 + 0xF5);
+            *(unsigned int *)(arg0 + 0x28) = flags & ~0x4000U;
+        } else {
+            fc = *(unsigned int *)(arg0 + 0xFC);
+            if (fc >= f8) {
+                alpha = *(unsigned char *)(arg0 + 0xF5);
+                *(unsigned int *)(arg0 + 0x28) = flags & ~0x4000U;
+            } else {
+                if ((int)*(unsigned char *)(arg0 + 0xF4) < 0) {
+                    f_lo = 2.0f * (float)(int)(((*(unsigned char *)(arg0 + 0xF4)) >> 1) | ((*(unsigned char *)(arg0 + 0xF4)) & 1U));
+                } else {
+                    f_lo = (float)(int)*(unsigned char *)(arg0 + 0xF4);
+                }
+                if ((int)*(unsigned char *)(arg0 + 0xF5) < 0) {
+                    f_hi = 2.0f * (float)(int)(((*(unsigned char *)(arg0 + 0xF5)) >> 1) | ((*(unsigned char *)(arg0 + 0xF5)) & 1U));
+                } else {
+                    f_hi = (float)(int)*(unsigned char *)(arg0 + 0xF5);
+                }
+                if ((int)f8 < 0) {
+                    tmpF = 2.0f * (float)(int)(((f8) >> 1) | ((f8) & 1U));
+                } else {
+                    tmpF = (float)(int)f8;
+                }
+                if ((int)fc < 0) {
+                    tmpF2 = 2.0f * (float)(int)(((fc) >> 1) | ((fc) & 1U));
+                } else {
+                    tmpF2 = (float)(int)fc;
+                }
+                fdiv = (f_hi - f_lo) / tmpF * tmpF2 + f_lo;
+                if (!(fdiv >= 2.1474836e9f)) {
+                    i = (int)fdiv & 0xFF;
+                } else {
+                    i = ((int)(fdiv - 2.1474836e9f) | 0x80000000) & 0xFF;
+                }
+                alpha = (unsigned char)(i & 0xFF);
+                *(unsigned int *)(arg0 + 0xFC) = fc + (unsigned int)step;
+            }
+        }
+        i = (*(unsigned short *)arg0 & 0xFFC00) >> 10;
+        if (i == 3) {
+            unsigned char *p;
+            unsigned char b0;
+            unsigned char b1;
+            unsigned char b2;
+            unsigned char b3;
+            p = func_0047a250(*(unsigned int *)(arg0 + 0x164));
+            b0 = *(unsigned char *)(p + 0);
+            b1 = *(unsigned char *)(p + 1);
+            b2 = *(unsigned char *)(p + 2);
+            b3 = alpha;
+            tmpB0 = b0;
+            tmpB1 = b1;
+            tmpB2 = b2;
+            tmpB3 = b3;
+            if ((int)(char)b3 < 0xFF) {
+                if (*(char *)(arg0 + 0x100) != 0) {
+                    func_0047a850(*(unsigned int *)(arg0 + 0x164), tmpB0);
+                } else {
+                    func_0047a870(*(unsigned int *)(arg0 + 0x164), tmpB0);
+                }
+            } else {
+                func_0047a870(*(unsigned int *)(arg0 + 0x164), tmpB0);
+            }
+            {
+                unsigned char buf[4];
+                buf[0] = tmpB0;
+                buf[1] = tmpB1;
+                buf[2] = tmpB2;
+                buf[3] = tmpB3;
+                func_0047a220(*(unsigned int *)(arg0 + 0x164), buf);
+            }
+        } else if (i == 6) {
+            unsigned char buf[4];
+            buf[3] = alpha;
+            func_004b14f0(*(unsigned int *)(arg0 + 0x144), buf);
+            func_004b13f0(*(unsigned int *)(arg0 + 0x144), buf);
+        }
+    }
+    if ((*(unsigned int *)(arg0 + 0x28) & 0x400U) != 0) {
+        if (((*(unsigned short *)arg0 & 0xFFC00) >> 10) == 7) {
+            int lim;
+            float base;
+            lim = *(int *)(arg0 + 0x10C);
+            base = *(float *)(arg0 + 0x108);
+            if (lim <= 0) {
+                *(float *)(arg0 + 0x140) = base;
+                *(unsigned int *)(arg0 + 0x28) &= ~0x400U;
+            } else {
+                float cur;
+                cur = (*(float *)(arg0 + 0x108) - *(float *)(arg0 + 0x102)) / (float)lim * (float)*(unsigned int *)(arg0 + 0x60) + *(float *)(arg0 + 0x102);
+                *(float *)(arg0 + 0x140) = cur;
+                if (*(int *)(arg0 + 0x110) >= lim) {
+                    *(float *)(arg0 + 0x140) = base;
+                    *(unsigned int *)(arg0 + 0x28) &= ~0x400U;
+                } else {
+                    *(int *)(arg0 + 0x110) += step;
+                }
+            }
+        }
+    }
+    i = (*(unsigned short *)arg0 & 0xFFC00) >> 10;
+    if (i == 1) {
+        for (j = 0; j < 2; j++) {
+            if (*(int *)(arg0 + 0x140 + j * 4) != 0) {
+                func_004b1190(*(unsigned int *)(arg0 + 0x140 + j * 4));
+            }
+        }
+    } else if (i == 3) {
+        for (j = 0; j < 2; j++) {
+            if (*(int *)(arg0 + 0x140 + j * 4) != 0) {
+                func_004b1190(*(unsigned int *)(arg0 + 0x140 + j * 4));
+            }
+        }
+    } else if (i == 6) {
+        if (*(int *)(arg0 + 0x144) != 0) {
+            func_004b1190(*(unsigned int *)(arg0 + 0x144));
+        }
+    }
+    if ((*(unsigned int *)(arg0 + 0x28) & 0x2000U) != 0) {
+        unsigned short *ptr = 0;
+        unsigned int h = 0;
+        int kind;
+        kind = (*(unsigned short *)arg0 & 0xFFC00) >> 10;
+        if (kind == 1) {
+            ptr = (unsigned short *)(arg0 + 0x14C);
+            h = *(unsigned int *)(arg0 + 0x164);
+        } else if (kind == 2) {
+            ptr = (unsigned short *)(arg0 + 0x140);
+            h = *(unsigned int *)(arg0 + 0x158);
+        } else if (kind == 3) {
+            ptr = (unsigned short *)(arg0 + 0x14C);
+            h = *(unsigned int *)(arg0 + 0x164);
+        }
+        if (ptr != 0) {
+            unsigned int idx;
+            idx = *(unsigned int *)ptr;
+            if (*(unsigned char *)(h + idx * 0xA4 + 0xEE) == 1) {
+                func_00269820((unsigned short *)arg0, (int)idx, (long long)*(int *)(ptr + 2), (long long)*(int *)(ptr + 4), *(int *)(ptr + 6), *(int *)(ptr + 8), *(float *)(ptr + 10));
+                *(unsigned int *)(arg0 + 0x28) &= ~0x2000U;
+            }
+        }
+    }
+    modeE8 = *(unsigned char *)(arg0 + 0xE8);
+    if (modeE8 == 1 || modeE8 == 2) {
+        if (modeE8 == 1) {
+            if ((*(unsigned int *)(arg0 + 0x28) & 1) == 0) {
+                int v;
+                unsigned char sub;
+                *(unsigned char *)(arg0 + 0xE8) = 0;
+                v = func_0026ba60(arg0 + 4);
+                sub = *(unsigned char *)(arg0 + 0xEA);
+                if (sub == 0) {
+                    func_0045af60(0, *(unsigned char *)(arg0 + 0xEB), 1, (int)(*(unsigned char *)(arg0 + 0xE9) + v * 4));
+                } else if (sub == 1) {
+                    func_0045af60(0, *(unsigned char *)(arg0 + 0xEB), 2, (int)*(unsigned char *)(arg0 + 0xE9) + 0x18);
+                }
+                *(unsigned char *)(arg0 + 0xE9) += 1;
+                if ((int)*(unsigned char *)(arg0 + 0xE9) >= 4) {
+                    *(unsigned char *)(arg0 + 0xE9) = 0;
+                    return;
+                }
+            } else if (step != 0) {
+                unsigned short d;
+                d = *(unsigned short *)(arg0 + 0xF0);
+                if ((int)(short)d > 0) {
+                    *(unsigned short *)(arg0 + 0xF0) = d - 1;
+                    return;
+                }
+                if (*(unsigned short *)(arg0 + 0xEC) == 0) {
+                    int v;
+                    unsigned char sub;
+                    v = func_0026ba60(arg0 + 4);
+                    sub = *(unsigned char *)(arg0 + 0xEA);
+                    if (sub == 0) {
+                        func_0045af60(0, *(unsigned char *)(arg0 + 0xEB), 1, (int)(*(unsigned char *)(arg0 + 0xE9) + v * 4));
+                    } else if (sub == 1) {
+                        func_0045af60(0, *(unsigned char *)(arg0 + 0xEB), 2, (int)*(unsigned char *)(arg0 + 0xE9) + 0x18);
+                    }
+                    *(unsigned char *)(arg0 + 0xE9) += 1;
+                    if ((int)*(unsigned char *)(arg0 + 0xE9) >= 4) {
+                        *(unsigned char *)(arg0 + 0xE9) = 0;
+                    }
+                }
+                *(unsigned short *)(arg0 + 0xEC) += 1;
+                if (*(unsigned short *)(arg0 + 0xEC) >= *(unsigned short *)(arg0 + 0xEE)) {
+                    if (*(unsigned short *)(arg0 + 0xEE) <= 0) {
+                        *(unsigned char *)(arg0 + 0xE8) = 0;
+                        return;
+                    }
+                    *(unsigned short *)(arg0 + 0xEC) = 0;
+                }
+            }
+        } else {
+            if ((*(unsigned int *)(arg0 + 0x28) & 4) == 0) {
+                int v;
+                unsigned char sub;
+                *(unsigned char *)(arg0 + 0xE8) = 0;
+                v = func_0026ba60(arg0 + 4);
+                sub = *(unsigned char *)(arg0 + 0xEA);
+                if (sub == 0) {
+                    func_0045af60(0, *(unsigned char *)(arg0 + 0xEB), 1, (int)(*(unsigned char *)(arg0 + 0xE9) + v * 4));
+                } else if (sub == 1) {
+                    func_0045af60(0, *(unsigned char *)(arg0 + 0xEB), 2, (int)*(unsigned char *)(arg0 + 0xE9) + 0x18);
+                }
+                *(unsigned char *)(arg0 + 0xE9) += 1;
+                if ((int)*(unsigned char *)(arg0 + 0xE9) >= 4) {
+                    *(unsigned char *)(arg0 + 0xE9) = 0;
+                    return;
+                }
+            } else if (step != 0) {
+                unsigned short d;
+                d = *(unsigned short *)(arg0 + 0xF0);
+                if ((int)(short)d > 0) {
+                    *(unsigned short *)(arg0 + 0xF0) = d - 1;
+                    return;
+                }
+                if (*(unsigned short *)(arg0 + 0xEC) == 0) {
+                    int v;
+                    unsigned char sub;
+                    v = func_0026ba60(arg0 + 4);
+                    sub = *(unsigned char *)(arg0 + 0xEA);
+                    if (sub == 0) {
+                        func_0045af60(0, *(unsigned char *)(arg0 + 0xEB), 1, (int)(*(unsigned char *)(arg0 + 0xE9) + v * 4));
+                    } else if (sub == 1) {
+                        func_0045af60(0, *(unsigned char *)(arg0 + 0xEB), 2, (int)*(unsigned char *)(arg0 + 0xE9) + 0x18);
+                    }
+                    *(unsigned char *)(arg0 + 0xE9) += 1;
+                    if ((int)*(unsigned char *)(arg0 + 0xE9) >= 4) {
+                        *(unsigned char *)(arg0 + 0xE9) = 0;
+                    }
+                }
+                *(unsigned short *)(arg0 + 0xEC) += 1;
+                if (*(unsigned short *)(arg0 + 0xEC) >= *(unsigned short *)(arg0 + 0xEE)) {
+                    if (*(unsigned short *)(arg0 + 0xEE) <= 0) {
+                        *(unsigned char *)(arg0 + 0xE8) = 0;
+                        return;
+                    }
+                    *(unsigned short *)(arg0 + 0xEC) = 0;
+                }
+            }
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026a020);
+#endif
 
 /* measured: ported from m2c + P3FES idioms. Best nd 60 (obj 428B/window 432B)
    with hoisted temp_3[0]/temp_3[4] loads + sp40p base pointer. Residual:
