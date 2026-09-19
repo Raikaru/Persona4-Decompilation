@@ -122,6 +122,19 @@ s32 func_00268990(s32 arg0) {
    B=inside `for (i...)` body; retail order `initial` then `target`, rev the
    reverse. No variant beats 12; the three ties confirm the current
    function-scope retail-order spelling. */
+/* measured 2026-09-19 (lead): object 399 instrs against retail 399, exact,
+   12 differing words, 20 edits plus 19 reloc-only - one of the closest
+   first-party floors in the tree.  The whole residual is one instruction's
+   position: retail computes `addiu $s4, $v0, 0xd0` *before* the third
+   `func_0043f810` call and derives `$s1, $s4, 0x1c` from it, where b210 sinks
+   the recompute below the call.
+   Hoisting it in source makes things dramatically worse, which is worth
+   recording so nobody repeats it: naming `entry->current` in a local and
+   passing that to both the third and fourth calls scores 374, and writing
+   `entry->current` instead of `entries[i].current` scores 375, against 12 for
+   the form below.  The array-subscript spelling is load-bearing.  Eight scope
+   variants tie at 12 (see the earlier note); only the pre-call address
+   placement survives as a difference. */
 // FUN_00268230 NONMATCHING
 #ifdef NON_MATCHING
 typedef struct DungeonInColor { u8 r, g, b, a; } DungeonInColor;
