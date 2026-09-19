@@ -925,20 +925,11 @@ void func_001fd790(u8 *arg0)
                             node[0x3B] = node[0x3F];
                         }
                         {
-                            s32 b0 = D_007641F8[0];
-                            s32 b1 = D_007641F8[1];
-                            s32 b2 = D_007641F8[2];
-                            s32 b3 = D_007641F8[3];
-                            s32 nb0 = node[0x38];
-                            s32 nb1 = node[0x39];
-                            s32 nb2 = node[0x3A];
-                            s32 nb3 = node[0x3B];
-                            f32 h0; f32 h1; f32 h2; f32 h3;
-                            f32 nh0; f32 nh1; f32 nh2; f32 nh3;
                             f32 s0f; f32 s1f; f32 s2f; f32 s3f;
                             f32 n0f; f32 n1f; f32 n2f; f32 n3f;
                             f32 t0; f32 t1; f32 t2;
                             f32 b0f; f32 b1f; f32 b2f; f32 b3f;
+                            { s32 b0 = D_007641F8[0]; f32 h0;
                             if (b0 >= 0) {
                                 h0 = (f32)(s32)b0;
                             } else {
@@ -946,7 +937,8 @@ void func_001fd790(u8 *arg0)
                                 h0 = (f32)(s32)t;
                                 h0 = h0 + h0;
                             }
-                            s0f = D_0076129C * h0;
+                            s0f = D_0076129C * h0; }
+                            { s32 b1 = D_007641F8[1]; f32 h1;
                             if (b1 >= 0) {
                                 h1 = (f32)(s32)b1;
                             } else {
@@ -954,7 +946,8 @@ void func_001fd790(u8 *arg0)
                                 h1 = (f32)(s32)t;
                                 h1 = h1 + h1;
                             }
-                            s1f = D_0076129C * h1;
+                            s1f = D_0076129C * h1; }
+                            { s32 b2 = D_007641F8[2]; f32 h2;
                             if (b2 >= 0) {
                                 h2 = (f32)(s32)b2;
                             } else {
@@ -962,7 +955,8 @@ void func_001fd790(u8 *arg0)
                                 h2 = (f32)(s32)t;
                                 h2 = h2 + h2;
                             }
-                            s2f = D_0076129C * h2;
+                            s2f = D_0076129C * h2; }
+                            { s32 b3 = D_007641F8[3]; f32 h3;
                             if (b3 >= 0) {
                                 h3 = (f32)(s32)b3;
                             } else {
@@ -970,7 +964,8 @@ void func_001fd790(u8 *arg0)
                                 h3 = (f32)(s32)t;
                                 h3 = h3 + h3;
                             }
-                            s3f = D_0076129C * h3;
+                            s3f = D_0076129C * h3; }
+                            { s32 nb0 = node[0x38]; f32 nh0;
                             if (nb0 >= 0) {
                                 nh0 = (f32)(s32)nb0;
                             } else {
@@ -978,7 +973,8 @@ void func_001fd790(u8 *arg0)
                                 nh0 = (f32)(s32)t;
                                 nh0 = nh0 + nh0;
                             }
-                            n0f = D_0076129C * nh0;
+                            n0f = D_0076129C * nh0; }
+                            { s32 nb1 = node[0x39]; f32 nh1;
                             if (nb1 >= 0) {
                                 nh1 = (f32)(s32)nb1;
                             } else {
@@ -986,7 +982,8 @@ void func_001fd790(u8 *arg0)
                                 nh1 = (f32)(s32)t;
                                 nh1 = nh1 + nh1;
                             }
-                            n1f = D_0076129C * nh1;
+                            n1f = D_0076129C * nh1; }
+                            { s32 nb2 = node[0x3A]; f32 nh2;
                             if (nb2 >= 0) {
                                 nh2 = (f32)(s32)nb2;
                             } else {
@@ -994,7 +991,8 @@ void func_001fd790(u8 *arg0)
                                 nh2 = (f32)(s32)t;
                                 nh2 = nh2 + nh2;
                             }
-                            n2f = D_0076129C * nh2;
+                            n2f = D_0076129C * nh2; }
+                            { s32 nb3 = node[0x3B]; f32 nh3;
                             if (nb3 >= 0) {
                                 nh3 = (f32)(s32)nb3;
                             } else {
@@ -1002,7 +1000,7 @@ void func_001fd790(u8 *arg0)
                                 nh3 = (f32)(s32)t;
                                 nh3 = nh3 + nh3;
                             }
-                            n3f = D_0076129C * nh3;
+                            n3f = D_0076129C * nh3; }
                             t0 = n0f * scale;
                             t1 = n1f * scale;
                             t2 = n2f * scale;
@@ -1028,20 +1026,11 @@ void func_001fd790(u8 *arg0)
                         }
                         *(s32 *)sp1C = *(s32 *)(param + 8);
                         {
-                            s32 b0 = sp1C[0];
-                            s32 b1 = sp1C[1];
-                            s32 b2 = sp1C[2];
-                            s32 b3 = sp1C[3];
-                            s32 nb0 = node[0x38];
-                            s32 nb1 = node[0x39];
-                            s32 nb2 = node[0x3A];
-                            s32 nb3 = node[0x3B];
-                            f32 h0; f32 h1; f32 h2; f32 h3;
-                            f32 nh0; f32 nh1; f32 nh2; f32 nh3;
                             f32 s0f; f32 s1f; f32 s2f; f32 s3f;
                             f32 n0f; f32 n1f; f32 n2f; f32 n3f;
                             f32 t0; f32 t1; f32 t2;
                             f32 b0f; f32 b1f; f32 b2f; f32 b3f;
+                            { s32 b0 = sp1C[0]; f32 h0;
                             if (b0 >= 0) {
                                 h0 = (f32)(s32)b0;
                             } else {
@@ -1049,7 +1038,8 @@ void func_001fd790(u8 *arg0)
                                 h0 = (f32)(s32)t;
                                 h0 = h0 + h0;
                             }
-                            s0f = D_0076129C * h0;
+                            s0f = D_0076129C * h0; }
+                            { s32 b1 = sp1C[1]; f32 h1;
                             if (b1 >= 0) {
                                 h1 = (f32)(s32)b1;
                             } else {
@@ -1057,7 +1047,8 @@ void func_001fd790(u8 *arg0)
                                 h1 = (f32)(s32)t;
                                 h1 = h1 + h1;
                             }
-                            s1f = D_0076129C * h1;
+                            s1f = D_0076129C * h1; }
+                            { s32 b2 = sp1C[2]; f32 h2;
                             if (b2 >= 0) {
                                 h2 = (f32)(s32)b2;
                             } else {
@@ -1065,7 +1056,8 @@ void func_001fd790(u8 *arg0)
                                 h2 = (f32)(s32)t;
                                 h2 = h2 + h2;
                             }
-                            s2f = D_0076129C * h2;
+                            s2f = D_0076129C * h2; }
+                            { s32 b3 = sp1C[3]; f32 h3;
                             if (b3 >= 0) {
                                 h3 = (f32)(s32)b3;
                             } else {
@@ -1073,7 +1065,8 @@ void func_001fd790(u8 *arg0)
                                 h3 = (f32)(s32)t;
                                 h3 = h3 + h3;
                             }
-                            s3f = D_0076129C * h3;
+                            s3f = D_0076129C * h3; }
+                            { s32 nb0 = node[0x38]; f32 nh0;
                             if (nb0 >= 0) {
                                 nh0 = (f32)(s32)nb0;
                             } else {
@@ -1081,7 +1074,8 @@ void func_001fd790(u8 *arg0)
                                 nh0 = (f32)(s32)t;
                                 nh0 = nh0 + nh0;
                             }
-                            n0f = D_0076129C * nh0;
+                            n0f = D_0076129C * nh0; }
+                            { s32 nb1 = node[0x39]; f32 nh1;
                             if (nb1 >= 0) {
                                 nh1 = (f32)(s32)nb1;
                             } else {
@@ -1089,7 +1083,8 @@ void func_001fd790(u8 *arg0)
                                 nh1 = (f32)(s32)t;
                                 nh1 = nh1 + nh1;
                             }
-                            n1f = D_0076129C * nh1;
+                            n1f = D_0076129C * nh1; }
+                            { s32 nb2 = node[0x3A]; f32 nh2;
                             if (nb2 >= 0) {
                                 nh2 = (f32)(s32)nb2;
                             } else {
@@ -1097,7 +1092,8 @@ void func_001fd790(u8 *arg0)
                                 nh2 = (f32)(s32)t;
                                 nh2 = nh2 + nh2;
                             }
-                            n2f = D_0076129C * nh2;
+                            n2f = D_0076129C * nh2; }
+                            { s32 nb3 = node[0x3B]; f32 nh3;
                             if (nb3 >= 0) {
                                 nh3 = (f32)(s32)nb3;
                             } else {
@@ -1105,7 +1101,7 @@ void func_001fd790(u8 *arg0)
                                 nh3 = (f32)(s32)t;
                                 nh3 = nh3 + nh3;
                             }
-                            n3f = D_0076129C * nh3;
+                            n3f = D_0076129C * nh3; }
                             t0 = n0f * inv;
                             t1 = n1f * inv;
                             t2 = n2f * inv;

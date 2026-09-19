@@ -804,11 +804,12 @@ void func_00487fb0(u8 *arg0, f32 arg1)
     s32 temp_16;
     s32 var_21;
     s32 var_22;
+    f32 saveA1;
     f32 temp_f21;
     f32 temp_f20;
-    f32 saveA1;
     s32 cw;
     s32 i1; s32 i2; s32 i3; s32 i4; s32 i5; s32 i6;
+    saveA1 = arg1;
     {
         s32 w = *(s32 *)(arg0 + 4);
         f32 sc = fGpffff8044;
@@ -825,7 +826,6 @@ void func_00487fb0(u8 *arg0, f32 arg1)
             "sqc2 $vf10, 0(%2)\n"
             : : "r"(&w), "f"(sc), "r"(parent) : "$2", "$3", "$vf2", "$vf10", "memory");
     }
-    saveA1 = arg1;
     temp_19 = *(u8 **)(arg0 + 0x4C);
     temp_16 = *(s32 *)(temp_19 + 8);
     if (temp_16 == 0 || *(s32 *)(temp_19 + 0x10) == 0) {

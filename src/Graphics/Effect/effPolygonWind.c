@@ -137,7 +137,6 @@ void func_004a2310(u8 *arg0)
     f32 baseE4;
     f32 scale;
     f32 quarter;
-    f32 div1;
     f32 base8;
     f32 scl;
     f32 p28;
@@ -145,7 +144,6 @@ void func_004a2310(u8 *arg0)
     f32 var_f0;
     f32 var_f25;
     f32 acc0;
-    f32 div2;
     f32 ang;
     s16 hcount;
     u32 state;
@@ -360,6 +358,8 @@ void func_004a2310(u8 *arg0)
                 *(f32 *)(pvar20 + 0x10) = s10a;
                 s10b = *(f32 *)(pvar20 + 0x8) + *(f32 *)(pvar20 + 0xC);
                 *(f32 *)(pvar20 + 0x8) = s10b;
+                acc0 = 0.0f;
+                d1 = s10a / var_f25;
                 scl = quarter * *(f32 *)(pvar20 + 0x20);
                 e18v = *(f32 *)(pvar20 + 0x18);
                 e24 = *(f32 *)(pvar20 + 0x24);
@@ -368,9 +368,6 @@ void func_004a2310(u8 *arg0)
                 } else {
                     d2 = e24 / var_f25;
                 }
-                d1 = s10a / var_f25;
-                acc0 = 0.0f;
-                div2 = d2;
                 base8 = *(f32 *)(pvar20 + 0x8);
                 p28 = *(f32 *)(pvar20 + 0x28);
                 p2c = *(f32 *)(pvar20 + 0x2C);
@@ -406,7 +403,7 @@ void func_004a2310(u8 *arg0)
                         }
                     }
                     var_17 += 0x20;
-                    ang += div2;
+                    ang += d2;
                     acc0 += d1;
                     var_19 += 1;
                 }
