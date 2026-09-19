@@ -537,6 +537,12 @@ no `adda`, no `madd`, no prime.  That is the fastest explanation for a floor
 where retail has plain `mul.s`/`add.s` and the candidate has `adda`/`madd`, or
 the reverse: the two bodies disagree about whether the product is shared.
 
+**How common is it?**  A scan of all 87 measured floors comparing the
+`mtc1 $zero` count in retail against the candidate found only **three** that
+differ: `func_00479100` (+3), `func_00206dd0` (+1) and `func_0045d370` (-1).
+So 7r is a sharp tool, not a broad one - worth checking on any float-heavy
+body, but it is not the hidden cause of the board.
+
 This also settles `func_00479100`'s residual, which is three extra
 `mtc1 $zero, $fN` + `nop` pairs.  The colour arithmetic there was suspected
 and cleared by measurement - weakening the `(f32)(u32)` casts costs 202 to 314
