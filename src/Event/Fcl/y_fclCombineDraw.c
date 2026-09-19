@@ -1286,6 +1286,8 @@ void func_00317410(u8 *arg0, s8 arg1) {
 
 // measured: nd N/A (not yet reconstructed). Retail's adda.s/msub.s sequence is ordinary single-precision arithmetic that plain C can emit; no VU0/COP2 opcode is present in this function's retail window.
 /* measured: probe_variants 821 differing words reloc-masked (V5B with opt_propagation off; bare V1 901, PROP 822, S64E 834 worse, FCLB 822 tie wrong shape, S32C 819 FAIL count, 6a70s16 821 <-- better); fnalign retail 973 vs object 962 instrs (-11, -1.13% PASS, 733 edits via --candidate v5b.c --quiet); live measure_guarded GUARDED_SCORE func_00317900: 821; verify 37 MATCH/33 ASM/0 MISMATCH, lint 0. Count-first PASS (within 3%). */
+/* measured 2026-09-18 (float-hoist lane): probe_variants 789 differing words reloc-masked (BXBY: bx/by locals for sp218u halves, opt_propagation off kept; ALL 793 with 12 saved FAIL count, CXCY 775 with 0x230 frame mismatch, V5B 821 baseline); fnalign retail 973 vs object 946 instrs (-27, -2.77% PASS, 725 edits via --candidate new_banked.c --quiet); live measure_guarded GUARDED_SCORE func_00317900: 789; verify 37 MATCH/33 ASM/0 MISMATCH, lint 0. Count-first PASS (within 3%). */
+/* Hoist rationale (per thread lwc1+34/mov.s-30 swap): body reloaded sp218u halves (bx 17 uses, by 18 uses) via lwc1 where retail keeps them live via mov.s; giving them ordinary f32 locals (bx,by) with lifetime spanning uses converts reloads to moves and lets CSE share derived 6+bx/62+by etc. Opclass BXBY: lwc1 +34->+4, mov.s -30->-10, add.s +20->+5, nop -19->-8, addiu +14->+10; frame 0x230->0x240 matching retail with 10 saved f20-f29 matching retail (was 7 f20-f26). Remaining walls: lui -24/mtc1 -27 (retail rematerialises 6.0/12.0/62.0 etc. per-use into temps where object shares one lui in saved reg across calls), sub.s +7 (by-44/bx-12 per-use vs shared), s64-param normalization dsll32/dsra32 +17/move -18 and integer rotation $s4/$s3/$s5 vs $s1/$s4/$s3 persist as sibling floors. */
 /* Walls (same rotation+scheduling as siblings 315600/31fa20/318840, now at 821): saved-reg retail $s4/$s3/$s5 vs object $s1/$s4/$s3 rotation; stack high-half retail folded lwc1 offset(sp) vs object addiu $sX,sp+off + lwc1; colours retail batched lbu/lbu/lbu then sb/sb/sb ($a2/$a1/$a0) vs object interleaved lbu/sb per byte ($v1); FPR retail $f20-$f29 vs object $f21-$f24 rotation; s64-param normalization (dsll32/dsra32 at 6150/6c30/69f0/6a70/68d0 where retail passes raw) persists -- body already in 7o form (bare decls, statement assigns in retail order) so subscript/decl probes are ties; all logic matches: (s8)arg3 6/7/8 if-chain to EF/EB/ED, 7-block + 46d chain (31560/d200/b260/d280) with (5.0f+sp)-2.0f*(hval/10.0f) fusion + iGpffff8360 for A0/AC, 1DC/FC/216-21B draws with 0x46/0x6A/0x82 and 0xE0/0xFF/0x33 and 0x42/0x6E/0xFF colours. */
 /* Repro: `python3 -E -s tools/m2c_decompile.py src/Event/Fcl/y_fclCombineDraw.c func_00317900 -o /var/tmp/cold317900/m2c.c` (287 lines, (void*,s64x3,s16,s64x2) residues de-noised to (u8*,s64x6)+(s8)/(s16) casts, FclVec2 for 69f0, u8[4] per-byte colours) + `python3 -E -s tools/romwright_decompile.py func_00317900 -o /var/tmp/cold317900/rom.c` (321 lines, (int,ulonglongx2,char,ulonglong,int,short) arity confirmed, CONCAT44/stack extents confirmed); `python3 -E -s tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_00317900 --candidate V1=/var/tmp/cold317900/v1.c` (901) + `--candidate PROP=/var/tmp/cold317900/v1_opt_propagation_off.c` (822) + `python3 -E -s tools/fnalign.py src/Event/Fcl/y_fclCombineDraw.c func_00317900 --candidate /var/tmp/cold317900/v5b.c --quiet` (973/962) + `python3 -E -s tools/measure_guarded.py src/Event/Fcl/y_fclCombineDraw.c func_00317900` (821). */
 /* Rounds in batch order (count first): v1 901 (m2c+rom de-noise, s64 homes spF8/sp100/sp210-sp108 + sp218u pair, f24/f25 + b?/t/p/h, u8 colours, 1063/976 +87 FAIL); PROP 822 (-79 via opt_propagation off, 956/973 -17 PASS) <-- better (try all three early per assignment: dead off 907 worse, peephole off 919 worse; sibling 315600 dead 755 and 302770 peephole 728 tried early, only prop helps here). Step2 pragmas on v1 bare 901: prop off 822 <-- better, schedule on 845, O4 834, O3 845, common off 910 worse, dead off 907 worse, peephole off 919 worse, loopinv/strength/unroll 901 tie, O1 933 worse, O0 1144 worse (sweep; pairs prop+schedule 834/prop+dead 822 tie/prop+peephole 827/prop+common 933 worse, not adopted -- bare PROP already better). Step3 subscript tie: ((f32*)&sp)[0]/[1] 822, *(p+0x85) 822. Step4 decl-order tie: t/p swap 822, f24/f25 swap 822, colours reverse 822. v5 821 (-1 via (s16)t18/t26/t17b for 6a70 last, 962/973 -11 PASS); reassoc tie (6.0f+sp vs sp+6.0f 821). Stopped after two consecutive non-improving rounds above 60 (reassoc+decl, following three-way tie before v5). Banked v5b as guarded floor (within 3%, compiles clean under -DNON_MATCHING, verify 37 MATCH/33 ASM, lint 0). */
@@ -1354,6 +1356,8 @@ void func_00317900(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
     f32 f22;
     f32 f20a;
     f32 f21;
+    f32 bx;
+    f32 by;
     u8 *t;
     u8 *p;
     u8 *h;
@@ -1367,6 +1371,8 @@ void func_00317900(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
     func_002b2970(&sp210, *(f32 *)&spF8, *((f32 *)&spF8 + 1));
     *(f32 *)&sp218u = *(f32 *)&sp210;
     *((f32 *)&sp218u + 1) = *((f32 *)&sp210 + 1);
+    bx = *(f32 *)&sp218u;
+    by = *((f32 *)&sp218u + 1);
     t17 = (s8)arg3;
     v18 = (s16)(t17 * 2 + 0xDF);
     if (t17 == 6) {
@@ -1378,8 +1384,8 @@ void func_00317900(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
     }
     t22 = (s16)arg6;
     t16 = t22 + 1;
-    f25 = 4.0f + *((f32 *)&sp218u + 1);
-    f24 = 6.0f + *(f32 *)&sp218u;
+    f25 = 4.0f + by;
+    f24 = 6.0f + bx;
     func_002b2970(&sp208, f24, f25);
     func_002b6c30((s16)v18, sp208, t16, (f32)arg5);
     func_002b2a60(c23C, 0x46, 0x6A, 0x82, 0xFF);
@@ -1426,8 +1432,8 @@ void func_00317900(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
         *(f32 *)(func_002b6150((s16)v18) + 0xAC) = ftmp;
         h = func_0046d200(func_00331560(), (u32)v18);
         hval = func_0046b260(h);
-        fmsub = (5.0f + *(f32 *)&sp218u) - 2.0f * (hval / 10.0f);
-        func_002b2970(&sp1D8, fmsub, *((f32 *)&sp218u + 1) - 3.0f);
+        fmsub = (5.0f + bx) - 2.0f * (hval / 10.0f);
+        func_002b2970(&sp1D8, fmsub, by - 3.0f);
         hval = func_0046b260(h);
         fmsub2 = (5.0f + *(f32 *)&sp100) - 2.0f * (hval / 10.0f);
         func_002b2970(&sp1D0, fmsub2, *((f32 *)&sp100 + 1) - 3.0f);
@@ -1441,14 +1447,14 @@ void func_00317900(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
         p[0x88] = c230[3];
         func_002b6c30(0x1DC, sp218u, 0xAA, 60.0f);
         func_002b69f0(0x1DC, *(FclVec2 *)&sp218u, *(FclVec2 *)&sp100, 0, 8, (s16)arg4);
-        func_002b2970(&sp1C8, *(f32 *)&sp218u - 12.0f, 104.0f + *((f32 *)&sp218u + 1));
+        func_002b2970(&sp1C8, bx - 12.0f, 104.0f + by);
         func_002b2970(&sp1C0, *(f32 *)&sp100 - 12.0f, f21);
         func_002b69f0((s16)tFD, *(FclVec2 *)&sp1C8, *(FclVec2 *)&sp1C0, 0, 8, (s16)arg4);
         func_002b68d0((s16)t23, 0, 1);
         if (t17 < 6) {
-            func_002b2970(&sp1B8, *(f32 *)&sp218u - 12.0f, 123.0f + *((f32 *)&sp218u + 1));
+            func_002b2970(&sp1B8, bx - 12.0f, 123.0f + by);
             func_002b6c30(0xFC, sp1B8, 0xAC, 59.0f);
-            func_002b2970(&sp1B0, *(f32 *)&sp218u - 12.0f, 123.0f + *((f32 *)&sp218u + 1));
+            func_002b2970(&sp1B0, bx - 12.0f, 123.0f + by);
             func_002b2970(&sp1A8, *(f32 *)&sp100 - 12.0f, 123.0f + *((f32 *)&sp100 + 1));
             func_002b69f0(0xFC, *(FclVec2 *)&sp1B0, *(FclVec2 *)&sp1A8, 0, 8, (s16)arg4);
             func_002b2a60(c22C, 0xE0, 0xFF, 0x33, 0xFF);
@@ -1462,9 +1468,9 @@ void func_00317900(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
         func_002b7750(0x216, 0x87);
         p = func_002b6150(0x216);
     *(s16 *)(p + 0x10) = 0;
-        func_002b2970(&sp1A0, 6.0f + *(f32 *)&sp218u, 62.0f + *((f32 *)&sp218u + 1));
+        func_002b2970(&sp1A0, 6.0f + bx, 62.0f + by);
         func_002b6c30(0x216, sp1A0, 0xAA, 62.0f);
-        func_002b2970(&sp198, 6.0f + *(f32 *)&sp218u, 62.0f + *((f32 *)&sp218u + 1));
+        func_002b2970(&sp198, 6.0f + bx, 62.0f + by);
         func_002b2970(&sp190, 6.0f + *(f32 *)&sp100, 62.0f + *((f32 *)&sp100 + 1));
         func_002b69f0(0x216, *(FclVec2 *)&sp198, *(FclVec2 *)&sp190, 0, 8, (s16)arg4);
         t18 = (s16)arg4 + 8;
@@ -1475,9 +1481,9 @@ void func_00317900(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
         func_002b7750(0x217, 0x87);
         p = func_002b6150(0x217);
     *(s16 *)(p + 0x10) = 0;
-        func_002b2970(&sp188, 33.0f + *(f32 *)&sp218u, 62.0f + *((f32 *)&sp218u + 1));
+        func_002b2970(&sp188, 33.0f + bx, 62.0f + by);
         func_002b6c30(0x217, sp188, 0xAA, 62.0f);
-        func_002b2970(&sp180, 33.0f + *(f32 *)&sp218u, 62.0f + *((f32 *)&sp218u + 1));
+        func_002b2970(&sp180, 33.0f + bx, 62.0f + by);
         func_002b2970(&sp178, 33.0f + *(f32 *)&sp100, 62.0f + *((f32 *)&sp100 + 1));
         func_002b69f0(0x217, *(FclVec2 *)&sp180, *(FclVec2 *)&sp178, 0, 8, (s16)arg4);
         t26 = (s16)arg4 + 0x26;
@@ -1488,9 +1494,9 @@ void func_00317900(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
         func_002b7750(0x218, 0x86);
         p = func_002b6150(0x218);
     *(s16 *)(p + 0x10) = 0;
-        func_002b2970(&sp170, 20.0f + *(f32 *)&sp218u, 62.0f + *((f32 *)&sp218u + 1));
+        func_002b2970(&sp170, 20.0f + bx, 62.0f + by);
         func_002b6c30(0x218, sp170, 0xAA, 61.0f);
-        func_002b2970(&sp168, 20.0f + *(f32 *)&sp218u, 62.0f + *((f32 *)&sp218u + 1));
+        func_002b2970(&sp168, 20.0f + bx, 62.0f + by);
         func_002b2970(&sp160, 20.0f + *(f32 *)&sp100, 62.0f + *((f32 *)&sp100 + 1));
         func_002b69f0(0x218, *(FclVec2 *)&sp168, *(FclVec2 *)&sp160, 0, 8, (s16)arg4);
         t17b = (s16)arg4 + 0x17;
@@ -1501,9 +1507,9 @@ void func_00317900(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
         func_002b7750(0x219, 0x89);
         p = func_002b6150(0x219);
     *(s16 *)(p + 0x10) = 0;
-        func_002b2970(&sp158, 6.0f + *(f32 *)&sp218u, *((f32 *)&sp218u + 1) - 44.0f);
+        func_002b2970(&sp158, 6.0f + bx, by - 44.0f);
         func_002b6c30(0x219, sp158, 0xAA, 62.0f);
-        func_002b2970(&sp150, 6.0f + *(f32 *)&sp218u, *((f32 *)&sp218u + 1) - 44.0f);
+        func_002b2970(&sp150, 6.0f + bx, by - 44.0f);
         func_002b2970(&sp148, 6.0f + *(f32 *)&sp100, *((f32 *)&sp100 + 1) - 44.0f);
         func_002b69f0(0x219, *(FclVec2 *)&sp150, *(FclVec2 *)&sp148, 0, 8, (s16)arg4);
         func_002b6a70(0x219, 0x80, 0xFF, 1, 0x3C, (s16)t18);
@@ -1513,9 +1519,9 @@ void func_00317900(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
         func_002b7750(0x21A, 0x89);
         p = func_002b6150(0x21A);
     *(s16 *)(p + 0x10) = 0;
-        func_002b2970(&sp140, 33.0f + *(f32 *)&sp218u, *((f32 *)&sp218u + 1) - 44.0f);
+        func_002b2970(&sp140, 33.0f + bx, by - 44.0f);
         func_002b6c30(0x21A, sp140, 0xAA, 62.0f);
-        func_002b2970(&sp138, 33.0f + *(f32 *)&sp218u, *((f32 *)&sp218u + 1) - 44.0f);
+        func_002b2970(&sp138, 33.0f + bx, by - 44.0f);
         func_002b2970(&sp130, 33.0f + *(f32 *)&sp100, *((f32 *)&sp100 + 1) - 44.0f);
         func_002b69f0(0x21A, *(FclVec2 *)&sp138, *(FclVec2 *)&sp130, 0, 8, (s16)arg4);
         func_002b6a70(0x21A, 0x80, 0xFF, 1, 0x3C, (s16)t26);
@@ -1525,9 +1531,9 @@ void func_00317900(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
         func_002b7750(0x21B, 0x88);
         p = func_002b6150(0x21B);
     *(s16 *)(p + 0x10) = 0;
-        func_002b2970(&sp128, 20.0f + *(f32 *)&sp218u, *((f32 *)&sp218u + 1) - 44.0f);
+        func_002b2970(&sp128, 20.0f + bx, by - 44.0f);
         func_002b6c30(0x21B, sp128, 0xAA, 61.0f);
-        func_002b2970(&sp120, 20.0f + *(f32 *)&sp218u, *((f32 *)&sp218u + 1) - 44.0f);
+        func_002b2970(&sp120, 20.0f + bx, by - 44.0f);
         func_002b2970(&sp118, 20.0f + *(f32 *)&sp100, *((f32 *)&sp100 + 1) - 44.0f);
         func_002b69f0(0x21B, *(FclVec2 *)&sp120, *(FclVec2 *)&sp118, 0, 8, (s16)arg4);
         func_002b6a70(0x21B, 0x80, 0xFF, 1, 0x3C, (s16)t17b);
@@ -1537,7 +1543,7 @@ void func_00317900(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
         return;
     }
     func_002b69f0((s16)t23, *(FclVec2 *)&sp218u, *(FclVec2 *)&sp100, 0, 8, (s16)arg4);
-    func_002b2970(&sp110, f24, 78.0f + *((f32 *)&sp218u + 1));
+    func_002b2970(&sp110, f24, 78.0f + by);
     func_002b2970(&sp108, f22, f20a);
     func_002b69f0((s16)(t17 + 0xF2), *(FclVec2 *)&sp110, *(FclVec2 *)&sp108, 0, 8, (s16)arg4);
     func_002b2a60(c228, 0x42, 0x6E, 0xFF, 0xFF);
@@ -4415,6 +4421,22 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c660);
 
 /* measured: probe_variants 623 differing words reloc-masked (V3 with opt_propagation off); fnalign retail 697 vs object 694 instrs (-3, -0.43% PASS, 824 edits +8 reloc-only); count first PASS (V1 633/647 short, V2 630/697 exact). Shapes: s64 2970 homes, char buffers sp130[64]/spF0[64]/spB0[128], f21=153.0f saved for else 5-loop, plain (u8)f alpha, D_ pointer arrays, local externs for new helpers (no shared-top edit). */
 /* Rounds in batch order (count first): v1 633 (m2c+romwright de-noise, 647/697 short); v2 630 (-3 via full 3-loop with 442830+2b32d0+275520, 697/697 exact). Step2 pragmas: opt_propagation off 623 <-- better, opt_dead_assignments off 630 tie, opt_strength_reduction off 630 tie, opt_unroll_loops off 630 tie, schedule on 631, opt_loop_invariants on 632, O3/O4 632, common_subs off 648 worse, peephole off 671 worse, O1 673 worse, O0 812 worse (pragma_sweep). Step3 subscript tie: addOff-v 623 tie, D_006430B0 offset 623 tie, D_00643220 P[i] 625 worse. Step4 decl-order tie: t/base swap 623, j/n swap 623, f21/t swap 623. Stopped after two consecutive non-improving rounds above 60 (subscript+decl). Banked v3 as guarded floor (within 3%, compiles clean under -DNON_MATCHING via probe, verify 37 MATCH/33 ASM, lint 0). */
+/* 2026-09-18 opcode census: 623 -> 621.  The census showed `mov.s +33`
+   against `lui -26, mtc1 -20` - this body copies float values between
+   registers where retail rematerialises the constant at each use.  Spelling
+   `153.0f` at its three call sites instead of holding it in `f21` is worth
+   two words and removes the local entirely.  The remaining `mov.s` surplus
+   is elsewhere in the body.  Re-censusing after the change confirms the
+   mechanism and its size: `mov.s` 33 -> 28, `lui` -26 -> -23, `mtc1`
+   -20 -> -17, all three moving together by the same three.  So the
+   remaining 28 are twenty-eight more float values this body holds in a
+   register and copies where retail re-materialises them.
+   The obvious lever does not work: `opt_common_subs off`, which should stop
+   the compiler pooling repeated float constants, costs 621 -> 642.
+   `peephole off` costs 693; `opt_propagation off` and
+   `opt_dead_assignments off` both tie at 621.  So the copies are not a CSE
+   of the literals - look for float locals whose live range spans several
+   calls and try spelling their value at each use instead. */
 // FUN_0032E570 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
@@ -4445,7 +4467,6 @@ void func_0032e570(u8 *arg0) {
     char sp130[64];
     char spF0[64];
     char spB0[128];
-    f32 f21;
     u8 *t;
     u8 *base;
     u8 alpha;
@@ -4507,11 +4528,9 @@ void func_0032e570(u8 *arg0) {
         func_002b2970(&sp1C0, 135.0f, 96.0f);
         func_00330e50(0x1D2, sp1C0, 43.0f, func_002b2a30(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
         if (*(s8 *)(ent + 2) == 0) {
-            f21 = 153.0f;
             func_00275520(153.0f, 86.0f, 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_00644D18, 0, 0, D_00795E60);
         } else {
             s8 vv = *(s8 *)(ent + 2);
-            f21 = 153.0f;
             for (k = 0; (s16)k < 3; k = (s16)(k + 1)) {
                 char *str0 = *(char **)(D_00643220 + vv * 0xC + (s16)k * 4);
                 s16 v6 = *(s16 *)(ent + 6);
@@ -4537,9 +4556,9 @@ void func_0032e570(u8 *arg0) {
                     func_00442830(spB0, D_00644D20);
                     func_00275980(spB0, spF0, 0x40);
                     func_00442428(sp130, spF0);
-                    func_00275520(f21, (f32)(off + 0xB9), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, sp130, 0, 0, D_00795E60);
+                    func_00275520(153.0f, (f32)(off + 0xB9), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, sp130, 0, 0, D_00795E60);
                 } else {
-                    func_00275520(f21, (f32)(off + 0xB9), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_006430B0[id], 0, 0, D_00795E60);
+                    func_00275520(153.0f, (f32)(off + 0xB9), 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_006430B0[id], 0, 0, D_00795E60);
                 }
                 n = (s16)(n + 1);
             }
@@ -4547,7 +4566,7 @@ void func_0032e570(u8 *arg0) {
         if ((s16)n == 0) {
             func_002b2970(&sp1B0, 135.0f, 195.0f);
             func_00330e50(0x1D2, sp1B0, 43.0f, func_002b2a30(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
-            func_00275520(f21, 185.0f, 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_00644D1C, 0, 0, D_00795E60);
+            func_00275520(153.0f, 185.0f, 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_00644D1C, 0, 0, D_00795E60);
         }
     }
 }

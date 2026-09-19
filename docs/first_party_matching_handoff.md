@@ -538,6 +538,54 @@ largest `insert` and `delete` runs from `tools/fnalign.py --candidate` should
 both be small.  If you can name a missing block and a surplus block at the
 same time, the gate result is meaningless.
 
+### 7v. Solving signedness instead of guessing it
+
+`tools/solve_signedness.py` turns the `lb`/`lbu` and `lh`/`lhu` rows of the
+census into a solver.  Signedness is a finite discrete choice and the census
+gives a cheap, sign-sensitive objective, so there is no reason to guess:
+
+```
+python3 -E -s tools/solve_signedness.py src/foo.c func_00123456
+python3 -E -s tools/solve_signedness.py src/foo.c func_00123456 --apply --json facts.json
+```
+
+Four design points, each of which matters:
+
+**The census is the objective, not the word score.**  The paired opcode delta
+moves only for signedness; the differing-word score is noisier and moves for
+unrelated reasons.  On `func_002ae630` the accepted flip took the census
+mismatch 22 -> 20 while the word score stayed at 777 - the claim is right
+even though the score did not notice.
+
+**Most sites need no compiler.**  Where retail loads an offset exactly one
+way, the answer is read straight out of the disassembly.  Only ambiguous
+fields - an offset retail reads both ways, or one the source spells
+inconsistently - go to compile-in-the-loop, and those are the minority.
+
+**Coordinate descent, not 2^n.**  Flipping one field only changes that
+field's load sites, so a greedy pass is linear in fields.
+
+**Ties are information.**  If both spellings compile to identical bytes the
+signedness is unobservable there, and the tool says so instead of thrashing.
+All four `D_0063EExx` tables in `func_002ae630` are free in exactly this way:
+each loaded byte is immediately assigned to an `s8` local, so the upper bits
+never matter.  Left at the project convention, and the note says not to churn
+them.
+
+**Every accepted flip is gated on the instruction count.**  This is
+mechanically close to the banned practice of searching spellings until a
+number improves, and the distinction is that each candidate is a semantically
+meaningful type claim verified by a paired opcode delta.  Section 7u is the
+guard: a flip that improves the score while moving the count is rejected.  On
+`func_001587d0` the tool rejected a `u16 -> s16` flip for exactly this reason,
+1143 -> 1146 instructions.
+
+**Solved fields are written back.**  `--json` emits the claims in the shape
+`tools/romwright_feedback.py` pushes, so a solved field becomes an asserted
+fact for every later reconstruction rather than being re-solved by hand.
+That is the real payoff: the corpus improves monotonically instead of each
+worker rediscovering `s8` against `u8` on the same struct.
+
 ### 7t. The opcode census, and how to read it
 
 `tools/opclass.py` is the fastest triage on the board and it was sitting
@@ -562,6 +610,21 @@ the ones that have actually paid here are:
     directly, usually a missing direct declaration.
   * `lui` surplus - a constant rematerialised per iteration that retail
     hoists; measure `opt_loop_invariants on`.
+  * `mov.s` surplus paired with `lui`/`mtc1` deficit - the reverse: this body
+    holds a float value in a register and copies it where retail
+    re-materialises the constant at each use.  On `func_0032e570`, spelling
+    one literal at its three call sites instead of holding it in a local was
+    worth 623 -> 621 and moved all three classes together by exactly three
+    (`mov.s` 33 -> 28, `lui` -26 -> -23, `mtc1` -20 -> -17).  Note that
+    `opt_common_subs off`, the apparently obvious lever, costs 642 there -
+    the copies are not a CSE of the literal.
+
+**`??` is not only the FPU accumulator.**  Capstone renders several families
+as `??`: `adda.s`/`madd.s`/`mula.s`, but also VU macro-mode and MMI
+instructions.  Before reading a `??` delta as section 7r, split it - on
+`func_004a6e70` a `?? -21` looked like twenty-one missing accumulator uses
+and was actually -23 VU with +2 GPR, with the FPU counts equal at 6 apiece.
+Decode the retail span and look at the words rather than trusting the class.
 
 **Read the paired deficits, not just the surplus.**  The top floor,
 `func_002d5040`, shows `dsra32 +37, dsll32 +37` alongside `mtc1 -37,

@@ -3691,7 +3691,7 @@ void func_0019c010(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }
 
-/* measured: first reconstruction from m2c bulk + romwright (void(void) per prologue $a0 overwritten, 22 jals match, 0x38-0x3B never loaded so skipped). probe 867 differing words, fnalign retail 951/object 951 (0 short, 0% inside 3% gate). `opt_common_subs off` inside guard is worth 868->951 instrs into gate (base 871/867, ccs_off 875/950); reload of *(entry+0xA00) for subs loop is worth 871->867 (-4). Near-miss: opt_loop_invariants on 869, opt_unroll_loops off 871, schedule off 871, subscript off=i*8 871, stackcopy 871, inv_outer 870, inv37 869, register 871, while1 864 (best diff but 867 count outside gate), funcscope 871, nocachek 871, grow2 871; with pragma: while1_ccsoff 871, inv37_ccsoff 874. Residual is saved-reg colouring ($s3/$s4 vs $s1/$s0), VU adda/madd vs mul/add (matrix 3, color 12), stack frame -0xB0 vs -0x90, and lhu/blez vs bnez polarity. Production stays guarded (not MATCH). */
+/* measured: restored in-gate 867 (951 retail / 951 object instrs) with 7r-only fix (hoisted xx..wz reused twice -> plain mul/add; ??+18->0, mul-9->0, add-14->-8; single opt_common_subs off). Rejected 853 attempt (951/884, -67, -7.0% outside 922-980 band): stacked opt_propagation off + hoisted one/two/half/f255 vars removed per-use materialisation (lui+31->-1) per 7u mirror. fGp literals kept direct (24 loads, honest per-use). Remaining sb/lbu/bltz/cvt/or/srl + regs. Banked floor; production stays ASM. */
 // FUN_0019C0D0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -3786,21 +3786,29 @@ void func_0019c0d0(void)
                     f32 f15 = *(f32 *)(entry + 0x20);
                     f32 f12 = *(f32 *)(entry + 0x24);
                     f32 f13 = *(f32 *)(entry + 0x28);
+                    f32 xx = f14 * f14;
+                    f32 yy = f15 * f15;
+                    f32 zz = f12 * f12;
+                    f32 yz = f15 * f12;
+                    f32 zx = f12 * f14;
+                    f32 xy = f14 * f15;
+                    f32 wx = f13 * f14;
+                    f32 wy = f13 * f15;
+                    f32 wz = f13 * f12;
                     f32 m[9];
                     s32 z[3];
                     s32 poly;
                     f32 sp[3];
                     u8 col[4];
-                    f32 k;
-                    m[0] = 1.0f - (f15 * f15 + f12 * f12) * 2.0f;
-                    m[1] = (f14 * f15 + f13 * f12) * 2.0f;
-                    m[2] = (f12 * f14 - f13 * f15) * 2.0f;
-                    m[3] = (f14 * f15 - f13 * f12) * 2.0f;
-                    m[4] = 1.0f - (f14 * f14 + f12 * f12) * 2.0f;
-                    m[5] = (f15 * f12 + f13 * f14) * 2.0f;
-                    m[6] = (f12 * f14 + f13 * f15) * 2.0f;
-                    m[7] = (f15 * f12 - f13 * f14) * 2.0f;
-                    m[8] = 1.0f - (f14 * f14 + f15 * f15) * 2.0f;
+                    m[0] = 1.0f - (yy + zz) * 2.0f;
+                    m[1] = (xy + wz) * 2.0f;
+                    m[2] = (zx - wy) * 2.0f;
+                    m[3] = (xy - wz) * 2.0f;
+                    m[4] = 1.0f - (xx + zz) * 2.0f;
+                    m[5] = (yz + wx) * 2.0f;
+                    m[6] = (zx + wy) * 2.0f;
+                    m[7] = (yz - wx) * 2.0f;
+                    m[8] = 1.0f - (xx + yy) * 2.0f;
                     z[0] = 0;
                     z[1] = 0;
                     z[2] = 0;
@@ -3812,7 +3820,6 @@ void func_0019c0d0(void)
                     sp[1] = *(f32 *)(entry + 8) + *(f32 *)(entry + 0x14);
                     sp[2] = *(f32 *)(entry + 0xC) + *(f32 *)(entry + 0x18);
                     func_0047a180(*(u8 **)(entry + 0xA00), sp, 2);
-                    k = fGpffff81f4;
                     {
                         f32 a0 = (f32)*(u8 *)(entry + 0x30);
                         f32 a1 = (f32)*(u8 *)(entry + 0x31);
@@ -3830,18 +3837,18 @@ void func_0019c0d0(void)
                         f32 d1 = (f32)*(u8 *)(entry + 0x41);
                         f32 d2 = (f32)*(u8 *)(entry + 0x42);
                         f32 d3 = (f32)*(u8 *)(entry + 0x43);
-                        s32 t0 = ((s32)(k * a0 * k * b0 * 255.0f + 0.5f)) & 0xFF;
-                        s32 t1 = ((s32)(k * a1 * k * b1 * 255.0f + 0.5f)) & 0xFF;
-                        s32 t2 = ((s32)(k * a2 * k * b2 * 255.0f + 0.5f)) & 0xFF;
-                        s32 t3 = ((s32)(k * a3 * k * b3 * 255.0f + 0.5f)) & 0xFF;
-                        s32 u0 = ((s32)(k * (f32)t0 * k * c0 * 255.0f + 0.5f)) & 0xFF;
-                        s32 u1 = ((s32)(k * (f32)t1 * k * c1 * 255.0f + 0.5f)) & 0xFF;
-                        s32 u2 = ((s32)(k * (f32)t2 * k * c2 * 255.0f + 0.5f)) & 0xFF;
-                        s32 u3 = ((s32)(k * (f32)t3 * k * c3 * 255.0f + 0.5f)) & 0xFF;
-                        col[0] = (u8)(s32)(k * (f32)u0 * k * d0 * 255.0f + 0.5f);
-                        col[1] = (u8)(s32)(k * (f32)u1 * k * d1 * 255.0f + 0.5f);
-                        col[2] = (u8)(s32)(k * (f32)u2 * k * d2 * 255.0f + 0.5f);
-                        col[3] = (u8)(s32)(k * (f32)u3 * k * d3 * 255.0f + 0.5f);
+                        s32 t0 = ((s32)(fGpffff81f4 * a0 * fGpffff81f4 * b0 * 255.0f + 0.5f)) & 0xFF;
+                        s32 t1 = ((s32)(fGpffff81f4 * a1 * fGpffff81f4 * b1 * 255.0f + 0.5f)) & 0xFF;
+                        s32 t2 = ((s32)(fGpffff81f4 * a2 * fGpffff81f4 * b2 * 255.0f + 0.5f)) & 0xFF;
+                        s32 t3 = ((s32)(fGpffff81f4 * a3 * fGpffff81f4 * b3 * 255.0f + 0.5f)) & 0xFF;
+                        s32 u0 = ((s32)(fGpffff81f4 * (f32)t0 * fGpffff81f4 * c0 * 255.0f + 0.5f)) & 0xFF;
+                        s32 u1 = ((s32)(fGpffff81f4 * (f32)t1 * fGpffff81f4 * c1 * 255.0f + 0.5f)) & 0xFF;
+                        s32 u2 = ((s32)(fGpffff81f4 * (f32)t2 * fGpffff81f4 * c2 * 255.0f + 0.5f)) & 0xFF;
+                        s32 u3 = ((s32)(fGpffff81f4 * (f32)t3 * fGpffff81f4 * c3 * 255.0f + 0.5f)) & 0xFF;
+                        col[0] = (u8)(s32)(fGpffff81f4 * (f32)u0 * fGpffff81f4 * d0 * 255.0f + 0.5f);
+                        col[1] = (u8)(s32)(fGpffff81f4 * (f32)u1 * fGpffff81f4 * d1 * 255.0f + 0.5f);
+                        col[2] = (u8)(s32)(fGpffff81f4 * (f32)u2 * fGpffff81f4 * d2 * 255.0f + 0.5f);
+                        col[3] = (u8)(s32)(fGpffff81f4 * (f32)u3 * fGpffff81f4 * d3 * 255.0f + 0.5f);
                     }
                     if (col[3] < 0xFE) {
                         if (i != 2) {

@@ -3282,7 +3282,7 @@ void func_00149690(s32 arg0) {
     }
     iGpffff9dd0 = 0x1D;
 }
-/* measured 001496c0 (banked honest body: 1452b0/1538a0 list walk, float-compare 14a000 dispatch, single-ctab byte loads, tv32 built with the 147830-donor nesting keeping both 0x18 shifts, recipe-A u8->float, plain-(s32) float->int + sltiu clamps, f+f doubling): measure_guarded 339 words obj 1600B/window 1504B; fnalign --candidate 397 edits (retail 376 vs object 400 instrs); opclass mfc1/c.ole/bc1t/sub/cvt.w.s -8 (the 8 checked conversions) with bltz/cvt.s.w/add.s +12 arms present. Revisions: (u32)(float) direct conversion BLOWS UP +492B (2188B, full-range u32 lowering is not compact -- contrasts with 13b420 where narrowing (u8)(u32)f is compact); explicit-compare form identical 2188B; (u32) trick operands bloat u32->float (+43). Standing wall is the 8 compact checked float->u32 lowerings unreachable from honest C at full u32 range. Production stays ASM. */
+/* measured 001496c0 honest v2 (plain (f32)b u8->float + plain (u32)(f*arg) float->u32 + 1538a0(arg0) call fix): 298 words obj 1472B/window 1504B (368 vs 375 instrs -1.9% gate PASS, fnalign 96 edits+1 reloc-only; was 339 words 1600B 400 vs 376 +6.6% FAIL 397 edits). 8-variant census same file: base 339, plainU-s32 277/265instrs-FAIL, plainS-s32 279, plainU-u32 299/368-PASS, plainS-u32 299, base-u32 436, explicit-compare 311, narrow-(u8) 322. Byte dir unsigned wins 277 vs 279 (+2 retail bltz idiom); float dir s32 wins words 277 vs 299 but loses gate (265 vs 368) so honest u32 stands; explicit/narrow worse per 7a-quinquies. Extras: tvlinear/tvalt 298 ties, decl1-4 298-299 ties, spillA 299 tie, prop-off 309 (+11 worse), call fix 299->298 (-1). Residual: frame/spill sb+lbu 0x3C-0x3F (-0x40 vs -0x30) + GPR colour lui/mfc1/srl/andi/or ($v0 vs $v1/$a0) + sltiu $at vs GPR. */
 // FUN_001496C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001496c0(u8 *arg0) {
@@ -3307,7 +3307,7 @@ void func_001496c0(u8 *arg0) {
     u32 x3;
     cur = func_001452b0(0xC);
     while (cur != NULL) {
-        func_001538a0(*(s32 *)(cur + 0x1A0), cur);
+        func_001538a0(*(s32 *)(cur + 0x1A0), arg0);
         cur = *(u8 **)(cur + 0x138);
     }
     if ((*(f32 *)(arg0 + 0) <= 0.0f && *(f32 *)(arg0 + 4) <= 0.0f && *(f32 *)(arg0 + 8) <= 0.0f) || *(f32 *)(arg0 + 0xC) <= 0.0f) {
@@ -3321,31 +3321,31 @@ void func_001496c0(u8 *arg0) {
     b2 = *(u8 *)(ctab + 2);
     b3 = *(u8 *)(ctab + 3);
     tv32 = iGpffffba64 | ((iGpffffba60 << 8) | ((iGpffffba68 << 0x18) | (iGpffffba5c << 0x10)));
-    if ((s32)b0 >= 0) { f0 = (f32)b0; } else { f0 = (f32)((b0 >> 1) | (b0 & 1)); f0 = f0 + f0; }
-    v0 = (s32)(f0 * *(f32 *)(arg0 + 0));
-    if ((s32)b1 >= 0) { f1 = (f32)b1; } else { f1 = (f32)((b1 >> 1) | (b1 & 1)); f1 = f1 + f1; }
-    v1 = (s32)(f1 * *(f32 *)(arg0 + 4));
-    if ((s32)b2 >= 0) { f2 = (f32)b2; } else { f2 = (f32)((b2 >> 1) | (b2 & 1)); f2 = f2 + f2; }
-    v2 = (s32)(f2 * *(f32 *)(arg0 + 8));
-    if ((s32)b3 >= 0) { f3 = (f32)b3; } else { f3 = (f32)((b3 >> 1) | (b3 & 1)); f3 = f3 + f3; }
-    v3 = (s32)(f3 * *(f32 *)(arg0 + 0xC));
+    f0 = (f32)b0;
+    v0 = (u32)(f0 * *(f32 *)(arg0 + 0));
+    f1 = (f32)b1;
+    v1 = (u32)(f1 * *(f32 *)(arg0 + 4));
+    f2 = (f32)b2;
+    v2 = (u32)(f2 * *(f32 *)(arg0 + 8));
+    f3 = (f32)b3;
+    v3 = (u32)(f3 * *(f32 *)(arg0 + 0xC));
     if (v3 >= 0x100) { v3 = 0xFF; }
     if (v2 >= 0x100) { v2 = 0xFF; }
     if (v1 >= 0x100) { v1 = 0xFF; }
     if (v0 >= 0x100) { v0 = 0xFF; }
     func_00457140(v0 & 0xFF, v1 & 0xFF, v2 & 0xFF, v3 & 0xFF);
     x0 = (tv32 >> 0x10) & 0xFF;
-    if ((s32)x0 >= 0) { f0 = (f32)x0; } else { f0 = (f32)((x0 >> 1) | (x0 & 1)); f0 = f0 + f0; }
-    x0 = (s32)(f0 * *(f32 *)(arg0 + 0));
+    f0 = (f32)x0;
+    x0 = (u32)(f0 * *(f32 *)(arg0 + 0));
     x1 = (tv32 >> 8) & 0xFF;
-    if ((s32)x1 >= 0) { f1 = (f32)x1; } else { f1 = (f32)((x1 >> 1) | (x1 & 1)); f1 = f1 + f1; }
-    x1 = (s32)(f1 * *(f32 *)(arg0 + 4));
+    f1 = (f32)x1;
+    x1 = (u32)(f1 * *(f32 *)(arg0 + 4));
     x2 = tv32 & 0xFF;
-    if ((s32)x2 >= 0) { f2 = (f32)x2; } else { f2 = (f32)((x2 >> 1) | (x2 & 1)); f2 = f2 + f2; }
-    x2 = (s32)(f2 * *(f32 *)(arg0 + 8));
+    f2 = (f32)x2;
+    x2 = (u32)(f2 * *(f32 *)(arg0 + 8));
     x3 = (tv32 >> 0x18) & 0xFF;
-    if ((s32)x3 >= 0) { f3 = (f32)x3; } else { f3 = (f32)((x3 >> 1) | (x3 & 1)); f3 = f3 + f3; }
-    x3 = (s32)(f3 * *(f32 *)(arg0 + 0xC));
+    f3 = (f32)x3;
+    x3 = (u32)(f3 * *(f32 *)(arg0 + 0xC));
     if (x0 >= 0x100) { x0 = 0xFF; }
     iGpffffba4c = (u8)x0;
     if (x1 >= 0x100) { x1 = 0xFF; }
