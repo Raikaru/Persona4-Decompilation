@@ -3076,6 +3076,19 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
  * /var/tmp/cold1ed700b/c_struct_full.c. Do not re-litigate without new
  * evidence.
  */
+/* measured 001ed700 (owner, 2026-09-19): 687/688 with 887 fnalign edits, and
+   `block_move_scan` calls the largest pair IN-PLACE at ratio 0.827 - retail[334:460]
+   (126 instructions at 0x001EDC38) against object[323:451] (128).  Same code, different
+   registers, diverging where it stands, so there is no block to move.
+   Reading the two side by side: retail carries the record pointer in $s4 and the loop
+   counter in $s3; the object uses $s3 and $s0.  The float colouring shifts with it -
+   retail's `lwc1 $f25, 4($s4)` is the object's `lwc1 $f21, 4($s3)` - and the object saves
+   a spare $f27 for a frame of 0xF0 against retail's 0x100.  One float local too many is
+   held across the loop; the candidates are bestX, bestZ, bestH and dist, one of which
+   retail recomputes at its use.
+   Do not re-test declaration order: on func_001b11c0, the same class of transposition,
+   four declaration orders measured 12, 12, 5 and 12 against a baseline of 5, so MWCC is
+   not colouring by declaration. */
 // FUN_001ED700 NONMATCHING
 #ifdef NON_MATCHING
 void func_001ed700(f32 radius)
