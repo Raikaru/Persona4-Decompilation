@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import struct
 import sys
 import tempfile
@@ -82,6 +83,31 @@ def _nop_density(words):
     return nops / len(words), nops
 
 
+def _crosses_a_call(instructions, register):
+    """True when retail's uses of `register` span a `jal`.
+
+    A callee-saved register that is live across a call is holding a value the
+    original source kept in a variable, and giving the body the same variable
+    reproduces it (handoff 7bb).  One that is never live across a call was
+    chosen because the allocator ran out of temporaries - a consequence of the
+    surrounding allocation, not a cause, and hoisting will not reproduce it.
+    `func_00497750` is the worked false positive: retail keeps the fade ratio
+    in $f20 for nine uses, no call sits between any of them, and three
+    source spellings all measured 278 edits.
+    """
+    # The prologue save and epilogue restore mention the register at both ends
+    # of the function, which would make every call look enclosed.  Only real
+    # uses count, so skip spills through $sp.
+    spill = re.compile(rf"(swc1|sdc1|lwc1|ldc1) \{register}, [^(]*\(\$sp\)")
+    positions = [i for i, text in enumerate(instructions)
+                 if register in text and not spill.match(text)]
+    if len(positions) < 2:
+        return False
+    calls = [i for i, text in enumerate(instructions)
+             if text.startswith(("jal", "jalr"))]
+    return any(positions[0] < call < positions[-1] for call in calls)
+
+
 def scan(source: Path, function: str, addr: int, elf, cfg, length=None):
     span = max(PROLOGUE_WINDOW, length or 0)
     retail_words = list(struct.unpack(f"<{span}I", elf.bytes_at(addr, span * 4)))
@@ -110,6 +136,10 @@ def scan(source: Path, function: str, addr: int, elf, cfg, length=None):
         "missing_gpr": sorted(rgpr - ogpr),
         "extra_gpr": sorted(ogpr - rgpr),
         "missing_fpr": sorted(rfpr - ofpr),
+        "missing_fpr_across_call": sorted(
+            reg for reg in rfpr - ofpr
+            if _crosses_a_call([str(i) for i in fnalign.decode(
+                elf.bytes_at(addr, span * 4), addr)], f"$f{reg}")),
         "extra_fpr": sorted(ofpr - rfpr),
         "retail_nops": rnops,
         "object_nops": onops,
@@ -188,7 +218,17 @@ def main() -> int:
             print(f"    body saves spare   {_names(r['extra_gpr'])}"
                   "   (retail recomputes these: sink or recompute at the use)")
         if r["missing_fpr"]:
-            print(f"    retail also saves  {' '.join('$f%d' % f for f in r['missing_fpr'])}")
+            across = set(r.get("missing_fpr_across_call", []))
+            live = " ".join("$f%d" % f for f in r["missing_fpr"] if f in across)
+            local = " ".join("$f%d" % f for f in r["missing_fpr"] if f not in across)
+            if live:
+                print(f"    retail also saves  {live}"
+                      "   (live across a call: the source held these in variables, "
+                      "give the body the same ones)")
+            if local:
+                print(f"    retail also saves  {local}"
+                      "   (never live across a call: allocator pressure, not a "
+                      "variable - hoisting will not reproduce it)")
         if r["extra_fpr"]:
             print(f"    body saves spare   {' '.join('$f%d' % f for f in r['extra_fpr'])}")
         if abs(r["retail_nop_density"] - r["object_nop_density"]) > 0.05:

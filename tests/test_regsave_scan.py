@@ -65,6 +65,38 @@ class Prologue(unittest.TestCase):
         self.assertEqual(fpr, {20})
 
 
+class CrossesACall(unittest.TestCase):
+    """Whether a saved float is live across a call decides if the lever applies.
+
+    A register live across a `jal` is holding a value the original source kept
+    in a variable; one that is not was picked because the allocator ran out of
+    temporaries, and hoisting cannot reproduce it (handoff 7bb).
+    """
+
+    def test_uses_spanning_a_call(self) -> None:
+        window = ["mul.s $f20, $f1, $f2", "jal", "nop", "add.s $f0, $f0, $f20"]
+        self.assertTrue(rs._crosses_a_call(window, "$f20"))
+
+    def test_uses_on_one_side_of_a_call(self) -> None:
+        window = ["jal", "nop", "mul.s $f20, $f1, $f2", "add.s $f0, $f0, $f20"]
+        self.assertFalse(rs._crosses_a_call(window, "$f20"))
+
+    def test_prologue_spill_does_not_enclose_every_call(self) -> None:
+        # Without excluding the save and restore, the register appears at both
+        # ends of the function and every call looks enclosed.
+        window = ["swc1 $f20, 0x10($sp)", "jal", "nop", "mul.s $f20, $f1, $f2",
+                  "lwc1 $f20, 0x10($sp)"]
+        self.assertFalse(rs._crosses_a_call(window, "$f20"))
+
+    def test_a_single_use_cannot_span_anything(self) -> None:
+        self.assertFalse(rs._crosses_a_call(["jal", "mul.s $f20, $f1, $f2"], "$f20"))
+
+    def test_jalr_counts_as_a_call(self) -> None:
+        window = ["mul.s $f20, $f1, $f2", "jalr $v0", "add.s $f0, $f0, $f20"]
+        self.assertTrue(rs._crosses_a_call(window, "$f20"))
+
+
+
 class NopDensity(unittest.TestCase):
     def test_reports_the_share_of_nops(self):
         density, count = rs._nop_density(pack(ADDIU_SP_230, 0, SD_RA_C0, 0))
