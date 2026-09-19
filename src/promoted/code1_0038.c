@@ -644,10 +644,7 @@ void func_00384cc0(u8 *arg0)
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00384cc0);
 #endif
 /* measured: probe_variants func_00385380 base 336wd honest (exclusive <0x12, Vec2f{318,231}, plain accumulators, (u8)/(u16) clamps), inclusive (>0x12/slti 0x13) 336wd tie (no $at site, lever N/A beyond exclusivity), pragma_schedule 335wd (-1 churn, fnalign 411 vs 193 edits worse, not adopted); fnalign base retail 377/object 320 (193 edits +1 reloc-only; frame 0x90->0x80, s3->s2, accumulator madd chains); providers verified (373cb0, 3f6440, 64c90, 34f4a0, 44b7b0/610, DAT_007613F8/fGp82cc/80bc/83c8 per Draft5380); Ghidra/IDA agree; archive docs/probe_archive/P038_00385380_body.c (COP1 floor note, consistent); lever 4 tie; banked guarded floor for opclass measurability (object 320/377, 15% short noted plainly, stays out per 3% rule for MATCH but in as floor for triage). */
-/* gate: object 320 against retail 377, -15.1% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured this batch: hoisting N/A (no D_00887310/global-pointer call, no loop; DAT_007613F8/fGp globals read straight-line only); direct (u8)/(u16) casts (was (u8)(s32)/(u16)(s32)) recover retail clamping chains: fnalign retail 377/object 366 (-2.9% inside gate, was 320/-15.1%), edits 194+1 reloc-only (was 193+1), max hole 49@0x385818 -> 4@0x3854F0, max lump 30 retained, guarded 342wd (was 336wd outside gate, not comparable per handoff 7y), opclass 29 -> 8 (lui -4, mtc1 -4 remain); remaining deletes 0x3854F0(4, Vec 318/231 lui/sw), 0x3858EC(2, x/y reload), 0x385900(1, move t1,s2 idx). */
 // FUN_00385380 NONMATCHING
 #ifdef NON_MATCHING
 void func_00385380(u8 *arg0)
@@ -701,7 +698,7 @@ void func_00385380(u8 *arg0)
     blend2 = DAT_007613F8 * w2 + (fGpffff80bc - fGpffff82cc * t2);
     delta = blend2 - eased1;
     b = func_00373cb0((f32)*cnt, 2.0f, 5.0f, 1);
-    idx = (u8)(s32)(255.0f * b);
+    idx = (u8)(255.0f * b);
     inv = 1.0f - delta;
     v21 = (inv * 190.0f) / 2.0f;
     s1 = func_0044b7b0(fGpffff83c8);
@@ -711,8 +708,8 @@ void func_00385380(u8 *arg0)
     c2 = func_0044b610(fGpffff83c8);
     x = 221.0f + v21 * c1 - v23 * s1;
     y = 235.0f + 2.0f + v21 * s2 + ((1.0f - blend2) * 39.0f) / 2.0f * c2;
-    cdelta = (u16)(s32)(4096.0f * delta);
-    cblend = (u16)(s32)(4096.0f * blend2);
+    cdelta = (u16)(4096.0f * delta);
+    cblend = (u16)(4096.0f * blend2);
     func_0034f4a0(res, 0x12, x, y, 0.0f, 0, 0, 0, idx, cdelta, cblend, -15.0f, 0, 0);
     next = *cnt + 1;
     *cnt = next;

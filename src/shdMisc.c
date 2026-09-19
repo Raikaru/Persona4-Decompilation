@@ -553,27 +553,29 @@ void func_003657d0(Vec2f arg0, f32 fparg0, s32 arg1, f32 fparg1, f32 fparg2, s32
 }
 
 
-/* measured (mwcc b210 -O2): guarded body scores 305 differing words via
-   `python3 tools/probe_variants.py src/shdMisc.c func_00365ac0
-   --candidate v9=/var/tmp/cand_00365ac0_v9.c` (replay with
-   `python3 tools/measure_guarded.py src/shdMisc.c func_00365ac0`).
-   Frame (0x310), saves (s0-s4, f20-f27), ABI (Vec2f+s32+s32+f32x4), CFG,
-   modulo idioms (plain signed % reproduces the andi/bgez/beqz/addiu -8/-4
-   chains), extraction, vertex MAC shapes (adda/madda/msub/madd fuse from
-   364C90-style `(0.0f + pos) + X*cos - Y*sin` expressions) and epilogue
-   calls all verify against retail. WALL is global integer-temp allocation:
-   i lands in $t0 (retail reuses freed $a1), bits land in $a3-a0 (retail
-   $t1/$t0/$a3/$a2), mod-temps shift one slot, and the int moves come out
-   addu-grouped-early (retail daddu, $a1-move first then $a2-move after the
-   float moves). Nine variants tie at 304-306 (explicit/nested temps,
-   declaration orders, init styles, u32-count, shared +/-1); declaration
-   order moves float coloring but not int temps; nesting does not change
-   allocation; opt_propagation off (165→323) and opt_loop_invariants on
-   (→312) both regress; single-statement MAC fuses mula/madd but evaluates
-   f26-first (retail f25-first), swapped order does not fuse, two-statement
-   sequencing does not fuse (304). No dsll32/dsra32, no volatile/asm.
-   Complete source and probe evidence:
-   docs/probe_archive/LaneShdMisc_00365ac0_v9_body.c. Production stays ASM. */
+/* measured (mwcc b210 -O2): guarded body scores 221 differing words via */
+/* `python3 tools/probe_variants.py src/shdMisc.c func_00365ac0 */
+/* --candidate plain=/tmp/cand_plain.c` (replay with */
+/* `python3 tools/measure_guarded.py src/shdMisc.c func_00365ac0`). */
+/* Frame (0x310), saves (s0-s4, f20-f27), ABI (Vec2f+s32+s32+f32x4), CFG, */
+/* modulo idioms (plain signed % reproduces the andi/bgez/beqz/addiu -8/-4 */
+/* chains), extraction, vertex MAC shapes (adda/madda/msub/madd fuse from */
+/* 364C90-style `(0.0f + pos) + X*cos - Y*sin` expressions) and epilogue */
+/* calls all verify against retail. */
+/* Surplus was hand-expanded unsigned->float: `if (t >= 0) row=(f32)(u32)t` */
+/* `else { hh=(f32)(((u32)t>>1)|bit); row=hh+hh; }` doubles b210's own */
+/* bltz/srl/andi/or/mtc1/cvt/add.s idiom (opclass +8 each of bltz/b/srl/andi/ */
+/* or/mtc1/cvt, +10 add.s, +29 nop, +4 swc1, -4 move; 369 vs 272 instrs, +97). */
+/* Plain `(f32)(u32)t` lets b210 emit the idiom once, as sibling 003657d0 */
+/* documents: 369->277 instrs (+5 net: nop+5, add.s+2, addiu+2, move-4), */
+/* 305->221 differing words, opclass total delta 105->13. Remaining 5 are */
+/* int-temp coloring/scheduling (i in $a0 vs $a1, hoisted mtc1/andi order, */
+/* $t2/$a1 vs $a1/$v0 naming); no dsll32/dsra32, no volatile/asm, no pragma. */
+/* missing_prototypes.py reports 0 undeclared callees for this TU; */
+/* solve_signedness.py reports lb/lbu/lh/lhu 0/0 mismatch 0. No prototype or */
+/* struct-width change was needed: Vec2f-by-value already emits the retail */
+/* `sd`, and all callees (00457120/0044b610/0044b7b0, D_00887300/10) are */
+/* declared. Production stays ASM. */
 // FUN_00365AC0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00365ac0(Vec2f position, s32 color, s32 mode, f32 depth, f32 angle, f32 wid, f32 hgt) {
@@ -592,10 +594,6 @@ void func_00365ac0(Vec2f position, s32 color, s32 mode, f32 depth, f32 angle, f3
     s32 temp_17;
     s32 temp_18;
     s32 temp_19;
-    s32 temp_9;
-    s32 temp_8;
-    s32 temp_7;
-    s32 temp_6;
     s32 i;
     u8 *camera;
     temp_f27 = angle;
@@ -615,10 +613,6 @@ void func_00365ac0(Vec2f position, s32 color, s32 mode, f32 depth, f32 angle, f3
     cos_a = func_0044b610(temp_f27);
     zero = 0.0f;
     i = 0;
-    temp_9 = temp_19 & 1;
-    temp_8 = temp_18 & 1;
-    temp_7 = temp_17 & 1;
-    temp_6 = temp_16 & 1;
     for (; i < 10; i++) {
         s32 mod8a = i % 8;
         s32 mod8b = (i + 6) % 8;
@@ -629,7 +623,6 @@ void func_00365ac0(Vec2f position, s32 color, s32 mode, f32 depth, f32 angle, f3
         f32 cf2 = (f32)(((u32)((mod8b % 4) ^ 1)) < 1);
         f32 Y;
         f32 *row;
-        f32 hh;
         xh1 = temp_f25 * cf1 + temp_f26 * xh1;
         X = (f32)((mod8a < 4) ? 1 : -1) * xh1;
         xh2 = temp_f25 * cf2 + temp_f26 * xh2;
@@ -639,30 +632,10 @@ void func_00365ac0(Vec2f position, s32 color, s32 mode, f32 depth, f32 angle, f3
         row[1] = (zero + pos_y) + Y * cos_a + X * temp_f22;
         row[2] = temp_f24;
         row[6] = temp_f23;
-        if (temp_19 >= 0) {
-            row[8] = (f32)(u32)temp_19;
-        } else {
-            hh = (f32)(((u32)temp_19 >> 1) | temp_9);
-            row[8] = hh + hh;
-        }
-        if (temp_18 >= 0) {
-            row[9] = (f32)(u32)temp_18;
-        } else {
-            hh = (f32)(((u32)temp_18 >> 1) | temp_8);
-            row[9] = hh + hh;
-        }
-        if (temp_17 >= 0) {
-            row[10] = (f32)(u32)temp_17;
-        } else {
-            hh = (f32)(((u32)temp_17 >> 1) | temp_7);
-            row[10] = hh + hh;
-        }
-        if (temp_16 >= 0) {
-            row[11] = (f32)(u32)temp_16;
-        } else {
-            hh = (f32)(((u32)temp_16 >> 1) | temp_6);
-            row[11] = hh + hh;
-        }
+        row[8] = (f32)(u32)temp_19;
+        row[9] = (f32)(u32)temp_18;
+        row[10] = (f32)(u32)temp_17;
+        row[11] = (f32)(u32)temp_16;
     }
     D_00887300[0](1, 0);
     if (mode != 0 && (temp_16 & 0xFF) == 0xFF) {
