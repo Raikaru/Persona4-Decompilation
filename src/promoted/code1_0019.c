@@ -3716,6 +3716,24 @@ void func_0019c010(u8 *arg0)
    the t-stage at the wrong frame slot, `tmp` at 0x9C against retail's 0xAC,
    frame 0xA0 against 0xB0, base 0x50 against 0x60.  Fix the slot and the
    drift together. */
+/* measured 0019c0d0 (owner, this session): 930 against retail 951 (inside), 1068 fnalign edits,
+   864 differing words.  The dominant defect is a **relocation, not an expression**: one pure
+   delete of 347 instructions at retail[465:812] against object[772], with 153 and 43 surplus
+   instructions the object emits early at object[568] and object[514].  Retail places that
+   material late; the object places it early.
+   Three hypotheses measured and rejected, so nobody repeats them:
+   (a) moving the `entry + 0x98 & 4` block after the `entry + 0xA00 + 0xD8` test - 1068 -> 1100.
+   (b) `(f32)(u32)*(u8 *)` at all sixteen byte-to-float sites - exactly neutral, 1068 and the
+       same count.  Retail's conversion at R466-R479 really is the 15-instruction unsigned recipe
+       (`lbu 0x3d($s4)`, `bltz`, `srl`, `andi`, `or`, `mtc1`, `cvt.s.w`), but casting a `u8` to
+       `u32` does not reach it - MWCC knows the value is non-negative and folds the guard away.
+   (c) routing those sites through an inline `f32 f(u32)` helper, which does force a genuine u32
+       parameter - 1068 -> 1139, worse.
+   So the unsigned recipe in retail comes from a value that is genuinely 32-bit at its source,
+   not a widened byte: find the field that is really a `u32` before spending more on the casts.
+   Register state: retail saves $s4 the body does not, the body saves a spare $f20, frame 0xA0
+   against retail's 0xB0 - one saved GPR, and holding a float where retail holds a pointer is
+   the usual reason. */
 // FUN_0019C0D0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
