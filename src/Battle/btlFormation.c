@@ -144,6 +144,11 @@ void func_001d1eb0(u32 param_1, u32 param_2, float param_3, u16 param_4)
 /* measured: base 819wd via probe_variants (retail 916 instrs/window 3680B, object 900 instrs; fnalign 916/900). De-noised m2c.c (436 lines, 11 M2C_ERROR VU adda/msub/madd) + rw.c (371) + rw_raw (340) + IDA (499) + Ghidra (445) into file idiom (u8 plus offsets, f32 vectors, D_0076449C + fGpffff809c, truthful u8-ptr/f32-ptr/void-ptr callees per btlUnit/btlBoss/code1_001f, MACs as plain C with +0.0f). Levers: defer count6A/flag loads 844->819, drop unused cand tie, lh->lhu tie, dispatch swap tie. Frame -0x170 vs retail -0x160 (16B over). Honest stack, no volatile/asm. Banked floor; production stays ASM. */
 /* 2026-09-18, handoff 7o eight probes on unitB/other pair (both bare decls, no initialisers); function-scope BO/BO 819 (tie, this body), BO/OB 820, OB/BO 820, OB/OB 820; outer-block-scope BO/BO 820, BO/OB 820, OB/BO 820, OB/OB 820. Reversal +1, decl swap +1, block scope +1; order already retail's, exchange survives (residual 819 not pair-driven). Floor stands; production stays ASM. */
 /* kind-swap 2026-09-19: retail puts kind==0 first at 0x001d1f98 and kind==1 last at 0x001d2a80; source had them reversed. Swapping the arms collapses four runs of 678/555/182/65 into 170 scattered runs of at most 11. Words did not move at all - 819 before and after - while edits fell 1575->425 (-1150). Cleanest demonstration that relocation must be judged on edits (handoff 7y/7aq). Residual now readable: 900/916 (16 short, deletes 11+4+4+1+1=21 minus inserts 3+1+1=5), largest delete 11 at retail[259:270] (func_001951f0 t2=1 arm). */
+/* measured 001d1f30 (owner, 2026-09-19): fnalign **416 -> 399 edits** by writing the `tmp`
+   dispatch as a `switch` with the OR-ed equalities as fallthrough cases.  A plain
+   chain-to-switch conversion that treats `(tmp == a) || (tmp == b)` as one compound
+   condition only reaches 413; recognising it as two cases sharing a body is worth the
+   other 14. */
 // FUN_001D1F30 NONMATCHING
 #ifdef NON_MATCHING
 u32 func_001d1f30(u32 *work) {
@@ -269,10 +274,15 @@ u32 func_001d1f30(u32 *work) {
                     adj = (len + 0.0f) - radiusA;
                     if (isClose == 0) {
                         tmp = func_00199d00((s32)entry, unitB, (s64)h6E, 1);
-                        if ((tmp == 3) || (tmp == 1)) {
-                            func_001951f0(entry, unitB, other, sel, dest, 0, 1);
-                        } else if ((tmp == 2) || (tmp == 0)) {
+                        switch (tmp) {
+                        case 0:
+                        case 2:
                             func_001951f0(entry, unitB, other, sel, dest, 0, 0);
+                            break;
+                        case 1:
+                        case 3:
+                            func_001951f0(entry, unitB, other, sel, dest, 0, 1);
+                            break;
                         }
                     } else {
                         func_001951f0(entry, unitB, other, sel, dest, 0, 2);
