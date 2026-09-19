@@ -1927,7 +1927,8 @@ extern u8 *func_001b0c80(s32 arg0);
    second from the first (`$v0 + 2`).  C cannot name `$sp + index*4`: every
    spelling that tries goes through the array and is worse - mirroring the
    write-site index form at both reads 64 with an s32 index and 64 with u16,
-   and `b3[1]` for the second read 57.  Treat the remaining 13 as codegen. */
+   and `b3[1]` for the second read 57.  Treat the remaining 13 as codegen.
+   2026-09-19 base-pointer round: five single-base spellings (u8 base + idx, s16 base[40/41], inline without idx, base+b3 hybrid) all 57 - naming the row keeps the computation but not the register lifetime, and costs a sub for the -0x50; two-pointer lazy stays best at 13. */
 // FUN_001F4E50 NONMATCHING
 #ifdef NON_MATCHING
 s64 func_001f4e50(u8 *arg0) {
