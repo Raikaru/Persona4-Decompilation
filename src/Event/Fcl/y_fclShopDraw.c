@@ -303,6 +303,78 @@ extern f32 fGpffff7ad4;
    M2C_ERROR sites across 3 shapes (saved-$s0 ldr base, temp_f20 madd, msub
    pairs); sibling func_002cdf80 with the same rules fully adapted measured
    nd 3325. Function-scale reconstruction floor. */
+/* measured: func_002be530 recon + jump-table recovery (no guarded body installed - see tail). */
+/* Retail 49728B = 12432 instrs, the largest first-party function in the tree. */
+/* Band 12059-12805 (+-3%: 12432*0.97=12059.04, 12432*1.03=12804.96). Frame 0x790 */
+/* (addiu $29,$29,-0x790; sq $16-$23,$30 + sd $31 + swc1 $f20/$f21). Calls 1525 jal. */
+/* nop 2287/12432 = 18.4%; cond branches 277; total branch/jump 2006; jr x3 (two dispatch */
+/* jr $2 at 0x002BE5C4 and 0x002C187C + return jr $ra). Delay slots: 0 non-nop. Method: */
+/* counted from asm/nonmatchings/y_fclShopDraw/func_002be530.s comment-lines + mnemonic regex. */
+/* MAIN dispatch: lb $2,0($17); addiu $2,$2,-0x9; sltiu $1,$2,0x2F; beqz $1,.L002CA728 */
+/*   (default); lui/addiu jtbl_00748930; sll $2,$2,2; addu; lw; jr $2 (delay nop). The -9 means */
+/*   the C switch is over states 9..55 (0x9..0x37): index = state-9, 47 cases (0..46). */
+/* jtbl_00748930 at 0x00748930, extent 48 words (0xC0) to next jtbl_007489F0 at 0x007489F0; */
+/*   valid 47 (indices 0..46); word 47 is 0x00000000 pad, not a case. sltiu bound 0x2F = 47 */
+/*   cases; with the default that is 48 arms. The assignment's "forty-eight" counts default. */
+/* Default .L002CA728 = 0x002CA728 (+0xC1F8) equals indices 2,16,17 - states 11 (0xB), 25 */
+/*   (0x19), 26 (0x1A) share the default block and must still be written as explicit arms. */
+/* Full main table (valid 47; `python3 tools/jtbl.py 0x00748930 47 --func 0x002be530`): */
+/*   idx state target (+off)        idx state target (+off)        idx state target (+off) */
+/*   0    0x9  0x002BE5CC (+0x9c)   16   0x19 0x002CA728 default  32   0x29 0x002C855C (+0xa02c) */
+/*   1    0xA  0x002BE618 (+0xe8)   17   0x1A 0x002CA728 default  33   0x2A 0x002C85D0 (+0xa0a0) */
+/*   2    0xB  0x002CA728 default   18   0x1B 0x002C4004 (+0x5ad4) 34   0x2B 0x002C8650 (+0xa120) */
+/*   3    0xC  0x002BEE4C (+0x91c)  19   0x1C 0x002C40DC (+0x5bac) 35   0x2C 0x002C86E4 (+0xa1b4) */
+/*   4    0xD  0x002BEEA0 (+0x970)  20   0x1D 0x002C4558 (+0x6028) 36   0x2D 0x002C8744 (+0xa214) */
+/*   5    0xE  0x002BF05C (+0xb2c)  21   0x1E 0x002C479C (+0x626c) 37   0x2E 0x002C80E0 (+0x9bb0) */
+/*   6    0xF  0x002BF018 (+0xae8)  22   0x1F 0x002C4A44 (+0x6514) 38   0x2F 0x002C8C28 (+0xa6f8) */
+/*   7    0x10 0x002BFEE0 (+0x19b0) 23   0x20 0x002C4C58 (+0x6728) 39   0x30 0x002C92A0 (+0xad70) */
+/*   8    0x11 0x002C0A64 (+0x2534) 24   0x21 0x002C5570 (+0x7040) 40   0x31 0x002C976C (+0xb23c) */
+/*   9    0x12 0x002C0BAC (+0x267c) 25   0x22 0x002C5EB8 (+0x7988) 41   0x32 0x002C99D4 (+0xb4a4) */
+/*   10   0x13 0x002C14A8 (+0x2f78) 26   0x23 0x002C6008 (+0x7ad8) 42   0x33 0x002C99E4 (+0xb4b4) */
+/*   11   0x14 0x002C1AF0 (+0x35c0) 27   0x24 0x002C616C (+0x7c3c) 43   0x34 0x002C9C24 (+0xb6f4) */
+/*   12   0x15 0x002C1C34 (+0x3704) 28   0x25 0x002C61A8 (+0x7c78) 44   0x35 0x002C9E64 (+0xb934) */
+/*   13   0x16 0x002C2D0C (+0x47dc) 29   0x26 0x002C8838 (+0xa308) 45   0x36 0x002CA4EC (+0xbfbc) */
+/*   14   0x17 0x002C38C0 (+0x5390) 30   0x27 0x002C74B0 (+0x8f80) 46   0x37 0x002CA674 (+0xc144) */
+/*   15   0x18 0x002C3AB8 (+0x5588) 31   0x28 0x002C7A20 (+0x94f0) word47: 0x0 pad. */
+/* Object order (ascending targets): 0,1,3,4,6,5,7,8,9,10,11,12,13,14,15,18,19,20,21,22, */
+/*   23,24,25,26,27,28,30,31,37,32,33,34,35,36,29,38,39,40,41,42,43,44,45,46,2/16/17-dflt. */
+/*   Out-of-order pairs (5 after 6; 37 before 32-36; 29 after 36) are object layout only; */
+/*   m2c prints labels permuted (e.g. case 0x2E before 0x29) - source order stays numeric. */
+/* C shape (main): switch (state - 9) { case 0: ... case 46: ...; default: ... } (or */
+/*   equivalently switch (state) { case 9: ... case 55: ...; default: ... } - mwcc normalises */
+/*   contiguous 9..55 to the same addiu -9 + sltiu 0x2F). Cases 11/25/26 (idx 2/16/17) present */
+/*   but empty/fallthrough to default; the bound matches iff all 47 cases are present. */
+/* SECOND dispatch (inside main case idx 17 / state 0x1B region, at 0x002C1858): */
+/*   lb $2,0x7($17); sltiu $1,$2,0x6; beqz $1,.L002CA728 (same default); lui/addiu */
+/*   jtbl_00748910; sll/addu/lw; jr $2. jtbl_00748910 at 0x00748910, extent 8 words (0x20) */
+/*   to next jtbl_00748930 at 0x00748930; valid 6 (indices 0..5); words 6-7 are 0x0 pad. */
+/*   Bound 0x6 = 6 cases; with default that is 7 arms. Targets */
+/*   (`python3 tools/jtbl.py 0x00748910 6 --func 0x002be530`): 0,1,2 -> 0x002C1884 (+0x3354) */
+/*   shared; 3 -> 0x002C1898 (+0x3368); 4 -> 0x002C19B4 (+0x3484); 5 -> 0x002C1A58 (+0x3528). */
+/*   C shape: switch (work[7]) { case 0: case 1: case 2: ...; case 3: ...; case 4: ...; */
+/*   case 5: ...; default: ... } - default falls through to the main default block. */
+/* m2c with tables (this lane): staged /tmp/m2c_in_002be530.s = build/m2c/func_002be530.s plus */
+/*   47+6 .word entries plus missing `.L<target>:` labels (tools/m2c_bulk.py method); */
+/*   `python3 tools/vendor/m2c/m2c.py --target mipsee-mwcc-c --context build/m2c/func_002be530.ctx.c */
+/*   --globals=used -f func_002be530` succeeds; without tables it fails at the first jr */
+/*   (same `Found jr instruction` class as 00332bb0 line 38). Output /tmp/m2c_2be530_out.c: */
+/*   3608 lines (assignment lane reported 3738 - context drift), 63 M2C_ERROR, 406 distinct sp */
+/*   vars, 407 distinct temp_ vars, 24 unknown-sig `? func_` decls, 0 M2C_UNK tokens. Main */
+/*   switch recovered as cases 0x9..0x37 with 0xB/0x19/0x1A merged into `default: return;` */
+/*   (re-add by hand); second switch 0..5 correct with 0/1/2 shared. Switches 3-6 (small, */
+/*   inside case bodies, e.g. work[7]-adjacent 3-case groups at 0x2C...) are branch if-chains. */
+/* Width calibration (five banked floors in this file, object/retail instrs): 002cb6c0 */
+/*   2589/2608 (-0.7% PASS), 002cdf80 3545/3460 (+2.5% PASS, landing via s64->s32 narrow of */
+/*   temp_18; V8 all-s64 3581 FAIL), 002d1590 2621/2644 (-0.9% PASS), 002db400 1983/1932, */
+/*   002da0a0 1260/1240. Expectation: all-s32 draft ~10% short (~11200 vs 12432); landing set */
+/*   is 2-3 loop counters kept s64 for dsll32/dsra32 pairs (e.g. var_16 0x91-loop at .L002BE65C */
+/*   pair 0x1BE680/0x1BE684; inner 0x5A/0xF-style s16 counters as in 00332bb0). File rules from */
+/*   the retained note above still apply: *(u64 *)(p+0x2C) for ldr/ldl sites, FMA as acc+a*b. */
+/* No guarded body installed: adapting the 3608-line draft (406 sp vars, unk-offset struct, */
+/*   63 M2C_ERROR, `?` protos, gp-relative immediates) to TU idiom (ShopWork, Vec2f/u64 slots, */
+/*   RGBA, s16/s8 widths) is multi-week at this scale; installing anything short of 12059 */
+/*   would be outside the band with an uncomparable word score (gate handoff 7y). The two */
+/*   recovered tables + this decomposition is the deliverable, stated plainly. */
 // FUN_002BE530
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002be530);
 

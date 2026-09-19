@@ -72,7 +72,66 @@ void *func_00460990(void);
 void func_00460ac0(void *, void *);
 s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 
-/* measured: retail window 37392 bytes; no real C body was produced in this lane, so this function remains the bare assembly fallback. */
+/* measured: func_00332bb0 recon + jump-table recovery (no guarded body installed - see tail). */
+/* retail window 37392B = 9348 instrs, band 9067-9628 (+-3%: 9348*0.97=9067.56, 9348*1.03=9628.44). */
+/* frame 0x770 (addiu $29,$29,-0x770; sq $16-$22 + sd $31 + swc1 $f20). Calls 1214 jal. */
+/* nop 1721/9348 = 18.4%; cond branches 241 (beq/bne/beqz/bnez/bgez/bltz/bgtz/blez/bc1*); */
+/* total branch/jump 1569 (incl j/jal/jr); jr x2 (dispatch jr $2 at 0x00332C34 + return jr $ra). */
+/* Delay slots: 0 non-nop - every branch/jump is followed by nop. Method: counted from */
+/* asm/nonmatchings/y_fclItemShopDraw/func_00332bb0.s comment-lines + mnemonic regex. */
+/* Dispatch: lb $2,0($18); sltiu $1,$2,0x13; beqz $1,.L0033BD80 (default); */
+/*   lui/addiu jtbl_00749720; sll $2,$2,2; addu $2,$2,$3; lw $2,0($2); jr $2 (delay nop). */
+/* jtbl_00749720 at 0x00749720, extent 20 words (0x50) to next jtbl_00749770 at 0x00749770; */
+/*   valid 19 (indices 0..18); word 19 is 0x00000000 pad, not a case. sltiu bound 0x13 = 19 */
+/*   cases (0..0x12); with the default that is 20 arms. The assignment's "twenty" counts the */
+/*   default; the table itself holds 19 targets. */
+/* Default .L0033BD80 = 0x0033BD80 (+0x91D0 from entry 0x00332BB0), which equals case 8's */
+/*   target - case 8 shares the default block and must still be written as an explicit arm. */
+/* Full table (valid 19; `python3 tools/jtbl.py 0x00749720 19 --func 0x00332bb0`): */
+/*   case  0: 0x00332C3C (+0x8c)    case 10: 0x00337258 (+0x46a8) */
+/*   case  1: 0x00332C88 (+0xd8)    case 11: 0x003373C4 (+0x4814) */
+/*   case  2: 0x00332F64 (+0x3b4)   case 12: 0x00339A68 (+0x6eb8) */
+/*   case  3: 0x00333BFC (+0x104c)  case 13: 0x0033A7D4 (+0x7c24) */
+/*   case  4: 0x00334C40 (+0x2090)  case 14: 0x0033AE30 (+0x8280) */
+/*   case  5: 0x0033510C (+0x255c)  case 15: 0x0033B568 (+0x89b8) */
+/*   case  6: 0x00335044 (+0x2494)  case 16: 0x0033B584 (+0x89d4) */
+/*   case  7: 0x003350C8 (+0x2518)  case 17: 0x0033B890 (+0x8ce0) */
+/*   case  8: 0x0033BD80 (+0x91d0) = default   case 18: 0x0033BD64 (+0x91b4) */
+/*   case  9: 0x00335C00 (+0x3050)  word 19: 0x00000000 pad (next table starts 0x749770). */
+/* Object order (ascending targets): 0,1,2,3,4,6,7,5,9,10,11,12,13,14,15,16,17,18,8(default). */
+/*   Cases 6/7 bodies precede case 5 in the object (5 at +0x255C after 7 at +0x2518); m2c */
+/*   prints labels permuted (case 5 after 7) - source order stays numeric with fallthrough. */
+/* C shape: switch (state) { case 0: ... case 18: ...; default: ... } where state is the */
+/*   s8 at work+0 (lb, no subtract). Case 8 present but empty/fallthrough to default. The */
+/*   bound matches iff all 19 cases are present; missing arms may be empty but the switch */
+/*   must still span 0..18 or mwcc will not emit sltiu 0x13. */
+/* m2c with tables (this lane): staged /tmp/m2c_in_00332bb0.s = build/m2c/func_00332bb0.s plus */
+/*   the 19 .word entries as `.word .L<target>` under .rdata plus the missing `.L<target>:` */
+/*   labels at each target's address-comment line (cf. tools/m2c_bulk.py prepare_assembly_block). */
+/*   `python3 tools/vendor/m2c/m2c.py --target mipsee-mwcc-c --context build/m2c/func_00332bb0.ctx.c */
+/*   --globals=used -f func_00332bb0 /tmp/m2c_in_00332bb0.s > /tmp/m2c_332bb0_out.c` succeeds; */
+/*   without the table it fails `Found jr instruction at func_00332bb0.s line 38` (the dispatch). */
+/*   Output /tmp/m2c_332bb0_out.c: 2366 lines (assignment lane reported 2322 - context drift), */
+/*   46 M2C_ERROR, 219 distinct sp vars, 182 distinct temp_ vars, 20 unknown-sig `? func_` */
+/*   decls, 0 M2C_UNK tokens (current m2c spells stack as spXXX). Switch 1 recovered with cases */
+/*   0,1,2,3,4,6,7,5(permuted),9..18; case 8 merged into `default:` and must be re-added by hand. */
+/*   Switches 2/3 `irregular` (3 cases each, inside the case-5 region) are branch if-chains, */
+/*   not jump tables. Stack frame models as ~219 sp vars incl ~100 F2_0033 pairs (0x770 frame). */
+/* Width calibration: this TU has MATCH func_0033cc40 (1216B/1216B, 304 instrs, 0 edits + 9 */
+/*   reloc-only; floats-first 25ecd0 + lhu 0xF8 + inline s16/2) as the scheduling reference; */
+/*   y_fclShopDraw.c supplies five banked floors with object/retail instr counts - */
+/*   002cb6c0 2589/2608 (-0.7% PASS), 002cdf80 3545/3460 (+2.5% PASS, landing via s64->s32 */
+/*   narrow of temp_18), 002d1590 2621/2644 (-0.9% PASS), 002db400 1983/1932, 002da0a0 */
+/*   1260/1240. Expectation per assignment: an all-s32 draft lands ~10% short (~8400 vs 9348); */
+/*   the landing set is 2-3 loop counters kept s64 for retail's dsll32/dsra32 pairs - candidates */
+/*   var_16_2 (0x5A loop at .L00332CC4, dsll32/dsra32 at 0x232CFC/0x232D00), var_4 (0xF loop at */
+/*   .L00332D24, pair at 0x232D44/0x232D48), var_16_3 (pair at 0x232D4C/0x232D50) - cf. cdf80 V8 */
+/*   all-s64 3581 FAIL -> narrow temp_18 3545 PASS. */
+/* No guarded body installed: adapting the 2366-line draft (219 sp vars, unk-offset struct via */
+/*   temp_18->unkXXX, gp-relative `saved_reg_gp-0x56D8`, 46 M2C_ERROR, `?` protos, H_Cdvd symbol) */
+/*   to TU idiom (u8* work + offsets, Vec2f/u64 slots, s16/s8 widths, file protos) is multi-day; */
+/*   installing a short skeleton would sit outside 9067-9628 and its word score would be */
+/*   uncomparable (gate handoff 7y). This note + the recovered table above is the deliverable. */
 // FUN_00332BB0
 INCLUDE_ASM("asm/nonmatchings/y_fclItemShopDraw", func_00332bb0);
 
