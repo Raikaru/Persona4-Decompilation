@@ -542,6 +542,43 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7az. b210 always folds the unsigned conversion of a halfword load
+
+Three functions in `src/Graphics/Model/mdlManager.c` - `func_00471370`,
+`func_00473b20`, `func_00479100` - each carry a note calling the same
+six-word difference a floor.  Retail emits the full unsigned recipe on a
+halfword load:
+
+    lhu  $v0, 0x18($s4)
+    bltz $v0, .+7          <- can never be taken for an lhu result
+    mtc1 $v0, $f0 ; cvt.s.w $f0, $f0 ; b .+9
+    srl  $v1, $v0, 1 ; andi $v0, $v0, 1 ; or $v1, $v1, $v0
+    mtc1 $v1, $f0 ; cvt.s.w $f0, $f0 ; add.s $f0, $f0, $f0
+
+**No source spelling reaches it.**  Measured on `func_00473b20`, all
+identical at 368 instructions and 78 edits:
+
+- `(f32)(u32)v18` with `u16 v18` - the current body
+- the same with `u32 v18`
+- converting straight from the dereference with no local at all
+- routing through `static inline f32 f(u32)`, which forces a genuine `u32`
+  parameter across a call boundary
+- `(u32)... | 0u` to defeat range analysis
+
+b210 at `-O2` proves the value fits in 31 bits from the `lhu` and folds the
+guard away every time.  The same holds for byte loads: the identical
+experiment on `func_0019c0d0` was neutral across sixteen sites.
+
+So the six words are **not a conversion problem and not reachable by casting**.
+Retail's operand must be a genuinely 32-bit unsigned whose range b210 cannot
+see - which means the field at that offset is `u32` in retail's struct and the
+`lhu` comes from something else, or the value crosses a boundary the compiler
+cannot analyse.  Anyone picking this up should start from the struct
+definition, not from the conversion expression.
+
+Recorded because three separate notes describe this as a floor without saying
+what had been tried; the list above is what has, so nobody repeats it.
+
 ### 7ay. An asymmetric fnalign run is not always a relocated block
 
 7aq says a long retail run against one object instruction means a relocation,
