@@ -2488,6 +2488,7 @@ void func_0038a940(u8 **arg0)
 }
 #pragma opt_propagation on
 /* measured: probe_variants func_0038acd0 archived 276wd, base 159wd, inclusive (i<5 -> <=4) 161wd regress (+2, exclusive correct), reorder (declaration order per handoff 7a reverse) 154wd best (-5), schedule 293wd regress (not justified); fnalign base 59 edits +4 reloc-only 316/316 instrs, reorder 43 edits +6 reloc-only (best, -16 edits); lever 4 exclusive correct (i<5 keeps $at? actually i<5 vs <=4 regress confirms exclusive); schedule off (unit baseline) correct; providers verified per DraftAcd0 (373cb0, 64c90, etc.); Ghidra/IDA agree; archive docs/probe_archive/P038_0038a480_body.c? No, P038_0038acd0_body.c (stale 276). Banked guarded floor (no pragmas). */
+/* 2026-09-19 (this lane): live body re-measures 154wd / 43 edits +6 reloc-only, 316/316. Two fresh levers, both rejected: q25 (name the 0.25f const before half, both tail arms) ties at 154 with byte-identical fnalign - propagation folds the temp, const-mat timing is pure scheduler choice; fac-late (sum before fac-load in the k-loop) regresses to 160 / 55 edits, exploding the entry/factors address induction - the loop-head order is load-bearing. Residual: twin 0.25f const-mat timing + float-reg colour cascade + 0x70 fold. */
 // FUN_0038ACD0 NONMATCHING
 #ifdef NON_MATCHING
 typedef struct { f32 x; f32 y; } Vec2f_acd0;
