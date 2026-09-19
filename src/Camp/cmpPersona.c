@@ -816,6 +816,23 @@ void func_001377e0(u8* arg0) {
    the +-3% band.  Any differing-word score in this note was measured
    against a body of the wrong length and is not comparable to one
    measured inside the gate (handoff 7y).  Fix the count first. */
+/* 2026-09-19 lead audit: this floor's 252-word score is meaningless and the
+   -11.4% count understates how wrong the body is.  fnalign shows a single
+   `delete retail[140:317]` of **177 instructions** that this body does not
+   have at all, offset by a 96-instruction `replace` and a 45-instruction
+   `insert` of code retail does not have.  A 177-instruction hole cancelling
+   against ~141 instructions of invented work is the compensating-surplus
+   pattern from handoff 7u: the count looks nearly right and the structure is
+   badly wrong.
+   Whoever takes this next: recover the retail block at 140-317 first - it
+   begins `jal` / `b .+177` / `addiu $a0, $sp, 0xd0` / `jal`, so it is a
+   call-heavy arm built around a 0xD0 stack object - and delete the invented
+   96- and 45-instruction regions rather than tuning anything.  Do not trust
+   any pragma or colouring number measured against the present body. */
+/* gate: object 296 against retail 334, -11.4% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00137890 NONMATCHING
 #ifdef NON_MATCHING
 void func_00137890(u8 *arg0, s32 arg1)

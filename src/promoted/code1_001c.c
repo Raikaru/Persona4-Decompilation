@@ -154,147 +154,204 @@ static inline void func_001c_rotate(RwMatrix *arg0, const RwV3d *arg1,
 /* Promoted from the canonical function map: every function here is a
    retail window with an INCLUDE_ASM fallback and no C body yet. */
 
-/* Camera-track floor (1216B window; obj 876B fndiff 248 verify 594; width check 2026-09-17:
-   no dsll/dsra pairs, clean; frame -0xD0 vs -0x130 retail, saved-reg set verified, stack
-   layout divergent (packed vs spread)). Open: frame layout, madd/msub fusion, scheduler
-   ordering. Triple-built (m2c+IDA+Ghidra, retail-arbitrated: 1bcd40 TU-decl order,
-   0.5-first 44b868, max-form update). Prior 263 now 248; reproducible with --candidate.
-*/
-/* gate: object 219 against retail 301, -27.2% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 001c04e0: 302/302 (0.0%) inside 293-311 band; guarded 205 words via `python3 tools/measure_guarded.py src/promoted/code1_001c.c func_001c04e0` (GUARDED_SCORE 205); probe 205 via `python3 tools/probe_variants.py src/promoted/code1_001c.c func_001c04e0 --candidate v5=/tmp/v5_declswap.c` (v1 208, v5 205, v6 207, v10 208); fnalign retail 302 vs object 302, 159 edits (+5 reloc-only) via `python3 -E -s tools/fnalign.py src/promoted/code1_001c.c func_001c04e0 --candidate /tmp/v5_declswap.c --quiet`. M2C/romwright de-noise triple-checked against Ghidra/IDA plus docs/probe_archive/M_001c04e0_body.c (1208B inside-gate shape) to file idiom with block externs (func_001bcd40(f32,u8*,u8*,u8*,u16) float-first per src/Battle/btlCamera.c, func_0044b868(f32)->f32 per 001c5500 lesson, func_003dcb40 void, func_001ec3d0(u8*) per btlCamera.c, fGpffff80fc/8030/8110). Frame 0x130 sparse with pad_to_E0/F0/100/110/120 (was packed 0xD0, +82 instrs). Per-arm 2.5*f6 + 2.25 var_f24 + obj1=obj2 switch recovered (was fused temp_f25 for D0/D8; 140-instr hole at retail[59:199]). Decl swap var_f23/var_f22 208->205; dot orders and branch flips tie. Top remaining: FPR colors (len f20 vs f25, 2.25 f21 vs f24), mula/madd vs mul/add, ld/sd scheduling, branch polarity (7p class per func_001c79f0 note). Within 3% gate, banked as floor. Prior 248/299 outside gate (219/301) not comparable per 7y. */
 // FUN_001C04E0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001c04e0(u8 *arg0)
 {
-    extern void func_001bd5a0();
-    extern f32 func_001ec3d0(f32 *arg0, f32 *arg1, f32 *arg2, f32 *arg3);
+    typedef union { s64 pair; struct { f32 x; f32 y; } xy; } PairF32;
+    struct {
+        f32 sp60[8];
+        f32 sp80;
+        f32 sp84;
+        f32 sp88;
+        f32 sp8C;
+        f32 sp90;
+        f32 sp94;
+        f32 sp98;
+        f32 sp9C;
+        f32 spA0;
+        f32 spA4;
+        f32 spA8;
+        f32 spAC;
+        f32 spB0;
+        f32 spB4;
+        f32 spB8;
+        f32 spBC;
+        f32 spC0;
+        f32 spC4;
+        f32 spC8;
+        f32 spCC;
+        f32 spD0;
+        f32 spD4;
+        f32 spD8;
+        u8 pad_to_E0[4];
+        f32 spE0;
+        f32 spE4;
+        f32 spE8;
+        u8 pad_to_F0[4];
+        f32 spF0;
+        f32 spF4;
+        f32 spF8;
+        u8 pad_to_100[4];
+        PairF32 sp100;
+        f32 sp108;
+        u8 pad_to_110[4];
+        PairF32 sp110;
+        f32 sp118;
+        u8 pad_to_120[4];
+        PairF32 sp120;
+        f32 sp128;
+        u8 pad_tail[4];
+    } frame;
+    extern void func_00195850(u8 *arg0, f32 *arg1);
+    extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
     extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
-    extern f32 func_0044b868();
+    extern f32 func_001ec3d0(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
+    extern f32 func_0044b868(f32 arg0);
+    extern void func_001bcd40(f32 arg0, u8 *arg1, u8 *arg2, u8 *arg3, u16 arg4);
+    extern void func_001bd780(void *arg0, const void *arg1, const void *arg2, const void *arg3);
+    extern void func_003dcb40(void *arg0, const void *arg1, s32 arg2, const void *arg3);
+    extern void func_001bd5a0(f32 *arg0, f32 *arg1);
+    extern void func_001c8e90(u8 *arg0, f32 *arg1, f32 *arg2);
+    extern void func_001bab00(u8 *arg0, void *arg1);
+    extern f32 fGpffff80fc;
+    extern f32 fGpffff8030;
+    extern f32 fGpffff8110;
+    extern u8 D_0060A0E0[];
     extern u8 D_0060A100[];
-    extern f32 iGpffff80fc;
-    extern f32 iGpffff8030;
-    extern f32 iGpffff8110;
-    f32 sp120;
-    f32 sp124;
-    f32 sp128;
-    f32 sp110;
-    f32 sp114;
-    f32 sp118;
-    f32 spE0;
-    f32 spE4;
-    f32 spE8;
-    f32 spA8;
-    f32 spAC;
-    f32 temp_f23;
-    f32 temp_f22;
-    f32 temp_f25;
-    f32 spF0;
-    f32 spF4;
-    f32 spF8;
-    f32 sp108;
-    f32 spA0;
-    f32 spA4;
-    f32 spD4;
-    f32 spCC;
-    f32 spD0;
-    f32 spD8;
-    f32 spB0;
-    f32 spB4;
-    f32 spB8;
-    f32 spBC;
-    f32 spC8;
-    f32 spC0;
-    f32 spC4;
-    f32 ec3ret;
-    f32 fblend;
-    f32 fdiv;
-    f32 var_f2;
-    f32 sp80;
-    f32 sp84;
-    f32 sp88;
-    s64 sp100;
-    u8 pbuf[20];
-    u8 dbuf[32];
-    u8 *iVar3;
-    u8 *iVar1;
+    u8 *obj_base;
+    u8 *obj1;
+    u8 *obj2;
+    f32 var_f20;
+    f32 var_f21;
+    f32 var_f23;
+    f32 var_f22;
+    f32 var_f24;
+    f32 var_f25;
+    f32 scale;
+    f32 f6;
+    f32 a0;
+    f32 a4;
 
-    iVar3 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
-    iVar1 = *(u8 **)(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x38) + 0x30);
-    func_00195850(iVar3, &sp120);
-    func_00195850(iVar1, &sp110);
-    temp_f23 = *(f32 *)(iVar3 + 0x90) * *(f32 *)(iVar3 + 0x2C);
-    temp_f22 = *(f32 *)(iVar1 + 0x90) * *(f32 *)(iVar1 + 0x2C);
-    spE0 = sp120 - sp110;
-    spE4 = sp124 - sp114;
-    spE8 = sp128 - sp118;
-    temp_f25 = func_003e40b0((RwV3d *)&spE0, (const RwV3d *)&spE0);
-    spA8 = *(f32 *)(arg0 + 0x9C) - sp120;
-    spAC = *(f32 *)(arg0 + 0xA4) - sp128;
-    func_003e41e0(&spA8, &spA8);
-    temp_f25 = iGpffff80fc * temp_f25;
-    spA0 = spE8;
-    spA4 = -spE0;
-    spF0 = spE0 * temp_f25 + sp110;
-    spF4 = spE4 * temp_f25 + sp114;
-    spF8 = spE8 * temp_f25 + sp118;
-    if (0.0f <= spE0 * spA8 + spE8 * spAC) {
-        sp100 = *(s64 *)&sp120;
-        sp108 = sp128;
-        if (*(f32 *)((u8 *)&sp100 + 4) < 125.0f) {
-            *(f32 *)((u8 *)&sp100 + 4) = 125.0f;
+    obj_base = *(u8 **)(arg0 + 0xE0);
+    obj1 = *(u8 **)(obj_base + 0x30);
+    obj2 = *(u8 **)(*(u8 **)(obj_base + 0x38) + 0x30);
+
+    func_00195850(obj1, &frame.sp120.xy.x);
+    func_00195850(obj2, &frame.sp110.xy.x);
+
+    var_f23 = *(f32 *)(obj1 + 0x90) * *(f32 *)(obj1 + 0x2C);
+    var_f22 = *(f32 *)(obj2 + 0x90) * *(f32 *)(obj2 + 0x2C);
+
+    frame.spE0 = frame.sp120.xy.x - frame.sp110.xy.x;
+    frame.spE4 = frame.sp120.xy.y - frame.sp110.xy.y;
+    frame.spE8 = frame.sp128 - frame.sp118;
+
+    var_f25 = func_003e40b0(&frame.spE0, &frame.spE0);
+
+    frame.spA8 = *(f32 *)(arg0 + 0x9C) - frame.sp120.xy.x;
+    frame.spAC = *(f32 *)(arg0 + 0xA4) - frame.sp128;
+
+    func_003e41e0(&frame.spA8, &frame.spA8);
+
+    {
+        f32 temp_f2 = fGpffff80fc * var_f25;
+        frame.spF0 = frame.spE0 * temp_f2;
+        frame.spF4 = frame.spE4 * temp_f2;
+        frame.spF8 = frame.spE8 * temp_f2;
+        frame.spF0 = frame.spF0 + frame.sp110.xy.x;
+        frame.spF4 = frame.spF4 + frame.sp110.xy.y;
+        frame.spF8 = frame.spF8 + frame.sp118;
+    }
+
+    a0 = frame.spE0;
+    a4 = frame.spE8;
+    frame.spA0 = a0;
+    frame.spA4 = a4;
+
+    {
+        f32 dot1 = a0 * frame.spA8 + a4 * frame.spAC;
+        if (dot1 < 0.0f) {
+            obj1 = obj2;
+            frame.sp100.pair = frame.sp110.pair;
+            frame.sp108 = frame.sp118;
+            f6 = 2.5f * (*(f32 *)(obj1 + 0x90) * *(f32 *)(obj1 + 0x2C));
+            var_f24 = 2.25f;
+        } else {
+            frame.sp100.pair = frame.sp120.pair;
+            frame.sp108 = frame.sp128;
+            if (frame.sp100.xy.y < 125.0f) {
+                frame.sp100.xy.y = 125.0f;
+            }
+            f6 = 2.5f * (*(f32 *)(obj1 + 0x90) * *(f32 *)(obj1 + 0x2C));
+            var_f24 = 2.25f;
         }
-    } else {
-        sp100 = *(s64 *)&sp110;
-        sp108 = sp118;
     }
-    spA0 = spE8;
-    spA4 = -spE0;
-    spD0 = iGpffff8030 * *(f32 *)(iVar3 + 0x8C) * *(f32 *)(iVar3 + 0x2C) + *(f32 *)((u8 *)&sp100 + 4);
-    if (0.0f <= spE8 * spA8 + spA4 * spAC) {
-        spD0 = spA4 + spE8 * temp_f25;
-        spD8 = spA0 + spE0 * temp_f25;
-    } else {
-        spD0 = spA0 - spE8 * temp_f25;
-        spD8 = spA4 + spE0 * temp_f25;
+
+    a0 = frame.spE0;
+    a4 = frame.spE8;
+    frame.spA0 = a4;
+    frame.spA4 = -a0;
+
+    var_f20 = frame.sp100.xy.y;
+    frame.spD4 = 0.0f + var_f20 + fGpffff8030 * (*(f32 *)(obj1 + 0x8C) * *(f32 *)(obj1 + 0x2C));
+
+    {
+        f32 b0 = a4;
+        f32 b4 = -a0;
+        f32 dot2 = b0 * frame.spA8 + b4 * frame.spAC;
+        if (dot2 < 0.0f) {
+            frame.spD0 = 0.0f + frame.sp100.xy.x - b0 * f6;
+            frame.spD8 = 0.0f + frame.sp108 + a0 * f6;
+        } else {
+            frame.spD0 = 0.0f + frame.sp100.xy.x + b0 * f6;
+            frame.spD8 = 0.0f + frame.sp108 - a0 * f6;
+        }
     }
-    func_001bd780(pbuf, &spD0, &spF0, D_0060A0E0);
-    func_003dcb40((RwV3d *)&spE0, (const RwV3d *)D_0060A100, 1, (const RtQuat *)pbuf);
-    spB0 = spF0;
-    spB4 = spF8;
-    spB8 = spD0;
-    spBC = spD8;
-    spC8 = *(f32 *)&sp100;
-    spCC = sp108;
-    ec3ret = func_001ec3d0(&spB0, &spB8, &spC8, &spC0);
-    spD0 = spC0;
-    spD4 = *(f32 *)((u8 *)&sp100 + 4);
-    spD4 = *(f32 *)((u8 *)&sp100 + 4);
-    spD8 = spC4;
-    fblend = (*(f32 *)(iVar3 + 0x90) * *(f32 *)(iVar3 + 0x2C)) * 2.25f + ec3ret;
-    fdiv = func_0044b868(iGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
-    var_f2 = 500.0f;
-    if (500.0f <= fblend / fdiv) {
-        var_f2 = fblend / fdiv;
+
+    func_001bd780(&frame.sp8C, &frame.spD0, &frame.spF0, D_0060A0E0);
+    func_003dcb40(&frame.spE0, D_0060A100, 1, &frame.sp8C);
+
+    frame.spB0 = frame.spF0;
+    frame.spB4 = frame.spF8;
+    frame.spB8 = frame.spD0;
+    frame.spBC = frame.spD8;
+    frame.spC8 = frame.sp100.xy.x;
+    frame.spCC = frame.sp108;
+
+    var_f21 = 0.0f + func_001ec3d0((u8 *)&frame.spB0, (u8 *)&frame.spB8, (u8 *)&frame.spC8, (u8 *)&frame.spC0) +
+              var_f24 * (*(f32 *)(obj1 + 0x90) * *(f32 *)(obj1 + 0x2C));
+
+    frame.spD0 = frame.spC0;
+    frame.spD4 = var_f20;
+    frame.spD8 = frame.spC4;
+
+    scale = var_f21 / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+    if (scale < 500.0f) {
+        scale = 500.0f;
     }
-    spE0 = spE0 * var_f2;
-    spE4 = spE4 * var_f2;
-    spE8 = spE8 * var_f2;
-    sp80 = spD0 + spE0;
-    sp84 = spD4 + spE4;
-    sp88 = spD8 + spE8;
-    if (sp84 < 25.0f) {
-        sp84 = 25.0f;
+
+    frame.spE0 = frame.spE0 * scale;
+    frame.spE4 = frame.spE4 * scale;
+    frame.spE8 = frame.spE8 * scale;
+
+    frame.sp80 = frame.spD0 + frame.spE0;
+    frame.sp84 = frame.spD4 + frame.spE4;
+    frame.sp88 = frame.spD8 + frame.spE8;
+    if (frame.sp84 < 25.0f) {
+        frame.sp84 = 25.0f;
     }
-    func_001bd5a0(arg0 + 0x9C, &sp80);
-    func_001c8e90(arg0, &sp80, (f32 *)dbuf);
-    func_001bab00(arg0, dbuf);
-    func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, arg0 + 0x100, 0.5f * ((temp_f25 + temp_f23) + temp_f22), 3);
-    if (temp_f23 <= temp_f22) {
-        temp_f23 = temp_f22;
+
+    func_001bd5a0((f32 *)(arg0 + 0x9C), &frame.sp80);
+    func_001c8e90(arg0, &frame.sp80, (f32 *)&frame.sp60[0]);
+    func_001bab00(arg0, &frame.sp60[0]);
+
+    func_001bcd40(0.5f * (var_f22 + (var_f25 + var_f23)), *(u8 **)(arg0 + 0xE0), arg0 + 0x9C, arg0 + 0x100, 3);
+    if (var_f23 <= var_f22) {
+        var_f23 = var_f22;
     }
-    func_001bcd40(*(u8 **)(arg0 + 0xE0), (u8 *)&sp120, (u8 *)&sp110, temp_f23, 3);
+    func_001bcd40(var_f23, *(u8 **)(arg0 + 0xE0), (u8 *)&frame.sp120.xy.x, (u8 *)&frame.sp110.xy.x, 3);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c04e0);

@@ -475,10 +475,16 @@ void func_00130c30(u8 *arg0, s64 arg1, s32 arg2)
    or-0x80000000 sequence for the cast and colours its temporaries the way
    retail does; the m2c-expanded copy colours them the other way.  Same lever
    as func_00348330 in src/promoted/y_CmbCardEff.c. */
-/* gate: object 299 against retail 368, -18.8% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* 299 -> 366 (2026-09-19): the two (u16)f23 conversions were dead (passed 0
+   for arg6) so b210 deleted both plus the tu1 load (299 vs 368, -18.8%).
+   Passing v10/v10b as arg6 (t1=0x1000, t2=v10) makes them live (335,
+   -9.0%) but b210 CSE-merges the second into the first across the call.
+   Reloading *(u16*)(arg0+0x15FE) into tu1b/f23b for the second call forces
+   the duplicate retail keeps (1464B obj vs 1488B window, 366 vs 368 instrs,
+   -0.5% inside 357-379, guarded 291, fnalign 168+4 reloc).  fmul second
+   conversion stays merged (CSE-wall, 2 short) - inside gate so the 291 is
+   comparable.  Remaining floor: frame 0xC0 vs 0xB0 (extra s6), s-map
+   rotation, union vs stack ld/sd, arm/or coloring. */
 // FUN_00130CE0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00130ce0(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3)
@@ -541,11 +547,23 @@ void func_00130ce0(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3)
     c5 = u.b[5];
     func_0034f320(*(u8 **)(arg0 + 0x1BD4), fa0, fa4, 0.0f,
                   u.b[4], c5, c6, c7,
-                  0x1000, 0, 0, 0.0f, 0);
-    v10b = (u16)f23;
+                  0x1000, v10, 0, 0.0f, 0);
+    {
+        s32 tu1b;
+        f32 f23b;
+        tu1b = *(u16 *)(arg0 + 0x15FE);
+        if (tu1b >= 0) {
+            f23b = (f32)tu1b;
+        } else {
+            tu1b = ((u32)tu1b >> 1) | (tu1b & 1);
+            f23b = (f32)tu1b;
+            f23b += f23b;
+        }
+        v10b = (u16)f23b;
+    }
     func_0034f320(*(u8 **)(arg0 + 0x1BD8), (f32)0x159 + fa0, fa4, 0.0f,
                   u.b[4], c5, c6, c7,
-                  0x1000, 0, 0, 0.0f, 0);
+                  0x1000, v10b, 0, 0.0f, 0);
     fa0 = 5.0f + ((f32 *)&a1s)[0] + *(f32 *)(arg0 + 0x1858);
     fa4 = 34.0f + fhi + *(f32 *)(arg0 + 0x185C);
     u.b[4] = 0x68;
@@ -1042,12 +1060,26 @@ void func_00135520(u8 *arg0, PackedVec2f arg1, u32 arg2, s32 arg3)
    the +-3% band.  Any differing-word score in this note was measured
    against a body of the wrong length and is not comparable to one
    measured inside the gate (handoff 7y).  Fix the count first. */
+/* 2026-09-19 gate repair, installed by the lead from Gb0013ad40's isolated
+   work (its file was owned by another agent, so it handed over the body and
+   the numbers rather than writing - handoff 7w).
+   Was object 459 against retail 396, +15.9%, OUTSIDE the 384-408 band, 419
+   words, 517 fnalign edits.  Now 401 against 396, +1.3%, inside, 361 words,
+   201 edits, and the frame matches retail at -0xE0 with `sd $ra, 0xb0($sp)`.
+   The overshoot was two swapped `func_0034f2e0` calls: the 0x4C-flag block
+   and the digit-loop block passed palettes as floats and floats as ints,
+   forcing eight int-to-float and eight float-to-int conversions.  Fixing the
+   argument order alone was worth 94 instructions, 459 -> 365, and collapsed
+   the whole `cvt.w.s +8 / mfc1 +8 / mtc1 +8 / lui +8` census surplus to zero.
+   Also restored: the separate `t0/255` and gp divisors instead of one 1.0f,
+   `((u32)x >> 1)` per sibling func_00130680, the 2147483648.0f triple-mask
+   for checked colours, and precomputed `e2+0x594`/`e2+0x598` so the frame
+   grows 0xC0 -> 0xE0 the way retail keeps those registers live. */
 // FUN_0013AD40 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_common_subs off
 void func_0013ad40(u8 *arg0, s32 arg1, s32 arg2) {
-    s16 spD0;
-    s16 spD6;
-    s32 spD8;
+    u8 spd[12];
     f32 spC8;
     f32 spCC;
     f32 f22;
@@ -1056,51 +1088,64 @@ void func_0013ad40(u8 *arg0, s32 arg1, s32 arg2) {
     f32 fA;
     f32 fB;
     f32 fDiv;
+    f32 fDiv2;
     f32 fProd;
-    u8 t0;
-    u8 c0;
-    u8 c1;
+    s32 t0;
+    s32 c0;
+    s32 c1;
     s32 col;
     s32 colB;
     s32 col8;
     s16 idx0;
     s32 k;
+    s32 s3v;
+    s32 dc;
     u8 *pal;
     u8 *palB;
     u8 *ptab;
     u8 *e;
     u8 *e2;
+    u8 *pp;
+    u8 *pp2;
     s32 flag;
     s32 cnt;
     s32 cntB;
     flag = 0;
-    fDiv = 1.0f;
+    fDiv2 = 1.0f;
     idx0 = *(s16 *)(arg0 + arg1 * 2 + 0xF4);
     f22 = *(f32 *)(arg0 + 4);
     f21 = *(f32 *)(arg0 + 8);
     t0 = *(u8 *)(arg0 + 0);
-    func_0011fd30(&spD0);
-    spD8 = 1;
-    spD0 = idx0;
+    if (t0 >= 0) {
+        fDiv = (f32)t0;
+    } else {
+        t0 = ((u32)t0 >> 1) | (t0 & 1);
+        fDiv = (f32)t0;
+        fDiv = fDiv + fDiv;
+    }
+    fDiv = fDiv / 255.0f;
+    func_0011fd30((s16 *)spd);
+    *(s32 *)(spd + 8) = 1;
+    *(s16 *)spd = idx0;
     if (*(s16 *)(arg0 + arg2 * 2 + 0x5C) == arg1 || (*(s32 *)(arg0 + 0x1C) & 0x100) != 0) {
         if (arg2 == 0 && (*(s32 *)(arg0 + 0x1C) & 0x10) != 0) {
-            spD6 = 2;
+            *(s16 *)(spd + 6) = 2;
             pal = D_0064B2F4;
             palB = D_0064B2F0;
             ptab = D_0064B30C;
         } else {
             flag = 1;
-            spD6 = 1;
+            *(s16 *)(spd + 6) = 1;
             pal = D_0064B2E8;
             palB = D_0064B2EC;
             ptab = D_0064B2FC;
         }
     } else {
-        spD6 = 0;
+        *(s16 *)(spd + 6) = 0;
         pal = D_0064B2E0;
         palB = D_0064B2F0;
         ptab = D_0064B308;
-        fDiv = 1.0f;
+        fDiv2 = fGpffff82cc;
     }
     if (arg2 == 0) { cnt = 5; cntB = 1; } else { cnt = 0x1C; cntB = 0x18; }
     e = arg0 + (cnt + arg1) * 0x30;
@@ -1108,46 +1153,71 @@ void func_0013ad40(u8 *arg0, s32 arg1, s32 arg2) {
     f20 = 75.0f * (f32)arg1;
     spCC = 24.0f + (f21 + *(f32 *)(e + 0x598)) + f20;
     c0 = e[0x59E];
-    if ((s32)c0 >= 0) { fProd = (f32)c0; } else { fProd = (f32)((c0 >> 1) | (c0 & 1)); fProd = fProd + fProd; }
+    if (c0 >= 0) { fProd = (f32)c0; } else { c0 = ((u32)c0 >> 1) | (c0 & 1); fProd = (f32)c0; fProd = fProd + fProd; }
     fProd = fProd * fDiv;
-    col = (u8)(u32)fProd;
-    func_0011fd50(*(s64 *)&spC8, col & 0xFF, &spD0, 0, 0.0f);
+    if (!(2147483648.0f <= fProd)) {
+        col = (s32)fProd & 0xFF;
+    } else {
+        col = ((s32)(fProd - 2147483648.0f)) | 0x80000000;
+        col &= 0xFF;
+    }
+    col = col & 0xFF;
+    func_0011fd50(*(s64 *)&spC8, col & 0xFF, (s16 *)spd, 0, 0.0f);
     e2 = arg0 + (cntB + arg1) * 0x30;
     c1 = e2[0x59E];
-    if ((s32)c1 >= 0) { fProd = (f32)c1; } else { fProd = (f32)((c1 >> 1) | (c1 & 1)); fProd = fProd + fProd; }
+    if (c1 >= 0) { fProd = (f32)c1; } else { c1 = ((u32)c1 >> 1) | (c1 & 1); fProd = (f32)c1; fProd = fProd + fProd; }
     fProd = fProd * fDiv;
-    colB = (u8)(u32)fProd;
+    if (!(2147483648.0f <= fProd)) {
+        colB = (s32)fProd & 0xFF;
+    } else {
+        colB = ((s32)(fProd - 2147483648.0f)) | 0x80000000;
+        colB &= 0xFF;
+    }
+    colB = colB & 0xFF;
     k = colB & 0xFF;
+    s3v = k & 0xFF;
+    k = s3v;
+    pp = e2 + 0x594;
+    pp2 = e2 + 0x598;
     fA = 60.0f + (f22 + *(f32 *)(e2 + 0x594));
     spC8 = fA;
     fB = 21.0f + (f21 + *(f32 *)(e2 + 0x598)) + f20;
     spCC = fB;
-    func_0034f2e0(*(void **)(arg0 + 0x12BC), fA, fB, pal[0], pal[1], pal[2], k);
+    func_0034f2e0(*(void **)(arg0 + 0x12BC), fA, fB, pal[0], pal[1], pal[2], s3v);
     if (flag != 0) {
-        fA = 2.0f + (f22 + *(f32 *)(e2 + 0x594));
+        fA = 2.0f + (f22 + *(f32 *)(pp + 0));
         spC8 = fA;
-        fB = 27.0f + (f21 + *(f32 *)(e2 + 0x598)) + f20;
+        fB = 27.0f + (f21 + *(f32 *)(pp2 + 0)) + f20;
         spCC = fB;
-        func_0034f2e0(*(void **)(arg0 + 0x12C0), 0x4C, 0x4C, 0x4C, k, fA, fB);
+        func_0034f2e0(*(void **)(arg0 + 0x12C0), fA, fB, 0x4C, 0x4C, 0x4C, s3v);
     }
-    fA = 43.0f + (f22 + *(f32 *)(e2 + 0x594));
+    fA = 43.0f + (f22 + *(f32 *)(pp + 0));
     spC8 = fA;
-    spCC = 25.0f + (f21 + *(f32 *)(e2 + 0x598)) + f20;
-    k = (s32)(s8)(func_00104c70(idx0) & 0xFF);
-    if (k < 0xA) { spC8 = fA - 11.0f; }
-    while (k > 0) {
-        func_0034f2e0(*(void **)(arg0 + (k % 10) * 4 + 0x12C4), palB[0], palB[1], palB[2], k, spC8, spCC);
+    spCC = 25.0f + (f21 + *(f32 *)(pp2 + 0)) + f20;
+    dc = func_00104c70(idx0) & 0xFF;
+    dc = (s32)(s16)dc;
+    if (dc < 0xA) { spC8 = fA - 11.0f; }
+    while ((dc & 0xFF) > 0) {
+        func_0034f2e0(*(void **)(arg0 + ((dc % 10) * 4) + 0x12C4), spC8, spCC, palB[0], palB[1], palB[2], s3v);
         spC8 = spC8 - 22.0f;
-        k = k / 10;
+        dc = ((dc & 0xFF) / 10) & 0xFF;
     }
-    fA = 37.0f + (f22 + *(f32 *)(e2 + 0x594));
+    fA = 37.0f + (f22 + *(f32 *)(pp + 0));
     spC8 = fA;
-    spCC = 53.0f + (f21 + *(f32 *)(e2 + 0x598)) + f20;
-    if ((s32)k >= 0) { fB = (f32)k; } else { fB = (f32)((k >> 1) | (k & 1)); fB = fB + fB; }
-    fB = fB * fDiv;
-    col8 = (u8)(u32)fB;
-    func_0034f2e0(*(void **)(arg0 + 0x1330), spC8, spCC, ptab[0], ptab[1], ptab[2], col8);
+    spCC = 53.0f + (f21 + *(f32 *)(pp2 + 0)) + f20;
+    if (s3v >= 0) { fB = (f32)s3v; } else { s3v = ((u32)s3v >> 1) | (s3v & 1); fB = (f32)s3v; fB = fB + fB; }
+    fB = fB * fDiv2;
+    if (!(2147483648.0f <= fB)) {
+        col8 = (s32)fB & 0xFF;
+    } else {
+        col8 = ((s32)(fB - 2147483648.0f)) | 0x80000000;
+        col8 &= 0xFF;
+    }
+    col8 = col8 & 0xFF;
+    func_0034f2e0(*(void **)(arg0 + 0x1330), spC8, spCC, ptab[0], ptab[1], ptab[2], col8 & 0xFF);
 }
+
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013ad40);
 #endif

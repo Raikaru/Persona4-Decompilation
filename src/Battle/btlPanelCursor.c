@@ -426,180 +426,156 @@ void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
 /* measured triage: no real C body was produced for the 2416B retail window;
    prior ring/MAC probes were discarded rather than parked because object-size
    closeness was not established. */
-/* measured 0020d6a0 (WColdC): `>=5`->`>4` + `>=4`->`>3` on the two else-if re-reads gives retail `slti $at` dests (was `$v1`; one src now `$a0` exact, one `$v1` colour), words 526 via `tools/measure_guarded.py` unchanged, 522/600 (-78) 547 edits (+2 reloc-only) via `tools/fnalign.py --candidate` unchanged; pragmas via `tools/probe_variants.py` (at-flip base 526): `schedule on` 550, `opt_common_subs off` 563, `opt_loop_invariants on` 526 neutral, `opt_propagation off` 555; `tools/wscan_pairs.py` 0 vs 0 (retail `daddu` 28 is `move` alias, not width). */
-/* gate: object 522 against retail 600, -13.0% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 0020d6a0: rebuilt on the ce60 template (switch/control hoist, alpha/t/length/delta, CursorColor+drawCursorSegment, % mods, duplicated TAIL, cached cnt with redundant >= checks) to fix the packed-struct field-by-field defect (union col bytes in regs vs retail word copy+lbu/sb); object 600/600 (0.0%) inside the 582-618 band, 68 edits (+4 reloc-only) via `tools/fnalign.py --candidate`, words 272 via `tools/probe_variants.py` (was 522/600 -13.0% 547 edits 526 words). */
+/* gate: object 600 against retail 600, +0.0% - INSIDE the +-3% band. */
 // FUN_0020D6A0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position) {
     extern void func_00201720(u8 *work, f32 arg1, f32 arg2);
     extern f32 D_00626C20[];
     extern f32 fGpffff84a4;
-    u8 *work;
-    u16 cnt;
-    u16 mode;
-    u16 flags;
-    u16 cntA;
-    u16 cntB;
-    f32 dx;
-    f32 dy;
-    f32 r;
-    f32 t;
-    f32 c24;
+    CursorColor color;
+    Vec2f point;
+    f32 delta[2];
     f32 dir[4];
-    f32 angle;
+    u8 *work;
+    u8 *control;
+    f32 alpha;
+    f32 t;
+    f32 length;
     s32 i;
-    f32 f20;
-    f32 f21;
-    f32 f22;
-    union {
-        f32 f;
-        u8 b[4];
-    } col;
-    Vec2f pt;
+    u16 cnt;
 
     work = func_00452560(task);
-    mode = *(u16 *)(cursor + 2);
-    flags = *(u16 *)(cursor + 16);
-    if (mode == 4) {
-        if ((flags & 0x10) != 0) {
-            cntA = *(u16 *)(cursor + 4) + 1;
-            *(u16 *)(cursor + 4) = cntA;
-            cnt = cntA;
-            if (cntA >= 3) {
-                if (cntA == 3) {
-                    *(u16 *)(cursor + 16) |= 4;
-                    *(u16 *)(cursor + 16) |= 2;
-                } else if (*(u16 *)(cursor + 4) > 4) {
-                    *(u32 *)(cursor + 20) = 0;
-                } else {
-                    t = 1.0f - (f32)((s32)cnt - 3) / 2.0f;
-                    *(f32 *)(cursor + 20) = 10.0f * t;
-                }
-            }
-            cntA = *(u16 *)(cursor + 4);
-            cnt = cntA;
-            if (cntA >= 2) {
-                if (cntA == 2) {
-                    *(u16 *)(cursor + 16) |= 8;
-                } else if (*(u16 *)(cursor + 4) > 3) {
-                    *(f32 *)(cursor + 24) = 1.0f;
-                } else {
-                    *(f32 *)(cursor + 24) = 1.5f - 0.5f * (f32)((s32)cnt - 2) / 3.0f;
-                }
-            }
-            if (*(u16 *)(cursor + 4) >= 5) {
-                *(u16 *)(cursor + 16) &= ~0x10;
-            }
-        }
-        dy = position[1];
-        *(u32 *)(cursor + 8) = *(u32 *)position;
-        *(f32 *)(cursor + 12) = dy;
-    } else if (mode == 3) {
-        cnt = *(u16 *)(cursor + 4) + 1;
-        *(u16 *)(cursor + 4) = cnt;
-        if (cnt == 8) {
-            *(u16 *)(cursor + 2) = 0;
-            *(u16 *)(cursor + 16) = 0;
-        }
-    } else if (mode == 2) {
-        if ((*(u16 *)(work + 0x710) & 2) != 0) {
-            goto TAIL;
-        }
-        dx = position[0] - *(f32 *)(cursor + 8);
-        dy = position[1] - *(f32 *)(cursor + 12);
-        r = func_003e41e0(&dx, &dx);
-        {
-            f32 fc;
-            f32 x;
-            cntB = *(u16 *)(cursor + 4);
-            fc = (f32)cntB;
-            x = (2.0f * fc) / 4.0f;
-            t = 2.0f * x - x * x;
-        }
-        r = r * t;
-        dx = dx * r;
-        dy = dy * r;
-        position[0] = *(f32 *)(cursor + 8) + dx;
-        position[1] = *(f32 *)(cursor + 12) + dy;
-        cntB = *(u16 *)(cursor + 4) + 1;
-        *(u16 *)(cursor + 4) = cntB;
-        cnt = cntB;
-        if (cntB == 4) {
-            func_0021ae80(panel, 0);
-            *(u16 *)(cursor + 4) = 0;
-            *(f32 *)(cursor + 24) = 1.5f;
-            *(f32 *)(cursor + 20) = 10.0f;
-            *(u16 *)(cursor + 2) = 4;
-            *(u16 *)(cursor + 16) |= 1;
-            *(u16 *)(cursor + 16) |= 0x10;
-        }
-    } else if (mode == 1) {
-TAIL:
+    control = work + 0x710;
+    switch (*(u16 *)(cursor + 2)) {
+    case 1:
         func_0021ae80(panel, 0);
         *(u16 *)(cursor + 4) = 0;
-        *(f32 *)(cursor + 24) = 1.5f;
-        *(f32 *)(cursor + 20) = 10.0f;
+        *(f32 *)(cursor + 0x18) = 1.5f;
+        *(f32 *)(cursor + 0x14) = 10.0f;
         *(u16 *)(cursor + 2) = 4;
-        *(u16 *)(cursor + 16) |= 1;
-        *(u16 *)(cursor + 16) |= 0x10;
-    }
-    if ((flags & 4) != 0) {
-        func_00201820(2);
-        col.b[0] = 0x0E;
-        col.b[1] = 0xFF;
-        col.b[2] = 2;
-        col.b[3] = (u8)(200.0f * *(f32 *)(cursor + 20));
-        f20 = *(f32 *)(cursor + 0x14);
-        f21 = position[1];
-        f22 = position[0];
-        i = 0;
-        while (i < 4) {
-            if (2 * i >= 8) {
-                func_0046d730(D_00626C00, 401);
+        *(u16 *)(cursor + 0x10) |= 1;
+        *(u16 *)(cursor + 0x10) |= 0x10;
+        break;
+    case 2:
+        if (*(u16 *)control & 2) {
+            func_0021ae80(panel, 0);
+            *(u16 *)(cursor + 4) = 0;
+            *(f32 *)(cursor + 0x18) = 1.5f;
+            *(f32 *)(cursor + 0x14) = 10.0f;
+            *(u16 *)(cursor + 2) = 4;
+            *(u16 *)(cursor + 0x10) |= 1;
+            *(u16 *)(cursor + 0x10) |= 0x10;
+        } else {
+            t = (f32)(u32)*(u16 *)(cursor + 4) / 4.0f;
+            alpha = 2.0f * t - t * t;
+            length = position[0];
+            delta[0] = length - *(f32 *)(cursor + 8);
+            delta[1] = position[1] - *(f32 *)(cursor + 0xC);
+            length = func_003e41e0(delta, delta);
+            length *= alpha;
+            delta[0] *= length;
+            delta[1] *= length;
+            position[0] = *(f32 *)(cursor + 8) + delta[0];
+            position[1] = *(f32 *)(cursor + 0xC) + delta[1];
+            if (++*(u16 *)(cursor + 4) == 4) {
+                func_0021ae80(panel, 0);
+                *(u16 *)(cursor + 4) = 0;
+                *(f32 *)(cursor + 0x18) = 1.5f;
+                *(f32 *)(cursor + 0x14) = 10.0f;
+                *(u16 *)(cursor + 2) = 4;
+                *(u16 *)(cursor + 0x10) |= 1;
+                *(u16 *)(cursor + 0x10) |= 0x10;
             }
-            func_002016e0(work, 13, (s32)(f20 + 38.0f), 360.0f * (f32)i / 8.0f + 45.0f);
-            func_00201650(work, 10, 2, f22 - 13.0f, (f21 - 38.0f) - f20, col.b[0], col.b[1], col.b[2], col.b[3]);
-            func_002016e0(work, 0, 0, 0.0f);
-            i++;
+        }
+        break;
+    case 3:
+        t = (f32)(u32)*(u16 *)(cursor + 4) / 8.0f;
+        alpha = 1.0f - t;
+        if (++*(u16 *)(cursor + 4) == 8) {
+            *(u16 *)(cursor + 2) = 0;
+            *(u16 *)(cursor + 0x10) = 0;
+        }
+        break;
+    case 4:
+        alpha = 1.0f;
+        if (*(u16 *)(cursor + 0x10) & 0x10) {
+            ++*(u16 *)(cursor + 4);
+            cnt = *(u16 *)(cursor + 4);
+            if (cnt < 3) {
+            } else if (cnt == 3) {
+                *(u16 *)(cursor + 0x10) |= 4;
+                *(u16 *)(cursor + 0x10) |= 2;
+            } else if (cnt < 5) {
+                t = (f32)(cnt - 3) / 2.0f;
+                t = alpha - t;
+                *(f32 *)(cursor + 0x14) = 10.0f * t;
+            } else if (cnt >= 5) {
+                *(u32 *)(cursor + 0x14) = 0;
+            }
+            cnt = *(u16 *)(cursor + 4);
+            if (cnt < 2) {
+            } else if (cnt == 2) {
+                *(u16 *)(cursor + 0x10) |= 8;
+            } else if (cnt < 4) {
+                t = (f32)(cnt - 2) / 3.0f;
+                length = 1.5f;
+                *(f32 *)(cursor + 0x18) = (0.0f + length) - 0.5f * t;
+            } else if (cnt >= 4) {
+                *(f32 *)(cursor + 0x18) = 1.0f;
+            }
+            if (*(u16 *)(cursor + 4) >= 5) {
+                *(u16 *)(cursor + 0x10) &= ~0x10;
+            }
+        }
+        *(Vec2f *)(cursor + 8) = *(Vec2f *)position;
+        break;
+    }
+    if (*(u16 *)(cursor + 0x10) & 4) {
+        func_00201820(2);
+        color.r = 14;
+        color.g = 255;
+        color.b = 2;
+        color.a = (u8)(200.0f * alpha);
+        for (i = 0; i < 4; i++) {
+            drawCursorSegment(work, color, position[0], position[1], i, 45.0f, *(f32 *)(cursor + 0x14));
         }
         func_00201820(0);
     }
-    if ((flags & 1) != 0) {
-        pt.x = position[0];
-        pt.y = position[1];
-        func_003657d0(pt, 0.0f, 255, 22.0f, fGpffff84a4 * t, 1);
+    if (*(u16 *)(cursor + 0x10) & 1) {
+        point.x = position[0];
+        point.y = position[1];
+        func_003657d0(point, 0.0f, 255, 22.0f, fGpffff84a4 * alpha, 1);
     }
-    if ((flags & 8) != 0) {
+    if (*(u16 *)(cursor + 0x10) & 8) {
         dir[0] = D_00626C20[0];
         dir[1] = D_00626C20[1];
         dir[2] = D_00626C20[2];
         dir[3] = D_00626C20[3];
         func_00201820(2);
-        c24 = *(f32 *)(cursor + 24);
         for (i = 0; i < 4; i++) {
-            t = 21.0f * *(f32 *)(cursor + 0x18);
-            pt.x = position[0] + t * dir[(i + 1) & 3];
-            pt.y = position[1] + t * dir[i & 3];
-            angle = fGpffff84a4 * (f32)i;
-            func_00364c90(pt, 0.0f, 0x0EFF02FF, 3.0f * c24, 26.0f * c24, angle, 1);
+            length = *(f32 *)(cursor + 0x18);
+            t = 21.0f * length;
+            point.x = position[0] + t * dir[(i + 1) % 4];
+            point.y = position[1] + t * dir[i % 4];
+            func_00364c90(point, 0.0f, 0x0EFF02FF, 3.0f * length, 26.0f * length, fGpffff84a4 * (f32)i, 1);
         }
-        pt.x = position[0] - 11.0f * c24;
-        pt.y = position[1] - 11.0f * c24;
-        col.b[0] = 0x5E;
-        col.b[1] = 0xFF;
-        col.b[2] = 2;
-        col.b[3] = (u8)(255.0f * *(f32 *)(cursor + 0x18));
-        func_00201720(work, angle, angle);
-        func_00201650(work, 10, 3, pt.x, pt.y, col.b[0], col.b[1], col.b[2], col.b[3]);
+        t = *(f32 *)(cursor + 0x18);
+        point.x = position[0] - 11.0f * t;
+        point.y = position[1] - 11.0f * t;
+        color.r = 0x5E;
+        color.g = 255;
+        color.b = 2;
+        color.a = (u8)(255.0f * alpha);
+        func_00201720(work, t, t);
+        func_00201650(work, 10, 3, point.x, point.y, color.r, color.g, color.b, color.a);
         func_00201720(work, 1.0f, 1.0f);
         func_00201820(0);
     }
-    if ((flags & 2) != 0) {
-        func_0021b0a0(panel);
-        func_0021aeb0(task, panel, 255, position[0] - 9.0f, position[1] + 5.0f, 0.0f);
+    if (*(u16 *)(cursor + 0x10) & 2) {
+        t = func_0021b0a0(panel);
+        func_0021aeb0(task, panel, 255, position[0] - 9.0f, position[1] + 5.0f, t);
     }
 }
 #else
