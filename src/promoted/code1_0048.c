@@ -2746,8 +2746,6 @@ loop1_check:
         colTmpB = *(s32 *)(second + 0x14);
         packScale = 255.0f;
         {
-            u32 cA = (u32)colTmpA;
-            u32 cB = (u32)colTmpB;
             f32 sc = fGpffff8044;
             __asm__ volatile(
                 "lw $2, 0(%0)\n"
@@ -2761,7 +2759,7 @@ loop1_check:
                 "vmulx.xyzw $vf10, $vf10, $vf2x\n"
                 "vmove.xyzw $vf11, $vf10\n"
                 :
-                : "r"(&cA), "f"(sc)
+                : "r"(&colTmpA), "f"(sc)
                 : "$2", "$vf2", "$vf10", "$vf11", "memory");
             __asm__ volatile(
                 "lw $2, 0(%0)\n"
@@ -2784,7 +2782,7 @@ loop1_check:
                 "vmul.xyzw $vf10, $vf10, $vf11\n"
                 "sqc2 $vf10, 0(%4)\n"
                 :
-                : "r"(&cB), "f"(sc), "r"(&tmpE0), "f"(inv2), "r"(&tmpD0)
+                : "r"(&colTmpB), "f"(sc), "r"(&tmpE0), "f"(inv2), "r"(&tmpD0)
                 : "$2", "$vf2", "$vf10", "$vf11", "memory");
         }
         k = 0;
@@ -2800,9 +2798,10 @@ loop2_body:
         __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
         __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&tmpE0) : "$vf10", "memory");
         {
-            u32 pk = (u32)packScale;
             __asm__ volatile(
-                "qmtc2.ni %1, $vf2\n"
+                "mfc1 %0, %1\n"
+                "nop\n"
+                "qmtc2.ni %0, $vf2\n"
                 "lqc2 $vf10, 0(%2)\n"
                 "vmulx.xyzw $vf10, $vf10, $vf2x\n"
                 "vftoi0.xyzw $vf10, $vf10\n"
@@ -2810,7 +2809,7 @@ loop2_body:
                 "ppach %0, $zero, %0\n"
                 "ppacb %0, $zero, %0\n"
                 : "=r"(packedTmp)
-                : "r"(pk), "r"(&tmpE0)
+                : "f"(packScale), "r"(&tmpE0)
                 : "$vf2", "$vf10", "memory");
         }
         *(u32 *)(iter + 0x14) = packedTmp;
@@ -2847,8 +2846,6 @@ loop2_check:
         colTmpB = *(s32 *)(second + 0x14);
         packScale = 255.0f;
         {
-            u32 cA = (u32)colTmpA;
-            u32 cB = (u32)colTmpB;
             f32 sc = fGpffff8044;
             __asm__ volatile(
                 "lw $2, 0(%0)\n"
@@ -2862,7 +2859,7 @@ loop2_check:
                 "vmulx.xyzw $vf10, $vf10, $vf2x\n"
                 "vmove.xyzw $vf11, $vf10\n"
                 :
-                : "r"(&cA), "f"(sc)
+                : "r"(&colTmpA), "f"(sc)
                 : "$2", "$vf2", "$vf10", "$vf11", "memory");
             __asm__ volatile(
                 "lw $2, 0(%0)\n"
@@ -2885,7 +2882,7 @@ loop2_check:
                 "vmul.xyzw $vf10, $vf10, $vf11\n"
                 "sqc2 $vf10, 0(%4)\n"
                 :
-                : "r"(&cB), "f"(sc), "r"(&tmpE0), "f"(inv2), "r"(&tmpD0)
+                : "r"(&colTmpB), "f"(sc), "r"(&tmpE0), "f"(inv2), "r"(&tmpD0)
                 : "$2", "$vf2", "$vf10", "$vf11", "memory");
         }
         tmp = c4 - 1;
@@ -2919,9 +2916,10 @@ loop3_body:
         __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
         __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&tmpE0) : "$vf10", "memory");
         {
-            u32 pk = (u32)packScale;
             __asm__ volatile(
-                "qmtc2.ni %1, $vf2\n"
+                "mfc1 %0, %1\n"
+                "nop\n"
+                "qmtc2.ni %0, $vf2\n"
                 "lqc2 $vf10, 0(%2)\n"
                 "vmulx.xyzw $vf10, $vf10, $vf2x\n"
                 "vftoi0.xyzw $vf10, $vf10\n"
@@ -2929,7 +2927,7 @@ loop3_body:
                 "ppach %0, $zero, %0\n"
                 "ppacb %0, $zero, %0\n"
                 : "=r"(packedTmp)
-                : "r"(pk), "r"(&tmpE0)
+                : "f"(packScale), "r"(&tmpE0)
                 : "$vf2", "$vf10", "memory");
         }
         *(u32 *)(iter + 0x14) = packedTmp;
@@ -3275,8 +3273,291 @@ loop_0048c440_check:
     *(f32 *)(temp_6 + 0xE0) = *(f32 *)(temp_5 + 0xE0) * fparg0;
 }
 /* M2C-raw draft (does not compile; window 2176B): V048 body has M2C_ERROR COP2 sites + 93 M2C_FIELD (nested; same iterative expansion recipe) + M2C_UNK s2/s4 (dead -- s32) + s128/u128 (->u_long128, separate slots); casts (f32)(u32) at 0x148/0x208/0x250/0x620 per header; COP1 adda/madd + COP2/VU ruled out per header (no plain-C closure attempted -- asm blocks required); next: same recipe as b340 (types -> probe -> per-transfer asm -> goto-form -> fnalign). Production stays ASM. */
-// FUN_0048C4E0
+/* gate: func_0048c4e0 is OUTSIDE the +-3% band at 571 against retail 544 (+5.0%, band
+   528-560).  It is one of the three functions that carried a false ` NONMATCHING` tag over
+   a bare INCLUDE_ASM and so were never worked on; this is its first body and it is 27
+   instructions too long.  No differing-word score measured against it is comparable to one
+   measured inside the gate (handoff 7y).  Find the surplus before tuning anything. */
+// FUN_0048C4E0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0048c4e0(u8 *arg0)
+{
+    extern s32 func_004bceb0(void);
+    extern f32 func_004bd0b0(s32 arg0);
+    extern s32 func_004bd050(s32 arg0);
+    extern f32 func_0044b610(f32 arg0);
+    extern f32 func_0044b7b0(f32 arg0);
+    extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
+    extern void func_0043f810(void *dst, void *src, u32 size);
+    extern void func_0048b340(u8 *arg0, u8 *arg1);
+    extern f32 fGpffff807c;
+    extern f32 fGpffff8080;
+    u_long128 b220buf;
+    f32 vec120[4] __attribute__((aligned(16)));
+    f32 vec130[4] __attribute__((aligned(16)));
+    u32 count;
+    u32 flags;
+    u8 *nodes;
+    u8 *nodesBase;
+    f32 *out;
+    u8 *config;
+    s32 limitB8;
+    s32 saved20;
+    u8 mode9C;
+    f32 e4val;
+    f32 g7c;
+    f32 g80;
+    f32 e0val;
+    s32 v15;
+    s32 v14;
+    u32 idx;
+    s32 tmp;
+    f32 ftmp1;
+    f32 ftmp2;
+    s32 node10;
+    s32 c0;
+    s32 c4;
+    s32 nmult;
+    u8 *clear;
+    s32 ci;
+    f32 a;
+    f32 b;
+    f32 c;
+
+    count = *(u32 *)(arg0 + 4);
+    flags = *(u32 *)(arg0 + 12);
+    nodesBase = *(u8 **)(arg0 + 24);
+    nodes = nodesBase;
+    out = *(f32 **)(arg0 + 28);
+    config = *(u8 **)(arg0 + 32);
+    limitB8 = *(s32 *)(config + 184);
+    if (limitB8 == 0) {
+        return;
+    }
+    saved20 = *(s32 *)(config + 32);
+    mode9C = *(u8 *)(config + 156);
+    g7c = fGpffff807c;
+    g80 = fGpffff8080;
+    e4val = *(f32 *)(config + 228);
+    e0val = *(f32 *)(config + 224);
+    idx = 0;
+    vec130[3] = 0.0f;
+    __asm__ volatile("lqc2 $vf10, 0x10(%0)" : : "r"(config), "m"(*(u_long128 *)(config + 16)) : "$vf10", "memory");
+    func_004bceb0();
+    if ((saved20 != 0) && (*(s32 *)(arg0 + 16) >= saved20)) {
+        v14 = 0;
+        v15 = 0;
+        goto main_check;
+    }
+    if ((*(s32 *)(arg0 + 16) != 0) || (mode9C == 0)) {
+        v14 = 0;
+        if (*(f32 *)(config + 40) <= 0.0f) {
+            tmp = *(s32 *)(config + 36);
+            ftmp1 = (f32)(u32)tmp;
+            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
+        } else {
+            ftmp1 = (g7c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            tmp = *(s32 *)(config + 36);
+            ftmp2 = (f32)(u32)tmp;
+            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp2 * ftmp1;
+        }
+        ftmp1 = *(f32 *)(arg0 + 20);
+        if (ftmp1 < 0.0f) {
+            ftmp1 = -ftmp1;
+        }
+        v15 = (s32)ftmp1;
+        *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) - (f32)v15;
+        if (*(f32 *)(arg0 + 20) < 0.0f) {
+            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + (f32)v15 + (f32)v15;
+        }
+        goto main_check;
+    } else {
+        v14 = 1;
+        if (*(f32 *)(config + 40) <= 0.0f) {
+            v15 = (s32)count;
+        } else {
+            ftmp1 = (g7c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp2 = (f32)(u32)count;
+            v15 = (s32)(ftmp2 * ftmp1);
+        }
+        goto main_check;
+    }
+main_body:
+    if (*(s32 *)(nodes + 16) < limitB8) {
+        goto skip_clear;
+    }
+    if (saved20 == 0) {
+        tmp = -1;
+    } else {
+        tmp = -2;
+    }
+    *(s32 *)(nodes + 16) = tmp;
+    c0 = *(s32 *)(config + 192);
+    c4 = *(s32 *)(config + 196);
+    nmult = c0 * c4;
+    if (nmult != 0) {
+        clear = nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * nmult);
+        ci = 0;
+        goto clear_check;
+clear_body:
+        *(s32 *)(clear + 16) = -1;
+        clear += 32;
+        ci += 1;
+clear_check:
+        if (ci < nmult) {
+            goto clear_body;
+        }
+    }
+skip_clear:
+    node10 = *(s32 *)(nodes + 16);
+    if (node10 == -2) {
+        goto next_iter;
+    }
+    if (node10 != -1) {
+        goto else_branch;
+    }
+    if (v15 == 0) {
+        goto next_iter;
+    }
+    func_004bd0b0(0);
+    a = *(f32 *)(config + 212);
+    b = func_004bd0b0(0);
+    c = *(f32 *)(config + 208) * ((1.0f - a) + a * b);
+    vec130[0] = c * func_0044b610(c);
+    vec130[1] = -(1.0f - c);
+    vec130[2] = c * func_0044b7b0(c);
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
+    __asm__ volatile(
+        "vmul.xyz $vf2, $vf10, $vf10 \n"
+        "vmulax.w $ACC, $vf0, $vf2x \n"
+        "vmadday.w $ACC, $vf0, $vf2y \n"
+        "vmaddz.w $vf2, $vf0, $vf2z \n"
+        "vrsqrt $Q, $vf0w, $vf2w \n"
+        "vwaitq \n"
+        "vmulq.xyz $vf10, $vf10, $Q \n"
+        : : : "$vf2", "$vf10", "ACC", "Q", "memory");
+    if ((flags & 1) == 0) {
+        __asm__ volatile(
+            "vmulax.xyzw $ACC, $vf28, $vf10x \n"
+            "vmadday.xyzw $ACC, $vf29, $vf10y \n"
+            "vmaddz.xyzw $vf10, $vf30, $vf10z \n"
+            : : : "$vf10", "ACC", "memory");
+    }
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)vec130) : "r"(vec130) : "$vf10", "memory");
+    out[0] = vec130[0];
+    out[1] = vec130[1];
+    out[2] = vec130[2];
+    a = *(f32 *)(config + 220);
+    b = func_004bd0b0(0);
+    out[3] = *(f32 *)(config + 216) * ((1.0f - a) + a * b);
+    if (out[3] < 0.0f) {
+        out[3] = -out[3];
+    }
+    a = *(f32 *)(config + 204);
+    b = func_004bd0b0(0);
+    vec120[0] = *(f32 *)(config + 200) * ((1.0f - a) + a * b);
+    vec120[1] = vec120[0];
+    vec120[2] = vec120[0];
+    vec120[3] = 0.0f;
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
+    if (*(f32 *)(config + 216) < 0.0f) {
+        __asm__ volatile("vsub.xyz $vf10, $vf0, $vf10" : : : "$vf10", "memory");
+    }
+    if ((flags & 1) != 0) {
+        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(vec120), "m"(*(u_long128 *)vec120) : "$vf11", "memory");
+        __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+    } else {
+        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(vec120), "m"(*(u_long128 *)vec120) : "$vf11", "memory");
+        __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(config), "m"(*(u_long128 *)config) : "$vf11", "memory");
+        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+    }
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
+    a = *(f32 *)(config + 108);
+    b = func_004bd0b0(0);
+    out[4] = (1.0f - a) + a * b;
+    if (mode9C == 2) {
+        out[5] = 0.0f;
+        out[6] = 1.0f;
+    } else {
+        a = *(f32 *)(config + 152);
+        b = func_004bd0b0(0);
+        out[6] = (1.0f - a) + a * b;
+        if (mode9C == 1) {
+            b = func_004bd0b0(0);
+            out[5] = g80 * b;
+            if ((func_004bd050(0) & 1) != 0) {
+                out[6] = out[6] * -1.0f;
+            }
+        } else {
+            out[5] = 0.0f;
+        }
+    }
+    *(s32 *)(nodes + 16) = 0;
+    b220buf = *(u_long128 *)nodes;
+    if (v14 != 0) {
+        tmp = func_004bd050(0) % limitB8;
+        ftmp1 = (f32)(u32)tmp;
+        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(nodes), "m"(*(u_long128 *)nodes) : "$vf11", "memory");
+        ftmp2 = out[3] * ftmp1 + e0val * (ftmp1 * (e4val * ftmp1));
+        if (ftmp2 < 0.0f) {
+            ftmp2 = 0.0f;
+        }
+        vec130[0] = ftmp2 * out[0];
+        vec130[1] = ftmp2 * out[1];
+        vec130[2] = ftmp2 * out[2];
+        vec130[1] = vec130[1] - e0val * (ftmp1 * (e4val * ftmp1));
+        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
+        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+        __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
+        *(s32 *)(nodes + 16) = (s32)ftmp1;
+    }
+    func_0048b220(nodes, config, *(s32 *)(nodes + 16), &b220buf);
+    *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[4];
+    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[6];
+    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[5];
+    if (v14 != 0) {
+        if (*(s32 *)(config + 192) * *(s32 *)(config + 196) != 0) {
+            func_0043f810(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
+            *(s32 *)(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)) + 16) = -1;
+        }
+        *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
+    }
+    v15 -= 1;
+    goto next_iter2;
+else_branch:
+    b220buf = *(u_long128 *)nodes;
+    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(nodes), "m"(*(u_long128 *)nodes) : "$vf11", "memory");
+    ftmp1 = out[3] + e0val * (f32)node10;
+    if (ftmp1 < 0.0f) {
+        ftmp1 = 0.0f;
+    }
+    vec130[0] = ftmp1 * out[0];
+    vec130[1] = ftmp1 * out[1];
+    vec130[2] = ftmp1 * out[2];
+    vec130[1] = vec130[1] - e4val * (f32)node10;
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
+    __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
+    func_0048b220(nodes, config, node10, &b220buf);
+    *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[4];
+    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[6];
+    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[5];
+    func_0048b340(arg0, nodes);
+    *(s32 *)(nodes + 16) = node10 + 1;
+next_iter2:
+next_iter:
+    idx += 1;
+    out += 7;
+    nodes += 32;
+main_check:
+    if (idx < count) {
+        goto main_body;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048c4e0);
+#endif
 // FUN_0048CD60
 void func_0048cd60(u8 *arg0, f32 fparg0) {
     s32 temp_4;
@@ -3935,8 +4216,286 @@ loop_0048e270_check:
     *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
 }
 /* M2C-raw draft (does not compile; window 2256B per header): V048 body has M2C_ERROR COP2 sites + 95 M2C_FIELD (nested; same iterative expansion recipe) + M2C_UNK s2/s4 (dead -- s32) + s128/u128 (->u_long128, separate slots); casts (f32)(u32) at 0x154/0x1FC/0x260/0x674 per header; same COP1/COP2 ruled-outs as c4e0; next: same recipe as b340. Production stays ASM. */
-// FUN_0048E2F0
+// FUN_0048E2F0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0048e2f0(u8 *arg0)
+{
+    extern s32 func_004bceb0(void);
+    extern f32 func_004bd0b0(s32 arg0);
+    extern s32 func_004bd050(s32 arg0);
+    extern f32 func_0044b610(f32 arg0);
+    extern f32 func_0044b7b0(f32 arg0);
+    extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
+    extern void func_0043f810(void *dst, void *src, u32 size);
+    extern void func_0048b340(u8 *arg0, u8 *arg1);
+    extern f32 fGpffff807c;
+    extern f32 fGpffff8080;
+    u_long128 b220buf;
+    f32 vec120[4] __attribute__((aligned(16)));
+    f32 vec130[4] __attribute__((aligned(16)));
+    u32 count;
+    u32 flags;
+    u8 *nodes;
+    u8 *nodesBase;
+    f32 *out;
+    u8 *config;
+    s32 limitB8;
+    s32 saved20;
+    u8 mode9C;
+    f32 e4val;
+    f32 g7c;
+    f32 g80;
+    f32 e0val;
+    s32 v15;
+    s32 v14;
+    u32 idx;
+    s32 tmp;
+    f32 ftmp1;
+    f32 ftmp2;
+    s32 node10;
+    s32 c0;
+    s32 c4;
+    s32 nmult;
+    u8 *clear;
+    s32 ci;
+    f32 a;
+    f32 b;
+    f32 c;
+
+    count = *(u32 *)(arg0 + 4);
+    flags = *(u32 *)(arg0 + 12);
+    nodesBase = *(u8 **)(arg0 + 24);
+    nodes = nodesBase;
+    out = *(f32 **)(arg0 + 28);
+    config = *(u8 **)(arg0 + 32);
+    limitB8 = *(s32 *)(config + 184);
+    if (limitB8 == 0) {
+        return;
+    }
+    saved20 = *(s32 *)(config + 32);
+    mode9C = *(u8 *)(config + 156);
+    g7c = fGpffff807c;
+    g80 = fGpffff8080;
+    e4val = *(f32 *)(config + 228);
+    e0val = *(f32 *)(config + 224);
+    idx = 0;
+    vec130[3] = 0.0f;
+    __asm__ volatile("lqc2 $vf10, 0x10(%0)" : : "r"(config), "m"(*(u_long128 *)(config + 16)) : "$vf10", "memory");
+    func_004bceb0();
+    if ((saved20 != 0) && (*(s32 *)(arg0 + 16) >= saved20)) {
+        v14 = 0;
+        v15 = 0;
+        goto main_check;
+    }
+    if ((*(s32 *)(arg0 + 16) != 0) || (mode9C == 0)) {
+        v14 = 0;
+        if (*(f32 *)(config + 40) <= 0.0f) {
+            tmp = *(s32 *)(config + 36);
+            ftmp1 = (f32)(u32)tmp;
+            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp1;
+        } else {
+            ftmp1 = (g7c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            tmp = *(s32 *)(config + 36);
+            ftmp2 = (f32)(u32)tmp;
+            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + ftmp2 * ftmp1;
+        }
+        ftmp1 = *(f32 *)(arg0 + 20);
+        if (ftmp1 < 0.0f) {
+            ftmp1 = -ftmp1;
+        }
+        v15 = (s32)ftmp1;
+        *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) - (f32)v15;
+        if (*(f32 *)(arg0 + 20) < 0.0f) {
+            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + (f32)v15 + (f32)v15;
+        }
+        goto main_check;
+    } else {
+        v14 = 1;
+        if (*(f32 *)(config + 40) <= 0.0f) {
+            v15 = (s32)count;
+        } else {
+            ftmp1 = (g7c - *(f32 *)(config + 40)) * func_004bd0b0(0);
+            ftmp2 = (f32)(u32)count;
+            v15 = (s32)(ftmp2 * ftmp1);
+        }
+        goto main_check;
+    }
+main_body:
+    if (*(s32 *)(nodes + 16) < limitB8) {
+        goto skip_clear;
+    }
+    if (saved20 == 0) {
+        tmp = -1;
+    } else {
+        tmp = -2;
+    }
+    *(s32 *)(nodes + 16) = tmp;
+    c0 = *(s32 *)(config + 192);
+    c4 = *(s32 *)(config + 196);
+    nmult = c0 * c4;
+    if (nmult != 0) {
+        clear = nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * nmult);
+        ci = 0;
+        goto clear_check;
+clear_body:
+        *(s32 *)(clear + 16) = -1;
+        clear += 32;
+        ci += 1;
+clear_check:
+        if (ci < nmult) {
+            goto clear_body;
+        }
+    }
+skip_clear:
+    node10 = *(s32 *)(nodes + 16);
+    if (node10 == -2) {
+        goto next_iter;
+    }
+    if (node10 != -1) {
+        goto else_branch;
+    }
+    if (v15 == 0) {
+        goto next_iter;
+    }
+    func_004bd0b0(0);
+    a = *(f32 *)(config + 212);
+    b = func_004bd0b0(0);
+    c = *(f32 *)(config + 208) * ((1.0f - a) + a * b);
+    vec130[0] = c * func_0044b610(c);
+    vec130[1] = -(1.0f - c);
+    vec130[2] = c * func_0044b7b0(c);
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
+    __asm__ volatile(
+        "vmul.xyz $vf2, $vf10, $vf10 \n"
+        "vmulax.w $ACC, $vf0, $vf2x \n"
+        "vmadday.w $ACC, $vf0, $vf2y \n"
+        "vmaddz.w $vf2, $vf0, $vf2z \n"
+        "vrsqrt $Q, $vf0w, $vf2w \n"
+        "vwaitq \n"
+        "vmulq.xyz $vf10, $vf10, $Q \n"
+        : : : "$vf2", "$vf10", "ACC", "Q", "memory");
+    if ((flags & 1) == 0) {
+        __asm__ volatile(
+            "vmulax.xyzw $ACC, $vf28, $vf10x \n"
+            "vmadday.xyzw $ACC, $vf29, $vf10y \n"
+            "vmaddz.xyzw $vf10, $vf30, $vf10z \n"
+            : : : "$vf10", "ACC", "memory");
+    }
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)vec130) : "r"(vec130) : "$vf10", "memory");
+    out[0] = vec130[0];
+    out[1] = vec130[1];
+    out[2] = vec130[2];
+    a = *(f32 *)(config + 220);
+    b = func_004bd0b0(0);
+    out[3] = *(f32 *)(config + 216) * ((1.0f - a) + a * b);
+    if (out[3] < 0.0f) {
+        out[3] = -out[3];
+    }
+    a = *(f32 *)(config + 204);
+    b = func_004bd0b0(0);
+    vec120[0] = *(f32 *)(config + 200) * ((1.0f - a) + a * b);
+    vec120[1] = vec120[0];
+    vec120[2] = vec120[0];
+    vec120[3] = 0.0f;
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
+    if (*(f32 *)(config + 216) < 0.0f) {
+        __asm__ volatile("vsub.xyz $vf10, $vf0, $vf10" : : : "$vf10", "memory");
+    }
+    if ((flags & 1) != 0) {
+        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(vec120), "m"(*(u_long128 *)vec120) : "$vf11", "memory");
+        __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+    } else {
+        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(vec120), "m"(*(u_long128 *)vec120) : "$vf11", "memory");
+        __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(config), "m"(*(u_long128 *)config) : "$vf11", "memory");
+        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+    }
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
+    a = *(f32 *)(config + 108);
+    b = func_004bd0b0(0);
+    out[4] = (1.0f - a) + a * b;
+    if (mode9C == 2) {
+        out[5] = 0.0f;
+        out[6] = 1.0f;
+    } else {
+        a = *(f32 *)(config + 152);
+        b = func_004bd0b0(0);
+        out[6] = (1.0f - a) + a * b;
+        if (mode9C == 1) {
+            b = func_004bd0b0(0);
+            out[5] = g80 * b;
+            if ((func_004bd050(0) & 1) != 0) {
+                out[6] = out[6] * -1.0f;
+            }
+        } else {
+            out[5] = 0.0f;
+        }
+    }
+    *(s32 *)(nodes + 16) = 0;
+    b220buf = *(u_long128 *)nodes;
+    if (v14 != 0) {
+        tmp = func_004bd050(0) % limitB8;
+        ftmp1 = (f32)(u32)tmp;
+        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(nodes), "m"(*(u_long128 *)nodes) : "$vf11", "memory");
+        ftmp2 = out[3] * ftmp1 + e0val * (ftmp1 * (e4val * ftmp1));
+        if (ftmp2 < 0.0f) {
+            ftmp2 = 0.0f;
+        }
+        vec130[0] = ftmp2 * out[0];
+        vec130[1] = ftmp2 * out[1];
+        vec130[2] = ftmp2 * out[2];
+        vec130[1] = vec130[1] - e0val * (ftmp1 * (e4val * ftmp1));
+        __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
+        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+        __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
+        *(s32 *)(nodes + 16) = (s32)ftmp1;
+    }
+    func_0048b220(nodes, config, *(s32 *)(nodes + 16), &b220buf);
+    *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[4];
+    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[6];
+    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[5];
+    if (v14 != 0) {
+        if (*(s32 *)(config + 192) * *(s32 *)(config + 196) != 0) {
+            func_0043f810(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)), nodes, 32);
+            *(s32 *)(nodesBase + 32 * ((s32)count + (s32)((u32)(nodes - nodesBase) / 32) * *(s32 *)(config + 192) * *(s32 *)(config + 196)) + 16) = -1;
+        }
+        *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
+    }
+    v15 -= 1;
+    goto next_iter2;
+else_branch:
+    b220buf = *(u_long128 *)nodes;
+    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(nodes), "m"(*(u_long128 *)nodes) : "$vf11", "memory");
+    ftmp1 = out[3] + e0val * (f32)node10;
+    if (ftmp1 < 0.0f) {
+        ftmp1 = 0.0f;
+    }
+    vec130[0] = ftmp1 * out[0];
+    vec130[1] = ftmp1 * out[1];
+    vec130[2] = ftmp1 * out[2];
+    vec130[1] = vec130[1] - e4val * (f32)node10;
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
+    __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
+    func_0048b220(nodes, config, node10, &b220buf);
+    *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[4];
+    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[6];
+    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[5];
+    func_0048b340(arg0, nodes);
+    *(s32 *)(nodes + 16) = node10 + 1;
+next_iter2:
+next_iter:
+    idx += 1;
+    out += 7;
+    nodes += 32;
+main_check:
+    if (idx < count) {
+        goto main_body;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048e2f0);
+#endif
 // FUN_0048EBC0
 void func_0048ebc0(u8 *arg0, f32 fparg0) {
     s32 temp_4;

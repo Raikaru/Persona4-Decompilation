@@ -3734,6 +3734,11 @@ void func_0019c010(u8 *arg0)
    Register state: retail saves $s4 the body does not, the body saves a spare $f20, frame 0xA0
    against retail's 0xB0 - one saved GPR, and holding a float where retail holds a pointer is
    the usual reason. */
+/* measured 0019c0d0 (owner, 2026-09-19): fnalign edits **1068 -> 1042** by writing the
+   `if (i == c) ... else if` chain as a `switch (i)` with the cases ascending and the
+   trailing `else` as `default`.  Swept with a brace-aware converter over the 26
+   highest-edit first-party floors that carry a chain; seven improved, six got worse and
+   the rest have no convertible chain, so this is measured per function. */
 // FUN_0019C0D0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -3766,14 +3771,17 @@ void func_0019c0d0(void)
         while (entry != NULL) {
             func_00196610(entry);
             func_00198380(entry);
-            if (i == 2) {
+            switch (i) {
+            case 1:
+                func_00230170(entry);
+                break;
+            case 2:
                 if ((*(s32 *)(entry + 0x98) & 2) != 0) {
                     if (*(u16 *)(entry + 0x9FE) != 0) {
                         func_0014b150(*(u16 *)(entry + 0x9FE), (u32)(*(u8 *)(entry + 0xAC) == 1));
                     }
                 }
-            } else if (i == 1) {
-                func_00230170(entry);
+                break;
             }
             if ((*(s32 *)(entry + 0x98) & 2) != 0) {
                 func_001b70c0(entry);
