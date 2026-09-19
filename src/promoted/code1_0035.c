@@ -2833,7 +2833,6 @@ void func_0035fd60(u8 *arg0) {
     s32 v0;
     s32 v1;
     u8 *row;
-    u8 *pB300;
     u8 a0;
     u8 alpha122;
     func_0034f1e0();
@@ -2954,9 +2953,6 @@ void func_0035fd60(u8 *arg0) {
         f26 = 23.0f + (595.0f + (baseX + *(f32 *)(arg0 + 0x148)));
         f25 = 430.0f + (baseY + *(f32 *)(arg0 + 0x14C));
         alpha = (u8)((f32)*(u8 *)(arg0 + 0x152) * scale);
-        pB2E8 = D_0064B2E8;
-        pB2EC = D_0064B2EC;
-        pB300 = D_0064B300;
         func_003f6440(3, 0x71801);
         func_003f6440(2, 0x48);
 
@@ -2986,24 +2982,24 @@ void func_0035fd60(u8 *arg0) {
         pos.f[0] = 29.0f + (baseX + *(f32 *)(arg0 + 0x3B8));
         pos.f[1] = -13.0f + (54.0f + (baseY + *(f32 *)(arg0 + 0x3BC)));
         a0 = (u8)((f32)*(u8 *)(arg0 + 0x3C2) * scale);
-        func_0034f2e0(*(void **)(arg0 + 0x6DC), pos.f[0], pos.f[1], pB2E8[0], pB2E8[1], pB2E8[2], a0);
-        func_0034f2e0(*(void **)(arg0 + 0x6E0), pos.f[0] + 73.0f, pos.f[1], pB2E8[0], pB2E8[1], pB2E8[2], a0);
-        func_0034f2e0(*(void **)(arg0 + 0x6D8), pos.f[0] + 19.0f, pos.f[1] + 2.0f, pB2EC[0], pB2EC[1], pB2EC[2], a0);
+        func_0034f2e0(*(void **)(arg0 + 0x6DC), pos.f[0], pos.f[1], D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], a0);
+        func_0034f2e0(*(void **)(arg0 + 0x6E0), pos.f[0] + 73.0f, pos.f[1], D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], a0);
+        func_0034f2e0(*(void **)(arg0 + 0x6D8), pos.f[0] + 19.0f, pos.f[1] + 2.0f, D_0064B2EC[0], D_0064B2EC[1], D_0064B2EC[2], a0);
         pos.f[0] = 89.0f + (baseX + *(f32 *)(arg0 + 0x3B8));
         pos.f[1] = -13.0f + (86.0f + (baseY + *(f32 *)(arg0 + 0x3BC)));
         a0 = (u8)((f32)*(u8 *)(arg0 + 0x3C2) * scale);
         fy = pos.f[1] + 4.0f;
-        func_0034f2e0(*(void **)(arg0 + 0x68C), pos.f[0] - 6.0f, fy, pB300[0], pB300[1], pB300[2], a0);
-        func_0034f2e0(*(void **)(arg0 + 0x690), pos.f[0] + 41.0f, fy, pB300[0], pB300[1], pB300[2], a0);
-        func_0034f2e0(*(void **)(arg0 + 0x680), pos.f[0], pos.f[1], pB300[0], pB300[1], pB300[2], a0);
+        func_0034f2e0(*(void **)(arg0 + 0x68C), pos.f[0] - 6.0f, fy, D_0064B300[0], D_0064B300[1], D_0064B300[2], a0);
+        func_0034f2e0(*(void **)(arg0 + 0x690), pos.f[0] + 41.0f, fy, D_0064B300[0], D_0064B300[1], D_0064B300[2], a0);
+        func_0034f2e0(*(void **)(arg0 + 0x680), pos.f[0], pos.f[1], D_0064B300[0], D_0064B300[1], D_0064B300[2], a0);
         func_0034f2e0(*(void **)(arg0 + 0x67C), pos.f[0], pos.f[1], D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], a0);
         pos.f[0] = 302.0f + (baseX + *(f32 *)(arg0 + 0x3B8));
         pos.f[1] = -13.0f + (79.0f + (baseY + *(f32 *)(arg0 + 0x3BC)));
         a0 = (u8)((f32)*(u8 *)(arg0 + 0x3C2) * scale);
         fy = pos.f[1] + 11.0f;
-        func_0034f2e0(*(void **)(arg0 + 0x694), pos.f[0] - 157.0f, fy, pB300[0], pB300[1], pB300[2], a0);
-        func_0034f2e0(*(void **)(arg0 + 0x698), pos.f[0] + 255.0f, fy, pB300[0], pB300[1], pB300[2], a0);
-        func_0034f2e0(*(void **)(arg0 + 0x688), pos.f[0], pos.f[1], pB300[0], pB300[1], pB300[2], a0);
+        func_0034f2e0(*(void **)(arg0 + 0x694), pos.f[0] - 157.0f, fy, D_0064B300[0], D_0064B300[1], D_0064B300[2], a0);
+        func_0034f2e0(*(void **)(arg0 + 0x698), pos.f[0] + 255.0f, fy, D_0064B300[0], D_0064B300[1], D_0064B300[2], a0);
+        func_0034f2e0(*(void **)(arg0 + 0x688), pos.f[0], pos.f[1], D_0064B300[0], D_0064B300[1], D_0064B300[2], a0);
         func_0034f2e0(*(void **)(arg0 + 0x684), pos.f[0], pos.f[1], D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], a0);
         fx = 583.0f + (*(f32 *)(arg0 + 0x5C8) + (baseX + *(f32 *)(arg0 + 0x328)));
         fy = (f32)(s32)((-13.0f + (132.0f + (*(f32 *)(arg0 + 0x5CC) + (baseY + *(f32 *)(arg0 + 0x32C))))) - 17.0f);
@@ -3013,7 +3009,7 @@ void func_0035fd60(u8 *arg0) {
         func_0034f2e0(*(void **)(arg0 + 0x6F4), fx, fy, 0xFF, 0xFF, 0xFF, a0);
         fy = fy - 165.0f + 3.0f;
         fy = (f32)(s32)(fy + (f32)((s32)(*(s16 *)(arg0 + 0x2C) * 0x86) / (s32)(*(s32 *)(arg0 + 0x38) - 6)));
-        func_0034f2e0(*(void **)(arg0 + 0x6EC), fx, fy, pB2E8[0], pB2E8[1], pB2E8[2], a0);
+        func_0034f2e0(*(void **)(arg0 + 0x6EC), fx, fy, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], a0);
         for (i = 0; i < 6; i++) {
             if ((*(s16 *)(arg0 + 0x2C) + i) < *(s32 *)(arg0 + 0x38)) {
                 func_00361d20(i, arg0);

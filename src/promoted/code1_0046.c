@@ -2144,6 +2144,7 @@ s32 func_00468fa0(u8 *arg0) {
    prologue reads $a1 (`daddu $16, $5, $0`), so it is now
    `(s32 arg0, u8 *arg1)`.  The only other reference is a function-pointer
    store cast to `void *`, which is unaffected. */
+/* measured 2026-09-19: pragma opt_loop_invariants on (kept with comsubs off): retail 1033 object 1033 exact, words 911->911, edits 316->310 (-6, +69 reloc unchanged), lui +12 unchanged (70 object vs 58 retail; 0x437F 13 vs 3 remains: comsubs-off vs hoist tradeoff, manual c255 would go 1033->1027 (-6) with edits 316->318 (+2) so not taken; nopragma would go 1051 (+18) with edits 518 (+202) so not taken); frame 0xF0/0x100 unchanged, no large holes (largest deletes 2,1,1). */
 // FUN_00468FF0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -3821,6 +3822,7 @@ void func_0046ec70(u8 *arg0) {
  * - frame retail 0xE0 vs probe object 0xB0 (-48 smaller) -> excluded, not bloat.
  * Decl sweep S1-S8 not repeated per assignment (985/985/998/998/985/985/998/998, colouring not shape).
  */
+/* measured 2026-09-19: lui +15 unchanged (35 object vs 20 retail: 9x absolute 0x76 + 6x tables D_00887300/10; absolute excluded per above as probe-only, tables tested: tbl300/310 hoist keeps 988/984 but edits 510->599 (+89) so not taken; tbl300-only 985/984 (-3) with edits 510->603 (+93) so not taken); words 890, edits 510(+12 reloc) unchanged; no large holes (largest deletes 4,2,1). No source change. */
 // FUN_0046F2B0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0046f2b0(u8 *arg0)

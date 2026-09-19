@@ -768,7 +768,7 @@ void func_004b8f10(void *arg0) {
 /* shares) + 21 lq/sq field-by-field (+147) + (u32)float dances (+100) + FPU */
 /* mula folds (+63) =746; 2721-746=1975 inside. Front-load (s32) everywhere */
 /* (<2^31) + whole u_long128 moves + share duplicated block. Not banked. */
-// FUN_004B8F40
+// FUN_004B8F40 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation on
 #pragma opt_loop_invariants on

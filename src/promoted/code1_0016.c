@@ -350,9 +350,9 @@ void func_001607e0(void)
 /* measured: closes the function-scoped opt_propagation probe. */
 #pragma opt_propagation on
 /* measured: 655wd via probe_variants (fnalign retail 760 vs object 779, +19 +2.5% inside 3% gate, 527 edits +8 reloc); opt_common_subs off 677->655 load-bearing; opt_loop_invariants on 677->699 regress, opt_unroll_loops off/schedule off tie at 677, direct subscript ((s32*)P)[j+N] 655->687 regress so materialized p=base+row+j*4 kept, decl swaps i/j and curOff/prevOff tie at 655; residual is saved-reg coloring + FPU lerp/madd ordering + lbu/sb scheduling, time-boxed per batch recipe. */
+/* 2026-09-19: materialisation-surplus removal per assignment (over by 19): lui audit retail {0x3f80:3, 0x7e:1, 0x79:2, 0x16:2} vs object {0x3f80:6, 0:5} => +3 float 1.0f (blend<1.0f, 1.0f/D_007643B4, nb>1.0f, =1.0f, 1.0f-b, b<1.0f; retail keeps 1.0f in reg, CSE-off reloads each). Frame retail -0x1f0 vs object -0x200 (+16 from colsA+colsB both live). Removed #pragma opt_common_subs off/on (CSE on): fnalign retail 760 vs object 754 (-6, -0.8%; stripped 758 vs 754 -4), lui {0x3f80:3} exact, frame -0x1f0 exact, words 677 (+22), edits 518 +11 reloc. Count lands inside gate with surplus gone; words cost accepted per assignment. */
 // FUN_00160880 NONMATCHING
 #ifdef NON_MATCHING
-#pragma opt_common_subs off
 void func_00160880(void)
 {
     s32 cur;
@@ -588,7 +588,6 @@ void func_00160880(void)
         }
     }
 }
-#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_00160880);
 #endif
