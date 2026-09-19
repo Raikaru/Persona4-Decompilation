@@ -64,8 +64,13 @@ def is_generated(path: Path) -> bool:
         relative = path
     return (
         path.name.endswith(".match.c")
-        or path.name.startswith(".permute_")
-        or (path.name.startswith(".") and ".probe_" in path.name)
+        # Any dot-prefixed file under src/ is scratch: the probe and permuter
+        # copies this predicate was written for, and also the ad-hoc staging
+        # files agents leave behind - `.tmp_manual_fndiff.c` and
+        # `.keepobj_tmp.c` both surfaced as first-party MISMATCH rows against
+        # paths that do not exist in the tree.  A tracked source file never
+        # starts with a dot, so the broad rule costs nothing.
+        or path.name.startswith(".")
         or any(part.startswith("generated") for part in relative.parts)
     )
 

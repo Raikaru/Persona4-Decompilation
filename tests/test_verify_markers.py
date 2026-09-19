@@ -169,5 +169,28 @@ class MarkerScanTests(unittest.TestCase):
         self.assertTrue(markers[0].get("asm"))
 
 
+class GeneratedPaths(unittest.TestCase):
+    """`is_generated` decides which files are SCORED at all.
+
+    Agent scratch staged under `src/` is a second owner for every marker in
+    its unit, so it lands in the report as a first-party MISMATCH against a
+    path that is about to be deleted.  Two such rows appeared this session
+    from `.tmp_manual_fndiff.c` and `.keepobj_tmp.c`.
+    """
+
+    def test_dot_prefixed_scratch_is_not_scored(self) -> None:
+        for name in (".tmp_manual_fndiff.c", ".keepobj_tmp.c",
+                     ".permute_thing.c", ".code1_0020.probe_abc.c"):
+            self.assertTrue(verify.is_generated(REPO / "src" / name), name)
+
+    def test_tracked_source_is_scored(self) -> None:
+        for name in ("evtMain.c", "k_fldAI.c", "code1_0021.c"):
+            self.assertFalse(verify.is_generated(REPO / "src" / name), name)
+
+    def test_generated_directory_is_not_scored(self) -> None:
+        self.assertTrue(verify.is_generated(REPO / "src" / "generated" / "code1_0021.c"))
+
+
+
 if __name__ == "__main__":
     unittest.main()
