@@ -1204,179 +1204,159 @@ void func_002b07a0(u8 *arg0, u8 *arg1) {
    statement orders — all nd 99. Register-allocation + invariant-hoist floor. */
 extern u8 D_00793E80[];
 /* measured: YS clean 322 differing words (obj 940B/window 1424B under-484, frame -144 vs -192); pragma sweep schedule on 329 (+7), common off 328 (+6), loop on 324 (+2) — all regress, keep base; condensed switches/loop, frame under; inferior to prior documented 99-floor (YVec2f+s8/s32, 4-arg 461390, D_008872F8-hoist + s2/s3 walls) whose body is lost; TU explicit (u8 *)(u32)/(s16)/(s64)/(f32) casts applied, compiles; production stays ASM. */
+/* measured: Tri-array + y-split + if-chain restores the missing third (probe_variants 322 -> 123; fnalign retail 356 obj 358, 97 edits +4 reloc-only, 0.6% over, bankable; task band 341-363 for retail 352 holds at 358). Root causes: (1) `&sp90 + v6*12` over 12 separate f32/s32 locals is UB, so b210 DCE'd 11 stores/arm (88 stores, 117 instrs, frame 0x90 vs 0xC0, 235 vs 352); struct Tri {f32 a; s32 b; f32 c;} t[4] with t[v6].a/c makes the 8 floats + 4 zeros observable and holds the frame at 0xC0 with 5 FPU saves. (2) switch conflated YVec2f.y (f20, 0x8C stack) with fparg2 (f14, DAT-60008 loop term); by = arg1.y split, arg1.x reloaded per arm like retail lwc1 0x88. (3) inner switch codegen is descending (beq 2,1,0) vs retail ascending (bnez 0, bne 1, bne 2); if (v==0)/else if (v==1)/else if (v==2) in ascending order matches. jal counts equal (00457120 + 00461390 both sides), so missing code holds no calls. m2c succeeds on this unit (no jr/jtbl; sibling 2ae630 note does not apply) but its loop drops the bltz sign-fixup else arms; romwright likewise warns away 4 unreachable blocks and simplifies to plain (f32) casts. Residuals: prologue GPR-then-FP move order vs retail interleave; byte-setup regs ($t1/$t0/$a3/$a2 vs $a1/$a0/$v1/$v0, missing mtc1/lui hoist); loop t13/offset/counter regs ($v0/$t3/$t2 vs $t5/$t0/$a2); D_008872F8 lui-hoist floor. TU-strict YVec2f-by-value/(u8 *)(u32)/(f32) casts, compiles -DNON_MATCHING, verify ASM, lint clean. */
 // FUN_002B0B10 NONMATCHING
 #ifdef NON_MATCHING
 void func_002b0b10(u8 *arg0, YVec2f arg1, u8 arg2, s32 arg3, s8 arg4, s32 arg5, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
-    f32 spBC;
-    s32 spB8;
-    f32 spB4;
-    f32 spB0;
-    s32 spAC;
-    f32 spA8;
-    f32 spA4;
-    s32 spA0;
-    f32 sp9C;
-    f32 sp98;
-    s32 sp94;
-    f32 sp90;
-    s64 sp88;
+    struct Tri { f32 a; s32 b; f32 c; };
+    struct Tri t[4];
     f32 temp_f0;
     f32 temp_f6;
     f32 temp_f5;
-    f32 b88;
+    f32 by;
     u8 *temp_16;
     s32 temp_5;
-    s32 temp_2;
-    s32 temp_3;
-    s32 temp_32;
-
-    sp88 = *(s64 *)&arg1;
     temp_16 = *(u8 **)(arg0 + 0x38);
     temp_f0 = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
     *(f32 *)(temp_16 + 0x38) = temp_f0;
     temp_f6 = fparg0 * fparg3;
     temp_f5 = fparg1 * fparg3;
     temp_5 = arg2 & 0xFF;
-    b88 = *(f32 *)&sp88;
+    by = arg1.y;
     switch (temp_5) {
     case 0:
-        sp90 = b88;
-        sp94 = 0;
-        sp98 = fparg2;
-        sp9C = b88 + temp_f6;
-        spA0 = 0;
-        spA4 = fparg2;
-        spA8 = b88;
-        spAC = 0;
-        spB0 = fparg2 + temp_f5;
-        spB4 = b88 + temp_f6;
-        spB8 = 0;
-        spBC = fparg2 + temp_f5;
+        t[0].a = arg1.x;
+        t[0].b = 0;
+        t[0].c = by;
+        t[1].a = arg1.x + temp_f6;
+        t[1].b = 0;
+        t[1].c = by;
+        t[2].a = arg1.x;
+        t[2].b = 0;
+        t[2].c = by + temp_f5;
+        t[3].a = arg1.x + temp_f6;
+        t[3].b = 0;
+        t[3].c = by + temp_f5;
         break;
-    case 1:
-        temp_2 = arg4;
-        switch (temp_2) {
-        case 0:
-            sp90 = b88;
-            sp94 = 0;
-            sp98 = fparg2 + temp_f5;
-            sp9C = b88;
-            spA0 = 0;
-            spA4 = fparg2;
-            spA8 = b88 + temp_f6;
-            spAC = 0;
-            spB0 = fparg2 + temp_f5;
-            spB4 = b88 + temp_f6;
-            spB8 = 0;
-            spBC = fparg2;
-            break;
-        case 1:
-            sp90 = b88;
-            sp94 = 0;
-            sp98 = fparg2 + temp_f6;
-            sp9C = b88;
-            spA0 = 0;
-            spA4 = fparg2;
-            spA8 = b88 + temp_f5;
-            spAC = 0;
-            spB0 = fparg2 + temp_f6;
-            spB4 = b88 + temp_f5;
-            spB8 = 0;
-            spBC = fparg2;
-            break;
-        case 2:
-            sp9C = b88;
-            spA0 = 0;
-            spA4 = fparg2 - 18.0f;
-            spB4 = (b88 + temp_f6);
-            spB8 = 0;
-            spBC = fparg2 - 18.0f;
-            sp90 = b88;
-            sp94 = 0;
-            sp98 = (fparg2 + temp_f5) - 18.0f;
-            spA8 = b88 + temp_f6;
-            spAC = 0;
-            spB0 = (fparg2 + temp_f5) - 18.0f;
-            break;
+    case 1: {
+        s32 v = arg4;
+        if (v == 0) {
+            t[0].a = arg1.x;
+            t[0].b = 0;
+            t[0].c = by + temp_f5;
+            t[1].a = arg1.x;
+            t[1].b = 0;
+            t[1].c = by;
+            t[2].a = arg1.x + temp_f6;
+            t[2].b = 0;
+            t[2].c = by + temp_f5;
+            t[3].a = arg1.x + temp_f6;
+            t[3].b = 0;
+            t[3].c = by;
+        } else if (v == 1) {
+            t[0].a = arg1.x;
+            t[0].b = 0;
+            t[0].c = by + temp_f6;
+            t[1].a = arg1.x;
+            t[1].b = 0;
+            t[1].c = by;
+            t[2].a = arg1.x + temp_f5;
+            t[2].b = 0;
+            t[2].c = by + temp_f6;
+            t[3].a = arg1.x + temp_f5;
+            t[3].b = 0;
+            t[3].c = by;
+        } else if (v == 2) {
+            t[1].a = arg1.x;
+            t[1].b = 0;
+            t[1].c = by - 18.0f;
+            t[3].a = (arg1.x + temp_f6);
+            t[3].b = 0;
+            t[3].c = by - 18.0f;
+            t[0].a = arg1.x;
+            t[0].b = 0;
+            t[0].c = (by + temp_f5) - 18.0f;
+            t[2].a = arg1.x + temp_f6;
+            t[2].b = 0;
+            t[2].c = (by + temp_f5) - 18.0f;
         }
         break;
-    case 2:
-        temp_3 = arg4;
-        switch (temp_3) {
-        case 0:
-            spB4 = b88;
-            spB8 = 0;
-            spBC = fparg2;
-            spA8 = b88 + temp_f6;
-            spAC = 0;
-            spB0 = fparg2;
-            sp9C = b88;
-            spA0 = 0;
-            spA4 = fparg2 + temp_f5;
-            sp90 = b88 + temp_f6;
-            sp94 = 0;
-            sp98 = fparg2 + temp_f5;
-            break;
-        case 1:
-            spB4 = b88;
-            spB8 = 0;
-            spBC = fparg2;
-            spA8 = b88 + temp_f6;
-            spAC = 0;
-            spB0 = fparg2;
-            sp9C = b88;
-            spA0 = 0;
-            spA4 = fparg2 + temp_f5;
-            sp90 = b88 + temp_f6;
-            sp94 = 0;
-            sp98 = fparg2 + temp_f5;
-            break;
-        case 2:
-            spB4 = b88 - 18.0f;
-            spB8 = 0;
-            spBC = fparg2;
-            spA8 = (b88 + temp_f6) - 18.0f;
-            spAC = 0;
-            spB0 = fparg2;
-            sp9C = b88 - 18.0f;
-            spA0 = 0;
-            spA4 = fparg2 + temp_f5;
-            sp90 = (b88 + temp_f6) - 18.0f;
-            sp94 = 0;
-            sp98 = fparg2 + temp_f5;
-            break;
+    }
+    case 2: {
+        s32 v = arg4;
+        if (v == 0) {
+            t[3].a = arg1.x;
+            t[3].b = 0;
+            t[3].c = by;
+            t[2].a = arg1.x + temp_f6;
+            t[2].b = 0;
+            t[2].c = by;
+            t[1].a = arg1.x;
+            t[1].b = 0;
+            t[1].c = by + temp_f5;
+            t[0].a = arg1.x + temp_f6;
+            t[0].b = 0;
+            t[0].c = by + temp_f5;
+        } else if (v == 1) {
+            t[3].a = arg1.x;
+            t[3].b = 0;
+            t[3].c = by;
+            t[2].a = arg1.x + temp_f6;
+            t[2].b = 0;
+            t[2].c = by;
+            t[1].a = arg1.x;
+            t[1].b = 0;
+            t[1].c = by + temp_f5;
+            t[0].a = arg1.x + temp_f6;
+            t[0].b = 0;
+            t[0].c = by + temp_f5;
+        } else if (v == 2) {
+            t[3].a = arg1.x - 18.0f;
+            t[3].b = 0;
+            t[3].c = by;
+            t[2].a = (arg1.x + temp_f6) - 18.0f;
+            t[2].b = 0;
+            t[2].c = by;
+            t[1].a = arg1.x - 18.0f;
+            t[1].b = 0;
+            t[1].c = by + temp_f5;
+            t[0].a = (arg1.x + temp_f6) - 18.0f;
+            t[0].b = 0;
+            t[0].c = by + temp_f5;
         }
         break;
-    case 3:
-        temp_32 = arg4;
-        if (temp_32 == 0) {
-            spA8 = b88;
-            spAC = 0;
-            spB0 = fparg2;
-            sp90 = b88 + temp_f6;
-            sp94 = 0;
-            sp98 = fparg2;
-            spB4 = b88;
-            spB8 = 0;
-            spBC = fparg2 + temp_f5;
-            sp9C = b88 + temp_f6;
-            spA0 = 0;
-            spA4 = fparg2 + temp_f5;
-        } else if (temp_32 == 1) {
-            spB4 = b88;
-            spB8 = 0;
-            spBC = fparg2 + temp_f6;
-            spA8 = b88;
-            spAC = 0;
-            spB0 = fparg2;
-            sp9C = b88 + temp_f5;
-            spA0 = 0;
-            spA4 = fparg2 + temp_f6;
-            sp90 = b88 + temp_f5;
-            sp94 = 0;
-            sp98 = fparg2;
+    }
+    case 3: {
+        s32 v = arg4;
+        if (v == 0) {
+            t[2].a = arg1.x;
+            t[2].b = 0;
+            t[2].c = by;
+            t[0].a = arg1.x + temp_f6;
+            t[0].b = 0;
+            t[0].c = by;
+            t[3].a = arg1.x;
+            t[3].b = 0;
+            t[3].c = by + temp_f5;
+            t[1].a = arg1.x + temp_f6;
+            t[1].b = 0;
+            t[1].c = by + temp_f5;
+        } else if (v == 1) {
+            t[3].a = arg1.x;
+            t[3].b = 0;
+            t[3].c = by + temp_f6;
+            t[2].a = arg1.x;
+            t[2].b = 0;
+            t[2].c = by;
+            t[1].a = arg1.x + temp_f5;
+            t[1].b = 0;
+            t[1].c = by + temp_f6;
+            t[0].a = arg1.x + temp_f5;
+            t[0].b = 0;
+            t[0].c = by;
         }
         break;
+    }
     }
     {
         s32 t52 = ((u32)(arg3 & 0xFF000000) >> 24) & 0xFF;
@@ -1423,8 +1403,8 @@ void func_002b0b10(u8 *arg0, YVec2f arg1, u8 arg2, s32 arg3, s8 arg4, s32 arg5, 
                 g22 += g22;
                 *(f32 *)(t13 + 0x6C) = g22;
             }
-            *(f32 *)(t13 + 0x40) = *(f32 *)((u8 *)&sp90 + v6 * 12);
-            *(f32 *)(t13 + 0x44) = *(f32 *)((u8 *)&sp90 + v6 * 12 + 8);
+            *(f32 *)(t13 + 0x40) = t[v6].a;
+            *(f32 *)(t13 + 0x44) = t[v6].c;
             v6 += 1;
         }
     }

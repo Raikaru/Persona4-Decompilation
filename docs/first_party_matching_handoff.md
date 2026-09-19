@@ -496,6 +496,39 @@ retail and an $sN in the candidate.  It does not always apply - on
 the shared `j` ties at 27, so the cause there is something else.  One probe
 settles it either way.
 
+### 7z. Undefined behaviour lets the compiler delete retail's stores
+
+`func_002b0b10` was 117 instructions short, a third of the body, with `jal`
+counts equal on both sides - so nothing was calling less, something was
+storing less.  The cause was a local scalar whose address was taken and then
+written past: `&sp90` used as the base for eleven stores per arm.  That is
+undefined behaviour, and b210 responds by deleting the stores it can prove
+unreachable through the declared object.  Retail's source had a real
+aggregate there, so its stores survive.
+
+Declaring `struct Tri t[4]` and writing through it restored the missing code:
+object 235 -> 358 instructions, inside the 341-363 band, and the word score
+fell 322 -> 123.
+
+**Symptom to recognise:** a large shortfall made of *stores*, with call
+counts equal and no missing control flow.  Look for a scalar local used as an
+array base, or a small buffer written past its declared size.  The fix is to
+declare the aggregate the code actually uses - which is also the honest thing
+to write, since the UB version only happened to work.
+
+The same batch turned up three neighbouring shapes, all shortfalls that were
+not missing calls:
+
+  * `func_001adea0`, -90: empty `if` tails that the compiler folded away (30
+    instructions), a 32-byte buffer declared as `s32`/`u16` instead of
+    `u8[32]` (frame 0x60 against retail's 0x80), and an if/else dispatch that
+    had to be a `switch` in numeric order to reproduce retail's check order.
+    Result 325/327, words 270 -> 163, edits 337 -> 49.
+  * `func_0021a7b0`, -90: a packet array declared `u8[48]` where the stride
+    is 0x40, so the frame came out 0x1B0 against retail's 0x210.  Declaring
+    `u8[64]` plus a scoped `opt_common_subs off` recovered 81 instructions.
+  * `func_00275d80`, -89: per-glyph work collapsed; reconstructed to 284/288.
+
 ### 7y. When the word score and the edit count disagree, check the gate
 
 `tools/measure_guarded.py` counts reloc-masked differing words over a fixed

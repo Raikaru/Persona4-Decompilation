@@ -1902,21 +1902,22 @@ void func_00218730(s32 task)
     p = (u8 *)func_00452560((void *)task);
     *(u16 *)(p + 0x8C0) = *(u16 *)(p + 0x8C0) | 0x10;
 }
-/* measured 0021a7b0: `schedule on` inside the guard is worth 7 words (393 -> 386). */
+/* measured 0021a7b0: retail 427 instrs, object 418 instrs (-9, -2.1%, band 414-440) via `python3 -E -s tools/fnalign.py src/promoted/code1_0021.c func_0021a7b0 --candidate /tmp/final_candidate.c` (was 337, -90/-21.1% under-size floor); fndiff 401 words reloc-masked, fnalign 458 edits. Frame -0x210 correct (was -0x1B0): six packet structs stride 0x40 at sp+0x80/0xC0/0x100/0x140/0x180/0x1C0, not 48B; u8[48]->u8[64] fixes 96B (sp60[24] already pads 24->32 to 0x80). `opt_common_subs off` scoped recovers 81 instrs (337->418): retail recomputes (u8)(204.0f*var_f24) per packet (lui 0x4F00/c.le/bc1t/cvt.w.s/mfc1/andi/or-0x80000000) where b210 CSEs the float->int once and reuses $a0 for three packets; big if(var_f24>0) block 172 vs retail 240 with CSE on. `schedule on` retained (7 words 393->386 on old base). Residual is prologue park order, int-vs-FPU packet stores, and FPU save coloring; best legal plain-C floor, production stays ASM. */
 // FUN_0021A7B0 NONMATCHING
 #ifdef SKIP_ASM
 #pragma schedule on
+#pragma opt_common_subs off
 void func_0021a7b0(u8 *arg1) {
     struct { s32 lo; s32 hi; } sp208pair;
     f32 spB8;
     s32 spA8;
     f32 spA0;
-    u8 sp80[48];
-    u8 spC0[48];
-    u8 sp100[48];
-    u8 sp140[48];
-    u8 sp180[48];
-    u8 sp1C0[48];
+    u8 sp80[64];
+    u8 spC0[64];
+    u8 sp100[64];
+    u8 sp140[64];
+    u8 sp180[64];
+    u8 sp1C0[64];
     u8 sp60[24];
     f32 temp_f0;
     f32 temp_f20;
@@ -2106,6 +2107,7 @@ void func_0021a7b0(u8 *arg1) {
         }
     }
 }
+#pragma opt_common_subs on
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021a7b0);

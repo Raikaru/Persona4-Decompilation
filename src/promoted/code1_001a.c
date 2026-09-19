@@ -3902,122 +3902,153 @@ void func_001ade10(s64 *arg0)
 void func_001ade90(void)
 {
 }
-/* measured 001adea0: schedule on inside the guard is worth 1 word (271 -> 270, sweep-measured) but churns alignment (277 -> 237 instrs, 189 -> 337 edits); body remains distant (50 short pre-schedule, 90 short now) with unrecovered dispatch structure and needs reconstruction; sp64 dead store pre-existing (H007). Production stays ASM. */
+/* measured 001adea0: 325/327 (-2, -0.6%) inside 317-337 band; guarded 163 words, fnalign 49 edits (was schedule-on 237/337/270 and honest nosched 277/189/271). Switch on 0x20/0x40/default in numeric order (compiler checks 0x40 first, matching retail layout); u8 stk[32] for the f0a10 32B memset (was s32 sp60/sp64/u16 sp7E, frame 0x60->0x70 vs retail 0x80); pkt1-6 with pkt1+88 sources (was pkt reuse losing the s1 live range for 0x58->8 copies); (s16)f6d60 (was s32, adds dsll32/dsra32); &0xFFFFF mask (was <<20>>20 12-bit); nested f==2/3/1 tails (was empty ifs eliminated and && dropping the third compare). Removed schedule pragmas (1-word win outside gate, -40 count). Jal 35 both sides. Production stays ASM. */
 // FUN_001ADEA0 NONMATCHING
 #ifdef SKIP_ASM
-#pragma schedule on
 void func_001adea0(u8 *arg0)
 {
     u8 *t18;
     s64 t16;
     u32 sw;
-    s32 sp60;
-    s32 sp64;
-    u16 sp7E;
+    u8 stk[32];
     s32 t2;
-    u8 *pkt;
+    u8 *pkt1;
+    u8 *pkt2;
+    u8 *pkt3;
+    u8 *pkt4;
+    u8 *pkt5;
+    u8 *pkt6;
 
     if (func_00193cd0(0x700) == 0 && func_00193cd0(0x506) == 0 && func_00193cd0(0x507) == 0) {
         t18 = *(u8 **)(arg0 + 48);
         t16 = *(s64 *)arg0;
-        sw = ((u32)func_002326e0(*(s32 *)(t18 + 2660)) << 20) >> 20;
-        if (sw == 0x20) {
-            func_001f0a10((u8 *)&sp60);
-            sp7E = sp7E | 0x100;
-            t2 = func_001f6d60(arg0);
-            sp60 = t2;
-            if (t2 < 0) {
-                pkt = func_001f36e0((s32)arg0, (s32)arg0, &sp60, 1, 1);
-                *(s16 *)(pkt + 72) = 12;
-                func_00194590(pkt, 1);
-                pkt = func_00202740(t18);
-                *(pkt + 0) = 4;
-                *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-                func_00194590(pkt, 1);
-                pkt = func_00201de0((s32)t18, (s32)t18, -1, 0, 0, 0, 1, (u8 *)&sp60, 0);
-                *(pkt + 0) = 4;
-                *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-                *(pkt + 71) = *(pkt + 71) & 0xDF;
-                func_00194590(pkt, 3);
-                pkt = func_00202590(t18, 0, 0);
-                *(pkt + 0) = 4;
-                *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-                *(pkt + 71) = *(pkt + 71) & 0xDF;
-                func_00194590(pkt, 3);
-                pkt = func_00199ee0(*(u8 **)(arg0 + 48), -2, 0, 0, 1.0f);
-                *(pkt + 0) = 4;
-                *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-                *(pkt + 32) = 10;
-                *(s16 *)(pkt + 40) = 769;
-                *(s64 *)(pkt + 96) = t16;
-                func_00194590(pkt, 0);
-                pkt = (u8 *)func_001f7c20(10, 2, 24);
-                *(pkt + 0) = 4;
-                *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-                func_00194590(pkt, 1);
+        sw = (u32)(func_002326e0(*(s32 *)(t18 + 2660)) & 0xFFFFF);
+        switch (sw) {
+        case 0x20:
+            {
+                func_001f0a10(stk);
+                *(u16 *)(stk + 30) = *(u16 *)(stk + 30) | 0x100;
+                t2 = (s16)func_001f6d60(arg0);
+                *(s32 *)stk = t2;
+                if (t2 < 0) {
+                    pkt1 = func_001f36e0((s32)arg0, (s32)arg0, stk, 1, 1);
+                    *(s16 *)(pkt1 + 72) = 12;
+                    func_00194590(pkt1, 1);
+                    pkt2 = func_00202740(t18);
+                    *(pkt2 + 0) = 4;
+                    *(s64 *)(pkt2 + 8) = *(s64 *)(pkt1 + 88);
+                    func_00194590(pkt2, 1);
+                    pkt3 = func_00201de0((s32)t18, (s32)t18, -1, 0, 0, 0, 1, stk, 0);
+                    *(pkt3 + 0) = 4;
+                    *(s64 *)(pkt3 + 8) = *(s64 *)(pkt1 + 88);
+                    *(pkt3 + 71) = *(pkt3 + 71) & 0xDF;
+                    func_00194590(pkt3, 3);
+                    pkt4 = func_00202590(t18, 0, 0);
+                    *(pkt4 + 0) = 4;
+                    *(s64 *)(pkt4 + 8) = *(s64 *)(pkt1 + 88);
+                    *(pkt4 + 71) = *(pkt4 + 71) & 0xDF;
+                    func_00194590(pkt4, 3);
+                    pkt5 = func_00199ee0(*(u8 **)(arg0 + 48), -2, 0, 0, 1.0f);
+                    *(pkt5 + 0) = 4;
+                    *(s64 *)(pkt5 + 8) = *(s64 *)(pkt1 + 88);
+                    *(pkt5 + 32) = 10;
+                    *(s16 *)(pkt5 + 40) = 769;
+                    *(s64 *)(pkt5 + 96) = t16;
+                    func_00194590(pkt5, 0);
+                    pkt6 = (u8 *)func_001f7c20(10, 2, 24);
+                    *(pkt6 + 0) = 4;
+                    *(s64 *)(pkt6 + 8) = *(s64 *)(pkt1 + 88);
+                    func_00194590(pkt6, 1);
+                }
+                {
+                    u16 f = *(u16 *)(arg0 + 108);
+                    u16 v;
+                    if (f == 2) {
+                        v = 32;
+                    } else if (f == 3) {
+                        v = 32;
+                    } else if (f == 1) {
+                        v = 32;
+                    } else {
+                        v = 32;
+                    }
+                    func_001b0800(arg0, v);
+                }
+                return;
             }
+            break;
+        case 0x40:
+            {
+                func_001f0a10(stk);
+                *(u16 *)(stk + 30) = *(u16 *)(stk + 30) | 0x100;
+                t2 = (s16)func_001f6d60(arg0);
+                *(s32 *)(stk + 4) = t2;
+                if (t2 < 0) {
+                    pkt1 = func_001f36e0((s32)arg0, (s32)arg0, stk, 1, 1);
+                    *(s16 *)(pkt1 + 72) = 12;
+                    func_00194590(pkt1, 1);
+                    pkt2 = func_00202740(t18);
+                    *(pkt2 + 0) = 4;
+                    *(s64 *)(pkt2 + 8) = *(s64 *)(pkt1 + 88);
+                    func_00194590(pkt2, 1);
+                    pkt3 = func_00201de0((s32)t18, (s32)t18, -1, 0, 0, 0, 1, stk, 0);
+                    *(pkt3 + 0) = 4;
+                    *(s64 *)(pkt3 + 8) = *(s64 *)(pkt1 + 88);
+                    *(pkt3 + 71) = *(pkt3 + 71) & 0xDF;
+                    func_00194590(pkt3, 3);
+                    pkt4 = func_00202590(t18, 1, 0);
+                    *(pkt4 + 0) = 4;
+                    *(s64 *)(pkt4 + 8) = *(s64 *)(pkt1 + 88);
+                    *(pkt4 + 71) = *(pkt4 + 71) & 0xDF;
+                    func_00194590(pkt4, 3);
+                    pkt5 = func_00199ee0(*(u8 **)(arg0 + 48), -2, 0, 0, 1.0f);
+                    *(pkt5 + 0) = 4;
+                    *(s64 *)(pkt5 + 8) = *(s64 *)(pkt1 + 88);
+                    *(pkt5 + 32) = 10;
+                    *(s16 *)(pkt5 + 40) = 769;
+                    *(s64 *)(pkt5 + 96) = t16;
+                    func_00194590(pkt5, 0);
+                    pkt6 = (u8 *)func_001f7c20(10, 2, 24);
+                    *(pkt6 + 0) = 4;
+                    *(s64 *)(pkt6 + 8) = *(s64 *)(pkt1 + 88);
+                    func_00194590(pkt6, 1);
+                }
+                {
+                    u16 f = *(u16 *)(arg0 + 108);
+                    u16 v;
+                    if (f == 2) {
+                        v = 32;
+                    } else if (f == 3) {
+                        v = 32;
+                    } else if (f == 1) {
+                        v = 32;
+                    } else {
+                        v = 32;
+                    }
+                    func_001b0800(arg0, v);
+                }
+                return;
+            }
+            break;
+        default:
             {
                 u16 f = *(u16 *)(arg0 + 108);
-                if (f != 2 && f != 3 && f != 1) {
+                u16 v;
+                if (f == 2) {
+                    v = 32;
+                } else if (f == 3) {
+                    v = 32;
+                } else if (f == 1) {
+                    v = 32;
+                } else {
+                    v = 32;
                 }
+                func_001b0800(arg0, v);
             }
-            func_001b0800(arg0, 32);
-            return;
-        } else if (sw == 0x40) {
-            func_001f0a10((u8 *)&sp60);
-            sp7E = sp7E | 0x100;
-            t2 = func_001f6d60(arg0);
-            sp64 = t2;
-            if (t2 < 0) {
-                pkt = func_001f36e0((s32)arg0, (s32)arg0, &sp60, 1, 1);
-                *(s16 *)(pkt + 72) = 12;
-                func_00194590(pkt, 1);
-                pkt = func_00202740(t18);
-                *(pkt + 0) = 4;
-                *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-                func_00194590(pkt, 1);
-                pkt = func_00201de0((s32)t18, (s32)t18, -1, 0, 0, 0, 1, (u8 *)&sp60, 0);
-                *(pkt + 0) = 4;
-                *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-                *(pkt + 71) = *(pkt + 71) & 0xDF;
-                func_00194590(pkt, 3);
-                pkt = func_00202590(t18, 1, 0);
-                *(pkt + 0) = 4;
-                *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-                *(pkt + 71) = *(pkt + 71) & 0xDF;
-                func_00194590(pkt, 3);
-                pkt = func_00199ee0(*(u8 **)(arg0 + 48), -2, 0, 0, 1.0f);
-                *(pkt + 0) = 4;
-                *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-                *(pkt + 32) = 10;
-                *(s16 *)(pkt + 40) = 769;
-                *(s64 *)(pkt + 96) = t16;
-                func_00194590(pkt, 0);
-                pkt = (u8 *)func_001f7c20(10, 2, 24);
-                *(pkt + 0) = 4;
-                *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
-                func_00194590(pkt, 1);
-            }
-            {
-                u16 f = *(u16 *)(arg0 + 108);
-                if (f != 2 && f != 3 && f != 1) {
-                }
-            }
-            func_001b0800(arg0, 32);
-            return;
-        } else {
-            u16 f = *(u16 *)(arg0 + 108);
-            u16 v;
-            if (f != 2 && f != 3 && f != 1) {
-                v = 32;
-            } else {
-                v = 32;
-            }
-            func_001b0800(arg0, v);
+            break;
         }
     }
 }
-#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001adea0);
 #endif
