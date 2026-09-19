@@ -1977,8 +1977,255 @@ s32 func_0035afa0(u8 *arg0) {
 // measured: honest best direct_split (u32 flat + direct &qs[k].r/g/b/a addressing per 7a + fresh ii/jj for idx per 7n, s32 counters kept); retail 692 object 669 (-23, -3.3% outside 671-713 by 2) edit 198 (+8 reloc-only) via `python3 tools/fnalign.py src/promoted/code1_0035.c func_0035aff0 --candidate /tmp/35aff0_direct_split.c`; probe 448 via `python3 tools/probe_variants.py src/promoted/code1_0035.c func_0035aff0 --candidate directsplit=/tmp/35aff0_direct_split.c` (base 449, u32flat 456); frame 0xB10 exact, jal 31==31, pure hole 2 (retail[201:203]/[209:211]/[309:311]) lump 16 (retail[493:493] object[467:483] extra grey a swc1 0x15C) clean per 7aa strict (needs both >=25); loose holes are four retail-longer replaces net +23 (flat entry +10, flat per-quad +22, wave +20, idx +10 minus surplus -16-6 as shift artefact from flat root propagation wall per file note); archived F350 base 646 s32 vs u32flat 668 +22 via unsigned (honest per micro bltz), direct +1 via addressing, split -1 edits via temps; in-gate A 690 via sltiu (retail slti) and s64flat 672 via dsll (retail 0 dsll) and propoff 684 via +154 words rejected per 7g/7v/7u, production stays INCLUDE_ASM.
 // preserved per Main: archived F350_0035aff0_body.c is 314 lines (231-line body) measuring 646/692 -46 honest because it uses signed flat (s32 flatA/B/cR/cW with (f32)s32, 4 instrs via mtc1/cvt) where retail is unsigned (u32 with (f32)(u32), 15 instrs via bltz/srl/andi/or/mtc1/cvt/add); micro-measured conversion cost is 15 vs 4 (u32 bltz 15: bltz/nop/mtc1/nop/cvt/b/nop/srl/andi/or/mtc1/nop/cvt/add/swc1 vs s32 4: mtc1/nop/cvt/swc1), independently priced today at 16 vs plain mtc1/cvt by another agent -- two measurements, same number, best-evidenced conversion cost in project.
 // attempted textbook 7aa repair per Main: write missing wave retail[545:567] 0x35B874-0x35B8CC (fourth grey srl/andi/or/mtc1/cvt/add/swc1 0x2C + addiu/slti/bnez x2 + slti guard + lui/addiu D) + delete object-only lump object[467:483] 16 (extra grey a bltz/swc1 0x15C verts[0].a due to flat shift) net +4 (669+4=673 inside); wave-pointer variant (verts a via u8 vp+0x2C per 7a) resists via flat-shift propagation wall: retail 692 object 666 (-26, -3.8% outside) edit 273 (+8 reloc-only) via `python3 tools/fnalign.py src/promoted/code1_0035.c func_0035aff0 --candidate /tmp/35aff0_waveptr.c` (direct_split 669/198 honest best, 2 short); flat wall (constants fold to lui without whole-function propoff +154 words fake per 7u, scoped inert) shifts wave, hole+lump cancel, production stays INCLUDE_ASM.
-// FUN_0035AFF0
+/* measured 0035aff0 (owner, installing Fn0035's candidate): 700 against retail's 696-word
+   window (+0.6%, band 671-713) and 692 stripped instructions (+1.2%), 167 edits down from the
+   198 baseline, 453 differing words.  Frame 0xB10 exact with prologue 0-22 equal, 31 calls
+   against 31 (23 direct, 8 indirect), lwc1 31/31, swc1 60/61.  Composition is clean: no lump or
+   hole of 16 or more, longest insert 3 and longest delete 3.  Reached by the grey r,g,b,a store
+   order, a staged texId, and duplicated cR/cW tails; no sltiu-for-slti, no s64 flat, no
+   opt_propagation off, no volatile and no inline asm - the four dishonest routes to this band
+   are listed in the notes above and all remain rejected. */
+// FUN_0035AFF0 NONMATCHING
+#ifdef NON_MATCHING
+f32 func_0035aff0(u8 *arg0, s32 arg1)
+{
+    extern u8 *func_00457120(void);
+    extern f32 D_008872F8[];
+    extern f32 func_0035bad0(u8 *arg0);
+    extern void func_0034f1e0(void);
+    extern s32 (*D_00887300[])(s32, s32);
+    extern void (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
+    extern void (*D_00887314[])(s32 arg0, void *arg1, s32 arg2, void *arg3, s32 arg4);
+    extern void func_003f6440(s32 arg0, s32 arg1);
+    extern void func_00489f80(void);
+    extern void func_0048a000(void);
+    extern f32 func_0044b610(f32 arg0);
+    extern f32 func_0035bd20(Float2 first, Float2 second, Float2 origin);
+    extern f32 fGpffff81e0;
+    extern f32 fGpffff82fc;
+    typedef struct {
+        f32 x;
+        f32 y;
+        f32 z;
+        s32 _c;
+        f32 u;
+        f32 v;
+        f32 q;
+        s32 _1c;
+        s32 r;
+        s32 g;
+        s32 b;
+        f32 a;
+        s32 _pad[4];
+    } Qf;
+    Qf qs[4];
+    Float2 cur;
+    Float2 ptA;
+    Float2 ptB;
+    Qf verts[35];
+    s16 idx[64];
+    u8 *p;
+    f32 sx;
+    f32 sy;
+    f32 u0;
+    f32 v0;
+    f32 u1;
+    f32 v1;
+    f32 blend;
+    f32 z;
+    f32 q;
+    f32 ang1;
+    f32 ang2;
+    f32 s1;
+    f32 c1;
+    f32 s2;
+    f32 c2;
+    s32 mode;
+    s32 i;
+    s32 j;
+    s32 vtx;
+    s32 ii;
+    s32 jj;
+    u32 flatA;
+    u32 flatB;
+
+    p = *(u8 **)(arg0 + 0x38);
+    z = D_008872F8[0];
+    q = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    {
+        u8 *t = *(u8 **)(arg0 + 0x38);
+        s32 flag;
+        if ((*(s32 *)(t + 0x2C) == 0) || (*(s8 *)(t + 0x20) == 0)) {
+            flag = 0;
+        } else {
+            flag = 1;
+        }
+        if (flag == 0) {
+            return 0.0f;
+        }
+    }
+    blend = func_0035bad0(p);
+    sx = 50.0f * *(f32 *)(p + 8);
+    sy = 64.0f * *(f32 *)(p + 12);
+    if (*(s32 *)(p + 0x28) & 1) {
+        u0 = 0.78125f;
+        v0 = 1.0f;
+        u1 = -0.78125f;
+        v1 = -1.0f;
+    } else {
+        u0 = 0.0f;
+        v0 = 0.0f;
+        u1 = 0.78125f;
+        v1 = 1.0f;
+    }
+    qs[0].x = *(f32 *)p - sx;
+    qs[0].y = *(f32 *)(p + 4) - sy;
+    qs[0].z = z;
+    qs[0].r = 0x437F0000;
+    qs[0].g = 0x437F0000;
+    qs[0].b = 0x437F0000;
+    qs[0].a = (f32)(u32)arg1;
+    qs[0].u = u0;
+    qs[0].v = v0;
+    qs[0].q = q;
+    qs[1].x = *(f32 *)p + sx;
+    qs[1].y = *(f32 *)(p + 4) - sy;
+    qs[1].z = z;
+    qs[1].r = 0x437F0000;
+    qs[1].g = 0x437F0000;
+    qs[1].b = 0x437F0000;
+    qs[1].a = (f32)(u32)arg1;
+    qs[1].u = u0 + u1;
+    qs[1].v = v0;
+    qs[1].q = q;
+    qs[2].x = *(f32 *)p - sx;
+    qs[2].y = *(f32 *)(p + 4) + sy;
+    qs[2].z = z;
+    qs[2].r = 0x437F0000;
+    qs[2].g = 0x437F0000;
+    qs[2].b = 0x437F0000;
+    qs[2].a = (f32)(u32)arg1;
+    qs[2].u = u0;
+    qs[2].v = v0 + v1;
+    qs[2].q = q;
+    qs[3].x = *(f32 *)p + sx;
+    qs[3].y = *(f32 *)(p + 4) + sy;
+    qs[3].z = z;
+    qs[3].r = 0x437F0000;
+    qs[3].g = 0x437F0000;
+    qs[3].b = 0x437F0000;
+    qs[3].a = (f32)(u32)arg1;
+    qs[3].u = u0 + u1;
+    qs[3].v = v0 + v1;
+    qs[3].q = q;
+    {
+        s32 texId = **(s32 **)(p + 0x3C);
+        func_0034f1e0();
+        D_00887300[0](1, texId);
+        D_00887310[0](4, &qs[0], 4);
+    }
+    mode = *(s32 *)(p + 0x28);
+    if (((mode & 1) != 0) || ((mode & 2) != 0)) {
+        {
+            u32 cR;
+            u32 cW;
+            s32 k;
+            if ((mode & 1) != 0) {
+                flatA = 0x15;
+                flatB = 0;
+                cR = 0xF2;
+                cW = 0xFF;
+            } else {
+                flatA = 0;
+                flatB = 0xBA;
+                cR = 0xF2;
+                cW = 0xFF;
+            }
+            for (k = 0; k < 4; k++) {
+                *(f32 *)&qs[k].r = (f32)(u32)cR;
+                *(f32 *)&qs[k].g = (f32)(u32)flatA;
+                *(f32 *)&qs[k].b = (f32)(u32)flatB;
+                qs[k].a = (f32)(u32)cW;
+            }
+        }
+        func_00489f80();
+        func_003f6440(3, 0x31801);
+        D_00887310[0](4, &qs[0], 4);
+        func_0048a000();
+        D_00887300[0](1, 0);
+        func_003f6440(3, 0x31801);
+        func_003f6440(2, 0x58);
+        D_00887310[0](4, &qs[0], 4);
+        func_003f6440(3, 0x717FB);
+        func_003f6440(2, 0x44);
+    } else if (mode & 4) {
+        f32 f;
+        f = (f32)*(s16 *)(p + 0x24) / 100.0f;
+        ang1 = fGpffff81e0 * f;
+        ang2 = fGpffff82fc + ang1;
+        s1 = func_0044b7b0(ang1);
+        c1 = func_0044b610(ang1);
+        s2 = func_0044b7b0(ang2);
+        c2 = func_0044b610(ang2);
+        ptA.x = *(f32 *)p + 0.78125f * (64.0f * s1);
+        ptA.y = *(f32 *)(p + 4) - 64.0f * c1;
+        ptB.x = *(f32 *)p + 0.78125f * (64.0f * s2);
+        ptB.y = *(f32 *)(p + 4) - 64.0f * c2;
+        vtx = 0;
+        for (i = 0; i < 7; i++) {
+            f32 rowDY;
+            f32 rowV;
+            rowDY = 2.0f * (sy * ((f32)i / 6.0f - 0.5f));
+            rowV = v0 + v1 * ((f32)i / 6.0f);
+            for (j = 0; j < 5; j++) {
+                f32 grey;
+                u8 g8;
+                cur.x = *(f32 *)p + 2.0f * (sx * ((f32)j / 4.0f - 0.5f));
+                cur.y = *(f32 *)(p + 4) + rowDY;
+                verts[vtx].x = cur.x;
+                verts[vtx].y = cur.y;
+                verts[vtx].z = z;
+                verts[vtx].u = u0 + u1 * ((f32)j / 4.0f);
+                verts[vtx].v = rowV;
+                verts[vtx].q = q;
+                grey = 255.0f * func_0035bd20(ptA, ptB, cur);
+                g8 = (u8)grey;
+                *(f32 *)&verts[vtx].r = (f32)g8;
+                *(f32 *)&verts[vtx].g = (f32)g8;
+                *(f32 *)&verts[vtx].b = (f32)g8;
+                verts[vtx].a = (f32)g8;
+                vtx++;
+            }
+        }
+        if (vtx >= 0x24) {
+            func_0046d730(&D_0064CC98, 0x835);
+        }
+        for (ii = 0; ii < 6; ii++) {
+            for (jj = 0; jj < 5; jj++) {
+                idx[ii * 10 + jj * 2] = (s16)(jj + ii * 5);
+                idx[ii * 10 + jj * 2 + 1] = (s16)(jj + (ii + 1) * 5);
+            }
+        }
+        func_00489f80();
+        func_003f6440(3, 0x31801);
+        for (i = 0; i < 6; i++) {
+            D_00887314[0](4, &verts[0], 0x23, &idx[i * 10], 10);
+        }
+        func_0048a000();
+        D_00887300[0](1, 0);
+        func_003f6440(3, 0x31801);
+        func_003f6440(2, 0x58);
+        for (i = 0; i < 6; i++) {
+            D_00887314[0](4, &verts[0], 0x23, &idx[i * 10], 10);
+        }
+        func_003f6440(3, 0x717FB);
+        func_003f6440(2, 0x44);
+    }
+    return blend;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035aff0);
+#endif
 /* measured: object 320B/window 320B; normalized_diff 14; differing offsets
    0x22, 0x24-0x28, 0x2C-0x2F, 0xE9-0xEA, 0x115-0x116. Retail uses
    mula.s/madda.s/madd.s; the remaining candidate residual also includes the
