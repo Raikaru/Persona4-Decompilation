@@ -1458,6 +1458,7 @@ s32 func_00308e50(u8 *arg0) {
 /* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
 /* measured 00308f40: `schedule on` inside the guard is worth 15 words (356 -> 341). */
 /* measured 00308f40: `opt_propagation off` inside the guard is worth 10 words (341 -> 331). */
+/* measured 00308f40 narrow-locals (19 lines: s64 n3->s32 n3, delete dead s64 k, total (s8)*->*(u8*), 8x store dest *(s8*)->*(u8*) + value (s8)func->(u8)func + arg *(s8*)->*(u8*)): dsll32/dsra32 +15->-1, lbu/lb fixed to 0, words 331->328, fnalign edits 357->323 (retail 428/obj 379, window 1712B). Remaining: nop -53, andi +6, beql/bnel, daddiu, dsll/sll packing, move rotation. Store-side u8 is the missing piece: reads-only flips score 333, reads+total+k 333, +s32 n3 335; adding 8x store dest/value/arg u8 reaches 328. */
 // FUN_00308F40 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
@@ -1467,10 +1468,9 @@ void func_00308f40(void) {
     s64 n0;
     s64 n1;
     s64 n2;
-    s64 n3;
+    s32 n3;
     s64 i;
     s64 j;
-    s64 k;
     s64 total;
     s64 packed;
     u16 *p;
@@ -1506,7 +1506,7 @@ void func_00308f40(void) {
         j = 0;
         total = 0;
         while (j < 5) {
-            total += (s8)*((u8 *)func_001102e0() + j + 0x26);
+            total += *(u8 *)((u8 *)func_001102e0() + j + 0x26);
             j++;
         }
         if ((n3 >= n2) || (n3 == 6)) {
@@ -1527,52 +1527,52 @@ void func_00308f40(void) {
         switch ((s8)n2) {
         case 0:
             if (*(u8 *)((u8 *)func_001102e0() + 0x1C) != 0x63) {
-                *(s8 *)((u8 *)func_001102e0() + 0x26) =
-                    (s8)func_002b2cb0(*(s8 *)((u8 *)func_001102e0() + 0x26),
+                *(u8 *)((u8 *)func_001102e0() + 0x26) =
+                    (u8)func_002b2cb0(*(u8 *)((u8 *)func_001102e0() + 0x26),
                                       *(u8 *)(D_00749350 + n3), 0x63, 0, 1);
             }
             if (*(u8 *)((u8 *)func_001102e0() + 0x1D) != 0x63) {
-                *(s8 *)((u8 *)func_001102e0() + 0x27) =
-                    (s8)func_002b2cb0(*(s8 *)((u8 *)func_001102e0() + 0x27),
+                *(u8 *)((u8 *)func_001102e0() + 0x27) =
+                    (u8)func_002b2cb0(*(u8 *)((u8 *)func_001102e0() + 0x27),
                                       *(u8 *)(D_00749350 + n3), 0x63, 0, 1);
                 return;
             }
             break;
         case 1:
             if (*(u8 *)((u8 *)func_001102e0() + 0x1E) != 0x63) {
-                *(s8 *)((u8 *)func_001102e0() + 0x28) =
-                    (s8)func_002b2cb0(*(s8 *)((u8 *)func_001102e0() + 0x28),
+                *(u8 *)((u8 *)func_001102e0() + 0x28) =
+                    (u8)func_002b2cb0(*(u8 *)((u8 *)func_001102e0() + 0x28),
                                       *(u8 *)(D_00749350 + n3), 0x63, 0, 1);
             }
             if (*(u8 *)((u8 *)func_001102e0() + 0x1F) != 0x63) {
-                *(s8 *)((u8 *)func_001102e0() + 0x29) =
-                    (s8)func_002b2cb0(*(s8 *)((u8 *)func_001102e0() + 0x29),
+                *(u8 *)((u8 *)func_001102e0() + 0x29) =
+                    (u8)func_002b2cb0(*(u8 *)((u8 *)func_001102e0() + 0x29),
                                       *(u8 *)(D_00749350 + n3), 0x63, 0, 1);
                 return;
             }
             break;
         case 2:
             if (*(u8 *)((u8 *)func_001102e0() + 0x20) != 0x63) {
-                *(s8 *)((u8 *)func_001102e0() + 0x2A) =
-                    (s8)func_002b2cb0(*(s8 *)((u8 *)func_001102e0() + 0x2A),
+                *(u8 *)((u8 *)func_001102e0() + 0x2A) =
+                    (u8)func_002b2cb0(*(u8 *)((u8 *)func_001102e0() + 0x2A),
                                       *(u8 *)(D_00749350 + n3), 0x63, 0, 1);
             }
             if (*(u8 *)((u8 *)func_001102e0() + 0x1C) != 0x63) {
-                *(s8 *)((u8 *)func_001102e0() + 0x26) =
-                    (s8)func_002b2cb0(*(s8 *)((u8 *)func_001102e0() + 0x26),
+                *(u8 *)((u8 *)func_001102e0() + 0x26) =
+                    (u8)func_002b2cb0(*(u8 *)((u8 *)func_001102e0() + 0x26),
                                       *(u8 *)(D_00749350 + n3), 0x63, 0, 1);
                 return;
             }
             break;
         case 3:
             if (*(u8 *)((u8 *)func_001102e0() + 0x1D) != 0x63) {
-                *(s8 *)((u8 *)func_001102e0() + 0x27) =
-                    (s8)func_002b2cb0(*(s8 *)((u8 *)func_001102e0() + 0x27),
+                *(u8 *)((u8 *)func_001102e0() + 0x27) =
+                    (u8)func_002b2cb0(*(u8 *)((u8 *)func_001102e0() + 0x27),
                                       *(u8 *)(D_00749350 + n3), 0x63, 0, 1);
             }
             if (*(u8 *)((u8 *)func_001102e0() + 0x1E) != 0x63) {
-                *(s8 *)((u8 *)func_001102e0() + 0x28) =
-                    (s8)func_002b2cb0(*(s8 *)((u8 *)func_001102e0() + 0x28),
+                *(u8 *)((u8 *)func_001102e0() + 0x28) =
+                    (u8)func_002b2cb0(*(u8 *)((u8 *)func_001102e0() + 0x28),
                                       *(u8 *)(D_00749350 + n3), 0x63, 0, 1);
             }
             break;

@@ -496,6 +496,86 @@ retail and an $sN in the candidate.  It does not always apply - on
 the shared `j` ties at 27, so the cause there is something else.  One probe
 settles it either way.
 
+### 7x. An `sd` surplus means one of two things, and the first is free
+
+`sd` (store doubleword) is not a class the census docstring covered, and it
+turned out to be the cheapest signal on the board.
+
+**Cause one: a callee with no visible prototype.**  `func_00263cb0` showed
+`sd +42`.  None of them was a wide local: `func_0025f430` takes fourteen
+arguments, eight of which go on the stack, and this body had no declaration
+for it, so every stack argument was stored 64 bits wide by default promotion.
+Every *other* caller in the same file declares it at block scope.  Adding
+
+```c
+    extern s32 func_0025f430(s32, s32, s32, s32, u8 *, s32, s32, s32,
+                             f32, f32, f32, f32, f32, f32);
+```
+
+- the signature `src/Event/Fcl/shdSprite.c` actually defines - took the floor
+915 -> 908 and the census 62 -> 38, with `sd +42` collapsing to `sd +6`.
+That is a two-minute fix found by reading one opcode row.
+
+So: **when a body shows an `sd` surplus, list the functions it calls and
+check each has a visible prototype.** In a body whose declarations live at
+block scope, a missing one is invisible to the eye but obvious to the census.
+Take the signature from the definition, not from a sibling's guess - and note
+that adding *more* prototypes can fail to compile if the block-scope
+declarations elsewhere in the same file disagree with each other, which is
+its own finding worth recording.
+
+**Cause two: struct-copy width.**  `func_0037ef40` also shows `sd +18`, but
+its `sd`s are paired with `ld` in a sixteen-byte copy loop - the body copies
+an aggregate eight bytes at a time where retail uses a different width.  That
+is a real shape difference and needs the aggregate type fixed, not a
+declaration.
+
+Tell them apart by looking at one `sd` site: stack-relative stores clustered
+just before a `jal` are arguments; `ld`/`sd` pairs walking a pointer are a
+copy loop.
+
+`tools/missing_prototypes.py` finds cause one everywhere without compiling:
+it lists what each guarded body calls, subtracts what is declared in the body
+and at file scope, and prints the leftovers with the real signature from the
+definition.  **It ranks by the callee's argument count, because that is what
+decides whether the defect costs anything** - with four or fewer arguments
+they travel in registers and the missing declaration is free.  Measured both
+ways: `func_0025f430` at fourteen arguments was worth seven words, while
+`func_0010fbd0` at one argument was a dead tie on `func_0019ae20`.
+
+Across the tree, 70 guarded bodies call something they do not declare, but
+only **17** call one with stack arguments.  The worst is
+`src/Event/Fcl/y_fclShopDraw.c`, where all four bodies call an eleven-argument
+`func_00275680` with no prototype in scope.
+
+### 7w. One agent per file, always
+
+Two workers were given different functions in the same owner file and told to
+coordinate through `hub`.  They did: they agreed a write order, announced
+before and after, and both reported success.  One of the two edits is simply
+not in the tree - `func_0030b7b0`'s census is fixed, `func_00308f40`'s score
+and census are byte-for-byte the before-state, and the worker's reported
+331 -> 328 is gone.  Whoever wrote second held a copy of the file that
+predated the first edit.
+
+Coordination protocols do not survive whole-file writes.  The agreement was
+followed and the work was still lost, which means the failure is structural,
+not a discipline problem, and no amount of messaging fixes it.
+
+**So: never dispatch two agents against the same `.c` file in one batch.**
+That is a dispatch-time decision and it costs nothing - there are hundreds of
+files.  If two functions in one file both need work, do them in consecutive
+batches, or hand both to the same agent.
+
+Recovering the lost change is also harder than it looks.  A summary of what
+was done is not enough: reconstructing "s32 n3, u8 loads and stores, drop
+dead k" from the report reproduced none of the claimed score.  Measured from
+the surviving 331 baseline, `s32 n3` alone costs 335, narrowing all four
+nibble locals costs 335, flipping the nine byte reads costs 333, the same
+plus a `(u8)` accumulation 333, plus the dead-local removal 333, and `s32 n3`
+on top of the byte flips 335.  None of them is 328.  **The body is the
+artifact; the description is not.**
+
 ### 7u. Do not pragma your way into the count gate
 
 The 3% gate exists to prove the *shape* of the body is right.  It can be

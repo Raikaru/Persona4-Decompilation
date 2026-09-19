@@ -823,11 +823,22 @@ INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00263730);
 /* shortfall: VU lq 0xC0->0xD0/0xA0->0xB0 + float adda/madd chains + scheduling across 8 switch arms; excluded folded switch (jump table intact), omitted-call as sole cause, unsigned/narrow bloat (signed, per-field). Production stays ASM. */
 /* round2 2026-09-18 (scratch /var/tmp/cold263cb0b/NOTE_263cb0_round2.md): pragma round 13 variants best opt_common_subs off 909 (-5; 831 instrs/733 edits, size/edit cost, not bankable), rest tie/regress (schedule 920, prop 929, dead 928, peephole 912, L0 951/L1 920/L3-4 917); subscript N/A (no P[i]; stride i*0x5E hoisted both sides per retail 0x1640F4-104, inline probe ties 914); 7r: 2 accumulator sites both sides (mul.s 4=4, ?? 9v8, prime colour only; mtc1 95->40 is missing calls + lwc1/sd const builds, not spelling). BLOCKER: candidate lacks entire case 7 (Ghidra/IDA agree; retail .L00264238-4474; ~14-15 JAL of the jal 61->46 delta + ~200 of 213 missing instrs); prior shortfall line incomplete on this point (JAL recount 46, not ~39). Production stays ASM. */
 /* banked 2026-09-18 B2: emitted 1028 vs retail 1021 (+0.7%, gate 991-1052), 915wd reloc-masked, fnalign 1091 edits +2 reloc-only, jal 63 vs 61. Restored missing case 7 (retail 0x164850-0x164B5C; loop skips 1 and 4, const-0xFF color, quotient staging in temp_f21 across calls); shared else48 via default-label goto (retail .L00264C10 shared by case 5 and 7; also fixes case-5-else arg4 0 to 1); call-idiom fix fparg0 0.0f and arg5 0 at 8 case-8 sites per retail f12 0 and the in-file 00263730 idiom; temp_20 s64 to s32 per retail addu. Baseline was archive262 at 914wd 695ed 808in. Recipe log: /var/tmp/cold263cb0b/NOTE_263cb0_round2.md. */
+/* 2026-09-18 opcode census: 915 -> 908.  The census showed `sd +42`, which
+   is not a wide local - it is fourteen stack arguments stored 64 bits wide
+   because `func_0025f430` had no visible prototype here.  Every other caller
+   in this file declares it at block scope; this body did not, so the
+   arguments went through the default promotion.  Declaring
+   `extern s32 func_0025f430(s32, s32, s32, s32, u8 *, s32, s32, s32, f32,
+   f32, f32, f32, f32, f32)` - the signature `src/Event/Fcl/shdSprite.c`
+   defines - is worth seven words.  Adding prototypes for `func_00263730`
+   and `func_0025f2c0` alongside does not compile; their block-scope
+   declarations elsewhere in this file disagree, which is its own finding. */
 // FUN_00263CB0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00263cb0(s32 arg0, u8 *arg1)
 {
     typedef signed __int128 s128;
+    extern s32 func_0025f430(s32, s32, s32, s32, u8 *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
     f32 spEC;
     f32 spE8;
     f32 spE4;
