@@ -461,6 +461,8 @@ void func_0037d840(u8 *arg0) {
 }
 
 /* measured: cold reconstruction from m2c (509-line func, 22-case jtbl_00752AE0 switch 0-21 with fall-through 4/6/5, 7/8/9/10/11, 14/15/16/17/18/19, case-6 f20 inline as (1.0f-((0.5f*(f32)(cnt-3))/5.0f))*(f32)i with (f32)(u32)((s32)x&0xFFFF) and random (f32)(u32)(rnd&0xFFF) with (f32)n*(rf/4096.0f) per shuffle idiom, D_008C024E[0] absolute per 7i and 36dc60 float per $f12) + romwright (635 lines, arity s32(u8*), frame 144B) + Ghidra (464 lines) + IDA (397 lines) into file idiom. probe 1084 words (baseline m2c de-noised 1098, loopinv 1081 best single, arr+loopinv 1084 honest inside gate; common 1096, schedule 1095, dead 1082, others tie/worse; pair loopinv+dead 1084 worse). fnalign retail 1225/object 1190 (-35, -2.86% inside 1188-1262 3% gate; assignment 1228 vs 1190 -38). 574 edits +10 reloc-only. subscript FB0 tie 1084, colour swap tie, tmp-first tie; address hoist matches retail ($17 base, $19 n); 7n N/A (separate counters var_16*), 7r N/A (no single-product+add in retail or candidate, all mul/div, no adda/madd/mula). Walls: saved-reg rotation, FPR colouring, frame -0xD0 vs -0x120 (32B short), stack slots shifted, plus recorded b210 floors (or-fold or $v0 vs $v1, cvt-scratch $f0 vs $f1, guard bc1f vs bc1t, andi sunk) same as 381a70. Banked guarded floor; production stays ASM. */
+/* measured 2026-09-19 S4-C temp_17 reuse (4 sites: 595 arg0+0x1F1D6->temp_17+6, 640 arg0+0x1F2F4->temp_17+0x124, 741 arg0+0x1F1D0&0xFFFB->temp_17, 893 arg0+0x1F1D0|8->temp_17, same temp+offset spelling as S5-B): lui +8->0 (116->108, delta 0), fnalign 1225/1174 (-51, -4.2% OUTSIDE 1188-1262 gate, moved away from 1190 as hinted), words 1084->1089 (+5), edits 574+10->571+10 (-3). Installed (zero lui, outside gate, transferable). Missing blocks (hole masking): retail 350:369 (19 instr c.ole/bc1t/cvt/mfc1/andi/or/lui0x8000/bltz/mtc1 for (f32)(u32)&0xFFFF) + 386:405 (19 instr same) + 96:99/282:284 etc (17 instr) = ~55 instrs to bring 1174->~1229 inside gate; need (f32)(u32) unsigned handling per shuffle idiom. */
+/* 2026-09-19 revert per Main: body reverted to 1190 IN (lui +8) since 1174 OUT is incomparable per 7y; S4-C zero-lui scratch (1174 OUT, 1089 words, 571+10 edits, /tmp/scratch_shuf/shuf4_minimal_zero.c + shuf4_S4C.diff) + missing 55-instr retail ranges 350:369,386:405,96:99/282:284 archived, not banked. */
 // FUN_0037DA60 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
@@ -592,7 +594,7 @@ loop_13:
             if (var_16 < *(s32 *)(arg0 + 0x1F304)) {
                 temp_6 = var_16 & 0xFFFF;
                 func_00375b40(arg0, var_16, temp_6, (temp_6 + 0xA) & 0xFFFF);
-                *(u16 *)(temp_17 + 0x6) = (u16) (*(u16 *)(temp_17 + 0x6) ^ ((1 << var_16) & 0xFFFF));
+                *(u16 *)(arg0 + 0x1F1D6) = (u16) (*(u16 *)(arg0 + 0x1F1D6) ^ ((1 << var_16) & 0xFFFF));
                 var_16 += 1;
                 goto loop_13;
             }
@@ -637,7 +639,7 @@ loop_31:
                     goto loop_31;
                 }
                 func_0038d2c0(*(s32 *)(arg0 + 0x1F298));
-                *(u16 *)(temp_17 + 0x124) = (u16) (*(u16 *)(temp_17 + 0x124) | 1);
+                *(u16 *)(arg0 + 0x1F2F4) = (u16) (*(u16 *)(arg0 + 0x1F2F4) | 1);
                 *(u16 *)(arg0 + 0x1F2F0) = 0U;
                 *(u32 *)(arg0 + 0x1F2F8) = 5U;
                 var_16_4 = 0;
@@ -738,7 +740,7 @@ loop_82:
                         *(u16 *)(temp_16_3 + 6) = (u16) (*(u16 *)(temp_16_3 + 6) & (~(1 << temp_21) & 0xFFFF));
                         if (*(u16 *)(arg0 + 0x1F1D0) & 4) {
                             *(s32 *)(temp_16_3 + 0x34) = -1;
-                            *(u16 *)(temp_17) = (u16) (*(u16 *)(temp_17) & 0xFFFB);
+                            *(u16 *)(arg0 + 0x1F1D0) = (u16) (*(u16 *)(arg0 + 0x1F1D0) & 0xFFFB);
                         } else {
                             *(s32 *)(temp_16_3 + 0x30) = -1;
                             *(u16 *)(arg0 + 0x1F1D0) = (u16) (*(u16 *)(arg0 + 0x1F1D0) & 0xFFFD);
@@ -890,7 +892,7 @@ loop_124:
                 temp_4_3 = (u8 *)((*(s32 *)(temp_17 + 0x34) * 0xE8) + arg0);
                 *(u16 *)(temp_4_3 + 0x1D6A0) = (u16) (*(u16 *)(temp_4_3 + 0x1D6A0) & 0xFFFD);
                 func_00378ec0(arg0, *(s32 *)(temp_17 + 0x30));
-                *(u16 *)(temp_17) = (u16) (*(u16 *)(temp_17) | 8);
+                *(u16 *)(arg0 + 0x1F1D0) = (u16) (*(u16 *)(arg0 + 0x1F1D0) | 8);
                 func_0045af60(1, 0, 5, 1);
                 *(u32 *)(arg0 + 0x1F2F8) = 0x11U;
             case 17:                                /* switch 1 */
