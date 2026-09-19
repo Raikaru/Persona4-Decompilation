@@ -592,7 +592,7 @@ loop_13:
             if (var_16 < *(s32 *)(arg0 + 0x1F304)) {
                 temp_6 = var_16 & 0xFFFF;
                 func_00375b40(arg0, var_16, temp_6, (temp_6 + 0xA) & 0xFFFF);
-                *(u16 *)(arg0 + 0x1F1D6) = (u16) (*(u16 *)(arg0 + 0x1F1D6) ^ ((1 << var_16) & 0xFFFF));
+                *(u16 *)(temp_17 + 0x6) = (u16) (*(u16 *)(temp_17 + 0x6) ^ ((1 << var_16) & 0xFFFF));
                 var_16 += 1;
                 goto loop_13;
             }
@@ -637,7 +637,7 @@ loop_31:
                     goto loop_31;
                 }
                 func_0038d2c0(*(s32 *)(arg0 + 0x1F298));
-                *(u16 *)(arg0 + 0x1F2F4) = (u16) (*(u16 *)(arg0 + 0x1F2F4) | 1);
+                *(u16 *)(temp_17 + 0x124) = (u16) (*(u16 *)(temp_17 + 0x124) | 1);
                 *(u16 *)(arg0 + 0x1F2F0) = 0U;
                 *(u32 *)(arg0 + 0x1F2F8) = 5U;
                 var_16_4 = 0;
@@ -738,7 +738,7 @@ loop_82:
                         *(u16 *)(temp_16_3 + 6) = (u16) (*(u16 *)(temp_16_3 + 6) & (~(1 << temp_21) & 0xFFFF));
                         if (*(u16 *)(arg0 + 0x1F1D0) & 4) {
                             *(s32 *)(temp_16_3 + 0x34) = -1;
-                            *(u16 *)(arg0 + 0x1F1D0) = (u16) (*(u16 *)(arg0 + 0x1F1D0) & 0xFFFB);
+                            *(u16 *)(temp_17) = (u16) (*(u16 *)(temp_17) & 0xFFFB);
                         } else {
                             *(s32 *)(temp_16_3 + 0x30) = -1;
                             *(u16 *)(arg0 + 0x1F1D0) = (u16) (*(u16 *)(arg0 + 0x1F1D0) & 0xFFFD);
@@ -890,7 +890,7 @@ loop_124:
                 temp_4_3 = (u8 *)((*(s32 *)(temp_17 + 0x34) * 0xE8) + arg0);
                 *(u16 *)(temp_4_3 + 0x1D6A0) = (u16) (*(u16 *)(temp_4_3 + 0x1D6A0) & 0xFFFD);
                 func_00378ec0(arg0, *(s32 *)(temp_17 + 0x30));
-                *(u16 *)(arg0 + 0x1F1D0) = (u16) (*(u16 *)(arg0 + 0x1F1D0) | 8);
+                *(u16 *)(temp_17) = (u16) (*(u16 *)(temp_17) | 8);
                 func_0045af60(1, 0, 5, 1);
                 *(u32 *)(arg0 + 0x1F2F8) = 0x11U;
             case 17:                                /* switch 1 */

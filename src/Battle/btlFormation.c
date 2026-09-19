@@ -203,71 +203,7 @@ u32 func_001d1f30(u32 *work) {
     base = *(u8 **)work;
     h6E = *(s16 *)(base + 0x6E);
     kind = *(u8 *)(*(u32 *)(base + 0x30) + 0xA2);
-    if (kind == 1) {
-        if (*(u16 *)(base + 0x6A) == 1) {
-            return 1;
-        }
-        if ((*(u32 *)(D_0076449C + 0xC) & 0x200000) != 0) {
-            return 1;
-        }
-        if ((func_001eb440(base + 0x38) & 0xFFFF) != 1) {
-            return 1;
-        }
-        found = 0;
-        unitA = *(u8 **)(base + 0x30);
-        func_00195850(unitA, centerA);
-        radiusA = *(f32 *)(unitA + 0x90) * *(f32 *)(unitA + 0x2C);
-        if (work[2] == 1) {
-            func_00196040(1, 1, tmpF0, 0, 0, 1);
-            bestLen = 0.0f;
-            for (i = 0; i < *(u16 *)(base + 0x6A); i++) {
-                entry = *(u8 **)(base + i * 4 + 0x38);
-                if ((*(u16 *)(entry + 0x1A) & 1) != 0) {
-                    func_001958f0(*(u8 **)(entry + 0x30), tmpC0);
-                    diff[0] = tmpF0[0] - tmpC0[0];
-                    diff[1] = tmpF0[1] - tmpC0[1];
-                    diff[2] = tmpF0[2] - tmpC0[2];
-                    extent = func_003e4180(diff);
-                    if (bestLen < extent) {
-                        best[0] = tmpC0[0];
-                        best[1] = tmpC0[1];
-                        best[2] = tmpC0[2];
-                        bestLen = extent;
-                    }
-                }
-            }
-            func_001ec1c0(quat, centerA, best);
-            func_00194f10(unitA, quat);
-            func_00196ba0(unitA);
-            func_0019dea0(unitA);
-        }
-        for (node = *(u8 **)(D_0076449C + 0x17C); node != 0; node = *(u8 **)(node + 0xA68)) {
-            if ((*(u32 *)(node + 0x9C) & 8) != 0) {
-                func_00195aa0(node, unitA, tmpF0);
-                diff[0] = tmpF0[0] - centerA[0];
-                diff[1] = tmpF0[1] - centerA[1];
-                diff[2] = tmpF0[2] - centerA[2];
-                diff[1] = 0.0f;
-                len = func_003e40b0(diff, diff);
-                scale = fGpffff809c * (len - radiusA) + radiusA + 0.0f;
-                if ((scale < len) && (scale > 300.0f)) {
-                    diff[0] = diff[0] * scale;
-                    diff[1] = diff[1] * scale;
-                    diff[2] = diff[2] * scale;
-                    dest[0] = centerA[0] + diff[0];
-                    dest[1] = centerA[1] + diff[1];
-                    dest[2] = centerA[2] + diff[2];
-                    dest[1] = 0.0f;
-                    func_00194ee0(node, dest);
-                    found = 1;
-                }
-            }
-        }
-        if (found != 0) {
-            *(u32 *)(D_0076449C + 0xC) = *(u32 *)(D_0076449C + 0xC) | 0x400000;
-            *(u16 *)(D_0076449C + 0x18) = *(u16 *)(D_0076449C + 0x18) | 0x1E;
-        }
-    } else if (kind == 0) {
+    if (kind == 0) {
         func_001f11e0((s64)h6E);
         if (func_001f0ff0((u32)base) == 1) {
             unitA = *(u8 **)(base + 0x38);
@@ -488,6 +424,70 @@ u32 func_001d1f30(u32 *work) {
                 *(u32 *)(D_0076449C + 0xC) = *(u32 *)(D_0076449C + 0xC) | 0x400000;
                 *(u16 *)(D_0076449C + 0x18) = *(u16 *)(D_0076449C + 0x18) | 6;
             }
+        }
+    } else if (kind == 1) {
+        if (*(u16 *)(base + 0x6A) == 1) {
+            return 1;
+        }
+        if ((*(u32 *)(D_0076449C + 0xC) & 0x200000) != 0) {
+            return 1;
+        }
+        if ((func_001eb440(base + 0x38) & 0xFFFF) != 1) {
+            return 1;
+        }
+        found = 0;
+        unitA = *(u8 **)(base + 0x30);
+        func_00195850(unitA, centerA);
+        radiusA = *(f32 *)(unitA + 0x90) * *(f32 *)(unitA + 0x2C);
+        if (work[2] == 1) {
+            func_00196040(1, 1, tmpF0, 0, 0, 1);
+            bestLen = 0.0f;
+            for (i = 0; i < *(u16 *)(base + 0x6A); i++) {
+                entry = *(u8 **)(base + i * 4 + 0x38);
+                if ((*(u16 *)(entry + 0x1A) & 1) != 0) {
+                    func_001958f0(*(u8 **)(entry + 0x30), tmpC0);
+                    diff[0] = tmpF0[0] - tmpC0[0];
+                    diff[1] = tmpF0[1] - tmpC0[1];
+                    diff[2] = tmpF0[2] - tmpC0[2];
+                    extent = func_003e4180(diff);
+                    if (bestLen < extent) {
+                        best[0] = tmpC0[0];
+                        best[1] = tmpC0[1];
+                        best[2] = tmpC0[2];
+                        bestLen = extent;
+                    }
+                }
+            }
+            func_001ec1c0(quat, centerA, best);
+            func_00194f10(unitA, quat);
+            func_00196ba0(unitA);
+            func_0019dea0(unitA);
+        }
+        for (node = *(u8 **)(D_0076449C + 0x17C); node != 0; node = *(u8 **)(node + 0xA68)) {
+            if ((*(u32 *)(node + 0x9C) & 8) != 0) {
+                func_00195aa0(node, unitA, tmpF0);
+                diff[0] = tmpF0[0] - centerA[0];
+                diff[1] = tmpF0[1] - centerA[1];
+                diff[2] = tmpF0[2] - centerA[2];
+                diff[1] = 0.0f;
+                len = func_003e40b0(diff, diff);
+                scale = fGpffff809c * (len - radiusA) + radiusA + 0.0f;
+                if ((scale < len) && (scale > 300.0f)) {
+                    diff[0] = diff[0] * scale;
+                    diff[1] = diff[1] * scale;
+                    diff[2] = diff[2] * scale;
+                    dest[0] = centerA[0] + diff[0];
+                    dest[1] = centerA[1] + diff[1];
+                    dest[2] = centerA[2] + diff[2];
+                    dest[1] = 0.0f;
+                    func_00194ee0(node, dest);
+                    found = 1;
+                }
+            }
+        }
+        if (found != 0) {
+            *(u32 *)(D_0076449C + 0xC) = *(u32 *)(D_0076449C + 0xC) | 0x400000;
+            *(u16 *)(D_0076449C + 0x18) = *(u16 *)(D_0076449C + 0x18) | 0x1E;
         }
     }
     return 1;

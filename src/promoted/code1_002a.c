@@ -172,6 +172,7 @@ void func_002a02f0(u8 *arg0, s32 arg1) {
    Reversal never improves here; residual is pervasive (float-conv shapes, slti-at vs slti-v0, s2/s4 + FPR
    colour, gp-lui vs gp-addiu for undefined b528 buffer) not a single exchange. Next: argument-setup order
    and conversion-register levers top-down per 7a-bis/7a-quinquies, not declaration permutation. */
+/* 2026-09-19: frame -0xa0 exact (addiu sp,sp,-0xa0 both sides). Lui audit retail 90 vs object 94 (+4 surplus): retail {0xc140:1, 0x75:1, 0x88:6 + floats} vs object {0x4140:1, 0:11 + same floats}; surplus is symbols, not floats	D_007485D0 base (retail lui 0x75+addiu -0x7a30 at 0x2A0FA8 vs object lui 0 at obj@757) + 4x iGpffffb528 buffer (retail addiu gp,-0x4AD8 1 instr at 0x2A117C/0x2A11AC/0x2A123C/0x2A126C vs object lui 0+addiu 0 2 instrs). Float 0xc140 (retail -12.0f add at 0x2A0F54) vs 0x4140 (object +12.0f sub) is colour, not surplus. Counts fnalign 966 vs 971 (-5, -0.5%), words 876, edits 278 +40 reloc. Deletes 19 tot 34 (largest 22 vs 4 at 766:788 tail D_007485D0/div + 17 vs 3 at 762:765, rest 1-3 mov.s/lwc1/nop FPR spills at 0x2A03EC,0x2A0524,0x2A0538,0x2A0570,0x2A061C,0x2A068C,0x2A06C8,0x2A0704,0x2A0730,0x2A0920,0x2A0AFC,0x2A0B38,0x2A0BD4,0x2A0C80,0x2A0CEC,0x2A0D28,0x2A0DC4,0x2A0E74,0x2A1110); inserts 17 tot 26. No single missing arm; residual pervasive per prior note. No code change this round (before=after); fixing buffer gp-lui would save 4 but push count 966->962 (-9), so left. */
 // FUN_002A03B0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002a03b0(u8 *arg0) {
