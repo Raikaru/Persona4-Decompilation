@@ -542,6 +542,34 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7ao. How `func_001b6ab0` went from 328 differing words to a MATCH
+
+The near band is allocator floors (7an), but a floor *outside* that band can
+still fall in four measured steps.  `func_001b6ab0` was 350 instructions
+against retail's 348 with **328 differing words** and a frame 64 bytes short.
+It is now byte-exact.  The sequence, each step measured before the next:
+
+1. **Hoist the table base.**  Retail materialises `D_00887300` once into
+   `$s0`; the body emitted `lui $v0` at six sites.  Declaring `u8 **tbl =
+   D_00887300` and indexing it took **328 -> 25 words** and the count to an
+   exact 347/347.  This was the whole difference, not a contributing part.
+2. **Initialise at first use, not in the prologue.**  Moving the `tbl`
+   assignment down to just before its first reference took 25 -> 16 and turned
+   the `lui $s0` pair from a real edit into a relocation-only row.
+3. **Give the buffer retail's layout.**  Four 0x40 blocks with the integers at
+   0x60/0xA0/0xE0 instead of a compressed 0x30/0x50/0x68: 16 -> 9, and the
+   frame became exactly retail's 0x160.
+4. **Name the symbol directly at the last site.**  Replacing `tbl[4]` with
+   `D_00887300[4]` where retail addresses the global rather than the hoisted
+   base: 9 -> **0**, 348/348, guard dropped, `verify.py` MATCH.
+
+Three lessons worth carrying.  A repeated `lui` of the same symbol is never
+noise - retail almost always materialises a base once, and hoisting it is
+worth hundreds of words on a body that addresses one table repeatedly.  The
+**position** of an initialisation matters as much as its existence.  And a
+hoisted base does not mean every site should use it: the last step went the
+other way, and that asymmetry was worth the final nine words.
+
 ### 7an. State of the near band after a full close-in campaign
 
 Twenty-two first-party floors between 2 and 60 fnalign edits were examined
