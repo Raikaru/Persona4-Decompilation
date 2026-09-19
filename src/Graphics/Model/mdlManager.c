@@ -2060,6 +2060,15 @@ int func_00475b90(void* buf, void* v, u32 idx, void* obj)
    it was hiding a genuine instruction surplus.  It is removed; the surplus is now visible and
    has to be written out of the body.  Any differing-word score measured with the pragma in
    place is not comparable to one measured inside the gate (handoff 7y, 7au). */
+typedef struct {
+    u8 _00[0xD3];
+    u8 d3;
+    u8 _D4[0x0C];
+    void* e0;
+    u8 _E4[0x17C];
+    u8 flags;
+} Mdl475Param;
+
 // FUN_00475CD0 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: schedule on 1014->915 (-99, 4524->4028B, 28B over window; frame still 0x1D0 vs 0x1A0). */
@@ -2160,12 +2169,12 @@ void func_00475cd0(void* param_1)
     color[0] = 0;
     color[1] = 0;
     color[2] = 0;
-    flags = *(u8*)((u8*)param_1 + 0x260);
+    flags = ((Mdl475Param*)param_1)->flags;
     {
         f32 alpha;
         s32 alphaValue;
         alpha = 255.0f * ((f32)(*(u8*)((u8*)param_1 + 0x280)
-                                * *(u8*)((u8*)param_1 + 0xD3)) / 65025.0f);
+                                * ((Mdl475Param*)param_1)->d3) / 65025.0f);
         if (alpha >= 2147483600.0f) {
             alphaValue = (s32)(alpha - 2147483600.0f);
         } else {
@@ -2301,12 +2310,12 @@ void func_00475cd0(void* param_1)
             func_004746b0((u8*)param_1 + 0x234, (u8*)param_1 + 0xEC);
         }
         func_00477260((u64)(u32)*(void**)((u8*)param_1 + 0xDC), (u32*)color,
-                               (u16)((*(u8*)((u8*)param_1 + 0x260) & 8) != 0));
-        effect = *(u8**)((u8*)param_1 + 0xE0);
+                               (u16)((((Mdl475Param*)param_1)->flags & 8) != 0));
+        effect = (u8*)((Mdl475Param*)param_1)->e0;
         if (effect == 0) {
             func_003f6440(3, 0x7C01B);
         } else if ((*(s32*)(effect + 0x10) != 0 || *(s32*)(effect + 0x1C) != 0)
-                   && (*(u8*)((u8*)param_1 + 0x260) & 0x80) == 0) {
+                   && ((((Mdl475Param*)param_1)->flags & 0x80) == 0)) {
             func_003f6440(3, 0x7F06B);
         } else {
             func_003f6440(3, 0x7D7FB);
@@ -2466,12 +2475,12 @@ void func_00475cd0(void* param_1)
         func_004746b0((u8*)param_1 + 0x234, (u8*)param_1 + 0xEC);
     }
     func_00477260((u64)(u32)*(void**)((u8*)param_1 + 0xDC), (u32*)color,
-                        (u16)((*(u8*)((u8*)param_1 + 0x260) & 8) != 0));
-    effect = *(u8**)((u8*)param_1 + 0xE0);
+                        (u16)((((Mdl475Param*)param_1)->flags & 8) != 0));
+    effect = (u8*)((Mdl475Param*)param_1)->e0;
     if (effect == 0) {
         func_003f6440(3, 0x7C01B);
     } else if ((*(s32*)(effect + 0x10) != 0 || *(s32*)(effect + 0x1C) != 0)
-               && (*(u8*)((u8*)param_1 + 0x260) & 0x80) == 0) {
+               && ((((Mdl475Param*)param_1)->flags & 0x80) == 0)) {
         func_003f6440(3, 0x7F06B);
     } else {
         func_003f6440(3, 0x7D7FB);
@@ -2519,7 +2528,7 @@ void func_00475cd0(void* param_1)
             func_0047ae90(param_1, j) != 0) {
             model = *(u8**)(slot + 0x290);
             if ((*(u32*)(model + 0xD8) & 2) == 0 &&
-                *(u8*)((u8*)param_1 + 0xD3) != 0) {
+                ((Mdl475Param*)param_1)->d3 != 0) {
                 if (*(s32*)(slot + 0x294) == -1) {
                     copyCount = 8;
                     copySource = (u32*)param_1;
@@ -2567,7 +2576,7 @@ void func_00475cd0(void* param_1)
                 }
                 func_00477260((u64)(u32)*(void**)(model + 0xDC), (u32*)color,
                                     (u16)((*(u8*)(model + 0x260) & 8) != 0));
-                effect = *(u8**)((u8*)param_1 + 0xE0);
+                effect = (u8*)((Mdl475Param*)param_1)->e0;
                 if (effect == 0) {
                     func_003f6440(3, 0x7C01B);
                 } else if (*(s32*)(effect + 0x10) != 0 ||
