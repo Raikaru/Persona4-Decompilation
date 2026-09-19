@@ -3918,7 +3918,7 @@ void func_00479080(void* param_1, void* param_2)
    and reuse it, so the re-prime inside this function is register pressure,
    not expression shape — fewer simultaneously live values across the four
    channels, a tighter scope around each, or letting one value die before the
-   next is born should keep $f3 live.
+   next is born should keep $f3 live. */
 // FUN_00479100 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -4106,6 +4106,7 @@ layers:
     }
 }
 
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479100);
 #endif

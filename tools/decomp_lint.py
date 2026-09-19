@@ -104,6 +104,8 @@ RULES = {
     "M003": ("error", "guarded body under an untagged marker; invisible to every floor audit"),
     # ---- P: pragma balance -------------------------------------------------
     "P001": ("error", "pragma push/pop stack underflow or unclosed push"),
+    # ---- C: the file must still compile ------------------------------------
+    "C001": ("error", "unterminated block comment; swallows the rest of the file"),
 }
 
 SEVERITY_ORDER = {"info": 0, "warn": 1, "error": 2}
@@ -729,6 +731,46 @@ def check_pragma_balance(src):
         yield Finding("P001", src.rel(), line, "#pragma push has no closing pop")
 
 
+def check_comment_terminated(src):
+    """C001: a block comment that is never closed.
+
+    This costs more than any other single typo in this tree.  A `/* measured
+    ... */` note whose closing delimiter is missing swallows the rest of the
+    file - marker, `#ifdef`, body and all - so MWCC reports "#else: preceding
+    #if is missing" and the whole translation unit fails to compile.  Nothing
+    else notices: `tools/build.py` still produces byte-identical images
+    because an ineligible unit falls back to the retail bytes it was meant to
+    replace, and the link-floor check only covers units that were already
+    linked.  One missing `*/` in `mdlManager.c` silently turned 120 MATCHed
+    functions into COMPILE_ERROR and the gate stayed green through two full
+    runs.
+    """
+    # C block comments do not nest: once inside one, a further `/*` is
+    # ordinary text and the first `*/` ends it.  Tracking a stack instead of a
+    # flag reports every `/*` in a multi-paragraph note as unclosed.
+    text = "\n".join(src.lines)
+    index, line, inside, opened_at = 0, 1, False, 0
+    while index < len(text) - 1:
+        if text[index] == "\n":
+            line += 1
+        if not inside and text[index:index + 2] == "/*":
+            inside, opened_at = True, line
+            index += 2
+            continue
+        if inside and text[index:index + 2] == "*/":
+            inside = False
+            index += 2
+            continue
+        index += 1
+    if inside:
+        yield Finding("C001", src.rel(), opened_at,
+                      "block comment is never closed; everything after it, "
+                      "including the marker and the guard, is swallowed and "
+                      "the translation unit will not compile",
+                      src.lines[opened_at - 1].strip()
+                      if opened_at <= len(src.lines) else "")
+
+
 CHECKS = (
     check_volatile,
     check_banned_pragma,
@@ -740,6 +782,7 @@ CHECKS = (
     check_nonmatching_fallback,
     check_guard_tagged,
     check_pragma_balance,
+    check_comment_terminated,
 )
 
 
