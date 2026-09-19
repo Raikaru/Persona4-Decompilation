@@ -356,7 +356,7 @@ void func_0035d000(u8* arg0, u8* arg1) {
     func_0035d0a0(arg1);
 }
 
-/* measured: GUARDED_SCORE 496 via measure_guarded (probe_variants base 533 -> v2c 496), obj 3092B window 3104B (99.6% within 3%), fnalign 773/773 instrs 370 edits +1 reloc-only; pragmas singly: loopinv 533 tie, nounroll 533 tie, nosched 533 tie, nocommon 736 (+203); subscript off-form tie; floats-first tie; x/y elimination -37. Residual: frame 0xE0 vs 0xD0, arg0 $s0 vs $s4, COP1 adda/madd scheduling, D_ word-copy (lwc1 vs lbu/sb), saved-reg colouring ($s0/$s5 vs $s4/$s0, $s3/$s4 vs $s3/$s4 class, time-boxed per 7m). No retail jump table (loops only); text/sprite helpers grepped from frFontEx.c (00274ed0/00275020) and cmpConfig idiom (0034c270/0034f2e0/0034f9d0/0035dfb0); decompilers m2c.c (303 lines) + rom.c (207 lines) + --types in /var/tmp/cold35d0a0/. Verify 17 MATCH 1 ASM (guarded self), lint 0 errors. */
+/* measured: GUARDED_SCORE 496 via measure_guarded (probe_variants base 533 -> v2c 496), obj 3092B window 3104B (99.6% within 3%), fnalign 773/773 instrs 370 edits +1 reloc-only; pragmas singly: loopinv 533 tie, nounroll 533 tie, nosched 533 tie, nocommon 736 (+203); subscript off-form tie; floats-first tie; x/y elimination -37. Residual: frame 0xE0 vs 0xD0, arg0 $s0 vs $s4, COP1 adda/madd scheduling, D_ word-copy (lwc1 vs lbu/sb), saved-reg colouring ($s0/$s5 vs $s4/$s0, $s3/$s4 vs $s3/$s4 class, time-boxed per 7m). No retail jump table (loops only); text/sprite helpers grepped from frFontEx.c (00274ed0/00275020) and cmpConfig idiom (0034c270/0034f2e0/0034f9d0/0035dfb0); decompilers m2c.c (303 lines) + rom.c (207 lines) + --types in /var/tmp/cold35d0a0/. Verify 17 MATCH 1 ASM (guarded self), lint 0 errors. Negative 2026-09-19: caching B2E8 base (pB2E8 pre-loop single, lui 40/40 exact) scores 575 words/407 edits vs direct 496/370 — retail re-materialises, cf func_00364680 caching 288 vs direct 276. */
 // FUN_0035D0A0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0035d0a0(u8 *arg0) {
@@ -371,7 +371,6 @@ void func_0035d0a0(u8 *arg0) {
     u8 *row;
     u8 *sprite;
     u8 *colPtr;
-    u8 *pB2E8;
     u8 r;
     u8 g;
     u8 b;
@@ -432,7 +431,6 @@ void func_0035d0a0(u8 *arg0) {
             }
         }
         prev = -1;
-        pB2E8 = D_0064B2E8;
         for (i = 0; i < 7; i++) {
             row = arg0 + i * 48;
             x0 = baseX + *(f32 *)(row + 0xB8);
@@ -453,8 +451,8 @@ void func_0035d0a0(u8 *arg0) {
             func_0034f2e0(*(void **)(arg0 + 0x450), 380.0f + pos.x, pos.y, r, g, b, alpha);
             if (i == sel) {
                 isSel = 1;
-                func_0034f2e0(*(void **)(arg0 + 0x460), pos.x, pos.y, pB2E8[0], pB2E8[1], pB2E8[2], alpha);
-                func_0034f2e0(*(void **)(arg0 + 0x468), 247.0f + pos.x, pos.y, pB2E8[0], pB2E8[1], pB2E8[2], alpha);
+                func_0034f2e0(*(void **)(arg0 + 0x460), pos.x, pos.y, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], alpha);
+                func_0034f2e0(*(void **)(arg0 + 0x468), 247.0f + pos.x, pos.y, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], alpha);
                 if ((i == 2) && (*(s32 *)(arg0 + 0x4C) == 0)) {
                     flag = (alpha & 0xFF) | 0xB4B4B400;
                 } else {
@@ -486,8 +484,8 @@ void func_0035d0a0(u8 *arg0) {
                 row = arg0 + i * 48;
                 pos.x = (f32)0x1CF + (baseX + *(f32 *)(row + 0x208));
                 pos.y = (f32)0x137 + (baseY + *(f32 *)(row + 0x20C));
-                func_0034f2e0(*(void **)(arg0 + 0x464), pos.x, pos.y, pB2E8[0], pB2E8[1], pB2E8[2], alpha);
-                func_0034f2e0(*(void **)(arg0 + 0x468), 150.0f + pos.x, pos.y, pB2E8[0], pB2E8[1], pB2E8[2], alpha);
+                func_0034f2e0(*(void **)(arg0 + 0x464), pos.x, pos.y, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], alpha);
+                func_0034f2e0(*(void **)(arg0 + 0x468), 150.0f + pos.x, pos.y, D_0064B2E8[0], D_0064B2E8[1], D_0064B2E8[2], alpha);
                 pos.x = (f32)0x205 + (baseX + *(f32 *)(row + 0x208));
                 pos.y = (f32)0x13F + (baseY + *(f32 *)(row + 0x20C));
                 if (isSel != 0) {

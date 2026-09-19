@@ -1257,11 +1257,7 @@ void func_0013b420(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3) {
     u8 c2;
     base2 = ((f32 *)&arg1)[1];
     t0 = *(u8 *)(arg0 + 0);
-    if ((s32)t0 >= 0) {
-        c0 = (f32)t0;
-    } else {
-        c0 = 2.0f * (f32)((t0 >> 1) | (t0 & 1));
-    }
+    c0 = (f32)t0;
     c1 = c0 / 255.0f;
     bcol[0] = 0x14;
     bcol[1] = 0x14;
@@ -1270,11 +1266,7 @@ void func_0013b420(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3) {
     col = (u8)(u32)fx;
     bcol[3] = col;
     hcol = *(u16 *)(arg0 + 0xBAA);
-    if ((s32)hcol >= 0) {
-        fy = (f32)hcol;
-    } else {
-        fy = 2.0f * (f32)((hcol >> 1) | (hcol & 1));
-    }
+    fy = (f32)hcol;
     base = ((f32 *)&arg1)[0];
     fz = base - 1.0f;
     fw = 24.0f + base2;

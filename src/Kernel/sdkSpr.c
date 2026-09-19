@@ -309,8 +309,9 @@ f32 func_0046b2f0(u8 *param_1)
     }
     return (f32)value;
 }
-// measured: retail 1952 object 2007 delta 2.8% band 1893-2011 words 1926 edits 3276(+0 reloc) frame 0x240/0x260 jal 15+30/15+30 hole 396 lump 19 cmds: python3 tools/probe_variants.py src/Kernel/sdkSpr.c func_0046b380 --candidate CAND2=/tmp/cand2.c; python3 tools/fnalign.py src/Kernel/sdkSpr.c func_0046b380 --candidate /tmp/cand2.c --quiet
+// measured: retail 1952 object 1982 delta 1.5% band 1893-2011 words 1888 edits 3125(+0 reloc) frame 0x240/0x280 jal 15+30/15+30 hole 254+90 (were 396+125) lump 19 cmds: python3 tools/fnalign.py src/Kernel/sdkSpr.c func_0046b380 --candidate /tmp/cb380_tbl.c --quiet
 // measured: pure hole 396 retail[319:715] 0x0046B87C-0x0046BEAC head c.eq.s/bc1t + lui/mtc1 0x43B4/0xC334/0x4334 float-range + c.ole.s, tail srl/andi/or/mtc1/cvt/add/swc1 0x24/0x28 unsigned conversions + stores; second hole 125 retail[719:844] 0x0046BEBC-0x0046C0B0 continuation (swc1 0x28 + bltz); calls exact 15+30/15+30 both streams so stores/branches not missing calls; lump 19 insert [266:266] object[297:316]; conversion check retail 22 bltz/95 mtc1/96 cvt vs object 36/142/120 (+14/+47/+24 already over, adding unsigned would go 2018 over upper 2011, removing would go 1853 under -- leave floor alone)
+// fix 2026-09-19: hoist D_00887300/10 into tbl300/310 (lui 43->15, 61->33 object; surplus 15 remains from 2.0f conversions per conversion check, not touched); holes moved 396 retail[319:715]->254 retail[1028:1282] and 125 retail[719:844]->90 retail[1367:1457], lump 19 unchanged at [266:266] object[291:310]; frame 0x260->0x280 (+32 for two locals) but net -25 instrs/-151 edits/-38 words; jal exact; unsigned 2.0f test would go 2007->1557 (-450, under gate) so left alone.
 // FUN_0046B380 NONMATCHING
 #ifdef NON_MATCHING
 void func_0046b380(u8 *arg0, s32 arg1) {
