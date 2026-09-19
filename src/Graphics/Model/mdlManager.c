@@ -5053,7 +5053,7 @@ void func_0047b060(void* param_1)
    (void* (*)(int,int))DAT_008873e8[0]; D_0070B610 is an u8 extern; mwcc C89
    rejects void*+int - cast derefs to u8* first. Switch-layout +
    register-rotation floor. */
-/* measured 0047b0c0 romwright R1: object 1320/retail 1380 (-60, -4.3% OUTSIDE +-3% gate, 41 allowed); fnalign 2110 edits+2 reloc-only. Frame/regsave pending (see below). Switch dispatch as if-else chain (retail jump table) + saved-reg rotation across ~30 temps. Production guarded, fallback INCLUDE_ASM retained. */
+/* measured 0047b0c0 R2: object 1350/retail 1380 (-30, -2.2% INSIDE +-3% gate, 41 allowed); fnalign 2135 edits+2 reloc-only; words 1269. Fix: 11x func_0044ea90(void)->(D_00713138,imm) with retail imms 0x125,0xfa,0x1d6,0x1d6,0xc93,0x18c5,0x18b7,0x850,0x1896,0x1834,0x908 + prototype (void*,int); lui -13->-2, addiu -18->+4, delete 181:182 gone. Remaining: switch inline vs out-of-line (478 delete artifact) + spare $s6/$s7 + lw -27/beq -23. Production guarded, fallback INCLUDE_ASM retained. */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0047b0c0(u8 *arg0)
@@ -5069,7 +5069,7 @@ s32 func_0047b0c0(u8 *arg0)
     extern unsigned int func_0047dc30(void);
     extern unsigned int func_0047f9f0(void);
     extern unsigned int func_003d60e0(unsigned int, unsigned int);
-    extern void func_0044ea90(void);
+    extern void func_0044ea90(void *a, int b);
     extern unsigned char * func_00470e90(unsigned short);
     extern void func_00477810(void *, void *);
     extern unsigned int func_0047d1a0(void);
@@ -5132,7 +5132,7 @@ s32 func_0047b0c0(u8 *arg0)
                              ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7))
                              * 4 + 0x120) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x4c) ==
           0) {
-        func_0044ea90();
+        func_0044ea90(D_00713138, 0x125);
         temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(8,0x40000);
         func_0043f9c8(temp_v7,0,8);
         *(int *)(**(int **)((int)arg0 +
@@ -5155,7 +5155,7 @@ s32 func_0047b0c0(u8 *arg0)
       }
     }
     else if (uStack_50 == 0xf0f000d0) {
-      func_0044ea90();
+      func_0044ea90(D_00713138, 0xfa);
       temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(0x4c,0x40000);
       func_0043f9c8(temp_v7,0,0x4c);
       temp_v3 = (int)temp_v7;
@@ -5186,7 +5186,7 @@ s32 func_0047b0c0(u8 *arg0)
                   ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x124
                   ) == 0) {
         temp_v6 = (unsigned int)uStack_2 * 8 + 0x34;
-        func_0044ea90();
+        func_0044ea90(D_00713138, 0x1d6);
         temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(temp_v6,0x40000);
         func_0043f9c8(temp_v7,0,temp_v6);
         puVar9 = (unsigned int *)temp_v7;
@@ -5222,7 +5222,7 @@ s32 func_0047b0c0(u8 *arg0)
                     ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 +
                     0x124) == 0) {
           temp_v6 = (unsigned int)uStack_2 * 8 + 0x34;
-          func_0044ea90();
+          func_0044ea90(D_00713138, 0x1d6);
           temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(temp_v6,0x40000);
           func_0043f9c8(temp_v7,0,temp_v6);
           puVar9 = (unsigned int *)temp_v7;
@@ -5264,7 +5264,7 @@ s32 func_0047b0c0(u8 *arg0)
       temp_v3 = *piVar2;
       func_003e2910(temp_v3,&uStack_6,2);
       temp_v5 = (unsigned int)uStack_6;
-      func_0044ea90();
+      func_0044ea90(D_00713138, 0xc93);
       temp_v9 = (int)((void*(*)(int,int))DAT_008873e8[0])(temp_v5 * 0x50 + 8,0x40000);
       puVar16 = (unsigned short *)(temp_v9 + (unsigned int)uStack_6 * 0x50);
       *puVar16 = uStack_6;
@@ -5279,7 +5279,7 @@ s32 func_0047b0c0(u8 *arg0)
       *(unsigned short **)((int)arg0 + 0x2c8) = puVar16;
     }
     else if (uStack_50 == 0xf0f00070) {
-      func_0044ea90();
+      func_0044ea90(D_00713138, 0x18c5);
       temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(0x2b8,0x40000);
       func_003e2910(*piVar2,temp_v7,uStack_4c);
       func_00477810(arg0,(void *)temp_v7);
@@ -5288,7 +5288,7 @@ s32 func_0047b0c0(u8 *arg0)
     else if ((((uStack_50 == 0xf0f00082) || (uStack_50 == 0xf0f00083)) || (uStack_50 == 0xf0f00081))
             || (uStack_50 == 0xf0f00080)) {
       if ((*(unsigned int *)((int)arg0 + 0xd8) & 0x4000) == 0) {
-        func_0044ea90();
+        func_0044ea90(D_00713138, 0x18b7);
         puVar9 = (unsigned int *)((void*(*)(int,int))DAT_008873e8[0])(0x10,0x40000);
         iStack_18 = piVar2[0xb] + *(int *)(*piVar2 + 0xc);
         iStack_14 = piVar2[0xc] - *(int *)(*piVar2 + 0xc);
@@ -5303,7 +5303,7 @@ s32 func_0047b0c0(u8 *arg0)
       else {
         if (*(int *)((int)arg0 + 0x234) == 0) {
           temp_v3 = (unsigned int)uStack_2 * 8 + 8;
-          func_0044ea90();
+          func_0044ea90(D_00713138, 0x850);
           temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(temp_v3,0x40000);
           func_0043f9c8(temp_v7,0,temp_v3);
           piVar17 = (int *)temp_v7;
@@ -5328,7 +5328,7 @@ s32 func_0047b0c0(u8 *arg0)
       if ((*(unsigned int *)((int)arg0 + 0xd8) & 0x4000) == 0) {
         func_003e2910(*piVar2,&uStack_4,uStack_4c);
         if (piVar2[*(unsigned short *)(piVar2 + 7) + 9] == 0) {
-          func_0044ea90();
+          func_0044ea90(D_00713138, 0x1896);
           temp_v3 = (u32)((void*(*)(int,int))DAT_008873e8[0])((unsigned int)uStack_2 << 1,0x40000);
           piVar2[*(unsigned short *)(piVar2 + 7) + 9] = temp_v3;
           for (temp_v5 = 0; temp_v5 < uStack_2; temp_v5 = (temp_v5 + 1) & 0xffff) {
@@ -5463,7 +5463,7 @@ s32 func_0047b0c0(u8 *arg0)
           }
           else {
             if (piVar2[3] == 0) {
-              func_0044ea90();
+              func_0044ea90(D_00713138, 0x1834);
               temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])((unsigned int)uStack_2 << 2,0x40000);
               piVar2[3] = (int)temp_v7;
               func_0043f9c8(temp_v7,0,(unsigned int)uStack_2 << 2);
@@ -5479,7 +5479,7 @@ s32 func_0047b0c0(u8 *arg0)
         else {
           if (*(int *)((int)arg0 + 0x254) == 0) {
             temp_v3 = (unsigned int)uStack_2 * 8 + 0x10;
-            func_0044ea90();
+            func_0044ea90(D_00713138, 0x908);
             temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(temp_v3,0x40000);
             func_0043f9c8(temp_v7,0,temp_v3);
             piVar17 = (int *)temp_v7;
