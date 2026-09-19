@@ -1581,6 +1581,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001582f0);
 // FUN_001587D0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
+#pragma opt_propagation off
 void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
 {
     extern u8 D_005F0590[];
@@ -1656,6 +1657,9 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
   f32 fStack_10;
   f32 fStack_c;
   f32 fStack_8;
+  u32 c10000 = 0x10000;
+  u32 c10001 = 0x10001;
+  u32 c10002 = 0x10002;
   
   temp_v14 = (u32)arg2;
   temp_v16 = (temp_v14 & 0xffff) * 0x100;
@@ -1748,13 +1752,13 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
       temp_v11 = func_003e0f80();
       temp_v3 = *(s32 *)(*(s32 *)(temp_v17 + iGpffff9db0 + 0x28) + 0xa40);
       temp_v15 = *(s32 *)(temp_v3 + 4);
-      if (temp_v15 == 0x10000) {
+      if (temp_v15 == (s32)c10000) {
         temp_v15 = temp_v3 + 0x28;
       }
-      else if (temp_v15 == 0x10001) {
+      else if (temp_v15 == (s32)c10001) {
         temp_v15 = temp_v3 + 0x30;
       }
-      else if (temp_v15 == 0x10002) {
+      else if (temp_v15 == (s32)c10002) {
         temp_v15 = temp_v3 + 0x38;
       }
       else {
@@ -1780,8 +1784,8 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
             temp_v9 = (s32)func_00155280();
             temp_v0 = *(u8 *)(temp_v16 + temp_v9 + 0x59);
             puVar16[10] = 0x3f800000;
-            puVar16[5] = 0x3f800000;
-            *puVar16 = 0x3f800000;
+            puVar16[5] = puVar16[10];
+            *puVar16 = puVar16[10];
             puVar16[4] = 0;
             puVar16[2] = 0;
             puVar16[1] = 0;
@@ -1811,8 +1815,8 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
           temp_v17 = (s32)func_00155280();
           temp_v20 = (f32)((*(u8 *)(temp_v16 + temp_v17 + 0x59) + 4U) & 3) * 90.0f;
           puVar16[10] = 0x3f800000;
-          puVar16[5] = 0x3f800000;
-          *puVar16 = 0x3f800000;
+          puVar16[5] = puVar16[10];
+          *puVar16 = puVar16[10];
           puVar16[4] = 0;
           puVar16[2] = 0;
           puVar16[1] = 0;
@@ -1828,8 +1832,10 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
           fStack_20 = fStack_20 + fStack_10;
           fStack_1c = fStack_1c + fStack_c;
           fStack_18 = fStack_18 + fStack_8;
-          for (temp_v20 = temp_v20 + *(f32 *)(temp_v15 + 0x10); temp_v20 > 360.0f; temp_v20 = temp_v20 - 360.0f)
+          { f32 f360 = 360.0f;
+          for (temp_v20 = temp_v20 + *(f32 *)(temp_v15 + 0x10); temp_v20 > f360; temp_v20 = temp_v20 - f360)
           {
+          }
           }
           func_00145fc0(0x3ff,&fStack_20,temp_v20);
         }
@@ -1844,8 +1850,8 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
           temp_v17 = (s32)func_00155280();
           temp_v20 = (f32)((*(u8 *)(temp_v16 + temp_v17 + 0x59) + 4U) & 3) * 90.0f;
           puVar16[10] = 0x3f800000;
-          puVar16[5] = 0x3f800000;
-          *puVar16 = 0x3f800000;
+          puVar16[5] = puVar16[10];
+          *puVar16 = puVar16[10];
           puVar16[4] = 0;
           puVar16[2] = 0;
           puVar16[1] = 0;
@@ -1861,8 +1867,10 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
           fStack_30 = fStack_30 + fStack_10;
           fStack_2c = fStack_2c + fStack_c;
           fStack_28 = fStack_28 + fStack_8;
-          for (temp_v20 = temp_v20 + *(f32 *)(temp_v15 + 0x10); temp_v20 > 360.0f; temp_v20 = temp_v20 - 360.0f)
+          { f32 f360 = 360.0f;
+          for (temp_v20 = temp_v20 + *(f32 *)(temp_v15 + 0x10); temp_v20 > f360; temp_v20 = temp_v20 - f360)
           {
+          }
           }
           temp_v17 = func_0014b510(0xf);
           func_00146080((u16)temp_v17,&fStack_30,temp_v20);
@@ -1878,8 +1886,8 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
           temp_v17 = (s32)func_00155280();
           temp_v20 = (f32)((*(u8 *)(temp_v16 + temp_v17 + 0x59) + 4U) & 3) * 90.0f;
           puVar16[10] = 0x3f800000;
-          puVar16[5] = 0x3f800000;
-          *puVar16 = 0x3f800000;
+          puVar16[5] = puVar16[10];
+          *puVar16 = puVar16[10];
           puVar16[4] = 0;
           puVar16[2] = 0;
           puVar16[1] = 0;
@@ -1895,15 +1903,17 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
           fStack_40 = fStack_40 + fStack_10;
           fStack_3c = fStack_3c + fStack_c;
           fStack_38 = fStack_38 + fStack_8;
-          for (temp_v20 = temp_v20 + *(f32 *)(temp_v15 + 0x10); temp_v20 > 360.0f; temp_v20 = temp_v20 - 360.0f)
+          { f32 f360 = 360.0f;
+          for (temp_v20 = temp_v20 + *(f32 *)(temp_v15 + 0x10); temp_v20 > f360; temp_v20 = temp_v20 - f360)
           {
+          }
           }
           temp_v17 = func_0014b510(0x10);
           func_00146140((u16)temp_v17,&fStack_40,temp_v20);
         }
         temp_v15 = temp_v15 + 0x14;
       }
-      if (0x10000 < *(u32 *)(temp_v3 + 4)) {
+      if (c10000 < *(u32 *)(temp_v3 + 4)) {
         for (temp_v14 = 0; temp_v14 < *(u32 *)(temp_v3 + 0x28); temp_v14 = temp_v14 + 1) {
           temp_v17 = func_0014a200();
           if (temp_v17 == 1) {
@@ -1913,8 +1923,8 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
             temp_v17 = (s32)func_00155280();
             temp_v20 = (f32)((*(u8 *)(temp_v16 + temp_v17 + 0x59) + 4U) & 3) * 90.0f;
             puVar16[10] = 0x3f800000;
-            puVar16[5] = 0x3f800000;
-            *puVar16 = 0x3f800000;
+            puVar16[5] = puVar16[10];
+            *puVar16 = puVar16[10];
             puVar16[4] = 0;
             puVar16[2] = 0;
             puVar16[1] = 0;
@@ -1930,8 +1940,10 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
             fStack_50 = fStack_50 + fStack_10;
             fStack_4c = fStack_4c + fStack_c;
             fStack_48 = fStack_48 + fStack_8;
-            for (temp_v20 = temp_v20 + *(f32 *)(temp_v15 + 0x10); temp_v20 > 360.0f;
-                temp_v20 = temp_v20 - 360.0f) {
+            { f32 f360 = 360.0f;
+            for (temp_v20 = temp_v20 + *(f32 *)(temp_v15 + 0x10); temp_v20 > f360;
+                temp_v20 = temp_v20 - f360) {
+            }
             }
             temp_v17 = func_0014b510(0x11);
             func_00146200((u16)temp_v17,&fStack_50,temp_v20);
@@ -1939,7 +1951,7 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
           temp_v15 = temp_v15 + 0x14;
         }
       }
-      if (0x10001 < *(u32 *)(temp_v3 + 4)) {
+      if (c10001 < *(u32 *)(temp_v3 + 4)) {
         for (temp_v14 = 0; temp_v14 < *(u32 *)(temp_v3 + 0x30); temp_v14 = temp_v14 + 1) {
           fStack_60 = *(f32 *)(temp_v15 + 8);
           fStack_5c = *(f32 *)(temp_v15 + 0xc);
@@ -1947,8 +1959,8 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
           temp_v17 = (s32)func_00155280();
           temp_v20 = (f32)((*(u8 *)(temp_v16 + temp_v17 + 0x59) + 4U) & 3) * 90.0f;
           puVar16[10] = 0x3f800000;
-          puVar16[5] = 0x3f800000;
-          *puVar16 = 0x3f800000;
+          puVar16[5] = puVar16[10];
+          *puVar16 = puVar16[10];
           puVar16[4] = 0;
           puVar16[2] = 0;
           puVar16[1] = 0;
@@ -1964,8 +1976,10 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
           fStack_60 = fStack_60 + fStack_10;
           fStack_5c = fStack_5c + fStack_c;
           fStack_58 = fStack_58 + fStack_8;
-          for (temp_v20 = temp_v20 + *(f32 *)(temp_v15 + 0x1c); temp_v20 > 360.0f; temp_v20 = temp_v20 - 360.0f)
+          { f32 f360 = 360.0f;
+          for (temp_v20 = temp_v20 + *(f32 *)(temp_v15 + 0x1c); temp_v20 > f360; temp_v20 = temp_v20 - f360)
           {
+          }
           }
           temp_v17 = func_0014b510(0x15);
           temp_v10 = func_00145e90((u16)temp_v17, &fStack_60, *(s32 *)(temp_v15 + 4), *(f32 *)(temp_v15 + 0x14),
@@ -1975,7 +1989,7 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
           temp_v15 = temp_v15 + 0x20;
         }
       }
-      if (0x10002 < *(u32 *)(temp_v3 + 4)) {
+      if (c10002 < *(u32 *)(temp_v3 + 4)) {
         if (4 < *(u32 *)(temp_v3 + 0x38)) {
           func_0046d730(D_005F05E8,0x541);
         }
@@ -1986,8 +2000,8 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
           temp_v17 = (s32)func_00155280();
           temp_v20 = (f32)((*(u8 *)(temp_v16 + temp_v17 + 0x59) + 4U) & 3) * 90.0f;
           puVar16[10] = 0x3f800000;
-          puVar16[5] = 0x3f800000;
-          *puVar16 = 0x3f800000;
+          puVar16[5] = puVar16[10];
+          *puVar16 = puVar16[10];
           puVar16[4] = 0;
           puVar16[2] = 0;
           puVar16[1] = 0;
@@ -2003,8 +2017,10 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
           fStack_78 = fStack_78 + fStack_10;
           fStack_74 = fStack_74 + fStack_c;
           fStack_70 = fStack_70 + fStack_8;
-          for (temp_v20 = temp_v20 + *(f32 *)(temp_v15 + 0x10); temp_v20 > 360.0f; temp_v20 = temp_v20 - 360.0f)
+          { f32 f360 = 360.0f;
+          for (temp_v20 = temp_v20 + *(f32 *)(temp_v15 + 0x10); temp_v20 > f360; temp_v20 = temp_v20 - f360)
           {
+          }
           }
           temp_v17 = func_0014b510(0x12);
           temp_v21[temp_v14] = (u16)temp_v17;
@@ -2017,6 +2033,7 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
   }
   return;
 }
+#pragma opt_propagation on
 #pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001587d0);

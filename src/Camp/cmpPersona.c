@@ -833,6 +833,40 @@ void func_001377e0(u8* arg0) {
    the +-3% band.  Any differing-word score in this note was measured
    against a body of the wrong length and is not comparable to one
    measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 2026-09-19 (lead, by hand against the retail listing): object 323
+   instrs against retail 334, one instruction outside the 324-344 band, with
+   **fnalign 384 edits -> 106**.  The body was 296/334 at 384 edits and a
+   177-instruction pure delete when this pass started; that delete is gone.
+   Four defects, each read out of the disassembly rather than guessed:
+   1. **Both `if` arms were inverted.**  Retail tests `slt $s4, 0x4e($s5)` and
+      *branches* to the long arm, so the short two-call arm is the
+      fall-through: the source is `if (arg1 >= count) { two calls } else
+      { ... }`.  The inner test is the same shape - `bne $s4, 0x52($s5)`
+      branches to the constants arm, so the table arm is the fall-through and
+      the source reads `if (arg1 == sel) { table } else { constants }`.
+      Those two inversions alone took 384 edits to 150 and dissolved the
+      177-instruction hole into runs of 15 or fewer.
+   2. **The coordinate pair is a `f32 pos[2]` in the frame, not two scalars.**
+      Retail stores `swc1 $f12, 0x158($sp)` / `swc1 $f13, 0x15c($sp)` before
+      every draw call and reloads both inside the digit loop
+      (`lwc1 $f12, 0x158($sp)`), and the final call takes them as one
+      `ld $a0, 0x158($sp)`.  Writing through `pos[0]`/`pos[1]` and passing
+      `pos[0], pos[1]` recovered ten instructions.
+   3. **The last call passes the pair as a 64-bit value**, with `0.0f` in
+      `$f12`: `func_00115c40(*(s64 *)pos, 0.0f, alpha, stack90)` against the
+      old `(0, 0, alpha, stack90)`.
+   4. **The alpha conversion must be the plain unsigned cast.**  Retail emits
+      the `cvt.w.s`/`mfc1`/`lui 0x8000`/`or`/`andi` recipe; the hand-written
+      `if (fa >= 2.1474836e9f) fa -= ...` guard compiled to one instruction.
+      Writing `alpha = (u32)fa & 0xFF` restores the ten-instruction recipe.
+   Measured and rejected: `opt_propagation off` 173 edits; `s64` colour
+   locals 118; naming `D_0064B2ED`/`D_0064B2EE` separately instead of
+   `D_0064B2E8[1]`/`[2]` no change (b210 folds adjacent symbols); writing
+   `*(s16 *)(stack90 + 2) = sel` in both arms 112.
+   What remains, all small: retail[150:166] 16 against 13 in the table arm,
+   retail[169:180] 11 against 9 in the constants arm (retail materialises
+   those six constants with `daddiu`, so they may be 64-bit in the original),
+   and four 4-to-6 instruction replaces in the draw sequence. */
 // FUN_00137890 NONMATCHING
 #ifdef NON_MATCHING
 void func_00137890(u8 *arg0, s32 arg1)
@@ -844,7 +878,7 @@ void func_00137890(u8 *arg0, s32 arg1)
     extern void func_00115940(void *arg0, void *arg1, s32 arg2);
     extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u32 arg4);
     extern s32 func_00105330(s32 arg0);
-    extern void func_00115c40(s32 arg0, s32 arg1, u32 arg2, void *arg3);
+    extern void func_00115c40(s64 arg0, f32 fparg0, u32 arg1, void *arg2);
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2E9[];
     extern u8 D_0064B2EA[];
@@ -862,9 +896,12 @@ void func_00137890(u8 *arg0, s32 arg1)
     u8 cc0;
     u8 cc1;
     u8 sel;
+    f32 pos[2];
     u8 stack90[8];
     u8 stackd0[16];
     u32 div;
+    u32 ualpha;
+    u32 ubase;
     u32 k;
 
     if (arg1 < 0 || arg1 >= (func_0010b5b0() & 0xFFFF)) {
@@ -873,23 +910,20 @@ void func_00137890(u8 *arg0, s32 arg1)
     idx = arg1;
     fx = (*(f32 *)(arg0 + 4) + *(f32 *)(arg0 + idx * 0x30 + 0x10C4)) - 10.0f;
     fy = (f32)idx * 30.0f + *(f32 *)(arg0 + 8) + *(f32 *)(arg0 + idx * 0x30 + 0x10C8);
-    fa = (f32)*(u8 *)(arg0 + idx * 0x30 + 0x10CE) * ((f32)*arg0 / 255.0f);
-    if (fa >= 2.1474836e9f) {
-        fa -= 2.1474836e9f;
-    }
-    alpha = (u32)(s32)fa & 0xFF;
-    if (arg1 < *(s16 *)(arg0 + 0x4E)) {
+    ualpha = *(u8 *)(arg0 + idx * 0x30 + 0x10CE);
+    ubase = *arg0;
+    fa = (f32)ualpha * ((f32)ubase / 255.0f);
+    alpha = (u32)fa & 0xFF;
+    if (arg1 >= *(s16 *)(arg0 + 0x4E)) {
+        pos[0] = fx - 40.0f;
+        pos[1] = fy + 21.0f;
+        func_0034f2e0(*(u8 **)(arg0 + 0x1C64), pos[0], pos[1], 0xFF, 0xE9, 0x2C, alpha);
+        pos[0] = fx + 89.0f;
+        pos[1] = fy + 21.0f;
+        func_0034f2e0(*(u8 **)(arg0 + 0x1C68), pos[0], pos[1], 0xFF, 0xE9, 0x2C, alpha);
+    } else {
         func_00115830(stack90);
-        if (arg1 != *(s16 *)(arg0 + 0x52)) {
-            c0 = 0xFF;
-            c1 = 0xE9;
-            c2 = 0x2C;
-            c3 = 0xF7;
-            cc0 = 0xAF;
-            cc1 = 0x22;
-            sel = 0;
-            *(s16 *)(stack90 + 2) = 1;
-        } else {
+        if (arg1 == *(s16 *)(arg0 + 0x52)) {
             c0 = D_0064B2E8[0];
             c1 = D_0064B2E9[0];
             c2 = D_0064B2EA[0];
@@ -898,32 +932,49 @@ void func_00137890(u8 *arg0, s32 arg1)
             cc1 = D_0064B2E8[2];
             sel = 1;
             *(s16 *)(stack90 + 2) = 0;
+        } else {
+            c0 = 0xFF;
+            c1 = 0xE9;
+            c2 = 0x2C;
+            c3 = 0xF7;
+            cc0 = 0xAF;
+            cc1 = 0x22;
+            sel = 0;
+            *(s16 *)(stack90 + 2) = 1;
         }
         *(s16 *)stack90 = 2;
         func_00115940((void *)(s32)func_0010ace0(*(s16 *)(arg0 + idx * 2 + 0x36)), stackd0, 2);
-        func_0034f2e0(*(u8 **)(arg0 + 0x1C5C), fx - 40.0f, fy + 21.0f, c0, c1, c2, alpha);
-        func_0034f2e0(*(u8 **)(arg0 + 0x1C60), fx + 89.0f, fy + 21.0f, c0, c1, c2, alpha);
+        pos[0] = fx - 40.0f;
+        pos[1] = fy + 21.0f;
+        func_0034f2e0(*(u8 **)(arg0 + 0x1C5C), pos[0], pos[1], c0, c1, c2, alpha);
+        pos[0] = fx + 89.0f;
+        pos[1] = pos[1];
+        func_0034f2e0(*(u8 **)(arg0 + 0x1C60), pos[0], pos[1], c0, c1, c2, alpha);
         k = *(u8 *)(stackd0 + 12);
+        pos[0] = fx + 72.0f;
+        pos[1] = fy + 26.0f;
         do {
             div = k % 10;
-            func_0034f2e0(*(u8 **)(arg0 + div * 4 + 0x1C7C), fx + 72.0f, fy + 26.0f, c3, cc0, cc1, alpha);
-            fx -= 22.0f;
+            func_0034f2e0(*(u8 **)(arg0 + div * 4 + 0x1C7C), pos[0], pos[1], c3, cc0, cc1, alpha);
+            pos[0] -= 22.0f;
             k /= 10;
         } while (k != 0);
         if (sel == 0) {
-            func_0034f2e0(*(u8 **)(arg0 + 0x1CA8), fx + 24.0f, fy + 33.0f, c3, cc0, cc1, alpha);
+            pos[0] = fx + 24.0f;
+            pos[1] = fy + 33.0f;
+            func_0034f2e0(*(u8 **)(arg0 + 0x1CA8), pos[0], pos[1], c3, cc0, cc1, alpha);
         }
         if (arg1 == func_00105330(1) && (*(u32 *)(arg0 + 0x1C) & 0x20) != 0) {
-            func_0034f2e0(*(u8 **)(arg0 + 0x1CAC), 22.0f, fy + 21.0f, 0xFF, 0x85, 0x1F, alpha);
+            pos[0] = 22.0f;
+            func_0034f2e0(*(u8 **)(arg0 + 0x1CAC), pos[0], pos[1], 0xFF, 0x85, 0x1F, alpha);
         }
-        func_00115c40(0, 0, alpha, stack90);
+        pos[0] = fx + 99.0f;
+        pos[1] = fy + 20.0f;
+        func_00115c40(*(s64 *)pos, 0.0f, alpha, stack90);
         count = 0;
         (void)count;
         (void)fa;
         (void)sel;
-    } else {
-        func_0034f2e0(*(u8 **)(arg0 + 0x1C64), fx - 40.0f, fy + 21.0f, 0xFF, 0xE9, 0x2C, alpha);
-        func_0034f2e0(*(u8 **)(arg0 + 0x1C68), fx + 89.0f, fy + 21.0f, 0xFF, 0xE9, 0x2C, alpha);
     }
 }
 #else
