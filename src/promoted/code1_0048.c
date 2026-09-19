@@ -1154,6 +1154,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484bb0);
    so do not copy this idiom between them without measuring.  The remaining
    rows are `bbit032`/`bbit132` branch-target lines, which are capstone
    mis-decodes of relocated words rather than real differences. */
+/* 2026-09-19 Main round: 114 positional words are one insert/delete pair's
+   cascade, not 114 causes (fnalign 140/140 exact, 13+6 edits; positional fndiff
+   amplifies the single extra/missing lq/sq around the save/restore wall).
+   Retail asm lines 22-34: addiu $3, sp, 0x50 + lq 0x50($18) + sq, calls with
+   $4=arg0 / $5=sp+0x80 / $6=sp+0x60 and $4=$18 / $5=sp+0x60, restore via
+   rematerialised addiu $2, sp, 0x50. Same shape one step smaller as 85870;
+   frame off 0 -0x90 MATCH, single u8 *arg0 move $s2, $a0 identical. */
 // FUN_00485630 NONMATCHING
 #ifdef NON_MATCHING
 void func_00485630(u8 *arg0)
@@ -1264,6 +1271,18 @@ INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485630);
    of twice 120.  The redundant-looking second `save_slot = (u_long128 *)sp70`
    is load bearing: it is what keeps the address out of a saved register
    across the two calls. */
+/* 2026-09-19 Main round: checked scratch-record hypothesis against retail asm
+   (asm/nonmatchings/code1_0048/func_00485870.s lines 31-43). Retail save is
+   addiu $3, sp, 0x70 + lq $2, 0x50($20) + sq $2, 0($3); calls are $4=$20 (arg0),
+   $5=sp+0xA0 (&spA0), $6=sp+0x80 (&sp80) into 86970 and $4=$20 / $5=sp+0x80 into
+   86330; restore is addiu $2, sp, 0x70 + lq + sq 0x50($20). This body passes the
+   same three stack addresses with the same first arg, so the scratch local is
+   already used at this call - the extra object addiu $s0, $s4, 0x50 is the arg-side
+   address for the restore store (retail direct 80($s4)), paired against retail's
+   stack-side rematerialisation by the 1-insn shift, not a wrong object passed.
+   Frame off 0 -0xb0 MATCH; single s32 arg0 move $s4, $a0 identical. Residual is
+   materialisation (1 saved addiu vs 2 rematerialised), already probed worse both
+   ways; ten positional words are that one wall's cascade. */
 // FUN_00485870 NONMATCHING
 #ifdef SKIP_ASM
 /* measured: 616B obj vs 624B window, 11 differing words reloc-masked (probe cand4).
@@ -2209,6 +2228,17 @@ void func_00489f10(u8 *arg0)
    fnalign rows is a `bbit032` branch-target line, which is a capstone
    mis-decode of a relocated word, not a real difference. */
 /* 2026-09-19 re-probe per assignment (single localised cause hunt): re-measured 5 words (obj 584B/window 592B, 146/146 after trim; real diffs at +352 mtc1 f3-vs-f1, +360 add f3-vs-f1, +364 sqrt f1-vs-f2, +380 mul f1-vs-f2, +540 swc1 f3-vs-f1). Tried: drop unused temp_f5 (5), swap second-add operands (5), inline second add (5), inline second mul (5), no-add-helpers (7, worse), f5-for-second-1.0f (5), separate diff temp (12, worse, breaks early sub.s matches). Helpers are load-bearing (inline costs 5->7). WALL stands: long-lived 1.0f gets $f3 here vs $f1 retail, sqrt follows $f1 vs $f2; no honest source shape moves it without changing the stream. */
+/* 2026-09-19 Main round: five differing pairs with byte offsets (measure_guarded
+   fndiff, reloc-masked), frame MATCH, single-arg so no move-order component.
+   off 352: object mtc1 $a0, $f3 vs retail mtc1 $a0, $f1
+   off 360: object add.s $f0, $f3, $f0 vs retail add.s $f0, $f1, $f0
+   off 364: object sqrt.s $f1, $f0 vs retail sqrt.s $f2, $f0
+   off 380: object mul.s $f2, $f0, $f1 vs retail mul.s $f2, $f0, $f2
+   off 540: object swc1 $f3, ($a0) vs retail swc1 $f1, ($a0)
+   (fnalign 6th row bbit032 $v1, 0xa is relocated branch-target artefact, 0 words.)
+   Frame: off 0 addiu $sp, $sp, -0x10 both sides MATCH. Param copy: single f32 *arg0
+   used directly via lwc1 off $a0, no GPR save, so arg-order == first-use-order.
+   Classification: register-only rotation family (handoff 7ah, 7al sibling) - closed. */
 // FUN_0048A980 NONMATCHING
 #ifdef NON_MATCHING
 /* Best re-derived body for func_0048a980: 5 differing words (reloc-masked),
