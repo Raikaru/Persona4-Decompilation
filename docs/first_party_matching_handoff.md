@@ -542,6 +542,98 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7be. Dispatch shape: arm count is not the discriminator, a default is
+
+The switch lever was written as "a chain of four or more equality arms may be
+a `switch`", and that framing cost real ground.  Retail's actual signature is
+a **three-way with a default** - `beq` on one value, `beqz` on another, `b`
+to a far default - and that appears at two arms exactly as readily as at
+twenty.  The arm count never was the discriminator.
+
+`func_001441e0` is where this surfaced.  Its two inner chains had already
+been converted, which is precisely why the outer `if (kind == 0) ... else if
+(kind == 1)` looked settled; its arm **order** had even been measured
+(swapping it costs 123).  The order was right and the construct was wrong.
+Writing the outer dispatch as a `switch` took 47 edits to 34 and the count to
+an exact 567/567.
+
+A sweep of the short chains that the old framing excluded then paid seven
+times over, against 26 floors probed:
+
+| function | before | after |
+| --- | --- | --- |
+| `func_001fc630` | 446 | **311** (exact 510/510) |
+| `func_001c2ee0` | 269 | **208** |
+| `func_00467bd0` | 368 | **328** |
+| `func_0019c0d0` | 1068 | **1042** |
+| `func_001fd790` | 590 | **566** |
+| `func_001a4c80` | 445 | **427** |
+| `func_001be990` | 328 | **318** |
+
+Six got worse and the rest carry no convertible chain, so this stays a
+measured lever, not a rule.
+
+**An OR of two equalities against the same variable is two fallthrough cases,
+not a compound condition.**  `(x == a) || (x == b)` becomes `case a: case b:`
+sharing one body.  This is a separate lever and the converter declined every
+instance of it until taught otherwise.  On `func_001d1f30` the distinction is
+the whole margin: treating the OR as one compound condition reaches 413,
+recognising it as two cases reaches **399**.  On `func_001f14f0` it is
+1406 -> **1384**, with the count moving 1516 -> 1520 against retail 1523.
+
+Two rules fall out of the failures, both cheap to observe and expensive to
+skip.
+
+**Case order is part of the lever.**  On `func_001f14f0`, ascending
+`1 / 2 / 3+4` is 1384, but keeping the source's own `3+4 / 2 / 1` order is
+**1443** - worse than the chain it replaces.  Always measure both directions
+before banking; the conversion alone is not the win.
+
+**A negative from a bad instrument is worse than no measurement.**
+`func_00467bd0`'s switch spelling was measured by hand earlier the same day
+at 382 against 368 and recorded as a counter-example to the whole lever.
+That number came from an ad-hoc conversion that neither sorted the cases
+ascending nor mapped the trailing `else` to `default`.  Done correctly it is
+328.  The bad number was cited twice as evidence before it was caught.  If a
+lever is going to be recorded as not applying, the instrument that produced
+the negative has to be as good as the one that would have produced the
+positive.
+
+`func_001b2380` is the honest negative: it converts cleanly, including the
+`goto LAB_001b2a6c` that jumps from the second arm into the first, and it is
+**worse** (1392 -> 1394, count 1014 -> 1016).  It stays a chain.
+
+### 7bf. The sub-50 tail is allocator noise, not source shape
+
+Four floors under 50 edits were taken apart instruction by instruction to
+find out whether the tail is reachable from source at all.  It is not, and
+the evidence is uniform enough to stop paying for it.
+
+- `func_00375f00` - 39/39 exact, **2 edits**, the closest floor in the tree.
+  Both are `move $v1, $s2` against a rematerialised `addu $v1, $s1, $s0`.
+  Eight spellings measured, every one worse (27/28 through 38/13).  The
+  counter-intuitive part: the *recomputed* cast is load-bearing, and every
+  variant that hoists the shared address into a variable **loses**
+  instructions against retail.
+- `func_001b11c0` - **5 edits**, a pure `$t1`/`$t3` rotation between `key` and
+  the loop counter.  Four declaration orders: two hold at 5, two go to 12.
+- `func_00365f00` - **12 edits** (plus 12 reloc-only), a `$s3`/`$fp` rotation
+  plus one `lbu` placement.  Four positions for the `num_segments`
+  declaration, all four neutral.
+- `func_0012d630` - **12 edits**, including `addu $v0, $v0, $s1` against
+  `addu $v0, $s1, $v0` and an `add.s` operand order.  Writing the source
+  additions the other way round changes nothing: b210 canonicalises
+  commutative operand order before allocation, so operand order is **not** a
+  lever.
+
+The pattern across all four is that what remains is register *identity*, not
+register *count* or instruction selection - and identity is settled after
+every source-visible decision has been made.  Declaration order moves it
+sometimes (7a, 7i), but all twelve permutations tried here were neutral or
+harmful.  Spend the effort on floors above 100 edits, where structure is
+still wrong, and treat anything under about 15 edits as banked unless a
+*structural* difference is visible in the aligned listing.
+
 ### 7bc. An UNPAIRED run names its own fix; describe it and it becomes a task
 
 `block_move_scan` now prints the address range, the call count and an opcode

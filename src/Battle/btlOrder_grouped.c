@@ -327,6 +327,11 @@ void func_001b1020(s32 arg0)
    allocator is not ordering by declaration.  Computing the key inside the do-while and
    letting `opt_loop_invariants` hoist it ties at 5; swapping the two increments costs 6;
    rewriting the bound as `i + 1 < count` costs 29.  Genuine allocator floor. */
+/* measured 001b11c0 (owner, 2026-09-19): 48/48 exact, **5 edits plus 2 reloc-only**, and all
+   five are one register rotation: retail puts `key` in $t3 and the loop counter in $t1, the
+   object puts them the other way round.  Four declaration orders were measured against the 5 -
+   `i` before `key`, `changed` before both, `key` hoisted to the top, and `key`/`i` adjacent -
+   and two hold at 5 while two cost 12.  Declaration order does not reach this allocation. */
 // FUN_001B11C0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
