@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import subprocess
 import sys
 import unittest
 from pathlib import Path
@@ -11,6 +12,9 @@ SPEC = importlib.util.spec_from_file_location("p4_fnalign", REPO / "tools" / "fn
 assert SPEC is not None and SPEC.loader is not None
 fnalign = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(fnalign)
+
+from fndiff import _is_include_asm  # noqa: E402
+from verify import scan_markers  # noqa: E402
 
 
 class NormaliseTests(unittest.TestCase):
@@ -71,6 +75,45 @@ class AlignTests(unittest.TestCase):
         candidate = ["lui $a1, 0"]
         _, edits, reloc_only = fnalign.align(retail, candidate, {0})
         self.assertEqual((edits, reloc_only), (1, 0))
+
+
+class FallbackRefusalTests(unittest.TestCase):
+    """Measuring a guarded floor without --candidate compiles the INCLUDE_ASM
+    fallback, so the object IS the retail assembly.  That path once reported
+    `retail 4404 / object 4404, 80 edits` for func_001265a0 and the floor was
+    banked as INSIDE the gate when the real body was 3779 instructions and 14%
+    outside it.  Window trimming and relocations keep the edit count off zero,
+    so refusing only at 0 edits - as the old warning did - never fires."""
+
+    def _run(self, *args: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run([sys.executable, "-E", "-s", "tools/fnalign.py", *args],
+                              cwd=REPO, capture_output=True, text=True, timeout=600)
+
+    def test_a_guarded_floor_without_a_candidate_is_refused(self) -> None:
+        guarded = next(
+            (path, marker["name"])
+            for path in sorted((REPO / "src").rglob("*.c"))
+            if path.parent.name != "generated" and not path.name.startswith(".")
+            for marker in scan_markers(path)
+            if _is_include_asm(path, marker["name"]))
+        path, function = guarded
+        done = self._run(str(path.relative_to(REPO)), function, "--quiet")
+        self.assertEqual(done.returncode, 1)
+        self.assertIn("INCLUDE_ASM fallback", done.stdout + done.stderr)
+        self.assertIn("--save-candidate", done.stdout + done.stderr)
+
+    def test_the_refusal_names_the_measure_guarded_recipe(self) -> None:
+        """A refusal that does not say what to run instead just gets worked around."""
+        guarded = next(
+            (path, marker["name"])
+            for path in sorted((REPO / "src").rglob("*.c"))
+            if path.parent.name != "generated" and not path.name.startswith(".")
+            for marker in scan_markers(path)
+            if _is_include_asm(path, marker["name"]))
+        path, function = guarded
+        done = self._run(str(path.relative_to(REPO)), function, "--quiet")
+        self.assertIn("measure_guarded.py", done.stdout + done.stderr)
+        self.assertNotIn("edit instructions:", done.stdout)
 
 
 if __name__ == "__main__":
