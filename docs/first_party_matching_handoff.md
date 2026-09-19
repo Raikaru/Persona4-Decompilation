@@ -525,6 +525,10 @@ band, *and* no large pure hole paired with a large pure lump.  When both are
 present, recover the missing block and delete the invented one before
 touching anything else.
 
+`tools/gate_audit.py --composition` runs both checks in one pass: it prints
+the out-of-gate floors as usual and, for every floor *inside* the gate, the
+largest pure hole and pure lump when both reach 25 instructions.
+
 ### 7z. Undefined behaviour lets the compiler delete retail's stores
 
 `func_002b0b10` was 117 instructions short, a third of the body, with `jal`
