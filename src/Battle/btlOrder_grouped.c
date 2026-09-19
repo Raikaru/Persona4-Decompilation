@@ -320,6 +320,13 @@ void func_001b1020(s32 arg0)
 /* - replace [39:40] addiu $t1,$t1,1 vs addiu $t3,$t3,1: register-only rotation (i++). */
 /* - replace [41:42] sltu $v1,$t1,$a0 vs sltu $v1,$t3,$a0: register-only rotation (i < count-1). */
 /* No $a0-$t0 spill-order move, no operand-order, no branch-offset, no nop-vs-work in this residual. Five swaps one pair ($t1/$t3 = key/i); next person: finished on frame and count, open only on temp colour. */
+/* measured 001b11c0 (owner, this session): 48/48 exact, **5 fnalign edits**, and every one
+   is the same transposition: retail keeps the masked argument in $t3 and the loop counter
+   in $t1, the object the other way round.  Four declaration orders measured - counter
+   before key 12, counter first 12, key last 5 (tie), counter and key swapped 12 - so the
+   allocator is not ordering by declaration.  Computing the key inside the do-while and
+   letting `opt_loop_invariants` hoist it ties at 5; swapping the two increments costs 6;
+   rewriting the bound as `i + 1 < count` costs 29.  Genuine allocator floor. */
 // FUN_001B11C0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
