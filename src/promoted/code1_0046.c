@@ -71,7 +71,7 @@ extern u8 *func_00468940(s64 arg0, s16 arg1);
 extern void func_00453670(void *arg0, s32 arg1, s16 arg2, s16 arg3, s16 arg4);
 extern void func_00453860(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_00453960(void *arg0);
-extern s32 func_004688d0(u8 *arg0, u8 *arg1, s16 arg2);
+extern s32 func_004688d0(u8 *arg0, s8 *arg1);
 extern s32 func_004426e8(const char *a, const char *b);
 extern s32 uGpffffb230;
 extern s32 D_00724BC8;
@@ -1828,6 +1828,27 @@ void func_00467880(u8 *arg0)
 /* object 267 vs retail 312 (-45) before; duplicate i/k loops + st=1 return as */
 /* else of the 0x10 check -> object 311 vs retail 312 (-1, inside 303-321 gate). */
 /* Prior addressing/inline/decl/pragma/signedness hunts above carry (do not redo). */
+/* measured 00467bd0 (owner, this session): five source corrections found by reading retail's
+   frame and call setup.  309/312 (inside), words 276 -> 284, edits 370 -> 368.
+   (a) the body declared a bare `u8 flag` where retail passes a 256-byte stack buffer:
+       R273 and R296 both do `addiu $a1/$a3, $sp, 0x30` and R278 reads it back with
+       `lb $v0, 0x30($sp)`, and the frame runs 0x30..0x130 before the 64-byte block at 0x130.
+   (b) `func_004688d0` was declared here as `(u8 *, u8 *, s16)` - a lying prototype.  Its real
+       definition in src/promoted/sdkFiler.c is `(u8 *arg0, s8 *arg1)`, and retail's call at
+       R272-R274 sets only $a0 and $a1.  Corrected, and the third argument dropped.
+   (c) that call's first argument is `D_00800000[w + 4240]`, not `[w + 3984]` - R272 is
+       `lw $a0, 0x1090($v0)`.
+   (d) the two results read back from the 64-byte block are 32-bit at +36 and +40
+       (`lw $v1, 0x154($sp)` / `lw $v1, 0x158($sp)` at R257/R261), not 16-bit at +24 and +28.
+   (e) the chain had `st == 4` twice - once empty at the top to force the branch order and once
+       with the real arm further down, which is dead code.  Retail compares 4, 3, 2, 1, 0 and
+       then lays the arms out in ascending case order, so the real arm 4 belongs first and the
+       duplicate is gone.  A `switch` spelling of the same chain was measured and is worse (382).
+   Remaining wall is register pressure in the other direction from 001400f0: the body saves
+   $s2/$s3/$s4 that retail does not, so the frame is 0x1A0 against retail's 0x170 - exactly the
+   three extra 16-byte slots.  Retail recomputes `lui $v0, 8; addu $v0, $s0, $v0` at every single
+   field access instead of holding a base.  Inlining h1/h2/e/v at their uses was measured and is
+   worse (387), so the surplus liveness is elsewhere. */
 // FUN_00467BD0 NONMATCHING
 #ifdef SKIP_ASM
 s32 func_00467bd0(u8 *arg0)
@@ -1844,6 +1865,19 @@ s32 func_00467bd0(u8 *arg0)
     w = *(s32 *)(arg0 + 56);
     st = *(s16 *)(D_00800000 + w + 3968);
     if (st == 4) {
+        {
+            s8 buf[256];
+            if (func_004688d0(*(u8 * *)&D_00800000[w + 4240], buf) != 0) {
+                if (buf[0] == 0) {
+                    *(s16 *)(D_00800000 + w + 3968) = 2;
+                } else {
+                    *(s32 *)(D_00800000 + w + 3976) = 1;
+                    func_00442088((char *)&D_00800000[w + 3984], (const char *)iGpffffb028, (char *)w, (char *)buf);
+                    *(s16 *)(D_00800000 + w + 3968) = 3;
+                }
+            }
+            func_00467880((u8 *)w);
+        }
     } else if (st == 3) {
     } else if (st == 2) {
         if ((D_008C0276 & 0x40) != 0) {
@@ -1908,8 +1942,8 @@ s32 func_00467bd0(u8 *arg0)
                     func_00453670(tmp, 10, *(s16 *)(D_00800000 + w + 3974), *(s16 *)(D_00800000 + w + 3970), *(s16 *)(D_00800000 + w + 3972));
                     func_00453860(tmp, 0x4000, 0x1000, 0x2000, 0x8000);
                     if (func_00453960(tmp) != 0) {
-                        *(s16 *)(D_00800000 + w + 3970) = *(s16 *)(tmp + 24);
-                        *(s16 *)(D_00800000 + w + 3972) = *(s16 *)(tmp + 28);
+                        *(s16 *)(D_00800000 + w + 3970) = *(s32 *)(tmp + 36);
+                        *(s16 *)(D_00800000 + w + 3972) = *(s32 *)(tmp + 40);
                     }
                 }
             }
@@ -1938,20 +1972,6 @@ s32 func_00467bd0(u8 *arg0)
             return 0;
         }
         func_00467880((u8 *)w);
-    } else if (st == 4) {
-        {
-            u8 flag;
-            if (func_004688d0(*(u8 * *)&D_00800000[w + 3984], &flag, st) != 0) {
-                if (flag == 0) {
-                    *(s16 *)(D_00800000 + w + 3968) = 2;
-                } else {
-                    *(s32 *)(D_00800000 + w + 3976) = 1;
-                    func_00442088((char *)(w + 3984), (const char *)iGpffffb028, (char *)w, &flag);
-                    *(s16 *)(D_00800000 + w + 3968) = 3;
-                }
-            }
-            func_00467880((u8 *)w);
-        }
     } else if (st == 1) {
         func_004673c0((u8 *)w);
         *(s16 *)(D_00800000 + w + 3972) = 0;
