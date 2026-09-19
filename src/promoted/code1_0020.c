@@ -1343,6 +1343,10 @@ void func_00202e60(u8 *arg0, void *arg1)
    claim with no direct retail evidence that also costs a word is not worth
    banking; if a later pass finds independent evidence for the signedness,
    the census says it is worth 6. */
+/* gate: object 302 against retail 315, -4.1% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00202E70 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00202e70(u8 *arg0)
@@ -2222,6 +2226,10 @@ extern void func_00364c70(void);
 
 /* measured: object 864B/window 944B/normalized_diff 628 (210 differing words, live re-measured current tree). */
 /* measured: 234 vs 216 instrs (minus 18, 7pt short, draft-short pending plus-11 via s0-s1 decl swap and f23-f26 FPR coloring to reach floor); loop-invariant on worsens 210 to 221; slti-at N-A, no trailing short cascade beyond distributed coloring, arg-setup per archived conventions, schedule neutral. */
+/* gate: object 216 against retail 234, -7.7% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00204DC0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -5531,6 +5539,10 @@ f32 func_00201990(u8 *arg0, s32 arg1, s32 arg2);
 /* measured: object 836B/window 832B/normalized_diff 616 (199 differing words, live re-measured current tree). */
 /* measured: top fnalign is absolute-data vs stack-immediate plus frame -0xe0 vs -0x100; extern-load variant improves 199 to 196 but goes 10pt short (182 vs 204 instrs, draft) so kept stack-immediate floor (209 vs 204 instrs, plus 2pt over, good size); slti-at N-A (no lt range, sltiu-at with a1-a2 input coloring), no 2-3 short tail (209 vs 204), arg-setup fixed (Color4 by value, 3-arg providers), loop-invariant neutral. */
 /* measured 0020f730: `schedule on` inside the guard is worth 5 words (199 -> 194). */
+/* gate: object 191 against retail 204, -6.4% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_0020F730 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on

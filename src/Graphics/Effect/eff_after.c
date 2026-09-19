@@ -812,6 +812,10 @@ void func_004bad70(u8 *data, EffAfterVec *position, EffAfterVec *normal) {
    No pooled float constants (noise 0; only 0.0f via mtc1 $zero, no gp-relative loads to bank).
    Unit confirmed via `grep -rl func_004bb1d0 asm/` -> asm/nonmatchings/eff_after/func_004bb1d0.s.
    Production stays INCLUDE_ASM fallback; body preserved here as NON_MATCHING seed. */
+/* gate: object 988 against retail 1026, -3.7% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_004BB1D0 NONMATCHING
 #ifdef NON_MATCHING
 void func_004bb1d0(void *arg0, s32 arg1) {

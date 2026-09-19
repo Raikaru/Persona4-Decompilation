@@ -94,6 +94,10 @@ extern void func_0036b470(void *work, void *vertices);
    WALL: callee-saved allocation shift (e0 in s3 vs s0, mode bases in
    s6/s0/s2/s3 vs s0/s1/s2/s6) and branch polarity (bne vs beq from
    if/else vs irregular-switch layout). */
+/* gate: object 1099 against retail 1142, -3.8% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_003694D0 NONMATCHING
 #ifdef NON_MATCHING
 void func_003694d0(PscModel *model)

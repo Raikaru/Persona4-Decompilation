@@ -1474,6 +1474,10 @@ void func_001ccda0(void)
 {
 }
 /* measured 001ccdb0: `opt_propagation off` inside the guard is worth 2 words (475 -> 473). */
+/* gate: object 493 against retail 530, -7.0% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_001CCDB0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
@@ -1870,6 +1874,10 @@ void func_001cdaf0(u8 *camera)
 }
 /* measured 001cde50: `schedule on` inside the guard is worth 1 words (312 -> 311). */
 /* measured 001cde50: `opt_propagation off` inside the guard is worth 2 words (311 -> 309). */
+/* gate: object 269 against retail 333, -19.2% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_001CDE50 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off

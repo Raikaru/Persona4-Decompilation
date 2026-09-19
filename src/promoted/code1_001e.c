@@ -3453,6 +3453,10 @@ s32 func_001ee490(u8 *arg0) {
    (retail order c1,c0,c2,c3). Swapped order (c1+c0+c2+c3) same earliest hunks, confirming earliest
    frame/s-reg floor hides MACs. Open: frame, s-reg rotation, scheduler ordering (cf. 001eed10 floor).
    Committed as NONMATCHING; production remains ASM (1024B? no, 1600B window). See P023 doc. */
+/* gate: object 383 against retail 398, -3.8% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_001EE610 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001ee610(u8 *arg0, f32 arg1) {

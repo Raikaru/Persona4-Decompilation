@@ -1459,6 +1459,10 @@ s32 func_00308e50(u8 *arg0) {
 /* measured 00308f40: `schedule on` inside the guard is worth 15 words (356 -> 341). */
 /* measured 00308f40: `opt_propagation off` inside the guard is worth 10 words (341 -> 331). */
 /* measured 00308f40 narrow-locals (19 lines: s64 n3->s32 n3, delete dead s64 k, total (s8)*->*(u8*), 8x store dest *(s8*)->*(u8*) + value (s8)func->(u8)func + arg *(s8*)->*(u8*)): dsll32/dsra32 +15->-1, lbu/lb fixed to 0, words 331->328, fnalign edits 357->323 (retail 428/obj 379, window 1712B). Remaining: nop -53, andi +6, beql/bnel, daddiu, dsll/sll packing, move rotation. Store-side u8 is the missing piece: reads-only flips score 333, reads+total+k 333, +s32 n3 335; adding 8x store dest/value/arg u8 reaches 328. */
+/* gate: object 379 against retail 427, -11.2% - OUTSIDE
+   the +-3% band.  Any differing-word score in this note was measured
+   against a body of the wrong length and is not comparable to one
+   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00308F40 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
