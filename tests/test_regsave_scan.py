@@ -56,6 +56,15 @@ class Prologue(unittest.TestCase):
         self.assertIsNone(frame)
 
 
+    def test_caller_saved_float_spill_is_not_a_save(self) -> None:
+        """`swc1 $f2, N($sp)` in the prologue window is a spilled temporary.
+        Counting it reports a register difference no source change can fix -
+        it produced a false `$f1 $f2 $f3` finding on func_00117980."""
+        swc1_f2 = 0xE7A20040        # swc1 $f2, 0x40($sp)
+        _, _, fpr, _ = rs._prologue(pack(ADDIU_SP_230, swc1_f2, SWC1_F20_10))
+        self.assertEqual(fpr, {20})
+
+
 class NopDensity(unittest.TestCase):
     def test_reports_the_share_of_nops(self):
         density, count = rs._nop_density(pack(ADDIU_SP_230, 0, SD_RA_C0, 0))

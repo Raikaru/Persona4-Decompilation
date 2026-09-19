@@ -33,6 +33,8 @@ from measure_guarded import extract_guarded_body  # noqa: E402
 PROLOGUE_WINDOW = 40
 
 SQ, SD, SWC1, SDC1 = 0x1F, 0x3F, 0x39, 0x3D
+# MIPS EABI: $f20-$f31 are callee-saved, $f0-$f19 are not.
+FIRST_SAVED_FPR = 20
 GPR = {
     16: "$s0", 17: "$s1", 18: "$s2", 19: "$s3", 20: "$s4", 21: "$s5",
     22: "$s6", 23: "$s7", 30: "$fp", 31: "$ra",
@@ -58,7 +60,10 @@ def _prologue(words):
             gpr.add(rt)
         elif op == SD and rt == 31:
             ra = imm
-        elif op in (SWC1, SDC1):
+        elif op in (SWC1, SDC1) and rt >= FIRST_SAVED_FPR:
+            # $f0-$f19 are caller-saved: a `swc1 $f2, N($sp)` in the prologue
+            # window is a spilled temporary, not a callee save, and counting
+            # it invents a register difference that no source change can fix.
             fpr.add(rt)
     return frame, gpr, fpr, ra
 
