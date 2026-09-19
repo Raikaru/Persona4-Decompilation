@@ -973,6 +973,17 @@ s32 func_002d4f30(s16 arg0) {
 /* Repro: `python3 -E -s tools/m2c_decompile.py src/Event/Fcl/y_fclShopDraw.c func_002d5040 -o /var/tmp/cold2d5040/m2c.c` (193 lines, void(void*) + s64 homes) + `python3 -E -s tools/romwright_decompile.py func_002d5040 -o /var/tmp/cold2d5040/rom.c` (277 lines, (void*) arity confirmed, CONCAT44/stack extents confirmed); `python3 -E -s tools/probe_variants.py src/Event/Fcl/y_fclShopDraw.c func_002d5040 --candidate V5=/var/tmp/cold2d5040/v5_workFirst.c` (924) + `python3 -E -s tools/fnalign.py src/Event/Fcl/y_fclShopDraw.c func_002d5040 --candidate /var/tmp/cold2d5040/v5_workFirst.c --quiet` (1105/1090) + `python3 -E -s tools/measure_guarded.py src/Event/Fcl/y_fclShopDraw.c func_002d5040`. */
 /* Rounds in batch order (count first): v1 964 (m2c+rom de-noise, Vec2f/u64/RGBA homes, s32 c16=(s16)2740/106cd0 locals for dsll32/dsra32, byte-first addu (*(s8*)((u8*)(*(s8*)(work+8)+(u32)work)+0xF73)), 1153/1108 +45 FAIL); v1 propOff 927 (-37, 1090/1105 -15 PASS) <-- family convention (31fa20 needs propOff; 315600 deadOff 762->755; 302770 peephole 787->728); v1 deadOff 973 worse, peephole 1141 worse; v2 dual-04e0 999 worse (1165 +57 FAIL); v3 u16-mask 931 worse; v4 h0-handle 926 (-1, s32 h0=(s32)46a770 first-call save to $s2); v5 workFirst 924 (-2, best PASS) + v6 tmpLast 924 tie; v5 schedOn 923 (-1) but 942/1105 -163 FAIL unbankable; v7 noDoubleExt 927 worse. Step3 subscript tie (Vec2f/u64/RGBA already retail ld/lw forms); Step4 decl-order tie (workFirst/tmpLast). Stopped after three non-improving rounds above 60. Banked v5+propOff as guarded floor. */
 /* Walls (same float-hoist+scheduling as sibling de5a0, now at 924): retail f20 hoisted vs object f12 rematerialised per 2970 pair (lui+lwc1 hoist vs interleaved lwc1/lui); retail lwc1/swc1 Vec2f copy vs object ld/sd; retail andi vs object ori/and under propOff (&0xFFFF); $s0/$s1 colouring (work/tmp/h0/dA/dB) persists -- body already in 7o form (bare decls, statement assigns in retail order) so eight probes are ties per handoff 7o; all logic matches: 2a30/0b20/75680 chain + three-case switch on work[7] (68b0/68e0 vs 6940/6970) + eight cacd0 digits (22.0f/0xF/0/0x1E/0x7B/h0/h1/0xA9) + blez/bgez tail pair (360+87/245/23). Prior nd-814 note superseded (sign-extension locals now in place via s32 cA/cB/c16); lever-1 audit void(void*) kept, cacd0 11-arg file decl kept (12-arg claim was wrong: 8 int regs + 2 stack + 1 float = 11). */
+/* 2026-09-18 opcode census; floor stands at 924.  `tools/opclass.py` ranks
+   this the largest opcode-class surplus on the board: `dsra32 +37`,
+   `dsll32 +37` against `mtc1 -37` and `lui -35`.  Thirty-seven
+   sign-extension pairs is the textbook too-narrow-local signature, but the
+   `(s16)` casts in this body are not the cause - dropping the redundant
+   `(s16)` on values that are already narrow ties at 924, declaring `cA`,
+   `cB` and `c16` as `s16` and removing the casts ties at 924, and dropping
+   every `(s16)` result cast costs 936.  The paired `mtc1`/`lui` deficit says
+   retail materialises 35 constants this body does not, so the two halves are
+   probably one phenomenon: retail keeps wide constants where this body
+   narrows and re-extends.  That is the thread for the next pass. */
 // FUN_002D5040 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off

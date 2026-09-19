@@ -496,6 +496,87 @@ retail and an $sN in the candidate.  It does not always apply - on
 the shared `j` ties at 27, so the cause there is something else.  One probe
 settles it either way.
 
+### 7u. Do not pragma your way into the count gate
+
+The 3% gate exists to prove the *shape* of the body is right.  It can be
+defeated, and one worker nearly did: `func_001c2ee0` sat 247 instructions
+short, its faithful fixes closed only 31 of that, and stacking
+`peephole off` (+115 on its own), `opt_common_subs off`, `opt_dead_assignments
+off` and `opt_propagation off` added another ~191 - landing at 984 against
+retail's 1009, comfortably "inside" the 982-1042 band.
+
+That is not a recovery.  A body structurally 216 instructions lighter than
+retail is still 216 lighter with four pragmas on; the pragmas only change how
+much code the generator emits for the same source.  Banking it would have
+recorded a false claim that the structure was correct.
+
+**How to tell a real pragma win from inflation.**  A real one moves the
+*differing word* count by 10 to 60 and leaves the instruction count roughly
+steady - `peephole off` was worth 787 to 728 on `func_00302770` at +2.2%
+count, and `opt_dead_assignments off` 762 to 755.  Inflation shows up as a
+large positive instruction delta with the word score barely moving.  If a
+pragma changes the instruction count by more than a percent or two, it is
+answering the gate, not the question.
+
+The honest finding from that function is worth more than the fake pass: at
+both `tanf` sites retail recomputes `0.5 * B8` per use, loads the GP constant
+per use, and duplicates the scaling per polarity (19 instructions against the
+candidate's 4, and 38 against 15), where the candidate caches one value and
+merges the scalings.  That is section 7k, and following it faithfully is
+worth +31 with the rest of the gap the same mechanism repeated.
+
+**The second way to fake a pass is compensating surplus.**  On
+`func_001c21d0` a worker reported the band met at 855 against retail's 836 -
+and said so itself: "band met via compensating spills, object 85 against
+retail 21".  Two named blocks were still missing, `retail[434:471]` at 37
+instructions and `retail[565:585]` at 24, while a third region emitted 64
+instructions retail does not have.  A 61-instruction hole plus a
+64-instruction lump is two errors cancelling, not a correct shape.
+
+When a count lands inside the band, check *composition* before banking: the
+largest `insert` and `delete` runs from `tools/fnalign.py --candidate` should
+both be small.  If you can name a missing block and a surplus block at the
+same time, the gate result is meaningless.
+
+### 7t. The opcode census, and how to read it
+
+`tools/opclass.py` is the fastest triage on the board and it was sitting
+unused because of a usability bug: it takes no options, so `opclass.py
+--help` turned `--help` into a path filter, matched nothing and printed
+"floors scanned: 0", which looks exactly like a broken tool.  It now rejects
+option-like arguments.  Run it bare to scan every guarded floor - 410 floors
+in about two minutes - or pass specific `.c` paths.
+
+It counts each mnemonic in retail and in the candidate and prints the
+difference, ranked by how much of the surplus falls in classes with known
+causes.  333 of 410 floors carry one.  The docstring maps class to cause;
+the ones that have actually paid here are:
+
+  * `dsll32`/`dsra32` surplus - a local or parameter declared too narrow.
+    A shift of 0x10 is an s16/s8 holding 32 bits, a shift of 0 is an s64
+    holding 32 bits.
+  * `lbu` against `lb`, `lhu` against `lh` - unsigned where retail is signed.
+  * `cvt.s.w`/`mtc1` surplus - an extern declared with the wrong return type,
+    or an integer local that should be `f32`.
+  * `jalr` against `jal` - calling through a pointer where retail calls
+    directly, usually a missing direct declaration.
+  * `lui` surplus - a constant rematerialised per iteration that retail
+    hoists; measure `opt_loop_invariants on`.
+
+**Read the paired deficits, not just the surplus.**  The top floor,
+`func_002d5040`, shows `dsra32 +37, dsll32 +37` alongside `mtc1 -37,
+lui -35`.  The tempting reading is thirty-seven too-narrow locals, and it is
+wrong: dropping the redundant `(s16)` casts ties at 924, declaring the locals
+`s16` ties at 924, and removing every result cast costs 936.  The matching
+`mtc1`/`lui` deficit says retail materialises 35 constants this body does
+not, so both halves are one phenomenon - retail keeps values wide where this
+body narrows and re-extends.  A surplus with an equal and opposite deficit in
+a different class is one mechanism, not two.
+
+That is the same discipline that cracked `func_003768e0`: `swc1` equal at
+150/150 disproved the missing-spill theory outright, and the real deficit was
+`lwc1` -24.  **Count both sides before believing a mechanism.**
+
 ### 7s. Run the pragma round last, not first
 
 The recipe puts free pragma probes first because they are cheap.  On an
