@@ -67,9 +67,19 @@ def _names(regs):
     return " ".join(GPR.get(r, f"$r{r}") for r in sorted(regs))
 
 
-def scan(source: Path, function: str, addr: int, elf, cfg):
-    retail_words = list(struct.unpack(f"<{PROLOGUE_WINDOW}I",
-                                      elf.bytes_at(addr, PROLOGUE_WINDOW * 4)))
+def _nop_density(words):
+    """Fraction of the window that is `nop`.  A high figure means retail's
+    translation unit was built with scheduling off and the delay slots were
+    never filled; see handoff 7au."""
+    if not words:
+        return 0.0, 0
+    nops = sum(1 for word in words if word == 0)
+    return nops / len(words), nops
+
+
+def scan(source: Path, function: str, addr: int, elf, cfg, length=None):
+    span = max(PROLOGUE_WINDOW, length or 0)
+    retail_words = list(struct.unpack(f"<{span}I", elf.bytes_at(addr, span * 4)))
     text = source.read_text(errors="replace")
     body = extract_guarded_body(text, f"FUN_{addr:08X}", function)
     if body is None:
@@ -78,11 +88,13 @@ def scan(source: Path, function: str, addr: int, elf, cfg):
         candidate = Path(tmp) / "candidate.c"
         candidate.write_text(body)
         obj, _ = fnalign._object_for(source.resolve(), function, candidate, cfg)
-    count = min(PROLOGUE_WINDOW, len(obj) // 4)
+    count = len(obj) // 4
     object_words = list(struct.unpack(f"<{count}I", obj[: count * 4]))
 
-    rframe, rgpr, rfpr, rra = _prologue(retail_words)
-    oframe, ogpr, ofpr, ora = _prologue(object_words)
+    rframe, rgpr, rfpr, rra = _prologue(retail_words[:PROLOGUE_WINDOW])
+    oframe, ogpr, ofpr, ora = _prologue(object_words[:PROLOGUE_WINDOW])
+    rdensity, rnops = _nop_density(retail_words)
+    odensity, onops = _nop_density(object_words)
     return {
         "function": function,
         "source": str(source),
@@ -94,6 +106,10 @@ def scan(source: Path, function: str, addr: int, elf, cfg):
         "extra_gpr": sorted(ogpr - rgpr),
         "missing_fpr": sorted(rfpr - ofpr),
         "extra_fpr": sorted(ofpr - rfpr),
+        "retail_nops": rnops,
+        "object_nops": onops,
+        "retail_nop_density": round(rdensity, 4),
+        "object_nop_density": round(odensity, 4),
     }
 
 
@@ -114,7 +130,11 @@ def main() -> int:
                             windows["sha1"])
 
     if args.source and args.function:
-        targets = [(args.source, args.function, int(args.function[5:], 16), None)]
+        addr = int(args.function[5:], 16)
+        # windows["windows"] maps bare hex address to the retail window in bytes
+        span = windows["windows"].get(args.function[5:].lower())
+        row = {"retail": span // 4} if span else None
+        targets = [(args.source, args.function, addr, row)]
     else:
         if not args.floors.exists():
             print(f"no floor list at {args.floors}; pass source and function",
@@ -129,25 +149,30 @@ def main() -> int:
     results = []
     for source, function, addr, row in targets:
         try:
-            found = scan(source, function, addr, elf, cfg)
+            found = scan(source, function, addr, elf, cfg,
+                         length=row["retail"] if row else None)
         except Exception as exc:  # a body that will not compile alone is not our problem
             print(f"  {function}: {type(exc).__name__}: {exc}", file=sys.stderr)
             continue
         if found is None:
             continue
         if row:
-            found["edits"] = row["edits"]
-            found["object"] = row["object"]
             found["retail"] = row["retail"]
+            if "edits" in row:
+                found["edits"] = row["edits"]
+                found["object"] = row["object"]
         results.append(found)
 
     mismatched = [r for r in results
                   if r["missing_gpr"] or r["extra_gpr"]
-                  or r["missing_fpr"] or r["extra_fpr"]]
+                  or r["missing_fpr"] or r["extra_fpr"]
+                  or abs(r["retail_nop_density"] - r["object_nop_density"]) > 0.05]
     for r in sorted(mismatched, key=lambda r: -r.get("edits", 0)):
         head = f"{r['function']}"
         if "edits" in r:
             head += f"  {r['object']}/{r['retail']}  {r['edits']} edits"
+        elif "retail" in r:
+            head += f"  retail {r['retail']}"
         print(head)
         print(f"    frame  retail 0x{r['retail_frame']:x}  object 0x{r['object_frame']:x}"
               if r["retail_frame"] and r["object_frame"] else "    frame  ?")
@@ -161,10 +186,19 @@ def main() -> int:
             print(f"    retail also saves  {' '.join('$f%d' % f for f in r['missing_fpr'])}")
         if r["extra_fpr"]:
             print(f"    body saves spare   {' '.join('$f%d' % f for f in r['extra_fpr'])}")
+        if abs(r["retail_nop_density"] - r["object_nop_density"]) > 0.05:
+            verb = ("retail is the less scheduled side"
+                    if r["retail_nop_density"] > r["object_nop_density"]
+                    else "the body is the less scheduled side")
+            print(f"    nops   retail {r['retail_nops']}"
+                  f" ({r['retail_nop_density'] * 100:.1f}%)"
+                  f"  object {r['object_nops']}"
+                  f" ({r['object_nop_density'] * 100:.1f}%)   {verb};"
+                  " measure `#pragma schedule` both ways, count decides (7au)")
         print(f"    {r['source']}")
 
-    print(f"\n{len(mismatched)} of {len(results)} scanned bodies allocate a different "
-          "callee-saved set than retail")
+    print(f"\n{len(mismatched)} of {len(results)} scanned bodies differ from retail in "
+          "callee-saved set or scheduling")
     if args.json:
         args.json.write_text(json.dumps(results, indent=2))
         print(f"wrote {args.json}")
