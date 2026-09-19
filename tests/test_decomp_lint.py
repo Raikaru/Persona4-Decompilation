@@ -892,5 +892,57 @@ class ScanFailureTests(unittest.TestCase):
                 lint.ROOT = old_root
 
 
+class GuardTagged(unittest.TestCase):
+    """M003: a guarded body whose marker lost its NONMATCHING tag.
+
+    Nothing in the build breaks, which is why it needs a rule: the floor
+    simply stops being findable by every audit that ranks unfinished work.
+    """
+
+    GUARDED = (
+        "// FUN_00100010 NONMATCHING\n"
+        "#ifdef NON_MATCHING\n"
+        "s32 func_00100010(void)\n"
+        "{\n"
+        "    return 0;\n"
+        "}\n"
+        "#else\n"
+        'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+        "#endif\n"
+    )
+
+    def test_tagged_guard_is_clean(self) -> None:
+        self.assertNotIn("M003", codes(lint_text(self.GUARDED)))
+
+    def test_untagged_guard_is_reported(self) -> None:
+        text = self.GUARDED.replace("// FUN_00100010 NONMATCHING",
+                                    "// FUN_00100010")
+        self.assertIn("M003", codes(lint_text(text)))
+
+    def test_promoted_function_without_a_guard_is_clean(self) -> None:
+        """Dropping the guard at zero words is the goal, not a violation."""
+        text = (
+            "// FUN_00100010\n"
+            "s32 func_00100010(void)\n"
+            "{\n"
+            "    return 0;\n"
+            "}\n"
+        )
+        self.assertNotIn("M003", codes(lint_text(text)))
+
+    def test_tag_belongs_to_the_nearest_marker_above(self) -> None:
+        """A tagged neighbour must not excuse the untagged one below it."""
+        text = self.GUARDED + (
+            "// FUN_00100020\n"
+            "#ifdef NON_MATCHING\n"
+            "void func_00100020(void) {}\n"
+            "#else\n"
+            'INCLUDE_ASM("asm/nonmatchings/thing", func_00100020);\n'
+            "#endif\n"
+        )
+        findings = [f for f in lint_text(text) if f.code == "M003"]
+        self.assertEqual([f.line for f in findings], [10])
+
+
 if __name__ == "__main__":
     unittest.main()
