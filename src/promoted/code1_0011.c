@@ -1490,6 +1490,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00112830);
 /* - reloc-only [51:52] addiu $a1,$gp,-0x6414 vs addiu $a1,$gp,0 (iGpffff9bec): immediate. */
 /* - reloc-only [56:58] lui/addiu for D_005E4798: immediate. */
 /* No register rotation (regs $s1/$s0/$s2 correct in this shape; the 11-word colour-first variant rotates them -- see WALL above), no $a0-$t0 spill move, no operand-order (subu order already retail's via 255-(arg1&0xFF)), no branch-offset. Next person: finished on frame/count/regs, open only on 5-slot schedule. */
+/* measured 001130c0 (owner, this session): 110/110 exact, **4 fnalign edits**, 5 differing
+   words, and all four are one register transposition: retail colours the two colour bytes
+   and the alpha temporary $s1/$s0/$s2 where the object uses $s2/$s1/$s0.  Reordering the
+   three assignments so the colour reads precede the alpha computation - which is retail's
+   emission order, `lbu 0xde`/`lbu 0xdd` at R27-R28 before `andi`/`subu` at R29-R31 - is
+   worse, 11 edits.  Genuine allocator floor. */
 // FUN_001130C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)

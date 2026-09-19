@@ -2114,6 +2114,16 @@ void func_002a7710(s32 arg0, u8 *arg1) {
 }
 
 /* measured 002a7920: guarded 1350wd via `python3 tools/measure_guarded.py src/Kernel/mc.c func_002a7920`; fnalign retail 1528 vs object 1531 instrs (+3, +0.2% inside 3% gate 1482-1574), 828 edits (+1 reloc-only) via `python3 tools/fnalign.py src/Kernel/mc.c func_002a7920 --candidate /tmp/compact7920_s64.c --quiet`; composition max pure hole 6 max pure lump 7 - CLEAN, no hole-against-lump. M2C + hand de-noise to file idiom reusing MATCHed neighbour call orderings (002a7920 ints-first, 002a9f50/002a66d0 floats-first per 002a4f20/002a5630 at 1327/1457; 0025f430 as 8 ints + 6 floats per shdSprite MATCH, 0025f3f0 floats-first per mc.c decl; 0045d6e0 as (ptr,ptr,float,int)): (f32)(s32) kept signed (no unsigned site); colour adda/madd pair as 1.0f*233.0f + -76.0f*ret and 1.0f*44.0f + 113.0f*ret with 0x4F000000 guard; msub args 8/9 of 0025f430 as 1.0f*base - scale*fparg3 (53/21, 70/32, 51/35); 0x41F00000 as 30.0f, 0x20/0x3E f3 as 0.0f/30.0f; D_00887300 via single setState base (retail two regs); tail 0x10 byte loop + 160.0f quad + 0045d6e0. s64 var/a to reach gate (retail 32-bit addiu/slti vs s64 daddiu/dsll; values small, semantics preserved). Residual is saved-reg rotation + FPR colouring + accumulator scheduling (adda/madd/msub as plain mul/sub). */
+/* fix 2026-09-19 (decl): s64 var/a forced 64-bit extends retail never emits (addiu+dsll32/dsra32 vs plain addiu/slti) -- s32 var/a drops 68 instrs; (u8)a0b view at & 0xFF sites kills s8 sign-extracts (dsll32/dsra32/andi -> plain andi, matching retail andi $a1,$s2,0xff; bare a0b keeps s8 for sign-extended call args per retail move $a1,$s2). fnalign retail 1524 vs object 1439, 667 edits (+1 reloc, was 828/-161), guarded 1341wd (was 1350), frame 0xf0/0xe0, GPR exact, retail still saves $f30 (f30-value 9.0+fparg2 pinned $f27 here vs $f30 there; 11 live floats in 10 regs). Investigated and ruled out: second-copy 21.0f/53.0f -> 32.0f/75.0f alternation (retail alternates per sub-block at f29/f28 recomputes AND var==0 inlines, but both positional mappings regress +9/+15 -- needs block restructuring, not constant swaps; live values may already be correct with 32/75 confined to retail-dead legs). Residual is micro-diffs (max hole/lump unchanged shape) + $f30 packing. */
+/* gate: func_002a7920 is now OUTSIDE the +-3% band at 1439 against retail 1524 (-5.6%).
+   The sink pass that produced this is a real structural gain - the callee-saved set
+   now matches retail exactly and fnalign edits fell to 667 from 828 edits - but it
+   also removed real instructions, and the body is short by the difference.  Recorded
+   outside the gate deliberately rather than propped up: no differing-word score
+   measured against it is comparable to one measured inside (handoff 7y).  The next
+   step is to find which of the sunk recomputations retail actually performs at each
+   use and write those back - the register colouring is already right, so the missing
+   instructions are recomputation, not spills. */
 // FUN_002A7920 NONMATCHING
 #ifdef NON_MATCHING
 void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
