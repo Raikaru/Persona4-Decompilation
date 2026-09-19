@@ -919,6 +919,13 @@ class GuardTagged(unittest.TestCase):
                                     "// FUN_00100010")
         self.assertIn("M003", codes(lint_text(text)))
 
+    def test_untagged_skip_asm_guard_is_reported(self) -> None:
+        """The older `#ifdef SKIP_ASM` spelling hides a body just as well."""
+        text = self.GUARDED.replace("// FUN_00100010 NONMATCHING",
+                                    "// FUN_00100010").replace(
+            "#ifdef NON_MATCHING", "#ifdef SKIP_ASM")
+        self.assertIn("M003", codes(lint_text(text)))
+
     def test_promoted_function_without_a_guard_is_clean(self) -> None:
         """Dropping the guard at zero words is the goal, not a violation."""
         text = (

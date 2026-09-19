@@ -2147,6 +2147,7 @@ s32 func_00468fa0(u8 *arg0) {
 // FUN_00468FF0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
+#pragma opt_loop_invariants on
 void func_00468ff0(s32 arg0, u8 *arg1) {
     extern s32 func_003d5fb0(u8 *arg0);
     extern void func_003d6010(u8 *arg0);
@@ -2710,6 +2711,7 @@ loop_94:
         break;
     }
 }
+#pragma opt_loop_invariants reset
 #pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00468ff0);
