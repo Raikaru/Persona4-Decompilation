@@ -1444,6 +1444,22 @@ u8 *func_00145270(s32);                  /* extern */
    against a body of the wrong length and is not comparable to one
    measured inside the gate (handoff 7y).  Fix the count first. */
 /* 2026-09-19 outer 0,1,2 (was 2,1,0) + inner 0,1 (was 1,0) with defaults (only no_branch_likely on; removed schedule on/subs off): 219 words (was 233), fnalign 271 vs 268 (+1.1% inside, was 252 vs 264 -4.5% outside), 119 edits (was 409). Outer alone 246/167, inner alone 236/167 (sched off/subs on); sched on/subs off both 234/199. 108-vs-47 was inner large (8 divides+wrap, object[70:178]) vs retail 0-block+prefix (47, retail[29:75]); arm order alone tied 233-235 in words but inner swap cuts edits 409->239, both->119. No promotion (119 remain: float remat +7, arg order, scheduling floor). */
+/* measured 00288af0 (owner, this session): the dispatch was an if-else chain in source order
+   0, 1, 2 and retail is a `switch`.  Retail compares **descending** - `addiu $v0,$zero,2; beq`
+   at R8-R9, then 1 at R12, then `beqz` for 0 at R14, then `b` to the default - and then lays the
+   arm bodies out in **ascending** case order, with case 0's `D_008821E0` test and
+   `lw 0xc($s2)` immediately after the dispatch.  That combination is MWCC's switch lowering and
+   an if-else chain cannot produce it.
+   Rewriting the chain as `switch (arg0)` with cases 0, 1, 2: fnalign edits **409 -> 104**,
+   object 273 against retail 268 (+1.9%, inside).  Reordering the chain by hand to 2, 1, 0 gets
+   part of the way - 167 edits - which is the tell: if reversing a chain helps but does not
+   close, the construct is a switch.
+   Remaining wall is two spare saved registers.  The object keeps `$s3` and `$s4` for a frame of
+   0xA0 against retail's 0x80 - exactly two 16-byte slots - because it CSEs the address
+   `arg3 + 0xC` into `addiu $s1, $s2, 0xc` and holds it across all six uses, where retail reloads
+   `lhu 0xc($s1)` at each one.  Both pragmas that could suppress it were measured and rejected:
+   `opt_common_subs off` reaches 80 edits but blows the count to 291 (+8.6%, outside the gate),
+   and `opt_propagation off` is worse at 115. */
 // FUN_00288AF0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma no_branch_likely on
@@ -1465,7 +1481,8 @@ s32 func_00288af0(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
     s8 temp_3;
     u8 *temp_2;
 
-    if (arg0 == 0) {
+    switch (arg0) {
+    case 0:
         if (D_008821E0[0] != 1) {
             return 0;
         }
@@ -1479,9 +1496,9 @@ s32 func_00288af0(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
             }
         }
         return 1;
-    } else if (arg0 == 1) {
+    case 1:
         return 1;
-    } else if (arg0 == 2) {
+    case 2:
         if (M2C_FIELD(arg4, u16 *, 0) != arg1) {
             return 1;
         }
