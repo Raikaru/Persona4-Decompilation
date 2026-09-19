@@ -2626,7 +2626,7 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
     *(f32 *)(arg0 + 0x1C) = 0.0f;
 }
 /* M2C-raw draft (does not compile; no sizes/words yet; window 1696B): V048 body has 78 M2C_ERROR COP2 sites (pextlb/pextlh/qmtc2/vitof0/vmulx/vmove unpacks + sqc2/vsub/vaddw/vmul stores -- full VU sequence needing per-transfer asm blocks verbatim 00485630/effBlurFilter shape) + 2 M2C_BITWISE + 30 M2C_FIELD (nested; iterative innermost-first expansion recipe proven clean) + M2C_UNK s0/s1/spE0/spD0 (dead locals, only decls -- s32 safe, zero codegen) + s128/u128 quad slots (->u_long128 direct, separate 16B slots per Main, never merged); conversion casts (f32)(u32) at 0x48/0x98/0x194/0x500 and (u32)float at 0x20C per header; next: expand FIELDs + fix types in scratch, convert each M2C_ERROR to one asm block (block boundaries = addiu setup), goto-form control flow, then probe (row is unique so probe finds it) + fnalign top-down. Production stays ASM. */
-// FUN_0048B340 NONMATCHING
+// FUN_0048B340
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048b340);
 /* Decode 0048b9e0 (window 2656B=664w, gate 2576-2736B/644-683w; frame 0x140=320B same as ec50; void(u8*) family template: +4 count, +C flags, +10 s32, +14 acc, +18 nodes stride 0x20, +1C out stride 7, +20 config). Calls: bceb0, bd0b0 x9, 44b7b0, bd050 x2, b220 x2, 43f810, b340. 11 VU ops: lqc2 0x10(config) pre-bceb0 + lqc2/sqc2 on 0x110/0x120/0x130 + normalize (vmul.xyz/mulax.w/madday.w/maddz.w/vrsqrt/vwaitq/vmulq.xyz) + vmulax.xyzw chain + vmul.xyzw/vadd.xyzw + sqc2 to node (same skeleton as ec50, fewer GP sites). GP via $28: 7F80/7F84 only (2 constants); immediates hoisted to f20-27. 3 unsigned (f32)(u32) branchless sites. Reuse ec50 v2 verbatim, adjust out indices/config offsets (notably no 0xE4/0xE0 e4/e0 pair handling differences per retail diff) and drop ec50-specific 0xD8 vsub gate if absent. 3 slots only, one asm per transfer, compiler addresses, memory+exact clobbers, scalar in C, vf0/lane/broadcast/W=0. Outside 3% stays ASM with factual note. Production stays ASM. */
 /* measured: GUARDED_SCORE 619 via probe_variants (v1 629/691 outside gate 644-683, prop off 619/677 inside kept; loopinv 631, common 699, peep 666 worse, sched/strength/dead/unroll tie; subscript out[] vs *(out+) 619 tie kept idiom; decl tmp120/tmp130 swap 619 tie kept original; levels 1 697/3 623 worse). Retail 664/obj 677 (+13 +2.0% inside); frame 0x140 exact; fnalign 664/677, 479 edits. Biggest remaining: daddu 0 vs 28 shared with d8c0/cdf0, saved-reg rotation, VU colours, branch/scheduling. */
@@ -2957,7 +2957,7 @@ loop_0048c440_check:
     *(f32 *)(temp_6 + 0xE0) = *(f32 *)(temp_5 + 0xE0) * fparg0;
 }
 /* M2C-raw draft (does not compile; window 2176B): V048 body has M2C_ERROR COP2 sites + 93 M2C_FIELD (nested; same iterative expansion recipe) + M2C_UNK s2/s4 (dead -- s32) + s128/u128 (->u_long128, separate slots); casts (f32)(u32) at 0x148/0x208/0x250/0x620 per header; COP1 adda/madd + COP2/VU ruled out per header (no plain-C closure attempted -- asm blocks required); next: same recipe as b340 (types -> probe -> per-transfer asm -> goto-form -> fnalign). Production stays ASM. */
-// FUN_0048C4E0 NONMATCHING
+// FUN_0048C4E0
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048c4e0);
 // FUN_0048CD60
 void func_0048cd60(u8 *arg0, f32 fparg0) {
@@ -3617,7 +3617,7 @@ loop_0048e270_check:
     *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
 }
 /* M2C-raw draft (does not compile; window 2256B per header): V048 body has M2C_ERROR COP2 sites + 95 M2C_FIELD (nested; same iterative expansion recipe) + M2C_UNK s2/s4 (dead -- s32) + s128/u128 (->u_long128, separate slots); casts (f32)(u32) at 0x154/0x1FC/0x260/0x674 per header; same COP1/COP2 ruled-outs as c4e0; next: same recipe as b340. Production stays ASM. */
-// FUN_0048E2F0 NONMATCHING
+// FUN_0048E2F0
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048e2f0);
 // FUN_0048EBC0
 void func_0048ebc0(u8 *arg0, f32 fparg0) {
