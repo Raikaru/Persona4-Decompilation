@@ -558,21 +558,27 @@ false positive.  This tool settles which is which mechanically, on two tests:
   and looks like a textbook move until you notice the ranges begin at 958 and
   945.
 
-Run over the **sixty worst first-party floors**:
+Run over the **worst one hundred and sixty first-party floors** (ranks 1-60
+and 61-160 measured separately):
 
-| verdict | count |
-|---|---|
-| MIXED - neither a clean move nor a clean recolour | 34 |
-| IN-PLACE - diverges where it stands | 11 |
-| UNPAIRED - one-sided run, code missing or surplus | 11 |
-| RECOLOUR - same code, different registers | 1 |
-| **MOVE** | **0** |
+| verdict | ranks 1-60 | ranks 61-160 |
+|---|---|---|
+| MIXED - neither a clean move nor a clean recolour | 34 | 41 |
+| IN-PLACE - diverges where it stands | 11 | 13 |
+| UNPAIRED - one-sided run, code missing or surplus | 11 | 22 |
+| RECOLOUR - same code, different registers | 1 | 5 |
+| **MOVE** | **0** | **0** |
 
-**There is not one genuine relocated block left in the top sixty.**  That
-closes the lever at this end of the list and redirects the work: the
-remaining large floors need code written or removed (UNPAIRED), liveness
-changed (RECOLOUR, and the register work in 7at), or a region understood from
-scratch (MIXED).  Reordering blocks is finished as a strategy here.
+**There is not one genuine relocated block in the worst hundred and sixty
+floors.**  That closes the lever and redirects the work: the remaining large
+floors need code written or removed (UNPAIRED, 33 of them), liveness changed
+(RECOLOUR, 6, plus the register work in 7at), or a region understood from
+scratch (MIXED, 75).  Reordering blocks is finished as a strategy here.
+
+The six RECOLOUR floors are the cheapest of the three categories because the
+fix is named: `func_003694d0` (0.859), `func_001ed700` (0.827),
+`func_00207b00` (0.908), `func_0036ee60` (0.896), `func_00497ce0` (0.889),
+`func_0049fbf0` (0.862) and `func_0049aa30` (0.877).
 
 Worked example of what MIXED means in practice: `func_001400f0`'s pair is
 retail[1167:1776] (609 instructions) against object[1077:1750] (673) at
