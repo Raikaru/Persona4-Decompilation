@@ -2126,7 +2126,7 @@ void func_00216e50(void)
 {
 }
 
-/* archived Lane0021Full_00216e60_body.c installed 2026-09-19 for fresh measurement (header claimed 1119/1213 outside gate on 09-18); declaration fixes as needed below. */
+/* measured 00216e60: retail 1213 instrs (4864B window), object 1181 instrs (4724B, -2.6%) via `python3 -E -s tools/fnalign.py src/promoted/code1_0021.c func_00216e60 --candidate /tmp/prod_16e60.c` (was 1119, 424 edits +10 reloc-only; now 385 +11). Truthful fixes: D_00887300[0](1,0)+(8,1) before box, 103.0f-(f32)box3 for 83 (retail 103-20 split, cf. func_00215c10 85.0f hoist where ten of twelve diffs trace to one sunk constant), two func_00201720(1,1) after flag8 arms, extra func_002012d0(94,81) inside colour guard, (u8) pulse clamp, (s8)index/n/half compare. Frame 0x140 correct; residual prologue park order, FPU colouring, branch polarity. Inside gate 1177-1249, kept as floor. */
 // FUN_00216E60 NONMATCHING
 #ifdef NON_MATCHING
 void func_00216e60(u8 *arg0, u8 *arg1)
@@ -2295,12 +2295,14 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                 t = (f32)count / 4.0f;
                 fade = 2.0f * t - t * t;
                 if (*(u16 *)(arg1 + 0x12) != 1) {
+                    D_00887300[0](1, 0);
+                    D_00887300[0](8, 1);
                     work.c13c[0] = 0;
                     work.c13c[1] = 0;
                     work.c13c[2] = 0xFF;
                     work.c13c[3] = 0;
                     work.box0 = 104;
-                    work.box1 = (s32)(83.0f - 16.0f * fade);
+                    work.box1 = (s32)(103.0f - (f32)work.box3 - 16.0f * fade);
                     work.box2 = 400;
                     work.box3 = 20;
                     func_0045d6e0(work.c13c, &work.box0, 0, 0.0f);
@@ -2324,12 +2326,16 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                 func_002012d0((u8 *)p, 0.0f, 81.0f);
                 func_00201410((u8 *)p, 10, 44, 186.0f, fade);
                 func_00201410((u8 *)p, 10, 41, 402.0f, fade);
+                func_00201720((u8 *)p, 1.0f, 1.0f);
             } else {
                 func_002012d0((u8 *)p, 94.0f, 81.0f);
                 func_00201410((u8 *)p, 10, 40, 0.0f, fade);
                 func_00201410((u8 *)p, 10, 41, 400.0f, fade);
+                func_00201720((u8 *)p, 1.0f, 1.0f);
                 if ((*(u16 *)(arg1 + 0x10) & 4) && work.c13c[3] != 0) {
-                    s32 bits = *(s32 *)(*(s32 *)(arg1 + 0x20) + 0xA64);
+                    s32 bits;
+                    func_002012d0((u8 *)p, 94.0f, 81.0f);
+                    bits = *(s32 *)(*(s32 *)(arg1 + 0x20) + 0xA64);
                     all = (func_002340c0(bits, 0x400) != 0 ||
                            func_002340c0(bits, 0x800) != 0);
                     if (func_002340c0(bits, 1) != 0 ||
@@ -2357,7 +2363,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                     } else {
                         half = 0x27; pulse = 0x66; work.cB0[0] = 0x66; work.cB0[1] = 0x66;
                     }
-                    if (index == 0x27 && n == 0x27 && half == 0x27 && !all) {
+                    if ((s8)index == 0x27 && (s8)n == 0x27 && (s8)half == 0x27 && !all) {
                         work.c13c[0] = 0x66;
                         work.c13c[1] = 0x66;
                         work.c13c[2] = 0x66;
@@ -2394,7 +2400,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                                       0xFF, 0x65, 0x74, work.c13c[3]);
                         if (index == 0x25) {
                             pulsef = func_0044b7b0(fGpffff8478 * fGpffffb47c);
-                            pulse = (s32)(255.0f * (fGpffff847c + fGpffff8218 * pulsef));
+                            pulse = (u8)(255.0f * (fGpffff847c + fGpffff8218 * pulsef));
                             fGpffffb47c += 12.0f;
                             if (fGpffffb47c >= 180.0f) {
                                 fGpffffb47c -= 180.0f;
