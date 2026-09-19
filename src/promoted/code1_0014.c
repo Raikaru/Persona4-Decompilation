@@ -272,6 +272,22 @@ static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
 
 
 /* measured 001400f0: banked exact 1792/1792 (1991+4, hole114/lump0). Frame disproof: h1818+cE8/cE0 function-wide gives 0x200->0x230 exact, 1791/1791, 2007 edits (+16); cols/alpha still spill with reloads. 7as correction: 00330060 aliased two locals onto one slot (corrupts meaning, whole chain), ours merely offset (uniform shift, once per access); pad cannot make sq $s6. Keeping 1991 floor. */
+/* measured 001400f0 (owner, 2026-09-19): the 1995-edit gap is **not** the unsigned float
+   conversions and **not** a clean relocation.  Conversion census, both sides of the same
+   1792 instructions: retail has 26 `bltz`, 27 `c.ole.s`, 54 `cvt.w.s`, 56 `cvt.s.w`; the
+   object has 29, 29, 58, 62.  Three or four of each, not hundreds - the casts are right.
+   The real gap is one region: retail[1167:1776] (609 instructions) against object
+   [1077:1750] (673).  Applying the 7ay discriminator, the opcode-only similarity of those
+   two runs is **0.677** and their heads do not correspond at all - retail opens
+   `addiu/slti/bnez/nop/lui/lwc1/swc1/swc1/lbu/bltz`, the object opens
+   `mul.s/lui/mtc1/nop/c.ole.s/bc1t/nop/cvt.w.s/mfc1/andi`.  So this is neither a moved
+   block (which would preserve the opcode sequence) nor a pure recolouring (which would
+   preserve it exactly); the two sides genuinely compute that region differently, and it
+   is a third of the function.
+   That, not the register pressure, is where the next pass belongs.  The frame finding
+   still stands and is recorded above: retail saves $s6, $s7 and $fp that this body does
+   not, and correcting the frame alone was measured and made the edits worse (1991 ->
+   2007), so it is downstream of the region problem, not upstream of it. */
 // FUN_001400F0 NONMATCHING
 #ifdef NON_MATCHING
 extern u8 D_005EF520[];
