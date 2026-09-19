@@ -3432,6 +3432,12 @@ u8 *func_0015d310(u16 *arg0)
 {
     extern s16 func_001060b0(void);
     extern s64 func_00110960(s32 arg0, u32 arg1);
+    extern u8 func_001060c0(void);
+    extern void func_001104d0(s32 date, s32 *month, s32 *day);
+    extern s32 func_00110580(s32 date);
+    extern s32 func_00110d30(s32 date);
+    extern u32 clndIsDateInRange(u32 firstMonth, u32 firstDay, u32 lastMonth, u32 lastDay);
+    extern u32 datGetFlag(s32 bit);
     s32 sp8C;
     s32 sp88;
     s32 temp_4_3;
@@ -3446,7 +3452,7 @@ u8 *func_0015d310(u16 *arg0)
     s32 temp_22;
     s32 temp_22_2;
     u16 *var_5;
-    u16 temp_4_2;
+    u32 temp_4_2;
     s32 var_19;
     s32 var_20;
     u32 var_17;
@@ -3456,7 +3462,7 @@ u8 *func_0015d310(u16 *arg0)
     u8 temp_3;
     u8 *temp_20;
     u8 *temp_4;
-    u8 *var_16;
+    uintptr_t recordAddress;
 
     var_5 = arg0;
     if (arg0 == NULL) {
@@ -3469,7 +3475,7 @@ loop_3:
         var_5 += 0x42;
         goto loop_3;
     }
-    var_16 = (u8 *)arg0 + (var_17 * 0x84) - 0x84;
+    recordAddress = (uintptr_t)((u8 *)arg0 + var_17 * 0x84) - 0x84;
     var_18 = 3;
     var_19 = 0x1F;
     var_20 = 0;
@@ -3478,36 +3484,36 @@ loop_3:
     goto loop_test;
 loop_body:
         temp_4 = iGpffff9db0;
-        if ((*(s32 *)(temp_4 + 0) == *(u16 *)(var_16 + 0x64)) &&
-            (*(s32 *)(temp_4 + 4) == *(u16 *)(var_16 + 0x66))) {
-            temp_4_2 = *(u16 *)(var_16 + 2);
+        if ((*(s32 *)(temp_4 + 0) == *(u16 *)(recordAddress + 0x64)) &&
+            (*(s32 *)(temp_4 + 4) == *(u16 *)(recordAddress + 0x66))) {
+            temp_4_2 = *(u16 *)(recordAddress + 2);
             if ((temp_4_2 == var_18) &&
-                (*(u16 *)(var_16 + 4) == var_19) &&
-                (*(u16 *)(var_16 + 6) == var_20)) {
+                (*(u16 *)(recordAddress + 4) == var_19) &&
+                (*(u16 *)(recordAddress + 6) == var_20)) {
                 var_18 = 3;
                 var_19 = 0x1F;
                 var_20 = 0;
             }
-            if (func_0014bdb0(temp_4_2, *(u16 *)(var_16 + 4),
+            if (clndIsDateInRange(temp_4_2, *(u16 *)(recordAddress + 4),
                              var_18, var_19) == 1) {
-                if ((*(u16 *)(var_16 + 2) == sp8C) &&
-                    (*(u16 *)(var_16 + 4) == sp88) &&
+                if ((*(u16 *)(recordAddress + 2) == sp8C) &&
+                    (*(u16 *)(recordAddress + 4) == sp88) &&
                     ((func_001060c0() & 0xFF) < var_20)) {
-                    var_18 = *(u16 *)(var_16 + 2);
-                    var_19 = *(u16 *)(var_16 + 4);
-                    var_20 = *(u16 *)(var_16 + 6);
+                    var_18 = *(u16 *)(recordAddress + 2);
+                    var_19 = *(u16 *)(recordAddress + 4);
+                    var_20 = *(u16 *)(recordAddress + 6);
                     goto block_50;
                 }
-                if (((*(u8 *)(var_16 + 8) == 0) ||
-                     (*(u8 *)(var_16 + 8) &
-                      (1 << func_00110d30((s16)func_001060b0())))) &&
-                    ((*(u8 *)(var_16 + 9) == 0) ||
-                     (*(u8 *)(var_16 + 9) &
-                      (1 << func_00110580((s16)func_001060b0())))) &&
-                    ((*(u8 *)(var_16 + 0xA) == 0) ||
-                     (*(u8 *)(var_16 + 0xA) &
-                      (1 << (func_001060c0() & 0xFF))))) {
-                    temp_3 = *(u8 *)(var_16 + 0xB);
+                if (((*(u8 *)(recordAddress + 8) == 0) ||
+                     (*(u8 *)(recordAddress + 8) &
+                      (1U << func_00110d30((s16)func_001060b0())))) &&
+                    ((*(u8 *)(recordAddress + 9) == 0) ||
+                     (*(u8 *)(recordAddress + 9) &
+                      (1U << func_00110580((s16)func_001060b0())))) &&
+                    ((*(u8 *)(recordAddress + 0xA) == 0) ||
+                     (*(u8 *)(recordAddress + 0xA) &
+                      (1U << (func_001060c0() & 0xFF))))) {
+                    temp_3 = *(u8 *)(recordAddress + 0xB);
                     if (temp_3 == 1) {
                         temp_22 = (s16)func_001060b0();
                         var_2 = (s64)(s8)func_00110960(temp_22,
@@ -3530,27 +3536,27 @@ loop_body:
                     }
 block_34:
                     for (var_18_2 = 0; var_18_2 < 0xC; var_18_2++) {
-                        temp_4_3 = *(s32 *)(var_16 + (var_18_2 * 4) + 0x34);
+                        temp_4_3 = *(s32 *)(recordAddress + (var_18_2 * 4) + 0x34);
                         if ((temp_4_3 != -1) &&
-                            (func_00106330(temp_4_3) == 1)) {
+                            (datGetFlag(temp_4_3) == 1)) {
                             break;
                         }
                     }
                     if (var_18_2 >= 0xC) {
                         var_19_2 = 0;
                         for (var_18_3 = 0; var_18_3 < 5; var_18_3++) {
-                            temp_20 = var_16 + (var_18_3 * 8);
+                            temp_20 = (u8 *)(recordAddress + (var_18_3 * 8));
                             temp_4_4 = *(s32 *)(temp_20 + 0xC);
                             if (temp_4_4 == -1) {
                                 continue;
                             }
                             var_19_2 = 1;
-                            if (func_00106330(temp_4_4) != 1) {
+                            if (datGetFlag(temp_4_4) != 1) {
                                 continue;
                             }
                             temp_4_5 = *(s32 *)(temp_20 + 0x10);
                             if (temp_4_5 != -1) {
-                                if (func_00106330(temp_4_5) != 1) {
+                                if (datGetFlag(temp_4_5) != 1) {
                                     continue;
                                 }
                             }
@@ -3567,24 +3573,24 @@ block_34:
                 }
             } else {
 block_49:
-                var_18 = *(u16 *)(var_16 + 2);
-                var_19 = *(u16 *)(var_16 + 4);
-                var_20 = *(u16 *)(var_16 + 6);
+                var_18 = *(u16 *)(recordAddress + 2);
+                var_19 = *(u16 *)(recordAddress + 4);
+                var_20 = *(u16 *)(recordAddress + 6);
                 goto block_50;
             }
         } else {
 block_50:
             var_21 += 1;
-            var_16 -= 0x84;
+            recordAddress -= 0x84;
 loop_test:
             if (var_21 < var_17) {
                 goto loop_body;
             }
         }
     if (var_21 >= var_17) {
-        var_16 = NULL;
+        recordAddress = 0;
     }
-    return var_16;
+    return (u8 *)recordAddress;
 }
 // FUN_0015F600
 s32 func_0015f600(void)
