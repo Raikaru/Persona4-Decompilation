@@ -3117,7 +3117,6 @@ void func_001ed700(f32 radius)
     s16 q;
     f32 dist;
     f32 bestDist;
-    f32 bestX;
     f32 bestZ;
     f32 bestH;
     s32 first;
@@ -3217,8 +3216,7 @@ void func_001ed700(f32 radius)
                                 bestDir[1] = norm[1];
                                 best = other + j * 0x130 + 8;
                                 bestDist = dist;
-                                bestX = (f32)(*(s16 *)(other + 0) * 25 - 1750);
-                                bestZ = (f32)(*(s16 *)(other + 2) * 25 - 1750);
+                                bestZ = *(f32 *)(other + j * 0x130 + 12);
                                 bestH = *(f32 *)(other + 4);
                             }
                         }
@@ -3234,7 +3232,6 @@ void func_001ed700(f32 radius)
                     bestDir[1] = norm[1];
                     best = iGpffffb3ac + j * 0x130 + 0x31C;
                     bestDist = dist;
-                    bestX = *(f32 *)(iGpffffb3ac + j * 0x130 + 0x31C);
                     bestZ = *(f32 *)(iGpffffb3ac + j * 0x130 + 0x320);
                     bestH = 0.0f;
                 }
@@ -3254,7 +3251,7 @@ void func_001ed700(f32 radius)
                 *(f32 *)(group + i * 0x130 + 0x1C) = bestDist;
                 dx = (f32)(*(s16 *)(group + 0) * 25 - 1750);
                 dz = (f32)(*(s16 *)(group + 2) * 25 - 1750);
-                delta[0] = dx - bestX;
+                delta[0] = dx - *(f32 *)best;
                 delta[1] = dz - bestZ;
                 *(f32 *)(group + i * 0x130 + 0x20) = func_003e41b0(delta) - (*(f32 *)(group + 4) + bestH);
             } else {

@@ -1027,6 +1027,7 @@ void func_00117980(u8 *arg0)
     s32 i;
     s32 k;
     s32 q;
+    s32 colorHoist;
     u8 b505;
     u8 alpha;
     u8 col;
@@ -1232,6 +1233,7 @@ void func_00117980(u8 *arg0)
             }
             sp134 = 0.0f + 91.0f + x * a * spB0[k * 2 + 1] * spD0[qq];
         }
+        colorHoist = (k == 0) ? (s32)0xB34DFF00 : (s32)0x1353FF00;
         r0 = func_0044b7b0(D_007613EC * a);
         {
             f32 fc = (f32)col;
@@ -1244,15 +1246,9 @@ void func_00117980(u8 *arg0)
         }
         {
             Vec2f pos;
-            s32 color;
             pos.x = sp130;
             pos.y = sp134;
-            if ((i % 3) == 0) {
-                color = 0xB34DFF00;
-            } else {
-                color = 0x1353FF00;
-            }
-            func_003657d0(pos, 0.0f, color | (g & 0xFF), 15.0f, sp110[k], 0);
+            func_003657d0(pos, 0.0f, colorHoist | (g & 0xFF), 15.0f, sp110[k], 0);
         }
         if ((s32)(*cntp & 0xFFFF) >= (s32)(*limp & 0xFFFF)) {
             *cntp = 0;
