@@ -3349,7 +3349,6 @@ void func_0048d8c0(u8 *arg0)
     u8 mode9C;
     f32 e4val;
     f32 e0val;
-    f32 one;
     s32 v15;
     s32 v14;
     u32 idx;
@@ -3379,7 +3378,6 @@ void func_0048d8c0(u8 *arg0)
     mode9C = *(u8 *)(config + 156);
     e4val = *(f32 *)(config + 228);
     e0val = *(f32 *)(config + 224);
-    one = 1.0f;
     idx = 0;
     quad120 = *(u_long128 *)(config + 0);
     if ((saved20 != 0) && (*(s32 *)(arg0 + 16) >= saved20)) {
@@ -3460,14 +3458,14 @@ skip_clear:
     func_004bd0b0(0);
     a = *(f32 *)(config + 204);
     b = func_004bd0b0(0);
-    c = *(f32 *)(config + 200) * ((one - a) + a * b);
+    c = *(f32 *)(config + 200) * ((1.0f - a) + a * b);
     out[5] = c;
     a = *(f32 *)(config + 212);
     b = func_004bd0b0(0);
-    out[6] = (*(f32 *)(config + 208) * ((one - a) + a * b) - c) / (f32)limitB8;
+    out[6] = (*(f32 *)(config + 208) * ((1.0f - a) + a * b) - c) / (f32)limitB8;
     a = *(f32 *)(config + 220);
     b = func_004bd0b0(0);
-    out[7] = *(f32 *)(config + 216) * ((one - a) + a * b);
+    out[7] = *(f32 *)(config + 216) * ((1.0f - a) + a * b);
     b = func_004bd0b0(0);
     out[8] = fGpffff8094 * b;
     out[9] = 0.0f;
@@ -3494,14 +3492,14 @@ skip_clear:
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
     a = *(f32 *)(config + 108);
     b = func_004bd0b0(0);
-    out[10] = (one - a) + a * b;
+    out[10] = (1.0f - a) + a * b;
     if (mode9C == 2) {
         out[11] = 0.0f;
         out[12] = 1.0f;
     } else {
         a = *(f32 *)(config + 152);
         b = func_004bd0b0(0);
-        out[12] = (one - a) + a * b;
+        out[12] = (1.0f - a) + a * b;
         if (mode9C == 1) {
             b = func_004bd0b0(0);
             out[11] = fGpffff8080 * b;
