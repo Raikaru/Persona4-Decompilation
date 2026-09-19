@@ -1047,8 +1047,325 @@ void func_001c1f70(u8 *arg0)
 /* cold 001c21d0 (2026-09-18): refused - outside 3% count gate, production stays INCLUDE_ASM. */
 /* probe 689 via `python3 tools/probe_variants.py src/promoted/code1_001c.c func_001c21d0 --candidate commons_off=/var/tmp/cold1c21d0/v3_commons_off.c` (v1 695, v3 696, v4 696, decl swaps tie 689); fnalign retail 833 vs object 710 instrs (123 short, -14.8%; gate 808-858) 1026 edits (+2 reloc-only) via `python3 -E -s tools/fnalign.py src/promoted/code1_001c.c func_001c21d0 --candidate /var/tmp/cold1c21d0/v3_commons_off.c --quiet`. M2C via `python3 -E -s tools/m2c_decompile.py src/promoted/code1_001c.c func_001c21d0 -o /var/tmp/cold1c21d0/m2c.c`; romwright via `python3 -E -s tools/romwright_decompile.py func_001c21d0 > /var/tmp/cold1c21d0/rw.c` (--types: arity 3, arg0 pointer, arg1/2 scalar; prologue reads $4/$5/$6 before write, so (u8 *, s32, s32) stands) plus --raw. De-noised to file idiom reusing existing decls (func_00195850, func_0022f950, func_001bc330/0240/01b0, func_003e40b0, func_003e41e0, func_003dcb40, func_001bd780, func_001ec3d0, func_0044b868, func_004bd050, func_001bac20/bbef0/9de70/bcd40). Read func_001c79f0 MATCH note (7p snapshot placement: before first Y output 0, one statement earlier 5, three earlier 20) and code1_001f.c func_001f4e50 57->13 (row address plus two element pointers dereferenced at zero, second assigned lazily). Recipe in order: (1) free pragmas - opt_common_subs off 696->689 scoped push/pop, opt_loop_invariants on tie, opt_unroll_loops off tie, schedule off tie; (2) subscript form - no variable index in this unit (constant 0x2C/0x8C/0x90/0xA4 field loads), P[i] probe not applicable; (3) fresh loop counters (7n) - no backwards branches in retail (all forward b/bc1, zero for/while in either decompiler), nothing to split; (4) colouring - decl swaps for temp_v9/temp_v12 and vis21/alt16 tie at 689. Branch-order fix (romwright swapped the two large arms: 1.25f path first vs retail 2.5f path first) moved fnalign 960->929 edits but words 695->696. Width fixes (u64->u32, int quat->f32) scored 696. Two non-improving rounds above 60, stopping per batch. Gap lives in missing aggregate spills, not calls: jal counts exact both sides (4x00195850, 3x0019de70, 1x001bac20/bbef0/bc1b0/bc240/bc330/bcd40, 3x001bd780, 2x001ec3d0, 1x0022f950, 2x003dcb40, 1x003e0870, 2x003e40b0/41e0, 1x003e4320, 3x0044b868, 1x004b3110/bd050); frame retail -0x200 vs object -0x140 (192B of spills absent); largest fnalign holes are retail[434:471] 37 vs object 1 (quatFC copy plus out10C add plus 25.0 clamp), retail[138:156] 18 (0x2EE/cvt plus fGp80fc/8140 select plus fGp8118 scale), retail[565:585] 20. Excluded: scheduling (off tie), loop-invariant hoists, unrolling, declaration colouring, inverted-condition vs swapped-arm spellings. Best candidate kept at /var/tmp/cold1c21d0/v3_commons_off.c (689) for the next pass, which should rebuild it on a Frame from 0xB0 to 0x1F8 with 16-byte-aligned vector/quat fields. */
 /* cold 001c21d0 (2026-09-19): honest redo per Main — 138:156 recovered (18, real, explicit (f32)0x2EE + volatile f32, gone from >15 list); surplus at 740:761 removed (pure-float 548 vs 833 -285 774 edits, no object-larger vs baseline 710 with 11 vs 40 + 9 vs 41); 434:471 37 vs 1 (quatFC copy + out10C add + 25.0 clamp) and 565:585 24 vs 1 (saves + madd) still missing (61); volatile 855 vs 836 +19 1008 edits frame -0x200 vs -0x180 128B game jal 32 exact in band only via cancelling (61 missing +64 lump 21 vs 85 at 740:761) refused per 7u; production stays INCLUDE_ASM. */
-// FUN_001C21D0
+/* measured 001c21d0: probe 764 via `python3 tools/probe_variants.py src/promoted/code1_001c.c func_001c21d0 --candidate frame=/tmp/cand_21d0_frame.c` (v3_commons_off 689 is a short-body artefact per handoff 7y: 710 instrs sliding out of alignment); fnalign retail 833 vs object 832 instrs (-0.1%, 1 short, gate 808-858), 218 edits (+22 reloc-only); composition max pure hole 11 (reg-name phantom over retail h5/h21 f5/f21 vs object f6/f20, same 11 instrs present) max pure lump 2 - CLEAN, no hole-against-lump. Explicit frame struct at retail offsets (matB0..ctr1F0, no pad00 so the struct sits at sp+0xB0 for a 0x200 frame); 0.0f-seeded adda/madd shapes; (f32)0x2EE/(f32)0x226 int-converts; per-use tanf recompute; NEG-path focus recompute with 0.5*len (f25). */
+/* gate: object 832 against retail 833, -0.1% - INSIDE the +-3% band (808-858). */
+// FUN_001C21D0 NONMATCHING
+#ifdef NON_MATCHING
+void func_001c21d0(u8 *arg0, s32 arg1, s32 arg2)
+{
+    extern s32 func_001bc330(u8 *arg0);
+    extern s32 func_001bc240(u8 *arg0);
+    extern s32 func_001bc1b0(u8 *arg0);
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+    extern void func_003dcb40(void *arg0, const void *arg1, s32 arg2, const void *arg3);
+    extern f32 func_001ec3d0(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
+    extern f32 func_0044b868(f32 arg0);
+    extern f32 fGpffff8030;
+    extern f32 fGpffff8098;
+    extern f32 fGpffff8118;
+    extern f32 fGpffff8128;
+    extern f32 fGpffff8138;
+    extern f32 fGpffff813c;
+    extern f32 fGpffff8140;
+    struct {
+        u8 matB0[0x40];
+        f32 outF0[3];
+        f32 quatFC[4];
+        f32 out10C[3];
+        f32 copy118[4];
+        u8 pad128[8];
+        f32 side130[2];
+        f32 horiz138[2];
+        f32 in140[4];
+        u8 pad150[8];
+        f32 dir158[3];
+        u8 pad164[4];
+        f32 norm168[2];
+        f32 out170[2];
+        f32 copy178[2];
+        f32 save180[3];
+        u8 pad18C[4];
+        f32 tgt190[3];
+        u8 pad19C[4];
+        f32 dir1A0[3];
+        u8 pad1AC[4];
+        f32 focus1B0[3];
+        u8 pad1BC[4];
+        f32 save1C0[3];
+        u8 pad1CC[4];
+        f32 ctr1D0[3];
+        u8 pad1DC[4];
+        f32 ctr1E0[3];
+        u8 pad1EC[4];
+        f32 ctr1F0[3];
+        u8 pad1FC[4];
+    } frame;
+    u8 *work;
+    u8 *unit;
+    u8 *target;
+    u8 *res;
+    s32 vis;
+    s32 alt;
+    s32 need240;
+    f32 A;
+    f32 B;
+    f32 E;
+    f32 C;
+    f32 scale;
+    f32 dot;
+    f32 len;
+    f32 ecRet;
+
+    work = *(u8 **)(arg0 + 0xE0);
+    unit = *(u8 **)(work + 0x30);
+    target = *(u8 **)(*(u8 **)(work + 0x38) + 0x30);
+    res = *(u8 **)(unit + 0xA0C);
+    vis = func_0022f950(work, res) != 0;
+    alt = func_001bc330(arg0) != 0;
+    func_00195850(unit, frame.ctr1F0);
+    func_00195850(res, frame.ctr1D0);
+    A = 0.0f + frame.ctr1F0[1] + 0.5f * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
+    B = 0.0f + frame.ctr1D0[1] + 0.5f * (*(f32 *)(res + 0x8C) * *(f32 *)(res + 0x2C));
+    if ((vis == 0) && (A < B) && (alt == 0)) {
+        frame.ctr1F0[1] = 0.25f * (A + B);
+        A = B;
+    }
+    C = *(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C);
+    {
+        f32 D = *(f32 *)(res + 0x90) * *(f32 *)(res + 0x2C);
+        if ((vis == 0) && (C < D) && (alt == 0)) {
+            C = D;
+        }
+    }
+    func_00195850(target, frame.ctr1E0);
+    {
+        f32 prod = *(f32 *)(target + 0x8C) * *(f32 *)(target + 0x2C);
+        E = 0.0f + frame.ctr1E0[1] + 0.5f * prod;
+        if (E >= 450.0f) {
+            frame.ctr1E0[1] = (0.0f + frame.ctr1E0[1]) - fGpffff8098 * prod;
+            E = 450.0f;
+        }
+    }
+    need240 = func_001bc240(arg0);
+    scale = 1.0f;
+    if ((alt == 0) && (need240 == 0) && ((*(u16 *)(iGpffffb3e0 + *(u16 *)(res + 0xA4) * 0x58) & 1) != 0)) {
+        if (B < (f32)0x2EE) {
+            frame.ctr1F0[1] = fGpffff80fc * B;
+        } else {
+            frame.ctr1F0[1] = fGpffff8140 * B;
+        }
+        frame.ctr1E0[1] = fGpffff8118 * E;
+        scale = 1.5f;
+    }
+    frame.dir1A0[0] = frame.ctr1F0[0] - frame.ctr1E0[0];
+    frame.dir1A0[1] = frame.ctr1F0[1] - frame.ctr1E0[1];
+    frame.dir1A0[2] = frame.ctr1F0[2] - frame.ctr1E0[2];
+    len = func_003e40b0((RwV3d *)&frame.dir1A0[0], (const RwV3d *)&frame.dir1A0[0]);
+    {
+        f32 s1 = fGpffff8128 * len;
+        frame.focus1B0[0] = frame.dir1A0[0] * s1;
+        frame.focus1B0[1] = frame.dir1A0[1] * s1;
+        frame.focus1B0[2] = frame.dir1A0[2] * s1;
+        frame.focus1B0[0] = frame.focus1B0[0] + frame.ctr1E0[0];
+        frame.focus1B0[1] = frame.focus1B0[1] + frame.ctr1E0[1];
+        frame.focus1B0[2] = frame.focus1B0[2] + frame.ctr1E0[2];
+    }
+    frame.horiz138[0] = *(f32 *)(arg0 + 0x9C) - frame.focus1B0[0];
+    frame.horiz138[1] = *(f32 *)(arg0 + 0xA4) - frame.focus1B0[2];
+    func_003e41e0(frame.horiz138, frame.horiz138);
+    if ((need240 != 0) || (((func_004bd050(0) & 1) != 0) && (func_001bc1b0(arg0) != 0))) {
+        f32 side;
+        f32 tprod;
+        func_0019de70((BtlUnitStateWork *)res, 1);
+        *(u8 **)(arg0 + 0x12C) = res;
+        *(u16 *)(arg0 + 0x130) = 0;
+        unit = target;
+        func_001c_copy_pair((s64 *)&frame.save1C0[0], &frame.save1C0[2], (s64 *)&frame.ctr1F0[0], &frame.ctr1F0[2]);
+        side = 2.25f * C;
+        scale = fGpffff8138 * scale;
+        frame.side130[0] = frame.dir1A0[2];
+        frame.side130[1] = -frame.dir1A0[0];
+        dot = frame.side130[1] * frame.horiz138[1] + frame.side130[0] * frame.horiz138[0];
+        if (A < E) {
+            frame.tgt190[1] = 0.0f + frame.save1C0[1] + fGpffff8030 * A;
+        } else {
+            frame.tgt190[1] = (0.0f + frame.save1C0[1]) - fGpffff8030 * A;
+        }
+        if (dot >= 0.0f) {
+            frame.tgt190[0] = 0.0f + frame.save1C0[0] + frame.dir1A0[2] * side;
+            frame.tgt190[2] = (0.0f + frame.save1C0[2]) - frame.dir1A0[0] * side;
+        } else {
+            frame.tgt190[0] = (0.0f + frame.save1C0[0]) - frame.dir1A0[2] * side;
+            frame.tgt190[2] = 0.0f + frame.save1C0[2] + frame.dir1A0[0] * side;
+            {
+                f32 rs = 0.5f * len;
+                frame.focus1B0[0] = frame.dir1A0[0] * rs;
+                frame.focus1B0[1] = frame.dir1A0[1] * rs;
+                frame.focus1B0[2] = frame.dir1A0[2] * rs;
+                frame.focus1B0[0] = frame.focus1B0[0] + frame.ctr1E0[0];
+                frame.focus1B0[1] = frame.focus1B0[1] + frame.ctr1E0[1];
+                frame.focus1B0[2] = frame.focus1B0[2] + frame.ctr1E0[2];
+            }
+        }
+        tprod = *(f32 *)(target + 0x8C) * *(f32 *)(target + 0x2C);
+        frame.focus1B0[1] = (0.0f + frame.focus1B0[1]) + fGpffff8030 * tprod;
+        if (dot >= 0.0f) {
+            func_003e0870((RwMatrix *)frame.matB0, (const RwV3d *)D_0060A0F0, 2.5f, 0);
+        } else {
+            func_003e0870((RwMatrix *)frame.matB0, (const RwV3d *)D_0060A0F0, -2.5f, 0);
+        }
+        func_003e4320((RwV3d *)&frame.dir158[0], (const RwV3d *)D_0060A0E0, (const RwMatrix *)frame.matB0);
+        func_001bd780(&frame.quatFC[0], &frame.tgt190[0], &frame.focus1B0[0], &frame.dir158[0]);
+        func_003dcb40((RwV3d *)&frame.dir1A0[0], (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frame.quatFC[0]);
+        frame.in140[0] = frame.focus1B0[0];
+        frame.in140[1] = frame.focus1B0[2];
+        frame.in140[2] = frame.tgt190[0];
+        frame.in140[3] = frame.tgt190[2];
+        frame.copy178[0] = frame.save1C0[0];
+        frame.copy178[1] = frame.save1C0[2];
+        ecRet = func_001ec3d0((u8 *)&frame.in140[0], (u8 *)&frame.in140[2], (u8 *)&frame.copy178[0], (u8 *)&frame.out170[0]);
+        scale = 0.0f + ecRet + C * scale;
+        frame.tgt190[0] = frame.out170[0];
+        frame.tgt190[1] = 0.0f + frame.save1C0[1] + 0.25f * A;
+        frame.tgt190[2] = frame.out170[1];
+        scale = scale / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+        frame.dir1A0[0] = frame.dir1A0[0] * scale;
+        frame.dir1A0[1] = frame.dir1A0[1] * scale;
+        frame.dir1A0[2] = frame.dir1A0[2] * scale;
+        if (dot < 0.0f) {
+            scale = scale * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8))) * 0.21875f * 1.25f;
+            frame.norm168[0] = frame.dir1A0[0];
+            frame.norm168[1] = frame.dir1A0[2];
+            func_003e41e0(frame.norm168, frame.norm168);
+            frame.tgt190[0] = 0.0f + frame.tgt190[0] + frame.norm168[1] * scale;
+            frame.tgt190[2] = (0.0f + frame.tgt190[2]) - frame.norm168[0] * scale;
+        }
+        frame.copy118[0] = frame.quatFC[0];
+        frame.copy118[1] = frame.quatFC[1];
+        frame.copy118[2] = frame.quatFC[2];
+        frame.copy118[3] = frame.quatFC[3];
+        frame.out10C[0] = frame.dir1A0[0] + frame.tgt190[0];
+        frame.out10C[1] = frame.dir1A0[1] + frame.tgt190[1];
+        frame.out10C[2] = frame.dir1A0[2] + frame.tgt190[2];
+        if (frame.out10C[1] < 25.0f) {
+            frame.out10C[1] = 25.0f;
+        }
+        frame.tgt190[1] = (0.0f + frame.tgt190[1]) - fGpffff8118 * A;
+        frame.outF0[0] = frame.tgt190[0] + frame.dir1A0[0];
+        frame.outF0[1] = frame.tgt190[1] + frame.dir1A0[1];
+        frame.outF0[2] = frame.tgt190[2] + frame.dir1A0[2];
+        if (frame.outF0[1] < 25.0f) {
+            frame.outF0[1] = 25.0f;
+        }
+        scale = 3.0f;
+    } else {
+        f32 h5;
+        f32 h21;
+        if ((*(u16 *)(iGpffffb3e0 + *(u16 *)(res + 0xA4) * 0x58) & 1) == 0) {
+            func_0019de70((BtlUnitStateWork *)res, 0);
+        } else {
+            func_0019de70((BtlUnitStateWork *)res, 1);
+        }
+        *(u8 **)(arg0 + 0x12C) = res;
+        *(u16 *)(arg0 + 0x130) = 1;
+        func_001c_copy_pair((s64 *)&frame.save1C0[0], &frame.save1C0[2], (s64 *)&frame.ctr1E0[0], &frame.ctr1E0[2]);
+        if (frame.save1C0[1] < 125.0f) {
+            frame.save1C0[1] = 125.0f;
+        }
+        h5 = 1.25f * (*(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C));
+        h21 = 1.5f * scale;
+        frame.side130[0] = frame.dir1A0[2];
+        frame.side130[1] = -frame.dir1A0[0];
+        dot = frame.side130[1] * frame.horiz138[1] + frame.side130[0] * frame.horiz138[0];
+        frame.tgt190[1] = frame.save1C0[1];
+        if (dot >= 0.0f) {
+            frame.tgt190[0] = 0.0f + frame.save1C0[0] + frame.dir1A0[2] * h5;
+            frame.tgt190[2] = (0.0f + frame.save1C0[2]) - frame.dir1A0[0] * h5;
+            func_001c_copy_pair((s64 *)&frame.save180[0], &frame.save180[2], (s64 *)&frame.dir1A0[0], &frame.dir1A0[2]);
+        } else {
+            frame.tgt190[0] = (0.0f + frame.save1C0[0]) - frame.dir1A0[2] * h5;
+            frame.tgt190[2] = 0.0f + frame.save1C0[2] + frame.dir1A0[0] * h5;
+        }
+        func_001bd780(&frame.quatFC[0], &frame.tgt190[0], &frame.focus1B0[0], D_0060A0E0);
+        func_003dcb40((RwV3d *)&frame.dir1A0[0], (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frame.quatFC[0]);
+        frame.in140[0] = frame.focus1B0[0];
+        frame.in140[1] = frame.focus1B0[2];
+        frame.in140[2] = frame.tgt190[0];
+        frame.in140[3] = frame.tgt190[2];
+        frame.copy178[0] = frame.save1C0[0];
+        frame.copy178[1] = frame.save1C0[2];
+        ecRet = func_001ec3d0((u8 *)&frame.in140[0], (u8 *)&frame.in140[2], (u8 *)&frame.copy178[0], (u8 *)&frame.out170[0]);
+        h21 = 0.0f + ecRet + h21 * (*(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C));
+        frame.tgt190[0] = frame.out170[0];
+        frame.tgt190[1] = frame.save1C0[1];
+        frame.tgt190[2] = frame.out170[1];
+        {
+            f32 sc = h21 / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+            if (sc < (f32)0x226) {
+                sc = (f32)0x226;
+            }
+            frame.dir1A0[0] = frame.dir1A0[0] * sc;
+            frame.dir1A0[1] = frame.dir1A0[1] * sc;
+            frame.dir1A0[2] = frame.dir1A0[2] * sc;
+        }
+        if (dot >= 0.0f) {
+            f32 h = 0.5f * (*(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C));
+            frame.tgt190[0] = (0.0f + frame.tgt190[0]) - frame.save180[2] * h;
+            frame.tgt190[2] = 0.0f + frame.tgt190[2] + frame.save180[0] * h;
+        }
+        frame.outF0[0] = frame.tgt190[0] + frame.dir1A0[0];
+        frame.outF0[1] = frame.tgt190[1] + frame.dir1A0[1];
+        frame.outF0[2] = frame.tgt190[2] + frame.dir1A0[2];
+        frame.copy118[0] = frame.quatFC[0];
+        frame.copy118[1] = frame.quatFC[1];
+        frame.copy118[2] = frame.quatFC[2];
+        frame.copy118[3] = frame.quatFC[3];
+        frame.out10C[0] = frame.outF0[0];
+        frame.out10C[1] = frame.outF0[1];
+        frame.out10C[2] = frame.outF0[2];
+        frame.dir1A0[0] = frame.ctr1F0[0] - frame.out10C[0];
+        frame.dir1A0[1] = frame.ctr1F0[1] - frame.out10C[1];
+        frame.dir1A0[2] = frame.ctr1F0[2] - frame.out10C[2];
+        len = func_003e40b0((RwV3d *)&frame.dir1A0[0], (const RwV3d *)&frame.dir1A0[0]);
+        func_00195850(unit, (f32 *)&frame.save1C0[0]);
+        frame.save1C0[1] = 0.0f + frame.save1C0[1] + 0.25f * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
+        func_001bd780(&frame.quatFC[0], &frame.out10C[0], (f32 *)&frame.save1C0[0], D_0060A0E0);
+        {
+            f32 s2 = fGpffff813c * len;
+            frame.dir1A0[0] = frame.dir1A0[0] * s2;
+            frame.dir1A0[1] = frame.dir1A0[1] * s2;
+            frame.dir1A0[2] = frame.dir1A0[2] * s2;
+            frame.outF0[0] = frame.out10C[0] + frame.dir1A0[0];
+            frame.outF0[1] = frame.out10C[1] + frame.dir1A0[1];
+            frame.outF0[2] = frame.out10C[2] + frame.dir1A0[2];
+        }
+        if (frame.outF0[1] < 25.0f) {
+            frame.outF0[1] = 25.0f;
+        }
+        if (frame.out10C[1] < 25.0f) {
+            frame.out10C[1] = 25.0f;
+        }
+        scale = 2.25f;
+    }
+    if (arg2 == 0) {
+        frame.outF0[0] = frame.out10C[0];
+        frame.outF0[1] = frame.out10C[1];
+        frame.outF0[2] = frame.out10C[2];
+        frame.quatFC[0] = frame.copy118[0];
+        frame.quatFC[1] = frame.copy118[1];
+        frame.quatFC[2] = frame.copy118[2];
+        frame.quatFC[3] = frame.copy118[3];
+    }
+    func_001bcd40(*(u8 **)(arg0 + 0xE0), unit + 4, (u8 *)&frame.outF0[0], 50.0f, 3);
+    func_001bac20((u16 *)arg0, frame.outF0, frame.out10C, 1);
+    func_001bbef0(arg0, scale);
+    if (arg1 != 0) {
+        func_004b3110(8);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c21d0);
+#endif
 /* cold 001c2ee0 (2026-09-18): faithful direction only - production stays INCLUDE_ASM. */
 /* counts: retail 1012 header (1009 fnalign) vs 793 faithful (762 v1 +31); band 982-1042 -> OUTSIDE (189 short of floor). Faithful = 3 duplicated scalings + t13 recompute (no pragmas) via /tmp/base_3dup.c: `fnalign --candidate /tmp/base_3dup.c --quiet` 793 instrs, 654 edits (+13 reloc) vs v1 651; `probe_variants --candidate base=/tmp/base_3dup.c` 904 vs v1 897. jal 49/49 both sides (tanf x9, grep/objdump), 5 switch arms present (0x4E/0x38/0x35/0x34/default). Side-by-side both tanf deletes (fnalign retail[640:649] + retail[729:738], 9 each): retail recomputes 0.5*B8 per use (mul $f1,$f1,$f0), GP per-use load (lwc1 -0x7EF0), mul GP*(0.5*B8), jal tanf, post-scale mul + lui 0x3E60/mtc1/nop; candidate caches t13=GP*B8*0.5 once for 4 tanfs and merges scalings into one path (retail 19 vs object 4 at 222:258; 38 vs 15 at 400:438). Same merge repeats all three scalings (first 2-elem t8, second 3-elem t12, third 3-elem aux t12) per 7k do-not-hoist-what-retail-recomputes. Remaining 1009-793=216 diffuse recompute-vs-cache of the same kind. */
 /* rejected: pragma inflation into band measured +185 and refused as gate-defeating per Main (gate proves shape, not volume; real wins 10-60 words per 7s). `opt_common_subs off` 811 (+49), `commons+dead` 832 (+70), triple `commons+dead+peephole` 947 (+185); triple+3dup 982 (890 edits/probe 929) and +prop 984 (892/probe 926) via /tmp/cand_982.c + /tmp/cand_984.c -- DO NOT INSTALL. Re-assoc of 4 tanf args closed (v9_7p 758 instrs, probe 901 vs 897). Method: M2C/romwright de-noise as before with block externs func_0044b868/func_003e41e0; faithful diff held in /tmp/base_3dup.c. */

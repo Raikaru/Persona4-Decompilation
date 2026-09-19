@@ -2550,11 +2550,12 @@ s32 func_00343cf0(u8 *arg0) {
     return 1;
 }
 
-/* measured: rule 1 applies verbatim (same clone site as func_0033fc80): the single
-   ldr $a1,0x134/ldl $a1,0x13B pair is `func_003482d0(slot, *(CmbVec2f *)(ret + 0x134), v, 3)`
-   with ret = func_00348290 result — 8-byte by-value read at 4-mod-8 offset, verified
-   emitting the exact pair on func_0033fc80. Not re-attempted individually: the whole
-   0x84-stride state-machine family shares func_0033fc80's stack-alloc floor. */
+/* cold target: faithful v4 (759 lines, file idioms s8/lb s16/switch s32/daddu, file-scope protos incl. new 00348a90 + iGpffff8508/850c, 104 jal/0 jalr exact, 0 unsigned (0 bltz) / 14 signed int->float via 0x141/0x143/0x153/0x16B/0x187 bare mtc1/cvt) probes 1911 differing words (reloc-masked; skeleton v1 2031), fnalign retail 2190/object 2038 (152 short, 6.9%, band 2126-2258), 997 edits +2 reloc-only, frame retail -0x3D0 vs object -0x6D0, no large pure hole/lump (52 deletes max 4-5, 1 insert; e.g. retail[198:202] 0x00345A18-0x00345A28, retail[209:213] 0x00345A44-0x00345A54, retail[302:306] 0x00345BB8-0x00345BC8). Exact: python3 tools/probe_variants.py src/promoted/y_CmbCardEff.c func_00345700 --candidate v4=/tmp/cmb45700_v4.c (1911); python3 tools/fnalign.py src/promoted/y_CmbCardEff.c func_00345700 --candidate /tmp/cmb45700_v4.c (2190/2038, 997+2, -0x3D0/-0x6D0). Production stays INCLUDE_ASM (short, do not bank). */
+/* measured: rule 1 applies verbatim (same clone site as func_0033fc80): the single */
+/* ldr $a1,0x134/ldl $a1,0x13B pair is `func_003482d0(slot, *(CmbVec2f *)(ret + 0x134), v, 3)` */
+/* with ret = func_00348290 result — 8-byte by-value read at 4-mod-8 offset, verified */
+/* emitting the exact pair on func_0033fc80. Not re-attempted individually: the whole */
+/* 0x84-stride state-machine family shares func_0033fc80's stack-alloc floor. */
 // FUN_00345700
 INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_00345700);
 

@@ -4090,18 +4090,14 @@ void func_0012e9d0(u8 *arg0)
     s32 temp21;
     void *h19;
     u8 *q;
-    u8 *r;
     f32 fx;
     f32 fy;
     f32 f20;
     f32 f21;
     f32 f25;
     f32 fret;
-    u8 col0;
-    u8 col1;
-    u8 col2;
     u8 stack[0x30];
-    s32 idx;
+    s16 idx;
     s16 s16a;
     s16 s16b;
     u32 uret;
@@ -4167,15 +4163,12 @@ void func_0012e9d0(u8 *arg0)
         }
         m = aval & 0xFF;
         for (j = 0; j < 0x54; j++) {
-            r = arg0 + j * 0x14;
-            if (*(s16 *)(r + 0xC48) >= 0) {
-                f21 = fx + (f32)(*(s32 *)(r + 0xC4C) * 44);
-                f25 = fy + (f32)(*(s32 *)(r + 0xC50) * 37);
-                fret = func_0034f720(r + 0xC48, 0.3f, 0.3f, 0.6f);
-                tab = D_005E76B0 + *(s16 *)(r + 0xC48) * 4;
-                col0 = tab[0];
-                col1 = tab[1];
-                col2 = tab[2];
+            q = arg0 + j * 0x14;
+            if (*(s16 *)(q + 0xC48) >= 0) {
+                f21 = fx + (f32)(*(s32 *)(q + 0xC4C) * 44);
+                f25 = fy + (f32)(*(s32 *)(q + 0xC50) * 37);
+                fret = func_0034f720(q + 0xC48, 0.3f, 0.3f, 0.6f);
+                tab = D_005E76B0 + *(s16 *)(q + 0xC48) * 4;
                 tu = m;
                 if (tu >= 0) {
                     fs = (f32)tu;
@@ -4263,14 +4256,11 @@ void func_0012e9d0(u8 *arg0)
         } else {
             aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
         }
-        col0 = D_0064B2F4[0];
-        col1 = D_0064B2F4[1];
-        col2 = D_0064B2F4[2];
         pack.f[0] = fx;
         pack.f[1] = fy;
-        stack[0] = col0;
-        stack[1] = col1;
-        stack[2] = col2;
+        stack[0] = D_0064B2F4[0];
+        stack[1] = D_0064B2F4[1];
+        stack[2] = D_0064B2F4[2];
         stack[3] = (u8)(aval & 0xFF);
         func_00130c30(arg0, pack.s, *(s32 *)stack);
         func_001125d0(stack);
@@ -4342,12 +4332,11 @@ void func_0012e9d0(u8 *arg0)
                     uret = func_00106880(s16a);
                     if (n == *(s16 *)(arg0 + 0x22)) {
                         tab = D_0064B2EC;
-                        if ((*(s32 *)(arg0 + 0x14) & 0x100) == 0) {
+                        if ((*(s32 *)(arg0 + 0x14) & 0x100) != 0) {
+                            continue;
+                        }
                             fx = 223.0f + (f23 + *(f32 *)(arg0 + 0x1318));
                             fy = 21.0f + (*(f32 *)(arg0 + 0x131C) + (f22 + 34.0f * (f32)n));
-                            col0 = D_0064B2E8[0];
-                            col1 = D_0064B2E8[1];
-                            col2 = D_0064B2E8[2];
                             tu = *(u8 *)(arg0 + 0x1322);
                             if (tu >= 0) {
                                 fs = (f32)tu;
@@ -4361,16 +4350,13 @@ void func_0012e9d0(u8 *arg0)
                             } else {
                                 aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
                             }
-                            stack[0] = col0;
-                            stack[1] = col1;
-                            stack[2] = col2;
+                            stack[0] = D_0064B2E8[0];
+                            stack[1] = D_0064B2E8[1];
+                            stack[2] = D_0064B2E8[2];
                             stack[3] = (u8)(aval & 0xFF);
                             pack.f[0] = fx;
                             pack.f[1] = fy;
                             func_00130c30(arg0, pack.s, *(s32 *)stack);
-                        } else {
-                            continue;
-                        }
                     } else {
                         tab = D_0064B2E0;
                         q = arg0 + n * 0x30;
