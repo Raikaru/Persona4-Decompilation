@@ -3350,6 +3350,23 @@ void func_0012d410(u8 *arg0)
 /*   v3_FB_retail 13, v4_FB_rev 44, v5_BF_retail 13, v6_BF_rev 44, */
 /*   v7_BB_retail 13, v8_BB_rev 44. Retail ties, reverse 13->44, scopes neutral. */
 /*   Floor stands at 13 (337/337). */
+/*   2026-09-19 verbatim residual, masked 13 (raw 12/26, 337/337 exact, frame */
+/*   both addiu $sp,$sp,-0x80): object vs retail, FPU scheduling + addu + cvt: */
+/*   off 1080: object sd $zero,($sp) vs retail lbu $t0,0xAE($v1); */
+/*   off 1092: object addu $v0,$s1,$v0 vs retail addu $v0,$v0,$s1 (p+sel*4); */
+/*   off 1108: object mtc1 $zero,$f14 vs retail lw $a0,0x74($v0); */
+/*   off 1112: object lbu $t0,0xAE($v1) vs retail sd $zero,($sp); */
+/*   off 1116: object lw $a0,0x74($v0) vs retail mtc1 $zero,$f14; */
+/*   off 1180: object lwc1 $f1,0x228($s1) vs retail addiu $v0,$zero,0x17D; */
+/*   off 1184: object addiu $v0,$zero,0x17D vs retail mtc1 $v0,$f0; */
+/*   off 1188: object mtc1 $v0,$f0 vs retail nop; */
+/*   off 1192: object nop vs retail cvt.s.w $f1,$f0; */
+/*   off 1196: object cvt.s.w $f0,$f0 vs retail lwc1 $f0,0x228($s1); */
+/*   off 1200: object add.s $f0,$f0,$f1 vs retail add.s $f0,$f1,$f0; */
+/*   off 1208: object mtc1 $zero,$f12 vs retail lbu $a1,0x22E($s1); */
+/*   off 1212: object lbu $a1,0x22E($s1) vs retail mtc1 $zero,$f12. */
+/*   Immediates same (0x17D, 0x228/0x22E), branches same targets, nop/work is */
+/*   FPU scheduling (sched 315, peephole 332, nobranch tie 13). */
 // FUN_0012D630 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0012d630(u8 *arg0)
