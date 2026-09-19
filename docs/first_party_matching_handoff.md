@@ -599,6 +599,14 @@ lever is going to be recorded as not applying, the instrument that produced
 the negative has to be as good as the one that would have produced the
 positive.
 
+Blanket-sorting a switch that is ALREADY in the body is a loser, which is
+the other half of the same rule.  Seventy-two first-party floors carry a
+switch whose cases are not ascending; sorting the arms of the biggest ones
+(safe only where no arm falls through) measures `func_0027f6f0` 2392 ->
+2514, `func_002142b0` 809 -> 1135 and `func_00487fb0` 733 -> 733 - two
+clear regressions and a tie, no wins.  Ascending order is what a *chain*
+should be converted into, not a property every switch should have.
+
 `func_001b2380` is the honest negative: it converts cleanly, including the
 `goto LAB_001b2a6c` that jumps from the second arm into the first, and it is
 **worse** (1392 -> 1394, count 1014 -> 1016).  It stays a chain.

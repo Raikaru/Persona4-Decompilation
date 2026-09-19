@@ -6143,15 +6143,357 @@ loop_150:
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f9d90);
 #endif
 
-/* measured (re-tested wave C): the old floor note was STALE — b210 DOES emit
-   the pair at 0-mod-8 displacements for an 8-byte struct passed BY VALUE
-   (probe: take(0x151, *(FclVec2f *)(p + 0x38), *sp, 1, 4, 0) -> ldr $a1,0x38 /
-   ldl $a1,0x3F, byte-identical to retail's 8 pairs here, all 8-aligned at
-   0x38/0x3F; plain s64 gives ld). Full body still INCLUDE_ASM: ~6800-line
-   asm state machine (also carries adda.s/madd.s FPU-MAC chains); no
-   full-body nd measured. */
-// FUN_002FBEA0
+/* measured 002fbea0 recon + jump-table recovery + partial guarded body (see below). */
+/* Retail 26320B = 6580 instrs (6579 trimmed per fnalign), band 6383-6777. Frame -0x500 */
+/* (addiu $29,$29,-0x500; sd $31 + sq $30/$23-$16 + swc1 $f20). Calls 931 jal. */
+/* Total branch/jump includes 2 jr: dispatch jr $3 at 0x002FBF00 + return jr $31 at 0x00302568. */
+/* Dispatch: lbu $3,0x1($17); addiu $3,$3,-0x8A; sltiu $1,$3,0x16; beqz $1,.L00302538 (default); */
+/*   lui/addiu jtbl_00749280; sll $3,$3,2; addu; lw; jr $3 (delay nop). Base 0x8A = 138, */
+/*   so the C switch is over states 0x8A..0x9F with 22 cases (indices 0..21) + default. */
+/* jtbl_00749280 holds 22 valid words; words 22-23 are 0x0 pad to jtbl_007492E0 at 0x7492E0 */
+/*   (entries 24+ belong to the next table). sltiu bound 0x16 = 22 cases; case 2 (0x8C) */
+/*   targets the default .L00302538 (+0x6698), i.e. an empty state sharing the epilogue. */
+/* Full table (`python3 tools/jtbl.py 0x00749280 30 --func 0x002fbea0`): */
+/*   case  0 (0x8A): 0x002FBF08 (+0x68)    case 11 (0x95): 0x002FD088 (+0x11E8) */
+/*   case  1 (0x8B): 0x002FBFAC (+0x10C)   case 12 (0x96): 0x002FD1E0 (+0x1340) */
+/*   case  2 (0x8C): 0x00302538 (+0x6698, default)  case 13 (0x97): 0x002FE730 (+0x2890) */
+/*   case  3 (0x8D): 0x002FC378 (+0x4D8)   case 14 (0x98): 0x002FEA3C (+0x2B9C) */
+/*   case  4 (0x8E): 0x002FD58C (+0x16EC)  case 15 (0x99): 0x003001D4 (+0x4334) */
+/*   case  5 (0x8F): 0x002FD678 (+0x17D8)  case 16 (0x9A): 0x003002B4 (+0x4414) */
+/*   case  6 (0x90): 0x002FE450 (+0x25B0)  case 17 (0x9B): 0x00301408 (+0x5568) */
+/*   case  7 (0x91): 0x002FE5C8 (+0x2728)  case 18 (0x9C): 0x00301F9C (+0x60FC) */
+/*   case  8 (0x92): 0x002FE640 (+0x27A0)  case 19 (0x9D): 0x002FFD78 (+0x3ED8) */
+/*   case  9 (0x93): 0x002FE6B8 (+0x2818)  case 20 (0x9E): 0x002FFE08 (+0x3F68) */
+/*   case 10 (0x94): 0x002FE7CC (+0x292C)  case 21 (0x9F): 0x00300144 (+0x42A4) */
+/* C shape: switch (state) { case 0x8A: ... case 0x9F: ...; default: ... } in ascending */
+/*   order, one case per table entry (0x8C kept explicit as break: it shares the default */
+/*   target). The object reproduces the dispatch identically (fnalign elides the */
+/*   sll/addu/lw/jr $3/nop sequence as matching; the lui/addiu table setup is reloc-only). */
+/* Coverage: faithful 0x8A (checked insn-by-insn vs asm), 0x8B incl. the var_16 scan loop */
+/*   and the 0x6E/colour/ba970 tail, 0x8E, 0x90, 0x91, 0x92, 0x93, 0x97 (adapted from the m2c */
+/*   oracle src/generated/code1_002f.c P4_UNIT_002FBEA0, de-noised to this file's idiom: */
+/*   M2C_FIELD to direct casts, hallucinated 2nd args on 002e4870/002b6150/002bb680/00314660 */
+/*   dropped, D_008C024E to [0]); 0x8F carries only its D_008C024E[0]&8 sub-branch so the two */
+/*   0x38/0x3F by-value copies land as `*(FclVec2f *)(ps + 0x38)` with */
+/*   `ps = func_002b6150(...)` (b210 emits ldr/ldl; plain s64 emits ld). Stubbed (break): */
+/*   0x8D (FPU-MAC adda.s/madd.s chain, not C-reachable), 0x94 (gp-relative), 0x95, 0x96, */
+/*   0x98 (second MAC chain), 0x99, 0x9A (ldr quartet), 0x9B, 0x9C, 0x9D, 0x9E, 0x9F; the */
+/*   remainder of 0x8F likewise. */
+/* measured 002fbea0 partial: object 654I vs retail 6579I (9.9%), fnalign 6428 edits */
+/*   (+2 reloc-only) via `python3 tools/fnalign.py src/Event/Fcl/y_fclCombine.c func_002fbea0 */
+/*   --candidate /tmp/cand_002fbea0.c`. */
+/* OUTSIDE the +-3% band (654 vs 6383-6777, short by 5729): states 0x8D, 0x94, 0x95, 0x96, */
+/*   0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F still missing (break stubs) and 0x8F only */
+/*   partial. Land more states to close the gap; dispatch + case order already stable. */
+/* gate: func_002fbea0 is OUTSIDE the +-3% band at 654 against retail 6579 (-90.1%, band
+   6383-6777).  This is a DISPATCH SKELETON, not a floor: the jump table at jtbl_00749280 has
+   states 0x8A-0x9F and only 0x8A, 0x8B, 0x8E, 0x90, 0x91, 0x92, 0x93 and 0x97 are recovered
+   faithfully, with 0x8F partial (the D_008C024E & 8 arm only).  Still missing: 0x8D, 0x94,
+   0x95, 0x96, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F.  The dispatch itself is exact -
+   lbu / addiu -0x8A / sltiu 0x16 / lui+addiu / sll / addu / lw / jr $3 all reproduce.
+   No differing-word or edit number measured against this body means anything until the twelve
+   missing states are written (handoff 7y); it is banked so the next worker starts from the
+   dispatch rather than from nothing. */
+// FUN_002FBEA0 NONMATCHING
+#ifdef NON_MATCHING
+void func_002fbea0(u8 *arg0) {
+    extern void func_00315600(u8 *, s32);
+    extern void func_002e4610(s32, s8);
+    extern s32 func_00106330(s32);
+    extern u8 *func_002e4870(s8);
+    extern u16 *func_002e48a0(s8, s16);
+    extern u8 *func_002b6150(s16);
+    extern s32 func_002b6970(s16, s32);
+    extern void func_002b68d0(s16, s32, s32);
+    extern void func_002b2a60(void *, s32, s32, s32, s32);
+    extern void func_002ba970(s32, s8, s32);
+    extern s8 func_002bab80(void *);
+    extern void func_002badc0(s8, s32);
+    extern s32 func_00331660(void);
+    extern void func_0032b770(u8 *, s32, s32, s32);
+    extern void func_0032b9d0(u8 *, s32, s32, s32);
+    extern void func_002e68b0(s32);
+    extern void func_002b6140(s32, u8);
+    extern void func_00314450(u8 *, u16 *, s32, s32);
+    extern void func_00314560(u8 *, u16 *, s32, s32);
+    extern u8 *func_003147d0(u8 *);
+    extern void func_0011c6e0(u8 *, s32);
+    extern void func_0011d140(u8 *, s32);
+    extern s32 func_002b2a30(u8, u8, u8, u8);
+    extern s32 func_002bb680(s8);
+    extern void func_002bbcf0(s8);
+    extern void func_002bb550(s8);
+    extern void func_00314670(u8 *, s32);
+    extern void func_00325450(u8 *, s32, s32);
+    extern void func_0032f4d0(u8 *);
+    extern void func_003205f0(u8 *, s32, s32);
+    extern s32 func_00302570(u8 *);
+    extern s8 func_00314660(u8 *);
+    extern void func_002b2970(s64 *, f32, f32);
+    extern void func_002b69f0(s16, FclVec2f, FclVec2f, u32, u32, s16);
+    extern void func_0045af60(s32, s32, s32, s32);
+
+    u8 *p;
+    u8 state;
+    s64 var_16;
+    s16 var_16_2;
+    s16 var_16_5;
+    s16 base;
+    s8 tmp8;
+    u8 *r2;
+    u8 *r3;
+    u8 *r4;
+    u8 *r5;
+    u8 *r6;
+    u8 *ps;
+    u8 col0;
+    u8 col1;
+    u8 col2;
+    u8 col3;
+    u8 colB0;
+    u8 colB1;
+    u8 colB2;
+    u8 colB3;
+    u8 colC0;
+    u8 colC1;
+    u8 colC2;
+    u8 colC3;
+    u8 c0;
+    u8 c1;
+    s64 sp440;
+    s64 sp438;
+
+    p = *(u8 **)(arg0 + 0x38);
+    state = *(p + 1);
+    switch (state) {
+    case 0x8A:
+        func_00315600(arg0, 1);
+        if (*(p + 0) == 0x10) {
+            func_002e4610(6, 0);
+        } else if (*(p + 0) == 0xF) {
+            if (func_00106330(0x1460) != 0) {
+                func_002e4610(8, 0);
+            } else {
+                func_002e4610(2, 0);
+            }
+        }
+        *(s16 *)(p + 0x11E) = 0;
+        *(s16 *)(p + 0x120) = 0;
+        *(s8 *)(p + 0x129) = -1;
+        *(s8 *)(p + 0x128) = -1;
+        *(s8 *)(p + 0x123) = 0;
+        *(p + 1) = 0x8B;
+        return;
+    case 0x8B:
+        if (*(s8 *)func_002e4870(0) == 0) {
+            return;
+        }
+        var_16 = 0;
+        while ((s64)((var_16 << 0x30) >> 0x30) < (s64)(*(s8 *)(p + 0xB7))) {
+            if (func_002b6970(*(s16 *)(func_002b6150((s16)(var_16 * 2 + 0x1F8)) + 0x10), 1) == 1) {
+                return;
+            }
+            var_16 = (s64)((var_16 + 1) << 0x30) >> 0x30;
+        }
+        var_16_2 = *(s16 *)(func_002e4870(0) + 8);
+        if (*(s32 *)(func_002e4870(0) + 8) >= 9) {
+            var_16_2 = 8;
+            *(f32 *)(p + 0x124) = 125.0f / (f32)(*(s32 *)(func_002e4870(0) + 8) - 8);
+        }
+        if (*(p + 0) == 0x10) {
+            if (*(s32 *)(func_002e4870(0) + 8) == 0) {
+                tmp8 = func_002bab80((void *)func_00331660());
+                *(s8 *)(p + 0xD) = tmp8;
+                func_002badc0(tmp8, 0xE);
+                *(p + 1) = 0x93;
+            } else {
+                func_0032b770(arg0, 2, var_16_2, 0);
+                *(p + 1) = 0x8D;
+            }
+        } else if (*(p + 0) == 0xF) {
+            *(s8 *)(p + 0x123) = 0;
+            if (func_00106330(0x1460) == 0) {
+                func_002e68b0(0);
+            }
+            func_0032b9d0(arg0, 2, var_16_2, 0);
+            *(p + 1) = 0x98;
+        }
+        base = *(s16 *)(p + 0x11E);
+        *(s8 *)(func_002b6150((s16)(base + 0x27D)) + 0x6E) = -1;
+        *(s8 *)(func_002b6150((s16)(base + 0x270)) + 0x6E) = -1;
+        func_002b68d0(0x270, 2, 1);
+        func_002b68d0(0x27D, 2, 1);
+        func_002b2a60(&col0, 0xCC, 0xFF, 0x33, 0xFF);
+        r2 = func_002b6150((s16)(base + 0x297));
+        *(r2 + 0x85) = col0;
+        *(r2 + 0x86) = col1;
+        *(r2 + 0x87) = col2;
+        *(r2 + 0x88) = col3;
+        r3 = func_002b6150((s16)(base + 0x28B));
+        c0 = *(r2 + 0x85);
+        c1 = *(r2 + 0x86);
+        *(r3 + 0x85) = c0;
+        *(r3 + 0x86) = c1;
+        *(r3 + 0x87) = *(r2 + 0x87);
+        *(r3 + 0x88) = *(r2 + 0x88);
+        r4 = func_002b6150((s16)(base + 0x27D));
+        c0 = *(r3 + 0x85);
+        c1 = *(r3 + 0x86);
+        *(r4 + 0x85) = c0;
+        *(r4 + 0x86) = c1;
+        *(r4 + 0x87) = *(r3 + 0x87);
+        *(r4 + 0x88) = *(r3 + 0x88);
+        r5 = func_002b6150((s16)(base + 0x270));
+        *(r5 + 0x85) = *(r4 + 0x85);
+        *(r5 + 0x86) = *(r4 + 0x86);
+        *(r5 + 0x87) = *(r4 + 0x87);
+        *(r5 + 0x88) = *(r4 + 0x88);
+        func_002b2a60(&colB0, 0x2D, 0x2D, 0x2D, 0xFF);
+        r6 = func_002b6150((s16)(base + 0x2A3));
+        *(r6 + 0x85) = colB0;
+        *(r6 + 0x86) = colB1;
+        *(r6 + 0x87) = colB2;
+        *(r6 + 0x88) = colB3;
+        func_002b2a60(&colC0, 0x2D, 0x2D, 0x2D, 0xFF);
+        func_002ba970(*(s32 *)(p + 0x2BC), (s8)(base + 0xC), (s32)colC0);
+        return;
+    case 0x8C:
+        break;
+    case 0x8D:
+        break;
+    case 0x8E:
+        if (func_002b6970(*(s16 *)(func_002b6150(0x270) + 0x10), 1) != 1) {
+            func_002b6140(*(s32 *)(p + 0x28C), 1);
+            func_002b6140(*(s32 *)(p + 0x290), 1);
+            func_00314450(*(u8 **)(p + 0x148), func_002e48a0(0, *(s16 *)(p + 0x11E)), 0, 1);
+            func_0011c6e0(func_003147d0(*(u8 **)(p + 0x148)), 1);
+            func_0011d140(func_003147d0(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
+            func_00325450(arg0, 0, 0);
+            *(p + 1) = 0x8F;
+            return;
+        }
+        break;
+    case 0x8F:
+        if (D_008C024E[0] & 8) {
+            if (*(s8 *)(p + 0x122) == 1) {
+                *(s8 *)(p + 0x122) = 0;
+                ps = func_002b6150(0x150);
+                func_002b2970(&sp440, (f32)0x141, 16.0f);
+                func_002b69f0(0x150, *(FclVec2f *)(ps + 0x38), *(FclVec2f *)&sp440, 1, 4, 0);
+                ps = func_002b6150(0x2E0);
+                func_002b2970(&sp438, (f32)0x141, 16.0f);
+                func_002b69f0(0x2E0, *(FclVec2f *)(ps + 0x38), *(FclVec2f *)&sp438, 1, 4, 0);
+                func_00314560(*(u8 **)(p + 0x148), func_002e48a0(0, *(s16 *)(p + 0x11E)), 0, 1);
+                func_0045af60(0, 2, 0, 5);
+            }
+            *(s8 *)(p + 0x13A) = 0;
+            return;
+        }
+        break;
+    case 0x90:
+        if (((s8)func_00314660(*(u8 **)(p + 0x148)) < 0 || (s8)func_00314660(*(u8 **)(p + 0x148)) >= 6) && *(s8 *)func_002e4870(0) != 0) {
+            var_16_5 = *(s16 *)(func_002e4870(0) + 8);
+            if (*(s32 *)(func_002e4870(0) + 8) >= 9) {
+                var_16_5 = 8;
+            }
+            if (*(s32 *)(func_002e4870(0) + 8) >= 9) {
+                *(f32 *)(p + 0x124) = 125.0f / (f32)(*(s32 *)(func_002e4870(0) + 8) - 8);
+            }
+            func_002b6140(*(s32 *)(p + 0x28C), 0);
+            func_002b6140(*(s32 *)(p + 0x290), 0);
+            if (*(s32 *)(func_002e4870(0) + 8) > 0) {
+                func_0032b770(arg0, 0, var_16_5, 0);
+                *(s16 *)(p + 0x11E) = 0;
+                *(s16 *)(p + 0x120) = 0;
+                *(p + 1) = 0x8B;
+                return;
+            }
+            tmp8 = func_002bab80((void *)func_00331660());
+            *(s8 *)(p + 0xD) = tmp8;
+            func_002badc0(tmp8, 0xE);
+            *(p + 1) = 0x93;
+            return;
+        }
+        break;
+    case 0x91:
+        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
+            func_002bbcf0(*(s8 *)(p + 0xD));
+            return;
+        }
+        func_002bb550(*(s8 *)(p + 0xD));
+        func_00314670(*(u8 **)(p + 0x148), 3);
+        func_00325450(arg0, 0, 1);
+        func_002e4610(6, 0);
+        *(p + 1) = 0x90;
+        return;
+    case 0x92:
+        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
+            func_002bbcf0(*(s8 *)(p + 0xD));
+            return;
+        }
+        func_002bb550(*(s8 *)(p + 0xD));
+        func_0032f4d0(arg0);
+        func_003205f0(arg0, 0x96, 0x118);
+        func_00315600(arg0, 0);
+        *(p + 0) = 0;
+        *(p + 1) = 0x1B;
+        return;
+    case 0x93:
+        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
+            func_002bbcf0(*(s8 *)(p + 0xD));
+            return;
+        }
+        func_002bb550(*(s8 *)(p + 0xD));
+        func_0032f4d0(arg0);
+        func_003205f0(arg0, 0x96, 0x118);
+        func_00315600(arg0, 0);
+        *(p + 0) = 0;
+        *(p + 1) = 0x1B;
+        return;
+    case 0x94:
+        break;
+    case 0x95:
+        break;
+    case 0x96:
+        break;
+    case 0x97:
+        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
+            func_002bbcf0(*(s8 *)(p + 0xD));
+            return;
+        }
+        func_002bb550(*(s8 *)(p + 0xD));
+        if (func_00302570(arg0) == 0) {
+            if ((s8)func_00314660(*(u8 **)(p + 0x148)) == 5) {
+                func_00314670(*(u8 **)(p + 0x148), 3);
+                func_00325450(arg0, 0, 1);
+            }
+            *(p + 1) = 0x8D;
+            return;
+        }
+        break;
+    case 0x98:
+        break;
+    case 0x99:
+        break;
+    case 0x9A:
+        break;
+    case 0x9B:
+        break;
+    case 0x9C:
+        break;
+    case 0x9D:
+        break;
+    case 0x9E:
+        break;
+    case 0x9F:
+        break;
+    default:
+        return;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002fbea0);
+#endif
 
 // FUN_00302570
 s32 func_00302570(u8 *arg0) {

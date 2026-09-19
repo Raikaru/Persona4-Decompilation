@@ -174,7 +174,7 @@ extern u8 D_00794EA0[];
 extern u8 D_00794ED0[];
 extern u8 D_0063FB50[];
 
-void func_002be530(void);
+s32 func_002be530(u8 *arg0);
 void func_002be3c0(void);
 s32 func_0010d6d0(s16);
 void func_00105780(s32);
