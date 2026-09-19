@@ -2458,8 +2458,10 @@ void func_00125e80(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
    temps (`r40`..`r90`, extending the existing `radius` idiom), six sites,
    25 fnalign edits (plus 21 reloc-only).  Measured and rejected: hoisting
    the trailing (Fy, Fy) float pairs the same way (112 - the compiler had
-   already commoned the duplicate loads, identical codegen).  Residual is
-   the MMI s128-copy shape plus the f16 load-order pairs per site. */
+   already commoned the duplicate loads, identical codegen); scoped
+   `#pragma opt_common_subs off` around the function (303 - retail is not
+   rematerialising here, the whole function depends on load CSE; reverted).
+   Residual is the MMI s128-copy shape plus the f16 load-order pairs. */
 // FUN_00126090 NONMATCHING
 #ifdef NON_MATCHING
 void func_00126090(s32 arg0, u8 *arg1)
