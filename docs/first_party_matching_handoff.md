@@ -803,7 +803,7 @@ The families, with representative functions:
   `func_002b4ad0`, `func_00347c70` (loop-preheader hoist granularity).
 * **ABI spill order** - `func_0028fc40`, five `move` instructions, closed in
   7al.
-* **Genuine one-instruction floor** - `func_00242990`, closed in 7am.
+* **`func_00242990`** - was recorded as a one-instruction floor, then MATCHED; see 7am for why the floor claim was wrong.
 
 Two useful negatives from the campaign.  **Frames match retail on almost every
 near floor** - of the twenty-two, only `func_001a4800` and `func_001ae3d0` had
@@ -824,27 +824,56 @@ genuinely missing, and the large in-gate floors with four-figure edit counts
 where the structure is still wrong.  Those three categories are where effort
 belongs; do not spend another session probing spellings at the two-edit end.
 
-### 7am. One word away: `func_00242990`
+### 7am. `func_00242990` is MATCHED - and the floor claim was wrong
 
-The closest non-matching first-party function in the project is 813
-instructions long and differs from retail by **a single word**: at 0x00242CEC
-retail emits `addu $v0, $v1, $v0` and b210 emits `addu $v0, $v0, $v1`, adding
-a `$gp`-loaded base to an index both sides compute identically.  Everything
-else in 813 instructions is byte-identical.
+This section used to record the project's closest non-matching function: 813
+instructions, exact count, **one differing word** at 0x00242CEC, where retail
+emits `addu $v0, $v1, $v0` and b210 emits `addu $v0, $v0, $v1` while adding a
+`$gp`-loaded base to an index both sides compute identically.
 
-Eight spellings tie at one differing word: operand order swapped, the constant
-written first, the product hoisted into a `u32` temp, both operands cast to
-`u32`, the array-subscript form, and both parenthesisations.  A liveness
-reshape that hoists the offset above the branch regresses to 25.  Three other
-sites in the same function have the identical address shape and all emit
-base-first, which is the decisive evidence: the source cannot select an
-orientation for one site while leaving the others alone.
+Ten spellings had been measured and all tied at one - operand order swapped,
+the constant written first, the product hoisted into a `u32` temp, both
+operands cast to `u32`, the array-subscript form, both parenthesisations - and
+the conclusion drawn was that three sibling sites with the identical address
+shape all emitting base-first was "decisive evidence" that no source could
+select an orientation for the fourth.
 
-Worth knowing for two reasons.  It calibrates what "wall" means - this is what
-a genuine one-instruction compiler floor looks like, against which most
-"walls" in the tree are 20-to-150-word allocator differences.  And it is the
-first function anyone should re-try if a new lever ever turns up, because one
-word is the whole distance.
+That inference was backwards.  The three siblings emit the retail orientation
+**because they already route through the file's own inline helper**:
+
+    static inline u32 PTDatCalcOffsetAdd(u32 offset, u32 base)
+    { return offset + base; }
+
+The fourth site did not.  Routing it through as well -
+
+    value = *(u8 *)((u8 *)PTDatCalcOffsetAdd(*(u16 *)(arg0 + 2) * 0x3C,
+                                             (u32)iGpffffb3c4) + 0x38);
+
+- takes the function to **zero differing words**.  `verify.py` reports MATCH,
+3252 bytes in a 3264-byte window, normalized difference 0.  No new helper, no
+pragma, no local, no dummy computation.
+
+The mechanism is the **parameter boundary**, which is why ten rewrites of the
+expression could not reach it: every one of them was still a single
+expression, and operand liveness inside one expression is the code
+generator's to choose.  Passing the offset as the first argument of a call
+fixes which operand becomes live first.
+
+Two lessons, both more useful than the section they replace:
+
+1. When a lone commutative operand order survives every rewrite, look for a
+   **call boundary** - an existing inline helper in the same file, or the one
+   the sibling sites already use - before calling anything a floor.
+2. "Every sibling does X" is evidence about the siblings' *source*, not about
+   what the compiler can be made to do.  Read what the siblings actually
+   write before generalising from what they emit.
+
+The prototype audit that came with this fix also corrected three lying
+declarations in the same file - `func_00106a30` declared `s32` but defined
+`u16` in `src/g_data/g_data.c`, `func_00247cb0` declared `(s16)` but defined
+`(s64)` in `src/cmmMisc.c`, `func_00107ac0` declared `(u16)` but defined
+`(s32)` in `src/cmmCommunity.c`.  All three were corrected with the file's
+MATCH count unchanged at 73.
 
 ### 7al. Parameter copies are emitted in ABI spill order, not source order
 
