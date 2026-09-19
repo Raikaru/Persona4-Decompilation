@@ -188,7 +188,54 @@ class CuratedDataAddressTests(unittest.TestCase):
                 generated[name] = int(match.group("addr"), 16)
         for _number, name, addr, _rest in entries():
             with self.subTest(name=name):
-                self.assertEqual(generated.get(name), addr)
+                # The explanation walks every source file, so build it only
+                # when the assertion is actually going to fail: `assertEqual`
+                # evaluates its message eagerly and that turned this file from
+                # 0.07 seconds into two minutes.
+                if generated.get(name) != addr:
+                    self.fail(self._why_missing(name))
+
+    @staticmethod
+    def _why_missing(name: str) -> str:
+        """Explain the usual cause instead of just reporting None.
+
+        A curated entry survives regeneration only if something the build
+        actually compiles references it.  The failure that cost three build
+        cycles was a symbol referenced solely from inside `#ifdef
+        NON_MATCHING` - code that is never linked - so the generator dropped
+        it every time, and regenerating to "fix" it broke the link with an
+        .sbss alignment error.
+        """
+        guarded, active = [], []
+        for path in sorted((REPO / "src").rglob("*.c")):
+            if path.name.startswith(".") or path.parent.name == "generated":
+                continue
+            depth, inside = 0, False
+            for line in path.read_text(errors="replace").splitlines():
+                stripped = line.strip()
+                if stripped.startswith("#if"):
+                    depth += 1
+                    if stripped in ("#ifdef NON_MATCHING", "#ifdef SKIP_ASM"):
+                        inside, guard_depth = True, depth
+                elif stripped.startswith("#endif"):
+                    if inside and depth == guard_depth:
+                        inside = False
+                    depth = max(0, depth - 1)
+                elif stripped.startswith("#else") and inside and depth == guard_depth:
+                    inside = False
+                elif name in line:
+                    (guarded if inside else active).append(path.name)
+        if active:
+            return (f"{name} is referenced by compiled code in {sorted(set(active))} "
+                    f"but is absent from {GENERATED.name}; regenerate with "
+                    f"tools/recover_symbols.py and verify the image still links")
+        if guarded:
+            return (f"{name} is referenced ONLY from inside a NON_MATCHING guard "
+                    f"({sorted(set(guarded))}), which the build never compiles, so the "
+                    f"generator drops it. Remove the curated entry until that body is "
+                    f"promoted - do not regenerate to force it in")
+        return (f"{name} is referenced nowhere in src/; the curated entry has no "
+                f"consumer and should be removed")
 
     def test_loader_rejects_an_entry_with_no_evidence(self) -> None:
         import recover_symbols
@@ -260,6 +307,31 @@ class RetailEvidenceTests(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertTrue(any(start <= addr < end for start, end in intervals),
                                 f"{name} at {addr:#010x} is outside PT_LOAD memory")
+
+
+class CuratedFailureDiagnosis(unittest.TestCase):
+    """The message on a curated-symbol failure has to name the cause.
+
+    Without it the failure reads `None != 7738440`, which invites the wrong
+    fix: regenerating `symbols_recovered.txt` to force the symbol in. That
+    was tried and it broke the link outright with an .sbss alignment error.
+    """
+
+    def test_guard_only_reference_is_diagnosed(self) -> None:
+        # fGpffff8358 was curated on the strength of a reference that lives
+        # inside func_001a59a0's NON_MATCHING body.
+        message = CuratedDataAddressTests._why_missing("fGpffff8358")
+        self.assertIn("ONLY from inside a NON_MATCHING guard", message)
+        self.assertIn("do not regenerate", message)
+
+    def test_live_reference_points_at_regeneration(self) -> None:
+        message = CuratedDataAddressTests._why_missing("fGpffff8128")
+        self.assertIn("referenced by compiled code", message)
+        self.assertIn("recover_symbols.py", message)
+
+    def test_unreferenced_symbol_is_diagnosed(self) -> None:
+        message = CuratedDataAddressTests._why_missing("zzz_not_a_real_symbol")
+        self.assertIn("referenced nowhere", message)
 
 
 if __name__ == "__main__":
