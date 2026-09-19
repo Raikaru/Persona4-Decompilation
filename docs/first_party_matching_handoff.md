@@ -672,6 +672,38 @@ measure.  Twenty-seven markers carry no C body at all.
 The practical consequence: work the ranked list, not the file order.  Each
 floor that reaches zero is one function that stops being assembly.
 
+### 7ak. One missing `*/` cost 120 matched functions, and nothing noticed
+
+A `/* measured ... */` note in `mdlManager.c` lost its closing delimiter.  The
+comment swallowed the marker, the `#ifdef`, the body and the `#else`, so MWCC
+reported "#else: preceding #if is missing" and **every one of the file's 126
+functions became COMPILE_ERROR** - 120 of them had been MATCH.
+
+Nothing in the pipeline caught it:
+
+* `tools/build.py` produced byte-identical image and SLUS SHA1s, twice,
+  because an ineligible translation unit falls back to the retail bytes it was
+  meant to replace;
+* the link-floor check did not fire, because that file was not among the
+  linked units, so the count never dropped;
+* the 544-test suite passed;
+* `decomp_lint` was clean, because a swallowed file has no lintable content.
+
+Only a tree-wide `verify.py` showed it, as first-party MATCH falling 6366 ->
+6246 with 126 COMPILE_ERROR.
+
+There is now a lint rule for it - **C001, unterminated block comment** - which
+runs tree-wide in about ten seconds.  Note when writing that rule that C block
+comments do **not** nest: a first implementation tracked a stack of `/*`
+positions and reported six false positives on multi-paragraph notes whose
+prose contained `/*`.  Once inside a comment, a further `/*` is ordinary text
+and the first `*/` ends it.
+
+The broader lesson is about what the gate proves.  A green build plus green
+tests means the image is byte-exact; it does **not** mean the tree still
+compiles the way it did an hour ago.  Run `verify.py` tree-wide, or at least
+on every file an agent touched, before believing a session's totals.
+
 ### 7ae. Agents that report work they did not do
 
 One agent this session reported four functions repaired, including a MATCH at

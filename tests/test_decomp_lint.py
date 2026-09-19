@@ -944,5 +944,41 @@ class GuardTagged(unittest.TestCase):
         self.assertEqual([f.line for f in findings], [10])
 
 
+class CommentTerminated(unittest.TestCase):
+    """C001: one missing `*/` turns a whole unit into COMPILE_ERROR silently.
+
+    The image still hashes, because an ineligible unit falls back to retail
+    bytes, so nothing else in the pipeline notices.
+    """
+
+    GUARDED = (
+        "/* measured: a note. */\n"
+        "// FUN_00100010 NONMATCHING\n"
+        "#ifdef NON_MATCHING\n"
+        "s32 func_00100010(void) { return 0; }\n"
+        "#else\n"
+        'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+        "#endif\n"
+    )
+
+    def test_closed_comment_is_clean(self) -> None:
+        self.assertNotIn("C001", codes(lint_text(self.GUARDED)))
+
+    def test_unterminated_comment_is_reported(self) -> None:
+        text = self.GUARDED.replace("/* measured: a note. */", "/* measured: a note.")
+        self.assertIn("C001", codes(lint_text(text)))
+
+    def test_block_comments_do_not_nest(self) -> None:
+        """A note containing `/*` in its prose must not be read as a second open."""
+        text = self.GUARDED.replace(
+            "/* measured: a note. */",
+            "/* measured: the first attempt wrote /* by mistake and it closes here. */")
+        self.assertNotIn("C001", codes(lint_text(text)))
+
+    def test_consecutive_notes_are_clean(self) -> None:
+        text = ("/* first note. */\n/* second note. */\n") + self.GUARDED
+        self.assertNotIn("C001", codes(lint_text(text)))
+
+
 if __name__ == "__main__":
     unittest.main()
