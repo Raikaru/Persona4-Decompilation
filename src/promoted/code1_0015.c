@@ -3402,11 +3402,7 @@ u16 *func_0015d2c0(u32 arg0)
     return record;
 }
 
-/* HBN-record floor (1056B window). First probe nd 122 (obj 1084B, 28B overrun;
-   re-measured 122wd / 94 edits 264 vs 271 7-long); honest s16/s64 decls +
-   (s64)(s8) extends give 97wd / 48 edits (267 vs 264 3-long, installed);
-   extra was dsll32/dsra32 0 pairs from <<0x38>>0x38 idiom; frame/prologue
-   verified. Open: branch-target cascade, s-reg rotation. See L15 doc. */
+/* HBN-record floor (1056B window). Counted-for inner loops (Main order #1): 97wd / 48+1 edits (267 vs 264 3-long) -> 14wd / 14+1 edits (261/261 exact). Entry-guard blez (#2) ties 97, incr-order swap (#3) ties 97, s16 counters (#4) explode 255. s32 for s64 temps ties 14. Remnant is pure $v0/$v1 + addiu/daddiu in the (s8)func_00110960 &1/-2 adjust (6 sites). Frame -0x90 exact, 7/7 pairs balanced, opclass clean. Production stays ASM. */
 // FUN_0015D310 NONMATCHING
 #ifdef NON_MATCHING
 /* Closest non-MATCH candidate archived before reverting; lverify report had MISMATCH. */
@@ -3517,39 +3513,32 @@ loop_body:
                         goto block_50;
                     }
 block_34:
-                    var_18_2 = 0;
-loop_38:
-                    if (var_18_2 < 0xC) {
+                    for (var_18_2 = 0; var_18_2 < 0xC; var_18_2++) {
                         temp_4_3 = *(s32 *)(var_16 + (var_18_2 * 4) + 0x34);
-                        if ((temp_4_3 == -1) ||
-                            (func_00106330(temp_4_3) != 1)) {
-                            var_18_2 += 1;
-                            goto loop_38;
+                        if ((temp_4_3 != -1) &&
+                            (func_00106330(temp_4_3) == 1)) {
+                            break;
                         }
                     }
                     if (var_18_2 >= 0xC) {
                         var_19_2 = 0;
-                        var_18_3 = 0;
-loop_46:
-                        if (var_18_3 < 5) {
+                        for (var_18_3 = 0; var_18_3 < 5; var_18_3++) {
                             temp_20 = var_16 + (var_18_3 * 8);
                             temp_4_4 = *(s32 *)(temp_20 + 0xC);
                             if (temp_4_4 == -1) {
-                                var_18_3 += 1;
-                                goto loop_46;
+                                continue;
                             }
                             var_19_2 = 1;
                             if (func_00106330(temp_4_4) != 1) {
-                                var_18_3 += 1;
-                                goto loop_46;
+                                continue;
                             }
                             temp_4_5 = *(s32 *)(temp_20 + 0x10);
                             if (temp_4_5 != -1) {
                                 if (func_00106330(temp_4_5) != 1) {
-                                    var_18_3 += 1;
-                                    goto loop_46;
+                                    continue;
                                 }
                             }
+                            break;
                         }
                         if ((var_18_3 >= 5) && (var_19_2 != 0)) {
                             goto block_49;

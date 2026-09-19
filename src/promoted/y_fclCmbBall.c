@@ -65,6 +65,12 @@ u8 *func_0034ae50(u8 *arg0, s8 arg1) {
    hoist-floor note (obj 1028B/window 1296B, 67 words short) re-measured
    void -- stores rematerialise per store in retail, matching the banked
    spelling. */
+/* 2026-09-19 (this lane): scoped `#pragma opt_common_subs off` around the
+   function regresses 193 -> 250 (the byte-exact loop stores depend on load
+   CSE; reverted). Surgical `arg1[0xE6E]` subscript for the shared 5th-arg
+   lbu ties at 193 - the cross-branch CSE share is robust to spelling.
+   Residual stands: lbu load-position x2, $a0/$v1 counter swap + float-reg
+   colouring, tail sp50/sp54 stack spills (the 5-instruction frame gap). */
 // FUN_0034AE70 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: opt_propagation off keeps the single lui/addiu D_00887300 hoist
