@@ -969,6 +969,9 @@ void func_001c1f70(u8 *arg0)
 /* probe 689 via `python3 tools/probe_variants.py src/promoted/code1_001c.c func_001c21d0 --candidate commons_off=/var/tmp/cold1c21d0/v3_commons_off.c` (v1 695, v3 696, v4 696, decl swaps tie 689); fnalign retail 833 vs object 710 instrs (123 short, -14.8%; gate 808-858) 1026 edits (+2 reloc-only) via `python3 -E -s tools/fnalign.py src/promoted/code1_001c.c func_001c21d0 --candidate /var/tmp/cold1c21d0/v3_commons_off.c --quiet`. M2C via `python3 -E -s tools/m2c_decompile.py src/promoted/code1_001c.c func_001c21d0 -o /var/tmp/cold1c21d0/m2c.c`; romwright via `python3 -E -s tools/romwright_decompile.py func_001c21d0 > /var/tmp/cold1c21d0/rw.c` (--types: arity 3, arg0 pointer, arg1/2 scalar; prologue reads $4/$5/$6 before write, so (u8 *, s32, s32) stands) plus --raw. De-noised to file idiom reusing existing decls (func_00195850, func_0022f950, func_001bc330/0240/01b0, func_003e40b0, func_003e41e0, func_003dcb40, func_001bd780, func_001ec3d0, func_0044b868, func_004bd050, func_001bac20/bbef0/9de70/bcd40). Read func_001c79f0 MATCH note (7p snapshot placement: before first Y output 0, one statement earlier 5, three earlier 20) and code1_001f.c func_001f4e50 57->13 (row address plus two element pointers dereferenced at zero, second assigned lazily). Recipe in order: (1) free pragmas - opt_common_subs off 696->689 scoped push/pop, opt_loop_invariants on tie, opt_unroll_loops off tie, schedule off tie; (2) subscript form - no variable index in this unit (constant 0x2C/0x8C/0x90/0xA4 field loads), P[i] probe not applicable; (3) fresh loop counters (7n) - no backwards branches in retail (all forward b/bc1, zero for/while in either decompiler), nothing to split; (4) colouring - decl swaps for temp_v9/temp_v12 and vis21/alt16 tie at 689. Branch-order fix (romwright swapped the two large arms: 1.25f path first vs retail 2.5f path first) moved fnalign 960->929 edits but words 695->696. Width fixes (u64->u32, int quat->f32) scored 696. Two non-improving rounds above 60, stopping per batch. Gap lives in missing aggregate spills, not calls: jal counts exact both sides (4x00195850, 3x0019de70, 1x001bac20/bbef0/bc1b0/bc240/bc330/bcd40, 3x001bd780, 2x001ec3d0, 1x0022f950, 2x003dcb40, 1x003e0870, 2x003e40b0/41e0, 1x003e4320, 3x0044b868, 1x004b3110/bd050); frame retail -0x200 vs object -0x140 (192B of spills absent); largest fnalign holes are retail[434:471] 37 vs object 1 (quatFC copy plus out10C add plus 25.0 clamp), retail[138:156] 18 (0x2EE/cvt plus fGp80fc/8140 select plus fGp8118 scale), retail[565:585] 20. Excluded: scheduling (off tie), loop-invariant hoists, unrolling, declaration colouring, inverted-condition vs swapped-arm spellings. Best candidate kept at /var/tmp/cold1c21d0/v3_commons_off.c (689) for the next pass, which should rebuild it on a Frame from 0xB0 to 0x1F8 with 16-byte-aligned vector/quat fields. */
 // FUN_001C21D0
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c21d0);
+/* cold 001c2ee0 (2026-09-18): first reconstruction only - production stays INCLUDE_ASM. */
+/* counts: retail 1012 instrs header (1009 per fnalign) vs object 762 (v1); +-3% band 982-1042 -> OUTSIDE (220 short of band floor). `measure_guarded --save-candidate` is N/A on a bare marker (symbol not in object, saves 0 bytes); numbers below via probe+fnalign on /var/tmp/cold1c2ee0/v1.c. probe 897 (v1 897, loopinv_on 897, unroll_off 897, schedule_off 897, commons_off 904, rndsep 897, need8local 897, noacctails 897; v9_7p 901, rejects); fnalign 651 edits (+13 reloc-only). Localised gap: jal counts match 44=44 both sides (195850x3, 196040, 19de70x2, bac20, bbef0, bbf40, bc1b0, bc240, bc330, bc3a0x2, bc630, bcd40, bd780x5, 3dcb40x4, 3e0870x2, 3e40b0x5, 3e41e0x5, 3e4320, 44b868x9, 4b3110, 4bd050); all 5 switch arms present (0x4E/0x38/0x35/0x34/default). Largest delete runs: 9+9 at retail[640:649]/[729:738] (tanf-arg materialisation gp*(0.5*X) + post-call f20*t*0.21875 at two sites), 3 at [65:68], 2 at [799:801]; pure deletes total only 26 - remainder is diffuse replace-shrinkage (per-block 1-2 instr materialisation differences, 7p class, cf. MATCHed 001c79f0 note in this file). v9_7p re-associated all four `44b868(gp*X*0.5)` sites to `gp*(0.5*X)`: 901 (+4, rejects), so association alone is not it - snapshot placement of the 0.5/gp materialisation is the open axis. 7s caveat: the eight pragma/structural numbers were measured on this 762-count incomplete body and are provisional (cf. 00263cb0 where commons_off flipped +5 to -58 once the arm was written). Method and de-noise contracts in the next line. */
+/* method: M2C via `python3 -E -s tools/m2c_decompile.py src/promoted/code1_001c.c func_001c2ee0 -o /var/tmp/cold1c2ee0/m2c.c`; romwright via `python3 -E -s tools/romwright_decompile.py func_001c2ee0 > /var/tmp/cold1c2ee0/rw.c`; de-noised to file idiom reusing existing decls (func_00195850(u8*,f32*), func_00196040(u32,u32,void*,f32*,f32*,u32), func_003dcb40(RwV3d*,const RwV3d*,s32,const RtQuat*), func_001bd780, func_003e0870(RwMatrix*,const RwV3d*,f32,s32), func_001bcd40, func_001bac20(u16*,...), func_001bbef0(u8*,f32)) with block externs for float-returning callees (func_0044b868(f32), func_003e41e0(f32*,f32*)) and fGpffff80cc/80e8/8110/8118/8128/8130/8138/8144/8148/814c per the 001c5500 lesson; sphere/center outputs rendered as f32[3] arrays (sphA/sphB/ctr) so the 12-byte writes land in 12-byte buffers. Retail tail proves (e0,NULL,NULL,0.0f,1) for 001bcd40 and (arg0,f20) for 001bbef0/bbf40 against Ghidra's orders; (u8*,s32,s32) stands (prologue reads $4/$5/$6, all three live: $20/$19 tested at tail, $23 in the arg2==0 block). 7o N/A: v1 already in 7o form (zero initialised declarations; bare decls plus statement assignments). */
 // FUN_001C2EE0
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c2ee0);
 // FUN_001C3EB0
@@ -2408,8 +2411,310 @@ void func_001c97b0(u8 *arg0)
         func_001bcd40(temp_4, arg0 + 0x9C, arg0 + 0x100, value, 0xC3);
     }
 }
-// FUN_001C9820
+// FUN_001C9820 NONMATCHING
+#ifdef NON_MATCHING
+/* measured 001c9820: 809 differing words via `python3 tools/probe_variants.py src/promoted/code1_001c.c func_001c9820 --candidate v1=/var/tmp/lead1c9820/v1.c` (sched 787 draft-short, commons 898, loopinv 809 tie, sched_scoped 787 draft-short); fnalign retail 844 vs object 850 instrs (+6, +0.7% inside 3% gate 819-869), 670 edits (+2 reloc-only) via `python3 -E -s tools/fnalign.py src/promoted/code1_001c.c func_001c9820 --candidate /var/tmp/lead1c9820/v1.c --quiet`. */
+/* M2C via `python3 -E -s tools/m2c_decompile.py src/promoted/code1_001c.c func_001c9820 -o /var/tmp/lead1c9820/m2c_fresh.c`; romwright via `python3 -E -s tools/romwright_decompile.py func_001c9820` (+ --types: arg0 *{+0x9C,+0xA4,+0xB8,+0xE0}, float param). Signature (u8*,s32,s32,f32) from prologue $a0/$f12/$a1/$a2; romwright (float,ushort*,long,int) wrong. */
+/* Camera idiom as MATCHED 001c79f0 (arg0+0x9C, *(arg0+0xE0), s0/s1 units, 001bd560/00195850/003e40b0/003e41e0/001bd780/003dcb40/001ec3d0/001bac20/001bbef0/001bcd40). MAC (adda/mula/madd/msub) as plain C per 7r (+0.0f, two-product mula/madd, copy_pair ld/sd); no inline asm. Ghidra/IDA bodies + retail 844i + P01C COP1 archive note read; archive floor claim overturned (plain C reaches 850). */
+void func_001c9820(u8 *arg0, s32 arg1, s32 arg2, f32 arg3)
+{
+    struct Vec3 {
+        f32 x;
+        f32 y;
+        f32 z;
+    };
+    struct Quat {
+        f32 x;
+        f32 y;
+        f32 z;
+        f32 w;
+    };
+    struct Work {
+        f32 pose90[7];
+        f32 outAC[3];
+        struct Quat quatB8;
+        f32 horizD0[2];
+        f32 perpD8[2];
+        f32 vecE0[2];
+        f32 vecE8[2];
+        f32 vecF0[2];
+        f32 vecF8[2];
+        s64 pair100;
+        f32 val108;
+        f32 eye110[3];
+        struct Vec3 dir120;
+        struct Vec3 base130;
+        s64 pair140;
+        f32 val148;
+        struct Vec3 centerB150;
+        struct Vec3 centerA160;
+    } work;
+    extern f32 fGpffff8098;
+    extern f32 fGpffff80cc;
+    extern f32 fGpffff810c;
+    extern f32 fGpffff8110;
+    extern f32 fGpffff8128;
+    extern f32 fGpffff816c;
+    extern f32 fGpffff8168;
+    extern f32 fGpffff8170;
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+    extern f32 func_001ec3d0(f32 *arg0, f32 *arg1, f32 *arg2, f32 *arg3);
+    extern f32 func_001ec2b0(void *first, void *second);
+    extern f32 func_0044b868(f32 arg0);
+    u8 *saved_arg0;
+    u8 *action;
+    u8 *unitA;
+    u8 *unitB;
+    u8 *var17;
+    u8 *var18;
+    f32 var_f20;
+    f32 var_f22;
+    f32 var_f23;
+    f32 dot;
+    f32 scaleA;
+    f32 scaleB;
+    f32 tmp;
+    f32 len;
+    f32 grow;
+    f32 div;
+    f32 eth;
+    f32 fVar5;
+    f32 fVar8;
+
+    saved_arg0 = arg0;
+    action = *(u8 **)(saved_arg0 + 0xE0);
+    unitA = *(u8 **)(action + 0x30);
+    unitB = *(u8 **)(*(u8 **)(action + 0x38) + 0x30);
+    func_001bd560(work.pose90, (f32 *)(saved_arg0 + 0x9C));
+    func_00195850(unitA, (f32 *)&work.centerA160);
+    func_00195850(unitB, (f32 *)&work.centerB150);
+    var_f23 = *(f32 *)(unitB + 0x8C) * *(f32 *)(unitB + 0x2C) * 0.5f + work.centerB150.y + 0.0f;
+    if (work.centerB150.y < 125.0f) {
+        work.centerB150.y = 125.0f;
+    }
+    var_f22 = *(f32 *)(unitA + 0x90) * *(f32 *)(unitA + 0x2C);
+    tmp = *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C);
+    work.dir120.x = work.centerA160.x - work.centerB150.x;
+    work.dir120.y = work.centerA160.y - work.centerB150.y;
+    work.dir120.z = work.centerA160.z - work.centerB150.z;
+    len = func_003e40b0((RwV3d *)&work.dir120, (const RwV3d *)&work.dir120);
+    scaleA = fGpffff8128 * len;
+    work.base130.x = work.dir120.x * scaleA + work.centerB150.x;
+    work.base130.y = work.dir120.y * scaleA + work.centerB150.y;
+    work.base130.z = work.dir120.z * scaleA + work.centerB150.z;
+    work.perpD8[0] = *(f32 *)(saved_arg0 + 0x9C) - work.base130.x;
+    work.perpD8[1] = *(f32 *)(saved_arg0 + 0xA4) - work.base130.z;
+    func_003e41e0(work.perpD8, work.perpD8);
+    work.horizD0[0] = work.dir120.x;
+    work.horizD0[1] = work.dir120.z;
+    dot = work.dir120.x * work.perpD8[0] + work.dir120.z * work.perpD8[1];
+    if (((dot < 0.0f) && (arg2 != 1)) || (arg1 != 0)) {
+        var17 = unitB;
+        var18 = unitA;
+        eth = 0.5f * len;
+        work.base130.x = work.dir120.x * eth + work.centerB150.x;
+        work.base130.y = work.dir120.y * eth + work.centerB150.y;
+        work.base130.z = work.dir120.z * eth + work.centerB150.z;
+        func_001c_copy_pair(&work.pair140, &work.val148, (s64 *)&work.centerB150.x, &work.centerB150.z);
+        scaleB = *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C) * 2.5f;
+        if (var_f23 <= 400.0f) {
+            work.base130.y = fGpffff8098 * *(f32 *)(unitB + 0x8C) * *(f32 *)(unitB + 0x2C) + work.base130.y + 0.0f;
+        } else {
+            work.base130.y = fGpffff810c * *(f32 *)(unitB + 0x8C) * *(f32 *)(unitB + 0x2C) + work.base130.y + 0.0f;
+        }
+        work.horizD0[0] = work.dir120.z;
+        work.horizD0[1] = -work.dir120.x;
+        var_f23 = work.dir120.z * work.perpD8[0] + work.horizD0[1] * work.perpD8[1];
+        work.eye110[2] = *(f32 *)(unitA + 0x8C) * *(f32 *)(unitA + 0x2C) * 0.5f + work.centerA160.y + 0.0f;
+        if (work.centerB150.y < work.centerA160.y) {
+            work.eye110[2] = work.centerA160.y;
+        }
+        if (!(var_f23 < 0.0f)) {
+            work.eye110[0] = work.dir120.z * scaleB + work.centerB150.x + 0.0f;
+            work.eye110[1] = (work.centerB150.z + 0.0f) - work.dir120.x * scaleB;
+            func_001c_copy_pair(&work.pair100, &work.val108, (s64 *)&work.dir120.x, &work.dir120.z);
+        } else {
+            work.eye110[0] = (work.centerB150.x + 0.0f) - work.dir120.z * scaleB;
+            work.eye110[1] = work.dir120.x * scaleB + work.centerB150.z + 0.0f;
+        }
+        fVar8 = work.centerB150.y;
+        func_001bd780((void *)&work.quatB8, (void *)work.eye110, (void *)&work.base130, (void *)D_0060A0E0);
+        func_003dcb40((RwV3d *)&work.dir120, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&work.quatB8);
+        work.vecE0[0] = work.base130.x;
+        work.vecE0[1] = work.base130.z;
+        work.vecE8[0] = work.eye110[0];
+        work.vecE8[1] = work.eye110[1];
+        func_001c_copy_pair(&work.pair140, &work.val148, (s64 *)&work.centerB150.x, &work.centerB150.z);
+        fVar5 = func_001ec3d0(work.vecE0, work.vecE8, (f32 *)&work.pair140, work.vecF0);
+        fVar8 = *(f32 *)(unitA + 0x90) * *(f32 *)(unitA + 0x2C) * 2.0f + fVar5 + 0.0f;
+        work.eye110[0] = work.vecF0[0];
+        work.eye110[2] = *(f32 *)(unitA + 0x8C) * *(f32 *)(unitA + 0x2C) * 0.25f + fVar8 + 0.0f;
+        work.eye110[1] = work.vecF0[1];
+        div = func_0044b868(fGpffff8110 * *(f32 *)(saved_arg0 + 0xB8) * 0.5f);
+        fVar5 = fVar8 / div;
+        work.dir120.x = work.dir120.x * fVar5;
+        work.dir120.y = work.dir120.y * fVar5;
+        work.dir120.z = work.dir120.z * fVar5;
+        if (var_f23 < 0.0f) {
+            scaleA = *(f32 *)(unitA + 0x90) * *(f32 *)(unitA + 0x2C) * 2.0f;
+            work.eye110[0] = work.val108 * scaleA + work.eye110[0] + 0.0f;
+            work.eye110[1] = (work.eye110[1] + 0.0f) - *(f32 *)&work.pair100 * scaleA;
+        }
+        work.outAC[0] = work.eye110[0] + work.dir120.x;
+        work.outAC[1] = work.eye110[2] + work.dir120.y;
+        work.outAC[2] = work.eye110[1] + work.dir120.z;
+        var17 = unitA;
+        var18 = unitB;
+    } else {
+        var17 = unitA;
+        var18 = unitB;
+        func_001c_copy_pair(&work.pair140, &work.val148, (s64 *)&work.centerA160.x, &work.centerA160.z);
+        scaleB = *(f32 *)(unitA + 0x90) * *(f32 *)(unitA + 0x2C) * 1.25f;
+        work.horizD0[0] = work.dir120.z;
+        work.horizD0[1] = -work.dir120.x;
+        var_f23 = work.dir120.z * work.perpD8[0] + work.horizD0[1] * work.perpD8[1];
+        work.eye110[2] = work.centerA160.y;
+        if (work.centerA160.y < work.centerB150.y) {
+            work.eye110[2] = work.centerB150.y;
+        }
+        if (var_f23 < 0.0f) {
+            work.eye110[0] = work.centerB150.x + 0.0f - work.dir120.z * 1.25f * tmp;
+            work.eye110[1] = work.dir120.x * 1.25f * tmp + work.centerB150.z + 0.0f;
+        } else {
+            work.eye110[0] = work.dir120.z * 1.25f * tmp + work.centerB150.x + 0.0f;
+            work.eye110[1] = (work.centerB150.z + 0.0f) - work.dir120.x * 1.25f * tmp;
+            func_001c_copy_pair(&work.pair100, &work.val108, (s64 *)&work.dir120.x, &work.dir120.z);
+        }
+        func_001bd780((void *)&work.quatB8, (void *)work.eye110, (void *)&work.base130, (void *)D_0060A0E0);
+        func_003dcb40((RwV3d *)&work.dir120, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&work.quatB8);
+        work.vecE0[0] = work.base130.x;
+        work.vecE0[1] = work.base130.z;
+        work.vecE8[0] = work.eye110[0];
+        work.vecE8[1] = work.eye110[1];
+        func_001c_copy_pair(&work.pair140, &work.val148, (s64 *)&work.centerA160.x, &work.centerA160.z);
+        fVar5 = func_001ec3d0(work.vecE0, work.vecE8, (f32 *)&work.pair140, work.vecF0);
+        work.eye110[0] = work.vecF0[0];
+        work.eye110[1] = work.vecF0[1];
+        div = func_0044b868(fGpffff8110 * *(f32 *)(saved_arg0 + 0xB8) * 0.5f);
+        grow = 550.0f;
+        tmp = (*(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C) * 1.5f + fVar5 + 0.0f) / div;
+        if (550.0f <= tmp) {
+            grow = tmp;
+        }
+        work.dir120.x = work.dir120.x * grow;
+        work.dir120.y = work.dir120.y * grow;
+        work.dir120.z = work.dir120.z * grow;
+        if (!(var_f23 < 0.0f)) {
+            scaleA = *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C) * 0.5f;
+            work.eye110[0] = (work.eye110[0] + 0.0f) - work.val108 * scaleA;
+            work.eye110[1] = *(f32 *)&work.pair100 * scaleA + work.eye110[1] + 0.0f;
+        }
+        work.outAC[0] = work.eye110[0] + work.dir120.x;
+        work.outAC[1] = work.eye110[2] + work.dir120.y;
+        work.outAC[2] = work.eye110[1] + work.dir120.z;
+    }
+    tmp = func_001ec2b0((void *)&work.pose90[3], (void *)&work.quatB8.x);
+    if ((arg3 <= 0.0f) || (grow = fGpffff816c * arg3, !(tmp <= grow))) {
+        if (dot < 0.0f) {
+            func_001bab00(saved_arg0, (void *)work.outAC);
+            func_003dcb40((RwV3d *)&work.dir120, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&work.quatB8);
+            work.dir120.x = work.dir120.x * 200.0f;
+            work.dir120.y = work.dir120.y * 200.0f;
+            work.dir120.z = work.dir120.z * 200.0f;
+            work.pose90[0] = work.outAC[0] + work.dir120.x;
+            work.pose90[1] = work.outAC[1] + work.dir120.y;
+            work.pose90[2] = work.outAC[2] + work.dir120.z;
+            work.pose90[3] = work.quatB8.x;
+            work.pose90[4] = work.quatB8.y;
+            work.pose90[5] = work.quatB8.z;
+            work.pose90[6] = work.quatB8.w;
+            if (work.pose90[1] < 25.0f) {
+                work.pose90[1] = 25.0f;
+            }
+            if (work.outAC[1] < 25.0f) {
+                work.outAC[1] = 25.0f;
+            }
+            func_001bac20((u16 *)saved_arg0, work.pose90, work.outAC, 1);
+            func_001bbef0(saved_arg0, fGpffff8168);
+        } else {
+            tmp = *(f32 *)(var17 + 0x90) * *(f32 *)(var17 + 0x2C);
+            work.dir120.x = work.centerA160.x - work.centerB150.x;
+            work.dir120.y = work.centerA160.y - work.centerB150.y;
+            work.dir120.z = work.centerA160.z - work.centerB150.z;
+            func_003e40b0((RwV3d *)&work.dir120, (const RwV3d *)&work.dir120);
+            work.eye110[2] = fGpffff8170 * *(f32 *)(var17 + 0x8C) * *(f32 *)(var17 + 0x2C) + grow + 0.0f;
+            if (!(var_f23 < 0.0f)) {
+                work.eye110[0] = (*(f32 *)&work.pair140 + 0.0f) - work.dir120.z * tmp;
+                work.eye110[1] = work.dir120.x * tmp + fVar5 + 0.0f;
+            } else {
+                work.eye110[0] = work.dir120.z * tmp + *(f32 *)&work.pair140 + 0.0f;
+                work.eye110[1] = (fVar5 + 0.0f) - work.dir120.x * tmp;
+            }
+            func_001bd780((void *)&work.pose90[3], (void *)work.eye110, (void *)&work.base130, (void *)D_0060A0E0);
+            func_003dcb40((RwV3d *)&work.dir120, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&work.pose90[3]);
+            work.vecE0[0] = work.base130.x;
+            work.vecE0[1] = work.base130.z;
+            work.vecE8[0] = work.eye110[0];
+            work.vecE8[1] = work.eye110[1];
+            func_001c_copy_pair(&work.pair140, &work.val148, (s64 *)&work.centerA160.x, &work.centerA160.z);
+            func_001ec3d0(work.vecE0, work.vecE8, (f32 *)&work.pair140, work.vecF0);
+            work.eye110[0] = work.vecF0[0];
+            work.eye110[2] = fGpffff8170 * *(f32 *)(var17 + 0x8C) * *(f32 *)(var17 + 0x2C) + grow + 0.0f;
+            work.eye110[1] = work.vecF0[1];
+            div = func_0044b868(fVar8 * *(f32 *)(saved_arg0 + 0xB8) * 0.5f);
+            fVar5 = (*(f32 *)(var17 + 0x90) * *(f32 *)(var17 + 0x2C) * 4.0f) / div;
+            work.dir120.x = work.dir120.x * fVar5;
+            work.dir120.y = work.dir120.y * fVar5;
+            work.dir120.z = work.dir120.z * fVar5;
+            work.pose90[0] = work.eye110[0] + work.dir120.x;
+            work.pose90[1] = work.eye110[2] + work.dir120.y;
+            work.pose90[2] = work.eye110[1] + work.dir120.z;
+            if (work.pose90[1] < 25.0f) {
+                work.pose90[1] = 25.0f;
+            }
+            if (work.outAC[1] < 25.0f) {
+                work.outAC[1] = 25.0f;
+            }
+            func_001bac20((u16 *)saved_arg0, work.pose90, work.outAC, 1);
+            func_001bbef0(saved_arg0, fGpffff8168);
+        }
+        if (!(var_f22 <= tmp)) {
+        } else {
+            var_f22 = tmp;
+        }
+        func_001bcd40(*(u8 **)(saved_arg0 + 0xE0), var18 + 4, (u8 *)work.outAC, var_f22, 3);
+        return;
+    }
+    if (!(var_f22 <= tmp)) {
+    } else {
+        var_f22 = tmp;
+    }
+    func_001bcd40(*(u8 **)(saved_arg0 + 0xE0), var18 + 4, (u8 *)work.outAC, var_f22, 0xC3);
+    if (work.pose90[1] < 25.0f) {
+        work.pose90[1] = 25.0f;
+    }
+    if (work.outAC[1] < 25.0f) {
+        work.outAC[1] = 25.0f;
+    }
+    tmp = func_001ec2b0((void *)&work.pose90[3], (void *)&work.quatB8.x);
+    var_f20 = 1.25f;
+    if (!(tmp <= 0.0f)) {
+        div = grow / tmp;
+        if (!(div <= 1.0f)) {
+            var_f20 = div * fGpffff80cc;
+        } else {
+            var_f20 = fGpffff80cc;
+        }
+        if (!(var_f20 <= 1.25f)) {
+            var_f20 = 1.25f;
+        }
+    }
+    func_001bac20((u16 *)saved_arg0, work.pose90, work.outAC, 1);
+    func_001bbef0(saved_arg0, var_f20);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c9820);
+#endif
 // FUN_001CA550
 void func_001ca550(u8 *arg0) {
     func_001c9820(arg0, 0, 0, 50.0f);

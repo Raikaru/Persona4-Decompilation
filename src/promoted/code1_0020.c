@@ -2630,8 +2630,24 @@ void func_00205e00(u8 *panel, s32 index, f32 x, f32 y,
 #pragma pop
 // FUN_00205FF0
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205ff0);
+/* 2026-09-18 cold205ff0 func_00205ff0: retail 886 / object 824 (v3_baseearly best, 792 words) band 859-913 (+/-3%) deficit -62 (-7.0%) OUTSIDE so keep bare INCLUDE_ASM; measure_guarded N/A (bare, symbol not present, cand 0B). */
+/* Counts: jal 24 both (1x012d0 11x01410 7x01650 2x019e0 1x452560 2x45d6e0); jalr retail 10 (7x base $2 + 3x cb $21) vs obj 11 (7x base + 4x cb, extra loop arm); no jtbl (only jr $31), no switch, no missing case 7. Largest runs: del 45:62 len17 + ins 43:58 len15 (clamp c.le/bc1t vs c.olt/bc1f polarity pair, v1 ties); del 329:337 len8 (2nd 45d6e0 pos: stack 0xFC/0xE0 vs 0xDF/0xD8 + add/cvt/mfc/sw); del 507:515 len8 (cb sharing 1 call w/ var_7 vs duplicated 2 calls); tail del 769:770/804:805/814:815 + ins 807:744-748 ($f20 reuse vs remat 0x1CD). */
+/* 7o N/A (0 floors, structural not pair-exchange, already bare-decl form; reverse ties). Eight probe_variants one call: v0b 793, v1 793, v2 793, v3 792 best, v4 793, v5 794, v6 793, v7 792 (C89-fixed re-measured). Rejects recorded; scratch /var/tmp/cold205ff0/v0b.c+v1..v7+fnalign_v3.txt. */
 /* measured: object 868B/window 880B/normalized_diff 291 (85 differing words, live re-measured current tree). */
 /* measured: entry tall-branch plus callback-arg setup floor; slti-at, dead-store trailing-arm, arg-cast audit, loop-invariant and schedule levers checked top-down via fnalign with no gain over current 85-word body; full-size (868 vs 880, minus 1pt) floor. */
+/* 2026-09-18, handoff 7r probe; floor stands at 85.  217/217 instructions.
+   This is one of only three floors in the tree whose accumulator-prime count
+   differs from retail (object 5, retail 4).  The site is
+   `temp_f20_2 = (f32)0x14D + (18.5f * (1.0f - temp_f20))`: retail computes
+   the product separately and finishes with a plain `add.s $f20, $f0, $f1`,
+   where this body primes `mtc1 $zero` and uses `adda.s`/`madd.s`.
+   Per 7r that means retail's product is shared - used a second time - but no
+   second use is visible in either body and the instruction counts are equal,
+   so the sharing is not a missing statement.  Measured and rejected:
+   writing the product first `(18.5f * (1.0f - temp_f20)) + (f32)0x14D` ties
+   at 85, lifting it into a named local ties at 85, distributing to
+   `18.5f - 18.5f * temp_f20` costs 147, and folding the constant to
+   `((f32)0x14D + 18.5f) - 18.5f * temp_f20` costs 146. */
 // FUN_00206DD0 NONMATCHING
 #ifdef NON_MATCHING
 /* lane W42c20 probe for func_00206dd0 (0x00206dd0)
@@ -5372,5 +5388,216 @@ void func_0020fa70(u8 *work, u8 *state)
     func_00201720(work, 1.0f, 1.0f);
     func_002019d0(work, 1.0f, 1.0f);
 }
-// FUN_0020FF00
+/* measured: GUARDED_SCORE 708 differing words (probe_variants baseline), retail 860 vs object 864 instrs (+4, +0.47% over, within 3% gate); fnalign 72 edits (+10 reloc-only). Pragmas: opt_loop_invariants on ties 708, opt_unroll_loops off ties 708, schedule off ties 708, opt_common_subs off worsens 708->811, opt_propagation off worsens 708->731, schedule on worsens 708->781. Unrolled verts (864) vs loop-hoisted colors (623 instrs, 27% short, draft); 221.0f for 0x435D0000 and [11]=0 for verts 1,2,4,5 vs color for 0,3. Remaining: saved-reg rotation (retail s2/s1/s0 vs build s1/s0), FPR colouring, D_00887300 base materialisation, extra andi per slti. Same classes as func_00207b00 note. Scratch /var/tmp/cold20ff00/v3.c. */
+// FUN_0020FF00 NONMATCHING
+#ifdef NON_MATCHING
+void func_0020ff00(u8 *arg0, u8 *arg1)
+{
+    extern f32 func_0044b610(f32 fparg0);
+    extern f32 func_0044b7b0(f32 fparg0);
+    extern u8 *func_00457120(void);
+    extern void func_00365ac0(s64 pos, s32 color, s32 mode, f32 depth, f32 angle, f32 wid, f32 hgt);
+    extern void func_00364fb0(s64 pos, u32 color, s32 arg2, s32 arg3, f32 fparg0, f32 fparg1);
+    extern f32 fGpffff837c;
+    extern f32 fGpffff84a8;
+    s64 posOrig;
+    s64 posA;
+    s64 posB;
+    f32 verts[6][16];
+    s32 idx;
+    f32 fA;
+    f32 fB;
+    f32 fC1;
+    f32 fC2;
+    f32 fC;
+    f32 fD1;
+    f32 fD2;
+    f32 fD;
+    f32 fE1;
+    f32 fE2;
+    f32 fE;
+    f32 fF1;
+    f32 fF2;
+    f32 fF;
+    f32 tmp21;
+    f32 tmp20;
+    u32 packed;
+    s32 b0;
+    s32 b1;
+    s32 b2;
+    s32 b3;
+    f32 base;
+    f32 reciprocal;
+    idx = (s32)(*(u16 *)(arg1 + 0xE) + 1);
+    *(u16 *)(arg1 + 0xE) = (u16)idx;
+    idx &= 0xFFFF;
+    ((s32 *)&posOrig)[0] = 0x43970000;
+    ((s32 *)&posOrig)[1] = 0x43600000;
+    D_00887300[0](1, 0);
+    if (idx < 0x23) {
+        fA = 0.0f;
+    } else if (idx < 0x2D) {
+        fA = 1.0f - func_0044b610(fGpffff84a4 * ((f32)(idx - 0x23) / 10.0f));
+    } else {
+        fA = 1.0f;
+    }
+    if (!(fA <= 0.0f)) {
+        func_00201820(2);
+        func_00365ac0(posOrig, 0xFF1432FF, 1, 0.0f, 0.0f, 400.0f * fA, 90.0f);
+        func_00201820(0);
+    }
+    if (idx < 0x19) {
+        fB = 0.0f;
+    } else if (idx < 0x23) {
+        fB = 1.0f - func_0044b610(fGpffff84a4 * ((f32)(idx - 0x19) / 10.0f));
+    } else {
+        fB = 1.0f;
+    }
+    if (!(fB <= 0.0f)) {
+        func_00201820(2);
+        func_00365ac0(posOrig, 0xFF1432FF, 1, 0.0f, 0.0f, 400.0f * fB, 90.0f);
+        func_00201820(0);
+    }
+    if (idx < 0xA) {
+        fC1 = 0.0f;
+    } else if (idx < 0x14) {
+        fC1 = func_0044b7b0(fGpffff84a4 * ((f32)(idx - 0xA) / 10.0f));
+    } else {
+        fC1 = 1.0f;
+    }
+    if (idx < 0x28) {
+        fC2 = 0.0f;
+    } else if (idx < 0x32) {
+        fC2 = 1.0f - func_0044b610(fGpffff84a4 * ((f32)(idx - 0x28) / 10.0f));
+    } else {
+        fC2 = 1.0f;
+    }
+    fC = 4.0f * fC2 + fC1;
+    if (!(fC <= 0.0f)) {
+        func_00365ac0(posOrig, 0xFF, 1, 0.0f, 0.0f, 86.0f * fC, 11.0f);
+    }
+    if (idx < 0) {
+        fD1 = 0.0f;
+    } else if (idx < 0xA) {
+        fD1 = func_0044b7b0(fGpffff84a4 * ((f32)idx / 10.0f));
+    } else {
+        fD1 = 1.0f;
+    }
+    if (idx < 0x34) {
+        fD2 = 0.0f;
+    } else if (idx < 0x3E) {
+        fD2 = 1.0f - func_0044b610(fGpffff84a4 * ((f32)(idx - 0x34) / 10.0f));
+    } else {
+        fD2 = 1.0f;
+    }
+    fD = 2.0f * fD2 + fD1;
+    if (!(fD <= 0.0f)) {
+        tmp21 = 273.0f * fD;
+        ((f32 *)&posA)[0] = 79.0f + tmp21;
+        tmp20 = 275.0f * fD;
+        ((f32 *)&posA)[1] = 448.0f - tmp20;
+        func_00364fb0(posA, 0xFF, 1, 0, 0.0f, fGpffff837c);
+        ((f32 *)&posB)[0] = 525.0f - tmp21;
+        ((f32 *)&posB)[1] = tmp20;
+        func_00364fb0(posB, 0xFF, 1, 0, 0.0f, fGpffff84a8);
+    }
+    if (idx < 8) {
+        fE1 = 0.0f;
+    } else if (idx < 0xF) {
+        fE1 = (f32)(idx - 8) / 7.0f;
+    } else {
+        fE1 = 1.0f;
+    }
+    if (idx < 0x30) {
+        fE2 = 0.0f;
+    } else if (idx < 0x37) {
+        fE2 = (f32)(idx - 0x30) / 7.0f;
+    } else {
+        fE2 = 1.0f;
+    }
+    fE = fE1 - fE2;
+    if (!(fE <= 0.0f)) {
+        func_00201300((s32 *)arg0, 239.0f, 161.0f, 128.0f, 127.0f);
+        func_002019d0(arg0, fE, 1.0f);
+        func_00201650(arg0, 0xA, 0x33, 0.0f, 0.0f, 0xCC, 0, 0, 0xFF);
+        func_002019d0(arg0, fE, 1.0f);
+    }
+    D_00887300[0](1, 0);
+    func_00201820(2);
+    if (idx < 0) {
+        fF1 = 0.0f;
+    } else if (idx < 0xA) {
+        fF1 = (f32)idx / 10.0f;
+    } else {
+        fF1 = 1.0f;
+    }
+    if (idx < 0x32) {
+        fF2 = 0.0f;
+    } else if (idx < 0x3C) {
+        fF2 = (f32)(idx - 0x32) / 10.0f;
+    } else {
+        fF2 = 1.0f;
+    }
+    fF = fF1 - fF2;
+    if (!(fF <= 0.0f)) {
+        packed = (u32)(255.0f * fF) | 0xFF000000;
+        b0 = (s32)((packed >> 24) & 0xFF);
+        b1 = (s32)((packed >> 16) & 0xFF);
+        b2 = (s32)((packed >> 8) & 0xFF);
+        b3 = (s32)(packed & 0xFF);
+        base = D_008872F8[0];
+        reciprocal = 1.0f / *(f32 *)(func_00457120() + 0x80);
+        verts[0][0] = 640.0f;
+        verts[0][1] = 0.0f;
+        verts[0][2] = base;
+        verts[0][6] = reciprocal;
+        verts[0][8] = (f32)(u32)b0;
+        verts[0][9] = (f32)(u32)b1;
+        verts[0][10] = (f32)(u32)b2;
+        verts[0][11] = (f32)(u32)b3;
+        verts[1][0] = 221.0f;
+        verts[1][1] = 0.0f;
+        verts[1][2] = base;
+        verts[1][6] = reciprocal;
+        verts[1][8] = (f32)(u32)b0;
+        verts[1][9] = (f32)(u32)b1;
+        verts[1][10] = (f32)(u32)b2;
+        verts[1][11] = 0.0f;
+        verts[2][0] = 640.0f;
+        verts[2][1] = 418.0f;
+        verts[2][2] = base;
+        verts[2][6] = reciprocal;
+        verts[2][8] = (f32)(u32)b0;
+        verts[2][9] = (f32)(u32)b1;
+        verts[2][10] = (f32)(u32)b2;
+        verts[2][11] = 0.0f;
+        verts[3][0] = 0.0f;
+        verts[3][1] = 448.0f;
+        verts[3][2] = base;
+        verts[3][6] = reciprocal;
+        verts[3][8] = (f32)(u32)b0;
+        verts[3][9] = (f32)(u32)b1;
+        verts[3][10] = (f32)(u32)b2;
+        verts[3][11] = (f32)(u32)b3;
+        verts[4][0] = 418.0f;
+        verts[4][1] = 448.0f;
+        verts[4][2] = base;
+        verts[4][6] = reciprocal;
+        verts[4][8] = (f32)(u32)b0;
+        verts[4][9] = (f32)(u32)b1;
+        verts[4][10] = (f32)(u32)b2;
+        verts[4][11] = 0.0f;
+        verts[5][0] = 0.0f;
+        verts[5][1] = 29.0f;
+        verts[5][2] = base;
+        verts[5][6] = reciprocal;
+        verts[5][8] = (f32)(u32)b0;
+        verts[5][9] = (f32)(u32)b1;
+        verts[5][10] = (f32)(u32)b2;
+        verts[5][11] = 0.0f;
+        D_00887310[0](3, verts, 6);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020ff00);
+#endif
