@@ -1283,6 +1283,29 @@ void func_00376880(u8 **arg0) {
 /* 0x15-loop tails and final 52-word replace), not a single deleted block. */
 /* Archive header claims no score (only "rejected after scoped mismatch"), */
 /* so no disagreement. Production stays ASM. */
+/* 2026-09-18 second pass, seven-cause sweep; still refused, still ASM.
+   Retail: 1044 instructions, 4176B window, frame -0xF50 (3920B), 28 `jal`
+   plus 3 `jalr` through D_00887300[0] = 31 calls.  The best faithful
+   candidate reaches 3544B with frame -0xDA0, so it is 432B (108 words)
+   short, worse than the earlier 180B/45-word attempt.
+   Excluded by count, not by assertion: all 31 calls present (28+3 both
+   sides); every loop bound matches retail's `slti` immediates; all three
+   outer switch arms and all inner arms present; the 4+4+2 per-lane bodies
+   are separate, not collapsed.
+   Located: retail spends 95 stack spills where the candidate has 70
+   explicit `f32` locals, and 25 of those keep their temporary in an $f
+   register instead of round-tripping through the stack - 25 pairs of
+   `swc1`/`lwc1` is 50 instructions, which is where the shortfall lives.
+   Declaring more locals does not produce them: reversing the stack
+   declarations re-measured byte-identical at 3544B, because the frame is
+   usage-driven.  Retail's spills are register-pressure spills, so the fix
+   is to raise live-float pressure across the inner lane - four temporaries
+   live across each `swc1`/`lwc1` pair - not to add declarations.
+   Two smaller corrections to make first, both nd-only: the `!= 6` early
+   return is written as an if/tail instead of a direct return, and
+   D_00887300's base should be hoisted into a saved register as
+   func_00374d20 does rather than re-materialised per call.
+   Full working notes at /var/tmp/cold3768e0b/NOTE.md. */
 // FUN_003768E0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003768e0);
 

@@ -1924,6 +1924,19 @@ s32 func_0045ce40(f32 *out, u8 *colors, s32 *pos, f32 z)
  * redeclaration, fifth-param width) are N/A (max 1 arg). Parent home-move wall
  * noted: int daddu s4-s0 block already matches; remaining float moves differ in
  * destination regs, not just order. Production stays ASM; floor is for measurement. */
+/* 2026-09-18 probe; floor stands at 158.  219 retail against 214 object, so
+   the 36-instruction `delete` run at retail[67:103] is not missing work - it
+   is balanced by inserts later and the two bodies build the eight corner
+   coordinates in a different interleaving.  Retail loads `pos[0..3]` lazily
+   inside the corner arithmetic and parks four intermediate sums at
+   0x80/0x84/0x88/0x8c; this body hoists `x0`/`y0`/`w`/`h` first.  That looks
+   like the 7k do-not-hoist rule but it is not: inlining all four `pos` reads
+   at every use costs 160, inlining only `x0`/`y0` ties at 158, lifting the
+   eight rotated offsets into their own temporaries ties at 158, and writing
+   the translation as `(rotation) + x0` instead of `x0 + (rotation)` ties at
+   158.  Also checked against handoff 7r - this is the one floor in the tree
+   where the candidate primes the FPU accumulator *less* often than retail
+   (retail 1, object 0), and that single prime is inside the same block. */
 // FUN_0045D370 NONMATCHING
 #ifdef NON_MATCHING
 void func_0045d370(f32 *out, u8 *colors, s32 *pos, s32 arg3, s32 arg4, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3)
