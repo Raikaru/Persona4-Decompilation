@@ -2833,8 +2833,6 @@ void func_0035fd60(u8 *arg0) {
     s32 v0;
     s32 v1;
     u8 *row;
-    u8 *pB2E8;
-    u8 *pB2EC;
     u8 *pB300;
     u8 a0;
     u8 alpha122;
