@@ -320,6 +320,7 @@ s32 func_0037f550(u8 *arg0)
    madd/msub fusion, and scheduler ordering throughout. */
 /* measured 0037f6e0: `opt_loop_invariants on` inside the guard is worth 9 words (1047 -> 1038), the loop-preheader constant hoist. */
 /* measured 0037f6e0: pair `opt_common_subs off + opt_dead_assignments off` 1038 -> 1008 (-30, exact 1191/1191 instrs via fnalign, 4764B/4768B with one zero tail word). Singles: dead_assignments off 1027 (-11), common_subs off 1040 (+2 neutral), loop_invariants on baseline 1038. Validates opclass lui -31/addu -28 shortfall as rematerialisation territory, but only as pair. */
+/* measured 2026-09-19 S5-B temp_19 reuse (7 sites: 419,428,429,617,676,754,766 arg0+0x1F1D0/0x1F2F8 -> temp_19/temp_19+0x128): lui +13->0 (109->96, delta 0), fnalign 1191/1165 (-26, -2.2% inside 1155-1227 gate, retail 1189 trimmed to 1165 in report), words 1008->1019 (+11), edits 703+10->664+10 (-39). Installed (zero lui, inside gate, transferable temp+offset spelling to Shuffle4 S4-C). Remaining: addu+14, bnez-11, addiu+10, etc.; structural case-4/12/13/block_140 regions per above. */
 // FUN_0037F6E0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off

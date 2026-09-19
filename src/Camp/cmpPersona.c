@@ -859,10 +859,18 @@ void func_001377e0(u8* arg0) {
       the `cvt.w.s`/`mfc1`/`lui 0x8000`/`or`/`andi` recipe; the hand-written
       `if (fa >= 2.1474836e9f) fa -= ...` guard compiled to one instruction.
       Writing `alpha = (u32)fa & 0xFF` restores the ten-instruction recipe.
+   Two of those corrections cost six edits and are kept anyway, because they
+   are what retail does and the body must say so: the two trailing colour
+   bytes come from **0x0064B2ED and 0x0064B2EE**, not from `D_0064B2E8[1]`
+   and `[2]` (which are 0x64B2E9 and 0x64B2EA - different bytes), and the
+   panel flag at `stack90 + 2` is **1 in the table arm and 0 in the constants
+   arm**, matching retail's `addiu $s2, $zero, 1` / `sh $s2, 0xd2($sp)`
+   against `sh $zero, 0xd2($sp)`; the body had them the other way round.  A
+   relocation-masked score is blind to which symbol was named, so the earlier
+   "no change" reading proved nothing about folding - 106 edits with the wrong
+   addresses is worse than 112 with the right ones.
    Measured and rejected: `opt_propagation off` 173 edits; `s64` colour
-   locals 118; naming `D_0064B2ED`/`D_0064B2EE` separately instead of
-   `D_0064B2E8[1]`/`[2]` no change (b210 folds adjacent symbols); writing
-   `*(s16 *)(stack90 + 2) = sel` in both arms 112.
+   locals 118.
    What remains, all small: retail[150:166] 16 against 13 in the table arm,
    retail[169:180] 11 against 9 in the constants arm (retail materialises
    those six constants with `daddiu`, so they may be 64-bit in the original),
@@ -883,6 +891,8 @@ void func_00137890(u8 *arg0, s32 arg1)
     extern u8 D_0064B2E9[];
     extern u8 D_0064B2EA[];
     extern u8 D_0064B2EC[];
+    extern u8 D_0064B2ED[];
+    extern u8 D_0064B2EE[];
     s32 idx;
     f32 fx;
     f32 fy;
@@ -928,10 +938,10 @@ void func_00137890(u8 *arg0, s32 arg1)
             c1 = D_0064B2E9[0];
             c2 = D_0064B2EA[0];
             c3 = D_0064B2EC[0];
-            cc0 = D_0064B2E8[1];
-            cc1 = D_0064B2E8[2];
+            cc0 = D_0064B2ED[0];
+            cc1 = D_0064B2EE[0];
             sel = 1;
-            *(s16 *)(stack90 + 2) = 0;
+            *(s16 *)(stack90 + 2) = sel;
         } else {
             c0 = 0xFF;
             c1 = 0xE9;
@@ -940,7 +950,7 @@ void func_00137890(u8 *arg0, s32 arg1)
             cc0 = 0xAF;
             cc1 = 0x22;
             sel = 0;
-            *(s16 *)(stack90 + 2) = 1;
+            *(s16 *)(stack90 + 2) = sel;
         }
         *(s16 *)stack90 = 2;
         func_00115940((void *)(s32)func_0010ace0(*(s16 *)(arg0 + idx * 2 + 0x36)), stackd0, 2);
