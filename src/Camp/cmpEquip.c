@@ -214,7 +214,19 @@ s32 func_00131910(u8 *arg0) {
     func_00131a00(arg0);
     return rv;
 }
-/* measured: retail window 10928 bytes; no real C body was produced in this lane, so this function remains the bare assembly fallback. */
+/* Cold 00131a00 (2732 instrs, frame -0x110 s17-s23/s30): no probe_archive */
+/* entry; m2c (u8*, 1046 lines, switches case 0/1/2 irregular, structs */
+/* ->unkXX/saved_reg_s3, no fors) vs romwright (u8*, 686 lines, while + */
+/* for<3/for<5 counted fors correct, s16 counters already narrow, u8* + */
+/* fixed offsets table-walk where they agree). m2c structs are guessed */
+/* (u8*+fixed offsets is retail's shape); rw needs ?-at-line-start (keep */
+/* ternary ? :), sbyte->s8, FUN_005e9fa0->D_005E9FA0, FUN_00131a00/func_ */
+/* header to void (u8*). Stripped rw skeleton: retail 2732/object 4184 */
+/* (+1452,+53%) edits ~1100+ gate outside (needs 2650-2814). Surplus is */
+/* replaces where object longer (e.g. [195:202] retail 7 vs object 50, +43 */
+/* for (u16)float clamp; s32 vs s16 already s16 per idiom, no 207 here). */
+/* Front-load s16 counters, counted fors, if-chains (no jtbl/jr except */
+/* return; slti 5/3 bounds are if-chains, not sltiu+j.tbl). Not banked. */
 // FUN_00131A00
 INCLUDE_ASM("asm/nonmatchings/cmpEquip", func_00131a00);
 
