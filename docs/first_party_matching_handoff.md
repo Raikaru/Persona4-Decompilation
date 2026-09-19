@@ -543,12 +543,31 @@ they travel in registers and the missing declaration is free.  Measured both
 ways: `func_0025f430` at fourteen arguments was worth seven words, while
 `func_0010fbd0` at one argument was a dead tie on `func_0019ae20`.
 
-Across the tree, 70 guarded bodies call something they do not declare, but
-only **17** call one with stack arguments.  The worst is
-`src/Event/Fcl/y_fclShopDraw.c`, where all four bodies call an eleven-argument
-`func_00275680` with no prototype in scope.
+**Count the headers too.**  The first version of the scanner read only the
+`.c` text and reported 17 bodies with a wide undeclared callee, four of them
+in `src/Event/Fcl/y_fclShopDraw.c` calling an eleven-argument `func_00275680`.
+All four were false: that function is declared in
+`include/fr_font_internal.h`, which the unit includes, and the worker who
+checked measured ties on all four.  With header declarations counted the real
+figure is **3 bodies**, and adding the one remaining nine-argument prototype
+to `func_00263cb0` ties as well.
+
+So this is a narrow lever, not a broad one: it was worth seven words once,
+on the fourteen-argument call, and nothing anywhere else so far.  Run the
+scanner when a body shows an `sd` surplus, not speculatively.
 
 ### 7w. One agent per file, always
+
+**The `hardware-asm/` mirror is gone (2026-09-19).**  Three workers and the
+lead lost work to it - a relative `src/...` from the session's parent
+directory resolved into a stale consolidated snapshot that was never built
+and never verified, and the edits vanished silently.  The user confirmed it
+was an abandoned experiment, so it was archived to
+`/var/tmp/hardware-asm-archive.tar.zst` (40 MB without its build tree) and
+deleted.  Nothing in the real tree referenced it except three comments
+saying work had been ported out of it; the image and SLUS hashes are
+unchanged after removal.  If a brief still warns about cwd, the warning is
+now only about running from the right directory, not about a lookalike tree.
 
 Two workers were given different functions in the same owner file and told to
 coordinate through `hub`.  They did: they agreed a write order, announced
