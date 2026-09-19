@@ -749,6 +749,13 @@ void func_00487c30(u8 *arg0, f32 arg1)
 INCLUDE_ASM("asm/nonmatchings/effParticle", func_00487c30);
 #endif
 /* measured v3: 768 differing words (reloc-masked), retail 878 vs object 856 instrs (-22, -2.5% inside 3% gate), fnalign 733 edits +4 reloc-only. VU parent (mfc1 $3) + VU colour (lui 0x437F) from effObjectParticle 004aed70 idiom; scalar parent v1 781/764 outside gate, VU colour v2 791/870 inside, VU parent v3 768/856 best. Pragmas ties/worse: v1 commons_off 793 loopinv_on 789 unroll_off 781 sched_off 781; v3 commons 773 loopinv 778 unroll 768 tie sched 768 tie. Fresh counters i1-i6 per loop (7n), pointer-increment subscript matches retail addu. Biggest residuals: prologue frame 0x1C0 vs 0x1D0 + saved-reg colour, buffer stride reloads, float-wrap c.le.s polarity. Banked as guarded floor. */
+/* 2026-09-19 assignment (f25=arg1 hoist): saveA1=arg1 before parent (matching retail */
+/* mov.s $f25,$f12 at entry) and use for temp_f21/temp_f20 + both case-2 s loops. */
+/* floor_distance stays 737e/809w 856/878 (inside 852-904 gate), frame 0x1C0 vs */
+/* 0x1D0 missing $f25 + spare $fp. No spill inflation; decl order saveA1 first */
+/* tried, neutral. Next is $fp integer sink (recompute vs save) + wrap-constant */
+/* pressure, not another float copy. Commands: floor_distance */
+/* src/promoted/effParticle.c, regsave_scan ... func_00487fb0. */
 // FUN_00487FB0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00487fb0(u8 *arg0, f32 arg1)

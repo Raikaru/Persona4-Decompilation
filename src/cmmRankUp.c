@@ -2443,6 +2443,14 @@ void func_0025b0f0(s32 arg0, u8 *arg1) {
 }
 #pragma pop
 /* measured: banked (2026-09-18): de-noised romwright+m2c switch (17 cases 0-0x10, jtbl_00747EC0 numeric order) + m2c frame (sp80 0xD8 at 0x80, sp160 0x20 at 0x160, arr58[7] at 0x58 covering copy dest 0x60, st188/18c). GUARDED_SCORE 654 (reloc-masked via probe_variants); fnalign retail 944 vs object 944 (+0, within 3% gate 916-972) with 276 edits +40 reloc-only, frame both 0x190. Free pragmas: common_off 758 worse, peephole_off 865 worse, loopinv/unroll/sched/dead 676 ties (baseline 676). Subscript: ((s32 *)ctx)[i] 766 worse (+90), raw arr 676 tie, indexed copy for(n<5)arr[n+2]=src[n] 656 best (-20). Fresh counters N/A (single call-free copy loop, n fresh). Address materialisation (p4/p8 split) 656 tie. Colouring: tmp-order swap 656 tie, arr-first decl 654 best (-2). Residuals: s64 second-arg dsll/dsra vs move (0035adc0 x2, 00255ed0 x2), branch polarity beq/bne, saved-GPR/FPR rotation, dropped move $s2,$zero, D_008873F4 rematerialization. No RankUpLocals needed (separate buffers give exact frame); no func_0025f360 calls so *(s32*)->*(u8**) fix N/A (as in 00254a70 note). Production stays ASM via guard. */
+/* measured 0025b240 (owner, 2026-09-19): fnalign edits **276 -> 226** by writing the
+   `if (c == c) ... else if` chain as a `switch (c)` with the cases sorted ascending.
+   MWCC lowers a switch as descending comparisons with the arm bodies laid out in
+   ascending case order (handoff 7av), and a chain cannot produce that shape however the
+   arms are ordered in source.  Found by sweeping every first-party floor that carries a
+   four-or-more arm equality chain and measuring both spellings; the sweep also found
+   `func_001adea0` where the switch is *worse* (49 -> 51), so this is measured per
+   function and never assumed. */
 // FUN_0025B240 NONMATCHING
 #ifdef NON_MATCHING
 extern u8 D_00636740[];
@@ -2758,16 +2766,22 @@ s32 func_0025b240(u8 *arg0) {
         c = (s8)tmp;
         if (c >= 2 && c <= 6 && (*(s32 *)ctx & 0x20) != 0) {
             func_00106390(arr58[c], 1);
-            if (c == 6) {
-                func_002bae80(*(s8 *)(ctx + 0x3C), 0x11);
-            } else if (c == 5) {
-                func_002bae80(*(s8 *)(ctx + 0x3C), 0x10);
-            } else if (c == 4) {
-                func_002bae80(*(s8 *)(ctx + 0x3C), 0xF);
-            } else if (c == 3) {
-                func_002bae80(*(s8 *)(ctx + 0x3C), 0xE);
-            } else if (c == 2) {
+            switch (c) {
+            case 2:
                 func_002bae80(*(s8 *)(ctx + 0x3C), 0xD);
+                break;
+            case 3:
+                func_002bae80(*(s8 *)(ctx + 0x3C), 0xE);
+                break;
+            case 4:
+                func_002bae80(*(s8 *)(ctx + 0x3C), 0xF);
+                break;
+            case 5:
+                func_002bae80(*(s8 *)(ctx + 0x3C), 0x10);
+                break;
+            case 6:
+                func_002bae80(*(s8 *)(ctx + 0x3C), 0x11);
+                break;
             }
             *(s32 *)ctx &= ~0x20;
             goto case16tail;

@@ -1059,6 +1059,13 @@ void func_002ae520(u8 *arg0) {
    dropped, (s8)j/(s8)i spelled (j&0xFF)/(i&0xFF). 729 -> 708 fnalign edits,
    words 777 -> 766, object 888 -> 850 instrs. Neighbor floor func_002b0250
    itself is byte-near-neutral (279 -> 280 words, 275 -> 274 edits). */
+/* 2026-09-19 assignment (f20 recovery): split f1/f2 Dome computation to hold the */
+/* 18.0f-scaled base across the 002b13e0/002b1480 calls in fbase (single reused */
+/* local, matching retail madd.s $f20). floor_distance 730->697 edits (-33), */
+/* words 854->831 (-23), object 850->849/retail 874 (both inside 848-900 gate); */
+/* regsave_scan now 0 differ (retail 0x210/frame and $f20 match; was 0xE0 vs 0x210 */
+/* missing $f20). Commands: floor_distance src/promoted/y_smap.c, regsave_scan */
+/* src/promoted/y_smap.c func_002ae630. */
 // FUN_002AE630 NONMATCHING
 #ifdef NON_MATCHING
 u8 *func_002ae630(u8 *arg0) {
