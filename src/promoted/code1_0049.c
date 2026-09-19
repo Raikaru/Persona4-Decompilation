@@ -1291,7 +1291,7 @@ skip_clear:
     out[9] = (ftmp1 - cD8) / (f32)limitB8;
     a = *(f32 *)(config + 236);
     b = func_004bd0b0(0);
-    out[10] = *(f32 *)(config + 232) * ((1.0f - a) + a * b);
+    out[10] = *(f32 *)(config + 232) * ((one - a) + a * b);
     b = func_004bd0b0(0);
     out[6] = fGpffff8080 * b;
     out[7] = func_0044b7b0(out[6]);
@@ -1313,14 +1313,14 @@ skip_clear:
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
     a = *(f32 *)(config + 108);
     b = func_004bd0b0(0);
-    out[13] = (1.0f - a) + a * b;
+    out[13] = (one - a) + a * b;
     if (mode9C == 2) {
         out[14] = 0.0f;
         out[15] = 1.0f;
     } else {
         a = *(f32 *)(config + 152);
         b = func_004bd0b0(0);
-        out[15] = (1.0f - a) + a * b;
+        out[15] = (one - a) + a * b;
         if (mode9C == 1) {
             b = func_004bd0b0(0);
             out[14] = fGpffff8080 * b;
