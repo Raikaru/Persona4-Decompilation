@@ -4897,7 +4897,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032fbc0);
 /* schedule 414 but 413 instrs (11% short, reject per 3% gate), isolated tailswap/v-s32/diff-s32 ties 418, i-s32 */
 /* 427 worse. Stopped after two consecutive non-lowering rounds (v3 + v4-v7 tie batch). Banked v2 as guarded */
 /* floor (exact count, compiles clean under -DNON_MATCHING, verify 37 MATCH / 33 ASM unchanged). */
-// FUN_00330060
+// FUN_00330060 NONMATCHING
 #ifdef NON_MATCHING
 void func_00330060(u8 *arg0, s64 arg1) {
     FclByte4 cAC;

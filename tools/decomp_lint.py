@@ -12,7 +12,8 @@ volatile context), H003 (nonbaseline optimization settings), and H007 (dead
 stores) are advisory warnings, not proof of dishonest source. H002 rejects
 allocation barriers but permits pure compiler memory barriers. H009 rejects
 ordinary assembly and unparsed templates; small hardware wrappers may carry
-bounded ordinary register plumbing. M001 validates function markers. P001
+bounded ordinary register plumbing. M001 validates function markers, M003 catches a guarded body whose marker
+lost its NONMATCHING tag. P001
 checks only real pragma push/pop stacks, not on/off settings.
 
 WAIVERS must occur in lexical comments. Nearby comments (up to three lines)
@@ -100,6 +101,7 @@ RULES = {
     # ---- M: marker hygiene -------------------------------------------------
     "M001": ("error", "marker hygiene: malformed FUN_ address or duplicate address in one file"),
     "M002": ("error", "NONMATCHING body with no INCLUDE_ASM fallback; drops the whole unit from the C link"),
+    "M003": ("error", "guarded body under an untagged marker; invisible to every floor audit"),
     # ---- P: pragma balance -------------------------------------------------
     "P001": ("error", "pragma push/pop stack underflow or unclosed push"),
 }
@@ -674,6 +676,38 @@ def check_nonmatching_fallback(src):
                       src.lines[i].strip())
 
 
+def check_guard_tagged(src):
+    """M003: a guarded body must carry NONMATCHING on its marker.
+
+    The inverse of M002 and just as quiet.  Every tool that ranks or audits
+    unfinished work -- `gate_audit.py`, `floor_distance.py`, `floorboard.py`,
+    `opclass.py` -- finds floors by the tagged marker, so a body sitting
+    behind `#ifdef NON_MATCHING` under a bare `// FUN_<ADDR>` is invisible to
+    all of them.  It is counted as a function nobody has attempted while a
+    measurable floor already exists, which is how two freshly written bodies
+    were re-dispatched as cold reconstructions within an hour of being
+    banked.  Nothing breaks in the build; the work simply stops being
+    findable.
+    """
+    marks = []
+    for i, line in enumerate(src.lines):
+        m = MARKER_RE.match(line)
+        if m:
+            marks.append((i, m))
+    for n, (i, m) in enumerate(marks):
+        if "NONMATCHING" in m.group(3):
+            continue
+        end = marks[n + 1][0] if n + 1 < len(marks) else len(src.lines)
+        if not any(src.lines[j].strip() == "#ifdef NON_MATCHING"
+                   for j in range(i, end)):
+            continue
+        yield Finding("M003", src.rel(), i + 1,
+                      "guarded body under an untagged marker; every floor "
+                      "audit keys off ` NONMATCHING` and will report this "
+                      "function as having no C body",
+                      src.lines[i].strip())
+
+
 # ------------------------------------------------------------ pragma balance
 
 PUSH_RE = re.compile(r"^\s*#\s*pragma\s+push\b")
@@ -704,6 +738,7 @@ CHECKS = (
     check_asm_function_body,
     check_markers,
     check_nonmatching_fallback,
+    check_guard_tagged,
     check_pragma_balance,
 )
 

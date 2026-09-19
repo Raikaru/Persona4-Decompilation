@@ -1257,7 +1257,7 @@ found:
 }
 /* measured: restore propagation for the rest of the unit. */
 #pragma opt_propagation on
-// FUN_0028C580
+// FUN_0028C580 NONMATCHING
 #ifdef NON_MATCHING
 void func_0028c580(u8 *arg0, u8 *arg1, u8 *arg2) {
     s32 slot;
