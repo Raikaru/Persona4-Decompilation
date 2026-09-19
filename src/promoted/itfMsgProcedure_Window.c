@@ -1165,9 +1165,15 @@ void func_0027f6a0(void)
     }
 }
 
-/* measured: retail 2153 instrs / object 2135 instrs (-0.8%, gate 2091-2221, mid-band), */
-/* fnalign 2392 edits +80 reloc-only, guarded nd 1920; frame object -0x2e0 vs retail -0x300. */
-/* Ten COP1 accumulator chains written as shared-product a*b+-c*d per 7r; production stays ASM. */
+/* measured 0027f6f0 2026-09-19: `#pragma opt_dead_assignments off` was tried and REMOVED.
+   It bought 72 differing words (1920 -> 1848) and cost **87 fnalign edits** (2392 -> 2479).
+   By the pair rule (handoff 7aw) the edits decide: a pragma that lowers the word score
+   while raising the number of instructions that differ from retail is moving a metric,
+   not reproducing codegen.  Floor stands at retail 2153 / object 2135 (-0.8%, gate
+   2091-2221, mid-band), 2392 edits +80 reloc-only, 1920 differing words, frame -0x2E0
+   against retail's -0x300.  Residual is prologue saved-register rotation (arg0 in $s0
+   against retail's $s1, arg1 in $s1 against $s5) plus the 0x20 frame gap. */
+/* Ten COP1 accumulator chains written as shared-product a*b+-c*d per 7r; residual is prologue saved-reg rotation (arg0 $s0 vs $s1, arg1 $s1 vs $s5) + 0x20 frame gap; production stays ASM. */
 // FUN_0027F6F0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0027f6f0(s32 arg0, u32 arg1)
