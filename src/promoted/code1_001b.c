@@ -5145,6 +5145,11 @@ void func_001be900(u8 *arg0)
     }
 }
 /* measured: GUARDED_SCORE 527 via tools/measure_guarded.py src/promoted/code1_001b.c func_001be990 (fnalign retail 640/object 635 instrs, 328 edits +8 reloc-only; live 2540B/window 2576B, 36B short 1.4% within 3% gate). De-noised m2c.c (321 lines, 36 VU adda/madd/mula unknowns) + rw.c (297 lines) + rw_raw.c (260 lines) alongside fnalign retail stream into file idiom (no M2C_*, no s128/stack slots, no goto-loops, file-scope bd560/bd780/195850/D_0060A0E0/003dcc70 reused, locals only for 00196040/003dcb40/001ec2b0/003e40b0/0044b868/001bac20/001bbef0/001eb440/001ec1c0/001f0ff0/003e0870/003e4320 as u16 per btlMain plus D_0060A0F0-100-D0/fGp8110-128-130-168-170-190-194 per btlCamera; Frame first60/final7C/view88/scurA0/snextB0/sangleC0/smodeC4/tmpD0/selE0/matF0/tgt130/pos140/save150/dir160/sphere170/diff180/scaled190/val19C per bf5e0 hex offsets; s32(u8*,s32,s32,s32) s32 0/1 per retail bnez/cvt-mul). R1 pragmas peephole 527 best, propagation 573, loop/strength/unroll tie 583, others worse; R2 subscript ((f32*)unit)[36/11] tie 527; R3 decl b0/unit swap tie 527; R4 mul-order rad*0.5 tie 527; 3-tie stop above 60. Walls: VU blocks as plain mul/add, gp-literal reloc-only, s/f coloring, frame 0x1B0 vs 0x1A0 + saved-reg rotation. Production ASM. */
+/* measured 001be990 (owner, 2026-09-19): fnalign edits **328 -> 318** by writing the
+   `if (r == c) ... else if` chain as a `switch (r)` with the cases ascending and the
+   trailing `else` as `default`.  Swept with a brace-aware converter over the 26
+   highest-edit first-party floors that carry a chain; seven improved, six got worse and
+   the rest have no convertible chain, so this is measured per function. */
 // FUN_001BE990 NONMATCHING
 #ifdef NON_MATCHING
 #pragma peephole off
@@ -5373,12 +5378,16 @@ s32 func_001be990(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     half = 4.0f * rad;
     var = 2.5f * rad;
     r = func_00231d70(3);
-    if (r == 1) {
-        angleB = -30.0f;
-    } else if (r == 0) {
+    switch (r) {
+    case 0:
         angleB = 30.0f;
-    } else {
+        break;
+    case 1:
+        angleB = -30.0f;
+        break;
+    default:
         angleB = 0.0f;
+        break;
     }
     r = func_00231d70(3);
     if (r == 1) {

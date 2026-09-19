@@ -1371,6 +1371,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c21d0);
 /* rejected: pragma inflation into band measured +185 and refused as gate-defeating per Main (gate proves shape, not volume; real wins 10-60 words per 7s). `opt_common_subs off` 811 (+49), `commons+dead` 832 (+70), triple `commons+dead+peephole` 947 (+185); triple+3dup 982 (890 edits/probe 929) and +prop 984 (892/probe 926) via /tmp/cand_982.c + /tmp/cand_984.c -- DO NOT INSTALL. Re-assoc of 4 tanf args closed (v9_7p 758 instrs, probe 901 vs 897). Method: M2C/romwright de-noise as before with block externs func_0044b868/func_003e41e0; faithful diff held in /tmp/base_3dup.c. */
 /* measured 001c2ee0: fnalign retail 1009 vs object 990 instrs (-1.9%, 19 short, gate 979-1039), 269 edits (+30 reloc-only); composition max pure hole 4 max pure lump 2 - CLEAN, no hole-against-lump. 463:466 tanf hole closed (fresh tanf for t11/t10 divisor; base carried a stale divisor). Explicit frame struct at retail offsets (sideC0..fTop1DC with retail pads at 15C/16C/17C/18C/19C/1AC/1BC/1CC); 0.0f-seeded adda/madd shapes; (f32)0x113 int-convert for 275.0; per-use tanf recompute as fGpffff8110*(0.5f*B8); E0 reloaded per use (frees s-reg, drops v0 spill, struct at sp+0xC0 for a 0x1E0 frame); ld/sd copy_pairs; all-three dir1D0 scaling with hoisted neg; save160 (not save150) for ctr1B0 adds. */
 /* gate: object 990 against retail 1009, -1.9% - INSIDE the +-3% band (979-1039). */
+/* measured 001c2ee0 (owner, 2026-09-19): fnalign edits **269 -> 208** by writing the
+   `if (mode == c) ... else if` chain as a `switch (mode)` with the cases ascending and the
+   trailing `else` as `default`.  Swept with a brace-aware converter over the 26
+   highest-edit first-party floors that carry a chain; seven improved, six got worse and
+   the rest have no convertible chain, so this is measured per function. */
 // FUN_001C2EE0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001c2ee0(u8 *arg0, s32 arg1, s32 arg2)
@@ -1659,36 +1664,42 @@ void func_001c2ee0(u8 *arg0, s32 arg1, s32 arg2)
             t12 = 3.75f;
         } else {
             mode = *(u16 *)(*(u8 **)(arg0 + 0xE0) + 0x6E);
-            if (mode == 0x4E) {
-                frame.focus180[1] = 1000.0f;
-                frame.out110[1] = 500.0f;
-                t12 = 1.5f;
-                isBbf = 0;
-                *(s32 *)(arg0 + 0xDC) = 4;
-            } else if (mode == 0x38) {
-                frame.focus180[1] = 800.0f;
-                frame.out110[1] = 500.0f;
-                t12 = 2.0f;
-                isBbf = 1;
-                *(s32 *)(arg0 + 0xDC) = 0xC;
-            } else if (mode == 0x35) {
-                frame.focus180[1] = 600.0f;
-                frame.out110[1] = 200.0f;
-                isBbf = 0;
-                *(s32 *)(arg0 + 0xDC) = 8;
-                t12 = fGpffff8130;
-            } else if (mode == 0x34) {
+            switch (mode) {
+            case 52:
                 frame.focus180[1] = 500.0f;
                 frame.out110[1] = 200.0f;
                 t12 = 1.25f;
                 isBbf = 1;
                 *(s32 *)(arg0 + 0xDC) = 0xC;
-            } else {
+                break;
+            case 53:
+                frame.focus180[1] = 600.0f;
+                frame.out110[1] = 200.0f;
+                isBbf = 0;
+                *(s32 *)(arg0 + 0xDC) = 8;
+                t12 = fGpffff8130;
+                break;
+            case 56:
+                frame.focus180[1] = 800.0f;
+                frame.out110[1] = 500.0f;
+                t12 = 2.0f;
+                isBbf = 1;
+                *(s32 *)(arg0 + 0xDC) = 0xC;
+                break;
+            case 78:
+                frame.focus180[1] = 1000.0f;
+                frame.out110[1] = 500.0f;
+                t12 = 1.5f;
+                isBbf = 0;
+                *(s32 *)(arg0 + 0xDC) = 4;
+                break;
+            default:
                 frame.focus180[1] = 500.0f;
                 frame.out110[1] = 200.0f;
                 isBbf = 1;
                 *(s32 *)(arg0 + 0xDC) = 0;
                 t12 = fGpffff8138;
+                break;
             }
             arg1 = 0;
             frame.out110[0] = frame.out12C[0];
