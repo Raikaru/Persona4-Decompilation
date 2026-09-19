@@ -94,6 +94,8 @@ extern void func_0031e5b0(u8 *, s64, s32, s32, s32, s32, s32);
 extern void func_002b6b90(s16, s32, s32, s32, s32, s32);
 extern void func_002b8370(void *, s32, s32, s32, s32, s32);
 extern void func_003147e0(u8 *, s8, s64, s16, s32, s32);
+/* The first selection is a signed byte; retail callers load it with lb. */
+extern void func_0031d630(u8 *, s64, s8, s64, s64);
 extern void func_0032fa30(u8 *, s16, u32, u32, u32);
 extern s8 func_0032fb60(s8);
 extern void func_003297f0(u8 *, s64, s32, f32, f32);
@@ -2874,7 +2876,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031cce0);
 /* Rounds: v1 290 (FclByte4 groups, s16 v/i/j with separate i/j, s8 0x6E -1 and s8/u8 0x5E per retail immediates, base+off12 hoist); v2 420 worse (inline t+v*4 base, u8 0x5E stores, single i reuse: 505/496 +367 edits); v3/v4 290 tie (declaration-order neutral: t/v swap and ret-first, all 290). Pragma sweep already measured on this family (loop_invariants neutral, common_subs off worse, schedule on worse per prior 271 note; rotation persists) so not re-swept. Stopped after two consecutive non-lowering rounds (v2 worse + v3/v4 tie batch). Banked v1 as guarded floor (within 3%, compiles clean under -DNON_MATCHING). */
 // FUN_0031D630 NONMATCHING
 #ifdef NON_MATCHING
-void func_0031d630(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4) {
+void func_0031d630(u8 *arg0, s64 arg1, s8 arg2, s64 arg3, s64 arg4) {
     FclByte4 cDC;
     FclByte4 cD8;
     FclByte4 cD4;
@@ -4368,35 +4370,41 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00321e60);
 /* Walls (same rotation+scheduling as siblings 31d630/324680/32a960/23d00, now at 366): t in $s? vs retail $s1, i raw/norm rotation shifting every lb/lh base and loop slt; 0x6E stores retail sb $s4 + andi $s4 vs object addiu $v1,-1/-52 + sb (s8 -1/-52/0 wins over u8 0xFF/0xCC by 41, v2 458 vs v1 499); FP saved-reg $f20 vs $f14 + mov.s wall and conversion result $v1 vs $v0 + andi chain (explicit normal-first 2.1474836e9f > f + per-arm andi beats plain (u8)f 461 vs 458); lw scheduling + branch offsets. All logic matches: outer 10b5b0 loop with 31d630 call, three colour branches with FclByte4 chains, tail 2aa0 guarded + 275820 text call. */
 /* Repro: `python3 -E -s tools/m2c_decompile.py src/Event/Fcl/y_fclCombineDraw.c func_003233d0 -o /var/tmp/cold3233d0/m2c.c` (193 lines, (void*) + s8/s16 residues de-noised to (u8*) + (s8)/(s16) casts, FclByte4 groups per 31d630 lever, s16 i with (s16)i<(u16)10b5b0 loop, heap-to-heap FclByte4 chains per retail lw/sw, 2aa0 + guarded (u8)(s32)f normal-first idiom per y_CmbCardEff 00348330, 275820 text tail); `python3 -E -s tools/romwright_decompile.py func_003233d0 -o /var/tmp/cold3233d0/rom.c` (241 lines, (ulonglong) residues, same chains confirmed); probe V9 366 driven by fnalign edit script (count first: 586/587 exact, then shapes). */
 /* Rounds: v1 499 (u8 0x6E + a/b hoist + explicit guard, heap-to-heap u8 chains); v2 458 (-41 via s8 -1/-52/0 stores); v3 498 tie (inline a/b on u8 base, neutral); v4 430 (-28 via inline a/b on s8 base); v5 461 worse (plain (u8)f guard) + v6 506 worse (s32 i) batch; v7 430 tie (decl-order neutral) + v8 401 (-29 via tail id inline) batch; v9 366 (-35 via FclByte4 struct-assign for all heap colours, lw/sw) + v10 401 tie (s32 ba970 neutral) batch; v11/v12 366 tie (s32 ba970 + decl-order neutral) batch; v13 491 worse (u8 revert) + v14 407 worse (tail hoist revert) batch. Stopped after two consecutive non-lowering rounds (v11/v12 tie + v13/v14 worse). Banked v9 as guarded floor (exact count, compiles clean under -DNON_MATCHING). */
-// FUN_003233D0 NONMATCHING
-#ifdef NON_MATCHING
+/* MATCHED.  The whole 2352-byte window including all 59 relocations.  Three source facts
+   closed the last 366 words: the paired `+0x6E` selection flags are one chained assignment
+   (`*(u8 *)(A + 0x6E) = *(u8 *)(B + 0x6E) = 0xFF`) with the 0x270 slot written through the
+   0x27D one, not two separate stores; the three colours handed to func_002ba970 are a union
+   of the FclByte4 and its word, so the call takes `.word` rather than a reinterpreting cast;
+   and the height is converted to f32 before the second lookup, after which the opacity is
+   plain `(u8)f` - the hand-written 2.1474836e9f guard that had been carried from the
+   y_CmbCardEff idiom was the thing keeping it apart.  `func_0031d630`'s third formal is s8,
+   which retail callers load with `lb`; that declaration is now file-scope. */
+// FUN_003233D0
 void func_003233d0(u8 *arg0) {
-    extern void func_0031d630(u8 *, s64, s64, s64, s64);
+    typedef union { FclByte4 channels; u32 word; } PackedColor;
     FclByte4 cDC;
     FclByte4 cD8;
-    FclByte4 cD4;
+    PackedColor cD4;
     FclByte4 cD0;
     FclByte4 cCC;
-    FclByte4 cC8;
+    PackedColor cC8;
     FclByte4 cC4;
     FclByte4 cC0;
     FclByte4 cBC;
-    FclByte4 cB8;
+    PackedColor cB8;
     s16 i;
     u8 *t;
     u8 *p;
     t = *(u8 **)(arg0 + 0x38);
-    for (i = 0; (s16)i < (u16)func_0010b5b0(); i = (s16)(i + 1)) {
+    for (i = 0; (s16)i < (u16)func_0010b5b0(); ++i) {
         func_0031d630(arg0, (s8)i, *(s8 *)(t + 0x128), *(s8 *)(t + 0x129), 0);
         if ((s16)i < *(s32 *)(func_002e4870(0) + 8)) {
             if ((s16)i == *(s16 *)(t + 0x11E)) {
                 u8 *p297;
                 u8 *p28B;
                 u8 *p27D;
-                p = func_002b6150((s16)((s16)i + 0x27D));
-                *(s8 *)(p + 0x6E) = -1;
-                p = func_002b6150((s16)((s16)i + 0x270));
-                *(s8 *)(p + 0x6E) = -1;
+                *(u8 *)(func_002b6150((s16)((s16)i + 0x270)) + 0x6E) =
+                    *(u8 *)(func_002b6150((s16)((s16)i + 0x27D)) + 0x6E) = 0xFF;
                 func_002b2a60(&cDC, 0xCC, 0xFF, 0x33, 0xFF);
                 p297 = func_002b6150((s16)((s16)i + 0x297));
                 *(FclByte4 *)(p297 + 0x85) = cDC;
@@ -4409,8 +4417,8 @@ void func_003233d0(u8 *arg0) {
                 func_002b2a60(&cD8, 0x2D, 0x2D, 0x2D, 0xFF);
                 p = func_002b6150((s16)((s16)i + 0x2A3));
                 *(FclByte4 *)(p + 0x85) = cD8;
-                func_002b2a60(&cD4, 0x2D, 0x2D, 0x2D, 0xFF);
-                func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), *(s32 *)&cD4);
+                func_002b2a60(&cD4.channels, 0x2D, 0x2D, 0x2D, 0xFF);
+                func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cD4.word);
                 func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
                 if (*(s8 *)(func_002e4870(0) + *(s8 *)(t + 0x129) * 0xC + (s16)i + 0x14) == 2) {
                     func_002b68d0(0xCF, 0, 1);
@@ -4420,10 +4428,8 @@ void func_003233d0(u8 *arg0) {
                 }
             } else if (*(s8 *)(func_002e4870(0) + *(s8 *)(t + 0x129) * 0xC + (s16)i + 0x14) == 2) {
                 u8 *p27D;
-                p = func_002b6150((s16)((s16)i + 0x27D));
-                *(s8 *)(p + 0x6E) = 0;
-                p = func_002b6150((s16)((s16)i + 0x270));
-                *(s8 *)(p + 0x6E) = 0;
+                *(u8 *)(func_002b6150((s16)((s16)i + 0x270)) + 0x6E) =
+                    *(u8 *)(func_002b6150((s16)((s16)i + 0x27D)) + 0x6E) = 0;
                 func_002b2a60(&cD0, 0xFF, 0xFF, 0xFF, 0xFF);
                 p27D = func_002b6150((s16)((s16)i + 0x27D));
                 *(FclByte4 *)(p27D + 0x85) = cD0;
@@ -4432,18 +4438,16 @@ void func_003233d0(u8 *arg0) {
                 func_002b2a60(&cCC, 0xFF, 0xCC, 0xFA, 0xFF);
                 p = func_002b6150((s16)((s16)i + 0x2A3));
                 *(FclByte4 *)(p + 0x85) = cCC;
-                func_002b2a60(&cC8, 0xFF, 0xCC, 0xFA, 0xFF);
-                func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), *(s32 *)&cC8);
+                func_002b2a60(&cC8.channels, 0xFF, 0xCC, 0xFA, 0xFF);
+                func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cC8.word);
                 func_002b2a30(0xFF, 0xCC, 0xFA, 0xFF);
                 func_002b68d0(0xCF, 0, 0);
                 func_002b68d0(0xD2, 0, 0);
             } else {
                 u8 *p27D;
                 u8 *p297;
-                p = func_002b6150((s16)((s16)i + 0x27D));
-                *(s8 *)(p + 0x6E) = -52;
-                p = func_002b6150((s16)((s16)i + 0x270));
-                *(s8 *)(p + 0x6E) = -52;
+                *(u8 *)(func_002b6150((s16)((s16)i + 0x270)) + 0x6E) =
+                    *(u8 *)(func_002b6150((s16)((s16)i + 0x27D)) + 0x6E) = 0xCC;
                 func_002b2a60(&cC4, 0x49, 0x72, 0xFF, 0xFF);
                 p27D = func_002b6150((s16)((s16)i + 0x27D));
                 *(FclByte4 *)(p27D + 0x85) = cC4;
@@ -4457,26 +4461,18 @@ void func_003233d0(u8 *arg0) {
                 func_002b2a60(&cBC, 0, 0, 0x66, 0xFF);
                 p = func_002b6150((s16)((s16)i + 0x2A3));
                 *(FclByte4 *)(p + 0x85) = cBC;
-                func_002b2a60(&cB8, 0xCC, 0xFF, 0xFF, 0xFF);
-                func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), *(s32 *)&cB8);
+                func_002b2a60(&cB8.channels, 0xCC, 0xFF, 0xFF, 0xFF);
+                func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cB8.word);
                 func_002b2a30(0xCC, 0xFF, 0xFF, 0xFF);
             }
             if (*(s8 *)(t + 0x128) != (s16)i && *(s8 *)(t + 0x129) != (s16)i) {
                 if (*(s8 *)(func_002e4870((s8)(*(s8 *)(t + 0x129) + 1)) + *(s8 *)(t + 0x129) * 0xC + (s16)i + 0x14) > 0) {
-                    s16 v42 = *(s16 *)(func_002b6150((s16)((s16)i + 0x270)) + 0x42);
+                    f32 v42 = (f32)*(s16 *)(func_002b6150((s16)((s16)i + 0x270)) + 0x42);
                     s16 v40 = *(s16 *)(func_002b6150((s16)((s16)i + 0x270)) + 0x40);
-                    f32 f = func_002b2aa0(0, 0.0f, 255.0f, (f32)v42, (f32)v40);
-                    s32 v;
+                    f32 f = func_002b2aa0(0, 0.0f, 255.0f, v42, (f32)v40);
                     u8 alpha;
                     s32 ret;
-                    if (2.1474836e9f > f) {
-                        v = (s32)f;
-                        v &= 0xFF;
-                    } else {
-                        v = (s32)(f - 2.1474836e9f) | 0x80000000;
-                        v &= 0xFF;
-                    }
-                    alpha = v & 0xFF;
+                    alpha = (u8)f;
                     if (*(s16 *)(t + 0x11E) == (s16)i) {
                         ret = func_002b2a30(0x2D, 0x2D, 0x2D, alpha);
                     } else {
@@ -4491,9 +4487,6 @@ void func_003233d0(u8 *arg0) {
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003233d0);
-#endif
 
 /* measured: nd 415 — two interlocked allocation defects; all call shapes (the
    191c0 u16/u8 params, ac10 10-arg stack call, e5b0, the FclByte4 copies, the
@@ -7216,25 +7209,46 @@ void func_0032f060(u8 *arg0, s32 arg1) {
 /* superseded (no archive; F body measures 287/88). Lever checklist: slti-$at N/A (no integer slti); */
 /* dead-arm N/A (exact 343/343); opt_common_subs off 287->289 worse; opt_loop_invariants neutral. */
 /* measured (source repo): probe_variants plain 307 differing words (cse_off variant 287, ties prior F-body floor 287; sched 311 worse; loop_invariants 307->307 neutral); live verify plain obj 1348/window 1376 normalized_diff 1002. Prior floor in file 287 words over 88 fnalign edits (343/343 emitted). Residual confirms the recorded wall: six sh-index addus base+scaled vs scaled+base, loop-CSE of (s16)i normalize, stack ldr/ldl vs ld, plus saved-reg rotation and lb/lbu counter. Shapes reproduce per skeleton in conventions note: s64 locals to 2970 cast to FclVec2 tbl[5] at 0x50, nested 1305/1306, f20=-14 last, s16 r, 147e0 6-arg loop, FclByte4 groups with p1/p2 locals (retain 6150 result, never re-call for the copy). Plain parked (cse_off 287 noted as variant, not committed, to avoid a pragma waiver on a far floor). Body re-derived from retail/IDA. Parked as floor. */
+/* measured 0032f4d0 2026-09-19: 341/341 exact and fnalign edits **307 -> 6**.  The body now
+   types each stack position as a union of its FclVec2 and the s64 the call takes, so the
+   aggregate is assigned as a value instead of reinterpreted through a cast, and the three
+   colours the same way over u32.  The id stores go through a small inline helper, which
+   fixes the address operand order the earlier note recorded as an `addu`-order floor.
+   Remaining 6 edits: the scalar `ld` where retail emits an `ldr`/`ldl` pair, which changes
+   its address register and the loop displacements, plus fnalign's trailing-nop edit from
+   zero-tail trimming.  Retail executable code is 1368 bytes followed by 8 zero bytes. */
 // FUN_0032F4D0 NONMATCHING
 #ifdef NON_MATCHING
+typedef union {
+    FclVec2 position;
+    s64 bits;
+} FclPosition0032f4d0;
+typedef union {
+    FclByte4 channels;
+    u32 bits;
+} FclColor0032f4d0;
+
+static inline void fclStoreId0032f4d0(s16 id, s32 offset, u8 *work)
+{
+    *(s16 *)((u32)offset + (u32)work + 0xB8) = id;
+}
 void func_0032f4d0(u8 *arg0) {
-    FclVec2 tbl[5];
-    s64 spA0;
-    s64 sp98;
-    s64 sp90;
-    s64 sp88;
-    s64 sp80;
-    s64 sp78;
-    FclByte4 cBC;
-    FclByte4 cB8;
-    FclByte4 cB4;
+    FclPosition0032f4d0 tbl[6];
+    FclPosition0032f4d0 spA0;
+    FclPosition0032f4d0 sp98;
+    FclPosition0032f4d0 sp90;
+    FclPosition0032f4d0 sp88;
+    FclPosition0032f4d0 sp80;
+    FclColor0032f4d0 cBC;
+    FclColor0032f4d0 cB8;
+    FclColor0032f4d0 cB4;
     FclByte4 cB0;
     FclByte4 cAC;
     FclByte4 cA8;
     f32 f20;
-    s16 i;
+    s32 i;
     s16 n;
+    s32 slot;
     s16 r;
     u8 *t;
     u8 *p1;
@@ -7243,45 +7257,51 @@ void func_0032f4d0(u8 *arg0) {
     t = *(u8 **)(arg0 + 0x38);
     f20 = 0.0f;
     *(s8 *)(t + 0xB7) = 0;
-    *(s16 *)(t + 0xB8) = 0x169;
-    func_002b2970(&spA0, 26.0f, (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
-    tbl[*(s8 *)(t + 0xB7)] = *(FclVec2 *)&spA0;
-    *(s8 *)(t + 0xB7) = *(s8 *)(t + 0xB7) + 1;
-    *(s16 *)(t + *(s8 *)(t + 0xB7) * 2 + 0xB8) = 0x16A;
-    func_002b2970(&sp98, 26.0f, (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
-    tbl[*(s8 *)(t + 0xB7)] = *(FclVec2 *)&sp98;
-    *(s8 *)(t + 0xB7) = *(s8 *)(t + 0xB7) + 1;
+    fclStoreId0032f4d0(0x169, *(s8 *)(t + 0xB7) * 2, t);
+    func_002b2970(&spA0.position, 26.0f, (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
+    slot = *(s8 *)(t + 0xB7);
+    tbl[slot].position = spA0.position;
+    *(s8 *)(t + 0xB7) = slot + 1;
+    fclStoreId0032f4d0(0x16A, *(s8 *)(t + 0xB7) * 2, t);
+    func_002b2970(&sp98.position, 26.0f, (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
+    slot = *(s8 *)(t + 0xB7);
+    tbl[slot].position = sp98.position;
+    *(s8 *)(t + 0xB7) = slot + 1;
     if (func_00106330(0x1305) != 0) {
-        *(s16 *)(t + *(s8 *)(t + 0xB7) * 2 + 0xB8) = 0x16B;
-        func_002b2970(&sp90, 26.0f, (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
-        tbl[*(s8 *)(t + 0xB7)] = *(FclVec2 *)&sp90;
-        *(s8 *)(t + 0xB7) = *(s8 *)(t + 0xB7) + 1;
+        fclStoreId0032f4d0(0x16B, *(s8 *)(t + 0xB7) * 2, t);
+        func_002b2970(&sp90.position, 26.0f, (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
+        slot = *(s8 *)(t + 0xB7);
+        tbl[slot].position = sp90.position;
+        *(s8 *)(t + 0xB7) = slot + 1;
         if (func_00106330(0x1306) != 0) {
-            *(s16 *)(t + *(s8 *)(t + 0xB7) * 2 + 0xB8) = 0x16C;
-            func_002b2970(&sp88, 26.0f, 20.0f + (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
-            tbl[*(s8 *)(t + 0xB7)] = *(FclVec2 *)&sp88;
-            *(s8 *)(t + 0xB7) = *(s8 *)(t + 0xB7) + 1;
+            fclStoreId0032f4d0(0x16C, *(s8 *)(t + 0xB7) * 2, t);
+            func_002b2970(&sp88.position, 26.0f, 20.0f + (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
+            slot = *(s8 *)(t + 0xB7);
+            tbl[slot].position = sp88.position;
+            *(s8 *)(t + 0xB7) = slot + 1;
             f20 = -14.0f;
         }
     }
-    *(s16 *)(t + *(s8 *)(t + 0xB7) * 2 + 0xB8) = 0x16D;
-    func_002b2970(&sp80, 26.0f, f20 + (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
-    tbl[*(s8 *)(t + 0xB7)] = *(FclVec2 *)&sp80;
-    *(s8 *)(t + 0xB7) = *(s8 *)(t + 0xB7) + 1;
-    *(s16 *)(t + *(s8 *)(t + 0xB7) * 2 + 0xB8) = 0x16E;
-    func_002b2970(&sp78, 26.0f, f20 + (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
-    tbl[*(s8 *)(t + 0xB7)] = *(FclVec2 *)&sp78;
-    *(s8 *)(t + 0xB7) = *(s8 *)(t + 0xB7) + 1;
+    fclStoreId0032f4d0(0x16D, *(s8 *)(t + 0xB7) * 2, t);
+    func_002b2970(&sp80.position, 26.0f, f20 + (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
+    slot = *(s8 *)(t + 0xB7);
+    tbl[slot].position = sp80.position;
+    *(s8 *)(t + 0xB7) = slot + 1;
+    fclStoreId0032f4d0(0x16E, *(s8 *)(t + 0xB7) * 2, t);
+    func_002b2970(&tbl[5].position, 26.0f, f20 + (f32)(*(s8 *)(t + 0xB7) * 34 + 0x57));
+    slot = *(s8 *)(t + 0xB7);
+    tbl[slot].position = tbl[5].position;
+    *(s8 *)(t + 0xB7) = slot + 1;
     i = 0;
     for (; (s16)i < *(s8 *)(t + 0xB7); i = (s16)(i + 1)) {
         n = (s16)i;
-        func_003147e0(arg0, (s8)(n + 4), *(s64 *)((u8 *)tbl + n * 8), *(s16 *)(t + n * 2 + 0xB8), (s16)(n * 2 + 3), 0);
+        func_003147e0(arg0, (s8)(n + 4), tbl[n].bits, *(s16 *)(t + n * 2 + 0xB8), (s16)(n * 2 + 3), 0);
     }
     r = (s16)func_0032fb60(*(s8 *)(t + 0xB6));
-    func_002b2a60(&cBC, 0xC6, 0xEE, 1, 0xFF);
-    func_002b2a60(&cB8, 0x2D, 0x2D, 0x2D, 0xFF);
-    func_002b2a60(&cB4, 0x92, 0xC8, 7, 0xFF);
-    func_0032fa30(arg0, r, *(s32 *)&cBC, *(s32 *)&cB8, *(s32 *)&cB4);
+    func_002b2a60(&cBC.channels, 0xC6, 0xEE, 1, 0xFF);
+    func_002b2a60(&cB8.channels, 0x2D, 0x2D, 0x2D, 0xFF);
+    func_002b2a60(&cB4.channels, 0x92, 0xC8, 7, 0xFF);
+    func_0032fa30(arg0, r, cBC.bits, cB8.bits, cB4.bits);
     if (func_00106330(0x1306) != 0) {
         func_002b2a60(&cB0, 0x29, 0x29, 0x29, 0xFF);
         p1 = func_002b6150(0x201);
