@@ -6241,16 +6241,29 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032fbc0);
 /* schedule 414 but 413 instrs (11% short, reject per 3% gate), isolated tailswap/v-s32/diff-s32 ties 418, i-s32 */
 /* 427 worse. Stopped after two consecutive non-lowering rounds (v3 + v4-v7 tie batch). Banked v2 as guarded */
 /* floor (exact count, compiles clean under -DNON_MATCHING, verify 37 MATCH / 33 ASM unchanged). */
+/* Frame fix 2026-09-19 (explicit frame struct, cf. 001cb970/001b6ab0): the six FclByte4 + s64 sp90 */
+/* were seven separate locals at object 0x80-0x9F (frame 0xA0) against retail 0x90-0xAF (frame 0xB0); */
+/* candidate cA8 store (0x98) string-matched retail c98 store (0x98), so difflib reported */
+/* retail[58:411]<->object[57:58] + retail[424:426]<->object[71:427] and 726 edits on an exact count. */
+/* struct { u8 pad00[0x90]; s64 sp90; FclByte4 c98,c9C,cA0,cA4,cA8,cAC; } frame re-homes them to */
+/* retail offsets: fnalign 726 -> 146 edits (+2 reloc-only), 468/468 exact kept, words 418 tie */
+/* (residual is the three documented rotations, now one edit each, no asymmetric run above 4). */
+/* Rejected: for-loop before switch (FORFIRST) gives 402 words (-16) at the same 726 edits but */
+/* contradicts retail block order (switch sltiu-6 at R76/jr R84 before for slti-9 at R263 and the */
+/* 2a60/6150 call sequence), so it is a word-only win against the assembly and stays out. */
 // FUN_00330060 NONMATCHING
 #ifdef NON_MATCHING
 void func_00330060(u8 *arg0, s64 arg1) {
-    FclByte4 cAC;
-    FclByte4 cA8;
-    FclByte4 cA4;
-    FclByte4 cA0;
-    FclByte4 c9C;
-    FclByte4 c98;
-    s64 sp90;
+    struct {
+        u8 pad00[0x90];
+        s64 sp90;
+        FclByte4 c98;
+        FclByte4 c9C;
+        FclByte4 cA0;
+        FclByte4 cA4;
+        FclByte4 cA8;
+        FclByte4 cAC;
+    } frame;
     u8 *t;
     u8 *p;
     u8 *p1;
@@ -6266,14 +6279,14 @@ void func_00330060(u8 *arg0, s64 arg1) {
     f32 fv;
     f32 fv2;
     t = *(u8 **)(arg0 + 0x38);
-    func_002b2a60(&cAC, 0, 0, 0x66, 0xFF);
+    func_002b2a60(&frame.cAC, 0, 0, 0x66, 0xFF);
     p = func_002b6150((s16)(*(s16 *)(t + 0x120) * 2 + 0x1F5));
-    *(FclByte4 *)(p + 0x85) = cAC;
+    *(FclByte4 *)(p + 0x85) = frame.cAC;
     p1 = func_002b6150((s16)(*(s16 *)(t + 0x120) * 2 + 0x1F4));
     *(FclByte4 *)(p1 + 0x85) = *(FclByte4 *)(p + 0x85);
-    func_002b2a60(&cA8, 0x25, 0x2F, 0x94, 0xFF);
+    func_002b2a60(&frame.cA8, 0x25, 0x2F, 0x94, 0xFF);
     p = func_002b6150((s16)(*(s16 *)(t + 0x120) + 0x2FB));
-    *(FclByte4 *)(p + 0x85) = cA8;
+    *(FclByte4 *)(p + 0x85) = frame.cA8;
     *(u8 *)(t + 0x13A) = 1;
     switch ((s8)arg1) {
     case 0:
@@ -6335,27 +6348,27 @@ void func_00330060(u8 *arg0, s64 arg1) {
     lim = diff + 6;
     while ((s16)cur < lim) {
         bid = (s16)cur + 0x179;
-        func_002b2970(&sp90, 32.0f, (f32)(jj * 34 + 0x5B));
-        func_002b6c30((s16)bid, sp90, jj * 5 + 0x6A, 152.0f);
+        func_002b2970(&frame.sp90, 32.0f, (f32)(jj * 34 + 0x5B));
+        func_002b6c30((s16)bid, frame.sp90, jj * 5 + 0x6A, 152.0f);
         func_002b68d0((s16)bid, 0, 0);
         func_002b6d60((s16)bid);
-        func_002b2a60(&cA4, 0xCC, 0xFF, 0xFF, 0xFF);
+        func_002b2a60(&frame.cA4, 0xCC, 0xFF, 0xFF, 0xFF);
         p = func_002b6150((s16)bid);
-        *(FclByte4 *)(p + 0x85) = cA4;
+        *(FclByte4 *)(p + 0x85) = frame.cA4;
         cur = (s16)(cur + 1);
         jj = (s16)(jj + 1);
     }
-    func_002b2a60(&cA0, 0xC6, 0xEE, 1, 0xFF);
+    func_002b2a60(&frame.cA0, 0xC6, 0xEE, 1, 0xFF);
     p = func_002b6150((s16)(*(s16 *)(t + 0x120) * 2 + 0x1F5));
-    *(FclByte4 *)(p + 0x85) = cA0;
+    *(FclByte4 *)(p + 0x85) = frame.cA0;
     p1 = func_002b6150((s16)(*(s16 *)(t + 0x120) * 2 + 0x1F4));
     *(FclByte4 *)(p1 + 0x85) = *(FclByte4 *)(p + 0x85);
-    func_002b2a60(&c9C, 0x2D, 0x2D, 0x2D, 0xFF);
+    func_002b2a60(&frame.c9C, 0x2D, 0x2D, 0x2D, 0xFF);
     p = func_002b6150((s16)(diff + 0x179 + *(s16 *)(t + 0x120)));
-    *(FclByte4 *)(p + 0x85) = c9C;
-    func_002b2a60(&c98, 0x92, 0xC8, 7, 0xFF);
+    *(FclByte4 *)(p + 0x85) = frame.c9C;
+    func_002b2a60(&frame.c98, 0x92, 0xC8, 7, 0xFF);
     p = func_002b6150((s16)(*(s16 *)(t + 0x120) + 0x2FB));
-    *(FclByte4 *)(p + 0x85) = c98;
+    *(FclByte4 *)(p + 0x85) = frame.c98;
     diff_f = (f32)(*(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120));
     base = *(f32 *)(t + 0x124);
     fv = *(f32 *)(func_002b6150(0xA9) + 0x3C);
