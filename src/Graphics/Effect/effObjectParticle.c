@@ -343,6 +343,7 @@ void func_004aed70(u8 *arg0)
     u8 *p17;
     u8 *tmp16;
     f32 inv;
+    f32 cscaleH;
     s32 k;
     {
         s32 w = *(s32 *)(arg0 + 4);
@@ -367,6 +368,7 @@ void func_004aed70(u8 *arg0)
             inv = 1.0f / v;
         }
     }
+    cscaleH = fGpffff81f4;
     if (*(u16 *)(arg0 + 0x0C) != 3) {
         func_0046d730(D_00714520, 0x2A2);
     } else if ((*(s32 *)(tmp4 + 0x0C) & 1) == 0) {
@@ -383,7 +385,6 @@ void func_004aed70(u8 *arg0)
                 s32 cw = *(s32 *)(p18 + 0x14);
                 u32 packed;
                 f32 f;
-                f32 cscale = fGpffff81f4;
                 if (*(s8 *)(p17 + 0x14) >= 0) {
                     func_004ae2f0(arg0, p17, *(s32 *)(p18 + 0x10));
                 }
@@ -408,7 +409,7 @@ void func_004aed70(u8 *arg0)
                     "ppacb $2, $0, $2      \n"
                     "sw $2, 0(%3)          \n"
                     :
-                    : "r"(&cw), "f"(cscale), "r"(parent), "r"(&packed)
+                    : "r"(&cw), "f"(cscaleH), "r"(parent), "r"(&packed)
                     : "$2", "$vf2", "$vf10", "$vf11", "memory");
                 func_003bff30(tmp16, func_004ae020, &packed);
                 {
@@ -495,7 +496,6 @@ void func_004aed70(u8 *arg0)
                     pos[2] = rz;
                 }
                 {
-                    f32 cscale = fGpffff81f4;
                     if (*(s8 *)(p17 + 0x14) >= 0) {
                         func_004ae2f0(arg0, p17, *(s32 *)(p18 + 0x10));
                     }
@@ -521,7 +521,7 @@ void func_004aed70(u8 *arg0)
                         "ppacb $2, $0, $2      \n"
                         "sw $2, 0(%4)          \n"
                         :
-                        : "r"(&cw), "f"(cscale), "r"(parent), "f"(full), "r"(&packed)
+                        : "r"(&cw), "f"(cscaleH), "r"(parent), "f"(full), "r"(&packed)
                         : "$2", "$vf2", "$vf10", "$vf11", "memory");
                 }
                 func_003bff30(tmp16, func_004ae020, &packed);

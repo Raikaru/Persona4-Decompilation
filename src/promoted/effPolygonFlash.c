@@ -1937,6 +1937,11 @@ void func_0049d360(u8 *arg0)
     f32 t320;
     f32 t328;
     f32 f6c;
+    f32 f78;
+    f32 f6c2;
+    f32 f64;
+    f32 negOne;
+    f32 f80d0;
     f32 f27o;
     s8 cVar1;
 
@@ -2003,6 +2008,8 @@ void func_0049d360(u8 *arg0)
             iVar6 = *(s32 *)(temp_2 + 0x70);
             cVar1 = *(s8 *)(temp_2 + 0x54);
             fVar9 = 0.5f;
+            negOne = -1.0f;
+            f80d0 = fGpffff80d0;
             temp_18 = 0;
             while (temp_18 < iVar4)
             {
@@ -2014,22 +2021,22 @@ void func_0049d360(u8 *arg0)
                         if (iVar17 != 0)
                         {
                             temp_24 = func_004bd0b0(0);
-                            piVar16[2] = (s32)(scale * temp_24);
-                            f6c = *(f32 *)(temp_2 + 0x78);
+                            piVar16[2] = (s32)(f80d0 * temp_24);
+                            f78 = *(f32 *)(temp_2 + 0x78);
                             temp_24 = func_004bd0b0(0);
-                            piVar16[1] = (s32)(*(f32 *)(temp_2 + 0x74) * (0.0f + (1.0f - f6c) + f6c * temp_24));
+                            piVar16[1] = (s32)(*(f32 *)(temp_2 + 0x74) * (0.0f + (1.0f - f78) + f78 * temp_24));
                             temp_22 = func_004bd050(0);
                             if ((temp_22 & 1) != 0)
                             {
-                                piVar16[1] = (s32)((f32)piVar16[1] * -1.0f);
+                                piVar16[1] = (s32)((f32)piVar16[1] * negOne);
                             }
                             piVar16[3] = 0;
-                            f6c = *(f32 *)(temp_2 + 0x6C);
+                            f6c2 = *(f32 *)(temp_2 + 0x6C);
                             temp_24 = func_004bd0b0(0);
-                            piVar16[4] = (s32)((*(f32 *)(temp_2 + 0x68) * (0.0f + (1.0f - f6c) + f6c * temp_24)) / (f32)iVar6);
-                            f6c = *(f32 *)(temp_2 + 100);
+                            piVar16[4] = (s32)((*(f32 *)(temp_2 + 0x68) * (0.0f + (1.0f - f6c2) + f6c2 * temp_24)) / (f32)iVar6);
+                            f64 = *(f32 *)(temp_2 + 100);
                             temp_24 = func_004bd0b0(0);
-                            *(f32 *)&piVar16[5] = *(f32 *)(temp_2 + 0x60) * (0.0f + (1.0f - f6c) + f6c * temp_24);
+                            *(f32 *)&piVar16[5] = *(f32 *)(temp_2 + 0x60) * (0.0f + (1.0f - f64) + f64 * temp_24);
                             if (bVar7 != 0)
                             {
                                 temp_22 = func_004bd050(0);

@@ -1095,6 +1095,7 @@ u8 *func_002ae630(u8 *arg0) {
     u32 c4;
     f32 f1;
     f32 f2;
+    f32 fbase;
     s32 i;
     s32 j;
     s32 k;
@@ -1244,11 +1245,13 @@ u8 *func_002ae630(u8 *arg0) {
             f32 tf;
             p = (YVec3f *)(e + 0x150);
             ti = func_002B11C0(*(RwV3d *)p);
+            fbase = (f32)ti * 18.0f + 172.0f;
             tf = func_002b13e0(p, 18.0f);
-            f1 = ((f32)ti * 18.0f + 172.0f - tf) - 2.0f;
+            f1 = (fbase - tf) - 2.0f;
             ti = func_002B1210(*(RwV3d *)p);
+            fbase = (f32)ti * 18.0f + 9.0f;
             tf = func_002b1480(p, 18.0f);
-            f2 = ((f32)ti * 18.0f + 9.0f - tf) - 2.0f;
+            f2 = (fbase - tf) - 2.0f;
             *(s32 *)(blk + m * 4 + 0x114) = func_002b4fe0((s32)res, *(s64 *)&f1, (s8)m);
         }
     }
