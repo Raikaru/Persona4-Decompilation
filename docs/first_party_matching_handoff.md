@@ -542,6 +542,36 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7as. A short frame aliases two locals onto one slot
+
+`func_00330060` was 468/468 - an exact count - with **726 fnalign edits**, more
+than one differing instruction for every two in the function, and two huge
+asymmetric runs.  Every block-order hypothesis failed against the assembly:
+retail really does put the switch at instruction 76 and the `for` at 263, and
+a probe that reordered them scored better on words (402 against 418) while
+leaving the edit count identical at 726.
+
+The cause was the **frame**: object 0xA0 against retail 0xB0, with two locals
+- `cA8` and `c98` - both landing on offset 0x98.  Sixteen bytes of missing
+frame put two values in one slot and misaligned every spill after it, which
+is what produced the 726.
+
+Declaring the explicit frame struct at retail's offsets
+
+    struct { u8 pad00[0x90]; s64 sp90; FclByte4 c98, c9C, cA0, cA4, cA8, cAC; }
+
+re-homed the seven locals from 0x80-0x9F to retail's 0x90-0xAF and took
+**726 edits -> 146**, with no run above four instructions left and the count
+unchanged at 468/468.
+
+So when a body has an exact count and an edit ratio above one, check the
+prologue before testing any block order.  A short frame is the cheapest
+possible explanation and the most destructive one: it does not change the
+instruction count at all, so the gate and the word score both look healthy
+while the whole body is misaligned.  Note the direction matters - the same
+function's neighbour `func_00475cd0` is 0x1D0 against retail's 0x1A0 with
+three extra saved registers, which needs a shrink rather than a pad.
+
 ### 7ar. Where the early `return` goes decides the whole layout
 
 `func_003c1bd0` sat at 20 differing words for two sessions with its residual
