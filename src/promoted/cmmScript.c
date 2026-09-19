@@ -150,7 +150,7 @@ extern s32 func_0024b870(void);
 extern void func_0024b990(void);
 extern s32 func_0024c0e0(u8* arg0, u8* arg1);
 extern s32 func_0024c460(u8* arg0, u8* arg1);
-extern s32 func_0024d1f0(void);
+extern s32 func_0024d1f0(u8* arg0, u8* arg1);
 typedef struct { f32 x, y, z, w; } Vec4f;
 
 typedef int (*code)();

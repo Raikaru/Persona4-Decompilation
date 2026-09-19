@@ -3224,38 +3224,25 @@ void func_001b6a20(void)
 }
 /* measured (this session): cold reconstruction v2 object 380/retail 348 instrs (9% over, not short); probe_variants 357 words/79 edits; probe_search 120 orders flat (propagation/rebuild/no_branch/dead/loop/lifetimes/strength/size/unroll all 357, common_subs worse 397); fnalign $at none (float/bltz tail, slti $at lever N/A); residual is stack layout (0x160 frame pads) and u32->float halving (bltz) vs dead-store elimination; banked guarded floor. */
 /* measured 001b6ab0 2026-09-19: invented f60/f64 pair removed (retail has constants at buf+0x40, not floats; 18 -> 16 float stores) and schedule pragmas removed (retail is unscheduled with nop after every branch/jal); object 350/retail 348 +0.6% INSIDE, 328 words, 48 edits (+3 reloc-only) via fnalign --candidate (was 311/347 -10.4%, 332 words, 228 edits with schedule on). Remaining pure deletes: 0x1b6afc lui $s0,0x88 + addiu $s0,$s0,0x7300 (table-base copy; candidate materialises per site) and 0x1b6c0c sw $zero,0x24($sp) + sw $zero,0x60($sp) (frame 0x120 vs 0x160 offset shift, same 8 constant stores). Frame offsets differ but counts match. */
-// FUN_001B6AB0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_001B6AB0
 void func_001b6ab0(void) {
     extern s32 func_003f6440(s32 arg0, s32 arg1);
     extern void (*D_00887300[])(u32 arg0, u32 arg1);
     typedef struct {
-        u32 pad00[8];
-        f32 f40;
-        f32 f44;
-        f32 f48;
-        f32 f4c;
-        u32 pad50[4];
-        f32 f60;
-        f32 f64_;
-        u32 pad68[6];
-        f32 f80;
-        f32 f84;
-        f32 f88;
-        f32 f8c;
-        u32 pad90[12];
-        f32 fc0;
-        f32 fc4;
-        f32 fc8;
-        f32 fcc;
-        u32 padD0[12];
-        f32 f100;
-        f32 f104;
-        f32 f108;
-        f32 f10c;
-        u32 pad110[8];
-    } Buf;
-    Buf buf;
+        u32 h0;
+        u32 h1;
+        u8 gap08[24];
+        f32 f[4];
+        u8 gap30[16];
+    } Blk40;
+    struct {
+        Blk40 b0;
+        Blk40 b1;
+        Blk40 b2;
+        Blk40 b3;
+        u8 tail[64];
+    } buf;
+    u8 **tbl;
     u32 c0;
     u32 c1;
     u32 c2;
@@ -3266,45 +3253,43 @@ void func_001b6ab0(void) {
     }
     func_003f6440(2, 0x48);
     func_003f6440(3, 0x71801);
-    D_00887300[0](0xC, 1);
-    D_00887300[0](0xE, 0);
-    D_00887300[0](1, 0);
-    D_00887300[0](6, 0);
-    D_00887300[0](8, 0);
-    D_00887300[0](7, 2);
+    tbl = (u8 **)D_00887300;
+    ((void (*)(u32, u32))tbl[0])(0xC, 1);
+    ((void (*)(u32, u32))tbl[0])(0xE, 0);
+    ((void (*)(u32, u32))tbl[0])(1, 0);
+    ((void (*)(u32, u32))tbl[0])(6, 0);
+    ((void (*)(u32, u32))tbl[0])(8, 0);
+    ((void (*)(u32, u32))tbl[0])(7, 2);
     c0 = (u32)(s32)(*(f32 *)(D_0076449C + 0x25C) * 255.0f + 0.5f) & 0xFF;
     c1 = (u32)(s32)(*(f32 *)(D_0076449C + 0x260) * 255.0f + 0.5f) & 0xFF;
     c2 = (u32)(s32)(*(f32 *)(D_0076449C + 0x264) * 255.0f + 0.5f) & 0xFF;
     c3 = (u32)(s32)(*(f32 *)(D_0076449C + 0x268) * 255.0f + 0.5f) & 0xFF;
-    buf.pad00[0] = 0;
-    buf.pad00[1] = 0;
-    buf.pad00[4] = 0;
-    buf.pad00[5] = 0x43E00000;
-    buf.pad50[0] = 0x44200000;
-    buf.pad50[1] = 0;
-    buf.pad68[0] = 0x44200000;
-    buf.pad68[1] = 0x43E00000;
-    buf.f40 = (f32)c0;
-    buf.f44 = (f32)c1;
-    buf.f48 = (f32)c2;
-    buf.f4c = (f32)c3;
-    buf.f80 = (f32)c0;
-    buf.f84 = (f32)c1;
-    buf.f88 = (f32)c2;
-    buf.f8c = (f32)c3;
-    buf.fc0 = (f32)c0;
-    buf.fc4 = (f32)c1;
-    buf.fc8 = (f32)c2;
-    buf.fcc = (f32)c3;
-    buf.f100 = (f32)c0;
-    buf.f104 = (f32)c1;
-    buf.f108 = (f32)c2;
-    buf.f10c = (f32)c3;
-    D_00887300[4](4, &buf, 4);
+    buf.b0.h0 = 0;
+    buf.b0.h1 = 0;
+    buf.b1.h0 = 0;
+    buf.b1.h1 = 0x43E00000;
+    buf.b2.h0 = 0x44200000;
+    buf.b2.h1 = 0;
+    buf.b3.h0 = 0x44200000;
+    buf.b3.h1 = 0x43E00000;
+    buf.b0.f[0] = (f32)c0;
+    buf.b0.f[1] = (f32)c1;
+    buf.b0.f[2] = (f32)c2;
+    buf.b0.f[3] = (f32)c3;
+    buf.b1.f[0] = (f32)c0;
+    buf.b1.f[1] = (f32)c1;
+    buf.b1.f[2] = (f32)c2;
+    buf.b1.f[3] = (f32)c3;
+    buf.b2.f[0] = (f32)c0;
+    buf.b2.f[1] = (f32)c1;
+    buf.b2.f[2] = (f32)c2;
+    buf.b2.f[3] = (f32)c3;
+    buf.b3.f[0] = (f32)c0;
+    buf.b3.f[1] = (f32)c1;
+    buf.b3.f[2] = (f32)c2;
+    buf.b3.f[3] = (f32)c3;
+    ((void (*)(u32, u8 *, u32))D_00887300[4])(4, (u8 *)&buf, 4);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b6ab0);
-#endif
 // FUN_001B7020
 s32 func_001b7020(void)
 {
