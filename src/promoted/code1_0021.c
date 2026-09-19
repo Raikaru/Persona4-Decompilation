@@ -162,8 +162,6 @@ static inline f32 ws14_sub(f32 left, f32 right)
    live definition in src/promoted/code1_0020.c (floats fourth and fifth). */
 // FUN_00210C70 NONMATCHING
 #ifdef NON_MATCHING
-#pragma opt_propagation off
-#pragma schedule on
 void func_00210c70(u8 *arg0, u8 *arg1)
 {
     extern s32 func_001ec4a0(f32 *arg0, f32 *arg1);
@@ -240,6 +238,7 @@ void func_00210c70(u8 *arg0, u8 *arg1)
                     fade = 20.0f * (1.0f - rate);
                     height = 75.0f + fade;
                     func_00201650(icon, 0xA, 0xA, 47.0f, height, 0x15U, 0x15U, 0x15U, (u8)(u32)alpha);
+                    alpha = 255.0f * rate;
                     func_00201650(icon, 0xA, 9, 47.0f, height, 0xFFU, 0xFU, 2U, (u8)(u32)alpha);
                 }
                 drew = 1;
@@ -269,9 +268,9 @@ void func_00210c70(u8 *arg0, u8 *arg1)
                     func_0020e690(arg0, arg1, work, pos[0] - 86.0f, pos[1] - 86.0f, 0xFF, (f32 *)info);
                     first = 0;
                 }
-                if (*(s32 *)(info + 4) > 0) {
+                if (info[4] > 0) {
                     func_0020e420(panel, 86.0f, shift + (83.0f + *(f32 *)info),
-                                  value, 1, colour | *(s32 *)(info + 4));
+                                  value, 1, colour | info[4]);
                 }
                 if (*(s32 *)(info + 8) != 0) {
                     unit = *(u8 **)arg1;
@@ -291,16 +290,14 @@ void func_00210c70(u8 *arg0, u8 *arg1)
                 if (first != 0) {
                     func_0020e690(arg0, arg1, work, pos[0] - 86.0f, pos[1] - 86.0f, 0xFF, (f32 *)info);
                 }
-                if (*(s32 *)(info + 4) > 0) {
+                if (info[4] > 0) {
                     func_0020e420(panel, 86.0f, shift + (base + *(f32 *)info),
-                                  value, 1, colour | *(s32 *)(info + 4));
+                                  value, 1, colour | info[4]);
                 }
             }
         }
     }
 }
-#pragma schedule off
-#pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00210c70);
 #endif

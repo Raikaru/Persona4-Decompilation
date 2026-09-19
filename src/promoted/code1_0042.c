@@ -1469,10 +1469,22 @@ u32 func_00421c60(void)
 }
 /* measured: end of the function-local scheduling override. */
 #pragma schedule off
-/* gate: object 33 against retail 36, -8.3% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 2026-09-19: object 33 instrs against retail 36, -8.3%, 26 differing
+   words.  The three missing instructions are **not** missing code: retail
+   materialises the DMA status register address as `lui $v1, 0x1000` then
+   `ori $v1, $v1, 0xf000` and stores at offset 0, once per access, where b210
+   folds the address into the memory operand as `lui $v1, 0x1001` with
+   `sw $a0, -0x1000($v1)` - one instruction instead of two, at three access
+   sites, which is the whole deficit.
+   Eight spellings were measured with `python3 tools/probe_variants.py` and all
+   compile to the same folded form at 26 words: the plain cast, an unsigned
+   constant, `0x10000000 | 0xF000`, a block-scoped `u32 addr` recomputed at
+   each site, a reassigned `volatile u32 *` local, and a `#pragma tailcall on`
+   variant.  An `extern volatile u32 D_1000F000` reference is worse at 31
+   instructions.  `python3 tools/pragma_sweep.py` moves nothing: every pragma
+   ties at 26 and `optimization_level 0` is worse at 32.
+   So the count gap here is an address-materialisation form b210 will not emit
+   from C, not a hole to fill.  Do not spend a deficit hunt on it. */
 // FUN_00421C70 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00421c70(void) {
@@ -1536,62 +1548,70 @@ s64 func_00421d00(void) {
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421d00);
 #endif
 
-/* gate: object 48 against retail 32, +50.0% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 2026-09-19: object 32 instrs against retail 32, exact, 30 differing
+   words (was 48 instrs, +50% and outside the gate, so its 42-word score was
+   not comparable - handoff 7y).
+   The surplus was an address-materialisation hack: the body computed
+   `((u32)D_0070C5D0) & 0xFFFF0000` into a local and then addressed the global
+   as `*(s32 *)(segment - 0x3A30)`, which costs `lui`/`addiu`/`lui`/`and` every
+   time.  Retail just references the symbol: `lui $s0, 0x71` once with
+   `lw`/`sw -0x3a30($s0)` against it, which is the ordinary %hi/%lo split of
+   `D_0070C5D0` with the high part shared.  Writing `D_0070C5D0[0]` directly
+   removes the four-instruction preamble and both reloads.
+   `schedule on` then fills the three branch delay slots retail fills with its
+   register saves: 38 instrs/36 words -> 32/30 (measured by
+   `python3 tools/pragma_sweep.py src/promoted/code1_0042.c func_00421da8`;
+   optimization_level 3 and 4 tie at 30 but change the whole file's baseline,
+   so the local pragma is the honest form). */
 // FUN_00421DA8 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule on
 s32 func_00421da8(s32 arg0, s32 arg1, s32 arg2) {
     extern s32 D_0070C5D0[];
     extern s32 func_00423180(s32);
     extern s32 func_00422f38(s32, s32);
-    u32 segment = ((u32)D_0070C5D0) & 0xFFFF0000;
-    s32 r;
 
     if ((u32)(arg0 - 1) < 2U) {
-        if (*(s32 *)(segment - 0x3A30) != 0) {
-            r = func_00422f38(arg1, arg2);
-        } else if (func_00423180(arg1) == 0) {
-            r = -1;
-        } else {
-            *(s32 *)(segment - 0x3A30) = 1;
-            r = func_00422f38(arg1, arg2);
+        if (D_0070C5D0[0] == 0) {
+            if (func_00423180(arg1) == 0) {
+                return -1;
+            }
+            D_0070C5D0[0] = 1;
         }
-    } else {
-        r = -1;
+        return func_00422f38(arg1, arg2);
     }
-    return r;
+    return -1;
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421da8);
 #endif
-/* gate: object 40 against retail 30, +33.3% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 2026-09-19: object 30 instrs against retail 30, exact, 28 differing
+   words (was 40 instrs, +33.3% and outside the gate).  Same two fixes as
+   func_00421da8 above: reference `D_0070C5D0[0]` instead of recomputing
+   `((u32)D_0070C5D0) & 0xFFFF0000` and offsetting -0x3A30 from it, and
+   `schedule on` to fill the branch delay slots.  Without the pragma the same
+   body is 34 words. */
 // FUN_00421E28 NONMATCHING
 #ifdef NON_MATCHING
-s32 func_00421e28(s32 arg0, s32 arg1, s32 arg2)
-{
- extern s32 D_0070C5D0[];
- extern s32 func_00423180(s32);
- extern s32 func_004230b0(s32, s32);
- u32 segment = ((u32)D_0070C5D0) & 0xFFFF0000;
+#pragma schedule on
+s32 func_00421e28(s32 arg0, s32 arg1, s32 arg2) {
+    extern s32 D_0070C5D0[];
+    extern s32 func_00423180(s32);
+    extern s32 func_004230b0(s32, s32);
 
- if (arg0 == 0) {
-  if (*(s32 *)(segment - 0x3A30) == 0) {
-   if (func_00423180(arg1) == 0) {
-    goto block_fail;
-   }
-   *(s32 *)(segment - 0x3A30) = 1;
-  }
-  return func_004230b0(arg1, arg2);
-block_fail:
-  return -1;
- }
- return -1;
+    if (arg0 == 0) {
+        if (D_0070C5D0[0] == 0) {
+            if (func_00423180(arg1) == 0) {
+                return -1;
+            }
+            D_0070C5D0[0] = 1;
+        }
+        return func_004230b0(arg1, arg2);
+    }
+    return -1;
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421e28);
 #endif

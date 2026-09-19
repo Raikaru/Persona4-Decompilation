@@ -833,12 +833,27 @@ INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00263730);
    defines - is worth seven words.  Adding prototypes for `func_00263730`
    and `func_0025f2c0` alongside does not compile; their block-scope
    declarations elsewhere in this file disagree, which is its own finding. */
+/* 2026-09-19 hole/lump (fnalign without --quiet, opclass.py handoff 7t): before retail 1021 vs object 1000
+   (inside 991-1052), fnalign 1014 edits +2 reloc-only, score 908wd (obj 4000B/window 4096B),
+   pure hole delete retail[185:218] (33) vs pure lump insert retail[478:478] object[729:850] (121, ~4x hole).
+   Lump makeup before: sd 5, dsll32 2, lui 7, move 20, mtc1 6, mov.s 3, jal 9, addiu 28;
+   hole wants mtc1 5, mov.s 3, jal 2. Opclass before 38: mtc1 -22, lui +10, move +10,
+   addiu -9, mov.s -7, dsll32 +6, sw -6, sd +6. Characterised as sign/zero-extension cascade
+   from a too-wide local (f32 args promoted to f64: sd/dsll32/lui where retail wants mtc1/mov.s/sw),
+   not a switch chain, table-arithmetic, or struct copy. Fix: block-scope extern s32 func_0025f3f0
+   (s32x6+f32x3) per src/Event/Fcl/shdSprite.c and extern void func_00263730(s32x5+u8*+f32) with u8*
+   (not u32*) to match call sites without casts; prior note on non-compiling prototypes was file-scope,
+   block-scope here does not conflict. After: same 1021 vs 1000, 999 edits +2 (-15), score 908 unchanged,
+   hole gone (no delete >=20), lump still 121 but dsll32 0, sd 5->3, mtc1 6->11, mov.s 3->5;
+   opclass 13: lui +10, addiu -9, sw -6, mtc1 -3 (dsll32/sd/mov.s gone). Case-7 recovery untouched. */
 // FUN_00263CB0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00263cb0(s32 arg0, u8 *arg1)
 {
     typedef signed __int128 s128;
     extern s32 func_0025f430(s32, s32, s32, s32, u8 *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
+    extern s32 func_0025f3f0(s32, s32, s32, s32, u8 *, s32, f32, f32, f32);
+    extern void func_00263730(s32, s32, s32, s32, s32, u8 *, f32);
     f32 spEC;
     f32 spE8;
     f32 spE4;
