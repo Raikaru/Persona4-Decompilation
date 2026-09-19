@@ -889,8 +889,12 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
     }
     return var_16;
 }
+/* decomposition for func_001f14f0 (left as ASM): single-u8* signature recovered
+   from call sites (code1_001a.c:2239 and 4325 both call `func_001f14f0(arg0)`,
+   and romwright agrees on a single parameter; m2c's unset `$a7`/`$a0` is
+   noise).  Retail 0x001F14F0-0x001F2CBF, 6096B, 1524 instructions, band
+   1478-1570.  Draft pending. */
 // FUN_001F14F0
-/* decomposition for func_001f14f0 (left as ASM): single-u8* signature recovered from call sites (code1_001a.c:2239 and 4325 both func_001f14f0(arg0), romwright single-param confirmed; m2c unset-$a7/$a0 is noise). Retail 0x001F14F0-0x001F2CBF 6096B 1524I, band 1478-1570. Draft pending. */
 INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f14f0);
 /* measured: the second loop's slot index is `(u16)var_8_2 * 4` (its own mask, not CSE'd
    with the loop test's `& 0xFFFF`) while the stored count is `(var_8_2 & 0xFFFF) + 1`

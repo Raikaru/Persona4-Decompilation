@@ -980,5 +980,38 @@ class CommentTerminated(unittest.TestCase):
         self.assertNotIn("C001", codes(lint_text(text)))
 
 
+class MarkerAdjacency(unittest.TestCase):
+    """M004: a note between a marker and its INCLUDE_ASM breaks ownership."""
+
+    BARE = (
+        "// FUN_00100010\n"
+        'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+    )
+
+    def test_marker_followed_by_include_asm_is_clean(self) -> None:
+        self.assertNotIn("M004", codes(lint_text(self.BARE)))
+
+    def test_note_above_the_marker_is_clean(self) -> None:
+        self.assertNotIn("M004", codes(lint_text("/* note */\n" + self.BARE)))
+
+    def test_note_between_marker_and_include_asm_is_reported(self) -> None:
+        text = ("// FUN_00100010\n/* note */\n"
+                'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n')
+        self.assertIn("M004", codes(lint_text(text)))
+
+    def test_comment_before_a_guarded_body_is_not_reported(self) -> None:
+        """A note inside the guard is normal and does not break ownership."""
+        text = (
+            "// FUN_00100010 NONMATCHING\n"
+            "#ifdef NON_MATCHING\n"
+            "/* measured: something */\n"
+            "s32 func_00100010(void) { return 0; }\n"
+            "#else\n"
+            'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+            "#endif\n"
+        )
+        self.assertNotIn("M004", codes(lint_text(text)))
+
+
 if __name__ == "__main__":
     unittest.main()
