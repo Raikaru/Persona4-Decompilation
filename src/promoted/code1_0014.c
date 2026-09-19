@@ -1451,7 +1451,17 @@ void func_00143b90(void)
    chain form cannot produce it however the arms are ordered in source.
    Converting both chains to `switch (v)` with the cases sorted ascending is the whole
    change; the arm bodies are untouched.
-   Two follow-ups measured against the 47 and rejected: a per-iteration row pointer
+   The outer `if (kind == 0) ... else if (kind == 1)` is a `switch` too: writing it as one
+   takes **47 -> 34 edits** and the count to an exact 567/567.  Retail's dispatch is a
+   three-way with a default - `beq` on 1 at R9, `beqz` for 0 at R11, `b .+545` for neither -
+   which a two-arm chain cannot produce.
+   Remaining 34 are a register rotation ($s0/$s1 against retail's $s2/$s3) and retail's
+   per-iteration row pointer, hoisted at R18-R19 as `sll $v0, $s3, 1; addu $s1, $s2, $v0`
+   and used as `sh $v0, 4($s1)`.  Two spellings of that pointer were measured on top of the
+   34 and both cost two edits while losing an instruction - `u16 *row = (u16 *)st + i` with
+   `row[2]`/`row[9]`, and `u8 *row = (u8 *)st + i * 2` with `*(u16 *)(row + 4)` and
+   `+ 0x12` - so the pointer is not the lever while the rotation stands.
+   Earlier follow-ups measured against the 47 and rejected: a per-iteration row pointer
    `u16 *row = (u16 *)st + i` with `row[2]`/`row[9]`, to match retail's hoisted
    `sll $v0, $s3, 1; addu $s1, $s2, $v0` at R18-R19, ties at 47 while moving the count
    further from retail (564 against 566, where the installed body is 565); and swapping the
@@ -1525,7 +1535,8 @@ s32 func_001441e0(u8 *arg0) {
     s32 v1;
     st = *(State441e0 **)(arg0 + 0x38);
     kind = st->kind;
-    if (kind == 0) {
+    switch (kind) {
+    case 0:
         for (i = 0; i < 7; i++) {
             t0 = func_001060b0();
             v0 = (s8)func_00110850(i + t0, 3);
@@ -1537,7 +1548,8 @@ s32 func_001441e0(u8 *arg0) {
             st->b[i] = (u16)func_00110c50(i + t2, t3);
         }
         st->kind = 1;
-    } else if (kind == 1) {
+        break;
+    case 1:
         if ((D_008C024E[0] & 0x800) != 0) {
             return -1;
         }
@@ -1705,6 +1717,7 @@ s32 func_001441e0(u8 *arg0) {
                 break;
             }
         }
+        break;
     }
     return 0;
 }
