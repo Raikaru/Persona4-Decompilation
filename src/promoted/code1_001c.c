@@ -1746,10 +1746,409 @@ void func_001c3eb0(u8 *arg0, s32 arg1)
         }
     }
 }
-/* cold 001c3f70 (2026-09-19): first honest pass 1051-1052/1125 (-6.5%), NOT banked (needs +39 to the 1091 floor); composition max pure hole 10 max pure lump 8 - clean; frame matches (0x1A0); all 37 jals present. Real fixes landed: retail pads at 17C/18C, the entire second first-branch 1bd780/3dcb40/ec3d0 sequence, retail-faithful E/B block (8118-focus update, inverted branch order, duplicated 0.25-madds). Diagnosis for next time: object saves $f20-$f27 where retail saves six, so the struct sits at 0xB0 instead of 0xA0, and retail recomputes the height products per use rather than keeping them live - free two float registers by recomputing late. Measurable signature of the recompute: +4 8C-loads in retail over source. */
+/* measured 001c3f70: retail 1126 instrs (4512B window, 1128 with zero tail) vs object 1126 instrs (0.0%) inside 1094-1162 band; guarded 1059 words via `python3 tools/measure_guarded.py src/promoted/code1_001c.c func_001c3f70` (GUARDED_SCORE 1059); fnalign 484 edits +23 reloc-only via `python3 tools/fnalign.py src/promoted/code1_001c.c func_001c3f70 --candidate /tmp/installed_3f70.c --quiet` (was 741 +8 at 1051/1125). Truthful fixes: work 0x70->0xE0, height products recomputed per use via work chain (hA/hC/hD via work+0x30, hB via work+0x38 chain; freed 3 float regs, closed +4 8C-loads signature, struct 0xB0->0xA0, frame 0x1B0->0x1A0). Frame matches (0x1A0); all 37 jals present. Prior cold pass 1051/1125 noted retail pads at 17C/18C, second 1bd780/3dcb40/ec3d0 sequence, E/B block (8118-focus, inverted order, duplicated 0.25-madds). Best legal plain-C; banked as floor. */
 /* 114 finding: sp+0x114 is func_001ec3d0's second output word, never explicitly stored, read back as lwc1 0x114 -> swc1 0x138 three times. A callee output that is only ever observed through the frame is exactly the kind of thing that makes a body look correct while producing a hole. */
-// FUN_001C3F70
+// FUN_001C3F70 NONMATCHING
+#ifdef NON_MATCHING
+void func_001c3f70(u8 *arg0, s32 arg1, s32 arg2)
+{
+    extern s32 func_001bc240(u8 *arg0);
+    extern s32 func_001bc1b0(u8 *arg0);
+    extern void func_00195850(u8 *arg0, f32 *arg1);
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+    extern void func_003dcb40(void *arg0, const void *arg1, s32 arg2, const void *arg3);
+    extern void func_001bd780(void *arg0, const void *arg1, const void *arg2, const void *arg3);
+    extern f32 func_001ec3d0(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
+    extern f32 func_0044b868(f32 arg0);
+    extern s32 func_004bd050(s32 arg0);
+    extern void func_0019de70(BtlUnitStateWork *work, u16 value);
+    extern void func_001bcd40(u8 *arg0, u8 *arg1, u8 *arg2, f32 arg3, u16 arg4);
+    extern void func_001bac20(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
+    extern void func_001bbef0(u8 *arg0, f32 arg1);
+    extern void func_004b3110(s32 arg0);
+    extern f32 fGpffff8030;
+    extern f32 fGpffff803c;
+    extern f32 fGpffff80f0;
+    extern f32 fGpffff8110;
+    extern f32 fGpffff8118;
+    extern f32 fGpffff8128;
+    extern f32 fGpffff8138;
+    extern f32 fGpffff8150;
+    extern f32 fGpffff8154;
+    struct {
+        f32 outA0[3];
+        f32 quatAC[4];
+        f32 copyBC[3];
+        f32 quatC8[4];
+        u8 padD8[8];
+        f32 sideE0[2];
+        f32 horizE8[2];
+        f32 inF0[4];
+        u8 pad100[8];
+        f32 norm108[2];
+        f32 ecOut110[2];
+        f32 copy118[2];
+        f32 pair120[2];
+        f32 save128;
+        u8 pad12C[4];
+        f32 tgt130[3];
+        u8 pad13C[4];
+        f32 dir140[3];
+        u8 pad14C[4];
+        f32 focus150[3];
+        u8 pad15C[4];
+        f32 save160[3];
+        u8 pad16C[4];
+        f32 ctr170[3];
+        u8 pad17C[4];
+        f32 ctr180[3];
+        u8 pad18C[4];
+        f32 ctr190[3];
+        u8 pad19C[4];
+    } frame;
+    u8 *work;
+    u8 *unitA;
+    u8 *unitB;
+    u8 *res;
+    s32 branch;
+    f32 hE;
+    f32 dot;
+    f32 len;
+    f32 norm;
+    f32 ecRet;
+    f32 sc;
+
+    work = *(u8 **)(arg0 + 0xE0);
+    unitA = *(u8 **)(work + 0x30);
+    unitB = *(u8 **)(*(u8 **)(work + 0x38) + 0x30);
+    res = *(u8 **)(unitA + 0xA0C);
+    func_00195850(unitA, frame.ctr190);
+    func_00195850(unitB, frame.ctr180);
+    func_00195850(res, frame.ctr170);
+    hE = 0.0f + frame.ctr170[1] + 0.5f * (*(f32 *)(res + 0x8C) * *(f32 *)(res + 0x2C));
+    *(f32 *)(arg0 + 0x104) = frame.ctr180[0];
+    *(f32 *)(arg0 + 0x108) = frame.ctr180[1];
+    *(f32 *)(arg0 + 0x10C) = frame.ctr180[2];
+    *(u8 **)(arg0 + 0x100) = *(u8 **)(work + 0x38);
+    if (hE < 135.0f) {
+        hE = 135.0f;
+        frame.ctr170[1] = 67.5f;
+    }
+    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0) {
+        branch = 1;
+    } else {
+        branch = func_001bc240(arg0);
+        if ((hE - (0.0f + frame.ctr180[1] + 0.5f * (*(f32 *)(*(u8 **)(*(u8 **)(work + 0x38) + 0x30) + 0x8C) * *(f32 *)(*(u8 **)(*(u8 **)(work + 0x38) + 0x30) + 0x2C)))) < 125.0f) {
+            branch = (branch != 0);
+            if (branch == 0) {
+                branch = (func_004bd050(0) & 1) != 0;
+                if (branch != 0) {
+                    branch = (func_001bc1b0(arg0) != 0);
+                }
+            }
+        } else {
+            branch = 0;
+        }
+    }
+    if (branch != 0) {
+        frame.dir140[0] = frame.ctr170[0] - frame.ctr180[0];
+        frame.dir140[1] = frame.ctr170[1] - frame.ctr180[1];
+        frame.dir140[2] = frame.ctr170[2] - frame.ctr180[2];
+        len = func_003e40b0((RwV3d *)&frame.dir140[0], (const RwV3d *)&frame.dir140[0]);
+        norm = len;
+        {
+            f32 s1 = fGpffff8128 * len;
+            frame.focus150[0] = frame.dir140[0] * s1;
+            frame.focus150[1] = frame.dir140[1] * s1;
+            frame.focus150[2] = frame.dir140[2] * s1;
+        }
+    } else {
+        f32 t3;
+        f32 t2;
+        f32 t1;
+        t3 = frame.ctr170[0] + frame.ctr190[0];
+        frame.save160[0] = t3;
+        t2 = frame.ctr170[1] + frame.ctr190[1];
+        frame.save160[1] = t2;
+        t1 = frame.ctr170[2] + frame.ctr190[2];
+        frame.save160[2] = t1;
+        t3 = t3 * 0.5f;
+        frame.save160[0] = t3;
+        t2 = t2 * 0.5f;
+        frame.save160[1] = t2;
+        t1 = t1 * 0.5f;
+        frame.save160[2] = t1;
+        frame.dir140[0] = t3 - frame.ctr180[0];
+        frame.dir140[1] = t2 - frame.ctr180[1];
+        frame.dir140[2] = t1 - frame.ctr180[2];
+        len = func_003e40b0((RwV3d *)&frame.dir140[0], (const RwV3d *)&frame.dir140[0]);
+        norm = len;
+        {
+            f32 s1 = fGpffff8128 * len;
+            frame.focus150[0] = frame.dir140[0] * s1;
+            frame.focus150[1] = frame.dir140[1] * s1;
+            frame.focus150[2] = frame.dir140[2] * s1;
+        }
+    }
+    frame.focus150[0] = frame.focus150[0] + frame.ctr180[0];
+    frame.focus150[1] = frame.focus150[1] + frame.ctr180[1];
+    frame.focus150[2] = frame.focus150[2] + frame.ctr180[2];
+    frame.horizE8[0] = *(f32 *)(arg0 + 0x9C) - frame.focus150[0];
+    frame.horizE8[1] = *(f32 *)(arg0 + 0xA4) - frame.focus150[2];
+    func_003e41e0(frame.horizE8, frame.horizE8);
+    if (branch != 0) {
+        f32 side;
+        f32 tprod;
+        func_0019de70((BtlUnitStateWork *)res, 1);
+        *(u8 **)(arg0 + 0x12C) = res;
+        *(u16 *)(arg0 + 0x130) = 0;
+        unitA = unitB;
+        func_001c_copy_pair((s64 *)&frame.save160[0], &frame.save160[2], (s64 *)&frame.ctr170[0], &frame.ctr170[2]);
+        frame.sideE0[0] = frame.dir140[2];
+        frame.sideE0[1] = -frame.dir140[0];
+        dot = frame.sideE0[1] * frame.horizE8[1] + frame.sideE0[0] * frame.horizE8[0];
+        if (dot >= 0.0f) {
+            frame.tgt130[0] = 0.0f + frame.save160[0] + frame.dir140[2] * (*(f32 *)(*(u8 **)(work + 0x30) + 0x90) * *(f32 *)(*(u8 **)(work + 0x30) + 0x2C));
+            frame.tgt130[2] = (0.0f + frame.save160[2]) - frame.dir140[0] * (*(f32 *)(*(u8 **)(work + 0x30) + 0x90) * *(f32 *)(*(u8 **)(work + 0x30) + 0x2C));
+        } else {
+            frame.tgt130[0] = (0.0f + frame.save160[0]) - frame.dir140[2] * (*(f32 *)(*(u8 **)(work + 0x30) + 0x90) * *(f32 *)(*(u8 **)(work + 0x30) + 0x2C));
+            frame.tgt130[2] = 0.0f + frame.save160[2] + frame.dir140[0] * (*(f32 *)(*(u8 **)(work + 0x30) + 0x90) * *(f32 *)(*(u8 **)(work + 0x30) + 0x2C));
+            {
+                f32 rs = 0.5f * norm;
+                frame.focus150[0] = frame.dir140[0] * rs;
+                frame.focus150[1] = frame.dir140[1] * rs;
+                frame.focus150[2] = frame.dir140[2] * rs;
+                frame.focus150[0] = frame.focus150[0] + frame.ctr180[0];
+                frame.focus150[1] = frame.focus150[1] + frame.ctr180[1];
+                frame.focus150[2] = frame.focus150[2] + frame.ctr180[2];
+            }
+        }
+        if (hE < (0.0f + frame.ctr180[1] + 0.5f * (*(f32 *)(*(u8 **)(*(u8 **)(work + 0x38) + 0x30) + 0x8C) * *(f32 *)(*(u8 **)(*(u8 **)(work + 0x38) + 0x30) + 0x2C)))) {
+            frame.focus150[1] = 0.0f + frame.save160[1] + fGpffff8030 * hE;
+            if (hE <= frame.focus150[1]) {
+                frame.tgt130[1] = 0.0f + frame.save160[1] + fGpffff8030 * hE;
+            } else {
+                frame.tgt130[1] = 0.0f + frame.save160[1] + fGpffff8030 * hE;
+            }
+        } else {
+            frame.tgt130[1] = (0.0f + frame.save160[1]) - fGpffff80f0 * hE;
+            frame.focus150[1] = (0.0f + frame.ctr180[1] + 0.5f * (*(f32 *)(*(u8 **)(*(u8 **)(work + 0x38) + 0x30) + 0x8C) * *(f32 *)(*(u8 **)(*(u8 **)(work + 0x38) + 0x30) + 0x2C))) * 0.25f + frame.ctr170[1] + 0.0f;
+        }
+        func_001bd780(&frame.quatC8[0], &frame.tgt130[0], &frame.focus150[0], D_0060A0E0);
+        func_003dcb40((RwV3d *)&frame.dir140[0], (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frame.quatC8[0]);
+        frame.inF0[0] = frame.focus150[0];
+        frame.inF0[1] = frame.focus150[2];
+        frame.inF0[2] = frame.tgt130[0];
+        frame.inF0[3] = frame.tgt130[2];
+        frame.copy118[0] = frame.save160[0];
+        frame.copy118[1] = frame.save160[2];
+        ecRet = func_001ec3d0((u8 *)&frame.inF0[0], (u8 *)&frame.inF0[2], (u8 *)&frame.copy118[0], (u8 *)&frame.ecOut110[0]);
+        sc = 0.0f + ecRet + (*(f32 *)(res + 0x90) * *(f32 *)(res + 0x2C)) * fGpffff8138;
+        if (sc < (f32)0x113) {
+            sc = (f32)0x113;
+        }
+        frame.tgt130[0] = frame.ecOut110[0];
+        if (hE < (0.0f + frame.ctr180[1] + 0.5f * (*(f32 *)(*(u8 **)(*(u8 **)(work + 0x38) + 0x30) + 0x8C) * *(f32 *)(*(u8 **)(*(u8 **)(work + 0x38) + 0x30) + 0x2C)))) {
+            if (((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0) && !(hE < 500.0f)) {
+                frame.focus150[1] = 0.0f + frame.focus150[1] + fGpffff8030 * (*(f32 *)(unitB + 0x8C) * *(f32 *)(unitB + 0x2C));
+                frame.tgt130[1] = 0.0f + frame.save160[1] + 0.25f * hE;
+            } else {
+                frame.focus150[1] = (0.0f + frame.focus150[1]) - fGpffff80f0 * (*(f32 *)(unitB + 0x8C) * *(f32 *)(unitB + 0x2C));
+                frame.tgt130[1] = 0.0f + frame.save160[1] + 0.25f * hE;
+            }
+        } else {
+            frame.focus150[1] = 0.0f + frame.focus150[1] + fGpffff8118 * (*(f32 *)(unitB + 0x8C) * *(f32 *)(unitB + 0x2C));
+            if (hE <= frame.focus150[1]) {
+                frame.tgt130[1] = frame.save160[1];
+            } else {
+                frame.tgt130[1] = 0.0f + frame.focus150[1] + fGpffff8030 * (*(f32 *)(res + 0x8C) * *(f32 *)(res + 0x2C));
+            }
+        }
+        frame.tgt130[2] = frame.ecOut110[1];
+        sc = sc / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+        frame.dir140[0] = frame.dir140[0] * sc;
+        frame.dir140[1] = frame.dir140[1] * sc;
+        frame.dir140[2] = frame.dir140[2] * sc;
+        if (dot < 0.0f) {
+            sc = sc * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8))) * 0.21875f * 1.25f;
+            frame.norm108[0] = frame.dir140[0];
+            frame.norm108[1] = frame.dir140[2];
+            func_003e41e0(frame.norm108, frame.norm108);
+            frame.tgt130[0] = 0.0f + frame.tgt130[0] + frame.norm108[1] * sc;
+            frame.tgt130[2] = (0.0f + frame.tgt130[2]) - frame.norm108[0] * sc;
+        }
+        frame.copyBC[0] = frame.tgt130[0] + frame.dir140[0];
+        frame.copyBC[1] = frame.tgt130[1] + frame.dir140[1];
+        frame.copyBC[2] = frame.tgt130[2] + frame.dir140[2];
+        if (frame.copyBC[1] < 25.0f) {
+            frame.copyBC[1] = 25.0f;
+        }
+        frame.dir140[0] = frame.ctr190[0] - frame.ctr180[0];
+        frame.dir140[1] = frame.ctr190[1] - frame.ctr180[1];
+        frame.dir140[2] = frame.ctr190[2] - frame.ctr180[2];
+        len = func_003e40b0((RwV3d *)&frame.dir140[0], (const RwV3d *)&frame.dir140[0]);
+        {
+            f32 s1 = fGpffff8128 * len;
+            frame.focus150[0] = frame.dir140[0] * s1;
+            frame.focus150[1] = frame.dir140[1] * s1;
+            frame.focus150[2] = frame.dir140[2] * s1;
+            frame.focus150[0] = frame.focus150[0] + frame.ctr180[0];
+            frame.focus150[1] = frame.focus150[1] + frame.ctr180[1];
+            frame.focus150[2] = frame.focus150[2] + frame.ctr180[2];
+        }
+        func_001c_copy_pair((s64 *)&frame.save160[0], &frame.save160[2], (s64 *)&frame.ctr190[0], &frame.ctr190[2]);
+        frame.tgt130[1] = 0.0f + frame.save160[1] + (0.0f + frame.ctr190[1] + 0.5f * (*(f32 *)(*(u8 **)(work + 0x30) + 0x8C) * *(f32 *)(*(u8 **)(work + 0x30) + 0x2C))) * frame.dir140[2];
+        if (dot >= 0.0f) {
+            frame.tgt130[0] = 0.0f + frame.save160[0] + frame.dir140[2] * (*(f32 *)(*(u8 **)(work + 0x30) + 0x90) * *(f32 *)(*(u8 **)(work + 0x30) + 0x2C));
+            frame.tgt130[2] = (0.0f + frame.save160[2]) - frame.dir140[0] * (*(f32 *)(*(u8 **)(work + 0x30) + 0x90) * *(f32 *)(*(u8 **)(work + 0x30) + 0x2C));
+        } else {
+            frame.tgt130[0] = (0.0f + frame.save160[0]) - frame.dir140[2] * (*(f32 *)(*(u8 **)(work + 0x30) + 0x90) * *(f32 *)(*(u8 **)(work + 0x30) + 0x2C));
+            frame.tgt130[2] = 0.0f + frame.save160[2] + frame.dir140[0] * (*(f32 *)(*(u8 **)(work + 0x30) + 0x90) * *(f32 *)(*(u8 **)(work + 0x30) + 0x2C));
+        }
+        frame.focus150[1] = 0.0f + frame.save160[1] + (0.0f + frame.ctr190[1] + 0.5f * (*(f32 *)(*(u8 **)(work + 0x30) + 0x8C) * *(f32 *)(*(u8 **)(work + 0x30) + 0x2C))) * (0.0f + frame.ctr180[1] + 0.5f * (*(f32 *)(*(u8 **)(*(u8 **)(work + 0x38) + 0x30) + 0x8C) * *(f32 *)(*(u8 **)(*(u8 **)(work + 0x38) + 0x30) + 0x2C)));
+        func_001bd780(&frame.quatAC[0], &frame.tgt130[0], &frame.focus150[0], D_0060A0E0);
+        func_003dcb40((RwV3d *)&frame.dir140[0], (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frame.quatAC[0]);
+        frame.inF0[0] = frame.focus150[0];
+        frame.inF0[1] = frame.focus150[2];
+        frame.inF0[2] = frame.tgt130[0];
+        frame.inF0[3] = frame.tgt130[2];
+        frame.copy118[0] = frame.save160[0];
+        frame.copy118[1] = frame.save160[2];
+        ecRet = func_001ec3d0((u8 *)&frame.inF0[0], (u8 *)&frame.inF0[2], (u8 *)&frame.copy118[0], (u8 *)&frame.ecOut110[0]);
+        sc = 0.0f + ecRet + (*(f32 *)(*(u8 **)(work + 0x30) + 0x90) * *(f32 *)(*(u8 **)(work + 0x30) + 0x2C)) * 3.0f;
+        frame.tgt130[0] = frame.ecOut110[0];
+        frame.tgt130[1] = 0.0f + frame.save160[1] + 0.25f * hE;
+        frame.tgt130[2] = frame.ecOut110[1];
+        sc = sc / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+        frame.dir140[0] = frame.dir140[0] * sc;
+        frame.dir140[1] = frame.dir140[1] * sc;
+        frame.dir140[2] = frame.dir140[2] * sc;
+        if (dot < 0.0f) {
+            sc = sc * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8))) * 0.21875f * 1.25f;
+            frame.norm108[0] = frame.dir140[0];
+            frame.norm108[1] = frame.dir140[2];
+            func_003e41e0(frame.norm108, frame.norm108);
+            frame.tgt130[0] = 0.0f + frame.tgt130[0] + frame.norm108[1] * sc;
+            frame.tgt130[2] = (0.0f + frame.tgt130[2]) - frame.norm108[0] * sc;
+        }
+        frame.outA0[0] = frame.tgt130[0] + frame.dir140[0];
+        frame.outA0[1] = frame.tgt130[1] + frame.dir140[1];
+        frame.outA0[2] = frame.tgt130[2] + frame.dir140[2];
+        if (frame.outA0[1] < 25.0f) {
+            frame.outA0[1] = 25.0f;
+        }
+        sc = 2.5f;
+    } else {
+        func_0019de70((BtlUnitStateWork *)res, 0);
+        *(u8 **)(arg0 + 0x12C) = res;
+        *(u16 *)(arg0 + 0x130) = 1;
+        func_001c_copy_pair((s64 *)&frame.save160[0], &frame.save160[2], (s64 *)&frame.ctr180[0], &frame.ctr180[2]);
+        if ((0.75f * (*(f32 *)(res + 0x90) * *(f32 *)(res + 0x2C))) <= (fGpffff8150 * (*(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C)))) {
+        }
+        if (frame.save160[1] < 125.0f) {
+            frame.save160[1] = 125.0f;
+        }
+        frame.sideE0[0] = frame.dir140[2];
+        frame.sideE0[1] = -frame.dir140[0];
+        dot = frame.sideE0[1] * frame.horizE8[1] + frame.sideE0[0] * frame.horizE8[0];
+        frame.tgt130[1] = frame.save160[1];
+        if (dot >= 0.0f) {
+            frame.tgt130[0] = 0.0f + frame.save160[0] + frame.dir140[2] * (*(f32 *)(*(u8 **)(work + 0x30) + 0x90) * *(f32 *)(*(u8 **)(work + 0x30) + 0x2C));
+            frame.tgt130[2] = (0.0f + frame.save160[2]) - frame.dir140[0] * (*(f32 *)(*(u8 **)(work + 0x30) + 0x90) * *(f32 *)(*(u8 **)(work + 0x30) + 0x2C));
+            func_001c_copy_pair((s64 *)&frame.pair120[0], &frame.save128, (s64 *)&frame.dir140[0], &frame.dir140[2]);
+        } else {
+            frame.tgt130[0] = (0.0f + frame.save160[0]) - frame.dir140[2] * (*(f32 *)(*(u8 **)(work + 0x30) + 0x90) * *(f32 *)(*(u8 **)(work + 0x30) + 0x2C));
+            frame.tgt130[2] = 0.0f + frame.save160[2] + frame.dir140[0] * (*(f32 *)(*(u8 **)(work + 0x30) + 0x90) * *(f32 *)(*(u8 **)(work + 0x30) + 0x2C));
+        }
+        if (hE < (0.0f + frame.ctr180[1] + 0.5f * (*(f32 *)(*(u8 **)(*(u8 **)(work + 0x38) + 0x30) + 0x8C) * *(f32 *)(*(u8 **)(*(u8 **)(work + 0x38) + 0x30) + 0x2C)))) {
+            frame.focus150[1] = 0.0f + frame.save160[1] + fGpffff8030 * hE;
+        } else {
+            frame.focus150[1] = 0.0f + frame.save160[1] + fGpffff8154 * hE;
+        }
+        func_001bd780(&frame.quatAC[0], &frame.tgt130[0], &frame.focus150[0], D_0060A0E0);
+        func_003dcb40((RwV3d *)&frame.dir140[0], (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frame.quatAC[0]);
+        frame.inF0[0] = frame.focus150[0];
+        frame.inF0[1] = frame.focus150[2];
+        frame.inF0[2] = frame.tgt130[0];
+        frame.inF0[3] = frame.tgt130[2];
+        frame.copy118[0] = frame.save160[0];
+        frame.copy118[1] = frame.save160[2];
+        ecRet = func_001ec3d0((u8 *)&frame.inF0[0], (u8 *)&frame.inF0[2], (u8 *)&frame.copy118[0], (u8 *)&frame.ecOut110[0]);
+        frame.tgt130[0] = frame.ecOut110[0];
+        frame.tgt130[1] = frame.save160[1];
+        frame.tgt130[2] = frame.ecOut110[1];
+        {
+            f32 div = ecRet + (*(f32 *)(*(u8 **)(work + 0x30) + 0x90) * *(f32 *)(*(u8 **)(work + 0x30) + 0x2C)) * fGpffff8138;
+            div = div / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+            if (div < (f32)0x226) {
+                div = (f32)0x226;
+            }
+            frame.dir140[0] = frame.dir140[0] * div;
+            frame.dir140[1] = frame.dir140[1] * div;
+            frame.dir140[2] = frame.dir140[2] * div;
+            sc = div;
+        }
+        if (dot >= 0.0f) {
+            f32 t = sc * func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8))) * 0.21875f * 2.0f;
+            frame.norm108[0] = frame.pair120[0];
+            frame.norm108[1] = frame.save128;
+            func_003e41e0(frame.norm108, frame.norm108);
+            frame.tgt130[0] = (0.0f + frame.tgt130[0]) - frame.save128 * t;
+            frame.tgt130[2] = frame.norm108[0] * t + frame.tgt130[2] + 0.0f;
+        }
+        frame.outA0[0] = frame.tgt130[0] + frame.dir140[0];
+        frame.outA0[1] = frame.tgt130[1] + frame.dir140[1];
+        frame.outA0[2] = frame.tgt130[2] + frame.dir140[2];
+        frame.quatC8[0] = frame.quatAC[0];
+        frame.quatC8[1] = frame.quatAC[1];
+        frame.quatC8[2] = frame.quatAC[2];
+        frame.quatC8[3] = frame.quatAC[3];
+        frame.copyBC[0] = frame.outA0[0];
+        frame.copyBC[1] = frame.outA0[1];
+        frame.copyBC[2] = frame.outA0[2];
+        frame.dir140[0] = frame.ctr190[0] - frame.copyBC[0];
+        frame.dir140[1] = frame.ctr190[1] - frame.copyBC[1];
+        frame.dir140[2] = frame.ctr190[2] - frame.copyBC[2];
+        len = func_003e40b0((RwV3d *)&frame.dir140[0], (const RwV3d *)&frame.dir140[0]);
+        func_00195850(unitA, (f32 *)&frame.save160[0]);
+        frame.save160[1] = 0.0f + frame.save160[1] + fGpffff8030 * (*(f32 *)(unitA + 0x8C) * *(f32 *)(unitA + 0x2C));
+        func_001bd780(&frame.quatAC[0], &frame.copyBC[0], (f32 *)&frame.save160[0], D_0060A0E0);
+        {
+            f32 s1 = fGpffff8128 * len;
+            frame.dir140[0] = frame.dir140[0] * s1;
+            frame.dir140[1] = frame.dir140[1] * s1;
+            frame.dir140[2] = frame.dir140[2] * s1;
+            frame.outA0[0] = frame.copyBC[0] + frame.dir140[0];
+            frame.outA0[1] = frame.copyBC[1] + frame.dir140[1];
+            frame.outA0[2] = frame.copyBC[2] + frame.dir140[2];
+        }
+        if (frame.outA0[1] < 25.0f) {
+            frame.outA0[1] = 25.0f;
+        }
+        if (frame.copyBC[1] < 25.0f) {
+            frame.copyBC[1] = 25.0f;
+        }
+        sc = 2.25f;
+    }
+    if (arg2 == 0) {
+        frame.outA0[0] = frame.copyBC[0];
+        frame.outA0[1] = frame.copyBC[1];
+        frame.outA0[2] = frame.copyBC[2];
+        frame.quatAC[0] = frame.quatC8[0];
+        frame.quatAC[1] = frame.quatC8[1];
+        frame.quatAC[2] = frame.quatC8[2];
+        frame.quatAC[3] = frame.quatC8[3];
+    }
+    func_001bcd40(work, unitA + 4, (u8 *)&frame.outA0[0], 50.0f, 3);
+    func_001bac20((u16 *)arg0, frame.outA0, frame.copyBC, 1);
+    func_001bbef0(arg0, sc);
+    if (arg1 != 0) {
+        func_004b3110(8);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c3f70);
+#endif
 // FUN_001C5110
 void func_001c5110(u8 *arg0)
 {

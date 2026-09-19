@@ -325,7 +325,6 @@ void func_0046b380(u8 *arg0, s32 arg1) {
     extern void (*D_00887300[])(u32 state, u32 value);
     extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
     void (**tbl300)(u32 state, u32 value);
-    s32 (**tbl310)(s32 arg0, void *arg1, s32 arg2);
     extern f32 D_008872F8[];
     extern u8 D_007130D8[];
     extern f32 fGpffff8084;
@@ -347,7 +346,7 @@ void func_0046b380(u8 *arg0, s32 arg1) {
     s32 slotidx;
     u8 *slot;
     f32 scale;
-    f32 uvA0, uvA4, uvA8, uvAC, uvB0, uvB4, uvB8, uvBC;
+    f32 uv[8];
     s32 recFlags18;
     s32 tmp;
     s32 w6;
@@ -368,9 +367,10 @@ void func_0046b380(u8 *arg0, s32 arg1) {
     s32 v14;
     f32 f0, f1;
     u8 *rp;
-    s32 col;
+    u32 col;
     s32 rC, gC, bC, aC;
     s32 r2, g2, b2, a2;
+    s32 k255;
     s32 alpha;
     u8 abit;
     f32 w54, h12, w58, h16, w5c, w60;
@@ -388,11 +388,8 @@ void func_0046b380(u8 *arg0, s32 arg1) {
     u8 *bb, *bb2;
     s16 ov2;
     f32 pA0;
-    parent = *(u8 **)arg0;
-    idx = *(s32 *)(arg0 + 4);
     scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
     tbl300 = D_00887300;
-    tbl310 = D_00887310;
     if (arg1 != 0) {
         tbl300[0](6, 1);
         tbl300[0](7, 2);
@@ -404,61 +401,60 @@ void func_0046b380(u8 *arg0, s32 arg1) {
         tbl300[0](2, 4);
         tbl300[0](0xE, 0);
     }
-    rec = *(u8 **)(parent + 0x204) + (idx << 7);
-    slotidx = *(s32 *)(rec + 0x14) << 2;
-    slot = *(u8 **)(parent + 0x104 + slotidx);
+    slotidx = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x14) << 2;
+    slot = *(u8 **)((*(u8 **)arg0) + 0x104 + slotidx);
     if (slot != (u8 *)0) {
-        w54 = (f32)*(s32 *)(rec + 0x54);
+        w54 = (f32)*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x54);
         h12 = (f32)*(s32 *)(slot + 0xC);
-        uvA0 = w54 / h12;
-        w58 = (f32)*(s32 *)(rec + 0x58);
+        uv[0] = w54 / h12;
+        w58 = (f32)*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x58);
         h16 = (f32)*(s32 *)(slot + 0x10);
-        uvA4 = w58 / h16;
-        w5c = (f32)((s32)*(s32 *)(rec + 0x5C) - 1);
-        uvB8 = w5c / h12;
-        w60 = (f32)((s32)*(s32 *)(rec + 0x60) - 1);
-        uvBC = w60 / h16;
-        uvA8 = uvB8;
-        uvB0 = uvA0;
-        uvAC = uvA4;
-        uvB4 = uvBC;
+        uv[1] = w58 / h16;
+        w5c = (f32)((s32)*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x5C) - 1);
+        uv[6] = w5c / h12;
+        w60 = (f32)((s32)*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x60) - 1);
+        uv[7] = w60 / h16;
+        uv[2] = uv[6];
+        uv[4] = uv[0];
+        uv[3] = uv[1];
+        uv[5] = uv[7];
     }
     if (arg1 != 0) {
         func_003f6440(2, 0x44);
         func_003f6440(3, 0x717FB);
-        if (*(s32 *)(rec + 0x2C) & 1) {
+        if (*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x2C) & 1) {
             func_003f6440(2, 0x48);
             func_003f6440(3, 0x71801);
         }
-        if (*(s32 *)(rec + 0x2C) & 2) {
+        if (*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x2C) & 2) {
             func_003f6440(2, 0x42);
             func_003f6440(3, 0x71801);
         }
     }
-    recFlags18 = *(s32 *)(rec + 0x18);
+    recFlags18 = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x18);
     if (recFlags18 & 2) {
-        t0 = uvA0; t1 = uvA4;
-        uvA0 = uvB0; uvA4 = uvB4;
-        uvB0 = t0; uvB4 = t1;
-        t0 = uvA8; t1 = uvAC;
-        uvA8 = uvB8; uvAC = uvBC;
-        uvB8 = t0; uvBC = t1;
+        t0 = uv[0]; t1 = uv[1];
+        uv[0] = uv[4]; uv[1] = uv[5];
+        uv[4] = t0; uv[5] = t1;
+        t0 = uv[2]; t1 = uv[3];
+        uv[2] = uv[6]; uv[3] = uv[7];
+        uv[6] = t0; uv[7] = t1;
     }
     if (recFlags18 & 1) {
-        t0 = uvA0; t1 = uvA4;
-        uvA0 = uvA8; uvA4 = uvAC;
-        uvA8 = t0; uvAC = t1;
-        t0 = uvB0; t1 = uvB4;
-        uvB0 = uvB8; uvB4 = uvBC;
-        uvB8 = t0; uvBC = t1;
+        t0 = uv[0]; t1 = uv[1];
+        uv[0] = uv[2]; uv[1] = uv[3];
+        uv[2] = t0; uv[3] = t1;
+        t0 = uv[4]; t1 = uv[5];
+        uv[4] = uv[6]; uv[5] = uv[7];
+        uv[6] = t0; uv[7] = t1;
     }
     {
         negX = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1C));
         negY = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1E));
-        base = *(s32 *)(parent + 0x204);
-        r2p = (u8 *)(base + (idx << 7));
+        base = *(s32 *)((*(u8 **)arg0) + 0x204);
+        r2p = (u8 *)(base + ((*(s32 *)(arg0 + 4)) << 7));
         w6 = *(s32 *)(r2p + 0x5C) - *(s32 *)(r2p + 0x54);
-        ov = *(s16 *)(base + 0x74 + (idx << 7));
+        ov = *(s16 *)(base + 0x74 + ((*(s32 *)(arg0 + 4)) << 7));
         if (ov != 0) {
             w6 = ov;
         }
@@ -467,13 +463,14 @@ void func_0046b380(u8 *arg0, s32 arg1) {
             w6 = (s32)(((u32)(w6 * scX)) >> 12);
         }
         if ((s32)w6 < 0) {
-            fw = 2.0f * (f32)(u32)(((u32)w6 >> 1) | (w6 & 1));
+            fw = (f32)(u32)(((u32)w6 >> 1) | (w6 & 1));
+            fw = fw + fw;
         } else {
-            fw = (f32)(u32)w6;
+            fw = (f32)w6;
         }
         fw = fw - (f32)*(s16 *)(arg0 + 0x1C);
         h6 = *(s32 *)(r2p + 0x60) - *(s32 *)(r2p + 0x58);
-        ov = *(s16 *)(base + 0x76 + (idx << 7));
+        ov = *(s16 *)(base + 0x76 + ((*(s32 *)(arg0 + 4)) << 7));
         if (ov != 0) {
             h6 = ov;
         }
@@ -482,9 +479,10 @@ void func_0046b380(u8 *arg0, s32 arg1) {
             h6 = (s32)(((u32)(h6 * scY)) >> 12);
         }
         if ((s32)h6 < 0) {
-            fh = 2.0f * (f32)(u32)(((u32)h6 >> 1) | (h6 & 1));
+            fh = (f32)(u32)(((u32)h6 >> 1) | (h6 & 1));
+            fh = fh + fh;
         } else {
-            fh = (f32)(u32)h6;
+            fh = (f32)h6;
         }
         fh = fh - (f32)*(s16 *)(arg0 + 0x1E);
         srcM[0][0] = fw;
@@ -541,17 +539,18 @@ void func_0046b380(u8 *arg0, s32 arg1) {
         for (j = 0; j < 4; j++) {
             spD = srcM[j];
             dpD = pts[j];
-            dpD[0] = *(f32 *)(arg0 + 8) + ((f32)*(s16 *)(arg0 + 0x1C) + spD[0]) + (f32)*(s32 *)(rec + 0x44);
-            dpD[1] = *(f32 *)(arg0 + 0xC) + ((f32)*(s16 *)(arg0 + 0x1E) + spD[1]) + (f32)*(s32 *)(rec + 0x48);
+            dpD[0] = *(f32 *)(arg0 + 8) + ((f32)*(s16 *)(arg0 + 0x1C) + spD[0]) + (f32)*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x44);
+            dpD[1] = *(f32 *)(arg0 + 0xC) + ((f32)*(s16 *)(arg0 + 0x1E) + spD[1]) + (f32)*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x48);
         }
+        k255 = 255;
         for (i = 0; i < 4; i++) {
             ppD = pkt[i];
             spP = pts[i];
             ppD[2] = D_008872F8[0] - *(f32 *)(arg0 + 0x24);
             ppD[6] = scale;
-            ppD[4] = (&uvA0)[i * 2];
-            ppD[5] = (&uvA0)[i * 2 + 1];
-            rp = rec;
+            ppD[4] = uv[i * 2];
+            ppD[5] = uv[i * 2 + 1];
+            rp = (*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7));
             if (i == 2) {
                 col = *(s32 *)(rp + 0x70);
             } else if (i == 3) {
@@ -559,60 +558,46 @@ void func_0046b380(u8 *arg0, s32 arg1) {
             } else {
                 col = *(s32 *)(rp + 0x64 + i * 4);
             }
-            rC = (col >> 24) & 0xFF;
-            gC = (col >> 16) & 0xFF;
-            bC = (col >> 8) & 0xFF;
+            rC = ((col & 0xFF000000) >> 24) & 0xFF;
+            gC = ((col & 0xFF0000) >> 16) & 0xFF;
+            bC = ((col & 0xFF00) >> 8) & 0xFF;
             aC = col & 0xFF;
-            r2 = (rC * *(u8 *)(arg0 + 0x28)) / 255;
-            g2 = (gC * *(u8 *)(arg0 + 0x29)) / 255;
-            b2 = (bC * *(u8 *)(arg0 + 0x2A)) / 255;
+            r2 = (((rC & 0xFF) * *(u8 *)(arg0 + 0x28)) / k255) & 0xFF;
+            g2 = (((gC & 0xFF) * *(u8 *)(arg0 + 0x29)) / k255) & 0xFF;
+            b2 = (((bC & 0xFF) * *(u8 *)(arg0 + 0x2A)) / k255) & 0xFF;
             if ((*(s32 *)(rp + 0x18) & 8) == 0) {
                 if ((r2 & 0xFF) < 0x81) {
-                    tmp = r2 * 255;
+                    tmp = (r2 << 8) - r2;
+                    r2 = tmp >> 7;
                     if (tmp < 0) {
                         r2 = (tmp + 127) >> 7;
-                    } else {
-                        r2 = tmp >> 7;
                     }
                     r2 &= 0xFF;
                 } else {
-                    r2 = 255;
+                    r2 = k255;
                 }
                 if ((g2 & 0xFF) < 0x81) {
-                    tmp = g2 * 255;
+                    tmp = (g2 << 8) - g2;
+                    g2 = tmp >> 7;
                     if (tmp < 0) {
                         g2 = (tmp + 127) >> 7;
-                    } else {
-                        g2 = tmp >> 7;
                     }
                     g2 &= 0xFF;
                 } else {
-                    g2 = 255;
+                    g2 = k255;
                 }
                 if ((b2 & 0xFF) < 0x81) {
-                    tmp = b2 * 255;
+                    tmp = (b2 << 8) - b2;
+                    b2 = tmp >> 7;
                     if (tmp < 0) {
                         b2 = (tmp + 127) >> 7;
-                    } else {
-                        b2 = tmp >> 7;
                     }
                     b2 &= 0xFF;
                 } else {
-                    b2 = 255;
-                }
-                if ((aC & 0xFF) < 0x81) {
-                    tmp = (aC & 0xFF) * 255;
-                    if (tmp < 0) {
-                        aC = (tmp + 127) >> 7;
-                    } else {
-                        aC = tmp >> 7;
-                    }
-                    aC &= 0xFF;
-                } else {
-                    aC = 255;
+                    b2 = k255;
                 }
             }
-            alpha = ((aC & 0xFF) * (255 - *(u8 *)(arg0 + 0x11))) / 255;
+            alpha = ((aC & 0xFF) * (k255 - *(u8 *)(arg0 + 0x11))) / k255;
             abit = *(u8 *)(arg0 + 0x10);
             if ((s32)abit < (s32)(alpha & 0xFF)) {
                 a2 = (alpha - abit) & 0xFF;
@@ -620,44 +605,48 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 a2 = 0;
             }
             if ((s32)r2 < 0) {
-                f0 = 2.0f * (f32)(u32)(((u32)r2 >> 1) | (r2 & 1));
+                f0 = (f32)(u32)(((u32)r2 >> 1) | (r2 & 1));
+                f0 = f0 + f0;
             } else {
-                f0 = (f32)(u32)r2;
+                f0 = (f32)r2;
             }
             ppD[8] = f0;
             if ((s32)g2 < 0) {
-                f0 = 2.0f * (f32)(u32)(((u32)g2 >> 1) | (g2 & 1));
+                f0 = (f32)(u32)(((u32)g2 >> 1) | (g2 & 1));
+                f0 = f0 + f0;
             } else {
-                f0 = (f32)(u32)g2;
+                f0 = (f32)g2;
             }
             ppD[9] = f0;
             if ((s32)b2 < 0) {
-                f0 = 2.0f * (f32)(u32)(((u32)b2 >> 1) | (b2 & 1));
+                f0 = (f32)(u32)(((u32)b2 >> 1) | (b2 & 1));
+                f0 = f0 + f0;
             } else {
-                f0 = (f32)(u32)b2;
+                f0 = (f32)b2;
             }
             ppD[10] = f0;
             if ((s32)a2 < 0) {
-                f0 = 2.0f * (f32)(u32)(((u32)a2 >> 1) | (a2 & 1));
+                f0 = (f32)(u32)(((u32)a2 >> 1) | (a2 & 1));
+                f0 = f0 + f0;
             } else {
-                f0 = (f32)(u32)a2;
+                f0 = (f32)a2;
             }
             ppD[11] = f0;
             ppD[0] = spP[0];
             ppD[1] = spP[1];
         }
-        if ((*(s32 *)(rec + 0x18) & 8) != 0) {
+        if ((*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x18) & 8) != 0) {
             tbl300[0](1, 0);
         } else {
-            tbl300[0](1, *(s32 *)(parent + 0x104 + slotidx));
+            tbl300[0](1, *(s32 *)((*(u8 **)arg0) + 0x104 + slotidx));
         }
-        tbl310[0](4, pkt, 4);
+        D_00887310[0](4, pkt, 4);
         for (m = 0; m < 4; m++) {
             savedPts[m][0] = pts[m][0];
             savedPts[m][1] = pts[m][1];
         }
         {
-            b6 = *(u8 **)(parent + 0x204) + (idx << 7);
+            b6 = (*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7));
             extra = *(s32 *)(b6 + 0x34);
             if (extra != 0) {
                 /* p hoisted */
@@ -666,22 +655,19 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 p80 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1C));
                 p84 = (f32)(s32)(-(s16)(*(s16 *)(arg0 + 0x1E) + extra));
                 wA = *(s32 *)(b6 + 0x5C) - *(s32 *)(b6 + 0x54);
-                ov = *(s16 *)(b6 + 0x74 - 0x00 + 0x00);
-                {
-                    bb = (u8 *)(*(s32 *)(parent + 0x204) + (idx << 7));
-                    ov = *(s16 *)(bb + 0x74);
-                    if (ov != 0) {
-                        wA = ov;
-                    }
+                ov = *(s16 *)(b6 + 0x74);
+                if (ov != 0) {
+                    wA = ov;
                 }
                 scX = *(u16 *)(arg0 + 0x20);
                 if (scX != 0) {
                     wA = (s32)(((u32)(wA * scX)) >> 12);
                 }
                 if (wA < 0) {
-                    f1 = 2.0f * (f32)(u32)(((u32)wA >> 1) | (wA & 1));
+                    f1 = (f32)(u32)(((u32)wA >> 1) | (wA & 1));
+                    f1 = f1 + f1;
                 } else {
-                    f1 = (f32)(u32)wA;
+                    f1 = (f32)wA;
                 }
                 t7 = *(s16 *)(arg0 + 0x1C);
                 p88 = f1 - (f32)t7;
@@ -689,20 +675,18 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 p90 = (f32)(s32)(-t7);
                 p94 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1E));
                 wB = *(s32 *)(b6 + 0x5C) - *(s32 *)(b6 + 0x54);
-                {
-                    bb2 = (u8 *)(*(s32 *)(parent + 0x204) + (idx << 7));
-                    ov2 = *(s16 *)(bb2 + 0x74);
-                    if (ov2 != 0) {
-                        wB = ov2;
-                    }
+                ov = *(s16 *)(b6 + 0x74);
+                if (ov != 0) {
+                    wB = ov;
                 }
                 if (*(u16 *)(arg0 + 0x20) != 0) {
                     wB = (s32)(((u32)(wB * *(u16 *)(arg0 + 0x20))) >> 12);
                 }
                 if (wB < 0) {
-                    f1 = 2.0f * (f32)(u32)(((u32)wB >> 1) | (wB & 1));
+                    f1 = (f32)(u32)(((u32)wB >> 1) | (wB & 1));
+                    f1 = f1 + f1;
                 } else {
-                    f1 = (f32)(u32)wB;
+                    f1 = (f32)wB;
                 }
                 p98 = f1 - (f32)*(s16 *)(arg0 + 0x1C);
                 p9C = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1E));
@@ -717,20 +701,20 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 pkt[1][0] = pts[1][0]; pkt[1][1] = pts[1][1];
                 pkt[2][0] = pts[2][0]; pkt[2][1] = pts[2][1];
                 pkt[3][0] = pts[3][0]; pkt[3][1] = pts[3][1];
-                pkt[0][4] = uvA0; pkt[0][5] = uvA4;
-                pkt[1][4] = uvA8; pkt[1][5] = uvAC;
-                pkt[2][4] = uvB0; pkt[2][5] = uvB4;
-                pkt[3][4] = uvB8; pkt[3][5] = uvBC;
-                if ((*(s32 *)(rec + 0x18) & 8) != 0) {
+                pkt[0][4] = uv[0]; pkt[0][5] = uv[1];
+                pkt[1][4] = uv[2]; pkt[1][5] = uv[3];
+                pkt[2][4] = uv[4]; pkt[2][5] = uv[5];
+                pkt[3][4] = uv[6]; pkt[3][5] = uv[7];
+                if ((*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x18) & 8) != 0) {
                     tbl300[0](1, 0);
                 } else {
-                    tbl300[0](1, *(s32 *)(parent + 0x104 + slotidx));
+                    tbl300[0](1, *(s32 *)((*(u8 **)arg0) + 0x104 + slotidx));
                 }
-                tbl310[0](4, pkt, 4);
+                D_00887310[0](4, pkt, 4);
             }
         }
         {
-            b6 = *(u8 **)(parent + 0x204) + (idx << 7);
+            b6 = (*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7));
             if (*(s32 *)(b6 + 0x38) != 0) {
                 /* p hoisted */
                 /* w hoisted */
@@ -744,9 +728,10 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                     wA = (s32)(((u32)(wA * *(u16 *)(arg0 + 0x22))) >> 12);
                 }
                 if (wA < 0) {
-                    f1 = 2.0f * (f32)(u32)(((u32)wA >> 1) | (wA & 1));
+                    f1 = (f32)(u32)(((u32)wA >> 1) | (wA & 1));
+                    f1 = f1 + f1;
                 } else {
-                    f1 = (f32)(u32)wA;
+                    f1 = (f32)wA;
                 }
                 p84 = f1 - (f32)*(s16 *)(arg0 + 0x1E);
                 wB = *(s32 *)(b6 + 0x5C) - *(s32 *)(b6 + 0x54);
@@ -758,9 +743,10 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                     wB = (s32)(((u32)(wB * *(u16 *)(arg0 + 0x20))) >> 12);
                 }
                 if (wB < 0) {
-                    f1 = 2.0f * (f32)(u32)(((u32)wB >> 1) | (wB & 1));
+                    f1 = (f32)(u32)(((u32)wB >> 1) | (wB & 1));
+                    f1 = f1 + f1;
                 } else {
-                    f1 = (f32)(u32)wB;
+                    f1 = (f32)wB;
                 }
                 p88 = f1 - (f32)*(s16 *)(arg0 + 0x1C);
                 wC = *(s32 *)(b6 + 0x60) - *(s32 *)(b6 + 0x58);
@@ -772,9 +758,10 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                     wC = (s32)(((u32)(wC * *(u16 *)(arg0 + 0x22))) >> 12);
                 }
                 if (wC < 0) {
-                    f1 = 2.0f * (f32)(u32)(((u32)wC >> 1) | (wC & 1));
+                    f1 = (f32)(u32)(((u32)wC >> 1) | (wC & 1));
+                    f1 = f1 + f1;
                 } else {
-                    f1 = (f32)(u32)wC;
+                    f1 = (f32)wC;
                 }
                 p8C = f1 - (f32)*(s16 *)(arg0 + 0x1E);
                 p90 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1C));
@@ -788,9 +775,10 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                     wD = (s32)(((u32)(wD * *(u16 *)(arg0 + 0x22))) >> 12);
                 }
                 if (wD < 0) {
-                    f1 = 2.0f * (f32)(u32)(((u32)wD >> 1) | (wD & 1));
+                    f1 = (f32)(u32)(((u32)wD >> 1) | (wD & 1));
+                    f1 = f1 + f1;
                 } else {
-                    f1 = (f32)(u32)wD;
+                    f1 = (f32)wD;
                 }
                 p98 = f1 - (f32)*(s16 *)(arg0 + 0x1C);
                 p9C = (f32)*(s32 *)(b6 + 0x38) + (f1 - (f32)*(s16 *)(arg0 + 0x1E));
@@ -805,20 +793,20 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 pkt[1][0] = pts[1][0]; pkt[1][1] = pts[1][1];
                 pkt[2][0] = pts[2][0]; pkt[2][1] = pts[2][1];
                 pkt[3][0] = pts[3][0]; pkt[3][1] = pts[3][1];
-                pkt[0][4] = uvA0; pkt[0][5] = uvA4;
-                pkt[1][4] = uvA8; pkt[1][5] = uvAC;
-                pkt[2][4] = uvB0; pkt[2][5] = uvB4;
-                pkt[3][4] = uvB8; pkt[3][5] = uvBC;
-                if ((*(s32 *)(rec + 0x18) & 8) != 0) {
+                pkt[0][4] = uv[0]; pkt[0][5] = uv[1];
+                pkt[1][4] = uv[2]; pkt[1][5] = uv[3];
+                pkt[2][4] = uv[4]; pkt[2][5] = uv[5];
+                pkt[3][4] = uv[6]; pkt[3][5] = uv[7];
+                if ((*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x18) & 8) != 0) {
                     tbl300[0](1, 0);
                 } else {
-                    tbl300[0](1, *(s32 *)(parent + 0x104 + slotidx));
+                    tbl300[0](1, *(s32 *)((*(u8 **)arg0) + 0x104 + slotidx));
                 }
-                tbl310[0](4, pkt, 4);
+                D_00887310[0](4, pkt, 4);
             }
         }
         {
-            b6 = *(u8 **)(parent + 0x204) + (idx << 7);
+            b6 = (*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7));
             extra = *(s32 *)(b6 + 0x3C);
             if (extra != 0) {
                 /* p hoisted */
@@ -837,9 +825,10 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                     wA = (s32)(((u32)(wA * *(u16 *)(arg0 + 0x22))) >> 12);
                 }
                 if (wA < 0) {
-                    f1 = 2.0f * (f32)(u32)(((u32)wA >> 1) | (wA & 1));
+                    f1 = (f32)(u32)(((u32)wA >> 1) | (wA & 1));
+                    f1 = f1 + f1;
                 } else {
-                    f1 = (f32)(u32)wA;
+                    f1 = (f32)wA;
                 }
                 p94 = f1 - (f32)*(s16 *)(arg0 + 0x1E);
                 p98 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1C));
@@ -852,9 +841,10 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                     wB = (s32)(((u32)(wB * *(u16 *)(arg0 + 0x22))) >> 12);
                 }
                 if (wB < 0) {
-                    f1 = 2.0f * (f32)(u32)(((u32)wB >> 1) | (wB & 1));
+                    f1 = (f32)(u32)(((u32)wB >> 1) | (wB & 1));
+                    f1 = f1 + f1;
                 } else {
-                    f1 = (f32)(u32)wB;
+                    f1 = (f32)wB;
                 }
                 p9C = (f32)*(s32 *)(b6 + 0x3C) + (f1 - (f32)*(s16 *)(arg0 + 0x1E));
                 wC = *(s32 *)(b6 + 0x5C) - *(s32 *)(b6 + 0x54);
@@ -866,9 +856,10 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                     wC = (s32)(((u32)(wC * *(u16 *)(arg0 + 0x20))) >> 12);
                 }
                 if (wC < 0) {
-                    f1 = 2.0f * (f32)(u32)(((u32)wC >> 1) | (wC & 1));
+                    f1 = (f32)(u32)(((u32)wC >> 1) | (wC & 1));
+                    f1 = f1 + f1;
                 } else {
-                    f1 = (f32)(u32)wC;
+                    f1 = (f32)wC;
                 }
                 {
                     pA0 = f1 - (f32)*(s16 *)(arg0 + 0x1C);
@@ -881,22 +872,22 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                     pkt[1][0] = pts[1][0]; pkt[1][1] = pts[1][1];
                     pkt[2][0] = pts[2][0]; pkt[2][1] = pts[2][1];
                     pkt[3][0] = pts[3][0]; pkt[3][1] = pts[3][1];
-                    pkt[0][4] = uvA0; pkt[0][5] = uvA4;
-                    pkt[1][4] = uvA8; pkt[1][5] = uvAC;
-                    pkt[2][4] = uvB0; pkt[2][5] = uvB4;
-                    pkt[3][4] = uvB8; pkt[3][5] = uvBC;
+                    pkt[0][4] = uv[0]; pkt[0][5] = uv[1];
+                    pkt[1][4] = uv[2]; pkt[1][5] = uv[3];
+                    pkt[2][4] = uv[4]; pkt[2][5] = uv[5];
+                    pkt[3][4] = uv[6]; pkt[3][5] = uv[7];
                     (void)pA0;
-                    if ((*(s32 *)(rec + 0x18) & 8) != 0) {
+                    if ((*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x18) & 8) != 0) {
                         tbl300[0](1, 0);
                     } else {
-                        tbl300[0](1, *(s32 *)(parent + 0x104 + slotidx));
+                        tbl300[0](1, *(s32 *)((*(u8 **)arg0) + 0x104 + slotidx));
                     }
-                    tbl310[0](4, pkt, 4);
+                    D_00887310[0](4, pkt, 4);
                 }
             }
         }
         {
-            b6 = *(u8 **)(parent + 0x204) + (idx << 7);
+            b6 = (*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7));
             if (*(s32 *)(b6 + 0x40) != 0) {
                 /* p hoisted */
                 /* w hoisted */
@@ -909,9 +900,10 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                     wA = (s32)(((u32)(wA * *(u16 *)(arg0 + 0x20))) >> 12);
                 }
                 if (wA < 0) {
-                    f1 = 2.0f * (f32)(u32)(((u32)wA >> 1) | (wA & 1));
+                    f1 = (f32)(u32)(((u32)wA >> 1) | (wA & 1));
+                    f1 = f1 + f1;
                 } else {
-                    f1 = (f32)(u32)wA;
+                    f1 = (f32)wA;
                 }
                 p80 = f1 - (f32)*(s16 *)(arg0 + 0x1C);
                 p84 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1E));
@@ -924,9 +916,10 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                     wB = (s32)(((u32)(wB * *(u16 *)(arg0 + 0x20))) >> 12);
                 }
                 if (wB < 0) {
-                    f1 = 2.0f * (f32)(u32)(((u32)wB >> 1) | (wB & 1));
+                    f1 = (f32)(u32)(((u32)wB >> 1) | (wB & 1));
+                    f1 = f1 + f1;
                 } else {
-                    f1 = (f32)(u32)wB;
+                    f1 = (f32)wB;
                 }
                 p88 = (f32)*(s32 *)(b6 + 0x40) + (f1 - (f32)*(s16 *)(arg0 + 0x1C));
                 p8C = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1E));
@@ -939,9 +932,10 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                     wC = (s32)(((u32)(wC * *(u16 *)(arg0 + 0x22))) >> 12);
                 }
                 if (wC < 0) {
-                    f1 = 2.0f * (f32)(u32)(((u32)wC >> 1) | (wC & 1));
+                    f1 = (f32)(u32)(((u32)wC >> 1) | (wC & 1));
+                    f1 = f1 + f1;
                 } else {
-                    f1 = (f32)(u32)wC;
+                    f1 = (f32)wC;
                 }
                 p90 = f1 - (f32)*(s16 *)(arg0 + 0x1E);
                 p94 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1C));
@@ -954,9 +948,10 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                     wD = (s32)(((u32)(wD * *(u16 *)(arg0 + 0x22))) >> 12);
                 }
                 if (wD < 0) {
-                    f1 = 2.0f * (f32)(u32)(((u32)wD >> 1) | (wD & 1));
+                    f1 = (f32)(u32)(((u32)wD >> 1) | (wD & 1));
+                    f1 = f1 + f1;
                 } else {
-                    f1 = (f32)(u32)wD;
+                    f1 = (f32)wD;
                 }
                 p98 = f1 - (f32)*(s16 *)(arg0 + 0x1E);
                 p9C = p94;
@@ -971,16 +966,16 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 pkt[1][0] = pts[1][0]; pkt[1][1] = pts[1][1];
                 pkt[2][0] = pts[2][0]; pkt[2][1] = pts[2][1];
                 pkt[3][0] = pts[3][0]; pkt[3][1] = pts[3][1];
-                pkt[0][4] = uvA0; pkt[0][5] = uvA4;
-                pkt[1][4] = uvA8; pkt[1][5] = uvAC;
-                pkt[2][4] = uvB0; pkt[2][5] = uvB4;
-                pkt[3][4] = uvB8; pkt[3][5] = uvBC;
-                if ((*(s32 *)(rec + 0x18) & 8) != 0) {
+                pkt[0][4] = uv[0]; pkt[0][5] = uv[1];
+                pkt[1][4] = uv[2]; pkt[1][5] = uv[3];
+                pkt[2][4] = uv[4]; pkt[2][5] = uv[5];
+                pkt[3][4] = uv[6]; pkt[3][5] = uv[7];
+                if ((*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x18) & 8) != 0) {
                     tbl300[0](1, 0);
                 } else {
-                    tbl300[0](1, *(s32 *)(parent + 0x104 + slotidx));
+                    tbl300[0](1, *(s32 *)((*(u8 **)arg0) + 0x104 + slotidx));
                 }
-                tbl310[0](4, pkt, 4);
+                D_00887310[0](4, pkt, 4);
             }
         }
         for (m = 0; m < 4; m++) {
@@ -993,16 +988,16 @@ void func_0046b380(u8 *arg0, s32 arg1) {
             pkt[2][0] = pts[2][0]; pkt[2][1] = pts[2][1];
             pkt[2][1] = pts[2][1] + (f32)*(s16 *)(arg0 + 0x16);
             pkt[3][0] = pts[3][0]; pkt[3][1] = pts[3][1] + (f32)*(s16 *)(arg0 + 0x16);
-            pkt[0][4] = uvB0; pkt[0][5] = uvB4;
-            pkt[1][4] = uvB8; pkt[1][5] = uvBC;
-            pkt[2][4] = uvB0; pkt[2][5] = uvB4;
-            pkt[3][4] = uvB8; pkt[3][5] = uvBC;
-            if ((*(s32 *)(rec + 0x18) & 8) != 0) {
+            pkt[0][4] = uv[4]; pkt[0][5] = uv[5];
+            pkt[1][4] = uv[6]; pkt[1][5] = uv[7];
+            pkt[2][4] = uv[4]; pkt[2][5] = uv[5];
+            pkt[3][4] = uv[6]; pkt[3][5] = uv[7];
+            if ((*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x18) & 8) != 0) {
                 tbl300[0](1, 0);
             } else {
-                tbl300[0](1, *(s32 *)(parent + 0x104 + slotidx));
+                tbl300[0](1, *(s32 *)((*(u8 **)arg0) + 0x104 + slotidx));
             }
-            tbl310[0](4, pkt, 4);
+            D_00887310[0](4, pkt, 4);
             return;
         }
         if (*(s16 *)(arg0 + 0x14) != 0) {
@@ -1010,16 +1005,16 @@ void func_0046b380(u8 *arg0, s32 arg1) {
             pkt[1][0] = pts[1][0] + (f32)*(s16 *)(arg0 + 0x14); pkt[1][1] = pts[1][1];
             pkt[2][0] = pts[3][0]; pkt[2][1] = pts[3][1];
             pkt[3][0] = pts[3][0] + (f32)*(s16 *)(arg0 + 0x14); pkt[3][1] = pts[3][1];
-            pkt[0][4] = uvA8; pkt[0][5] = uvAC;
-            pkt[1][4] = uvA8; pkt[1][5] = uvAC;
-            pkt[2][4] = uvB8; pkt[2][5] = uvBC;
-            pkt[3][4] = uvB8; pkt[3][5] = uvBC;
-            if ((*(s32 *)(rec + 0x18) & 8) != 0) {
+            pkt[0][4] = uv[2]; pkt[0][5] = uv[3];
+            pkt[1][4] = uv[2]; pkt[1][5] = uv[3];
+            pkt[2][4] = uv[6]; pkt[2][5] = uv[7];
+            pkt[3][4] = uv[6]; pkt[3][5] = uv[7];
+            if ((*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x18) & 8) != 0) {
                 tbl300[0](1, 0);
             } else {
-                tbl300[0](1, *(s32 *)(parent + 0x104 + slotidx));
+                tbl300[0](1, *(s32 *)((*(u8 **)arg0) + 0x104 + slotidx));
             }
-            tbl310[0](4, pkt, 4);
+            D_00887310[0](4, pkt, 4);
         }
     }
 }
