@@ -542,6 +542,40 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7ar. Where the early `return` goes decides the whole layout
+
+`func_003c1bd0` sat at 20 differing words for two sessions with its residual
+filed as "branch/call layout".  It is now a **MATCH at 40/40 with zero edits**,
+and the fix was where a single `return 0` is written.
+
+Retail's `bne $v1, $v0, .+9` jumps to a `b` / `move $v0, $zero` pair at
+instructions 16-18 - *after* the inner test, not before it and not at the end
+of the function.  A trailing `return 0` puts that pair last; an early
+`if (state != 1) return 0;` puts it first.  Neither is where retail has it.
+The shape that places it correctly is an `else` on the **outer** test with the
+inner test nested above it:
+
+    if (state == 1) {
+        if ((flags & 0x01000000) != 0) {
+            return 1;
+        }
+    } else {
+        return 0;
+    }
+    ...work...
+    return 1;
+
+Measured on the way there: trailing `return 0` 20 words, early return 10, the
+early return written as `goto zero` with the label at the end 20, and
+single-return result-variable forms 29.
+
+Two general points.  A residual described as "branch layout" is usually an
+**arm placement** fact, and arm placement is a source decision - compare where
+retail's conditional branch *targets* against where your body puts the block.
+And an early return is not free: `if (x) return a;` and `if (!x) { ... } else
+return a;` compile to different layouts, so try both before concluding the
+difference is scheduling.
+
 ### 7aq. Rank by edits per instruction to find relocated blocks
 
 A floor whose **fnalign edit count exceeds its instruction count** has the
