@@ -1,36 +1,70 @@
-/* Closest candidate archive; reverted because lverify normalized_diff was 817 (object 1140B, window 1104B). */
+/* Re-derived floor 2026-09-19 from m2c (build/m2c/func_001ba0e0.c) + romwright
+ * export-c/--types (u8x8 + u32x2 arg0, fGpffff81f4 scale, plain (f32)u32 casts).
+ * Replaces BYTE_FLOAT/goto expansion (folded (u32)<0, doubled conversions).
+ * fnalign retail 273/object 271 instrs, 31 edits +5 reloc-only, no pure
+ * hole/lump >=25 (archived 268/273 with 146 hole vs 119 lump).
+ * probe_variants 174 differing words (archived 215).
+ * Requires #pragma opt_common_subs off + #pragma opt_propagation off in owner
+ * (head match and 39->31); frame 0x20 matches. Open: start-mul $f5 vs $f4 and
+ * 255/0.5 vs zero prime scheduling (FPU-color/scheduler floor, `??`-hidden).
+ * Production stays ASM. */
 s32 func_001ba0e0(u8 *arg0)
 {
-    u32 temp_2_2, temp_4, temp_2;
-    s32 temp_3;
-    f32 temp_f0, temp_f1, temp_f2, temp_f3, temp_f5;
-    s32 out0, out1, out2, out3;
-    u8 *temp_16;
+    extern f32 fGpffff81f4;
+    extern u8 *func_00457130(void);
+    extern void func_00457140(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    u32 total;
+    u32 cur;
+    f32 t;
+    f32 inv;
+    f32 s;
+    f32 e;
+    f32 m;
+    s32 o0;
+    s32 o1;
+    s32 o2;
+    s32 o3;
+    u8 b0;
+    u8 b1;
+    u8 b2;
+    u8 b3;
     if (*(u32 *)(arg0 + 0xC) == 0) {
-        temp_16 = func_00457130();
-        temp_2 = temp_16[0]; temp_3 = temp_16[1]; out0 = temp_16[2]; out1 = temp_16[3];
-        arg0[4] = temp_2; arg0[5] = temp_3; arg0[6] = out0; arg0[7] = out1;
+        u8 *p = func_00457130();
+        b0 = p[0];
+        b1 = p[1];
+        b2 = p[2];
+        b3 = p[3];
+        arg0[4] = b0;
+        arg0[5] = b1;
+        arg0[6] = b2;
+        arg0[7] = b3;
     }
-    temp_4 = *(u32 *)(arg0 + 8); temp_2_2 = *(u32 *)(arg0 + 0xC);
-    if (temp_2_2 < temp_4) {
-        if ((s32)temp_2_2 < 0) goto time_cur_neg;
-        temp_f1 = (f32)(s32)temp_2_2; goto time_cur_done;
- time_cur_neg: temp_f1 = (f32)((temp_2_2 >> 1) | (temp_2_2 & 1)); temp_f1 += temp_f1;
- time_cur_done:
-        if ((s32)temp_4 < 0) goto time_end_neg;
-        temp_f0 = (f32)(s32)temp_4; goto time_end_done;
- time_end_neg: temp_f0 = (f32)((temp_4 >> 1) | (temp_4 & 1)); temp_f0 += temp_f0;
- time_end_done: temp_f1 /= temp_f0; temp_f0 = 1.0f - temp_f1;
-#define BYTE_FLOAT(n, neg, done) temp_2 = arg0[n]; if (temp_2 < 0) goto neg; temp_f3 = (f32)temp_2; goto done; neg: temp_f3 = (f32)((temp_2 >> 1) | (temp_2 & 1)); temp_f3 += temp_f3; done:
-        BYTE_FLOAT(4,c0_start_neg,c0_start_done) temp_f5 = iGpffff81f4 * temp_f3;
-        BYTE_FLOAT(0,c0_end_neg,c0_end_done) temp_f2 = iGpffff81f4 * temp_f3; temp_f5 = temp_f5 * temp_f0 + temp_f2 * temp_f1; out0 = (s32)(temp_f5 * 255.0f + 0.5f);
-        BYTE_FLOAT(5,c1_start_neg,c1_start_done) temp_f5 = iGpffff81f4 * temp_f3;
-        BYTE_FLOAT(1,c1_end_neg,c1_end_done) temp_f2 = iGpffff81f4 * temp_f3; temp_f5 = temp_f5 * temp_f0 + temp_f2 * temp_f1; out1 = (s32)(temp_f5 * 255.0f + 0.5f);
-        BYTE_FLOAT(6,c2_start_neg,c2_start_done) temp_f5 = iGpffff81f4 * temp_f3;
-        BYTE_FLOAT(2,c2_end_neg,c2_end_done) temp_f2 = iGpffff81f4 * temp_f3; temp_f5 = temp_f5 * temp_f0 + temp_f2 * temp_f1; out2 = (s32)(temp_f5 * 255.0f + 0.5f);
-        BYTE_FLOAT(7,c3_start_neg,c3_start_done) temp_f5 = iGpffff81f4 * temp_f3;
-        BYTE_FLOAT(3,c3_end_neg,c3_end_done) temp_f2 = iGpffff81f4 * temp_f3; temp_f5 = temp_f5 * temp_f0 + temp_f2 * temp_f1; out3 = (s32)(temp_f5 * 255.0f + 0.5f);
-        func_00457140(out0 & 0xFF, out1 & 0xFF, out2 & 0xFF, out3 & 0xFF); *(u32 *)(arg0 + 0xC) += 1; return 0;
+    total = *(u32 *)(arg0 + 8);
+    cur = *(u32 *)(arg0 + 0xC);
+    if (cur < total) {
+        t = (f32)cur / (f32)total;
+        inv = 1.0f - t;
+        s = fGpffff81f4 * (f32)arg0[4];
+        e = fGpffff81f4 * (f32)arg0[0];
+        m = s * inv + e * t;
+        o0 = ((s32)(m * 255.0f + 0.5f)) & 0xFF;
+        s = fGpffff81f4 * (f32)arg0[5];
+        e = fGpffff81f4 * (f32)arg0[1];
+        m = s * inv + e * t;
+        o1 = ((s32)(m * 255.0f + 0.5f)) & 0xFF;
+        s = fGpffff81f4 * (f32)arg0[6];
+        e = fGpffff81f4 * (f32)arg0[2];
+        m = s * inv + e * t;
+        o2 = ((s32)(m * 255.0f + 0.5f)) & 0xFF;
+        s = fGpffff81f4 * (f32)arg0[7];
+        e = fGpffff81f4 * (f32)arg0[3];
+        m = s * inv + e * t;
+        o3 = ((s32)(m * 255.0f + 0.5f)) & 0xFF;
+        func_00457140(o0, o1, o2, o3);
+    } else {
+        func_00457140(arg0[0], arg0[1], arg0[2], arg0[3]);
+        return 1;
     }
-    func_00457140(arg0[0], arg0[1], arg0[2], arg0[3]); return 1;
+    *(u32 *)(arg0 + 0xC) += 1;
+    return 0;
 }

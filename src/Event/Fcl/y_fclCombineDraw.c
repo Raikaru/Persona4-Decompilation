@@ -3162,8 +3162,10 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003233d0);
    arg), 191c0/ac10 4th/5th params are u16/u8 (s32 params add andi conversions).
    Mask-CSE + saved-reg rotation floor. */
 /* measured (FclDrawB 2026-09-17): probe_variants 398 differing words reloc-masked via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_00323d00 --candidate V1=/var/tmp/drawB/c23d00_v1.c`; fnalign retail 449 vs object 446 instrs (556 edits) via `python3 tools/fnalign.py src/Event/Fcl/y_fclCombineDraw.c func_00323d00 --candidate /var/tmp/drawB/c23d00_v1.c --quiet`; 3 short (0.7% within 3% rule). Signature (u8*,s32,s32) per callers (arg0,0/2,0/1) + wall arg2 s32; block-scope loop counters per Main lever; u8[4] colours; D_ arrays by word index. Prior best 415; this 398 is new best. Wall remains mask-CSE + rotation per preserved note. */
+/* measured 2026-09-19 (hole-close lane): probe_variants 363 differing words reloc-masked (S16+LOOPINV: s16 loop counters for all three k loops + opt_loop_invariants on; S16 bare 407, CUR 398); fnalign retail 452 vs object 456 instrs (+4, +0.9% PASS, 199 edits via --candidate s16_loopinv.c --quiet); gate_audit --composition hole 3 lump 12 PASS (was hole 207 lump 104 FAIL on CUR 446/449). Rounds: S16 407 closes composition (hole 207->2, lump 104->12, edits 556->229); LOOPINV 363 (-44, count 462->456) real per 7u (count -1.3% steady); pairs LOOP+DEAD 367/LOOP+PROP 403/LOOP+SCHED 394/LOOP+COMMON 413 worse; SCHED alone 397 but 405/449 short FAIL gate + hole 90; COMMON 412/STRENGTH tie/UNROLL tie/PEEP 430/O1 412/O3 394 worse; decl p/t + subscript + colour-reverse ties at 363. Banked S16+LOOPINV as guarded floor (within 3%, composition PASS). */
 // FUN_00323D00 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_loop_invariants on
 void func_00323d00(u8 *arg0, s32 arg1, s32 arg2) {
     u8 cFC[4];
     u8 cF8[4];
@@ -3190,7 +3192,7 @@ void func_00323d00(u8 *arg0, s32 arg1, s32 arg2) {
     func_002b2970(&spD8, 313.0f, 104.0f);
     func_0031e5b0(arg0, spD8, 0, arg2, 1, 0, 0);
     {
-        s32 k = 0;
+        s16 k = 0;
         while (k < *(s32 *)(func_002e4870(1) + 8)) {
             u16 w = *(u16 *)(func_002e48a0(1, (s16)k) + 2);
             u8 b = *(u8 *)(func_002e48a0(1, (s16)k) + 4);
@@ -3200,7 +3202,7 @@ void func_00323d00(u8 *arg0, s32 arg1, s32 arg2) {
         }
     }
     {
-        s32 k = 0;
+        s16 k = 0;
         while (k < *(s32 *)(func_002e4870(0) + 8)) {
             u16 w = *(u16 *)(func_002e48a0(0, (s16)k) + 2);
             func_002b2970(&spC8, 16.0f, 128.0f);
@@ -3230,7 +3232,7 @@ void func_00323d00(u8 *arg0, s32 arg1, s32 arg2) {
         p[0x88] = cF8[3];
         func_002b6a70(0x70, v1 & 0xFF, v0 & 0xFF, 0, 0, 0);
         {
-            s32 k = 0;
+            s16 k = 0;
             while (k < 2) {
                 s16 a = (s16)(k + 0x2BB);
                 func_002b2970(&spB0, D_00644290[0] + (f32)(k * 0x139), D_00644290[1]);
@@ -3280,6 +3282,7 @@ void func_00323d00(u8 *arg0, s32 arg1, s32 arg2) {
         func_002b6a70(0xBC, v1 & 0xFF, v0 & 0xFF, 0, 0, 0);
     }
 }
+#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00323d00);
 #endif

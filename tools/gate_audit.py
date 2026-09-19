@@ -85,6 +85,12 @@ def main() -> None:
         for path in sorted((REPO / "src").rglob("*.c")):
             if path.parent.name == "generated" or path.name.startswith("."):
                 continue
+            # Third-party code is out of scope: the floors under src/middleware
+            # and friends are ee-gcc output that b210 provably cannot reproduce,
+            # so their drift is evidence of authorship, not of a defect.
+            rel = path.relative_to(REPO / "src").as_posix()
+            if rel.startswith(verify.THIRD_PARTY_PREFIXES):
+                continue
             if only and path.resolve() not in only:
                 continue
             text = path.read_text(errors="replace")
