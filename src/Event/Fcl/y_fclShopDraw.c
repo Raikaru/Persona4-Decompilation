@@ -234,10 +234,10 @@ u16 func_001068b0(s16);
 u16 func_001068e0(s16);
 u16 func_00106940(s16);
 u16 func_00106970(s16);
-s16 func_002b3170(s32);
+s32 func_002b3170(s32);
 void func_002b2a60(void *, s32, s32, s32, s32);
 void func_002cacd0(u64, f32, RGBA, s32, s16, u32, s32, s32, s32, s32, s32);
-s64 func_0046a770(void *);
+void *func_0046a770(void *);
 s16 func_002e2830(void *, s32);
 s32 func_00106600(s16 id);
 u16 func_001069d0(s64);
@@ -984,6 +984,8 @@ s32 func_002d4f30(s16 arg0) {
    retail materialises 35 constants this body does not, so the two halves are
    probably one phenomenon: retail keeps wide constants where this body
    narrows and re-extends.  That is the thread for the next pass. */
+/* thread resolved 2026-09-19: retail `mtc1` spans are two families -- float-bit `lui+mtc1` for 37.0/35.0/31.0/79.0/34.0/296.0/51.0/87.0/22.0/149.0/360.0/245.0/23.0 (each `lwc1`-then-`lui/mtc1/add.s`, interleaved with dual `04e0` calls per `2970`) plus int-path `mtc1+cvt.s.w` for 263 (`addiu 0x107`) and `(nA-1)*8` (`sll 3`); body round-trips three values narrow: (1) `0046a770` handle via wrong file-scope `s64` (def returns `u8*`, sibs use `voidptr/s32`) -- `(s32)` narrows `s64->s32` as `dsll32 0/dsra32 0` (16 pairs, `daddu` in retail); (2) `002b3170` via wrong file-scope `s16` (def/promoted/sib return `s32`) -- `nA=(s16)` extends before `-1` (8 pairs, retail extends after only); (3) `c16` s32 store vs retail `daddu` for `06cd0->068x` chains. `and+17/andi-13` is mask `0xFFFF` hoisted to `$s3` (`ori+and`) under `propOff` via `cB/tmp` reuse across 8 arms vs retail per-use `andi`. */
+/* banked 2026-09-19 at 907 words (-17): file-scope `0046a770 s64->void*` + `002b3170 s16->s32` (match defs/sibs, verify 26 MATCH no regress) + split 6 two-load `2970`s to dual `04e0` calls (`*(p+0x2C/0x30)` -> `*((u8*)04e0+0x2C/0x30)` each, 20->26 occ, fixes `jal/lw -4`, counts 1105/1074 PASS) + `cB8/cB0` struct->field assigns (`ld/sd` -> `lwc1/swc1`, edits 691->436). `measure_guarded` 907, `fnalign --candidate` 1105/1074 +44 reloc-only, `opclass` `dsll/dsra 13` (was 37: -16 handle, -8 nA), `mtc1/lui` + `and/andi` + `mov.s` walls stand (floats hoisted to `$f21-$f27`, mask to `$s3`). Rejected: wide-`u16` (drop `(s16)` on `68b0/e0/6940/6970`, 930/936 worse -- narrow matches retail `andi` sites); `c16`-inline (925, -43 FAIL); `commonSubs off` (908 tie, 1141 FAIL, 1530 edits). */
 // FUN_002D5040 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
@@ -1034,20 +1036,17 @@ void func_002d5040(void *arg0) {
     cA = (s16)func_002e2740(*(s16 *)(work + 2));
     cB = (s16)func_00106880((s16)cA);
     tmp = func_002d4f30((s16)cB) & 0xFFFF;
-    pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
-    func_002b2970(&sp108, 37.0f + *(f32 *)(pCE4 + 0x2C), 35.0f + *(f32 *)(pCE4 + 0x30));
+    func_002b2970(&sp108, 37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x30));
     pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
     func_002e0b20(tmp, sp108, 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
     t0 = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
-    pCE4 = func_002e04e0(*(void **)(work + 0xCE4));
-    func_002b2970(&sp100, 79.0f + *(f32 *)(pCE4 + 0x2C), 34.0f + *(f32 *)(pCE4 + 0x30));
-    cB8 = sp100;
+    func_002b2970(&sp100, 79.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C), 34.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x30));
+    cB8.x = sp100.x; cB8.y = sp100.y;
     cA = (s16)func_002e2740(*(s16 *)(work + 2));
     func_00275680(cB8.x, cB8.y, 31.0f, t0, 0, 1, (const char *)func_001067f0(cA), 0, 0, D_00795E30, -1);
     t1 = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
-    pEDC = func_002e04e0(*(void **)(work + 0xEDC));
-    func_002b2970(&spF8, 79.0f + *(f32 *)(pEDC + 0x2C), 34.0f + *(f32 *)(pEDC + 0x30));
-    cB0 = spF8;
+    func_002b2970(&spF8, 79.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 34.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30));
+    cB0.x = spF8.x; cB0.y = spF8.y;
     c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), *(s8 *)(work + 7));
     func_00275680(cB0.x, cB0.y, 31.0f, t1, 0, 1, (const char *)func_001067f0(c16), 0, 0, D_00795E30, -1);
     if (*(s8 *)(work + 7) == 0) {
@@ -1069,8 +1068,7 @@ void func_002d5040(void *arg0) {
         func_002b2a60(&sp128, 0x2D, 0x2D, 0x2D, 0xFF);
         h0 = (s32)func_0046a770(D_0063FB50);
         func_002cacd0(spA0, 22.0f, sp128, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
-        pEDC = func_002e04e0(*(void **)(work + 0xEDC));
-        func_002b2970(&spF0, 37.0f + *(f32 *)(pEDC + 0x2C), 35.0f + *(f32 *)(pEDC + 0x30));
+        func_002b2970(&spF0, 37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30));
         pEDC = func_002e04e0(*(void **)(work + 0xEDC));
         func_002e0b20(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF7C), spF0, 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         pEDC = func_002e04e0(*(void **)(work + 0xEDC));
@@ -1120,8 +1118,7 @@ void func_002d5040(void *arg0) {
         func_002b2a60(&sp118, 0x2D, 0x2D, 0x2D, 0xFF);
         h0 = (s32)func_0046a770(D_0063FB50);
         func_002cacd0(sp80, 22.0f, sp118, 0xF, 0, (u32)tmp, 0x1E, 0x7B, h0, (s32)func_0046a770(D_0063FB50), 0xA9);
-        pEDC = func_002e04e0(*(void **)(work + 0xEDC));
-        func_002b2970(&spE8, 37.0f + *(f32 *)(pEDC + 0x2C), 35.0f + *(f32 *)(pEDC + 0x30));
+        func_002b2970(&spE8, 37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30));
         func_002e0b20(0x1B, spE8, 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         pEDC = func_002e04e0(*(void **)(work + 0xEDC));
         c16 = (s16)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), 1);
@@ -1152,8 +1149,7 @@ void func_002d5040(void *arg0) {
         cB = (s16)func_00106970((s16)cA);
         dA = (s16)((cB & 0xFFFF) - tmp);
     } else if (*(s8 *)(work + 7) == 2) {
-        pEDC = func_002e04e0(*(void **)(work + 0xEDC));
-        func_002b2970(&spE0, 37.0f + *(f32 *)(pEDC + 0x2C), 35.0f + *(f32 *)(pEDC + 0x30));
+        func_002b2970(&spE0, 37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30));
         func_002e0b20(0x1C, spE0, 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         dA = 0;
         dB = 0;
