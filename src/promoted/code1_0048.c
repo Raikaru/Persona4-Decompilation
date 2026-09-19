@@ -3022,6 +3022,7 @@ void func_0048cdf0(u8 *arg0)
     u8 mode9C;
     f32 eF0val;
     f32 eECval;
+    f32 half;
     s32 v15;
     s32 v14;
     u32 idx;
@@ -3035,7 +3036,6 @@ void func_0048cdf0(u8 *arg0)
     u8 *clear;
     s32 ci;
     f32 a;
-    f32 a2;
     f32 b;
     f32 c;
     count = *(u32 *)(arg0 + 4);
@@ -3052,6 +3052,7 @@ void func_0048cdf0(u8 *arg0)
     mode9C = *(u8 *)(config + 156);
     eF0val = *(f32 *)(config + 240);
     eECval = *(f32 *)(config + 236);
+    half = 0.5f;
     idx = 0;
     cfg0 = *(u_long128 *)(config + 0);
     cfg10 = *(u_long128 *)(config + 16);
@@ -3134,17 +3135,17 @@ skip_clear:
     b = func_004bd0b0(0);
     c = *(f32 *)(config + 204) * ((1.0f - a) + a * b);
     out[8] = c;
-    a2 = *(f32 *)(config + 216);
+    a = *(f32 *)(config + 216);
     b = func_004bd0b0(0);
-    out[9] = (*(f32 *)(config + 212) * ((1.0f - a2) + a2 * b) - c) / (f32)limitB8;
+    out[9] = (*(f32 *)(config + 212) * ((1.0f - a) + a * b) - c) / (f32)limitB8;
     b = func_004bd0b0(0);
     out[10] = fGpffff8080 * b;
-    a2 = *(f32 *)(config + 224);
+    a = *(f32 *)(config + 224);
     b = func_004bd0b0(0);
-    out[11] = *(f32 *)(config + 220) * ((1.0f - a2) + a2 * b);
-    a2 = *(f32 *)(config + 232);
+    out[11] = *(f32 *)(config + 220) * ((1.0f - a) + a * b);
+    a = *(f32 *)(config + 232);
     b = func_004bd0b0(0);
-    out[12] = *(f32 *)(config + 228) * ((1.0f - a2) + a2 * b);
+    out[12] = *(f32 *)(config + 228) * ((1.0f - a) + a * b);
     tmp170[0] = func_0044b610(out[10]);
     tmp170[1] = 0.0f;
     tmp170[2] = func_0044b7b0(out[10]);
@@ -3207,7 +3208,7 @@ skip_clear:
         tmp = func_004bd050(0) % limitB8;
         ftmp1 = (f32)(u32)tmp;
         out[7] = out[7] + out[12] * ftmp1;
-        out[7] = out[7] - ftmp1 * eF0val * ftmp1 * 0.5f;
+        out[7] = out[7] - ftmp1 * eF0val * ftmp1 * half;
         out[8] = out[8] + out[9] * ftmp1;
         tmp130[0] = out[8] * func_0044b610(out[10]);
         tmp130[1] = out[7];
@@ -3239,7 +3240,7 @@ skip_clear:
 else_branch:
     b220buf = *(u_long128 *)nodes;
     ftmp1 = (f32)node10;
-    ftmp2 = ftmp1 * (eECval * ftmp1 * 0.5f + out[11]) + out[10];
+    ftmp2 = ftmp1 * (eECval * ftmp1 * half + out[11]) + out[10];
     out[7] = out[7] + out[12];
     out[7] = out[7] - eF0val * ftmp1;
     out[8] = out[8] + out[9];
