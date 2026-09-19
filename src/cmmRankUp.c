@@ -1736,6 +1736,11 @@ void func_00256040(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
    iteration element pointer in $s5; the object has two fewer saved registers to spend.  Swapping
    the packed3/packed4 statement order to match retail's R48-R63 emission order was measured and
    is worse (155), so the source order is already right and the scheduler is reordering. */
+/* gate: func_002561f0 is OUTSIDE the +-3% band at 144 against retail 152 (-5.3%, band
+   148-157).  The object is eight instructions SHORT, and the note above says why: it saves
+   $s0-$s3 where retail saves $s0-$s5, so two register save/restore pairs and the spills that
+   go with them are missing.  Differing-word scores measured against this body are not
+   comparable to in-gate ones (handoff 7y); close the eight before reading any of them. */
 // FUN_002561F0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002561f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s64 arg5, s64 arg6, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4) {

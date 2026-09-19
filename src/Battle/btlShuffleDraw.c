@@ -995,6 +995,20 @@ void func_00375ec0(u8 *arg0, s32 arg1) {
    is therefore deliberate and load-bearing, not an accident of the draft.
    What remains is b210's refusal to keep the base live across the two calls
    in a callee-saved register.  Do not re-run the spelling search. */
+/* measured 00375f00 (owner, 2026-09-19): 39/39 exact, **2 edits** - the closest first-party
+   floor in the tree.  Both are the same difference: retail keeps `arg0 + idx` live in $s2 and
+   spells the two later uses `move $v1, $s2` / `move $a0, $s2`, while b210 rematerialises
+   `addu $v1, $s1, $s0`.  Eight spellings were measured against the 2 and every one is worse:
+     stores through `p` 32/22; calls through the cast and stores through `p` 38/13;
+     a `ShuffleRecord *` held across all four uses 38/10; a `ShuffleContext *q = p` copy 32/22;
+     a `u8 *raw = arg0 + idx` reused by the stores 35/21; a raw `base` with literal 0x1d6ac /
+     0x1d6a4 / 0x1d70c / 0x1d6a8 offsets 32/22; and two flat `ShuffleRecord *` forms 27/28.
+   The recomputed cast is load-bearing: it is what holds the object at retail's 39.  Sharing
+   the pointer lets b210 fold the address arithmetic and costs instructions, so the last two
+   edits are a rematerialise-versus-copy choice inside the register allocator.
+   `#pragma optimization_level 1` here is a measured pair per 7aw, not inflation: with it the
+   object is 39 instrs / 2 edits, without it 32 instrs / 22 edits - count and edits both
+   improve, which is the whole test. */
 // FUN_00375F00 NONMATCHING
 #ifdef NON_MATCHING
 #pragma optimization_level 1
