@@ -53,7 +53,21 @@ be source-drivable. Check these before concluding anything is unreachable.
 
 - **Commutative operand order** (`addu $v0,$v1,$v0` versus retail
   `addu $v0,$v0,$v1`). Driven by which operand becomes live first, not by the
-  order written. See `skill://mwccps2-operand-order-inline-helper`.
+  order written, so changing the source order alone never moves it.
+  (An earlier revision of this line pointed at
+  `skill://mwccps2-operand-order-inline-helper`, which does not exist.)
+
+  Sometimes it is not drivable at all.  `func_00242990` is 813 instructions,
+  exact count, and differs from retail by **one word**: `addu $v0, $v0, $v1`
+  against retail's `addu $v0, $v1, $v0` at 0x00242CEC, adding a `$gp`-loaded
+  base to an index the two sides compute identically.  Eight spellings have
+  been measured - operand order swapped, the constant written first, the
+  offset hoisted into a `u32` temp, both sides cast to `u32`, array-subscript
+  form, and three liveness reshapes - and all tie at one differing word except
+  the liveness hammer, which regresses to 25.  Three other sites in the same
+  function have the identical address shape and all emit base-first, so the
+  source cannot select an orientation for one of them.  Treat a lone
+  commutative operand order surrounded by identical shapes as a floor.
 - **`addiu` where retail has `daddiu`** on a variable's initialiser. Usually the
   declared type is 64-bit. Note the converse is not reliable: in
   `func_001932f0` retail initialises with `daddiu` and increments the same
