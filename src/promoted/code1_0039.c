@@ -203,8 +203,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390290);
 
 /* measured: func_003902d0 MATCH -- fnalign 0 edits (32 vs 32); probe 0 differing words. */
 /* measured: cures -- check `goto retry` -> `goto done`; `goto zero` -> `return 0` duplicated; schedule on + nbl on fills delays. */
-// FUN_003902D0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_003902D0
 #pragma schedule on
 #pragma no_branch_likely on
 s32 func_003902d0(s32 arg0, s32 unused, s32 arg2, s32 arg3)
@@ -232,9 +231,6 @@ check:
 }
 #pragma no_branch_likely off
 #pragma schedule off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003902d0);
-#endif
 /* measured: b210's O2 strength-reduces this constant multiply; O1 preserves
    the retail MMI multiply. schedule on places it in the jr delay slot, and
    the inline helper presents the multiplier first for retail operand order. */
@@ -442,11 +438,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396a40);
 
 // FUN_00396C00
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396c00);
-/* measured: func_00396e80 floor -- probe_archive F390_00396e80_body.c: obj 132B / window 128B (object exceeds window) / 11 reloc-masked differing words; fnalign 10 edits + 1 reloc-only (branch-displacement + addiu/nop + extra b/nop tail). */
-/* measured: ruled out -- archive O1 probe (O2/O3, schedule, no_branch_likely, branch/layout, boolean and pointer variants neutral); transfer from 98350/90290 scheduler wall (declaration/branch levers inert on this shape). Banked. */
+/* measured: func_00396e80 floor -- fnalign 12 edits +1 reloc (32 vs 32 exact); probe 16 differing words (was 11wd at 33 vs 32). */
+/* measured: cures -- O2 (remove O1; count 33->32 exact for gate). Banked (wd regressed). */
 // FUN_00396E80 NONMATCHING
 #ifdef NON_MATCHING
-#pragma optimization_level 1
 s32 func_00396e80(u8 *arg0)
 {
     s32 flag;
@@ -477,7 +472,6 @@ s32 func_00396e80(u8 *arg0)
     }
     return result;
 }
-#pragma optimization_level 2
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396e80);
 #endif

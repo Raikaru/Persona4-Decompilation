@@ -1912,6 +1912,29 @@ s32 func_00467bd0(u8 *arg0)
                     }
                 }
             }
+        } else {
+            i = 0;
+            while (((i & 0xFFFF)) < 256) {
+                if (*(u8 *)(w + (i & 0xFFFF)) == 0) {
+                    break;
+                }
+                i = (i + 1) & 0xFFFF;
+            }
+            k = i & 0xFFFF;
+            while (((k & 0xFFFF)) >= 2) {
+                u8 *p = (u8 *)(w + (k & 0xFFFF));
+                if (*p == 47) {
+                    if (*(p - 1) != 58) {
+                        *(u8 *)(w + (k & 0xFFFF)) = 0;
+                    } else {
+                        *(p + 1) = 0;
+                    }
+                    break;
+                }
+                k = (k - 1) & 0xFFFF;
+            }
+            *(s16 *)(D_00800000 + w + 3968) = 1;
+            return 0;
         }
         func_00467880((u8 *)w);
     } else if (st == 4) {

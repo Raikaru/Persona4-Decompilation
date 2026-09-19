@@ -83,13 +83,13 @@ s8 func_004e0590(u8 *arg0)
 {
     return *(s8 *)(arg0 + 1);
 }
-/* Floor: 3 differing words.  ee-gcc 2.96 -O2 -G0.  Retail stores the four
+/* Floor: 3 differing words (re-measured 2026-09-19 via measure_guarded: obj 56B/window 56B, 14/14 instrs, 3 words: sw 0xC vs 0x10, sw 0x10 vs 0x8, sw 0x8 vs 0xC). ee-gcc 2.96 -O2 -G0. Retail stores the four
    fields in source order (0x10, then the 0x1 byte, then 0x8, then 0xC); this
-   build's scheduler reorders them to 0xC, 1, 0x10, 0x8.  Plain u32/u8 widths,
+   build's scheduler reorders them to 0xC, 1, 0x10, 0x8. Plain u32/u8 widths,
    a struct assignment and a staged local temporary were all measured at 3.
    A zero-word result is reachable only by qualifying the stores `volatile`,
    which is a lie about ordinary struct fields - rejected, production stays
-   ASM.  WALL: ee-gcc store scheduling; the retail unit was evidently built
+   ASM. WALL: ee-gcc store scheduling; the retail unit was evidently built
    with the store order preserved, so the fix belongs in the unit's flags,
    not in the source. */
 // FUN_004E0598 NONMATCHING
