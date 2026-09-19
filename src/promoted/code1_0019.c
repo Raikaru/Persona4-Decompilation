@@ -3692,6 +3692,29 @@ void func_0019c010(u8 *arg0)
 }
 
 /* measured: restored in-gate 867 (951 retail / 951 object instrs) with 7r-only fix (hoisted xx..wz reused twice -> plain mul/add; ??+18->0, mul-9->0, add-14->-8; single opt_common_subs off). Rejected 853 attempt (951/884, -67, -7.0% outside 922-980 band): stacked opt_propagation off + hoisted one/two/half/f255 vars removed per-use materialisation (lui+31->-1) per 7u mirror. fGp literals kept direct (24 loads, honest per-use). Remaining sb/lbu/bltz/cvt/or/srl + regs. Banked floor; production stays ASM. */
+/* 2026-09-19 composition audit (handoff 7aa).  The count is 951/951 exact
+   and the structure is still a third wrong: fnalign shows a pure delete of
+   347 instructions at retail[465:812] (0x0019C814-0x0019CD7C) against a pure
+   insert of 163 at object[576:739].
+   What the missing span is: retail's trailing two colour stages, `u = t * c`
+   then `col = u * d`, spilled through SP+0xAC..0xAF as unsigned bytes in
+   channel order 1,2,3,0, with the `bltz`/`srl` unsigned conversion and
+   `adda`/`madd` rounding.  This body invents a compact s32-register version
+   at 0x8C..0x8F in channel order 0,1,2,3.
+   Five rewrites measured, all with `opt_common_subs off` only and the 7r fix
+   kept: a `u[4]` spill for the u-stage 995 instrs/922 words; a single
+   `tmp[4]` with hoisted a/b/c/d 1047/972; an `RwMatrix` frame after the
+   btlUnit honest caller 956/887 with edits flat at 1088 and the frame moving
+   0x90 -> 0xA0 toward retail's 0xB0; that plus a hoisted spill 1052/980; and
+   direct loads with one `tmp[4]` in retail's 1,2,3,0 order (archived as
+   docs/probe_archive/C19C0D0_v5_structure.c) which **closes the 347/163 pair
+   outright** - largest hole falls to 97, inserts to 28 - and takes edits
+   1088 -> 999, but drifts to 1052 instructions, +101 and outside the
+   922-980 band.  Not banked for that reason.
+   Next step is not more colour logic: the remaining 97-instruction hole is
+   the t-stage at the wrong frame slot, `tmp` at 0x9C against retail's 0xAC,
+   frame 0xA0 against 0xB0, base 0x50 against 0x60.  Fix the slot and the
+   drift together. */
 // FUN_0019C0D0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off

@@ -1260,6 +1260,7 @@ void func_00387750(u8 *arg0)
     f32 blend1;
     u8 colors[4];
     Vertex_7750 work[4];
+    s32 (*draw)(s32 arg0, void *arg1, s32 arg2);
     base = *(u8 **)arg0;
     state = arg0 + 0x46;
     depth = D_008872F8[0];
@@ -1313,6 +1314,7 @@ void func_00387750(u8 *arg0)
     func_0048a000();
     func_003f6440(3, 0x3F801);
     func_003f6440(2, 0x48);
+    draw = D_00887310[0];
     {
         s32 i;
         for (i = 0; i < 4; i++) {
@@ -1334,7 +1336,7 @@ void func_00387750(u8 *arg0)
             work[i].color[3] = (f32)(u32)ai;
         }
     }
-    D_00887310[0](5, work, 4);
+    draw(5, work, 4);
     {
         s32 j;
         for (j = 0; j < 4; j++) {
@@ -1356,7 +1358,7 @@ void func_00387750(u8 *arg0)
             work[j].color[3] = (f32)(u32)ai;
         }
     }
-    D_00887310[0](5, work, 4);
+    draw(5, work, 4);
     func_003f6440(3, 0x717FB);
     func_003f6440(2, 0x44);
 }

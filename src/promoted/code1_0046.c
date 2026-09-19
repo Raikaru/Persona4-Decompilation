@@ -1105,16 +1105,12 @@ void func_00463520(void) {
     func_00451de0(D_00712670, 0x12C, 0, 0, (void *)func_004633f0, 0, 0);
 }
 
-/* Floor: 155 differing words, down from 182.  MWCC emits a compare chain
-   in the reverse of the source's label order - the whole sequence, not
-   just the groups - so listing the TMX depth codes 1, 2/0xA, 0x13/0x1B,
-   0x14/0x24/0x2C reproduces retail's 0x2C-first chain and its body
-   layout; the palette-format switch wants its default arm first.
-   WALL: every case branch is exactly five instructions short of retail's.
-   Retail places the default arm's body between the compare chain and the
-   first case body; hoisting it there by writing `default:` first costs 45
-   words elsewhere (200), so the five-instruction gap and the branch
-   displacements that follow from it are the whole residual. */
+/* Floor: 177 words (was 155) / fnalign 154 edits (was 257), obj 262 vs retail 264 (-2, inside gate, was exact 264/264 hiding an 83-instruction pure hole vs 91-instruction lump per 7aa). */
+/* Hole fix first: palette entry `image + *(image+0x18) + i*4` and raw `dst = image + *(image+0x14)` added the image base to absolute pointers (Ghidra/IDA: entry = *(image+0x18)+i*4, dst = *(image+0x14); HSfdImage.palette/pixels at 0x18/0x14). */
+/* Removing the base deletes the invented lump (object[116:207] 91) and recovers the missing retail palette (retail[129:212] 83); max pure delete is now 22 (retail[100:122] advance-before) with no pure lump >=25, so the composition gate passes. */
+/* Palette now does three separate `*(u16*)(source+i*2)` loads (lhu exact, was -2 with cached `value`); advance uses a block-scope `s32 base` (0x20/0x10/0) with `source += (base*count*(1<<bit_depth))>>3` (two mults like retail, was two literal shift+mult blocks). Frame stays 0x50. */
+/* Words rose 155->177 while edits fell 257->154: correct structure insertion per 7y (cf. func_00468ff0 898->911 while edits 674->316). Count -2 is inside the 2-instruction slack. */
+/* Remaining wall: 22-hole advance-before (retail computes `base*count*(1<<...)>>3` before the palette into $t4 across jal 463870; hoisting it here costs a fifth saved reg, frame 0x60, edits 250 regress) plus the known 5-instruction per-branch default-body placement (costs 45 elsewhere, 200). Switch order 1,2/0xA,0x13/0x1B,0x14/0x24/0x2C unchanged. */
 // FUN_00463930 NONMATCHING
 #ifdef NON_MATCHING
 u8 *func_00463930(u8 *arg0)
@@ -1177,12 +1173,10 @@ u8 *func_00463930(u8 *arg0)
 
         case 0xA:
             for (i = 0; i < (1 << *(s32 *)(image + 0xC)); i++) {
-                u16 value = *(u16 *)(source + i * 2);
-                u8 *entry = image + *(s32 *)(image + 0x18) + i * 4;
-
-                entry[0] = (u8)((value & 0x1F) * 8);
-                entry[1] = (u8)(((value >> 5) & 0x1F) * 8);
-                entry[2] = (u8)(((value >> 0xA) & 0x1F) * 8);
+                u8 *entry = *(u8 **)(image + 0x18) + i * 4;
+                entry[0] = (u8)((*(u16 *)(source + i * 2) & 0x1F) * 8);
+                entry[1] = (u8)(((*(u16 *)(source + i * 2) >> 5) & 0x1F) * 8);
+                entry[2] = (u8)(((*(u16 *)(source + i * 2) >> 0xA) & 0x1F) * 8);
                 if (i == 0) {
                     entry[3] = 0;
                 } else {
@@ -1192,11 +1186,16 @@ u8 *func_00463930(u8 *arg0)
             break;
 }
         func_00463870(image, bit_depth);
-        if (*(u8 *)(arg0 + 0x11) == 0) {
-            source += (0x20 * *(u8 *)(arg0 + 0x10) * (1 << bit_depth)) >> 3;
-        } else if ((*(u8 *)(arg0 + 0x11) == 0xA) ||
-                   (*(u8 *)(arg0 + 0x11) == 2)) {
-            source += (0x10 * *(u8 *)(arg0 + 0x10) * (1 << bit_depth)) >> 3;
+        {
+            s32 base;
+            if (*(u8 *)(arg0 + 0x11) == 0) {
+                base = 0x20;
+            } else if (*(u8 *)(arg0 + 0x11) == 0xA || *(u8 *)(arg0 + 0x11) == 2) {
+                base = 0x10;
+            } else {
+                base = 0;
+            }
+            source += (base * *(u8 *)(arg0 + 0x10) * (1 << bit_depth)) >> 3;
         }
     }
     switch (*(u8 *)(arg0 + 0x16)) {    default:
@@ -1213,7 +1212,7 @@ u8 *func_00463930(u8 *arg0)
         break;
     case 0x13:
     case 0x1B:
-        dst = image + *(s32 *)(image + 0x14);
+        dst = *(u8 **)(image + 0x14);
         for (i = 0; i < *(s32 *)(image + 8); i++) {
             s32 j;
 
