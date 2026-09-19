@@ -511,6 +511,21 @@ s32 func_0021f790(u8 *arg0) {
    the +-3% band.  Any differing-word score in this note was measured
    against a body of the wrong length and is not comparable to one
    measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 2026-09-19: object 277 instrs against retail 277, exact, 188
+   differing words, 102 edits.  Was 292 against 280 - +4.3% and outside the
+   gate - at 222 words.
+   The surplus was address materialisation, the shape handoff 7ao names: the
+   body named six separate symbols into the same 0x1C-stride record table
+   (`D_00629564`, `D_00629568`, `D_0062956C`, `D_00629570`, `D_00629574`,
+   `D_00629578`) and b210 emitted a `lui`/`addiu` pair for each, eleven `lui`
+   against retail's five.  Retail computes one base - `lui $v0, 0x63` /
+   `addiu $v0, $v0, -0x6aa0` / `addu $s0, $v0, $v1` - and reads the fields at
+   0x00/0x04/0x08/0x0C/0x10/0x14/0x18 from it.  Writing a single `u8 *rec =
+   (u8 *)D_00629560 + i * 0x1C` and offsetting from it removes fifteen
+   instructions and takes the count exact.
+   Measured and rejected: hoisting `rec` to the top of the loop body instead
+   of computing it at each of the two use sites scores 247, because retail
+   recomputes it in both places. */
 // FUN_0021FA40 NONMATCHING
 #ifdef NON_MATCHING
 void func_0021fa40(u8 *arg0) {
@@ -518,12 +533,6 @@ void func_0021fa40(u8 *arg0) {
     extern f32 func_0044b7b0(f32 a);
     extern f32 iGpffff83d4[];
     extern f32 fGpffff81e0;
-    extern u32 D_00629564[];
-    extern u32 D_00629570[];
-    extern f32 D_00629578[];
-    extern f32 D_00629574[];
-    extern s16 D_00629568[];
-    extern s32 D_0062956C[];
     s32 i;
     s32 i4;
     u8 *e;
@@ -531,6 +540,7 @@ void func_0021fa40(u8 *arg0) {
     u16 u2;
     u32 u5;
     s32 i7;
+    u8 *rec;
     s32 i6;
     f32 f11;
     f32 f12;
@@ -549,23 +559,25 @@ void func_0021fa40(u8 *arg0) {
                 u5 = func_003b7060();
                 *(f32 *)(e + 0x4D8) = (f32)((u5 & 0xFFF) * 0xD6) / 4096.0f;
                 i7 = i * 0x1C;
-                f11 = *(f32 *)((u8 *)D_00629574 + i7);
+                rec = (u8 *)D_00629560 + i7;
+                f11 = *(f32 *)(rec + 0x14);
                 u5 = func_003b7060();
-                *(f32 *)(e + 0x4C4) = f11 + ((*(f32 *)((u8 *)D_00629578 + i7) - f11) * (f32)(u5 & 0xFFF)) / 4096.0f;
+                *(f32 *)(e + 0x4C4) = f11 + ((*(f32 *)(rec + 0x18) - f11) * (f32)(u5 & 0xFFF)) / 4096.0f;
                 *pu = 0;
                 i6 = func_003b7060();
-                *(s16 *)(e + 0x4C2) = *(s32 *)((u8 *)D_00629568 + i7) + (s16)(i6 % *(s32 *)((u8 *)D_0062956C + i7));
+                *(s16 *)(e + 0x4C2) = *(s32 *)(rec + 8) + (s16)(i6 % *(s32 *)(rec + 0xC));
             }
         }
         f11 = *(f32 *)(arg0 + 0x2F0) + *(f32 *)(arg0 + 0x290) + *(f32 *)(arg0 + 0x2C0);
         f12 = *(f32 *)(arg0 + 0x294) + *(f32 *)(arg0 + 0x2C4);
         u1 = *(u8 *)(arg0 + 0x29A);
         i6 = i * 0x1C;
-        i4 = *(u32 *)((u8 *)D_00629564 + i6);
-        if (*(u32 *)((u8 *)D_00629570 + i6) == 1) {
+        rec = (u8 *)D_00629560 + i6;
+        i4 = *(u32 *)(rec + 4);
+        if (*(u32 *)(rec + 0x10) == 1) {
             f10 = func_0044b7b0((fGpffff81e0 * (f32)*pu) / (f32)*(u16 *)(e + 0x4C2));
-            f11 = f11 + *(f32 *)(e + 0x4C4) * -f10 + *(f32 *)((u8 *)D_00629560 + i6) + 0.0f;
-        } else if (*(u32 *)((u8 *)D_00629570 + i6) == 0) {
+            f11 = f11 + *(f32 *)(e + 0x4C4) * -f10 + *(f32 *)rec + 0.0f;
+        } else if (*(u32 *)(rec + 0x10) == 0) {
             f10 = func_0044b7b0((iGpffff83d4[1] * (f32)*pu) / (f32)*(u16 *)(e + 0x4C2));
             *(f32 *)(e + 0x4C8) = f10 * (*(f32 *)(e + 0x4D8) - *(f32 *)(e + 0x4D0)) + *(f32 *)(e + 0x4D0) + 0.0f;
             *(f32 *)(e + 0x4CC) = f10 * (*(f32 *)(e + 0x4DC) - *(f32 *)(e + 0x4D4)) + *(f32 *)(e + 0x4D4) + 0.0f;
@@ -574,7 +586,7 @@ void func_0021fa40(u8 *arg0) {
         } else {
             func_0046d730((void *)0x629610, 0x2AD);
         }
-        i4 = *(u32 *)(arg0 + *(s32 *)((u8 *)D_00629564 + i6) * 4 + 0x414);
+        i4 = *(u32 *)(arg0 + *(s32 *)(rec + 4) * 4 + 0x414);
         func_0034f2e0((void *)i4, f11, f12, 0xFF, 0xFF, 0xFF, u1);
     }
     func_00364c70();

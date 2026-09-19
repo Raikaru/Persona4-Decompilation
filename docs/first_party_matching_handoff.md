@@ -542,6 +542,46 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7ap. Scan for repeated address materialisation - 60 floors have it
+
+`tools/hoist_scan.py` counts relocated `lui` instructions on each side of
+every first-party floor and reports the ones whose body materialises more
+addresses than retail.  It takes about four minutes for the whole tree.
+
+    python3 tools/hoist_scan.py                 # ranked list
+    python3 tools/hoist_scan.py /var/tmp/h.json # and keep the measurements
+
+**Sixty first-party floors materialise at least three more addresses than
+retail**, led by `func_002eb270` at +60, `func_0046b380` at +43,
+`func_0019c0d0` at +31 and `func_0035fd60` at +29.  Each surplus `lui` is
+usually a `lui`/`addiu` pair, so +30 is about sixty instructions of preamble
+the body emits and retail does not.
+
+The cause is almost always the same and it is source-reachable: the body names
+one symbol per **field** of a record table where retail computes one base and
+offsets from it.  `func_0021fa40` named `D_00629564`, `D_00629568`,
+`D_0062956C`, `D_00629570`, `D_00629574` and `D_00629578` - six symbols into a
+single 0x1C-stride table - and emitted eleven `lui` against retail's five.
+Retail does `lui $v0, 0x63` / `addiu $v0, $v0, -0x6aa0` / `addu $s0, $v0, $v1`
+once and reads 0x00 through 0x18 from `$s0`.  Writing
+
+    u8 *rec = (u8 *)D_00629560 + i * 0x1C;
+
+and offsetting from `rec` removed fifteen instructions, took the function from
++4.3% (outside the gate) to an exact 277/277, and the score from 222 to 188.
+
+Four refinements, all measured:
+
+* **Compute the base where retail computes it.**  Hoisting `rec` to the top of
+  the loop body scored 247 against 188, because retail recomputes it at each
+  of its two use sites.
+* **Initialise at first use, not in the prologue** - worth 9 words on
+  `func_001b6ab0`.
+* **Do not convert every site.**  `func_001b6ab0`'s last nine words came from
+  going back to naming the symbol directly at the one site where retail does.
+* **Match the declared type.**  The file's existing `extern` for the base wins;
+  adding a second declaration with a different type fails to compile.
+
 ### 7ao. How `func_001b6ab0` went from 328 differing words to a MATCH
 
 The near band is allocator floors (7an), but a floor *outside* that band can
