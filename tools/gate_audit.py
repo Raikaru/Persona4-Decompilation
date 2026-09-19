@@ -79,7 +79,8 @@ def main() -> None:
                             windows["sha1"])
     bounds = boundaries(windows)
 
-    inside, outside, unmeasured = 0, [], 0
+    composition = "--composition" in sys.argv
+    inside, outside, unmeasured, split = 0, [], 0, []
     with tempfile.TemporaryDirectory() as scratch:
         for path in sorted((REPO / "src").rglob("*.c")):
             if path.parent.name == "generated" or path.name.startswith("."):
@@ -117,6 +118,22 @@ def main() -> None:
                 # prologue or a delay slot can make.
                 if abs(got - want) <= max(2, round(TOLERANCE * want)):
                     inside += 1
+                    if composition:
+                        # A count inside the band proves nothing on its own:
+                        # a pure `delete` run and a pure `insert` run can
+                        # cancel (handoff 7aa).  Only pure runs count - a
+                        # `replace` is a diverged region, not missing code.
+                        script, _edits, _reloc = fnalign.align(
+                            fnalign.decode(retail, address),
+                            fnalign.decode(body, 0), set())
+                        hole = max((i2 - i1 for t, i1, i2, _j1, _j2 in script
+                                    if t == "delete"), default=0)
+                        lump = max((j2 - j1 for t, _i1, _i2, j1, j2 in script
+                                    if t == "insert"), default=0)
+                        if hole >= 25 and lump >= 25:
+                            split.append((min(hole, lump), hole, lump, got,
+                                          want, name,
+                                          str(path.relative_to(REPO))))
                 else:
                     outside.append((abs(drift), drift, got, want, name,
                                     str(path.relative_to(REPO))))
@@ -128,6 +145,12 @@ def main() -> None:
 
     for _key, drift, got, want, name, source in sorted(outside, reverse=True):
         print(f"{drift:+7.1%}  object {got:5d}  retail {want:5d}  {name}  {source}")
+    for _key, hole, lump, got, want, name, source in sorted(split, reverse=True):
+        print(f"  hole {hole:4d}  lump {lump:4d}  object {got:5d}  retail {want:5d}"
+              f"  {name}  {source}")
+    if split:
+        print(f"\n{len(split)} floors are inside the gate but hide a pure hole "
+              "against a pure lump (handoff 7aa)")
     print(f"\n{inside} floors inside the 3% gate, {len(outside)} outside"
           + (f", {unmeasured} could not be measured" if unmeasured else ""))
     if outside:
