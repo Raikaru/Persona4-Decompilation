@@ -2764,6 +2764,14 @@ void func_00146630(u16 arg0) {
 /* Model floor (1104B window). First probe nd 229 (obj 1044B);
    frame -0xE0 vs -0xF0, saves verified. Open: GPREL consts,
    fusion order, scheduler cascade. Quad-built. */
+/* measured 00146a10 (owner, 2026-09-19): fnalign edits **182 -> 99** by writing the
+   `if (flag == c) ... else if` chain as a `switch (flag)` with the cases sorted ascending.
+   MWCC lowers a switch as descending comparisons with the arm bodies laid out in
+   ascending case order (handoff 7av), and a chain cannot produce that shape however the
+   arms are ordered in source.  Found by sweeping every first-party floor that carries a
+   four-or-more arm equality chain and measuring both spellings; the sweep also found
+   `func_001adea0` where the switch is *worse* (49 -> 51), so this is measured per
+   function and never assumed. */
 // FUN_00146A10 NONMATCHING
 #ifdef NON_MATCHING
 void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
@@ -2822,8 +2830,9 @@ void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
         tr[1] = *(f32 *)(arg0 + 32);
         tr[2] = *(f32 *)(arg0 + 36);
         flag = (*(u16 *)arg0 & 0xFFC00) >> 10;
-        if (flag == 10) {
-            h = *(s32 *)(arg0 + 0x144);
+        switch (flag) {
+        case 1:
+            h = *(s32 *)(arg0 + 0x164);
             if (h == 0) {
                 func_00440b68(D_005EF9D0);
                 return;
@@ -2834,7 +2843,34 @@ void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
             func_0047a1e0(h, tr, 2);
             func_0047a180((RwMatrix *)h, (const RwV3d *)(arg0 + 4), 2);
             return;
-        } else if (flag == 6) {
+            break;
+        case 2:
+            h = *(s32 *)(arg0 + 0x158);
+            if (h == 0) {
+                func_00440b68(D_005EF9D0);
+                return;
+            }
+            func_0047a1a0(h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
+            func_0047a1a0(h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
+            func_0047a1a0(h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
+            func_0047a1e0(h, tr, 2);
+            func_0047a180((RwMatrix *)h, (const RwV3d *)(arg0 + 4), 2);
+            return;
+            break;
+        case 3:
+            h = *(s32 *)(arg0 + 0x164);
+            if (h == 0) {
+                func_00440b68(D_005EF9D0);
+                return;
+            }
+            func_0047a1a0(h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
+            func_0047a1a0(h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
+            func_0047a1a0(h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
+            func_0047a1e0(h, tr, 2);
+            func_0047a180((RwMatrix *)h, (const RwV3d *)(arg0 + 4), 2);
+            return;
+            break;
+        case 6:
             if (*(s32 *)(arg0 + 0x144) == 0) {
                 func_00440b68(D_005EF9F0);
                 return;
@@ -2854,8 +2890,9 @@ void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
             } while (n > 0);
             func_004b12e0(*(s32 *)(arg0 + 0x144), c1);
             return;
-        } else if (flag == 3) {
-            h = *(s32 *)(arg0 + 0x164);
+            break;
+        case 10:
+            h = *(s32 *)(arg0 + 0x144);
             if (h == 0) {
                 func_00440b68(D_005EF9D0);
                 return;
@@ -2866,30 +2903,7 @@ void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
             func_0047a1e0(h, tr, 2);
             func_0047a180((RwMatrix *)h, (const RwV3d *)(arg0 + 4), 2);
             return;
-        } else if (flag == 2) {
-            h = *(s32 *)(arg0 + 0x158);
-            if (h == 0) {
-                func_00440b68(D_005EF9D0);
-                return;
-            }
-            func_0047a1a0(h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
-            func_0047a1a0(h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
-            func_0047a1a0(h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
-            func_0047a1e0(h, tr, 2);
-            func_0047a180((RwMatrix *)h, (const RwV3d *)(arg0 + 4), 2);
-            return;
-        } else if (flag == 1) {
-            h = *(s32 *)(arg0 + 0x164);
-            if (h == 0) {
-                func_00440b68(D_005EF9D0);
-                return;
-            }
-            func_0047a1a0(h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
-            func_0047a1a0(h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
-            func_0047a1a0(h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
-            func_0047a1e0(h, tr, 2);
-            func_0047a180((RwMatrix *)h, (const RwV3d *)(arg0 + 4), 2);
-            return;
+            break;
         }
     }
 }

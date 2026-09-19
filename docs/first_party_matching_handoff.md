@@ -632,6 +632,50 @@ subtraction of the gp global rather than of the field from itself.  **A
 spelling that scores by asserting something the assembly contradicts is not a
 fix**, and it was rejected.
 
+### 7bd. Four effect floors pay the same literal/global hoist (4916f0, 490c40, 492100, 49d360)
+
+7bb named the lever: a float literal or gp global re-read at every use belongs
+in a named local initialised once, and retail's saved-float count tells you how
+many. Four effect/particle floors in `src/promoted/code1_0049.c` and
+`src/promoted/effPolygonFlash.c` pay it together (all inside the 3% gate,
+`floor_distance` edits, `measure_guarded` words in parentheses):
+
+- `func_004916f0` (4 missing `$f26-$f29` -> 2 `$f28-$f29`): hoist `g84 =
+fGpffff8084`, `g80 = fGpffff8080`, `one = 1.0f`, `half = 0.5f` once before the
+loop and use them for the `(g84*a)*b + half*(g84*(one-a))` lerp, the
+`D0*((one-a)+a*b)`/`(one-a)+a*b` lerps and the `half*(vDC*ftmp1)*ftmp1` /
+`vD8*ftmp1*half` fades. Split `aD4 = *(config+212)` from the reused `a` for the
+`D4` lerp (retail keeps `D4` in `$f29` apart from `E0/6C/98` in `$f26`, even
+though the allocator still recolours them). **467 -> 446 edits** (573 -> 577
+words, object 606 -> 599 vs retail 609, -1.6% inside 591-627, frame 0x140 vs
+0x160).
+- `func_00490c40` (2 missing `$f30-$f31` -> 1 `$f31`): hoist `one = 1.0f` once
+and use it for the five `(one-a)+a*b` lerps (`E0`, `CC`, `D4`, `6C`, `98`).
+**423 -> 418 edits** (554 -> 600 words, object 645 -> 649 vs retail 646 -> 648,
++0.2% inside 628-667, frame 0x170 exact).
+- `func_00492100` (1 missing `$f30`, still `$f30`): hoist `one = 1.0f` once for
+the seven `(one-a)+a*b` lerps and split `cD8` (the `D8*((one-DC)+DC*b)` value
+held in `$f30` across the `E4` call) from the reused `c` (retail keeps `D8` in
+`$f30`, the later `2*(b-0.5f)` vec value is a temporary). **392 -> 391 edits**
+(565 -> 572 words, object 606 -> 610 vs retail 606 -> 608, +0.3% inside
+590-626, frame 0x150 vs 0x140).
+- `func_0049d360` (3 missing `$f25-$f27` -> 2 `$f26-$f27`): fix `piVar16[2] =
+(s32)(scale*rand)` to `(s32)(f80d0*rand)` with `f80d0 = fGpffff80d0` hoisted
+(retail's `lwc1 $f25,-0x7F30($gp)` at R118, the body read the wrong gp slot),
+hoist `negOne = -1.0f` for the `*negOne` sign flip, and split `f78/f6c2/f64`
+for the `0x78/0x6C/0x64` fields (retail reuses `$f27` for all three, the split
+is truthful per-field even though the allocator still recolours). **448 ->
+445 edits** (466 -> 470 words, object 479 -> 481 vs retail 493, -2.4% inside
+478-507, frame 0x190 vs 0x180).
+
+Two (`4916f0` -21, `490c40` -5) are material; the other two (-1, -3) are small
+but inside and in the right direction. The remaining `$f28/$f29`, `$f31`,
+`$f30`, `$f26/$f27` are the per-iteration `a`/`c`/`f6c` values the original
+source kept in separate variables with overlapping live ranges (retail keeps
+`E0` in `$f26` apart from `D4` in `$f29` because `f27` derived from `E0` is
+still live; the current bodies reuse one `a`/`c`/`f6c` for all offsets, so the
+allocator recolours them into one register).
+
 ### 7ba. `tools/block_move_scan.py`: the relocation lever is exhausted
 
 7aq taught the tree to look for asymmetric runs in the fnalign edit script,
