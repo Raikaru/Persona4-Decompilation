@@ -982,6 +982,19 @@ void func_00375ec0(u8 *arg0, s32 arg1) {
    `register` on the pointer 36.  The mirror - calls through the recomputed
    expression, stores through `p` - is 18.  Converting the two declarations to
    uninitialised form with statement assignments (the 7o lever) ties at 2. */
+/* measured 2026-09-19: object 39 instrs against retail 39, exact, 2 differing
+   words - the closest first-party floor in the tree.  Both differences are
+   the same thing: retail keeps `arg0 + idx` in the saved register `$s2` and
+   emits `move $v1, $s2` and `move $a0, $s2`, where b210 recomputes
+   `addu $v1, $s1, $s0` at each site.
+   Eight spellings measured with `python3 tools/probe_variants.py`: the mixed
+   form below (2 words) and `register` on the pointer (2) tie for best; using
+   the `p` pointer uniformly is 36, inverting which uses re-cast and which use
+   `p` is 18, all-re-cast is 29, a `u8 *base` intermediate is 36, and dropping
+   the optimization-level pragmas is 36.  The re-cast at the two store sites
+   is therefore deliberate and load-bearing, not an accident of the draft.
+   What remains is b210's refusal to keep the base live across the two calls
+   in a callee-saved register.  Do not re-run the spelling search. */
 // FUN_00375F00 NONMATCHING
 #ifdef NON_MATCHING
 #pragma optimization_level 1

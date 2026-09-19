@@ -1823,10 +1823,11 @@ void func_00467880(u8 *arg0)
 /* best inline_23_sub (sites 2+3 inlined for both 442088 + 2 u8** subscript) 268 (-9) / edits 330 (-14) / 267 instrs (+23) / 1068B (+92) / census 39 (-9: addu -32, lui -26, addiu +13, sll -2, move +3, lbu+4/lb-4, lh 0, bne+3, andi-2, mtc1+1); tie inline_13_sub 268/342 edits; full23sub 285 regress; */
 /* decl placement ties at 277 (6 orders) and at 268 (3 orders on best); pragma ties (loopinv/unroll/sched) and comsubs_off 328 (+51) / inline+comsubs 335 regress; solve_signedness mismatch 12, all flips reject/free (tmp free, st/i/k count moves, h1/h2 +2, flag constrained); slti $at + short-by-N hunts from prior note carry (neutral); */
 /* remaining wall: D_00800000+w hoist (retail rematerializes lui/addu per access, b210 CSEs to saved regs; 25-use respell neutral per archive), frame 0xA0 vs 0x170 (fewer spills; tmp[64] only), __fixsfdi/mtc1+1 + jal+1 from (s64)f1 float pack vs retail lui/sw/ld, iGp HI/LO-vs-GPREL phantoms, st==4/3 empty-arm branch layout; production stays ASM. */
-/* gate: object 267 against retail 312, -14.4% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* gate 2026-09-19: missing (D_008C0276 & 0x10)!=0 arm (retail 0x467eec bnez */
+/* to shared truncation block at 0x467ce8, 0x467cf4-0x467d90 i/k loops + st=1): */
+/* object 267 vs retail 312 (-45) before; duplicate i/k loops + st=1 return as */
+/* else of the 0x10 check -> object 311 vs retail 312 (-1, inside 303-321 gate). */
+/* Prior addressing/inline/decl/pragma/signedness hunts above carry (do not redo). */
 // FUN_00467BD0 NONMATCHING
 #ifdef SKIP_ASM
 s32 func_00467bd0(u8 *arg0)

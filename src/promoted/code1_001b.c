@@ -3232,14 +3232,9 @@ void func_001b6a20(void)
     }
 }
 /* measured (this session): cold reconstruction v2 object 380/retail 348 instrs (9% over, not short); probe_variants 357 words/79 edits; probe_search 120 orders flat (propagation/rebuild/no_branch/dead/loop/lifetimes/strength/size/unroll all 357, common_subs worse 397); fnalign $at none (float/bltz tail, slti $at lever N/A); residual is stack layout (0x160 frame pads) and u32->float halving (bltz) vs dead-store elimination; banked guarded floor. */
-/* measured 001b6ab0: `schedule on` inside the guard is worth 25 words (357 -> 332). */
-/* gate: object 311 against retail 347, -10.4% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 001b6ab0 2026-09-19: invented f60/f64 pair removed (retail has constants at buf+0x40, not floats; 18 -> 16 float stores) and schedule pragmas removed (retail is unscheduled); object 350/retail 348 +0.6% INSIDE, 328 words, 48 edits (+3 reloc-only) via fnalign --candidate (was 311/347 -10.4%, 332 words, 228 edits with schedule on). Frame still 0x120 vs retail 0x160; offsets differ but counts match. */
 // FUN_001B6AB0 NONMATCHING
 #ifdef NON_MATCHING
-#pragma schedule on
 void func_001b6ab0(void) {
     extern s32 func_003f6440(s32 arg0, s32 arg1);
     extern void (*D_00887300[])(u32 arg0, u32 arg1);
@@ -3302,8 +3297,6 @@ void func_001b6ab0(void) {
     buf.f44 = (f32)c1;
     buf.f48 = (f32)c2;
     buf.f4c = (f32)c3;
-    buf.f60 = (f32)c0;
-    buf.f64_ = (f32)c1;
     buf.f80 = (f32)c0;
     buf.f84 = (f32)c1;
     buf.f88 = (f32)c2;
@@ -3318,7 +3311,6 @@ void func_001b6ab0(void) {
     buf.f10c = (f32)c3;
     D_00887300[4](4, &buf, 4);
 }
-#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b6ab0);
 #endif
