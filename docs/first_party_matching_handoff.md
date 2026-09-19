@@ -567,36 +567,47 @@ stated: a uniform displacement shift is charged once per access, an alias
 corrupts the dependency chain around both values.  Check for a collision, not
 just a difference.
 
-### 7au. `#pragma schedule on` is a per-unit fact, and it is worth ~100 instructions
+### 7au. Retail's first-party build is unscheduled; `#pragma schedule on` is count manipulation
 
-Retail was not built with one scheduling setting.  Measuring five first-party
-bodies that carry the pragma, with and against:
+**Across 212 byte-exact MATCH first-party functions there are 2909 branches
+and zero filled delay slots.**  Not a few, none.  The same holds for every
+function that still has a floor: `func_00475cd0` has 179 branches and 179
+empty slots, `func_004b1ad0` 76 and 76, `func_004a5fc0` 75 and 75,
+`func_0021a7b0` 49 and 49, `func_0049e150` 40 and 40, `func_00308f40` 97 and
+97, `func_003599c0` 112 and 112.
 
-| function | with | without |
+So `#pragma schedule on` cannot reproduce retail codegen in first-party code.
+What it does is let the scheduler consume delay-slot nops, which shortens the
+body.  Five guarded bodies were carrying it, and in every one it was hiding a
+genuine instruction surplus:
+
+| function | with the pragma | truth without it |
 |---|---|---|
-| `func_00475cd0` | 1007/1000, 1393 edits | 1131/1000, 1089 edits |
-| `func_0021a7b0` | 418/427, 458 edits | 460/428, 261 edits |
-| `func_004a5fc0` | 762/756, 1112 edits | 851/756, 821 edits |
-| `func_004b1ad0` | 802/796, 1044 edits | 909/796, 1045 edits |
-| `func_0049e150` | 489/499, 661 edits | 531/500, 444 edits |
+| `func_00475cd0` | 1007/1000 "inside" | 1131/1000, **+13.1%** |
+| `func_004b1ad0` | 802/796 "inside" | 909/796, **+14.2%** |
+| `func_004a5fc0` | 762/756 "inside" | 851/756, **+12.6%** |
+| `func_0021a7b0` | 418/427 "inside" | 460/428, **+7.5%** |
+| `func_0049e150` | 489/499 "inside" | 531/500, **+6.2%** |
 
-In all five the pragma is what keeps the count inside the gate - dropping it
-adds 40 to 130 instructions, all of them delay-slot nops - so retail's build
-of those units had scheduling on.  The edit count falls without it in four of
-the five purely because an unscheduled body preserves source order and aligns
-better; that is an artefact of the metric, not evidence, and it must not be
-used to justify removing the pragma.
+All five were inside the 3% gate only because of the pragma.  They are now
+recorded as the out-of-gate floors they are, and the surplus has to be written
+out of each body rather than optimised away.
 
-`func_00308f40` is the opposite case and the reason to always measure both
-directions.  There retail is genuinely unscheduled - `beqz $v0, .+78` followed
-by a bare `nop` at R35, R42, R79 and forty more - and `schedule on` had been
-added because it bought 15 differing words.  It also cost **48 instructions**,
-putting the body at 379 against 427, 11.2% short and outside the gate.
-Removing it: **431/428 inside, edits 323 -> 102.**
+`func_00308f40` is the same defect caught from the other side: the pragma had
+been added because it bought 15 differing words, and it cost 48 instructions,
+leaving the body at 379 against 427.  Removing it: **431/428 inside, edits
+323 -> 102.**
 
-So the pragma's before/after must be recorded as a *pair* - count and edits -
-and the count decides.  A word score measured against a body of the wrong
-length is not comparable to one measured inside the gate (7y).
+The vendor middleware was built the other way and must not be swept up in
+this: the 39 third-party guarded bodies that carry the pragma sit on retail
+windows with 260 branches and **183 filled slots**.  Two build configurations
+in one image.  `decomp_lint`'s new **H010** is an error, scoped by function
+origin rather than by file, so first-party bodies cannot acquire the pragma
+again while `src/promoted/code1_003c.c` and its neighbours keep theirs.
+
+`tools/regsave_scan.py` now reports nop density on both sides, so the
+mismatch shows up on the first draft rather than after a body has been tuned
+around it.
 
 ### 7as. A short frame aliases two locals onto one slot
 

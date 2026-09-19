@@ -2047,10 +2047,18 @@ int func_00475b90(void* buf, void* v, u32 idx, void* obj)
  *   value(0x80)+result(0x90,40B) vs merged interpolation, easing two-stage vs independent curves.
  * Production remains INCLUDE_ASM; owner 126 markers, 120 MATCH/6 ASM unchanged. func_00479100 untouched (29-word floor).
  */
+/* gate: func_00475cd0 is OUTSIDE the +-3% band at 1131 against retail 1000 (+13.1%).  The body previously read
+   1007/1000, 1393 edits only because `#pragma schedule on` was filling delay slots that retail leaves
+   empty.  Retail's first-party build is entirely unscheduled: across 212 byte-exact MATCH
+   first-party functions there are 2909 branches and **zero** filled delay slots, and this
+   function's own retail window has 179 branches with 179 empty slots and none filled.  The
+   pragma therefore never reproduced retail codegen - it deleted nops to shrink the count, and
+   it was hiding a genuine instruction surplus.  It is removed; the surplus is now visible and
+   has to be written out of the body.  Any differing-word score measured with the pragma in
+   place is not comparable to one measured inside the gate (handoff 7y, 7au). */
 // FUN_00475CD0 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: schedule on 1014->915 (-99, 4524->4028B, 28B over window; frame still 0x1D0 vs 0x1A0). */
-#pragma schedule on
 void func_00475cd0(void* param_1)
 {
     extern void func_00397c40();
@@ -2611,7 +2619,6 @@ void func_00475cd0(void* param_1)
 #undef quaternion
 #undef color
 
-#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475cd0);
 #endif

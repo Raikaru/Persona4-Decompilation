@@ -49,6 +49,7 @@ Third-party findings never fail the run. `src/generated/` is never linted.
 """
 
 import argparse
+import functools
 import importlib.util
 import json
 import re
@@ -98,6 +99,8 @@ RULES = {
     "H003": ("warn", "nonbaseline optimization pragma; review measured justification"),
     "H007": ("warn", "dead store: local is assigned once and never read"),
     "H009": ("error", "inline asm emitting ordinary instructions (not syscall/privileged/COP2/VU0); use honest C"),
+    "H010": ("error", "`#pragma schedule on` inside a guarded body; retail's first-party build "
+                      "is unscheduled, so this only deletes delay-slot nops to shrink the count"),
     # ---- M: marker hygiene -------------------------------------------------
     "M001": ("error", "marker hygiene: malformed FUN_ address or duplicate address in one file"),
     "M002": ("error", "NONMATCHING body with no INCLUDE_ASM fallback; drops the whole unit from the C link"),
@@ -714,6 +717,83 @@ def check_guard_tagged(src):
                       src.lines[i].strip())
 
 
+SCHEDULE_ON_RE = re.compile(r"^\s*#\s*pragma\s+schedule\s+on\b")
+GUARD_OPEN = ("#ifdef NON_MATCHING", "#ifdef SKIP_ASM")
+
+
+@functools.lru_cache(maxsize=1)
+def _code_origin():
+    """`verify.code_origin`, loaded by path.
+
+    `tools/` is only on `sys.path` when this file runs as a script; the test
+    harness imports it by location.  Resolving the sibling module explicitly
+    keeps the rule alive in both, because a rule that silently stops firing
+    is worse than no rule at all.
+    """
+    spec = importlib.util.spec_from_file_location(
+        "verify", Path(__file__).resolve().parent / "verify.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.code_origin
+
+
+def _first_party(rel, addr):
+    """True when this address is Atlus code rather than vendor middleware."""
+    return _code_origin()(rel, addr) == "main"
+
+
+def check_guarded_schedule(src):
+    """H010: `#pragma schedule on` inside a guarded body only shrinks the count.
+
+    Retail's first-party build filled no delay slots at all.  Sampling 212
+    byte-exact MATCH first-party functions gives 2909 branches and zero
+    filled slots; the five guarded bodies that carried this pragma sit on
+    retail windows with 40, 49, 75, 76 and 179 branches and an empty slot
+    after every one.  So the pragma cannot be reproducing retail codegen.
+    What it does is let the scheduler consume nops, which removed 40 to 130
+    instructions and pulled bodies that were 6% to 14% too long back inside
+    the 3% count gate -- hiding the surplus instead of fixing it.
+
+    The vendor middleware was built the other way and the rule must not touch
+    it: the 39 third-party guarded bodies carrying this pragma sit on retail
+    windows with 260 branches and 183 filled slots.  Two build configurations
+    in one image, so the rule is scoped by function origin, not by file.
+    """
+    depth = 0
+    inside = False
+    owner = None
+    for i, line in enumerate(src.code):
+        stripped = line.strip()
+        marker = MARKER_RE.match(src.lines[i])
+        if marker:
+            owner = marker.group(2)
+        if stripped.startswith("#if"):
+            depth += 1
+            if stripped in GUARD_OPEN:
+                inside = True
+                guard_depth = depth
+        elif stripped.startswith("#endif"):
+            if inside and depth == guard_depth:
+                inside = False
+            depth = max(0, depth - 1)
+        elif stripped.startswith("#else") and inside and depth == guard_depth:
+            inside = False
+        elif inside and SCHEDULE_ON_RE.match(line):
+            if owner is not None and not _first_party(src.rel(), owner):
+                continue
+            yield Finding("H010", src.rel(), i + 1,
+                          "`#pragma schedule on` in a guarded body; retail "
+                          "leaves every delay slot empty in first-party code, "
+                          "so this deletes nops to shrink the instruction "
+                          "count rather than matching retail codegen",
+                          src.lines[i].strip())
+
+
+# The guarded arm is exactly what this rule is about, so it must see the lines
+# `lint_source` blanks for every other check.
+check_guarded_schedule.unfiltered = True
+
+
 # ------------------------------------------------------------ pragma balance
 
 PUSH_RE = re.compile(r"^\s*#\s*pragma\s+push\b")
@@ -810,6 +890,7 @@ def check_marker_adjacency(src):
 CHECKS = (
     check_volatile,
     check_banned_pragma,
+    check_guarded_schedule,
     check_dead_store,
     check_asm_barrier,
     check_asm_instructions,
@@ -870,7 +951,9 @@ def lint_source(src):
     for name in ("code", "comments", "text", "line_comments"):
         setattr(active, name, ["" if i in skip else line
                                for i, line in enumerate(getattr(src, name))])
-    out = [finding for check in CHECKS for finding in check(active)]
+    out = [finding
+           for check in CHECKS
+           for finding in check(src if getattr(check, "unfiltered", False) else active)]
     out.sort(key=lambda f: (f.line, f.code))
     return out
 
