@@ -867,6 +867,23 @@ void func_00269db0(float *param_1, float *param_2)
    counted loops, nested switches (0x8C via jtbl_00748080, 0x54/0x2C/0x81/0xE8/type/0x2000), half-scaler
    (u>>1|u&1) with (s32) outer to avoid inner bltz (retail srl/or/mtc1/cvt/add), lerps as base+ratio*(t-b).
    MAC adda/madd chains as plain C mul/add; remaining wall is scheduling/register coloring. Production stays ASM. */
+/* measured 0026a020 (owner, 2026-09-20): fnalign **1663 -> 1635 edits** and the count
+   1713 -> 1647 against retail 1680, so +2.0% over becomes -2.0% under and both metrics
+   improve.
+   The object was 33 instructions LONG with `mul.s +25, lui +25, mtc1 +19` over retail and
+   retail holding `add.s +27`.  That pairing names the defect exactly: the unsigned
+   float conversion doubles its half-value, and m2c writes the doubling as
+   `2.0f * (f32)(...)`, which costs a `lui`+`mtc1` to materialise 2.0f and then a `mul.s`.
+   Retail doubles by ADDING the value to itself.  Writing it as
+     t = (float)(int)(((x) >> 1) | ((x) & 1U));
+     t = t + t;
+   removes 66 instructions across the 22 sites and 28 edits.
+   A second reading of the same delta was WRONG and is recorded so it is not retried:
+   retail's `bltz +27` against the object's `bgez +25` looks like inverted guard polarity,
+   but rewriting all 22 guards from `if ((int)x < 0)` to `if ((int)x >= 0)` with the arms
+   swapped measures **2058**, nearly 400 worse.  The body's polarity was already right;
+   the branch-opcode difference is a consequence of the doubling shape, not its cause.
+   Combining both changes is 1722, also worse than the doubling alone. */
 // FUN_0026A020 NONMATCHING
 #ifdef NON_MATCHING
 void func_0026a020(u8 *arg0) {
@@ -987,12 +1004,14 @@ void func_0026a020(u8 *arg0) {
                 float fc0;
                 c4 = *(unsigned int *)(arg0 + 0xC4);
                 if ((int)c4 < 0) {
-                    fc4 = 2.0f * (float)(int)(((c4) >> 1) | ((c4) & 1U));
+                    fc4 = (float)(int)(((c4) >> 1) | ((c4) & 1U));
+                    fc4 = fc4 + fc4;
                 } else {
                     fc4 = (float)(int)c4;
                 }
                 if ((int)c0 < 0) {
-                    fc0 = 2.0f * (float)(int)(((c0) >> 1) | ((c0) & 1U));
+                    fc0 = (float)(int)(((c0) >> 1) | ((c0) & 1U));
+                    fc0 = fc0 + fc0;
                 } else {
                     fc0 = (float)(int)c0;
                 }
@@ -1022,18 +1041,21 @@ void func_0026a020(u8 *arg0) {
                 float cb;
                 c4 = *(unsigned int *)(arg0 + 0xC4);
                 if ((int)c4 < 0) {
-                    fc4 = 2.0f * (float)(int)(((c4) >> 1) | ((c4) & 1U));
+                    fc4 = (float)(int)(((c4) >> 1) | ((c4) & 1U));
+                    fc4 = fc4 + fc4;
                 } else {
                     fc4 = (float)(int)c4;
                 }
                 if ((int)c0 < 0) {
-                    fc0 = 2.0f * (float)(int)(((c0) >> 1) | ((c0) & 1U));
+                    fc0 = (float)(int)(((c0) >> 1) | ((c0) & 1U));
+                    fc0 = fc0 + fc0;
                 } else {
                     fc0 = (float)(int)c0;
                 }
                 cb = func_0026cba0(mode8C, fc0, fc4);
                 if ((int)c0 < 0) {
-                    tmpF = 2.0f * (float)(int)(((c0) >> 1) | ((c0) & 1U));
+                    tmpF = (float)(int)(((c0) >> 1) | ((c0) & 1U));
+                    tmpF = tmpF + tmpF;
                 } else {
                     tmpF = (float)(int)c0;
                 }
@@ -1131,19 +1153,22 @@ void func_0026a020(u8 *arg0) {
                     *(unsigned int *)(arg0 + 0x28) &= ~1U;
                 } else {
                     if ((int)total < 0) {
-                        div0 = 2.0f * (float)(int)(((total) >> 1) | ((total) & 1U));
+                        div0 = (float)(int)(((total) >> 1) | ((total) & 1U));
+                        div0 = div0 + div0;
                     } else {
                         div0 = (float)(int)total;
                     }
                     fD8[0] /= div0;
                     if ((int)total < 0) {
-                        div1 = 2.0f * (float)(int)(((total) >> 1) | ((total) & 1U));
+                        div1 = (float)(int)(((total) >> 1) | ((total) & 1U));
+                        div1 = div1 + div1;
                     } else {
                         div1 = (float)(int)total;
                     }
                     fD8[1] /= div1;
                     if ((int)total < 0) {
-                        div2 = 2.0f * (float)(int)(((total) >> 1) | ((total) & 1U));
+                        div2 = (float)(int)(((total) >> 1) | ((total) & 1U));
+                        div2 = div2 + div2;
                     } else {
                         div2 = (float)(int)total;
                     }
@@ -1155,19 +1180,22 @@ void func_0026a020(u8 *arg0) {
                         unsigned int cur;
                         cur = *(unsigned int *)(arg0 + 0x60);
                         if ((int)cur < 0) {
-                            f60 = 2.0f * (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                            f60 = (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                            f60 = f60 + f60;
                         } else {
                             f60 = (float)(int)cur;
                         }
                         *(float *)(arg0 + 4) = fD8[0] * f60 + *(float *)(arg0 + 0x30);
                         if ((int)cur < 0) {
-                            f60 = 2.0f * (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                            f60 = (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                            f60 = f60 + f60;
                         } else {
                             f60 = (float)(int)cur;
                         }
                         *(float *)(arg0 + 8) = fD8[1] * f60 + *(float *)(arg0 + 0x34);
                         if ((int)cur < 0) {
-                            f60 = 2.0f * (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                            f60 = (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                            f60 = f60 + f60;
                         } else {
                             f60 = (float)(int)cur;
                         }
@@ -1185,12 +1213,14 @@ void func_0026a020(u8 *arg0) {
                         unsigned int cur;
                         cur = *(unsigned int *)(arg0 + 0x60);
                         if ((int)total < 0) {
-                            ftot = 2.0f * (float)(int)(((total) >> 1) | ((total) & 1U));
+                            ftot = (float)(int)(((total) >> 1) | ((total) & 1U));
+                            ftot = ftot + ftot;
                         } else {
                             ftot = (float)(int)total;
                         }
                         if ((int)cur < 0) {
-                            fcur = 2.0f * (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                            fcur = (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                            fcur = fcur + fcur;
                         } else {
                             fcur = (float)(int)cur;
                         }
@@ -1282,19 +1312,22 @@ void func_0026a020(u8 *arg0) {
                         unsigned int cur;
                         cur = *(unsigned int *)(arg0 + 0x88);
                         if ((int)cur < 0) {
-                            tmpF = 2.0f * (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                            tmpF = (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                            tmpF = tmpF + tmpF;
                         } else {
                             tmpF = (float)(int)cur;
                         }
                         f88[0] = f98[0] * tmpF + *(float *)(arg0 + 0x68);
                         if ((int)cur < 0) {
-                            tmpF = 2.0f * (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                            tmpF = (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                            tmpF = tmpF + tmpF;
                         } else {
                             tmpF = (float)(int)cur;
                         }
                         f88[1] = f98[1] * tmpF + *(float *)(arg0 + 0x6C);
                         if ((int)cur < 0) {
-                            tmpF = 2.0f * (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                            tmpF = (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                            tmpF = tmpF + tmpF;
                         } else {
                             tmpF = (float)(int)cur;
                         }
@@ -1313,12 +1346,14 @@ void func_0026a020(u8 *arg0) {
                         tot = *(unsigned int *)(arg0 + 0x84);
                         cur = *(unsigned int *)(arg0 + 0x88);
                         if ((int)tot < 0) {
-                            ftot = 2.0f * (float)(int)(((tot) >> 1) | ((tot) & 1U));
+                            ftot = (float)(int)(((tot) >> 1) | ((tot) & 1U));
+                            ftot = ftot + ftot;
                         } else {
                             ftot = (float)(int)tot;
                         }
                         if ((int)cur < 0) {
-                            fcur = 2.0f * (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                            fcur = (float)(int)(((cur) >> 1) | ((cur) & 1U));
+                            fcur = fcur + fcur;
                         } else {
                             fcur = (float)(int)cur;
                         }
@@ -1366,13 +1401,15 @@ void func_0026a020(u8 *arg0) {
             float fE4;
             unsigned int e1C;
             if ((int)e0 < 0) {
-                fE0 = 2.0f * (float)(int)(((e0) >> 1) | ((e0) & 1U));
+                fE0 = (float)(int)(((e0) >> 1) | ((e0) & 1U));
+                fE0 = fE0 + fE0;
             } else {
                 fE0 = (float)(int)e0;
             }
             e1C = *(unsigned int *)(arg0 + 0xE4);
             if ((int)e1C < 0) {
-                fE4 = 2.0f * (float)(int)(((e1C) >> 1) | ((e1C) & 1U));
+                fE4 = (float)(int)(((e1C) >> 1) | ((e1C) & 1U));
+                fE4 = fE4 + fE4;
             } else {
                 fE4 = (float)(int)e1C;
             }
@@ -1425,12 +1462,14 @@ void func_0026a020(u8 *arg0) {
                     f_hi = (float)(int)*(unsigned char *)(arg0 + 0xF5);
                 }
                 if ((int)f8 < 0) {
-                    tmpF = 2.0f * (float)(int)(((f8) >> 1) | ((f8) & 1U));
+                    tmpF = (float)(int)(((f8) >> 1) | ((f8) & 1U));
+                    tmpF = tmpF + tmpF;
                 } else {
                     tmpF = (float)(int)f8;
                 }
                 if ((int)fc < 0) {
-                    tmpF2 = 2.0f * (float)(int)(((fc) >> 1) | ((fc) & 1U));
+                    tmpF2 = (float)(int)(((fc) >> 1) | ((fc) & 1U));
+                    tmpF2 = tmpF2 + tmpF2;
                 } else {
                     tmpF2 = (float)(int)fc;
                 }

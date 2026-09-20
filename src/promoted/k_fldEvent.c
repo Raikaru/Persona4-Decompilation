@@ -1793,6 +1793,17 @@ void func_00174c20(void)
     temp_3_2[0x5F] = temp_3_2[0x5F] | temp_18_2;
     func_0015ab20(func_0015a160(), var_17, var_16);
 }
+/* measured 00174e10 (owner, 2026-09-20): fnalign **244 -> 234 edits**, count
+   987 -> 978 against retail 997, by doubling the unsigned float conversion with
+   an ADD instead of a multiply at 4 sites.
+   m2c writes the halved value's doubling as `2.0f * (f32)(...)`, which costs a `lui`
+   plus `mtc1` to materialise 2.0f and then a `mul.s`.  Retail adds the value to
+   itself, so the shape is `t = (f32)(...); t = t + t;`.  On func_0026a020 the same
+   change removed 66 instructions across 22 sites and took that floor from +2.0% over
+   to -2.0% under.
+   Swept over the floors carrying the pattern and it is NOT universal: func_00119210
+   goes 336 -> 379 and func_00250ad0 330 -> 406, both clearly worse, so it is measured
+   per function like everything else. */
 // FUN_00174E10 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: object 987 instrs (3948B), retail 997 instrs (3988B) window 4000B (1000 instrs), within 3% (3880-4120B); probe nd 793, fnalign edits 244 (+5 reloc-only). Honest translation with block-scope counters, sequential < guards, scalar gp forms (iGpffffb288/b290, DAT_00761640, gPI, fGpffff84a4, D_007243DC). Production stays ASM. */
@@ -1883,7 +1894,8 @@ s32 func_00174e10(u8 *arg0)
         if ((s32)D_008C025D[0] >= 0) {
             v = (f32)D_008C025D[0];
         } else {
-            v = 2.0f * (f32)(((u8)D_008C025D[0] >> 1) | (D_008C025D[0] & 1));
+            v = (f32)(((u8)D_008C025D[0] >> 1) | (D_008C025D[0] & 1));
+            v = v + v;
         }
         sp128 = v - 128.0f;
     }
@@ -1897,7 +1909,8 @@ s32 func_00174e10(u8 *arg0)
         if ((s32)D_008C025C[0] >= 0) {
             v = (f32)D_008C025C[0];
         } else {
-            v = 2.0f * (f32)(((u8)D_008C025C[0] >> 1) | (D_008C025C[0] & 1));
+            v = (f32)(((u8)D_008C025C[0] >> 1) | (D_008C025C[0] & 1));
+            v = v + v;
         }
         sp120 = v - 128.0f;
     }
@@ -1911,7 +1924,8 @@ s32 func_00174e10(u8 *arg0)
         if ((s32)D_008C025F[0] >= 0) {
             v = (f32)D_008C025F[0];
         } else {
-            v = 2.0f * (f32)(((u8)D_008C025F[0] >> 1) | (D_008C025F[0] & 1));
+            v = (f32)(((u8)D_008C025F[0] >> 1) | (D_008C025F[0] & 1));
+            v = v + v;
         }
         sp118 = v - 128.0f;
     }
@@ -1920,7 +1934,8 @@ s32 func_00174e10(u8 *arg0)
         if ((s32)D_008C025E[0] >= 0) {
             v = (f32)D_008C025E[0];
         } else {
-            v = 2.0f * (f32)(((u8)D_008C025E[0] >> 1) | (D_008C025E[0] & 1));
+            v = (f32)(((u8)D_008C025E[0] >> 1) | (D_008C025E[0] & 1));
+            v = v + v;
         }
         sp110 = v - 128.0f;
     }
