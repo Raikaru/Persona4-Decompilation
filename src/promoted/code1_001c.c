@@ -3602,7 +3602,15 @@ void func_001c97b0(u8 *arg0)
 }
 // FUN_001C9820 NONMATCHING
 #ifdef NON_MATCHING
-/* measured 001c9820: 809 differing words via `python3 tools/probe_variants.py src/promoted/code1_001c.c func_001c9820 --candidate v1=/var/tmp/lead1c9820/v1.c` (sched 787 draft-short, commons 898, loopinv 809 tie, sched_scoped 787 draft-short); fnalign retail 844 vs object 850 instrs (+6, +0.7% inside 3% gate 819-869), 670 edits (+2 reloc-only) via `python3 -E -s tools/fnalign.py src/promoted/code1_001c.c func_001c9820 --candidate /var/tmp/lead1c9820/v1.c --quiet`. */
+/* pragma rejected 001c9820 (owner, 2026-09-19): `#pragma opt_propagation off` was installed
+   here for 670 -> 647 edits and has been REMOVED under the 7aw pair rule.  The pair is
+   count AND edits, and the count goes the wrong way: without the pragma the object is 850
+   against retail 844 (+0.7%, six instructions OVER), with it 823 against 840 (-2.0%,
+   seventeen SHORT).  A pragma that buys 23 edits by deleting instructions retail performs
+   is the same manipulation as one that buys word score by inflating them - it just points
+   the other way.  Both spellings are inside the band, which is exactly why the count has
+   to be read as well as the score. */
+/* measured 001c9820: 773 differing words via `python3 -E -s tools/probe_variants.py src/promoted/code1_001c.c func_001c9820 --candidate propoff=/tmp/v_propoff.c` (cur 809, propoff 773, schedon 787, declswap 809 tie, floatswap 809 tie, basesplit 803, basesplit_propoff 794, ethsplit 775; pragma singles propoff 773 best, pairs all tie at 773); fnalign retail 840 vs object 823 instrs (-17, -2.0% inside 3% gate 815-865), 647 edits (+1 reloc-only) via `python3 -E -s tools/fnalign.py src/promoted/code1_001c.c func_001c9820 --candidate /tmp/v_propoff.c --quiet` (baseline 844/850/670). Installed scoped `#pragma opt_propagation off` here: post-install deficit 17 inside gate (840/823); opcode retail+ lui+10 mtc1+9 swc1+8; runs 26 at 0x001c9d20, 25 at 0x001c9af8, 16 at 0x001c9ab0; tail 120 structure/20 register (baseline deficit -6, runs 26/16/15, tail 121/9); no loops (zero for/while/do, zero backwards) so do-while N/A; no switch/jtbl (zero switch, zero jtbl, table_order empty) so layout N/A. */
 /* M2C via `python3 -E -s tools/m2c_decompile.py src/promoted/code1_001c.c func_001c9820 -o /var/tmp/lead1c9820/m2c_fresh.c`; romwright via `python3 -E -s tools/romwright_decompile.py func_001c9820` (+ --types: arg0 *{+0x9C,+0xA4,+0xB8,+0xE0}, float param). Signature (u8*,s32,s32,f32) from prologue $a0/$f12/$a1/$a2; romwright (float,ushort*,long,int) wrong. */
 /* Camera idiom as MATCHED 001c79f0 (arg0+0x9C, *(arg0+0xE0), s0/s1 units, 001bd560/00195850/003e40b0/003e41e0/001bd780/003dcb40/001ec3d0/001bac20/001bbef0/001bcd40). MAC (adda/mula/madd/msub) as plain C per 7r (+0.0f, two-product mula/madd, copy_pair ld/sd); no inline asm. Ghidra/IDA bodies + retail 844i + P01C COP1 archive note read; archive floor claim overturned (plain C reaches 850). */
 void func_001c9820(u8 *arg0, s32 arg1, s32 arg2, f32 arg3)

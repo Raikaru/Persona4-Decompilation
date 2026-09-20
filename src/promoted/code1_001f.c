@@ -1834,6 +1834,7 @@ s32 func_001f3b80(s32 arg0) {
 }
 /* measured: func_001f3bb0 live with `opt_common_subs off` and `s32 i` (was `s16 i`) measures probe 147 words via `tools/probe_variants.py --candidate`, fnalign retail 234/object 234 (exact) with 80 edits (+2 reloc-only) via `tools/fnalign.py --candidate` (window 944B). History: Shape A `count >=6` to `count >5` at first guard fixed `slti $at` destination (retail slti $at vs $v0, bnez $at now exact) at probe 222->222 (delta 0), fnalign 78->77 edits (+4 both, retail 236/object 242, 944/968B); sweep then took 222->186 (-36, nopragma 222 reproduced, with-pragma 236/248 at 93+2 edits, 12 long from `s16` dsll32/dsra32 per increment); narrowing `s16 i` to `s32 i` then took 186->147 (-39) to exact size, removing both loops' normalization pairs. Second inclusive site N/A: all remaining `slti $at`/`sltiu $at` rows already match ($at vs $at, $v0 vs $v0); `level_advantage >=4` to `>3` and `i <8` to `i <=7` both tie at 147. Wall is saved-register color rotation ($s2 vs $s0, $s4 vs $s1, $s3 vs $s2) plus stack offsets. Banked guarded floor. */
 /* measured 001f3bb0: `opt_common_subs off` inside the guard is worth 36 words (222 -> 186); retail rematerialises what b210 hoists. */
+/* 2026-09-20: `(s16)i` at both func_00242800 calls (truthful s32 proto keeps s32; cast matches retail dsll32/dsra32 call-site narrowing per Ghidra (short), IDA (__int16) and sibling btlAICommand.c:312) plus `u16 flags` to `u32 flags` (removes object-only `andi 0xffff` before `andi 0x80`; retail has the single andi; behavior-identical for lhu-loaded 0..0xFFFF tested low bits) took fnalign 80->69 edits (+2 reloc-only, retail 235/object 235 exact) and tail_classify structure 27/register 23 -> structure 16/register 31 (register-majority per 7bf: allocator identity, stop). table_order 69->69 tie (layout already right). measure_guarded positional words 147->182 is internal-shift inflation (net +1 instr moves downstream displacements); fnalign alignment is authoritative. Val-chain `val2=-1; val1=val2;` ties at 80 (reload dominates the hunk, not the init shape). Remainder is $s color rotation, hoist-vs-reload (base/head kept in $a0/$a1/$s3 retail vs reloaded object), local jtbl base immediates, branch displacements and trailing nops: no missing code, not source-reachable. Banked. */
 // FUN_001F3BB0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -1846,7 +1847,7 @@ s32 func_001f3bb0(void)
     s32 hero_level;
     s32 level_advantage;
     u8 *node;
-    u16 flags;
+    u32 flags;
     s32 val1;
     s32 val2;
     s32 i;
@@ -1883,7 +1884,7 @@ s32 func_001f3bb0(void)
 
         for (node = *(u8 **)(iGpffffb3ac + 0x180); node != NULL; node = *(u8 **)(node + 0xA6C)) {
             for (i = 0; i < 8; i++) {
-                if ((func_00242800(*(s32 *)(node + 0xA64), i) & 0x07000000) != 0) {
+                if ((func_00242800(*(s32 *)(node + 0xA64), (s16)i) & 0x07000000) != 0) {
                     switch (i) {
                     case 0:
                         val1 = 0x17;
@@ -1913,7 +1914,7 @@ s32 func_001f3bb0(void)
 
         for (node = *(u8 **)(iGpffffb3ac + 0x180); node != NULL; node = *(u8 **)(node + 0xA6C)) {
             for (i = 0; i < 8; i++) {
-                if ((func_00242800(*(s32 *)(node + 0xA64), i) & 0x08000000) != 0) {
+                if ((func_00242800(*(s32 *)(node + 0xA64), (s16)i) & 0x08000000) != 0) {
                     switch (i) {
                     case 0:
                         val2 = 0x1E;

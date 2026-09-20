@@ -5597,6 +5597,24 @@ void func_002f9c30(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, 
    2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
    func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
    func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
+/* measured 002f9d90 (owner, 2026-09-20): fnalign **654 -> 638 edits**, count
+   2129 -> 2121 against retail 2116 (+5, +0.24% PASS, band 2053-2179, headroom 58),
+   by converting the OTHER counted loops one at a time to the `do { } while`
+   retail emits, after the first loop_9 conversion was already banked.  Per-loop
+   from the 654 baseline: loop_12 (var_17_2, dynamic 0010b5b0 bound) 654 -> 647,
+   loop_92 (var_20, dynamic 002e4870+8 bound) 654 -> 648, loop_150 (var_17_5,
+   constant 0x30C) 654 -> 652, loop_32 (var_17_3, constant 0xC) 654 -> 653.
+   Stacked iteratively: 647 (loop_12) -> 641 (+loop_92) -> 639 (+loop_150) ->
+   638 (+loop_32), each -2 instructions.  The lever is iterative as on
+   func_001ed700 (871 -> 782 on its second loop): the first sweep converts the
+   single best loop, so re-running after installing finds the next one.
+   `table_order.py` reports already in table layout order, so no re-sort.
+   `deficit_scan.py` 2129 -> 2121 (deficit -13 -> -5, object not short, opcode
+   delta move/dsra32/dsll32 unchanged) and `tail_classify.py` 654 -> 638
+   (structure 242 / register 88, same hunks, shorter edits) confirm the tail is
+   allocator/schedule noise outside these loops.  loop_43 left alone: search
+   loop `if (>=0xC) {big} else if (!=1) {i++; goto}` is not the counted-loop
+   pattern. */
 // FUN_002F9D90 NONMATCHING
 #ifdef NON_MATCHING
 void func_002f9d90(u8 *arg0) {
@@ -5739,8 +5757,7 @@ do {
                     var_17 = ((var_17 + 1));
 } while (((var_17)) < 0xC);
             var_17_2 = 0;
-loop_12:
-            if (((var_17_2)) < (func_0010b5b0() & 0xFFFF)) {
+            do {
                 func_002b2a60(col10C, 0, 0, 0x99, 0xFFU);
                 temp_2 = (s16 *)(func_0034ae50((*( u8 ** )((u8 *)(temp_16) + (0x188))), (s8)var_17_2));
                 (*( u8 * )((u8 *)(temp_2) + (0x75))) = col10C[0];
@@ -5748,8 +5765,7 @@ loop_12:
                 (*( u8 * )((u8 *)(temp_2) + (0x77))) = col10C[2];
                 (*( u8 * )((u8 *)(temp_2) + (0x78))) = col10C[3];
                 var_17_2 = ((var_17_2 + 1));
-                goto loop_12;
-            }
+            } while (((var_17_2)) < (func_0010b5b0() & 0xFFFF));
             (*( s8 * )((u8 *)(temp_16) + (0x129))) = -1;
             (*( s8 * )((u8 *)(temp_16) + (0x128))) = -1;
             (*( s16 * )((u8 *)(temp_16) + (0x11E))) = -1;
@@ -5780,9 +5796,8 @@ loop_12:
             return;
         }
         var_17_3 = 0;
-loop_32:
+        do {
         temp_19 = (var_17_3);
-        if (temp_19 < 0xC) {
             if (temp_19 < (*( s32 * )((u8 *)(func_002e4870(0)) + (8)))) {
                 if ((s32) (*( u8 * )((u8 *)(func_002e48a0(0, var_17_3)) + (4))) > 0) {
                     temp_22 = (var_17_3);
@@ -5817,8 +5832,7 @@ loop_32:
                 func_00275820(temp_20_3, 0, 2, ((s32)iGpffffb440) + ((*( u16 * )((u8 *)(func_002e48a0(0, var_17_3)) + (2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, (f32) 0x19D, (f32) ((temp_19 * 0x17) + 0x80), 43.0f);
             }
             var_17_3 = ((var_17_3 + 1));
-            goto loop_32;
-        }
+        } while (var_17_3 < 0xC);
         temp_f20_3 = (f32) (*( s16 * )((u8 *)(func_002b6150(0x270)) + (0x42)));
         temp_f0_3 = func_002b2aa0(0, 0, 255.0f, temp_f20_3, (f32) (*( s16 * )((u8 *)(func_002b6150(0x270)) + (0x40))));
         if (!(temp_f0_3 >= 2.1474836e9f)) {
@@ -5959,9 +5973,8 @@ block_79:
         break;
     case 0x68:
         var_20 = 0;
-loop_92:
+        do {
         temp_17_9 = (var_20);
-        if (temp_17_9 < (*( s32 * )((u8 *)(func_002e4870(0)) + (8)))) {
             temp_22_3 = (var_20);
             temp_19_3 = temp_22_3 + 0x21C;
             temp_f20_4 = (f32) (*( s16 * )((u8 *)(func_002b6150((temp_19_3))) + (0x42)));
@@ -5978,8 +5991,7 @@ loop_92:
             }
             func_00275820(var_21_2, 0, 2, ((s32)iGpffffb440) + ((*( u16 * )((u8 *)(func_002e48a0(0, var_20)) + (2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, (f32) 0x19D, (f32) ((temp_17_9 * 0x17) + 0x80), 43.0f);
             var_20 = ((var_20 + 1));
-            goto loop_92;
-        }
+        } while (var_20 < (*( s32 * )((u8 *)(func_002e4870(0)) + (8))));
         if ((*( s32 * )((u8 *)(func_002e4870(0)) + (8))) >= 0xC) {
             temp_f20_5 = (f32) (*( s16 * )((u8 *)(func_002b6150(0x270)) + (0x42)));
             temp_f0_5 = func_002b2aa0(0, 255.0f, 0, temp_f20_5, (f32) (*( s16 * )((u8 *)(func_002b6150(0x270)) + (0x40))));
@@ -6153,12 +6165,10 @@ loop_92:
             func_00325450(arg0, 8, 1);
             (*( s16 * )((u8 *)(temp_16) + (0x11E))) = (s16) (*( s8 * )((u8 *)(temp_16) + (0x122)));
             var_17_5 = 0;
-loop_150:
-            if (((var_17_5)) < 0x30C) {
+            do {
                 func_002b68d0(var_17_5, 0, 1);
                 var_17_5 = ((var_17_5 + 1));
-                goto loop_150;
-            }
+            } while (((var_17_5)) < 0x30C);
             (*( u8 * )((u8 *)(temp_16) + (1))) = 0x6DU;
             return;
         }
