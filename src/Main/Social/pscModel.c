@@ -118,45 +118,30 @@ void func_003694d0(PscModel *model)
     if (model->mode < 0 || model->mode >= 4) {
         func_0046d730(D_0064E480, 0x2F7);
     }
-    if (model->mode == 3) {
-        m3 = model;
-        e0work = model->e0;
-    } else if (model->mode == 2) {
-        m2 = model;
-        e0work = model->e0;
-    } else if (model->mode == 0) {
-        m0 = model;
-        e0work = model->e0;
-    } else if (model->mode == 1) {
+    switch (model->mode) {
+    case 1:
         m1 = model;
         e0work = model->e0;
-    } else {
+        break;
+    case 0:
+        m0 = model;
         e0work = model->e0;
+        break;
+    case 2:
+        m2 = model;
+        e0work = model->e0;
+        break;
+    case 3:
+        m3 = model;
+        e0work = model->e0;
+        break;
     }
     mtx = func_003e0f80();
     func_0036abd0(mtx, model);
     if (model->flags & 4) {
         func_0036ae00(e0work, model->color);
-        if (model->mode == 3) {
-            func_0036ae00(m3->u.w170, model->color);
-        } else if (model->mode == 2) {
-            func_0036ae00(m2->u.w170, model->color);
-        } else if (model->mode == 1) {
-            func_0036ae00(m1->u.m01.b1, model->color);
-            func_0036ae00(m1->u.m01.b0, model->color);
-            tmp[0] = model->color[0];
-            tmp[1] = model->color[1];
-            tmp[2] = model->color[2];
-            tmp[3] = model->color[3];
-            tmp[0] = 0;
-            tmp[1] = 0;
-            tmp[2] = 0;
-            alpha = tmp[3];
-            alphaf = (f32)alpha;
-            f = m1->u.m01.b3[0].dir.y * (alphaf * m1->u.m01.b3[0].dir.x);
-            tmp[3] = (u8)(u32)f;
-            func_0036ae00(m1->u.m01.b2, tmp);
-        } else if (model->mode == 0) {
+        switch (model->mode) {
+        case 0:
             func_0036ae00(m0->u.m01.b0, model->color);
             func_0036ae00(m0->u.m01.b1, model->color);
             tmp[0] = model->color[0];
@@ -177,37 +162,61 @@ void func_003694d0(PscModel *model)
             tmp[3] = (u8)(u32)f;
             func_0036ae00(m0->u.m01.b4, tmp);
             if (m0->u.m01.unk170 & 1) {
-                tmp[0] = model->color[0];
-                tmp[1] = model->color[1];
-                tmp[2] = model->color[2];
-                tmp[3] = model->color[3];
-                tmp[0] = 0;
-                tmp[1] = 0;
-                tmp[2] = 0;
-                func_0036ae00(m0->u.m01.b5, tmp);
+            tmp[0] = model->color[0];
+            tmp[1] = model->color[1];
+            tmp[2] = model->color[2];
+            tmp[3] = model->color[3];
+            tmp[0] = 0;
+            tmp[1] = 0;
+            tmp[2] = 0;
+            func_0036ae00(m0->u.m01.b5, tmp);
             } else {
-                func_0036ae00(m0->u.m01.b5, model->color);
+            func_0036ae00(m0->u.m01.b5, model->color);
             }
             if (m0->u.m01.unk170 & 1) {
-                tmp[0] = model->color[0];
-                tmp[1] = model->color[1];
-                tmp[2] = model->color[2];
-                tmp[3] = model->color[3];
-                tmp[3] = 0;
-                func_0036ae00(m0->u.m01.b6, tmp);
+            tmp[0] = model->color[0];
+            tmp[1] = model->color[1];
+            tmp[2] = model->color[2];
+            tmp[3] = model->color[3];
+            tmp[3] = 0;
+            func_0036ae00(m0->u.m01.b6, tmp);
             } else {
-                tmp[0] = model->color[0];
-                tmp[1] = model->color[1];
-                tmp[2] = model->color[2];
-                tmp[3] = model->color[3];
-                f = 255.0f * m0->u.m01.b8[0].dir.x;
-                tmp[3] = (u8)(u32)f;
-                func_0036ae00(m0->u.m01.b6, tmp);
+            tmp[0] = model->color[0];
+            tmp[1] = model->color[1];
+            tmp[2] = model->color[2];
+            tmp[3] = model->color[3];
+            f = 255.0f * m0->u.m01.b8[0].dir.x;
+            tmp[3] = (u8)(u32)f;
+            func_0036ae00(m0->u.m01.b6, tmp);
             }
+            break;
+        case 1:
+            func_0036ae00(m1->u.m01.b1, model->color);
+            func_0036ae00(m1->u.m01.b0, model->color);
+            tmp[0] = model->color[0];
+            tmp[1] = model->color[1];
+            tmp[2] = model->color[2];
+            tmp[3] = model->color[3];
+            tmp[0] = 0;
+            tmp[1] = 0;
+            tmp[2] = 0;
+            alpha = tmp[3];
+            alphaf = (f32)alpha;
+            f = m1->u.m01.b3[0].dir.y * (alphaf * m1->u.m01.b3[0].dir.x);
+            tmp[3] = (u8)(u32)f;
+            func_0036ae00(m1->u.m01.b2, tmp);
+            break;
+        case 2:
+            func_0036ae00(m2->u.w170, model->color);
+            break;
+        case 3:
+            func_0036ae00(m3->u.w170, model->color);
+            break;
         }
         model->flags &= ~4;
     }
-    if (model->mode == 0) {
+    switch (model->mode) {
+    case 0:
         tmp[0] = model->color[0];
         tmp[1] = model->color[1];
         tmp[2] = model->color[2];
@@ -222,36 +231,31 @@ void func_003694d0(PscModel *model)
         tmp[2] = model->color[2];
         tmp[3] = model->color[3];
         if (m0->u.m01.unk170 & 1) {
-            tmp[3] = 0;
+        tmp[3] = 0;
         } else {
-            alpha = model->color[3];
-            alphaf = (f32)alpha;
-            f = ((255.0f * m0->u.m01.b8[0].dir.x * alphaf) / 255.0f);
-            tmp[3] = (u8)(u32)f;
+        alpha = model->color[3];
+        alphaf = (f32)alpha;
+        f = ((255.0f * m0->u.m01.b8[0].dir.x * alphaf) / 255.0f);
+        tmp[3] = (u8)(u32)f;
         }
         func_0036ae00(m0->u.m01.b6, tmp);
+        break;
     }
     tbl = D_00887300;
     (*tbl)(9, 2);
     (*tbl)(0x14, 2);
     (*tbl)(6, 0);
-    if (model->mode == 3) {
+    switch (model->mode) {
+    case 1:
         (*tbl)(8, 1);
-        func_003f6440(2, 0x44);
         func_003f6440(3, 0x317F3);
-        (*tbl)(1, func_0036c0d0());
-        func_00410420(model->u.w170, 4, mtx, 3);
+        (*tbl)(1, func_0036bee0(model->u.m01.unk170, model->u.m01.unk174));
+        func_003f6440(2, 0x44);
+        func_00410420(m1->u.m01.b0, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
-    } else if (model->mode == 2) {
-        (*tbl)(8, 1);
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x317F3);
-        (*tbl)(1, func_0036be70());
-        func_00410420(model->u.w170, 4, mtx, 3);
-        func_00410520(3, D_0064E470, 6);
-        func_004104d0();
-    } else if (model->mode == 0) {
+        break;
+    case 0:
         m0 = model;
         (*tbl)(8, 1);
         func_003f6440(3, 0x317F3);
@@ -293,31 +297,44 @@ void func_003694d0(PscModel *model)
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         if (model->flags & 2) {
-            func_003f6440(2, 0x48);
-            (*tbl)(3, 3);
-            (*tbl)(4, 3);
-            (*tbl)(1, func_0036d130(5));
-            func_00410420(m0->u.m01.b7, 4, mtx, 3);
-            func_00410520(3, D_0064E470, 6);
-            func_004104d0();
-        }
-    } else if (model->mode == 1) {
-        (*tbl)(8, 1);
-        func_003f6440(3, 0x317F3);
-        (*tbl)(1, func_0036bee0(model->u.m01.unk170, model->u.m01.unk174));
-        func_003f6440(2, 0x44);
-        func_00410420(m1->u.m01.b0, 4, mtx, 3);
+        func_003f6440(2, 0x48);
+        (*tbl)(3, 3);
+        (*tbl)(4, 3);
+        (*tbl)(1, func_0036d130(5));
+        func_00410420(m0->u.m01.b7, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
+        }
+        break;
+    case 2:
+        (*tbl)(8, 1);
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x317F3);
+        (*tbl)(1, func_0036be70());
+        func_00410420(model->u.w170, 4, mtx, 3);
+        func_00410520(3, D_0064E470, 6);
+        func_004104d0();
+        break;
+    case 3:
+        (*tbl)(8, 1);
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x317F3);
+        (*tbl)(1, func_0036c0d0());
+        func_00410420(model->u.w170, 4, mtx, 3);
+        func_00410520(3, D_0064E470, 6);
+        func_004104d0();
+        break;
     }
     tbl = D_00887300;
     if ((model->flags & 1) != 0 && model->unk48 == 0) {
-        if (model->mode == 1) {
+        switch (model->mode) {
+        case 1:
             func_003f6440(2, 0x6A);
             (*tbl)(1, func_0036d130(1));
             func_00410420(m1->u.m01.b1, 4, mtx, 3);
             func_00410520(3, D_0064E470, 6);
             func_004104d0();
+            break;
         }
         func_003f6440(2, 0x58);
         (*tbl)(4, 3);
@@ -327,7 +344,8 @@ void func_003694d0(PscModel *model)
         func_004104d0();
         (*tbl)(4, 1);
     }
-    if (model->mode == 1) {
+    switch (model->mode) {
+    case 1:
         (*tbl)(6, 0);
         (*tbl)(8, 1);
         func_003f6440(3, 0x717FB);
@@ -336,6 +354,7 @@ void func_003694d0(PscModel *model)
         func_00410420(m1->u.m01.b2, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
+        break;
     }
     tbl = D_00887300;
     (*tbl)(1, func_0036be00());
@@ -351,18 +370,23 @@ void func_003694d0(PscModel *model)
             (*tbl)(6, 0);
             (*tbl)(8, 1);
             func_003f6440(2, 0x6A);
-            if (model->mode == 3) {
-                func_003f6440(3, 0x71801);
-                func_003f6440(2, 0x48);
-            } else if (model->mode == 2) {
-                func_003f6440(3, 0x71801);
-                func_003f6440(2, 0x48);
-            } else if (model->mode == 1) {
-                (*tbl)(1, func_0036d1b0(0));
-                func_00410420(model->u.m01.b1, 4, mtx, 3);
-            } else if (model->mode == 0) {
+            switch (model->mode) {
+            case 0:
                 (*tbl)(1, func_0036d130(1));
                 func_00410420(model->u.m01.b1, 4, mtx, 3);
+                break;
+            case 1:
+                (*tbl)(1, func_0036d1b0(0));
+                func_00410420(model->u.m01.b1, 4, mtx, 3);
+                break;
+            case 2:
+                func_003f6440(3, 0x71801);
+                func_003f6440(2, 0x48);
+                break;
+            case 3:
+                func_003f6440(3, 0x71801);
+                func_003f6440(2, 0x48);
+                break;
             }
             func_00410520(3, D_0064E470, 6);
             func_004104d0();
