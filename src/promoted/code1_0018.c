@@ -1398,6 +1398,12 @@ void func_00185830(void)
    loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
    was ever the right one, so each loop is measured separately rather than converting
    them all. */
+/* measured 00185850 (owner, 2026-09-19): fnalign **787 -> 785 edits**, count
+   902 -> 900 against retail 880, converting a SECOND constant-bound `for` loop
+   to `do { } while` after the first conversion was already banked.
+   The lever is iterative, which the first sweep hid: it converts the single best loop
+   per function, so re-running it after installing finds the next one.  The third pass
+   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
 // FUN_00185850 NONMATCHING
 #ifdef NON_MATCHING
 void func_00185850(u8 *arg0)
@@ -1492,7 +1498,8 @@ void func_00185850(u8 *arg0)
         for (temp_v4 = 0; temp_v4 < 10; temp_v4 = temp_v4 + 1) {
           piVar5 = piVar1 + temp_v0 * 10 + temp_v4 + 2;
           temp_v2 = piVar1[temp_v0 * 10 + temp_v4 + 2];
-          for (temp_v3 = 0; temp_v3 < 4; temp_v3 = temp_v3 + 1) {
+          temp_v3 = 0;
+          do {
             if (3 < temp_v2) {
               temp_v2 = 0;
             }
@@ -1501,7 +1508,8 @@ void func_00185850(u8 *arg0)
             ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + temp_v3 * 0x10 + 0x4d] =
                  *(f32 *)(D_005F1DA0 + temp_v2 * 8 + 4);
             temp_v2 = temp_v2 + 1;
-          }
+              temp_v3++;
+          } while (temp_v3 < 4);
           if (uGpffffb314 != 0) {
             *piVar5 = *piVar5 + 1;
           }

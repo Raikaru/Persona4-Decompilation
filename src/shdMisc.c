@@ -190,6 +190,12 @@ s32 func_003645c0(char *out, s32 value)
    loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
    was ever the right one, so each loop is measured separately rather than converting
    them all. */
+/* measured 00364680 (owner, 2026-09-19): fnalign **157 -> 155 edits**, count
+   381 -> 379 against retail 372, converting a SECOND constant-bound `for` loop
+   to `do { } while` after the first conversion was already banked.
+   The lever is iterative, which the first sweep hid: it converts the single best loop
+   per function, so re-running it after installing finds the next one.  The third pass
+   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
 // FUN_00364680 NONMATCHING
 #ifdef NON_MATCHING
 void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, f32 fparg6, u8 *ptr, s32 arg2, s32 arg3) {
@@ -251,12 +257,14 @@ void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32
         verts[2][1] = fparg4 + fparg6;
         verts[3][0] = fparg3;
         verts[3][1] = fparg4 + fparg6;
-        for (i = 0; i < 4; i++) {
+        i = 0;
+        do {
             ((u32 *)verts)[i * 16 + 8] = 0x437F0000;
             ((u32 *)verts)[i * 16 + 9] = 0x437F0000;
             ((u32 *)verts)[i * 16 + 10] = 0x437F0000;
             ((u32 *)verts)[i * 16 + 11] = 0x437F0000;
-        }
+            i++;
+        } while (i < 4);
         func_003f6440(3, 0x31801);
         drawbase[0](5, verts, 4);
     }

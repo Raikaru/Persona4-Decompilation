@@ -1478,6 +1478,12 @@ void func_00368d30(u8 *arg0)
    363 -> 361 against retail 366, by turning one constant-bound `for` loop into
    the `do { } while` retail emits - no guard before the first iteration, one compare
    at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
+/* measured 00368e80 (owner, 2026-09-19): fnalign **58 -> 56 edits**, count
+   361 -> 359 against retail 366, converting a SECOND constant-bound `for` loop
+   to `do { } while` after the first conversion was already banked.
+   The lever is iterative, which the first sweep hid: it converts the single best loop
+   per function, so re-running it after installing finds the next one.  The third pass
+   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
 // FUN_00368E80 NONMATCHING
 #ifdef NON_MATCHING
 void func_00368e80(u8 *arg0)
@@ -1602,10 +1608,12 @@ done:
             stack[6] = 1.0f;
             stack[7] = 0.0f;
             angle = D_007612D0 * (*(f32 *)(base + 0x3C) / 4.0f);
-            for (i = 0; i < 4; i++) {
+            i = 0;
+            do {
                 stack[i * 2] -= 0.5f;
                 stack[i * 2 + 1] -= 0.5f;
-            }
+                i++;
+            } while (i < 4);
             for (j = 0; j < 4; j++) {
                 pa = &stack[j * 2];
                 pb = pa + 1;

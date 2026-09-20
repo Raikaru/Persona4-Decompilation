@@ -1330,6 +1330,12 @@ void func_004a6e50(int param_1)
    587 -> 585 against retail 572, by turning one constant-bound `for` loop into
    the `do { } while` retail emits - no guard before the first iteration, one compare
    at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
+/* measured 004a6e70 (owner, 2026-09-19): fnalign **525 -> 524 edits**, count
+   585 -> 583 against retail 572, converting a SECOND constant-bound `for` loop
+   to `do { } while` after the first conversion was already banked.
+   The lever is iterative, which the first sweep hid: it converts the single best loop
+   per function, so re-running it after installing finds the next one.  The third pass
+   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
 // FUN_004A6E70 NONMATCHING
 #ifdef NON_MATCHING
 void func_004a6e70(u8 *arg0)
@@ -1441,7 +1447,8 @@ void func_004a6e70(u8 *arg0)
         vtxCur = vtxBase;
         auxCur = auxBase;
         entryBase = D_007141B0 + (s32)*(u8 *)(arg0 + 0x54) * 0xD0;
-        for (outer = 0; outer < 13; outer++) {
+        outer = 0;
+        do {
             entry = entryBase + outer * 0x10;
             if ((*(s32 *)(entry + 0xC) & 0xFF000000) == 0) {
                 auxCur = (u32 *)((u8 *)auxCur + 0x80);
@@ -1624,7 +1631,8 @@ void func_004a6e70(u8 *arg0)
                 vtxCur += 0xC0;
                 auxCur += 0x20;
             }
-        }
+            outer++;
+        } while (outer < 13);
     }
     {
         u8 *c = (u8 *)func_00457120();

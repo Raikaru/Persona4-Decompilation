@@ -6937,6 +6937,12 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e6f0);
 /* measured: banked floor nd 512 (obj 2532B/window 2592B, 60B under; frame -0xA0 vs retail -0x90, extra s7). Switch-dispatch (0x200,0x400,0x100,2,4) beats || (512 vs 563); scoped-reuse 581/541; staged t/ok temps best. Saved-register rotation (obj arg2=$s6/tmp=$s0/arg3=$s1 vs retail $s2/$s6/$s0) + s7 cascades (retail 646 vs obj 631 instrs). Prior nd-521 rotation floor corroborated; 10 gp loads pragma-n/a; 4-arg s32 ABI verified, no caller change. Production stays ASM; floor in SKIP_ASM + docs/probe_archive/DC_002411a0_body.c. */
 /* measured 002411a0: `opt_common_subs off` inside the guard is worth 39 words (512 -> 473); retail rematerialises what b210 hoists. */
 /* measured 002411a0 (WWidthD): `total >= 0x65` -> `total > 0x64` gives retail `slti $at,$s0,0x65` (was `$v0`), fnalign 318 -> 316 edits at 646/646 via `tools/fnalign.py --candidate`, words 473 via `tools/measure_guarded.py` unchanged; `tools/wscan_pairs.py` 12 vs 11 (1 excess 0x10 pair, middle t-blocks); pragmas via `tools/probe_variants.py` on the slti base (re-measured singly post-flock): `schedule on` 571 (+98), `opt_propagation off` 514 (+41), `opt_loop_invariants on` 473 (neutral), all three 571; widths: `s16 lvl` 477, nocast 488, `s32 i` 498, `s32 kind` 499, `s32 id_2` 494, `s32 id16`/`s32 id`/`s32 id16_2` neutral 473; rotation + extra s7 wall stands. */
+/* measured 002411a0 (owner, 2026-09-19): fnalign **316 -> 315 edits**, count
+   646 -> 644 against retail 646, converting a SECOND constant-bound `for` loop
+   to `do { } while` after the first conversion was already banked.
+   The lever is iterative, which the first sweep hid: it converts the single best loop
+   per function, so re-running it after installing finds the next one.  The third pass
+   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
 // FUN_002411A0 NONMATCHING
 #ifdef SKIP_ASM
 #pragma opt_common_subs off
@@ -7085,12 +7091,14 @@ s32 func_002411a0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
         tab = iGpffffb3c4 + *(u16 *)(arg0 + 2) * 0x3C + 0xE;
     }
     found = 0;
-    for (i = 0; i < 8; i++) {
+    i = 0;
+    do {
         if (*(u16 *)(tab + i * 2) == 0x207) {
             found = 1;
             break;
         }
-    }
+        i++;
+    } while (i < 8);
     if (found == 0) {
         if ((*(u16 *)arg0 & 4) == 0) {
             s32 t;

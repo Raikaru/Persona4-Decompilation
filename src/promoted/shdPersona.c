@@ -1424,6 +1424,12 @@ extern f32 iGpffff8094;
    uppercase form; it is normalised here.  (Spelling the two forms out literally in this
    note is what tests/test_marker_tripwire.py exists to catch, so they are described
    instead.) */
+/* measured 00118a20 (owner, 2026-09-19): fnalign **77 -> 76 edits**, count
+   428 -> 426 against retail 435, converting a SECOND constant-bound `for` loop
+   to `do { } while` after the first conversion was already banked.
+   The lever is iterative, which the first sweep hid: it converts the single best loop
+   per function, so re-running it after installing finds the next one.  The third pass
+   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
 // FUN_00118A20 NONMATCHING
 #ifdef NON_MATCHING
 void func_00118a20(u8 *arg0)
@@ -1536,12 +1542,14 @@ void func_00118a20(u8 *arg0)
     sp60[5] = 484.0f + m11;
     {
         s32 i;
-        for (i = 0; i < 3; i++) {
+        i = 0;
+        do {
             sp80[i * 4] = 0xED;
             sp80[i * 4 + 1] = 0x36;
             sp80[i * 4 + 2] = 0x11;
             sp80[i * 4 + 3] = b505;
-        }
+            i++;
+        } while (i < 3);
     }
     func_00364c50();
     func_0045dfd0(0.0f, sp80, sp60, 3, 5, 0);
