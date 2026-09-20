@@ -10303,6 +10303,21 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030b7b0);
    2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
    func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
    func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
+/* measured 0030c3c0 (owner, 2026-09-20): fnalign **2476 -> 2257 edits** (-219), count
+   3114 against retail 3145 (-1.0% INSIDE, deficit 31), words 2768 -> 2761.
+   deficit_scan runs 164+54+38 -> 164+32+32: with deficit 31 every run longer than
+   31 is a CROSS and was not written. Checked in order per 7bj: hoisted pointer
+   (int-add for temp_16+0xD/+1/arg0+0x38 and opt_loop_invariants off, all neutral),
+   reload (temp_16 re-read before A9, +1 count neutral; source already reloads
+   *(arg0+0x38) 13x matching retail 13x lw 0x38), then arm order. Six `if (>=6)`
+   with 9-check vs (temp+1)-check arms were backwards vs retail emission (retail
+   tests `<6` with slti/bnez to the (temp+1) arm, source tested `>=6` to the 9
+   arm): inverting to `if (<6)` and swapping bodies, semantics-preserving,
+   CE loop_200 -42, B4 loop_342 -31, B7 loop_367 -31, B5 loop_312 -31,
+   A1 loop_77 -41, A2 loop_129 -43. AB loop_275 tried the same swap and
+   regressed +34, so it stays `>=6` (retail matches source there). Remaining
+   164 at 0xD450 (A9, no >=6, hoist/reload neutral) and 32+32 at 0xEC3C/0xEDF8
+   (AF/B1 BF+9+B8 THEN arms, identical bodies) stay CROSS, not absent. */
 // FUN_0030C3C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0030c3c0(u8 *arg0) {
@@ -10666,27 +10681,7 @@ loop_60:
                         var_10 = 0;
 loop_77:
                         temp_5_4 = (s64) (var_10 << 0x30) >> 0x30;
-                        if (temp_5_4 >= 6) {
-                            var_8_4 = 0;
-loop_82:
-                            temp_5_5 = (s64) (var_8_4 << 0x30) >> 0x30;
-                            if (temp_5_5 >= (*(s8 *)((u8 *)(temp_3)+(0x2DF)))) {
-                                var_4_2 = 0;
-                            } else if ((*(s8 *)((u8 *)(((s32)(temp_3) + temp_5_5))+(0x2DA))) == 9) {
-                                var_4_2 = 1;
-                            } else {
-                                var_8_4 = (s64) ((var_8_4 + 1) << 0x30) >> 0x30;
-                                goto loop_82;
-                            }
-                            if (var_4_2 == 1) {
-                                (*(u8 *)((u8 *)(temp_16)+(1))) = 0xB8U;
-                                (*(u8 *)((u8 *)(temp_16)+(0x22))) = 0xB8U;
-                                if ((*(s8 *)((u8 *)(temp_16)+(0x21))) == 0) {
-                                    (*(u8 *)((u8 *)(temp_16)+(1))) = 0xBDU;
-                                    return;
-                                }
-                            }
-                        } else {
+                        if (temp_5_4 < 6) {
                             var_9 = 0;
 loop_70:
                             temp_5_6 = (s64) (var_9 << 0x30) >> 0x30;
@@ -10708,6 +10703,26 @@ loop_70:
                             }
                             var_10 = (s64) ((var_10 + 1) << 0x30) >> 0x30;
                             goto loop_77;
+                        } else {
+                            var_8_4 = 0;
+loop_82:
+                            temp_5_5 = (s64) (var_8_4 << 0x30) >> 0x30;
+                            if (temp_5_5 >= (*(s8 *)((u8 *)(temp_3)+(0x2DF)))) {
+                                var_4_2 = 0;
+                            } else if ((*(s8 *)((u8 *)(((s32)(temp_3) + temp_5_5))+(0x2DA))) == 9) {
+                                var_4_2 = 1;
+                            } else {
+                                var_8_4 = (s64) ((var_8_4 + 1) << 0x30) >> 0x30;
+                                goto loop_82;
+                            }
+                            if (var_4_2 == 1) {
+                                (*(u8 *)((u8 *)(temp_16)+(1))) = 0xB8U;
+                                (*(u8 *)((u8 *)(temp_16)+(0x22))) = 0xB8U;
+                                if ((*(s8 *)((u8 *)(temp_16)+(0x21))) == 0) {
+                                    (*(u8 *)((u8 *)(temp_16)+(1))) = 0xBDU;
+                                    return;
+                                }
+                            }
                         }
                     }
                 }
@@ -10791,27 +10806,7 @@ loop_112:
                         var_9_2 = 0;
 loop_129:
                         temp_5_10 = (s64) (var_9_2 << 0x30) >> 0x30;
-                        if (temp_5_10 >= 6) {
-                            var_8_8 = 0;
-loop_134:
-                            temp_5_11 = (s64) (var_8_8 << 0x30) >> 0x30;
-                            if (temp_5_11 >= (*(s8 *)((u8 *)(temp_3_2)+(0x2DF)))) {
-                                var_4_5 = 0;
-                            } else if ((*(s8 *)((u8 *)(((s32)(temp_3_2) + temp_5_11))+(0x2DA))) == 9) {
-                                var_4_5 = 1;
-                            } else {
-                                var_8_8 = (s64) ((var_8_8 + 1) << 0x30) >> 0x30;
-                                goto loop_134;
-                            }
-                            if (var_4_5 == 1) {
-                                (*(u8 *)((u8 *)(temp_16)+(1))) = 0xB8U;
-                                (*(u8 *)((u8 *)(temp_16)+(0x22))) = 0xB8U;
-                                if ((*(s8 *)((u8 *)(temp_16)+(0x21))) == 0) {
-                                    (*(u8 *)((u8 *)(temp_16)+(1))) = 0xBDU;
-                                    return;
-                                }
-                            }
-                        } else {
+                        if (temp_5_10 < 6) {
                             var_10_2 = 0;
 loop_122:
                             temp_5_12 = (s64) (var_10_2 << 0x30) >> 0x30;
@@ -10833,6 +10828,26 @@ loop_122:
                             }
                             var_9_2 = (s64) ((var_9_2 + 1) << 0x30) >> 0x30;
                             goto loop_129;
+                        } else {
+                            var_8_8 = 0;
+loop_134:
+                            temp_5_11 = (s64) (var_8_8 << 0x30) >> 0x30;
+                            if (temp_5_11 >= (*(s8 *)((u8 *)(temp_3_2)+(0x2DF)))) {
+                                var_4_5 = 0;
+                            } else if ((*(s8 *)((u8 *)(((s32)(temp_3_2) + temp_5_11))+(0x2DA))) == 9) {
+                                var_4_5 = 1;
+                            } else {
+                                var_8_8 = (s64) ((var_8_8 + 1) << 0x30) >> 0x30;
+                                goto loop_134;
+                            }
+                            if (var_4_5 == 1) {
+                                (*(u8 *)((u8 *)(temp_16)+(1))) = 0xB8U;
+                                (*(u8 *)((u8 *)(temp_16)+(0x22))) = 0xB8U;
+                                if ((*(s8 *)((u8 *)(temp_16)+(0x21))) == 0) {
+                                    (*(u8 *)((u8 *)(temp_16)+(1))) = 0xBDU;
+                                    return;
+                                }
+                            }
                         }
                     }
                 }
@@ -10959,29 +10974,7 @@ loop_183:
                 var_9_3 = 0;
 loop_200:
                 temp_5_16 = (s64) (var_9_3 << 0x30) >> 0x30;
-                if (temp_5_16 >= 6) {
-                    var_8_12 = 0;
-                    temp_7_3 = (s8)((s8)((s8)((*(s8 *)((u8 *)(temp_3_3)+(0x2DF))))));
-loop_205:
-                    temp_5_17 = (s64) (var_8_12 << 0x30) >> 0x30;
-                    if (temp_5_17 >= temp_7_3) {
-                        var_4_8 = 0;
-                    } else if ((*(s8 *)((u8 *)(((s32)(temp_3_3) + temp_5_17))+(0x2DA))) == 9) {
-                        var_4_8 = 1;
-                    } else {
-                        var_8_12 = (s64) ((var_8_12 + 1) << 0x30) >> 0x30;
-                        goto loop_205;
-                    }
-                    if (var_4_8 == 1) {
-                        (*(u8 *)((u8 *)(temp_16)+(1))) = 0xB8U;
-                        (*(u8 *)((u8 *)(temp_16)+(0x22))) = 0xB8U;
-                        if ((*(s8 *)((u8 *)(temp_16)+(0x21))) == 0) {
-                            (*(u8 *)((u8 *)(temp_16)+(1))) = 0xBCU;
-                        }
-                        func_00314670((u8 *)(*(s32 *)((u8 *)(temp_16)+(0x148))), 9);
-                        return;
-                    }
-                } else {
+                if (temp_5_16 < 6) {
                     var_10_3 = 0;
                     temp_7_4 = (s64) ((temp_5_16 + 1) << 0x38) >> 0x38;
                     temp_6 = (s8)((s8)((s8)((*(s8 *)((u8 *)(temp_3_3)+(0x2DF))))));
@@ -11006,6 +10999,28 @@ loop_193:
                     }
                     var_9_3 = (s64) ((var_9_3 + 1) << 0x30) >> 0x30;
                     goto loop_200;
+                } else {
+                    var_8_12 = 0;
+                    temp_7_3 = (s8)((s8)((s8)((*(s8 *)((u8 *)(temp_3_3)+(0x2DF))))));
+loop_205:
+                    temp_5_17 = (s64) (var_8_12 << 0x30) >> 0x30;
+                    if (temp_5_17 >= temp_7_3) {
+                        var_4_8 = 0;
+                    } else if ((*(s8 *)((u8 *)(((s32)(temp_3_3) + temp_5_17))+(0x2DA))) == 9) {
+                        var_4_8 = 1;
+                    } else {
+                        var_8_12 = (s64) ((var_8_12 + 1) << 0x30) >> 0x30;
+                        goto loop_205;
+                    }
+                    if (var_4_8 == 1) {
+                        (*(u8 *)((u8 *)(temp_16)+(1))) = 0xB8U;
+                        (*(u8 *)((u8 *)(temp_16)+(0x22))) = 0xB8U;
+                        if ((*(s8 *)((u8 *)(temp_16)+(0x21))) == 0) {
+                            (*(u8 *)((u8 *)(temp_16)+(1))) = 0xBCU;
+                        }
+                        func_00314670((u8 *)(*(s32 *)((u8 *)(temp_16)+(0x148))), 9);
+                        return;
+                    }
                 }
             }
         }
@@ -11278,28 +11293,7 @@ loop_295:
             var_9_5 = 0;
 loop_312:
             temp_4_7 = (s64) (var_9_5 << 0x30) >> 0x30;
-            if (temp_4_7 >= 6) {
-                temp_7_5 = (u8 *)((*(u8 **)((u8 *)(arg0)+(0x38))));
-                var_8_15 = 0;
-loop_317:
-                temp_4_8 = (s64) (var_8_15 << 0x30) >> 0x30;
-                if (temp_4_8 >= (*(s8 *)((u8 *)(temp_7_5)+(0x2DF)))) {
-                    var_4_15 = 0;
-                } else if ((*(s8 *)((u8 *)(((s32)(temp_7_5) + temp_4_8))+(0x2DA))) == 9) {
-                    var_4_15 = 1;
-                } else {
-                    var_8_15 = (s64) ((var_8_15 + 1) << 0x30) >> 0x30;
-                    goto loop_317;
-                }
-                if (var_4_15 == 1) {
-                    (*(u8 *)((u8 *)(temp_16)+(1))) = 0xB8U;
-                    (*(u8 *)((u8 *)(temp_16)+(0x22))) = 0xB8U;
-                    if ((*(s8 *)((u8 *)(temp_16)+(0x21))) == 0) {
-                        (*(u8 *)((u8 *)(temp_16)+(1))) = 0xBDU;
-                        return;
-                    }
-                }
-            } else {
+            if (temp_4_7 < 6) {
                 temp_8 = (u8 *)((*(u8 **)((u8 *)(arg0)+(0x38))));
                 var_10_5 = 0;
 loop_305:
@@ -11322,6 +11316,27 @@ loop_305:
                 }
                 var_9_5 = (s64) ((var_9_5 + 1) << 0x30) >> 0x30;
                 goto loop_312;
+            } else {
+                temp_7_5 = (u8 *)((*(u8 **)((u8 *)(arg0)+(0x38))));
+                var_8_15 = 0;
+loop_317:
+                temp_4_8 = (s64) (var_8_15 << 0x30) >> 0x30;
+                if (temp_4_8 >= (*(s8 *)((u8 *)(temp_7_5)+(0x2DF)))) {
+                    var_4_15 = 0;
+                } else if ((*(s8 *)((u8 *)(((s32)(temp_7_5) + temp_4_8))+(0x2DA))) == 9) {
+                    var_4_15 = 1;
+                } else {
+                    var_8_15 = (s64) ((var_8_15 + 1) << 0x30) >> 0x30;
+                    goto loop_317;
+                }
+                if (var_4_15 == 1) {
+                    (*(u8 *)((u8 *)(temp_16)+(1))) = 0xB8U;
+                    (*(u8 *)((u8 *)(temp_16)+(0x22))) = 0xB8U;
+                    if ((*(s8 *)((u8 *)(temp_16)+(0x21))) == 0) {
+                        (*(u8 *)((u8 *)(temp_16)+(1))) = 0xBDU;
+                        return;
+                    }
+                }
             }
         }
         break;
@@ -11359,28 +11374,7 @@ loop_305:
         var_9_6 = 0;
 loop_342:
         temp_4_10 = (s64) (var_9_6 << 0x30) >> 0x30;
-        if (temp_4_10 >= 6) {
-            temp_7_6 = (u8 *)((*(u8 **)((u8 *)(arg0)+(0x38))));
-            var_8_16 = 0;
-loop_347:
-            temp_4_11 = (s64) (var_8_16 << 0x30) >> 0x30;
-            if (temp_4_11 >= (*(s8 *)((u8 *)(temp_7_6)+(0x2DF)))) {
-                var_4_16 = 0;
-            } else if ((*(s8 *)((u8 *)(((s32)(temp_7_6) + temp_4_11))+(0x2DA))) == 9) {
-                var_4_16 = 1;
-            } else {
-                var_8_16 = (s64) ((var_8_16 + 1) << 0x30) >> 0x30;
-                goto loop_347;
-            }
-            if (var_4_16 == 1) {
-                (*(u8 *)((u8 *)(temp_16)+(1))) = 0xB8U;
-                (*(u8 *)((u8 *)(temp_16)+(0x22))) = 0xB8U;
-                if ((*(s8 *)((u8 *)(temp_16)+(0x21))) == 0) {
-                    (*(u8 *)((u8 *)(temp_16)+(1))) = 0xBDU;
-                    return;
-                }
-            }
-        } else {
+        if (temp_4_10 < 6) {
             temp_8_2 = (u8 *)((*(u8 **)((u8 *)(arg0)+(0x38))));
             var_10_6 = 0;
 loop_335:
@@ -11403,6 +11397,27 @@ loop_335:
             }
             var_9_6 = (s64) ((var_9_6 + 1) << 0x30) >> 0x30;
             goto loop_342;
+        } else {
+            temp_7_6 = (u8 *)((*(u8 **)((u8 *)(arg0)+(0x38))));
+            var_8_16 = 0;
+loop_347:
+            temp_4_11 = (s64) (var_8_16 << 0x30) >> 0x30;
+            if (temp_4_11 >= (*(s8 *)((u8 *)(temp_7_6)+(0x2DF)))) {
+                var_4_16 = 0;
+            } else if ((*(s8 *)((u8 *)(((s32)(temp_7_6) + temp_4_11))+(0x2DA))) == 9) {
+                var_4_16 = 1;
+            } else {
+                var_8_16 = (s64) ((var_8_16 + 1) << 0x30) >> 0x30;
+                goto loop_347;
+            }
+            if (var_4_16 == 1) {
+                (*(u8 *)((u8 *)(temp_16)+(1))) = 0xB8U;
+                (*(u8 *)((u8 *)(temp_16)+(0x22))) = 0xB8U;
+                if ((*(s8 *)((u8 *)(temp_16)+(0x21))) == 0) {
+                    (*(u8 *)((u8 *)(temp_16)+(1))) = 0xBDU;
+                    return;
+                }
+            }
         }
         break;
     case 0xB7:                                      /* switch 1 */
@@ -11420,28 +11435,7 @@ loop_335:
             var_9_7 = 0;
 loop_367:
             temp_4_14 = (s64) (var_9_7 << 0x30) >> 0x30;
-            if (temp_4_14 >= 6) {
-                temp_7_7 = (u8 *)((*(u8 **)((u8 *)(arg0)+(0x38))));
-                var_8_17 = 0;
-loop_372:
-                temp_4_15 = (s64) (var_8_17 << 0x30) >> 0x30;
-                if (temp_4_15 >= (*(s8 *)((u8 *)(temp_7_7)+(0x2DF)))) {
-                    var_4_17 = 0;
-                } else if ((*(s8 *)((u8 *)(((s32)(temp_7_7) + temp_4_15))+(0x2DA))) == 9) {
-                    var_4_17 = 1;
-                } else {
-                    var_8_17 = (s64) ((var_8_17 + 1) << 0x30) >> 0x30;
-                    goto loop_372;
-                }
-                if (var_4_17 == 1) {
-                    (*(u8 *)((u8 *)(temp_16)+(1))) = 0xB8U;
-                    (*(u8 *)((u8 *)(temp_16)+(0x22))) = 0xB8U;
-                    if ((*(s8 *)((u8 *)(temp_16)+(0x21))) == 0) {
-                        (*(u8 *)((u8 *)(temp_16)+(1))) = 0xBDU;
-                        return;
-                    }
-                }
-            } else {
+            if (temp_4_14 < 6) {
                 temp_8_3 = (u8 *)((*(u8 **)((u8 *)(arg0)+(0x38))));
                 var_10_7 = 0;
 loop_360:
@@ -11464,6 +11458,27 @@ loop_360:
                 }
                 var_9_7 = (s64) ((var_9_7 + 1) << 0x30) >> 0x30;
                 goto loop_367;
+            } else {
+                temp_7_7 = (u8 *)((*(u8 **)((u8 *)(arg0)+(0x38))));
+                var_8_17 = 0;
+loop_372:
+                temp_4_15 = (s64) (var_8_17 << 0x30) >> 0x30;
+                if (temp_4_15 >= (*(s8 *)((u8 *)(temp_7_7)+(0x2DF)))) {
+                    var_4_17 = 0;
+                } else if ((*(s8 *)((u8 *)(((s32)(temp_7_7) + temp_4_15))+(0x2DA))) == 9) {
+                    var_4_17 = 1;
+                } else {
+                    var_8_17 = (s64) ((var_8_17 + 1) << 0x30) >> 0x30;
+                    goto loop_372;
+                }
+                if (var_4_17 == 1) {
+                    (*(u8 *)((u8 *)(temp_16)+(1))) = 0xB8U;
+                    (*(u8 *)((u8 *)(temp_16)+(0x22))) = 0xB8U;
+                    if ((*(s8 *)((u8 *)(temp_16)+(0x21))) == 0) {
+                        (*(u8 *)((u8 *)(temp_16)+(1))) = 0xBDU;
+                        return;
+                    }
+                }
             }
         }
         break;

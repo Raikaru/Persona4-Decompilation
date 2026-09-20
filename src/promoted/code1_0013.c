@@ -1236,6 +1236,17 @@ void func_0013b370(u8 *arg0, s64 arg1, s32 arg2)
 #pragma opt_propagation on
 /* measured 0013b420 (banked honest body: s64 two-float + s32 colour + s16* tail, recipe-A u8/u16->float, 204/255/24/5/34/325/340/22/54 constants with (f32)0x159 int form, 0034f320 x2 with 0.0f third float + 0034f2e0 x4 + 00113790 s64-tail + 002bc860 clamp-tail): measure_guarded 341 words obj 1364B/window 1488B; fnalign --candidate 304 edits, retail 369 vs object 341 instrs; opclass lbu -16 sb -12 lwc1 -7 swc1 -5 with cvt/mfc1 residue. Two validated findings: float->u8/u16 MUST be (u8/u16)(u32)x (unsigned lowering with the 2.147e9 check; signed form misses 6 checked sequences); the donor's opt_propagation off HURTS here (355 with, 341 without). Standing wall is frame 0xD0+7th saved/5th float vs retail 0xB0/6/4 with spill shift plus scheduling across 369 instrs. Production stays ASM. */
 /* b420 7aa followup (2026-09-19, reverted): source if/else on narrow unsigned duplicates the conversion 3 ways (compiler bltz recipe nested in source-then + 2.0f-mul source-else) where retail has only the compiler recipe (bltz/mtc1/cvt/b/srl/andi/or/mtc1/cvt/add); opclass bltz+3/b+3/mul.s+3 matched exactly. Deletions: t0-outer -16 (374->358, edits 490->407), hcol-outer -16 (358->342, edits ->289); words 356->348->352 not comparable across lengths (7y). Jal anchors prove call order identical (retail 122/159/224/236/288/300/313/354 vs object 142/177/244/256/293/305/319/357; gaps 35v37, 67v65): 5.0f/34.0f/arg2 already sit between jal#2/#3 in both, do NOT sink constants; arg2 if is load-bearing (retail bltz+doubling; plain s32->f32 is one cvt). Remaining: middle spills (sb x12/lbu x15/swc1/lwc1 vs zero sb + addiu x10 remat; needs SROA-defeat device) + tail c2 early-vs-late (ins17 vs del20@0x13B944) + lh/lhu defect (obj lh $a3,0xa($s0) vs retail lhu $a3,0xa($s3): arg3 element is u16). Reverted to banked 374/372 (+0.5%). */
+/* measured 0013b420 (owner, 2026-09-20): fnalign **490 -> 487 edits**, count
+   374 -> 365 against retail 372, by doubling the unsigned float conversion with
+   an ADD instead of a multiply at 3 sites.
+   m2c writes the halved value's doubling as `2.0f * (f32)(...)`, which costs a `lui`
+   plus `mtc1` to materialise 2.0f and then a `mul.s`.  Retail adds the value to
+   itself, so the shape is `t = (f32)(...); t = t + t;`.  On func_0026a020 the same
+   change removed 66 instructions across 22 sites and took that floor from +2.0% over
+   to -2.0% under.
+   Swept over the floors carrying the pattern and it is NOT universal: func_00119210
+   goes 336 -> 379 and func_00250ad0 330 -> 406, both clearly worse, so it is measured
+   per function like everything else. */
 // FUN_0013B420 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -1261,7 +1272,8 @@ void func_0013b420(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3) {
     if ((s32)t0 >= 0) {
         c0 = (f32)t0;
     } else {
-        c0 = 2.0f * (f32)((t0 >> 1) | (t0 & 1));
+        c0 = (f32)((t0 >> 1) | (t0 & 1));
+        c0 = c0 + c0;
     }
     c1 = c0 / 255.0f;
     bcol[0] = 0x14;
@@ -1274,7 +1286,8 @@ void func_0013b420(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3) {
     if ((s32)hcol >= 0) {
         fy = (f32)hcol;
     } else {
-        fy = 2.0f * (f32)((hcol >> 1) | (hcol & 1));
+        fy = (f32)((hcol >> 1) | (hcol & 1));
+        fy = fy + fy;
     }
     base = ((f32 *)&arg1)[0];
     fz = base - 1.0f;
@@ -1291,7 +1304,8 @@ void func_0013b420(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3) {
     if (arg2 >= 0) {
         c0 = (f32)arg2;
     } else {
-        c0 = 2.0f * (f32)(((u32)arg2 >> 1) | (arg2 & 1));
+        c0 = (f32)(((u32)arg2 >> 1) | (arg2 & 1));
+        c0 = c0 + c0;
     }
     fw = c0 * c1;
     col = (u8)(u32)fw;

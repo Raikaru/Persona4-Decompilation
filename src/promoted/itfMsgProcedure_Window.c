@@ -115,6 +115,11 @@ typedef struct MsgProcWindowRGBA {
     u8 a;
 } MsgProcWindowRGBA;
 
+typedef struct MsgProcWindowBlock {
+    MsgProcWindowRGBA cols[4];
+    MsgProcWindowF2 pts[4];
+} MsgProcWindowBlock;
+
 typedef struct MsgProcWindowU32Pair {
     u32 a;
     u32 b;
@@ -1251,6 +1256,25 @@ void func_0027f6a0(void)
    loop-block skip pair (content verified identical arg-for-arg; pure frame-offset
    + color residue -> prologue/declaration-order probe), cnt reload-vs-cache,
    search polarity floor. */
+/* measured 0027f6f0 2026-09-20 desync unslide (retail objdump read): the 130-instr
+   retail-only run at 0x00280110-0x00280318 is a CROSS, not missing code: both streams
+   hold the same case-4 pts[3]+pts[4] pair, but the object emits it 128 instrs later.
+   Root cause is array layout, found in three forced steps. (a) Adjacency: every block
+   calls eb20 with a0=&cols[i], a1=&pts[i] and a0==a1-0x10 while successive blocks step
+   0x30, so cols[i]/pts[i] are one 48B row (cols[4] 16B first, pts[4] 32B), not two
+   arrays (separate arrays force a 7.5-row gap, impossible). (b) Order: rows descend in
+   execution, so one blocks[12] at sp+0x80 holds case 4 as 11..6 then case 5 as 5..0
+   (E0 call (0x290,0x2a0) down to E5 (0x1a0,0x1b0); case 5 E6 (0x170,0x180) down to E9
+   (0xE0,0xF0), same lattice). (c) Head: every retail block prestores its first 250.0f
+   at row+8 (blocks[i].pts[1].x), the body wrote row+16 ([2].x). Spelling ladder
+   (fnalign edits, retail 2153 / object 2130): 1039 baseline -> 1038 single-block [1].x
+   (-1, true but masked) -> 848 struct+reversed indices (+0x10 shift remains) -> 848
+   +[1].x (masked) -> 766 blocks[] declared last (base lands exactly sp+0x80, shift
+   closed) -> 778 with [2].x restored (+12, confirms [1].x). REJECTED: loop-local
+   `for (u32 k = ...)` does not compile (C90 TU, for-init-decl syntax error). Floor now
+   **766 edits** +141 reloc-only; production stays ASM. Remaining: 0x20 frame gap
+   (-0x2e0 vs -0x300, other locals), per-block index allocation (shared k in $v0 vs
+   retail per-block temps), deficit_scan re-read. */
 // FUN_0027F6F0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -1273,8 +1297,6 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     extern s32 func_00273970(void *arg0);
     extern s32 func_00277070(void *arg0);
     extern s32 func_00279010(void *arg0);
-    MsgProcWindowF2 pts[12][4];
-    MsgProcWindowRGBA cols[12][4];
     u32 copyA[4];
     u32 copyB[4];
     f32 fSp1;
@@ -1317,6 +1339,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     s32 *tw;
     MsgProcWindowEntry *e;
     MsgProcWindowWork *w245;
+    MsgProcWindowBlock blocks[12];
 
     func_00278110();
     ret = 0;
@@ -1421,7 +1444,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             }
             func_0027d660(0, 0, 200, 300, 0.0f, (void *)D_00796490);
             func_0027d660(0, 0x7B, 200, 200, 10.0f, (void *)D_00796490);
-            mp = (u8 *)&pts[0][0];
+            mp = (u8 *)&blocks[11].pts[0];
             mn = 0x20;
             if (mp != (u8 *)0) {
                 do {
@@ -1430,20 +1453,20 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                     mn--;
                 } while (mn != 0);
             }
-            pts[0][2].x = 250.0f;
-            pts[0][2].y = 5.0f;
-            pts[0][3].x = 250.0f;
-            pts[0][3].y = 5.0f;
+            blocks[11].pts[1].x = 250.0f;
+            blocks[11].pts[2].y = 5.0f;
+            blocks[11].pts[3].x = 250.0f;
+            blocks[11].pts[3].y = 5.0f;
             for (k = 0; k < 4; k++) {
-                pts[0][k].x += -70.0f;
-                pts[0][k].y += 156.0f;
-                cols[0][k].r = 0x93;
-                cols[0][k].g = 0x8D;
-                cols[0][k].b = 0x17;
-                cols[0][k].a = 0xFF;
+                blocks[11].pts[k].x += -70.0f;
+                blocks[11].pts[k].y += 156.0f;
+                blocks[11].cols[k].r = 0x93;
+                blocks[11].cols[k].g = 0x8D;
+                blocks[11].cols[k].b = 0x17;
+                blocks[11].cols[k].a = 0xFF;
             }
-            func_0045eb20(&cols[0][0], &pts[0][0], 5.0f, 4, 4, 1, 0, -1, 15.0f, f, 1.0f, (void *)D_00796490);
-            mp = (u8 *)&pts[1][0];
+            func_0045eb20(&blocks[11].cols[0], &blocks[11].pts[0], 5.0f, 4, 4, 1, 0, -1, 15.0f, f, 1.0f, (void *)D_00796490);
+            mp = (u8 *)&blocks[10].pts[0];
             mn = 0x20;
             if (mp != (u8 *)0) {
                 do {
@@ -1452,20 +1475,20 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                     mn--;
                 } while (mn != 0);
             }
-            pts[1][2].x = 250.0f;
-            pts[1][2].y = 3.0f;
-            pts[1][3].x = 250.0f;
-            pts[1][3].y = 3.0f;
+            blocks[10].pts[1].x = 250.0f;
+            blocks[10].pts[2].y = 3.0f;
+            blocks[10].pts[3].x = 250.0f;
+            blocks[10].pts[3].y = 3.0f;
             for (k = 0; k < 4; k++) {
-                pts[1][k].x += -70.0f;
-                pts[1][k].y += 155.0f;
-                cols[1][k].r = 0xCB;
-                cols[1][k].g = 0xF2;
-                cols[1][k].b = 0x00;
-                cols[1][k].a = 0xFF;
+                blocks[10].pts[k].x += -70.0f;
+                blocks[10].pts[k].y += 155.0f;
+                blocks[10].cols[k].r = 0xCB;
+                blocks[10].cols[k].g = 0xF2;
+                blocks[10].cols[k].b = 0x00;
+                blocks[10].cols[k].a = 0xFF;
             }
-            func_0045eb20(&cols[1][0], &pts[1][0], 5.0f, 4, 4, 1, 0, 0, 15.0f, f, 1.0f, (void *)D_00796490);
-            mp = (u8 *)&pts[2][0];
+            func_0045eb20(&blocks[10].cols[0], &blocks[10].pts[0], 5.0f, 4, 4, 1, 0, 0, 15.0f, f, 1.0f, (void *)D_00796490);
+            mp = (u8 *)&blocks[9].pts[0];
             mn = 0x20;
             if (mp != (u8 *)0) {
                 do {
@@ -1474,20 +1497,20 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                     mn--;
                 } while (mn != 0);
             }
-            pts[2][2].x = 250.0f;
-            pts[2][2].y = 4.0f;
-            pts[2][3].x = 250.0f;
-            pts[2][3].y = 4.0f;
+            blocks[9].pts[1].x = 250.0f;
+            blocks[9].pts[2].y = 4.0f;
+            blocks[9].pts[3].x = 250.0f;
+            blocks[9].pts[3].y = 4.0f;
             for (k = 0; k < 4; k++) {
-                pts[2][k].x += -70.0f;
-                pts[2][k].y += 161.0f;
-                cols[2][k].r = 0xF1;
-                cols[2][k].g = 0x24;
-                cols[2][k].b = 0x00;
-                cols[2][k].a = 0xFF;
+                blocks[9].pts[k].x += -70.0f;
+                blocks[9].pts[k].y += 161.0f;
+                blocks[9].cols[k].r = 0xF1;
+                blocks[9].cols[k].g = 0x24;
+                blocks[9].cols[k].b = 0x00;
+                blocks[9].cols[k].a = 0xFF;
             }
-            func_0045eb20(&cols[2][0], &pts[2][0], 5.0f, 4, 4, 1, 0, -6, 15.0f, f, 1.0f, (void *)D_00796490);
-            mp = (u8 *)&pts[3][0];
+            func_0045eb20(&blocks[9].cols[0], &blocks[9].pts[0], 5.0f, 4, 4, 1, 0, -6, 15.0f, f, 1.0f, (void *)D_00796490);
+            mp = (u8 *)&blocks[8].pts[0];
             mn = 0x20;
             if (mp != (u8 *)0) {
                 do {
@@ -1496,20 +1519,20 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                     mn--;
                 } while (mn != 0);
             }
-            pts[3][2].x = 250.0f;
-            pts[3][2].y = 7.0f;
-            pts[3][3].x = 250.0f;
-            pts[3][3].y = 7.0f;
+            blocks[8].pts[1].x = 250.0f;
+            blocks[8].pts[2].y = 7.0f;
+            blocks[8].pts[3].x = 250.0f;
+            blocks[8].pts[3].y = 7.0f;
             for (k = 0; k < 4; k++) {
-                pts[3][k].x += -70.0f;
-                pts[3][k].y += 171.0f;
-                cols[3][k].r = 0xFF;
-                cols[3][k].g = 0xE9;
-                cols[3][k].b = 0x2C;
-                cols[3][k].a = 0xFF;
+                blocks[8].pts[k].x += -70.0f;
+                blocks[8].pts[k].y += 171.0f;
+                blocks[8].cols[k].r = 0xFF;
+                blocks[8].cols[k].g = 0xE9;
+                blocks[8].cols[k].b = 0x2C;
+                blocks[8].cols[k].a = 0xFF;
             }
-            func_0045eb20(&cols[3][0], &pts[3][0], 5.0f, 4, 4, 1, 0, -16, 15.0f, f, 1.0f, (void *)D_00796490);
-            mp = (u8 *)&pts[4][0];
+            func_0045eb20(&blocks[8].cols[0], &blocks[8].pts[0], 5.0f, 4, 4, 1, 0, -16, 15.0f, f, 1.0f, (void *)D_00796490);
+            mp = (u8 *)&blocks[7].pts[0];
             mn = 0x20;
             if (mp != (u8 *)0) {
                 do {
@@ -1518,20 +1541,20 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                     mn--;
                 } while (mn != 0);
             }
-            pts[4][2].x = 250.0f;
-            pts[4][2].y = 4.0f;
-            pts[4][3].x = 250.0f;
-            pts[4][3].y = 4.0f;
+            blocks[7].pts[1].x = 250.0f;
+            blocks[7].pts[2].y = 4.0f;
+            blocks[7].pts[3].x = 250.0f;
+            blocks[7].pts[3].y = 4.0f;
             for (k = 0; k < 4; k++) {
-                pts[4][k].x += -70.0f;
-                pts[4][k].y += 168.0f;
-                cols[4][k].r = 0xFF;
-                cols[4][k].g = 0xFF;
-                cols[4][k].b = 0xFF;
-                cols[4][k].a = 0xFF;
+                blocks[7].pts[k].x += -70.0f;
+                blocks[7].pts[k].y += 168.0f;
+                blocks[7].cols[k].r = 0xFF;
+                blocks[7].cols[k].g = 0xFF;
+                blocks[7].cols[k].b = 0xFF;
+                blocks[7].cols[k].a = 0xFF;
             }
-            func_0045eb20(&cols[4][0], &pts[4][0], 5.0f, 4, 4, 1, 0, -13, 15.0f, f, 1.0f, (void *)D_00796490);
-            mp = (u8 *)&pts[5][0];
+            func_0045eb20(&blocks[7].cols[0], &blocks[7].pts[0], 5.0f, 4, 4, 1, 0, -13, 15.0f, f, 1.0f, (void *)D_00796490);
+            mp = (u8 *)&blocks[6].pts[0];
             mn = 0x20;
             if (mp != (u8 *)0) {
                 do {
@@ -1540,19 +1563,19 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                     mn--;
                 } while (mn != 0);
             }
-            pts[5][2].x = 250.0f;
-            pts[5][2].y = 5.0f;
-            pts[5][3].x = 250.0f;
-            pts[5][3].y = 5.0f;
+            blocks[6].pts[1].x = 250.0f;
+            blocks[6].pts[2].y = 5.0f;
+            blocks[6].pts[3].x = 250.0f;
+            blocks[6].pts[3].y = 5.0f;
             for (k = 0; k < 4; k++) {
-                pts[5][k].x += -70.0f;
-                pts[5][k].y += 164.0f;
-                cols[5][k].r = 0xFF;
-                cols[5][k].g = 0xAE;
-                cols[5][k].b = 0x20;
-                cols[5][k].a = 0xFF;
+                blocks[6].pts[k].x += -70.0f;
+                blocks[6].pts[k].y += 164.0f;
+                blocks[6].cols[k].r = 0xFF;
+                blocks[6].cols[k].g = 0xAE;
+                blocks[6].cols[k].b = 0x20;
+                blocks[6].cols[k].a = 0xFF;
             }
-            func_0045eb20(&cols[5][0], &pts[5][0], 5.0f, 4, 4, 1, 0, -9, 15.0f, f, 1.0f, (void *)D_00796490);
+            func_0045eb20(&blocks[6].cols[0], &blocks[6].pts[0], 5.0f, 4, 4, 1, 0, -9, 15.0f, f, 1.0f, (void *)D_00796490);
         }
         if (cnt32 >= 0x14) {
             D_00882020[0] &= ~2u;
@@ -1612,7 +1635,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         }
         func_0027d660(0, 0x32, 200, 200, 0.0f, (void *)D_00796490);
         func_0027d660(0, 0x7B, 200, 200, 10.0f, (void *)D_00796490);
-        mp = (u8 *)&pts[6][0];
+        mp = (u8 *)&blocks[5].pts[0];
         mn = 0x20;
         if (mp != (u8 *)0) {
             do {
@@ -1621,20 +1644,20 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 mn--;
             } while (mn != 0);
         }
-        pts[6][2].x = 250.0f;
-        pts[6][2].y = 5.0f;
-        pts[6][3].x = 250.0f;
-        pts[6][3].y = 5.0f;
+        blocks[5].pts[1].x = 250.0f;
+        blocks[5].pts[2].y = 5.0f;
+        blocks[5].pts[3].x = 250.0f;
+        blocks[5].pts[3].y = 5.0f;
         for (k = 0; k < 4; k++) {
-            pts[6][k].x += -70.0f;
-            pts[6][k].y += 156.0f;
-            cols[6][k].r = 0x93;
-            cols[6][k].g = 0x8D;
-            cols[6][k].b = 0x17;
-            cols[6][k].a = 0xFF;
+            blocks[5].pts[k].x += -70.0f;
+            blocks[5].pts[k].y += 156.0f;
+            blocks[5].cols[k].r = 0x93;
+            blocks[5].cols[k].g = 0x8D;
+            blocks[5].cols[k].b = 0x17;
+            blocks[5].cols[k].a = 0xFF;
         }
-        func_0045eb20(&cols[6][0], &pts[6][0], 5.0f, 4, 4, 1, 0, -1, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
-        mp = (u8 *)&pts[7][0];
+        func_0045eb20(&blocks[5].cols[0], &blocks[5].pts[0], 5.0f, 4, 4, 1, 0, -1, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
+        mp = (u8 *)&blocks[4].pts[0];
         mn = 0x20;
         if (mp != (u8 *)0) {
             do {
@@ -1643,20 +1666,20 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 mn--;
             } while (mn != 0);
         }
-        pts[7][2].x = 250.0f;
-        pts[7][2].y = 3.0f;
-        pts[7][3].x = 250.0f;
-        pts[7][3].y = 3.0f;
+        blocks[4].pts[1].x = 250.0f;
+        blocks[4].pts[2].y = 3.0f;
+        blocks[4].pts[3].x = 250.0f;
+        blocks[4].pts[3].y = 3.0f;
         for (k = 0; k < 4; k++) {
-            pts[7][k].x += -70.0f;
-            pts[7][k].y += 155.0f;
-            cols[7][k].r = 0xCB;
-            cols[7][k].g = 0xF2;
-            cols[7][k].b = 0x00;
-            cols[7][k].a = 0xFF;
+            blocks[4].pts[k].x += -70.0f;
+            blocks[4].pts[k].y += 155.0f;
+            blocks[4].cols[k].r = 0xCB;
+            blocks[4].cols[k].g = 0xF2;
+            blocks[4].cols[k].b = 0x00;
+            blocks[4].cols[k].a = 0xFF;
         }
-        func_0045eb20(&cols[7][0], &pts[7][0], 5.0f, 4, 4, 1, 0, 0, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
-        mp = (u8 *)&pts[8][0];
+        func_0045eb20(&blocks[4].cols[0], &blocks[4].pts[0], 5.0f, 4, 4, 1, 0, 0, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
+        mp = (u8 *)&blocks[3].pts[0];
         mn = 0x20;
         if (mp != (u8 *)0) {
             do {
@@ -1665,20 +1688,20 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 mn--;
             } while (mn != 0);
         }
-        pts[8][2].x = 250.0f;
-        pts[8][2].y = 4.0f;
-        pts[8][3].x = 250.0f;
-        pts[8][3].y = 4.0f;
+        blocks[3].pts[1].x = 250.0f;
+        blocks[3].pts[2].y = 4.0f;
+        blocks[3].pts[3].x = 250.0f;
+        blocks[3].pts[3].y = 4.0f;
         for (k = 0; k < 4; k++) {
-            pts[8][k].x += -70.0f;
-            pts[8][k].y += 161.0f;
-            cols[8][k].r = 0xF1;
-            cols[8][k].g = 0x24;
-            cols[8][k].b = 0x00;
-            cols[8][k].a = 0xFF;
+            blocks[3].pts[k].x += -70.0f;
+            blocks[3].pts[k].y += 161.0f;
+            blocks[3].cols[k].r = 0xF1;
+            blocks[3].cols[k].g = 0x24;
+            blocks[3].cols[k].b = 0x00;
+            blocks[3].cols[k].a = 0xFF;
         }
-        func_0045eb20(&cols[8][0], &pts[8][0], 5.0f, 4, 4, 1, 0, -6, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
-        mp = (u8 *)&pts[9][0];
+        func_0045eb20(&blocks[3].cols[0], &blocks[3].pts[0], 5.0f, 4, 4, 1, 0, -6, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
+        mp = (u8 *)&blocks[2].pts[0];
         mn = 0x20;
         if (mp != (u8 *)0) {
             do {
@@ -1687,20 +1710,20 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 mn--;
             } while (mn != 0);
         }
-        pts[9][2].x = 250.0f;
-        pts[9][2].y = 7.0f;
-        pts[9][3].x = 250.0f;
-        pts[9][3].y = 7.0f;
+        blocks[2].pts[1].x = 250.0f;
+        blocks[2].pts[2].y = 7.0f;
+        blocks[2].pts[3].x = 250.0f;
+        blocks[2].pts[3].y = 7.0f;
         for (k = 0; k < 4; k++) {
-            pts[9][k].x += -70.0f;
-            pts[9][k].y += 171.0f;
-            cols[9][k].r = 0xFF;
-            cols[9][k].g = 0xE9;
-            cols[9][k].b = 0x2C;
-            cols[9][k].a = 0xFF;
+            blocks[2].pts[k].x += -70.0f;
+            blocks[2].pts[k].y += 171.0f;
+            blocks[2].cols[k].r = 0xFF;
+            blocks[2].cols[k].g = 0xE9;
+            blocks[2].cols[k].b = 0x2C;
+            blocks[2].cols[k].a = 0xFF;
         }
-        func_0045eb20(&cols[9][0], &pts[9][0], 5.0f, 4, 4, 1, 0, -16, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
-        mp = (u8 *)&pts[10][0];
+        func_0045eb20(&blocks[2].cols[0], &blocks[2].pts[0], 5.0f, 4, 4, 1, 0, -16, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
+        mp = (u8 *)&blocks[1].pts[0];
         mn = 0x20;
         if (mp != (u8 *)0) {
             do {
@@ -1709,20 +1732,20 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 mn--;
             } while (mn != 0);
         }
-        pts[10][2].x = 250.0f;
-        pts[10][2].y = 4.0f;
-        pts[10][3].x = 250.0f;
-        pts[10][3].y = 4.0f;
+        blocks[1].pts[1].x = 250.0f;
+        blocks[1].pts[2].y = 4.0f;
+        blocks[1].pts[3].x = 250.0f;
+        blocks[1].pts[3].y = 4.0f;
         for (k = 0; k < 4; k++) {
-            pts[10][k].x += -70.0f;
-            pts[10][k].y += 168.0f;
-            cols[10][k].r = 0xFF;
-            cols[10][k].g = 0xFF;
-            cols[10][k].b = 0xFF;
-            cols[10][k].a = 0xFF;
+            blocks[1].pts[k].x += -70.0f;
+            blocks[1].pts[k].y += 168.0f;
+            blocks[1].cols[k].r = 0xFF;
+            blocks[1].cols[k].g = 0xFF;
+            blocks[1].cols[k].b = 0xFF;
+            blocks[1].cols[k].a = 0xFF;
         }
-        func_0045eb20(&cols[10][0], &pts[10][0], 5.0f, 4, 4, 1, 0, -13, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
-        mp = (u8 *)&pts[11][0];
+        func_0045eb20(&blocks[1].cols[0], &blocks[1].pts[0], 5.0f, 4, 4, 1, 0, -13, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
+        mp = (u8 *)&blocks[0].pts[0];
         mn = 0x20;
         if (mp != (u8 *)0) {
             do {
@@ -1731,19 +1754,19 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 mn--;
             } while (mn != 0);
         }
-        pts[11][2].x = 250.0f;
-        pts[11][2].y = 5.0f;
-        pts[11][3].x = 250.0f;
-        pts[11][3].y = 5.0f;
+        blocks[0].pts[1].x = 250.0f;
+        blocks[0].pts[2].y = 5.0f;
+        blocks[0].pts[3].x = 250.0f;
+        blocks[0].pts[3].y = 5.0f;
         for (k = 0; k < 4; k++) {
-            pts[11][k].x += -70.0f;
-            pts[11][k].y += 164.0f;
-            cols[11][k].r = 0xFF;
-            cols[11][k].g = 0xAE;
-            cols[11][k].b = 0x20;
-            cols[11][k].a = 0xFF;
+            blocks[0].pts[k].x += -70.0f;
+            blocks[0].pts[k].y += 164.0f;
+            blocks[0].cols[k].r = 0xFF;
+            blocks[0].cols[k].g = 0xAE;
+            blocks[0].cols[k].b = 0x20;
+            blocks[0].cols[k].a = 0xFF;
         }
-        func_0045eb20(&cols[11][0], &pts[11][0], 5.0f, 4, 4, 1, 0, -9, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
+        func_0045eb20(&blocks[0].cols[0], &blocks[0].pts[0], 5.0f, 4, 4, 1, 0, -9, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         break;
     case 6:
         func_0027bec0((void *)arg0);
