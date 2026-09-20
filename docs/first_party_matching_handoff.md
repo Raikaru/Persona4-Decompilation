@@ -610,6 +610,27 @@ value-by-value against each arm's address - is worth **824 edits** on its own
 to agree with it.  Read the table out of the disassembly rather than
 guessing, and check each arm's body address against the entry it claims.
 
+The unifying rule, after three contradictory-looking results, is simply
+**match retail's emission order, and read it out of the disassembly**:
+
+- converting an if-CHAIN to a switch wants ASCENDING cases (135, 61, 40);
+- a JUMP TABLE wants the table's own layout order (824, then 274 more on
+  the same function, and 88 elsewhere);
+- a `beq` chain with no table can want the REVERSE of the source order -
+  on `func_00287360`, reversing all five switches (26 cases) took 573 ->
+  299, and inverting two small-first arms took it to **163**.
+
+None of these is a default.  `tools/table_order.py` reads the table when
+there is one; otherwise read the `beq`/`beqz` sequence and the arm body
+addresses and make the source agree.
+
+A negative worth recording so it is not retried: m2c's empty-then idiom
+`if (x != K) {} else { BODY }` inverts arm EMISSION order when nested, and
+flattening it was the whole of `func_00156800`'s 259 -> 187.  But swept
+mechanically over the eleven other first-party floors carrying the shape,
+inverting it improved **none** of them.  The win there came from fixing the
+order of two sibling arms, not from the inversion itself.
+
 Blanket-sorting a switch that is ALREADY in the body is a loser, which is
 the other half of the same rule.  Seventy-two first-party floors carry a
 switch whose cases are not ascending; sorting the arms of the biggest ones
