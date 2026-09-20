@@ -1,0 +1,1013 @@
+diff --git a/src/Event/Fcl/y_fclCombine.c b/src/Event/Fcl/y_fclCombine.c
+--- a/src/Event/Fcl/y_fclCombine.c
++++ b/src/Event/Fcl/y_fclCombine.c
+@@ -3,0 +4,4 @@
++#include "fcl_draw_task.h"
++#include "sdk_task_registration.h"
++extern s32 func_002e7ac0(u8 *task);
++extern void func_002e82b0(u8 *task);
+@@ -15,0 +20,10 @@
++extern void func_00313b50(u8 *task);
++extern s32 func_0033e3f0(u8 *task);
++extern void func_002b29e0(u8 *out, f32 width, f32 height);
++extern void func_002b2a60(u8 *out, s32 red, s32 green, s32 blue, s32 alpha);
++extern void func_002b5db0(u8 *task, FclVec2 position, f32 *bounds);
++extern void func_002b5e30(u8 *task, FclDrawColor color);
++extern void func_002b5e20(u8 *task, f32 depth);
++extern void func_002b6130(u8 *task, u32 order);
++extern void func_002b6140(u8 *task, u8 hidden);
++extern void func_002b6120(u8 *task, u8 mode);
+@@ -56 +69,0 @@
+-extern s32 func_00451fc0(s32 arg0, const void *arg1, s32, s32, s32, void *, void *, void *);
+@@ -67 +79,0 @@
+-extern void func_002b2a60(void *arg0, s32, s32, s32, s32);
+@@ -144,3 +155,0 @@
+-extern void func_002e7ac0(void);
+-extern void func_002e82b0(void);
+-extern void func_00313b50(s32);
+@@ -148 +156,0 @@
+-extern s32 func_0034ad70(s32, u32, s32);
+@@ -152,12 +159,0 @@
+-extern s32 func_0034b740(s32);
+-extern s32 func_002b8150(s32);
+-extern void *func_002b5c90(void *, u64);
+-extern void func_002b29e0(void *, f32, f32);
+-extern void func_002b5db0(s32, s64, void *);
+-extern void func_002b5e30(s32, u32);
+-extern void func_002b5e20(s32, f32);
+-extern void func_002b6130(s32, u32);
+-extern void func_002b6140(s32, u8);
+-extern void func_002b6120(s32, u8);
+-extern s32 func_0033e3f0(s32);
+-extern s32 func_002b9f90(s32, s16, s32);
+@@ -211 +207 @@
+-// FUN_002E8410 NONMATCHING
++// FUN_002E8410
+@@ -213 +208,0 @@
+-#ifdef NON_MATCHING
+@@ -216 +210,0 @@
+-    s32 i;
+@@ -219,20 +213,21 @@
+-    s64 v0;
+-    s64 v1;
+-    s64 v2;
+-    s64 v3;
+-    s64 v4;
+-    s64 v5;
+-    s64 v6;
+-    s64 v7;
+-    s64 v8;
+-    s64 v9;
+-    FclByte4 c0;
+-    FclByte4 c1;
+-    FclByte4 c2;
+-    FclByte4 c3;
+-    FclByte4 c4;
+-    u8 b0[16];
+-    u8 b1[16];
+-    u8 b2[16];
+-    u8 b3[16];
+-    u8 b4[16];
++    FclVec2 v0;
++    FclVec2 v1;
++    FclVec2 v2;
++    FclVec2 v3;
++    FclVec2 v4;
++    FclVec2 v5;
++    FclVec2 v6;
++    FclVec2 v7;
++    FclVec2 v8;
++    FclVec2 v9;
++    FclByte4 menuColor;
++    FclDrawColor c0;
++    FclDrawColor c1;
++    FclDrawColor c2;
++    FclDrawColor c3;
++    FclDrawColor c4;
++    f32 b0[4];
++    f32 b1[4];
++    f32 b2[4];
++    f32 b3[4];
++    f32 b4[4];
+@@ -244 +239 @@
+-    task = func_00451fc0((s32)arg0, D_00641B10, 0xF, 0, 0, func_002e7ac0, func_002e82b0, out);
++    task = (s32)func_00451fc0((void *)((s32)arg0), D_00641B10, 0xF, 0, 0, func_002e7ac0, func_002e82b0, out);
+@@ -248 +243 @@
+-    func_00313b50(task);
++    func_00313b50((u8 *)(task));
+@@ -252,2 +247,5 @@
+-    for (i = 0; i < (func_0010b5b0() & 0xFFFF); i++) {
+-        *(s32 *)(out + i * 4 + 0x154) = func_0034ad70((s32)arg0, func_0010b5b0() & 0xFF, 0x41);
++    {
++        s32 partyIndex;
++        for (partyIndex = 0; partyIndex < (func_0010b5b0() & 0xFFFF); partyIndex++) {
++            *(s32 *)(out + partyIndex * 4 + 0x154) = func_0034ad70((s32)arg0, func_0010b5b0() & 0xFF, 0x41);
++        }
+@@ -257,7 +255,7 @@
+-    for (i = 0; i < 0xC; i++) {
+-        func_002b2a60(&c0, 0, 0, 0x99, 0xFF);
+-        e = func_0034ae50(*(u8 **)(out + 0x188), (s8)i);
+-        *(e + 0x75) = c0.b0;
+-        *(e + 0x76) = c0.b1;
+-        *(e + 0x77) = c0.b2;
+-        *(e + 0x78) = c0.b3;
++    {
++        s32 segmentIndex;
++        for (segmentIndex = 0; segmentIndex < 0xC; segmentIndex++) {
++            func_002b2a60((u8 *)(&menuColor), 0, 0, 0x99, 0xFF);
++            e = func_0034ae50(*(u8 **)(out + 0x188), (s8)segmentIndex);
++            *(FclByte4 *)(e + 0x75) = menuColor;
++        }
+@@ -266,2 +264,5 @@
+-    for (i = 0; i < 500; i++) {
+-        func_002b7750((s16)i, (s16)i);
++    {
++        s32 descriptorId;
++        for (descriptorId = 0; descriptorId < 500; descriptorId++) {
++            func_002b7750((s16)descriptorId, (s16)descriptorId);
++        }
+@@ -269,3 +270,6 @@
+-    for (i = 0; i < 0xC; i++) {
+-        func_002b7750((s16)(i * 2 + 500), 0x1AC);
+-        func_002b7750((s16)(i * 2 + 501), 0x1AF);
++    {
++        s32 pairIndex;
++        for (pairIndex = 0; pairIndex < 0xC; pairIndex++) {
++            func_002b7750((s16)(pairIndex * 2 + 500), 0x1AC);
++            func_002b7750((s16)(pairIndex * 2 + 501), 0x1AF);
++        }
+@@ -274,2 +278,5 @@
+-    for (i = 0; i < 9; i++) {
+-        func_002b7750((s16)(i + 0x20D), 0xDC);
++    {
++        s32 arrowIndex;
++        for (arrowIndex = 0; arrowIndex < 9; arrowIndex++) {
++            func_002b7750((s16)(arrowIndex + 0x20D), 0xDC);
++        }
+@@ -277,3 +284,6 @@
+-    for (i = 0; i < 3; i++) {
+-        func_002b7750((s16)(i + 0x216), 0x86);
+-        func_002b7750((s16)(i + 0x219), 0x87);
++    {
++        s32 indicatorIndex;
++        for (indicatorIndex = 0; indicatorIndex < 3; indicatorIndex++) {
++            func_002b7750((s16)(indicatorIndex + 0x216), 0x86);
++            func_002b7750((s16)(indicatorIndex + 0x219), 0x87);
++        }
+@@ -281,12 +291,15 @@
+-    for (i = 0; i < 0xC; i++) {
+-        func_002b7750((s16)(i + 0x21C), 0x193);
+-        func_002b7750((s16)(i + 0x22B), 0x19A);
+-        func_002b7750((s16)(i + 0x238), 0x188);
+-        func_002b7750((s16)(i + 0x244), 0x18C);
+-        func_002b7750((s16)(i + 0x250), 0x1C);
+-        func_002b7750((s16)(i + 0x25E), (s16)(i + 0x39));
+-        func_002b7750((s16)(i + 0x270), 0x193);
+-        func_002b7750((s16)(i + 0x27D), 0x19B);
+-        func_002b7750((s16)(i + 0x28B), 0x188);
+-        func_002b7750((s16)(i + 0x297), 0x18D);
+-        func_002b7750((s16)(i + 0x2A3), 0x1C);
++    {
++        s32 rowIndex;
++        for (rowIndex = 0; rowIndex < 0xC; rowIndex++) {
++            func_002b7750((s16)(rowIndex + 0x21C), 0x193);
++            func_002b7750((s16)(rowIndex + 0x22B), 0x19A);
++            func_002b7750((s16)(rowIndex + 0x238), 0x188);
++            func_002b7750((s16)(rowIndex + 0x244), 0x18C);
++            func_002b7750((s16)(rowIndex + 0x250), 0x1C);
++            func_002b7750((s16)(rowIndex + 0x25E), (s16)(rowIndex + 0x39));
++            func_002b7750((s16)(rowIndex + 0x270), 0x193);
++            func_002b7750((s16)(rowIndex + 0x27D), 0x19B);
++            func_002b7750((s16)(rowIndex + 0x28B), 0x188);
++            func_002b7750((s16)(rowIndex + 0x297), 0x18D);
++            func_002b7750((s16)(rowIndex + 0x2A3), 0x1C);
++        }
+@@ -313,2 +326,5 @@
+-    for (i = 0; i < 0xC; i++) {
+-        *(s32 *)(out + i * 4 + 0x21C) = func_0034b740((s32)arg0);
++    {
++        s32 ballIndex;
++        for (ballIndex = 0; ballIndex < 0xC; ballIndex++) {
++            *(s32 *)(out + ballIndex * 4 + 0x21C) = func_0034b740((s32)arg0);
++        }
+@@ -352 +368 @@
+-    *(s32 *)(out + 0x28C) = (s32)func_002b5c90((void *)task, v0);
++    *(s32 *)(out + 0x28C) = (s32)func_002b5c90(task, v0);
+@@ -354,7 +370,7 @@
+-    func_002b29e0(b0, 160.0f, 36.0f);
+-    func_002b5db0(*(s32 *)(out + 0x28C), v1, b0);
+-    func_002b6130(*(s32 *)(out + 0x28C), 0xAB);
+-    func_002b6140(*(s32 *)(out + 0x28C), 0);
+-    func_002b2a60(&c0, 0xFF, 0xFF, 0xFF, 0);
+-    func_002b5e30(*(s32 *)(out + 0x28C), *(s32 *)&c0);
+-    func_002b5e20(*(s32 *)(out + 0x28C), 53.0f);
++    func_002b29e0((u8 *)(b0), 160.0f, 36.0f);
++    func_002b5db0((u8 *)*(s32 *)(out + 0x28C), v1, b0);
++    func_002b6130((u8 *)(*(s32 *)(out + 0x28C)), 0xAB);
++    func_002b6140((u8 *)(*(s32 *)(out + 0x28C)), 0);
++    func_002b2a60((u8 *)(&c0), 0xFF, 0xFF, 0xFF, 0);
++    func_002b5e30((u8 *)*(s32 *)(out + 0x28C), c0);
++    func_002b5e20((u8 *)(*(s32 *)(out + 0x28C)), 53.0f);
+@@ -362 +378 @@
+-    *(s32 *)(out + 0x290) = (s32)func_002b5c90((void *)task, v2);
++    *(s32 *)(out + 0x290) = (s32)func_002b5c90(task, v2);
+@@ -364,7 +380,7 @@
+-    func_002b29e0(b1, 26.0f, 36.0f);
+-    func_002b5db0(*(s32 *)(out + 0x290), v3, b1);
+-    func_002b6130(*(s32 *)(out + 0x290), 0xAB);
+-    func_002b6140(*(s32 *)(out + 0x290), 0);
+-    func_002b2a60(&c1, 0xFF, 0xFF, 0xFF, 0);
+-    func_002b5e30(*(s32 *)(out + 0x290), *(s32 *)&c1);
+-    func_002b5e20(*(s32 *)(out + 0x290), 53.0f);
++    func_002b29e0((u8 *)(b1), 26.0f, 36.0f);
++    func_002b5db0((u8 *)*(s32 *)(out + 0x290), v3, b1);
++    func_002b6130((u8 *)(*(s32 *)(out + 0x290)), 0xAB);
++    func_002b6140((u8 *)(*(s32 *)(out + 0x290)), 0);
++    func_002b2a60((u8 *)(&c1), 0xFF, 0xFF, 0xFF, 0);
++    func_002b5e30((u8 *)*(s32 *)(out + 0x290), c1);
++    func_002b5e20((u8 *)(*(s32 *)(out + 0x290)), 53.0f);
+@@ -372 +388 @@
+-    *(s32 *)(out + 0x2AC) = (s32)func_002b5c90((void *)task, v4);
++    *(s32 *)(out + 0x2AC) = (s32)func_002b5c90(task, v4);
+@@ -374,7 +390,7 @@
+-    func_002b29e0(b2, 640.0f, 7.0f);
+-    func_002b5db0(*(s32 *)(out + 0x2AC), v5, b2);
+-    func_002b6130(*(s32 *)(out + 0x2AC), 0xB2);
+-    func_002b2a60(&c2, 0x2D, 0x2D, 0x2D, 0xFF);
+-    func_002b5e30(*(s32 *)(out + 0x2AC), *(s32 *)&c2);
+-    func_002b6140(*(s32 *)(out + 0x2AC), 1);
+-    func_002b6120(*(s32 *)(out + 0x2AC), 1);
++    func_002b29e0((u8 *)(b2), 640.0f, 7.0f);
++    func_002b5db0((u8 *)*(s32 *)(out + 0x2AC), v5, b2);
++    func_002b6130((u8 *)(*(s32 *)(out + 0x2AC)), 0xB2);
++    func_002b2a60((u8 *)(&c2), 0x2D, 0x2D, 0x2D, 0xFF);
++    func_002b5e30((u8 *)*(s32 *)(out + 0x2AC), c2);
++    func_002b6140((u8 *)(*(s32 *)(out + 0x2AC)), 1);
++    func_002b6120((u8 *)(*(s32 *)(out + 0x2AC)), 1);
+@@ -382 +398 @@
+-    *(s32 *)(out + 0x2B0) = (s32)func_002b5c90((void *)task, v6);
++    *(s32 *)(out + 0x2B0) = (s32)func_002b5c90(task, v6);
+@@ -384,7 +400,7 @@
+-    func_002b29e0(b3, 640.0f, 16.0f);
+-    func_002b5db0(*(s32 *)(out + 0x2B0), v7, b3);
+-    func_002b6130(*(s32 *)(out + 0x2B0), 0xB2);
+-    func_002b2a60(&c3, 0x2D, 0x2D, 0x2D, 0xFF);
+-    func_002b5e30(*(s32 *)(out + 0x2B0), *(s32 *)&c3);
+-    func_002b6140(*(s32 *)(out + 0x2B0), 1);
+-    func_002b6120(*(s32 *)(out + 0x2B0), 1);
++    func_002b29e0((u8 *)(b3), 640.0f, 16.0f);
++    func_002b5db0((u8 *)*(s32 *)(out + 0x2B0), v7, b3);
++    func_002b6130((u8 *)(*(s32 *)(out + 0x2B0)), 0xB2);
++    func_002b2a60((u8 *)(&c3), 0x2D, 0x2D, 0x2D, 0xFF);
++    func_002b5e30((u8 *)*(s32 *)(out + 0x2B0), c3);
++    func_002b6140((u8 *)(*(s32 *)(out + 0x2B0)), 1);
++    func_002b6120((u8 *)(*(s32 *)(out + 0x2B0)), 1);
+@@ -392 +408 @@
+-    *(s32 *)(out + 0x2B4) = (s32)func_002b5c90((void *)task, v8);
++    *(s32 *)(out + 0x2B4) = (s32)func_002b5c90(task, v8);
+@@ -394,8 +410,8 @@
+-    func_002b29e0(b4, 640.0f, 343.0f);
+-    func_002b5db0(*(s32 *)(out + 0x2B4), v9, b4);
+-    func_002b6130(*(s32 *)(out + 0x2B4), 0xB2);
+-    func_002b2a60(&c4, 0x2D, 0x2D, 0x2D, 0xE5);
+-    func_002b5e30(*(s32 *)(out + 0x2B4), *(s32 *)&c4);
+-    func_002b6140(*(s32 *)(out + 0x2B4), 1);
+-    func_002b6120(*(s32 *)(out + 0x2B4), 1);
+-    *(s32 *)(out + 0x250) = func_0033e3f0(task);
++    func_002b29e0((u8 *)(b4), 640.0f, 343.0f);
++    func_002b5db0((u8 *)*(s32 *)(out + 0x2B4), v9, b4);
++    func_002b6130((u8 *)(*(s32 *)(out + 0x2B4)), 0xB2);
++    func_002b2a60((u8 *)(&c4), 0x2D, 0x2D, 0x2D, 0xE5);
++    func_002b5e30((u8 *)*(s32 *)(out + 0x2B4), c4);
++    func_002b6140((u8 *)(*(s32 *)(out + 0x2B4)), 1);
++    func_002b6120((u8 *)(*(s32 *)(out + 0x2B4)), 1);
++    *(s32 *)(out + 0x250) = func_0033e3f0((u8 *)(task));
+@@ -405,3 +421 @@
+-#else
+-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002e8410);
+-#endif
++
+@@ -544 +558 @@
+-      func_002b2a60(&bStack_40,0xc6,0xee,1,0xff);
++      func_002b2a60((u8 *)(&bStack_40),0xc6,0xee,1,0xff);
+@@ -558 +572 @@
+-      func_002b2a60(&bStack_44,0x2d,0x2d,0x2d,0xff);
++      func_002b2a60((u8 *)(&bStack_44),0x2d,0x2d,0x2d,0xff);
+@@ -564 +578 @@
+-      func_002b2a60(&bStack_48,0x92,200,7,0xff);
++      func_002b2a60((u8 *)(&bStack_48),0x92,200,7,0xff);
+@@ -686,3 +700,3 @@
+-          func_002b2a60((s64 *)&uStack_28,0,0,0x66,0xff);
+-          func_002b2a60((s64 *)&uStack_2c,0xcc,0xff,0xff,0xff);
+-          func_002b2a60((s64 *)&uStack_30,0x25,0x2f,0x94,0xff);
++          func_002b2a60((u8 *)((s64 *)&uStack_28),0,0,0x66,0xff);
++          func_002b2a60((u8 *)((s64 *)&uStack_2c),0xcc,0xff,0xff,0xff);
++          func_002b2a60((u8 *)((s64 *)&uStack_30),0x25,0x2f,0x94,0xff);
+@@ -702,3 +716,3 @@
+-          func_002b2a60((s64 *)&uStack_34,0xc6,0xee,1,0xff);
+-          func_002b2a60((s64 *)&uStack_38,0x2d,0x2d,0x2d,0xff);
+-          func_002b2a60((s64 *)&uStack_3c,0x92,200,7,0xff);
++          func_002b2a60((u8 *)((s64 *)&uStack_34),0xc6,0xee,1,0xff);
++          func_002b2a60((u8 *)((s64 *)&uStack_38),0x2d,0x2d,0x2d,0xff);
++          func_002b2a60((u8 *)((s64 *)&uStack_3c),0x92,200,7,0xff);
+@@ -711,3 +725,3 @@
+-        func_002b2a60((s64 *)&uStack_10,0,0,0x66,0xff);
+-        func_002b2a60((s64 *)&uStack_14,0xcc,0xff,0xff,0xff);
+-        func_002b2a60((s64 *)&uStack_18,0x25,0x2f,0x94,0xff);
++        func_002b2a60((u8 *)((s64 *)&uStack_10),0,0,0x66,0xff);
++        func_002b2a60((u8 *)((s64 *)&uStack_14),0xcc,0xff,0xff,0xff);
++        func_002b2a60((u8 *)((s64 *)&uStack_18),0x25,0x2f,0x94,0xff);
+@@ -725,3 +739,3 @@
+-        func_002b2a60((s64 *)&uStack_1c,0xc6,0xee,1,0xff);
+-        func_002b2a60((s64 *)&uStack_20,0x2d,0x2d,0x2d,0xff);
+-        func_002b2a60((s64 *)&uStack_24,0x92,200,7,0xff);
++        func_002b2a60((u8 *)((s64 *)&uStack_1c),0xc6,0xee,1,0xff);
++        func_002b2a60((u8 *)((s64 *)&uStack_20),0x2d,0x2d,0x2d,0xff);
++        func_002b2a60((u8 *)((s64 *)&uStack_24),0x92,200,7,0xff);
+@@ -740,2 +754,2 @@
+-      func_002b6140(*(s32 *)(base + 0x28c),0);
+-      func_002b6140(*(s32 *)(base + 0x290),0);
++      func_002b6140((u8 *)(*(s32 *)(base + 0x28c)),0);
++      func_002b6140((u8 *)(*(s32 *)(base + 0x290)),0);
+@@ -974 +988 @@
+-      func_002b2a60(&bStack_4,0x49,0x72,0xff,0xff);
++      func_002b2a60((u8 *)(&bStack_4),0x49,0x72,0xff,0xff);
+@@ -990 +1004 @@
+-      func_002b2a60(&bStack_8,0x49,0x72,0xff,0xff);
++      func_002b2a60((u8 *)(&bStack_8),0x49,0x72,0xff,0xff);
+@@ -1006 +1020 @@
+-      func_002b2a60(&bStack_c,0x49,0x72,0xff,0xff);
++      func_002b2a60((u8 *)(&bStack_c),0x49,0x72,0xff,0xff);
+@@ -1667 +1680,0 @@
+-    extern void func_002b6140(s32, s32);
+@@ -1950 +1963 @@
+-                        func_002b2a60(col25C, 0, 0, 0x99, 0xFFU);
++                        func_002b2a60((u8 *)(col25C), 0, 0, 0x99, 0xFFU);
+@@ -2073,2 +2086,2 @@
+-                func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x28C))), 0);
+-                func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x290))), 0);
++                func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x28C)))), 0);
++                func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x290)))), 0);
+@@ -2111 +2124 @@
+-                    func_002b2a60(col258, 0xCC, 0xFF, 0x33, 0xFFU);
++                    func_002b2a60((u8 *)(col258), 0xCC, 0xFF, 0x33, 0xFFU);
+@@ -2136 +2149 @@
+-                    func_002b2a60(col254, 0x2D, 0x2D, 0x2D, 0xFFU);
++                    func_002b2a60((u8 *)(col254), 0x2D, 0x2D, 0x2D, 0xFFU);
+@@ -2142 +2155 @@
+-                    func_002b2a60(col250, 0x2D, 0x2D, 0x2D, 0xFFU);
++                    func_002b2a60((u8 *)(col250), 0x2D, 0x2D, 0x2D, 0xFFU);
+@@ -2157 +2170 @@
+-                    func_002b2a60(col24C, 0xFF, 0xFF, 0xFF, 0xFFU);
++                    func_002b2a60((u8 *)(col24C), 0xFF, 0xFF, 0xFF, 0xFFU);
+@@ -2168 +2181 @@
+-                    func_002b2a60(col248, 0xFF, 0xCC, 0xFA, 0xFFU);
++                    func_002b2a60((u8 *)(col248), 0xFF, 0xCC, 0xFA, 0xFFU);
+@@ -2174 +2187 @@
+-                    func_002b2a60(col244, 0xFF, 0xCC, 0xFA, 0xFFU);
++                    func_002b2a60((u8 *)(col244), 0xFF, 0xCC, 0xFA, 0xFFU);
+@@ -2185 +2198 @@
+-                    func_002b2a60(col240, 0x49, 0x72, 0xFF, 0xFFU);
++                    func_002b2a60((u8 *)(col240), 0x49, 0x72, 0xFF, 0xFFU);
+@@ -2196 +2209 @@
+-                    func_002b2a60(col23C, 0x49, 0x72, 0xFF, 0xFFU);
++                    func_002b2a60((u8 *)(col23C), 0x49, 0x72, 0xFF, 0xFFU);
+@@ -2207 +2220 @@
+-                    func_002b2a60(col238, 0, 0, 0x66, 0xFFU);
++                    func_002b2a60((u8 *)(col238), 0, 0, 0x66, 0xFFU);
+@@ -2213 +2226 @@
+-                    func_002b2a60(col234, 0xCC, 0xFF, 0xFF, 0xFFU);
++                    func_002b2a60((u8 *)(col234), 0xCC, 0xFF, 0xFF, 0xFFU);
+@@ -2260,2 +2273,2 @@
+-                    func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x28C))), 1);
+-                    func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x290))), 1);
++                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x28C)))), 1);
++                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x290)))), 1);
+@@ -2292,2 +2305,2 @@
+-                    func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x28C))), 1);
+-                    func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x290))), 1);
++                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x28C)))), 1);
++                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x290)))), 1);
+@@ -2398,2 +2411,2 @@
+-                func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x28C))), 0);
+-                func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x290))), 0);
++                func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x28C)))), 0);
++                func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x290)))), 0);
+@@ -2576,2 +2589,2 @@
+-            func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x28C))), 0);
+-            func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x290))), 0);
++            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x28C)))), 0);
++            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x290)))), 0);
+@@ -2891 +2903,0 @@
+-    extern void func_002b2a60(void *, s32, s32, s32, s32);
+@@ -2940 +2951,0 @@
+-    extern void func_002b6140(s32, u8);
+@@ -3388 +3399 @@
+-                        func_002b2a60(&sp3FC, 0, 0, 0x99, 0xFFU);
++                        func_002b2a60((u8 *)(&sp3FC), 0, 0, 0x99, 0xFFU);
+@@ -3616,2 +3627,2 @@
+-                    func_002b2a60(&sp3F8, 0, 0, 0x99, 0xFFU);
+-                    func_002b2a60(&sp3F4, 0, 0, 0x99, 0xFFU);
++                    func_002b2a60((u8 *)(&sp3F8), 0, 0, 0x99, 0xFFU);
++                    func_002b2a60((u8 *)(&sp3F4), 0, 0, 0x99, 0xFFU);
+@@ -3644,2 +3655,2 @@
+-                func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x28C)))), 0);
+-                func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x290)))), 0);
++                func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x28C))))), 0);
++                func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x290))))), 0);
+@@ -3696,2 +3707,2 @@
+-                        func_002b2a60(&sp3F0, 0, 0, 0x99, 0xFFU);
+-                        func_002b2a60(&sp3EC, 0, 0, 0x99, 0xFFU);
++                        func_002b2a60((u8 *)(&sp3F0), 0, 0, 0x99, 0xFFU);
++                        func_002b2a60((u8 *)(&sp3EC), 0, 0, 0x99, 0xFFU);
+@@ -3725,2 +3736,2 @@
+-                    func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x28C)))), 1);
+-                    func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x290)))), 1);
++                    func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x28C))))), 1);
++                    func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x290))))), 1);
+@@ -3752,2 +3763,2 @@
+-                            func_002b2a60(&sp3E8, 0, 0, 0x99, 0xFFU);
+-                            func_002b2a60(&sp3E4, 0, 0, 0x99, 0xFFU);
++                            func_002b2a60((u8 *)(&sp3E8), 0, 0, 0x99, 0xFFU);
++                            func_002b2a60((u8 *)(&sp3E4), 0, 0, 0x99, 0xFFU);
+@@ -3817,2 +3828,2 @@
+-                            func_002b2a60(&sp3E0, 0, 0, 0x99, 0xFFU);
+-                            func_002b2a60(&sp3DC, 0, 0, 0x99, 0xFFU);
++                            func_002b2a60((u8 *)(&sp3E0), 0, 0, 0x99, 0xFFU);
++                            func_002b2a60((u8 *)(&sp3DC), 0, 0, 0x99, 0xFFU);
+@@ -3869 +3880 @@
+-                            func_002b2a60(&sp3D8, 0, 0, 0x99, 0xA5U);
++                            func_002b2a60((u8 *)(&sp3D8), 0, 0, 0x99, 0xA5U);
+@@ -3950,2 +3961,2 @@
+-                func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x28C)))), 0);
+-                func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x290)))), 0);
++                func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x28C))))), 0);
++                func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x290))))), 0);
+@@ -4010,2 +4021,2 @@
+-                    func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x28C)))), 1);
+-                    func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x290)))), 1);
++                    func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x28C))))), 1);
++                    func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x290))))), 1);
+@@ -4040,2 +4051,2 @@
+-                            func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x28C)))), 1);
+-                            func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x290)))), 1);
++                            func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x28C))))), 1);
++                            func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x290))))), 1);
+@@ -4842 +4853 @@
+-                    func_002b2a60(col15C, 0, 0, 0x99, 0xFFU);
++                    func_002b2a60((u8 *)(col15C), 0, 0, 0x99, 0xFFU);
+@@ -4900 +4911 @@
+-                func_002b2a60(col158, 0x24, 0x3F, 0x9F, 0xFFU);
++                func_002b2a60((u8 *)(col158), 0x24, 0x3F, 0x9F, 0xFFU);
+@@ -4906 +4917 @@
+-                func_002b2a60(col154, 0x24, 0x3F, 0x9F, 0xFFU);
++                func_002b2a60((u8 *)(col154), 0x24, 0x3F, 0x9F, 0xFFU);
+@@ -4914 +4925 @@
+-                func_002b2a60(col150, 0xCC, 0xFF, 0xFF, var_19_2);
++                func_002b2a60((u8 *)(col150), 0xCC, 0xFF, 0xFF, var_19_2);
+@@ -4917 +4928 @@
+-                func_002b2a60(col14C, 0x49, 0x72, 0xFF, 0xFFU);
++                func_002b2a60((u8 *)(col14C), 0x49, 0x72, 0xFF, 0xFFU);
+@@ -4923 +4934 @@
+-                func_002b2a60(col148, 0x49, 0x72, 0xFF, 0xFFU);
++                func_002b2a60((u8 *)(col148), 0x49, 0x72, 0xFF, 0xFFU);
+@@ -4932 +4943 @@
+-                func_002b2a60(col144, 0xCC, 0xFF, 0xFF, var_19_2);
++                func_002b2a60((u8 *)(col144), 0xCC, 0xFF, 0xFF, var_19_2);
+@@ -4953 +4964 @@
+-                func_002b2a60(col140, 0x2D, 0x2D, 0x2D, var_17_4);
++                func_002b2a60((u8 *)(col140), 0x2D, 0x2D, 0x2D, var_17_4);
+@@ -4956 +4967 @@
+-                func_002b2a60(col13C, 0xCC, 0xFF, 0xFF, var_17_4);
++                func_002b2a60((u8 *)(col13C), 0xCC, 0xFF, 0xFF, var_17_4);
+@@ -4969 +4980 @@
+-                func_002b2a60(col138, 0xCC, 0xFF, 0xFF, var_17_4);
++                func_002b2a60((u8 *)(col138), 0xCC, 0xFF, 0xFF, var_17_4);
+@@ -4982 +4993 @@
+-            func_002b2a60(col134, 0x49, 0x72, 0xFF, 0xFFU);
++            func_002b2a60((u8 *)(col134), 0x49, 0x72, 0xFF, 0xFFU);
+@@ -4995 +5006 @@
+-            func_002b2a60(col130, 0x49, 0x72, 0xFF, 0xFFU);
++            func_002b2a60((u8 *)(col130), 0x49, 0x72, 0xFF, 0xFFU);
+@@ -5007 +5018 @@
+-            func_002b2a60(col12C, 0, 0, 0x66, 0xFFU);
++            func_002b2a60((u8 *)(col12C), 0, 0, 0x66, 0xFFU);
+@@ -5018 +5029 @@
+-                func_002b2a60(col128, 0xCC, 0xFF, 0x33, 0xFFU);
++                func_002b2a60((u8 *)(col128), 0xCC, 0xFF, 0x33, 0xFFU);
+@@ -5043 +5054 @@
+-                func_002b2a60(col124, 0x2D, 0x2D, 0x2D, 0xFFU);
++                func_002b2a60((u8 *)(col124), 0x2D, 0x2D, 0x2D, 0xFFU);
+@@ -5078,2 +5089,2 @@
+-                        func_002b6140((*(s32 *)((u8 *)(temp_16)+(0x28C))), 1);
+-                        func_002b6140((*(s32 *)((u8 *)(temp_16)+(0x290))), 1);
++                        func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_16)+(0x28C)))), 1);
++                        func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_16)+(0x290)))), 1);
+@@ -5104,2 +5115,2 @@
+-                    func_002b6140((*(s32 *)((u8 *)(temp_16)+(0x28C))), 1);
+-                    func_002b6140((*(s32 *)((u8 *)(temp_16)+(0x290))), 1);
++                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_16)+(0x28C)))), 1);
++                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_16)+(0x290)))), 1);
+@@ -5171,2 +5182,2 @@
+-                func_002b6140((*(s32 *)((u8 *)(temp_16)+(0x28C))), 0);
+-                func_002b6140((*(s32 *)((u8 *)(temp_16)+(0x290))), 0);
++                func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_16)+(0x28C)))), 0);
++                func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_16)+(0x290)))), 0);
+@@ -5425,2 +5436,2 @@
+-            func_002b6140((*(s32 *)((u8 *)(temp_16)+(0x28C))), 0);
+-            func_002b6140((*(s32 *)((u8 *)(temp_16)+(0x290))), 0);
++            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_16)+(0x28C)))), 0);
++            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_16)+(0x290)))), 0);
+@@ -5752 +5763 @@
+-                func_002b2a60(col10C, 0, 0, 0x99, 0xFFU);
++                func_002b2a60((u8 *)(col10C), 0, 0, 0x99, 0xFFU);
+@@ -5821 +5832 @@
+-                func_002b2a60(col108, 0xCC, 0xFF, 0xFF, var_21);
++                func_002b2a60((u8 *)(col108), 0xCC, 0xFF, 0xFF, var_21);
+@@ -5835 +5846 @@
+-        func_002b2a60(col104, 0x2D, 0x2D, 0x2D, temp_17);
++        func_002b2a60((u8 *)(col104), 0x2D, 0x2D, 0x2D, temp_17);
+@@ -6242 +6252,0 @@
+-    extern void func_002b2a60(void *, s32, s32, s32, s32);
+@@ -6250 +6259,0 @@
+-    extern void func_002b6140(s32, u8);
+@@ -6360 +6369 @@
+-        func_002b2a60(&col0, 0xCC, 0xFF, 0x33, 0xFF);
++        func_002b2a60((u8 *)(&col0), 0xCC, 0xFF, 0x33, 0xFF);
+@@ -6385 +6394 @@
+-        func_002b2a60(&colB0, 0x2D, 0x2D, 0x2D, 0xFF);
++        func_002b2a60((u8 *)(&colB0), 0x2D, 0x2D, 0x2D, 0xFF);
+@@ -6391 +6400 @@
+-        func_002b2a60(&colC0, 0x2D, 0x2D, 0x2D, 0xFF);
++        func_002b2a60((u8 *)(&colC0), 0x2D, 0x2D, 0x2D, 0xFF);
+@@ -6400,2 +6409,2 @@
+-            func_002b6140(*(s32 *)(p + 0x28C), 1);
+-            func_002b6140(*(s32 *)(p + 0x290), 1);
++            func_002b6140((u8 *)(*(s32 *)(p + 0x28C)), 1);
++            func_002b6140((u8 *)(*(s32 *)(p + 0x290)), 1);
+@@ -6436,2 +6445,2 @@
+-            func_002b6140(*(s32 *)(p + 0x28C), 0);
+-            func_002b6140(*(s32 *)(p + 0x290), 0);
++            func_002b6140((u8 *)(*(s32 *)(p + 0x28C)), 0);
++            func_002b6140((u8 *)(*(s32 *)(p + 0x290)), 0);
+@@ -6659 +6668 @@
+-        func_00313b50((s32)arg0);
++        func_00313b50((u8 *)((s32)arg0));
+@@ -6683,2 +6692,2 @@
+-            func_002b6140(*(s32 *)(p + 0x28C), 1);
+-            func_002b6140(*(s32 *)(p + 0x290), 1);
++            func_002b6140((u8 *)(*(s32 *)(p + 0x28C)), 1);
++            func_002b6140((u8 *)(*(s32 *)(p + 0x290)), 1);
+@@ -6834,2 +6843,2 @@
+-            func_002b6140(*(s32 *)(p + 0x28C), 0);
+-            func_002b6140(*(s32 *)(p + 0x290), 0);
++            func_002b6140((u8 *)(*(s32 *)(p + 0x28C)), 0);
++            func_002b6140((u8 *)(*(s32 *)(p + 0x290)), 0);
+@@ -7335 +7343,0 @@
+-    extern void func_002b2a60(u8 *, s32, s32, s32, s32);
+@@ -7339 +7346,0 @@
+-    extern void func_002b6140(s32, s32);
+@@ -7791 +7798 @@
+-            func_002b2a60(col2FC, 0, 0, 0x99, 0xFFU);
++            func_002b2a60((u8 *)(col2FC), 0, 0, 0x99, 0xFFU);
+@@ -7872,2 +7879,2 @@
+-                    func_002b2a60(col2F8, 0, 0, 0x99, 0xFFU);
+-                    func_002b2a60(col2F4, 0, 0, 0x99, 0xFFU);
++                    func_002b2a60((u8 *)(col2F8), 0, 0, 0x99, 0xFFU);
++                    func_002b2a60((u8 *)(col2F4), 0, 0, 0x99, 0xFFU);
+@@ -7904,2 +7911,2 @@
+-                func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x28C))), 1);
+-                func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x290))), 1);
++                func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x28C)))), 1);
++                func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x290)))), 1);
+@@ -7928,2 +7935,2 @@
+-                        func_002b2a60(col2F0, 0, 0, 0x99, 0xFFU);
+-                        func_002b2a60(col2EC, 0, 0, 0x99, 0xFFU);
++                        func_002b2a60((u8 *)(col2F0), 0, 0, 0x99, 0xFFU);
++                        func_002b2a60((u8 *)(col2EC), 0, 0, 0x99, 0xFFU);
+@@ -8004,2 +8011,2 @@
+-            func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x28C))), 1);
+-            func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x290))), 1);
++            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x28C)))), 1);
++            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x290)))), 1);
+@@ -8065 +8072 @@
+-                    func_002b2a60(col2E8, 0xCC, 0xFF, 0x33, 0xFFU);
++                    func_002b2a60((u8 *)(col2E8), 0xCC, 0xFF, 0x33, 0xFFU);
+@@ -8090 +8097 @@
+-                    func_002b2a60(col2E4, 0x2D, 0x2D, 0x2D, 0xFFU);
++                    func_002b2a60((u8 *)(col2E4), 0x2D, 0x2D, 0x2D, 0xFFU);
+@@ -8096 +8103 @@
+-                    func_002b2a60(col2E0, 0x2D, 0x2D, 0x2D, 0xFFU);
++                    func_002b2a60((u8 *)(col2E0), 0x2D, 0x2D, 0x2D, 0xFFU);
+@@ -8105 +8112 @@
+-                    func_002b2a60(col2DC, 0x49, 0x72, 0xFF, 0xFFU);
++                    func_002b2a60((u8 *)(col2DC), 0x49, 0x72, 0xFF, 0xFFU);
+@@ -8116 +8123 @@
+-                    func_002b2a60(col2D8, 0x49, 0x72, 0xFF, 0xFFU);
++                    func_002b2a60((u8 *)(col2D8), 0x49, 0x72, 0xFF, 0xFFU);
+@@ -8127 +8134 @@
+-                    func_002b2a60(col2D4, 0, 0, 0x66, 0xFFU);
++                    func_002b2a60((u8 *)(col2D4), 0, 0, 0x66, 0xFFU);
+@@ -8133 +8140 @@
+-                    func_002b2a60(col2D0, 0xCC, 0xFF, 0xFF, 0xFFU);
++                    func_002b2a60((u8 *)(col2D0), 0xCC, 0xFF, 0xFF, 0xFFU);
+@@ -8234,2 +8241,2 @@
+-                    func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x28C))), 1);
+-                    func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x290))), 1);
++                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x28C)))), 1);
++                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x290)))), 1);
+@@ -8260,2 +8267,2 @@
+-                    func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x28C))), 1);
+-                    func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x290))), 1);
++                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x28C)))), 1);
++                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x290)))), 1);
+@@ -8568,2 +8575,2 @@
+-            func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x28C))), 0);
+-            func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x290))), 0);
++            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x28C)))), 0);
++            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x290)))), 0);
+@@ -8643,2 +8650,2 @@
+-            func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x28C))), 0);
+-            func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x290))), 0);
++            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x28C)))), 0);
++            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x290)))), 0);
+@@ -9612 +9619 @@
+-            func_002b2a60(&spFC, 0xFF, 0xFF, 0xFF, 0xFF);
++            func_002b2a60((u8 *)(&spFC), 0xFF, 0xFF, 0xFF, 0xFF);
+@@ -9624 +9631 @@
+-        func_002b2a60(&spF8, 0xFF, 0xFF, 0xFF, 0xFF);
++        func_002b2a60((u8 *)(&spF8), 0xFF, 0xFF, 0xFF, 0xFF);
+@@ -9756 +9763 @@
+-        func_002b2a60(&spF4, 0xFF, 0xFF, 0xFF, 0xFF);
++        func_002b2a60((u8 *)(&spF4), 0xFF, 0xFF, 0xFF, 0xFF);
+@@ -9835 +9842 @@
+-        func_002b2a60(&c0, 0xC6, 0xEE, 1, 0xFF);
++        func_002b2a60((u8 *)(&c0), 0xC6, 0xEE, 1, 0xFF);
+@@ -9841 +9848 @@
+-        func_002b2a60(&c1, 0xC6, 0xEE, 1, 0xFF);
++        func_002b2a60((u8 *)(&c1), 0xC6, 0xEE, 1, 0xFF);
+@@ -9847 +9854 @@
+-        func_002b2a60(&c2, 0x2D, 0x2D, 0x2D, 0xFF);
++        func_002b2a60((u8 *)(&c2), 0x2D, 0x2D, 0x2D, 0xFF);
+@@ -9853 +9860 @@
+-        func_002b2a60(&c3, 0x92, 0xC8, 7, 0xFF);
++        func_002b2a60((u8 *)(&c3), 0x92, 0xC8, 7, 0xFF);
+@@ -10037 +10044 @@
+-            func_002b2a60(&c0, 0, 0, 0x66, 0xFF);
++            func_002b2a60((u8 *)(&c0), 0, 0, 0x66, 0xFF);
+@@ -10048 +10055 @@
+-            func_002b2a60(&c1, 0xCC, 0xFF, 0xFF, 0xFF);
++            func_002b2a60((u8 *)(&c1), 0xCC, 0xFF, 0xFF, 0xFF);
+@@ -10055 +10062 @@
+-                func_002b2a60(&c2, 0xFF, 0xCC, 0xFF, 0xFF);
++                func_002b2a60((u8 *)(&c2), 0xFF, 0xCC, 0xFF, 0xFF);
+@@ -10063 +10070 @@
+-        func_002b2a60(&c3, 0xC6, 0xEE, 1, 0xFF);
++        func_002b2a60((u8 *)(&c3), 0xC6, 0xEE, 1, 0xFF);
+@@ -10069 +10076 @@
+-        func_002b2a60(&c4, 0xC6, 0xEE, 1, 0xFF);
++        func_002b2a60((u8 *)(&c4), 0xC6, 0xEE, 1, 0xFF);
+@@ -10075 +10082 @@
+-        func_002b2a60(&c5, 0x2D, 0x2D, 0x2D, 0xFF);
++        func_002b2a60((u8 *)(&c5), 0x2D, 0x2D, 0x2D, 0xFF);
+@@ -10081 +10088 @@
+-        func_002b2a60(&c6, 0x92, 0xC8, 7, 0xFF);
++        func_002b2a60((u8 *)(&c6), 0x92, 0xC8, 7, 0xFF);
+@@ -11915 +11922 @@
+-            func_002b2a60(&c0, 0x49, 0x72, 0xFF, 0xFF);
++            func_002b2a60((u8 *)(&c0), 0x49, 0x72, 0xFF, 0xFF);
+@@ -11930 +11937 @@
+-            func_002b2a60(&c1, 0x49, 0x72, 0xFF, 0xFF);
++            func_002b2a60((u8 *)(&c1), 0x49, 0x72, 0xFF, 0xFF);
+@@ -11945 +11952 @@
+-            func_002b2a60(&c2, 0x49, 0x72, 0xFF, 0xFF);
++            func_002b2a60((u8 *)(&c2), 0x49, 0x72, 0xFF, 0xFF);
+@@ -12366 +12373 @@
+-    result = func_00451fc0(result, D_00641BE0, 0xF, 0, 0,
++    result = (s32)func_00451fc0((void *)(result), D_00641BE0, 0xF, 0, 0,
+diff --git a/src/promoted/y_draw.c b/src/promoted/y_draw.c
+--- a/src/promoted/y_draw.c
++++ b/src/promoted/y_draw.c
+@@ -3,0 +4,4 @@
++#include "fcl_draw_task.h"
++#include "sdk_task_registration.h"
++extern s32 func_002b52a0(u8 *task);
++extern void func_002b5c60(u8 *task);
+@@ -7,7 +11,3 @@
+-typedef struct {
+-    f32 x, y;
+-} f2;
+-
+-typedef struct {
+-    u8 c0, c1, c2, c3;
+-} u4;
++typedef FclVec2 f2;
++
++typedef FclDrawColor u4;
+@@ -39,2 +38,0 @@
+-extern s32 func_00451fc0(s32 arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4,
+-                         void (*init)(u8 *), void (*close)(u8 *), u8 *arg7);
+@@ -44 +41,0 @@
+-extern s32 func_002b52a0(u8 *arg0);
+@@ -59 +55,0 @@
+-extern void func_002b5c60(u8 *arg0);
+@@ -105 +101,2 @@
+-void func_002b5c90(s32 arg0, f2 p1) {
++s32 func_002b5c90(s32 arg0, f2 p1) {
++    s32 handle;
+@@ -110 +107 @@
+-    func_00451fc0(arg0, D_0063F188, 0xF, 0, 0, (void (*)(u8 *))func_002b52a0, (void (*)(u8 *))func_002b5c60, p);
++    handle = (s32)func_00451fc0((void *)(arg0), D_0063F188, 0xF, 0, 0, func_002b52a0, func_002b5c60, p);
+@@ -126,0 +124 @@
++    return handle;
+@@ -344,3 +342,3 @@
+-    result = func_00451fc0(arg0, D_0063F1A0, 0xF, 0, 0,
+-                           (void (*)(u8 *))func_002b6340,
+-                           (void (*)(u8 *))func_002b6560, p);
++    result = (s32)func_00451fc0((void *)(arg0), D_0063F1A0, 0xF, 0, 0,
++                           func_002b6340,
++                           func_002b6560, p);
+@@ -810,3 +808,3 @@
+-    iGpffffb574 = (u8 *)func_00451fc0(arg0, D_0063F1B0, 0xF, 0, 0,
+-                                        (void (*)(u8 *))func_002b6ec0,
+-                                        (void (*)(u8 *))func_002b74c0, data);
++    iGpffffb574 = (u8 *)func_00451fc0((void *)(arg0), D_0063F1B0, 0xF, 0, 0,
++                                        func_002b6ec0,
++                                        func_002b74c0, data);
+@@ -1107 +1105,2 @@
+-void func_002b8150(s32 arg0) {
++s32 func_002b8150(s32 arg0) {
++    s32 handle;
+@@ -1111,2 +1110,2 @@
+-    func_00451fc0(arg0, D_0063F1D0, 0xF, 0, 0, (void (*)(u8 *))func_002b7f20,
+-                   (void (*)(u8 *))func_002b8120, p);
++    handle = (s32)func_00451fc0((void *)(arg0), D_0063F1D0, 0xF, 0, 0, func_002b7f20,
++                   func_002b8120, p);
+@@ -1114,0 +1114 @@
++    return handle;
+@@ -1906 +1906,2 @@
+-void func_002b9f90(s32 arg0, s16 arg1, s32 arg2) {
++s32 func_002b9f90(s32 arg0, s16 arg1, s32 arg2) {
++    s32 handle;
+@@ -1911,2 +1912,2 @@
+-    func_00451fc0(arg0, D_0063F1E0, 0xF, 0, 0, (void (*)(u8 *))func_002b9e10,
+-                  (void (*)(u8 *))func_002b9f60, p);
++    handle = (s32)func_00451fc0((void *)(arg0), D_0063F1E0, 0xF, 0, 0, func_002b9e10,
++                  func_002b9f60, p);
+@@ -1918,2 +1919,3 @@
+-}
+-
++    return handle;
++}
++
+diff --git a/src/promoted/y_fclCmbBall.c b/src/promoted/y_fclCmbBall.c
+--- a/src/promoted/y_fclCmbBall.c
++++ b/src/promoted/y_fclCmbBall.c
+@@ -1,0 +2,4 @@
++#include "fcl_draw_task.h"
++#include "sdk_task_registration.h"
++extern s32 func_0034ac00(u8 *task);
++extern void func_0034ad40(u8 *task);
+@@ -9 +12,0 @@
+-extern s32 func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
+@@ -13,2 +15,0 @@
+-extern void func_0034ac00(u8 *);
+-extern void func_0034ad40(u8 *);
+@@ -31 +32,2 @@
+-void func_0034ad70(s32 arg0, s8 arg1, s16 arg2) {
++s32 func_0034ad70(s32 arg0, u8 arg1, s16 arg2) {
++    s32 handle;
+@@ -37 +39 @@
+-    func_00451fc0(arg0, D_0064A750, 0xF, 0, 0, (void (*)(u8 *))func_0034ac00,
++    handle = (s32)func_00451fc0((void *)(arg0), D_0064A750, 0xF, 0, 0, func_0034ac00,
+@@ -43,0 +46 @@
++    return handle;
+@@ -235 +238,2 @@
+-void func_0034b740(s32 arg0) {
++s32 func_0034b740(s32 arg0) {
++    s32 handle;
+@@ -241 +245 @@
+-    func_00451fc0(arg0, D_0064A770, 0xF, 0, 0, (void (*)(u8 *))func_0034b380,
++    handle = (s32)func_00451fc0((void *)(arg0), D_0064A770, 0xF, 0, 0, func_0034b380,
+@@ -248,0 +253 @@
++    return handle;
+diff --git a/src/promoted/code1_002e.c b/src/promoted/code1_002e.c
+--- a/src/promoted/code1_002e.c
++++ b/src/promoted/code1_002e.c
+@@ -1,0 +2,2 @@
++#include "fcl_draw_task.h"
++#include "sdk_task_registration.h"
+@@ -34,3 +35,0 @@
+-extern s32 func_00451fc0(s32 arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4,
+-                         void (*arg5)(u8 *), void (*arg6)(u8 *), u8 *arg7);
+-extern s32 func_002b5c90(s32 arg0, u64 arg1);
+@@ -562 +561 @@
+-    s64 vec60;
++    FclPackedPosition vec60;
+@@ -570,2 +569,2 @@
+-    result = func_00451fc0(arg0, (char *)D_0063FC90, 0xF, 0, 0,
+-                           (void (*)(u8 *))func_002e72c0,
++    result = (s32)func_00451fc0((void *)(arg0), (char *)D_0063FC90, 0xF, 0, 0,
++                           func_002e72c0,
+@@ -574,2 +573,2 @@
+-    func_002b2970(&vec60, 0, 0);
+-    iGpffffb590 = (u8 *)func_002b5c90(result, *(u64 *)&vec60);
++    func_002b2970(&vec60.bits, 0, 0);
++    iGpffffb590 = (u8 *)func_002b5c90(result, vec60.position);
+diff --git a/src/Event/Fcl/y_fclShopDraw.c b/src/Event/Fcl/y_fclShopDraw.c
+--- a/src/Event/Fcl/y_fclShopDraw.c
++++ b/src/Event/Fcl/y_fclShopDraw.c
+@@ -1,0 +2 @@
++#include "fcl_draw_task.h"
+@@ -200 +200,0 @@
+-void *func_002b5c90(void *, u64);
+@@ -4242,4 +4242,4 @@
+-    u64 sp48;
+-    u64 sp40;
+-    u64 sp38;
+-    u64 sp30;
++    FclPackedPosition sp48;
++    FclPackedPosition sp40;
++    FclPackedPosition sp38;
++    FclPackedPosition sp30;
+@@ -4253,2 +4253,2 @@
+-    func_002b2970(&sp48, 240.0f, 20.0f);
+-    *(void **)(temp_2 + 0xC28) = func_002b5c90((void *)temp_17, sp48);
++    func_002b2970(&sp48.bits, 240.0f, 20.0f);
++    *(void **)(temp_2 + 0xC28) = (void *)func_002b5c90(temp_17, sp48.position);
+@@ -4256,6 +4256,6 @@
+-    func_002b2970(&sp40, 50.0f, 30.0f);
+-    *(void **)(temp_2 + 0xC2C) = func_002b5c90((void *)temp_17, sp40);
+-    func_002b2970(&sp38, 50.0f, 30.0f);
+-    *(void **)(temp_2 + 0xC30) = func_002b5c90((void *)temp_17, sp38);
+-    func_002b2970(&sp30, 50.0f, 30.0f);
+-    *(void **)(temp_2 + 0xC34) = func_002b5c90((void *)temp_17, sp30);
++    func_002b2970(&sp40.bits, 50.0f, 30.0f);
++    *(void **)(temp_2 + 0xC2C) = (void *)func_002b5c90(temp_17, sp40.position);
++    func_002b2970(&sp38.bits, 50.0f, 30.0f);
++    *(void **)(temp_2 + 0xC30) = (void *)func_002b5c90(temp_17, sp38.position);
++    func_002b2970(&sp30.bits, 50.0f, 30.0f);
++    *(void **)(temp_2 + 0xC34) = (void *)func_002b5c90(temp_17, sp30.position);
+diff --git a/src/promoted/y_CmbCardEff.c b/src/promoted/y_CmbCardEff.c
+--- a/src/promoted/y_CmbCardEff.c
++++ b/src/promoted/y_CmbCardEff.c
+@@ -3,0 +4 @@
++#include "fcl_draw_task.h"
+@@ -77 +78 @@
+-    s64 s188;
++    FclPackedPosition s188;
+@@ -142 +142,0 @@
+-s32 func_002b5c90(u8 *, s64);
+@@ -3881,2 +3881,2 @@
+-            func_002b2970(&work.s188, 0x1D1, 0.0f);
+-            *(s32 *)slot = func_002b5c90(arg0, work.s188);
++            func_002b2970(&work.s188.bits, 0x1D1, 0.0f);
++            *(s32 *)slot = func_002b5c90((s32)arg0, work.s188.position);
+diff --git a/src/Kernel/sdkTask.c b/src/Kernel/sdkTask.c
+--- a/src/Kernel/sdkTask.c
++++ b/src/Kernel/sdkTask.c
+@@ -1,0 +2 @@
++#include "sdk_task_registration.h"
+@@ -11 +12 @@
+-typedef struct KwlnTask
++struct KwlnTask
+@@ -22 +23 @@
+-    void (*unk34)(struct KwlnTask*); /* 0x34 */
++    SdkTaskDestroy unk34; /* 0x34 */
+@@ -30 +31 @@
+-} KwlnTask;
++};
+@@ -37 +38 @@
+-void* func_00451de0(const void* a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6);
++void* func_00451de0(const void* a0, s32 a1, s32 a2, s32 a3, SdkTaskUpdate a4, SdkTaskDestroy a5, u8 *a6);
+@@ -320 +321 @@
+-    s32 (*fn)(KwlnTask*);
++    SdkTaskUpdate fn;
+@@ -349,4 +350,4 @@
+-    fn = (s32 (*)(KwlnTask*))task->unk30;
+-    if (fn != 0 && fn != (s32 (*)(KwlnTask*))-1)
+-    {
+-        result = fn(task);
++    fn = (SdkTaskUpdate)task->unk30;
++    if (fn != 0 && fn != (SdkTaskUpdate)-1)
++    {
++        result = fn((u8 *)task);
+@@ -436 +437 @@
+-        task->unk34(task);
++        task->unk34((u8 *)task);
+@@ -489 +490 @@
+-            task->unk34(task);
++            task->unk34((u8 *)task);
+@@ -689 +690 @@
+-void* func_00451de0(const void* a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6)
++void* func_00451de0(const void* a0, s32 a1, s32 a2, s32 a3, SdkTaskUpdate a4, SdkTaskDestroy a5, u8 *a6)
+@@ -726,3 +727,3 @@
+-    *(u32*)((u8*)task + 0x30) = a4;
+-    *(u32*)((u8*)task + 0x34) = a5;
+-    *(u32*)((u8*)task + 0x38) = a6;
++    *(SdkTaskUpdate*)((u8*)task + 0x30) = a4;
++    *(SdkTaskDestroy*)((u8*)task + 0x34) = a5;
++    *(u8**)((u8*)task + 0x38) = a6;
+@@ -751 +752 @@
+-void* func_00451fc0(void* a0, const void* a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6, s32 a7)
++void* func_00451fc0(void* a0, const void* a1, s32 a2, s32 a3, s32 a4, SdkTaskUpdate a5, SdkTaskDestroy a6, u8 *a7)
+@@ -841 +842 @@
+-                task->unk34(task);
++                task->unk34((u8 *)task);
+diff --git a/include/fcl_combine_internal.h b/include/fcl_combine_internal.h
+--- a/include/fcl_combine_internal.h
++++ b/include/fcl_combine_internal.h
+@@ -4,19 +4 @@
+-#include "type.h"
+-
+-typedef struct {
+-    f32 x;
+-    f32 y;
+-} FclVec2;
+-
+-/* Constructors also expose the same position as an eight-byte packet. */
+-typedef union {
+-    FclVec2 position;
+-    s64 bits;
+-} FclPackedPosition;
+-
+-static inline FclVec2 fclPacketPosition(s64 bits)
+-{
+-    FclPackedPosition packet;
+-    packet.bits = bits;
+-    return packet.position;
+-}
++#include "fcl_draw_types.h"
+diff --git a/include/fcl_draw_types.h b/include/fcl_draw_types.h
+new file mode 100644
+--- /dev/null
++++ b/include/fcl_draw_types.h
+@@ -0,0 +1,24 @@
++#ifndef FCL_DRAW_TYPES_H
++#define FCL_DRAW_TYPES_H
++
++#include "type.h"
++
++typedef struct {
++    f32 x;
++    f32 y;
++} FclVec2;
++
++/* Constructors also expose the same position as an eight-byte packet. */
++typedef union {
++    FclVec2 position;
++    s64 bits;
++} FclPackedPosition;
++
++static inline FclVec2 fclPacketPosition(s64 bits)
++{
++    FclPackedPosition packet;
++    packet.bits = bits;
++    return packet.position;
++}
++
++#endif
+diff --git a/include/fcl_draw_task.h b/include/fcl_draw_task.h
+new file mode 100644
+--- /dev/null
++++ b/include/fcl_draw_task.h
+@@ -0,0 +1,22 @@
++#ifndef FCL_DRAW_TASK_H
++#define FCL_DRAW_TASK_H
++
++#include "fcl_draw_types.h"
++
++/* The draw provider consumes the four bytes as a value, rather than a packed
++ * integer. Member names agree with the provider's recovered color type. */
++typedef struct {
++    u8 c0;
++    u8 c1;
++    u8 c2;
++    u8 c3;
++} FclDrawColor;
++
++/* Creators return the SDK task handle; the handle is stored in EE word fields. */
++s32 func_002b5c90(s32 parent, FclVec2 position);
++s32 func_0034ad70(s32 parent, u8 count, s16 order);
++s32 func_0034b740(s32 parent);
++s32 func_002b8150(s32 parent);
++s32 func_002b9f90(s32 parent, s16 count, s32 resource);
++
++#endif
+diff --git a/include/sdk_task_registration.h b/include/sdk_task_registration.h
+new file mode 100644
+--- /dev/null
++++ b/include/sdk_task_registration.h
+@@ -0,0 +1,12 @@
++#ifndef SDK_TASK_REGISTRATION_H
++#define SDK_TASK_REGISTRATION_H
++#include "type.h"
++typedef struct KwlnTask KwlnTask;
++typedef s32 (*SdkTaskUpdate)(u8 *task);
++typedef void (*SdkTaskDestroy)(u8 *task);
++void *func_00451de0(const void *name, s32 priority, s32 delay, s32 freeDelay,
++                   SdkTaskUpdate update, SdkTaskDestroy destroy, u8 *work);
++void *func_00451fc0(void *parent, const void *name, s32 priority, s32 delay,
++                   s32 freeDelay, SdkTaskUpdate update, SdkTaskDestroy destroy,
++                   u8 *work);
++#endif
