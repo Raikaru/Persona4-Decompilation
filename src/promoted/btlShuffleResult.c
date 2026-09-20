@@ -80,7 +80,7 @@ extern u16 D_008C024E[];
 extern s32 func_00106330(s32 a);
 extern s32 func_00107890(s32 a);
 extern s32 func_0015a190(void);
-extern void func_002baac0(s32 a);
+extern u8 func_002baac0(u8 *message);
 extern void *func_0036e910(void *a);
 extern s32 func_00377eb0();
 extern void func_0038d2a0(s32 a);
@@ -843,7 +843,7 @@ lab_2600:
         tmp = func_00379920(ctx);
         if (tmp != 0) {
             func_00106390(0x1434, 1);
-            func_002baac0(*(s32 *)(ctx + 0x1F2DC));
+            func_002baac0((u8 *)(*(s32 *)(ctx + 0x1F2DC)));
             *st = 4;
         }
         break;
@@ -971,7 +971,7 @@ s32 func_00382ea0(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
     *(u8 **)work = unit;
     *(s32 *)(work + 0xC) = arg1;
     *(u16 *)(work + 0x10) = arg2;
-    func_002baac0(*(s32 *)(unit + 0x1F2DC));
+    func_002baac0((u8 *)(*(s32 *)(unit + 0x1F2DC)));
     switch (*(s32 *)(work + 0xC)) {
     case -1:
         func_002bad10(8);

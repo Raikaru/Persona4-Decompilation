@@ -6262,8 +6262,9 @@ void func_0012feb0(u8 *arg0)
 }
 /* measured: opt_common_subs on closes the callback-loop probe. */
 #pragma opt_common_subs on
+/* The selection is passed as a word; the field stores its low halfword. */
 // FUN_0012FF40
-s32 func_0012ff40(s32 arg0, s32 arg1, s16 arg2)
+s32 func_0012ff40(s32 arg0, s32 arg1, s32 arg2)
 {
     u8 *p;
 

@@ -98,11 +98,11 @@ extern u8 *func_001d3530(u8 *arg0, u8 *arg1, s32 arg2);
 extern f32 fGpffff811c;
 extern s32 func_002326e0(s32 arg0);
 extern s32 func_001f6d60(u8 *arg0);
-extern u8 *func_00202590(u8 *arg0, s32 arg1, s32 arg2);
+extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
 extern void func_001f0a10(u8 *arg0);
-extern u8 *func_001f36e0(s32 arg0, s32 arg1, void *arg2, s16 arg3, s16 arg4);
+extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *func_00202740(u8 *arg0);
-extern u8 *func_00201de0(s32 arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, u8 *arg7, u16 arg8);
+extern u8 *func_00201de0(s32 source, s32 target, s32 id, s16 effect, s16 targetFlags, s16 value, s16 enabled, void *result, u16 flags);
 u8 *func_00194b60(void);
 extern BtlPacket *func_001d3900(u16 arg0);
 extern u8 *func_0019e9f0();
@@ -518,22 +518,49 @@ void func_001a06d0(u8 *arg0) {
         func_001b0800(arg0, *(u16 *)(arg0 + 0x14));
     }
 }
-/* measured 001a0b00 2026-09-19: schedule pragmas removed; object 266/retail 271 -1.8% INSIDE, 232 words via `python3 tools/measure_guarded.py src/promoted/code1_001a.c func_001a0b00`, 99 edits via `python3 tools/fnalign.py src/promoted/code1_001a.c func_001a0b00 --candidate /tmp/c0b00_new.c` (was 239, 230 words, 393 edits with schedule on; retail is unscheduled with nop after every branch). Solved: twin-idiom calls, local externs, s64 arg0, memset-grounded stack, Ghidra nested tail (else-form), alternating unit-address spellings. Walls: frame 0x80 vs retail 0x70 (5 saved regs vs 3; temp live values overflow into s-regs), sp6E uninit-OR kept in reg ($s4 ori) vs retail stack slot (lhu/ori/sh), first-global lw symbol/offset. Ruled out today: baseline opts without the cs-off/prop-off pair (233, frame balloons to 0xa0), sp6E declared last (232, lateral), volatile sp6E (236). Production stays ASM; banked as floor (inside gate). */
-// FUN_001A0B00 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_common_subs off
+/* P4 initializes and copies the complete 0x20-byte target result. The P3FES
+ * state-start donor explains the aggregate mechanism, but its result is 0x1c
+ * bytes. Typed action/unit members and u16 casts avoid hoisting field addresses
+ * and the mask into saved registers. See the 2026-09-20 donor recovery proof. */
+// FUN_001A0B00
+#pragma push
+#pragma opt_common_subs on
 #pragma opt_propagation off
 void func_001a0b00(s64 *arg0) {
     extern void func_001f0a10(u8 *arg0);
-    extern u8 *func_001f36e0(s32 arg0, s32 arg1, void *arg2, s16 arg3, s16 arg4);
-    extern u8 *func_00201de0(s32 arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, u8 *arg7, u16 arg8);
+    extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
+    extern u8 *func_00201de0(s32 source, s32 target, s32 id, s16 effect, s16 targetFlags, s16 value, s16 enabled, void *result, u16 flags);
     extern u8 *func_00202740(u8 *arg0);
-    extern u8 *func_00202590(s32 arg0, s8 arg1, s16 arg2);
-    extern u32 func_00231f80(u8 *arg0);
+    extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
+    typedef struct DatUnit DatUnit;
+    typedef struct ActionUnitView {
+        u8 unknown00[0xA64];
+        DatUnit *data;
+    } ActionUnitView;
+    typedef struct ActionView {
+        s64 uid;
+        u8 unknown08[0x28];
+        ActionUnitView *unit;
+        u8 unknown34[0x3E8];
+        u32 passiveFlags;
+    } ActionView;
+    extern u16 func_00231f80(DatUnit *arg0);
+    extern u16 func_00232290(DatUnit *arg0);
+    extern BtlPacket *func_001f7c20(u16 channel, u16 cue, u16 variant);
     extern void func_001b0800(s64 *arg0, u16 arg1);
-    u16 sp6E;
-    s32 sp54;
-    s32 sp50;
+    typedef struct ActionResult {
+        s32 hpDelta;
+        s32 spDelta;
+        u32 statusFlags;
+        u32 otherStatusFlags;
+        s32 value10;
+        s32 value14;
+        u8 fields18[6];
+        u16 flags;
+    } ActionResult;
+    typedef char ActionResultSizeCheck[sizeof(ActionResult) == 0x20 ? 1 : -1];
+    ActionResult result;
+    ActionView *action;
     s64 var_17;
     s32 temp_16;
     u8 *temp_2;
@@ -542,60 +569,63 @@ void func_001a0b00(s64 *arg0) {
     u8 *temp_2_4;
     u8 *temp_2_5;
 
+    action = (ActionView *)arg0;
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x80000) == 0 &&
         func_00193cd0(0x700) == 0 && func_00193cd0(0x504) == 0 &&
         func_00193cd0(0x506) == 0 && func_00193cd0(0x301) == 0 &&
         func_00193cd0(0x104) == 0) {
         func_001a03b0(arg0);
-        func_001f0a10((u8 *)&sp50);
-        if (func_00243e30(*(u16 **)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA64)) != 0) {
-            sp6E |= 0x80;
+        func_001f0a10((u8 *)&result);
+        if (func_00243e30((u16 *)action->unit->data) != 0) {
+            result.flags |= 0x80;
         }
-        if (*(s32 *)((u8 *)arg0 + 0x41C) != 0) {
-            temp_16 = func_00231f80(*(u8 **)(*(u8 **)(arg0 + 6) + 0xA64)) & 0xFFFF;
-            func_00232290(*(u8 **)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA64));
+        if (action->passiveFlags != 0) {
+            temp_16 = (u16)func_00231f80(action->unit->data);
+            func_00232290(action->unit->data);
             var_17 = 0x16;
-            if (*(s32 *)((u8 *)arg0 + 0x41C) & 1) {
-                sp50 += ((temp_16 & 0xFFFF) * 0x64) / 5000;
+            if (action->passiveFlags & 1) {
+                result.hpDelta += ((u16)temp_16 * 0x64) / 5000;
             }
-            if (*(s32 *)((u8 *)arg0 + 0x41C) & 2) {
-                sp50 += ((temp_16 & 0xFFFF) * 0x64) / 2500;
+            if (action->passiveFlags & 2) {
+                result.hpDelta += ((u16)temp_16 * 0x64) / 2500;
             }
-            if (*(s32 *)((u8 *)arg0 + 0x41C) & 4) {
-                sp50 += ((temp_16 & 0xFFFF) * 0x64) / 1666;
+            if (action->passiveFlags & 4) {
+                result.hpDelta += ((u16)temp_16 * 0x64) / 1666;
             }
-            if (*(s32 *)((u8 *)arg0 + 0x41C) & 8) {
-                sp54 += 3;
+            if (action->passiveFlags & 8) {
+                result.spDelta += 3;
             }
-            if (*(s32 *)((u8 *)arg0 + 0x41C) & 0x10) {
-                sp54 += 5;
+            if (action->passiveFlags & 0x10) {
+                result.spDelta += 5;
             }
-            if (*(s32 *)((u8 *)arg0 + 0x41C) & 0x20) {
-                sp54 += 7;
+            if (action->passiveFlags & 0x20) {
+                result.spDelta += 7;
             }
         }
-        if ((sp6E != 0) || (sp50 != 0) || (sp54 != 0)) {
-            if ((sp50 != 0) || (sp54 != 0)) {
-                temp_2 = func_00202740(*(u8 **)(arg0 + 6));
-                *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
+        if ((result.flags != 0) || (result.hpDelta != 0) || (result.spDelta != 0)) {
+            if ((result.hpDelta != 0) || (result.spDelta != 0)) {
+                temp_2 = func_00202740((u8 *)action->unit);
+                *(s64 *)(temp_2 + 0x60) = action->uid;
                 func_00194590(temp_2, 1);
                 if ((s16)var_17 != -1) {
-                    temp_2_2 = (u8 *)func_001f7c20(0xE, 2, var_17 & 0xFFFF);
-                    *(s64 *)(temp_2_2 + 0x60) = *(s64 *)arg0;
+                    temp_2_2 = (u8 *)func_001f7c20(0xE, 2, (u16)var_17);
+                    *(s64 *)(temp_2_2 + 0x60) = action->uid;
                     func_00194590(temp_2_2, 1);
                 }
             }
-            temp_2_3 = (u8 *)func_001f36e0((s32)arg0, (s32)arg0, (u8 *)&sp50, 1, 1);
-            *(s64 *)(temp_2_3 + 0x60) = *(s64 *)arg0;
+            temp_2_3 = (u8 *)func_001f36e0((s32)arg0, (s32)arg0, &result, 1, 1);
+            *(s64 *)(temp_2_3 + 0x60) = action->uid;
             func_00194590(temp_2_3, 1);
-            if ((sp50 != 0) || (sp54 != 0)) {
-                temp_2_4 = func_00201de0((s32)*(u8 **)((u8 *)arg0 + 0x30), (s32)*(u8 **)(arg0 + 6), -1, 0, 0, 0, 1, (u8 *)&sp50, 8);
+            if ((result.hpDelta != 0) || (result.spDelta != 0)) {
+                s32 unit;
+                unit = (s32)(u8 *)action->unit;
+                temp_2_4 = func_00201de0(unit, unit, -1, 0, 0, 0, 1, &result, 8);
                 *(s8 *)(temp_2_4 + 0) = 4;
                 *(s64 *)(temp_2_4 + 8) = *(s64 *)(temp_2_3 + 0x58);
                 *(u8 *)(temp_2_4 + 0x47) &= ~0x20;
                 func_00194590(temp_2_4, 3);
-                if (sp50 != 0) {
-                    temp_2_5 = (u8 *)func_00202590((s32)*(u8 **)((u8 *)arg0 + 0x30), 0, 0);
+                if (result.hpDelta != 0) {
+                    temp_2_5 = (u8 *)func_00202590((s32)(u8 *)action->unit, 0, 0);
                     *(s8 *)(temp_2_5 + 0) = 4;
                     *(s64 *)(temp_2_5 + 8) = *(s64 *)(temp_2_3 + 0x58);
                     *(u8 *)(temp_2_5 + 0x47) &= ~0x20;
@@ -603,20 +633,16 @@ void func_001a0b00(s64 *arg0) {
                 }
             }
         }
-        if ((s8)func_00235320(*(u8 **)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA64)) >= 0) {
+        if ((s8)func_00235320((u8 *)action->unit->data) >= 0) {
             func_001b0800(arg0, 0xA);
-        } else if (func_001f6770((u8 *)arg0) == 0) {
-            func_001b0800(arg0, 3);
-        } else {
+        } else if (func_001f6770((u8 *)arg0) != 0) {
             func_001b0800(arg0, 0xB);
+        } else {
+            func_001b0800(arg0, 3);
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a0b00);
-#endif
-#pragma opt_common_subs on
-#pragma opt_propagation on
+#pragma pop
 /* measured: opt_propagation off plus one named local per address term. mwcc
    keeps source operand order for `named + named` (addu off,base / addu idx,sum
    as retail) but commutes an inline product on the left (`a * k + b` emits
@@ -1788,7 +1814,7 @@ void func_001a3840(u8 *arg0)
     s32 v22;
     s32 v23;
     extern void func_001f0a10(u8 *arg0);
-    extern u8 *func_001f36e0(s32 arg0, s32 arg1, void *arg2, s16 arg3, s16 arg4);
+    extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
     u8 spD0[32];
     u8 *pkt;
 
@@ -1887,7 +1913,7 @@ void func_001a3840(u8 *arg0)
     }
     func_001f0a10(spD0);
     *(s32 *)(spD0 + 12) = spC0;
-    pkt = func_001f36e0((s32)t20, (s32)t20, spD0, 1, 1);
+    pkt = (u8 *)func_001f36e0((s32)t20, (s32)t20, spD0, 1, 1);
     *(pkt + 0) = 4;
     *(s64 *)(pkt + 8) = *(s64 *)(pkt + 88);
     *(s64 *)(pkt + 96) = *(s64 *)arg0;
@@ -2785,7 +2811,7 @@ void func_001a59a0(s64 *arg0) {
     extern s32 func_001f0b90();
     extern s32 func_001f0dd0();
     extern s32 func_001f0f70();
-    extern u8 *func_001f36e0();
+    extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
     extern u8 *func_001f3950();
     extern u8 *func_001f5f70();
     extern s32 func_001f68e0();
@@ -2794,10 +2820,10 @@ void func_001a59a0(s64 *arg0) {
     extern u8 *func_001f7c20();
     extern u8 *func_001f99c0();
     extern u8 *func_001fa720();
-    extern u8 *func_00201de0();
+    extern u8 *func_00201de0(s32 source, s32 target, s32 id, s16 effect, s16 targetFlags, s16 value, s16 enabled, void *result, u16 flags);
     extern u8 *func_00202010();
     extern u8 *func_00202400();
-    extern u8 *func_00202590();
+    extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
     extern u32 func_00231d70();
     extern s32 func_0023e1f0();
     extern u8 *iGpffffb3ac;
@@ -3208,7 +3234,7 @@ block_87:
         func_00194590(temp_2_14, 2);
         func_001f0a10(&sp2E0);
         sp2E8 = 0x100000;
-        temp_2_15 = (u8 *)(func_001f36e0(arg0, arg0, &sp2E0, 1U, 1U));
+        temp_2_15 = (u8 *)(func_001f36e0((s32)(arg0), (s32)(arg0), &sp2E0, 1U, 1U));
         (*(s8 *)((u8 *)(temp_2_15) + (0))) = 5;
         (*(s64 *)((u8 *)(temp_2_15) + (8))) = temp_16;
         temp_4_4 = (s64) ((s64) sp1A0 << 0x30) >> 0x30;
@@ -3509,13 +3535,13 @@ loop_196:
             }
             temp_2_48 = (s32 *)(temp_18 + (sp1D0 << 5) + 0xF0);
             sp1F0 = (s32 *)(temp_2_48);
-            temp_2_49 = (u8 *)(func_001f36e0(arg0, var_22_3, temp_2_48, (*(u16 *)((u8 *)(temp_18) + (0xDC))), (*(u16 *)((u8 *)(temp_18) + (0xDE)))));
+            temp_2_49 = (u8 *)(func_001f36e0((s32)(arg0), (s32)(var_22_3), temp_2_48, (*(u16 *)((u8 *)(temp_18) + (0xDC))), (*(u16 *)((u8 *)(temp_18) + (0xDE)))));
             (*(s8 *)((u8 *)(temp_2_49) + (0))) = 5;
             (*(s64 *)((u8 *)(temp_2_49) + (8))) = temp_16;
             (*(s16 *)((u8 *)(temp_2_49) + (0x48))) = var_21;
             (*(s64 *)((u8 *)(temp_2_49) + (0x60))) = temp_17;
             func_00194590(temp_2_49, 1);
-            temp_2_50 = (u8 *)(func_00201de0(temp_19, (*(u8 **)((u8 *)(var_22_3) + (0x30))), (*(u16 *)((u8 *)(arg0) + (0x6E))), (*(u16 *)((u8 *)(temp_18) + (0xDC))), (*(u16 *)((u8 *)(temp_18) + (0xDE))), 0, 1, sp1F0, 0));
+            temp_2_50 = (u8 *)(func_00201de0((s32)(temp_19), (s32)((*(u8 **)((u8 *)(var_22_3) + (0x30)))), (*(u16 *)((u8 *)(arg0) + (0x6E))), (*(u16 *)((u8 *)(temp_18) + (0xDC))), (*(u16 *)((u8 *)(temp_18) + (0xDE))), 0, 1, sp1F0, 0));
             (*(s8 *)((u8 *)(temp_2_50) + (0))) = 5;
             (*(s64 *)((u8 *)(temp_2_50) + (8))) = temp_16;
             (*(s16 *)((u8 *)(temp_2_50) + (0x48))) = var_21;
@@ -3528,7 +3554,7 @@ loop_196:
             (*(s64 *)((u8 *)(temp_2_50) + (0x60))) = temp_17;
             func_00194590(temp_2_50, 3);
             if ((spD0 == 0) && (*sp1F0 != 0)) {
-                temp_2_51 = (u8 *)(func_00202590((*(u8 **)((u8 *)(var_22_3) + (0x30))), 0, 0));
+                temp_2_51 = (u8 *)(func_00202590((s32)((*(u8 **)((u8 *)(var_22_3) + (0x30)))), 0, 0));
                 (*(s8 *)((u8 *)(temp_2_51) + (0))) = 5;
                 (*(s64 *)((u8 *)(temp_2_51) + (8))) = temp_16;
                 (*(s16 *)((u8 *)(temp_2_51) + (0x48))) = var_21;
@@ -3801,7 +3827,7 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_001f1030();
     extern s32 func_001f11e0();
     extern s32 func_001f2f90();
-    extern s32 func_001f36e0();
+    extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
     extern s32 func_001f3950();
     extern s32 func_001f3b20();
     extern s32 func_001f5f70();
@@ -3817,12 +3843,12 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_001fa110();
     extern s32 func_001fa320();
     extern s32 func_001fa720();
-    extern s32 func_00201de0();
+    extern u8 *func_00201de0(s32 source, s32 target, s32 id, s16 effect, s16 targetFlags, s16 value, s16 enabled, void *result, u16 flags);
     extern s32 func_00201f20();
     extern s32 func_00202010();
     extern s32 func_00202120();
     extern s32 func_00202400();
-    extern s32 func_00202590();
+    extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
     extern s32 func_00202740();
     extern s32 func_00202850();
     extern s32 func_00216da0();
@@ -5306,7 +5332,7 @@ do {
                 }
                 temp_2_108 = (s32 *)(sp110 + 0xF0);
                 sp240 = (s32 *)(temp_2_108);
-                temp_2_109 = (u8 *)(func_001f36e0((u8 *)arg0, var_21_2, temp_2_108, (*( u16 * )((u8 *)(temp_18) + (0xDC))), (*( u16 * )((u8 *)(temp_18) + (0xDE)))));
+                temp_2_109 = (u8 *)(func_001f36e0((s32)((u8 *)arg0), (s32)(var_21_2), temp_2_108, (*( u16 * )((u8 *)(temp_18) + (0xDC))), (*( u16 * )((u8 *)(temp_18) + (0xDE)))));
                 (*( s8 * )((u8 *)(temp_2_109) + (0))) = 5;
                 (*( s32 * )((u8 *)(temp_2_109) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_19) + (0x58))));
                 (*( s16 * )((u8 *)(temp_2_109) + (0x48))) = sp420;
@@ -5370,7 +5396,7 @@ do {
                     }
                 }
                 if ((s32)(*sp240) != (s32)(0)) {
-                    temp_2_116 = (u8 *)(func_00202590((*( u8 ** )((u8 *)(var_21_2) + (0x30))), 0, 0));
+                    temp_2_116 = (u8 *)(func_00202590((s32)((*( u8 ** )((u8 *)(var_21_2) + (0x30)))), 0, 0));
                     (*( s8 * )((u8 *)(temp_2_116) + (0))) = 5;
                     (*( s32 * )((u8 *)(temp_2_116) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_19) + (0x58))));
                     (*( s16 * )((u8 *)(temp_2_116) + (0x48))) = sp420;
@@ -5395,7 +5421,7 @@ do {
                 }
                 temp_2_118 = (u8 *)((s32)(temp_18) + (sp3B0 << 5));
                 spF0 = (s32)((s32) temp_2_118);
-                temp_2_119 = (u8 *)(func_00201de0((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), (*( u8 ** )((u8 *)(var_21_2) + (0x30))), sp290, (*( u16 * )((u8 *)(temp_18) + (0xDC))), (*( u16 * )((u8 *)(temp_18) + (0xDE))), sp3B0, sp3A0, sp240, 0));
+                temp_2_119 = (u8 *)(func_00201de0((s32)((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))), (s32)((*( u8 ** )((u8 *)(var_21_2) + (0x30)))), sp290, (*( u16 * )((u8 *)(temp_18) + (0xDC))), (*( u16 * )((u8 *)(temp_18) + (0xDE))), sp3B0, sp3A0, sp240, 0));
                 (*( s8 * )((u8 *)(temp_2_119) + (0))) = 5;
                 (*( s32 * )((u8 *)(temp_2_119) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_19) + (0x58))));
                 (*( s16 * )((u8 *)(temp_2_119) + (0x48))) = sp420;
@@ -5408,14 +5434,14 @@ do {
                     func_001f0a10((u8 *)&sp550);
                     sp550 = (s32) *((u8 *)(s32)(spE0));
                     sp554 = (s32)((s32) (*( s16 * )((u8 *)(((s32)(temp_18) + (sp3B0 << 5))) + (0x10A))));
-                    temp_2_120 = (u8 *)(func_001f36e0((u8 *)arg0, (u8 *)arg0, (u8 *)&sp550, 1U, 1U));
+                    temp_2_120 = (u8 *)(func_001f36e0((s32)((u8 *)arg0), (s32)((u8 *)arg0), (u8 *)&sp550, 1U, 1U));
                     (*( s8 * )((u8 *)(temp_2_120) + (0))) = 4;
                     (*( s32 * )((u8 *)(temp_2_120) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_19) + (0x58))));
                     (*( s16 * )((u8 *)(temp_2_120) + (0x48))) = (s16) spD0;
                     (*( s64 * )((u8 *)(temp_2_120) + (0x60))) = temp_16;
                     func_00194590(temp_2_120, 1);
                     temp_4_16 = (u8 *)((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))));
-                    temp_2_121 = (u8 *)(func_00201de0(temp_4_16, temp_4_16, -1, 1U, 1U, sp3B0, sp3A0, (u8 *)&sp550, 0));
+                    temp_2_121 = (u8 *)(func_00201de0((s32)(temp_4_16), (s32)(temp_4_16), -1, 1U, 1U, sp3B0, sp3A0, (u8 *)&sp550, 0));
                     (*( s8 * )((u8 *)(temp_2_121) + (0))) = 4;
                     (*( s32 * )((u8 *)(temp_2_121) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_19) + (0x58))));
                     (*( s16 * )((u8 *)(temp_2_121) + (0x48))) = (s16) spD0;
@@ -5427,7 +5453,7 @@ do {
                             (*( s64 * )((u8 *)(temp_2_122) + (0x60))) = temp_16;
                             func_00194590(temp_2_122, 1);
                         }
-                        temp_2_123 = (u8 *)(func_00202590((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 0, 0));
+                        temp_2_123 = (u8 *)(func_00202590((s32)((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))), 0, 0));
                         (*( s8 * )((u8 *)(temp_2_123) + (0))) = 4;
                         (*( s32 * )((u8 *)(temp_2_123) + (8))) = (s32)((s32) (*( s32 * )((u8 *)(var_19) + (0x58))));
                         (*( s16 * )((u8 *)(temp_2_123) + (0x48))) = (s16) spD0;
@@ -5541,7 +5567,7 @@ block_408:
         if ((s32)((*( u8 * )((u8 *)((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))) + (0xA2)))) == (s32)(0)) {
             func_001f0a10((u8 *)&sp550);
             sp550 = (s32)((s32)(-((func_00231ed0((*( s32 * )((u8 *)((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))) + (0xA64)))) & 0xFFFF) - 1)));
-            var_18_4 = (u8 *)(func_001f36e0((u8 *)arg0, (u8 *)arg0, (u8 *)&sp550, 1U, 1U));
+            var_18_4 = (u8 *)(func_001f36e0((s32)((u8 *)arg0), (s32)((u8 *)arg0), (u8 *)&sp550, 1U, 1U));
             if (sp2D0 == 1) {
                 (*( s8 * )((u8 *)(var_18_4) + (0))) = 4;
                 (*( s64 * )((u8 *)(var_18_4) + (8))) = (s64)((s64) (*( s64 * )((u8 *)(sp4C8) + (0x58))));
@@ -5552,13 +5578,13 @@ block_408:
             (*( s64 * )((u8 *)(var_18_4) + (0x60))) = temp_16;
             func_00194590(var_18_4, 1);
             temp_4_19 = (u8 *)((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))));
-            temp_2_132 = (u8 *)(func_00201de0(temp_4_19, temp_4_19, -1, 0U, 0U, 0U, 1U, (u8 *)&sp550, 0));
+            temp_2_132 = (u8 *)(func_00201de0((s32)(temp_4_19), (s32)(temp_4_19), -1, 0U, 0U, 0U, 1U, (u8 *)&sp550, 0));
             (*( s8 * )((u8 *)(temp_2_132) + (0))) = 4;
             (*( s64 * )((u8 *)(temp_2_132) + (8))) = (s64)((s64) (*( s64 * )((u8 *)(var_18_4) + (0x58))));
             (*( u8 * )((u8 *)(temp_2_132) + (0x47))) = (u8)((u8) ((*( u8 * )((u8 *)(temp_2_132) + (0x47))) & 0xDF));
             (*( s64 * )((u8 *)(temp_2_132) + (0x60))) = temp_16;
             func_00194590(temp_2_132, 3);
-            temp_2_133 = (u8 *)(func_00202590((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30))), 0, 0));
+            temp_2_133 = (u8 *)(func_00202590((s32)((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))), 0, 0));
             (*( s8 * )((u8 *)(temp_2_133) + (0))) = 4;
             (*( s64 * )((u8 *)(temp_2_133) + (8))) = (s64)((s64) (*( s64 * )((u8 *)(var_18_4) + (0x58))));
             (*( u8 * )((u8 *)(temp_2_133) + (0x47))) = (u8)((u8) ((*( u8 * )((u8 *)(temp_2_133) + (0x47))) & 0xDF));
@@ -5567,7 +5593,7 @@ block_408:
         } else {
             func_001f0a10((u8 *)&sp550);
             sp558 = 0x80000;
-            var_18_4 = (u8 *)(func_001f36e0((u8 *)arg0, (u8 *)arg0, (u8 *)&sp550, 1U, 1U));
+            var_18_4 = (u8 *)(func_001f36e0((s32)((u8 *)arg0), (s32)((u8 *)arg0), (u8 *)&sp550, 1U, 1U));
             if (sp2D0 == 1) {
                 (*( s8 * )((u8 *)(var_18_4) + (0))) = 4;
                 (*( s64 * )((u8 *)(var_18_4) + (8))) = (s64)((s64) (*( s64 * )((u8 *)(sp4C8) + (0x58))));
@@ -6367,11 +6393,10 @@ void func_001acbb0(u8 *arg0) {
     u8 *func_001937f0(s32 arg0);
     u8 *func_00194b60(void);
     void func_001f0a10(u8 *arg0);
-    u8 *func_001f36e0(s32 arg0, s32 arg1, void *arg2, s16 arg3, s16 arg4);
-    u8 *func_00201de0(s32 arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4,
-                      s16 arg5, s16 arg6, u8 *arg7, u16 arg8);
+    extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
+    extern u8 *func_00201de0(s32 source, s32 target, s32 id, s16 effect, s16 targetFlags, s16 value, s16 enabled, void *result, u16 flags);
     u8 *func_00202400(s32 arg0, s32 arg1);
-    u8 *func_00202590(s32 arg0, s8 arg1, s16 arg2);
+    extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
     void func_001b0800(u8 *arg0, u16 arg1);
     u8 *func_00202740(u8 *arg0);
     u32 func_00231ed0(u8 *arg0);
@@ -6437,7 +6462,7 @@ void func_001acbb0(u8 *arg0) {
             func_001f0a10((u8 *)&sp80);
             temp_19 = func_00231f80(*(u8 **)(temp_16 + 0xA64)) & 0xFFFF;
             sp80[0] = temp_19 - (func_00231ed0(*(u8 **)(temp_16 + 0xA64)) & 0xFFFF);
-            temp_2_5 = func_001f36e0((s32)arg0, (s32)arg0,
+            temp_2_5 = (u8 *)func_001f36e0((s32)arg0, (s32)arg0,
                                      &sp80, 1, 1);
             *(s8 *)(temp_2_5 + 0) = 4;
             *(s64 *)(temp_2_5 + 8) = temp_20;
@@ -6479,7 +6504,7 @@ u8 *func_00194b60(void);
 s32 func_00198810(u8 *arg0);
 u8 *func_0019a980(BtlUnit *unit);
 void func_001f0a10(u8 *arg0);
-u8 *func_001f36e0(s32 param_1, s32 param_2, void *param_3, s16 param_4, s16 param_5);
+extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 s32 func_001f68e0(u8 *arg0);
 u8 *func_00202400(s32 param_1, s32 param_2);
 void func_001acf50(u8 *arg0) {
@@ -6533,7 +6558,7 @@ void func_001acf50(u8 *arg0) {
             }
             func_001f0a10((u8 *)&locals.sp30);
             locals.sp4E |= 0x80;
-            temp_2 = func_001f36e0((s32)arg0, (s32)arg0, &locals.sp30, 1, 1);
+            temp_2 = (u8 *)func_001f36e0((s32)arg0, (s32)arg0, &locals.sp30, 1, 1);
             *(s8 *)(temp_2 + 0) = 4;
             *(s64 *)(temp_2 + 8) = *(s64 *)(var_16 + 0x58);
             *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
@@ -6978,7 +7003,7 @@ void func_001adea0(u8 *arg0)
                 t2 = (s16)func_001f6d60(arg0);
                 *(s32 *)stk = t2;
                 if (t2 < 0) {
-                    pkt1 = func_001f36e0((s32)arg0, (s32)arg0, stk, 1, 1);
+                    pkt1 = (u8 *)func_001f36e0((s32)arg0, (s32)arg0, stk, 1, 1);
                     *(s16 *)(pkt1 + 72) = 12;
                     func_00194590(pkt1, 1);
                     pkt2 = func_00202740(t18);
@@ -6990,7 +7015,7 @@ void func_001adea0(u8 *arg0)
                     *(s64 *)(pkt3 + 8) = *(s64 *)(pkt1 + 88);
                     *(pkt3 + 71) = *(pkt3 + 71) & 0xDF;
                     func_00194590(pkt3, 3);
-                    pkt4 = func_00202590(t18, 0, 0);
+                    pkt4 = func_00202590((s32)t18, 0, 0);
                     *(pkt4 + 0) = 4;
                     *(s64 *)(pkt4 + 8) = *(s64 *)(pkt1 + 88);
                     *(pkt4 + 71) = *(pkt4 + 71) & 0xDF;
@@ -7031,7 +7056,7 @@ void func_001adea0(u8 *arg0)
                 t2 = (s16)func_001f6d60(arg0);
                 *(s32 *)(stk + 4) = t2;
                 if (t2 < 0) {
-                    pkt1 = func_001f36e0((s32)arg0, (s32)arg0, stk, 1, 1);
+                    pkt1 = (u8 *)func_001f36e0((s32)arg0, (s32)arg0, stk, 1, 1);
                     *(s16 *)(pkt1 + 72) = 12;
                     func_00194590(pkt1, 1);
                     pkt2 = func_00202740(t18);
@@ -7043,7 +7068,7 @@ void func_001adea0(u8 *arg0)
                     *(s64 *)(pkt3 + 8) = *(s64 *)(pkt1 + 88);
                     *(pkt3 + 71) = *(pkt3 + 71) & 0xDF;
                     func_00194590(pkt3, 3);
-                    pkt4 = func_00202590(t18, 1, 0);
+                    pkt4 = func_00202590((s32)t18, 1, 0);
                     *(pkt4 + 0) = 4;
                     *(s64 *)(pkt4 + 8) = *(s64 *)(pkt1 + 88);
                     *(pkt4 + 71) = *(pkt4 + 71) & 0xDF;
@@ -7421,7 +7446,7 @@ void func_001aed50(u8 *arg0)
     extern void func_001b0800(u8 *arg0, u16 arg1);
     extern u8 *func_001f81f0(s32 arg0, u8 *arg1);
     extern u8 *func_0019a980(u8 *arg0);
-    extern u8 *func_00202590(s32 arg0, s8 arg1, s16 arg2);
+    extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
     extern u8 D_005F6D38[];
     extern u8 D_005F6D48[];
     extern u8 D_005F6D58[];
@@ -7657,7 +7682,7 @@ loop_42:
             *(t21 + 0x47) &= (u8)~0x20;
             *(s64 *)(t21 + 0x60) = uid;
             func_00194590(t21, 1);
-            t22 = func_001f36e0((s32)arg0, (s32)unit19, unit30 + 0xF0, *(u16 *)(unit17 + 0xDC), *(s16 *)(unit17 + 0xDE));
+            t22 = (u8 *)func_001f36e0((s32)arg0, (s32)unit19, unit30 + 0xF0, *(u16 *)(unit17 + 0xDC), *(s16 *)(unit17 + 0xDE));
             *(t22 + 0) = 5;
             *(s64 *)(t22 + 8) = *(s64 *)(pkt + 0x58);
             *(s64 *)(t22 + 0x60) = uid;
@@ -7685,7 +7710,7 @@ loop_42:
             if ((*(u16 *)(unit30 + 0x10E) & 1) != 0) {
                 func_001f0a10(tmpBuf);
                 *(s32 *)(tmpBuf + 12) = 0x100001;
-                t26 = func_001f36e0((s32)unit17, (s32)unit17, tmpBuf, 1, 1);
+                t26 = (u8 *)func_001f36e0((s32)unit17, (s32)unit17, tmpBuf, 1, 1);
                 *(t26 + 0) = 4;
                 *(s64 *)(t26 + 8) = *(s64 *)(pkt + 0x58);
                 *(s64 *)(t26 + 0x60) = uid;

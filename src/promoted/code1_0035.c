@@ -120,9 +120,9 @@ extern s32 func_002bd7b0(const void *arg0);
 extern s32 func_002bd840(s32 arg0);
 extern u8 D_0064A790[];
 extern void func_00149680(s32 arg0);
-extern void func_0015a560(void);
+extern s32 func_0015a560(void);
 extern void func_0034c260(s32 arg0);
-extern void func_0034bb10(void);
+extern s32 func_0034bb10(void);
 extern s64 func_00105ee0(s32 arg0);
 // FUN_00353B50
 s16 func_00353b50(s16 *arg0)
@@ -275,17 +275,17 @@ void func_00353fe0(void)
     func_00149680(1);
 }
 // FUN_00354010
-void func_00354010(void)
+s32 func_00354010(void)
 {
-    func_0015a560();
+    return func_0015a560();
 }
 // FUN_00354030
-void func_00354030(void)
+s32 func_00354030(void)
 {
     func_0045af60(0, 2, 0, 4);
     func_0034c260(0);
     func_00149680(0);
-    func_0034bb10();
+    return func_0034bb10();
 }
 // FUN_00354080
 void func_00354080(s32 arg0)
