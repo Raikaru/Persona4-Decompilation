@@ -8,6 +8,25 @@ The objective is a clean C replacement for each first-party `INCLUDE_ASM` functi
 
 ## Current checkpoint
 
+2026-09-20 recovery: the fresh complete verifier reports **6,376 of 6,860
+first-party functions MATCH, with 484 assembly fallbacks**, on the recovered
+source at `17f42ca`. The five additional C recoveries over upstream `9ed8ca6`
+are `00232d80`, `00233bc0`, `00303610`, `0032a960`, and `0032b000`. Independent
+unmasked proofs cover every target relocation, the rule predicate's complete
+switch table, all neighboring functions, and existing allocated data. The
+complete test suite runs 611 tests successfully with eleven skipped; all
+seventeen native Windows probe tests pass.
+
+See `docs/probe_archive/Recovered_upstream_20260920.md` for the rebase and
+verification record. Nine unfinished worker bodies are preserved, with hashes
+and remaining contract/proof work, in
+`docs/probe_archive/Recovery_20260920_pending/`. In particular, the saved
+zero-word `001a4800` and `002e8410` candidates are **not** accepted C recoveries;
+do not count them from their masked score or silently restore their old owner
+snapshots. The guarded `002411a0` improvement remains sixteen differing words.
+
+### Earlier checkpoint (September 18)
+
 - 2026-09-18: **501 first-party `INCLUDE_ASM` left**, 6359 of 6860 MATCH (92.7%).
   Image `3d1d3d2b9d6ccb60836db239ab49674223025a78` and SLUS
   `4eeec0360cf2715535d9f7e52eb69d786fb0158c` byte-exact; 544 tests OK; lint 0 errors.
