@@ -1,0 +1,89 @@
+{
+  "captured": "2026-09-20",
+  "compared_upstream": "9ed8ca6b1442af9a305f75491a44950816fa78df",
+  "integrated_recovery": "17f42cac4480348bc4b08c681820dc9e1ab27201",
+  "description": "Exact copies of saved C candidate bodies; source dependencies and historical measurements are recorded in README.md and inventory-review.md. None is installed in src.",
+  "files": [
+    {
+      "file": "001a4800.c",
+      "original_worktree_path": "build/match-next-latest/build/all-first-party/001a4800/counter-index-typed-state.c",
+      "owner": "src/promoted/code1_001a.c",
+      "bytes": 4615,
+      "sha256": "10a0ed526f5cbe042a89c33a660350b274d6ee2ec2110f25c9ca436d9b044f53",
+      "status": "pending; not an accepted production recovery",
+      "remaining": "Target relocation/owner proof and 001f3870 return/caller contract"
+    },
+    {
+      "file": "001f3870.c",
+      "original_worktree_path": "build/match-next-latest/build/all-first-party/001f3870/return-packet-allocator-contract.c",
+      "owner": "src/promoted/code1_001f.c",
+      "bytes": 404,
+      "sha256": "5618e365ac157291321a57dcc5f5511377afff97a28b6de0bbcb2820fc6f96d0",
+      "status": "pending; not an accepted production recovery",
+      "remaining": "Packet return and every real caller declaration must agree"
+    },
+    {
+      "file": "002e8410.c",
+      "original_worktree_path": "build/match-next-latest/build/all-first-party/fcl/experiments/func_002e8410/3fea0ff69ebc/scoped_initial_loops.c",
+      "owner": "src/Event/Fcl/y_fclCombine.c",
+      "bytes": 7847,
+      "sha256": "ca33af0d5453bfcd8c7f99b0119bc07bf5ed0aea165209ef294bb5ec2a43ba38",
+      "status": "pending; not an accepted production recovery",
+      "remaining": "Creator returns, aggregate arguments and SDK callback contracts"
+    },
+    {
+      "file": "0034ad70.c",
+      "original_worktree_path": "build/match-next-latest/build/all-first-party/0034ad70/captured-return.c",
+      "owner": "src/promoted/y_fclCmbBall.c",
+      "bytes": 492,
+      "sha256": "484b5643062723bc51cfcdf3f1ae6b16a2a5135ad9798cab53530c1046a55f3f",
+      "status": "pending; not an accepted production recovery",
+      "remaining": "SDK registration and callback contracts; return-only proposal is insufficient"
+    },
+    {
+      "file": "0034b740.c",
+      "original_worktree_path": "build/match-next-latest/build/all-first-party/0034b740/captured-return.c",
+      "owner": "src/promoted/y_fclCmbBall.c",
+      "bytes": 419,
+      "sha256": "67b1ffde585f0f4807a469a302ebfa08a38a053e35b3837bc0dfefe80b4719ff",
+      "status": "pending; not an accepted production recovery",
+      "remaining": "SDK registration and callback contracts; return-only proposal is insufficient"
+    },
+    {
+      "file": "002b5c90.c",
+      "original_worktree_path": "build/match-next-latest/build/all-first-party/002b5c90/captured-return.c",
+      "owner": "src/promoted/y_draw.c",
+      "bytes": 673,
+      "sha256": "3e3ebb541d7bd648ee4f3aa75267aa03ab7c2075f9501a8dab7ddb390953fa03",
+      "status": "pending; not an accepted production recovery",
+      "remaining": "Position aggregate and SDK registration/callback contracts"
+    },
+    {
+      "file": "0012d630.c",
+      "original_worktree_path": "build/match-next-latest/build/all-first-party/0012d630/label-conversion-lifetime.c",
+      "owner": "src/promoted/code1_0012.c",
+      "bytes": 4611,
+      "sha256": "69e9f6a0faa63eeb867fec8342be82050608a24a71e674e75524c32c2d5a3575",
+      "status": "pending; not an accepted production recovery",
+      "remaining": "Not exact; coherent UI provider/caller and aggregate types"
+    },
+    {
+      "file": "001d2e20.c",
+      "original_worktree_path": "build/close-sweep-latest/build/sweep-9f866b7/001d2e20/phase-mode-raw-node-unit-paired-struct.c",
+      "owner": "src/Battle/btlFormation.c",
+      "bytes": 1476,
+      "sha256": "5a617052c357c4a0b580fc3bd87c2572ba907679b4f27ace949ba7de23038d91",
+      "status": "pending; not an accepted production recovery",
+      "remaining": "Not exact; compare current upstream and verify all output initialization paths"
+    },
+    {
+      "file": "0024be40.c",
+      "original_worktree_path": "build/register-pair-latest/build/close-wave2/0024be40/row3-typed-six-weight-row.c",
+      "owner": "src/cmmScript.c",
+      "bytes": 1786,
+      "sha256": "9e2df5ced8460e46fdf60d6a0b82ba14115fa3383b004c4bf4bfffcfb40578e5",
+      "status": "pending; not an accepted production recovery",
+      "remaining": "Not exact; inherited RNG return declaration is inconsistent with its provider"
+    }
+  ]
+}
