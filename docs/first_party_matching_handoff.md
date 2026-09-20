@@ -571,6 +571,27 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7bi. Resolve file ownership before dispatching, not after
+
+Two agents editing one file clobber each other even when each owns a
+different function in it, and a function ADDRESS does not tell you its
+filename.  That combination produced three wrong dispatches in a single
+session: five agents onto `y_fclCombine.c`, two onto `code1_0035.c`, two onto
+`effPolygonWind.c`.  Every one was caught only after the batch was already
+running, and the last needed a scan to discover that `func_004a3640` and
+`func_004a2310` are siblings.
+
+`tools/owner_of.py` turns that into one command and exits non-zero on a
+collision or an unknown name:
+
+    python3 -E -s tools/owner_of.py func_004a3640 func_004a2310
+    src/Graphics/Effect/effPolygonWind.c  func_004a2310 func_004a3640
+    COLLISION: 1 file(s) carry more than one requested function
+
+Run it on the function list before writing the batch.  Per-function ownership
+is not a safe substitute for per-file ownership; the filesystem does not know
+about your task boundaries.
+
 ### 7bh. Aggregates drop callee-saved floats; address-taken scalars do not
 
 `func_004b8f40` defeated two sessions.  Its deficit was `lwc1 +76 / swc1 +33`
