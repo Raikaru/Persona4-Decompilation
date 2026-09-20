@@ -6817,17 +6817,14 @@ block_399:
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e6f0);
 #endif
 
-/* measured 002411a0: configured b210 gives 16 differing words, including after
- * resolving all 70 relocations, at 2588/2592B (four zero tail bytes). The prior
- * guarded draft is 473 words at 2584B. Restoring the actual repeated searches,
- * native conversion boundaries and conversion-before-bonus order removes the
- * extra saved-register pressure. opt_loop_invariants on scopes the searches;
- * opt_common_subs on scopes the main body. The initial index/element register
- * assignment still differs. All 79 siblings and allocated data are unchanged.
+/* measured 002411a0: configured b210 emits 2588/2592B with all 70 relocations
+ * resolved exactly and four retail zero tail bytes. Declaring idx after lvl
+ * restores the initial index/element register assignment. The repeated searches,
+ * native conversions and conversion-before-bonus order preserve retail behavior.
+ * opt_loop_invariants on scopes the searches; opt_common_subs on scopes the main
+ * body. All 79 siblings and allocated data are unchanged.
  * The fifth argument is passed by func_001f14f0 and unused by retail.
- * See docs/probe_archive/DC_worker7_20260920_recovery_floors.md. */
-// FUN_002411A0 NONMATCHING
-#ifdef SKIP_ASM
+ * See docs/probe_archive/DC_worker3_20260920_recoveries.md. */
 #pragma push
 #pragma opt_loop_invariants on
 static inline u8 *DC411SkillTable(u8 *arg0)
@@ -6891,12 +6888,13 @@ static inline s32 DC411HasEquipmentProperty(u8 *unit, s32 property)
     return 0;
 }
 
+// FUN_002411A0
 #pragma opt_common_subs on
 s32 func_002411a0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
 {
-    s32 idx;
     s32 tmp22;
     s32 lvl;
+    s32 idx;
     s32 bits;
     u16 element;
     u16 enemyElement;
@@ -6905,12 +6903,7 @@ s32 func_002411a0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
     s32 thresh;
     f32 f20;
     u8 *entry;
-    u8 kind;
     u16 id16;
-    s16 id;
-    u8 *tab;
-    u16 i;
-    s32 found;
     s32 bonus;
     s32 scaled;
     s32 total;
@@ -7038,9 +7031,6 @@ s32 func_002411a0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
     return 1;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_002411a0);
-#endif
 
 /* measured: 4 attempts, best nd 58. Nearly everything now matches: the
    u32-typed flag1 gives retail's sltu booleanization, `(s32)(u16)arg2`
