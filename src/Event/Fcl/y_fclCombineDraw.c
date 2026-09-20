@@ -509,101 +509,91 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003147e0);
    Floor confirmed. */
 /* measured: raw M2C seed archived at build/EFCL2_00314ef0_body.c; no live C body. */
 /* temporary body measurement */
-/* gate: object 309 against retail 264, +17.0% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* gate: object 269 against retail 264, +1.9% - INSIDE the +-3% band (PASS).
+   Helper-census rewrite (4 __floatdisf -> 0, verified against retail narrow shapes):
+   probe 172 differing words reloc-masked via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_00314ef0 --candidate V6=/tmp/14ef0_v6.c`;
+   fnalign retail 264 vs object 269 instrs (+5, +1.9% PASS) 82 edits via `python3 tools/fnalign.py src/Event/Fcl/y_fclCombineDraw.c func_00314ef0 --candidate /tmp/14ef0_v6.c --quiet`;
+   prior M2C floor was 309 (+17.0% OUTSIDE) 242 edits 247 words with 4 __floatdisf.
+   Retail narrow-width evidence in asm/nonmatchings/y_fclCombineDraw/func_00314ef0.s:
+   lwc1 $f12,0xC8 (x) + lwc1 $f20,0xCC (y, kept in $f20) vs (f32)s64 __floatdisf;
+   lwc1 $f1,0xF8/$f0,0xFC heap copy vs (f32)s64; lui/mtc1 with no cvt.s.w for 151.0f/150.0f/149.0f/148.0f
+   vs 0x43170000 int (cvt.s.w); sd $s4,($sp) stack spill for 77d0 10th s64 vs s16 dsll32/dsra32.
+   Both gates improve (309->269 toward retail, 242->82 down). Longer-than-retail case per amended gate 3:
+   removal shortens (jal+shuffling longer than narrow lwc1/mtc1/sd), as expected. */
 // FUN_00314EF0 NONMATCHING
 #ifdef NON_MATCHING
-typedef s32 M2C_UNK;
-typedef s8 M2C_UNK8;
-typedef s16 M2C_UNK16;
-typedef s32 M2C_UNK32;
-typedef s64 M2C_UNK64;
-#define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((s8 *)(expr) + (offset)))
-#define M2C_BITWISE(type, expr) ((type)(expr))
-#define M2C_LWL(expr) (expr)
-#define M2C_FIRST3BYTES(expr) (expr)
-#define M2C_UNALIGNED32(expr) (expr)
-#define M2C_CARRY 0
-#define M2C_OVERFLOW(a) (0)
-#define MULT_HI(a, b) (0)
-#define MULTU_HI(a, b) (0)
-#define CLZ(x) (0)
 void func_00314ef0(u8 *arg0, s64 arg1, s64 arg2, s32 arg3, s64 arg4, s32 arg5) {
-    M2C_UNK spD4;
-    M2C_UNK spD8;
-    M2C_UNK spDC;
-    M2C_UNK unkspCC;
-    M2C_UNK unkspFC;
-    s32 sp10C;
-    s32 sp108;
-    s32 sp104;
-    s32 sp100;
+    extern void func_002b77d0(s16, s64, s16, s32, s64, s32, s64, s64, f32, s64, s32);
+    s32 c10C;
+    s32 c108;
+    s32 c104;
+    s32 c100;
     s64 spF8;
     s64 spF0;
     s64 spE8;
     s64 spE0;
-    f32 spD0;
     s64 spC8;
-    f32 temp_f21;
-    f32 temp_f21_2;
-    s32 temp_18_4;
-    s32 temp_22;
-    s32 temp_30;
-    s64 temp_16;
-    s64 temp_17;
-    s64 temp_18;
-    s64 temp_18_2;
-    s64 temp_18_3;
-    s64 temp_23;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
-
+    f32 spD0[4];
+    u8 *t;
+    u8 *h;
+    u8 *q;
+    u8 **slot;
+    s64 v19;
+    s32 v23;
+    s64 v20;
+    s64 v30;
+    s16 temp_18;
+    s16 temp_18_2;
+    s16 temp_18_3;
+    f32 f20;
+    f32 f21;
+    t = *(u8 **)(arg0 + 0x38);
+    v19 = (s8)arg1;
+    v20 = (s16)(v19 * 5 + 0x66);
+    v23 = (s32)v19 * 2;
+    temp_18 = (s16)(v23 + 0x1F4);
+    func_002b7750(temp_18, 0x1AC);
+    v30 = v20 + 2;
     spC8 = arg2;
-    temp_30 = (s32)(M2C_FIELD(arg0, s32 *, 0x38));
-    temp_17 = (s64) (arg1 << 0x38) >> 0x38;
-    temp_22 = temp_17 * 2;
-    temp_18 = (s64) ((temp_22 + 0x1F4) << 0x30) >> 0x30;
-    func_002b7750((s16)temp_18, 0x1AC);
-    temp_16 = (s64) (((s64) (((temp_17 * 5) + 0x66) << 0x30) >> 0x30) << 0x30) >> 0x30;
-    temp_23 = temp_16 + 2;
-    func_002b2970((u8 *)&spF0, M2C_BITWISE(f32, spC8), unkspCC);
-    func_002b2a60(&sp10C, 0, 0, 0x66, 0xFF);
-    func_002b77d0(temp_18, spF0, 0x1AC, sp10C, (s64) (temp_23 << 0x30) >> 0x30, arg5, 3, 3, 0x43170000, arg4, func_00331560());
-    temp_18_2 = (s64) ((temp_22 + 0x1F5) << 0x30) >> 0x30;
-    func_002b7750((s16)temp_18_2, 0x1B3);
-    temp_f21 = 217.0f + M2C_BITWISE(f32, spC8);
-    func_002b2970((u8 *)&spE8, temp_f21, unkspCC);
-    func_002b2a60(&sp108, 0, 0, 0x66, 0xFF);
-    func_002b77d0(temp_18_2, spE8, 0x1B3, sp108, (s64) (temp_23 << 0x30) >> 0x30, arg5, 3, 3, 0x43170000, arg4, func_00331560());
-    func_002b2970((u8 *)&spF8, temp_f21 - 28.0f, unkspCC);
-    temp_18_3 = (s64) ((temp_17 + 0x2FB) << 0x30) >> 0x30;
-    func_002b7750((s16)temp_18_3, 0x131);
-    func_002b2a60(&sp104, 0x25, 0x2F, 0x94, 0xFF);
-    func_002b77d0(temp_18_3, spF8, 0x131, sp104, (s64) ((temp_16 + 3) << 0x30) >> 0x30, arg5, 3, 3, 0x43160000, arg4, func_00331560());
-    func_002b68d0((s16)temp_18_3, 0xE, 0);
-    temp_18_4 = (s32)func_0046d200((u32)func_00331560(), 0x131);
-    temp_2 = (u8 *)((temp_17 * 4) + temp_30);
-    temp_2_2 = (u8 *)(func_002b81f0((u8 *)M2C_FIELD(temp_2, s32 *, 0x258)));
-    M2C_FIELD(temp_2_2, f32 *, 0) = (f32) spF8;
-    M2C_FIELD(temp_2_2, f32 *, 4) = unkspFC;
-    temp_f21_2 = func_0046b260((u8 *)temp_18_4);
-    func_002b29e0((u8 *)&spD0, temp_f21_2, func_0046b2f0((u8 *)temp_18_4));
-    temp_2_3 = (u8 *)(func_002b81f0((u8 *)M2C_FIELD(temp_2, s32 *, 0x258)));
-    M2C_FIELD(temp_2_3, f32 *, 8) = spD0;
-    M2C_FIELD(temp_2_3, f32 *, 0xC) = spD4;
-    M2C_FIELD(temp_2_3, f32 *, 0x10) = spD8;
-    M2C_FIELD(temp_2_3, f32 *, 0x14) = spDC;
-    M2C_FIELD(func_002b81f0((u8 *)M2C_FIELD(temp_2, s32 *, 0x258)), s32 *, 0x120) = (s32) temp_16;
-    M2C_FIELD(func_002b81f0((u8 *)M2C_FIELD(temp_2, s32 *, 0x258)), f32 *, 0x18) = 149.0f;
-    M2C_FIELD(func_002b81f0((u8 *)M2C_FIELD(temp_2, s32 *, 0x258)), s8 *, 0x124) = 0;
-    func_0046d280((void *)temp_18_4);
+    f20 = *((f32 *)&spC8 + 1);
+    func_002b2970((u8 *)&spF0, *(f32 *)&spC8, f20);
+    func_002b2a60(&c10C, 0, 0, 0x66, 0xFF);
+    func_002b77d0(temp_18, spF0, 0x1AC, c10C, (s16)v30, arg5, 3, 3, 151.0f, arg4, func_00331560());
+    temp_18_2 = (s16)(v23 + 0x1F5);
+    func_002b7750(temp_18_2, 0x1B3);
+    f21 = 217.0f + *(f32 *)&spC8;
+    func_002b2970((u8 *)&spE8, f21, f20);
+    func_002b2a60(&c108, 0, 0, 0x66, 0xFF);
+    func_002b77d0(temp_18_2, spE8, 0x1B3, c108, (s16)v30, arg5, 3, 3, 151.0f, arg4, func_00331560());
+    func_002b2970((u8 *)&spF8, f21 - 28.0f, f20);
+    temp_18_3 = (s16)(v19 + 0x2FB);
+    func_002b7750(temp_18_3, 0x131);
+    func_002b2a60(&c104, 0x25, 0x2F, 0x94, 0xFF);
+    func_002b77d0(temp_18_3, spF8, 0x131, c104, (s16)(v20 + 3), arg5, 3, 3, 150.0f, arg4, func_00331560());
+    func_002b68d0(temp_18_3, 0xE, 0);
+    h = func_0046d200(func_00331560(), 0x131);
+    slot = (u8 **)(t + (s32)v19 * 4 + 0x258);
+    q = func_002b81f0(*slot);
+    *(f32 *)(q + 0) = *(f32 *)&spF8;
+    *(f32 *)(q + 4) = *((f32 *)&spF8 + 1);
+    f21 = func_0046b260(h);
+    func_002b29e0((u8 *)spD0, f21, func_0046b2f0(h));
+    q = func_002b81f0(*slot);
+    *(f32 *)(q + 8) = spD0[0];
+    *(f32 *)(q + 12) = spD0[1];
+    *(f32 *)(q + 16) = spD0[2];
+    *(f32 *)(q + 20) = spD0[3];
+    q = func_002b81f0(*slot);
+    *(s32 *)(q + 0x120) = (s32)v20;
+    q = func_002b81f0(*slot);
+    *(f32 *)(q + 0x18) = 149.0f;
+    q = func_002b81f0(*slot);
+    *(u8 *)(q + 0x124) = 0;
+    func_0046d280(h);
     func_002b7750((s16)arg3, (s16)arg3);
-    func_002b2970((u8 *)&spE0, 6.0f + M2C_BITWISE(f32, spC8), 8.0f + unkspCC);
-    func_002b2a60(&sp100, 0xCC, 0xFF, 0xFF, 0xFF);
-    func_002b77d0(arg3, spE0, arg3, sp100, (s64) ((temp_16 + 4) << 0x30) >> 0x30, arg5, 3, 3, 0x43140000, arg4, func_00331560());
+    func_002b2970((u8 *)&spE0, 6.0f + *(f32 *)&spC8, 8.0f + f20);
+    func_002b2a60(&c100, 0xCC, 0xFF, 0xFF, 0xFF);
+    func_002b77d0((s16)arg3, spE0, (s16)arg3, c100, (s16)(v20 + 4), arg5, 3, 3, 148.0f, arg4, func_00331560());
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00314ef0);

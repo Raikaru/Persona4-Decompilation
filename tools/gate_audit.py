@@ -50,6 +50,25 @@ def boundaries(windows: dict) -> list[int]:
     return sorted(out)
 
 
+def reason_for(exc: BaseException) -> str:
+    """Say WHY a floor could not be measured, in a few words.
+
+    A bare count of unmeasurable floors is useless: it reads like a tolerable
+    rounding error rather than the "this body has not compiled for weeks"
+    that it usually is.  The common causes are worth distinguishing - a body
+    that does not compile is a defect to repair, while a bare marker over an
+    INCLUDE_ASM row is simply not a floor yet.
+    """
+    text = " ".join(str(exc).split())
+    if "Error compiling" in text or "command failed" in text:
+        return "guarded body does not compile"
+    if "could not find a definition" in text:
+        return "no body or INCLUDE_ASM row found"
+    if "symbol not present in object" in text:
+        return "no guarded body: marker sits directly on INCLUDE_ASM"
+    return (type(exc).__name__ + ": " + text[:60]) if text else type(exc).__name__
+
+
 STAMP = re.compile(r"^/\* gate: [^*]*\*/\n", re.M)
 
 
@@ -80,7 +99,7 @@ def main() -> None:
     bounds = boundaries(windows)
 
     composition = "--composition" in sys.argv
-    inside, outside, unmeasured, split = 0, [], 0, []
+    inside, outside, unmeasured, split = 0, [], [], []
     with tempfile.TemporaryDirectory() as scratch:
         for path in sorted((REPO / "src").rglob("*.c")):
             if path.parent.name == "generated" or path.name.startswith("."):
@@ -104,8 +123,9 @@ def main() -> None:
                         text, "FUN_" + marker.group(1).upper(), name))
                     body, _relocations = fnalign._object_for(path, name, candidate, cfg)
                     retail = elf.bytes_at(address, fnalign.window_for(address, bounds))
-                except BaseException:
-                    unmeasured += 1
+                except BaseException as exc:
+                    unmeasured.append((name, str(path.relative_to(REPO)),
+                                       reason_for(exc)))
                     continue
                 # Trim retail's zero alignment tail the way fnalign does, so
                 # the comparison is instructions against instructions.
@@ -114,7 +134,8 @@ def main() -> None:
                     retail = retail[:-4]
                 want, got = len(retail) // 4, len(body) // 4
                 if not want:
-                    unmeasured += 1
+                    unmeasured.append((name, str(path.relative_to(REPO)),
+                                       "retail window is empty"))
                     continue
                 drift = (got - want) / want
                 # 3% of a six-instruction function is a fifth of an
@@ -157,11 +178,25 @@ def main() -> None:
     if split:
         print(f"\n{len(split)} floors are inside the gate but hide a pure hole "
               "against a pure lump (handoff 7aa)")
+    # A marker sitting straight on an INCLUDE_ASM row has no body to measure.
+    # That is an honest "not started", not a defect, and lumping the two
+    # together is what let a body that had stopped compiling hide among them.
+    bodyless = [u for u in unmeasured if u[2].startswith("no guarded body")]
+    broken = [u for u in unmeasured if not u[2].startswith("no guarded body")]
+    for name, source, why in sorted(broken):
+        print(f"  BROKEN  {name}  {source}  ({why})")
     print(f"\n{inside} floors inside the 3% gate, {len(outside)} outside"
-          + (f", {unmeasured} could not be measured" if unmeasured else ""))
+          + (f", {len(broken)} broken" if broken else "")
+          + (f", {len(bodyless)} markers with no body" if bodyless else ""))
     if outside:
         print("\nA floor outside the gate has no comparable word score (handoff 7y):"
               "\nfix the count before trusting any number measured against it.")
+    if broken:
+        print("\nA BROKEN floor is INVISIBLE, which is worse than a bad one: no score,"
+              "\nno gate, no evidence it still compiles.  A guarded body is never built"
+              "\nby tools/build.py, so a prototype added elsewhere in the file can break"
+              "\nit and nothing will say so - func_0023e6f0 sat broken this way until a"
+              "\ntree-wide audit named it.  Repair it or delete it; do not ignore it.")
 
 
 if __name__ == "__main__":
