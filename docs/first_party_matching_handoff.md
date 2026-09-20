@@ -623,6 +623,16 @@ Run it on the function list before writing the batch.  Per-function ownership
 is not a safe substitute for per-file ownership; the filesystem does not know
 about your task boundaries.
 
+Having the tool is not the same as using it.  A later batch still collided,
+because the file name in one task was asserted from a stale census rather
+than looked up: `func_002cdf80` was briefed as living in `y_fclCombineDraw.c`
+and actually lives in `y_fclShopDraw.c`, alongside `func_002be530`, which
+another agent in the same batch owned.  Both landed by luck - they touched
+disjoint regions - and the agent flagged the wrong file name in its report.
+So: run `owner_of.py` on the literal list of function names going into the
+batch, every time, and take the file names from ITS output rather than from
+notes, memory, or `edits_now.txt`.
+
 ### 7bh. Aggregates drop callee-saved floats; address-taken scalars do not
 
 `func_004b8f40` defeated two sessions.  Its deficit was `lwc1 +76 / swc1 +33`
