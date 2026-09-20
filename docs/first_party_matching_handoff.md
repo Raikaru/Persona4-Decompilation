@@ -8,14 +8,24 @@ The objective is a clean C replacement for each first-party `INCLUDE_ASM` functi
 
 ## Current checkpoint
 
-2026-09-20 recovery: the fresh complete verifier reports **6,376 of 6,860
-first-party functions MATCH, with 484 assembly fallbacks**, on the recovered
-source at `17f42ca`. The five additional C recoveries over upstream `9ed8ca6`
-are `00232d80`, `00233bc0`, `00303610`, `0032a960`, and `0032b000`. Independent
-unmasked proofs cover every target relocation, the rule predicate's complete
-switch table, all neighboring functions, and existing allocated data. The
-complete test suite runs 611 tests successfully with eleven skipped; all
-seventeen native Windows probe tests pass.
+2026-09-20 recovery, rebased onto upstream `ff294a8`: complete-tree validation
+reports **6,376 of 6,860 first-party functions MATCH, with 484 assembly
+fallbacks**. The five additional C recoveries are `00232d80`, `00233bc0`,
+`00303610`, `0032a960`, and `0032b000`. Fresh unmasked proofs against the new
+upstream cover every target relocation, the rule predicate's complete switch
+table, all neighboring functions, and existing allocated data.
+
+The final verification recompiles 647 functions in all twelve changed owners.
+The other results reuse the complete `17f42ca` run only after checking its
+committed input fingerprint and all 929 unchanged tracked inputs. The full
+test suite passes again: 611 tests run, eleven skipped. The unchanged native
+Windows probe tests also retain their earlier seventeen-test pass. The saved
+`001f14f0` caller declaration is now recovered; its active and separately
+enabled guarded objects both remain identical across all 158 functions.
+
+The final rebased build also passes: 172 C objects and 56 Sony SDK objects
+linked, with both loadable-image and complete-executable SHA-1 values matching
+retail. The source fingerprint remains unchanged through the complete build.
 
 See `docs/probe_archive/Recovered_upstream_20260920.md` for the rebase and
 verification record. Nine unfinished worker bodies are preserved, with hashes
