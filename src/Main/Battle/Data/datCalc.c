@@ -1443,6 +1443,15 @@ s64 func_00235320(u8 *unit)
     return -1;
 }
 #pragma pop
+/* measured 00235520 (owner, 2026-09-20): 22 u16 triple-cast sites all wrap integer */
+/* (4 u16 loads/helpers at 1690/1691/1698/1699, 18 s16 loads at 2283-2719); no float-to-int, */
+/* so u32 is neutral (probed 1690 triple to u32: 2784->2784 words, 12844B unchanged). */
+/* deficit_scan on compilable body (10 phantom 3rd args removed per retail 2-arg jal, */
+/* (DatUnit*) casts, local externs for 0023d6e0/00106a00): retail 3044 vs object 3211 */
+/* (+5.5% OUTSIDE, deficit -167, 2784 reloc-masked words, obj 12844B/window 12176B). */
+/* Three retail-only runs all CROSS, no ABSENT: 39 at 0x235610-0x2356ac (paired 2, nearby */
+/* 2), 103 at 0x23587c-0x235a18 (paired 3, nearby 18), 49 at 0x236c98-0x236d5c (paired 1, */
+/* nearby 3); object is not short, so missing-code work is wrong. Production stays ASM. */
 // FUN_00235520 NONMATCHING
 #ifdef SKIP_ASM
 s32 func_00235520(s32 arg0, u8 *arg1, u8 *arg2, u16 arg3, u16 arg4, u16 arg5, s32 arg6, u8 arg7) {
