@@ -1,6 +1,7 @@
 /* Source unit: src/Battle/btlTarget_001eb440.c */
 #include "include_asm.h"
 #include "type.h"
+#include "btl_target_state_packet_internal.h"
 
 typedef struct BtlUnit {
     u8 padding_00[0xa0];
@@ -359,7 +360,7 @@ BtlPacket* func_001f36e0(s32 param_1, s32 param_2, void* param_3, s16 param_4, s
     return packet;
 }
 // FUN_001F37B0
-void func_001f37b0(void* arg)
+void func_001f37b0(u8* arg)
 {
     BtlAction* action;
 
