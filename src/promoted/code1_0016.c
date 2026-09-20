@@ -1868,23 +1868,21 @@ INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016b8a0);
 /* Skeleton: switch + 14 unstructured edges/13 gotos, counted fors where */
 /* present; front-load (s32) on every float conversion (<2^31, plain */
 /* mtc1/cvt) over (u32) dance (~16). Not banked: count outside band. */
-/* measured 0016bdd0 (owner, 2026-09-19): `#pragma optimization_level 1` REMOVED and the
-   floor recorded honestly as OUTSIDE the gate.  The pragma had been kept because it put
-   the count inside the band - 2252 against retail 2319 - but that is all it was doing: at
-   the project's baseline -O2 the same body emits **2116 instructions (-8.75%, outside the
-   2249-2389 band) with 1788 fnalign edits**, against 2844 edits with the pragma.  O1 added
-   136 instructions of padding and made the instruction agreement **1056 edits worse**.  A
-   nonbaseline optimisation level that inflates the count while degrading the match is the
-   definition of pragma inflation (handoff 7u).
-   The real state: the body is about 200 instructions short and the missing code has to be
-   written.  No differing-word score measured against it is comparable to one measured
-   inside the gate (handoff 7y). */
-/* gate: func_0016bdd0 is OUTSIDE the +-3% band at 2116 against retail 2319 (-8.8%, band
-   2249-2389).  203 instructions SHORT, so whole regions are missing and no edit or word
-   score measured against this body is comparable to an in-band one (handoff 7y).
-   `#pragma optimization_level 1` was tried on this function earlier and reverted: it
-   moved the word score without improving the edit count, which is exactly the inflation
-   the 7aw pair rule exists to reject.  Write the missing code first. */
+/* measured 0016bdd0 (owner, 2026-09-20): INSIDE the gate at 2250 vs retail 2319
+   (-3.0%, band 2249-2389, deficit 69, by 1).  Words 2046, edits 1786 +5 reloc.
+   Spellings (all -O2, no O1 pragma): loop fixes +9 (2116->2125) +2 (acc, ->2127);
+   vector bases LOW +17 (208 fix, ->2142) +48 (other 16, ->2190); int+cvt inflation
+   +13 (d0/120/210, 2190->2203, loss 50 vs +63 predicted, fused) +5 (1a0/1b8/1d0/2c4,
+   2203->2208, loss 22 vs +27) +4 (140/210p2, 2208->2212, loss 14 vs +18);
+   31-run madd chain +37 (2212->2249, index/sll + mul/add vs madd); split neg-mul
+   +1 (2249->2250, loss 1 vs +2, fused).  Synthetic keepers removed: +27 (2c4+40b0)
+   +29 (v11+4180) then -56 back to 2190; fStack_10 split+call +43 (->2289) then -43
+   back; O1 pragma +136 (->2252) with +1056 edits (1788->2844) reverted per 7u/7aw. */
+/* gate: func_0016bdd0 is INSIDE the +-3% band at 2250 against retail 2319 (-3.0%, band
+   2249-2389).  Deficit 69 (by 1, just inside).  Words 2046, edits 1786 +5 reloc.
+   `#pragma optimization_level 1` remains reverted (inflation per 7u/7aw).  Missing
+   61/56 runs at DD7C/C780 still ABSENT (retail longer by swc1+182/lwc1+160); 31-run
+   at C61C now present as plain-C madd chain (not madd/adda/msub).  No other fn touched. */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
 extern int FUN_003e0870();
