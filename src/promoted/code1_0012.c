@@ -1948,15 +1948,7 @@ void func_00124bb0(s32 arg0,
 }
 #pragma opt_propagation on
 #pragma pop
-/* Floor: 900 differing words, 993 of 964 instrs re-measured by the lead
-   (the worker reported 992).  That is +3.01%, one instruction past the +3%
-   band edge of 992.92.  Kept as a banked floor deliberately, on the same
-   rounding-edge precedent as func_0048ec50 in code1_0048.c ("+19 +3.1% at
-   gate 602-638, 1 over by rounding"): the gate exists to reject bodies whose
-   shape is wrong, and a single instruction of overshoot is not that.  The
-   next pass should still treat the 29-instruction excess as the first thing
-   to find - it is 3% of the function and it is where the score is.
-   Body also at docs/probe_archive/Lane0012_00124f70_body.c; production stays ASM. */
+/* Floor: 844 differing words (was 900), 967 of 964 instrs (+3, +0.3% well inside 3% band, 26 slack to 993 edge; was 993/+29 edge), 932 fnalign edits (was 1077). Surplus was 6 extra clamped float->u8 (cvt.w.s/mfc1 +12, c.ole/sub/bc1t +6, lui +6) from double-converting white via f intermediates + a2; fix is u32 r/g/b for retail's unsigned bltz/srl doubling, a0 as (s32)(f32)*(s32 *) for lwc1/cvt.s.w/cvt.w.s/mfc1, and 5 of 6 f intermediates folded to direct sums (first f0 double retained to center count). Cheap causes ruled out: all literals f-suffixed, 13 jals both with no __ soft-float relocs, no 2.0f in body (mul.s 3/3). Gate 8 inside 0 outside. Body also at docs/probe_archive/Lane0012_00124f70_body.c; production stays ASM. */
 /* measured 2026-09-18: reconstructed from bare marker (retail 0x00124F70, 3856B window, 964 instrs). v1c baseline 921 (Ghidra-direct, [6] frame exact at 0x360; [8] gave 0x370 at 922). v2 908 (-13: D_5530/40 array not scalar + 002aaf20 640/448 not 512/480,512/1216). v3 904 (-4: flag beqz polarity + col order + buffers address-ascending). v4 903 (-1: buffers descending, first-declared highest per micro stacktest2). v5 900 (-3: explicit p5234/5230/524C/5248/5244/5240/523C/5238 locals, first two spill to 0xA0/0xB0). Free pragmas tie/worse: loopinv 922 (+1), nounroll 921 tie, sched 921 tie, propoff 943 (+22), commonsubs 940 (+19). 7o eight skipped: body already in 7o form (bare decls + statement assigns, no Type name = ...; initialisers). Full proof in archive. */
 // FUN_00124F70 NONMATCHING
 #ifdef NON_MATCHING
@@ -2011,9 +2003,9 @@ void func_00124f70(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4)
     s32 *tbl;
     s32 vidx;
     u32 word;
-    s32 r;
-    s32 g;
-    s32 b;
+    u32 r;
+    u32 g;
+    u32 b;
     u8 c0;
     u8 c1;
     u8 c2;
@@ -2088,10 +2080,10 @@ void func_00124f70(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4)
     g = (word >> 0x10) & 0xFF;
     b = (word >> 8) & 0xFF;
     f0 = (f32)(u8)((f32)(0xFF - r) * 1.0f + (f32)r);
-    f1 = (f32)(u8)((f32)(0xFF - g) * 1.0f + (f32)g);
-    f2 = (f32)(u8)((f32)(0xFF - b) * 1.0f + (f32)b);
+    f1 = (f32)(0xFF - g) * 1.0f + (f32)g;
+    f2 = (f32)(0xFF - b) * 1.0f + (f32)b;
     {
-        s32 a0 = (s32)*(f32 *)p5230;
+        s32 a0 = (s32)(f32)*(s32 *)p5230;
         u32 a1 = (*(u32 *)((u8 *)b1A0 + vidx) & 0xFFFFFF00) | 0xFF;
         u32 a2 = ((u32)(u8)f2 << 8) | ((u32)(u8)f0 << 0x18) | ((u32)(u8)f1 << 0x10) | 0xFF;
         func_00124bb0(a0, *(f32 *)p5234, 0.0f, *(f32 *)p5238, *(f32 *)p523C, *(f32 *)p5240, *(f32 *)p5244, a1, a2, *(f32 *)p5248, 0x10052, (u32 *)arg4);
@@ -2127,11 +2119,11 @@ void func_00124f70(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4)
     r = (word >> 0x18) & 0xFF;
     g = (word >> 0x10) & 0xFF;
     b = (word >> 8) & 0xFF;
-    f0 = (f32)(u8)((f32)(0xFF - r) * 1.0f + (f32)r);
-    f1 = (f32)(u8)((f32)(0xFF - g) * 1.0f + (f32)g);
-    f2 = (f32)(u8)((f32)(0xFF - b) * 1.0f + (f32)b);
+    f0 = (f32)(0xFF - r) * 1.0f + (f32)r;
+    f1 = (f32)(0xFF - g) * 1.0f + (f32)g;
+    f2 = (f32)(0xFF - b) * 1.0f + (f32)b;
     {
-        s32 a0 = (s32)*(f32 *)p5230;
+        s32 a0 = (s32)(f32)*(s32 *)p5230;
         u32 a1 = (*(u32 *)((u8 *)b160 + vidx) & 0xFFFFFF00) | 0xFF;
         u32 a2 = ((u32)(u8)f2 << 8) | ((u32)(u8)f0 << 0x18) | ((u32)(u8)f1 << 0x10) | 0xFF;
         func_00124bb0(a0, *(f32 *)p5234, 0.0f, *(f32 *)p5238, *(f32 *)p523C, *(f32 *)p5240, *(f32 *)p5244, a1, a2, *(f32 *)p5248, flag | 0x12, (u32 *)arg4);
