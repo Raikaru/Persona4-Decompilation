@@ -3,12 +3,16 @@
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 
+extern u32 func_00104ce0(s16 arg0);
+extern u32 func_00104d50(s16 arg0);
+extern s32 func_0013ca60(s16 arg0, s16 arg1, s32 arg2);
+extern s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3);
 extern u32 func_003b7060(void);
 extern s32 func_0034c210(void);
 extern u8 *func_00106820();
 extern u32 func_00106880(s16 arg0);
 extern void (*D_00887300[])(u32 state, u32 value);
-extern s32 func_0010f930(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 func_0010f930(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
 static inline u8 *code13AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
@@ -39,7 +43,7 @@ extern s32 func_0010a900(s32 arg0);
 extern void func_0011c2c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_0010b510(void);
 extern void func_0010b3b0(s16 arg0);
-extern s32 func_0010f6a0(s16 arg0, s32 arg1);
+extern s32 func_0010f6a0(s16 arg0, u32 arg1);
 extern void func_0011c180(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_0013f620(s16 arg0, s32 arg1, u8 *arg2);
 extern void func_0013a040(u8 *arg0, s32 arg1, s32 arg2);
@@ -93,10 +97,10 @@ extern u8 D_0064B2FC[];
 extern u8 D_0064B308[];
 extern u8 D_0064B30C[];
 typedef signed __int128 code13S128;
-extern void func_001056e0(s32 arg0, s16 arg1);
-extern void func_00105730(s32 arg0, s16 arg1);
+extern void func_001056e0(s16 arg0, s16 arg1);
+extern void func_00105730(s16 arg0, s16 arg1);
 extern void func_00106390(s32 arg0, s32 arg1);
-extern void func_0010f770(s32 arg0, s16 arg1, s32 arg2, s32 arg3);
+extern void func_0010f770(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
 extern s32 func_00354010(void);
 extern void func_0013aa90(u8 *arg0);
 extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
@@ -1963,7 +1967,7 @@ s32 func_0013c700(s32 arg0, s16 arg1, u8 *arg2)
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013c700);
 #endif
 // FUN_0013CA60
-s32 func_0013ca60(s32 arg0, s32 arg1, s32 arg2) {
+s32 func_0013ca60(s16 arg0, s16 arg1, s32 arg2) {
     s32 v = 0;
 
     if (func_0010f930(arg0, arg1, arg2, 1) == 0) {
@@ -2604,7 +2608,7 @@ s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
                 break;
             }
             if (D_008C024E[0] & 0x40) {
-                temp_3_2 = (s64)((s64) (func_0013f720(temp_17, temp_3, temp_16, arg2, temp_8, temp_9, 1) << 0x38) >> 0x38);
+                temp_3_2 = (s8)func_0013f720((s16)temp_17, (s16)temp_3, temp_16, arg2);
                 switch (temp_3_2) {
                 case 0:
                 case 1:
@@ -2649,7 +2653,7 @@ s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
                     break;
                 }
                 if (D_008C024E[0] & 0x40) {
-                    temp_3_3 = (s64)((s64) (func_0013f720(temp_17, -1, temp_16, arg2) << 0x38) >> 0x38);
+                    temp_3_3 = (s8)func_0013f720((s16)temp_17, -1, temp_16, arg2);
                     switch (temp_3_3) {
                     case 0:
                     case 1:
@@ -2761,7 +2765,7 @@ s32 func_0013f620(s16 arg0, s32 arg1, u8 *arg2) {
     s32 var_19;
     s16 var_18;
     s16 temp_17;
-    u16 temp_16;
+    s32 temp_16;
     u8 *temp_2;
 
     var_19 = 1;
@@ -2784,54 +2788,8 @@ s32 func_0013f620(s16 arg0, s32 arg1, u8 *arg2) {
     }
     return var_19;
 }
-/* Model floor (1072B window; plain obj 1172B fndiff 232 verify 766 fnalign 111 plus 6
-   reloc-only retail 268/object 293, cse_off obj 1176B fndiff 226 verify 770 fnalign 113
-   plus 6 retail 268/object 294 best. WINS: 4-arg s32/s64/s32/u8* sig from retail a0-a3
-   use, temp_3 scaled 0xC plus 0x100/0x102 spill, 0xF6/-1 branch cascade, loop_11 goto
-   shape, var_19 s8 result switch. WALLS: s0/s1 colour swap on slot indices, addu order
-   (base+index vs index+base), inner-switch 0/1 arms via shared exit vs direct, loop-hoist
-   remat. Extra 2026-09-17: loopinv 232 neutral, nobl 232 neutral, sched 231/322 worse,
-   o1 226 tie; cse_off 232->226 applied below.
-*/
-/* measured 0013f720: `opt_common_subs off` inside the guard is worth 6 words (232 -> 226); retail rematerialises what b210 hoists. */
-/* measured 0013f720 width fix 2026-09-17: opclass dsll32/dsra32 surplus +21/+21 was sixteen
-   s64 locals holding 32-bit values (every use re-sign-extended, shift 0x0) plus u16 temp_17 /
-   temp_23_2 zero-extended at five call sites retail passes raw (andi +5) plus (s16)arg1 and
-   arg0 narrowed at the f770/f6a0 calls retail passes raw. Retyped to s32/s16/u16 naturals,
-   arg1 s64 -> s32 (callers already pass s32), f770/f6a0 call-site prototypes widened via
-   block-scope externs (their authoritative g_data.c s16 prototypes are MATCH-proven, and the
-   file-scope externs are load-bearing for matched func_0013f620). Before: fndiff 226,
-   fnalign 113 (+6 reloc-only) retail 268/object 294, opclass dsll32 +21/dsra32 +21/move -15.
-   After: fndiff 199, fnalign 23 (+6 reloc-only) retail 267/object 267 size-exact, opclass
-   dsll32/dsra32 surplus 0 (floor drops out of the surplus list). Retail's ten pairs
-   (8x0x10, 2x0x18) reproduced site-for-site; its three andi 0xFFFF masks kept. */
-/* measured 0013f720 (owner, 2026-09-19): fnalign **23 -> 20 edits**, count
-   267 -> 265 against retail 267, by writing m2c's top-tested `loop_N:` /
-   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
-   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
-   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
-   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
-   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
-   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
-   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
-/* measured 0013f720 (owner, 2026-09-19): fnalign **20 -> 16 edits**, count
-   265 -> 265 against retail 265, by putting one switch's arms in ASCENDING
-   order.  Case order is EMISSION order and the right one is whatever retail emitted:
-   a chain converted to a switch wants ascending, a jump table wants the table's own
-   layout, and a `beq` chain with no table can want the reverse of the source order.
-   All three orderings were measured on every switch in this body and this is the
-   only one that improved it; swept across the 167 first-party floors carrying a
-   switch, just four responded at all. */
-// FUN_0013F720 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_common_subs off
-s32 func_0013f720(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
-    /* This TU passes 32-bit values where the callees' authoritative
-       prototypes are narrower (g_data.c, both MATCH): retail emits a raw
-       daddu at these two call sites, so the narrow declaration is scoped
-       to this body to avoid re-sign-extending at every call. */
-    extern s32 func_0010f6a0(s32 arg0, s32 arg1);
-    extern void func_0010f770(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+// FUN_0013F720
+s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3) {
     u8 *spC0;
     u8 *spB0;
     u8 *spA0;
@@ -2856,7 +2814,7 @@ s32 func_0013f720(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
 
     var_19 = 1;
     var_18 = -1;
-    temp_3 = arg3 + arg2 * 0xC;
+    temp_3 = code13AddOff(arg2 * 0xC, arg3);
     spC0 = temp_3 + 0x102;
     temp_17 = *(u16 *)(temp_3 + 0x102);
     spB0 = temp_3 + 0x100;
@@ -2876,15 +2834,15 @@ s32 func_0013f720(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     } else if ((s16)arg1 == -1) {
         var_22 = 0;
         var_16 = 0;
-do {
-                temp_3_2 = arg3 + var_16 * 2;
-                spA0 = temp_3_2 + 0xF4;
-                if (func_0010f930(arg0, *(s16 *)(temp_3_2 + 0xF4), temp_17, 0) == 0) {
-                    func_0010f770(arg0, *(s16 *)spA0, temp_17, 0);
-                    var_22 += 1;
-                }
-                var_16 += 1;
-} while (var_16 < *(s16 *)(arg3 + 0xFC));
+        while (var_16 < *(s16 *)(arg3 + 0xFC)) {
+            temp_3_2 = arg3 + var_16 * 2;
+            spA0 = temp_3_2 + 0xF4;
+            if (func_0010f930(arg0, *(s16 *)(temp_3_2 + 0xF4), temp_17, 0) == 0) {
+                func_0010f770(arg0, *(s16 *)spA0, temp_17, 0);
+                var_22 += 1;
+            }
+            var_16 += 1;
+        }
         if (var_22 == 0) {
             var_19 = 0;
         }
@@ -2945,8 +2903,8 @@ do {
     case 0:
         func_0045af60(0, 0, 0, 8);
         break;
-    case 2:
     case 1:
+    case 2:
         func_0045af60(1, 3, 2, 0x16);
         break;
     case 3:
@@ -2957,10 +2915,6 @@ do {
     }
     return var_19;
 }
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013f720);
-#endif
 /* Model floor (1072B window, size-exact). Probe nd 215;
    fea0 float->s16 idiom, absolute consts via array decls.
    Open: loop-hoist wall (C/0x8000/base remat per iter),
