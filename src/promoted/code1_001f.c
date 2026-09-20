@@ -2,6 +2,7 @@
 #include "type.h"
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
+#include "btl_target_state_packet_internal.h"
 /* Force the offset operand into the first addu slot. */
 static inline u32 addOffsetFirst(u32 offset, u32 base) {
     return offset + base;
@@ -139,12 +140,9 @@ extern void func_001f38e0(u8 **arg0);
 extern s32 func_00109360(u16 arg0);
 extern s32 func_001f3900(u8 **arg0);
 extern void func_001f3930(void);
-extern void *func_00194470();
+extern u8 *func_00194470(s32 type, s32 workSize);
 
 extern void func_001f39b0(u8 **arg0);
-extern void func_001f37b0(void);
-extern void func_001f37d0(void);
-extern void func_001f3850(void);
 
 extern s32 func_001f39d0(u8 **arg0);
 extern void func_001f3b00(void);
@@ -926,6 +924,8 @@ void func_001f14f0(u8 *arg0)
     extern s32 func_001fb1f0(u8 *, s32);
     extern s32 func_001fb360(u8 *, s32);
     extern s32 func_00242990(u8 *, s32);
+    extern s32 func_002411a0(u8 *, u8 *, s32, s32, s32);
+    extern s32 func_0023d8e0(u8 *, u16);
 
     extern u8 iGpffffb3cc[];
     extern f32 fGpffff812c;
@@ -1723,18 +1723,21 @@ s32 func_001f2f90(u8 *arg0) {
 }
 
 // FUN_001F3870
-void func_001f3870(u8 *arg0, s8 arg1)
+/* The allocator result remains in v0 through packet initialization; all eleven
+ * retail callers use it for submission or dependency setup. */
+u8 *func_001f3870(u8 *action, u8 flags)
 {
-    u8 *temp_2;
-    u8 *temp_3;
+    u8 *packet;
+    u8 *work;
 
-    temp_2 = (u8 *)func_00194470(0x701, 8);
-    *(void **)(temp_2 + 0x68) = (void *)func_001f37b0;
-    *(void **)(temp_2 + 0x6C) = (void *)func_001f37d0;
-    *(void **)(temp_2 + 0x70) = (void *)func_001f3850;
-    temp_3 = *(u8 **)(temp_2 + 0x78);
-    *(u8 **)(temp_3 + 0) = arg0;
-    *(s8 *)(temp_3 + 4) = arg1;
+    packet = func_00194470(0x701, 8);
+    *(BtlTargetStateHook *)(packet + 0x68) = func_001f37b0;
+    *(BtlTargetStateUpdate *)(packet + 0x6C) = func_001f37d0;
+    *(BtlTargetStateHook *)(packet + 0x70) = func_001f3850;
+    work = *(u8 **)(packet + 0x78);
+    *(u8 **)(work + 0) = action;
+    *(u8 *)(work + 4) = flags;
+    return packet;
 }
 
 // FUN_001F38E0
