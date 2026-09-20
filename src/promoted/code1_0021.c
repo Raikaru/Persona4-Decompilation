@@ -798,14 +798,14 @@ void func_00212270(u8 *arg0, u8 *arg1)
                               f32 fparg2, s8 arg2, s8 arg3, s8 arg4,
                               s64 arg5, s64 arg6, s32 arg7, f32 fparg3,
                               s16 arg_sp0, s16 arg_sp8);
-    extern s32 func_00364fb0(s64 arg0, u32 arg1, s32 arg2, s32 arg3,
-                             f32 fparg0, f32 fparg1);
     extern s32 func_00366c70(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                              s32 arg4, s32 arg5, s32 arg6, s16 arg7,
                              f32 fparg0, s16 arg_sp0, s32 *arg_sp8,
                              s32 arg_sp10, s32 *arg_sp18);
     extern s32 func_0046d5f0(u8 *arg0, s32 arg1);
     extern u16 D_008C024E;
+    extern f32 fGpffff8374;
+    Vec2f draw_position;
     Local local;
     u8 *temp;
     s32 mode;
@@ -978,12 +978,14 @@ void func_00212270(u8 *arg0, u8 *arg1)
         smooth = 2.0f * t - t * t;
         offset = -600.0f * smooth;
     }
-    func_00364fb0(((s64)(u32)(*(u32 *)&(f32){563.0f - offset}) << 32) |
-                   *(u32 *)&(f32){224.0f - offset},
-                   0xFF, 0, 1, 0.0f, 0.0f);
-    func_00364fb0(((s64)(u32)(*(u32 *)&(f32){76.0f + offset}) << 32) |
-                   *(u32 *)&(f32){224.0f + offset},
-                   0xFF, 0, 1, 0.0f, 0.0f);
+    draw_position.x = 563.0f - offset;
+    draw_position.y = 224.0f - offset;
+    func_00364fb0(draw_position, 0.0f, 0xFF,
+                  fGpffff8374, 0, 1);
+    draw_position.x = 76.0f + offset;
+    draw_position.y = 224.0f + offset;
+    func_00364fb0(draw_position, 0.0f, 0xFF,
+                  fGpffff8378, 0, 1);
     func_00201820(2);
     if (special) {
         if (mode < 0xD) {
@@ -1009,12 +1011,14 @@ void func_00212270(u8 *arg0, u8 *arg1)
         smooth = 2.0f * t - t * t;
         offset = -300.0f * (1.0f + smooth);
     }
-    func_00364fb0(((s64)(u32)(*(u32 *)&(f32){182.0f - offset}) << 32) |
-                   *(u32 *)&(f32){331.0f - offset},
-                   0xFF6400FF, 0, 0, 0.0f, 0.0f);
-    func_00364fb0(((s64)(u32)(*(u32 *)&(f32){457.0f + offset}) << 32) |
-                   *(u32 *)&(f32){117.0f + offset},
-                   0xFF6400FF, 0, 0, 0.0f, 0.0f);
+    draw_position.x = 182.0f - offset;
+    draw_position.y = 331.0f - offset;
+    func_00364fb0(draw_position, 0.0f, 0xFF6400FF,
+                  fGpffff8374, 0, 0);
+    draw_position.x = 457.0f + offset;
+    draw_position.y = 117.0f + offset;
+    func_00364fb0(draw_position, 0.0f, 0xFF6400FF,
+                  fGpffff8378, 0, 0);
     if (special) {
         if (mode < 0xB) {
             t = 0.0f;

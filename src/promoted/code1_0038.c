@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "shd_misc_internal.h"
 #include "sdk_snd_internal.h"
 #include "ed_staff_internal.h"
 extern void (*jtbl_008873EC[])(void *);
@@ -731,7 +732,6 @@ void func_00385970(u8 *arg0)
     typedef struct { f32 x; f32 y; } Vec2f_5970;
     extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern void func_003f6440(s32 arg0, s32 arg1);
-    extern void func_00364fb0(s64 arg0, u32 arg1, s32 arg2, s32 arg3, f32 fparg0, f32 fparg1);
     extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u32 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
     extern s32 func_003b7060(void);
     extern f32 func_0044b7b0(f32 fparg0);
@@ -748,8 +748,7 @@ void func_00385970(u8 *arg0)
     f32 var_f29;
     f32 var_f22;
     f32 blend;
-    f32 spA8;
-    f32 spAC;
+    Vec2f position;
     base = *(u8 **)arg0;
     state = arg0 + 4;
     resource = *(s32 *)(base + 0x1F2AC);
@@ -851,19 +850,15 @@ void func_00385970(u8 *arg0)
         b0 = (u8)(inv * 26.0f + t108);
         col0 = (r0 << 24) | (g0 << 16) | (b0 << 8);
         x0 = 603.0f - 20.0f * var_f29;
-        spA8 = x0;
-        spAC = 224.0f;
+        position.x = x0;
+        position.y = 224.0f;
         {
-            s64 pos;
-            pos = ((s64)(*(u32 *)&spAC) << 32) | (u32)(*(u32 *)&spA8);
-            func_00364fb0(pos, col0 | 0xFF, 0, 0, 0.0f, fGpffff8374);
+            func_00364fb0(position, 0.0f, col0 | 0xFF, fGpffff8374, 0, 0);
         }
-        spA8 = 56.0f + 20.0f * var_f29;
-        spAC = 224.0f;
+        position.x = 56.0f + 20.0f * var_f29;
+        position.y = 224.0f;
         {
-            s64 pos;
-            pos = ((s64)(*(u32 *)&spAC) << 32) | (u32)(*(u32 *)&spA8);
-            func_00364fb0(pos, col0 | 0xFF, 0, 0, 0.0f, fGpffff83cc);
+            func_00364fb0(position, 0.0f, col0 | 0xFF, fGpffff83cc, 0, 0);
         }
         {
             u8 a1;
@@ -874,19 +869,15 @@ void func_00385970(u8 *arg0)
             col1 = col0 | a1;
             xa = 603.0f - 20.0f * var_f23 - 30.0f * var_f29;
             xb = 56.0f + 20.0f * var_f23 + 30.0f * var_f29;
-            spA8 = xa;
-            spAC = 224.0f;
+            position.x = xa;
+            position.y = 224.0f;
             {
-                s64 pos;
-                pos = ((s64)(*(u32 *)&spAC) << 32) | (u32)(*(u32 *)&spA8);
-                func_00364fb0(pos, col1, 0, 0, 0.0f, fGpffff8374);
+                func_00364fb0(position, 0.0f, col1, fGpffff8374, 0, 0);
             }
-            spA8 = xb;
-            spAC = 224.0f;
+            position.x = xb;
+            position.y = 224.0f;
             {
-                s64 pos;
-                pos = ((s64)(*(u32 *)&spAC) << 32) | (u32)(*(u32 *)&spA8);
-                func_00364fb0(pos, col1, 0, 0, 0.0f, fGpffff83cc);
+                func_00364fb0(position, 0.0f, col1, fGpffff83cc, 0, 0);
             }
         }
         {
@@ -898,19 +889,15 @@ void func_00385970(u8 *arg0)
             col2 = col0 | a2;
             xa = 603.0f - 50.0f * var_f23 - 40.0f * var_f29;
             xb = 56.0f + 50.0f * var_f23 + 40.0f * var_f29;
-            spA8 = xa;
-            spAC = 224.0f;
+            position.x = xa;
+            position.y = 224.0f;
             {
-                s64 pos;
-                pos = ((s64)(*(u32 *)&spAC) << 32) | (u32)(*(u32 *)&spA8);
-                func_00364fb0(pos, col2, 0, 0, 0.0f, fGpffff8374);
+                func_00364fb0(position, 0.0f, col2, fGpffff8374, 0, 0);
             }
-            spA8 = xb;
-            spAC = 224.0f;
+            position.x = xb;
+            position.y = 224.0f;
             {
-                s64 pos;
-                pos = ((s64)(*(u32 *)&spAC) << 32) | (u32)(*(u32 *)&spA8);
-                func_00364fb0(pos, col2, 0, 0, 0.0f, fGpffff83cc);
+                func_00364fb0(position, 0.0f, col2, fGpffff83cc, 0, 0);
             }
         }
         {
@@ -922,19 +909,15 @@ void func_00385970(u8 *arg0)
             col3 = col0 | a3;
             xa = 603.0f - 90.0f * var_f23 - 50.0f * var_f29;
             xb = 56.0f + 90.0f * var_f23 + 50.0f * var_f29;
-            spA8 = xa;
-            spAC = 224.0f;
+            position.x = xa;
+            position.y = 224.0f;
             {
-                s64 pos;
-                pos = ((s64)(*(u32 *)&spAC) << 32) | (u32)(*(u32 *)&spA8);
-                func_00364fb0(pos, col3, 0, 0, 0.0f, fGpffff8374);
+                func_00364fb0(position, 0.0f, col3, fGpffff8374, 0, 0);
             }
-            spA8 = xb;
-            spAC = 224.0f;
+            position.x = xb;
+            position.y = 224.0f;
             {
-                s64 pos;
-                pos = ((s64)(*(u32 *)&spAC) << 32) | (u32)(*(u32 *)&spA8);
-                func_00364fb0(pos, col3, 0, 0, 0.0f, fGpffff83cc);
+                func_00364fb0(position, 0.0f, col3, fGpffff83cc, 0, 0);
             }
         }
         func_003f6440(3, 0x717FB);
@@ -953,19 +936,15 @@ void func_00385970(u8 *arg0)
         b1 = (u8)(inv2 * 0.0f);
         col4 = (r1 << 24) | (g1 << 16) | (b1 << 8) | 0xFF;
         d1 = var_f25 * 300.0f;
-        spA8 = 603.0f - d1;
-        spAC = 224.0f - d1;
+        position.x = 603.0f - d1;
+        position.y = 224.0f - d1;
         {
-            s64 pos;
-            pos = ((s64)(*(u32 *)&spAC) << 32) | (u32)(*(u32 *)&spA8);
-            func_00364fb0(pos, col4, 0, 1, 0.0f, fGpffff8374);
+            func_00364fb0(position, 0.0f, col4, fGpffff8374, 0, 1);
         }
-        spA8 = 56.0f + d1;
-        spAC = 224.0f + d1;
+        position.x = 56.0f + d1;
+        position.y = 224.0f + d1;
         {
-            s64 pos;
-            pos = ((s64)(*(u32 *)&spAC) << 32) | (u32)(*(u32 *)&spA8);
-            func_00364fb0(pos, col4, 0, 1, 0.0f, fGpffff83cc);
+            func_00364fb0(position, 0.0f, col4, fGpffff83cc, 0, 1);
         }
     }
     {
