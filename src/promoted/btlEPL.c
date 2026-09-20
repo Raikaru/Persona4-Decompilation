@@ -843,8 +843,10 @@ void func_001fd780(void)
    and a two or three arm chain cannot produce it.
    The sweep that found this probed eight short chains and only two moved, so it is measured
    per function like every other spelling. */
+// measured 001fd790 (propagation, 2026-09-20): deficit 184 at 0x001fdd28 is CROSS (540 vs 542, deficit 2 cannot miss 184); `opt_propagation off` unslides it: fnalign 566->306 (-260), retail 544 object 544 exact, guarded 509->504 (-5) via `python3 -E -s tools/pragma_sweep.py src/promoted/btlEPL.c func_001fd790`; block_move_scan UNPAIRED object[339:509] is MAC recolour, not a move; remainder is lwc1+12/mul+8/add+6 (D hoist + blend) + s-reg floor; scoped pragma leaves func_001fc630 untouched.
 // FUN_001FD790 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_propagation off
 void func_001fd790(u8 *arg0)
 {
     s32 s0;
@@ -1155,6 +1157,7 @@ void func_001fd790(u8 *arg0)
         }
     }
 }
+#pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/btlEPL", func_001fd790);
 #endif

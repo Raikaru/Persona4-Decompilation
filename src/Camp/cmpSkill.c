@@ -454,7 +454,7 @@ s32 func_00138b20(u8 *arg0)
     func_00138bf0(arg0);
     return result;
 }
-/* Floor (measured 2026-09-19, source-repo only, draft): reconstruction from ghidra+m2c with file idioms; unsigned (f32)(u8)/(f32)(u16) kept for bltz/srl/or sites, signed (f32)(s16) for lh sites; float-first draw ABIs per header; 0xA0 frame via locals. Banked as guarded floor; production stays ASM. */
+/* measured: retail 1297 instrs/object 1285 instrs (5188B/5140B window 5200B, -12, -0.9% INSIDE +-3% band 1258-1336), probe reloc-masked 1153 words (guard below, NON_MATCHING so production stays ASM; fnalign 1127 edits +2 reloc-only). Restored collapsed st struct (s16x3+f32x3) with float 0x100 loads and pu without extra +0x88; removed dead sprite. Adjacent 130+103 retail-only runs read together name one collapsed st construct, not two. 0xD0 frame vs retail 0xA0. Banked as inside-gate floor. */
 // FUN_00138BF0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00138bf0(u8 *arg0)
@@ -463,7 +463,6 @@ void func_00138bf0(u8 *arg0)
     extern s8 iGpffff9cd0[];
     s32 i;
     s32 j;
-    u8 *sprite;
     f32 fx;
     f32 fy;
     f32 opacity;
@@ -474,12 +473,7 @@ void func_00138bf0(u8 *arg0)
     u8 buf[8];
     f32 sp90;
     f32 sp94;
-    s16 st30;
-    s16 st2e;
-    s16 st2c;
-    s32 st28;
-    s32 st24;
-    s32 st20;
+    struct { s16 st30; s16 st2e; s16 st2c; s16 _pad; f32 st28; f32 st24; f32 st20; } st;
     u8 *pu;
     s32 tmp;
     func_0034f1e0();
@@ -530,7 +524,7 @@ void func_00138bf0(u8 *arg0)
             f0 = (f32)*(u8 *)(row + 0xCBE) * opacity;
             alpha = (u8)f0;
             tmp = (*(s32 *)(tbl + 0x10) * 4);
-            pu = (u8 *)(tmp + (s32)buf + 0x88);
+            pu = (u8 *)(tmp + (s32)buf);
             b0 = pu[0];
             b1 = pu[1];
             b2 = pu[2];
@@ -589,17 +583,17 @@ void func_00138bf0(u8 *arg0)
         func_0013b370(arg0, pos, (u32)c0 | ((u32)c1 << 8) | ((u32)c2 << 16) | ((u32)alpha << 24));
         sp90 = 255.0f + (fx + *(f32 *)(arg0 + 0x8C4));
         sp94 = 21.0f + (fy + *(f32 *)(arg0 + 0x8C8));
-        func_00113730(&st30);
-        st30 = 1;
-        st2e = 4;
-        st2c = 1;
+        func_00113730(&st.st30);
+        st.st30 = 1;
+        st.st2e = 4;
+        st.st2c = 1;
         tmp = (s32)*(s16 *)(arg0 + 0x60) + (s32)*(s16 *)(arg0 + 0x5E);
-        st28 = *(s32 *)(arg0 + tmp * 0xC + 0x100);
-        st24 = *(s32 *)(arg0 + tmp * 0xC + 0x104);
-        st20 = *(s32 *)(arg0 + tmp * 0xC + 0x108);
+        st.st28 = *(f32 *)(arg0 + tmp * 0xC + 0x100);
+        st.st24 = *(f32 *)(arg0 + tmp * 0xC + 0x104);
+        st.st20 = *(f32 *)(arg0 + tmp * 0xC + 0x108);
         pos.x = sp90;
         pos.y = sp94;
-        func_00113790(pos, alpha, &st30, 1, 0.0f);
+        func_00113790(pos, alpha, &st.st30, 1, 0.0f);
     }
     if ((*(u32 *)(arg0 + 0x1C) & 0x2000) != 0) {
         f32 fy2;
@@ -664,22 +658,22 @@ void func_00138bf0(u8 *arg0)
                 sp94 = 21.0f + (f32)j * 34.0f + fy + *(f32 *)(arg0 + j * 0x30 + 0x778);
                 f0 = (f32)*(u8 *)(arg0 + j * 0x30 + 0x77E) * opacity;
                 alpha = (u8)f0;
-                func_00113730(&st30);
-                st30 = 1;
+                func_00113730(&st.st30);
+                st.st30 = 1;
                 if (*(s16 *)(arg0 + 0x5E) == (s16)j && ((*(u32 *)(arg0 + 0x1C) & 0x10) != 0)) {
-                    st2e = 3;
+                    st.st2e = 3;
                 } else {
-                    st2e = 2;
+                    st.st2e = 2;
                 }
                 tmp = (s32)*(s16 *)(arg0 + 0x60) + j;
-                st28 = *(s32 *)(arg0 + tmp * 0xC + 0x100);
-                st24 = *(s32 *)(arg0 + tmp * 0xC + 0x104);
-                st20 = *(s32 *)(arg0 + tmp * 0xC + 0x108);
+                st.st28 = *(f32 *)(arg0 + tmp * 0xC + 0x100);
+                st.st24 = *(f32 *)(arg0 + tmp * 0xC + 0x104);
+                st.st20 = *(f32 *)(arg0 + tmp * 0xC + 0x108);
                 {
                     Vec2f p3;
                     p3.x = sp90;
                     p3.y = sp94;
-                    func_00113790(p3, alpha, &st30, 1, 0.0f);
+                    func_00113790(p3, alpha, &st.st30, 1, 0.0f);
                 }
             }
         }
@@ -695,17 +689,17 @@ void func_00138bf0(u8 *arg0)
         sp94 = 21.0f + (f32)*(s16 *)(arg0 + 0x5E) * 34.0f + fy + *(f32 *)(arg0 + 0x748);
         f0 = (f32)*(u8 *)(arg0 + 0xB9E) * opacity;
         alpha = (u8)f0;
-        func_00113730(&st30);
-        st30 = 1;
-        st2e = 3;
-        st2c = 1;
+        func_00113730(&st.st30);
+        st.st30 = 1;
+        st.st2e = 3;
+        st.st2c = 1;
         tmp = (s32)*(s16 *)(arg0 + 0x60) + (s32)*(s16 *)(arg0 + 0x5E);
-        st28 = *(s32 *)(arg0 + tmp * 0xC + 0x100);
-        st24 = *(s32 *)(arg0 + tmp * 0xC + 0x104);
-        st20 = *(s32 *)(arg0 + tmp * 0xC + 0x108);
+        st.st28 = *(f32 *)(arg0 + tmp * 0xC + 0x100);
+        st.st24 = *(f32 *)(arg0 + tmp * 0xC + 0x104);
+        st.st20 = *(f32 *)(arg0 + tmp * 0xC + 0x108);
         p4.x = sp90;
         p4.y = sp94;
-        func_0013b420(arg0, p4, alpha, &st30);
+        func_0013b420(arg0, p4, alpha, &st.st30);
     }
     {
         Vec2f p5;

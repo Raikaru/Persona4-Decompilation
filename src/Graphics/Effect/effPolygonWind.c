@@ -789,7 +789,10 @@ u8 *func_004a3510(u8 *arg0)
 /* O4 566, O3 569, dead 598. No pair beats prop alone. Sibling dead_off tested */
 /* here ties 598 (does not transfer); prop does not help 2310 beyond its own dead. */
 /* Frame 0x150 vs retail 0x160 closed to exact via prop with no source change. */
-/* Floor stands; production stays ASM. */
+/* 2026-09-20 cross diagnosis (Main correction: deficit ZERO so runs are CROSSES, not missing; deficit_scan now prints CROSS): baseline 623/623 exact, 572w, 843e with retail-only 155 at 0x004a3c2c-0x004a3e98 (vs 1 obj) + 147 at 0x004a3964-0x004a3bb0 (vs 0) + 24 at 0x004a3ed8, all CROSS; opcode retail +15 swc1/+15 ??/+10 lwc1/+6 addiu/+5 bbit132/+4 bbit032/+3 mul.s/+2 dmtc2. block_move_scan 155-vs-221 ratio 0.287 MIXED (genuine divergence, not clean move/recolour). */
+/* Spawn offsets were unfaithful (D0/D8 for 0x10/0x14, E0 for 0x28, F0 for 0x18); faithful per Ghidra 468-495 + IDA 760-779 + retail asm (0x10 from 0xDC/E0, 0x14 from 0xCC single, 0x28 from 0xF0/E8, 0x18 from 0xD0/D4): 615/620 (-8 counts, -5w), 834e (-9) INSIDE (601-639), banked (xD8/yD4 now dead, eliminated, no frame change; frame stays 0x140 vs 0x160). */
+/* Losses (all INSIDE, none banked): spawn+flag double (0x14 = 0x10*idf+0x14 then -idf*(baseE4*idf)*0.5f per IDA 782-786/Ghidra 500-501) 627/624 (+4), 842e (-1 vs baseline, +8 vs spawn alone; missing +0.0 madd/msub shape); color arms swapped (==0xFF vs !=) 623/623 exact, 843e (tie, confirms retail order matches body); scale reload inside loop (re-read iGpffff8080 before 0x1C) 622/622 (-1), 858e (+15 worse, reload not the desync). */
+/* Open walls: VU/COP2 (lui 0x71/dpau/bbit/dmtc2/?? + D_ bbit132 chains, plain-C cross vs VU) + spill gap (retail reloads scale/10/0.25/0.0 from 0xE0/0xDC/0xD8/0xD4 stack where body keeps regs) + frame 0x20 short; saved set same ($f20-$f31) so 7bh STRUCT not the lever here. Floor stands; production stays ASM. */
 // FUN_004A3640 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -963,24 +966,21 @@ void func_004a3640(u8 *arg0)
                     var_f0 = (f32)divisor;
                     *(f32 *)(pvar20 + 0xC) = (yC4 * ((1.0f - xC8) + xC8 * r1) - ftmp) / var_f0;
                     *(f32 *)(pvar20 + 0x8) = ftmp;
-                    xD0 = *(f32 *)(base + 0xD0);
+                    xD0 = *(f32 *)(base + 0xE0);
                     r2 = func_004bd0b0(0);
-                    yCC = *(f32 *)(base + 0xCC);
-                    ftmp = yCC * ((1.0f - xD0) + xD0 * r2);
-                    xD8 = *(f32 *)(base + 0xD8);
+                    yCC = *(f32 *)(base + 0xDC);
+                    *(f32 *)(pvar20 + 0x10) = yCC * ((1.0f - xD0) + xD0 * r2);
                     r3 = func_004bd0b0(0);
-                    yD4 = *(f32 *)(base + 0xD4);
-                    *(f32 *)(pvar20 + 0x14) = (yD4 * ((1.0f - xD8) + xD8 * r3) - ftmp) / var_f0;
-                    *(f32 *)(pvar20 + 0x10) = ftmp;
-                    xE0 = *(f32 *)(base + 0xE0);
+                    *(f32 *)(pvar20 + 0x14) = *(f32 *)(base + 0xCC) * r3;
+                    xE0 = *(f32 *)(base + 0xE8);
                     r4 = func_004bd0b0(0);
-                    yE8 = *(f32 *)(base + 0xE8);
+                    yE8 = *(f32 *)(base + 0xF0);
                     *(f32 *)(pvar20 + 0x28) = yE8 * ((1.0f - xE0) + xE0 * r4);
                     r5 = func_004bd0b0(0);
                     *(f32 *)(pvar20 + 0x1C) = scale * r5;
-                    xF0 = *(f32 *)(base + 0xF0);
+                    xF0 = *(f32 *)(base + 0xD4);
                     r6 = func_004bd0b0(0);
-                    yEC = *(f32 *)(base + 0xEC);
+                    yEC = *(f32 *)(base + 0xD0);
                     *(f32 *)(pvar20 + 0x18) = yEC * ((1.0f - xF0) + xF0 * r6);
                     xB4 = *(f32 *)(base + 0xB4);
                     r7 = func_004bd0b0(0);
