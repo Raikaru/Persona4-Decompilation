@@ -408,6 +408,7 @@ extern f32 fGpffff7ad4;
    deficit_scan.py and write the named regions. */
 // FUN_002BE530 NONMATCHING
 #ifdef NON_MATCHING
+#pragma opt_common_subs off
 s32 func_002be530(u8 *arg0)
 {
     extern u8 D_0063FAA0[];
@@ -4232,6 +4233,7 @@ loop_612:
         goto block_626;
     }
 }
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002be530);
 #endif
