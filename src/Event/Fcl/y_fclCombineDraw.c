@@ -405,8 +405,8 @@ void func_003147e0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s32 arg4, s32 arg5
     f32 f20;
     f32 f21;
     s32 i;
-    s64 li;
-    s64 lia;
+    s32 li;
+    s32 lia;
     t = *(u8 **)(arg0 + 0x38);
     v19 = (s8)arg1;
     c0 = (s16)(v19 * 5 + 0x66);
@@ -465,7 +465,7 @@ void func_003147e0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s32 arg4, s32 arg5
         f20 = 6.0f + arg2.x;
         i = 0;
         while ((s16)i < 2) {
-            li = (s64)(s16)i;
+            li = (s16)i;
             lia = (s16)(li + 0x174);
             func_002b2970((u8 *)&sp118, f20 + (f32)(li * 0x67), f21);
             func_002b2a60(&c150, 0xCC, 0xFF, 0xFF, 0xFF);
@@ -1286,7 +1286,7 @@ void func_00317410(u8 *arg0, s8 arg1) {
 // FUN_00317900 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
-void func_00317900(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s64 arg6) {
+void func_00317900(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s32 arg5, s64 arg6) {
     u8 c23C[4];
     u8 c238[4];
     u8 c234[4];
@@ -1331,7 +1331,7 @@ void func_00317900(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s
     s64 sp108;
     FclPackedPosition sp100;
     s64 spF8;
-    s64 spD0;
+    s32 spD0;
     s32 v18;
     s32 t22;
     s32 t16;
@@ -2232,7 +2232,7 @@ void func_0031ac10(u8 *arg0, s64 arg1, s8 arg2, u16 arg3, u16 arg4, s32 arg5, s3
     s16 id6;
     s16 lateId;
     s16 spE0;
-    s64 t16;
+    s32 t16;
     s64 t7;
     s8 v3;
     s8 v30;
@@ -2249,7 +2249,7 @@ void func_0031ac10(u8 *arg0, s64 arg1, s8 arg2, u16 arg3, u16 arg4, s32 arg5, s3
     f22 = by + (f32)(t16 * 0x17);
     t7 = *(s8 *)&arg7;
     if (t7 == 1) {
-        v3 = *(s8 *)(func_002e4870(0) + (s8)arg2 * 0xC + (s32)t16 + 0x14);
+        v3 = *(s8 *)(func_002e4870(0) + (s8)arg2 * 0xC + t16 + 0x14);
     }
     if (*(s8 *)(t + 0x128) != t16 && *(s8 *)(t + 0x129) != t16 && v3 > 0) {
         v30 = v3;

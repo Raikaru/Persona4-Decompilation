@@ -3489,7 +3489,32 @@ s32 func_001ee490(u8 *arg0) {
 /* gate: object 383 against retail 398, -3.8% - OUTSIDE
    the +-3% band.  Any differing-word score in this note was measured
    against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+   measured inside the gate (handoff 7y).  Fix the count first.
+   DIAGNOSED this round, deficit 15 instrs.  All three retail-only runs are
+   LONGER than the deficit - 37 at 0x001EEA78, 29 at 0x001EE7F0, 23 at
+   0x001EE870 - and you cannot be missing more instructions than you are
+   short, so every one of them is a CROSS, not absent code.  Writing new
+   statements into this body is the wrong move; it has to be re-synced.
+   The real signal is in the PROLOGUE, which fnalign shows first:
+     retail  addiu $sp, $sp, -0x4e0      object  addiu $sp, $sp, -0x4c0
+     retail  sd    $ra, 0x70($sp)        object  sd    $ra, 0x50($sp)
+     retail  move  $s4, $a0              object  move  $s3, $a0
+   Retail's frame is 32 bytes bigger and its save area starts 32 bytes
+   higher, i.e. retail spills FOUR more callee-saved registers and holds one
+   more pointer live ($s4 against the object's $s3).  A frame-size and
+   saved-register-count difference is a source defect, not a tuning problem:
+   the body does not keep as many values live across calls as retail's did.
+   The opcode delta agrees - retail has 18 more swc1, 8 more mul.s and 8 more
+   add.s, which is 34 more float operations against a deficit of only 15, so
+   the object is FUSING work retail kept separate.  Retail at 0x001EEA78 is
+   the unfused shape, storing each intermediate back before using it:
+     lwc1 $f0,0x4C0($29) / mul.s $f2,$f0,$f1 / swc1 $f2,0x4C0($29)
+     lwc1 $f0,0x4C4($29) / mul.s $f1,$f0,$f1 / swc1 $f1,0x4C4($29)
+     lwc1 $f0,0x80($29)  / add.s $f0,$f2,$f0 / swc1 $f0,0x4C0($29)
+   That is `v[0] *= s; v[1] *= s; v[0] += p[0];` as separate statements on an
+   address-taken pair, not the object's fused `v[0] = v[0] * s + p[0]`.
+   Next step for this floor: give it the extra live pointer and unfuse those
+   multiply-accumulates, then re-measure the frame size before anything else. */
 // FUN_001EE610 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001ee610(u8 *arg0, f32 arg1) {

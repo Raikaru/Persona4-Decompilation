@@ -4694,7 +4694,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
     s64 temp_18_17;
     s64 temp_18_18;
     s64 temp_18_3;
-    s64 temp_18_4;
+    s32 temp_18_4;
     s64 temp_18_5;
     s64 temp_18_6;
     s64 temp_18_7;
@@ -4702,7 +4702,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
     s64 temp_18_9;
     s64 temp_3_4;
     s64 var_20;
-    s64 var_22;
+    s16 var_22;
     s64 var_6;
     s8 temp_2_3;
     s8 temp_2_4;
@@ -4956,7 +4956,7 @@ loop_32:
                     func_002e0970(*(void **)(work + 0xDD0), sp220, sp21C, 1, 4, 0);
                     *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xDD0)) + 0x85) = 1;
                     t = (u8 *)func_0046d200(*(void **)(work + 0xF28), 0x7D);
-                    temp_18_4 = func_0046b260(t);
+                    temp_18_4 = (s32)func_0046b260(t);
                     *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xE2C)) + 0x100) = (s16) temp_18_4;
                                         *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xE2C)) + 0x102) = (s16)(func_0046b2f0(t) / 2.0f);
                     *(s16 *)((u8 *)func_002e04e0(*(void **)(work + 0xE30)) + 0x100) = 0;

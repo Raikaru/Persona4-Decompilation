@@ -1943,7 +1943,6 @@ void func_002e6280(s8 arg0, u8 *arg1, s8 arg2)
                             case 2:
                             case 7:
                             case 8:
-                            default:
                                 dst1 = q + (h8 * 48) + 20;
                                 break;
                             case 1:
@@ -1951,6 +1950,9 @@ void func_002e6280(s8 arg0, u8 *arg1, s8 arg2)
                             case 6:
                             case 10:
                                 dst1 = q + (h8 * 48) + 164;
+                                break;
+                            default:
+                                dst1 = q + (h8 * 48) + 20;
                                 break;
                             }
                             func_0043f9c8(dst1, 0, 48);
@@ -1962,7 +1964,6 @@ void func_002e6280(s8 arg0, u8 *arg1, s8 arg2)
                             case 2:
                             case 7:
                             case 8:
-                            default:
                                 dst2 = q + (h8 * 48) + 20;
                                 break;
                             case 1:
@@ -1970,6 +1971,9 @@ void func_002e6280(s8 arg0, u8 *arg1, s8 arg2)
                             case 6:
                             case 10:
                                 dst2 = q + (h8 * 48) + 164;
+                                break;
+                            default:
+                                dst2 = q + (h8 * 48) + 20;
                                 break;
                             }
                             func_0010cad0(dst2, id);

@@ -200,35 +200,54 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442de8);
 // FUN_00442FA8
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442fa8);
 
-/* measured: 25 differing words, object 26 instrs / retail 22 (third-party unit, so floorboard/opclass skip it; strstr-shaped). Retail opens with lb/jr/movn (conditional move no C spelling emits here) and runs a rolled beq loop; b210 emits likely-branches plus a forward skip. Tried: nested-loop respelling (23 edits, worse), all 8 singles + all 28 pragma pairs (best 25; peephole off 38-41, cse off 28). Entry movn is the wall. */
-/* gate: object 26 against retail 22, +18.2% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured: strstr.  Object 25 instrs against retail 22, +13.6% - still OUTSIDE
+   the +-3% band (a 22-instruction function gets 2 instructions of slack, not
+   3), so the 24 differing words and 21 edits below are NOT comparable to an
+   in-band score (handoff 7y).  Improved from 26 instrs / 25 words / 25 edits.
+   An earlier note here said "all 8 singles + all 28 pragma pairs" had been
+   swept and that "the entry movn is the wall".  The pragma sweep was right;
+   the conclusion was not.  Two of the four surplus instructions came out of
+   the BODY, with no pragma involved:
+     - the beqz delay slot.  Retail fills it with `addu $t6,$v0,$t4`, the
+       address of `result[counter]`, computed before the test that does not
+       need it.  Hoisting `p2 = result + counter;` above the `c1 == 0` test
+       reproduces that exactly.
+     - the NULL store.  Retail reaches its epilogue by FALLING THROUGH
+       `daddu $2,$0,$0`, so `result = NULL;` must be the last statement before
+       a shared `done:` label, not an early `break`.
+   The entry is indeed a branchless select - retail is `lb $t7,($a1)` /
+   `jr $ra` / `movn $v0,$zero,$t7` - but it is not immovable either:
+   `return (*arg1 == 0) ? result : NULL;` lands within two instructions of it,
+   while `if (*arg1 != 0) result = NULL; return result;` costs six more (32
+   instrs).  Reversing the ternary or writing `(s8 *)0` for NULL changes
+   nothing.
+   What is left is the back-edge: retail closes the inner loop with
+   `beq $t5,$t7,.-5` plus `addiu $t4,$t4,1` in the delay slot, while b210
+   emits `bnel` on the inverted test and an extra `b`.
+   `#pragma no_branch_likely on` makes that far worse (31 instrs), so the
+   branch-likely is wanted and only misplaced; `#pragma schedule on` and
+   `#pragma opt_propagation off` change nothing, which rules out scheduling. */
 // FUN_00443010 NONMATCHING
 #ifdef NON_MATCHING
 s8 *func_00443010(s8 *arg0, s8 *arg1) {
     s32 counter;
     s8 *result;
+    s8 *p2;
     s8 c1;
     s8 c2;
 
     result = arg0;
-    if (*arg0 != 0) {
-        goto outer;
+    if (*arg0 == 0) {
+        return (*arg1 == 0) ? result : NULL;
     }
-    if (*arg1 == 0) {
-        return result;
-    }
-    return NULL;
-outer:
     counter = 0;
 inner:
     c1 = arg1[counter];
+    p2 = result + counter;
     if (c1 == 0) {
-        return result;
+        goto done;
     }
-    c2 = result[counter];
+    c2 = *p2;
     if (c1 == c2) {
         counter++;
         goto inner;
@@ -236,9 +255,11 @@ inner:
     result++;
     if (*result != 0) {
         counter = 0;
-        goto outer;
+        goto inner;
     }
-    return NULL;
+    result = NULL;
+done:
+    return result;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00443010);
