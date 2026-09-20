@@ -6344,6 +6344,10 @@ void func_002fbea0(u8 *arg0) {
     extern void func_002e7a80(s32);
     extern void func_002bbd80(s8, s32, void *);
     extern s32 func_00349290(u8 *, s8);
+    extern void func_002cacd0(u64, s32, s32, s32, s32, s32, s32, s32, f32, s32, s32);
+    extern void *func_0046a770(void *);
+    extern s32 func_00331560(void);
+    extern u8 D_00641B30[];
 
     u8 *p;
     u8 state;
@@ -6390,6 +6394,12 @@ void func_002fbea0(u8 *arg0) {
     s32 total;
     s32 saved;
     u16 bitSav;
+    s64 sp308;
+    s32 colW1;
+    s64 sp300;
+    s32 colW2;
+    s32 tmpe;
+    s32 tmpv;
 
     p = *(u8 **)(arg0 + 0x38);
     state = *(p + 1);
@@ -6730,6 +6740,62 @@ void func_002fbea0(u8 *arg0) {
     case 0x9B:
         break;
     case 0x9C:
+        var_16_6 = *(s16 *)(func_002e4870(0) + 8);
+        if (*(s32 *)(func_002e4870(0) + 8) >= 9) {
+            var_16_6 = 8;
+        }
+        var_19 = (s64)(*(s16 *)(p + 0x11E) - *(s16 *)(p + 0x120));
+        func_002b2970(&sp308, 254.0f + *(f32 *)(func_002b6150(0x69) + 0x38), 46.0f);
+        func_002b2a60(&colW1, 0xFF, 0xFF, 0xFF, 0xFF);
+        tmpe = func_002e7a60();
+        tmpv = (s32)func_0046a770(&D_00641B30);
+        func_002cacd0(sp308, colW1, 0x10, 5, tmpe, 9, 0x37, tmpv, 47.0f, func_00331560(), 0x56);
+        var_18 = 0;
+        var_22 = var_16_6 + var_19;
+        while ((s64)((var_19 << 0x30) >> 0x30) < var_22) {
+            temp_16 = (s64)((var_18 << 0x30) >> 0x30);
+            temp_21 = temp_16 + 0x270;
+            temp_f20 = (f32)(*(s16 *)(func_002b6150((s64)((temp_21 << 0x30) >> 0x30)) + 0x42));
+            temp_f0 = func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(func_002b6150((s64)((temp_21 << 0x30) >> 0x30)) + 0x40)));
+            if (!(temp_f0 >= 2.1474836e9f)) {
+                var_3 = ((s32)(temp_f0)) & 0xFF;
+            } else {
+                var_3 = (((s32)((temp_f0 - 2.1474836e9f))) | 0x80000000) & 0xFF;
+            }
+            temp_7 = var_3 & 0xFF;
+            if (*(s16 *)(p + 0x11E) == var_19) {
+                var_21 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);
+                func_002b2a60(&colW2, 0x2D, 0x2D, 0x2D, temp_7);
+            } else {
+                var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
+                func_002b2a60(&colW2, 0xCC, 0xFF, 0xFF, temp_7);
+            }
+            func_00275820(var_21, 0, 2, ((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 172.0f, (f32)(s32)((temp_16 * 0x17) + 0x96), 43.0f);
+            sumA = func_001099f0(func_002e48a0(0, var_19), 0) & 0xFF;
+            sumA += func_001099f0(func_002e48a0(0, var_19), 1) & 0xFF;
+            sumA += func_001099f0(func_002e48a0(0, var_19), 2) & 0xFF;
+            sumA += func_001099f0(func_002e48a0(0, var_19), 3) & 0xFF;
+            sumB = (func_001099f0(func_002e48a0(0, var_19), 4) & 0xFF) + sumA;
+            sumA = func_001099f0(func_002e48a0(0, var_19), 0) & 0xFF;
+            sumA += func_001099f0(func_002e48a0(0, var_19), 1) & 0xFF;
+            sumA += func_001099f0(func_002e48a0(0, var_19), 2) & 0xFF;
+            sumA += func_001099f0(func_002e48a0(0, var_19), 3) & 0xFF;
+            total = sumB * (sumA + (func_001099f0(func_002e48a0(0, var_19), 4) & 0xFF)) + 0x7D0;
+            func_002b2970(&sp300, 510.0f, (f32)(s32)((temp_16 * 0x17) + 0x9E));
+            saved = func_003026c0(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2), total);
+            tmpv = (s32)func_0046a770(&D_00641B30);
+            func_002cacd0(sp300, colW2, 0x10, 5, saved, 9, 0x37, tmpv, 47.0f, func_00331560(), 0xAA);
+            var_19 = (s64)((var_19 + 1) << 0x30) >> 0x30;
+            var_18 = (s64)((var_18 + 1) << 0x30) >> 0x30;
+        }
+        if (func_002b6970(*(s16 *)(func_002b6150(0x193) + 0x10), 1) == 0) {
+            func_0032f4d0(arg0);
+            func_003205f0(arg0, 0x96, 0x117);
+            func_00315600(arg0, 0);
+            *(p + 0) = 0;
+            *(p + 1) = 0x1B;
+            return;
+        }
         break;
     case 0x9D:
         if (*(s8 *)(p + 0x122) == 1) {
