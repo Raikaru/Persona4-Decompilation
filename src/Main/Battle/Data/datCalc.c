@@ -3058,6 +3058,22 @@ s32 func_002384b0(s32 arg0, u8 *arg1, s32 arg2)
 }
 
 /* measured: fndiff 765 words (reloc-masked), fnalign 579 edits (plus 10 reloc-only), obj 909 instrs / retail 931 instrs (window 3728B, -22, -2.4% inside 3% gate). Recipe in order on top of /tmp/final_238940_body.c (s64 fresh 844 words / 652 edits at 971/932): s32 clean 844->801 / 652->605; scoped loopinv 801->784 / 605->585; head split (u16)arg0 vs (arg0&0xFFFF) 784->769 / 585->580 (both-u16 784 tie via CSE to one, reuse temp_16 784->792 +8 rejected); shared vs fresh tie 801/605 no-pragma and 783/575 vs 784/585 with loopinv (fresh neutral here, unlike 242990 172->68); u16 skill loads 768->765 for 0x216-0x220 (u8 never equals, always false); pick u16 keeps lhu vs lh (tie); s16 var21/var5/temp3/var6s all tie/worse (765 tie, 767 +2). Frame 0xB0 vs retail 0xD0 (arr sp+0x90 vs sp+0xA0) and 7 vs 9 saves ($s7 limits, $23) still shift tail, as prior nd-792 note. m2c s64 WRONG (arg0 s32 per andi/slti 0x240 + sll2/addu/sll3 stride, s32 return per matched callers) preserved; 06cd0 2-arg, u16 pickbuf[0x18], integer clamp [0,99] preserved. Banked as guarded floor. 2026-09-19: 909/931 hides 27-pure delete retail[141:168] vs 37-pure insert object[805:842] (switch-1 7/8/9 early tails vs late) plus 11-pure ==0xE else; net -22 inside gate. Reorder switch-1 to 9,7,8,1 gives 579->544 edits with 765->775 words; flatten ==0xE early gives 544->526 with 775 words; fresh 10 counters gives 579->589 with 765 tie words; drop (u8) casts gives 579->551 with 765->781 words. Words floor holds at 765; frame 0xD0 matches here (prior 0xB0 stale). */
+/* measured 00238940 (owner, 2026-09-19): the pick loop is a `do { } while`, not a
+   top-tested loop.  m2c wrote it as `loop_9: temp_3 = var_6 & 0xFFFF; if (temp_3 < 0x18)
+   { ...; goto loop_9; }`, which emits a test at the TOP of every iteration; retail has no
+   top test at all - its only compare is at the bottom, `addiu $v0, $a2, 1; andi; andi;
+   slti $v0, $v1, 0x18; bnez $v0, .-14`.  Rewriting it as a `do { } while ((var_6 & 0xFFFF)
+   < 0x18)` removes the `slti $at, $v0, 0x18; beqz $at` guard and takes the count 909 -> 908
+   against retail 931.  Edits stay 579: the loop shape is right now but the body inside it
+   still differs, so this is banked for the structure, not for a score.
+   Width was measured on top and is NOT banked, for a reason worth recording: the object
+   sign-extends through `dsll32 $a2, $v0, 0x10; dsra32 $a2, $a2, 0x10` where retail just
+   masks with `andi`, and declaring `var_6` as `u16` or `s32` removes that - 579 -> **574**
+   edits - but it also drops the count to 903, which is -3.01% and OUTSIDE the +-3% band
+   (903.07 lower bound).  Five edits is not worth leaving the gate, and no score measured
+   outside it is comparable anyway (7y).  `u16 var_6` plus `u16 var_5` together is worse
+   again at 580.  The object is 22 instructions SHORT of retail; find those first, then the
+   width narrowing becomes free. */
 // FUN_00238940 NONMATCHING
 #ifdef SKIP_ASM
 #pragma opt_loop_invariants on
@@ -3120,16 +3136,14 @@ s32 func_00238940(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     if ((*(u8 *)((u8 *)(temp_4) + (0x18))) == 3) {
         var_5 = 0;
         var_6 = 0;
-loop_9:
-        temp_3 = var_6 & 0xFFFF;
-        if (temp_3 < 0x18) {
+        do {
+            temp_3 = var_6 & 0xFFFF;
             if (var_17 & (1 << temp_3)) {
                 pickbuf[(var_5 & 0xFFFF)] = var_6;
                 var_5 = (var_5 + 1) & 0xFFFF;
             }
             var_6 = (var_6 + 1) & 0xFFFF;
-            goto loop_9;
-        }
+        } while ((var_6 & 0xFFFF) < 0x18);
         temp_17 = var_5 & 0xFFFF;
         if (temp_17 == 0) {
             func_0046d730(&D_00635938, 0x17);

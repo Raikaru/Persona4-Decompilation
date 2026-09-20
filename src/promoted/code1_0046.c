@@ -3854,6 +3854,15 @@ void func_0046ec70(u8 *arg0) {
  * Decl sweep S1-S8 not repeated per assignment (985/985/998/998/985/985/998/998, colouring not shape).
  */
 /* measured 2026-09-19: lui +15 unchanged (35 object vs 20 retail: 9x absolute 0x76 + 6x tables D_00887300/10; absolute excluded per above as probe-only, tables tested: tbl300/310 hoist keeps 988/984 but edits 510->599 (+89) so not taken; tbl300-only 985/984 (-3) with edits 510->603 (+93) so not taken); words 890, edits 510(+12 reloc) unchanged; no large holes (largest deletes 4,2,1). No source change. */
+/* measured 0046f2b0 (owner, 2026-09-19): fnalign **510 -> 507 edits**, count
+   988 -> 986 against retail 984, by writing m2c's top-tested `loop_N:` /
+   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
+   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
+   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
+   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
+   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
+   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
+   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
 // FUN_0046F2B0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0046f2b0(u8 *arg0)
@@ -4073,24 +4082,22 @@ block_167:
         temp_10 = (*(u8 *)0x007641A9);
         temp_9 = (*(u8 *)0x007641AA);
         temp_8 = (*(u8 *)0x007641AB);
-loop_35:
-        if (var_12 < 4) {
-            temp_7 = (u8 *)temp_17 + (var_12 << 6);
-            (*(s32 *)((u8 *)(temp_7) + (0x30))) = 0;
-            (*(s32 *)((u8 *)(temp_7) + (0x34))) = 0;
-            (*(f32 *)((u8 *)(temp_7) + (0x38))) = temp_f21;
-            (*(f32 *)((u8 *)(temp_7) + (0x48))) = temp_f20;
-            var_f0 = (f32) temp_11;
-            (*(f32 *)((u8 *)(temp_7) + (0x50))) = var_f0;
-            var_f0_2 = (f32) temp_10;
-            (*(f32 *)((u8 *)(temp_7) + (0x54))) = var_f0_2;
-            var_f0_3 = (f32) temp_9;
-            (*(f32 *)((u8 *)(temp_7) + (0x58))) = var_f0_3;
-            var_f0_4 = (f32) temp_8;
-            (*(f32 *)((u8 *)(temp_7) + (0x5C))) = var_f0_4;
-            var_12 += 1;
-            goto loop_35;
-        }
+do {
+                temp_7 = (u8 *)temp_17 + (var_12 << 6);
+                (*(s32 *)((u8 *)(temp_7) + (0x30))) = 0;
+                (*(s32 *)((u8 *)(temp_7) + (0x34))) = 0;
+                (*(f32 *)((u8 *)(temp_7) + (0x38))) = temp_f21;
+                (*(f32 *)((u8 *)(temp_7) + (0x48))) = temp_f20;
+                var_f0 = (f32) temp_11;
+                (*(f32 *)((u8 *)(temp_7) + (0x50))) = var_f0;
+                var_f0_2 = (f32) temp_10;
+                (*(f32 *)((u8 *)(temp_7) + (0x54))) = var_f0_2;
+                var_f0_3 = (f32) temp_9;
+                (*(f32 *)((u8 *)(temp_7) + (0x58))) = var_f0_3;
+                var_f0_4 = (f32) temp_8;
+                (*(f32 *)((u8 *)(temp_7) + (0x5C))) = var_f0_4;
+                var_12 += 1;
+} while (var_12 < 4);
         (*(u32 *)((u8 *)(temp_17) + (0))) = (u32) ((*(u32 *)((u8 *)(temp_17) + (0))) + 1);
         goto block_167;
     case 2:                                         /* switch 1 */

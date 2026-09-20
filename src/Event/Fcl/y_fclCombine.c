@@ -1615,6 +1615,15 @@ void func_002ecfc0(u8 *arg0) {
    the m2c arg-count hallucinations on func_002b6150/func_0010b5b0/func_003190d0/func_00314660/func_002b6970/
    func_002bb680/func_00122720 cut back to the retail arg counts, the (f32)(s32) float wrappers collapsed
    (0x437F0000->255.0f, 0x43000000->128.0f, 0x422C0000->43.0f), and D_008C027A/024E to [0]. */
+/* measured 002ed430 (owner, 2026-09-19): fnalign **2865 -> 2856 edits**, count
+   3816 -> 3814 against retail 3764, by writing m2c's top-tested `loop_N:` /
+   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
+   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
+   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
+   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
+   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
+   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
+   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
 // FUN_002ED430 NONMATCHING
 #ifdef NON_MATCHING
 void func_002ed430(u8 *arg0) {
@@ -1918,18 +1927,16 @@ void func_002ed430(u8 *arg0) {
             var_4 = (s8)((s8)(*func_002e4870(0xD)));
             if (var_4 == 1) {
                 var_16 = 0;
-loop_10:
-                if (((s64) (var_16 << 0x30) >> 0x30) < (func_0010b5b0() & 0xFFFF)) {
-                    func_002b2a60(col25C, 0, 0, 0x99, 0xFFU);
-                    temp_2 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_18)+(0x188))), (s64) (var_16 << 0x38) >> 0x38));
-                    var_4 = (s8) col25C[2];
-                    (*(u8 *)((u8 *)(temp_2)+(0x75))) = col25C[0];
-                    (*(u8 *)((u8 *)(temp_2)+(0x76))) = col25C[1];
-                    (*(s8 *)((u8 *)(temp_2)+(0x77))) = var_4;
-                    (*(u8 *)((u8 *)(temp_2)+(0x78))) = col25C[3];
-                    var_16 = (s64) ((var_16 + 1) << 0x30) >> 0x30;
-                    goto loop_10;
-                }
+do {
+                        func_002b2a60(col25C, 0, 0, 0x99, 0xFFU);
+                        temp_2 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_18)+(0x188))), (s64) (var_16 << 0x38) >> 0x38));
+                        var_4 = (s8) col25C[2];
+                        (*(u8 *)((u8 *)(temp_2)+(0x75))) = col25C[0];
+                        (*(u8 *)((u8 *)(temp_2)+(0x76))) = col25C[1];
+                        (*(s8 *)((u8 *)(temp_2)+(0x77))) = var_4;
+                        (*(u8 *)((u8 *)(temp_2)+(0x78))) = col25C[3];
+                        var_16 = (s64) ((var_16 + 1) << 0x30) >> 0x30;
+} while (((s64) (var_16 << 0x30) >> 0x30) < (func_0010b5b0() & 0xFFFF));
                 func_003205f0(arg0, 0x93, 0x96);
                 func_00320b80(arg0, 0);
                 func_00316470(arg0, 1, 0);
@@ -2819,6 +2826,15 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002ed430);
 /*   dropped, 003190d0(&jtbl)->arg0, 003233d0(&jtbl)->arg0, 00122720()->0 args, 002bb680/002e4870 */
 /*   second arg dropped), D_008C024E/024C/027A scalar uses fixed to [0], and later-defined callees */
 /*   given local prototypes (002f9c30/00310960/00310a10/003233d0). Production guarded (edits 4252). */
+/* measured 002f0f00 (owner, 2026-09-19): fnalign **4252 -> 4247 edits**, count
+   5867 -> 5865 against retail 6011, by writing m2c's top-tested `loop_N:` /
+   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
+   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
+   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
+   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
+   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
+   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
+   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
 // FUN_002F0F00 NONMATCHING
 #ifdef NON_MATCHING
 void func_002f0f00(u8 *arg0) {
@@ -3326,18 +3342,16 @@ void func_002f0f00(u8 *arg0) {
             var_4 = (s8)((s8)(*func_002e4870(0)));
             if (var_4 == 1) {
                 var_16 = 0;
-loop_7:
-                if ((s32)((s32)(((s64) (var_16 << 0x30) >> 0x30))) < (s32)((s32)((func_0010b5b0() & 0xFFFF)))) {
-                    func_002b2a60(&sp3FC, 0, 0, 0x99, 0xFFU);
-                    temp_2 = (s16 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x188))))),  (s64) (var_16 << 0x38) >> 0x38));
-                    var_4 = (s8) sp3FE;
-                    (*((u8 *)((u8 *)(temp_2) + (0x75)))) = sp3FC;
-                    (*((u8 *)((u8 *)(temp_2) + (0x76)))) = sp3FD;
-                    (*((s8 *)((u8 *)(temp_2) + (0x77)))) = var_4;
-                    (*((u8 *)((u8 *)(temp_2) + (0x78)))) = sp3FF;
-                    var_16 = (s64) ((var_16 + 1) << 0x30) >> 0x30;
-                    goto loop_7;
-                }
+do {
+                        func_002b2a60(&sp3FC, 0, 0, 0x99, 0xFFU);
+                        temp_2 = (s16 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x188))))),  (s64) (var_16 << 0x38) >> 0x38));
+                        var_4 = (s8) sp3FE;
+                        (*((u8 *)((u8 *)(temp_2) + (0x75)))) = sp3FC;
+                        (*((u8 *)((u8 *)(temp_2) + (0x76)))) = sp3FD;
+                        (*((s8 *)((u8 *)(temp_2) + (0x77)))) = var_4;
+                        (*((u8 *)((u8 *)(temp_2) + (0x78)))) = sp3FF;
+                        var_16 = (s64) ((var_16 + 1) << 0x30) >> 0x30;
+} while ((s32)((s32)(((s64) (var_16 << 0x30) >> 0x30))) < (s32)((s32)((func_0010b5b0() & 0xFFFF))));
                 func_003205f0(arg0, 0x93, 0x96);
                 func_00320b80(arg0, 1);
                 func_00316470(arg0, 1, 0);
@@ -4591,6 +4605,15 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f0f00);
    narrowed to s32 (3226 -> 2928 instructions) with one - var_17_2 - kept s64 to land
    inside the band, and switch cases 0x60/0x61/0x62 added as empty arms, which corrects
    the bound from `sltiu 0xF` to `sltiu 0x12` at no instruction cost. */
+/* measured 002f6cf0 (owner, 2026-09-19): fnalign **1834 -> 1825 edits**, count
+   2937 -> 2935 against retail 3020, by writing m2c's top-tested `loop_N:` /
+   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
+   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
+   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
+   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
+   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
+   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
+   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
 // FUN_002F6CF0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002f6cf0(u8 *arg0) {
@@ -4819,17 +4842,15 @@ void func_002f6cf0(u8 *arg0) {
             (*(s8 *)((u8 *)(temp_16)+(0x128))) = -1;
             (*(s16 *)((u8 *)(temp_16)+(0x11E))) = -1;
             var_17_2 = 0;
-loop_7:
-            if (((s64) (var_17_2 << 0x30) >> 0x30) < (func_0010b5b0() & 0xFFFF)) {
-                func_002b2a60(col15C, 0, 0, 0x99, 0xFFU);
-                temp_2 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16)+(0x188))), (s64) (var_17_2 << 0x38) >> 0x38));
-                (*(u8 *)((u8 *)(temp_2)+(0x75))) = col15C[0];
-                (*(u8 *)((u8 *)(temp_2)+(0x76))) = col15C[1];
-                (*(u8 *)((u8 *)(temp_2)+(0x77))) = col15C[2];
-                (*(u8 *)((u8 *)(temp_2)+(0x78))) = col15C[3];
-                var_17_2 = (s64) ((var_17_2 + 1) << 0x30) >> 0x30;
-                goto loop_7;
-            }
+do {
+                    func_002b2a60(col15C, 0, 0, 0x99, 0xFFU);
+                    temp_2 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16)+(0x188))), (s64) (var_17_2 << 0x38) >> 0x38));
+                    (*(u8 *)((u8 *)(temp_2)+(0x75))) = col15C[0];
+                    (*(u8 *)((u8 *)(temp_2)+(0x76))) = col15C[1];
+                    (*(u8 *)((u8 *)(temp_2)+(0x77))) = col15C[2];
+                    (*(u8 *)((u8 *)(temp_2)+(0x78))) = col15C[3];
+                    var_17_2 = (s64) ((var_17_2 + 1) << 0x30) >> 0x30;
+} while (((s64) (var_17_2 << 0x30) >> 0x30) < (func_0010b5b0() & 0xFFFF));
             func_00313800((*(s8 *)((u8 *)(temp_16)+(0x1A))));
             func_00323d00(arg0, 2, 0);
             func_002b2970(&sp110, (*(f32 *)((u8 *)(&D_00640E70)+(0))), (*(f32 *)((u8 *)(&D_00640E70)+(4))));
@@ -5562,6 +5583,15 @@ void func_002f9c30(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, 
 }
 
 /* measured: GUARDED_SCORE 1690 via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombine.c func_002f9d90 --candidate v3=/var/tmp/Bd002e/f9d90_v3.c` (baseline 2251 -> s32 temps 2139 -> 43.0f literals 2131 inside); obj 2131I / retail 2116I (+15, +0.71% PASS, band 2053-2179, headroom 48). fnalign 656 edits +10 reloc-only. m2c oracle from src/generated/code1_002f.c + romwright second opinion, de-noised to file idiom (s64 stk buffers, s32 index temps, col10C/108/104[4] real colour layout per stack census 0x104/108/10C, ps-reused 002b6150 result with *(FclVec2f *)(ps+0x38) struct-by-value per 002ED430 note, (u8)f plain casts per 7a-quinquies, D_008C024E[2] for +4, float literals verified vs retail mtc1/cvt (650.0f via (f32)0x28A conversion kept, 42/43/60/97/128/195/255.0f literals), zero (s64)/stubs, prologue aligned incl. frame -0x110). No large hole: all 11 switch arms 0x63-0x6D present with full call sites. */
+/* measured 002f9d90 (owner, 2026-09-19): fnalign **656 -> 654 edits**, count
+   2131 -> 2129 against retail 2116, by writing m2c's top-tested `loop_N:` /
+   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
+   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
+   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
+   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
+   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
+   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
+   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
 // FUN_002F9D90 NONMATCHING
 #ifdef NON_MATCHING
 void func_002f9d90(u8 *arg0) {
@@ -5697,14 +5727,12 @@ void func_002f9d90(u8 *arg0) {
         if ((*(s8 *)func_002e4870(0) != 0) && (func_003190d0(arg0) != 1)) {
             (*( s8 * )((u8 *)(temp_16) + (0x20))) = 0;
             var_17 = 0;
-loop_9:
-            if (((var_17)) < 0xC) {
-                if ((*( u8 * )((u8 *)(func_002e48a0(0, var_17)) + (4))) == 0) {
-                    (*( s8 * )((u8 *)(temp_16) + (0x20))) = 1;
-                }
-                var_17 = ((var_17 + 1));
-                goto loop_9;
-            }
+do {
+                    if ((*( u8 * )((u8 *)(func_002e48a0(0, var_17)) + (4))) == 0) {
+                        (*( s8 * )((u8 *)(temp_16) + (0x20))) = 1;
+                    }
+                    var_17 = ((var_17 + 1));
+} while (((var_17)) < 0xC);
             var_17_2 = 0;
 loop_12:
             if (((var_17_2)) < (func_0010b5b0() & 0xFFFF)) {
@@ -9074,6 +9102,15 @@ s32 func_003096d0(void)
     return -1;
 }
 /* measured: GUARDED_SCORE 1293 via `python3 tools/measure_guarded.py src/Event/Fcl/y_fclCombine.c func_003097e0` with scoped `#pragma opt_common_subs off` + `#pragma opt_loop_invariants on` (baseline 1655 -> 1640/1629 -> 1614 -> 1606 s64->s8 for 002badc0 -> 1603 redundant &0xFFFF for u16 sav); obj 1603I / retail 1568I (+35, +2.23% PASS, band 1521-1615, headroom 12). fnalign 691 edits +21 reloc-only. m2c oracle from src/generated/code1_0030.c de-noised to file idiom (u16 buf[12], char spA0/sp80[32], u8 spC8/D8/E8[12], s32 spF4/F8/FC, s16 loop idiom per func_00303610, base pointer first per func_00263cb0). */
+/* measured 003097e0 (owner, 2026-09-19): fnalign **691 -> 685 edits**, count
+   1603 -> 1601 against retail 1568, by writing m2c's top-tested `loop_N:` /
+   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
+   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
+   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
+   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
+   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
+   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
+   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
 // FUN_003097E0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -9217,12 +9254,10 @@ void func_003097e0(u8 *arg0) {
         func_002b68d0(0x85, 0, 1);
         func_002b68d0(0x1C6, 0, 1);
         var_19 = 0;
-loop_4:
-        if (((s64) (var_19 << 0x30) >> 0x30) < 0x30C) {
-            func_002b68d0(var_19, 0, 1);
-            var_19 = (s64) ((var_19 + 1) << 0x30) >> 0x30;
-            goto loop_4;
-        }
+do {
+                func_002b68d0(var_19, 0, 1);
+                var_19 = (s64) ((var_19 + 1) << 0x30) >> 0x30;
+} while (((s64) (var_19 << 0x30) >> 0x30) < 0x30C);
         func_00303de0(arg0);
         func_0034a640((*( s32 * )((u8 *)(temp_16) + (0x254))), temp_17, 0);
         (*( s8 * )((u8 *)(func_0034a630((*( s32 * )((u8 *)(temp_16) + (0x254))))) + (1))) = 0;
@@ -10174,6 +10209,15 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030b7b0);
    switch-3 labels restored as case 1-6 plus default (retail sltiu 0x7 jtbl pair), the outer 32-case beq chain kept whole
    through 0xCE (retail has no sltiu bound there, so no empty arms), and the stack slots typed from the frame census
    (spB0/sp90 32B, sp60 48B, spD8/spD0 8B). */
+/* measured 0030c3c0 (owner, 2026-09-19): fnalign **2483 -> 2476 edits**, count
+   3116 -> 3114 against retail 3145, by writing m2c's top-tested `loop_N:` /
+   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
+   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
+   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
+   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
+   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
+   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
+   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
 // FUN_0030C3C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0030c3c0(u8 *arg0) {
@@ -10884,11 +10928,9 @@ loop_193:
         break;
     case 0xA8:                                      /* switch 1 */
         var_3_2 = 0;
-loop_213:
-        if (((s64) (var_3_2 << 0x30) >> 0x30) < 5) {
-            var_3_2 = (s64) ((var_3_2 + 1) << 0x30) >> 0x30;
-            goto loop_213;
-        }
+do {
+                var_3_2 = (s64) ((var_3_2 + 1) << 0x30) >> 0x30;
+} while (((s64) (var_3_2 << 0x30) >> 0x30) < 5);
         (*(s8 *)((u8 *)(temp_16)+(0xD))) = (s8)((s8)(func_002bab80((void *)func_00331660())));
         var_4_10 = 0;
 loop_216:

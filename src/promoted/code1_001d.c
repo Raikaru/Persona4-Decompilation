@@ -373,6 +373,15 @@ done:
     return (s16)result;
 }
 /* measured 001d1680: `opt_loop_invariants on` inside the guard is worth 12 words (342 -> 330), the loop-preheader constant hoist. */
+/* measured 001d1680 (owner, 2026-09-19): fnalign **474 -> 473 edits**, count
+   393 -> 391 against retail 397, by writing m2c's top-tested `loop_N:` /
+   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
+   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
+   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
+   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
+   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
+   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
+   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
 // FUN_001D1680 NONMATCHING
 #ifdef SKIP_ASM
 #pragma opt_loop_invariants on
@@ -423,48 +432,46 @@ void func_001d1680(s32 arg0) {
         var_19 = 1;
         var_20 = *(u8 **)(*(u8 **)iGpffffb3ac + 0x178);
         temp_17 = (u8 *)((s32)&D_00607E50 + (var_18 * 0xE0));
-loop_19:
-        if (var_20 != NULL) {
-            u8 *t170 = *(u8 **)(*(u8 **)(*(u8 **)iGpffffb3ac + 0x170) + 0x30);
-            if (t170 == var_20) {
-                var_21 = 0;
-            } else {
-loop_8:
-                {
-                    s32 t3 = var_19 & 0xFFFF;
-                    if ((*(temp_17 + t3 * 0x18) == 0) && (t3 < 4)) {
+do {
+                u8 *t170 = *(u8 **)(*(u8 **)(*(u8 **)iGpffffb3ac + 0x170) + 0x30);
+                if (t170 == var_20) {
+                    var_21 = 0;
+                } else {
+    loop_8:
+                    {
+                        s32 t3 = var_19 & 0xFFFF;
+                        if ((*(temp_17 + t3 * 0x18) == 0) && (t3 < 4)) {
+                            var_19 = (var_19 + 1) & 0xFFFF;
+                            goto loop_8;
+                        }
+                        var_21 = var_19 & 0xFFFF;
                         var_19 = (var_19 + 1) & 0xFFFF;
-                        goto loop_8;
                     }
-                    var_21 = var_19 & 0xFFFF;
-                    var_19 = (var_19 + 1) & 0xFFFF;
                 }
-            }
-            {
-                s32 t16 = var_21 & 0xFFFF;
-                u8 *t2 = temp_17 + t16 * 0x18;
-                spD0 = (f32)(s32)*(f32 *)(t2 + 4);
-                spD8 = (f32)(s32)*(f32 *)(t2 + 8);
-                func_001ec6d0((s16 *)(var_20 + 0x94), (s16 *)(var_20 + 0x96), &spD0);
-                if (arg0 != 0) {
-                    spD0 = (f32)((*(s16 *)(var_20 + 0x94) * 0x19) - 0x6D6);
-                    spD8 = (f32)((*(s16 *)(var_20 + 0x96) * 0x19) - 0x6D6);
-                    func_00194ee0(var_20, &spD0);
+                {
+                    s32 t16 = var_21 & 0xFFFF;
+                    u8 *t2 = temp_17 + t16 * 0x18;
+                    spD0 = (f32)(s32)*(f32 *)(t2 + 4);
+                    spD8 = (f32)(s32)*(f32 *)(t2 + 8);
+                    func_001ec6d0((s16 *)(var_20 + 0x94), (s16 *)(var_20 + 0x96), &spD0);
+                    if (arg0 != 0) {
+                        spD0 = (f32)((*(s16 *)(var_20 + 0x94) * 0x19) - 0x6D6);
+                        spD8 = (f32)((*(s16 *)(var_20 + 0x96) * 0x19) - 0x6D6);
+                        func_00194ee0(var_20, &spD0);
+                    }
+                    temp_2_4 = *(var_20 + 0xA2);
+                    switch (temp_2_4) {
+                    case 0:
+                        *(s32 *)(*(u8 **)iGpffffb3ac + t16 * 4 + 0xA74) = 1;
+                        break;
+                    case 1:
+                        *(s32 *)(*(u8 **)iGpffffb3ac + t16 * 4 + 0xA84) = 1;
+                        break;
+                    }
+                    *(var_20 + 0x9FC) = (s8)var_21;
                 }
-                temp_2_4 = *(var_20 + 0xA2);
-                switch (temp_2_4) {
-                case 0:
-                    *(s32 *)(*(u8 **)iGpffffb3ac + t16 * 4 + 0xA74) = 1;
-                    break;
-                case 1:
-                    *(s32 *)(*(u8 **)iGpffffb3ac + t16 * 4 + 0xA84) = 1;
-                    break;
-                }
-                *(var_20 + 0x9FC) = (s8)var_21;
-            }
-            var_20 = *(u8 **)(var_20 + 0xA6C);
-            goto loop_19;
-        }
+                var_20 = *(u8 **)(var_20 + 0xA6C);
+} while (var_20 != NULL);
         {
             u8 *v192 = *(u8 **)(*(u8 **)iGpffffb3ac + 0x180);
             func_0043f9c8((u8 *)&sp90, 0, 0x14);

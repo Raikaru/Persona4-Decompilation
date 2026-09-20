@@ -85,6 +85,22 @@ extern char D_008E4554[];
 extern char D_008E4594[];
 #pragma opt_common_subs off
 /* measured: guarded 512wd (v1 601wd, +pragma 532wd, +inner_rev 513wd, +c89 512wd) / fnalign retail 777/object 775 (2 short, 0.3% bankable); opt_common_subs off -69, loop_invariants on tie, unroll off tie, schedule on +71 regress; R2 subscript ties, R3 colour ties (baseline best); inner 0x9003-first -19 vs retail order, ifchain +115 regress; outer object order 493 (-20) kept numeric per assignment (table order) */
+/* measured 004647c0 (owner, 2026-09-19): 775 against retail 777, **530 edits**, and
+   tail_classify counts 125 structural hunks with ZERO register hunks - unusual, and it
+   means the residual really is shape rather than allocation.
+   The object is 2 instructions SHORT and most of the 125 are a knock-on: retail's branch
+   spans read `.+764`, `.+747`, `.+738` where the object's read `.+761`, `.+744`, `.+735`,
+   the same three-instruction shift repeated down the whole function.  Find the missing
+   three and most of the diff collapses; tuning anything else first is wasted.
+   Four spellings measured against the 530, all rejected:
+     single exit with `res = X; goto out;` and one `return res` - does not compile as
+       written, and the `goto done` variant collapses the object to 425 instrs / 626 edits
+       because b210 merges the arms into a table;
+     sorting every switch in the body into ascending case order - 530, neutral;
+     hoisting the duplicated `D_00764BB8` argument into a local so the call emits
+       `move $a3, $a2` the way retail does instead of a second `lw` - 530, neutral.
+   The duplicate-argument one is worth knowing: retail loads the global once and copies
+   the register, the object loads it twice, and a named temporary does NOT change that. */
 // FUN_004647C0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_004647c0(void)

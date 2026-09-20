@@ -321,6 +321,15 @@ s32 func_0037f550(u8 *arg0)
 /* measured 0037f6e0: `opt_loop_invariants on` inside the guard is worth 9 words (1047 -> 1038), the loop-preheader constant hoist. */
 /* measured 0037f6e0: pair `opt_common_subs off + opt_dead_assignments off` 1038 -> 1008 (-30, exact 1191/1191 instrs via fnalign, 4764B/4768B with one zero tail word). Singles: dead_assignments off 1027 (-11), common_subs off 1040 (+2 neutral), loop_invariants on baseline 1038. Validates opclass lui -31/addu -28 shortfall as rematerialisation territory, but only as pair. */
 /* measured 2026-09-19 S5-B temp_19 reuse (7 sites: 419,428,429,617,676,754,766 arg0+0x1F1D0/0x1F2F8 -> temp_19/temp_19+0x128): lui +13->0 (109->96, delta 0), fnalign 1191/1165 (-26, -2.2% inside 1155-1227 gate, retail 1189 trimmed to 1165 in report), words 1008->1019 (+11), edits 703+10->664+10 (-39). Banked (zero lui, inside gate, transferable temp+offset spelling to Shuffle4 S4-C; not promoted, not MATCH, guard kept, NONMATCHING kept). Remaining: addu+14, bnez-11, addiu+10, etc.; structural case-4/12/13/block_140 regions per above. */
+/* measured 0037f6e0 (owner, 2026-09-19): fnalign **664 -> 662 edits**, count
+   1165 -> 1163 against retail 1189, by writing m2c's top-tested `loop_N:` /
+   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
+   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
+   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
+   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
+   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
+   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
+   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
 // FUN_0037F6E0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -460,33 +469,31 @@ block_149:
                 var_20 = var_18 * var_21;
                 spC0 = (s32) (arg0 + 0x1F304);
                 spB0 = var_18 * (var_21 + 1);
-loop_161:
-                if (var_20 < spB0) {
-                    temp_17_2 = (u16)((*( u16 *)((u8 *)(arg0) + 0x1F1D2)));
-                    if ((s32)(spC0) < 6) {
-
-                    }
-                    temp_23 = (u8 *)(arg0 + (var_20 * 0xE8));
-                    if (func_00375910(temp_23 + 0x1D6A0) != 0) {
-                        func_003717e0(temp_23 + 0x1D6B8, sp130);
-                        if (!(unksp134 < 508.0f)) {
-                            M2C_ERROR(/* unknown instruction: adda.s $f0, $f3 */);
-                            unksp134 = M2C_ERROR(/* unknown instruction: msub.s $f0, $f2, $f1 */);
+do {
+                        temp_17_2 = (u16)((*( u16 *)((u8 *)(arg0) + 0x1F1D2)));
+                        if ((s32)(spC0) < 6) {
+    
                         }
-                        temp_22 = (u8 *)(arg0 + (var_20 * 0xFB0));
-                        func_0036dc60(temp_22, (f32 *) sp130, (f32 *)&sp120, 86.0f);
-                        unksp134 += 120.0f;
-                        func_0036dc60(temp_22, (f32 *) sp130, (f32 *)&sp110, 86.0f);
-                        if ((s32) temp_17_2 >= 0) {
-                            var_f13 = (f32) temp_17_2;
-                        } else {
-                            var_f13 = 2.0f * (f32) ((temp_17_2 >> 1) | (temp_17_2 & 1));
+                        temp_23 = (u8 *)(arg0 + (var_20 * 0xE8));
+                        if (func_00375910(temp_23 + 0x1D6A0) != 0) {
+                            func_003717e0(temp_23 + 0x1D6B8, sp130);
+                            if (!(unksp134 < 508.0f)) {
+                                M2C_ERROR(/* unknown instruction: adda.s $f0, $f3 */);
+                                unksp134 = M2C_ERROR(/* unknown instruction: msub.s $f0, $f2, $f1 */);
+                            }
+                            temp_22 = (u8 *)(arg0 + (var_20 * 0xFB0));
+                            func_0036dc60(temp_22, (f32 *) sp130, (f32 *)&sp120, 86.0f);
+                            unksp134 += 120.0f;
+                            func_0036dc60(temp_22, (f32 *) sp130, (f32 *)&sp110, 86.0f);
+                            if ((s32) temp_17_2 >= 0) {
+                                var_f13 = (f32) temp_17_2;
+                            } else {
+                                var_f13 = 2.0f * (f32) ((temp_17_2 >> 1) | (temp_17_2 & 1));
+                            }
+                            func_00375d50(arg0, var_20, (f32 *)&sp120, (f32 *)&sp110, 0.0f, var_f13);
                         }
-                        func_00375d50(arg0, var_20, (f32 *)&sp120, (f32 *)&sp110, 0.0f, var_f13);
-                    }
-                    var_20 += 1;
-                    goto loop_161;
-                }
+                        var_20 += 1;
+} while (var_20 < spB0);
             }
             var_21 += 1;
             goto loop_163;

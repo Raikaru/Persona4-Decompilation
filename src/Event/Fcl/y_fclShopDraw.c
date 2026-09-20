@@ -5161,6 +5161,15 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002cb6c0);
    2042 edits, 3047 words) LANDING; narrow temp_17_4 (9 uses) 3576 (-5, 1888 edits) FAIL. temp_18 models
    $s2 from $v0 after void 2700 (retail dsll32/dsra32 16, uninitialized in C, saves 36 vs s64); sp1A4/sp1DC
    added as f32 (Vec2f halves), 35 missing u8 bytes added. Production guarded (edits 2042). */
+/* measured 002cdf80 (owner, 2026-09-19): fnalign **2042 -> 2040 edits**, count
+   3545 -> 3543 against retail 3460, by writing m2c's top-tested `loop_N:` /
+   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
+   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
+   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
+   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
+   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
+   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
+   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
 // FUN_002CDF80 NONMATCHING
 #ifdef NON_MATCHING
 void func_002cdf80(void *arg0, s8 arg1) {
@@ -5371,13 +5380,11 @@ void func_002cdf80(void *arg0, s8 arg1) {
     func_002e2700((*(void**)((u8*)((((*(s8*)((u8*)work+0x11)) * 4) + work))+0xF18)));
     temp_17 = func_002e2830((*(void**)((u8*)((((*(s8*)((u8*)work+0x11)) * 4) + work))+0xF18)), (s32) (*(s16*)((u8*)work+0x2)));
     var_19 = 0;
-loop_2:
-    temp_3 = (s64) (var_19 << 0x30) >> 0x30;
-    if (temp_3 < 3) {
-        func_002e04f0((*(void**)((u8*)((work + (temp_3 * 4)))+0xE40)), 0, 1);
-        var_19 = (s64) ((var_19 + 1) << 0x30) >> 0x30;
-        goto loop_2;
-    }
+do {
+        temp_3 = (s64) (var_19 << 0x30) >> 0x30;
+            func_002e04f0((*(void**)((u8*)((work + (temp_3 * 4)))+0xE40)), 0, 1);
+            var_19 = (s64) ((var_19 + 1) << 0x30) >> 0x30;
+} while (temp_3 < 3);
     if (func_002e2a00((*(void**)((u8*)((((*(s8*)((u8*)work+0x11)) * 4) + work))+0xF18))) == 0) {
         temp_19 = (*(s8*)((u8*)work+0x11));
         if (D_00748908[temp_19] >= func_002e26f0((*(void**)((u8*)(((temp_19 * 4) + work))+0xF18)))) {

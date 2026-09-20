@@ -1092,6 +1092,7 @@ void func_00288020(s32 arg0, u8 *arg1) {
    count.  Word score stays 490.  Measured and rejected: `arg3 + 0xC` to u16
    and `arg4 + 0x14` to u8 both tie, and `arg4 + 0x16` to s16 costs 16 -> 18. */
 /* 2026-09-19 outer 0,1,2 (was 2,1,0) + inner case11 before case5 (order 0,1,4,11,5,6,7,8,9,10, was 0,1,4,5,6,7,8,9,10,11): 479 words (was 490), fnalign 588 vs 605 (-2.8% inside, was 592 vs 605 -2.1% inside), 394 edits (was 1000). Inner 11-first alone 495/430; outer alone 479/762. 108-vs-47 analogue was inner large vs small misordered plus outer 2-first vs 0-first. No promotion (394 remain: scheduling/saved-register floor). */
+/* 2026-09-19 structural hunks inside the arms (this session): outer if-chain -> switch (arg0) 394->312 edits (+3 words 479->482); case0 &2 ==0 -> !=0 with swapped bodies 312->300; sp220/sp210 u32 copies -> f32 copies recovers words 482->479 at tied edits; case1 tmp8 if (2,1,0) -> switch (direct load) 0,1,2 ascending 300->165 edits and 479->473 words; var_f20 if (2,1,0) -> if (0,1,2) ascending 172->169 at tied words (switch variant 163 edits but 483 words, rejected); guard (u16)arg1 mask removed (*(u16*)arg4 != arg1) 169->165 and 475->473. Before 394 edits / 479 words / 588 vs 605 (structure 88 + register 1); after 165 edits / 473 words / 595 vs 605 (structure 112, no register). Fallthrough: retail has none (every arm ends b -> epilogue; jtbl_00748440 cases 2,3 share default 0x288AB0, already default: in C); removing case11 break (fall into case5) costs 300->301 and ascending 11-last costs 300->692, so 11-before-5 is layout order, not sharing - keep case 11: / case 5: separate with breaks. No promotion (165 remain: stack offsets 0x218 vs 0x240 / 0x80 vs 0xC0 / 0x1B0 vs 0xB0, saved-register/scheduling floor). */
 // FUN_00288170 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00288170(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
@@ -1162,7 +1163,8 @@ s32 func_00288170(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
     }
     var_16 = NULL;
     var_f20 = 0.0f;
-    if (arg0 == 0) {
+    switch (arg0) {
+    case 0: {
         if (D_008821E0[0] != 1) {
             return 0;
         }
@@ -1181,18 +1183,19 @@ s32 func_00288170(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
                 func_00269620(*(u16 *)(arg3 + 0xC), *(u8 *)(arg3 + 0x53), 0, 0);
                 *(s32 *)(arg3 + 0x60) = 0;
                 func_00293270();
-                if ((*(s32 *)(arg3 + 0x54) & 2) == 0) {
-                    func_00269c20(*(u16 *)(arg3 + 0xC), 0);
-                } else {
+                if ((*(s32 *)(arg3 + 0x54) & 2) != 0) {
                     func_00269c20(*(u16 *)(arg3 + 0xC), 1);
+                } else {
+                    func_00269c20(*(u16 *)(arg3 + 0xC), 0);
                 }
             }
             return 1;
         }
-    } else if (arg0 == 1) {
+    }
+    case 1:
         return 1;
-    } else if (arg0 == 2) {
-        if (*(u16 *)arg4 != (u16)arg1) {
+    case 2: {
+        if (*(u16 *)arg4 != arg1) {
             return 1;
         }
         switch (*(s8 *)(arg4 + 0x10)) {
@@ -1204,34 +1207,8 @@ s32 func_00288170(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
             }
             break;
         case 1:
-            tmp8 = *(s8 *)(arg4 + 0x14);
-            if (tmp8 == 2) {
-                u8 *res = func_00145270(*(u16 *)(arg3 + 0xC));
-                if (res != NULL) {
-                    *(u32 *)&sp220[0] = *(u32 *)(arg4 + 0x18);
-                    *(u32 *)&sp220[1] = *(u32 *)(arg4 + 0x1C);
-                    *(u32 *)&sp220[2] = *(u32 *)(arg4 + 0x20);
-                    *(u32 *)&sp210[0] = *(u32 *)(arg4 + 0x28);
-                    *(u32 *)&sp210[1] = *(u32 *)(arg4 + 0x2C);
-                    sp218 = 0;
-                    func_00146a10(res, (u8 *)&sp220[0], (u8 *)&sp210[0], 0);
-                }
-            } else if (tmp8 == 1) {
-                func_0028d1b0(*(u8 **)(arg4 + 0x40), spC0, 0);
-                if (*(s8 *)(arg4 + 0x15) == 0) {
-                    f32 f = func_0028bf90(*(s16 *)(arg4 + 0x16));
-                    s32 a = (*(s8 *)(arg4 + 0x24) != 0);
-                    s32 b = (*(s8 *)(arg4 + 0x25) != 0);
-                    if ((*(s8 *)(arg4 + 0x34) & 1) != 0) {
-                        func_0026bda0(*(u16 *)(arg3 + 0xC), 1, (*(s8 *)(arg4 + 0x35) + 1) & 0xFF, *(s8 *)(arg4 + 0x36), *(s8 *)(arg4 + 0x37), (*(s8 *)(arg4 + 0x34) >> 1));
-                    }
-                    if (spC0[0] > 0) {
-                        func_002692d0(*(u16 *)(arg3 + 0xC), spC0, a, f);
-                        *(s32 *)(arg3 + 0x60) = b;
-                        func_00440b68(D_0063C510);
-                    }
-                }
-            } else if (tmp8 == 0) {
+            switch (*(s8 *)(arg4 + 0x14)) {
+            case 0: {
                 sp230[0] = *(f32 *)(arg4 + 0x18);
                 sp230[1] = *(f32 *)(arg4 + 0x1C);
                 sp230[2] = *(f32 *)(arg4 + 0x20);
@@ -1251,6 +1228,40 @@ s32 func_00288170(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
                         }
                     }
                 }
+                break;
+            }
+            case 1: {
+                func_0028d1b0(*(u8 **)(arg4 + 0x40), spC0, 0);
+                if (*(s8 *)(arg4 + 0x15) == 0) {
+                    f32 f = func_0028bf90(*(s16 *)(arg4 + 0x16));
+                    s32 a = (*(s8 *)(arg4 + 0x24) != 0);
+                    s32 b = (*(s8 *)(arg4 + 0x25) != 0);
+                    if ((*(s8 *)(arg4 + 0x34) & 1) != 0) {
+                        func_0026bda0(*(u16 *)(arg3 + 0xC), 1, (*(s8 *)(arg4 + 0x35) + 1) & 0xFF, *(s8 *)(arg4 + 0x36), *(s8 *)(arg4 + 0x37), (*(s8 *)(arg4 + 0x34) >> 1));
+                    }
+                    if (spC0[0] > 0) {
+                        func_002692d0(*(u16 *)(arg3 + 0xC), spC0, a, f);
+                        *(s32 *)(arg3 + 0x60) = b;
+                        func_00440b68(D_0063C510);
+                    }
+                }
+                break;
+            }
+            case 2: {
+                u8 *res = func_00145270(*(u16 *)(arg3 + 0xC));
+                if (res != NULL) {
+                    sp220[0] = *(f32 *)(arg4 + 0x18);
+                    sp220[1] = *(f32 *)(arg4 + 0x1C);
+                    sp220[2] = *(f32 *)(arg4 + 0x20);
+                    sp210[0] = *(f32 *)(arg4 + 0x28);
+                    sp210[1] = *(f32 *)(arg4 + 0x2C);
+                    sp218 = 0;
+                    func_00146a10(res, (u8 *)&sp220[0], (u8 *)&sp210[0], 0);
+                }
+                break;
+            }
+            default:
+                break;
             }
             break;
         case 4:
@@ -1302,12 +1313,12 @@ s32 func_00288170(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
                     var_16 = *(u8 **)(r + 0x164);
                 }
             }
-            if (*(s8 *)(arg4 + 0x15) == 2) {
-                var_f20 = fGpffff8504;
+            if (*(s8 *)(arg4 + 0x15) == 0) {
+                var_f20 = fGpffff8218;
             } else if (*(s8 *)(arg4 + 0x15) == 1) {
                 var_f20 = fGpffff809c;
-            } else if (*(s8 *)(arg4 + 0x15) == 0) {
-                var_f20 = fGpffff8218;
+            } else if (*(s8 *)(arg4 + 0x15) == 2) {
+                var_f20 = fGpffff8504;
             } else {
                 var_f20 = 0.0f;
             }
@@ -1391,6 +1402,9 @@ s32 func_00288170(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
             break;
         }
         return 1;
+    }
+    default:
+        break;
     }
     return 1;
 }

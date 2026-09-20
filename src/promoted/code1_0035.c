@@ -1604,7 +1604,16 @@ loop_test:
     func_00356a10(arg0);
     return var_16;
 }
-/* measured: rebuilt from withheld 2714/2954 draft (retail 2636); this body 2710 obj (+74, +2.81% inside band) 2873 edits via `python3 tools/fnalign.py src/promoted/code1_0035.c func_00356a10 --candidate /tmp/var_sw1_ole.c`. Dispatch: switch 1 (cases 0/1/2/3) is an if-chain in retail (beq order 2,3,1,0 at 0x357A9C) so rewrote as if (==2)/else if (==3)/else if (==1||==0); switches 3 (order 3,2,1 at 0x3586D8) and 4 (order 3,2,1,0 at 0x358C14) are descending MWCC switches so kept as switch; switch 2 kept as switch (if-chain variants scored 2954/3046 vs 2950). Float guards rewritten from if (!(x >= C)) (c.olt) to if (C <= x) (c.ole) to match retail c.le.s operand order, -77 edits. */
+/* measured: rebuilt from withheld 2714/2954 draft (retail 2636); this body 2710 obj (+74, +2.81% inside band) 2868 edits via `python3 tools/fnalign.py src/promoted/code1_0035.c func_00356a10 --candidate /tmp/body_56a10_after1.c` (was 2873 before switch2/4 dispatch reorder, -5). Dispatch: switch 1 (cases 0/1/2/3) is an if-chain in retail (beq order 2,3,1,0 at 0x357A9C) so rewrote as if (==2)/else if (==3)/else if (==1||==0); switch 2 dispatch is beq order 1,3,2 at 0x357E00 (beq 3 at 0x357E10 before beq 2 at 0x357E1C) so ordered cases as case 1 then case 2/case 3 shared with case 2 label before case 3 to emit 1,3,2; switches 3 (order 3,2,1 at 0x3586D8) is descending MWCC switch so kept as switch; switch 4 dispatch is beq order 3,2,1,0 at 0x358C14 (beq 1 at 0x358C30 before beqz 0 at 0x358C38) so ordered cases as case 0 then case 1 to emit 3,2,1,0. Float guards rewritten from if (!(x >= C)) (c.olt) to if (C <= x) (c.ole) to match retail c.le.s operand order, -77 edits. */
+/* measured 00356a10 (owner, 2026-09-19): fnalign **2868 -> 2866 edits**, count
+   2710 -> 2708 against retail 2636, by writing m2c's top-tested `loop_N:` /
+   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
+   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
+   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
+   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
+   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
+   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
+   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
 // FUN_00356A10 NONMATCHING
 #ifdef NON_MATCHING
 void func_00356a10(u8 *arg0) {
@@ -1851,38 +1860,36 @@ void func_00356a10(u8 *arg0) {
     }
     if (*( s32 *)((u8 *)(arg0) + (0x1C)) & 1) {
         var_16 = 0;
-loop_17:
-        if (var_16 < 6) {
-            temp_3 = (u8 *)(arg0 + (var_16 * 0x30));
-            spF0 = temp_f25 + *(f32 *)(temp_3 + 0x6A0);
-            spF4 = 64.0f * (f32)var_16 + (77.0f + (temp_f24 + *(f32 *)(temp_3 + 0x6A4)));
-            temp_2_2 = (u8)(*( u8 *)((u8 *)(temp_3) + (0x6AA)));
-            if ((s32) temp_2_2 >= 0) {
-                var_f0 = (f32) temp_2_2;
-            } else {
-                var_f0 = 2.0f * (f32) ((temp_2_2 >> 1) | (temp_2_2 & 1));
-            }
-            temp_f1_2 = var_f0 * temp_f26;
-            if (2.1474836e9f <= temp_f1_2) {
-                var_6 = 0x4F000000 & 0xFF;
-            } else {
-                var_6 = (((s32)((temp_f1_2 - 2.1474836e9f))) | 0x80000000) & 0xFF;
-            }
-            temp_2_3 = (u8 *)((s32)&D_0064CC30 + (var_16 * 4));
-            spFC = (u8)(*( u8 *)((u8 *)(temp_2_3) + (0)));
-            spFD = (u8)(*( u8 *)((u8 *)(temp_2_3) + (1)));
-            spFE = (u8)(*( u8 *)((u8 *)(temp_2_3) + (2)));
-            spFF = (u8)(*( u8 *)((u8 *)(temp_2_3) + (3)));
-            spFF = var_6;
-            spE0 = (s32)spF0;
-            spE4 = (s32)spF4;
-            spE8 = 0x280;
-            spEC = 3;
-            D_00887300[0](1, 0);
-            func_0045d6e0(&spFC, (u8 *)&spE0, 0.0f, (s64)0);
-            var_16 += 1;
-            goto loop_17;
-        }
+do {
+                temp_3 = (u8 *)(arg0 + (var_16 * 0x30));
+                spF0 = temp_f25 + *(f32 *)(temp_3 + 0x6A0);
+                spF4 = 64.0f * (f32)var_16 + (77.0f + (temp_f24 + *(f32 *)(temp_3 + 0x6A4)));
+                temp_2_2 = (u8)(*( u8 *)((u8 *)(temp_3) + (0x6AA)));
+                if ((s32) temp_2_2 >= 0) {
+                    var_f0 = (f32) temp_2_2;
+                } else {
+                    var_f0 = 2.0f * (f32) ((temp_2_2 >> 1) | (temp_2_2 & 1));
+                }
+                temp_f1_2 = var_f0 * temp_f26;
+                if (2.1474836e9f <= temp_f1_2) {
+                    var_6 = 0x4F000000 & 0xFF;
+                } else {
+                    var_6 = (((s32)((temp_f1_2 - 2.1474836e9f))) | 0x80000000) & 0xFF;
+                }
+                temp_2_3 = (u8 *)((s32)&D_0064CC30 + (var_16 * 4));
+                spFC = (u8)(*( u8 *)((u8 *)(temp_2_3) + (0)));
+                spFD = (u8)(*( u8 *)((u8 *)(temp_2_3) + (1)));
+                spFE = (u8)(*( u8 *)((u8 *)(temp_2_3) + (2)));
+                spFF = (u8)(*( u8 *)((u8 *)(temp_2_3) + (3)));
+                spFF = var_6;
+                spE0 = (s32)spF0;
+                spE4 = (s32)spF4;
+                spE8 = 0x280;
+                spEC = 3;
+                D_00887300[0](1, 0);
+                func_0045d6e0(&spFC, (u8 *)&spE0, 0.0f, (s64)0);
+                var_16 += 1;
+} while (var_16 < 6);
         var_16_2 = 0;
 loop_22:
         if (var_16_2 < 5) {
@@ -2163,8 +2170,8 @@ loop_95:
         }
         func_0034f320(*( s32 *)((u8 *)(arg0) + (0x124C)), 0xDDU, 0x74U, 0U, (s32)temp_19_4, var_9_4, var_10_4, 0, spF0, 153.0f + spF4, 0, 0.0f, (s64)0);
         switch (temp_17_2) {                        /* switch 2; irregular */
-        case 3:                                     /* switch 2 */
         case 2:                                     /* switch 2 */
+        case 3:                                     /* switch 2 */
             spF0 = temp_f22 + ((4.0f * var_f20_3) / 4096.0f);
             spF4 = temp_f21_2 + ((23.0f * var_f23) / 4096.0f);
             if (2.1474836e9f <= var_f20_3) {
@@ -2372,8 +2379,8 @@ loop_222:
             }
             func_0035c040(*( u8 **)((u8 *)(arg0) + (0x1310)), var_5_3);
             switch (temp_17_2) {                    /* switch 4; irregular */
-            case 1:                                 /* switch 4 */
             case 0:                                 /* switch 4 */
+            case 1:                                 /* switch 4 */
                 break;
             case 2:                                 /* switch 4 */
                 func_0035c670(*( u8 **)((u8 *)(arg0) + (0x1310)), &spF0);
