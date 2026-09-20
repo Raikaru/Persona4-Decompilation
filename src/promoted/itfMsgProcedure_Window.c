@@ -1208,8 +1208,53 @@ void func_0027f6a0(void)
    loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
    was ever the right one, so each loop is measured separately rather than converting
    them all. */
+/* measured 0027f6f0 2026-09-19 loop audit + hoisting: all 14 `for` loops checked
+   individually for the do/while shape. Case-7 search arms 1-2 (field4=3/2) convert
+   +3/+7 (REJECTED; retail keeps the guard there, only the ==0 arm is bottom-tested).
+   Twelve `for (i = 0; i < 4; i++)` convert -2..-6 each but REJECTED: retail keeps the
+   `b` guard before every one of those bodies (dumped in three blocks) and the hunk
+   structure is byte-identical modulo downstream renumbering (aligner jitter in the
+   12-duplicated-block region, not codegen agreement). `s32 i` -> `u32 i` alone is
+   neutral (2365) but retail observation splits it: twelve i<4 compares are `sltiu`,
+   all three i<8 search compares are `slti` (signed, already matching) - so the pts
+   loops need their own unsigned index, not a shared one. Function-scope
+   `#pragma opt_loop_invariants on` (push/pop) hoists the per-iteration float/color
+   materialization into preheaders exactly as retail does (dx/dy into f-regs, colors
+   into GPRs, guard retained): fnalign **2365 -> 2311 edits** (-54), count 2123
+   unchanged, words 1933 -> 1934 (+1 positional noise from the layout shift).
+   Mid-body placement of the same pragma measured zero effect (b210 ignores it
+   inside the body; function scope required). Floor now 2311 edits +80 reloc-only;
+   12-block mega-hunk persists on frame-offset/register residue. Next: case-7
+   e-hoist reshape (retail derives e unconditionally per iteration, no in-loop
+   move) + unsigned pts index. */
+/* measured 0027f6f0 2026-09-20 dispatch switches + chain fixes (retail objdump read):
+   b210 compiles small ascending switches as a REVERSE-test beq cascade (in-TU
+   precedent func_0027f560: switch(0,1,2,3) -> tests ==3(far),==2,==1,==0, layout
+   0,1,2,3). Both aux `if(==0){}else if(==3){}else if(==2){}else if(==1){}` chains
+   (case-4 <0x15, case-5) are really `if(==0){}else{switch(1,2,3)}`: fnalign
+   2311 -> 1339 (-972, case-5 unlocks the 12-block cascade) then -> 1239 (-100,
+   case-4); stale test constant CSEs into the ==2 body (retail `li a2,3` doubles
+   as the slot arg, no `li` in the ==2 arm). Case-4 <0x15 ==0/==1/==2 chains fused
+   to single-expression MAC form (retail adda/msub, ==3 keeps two-statement f21
+   reuse): -> 1221 (-18). Five D_0088202C `==2/==1/==0` chains (case-4 s20/s19,
+   case-5 ec90 slots, case-16/17/18 s20/s19) -> ascending switches: -> 1088 (-133).
+   Case-4 <0xB: removed bogus double-halving (`divA=(1+f)/2` never existed; retail
+   halves once, divA==f), Y-arg is chainA not s20*f+123, p12/p13 are chainC/chainD
+   (f16/f17), chains fused: -> 1056 (-32). Case-4 <0x10: removed dead chainB and
+   the bogus `chainA=(1-f)*10` overwrite tail, fused chainA/chainC: -> 1039 (-17).
+   Twelve pts loops got their own `u32 k` (retail 12x sltiu; searches stay s32,
+   retail 3x slti): neutral, retail-true, banked. REJECTED with both-metrics
+   evidence: case-7 unconditional-e + goto-found (+3 edits/+7 words; branch-polarity
+   floor shared with the 147-edit sibling 002818e0, whose object shows the same
+   single-beqz shape). Floor now **1039 edits** +135 reloc-only, 1940 words, count
+   2130 vs retail 2153 (-1.1%, gate ok); production stays ASM. Remaining: case-4
+   loop-block skip pair (content verified identical arg-for-arg; pure frame-offset
+   + color residue -> prologue/declaration-order probe), cnt reload-vs-cache,
+   search polarity floor. */
 // FUN_0027F6F0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma push
+#pragma opt_loop_invariants on
 s32 func_0027f6f0(s32 arg0, u32 arg1)
 {
     extern u32 D_00882020[];
@@ -1240,6 +1285,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     s32 s19;
     s32 s20;
     s32 i;
+    u32 k;
     s32 j;
     s32 tmp;
     s32 tmp2;
@@ -1318,67 +1364,60 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         cnt16 = D_00882024[0] + 1;
         D_00882024[0] = cnt16;
         cnt32 = (s32)cnt16;
-        if (D_0088202C[0] == 2) {
-            s20 = 0x76;
-            s19 = 0xB;
-        } else if (D_0088202C[0] == 1) {
-            s20 = 0x51;
-            s19 = 0xC;
-        } else if (D_0088202C[0] == 0) {
+        switch (D_0088202C[0]) {
+        case 0:
             s20 = 0x45;
             s19 = 0xD;
+            break;
+        case 1:
+            s20 = 0x51;
+            s19 = 0xC;
+            break;
+        case 2:
+            s20 = 0x76;
+            s19 = 0xB;
+            break;
         }
         if (cnt32 < 0xB) {
             f = func_0044b7b0(iGpffff81dc + (iGpffff8084 * (float)cnt32) / 10.0f);
             f = (f + 1.0f) / 2.0f;
-            divA = (1.0f + f) / 2.0f;
-            subA = 1.0f - divA;
+            subA = 1.0f - f;
             cvtA = (float)(s20 + 0x7B);
-            prodA = 16.0f * subA;
-            chainA = cvtA - prodA;
-            prodA = 300.0f * divA;
-            chainB = 300.0f - prodA;
-            prodA = iGpffff811c * divA;
-            chainC = iGpffff803c + prodA;
-            prodA = iGpffff8118 * divA;
-            chainD = iGpffff803c - prodA;
-            func_0025ecd0(chainB, (float)s20 * f + 123.0f, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, 1.0f, chainC - chainD + f, (void *)D_00796490);
+            chainA = cvtA - (16.0f * subA);
+            chainB = 300.0f - (300.0f * f);
+            chainC = iGpffff803c + (iGpffff811c * f);
+            chainD = iGpffff803c - (iGpffff8118 * f);
+            func_0025ecd0(chainB, chainA, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, chainC, chainD, (void *)D_00796490);
         } else if (cnt32 < 0x10) {
             f = func_0044b7b0((iGpffff8094 * (float)(cnt32 - 10)) / 5.0f);
-            prodA = (float)s20;
             prodB = 1.0f - f;
-            chainA = prodA * prodB + 123.0f;
-            prodA = f * 360.0f;
-            chainB = prodA + 180.0f;
-            prodA = iGpffff80d4 * f;
-            chainC = prodA + iGpffff81e4;
-            prodB = 16.0f * subA;
-            chainD = cvtA - prodB;
-            f2 = 1.0f - f;
-            prodA = f2 * 10.0f;
-            chainA = prodA + chainA - chainA;
+            chainA = (float)s20 * prodB + 123.0f;
+            chainC = iGpffff80d4 * f + iGpffff81e4;
             func_0025ecd0(0.0f, chainA, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, 1.0f, chainC, (void *)D_00796490);
         } else if (cnt32 < 0x15) {
             func_0025ec90(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, (void *)D_00796490);
             f = func_0044b7b0((iGpffff8094 * (float)(cnt32 - 15)) / 5.0f);
             if (D_0088202A[0] == 0) {
-                prodA = (1.0f - f) * 100.0f;
-                chainA = 36.0f - prodA;
+                chainA = 36.0f - ((1.0f - f) * 100.0f);
                 func_0025ec90(chainA, 143.0f, 0.0f, 0xFFE92C, 0xFF, 0, (void *)iGpffffb4dc, 1, (void *)D_00796490);
-            } else if (D_0088202A[0] == 3) {
-                prodA = (1.0f - f) * 100.0f;
-                chainA = 38.0f - prodA;
-                chainB = 234.0f - prodA;
-                func_0025f500(0xFFE92C, 0xFF, 1, 0, (u8 *)handle, 1, (void *)D_00796490, chainA, 143.0f, 0.0f);
-                func_0025f500(0xFFE92C, 0xFF, 2, 0, (u8 *)handle, 1, (void *)D_00796490, chainB, 143.0f, 0.0f);
-            } else if (D_0088202A[0] == 2) {
-                prodA = (1.0f - f) * 100.0f;
-                chainA = 38.0f - prodA;
-                func_0025f500(0xFFE92C, 0xFF, 3, 0, (u8 *)handle, 1, (void *)D_00796490, chainA, 143.0f, 0.0f);
-            } else if (D_0088202A[0] == 1) {
-                prodA = (1.0f - f) * 100.0f;
-                chainA = 38.0f - prodA;
-                func_0025f500(0xFFE92C, 0xFF, 4, 0, (u8 *)handle, 1, (void *)D_00796490, chainA, 143.0f, 0.0f);
+            } else {
+                switch (D_0088202A[0]) {
+                case 1:
+                    chainA = 38.0f - ((1.0f - f) * 100.0f);
+                    func_0025f500(0xFFE92C, 0xFF, 4, 0, (u8 *)handle, 1, (void *)D_00796490, chainA, 143.0f, 0.0f);
+                    break;
+                case 2:
+                    chainA = 38.0f - ((1.0f - f) * 100.0f);
+                    func_0025f500(0xFFE92C, 0xFF, 3, 0, (u8 *)handle, 1, (void *)D_00796490, chainA, 143.0f, 0.0f);
+                    break;
+                case 3:
+                    prodA = (1.0f - f) * 100.0f;
+                    chainA = 38.0f - prodA;
+                    chainB = 234.0f - prodA;
+                    func_0025f500(0xFFE92C, 0xFF, 1, 0, (u8 *)handle, 1, (void *)D_00796490, chainA, 143.0f, 0.0f);
+                    func_0025f500(0xFFE92C, 0xFF, 2, 0, (u8 *)handle, 1, (void *)D_00796490, chainB, 143.0f, 0.0f);
+                    break;
+                }
             }
             func_0027d660(0, 0, 200, 300, 0.0f, (void *)D_00796490);
             func_0027d660(0, 0x7B, 200, 200, 10.0f, (void *)D_00796490);
@@ -1395,13 +1434,13 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             pts[0][2].y = 5.0f;
             pts[0][3].x = 250.0f;
             pts[0][3].y = 5.0f;
-            for (i = 0; i < 4; i++) {
-                pts[0][i].x += -70.0f;
-                pts[0][i].y += 156.0f;
-                cols[0][i].r = 0x93;
-                cols[0][i].g = 0x8D;
-                cols[0][i].b = 0x17;
-                cols[0][i].a = 0xFF;
+            for (k = 0; k < 4; k++) {
+                pts[0][k].x += -70.0f;
+                pts[0][k].y += 156.0f;
+                cols[0][k].r = 0x93;
+                cols[0][k].g = 0x8D;
+                cols[0][k].b = 0x17;
+                cols[0][k].a = 0xFF;
             }
             func_0045eb20(&cols[0][0], &pts[0][0], 5.0f, 4, 4, 1, 0, -1, 15.0f, f, 1.0f, (void *)D_00796490);
             mp = (u8 *)&pts[1][0];
@@ -1417,13 +1456,13 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             pts[1][2].y = 3.0f;
             pts[1][3].x = 250.0f;
             pts[1][3].y = 3.0f;
-            for (i = 0; i < 4; i++) {
-                pts[1][i].x += -70.0f;
-                pts[1][i].y += 155.0f;
-                cols[1][i].r = 0xCB;
-                cols[1][i].g = 0xF2;
-                cols[1][i].b = 0x00;
-                cols[1][i].a = 0xFF;
+            for (k = 0; k < 4; k++) {
+                pts[1][k].x += -70.0f;
+                pts[1][k].y += 155.0f;
+                cols[1][k].r = 0xCB;
+                cols[1][k].g = 0xF2;
+                cols[1][k].b = 0x00;
+                cols[1][k].a = 0xFF;
             }
             func_0045eb20(&cols[1][0], &pts[1][0], 5.0f, 4, 4, 1, 0, 0, 15.0f, f, 1.0f, (void *)D_00796490);
             mp = (u8 *)&pts[2][0];
@@ -1439,13 +1478,13 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             pts[2][2].y = 4.0f;
             pts[2][3].x = 250.0f;
             pts[2][3].y = 4.0f;
-            for (i = 0; i < 4; i++) {
-                pts[2][i].x += -70.0f;
-                pts[2][i].y += 161.0f;
-                cols[2][i].r = 0xF1;
-                cols[2][i].g = 0x24;
-                cols[2][i].b = 0x00;
-                cols[2][i].a = 0xFF;
+            for (k = 0; k < 4; k++) {
+                pts[2][k].x += -70.0f;
+                pts[2][k].y += 161.0f;
+                cols[2][k].r = 0xF1;
+                cols[2][k].g = 0x24;
+                cols[2][k].b = 0x00;
+                cols[2][k].a = 0xFF;
             }
             func_0045eb20(&cols[2][0], &pts[2][0], 5.0f, 4, 4, 1, 0, -6, 15.0f, f, 1.0f, (void *)D_00796490);
             mp = (u8 *)&pts[3][0];
@@ -1461,13 +1500,13 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             pts[3][2].y = 7.0f;
             pts[3][3].x = 250.0f;
             pts[3][3].y = 7.0f;
-            for (i = 0; i < 4; i++) {
-                pts[3][i].x += -70.0f;
-                pts[3][i].y += 171.0f;
-                cols[3][i].r = 0xFF;
-                cols[3][i].g = 0xE9;
-                cols[3][i].b = 0x2C;
-                cols[3][i].a = 0xFF;
+            for (k = 0; k < 4; k++) {
+                pts[3][k].x += -70.0f;
+                pts[3][k].y += 171.0f;
+                cols[3][k].r = 0xFF;
+                cols[3][k].g = 0xE9;
+                cols[3][k].b = 0x2C;
+                cols[3][k].a = 0xFF;
             }
             func_0045eb20(&cols[3][0], &pts[3][0], 5.0f, 4, 4, 1, 0, -16, 15.0f, f, 1.0f, (void *)D_00796490);
             mp = (u8 *)&pts[4][0];
@@ -1483,13 +1522,13 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             pts[4][2].y = 4.0f;
             pts[4][3].x = 250.0f;
             pts[4][3].y = 4.0f;
-            for (i = 0; i < 4; i++) {
-                pts[4][i].x += -70.0f;
-                pts[4][i].y += 168.0f;
-                cols[4][i].r = 0xFF;
-                cols[4][i].g = 0xFF;
-                cols[4][i].b = 0xFF;
-                cols[4][i].a = 0xFF;
+            for (k = 0; k < 4; k++) {
+                pts[4][k].x += -70.0f;
+                pts[4][k].y += 168.0f;
+                cols[4][k].r = 0xFF;
+                cols[4][k].g = 0xFF;
+                cols[4][k].b = 0xFF;
+                cols[4][k].a = 0xFF;
             }
             func_0045eb20(&cols[4][0], &pts[4][0], 5.0f, 4, 4, 1, 0, -13, 15.0f, f, 1.0f, (void *)D_00796490);
             mp = (u8 *)&pts[5][0];
@@ -1505,13 +1544,13 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             pts[5][2].y = 5.0f;
             pts[5][3].x = 250.0f;
             pts[5][3].y = 5.0f;
-            for (i = 0; i < 4; i++) {
-                pts[5][i].x += -70.0f;
-                pts[5][i].y += 164.0f;
-                cols[5][i].r = 0xFF;
-                cols[5][i].g = 0xAE;
-                cols[5][i].b = 0x20;
-                cols[5][i].a = 0xFF;
+            for (k = 0; k < 4; k++) {
+                pts[5][k].x += -70.0f;
+                pts[5][k].y += 164.0f;
+                cols[5][k].r = 0xFF;
+                cols[5][k].g = 0xAE;
+                cols[5][k].b = 0x20;
+                cols[5][k].a = 0xFF;
             }
             func_0045eb20(&cols[5][0], &pts[5][0], 5.0f, 4, 4, 1, 0, -9, 15.0f, f, 1.0f, (void *)D_00796490);
         }
@@ -1544,22 +1583,32 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         if (func_0027bec0((void *)arg0) == 0) {
             break;
         }
-        if (D_0088202C[0] == 2) {
-            func_0025ec90(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, 0xB, (void *)iGpffffb4dc, 1, (void *)D_00796490);
-        } else if (D_0088202C[0] == 1) {
-            func_0025ec90(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, 0xC, (void *)iGpffffb4dc, 1, (void *)D_00796490);
-        } else if (D_0088202C[0] == 0) {
+        switch (D_0088202C[0]) {
+        case 0:
             func_0025ec90(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, 0xD, (void *)iGpffffb4dc, 1, (void *)D_00796490);
+            break;
+        case 1:
+            func_0025ec90(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, 0xC, (void *)iGpffffb4dc, 1, (void *)D_00796490);
+            break;
+        case 2:
+            func_0025ec90(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, 0xB, (void *)iGpffffb4dc, 1, (void *)D_00796490);
+            break;
         }
         if (D_0088202A[0] == 0) {
             func_0025ec90(36.0f, 143.0f, 0.0f, 0xFFE92C, 0xFF, 0, (void *)iGpffffb4dc, 1, (void *)D_00796490);
-        } else if (D_0088202A[0] == 3) {
-            func_0025f500(0xFFE92C, 0xFF, 1, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
-            func_0025f500(0xFFE92C, 0xFF, 2, 0, (u8 *)handle, 1, (void *)D_00796490, 234.0f, 143.0f, 0.0f);
-        } else if (D_0088202A[0] == 2) {
-            func_0025f500(0xFFE92C, 0xFF, 3, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
-        } else if (D_0088202A[0] == 1) {
-            func_0025f500(0xFFE92C, 0xFF, 4, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
+        } else {
+            switch (D_0088202A[0]) {
+            case 1:
+                func_0025f500(0xFFE92C, 0xFF, 4, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
+                break;
+            case 2:
+                func_0025f500(0xFFE92C, 0xFF, 3, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
+                break;
+            case 3:
+                func_0025f500(0xFFE92C, 0xFF, 1, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f, 143.0f, 0.0f);
+                func_0025f500(0xFFE92C, 0xFF, 2, 0, (u8 *)handle, 1, (void *)D_00796490, 234.0f, 143.0f, 0.0f);
+                break;
+            }
         }
         func_0027d660(0, 0x32, 200, 200, 0.0f, (void *)D_00796490);
         func_0027d660(0, 0x7B, 200, 200, 10.0f, (void *)D_00796490);
@@ -1576,13 +1625,13 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         pts[6][2].y = 5.0f;
         pts[6][3].x = 250.0f;
         pts[6][3].y = 5.0f;
-        for (i = 0; i < 4; i++) {
-            pts[6][i].x += -70.0f;
-            pts[6][i].y += 156.0f;
-            cols[6][i].r = 0x93;
-            cols[6][i].g = 0x8D;
-            cols[6][i].b = 0x17;
-            cols[6][i].a = 0xFF;
+        for (k = 0; k < 4; k++) {
+            pts[6][k].x += -70.0f;
+            pts[6][k].y += 156.0f;
+            cols[6][k].r = 0x93;
+            cols[6][k].g = 0x8D;
+            cols[6][k].b = 0x17;
+            cols[6][k].a = 0xFF;
         }
         func_0045eb20(&cols[6][0], &pts[6][0], 5.0f, 4, 4, 1, 0, -1, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         mp = (u8 *)&pts[7][0];
@@ -1598,13 +1647,13 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         pts[7][2].y = 3.0f;
         pts[7][3].x = 250.0f;
         pts[7][3].y = 3.0f;
-        for (i = 0; i < 4; i++) {
-            pts[7][i].x += -70.0f;
-            pts[7][i].y += 155.0f;
-            cols[7][i].r = 0xCB;
-            cols[7][i].g = 0xF2;
-            cols[7][i].b = 0x00;
-            cols[7][i].a = 0xFF;
+        for (k = 0; k < 4; k++) {
+            pts[7][k].x += -70.0f;
+            pts[7][k].y += 155.0f;
+            cols[7][k].r = 0xCB;
+            cols[7][k].g = 0xF2;
+            cols[7][k].b = 0x00;
+            cols[7][k].a = 0xFF;
         }
         func_0045eb20(&cols[7][0], &pts[7][0], 5.0f, 4, 4, 1, 0, 0, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         mp = (u8 *)&pts[8][0];
@@ -1620,13 +1669,13 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         pts[8][2].y = 4.0f;
         pts[8][3].x = 250.0f;
         pts[8][3].y = 4.0f;
-        for (i = 0; i < 4; i++) {
-            pts[8][i].x += -70.0f;
-            pts[8][i].y += 161.0f;
-            cols[8][i].r = 0xF1;
-            cols[8][i].g = 0x24;
-            cols[8][i].b = 0x00;
-            cols[8][i].a = 0xFF;
+        for (k = 0; k < 4; k++) {
+            pts[8][k].x += -70.0f;
+            pts[8][k].y += 161.0f;
+            cols[8][k].r = 0xF1;
+            cols[8][k].g = 0x24;
+            cols[8][k].b = 0x00;
+            cols[8][k].a = 0xFF;
         }
         func_0045eb20(&cols[8][0], &pts[8][0], 5.0f, 4, 4, 1, 0, -6, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         mp = (u8 *)&pts[9][0];
@@ -1642,13 +1691,13 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         pts[9][2].y = 7.0f;
         pts[9][3].x = 250.0f;
         pts[9][3].y = 7.0f;
-        for (i = 0; i < 4; i++) {
-            pts[9][i].x += -70.0f;
-            pts[9][i].y += 171.0f;
-            cols[9][i].r = 0xFF;
-            cols[9][i].g = 0xE9;
-            cols[9][i].b = 0x2C;
-            cols[9][i].a = 0xFF;
+        for (k = 0; k < 4; k++) {
+            pts[9][k].x += -70.0f;
+            pts[9][k].y += 171.0f;
+            cols[9][k].r = 0xFF;
+            cols[9][k].g = 0xE9;
+            cols[9][k].b = 0x2C;
+            cols[9][k].a = 0xFF;
         }
         func_0045eb20(&cols[9][0], &pts[9][0], 5.0f, 4, 4, 1, 0, -16, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         mp = (u8 *)&pts[10][0];
@@ -1664,13 +1713,13 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         pts[10][2].y = 4.0f;
         pts[10][3].x = 250.0f;
         pts[10][3].y = 4.0f;
-        for (i = 0; i < 4; i++) {
-            pts[10][i].x += -70.0f;
-            pts[10][i].y += 168.0f;
-            cols[10][i].r = 0xFF;
-            cols[10][i].g = 0xFF;
-            cols[10][i].b = 0xFF;
-            cols[10][i].a = 0xFF;
+        for (k = 0; k < 4; k++) {
+            pts[10][k].x += -70.0f;
+            pts[10][k].y += 168.0f;
+            cols[10][k].r = 0xFF;
+            cols[10][k].g = 0xFF;
+            cols[10][k].b = 0xFF;
+            cols[10][k].a = 0xFF;
         }
         func_0045eb20(&cols[10][0], &pts[10][0], 5.0f, 4, 4, 1, 0, -13, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         mp = (u8 *)&pts[11][0];
@@ -1686,13 +1735,13 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         pts[11][2].y = 5.0f;
         pts[11][3].x = 250.0f;
         pts[11][3].y = 5.0f;
-        for (i = 0; i < 4; i++) {
-            pts[11][i].x += -70.0f;
-            pts[11][i].y += 164.0f;
-            cols[11][i].r = 0xFF;
-            cols[11][i].g = 0xAE;
-            cols[11][i].b = 0x20;
-            cols[11][i].a = 0xFF;
+        for (k = 0; k < 4; k++) {
+            pts[11][k].x += -70.0f;
+            pts[11][k].y += 164.0f;
+            cols[11][k].r = 0xFF;
+            cols[11][k].g = 0xAE;
+            cols[11][k].b = 0x20;
+            cols[11][k].a = 0xFF;
         }
         func_0045eb20(&cols[11][0], &pts[11][0], 5.0f, 4, 4, 1, 0, -9, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         break;
@@ -1845,15 +1894,19 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 tmp = 1;
             }
             if (tmp != 0) {
-                if (D_0088202C[0] == 2) {
-                    s20 = 0x24E;
-                    s19 = 0x142;
-                } else if (D_0088202C[0] == 1) {
-                    s20 = 0x24E;
-                    s19 = 0xF6;
-                } else if (D_0088202C[0] == 0) {
+                switch (D_0088202C[0]) {
+                case 0:
                     s20 = 0x24E;
                     s19 = 0xDD;
+                    break;
+                case 1:
+                    s20 = 0x24E;
+                    s19 = 0xF6;
+                    break;
+                case 2:
+                    s20 = 0x24E;
+                    s19 = 0x142;
+                    break;
                 }
                 cntB = D_00882028[0];
                 if ((D_00882020[0] & 0x20) == 0) {
@@ -1885,15 +1938,19 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 tmp = 1;
             }
             if (tmp != 0) {
-                if (D_0088202C[0] == 2) {
-                    s20 = 0x24E;
-                    s19 = 0x142;
-                } else if (D_0088202C[0] == 1) {
-                    s20 = 0x24E;
-                    s19 = 0xF6;
-                } else if (D_0088202C[0] == 0) {
+                switch (D_0088202C[0]) {
+                case 0:
                     s20 = 0x24E;
                     s19 = 0xDD;
+                    break;
+                case 1:
+                    s20 = 0x24E;
+                    s19 = 0xF6;
+                    break;
+                case 2:
+                    s20 = 0x24E;
+                    s19 = 0x142;
+                    break;
                 }
                 func_0025ecd0((float)s20, (float)s19, 0.0f, 0xFFFFFF, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, 180.0f, 1.0f, 1.0f, (void *)D_00796490);
                 func_0025ec90((float)s20, (float)s19, 0.0f, 0xFAFF1F, 0xFF, 3, (void *)iGpffffb4d8, 1, (void *)D_00796490);
@@ -1908,15 +1965,19 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 tmp = 1;
             }
             if (tmp != 0) {
-                if (D_0088202C[0] == 2) {
-                    s20 = 0x24E;
-                    s19 = 0x142;
-                } else if (D_0088202C[0] == 1) {
-                    s20 = 0x24E;
-                    s19 = 0xF6;
-                } else if (D_0088202C[0] == 0) {
+                switch (D_0088202C[0]) {
+                case 0:
                     s20 = 0x24E;
                     s19 = 0xDD;
+                    break;
+                case 1:
+                    s20 = 0x24E;
+                    s19 = 0xF6;
+                    break;
+                case 2:
+                    s20 = 0x24E;
+                    s19 = 0x142;
+                    break;
                 }
                 cntB = D_00882028[0];
                 if ((D_00882020[0] & 0x80) == 0) {
@@ -1945,6 +2006,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     }
     return ret;
 }
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027f6f0);
 #endif

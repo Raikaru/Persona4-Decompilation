@@ -3099,6 +3099,12 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
    loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
    was ever the right one, so each loop is measured separately rather than converting
    them all. */
+/* measured 001ed700 (owner, 2026-09-19): fnalign **871 -> 782 edits**, count
+   684 -> 682 against retail 687, converting a SECOND constant-bound `for` loop
+   to `do { } while` after the first conversion was already banked.
+   The lever is iterative, which the first sweep hid: it converts the single best loop
+   per function, so re-running it after installing finds the next one.  The third pass
+   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
 // FUN_001ED700 NONMATCHING
 #ifdef NON_MATCHING
 void func_001ed700(f32 radius)
@@ -3310,13 +3316,15 @@ void func_001ed700(f32 radius)
         }
     }
     for (group = *(u8 **)(iGpffffb3ac + 0x318); group != NULL; group = *(u8 **)(group + 0x4CC)) {
-        for (i = 0; i < 4; i++) {
+        i = 0;
+        do {
             if ((*(f32 *)(group + i * 0x130 + 0x1C) <= 0.0f) || (*(f32 *)(group + i * 0x130 + 0x20) < radius)) {
                 *(s32 *)(group + i * 0x130 + 0x38) = 0;
             } else {
                 func_001ed3a0(group + i * 0x130 + 8, radius);
             }
-        }
+            i++;
+        } while (i < 4);
     }
     for (i = 0; i < 4; i++) {
         if (0.0f < *(f32 *)(iGpffffb3ac + i * 0x130 + 0x330)) {

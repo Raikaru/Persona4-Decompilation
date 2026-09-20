@@ -2194,6 +2194,12 @@ f32 func_002b1480(YVec3f *arg0, f32 arg1) {
    loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
    was ever the right one, so each loop is measured separately rather than converting
    them all. */
+/* measured 002b1520 (owner, 2026-09-19): fnalign **163 -> 154 edits**, count
+   830 -> 829 against retail 838, converting a SECOND constant-bound `for` loop
+   to `do { } while` after the first conversion was already banked.
+   The lever is iterative, which the first sweep hid: it converts the single best loop
+   per function, so re-running it after installing finds the next one.  The third pass
+   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
 // FUN_002B1520 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
@@ -2255,7 +2261,8 @@ void func_002b1520(s32 arg0, u8 *q) {
         *(u8 *)(*(u8 **)(q + 0x7C) + 0x10) = bv;
         t4 = 255.0f - t4;
         for (i1 = 0; i1 < 3; i1++) {
-            for (j1 = 0; j1 < 6; j1++) {
+            j1 = 0;
+            do {
                 u8 vv;
                 if (2.1474836e9f > t4) {
                     vv = (u8)(s32)t4;
@@ -2263,7 +2270,8 @@ void func_002b1520(s32 arg0, u8 *q) {
                     vv = (u8)(s32)(t4 - 2.1474836e9f);
                 }
                 *(u8 *)(*(u8 **)(q + (s32)i1 * 0x18 + (s32)j1 * 4 + 0x34) + 0x10) = vv;
-            }
+                j1++;
+            } while (j1 < 6);
         }
         func_0046b380(*(u8 **)(q + 0x7C), 0);
         func_0046b380(*(u8 **)(q + 0x80), 0);

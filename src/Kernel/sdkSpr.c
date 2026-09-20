@@ -313,20 +313,17 @@ f32 func_0046b2f0(u8 *param_1)
 // measured: pure hole 396 retail[319:715] 0x0046B87C-0x0046BEAC head c.eq.s/bc1t + lui/mtc1 0x43B4/0xC334/0x4334 float-range + c.ole.s, tail srl/andi/or/mtc1/cvt/add/swc1 0x24/0x28 unsigned conversions + stores; second hole 125 retail[719:844] 0x0046BEBC-0x0046C0B0 continuation (swc1 0x28 + bltz); calls exact 15+30/15+30 both streams so stores/branches not missing calls; lump 19 insert [266:266] object[297:316]; conversion check retail 22 bltz/95 mtc1/96 cvt vs object 36/142/120 (+14/+47/+24 already over, adding unsigned would go 2018 over upper 2011, removing would go 1853 under -- leave floor alone)
 // fix 2026-09-19: hoist D_00887300/10 into tbl300/310 (lui 43->15, 61->33 object; surplus 15 remains from 2.0f conversions per conversion check, not touched); holes moved 396 retail[319:715]->254 retail[1028:1282] and 125 retail[719:844]->90 retail[1367:1457], lump 19 unchanged at [266:266] object[291:310]; frame 0x260->0x280 (+32 for two locals) but net -25 instrs/-151 edits/-38 words; jal exact; unsigned 2.0f test would go 2007->1557 (-450, under gate) so left alone.
 // fix 2026-09-19 (regsave): body held 12 values live that retail recomputes/spills -- 8 UV scalars (uvA0..uvBC) pinned $f23-$f29, parent/rec/idx pinned $s4-$s6, tbl300+tbl310 pinned wide ($s7+$fp); retail spills UVs to $sp 0xa0-0xbc (4 div.s early + 8 swc1, ld/sd+lwc1/swc1 swaps), reloads parent/rec/idx/flags chains from $s1(arg0) after every jal (slotidx alone held in $s0), materialises tables per region. Fix: uv[8] array (FP spares 7->0), sink parent/rec/idx to use-site recompute (GPR spares 5->1), narrow tbl310 to per-site extern keeping tbl300 wide (saves EXACT, frame 0x280->0x220 vs retail 0x240); plus temp-doubled unsigned conversions (2.0f*mul.s -> add.s), (f32) else-paths (kills runtime unsigned-conv explosion), &-first color extracts with u32 col (and+srl+andi, hoisted 0xFF000000), (x<<8)-x scaling with straight-line shift + conditional recompute, delete retail-absent aC-scale block and bb/bb2 re-derivation. fnalign retail 1948 vs object 1836, 2467 edits (+14 reloc, was 3125/-658), guarded 1841wd (was 1888): python3 tools/fnalign.py src/Kernel/sdkSpr.c func_0046b380 --candidate /var/tmp/decomp380/verify380.c --quiet. Residual is repetition-confusion (4 near-identical extra-regions) + 255-hoist/use-mask/delay-slot micro + per-region lui packing ($s3-scratch vs temps).
-/* gate: func_0046b380 is now OUTSIDE the +-3% band at 1836 against retail 1948 (-5.7%).
-   The sink pass that produced this is a real structural gain - the callee-saved set
-   now matches retail exactly and fnalign edits fell to 2467 from 1982/1952 inside with 3125 edits - but it
-   also removed real instructions, and the body is short by the difference.  Recorded
-   outside the gate deliberately rather than propped up: no differing-word score
-   measured against it is comparable to one measured inside (handoff 7y).  The next
-   step is to find which of the sunk recomputations retail actually performs at each
-   use and write those back - the register colouring is already right, so the missing
-   instructions are recomputation, not spills. */
-/* gate: func_0046b380 is OUTSIDE the +-3% band at 1834 against retail 1948 (-5.9%, band
-   1890-2006).  It is the largest first-party floor in the tree and 114 instructions SHORT,
-   so the deficit is missing code, not mistuning, and no edit score measured against it is
-   comparable to an in-band one (7y).  A full session on it found only -2 edits / -17 words
-   (both `m` loops counted 3..0), which is the expected return while the count is wrong. */
+/* gate: func_0046b380 is now INSIDE the +-3% band at 1890 against retail 1948 (-3.0%, band
+   1890-2006) - it sits exactly on the lower edge, so any change that shortens the object
+   puts it back out.  It was -5.9% and 114 instructions short; +56 came from writing the
+   recomputations retail performs and the body had folded away (ten w-chains, three computed
+   `ov` values, two integer adds, the m-loops), NOT from missing calls - the call census was
+   45/45 exact the whole time.
+   Its edit count went 2465 -> 2710 crossing the band, and that is the right trade: an edit
+   score measured outside the gate is not comparable to one measured inside (handoff 7y), so
+   2465 was never a real number and 2710 is the first one this floor has had.
+   Still missing, by address: the j y-chain at 0x46BAFC, twelve computed `ov` values worth
+   two instructions each, and 0x10 of frame (0x230 against retail's 0x240). */
 // FUN_0046B380 NONMATCHING
 #ifdef NON_MATCHING
 void func_0046b380(u8 *arg0, s32 arg1) {
@@ -484,8 +481,8 @@ void func_0046b380(u8 *arg0, s32 arg1) {
             fw = (f32)w6;
         }
         fw = fw - (f32)*(s16 *)(arg0 + 0x1C);
-        h6 = *(s32 *)(r2p + 0x60) - *(s32 *)(r2p + 0x58);
-        ov = *(s16 *)(base + 0x76 + ((*(s32 *)(arg0 + 4)) << 7));
+        h6 = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x60) - *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x58);
+        ov = *(s16 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x76);
         if (ov != 0) {
             h6 = ov;
         }
@@ -555,7 +552,7 @@ void func_0046b380(u8 *arg0, s32 arg1) {
             spD = srcM[j];
             dpD = pts[j];
             dpD[0] = *(f32 *)(arg0 + 8) + ((f32)*(s16 *)(arg0 + 0x1C) + spD[0]) + (f32)*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x44);
-            dpD[1] = *(f32 *)(arg0 + 0xC) + ((f32)*(s16 *)(arg0 + 0x1E) + spD[1]) + (f32)*(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x48);
+            dpD[1] = *(f32 *)(arg0 + 0xC) + ((f32)*(s16 *)(arg0 + 0x1E) + spD[1]) + (f32)*(s32 *)((((*(s32 *)(arg0 + 4)) << 7) + (*(u8 **)((*(u8 **)arg0) + 0x204))) + 0x48);
         }
         k255 = 255;
         for (i = 0; i < 4; i++) {
@@ -656,7 +653,7 @@ void func_0046b380(u8 *arg0, s32 arg1) {
             tbl300[0](1, *(s32 *)((*(u8 **)arg0) + 0x104 + slotidx));
         }
         D_00887310[0](4, pkt, 4);
-        for (m = 3; m >= 0; m--) {
+        for (m = 0; m < 4; m++) {
             savedPts[m][0] = pts[m][0];
             savedPts[m][1] = pts[m][1];
         }
@@ -690,7 +687,7 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 p90 = (f32)(s32)(-t7);
                 p94 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1E));
                 wB = *(s32 *)(b6 + 0x5C) - *(s32 *)(b6 + 0x54);
-                ov = *(s16 *)(b6 + 0x74);
+                ov = *(s16 *)((u8 *)(base + 0x74) + ((*(s32 *)(arg0 + 4)) << 7));
                 if (ov != 0) {
                     wB = ov;
                 }
@@ -735,7 +732,7 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 /* w hoisted */
                 p80 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1C));
                 wA = *(s32 *)(b6 + 0x60) - *(s32 *)(b6 + 0x58);
-                ov = *(s16 *)(b6 + 0x76);
+                ov = *(s16 *)((u8 *)(base + 0x76) + ((*(s32 *)(arg0 + 4)) << 7));
                 if (ov != 0) {
                     wA = ov;
                 }
@@ -749,8 +746,8 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                     f1 = (f32)wA;
                 }
                 p84 = f1 - (f32)*(s16 *)(arg0 + 0x1E);
-                wB = *(s32 *)(b6 + 0x5C) - *(s32 *)(b6 + 0x54);
-                ov = *(s16 *)(b6 + 0x74);
+                wB = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x5C) - *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x54);
+                ov = *(s16 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x74);
                 if (ov != 0) {
                     wB = ov;
                 }
@@ -764,8 +761,8 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                     f1 = (f32)wB;
                 }
                 p88 = f1 - (f32)*(s16 *)(arg0 + 0x1C);
-                wC = *(s32 *)(b6 + 0x60) - *(s32 *)(b6 + 0x58);
-                ov = *(s16 *)(b6 + 0x76);
+                wC = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x60) - *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x58);
+                ov = *(s16 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x76);
                 if (ov != 0) {
                     wC = ov;
                 }
@@ -781,8 +778,8 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 p8C = f1 - (f32)*(s16 *)(arg0 + 0x1E);
                 p90 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1C));
                 p94 = (f32)*(s32 *)(b6 + 0x38) + (f1 - (f32)*(s16 *)(arg0 + 0x1E));
-                wD = *(s32 *)(b6 + 0x60) - *(s32 *)(b6 + 0x58);
-                ov = *(s16 *)(b6 + 0x76);
+                wD = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x60) - *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x58);
+                ov = *(s16 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x76);
                 if (ov != 0) {
                     wD = ov;
                 }
@@ -847,8 +844,8 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 }
                 p94 = f1 - (f32)*(s16 *)(arg0 + 0x1E);
                 p98 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1C));
-                wB = *(s32 *)(b6 + 0x60) - *(s32 *)(b6 + 0x58);
-                ov = *(s16 *)(b6 + 0x76);
+                wB = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x60) - *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x58);
+                ov = *(s16 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x76);
                 if (ov != 0) {
                     wB = ov;
                 }
@@ -862,8 +859,8 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                     f1 = (f32)wB;
                 }
                 p9C = (f32)*(s32 *)(b6 + 0x3C) + (f1 - (f32)*(s16 *)(arg0 + 0x1E));
-                wC = *(s32 *)(b6 + 0x5C) - *(s32 *)(b6 + 0x54);
-                ov = *(s16 *)(b6 + 0x74);
+                wC = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x5C) - *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x54);
+                ov = *(s16 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x74);
                 if (ov != 0) {
                     wC = ov;
                 }
@@ -907,7 +904,7 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 /* p hoisted */
                 /* w hoisted */
                 wA = *(s32 *)(b6 + 0x5C) - *(s32 *)(b6 + 0x54);
-                ov = *(s16 *)(b6 + 0x74);
+                ov = *(s16 *)((u8 *)(base + 0x74) + ((*(s32 *)(arg0 + 4)) << 7));
                 if (ov != 0) {
                     wA = ov;
                 }
@@ -922,8 +919,8 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 }
                 p80 = f1 - (f32)*(s16 *)(arg0 + 0x1C);
                 p84 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1E));
-                wB = *(s32 *)(b6 + 0x5C) - *(s32 *)(b6 + 0x54);
-                ov = *(s16 *)(b6 + 0x74);
+                wB = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x5C) - *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x54);
+                ov = *(s16 *)((u8 *)(base + 0x74) + ((*(s32 *)(arg0 + 4)) << 7));
                 if (ov != 0) {
                     wB = ov;
                 }
@@ -938,8 +935,8 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 }
                 p88 = (f32)*(s32 *)(b6 + 0x40) + (f1 - (f32)*(s16 *)(arg0 + 0x1C));
                 p8C = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1E));
-                wC = *(s32 *)(b6 + 0x60) - *(s32 *)(b6 + 0x58);
-                ov = *(s16 *)(b6 + 0x76);
+                wC = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x60) - *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x58);
+                ov = *(s16 *)((u8 *)(base + 0x76) + ((*(s32 *)(arg0 + 4)) << 7));
                 if (ov != 0) {
                     wC = ov;
                 }
@@ -954,8 +951,8 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 }
                 p90 = f1 - (f32)*(s16 *)(arg0 + 0x1E);
                 p94 = (f32)(s32)(-(s16)*(s16 *)(arg0 + 0x1C));
-                wD = *(s32 *)(b6 + 0x60) - *(s32 *)(b6 + 0x58);
-                ov = *(s16 *)(b6 + 0x76);
+                wD = *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x60) - *(s32 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x58);
+                ov = *(s16 *)((*(u8 **)((*(u8 **)arg0) + 0x204) + ((*(s32 *)(arg0 + 4)) << 7)) + 0x76);
                 if (ov != 0) {
                     wD = ov;
                 }
@@ -993,7 +990,7 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 D_00887310[0](4, pkt, 4);
             }
         }
-        for (m = 3; m >= 0; m--) {
+        for (m = 0; m < 4; m++) {
             pts[m][0] = savedPts[m][0];
             pts[m][1] = savedPts[m][1];
         }
@@ -1017,9 +1014,9 @@ void func_0046b380(u8 *arg0, s32 arg1) {
         }
         if (*(s16 *)(arg0 + 0x14) != 0) {
             pkt[0][0] = pts[1][0]; pkt[0][1] = pts[1][1];
-            pkt[1][0] = pts[1][0] + (f32)*(s16 *)(arg0 + 0x14); pkt[1][1] = pts[1][1];
+            pkt[1][0] = (f32)((s32)pts[1][0] + *(s16 *)(arg0 + 0x14)); pkt[1][1] = pts[1][1];
             pkt[2][0] = pts[3][0]; pkt[2][1] = pts[3][1];
-            pkt[3][0] = pts[3][0] + (f32)*(s16 *)(arg0 + 0x14); pkt[3][1] = pts[3][1];
+            pkt[3][0] = (f32)((s32)pts[3][0] + *(s16 *)(arg0 + 0x14)); pkt[3][1] = pts[3][1];
             pkt[0][4] = uv[2]; pkt[0][5] = uv[3];
             pkt[1][4] = uv[2]; pkt[1][5] = uv[3];
             pkt[2][4] = uv[6]; pkt[2][5] = uv[7];

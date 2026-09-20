@@ -811,6 +811,12 @@ s32 func_00172d80(u8 *arg0)
    loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
    was ever the right one, so each loop is measured separately rather than converting
    them all. */
+/* measured 00172e00 (owner, 2026-09-19): fnalign **426 -> 425 edits**, count
+   1523 -> 1521 against retail 1564, converting a SECOND constant-bound `for` loop
+   to `do { } while` after the first conversion was already banked.
+   The lever is iterative, which the first sweep hid: it converts the single best loop
+   per function, so re-running it after installing finds the next one.  The third pass
+   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
 // FUN_00172E00 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: object 1527 instrs (6108B), retail 1564 instrs (6256B) window 6272B (1568 instrs), within 3% (6084-6460B); probe nd 1254, fnalign edits 428 (+42 reloc-only). Honest translation with block-scope counters, sequential < guards, scalar gp forms (iGpffffb2cc/b2c8, D_00762EA0, iGpffffb284, iGpffffba4c/ba50/ba54/ba58/ba6c, D_007EFA00). Production stays ASM. Scoped pragma opt_common_subs off (push/pop around floor) enlarges 1501->1527 to reach band, verified via hash/len (not ignored); optimization_level 3/4 shrink wrong direction for this under-sized body per Main axis; pragma_sweep on unbanked gave no body (ran per guidance). */
@@ -1125,7 +1131,8 @@ block_209:
                     {
                         s32 n = 1;
                         s32 i = 1;
-                        for (i = 1; i < 4; i++) {
+                        i = 1;
+                        do {
                             u8 *slot = D_007EF9B0 + (i * 0x750);
                             u8 *p48 = *(u8 **)(slot + 0x48);
                             if (p48 != NULL) {
@@ -1133,7 +1140,8 @@ block_209:
                                 *(u8 **)(h + 0x54 + (n * 4)) = p48;
                                 n += 1;
                             }
-                        }
+                            i++;
+                        } while (i < 4);
                     }
                     {
                         s32 i = 0;

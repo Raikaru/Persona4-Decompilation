@@ -770,6 +770,12 @@ void func_004b8f10(void *arg0) {
 /* (<2^31) + whole u_long128 moves + share duplicated block. Not banked. */
 /* Remeasure 2026-09-19: retail 1929 vs object 1877 (-52), words 1895, fnalign 2909 edits. Frame 0x220 vs 0x1A0 (+0x80) with spare $f25-$f31 (7 floats, no GPR diff). Switch spelling on final temp_v0 chain (switch(temp_v0){case 2:{...}break;case 1:{...}break;case 0:{...}break;}) via /var/tmp/effect/after_switch.c measures 2914 edits (+5 vs 2909 if-chain, object 1879 vs 1877) so keep if-chain. Seven live across final-else temp_v0==2 loop calls (func_004b7460 + 3x func_003e40b0): temp_v9 (*(work+0x14)/2.0, retail $f24 at 004BA27C/004BA688), temp_v11 (1/(n+0.5), retail $f21 at 004BA2D0), temp_v7 (0.5/(n+0.5), retail $f20 at 004BA2D4), fStack_28/24/20 (Bezier xyz, retail spills to 0x178/0x17C/0x180 at 004BA4B4 and reloads at 004BA568/004BA6B0), fStack_30 (prev z, retail spills to 0x170 at 004BA320 and reloads at 004BA5C4). First three also held in retail so sinking (duplicate div, cf. distort t0/t1 sink 886->930 +44) would worsen; last four spilled in retail via swc1/lwc1 vs held in regs via scalar promotion (address never taken, so MWCC keeps in callee-saved); legitimate spill without volatile/asm barrier not found (EffAfterVec struct assignment still promotes, volatile banned per lint), and recomputing Bezier after calls duplicates 20+ mula/madd muls vs retail 6 spill loads/stores. Cannot be sunk without worsening; needs declaration/boundary change (array/struct forcing memory) not expression rewrite. */
 /* Accum/guard 2026-09-19 (base 2909 edits/1850 words/1877 instrs vs retail 1929): 9 Bezier sites probed as 3 group1 X/Y/Z factored t*(t*(P*t))+u*(t*((3*Q)*t))+u*(u*(R*u))+u*(u*((3*S)*t)) -> 2910 edits (+1)/1849 words (-1)/1876 instrs (-1) tie; same 3 reversed S+R+Q+P -> 2909/1850 tie; 3 dots reversed e*f+c*d+a*b -> 2909/1850 tie; 3 widths temp*(temp*temp) -> 2909/1850 tie; pragmas noprop/prop_off/inv_off -> 1851 (+1)/1861 (+11)/1851 (+1) words worse; 7n fresh temp_v12 for 3 zero-fills -> 2942 edits (+33)/1849 (-1)/1877 tie worse; guards 0 sites (no 2.1474836e9f/0x80000000 in file, residual_signature 0 conversion). Production rewrote 0 sites (floor untouched per 7l, ties recorded). Remaining -52/edits systematic (frame 0x220 vs 0x1A0, 7 extra f25-f31) per existing note, needs declaration/boundary not expression. */
+/* measured 004b8f40 (owner, 2026-09-19): fnalign **2909 -> 2907 edits**, count
+   1877 -> 1875 against retail 1929, converting a SECOND constant-bound `for` loop
+   to `do { } while` after the first conversion was already banked.
+   The lever is iterative, which the first sweep hid: it converts the single best loop
+   per function, so re-running it after installing finds the next one.  The third pass
+   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
 // FUN_004B8F40 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation on
@@ -1320,7 +1326,8 @@ void func_004b8f40(u8 *work, void **pp)
     else if (temp_v0 == 0) {
       temp_v5 = *(s32 *)(*(s32 *)effAfterOffsetPtr(0x5c, (u8 *)*pp) + 0x14);
       pfVar17 = (f32 *)(temp_v5 + *(s32 *)effAfterOffsetPtr(0x14, (u8 *)*pp) * 0xc);
-      for (temp_v1 = 0; temp_v1 < 2; temp_v1 = temp_v1 + 1) {
+      temp_v1 = 0;
+      do {
         pfVar16 = (f32 *)(temp_v5 + temp_v1 * 0xc);
         temp_v6 = 0xffffffff;
         if (temp_v1 == 1) {
@@ -1413,7 +1420,8 @@ void func_004b8f40(u8 *work, void **pp)
         else {
           uStack_8 = *(u32 *)effAfterOffsetPtr(0xc, work);
         }
-      }
+          temp_v1++;
+      } while (temp_v1 < 2);
     }
   }
   func_003c22f0(*pp);

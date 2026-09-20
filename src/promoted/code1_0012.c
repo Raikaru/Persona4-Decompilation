@@ -5907,6 +5907,12 @@ loop_test_0012e900:
    1264 -> 1262 against retail 1286, by turning one constant-bound `for` loop into
    the `do { } while` retail emits - no guard before the first iteration, one compare
    at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
+/* measured 0012e9d0 (owner, 2026-09-19): fnalign **657 -> 655 edits**, count
+   1262 -> 1260 against retail 1286, converting a SECOND constant-bound `for` loop
+   to `do { } while` after the first conversion was already banked.
+   The lever is iterative, which the first sweep hid: it converts the single best loop
+   per function, so re-running it after installing finds the next one.  The third pass
+   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
 // FUN_0012E9D0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0012e9d0(u8 *arg0)
@@ -6010,12 +6016,14 @@ void func_0012e9d0(u8 *arg0)
             aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
         }
         m = aval & 0xFF;
-        for (i = 0; i < 0xC; i++) {
+        i = 0;
+        do {
             q = arg0 + i * 0x30;
             fx = 363.0f + (f23 + *(f32 *)(q + 0x1888));
             fy = 8.0f + (f22 + *(f32 *)(q + 0x188C));
             func_0034f2e0(h19, fx, fy, 0, 0xFF, 0x64, (u32)m);
-        }
+            i++;
+        } while (i < 0xC);
         func_003f6440(3, 0x717FB);
         func_003f6440(2, 0x44);
         fx = 363.0f + (f23 + *(f32 *)(arg0 + 0x17F8));

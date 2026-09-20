@@ -1614,6 +1614,21 @@ loop_test:
    2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
    func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
    func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
+/* measured 00356a10 (2026-09-19): table_order finds no jtbl/sltiu in retail asm - all four */
+/* dispatches are beq chains, so layout order is beq order: switch1 beq 2,3,1,0 at 0x357A9C */
+/* stays an if-chain; switch2 beq 1,3,2 at 0x357E00, switch3 beq 3,2,1 at 0x3586D8, switch4 */
+/* beq 3,2,1,0 at 0x358C14 stay switches in ascending source order (MWCC emits reverse, */
+/* so 2,3,1->1,3,2 and 1,2,3->3,2,1 and 0,1,2,3->3,2,1,0). tail_classify 2866 edits: */
+/* structure 267 register 41. block_move_scan largest pair retail[1806:2140] 334 vs */
+/* object[1016:1124] 108 ratio 0.127 MIXED (genuine divergence, not a move). */
+/* residual_signature mask 38 cvt 4 class 1 perm 19 [$a1->$v1 $a2->$v1 $f1->$f2 $s1->$s0]. */
+/* Eight fnalign probes (retail 2636, base obj 2708): guard1 true=sub/false=direct 2869 */
+/* (+3, constant form stays); loop22 for 2866 (tie); loop95 for 2865 (-1, adopted: */
+/* top-tested loop_95/if+goto -> for (var_20=0; var_20<0x6C; var_20++), words 2503->2500); */
+/* loop222 for 2866 (tie); switch2 reorder 1,2,3 -> 2990 (+124, current 2,3,1 correct); */
+/* switch3 reverse 3,2,1 -> 2868 (+2, current 1,2,3 correct); switch4 reverse 3,2,0/1 -> */
+/* 2866 (tie); switch1 as switch -> 2868 obj 2712 (+2/+4, if-chain stays). Post-fix */
+/* fnalign 2865 edits obj 2708 (+72 +2.73% inside band), tail_classify 2865 struct 267 reg 41. */
 // FUN_00356A10 NONMATCHING
 #ifdef NON_MATCHING
 void func_00356a10(u8 *arg0) {
@@ -2043,9 +2058,7 @@ loop_22:
             var_3_6 = (((s32)((temp_f1_8 - 2.1474836e9f))) | 0x80000000) & 0xFF;
         }
         temp_16_3 = var_3_6 & 0xFF;
-        var_20 = 0;
-loop_95:
-        if (var_20 < 0x6C) {
+        for (var_20 = 0; var_20 < 0x6C; var_20++) {
             temp_4 = (u8 *)(arg0 + (var_20 * 0x14));
             if (*( s16 *)((u8 *)(temp_4) + (0x960)) >= 0) {
                 temp_f20 = (spF0 + (f32) ((*( s32 *)((u8 *)(temp_4) + (0x96C)) - *( s32 *)((u8 *)(temp_4) + (0x964))) * 0x2C));
@@ -2069,8 +2082,6 @@ loop_95:
                 }
                 func_0034f2e0(temp_23, (s32)spFC, (s32)spFD, (s32)spFE, (s32)var_8, temp_f20, temp_f21);
             }
-            var_20 += 1;
-            goto loop_95;
         }
         temp_2_12 = (u8)(*( u8 *)((u8 *)(arg0) + (0x85A)));
         if ((s32) temp_2_12 >= 0) {

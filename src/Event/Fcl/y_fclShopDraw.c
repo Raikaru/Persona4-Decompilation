@@ -6095,6 +6095,28 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002cdf80);
    loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
    was ever the right one, so each loop is measured separately rather than converting
    them all. */
+/* measured 002d1590 (owner, 2026-09-19, structural round): baseline KEPT at fnalign */
+/*   2140 edits, object 2619 against retail 2642 (-0.9% INSIDE the +-3% band). */
+/*   tail_classify: 185 structure + 98 register hunks, STRUCTURE flag. table_order: N/A */
+/*   (retail asm has no jtbl and source has no switch; both work+7 dispatches check 2,1,0 */
+/*   in that order in retail and source, so layout already matches). */
+/*   Width COUNT bisect, uniform s32/s64 over 24 integer locals in declaration order */
+/*   (sp230..diff, first N wide): N0 2179/2597, N2 2062, N4 2062, N5 2042/2597 BEST (-98), */
+/*   N6 2053, N7 2684 SPIKE, N8 2683, N9 2062, N10 2360, N15 2822/2644 exact count but */
+/*   worst edits, N24 2900/2696. N7/N8 spike then N9 recovery proves the declarations are */
+/*   not independent (same lesson as sibling 002be530). Best uniform N5 widens the u16/s16 */
+/*   counters retail narrows (dsll32/dsra32 at 78:80,152:154; func_002e2740 truly returns s16 */
+/*   per MATCHed code1_002e/y_list, so the (s16) casts are correctly no-ops) and shrinks the */
+/*   frame to 0x250 (baseline 0x270 is closest to retail 0x2b0), so NOT adopted. */
+/*   Copy spellings, micro-proved: RGBA field copies -> interleaved lbu/sb (object), struct */
+/*   assign via pointers -> batched (retail) but via stack locals -> single lwc1 (neither */
+/*   matches, so the c2AC site is left as-is); Vec2f struct assign (stack) -> ld/sd (object) */
+/*   vs field assign -> lwc1 pair (retail) in isolation, but singles (sp130 2291, spF8 2238, */
+/*   spE0 2194, sp128 2286, every one worse than 2140) vs all-8 field assigns 2043/2611 (-97) */
+/*   with frame 0x240 and 2 float saves against retail 0 shows allocator coupling, not a */
+/*   clean local win, so NOT adopted. Pointer decl-order probes (3 perms) neutral at 2140. */
+/*   Next structural root is the $s0/$s2 assignment (retail $s2=arg0/$s0=work, object swapped, */
+/*   98 register hunks cascade) plus the 0x40 frame gap - not individual copies or widths. */
 // FUN_002D1590 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002d1590(void *arg0)
