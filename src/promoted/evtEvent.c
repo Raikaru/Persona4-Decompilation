@@ -1,13 +1,12 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit evtEvent.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_task_registration.h"
 #include "include_asm.h"
 extern s32 func_00286350();
 
 void func_00452080(s32 arg0);
-/* Old-style: this unit calls it both with no argument (func_002856a0) and with
-   one (func_00285480), exactly as retail does. */
-s32 *func_00452560();
+extern u32 func_00452560(void *task);
 extern void (*jtbl_008873EC[])(void *);
 void func_002852a0(s32 arg0, s32 arg1);
 
@@ -18,11 +17,11 @@ extern u8 D_0063C2C8[];
 extern u8 D_00748340[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_0044ea90(const void *file, s32 line);
-extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+
 extern void func_0043f9c8(void *dest, s32 value, s32 size);
 extern s32 func_002862a0(s32, s32);
 extern void func_002863e0(u32, s32, s32, s32);
-extern void func_00286380();
+extern void func_00286380(s32 task);
 extern s32 func_002863b0(s32);
 extern void func_0028aaf0(s32, s32 *);
 extern void func_0028c3f0(s32 *);
@@ -36,7 +35,7 @@ extern s32 func_0028f8e0(s32);
 extern void func_00287310(u8 *);
 extern void func_00440b68(void *);
 extern u8 D_0063C2E0[];
-s32 func_002857c0(void);
+s32 func_002857c0(u8 *task);
 void func_002853c0(void);
 
 
@@ -53,7 +52,7 @@ s32 func_00285480(u8 *arg0)
     if (handle == 0) {
         return 0;
     }
-    return (s32)func_00452560(handle);
+    return (s32)func_00452560((void *)handle);
 }
 
 // FUN_002854E0
@@ -126,7 +125,7 @@ s32 func_00285760(u8 *arg0)
 }
 
 // FUN_002857C0
-s32 func_002857c0(void)
+s32 func_002857c0(u8 *task)
 {
     u8 *temp_2;
     u8 *temp_2_2;
@@ -135,13 +134,13 @@ s32 func_002857c0(void)
     s32 temp_4_3;
     s32 var_2;
 
-    temp_2 = (u8 *)func_00452560();
+    temp_2 = (u8 *)func_00452560(task);
     if (temp_2 == NULL) {
         func_0046d730(D_0063C2C8, 0x2E);
     }
     temp_4 = *(s32 *)(temp_2 + 0xC);
     if (temp_4 != 0) {
-        func_00452560(temp_4);
+        func_00452560((void *)temp_4);
     }
     temp_4_2 = *(s32 *)(temp_2 + 0);
     switch (temp_4_2) {
@@ -157,7 +156,7 @@ s32 func_002857c0(void)
         *(s32 *)(temp_2 + 0) = 4;
         /* fallthrough */
     case 4:
-        temp_2_2 = (u8 *)func_00452560(*(s32 *)(temp_2 + 0xC));
+        temp_2_2 = (u8 *)func_00452560((void *)*(s32 *)(temp_2 + 0xC));
         *(s32 *)(temp_2_2 + 0) &= ~1;
         temp_4_3 = *(s32 *)(temp_2_2 + 0x14);
         if (temp_4_3 != *(s32 *)(temp_2_2 + 0x18)) {
@@ -187,10 +186,10 @@ s32 func_002857c0(void)
     }
 }
 // FUN_00285980
-void func_00285980(void) {
+void func_00285980(u8 *task) {
     s32 *temp_2;
 
-    temp_2 = func_00452560();
+    temp_2 = (s32 *)func_00452560(task);
     func_00452080(*(s32 *)((u8 *)temp_2 + 0xC));
     jtbl_008873EC[0](temp_2);
     func_002852a0(0, -0x60);
@@ -209,7 +208,7 @@ s32 func_002859e0(s32 arg0, s32 arg1)
     temp_16 = D_008873F4[0](1, 0x60, 0x40000);
     func_002852a0(0, 0x60);
     func_0043f9c8(temp_16, 0, 0x60);
-    temp_17 = func_00451de0(&D_0063C2F8, 0xF, 0, 0, (void *)func_002857c0, (void *)func_00285980, temp_16);
+    temp_17 = (s32)func_00451de0((const void *)(&D_0063C2F8), 0xF, 0, 0, func_002857c0, func_00285980, (u8 *)(temp_16));
     temp_2 = func_002862a0(0, 0);
     *(s32 *)(temp_16 + 0xC) = temp_2;
     func_002863e0(temp_2, arg0, arg1, 0);
@@ -231,7 +230,7 @@ s32 func_00285b30(void) {
     if (h == 0) {
         return -1;
     }
-    return *(s32 *)((u8 *)func_00452560(h) + 0x14);
+    return *(s32 *)((u8 *)func_00452560((void *)h) + 0x14);
 }
 
 /* Retail's outer-loop count check uses `sltu $at,$s3,$v0; bnez $at`, while

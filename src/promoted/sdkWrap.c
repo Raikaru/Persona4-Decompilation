@@ -1,14 +1,14 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit sdkWrap.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "h_cdvd_internal.h"
 
 extern void (*jtbl_008873EC[])(void *);
 extern void func_0044ea90(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c,
-                         void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
+
 extern u8 D_00712978[];
 extern u8 D_007129E0[];
 extern u8 D_00712A00[];
@@ -303,8 +303,7 @@ s32 func_004672c0(s32 arg0, u8 *arg1)
     if (mem == NULL) {
         return 0;
     }
-    handle = func_00451fc0(NULL, D_007129E0, 0, 2, 2,
-                           (void (*)(u8 *))func_004671c0, func_00467290, mem);
+    handle = (s32)func_00451fc0((void *)(NULL), (const void *)(D_007129E0), 0, 2, 2, func_004671c0, func_00467290, (u8 *)(mem));
     if (handle == 0) {
         return 0;
     }

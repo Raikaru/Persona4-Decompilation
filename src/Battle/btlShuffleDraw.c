@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit btlShuffleDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "sdk_snd_internal.h"
 extern void func_003549d0();
@@ -65,7 +66,7 @@ extern void func_0036de40(u8 *arg0, void *arg1);
 extern void func_0043f9c8(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_0036dc60(u8 *unit, f32 *src, f32 *dst, f32 scale);
 extern void func_00373750(s32 arg0, s32 arg1, void *arg2);
-extern s32 func_00451fc0(u8 *arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4, void *arg5, void *arg6, u8 *arg7);
+
 extern void func_003781d0(u8 *arg0, s32 arg1);
 extern void func_00378260(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4);
 extern char D_0064EA60[];
@@ -2293,8 +2294,7 @@ s32 func_00377eb0(u8 *arg0, s32 arg1)
     if (p == NULL) {
         func_0046d730(D_0064EA20, 0x76D);
     }
-    p = (u8 *)func_00451fc0(saved_arg0, D_0064EA60, 0x12, 0, 0,
-                             (void *)func_00377e10, (void *)func_00377e60, p);
+    p = (u8 *)(s32)func_00451fc0((void *)(saved_arg0), (const void *)(D_0064EA60), 0x12, 0, 0, func_00377e10, func_00377e60, (u8 *)(p));
     if (p == NULL) {
         func_0046d730(D_0064EA20, 0x777);
     }

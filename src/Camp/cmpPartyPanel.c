@@ -1,13 +1,13 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit cmpPartyPanel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 
 void func_0046d730(void* arg0, s32 arg1);
 void func_0046b0d0(void* ptr);
 void func_0044ea90(void* file, s32 line);
-s32 func_00451fc0(s32 arg0, const void* name, s32 prio, s32 a3, s32 a4,
-                  void (*init)(u8*), void (*close)(u8*), u8* work);
+
 void func_0043f9c8(void* dest, s32 value, s32 size);
 void func_00363540(u8* arg0, u8* arg1);
 s32 func_00363610(u8* arg0);
@@ -578,9 +578,7 @@ s32 func_003641a0(s32 arg0) {
     if (work == NULL) {
         func_0046d730(D_0064E290, 0x254);
     }
-    r = func_00451fc0((s32)arg0, D_0064E2E0, 0xC7, 0, 0,
-                      (void (*)(u8 *))func_00363610,
-                      (void (*)(u8 *))func_003640f0, work);
+    r = (s32)func_00451fc0((void *)((s32)arg0), (const void *)(D_0064E2E0), 0xC7, 0, 0, func_00363610, func_003640f0, (u8 *)(work));
     if (r == 0) {
         func_0046d730(D_0064E290, 0x25E);
     }

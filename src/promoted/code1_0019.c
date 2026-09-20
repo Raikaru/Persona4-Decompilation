@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "btl_skill_internal.h"
 typedef struct P4_95730_Vec3 {
@@ -69,15 +70,14 @@ extern s32 iGpffffb43c;
 extern u8 D_005F65D0[];
 extern u8 D_005F65B0[];
 extern u8 D_005F65C0[];
-extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c,
-                         void (*init)(void), void (*close)(void), void *buf);
+
 extern void func_0043f810(void *dst, void *src, s32 size);
 extern s32 func_002011c0(s32 arg0);
 extern s32 func_00106330(s32 arg0);
 extern void func_001b5f70(s32 arg0);
-extern void func_00192610(void);
-extern void func_001926c0(void);
-extern void func_00192790(void);
+extern s32 func_00192610(u8 *task);
+extern s32 func_001926c0(u8 *task);
+extern s32 btlUpdateDraw3DFrontTask(u8 *task);
 extern s32 func_002428f0(u8 *arg0, s32 arg1);
 extern s32 func_0022f520(void);
 extern s32 iGpffffb3b0;
@@ -136,9 +136,8 @@ extern void func_001b1850(void);
 extern void func_001b60a0(void);
 extern void func_001f6100(void);
 extern s32 func_002774d0(u8 *arg0);
-extern s32 func_001939e0(void);
-extern s32 func_00451fc0(u8 *a, const void *b, s32 c, s32 d, s32 e,
-                         void (*f)(u8 *), void (*g)(u8 *), void *h);
+extern s32 func_001939e0(u8 *task);
+
 extern s32 func_00193840(u8 *arg0, s32 arg1);
 extern void func_0010d480(void);
 extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
@@ -302,7 +301,7 @@ extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void func_0018f950();
+extern s32 func_0018f950(u8 *task);
 extern void func_001d78d0(void);
 extern void func_00200cb0(void);
 extern void func_001f8480(void);
@@ -352,9 +351,7 @@ s32 func_00190130(s32 arg0)
     if (work == NULL) {
         return 0;
     }
-    return func_00451fc0((u8 *)arg0, D_005F6020, 0xF, 0, 0,
-                         func_0018f950,
-                         func_001900a0, work);
+    return (s32)func_00451fc0((void *)((u8 *)arg0), (const void *)(D_005F6020), 0xF, 0, 0, func_0018f950, func_001900a0, (u8 *)(work));
 }
 // FUN_00191E20
 void *func_00191e20(void *arg0, void *data) {
@@ -460,7 +457,7 @@ void func_001928c0(void)
 /* measured: closes opt_propagation around func_001928c0. */
 #pragma opt_propagation on
 // FUN_00192AC0
-void func_00192ac0(void) {
+void func_00192ac0(u8 *unusedTask) {
     func_00192cd0();
 }
 // FUN_00192AE0
@@ -572,12 +569,9 @@ s32 func_00192e90(s32 arg0)
 
     func_00192b90();
     *(s32 *)(iGpffffb3ac + 0xDC8) =
-        func_00451de0(&iGpffffa088, 0x10, arg0 == 0, 0,
-                      func_00192610, func_00192ac0, 0);
-    func_00451fc0(*(u8 **)(iGpffffb3ac + 0xDC8), D_005F65B0, 0x11,
-                  arg0 == 0, 0, (void (*)(u8 *))func_001926c0, NULL, NULL);
-    func_00451fc0(*(u8 **)(iGpffffb3ac + 0xDC8), D_005F65C0, 0x11,
-                  arg0 == 0, 0, (void (*)(u8 *))func_00192790, NULL, NULL);
+        (s32)func_00451de0((const void *)(&iGpffffa088), 0x10, arg0 == 0, 0, func_00192610, func_00192ac0, (u8 *)(0));
+    (s32)func_00451fc0((void *)(*(u8 **)(iGpffffb3ac + 0xDC8)), (const void *)(D_005F65B0), 0x11, arg0 == 0, 0, func_001926c0, 0, (u8 *)(NULL));
+    (s32)func_00451fc0((void *)(*(u8 **)(iGpffffb3ac + 0xDC8)), (const void *)(D_005F65C0), 0x11, arg0 == 0, 0, btlUpdateDraw3DFrontTask, 0, (u8 *)(NULL));
     *(void **)(iGpffffb3ac + 0xE20) = (void *)func_001927c0;
     temp_2 = iGpffffb3ac;
     *(u8 **)(temp_2 + 0xE28) = temp_2;
@@ -888,7 +882,7 @@ void func_001939a0(void) {
     func_00202be0();
 }
 // FUN_001939E0
-s32 func_001939e0(void)
+s32 func_001939e0(u8 *unusedTask)
 {
     s32 result;
 
@@ -924,8 +918,7 @@ void func_00193a80(u8 *ctx) {
     iGpffffb430 = 0;
     iGpffffb434 = 0;
     iGpffffb438 = 0;
-    func_00451fc0(ctx, D_005F6BF0, 0x10, 0, 0,
-                  (void (*)(u8 *))func_001939e0, NULL, NULL);
+    (s32)func_00451fc0((void *)(ctx), (const void *)(D_005F6BF0), 0x10, 0, 0, func_001939e0, 0, (u8 *)(NULL));
 }
 
 // FUN_00193AD0

@@ -1,13 +1,13 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit sequence.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 
 extern void func_0046d730(u8 *file, s32 line);
 extern void func_0044ea90(u8 *file, s32 line);
-extern s32 func_00451de0(const void *name, s32 prio, s32 a2, s32 a3,
-                         void (*init)(u8 *), void (*close)(u8 *), u8 *work);
-extern void func_00102780(u8 *arg0);
+
+extern s32 func_00102780(u8 *task);
 extern void func_0043f810(void *dst, const void *src, s32 size);
 extern u8 D_005DCC64[];
 extern u8 D_005DCC68[];
@@ -30,8 +30,7 @@ s32 func_001028c0(void)
     }
     func_0044ea90(D_005DCB28, 0x7D);
     mem = D_008873F4[0](1, 0x18, 0x40000);
-    handle = func_00451de0(D_005DCB40, 0xF, 0, 0, func_00102780,
-                             func_00102890, mem);
+    handle = (s32)func_00451de0((const void *)(D_005DCB40), 0xF, 0, 0, func_00102780, func_00102890, (u8 *)(mem));
     *(s32 *)(mem + 4) = -1;
     *(s32 *)(mem + 8) = -1;
     iGpffffb1a8 = (u8 *)(u32)handle;

@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit btlShuffleResult.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -17,8 +18,7 @@ extern void func_0046d730(const void *file, u32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_0064EB60[];
 extern u8 D_0064EC70[];
-extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c,
-                         s32 (*init)(u8 *), void (*close)(u8 *), u8 *buf);
+
 extern s32 func_00382ea0(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3);
 extern s32 func_00378530(s32 a, s32 b);
 extern void func_0036e000(u8 *arg0);
@@ -1231,8 +1231,7 @@ s32 func_00383ae0(u8 *arg0, s32 arg1, u16 arg2, s32 arg3) {
     if (work == NULL) {
         func_0046d730(&D_0064EC70, 0x758);
     }
-    ret = func_00451fc0(arg0, D_0064EB60, 0x12, 0, 0, func_00383a40,
-                        func_00383aa0, work);
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064EB60), 0x12, 0, 0, func_00383a40, func_00383aa0, (u8 *)(work));
     if (ret == 0) {
         func_0046d730(&D_0064EC70, 0x762);
     }

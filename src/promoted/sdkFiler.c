@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit sdkFiler.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "shd_misc_internal.h"
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -10,8 +11,7 @@ extern void strcpy(s8 *arg0, s32 *arg1);
 extern void func_00452080(u8 *arg0);
 extern void func_0044ea90(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern u8 *func_00451fc0(u8 *arg0, const void *name, s32 prio, s32 a3, s32 a4,
-                         void (*init)(u8 *), void (*close)(u8 *), u8 *work);
+
 extern u8 D_00712A40[];
 extern u8 D_00712A50[];
 extern u8 D_00712AB0[];
@@ -43,8 +43,7 @@ u8 *func_00468170(void *arg0, const char *arg1) {
     if (work == NULL) {
         return NULL;
     }
-    temp = func_00451fc0(arg0, D_00712A50, 0x100, 0, 0,
-                         (void (*)(u8 *))func_00467bd0, (void (*)(u8 *))func_004680c0, work);
+    temp = func_00451fc0((void *)(arg0), (const void *)(D_00712A50), 0x100, 0, 0, func_00467bd0, func_004680c0, (u8 *)(work));
     if (temp == NULL) {
         return NULL;
     }
@@ -219,7 +218,7 @@ void func_004685c0(u8 *arg0) {
 }
 
 // FUN_004688A0
-void func_004688a0(void *arg0) {
+void func_004688a0(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
@@ -248,8 +247,7 @@ u8 *func_00468940(u8 *arg0, s64 arg1) {
     if (work == NULL) {
         return NULL;
     }
-    temp = func_00451fc0(arg0, D_00712AB0, 0x100, 0, 0,
-                         (void (*)(u8 *))func_00468260, (void (*)(u8 *))func_004688a0, work);
+    temp = func_00451fc0((void *)(arg0), (const void *)(D_00712AB0), 0x100, 0, 0, func_00468260, func_004688a0, (u8 *)(work));
     if (temp == NULL) {
         return NULL;
     }

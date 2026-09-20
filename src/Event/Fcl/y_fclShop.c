@@ -1,6 +1,7 @@
 /* Whole-file translation unit: src/Event/Fcl/y_fclShop.c */
 /* Original filename recovered from embedded __FILE__ strings. */
 #include "type.h"
+#include "sdk_task_registration.h"
 
 extern char D_0063F3C8[];
 extern char D_0063F3E0[];
@@ -17,7 +18,7 @@ s32 func_00106b20(s16);
 s32 func_00106b50(s16);
 u8 func_00110830(s32);
 void func_00110810(s32, u8);
-s32 func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
+
 void func_0044ea90(const void *, u32);
 void func_0045aac0(s16, s32, s32);
 void func_00440b68();
@@ -26,7 +27,7 @@ void func_00456150();
 s32 func_00455f70();
 void func_002bc010();
 void func_00104a60();
-void func_002bd8e0(u8 *);
+s32 func_002bd8e0(u8 *task);
 void func_002bdb10(u8 *);
 
 // FUN_002BDB50
@@ -38,8 +39,7 @@ s32 func_002bdb50(s32 arg0, s8 arg1)
 
     func_0044ea90(D_0063F3C8, 0xB0);
     temp_2 = D_008873F4[0](1, 0x1840, 0x40000);
-    temp_17 = func_00451fc0(arg0, D_0063F3E0, 0xF, 0, 0, func_002bd8e0,
-                           func_002bdb10, temp_2);
+    temp_17 = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063F3E0), 0xF, 0, 0, func_002bd8e0, func_002bdb10, (u8 *)(temp_2));
     temp_2[0] = 1;
     temp_2[1] = 0;
     if (arg1 == 1) {

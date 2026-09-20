@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "type.h"
+#include "sdk_task_registration.h"
 
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -23,8 +24,7 @@ extern void func_0046d730(void *msg, s32 id);
 extern s32 func_00452490(s32 buf);
 extern s32 func_00452380(void *buf);
 extern void func_00452080(s32 handle);
-extern void func_00451de0(const void *data, s32 a, s32 b, s32 c,
-                          s32 (*init)(u8 *), void (*close)(u8 *), void *buf);
+
 
 extern s32 func_0018ef50(u8 *arg0);
 extern s32 func_0018e520(u8 *arg0);
@@ -127,8 +127,7 @@ void func_0018e310(u8 *arg0)
 void func_0018e340(void)
 {
     func_0044ea90(D_005F56F0, 0xCB);
-    func_00451de0(D_005F5700, 0xF, 0, 0, func_0018e050, func_0018e310,
-                  D_008873F4[0](1, 0xC, 0x40000));
+    func_00451de0((const void *)(D_005F5700), 0xF, 0, 0, func_0018e050, func_0018e310, (u8 *)(D_008873F4[0](1, 0xC, 0x40000)));
 }
 
 // FUN_0018E3C0

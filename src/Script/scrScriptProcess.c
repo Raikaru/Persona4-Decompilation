@@ -1,7 +1,9 @@
 /* Source unit: src/Script/scrScriptProcess_0029d900.c */
 #include "type.h"
+#include "sdk_task_registration.h"
 
 #include "include_asm.h"
+#include "sdk_dbprt.h"
 
 
 typedef struct KwlnTask KwlnTask;
@@ -10,8 +12,8 @@ typedef struct ScrData ScrData;
 void* dds3GetProcessWorkData(KwlnTask* task);
 void dds3SetProcessWorkData(KwlnTask* task, void* workData);
 void scrReleaseScript(ScrData* scr);
-void scrDestroyTask(KwlnTask* scrTask);
-extern s32 func_0029d870(void* task);
+void scrDestroyTask(u8 *task);
+extern s32 func_0029d870(u8 *task);
 extern void func_0029d1c0(void* pool, void* elem);
 
 typedef enum
@@ -186,15 +188,14 @@ void func_00454bd0(s32 handle);
 u8* func_00468170(void* parent, const char* text);
 s32 func_00442088(char* dst, const char* format, ...);
 u32 func_00442948(void* arg0);
-s32 func_00451de0(const void* data, s32 a, s32 b, s32 c, void* init, void* close, void* buf);
-s32 func_00451fc0(s32 arg0, const void* arg1, s32 arg2, s32 arg3, s32 arg4, void (*init)(u8*), void (*close)(u8*), u8* arg7);
+
+
 extern s32 func_0029e040(u8* task);
 s32 func_004553c0(s32 arg0);
 s32 func_00454a60(void* arg0, s32 arg1);
 s32 func_004680f0(u8* task, s8* text);
 void func_00442830(void* arg0, void* arg1);
 u8* func_00455f70(void* arg0, void* arg1);
-void func_00450050(s64 arg0, char* arg1, s32 arg2, void* arg3);
 void func_0045d6e0(void* arg0, void* arg1, f32 fparg0, s32 arg2);
 static inline u8 *scrAddOff(u32 offset, u8 *base)
 {
@@ -492,7 +493,7 @@ ScrScriptWork* func_0029d660(ScrHeader* header, s32 index)
 #pragma opt_loop_invariants off
 
 // FUN_0029D870
-s32 func_0029d870(void* task)
+s32 func_0029d870(u8 *task)
 {
     s32 code;
 
@@ -512,8 +513,9 @@ s32 func_0029d870(void* task)
 }
 
 // FUN_0029D900
-void scrDestroyTask(KwlnTask* scrTask)
+void scrDestroyTask(u8 *sdkTaskBytes)
 {
+    KwlnTask* scrTask = (KwlnTask*)sdkTaskBytes;
     ScrData* scr;
 
     scr = (ScrData*)dds3GetProcessWorkData(scrTask);
@@ -547,7 +549,7 @@ s32 func_0029d9b0(s32 arg0, u8* arg1, u8* arg2, u8* arg3, u8* arg4, u8* arg5, u8
     {
         func_0046d730(D_0063E3D0, 0x23D);
     }
-    task = func_00451de0((work->index << 5) + work->procedure, arg0, 1, 1, (void*)&func_0029d870, (void*)&scrDestroyTask, work);
+    task = (s32)func_00451de0((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, func_0029d870, scrDestroyTask, (u8 *)(work));
     if (task == 0)
     {
         func_0046d730(D_0063E3D0, 0x1F4);
@@ -567,7 +569,7 @@ s32 func_0029da90(s32 arg0, u8* arg1, s32 arg2)
     {
         func_0046d730(D_0063E3D0, 0x259);
     }
-    task = func_00451de0((work->index << 5) + work->procedure, arg0, 1, 1, (void*)&func_0029d870, (void*)&scrDestroyTask, work);
+    task = (s32)func_00451de0((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, func_0029d870, scrDestroyTask, (u8 *)(work));
     if (task == 0)
     {
         func_0046d730(D_0063E3D0, 0x1F4);
@@ -593,7 +595,7 @@ s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
         func_0046d730(D_0063E3D0, 0x27C);
     }
     work->textBuf = text;
-    task = func_00451de0((work->index << 5) + work->procedure, arg0, 1, 1, (void*)&func_0029d870, (void*)&scrDestroyTask, work);
+    task = (s32)func_00451de0((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, func_0029d870, scrDestroyTask, (u8 *)(work));
     if (task == 0)
     {
         func_0046d730(D_0063E3D0, 0x1F4);
@@ -1027,6 +1029,5 @@ void func_0029e8d0(u8* arg0)
 
     func_0044ea90(D_0063E3D0, 0x4AB);
     buf = D_008873F4[0](1, 0x228, 0x40000);
-    func_00451fc0((s32)arg0, D_0063E618, 0xC9, 0, 0, (void (*)(u8*))func_0029e550, (void (*)(u8*))func_0029e7b0, buf);
+    (s32)func_00451fc0((void *)((s32)arg0), (const void *)(D_0063E618), 0xC9, 0, 0, func_0029e550, func_0029e7b0, (u8 *)(buf));
 }
-

@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "shd_misc_internal.h"
 #include "sdk_snd_internal.h"
@@ -31,9 +32,7 @@ extern void func_00389cb0(u8 *arg0);
 extern void func_0038d020(u8 *arg0);
 extern void func_003889b0(s32 arg0, u8 *arg1);
 extern void func_0044ea90(const void *arg0, s32 arg1);
-extern u8 *func_00451fc0(s32 arg0, const void *arg1, s32 arg2,
-                         s32 arg3, s32 arg4, s32 (*arg5)(u8 *),
-                         void (*arg6)(u8 *), u8 *arg7);
+
 extern void func_00388d10(u8 *arg0);
 extern void func_003874c0(s32 arg0, u8 *arg1);
 extern s32 func_00388b40(u8 *arg0);
@@ -1686,9 +1685,7 @@ u8 *func_00388bd0(s32 arg0)
     if (work == NULL) {
         func_0046d730(D_0064EEB0, 0x640);
     }
-    temp = func_00451fc0(arg0, D_0064ECA0, 0x13, 0, 0,
-                         (s32 (*)(u8 *))func_00388b40,
-                         (void (*)(u8 *))func_00388ba0, work);
+    temp = func_00451fc0((void *)(arg0), (const void *)(D_0064ECA0), 0x13, 0, 0, func_00388b40, func_00388ba0, (u8 *)(work));
     if (temp == NULL) {
         func_0046d730(D_0064EEB0, 0x64A);
     }
@@ -3270,8 +3267,7 @@ u8 *func_0038cec0(s32 arg0)
     if (work == NULL) {
         func_0046d730(D_0064F0E0, 0x59E);
     }
-    temp = func_00451fc0(arg0, D_0064EED0, 0x13, 0, 0,
-                         func_0038ce30, func_0038ce90, work);
+    temp = func_00451fc0((void *)(arg0), (const void *)(D_0064EED0), 0x13, 0, 0, func_0038ce30, func_0038ce90, (u8 *)(work));
     if (temp == NULL) {
         func_0046d730(D_0064F0E0, 0x5A8);
     }

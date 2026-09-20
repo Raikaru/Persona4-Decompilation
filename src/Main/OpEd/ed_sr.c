@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit ed_sr.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -51,9 +52,8 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 /* Window callbacks (defined below in this file / in this TU). */
-s32 func_00451fc0(s32 arg0, const void *name, s32 prio, s32 a3, s32 a4,
-                  void (*init)(u8 *), void (*close)(u8 *), u8 *work);
-s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+
+
 
 // FUN_0038EE40
 void func_0038ee40(void) {
@@ -147,7 +147,7 @@ void func_0038f0b0(void) {
 #pragma opt_propagation on
 
 // FUN_0038F160
-s32 func_0038f160(void) {
+s32 func_0038f160(u8 *unusedTask) {
     func_0038ee40();
     if (iGpffffb5b8 == NULL) {
         func_0046d730(&iGpffffa9f0, 0x64);
@@ -192,11 +192,8 @@ s32 func_0038f290(void) {
     if (r == 0xA) {
         func_0044ea90(&iGpffffa9f0, 0x112);
         w = (u8 *)jtbl_008873E8[0](0x1258, 0x40000);
-        state = func_00451fc0(0, &iGpffffa9f8, 0xF, 0, 0,
-                              (void (*)(u8 *))func_0038f160,
-                              (void (*)(u8 *))func_0038f220, w);
-        *(s32 *)(w + 8) = func_00451de0(&D_0064F230, 0x97, 1, 2,
-                                        (void *)func_0038f1c0, 0, 0);
+        state = (s32)func_00451fc0((void *)(0), (const void *)(&iGpffffa9f8), 0xF, 0, 0, func_0038f160, func_0038f220, (u8 *)(w));
+        *(s32 *)(w + 8) = (s32)func_00451de0((const void *)(&D_0064F230), 0x97, 1, 2, func_0038f1c0, 0, (u8 *)(0));
         func_00452570((void *)state, (void *)*(s32 *)(w + 8));
         *(s32 *)(w + 0) = 0;
         func_0038f600(w + 0xC);

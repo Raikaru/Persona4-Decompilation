@@ -74,8 +74,9 @@ s32 func_002238f0(s64 arg0)
 /* measured: candidate object 1328B/window 1328B, verify normalized_diff 490, probe reloc-masked 179 words (guard below, NON_MATCHING so production stays ASM; fnalign 332/332 instrs, 134 edits +12 reloc-only). Earliest hunk is s2/s3 colour permute (retail r in s3/base in s2 vs object r in s2/base in s1) plus bnez/beqz polarity flip at loop head; declaration-order perms neutral. Frame exact 0xA0 via zw[2]+sp[11]. Banked as floor. */
 // FUN_002239A0 NONMATCHING
 #ifdef NON_MATCHING
-s32 func_002239a0(s32 arg0)
+s32 func_002239a0(u8 *sdkTaskBytes)
 {
+    s32 arg0 = (s32)sdkTaskBytes;
     // Retail frame 0xA0 (160B); zw[2] + sp[11] give 52B locals + saves = 0xA0.
     // Register map: r in s3, base in s2, e/k in s1, q in s4, arg0 in s0.
     // Switch gives 8-entry jtbl_007477B0 (0-7); 0->1, 2->3->4, 5->6 fallthroughs.

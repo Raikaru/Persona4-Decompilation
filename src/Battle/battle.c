@@ -96,7 +96,7 @@ u16 btlFindFreeCharResId(void)
 
 
 // FUN_00192610
-u32 func_00192610(void)
+s32 func_00192610(u8 *unusedTask)
 {
     if (iGpffffb3ac->flags & 1) {
         func_001949d0(0);
@@ -117,7 +117,7 @@ u32 func_00192610(void)
     return 0;
 }
 // FUN_001926C0
-u32 func_001926c0(void)
+s32 func_001926c0(u8 *unusedTask)
 {
     if (func_003e8120(func_00457120()) != 0) {
         func_001949d0(2);
@@ -136,7 +136,7 @@ u32 func_001926c0(void)
     return 0;
 }
 // FUN_00192790
-void* btlUpdateDraw3DFrontTask(void* task)
+s32 btlUpdateDraw3DFrontTask(u8 *task)
 {
     func_001949d0(3);
     func_001b6ab0();

@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
@@ -53,8 +54,7 @@ extern u8 D_006290C0[];
 extern u8 D_006290D0[];
 extern void func_0044ea90(const void *arg0, s32 arg1);
 extern void func_0043f810(void *dst, void *src, u32 size);
-extern s32 func_00451fc0(s32 arg0, const void *data, s32 priority, s32 arg3,
-                         s32 arg4, void *init, void *close, void *work);
+
 extern s32 func_0036e690(s32 arg0, void *arg1);
 extern s32 func_002215c0(s32 arg0);
 extern void func_00460ac0(void *arg0, void *arg1);
@@ -62,7 +62,7 @@ extern void func_00122520(s32 arg0, s32 arg1);
 extern s32 func_00122720(void);
 extern u8 D_00796340[];
 extern s32 func_0046a750(s32 arg0);
-extern s32 func_0021d4a0(s32 arg0);
+extern s32 func_0021d4a0(u8 *task);
 extern u8 *iGpffffb3c4;
 extern void *func_0043f9c8(void *dst, s32 value, u32 size);
 extern s32 func_0046aea0(void *arg0);
@@ -82,10 +82,9 @@ extern s32 func_00221940(KwlnTask *task);
 extern void func_0036e870(s32 arg0);
 extern void func_00221770(s32 arg0);
 extern u8 D_006290E0[];
-extern s32 func_00451de0(const void *data, s32 arg1, s32 arg2, s32 arg3,
-                         void *init, void *close, void *buf);
+
 extern void func_0021dc50(s32 arg0, s32 *arg1);
-extern void func_0021dd60(void);
+extern void func_0021dd60(u8 *task);
 extern u16 *func_0010ace0(s16 arg0);
 extern u16 func_0010b6f0(void);
 extern void func_0010c980(u8 *arg0, s32 arg1);
@@ -107,7 +106,7 @@ extern s32 func_00231f80(s32 arg0);
 extern s32 func_002428f0(u8 *arg0, s32 arg1);
 extern f32 fGpffff8498;
 extern f32 fGpffff8200;
-extern s32 func_0021dba0(s32 task);
+extern s32 func_0021dba0(u8 *task);
 extern void func_00210c70(u8 *arg0, u8 *arg1);
 extern void func_0020ff00(u8 *arg0, u8 *arg1);
 extern void func_0021e110(u8 *arg0, u8 *arg1);
@@ -1149,8 +1148,9 @@ void func_00212270(u8 *arg0, u8 *arg1)
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00212270);
 #endif
 // FUN_002136F0
-s32 func_002136f0(s32 task)
+s32 func_002136f0(u8 *sdkTaskBytes)
 {
+    s32 task = (s32)sdkTaskBytes;
     s16 temp_2_2;
     u8 *temp_2;
     s32 temp_2_3;
@@ -1225,9 +1225,7 @@ void func_002138a0(s32 arg0)
     *(void **)((u8 *)temp_2 + 0x10) = (void *)func_00212270;
     *(f32 **)((u8 *)temp_2 + 0x18) = temp_2;
     *(s32 *)(temp_17 + 0x778) =
-        func_00451fc0(arg0, &D_00626C80, 0xF, 0, 0,
-                      (void *)func_002136f0, (void *)func_00213840,
-                      temp_2);
+        (s32)func_00451fc0((void *)(arg0), (const void *)(&D_00626C80), 0xF, 0, 0, func_002136f0, func_00213840, (u8 *)(temp_2));
 }
 // FUN_00213990
 void func_00213990(s32 task)
@@ -4219,8 +4217,9 @@ s32 func_0021d470(s32 task)
     return flag ^ 1;
 }
 // FUN_0021D4A0
-s32 func_0021d4a0(s32 arg0)
+s32 func_0021d4a0(u8 *sdkTaskBytes)
 {
+    s32 arg0 = (s32)sdkTaskBytes;
     extern s32 func_0036e8a0(s32 arg0);
     extern s32 func_002218e0(KwlnTask *task);
     extern void func_0036e7e0(s32 arg0);
@@ -4374,8 +4373,9 @@ s32 func_0021d4a0(s32 arg0)
     return 0;
 }
 // FUN_0021D920
-void func_0021d920(s32 task)
+void func_0021d920(u8 *sdkTaskBytes)
 {
+    s32 task = (s32)sdkTaskBytes;
     u8 *p;
     s32 value;
 
@@ -4395,8 +4395,7 @@ s32 func_0021d980(s32 arg0, u16 *arg1)
     func_0044ea90(&D_006290D0, 0x3A);
     work = (u8 *)jtbl_008873E8[0](0x94C, 0x40000);
     func_0043f9c8(work, 0, 0x94C);
-    result = func_00451fc0(arg0, &D_006290C0, 0xF, 0, 0,
-                           (void *)func_0021d4a0, (void *)func_0021d920, work);
+    result = (s32)func_00451fc0((void *)(arg0), (const void *)(&D_006290C0), 0xF, 0, 0, func_0021d4a0, func_0021d920, (u8 *)(work));
     func_0043f810(work + 8, arg1, 0x58);
     if ((*arg1 & 1) != 0) {
         *(s32 *)(work + 0x60) |= 1;
@@ -4442,8 +4441,9 @@ s32 func_0021db40(s32 task)
     return 0;
 }
 // FUN_0021DBA0
-s32 func_0021dba0(s32 task)
+s32 func_0021dba0(u8 *sdkTaskBytes)
 {
+    s32 task = (s32)sdkTaskBytes;
     u8 *p;
     s32 value;
 
@@ -4498,8 +4498,7 @@ void func_0021dda0(void)
         func_0044ea90(&D_006290D0, 0x3A);
         work = (u8 *)jtbl_008873E8[0](0x34, 0x40000);
         func_0043f9c8(work, 0, 0x34);
-        func_00451de0(&D_006290E0, 0x10, 0, 0,
-                      (void *)func_0021dba0, (void *)func_0021dd60, work);
+        (s32)func_00451de0((const void *)(&D_006290E0), 0x10, 0, 0, func_0021dba0, func_0021dd60, (u8 *)(work));
         *(void **)(work + 0xC) = (void *)func_0021dc50;
         *(u8 **)(work + 0x14) = work;
     }

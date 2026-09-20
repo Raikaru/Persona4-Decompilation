@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 extern void func_00442830(void *dst, void *src);
 
@@ -52,7 +53,7 @@ extern s32 func_002a2710(void);
 extern void func_002a2740(void);
 extern void func_00460a50(s32 arg0);
 extern void func_0044ea90(void *arg0, s32 arg1);
-extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+
 extern s32 iGpffff85b8;
 extern s32 iGpffffb194;
 extern s32 iGpffffb1a0;
@@ -1111,7 +1112,7 @@ void func_00103980(u8 *arg0) {
 // FUN_001039E0
 void func_001039e0(void) {
     func_0044ea90(D_005DD600, 0xBD);
-    func_00451de0(&iGpffff85d0, 0xF, 0, 0, (void *)func_001036d0, (void *)func_00103980, D_008873F4[0](1, 0x210, 0x40000));
+    (s32)func_00451de0((const void *)(&iGpffff85d0), 0xF, 0, 0, func_001036d0, func_00103980, (u8 *)(D_008873F4[0](1, 0x210, 0x40000)));
 }
 // FUN_00103A60
 void func_00103a60(void)

@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit btlShuffle.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_task_registration.h"
 #include "include_asm.h"
 
 
@@ -28,7 +29,7 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 extern void func_0043f9c8(void *dst, s32 value, s32 size);
 
-extern s32 func_00451fc0(u8 *arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4, void *arg5, void *arg6, u8 *arg7);
+
 
 extern void func_0036d860(u8 *arg0, s32 arg1);
 
@@ -38,9 +39,9 @@ extern void func_0036f410(u8 *arg0, u8 *arg1);
 
 extern u8 D_0064E7A0[];
 
-extern s32 func_0036e140(void);
+extern s32 func_0036e140(u8 *task);
 
-extern void func_0036e600(void);
+extern void func_0036e600(u8 *task);
 
 extern u16 func_00104dc0(s16 character);
 
@@ -158,7 +159,7 @@ extern s32 func_00379920(u8 *arg0);
 
 
 // FUN_0036E140
-s32 func_0036e140(void)
+s32 func_0036e140(u8 *unusedTask)
 {
     u8 *work = (u8 *)func_00452560();
     s32 i;
@@ -313,7 +314,7 @@ void func_0036e5c0(u8 *arg0, u16 *arg1)
 }
 
 // FUN_0036E600
-void func_0036e600(void)
+void func_0036e600(u8 *unusedTask)
 {
     u8 *work = (u8 *)func_00452560();
 
@@ -335,8 +336,7 @@ s32 func_0036e690(u8 *arg0, u8 *arg1)
     func_0044ea90(D_0064E7A0, 0x3A);
     work = (u8 *)(*jtbl_008873E8)(0x21ABC, 0x40000);
     func_0043f9c8(work, 0, 0x21ABC);
-    handle = func_00451fc0(arg0, D_0064E780, 0x12, 0, 0, (void *)func_0036e140,
-                           (void *)func_0036e600, work);
+    handle = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064E780), 0x12, 0, 0, func_0036e140, func_0036e600, (u8 *)(work));
     tmp = (s32)func_00452560(arg0);
     *(s32 *)(work + 8) = 0;
     *(s32 *)(work + 0x6C) = tmp;

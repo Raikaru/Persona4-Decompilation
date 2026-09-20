@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "rw/plcore/barenderstate.h"
 extern void func_0034c4a0();
@@ -61,7 +62,7 @@ void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
                    f32 fparg3, s16 arg_sp0, s16 arg_sp8);
 
 // FUN_00349340
-s32 func_00349340(void)
+s32 func_00349340(u8 *unusedTask)
 {
     s8 buf[0xC];
     s8 *p;
@@ -355,7 +356,7 @@ void func_0034b8c0(void)
 }
 
 // FUN_0034B8D0
-s32 func_0034b8d0(void)
+s32 func_0034b8d0(u8 *unusedTask)
 {
     if ((D_00884684[0] != 0) && (D_00884670[0] != 0)) {
         func_0034bea0();

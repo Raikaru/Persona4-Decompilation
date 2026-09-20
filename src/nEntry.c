@@ -1,10 +1,10 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void func_0044ea90(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c,
-                         s32 (*init)(u8 *), void (*close)(u8 *), u8 *buf);
+
 extern void *func_0043f9c8(void *dst, s32 value, s32 size);
 extern u8 D_0063E8E0[];
 extern u8 D_0063E918[];
@@ -54,7 +54,7 @@ s32 func_002a2420(u8 *arg0) {
             r = 0;
         } else {
             func_0043f9c8(mem, 0, 0x1C6C);
-            r = func_00451fc0(arg0, D_0063E8F0, 0xF, 0, 0, func_002a1f20, func_002a2310, mem);
+            r = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063E8F0), 0xF, 0, 0, func_002a1f20, func_002a2310, (u8 *)(mem));
         }
         *(s32 *)(st + 0x10) = r;
         *(s32 *)st = 3;
@@ -103,7 +103,6 @@ s32 func_002a2650(u8 *arg0)
         return 0;
     }
     func_0043f9c8(mem, 0, 0x18);
-    return func_00451fc0(arg0, D_0063E918, 0xF, 0, 0, func_002a2420,
-                         func_002a2600, mem);
+    return (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063E918), 0xF, 0, 0, func_002a2420, func_002a2600, (u8 *)(mem));
 }
 

@@ -1,4 +1,5 @@
 #include "type.h"
+#include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "sdk_snd_internal.h"
 
@@ -168,8 +169,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_0043c0c0(s32, s32, s32, s32);
 extern void func_0043f9c8(void *, s32, s32);
 extern void func_0044ea90(char *file, s32 line);
-extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close,
-                        void *buf);
+
 extern void func_00440b68(s32 fmt, ...);
 extern s32 func_00442088(void *buf, void *fmt, ...);
 extern void func_00442830();
@@ -216,8 +216,8 @@ extern void func_00459790(HsndSlotWork *slot);
 
 s32 func_004599d0(s32 arg0);
 s32 func_00459ad0(s32 arg0);
-extern s32 func_0045b030(void *arg0);
-extern void func_0045b120(void *arg0);
+extern s32 func_0045b030(u8 *task);
+extern void func_0045b120(u8 *task);
 
 /* ================================================================== */
 /* FUN_00458FA0                                                        */
@@ -1088,7 +1088,7 @@ s32 func_0045af90(s16 arg0)
 /* ================================================================== */
 
 // FUN_0045B030
-s32 func_0045b030(void *arg0)
+s32 func_0045b030(u8 *arg0)
 {
     s32 state;
     s32 result;
@@ -1134,7 +1134,7 @@ s32 func_0045b030(void *arg0)
 /* ================================================================== */
 
 // FUN_0045B120
-void func_0045b120(void *arg0)
+void func_0045b120(u8 *arg0)
 {
     u8 *w;
 
@@ -1178,7 +1178,7 @@ s32 func_0045b1c0(void *arg0, s32 arg1, s32 arg2, void *arg3)
     {
         return 0;
     }
-    h = func_00451de0(&D_00712310[0], 0, 0, 0, (void *)func_0045b030, (void *)func_0045b120, p);
+    h = (s32)func_00451de0((const void *)(&D_00712310[0]), 0, 0, 0, func_0045b030, func_0045b120, (u8 *)(p));
     if (h == 0)
     {
         return 0;

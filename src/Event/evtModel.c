@@ -1,6 +1,7 @@
 /* Original translation unit evtModel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 
 extern s32 func_00452380();
@@ -64,7 +65,7 @@ extern s32 func_0044b310(s32 a);
 extern f32 func_0044b920(f32 a);
 extern s32 func_0044dcd8(f32 a);
 extern f32 func_0044e7d8(s32 a);
-extern s32 func_00451de0(const void *a, s32 b, s32 c, s32 d, s32 (*e)(void), void (*f)(void), void *g);
+
 extern u8 **func_00452560();
 extern void func_0046d730(void *file, s32 line);
 extern void *func_0047a2f0(s32 a);
@@ -621,7 +622,7 @@ done:
 #pragma pop
 
 // FUN_002930E0
-s32 func_002930e0(void) {
+s32 func_002930e0(u8 *unusedTask) {
     u8 **list;
     u8 *head;
     u8 *node;
@@ -650,7 +651,7 @@ ret0:
 }
 
 // FUN_002931A0
-void func_002931a0(void) {
+void func_002931a0(u8 *unusedTask) {
     u8 **list;
     u8 *head;
     u8 *node;
@@ -737,7 +738,7 @@ void func_002933a0(s16 arg0, s32 arg1, f32 fparg0) {
         temp_2 = (u8 *)func_002e1db0(4, 0, 0, 0);
         temp_10 = *(u8 ***)(temp_2 + 0x24);
         *temp_10 = temp_2;
-        var_2 = func_00451de0(D_0063C958, 0xF, 0, 0, func_002930e0, func_002931a0, temp_10);
+        var_2 = (s32)func_00451de0((const void *)(D_0063C958), 0xF, 0, 0, func_002930e0, func_002931a0, (u8 *)(temp_10));
     }
     temp_17 = (u8 **)func_00452560(var_2);
     func_0043f9c8(sp, 0, 0x2C);
@@ -786,7 +787,7 @@ void func_00293550(s16 arg0, s16 arg1, s32 arg2, f32 fparg0) {
         temp_2 = (u8 *)func_002e1db0(4, 0, 0, 0);
         temp_10 = *(u8 ***)(temp_2 + 0x24);
         *temp_10 = temp_2;
-        var_2 = func_00451de0(D_0063C958, 0xF, 0, 0, func_002930e0, func_002931a0, temp_10);
+        var_2 = (s32)func_00451de0((const void *)(D_0063C958), 0xF, 0, 0, func_002930e0, func_002931a0, (u8 *)(temp_10));
     }
     temp_17 = (u8 **)func_00452560(var_2);
     func_0043f9c8(sp, 0, 0x2C);
