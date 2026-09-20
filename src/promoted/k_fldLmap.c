@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldLmap.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_task_registration.h"
 #include "include_asm.h"
 
 typedef struct RwMatrix RwMatrix;
@@ -21,7 +22,7 @@ extern s32 func_00455f70(u8 *param, s32 *out);
 extern s32 func_0046af60(s32 param);
 extern s32 func_0046a750(s32 param);
 extern void func_0046b0d0(void *ptr);
-extern u8 *func_00451fc0();
+
 extern void func_003e0f40(u8 *param);
 extern void func_00145080();
 extern void func_003f6440(s32 param, s32 value);
@@ -276,7 +277,7 @@ u8 *func_00186cc0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, u8 *arg2, u8 *arg3
     if (temp_2_2 == NULL) {
         return NULL;
     }
-    temp_2 = (u8 *)func_00451fc0(arg0, D_005F1FB8, 0xF, 0, 0, func_00186ac0, func_00186c90, temp_2_2);
+    temp_2 = (u8 *)func_00451fc0((void *)(arg0), (const void *)(D_005F1FB8), 0xF, 0, 0, func_00186ac0, func_00186c90, (u8 *)(temp_2_2));
     temp_3 = temp_2_2 + 4;
     *(u8 **)(temp_2_2 + 4) = arg1;
     *(f32 *)(temp_2_2 + 0xC) = fparg0;
@@ -502,7 +503,7 @@ s32 func_00186eb0(u8 *arg0)
             if (mem == NULL) {
                 h = 0;
             } else {
-                h = (s32)func_00451fc0(arg_save, D_005F1FA8, 15, 0, 0, func_001866d0, func_00186a60, mem);
+                h = (s32)func_00451fc0((void *)(arg_save), (const void *)(D_005F1FA8), 15, 0, 0, func_001866d0, func_00186a60, (u8 *)(mem));
                 *(u8 **)(mem + 8) = st;
             }
             *(s32 *)(st + 0x15C) = h;
@@ -713,7 +714,7 @@ u8 *func_00187e80(u8 *arg0, s32 arg1, s32 arg2)
     if (temp_2_2 == NULL) {
         return NULL;
     }
-    temp_2 = (u8 *)func_00451fc0(arg0, &iGpffff9f70, 0xF, 0, 0, func_00186eb0, func_00187da0, temp_2_2);
+    temp_2 = (u8 *)func_00451fc0((void *)(arg0), (const void *)(&iGpffff9f70), 0xF, 0, 0, func_00186eb0, func_00187da0, (u8 *)(temp_2_2));
     *(s32 *)(temp_2_2 + 0xC) = arg1;
     *(s32 *)(temp_2_2 + 0x10) = -1;
     *(s32 *)(temp_2_2 + 8) = arg2;
@@ -1092,7 +1093,7 @@ u8 *func_00188f20(u8 *arg0, s32 arg1, u8 *arg2)
     if (temp_2 == NULL) {
         return NULL;
     }
-    temp_18 = (u8 *)func_00451fc0(arg0, D_005F2180, 0xF, 0, 0, func_00188be0, func_00188ef0, temp_2);
+    temp_18 = (u8 *)func_00451fc0((void *)(arg0), (const void *)(D_005F2180), 0xF, 0, 0, func_00188be0, func_00188ef0, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 4) = arg1;
     *(u8 **)(temp_2 + 8) = arg2;
     *(s32 *)(temp_2 + 0x58) = -1;
@@ -1224,7 +1225,7 @@ u8 *func_00189550(u8 *arg0)
     if (temp_2_2 == NULL) {
         return NULL;
     }
-    temp_2 = (u8 *)func_00451fc0(arg0, D_005F2180, 0xF, 0, 0, func_001891d0, func_00189520, temp_2_2);
+    temp_2 = (u8 *)func_00451fc0((void *)(arg0), (const void *)(D_005F2180), 0xF, 0, 0, func_001891d0, func_00189520, (u8 *)(temp_2_2));
     *(s32 *)(temp_2_2 + 0x30) = -1;
     return temp_2;
 }

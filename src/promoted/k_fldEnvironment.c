@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldEnvironment.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -17,9 +18,9 @@ extern void func_0044ea90(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern char D_005EFE50[];
 extern char D_005EFE68[];
-extern void func_00153a00();
-extern void func_00153a30();
-extern s32 func_00451fc0();
+extern s32 func_00153a00(u8 *task);
+extern void func_00153a30(u8 *task);
+
 
 extern s32 func_0014eec0(void);
 extern void func_00442830(void *arg0, const char *arg1);
@@ -71,7 +72,7 @@ s32 func_00153a60(s32 arg0) {
     if (p == NULL) {
         return 0;
     }
-    result = func_00451fc0(arg0, &D_005EFE68[0], 0xF, 0, 0, func_00153a00, func_00153a30, p);
+    result = (s32)func_00451fc0((void *)(arg0), (const void *)(&D_005EFE68[0]), 0xF, 0, 0, func_00153a00, func_00153a30, (u8 *)(p));
     *(s32 *)(p + 0x8) = 1;
     *(s32 *)(p + 0xC) = 0xC8;
     return result;

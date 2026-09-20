@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "btl_skill_internal.h"
 typedef struct BtlTarget BtlTarget;
@@ -69,11 +70,11 @@ extern u8 D_00629698[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void func_0044ea90();
 extern void func_0043f9c8();
-extern s32 func_00451fc0();
-extern void func_00221f40();
-extern void func_002230a0();
+
+extern s32 func_00221f40(u8 *task);
+extern void func_002230a0(u8 *task);
 extern void func_00222d20(u8 *drawData, s32 workAddress, void *callback);
-extern s32 func_002232a0(KwlnTask *task);
+extern s32 func_002232a0(u8 *task);
 extern u8 D_00795F20[];
 extern u8 D_006296D0[];
 extern u8 D_008C0240[0x94];
@@ -108,13 +109,13 @@ extern BtlPacket *func_001b9360(s32 duration, s16 mode);
 extern BtlPacket *func_001b99a0(s32 duration);
 extern BtlPacket *func_001ba090(s32 duration);
 extern void func_002236b0();
-extern void func_002236c0(KwlnTask *task);
+extern void func_002236c0(u8 *task);
 
 extern u8 D_00629640[];
 extern u8 D_00629738[];
-extern void func_002239a0();
+extern s32 func_002239a0(u8 *task);
 extern void func_00223ed0();
-extern void func_00223ee0(KwlnTask *task);
+extern void func_00223ee0(u8 *task);
 extern s32 func_001998e0(u8 *arg0, s32 arg1);
 extern s64 func_001999f0(u8 *arg0, s32 arg1, f32 arg2, s64 arg3);
 extern s32 func_0019fe60(u8 *arg0, s32 arg1, s32 arg2);
@@ -592,9 +593,7 @@ s32 func_002230e0(s32 arg0)
     func_0044ea90(&D_00629698, 0x3A);
     temp_2 = (u8 *)(*jtbl_008873E8)(0x74, 0x40000);
     func_0043f9c8(temp_2, 0, 0x74);
-    temp_16 = (s32)(func_00451fc0(arg0, &D_00629640, 0xF, 0, 0,
-                                  (void *)func_00221f40,
-                                  (void *)func_002230a0, temp_2));
+    temp_16 = (s32)((s32)func_00451fc0((void *)(arg0), (const void *)(&D_00629640), 0xF, 0, 0, func_00221f40, func_002230a0, (u8 *)(temp_2)));
     temp_2_2 = (u16 *)(func_00452560((void *)arg0));
     *(s32 *)((u8 *)(temp_2) + 4) = 0;
     *(u16 **)((u8 *)(temp_2) + 0x3C) = (u16 *)(temp_2_2);
@@ -632,8 +631,9 @@ s32 func_00223270(void)
 // FUN_002232A0
 /* 1036/1040 bytes; 26 code relocations and all nine switch entries exact. */
 #pragma opt_propagation off
-s32 func_002232a0(KwlnTask *task)
+s32 func_002232a0(u8 *sdkTaskBytes)
 {
+    KwlnTask *task = (KwlnTask *)sdkTaskBytes;
     u8 *work;
     u8 *results;
     u8 *persona;
@@ -773,8 +773,9 @@ void func_002236b0(s32 arg0, u16 *arg1, s32 arg2)
     }
 }
 // FUN_002236C0
-void func_002236c0(KwlnTask *task)
+void func_002236c0(u8 *sdkTaskBytes)
 {
+    KwlnTask *task = (KwlnTask *)sdkTaskBytes;
     u8 *p;
     s32 h;
 
@@ -799,9 +800,7 @@ s32 func_00223730(s32 arg0)
     func_0044ea90(&D_006296E8, 0x3A);
     temp_2 = (u8 *)(*jtbl_008873E8)(0x54, 0x40000);
     func_0043f9c8(temp_2, 0, 0x54);
-    temp_16 = (s32)(func_00451fc0(arg0, &D_006296B0, 0xF, 0, 0,
-                                  (void *)func_002232a0,
-                                  (void *)func_002236c0, temp_2));
+    temp_16 = (s32)((s32)func_00451fc0((void *)(arg0), (const void *)(&D_006296B0), 0xF, 0, 0, func_002232a0, func_002236c0, (u8 *)(temp_2)));
     temp_2_2 = (u16 *)(func_00452560((void *)arg0));
     *(s32 *)((u8 *)(temp_2) + 4) = 0;
     *(u16 **)((u8 *)(temp_2) + 0x40) = (u16 *)(temp_2_2);
@@ -846,8 +845,9 @@ void func_00223ed0(s32 arg0, u16 *arg1, s32 arg2)
     }
 }
 // FUN_00223EE0
-void func_00223ee0(KwlnTask *task)
+void func_00223ee0(u8 *sdkTaskBytes)
 {
+    KwlnTask *task = (KwlnTask *)sdkTaskBytes;
     u8 *p;
     s32 h;
 
@@ -870,9 +870,7 @@ s32 func_00223f40(s32 arg0)
     func_0044ea90(&D_00629738, 0x3A);
     temp_2 = (u8 *)(*jtbl_008873E8)(0x4C, 0x40000);
     func_0043f9c8(temp_2, 0, 0x4C);
-    temp_16 = (s32)(func_00451fc0(arg0, &D_00629700, 0xF, 0, 0,
-                                  (void *)func_002239a0,
-                                  (void *)func_00223ee0, temp_2));
+    temp_16 = (s32)((s32)func_00451fc0((void *)(arg0), (const void *)(&D_00629700), 0xF, 0, 0, func_002239a0, func_00223ee0, (u8 *)(temp_2)));
     temp_2_2 = (u16 *)(func_00452560((void *)arg0));
     *(s32 *)((u8 *)(temp_2) + 4) = 0;
     *(u16 **)((u8 *)(temp_2) + 0x3C) = (u16 *)(temp_2_2);

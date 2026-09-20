@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
@@ -131,8 +132,7 @@ extern u8 iGpffffb469;
 extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
 extern s32 func_00452380(void *arg0);
-extern s32 func_00451de0(const void *data, s32 arg1, s32 arg2, s32 arg3,
-                         void *init, void *close, void *buf);
+
 extern s32 func_001fbb50(u8 *arg0);
 
 
@@ -5791,8 +5791,7 @@ void func_001fc1b0(s16 arg0) {
         iGpffffb468 = 2;
         iGpffffb46e = arg0;
         iGpffffb469 = 0;
-        func_00451de0(&D_006251F0, 0xC9, 0, 0,
-                      (void *)func_001fbb50, NULL, (void *)&iGpffffb468);
+        (s32)func_00451de0((const void *)(&D_006251F0), 0xC9, 0, 0, func_001fbb50, 0, (u8 *)((void *)&iGpffffb468));
     }
 }
 // FUN_001FC270

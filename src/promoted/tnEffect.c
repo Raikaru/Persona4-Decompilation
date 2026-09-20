@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit tnEffect.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -54,9 +55,8 @@ u8 *func_003ef740(void *arg0, s32 arg1);
 void func_004bd130(s32 arg0, s32 arg1);
 void func_004abb60(void);
 void func_004a77b0(void);
-void func_004b3180(void *arg0);
-s32 func_00451de0(const void *arg0, void *arg1, s32 arg2, s32 arg3,
-                  void *arg4, void *arg5, void *arg6);
+void func_004b3180(s32 arg0);
+
 
 extern char D_00713270[];
 extern char D_00713280[];
@@ -260,7 +260,7 @@ void func_004818c0(void *arg0) {
 }
 
 // FUN_00481980
-s32 func_00481980(void) {
+s32 func_00481980(u8 *unusedTask) {
     func_004b1600();
     func_004a7830();
     if (D_00922CC0[0] != 0) {
@@ -273,7 +273,7 @@ s32 func_00481980(void) {
 }
 
 // FUN_00481A20
-void func_00481a20(void *arg0)
+void func_00481a20(s32 arg0)
 {
     TnMatrix matrix;
     u_long128 color0;
@@ -400,5 +400,5 @@ void func_00481a20(void *arg0)
     func_004abb60();
     func_004a77b0();
     func_004b3180(arg0);
-    func_00451de0(D_007132B8, arg0, 0, 0, (void *)func_00481980, 0, 0);
+    (s32)func_00451de0((const void *)(D_007132B8), arg0, 0, 0, func_00481980, 0, (u8 *)(0));
 }

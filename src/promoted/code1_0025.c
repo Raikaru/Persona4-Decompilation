@@ -456,7 +456,8 @@ void func_002518d0(s32 arg0) {
 }
 // FUN_002519E0
 /* Candidate reconstructed from retail dispatch and generated source. */
-s32 func_002519e0(s32 arg0) {
+s32 func_002519e0(u8 *sdkTaskBytes) {
+    s32 arg0 = (s32)sdkTaskBytes;
     s32 temp_2_4;
     s32 temp_2_5;
     s32 temp_2_6;
@@ -540,7 +541,7 @@ block_15:
     return 0;
 }
 // FUN_00251CE0
-void func_00251ce0(void)
+void func_00251ce0(u8 *unusedTask)
 {
     void *t;
 
@@ -1209,7 +1210,7 @@ void func_0025ec90(f32 farg0, f32 farg1, f32 farg2,
                   0, 0, 0.0f, 1.0f, 1.0f, arg5);
 }
 // FUN_0025F960
-s32 func_0025f960(void) {
+s32 func_0025f960(u8 *unusedTask) {
     s32 var_17;
     s32 *p;
     s32 temp_3;
@@ -1236,7 +1237,7 @@ s32 func_0025f960(void) {
     return 0;
 }
 // FUN_0025FA30
-void func_0025fa30(void)
+void func_0025fa30(u8 *unusedTask)
 {
     s32 *temp_2;
     s32 temp_3;

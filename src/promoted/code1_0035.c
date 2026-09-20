@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
@@ -96,10 +97,8 @@ extern u8 iGpffffa960;
 extern u8 D_0064B360[];
 extern u8 D_0064B380[];
 extern void func_0044ea90(const void *arg0, s32 arg1);
-extern u8 *func_00451fc0(s32 arg0, const void *arg1, s32 arg2, s32 arg3,
-                         s32 arg4, void *arg5, void *arg6, u8 *arg7);
-extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c,
-                         void *init, void *close, void *buf);
+
+
 extern u8 D_0064B410[];
 extern s32 func_003558a0(u8 *arg0);
 extern void func_00356140(u8 *arg0);
@@ -443,9 +442,7 @@ s32 func_00354500(void) {
     if (temp_2_2 == NULL) {
         func_0046d730(&D_0064B310, 0x3AC);
     }
-    if (func_00451fc0(0, &D_0064B320, 0xF, 0, 0,
-                      (void *)func_003540f0, (void *)func_00354230,
-                      temp_2_2) == NULL) {
+    if (func_00451fc0((void *)(0), (const void *)(&D_0064B320), 0xF, 0, 0, func_003540f0, func_00354230, (u8 *)(temp_2_2)) == NULL) {
         func_0046d730(&D_0064B310, 0x3B5);
     }
     func_00354280(temp_2_2, temp_17, 0);
@@ -476,9 +473,7 @@ s32 func_00354660(void) {
     if (temp_2_2 == NULL) {
         func_0046d730(&D_0064B310, 0x3AC);
     }
-    if (func_00451fc0(0, &D_0064B320, 0xF, 0, 0,
-                      (void *)func_003540f0, (void *)func_00354230,
-                      temp_2_2) == NULL) {
+    if (func_00451fc0((void *)(0), (const void *)(&D_0064B320), 0xF, 0, 0, func_003540f0, func_00354230, (u8 *)(temp_2_2)) == NULL) {
         func_0046d730(&D_0064B310, 0x3B5);
     }
     func_00354280(temp_2_2, temp_17, 1);
@@ -577,9 +572,7 @@ u8 *func_00354a50(s32 arg0, u16 arg1) {
     if (temp_2_2 == NULL) {
         return NULL;
     }
-    temp_2 = func_00451fc0(arg0, &D_0064B3D0, 0xC7, 0, 0,
-                           (void *)func_00355460, (void *)func_003554b0,
-                           temp_2_2);
+    temp_2 = func_00451fc0((void *)(arg0), (const void *)(&D_0064B3D0), 0xC7, 0, 0, func_00355460, func_003554b0, (u8 *)(temp_2_2));
     if (temp_2 == NULL) {
         return NULL;
     }
@@ -957,9 +950,7 @@ s32 func_00355550(s16 arg0, s32 arg1, s16 arg2, s16 arg3,
     if (temp_2 == NULL) {
         func_0046d730(&D_0064B310, 0x63E);
     }
-    result = func_00451de0(&D_0064B410, arg6, 0, 0,
-                           (void *)func_003558a0, (void *)func_00356140,
-                           temp_2);
+    result = (s32)func_00451de0((const void *)(&D_0064B410), arg6, 0, 0, func_003558a0, func_00356140, (u8 *)(temp_2));
     *(s16 *)(temp_2 + 0x0) = arg0;
     *(s32 *)(temp_2 + 0x4) = arg5;
     *(s16 *)(temp_2 + 0xC) = arg2;
@@ -3077,9 +3068,7 @@ u8 *func_0035adc0(s32 arg0, s64 arg1, s32 arg2)
     if (temp_2 == NULL) {
         func_0046d730(&D_0064CC98, 0x6EE);
     }
-    temp_18 = func_00451fc0(arg0, &D_0064CCD0, 0xC7, 0, 0,
-                            (void *)func_0035aec0, (void *)func_0035af10,
-                            temp_2);
+    temp_18 = func_00451fc0((void *)(arg0), (const void *)(&D_0064CCD0), 0xC7, 0, 0, func_0035aec0, func_0035af10, (u8 *)(temp_2));
     *(s8 *)(temp_2 + 0x20) = 0;
     *(s32 *)(temp_2 + 0x2C) = 0;
     *(u8 **)(temp_2 + 0x140) = D_0064CCB0;
@@ -3545,9 +3534,7 @@ u8 *func_0035bf10(s32 arg0, u16 arg1, s32 arg2)
     if (temp_2 == NULL) {
         func_0046d730(&D_0064CC98, 0x906);
     }
-    temp_16 = func_00451fc0(arg0, &D_0064CD40, 0xC7, 0, 0,
-                            (void *)func_0035be70, (void *)func_0035bec0,
-                            temp_2);
+    temp_16 = func_00451fc0((void *)(arg0), (const void *)(&D_0064CD40), 0xC7, 0, 0, func_0035be70, func_0035bec0, (u8 *)(temp_2));
     *(s16 *)(temp_2 + 0x20) = 0;
     *(s32 *)(temp_2 + 0x2C) = 0;
     *(f32 *)(temp_2 + 0x10) = 353.0f;

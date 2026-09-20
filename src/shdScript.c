@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit shdScript.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -10,8 +11,7 @@ typedef void (*code)(void *);
 extern code DAT_008873ec_abs[];
 extern void func_0044ea90(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c,
-                         void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
+
 extern u8 *D_00636820[];
 extern u8 D_00636838[];
 extern u8 D_00636850[];
@@ -149,9 +149,7 @@ s32 func_0025cbc0(u8 *arg0, s32 arg1, s32 arg2)
     *(s32 *)(mem + 4) = arg1;
     *(s32 *)(mem + 8) = arg2;
     *(s32 *)(mem + 0xC) = -1;
-    return func_00451fc0(arg0, D_00636A30, 0xF, 0, 0,
-                         (void (*)(u8 *))func_0025c790,
-                         (void (*)(u8 *))func_0025cb80, mem);
+    return (s32)func_00451fc0((void *)(arg0), (const void *)(D_00636A30), 0xF, 0, 0, func_0025c790, func_0025cb80, (u8 *)(mem));
 }
 
 // FUN_0025CC70
@@ -176,9 +174,7 @@ s32 func_0025ccb0(void) {
         *(s32 *)(buf + 4) = a;
         *(s32 *)(buf + 8) = b;
         *(s32 *)(buf + 0xC) = -1;
-        func_00451fc0(NULL, D_00636A30, 0xF, 0, 0,
-                      (void (*)(u8 *))func_0025c790,
-                      (void (*)(u8 *))func_0025cb80, buf);
+        (s32)func_00451fc0((void *)(NULL), (const void *)(D_00636A30), 0xF, 0, 0, func_0025c790, func_0025cb80, (u8 *)(buf));
         goto done;
     }
     hit = func_00452490(func_00452380(D_00636A30)) != 0;

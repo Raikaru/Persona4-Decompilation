@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldEvent.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 
 extern void (*jtbl_008873EC[])(void *);
@@ -17,7 +18,7 @@ typedef struct { f32 x, y, z; } FldEventVec3;
 extern FldEventVec3 D_005F1838;
 
 void func_0044ea90(const void *, u32);
-s32 func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
+
 void func_00182390(void);
 u8 *func_00145270(s32 arg0);
 void func_00174be0(s32, s32);
@@ -1709,9 +1710,7 @@ s32 func_00174ad0(s32 arg0)
     if (temp_2 == 0) {
         return 0;
     }
-    arg0 = func_00451fc0(arg0, D_005F1828, 0xF, 0, 0,
-                         (void (*)(u8 *))func_001747d0,
-                         func_00174aa0, temp_2);
+    arg0 = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1828), 0xF, 0, 0, func_001747d0, func_00174aa0, (u8 *)(temp_2));
     func_00182390();
     *(s32 *)(temp_2 + 0xC) = -1;
     temp_18 = temp_2 + 0x18;
@@ -2268,8 +2267,7 @@ s32 func_00175ea0(s32 arg0, s32 arg1, s32 arg2)
     if (temp_2 == 0) {
         return 0;
     }
-    ret = func_00451fc0(arg0, D_005F1848, 0xF, 0, 0,
-                        (void (*)(u8 *))func_00175dc0, func_00175e70, temp_2);
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1848), 0xF, 0, 0, func_00175dc0, func_00175e70, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 0x44) = arg1;
     *(s32 *)(temp_2 + 0x48) = arg2;
     return ret;

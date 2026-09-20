@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "Kosaka/k_fldFrame_internal.h"
 
@@ -70,7 +71,7 @@ extern f32 D_007F1730[];
 
 extern u8 D_005F16C8[];
 extern u8 D_005F16D0[];
-extern s32 func_00451fc0();
+
 extern u8 D_007EF9F8[];
 extern u8 D_007EFA00[];
 extern u8 D_005F1698[];
@@ -80,7 +81,7 @@ extern u8 D_007948D0[];
 extern void *func_003e9320(void);
 extern void func_003e9df0(void *arg0);
 extern s32 func_003e0f80(void);
-extern void func_0016bdd0(void *arg0);
+extern s32 func_0016bdd0(u8 *task);
 extern s32 func_0014d510(s32 arg0, s32 arg1, void *arg2);
 extern s32 func_0014d700(s32 arg0, void *arg1);
 extern s32 func_0014d910(s32 arg0, void *arg1);
@@ -1305,9 +1306,7 @@ s32 func_001684a0(s32 arg0, s32 arg1, f32 fparg0)
     if (temp_2 == NULL) {
         return 0;
     }
-    temp_18 = func_00451fc0(
-        arg0, D_005F1630, 0xF, 0, 0,
-        func_00168060, func_00168470, temp_2);
+    temp_18 = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1630), 0xF, 0, 0, func_00168060, func_00168470, (u8 *)(temp_2));
     *(s32 *)temp_2 = 1;
     temp_4 = arg1 & 0xFFFF;
     *(s16 *)(temp_2 + 8) = arg1;
@@ -1352,9 +1351,7 @@ s32 func_001684a0(s32 arg0, s32 arg1, f32 fparg0)
     func_0044ea90(D_005F15F8, 0x83);
     base = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(1, 0x10, 0x40000);
     if (base != NULL) {
-        func_00451fc0(
-            temp_18, D_005F1610, 0x10, 0, 0,
-            (void (*)(u8 *))func_00167f00, func_00168030, base);
+        (s32)func_00451fc0((void *)(temp_18), (const void *)(D_005F1610), 0x10, 0, 0, func_00167f00, func_00168030, (u8 *)(base));
         *(s16 *)(base + 4) = arg1;
     }
     return temp_18;
@@ -1965,9 +1962,10 @@ extern void FUN_0047a870(unsigned char *);
 
 /* WARNING: Removing unreachable block (ram,0x0016c900) */
 
-void func_0016bdd0(void *param_1)
+s32 func_0016bdd0(u8 *param_1)
 
 {
+    /* Retail returns zero at 0016E1D0, 0016BE18, 0016BE34. */
 /* irregular: 14 unstructured edge(s); 13 goto(s); 21 native warning(s); review required */
   int *piVar1;
   unsigned int temp_v0;
@@ -3006,7 +3004,7 @@ LAB_0016e0c0:
   if (keepS0 == 0x12345678) {
     keepS1 += keepS0 + keepS2 + keepS3 + keepS4 + keepS5 + keepS6 + keepS7 + keepS8 + keepS9 + keepS10 + keepS11 + keepS12 + keepS13 + keepS14 + keepS15 + keepS16 + keepS17 + keepS18 + keepS19 + keepS20 + keepS21;
   }
-  return;
+  return 0;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016bdd0);
@@ -3050,8 +3048,7 @@ s32 func_0016e2e0(s32 arg0)
     if (temp_2 == NULL) {
         return 0;
     }
-    temp_18 = func_00451fc0(arg0, D_005F16B0, 0x11, 0, 0,
-                            func_0016bdd0, func_0016e210, temp_2);
+    temp_18 = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F16B0), 0x11, 0, 0, func_0016bdd0, func_0016e210, (u8 *)(temp_2));
     temp_16 = temp_2 + 0xC;
     temp_2_2 = (u8 *)func_003e9320();
     *(u8 **)(temp_16 + 0) = temp_2_2;
@@ -3604,8 +3601,7 @@ u8 *func_0016f130(u8 *arg0, s32 arg1, s32 arg2)
         if (temp_2 == NULL) {
             return NULL;
         }
-            result = (u8 *)func_00451fc0(arg0, D_005F16E0, 0xF, 0, 0,
-                                          func_0016ee00, func_0016f100, temp_2);
+            result = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, func_0016ee00, func_0016f100, (u8 *)(temp_2));
             *(s32 *)(temp_2 + 4) = arg1;
             temp_f20 = func_0014b5d0(
                 func_0047a2f0(*(s32 *)D_007EFA00));
@@ -3666,8 +3662,7 @@ u8 *func_0016f3b0(u8 *arg0, s32 arg1, s32 arg2)
         if (temp_2 == NULL) {
             return NULL;
         }
-        result = (u8 *)func_00451fc0(arg0, D_005F16E0, 0xF, 0, 0,
-                                     func_0016ee00, func_0016f100, temp_2);
+        result = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, func_0016ee00, func_0016f100, (u8 *)(temp_2));
         *(s32 *)(temp_2 + 4) = arg1;
         func_0014b5d0(func_0047a2f0(*(s32 *)D_007EFA00));
         temp_f0 = func_0014b5d0(

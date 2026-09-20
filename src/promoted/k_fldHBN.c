@@ -2,6 +2,7 @@
 /* Original translation unit k_fldHBN.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+#include "field_light_internal.h"
 
 extern u8 *func_00155280(void);
 extern void func_00160180(void);
@@ -88,26 +89,14 @@ s32 func_0015f9b0(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3)
     }
     return 1;
 }
-/* measured: retail loads the u32 field at entry+4 through an unaligned */
-/*   lwr $6,0x4($17)/lwl $6,0x7($17) pair at BOTH func_00145d60/func_00145e90 */
-/*   call sites (2 pairs, 4 words); prior passes found b210 emits plain `lw` */
-/*   for every construct tried at a 4-aligned displacement while retail 2.4.1 */
-/*   tracks the byte-derived base alignment (same family as the ldr/ldl notes */
-/*   in y_fclCombineDraw.c/shdPersona.c). */
-/* 2026-09-17 reconstruction (guarded v6, cold start from the m2c draft): nd 108 at */
-/*   263/263 instrs exact size, so the old nd-189 cascade reading is superseded. */
-/*   `*(u32 *)(r + 7)` emits lwr alone (lwl companion still open); */
-/*   `*(u32 *)(r + 4)` is plain lw. Grouped pointer/counter lives (r13/c1, */
-/*   r2/c2/c3 with boundary copies, matching retail's two daddu copies) moved */
-/*   190 to 108 with branch displacements exact; declaration order is inert */
-/*   (112/112). Remaining is a stable 4-home color cycle (retail arg0:s3 */
-/*   arg1:s2 r:s1 ctr:s0 vs object s1/s4/s0/s3). Production stays ASM. */
-// FUN_0015FB00 NONMATCHING
-#ifdef NON_MATCHING
+/* 1052/1056 bytes: field colors are four-byte values passed after the
+   three floats. Lifetime analysis preserves the separate cursor/counter
+   phases. See docs/probe_archive/HBN_0015fb00_color_value_recovery.md. */
+// FUN_0015FB00
+#pragma push
+#pragma opt_lifetimes on
 void func_0015fb00(u8 *arg0, s32 arg1)
 {
-    extern s32 func_00145d60(u16 arg0, f32 *arg1, s32 arg2, f32 fparg0, f32 fparg1, f32 fparg2);
-    extern s32 func_00145e90(u16 arg0, f32 *arg1, s32 arg2, f32 fparg0, f32 fparg1, f32 fparg2);
     extern s32 func_00145fc0(u16 arg0, f32 *arg1, f32 fparg0);
     extern s32 func_00146080(u16 arg0, f32 *arg1, f32 fparg0);
     extern s32 func_00146140(u16 arg0, f32 *arg1, f32 fparg0);
@@ -133,60 +122,69 @@ void func_0015fb00(u8 *arg0, s32 arg1)
         } else {
             r13 = arg0 + 0x48;
         }
-        for (c1 = 0; c1 < *(u32 *)(arg0 + 8); c1++) {
+        for (c1 = 0; c1 < *(u32 *)(arg0 + 8);) {
             if ((((func_0014a200() == 0) && (func_0014a270() == 0)) || (arg1 == 1)) && ((arg1 != 1) || (((*(u16 *)r13 & 0x3FF) != 0x3FE) && ((*(u16 *)r13 & 0x3FF) != 0x3FF)))) {
-                func_00145d60(*(u16 *)r13 & 0x3FF, (f32 *)(r13 + 8), *(u32 *)(r13 + 7), *(f32 *)(r13 + 0x14), *(f32 *)(r13 + 0x18), *(f32 *)(r13 + 0x1C));
+                func_00145d60(*(u16 *)r13 & 0x3FF, (f32 *)(r13 + 8), *(f32 *)(r13 + 0x14), *(f32 *)(r13 + 0x18), *(f32 *)(r13 + 0x1C), *(FieldRgba8 *)(r13 + 4));
             }
+            c1++;
             r13 += 0x20;
         }
         r2 = r13;
-        for (c2 = 0; c2 < *(u32 *)(arg0 + 0x10); c2++) {
+        for (c2 = 0; c2 < *(u32 *)(arg0 + 0x10);) {
             if ((((func_0014a200() == 0) && (func_0014a270() == 0)) || (arg1 == 1)) && ((arg1 != 1) || ((*(u16 *)r2 & 0x3FF) != 0x3FF))) {
                 func_00145fc0(*(u16 *)r2 & 0x3FF, (f32 *)(r2 + 4), *(f32 *)(r2 + 0x10));
             }
+            c2++;
             r2 += 0x14;
         }
         if (((func_0014a200() == 0) && (func_0014a270() == 0)) || (((func_0014a270() == 1) && (arg1 == 1)))) {
-            for (c2 = 0; c2 < *(u32 *)(arg0 + 0x18); c2++) {
+            for (c2 = 0; c2 < *(u32 *)(arg0 + 0x18);) {
                 func_00146080(*(u16 *)r2 & 0x3FF, (f32 *)(r2 + 4), *(f32 *)(r2 + 0x10));
+                c2++;
                 r2 += 0x14;
             }
         }
         if (((func_0014a200() == 0) && (func_0014a270() == 0)) || (arg1 == 1)) {
-            for (c3 = 0; c3 < *(u32 *)(arg0 + 0x20); c3++) {
+            for (c3 = 0; c3 < *(u32 *)(arg0 + 0x20);) {
                 func_00146140(*(u16 *)r2 & 0x3FF, (f32 *)(r2 + 4), *(f32 *)(r2 + 0x10));
+                c3++;
                 r2 += 0x14;
             }
-            if (*(u32 *)(arg0 + 4) >= 0x10001U) {
-                for (c3 = 0; c3 < *(u32 *)(arg0 + 0x28); c3++) {
+            if (*(u32 *)(arg0 + 4) > 0x10000U) {
+                for (c3 = 0; c3 < *(u32 *)(arg0 + 0x28);) {
                     func_00146200(*(u16 *)r2 & 0x3FF, (f32 *)(r2 + 4), *(f32 *)(r2 + 0x10));
+                    c3++;
                     r2 += 0x14;
                 }
             }
-            if (*(u32 *)(arg0 + 4) >= 0x10002U) {
+            if (*(u32 *)(arg0 + 4) > 0x10001U) {
                 r13 = r2;
-                for (c1 = 0; c1 < *(u32 *)(arg0 + 0x30); c1++) {
-                    func_00145e90(*(u16 *)r13 & 0x3FF, (f32 *)(r13 + 8), *(u32 *)(r13 + 7), *(f32 *)(r13 + 0x14), *(f32 *)(r13 + 0x18), *(f32 *)(r13 + 0x1C));
-                    *(s32 *)(func_00145270(((*(u16 *)r13 & 0x3FF) | 0x5400) & 0xFFFF) + 0x18C) = *(u16 *)(r13 + 2);
+                for (c1 = 0; c1 < *(u32 *)(arg0 + 0x30);) {
+                    func_00145e90(*(u16 *)r13 & 0x3FF, (f32 *)(r13 + 8), *(f32 *)(r13 + 0x14), *(f32 *)(r13 + 0x18), *(f32 *)(r13 + 0x1C), *(FieldRgba8 *)(r13 + 4));
+                    {
+                        u8 *resource = func_00145270(((*(u16 *)r13 & 0x3FF) | 0x5400) & 0xFFFF);
+                        *(s32 *)(resource + 0x18C) = *(u16 *)(r13 + 2);
+                    }
+                    c1++;
                     r13 += 0x20;
                 }
             }
-            if (*(u32 *)(arg0 + 4) >= 0x10003U) {
-                for (c1 = 0; c1 < *(u32 *)(arg0 + 0x38); c1++) {
+            if (*(u32 *)(arg0 + 4) > 0x10002U) {
+                for (c1 = 0; c1 < *(u32 *)(arg0 + 0x38);) {
                     func_001462c0(*(u16 *)r13 & 0x3FF, (f32 *)(r13 + 4), *(f32 *)(r13 + 0x10));
+                    c1++;
                     r13 += 0x14;
                 }
-                for (c1 = 0; c1 < *(u32 *)(arg0 + 0x40); c1++) {
+                for (c1 = 0; c1 < *(u32 *)(arg0 + 0x40);) {
                     func_00146380(*(u16 *)r13 & 0x3FF, (f32 *)(r13 + 4), *(f32 *)(r13 + 0x10));
+                    c1++;
                     r13 += 0x14;
                 }
             }
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldHBN", func_0015fb00);
-#endif
+#pragma pop
 // FUN_0015FF20
 u8 *func_0015ff20(u16 arg0, s32 arg1)
 {

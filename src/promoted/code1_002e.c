@@ -1,4 +1,7 @@
 #include "include_asm.h"
+#include "fcl_bounds_packet.h"
+#include "fcl_draw_task.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "fr_font_internal.h"
 extern void (*jtbl_008873EC[])(void *arg0);
@@ -31,13 +34,10 @@ extern u8 D_0063FC80[];
 extern u8 D_0063FC90[];
 extern void *(*D_008873F4[])(size_t numObj, size_t sizeObj, u32 hint);
 extern void func_0044ea90(const void *arg0, u32 arg1);
-extern s32 func_00451fc0(s32 arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4,
-                         void (*arg5)(u8 *), void (*arg6)(u8 *), u8 *arg7);
-extern s32 func_002b5c90(s32 arg0, u64 arg1);
-extern void func_002b29e0(void *arg0, f32 arg1, f32 arg2);
-extern void func_002b5db0(s32 arg0, s64 arg1, void *arg2);
+
+
 extern void func_002b2a60(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void func_002b5e30(s32 arg0, u32 arg1);
+
 extern void func_0045aac0(s16 arg0, s32 arg1, s32 arg2);
 extern s32 func_00106ac0(s16 arg0);
 extern s64 func_00106af0(s16 arg0);
@@ -558,26 +558,24 @@ s32 func_002e7510(s32 arg0)
 {
     s32 result;
     u8 *work;
-    u8 color[24];
-    s64 vec60;
-    s64 vec58;
-    s32 color_value;
+    struct { FclBoundsPacket bounds; u8 reserved[8]; } color;
+    FclPackedPosition vec60;
+    FclPackedPosition vec58;
+    FclDrawColor color_value;
     s32 i;
     extern void func_00110810(s32, u8);
 
     func_0044ea90(D_0063FC80, 0x11A);
     work = D_008873F4[0](1, 0x18, 0x40000);
-    result = func_00451fc0(arg0, (char *)D_0063FC90, 0xF, 0, 0,
-                           (void (*)(u8 *))func_002e72c0,
-                           func_002e74e0, work);
+    result = (s32)func_00451fc0((void *)((void *)(arg0)), (const void *)((char *)D_0063FC90), 0xF, 0, 0, func_002e72c0, func_002e74e0, (u8 *)(work));
     iGpffffb590 = NULL;
-    func_002b2970(&vec60, 0, 0);
-    iGpffffb590 = (u8 *)func_002b5c90(result, *(u64 *)&vec60);
-    func_002b2970(&vec58, 0, 0);
-    func_002b29e0(color, 640.0f, 448.0f);
-    func_002b5db0((s32)iGpffffb590, vec58, color);
+    func_002b2970(&vec60.bits, 0, 0);
+    iGpffffb590 = (u8 *)func_002b5c90(result, vec60.position);
+    func_002b2970(&vec58.bits, 0, 0);
+    func_002b29e0((u8 *)&color.bounds, 640.0f, 448.0f);
+    func_002b5db0(iGpffffb590, vec58.position, &color.bounds);
     func_002b2a60(&color_value, 0, 0, 0, 0xFF);
-    func_002b5e30((s32)iGpffffb590, color_value);
+    func_002b5e30(iGpffffb590, color_value);
     *work = 1;
     func_0045aac0(3, 0, 0x1E);
 

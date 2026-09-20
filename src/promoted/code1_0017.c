@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "rw/plcore/barenderstate.h"
@@ -91,7 +92,7 @@ void func_0017d240(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                     s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9);
 extern s32 func_0017cd60(u8 *arg0);
 extern void func_0044ea90(const void *msg, s32 id);
-extern void *func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c, void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
+
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern f32 func_0044b7b0(f32 arg0);
 extern f32 func_0044b610(f32 arg0);
@@ -2035,7 +2036,7 @@ void *func_0017b510(u8 *arg0, s32 arg1, s32 arg2)
         return NULL;
     }
 
-    task = func_00451fc0(arg0, D_005F18D0, 0x10, 0, 0, (void (*)(u8 *))func_0017acc0, func_0017b350, data);
+    task = func_00451fc0((void *)(arg0), (const void *)(D_005F18D0), 0x10, 0, 0, func_0017acc0, func_0017b350, (u8 *)(data));
     *(u16 *)(data + 0x8) = arg1;
     mode = (u16 *)(data + 0xA);
     *mode = arg2;
@@ -2636,7 +2637,7 @@ s32 func_0017ccc0(u8 *arg0) {
     if (buf == NULL) {
         return 0;
     }
-    return (s32)func_00451fc0(arg0, D_005F1910, 8, 0, 0, (void (*)(u8 *))func_0017c930, func_0017cc90, buf);
+    return (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1910), 8, 0, 0, func_0017c930, func_0017cc90, (u8 *)(buf));
 }
 
 
@@ -2708,7 +2709,7 @@ void func_0017d060(u8 *arg0)
 s32 func_0017d070(u8 *arg0)
 {
     func_0043f9c8(D_007F1740, 0, 0x20);
-    return (s32)func_00451fc0(arg0, D_005F1950, 0x12, 0, 0, (void (*)(u8 *))func_0017cd60, func_0017d060, D_007F1740);
+    return (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1950), 0x12, 0, 0, func_0017cd60, func_0017d060, (u8 *)(D_007F1740));
 }
 // FUN_0017D0F0
 void func_0017d0f0(u8 *arg0, s32 arg1)

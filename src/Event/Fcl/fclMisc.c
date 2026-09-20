@@ -2,6 +2,7 @@
 
 /* Source unit: src/Event/Fcl/fclMisc.c */
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 
 // Donor calls this implicitly (no prototype), so keep the old-style form.
@@ -31,10 +32,10 @@ extern void func_00278170(s32, s32);
 extern void func_002778c0(s32, s32, s32);
 extern void func_002818a0(s32, s32);
 extern u8 *func_002e1db0(s32, s32, s32, s32);
-extern s32 func_00451de0(const void *, s32, s32, s32, void *, void *, void *);
+
 extern u8 D_0063F398[];
 extern u8 D_00882F30[];
-extern s32 func_002bce00(void);
+extern s32 func_002bce00(u8 *task);
 extern u32 func_00278110(s32);
 extern void func_0046d730(void *, s32);
 extern char D_0063F2A0[];
@@ -117,13 +118,13 @@ void func_002bcd20(void)
         *(s8 *)(globalState + 0xc) = 1;
         *(s8 *)(globalState + 0xd) = 1;
     }
-    func_00451de0(D_0063F398, 0xf, 0, 0, (void *)func_002bce00, 0, 0);
+    (s32)func_00451de0((const void *)(D_0063F398), 0xf, 0, 0, func_002bce00, 0, (u8 *)(0));
 }
 
 
 
 // FUN_002BCE00
-s32 func_002bce00(void)
+s32 func_002bce00(u8 *unusedTask)
 {
     u8 *manager;
     u8 *head;

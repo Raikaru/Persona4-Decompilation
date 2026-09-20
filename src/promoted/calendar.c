@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit calendar.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -16,12 +17,12 @@ extern u8 D_005E5050[];
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_0044ea90(u8 *file, s32 line);
-extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
-extern s32 func_00451fc0(s32 a, const void *b, s32 c, s32 d, s32 e, void *init, void *close, void *buf);
-extern void func_00120f70();
-extern void func_00121170();
-extern void func_001211a0();
-extern s32 func_00121690(void);
+
+
+extern s32 func_00120f70(u8 *task);
+extern void func_00121170(u8 *task);
+extern s32 func_001211a0(u8 *task);
+extern s32 func_00121690(u8 *task);
 extern s32 func_001104a0(s32 arg0);
 extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
 extern u8 func_001060c0(void);
@@ -54,9 +55,9 @@ void func_001211b0(void)
     func_0044ea90(D_005E4FD8, 0x79);
     work = D_008873F4[0](1, 0x10, 0x40000);
     if (work != NULL) {
-        handle = func_00451de0(D_005E4FE8, 0x100, 0, 0, func_00120f70, func_00121170, work);
+        handle = (s32)func_00451de0((const void *)(D_005E4FE8), 0x100, 0, 0, func_00120f70, func_00121170, (u8 *)(work));
         D_007242B0 = (s32)work;
-        func_00451fc0(handle, D_005E4FF8, 0x101, 0, 0, func_001211a0, NULL, NULL);
+        (s32)func_00451fc0((void *)(handle), (const void *)(D_005E4FF8), 0x101, 0, 0, func_001211a0, 0, (u8 *)(NULL));
     }
 }
 
@@ -78,7 +79,7 @@ void func_001212b0(void)
 }
 
 // FUN_00121310
-s32 func_00121310(void *arg0)
+s32 func_00121310(u8 *arg0)
 {
     s32 sp3C;
     s32 sp38;
@@ -165,7 +166,7 @@ s32 func_00121310(void *arg0)
     return 0;
 }
 // FUN_00121660
-void func_00121660(void *arg0)
+void func_00121660(u8 *arg0)
 {
     void *p = *(void **)((u8 *)arg0 + 0x38);
     D_007242B4 = 0;
@@ -176,7 +177,7 @@ void func_00121660(void *arg0)
  * both coordinate components; the formatter consumes a genuine vararg list.
  * Keep the loop bound live and reuse the selected row offset across queries. */
 // FUN_00121690
-s32 func_00121690(void)
+s32 func_00121690(u8 *unusedTask)
 {
     s32 month, day;
     u8 color[4];
@@ -230,9 +231,9 @@ s32 func_00121940(void)
     if (work == NULL) {
         return 0;
     }
-    handle = func_00451de0(D_005E5038, 0x100, 0, 0, func_00121310, func_00121660, work);
+    handle = (s32)func_00451de0((const void *)(D_005E5038), 0x100, 0, 0, func_00121310, func_00121660, (u8 *)(work));
     D_007242B4 = (s32)work;
-    func_00451fc0(handle, D_005E5050, 0x101, 0, 0, func_00121690, NULL, NULL);
+    (s32)func_00451fc0((void *)(handle), (const void *)(D_005E5050), 0x101, 0, 0, func_00121690, 0, (u8 *)(NULL));
     return handle;
 }
 
@@ -246,8 +247,8 @@ void func_00121a20(void)
     func_0044ea90(D_005E4FD8, 0x79);
     work = D_008873F4[0](1, 0x10, 0x40000);
     if (work != NULL) {
-        handle = func_00451de0(D_005E4FE8, 0x100, 0, 0, func_00120f70, func_00121170, work);
+        handle = (s32)func_00451de0((const void *)(D_005E4FE8), 0x100, 0, 0, func_00120f70, func_00121170, (u8 *)(work));
         D_007242B0 = (s32)work;
-        func_00451fc0(handle, D_005E4FF8, 0x101, 0, 0, func_001211a0, NULL, NULL);
+        (s32)func_00451fc0((void *)(handle), (const void *)(D_005E4FF8), 0x101, 0, 0, func_001211a0, 0, (u8 *)(NULL));
     }
 }

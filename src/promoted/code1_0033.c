@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "shd_misc_internal.h"
 extern void (*jtbl_008873EC[])(void *);
@@ -60,8 +61,7 @@ extern u8 D_00644E98[];
 extern u8 D_00644EB0[];
 extern void func_0044ea90(const void *arg0, s32 arg1);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_00451fc0(u8 *arg0, const void *arg1, s32 arg2, s32 arg3,
-                         s32 arg4, void *arg5, void *arg6, u8 *arg7);
+
 extern s32 func_0046aea0(void *arg0);
 extern u8 D_0064A458[];
 extern u8 D_0064A470[];
@@ -795,9 +795,7 @@ s32 func_0033e3f0(u8 *arg0)
 
     func_0044ea90(D_0064A458, 0x85);
     work = D_008873F4[0](1, 0x2C, 0x40000);
-    result = func_00451fc0(arg0, D_0064A470, 0xF, 0, 0,
-                           (void *)func_0033e1e0, (void *)func_0033e3a0,
-                           work);
+    result = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A470), 0xF, 0, 0, func_0033e1e0, func_0033e3a0, (u8 *)(work));
     work[0] = 0;
     *(s32 *)(work + 4) = func_0046aea0(D_0064A480);
     return result;

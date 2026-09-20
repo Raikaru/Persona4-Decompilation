@@ -1,6 +1,7 @@
 /* Original translation unit y_fclItemShopDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -50,9 +51,9 @@ extern u8 D_0064A3F0[];
 
 s32 func_00332bb0(u8 *arg0);
 extern void func_00332a80(void);
-extern s32 func_0033cc40();
+extern s32 func_0033cc40(u8 *task);
 void func_0044ea90(const void *, u32);
-u8 *func_00451fc0(void *, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
+
 void func_002e29a0(void);
 void func_00454bd0(void *);
 void func_0046b0d0(void *);
@@ -235,6 +236,8 @@ extern void func_002bbf60(void);
 /*   ~-2% distributed (~1/50); REFUTED D-table (12 uses flat at 7658/7939/3142) kept below. Next: 2 (806). */
 /*   CASE 3 fix: +85 via tail mirror (d320 4C/44/48 x2 check; d310 25=25 killed folding first), now -25. */
 /*   Checked 12/13/14 for mirror shape: none has if/else-if identical tails, fix local to 3. Prior kept. */
+/* The shared SDK update signature accepts func_00332bb0 directly at the
+   func_0033be40 registration site. */
 // FUN_00332BB0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00332bb0(u8 *arg0) {
@@ -1319,7 +1322,7 @@ u8 *func_0033be40(u8 *arg0) {
 
     func_0044ea90(D_0064A380, 0x958);
     temp_2 = (s8 *)D_008873F4[0](1, 0x42C, 0x40000);
-    temp_17 = func_00451fc0(arg0, D_0064A3D8, 0xF, 0, 0, (void (*)(u8 *))func_00332bb0, func_0033bdc0, (u8 *)temp_2);
+    temp_17 = func_00451fc0((void *)(arg0), (const void *)(D_0064A3D8), 0xF, 0, 0, func_00332bb0, func_0033bdc0, (u8 *)((u8 *)temp_2));
     *(s8 *)(temp_2 + 0) = 0;
     *(s32 *)(temp_2 + 0xC) = 0;
     *(f32 *)(temp_2 + 0x1E0) = (f32)0x28A;
@@ -1576,7 +1579,7 @@ u32 func_0033cbc0(void *arg0, s64 arg1) {
 
 /* measured: 1216B/1216B MATCH (304 instrs, 0 edits + 9 reloc-only). Re-probed from scratch: floats-first func_0025ecd0 spelling (f32,f32,f32 first, then color/ints, then f32,f32,f32, pointer last) with u16 0xF8 load (lhu) and inline s16/2 division gives retail scheduling; shift+temp hoisting was +33, s16 F8 was +2 (35), archive ints-first is a compile error under this prototype. Mixed-arg orders tested explicitly. */
 // FUN_0033CC40
-s32 func_0033cc40(void *arg0) {
+s32 func_0033cc40(u8 *arg0) {
     f32 temp_f0;
     f32 temp_f21;
     f32 temp_f20;
@@ -1712,7 +1715,7 @@ u8 *func_0033d130(void *arg0, s32 arg1, s32 arg2) {
 
     func_0044ea90(D_0064A380, 0xACA);
     work = D_008873F4[0](1, 0x104, 0x40000);
-    temp_17 = func_00451fc0(arg0, D_0064A3F0, 0xF, 0, 0, (void (*)(u8 *))func_0033cc40, func_0033d100, work);
+    temp_17 = func_00451fc0((void *)(arg0), (const void *)(D_0064A3F0), 0xF, 0, 0, func_0033cc40, func_0033d100, (u8 *)(work));
     work[0] = 0;
     *(s16 *)(work + 0xF8) = arg1;
     *(s32 *)(work + 0xF4) = arg2;
@@ -1739,4 +1742,3 @@ u8 *func_0033d130(void *arg0, s32 arg1, s32 arg2) {
 }
 /* measured: see annotation above (func_0033d130). */
 #pragma opt_loop_invariants off
-

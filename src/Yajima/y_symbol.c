@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Persona 4 USA decompilation - y_symbol.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
@@ -37,8 +38,7 @@ extern u32 D_007EFA00[];
 extern u8 D_007EFA04[];
 
 extern void func_0044ea90(void *msg, s32 id);
-extern s32 func_00451fc0(s32 window, const void *data, s32 a, s32 b, s32 c,
-                         s32 (*init)(u8 *), void (*close)(u8 *), void *buf);
+
 extern u8 *func_00145270(s32 arg0);
 extern s32 func_00106330(s32 arg0);
 extern s32 func_0014c4c0(u8 *arg0, u8 *arg1, f32 arg2);
@@ -77,8 +77,7 @@ s32 func_002b3990(s32 arg0)
 
     func_0044ea90(D_0063F120, 0x98);
     work = D_008873F4[0](1, 0x24, 0x40000);
-    ret = func_00451fc0(arg0, D_0063F130, 0xF, 0, 0, func_002b3720,
-                        func_002b3960, work);
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063F130), 0xF, 0, 0, func_002b3720, func_002b3960, (u8 *)(work));
     *(u32 *)(work + 4) = (u32)func_00145270(0x400);
     *(u32 *)(work + 0) = (u32)work;
     *(u32 *)(work + 8) = 0x3F400000;
@@ -219,8 +218,7 @@ s32 func_002b4140(s32 arg0, s32 arg1, Vec3 *arg2)
     v = *arg2;
     func_0044ea90(D_0063F120, 0x18D);
     work = D_008873F4[0](1, 0x1C, 0x40000);
-    ret = func_00451fc0(arg0, D_0063F140, 0xF, 0, 0, func_002b3c70,
-                        func_002b4110, work);
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063F140), 0xF, 0, 0, func_002b3c70, func_002b4110, (u8 *)(work));
     *(Vec3 *)(work + 0xC) = v;
     work[1] = arg1;
     work[0x18] = func_002b11c0((u8 *)&v);
@@ -375,8 +373,7 @@ s32 func_002b4a10(s32 arg0, s32 arg1)
 
     func_0044ea90(D_0063F120, 0x215);
     work = D_008873F4[0](1, 0xC, 0x40000);
-    ret = func_00451fc0(arg0, D_0063F150, 0xF, 0, 0, func_002b4250,
-                        func_002b49e0, work);
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063F150), 0xF, 0, 0, func_002b4250, func_002b49e0, (u8 *)(work));
     work[1] = arg1;
     return ret;
 }
@@ -523,8 +520,7 @@ s32 func_002b4fe0(s32 arg0, Vec2 arg1, s32 arg2)
 
     func_0044ea90(D_0063F120, 0x28A);
     work = D_008873F4[0](1, 0xC, 0x40000);
-    ret = func_00451fc0(arg0, D_0063F160, 0xF, 0, 0, func_002b4ad0,
-                        func_002b4fb0, work);
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063F160), 0xF, 0, 0, func_002b4ad0, func_002b4fb0, (u8 *)(work));
     *(Vec2 *)work = arg1;
     work[8] = 0;
     e = (u8 *)&D_007E80A0 + (arg2 & 0xFF) * 0x168 + 0x150;

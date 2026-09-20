@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 extern u8 D_00887300_abs[];
 typedef void (*KDrawFunc)(s32, s32);
@@ -35,8 +36,7 @@ extern f32 gPI;
 
 extern void func_0044ea90(u8 *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_00451fc0(s32 window, const void *data, s32 a, s32 b, s32 c,
-                         s32 (*init)(u8 *), void (*close)(u8 *), void *buf);
+
 extern void *func_00460990(void);
 extern void func_00460ac0(void *param, void *work);
 extern void (*jtbl_008873EC[])(void *);
@@ -96,7 +96,7 @@ s32 func_0014d510(s32 arg0, s32 arg1, s32 arg2)
     if (buf == NULL) {
         return 0;
     }
-    ret = func_00451fc0(arg0, D_005EFBD8, 0xF, 0, 0, func_0014d470, func_0014d4e0, buf);
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFBD8), 0xF, 0, 0, func_0014d470, func_0014d4e0, (u8 *)(buf));
     *(s32 *)(buf + 0xC) = arg1;
     *(s32 *)(buf + 0x4) = 0x14;
     *(s32 *)(buf + 0x110) = arg2;
@@ -156,7 +156,7 @@ s32 func_0014d700(s32 arg0, s32 arg1)
     if (buf == NULL) {
         return 0;
     }
-    ret = func_00451fc0(arg0, D_005EFBE8, 0xF, 0, 0, func_0014d660, func_0014d6d0, buf);
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFBE8), 0xF, 0, 0, func_0014d660, func_0014d6d0, (u8 *)(buf));
     *(s32 *)(buf + 0x14) = arg1;
     return ret;
 }
@@ -218,7 +218,7 @@ s32 func_0014d910(s32 arg0, s32 arg1)
     if (buf == NULL) {
         return 0;
     }
-    ret = func_00451fc0(arg0, D_005EFBF8, 0xF, 0, 0, func_0014d870, func_0014d8e0, buf);
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFBF8), 0xF, 0, 0, func_0014d870, func_0014d8e0, (u8 *)(buf));
     *(s32 *)(buf + 0x18) = arg1;
     return ret;
 }
@@ -289,7 +289,7 @@ s32 func_0014dbb0(s32 arg0, s32 arg1)
     if (buf == NULL) {
         return 0;
     }
-    ret = func_00451fc0(arg0, D_005EFC08, 0xF, 0, 0, func_0014db10, func_0014db80, buf);
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFC08), 0xF, 0, 0, func_0014db10, func_0014db80, (u8 *)(buf));
     *(f32 *)(buf + 0x28) = 1.0f;
     *(f32 *)(buf + 0x14) = 1.0f;
     *(f32 *)(buf + 0x00) = 1.0f;

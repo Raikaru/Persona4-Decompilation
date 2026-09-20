@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Persona 4 USA decompilation - cmmCommunity.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
@@ -39,9 +40,9 @@ extern void *func_002467b0(s32 arg0);
 extern void func_001076e0(s32 arg0);
 extern void func_00106390(s32 a, s32 b);
 extern void func_00106db0(s32 a, s32 b);
-extern void func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+
 extern void func_00108d80(void);
-extern void func_00108cb0(void);
+extern void func_00108cb0(u8 *task);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u16 D_0079740C[];
 extern u8 D_00797410[];
@@ -1240,7 +1241,7 @@ ret:
 }
 
 // FUN_00108CA0
-s32 func_00108ca0(void)
+s32 func_00108ca0(u8 *unusedTask)
 {
     return 0;
 }
@@ -1254,7 +1255,7 @@ void func_00108cf0(s32 arg0)
     func_0044ea90(D_005E42C8, 0x271);
     temp_2 = D_008873F4[0](1, 0x20, 0x40000);
     *(s16 *)temp_2 = arg0;
-    func_00451de0(D_005E4308, 0xF, 0, 0, (void *)func_00108ca0, (void *)func_00108cb0, temp_2);
+    func_00451de0((const void *)(D_005E4308), 0xF, 0, 0, func_00108ca0, func_00108cb0, (u8 *)(temp_2));
 }
 
 // FUN_00108DC0

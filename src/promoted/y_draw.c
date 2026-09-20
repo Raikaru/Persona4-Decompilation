@@ -1,16 +1,17 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit y_draw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "fcl_bounds_packet.h"
+#include "fcl_draw_task.h"
+#include "sdk_task_registration.h"
+extern s32 func_002b52a0(u8 *task);
+extern void func_002b5c60(u8 *task);
 #include "include_asm.h"
 extern u8 *iGpffffb574;
 
-typedef struct {
-    f32 x, y;
-} f2;
+typedef FclVec2 f2;
 
-typedef struct {
-    u8 c0, c1, c2, c3;
-} u4;
+typedef FclDrawColor u4;
 
 typedef struct {
     f32 f[4];
@@ -36,12 +37,9 @@ extern void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg
 
 extern void func_0044ea90(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_00451fc0(s32 arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4,
-                         void (*init)(u8 *), void (*close)(u8 *), u8 *arg7);
 extern void func_003f6440(s32, s32);
 extern void (*D_00887300[])(u32 state, u32 value);
 
-extern s32 func_002b52a0(u8 *arg0);
 extern void *func_002b2970(void *, f32, f32);
 extern s32 func_002b2a30(u8, u8, u8, u8);
 extern void func_002b2a60(u8 *, s32, s32, s32, s32);
@@ -56,7 +54,6 @@ extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
 extern s16 func_002b2d00(s32, s32, s32, s32, s8);
 extern void func_002b6180(void);
 extern void func_002b6260(void);
-extern void func_002b5c60(u8 *arg0);
 extern s32 func_002b6340(u8 *arg0);
 extern void func_002b6560(u8 *arg0);
 extern s32 func_002b7f20(u8 *arg0);
@@ -98,16 +95,17 @@ extern u8 D_00793E80[];
 /* measured 2026-08-03: MATCHED with #pragma opt_loop_invariants on (nd 12 -> 0)
    + *(f2 *)(p + 0x134) = p1 struct store (retail's batched pair loads) + the
    4-sb byte loop. The pragma hoists the loop's 0xFF into the preheader in $a0
-   exactly as retail. func_00451fc0 callback args need (void (*)(u8 *)) casts. */
+   exactly as retail. SDK callbacks use their actual update and destroy signatures. */
 // FUN_002B5C90
 /* measured: open opt_loop_invariants scope for func_002b5c90. */
 #pragma opt_loop_invariants on
-void func_002b5c90(s32 arg0, f2 p1) {
+s32 func_002b5c90(s32 arg0, f2 p1) {
+    s32 handle;
     u8 *p;
     s32 i;
     func_0044ea90(&D_0063F178, 0xD4);
     p = D_008873F4[0](1, 0x190, 0x40000);
-    func_00451fc0(arg0, D_0063F188, 0xF, 0, 0, (void (*)(u8 *))func_002b52a0, (void (*)(u8 *))func_002b5c60, p);
+    handle = (s32)func_00451fc0((void *)((void *)(arg0)), (const void *)(D_0063F188), 0xF, 0, 0, func_002b52a0, func_002b5c60, (u8 *)(p));
     *(f2 *)(p + 0x134) = p1;
     *(s16 *)(p + 0x14C) = 0;
     p[0x154] = 0;
@@ -124,6 +122,7 @@ void func_002b5c90(s32 arg0, f2 p1) {
     p[0x180] = 0;
     p[0x18C] = 0;
     *(s16 *)(p + 0x182) = 0;
+    return handle;
 }
 /* measured: close opt_loop_invariants scope after func_002b5c90. */
 #pragma opt_loop_invariants off
@@ -133,13 +132,13 @@ u8 *func_002b5da0(u8 *arg0) {
 }
 
 // FUN_002B5DB0
-void func_002b5db0(u8 *arg0, f2 p1, f32 *p2) {
-    f4 t;
+void func_002b5db0(u8 *arg0, f2 p1, FclBoundsPacket *p2) {
+    FclBoundsBytes t;
     u8 *base;
-    t = *(f4 *)p2;
+    t = p2->representation;
     base = *(u8 **)(arg0 + 0x38);
     *(f2 *)(base + 0x134) = p1;
-    *(f4 *)(base + 0x120) = t;
+    ((FclBoundsPacket *)(base + 0x120))->representation = t;
 }
 
 // FUN_002B5E20
@@ -168,32 +167,32 @@ void func_002b5e90(u8 *arg0, f2 p1, f2 p2, u32 arg3) {
 }
 
 // FUN_002B5EF0
-void func_002b5ef0(u8 *arg0, f2 p1, f2 p2, f32 *p3, f32 *p4, u32 arg5) {
-    f4 a = *(f4 *)p3;
-    f4 b = *(f4 *)p4;
+void func_002b5ef0(u8 *arg0, f2 p1, f2 p2, FclBoundsPacket *p3, FclBoundsPacket *p4, u32 arg5) {
+    FclBoundsBytes a = p3->representation;
+    FclBoundsBytes b = p4->representation;
     u8 *base = *(u8 **)(arg0 + 0x38);
     *(s16 *)(base + 0x14C) = 0;
     *(u32 *)(base + 0x150) = arg5;
     *(f2 *)(base + 0x13C) = p1;
     *(f2 *)(base + 0x144) = p2;
-    *(f4 *)(base + 0x158) = a;
-    *(f4 *)(base + 0x168) = b;
+    ((FclBoundsPacket *)(base + 0x158))->representation = a;
+    ((FclBoundsPacket *)(base + 0x168))->representation = b;
     *(s16 *)(base + 0x156) = 3;
     base[0x154] = 0;
     base[0x0] = 2;
 }
 
 // FUN_002B5FD0
-void func_002b5fd0(u8 *arg0, f2 p1, f2 p2, f32 *p3, f32 *p4, u32 arg5, s16 arg6) {
-    f4 a = *(f4 *)p3;
-    f4 b = *(f4 *)p4;
+void func_002b5fd0(u8 *arg0, f2 p1, f2 p2, FclBoundsPacket *p3, FclBoundsPacket *p4, u32 arg5, s16 arg6) {
+    FclBoundsBytes a = p3->representation;
+    FclBoundsBytes b = p4->representation;
     u8 *base = *(u8 **)(arg0 + 0x38);
     *(s16 *)(base + 0x14C) = 0;
     *(u32 *)(base + 0x150) = arg5;
     *(f2 *)(base + 0x13C) = p1;
     *(f2 *)(base + 0x144) = p2;
-    *(f4 *)(base + 0x158) = a;
-    *(f4 *)(base + 0x168) = b;
+    ((FclBoundsPacket *)(base + 0x158))->representation = a;
+    ((FclBoundsPacket *)(base + 0x168))->representation = b;
     *(s16 *)(base + 0x156) = 4;
     func_002b60f0(arg0, 0x80, 0, arg5);
     base[0x154] = 0;
@@ -341,9 +340,7 @@ s32 func_002b6590(s32 arg0, s16 arg1, s32 arg2) {
     f32 zero;
     func_0044ea90(&D_0063F178, 0x236);
     p = D_008873F4[0](1, 0x100, 0x40000);
-    result = func_00451fc0(arg0, D_0063F1A0, 0xF, 0, 0,
-                           (void (*)(u8 *))func_002b6340,
-                           (void (*)(u8 *))func_002b6560, p);
+    result = (s32)func_00451fc0((void *)((void *)(arg0)), (const void *)(D_0063F1A0), 0xF, 0, 0, func_002b6340, func_002b6560, (u8 *)(p));
     *(s16 *)(p + 4) = arg1;
     *(s32 *)(p + 0) = arg2;
     i = 0;
@@ -807,9 +804,7 @@ u8 *func_002b74f0(s32 arg0, s32 arg1) {
 
     func_0044ea90(&D_0063F178, 0x3F3);
     data = D_008873F4[0](1, 0x31220, 0x40000);
-    iGpffffb574 = (u8 *)func_00451fc0(arg0, D_0063F1B0, 0xF, 0, 0,
-                                        (void (*)(u8 *))func_002b6ec0,
-                                        (void (*)(u8 *))func_002b74c0, data);
+    iGpffffb574 = (u8 *)func_00451fc0((void *)((void *)(arg0)), (const void *)(D_0063F1B0), 0xF, 0, 0, func_002b6ec0, func_002b74c0, (u8 *)(data));
     *(s32 *)(data + 0) = arg1;
     *(s16 *)(data + 0x30C04) = 0;
     record = 0;
@@ -1104,14 +1099,15 @@ void func_002b8120(u8 *arg0) {
 }
 
 // FUN_002B8150
-void func_002b8150(s32 arg0) {
+s32 func_002b8150(s32 arg0) {
+    s32 handle;
     u8 *p;
     func_0044ea90(&D_0063F178, 0x4A2);
     p = D_008873F4[0](1, 0x130, 0x40000);
-    func_00451fc0(arg0, D_0063F1D0, 0xF, 0, 0, (void (*)(u8 *))func_002b7f20,
-                   (void (*)(u8 *))func_002b8120, p);
+    handle = (s32)func_00451fc0((void *)((void *)(arg0)), (const void *)(D_0063F1D0), 0xF, 0, 0, func_002b7f20, func_002b8120, (u8 *)(p));
     p[0x124] = 1;
     p[0x125] = 0;
+    return handle;
 }
 
 // FUN_002B81F0
@@ -1903,17 +1899,18 @@ void func_002b9f60(u8 *arg0) {
 }
 
 // FUN_002B9F90
-void func_002b9f90(s32 arg0, s16 arg1, s32 arg2) {
+s32 func_002b9f90(s32 arg0, s16 arg1, s32 arg2) {
+    s32 handle;
     u8 *p;
     s32 i;
     func_0044ea90(&D_0063F178, 0x693);
     p = D_008873F4[0](1, 0x6610, 0x40000);
-    func_00451fc0(arg0, D_0063F1E0, 0xF, 0, 0, (void (*)(u8 *))func_002b9e10,
-                  (void (*)(u8 *))func_002b9f60, p);
+    handle = (s32)func_00451fc0((void *)((void *)(arg0)), (const void *)(D_0063F1E0), 0xF, 0, 0, func_002b9e10, func_002b9f60, (u8 *)(p));
     for (i = 0; i < 0x30; i++) {
         *(s16 *)(p + i * 0x220 + 0x104) = 0;
         *(u32 *)(p + i * 0x220 + 0x214) = arg2;
     }
     *(s16 *)(p + 0x6600) = arg1;
+    return handle;
 }
 

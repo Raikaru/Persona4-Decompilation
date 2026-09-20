@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit cmmRankUp.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
 extern u8 *func_00460990();
@@ -133,13 +134,13 @@ extern u8 *func_00109220();
 /* Old-style: the two callbacks passed here (func_00251e60 takes one s32,
  * func_00251ec0 takes none) do not share a signature, and a typed prototype
  * would force casts at every call site. */
-s32 func_00451fc0();
+
 
 /* Forward declarations for asm-fallback siblings referenced by C bodies. */
 s32 func_00253850();
 s32 func_00254a70();
-s32 func_0025b240();
-void func_0025c100();
+s32 func_0025b240(u8 *task);
+void func_0025c100(u8 *task);
 
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
@@ -179,7 +180,8 @@ void func_00251d80(s32 arg0, s32 *arg1) {
 
 
 // FUN_00251E60
-s32 func_00251e60(s32 arg0) {
+s32 func_00251e60(u8 *sdkTaskBytes) {
+    s32 arg0 = (s32)sdkTaskBytes;
     u8 *p;
 
     func_00452560();
@@ -191,7 +193,7 @@ s32 func_00251e60(s32 arg0) {
 }
 
 // FUN_00251EC0
-void func_00251ec0(void)
+void func_00251ec0(u8 *unusedTask)
 {
     int iVar1;
 
@@ -211,7 +213,7 @@ void func_00251f00(s32 arg0, u32 *arg1) {
     if (temp_2 == NULL) {
         func_0046d730(D_00635CF8, 0x2D5);
     }
-    func_00451fc0(arg0, D_00635D18, 0xF, 0, 0, func_00251e60, func_00251ec0, temp_2);
+    (s32)func_00451fc0((void *)(arg0), (const void *)(D_00635D18), 0xF, 0, 0, func_00251e60, func_00251ec0, (u8 *)(temp_2));
 }
 
 
@@ -3630,8 +3632,8 @@ extern void func_00459880();
 extern void func_004598e0();
 extern void func_0045a8d0();
 extern void func_0045b2e0();
-extern void func_002519e0();
-extern void func_00251ce0();
+extern s32 func_002519e0(u8 *task);
+extern void func_00251ce0(u8 *task);
 extern void func_00460ac0();
 extern u8 *func_00460990();
 s32 func_0025b240(u8 *arg0) {
@@ -3760,7 +3762,7 @@ s32 func_0025b240(u8 *arg0) {
         pv = D_008873F4[0](1, 0x40, 0x40000);
         *(s32 *)((u8 *)pv + 4) = tmp3;
         *(s32 *)((u8 *)pv + 8) = tmp4;
-        *(void **)(ctx + 0x24) = (void *)func_00451fc0(argb, D_00635D08, 0xF, 0, 0, (void *)func_002519e0, (void *)func_00251ce0, pv);
+        *(void **)(ctx + 0x24) = (void *)(s32)func_00451fc0((void *)(argb), (const void *)(D_00635D08), 0xF, 0, 0, func_002519e0, func_00251ce0, (u8 *)(pv));
     case 8:
         if (func_00452380(D_00635D08) != 0) {
             goto tail;
@@ -4004,7 +4006,7 @@ INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_0025b240);
  * direct). Loop and all other calls match byte-for-byte. Same floor as the
  * confirmed D_00887300 vtable calls. */
 // FUN_0025C100
-void func_0025c100(void) {
+void func_0025c100(u8 *unusedTask) {
     void (**fp)(void *);
     u8 *p;
     u8 *list;
@@ -4050,5 +4052,5 @@ void func_0025c230(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     *(s32 *)(p + 0x1C) = arg2;
     *(s32 *)(p + 0x20) = arg3;
     *(s32 *)(p + 0x4) = 0;
-    func_00451fc0(arg0, D_006367C0, 0xF, 0, 0, func_0025b240, func_0025c100, p);
+    (s32)func_00451fc0((void *)(arg0), (const void *)(D_006367C0), 0xF, 0, 0, func_0025b240, func_0025c100, (u8 *)(p));
 }

@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit nLine.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -55,7 +56,7 @@ extern f32 fGpffff84a4;
 /* gp - 0x7DE0 = 0x00761310, GP-relative f32. */
 extern f32 iGpffff8220;
 
-void func_0034b8d0(void);
+s32 func_0034b8d0(u8 *task);
 void func_0034b950(void);
 void func_0034ba20(void);
 void func_0034ba30(void);
@@ -75,7 +76,7 @@ void func_003f6440(s32 arg0, s32 arg1);
 u8 *func_00457120(void);
 f32 func_0044b7b0(f32 arg0);
 f32 func_0044b610(f32 arg0);
-s32 func_00451de0();
+
 void func_0046d730(void *file, s32 line);
 void func_0043f9c8(void *dest, s32 value, s32 size);
 void func_0034edc0(void);
@@ -97,7 +98,7 @@ void func_0034db60(u8 *arg0, f32 fparg0, s32 arg1);
 s32 func_0034b970(void) {
     s32 temp_2;
 
-    temp_2 = func_00451de0(&iGpffffa948, 0xC7, 0, 0, func_0034b8d0, 0, 0);
+    temp_2 = (s32)func_00451de0((const void *)(&iGpffffa948), 0xC7, 0, 0, func_0034b8d0, 0, (u8 *)(0));
     if (temp_2 == 0) {
         func_0046d730(&iGpffffa950, 0x168);
     }

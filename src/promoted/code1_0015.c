@@ -1,5 +1,7 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
+#include "field_light_internal.h"
 typedef struct RwRGBA
 {
     u8 r;
@@ -72,16 +74,16 @@ extern s32 D_007D2510[];
 extern u8 D_007D24F0[];
 extern u8 D_005EFFE0[];
 extern s32 func_001561a0(u8 *arg0);
-extern void func_00156630(void);
+extern void func_00156630(u8 *task);
 extern s32 func_004553c0();
 extern void func_003642e0(s32 arg0, s32 arg1);
 extern u8 D_007E31E4[];
 extern u8 D_005F0650[];
 extern s32 func_00106330(s32 arg0);
-extern s32 func_00451fc0();
+
 extern s32 func_00106390(s32 arg0, s32 arg1);
 extern s32 func_00159a60(u8 *arg0);
-extern void func_00159d50();
+extern void func_00159d50(u8 *task);
 extern void func_001587d0(u16 arg0, u16 arg1, u16 arg2);
 extern s32 func_0014a160(void);
 extern void func_0016e540(s32 arg0, s32 arg1);
@@ -214,7 +216,7 @@ void func_001538a0(u32 *resource, const f32 *color)
     }
 }
 // FUN_00153A00
-s32 func_00153a00(void)
+s32 func_00153a00(u8 *unusedTask)
 {
     func_00160880();
     return 0;
@@ -567,7 +569,7 @@ block_48:
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001561a0);
 #endif
 // FUN_00156630
-void func_00156630(void)
+void func_00156630(u8 *unusedTask)
 {
 }
 /* measured: opt_propagation off preserves the callback work-area base. */
@@ -581,9 +583,7 @@ s32 func_00156640(u8 *arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4,
 
     func_0043f9c8(D_007D24F0, 0, 0x20);
     base = D_007D24F0;
-    temp_21 = func_00451fc0(arg0, D_005EFFE0, 0xF, 0, 0,
-                            (void *)func_001561a0, (void *)func_00156630,
-                            base);
+    temp_21 = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFFE0), 0xF, 0, 0, func_001561a0, func_00156630, (u8 *)(base));
     *(u16 *)(base + 8) = arg1;
     *(u16 *)(base + 0xA) = arg2;
     *(s16 *)(base + 0xC) = arg3;
@@ -1629,8 +1629,6 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
     extern s32 func_00145ac0(u16 arg0, s32 arg1);
     extern s32 func_00145ba0(u16 arg0, s32 arg1);
     extern s32 func_00145c80(u16 arg0, s32 arg1);
-    extern s32 func_00145d60(u16 arg0, f32 *arg1, s32 arg2, f32 fparg0, f32 fparg1, f32 fparg2);
-    extern s32 func_00145e90(u16 arg0, f32 *arg1, s32 arg2, f32 fparg0, f32 fparg1, f32 fparg2);
     extern s32 func_00145fc0(u16 arg0, f32 *arg1, f32 fparg0);
     extern s32 func_00146080(u16 arg0, f32 *arg1, f32 fparg0);
     extern s32 func_00146140(u16 arg0, f32 *arg1, f32 fparg0);
@@ -1808,8 +1806,8 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
           else {
             temp_v2 = 0x3ff;
           }
-          temp_v10 = func_00145d60(temp_v2, (f32 *)(temp_v15 + 8), *(s32 *)(temp_v15 + 4), *(f32 *)(temp_v15 + 0x14),
-                                 *(f32 *)(temp_v15 + 0x18), *(f32 *)(temp_v15 + 0x1c));
+          temp_v10 = func_00145d60(temp_v2, (f32 *)(temp_v15 + 8), *(f32 *)(temp_v15 + 0x14),
+                                 *(f32 *)(temp_v15 + 0x18), *(f32 *)(temp_v15 + 0x1c), *(FieldRgba8 *)(temp_v15 + 4));
           temp_v17 = (s32)func_00145270(temp_v10 & 0xffff);
           func_0015f720((void *)(temp_v17 + 0x15c),(void *)(temp_v17 + 0x144),*(f32 *)(temp_v17 + 0x150)
                         ,*(f32 *)(temp_v17 + 0x154),*(f32 *)(temp_v17 + 0x158));
@@ -2015,8 +2013,8 @@ void func_001587d0(u16 arg0, u16 arg1, u16 arg2)
           }
           }
           temp_v17 = func_0014b510(0x15);
-          temp_v10 = func_00145e90((u16)temp_v17, &fStack_60, *(s32 *)(temp_v15 + 4), *(f32 *)(temp_v15 + 0x14),
-                                 *(f32 *)(temp_v15 + 0x18), temp_v20);
+          temp_v10 = func_00145e90((u16)temp_v17, &fStack_60, *(f32 *)(temp_v15 + 0x14),
+                                 *(f32 *)(temp_v15 + 0x18), temp_v20, *(FieldRgba8 *)(temp_v15 + 4));
           temp_v17 = (s32)func_00145270(temp_v10 & 0xffff);
           *(u32 *)(temp_v17 + 0x18c) = (u32)*(u16 *)(temp_v15 + 2);
           temp_v15 = temp_v15 + 0x20;
@@ -2268,9 +2266,7 @@ s32 func_00159e90(s32 arg0, s32 arg1, s32 arg2) {
     if (temp_2 == NULL) {
         return 0;
     }
-    temp_17 = func_00451fc0(arg0, D_005F0650, 0xF, 0, 0,
-                            (void *)func_00159a60, (void *)func_00159d50,
-                            temp_2);
+    temp_17 = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F0650), 0xF, 0, 0, func_00159a60, func_00159d50, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 4) = arg1;
     *(s32 *)(temp_2 + 8) = arg2;
     func_00106390(0xC25, 0);

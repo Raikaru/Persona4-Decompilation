@@ -2,6 +2,7 @@
 /* Build with -DP4_UNIT_<address> to select one original source unit. */
 /* Original translation unit cmmScript.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 
 u16 func_00248b80();
@@ -141,13 +142,13 @@ extern void func_001104d0(s32 arg0, void* arg1, void* arg2);
 extern u8* func_00246e10(u16 arg0);
 extern s32 func_00104c70(s32 arg0);
 extern s32 func_00247900(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_00451fc0(void* arg0, const void* arg1, s32 arg2, s32 arg3, s32 arg4, s32 (*arg5)(void), void (*arg6)(void), void* arg7);
+
 extern void func_0044ea90(const void* arg0, s32 arg1);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_0024f160(u8* arg0);
 extern s32 func_0024f790(u8* arg0);
-extern s32 func_0024b870(void);
-extern void func_0024b990(void);
+extern s32 func_0024b870(u8 *task);
+extern void func_0024b990(u8 *task);
 extern s32 func_0024c0e0(u8* arg0, u8* arg1);
 extern s32 func_0024c460(u8* arg0, u8* arg1);
 extern s32 func_0024d1f0(u8* arg0, u8* arg1);
@@ -848,7 +849,7 @@ s32 func_0024b720(void)
     return 1;
 }
 // FUN_0024B870
-s32 func_0024b870(void)
+s32 func_0024b870(u8 *unusedTask)
 {
     s32* s0;
     s32 sp2c;
@@ -887,7 +888,7 @@ s32 func_0024b870(void)
     return 0;
 }
 // FUN_0024B990
-void func_0024b990(void)
+void func_0024b990(u8 *unusedTask)
 {
     u8* p;
     u8* q2;
@@ -1697,7 +1698,7 @@ typedef struct cmmScriptEntry {
 } cmmScriptEntry;
 
 // FUN_0024EFA0
-s32 func_0024efa0(void)
+s32 func_0024efa0(u8 *unusedTask)
 {
     cmmScriptEntry* p;
     cmmScriptEntry* q;
@@ -1727,7 +1728,7 @@ s32 func_0024efa0(void)
 // retail never has.
 
 // FUN_0024F040
-void func_0024f040(void)
+void func_0024f040(u8 *unusedTask)
 {
     int iVar1;
 
@@ -2109,7 +2110,7 @@ done:
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024f790);
 #endif
 // FUN_0024FF60
-s32 func_0024ff60(void)
+s32 func_0024ff60(u8 *unusedTask)
 {
     cmmScriptEntry* e;
     s32 handle;
@@ -2162,7 +2163,7 @@ s32 func_0024ff60(void)
 }
 
 // FUN_002500E0
-void func_002500e0(void)
+void func_002500e0(u8 *unusedTask)
 {
     int iVar1;
 
@@ -2190,7 +2191,7 @@ s32 func_00250120(void)
             func_0044ea90(D_006359F0, 0x402);
             e = D_008873F4[0](1, 0x28, 0x40000);
             *(s32*)(e + 4) = 0;
-            func_00451fc0(p, D_00635A78, 0xF, 0, 0, func_0024b870, func_0024b990, e);
+            (s32)func_00451fc0((void *)(p), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
         }
     }
     p = func_00285af0();
@@ -2203,7 +2204,7 @@ s32 func_00250120(void)
     *(s32*)(e + 0x14) = (s32)func_0024c0e0;
     *(s32*)(e + 0x2C) = (s32)func_0024c460;
     *(s32*)(e + 0x44) = (s32)func_0024d1f0;
-    func_00451fc0(p, D_00635B38, 0xF, 0, 0, func_0024efa0, func_0024f040, e);
+    (s32)func_00451fc0((void *)(p), (const void *)(D_00635B38), 0xF, 0, 0, func_0024efa0, func_0024f040, (u8 *)(e));
     for (i = 0; i < 5; i++) {
         func_0024ba60(i);
     }
@@ -2229,13 +2230,13 @@ s32 func_002502f0(void)
                     func_0044ea90(D_006359F0, 0x402);
                     e = (cmmScriptEntry*)D_008873F4[0](1, 0x28, 0x40000);
                     e->unk4 = 0;
-                    func_00451fc0(p, D_00635A78, 0xF, 0, 0, func_0024b870, func_0024b990, e);
+                    (s32)func_00451fc0((void *)(p), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
                 }
             }
             func_0044ea90(D_006359F0, 0x81D);
             e = (cmmScriptEntry*)D_008873F4[0](1, 0x24, 0x40000);
             e->unk4 = 0;
-            func_00451fc0(p, D_00635BA8, 0xF, 0, 0, func_0024ff60, func_002500e0, e);
+            (s32)func_00451fc0((void *)(p), (const void *)(D_00635BA8), 0xF, 0, 0, func_0024ff60, func_002500e0, (u8 *)(e));
         }
         handle = func_00452380(D_00635BA8);
         if (handle == 0) {
@@ -2288,13 +2289,13 @@ s32 func_00250560(void)
                     func_0044ea90(D_006359F0, 0x402);
                     e = (cmmScriptEntry*)D_008873F4[0](1, 0x28, 0x40000);
                     e->unk4 = 0;
-                    func_00451fc0(p, D_00635A78, 0xF, 0, 0, func_0024b870, func_0024b990, e);
+                    (s32)func_00451fc0((void *)(p), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
                 }
             }
             func_0044ea90(D_006359F0, 0x81D);
             e = (cmmScriptEntry*)D_008873F4[0](1, 0x24, 0x40000);
             e->unk4 = 0;
-            func_00451fc0(p, D_00635BA8, 0xF, 0, 0, func_0024ff60, func_002500e0, e);
+            (s32)func_00451fc0((void *)(p), (const void *)(D_00635BA8), 0xF, 0, 0, func_0024ff60, func_002500e0, (u8 *)(e));
         }
         handle = func_00452380(D_00635BA8);
         if (handle == 0) {

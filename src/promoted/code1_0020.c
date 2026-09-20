@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
@@ -107,10 +108,9 @@ extern u8 D_00626500[];
 extern u8 D_006265B0[];
 extern void func_0044ea90(const void *file, s32 line);
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
-extern s32 func_00451fc0(s32 arg0, const void *data, s32 prio, s32 a3,
-                         s32 a4, void *init, void *close, void *work);
-extern s32 func_00200cf0(void);
-extern void func_00200f30(void);
+
+extern s32 func_00200cf0(u8 *task);
+extern void func_00200f30(u8 *task);
 extern void func_00200fd0(s32 arg0, u8 *arg1);
 extern s32 func_00201b00(u8 *arg0);
 extern void func_00201db0(void *arg0);
@@ -438,7 +438,7 @@ s32 func_00200ce0(void)
     return D_0076449C != NULL;
 }
 // FUN_00200CF0
-s32 func_00200cf0(void)
+s32 func_00200cf0(u8 *unusedTask)
 {
     u8 *temp_2;
 
@@ -499,7 +499,7 @@ s32 func_00200cf0(void)
     return 0;
 }
 // FUN_00200F30
-void func_00200f30(void)
+void func_00200f30(u8 *unusedTask)
 {
     u8 *temp_2;
     s32 temp_4;
@@ -587,9 +587,7 @@ s32 func_002011c0(s32 arg0)
     func_0044ea90(&D_006265B0, 0x3A);
     temp_2_2 = (u8 *)(*jtbl_008873E8)(0xA20, 0x40000);
     func_0043f9c8(temp_2_2, 0, 0xA20);
-    temp_2 = func_00451fc0(arg0, &D_00626500, 0xF, 0, 0,
-                           (void *)func_00200cf0,
-                           (void *)func_00200f30, temp_2_2);
+    temp_2 = (s32)func_00451fc0((void *)(arg0), (const void *)(&D_00626500), 0xF, 0, 0, func_00200cf0, func_00200f30, (u8 *)(temp_2_2));
     func_00200fd0(temp_2, temp_2_2);
     return temp_2;
 }
@@ -4750,6 +4748,7 @@ extern void func_0020bfd0(u8 *arg0);
 
 void func_0020b6d0(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3)
 {
+    extern u32 func_00452560(void *task);
     u16 spD0;
     u32 spC0;
     u32 spB0;
@@ -4768,7 +4767,7 @@ void func_0020b6d0(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3)
     u8 *temp_16_2;
     u8 *temp_22;
 
-    temp_2 = (u8 *)func_00452560();
+    temp_2 = (u8 *)func_00452560((void *)arg0);
     temp_2_3 = temp_2 + 0x710;
     *(s32 *)(temp_2 + 0x718) = (s32)arg1;
     *(s32 *)(temp_2 + 0x71C) = 0;
@@ -5714,12 +5713,11 @@ void func_0020ff00(u8 *arg0, u8 *arg1)
     extern f32 func_0044b7b0(f32 fparg0);
     extern u8 *func_00457120(void);
     extern void func_00365ac0(s64 pos, s32 color, s32 mode, f32 depth, f32 angle, f32 wid, f32 hgt);
-    extern void func_00364fb0(s64 pos, u32 color, s32 arg2, s32 arg3, f32 fparg0, f32 fparg1);
     extern f32 fGpffff837c;
     extern f32 fGpffff84a8;
     s64 posOrig;
-    s64 posA;
-    s64 posB;
+    Vec2f posA;
+    Vec2f posB;
     f32 verts[6][16];
     s32 idx;
     f32 fA;
@@ -5810,13 +5808,13 @@ void func_0020ff00(u8 *arg0, u8 *arg1)
     fD = 2.0f * fD2 + fD1;
     if (!(fD <= 0.0f)) {
         tmp21 = 273.0f * fD;
-        ((f32 *)&posA)[0] = 79.0f + tmp21;
+        posA.x = 79.0f + tmp21;
         tmp20 = 275.0f * fD;
-        ((f32 *)&posA)[1] = 448.0f - tmp20;
-        func_00364fb0(posA, 0xFF, 1, 0, 0.0f, fGpffff837c);
-        ((f32 *)&posB)[0] = 525.0f - tmp21;
-        ((f32 *)&posB)[1] = tmp20;
-        func_00364fb0(posB, 0xFF, 1, 0, 0.0f, fGpffff84a8);
+        posA.y = 448.0f - tmp20;
+        func_00364fb0(posA, 0.0f, 0xFF, fGpffff837c, 1, 0);
+        posB.x = 525.0f - tmp21;
+        posB.y = tmp20;
+        func_00364fb0(posB, 0.0f, 0xFF, fGpffff84a8, 1, 0);
     }
     if (idx < 8) {
         fE1 = 0.0f;

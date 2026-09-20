@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit mc.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -19,8 +20,7 @@ extern void func_002a6680(s32);
 extern void func_002aa2b0(void *arg0);
 extern void func_0044ea90(const void *file, u32 line);
 extern void func_0046d730(const void *file, u32 line);
-extern s32 func_00451fc0(u8 *arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4,
-                        s32 (*arg5)(s32), s32 (*arg6)(s32), u8 *arg7);
+
 extern void func_003f6440(s32, s32);
 extern void func_00489f80(void);
 extern void func_0048a000(void);
@@ -1098,7 +1098,8 @@ return_result:
     return result;
 }
 // FUN_002A4B10
-s32 func_002a4b10(s32 arg0) {
+s32 func_002a4b10(u8 *sdkTaskBytes) {
+    s32 arg0 = (s32)sdkTaskBytes;
     u8 *w = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
 
     switch (*(s16 *)(w + 0)) {
@@ -1152,7 +1153,8 @@ s32 func_002a4b10(s32 arg0) {
 
 /* The teardown callback receives the task, not its work allocation. */
 // FUN_002A4CB0
-void func_002a4cb0(s32 arg0) {
+void func_002a4cb0(u8 *sdkTaskBytes) {
+    s32 arg0 = (s32)sdkTaskBytes;
     u8 *work = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
     s32 p = *(s32 *)(work + 0x3A4);
     if (p != 0) {
@@ -2869,6 +2871,5 @@ void func_002aa300(s32 arg0, s32 arg1) {
     if (arg1 == 1) {
         *(u32 *)(work + 4) |= 2;
     }
-    func_00451fc0((u8 *)arg0, &D_00763918, 0xF, 0, 0, (s32 (*)(s32))func_002a4b10,
-                 (s32 (*)(s32))func_002a4cb0, work);
+    (s32)func_00451fc0((void *)((u8 *)arg0), (const void *)(&D_00763918), 0xF, 0, 0, func_002a4b10, func_002a4cb0, (u8 *)(work));
 }

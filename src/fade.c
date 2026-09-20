@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Source unit: src/fade_00122430.c */
 #include "type.h"
 
@@ -9,10 +10,10 @@ extern u8 *iGpffffb1cc;
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 void func_0044ea90();
-s32 func_00451fc0();
-void func_00121b70();
-void func_00121db0();
-void func_001223d0();
+
+s32 func_00121b70(u8 *task);
+void func_00121db0(u8 *task);
+s32 func_001223d0(u8 *task);
 
 extern char D_005E5090[];
 extern char iGpffffb1d8;
@@ -37,10 +38,9 @@ s32 func_00122430(s32 arg0)
         return 0;
     }
     iGpffffb1cc = temp_2;
-    temp_17 = func_00451fc0(arg0, D_005E5068, 0x98, 0, 0, func_00121b70,
-                            func_00121db0, temp_2);
+    temp_17 = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005E5068), 0x98, 0, 0, func_00121b70, func_00121db0, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 4) = 1;
-    func_00451fc0(temp_17, D_005E5078, 0x99, 0, 0, func_001223d0, NULL, NULL);
+    (s32)func_00451fc0((void *)(temp_17), (const void *)(D_005E5078), 0x99, 0, 0, func_001223d0, 0, (u8 *)(NULL));
     return temp_17;
 }
 

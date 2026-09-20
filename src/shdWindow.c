@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit shdWindow.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_task_registration.h"
 #include "sdk_snd_internal.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
@@ -20,8 +21,8 @@ extern u8 *iGpffffa6a4;
 extern u8 D_00796670[];
 extern u16 D_008C024E[];
 extern u16 D_008C0276[];
-extern s32 func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
-extern s32 func_0025e170(s32);
+
+extern s32 func_0025e170(u8 *task);
 extern void func_0025e4a0(s32, s32);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *, void *);
@@ -196,8 +197,9 @@ void func_0025dd30(f32 param_1, f32 param_2, s32 color, u8 *data) {
     }
 }
 // FUN_0025E170
-s32 func_0025e170(s32 arg0)
+s32 func_0025e170(u8 *sdkTaskBytes)
 {
+    s32 arg0 = (s32)sdkTaskBytes;
     u8 *p;
     s32 temp_18;
     s32 temp_3_2;
@@ -352,7 +354,7 @@ void func_0025e4a0(s32 arg0, s32 arg1)
 }
 
 // FUN_0025E7C0
-void func_0025e7c0(void)
+void func_0025e7c0(u8 *unusedTask)
 {
     int iVar1;
 
@@ -368,7 +370,7 @@ void func_0025e800(s32 arg0, s32 arg1, s32 arg2)
     temp_2 = D_008873F4[0](1, 0x2C, 0x40000);
     *(s32 *)(temp_2 + 8) = arg1;
     *(s32 *)(temp_2 + 0xC) = arg2;
-    func_00451fc0(arg0, D_00637270, 0xF, 0, 0, (void (*)(u8 *))func_0025e170, (void (*)(u8 *))func_0025e7c0, temp_2);
+    (s32)func_00451fc0((void *)(arg0), (const void *)(D_00637270), 0xF, 0, 0, func_0025e170, func_0025e7c0, (u8 *)(temp_2));
 }
 
 // FUN_0025E8B0

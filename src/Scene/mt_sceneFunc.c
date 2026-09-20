@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Source unit: src/mt_scene/mt_scene_00268bd0.c (1 function markers) */
 #include "type.h"
 
@@ -101,8 +102,7 @@ extern void func_00479e60(u32 arg0, u16 arg1, f32 arg2);
 extern u8 *func_0047a250(u32 arg0);
 extern void func_004b14f0(u32 arg0, void *arg1);
 extern void func_0044ea90(const void *msg, u32 id);
-extern s32 func_00451fc0(s32 arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4,
-                         void (*arg5)(u8 *), void (*arg6)(u8 *), u8 *arg7);
+
 extern void func_0046d730(const void *msg, u32 line);
 extern void func_00440b68(const void *msg, u32 value);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -134,7 +134,7 @@ extern u8 D_0063B100[];
 extern u8 D_0063B108[];
 extern s64 D_0063B0B8[];
 extern f32 D_0063B0C0[];
-extern void func_00268a70(u8 *arg0);
+extern s32 func_00268a70(u8 *task);
 extern void func_00268ad0(u8 *arg0);
 extern u8 D_0063B160_abs[];
 extern u8 D_0063B170_abs[];
@@ -149,7 +149,7 @@ void func_00268b20(u32 arg0)
 
     func_0044ea90(D_0063B090, 0x31);
     p = D_008873F4[0](1, 8, 0x40000);
-    if (func_00451fc0(0, (char *)D_0063B0A0, 0, 1, 1, func_00268a70, func_00268ad0, p) != 0) {
+    if ((s32)func_00451fc0((void *)(0), (const void *)((char *)D_0063B0A0), 0, 1, 1, func_00268a70, func_00268ad0, (u8 *)(p)) != 0) {
         *(u32 *)(p + 0) = 2;
         *(u32 *)(p + 4) = arg0;
     }

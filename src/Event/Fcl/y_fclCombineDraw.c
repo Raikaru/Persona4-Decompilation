@@ -1,4 +1,6 @@
 #include "include_asm.h"
+#include "fcl_bounds_packet.h"
+#include "sdk_task_registration.h"
 /* Persona 4 USA decompilation - y_fclCombineDraw.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
@@ -59,9 +61,9 @@ static inline void fclZero8(u8 *p)
 /* C147E0 lane 2026-09-17 (coldest owner, smallest-first): 147e0 367w 465/452 (+13, +2.88% PASS) via docs/probe_archive/C147E0_003147e0_body.c + `#pragma optimization_level 1` wrapper in src (bare O2 body 369w 463/452); repro probe_variants --candidate C147E0=<path> + fnalign --candidate <path> --quiet + measure_guarded; levers: (1) m2c 12-arg 77d0 carries a phantom M2C_ERROR 12th arg -- drop to the 11-arg extern, (2) function-local `extern void func_002b77d0(s16,s64,s16,s32,s64,s32,s64,s64,f32,s16,s32)` (1st/3rd s16 + 6th s32, no shared-top edit; global s64/s64/s64 costs per-call dsll32-0 extends, 469->463), (3) v19=(s8)arg1 reuse for 14ef0 2nd arg + lia=(s16)(li+0x174) share for loop a0/a2 + s16 temps for 7750, (4) s32 colour words (lw for 77d0 4th arg) + f32 spF0[4] for 29e0 16B with heap swc1 stores + slot=(u8**)(t+v19*4+0x258) with *slot for the five 81f0 calls. Frame note: retail is 0x160 but this body makes 0x150 (16 short -- c0/t as s64/u8* instead of 16B sq slots); the plain-u8* lever is 212e0-specific (0xF0), not universal, so a later lane can reclaim frame words with 16B slots without changing the count. Full pragma_sweep on the banked body: O1 367 <-- better, bare 369, O3/O4 393, schedule-on 394, peephole-off 413, O0 494. O3 wrapper on the pre-bank candidate measured 389w / 417 vs 449 (-7.1% short, FAIL) -- O-level-3 shrinkage overshoots here, so O3 is a measured negative on this body. Trap (parent-verified): mwcc silently ignores unknown pragmas (`inline_depth(0)`, `optimize_for_size on`, any misspelling) -- verify a new pragma changes object bytes (sha1/len via fnalign._object_for) before believing a tie. Next-cold decode (330060, 1872B): signature (u8*,s32) per y_fclCombine.c callers (arg0,0..5); head is three u8[4] byte-copy colours (lbu/sb, second copy sourced from first 6150 result p1, never re-call) + sb 1,0x13A + sltiu (s8)arg1<6 guard with plain switch (port arms from MATCHed 307b0 in this file, which has the same 6-case shape but a table address arg2 and t17 that 330060 lacks -- read constants off retail, do not copy t17); tail (+176B vs 307b0) is a 9-iteration 68d0 loop, an (0x11E-0x120) loop with 2970/6c30/68d0/6d60/2a60/6150, four colour restores, and the 0xA9/0xB1/0xB5 lwc1/madd/swc1 float chain reusing f20/f21. */
 extern void func_0044ea90(const void *arg0, u32 arg1);
 extern void *func_0043f9c8(void *dest, s32 value, s32 size);
-extern void *func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
+
 extern u8 *func_00117780(s32, s32, s32, s32, s32);
-extern void func_00314010(u8 *arg0);
+extern s32 func_00314010(u8 *task);
 extern void func_003142f0(u8 *arg0);
 extern s32 func_00106330(s32);
 extern s32 func_00452490(void *);
@@ -120,7 +122,7 @@ extern f32 iGpffff8504;
 extern void func_003191c0(u8 *, s64, s32, u16, u8, s32, s32, s8);
 extern s32 func_00331560(void);
 extern void func_002b77d0(s64, s64, s64, s32, s64, s64, s64, s64, f32, s16, s32);
-extern void func_002b29e0(u8 *, f32, f32);
+
 extern u8 *func_002b81f0(u8 *);
 extern f32 func_0046b260(u8 *);
 extern void func_00314ef0(u8 *, s64, s64, s32, s64, s32);
@@ -164,7 +166,7 @@ extern void func_00330e50(s32, s64, f32, s32, u8, s32, f32, f32, void *);
 extern f32 func_002b2aa0(s64, f32, f32, f32, f32);
 extern void func_002b82d0(u8 *, u32, u32, u32, u32, s16);
 extern u8 D_00795E60[];
-extern void *func_00451de0(const void *, s32, s32, s32, void *, void *, void *);
+
 extern void func_00440b68();
 extern u8 *func_00454a60(u8 *param, s32 mode);
 extern void func_003312e0(u8 *);
@@ -192,8 +194,7 @@ s32 func_00314320(s32 arg0) {
     func_0044ea90(D_00644D30, 0x16D);
     p = (u8 *)D_008873F4[0](1, 0x14, 0x40000);
     func_0043f9c8(p, 0, 0x14);
-    ret = (s32)func_00451fc0(arg0, D_00644D50, 0xF, 0, 0, func_00314010,
-                             func_003142f0, p);
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_00644D50), 0xF, 0, 0, func_00314010, func_003142f0, (u8 *)(p));
     *(s8 *)p = 7;
     *(s32 *)(p + 4) = (s32)func_00117780(ret, 0xF, 3, 5, 5);
     *(s8 *)(p + 0xD) = 0;
@@ -384,7 +385,7 @@ void func_003147e0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s32 arg4, s32 arg5
     s64 sp110;
     s64 sp108;
     s64 sp100;
-    f32 spF0[4];
+    FclBoundsPacket spF0;
     s64 c0;
     u8 *t;
     u8 *h;
@@ -443,12 +444,9 @@ void func_003147e0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s32 arg4, s32 arg5
     *(f32 *)(q + 0) = *(f32 *)&sp138;
     *(f32 *)(q + 4) = *((f32 *)&sp138 + 1);
     f21 = func_0046b260(h);
-    func_002b29e0((u8 *)spF0, f21, func_0046b2f0(h));
+    func_002b29e0((u8 *)&spF0, f21, func_0046b2f0(h));
     q2 = func_002b81f0(*slot);
-    *(f32 *)(q2 + 8) = spF0[0];
-    *(f32 *)(q2 + 12) = spF0[1];
-    *(f32 *)(q2 + 16) = spF0[2];
-    *(f32 *)(q2 + 20) = spF0[3];
+    ((FclBoundsPacket *)(q2 + 8))->representation = spF0.representation;
     q3 = func_002b81f0(*slot);
     *(s32 *)(q3 + 0x120) = (s32)v20;
     q4 = func_002b81f0(*slot);
@@ -533,7 +531,7 @@ void func_00314ef0(u8 *arg0, s64 arg1, s64 arg2, s32 arg3, s64 arg4, s32 arg5) {
     s64 spE8;
     s64 spE0;
     s64 spC8;
-    f32 spD0[4];
+    FclBoundsPacket spD0;
     u8 *t;
     u8 *h;
     u8 *q;
@@ -577,12 +575,9 @@ void func_00314ef0(u8 *arg0, s64 arg1, s64 arg2, s32 arg3, s64 arg4, s32 arg5) {
     *(f32 *)(q + 0) = *(f32 *)&spF8;
     *(f32 *)(q + 4) = *((f32 *)&spF8 + 1);
     f21 = func_0046b260(h);
-    func_002b29e0((u8 *)spD0, f21, func_0046b2f0(h));
+    func_002b29e0((u8 *)&spD0, f21, func_0046b2f0(h));
     q = func_002b81f0(*slot);
-    *(f32 *)(q + 8) = spD0[0];
-    *(f32 *)(q + 12) = spD0[1];
-    *(f32 *)(q + 16) = spD0[2];
-    *(f32 *)(q + 20) = spD0[3];
+    ((FclBoundsPacket *)(q + 8))->representation = spD0.representation;
     q = func_002b81f0(*slot);
     *(s32 *)(q + 0x120) = (s32)v20;
     q = func_002b81f0(*slot);
@@ -6445,16 +6440,10 @@ void func_0032c660(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5) {
     f32 spE8;
     f32 spE4;
     f32 spE0;
-    u8 spD0;
-    u8 spC0;
+    FclBoundsPacket spD0;
+    FclBoundsPacket spC0;
     s64 spB8;
     s64 spB0;
-    f32 spD4;
-    f32 spD8;
-    f32 spDC;
-    f32 spC4;
-    f32 spC8;
-    f32 spCC;
     f32 sp30C;
     f32 sp234;
     f32 sp13C;
@@ -6722,12 +6711,9 @@ void func_0032c660(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5) {
         temp_2_14 = func_002b81f0(*(u8 **)(temp_2_13 + 0x258));
         *(f32 *)(temp_2_14 + 0x0) = sp230;
         *(f32 *)(temp_2_14 + 0x4) = sp234;
-        func_002b29e0(&spD0, 250.0f, 250.0f);
+        func_002b29e0((u8 *)(&spD0), 250.0f, 250.0f);
         temp_2_15 = func_002b81f0(*(u8 **)(temp_2_13 + 0x258));
-        *(f32 *)(temp_2_15 + 0x8) = *(f32 *)&spD0;
-        *(f32 *)(temp_2_15 + 0xC) = spD4;
-        *(f32 *)(temp_2_15 + 0x10) = spD8;
-        *(f32 *)(temp_2_15 + 0x14) = spDC;
+        ((FclBoundsPacket *)(temp_2_15 + 8))->representation = spD0.representation;
         *(s32 *)(func_002b81f0(*(u8 **)(temp_2_13 + 0x258)) + 0x120) = (s32) ((s64) (var_18 << 0x30) >> 0x30);
         *(f32 *)(func_002b81f0(*(u8 **)(temp_2_13 + 0x258)) + 0x18) = 110.0f;
         *(u8 *)(func_002b81f0(*(u8 **)(temp_2_13 + 0x258)) + 0x124) = 0;
@@ -6944,12 +6930,9 @@ void func_0032c660(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5) {
         temp_2_29 = func_002b81f0(*(u8 **)(temp_2_28 + 0x25C));
         *(f32 *)(temp_2_29 + 0x0) = sp138;
         *(f32 *)(temp_2_29 + 0x4) = sp13C;
-        func_002b29e0(&spC0, 250.0f, 250.0f);
+        func_002b29e0((u8 *)(&spC0), 250.0f, 250.0f);
         temp_2_30 = func_002b81f0(*(u8 **)(temp_2_28 + 0x25C));
-        *(f32 *)(temp_2_30 + 0x8) = *(f32 *)&spC0;
-        *(f32 *)(temp_2_30 + 0xC) = spC4;
-        *(f32 *)(temp_2_30 + 0x10) = spC8;
-        *(f32 *)(temp_2_30 + 0x14) = spCC;
+        ((FclBoundsPacket *)(temp_2_30 + 8))->representation = spC0.representation;
         *(s32 *)(func_002b81f0(*(u8 **)(temp_2_28 + 0x25C)) + 0x120) = (s32) ((s64) (var_18_2 << 0x30) >> 0x30);
         *(f32 *)(func_002b81f0(*(u8 **)(temp_2_28 + 0x25C)) + 0x18) = 110.0f;
         *(u8 *)(func_002b81f0(*(u8 **)(temp_2_28 + 0x25C)) + 0x124) = 0;
@@ -7779,7 +7762,7 @@ void func_00331390(void) {
     }
     func_0044ea90(D_00644D30, 0x16A4);
     p = D_008873F4[0](1, 0x48, 0x40000);
-    iGpffffb598 = (s32)func_00451de0(D_00644E48, 0xF, 0, 0, (void *)func_00330f20, (void *)func_003312e0, p);
+    iGpffffb598 = (s32)func_00451de0((const void *)(D_00644E48), 0xF, 0, 0, func_00330f20, func_003312e0, (u8 *)(p));
     *(s8 *)(p + 0) = 0;
     *(s8 *)(p + 0x45) = 0;
     func_00440b68(&iGpffffa910, D_00644D30, 0x16B2);

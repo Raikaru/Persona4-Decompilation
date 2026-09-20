@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Persona 4 USA decompilation - cmpConfig.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
@@ -14,8 +15,7 @@ s32 func_0035f0c0(u32* arg0, s32* arg1, u8* arg2);
 s32 func_0034c210(void);
 void func_0044ea90(void* file, s32 line);
 void func_0043f9c8(void* dest, s32 value, s32 size);
-s32 func_00451fc0(s32 arg0, const void* name, s32 prio, s32 a3, s32 a4,
-                  void (*init)(u8*), void (*close)(u8*), u8* work);
+
 void func_0034c260(s32 arg0);
 void* func_0046a770(char* arg0);
 s32 func_0046d200();
@@ -75,9 +75,7 @@ s32 func_0035c690(void* arg0, s32 arg1) {
     if (work == NULL) {
         func_0046d730(D_0064D3C8, 0xC6);
     }
-    r = func_00451fc0((s32)arg0, D_0064D3D8, 0xC7, 0, 0,
-                      (void (*)(u8 *))func_0035e720,
-                      (void (*)(u8 *))func_0035e820, work);
+    r = (s32)func_00451fc0((void *)((s32)arg0), (const void *)(D_0064D3D8), 0xC7, 0, 0, func_0035e720, func_0035e820, (u8 *)(work));
     func_0043f9c8(work + 0x47C, 0, 0x30);
     *(s32 *)(work + 0x484) = (s32)func_0035d000;
     *(u8 **)(work + 0x48C) = work;

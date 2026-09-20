@@ -354,8 +354,9 @@ static inline s32 bankSlotHasMatchingVisiblePeer(s16 *slot)
 struct KwlnTask;
 
 // FUN_002E17F0
-s32 func_002e17f0(struct KwlnTask *task)
+s32 func_002e17f0(u8 *sdkTaskBytes)
 {
+    struct KwlnTask *task = (struct KwlnTask *)sdkTaskBytes;
     extern void func_0046d730(void *, s32);
     extern s32 func_001048c0(s64);
     extern void func_001044d0(s64);

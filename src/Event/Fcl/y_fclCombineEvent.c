@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit y_fclCombineEvent.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 extern void func_0045aac0();
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -9,9 +10,8 @@ extern u8 D_0064A400[];
 extern u8 D_0064A420[];
 extern u8 D_0064A440[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_00451fc0(u8 *arg0, const void *name, s32 prio, s32 a3, s32 a4,
-                         void (*init)(u8 *), void (*close)(u8 *), u8 *work);
-extern void func_0033d9d0(u8 *arg0);
+
+extern s32 func_0033d9d0(u8 *task);
 extern void func_0033dc60(u8 *arg0);
 extern s32 func_0033dd40(u8 *arg0);
 extern s32 func_0033df40(u8 *arg0);
@@ -38,7 +38,7 @@ void func_0033dc90(u8 *arg0, s8 arg1)
 
     func_0044ea90(D_0064A400, 0xAF);
     work = D_008873F4[0](1, 0x14, 0x40000);
-    func_00451fc0(arg0, D_0064A420, 0xF, 0, 0, func_0033d9d0, func_0033dc60, work);
+    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A420), 0xF, 0, 0, func_0033d9d0, func_0033dc60, (u8 *)(work));
     work[0] = 0;
     *(s8 *)(work + 0x10) = arg1;
 }
@@ -84,7 +84,7 @@ void func_0033de90(u8 *arg0, s32 arg1)
 
     func_0044ea90(D_0064A400, 0x10A);
     work = D_008873F4[0](1, 4, 0x40000);
-    func_00451fc0(arg0, D_0064A440, 0xF, 0, 0, (void (*)(u8 *))func_0033dd40, func_0033de40, work);
+    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A440), 0xF, 0, 0, func_0033dd40, func_0033de40, (u8 *)(work));
     *(s32 *)work = arg1;
 }
 
@@ -148,7 +148,7 @@ s32 func_0033df40(u8 *arg0)
 
 
 // FUN_0033E0F0
-void func_0033e0f0(void *arg0) {
+void func_0033e0f0(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
@@ -160,7 +160,7 @@ void func_0033e120(u8 *arg0, s32 arg1, s32 arg2)
 
     func_0044ea90(D_0064A400, 0x192);
     work = D_008873F4[0](1, 0x14, 0x40000);
-    func_00451fc0(arg0, D_0064A440, 0xF, 0, 0, (void (*)(u8 *))func_0033df40, (void (*)(u8 *))func_0033e0f0, work);
+    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A440), 0xF, 0, 0, func_0033df40, func_0033e0f0, (u8 *)(work));
     *(s32 *)(work + 4) = arg1;
     *(s32 *)(work + 8) = arg2;
     work[0] = 0;

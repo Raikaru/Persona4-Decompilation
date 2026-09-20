@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "sdk_snd_internal.h"
 
@@ -13,8 +14,7 @@ extern s32 func_0036e910(void *arg0);
 extern s32 func_0038d660(u8 *arg0);
 extern void func_0038d890(u8 *arg0);
 extern void func_0038daf0(u8 *arg0, s32 arg1);
-extern s32 func_00451fc0(u8 *arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4,
-                         void *arg5, void *arg6, u8 *arg7);
+
 extern s32 func_004b1130();
 extern void func_004b1150(s32 a);
 extern void func_004b1170(s32 a);
@@ -67,8 +67,7 @@ u8 *func_0038d790(u8 *arg0) {
     if (tbl == NULL) {
         func_0046d730(&D_0064F210[0], 0x104);
     }
-    ctx = (u8 *)func_00451fc0(arg0, &D_0064F0F0[0], 0x13, 0, 0, func_0038d660,
-                              func_0038d6c0, tbl);
+    ctx = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(&D_0064F0F0[0]), 0x13, 0, 0, func_0038d660, func_0038d6c0, (u8 *)(tbl));
     if (ctx == NULL) {
         func_0046d730(&D_0064F210[0], 0x10E);
     }

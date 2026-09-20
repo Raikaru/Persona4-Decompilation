@@ -1,6 +1,7 @@
 /* Original translation unit k_field.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 
 extern s32 iGpffffb20c;
@@ -432,7 +433,7 @@ extern u8 D_005EFF10[];
 extern u8 D_005EFF48[];
 extern void func_0044ea90(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_00451fc0(u8 *arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4, void *arg5, void *arg6, u8 *arg7);
+
 extern void func_00149680(s32 arg0);
 extern s32 func_00293ed0(s32 a, s32 b, s32 c, s32 d);
 extern void func_0029ddb0(s32 arg0);
@@ -483,7 +484,7 @@ s32 func_00155e10(u8 *arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4, s16 arg5, s3
     if (work == NULL) {
         return 0;
     }
-    handle = func_00451fc0(arg0, D_005EFF48, 0xF, 0, 0, func_00155360, func_00155bf0, work);
+    handle = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFF48), 0xF, 0, 0, func_00155360, func_00155bf0, (u8 *)(work));
     D_007D2510[0] = handle;
     func_00149680(0);
     if (*(s32 *)&arg10 > 0) {

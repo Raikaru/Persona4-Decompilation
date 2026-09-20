@@ -1,4 +1,6 @@
 #include "include_asm.h"
+#include "sdk_dbprt.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "h_cdvd_internal.h"
 #include "Kosaka/k_clump_internal.h"
@@ -55,8 +57,8 @@ extern u8 *D_00724C08;
 extern void func_0046d730(void *arg0, s32 arg1);
 extern u8 D_007130E8[];
 extern s32 D_00724130;
-extern void func_00451de0(const void *name, s32 prio, s32 a2, s32 a3, void *entry, s32 a5, s32 a6);
-extern s32 func_004633f0(void);
+
+extern s32 func_004633f0(u8 *task);
 extern void func_00468ff0(s32 arg0, u8 *arg1);
 extern void func_003f6440(s32 arg0, s32 arg1);
 extern void func_00460ac0(char *name, u8 *task);
@@ -97,8 +99,7 @@ extern void func_00461560(u8 *arg0);
 extern void func_00461a40(u8 *arg0);
 extern void func_00461be0(u8 *arg0);
 extern u8 *func_0046a6f0(s32 arg0, s32 arg1);
-extern s32 func_00451fc0(s32 arg0, const void *name, s32 prio, s32 a3, s32 a4,
-                         void (*init)(u8 *), void (*close)(u8 *), u8 *work);
+
 extern s32 func_00468fa0(u8 *arg0);
 extern void func_0046a020(u8 *arg0);
 extern u32 iGpffffbb14;
@@ -1074,7 +1075,7 @@ void func_004633c0(void *arg0, void *arg1)
     func_003bff30(arg0, func_004632f0, arg1);
 }
 // FUN_004633F0
-s32 func_004633f0(void)
+s32 func_004633f0(u8 *unusedTask)
 {
     f32 var_f0_2;
     f32 var_f0;
@@ -1102,7 +1103,7 @@ s32 func_004633f0(void)
 
 // FUN_00463520
 void func_00463520(void) {
-    func_00451de0(D_00712670, 0x12C, 0, 0, (void *)func_004633f0, 0, 0);
+    func_00451de0((const void *)(D_00712670), 0x12C, 0, 0, func_004633f0, 0, (u8 *)(0));
 }
 
 /* Floor: 177 words (was 155) / fnalign 154 edits (was 257), obj 262 vs retail 264 (-2, inside gate, was exact 264/264 hiding an 83-instruction pure hole vs 91-instruction lump per 7aa). */
@@ -1716,7 +1717,6 @@ void func_00467880(u8 *arg0)
 {
     extern void func_003e8110(s32 arg0);
     extern s32 func_003e8120(s32 arg0);
-    extern void func_00450050(s64 arg0, char *arg1, ...);
     extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 farg0, s32 arg2);
     extern char iGpffffb01c;
     extern u8 D_00712A20[];
@@ -2195,7 +2195,6 @@ void func_00468ff0(s32 arg0, u8 *arg1) {
     extern void func_00440b68(u8 *arg0, ...);
     extern void func_0044ea90(void *arg0, s32 arg1);
     extern void func_0044ec50(s32 arg0);
-    extern void func_00450050(s64 arg0, void *arg1, ...);
     extern void func_00452040(s32 arg0);
     extern void func_004561a0(void *handle, void *path, s32 sync);
     extern s32 func_00457120(void);
@@ -2705,10 +2704,10 @@ loop_94:
     case 11:                                        /* switch 1 */
         spF0 = 0x40000000;
         spF4 = 0x41200000;
-        func_00450050((s64) spF0, D_00713050);
+        func_00450050((s64) spF0, (const char*)D_00713050);
         spF0 = 0x40000000;
         spF4 = 0x41300000;
-        func_00450050((s64) spF0, D_00713068);
+        func_00450050((s64) spF0, (const char*)D_00713068);
         if (D_008C024E[0] & 0x800) {
             if ((*(s32 *)((u8 *)(arg1) + (0x1F4))) != 0) {
                 func_00452040(iGpffffb034);
@@ -2793,9 +2792,7 @@ s32 func_0046a110(s32 arg0, s16 arg1, s32 arg2) {
     if (work == NULL) {
         return 0;
     }
-    result = func_00451fc0(arg0, (const void *)iGpffffb034, 0xC6, 0, 0,
-                           (void (*)(u8 *))func_00468fa0,
-                           (void (*)(u8 *))func_0046a020, work);
+    result = (s32)func_00451fc0((void *)(arg0), (const void *)((const void *)iGpffffb034), 0xC6, 0, 0, func_00468fa0, func_0046a020, (u8 *)(work));
     if (result == 0) {
         return 0;
     }
@@ -2820,9 +2817,7 @@ s32 func_0046a1f0(s32 arg0, s16 arg1, s32 arg2) {
     if (work == NULL) {
         return 0;
     }
-    result = func_00451fc0(arg0, (const void *)iGpffffb034, 0xC6, 0, 0,
-                           (void (*)(u8 *))func_00468fa0,
-                           (void (*)(u8 *))func_0046a020, work);
+    result = (s32)func_00451fc0((void *)(arg0), (const void *)((const void *)iGpffffb034), 0xC6, 0, 0, func_00468fa0, func_0046a020, (u8 *)(work));
     if (result == 0) {
         return 0;
     }
@@ -3562,8 +3557,7 @@ u8 *func_0046e850(u8 *parent, void *rect_arg, void *first_arg, void *second_arg)
     if (work == NULL) {
         return NULL;
     }
-    result = func_00451fc0((s32)parent, D_00713108, 0x101, 0, 0,
-        (void (*)(u8 *))func_0046d750, func_0046e7f0, (u8 *)work);
+    result = (s32)func_00451fc0((void *)((s32)parent), (const void *)(D_00713108), 0x101, 0, 0, func_0046d750, func_0046e7f0, (u8 *)((u8 *)work));
     work->enabled = 1;
     work->rect = *rect;
     work->first = *first;

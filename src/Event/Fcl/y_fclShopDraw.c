@@ -1,4 +1,6 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
+#include "fcl_draw_task.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit y_fclShopDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -180,8 +182,8 @@ s32 func_0010d6d0(s16);
 void func_00105780(s32);
 s32 func_00106b20(s16);
 void func_0044ea90(const void *, u32);
-s32 func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
-s32 func_002e0100(void *);
+
+s32 func_002e0100(u8 *task);
 void func_0043f810(void *, s32, s32);
 s32 func_002b89a0(void *);
 void *func_00460990(void);
@@ -197,7 +199,6 @@ void func_002e04f0(void *, s32, s32);
 void func_002e0620(void *, u64, u64, s32, s32, s16);
 void func_002e0940(void *, f32, f32, s32, s32, s32);
 void func_002b2970(void *, f32, f32);
-void *func_002b5c90(void *, u64);
 void *func_002e2590(void *, s32, s32, s32, s32);
 char *func_00442830(char *, const char *);
 void *func_0046d200(void *, s32);
@@ -546,8 +547,8 @@ s32 func_002be530(u8 *arg0)
     extern s32 func_002dfec0(void *arg0, s32 arg1, void *arg2, s8 arg3);
     extern s32 func_002dff90(void *arg0, s32 arg1, void *arg2, void *arg3, s8 arg4);
     extern void func_002e0080(void *arg0, s8 arg1, Vec2f arg2, void *arg3);
-    extern s32 func_002e0100(void *arg0);
-    extern void func_002e02d0(void *arg0);
+extern s32 func_002e0100(u8 *task);
+extern void func_002e02d0(u8 *task);
 
     extern void func_002caef0(void *arg0);
     extern void func_002cb6c0(void *arg0, s8 arg1);
@@ -571,7 +572,7 @@ s32 func_002be530(u8 *arg0)
     extern void func_002df4c0(void *arg0);
     extern s32 func_002e0300(s32 arg0, s16 arg1, u32 arg2);
     extern void func_002cacd0(u64 arg0, f32 fparg0, RGBA arg1, s32 arg2, s16 arg3, u32 arg4_, s32 arg5, s32 arg6, s32 arg7, s32 arg8, s32 arg9);
-    extern void func_002ca770(void *arg0);
+extern void func_002ca770(u8 *task);
 
 
     s32 s0;
@@ -4320,7 +4321,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002be530);
 #endif
 
 // FUN_002CA770
-void func_002ca770(void *arg0) {
+void func_002ca770(u8 *arg0) {
     s16 i;
     void *work = *(void **)((u8 *)arg0 + 0x38);
 
@@ -4340,26 +4341,26 @@ void func_002ca770(void *arg0) {
 
 // FUN_002CA830
 s32 func_002ca830(s32 arg0) {
-    u64 sp48;
-    u64 sp40;
-    u64 sp38;
-    u64 sp30;
+    FclPackedPosition sp48;
+    FclPackedPosition sp40;
+    FclPackedPosition sp38;
+    FclPackedPosition sp30;
     s32 temp_17;
     u8 *temp_2;
 
     func_0044ea90(&D_0063FAC0, 0xC47);
     temp_2 = D_008873F4[0](1, 0x1174, 0x40000);
-    temp_17 = func_00451fc0(arg0, (char *)&D_0063FB30, 0xF, 0, 0, (void (*)(u8 *))func_002be530, (void (*)(u8 *))func_002ca770, temp_2);
+    temp_17 = (s32)func_00451fc0((void *)(arg0), (const void *)((char *)&D_0063FB30), 0xF, 0, 0, func_002be530, func_002ca770, (u8 *)(temp_2));
     *(s8 *)(temp_2 + 0) = 9;
-    func_002b2970(&sp48, 240.0f, 20.0f);
-    *(void **)(temp_2 + 0xC28) = func_002b5c90((void *)temp_17, sp48);
+    func_002b2970(&sp48.bits, 240.0f, 20.0f);
+    *(void **)(temp_2 + 0xC28) = (void *)func_002b5c90(temp_17, sp48.position);
     *(s8 *)(temp_2 + 0xC24) = 0;
-    func_002b2970(&sp40, 50.0f, 30.0f);
-    *(void **)(temp_2 + 0xC2C) = func_002b5c90((void *)temp_17, sp40);
-    func_002b2970(&sp38, 50.0f, 30.0f);
-    *(void **)(temp_2 + 0xC30) = func_002b5c90((void *)temp_17, sp38);
-    func_002b2970(&sp30, 50.0f, 30.0f);
-    *(void **)(temp_2 + 0xC34) = func_002b5c90((void *)temp_17, sp30);
+    func_002b2970(&sp40.bits, 50.0f, 30.0f);
+    *(void **)(temp_2 + 0xC2C) = (void *)func_002b5c90(temp_17, sp40.position);
+    func_002b2970(&sp38.bits, 50.0f, 30.0f);
+    *(void **)(temp_2 + 0xC30) = (void *)func_002b5c90(temp_17, sp38.position);
+    func_002b2970(&sp30.bits, 50.0f, 30.0f);
+    *(void **)(temp_2 + 0xC34) = (void *)func_002b5c90(temp_17, sp30.position);
     *(u32 *)(temp_2 + 0xF28) = 0;
     *(s8 *)(temp_2 + 0xF30) = 0;
     *(void **)(temp_2 + 0xF18) = func_002e2590((void *)temp_17, 0x40000, 0, 4, 0);
@@ -9799,7 +9800,7 @@ void func_002e0080(void *arg0, s8 arg1, Vec2f arg2, void *arg3) {
    opacity parameters preserve constant-first loads and the float-first draw
    argument sequence. Distinct p+4 spellings preserve both retail addresses. */
 // FUN_002E0100
-s32 func_002e0100(void *arg0) {
+s32 func_002e0100(u8 *arg0) {
     ShopWork *work = *(ShopWork **)((u8 *)arg0 + 0x38);
 
     func_0043f810((u8 *)work + 4, func_002b89a0(&work->field_4), 0xF0);
@@ -9841,7 +9842,7 @@ s32 func_002e0100(void *arg0) {
     return 0;
 }
 // FUN_002E02D0
-void func_002e02d0(void *arg0) {
+void func_002e02d0(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
@@ -9865,8 +9866,7 @@ s32 func_002e0300(s32 arg0, s16 arg1, u32 arg2) {
     void *h;
     func_0044ea90(&D_0063FAC0, 0x1D6A);
     w = D_008873F4[0](1, 0x104, 0x40000);
-    r = func_00451fc0(arg0, (char *)&D_0063FB70, 0xF, 0, 0,
-                      (void (*)(u8 *))func_002e0100, (void (*)(u8 *))func_002e02d0, w);
+    r = (s32)func_00451fc0((void *)(arg0), (const void *)((char *)&D_0063FB70), 0xF, 0, 0, func_002e0100, func_002e02d0, (u8 *)(w));
     w[0] = 0;
     *(s16 *)(w + 0xF8) = arg1;
     *(u32 *)(w + 0xF4) = arg2;

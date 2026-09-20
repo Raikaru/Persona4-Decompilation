@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Source unit: src/cldScheduler.c */
 #include "type.h"
 
@@ -41,11 +42,10 @@ extern s32 D_00764578;
 extern s32 D_00764574;
 typedef struct KwlnTask KwlnTask;
 extern s32 func_00452080(KwlnTask *task);
-extern void *func_00451de0(const void *data, s32 a, s32 b, s32 c,
-                          s32 init, s32 close, s32 buf);
+
 extern char D_00637348[];
-extern s32 func_00260020(void *task);
-extern void func_00260440(void);
+extern s32 func_00260020(u8 *task);
+extern void func_00260440(u8 *task);
 
 
 
@@ -67,7 +67,7 @@ void func_0025ff90(void)
  * Keep propagation off here to retain the post-copy byte conversion. */
 #pragma opt_propagation off
 // FUN_00260020
-s32 func_00260020(void *task)
+s32 func_00260020(u8 *task)
 {
     s32 v1;
     s32 v2;
@@ -214,7 +214,7 @@ s32 func_00260020(void *task)
 
 
 // FUN_00260440
-void func_00260440(void)
+void func_00260440(u8 *unusedTask)
 {
 }
 
@@ -242,9 +242,9 @@ void func_00260450(void)
         s32 priority = 0x100;
         s32 startDelay = 0;
         s32 closeDelay = 0;
-        s32 update = (s32)&func_00260020;
-        s32 close = (s32)&func_00260440;
-        func_00451de0(name, priority, startDelay, closeDelay, update, close, (s32)base);
+        SdkTaskUpdate update = func_00260020;
+        SdkTaskDestroy close = func_00260440;
+        func_00451de0((const void *)(name), priority, startDelay, closeDelay, update, close, (u8 *)((s32)base));
     }
 }
 #pragma opt_propagation on

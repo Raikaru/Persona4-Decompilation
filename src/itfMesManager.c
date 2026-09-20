@@ -1,5 +1,6 @@
 /* Source unit: src/itfMesManager_002770d0.c */
 #include "type.h"
+#include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
 
@@ -38,9 +39,9 @@ void func_0027b310(u32 param_1);
 extern char D_0063BE10[];
 void func_0046d730(const char *file, s32 line);
 void func_002850f0();
-void func_00451de0();
-void func_0027b500();
-void func_0027b690();
+
+s32 func_0027b500(u8 *task);
+void func_0027b690(u8 *task);
 extern char D_0063BF10[];
 extern char D_0063BF20[];
 void func_0027a710();
@@ -1241,7 +1242,7 @@ void func_002789a0(void)
         *(s32 *)(entry + 0xC) = 0;
         entry = *(u8 **)(entry + 4);
     }
-    func_00451de0(D_0063BF10, 0xF, 0, 0, &func_0027b500, &func_0027b690, 0);
+    func_00451de0((const void *)(D_0063BF10), 0xF, 0, 0, func_0027b500, func_0027b690, (u8 *)(0));
     func_00440b68(D_0063BF20, D_0063BE10);
 }
 

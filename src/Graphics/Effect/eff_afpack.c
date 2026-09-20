@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "type.h"
+#include "sdk_task_registration.h"
 #include "include_asm.h"
 
 typedef struct RuntimeWork RuntimeWork;
@@ -29,7 +30,7 @@ extern u8* func_00454a60(u8* param, s32 mode);
 extern void func_00456150(void* handle);
 extern s32 func_003ef740(u8* param, s32 mode);
 extern void func_00454bd0(u8* ptr);
-extern s32 func_00451de0(const void* data, s32 a, s32 b, s32 c, void* init, void* close, void* buf);
+
 extern void func_0043f9c8(void* dst, s32 value, u32 size);
 extern u8 D_00764210;
 extern s32 D_00764CA4;
@@ -40,7 +41,7 @@ extern u8 D_007146D0[];
 extern void* D_00922DB8[];
 extern s32 D_00922DC0[];
 extern void func_004b6e80(void);
-extern s32 func_004b6e40(void);
+extern s32 func_004b6e40(u8 *task);
 extern void func_0046d730(const void* file, s32 line);
 extern void func_003e9390(void* frame);
 extern void func_003c02e0(void* arg);
@@ -423,7 +424,7 @@ void func_004b6c90(s32 arg0, s32 arg1)
     func_00454bd0((u8*)temp_2);
     D_00764CA0 = NULL;
     D_00764C9C = NULL;
-    D_00764CA4 = func_00451de0(D_007146D0, arg1, 0, 0, (void*)func_004b6e40, NULL, NULL);
+    D_00764CA4 = (s32)func_00451de0((const void *)(D_007146D0), arg1, 0, 0, func_004b6e40, 0, (u8 *)(NULL));
     func_0043f9c8(D_00922DB0, 0, 0x30);
     D_00922DB8[0] = (void*)func_004b6e80;
     D_00922DC0[0] = 0;
@@ -471,7 +472,7 @@ void func_004b6da0(void* node)
     D_00764C9C = node;
 }
 // FUN_004B6E40
-s32 func_004b6e40(void)
+s32 func_004b6e40(u8 *unusedTask)
 {
     D_00922DB0[0] = 0;
     D_00922DB4[0] = 0;

@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit itfMsgProcedure_Window.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_task_registration.h"
 #include "include_asm.h"
 
 s32 *func_0027be60();
@@ -12,7 +13,7 @@ extern void func_00366380(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, s32 t2
 extern void func_0046a750(void *arg);
 extern s32 func_00455f70(char *str, void *out);
 extern s32 func_0046af60(void *arg);
-extern s32 func_00451fc0(void *a0, const void *a1, s32 a2, s32 a3, s32 a4, void *a5, void *a6, void *a7);
+
 extern s32 func_0025ef20(char *str);
 extern s32 func_00266b70(void);
 extern s32 func_0043f9c8(void *a0, s32 a1, s32 a2);
@@ -253,7 +254,7 @@ s32 func_0027cae0(MsgProcWindowEntry *arg)
 }
 
 // FUN_0027D230
-s32 func_0027d230(void)
+s32 func_0027d230(u8 *unusedTask)
 {
     s32 i;
 
@@ -291,7 +292,7 @@ void func_0027d2f0(void *arg0)
     } else {
         D_007245CC = 0;
     }
-    func_00451fc0(arg0, D_0063C018, 0xF, 0, 0, (void *)func_0027d230, (void *)0, (void *)0);
+    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C018), 0xF, 0, 0, func_0027d230, 0, (u8 *)((void *)0));
 }
 
 /* measured: byte-exact after preserving the mixed ABI order in both the
@@ -1134,7 +1135,7 @@ INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027d970);
 #endif
 
 // FUN_0027F560
-s32 func_0027f560(void)
+s32 func_0027f560(u8 *unusedTask)
 {
     MsgProcWindowWork *work = (MsgProcWindowWork *)&D_007245D0;
 
@@ -1159,7 +1160,7 @@ s32 func_0027f560(void)
 }
 
 // FUN_0027F630
-void func_0027f630(void)
+void func_0027f630(u8 *unusedTask)
 {
     MsgProcWindowWork *work = (MsgProcWindowWork *)&D_007245D0;
 
@@ -1385,7 +1386,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             } else {
                 if (func_00452380(&D_00723868) == 0) {
                     func_0043f9c8(w245, 0, 8);
-                    func_00451fc0((void *)0, &D_00723868, 0xF, 0, 0, (void *)func_0027f560, (void *)func_0027f630, (void *)0);
+                    (s32)func_00451fc0((void *)((void *)0), (const void *)(&D_00723868), 0xF, 0, 0, func_0027f560, func_0027f630, (u8 *)((void *)0));
                 }
                 handle = 0;
             }
@@ -1611,7 +1612,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             } else {
                 if (func_00452380(&D_00723868) == 0) {
                     func_0043f9c8(w245, 0, 8);
-                    func_00451fc0((void *)0, &D_00723868, 0xF, 0, 0, (void *)func_0027f560, (void *)func_0027f630, (void *)0);
+                    (s32)func_00451fc0((void *)((void *)0), (const void *)(&D_00723868), 0xF, 0, 0, func_0027f560, func_0027f630, (u8 *)((void *)0));
                 }
                 handle = 0;
             }
@@ -2550,7 +2551,7 @@ INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_00282250);
 #endif
 
 // FUN_002831C0
-s32 func_002831c0(void)
+s32 func_002831c0(u8 *unusedTask)
 {
     MsgProcWindowWork *work = &D_00882098;
 
@@ -2576,7 +2577,7 @@ s32 func_002831c0(void)
 }
 
 // FUN_002832B0
-void func_002832b0(void)
+void func_002832b0(u8 *unusedTask)
 {
     MsgProcWindowWork *work = &D_00882098;
 
@@ -2618,7 +2619,7 @@ s32 func_002833b0(s32 arg0)
         }
     } else if (func_00452380(D_0063C180) == 0) {
         func_0043f9c8(work, 0, 0xC);
-        func_00451fc0((void *)0, D_0063C180, 0xF, 0, 0, (void *)func_002831c0, (void *)func_002832b0, (void *)0);
+        (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 0xF, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
     }
     return 0;
 }
@@ -2640,7 +2641,7 @@ void func_00283490(u8 *arg0, u8 *arg1)
 {
     extern s32 func_00452380(void *path);
     extern void func_0043f9c8(void *a0, s32 a1, s32 a2);
-    extern s32 func_00451fc0(void *a0, const void *a1, s32 a2, s32 a3, s32 a4, void *a5, void *a6, void *a7);
+
     extern s32 func_0027bec0(void *arg0);
     extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
     extern void *func_0046a770(void *arg0);
@@ -2742,7 +2743,7 @@ void func_00283490(u8 *arg0, u8 *arg1)
         } else {
             if (func_00452380(D_0063C180) == 0) {
                 func_0043f9c8(work, 0, 12);
-                func_00451fc0((void *)0, D_0063C180, 15, 0, 0, (void *)func_002831c0, (void *)func_002832b0, (void *)0);
+                (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
             }
             goto lab6_zero;
         }
@@ -2767,7 +2768,7 @@ lab6_chk:;
             } else {
                 if (func_00452380(D_0063C180) == 0) {
                     func_0043f9c8(work, 0, 12);
-                    func_00451fc0((void *)0, D_0063C180, 15, 0, 0, (void *)func_002831c0, (void *)func_002832b0, (void *)0);
+                    (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
                 }
                 goto lab4_zero;
             }
@@ -2872,7 +2873,7 @@ lab4_chk:;
             } else {
                 if (func_00452380(D_0063C180) == 0) {
                     func_0043f9c8(work, 0, 12);
-                    func_00451fc0((void *)0, D_0063C180, 15, 0, 0, (void *)func_002831c0, (void *)func_002832b0, (void *)0);
+                    (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
                 }
                 goto lab4b_zero;
             }
@@ -2960,7 +2961,7 @@ lab4b_chk:;
         } else {
             if (func_00452380(D_0063C180) == 0) {
                 func_0043f9c8(work, 0, 12);
-                func_00451fc0((void *)0, D_0063C180, 15, 0, 0, (void *)func_002831c0, (void *)func_002832b0, (void *)0);
+                (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
             }
             goto lab5_zero;
         }
@@ -3026,7 +3027,7 @@ lab5_chk:;
         } else {
             if (func_00452380(D_0063C180) == 0) {
                 func_0043f9c8(work, 0, 12);
-                func_00451fc0((void *)0, D_0063C180, 15, 0, 0, (void *)func_002831c0, (void *)func_002832b0, (void *)0);
+                (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
             }
             goto lab5b_zero;
         }
@@ -3104,7 +3105,7 @@ s32 func_002848c0(void *arg0, s32 arg1)
             } else {
                 if (func_00452380(D_0063C180) == 0) {
                     func_0043f9c8(work, 0, 12);
-                    func_00451fc0((void *)0, D_0063C180, 15, 0, 0, (void *)func_002831c0, (void *)func_002832b0, (void *)0);
+                    (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
                 } else {
                     goto lab4_zero;
                 }
@@ -3149,7 +3150,7 @@ lab4_chk:;
             } else {
                 if (func_00452380(D_0063C180) == 0) {
                     func_0043f9c8(work, 0, 12);
-                    func_00451fc0((void *)0, D_0063C180, 15, 0, 0, (void *)func_002831c0, (void *)func_002832b0, (void *)0);
+                    (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 15, 0, 0, func_002831c0, func_002832b0, (u8 *)((void *)0));
                 }
                 goto lab5_zero;
             }

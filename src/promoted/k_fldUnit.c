@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldUnit.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_task_registration.h"
 #include "include_asm.h"
 
 typedef struct RwMatrix RwMatrix;
@@ -109,7 +110,7 @@ extern u8 D_007EFB60[];
 extern u8 D_007EFB64[];
 extern u8 D_007F00D8[];
 extern u8 D_005F1590[];
-extern u8 D_005F15B0[];
+extern SdkTaskUpdate D_005F15B0[];
 extern u8 D_005F15C0[];
 extern u8 D_005F15E0[];
 extern u8 D_007E80A0[];
@@ -173,7 +174,7 @@ void func_0043f9c8(u8 *arg0, s32 arg1, s32 arg2);
 s32 func_00161b10(u16 arg0, u16 arg1, u16 arg2);
 s32 func_0015a320(void);
 u8 *func_00161c80(u16 arg0, u16 arg1, u16 arg2, s32 arg3);
-void *func_00451fc0(u8 *arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4, void (*arg5)(void *), void (*arg6)(void *), s32 arg7);
+
 
 
 
@@ -2274,7 +2275,7 @@ s32 func_00166b40(u8 *arg0, s32 arg1)
     if (r == 0) {
         return 0;
     }
-    task = (s32)func_00451fc0(arg0, D_005F1590, 0xF, 0, 0, (void (*)(void *))func_001668e0, (void (*)(void *))func_00166b10, r);
+    task = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1590), 0xF, 0, 0, func_001668e0, func_00166b10, (u8 *)(r));
     *(s32 *)(r + 0xC) = arg1;
     return task;
 }
@@ -2576,7 +2577,7 @@ s32 func_00167420(u8 *arg0, u8 *arg1)
     if (r == 0) {
         return 0;
     }
-    task = (s32)func_00451fc0(arg0, D_005F15C0, 0xF, 0, 0, (void (*)(void *))*(void **)(D_005F15B0 + (*(u16 *)(arg1 + 0x1C8) << 2)), (void (*)(void *))func_001673f0, r);
+    task = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F15C0), 0xF, 0, 0, D_005F15B0[*(u16 *)(arg1 + 0x1C8)], func_001673f0, (u8 *)(r));
     *(u8 **)(r + 4) = arg1;
     *(s32 *)(r + 0xC) = 0x28;
     *(s32 *)(*(u32 *)(arg1 + 0x50) + 0xD8) |= 0x80;
@@ -2886,7 +2887,7 @@ s32 func_00167d90(u8 *arg0)
     if (r == 0) {
         return 0;
     }
-    task = (s32)func_00451fc0(NULL, D_005F15E0, 0xF, 0, 0, (void (*)(void *))func_001679d0, (void (*)(void *))func_00167d60, r);
+    task = (s32)func_00451fc0((void *)(NULL), (const void *)(D_005F15E0), 0xF, 0, 0, func_001679d0, func_00167d60, (u8 *)(r));
     *(s32 *)(r + 4) = acc & 0xFF;
     *(s32 *)(r + 8) = (acc >> 8) & 0xFF;
     *(s32 *)(r + 0xC) = (acc >> 16) & 0xFF;

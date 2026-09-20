@@ -1,4 +1,5 @@
 #include "Kosaka/k_clump_internal.h"
+#include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "type.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
@@ -21,7 +22,7 @@ extern void func_003c21e0();
 extern void func_004787e0(s32 arg0);
 extern void func_003f3eb0(s32 arg0, s32 arg1);
 extern void func_00185370();
-extern void func_00183b80(u8 *arg0);
+extern s32 func_00183b80(u8 *task);
 
 extern void (*jtbl_008873EC[])(void *);
 
@@ -103,7 +104,7 @@ extern f32 D_005F2198[];
 extern f32 D_005F219C[];
 extern f32 D_005F21A0[];
 extern f32 D_005F21A4[];
-extern void func_0018a200(u8 *arg0);
+extern s32 func_0018a200(u8 *task);
 extern s32 func_0015a560(void);
 extern f32 func_0044b7b0(f32 arg0);
 extern void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
@@ -127,11 +128,9 @@ extern s32 func_0018dde0(u8 *arg0);
 extern u8 D_005F1D80[];
 extern u8 D_005F1D90[];
 extern s32 iGpffff9f60;
-extern void func_00182bc0(u8 *arg0);
-extern s32 func_00451fc0(u8 *window, const void *data, s32 prio, s32 arg3,
-                         s32 arg4, void (*init)(u8 *), void (*close)(u8 *),
-                         u8 *work);
-extern void func_00185850(u8 *arg0);
+extern s32 func_00182bc0(u8 *task);
+
+extern s32 func_00185850(u8 *task);
 extern void func_00186610(u8 *arg0);
 extern s32 func_0018e810(u8 *arg0);
 extern void func_0018ef20(u8 *arg0);
@@ -422,8 +421,9 @@ void func_00182b40(void)
 /* 2026-09-19 (func_00182bc0 only; Cd0018 holds 00183b80/0018a200 untouched): frame -0xc0 exact. Lui retail 26 vs object 29 (+3 surplus): retail {0x4000:5,0x5F:5,0x88:1,4:3,0x2008:1,0x3f80:2,2:2,0x80:2,7:1,8:1,0x4080:1,0x79:1,0x18:1} vs object {0x4000:6,0:10,4:3,0x2008:1,0x3f80:2,2:2,0x80:2,7:1,8:1,0x4080:1}; surplus = 1 float (0x4000 2.0f 5->6, candidate has 6x 2.0f) + 2 symbols (0x5F/0x88/0x79/0x18 8->10 zero, e.g. delete 102:104 lui 0x88 base at 0x182D58). Counts fnalign 771 vs 779 (-8, -1.0% inside gate), words 714, edits 421 +23 reloc, window 3120B. Deletes 9 tot 36: [8:9] 0x182BE0 (swc1 spill); [102:104] 0x182D58 len2 (lui 0x88 table base); [384:385] 0x1831C0 (add.s FPU); [486:504] 0x183358-0x18339F len18 THE field group (lwc1 0,4,8,0x10,0x14,0x18,0x20,0x24,0x28 from s3 + swc1 to 0xA0,0xA4,0xA8,0x90,0x94,0x98,0x80,0x84,0x88 stack: 9-float struct spill, object keeps in regs/different layout); [623:627] 0x18357C len4 (add.s+lwc1 madd ordering); [632:636] 0x1835A0 len4 (same); [652:656] 0x1835F0 len4 (lw 0x5C/addu/lw 0xC/addu pointer chase); [767:768] 0x1837BC (move zero); [775:776] 0x1837DC (lwc1 spill). Inserts 11 tot 24 (object hoists, e.g. 4 at 328:332, 5 at 371:376). No single missing arm; residual per prior note (saved-reg colour, hoisted F4 base, madd vs plain C). No code change this round (before=after); coordinated via hub (Bd0024/Hs0037/Hs0046/Hs0038/Hs001f/Bd002a/Hs0019/Hs0035 confirm no overlap, Main confirms Cd0018 has no edits yet). */
 // FUN_00182BC0 NONMATCHING
 #ifdef NON_MATCHING
-void func_00182bc0(u8 *arg0)
+s32 func_00182bc0(u8 *arg0)
 {
+    /* Retail returns zero at 001837BC, 00182BF8. */
     extern u8 *func_00457120(void);
     extern u8 *func_003e9700(s32 arg0);
     extern u32 func_003b7060(void);
@@ -489,7 +489,7 @@ void func_00182bc0(u8 *arg0)
 
     ctx = *(u8 **)(arg0 + 0x38);
     if (*(s32 *)(ctx + 4) != 0) {
-        return;
+        return 0;
     }
     switch (*(s32 *)ctx) {
     case 0:
@@ -778,6 +778,7 @@ void func_00182bc0(u8 *arg0)
     default:
         break;
     }
+    return 0;
 }
 
 #else
@@ -819,8 +820,7 @@ void func_001838d0(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1,
 
     func_0044ea90(&D_005F1D80, 0x17B);
     temp_2 = D_008873F4[0](1, 0x78, 0x40000);
-    func_00451fc0(arg0, &iGpffff9f60, 0xF, 0, 0, func_00182bc0,
-                  func_001837f0, temp_2);
+    (s32)func_00451fc0((void *)(arg0), (const void *)(&iGpffff9f60), 0xF, 0, 0, func_00182bc0, func_001837f0, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 0x28) = arg1;
     *(f32 *)(temp_2 + 0x18) = fparg0;
     *(f32 *)(temp_2 + 0x14) = fparg1;
@@ -872,8 +872,9 @@ void func_001839e0(u8 *arg0, u8 *arg1)
 // FUN_00183B80 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
-void func_00183b80(u8 *arg0)
+s32 func_00183b80(u8 *arg0)
 {
+    /* Retail returns zero at 001850F0, 00183BD4. */
     extern u8 *func_00457120(void);
     extern u32 func_003b7060(void);
     extern s32 func_003ef6d0(void);
@@ -913,7 +914,7 @@ void func_00183b80(u8 *arg0)
     f21 = *(f32 *)(tmp + 0x80);
     f20 = 1.0f / f21;
     if (*(s32 *)(ctx + 4) != 0) {
-        return;
+        return 0;
     }
     if (*(s32 *)ctx == 0) {
         *(f32 *)(ctx + 0x428) = *(f32 *)(ctx + 0x424) * (f32)*(s16 *)(ctx + 0x43A) / (f32)*(s16 *)(ctx + 0x438);
@@ -1073,10 +1074,10 @@ void func_00183b80(u8 *arg0)
         *(f32 *)(ctx + 0x42C) = (*(f32 *)(ctx + 0x458) - *(f32 *)(ctx + 0x450)) / 2.0f;
         *(f32 *)(ctx + 0x430) = (*(f32 *)(ctx + 0x45C) - *(f32 *)(ctx + 0x454)) / 2.0f;
         *(s32 *)ctx = *(s32 *)ctx + 1;
-        return;
+        return 0;
     }
     if (*(s32 *)ctx != 1) {
-        return;
+        return 0;
     }
     pkt = func_00460990();
     *(void (**)(u8 *, u8 *))(pkt + 8) = func_001839e0;
@@ -1131,6 +1132,7 @@ void func_00183b80(u8 *arg0)
             *(f32 *)(ctx + 0x45C) = *(f32 *)(ctx + 0x428) / 2.0f;
         }
     }
+    return 0;
 }
 
 #pragma opt_loop_invariants off
@@ -1169,8 +1171,7 @@ s32 func_00185150(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
     }
     func_0044ea90(&D_005F1D80, 0x43A);
     temp_2_2 = D_008873F4[0](1, 0x460, 0x40000);
-    temp_2 = func_00451fc0((u8 *)arg0, &D_005F1D90, 0xF, 0, 0,
-                           func_00183b80, func_00185120, temp_2_2);
+    temp_2 = (s32)func_00451fc0((void *)((u8 *)arg0), (const void *)(&D_005F1D90), 0xF, 0, 0, func_00183b80, func_00185120, (u8 *)(temp_2_2));
     *(s32 *)(temp_2_2 + 0x420) = arg1;
     *(f32 *)(temp_2_2 + 0x414) = fparg1;
     *(f32 *)(temp_2_2 + 0x418) = fparg2;
@@ -1413,8 +1414,9 @@ void func_00185830(void)
 /* single-iter inner for (<1) removal costs +9 and manual iGpffff8214 hoist costs +22, so both stay as-is. */
 // FUN_00185850 NONMATCHING
 #ifdef NON_MATCHING
-void func_00185850(u8 *arg0)
+s32 func_00185850(u8 *arg0)
 {
+    /* Retail returns zero at 001865D4, 00185888. */
     extern u8 D_00794930[];
     extern u8 D_005F1DA0[];
     extern u8 D_005F1DC0[];
@@ -1778,7 +1780,7 @@ void func_00185850(u8 *arg0)
       }
     }
   }
-  return;
+  return 0;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00185850);
@@ -1797,8 +1799,7 @@ void func_00186610(u8 *arg0)
 void func_00186640(u8 *arg0)
 {
     func_0044ea90(&D_005F1DF8, 0x299);
-    func_00451fc0(arg0, &D_005F1E08, 0xF, 0, 0, func_00185850,
-                  func_00186610, D_008873F4[0](1, 0x88D0, 0x40000));
+    (s32)func_00451fc0((void *)(arg0), (const void *)(&D_005F1E08), 0xF, 0, 0, func_00185850, func_00186610, (u8 *)(D_008873F4[0](1, 0x88D0, 0x40000)));
 }
 // FUN_00189600
 void func_00189600(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0)
@@ -2018,9 +2019,7 @@ void func_00189ec0(void)
         if (temp_2 == NULL) {
             var_16 = 0;
         } else {
-            var_16 = func_00451fc0(temp_16, &D_005F5330, 0xF, 0, 0,
-                                   (void (*)(u8 *))func_00189940,
-                                   (void (*)(u8 *))func_00189e90, temp_2);
+            var_16 = (s32)func_00451fc0((void *)(temp_16), (const void *)(&D_005F5330), 0xF, 0, 0, func_00189940, func_00189e90, (u8 *)(temp_2));
         }
         *(s32 *)((u8 *)func_00155280() + 0x30) = var_16;
         func_0018a010(-1);
@@ -2187,9 +2186,10 @@ extern int FUN_003bb5b0();
 extern int FUN_003e40b0();
 extern int FUN_0047a1e0();
 extern int FUN_0047a310();
-void func_0018a200(unsigned char *param_1)
+s32 func_0018a200(u8 *param_1)
 
 {
+    /* Retail returns zero at 0018BAA8, 0018A234. */
 /* irregular: 10 native warning(s); review required */
   unsigned int *puVar1;
   unsigned int temp_v0;
@@ -2280,7 +2280,7 @@ void func_0018a200(unsigned char *param_1)
   
   puVar1 = *(unsigned int **)(param_1 + 0x38);
   if (puVar1[2] == 1) {
-    return;
+    return 0;
   }
   if (3 < *puVar1) {
     if (*(int *)(puVar1[3] + 0x234) == 2) {
@@ -2448,30 +2448,30 @@ void func_0018a200(unsigned char *param_1)
     if (temp_v4 == 9) {
       temp_v4 = FUN_00155280();
       if (*(int *)(temp_v4 + 0x34) == 0) {
-        return;
+        return 0;
       }
       temp_v4 = FUN_00155280();
       temp_v4 = FUN_0014e710(*(unsigned char **)(temp_v4 + 0x34));
       if (temp_v4 == 0) {
-        return;
+        return 0;
       }
       temp_v4 = FUN_00155280();
       if (*(int *)(temp_v4 + 0x38) == 0) {
-        return;
+        return 0;
       }
       temp_v4 = FUN_00155280();
       temp_v4 = FUN_0014e710(*(unsigned char **)(temp_v4 + 0x38));
       if (temp_v4 == 0) {
-        return;
+        return 0;
       }
       temp_v4 = FUN_00155280();
       if (*(int *)(temp_v4 + 0x3c) == 0) {
-        return;
+        return 0;
       }
       temp_v4 = FUN_00155280();
       temp_v4 = FUN_0014e710(*(unsigned char **)(temp_v4 + 0x3c));
       if (temp_v4 == 0) {
-        return;
+        return 0;
       }
     }
     temp_v5 = puVar1[3];
@@ -2611,7 +2611,7 @@ void func_0018a200(unsigned char *param_1)
         temp_v5 = FUN_0014c240(pvVar11,(void *)(temp_v4 + 0x30),90.0f,250.0f);
         if (temp_v5 != 0) {
           if (puVar1[0xb] != 0xffffffff) {
-            return;
+            return 0;
           }
           temp_v3 = FUN_00479c30(*(int *)(puVar1[3] + 0x164),0);
           puVar1[0xb] = (int)temp_v3;
@@ -2619,14 +2619,14 @@ void func_0018a200(unsigned char *param_1)
           if (*(int *)(temp_v5 + 0x234) == 1) {
             FUN_00479940(*(unsigned char **)(temp_v5 + 0x164),0,(int)*(short *)(*(int *)(temp_v5 + 0x280) + 6),4
                           ,1);
-            return;
+            return 0;
           }
           if (*(int *)(temp_v5 + 0x234) != 2) {
-            return;
+            return 0;
           }
           FUN_00479940(*(unsigned char **)(temp_v5 + 0x164),0,(int)*(short *)(*(int *)(temp_v5 + 0x284) + 0x6c),
                         4,1);
-          return;
+          return 0;
         }
       }
       if (-1 < (int)puVar1[0xb]) {
@@ -2797,7 +2797,7 @@ void func_0018a200(unsigned char *param_1)
       FUN_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,8,1);
     }
   }
-  return;
+  return 0;
 }
 #pragma opt_common_subs on
 #else
@@ -2823,8 +2823,7 @@ s32 func_0018bb20(s32 arg0, s32 arg1)
     temp_2 = D_008873F4[0](1, 0x58, 0x40000);
     if (temp_2 == NULL)
         return 0;
-    temp_17 = func_00451fc0((u8 *)arg0, &D_005F5350, 0xF, 0, 0,
-                            func_0018a200, func_0018bad0, temp_2);
+    temp_17 = (s32)func_00451fc0((void *)((u8 *)arg0), (const void *)(&D_005F5350), 0xF, 0, 0, func_0018a200, func_0018bad0, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 0xC) = arg1;
     *(f32 *)(temp_2 + 0x48) = *(f32 *)(func_00457120() + 0x80);
     return temp_17;
@@ -3420,8 +3419,7 @@ s32 func_0018df60(s32 arg0)
     temp_2_2 = D_008873F4[0](1, 0x14, 0x40000);
     if (temp_2_2 == NULL)
         return 0;
-    temp_2 = func_00451fc0((u8 *)arg0, &D_005F54E8, 0xF, 0, 0,
-                           (void (*)(u8 *))func_0018dde0, func_0018df30, temp_2_2);
+    temp_2 = (s32)func_00451fc0((void *)((u8 *)arg0), (const void *)(&D_005F54E8), 0xF, 0, 0, func_0018dde0, func_0018df30, (u8 *)(temp_2_2));
     *(s32 *)(temp_2_2 + 8) = 0x1E;
     return temp_2;
 }
@@ -3633,9 +3631,7 @@ void func_0018ef20(u8 *arg0)
 void func_0018ef50(s32 arg0)
 {
     func_0044ea90(&D_005F57B0, 0x101);
-    func_00451fc0((u8 *)arg0, &D_005F57C0, 0xF, 0, 0,
-                  (void (*)(u8 *))func_0018e810,
-                  func_0018ef20, D_008873F4[0](1, 0x1B440, 0x40000));
+    (s32)func_00451fc0((void *)((u8 *)arg0), (const void *)(&D_005F57C0), 0xF, 0, 0, func_0018e810, func_0018ef20, (u8 *)(D_008873F4[0](1, 0x1B440, 0x40000)));
 }
 #pragma opt_propagation off
 // FUN_0018EFE0

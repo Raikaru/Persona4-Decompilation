@@ -1,9 +1,10 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Persona 4 USA decompilation - evtPMFileReader.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
 extern s32 func_00452490();
-extern s32 *func_00452560();
+extern u32 func_00452560(void *task);
 extern u8 D_0063C970[];
 extern u8 D_0063C990[];
 extern char iGpffffa7c0;
@@ -17,12 +18,12 @@ extern s32 *func_00290660(s32 **arg0);
 extern void func_0044ea90(u8 *file, s32 line);
 extern void func_002852a0(s32 arg0, s32 arg1);
 extern void func_0043f9c8(void *dest, s32 value, s32 size);
-extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00748340[];
 extern u8 D_0063CAA0[];
-extern s32 func_002938c0(void);
-extern void func_00293d30(void);
+extern s32 func_002938c0(u8 *task);
+extern void func_00293d30(u8 *task);
 extern void func_00106390(s32 a, s32 b);
 extern void func_00454bd0(s32 a);
 extern void func_00440b68(char *fmt, ...);
@@ -50,7 +51,7 @@ extern u8 D_0063CA70[];
    format buffer through its small-data name, and giving func_00290710
    the pointer parameters its own body already requires. */
 // FUN_002938C0
-s32 func_002938c0(void) {
+s32 func_002938c0(u8 *task) {
     s32 sp12C;
     u8 spE0[64];
     u8 spA0[64];
@@ -64,7 +65,7 @@ s32 func_002938c0(void) {
     u8 *temp_3;
     s32 ready;
 
-    temp_2 = (u8 *)func_00452560();
+    temp_2 = (u8 *)func_00452560(task);
     func_00290710(*(s32 *)(temp_2 + 0x0C), *(s32 *)(temp_2 + 0x10), spE0, spA0, sp60, sp20);
     if (*(s32 *)(temp_2 + 8) != 0) {
         temp_3 = *(u8 **)temp_2;
@@ -183,11 +184,11 @@ s32 func_002938c0(void) {
 }
 
 // FUN_00293D30
-void func_00293d30(void) {
+void func_00293d30(u8 *task) {
     s32 *p;
     u16 h18;
 
-    p = func_00452560();
+    p = (s32 *)func_00452560(task);
     h18 = *(u16 *)(p + 0x18 / 4);
     if ((s32)h18 > 0) {
         func_00106390(h18, 0);
@@ -230,7 +231,7 @@ void func_00293d30(void) {
 }
 
 // FUN_00293ED0
-void func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+s32 func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *temp_20;
 
     func_0044ea90(D_00748340, 0x52);
@@ -242,7 +243,7 @@ void func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     temp_20[0x14 / 4] = arg2;
     temp_20[0x4 / 4] = arg3;
     temp_20[0x8 / 4] = 0;
-    func_00451de0(D_0063CAA0, 0xF, 1, 1, func_002938c0, func_00293d30, temp_20);
+    return (s32)func_00451de0((const void *)(D_0063CAA0), 0xF, 1, 1, func_002938c0, func_00293d30, (u8 *)(temp_20));
 }
 
 // FUN_00293FC0
@@ -250,18 +251,18 @@ s32 func_00293fc0(s32 arg0) {
     if (func_00452490(arg0) == 0) {
         func_0046d730(D_0063C970, 0x123);
     }
-    if (func_00452560(arg0)[0] == 7) {
+    if (((s32 *)func_00452560((void *)arg0))[0] == 7) {
         return 1;
     }
     return 0;
 }
 
 // FUN_00294040
-void func_00294040(s32 arg0) {
+u8 *func_00294040(s32 arg0) {
     if (func_00452490(arg0) == 0) {
         func_0046d730(D_0063C970, 0x131);
     }
-    func_00452560(arg0);
+    return (u8 *)func_00452560((void *)arg0);
 }
 
 // FUN_002940A0
@@ -278,16 +279,16 @@ s32 func_002940a0(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4) {
     if (func_00452490(arg0) == 0) {
         func_0046d730((char *)D_0063C970, 0x123);
     }
-    if (func_00452560(arg0)[0] != 7) {
+    if (((s32 *)func_00452560((void *)arg0))[0] != 7) {
         if (func_00452490(arg0) == 0) {
             func_0046d730((char *)D_0063C970, 0x123);
         }
-        if (func_00452560(arg0)[0] != 7) {
+        if (((s32 *)func_00452560((void *)arg0))[0] != 7) {
             func_0046d730((char *)D_0063C970, 0x143);
         }
         return 0;
     }
-    temp_2 = func_00452560(arg0);
+    temp_2 = (s32 *)func_00452560((void *)arg0);
     *(u32 *)(base + 0x80) = (u32)temp_2[0x38 / 4];
     if (temp_2[0x38 / 4] != 0) {
         *(u32 *)(base + 0x84) = (u32)(temp_2[0x38 / 4] + 0x20);

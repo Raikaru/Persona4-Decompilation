@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Persona 4 USA decompilation - y_fclTalk.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
@@ -9,8 +10,7 @@ extern char D_0064A018[];
 extern char D_0064A030[];
 extern char D_0064A050[];
 extern void func_0044ea90(const void *file, s32 line);
-extern s32 func_00451fc0(u8 *arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4,
-                         void *arg5, void *arg6, u8 *arg7);
+
 extern s8 func_002bab80(void *);
 extern void func_002badc0(s8, s32);
 extern void func_002bbd80(s8, s32, void *);
@@ -37,12 +37,12 @@ extern s32 func_002be160(s32, s32);
 extern s32 func_002be1b0();
 extern s32 func_002dfd00(u16);
 extern u32 func_003b7060(void);
-extern void func_00331a20();
-extern void func_00331f90();
-extern s32 func_00332060();
-extern void func_003322a0();
-extern s32 func_00332520();
-extern void func_003329b0();
+extern s32 func_00331a20(u8 *task);
+extern void func_00331f90(u8 *task);
+extern s32 func_00332060(u8 *task);
+extern void func_003322a0(u8 *task);
+extern s32 func_00332520(u8 *task);
+extern void func_003329b0(u8 *task);
 
 // FUN_00331FC0
 void func_00331fc0(u8 *arg0) {
@@ -50,8 +50,7 @@ void func_00331fc0(u8 *arg0) {
 
     func_0044ea90(D_0064A018, 0xC8);
     temp_2 = D_008873F4[0](1, 2, 0x40000);
-    func_00451fc0(arg0, D_0064A030, 0xF, 0, 0, (void *)func_00331a20,
-                  (void *)func_00331f90, temp_2);
+    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A030), 0xF, 0, 0, func_00331a20, func_00331f90, (u8 *)(temp_2));
     *temp_2 = 0;
 }
 /* measured: nd 165 with a full C body (object 592B against a 576B window).
@@ -119,7 +118,7 @@ done:
     return 0;
 }
 // FUN_003322A0
-void func_003322a0(void *arg0) {
+void func_003322a0(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
@@ -129,8 +128,7 @@ void func_003322d0(u8 *arg0) {
 
     func_0044ea90(D_0064A018, 0x12D);
     temp_2 = D_008873F4[0](1, 2, 0x40000);
-    func_00451fc0(arg0, D_0064A050, 0xF, 0, 0, (void *)func_00332060,
-                  (void *)func_003322a0, temp_2);
+    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A050), 0xF, 0, 0, func_00332060, func_003322a0, (u8 *)(temp_2));
     *temp_2 = 0;
 }
 
@@ -275,7 +273,7 @@ done_32520:
 
 }
 // FUN_003329B0
-void func_003329b0(void *arg0) {
+void func_003329b0(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
@@ -285,8 +283,7 @@ void func_003329e0(u8 *arg0) {
 
     func_0044ea90(D_0064A018, 0x1EC);
     temp_2 = D_008873F4[0](1, 0x180C, 0x40000);
-    func_00451fc0(arg0, D_0064A000, 0xF, 0, 0, (void *)func_00332520,
-                  (void *)func_003329b0, temp_2);
+    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A000), 0xF, 0, 0, func_00332520, func_003329b0, (u8 *)(temp_2));
     *temp_2 = 0;
     *(temp_2 + 0x1808) = 0;
 }

@@ -1,4 +1,5 @@
 #include "type.h"
+#include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
 
@@ -36,8 +37,8 @@ extern void func_002baa20(void);
 extern int func_002e0d60(void);
 extern void func_002bcd20(void);
 struct KwlnTask;
-extern s32 func_002e17f0(struct KwlnTask *task);
-extern void func_002715c0(void);
+extern s32 func_002e17f0(u8 *task);
+extern void func_002715c0(u8 *task);
 extern void func_002713b0(int param_1, int param_2);
 extern s8 func_002746e0(void *param_1, int param_2);
 extern void func_002746b0(u32 param_1);
@@ -366,7 +367,7 @@ void func_002713b0(s32 arg0, s32 arg1)
 
 
 // FUN_002715C0
-void func_002715c0(void)
+void func_002715c0(u8 *unusedTask)
 {
     void *(**tab);
 
@@ -1708,7 +1709,7 @@ result_check:
     return var_16;
 }
 // FUN_00273610
-u32 func_00273610(void)
+s32 func_00273610(u8 *unusedTask)
 {
     DAT_0088179C_abs[0] = func_00271bd0(DAT_0088179C_abs[0]);
     func_00275c00();
@@ -2700,9 +2701,9 @@ void func_00274970(void)
 
     func_002baa20();
     v = func_002e0d60();
-    *(int *)v = func_00451de0(&D_00763840, 0xC8, 0, 0, func_002e17f0, 0, 0);
+    *(int *)v = (s32)func_00451de0((const void *)(&D_00763840), 0xC8, 0, 0, func_002e17f0, 0, (u8 *)(0));
     func_002713b0(0x100, 0x100);
-    func_00451de0(&D_00763848, 0, 0, 0, func_00273610, func_002715c0, 0);
+    func_00451de0((const void *)(&D_00763848), 0, 0, 0, func_00273610, func_002715c0, (u8 *)(0));
     func_002bcd20();
 }
 

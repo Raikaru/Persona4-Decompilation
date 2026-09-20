@@ -1,6 +1,11 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit y_fclCombine.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
+#include "fcl_bounds_packet.h"
+#include "fcl_draw_task.h"
+#include "sdk_task_registration.h"
+extern s32 func_002e7ac0(u8 *task);
+extern void func_002e82b0(u8 *task);
 #include "type.h"
 
 typedef struct {
@@ -13,6 +18,16 @@ typedef struct {
 #include "fcl_combine_internal.h"
 
 typedef FclVec2 FclVec2f;
+extern void func_00313b50(u8 *task);
+extern s32 func_0033e3f0(u8 *task);
+
+extern void func_002b2a60(u8 *out, s32 red, s32 green, s32 blue, s32 alpha);
+
+extern void func_002b5e30(u8 *task, FclDrawColor color);
+extern void func_002b5e20(u8 *task, f32 depth);
+extern void func_002b6130(u8 *task, u32 order);
+extern void func_002b6140(u8 *task, u8 hidden);
+extern void func_002b6120(u8 *task, u8 mode);
 extern u16 *func_001102e0(void);
 extern s32 func_00106330(s32);
 extern void func_00145080(void);
@@ -53,7 +68,6 @@ extern s32 func_0010b5b0(void);
 extern u8 D_00641BE0[];
 extern u8 D_00641C00[];
 extern char iGpffffa8c8;
-extern s32 func_00451fc0(s32 arg0, const void *arg1, s32, s32, s32, void *, void *, void *);
 extern void func_00440b68(const void *arg0, const void *arg1, s32 arg2);
 extern s32 func_00454a60(void *arg0, s32 arg1);
 extern void func_0045aac0(s32, s32, s32);
@@ -64,7 +78,6 @@ extern u8 *func_0010b010(u16 personaId);
 extern void func_002b68d0(s16, s32, s32);
 extern void func_00324f80(u8 *arg0, s64, s32, s32);
 extern void func_00330060(u8 *arg0, s32);
-extern void func_002b2a60(void *arg0, s32, s32, s32, s32);
 extern u8 *func_002b6150(s16);
 extern s32 func_002b6970(s16, s32);
 extern u16 D_008C0276[];
@@ -141,26 +154,10 @@ extern s32 func_0014b450(void);
 extern void func_003e9cb0(s32, s32, s32);
 extern void func_00331390(void);
 extern s32 func_00331580(void);
-extern void func_002e7ac0(void);
-extern void func_002e82b0(void);
-extern void func_00313b50(s32);
 extern s32 func_0034a4f0(s32, s32);
-extern s32 func_0034ad70(s32, u32, s32);
 extern u8 *func_0034ae50(u8 *, s8);
 extern u8 *func_002b74f0(s32, s32);
 extern void func_002b7750(s16, s16);
-extern s32 func_0034b740(s32);
-extern s32 func_002b8150(s32);
-extern void *func_002b5c90(void *, u64);
-extern void func_002b29e0(void *, f32, f32);
-extern void func_002b5db0(s32, s64, void *);
-extern void func_002b5e30(s32, u32);
-extern void func_002b5e20(s32, f32);
-extern void func_002b6130(s32, u32);
-extern void func_002b6140(s32, u8);
-extern void func_002b6120(s32, u8);
-extern s32 func_0033e3f0(s32);
-extern s32 func_002b9f90(s32, s16, s32);
 extern s32 func_00331600(void);
 extern u8 D_00641B10[];
 extern s32 func_003145e0(s32);
@@ -198,98 +195,109 @@ extern u8 D_00749350[];
 
 
 
-/* measured: best nd 12 (10 real + 2 padding). Structure is byte-identical
-   to retail except the argument-materialization order at the five
-   func_002b5c90 call sites: retail emits `move $a0,$s1` (temp_17) BEFORE
-   the `ld $a1, 0xNN($sp)` (s64 vector), mwcc b210 always schedules the
-   stack load first. Tried pointer/s32 temp_17, u64/s64 locals, explicit
-   (void *) casts, declaration orders — all nd 12. Argument-evaluation
-   order floor (also blocked the 0xB0 stack hole: retail frames the five
-   16-byte func_002b29e0 outputs at 0x60-0xA0 and the ten s64s at 0xB8+,
-   mwcc reproduces that exactly). */
-/* measured: GUARDED_SCORE 84 via `python3 tools/measure_guarded.py src/Event/Fcl/y_fclCombine.c func_002e8410` (pwd source/Persona4-Decompilation; obj 814I == retail 814I, differing words 84; fnalign 90 edits +6 reloc-only). History nd 12 retained below as evidence of 5x 5c90 move-vs-ld arg-order floor (10I) + colour-copy 6I + rotation; current vB candidate details below marker. */
-// FUN_002E8410 NONMATCHING
-/* measured: vB candidate — obj 814I == retail 814I, probe 84 words, fnalign 90 edits (+6 reloc-only). Decl-search 10 variants (out/task/i/k perms + s16 + stack orders); best k,i,task,out (84 vs v1 143, others 107-149, s16 651, stack same). Earliest divergence saved-reg rotation arg0=$s3 vs $s2/out=$s2 vs $s0 (all decl orders probed). Residuals: rotation + colour-copy load-all vs interleave (6I) + 5x 5c90 move-vs-ld argument order (10I floor per prior note). Prior best nd 12 retained as reference. New levers N-A (see fnalign): single andi 0xFFFF (no CSE/frame+0x10), no adjacent-OR sltiu fold, no COP2. */
-#ifdef NON_MATCHING
+/* Registers the combine UI and its child draw tasks. Creators return
+ * real SDK handles; positions, colors and bounds use their shared contracts.
+ * MWCCPS2 b210 -O2: 3256/3264 bytes, 148 resolved relocations, eight zero
+ * tail bytes. See the SDK/Fcl closure evidence for every affected owner.
+ */
+// FUN_002E8410
 s32 func_002e8410(u8 *arg0) {
     s32 k;
-    s32 i;
     s32 task;
     u8 *out;
-    s64 v0;
-    s64 v1;
-    s64 v2;
-    s64 v3;
-    s64 v4;
-    s64 v5;
-    s64 v6;
-    s64 v7;
-    s64 v8;
-    s64 v9;
-    FclByte4 c0;
-    FclByte4 c1;
-    FclByte4 c2;
-    FclByte4 c3;
-    FclByte4 c4;
-    u8 b0[16];
-    u8 b1[16];
-    u8 b2[16];
-    u8 b3[16];
-    u8 b4[16];
+    FclVec2 v0;
+    FclVec2 v1;
+    FclVec2 v2;
+    FclVec2 v3;
+    FclVec2 v4;
+    FclVec2 v5;
+    FclVec2 v6;
+    FclVec2 v7;
+    FclVec2 v8;
+    FclVec2 v9;
+    FclByte4 menuColor;
+    FclDrawColor c0;
+    FclDrawColor c1;
+    FclDrawColor c2;
+    FclDrawColor c3;
+    FclDrawColor c4;
+    FclBoundsPacket b0;
+    FclBoundsPacket b1;
+    FclBoundsPacket b2;
+    FclBoundsPacket b3;
+    FclBoundsPacket b4;
     u8 *e;
     extern s32 func_00331560(void);
 
     func_0044ea90(D_00641B00, 0x166);
     out = D_008873F4[0](1, 0x314, 0x40000);
-    task = func_00451fc0((s32)arg0, D_00641B10, 0xF, 0, 0, func_002e7ac0, func_002e82b0, out);
+    task = (s32)func_00451fc0((void *)((void *)((s32)arg0)), (const void *)(D_00641B10), 0xF, 0, 0, func_002e7ac0, func_002e82b0, (u8 *)(out));
     *out = 0;
     *(out + 1) = 0x11;
     *(out + 0x144) = 0;
-    func_00313b50(task);
+    func_00313b50((u8 *)(task));
     *(out + 0x20) = 0;
     *(out + 0xB3) = 0;
     *(s32 *)(out + 0x254) = func_0034a4f0((s32)arg0, 0);
-    for (i = 0; i < (func_0010b5b0() & 0xFFFF); i++) {
-        *(s32 *)(out + i * 4 + 0x154) = func_0034ad70((s32)arg0, func_0010b5b0() & 0xFF, 0x41);
+    {
+        s32 partyIndex;
+        for (partyIndex = 0; partyIndex < (func_0010b5b0() & 0xFFFF); partyIndex++) {
+            *(s32 *)(out + partyIndex * 4 + 0x154) = func_0034ad70((s32)arg0, func_0010b5b0() & 0xFF, 0x41);
+        }
     }
     *(s32 *)(out + 0x184) = func_0034ad70((s32)arg0, func_0010b5b0() & 0xFF, 0x41);
     *(s32 *)(out + 0x188) = func_0034ad70((s32)arg0, func_0010b5b0() & 0xFF, 0x58);
-    for (i = 0; i < 0xC; i++) {
-        func_002b2a60(&c0, 0, 0, 0x99, 0xFF);
-        e = func_0034ae50(*(u8 **)(out + 0x188), (s8)i);
-        *(e + 0x75) = c0.b0;
-        *(e + 0x76) = c0.b1;
-        *(e + 0x77) = c0.b2;
-        *(e + 0x78) = c0.b3;
+    {
+        s32 segmentIndex;
+        for (segmentIndex = 0; segmentIndex < 0xC; segmentIndex++) {
+            func_002b2a60((u8 *)(&menuColor), 0, 0, 0x99, 0xFF);
+            e = func_0034ae50(*(u8 **)(out + 0x188), (s8)segmentIndex);
+            *(FclByte4 *)(e + 0x75) = menuColor;
+        }
     }
     *(s32 *)(out + 0x24C) = (s32)func_002b74f0((s32)arg0, func_00331560());
-    for (i = 0; i < 500; i++) {
-        func_002b7750((s16)i, (s16)i);
+    {
+        s32 descriptorId;
+        for (descriptorId = 0; descriptorId < 500; descriptorId++) {
+            func_002b7750((s16)descriptorId, (s16)descriptorId);
+        }
     }
-    for (i = 0; i < 0xC; i++) {
-        func_002b7750((s16)(i * 2 + 500), 0x1AC);
-        func_002b7750((s16)(i * 2 + 501), 0x1AF);
+    {
+        s32 pairIndex;
+        for (pairIndex = 0; pairIndex < 0xC; pairIndex++) {
+            func_002b7750((s16)(pairIndex * 2 + 500), 0x1AC);
+            func_002b7750((s16)(pairIndex * 2 + 501), 0x1AF);
+        }
     }
     func_002b7750(0x20C, 0x80);
-    for (i = 0; i < 9; i++) {
-        func_002b7750((s16)(i + 0x20D), 0xDC);
+    {
+        s32 arrowIndex;
+        for (arrowIndex = 0; arrowIndex < 9; arrowIndex++) {
+            func_002b7750((s16)(arrowIndex + 0x20D), 0xDC);
+        }
     }
-    for (i = 0; i < 3; i++) {
-        func_002b7750((s16)(i + 0x216), 0x86);
-        func_002b7750((s16)(i + 0x219), 0x87);
+    {
+        s32 indicatorIndex;
+        for (indicatorIndex = 0; indicatorIndex < 3; indicatorIndex++) {
+            func_002b7750((s16)(indicatorIndex + 0x216), 0x86);
+            func_002b7750((s16)(indicatorIndex + 0x219), 0x87);
+        }
     }
-    for (i = 0; i < 0xC; i++) {
-        func_002b7750((s16)(i + 0x21C), 0x193);
-        func_002b7750((s16)(i + 0x22B), 0x19A);
-        func_002b7750((s16)(i + 0x238), 0x188);
-        func_002b7750((s16)(i + 0x244), 0x18C);
-        func_002b7750((s16)(i + 0x250), 0x1C);
-        func_002b7750((s16)(i + 0x25E), (s16)(i + 0x39));
-        func_002b7750((s16)(i + 0x270), 0x193);
-        func_002b7750((s16)(i + 0x27D), 0x19B);
-        func_002b7750((s16)(i + 0x28B), 0x188);
-        func_002b7750((s16)(i + 0x297), 0x18D);
-        func_002b7750((s16)(i + 0x2A3), 0x1C);
+    {
+        s32 rowIndex;
+        for (rowIndex = 0; rowIndex < 0xC; rowIndex++) {
+            func_002b7750((s16)(rowIndex + 0x21C), 0x193);
+            func_002b7750((s16)(rowIndex + 0x22B), 0x19A);
+            func_002b7750((s16)(rowIndex + 0x238), 0x188);
+            func_002b7750((s16)(rowIndex + 0x244), 0x18C);
+            func_002b7750((s16)(rowIndex + 0x250), 0x1C);
+            func_002b7750((s16)(rowIndex + 0x25E), (s16)(rowIndex + 0x39));
+            func_002b7750((s16)(rowIndex + 0x270), 0x193);
+            func_002b7750((s16)(rowIndex + 0x27D), 0x19B);
+            func_002b7750((s16)(rowIndex + 0x28B), 0x188);
+            func_002b7750((s16)(rowIndex + 0x297), 0x18D);
+            func_002b7750((s16)(rowIndex + 0x2A3), 0x1C);
+        }
     }
     func_002b7750(0x228, 0x193);
     func_002b7750(0x229, 0x193);
@@ -310,8 +318,11 @@ s32 func_002e8410(u8 *arg0) {
     func_002b7750(0x26F, 0x46);
     func_002b7750(0x2B2, 0x54);
     func_002b7750(0x2B3, 0x54);
-    for (i = 0; i < 0xC; i++) {
-        *(s32 *)(out + i * 4 + 0x21C) = func_0034b740((s32)arg0);
+    {
+        s32 ballIndex;
+        for (ballIndex = 0; ballIndex < 0xC; ballIndex++) {
+            *(s32 *)(out + ballIndex * 4 + 0x21C) = func_0034b740((s32)arg0);
+        }
     }
     func_002b7750(0x2B4, 0x193);
     func_002b7750(0x2B5, 0x19A);
@@ -349,62 +360,60 @@ s32 func_002e8410(u8 *arg0) {
         *(s32 *)(out + k * 4 + 0x258) = func_002b8150(task);
     }
     func_002b2970((u8 *)&v0, 288.0f, 14.0f);
-    *(s32 *)(out + 0x28C) = (s32)func_002b5c90((void *)task, v0);
+    *(s32 *)(out + 0x28C) = (s32)func_002b5c90(task, v0);
     func_002b2970((u8 *)&v1, 288.0f, 14.0f);
-    func_002b29e0(b0, 160.0f, 36.0f);
-    func_002b5db0(*(s32 *)(out + 0x28C), v1, b0);
-    func_002b6130(*(s32 *)(out + 0x28C), 0xAB);
-    func_002b6140(*(s32 *)(out + 0x28C), 0);
-    func_002b2a60(&c0, 0xFF, 0xFF, 0xFF, 0);
-    func_002b5e30(*(s32 *)(out + 0x28C), *(s32 *)&c0);
-    func_002b5e20(*(s32 *)(out + 0x28C), 53.0f);
+    func_002b29e0((u8 *)&b0, 160.0f, 36.0f);
+    func_002b5db0((u8 *)*(s32 *)(out + 0x28C), v1, &b0);
+    func_002b6130((u8 *)(*(s32 *)(out + 0x28C)), 0xAB);
+    func_002b6140((u8 *)(*(s32 *)(out + 0x28C)), 0);
+    func_002b2a60((u8 *)(&c0), 0xFF, 0xFF, 0xFF, 0);
+    func_002b5e30((u8 *)*(s32 *)(out + 0x28C), c0);
+    func_002b5e20((u8 *)(*(s32 *)(out + 0x28C)), 53.0f);
     func_002b2970((u8 *)&v2, 0.0f, 14.0f);
-    *(s32 *)(out + 0x290) = (s32)func_002b5c90((void *)task, v2);
+    *(s32 *)(out + 0x290) = (s32)func_002b5c90(task, v2);
     func_002b2970((u8 *)&v3, 0.0f, 14.0f);
-    func_002b29e0(b1, 26.0f, 36.0f);
-    func_002b5db0(*(s32 *)(out + 0x290), v3, b1);
-    func_002b6130(*(s32 *)(out + 0x290), 0xAB);
-    func_002b6140(*(s32 *)(out + 0x290), 0);
-    func_002b2a60(&c1, 0xFF, 0xFF, 0xFF, 0);
-    func_002b5e30(*(s32 *)(out + 0x290), *(s32 *)&c1);
-    func_002b5e20(*(s32 *)(out + 0x290), 53.0f);
+    func_002b29e0((u8 *)&b1, 26.0f, 36.0f);
+    func_002b5db0((u8 *)*(s32 *)(out + 0x290), v3, &b1);
+    func_002b6130((u8 *)(*(s32 *)(out + 0x290)), 0xAB);
+    func_002b6140((u8 *)(*(s32 *)(out + 0x290)), 0);
+    func_002b2a60((u8 *)(&c1), 0xFF, 0xFF, 0xFF, 0);
+    func_002b5e30((u8 *)*(s32 *)(out + 0x290), c1);
+    func_002b5e20((u8 *)(*(s32 *)(out + 0x290)), 53.0f);
     func_002b2970((u8 *)&v4, 0.0f, 0.0f);
-    *(s32 *)(out + 0x2AC) = (s32)func_002b5c90((void *)task, v4);
+    *(s32 *)(out + 0x2AC) = (s32)func_002b5c90(task, v4);
     func_002b2970((u8 *)&v5, 0.0f, 0.0f);
-    func_002b29e0(b2, 640.0f, 7.0f);
-    func_002b5db0(*(s32 *)(out + 0x2AC), v5, b2);
-    func_002b6130(*(s32 *)(out + 0x2AC), 0xB2);
-    func_002b2a60(&c2, 0x2D, 0x2D, 0x2D, 0xFF);
-    func_002b5e30(*(s32 *)(out + 0x2AC), *(s32 *)&c2);
-    func_002b6140(*(s32 *)(out + 0x2AC), 1);
-    func_002b6120(*(s32 *)(out + 0x2AC), 1);
+    func_002b29e0((u8 *)&b2, 640.0f, 7.0f);
+    func_002b5db0((u8 *)*(s32 *)(out + 0x2AC), v5, &b2);
+    func_002b6130((u8 *)(*(s32 *)(out + 0x2AC)), 0xB2);
+    func_002b2a60((u8 *)(&c2), 0x2D, 0x2D, 0x2D, 0xFF);
+    func_002b5e30((u8 *)*(s32 *)(out + 0x2AC), c2);
+    func_002b6140((u8 *)(*(s32 *)(out + 0x2AC)), 1);
+    func_002b6120((u8 *)(*(s32 *)(out + 0x2AC)), 1);
     func_002b2970((u8 *)&v6, 0.0f, 432.0f);
-    *(s32 *)(out + 0x2B0) = (s32)func_002b5c90((void *)task, v6);
+    *(s32 *)(out + 0x2B0) = (s32)func_002b5c90(task, v6);
     func_002b2970((u8 *)&v7, 0.0f, 432.0f);
-    func_002b29e0(b3, 640.0f, 16.0f);
-    func_002b5db0(*(s32 *)(out + 0x2B0), v7, b3);
-    func_002b6130(*(s32 *)(out + 0x2B0), 0xB2);
-    func_002b2a60(&c3, 0x2D, 0x2D, 0x2D, 0xFF);
-    func_002b5e30(*(s32 *)(out + 0x2B0), *(s32 *)&c3);
-    func_002b6140(*(s32 *)(out + 0x2B0), 1);
-    func_002b6120(*(s32 *)(out + 0x2B0), 1);
+    func_002b29e0((u8 *)&b3, 640.0f, 16.0f);
+    func_002b5db0((u8 *)*(s32 *)(out + 0x2B0), v7, &b3);
+    func_002b6130((u8 *)(*(s32 *)(out + 0x2B0)), 0xB2);
+    func_002b2a60((u8 *)(&c3), 0x2D, 0x2D, 0x2D, 0xFF);
+    func_002b5e30((u8 *)*(s32 *)(out + 0x2B0), c3);
+    func_002b6140((u8 *)(*(s32 *)(out + 0x2B0)), 1);
+    func_002b6120((u8 *)(*(s32 *)(out + 0x2B0)), 1);
     func_002b2970((u8 *)&v8, 0.0f, 69.0f);
-    *(s32 *)(out + 0x2B4) = (s32)func_002b5c90((void *)task, v8);
+    *(s32 *)(out + 0x2B4) = (s32)func_002b5c90(task, v8);
     func_002b2970((u8 *)&v9, 0.0f, 69.0f);
-    func_002b29e0(b4, 640.0f, 343.0f);
-    func_002b5db0(*(s32 *)(out + 0x2B4), v9, b4);
-    func_002b6130(*(s32 *)(out + 0x2B4), 0xB2);
-    func_002b2a60(&c4, 0x2D, 0x2D, 0x2D, 0xE5);
-    func_002b5e30(*(s32 *)(out + 0x2B4), *(s32 *)&c4);
-    func_002b6140(*(s32 *)(out + 0x2B4), 1);
-    func_002b6120(*(s32 *)(out + 0x2B4), 1);
-    *(s32 *)(out + 0x250) = func_0033e3f0(task);
+    func_002b29e0((u8 *)&b4, 640.0f, 343.0f);
+    func_002b5db0((u8 *)*(s32 *)(out + 0x2B4), v9, &b4);
+    func_002b6130((u8 *)(*(s32 *)(out + 0x2B4)), 0xB2);
+    func_002b2a60((u8 *)(&c4), 0x2D, 0x2D, 0x2D, 0xE5);
+    func_002b5e30((u8 *)*(s32 *)(out + 0x2B4), c4);
+    func_002b6140((u8 *)(*(s32 *)(out + 0x2B4)), 1);
+    func_002b6120((u8 *)(*(s32 *)(out + 0x2B4)), 1);
+    *(s32 *)(out + 0x250) = func_0033e3f0((u8 *)(task));
     *(s32 *)(out + 0x2BC) = func_002b9f90(task, 0x30, func_00331600());
     return task;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002e8410);
-#endif
+
 
 /* measured: retail 2152 instrs / object 2159 instrs (+0.3%, gate 2087-2217, mid-band), */
 /* fnalign 3164 edits, frame object -0x200 exact. File idioms per 003097e0/002eb270: */
@@ -541,7 +550,7 @@ void func_002e90d0(u8 *arg0)
                      (s16)temp_v4,0);
         temp_v9++;
       } while ((s32)temp_v9 < (s8)base[0xb7]);
-      func_002b2a60(&bStack_40,0xc6,0xee,1,0xff);
+      func_002b2a60((u8 *)(&bStack_40),0xc6,0xee,1,0xff);
       te = func_002b6150(((s8)base[0xb6] + 4) * 2 + 0x1f5);
       *(u8 *)(te + 0x85) = bStack_40;
       *(u8 *)(te + 0x86) = uStack_3f;
@@ -555,13 +564,13 @@ void func_002e90d0(u8 *arg0)
       *(u8 *)(te2 + 0x86) = temp_v0;
       *(u8 *)(te2 + 0x87) = temp_v1;
       *(u8 *)(te2 + 0x88) = temp_v2;
-      func_002b2a60(&bStack_44,0x2d,0x2d,0x2d,0xff);
+      func_002b2a60((u8 *)(&bStack_44),0x2d,0x2d,0x2d,0xff);
       te = func_002b6150(*(u16 *)(base + (s8)base[0xb6] * 2 + 0xb8));
       *(u8 *)(te + 0x85) = bStack_44;
       *(u8 *)(te + 0x86) = uStack_43;
       *(u8 *)(te + 0x87) = uStack_42;
       *(u8 *)(te + 0x88) = uStack_41;
-      func_002b2a60(&bStack_48,0x92,200,7,0xff);
+      func_002b2a60((u8 *)(&bStack_48),0x92,200,7,0xff);
       te = func_002b6150((s8)base[0xb6] + 0x2ff);
       *(u8 *)(te + 0x85) = bStack_48;
       *(u8 *)(te + 0x86) = uStack_47;
@@ -683,9 +692,9 @@ void func_002e90d0(u8 *arg0)
         else {
           func_0045af60(0,0,0,0);
           temp_v3 = func_0032fb60(base[0xb6]);
-          func_002b2a60((s64 *)&uStack_28,0,0,0x66,0xff);
-          func_002b2a60((s64 *)&uStack_2c,0xcc,0xff,0xff,0xff);
-          func_002b2a60((s64 *)&uStack_30,0x25,0x2f,0x94,0xff);
+          func_002b2a60((u8 *)((s64 *)&uStack_28),0,0,0x66,0xff);
+          func_002b2a60((u8 *)((s64 *)&uStack_2c),0xcc,0xff,0xff,0xff);
+          func_002b2a60((u8 *)((s64 *)&uStack_30),0x25,0x2f,0x94,0xff);
           func_0032fa30(arg0,(s16)temp_v3,uStack_28,uStack_2c,uStack_30);
           temp_v6 = func_00106330(0x1306);
           if (temp_v6 == 0) {
@@ -699,18 +708,18 @@ void func_002e90d0(u8 *arg0)
             base[0xb6] = (s8)temp_v4;
           }
           temp_v3 = func_0032fb60(base[0xb6]);
-          func_002b2a60((s64 *)&uStack_34,0xc6,0xee,1,0xff);
-          func_002b2a60((s64 *)&uStack_38,0x2d,0x2d,0x2d,0xff);
-          func_002b2a60((s64 *)&uStack_3c,0x92,200,7,0xff);
+          func_002b2a60((u8 *)((s64 *)&uStack_34),0xc6,0xee,1,0xff);
+          func_002b2a60((u8 *)((s64 *)&uStack_38),0x2d,0x2d,0x2d,0xff);
+          func_002b2a60((u8 *)((s64 *)&uStack_3c),0x92,200,7,0xff);
           func_0032fa30(arg0,(s16)temp_v3,uStack_34,uStack_38,uStack_3c);
         }
       }
       else {
         func_0045af60(0,0,0,0);
         temp_v3 = func_0032fb60(base[0xb6]);
-        func_002b2a60((s64 *)&uStack_10,0,0,0x66,0xff);
-        func_002b2a60((s64 *)&uStack_14,0xcc,0xff,0xff,0xff);
-        func_002b2a60((s64 *)&uStack_18,0x25,0x2f,0x94,0xff);
+        func_002b2a60((u8 *)((s64 *)&uStack_10),0,0,0x66,0xff);
+        func_002b2a60((u8 *)((s64 *)&uStack_14),0xcc,0xff,0xff,0xff);
+        func_002b2a60((u8 *)((s64 *)&uStack_18),0x25,0x2f,0x94,0xff);
         func_0032fa30(arg0,(s16)temp_v3,uStack_10,uStack_14,uStack_18);
         temp_v6 = func_00106330(0x1306);
         if (temp_v6 == 0) {
@@ -722,9 +731,9 @@ void func_002e90d0(u8 *arg0)
           base[0xb6] = (s8)temp_v4;
         }
         temp_v3 = func_0032fb60(base[0xb6]);
-        func_002b2a60((s64 *)&uStack_1c,0xc6,0xee,1,0xff);
-        func_002b2a60((s64 *)&uStack_20,0x2d,0x2d,0x2d,0xff);
-        func_002b2a60((s64 *)&uStack_24,0x92,200,7,0xff);
+        func_002b2a60((u8 *)((s64 *)&uStack_1c),0xc6,0xee,1,0xff);
+        func_002b2a60((u8 *)((s64 *)&uStack_20),0x2d,0x2d,0x2d,0xff);
+        func_002b2a60((u8 *)((s64 *)&uStack_24),0x92,200,7,0xff);
         func_0032fa30(arg0,(s16)temp_v3,uStack_1c,uStack_20,uStack_24);
       }
     }
@@ -737,8 +746,8 @@ void func_002e90d0(u8 *arg0)
   else if (temp_v10 == '\x1a') {
     temp_v4 = func_003190d0(arg0);
     if (temp_v4 != 1) {
-      func_002b6140(*(s32 *)(base + 0x28c),0);
-      func_002b6140(*(s32 *)(base + 0x290),0);
+      func_002b6140((u8 *)(*(s32 *)(base + 0x28c)),0);
+      func_002b6140((u8 *)(*(s32 *)(base + 0x290)),0);
       if ((D_008C027A[0] & 0x8000) == 0) {
         if ((D_008C027A[0] & 0x2000) == 0) {
           if ((D_008C024E[0] & 0x40) == 0) {
@@ -971,7 +980,7 @@ void func_002e90d0(u8 *arg0)
       func_00315310(arg0,0);
       func_002b2970((u8 *)&stk_68.bits,-78.0,-82.0);
       func_002b6c30(0x80, stk_68.position,0x3f,220.0f);
-      func_002b2a60(&bStack_4,0x49,0x72,0xff,0xff);
+      func_002b2a60((u8 *)(&bStack_4),0x49,0x72,0xff,0xff);
       te = func_002b6150(0x80);
       *(u8 *)(te + 0x85) = bStack_4;
       *(u8 *)(te + 0x86) = uStack_3;
@@ -987,7 +996,7 @@ void func_002e90d0(u8 *arg0)
       func_002b6a70(0x80,0,0xff,2,10,0);
       func_002b2970((u8 *)&stk_80.bits,540.0,347.0);
       func_002b6c30(0x20c, stk_80.position,0x3f,220.0f);
-      func_002b2a60(&bStack_8,0x49,0x72,0xff,0xff);
+      func_002b2a60((u8 *)(&bStack_8),0x49,0x72,0xff,0xff);
       te = func_002b6150(0x20c);
       *(u8 *)(te + 0x85) = bStack_8;
       *(u8 *)(te + 0x86) = uStack_7;
@@ -1003,7 +1012,7 @@ void func_002e90d0(u8 *arg0)
       func_002b6a70(0x20c,0,0xff,2,10,0);
       func_002b2970((u8 *)&stk_98.bits,-190.0,200.0);
       func_002b6c30(0x81, stk_98.position,0x56,215.0f);
-      func_002b2a60(&bStack_c,0x49,0x72,0xff,0xff);
+      func_002b2a60((u8 *)(&bStack_c),0x49,0x72,0xff,0xff);
       te = func_002b6150(0x81);
       *(u8 *)(te + 0x85) = bStack_c;
       *(u8 *)(te + 0x86) = uStack_b;
@@ -1663,7 +1672,6 @@ void func_002ed430(u8 *arg0) {
     extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
     extern void func_002b2970(void *, f32, f32);
     extern void func_002b68d0(s16, s32, s32);
-    extern void func_002b6140(s32, s32);
     extern u8 *func_002b6150(s16);
     extern s32 func_002b6970(s16, s32);
     extern void func_002b6a70(s32, s32, s32, s32, s32, s32);
@@ -1946,7 +1954,7 @@ void func_002ed430(u8 *arg0) {
             if (var_4 == 1) {
                 var_16 = 0;
 do {
-                        func_002b2a60(col25C, 0, 0, 0x99, 0xFFU);
+                        func_002b2a60((u8 *)(col25C), 0, 0, 0x99, 0xFFU);
                         temp_2 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_18)+(0x188))), (s8)var_16));
                         var_4 = (s8) col25C[2];
                         (*(u8 *)((u8 *)(temp_2)+(0x75))) = col25C[0];
@@ -2069,8 +2077,8 @@ loop_49:
                 func_0031e5b0(arg0, sp220, 0, 0, 0, 0, 0);
                 func_00316e80((s32)arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
                 func_003218a0(arg0, 0);
-                func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x28C))), 0);
-                func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x290))), 0);
+                func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x28C)))), 0);
+                func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x290)))), 0);
                 (*(u8 *)((u8 *)(temp_18)+(1))) = 0x27U;
                 return;
             }
@@ -2107,7 +2115,7 @@ loop_65:
                     spD0 = temp_2_3;
                     (*(s8 *)((u8 *)(func_002b6150((s64) (temp_30 << 0x30) >> 0x30))+(0x6E))) = 0xFF;
                     (*(s8 *)((u8 *)(func_002b6150((s64) ((s64) temp_2_3 << 0x30) >> 0x30))+(0x6E))) = (s8) (0xFF & 0xFF);
-                    func_002b2a60(col258, 0xCC, 0xFF, 0x33, 0xFFU);
+                    func_002b2a60((u8 *)(col258), 0xCC, 0xFF, 0x33, 0xFFU);
                     temp_2_4 = (u8 *)(func_002b6150((s64) ((temp_17_5 + 0x297) << 0x30) >> 0x30));
                     (*(u8 *)((u8 *)(temp_2_4)+(0x85))) = col258[0];
                     (*(u8 *)((u8 *)(temp_2_4)+(0x86))) = col258[1];
@@ -2132,13 +2140,13 @@ loop_65:
                     (*(u8 *)((u8 *)(temp_2_7)+(0x86))) = (u8)((u8)((u8) (*(u8 *)((u8 *)(temp_2_6)+(0x86)))));
                     (*(u8 *)((u8 *)(temp_2_7)+(0x87))) = (u8)((u8)((u8) (*(u8 *)((u8 *)(temp_2_6)+(0x87)))));
                     (*(u8 *)((u8 *)(temp_2_7)+(0x88))) = (u8)((u8)((u8) (*(u8 *)((u8 *)(temp_2_6)+(0x88)))));
-                    func_002b2a60(col254, 0x2D, 0x2D, 0x2D, 0xFFU);
+                    func_002b2a60((u8 *)(col254), 0x2D, 0x2D, 0x2D, 0xFFU);
                     temp_2_8 = (u8 *)(func_002b6150((s64) ((temp_17_5 + 0x2A3) << 0x30) >> 0x30));
                     (*(u8 *)((u8 *)(temp_2_8)+(0x85))) = col254[0];
                     (*(u8 *)((u8 *)(temp_2_8)+(0x86))) = col254[1];
                     (*(u8 *)((u8 *)(temp_2_8)+(0x87))) = col254[2];
                     (*(u8 *)((u8 *)(temp_2_8)+(0x88))) = col254[3];
-                    func_002b2a60(col250, 0x2D, 0x2D, 0x2D, 0xFFU);
+                    func_002b2a60((u8 *)(col250), 0x2D, 0x2D, 0x2D, 0xFFU);
                     func_002ba970((*(s32 *)((u8 *)(temp_18)+(0x2BC))), (s64) ((temp_17_5 + 0xC) << 0x38) >> 0x38, (*(s32 *)col250));
                     var_21 = (s32)((s32)(func_002b2a30(0x2D, 0x2D, 0x2D, spE0)));
                     if ((*(s8 *)((u8 *)((func_002e4870(0) + ((*(s8 *)((u8 *)(temp_18)+(0x128))) * 0xC) + temp_17_5))+(0x14))) == 2) {
@@ -2153,7 +2161,7 @@ loop_65:
                     temp_22 = temp_17_6 + 0x270;
                     (*(s8 *)((u8 *)(func_002b6150((s64) (temp_21_2 << 0x30) >> 0x30))+(0x6E))) = 0;
                     (*(s8 *)((u8 *)(func_002b6150((s64) (temp_22 << 0x30) >> 0x30))+(0x6E))) = (s8) (0 & 0xFF);
-                    func_002b2a60(col24C, 0xFF, 0xFF, 0xFF, 0xFFU);
+                    func_002b2a60((u8 *)(col24C), 0xFF, 0xFF, 0xFF, 0xFFU);
                     temp_2_9 = (u8 *)(func_002b6150((s64) (temp_21_2 << 0x30) >> 0x30));
                     (*(u8 *)((u8 *)(temp_2_9)+(0x85))) = col24C[0];
                     (*(u8 *)((u8 *)(temp_2_9)+(0x86))) = col24C[1];
@@ -2164,13 +2172,13 @@ loop_65:
                     (*(u8 *)((u8 *)(temp_2_10)+(0x86))) = (u8)((u8)((u8) (*(u8 *)((u8 *)(temp_2_9)+(0x86)))));
                     (*(u8 *)((u8 *)(temp_2_10)+(0x87))) = (u8)((u8)((u8) (*(u8 *)((u8 *)(temp_2_9)+(0x87)))));
                     (*(u8 *)((u8 *)(temp_2_10)+(0x88))) = (u8)((u8)((u8) (*(u8 *)((u8 *)(temp_2_9)+(0x88)))));
-                    func_002b2a60(col248, 0xFF, 0xCC, 0xFA, 0xFFU);
+                    func_002b2a60((u8 *)(col248), 0xFF, 0xCC, 0xFA, 0xFFU);
                     temp_2_11 = (u8 *)(func_002b6150((s64) ((temp_17_6 + 0x2A3) << 0x30) >> 0x30));
                     (*(u8 *)((u8 *)(temp_2_11)+(0x85))) = col248[0];
                     (*(u8 *)((u8 *)(temp_2_11)+(0x86))) = col248[1];
                     (*(u8 *)((u8 *)(temp_2_11)+(0x87))) = col248[2];
                     (*(u8 *)((u8 *)(temp_2_11)+(0x88))) = col248[3];
-                    func_002b2a60(col244, 0xFF, 0xCC, 0xFA, 0xFFU);
+                    func_002b2a60((u8 *)(col244), 0xFF, 0xCC, 0xFA, 0xFFU);
                     func_002ba970((*(s32 *)((u8 *)(temp_18)+(0x2BC))), (s64) ((temp_17_6 + 0xC) << 0x38) >> 0x38, (*(s32 *)col244));
                     var_21 = (s32)((s32)(func_002b2a30(0xFF, 0xCC, 0xFA, spE0)));
                     func_002b68d0(0xCF, 0, 0);
@@ -2181,7 +2189,7 @@ loop_65:
                     temp_22_2 = temp_17_7 + 0x270;
                     (*(s8 *)((u8 *)(func_002b6150((s64) (temp_21_3 << 0x30) >> 0x30))+(0x6E))) = 0xCC;
                     (*(s8 *)((u8 *)(func_002b6150((s64) (temp_22_2 << 0x30) >> 0x30))+(0x6E))) = (s8) (0xCC & 0xFF);
-                    func_002b2a60(col240, 0x49, 0x72, 0xFF, 0xFFU);
+                    func_002b2a60((u8 *)(col240), 0x49, 0x72, 0xFF, 0xFFU);
                     temp_2_12 = (u8 *)(func_002b6150((s64) (temp_21_3 << 0x30) >> 0x30));
                     (*(u8 *)((u8 *)(temp_2_12)+(0x85))) = col240[0];
                     (*(u8 *)((u8 *)(temp_2_12)+(0x86))) = col240[1];
@@ -2192,7 +2200,7 @@ loop_65:
                     (*(u8 *)((u8 *)(temp_2_13)+(0x86))) = (u8)((u8)((u8) (*(u8 *)((u8 *)(temp_2_12)+(0x86)))));
                     (*(u8 *)((u8 *)(temp_2_13)+(0x87))) = (u8)((u8)((u8) (*(u8 *)((u8 *)(temp_2_12)+(0x87)))));
                     (*(u8 *)((u8 *)(temp_2_13)+(0x88))) = (u8)((u8)((u8) (*(u8 *)((u8 *)(temp_2_12)+(0x88)))));
-                    func_002b2a60(col23C, 0x49, 0x72, 0xFF, 0xFFU);
+                    func_002b2a60((u8 *)(col23C), 0x49, 0x72, 0xFF, 0xFFU);
                     temp_2_14 = (u8 *)(func_002b6150((s64) ((temp_17_7 + 0x297) << 0x30) >> 0x30));
                     (*(u8 *)((u8 *)(temp_2_14)+(0x85))) = col23C[0];
                     (*(u8 *)((u8 *)(temp_2_14)+(0x86))) = col23C[1];
@@ -2203,13 +2211,13 @@ loop_65:
                     (*(u8 *)((u8 *)(temp_2_15)+(0x86))) = (u8)((u8)((u8) (*(u8 *)((u8 *)(temp_2_14)+(0x86)))));
                     (*(u8 *)((u8 *)(temp_2_15)+(0x87))) = (u8)((u8)((u8) (*(u8 *)((u8 *)(temp_2_14)+(0x87)))));
                     (*(u8 *)((u8 *)(temp_2_15)+(0x88))) = (u8)((u8)((u8) (*(u8 *)((u8 *)(temp_2_14)+(0x88)))));
-                    func_002b2a60(col238, 0, 0, 0x66, 0xFFU);
+                    func_002b2a60((u8 *)(col238), 0, 0, 0x66, 0xFFU);
                     temp_2_16 = (u8 *)(func_002b6150((s64) ((temp_17_7 + 0x2A3) << 0x30) >> 0x30));
                     (*(u8 *)((u8 *)(temp_2_16)+(0x85))) = col238[0];
                     (*(u8 *)((u8 *)(temp_2_16)+(0x86))) = col238[1];
                     (*(u8 *)((u8 *)(temp_2_16)+(0x87))) = col238[2];
                     (*(u8 *)((u8 *)(temp_2_16)+(0x88))) = col238[3];
-                    func_002b2a60(col234, 0xCC, 0xFF, 0xFF, 0xFFU);
+                    func_002b2a60((u8 *)(col234), 0xCC, 0xFF, 0xFF, 0xFFU);
                     func_002ba970((*(s32 *)((u8 *)(temp_18)+(0x2BC))), (s64) ((temp_17_7 + 0xC) << 0x38) >> 0x38, (*(s32 *)col234));
                     var_21 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, spE0)));
                 }
@@ -2256,8 +2264,8 @@ loop_79:
                     func_00316470(arg0, 1, 1);
                     func_00316e80((s32)arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
                     func_00317240(arg0, 0, 0);
-                    func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x28C))), 1);
-                    func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x290))), 1);
+                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x28C)))), 1);
+                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x290)))), 1);
                     (*(u8 *)((u8 *)(temp_18)+(1))) = 0x2EU;
                     return;
                 }
@@ -2288,8 +2296,8 @@ loop_86:
                     func_00316470(arg0, 1, 1);
                     func_00316e80((s32)arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
                     func_00317240(arg0, 0, 60.0f);
-                    func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x28C))), 1);
-                    func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x290))), 1);
+                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x28C)))), 1);
+                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x290)))), 1);
                     (*(u8 *)((u8 *)(temp_18)+(1))) = 0x2BU;
                     return;
                 }
@@ -2394,8 +2402,8 @@ loop_112:
                 func_0031fa20(arg0, sp1A0, 0, 0);
                 func_00316470(arg0, 1, 0);
                 func_00316e80((s32)arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
-                func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x28C))), 0);
-                func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x290))), 0);
+                func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x28C)))), 0);
+                func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x290)))), 0);
                 (*(u8 *)((u8 *)(temp_18)+(1))) = 0x2AU;
                 return;
             }
@@ -2572,8 +2580,8 @@ loop_158:
             func_0031e5b0(arg0, sp168, 0, 0, 0, 0, 0);
             func_002b2970(&sp160, (f32) 0x149, 104.0f);
             func_0031fa20(arg0, sp160, 0, 0);
-            func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x28C))), 0);
-            func_002b6140((*(s32 *)((u8 *)(temp_18)+(0x290))), 0);
+            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x28C)))), 0);
+            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_18)+(0x290)))), 0);
             (*(u8 *)((u8 *)(temp_18)+(1))) = 0x2AU;
             return;
         }
@@ -2945,7 +2953,6 @@ void func_002f0f00(u8 *arg0) {
     extern u8 *func_002e4870(s8);
     extern u16 *func_002e48a0(s8, s16);
     extern s32 func_0010b5b0(void);
-    extern void func_002b2a60(void *, s32, s32, s32, s32);
     extern u8 *func_0034ae50(u8 *, s8);
     extern void func_003205f0(u8 *, s32, s32);
     extern void func_00316470(u8 *, s32, s32);
@@ -2994,7 +3001,6 @@ void func_002f0f00(u8 *arg0) {
     extern void func_00324410(u8 *, s32, s32);
     extern s32 func_003b7060(void);
     extern void func_002b68d0(s16, s32, s32);
-    extern void func_002b6140(s32, u8);
     extern void func_002bb550(s8);
     extern void func_002bbcf0(s8);
     extern s32 func_002e53b0(s32, s32);
@@ -3442,7 +3448,7 @@ void func_002f0f00(u8 *arg0) {
             if (var_4 == 1) {
                 var_16 = 0;
 do {
-                        func_002b2a60(&sp3FC, 0, 0, 0x99, 0xFFU);
+                        func_002b2a60((u8 *)(&sp3FC), 0, 0, 0x99, 0xFFU);
                         temp_2 = (s16 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x188))))),  (s64) (var_16 << 0x38) >> 0x38));
                         var_4 = (s8) sp3FE;
                         (*((u8 *)((u8 *)(temp_2) + (0x75)))) = sp3FC;
@@ -3670,8 +3676,8 @@ block_83:
                     temp_16_4 = temp_18_5 * 0x17;
                     temp_20_3 = (s16 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x184))))),  (s64) (var_19_4 << 0x38) >> 0x38));
                     func_002b2970(&sp380, (f32) (temp_16_4 + 0x149), 104.0f);
-                    func_002b2a60(&sp3F8, 0, 0, 0x99, 0xFFU);
-                    func_002b2a60(&sp3F4, 0, 0, 0x99, 0xFFU);
+                    func_002b2a60((u8 *)(&sp3F8), 0, 0, 0x99, 0xFFU);
+                    func_002b2a60((u8 *)(&sp3F4), 0, 0, 0x99, 0xFFU);
                     func_002b83e0((u8 *)temp_20_3,   sp380,   (s32) sp3F8,   (s32) sp3F4,   0xFFU,   0xFFU,   3,   0,   0x42000000,   159.0f,   0,   0);
                     var_20 = 0;
                     temp_18_6 = (u8 *)((s32)(temp_17) + (temp_18_5 * 4));
@@ -3698,8 +3704,8 @@ block_83:
                     func_0046d280(temp_16_7);
                     var_19_4 = (s64) ((var_19_4 + 1) << 0x30) >> 0x30;
                 }
-                func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x28C)))), 0);
-                func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x290)))), 0);
+                func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x28C))))), 0);
+                func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x290))))), 0);
                 (*((u8 *)((u8 *)(temp_17) + (1)))) = 0x3CU;
                 return;
             }
@@ -3750,8 +3756,8 @@ block_83:
                         temp_16_11 = (s64) (var_19_5 << 0x30) >> 0x30;
                         temp_21_3 = (s16 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x184))))),  (s64) (var_19_5 << 0x38) >> 0x38));
                         func_002b2970(&sp350, (f32)(s32)((temp_16_11 * 0x17) + 0x149), 104.0f);
-                        func_002b2a60(&sp3F0, 0, 0, 0x99, 0xFFU);
-                        func_002b2a60(&sp3EC, 0, 0, 0x99, 0xFFU);
+                        func_002b2a60((u8 *)(&sp3F0), 0, 0, 0x99, 0xFFU);
+                        func_002b2a60((u8 *)(&sp3EC), 0, 0, 0x99, 0xFFU);
                         func_002b83e0((u8 *)temp_21_3,   sp350,   (s32) sp3F0,   (s32) sp3EC,   0xFFU,   0xFFU,   3,   0,   0x42000000,   159.0f,   1,   0);
                         var_18_2 = 0;
                         temp_16_12 = (u8 *)((s32)(temp_17) + (temp_16_11 * 4));
@@ -3779,8 +3785,8 @@ block_83:
                         var_19_5 = (s64) ((var_19_5 + 1) << 0x30) >> 0x30;
                     }
                     func_00317240(arg0, 0, 0x42700000);
-                    func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x28C)))), 1);
-                    func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x290)))), 1);
+                    func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x28C))))), 1);
+                    func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x290))))), 1);
                     (*((u8 *)((u8 *)(temp_17) + (1)))) = 0x41U;
                     return;
                 }
@@ -3806,8 +3812,8 @@ block_83:
                             temp_21_5 = temp_16_15 * 0x17;
                             temp_18_14 = (s16 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x184))))),  (s64) (var_19_6 << 0x38) >> 0x38));
                             func_002b2970(&sp320, (f32) (temp_21_5 + 0x149), 104.0f);
-                            func_002b2a60(&sp3E8, 0, 0, 0x99, 0xFFU);
-                            func_002b2a60(&sp3E4, 0, 0, 0x99, 0xFFU);
+                            func_002b2a60((u8 *)(&sp3E8), 0, 0, 0x99, 0xFFU);
+                            func_002b2a60((u8 *)(&sp3E4), 0, 0, 0x99, 0xFFU);
                             func_002b83e0((u8 *)temp_18_14,   sp320,   (s32) sp3E8,   (s32) sp3E4,   0xFFU,   0xFFU,   3,   0,   0x42000000,   159.0f,   1,   0);
                             var_18_3 = 0;
                             temp_16_16 = (u8 *)((s32)(temp_17) + (temp_16_15 * 4));
@@ -3871,8 +3877,8 @@ block_83:
                             temp_18_18 = (s64) (var_20_2 << 0x30) >> 0x30;
                             temp_16_20 = (s16 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x184))))),  (s64) (var_20_2 << 0x38) >> 0x38));
                             func_002b2970(&sp2E8, (f32)(s32)((temp_18_18 * 0x17) + 0x149), 104.0f);
-                            func_002b2a60(&sp3E0, 0, 0, 0x99, 0xFFU);
-                            func_002b2a60(&sp3DC, 0, 0, 0x99, 0xFFU);
+                            func_002b2a60((u8 *)(&sp3E0), 0, 0, 0x99, 0xFFU);
+                            func_002b2a60((u8 *)(&sp3DC), 0, 0, 0x99, 0xFFU);
                             func_002b83e0((u8 *)temp_16_20,   sp2E8,   (s32) sp3E0,   (s32) sp3DC,   0xFFU,   0xFFU,   3,   0,   0x42000000,   159.0f,   1,   0);
                             var_19_7 = 0;
                             temp_18_19 = (u8 *)((s32)(temp_17) + (temp_18_18 * 4));
@@ -3923,7 +3929,7 @@ block_83:
                             temp_22_7 = (s16 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_18_21) + (0x154))))),  (s64) (var_19_8 << 0x38) >> 0x38));
                             func_002b2970(&sp2C0, (f32)(s32)((temp_21_11 * 0x17) + 0x149), (f32)(s32)((temp_3_3 * 0x17) + 0x7F));
                             temp_21_12 = (s16 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_18_21) + (0x154))))),  (s64) (var_19_8 << 0x38) >> 0x38));
-                            func_002b2a60(&sp3D8, 0, 0, 0x99, 0xA5U);
+                            func_002b2a60((u8 *)(&sp3D8), 0, 0, 0x99, 0xA5U);
                             func_002b83e0((u8 *)temp_22_7,   sp2C0,   ((*((s32 *)((u8 *)(temp_21_12) + (0x78))))),   (s32) sp3D8,   0xA5U,   0xA5U,   6,   0,   0x42000000,   (*((f32 *)((u8 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_18_21) + (0x154))))),  (s64) (var_19_8 << 0x38) >> 0x38)) + (4)))),   1,   1);
                             var_19_8 = (s64) ((var_19_8 + 1) << 0x30) >> 0x30;
                         }
@@ -4004,8 +4010,8 @@ block_166:
                 func_0031e5b0(arg0, sp2B0, 0, 0, 0, 0, 0);
                 func_00316e80(arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
                 func_003218a0(arg0, 0);
-                func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x28C)))), 0);
-                func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x290)))), 0);
+                func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x28C))))), 0);
+                func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x290))))), 0);
                 (*((u8 *)((u8 *)(temp_17) + (1)))) = 0x40U;
                 return;
             }
@@ -4064,8 +4070,8 @@ block_166:
                     func_00316470(arg0, 1, 1);
                     func_00316e80(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
                     func_00317240(arg0, 0, 0x42700000);
-                    func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x28C)))), 1);
-                    func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x290)))), 1);
+                    func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x28C))))), 1);
+                    func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x290))))), 1);
                     (*((u8 *)((u8 *)(temp_17) + (1)))) = 0x44U;
                     return;
                 }
@@ -4094,8 +4100,8 @@ block_166:
                             func_00316470(arg0, 1, 1);
                             func_00316e80(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
                             func_00317240(arg0, 0, 0);
-                            func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x28C)))), 1);
-                            func_002b6140((*((s32 *)((u8 *)(temp_17) + (0x290)))), 1);
+                            func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x28C))))), 1);
+                            func_002b6140((u8 *)((*((s32 *)((u8 *)(temp_17) + (0x290))))), 1);
                             (*((u8 *)((u8 *)(temp_17) + (1)))) = 0x47U;
                             return;
                         }
@@ -4894,7 +4900,7 @@ void func_002f6cf0(u8 *arg0) {
             (*(s16 *)((u8 *)(temp_16)+(0x11E))) = -1;
             var_17_2 = 0;
 do {
-                    func_002b2a60(col15C, 0, 0, 0x99, 0xFFU);
+                    func_002b2a60((u8 *)(col15C), 0, 0, 0x99, 0xFFU);
                     temp_2 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16)+(0x188))), (s64) (var_17_2 << 0x38) >> 0x38));
                     (*(u8 *)((u8 *)(temp_2)+(0x75))) = col15C[0];
                     (*(u8 *)((u8 *)(temp_2)+(0x76))) = col15C[1];
@@ -4952,13 +4958,13 @@ loop_23:
             temp_21_2 = (s64) (((func_00109280((*(u16 *)((u8 *)(func_002e48a0((s64) (((*(s16 *)((u8 *)(temp_16)+(0x11E))) + 1) << 0x38) >> 0x38, var_17_3))+(2)))) & 0xFF) + 0x1B) << 0x30) >> 0x30;
             (*(s16 *)((u8 *)(func_002b6150((s64) ((temp_23 + 0x250) << 0x30) >> 0x30))+(4))) = (s16) temp_21_2;
             if ((*(u8 *)((u8 *)(func_002e48a0((s64) (((*(s16 *)((u8 *)(temp_16)+(0x11E))) + 1) << 0x38) >> 0x38, var_17_3))+(4))) == 0) {
-                func_002b2a60(col158, 0x24, 0x3F, 0x9F, 0xFFU);
+                func_002b2a60((u8 *)(col158), 0x24, 0x3F, 0x9F, 0xFFU);
                 temp_2_2 = (u8 *)(func_002b6150((s64) ((temp_23 + 0x238) << 0x30) >> 0x30));
                 (*(u8 *)((u8 *)(temp_2_2)+(0x85))) = col158[0];
                 (*(u8 *)((u8 *)(temp_2_2)+(0x86))) = col158[1];
                 (*(u8 *)((u8 *)(temp_2_2)+(0x87))) = col158[2];
                 (*(u8 *)((u8 *)(temp_2_2)+(0x88))) = col158[3];
-                func_002b2a60(col154, 0x24, 0x3F, 0x9F, 0xFFU);
+                func_002b2a60((u8 *)(col154), 0x24, 0x3F, 0x9F, 0xFFU);
                 temp_2_3 = (u8 *)(func_002b6150((s64) ((temp_23 + 0x244) << 0x30) >> 0x30));
                 (*(u8 *)((u8 *)(temp_2_3)+(0x85))) = col154[0];
                 (*(u8 *)((u8 *)(temp_2_3)+(0x86))) = col154[1];
@@ -4966,16 +4972,16 @@ loop_23:
                 (*(u8 *)((u8 *)(temp_2_3)+(0x88))) = col154[3];
                 (*(s8 *)((u8 *)(func_002b6150((s64) (var_18 << 0x30) >> 0x30))+(0x6E))) = 0x66;
                 (*(s8 *)((u8 *)(func_002b6150((s64) ((temp_23 + 0x22B) << 0x30) >> 0x30))+(0x6E))) = 0x66;
-                func_002b2a60(col150, 0xCC, 0xFF, 0xFF, var_19_2);
+                func_002b2a60((u8 *)(col150), 0xCC, 0xFF, 0xFF, var_19_2);
                 func_002ba5d0((u8 *)(*(s32 *)((u8 *)(temp_16)+(0x2BC))), (s64) (var_17_3 << 0x38) >> 0x38, 0U, sp118, (*(s32 *)col150), 0x59, 46.0f);
             } else {
-                func_002b2a60(col14C, 0x49, 0x72, 0xFF, 0xFFU);
+                func_002b2a60((u8 *)(col14C), 0x49, 0x72, 0xFF, 0xFFU);
                 temp_2_4 = (u8 *)(func_002b6150((s64) ((temp_23 + 0x238) << 0x30) >> 0x30));
                 (*(u8 *)((u8 *)(temp_2_4)+(0x85))) = col14C[0];
                 (*(u8 *)((u8 *)(temp_2_4)+(0x86))) = col14C[1];
                 (*(u8 *)((u8 *)(temp_2_4)+(0x87))) = col14C[2];
                 (*(u8 *)((u8 *)(temp_2_4)+(0x88))) = col14C[3];
-                func_002b2a60(col148, 0x49, 0x72, 0xFF, 0xFFU);
+                func_002b2a60((u8 *)(col148), 0x49, 0x72, 0xFF, 0xFFU);
                 temp_2_5 = (u8 *)(func_002b6150((s64) ((temp_23 + 0x244) << 0x30) >> 0x30));
                 (*(u8 *)((u8 *)(temp_2_5)+(0x85))) = col148[0];
                 (*(u8 *)((u8 *)(temp_2_5)+(0x86))) = col148[1];
@@ -4984,7 +4990,7 @@ loop_23:
                 (*(s8 *)((u8 *)(func_002b6150((s64) (var_18 << 0x30) >> 0x30))+(0x6E))) = 0xCC;
                 (*(s8 *)((u8 *)(func_002b6150((s64) ((temp_23 + 0x22B) << 0x30) >> 0x30))+(0x6E))) = 0xCC;
                 temp_18_2 = (u8)((*(u8 *)((u8 *)(func_002e48a0((s64) (((*(s16 *)((u8 *)(temp_16)+(0x11E))) + 1) << 0x38) >> 0x38, var_17_3))+(4))));
-                func_002b2a60(col144, 0xCC, 0xFF, 0xFF, var_19_2);
+                func_002b2a60((u8 *)(col144), 0xCC, 0xFF, 0xFF, var_19_2);
                 func_002ba5d0((u8 *)(*(s32 *)((u8 *)(temp_16)+(0x2BC))), (s64) (var_17_3 << 0x38) >> 0x38, temp_18_2, sp118, (*(s32 *)col144), 0x59, 46.0f);
             }
             var_17_3 = (s64) ((var_17_3 + 1) << 0x30) >> 0x30;
@@ -5005,10 +5011,10 @@ loop_41:
             }
             var_17_4 = var_3_3 & 0xFF;
             if ((*(s16 *)((u8 *)(temp_16)+(0x11E))) == temp_21_3) {
-                func_002b2a60(col140, 0x2D, 0x2D, 0x2D, var_17_4);
+                func_002b2a60((u8 *)(col140), 0x2D, 0x2D, 0x2D, var_17_4);
                 func_002ba970((*(s32 *)((u8 *)(temp_16)+(0x2BC))), (s64) ((temp_18_3 + 0xC) << 0x38) >> 0x38, (*(s32 *)col140));
             } else if (func_003139d0((*(s8 *)((u8 *)(temp_16)+(0x1A))), (s64) (var_19_3 << 0x38) >> 0x38) == 1) {
-                func_002b2a60(col13C, 0xCC, 0xFF, 0xFF, var_17_4);
+                func_002b2a60((u8 *)(col13C), 0xCC, 0xFF, 0xFF, var_17_4);
                 func_002ba970((*(s32 *)((u8 *)(temp_16)+(0x2BC))), (s64) ((temp_18_3 + 0xC) << 0x38) >> 0x38, (*(s32 *)col13C));
             } else {
                 temp_21_4 = (s64) (var_19_3 << 0x30) >> 0x30;
@@ -5021,7 +5027,7 @@ loop_41:
                     var_3_4 = (u8)(temp_f0_4);
                 }
                 var_17_4 = var_3_4 & 0xFF;
-                func_002b2a60(col138, 0xCC, 0xFF, 0xFF, var_17_4);
+                func_002b2a60((u8 *)(col138), 0xCC, 0xFF, 0xFF, var_17_4);
                 func_002ba970((*(s32 *)((u8 *)(temp_16)+(0x2BC))), (s64) ((temp_21_4 + 0xC) << 0x38) >> 0x38, (*(s32 *)col138));
             }
             var_17_5 = func_002b2a30(0xCC, 0xFF, 0xFF, var_17_4);
@@ -5034,7 +5040,7 @@ loop_41:
             temp_21_5 = temp_18_4 + 0x270;
             (*(s8 *)((u8 *)(func_002b6150((s64) (temp_17_3 << 0x30) >> 0x30))+(0x6E))) = 0x97;
             (*(s8 *)((u8 *)(func_002b6150((s64) (temp_21_5 << 0x30) >> 0x30))+(0x6E))) = (s8) (0x97 & 0xFF);
-            func_002b2a60(col134, 0x49, 0x72, 0xFF, 0xFFU);
+            func_002b2a60((u8 *)(col134), 0x49, 0x72, 0xFF, 0xFFU);
             temp_2_6 = (u8 *)(func_002b6150((s64) (temp_17_3 << 0x30) >> 0x30));
             (*(u8 *)((u8 *)(temp_2_6)+(0x85))) = col134[0];
             (*(u8 *)((u8 *)(temp_2_6)+(0x86))) = col134[1];
@@ -5047,7 +5053,7 @@ loop_41:
             (*(u8 *)((u8 *)(temp_2_7)+(0x88))) = (u8) (*(u8 *)((u8 *)(temp_2_6)+(0x88)));
             temp_21_6 = temp_18_4 + 0x297;
             temp_23_2 = temp_18_4 + 0x28B;
-            func_002b2a60(col130, 0x49, 0x72, 0xFF, 0xFFU);
+            func_002b2a60((u8 *)(col130), 0x49, 0x72, 0xFF, 0xFFU);
             temp_2_8 = (u8 *)(func_002b6150((s64) (temp_21_6 << 0x30) >> 0x30));
             (*(u8 *)((u8 *)(temp_2_8)+(0x85))) = col130[0];
             (*(u8 *)((u8 *)(temp_2_8)+(0x86))) = col130[1];
@@ -5059,7 +5065,7 @@ loop_41:
             (*(u8 *)((u8 *)(temp_2_9)+(0x87))) = (u8) (*(u8 *)((u8 *)(temp_2_8)+(0x87)));
             (*(u8 *)((u8 *)(temp_2_9)+(0x88))) = (u8) (*(u8 *)((u8 *)(temp_2_8)+(0x88)));
             spD0 = temp_18_4 + 0x2A3;
-            func_002b2a60(col12C, 0, 0, 0x66, 0xFFU);
+            func_002b2a60((u8 *)(col12C), 0, 0, 0x66, 0xFFU);
             temp_2_10 = (u8 *)(func_002b6150((s64) ((s64) spD0 << 0x30) >> 0x30));
             (*(u8 *)((u8 *)(temp_2_10)+(0x85))) = col12C[0];
             (*(u8 *)((u8 *)(temp_2_10)+(0x86))) = col12C[1];
@@ -5070,7 +5076,7 @@ loop_41:
                 temp_30 = temp_18_4 + 0x270;
                 (*(s8 *)((u8 *)(func_002b6150((s64) (temp_22_2 << 0x30) >> 0x30))+(0x6E))) = 0xFF;
                 (*(s8 *)((u8 *)(func_002b6150((s64) (temp_30 << 0x30) >> 0x30))+(0x6E))) = (s8) (0xFF & 0xFF);
-                func_002b2a60(col128, 0xCC, 0xFF, 0x33, 0xFFU);
+                func_002b2a60((u8 *)(col128), 0xCC, 0xFF, 0x33, 0xFFU);
                 temp_2_11 = (u8 *)(func_002b6150((s64) (temp_21_6 << 0x30) >> 0x30));
                 (*(u8 *)((u8 *)(temp_2_11)+(0x85))) = col128[0];
                 (*(u8 *)((u8 *)(temp_2_11)+(0x86))) = col128[1];
@@ -5095,7 +5101,7 @@ loop_41:
                 (*(u8 *)((u8 *)(temp_2_14)+(0x86))) = (u8) (*(u8 *)((u8 *)(temp_2_13)+(0x86)));
                 (*(u8 *)((u8 *)(temp_2_14)+(0x87))) = (u8) (*(u8 *)((u8 *)(temp_2_13)+(0x87)));
                 (*(u8 *)((u8 *)(temp_2_14)+(0x88))) = (u8) (*(u8 *)((u8 *)(temp_2_13)+(0x88)));
-                func_002b2a60(col124, 0x2D, 0x2D, 0x2D, 0xFFU);
+                func_002b2a60((u8 *)(col124), 0x2D, 0x2D, 0x2D, 0xFFU);
                 temp_2_15 = (u8 *)(func_002b6150((s64) ((s64) spD0 << 0x30) >> 0x30));
                 (*(u8 *)((u8 *)(temp_2_15)+(0x85))) = col124[0];
                 (*(u8 *)((u8 *)(temp_2_15)+(0x86))) = col124[1];
@@ -5130,8 +5136,8 @@ loop_45:
                         func_00317240(arg0, 0, 0);
                         (*(s16 *)((u8 *)(temp_16)+(0x11E))) = (s16) (*(s8 *)((u8 *)(temp_16)+(0x2FA)));
                         (*(u8 *)((u8 *)(temp_16)+(1))) = 0x58U;
-                        func_002b6140((*(s32 *)((u8 *)(temp_16)+(0x28C))), 1);
-                        func_002b6140((*(s32 *)((u8 *)(temp_16)+(0x290))), 1);
+                        func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_16)+(0x28C)))), 1);
+                        func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_16)+(0x290)))), 1);
                         return;
                     }
                     func_0045af60(0, 0, 0, 8);
@@ -5156,8 +5162,8 @@ loop_45:
                     func_00323d00(arg0, 0, 1);
                     func_00316e80((s32)arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
                     func_00317240(arg0, 0, 60.0f);
-                    func_002b6140((*(s32 *)((u8 *)(temp_16)+(0x28C))), 1);
-                    func_002b6140((*(s32 *)((u8 *)(temp_16)+(0x290))), 1);
+                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_16)+(0x28C)))), 1);
+                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_16)+(0x290)))), 1);
                     (*(u8 *)((u8 *)(temp_16)+(1))) = 0x54U;
                     return;
                 }
@@ -5223,8 +5229,8 @@ block_76:
                 func_00316e80((s32)arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
                 (*(s16 *)((u8 *)(temp_16)+(0x11E))) = (s16) (*(s8 *)((u8 *)(temp_16)+(0x2FA)));
                 (*(u8 *)((u8 *)(temp_16)+(1))) = 0x53U;
-                func_002b6140((*(s32 *)((u8 *)(temp_16)+(0x28C))), 0);
-                func_002b6140((*(s32 *)((u8 *)(temp_16)+(0x290))), 0);
+                func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_16)+(0x28C)))), 0);
+                func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_16)+(0x290)))), 0);
                 return;
             }
         }
@@ -5477,8 +5483,8 @@ loop_107:
             (*(s16 *)((u8 *)(temp_16)+(0x11E))) = -1;
             func_00323d00(arg0, 0, 0);
             (*(s16 *)((u8 *)(temp_16)+(0x11E))) = (s16) (*(s8 *)((u8 *)(temp_16)+(0x2FA)));
-            func_002b6140((*(s32 *)((u8 *)(temp_16)+(0x28C))), 0);
-            func_002b6140((*(s32 *)((u8 *)(temp_16)+(0x290))), 0);
+            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_16)+(0x28C)))), 0);
+            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_16)+(0x290)))), 0);
             (*(u8 *)((u8 *)(temp_16)+(1))) = 0x53U;
             return;
         }
@@ -5804,7 +5810,7 @@ do {
 } while (((var_17)) < 0xC);
             var_17_2 = 0;
             do {
-                func_002b2a60(col10C, 0, 0, 0x99, 0xFFU);
+                func_002b2a60((u8 *)(col10C), 0, 0, 0x99, 0xFFU);
                 temp_2 = (s16 *)(func_0034ae50((*( u8 ** )((u8 *)(temp_16) + (0x188))), (s8)var_17_2));
                 (*( u8 * )((u8 *)(temp_2) + (0x75))) = col10C[0];
                 (*( u8 * )((u8 *)(temp_2) + (0x76))) = col10C[1];
@@ -5873,7 +5879,7 @@ do {
                     (*( s8 * )((u8 *)(func_002b6150(((temp_22_2 + 0x22B)))) + (0x6E))) = 0x66;
                 }
                 temp_20_3 = func_002b2a30(0xCC, 0xFF, 0xFF, var_21);
-                func_002b2a60(col108, 0xCC, 0xFF, 0xFF, var_21);
+                func_002b2a60((u8 *)(col108), 0xCC, 0xFF, 0xFF, var_21);
                 func_002ba970((*( s32 * )((u8 *)(temp_16) + (0x2BC))), var_17_3, (*( s32 * )col108));
                 func_00275820(temp_20_3, 0, 2, ((s32)iGpffffb440) + ((*( u16 * )((u8 *)(func_002e48a0(0, var_17_3)) + (2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, (f32) 0x19D, (f32) ((temp_19 * 0x17) + 0x80), 43.0f);
             }
@@ -5887,7 +5893,7 @@ do {
             var_3_3 = (u8)(temp_f0_3);
         }
         temp_17 = var_3_3 & 0xFF;
-        func_002b2a60(col104, 0x2D, 0x2D, 0x2D, temp_17);
+        func_002b2a60((u8 *)(col104), 0x2D, 0x2D, 0x2D, temp_17);
         func_002ba970((*( s32 * )((u8 *)(temp_16) + (0x2BC))), 0xC, (*( s32 * )col104));
         temp_17_2 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_17);
         func_00275820(temp_17_2, 0, 2, ((s32)iGpffffb440) + ((*( u16 * )((u8 *)(func_002e48a0(1, 0)) + (2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 97.0f, 195.0f, 43.0f);
@@ -6300,7 +6306,6 @@ void func_002fbea0(u8 *arg0) {
     extern u8 *func_002b6150(s16);
     extern s32 func_002b6970(s16, s32);
     extern void func_002b68d0(s16, s32, s32);
-    extern void func_002b2a60(void *, s32, s32, s32, s32);
     extern void func_002ba970(s32, s8, s32);
     extern s8 func_002bab80(void *);
     extern void func_002badc0(s8, s32);
@@ -6308,7 +6313,6 @@ void func_002fbea0(u8 *arg0) {
     extern void func_0032b770(u8 *, s32, s32, s32);
     extern void func_0032b9d0(u8 *, s32, s32, s32);
     extern void func_002e68b0(s32);
-    extern void func_002b6140(s32, u8);
     extern void func_00314450(u8 *, u16 *, s32, s32);
     extern void func_00314560(u8 *, u16 *, s32, s32);
     extern u8 *func_003147d0(u8 *);
@@ -6573,7 +6577,7 @@ void func_002fbea0(u8 *arg0) {
         *(s8 *)(func_002b6150((s16)(base + 0x270)) + 0x6E) = -1;
         func_002b68d0(0x270, 2, 1);
         func_002b68d0(0x27D, 2, 1);
-        func_002b2a60(&col0, 0xCC, 0xFF, 0x33, 0xFF);
+        func_002b2a60((u8 *)(&col0), 0xCC, 0xFF, 0x33, 0xFF);
         r2 = func_002b6150((s16)(base + 0x297));
         *(r2 + 0x85) = col0;
         *(r2 + 0x86) = col1;
@@ -6598,13 +6602,13 @@ void func_002fbea0(u8 *arg0) {
         *(r5 + 0x86) = *(r4 + 0x86);
         *(r5 + 0x87) = *(r4 + 0x87);
         *(r5 + 0x88) = *(r4 + 0x88);
-        func_002b2a60(&colB0, 0x2D, 0x2D, 0x2D, 0xFF);
+        func_002b2a60((u8 *)(&colB0), 0x2D, 0x2D, 0x2D, 0xFF);
         r6 = func_002b6150((s16)(base + 0x2A3));
         *(r6 + 0x85) = colB0;
         *(r6 + 0x86) = colB1;
         *(r6 + 0x87) = colB2;
         *(r6 + 0x88) = colB3;
-        func_002b2a60(&colC0, 0x2D, 0x2D, 0x2D, 0xFF);
+        func_002b2a60((u8 *)(&colC0), 0x2D, 0x2D, 0x2D, 0xFF);
         func_002ba970(*(s32 *)(p + 0x2BC), (s8)(base + 0xC), (s32)colC0);
         return;
     case 0x8C:
@@ -6856,8 +6860,8 @@ void func_002fbea0(u8 *arg0) {
         break;
     case 0x8E:
         if (func_002b6970(*(s16 *)(func_002b6150(0x270) + 0x10), 1) != 1) {
-            func_002b6140(*(s32 *)(p + 0x28C), 1);
-            func_002b6140(*(s32 *)(p + 0x290), 1);
+            func_002b6140((u8 *)(*(s32 *)(p + 0x28C)), 1);
+            func_002b6140((u8 *)(*(s32 *)(p + 0x290)), 1);
             func_00314450(*(u8 **)(p + 0x148), func_002e48a0(0, *(s16 *)(p + 0x11E)), 0, 1);
             func_0011c6e0(func_003147d0(*(u8 **)(p + 0x148)), 1);
             func_0011d140(func_003147d0(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
@@ -7048,8 +7052,8 @@ void func_002fbea0(u8 *arg0) {
             if (*(s32 *)(func_002e4870(0) + 8) >= 9) {
                 *(f32 *)(p + 0x124) = 125.0f / (f32)(*(s32 *)(func_002e4870(0) + 8) - 8);
             }
-            func_002b6140(*(s32 *)(p + 0x28C), 0);
-            func_002b6140(*(s32 *)(p + 0x290), 0);
+            func_002b6140((u8 *)(*(s32 *)(p + 0x28C)), 0);
+            func_002b6140((u8 *)(*(s32 *)(p + 0x290)), 0);
             if (*(s32 *)(func_002e4870(0) + 8) > 0) {
                 func_0032b770(arg0, 0, var_16_5, 0);
                 *(s16 *)(p + 0x11E) = 0;
@@ -8243,7 +8247,7 @@ void func_00302770(u8 *arg0) {
         func_00316e80((s32)arg0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0);
         /* fallthrough */
     case 0x70:
-        func_00313b50((s32)arg0);
+        func_00313b50((u8 *)((s32)arg0));
         v = func_002bab80((void *)func_00331660());
         *(s8 *)(p + 0xD) = v;
         func_00442088(buf, &iGpffffa8a0, func_002e78a0());
@@ -8267,8 +8271,8 @@ void func_00302770(u8 *arg0) {
             func_002b2970((u8 *)&sp230, 460.0f, 72.0f);
             func_002b2970((u8 *)&sp228, 460.0f, 72.0f);
             func_0032c660(arg0, 1, sp230, sp228, 1, 0);
-            func_002b6140(*(s32 *)(p + 0x28C), 1);
-            func_002b6140(*(s32 *)(p + 0x290), 1);
+            func_002b6140((u8 *)(*(s32 *)(p + 0x28C)), 1);
+            func_002b6140((u8 *)(*(s32 *)(p + 0x290)), 1);
             func_00315600(arg0, 1);
             func_00320970(arg0, 1);
         } else {
@@ -8418,8 +8422,8 @@ void func_00302770(u8 *arg0) {
                 i = (s16)(i + 1);
             }
             func_003205f0(arg0, 0x96, 0x1E7);
-            func_002b6140(*(s32 *)(p + 0x28C), 0);
-            func_002b6140(*(s32 *)(p + 0x290), 0);
+            func_002b6140((u8 *)(*(s32 *)(p + 0x28C)), 0);
+            func_002b6140((u8 *)(*(s32 *)(p + 0x290)), 0);
             *p = 0;
             p[1] = 0x1A;
         }
@@ -8936,11 +8940,9 @@ void func_00304580(u8 *arg0) {
     extern s32 func_00275820(s32, s32, s32, s32, s32, s32, const char *, s32, f32, f32, f32);
     extern void func_002b2970(s64 *, f32, f32);
     extern s32 func_002b2a30(u8, u8, u8, u8);
-    extern void func_002b2a60(u8 *, s32, s32, s32, s32);
     extern f32 func_002b2aa0(s32, s32, f32, f32, f32);
     extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
     extern s32 func_002b2d00(s32, s32, s32, s32, s8);
-    extern void func_002b6140(s32, s32);
     extern u8 *func_002b6150(s16);
     extern void func_002b68d0(s16, s32, s32);
     extern s32 func_002b6970(s16, s32);
@@ -9392,7 +9394,7 @@ loop_32:
         var_16 = 0;
 loop_43:
         if (((s64) (var_16 << 0x30) >> 0x30) < (func_0010b5b0() & 0xFFFF)) {
-            func_002b2a60(col2FC, 0, 0, 0x99, 0xFFU);
+            func_002b2a60((u8 *)(col2FC), 0, 0, 0x99, 0xFFU);
             temp_2_3 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_17)+(0x188))), (s64) (var_16 << 0x38) >> 0x38));
             (*(u8 *)((u8 *)(temp_2_3)+(0x75))) = col2FC[0];
             (*(u8 *)((u8 *)(temp_2_3)+(0x76))) = col2FC[1];
@@ -9473,8 +9475,8 @@ loop_66:
                     temp_16_2 = (s16)var_18;
                     temp_21 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_17)+(0x184))), (s64) (var_18 << 0x38) >> 0x38));
                     func_002b2970(&sp288, (f32) ((temp_16_2 * 0x17) + 0x149), 104.0f);
-                    func_002b2a60(col2F8, 0, 0, 0x99, 0xFFU);
-                    func_002b2a60(col2F4, 0, 0, 0x99, 0xFFU);
+                    func_002b2a60((u8 *)(col2F8), 0, 0, 0x99, 0xFFU);
+                    func_002b2a60((u8 *)(col2F4), 0, 0, 0x99, 0xFFU);
                     func_002b83e0((u8 *)temp_21, sp288, (*(s32 *)col2F8), (*(s32 *)col2F4), 0xFFU, 0xFFU, 3, 0, 32.0f, 159.0f, 1, 0);
                     var_19 = 0;
                     temp_16_3 = (u8 *)(temp_17 + (temp_16_2 * 4));
@@ -9505,8 +9507,8 @@ loop_64:
                     goto loop_66;
                 }
                 func_00316e80((s32)arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
-                func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x28C))), 1);
-                func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x290))), 1);
+                func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x28C)))), 1);
+                func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x290)))), 1);
                 (*(u8 *)((u8 *)(temp_17)+(1))) = 0x7CU;
                 return;
             }
@@ -9529,8 +9531,8 @@ loop_75:
                         temp_21_3 = temp_16_7 * 0x17;
                         temp_18_2 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_17)+(0x184))), (s64) (var_19_2 << 0x38) >> 0x38));
                         func_002b2970(&sp258, (f32) (temp_21_3 + 0x149), 104.0f);
-                        func_002b2a60(col2F0, 0, 0, 0x99, 0xFFU);
-                        func_002b2a60(col2EC, 0, 0, 0x99, 0xFFU);
+                        func_002b2a60((u8 *)(col2F0), 0, 0, 0x99, 0xFFU);
+                        func_002b2a60((u8 *)(col2EC), 0, 0, 0x99, 0xFFU);
                         func_002b83e0((u8 *)temp_18_2, sp258, (*(s32 *)col2F0), (*(s32 *)col2EC), 0xFFU, 0xFFU, 3, 0, 32.0f, 159.0f, 1, 0);
                         var_18_2 = 0;
                         temp_16_8 = (u8 *)(temp_17 + (temp_16_7 * 4));
@@ -9605,8 +9607,8 @@ loop_85:
             func_0031e5b0(arg0, sp228, 0, 0, 0, 0, 0);
             func_003218a0(arg0, 0);
             func_00316e80((s32)arg0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
-            func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x28C))), 1);
-            func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x290))), 1);
+            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x28C)))), 1);
+            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x290)))), 1);
             (*(u8 *)((u8 *)(temp_17)+(1))) = 0x7BU;
             return;
         }
@@ -9666,7 +9668,7 @@ loop_110:
                     temp_30_3 = temp_18_8 + 0x270;
                     (*(s8 *)((u8 *)(func_002b6150((s64) (temp_23_3 << 0x30) >> 0x30))+(0x6E))) = 0xFF;
                     (*(s8 *)((u8 *)(func_002b6150((s64) (temp_30_3 << 0x30) >> 0x30))+(0x6E))) = (s8) (0xFF & 0xFF);
-                    func_002b2a60(col2E8, 0xCC, 0xFF, 0x33, 0xFFU);
+                    func_002b2a60((u8 *)(col2E8), 0xCC, 0xFF, 0x33, 0xFFU);
                     temp_2_5 = (u8 *)(func_002b6150((s64) ((temp_18_8 + 0x297) << 0x30) >> 0x30));
                     (*(u8 *)((u8 *)(temp_2_5)+(0x85))) = col2E8[0];
                     (*(u8 *)((u8 *)(temp_2_5)+(0x86))) = col2E8[1];
@@ -9691,13 +9693,13 @@ loop_110:
                     (*(u8 *)((u8 *)(temp_2_8)+(0x86))) = (u8) (*(u8 *)((u8 *)(temp_2_7)+(0x86)));
                     (*(u8 *)((u8 *)(temp_2_8)+(0x87))) = (u8) (*(u8 *)((u8 *)(temp_2_7)+(0x87)));
                     (*(u8 *)((u8 *)(temp_2_8)+(0x88))) = (u8) (*(u8 *)((u8 *)(temp_2_7)+(0x88)));
-                    func_002b2a60(col2E4, 0x2D, 0x2D, 0x2D, 0xFFU);
+                    func_002b2a60((u8 *)(col2E4), 0x2D, 0x2D, 0x2D, 0xFFU);
                     temp_2_9 = (u8 *)(func_002b6150((s64) ((temp_18_8 + 0x2A3) << 0x30) >> 0x30));
                     (*(u8 *)((u8 *)(temp_2_9)+(0x85))) = col2E4[0];
                     (*(u8 *)((u8 *)(temp_2_9)+(0x86))) = col2E4[1];
                     (*(u8 *)((u8 *)(temp_2_9)+(0x87))) = col2E4[2];
                     (*(u8 *)((u8 *)(temp_2_9)+(0x88))) = col2E4[3];
-                    func_002b2a60(col2E0, 0x2D, 0x2D, 0x2D, 0xFFU);
+                    func_002b2a60((u8 *)(col2E0), 0x2D, 0x2D, 0x2D, 0xFFU);
                     func_002ba970((*(s32 *)((u8 *)(temp_17)+(0x2BC))), (s64) ((temp_18_8 + 0xC) << 0x38) >> 0x38, (*(s32 *)col2E0));
                     var_18_4 = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFFU);
                 } else {
@@ -9706,7 +9708,7 @@ loop_110:
                     temp_22_3 = temp_18_9 + 0x270;
                     (*(s8 *)((u8 *)(func_002b6150((s64) (temp_21_8 << 0x30) >> 0x30))+(0x6E))) = 0xCC;
                     (*(s8 *)((u8 *)(func_002b6150((s64) (temp_22_3 << 0x30) >> 0x30))+(0x6E))) = (s8) (0xCC & 0xFF);
-                    func_002b2a60(col2DC, 0x49, 0x72, 0xFF, 0xFFU);
+                    func_002b2a60((u8 *)(col2DC), 0x49, 0x72, 0xFF, 0xFFU);
                     temp_2_10 = (u8 *)(func_002b6150((s64) (temp_21_8 << 0x30) >> 0x30));
                     (*(u8 *)((u8 *)(temp_2_10)+(0x85))) = col2DC[0];
                     (*(u8 *)((u8 *)(temp_2_10)+(0x86))) = col2DC[1];
@@ -9717,7 +9719,7 @@ loop_110:
                     (*(u8 *)((u8 *)(temp_2_11)+(0x86))) = (u8) (*(u8 *)((u8 *)(temp_2_10)+(0x86)));
                     (*(u8 *)((u8 *)(temp_2_11)+(0x87))) = (u8) (*(u8 *)((u8 *)(temp_2_10)+(0x87)));
                     (*(u8 *)((u8 *)(temp_2_11)+(0x88))) = (u8) (*(u8 *)((u8 *)(temp_2_10)+(0x88)));
-                    func_002b2a60(col2D8, 0x49, 0x72, 0xFF, 0xFFU);
+                    func_002b2a60((u8 *)(col2D8), 0x49, 0x72, 0xFF, 0xFFU);
                     temp_2_12 = (u8 *)(func_002b6150((s64) ((temp_18_9 + 0x297) << 0x30) >> 0x30));
                     (*(u8 *)((u8 *)(temp_2_12)+(0x85))) = col2D8[0];
                     (*(u8 *)((u8 *)(temp_2_12)+(0x86))) = col2D8[1];
@@ -9728,13 +9730,13 @@ loop_110:
                     (*(u8 *)((u8 *)(temp_2_13)+(0x86))) = (u8) (*(u8 *)((u8 *)(temp_2_12)+(0x86)));
                     (*(u8 *)((u8 *)(temp_2_13)+(0x87))) = (u8) (*(u8 *)((u8 *)(temp_2_12)+(0x87)));
                     (*(u8 *)((u8 *)(temp_2_13)+(0x88))) = (u8) (*(u8 *)((u8 *)(temp_2_12)+(0x88)));
-                    func_002b2a60(col2D4, 0, 0, 0x66, 0xFFU);
+                    func_002b2a60((u8 *)(col2D4), 0, 0, 0x66, 0xFFU);
                     temp_2_14 = (u8 *)(func_002b6150((s64) ((temp_18_9 + 0x2A3) << 0x30) >> 0x30));
                     (*(u8 *)((u8 *)(temp_2_14)+(0x85))) = col2D4[0];
                     (*(u8 *)((u8 *)(temp_2_14)+(0x86))) = col2D4[1];
                     (*(u8 *)((u8 *)(temp_2_14)+(0x87))) = col2D4[2];
                     (*(u8 *)((u8 *)(temp_2_14)+(0x88))) = col2D4[3];
-                    func_002b2a60(col2D0, 0xCC, 0xFF, 0xFF, 0xFFU);
+                    func_002b2a60((u8 *)(col2D0), 0xCC, 0xFF, 0xFF, 0xFFU);
                     func_002ba970((*(s32 *)((u8 *)(temp_17)+(0x2BC))), (s64) ((temp_18_9 + 0xC) << 0x38) >> 0x38, (*(s32 *)col2D0));
                     var_18_4 = func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU);
                 }
@@ -9835,8 +9837,8 @@ loop_137:
                     func_00316e80((s32)arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
                     func_00317240(arg0, 0, 0);
                     func_00325450(arg0, 3, 0);
-                    func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x28C))), 1);
-                    func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x290))), 1);
+                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x28C)))), 1);
+                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x290)))), 1);
                     return;
                 }
             } else {
@@ -9861,8 +9863,8 @@ loop_142:
                     func_0031fa20(arg0, sp1E8, 0, 1);
                     func_00316470(arg0, 1, 1);
                     func_00316e80((s32)arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
-                    func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x28C))), 1);
-                    func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x290))), 1);
+                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x28C)))), 1);
+                    func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x290)))), 1);
                     (*(u8 *)((u8 *)(temp_17)+(1))) = 0x7FU;
                     return;
                 }
@@ -10169,8 +10171,8 @@ loop_232:
             goto loop_232;
         }
         if (((s64) (func_00314660((u8 *)(*(s32 *)((u8 *)(temp_17)+(0x148)))) << 0x38) >> 0x38) == 0xE) {
-            func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x28C))), 0);
-            func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x290))), 0);
+            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x28C)))), 0);
+            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x290)))), 0);
             (*(u8 *)((u8 *)(temp_17)+(1))) = 0x7EU;
             return;
         }
@@ -10244,8 +10246,8 @@ loop_240:
     case 0x84:                                      /* switch 1 */
         if (((s64) (func_00314660((u8 *)(*(s32 *)((u8 *)(temp_17)+(0x148)))) << 0x38) >> 0x38) == 0xE) {
             func_00315600(arg0, 0);
-            func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x28C))), 0);
-            func_002b6140((*(s32 *)((u8 *)(temp_17)+(0x290))), 0);
+            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x28C)))), 0);
+            func_002b6140((u8 *)((*(s32 *)((u8 *)(temp_17)+(0x290)))), 0);
             (*(s8 *)((u8 *)(temp_17)+(0xB6))) = 0;
             func_0032f4d0(arg0);
             (*(s8 *)((u8 *)(temp_17)+(0))) = 0;
@@ -11213,7 +11215,7 @@ loop_127:
             func_0034a820((*( s32 * )((u8 *)(temp_16) + (0x254))));
             func_00106390(0x59, 1);
             func_001102f0(spE8, 0x140, 0xA5, 300.0f);
-            func_002b2a60(&spFC, 0xFF, 0xFF, 0xFF, 0xFF);
+            func_002b2a60((u8 *)(&spFC), 0xFF, 0xFF, 0xFF, 0xFF);
             func_003489c0((*( s32 * )((u8 *)(temp_16) + (0x308))), spE8, spFC, 0, -1, 0, 0, 0, 1.0f);
             func_00348c30((*( s32 * )((u8 *)(temp_16) + (0x308))), 0x14);
             (*( s16 * )((u8 *)(temp_16) + (0x2D8))) = 0;
@@ -11225,7 +11227,7 @@ loop_127:
         func_0034a820((*( s32 * )((u8 *)(temp_16) + (0x254))));
         func_00106390(0x59, 1);
         func_001102f0(spD8, 0x140, 0xA5, 300.0f);
-        func_002b2a60(&spF8, 0xFF, 0xFF, 0xFF, 0xFF);
+        func_002b2a60((u8 *)(&spF8), 0xFF, 0xFF, 0xFF, 0xFF);
         func_003489c0((*( s32 * )((u8 *)(temp_16) + (0x308))), spD8, spF8, 0, -1, 0, 0, 0, 1.0f);
         func_00348c30((*( s32 * )((u8 *)(temp_16) + (0x308))), 0x14);
         (*( s16 * )((u8 *)(temp_16) + (0x2D8))) = 0;
@@ -11357,7 +11359,7 @@ loop_176:
         func_0034a820((*( s32 * )((u8 *)(temp_16) + (0x254))));
         func_00106390(0x59, 1);
         func_001102f0(spC8, 0x140, 0xA5, 300.0f);
-        func_002b2a60(&spF4, 0xFF, 0xFF, 0xFF, 0xFF);
+        func_002b2a60((u8 *)(&spF4), 0xFF, 0xFF, 0xFF, 0xFF);
         func_003489c0((*( s32 * )((u8 *)(temp_16) + (0x308))), spC8, spF4, 0, -1, 0, 0, 0, 1.0f);
         func_00348c30((*( s32 * )((u8 *)(temp_16) + (0x308))), 0x14);
         (*( s16 * )((u8 *)(temp_16) + (0x2D8))) = 0;
@@ -11436,25 +11438,25 @@ void func_0030b060(u8 *arg0)
             func_002b2970((u8 *)&v0.bits, 26.0f, (f32)(j * 0x22 + 0x57));
             func_003147e0(arg0, (s8)j, v0.position, (s16)(j + 0x179), (s16)(j * 2 + 2), 0);
         }
-        func_002b2a60(&c0, 0xC6, 0xEE, 1, 0xFF);
+        func_002b2a60((u8 *)(&c0), 0xC6, 0xEE, 1, 0xFF);
         te = func_002b6150((s16)(*(s16 *)(p + 0x11E) * 2 + 500));
         *(te + 0x85) = c0.b0;
         *(te + 0x86) = c0.b1;
         *(te + 0x87) = c0.b2;
         *(te + 0x88) = c0.b3;
-        func_002b2a60(&c1, 0xC6, 0xEE, 1, 0xFF);
+        func_002b2a60((u8 *)(&c1), 0xC6, 0xEE, 1, 0xFF);
         te = func_002b6150((s16)(*(s16 *)(p + 0x11E) * 2 + 501));
         *(te + 0x85) = c1.b0;
         *(te + 0x86) = c1.b1;
         *(te + 0x87) = c1.b2;
         *(te + 0x88) = c1.b3;
-        func_002b2a60(&c2, 0x2D, 0x2D, 0x2D, 0xFF);
+        func_002b2a60((u8 *)(&c2), 0x2D, 0x2D, 0x2D, 0xFF);
         te = func_002b6150((s16)(*(s16 *)(p + 0x11E) + 0x179));
         *(te + 0x85) = c2.b0;
         *(te + 0x86) = c2.b1;
         *(te + 0x87) = c2.b2;
         *(te + 0x88) = c2.b3;
-        func_002b2a60(&c3, 0x92, 0xC8, 7, 0xFF);
+        func_002b2a60((u8 *)(&c3), 0x92, 0xC8, 7, 0xFF);
         te = func_002b6150((s16)(*(s16 *)(p + 0x120) + 0x2FB));
         *(te + 0x85) = c3.b0;
         *(te + 0x86) = c3.b1;
@@ -11638,7 +11640,7 @@ void func_0030b7b0(u8 *arg0) {
         }
         for (j = 0; j < *(s8 *)(p + 0x139); j++) {
             te = &D_00882FB0[j * 2];
-            func_002b2a60(&c0, 0, 0, 0x66, 0xFF);
+            func_002b2a60((u8 *)(&c0), 0, 0, 0x66, 0xFF);
             p501 = func_002b6150((s16)(*(s8 *)te * 2 + 501));
             *(p501 + 0x85) = c0.b0;
             *(p501 + 0x86) = c0.b1;
@@ -11649,14 +11651,14 @@ void func_0030b7b0(u8 *arg0) {
             *(p500 + 0x86) = *(p501 + 0x86);
             *(p500 + 0x87) = *(p501 + 0x87);
             *(p500 + 0x88) = *(p501 + 0x88);
-            func_002b2a60(&c1, 0xCC, 0xFF, 0xFF, 0xFF);
+            func_002b2a60((u8 *)(&c1), 0xCC, 0xFF, 0xFF, 0xFF);
             te2 = func_002b6150((s16)(*(s8 *)(te + 1) + 0x168));
             *(te2 + 0x85) = c1.b0;
             *(te2 + 0x86) = c1.b1;
             *(te2 + 0x87) = c1.b2;
             *(te2 + 0x88) = c1.b3;
             if (*(s8 *)te == 0xB && func_00106330(0x1308) == 0) {
-                func_002b2a60(&c2, 0xFF, 0xCC, 0xFF, 0xFF);
+                func_002b2a60((u8 *)(&c2), 0xFF, 0xCC, 0xFF, 0xFF);
                 te2 = func_002b6150((s16)(*(s8 *)(te + 1) + 0x168));
                 *(te2 + 0x85) = c2.b0;
                 *(te2 + 0x86) = c2.b1;
@@ -11664,25 +11666,25 @@ void func_0030b7b0(u8 *arg0) {
                 *(te2 + 0x88) = c2.b3;
             }
         }
-        func_002b2a60(&c3, 0xC6, 0xEE, 1, 0xFF);
+        func_002b2a60((u8 *)(&c3), 0xC6, 0xEE, 1, 0xFF);
         te = func_002b6150(500);
         *(te + 0x85) = c3.b0;
         *(te + 0x86) = c3.b1;
         *(te + 0x87) = c3.b2;
         *(te + 0x88) = c3.b3;
-        func_002b2a60(&c4, 0xC6, 0xEE, 1, 0xFF);
+        func_002b2a60((u8 *)(&c4), 0xC6, 0xEE, 1, 0xFF);
         te = func_002b6150(501);
         *(te + 0x85) = c4.b0;
         *(te + 0x86) = c4.b1;
         *(te + 0x87) = c4.b2;
         *(te + 0x88) = c4.b3;
-        func_002b2a60(&c5, 0x2D, 0x2D, 0x2D, 0xFF);
+        func_002b2a60((u8 *)(&c5), 0x2D, 0x2D, 0x2D, 0xFF);
         te = func_002b6150(0x168);
         *(te + 0x85) = c5.b0;
         *(te + 0x86) = c5.b1;
         *(te + 0x87) = c5.b2;
         *(te + 0x88) = c5.b3;
-        func_002b2a60(&c6, 0x92, 0xC8, 7, 0xFF);
+        func_002b2a60((u8 *)(&c6), 0x92, 0xC8, 7, 0xFF);
         te = func_002b6150((s16)(*(s8 *)(D_00882FB0 + *(s16 *)(p + 0x11E) * 2) + 0x2FB));
         *(te + 0x85) = c6.b0;
         *(te + 0x86) = c6.b1;
@@ -13531,7 +13533,7 @@ void func_0030f650(u8 *arg0) {
             func_00320970(arg0, 0);
             func_002b2970((u8 *)&w0.bits, -78.0f, -82.0f);
             func_002b6c30(0x80, w0.position, 0x3F, 220.0f);
-            func_002b2a60(&c0, 0x49, 0x72, 0xFF, 0xFF);
+            func_002b2a60((u8 *)(&c0), 0x49, 0x72, 0xFF, 0xFF);
             te = func_002b6150(0x80);
             *(te + 0x85) = c0.b0;
             *(te + 0x86) = c0.b1;
@@ -13546,7 +13548,7 @@ void func_0030f650(u8 *arg0) {
             func_002b6a70(0x80, 0, 0xFF, 2, 0xA, 0);
             func_002b2970((u8 *)&w3.bits, 540.0f, 347.0f);
             func_002b6c30(0x20C, w3.position, 0x3F, 220.0f);
-            func_002b2a60(&c1, 0x49, 0x72, 0xFF, 0xFF);
+            func_002b2a60((u8 *)(&c1), 0x49, 0x72, 0xFF, 0xFF);
             te = func_002b6150(0x20C);
             *(te + 0x85) = c1.b0;
             *(te + 0x86) = c1.b1;
@@ -13561,7 +13563,7 @@ void func_0030f650(u8 *arg0) {
             func_002b6a70(0x20C, 0, 0xFF, 2, 0xA, 0);
             func_002b2970((u8 *)&w6.bits, -190.0f, 200.0f);
             func_002b6c30(0x81, w6.position, 0x56, 215.0f);
-            func_002b2a60(&c2, 0x49, 0x72, 0xFF, 0xFF);
+            func_002b2a60((u8 *)(&c2), 0x49, 0x72, 0xFF, 0xFF);
             te = func_002b6150(0x81);
             *(te + 0x85) = c2.b0;
             *(te + 0x86) = c2.b1;
@@ -13982,8 +13984,7 @@ s32 func_00311260(u8 *arg0)
     found = 0;
     func_0044ea90(&D_00641B00[0], 0x2C88);
     p = D_008873F4[0](1, 0x2C, 0x40000);
-    result = func_00451fc0(result, D_00641BE0, 0xF, 0, 0,
-                           func_00310bf0, func_003111d0, p);
+    result = (s32)func_00451fc0((void *)((void *)(result)), (const void *)(D_00641BE0), 0xF, 0, 0, func_00310bf0, func_003111d0, (u8 *)(p));
     p[0] = 8;
     func_00440b68(&iGpffffa8c8, D_00641B00, 0x2C96);
     *(s32 *)(p + 0x10) = func_00454a60(D_00641C00, 0);

@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Source unit: src/Kosaka/k_clump/k_clumpInstance.c */
 #include "type.h"
 #include "Kosaka/k_clump_internal.h"
@@ -51,9 +52,7 @@ extern u8 *func_00454a60(void *arg0, s32 arg1);
 extern void func_00456150(void *arg0);
 extern void func_00454bd0(void *arg0);
 extern void func_003c0700(void *arg0);
-extern s32 func_00451fc0(s32 arg0, const void *arg1, s32 arg2, s32 arg3,
-                         s32 arg4, s32 (*arg5)(u8 *), void (*arg6)(u8 *),
-                         void *arg7);
+
 extern s32 func_00428618(s32 arg0);
 extern char D_005F6520[];
 extern char D_005F6550[];
@@ -270,6 +269,5 @@ s32 func_001924d0(void)
     {
         return 0;
     }
-    return func_00451fc0(0, D_005F65A0, 0xF, 0, 0, func_001921a0,
-                         func_00192480, mem);
+    return (s32)func_00451fc0((void *)(0), (const void *)(D_005F65A0), 0xF, 0, 0, func_001921a0, func_00192480, (u8 *)(mem));
 }

@@ -1,13 +1,14 @@
 /* Whole-file translation unit: src/Main/init.c */
 /* Original filename recovered from embedded __FILE__ strings. */
 #include "type.h"
+#include "sdk_task_registration.h"
 
 extern void func_00440b68(...);
 extern void func_0043f810(void *dest, const void *src, u32 size);
 extern void *func_00454a60(const char *path, s32 flags);
 extern void func_00454bd0(void *handle);
 extern s32 func_004553c0(void *handle);
-extern s32 func_00451de0();
+
 extern void func_0044ea90(const void *file, u32 line);
 extern void func_00104c50(void);
 extern s32 func_00123730(s32);
@@ -82,7 +83,7 @@ s32 func_001118f0(void)
     if (temp_2 == 0) {
         return 0;
     }
-    var_2 = func_00451de0(D_005E46C0, 0x100, 0, 0, func_001117c0, func_001118a0, temp_2);
+    var_2 = (s32)func_00451de0((const void *)(D_005E46C0), 0x100, 0, 0, func_001117c0, func_001118a0, (u8 *)(temp_2));
     return var_2 == 0 ? 0 : var_2;
 }
 
@@ -160,5 +161,5 @@ s32 func_00111b30(void)
     if (temp_2 == 0) {
         return 0;
     }
-    return func_00451de0(D_005E46E8, 0x100, 0, 0, func_00111990, func_00111ae0, temp_2);
+    return (s32)func_00451de0((const void *)(D_005E46E8), 0x100, 0, 0, func_00111990, func_00111ae0, (u8 *)(temp_2));
 }

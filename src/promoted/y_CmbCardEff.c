@@ -1,6 +1,9 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit y_CmbCardEff.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "fcl_bounds_packet.h"
+#include "sdk_task_registration.h"
+#include "fcl_draw_task.h"
 #include "include_asm.h"
 
 extern void (*jtbl_008873EC[])(void *);
@@ -50,53 +53,53 @@ typedef struct {
     f32 f128, f12c, f130, f134, f138, f13c, f140, f144, f148, f14c;
     u8 bytes[0x180];
 } Cmb43Work;
-typedef struct { s64 lo; s64 hi; } Cmb48V16;
 typedef struct {
-    Cmb48V16 v80;
-    Cmb48V16 v90;
-    Cmb48V16 vA0;
-    Cmb48V16 vB0;
-    Cmb48V16 vC0;
-    Cmb48V16 vD0;
-    Cmb48V16 vE0;
-    Cmb48V16 vF0;
-    Cmb48V16 v100;
-    Cmb48V16 v110;
-    Cmb48V16 v120;
-    s64 s130;
-    s64 s138;
-    s64 s140;
-    s64 s148;
-    s64 s150;
-    s64 s158;
-    s64 s160;
-    s64 s168;
-    s64 s170;
-    s64 s178;
-    s64 s180;
-    s64 s188;
+    FclBoundsPacket v80;
+    FclBoundsPacket v90;
+    FclBoundsPacket vA0;
+    FclBoundsPacket vB0;
+    FclBoundsPacket vC0;
+    FclBoundsPacket vD0;
+    FclBoundsPacket vE0;
+    FclBoundsPacket vF0;
+    FclBoundsPacket v100;
+    FclBoundsPacket v110;
+    FclBoundsPacket v120;
+    FclPackedPosition s130;
+    FclPackedPosition s138;
+    FclPackedPosition s140;
+    FclPackedPosition s148;
+    FclPackedPosition s150;
+    FclPackedPosition s158;
+    FclPackedPosition s160;
+    FclPackedPosition s168;
+    FclPackedPosition s170;
+    FclPackedPosition s178;
+    FclPackedPosition s180;
+    FclPackedPosition s188;
     u32 pad190;
-    u32 c194;
-    u32 c198;
-    u32 c19C;
+    FclDrawColor c194;
+    FclDrawColor c198;
+    FclDrawColor c19C;
 } Cmb48Work;
 
 static inline u8 *cmbAddPtrRev(u32 base, u32 index) { return (u8 *)(index + base); }
 
 void func_0044ea90(void *arg0, u32 arg1);
-s32 func_00451fc0(u8 *arg0, const void *arg1, u32 arg2, u32 arg3, u32 arg4, void (*arg5)(u8 *), void (*arg6)(u8 *), void *arg7);
-void func_00440b68(void *arg0, void *arg1, u32 arg2);
-u32 func_00454a60(u8 *arg0, u32 arg1);
+
+struct HCdvd;
+s32 func_00440b68(const char *format, ...);
+u8 *func_00454a60(u8 *arg0, s32 arg1);
 s32 func_00348330(u8 *arg0);
 s32 func_00348c40(u8 *arg0);
-s32 func_004553c0(u8 *ptr);
+u32 func_004553c0(struct HCdvd *ptr);
 void func_004b1150(u32 arg0);
-void func_00454bd0(u8 *ptr);
+u32 func_00454bd0(struct HCdvd *ptr);
 void func_0036d940(void *arg0);
-void func_0036d860(void *arg0, u32 arg1);
-void func_0036d230(u32 arg0);
+void func_0036d860(u8 *arg0, s32 arg1);
+void func_0036d230(u8 *arg0);
 s32 func_0036d960(void);
-void func_0036da40(void *arg0, u32 arg1);
+void func_0036da40(u8 *arg0, s32 arg1);
 s32 func_00347c70(u8 *arg0);
 u8 *func_00348160(u8 *arg0, s32 *arg1);
 void *func_00348290(u8 *arg0);
@@ -138,14 +141,13 @@ void func_004b13d0(s32, f32);
 void func_004b13f0(s32, u8 *);
 s32 func_004b1520(s32);
 extern u8 D_005DC7D0[];
-void func_002b5db0(s32, s64, void *);
-s32 func_002b5c90(u8 *, s64);
-void func_002b29e0(void *, f32, f32);
-void func_002b5e30(s32, u32);
+
+
+
 void func_002b6130(s32, s32);
 void func_002b5e20(s32, f32);
-void func_002b5fd0(s32, s64, s64, void *, void *, s32, s32);
-s8 *func_002b5da0(s32);
+
+
 
 extern u8 D_0064E590[];
 extern u8 iGpffffa938;
@@ -171,73 +173,77 @@ extern void (*D_00887300[])(s32, s32);
 
 
 
-/* Floor: 36 differing words (reloc-masked), obj 500B/window 512B, 125/125 instrs,
-   33 fnalign edits plus 5 reloc-only. Body is
-   docs/probe_archive/HOFTRY55_0033e5c0_body.c verbatim (direct-pointer form).
-   The entire residual is register color plus one scheduler swap: retail holds the
-   state pointer in $s1, this build in $s0; full map retail q=$s0/obj=$s1/i=$s2/p=$s3
-   vs build obj=$s0/i=$s1/q=$s2/p=$s3, and the loop body's q and p address
-   computations are swapped (build p-then-q with the disp-0 reload after the ori,
-   retail q-then-p with the ori first and the reload last). Exhausted: six
-   declaration permutations (all 36); two named-slot-pointer variants (both 58,
-   reproduced this pass); value-side q-last q-before-p, q-last q-after-p,
-   block-scope q, and s8-obj spellings (all 36); opt_propagation off REGRESSED to
-   49. Semantic gate: s32 return (retail daddu $2,$0), s8 increments (signed lb),
-   gp-relative `&iGpffffa938` first call arg; every call uses the file-scope
-   prototypes, no block-scope prototype changes. Production stays ASM. */
-/* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/promoted/y_CmbCardEff.c func_0033e5c0 --pairs` banked 36; best ties 36 (opt_dead_assignments off, opt_loop_invariants on, opt_propagation off, opt_strength_reduction off, opt_unroll_loops off and nine pairwise combos among them); all 28 pairs neutral or worse (schedule 105-110, commons 114-122, peephole 110-122). opclass `python3 -E -s tools/opclass.py src/promoted/y_CmbCardEff.c`: 3 floors scanned, 1 with surplus (00348c40), func_0033e5c0 clean — high 36-word count on small 125/125-instr body is register color + scheduler swap per above, not a whole-function width/signedness defect. Floor stands; production stays ASM. */
-// FUN_0033E5C0 NONMATCHING
-#ifdef NON_MATCHING
+typedef struct { u8 data[0xFB0]; } CmbLoaderCard;
+typedef struct {
+    s8 state;
+    u8 reserved01;
+    u16 ids[12];
+    u8 reserved1a[2];
+    u8 *file;
+    u8 environment[0x2738];
+    CmbLoaderCard cards[2][12];
+    s8 loaded;
+    u8 reserved_end[3];
+} CmbLoaderState;
+typedef char CmbLoaderSizeCheck[sizeof(CmbLoaderState) == 0x19FDC ? 1 : -1];
+
+/* Both twelve-card banks share the caller-owned ID slots. Reload the
+ * second ID after initialization, which can update caller-visible state. */
+// FUN_0033E5C0
+#pragma push
+#pragma opt_propagation off
 s32 func_0033e5c0(u8 *arg0) {
-    u8 *p;
     s16 i;
-    u8 *obj;
+    CmbLoaderState *obj;
     s8 type;
 
-    obj = *(u8 **)(arg0 + 0x38);
-    type = *(s8 *)obj;
+    obj = *(CmbLoaderState **)(arg0 + 0x38);
+    type = obj->state;
     if (type != 4) {
         switch (type) {
         case 0:
-            func_0036d860(obj + 0x20, 0);
-            func_00440b68(&iGpffffa938, D_0064A4A0, 0x63);
-            *(u8 **)(obj + 0x1C) = (u8 *)func_00454a60(D_0064E590, 0);
-            *(s8 *)obj += 1;
+            func_0036d860(obj->environment, 0);
+            func_00440b68((const char *)&iGpffffa938, D_0064A4A0, 0x63);
+            obj->file = func_00454a60(D_0064E590, 0);
+            obj->state += 1;
             break;
         case 1:
-            if (func_004553c0(*(u8 **)(obj + 0x1C)) != 0) {
-                func_0036d230(*(u32 *)(*(u8 **)(obj + 0x1C) + 0x110));
-                func_00454bd0(*(u8 **)(obj + 0x1C));
-                *(s8 *)obj += 1;
+            if (func_004553c0((struct HCdvd *)obj->file) != 0) {
+                func_0036d230(*(u8 **)(obj->file + 0x110));
+                func_00454bd0((struct HCdvd *)obj->file);
+                obj->state += 1;
             }
             break;
         case 2:
             for (i = 0; i < 0xC; i++) {
-                if (*(u16 *)(obj + (s32)i * 2 + 2) == 0)
+                if (*(u16 *)((u8 *)obj + (s32)i * 2 + 2) == 0)
                     goto next_card;
-                p = obj + (s32)i * 0xFB0;
-                func_0036da40(p + 0x2758,
-                              *(u16 *)(obj + (s32)i * 2 + 2));
-                func_0036da40(p + 0xE398,
-                              *(u16 *)(obj + (s32)i * 2 + 2));
-                *(s8 *)(obj + 0x19FD8) += 1;
+                func_0036da40((u8 *)&obj->cards[0][i],
+                              *(u16 *)((u8 *)obj + (s32)i * 2 + 2));
+                {
+                    CmbLoaderCard *second;
+                    s32 id;
+                    second = &obj->cards[1][i];
+                    id = *(u16 *)((u8 *)obj + (s32)i * 2 + 2);
+                    func_0036da40((u8 *)second, id);
+                }
+                obj->loaded += 1;
             next_card:
                 ;
             }
-            *(s8 *)obj += 1;
+            obj->state += 1;
             break;
         case 3:
             if (func_0036d960() != 0) {
-                *(s8 *)obj += 1;
+                obj->state += 1;
             }
             break;
         }
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_0033e5c0);
-#endif
+
+#pragma pop
 // FUN_0033E7C0
 void func_0033e7c0(u8 *arg0) {
     func_0036d940((u8 *)(*(u8 **)(arg0 + 0x38)) + 0x20);
@@ -450,10 +456,10 @@ u8 *func_0033f690(u8 *arg0, u8 *arg1, s8 arg2) {
     func_0044ea90(D_0064A4A0, 0x1B8);
     base = (u32)D_008873F4;
     blk1 = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(1, 0x6E0, 0x40000);
-    ret = (u8 *)func_00451fc0(arg0, D_0064A4E0, 0xF, 0, 0, (void (*)(u8 *))func_0033e810, func_0033f660, blk1);
+    ret = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A4E0), 0xF, 0, 0, func_0033e810, func_0033f660, (u8 *)(blk1));
     func_0044ea90(D_0064A4A0, 0xAD);
     blk2 = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(1, 0x19FDC, 0x40000);
-    ret2 = (u8 *)func_00451fc0(ret, D_0064A4B0, 0xF, 0, 0, (void (*)(u8 *))func_0033e5c0, func_0033e7c0, blk2);
+    ret2 = (u8 *)(s32)func_00451fc0((void *)(ret), (const void *)(D_0064A4B0), 0xF, 0, 0, func_0033e5c0, func_0033e7c0, (u8 *)(blk2));
     for (i = 0; i < 0xC; i++) {
         *(s16 *)(blk2 + 2 + (s32)i * 2) = *(s16 *)(arg1 + (s32)i * 2);
     }
@@ -3571,7 +3577,7 @@ u8 *func_00348160(u8 *arg0, s32 *arg1) {
 
     func_0044ea90(D_0064A4A0, 0x702);
     blk = D_008873F4[0](1, 0x1B0, 0x40000);
-    ret = (u8 *)func_00451fc0(arg0, D_0064A5D0, 0xF, 0, 0, (void (*)(u8 *))func_00347c70, func_00348130, blk);
+    ret = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A5D0), 0xF, 0, 0, func_00347c70, func_00348130, (u8 *)(blk));
     *(s32 **)(blk + 0x118) = arg1;
     *(s32 *)(blk + 0x11C) = 0;
     for (i = 0; i < 3; i++) {
@@ -3646,7 +3652,7 @@ s32 func_00348330(u8 *arg0) {
     case 0:
         break;
     case 1: {
-        if (func_004553c0(*(u8 **)(obj + 0)) == 0) {
+        if (func_004553c0(*(struct HCdvd **)(obj + 0)) == 0) {
             return 0;
         }
         {
@@ -3756,7 +3762,7 @@ void func_00348840(u8 *arg0) {
             *(u32 *)(obj + 0x44) = 0;
         }
     }
-    func_00454bd0(*(u8 **)obj);
+    func_00454bd0(*(struct HCdvd **)obj);
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
@@ -3767,11 +3773,11 @@ u8 *func_003488d0(u8 *arg0, u8 *arg1, s8 arg2) {
 
     func_0044ea90(D_0064A4A0, 0x7F5);
     blk = D_008873F4[0](1, 0x70, 0x40000);
-    ret = (u8 *)func_00451fc0(arg0, D_0064A5E8, 0xF, 0, 0, (void (*)(u8 *))func_00348330, func_00348840, blk);
+    ret = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A5E8), 0xF, 0, 0, func_00348330, func_00348840, (u8 *)(blk));
     *(s8 *)(blk + 4) = 0;
     *(s8 *)(blk + 0x14) = arg2;
-    func_00440b68(&D_00763A28, D_0064A4A0, 0x805);
-    *(u32 *)(blk + 0) = func_00454a60(arg1, 0);
+    func_00440b68((const char *)&D_00763A28, D_0064A4A0, 0x805);
+    *(u8 **)(blk + 0) = func_00454a60(arg1, 0);
     *(u32 *)(blk + 0x40) = 0x437F0000;
     return ret;
 }
@@ -3822,7 +3828,7 @@ void func_00348a90(u8 *arg0, CmbVec3f *src1, CmbRGBA arg2, u16 arg3, u32 arg4, C
 
 // FUN_00348BE0
 s32 func_00348be0(u8 *arg0) {
-    return func_004553c0(*(u8 **)(*(u8 **)(arg0 + 0x38))) != 0;
+    return func_004553c0(*(struct HCdvd **)(*(u8 **)(arg0 + 0x38))) != 0;
 }
 
 // FUN_00348C10
@@ -3855,12 +3861,12 @@ s32 func_00348c40(u8 *arg0) {
         while (i < 5) {
             /* handle create: 465,0 -> 5c90 */
             slot = obj + i * 4 + 4;
-            func_002b2970(&work.s188, 0x1D1, 0.0f);
-            *(s32 *)slot = func_002b5c90(arg0, work.s188);
+            func_002b2970(&work.s188.bits, 0x1D1, 0.0f);
+            *(s32 *)slot = func_002b5c90((s32)arg0, work.s188.position);
             /* vec: 9.0,480.0 -> 5db0 */
-            func_002b2970(&work.s180, 0x1D1, 0.0f);
-            func_002b29e0(&work.v120, 9.0f, 480.0f);
-            func_002b5db0(*(s32 *)slot, work.s180, &work.v120);
+            func_002b2970(&work.s180.bits, 0x1D1, 0.0f);
+            func_002b29e0((u8 *)(&work.v120), 9.0f, 480.0f);
+            func_002b5db0((u8 *)*(s32 *)slot, work.s180.position, &work.v120);
             /* color conditional: byte0==1 uses (i+2)*10 else gray */
             if (*(s8 *)obj == 1) {
                 base = (i + 2) * 10;
@@ -3868,18 +3874,18 @@ s32 func_00348c40(u8 *arg0) {
                 g = func_002b2cb0(base + 0x37, 10, 0xFF, 0, 1) & 0xFF;
                 b = func_002b2cb0(base + 0xF2, 10, 0xFF, 0, 1) & 0xFF;
                 func_002b2a60(&work.c19C, r, g, b, 0xFF);
-                func_002b5e30(*(s32 *)slot, work.c19C);
+                func_002b5e30((u8 *)*(s32 *)slot, work.c19C);
                 if (i == 4) {
                     base = (i + 1) * 10;
                     r = func_002b2cb0(base, 10, 0xFF, 0, 1) & 0xFF;
                     g = func_002b2cb0(base + 0x37, 10, 0xFF, 0, 1) & 0xFF;
                     b = func_002b2cb0(base + 0xF2, 10, 0xFF, 0, 1) & 0xFF;
                     func_002b2a60(&work.c198, r, g, b, 0xFF);
-                    func_002b5e30(*(s32 *)slot, work.c198);
+                    func_002b5e30((u8 *)*(s32 *)slot, work.c198);
                 }
             } else {
                 func_002b2a60(&work.c194, 0, 0x37, 0xF2, 0xFF);
-                func_002b5e30(*(s32 *)slot, work.c194);
+                func_002b5e30((u8 *)*(s32 *)slot, work.c194);
             }
             /* per-iteration tail: 0xBB + 50.0f */
             slot = obj + i * 4 + 4;
@@ -3889,40 +3895,40 @@ s32 func_00348c40(u8 *arg0) {
         }
         /* --- five post-loop 5fd0 groups --- */
         /* group offset 4: 465,275 + 8,480 + 380,480, last 0 */
-        func_002b2970(&work.s178, 0x1D1, 0.0f);
-        func_002b2970(&work.s170, 0x113, 0.0f);
-        func_002b29e0(&work.v110, 8.0f, 480.0f);
-        func_002b29e0(&work.v100, 380.0f, 480.0f);
-        func_002b5fd0(*(s32 *)(obj + 4), work.s178, work.s170, &work.v110, &work.v100, 0xF, 0);
+        func_002b2970(&work.s178.bits, 0x1D1, 0.0f);
+        func_002b2970(&work.s170.bits, 0x113, 0.0f);
+        func_002b29e0((u8 *)(&work.v110), 8.0f, 480.0f);
+        func_002b29e0((u8 *)(&work.v100), 380.0f, 480.0f);
+        func_002b5fd0((u8 *)*(s32 *)(obj + 4), work.s178.position, work.s170.position, &work.v110, &work.v100, 0xF, 0);
         /* group offset 8: same, last 2 */
-        func_002b2970(&work.s168, 0x1D1, 0.0f);
-        func_002b2970(&work.s160, 0x113, 0.0f);
-        func_002b29e0(&work.vF0, 8.0f, 480.0f);
-        func_002b29e0(&work.vE0, 380.0f, 480.0f);
-        func_002b5fd0(*(s32 *)(obj + 8), work.s168, work.s160, &work.vF0, &work.vE0, 0xF, 2);
+        func_002b2970(&work.s168.bits, 0x1D1, 0.0f);
+        func_002b2970(&work.s160.bits, 0x113, 0.0f);
+        func_002b29e0((u8 *)(&work.vF0), 8.0f, 480.0f);
+        func_002b29e0((u8 *)(&work.vE0), 380.0f, 480.0f);
+        func_002b5fd0((u8 *)*(s32 *)(obj + 8), work.s168.position, work.s160.position, &work.vF0, &work.vE0, 0xF, 2);
         /* group offset C: same, last 9 */
-        func_002b2970(&work.s158, 0x1D1, 0.0f);
-        func_002b2970(&work.s150, 0x113, 0.0f);
-        func_002b29e0(&work.vD0, 8.0f, 480.0f);
-        func_002b29e0(&work.vC0, 380.0f, 480.0f);
-        func_002b5fd0(*(s32 *)(obj + 0xC), work.s158, work.s150, &work.vD0, &work.vC0, 0xF, 9);
+        func_002b2970(&work.s158.bits, 0x1D1, 0.0f);
+        func_002b2970(&work.s150.bits, 0x113, 0.0f);
+        func_002b29e0((u8 *)(&work.vD0), 8.0f, 480.0f);
+        func_002b29e0((u8 *)(&work.vC0), 380.0f, 480.0f);
+        func_002b5fd0((u8 *)*(s32 *)(obj + 0xC), work.s158.position, work.s150.position, &work.vD0, &work.vC0, 0xF, 9);
         /* group offset 0x10: 8,480 + 8,480, last 9 */
-        func_002b2970(&work.s148, 0x1D1, 0.0f);
-        func_002b2970(&work.s140, 0x113, 0.0f);
-        func_002b29e0(&work.vB0, 8.0f, 480.0f);
-        func_002b29e0(&work.vA0, 8.0f, 480.0f);
-        func_002b5fd0(*(s32 *)(obj + 0x10), work.s148, work.s140, &work.vB0, &work.vA0, 0xF, 9);
+        func_002b2970(&work.s148.bits, 0x1D1, 0.0f);
+        func_002b2970(&work.s140.bits, 0x113, 0.0f);
+        func_002b29e0((u8 *)(&work.vB0), 8.0f, 480.0f);
+        func_002b29e0((u8 *)(&work.vA0), 8.0f, 480.0f);
+        func_002b5fd0((u8 *)*(s32 *)(obj + 0x10), work.s148.position, work.s140.position, &work.vB0, &work.vA0, 0xF, 9);
         /* group offset 0x14: 465,655 + 8,480 + 8,480, last 9 */
-        func_002b2970(&work.s138, 0x1D1, 0.0f);
-        func_002b2970(&work.s130, 0x28F, 0.0f);
-        func_002b29e0(&work.v90, 8.0f, 480.0f);
-        func_002b29e0(&work.v80, 8.0f, 480.0f);
-        func_002b5fd0(*(s32 *)(obj + 0x14), work.s138, work.s130, &work.v90, &work.v80, 0xF, 9);
+        func_002b2970(&work.s138.bits, 0x1D1, 0.0f);
+        func_002b2970(&work.s130.bits, 0x28F, 0.0f);
+        func_002b29e0((u8 *)(&work.v90), 8.0f, 480.0f);
+        func_002b29e0((u8 *)(&work.v80), 8.0f, 480.0f);
+        func_002b5fd0((u8 *)*(s32 *)(obj + 0x14), work.s138.position, work.s130.position, &work.v90, &work.v80, 0xF, 9);
         *(s8 *)(obj + 1) = 1;
         break;
     case 1:
         /* --- state-1 check: 5th handle via 5da0, -1 if byte==1 else 0 --- */
-        if (*(s8 *)func_002b5da0(*(s32 *)(obj + 0x14)) != 1) {
+        if (*(s8 *)func_002b5da0((u8 *)*(s32 *)(obj + 0x14)) != 1) {
             return 0;
         }
         return -1;
@@ -3950,7 +3956,7 @@ u8 *func_00349290(u8 *arg0, u8 arg1) {
 
     func_0044ea90(D_0064A4A0, 0x8B9);
     blk = D_008873F4[0](1, 0x18, 0x40000);
-    ret = (u8 *)func_00451fc0(arg0, D_0064A600, 0xF, 0, 0, (void (*)(u8 *))func_00348c40, func_00349260, blk);
+    ret = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A600), 0xF, 0, 0, func_00348c40, func_00349260, (u8 *)(blk));
     *(s8 *)(blk + 0) = arg1;
     *(s8 *)(blk + 1) = 0;
     return ret;

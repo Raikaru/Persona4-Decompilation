@@ -1,4 +1,6 @@
 #include "include_asm.h"
+#include "fcl_bounds_packet.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "shd_misc_internal.h"
 static inline s32 p4_pack_or(s32 left, s32 right)
@@ -163,16 +165,11 @@ void func_002b29a0(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
 // FUN_002B29E0
 void func_002b29e0(u8 *arg0, f32 arg1, f32 arg2)
 {
-    struct Float2Int2 {
-        f32 x;
-        f32 y;
-        s32 z;
-        s32 w;
-    } val;
+    FclBoundsPacket val;
 
-    val.z = (s32)arg1;
-    val.w = (s32)arg2;
-    *(struct Float2Int2 *)arg0 = val;
+    val.dimensions.width = (s32)arg1;
+    val.dimensions.height = (s32)arg2;
+    ((FclBoundsPacket *)arg0)->representation = val.representation;
 }
 // FUN_002B2A30
 s32 func_002b2a30(u8 arg0, u8 arg1, u8 arg2, u8 arg3)
@@ -1027,7 +1024,7 @@ void func_002b5c60(u8 *arg0)
 /* Floor: 288 differing words (probe_variants) over 278 fnalign edits, 335 emitted against */
 /* retail 336 (99.7%, 1340B/1360B window, 20B short). WALL: spill-offset rotation (retail src@0xF0/pos@0x120 */
 /* vs object src@0xE0/spC0@0xF0, invariant under decl/assign reorder) plus scheduling cascade; frame 0x130 both */
-/* sides, single saved-FP f20 (extra f21 fixed via int->float 9th arg). Honest levers: (f32)src.w cvt.s.w from */
+/* sides, single saved-FP f20 (extra f21 fixed via int->float 9th arg). Honest levers: (f32)src.dimensions.height cvt.s.w from */
 /* 0xFC (+15 instrs 320->335, 311->288 words), 22.0f/17.0f/284.0f/6.0f/18.0f/1.0f, s16 indices/s8 flags, block-scope */
 /* offsets, tmpCol byte-3 alpha, tmpA intermediate, swapped (0,alpha)/(alpha,0) 12-arg 002b83e0 calls. Ruled out: */
 /* opt_common_subs off (288->337 with cvt), srctemp (+21), !flag (+16), no-tmpCol (+10), f32-cast/mulswap neutral. */
@@ -1039,8 +1036,8 @@ void func_002b5c60(u8 *arg0)
 void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s64 arg6, s16 arg7, f32 fparg0, s8 arg_sp0)
 {
     extern void func_002b83e0(u8 *arg0, s64 arg1, s32 arg2, s32 arg3, u8 arg4, u8 arg5, s64 arg6, s64 arg7, f32 fparg0, f32 fparg1, s8 arg_sp0, s8 arg_sp8);
-    struct Src4 { f32 x; f32 y; s32 z; s32 w; } src;
-    struct Float4 { f32 x; f32 y; f32 z; f32 w; } copy1, copy2;
+    FclBoundsPacket src;
+    FclBoundsBytes copy1, copy2;
     struct Float2 { f32 x; f32 y; } pos1, pos2, tmpA, tmpB, tmpC;
     s64 field;
     u8 *object;
@@ -1076,7 +1073,7 @@ void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s
         *(f32 *)(slot + 0x1F8) = *(f32 *)(digit + 4);
         *(f32 *)(slot + 0x1FC) = *(f32 *)(digit + 8);
         *(f32 *)(slot + 0x200) = *(f32 *)(digit + 0xC);
-        copy1 = *(struct Float4 *)&src;
+        copy1 = src.representation;
         *(f32 *)(slot + 0x12C) = pos1.x;
         *(f32 *)(slot + 0x130) = pos1.y;
         *(f32 *)(slot + 0x1A0) = 1.0f;
@@ -1090,12 +1087,9 @@ void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s
         *(s32 *)(slot + 0x1C4) = 0;
         *(f32 *)(slot + 0x108) = fparg0;
         *(s16 *)(slot + 0x104) = (s16)(*(s16 *)(slot + 0x104) | 1);
-        *(f32 *)(slot + 0x204) = copy1.x;
-        *(f32 *)(slot + 0x208) = copy1.y;
-        *(f32 *)(slot + 0x20C) = copy1.z;
-        *(f32 *)(slot + 0x210) = copy1.w;
+        ((FclBoundsPacket *)(slot + 0x204))->representation = copy1;
         *(s16 *)(slot + 0x100) = arg7;
-        func_002b83e0(slot + 0x104, *(s64 *)((u8 *)&pos1), spCC, spCC, 0, ((u8 *)&spCC)[3], arg5, arg6, (f32)src.w, fparg0, arg_sp0, 0);
+        func_002b83e0(slot + 0x104, *(s64 *)((u8 *)&pos1), spCC, spCC, 0, ((u8 *)&spCC)[3], arg5, arg6, (f32)src.dimensions.height, fparg0, arg_sp0, 0);
     } else {
         u8 *slot;
         s32 offset;
@@ -1103,7 +1097,7 @@ void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s
         slot = *(u8 **)(object + 0x38) + offset;
         if ((*(s16 *)(slot + 0x104) & 1) == 1) {
             u8 *a0 = slot + 0x104;
-            func_002b83e0(a0, *(s64 *)(a0 + 0x28), *(s32 *)(a0 + 0x75), *(s32 *)(a0 + 0x75), *(u8 *)(a0 + 0x5E), 0, arg5, arg6, (f32)src.w, fparg0, arg_sp0, 0);
+            func_002b83e0(a0, *(s64 *)(a0 + 0x28), *(s32 *)(a0 + 0x75), *(s32 *)(a0 + 0x75), *(u8 *)(a0 + 0x5E), 0, arg5, arg6, (f32)src.dimensions.height, fparg0, arg_sp0, 0);
         }
     }
     if (flag == 0) {
@@ -1118,7 +1112,7 @@ void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s
             *(f32 *)(slot + 0x200) = *(f32 *)(digit + 0xC);
             func_002b2970((u8 *)&pos2, pos1.x - 18.0f, pos1.y);
             tmpA = pos2;
-            copy2 = *(struct Float4 *)&src;
+            copy2 = src.representation;
             tmpCol2 = spCC;
             *(f32 *)(slot + 0x12C) = tmpA.x;
             *(f32 *)(slot + 0x130) = tmpA.y;
@@ -1132,13 +1126,10 @@ void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s
             *(s32 *)(slot + 0x1C4) = 0;
             *(f32 *)(slot + 0x108) = fparg0;
             *(s16 *)(slot + 0x104) = (s16)(*(s16 *)(slot + 0x104) | 1);
-            *(f32 *)(slot + 0x204) = copy2.x;
-            *(f32 *)(slot + 0x208) = copy2.y;
-            *(f32 *)(slot + 0x20C) = copy2.z;
-            *(f32 *)(slot + 0x210) = copy2.w;
+            ((FclBoundsPacket *)(slot + 0x204))->representation = copy2;
             *(s16 *)(slot + 0x100) = arg7;
             func_002b2970((u8 *)&tmpB, pos1.x - 18.0f, pos1.y);
-            func_002b83e0(slot + 0x104, *(s64 *)((u8 *)&tmpB), spCC, spCC, 0, ((u8 *)&spCC)[3], arg5, arg6, (f32)src.w, fparg0, arg_sp0, 0);
+            func_002b83e0(slot + 0x104, *(s64 *)((u8 *)&tmpB), spCC, spCC, 0, ((u8 *)&spCC)[3], arg5, arg6, (f32)src.dimensions.height, fparg0, arg_sp0, 0);
         }
     } else {
         u8 *slot;
@@ -1148,7 +1139,7 @@ void func_002ba080(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s32 arg4, s64 arg5, s
         if ((*(s16 *)(slot + 0x104) & 1) == 1) {
             u8 *a0 = slot + 0x104;
             func_002b2970((u8 *)&tmpC, pos1.x - 18.0f, *(f32 *)(a0 + 0x2C));
-            func_002b83e0(a0, *(s64 *)((u8 *)&tmpC), *(s32 *)(a0 + 0x75), *(s32 *)(a0 + 0x75), *(u8 *)(a0 + 0x5E), 0, arg5, arg6, (f32)src.w, fparg0, arg_sp0, 0);
+            func_002b83e0(a0, *(s64 *)((u8 *)&tmpC), *(s32 *)(a0 + 0x75), *(s32 *)(a0 + 0x75), *(u8 *)(a0 + 0x5E), 0, arg5, arg6, (f32)src.dimensions.height, fparg0, arg_sp0, 0);
         }
     }
 }
@@ -1167,7 +1158,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002ba080);
 /* Guarded body: 186 words over 207 edits, 230/230 instrs (920B/928B, 8B zero tail); frame 0xC0 both sides, s1/s2 rotation remains. */
 void func_002ba5d0(u8 *arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s64 arg5, f32 fparg0)
 {
-    struct Float4 { f32 x; f32 y; f32 z; f32 w; } src, copy1, copy2;
+    FclBoundsPacket src;
+    FclBoundsBytes copy1, copy2;
     struct Float2 { f32 x; f32 y; } pos1, pos2;
     s64 field;
     u8 *object;
@@ -1200,7 +1192,7 @@ void func_002ba5d0(u8 *arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s64 arg5, f
         *(f32 *)(slot + 0x1F8) = *(f32 *)(digit + 4);
         *(f32 *)(slot + 0x1FC) = *(f32 *)(digit + 8);
         *(f32 *)(slot + 0x200) = *(f32 *)(digit + 0xC);
-        copy1 = src;
+        copy1 = src.representation;
         *(f32 *)(slot + 0x12C) = pos1.x;
         *(f32 *)(slot + 0x130) = pos1.y;
         *(f32 *)(slot + 0x1A0) = 1.0f;
@@ -1214,10 +1206,7 @@ void func_002ba5d0(u8 *arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s64 arg5, f
         *(s32 *)(slot + 0x1C4) = 0;
         *(f32 *)(slot + 0x108) = fparg0;
         *(s16 *)(slot + 0x104) = *(s16 *)(slot + 0x104) | 1;
-        *(f32 *)(slot + 0x204) = copy1.x;
-        *(f32 *)(slot + 0x208) = copy1.y;
-        *(f32 *)(slot + 0x20C) = copy1.z;
-        *(f32 *)(slot + 0x210) = copy1.w;
+        ((FclBoundsPacket *)(slot + 0x204))->representation = copy1;
         *(s16 *)(slot + 0x100) = field;
         *(s16 *)(slot + 0x104) = 0;
         *(s16 *)(slot + 0x104) = *(s16 *)(slot + 0x104) | 1;
@@ -1232,7 +1221,7 @@ void func_002ba5d0(u8 *arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s64 arg5, f
         *(f32 *)(slot + 0x1FC) = *(f32 *)(digit + 8);
         *(f32 *)(slot + 0x200) = *(f32 *)(digit + 0xC);
         func_002b2970((u8 *)&pos2, pos1.x - 18.0f, pos1.y);
-        copy2 = src;
+        copy2 = src.representation;
         *(f32 *)(slot + 0x12C) = pos2.x;
         *(f32 *)(slot + 0x130) = pos2.y;
         *(f32 *)(slot + 0x1A0) = 1.0f;
@@ -1246,10 +1235,7 @@ void func_002ba5d0(u8 *arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s64 arg5, f
         *(s32 *)(slot + 0x1C4) = 0;
         *(f32 *)(slot + 0x108) = fparg0;
         *(s16 *)(slot + 0x104) = *(s16 *)(slot + 0x104) | 1;
-        *(f32 *)(slot + 0x204) = copy2.x;
-        *(f32 *)(slot + 0x208) = copy2.y;
-        *(f32 *)(slot + 0x20C) = copy2.z;
-        *(f32 *)(slot + 0x210) = copy2.w;
+        ((FclBoundsPacket *)(slot + 0x204))->representation = copy2;
         *(s16 *)(slot + 0x100) = field;
         *(s16 *)(slot + 0x104) = 0;
         *(s16 *)(slot + 0x104) = *(s16 *)(slot + 0x104) | 1;

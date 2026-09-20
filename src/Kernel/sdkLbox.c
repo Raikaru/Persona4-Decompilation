@@ -1,5 +1,6 @@
 /* Original translation unit sdkLbox.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 extern void func_00453fa0();
 extern s32 func_00453e60();
@@ -8,8 +9,7 @@ extern void func_0046ea50();
 extern void func_0046ea60();
 extern void func_0044ea90(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c,
-                         void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
+
 extern void func_004535c0(u8 *a, s32 b, s32 c);
 extern void func_00453860(u8 *a, s32 b, s32 c, s32 d, s32 e);
 extern u8 D_00713118[];
@@ -17,7 +17,7 @@ extern void func_00442830(u8 *dst, u8 *src);
 extern void func_00453c80(u8 *arg0);
 extern s32 func_00453e10(u8 *arg0);
 extern u8 D_00713128[];
-extern void func_0046f2b0(u8 *arg0);
+extern s32 func_0046f2b0(u8 *task);
 extern void func_00470210(u8 *arg0);
 extern void func_00442088(void *buf, const void *fmt, ...);
 extern s32 func_00442948(const void *str);
@@ -47,8 +47,7 @@ s32 func_00470280(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     if (mem == NULL) {
         return 0;
     }
-    handle = func_00451fc0(arg0, D_00713128, 0x102, 0, 0, func_0046f2b0,
-                           func_00470210, mem);
+    handle = (s32)func_00451fc0((void *)(arg0), (const void *)(D_00713128), 0x102, 0, 0, func_0046f2b0, func_00470210, (u8 *)(mem));
     *(s32 *)(mem + 0x18) = arg1;
     *(s32 *)(mem + 0x1C) = arg2;
     *(s32 *)(mem + 0x20) = 0x80;

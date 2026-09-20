@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit evtScript.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
 extern void func_00106390();
@@ -19,7 +20,7 @@ extern u8 D_0063CFA0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u16 D_008C024E[];
 extern u8 D_00795E60[];
-extern s32 func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
+
 extern void *func_00460990(void);
 extern void func_00460ac0(void *param, void *work);
 extern s32 func_00452080(void *task);
@@ -61,7 +62,7 @@ extern void func_00271b70(u8 *arg0);
 extern f32 func_0044b7b0(f32 fparg0);
 extern f32 iGpffff8094;
 /* INCLUDE_ASM fallback below; address taken by func_00298550. */
-extern s32 func_00298370(void);
+extern s32 func_00298370(u8 *task);
 /* INCLUDE_ASM fallback below; address stored by func_00298b80. */
 extern void func_00298990(s32 arg0, s32 arg1);
 
@@ -71,7 +72,7 @@ extern void func_00298990(s32 arg0, s32 arg1);
 // retail never has.
 
 // FUN_00298370
-s32 func_00298370(void) {
+s32 func_00298370(u8 *unusedTask) {
     typedef struct { u8 b0; u8 b1; u8 b2; u8 b3; } EvtColor;
     s32 temp_2_2;
     u8 *temp_18;
@@ -107,7 +108,7 @@ s32 func_00298370(void) {
     return 0;
 }
 // FUN_00298510
-void func_00298510(void)
+void func_00298510(u8 *unusedTask)
 {
     int iVar1;
 
@@ -142,8 +143,7 @@ s32 func_00298550(void)
         if (*(s32 *)(work + 0) == 0) {
             func_0046d730(D_0063CF80, 0x52);
         }
-        func_00451fc0(0, D_0063CF90, 0xF, 0, 0, (void (*)(u8 *))func_00298370,
-                      (void (*)(u8 *))func_00298510, work);
+        (s32)func_00451fc0((void *)(0), (const void *)(D_0063CF90), 0xF, 0, 0, func_00298370, func_00298510, (u8 *)(work));
     } else {
         if (func_00452490(func_00452380((s8 *)D_0063CF90)) != 0) {
             goto done;
@@ -265,8 +265,9 @@ void func_00298990(s32 unused, s32 arg1) {
     }
 }
 // FUN_00298B80
-s32 func_00298b80(s32 arg0)
+s32 func_00298b80(u8 *sdkTaskBytes)
 {
+    s32 arg0 = (s32)sdkTaskBytes;
     u8 *base;
     u8 *p;
 
@@ -282,7 +283,7 @@ s32 func_00298b80(s32 arg0)
     return 0;
 }
 // FUN_00298C10
-void func_00298c10(void) {
+void func_00298c10(u8 *unusedTask) {
     u8 *p = (u8 *)func_00452560();
 
     func_00106390(0x1211, 0);
@@ -303,7 +304,6 @@ s32 func_00298c60(void)
     }
     v0 = func_00285af0();
     func_0044ea90(D_0063CF80, 0xF6);
-    func_00451fc0(v0, D_0063CFA0, 0xF, 0, 0, (void (*)(u8 *))func_00298b80,
-                  (void (*)(u8 *))func_00298c10, D_008873F4[0](1, 8, 0x40000));
+    (s32)func_00451fc0((void *)(v0), (const void *)(D_0063CFA0), 0xF, 0, 0, func_00298b80, func_00298c10, (u8 *)(D_008873F4[0](1, 8, 0x40000)));
     return 1;
 }
