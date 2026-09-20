@@ -1748,11 +1748,22 @@ void func_00256040(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
    iteration element pointer in $s5; the object has two fewer saved registers to spend.  Swapping
    the packed3/packed4 statement order to match retail's R48-R63 emission order was measured and
    is worse (155), so the source order is already right and the scheduler is reordering. */
-/* gate: func_002561f0 is OUTSIDE the +-3% band at 144 against retail 152 (-5.3%, band
-   148-157).  The object is eight instructions SHORT, and the note above says why: it saves
-   $s0-$s3 where retail saves $s0-$s5, so two register save/restore pairs and the spills that
-   go with them are missing.  Differing-word scores measured against this body are not
-   comparable to in-gate ones (handoff 7y); close the eight before reading any of them. */
+/* measured 002561f0 (batch, 2026-09-20): per-arm pointer materialization closes the eight.
+   Batch 1 counts (fnalign --candidate, retail 152) / words (probe_variants) / edits:
+   baseline 144/150/148; A u32-direct 144/150/148; B pair-only 145/149/149;
+   C rgba-once 141/147/142; D both-once-s32 142/148/143; E both-once-u32 142/148/143;
+   F per-arm-u32 149/149/132; G addrof-once 142/148/143; H fsplit-once 142/148/143.
+   Batch 2 all per-arm-u32, all 149 counts: J block-scope 149/149/132; K RGBA-star 149/149/132;
+   L addrof-pairs 149/149/132; M separate-locals 149/149/132; N interleave d-before-e
+   149/149/139; O for-loop 149/149/136; P declswap 149/149/132; Q fsplit 149/149/132.
+   Winner F kept as simplest tie: `u32 i` (Ghidra uint, IDA unsigned, retail sltiu at
+   0x563E8), `pairp = work.pairs + i` once per iteration and `p = (u8 *)&work.rgba[i]`
+   per arm (IDA v19-v22, retail sll/addu/addiu 0xC0/0x70 with sb 0/1/2/3 vs object folded
+   0xA0/0x50). Once-hoisted C/D/E/G/H shrink to 141-142; per-arm adds five (144->149,
+   inside 148-157, edits 148->132). Block/struct/addrof/separate/declswap/fsplit all tie;
+   interleave and for-loop cost edits. Remaining three short are the save/restore wall:
+   retail saves $s0-$s5 (frame 0x140) vs object $s0-$s3 (frame 0x120); two sq/lq pairs plus
+   one spill have no honest lever left in this batch. */
 // FUN_002561F0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002561f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s64 arg5, s64 arg6, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4) {
@@ -1760,19 +1771,20 @@ void func_002561f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s64 arg5, s64 arg6, f
     typedef union { struct { f32 x; f32 y; } f; struct { u32 w0; u32 w1; } w; s64 align; } Pair;
     typedef struct { RGBA rgba[16]; u8 scratch[16]; Pair pairs[16]; } Work;
     Work work;
-    Pair *pairp; u8 *p; u8 *base; s32 i; s32 count; u32 w0; u32 w1; Pair *src; Pair *dst;
+    Pair *pairp; u8 *p; u8 *base; u32 i; s32 count; u32 w0; u32 w1; Pair *src; Pair *dst;
     u32 packed; u32 packed2; u32 packed3; u32 packed4; f32 value2; f32 value3;
     s32 b0; s32 b1; s32 b2; s32 b3; s32 c0; s32 c1; s32 c2; s32 c3;
     s32 d0; s32 d1; s32 d2; s32 d3; s32 e0; s32 e1; s32 e2; s32 e3;
     src = (Pair *)D_00636310; dst = work.pairs; count = 16; do { w0 = src->w.w0; w1 = src->w.w1; src++; count--; dst->w.w0 = w0; dst->w.w1 = w1; dst++; } while (count > 0);
     i = 0; packed = arg0 << 8; b0 = (packed >> 24) & 0xFF; b1 = (packed >> 16) & 0xFF; b2 = arg0 & 0xFF; b3 = packed & 0xFF;
     value2 = ((f32)arg2 * 255.0f) / 255.0f; value3 = ((f32)arg3 * 255.0f) / 255.0f; packed2 = packed | arg1; c0 = (packed2 >> 24) & 0xFF; c1 = (packed2 >> 16) & 0xFF; c2 = (packed2 >> 8) & 0xFF; c3 = packed2 & 0xFF; packed4 = packed | (s32)value2; e0 = (packed4 >> 24); e1 = (packed4 >> 16); e2 = (packed4 >> 8); e3 = packed4; packed3 = packed | (s32)value3; d0 = (packed3 >> 24); d1 = (packed3 >> 16); d2 = (packed3 >> 8); d3 = packed3;
-    while (i < 16) {
-      work.pairs[i].f.x += fparg0; work.pairs[i].f.y += fparg1;
-      if (i == 0 || i == 1 || (u32)(i - 0xE) < 2U) { work.rgba[i].r = b0; work.rgba[i].g = b1; work.rgba[i].b = b2; work.rgba[i].a = b3; }
-      else if ((u32)(i - 6) < 4U) { work.rgba[i].r = e0; work.rgba[i].g = e1; work.rgba[i].b = e2; work.rgba[i].a = e3; }
-      else if ((u32)(i - 0xA) < 4U) { work.rgba[i].r = d0; work.rgba[i].g = d1; work.rgba[i].b = d2; work.rgba[i].a = d3; }
-      else { work.rgba[i].r = c0; work.rgba[i].g = c1; work.rgba[i].b = c2; work.rgba[i].a = c3; }
+    while (i < 16U) {
+      pairp = work.pairs + i;
+      pairp->f.x += fparg0; pairp->f.y += fparg1;
+      if (i == 0 || i == 1 || (u32)(i - 0xE) < 2U) { p = (u8 *)&work.rgba[i]; p[0] = b0; p[1] = b1; p[2] = b2; p[3] = b3; }
+      else if ((u32)(i - 6) < 4U) { p = (u8 *)&work.rgba[i]; p[0] = e0; p[1] = e1; p[2] = e2; p[3] = e3; }
+      else if ((u32)(i - 0xA) < 4U) { p = (u8 *)&work.rgba[i]; p[0] = d0; p[1] = d1; p[2] = d2; p[3] = d3; }
+      else { p = (u8 *)&work.rgba[i]; p[0] = c0; p[1] = c1; p[2] = c2; p[3] = c3; }
       i++;
     }
     base = (u8 *)work.rgba;

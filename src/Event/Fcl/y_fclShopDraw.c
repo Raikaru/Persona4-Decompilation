@@ -426,6 +426,14 @@ extern f32 fGpffff7ad4;
 /*   object 12083 -> 13362 (+1279, ABOVE upper 12801, OUTSIDE) and edits 20096 */
 /*   -> 20373 (+277) with guarded 10958 -> 11882 (+924): propagation is not the */
 /*   lever here. Both reverted; production stays at step 1 (12083 INSIDE). */
+/* helper evidence 002be530 (owner, 2026-09-20): retail has 1525 `jal`, every one */
+/*   to a `func_*` address, and 183 `cvt` with no helper anywhere - the three */
+/*   object helpers (2x `__fixsfdi` + 1x `__floatdisf`) cannot be legitimate. */
+/*   Witness pair at 0x002BF564-0x002BF59C and 0x002BF5A4-0x002BF5DC: */
+/*   `jal 0046b260/0046b2f0` -> `div.s` -> `cvt.w.s` -> `mfc1` -> */
+/*   `dsll32/dsra32 16` -> `sh 0x100/0x102`. Correct fix lengthens toward */
+/*   retail (cvt+extends outweigh the deleted `jal`), as seen on 002cb6c0 */
+/*   (+6 for two fixes); broad-narrowing all ~30 similar sites is refused. */
 // FUN_002BE530 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -1048,7 +1056,7 @@ s32 func_002be530(u8 *arg0)
     s64 temp_16_29;
     s64 temp_16_39;
     s64 temp_16_43;
-    s64 temp_16_44;
+    s32 temp_16_44;
     s64 temp_16_46;
     s64 temp_16_47;
     s64 temp_16_49;
@@ -1101,7 +1109,7 @@ s32 func_002be530(u8 *arg0)
     s64 temp_18_38;
     s64 temp_18_3;
     s64 temp_18_40;
-    s64 temp_18_41;
+    s32 temp_18_41;
     s64 temp_18_54;
     s64 temp_18_5;
     s64 temp_18_60;
@@ -2630,9 +2638,9 @@ loop_241:
             (*(u8 *)((u8 *)(temp_2_58) + (0x7B))) = sp73A;
             (*(u8 *)((u8 *)(temp_2_58) + (0x7C))) = sp73B;
             func_002e0940((void *)((*(s32 *)((u8 *)(temp_17) + (0xC64)))), 0, 0, 0, 0.0f, -4.0f);
-            temp_18_41 = (s64) (((s64)((320.0f - (*(f32 *)((u8 *)(&D_0063F5B8) + (0)))))) << 0x30) >> 0x30;
+            temp_18_41 = (s32)(320.0f - (*(f32 *)((u8 *)(&D_0063F5B8) + (0))));
             (*(s16 *)((u8 *)(func_002e04e0((void *)((*(s32 *)((u8 *)(temp_17) + (0xC64)))))) + (0x100))) = (s16) temp_18_41;
-            temp_16_44 = (s64) (((s64)(((*(f32 *)((u8 *)(&D_0063F5B8) + (4))) - 83.0f))) << 0x30) >> 0x30;
+            temp_16_44 = (s32)(((*(f32 *)((u8 *)(&D_0063F5B8) + (4))) - 83.0f));
             (*(s16 *)((u8 *)(func_002e04e0((void *)((*(s32 *)((u8 *)(temp_17) + (0xC64)))))) + (0x102))) = (s16) temp_16_44;
             func_002e06d0((void *)((*(s32 *)((u8 *)(temp_17) + (0xC64)))), 0, 0, 0, 0x3F800000, 0x3FC00000, 1.0f, 0x3F800000);
             (*(s8 *)((u8 *)(temp_17) + (0))) = 0x18;

@@ -42,32 +42,45 @@ establishes.  Treat a hit as a strong lead to verify, not a proven defect.
 from __future__ import annotations
 
 import re
-import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "tools"))
 
+import fnalign
+from measure_guarded import extract_guarded_body
+from verify import load_config
+
 HELPER = re.compile(r"__(?:fix|float|add|sub|mul|div|cmp|extend|trunc|neg|unord)\w*")
 RELOC = re.compile(r"R_MIPS_\w+:(\S+)")
 
 
-def helpers_in(rel: str, function: str) -> dict[str, int] | None:
-    """Return {helper: count} for the object compiled from the guarded body."""
-    # measure_guarded prints the object's relocations with their symbol names
-    # (`R_MIPS_26:__fixsfdi`); fnalign's listing shows the call as `jal 0`
-    # with the name stripped, so it cannot see helper calls at all.
-    out = subprocess.run(
-        [sys.executable, "-E", "-s", "tools/measure_guarded.py", rel, function],
-        cwd=REPO, capture_output=True, text=True, timeout=1800).stdout
-    if "GUARDED_SCORE" not in out:
-        return None
-    found: dict[str, int] = {}
-    for name in RELOC.findall(out):
-        if HELPER.fullmatch(name):
-            found[name] = found.get(name, 0) + 1
-    return found
+def helpers_in(rel: str, function: str) -> list[tuple[int, str]] | None:
+    """Return [(object byte offset, helper name)] for the guarded body.
+
+    The offset is what makes this usable.  Counting alone stalls the moment a
+    body has more candidate sites than helper calls: y_fclShopDraw's
+    `func_002be530` has about thirty float-to-s64 stores and eleven of the
+    reverse, yet emits only three helpers, and narrowing all of them to find
+    the three would have cost roughly 120 instructions and pushed the floor
+    out of the band.  The relocation already knows where the call is, so say
+    so.
+    """
+    source = REPO / rel
+    text = source.read_text(errors="replace")
+    marker = "FUN_" + function[-8:].upper()
+    with tempfile.TemporaryDirectory() as scratch:
+        candidate = Path(scratch) / f"{function}.c"
+        try:
+            candidate.write_text(extract_guarded_body(text, marker, function))
+            _body, relocations = fnalign._object_for(source, function, candidate,
+                                                     load_config())
+        except BaseException:
+            return None
+    return sorted((int(r["offset"]), r["symbol"]) for r in relocations
+                  if r.get("symbol") and HELPER.fullmatch(r["symbol"]))
 
 
 def main() -> None:
@@ -79,11 +92,9 @@ def main() -> None:
         found = helpers_in(rel, function)
         if not found:
             continue
-        total = sum(found.values())
-        detail = "  ".join(f"{name} x{count}"
-                           for name, count in sorted(found.items(), key=lambda kv: -kv[1]))
-        print(f"{function}  {total} helper calls in the OBJECT "
-              f"(retail side not machine-checked): {detail}", flush=True)
+        sites = "  ".join(f"{name}@+{offset:#x}" for offset, name in found)
+        print(f"{function}  {len(found)} helper calls in the OBJECT "
+              f"(retail side not machine-checked): {sites}", flush=True)
 
 
 if __name__ == "__main__":

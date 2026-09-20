@@ -74,5 +74,27 @@ class ScopeWordingTests(unittest.TestCase):
         self.assertEqual(done.stdout.strip(), "")
 
 
+class SiteReportingTests(unittest.TestCase):
+    """A count alone stalls as soon as a body has more candidate sites than
+    helper calls.  `func_002be530` has roughly thirty float-to-s64 stores and
+    eleven of the reverse but emits only three helpers; narrowing all of them
+    to find the three would have cost about 120 instructions and pushed the
+    floor out of the band.  The relocation already knows where the call is."""
+
+    def test_each_site_is_reported_with_its_object_offset(self) -> None:
+        source = (REPO / "tools" / "libcall_scan.py").read_text()
+        self.assertIn('f"{name}@+{offset:#x}"', source)
+
+    def test_the_offsets_come_from_the_relocation_not_from_parsed_text(self) -> None:
+        """Scraping measure_guarded's stdout cost a second compile and gave no
+        position at all; reading the ELF relocation gives both."""
+        source = (REPO / "tools" / "libcall_scan.py").read_text()
+        self.assertIn('r["offset"]', source)
+        self.assertNotIn("subprocess", source)
+
+    def test_a_floor_with_no_guarded_body_is_skipped_not_crashed(self) -> None:
+        self.assertIsNone(libcall_scan.helpers_in("src/promoted/code1_0039.c",
+                                                  "func_003962e0"))
+
 if __name__ == "__main__":
     unittest.main()

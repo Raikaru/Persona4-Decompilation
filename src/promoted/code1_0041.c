@@ -73,11 +73,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00412e90);
 // FUN_00412FB0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00412fb0);
 
-/* measured: MWCC frameless, object 164B/window 192B, normalized_diff 35; archived body keeps retail null-check chain and index staging. Parent strict-vs-inclusive lever tried: `> count-1` measures nd 36 vs `>= count` nd 35, so the sltu $v0/$at coloring is not the main residual; the dominant residual is div-vs-magic for /40 (object div, retail mult magic). No loop entry-guard slt $at pattern, so the parent (s64)0 lever does not apply. Body at docs/probe_archive/K414_00413290_body.c. */
-/* gate: object 41 against retail 47, -12.8% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured: MWCC frameless, object 192B/window 192B, normalized_diff 38; else-if sentinel (index = -1 plus index == -1 check) closes the six-instruction deficit (was 164B/41 vs retail 47, -12.8%). Retail shares a single index = -1 site; this body keeps two assignments (if/else-if), hence the $t0 spill. Dominant word residual remains div-vs-magic for /40 (object div, retail mult magic), which is -O2 vs -O2,p flag-walled per handoff and not source-shape. Parent strict-vs-inclusive lever tried: `> count-1` nd 36 vs `>= count` nd 35 on the old body, so sltu coloring is not the main residual. */
 // FUN_00413290 NONMATCHING
 #ifdef NON_MATCHING
 u8 *func_00413290(u8 *arg0, u32 *arg1, u8 **arg2) {
@@ -89,7 +85,12 @@ u8 *func_00413290(u8 *arg0, u32 *arg1, u8 **arg2) {
     }
     base = *(u8 **)(arg0 + 8);
     index = ((u8 *)arg2 - base) / 40;
-    if (base + index * 40 != (u8 *)arg2 || (u32)index >= *(u32 *)(arg0 + 4)) {
+    if (base + index * 40 != (u8 *)arg2) {
+        index = -1;
+    } else if ((u32)index >= *(u32 *)(arg0 + 4)) {
+        index = -1;
+    }
+    if (index == -1) {
         return NULL;
     }
     *arg1 = index;
