@@ -177,10 +177,18 @@ def main() -> None:
                         # 35 instructions buried in `replace` hunks.  A floor
                         # can be comfortably in band and still be missing a
                         # whole block of retail code.
+                        # CAVEAT, found by measuring func_003599c0: a pure
+                        # delete run is not automatically missing code.  That
+                        # floor reads missing 223 / extra 212 while its actual
+                        # deficit is 17, and deficit_scan classes every large
+                        # run CROSS - they pair with each other rather than
+                        # describing content.  So report the net alongside:
+                        # `missing` is an UPPER BOUND on unwritten code and
+                        # the net count difference is the floor under it.
                         if (got == want and missing and extra) or \
                            (missing >= 10 and extra >= 1):
                             cancelled.append((missing + extra, missing, extra,
-                                              want, name,
+                                              want, got - want, name,
                                               str(path.relative_to(REPO))))
                 else:
                     outside.append((abs(drift), drift, got, want, name,
@@ -199,9 +207,10 @@ def main() -> None:
     if split:
         print(f"\n{len(split)} floors are inside the gate but hide a pure hole "
               "against a pure lump (handoff 7aa)")
-    for _key, missing, extra, want, name, source in sorted(cancelled, reverse=True):
-        print(f"  CANCELLED  missing {missing:4d}  extra {extra:4d}  of {want:5d}"
-              f"  {name}  {source}")
+    for _key, missing, extra, want, net, name, source in sorted(cancelled,
+                                                                reverse=True):
+        print(f"  CANCELLED  missing {missing:4d}  extra {extra:4d}"
+              f"  net {net:+5d}  of {want:5d}  {name}  {source}")
     if cancelled:
         print(f"\n{len(cancelled)} floors are inside the gate while still MISSING"
               "\nretail instructions and emitting others the retail does not have."

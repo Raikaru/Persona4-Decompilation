@@ -511,7 +511,7 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
 #pragma opt_propagation off
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
-void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
+s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
 
 {
     extern void *func_003d5790(int, int);
@@ -1128,6 +1128,22 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
                   *(float *)(param_3 + 10) = *(float *)(param_3 + 10) + fStack_36c * temp_v21;
                   *(float *)(param_3 + 0xc) = *(float *)(param_3 + 0xc) + fStack_368 * temp_v21;
                   *(float *)(param_3 + 0xe) = fStack_374 * temp_v20 + fStack_364 * temp_v21;
+                  /* gate 1370-52blend: third instance of the 1060/1124 blend shape. */
+                  /* dest param_3+0x10, retail 0x4724B4-0x472524 blend arm only. */
+                  /* mul-factor temp_v20 (= retail f0, Horner#3 output), mac-factor */
+                  /* temp_v21 (= retail f20). Slot names from matched instance one */
+                  /* by construction (0x1e0 spill is fStack_370). */
+                  /* measured 1776+28=1804 (blend arm only). UNPAIRED: our compiler */
+                  /* holds param_3 in $s3, retail in $s2, so composition stays flat */
+                  /* (missing 114/extra 8) for that reason, not because the block */
+                  /* is wrong; it pairs when the base-register blocker clears. */
+                  *(float *)(param_3 + 0x10) = fStack_380 * temp_v20;
+                  *(float *)(param_3 + 0x14) = fStack_37c * temp_v20;
+                  *(float *)(param_3 + 0x18) = fStack_378 * temp_v20;
+                  *(float *)(param_3 + 0x10) = *(float *)(param_3 + 0x10) + fStack_370 * temp_v21;
+                  *(float *)(param_3 + 0x14) = *(float *)(param_3 + 0x14) + fStack_36c * temp_v21;
+                  *(float *)(param_3 + 0x18) = *(float *)(param_3 + 0x18) + fStack_368 * temp_v21;
+                  *(float *)(param_3 + 0x1c) = fStack_374 * temp_v20 + fStack_364 * temp_v21;
                 }
               }
             }
@@ -1387,7 +1403,7 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       func_00397c40(param_1);
     }
   }
-  return;
+  return 1;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471370);
@@ -1398,7 +1414,7 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471370);
    Production guarded, fallback INCLUDE_ASM retained. */
 
 extern void func_00397c40(void* a, void* b);
-extern void func_00471370(u8 *a, u8 *b, u8 *c, void *d);
+extern s32 func_00471370(u8 *a, u8 *b, u8 *c, void *d);
 // FUN_00472F30
 void func_00472f30(u8* param_1, int param_2)
 {

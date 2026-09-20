@@ -1045,17 +1045,12 @@ void func_004a3640(u8 *arg0)
                 e1C = *(f32 *)(pvar20 + 0x1C);
                 ang = st * (e18 + 0.5f * (dc * st)) + e1C;
                 s10a = *(f32 *)(pvar20 + 0x10) + *(f32 *)(pvar20 + 0x14);
-                *(f32 *)(pvar20 + 0x10) = s10a;
                 s10b = *(f32 *)(pvar20 + 0x8) + *(f32 *)(pvar20 + 0xC);
                 *(f32 *)(pvar20 + 0x8) = s10b;
+                *(f32 *)(pvar20 + 0x14) = s10a - baseE4 * st;
                 scl = quarter * *(f32 *)(pvar20 + 0x20);
-                e18v = *(f32 *)(pvar20 + 0x18);
                 e24 = *(f32 *)(pvar20 + 0x24);
-                if (e18v < 0.0f) {
-                    d2 = -e24 / var_f25;
-                } else {
-                    d2 = e24 / var_f25;
-                }
+                d2 = e24 / var_f25;
                 d1 = s10a / var_f25;
                 acc0 = 0.0f;
                 div2 = d2;
