@@ -6760,24 +6760,89 @@ block_399:
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e6f0);
 #endif
 
-/* measured: banked floor nd 512 (obj 2532B/window 2592B, 60B under; frame -0xA0 vs retail -0x90, extra s7). Switch-dispatch (0x200,0x400,0x100,2,4) beats || (512 vs 563); scoped-reuse 581/541; staged t/ok temps best. Saved-register rotation (obj arg2=$s6/tmp=$s0/arg3=$s1 vs retail $s2/$s6/$s0) + s7 cascades (retail 646 vs obj 631 instrs). Prior nd-521 rotation floor corroborated; 10 gp loads pragma-n/a; 4-arg s32 ABI verified, no caller change. Production stays ASM; floor in SKIP_ASM + docs/probe_archive/DC_002411a0_body.c. */
-/* measured 002411a0: `opt_common_subs off` inside the guard is worth 39 words (512 -> 473); retail rematerialises what b210 hoists. */
-/* measured 002411a0 (WWidthD): `total >= 0x65` -> `total > 0x64` gives retail `slti $at,$s0,0x65` (was `$v0`), fnalign 318 -> 316 edits at 646/646 via `tools/fnalign.py --candidate`, words 473 via `tools/measure_guarded.py` unchanged; `tools/wscan_pairs.py` 12 vs 11 (1 excess 0x10 pair, middle t-blocks); pragmas via `tools/probe_variants.py` on the slti base (re-measured singly post-flock): `schedule on` 571 (+98), `opt_propagation off` 514 (+41), `opt_loop_invariants on` 473 (neutral), all three 571; widths: `s16 lvl` 477, nocast 488, `s32 i` 498, `s32 kind` 499, `s32 id_2` 494, `s32 id16`/`s32 id`/`s32 id16_2` neutral 473; rotation + extra s7 wall stands. */
-/* measured 002411a0 (owner, 2026-09-19): fnalign **316 -> 315 edits**, count
-   646 -> 644 against retail 646, converting a SECOND constant-bound `for` loop
-   to `do { } while` after the first conversion was already banked.
-   The lever is iterative, which the first sweep hid: it converts the single best loop
-   per function, so re-running it after installing finds the next one.  The third pass
-   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
+/* measured 002411a0: configured b210 gives 16 differing words, including after
+ * resolving all 70 relocations, at 2588/2592B (four zero tail bytes). The prior
+ * guarded draft is 473 words at 2584B. Restoring the actual repeated searches,
+ * native conversion boundaries and conversion-before-bonus order removes the
+ * extra saved-register pressure. opt_loop_invariants on scopes the searches;
+ * opt_common_subs on scopes the main body. The initial index/element register
+ * assignment still differs. All 79 siblings and allocated data are unchanged.
+ * The fifth argument is passed by func_001f14f0 and unused by retail.
+ * See docs/probe_archive/DC_worker7_20260920_recovery_floors.md. */
 // FUN_002411A0 NONMATCHING
 #ifdef SKIP_ASM
-#pragma opt_common_subs off
-s32 func_002411a0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
+#pragma push
+#pragma opt_loop_invariants on
+static inline u8 *DC411SkillTable(u8 *arg0)
+{
+    if (!(*(u16 *)arg0 & 4)) {
+        if (*(u16 *)(arg0 + 2) >= 0xB) {
+            func_0046d730(D_00635938, 0xFA5);
+        }
+        return func_001094e0(*(u16 *)(arg0 + 2));
+    }
+    if (*(u16 *)(arg0 + 2) >= 0x150) {
+        func_0046d730(D_00635938, 0xFA8);
+    }
+    return iGpffffb3c4 + *(u16 *)(arg0 + 2) * 0x3C + 0xE;
+}
+
+static inline s32 DC411HasFixedSkill(u8 *unit, s32 requestedSkill)
+{
+    s32 skill;
+    s32 index;
+    u8 *table;
+    s32 equipment;
+
+    table = DC411SkillTable(unit);
+    index = 0;
+    skill = requestedSkill & 0xFFFF;
+    while ((index & 0xFFFF) < 8) {
+        if (skill == *(u16 *)(table + (u16)index * 2)) {
+            return 1;
+        }
+        index = (index + 1) & 0xFFFF;
+    }
+    if (!(*(u16 *)unit & 4)) {
+        equipment = (u32)(u16)func_00106cd0(*(s16 *)(unit + 2), 2);
+        if (equipment >= 0) {
+            if (skill == func_001069a0((s16)equipment)) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+static inline s32 DC411HasEquipmentProperty(u8 *unit, s32 property)
+{
+    u16 character;
+
+    if (*(u16 *)unit & 4) {
+        return 0;
+    }
+    character = *(u16 *)(unit + 2);
+    if ((s32)character >= 0xB) {
+        func_0046d730(D_00635938, 0x23B);
+    }
+    if ((func_001069d0(func_00106cd0((s16)character, 0)) & 0xFFFF) == property) {
+        return 1;
+    }
+    if ((func_001069d0(func_00106cd0((s16)character, 1)) & 0xFFFF) == property) {
+        return 1;
+    }
+    return 0;
+}
+
+#pragma opt_common_subs on
+s32 func_002411a0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     s32 idx;
     s32 tmp22;
     s32 lvl;
     s32 bits;
+    u16 element;
+    u16 enemyElement;
     s32 res;
     s32 base;
     s32 thresh;
@@ -6805,50 +6870,44 @@ s32 func_002411a0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
     case 4:
         return 1;
     }
-    idx = arg2 & 0xFFFF;
-    if ((arg0 != 0) && (tmp22 < 0x1B8) && ((iGpffffb3b8[idx * 0x28] & 2) != 0)) {
+    if ((arg0 != 0) && (tmp22 < 0x1B8) && ((iGpffffb3b8[(idx = (u32)arg2 % 0x10000U) * 0x28] & 2) != 0)) {
         if ((*(u16 *)arg0 & 4) != 0) {
             id16 = *(u16 *)(arg0 + 2);
-            lvl = (s16)(u8)iGpffffb3c4[id16 * 0x3C + 0x38];
+            enemyElement = iGpffffb3c4[id16 * 0x3C + 0x38];
+            lvl = (s16)enemyElement;
         } else {
-            lvl = (s16)func_00106a30((s16)func_00106cd0(*(s16 *)(arg0 + 2), 0));
+            element = func_00106cd0(*(s16 *)(arg0 + 2), 0);
+            lvl = (s16)func_00106a30((s16)element);
         }
     } else {
-        idx = arg2 & 0xFFFF;
+        idx = (u32)arg2 % 0x10000U;
         lvl = *(s8 *)(iGpffffb3b4 + idx * 2);
     }
-    if ((s16)lvl >= 0x13) {
+    bits = (s16)lvl;
+    if (bits >= 0x13) {
         func_0046d730(D_00635938, 0xE47);
     }
-    bits = 1 << ((s16)lvl + 1);
+    bits = 1U << (bits + 1);
     if ((bits & 0xE0001) != 0) {
         return 1;
     }
     res = func_00242800(arg1, lvl);
     if (((bits & 2) == 0) && (((bits & 0x40) == 0) || (iGpffffb3b8[idx * 0x28 + 2] != 1))) {
-        if ((res & 0x08000000) == 0) {
-            return 1;
+        if (res & 0x08000000) {
+            return 4;
         }
-        return 4;
+        return 1;
     }
-    entry = iGpffffb3b8 + idx * 0x28;
-    if (entry[0x25] == 0) {
-        if ((res & 0x08000000) == 0) {
-            return 1;
-        }
-        return 4;
+    idx *= 0x28;
+    entry = iGpffffb3b8;
+    if (entry[idx + 0x25] == 0) {
+        return (res & 0x08000000) != 0 ? 4 : 1;
     }
     if ((*(u16 *)arg1 & 0x80) != 0) {
-        if ((res & 0x08000000) == 0) {
-            return 1;
-        }
-        return 4;
+        return (res & 0x08000000) != 0 ? 4 : 1;
     }
     if ((*(u16 *)arg0 & 4) == (*(u16 *)arg1 & 4)) {
-        if ((res & 0x08000000) == 0) {
-            return 1;
-        }
-        return 4;
+        return (res & 0x08000000) != 0 ? 4 : 1;
     }
     if ((res & 0x08000000) != 0) {
         return 4;
@@ -6859,169 +6918,69 @@ s32 func_002411a0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
     base = 0;
     thresh = 0;
     f20 = 1.0f;
-    entry = iGpffffb3b8 + idx * 0x28;
-    if (entry[0x25] == 0x64) {
+    entry = iGpffffb3b8;
+    if (entry[idx + 0x25] == 0x64) {
         base = 0x64;
         thresh = 0x64;
     }
-    kind = entry[2];
-    if (kind == 2) {
-        return 1;
-    }
-    if (kind != 1) {
-        func_0046d730(D_00635938, 0x12EF);
-        return 1;
-    }
-    if (base == 0) {
-        base = func_00244f60(5, arg0, arg1, arg2, 0);
-    }
-    if ((*(u16 *)arg1 & 4) == 0) {
-        if (*(u16 *)(arg1 + 2) >= 0xB) {
-            func_0046d730(D_00635938, 0xFA5);
+    switch (entry[idx + 2]) {
+    case 1:
+        if (base == 0) {
+            base = func_00244f60(5, arg0, arg1, arg2, 0);
         }
-        tab = func_001094e0(*(u16 *)(arg1 + 2));
-    } else {
-        if (*(u16 *)(arg1 + 2) >= 0x150) {
-            func_0046d730(D_00635938, 0xFA8);
+        if (DC411HasFixedSkill(arg1, 0x206)) {
+            f20 = f20 * 0.5f;
         }
-        tab = iGpffffb3c4 + *(u16 *)(arg1 + 2) * 0x3C + 0xE;
-    }
-    found = 0;
-    for (i = 0; i < 8; i++) {
-        if (*(u16 *)(tab + i * 2) == 0x206) {
-            found = 1;
-            break;
+        if (DC411HasFixedSkill(arg0, 0x207)) {
+            f20 = f20 * 2.0f;
         }
-    }
-    if (found == 0) {
-        if ((*(u16 *)arg1 & 4) == 0) {
-            s32 t;
-            t = func_00106cd0(*(s16 *)(arg1 + 2), 2) & 0xFFFF;
-            if ((t >= 0) && (func_001069a0((s16)t) == 0x206)) {
-                found = 1;
+        scaled = (s32)((f32)base * f20);
+        bonus = 0;
+        if (tmp22 >= 0x1B8) {
+            func_0046d730(D_00635938, 0xF5E);
+        }
+        if ((u8)((iGpffffb3b8[idx] & 2) != 0)) {
+            if (DC411HasEquipmentProperty(arg0, 0x3C)) {
+                bonus += 5;
+            }
+            if (DC411HasEquipmentProperty(arg0, 0x3D)) {
+                bonus += 10;
+            }
+            if (DC411HasEquipmentProperty(arg0, 0x3E)) {
+                bonus += 15;
             }
         }
-    }
-    if (found != 0) {
-        f20 = 1.0f * 0.5f;
-    }
-    if ((*(u16 *)arg0 & 4) == 0) {
-        if (*(u16 *)(arg0 + 2) >= 0xB) {
-            func_0046d730(D_00635938, 0xFA5);
+        if (func_002332a0(arg0, 5) > 0) {
+            bonus += 7;
         }
-        tab = func_001094e0(*(u16 *)(arg0 + 2));
-    } else {
-        if (*(u16 *)(arg0 + 2) >= 0x150) {
-            func_0046d730(D_00635938, 0xFA8);
-        }
-        tab = iGpffffb3c4 + *(u16 *)(arg0 + 2) * 0x3C + 0xE;
-    }
-    found = 0;
-    i = 0;
-    do {
-        if (*(u16 *)(tab + i * 2) == 0x207) {
-            found = 1;
-            break;
-        }
-        i++;
-    } while (i < 8);
-    if (found == 0) {
-        if ((*(u16 *)arg0 & 4) == 0) {
-            s32 t;
-            t = func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF;
-            if ((t >= 0) && (func_001069a0((s16)t) == 0x207)) {
-                found = 1;
-            }
-        }
-    }
-    if (found != 0) {
-        f20 = f20 * 2.0f;
-    }
-    if (tmp22 >= 0x1B8) {
-        func_0046d730(D_00635938, 0xF5E);
-    }
-    bonus = 0;
-    if ((iGpffffb3b8[idx * 0x28] & 2) != 0) {
-        s32 ok;
-        u16 id16_2;
-        s16 id_2;
-        if ((*(u16 *)arg0 & 4) == 0) {
-            id16_2 = *(u16 *)(arg0 + 2);
-            if (id16_2 >= 0xB) {
-                func_0046d730(D_00635938, 0x23B);
-            }
-            id_2 = (s16)id16_2;
-            if (((func_001069d0(func_00106cd0(id_2, 0)) & 0xFFFF) == 0x3C) || ((func_001069d0(func_00106cd0(id_2, 1)) & 0xFFFF) == 0x3C)) {
-                ok = 1;
-            } else {
-                ok = 0;
-            }
-        } else {
-            ok = 0;
-        }
-        if (ok != 0) {
-            bonus = 5;
-        }
-        if ((*(u16 *)arg0 & 4) == 0) {
-            id16_2 = *(u16 *)(arg0 + 2);
-            if (id16_2 >= 0xB) {
-                func_0046d730(D_00635938, 0x23B);
-            }
-            id_2 = (s16)id16_2;
-            if (((func_001069d0(func_00106cd0(id_2, 0)) & 0xFFFF) == 0x3D) || ((func_001069d0(func_00106cd0(id_2, 1)) & 0xFFFF) == 0x3D)) {
-                ok = 1;
-            } else {
-                ok = 0;
-            }
-        } else {
-            ok = 0;
-        }
-        if (ok != 0) {
-            bonus += 10;
-        }
-        if ((*(u16 *)arg0 & 4) == 0) {
-            id16_2 = *(u16 *)(arg0 + 2);
-            if (id16_2 >= 0xB) {
-                func_0046d730(D_00635938, 0x23B);
-            }
-            id_2 = (s16)id16_2;
-            if (((func_001069d0(func_00106cd0(id_2, 0)) & 0xFFFF) == 0x3E) || ((func_001069d0(func_00106cd0(id_2, 1)) & 0xFFFF) == 0x3E)) {
-                ok = 1;
-            } else {
-                ok = 0;
-            }
-        } else {
-            ok = 0;
-        }
-        if (ok != 0) {
+        if (func_002332a0(arg0, 6) > 0) {
             bonus += 15;
         }
-    }
-    if (func_002332a0(arg0, 5) > 0) {
-        bonus += 7;
-    }
-    if (func_002332a0(arg0, 6) > 0) {
-        bonus += 15;
-    }
-    scaled = (s32)((f32)base * f20);
-    total = scaled + bonus;
-    if (total > 0x64) {
-        total = 0x64;
-    } else if (total < 0) {
-        total = 0;
-    }
-    if ((s32)(func_003b7060() % 100) < thresh) {
-        return 2;
-    }
-    if ((s32)(func_003b7060() % 100) < 0) {
-        return 2;
-    }
-    if ((s32)(func_003b7060() % 100) < total) {
-        return 2;
+        total = scaled + bonus;
+        if (total > 0x64) {
+            total = 0x64;
+        } else if (total < 0) {
+            total = 0;
+        }
+        if ((s32)(func_003b7060() % 100) < thresh) {
+            return 2;
+        }
+        if ((s32)(func_003b7060() % 100) < 0) {
+            return 2;
+        }
+        if ((s32)(func_003b7060() % 100) < total) {
+            return 2;
+        }
+        break;
+    case 2:
+        break;
+    default:
+        func_0046d730(D_00635938, 0x12EF);
+        break;
     }
     return 1;
 }
-#pragma opt_common_subs on
+#pragma pop
 #else
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_002411a0);
 #endif
