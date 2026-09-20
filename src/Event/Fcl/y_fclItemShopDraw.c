@@ -25,6 +25,20 @@ extern f32 D_0064A2A0[];
 extern f32 D_0064A2A8[];
 extern f32 D_0064A338[];
 extern f32 D_0064A094[];
+extern f32 D_0064A1F0[];
+extern f32 D_0064A1F8[];
+extern f32 D_0064A200[];
+extern f32 D_0064A208[];
+extern f32 D_0064A220[];
+extern f32 D_0064A228[];
+extern f32 D_0064A230[];
+extern f32 D_0064A318[];
+extern f32 D_0064A320[];
+extern f32 D_0064A340[];
+extern f32 D_0064A348[];
+extern f32 D_0064A350[];
+extern f32 D_0064A358[];
+extern void func_0033d420(void *arg0, s64 arg1, s64 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
 
 
 extern f32 iGpffff8504;

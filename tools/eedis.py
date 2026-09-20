@@ -44,11 +44,20 @@ REGISTERS = (
     "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra",
 )
 
-QUADWORD = {0x1E: "lq", 0x1F: "sq"}
+# Major opcodes 0x36 and 0x3E are LDC2/SDC2 in the MIPS64 map, which on the
+# EE are the VU quadword transfers `lqc2`/`sqc2`.  Capstone reads them as
+# Octeon's `bbit0`/`bbit1` - branch-on-bit - and renders the 16-bit
+# displacement as a BRANCH TARGET computed from the pc.  That is worse than
+# the `??` it gives `lq`/`sq`: two byte-identical `lqc2` rows at different
+# addresses disassemble to different text and compare UNEQUAL, so every VU
+# load and store in a function counted as an alignment edit.  On
+# `func_00485870` all ten of its remaining edits were this.
+QUADWORD = {0x1E: "lq", 0x1F: "sq", 0x36: "lqc2", 0x3E: "sqc2"}
+VECTOR_DESTINATION = {"lqc2", "sqc2"}
 
 
 def quadword_access(word: bytes) -> str | None:
-    """`lq`/`sq` text for WORD, or None when it is some other instruction."""
+    """`lq`/`sq`/`lqc2`/`sqc2` text for WORD, or None for anything else."""
     if len(word) < 4:
         return None
     value = struct.unpack("<I", word[:4])[0]
@@ -56,7 +65,8 @@ def quadword_access(word: bytes) -> str | None:
     if mnemonic is None:
         return None
     base = REGISTERS[(value >> 21) & 0x1F]
-    rt = REGISTERS[(value >> 16) & 0x1F]
+    index = (value >> 16) & 0x1F
+    rt = f"$vf{index}" if mnemonic in VECTOR_DESTINATION else REGISTERS[index]
     offset = value & 0xFFFF
     if offset >= 0x8000:
         offset -= 0x10000
