@@ -776,6 +776,23 @@ void func_004b8f10(void *arg0) {
    The lever is iterative, which the first sweep hid: it converts the single best loop
    per function, so re-running it after installing finds the next one.  The third pass
    improved 14 more floors, `func_001ed700` by 89 edits on its own. */
+/* measured 004b8f40 (2026-09-20): fnalign 2907 -> 1716 edits, words 1848 -> 1807,
+   object 1875 -> 1932 instrs against retail 1929 (exact count). Spill gap IS
+   reachable from source. regsave_scan showed the object saving $f25-$f31 at frame
+   0x220 where retail saves $f20-$f24 at frame 0x1A0. Three composed changes:
+   (a) 26 f32 intermediates (fetch/diff/sum/prev/bezier/norm trios) into one
+   address-taken struct S (12 -> 6 saved FPRs; address-taken scalars and plain
+   arrays do NOT drop saves, the aggregate does); (b) u64 prev/first-point puns
+   (uStack_38/68) as plain struct floats (retail has plain moves, no sll/or);
+   (c) the three temp_v0 ==2/1/0 dispatch chains rewired to check-2,1,0 with bodies
+   laid 0,1,2 via goto (retail checks 2,1,0 with an explicit 0-check but lays out
+   bodies 0,1,2; a plain if/else-if lays 2,1,0). Exact retail saved set $f20-$f24
+   reproduced two ways (fStack_20 scalar, temp_v10 scalar) but both measure worse in
+   words (1812 vs 1807: layout dominates), so the 6-save goto body stands.
+   Remaining: 13 hoisted quadword address spills (frame 0x220 vs 0x1A0; retail
+   recomputes the ==1/==2-nest addresses per fetch and hoists only the ==0 outer
+   address to slot 192 plus $s7) and GPR colouring/member order. Do NOT repeat the
+   nine banned accumulator spellings (all neutral/worse) or switch spelling (+5). */
 // FUN_004B8F40 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation on
@@ -808,69 +825,48 @@ void func_004b8f40(u8 *work, void **pp)
   f32 temp_v10;
   f32 temp_v11;
   s32 iStack_d0;
-  f32 fStack_c0;
-  f32 fStack_bc;
-  f32 fStack_b8;
-  f32 fStack_b4;
-  f32 fStack_b0;
-  f32 fStack_ac;
-  f32 fStack_a8;
-  f32 fStack_a4;
-  f32 fStack_a0;
-  f32 fStack_9c;
-  f32 fStack_98;
-  f32 fStack_94;
-  u64 uStack_68;
-  f32 fStack_60;
-  f32 fStack_58;
-  f32 fStack_54;
-  f32 fStack_50;
-  f32 fStack_48;
-  f32 fStack_44;
-  f32 fStack_40;
-  u64 uStack_38;
-  f32 fStack_30;
-  f32 fStack_28;
-  f32 fStack_24;
   f32 fStack_20;
-  f32 fStack_18;
-  f32 fStack_14;
-  f32 fStack_10;
   u32 uStack_8;
+  struct { f32 fStack_c0; f32 fStack_bc; f32 fStack_b8; f32 fStack_b4; f32 fStack_b0; f32 fStack_ac; f32 fStack_a8; f32 fStack_a4; f32 fStack_a0; f32 fStack_9c; f32 fStack_98; f32 fStack_94; f32 fStack_60; f32 fStack_58; f32 fStack_54; f32 fStack_50; f32 fStack_48; f32 fStack_44; f32 fStack_40; f32 fStack_30; f32 fStack_28; f32 fStack_24; f32 fStack_18; f32 fStack_14; f32 fStack_10; f32 prevX; f32 prevY; f32 firstX; f32 firstY; } S;
   f32 fStack_4;
   
   func_003c2290(*pp,0x1a);
   if (((*(u32 *)effAfterOffsetPtr(4, work) & 1) != 0) || ((~*(u32 *)effAfterOffsetPtr(4, work) & 2) != 0)) {
     temp_v0 = *(s16 *)effAfterOffsetPtr(0x38, work);
-    if (temp_v0 == 2) {
+    if (temp_v0 == 2) goto La2;
+    if (temp_v0 == 1) goto La1;
+    if (temp_v0 == 0) goto La0;
+    goto Lad;
+  La0:
+    {
       pbVar12 = *(u8 **)effAfterOffsetPtr(0x30, (u8 *)*pp);
-      func_004bc540(work,1,pbVar12,0.0f);
-      func_004bc540(work,1,effAfterOffsetPtr(4, pbVar12),0.0f);
-      temp_v5 = *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) * 3;
-      func_004bc540(work,1,pbVar12 + (temp_v5 + 3) * 4,1.0f);
-      func_004bc540(work,1,pbVar12 + (temp_v5 + 4) * 4,1.0f);
-      temp_v9 = (f32)*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) + 0.5f;
-      temp_v7 = 1.0f / temp_v9;
-      temp_v11 = 0.5f / temp_v9;
-      pbVar2 = pbVar12;
-      for (temp_v1 = 0; temp_v1 < *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work); temp_v1 = temp_v1 + 1) {
-        func_004bc540(work,1,effAfterOffsetPtr(0xc, pbVar2),temp_v11);
-        func_004bc540(work,1,effAfterOffsetPtr(0x10, pbVar2),temp_v11);
-        temp_v11 = temp_v11 + temp_v7;
-        pbVar2 = effAfterOffsetPtr(0xc, pbVar2);
-      }
-      func_004bc540(work,0,effAfterOffsetPtr(8, pbVar12),0.0f);
-      func_004bc540(work,0,pbVar12 + (temp_v5 + 5) * 4,1.0f);
-      temp_v9 = 1.0f / temp_v9;
-      pbVar12 = effAfterOffsetPtr(0x14, pbVar12);
-      temp_v7 = temp_v9;
       for (temp_v5 = 0; temp_v5 < *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work); temp_v5 = temp_v5 + 1) {
-        func_004bc540(work,0,pbVar12,temp_v7);
-        temp_v7 = temp_v7 + temp_v9;
-        pbVar12 = effAfterOffsetPtr(0xc, pbVar12);
+        if (*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1 < 1) {
+          func_0046d730(D_007146E0,0x3d1);
+        }
+        if (temp_v5 == 0) {
+          fStack_4 = 0.0f / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1);
+        }
+        else {
+          fStack_4 = ((f32)temp_v5 - 0.5f) / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1);
+        }
+        func_004bc540(work,0,pbVar12,fStack_4);
+        pbVar12 = effAfterOffsetPtr(8, pbVar12);
+      }
+      func_004bc540(work,0,pbVar12,1.0f);
+      pbVar12 = (u8 *)(*(s32 *)effAfterOffsetPtr(0x30, (u8 *)*pp) + 4);
+      for (temp_v5 = 0; temp_v5 < *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work); temp_v5 = temp_v5 + 1) {
+        if (*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1 < 1) {
+          func_0046d730(D_007146E0,0x3dc);
+        }
+        fStack_4 = (f32)temp_v5 / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1);
+        func_004bc540(work,1,pbVar12,fStack_4);
+        pbVar12 = effAfterOffsetPtr(8, pbVar12);
       }
     }
-    else if (temp_v0 == 1) {
+    goto Lad;
+  La1:
+    {
       pbVar12 = *(u8 **)effAfterOffsetPtr(0x30, (u8 *)*pp);
       func_004bc540(work,0,pbVar12,0.0f);
       func_004bc540(work,1,effAfterOffsetPtr(4, pbVar12),0.0f);
@@ -912,57 +908,47 @@ void func_004b8f40(u8 *work, void **pp)
         pbVar12 = effAfterOffsetPtr(0xc, pbVar12);
       }
     }
-    else if (temp_v0 == 0) {
+    goto Lad;
+  La2:
+    {
       pbVar12 = *(u8 **)effAfterOffsetPtr(0x30, (u8 *)*pp);
-      for (temp_v5 = 0; temp_v5 < *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work); temp_v5 = temp_v5 + 1) {
-        if (*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1 < 1) {
-          func_0046d730(D_007146E0,0x3d1);
-        }
-        if (temp_v5 == 0) {
-          fStack_4 = 0.0f / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1);
-        }
-        else {
-          fStack_4 = ((f32)temp_v5 - 0.5f) / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1);
-        }
-        func_004bc540(work,0,pbVar12,fStack_4);
-        pbVar12 = effAfterOffsetPtr(8, pbVar12);
+      func_004bc540(work,1,pbVar12,0.0f);
+      func_004bc540(work,1,effAfterOffsetPtr(4, pbVar12),0.0f);
+      temp_v5 = *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) * 3;
+      func_004bc540(work,1,pbVar12 + (temp_v5 + 3) * 4,1.0f);
+      func_004bc540(work,1,pbVar12 + (temp_v5 + 4) * 4,1.0f);
+      temp_v9 = (f32)*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) + 0.5f;
+      temp_v7 = 1.0f / temp_v9;
+      temp_v11 = 0.5f / temp_v9;
+      pbVar2 = pbVar12;
+      for (temp_v1 = 0; temp_v1 < *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work); temp_v1 = temp_v1 + 1) {
+        func_004bc540(work,1,effAfterOffsetPtr(0xc, pbVar2),temp_v11);
+        func_004bc540(work,1,effAfterOffsetPtr(0x10, pbVar2),temp_v11);
+        temp_v11 = temp_v11 + temp_v7;
+        pbVar2 = effAfterOffsetPtr(0xc, pbVar2);
       }
-      func_004bc540(work,0,pbVar12,1.0f);
-      pbVar12 = (u8 *)(*(s32 *)effAfterOffsetPtr(0x30, (u8 *)*pp) + 4);
+      func_004bc540(work,0,effAfterOffsetPtr(8, pbVar12),0.0f);
+      func_004bc540(work,0,pbVar12 + (temp_v5 + 5) * 4,1.0f);
+      temp_v9 = 1.0f / temp_v9;
+      pbVar12 = effAfterOffsetPtr(0x14, pbVar12);
+      temp_v7 = temp_v9;
       for (temp_v5 = 0; temp_v5 < *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work); temp_v5 = temp_v5 + 1) {
-        if (*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1 < 1) {
-          func_0046d730(D_007146E0,0x3dc);
-        }
-        fStack_4 = (f32)temp_v5 / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1);
-        func_004bc540(work,1,pbVar12,fStack_4);
-        pbVar12 = effAfterOffsetPtr(8, pbVar12);
+        func_004bc540(work,0,pbVar12,temp_v7);
+        temp_v7 = temp_v7 + temp_v9;
+        pbVar12 = effAfterOffsetPtr(0xc, pbVar12);
       }
     }
+  Lad:;
     *(u32 *)effAfterOffsetPtr(4, work) = *(u32 *)effAfterOffsetPtr(4, work) | 2;
   }
   if (*(s32 *)effAfterOffsetPtr(8, work) < 2) {
     temp_v0 = *(s16 *)effAfterOffsetPtr(0x38, work);
-    if (temp_v0 == 2) {
-      temp_v5 = *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work);
-      puVar13 = *(u32 **)(*(s32 *)effAfterOffsetPtr(0x5c, (u8 *)*pp) + 0x14);
-      for (temp_v1 = 0; temp_v1 < temp_v5 * 3 + 6; temp_v1 = temp_v1 + 1) {
-        *puVar13 = 0;
-        puVar13[1] = 0;
-        puVar13[2] = 0;
-        puVar13 = puVar13 + 3;
-      }
-    }
-    else if (temp_v0 == 1) {
-      temp_v5 = *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work);
-      puVar13 = *(u32 **)(*(s32 *)effAfterOffsetPtr(0x5c, (u8 *)*pp) + 0x14);
-      for (temp_v1 = 0; temp_v1 < temp_v5 * 3 + 6; temp_v1 = temp_v1 + 1) {
-        *puVar13 = 0;
-        puVar13[1] = 0;
-        puVar13[2] = 0;
-        puVar13 = puVar13 + 3;
-      }
-    }
-    else if (temp_v0 == 0) {
+    if (temp_v0 == 2) goto Lb2;
+    if (temp_v0 == 1) goto Lb1;
+    if (temp_v0 == 0) goto Lb0;
+    goto Lbd;
+  Lb0:
+    {
       puVar13 = *(u32 **)(*(s32 *)effAfterOffsetPtr(0x5c, (u8 *)*pp) + 0x14);
       puVar10 = puVar13 + *(s32 *)effAfterOffsetPtr(0x14, (u8 *)*pp) * 3;
       for (temp_v5 = 0; temp_v5 < *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) + 1; temp_v5 = temp_v5 + 1) {
@@ -985,214 +971,142 @@ void func_004b8f40(u8 *work, void **pp)
         puVar13 = puVar13 + 6;
       }
     }
+    goto Lbd;
+  Lb1:
+    {
+      temp_v5 = *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work);
+      puVar13 = *(u32 **)(*(s32 *)effAfterOffsetPtr(0x5c, (u8 *)*pp) + 0x14);
+      for (temp_v1 = 0; temp_v1 < temp_v5 * 3 + 6; temp_v1 = temp_v1 + 1) {
+        *puVar13 = 0;
+        puVar13[1] = 0;
+        puVar13[2] = 0;
+        puVar13 = puVar13 + 3;
+      }
+    }
+    goto Lbd;
+  Lb2:
+    {
+      temp_v5 = *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work);
+      puVar13 = *(u32 **)(*(s32 *)effAfterOffsetPtr(0x5c, (u8 *)*pp) + 0x14);
+      for (temp_v1 = 0; temp_v1 < temp_v5 * 3 + 6; temp_v1 = temp_v1 + 1) {
+        *puVar13 = 0;
+        puVar13[1] = 0;
+        puVar13[2] = 0;
+        puVar13 = puVar13 + 3;
+      }
+    }
+  Lbd:;
   }
   else {
     temp_v0 = *(s16 *)effAfterOffsetPtr(0x38, work);
-    if (temp_v0 == 2) {
-      temp_v9 = *(f32 *)effAfterOffsetPtr(0x14, *(u8 **)work) / 2.0f;
-      temp_v5 = func_00457120();
-      temp_v5 = *(s32 *)effAfterOffsetPtr(4, (u8 *)temp_v5);
-      pfVar16 = (f32 *)(temp_v5 + 0x40);
-      pfVar17 = *(f32 **)(*(s32 *)effAfterOffsetPtr(0x5c, (u8 *)*pp) + 0x14);
-      temp_v7 = (f32)*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) + 0.5f;
-      temp_v11 = 1.0f / temp_v7;
-      temp_v7 = 0.5f / temp_v7;
-      temp_v6 = 0xffffffff;
-      temp_v1 = *(s32 *)effAfterOffsetPtr(0xc, work) - 1;
-      if (temp_v1 < 0) {
-        temp_v1 = temp_v1 + *(s32 *)effAfterOffsetPtr(8, work);
-      }
-      puVar4 = (u64 *)effAfterOffsetPtr(temp_v1 * 0xc, (u8 *)*(u8 **)effAfterOffsetPtr(0x10, work));
-      uStack_38 = *puVar4;
-      fStack_30 = *(f32 *)(puVar4 + 1);
+    if (temp_v0 == 2) goto Lc2;
+    if (temp_v0 == 1) goto Lc1;
+    if (temp_v0 == 0) goto Lc0;
+    goto Lcd;
+  Lc0:
+    {
+      temp_v5 = *(s32 *)(*(s32 *)effAfterOffsetPtr(0x5c, (u8 *)*pp) + 0x14);
+      pfVar17 = (f32 *)(temp_v5 + *(s32 *)effAfterOffsetPtr(0x14, (u8 *)*pp) * 0xc);
       temp_v1 = 0;
-      pfVar3 = pfVar17;
-      while (1) {
-        if (*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) <= temp_v1) break;
-        func_004b7460(work,temp_v7,&uStack_8,&fStack_4);
-        if (uStack_8 != temp_v6) {
-          temp_v4 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - uStack_8;
-          if (temp_v4 < 0) {
-            temp_v4 = temp_v4 + *(s32 *)effAfterOffsetPtr(8, work);
+      do {
+        pfVar16 = (f32 *)(temp_v5 + temp_v1 * 0xc);
+        temp_v6 = 0xffffffff;
+        if (temp_v1 == 1) {
+          iStack_d0 = *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1;
+        }
+        else if (temp_v1 == 0) {
+          iStack_d0 = *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work);
+        }
+        for (temp_v4 = 0; temp_v4 < iStack_d0; temp_v4 = temp_v4 + 1) {
+          if (*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1 < 1) {
+            func_0046d730(D_007146E0,0x480);
           }
-          temp_v3 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - (uStack_8 + 1);
-          if (temp_v3 < 0) {
-            temp_v3 = temp_v3 + *(s32 *)effAfterOffsetPtr(8, work);
+          if (temp_v1 == 0) {
+            if (temp_v4 == 0) {
+              func_004b7460(work,0.0f / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1),&uStack_8,
+                            &fStack_4);
+            }
+            else {
+              func_004b7460(work,((f32)temp_v4 - 0.5f) /
+                                    (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1),&uStack_8,&fStack_4
+                           );
+            }
           }
-          temp_v4 = temp_v4 * 0xc;
-          pfVar6 = (f32 *)effAfterOffsetPtr(temp_v4, (u8 *)*(u8 **)effAfterOffsetPtr(0x10, work));
-          fStack_c0 = *pfVar6;
-          fStack_bc = pfVar6[1];
-          fStack_b8 = pfVar6[2];
-          pfVar5 = (f32 *)effAfterOffsetPtr(temp_v4, (u8 *)*(u8 **)effAfterOffsetPtr(0x18, work));
-          fStack_b4 = *pfVar6 - *pfVar5;
-          fStack_b0 = pfVar6[1] - pfVar5[1];
-          fStack_ac = pfVar6[2] - pfVar5[2];
-          pfVar6 = (f32 *)effAfterOffsetPtr(temp_v4, (u8 *)*(u8 **)effAfterOffsetPtr(0x1c, work));
-          pfVar5 = (f32 *)effAfterOffsetPtr(temp_v3 * 0xc, (u8 *)*(u8 **)effAfterOffsetPtr(0x10, work));
-          fStack_a8 = *pfVar5 + *pfVar6;
-          fStack_a4 = pfVar5[1] + pfVar6[1];
-          fStack_a0 = pfVar5[2] + pfVar6[2];
-          fStack_9c = *pfVar5;
-          fStack_98 = pfVar5[1];
-          fStack_94 = pfVar5[2];
-          temp_v6 = uStack_8;
+          else {
+            func_004b7460(work,(f32)temp_v4 / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1),
+                          &uStack_8,&fStack_4);
+          }
+          if (uStack_8 != temp_v6) {
+            temp_v3 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - uStack_8;
+            if (temp_v3 < 0) {
+              temp_v3 = temp_v3 + *(s32 *)effAfterOffsetPtr(8, work);
+            }
+            temp_v2 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - (uStack_8 + 1);
+            if (temp_v2 < 0) {
+              temp_v2 = temp_v2 + *(s32 *)effAfterOffsetPtr(8, work);
+            }
+            temp_v3 = temp_v3 * 0xc;
+            pfVar5 = (f32 *)(*(s32 *)(effAfterOffsetPtr(temp_v1 * 4 + 0x10, work)) + temp_v3);
+            S.fStack_c0 = *pfVar5;
+            S.fStack_bc = pfVar5[1];
+            S.fStack_b8 = pfVar5[2];
+            pfVar3 = (f32 *)(*(s32 *)(effAfterOffsetPtr(temp_v1 * 8 + 0x18, work)) + temp_v3);
+            S.fStack_b4 = *pfVar5 - *pfVar3;
+            S.fStack_b0 = pfVar5[1] - pfVar3[1];
+            S.fStack_ac = pfVar5[2] - pfVar3[2];
+            pfVar5 = (f32 *)(*(s32 *)(effAfterOffsetPtr(temp_v1 * 8 + 0x1c, work)) + temp_v3);
+            pfVar3 = (f32 *)(*(s32 *)(effAfterOffsetPtr(temp_v1 * 4 + 0x10, work)) + temp_v2 * 0xc);
+            S.fStack_a8 = *pfVar3 + *pfVar5;
+            S.fStack_a4 = pfVar3[1] + pfVar5[1];
+            S.fStack_a0 = pfVar3[2] + pfVar5[2];
+            S.fStack_9c = *pfVar3;
+            S.fStack_98 = pfVar3[1];
+            S.fStack_94 = pfVar3[2];
+            temp_v6 = uStack_8;
+          }
+          temp_v7 = 1.0f - fStack_4;
+          if (pfVar17 <= pfVar16) {
+            func_0046d730(D_007146E0,0x49d);
+          }
+          *pfVar16 = S.fStack_9c * fStack_4 * fStack_4 * fStack_4 +
+                     S.fStack_a8 * fStack_4 * temp_v7 * 3.0f * fStack_4 +
+                     S.fStack_c0 * temp_v7 * temp_v7 * temp_v7 +
+                     S.fStack_b4 * temp_v7 * temp_v7 * 3.0f * fStack_4;
+          pfVar16[1] = S.fStack_98 * fStack_4 * fStack_4 * fStack_4 +
+                       S.fStack_a4 * fStack_4 * temp_v7 * 3.0f * fStack_4 +
+                       S.fStack_bc * temp_v7 * temp_v7 * temp_v7 +
+                       S.fStack_b0 * temp_v7 * temp_v7 * 3.0f * fStack_4;
+          pfVar16[2] = S.fStack_94 * fStack_4 * fStack_4 * fStack_4 +
+                       S.fStack_a0 * fStack_4 * temp_v7 * 3.0f * fStack_4 +
+                       S.fStack_b8 * temp_v7 * temp_v7 * temp_v7 +
+                       S.fStack_ac * temp_v7 * temp_v7 * 3.0f * fStack_4;
+          pfVar16 = pfVar16 + 6;
         }
-        temp_v8 = 1.0f - fStack_4;
-        fStack_28 = fStack_9c * fStack_4 * fStack_4 * fStack_4 +
-                    fStack_a8 * fStack_4 * temp_v8 * 3.0f * fStack_4 +
-                    fStack_c0 * temp_v8 * temp_v8 * temp_v8 +
-                    fStack_b4 * temp_v8 * temp_v8 * 3.0f * fStack_4;
-        temp_v10 = fStack_98 * fStack_4 * fStack_4 * fStack_4 +
-                 fStack_a4 * fStack_4 * temp_v8 * 3.0f * fStack_4 +
-                 fStack_bc * temp_v8 * temp_v8 * temp_v8 + fStack_b0 * temp_v8 * temp_v8 * 3.0f * fStack_4
-        ;
-        temp_v8 = fStack_94 * fStack_4 * fStack_4 * fStack_4 +
-                 fStack_a0 * fStack_4 * temp_v8 * 3.0f * fStack_4 +
-                 fStack_b8 * temp_v8 * temp_v8 * temp_v8 + fStack_ac * temp_v8 * temp_v8 * 3.0f * fStack_4
-        ;
-        if (temp_v1 == 0) {
-          uStack_68 = (((u64)(*(u32 *)&temp_v10) << 32) | *(u32 *)&fStack_28);
-          fStack_60 = temp_v8;
+        temp_v4 = *(s32 *)effAfterOffsetPtr(0xc, work) - *(s32 *)effAfterOffsetPtr(8, work);
+        if (temp_v4 < 0) {
+          temp_v4 = temp_v4 + *(s32 *)effAfterOffsetPtr(8, work);
         }
-        fStack_18 = *pfVar16 - fStack_28;
-        fStack_14 = *(f32 *)effAfterOffsetPtr(0x44, (u8 *)temp_v5) - temp_v10;
-        fStack_10 = *(f32 *)effAfterOffsetPtr(0x48, (u8 *)temp_v5) - temp_v8;
-        fStack_24 = temp_v10;
-        fStack_20 = temp_v8;
-        func_003e40b0(&fStack_18,&fStack_18);
-        fStack_48 = (*(f32 *)&uStack_38) - fStack_28;
-        fStack_44 = (*(f32 *)effAfterOffsetPtr(4, (u8 *)&uStack_38)) - temp_v10;
-        fStack_40 = fStack_30 - temp_v8;
-        func_003e40b0(&fStack_48,&fStack_48);
-        fStack_58 = fStack_14 * fStack_40 - fStack_10 * fStack_44;
-        fStack_54 = fStack_10 * fStack_48 - fStack_18 * fStack_40;
-        fStack_50 = fStack_18 * fStack_44 - fStack_14 * fStack_48;
-        func_003e40b0(&fStack_58,&fStack_58);
-        temp_v8 = fStack_10 * fStack_40 + fStack_18 * fStack_48 + fStack_14 * fStack_44;
-        if (temp_v8 < 0.0f) {
-          temp_v8 = temp_v8 * -1.0f;
+        if (pfVar17 <= pfVar16) {
+          func_0046d730(D_007146E0,0x4ae);
         }
-        temp_v8 = temp_v9 * (1.0f - temp_v8 * temp_v8 * temp_v8);
-        fStack_58 = fStack_58 * temp_v8;
-        fStack_54 = fStack_54 * temp_v8;
-        fStack_50 = fStack_50 * temp_v8;
-        pfVar3[9] = fStack_28 + fStack_58;
-        pfVar3[10] = fStack_24 + fStack_54;
-        pfVar3[0xb] = fStack_20 + fStack_50;
-        pfVar3[0xc] = fStack_28 - fStack_58;
-        pfVar3[0xd] = fStack_24 - fStack_54;
-        pfVar3[0xe] = fStack_20 - fStack_50;
-        uStack_38 = (((u64)(*(u32 *)&fStack_24) << 32) | *(u32 *)&fStack_28);
-        fStack_30 = fStack_20;
-        temp_v7 = temp_v7 + temp_v11;
-        temp_v1 = temp_v1 + 1;
-        pfVar3 = pfVar3 + 9;
-      }
-      temp_v1 = *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) * 3;
-      temp_v4 = temp_v1 + 6;
-      pfVar3 = pfVar17 + (temp_v1 + 3) * 3;
-      temp_v1 = *(s32 *)effAfterOffsetPtr(0xc, work) - *(s32 *)effAfterOffsetPtr(8, work);
-      if (temp_v1 < 0) {
-        temp_v1 = temp_v1 + *(s32 *)effAfterOffsetPtr(8, work);
-      }
-      pfVar5 = (f32 *)effAfterOffsetPtr(temp_v1 * 0xc, (u8 *)*(u8 **)effAfterOffsetPtr(0x10, work));
-      fStack_28 = *pfVar5;
-      temp_v7 = pfVar5[1];
-      temp_v11 = pfVar5[2];
-      fStack_18 = *pfVar16 - fStack_28;
-      fStack_14 = *(f32 *)effAfterOffsetPtr(0x44, (u8 *)temp_v5) - temp_v7;
-      fStack_10 = *(f32 *)effAfterOffsetPtr(0x48, (u8 *)temp_v5) - temp_v11;
-      fStack_24 = temp_v7;
-      fStack_20 = temp_v11;
-      func_003e40b0(&fStack_18,&fStack_18);
-      fStack_48 = (*(f32 *)&uStack_38) - fStack_28;
-      fStack_44 = (*(f32 *)effAfterOffsetPtr(4, (u8 *)&uStack_38)) - temp_v7;
-      fStack_40 = fStack_30 - temp_v11;
-      func_003e40b0(&fStack_48,&fStack_48);
-      fStack_58 = fStack_14 * fStack_40 - fStack_10 * fStack_44;
-      fStack_54 = fStack_10 * fStack_48 - fStack_18 * fStack_40;
-      fStack_50 = fStack_18 * fStack_44 - fStack_14 * fStack_48;
-      func_003e40b0(&fStack_58,&fStack_58);
-      temp_v7 = fStack_10 * fStack_40 + fStack_18 * fStack_48 + fStack_14 * fStack_44;
-      if (temp_v7 < 0.0f) {
-        temp_v7 = temp_v7 * -1.0f;
-      }
-      temp_v7 = temp_v9 * (1.0f - temp_v7 * temp_v7 * temp_v7);
-      fStack_58 = fStack_58 * temp_v7;
-      fStack_54 = fStack_54 * temp_v7;
-      fStack_50 = fStack_50 * temp_v7;
-      *pfVar3 = fStack_28 + fStack_58;
-      pfVar3[1] = fStack_24 + fStack_54;
-      pfVar3[2] = fStack_20 + fStack_50;
-      pfVar3[3] = fStack_28 - fStack_58;
-      pfVar3[4] = fStack_24 - fStack_54;
-      pfVar3[5] = fStack_20 - fStack_50;
-      pfVar17[temp_v4 * 3 - 3] = pfVar17[temp_v4 * 3 - 9] + pfVar17[temp_v4 * 3 - 6];
-      pfVar17[temp_v4 * 3 - 2] = pfVar17[temp_v4 * 3 - 8] + pfVar17[temp_v4 * 3 - 5];
-      pfVar17[temp_v4 * 3 - 1] = pfVar17[temp_v4 * 3 - 7] + pfVar17[temp_v4 * 3 - 4];
-      pfVar17[temp_v4 * 3 - 3] = pfVar17[temp_v4 * 3 - 3] * 0.5f;
-      pfVar17[temp_v4 * 3 - 2] = pfVar17[temp_v4 * 3 - 2] * 0.5f;
-      pfVar17[temp_v4 * 3 - 1] = pfVar17[temp_v4 * 3 - 1] * 0.5f;
-      temp_v1 = *(s32 *)effAfterOffsetPtr(0xc, work) - 1;
-      if (temp_v1 < 0) {
-        temp_v1 = temp_v1 + *(s32 *)effAfterOffsetPtr(8, work);
-      }
-      pfVar3 = (f32 *)effAfterOffsetPtr(temp_v1 * 0xc, (u8 *)*(u8 **)effAfterOffsetPtr(0x10, work));
-      temp_v10 = *pfVar3;
-      temp_v11 = pfVar3[1];
-      temp_v8 = pfVar3[2];
-      fStack_18 = *pfVar16 - temp_v10;
-      fStack_14 = *(f32 *)effAfterOffsetPtr(0x44, (u8 *)temp_v5) - temp_v11;
-      fStack_10 = *(f32 *)effAfterOffsetPtr(0x48, (u8 *)temp_v5) - temp_v8;
-      temp_v7 = temp_v11;
-      func_003e40b0(&fStack_18,&fStack_18);
-      fStack_48 = temp_v10 - (*(f32 *)&uStack_68);
-      fStack_44 = temp_v7 - (*(f32 *)effAfterOffsetPtr(4, (u8 *)&uStack_68));
-      fStack_40 = temp_v8 - fStack_60;
-      func_003e40b0(&fStack_48,&fStack_48);
-      fStack_58 = fStack_14 * fStack_40 - fStack_10 * fStack_44;
-      fStack_54 = fStack_10 * fStack_48 - fStack_18 * fStack_40;
-      fStack_50 = fStack_18 * fStack_44 - fStack_14 * fStack_48;
-      func_003e40b0(&fStack_58,&fStack_58);
-      temp_v7 = fStack_10 * fStack_40 + fStack_18 * fStack_48 + fStack_14 * fStack_44;
-      if (temp_v7 < 0.0f) {
-        temp_v7 = temp_v7 * -1.0f;
-      }
-      temp_v9 = temp_v9 * (1.0f - temp_v7 * temp_v7 * temp_v7);
-      fStack_58 = fStack_58 * temp_v9;
-      fStack_54 = fStack_54 * temp_v9;
-      fStack_50 = fStack_50 * temp_v9;
-      *pfVar17 = temp_v10 + fStack_58;
-      pfVar17[1] = temp_v11 + fStack_54;
-      pfVar17[2] = temp_v8 + fStack_50;
-      pfVar17[3] = temp_v10 - fStack_58;
-      pfVar17[4] = temp_v11 - fStack_54;
-      pfVar17[5] = temp_v8 - fStack_50;
-      pfVar17[6] = *pfVar17 + pfVar17[3];
-      pfVar17[7] = pfVar17[1] + pfVar17[4];
-      pfVar17[8] = pfVar17[2] + pfVar17[5];
-      pfVar17[6] = pfVar17[6] * 0.5f;
-      pfVar17[7] = pfVar17[7] * 0.5f;
-      pfVar17[8] = pfVar17[8] * 0.5f;
-      pfVar17 = pfVar17 + 0xf;
-      for (temp_v5 = 0; temp_v5 < *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work); temp_v5 = temp_v5 + 1) {
-        *pfVar17 = pfVar17[-6] + pfVar17[-3];
-        pfVar17[1] = pfVar17[-5] + pfVar17[-2];
-        pfVar17[2] = pfVar17[-4] + pfVar17[-1];
-        *pfVar17 = *pfVar17 + pfVar17[3];
-        pfVar17[1] = pfVar17[1] + pfVar17[4];
-        pfVar17[2] = pfVar17[2] + pfVar17[5];
-        *pfVar17 = *pfVar17 + pfVar17[6];
-        pfVar17[1] = pfVar17[1] + pfVar17[7];
-        pfVar17[2] = pfVar17[2] + pfVar17[8];
-        *pfVar17 = *pfVar17 * 0.25f;
-        pfVar17[1] = pfVar17[1] * 0.25f;
-        pfVar17[2] = pfVar17[2] * 0.25f;
-        pfVar17 = pfVar17 + 9;
-      }
+        pfVar3 = (f32 *)(*(s32 *)(effAfterOffsetPtr(temp_v1 * 4 + 0x10, work)) + temp_v4 * 0xc);
+        temp_v7 = pfVar3[1];
+        temp_v9 = pfVar3[2];
+        *pfVar16 = *pfVar3;
+        pfVar16[1] = temp_v7;
+        pfVar16[2] = temp_v9;
+        if (*(s32 *)effAfterOffsetPtr(8, work) < *(s32 *)effAfterOffsetPtr(8, *(u8 **)work)) {
+          uStack_8 = 0;
+        }
+        else {
+          uStack_8 = *(u32 *)effAfterOffsetPtr(0xc, work);
+        }
+          temp_v1++;
+      } while (temp_v1 < 2);
     }
-    else if (temp_v0 == 1) {
+    goto Lcd;
+  Lc1:
+    {
       temp_v5 = *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work);
       puVar13 = *(u32 **)(*(s32 *)effAfterOffsetPtr(0x5c, (u8 *)*pp) + 0x14);
       for (temp_v1 = 0; temp_v1 < temp_v5 * 3 + 6; temp_v1 = temp_v1 + 1) {
@@ -1272,36 +1186,36 @@ void func_004b8f40(u8 *work, void **pp)
             }
             temp_v3 = temp_v3 * 0xc;
             pfVar16 = (f32 *)(*(s32 *)(effAfterOffsetPtr(temp_v1 * 4 + 0x10, work)) + temp_v3);
-            fStack_c0 = *pfVar16;
-            fStack_bc = pfVar16[1];
-            fStack_b8 = pfVar16[2];
+            S.fStack_c0 = *pfVar16;
+            S.fStack_bc = pfVar16[1];
+            S.fStack_b8 = pfVar16[2];
             pfVar17 = (f32 *)(*(s32 *)(effAfterOffsetPtr(temp_v1 * 8 + 0x18, work)) + temp_v3);
-            fStack_b4 = *pfVar16 - *pfVar17;
-            fStack_b0 = pfVar16[1] - pfVar17[1];
-            fStack_ac = pfVar16[2] - pfVar17[2];
+            S.fStack_b4 = *pfVar16 - *pfVar17;
+            S.fStack_b0 = pfVar16[1] - pfVar17[1];
+            S.fStack_ac = pfVar16[2] - pfVar17[2];
             pfVar16 = (f32 *)(*(s32 *)(effAfterOffsetPtr(temp_v1 * 8 + 0x1c, work)) + temp_v3);
             pfVar17 = (f32 *)(*(s32 *)(effAfterOffsetPtr(temp_v1 * 4 + 0x10, work)) + temp_v2 * 0xc);
-            fStack_a8 = *pfVar17 + *pfVar16;
-            fStack_a4 = pfVar17[1] + pfVar16[1];
-            fStack_a0 = pfVar17[2] + pfVar16[2];
-            fStack_9c = *pfVar17;
-            fStack_98 = pfVar17[1];
-            fStack_94 = pfVar17[2];
+            S.fStack_a8 = *pfVar17 + *pfVar16;
+            S.fStack_a4 = pfVar17[1] + pfVar16[1];
+            S.fStack_a0 = pfVar17[2] + pfVar16[2];
+            S.fStack_9c = *pfVar17;
+            S.fStack_98 = pfVar17[1];
+            S.fStack_94 = pfVar17[2];
             temp_v6 = uStack_8;
           }
           temp_v8 = 1.0f - fStack_4;
-          *unaff_s3_lo = fStack_9c * fStack_4 * fStack_4 * fStack_4 +
-                         fStack_a8 * fStack_4 * temp_v8 * 3.0f * fStack_4 +
-                         fStack_c0 * temp_v8 * temp_v8 * temp_v8 +
-                         fStack_b4 * temp_v8 * temp_v8 * 3.0f * fStack_4;
+          *unaff_s3_lo = S.fStack_9c * fStack_4 * fStack_4 * fStack_4 +
+                         S.fStack_a8 * fStack_4 * temp_v8 * 3.0f * fStack_4 +
+                         S.fStack_c0 * temp_v8 * temp_v8 * temp_v8 +
+                         S.fStack_b4 * temp_v8 * temp_v8 * 3.0f * fStack_4;
           unaff_s3_lo[1] =
-               fStack_98 * fStack_4 * fStack_4 * fStack_4 +
-               fStack_a4 * fStack_4 * temp_v8 * 3.0f * fStack_4 +
-               fStack_bc * temp_v8 * temp_v8 * temp_v8 + fStack_b0 * temp_v8 * temp_v8 * 3.0f * fStack_4;
+               S.fStack_98 * fStack_4 * fStack_4 * fStack_4 +
+               S.fStack_a4 * fStack_4 * temp_v8 * 3.0f * fStack_4 +
+               S.fStack_bc * temp_v8 * temp_v8 * temp_v8 + S.fStack_b0 * temp_v8 * temp_v8 * 3.0f * fStack_4;
           unaff_s3_lo[2] =
-               fStack_94 * fStack_4 * fStack_4 * fStack_4 +
-               fStack_a0 * fStack_4 * temp_v8 * 3.0f * fStack_4 +
-               fStack_b8 * temp_v8 * temp_v8 * temp_v8 + fStack_ac * temp_v8 * temp_v8 * 3.0f * fStack_4;
+               S.fStack_94 * fStack_4 * fStack_4 * fStack_4 +
+               S.fStack_a0 * fStack_4 * temp_v8 * 3.0f * fStack_4 +
+               S.fStack_b8 * temp_v8 * temp_v8 * temp_v8 + S.fStack_ac * temp_v8 * temp_v8 * 3.0f * fStack_4;
           temp_v11 = temp_v11 + temp_v9;
           unaff_s3_lo = unaff_s3_lo + 9;
         }
@@ -1323,106 +1237,213 @@ void func_004b8f40(u8 *work, void **pp)
         }
       }
     }
-    else if (temp_v0 == 0) {
-      temp_v5 = *(s32 *)(*(s32 *)effAfterOffsetPtr(0x5c, (u8 *)*pp) + 0x14);
-      pfVar17 = (f32 *)(temp_v5 + *(s32 *)effAfterOffsetPtr(0x14, (u8 *)*pp) * 0xc);
+    goto Lcd;
+  Lc2:
+    {
+      temp_v9 = *(f32 *)effAfterOffsetPtr(0x14, *(u8 **)work) / 2.0f;
+      temp_v5 = func_00457120();
+      temp_v5 = *(s32 *)effAfterOffsetPtr(4, (u8 *)temp_v5);
+      pfVar16 = (f32 *)(temp_v5 + 0x40);
+      pfVar17 = *(f32 **)(*(s32 *)effAfterOffsetPtr(0x5c, (u8 *)*pp) + 0x14);
+      temp_v7 = (f32)*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) + 0.5f;
+      temp_v11 = 1.0f / temp_v7;
+      temp_v7 = 0.5f / temp_v7;
+      temp_v6 = 0xffffffff;
+      temp_v1 = *(s32 *)effAfterOffsetPtr(0xc, work) - 1;
+      if (temp_v1 < 0) {
+        temp_v1 = temp_v1 + *(s32 *)effAfterOffsetPtr(8, work);
+      }
+      puVar4 = (u64 *)effAfterOffsetPtr(temp_v1 * 0xc, (u8 *)*(u8 **)effAfterOffsetPtr(0x10, work));
+      S.prevX = *(f32 *)puVar4; S.prevY = *(f32 *)effAfterOffsetPtr(4, (u8 *)puVar4);
+      S.fStack_30 = *(f32 *)(puVar4 + 1);
       temp_v1 = 0;
-      do {
-        pfVar16 = (f32 *)(temp_v5 + temp_v1 * 0xc);
-        temp_v6 = 0xffffffff;
-        if (temp_v1 == 1) {
-          iStack_d0 = *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1;
-        }
-        else if (temp_v1 == 0) {
-          iStack_d0 = *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work);
-        }
-        for (temp_v4 = 0; temp_v4 < iStack_d0; temp_v4 = temp_v4 + 1) {
-          if (*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1 < 1) {
-            func_0046d730(D_007146E0,0x480);
+      pfVar3 = pfVar17;
+      while (1) {
+        if (*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) <= temp_v1) break;
+        func_004b7460(work,temp_v7,&uStack_8,&fStack_4);
+        if (uStack_8 != temp_v6) {
+          temp_v4 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - uStack_8;
+          if (temp_v4 < 0) {
+            temp_v4 = temp_v4 + *(s32 *)effAfterOffsetPtr(8, work);
           }
-          if (temp_v1 == 0) {
-            if (temp_v4 == 0) {
-              func_004b7460(work,0.0f / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1),&uStack_8,
-                            &fStack_4);
-            }
-            else {
-              func_004b7460(work,((f32)temp_v4 - 0.5f) /
-                                    (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1),&uStack_8,&fStack_4
-                           );
-            }
+          temp_v3 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - (uStack_8 + 1);
+          if (temp_v3 < 0) {
+            temp_v3 = temp_v3 + *(s32 *)effAfterOffsetPtr(8, work);
           }
-          else {
-            func_004b7460(work,(f32)temp_v4 / (f32)(*(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) - 1),
-                          &uStack_8,&fStack_4);
-          }
-          if (uStack_8 != temp_v6) {
-            temp_v3 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - uStack_8;
-            if (temp_v3 < 0) {
-              temp_v3 = temp_v3 + *(s32 *)effAfterOffsetPtr(8, work);
-            }
-            temp_v2 = (*(s32 *)effAfterOffsetPtr(0xc, work) - 1) - (uStack_8 + 1);
-            if (temp_v2 < 0) {
-              temp_v2 = temp_v2 + *(s32 *)effAfterOffsetPtr(8, work);
-            }
-            temp_v3 = temp_v3 * 0xc;
-            pfVar5 = (f32 *)(*(s32 *)(effAfterOffsetPtr(temp_v1 * 4 + 0x10, work)) + temp_v3);
-            fStack_c0 = *pfVar5;
-            fStack_bc = pfVar5[1];
-            fStack_b8 = pfVar5[2];
-            pfVar3 = (f32 *)(*(s32 *)(effAfterOffsetPtr(temp_v1 * 8 + 0x18, work)) + temp_v3);
-            fStack_b4 = *pfVar5 - *pfVar3;
-            fStack_b0 = pfVar5[1] - pfVar3[1];
-            fStack_ac = pfVar5[2] - pfVar3[2];
-            pfVar5 = (f32 *)(*(s32 *)(effAfterOffsetPtr(temp_v1 * 8 + 0x1c, work)) + temp_v3);
-            pfVar3 = (f32 *)(*(s32 *)(effAfterOffsetPtr(temp_v1 * 4 + 0x10, work)) + temp_v2 * 0xc);
-            fStack_a8 = *pfVar3 + *pfVar5;
-            fStack_a4 = pfVar3[1] + pfVar5[1];
-            fStack_a0 = pfVar3[2] + pfVar5[2];
-            fStack_9c = *pfVar3;
-            fStack_98 = pfVar3[1];
-            fStack_94 = pfVar3[2];
-            temp_v6 = uStack_8;
-          }
-          temp_v7 = 1.0f - fStack_4;
-          if (pfVar17 <= pfVar16) {
-            func_0046d730(D_007146E0,0x49d);
-          }
-          *pfVar16 = fStack_9c * fStack_4 * fStack_4 * fStack_4 +
-                     fStack_a8 * fStack_4 * temp_v7 * 3.0f * fStack_4 +
-                     fStack_c0 * temp_v7 * temp_v7 * temp_v7 +
-                     fStack_b4 * temp_v7 * temp_v7 * 3.0f * fStack_4;
-          pfVar16[1] = fStack_98 * fStack_4 * fStack_4 * fStack_4 +
-                       fStack_a4 * fStack_4 * temp_v7 * 3.0f * fStack_4 +
-                       fStack_bc * temp_v7 * temp_v7 * temp_v7 +
-                       fStack_b0 * temp_v7 * temp_v7 * 3.0f * fStack_4;
-          pfVar16[2] = fStack_94 * fStack_4 * fStack_4 * fStack_4 +
-                       fStack_a0 * fStack_4 * temp_v7 * 3.0f * fStack_4 +
-                       fStack_b8 * temp_v7 * temp_v7 * temp_v7 +
-                       fStack_ac * temp_v7 * temp_v7 * 3.0f * fStack_4;
-          pfVar16 = pfVar16 + 6;
+          temp_v4 = temp_v4 * 0xc;
+          pfVar6 = (f32 *)effAfterOffsetPtr(temp_v4, (u8 *)*(u8 **)effAfterOffsetPtr(0x10, work));
+          S.fStack_c0 = *pfVar6;
+          S.fStack_bc = pfVar6[1];
+          S.fStack_b8 = pfVar6[2];
+          pfVar5 = (f32 *)effAfterOffsetPtr(temp_v4, (u8 *)*(u8 **)effAfterOffsetPtr(0x18, work));
+          S.fStack_b4 = *pfVar6 - *pfVar5;
+          S.fStack_b0 = pfVar6[1] - pfVar5[1];
+          S.fStack_ac = pfVar6[2] - pfVar5[2];
+          pfVar6 = (f32 *)effAfterOffsetPtr(temp_v4, (u8 *)*(u8 **)effAfterOffsetPtr(0x1c, work));
+          pfVar5 = (f32 *)effAfterOffsetPtr(temp_v3 * 0xc, (u8 *)*(u8 **)effAfterOffsetPtr(0x10, work));
+          S.fStack_a8 = *pfVar5 + *pfVar6;
+          S.fStack_a4 = pfVar5[1] + pfVar6[1];
+          S.fStack_a0 = pfVar5[2] + pfVar6[2];
+          S.fStack_9c = *pfVar5;
+          S.fStack_98 = pfVar5[1];
+          S.fStack_94 = pfVar5[2];
+          temp_v6 = uStack_8;
         }
-        temp_v4 = *(s32 *)effAfterOffsetPtr(0xc, work) - *(s32 *)effAfterOffsetPtr(8, work);
-        if (temp_v4 < 0) {
-          temp_v4 = temp_v4 + *(s32 *)effAfterOffsetPtr(8, work);
+        temp_v8 = 1.0f - fStack_4;
+        S.fStack_28 = S.fStack_9c * fStack_4 * fStack_4 * fStack_4 +
+                    S.fStack_a8 * fStack_4 * temp_v8 * 3.0f * fStack_4 +
+                    S.fStack_c0 * temp_v8 * temp_v8 * temp_v8 +
+                    S.fStack_b4 * temp_v8 * temp_v8 * 3.0f * fStack_4;
+        temp_v10 = S.fStack_98 * fStack_4 * fStack_4 * fStack_4 +
+                 S.fStack_a4 * fStack_4 * temp_v8 * 3.0f * fStack_4 +
+                 S.fStack_bc * temp_v8 * temp_v8 * temp_v8 + S.fStack_b0 * temp_v8 * temp_v8 * 3.0f * fStack_4
+        ;
+        temp_v8 = S.fStack_94 * fStack_4 * fStack_4 * fStack_4 +
+                 S.fStack_a0 * fStack_4 * temp_v8 * 3.0f * fStack_4 +
+                 S.fStack_b8 * temp_v8 * temp_v8 * temp_v8 + S.fStack_ac * temp_v8 * temp_v8 * 3.0f * fStack_4
+        ;
+        if (temp_v1 == 0) {
+          S.firstX = S.fStack_28; S.firstY = temp_v10;
+          S.fStack_60 = temp_v8;
         }
-        if (pfVar17 <= pfVar16) {
-          func_0046d730(D_007146E0,0x4ae);
+        S.fStack_18 = *pfVar16 - S.fStack_28;
+        S.fStack_14 = *(f32 *)effAfterOffsetPtr(0x44, (u8 *)temp_v5) - temp_v10;
+        S.fStack_10 = *(f32 *)effAfterOffsetPtr(0x48, (u8 *)temp_v5) - temp_v8;
+        S.fStack_24 = temp_v10;
+        fStack_20 = temp_v8;
+        func_003e40b0(&S.fStack_18,&S.fStack_18);
+        S.fStack_48 = S.prevX - S.fStack_28;
+        S.fStack_44 = S.prevY - temp_v10;
+        S.fStack_40 = S.fStack_30 - temp_v8;
+        func_003e40b0(&S.fStack_48,&S.fStack_48);
+        S.fStack_58 = S.fStack_14 * S.fStack_40 - S.fStack_10 * S.fStack_44;
+        S.fStack_54 = S.fStack_10 * S.fStack_48 - S.fStack_18 * S.fStack_40;
+        S.fStack_50 = S.fStack_18 * S.fStack_44 - S.fStack_14 * S.fStack_48;
+        func_003e40b0(&S.fStack_58,&S.fStack_58);
+        temp_v8 = S.fStack_10 * S.fStack_40 + S.fStack_18 * S.fStack_48 + S.fStack_14 * S.fStack_44;
+        if (temp_v8 < 0.0f) {
+          temp_v8 = temp_v8 * -1.0f;
         }
-        pfVar3 = (f32 *)(*(s32 *)(effAfterOffsetPtr(temp_v1 * 4 + 0x10, work)) + temp_v4 * 0xc);
-        temp_v7 = pfVar3[1];
-        temp_v9 = pfVar3[2];
-        *pfVar16 = *pfVar3;
-        pfVar16[1] = temp_v7;
-        pfVar16[2] = temp_v9;
-        if (*(s32 *)effAfterOffsetPtr(8, work) < *(s32 *)effAfterOffsetPtr(8, *(u8 **)work)) {
-          uStack_8 = 0;
-        }
-        else {
-          uStack_8 = *(u32 *)effAfterOffsetPtr(0xc, work);
-        }
-          temp_v1++;
-      } while (temp_v1 < 2);
+        temp_v8 = temp_v9 * (1.0f - temp_v8 * temp_v8 * temp_v8);
+        S.fStack_58 = S.fStack_58 * temp_v8;
+        S.fStack_54 = S.fStack_54 * temp_v8;
+        S.fStack_50 = S.fStack_50 * temp_v8;
+        pfVar3[9] = S.fStack_28 + S.fStack_58;
+        pfVar3[10] = S.fStack_24 + S.fStack_54;
+        pfVar3[0xb] = fStack_20 + S.fStack_50;
+        pfVar3[0xc] = S.fStack_28 - S.fStack_58;
+        pfVar3[0xd] = S.fStack_24 - S.fStack_54;
+        pfVar3[0xe] = fStack_20 - S.fStack_50;
+        S.prevX = S.fStack_28; S.prevY = S.fStack_24;
+        S.fStack_30 = fStack_20;
+        temp_v7 = temp_v7 + temp_v11;
+        temp_v1 = temp_v1 + 1;
+        pfVar3 = pfVar3 + 9;
+      }
+      temp_v1 = *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work) * 3;
+      temp_v4 = temp_v1 + 6;
+      pfVar3 = pfVar17 + (temp_v1 + 3) * 3;
+      temp_v1 = *(s32 *)effAfterOffsetPtr(0xc, work) - *(s32 *)effAfterOffsetPtr(8, work);
+      if (temp_v1 < 0) {
+        temp_v1 = temp_v1 + *(s32 *)effAfterOffsetPtr(8, work);
+      }
+      pfVar5 = (f32 *)effAfterOffsetPtr(temp_v1 * 0xc, (u8 *)*(u8 **)effAfterOffsetPtr(0x10, work));
+      S.fStack_28 = *pfVar5;
+      temp_v7 = pfVar5[1];
+      temp_v11 = pfVar5[2];
+      S.fStack_18 = *pfVar16 - S.fStack_28;
+      S.fStack_14 = *(f32 *)effAfterOffsetPtr(0x44, (u8 *)temp_v5) - temp_v7;
+      S.fStack_10 = *(f32 *)effAfterOffsetPtr(0x48, (u8 *)temp_v5) - temp_v11;
+      S.fStack_24 = temp_v7;
+      fStack_20 = temp_v11;
+      func_003e40b0(&S.fStack_18,&S.fStack_18);
+      S.fStack_48 = S.prevX - S.fStack_28;
+      S.fStack_44 = S.prevY - temp_v7;
+      S.fStack_40 = S.fStack_30 - temp_v11;
+      func_003e40b0(&S.fStack_48,&S.fStack_48);
+      S.fStack_58 = S.fStack_14 * S.fStack_40 - S.fStack_10 * S.fStack_44;
+      S.fStack_54 = S.fStack_10 * S.fStack_48 - S.fStack_18 * S.fStack_40;
+      S.fStack_50 = S.fStack_18 * S.fStack_44 - S.fStack_14 * S.fStack_48;
+      func_003e40b0(&S.fStack_58,&S.fStack_58);
+      temp_v7 = S.fStack_10 * S.fStack_40 + S.fStack_18 * S.fStack_48 + S.fStack_14 * S.fStack_44;
+      if (temp_v7 < 0.0f) {
+        temp_v7 = temp_v7 * -1.0f;
+      }
+      temp_v7 = temp_v9 * (1.0f - temp_v7 * temp_v7 * temp_v7);
+      S.fStack_58 = S.fStack_58 * temp_v7;
+      S.fStack_54 = S.fStack_54 * temp_v7;
+      S.fStack_50 = S.fStack_50 * temp_v7;
+      *pfVar3 = S.fStack_28 + S.fStack_58;
+      pfVar3[1] = S.fStack_24 + S.fStack_54;
+      pfVar3[2] = fStack_20 + S.fStack_50;
+      pfVar3[3] = S.fStack_28 - S.fStack_58;
+      pfVar3[4] = S.fStack_24 - S.fStack_54;
+      pfVar3[5] = fStack_20 - S.fStack_50;
+      pfVar17[temp_v4 * 3 - 3] = pfVar17[temp_v4 * 3 - 9] + pfVar17[temp_v4 * 3 - 6];
+      pfVar17[temp_v4 * 3 - 2] = pfVar17[temp_v4 * 3 - 8] + pfVar17[temp_v4 * 3 - 5];
+      pfVar17[temp_v4 * 3 - 1] = pfVar17[temp_v4 * 3 - 7] + pfVar17[temp_v4 * 3 - 4];
+      pfVar17[temp_v4 * 3 - 3] = pfVar17[temp_v4 * 3 - 3] * 0.5f;
+      pfVar17[temp_v4 * 3 - 2] = pfVar17[temp_v4 * 3 - 2] * 0.5f;
+      pfVar17[temp_v4 * 3 - 1] = pfVar17[temp_v4 * 3 - 1] * 0.5f;
+      temp_v1 = *(s32 *)effAfterOffsetPtr(0xc, work) - 1;
+      if (temp_v1 < 0) {
+        temp_v1 = temp_v1 + *(s32 *)effAfterOffsetPtr(8, work);
+      }
+      pfVar3 = (f32 *)effAfterOffsetPtr(temp_v1 * 0xc, (u8 *)*(u8 **)effAfterOffsetPtr(0x10, work));
+      temp_v10 = *pfVar3;
+      temp_v11 = pfVar3[1];
+      temp_v8 = pfVar3[2];
+      S.fStack_18 = *pfVar16 - temp_v10;
+      S.fStack_14 = *(f32 *)effAfterOffsetPtr(0x44, (u8 *)temp_v5) - temp_v11;
+      S.fStack_10 = *(f32 *)effAfterOffsetPtr(0x48, (u8 *)temp_v5) - temp_v8;
+      temp_v7 = temp_v11;
+      func_003e40b0(&S.fStack_18,&S.fStack_18);
+      S.fStack_48 = temp_v10 - S.firstX;
+      S.fStack_44 = temp_v7 - S.firstY;
+      S.fStack_40 = temp_v8 - S.fStack_60;
+      func_003e40b0(&S.fStack_48,&S.fStack_48);
+      S.fStack_58 = S.fStack_14 * S.fStack_40 - S.fStack_10 * S.fStack_44;
+      S.fStack_54 = S.fStack_10 * S.fStack_48 - S.fStack_18 * S.fStack_40;
+      S.fStack_50 = S.fStack_18 * S.fStack_44 - S.fStack_14 * S.fStack_48;
+      func_003e40b0(&S.fStack_58,&S.fStack_58);
+      temp_v7 = S.fStack_10 * S.fStack_40 + S.fStack_18 * S.fStack_48 + S.fStack_14 * S.fStack_44;
+      if (temp_v7 < 0.0f) {
+        temp_v7 = temp_v7 * -1.0f;
+      }
+      temp_v9 = temp_v9 * (1.0f - temp_v7 * temp_v7 * temp_v7);
+      S.fStack_58 = S.fStack_58 * temp_v9;
+      S.fStack_54 = S.fStack_54 * temp_v9;
+      S.fStack_50 = S.fStack_50 * temp_v9;
+      *pfVar17 = temp_v10 + S.fStack_58;
+      pfVar17[1] = temp_v11 + S.fStack_54;
+      pfVar17[2] = temp_v8 + S.fStack_50;
+      pfVar17[3] = temp_v10 - S.fStack_58;
+      pfVar17[4] = temp_v11 - S.fStack_54;
+      pfVar17[5] = temp_v8 - S.fStack_50;
+      pfVar17[6] = *pfVar17 + pfVar17[3];
+      pfVar17[7] = pfVar17[1] + pfVar17[4];
+      pfVar17[8] = pfVar17[2] + pfVar17[5];
+      pfVar17[6] = pfVar17[6] * 0.5f;
+      pfVar17[7] = pfVar17[7] * 0.5f;
+      pfVar17[8] = pfVar17[8] * 0.5f;
+      pfVar17 = pfVar17 + 0xf;
+      for (temp_v5 = 0; temp_v5 < *(s32 *)effAfterOffsetPtr(0xc, *(u8 **)work); temp_v5 = temp_v5 + 1) {
+        *pfVar17 = pfVar17[-6] + pfVar17[-3];
+        pfVar17[1] = pfVar17[-5] + pfVar17[-2];
+        pfVar17[2] = pfVar17[-4] + pfVar17[-1];
+        *pfVar17 = *pfVar17 + pfVar17[3];
+        pfVar17[1] = pfVar17[1] + pfVar17[4];
+        pfVar17[2] = pfVar17[2] + pfVar17[5];
+        *pfVar17 = *pfVar17 + pfVar17[6];
+        pfVar17[1] = pfVar17[1] + pfVar17[7];
+        pfVar17[2] = pfVar17[2] + pfVar17[8];
+        *pfVar17 = *pfVar17 * 0.25f;
+        pfVar17[1] = pfVar17[1] * 0.25f;
+        pfVar17[2] = pfVar17[2] * 0.25f;
+        pfVar17 = pfVar17 + 9;
+      }
     }
+  Lcd:;
   }
   func_003c22f0(*pp);
   *(u16 *)effAfterOffsetPtr(0xc, (u8 *)*pp) = *(u16 *)effAfterOffsetPtr(0xc, (u8 *)*pp) | 1;

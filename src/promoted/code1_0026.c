@@ -489,7 +489,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00260e60);
 /* measured: GUARDED_SCORE 1357 via `python3 tools/measure_guarded.py src/promoted/code1_0026.c func_00261560` with scoped `#pragma optimization_level 3` (baseline v1e 1804I/1591wd -> 1558I/1357wd, -246I/-234wd, count and words both improve so not inflation); obj 1558I / retail 1568I (-10, -0.64% PASS, band 1521-1615). fnalign 2970 edits. 12-arg float ABI from prologue (a0->s0,a1->s4,a2->s3,a3->s8,t0->stack0xCC,f13->f22,f14->f21,t1->s6,t2->s7,t3->s2); handoff-7r entry MAC shaped as (s32)((float)arg0+47.0f*(1.0f-fparg1)), remaining 10 MAC sites stubbed 0.0f for count (same 1I float const); D_00887300[0], D_00637430, s128 aligned(16), base-first. */
 /* decomposition for func_00261560 (banked vC 1611 inside, s32 spB0 saves 6 — same call as func_0035aff0):
    Retail 0x00261560-0x00262DDF 6272B 1568I, band 1521-1615. Banked vC 1611I/1429wd/2998ed (+43/+2.74% PASS, headroom 4) with handoff-7r entry (s32)((float)arg0+47.0f*(1.0f-fparg1)) and four 0xE 9th-args ((float)arg0+70/69*fparg1, 70,69,70,69 per c.lt.s/bc1t), s0 reuse via arg0, s32 spB0 (was s128, saves 6I/1wd/4ed vs v1d 1617I/1430wd/3002ed +2 over max), opt_level3 scoped (dummy v1e 1558I/1357wd/2970ed inside but 10x0.0f placeholders, correctly reverted). 12-arg ABI: a0->s0(arg0),a1->s4(arg1),a2->s3(arg2 u8),a3->s8(arg3 &0xF,>>4),t0->stack0xCC(arg4),f13->f22(fparg1),f14->f21(fparg2),t1->s6(arg5),t2->s7(arg6),t3->s2(arg7). MAC addrs 0x00261614/18,0x002619EC/F0,0x00261A5C/60,0x00261D00/04,0x00261D70/74,0x00261FDC/E0 (plain a+b*c). 12th-arg f15 0.0f correct literal. Caveat: no block prototypes for 0025f430/00260e60 (untyped calls keep sd bloat); adding s32/u8* prototypes drops to 1403I/1566 (-163 outside below, needs +~165 real logic) — bloat compensates missing blocks, gate passes but composition still 2998ed; honest typed version needs block recovery. */
+/* measured 2026-09-20 (owner): tbl caching + s128 spB0 + var reuse (this body): GUARDED_SCORE 1362 via `python3 tools/measure_guarded.py src/promoted/code1_0026.c func_00261560` (was 1429, -67); fnalign retail 1566/object 1525 (-41, -2.6% INSIDE, also inside 1521-1615 for 1568 window) via `python3 -E -s tools/fnalign.py src/promoted/code1_0026.c func_00261560 --candidate /tmp/body.c` (was 1568/1611 +2.7% inside, 2335 edits -> 2262, -73); deficit_scan retail has more nop+208 sw+30 mtc1+25 lui+22 move+4 beqz+3 addiu+2 mul.s+1 with retail-only runs 432 at 0x00262714-0x00262DD4, 104 at 0x00261C28-0x00261DC8, 90 at 0x00261944-0x00261AAC (0025f430 triples + tail, still misplaced); tail_classify 219 structure (same count, smaller hunks); changes: `void (**tbl)(u32,u32); tbl=D_00887300; tbl[0](...)` (was reload per call, -58wd/-79ed alone), `s128 spB0=(s128)temp_2` matches retail sq/lq (was s32, -9wd), single `u8 *var_3`/`s32 var_2` reused (was 19 each, same metrics, cleaner), `(void)fparg0;` (was stray `0.0f;`, same); respected -O2 no-pragma 1025 edits/1877I FAILS gate, not chased; verify.py 57 MATCH/8 ASM unchanged, lint 0 errors. */
 // FUN_00261560 NONMATCHING
+#ifdef NON_MATCHING
+#pragma push
+#pragma optimization_level 3
 void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0) {
     typedef signed __int128 s128;
     extern s128 D_00637430;
@@ -1009,6 +1013,9 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     func_00260e60(arg0, arg1, arg2, ((s32)spB0 & 0xF), 2, spCC, arg7, 1, 10.0f, fparg1, fparg2);
 }
 #pragma pop
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00261560);
+#endif
 #pragma opt_propagation off
 static inline void calendarZeroBytes(void *memory, s32 count)
 {

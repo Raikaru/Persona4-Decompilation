@@ -2453,17 +2453,22 @@ s32 func_00257820(s32 arg0, void *arg1) {
    tail10 1556/3418 (+2). All do-while kept (7 would regress +2, 2 tie); banked
    2521->2519 was one of the +2 set. Production stays ASM (outside band); guarded
    words 3115. */
-/* gate: func_00257900 left the band, deliberately, and this stamp is the price.  It was
-   3622 against retail 3580 (+1.2%, inside) at 2519 edits; it is now 3416 against 3576
-   (-4.5%, band 3469-3683) at **1554** edits.
-   The change was removing 27 `(f32)` casts that were simply WRONG - they were not a
-   spelling choice, they misdescribed the values - which is worth 814 edits on its own
-   (2519 -> 1705), plus four local `extern` declarations replacing invented prototypes
-   (1705 -> 1554).  A body that says something false about its own types is not a floor
-   worth defending just because its instruction count happened to sit in the band.
-   That said, the 1554 is NOT comparable to an in-band number (handoff 7y) and must not
-   be quoted as progress against other floors.  The object is 160 instructions short and
-   needs about +52 to re-enter the band; write those back and the score becomes real. */
+/* gate: func_00257900 is back INSIDE the +-3% band.  It was 3416 against retail 3576
+   (-4.5%, band 3469-3683) at 1554 edits (honest but 160 short); it is now 3535 against
+   3576 (-1.1%, band 3469-3683) at **1492** edits (+42 reloc-only), deficit 41, guarded
+   words 3119.
+   The +119 came from writing back the missing conversions as the hand unsigned idiom,
+   never compacted: (a) three stack-slot overlaps made explicit via ((u8 *)&...)[3] -
+   sp3DB as ((u8 *)&sp3D8)[3] with plain (f32)u8 (single srl+add, not a doubled hand)
+   plus its *0.5/saturation/sb (the 40-run at 0x00258d24-0x00258dc4, now gone), unksp3D7
+   as ((u8 *)&sp3D4)[3] and unksp3CB as ((u8 *)&sp3C8)[3] (their saturations were dead
+   without the alias, now kept); (b) sp348/sp268/sp188 and temp_2_34/37/40 from s32 to
+   u32 (sp>>8 sra->srl, matching retail) with the kept hand `if ((s32)u >= 0)
+   v = (f32)(s32)u; else { v = (f32)(s32)((u >> 1) | (u & 1)); v += v; }` (srl+add via
+   +=, not 2.0f*mul, which would be sra+mul/doubled).  Opcode delta mtc1 18->6, srl and
+   cvt.w.s out of the top 8, nop 49->24, mfc1 12->9.  The 86-run at 0x0025ab6c and the
+   41-run at 0x00258eb8 persist as alignment/reorder, not missing logic.  The 1492 is
+   comparable for the first time. */
 // FUN_00257900 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00257900(u8 *arg0) {
@@ -2549,13 +2554,13 @@ s32 func_00257900(u8 *arg0) {
     s32 temp_2_31;
     s32 temp_2_32;
     s32 temp_2_33;
-    s32 temp_2_34;
+    u32 temp_2_34;
     s32 temp_2_35;
     s32 temp_2_36;
-    s32 temp_2_37;
+    u32 temp_2_37;
     s32 temp_2_38;
     s32 temp_2_39;
-    s32 temp_2_40;
+    u32 temp_2_40;
     s32 temp_2_41;
     s32 temp_2_42;
     s32 temp_2_43;
@@ -2621,19 +2626,19 @@ s32 func_00257900(u8 *arg0) {
     f32 var_f4_2;
     s32 sp174;
     s32 sp178;
-    s32 sp188;
+    u32 sp188;
     s32 sp18C;
     s32 sp190;
     s32 sp192;
     s32 sp254;
     s32 sp258;
-    s32 sp268;
+    u32 sp268;
     s32 sp26C;
     s32 sp270;
     s32 sp272;
     s32 sp334;
     s32 sp338;
-    s32 sp348;
+    u32 sp348;
     s32 sp34C;
     s32 sp350;
     s32 sp352;
@@ -2935,18 +2940,14 @@ s32 func_00257900(u8 *arg0) {
             func_004b12e0(temp_20_13, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
             func_004b1250(temp_20_13, sp3B0);
             func_004b14f0(temp_20_13, (f32 *) &sp3D8);
-            if ((s32) sp3DB >= 0) {
-                var_f1_4 = (f32) sp3DB;
-            } else {
-                var_f1_4 = 2.0f * (f32) ((sp3DB >> 1) | (sp3DB & 1));
-            }
+            var_f1_4 = (f32) ((u8 *)&sp3D8)[3];
             temp_f1 = var_f1_4 * 0.5f;
             if (!(temp_f1 >= 2.1474836e9f)) {
                 var_3 = 0x4F000000 & 0xFF;
             } else {
                 var_3 = ((s32)( (temp_f1 - 2.1474836e9f)) | 0x80000000) & 0xFF;
             }
-            sp3DB = var_3;
+            ((u8 *)&sp3D8)[3] = var_3;
             func_004b13f0(temp_20_13, (f32 *) &sp3D8);
         }
         if (*(s32 *)(ctx + 8) == 0x21C) {
@@ -3186,10 +3187,11 @@ s32 func_00257900(u8 *arg0) {
             func_003f6440(3, 0x31003);
             func_003f6440(2, 0x48);
             temp_2_34 = sp348 & 0xFF;
-            if (temp_2_34 >= 0) {
-                var_f2_3 = (f32) temp_2_34;
+            if ((s32) temp_2_34 >= 0) {
+                var_f2_3 = (f32) (s32) temp_2_34;
             } else {
-                var_f2_3 = 2.0f * (f32) (((u32) temp_2_34 >> 1) | (temp_2_34 & 1));
+                var_f2_3 = (f32) (s32) ((temp_2_34 >> 1) | (temp_2_34 & 1));
+                var_f2_3 += var_f2_3;
             }
             func_00366c70(sp334, sp338, sp350, sp352, sp348 >> 8, (s32)( (var_f2_3 * ((f32) (255.0f * temp_f20_3) / 255.0f))), 0, (s16)(sp350 >> 1), 0, (s16)(sp352 >> 1), (void *)sp280, temp_20_17, (void *)&sp2C0);
         } else if (temp_2_31 < 0xAB) {
@@ -3227,10 +3229,11 @@ s32 func_00257900(u8 *arg0) {
             func_003f6440(3, 0x31003);
             func_003f6440(2, 0x48);
             temp_2_37 = sp268 & 0xFF;
-            if (temp_2_37 >= 0) {
-                var_f1_8 = (f32) temp_2_37;
+            if ((s32) temp_2_37 >= 0) {
+                var_f1_8 = (f32) (s32) temp_2_37;
             } else {
-                var_f1_8 = 2.0f * (f32) (((u32) temp_2_37 >> 1) | (temp_2_37 & 1));
+                var_f1_8 = (f32) (s32) ((temp_2_37 >> 1) | (temp_2_37 & 1));
+                var_f1_8 += var_f1_8;
             }
             func_00366c70(sp254, sp258, sp270, sp272, sp268 >> 8, (s32)( (var_f1_8 * 1.0f)), 0, (s16)(sp270 >> 1), 0, (s16)(sp272 >> 1), (void *)sp1A0, temp_20_17, (void *)&sp1E0);
         } else if (temp_2_31 < 0xD3) {
@@ -3269,10 +3272,11 @@ s32 func_00257900(u8 *arg0) {
             func_003f6440(3, 0x31003);
             func_003f6440(2, 0x48);
             temp_2_40 = sp188 & 0xFF;
-            if (temp_2_40 >= 0) {
-                var_f2_4 = (f32) temp_2_40;
+            if ((s32) temp_2_40 >= 0) {
+                var_f2_4 = (f32) (s32) temp_2_40;
             } else {
-                var_f2_4 = 2.0f * (f32) (((u32) temp_2_40 >> 1) | (temp_2_40 & 1));
+                var_f2_4 = (f32) (s32) ((temp_2_40 >> 1) | (temp_2_40 & 1));
+                var_f2_4 += var_f2_4;
             }
             func_00366c70(sp174, sp178, sp190, sp192, sp188 >> 8, (s32)( (var_f2_4 * ((f32) temp_f0_11 / 255.0f))), 0, (s16)(sp190 >> 1), 0, (s16)(sp192 >> 1), (void *)spC0, temp_20_17, (void *)&sp100);
         }
@@ -3310,7 +3314,7 @@ s32 func_00257900(u8 *arg0) {
             } else {
                 var_3_2 = ((s32)( (temp_f1_2 - 2.1474836e9f)) | 0x80000000) & 0xFF;
             }
-            unksp3D7 = var_3_2;
+            ((u8 *)&sp3D4)[3] = var_3_2;
             sp3D8 = sp3D4;
             sp390 = D_006365F0;
             sp3A0 = D_006365F0;
@@ -3386,7 +3390,7 @@ do {
             } else {
                 var_3_6 = ((s32)( (temp_f1_3 - 2.1474836e9f)) | 0x80000000) & 0xFF;
             }
-            unksp3CB = var_3_6;
+            ((u8 *)&sp3C8)[3] = var_3_6;
             sp3D8 = sp3C8;
             sp360 = D_00636620;
             sp3A0 = D_00636620;
