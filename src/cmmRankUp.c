@@ -3486,6 +3486,10 @@ void func_0025b0f0(s32 arg0, u8 *arg1) {
    four-or-more arm equality chain and measuring both spellings; the sweep also found
    `func_001adea0` where the switch is *worse* (49 -> 51), so this is measured per
    function and never assumed. */
+/* measured 0025b240 (owner, 2026-09-19): fnalign **226 -> 221 edits**, count
+   946 -> 944 against retail 944, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits - no guard before the first iteration, one compare
+   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
 // FUN_0025B240 NONMATCHING
 #ifdef NON_MATCHING
 extern u8 D_00636740[];
@@ -3794,9 +3798,11 @@ s32 func_0025b240(u8 *arg0) {
         if (cc == 0) {
             cc = 1;
         }
-        for (n = 0; n < 5; n++) {
+        n = 0;
+        do {
             arr58[n + 2] = ((s32 *)D_00636740)[n];
-        }
+            n++;
+        } while (n < 5);
         tmp = func_00255ed0(*(s32 *)(ctx + 0x18), cc);
         c = (s8)tmp;
         if (c >= 2 && c <= 6 && (*(s32 *)ctx & 0x20) != 0) {

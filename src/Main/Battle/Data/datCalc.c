@@ -3806,6 +3806,7 @@ extern s32 func_00243e30(u16 *arg0);
 
 
 /* measured: guarded floor for func_0023a6b0 (retail 12336B window, 3084 instrs). Candidate object 12312B/3078 instrs (-24B/-6, -0.2% inside 3% gate 2991-3177); fndiff 2615 words (reloc-masked), fnalign 2131 edits (+15 reloc-only). Switch 0-15 with empty 0/5 for retail sltiu 0x10 bound (jtbl_00747C40 16 entries; 0,5 share default 0x23D330); 44 fresh s32 counters with while+goto-done, (u16)ctr*2 indexing, (s32)((u32)(u16)00106cd0&0xFFFF)+bltz and (s16)temp_2 dsll32/dsra32 fallback per matched 00242990; s32-only (no s64); val via u32 00109870 ($v0 preserved) else iGpffffb3c8 table with (raw&0xFF00)<<16|(raw&0xFFFF00FF)*5 and (val&0xFFFF)==0 guard per 0023a620. Production stays ASM. */
+/* measured 2026-09-19 (0023a6b0 tail pass, sibling 00238940 untouched): fnalign 2131 -> 1079 edits (+15 -> +23 reloc-only), object 3078 -> 3070 instrs vs retail 3080 (-0.3%, inside 3% gate). tail_classify structure 237 -> 215, register 115 -> 100. Banked, in order on top of the old floor body: (1) 00109870 2nd arg temp_16 -> (arg1 & 0xFFFF) reproduces retail andi $a1,$s3,0xFFFF and the raw/extended $s3/$s0 coloring, -95 edits +1 instr; (2) 16x t0-mediated 001069d0(t0) -> nested 001069d0(00106cd0(...)) for retail move $a0,$v0 (micro-proven: s16 call result forwarded needs no extend), -24 edits -16 instrs, dead s16 t0 dropped (neutral); (3) 8x found==0/else-acc flattened onto one shared acc|=0x10000000 (bnez-to-OR, found=0-goto-chk shape per retail 13C2D0-39C), -60 edits -8 instrs; (4) switch cases 8-15 reordered to retail layout 9,8,10,13,11,15,14,12 (jtbl_00747C40: 8->C20C, 9->BF98, 10->C480, 11->CBDC, 12->D0C4, 13->C6F4, 14->CE50, 15->C968; value<->body mapping verified per-address, call census 44/44/44/60/16 exact), -824 edits count-neutral, kills the SequenceMatcher phantom deletes; (5) tail val-merges factored (((val&M)|ACC)&0xFFFF0000)|C per retail ori/and/or/lui/and/ori chains (micro-proven mask-reuse of guard lui), hasFlag!=0 -> ==1 for retail bne-1, -49 edits +15 instrs. Tail C verified semantically identical to retail throughout (A1 guard 0x7000000, A1/A2/B4 factored forms all net-equal). Recorded negatives (not banked): (s16)temp_2 -> temp_2 neutral (s16 params force the extend anyway); head || split into 3 ifs +6 edits +11 instrs (duplicated 100-epilogues), goto-shared-return -1 edit +7 instrs (reject: terrible ratio, uglifies); opt_loop_invariants on byte-identical hunks (inert here, unlike 00232d80); s16 sid/t0-holder for idu extend-once: micro-exact locally, +195 whole-function either way (live-range pressure across the 44 counters, floor). Residual is the 3-value loop-register rotation floor (counter/limit/const $a2/$a1/$a0 vs $a1/remat, same idiom 00232d80 measured unfixable), the idu extend-hoist floor above, the head ||-range fold, branch-cascade displacements, and ~320 SequenceMatcher phantom edits over the near-identical case bodies (zone multiset differs by ~10 instrs only). Production stays ASM. */
 // FUN_0023A6B0 NONMATCHING
 #ifdef SKIP_ASM
 s32 func_0023a6b0(u8 *arg0, s32 arg1)
@@ -3868,7 +3869,6 @@ s32 func_0023a6b0(u8 *arg0, s32 arg1)
     u32 high;
     u32 low;
     s32 idu;
-    s16 t0;
 
     acc = 0;
     hasFlag = 0;
@@ -3888,7 +3888,7 @@ s32 func_0023a6b0(u8 *arg0, s32 arg1)
         func_0046d730(D_00635938, 0xCC2);
     }
     if ((*(u16 *)arg0 & 4) == 0) {
-        val = func_00109870(*(u16 *)(arg0 + 2), temp_16);
+        val = func_00109870(*(u16 *)(arg0 + 2), arg1 & 0xFFFF);
     } else {
         if (*(u16 *)(arg0 + 4) >= 0x150) {
             func_0046d730(D_00635938, 0xCCD);
@@ -4577,78 +4577,6 @@ done_7_2:
             acc |= 0x2000000;
         }
         break;
-    case 8:
-        cnt = func_0023e130(arg0) & 0xFFFF;
-        base = func_0023e140(arg0);
-        ctr_26 = 0;
-        while ((ctr_26 & 0xFFFF) < (cnt & 0xFFFF)) {
-            if (*(u16 *)(base + (u16)ctr_26 * 2) == 0x226) {
-                found = 1;
-                goto done_8_a;
-            }
-            ctr_26 = (ctr_26 + 1) & 0xFFFF;
-        }
-        if ((*(u16 *)arg0 & 4) == 0) {
-            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
-            if (temp_2 >= 0) {
-                if (func_001069a0((s16)temp_2) == 0x226) {
-                    found = 1;
-                    goto done_8_a;
-                }
-            }
-        }
-        found = 0;
-done_8_a:
-        if (found == 0) {
-            if ((*(u16 *)arg0 & 4) == 0) {
-                idu = *(u16 *)(arg0 + 2);
-                if (idu >= 0xB) {
-                    func_0046d730(D_00635938, 0x23B);
-                }
-                t0 = func_00106cd0((s16)idu, 0);
-                if ((func_001069d0(t0) & 0xFFFF) == 0x4B) {
-                    found = 1;
-                    goto done_8_b;
-                }
-                t0 = func_00106cd0((s16)idu, 1);
-                if ((func_001069d0(t0) & 0xFFFF) == 0x4B) {
-                    found = 1;
-                    goto done_8_b;
-                }
-                found = 0;
-done_8_b:
-                if (found != 0) {
-                    acc |= 0x10000000;
-                }
-            }
-        } else {
-            acc |= 0x10000000;
-        }
-        cnt = func_0023e130(arg0) & 0xFFFF;
-        base = func_0023e140(arg0);
-        ctr_27 = 0;
-        while ((ctr_27 & 0xFFFF) < (cnt & 0xFFFF)) {
-            if (*(u16 *)(base + (u16)ctr_27 * 2) == 0x1D2) {
-                found = 1;
-                goto done_8_c;
-            }
-            ctr_27 = (ctr_27 + 1) & 0xFFFF;
-        }
-        if ((*(u16 *)arg0 & 4) == 0) {
-            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
-            if (temp_2 >= 0) {
-                if (func_001069a0((s16)temp_2) == 0x1D2) {
-                    found = 1;
-                    goto done_8_c;
-                }
-            }
-        }
-        found = 0;
-done_8_c:
-        if (found != 0) {
-            acc |= 0x1000000;
-        }
-        break;
     case 9:
         cnt = func_0023e130(arg0) & 0xFFFF;
         base = func_0023e140(arg0);
@@ -4671,31 +4599,33 @@ done_8_c:
         }
         found = 0;
 done_9_a:
-        if (found == 0) {
-            if ((*(u16 *)arg0 & 4) == 0) {
-                idu = *(u16 *)(arg0 + 2);
-                if (idu >= 0xB) {
-                    func_0046d730(D_00635938, 0x23B);
-                }
-                t0 = func_00106cd0((s16)idu, 0);
-                if ((func_001069d0(t0) & 0xFFFF) == 0x4C) {
-                    found = 1;
-                    goto done_9_b;
-                }
-                t0 = func_00106cd0((s16)idu, 1);
-                if ((func_001069d0(t0) & 0xFFFF) == 0x4C) {
-                    found = 1;
-                    goto done_9_b;
-                }
-                found = 0;
-done_9_b:
-                if (found != 0) {
-                    acc |= 0x10000000;
-                }
-            }
-        } else {
-            acc |= 0x10000000;
+        if (found != 0) {
+            goto acc_9_b;
         }
+        if ((*(u16 *)arg0 & 4) != 0) {
+            found = 0;
+            goto chk_9_b;
+        }
+        idu = *(u16 *)(arg0 + 2);
+        if (idu >= 0xB) {
+            func_0046d730(D_00635938, 0x23B);
+        }
+        if ((func_001069d0(func_00106cd0((s16)idu, 0)) & 0xFFFF) == 0x4C) {
+            found = 1;
+            goto chk_9_b;
+        }
+        if ((func_001069d0(func_00106cd0((s16)idu, 1)) & 0xFFFF) == 0x4C) {
+            found = 1;
+            goto chk_9_b;
+        }
+        found = 0;
+chk_9_b:
+        if (found == 0) {
+            goto skp_9_b;
+        }
+acc_9_b:
+        acc |= 0x10000000;
+skp_9_b:
         cnt = func_0023e130(arg0) & 0xFFFF;
         base = func_0023e140(arg0);
         ctr_29 = 0;
@@ -4717,6 +4647,80 @@ done_9_b:
         }
         found = 0;
 done_9_c:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        break;
+    case 8:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_26 = 0;
+        while ((ctr_26 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_26 * 2) == 0x226) {
+                found = 1;
+                goto done_8_a;
+            }
+            ctr_26 = (ctr_26 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x226) {
+                    found = 1;
+                    goto done_8_a;
+                }
+            }
+        }
+        found = 0;
+done_8_a:
+        if (found != 0) {
+            goto acc_8_b;
+        }
+        if ((*(u16 *)arg0 & 4) != 0) {
+            found = 0;
+            goto chk_8_b;
+        }
+        idu = *(u16 *)(arg0 + 2);
+        if (idu >= 0xB) {
+            func_0046d730(D_00635938, 0x23B);
+        }
+        if ((func_001069d0(func_00106cd0((s16)idu, 0)) & 0xFFFF) == 0x4B) {
+            found = 1;
+            goto chk_8_b;
+        }
+        if ((func_001069d0(func_00106cd0((s16)idu, 1)) & 0xFFFF) == 0x4B) {
+            found = 1;
+            goto chk_8_b;
+        }
+        found = 0;
+chk_8_b:
+        if (found == 0) {
+            goto skp_8_b;
+        }
+acc_8_b:
+        acc |= 0x10000000;
+skp_8_b:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_27 = 0;
+        while ((ctr_27 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_27 * 2) == 0x1D2) {
+                found = 1;
+                goto done_8_c;
+            }
+            ctr_27 = (ctr_27 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1D2) {
+                    found = 1;
+                    goto done_8_c;
+                }
+            }
+        }
+        found = 0;
+done_8_c:
         if (found != 0) {
             acc |= 0x1000000;
         }
@@ -4743,31 +4747,33 @@ done_9_c:
         }
         found = 0;
 done_10_a:
-        if (found == 0) {
-            if ((*(u16 *)arg0 & 4) == 0) {
-                idu = *(u16 *)(arg0 + 2);
-                if (idu >= 0xB) {
-                    func_0046d730(D_00635938, 0x23B);
-                }
-                t0 = func_00106cd0((s16)idu, 0);
-                if ((func_001069d0(t0) & 0xFFFF) == 0x4D) {
-                    found = 1;
-                    goto done_10_b;
-                }
-                t0 = func_00106cd0((s16)idu, 1);
-                if ((func_001069d0(t0) & 0xFFFF) == 0x4D) {
-                    found = 1;
-                    goto done_10_b;
-                }
-                found = 0;
-done_10_b:
-                if (found != 0) {
-                    acc |= 0x10000000;
-                }
-            }
-        } else {
-            acc |= 0x10000000;
+        if (found != 0) {
+            goto acc_10_b;
         }
+        if ((*(u16 *)arg0 & 4) != 0) {
+            found = 0;
+            goto chk_10_b;
+        }
+        idu = *(u16 *)(arg0 + 2);
+        if (idu >= 0xB) {
+            func_0046d730(D_00635938, 0x23B);
+        }
+        if ((func_001069d0(func_00106cd0((s16)idu, 0)) & 0xFFFF) == 0x4D) {
+            found = 1;
+            goto chk_10_b;
+        }
+        if ((func_001069d0(func_00106cd0((s16)idu, 1)) & 0xFFFF) == 0x4D) {
+            found = 1;
+            goto chk_10_b;
+        }
+        found = 0;
+chk_10_b:
+        if (found == 0) {
+            goto skp_10_b;
+        }
+acc_10_b:
+        acc |= 0x10000000;
+skp_10_b:
         cnt = func_0023e130(arg0) & 0xFFFF;
         base = func_0023e140(arg0);
         ctr_31 = 0;
@@ -4789,150 +4795,6 @@ done_10_b:
         }
         found = 0;
 done_10_c:
-        if (found != 0) {
-            acc |= 0x1000000;
-        }
-        break;
-    case 11:
-        cnt = func_0023e130(arg0) & 0xFFFF;
-        base = func_0023e140(arg0);
-        ctr_32 = 0;
-        while ((ctr_32 & 0xFFFF) < (cnt & 0xFFFF)) {
-            if (*(u16 *)(base + (u16)ctr_32 * 2) == 0x22A) {
-                found = 1;
-                goto done_11_a;
-            }
-            ctr_32 = (ctr_32 + 1) & 0xFFFF;
-        }
-        if ((*(u16 *)arg0 & 4) == 0) {
-            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
-            if (temp_2 >= 0) {
-                if (func_001069a0((s16)temp_2) == 0x22A) {
-                    found = 1;
-                    goto done_11_a;
-                }
-            }
-        }
-        found = 0;
-done_11_a:
-        if (found == 0) {
-            if ((*(u16 *)arg0 & 4) == 0) {
-                idu = *(u16 *)(arg0 + 2);
-                if (idu >= 0xB) {
-                    func_0046d730(D_00635938, 0x23B);
-                }
-                t0 = func_00106cd0((s16)idu, 0);
-                if ((func_001069d0(t0) & 0xFFFF) == 0x4E) {
-                    found = 1;
-                    goto done_11_b;
-                }
-                t0 = func_00106cd0((s16)idu, 1);
-                if ((func_001069d0(t0) & 0xFFFF) == 0x4E) {
-                    found = 1;
-                    goto done_11_b;
-                }
-                found = 0;
-done_11_b:
-                if (found != 0) {
-                    acc |= 0x10000000;
-                }
-            }
-        } else {
-            acc |= 0x10000000;
-        }
-        cnt = func_0023e130(arg0) & 0xFFFF;
-        base = func_0023e140(arg0);
-        ctr_33 = 0;
-        while ((ctr_33 & 0xFFFF) < (cnt & 0xFFFF)) {
-            if (*(u16 *)(base + (u16)ctr_33 * 2) == 0x1D6) {
-                found = 1;
-                goto done_11_c;
-            }
-            ctr_33 = (ctr_33 + 1) & 0xFFFF;
-        }
-        if ((*(u16 *)arg0 & 4) == 0) {
-            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
-            if (temp_2 >= 0) {
-                if (func_001069a0((s16)temp_2) == 0x1D6) {
-                    found = 1;
-                    goto done_11_c;
-                }
-            }
-        }
-        found = 0;
-done_11_c:
-        if (found != 0) {
-            acc |= 0x1000000;
-        }
-        break;
-    case 12:
-        cnt = func_0023e130(arg0) & 0xFFFF;
-        base = func_0023e140(arg0);
-        ctr_34 = 0;
-        while ((ctr_34 & 0xFFFF) < (cnt & 0xFFFF)) {
-            if (*(u16 *)(base + (u16)ctr_34 * 2) == 0x22B) {
-                found = 1;
-                goto done_12_a;
-            }
-            ctr_34 = (ctr_34 + 1) & 0xFFFF;
-        }
-        if ((*(u16 *)arg0 & 4) == 0) {
-            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
-            if (temp_2 >= 0) {
-                if (func_001069a0((s16)temp_2) == 0x22B) {
-                    found = 1;
-                    goto done_12_a;
-                }
-            }
-        }
-        found = 0;
-done_12_a:
-        if (found == 0) {
-            if ((*(u16 *)arg0 & 4) == 0) {
-                idu = *(u16 *)(arg0 + 2);
-                if (idu >= 0xB) {
-                    func_0046d730(D_00635938, 0x23B);
-                }
-                t0 = func_00106cd0((s16)idu, 0);
-                if ((func_001069d0(t0) & 0xFFFF) == 0x4F) {
-                    found = 1;
-                    goto done_12_b;
-                }
-                t0 = func_00106cd0((s16)idu, 1);
-                if ((func_001069d0(t0) & 0xFFFF) == 0x4F) {
-                    found = 1;
-                    goto done_12_b;
-                }
-                found = 0;
-done_12_b:
-                if (found != 0) {
-                    acc |= 0x10000000;
-                }
-            }
-        } else {
-            acc |= 0x10000000;
-        }
-        cnt = func_0023e130(arg0) & 0xFFFF;
-        base = func_0023e140(arg0);
-        ctr_35 = 0;
-        while ((ctr_35 & 0xFFFF) < (cnt & 0xFFFF)) {
-            if (*(u16 *)(base + (u16)ctr_35 * 2) == 0x1D8) {
-                found = 1;
-                goto done_12_c;
-            }
-            ctr_35 = (ctr_35 + 1) & 0xFFFF;
-        }
-        if ((*(u16 *)arg0 & 4) == 0) {
-            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
-            if (temp_2 >= 0) {
-                if (func_001069a0((s16)temp_2) == 0x1D8) {
-                    found = 1;
-                    goto done_12_c;
-                }
-            }
-        }
-        found = 0;
-done_12_c:
         if (found != 0) {
             acc |= 0x1000000;
         }
@@ -4959,31 +4821,33 @@ done_12_c:
         }
         found = 0;
 done_13_a:
-        if (found == 0) {
-            if ((*(u16 *)arg0 & 4) == 0) {
-                idu = *(u16 *)(arg0 + 2);
-                if (idu >= 0xB) {
-                    func_0046d730(D_00635938, 0x23B);
-                }
-                t0 = func_00106cd0((s16)idu, 0);
-                if ((func_001069d0(t0) & 0xFFFF) == 0x50) {
-                    found = 1;
-                    goto done_13_b;
-                }
-                t0 = func_00106cd0((s16)idu, 1);
-                if ((func_001069d0(t0) & 0xFFFF) == 0x50) {
-                    found = 1;
-                    goto done_13_b;
-                }
-                found = 0;
-done_13_b:
-                if (found != 0) {
-                    acc |= 0x10000000;
-                }
-            }
-        } else {
-            acc |= 0x10000000;
+        if (found != 0) {
+            goto acc_13_b;
         }
+        if ((*(u16 *)arg0 & 4) != 0) {
+            found = 0;
+            goto chk_13_b;
+        }
+        idu = *(u16 *)(arg0 + 2);
+        if (idu >= 0xB) {
+            func_0046d730(D_00635938, 0x23B);
+        }
+        if ((func_001069d0(func_00106cd0((s16)idu, 0)) & 0xFFFF) == 0x50) {
+            found = 1;
+            goto chk_13_b;
+        }
+        if ((func_001069d0(func_00106cd0((s16)idu, 1)) & 0xFFFF) == 0x50) {
+            found = 1;
+            goto chk_13_b;
+        }
+        found = 0;
+chk_13_b:
+        if (found == 0) {
+            goto skp_13_b;
+        }
+acc_13_b:
+        acc |= 0x10000000;
+skp_13_b:
         cnt = func_0023e130(arg0) & 0xFFFF;
         base = func_0023e140(arg0);
         ctr_37 = 0;
@@ -5009,74 +4873,76 @@ done_13_c:
             acc |= 0x1000000;
         }
         break;
-    case 14:
+    case 11:
         cnt = func_0023e130(arg0) & 0xFFFF;
         base = func_0023e140(arg0);
-        ctr_38 = 0;
-        while ((ctr_38 & 0xFFFF) < (cnt & 0xFFFF)) {
-            if (*(u16 *)(base + (u16)ctr_38 * 2) == 0x229) {
+        ctr_32 = 0;
+        while ((ctr_32 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_32 * 2) == 0x22A) {
                 found = 1;
-                goto done_14_a;
+                goto done_11_a;
             }
-            ctr_38 = (ctr_38 + 1) & 0xFFFF;
+            ctr_32 = (ctr_32 + 1) & 0xFFFF;
         }
         if ((*(u16 *)arg0 & 4) == 0) {
             temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
             if (temp_2 >= 0) {
-                if (func_001069a0((s16)temp_2) == 0x229) {
+                if (func_001069a0((s16)temp_2) == 0x22A) {
                     found = 1;
-                    goto done_14_a;
+                    goto done_11_a;
                 }
             }
         }
         found = 0;
-done_14_a:
+done_11_a:
+        if (found != 0) {
+            goto acc_11_b;
+        }
+        if ((*(u16 *)arg0 & 4) != 0) {
+            found = 0;
+            goto chk_11_b;
+        }
+        idu = *(u16 *)(arg0 + 2);
+        if (idu >= 0xB) {
+            func_0046d730(D_00635938, 0x23B);
+        }
+        if ((func_001069d0(func_00106cd0((s16)idu, 0)) & 0xFFFF) == 0x4E) {
+            found = 1;
+            goto chk_11_b;
+        }
+        if ((func_001069d0(func_00106cd0((s16)idu, 1)) & 0xFFFF) == 0x4E) {
+            found = 1;
+            goto chk_11_b;
+        }
+        found = 0;
+chk_11_b:
         if (found == 0) {
-            if ((*(u16 *)arg0 & 4) == 0) {
-                idu = *(u16 *)(arg0 + 2);
-                if (idu >= 0xB) {
-                    func_0046d730(D_00635938, 0x23B);
-                }
-                t0 = func_00106cd0((s16)idu, 0);
-                if ((func_001069d0(t0) & 0xFFFF) == 0x51) {
-                    found = 1;
-                    goto done_14_b;
-                }
-                t0 = func_00106cd0((s16)idu, 1);
-                if ((func_001069d0(t0) & 0xFFFF) == 0x51) {
-                    found = 1;
-                    goto done_14_b;
-                }
-                found = 0;
-done_14_b:
-                if (found != 0) {
-                    acc |= 0x10000000;
-                }
-            }
-        } else {
-            acc |= 0x10000000;
+            goto skp_11_b;
         }
+acc_11_b:
+        acc |= 0x10000000;
+skp_11_b:
         cnt = func_0023e130(arg0) & 0xFFFF;
         base = func_0023e140(arg0);
-        ctr_39 = 0;
-        while ((ctr_39 & 0xFFFF) < (cnt & 0xFFFF)) {
-            if (*(u16 *)(base + (u16)ctr_39 * 2) == 0x1D9) {
+        ctr_33 = 0;
+        while ((ctr_33 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_33 * 2) == 0x1D6) {
                 found = 1;
-                goto done_14_c;
+                goto done_11_c;
             }
-            ctr_39 = (ctr_39 + 1) & 0xFFFF;
+            ctr_33 = (ctr_33 + 1) & 0xFFFF;
         }
         if ((*(u16 *)arg0 & 4) == 0) {
             temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
             if (temp_2 >= 0) {
-                if (func_001069a0((s16)temp_2) == 0x1D9) {
+                if (func_001069a0((s16)temp_2) == 0x1D6) {
                     found = 1;
-                    goto done_14_c;
+                    goto done_11_c;
                 }
             }
         }
         found = 0;
-done_14_c:
+done_11_c:
         if (found != 0) {
             acc |= 0x1000000;
         }
@@ -5103,31 +4969,33 @@ done_14_c:
         }
         found = 0;
 done_15_a:
-        if (found == 0) {
-            if ((*(u16 *)arg0 & 4) == 0) {
-                idu = *(u16 *)(arg0 + 2);
-                if (idu >= 0xB) {
-                    func_0046d730(D_00635938, 0x23B);
-                }
-                t0 = func_00106cd0((s16)idu, 0);
-                if ((func_001069d0(t0) & 0xFFFF) == 0x52) {
-                    found = 1;
-                    goto done_15_b;
-                }
-                t0 = func_00106cd0((s16)idu, 1);
-                if ((func_001069d0(t0) & 0xFFFF) == 0x52) {
-                    found = 1;
-                    goto done_15_b;
-                }
-                found = 0;
-done_15_b:
-                if (found != 0) {
-                    acc |= 0x10000000;
-                }
-            }
-        } else {
-            acc |= 0x10000000;
+        if (found != 0) {
+            goto acc_15_b;
         }
+        if ((*(u16 *)arg0 & 4) != 0) {
+            found = 0;
+            goto chk_15_b;
+        }
+        idu = *(u16 *)(arg0 + 2);
+        if (idu >= 0xB) {
+            func_0046d730(D_00635938, 0x23B);
+        }
+        if ((func_001069d0(func_00106cd0((s16)idu, 0)) & 0xFFFF) == 0x52) {
+            found = 1;
+            goto chk_15_b;
+        }
+        if ((func_001069d0(func_00106cd0((s16)idu, 1)) & 0xFFFF) == 0x52) {
+            found = 1;
+            goto chk_15_b;
+        }
+        found = 0;
+chk_15_b:
+        if (found == 0) {
+            goto skp_15_b;
+        }
+acc_15_b:
+        acc |= 0x10000000;
+skp_15_b:
         cnt = func_0023e130(arg0) & 0xFFFF;
         base = func_0023e140(arg0);
         ctr_41 = 0;
@@ -5149,6 +5017,154 @@ done_15_b:
         }
         found = 0;
 done_15_c:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        break;
+    case 14:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_38 = 0;
+        while ((ctr_38 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_38 * 2) == 0x229) {
+                found = 1;
+                goto done_14_a;
+            }
+            ctr_38 = (ctr_38 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x229) {
+                    found = 1;
+                    goto done_14_a;
+                }
+            }
+        }
+        found = 0;
+done_14_a:
+        if (found != 0) {
+            goto acc_14_b;
+        }
+        if ((*(u16 *)arg0 & 4) != 0) {
+            found = 0;
+            goto chk_14_b;
+        }
+        idu = *(u16 *)(arg0 + 2);
+        if (idu >= 0xB) {
+            func_0046d730(D_00635938, 0x23B);
+        }
+        if ((func_001069d0(func_00106cd0((s16)idu, 0)) & 0xFFFF) == 0x51) {
+            found = 1;
+            goto chk_14_b;
+        }
+        if ((func_001069d0(func_00106cd0((s16)idu, 1)) & 0xFFFF) == 0x51) {
+            found = 1;
+            goto chk_14_b;
+        }
+        found = 0;
+chk_14_b:
+        if (found == 0) {
+            goto skp_14_b;
+        }
+acc_14_b:
+        acc |= 0x10000000;
+skp_14_b:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_39 = 0;
+        while ((ctr_39 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_39 * 2) == 0x1D9) {
+                found = 1;
+                goto done_14_c;
+            }
+            ctr_39 = (ctr_39 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1D9) {
+                    found = 1;
+                    goto done_14_c;
+                }
+            }
+        }
+        found = 0;
+done_14_c:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        break;
+    case 12:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_34 = 0;
+        while ((ctr_34 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_34 * 2) == 0x22B) {
+                found = 1;
+                goto done_12_a;
+            }
+            ctr_34 = (ctr_34 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x22B) {
+                    found = 1;
+                    goto done_12_a;
+                }
+            }
+        }
+        found = 0;
+done_12_a:
+        if (found != 0) {
+            goto acc_12_b;
+        }
+        if ((*(u16 *)arg0 & 4) != 0) {
+            found = 0;
+            goto chk_12_b;
+        }
+        idu = *(u16 *)(arg0 + 2);
+        if (idu >= 0xB) {
+            func_0046d730(D_00635938, 0x23B);
+        }
+        if ((func_001069d0(func_00106cd0((s16)idu, 0)) & 0xFFFF) == 0x4F) {
+            found = 1;
+            goto chk_12_b;
+        }
+        if ((func_001069d0(func_00106cd0((s16)idu, 1)) & 0xFFFF) == 0x4F) {
+            found = 1;
+            goto chk_12_b;
+        }
+        found = 0;
+chk_12_b:
+        if (found == 0) {
+            goto skp_12_b;
+        }
+acc_12_b:
+        acc |= 0x10000000;
+skp_12_b:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_35 = 0;
+        while ((ctr_35 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_35 * 2) == 0x1D8) {
+                found = 1;
+                goto done_12_c;
+            }
+            ctr_35 = (ctr_35 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1D8) {
+                    found = 1;
+                    goto done_12_c;
+                }
+            }
+        }
+        found = 0;
+done_12_c:
         if (found != 0) {
             acc |= 0x1000000;
         }
@@ -5206,31 +5222,32 @@ done_1db:
             acc |= 0x1000000;
         }
     }
-    if (hasFlag != 0 && (val & 0x8000000) != 0) {
+    if (hasFlag == 1 && (val & 0x8000000) != 0) {
         val = (val & 0xF7FF0000) | 100;
     }
     if (acc != 0) {
         if ((acc & 0x10000000) != 0 && (val & 0x7000000) == 0) {
-            val = (val & 0xF7FF0000) | 0x10000032;
+            val = (((val & 0xF7FFFFFF) | 0x10000000) & 0xFFFF0000) | 0x32;
         }
         if ((acc & 0x1000000) != 0 && (val & 0x6000000) == 0) {
-            val = (val & 0xE7FF0000) | 0x1000064;
+            val = (((val & 0xE7FFFFFF) | 0x1000000) & 0xFFFF0000) | 0x64;
         }
         if ((acc & 0x2000000) != 0 && (val & 0x4000000) == 0) {
-            val = (val & 0xE6FF0000) | 0x2000064;
+            val = (((val & 0xE6FFFFFF) | 0x2000000) & 0xFFFF0000) | 0x64;
         }
         if ((acc & 0x4000000) != 0) {
-            val = (val & 0xE4FF0000) | 0x4000064;
+            val = (((val & 0xE4FFFFFF) | 0x4000000) & 0xFFFF0000) | 0x64;
         }
     }
     if (b1 != 0 && (val & 0x17000000) != 0) {
         val = (val & 0xE8FF0000) | 100;
     }
     if (b4 != 0 && ((val & 0x8000000) != 0 || (val & 0xFF000000) == 0)) {
-        val = (val & 0xFF0000) | 0x10000032;
+        val = (((val & 0xFFFFFF) | 0x10000000) & 0xFFFF0000) | 0x32;
     }
     return (s32)val;
 }
+
 #else
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023a6b0);
 #endif

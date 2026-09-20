@@ -1474,6 +1474,10 @@ void func_00368d30(u8 *arg0)
 }
 
 /* measured: floor v4_switch MISMATCH nd430 obj1452/1472 (-20B -1.36%, >=1428 threshold, not draft); first 124 instrs exact, first residual off 496 FPU dest/coloring (div.s f1 vs f0, add/sub f0/f1 swap); rotation-loop angle f20 vs f24 + lwc1 scheduling + s-pointer materialization; tail flags &2/&1/&8 + jal 0036ae90 shape match; MAC staged intermediates (adda/madd/mula/msub) emittable, no asm. */
+/* measured 00368e80 (owner, 2026-09-19): fnalign **60 -> 58 edits**, count
+   363 -> 361 against retail 366, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits - no guard before the first iteration, one compare
+   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
 // FUN_00368E80 NONMATCHING
 #ifdef NON_MATCHING
 void func_00368e80(u8 *arg0)
@@ -1616,10 +1620,12 @@ done:
                 pa[0] = nx;
                 pb[0] = ny;
             }
-            for (k = 0; k < 4; k++) {
+            k = 0;
+            do {
                 stack[k * 2] += 0.5f;
                 stack[k * 2 + 1] += 0.5f;
-            }
+                k++;
+            } while (k < 4);
             *(f32 *)(base + 0x584) = stack[0];
             *(f32 *)(base + 0x588) = stack[1];
             *(f32 *)(base + 0x5A8) = stack[2];

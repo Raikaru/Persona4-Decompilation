@@ -1326,6 +1326,10 @@ void func_004a6e50(int param_1)
 /* vtx reload variant fixes lwc1/add.s exactly (627/+9.6% outside gate, lwc1 -30->-4, add.s -12->0, */
 /* edits -2) but needs -38 instrs from color VU to re-enter gate; not banked. Caller func_004a7760 */
 /* fixed to pass arg0. INCLUDE_ASM retained; 51 MATCH in owner intact. */
+/* measured 004a6e70 (owner, 2026-09-19): fnalign **527 -> 525 edits**, count
+   587 -> 585 against retail 572, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits - no guard before the first iteration, one compare
+   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
 // FUN_004A6E70 NONMATCHING
 #ifdef NON_MATCHING
 void func_004a6e70(u8 *arg0)
@@ -1636,12 +1640,14 @@ void func_004a6e70(u8 *arg0)
         f32 fB = 2.0f * (ey * k2);
         f32 fC = k2 + 1.0f;
         fp = (f32 *)vtxBase;
-        for (j = 0; j < 0xD0; j++) {
+        j = 0;
+        do {
             fp[0] = (-fp[0] / 640.0f + 0.5f) * fA;
             fp[1] = (-fp[1] / 448.0f + 0.5f) * fB;
             fp[2] = fC;
             fp += 3;
-        }
+            j++;
+        } while (j < 0xD0);
     }
     {
         u8 *p = *(u8 **)(listBase + 0x10);

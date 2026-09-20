@@ -371,6 +371,10 @@ void func_00450630(void)
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450630);
 #endif
 /* Floor (measured 2026-09-17, source-repo only): probe_variants s1 204 words (s2 214, arch 185 oversized, l_abs 214, l_signed neutral, l_s64 221, l_chs32 209), fnalign 224/224/194 (+4, exact size), emitted 896B/window 896B. Four-pragma sweep: s1 wins balanced (loop 210w/142e short, prop 200w/321e words-best edits-worst, sched inert, O1 catastrophic). wscan daddu 0 vs 5 shortfall (width floor, s64 adds dsll32+3). Residual is frame/saves + coloring + daddu. Banked as guarded floor; production stays ASM. */
+/* measured 00450a50 (owner, 2026-09-19): fnalign **194 -> 191 edits**, count
+   224 -> 222 against retail 224, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits - no guard before the first iteration, one compare
+   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
 // FUN_00450A50 NONMATCHING
 #ifdef NON_MATCHING
 void func_00450a50(s32 arg0, s64 arg1, f32 fparg0, void *arg2)
@@ -455,10 +459,12 @@ void func_00450a50(s32 arg0, s64 arg1, f32 fparg0, void *arg2)
             uvs[3].u = uvs[1].u;
             uvs[3].v = uvs[2].v;
         }
-        for (k = 0; k < 4; k++) {
+        k = 0;
+        do {
             vertices[k][4] = uvs[k].u;
             vertices[k][5] = uvs[k].v;
-        }
+            k++;
+        } while (k < 4);
         D_00887310[0](4, vertices, 4);
     }
 }

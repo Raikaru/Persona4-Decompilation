@@ -567,25 +567,25 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     s32 spD0;
     s32 spCC;
     s32 spB0;
-    f32 *var_3;
-    f32 *var_3_10;
-    f32 *var_3_11;
-    f32 *var_3_13;
-    f32 *var_3_14;
-    f32 *var_3_16;
-    f32 *var_3_17;
-    f32 *var_3_2;
-    f32 *var_3_4;
-    f32 *var_3_5;
-    f32 *var_3_7;
-    f32 *var_3_8;
+    u8 *var_3;
+    u8 *var_3_10;
+    u8 *var_3_11;
+    u8 *var_3_13;
+    u8 *var_3_14;
+    u8 *var_3_16;
+    u8 *var_3_17;
+    u8 *var_3_2;
+    u8 *var_3_4;
+    u8 *var_3_5;
+    u8 *var_3_7;
+    u8 *var_3_8;
     f32 temp_f20;
-    s32 *var_3_12;
-    s32 *var_3_15;
-    s32 *var_3_18;
-    s32 *var_3_3;
-    s32 *var_3_6;
-    s32 *var_3_9;
+    u8 *var_3_12;
+    u8 *var_3_15;
+    u8 *var_3_18;
+    u8 *var_3_3;
+    u8 *var_3_6;
+    u8 *var_3_9;
     s32 temp_2;
     s32 temp_30;
     s32 var_17;
@@ -618,14 +618,13 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     spB0 = temp_2;
     if (temp_2 == temp_30) {
         arg0 = (s32)((float)arg0 + 47.0f * (1.0f - fparg1));
-        var_3 = (f32 *)(&sp2A8);
+        var_3 = (u8 *)(&sp2A8);
         var_2 = 4;
         if (var_3 != NULL) {
             do {
                 *var_3 = 0;
                 var_3 += 1;
-                var_2 -= 1;
-            } while (var_2 != 0);
+            } while (--var_2 != 0);
         }
         sp2AC = sp2A8;
         sp230 = D_00637430;
@@ -644,24 +643,22 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
         func_00489f80();
         func_0045d6e0(&sp2AC, &sp240, 0, 10.0f);
         func_0048a000();
-        var_3_2 = (f32 *)(&sp2A0);
+        var_3_2 = (u8 *)(&sp2A0);
         var_2_2 = 4;
         if (var_3_2 != NULL) {
             do {
                 *var_3_2 = 0;
                 var_3_2 += 1;
-                var_2_2 -= 1;
-            } while (var_2_2 != 0);
+            } while (--var_2_2 != 0);
         }
         sp2A4 = sp2A0;
-        var_3_3 = (s32 *)(&sp210);
+        var_3_3 = (u8 *)(&sp210);
         var_2_3 = 0x10;
         if (var_3_3 != NULL) {
             do {
                 *var_3_3 = 0;
                 var_3_3 += 1;
-                var_2_3 -= 1;
-            } while (var_2_3 != 0);
+            } while (--var_2_3 != 0);
         }
         sp210 = arg5;
         sp214 = 0;
@@ -691,14 +688,13 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
         } else {
             func_0025f430(var_17, arg2, 0xE, 0, arg7, 0, 0.0f, 0.0f, ((float)arg0 + 69.0f * fparg1), (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
         }
-        var_3_4 = (f32 *)(&sp298);
+        var_3_4 = (u8 *)(&sp298);
         var_2_4 = 4;
         if (var_3_4 != NULL) {
             do {
                 *var_3_4 = 0;
                 var_3_4 += 1;
-                var_2_4 -= 1;
-            } while (var_2_4 != 0);
+            } while (--var_2_4 != 0);
         }
         sp29C = sp298;
         sp1F0 = D_00637430;
@@ -729,24 +725,22 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
             func_0025f430(var_17, arg2, 0xE, 0, arg7, 0, 0.0f, 0.0f, ((float)arg0 + 69.0f * fparg1), (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
         }
         func_0048a000();
-        var_3_5 = (f32 *)(&sp290);
+        var_3_5 = (u8 *)(&sp290);
         var_2_5 = 4;
         if (var_3_5 != NULL) {
             do {
                 *var_3_5 = 0;
                 var_3_5 += 1;
-                var_2_5 -= 1;
-            } while (var_2_5 != 0);
+            } while (--var_2_5 != 0);
         }
         sp294 = sp290;
-        var_3_6 = (s32 *)(&sp1D0);
+        var_3_6 = (u8 *)(&sp1D0);
         var_2_6 = 0x10;
         if (var_3_6 != NULL) {
             do {
                 *var_3_6 = 0;
                 var_3_6 += 1;
-                var_2_6 -= 1;
-            } while (var_2_6 != 0);
+            } while (--var_2_6 != 0);
         }
         sp1D0 = arg5;
         sp1D4 = 0;
@@ -774,14 +768,13 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     }
     0.0f;
     arg0 = (s32)((float)arg0 + 47.0f * (1.0f - fparg1));
-    var_3_7 = (f32 *)(&sp288);
+    var_3_7 = (u8 *)(&sp288);
     var_2_7 = 4;
     if (var_3_7 != NULL) {
         do {
             *var_3_7 = 0;
             var_3_7 += 1;
-            var_2_7 -= 1;
-        } while (var_2_7 != 0);
+        } while (--var_2_7 != 0);
     }
     sp28C = sp288;
     sp1B0 = D_00637430;
@@ -800,24 +793,22 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     func_00489f80();
     func_0045d6e0(&sp28C, &sp1C0, 0, 10.0f);
     func_0048a000();
-    var_3_8 = (f32 *)(&sp280);
+    var_3_8 = (u8 *)(&sp280);
     var_2_8 = 4;
     if (var_3_8 != NULL) {
         do {
             *var_3_8 = 0;
             var_3_8 += 1;
-            var_2_8 -= 1;
-        } while (var_2_8 != 0);
+        } while (--var_2_8 != 0);
     }
     sp284 = sp280;
-    var_3_9 = (s32 *)(&sp190);
+    var_3_9 = (u8 *)(&sp190);
     var_2_9 = 0x10;
     if (var_3_9 != NULL) {
         do {
             *var_3_9 = 0;
             var_3_9 += 1;
-            var_2_9 -= 1;
-        } while (var_2_9 != 0);
+        } while (--var_2_9 != 0);
     }
     sp190 = arg5;
     sp194 = 0;
@@ -840,14 +831,13 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     D_00887300[0](7, 2);
     func_003f6440(3, 0x3000D);
     func_0025f430(var_17, arg2, 0xF, 0, arg7, 0, 0.0f, 0.0f, (f32) arg0, (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
-    var_3_10 = (f32 *)(&sp278);
+    var_3_10 = (u8 *)(&sp278);
     var_2_10 = 4;
     if (var_3_10 != NULL) {
         do {
             *var_3_10 = 0;
             var_3_10 += 1;
-            var_2_10 -= 1;
-        } while (var_2_10 != 0);
+        } while (--var_2_10 != 0);
     }
     sp27C = sp278;
     sp170 = D_00637430;
@@ -872,24 +862,22 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     func_00489f80();
     func_0025f430(var_17, arg2, 0xF, 0, arg7, 0, 0.0f, 0.0f, (f32) arg0, (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
     func_0048a000();
-    var_3_11 = (f32 *)(&sp270);
+    var_3_11 = (u8 *)(&sp270);
     var_2_11 = 4;
     if (var_3_11 != NULL) {
         do {
             *var_3_11 = 0;
             var_3_11 += 1;
-            var_2_11 -= 1;
-        } while (var_2_11 != 0);
+        } while (--var_2_11 != 0);
     }
     sp274 = sp270;
-    var_3_12 = (s32 *)(&sp150);
+    var_3_12 = (u8 *)(&sp150);
     var_2_12 = 0x10;
     if (var_3_12 != NULL) {
         do {
             *var_3_12 = 0;
             var_3_12 += 1;
-            var_2_12 -= 1;
-        } while (var_2_12 != 0);
+        } while (--var_2_12 != 0);
     }
     sp150 = arg5;
     sp154 = 0;
@@ -913,14 +901,13 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     } else {
         func_00260e60(arg0, arg1, arg2, temp_30, 1, spCC, arg7, 1, 10.0f, fparg1, fparg2);
     }
-    var_3_13 = (f32 *)(&sp268);
+    var_3_13 = (u8 *)(&sp268);
     var_2_13 = 4;
     if (var_3_13 != NULL) {
         do {
             *var_3_13 = 0;
             var_3_13 += 1;
-            var_2_13 -= 1;
-        } while (var_2_13 != 0);
+        } while (--var_2_13 != 0);
     }
     sp26C = sp268;
     sp130 = D_00637430;
@@ -939,24 +926,22 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     func_00489f80();
     func_0045d6e0(&sp26C, &sp140, 0, 10.0f);
     func_0048a000();
-    var_3_14 = (f32 *)(&sp260);
+    var_3_14 = (u8 *)(&sp260);
     var_2_14 = 4;
     if (var_3_14 != NULL) {
         do {
             *var_3_14 = 0;
             var_3_14 += 1;
-            var_2_14 -= 1;
-        } while (var_2_14 != 0);
+        } while (--var_2_14 != 0);
     }
     sp264 = sp260;
-    var_3_15 = (s32 *)(&sp110);
+    var_3_15 = (u8 *)(&sp110);
     var_2_15 = 0x10;
     if (var_3_15 != NULL) {
         do {
             *var_3_15 = 0;
             var_3_15 += 1;
-            var_2_15 -= 1;
-        } while (var_2_15 != 0);
+        } while (--var_2_15 != 0);
     }
     sp110 = arg5;
     sp114 = 0;
@@ -979,14 +964,13 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     D_00887300[0](7, 2);
     func_003f6440(3, 0x3000D);
     func_0025f430(var_17, arg2, 3, 1, arg7, 0, 0.0f, 0.0f, (f32) arg0, (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
-    var_3_16 = (f32 *)(&sp258);
+    var_3_16 = (u8 *)(&sp258);
     var_2_16 = 4;
     if (var_3_16 != NULL) {
         do {
             *var_3_16 = 0;
             var_3_16 += 1;
-            var_2_16 -= 1;
-        } while (var_2_16 != 0);
+        } while (--var_2_16 != 0);
     }
     sp25C = sp258;
     spF0 = D_00637430;
@@ -1011,24 +995,22 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     func_00489f80();
     func_0025f430(var_17, arg2, 3, 1, arg7, 0, 0.0f, 0.0f, (f32) arg0, (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
     func_0048a000();
-    var_3_17 = (f32 *)(&sp250);
+    var_3_17 = (u8 *)(&sp250);
     var_2_17 = 4;
     if (var_3_17 != NULL) {
         do {
             *var_3_17 = 0;
             var_3_17 += 1;
-            var_2_17 -= 1;
-        } while (var_2_17 != 0);
+        } while (--var_2_17 != 0);
     }
     sp254 = sp250;
-    var_3_18 = (s32 *)(&spD0);
+    var_3_18 = (u8 *)(&spD0);
     var_2_18 = 0x10;
     if (var_3_18 != NULL) {
         do {
             *var_3_18 = 0;
             var_3_18 += 1;
-            var_2_18 -= 1;
-        } while (var_2_18 != 0);
+        } while (--var_2_18 != 0);
     }
     spD0 = arg5;
     spD4 = 0;

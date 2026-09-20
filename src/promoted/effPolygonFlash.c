@@ -108,6 +108,10 @@ void func_0049a9e0(u8 *arg0)
    packed scalar color data before the COP2 block; b210 cannot emit this sequence
    from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
 /* Floor (measured 2026-09-18, source-repo only): banked 488 words (u8+loop), fnalign 540/528/297, emitted 2112B/window 2176B (97.06%% PASS by 1B). Full 8+28 sweep: loop 488 ties with loop+dead/loop+strength/loop+unroll 488; peephole 491, loop+prop 503, dead/prop/strength/unroll 513, cse 520, schedule 516, no pair beats 488 -- installed loop stands (worth 27w/54ed, rotation collapses; u8 truthful for lbu). Residual is s128-canonicalization + standalone MMI pextlb/pextlh + interior VU vitof/vmul/vftoi/ppach + daddu zero-idiom; opclass daddu 0-vs-9, dsll32 0/0. Banked as guarded floor; production stays ASM. */
+/* measured 0049aa30 (owner, 2026-09-19): fnalign **297 -> 295 edits**, count
+   528 -> 526 against retail 540, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits - no guard before the first iteration, one compare
+   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
 // FUN_0049AA30 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
@@ -423,12 +427,14 @@ void func_0049aa30(u8 *arg0)
                         *piVar16 = cur + 1;
                     } else {
                         s32 k;
-                        for (k = 0; k < 5; k++) {
+                        k = 0;
+                        do {
                             ((f32 *)puVar15)[k * 3 + 0] = 0.0f;
                             ((f32 *)puVar15)[k * 3 + 1] = 0.0f;
                             ((f32 *)puVar15)[k * 3 + 2] = 0.0f;
                             ((u32 *)puVar14)[k] = 0;
-                        }
+                            k++;
+                        } while (k < 5);
                         if (cVar1 == 0) {
                             cur = -2;
                         } else {
@@ -668,6 +674,10 @@ void func_0049b640(u8 *arg0)
    packed scalar color data before the COP2 block; b210 cannot emit this sequence
    from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
 /* Floor (measured 2026-09-18, source-repo only): measure_guarded 507 words (loop+prop), fnalign 597/585/316 (retail/object/edits instrs), emitted 2340B (585*4)/retail 2388B (597*4)/window 2400B (97.5%). Pragma sweep: bare 568, loop 519 WINNER (-49), loop+prop 507 WINNER (-12), prop 560, O3 558, O4 560, dead/strength/unroll tie 568, schedule on 573, peephole 584, subs/level1 628, level0 651; pairs confirm loop+prop stands. Probe chain: v1 bare 568 -> loop 519 (-49) -> loop+prop 507 (-12). Micro-priced casts: (s32)(f*(f32)n) 8 instrs vs (u32) 21 (saves 13 per fade, cf. func_0049ef50 8-vs-21); color packing via single VU bridge per loop (lui 0x437F) not per-channel casts. Subscript P[i] stands (both sll-before-lw; subptr tie 507). Colour swaps tie (vertex/color, cnt38/cnt4C, spEC/spE8, pi/pif, tmp17/tmp34 all 507). wscan OBJ 2 dsll32/dsra32 vs RETAIL 0 (s128 spC0 wall) + daddu 0-vs-11. Banked as guarded floor; production stays ASM. */
+/* measured 0049b690 (owner, 2026-09-19): fnalign **316 -> 314 edits**, count
+   585 -> 583 against retail 597, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits - no guard before the first iteration, one compare
+   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
 // FUN_0049B690 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
@@ -939,7 +949,8 @@ void func_0049b690(u8 *arg0)
                             vertex[k * 3 + 4] = ((f32 *)D_00713D10)[1];
                             vertex[k * 3 + 5] = ((f32 *)D_00713D10)[2];
                         }
-                        for (k = 6; k < 12; k++) {
+                        k = 6;
+                        do {
                             u32 fb;
                             u32 f70w;
                             fb = D_00713FB0[k];
@@ -960,7 +971,8 @@ void func_0049b690(u8 *arg0)
                             vertex[k * 3 + 3] = ((f32 *)D_00713D10)[0];
                             vertex[k * 3 + 4] = ((f32 *)D_00713D10)[1];
                             vertex[k * 3 + 5] = ((f32 *)D_00713D10)[2];
-                        }
+                            k++;
+                        } while (k < 12);
                         if (cur < sp100) {
                             fade = (f32)cur / (f32)sp100;
                         } else {
