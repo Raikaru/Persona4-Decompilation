@@ -1223,6 +1223,24 @@ INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b1d70);
    also unproven). The spare $fp is real but puVar16 is not the spare: the
    assignment is permuted wholesale ($s0=puVar16 in retail vs $s0=pbVar12 and
    $fp=rowBase here). Banked floor unchanged. */
+/* measured 001b2380 (owner, 2026-09-19): 1014 against retail 1038 (-2.3%, inside),
+   **1392 edits**, and deficit_scan finds a single retail-only run of **591 instructions**
+   at 0x001b272c-0x001b3068 - well over half the function, with opcode delta
+   `swc1 +45, lwc1 +43, mul.s +19, add.s +19`.  A run that long inside a body only 24
+   instructions short means the region is present but in a shape the aligner cannot pair,
+   not absent.  That is where the edits are; everything else here is noise.
+   Retail's dispatch at 0x001b2784 reads exactly:
+     lhu $3, 0x1A($4); addiu $2, 1; beq $3,$2 -> .L001B2A6C; beqz $3 -> .L001B2A6C;
+     addiu $2, 2; beq $3,$2 -> .L001B27B0; b .L001B3054
+   So the compare order is 1, 0, 2 with a default - which the current source already has -
+   0 and 1 genuinely share one body, and the case-2 body is emitted FIRST at 0x001b27b0
+   with the shared 0/1 body after it at 0x001b2a6c.
+   Two rewrites of that layout were measured and both fail: putting the case-2 arm first in
+   the chain is 1392/1014, exactly neutral, and a `switch` with `case 2:` first then
+   `case 0: case 1:` sharing a body is 1394/1016.  The `goto LAB_001b2a6c` pins the shared
+   body's position regardless of source order, so the arm order is not reachable this way.
+   The float block inside the 591-run is the real work: 45 stores and 43 loads with 19
+   multiplies and 19 adds that the object spells differently. */
 // FUN_001B2380 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001b2380(void)

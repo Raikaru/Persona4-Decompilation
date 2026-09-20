@@ -5999,6 +5999,7 @@ void func_0047b060(void* param_1)
    register-rotation floor. */
 /* measured 0047b0c0 R2: object 1350/retail 1380 (-30, -2.2% INSIDE +-3% gate, 41 allowed); fnalign 2135 edits+2 reloc-only; words 1269. Fix: 11x func_0044ea90(void)->(D_00713138,imm) with retail imms 0x125,0xfa,0x1d6,0x1d6,0xc93,0x18c5,0x18b7,0x850,0x1896,0x1834,0x908 + prototype (void*,int); lui -13->-2, addiu -18->+4, delete 181:182 gone. Remaining: switch inline vs out-of-line (478 delete artifact) + spare $s6/$s7 + lw -27/beq -23. Production guarded, fallback INCLUDE_ASM retained. */
 /* measured 0047b0c0 R3 (2026-09-19, OR-as-fallthrough + global-asc switch): object 1359/retail 1380 (-21, -1.5% INSIDE +-3% gate, 41 allowed); fnalign 1539 edits+12 reloc-only (was 2135+2); words 1279 (was 1269). Spellings: chain (08||07) 2135, chain (07||08) 2135 (tie); switch source-order asc 2054, desc 2054 (tie), 8083src 2054 (tie), global-desc 2054; switch global-asc 1539 (-596 vs chain, -515 vs source-order). Tail: before struct 70 reg 6, after struct 154 reg 35 (old 478-delete splits into body-order hunks; largest retail[821:968]/object[1022:1027] 147v5). Remaining: frame 0xb0 vs 0xd0 + spare s-regs, compares source-order vs descending. Production guarded, fallback retained. */
+/* measured 0047b0c0 R4 (2026-09-20, deficit-shape fixes): object 1367/retail 1380 (-13, -0.9% INSIDE +-3% gate, 41 allowed); fnalign 1530 edits+12 reloc-only (was 1539+12); frame 0xc0 (was 0xb0, retail 0xd0). Fixes: 3x func_004667d0 8->10 args (2 trailing zeros, sd+6 gone, +6 instrs, per sdkSpr/k_fldResource 10-arg prototype); temp_v5 unsigned->int (sltiu->slti, sltu->slt, retail signed); 2x func_003ef260 0x463100->func_00463100 + 2x 0x70b610->&D_0070B610 (reloc-correct, per effObjectParticle/k_clumpInstance/003d60e0 &D_ usage); loop masks 06/D0/03 compare+index (temp&0xFFFF) + E0/E1 header (temp_v2&0xFFFF) (andi 6->3, lhu 8->6); case 02/04 short->unsigned short (lh->lhu, retail lhu). Remaining: 147 at 0x0047bd94 + 130 at 0x0047c3d4 (switch body order: retail reverse-dispatch layout vs global-asc jump table) + 65 at 0x0047b494 (2B stack home), lw+27/lhu+6/addu+6/sw+5/subu+5/beqz+5 (retail stack-reload vs object reg-cache for uStack_4c/uStack_2). Production guarded, fallback retained. */
 // FUN_0047B0C0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0047b0c0(u8 *arg0)
@@ -6026,7 +6027,9 @@ s32 func_0047b0c0(u8 *arg0)
     extern s32 func_003ef1b0();
     extern s32 func_003ef260();
     extern s32 func_0043f9c8();
-    extern s32 func_004667d0();
+    extern s32 func_004667d0(s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
+    extern void func_00463100(void *);
+    extern u8 D_0070B610;
     extern s32 func_0047d460();
 /* irregular: 10 native warning(s); review required */
   unsigned short temp_v0;
@@ -6036,7 +6039,7 @@ s32 func_0047b0c0(u8 *arg0)
   int temp_v3;
   unsigned char *pbVar6;
   unsigned int temp_v4;
-  unsigned int temp_v5;
+  int temp_v5;
   unsigned int *puVar9;
   int temp_v6;
   u32 temp_v7;
@@ -6088,13 +6091,13 @@ s32 func_0047b0c0(u8 *arg0)
           iStack_18 = piVar2[0xb] + *(int *)(*piVar2 + 0xc);
           iStack_14 = piVar2[0xc] - *(int *)(*piVar2 + 0xc);
           temp_v7 = func_003e2f60(3,1,&iStack_18);
-          temp_v3 = func_004667d0(8,0,0,0,temp_v7,0,0,0);
+          temp_v3 = func_004667d0(8,0,0,0,temp_v7,0,0,0,0,0);
           piVar2[1] = temp_v3;
           func_003e2ce0(*piVar2,uStack_4c);
         }
         else {
           temp_v7 = func_003e6a90(*piVar2);
-          func_003ef260(temp_v7,0x463100,piVar2 + 0xd);
+          func_003ef260(temp_v7,func_00463100,piVar2 + 0xd);
           func_003ef1b0(temp_v7);
         }
       break;
@@ -6125,7 +6128,7 @@ s32 func_0047b0c0(u8 *arg0)
       break;
     case 0x23:
         temp_v7 = func_003dc370(*piVar2);
-        func_003ef260(temp_v7,0x463100,piVar2 + 0xd);
+        func_003ef260(temp_v7,func_00463100,piVar2 + 0xd);
         func_003ef1b0(temp_v7);
       break;
     case 0x2b:
@@ -6134,7 +6137,7 @@ s32 func_0047b0c0(u8 *arg0)
             iStack_18 = piVar2[0xb] + *(int *)(*piVar2 + 0xc);
             iStack_14 = piVar2[0xc] - *(int *)(*piVar2 + 0xc);
             temp_v7 = func_003e2f60(3,1,&iStack_18);
-            temp_v3 = func_004667d0(7,0,0,0,temp_v7,0,0,0);
+            temp_v3 = func_004667d0(7,0,0,0,temp_v7,0,0,0,0,0);
             piVar2[2] = temp_v3;
           }
           else {
@@ -6147,7 +6150,7 @@ s32 func_0047b0c0(u8 *arg0)
             iStack_18 = piVar2[0xb] + *(int *)(*piVar2 + 0xc);
             iStack_14 = piVar2[0xc] - *(int *)(*piVar2 + 0xc);
             temp_v7 = func_003e2f60(3,1,&iStack_18);
-            temp_v4 = func_004667d0(7,0,0,0,temp_v7,0,0,0);
+            temp_v4 = func_004667d0(7,0,0,0,temp_v7,0,0,0,0,0);
             *(unsigned int *)(piVar2[3] + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 4) = temp_v4;
           }
           func_003e2ce0(*piVar2,uStack_4c);
@@ -6164,10 +6167,10 @@ s32 func_0047b0c0(u8 *arg0)
             *(unsigned short *)((int)piVar17 + 0xe) = 1;
             *(int **)((int)arg0 + 0x254) = piVar17;
           }
-          temp_v5 = func_003d6350(0x70b610,*piVar2);
+          temp_v5 = func_003d6350((u32)&D_0070B610,*piVar2);
           if (*(int *)((int)arg0 + 0xdc) == 0) {
             *(unsigned int *)(*(int *)((int)arg0 + 0x254) + 4) = temp_v5;
-            func_003d60e0(0x70b610,temp_v5);
+            func_003d60e0((u32)&D_0070B610,temp_v5);
           }
           else {
             *(unsigned int *)(**(int **)((int)arg0 + 0x254) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 8)
@@ -6190,7 +6193,7 @@ s32 func_0047b0c0(u8 *arg0)
       func_003e2ce0(*piVar2,uStack_4c);
       break;
     case 0xf0f00002:
-      *(short *)(piVar2 + 7) = (short)piVar2[7] + 1;
+      *(unsigned short *)(piVar2 + 7) = *(unsigned short *)(piVar2 + 7) + 1;
       *(unsigned short *)((int)piVar2 + 0x1e) = 0;
       func_003e2ce0(*piVar2,uStack_4c);
       break;
@@ -6201,8 +6204,8 @@ s32 func_0047b0c0(u8 *arg0)
           func_0044ea90(D_00713138, 0x1896);
           temp_v3 = (u32)((void*(*)(int,int))DAT_008873e8[0])((unsigned int)uStack_2 << 1,0x40000);
           piVar2[*(unsigned short *)(piVar2 + 7) + 9] = temp_v3;
-          for (temp_v5 = 0; temp_v5 < uStack_2; temp_v5 = (temp_v5 + 1) & 0xffff) {
-            *(unsigned short *)(piVar2[*(unsigned short *)(piVar2 + 7) + 9] + temp_v5 * 2) = 0xffff;
+          for (temp_v5 = 0; (temp_v5 & 0xffff) < (int)uStack_2; temp_v5 = (temp_v5 + 1) & 0xffff) {
+            *(unsigned short *)(piVar2[*(unsigned short *)(piVar2 + 7) + 9] + (temp_v5 & 0xffff) * 2) = 0xffff;
           }
         }
         *(unsigned short *)(piVar2[*(unsigned short *)(piVar2 + 7) + 9] + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 2)
@@ -6270,7 +6273,7 @@ s32 func_0047b0c0(u8 *arg0)
       }
       break;
     case 0xf0f00004:
-      *(short *)((int)piVar2 + 0x1e) = *(short *)((int)piVar2 + 0x1e) + 1;
+      *(unsigned short *)((int)piVar2 + 0x1e) = *(unsigned short *)((int)piVar2 + 0x1e) + 1;
       func_003e2ce0(*piVar2,uStack_4c);
       break;
     case 0xf0f00005:
@@ -6297,8 +6300,8 @@ s32 func_0047b0c0(u8 *arg0)
       *puVar16 = uStack_6;
       puVar16[1] = 1;
       *(int *)(puVar16 + 2) = temp_v9;
-      for (temp_v5 = 0; temp_v5 < uStack_6; temp_v5 = (temp_v5 + 1) & 0xffff) {
-        temp_v9 = temp_v5 * 0x50;
+      for (temp_v5 = 0; (temp_v5 & 0xffff) < (int)uStack_6; temp_v5 = (temp_v5 + 1) & 0xffff) {
+        temp_v9 = (temp_v5 & 0xffff) * 0x50;
         func_003e2910(temp_v3,*(int *)(puVar16 + 2) + temp_v9 + 0x40,4);
         func_003e2910(temp_v3,*(int *)(puVar16 + 2) + temp_v9 + 0x44,4);
         func_003e2910(temp_v3,*(int *)(puVar16 + 2) + temp_v9,0x40);
@@ -6401,14 +6404,14 @@ s32 func_0047b0c0(u8 *arg0)
                                               (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x120) +
                                     (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x48) + 0x3c,
                    uStack_4c);
-      for (temp_v5 = 0; temp_v5 < 4; temp_v5 = (temp_v5 + 1) & 0xffff) {
+      for (temp_v5 = 0; (temp_v5 & 0xffff) < 4; temp_v5 = (temp_v5 + 1) & 0xffff) {
         func_003df3c0(*piVar2,&uStack_50);
         temp_v4 = func_003d53c0(*piVar2);
         *(unsigned int *)
          (*(int *)(**(int **)((int)arg0 +
                              ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7))
                              * 4 + 0x120) + (unsigned int)*(unsigned short *)((int)piVar2 + 0x1e) * 0x50 + 0x48) +
-         temp_v5 * 4) = temp_v4;
+         (temp_v5 & 0xffff) * 4) = temp_v4;
       }
       break;
     case 0xf0f000e0:
@@ -6433,9 +6436,9 @@ s32 func_0047b0c0(u8 *arg0)
           temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(temp_v6,0x40000);
           func_0043f9c8(temp_v7,0,temp_v6);
           puVar9 = (unsigned int *)temp_v7;
-          *puVar9 = (unsigned int)temp_v2;
+          *puVar9 = (temp_v2 & 0xffff);
           puVar9[5] = (unsigned int)(puVar9 + 0xd);
-          puVar9[8] = (unsigned int)(puVar9 + 0xd + temp_v2);
+          puVar9[8] = (unsigned int)(puVar9 + 0xd + (temp_v2 & 0xffff));
           *(unsigned int **)((int)arg0 +
                     ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 +
                     0x124) = puVar9;
@@ -6474,9 +6477,9 @@ s32 func_0047b0c0(u8 *arg0)
         temp_v7 = (u32)((void*(*)(int,int))DAT_008873e8[0])(temp_v6,0x40000);
         func_0043f9c8(temp_v7,0,temp_v6);
         puVar9 = (unsigned int *)temp_v7;
-        *puVar9 = (unsigned int)temp_v2;
+        *puVar9 = (temp_v2 & 0xffff);
         puVar9[5] = (unsigned int)(puVar9 + 0xd);
-        puVar9[8] = (unsigned int)(puVar9 + 0xd + temp_v2);
+        puVar9[8] = (unsigned int)(puVar9 + 0xd + (temp_v2 & 0xffff));
         *(unsigned int **)((int)arg0 +
                   ((unsigned int)*(unsigned short *)(piVar2 + 7) * 0x28 + (unsigned int)*(unsigned short *)(piVar2 + 7)) * 4 + 0x124
                   ) = puVar9;
