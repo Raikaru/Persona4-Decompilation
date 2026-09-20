@@ -6243,27 +6243,31 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f9d90);
 /*   and the 0x6E/colour/ba970 tail, 0x8E, 0x90, 0x91, 0x92, 0x93, 0x97 (adapted from the m2c */
 /*   oracle src/generated/code1_002f.c P4_UNIT_002FBEA0, de-noised to this file's idiom: */
 /*   M2C_FIELD to direct casts, hallucinated 2nd args on 002e4870/002b6150/002bb680/00314660 */
-/*   dropped, D_008C024E to [0]); 0x8F carries only its D_008C024E[0]&8 sub-branch so the two */
-/*   0x38/0x3F by-value copies land as `*(FclVec2f *)(ps + 0x38)` with */
+/*   dropped, D_008C024E to [0]); 0x95 (bb680/bb1c0 guard + 002e48a0 &4 bit dance + bab80/ */
+/*   badc0 0xD tail to 0x91, else 0x8F), 0x99 (6970 guard + 314750/314450/c6e0/d140/325450 */
+/*   tail to 0x9A, mirroring 0x8E), 0x9D and 0x9F (122==1 ? 32c480 : 34a630+1/d1d0 0.0f, then */
+/*   bb680/bbcf0/bb550 tail to 0x9A); 0x8F carries only its D_008C024E[0]&8 sub-branch so */
+/*   the two 0x38/0x3F by-value copies land as `*(FclVec2f *)(ps + 0x38)` with */
 /*   `ps = func_002b6150(...)` (b210 emits ldr/ldl; plain s64 emits ld). Stubbed (break): */
-/*   0x8D (FPU-MAC adda.s/madd.s chain, not C-reachable), 0x94 (gp-relative), 0x95, 0x96, */
-/*   0x98 (second MAC chain), 0x99, 0x9A (ldr quartet), 0x9B, 0x9C, 0x9D, 0x9E, 0x9F; the */
+/*   0x8D (FPU-MAC adda.s/madd.s chain, not C-reachable), 0x94 (gp-relative), 0x96, */
+/*   0x98 (second MAC chain), 0x9A (ldr quartet), 0x9B, 0x9C, 0x9E; the */
 /*   remainder of 0x8F likewise. */
-/* measured 002fbea0 partial: object 654I vs retail 6579I (9.9%), fnalign 6428 edits */
-/*   (+2 reloc-only) via `python3 tools/fnalign.py src/Event/Fcl/y_fclCombine.c func_002fbea0 */
-/*   --candidate /tmp/cand_002fbea0.c`. */
-/* OUTSIDE the +-3% band (654 vs 6383-6777, short by 5729): states 0x8D, 0x94, 0x95, 0x96, */
-/*   0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F still missing (break stubs) and 0x8F only */
+/* measured 002fbea0 partial: object 868I vs retail 6579I (13.2%) via */
+/*   `python3 tools/fnalign.py src/Event/Fcl/y_fclCombine.c func_002fbea0 */
+/*   --candidate /tmp/cand_002fbea0.c`; deficit_scan deficit 5711, biggest ABSENT run 1668 */
+/*   at 0x002fe7c0-0x003001d0 (was 3944 at 0x002fe7cc-0x0030256c). */
+/* OUTSIDE the +-3% band (868 vs 6383-6777, short by 5515): states 0x8D, 0x94, 0x96, */
+/*   0x98, 0x9A, 0x9B, 0x9C, 0x9E still missing (break stubs) and 0x8F only */
 /*   partial. Land more states to close the gap; dispatch + case order already stable. */
-/* gate: func_002fbea0 is OUTSIDE the +-3% band at 654 against retail 6579 (-90.1%, band
-   6383-6777).  This is a DISPATCH SKELETON, not a floor: the jump table at jtbl_00749280 has
-   states 0x8A-0x9F and only 0x8A, 0x8B, 0x8E, 0x90, 0x91, 0x92, 0x93 and 0x97 are recovered
-   faithfully, with 0x8F partial (the D_008C024E & 8 arm only).  Still missing: 0x8D, 0x94,
-   0x95, 0x96, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F.  The dispatch itself is exact -
-   lbu / addiu -0x8A / sltiu 0x16 / lui+addiu / sll / addu / lw / jr $3 all reproduce.
-   No differing-word or edit number measured against this body means anything until the twelve
-   missing states are written (handoff 7y); it is banked so the next worker starts from the
-   dispatch rather than from nothing. */
+/* gate: func_002fbea0 is OUTSIDE the +-3% band at 868 against retail 6579 (-86.8%, band */
+/*   6383-6777).  This is a DISPATCH SKELETON, not a floor: the jump table at jtbl_00749280 has */
+/*   states 0x8A-0x9F and 0x8A, 0x8B, 0x8E, 0x90, 0x91, 0x92, 0x93, 0x97, 0x95, 0x99, 0x9D */
+/*   and 0x9F are recovered, with 0x8F partial (the D_008C024E & 8 arm only).  Still */
+/*   missing: 0x8D, 0x94, 0x96, 0x98, 0x9A, 0x9B, 0x9C, 0x9E.  The dispatch itself is */
+/*   exact - lbu / addiu -0x8A / sltiu 0x16 / lui+addiu / sll / addu / lw / jr $3 all */
+/*   reproduce.  No differing-word or edit number measured against this body means anything */
+/*   until the eight missing states are written; it is banked so the next worker starts */
+/*   from the dispatch plus twelve recovered arms rather than from nothing. */
 // FUN_002FBEA0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002fbea0(u8 *arg0) {
@@ -6302,6 +6306,12 @@ void func_002fbea0(u8 *arg0) {
     extern void func_002b2970(s64 *, f32, f32);
     extern void func_002b69f0(s16, FclVec2f, FclVec2f, u32, u32, s16);
     extern void func_0045af60(s32, s32, s32, s32);
+    extern void func_0032c480(u8 *);
+    extern s8 *func_0034a630(s32);
+    extern void func_0011d1d0(u8 *, f32);
+    extern s8 func_002bb1c0(s8);
+    extern void func_0010fd40(void *);
+    extern void func_00314750(u8 *, s32);
 
     u8 *p;
     u8 state;
@@ -6523,7 +6533,30 @@ void func_002fbea0(u8 *arg0) {
     case 0x94:
         break;
     case 0x95:
-        break;
+        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
+            func_002bbcf0(*(s8 *)(p + 0xD));
+            return;
+        }
+        if (func_002bb1c0(*(s8 *)(p + 0xD)) == 0) {
+            var_16_2 = *func_002e48a0(0, *(s16 *)(p + 0x11E));
+            if (*func_002e48a0(0, *(s16 *)(p + 0x11E)) & 4) {
+                *func_002e48a0(0, *(s16 *)(p + 0x11E)) = 0;
+                *func_002e48a0(0, *(s16 *)(p + 0x11E)) |= 1;
+                func_0010fd40(func_002e48a0(0, *(s16 *)(p + 0x11E)));
+                *func_002e48a0(0, *(s16 *)(p + 0x11E)) = var_16_2;
+            } else {
+                func_0010fd40(func_002e48a0(0, *(s16 *)(p + 0x11E)));
+            }
+            func_002bb550(*(s8 *)(p + 0xD));
+            tmp8 = func_002bab80((void *)func_00331660());
+            *(s8 *)(p + 0xD) = tmp8;
+            func_002badc0(tmp8, 0xD);
+            *(p + 1) = 0x91;
+            return;
+        }
+        *(p + 1) = 0x8F;
+        func_002bb550(*(s8 *)(p + 0xD));
+        return;
     case 0x96:
         break;
     case 0x97:
@@ -6544,6 +6577,15 @@ void func_002fbea0(u8 *arg0) {
     case 0x98:
         break;
     case 0x99:
+        if (func_002b6970(*(s16 *)(func_002b6150(0x270) + 0x10), 1) != 1) {
+            func_00314750(*(u8 **)(p + 0x148), 0);
+            func_00314450(*(u8 **)(p + 0x148), func_002e48a0(0, *(s16 *)(p + 0x11E)), 0, 1);
+            func_0011c6e0(func_003147d0(*(u8 **)(p + 0x148)), 1);
+            func_0011d140(func_003147d0(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
+            func_00325450(arg0, 1, 0);
+            *(p + 1) = 0x9A;
+            return;
+        }
         break;
     case 0x9A:
         break;
@@ -6552,11 +6594,35 @@ void func_002fbea0(u8 *arg0) {
     case 0x9C:
         break;
     case 0x9D:
-        break;
+        if (*(s8 *)(p + 0x122) == 1) {
+            func_0032c480(arg0);
+        } else {
+            *(s8 *)(func_0034a630(*(s32 *)(p + 0x254)) + 1) = 1;
+            func_0011d1d0(func_003147d0(*(u8 **)(p + 0x148)), 0.0f);
+        }
+        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
+            func_002bbcf0(*(s8 *)(p + 0xD));
+            return;
+        }
+        func_002bb550(*(s8 *)(p + 0xD));
+        *(p + 1) = 0x9A;
+        return;
     case 0x9E:
         break;
     case 0x9F:
-        break;
+        if (*(s8 *)(p + 0x122) == 1) {
+            func_0032c480(arg0);
+        } else {
+            *(s8 *)(func_0034a630(*(s32 *)(p + 0x254)) + 1) = 1;
+            func_0011d1d0(func_003147d0(*(u8 **)(p + 0x148)), 0.0f);
+        }
+        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
+            func_002bbcf0(*(s8 *)(p + 0xD));
+            return;
+        }
+        func_002bb550(*(s8 *)(p + 0xD));
+        *(p + 1) = 0x9A;
+        return;
     default:
         return;
     }

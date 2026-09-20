@@ -1082,7 +1082,7 @@ u8 *func_002ae630(u8 *arg0) {
     extern f32 func_002b1480(YVec3f *, f32);
     extern s32 func_002b3990(s32);
     extern s32 func_002b4140(s32, s8, u8 *);
-    extern s32 func_002b4fe0(s32, s64, s8);
+    extern s32 func_002b4fe0(s32, s64, s32);
     extern s32 func_002b6590(s32, s16, s32);
     extern void *func_0047a2f0(s32);
     extern u8 *func_001452b0(s32);
@@ -1102,8 +1102,7 @@ u8 *func_002ae630(u8 *arg0) {
     u32 c2;
     u32 c3;
     u32 c4;
-    f32 f1;
-    f32 f2;
+    union { YVec2f v; s64 s; } fv;
     f32 fbase;
     s32 i;
     s32 j;
@@ -1256,12 +1255,12 @@ u8 *func_002ae630(u8 *arg0) {
             ti = func_002B11C0(*(RwV3d *)p);
             fbase = (f32)ti * 18.0f + 172.0f;
             tf = func_002b13e0(p, 18.0f);
-            f1 = (fbase - tf) - 2.0f;
+            fv.v.x = (fbase - tf) - 2.0f;
             ti = func_002B1210(*(RwV3d *)p);
             fbase = (f32)ti * 18.0f + 9.0f;
             tf = func_002b1480(p, 18.0f);
-            f2 = (fbase - tf) - 2.0f;
-            *(s32 *)(blk + m * 4 + 0x114) = func_002b4fe0((s32)res, *(s64 *)&f1, (s8)m);
+            fv.v.y = (fbase - tf) - 2.0f;
+            *(s32 *)(blk + m * 4 + 0x114) = func_002b4fe0((s32)res, fv.s, (m & 0xFF));
         }
     }
     func_0046d280(tmp);
