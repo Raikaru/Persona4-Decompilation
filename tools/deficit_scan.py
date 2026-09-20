@@ -96,14 +96,36 @@ def report(rel: str, function: str) -> None:
         top = "  ".join(f"{op} +{n}" for n, op in delta[:8])
         print(f"  retail has more: {top}", flush=True)
 
-    runs = sorted((len(retail_lines), span, object_lines)
-                  for kind, span, retail_lines, object_lines in hunks
-                  if kind == "delete" or (kind == "replace" and
-                                          len(retail_lines) > len(object_lines) + 2))
-    for length, span, _ in runs[-3:][::-1]:
+    # A long retail-only run is not automatically missing code.  On
+    # func_002f0f00 the three biggest runs were alignment CROSSES - an object
+    # lump of 475 paired against a single retail instruction, and retail runs
+    # of 201 and 83 paired against one or two object instructions - and the
+    # fix was raising local similarity so the aligner could re-sync, not
+    # writing anything.  One reload line unslid two of them and was worth 836
+    # edits.  So report the object side of each run: a comparable lump nearby
+    # means CROSS, nothing nearby means the code really is ABSENT.
+    object_len = [len(object_lines) for _, _, _, object_lines in hunks]
+    runs = []
+    for index, (kind, span, retail_lines, object_lines) in enumerate(hunks):
+        if kind == "delete" or (kind == "replace" and
+                                len(retail_lines) > len(object_lines) + 2):
+            # Judge locally: the object lump that "ate" the run is in this
+            # hunk or one beside it.  A global maximum would call every run
+            # in a function a CROSS as soon as one big object hunk exists
+            # anywhere in it.
+            neighbourhood = max(object_len[max(0, index - 1):index + 2])
+            runs.append((len(retail_lines), span, len(object_lines), neighbourhood))
+    for length, span, paired, neighbourhood in sorted(runs)[-3:][::-1]:
         start = address + span[0] * 4
+        # You cannot be missing more instructions than you are short.  A run
+        # longer than the whole deficit is code the object HAS and the
+        # aligner could not pair - func_001b2380 is 24 short yet carries a
+        # 591-instruction run.  Only a run that fits inside the deficit can
+        # actually be absent.
+        verdict = "CROSS" if length > max(deficit, 0) else "ABSENT"
         print(f"  retail-only run of {length} at {start:#010x}-"
-              f"{address + span[1] * 4:#010x}", flush=True)
+              f"{address + span[1] * 4:#010x}  paired against {paired} object "
+              f"instrs, {neighbourhood} nearby -> likely {verdict}", flush=True)
 
 
 def main() -> None:

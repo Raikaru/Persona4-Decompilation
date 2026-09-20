@@ -571,6 +571,37 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7bj. A long retail-only run is often a CROSS, not missing code
+
+`deficit_scan.py` was built on the premise that a long retail-only run means
+absent code, which is how `func_00131a00` was cracked (one missing `andi
+0x20` test, 4431 -> 1833).  That premise is only half right.
+
+On `func_002f0f00` the three biggest runs - 251, 201 and 83 - were alignment
+**crosses**: an object lump of 475 pairing against a single retail
+instruction, and retail runs pairing against one or two object instructions.
+Nothing was missing.  The fix was raising local similarity so the aligner
+could re-sync, and one `temp_17` reload line unslid two runs at once and was
+worth **836 edits**.
+
+The discriminator is arithmetic and the tool now prints it:
+
+> You cannot be missing more instructions than you are short.
+
+`func_001b2380` is 24 instructions short and carries a 591-instruction
+retail-only run; that run is code the object HAS.  A run that fits inside the
+deficit may genuinely be absent; a run longer than the deficit cannot be.
+A negative deficit - an object longer than retail - makes every run a cross.
+
+Output now reads:
+
+    retail-only run of 591 at 0x001b272c-0x001b3068  paired against 2 object
+    instrs, 4 nearby -> likely CROSS
+
+Treat CROSS as "find why the aligner desynchronises here", usually a hoisted
+pointer, a reload retail performs, or two arms emitted in the wrong order.
+Treat ABSENT as "read the region and write it".
+
 ### 7bi. Resolve file ownership before dispatching, not after
 
 Two agents editing one file clobber each other even when each owns a
