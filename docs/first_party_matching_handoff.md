@@ -660,6 +660,20 @@ mechanically over the eleven other first-party floors carrying the shape,
 inverting it improved **none** of them.  The win there came from fixing the
 order of two sibling arms, not from the inversion itself.
 
+Arm order is now **exhausted as a mechanical lever**.  `armorder` measured
+reversed, ascending and descending for every switch in all 167 first-party
+floors that carry one, first per switch and then with every switch in a
+body reordered together.  Four floors responded at all - `func_001c5b80`
+231 -> 191 reversed, `func_00364680` 155 -> 138 reversed, `func_0013f720`
+20 -> 16 ascending, `func_00154720` 105 -> 101 reversed - and the
+whole-body pass found nothing the per-switch pass had not.  Two of the
+three winners are REVERSED, which the earlier ascending-only sweep could
+not see; that sweep reported no wins and the conclusion drawn from it was
+correspondingly too narrow.
+`func_00287360`'s 573 -> 163 was therefore not a harvestable tree-wide
+effect: it was one function whose five switches were each individually
+wrong, found by reading its disassembly.  Expect the same of the rest.
+
 Blanket-sorting a switch that is ALREADY in the body is a loser, which is
 the other half of the same rule.  Seventy-two first-party floors carry a
 switch whose cases are not ascending; sorting the arms of the biggest ones
