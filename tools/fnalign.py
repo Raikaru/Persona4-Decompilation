@@ -167,16 +167,29 @@ def main() -> None:
     parser.add_argument("--quiet", action="store_true", help="print only the summary")
     args = parser.parse_args()
 
-    cfg, target, windows = load_config(), _read_json(TARGET), _read_json(FUNCTION_WINDOWS)
-    if windows.get("program") != "SLUS_217.82" or windows.get("sha1") != target["elf"]["sha1"]:
-        _die("slus21782_functions.json does not describe the configured P4 USA target")
-    retail_elf = RetailElf(cfg["retail_elf"], target, windows["sha1"])
     source = Path(args.file).resolve()
     if not source.is_file():
         _die(f"source file does not exist: {args.file}")
     candidate = Path(args.candidate).resolve() if args.candidate else None
     if candidate is not None and not candidate.is_file():
         _die(f"candidate file does not exist: {args.candidate}")
+
+    # Reject a fallback-only measurement before requiring private build inputs.
+    # The source alone establishes that it would compare retail with itself.
+    if candidate is None and _is_include_asm(source, args.function):
+        _die(f"{args.function} still has an INCLUDE_ASM fallback in {args.file}, so "
+             f"without --candidate the object IS the retail assembly and every number "
+             f"below would be meaningless.\n"
+             f"  To measure a guarded body, extract it first:\n"
+             f"    python3 -E -s tools/measure_guarded.py {args.file} {args.function} "
+             f"--save-candidate /var/tmp/body.c\n"
+             f"    python3 -E -s tools/fnalign.py {args.file} {args.function} "
+             f"--candidate /var/tmp/body.c")
+
+    cfg, target, windows = load_config(), _read_json(TARGET), _read_json(FUNCTION_WINDOWS)
+    if windows.get("program") != "SLUS_217.82" or windows.get("sha1") != target["elf"]["sha1"]:
+        _die("slus21782_functions.json does not describe the configured P4 USA target")
+    retail_elf = RetailElf(cfg["retail_elf"], target, windows["sha1"])
 
     if args.addr:
         try:
@@ -199,22 +212,6 @@ def main() -> None:
     window = window_for(address, sorted(boundaries))
     if window is None or window > 0x10000:
         _die(f"no plausible function window at {address:#010x}")
-
-    # A function still on its INCLUDE_ASM fallback compiles to the spliced retail
-    # bytes, so with no candidate this aligns retail against itself.  That used to
-    # warn only at 0 edits, which let a guarded floor report `retail 4404 / object
-    # 4404, 80 edits` and be banked as INSIDE when the real body was 3779 and 14%
-    # outside: window trimming and relocations keep the count off zero, so the
-    # warning never fired.  Refuse the measurement instead of qualifying it.
-    if candidate is None and _is_include_asm(source, args.function):
-        _die(f"{args.function} still has an INCLUDE_ASM fallback in {args.file}, so "
-             f"without --candidate the object IS the retail assembly and every number "
-             f"below would be meaningless.\n"
-             f"  To measure a guarded body, extract it first:\n"
-             f"    python3 -E -s tools/measure_guarded.py {args.file} {args.function} "
-             f"--save-candidate /var/tmp/body.c\n"
-             f"    python3 -E -s tools/fnalign.py {args.file} {args.function} "
-             f"--candidate /var/tmp/body.c")
 
     body, relocations = _object_for(source, args.function, candidate, cfg)
     retail_bytes = retail_elf.bytes_at(address, window)
