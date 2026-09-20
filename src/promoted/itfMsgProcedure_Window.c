@@ -1275,6 +1275,22 @@ void func_0027f6a0(void)
    **766 edits** +141 reloc-only; production stays ASM. Remaining: 0x20 frame gap
    (-0x2e0 vs -0x300, other locals), per-block index allocation (shared k in $v0 vs
    retail per-block temps), deficit_scan re-read. */
+/* measured 0027f6f0 2026-09-20 rejected spellings (fnalign edits vs 766 floor,
+   retail 2153 / object 2130 unless noted). Case-18 unsigned clamp: `tmp=(u32)chainA`
+   781 (+15, count 2146); `tmp=(u8)(u32)chainA` 781 (+15); inline `(u8)(u32)chainA`
+   with no tmp line 785 (+19, dance sinks below call setup). Cause: taken path needs
+   sub+mfc1-bits+or+andi with NO cvt.w.s, and retail duplicates the andi on both
+   paths (ours shares one); dest $a1 direct (inline form) vs $v1-then-late-andi.
+   Pointerized block loops: function-scope pp/cp over whole blocks 960 (+194, saved-reg
+   recolor across the eb20 call); loops-only pp/cp 771 (+5, folds to 0-disp via $t0/$t1
+   but the hoisted setup has no retail counterpart). `#pragma opt_loop_invariants off`
+   975 (+209, load-bearing: colors un-hoist everywhere). Loop-local `for (u32 k=...)`
+   does not compile (C90 TU). iGpffffb4d8/b4dc stay s32: both streams lw the gates
+   (no c.eq.s anywhere) and s19 has int uses (ecd0 6th arg); the R1729 lwc1 is a
+   different small-data float with misdecoded DSP words nearby, and case-12 j/f needs
+   unknown func_00277070/279010 semantics: parked. Case-7 search residue is pure
+   allocation ($s0/$s1 rotation, $v0 vs $a0 index); e-hoist already rejected. Loop
+   address base+disp split stands (struct member access under the kept pragma). */
 // FUN_0027F6F0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push

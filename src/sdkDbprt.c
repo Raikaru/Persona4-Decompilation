@@ -232,6 +232,20 @@ INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044f720);
 #endif
 
 /* Floor (measured 2026-09-17, source-repo only): probe_variants s_best 314 words / 132 edits / 366 vs 367 BEST faithful (bare 353/464, levers unfaithful despite words wins), fnalign 367/366/132 (+5), emitted 1464B/window 1472B (99.5%). Four-pragma sweep: bare wins (loop +1w/-6ed noted, cse/sched catastrophic, nobl neutral). Eight-singles re-sweep 2026-09-17: dead/prop/strength/unroll neutral at 314, loop-inv 315, sched 337, peephole 341, cse 377. Object-longer blocks are float spills (9x swc1 f3-f7); residual is coloring/scheduling/orientation + daddu. Re-derived sibling v8 floor; production stays ASM. Banked as guarded floor. */
+/* measured 0044fa90 (owner, 2026-09-20): fnalign **132 -> 101 edits**, count 366 -> 364
+   against retail 367 (-0.8%, inside).  Its three 11-14 instruction runs are all CROSS -
+   the deficit is 1 - so nothing was written; both fixes are desync repairs.
+   (a) Retail HOISTS the global `D_008872F8[0] - node->unk110` out of the j-loop: at
+       retail[106] it loads `lwc1 $f1, 0x72f8($v0)` before the `b` into the loop, while
+       the object reloaded it every iteration.  Hoisting it into a local is worth 2.
+   (b) The object computed a second address for the uv array each iteration -
+       `sll $v0, $a2, 3; addu $v0, $v0, $sp; addiu $a0, $v0, 0x140` - because the body
+       kept a `uvp = &uv[j * 2]` pointer.  Indexing `uv[j * 2]` directly at the two uses
+       drops that address computation and is worth the other 29.
+   Note (a) and (b) point in OPPOSITE directions on the same loop: hoist the float the
+   body reloaded, un-hoist the pointer the body cached.  Doing the same to the `quad`
+   pointer as well is much worse - 190 edits and the object grows to 370 - so the third
+   pointer stays.  Hoisting is a per-variable measurement, never a policy. */
 // FUN_0044FA90 NONMATCHING
 #ifdef NON_MATCHING
 /* Target: func_0044fa90 -- source-repo faithful floor (banked, production stays ASM).
@@ -254,6 +268,7 @@ void func_0044fa90(void) {
     f32 scaled;
     f32 uv[8];
     f32 quads[64];
+    f32 depth;
     invW = 1.0f / *(f32 *)((u8 *)iGpffffb9e0 + 0x80);
     node = iGpffffb9dc;
     D_00887300[0](1, (u32)iGpffffb9e8);
@@ -312,20 +327,19 @@ void func_0044fa90(void) {
                     uv[5] = 0.046875f + vv0;
                     uv[6] = 0.046875f + u0;
                     uv[7] = 0.046875f + vv0;
+                    depth = D_008872F8[0] - ((Ext *)node)->unk110;
                     j = 0;
                     while (j < 4) {
                         f32 *quad;
-                        f32 *uvp;
                         quad = &quads[j * 16];
-                        uvp = &uv[j * 2];
-                        quad[2] = D_008872F8[0] - ((Ext *)node)->unk110;
+                        quad[2] = depth;
                         quad[8] = (f32)(u32)((Ext *)node)->col[0];
                         quad[9] = (f32)(u32)((Ext *)node)->col[1];
                         quad[10] = (f32)(u32)((Ext *)node)->col[2];
                         quad[11] = (f32)(u32)((Ext *)node)->col[3];
                         quad[6] = invW;
-                        quad[4] = uvp[0];
-                        quad[5] = uvp[1];
+                        quad[4] = uv[j * 2];
+                        quad[5] = uv[j * 2 + 1];
                         j += 1;
                     }
                     D_00887310[0](4, quads, 4);
@@ -375,17 +389,15 @@ void func_0044fa90(void) {
                     j = 0;
                     while (j < 4) {
                         f32 *quad;
-                        f32 *uvp;
                         quad = &quads[j * 16];
-                        uvp = &uv[j * 2];
                         quad[2] = scaled;
                         quad[8] = (f32)(u32)((Ext *)node)->col[0];
                         quad[9] = (f32)(u32)((Ext *)node)->col[1];
                         quad[10] = (f32)(u32)((Ext *)node)->col[2];
                         quad[11] = (f32)(u32)((Ext *)node)->col[3];
                         quad[6] = invW;
-                        quad[4] = uvp[0];
-                        quad[5] = uvp[1];
+                        quad[4] = uv[j * 2];
+                        quad[5] = uv[j * 2 + 1];
                         j += 1;
                     }
                     D_00887310[0](4, quads, 4);
