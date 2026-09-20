@@ -652,7 +652,7 @@ s32 func_0017ea10(u8 *arg0)
     return 0;
 }
 
-/* measured: GUARDED_SCORE 411 (obj 1812B/window 1872B; retail 466 instrs/object 453 instrs, -2.8% inside +-3% band) via measure_guarded + fnalign --candidate. Struct aggregates for v60/v6C/v80/v8C (v8C=v80, v60/v6C struct copies from tables), per-update arg0+par*0x18+off recomputation for the two 6-way min/max blocks (hoisted b saved 12+12); retail recomputes addu/addiu per update (IDA 24*v13 once + per-update adds). Count fixed, word score now comparable (handoff 7y). */
+/* measured: GUARDED_SCORE 334 (obj 1868B/window 1872B; retail 467 instrs/object 467 instrs, exact, inside) via measure_guarded + fnalign --candidate (edits 460, was 488). Un-hoisted per assignment: 4 single-update b+off -> arg0+par*0x18+off recomputation (+4 addiu, micro matches retail addu+addiu with base load/store); two 6-way blocks from *(arg0+par*0x18+off) (1 addu+6 addiu) to fb[par*6+6..11] array form (micro: 6 addu+6 addiu with addu/addiu + base-displacement lwc1/swc1, matching retail; arg0+(off+const) gives addiu+addu with absolute loads, (off+arg0)+const stays hoisted). Net addu/addiu delta now 0 (was +10/+4). par==0 kept as if (retail bnez); switch_probe has no single-line chains, 2-arm switch would not change descending/ascending. */
 // FUN_0017ED40 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0017ed40(u8 *arg0) {
@@ -751,23 +751,24 @@ tab:
                         }
                     }
                     if (c2 < 8) {
-                        if (*(f32 *)(arg0 + par * 0x18 + 0x18) < hit.x) {
-                            *(f32 *)(arg0 + par * 0x18 + 0x18) = hit.x;
+                        f32 *fb = (f32 *)arg0;
+                        if (fb[par * 6 + 6] < hit.x) {
+                            fb[par * 6 + 6] = hit.x;
                         }
-                        if (*(f32 *)(arg0 + par * 0x18 + 0x1C) < hit.y) {
-                            *(f32 *)(arg0 + par * 0x18 + 0x1C) = hit.y;
+                        if (fb[par * 6 + 7] < hit.y) {
+                            fb[par * 6 + 7] = hit.y;
                         }
-                        if (*(f32 *)(arg0 + par * 0x18 + 0x20) < hit.z) {
-                            *(f32 *)(arg0 + par * 0x18 + 0x20) = hit.z;
+                        if (fb[par * 6 + 8] < hit.z) {
+                            fb[par * 6 + 8] = hit.z;
                         }
-                        if (!(*(f32 *)(arg0 + par * 0x18 + 0x24) <= hit.x)) {
-                            *(f32 *)(arg0 + par * 0x18 + 0x24) = hit.x;
+                        if (!(fb[par * 6 + 9] <= hit.x)) {
+                            fb[par * 6 + 9] = hit.x;
                         }
-                        if (!(*(f32 *)(arg0 + par * 0x18 + 0x28) <= hit.y)) {
-                            *(f32 *)(arg0 + par * 0x18 + 0x28) = hit.y;
+                        if (!(fb[par * 6 + 10] <= hit.y)) {
+                            fb[par * 6 + 10] = hit.y;
                         }
-                        if (!(*(f32 *)(arg0 + par * 0x18 + 0x2C) <= hit.z)) {
-                            *(f32 *)(arg0 + par * 0x18 + 0x2C) = hit.z;
+                        if (!(fb[par * 6 + 11] <= hit.z)) {
+                            fb[par * 6 + 11] = hit.z;
                         }
                         if (*(s32 *)(arg0 + 0x4C) < 4) {
                             *(f32 *)(arg0 + 0x30) = *(f32 *)(arg0 + 0x18);
@@ -779,25 +780,21 @@ tab:
                         }
                     } else if (c2 < 0xC) {
                         if (par == 0) {
-                            u8 *b = arg0 + (par * 0x18);
-                            if (*(f32 *)(b + 0x24) < hit.x) {
-                                *(f32 *)(b + 0x24) = hit.x;
+                            if (*(f32 *)(arg0 + par * 0x18 + 0x24) < hit.x) {
+                                *(f32 *)(arg0 + par * 0x18 + 0x24) = hit.x;
                             }
                         } else {
-                            u8 *b = arg0 + (par * 0x18);
-                            if (*(f32 *)(b + 0x2C) < hit.z) {
-                                *(f32 *)(b + 0x2C) = hit.z;
+                            if (*(f32 *)(arg0 + par * 0x18 + 0x2C) < hit.z) {
+                                *(f32 *)(arg0 + par * 0x18 + 0x2C) = hit.z;
                             }
                         }
                     } else if (par == 0) {
-                        u8 *b = arg0 + (par * 0x18);
-                        if (!(*(f32 *)(b + 0x18) <= hit.x)) {
-                            *(f32 *)(b + 0x18) = hit.x;
+                        if (!(*(f32 *)(arg0 + par * 0x18 + 0x18) <= hit.x)) {
+                            *(f32 *)(arg0 + par * 0x18 + 0x18) = hit.x;
                         }
                     } else {
-                        u8 *b = arg0 + (par * 0x18);
-                        if (!(*(f32 *)(b + 0x20) <= hit.z)) {
-                            *(f32 *)(b + 0x20) = hit.z;
+                        if (!(*(f32 *)(arg0 + par * 0x18 + 0x20) <= hit.z)) {
+                            *(f32 *)(arg0 + par * 0x18 + 0x20) = hit.z;
                         }
                     }
                 } else {
@@ -809,23 +806,24 @@ tab:
                         }
                     }
                     if (c3 < 8) {
-                        if (*(f32 *)(arg0 + par * 0x18 + 0x18) < v8C.x) {
-                            *(f32 *)(arg0 + par * 0x18 + 0x18) = v8C.x;
+                        f32 *fb2 = (f32 *)arg0;
+                        if (fb2[par * 6 + 6] < v8C.x) {
+                            fb2[par * 6 + 6] = v8C.x;
                         }
-                        if (*(f32 *)(arg0 + par * 0x18 + 0x1C) < v8C.y) {
-                            *(f32 *)(arg0 + par * 0x18 + 0x1C) = v8C.y;
+                        if (fb2[par * 6 + 7] < v8C.y) {
+                            fb2[par * 6 + 7] = v8C.y;
                         }
-                        if (*(f32 *)(arg0 + par * 0x18 + 0x20) < v8C.z) {
-                            *(f32 *)(arg0 + par * 0x18 + 0x20) = v8C.z;
+                        if (fb2[par * 6 + 8] < v8C.z) {
+                            fb2[par * 6 + 8] = v8C.z;
                         }
-                        if (!(*(f32 *)(arg0 + par * 0x18 + 0x24) <= v8C.x)) {
-                            *(f32 *)(arg0 + par * 0x18 + 0x24) = v8C.x;
+                        if (!(fb2[par * 6 + 9] <= v8C.x)) {
+                            fb2[par * 6 + 9] = v8C.x;
                         }
-                        if (!(*(f32 *)(arg0 + par * 0x18 + 0x28) <= v8C.y)) {
-                            *(f32 *)(arg0 + par * 0x18 + 0x28) = v8C.y;
+                        if (!(fb2[par * 6 + 10] <= v8C.y)) {
+                            fb2[par * 6 + 10] = v8C.y;
                         }
-                        if (!(*(f32 *)(arg0 + par * 0x18 + 0x2C) <= v8C.z)) {
-                            *(f32 *)(arg0 + par * 0x18 + 0x2C) = v8C.z;
+                        if (!(fb2[par * 6 + 11] <= v8C.z)) {
+                            fb2[par * 6 + 11] = v8C.z;
                         }
                         if (*(s32 *)(arg0 + 0x4C) < 4) {
                             *(f32 *)(arg0 + 0x30) = *(f32 *)(arg0 + 0x18);
