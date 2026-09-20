@@ -406,6 +406,26 @@ extern f32 fGpffff7ad4;
    different, smaller function (handoff 7y); 11129 is not better than 20177.
    The honest work here is the 359-instruction shortfall the good body already has - run
    deficit_scan.py and write the named regions. */
+/* measured 002be530 (owner, 2026-09-20, banked step 1): `#pragma opt_common_subs off` */
+/*   inside the guard writes the missing loads FIRST without touching the 183 */
+/*   compensating casts. fnalign retail 12429 object 12070 -> 12083 (+13, deficit */
+/*   359 -> 346, -2.8% INSIDE band 12056-12801), edits 20177 (+16 reloc-only) -> */
+/*   20096 (+14 reloc-only, -81). measure_guarded 10969 -> 10958 words (-11). */
+/*   deficit_scan after: retail has more addiu +711 move +694 jal +634 lw +424; top */
+/*   CROSS 3447 at 0x002c63d4, 997 at 0x002c3258, 802 at 0x002c4458 (was 3447, */
+/*   1568, 1041) - alignment shortened. verify 26 MATCH / 12 ASM, lint 0 errors. */
+/*   Next: work one ABSENT run (<=346) at a time, removing its casts only as its */
+/*   region is replaced. */
+/* rejected 002be530 step 2 (owner, 2026-09-20): two single-region follow-ups */
+/*   tried and REVERTED to stay in band. (a) Removing the 2 `(u8)` casts on one */
+/*   `func_002b2970(&sp640,...)` pair (retail 0x002BF138 `lwc1/lwc1/jal`, no */
+/*   conversions) measured fnalign 20096 -> 20032 (-64) but object 12083 -> */
+/*   12019 (-64, 37 BELOW lower bound 12056, OUTSIDE) and guarded 10958 -> */
+/*   10996 (+38 worse): one pair already costs 64, so all 183 cannot go at */
+/*   once. (b) Adding `#pragma opt_propagation off` beside common_subs measured */
+/*   object 12083 -> 13362 (+1279, ABOVE upper 12801, OUTSIDE) and edits 20096 */
+/*   -> 20373 (+277) with guarded 10958 -> 11882 (+924): propagation is not the */
+/*   lever here. Both reverted; production stays at step 1 (12083 INSIDE). */
 // FUN_002BE530 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -5190,6 +5210,23 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002cb6c0);
    2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
    func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
    func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
+/* measured 002cdf80 (owner, 2026-09-20): fnalign **2040 -> 2025 edits** (-15), count
+   3543 -> 3506 against retail 3460 (+46, +1.3%, band 3356-3563 PASS with 57 headroom),
+   frame 0x290 -> 0x280, __floatdisf removed (1 jal). No unsuffixed doubles
+   (grep -nE '[0-9]+\\.[0-9]+([^fFeE0-9]|$)' on extracted body: 0 hits, ruled out first
+   per assignment). The over-long object is recomputation retail hoists (reverse of the
+   usual body-hoists/retail-recomputes direction): hoist work+index*4 duplicate
+   (temp_2_24 = temp_3_10 instead of recomputing work+var_19_5*4, -4/+ -10 edits) and
+   hoist 2830 results with same args in same iteration (369's dispatch + 397/398/404's
+   275680/106a90/106600 chain share one temp_17 via temp_17_4, -19/-7 edits, combined
+   -23/-4 vs baseline), plus narrow var_19_5/temp_18_5 s64->s32 for the 0..7 loop
+   (removes s64->float __floatdisf helper + dsll32/dsra32 extends + daddiu/dsll, -7/-11).
+   Rejected hoists that worsen edits (retail recomputes them, usual direction):
+   46a770(FB50/FAA0) per-branch duplicates (-10 count but +18/+16 edits),
+   D_0063F888/DCC-DD0 float (-5/+16), 2a30 0x2D duplicate (-6/+4), 04e0 E44/E48/E40
+   per-branch duplicates (+5 count from new spill). Repro: measure_guarded
+   --save-candidate + fnalign --candidate <path> --quiet. */
+
 // FUN_002CDF80 NONMATCHING
 #ifdef NON_MATCHING
 void func_002cdf80(void *arg0, s8 arg1) {
@@ -5312,7 +5349,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
     s64 temp_17_7;
     s64 temp_17_9;
     s32 temp_18;
-    s64 temp_18_5;
+    s32 temp_18_5;
     s64 temp_22;
     s64 temp_3;
     s64 temp_3_11;
@@ -5329,7 +5366,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
     s64 var_19;
     s64 var_19_3;
     s64 var_19_4;
-    s64 var_19_5;
+    s32 var_19_5;
     s64 var_21;
     s64 var_23;
     s64 var_5;
@@ -5560,7 +5597,8 @@ loop_28:
                             sp1D0 = (*(f32*)((u8*)temp_2_11+0x2C));
                             sp1D4 = (*(f32*)((u8*)temp_2_11+0x30));
                         }
-                        temp_2_12 = func_00106880((s16) func_002e2830((*(void**)((u8*)((work + ((*(s8*)((u8*)work+0x11)) * 4)))+0xF18)), (s32) temp_17_4));
+                        temp_17 = func_002e2830((*(void**)((u8*)((work + ((*(s8*)((u8*)work+0x11)) * 4)))+0xF18)), (s32) temp_17_4);
+                        temp_2_12 = func_00106880(temp_17);
                         if (temp_2_12 & 0x81) {
                             func_002e0b20(0x14, sp1E0, 115.0f, var_19_2, 0xFFU, 0, D_00795E60);
                         } else if (temp_2_12 & 0x102) {
@@ -5588,14 +5626,14 @@ loop_28:
                         spD8 = sp1A0;
                         spDC = sp1A4;
                         temp_17_5 = (s64) (var_21 << 0x30) >> 0x30;
-                        func_00275680(spD8, spDC, 115.0f, spD0, 0, 1, func_001067f0((s32) func_002e2830((*(void**)((u8*)((work + ((*(s8*)((u8*)work+0x11)) * 4)))+0xF18)), (s32) temp_17_5)), 0, 0, D_00795E30, -1);
-                        temp_22_2 = func_00106a90((s16) func_002e2830((*(void**)((u8*)((work + ((*(s8*)((u8*)work+0x11)) * 4)))+0xF18)), (s32) temp_17_5)) / 5U;
+                        func_00275680(spD8, spDC, 115.0f, spD0, 0, 1, func_001067f0((s32) temp_17), 0, 0, D_00795E30, -1);
+                        temp_22_2 = func_00106a90(temp_17) / 5U;
                         func_002b2970(&sp198, 372.0f + sp1D0, 16.0f + sp1D4);
                         func_002cacd0(sp198, 115.0f, sp21C, 0x10, 5, temp_22_2, 9, 0x7B, (s32)func_0046a770(D_0063FB50), (s32) (s64) (*(s32*)((u8*)work+0xF28)), 0xA9);
                         func_002b2970(&sp190, 400.0f + sp1D0, 18.0f + sp1D4);
                         func_002e0b20(0x47, sp190, 115.0f, var_19_2, 0xFFU, 0, D_00795E60);
                         func_002b2970(&sp188, (f32) 0x1AF + sp1D0, 16.0f + sp1D4);
-                        temp_17_6 = func_00106600((s16) func_002e2830((*(void**)((u8*)((work + ((*(s8*)((u8*)work+0x11)) * 4)))+0xF18)), (s32) temp_17_5)) & 0xFF;
+                        temp_17_6 = func_00106600(temp_17) & 0xFF;
                         func_002cacd0(sp188, 115.0f, sp21C, 0x10, 5, temp_17_6, 9, 0x7B, (s32)func_0046a770(D_0063FB50), (s32) (s64) (*(s32*)((u8*)work+0xF28)), 0xA9);
                     }
                 }
@@ -5979,8 +6017,8 @@ loop_211:
                         }
                         var_19_5 = 0;
 loop_216:
-                        if (((s64) (var_19_5 << 0x30) >> 0x30) < 7) {
-                            temp_18_5 = (s64) (var_19_5 << 0x30) >> 0x30;
+                        if (var_19_5 < 7) {
+                            temp_18_5 = var_19_5;
                             temp_17_26 = D_0063F560 + ((temp_18_5 + 0x3A) * 8);
                             temp_3_10 = work + (temp_18_5 * 4);
                             func_002e09e0((*(void**)((u8*)temp_3_10+0xD20)), 0x56, (f32) (temp_18_5 + 0x64));
@@ -5992,12 +6030,12 @@ loop_216:
                                 (*(u8*)((u8*)temp_2_23+0x7B)) = sp1EE;
                                 (*(u8*)((u8*)temp_2_23+0x7C)) = sp1EF;
                             }
-                            temp_2_24 = work + (((s64) (var_19_5 << 0x30) >> 0x30) * 4);
+                            temp_2_24 = temp_3_10;
                             func_002b2970(&sp118, 80.0f + (*(u8*)((u8*)temp_17_26+0x0)), (*(s16*)((u8*)temp_17_26+0x4)));
                             func_002b2970(&sp110, (*(u8*)((u8*)temp_17_26+0x0)), (*(s16*)((u8*)temp_17_26+0x4)));
                             func_002e0620((*(void**)((u8*)temp_2_24+0xD20)), sp118, sp110, 0, 3, (s16) var_19_5);
                             func_002e0660((*(void**)((u8*)temp_2_24+0xD20)), 0U, 0xFFU, 0U, 3, var_19_5);
-                            var_19_5 = (s64) ((var_19_5 + 1) << 0x30) >> 0x30;
+                            var_19_5 = var_19_5 + 1;
                             goto loop_216;
                         }
                         func_002b2a60(&sp1E8, 0x2D, 0x2D, 0x2D, 0xFF);

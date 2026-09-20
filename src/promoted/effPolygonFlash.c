@@ -2541,6 +2541,20 @@ void func_0049e100(u8 *arg0)
    it was hiding a genuine instruction surplus.  It is removed; the surplus is now visible and
    has to be written out of the body.  Any differing-word score measured with the pragma in
    place is not comparable to one measured inside the gate (handoff 7y, 7au). */
+/* measured 0049e150 (owner, 2026-09-20): 531 against retail 500 (+6.2%, OUTSIDE, band
+   485-515), **444 edits**, and 31 instructions too LONG - so every retail-only run is a
+   CROSS and the lever is code the body emits that retail does not.
+   The object's surplus is a float-to-UNSIGNED conversion idiom repeated about ten times:
+   `cvt.w.s +20, sub.s +10, or +10, c.ole.s +10, b +10, bc1t +9, mfc1 +12` against retail.
+   Retail does not convert at all at those sites - at retail[313] it is a bare
+   `mfc1 $v0, $f0` where the object emits `c.ole.s $f1, $f2` and the whole eight-instruction
+   unsigned sequence, and retail reaches the value through `dmtc2`/`dmfc2` COP2 moves
+   (`dmtc2 +12` in its favour).  So retail REINTERPRETS the float bits where the body
+   CONVERTS the float value - a union or M2C_BITWISE spelling against a `(u32)` cast.
+   Two spellings measured and both exactly neutral at 444/531: changing the two
+   `c58`/`c5c` casts from `(u32)((f32)(x & 0xFF) * scale)` to `(s32)(...)`, and dropping
+   the cast entirely.  Those two assign to `u32` variables, so the conversion is unsigned
+   either way - they are not the ten sites.  Find the sites that feed the `dmtc2` pairs. */
 // FUN_0049E150 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
