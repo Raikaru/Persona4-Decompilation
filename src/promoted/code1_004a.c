@@ -29,7 +29,8 @@ extern void func_004adb50();
 extern void func_004ade80(u8 *arg0);
 extern void func_00460ac0();
 extern void func_004aec80();
-extern f32 func_004bd0b0(u32 arg0);
+struct EffRandState;
+extern f32 effMiscRandFloat(struct EffRandState *state);
 extern u32 func_004bd050(u32 arg0);
 extern f32 iGpffff8080;
 extern void func_004787e0();
@@ -42,12 +43,12 @@ extern s8 D_00724C58;
 extern s16 D_00724C5C;
 extern s32 D_00724C60;
 extern s32 D_00724C64;
-extern s32 D_00724C78;
-extern s32 D_00724C7C;
+extern f32 D_00724C78[2];
+extern f32 D_00724C7C;
 extern u8 D_00714350[];
 extern void func_0046d730(u8 *arg0, s32 arg1);
 extern s32 func_003e9320(void);
-extern u8 *func_00457120(void);
+extern s32 func_00457120(void);
 extern void func_003e9830(s32 arg0, s32 arg1);
 extern f32 D_00922D80[];
 extern u8 *func_00401b80(void);
@@ -88,7 +89,6 @@ extern void func_0045f0b0(f32 *arg0, u8 *arg1, s32 arg2, f32 arg3);
 extern void func_0045fa00(f32 *arg0, s32 arg1, f32 arg2);
 extern s32 func_0047a510(u8 *arg0, s32 arg1, u8 *arg2);
 extern void func_00485870(s32 arg0);
-extern f32 func_004bd0b0(u32 arg0);
 extern u32 func_004bd050(u32 arg0);
 extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
@@ -1023,10 +1023,10 @@ void func_004a77b0(void) {
     D_00724C5C = 0;
     D_00724C60 = 0;
     D_00724C64 = 0;
-    D_00724C78 = 0;
-    D_00724C7C = 0;
+    D_00724C78[0] = 0.0f;
+    D_00724C7C = 0.0f;
     D_00724C70 = func_003e9320();
-    func_003e9830(D_00724C70, *(s32 *)(func_00457120() + 4));
+    func_003e9830(D_00724C70, *(s32 *)(((u8 *)(u32)func_00457120()) + 4));
 }
 
 /* measured: sister is mt_scene func_0026d440 (MATCH): `f32 initial[2] = {0.6f, 0.6f}` pair, */
@@ -1058,6 +1058,13 @@ void func_004a77b0(void) {
    first load ties at 19, and inlining it everywhere does not compile (the
    expression needs the local's type).  The separate `amplitude` local is
    load-bearing: folding it into `temp_f20` costs 19 -> 99. */
+/* measured 2026-09-20: 19 masked / 20 fully resolved words -> seven, still
+   532/544 bytes. Keeping both delta reads and the RNG call in the step
+   expression restores retail's pre-call half-value and post-call product.
+   The remaining seven words only select the magnitude/sign float registers.
+   The RNG and camera declarations now agree with their actual providers,
+   and the two shake outputs use a real float array. See
+   docs/probe_archive/Shake_004a7830_0360227.md. */
 // FUN_004A7830 NONMATCHING
 #ifdef NON_MATCHING
 void func_004a7830(void)
@@ -1085,22 +1092,20 @@ void func_004a7830(void)
     delta[1] = fGpffff80f0 * fGpffffbb74;
     for (idx = 0; idx < 2; idx++) {
         temp_17 = idx * 4;
-        temp_f20 = *(f32 *)((u8 *)delta + temp_17);
+        temp_f20 = delta[idx];
         if (temp_f20 != 0.0f) {
-            f32 random = func_004bd0b0(0);
-            f32 amplitude = *(f32 *)((u8 *)delta + temp_17);
-            temp_f21 = 0.5f * amplitude + 0.5f * (amplitude * random);
-            temp_16 = (f32 *)((u8 *)&D_00724C78 + temp_17);
+            temp_f21 = 0.5f * delta[idx] + 0.5f * (delta[idx] * effMiscRandFloat(0));
+            temp_16 = (f32 *)((u8 *)D_00724C78 + temp_17);
             temp_f1 = *temp_16;
             temp_f3 = fabsf(temp_f1);
-            if (!(temp_f3 < (temp_f20 * *(f32 *)((u8 *)initial + temp_17)))) {
+            if (!(temp_f3 < (temp_f20 * initial[idx]))) {
                 if (temp_f1 <= 0.0f) {
                     *temp_16 = temp_f1 + temp_f21;
                 } else {
                     *temp_16 = temp_f1 - temp_f21;
                 }
             } else {
-                f32 random2 = func_004bd0b0(0);
+                f32 random2 = effMiscRandFloat(0);
                 temp_f3 = temp_f21 * (random2 - 0.5f);
                 *temp_16 = 0.0f + *temp_16 + 2.0f * temp_f3;
             }
@@ -1113,11 +1118,11 @@ void func_004a7830(void)
             }
         }
     }
-    temp_2 = *(u8 **)(func_00457120() + 4);
-    temp_f4 = *(f32 *)&D_00724C78;
+    temp_2 = *(u8 **)(((u8 *)(u32)func_00457120()) + 4);
+    temp_f4 = D_00724C78[0];
     temp_f3 = iGpffffb10c;
     vec[0] = temp_f3 * ((*(f32 *)(temp_2 + 0x10)) * temp_f4);
-    vec[1] = temp_f3 * ((*(f32 *)&D_00724C7C) + (*(f32 *)(temp_2 + 0x14)) * temp_f4);
+    vec[1] = temp_f3 * ((D_00724C7C) + (*(f32 *)(temp_2 + 0x14)) * temp_f4);
     vec[2] = temp_f3 * ((*(f32 *)(temp_2 + 0x18)) * temp_f4);
     func_003e9c10((u8 *)D_00724C70, vec, 0);
 }
@@ -1300,7 +1305,7 @@ s32 func_004a7e30(u8 *arg0, u8 *arg1)
     temp_18 = *(u8 *)(arg0 + 1);
     temp_17 = *(u8 *)(arg0 + 2);
     temp_16 = *(u8 *)(arg0 + 3);
-    temp_f6 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    temp_f6 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
     temp_f5 = D_008872F8[0];
     var_8 = 0;
     goto loop_004a7e30_check;
@@ -1414,7 +1419,7 @@ void func_004a8250(u8 *arg0, u8 *arg1)
     temp_18 = *(u8 *)(arg0 + 1);
     temp_17 = *(u8 *)(arg0 + 2);
     temp_16 = *(u8 *)(arg0 + 3);
-    temp_f6 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    temp_f6 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
     temp_f5 = D_008872F8[0];
     var_9 = 0;
     goto loop_004a8250_check;
@@ -1486,7 +1491,7 @@ void func_004a8440(u8 *arg0, u8 *arg1)
     temp_f20 = *(f32 *)(arg0 + 0xC);
     temp_f21 = temp_f20 * func_0044b7b0(temp_f22);
     temp_f20 = temp_f20 * func_0044b610(temp_f22);
-    temp_f6 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    temp_f6 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
     temp_f5 = D_008872F8[0];
     var_9 = 0;
     goto loop_004a8440_check;
@@ -1544,7 +1549,7 @@ void func_004a86c0(u8 *arg0, u8 *arg1)
     temp_18 = *(u8 *)(arg0 + 1);
     temp_17 = *(u8 *)(arg0 + 2);
     temp_16 = *(u8 *)(arg0 + 3);
-    temp_f6 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    temp_f6 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
     temp_f5 = D_008872F8[0];
     var_9 = 0;
     goto loop_004a86c0_check;
@@ -1626,9 +1631,9 @@ void func_004a8a50(u8 *arg0, u8 *arg1)
     temp_f20 = 0.5f * (f32)*(s32 *)(arg0 + 0x28);
     temp_f21 = *(f32 *)(arg0 + 0x24);
     temp_f22 = *(f32 *)(arg0 + 0x1C) +
-               temp_f21 * (2.0f * (func_004bd0b0(0) - 0.5f));
+               temp_f21 * (2.0f * (effMiscRandFloat(0) - 0.5f));
     temp_f1 = *(f32 *)(arg0 + 0x20) +
-              temp_f21 * (2.0f * (func_004bd0b0(0) - 0.5f));
+              temp_f21 * (2.0f * (effMiscRandFloat(0) - 0.5f));
     *(f32 *)(temp_16 + 0x14) = temp_f22;
     *(f32 *)(temp_16 + 0x18) = temp_f1;
     *(f32 *)(temp_16 + 0x1C) = temp_f22 - temp_f20;
@@ -1785,17 +1790,17 @@ void func_004accc0(u8 *arg0)
     frame_count = *(s32 *)(arg0 + 0x9C);
     if (frame_count >= (s32)frame_index || frame_count == 0) {
         scale = func_0048aff0(arg0 + 0x44, frame_index, frame_count) / 10.0f;
-        node = func_00457120() + 0x68;
-        camera = func_00457120();
+        node = ((u8 *)(u32)func_00457120()) + 0x68;
+        camera = ((u8 *)(u32)func_00457120());
         near_height = *(f32 *)(camera + 0x80);
-        camera = func_00457120();
+        camera = ((u8 *)(u32)func_00457120());
         far_z = *(f32 *)(camera + 0x84);
         depth = (((f32)-0xFFFF * near_height) * far_z) /
                 (((f32)-0xFFFF * far_z) -
                  (-31.0f * (far_z - near_height)));
         width = 2.0f * (*(f32 *)(node + 0) * depth);
         near_height = 2.0f * (*(f32 *)(node + 4) * depth);
-        camera = func_00457120();
+        camera = ((u8 *)(u32)func_00457120());
         matrix = func_003e9700(*(s32 *)(camera + 4));
         func_003e0870(frame.matrix, &basis1,
                       *(f32 *)(arg0 + 0x90), 0);
@@ -2248,9 +2253,9 @@ void func_004ae0a0(u8 *arg0, u8 *arg1)
         sp40[1] = *(f32 *)(arg0 + 0x18);
         sp40[2] = *(f32 *)(arg0 + 0x1C);
     } else {
-        sp40[0] = 2.0f * (func_004bd0b0(0) - 0.5f);
-        sp40[1] = 2.0f * (func_004bd0b0(0) - 0.5f);
-        sp40[2] = 2.0f * (func_004bd0b0(0) - 0.5f);
+        sp40[0] = 2.0f * (effMiscRandFloat(0) - 0.5f);
+        sp40[1] = 2.0f * (effMiscRandFloat(0) - 0.5f);
+        sp40[2] = 2.0f * (effMiscRandFloat(0) - 0.5f);
     }
     __asm__ volatile(
         "lqc2 $vf10, 0(%1) \n"
@@ -2289,9 +2294,9 @@ normalized_zero:
     *(f32 *)(arg1 + 8) = 0.0f;
 normalized_done:
     temp_f0 = *(f32 *)(arg0 + 0x28);
-    temp_f0 = (1.0f - temp_f0) + temp_f0 * func_004bd0b0(0);
+    temp_f0 = (1.0f - temp_f0) + temp_f0 * effMiscRandFloat(0);
     *(f32 *)(arg1 + 0x10) = *(f32 *)(arg0 + 0x24) * temp_f0;
-    *(f32 *)(arg1 + 0x0C) = iGpffff8080 * func_004bd0b0(0);
+    *(f32 *)(arg1 + 0x0C) = iGpffff8080 * effMiscRandFloat(0);
     temp_4 = *(s32 *)(arg0 + 0x34);
     switch (temp_4) {
     case 1:
