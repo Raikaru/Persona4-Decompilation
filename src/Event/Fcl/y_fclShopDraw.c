@@ -9272,6 +9272,26 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002dd3b0);
    every slot shifts 0x10; per-site the candidate is identical except
    lb ($s1) vs retail lb 8($s0). CSE-of-invariant-address floor. */
 /* measured: bank 2026-09-17 S1 002de5a0 — object 2632B/window 2688B (2.1% short), normalized_diff 1925 MISMATCH via `python3 tools/try_bodies.py src/Event/Fcl/y_fclShopDraw.c func_002de5a0 /tmp/v_de5a0.json` (pwd source/Persona4-Decompilation); GUARDED_SCORE 583 via `python3 tools/measure_guarded.py src/Event/Fcl/y_fclShopDraw.c func_002de5a0` (differing words 583). Vec2f slots + Vec2f copies + s32 c16=(s16)106cd0 local + byte-first addu (*(s8*)((u8*)(*(s8*)(work+8)+(u32)work)+0xF7C/F73)); FP-hoist + CSE floor as prior note. */
+/* measured 002de5a0 (owner, 2026-09-19): 658 against retail 671 (-1.9%, inside), **71
+   edits**, and the deficit is unusually legible: the only opcodes retail has more of are
+   `swc1 +14`, `lwc1 +14` and `mov.s +10`, and regsave_scan says retail additionally saves
+   $f21 and $f22.  Reading the disassembly names all three saved floats: $f20 is 70.0f
+   (`mtc1 $3, $f20` at 0x002de784, then `mov.s $f14, $f20` at every func_00275680 call),
+   $f21 is `(f32)0x177` (`cvt.s.w $f21, $f0` at 0x002de648), and $f22 is 420.0f
+   (`mtc1 $2, $f22` at 0x002de638).  So retail held exactly those three as variables,
+   which is what handoff 7bb predicts from the saved-float count.
+   Hoisting them into locals reproduces the `mov.s` shape and DOES cut edits, but it is
+   rejected because every variant leaves the 3% band by shortening the object - b210 then
+   materialises each literal once where the current body materialises it at each of the
+   twelve sites, and the object is already 13 instructions short:
+     70.0f alone            51 edits, 648 instrs (-3.4%, OUTSIDE)
+     70.0f + (f32)0x177     67 edits, 638 instrs (-4.9%, OUTSIDE)
+     70.0f + 420.0f         87 edits, 636 instrs (OUTSIDE)
+     all three              103 edits, 626 instrs (OUTSIDE)
+     420.0f + (f32)0x177   117 edits, 638 instrs (OUTSIDE)
+     70.0f + 420.0f + 69.0f 114 edits, 627 instrs (OUTSIDE)
+   The `mov.s` shape and the instruction count pull in opposite directions here, and the
+   gate decides.  Find the 13 missing instructions first; then the hoist becomes free. */
 // FUN_002DE5A0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002de5a0(void *arg0) {
