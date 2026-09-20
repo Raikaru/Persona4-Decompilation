@@ -336,6 +336,7 @@ s32 func_0037f550(u8 *arg0)
    2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
    func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
    func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
+/* measured 0037f6e0 (2026-09-20): fnalign 662 -> 516 edits (-146), count 1163 -> 1154 against retail 1189 (lower bound 1154, INSIDE), by (a) moving block_140 (var_21/switch-5 tail) from inside case-0 to after the outer switch so case-0 uses goto like retail (662 -> 540, same count, collapses the 143-instr retail-only run at 0x00380700-0x0038093c into aligned replaces), and (b) converting six further top-tested loops to retail's bottom-tested do/while individually: loop_52 (constant 3) 662->659, loop_43 662->660, loop_50 662->659, loop_36 662->656, loop_118/123/99 662->658 each, loop_113 662->659; combined six (36+52+50+118+123+99) 662->638 at 1154, plus move 638->516 at 1154. All eight together would be 1150/511 (outside, -29 total, additive), so the two weakest (loop_43/loop_113) are left out to stay inside. Width bisect (s64 COUNT, declaration order): N=1 1168/673, N=2 1172/677, N=3 1231/732, N=4 1242/750, N=8 1265/779, N=16 1272/840, suffix suf8 1171/672, switch-var triple (var_20_3/var_2/var_2_2) 1163/662 neutral - widening only grows count/edits, so daddiu+6 remains a placement/allocator residual, not a width install. Banked (inside, -146, transferable do/while per-loop rule); not MATCH, guard kept, NONMATCHING kept. */
 // FUN_0037F6E0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -464,57 +465,7 @@ temp_19 = (u8 *)(arg0 + 0x1F1D0);
                 (*( u32 *)((u8 *)(arg0) + 0x1F2F8)) = 2U;
             }
         }
-block_140:
-        var_21 = 0;
-loop_163:
-        switch (var_21) {                           /* switch 5; irregular */
-        case 0:                                     /* switch 5 */
-            var_2 = 2 & 0xFFFF;
-block_149:
-            if ((*( u16 *)((u8 *)(arg0) + 0x1F1D0)) & (var_2 & 0xFFFF)) {
-                var_20 = var_18 * var_21;
-                spC0 = (s32) (arg0 + 0x1F304);
-                spB0 = var_18 * (var_21 + 1);
-do {
-                        temp_17_2 = (u16)((*( u16 *)((u8 *)(arg0) + 0x1F1D2)));
-                        if ((s32)(spC0) < 6) {
-    
-                        }
-                        temp_23 = (u8 *)(arg0 + (var_20 * 0xE8));
-                        if (func_00375910(temp_23 + 0x1D6A0) != 0) {
-                            func_003717e0(temp_23 + 0x1D6B8, sp130);
-                            if (!(unksp134 < 508.0f)) {
-                                M2C_ERROR(/* unknown instruction: adda.s $f0, $f3 */);
-                                unksp134 = M2C_ERROR(/* unknown instruction: msub.s $f0, $f2, $f1 */);
-                            }
-                            temp_22 = (u8 *)(arg0 + (var_20 * 0xFB0));
-                            func_0036dc60(temp_22, (f32 *) sp130, (f32 *)&sp120, 86.0f);
-                            unksp134 += 120.0f;
-                            func_0036dc60(temp_22, (f32 *) sp130, (f32 *)&sp110, 86.0f);
-                            if ((s32) temp_17_2 >= 0) {
-                                var_f13 = (f32) temp_17_2;
-                            } else {
-                                var_f13 = 2.0f * (f32) ((temp_17_2 >> 1) | (temp_17_2 & 1));
-                            }
-                            func_00375d50(arg0, var_20, (f32 *)&sp120, (f32 *)&sp110, 0.0f, var_f13);
-                        }
-                        var_20 += 1;
-} while (var_20 < spB0);
-            }
-            var_21 += 1;
-            goto loop_163;
-        case 1:                                     /* switch 5 */
-            var_2 = 4;
-            goto block_149;
-        case 2:                                     /* switch 5 */
-            var_2 = 8;
-            goto block_149;
-        default:                                    /* switch 5 */
-            func_0046d730(&D_0064EB40, 0x8C);
-            var_2 = 0;
-            goto block_149;
-        }
-        return 0;
+        goto block_140;
     case 1:                                         /* switch 1 */
         if (func_00379420(arg0) != 0) {
             (*( u32 *)((u8 *)(arg0) + 0x1F2F8)) = 2U;
@@ -535,9 +486,8 @@ do {
             (*( u16 *)((u8 *)(arg0) + 0x1F2F0)) = 0U;
             (*( u32 *)((u8 *)(arg0) + 0x1F2F8)) = 4U;
             var_17 = 0;
-loop_36:
             temp_5 = (s32)((*( s32 *)((u8 *)(arg0) + 0x1F304)));
-            if (var_17 < temp_5) {
+            do {
                 func_00373750(var_17, temp_5, &sp168);
                 sp16C -= 400.0f;
                 func_0036dc60(arg0 + (var_17 * 0xFB0), &sp168, (f32 *)&sp158, 86.0f);
@@ -555,8 +505,8 @@ loop_36:
                 }
                 func_00375d50(arg0, var_17, NULL, (f32 *)&sp158, var_f12, var_f13_2);
                 var_17 += 1;
-                goto loop_36;
-            }
+            temp_5 = (s32)((*( s32 *)((u8 *)(arg0) + 0x1F304)));
+            } while (var_17 < temp_5);
             func_0045af60(0, 4, 0, 1);
             func_0045af60(1, 0, 5, 4);
         } else if (D_008C024E[0] & 0x20) {
@@ -589,15 +539,13 @@ loop_43:
             (*( s32 *)((u8 *)(temp_19) + 8)) = 0;
             var_20_2 = 0;
             spE0 = (temp_17 & 0xFFFF) * 2;
-loop_52:
-            if (var_20_2 < 3) {
+            do {
                 var_21_3 = 0;
                 M2C_ERROR(/* unknown instruction: adda.s $f0, $f1 */);
                 spF0 = var_20_2 * var_18;
                 temp_23_2 = var_20_2 * 7;
                 spD0 = spE0 + temp_23_2;
-loop_50:
-                if (var_21_3 < var_18) {
+                do {
                     sp168 = 314.0f + (f32) ((((s32) (var_20_2 * 3) / 3) - 1) * 0x6B);
                     sp16C = M2C_ERROR(/* unknown instruction: madd.s $f20, $f2, $f3 */);
                     M2C_ERROR(/* unknown instruction: adda.s $f0, $f20 */);
@@ -614,12 +562,10 @@ loop_50:
                     }
                     func_00376070(arg0, temp_22_2, temp_23_2 & 0xFFFF, spD0 & 0xFFFF, (f32 *)&sp148, (f32 *)&sp138, 5.0f * ((sp13C - sp14C) / var_f0));
                     var_21_3 += 1;
-                    goto loop_50;
-                }
+                } while (var_21_3 < var_18);
                 func_003762e0(arg0, spF0, (temp_23_2 + 1) & 0xFFFF, 0, 4);
                 var_20_2 += 1;
-                goto loop_52;
-            }
+            } while (var_20_2 < 3);
         case 5:                                     /* switch 1 */
             var_17_2 = 0;
 loop_66:
@@ -709,8 +655,7 @@ block_62:
             func_00388fb0((*( s32 *)((u8 *)(arg0) + 0x1F294)));
             if (func_0037f550(arg0) != 0) {
                 var_17_3 = 0;
-loop_99:
-                if (var_17_3 < temp_20) {
+                do {
                     var_4 = 0;
 loop_94:
                     if (var_4 >= (*( s32 *)((u8 *)(temp_19) + 0x28))) {
@@ -725,8 +670,7 @@ loop_94:
                         func_00378f90(arg0, var_17_3, 0x14);
                     }
                     var_17_3 += 1;
-                    goto loop_99;
-                }
+                } while (var_17_3 < temp_20);
                 (*( u32 *)((u8 *)(arg0) + 0x1F2F8)) = 0xAU;
             } else {
                 func_00379c70(arg0, -1);
@@ -759,23 +703,19 @@ loop_108:
         case 11:                                    /* switch 1 */
             if (func_00378a70(arg0, temp_20) != 0) {
                 var_17_5 = 0;
-loop_118:
-                if (var_17_5 < (*( s32 *)((u8 *)(temp_19) + 0x28))) {
+                do {
                     func_00379090(arg0, (*( s32 *)((u8 *)((temp_19 + (var_17_5 * 4))) + 0xC)), 0xA, 1);
                     var_17_5 += 1;
-                    goto loop_118;
-                }
+                } while (var_17_5 < (*( s32 *)((u8 *)(temp_19) + 0x28)));
                 (*( u32 *)((temp_19 + 0x128))) = 0xCU;
             case 12:                                /* switch 1 */
                 if (func_00378a70(arg0, temp_20) != 0) {
                     var_5 = 1;
-loop_123:
-                    if (var_5 < (*( s32 *)((u8 *)(temp_19) + 0x28))) {
+                    do {
                         temp_4_3 = (u8 *)(arg0 + ((*( s32 *)((u8 *)((temp_19 + (var_5 * 4))) + 0xC)) * 0xE8));
                         (*( u16 *)((u8 *)(temp_4_3) + 0x1D6A0)) = (u16) ((*( u16 *)((u8 *)(temp_4_3) + 0x1D6A0)) & 0xFFFD);
                         var_5 += 1;
-                        goto loop_123;
-                    }
+                    } while (var_5 < (*( s32 *)((u8 *)(temp_19) + 0x28)));
                     func_00378ec0(arg0, (*( s32 *)((u8 *)(temp_19) + 0xC)));
                     (*( u16 *)(temp_19)) = (u16) ((*( u16 *)(temp_19)) | 0x80);
                     func_0045af60(1, 0, 5, 1);
@@ -826,7 +766,57 @@ loop_123:
         func_0046d730(&D_0064EB40, 0x295);
         goto block_140;
     }
-
+block_140:
+        var_21 = 0;
+loop_163:
+        switch (var_21) {                           /* switch 5; irregular */
+        case 0:                                     /* switch 5 */
+            var_2 = 2 & 0xFFFF;
+block_149:
+            if ((*( u16 *)((u8 *)(arg0) + 0x1F1D0)) & (var_2 & 0xFFFF)) {
+                var_20 = var_18 * var_21;
+                spC0 = (s32) (arg0 + 0x1F304);
+                spB0 = var_18 * (var_21 + 1);
+do {
+                        temp_17_2 = (u16)((*( u16 *)((u8 *)(arg0) + 0x1F1D2)));
+                        if ((s32)(spC0) < 6) {
+    
+                        }
+                        temp_23 = (u8 *)(arg0 + (var_20 * 0xE8));
+                        if (func_00375910(temp_23 + 0x1D6A0) != 0) {
+                            func_003717e0(temp_23 + 0x1D6B8, sp130);
+                            if (!(unksp134 < 508.0f)) {
+                                M2C_ERROR(/* unknown instruction: adda.s $f0, $f3 */);
+                                unksp134 = M2C_ERROR(/* unknown instruction: msub.s $f0, $f2, $f1 */);
+                            }
+                            temp_22 = (u8 *)(arg0 + (var_20 * 0xFB0));
+                            func_0036dc60(temp_22, (f32 *) sp130, (f32 *)&sp120, 86.0f);
+                            unksp134 += 120.0f;
+                            func_0036dc60(temp_22, (f32 *) sp130, (f32 *)&sp110, 86.0f);
+                            if ((s32) temp_17_2 >= 0) {
+                                var_f13 = (f32) temp_17_2;
+                            } else {
+                                var_f13 = 2.0f * (f32) ((temp_17_2 >> 1) | (temp_17_2 & 1));
+                            }
+                            func_00375d50(arg0, var_20, (f32 *)&sp120, (f32 *)&sp110, 0.0f, var_f13);
+                        }
+                        var_20 += 1;
+} while (var_20 < spB0);
+            }
+            var_21 += 1;
+            goto loop_163;
+        case 1:                                     /* switch 5 */
+            var_2 = 4;
+            goto block_149;
+        case 2:                                     /* switch 5 */
+            var_2 = 8;
+            goto block_149;
+        default:                                    /* switch 5 */
+            func_0046d730(&D_0064EB40, 0x8C);
+            var_2 = 0;
+            goto block_149;
+        }
+        return 0;
 }
 #pragma opt_dead_assignments on
 #pragma opt_common_subs on

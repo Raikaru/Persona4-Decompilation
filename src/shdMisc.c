@@ -196,6 +196,14 @@ s32 func_003645c0(char *out, s32 value)
    The lever is iterative, which the first sweep hid: it converts the single best loop
    per function, so re-running it after installing finds the next one.  The third pass
    improved 14 more floors, `func_001ed700` by 89 edits on its own. */
+/* measured 00364680 (owner, 2026-09-19): fnalign **155 -> 138 edits**, count
+   379 -> 379 against retail 372, by putting one switch's arms in REVERSED
+   order.  Case order is EMISSION order and the right one is whatever retail emitted:
+   a chain converted to a switch wants ascending, a jump table wants the table's own
+   layout, and a `beq` chain with no table can want the reverse of the source order.
+   All three orderings were measured on every switch in this body and this is the
+   only one that improved it; swept across the 167 first-party floors carrying a
+   switch, just four responded at all. */
 // FUN_00364680 NONMATCHING
 #ifdef NON_MATCHING
 void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, f32 fparg6, u8 *ptr, s32 arg2, s32 arg3) {
@@ -291,11 +299,11 @@ void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32
     func_0048a000();
     D_00887300[0](1, 0);
     switch (arg3) {
-    case 1:
-        func_003f6440(2, 0x58);
-        break;
     case 0:
         func_003f6440(2, 0x54);
+        break;
+    case 1:
+        func_003f6440(2, 0x58);
         break;
     default:
         func_0046d730(D_0064E2F8, 265);
