@@ -473,6 +473,14 @@ void func_001546a0(u16 arg0, u16 arg1)
    floor with a table: 20 were already in layout order, 5 improved (274, 88, 50, 37
    and 7 edits) and 13 got worse, so it is measured per function like every other
    spelling. */
+/* measured 00154720 (owner, 2026-09-19): fnalign **105 -> 101 edits**, count
+   248 -> 249 against retail 251, by putting one switch's arms in REVERSED
+   order.  Case order is EMISSION order and the right one is whatever retail emitted:
+   a chain converted to a switch wants ascending, a jump table wants the table's own
+   layout, and a `beq` chain with no table can want the reverse of the source order.
+   All three orderings were measured on every switch in this body and this is the
+   only one that improved it; swept across the 167 first-party floors carrying a
+   switch, just four responded at all. */
 // FUN_00154720 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00154720(u16 arg0, u16 arg1, s64 arg2)
@@ -583,15 +591,14 @@ common:
             }
         } else {
             switch (arg2) {
-            case 0:
+            case 4:
+            case 3:
+            case 1:
                 hour = weather & 0xFF;
-                switch (hour) {
-                case 4:
-                    value += 0x64;
-                    break;
-                case 5:
-                    value += 0xC8;
-                    break;
+                if (hour < 5) {
+                    value += 0x258;
+                } else if (hour == 5) {
+                    value += 0x2BC;
                 }
                 break;
             case 2:
@@ -602,14 +609,15 @@ common:
                     value += 0x1F4;
                 }
                 break;
-            case 4:
-            case 3:
-            case 1:
+            case 0:
                 hour = weather & 0xFF;
-                if (hour < 5) {
-                    value += 0x258;
-                } else if (hour == 5) {
-                    value += 0x2BC;
+                switch (hour) {
+                case 4:
+                    value += 0x64;
+                    break;
+                case 5:
+                    value += 0xC8;
+                    break;
                 }
                 break;
             }

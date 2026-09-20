@@ -2800,6 +2800,14 @@ s32 func_0013f620(s16 arg0, s32 arg1, u8 *arg2) {
    2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
    func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
    func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
+/* measured 0013f720 (owner, 2026-09-19): fnalign **20 -> 16 edits**, count
+   265 -> 265 against retail 265, by putting one switch's arms in ASCENDING
+   order.  Case order is EMISSION order and the right one is whatever retail emitted:
+   a chain converted to a switch wants ascending, a jump table wants the table's own
+   layout, and a `beq` chain with no table can want the reverse of the source order.
+   All three orderings were measured on every switch in this body and this is the
+   only one that improved it; swept across the 167 first-party floors carrying a
+   switch, just four responded at all. */
 // FUN_0013F720 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -2920,14 +2928,14 @@ do {
     }
     temp_3_3 = (s8)var_19;
     switch (temp_3_3) {
-    case 3:
-        break;
     case 0:
         func_0045af60(0, 0, 0, 8);
         break;
     case 2:
     case 1:
         func_0045af60(1, 3, 2, 0x16);
+        break;
+    case 3:
         break;
     default:
         func_0046d730(D_005ED9F0, 0x28C);
