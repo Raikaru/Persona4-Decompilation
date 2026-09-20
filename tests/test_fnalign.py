@@ -3,8 +3,10 @@ from __future__ import annotations
 import importlib.util
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "tools"))
@@ -88,6 +90,23 @@ class FallbackRefusalTests(unittest.TestCase):
     def _run(self, *args: str) -> subprocess.CompletedProcess[str]:
         return subprocess.run([sys.executable, "-E", "-s", "tools/fnalign.py", *args],
                               cwd=REPO, capture_output=True, text=True, timeout=600)
+
+    def test_fallback_refusal_does_not_load_private_configuration(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "owner.c"
+            source.write_text(
+                '// FUN_00100000 NONMATCHING\n'
+                '#ifdef NON_MATCHING\nvoid func_00100000(void) {}\n#else\n'
+                'INCLUDE_ASM("asm/nonmatchings/owner", func_00100000);\n#endif\n',
+                encoding="utf-8")
+            with patch.object(sys, "argv", ["fnalign.py", str(source), "func_00100000"]), \
+                    patch.object(fnalign, "load_config",
+                                 side_effect=AssertionError("private configuration requested")) as load:
+                with self.assertRaises(SystemExit) as stopped:
+                    fnalign.main()
+            self.assertIn("INCLUDE_ASM fallback", str(stopped.exception))
+            self.assertIn("measure_guarded.py", str(stopped.exception))
+            load.assert_not_called()
 
     def test_a_guarded_floor_without_a_candidate_is_refused(self) -> None:
         guarded = next(

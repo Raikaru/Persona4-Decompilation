@@ -161,3 +161,20 @@ Final evidence is under `build/recover-upstream/continue-20260920/`:
 `linked-report.json`, `publish-audit.json`, and the test/lint receipts.
 Pending bodies remain in the tracked recovery archive with their unresolved
 contracts and proofs identified; they are not included in the five-match gain.
+
+## Public-CI preflight follow-up
+
+The recovery was fast-forward pushed to `main` at `bc23ba5`. GitHub's first
+run exposed two existing `fnalign` refusal tests that depend on having local
+compiler configuration: the tool loaded that configuration before inspecting
+whether the requested function still used its assembly fallback. The configured
+local suite therefore passed while the public job failed.
+
+The refusal now happens immediately after validating the source and candidate
+paths. A regression test ensures it does not request private configuration.
+An isolated checkout with no compiler configuration or retail ELF reproduced
+the original two failures, then passed the complete fixed suite: 612 tests run,
+nineteen skipped. Logs and source hashes are retained in
+`build/recover-upstream/continue-20260920/free-ci/`. This follow-up changes only
+the diagnostic preflight, its test, and this record; the game sources, compiler
+configuration, build driver, and official verifier retain their verified bytes.
