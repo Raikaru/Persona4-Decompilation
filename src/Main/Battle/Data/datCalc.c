@@ -3644,6 +3644,8 @@ extern s32 func_00243e30(u16 *arg0);
    floor with a table: 20 were already in layout order, 5 improved (274, 88, 50, 37
    and 7 edits) and 13 got worse, so it is measured per function like every other
    spelling. */
+#pragma push
+#pragma opt_loop_invariants on
 // FUN_0023A6B0 NONMATCHING
 #ifdef SKIP_ASM
 s32 func_0023a6b0(u8 *arg0, s32 arg1)
@@ -5087,6 +5089,7 @@ done_1db:
 #else
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023a6b0);
 #endif
+#pragma pop
 
 // FUN_0023D6E0
 s32 func_0023d6e0(s16 arg0)
