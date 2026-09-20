@@ -3786,9 +3786,9 @@ void func_0019c0d0(void)
             if ((*(s32 *)(entry + 0x98) & 2) != 0) {
                 func_001b70c0(entry);
                 {
-                    u16 v = *(u16 *)entry;
+                    s32 v = *(u16 *)entry;
                     if (((v & 3) == 0) || ((v & 4) != 0)) {
-                        u8 t = *(u8 *)(entry + 0x37);
+                        s32 t = *(u8 *)(entry + 0x37);
                         if (t != 0xFF) {
                             if (t < 0xDF) {
                                 *(u8 *)(entry + 0x37) = (u8)(t + 0x20);
@@ -3798,7 +3798,7 @@ void func_0019c0d0(void)
                             *(s32 *)(entry + 0x98) |= 4;
                         }
                     } else {
-                        u8 base;
+                        s32 base;
                         if ((v & 8) == 0) {
                             base = 0;
                         } else {
@@ -3816,9 +3816,9 @@ void func_0019c0d0(void)
                     f32 ft;
                     f32 fdiv;
                     f32 f1;
-                    u8 b48;
-                    u8 b49;
-                    u8 b4a;
+                    s32 b48;
+                    s32 b49;
+                    s32 b4a;
                     ft = (f32)*(u16 *)(entry + 0x4C);
                     fdiv = ft / 8.0f;
                     b48 = *(u8 *)(entry + 0x48);
@@ -3889,14 +3889,14 @@ void func_0019c0d0(void)
                         f32 d1 = (f32)*(u8 *)(entry + 0x41);
                         f32 d2 = (f32)*(u8 *)(entry + 0x42);
                         f32 d3 = (f32)*(u8 *)(entry + 0x43);
-                        s32 t0 = ((s32)(inv * a0 * inv * b0 * 255.0f + 0.5f)) & 0xFF;
-                        s32 t1 = ((s32)(inv * a1 * inv * b1 * 255.0f + 0.5f)) & 0xFF;
-                        s32 t2 = ((s32)(inv * a2 * inv * b2 * 255.0f + 0.5f)) & 0xFF;
-                        s32 t3 = ((s32)(inv * a3 * inv * b3 * 255.0f + 0.5f)) & 0xFF;
-                        s32 u0 = ((s32)(inv * (f32)t0 * inv * c0 * 255.0f + 0.5f)) & 0xFF;
-                        s32 u1 = ((s32)(inv * (f32)t1 * inv * c1 * 255.0f + 0.5f)) & 0xFF;
-                        s32 u2 = ((s32)(inv * (f32)t2 * inv * c2 * 255.0f + 0.5f)) & 0xFF;
-                        s32 u3 = ((s32)(inv * (f32)t3 * inv * c3 * 255.0f + 0.5f)) & 0xFF;
+                        s64 t0 = ((s32)(inv * a0 * inv * b0 * 255.0f + 0.5f)) & 0xFF;
+                        s64 t1 = ((s32)(inv * a1 * inv * b1 * 255.0f + 0.5f)) & 0xFF;
+                        s64 t2 = ((s32)(inv * a2 * inv * b2 * 255.0f + 0.5f)) & 0xFF;
+                        s64 t3 = ((s32)(inv * a3 * inv * b3 * 255.0f + 0.5f)) & 0xFF;
+                        s64 u0 = ((s32)(inv * (f32)t0 * inv * c0 * 255.0f + 0.5f)) & 0xFF;
+                        s64 u1 = ((s32)(inv * (f32)t1 * inv * c1 * 255.0f + 0.5f)) & 0xFF;
+                        s64 u2 = ((s32)(inv * (f32)t2 * inv * c2 * 255.0f + 0.5f)) & 0xFF;
+                        s64 u3 = ((s32)(inv * (f32)t3 * inv * c3 * 255.0f + 0.5f)) & 0xFF;
                         col[0] = (u8)(s32)(inv * (f32)u0 * inv * d0 * 255.0f + 0.5f);
                         col[1] = (u8)(s32)(inv * (f32)u1 * inv * d1 * 255.0f + 0.5f);
                         col[2] = (u8)(s32)(inv * (f32)u2 * inv * d2 * 255.0f + 0.5f);
@@ -3942,12 +3942,11 @@ void func_0019c0d0(void)
                 if ((*(s32 *)(entry + 0xA04) != 0) && (func_0019d130(entry) != 0)) {
                     u8 *p = *(u8 **)(entry + 0xA64);
                     if (p != NULL) {
-                        s32 v = *(s32 *)(p + 0xC);
-                        s32 hi = (s32)((((s64)(v << 12)) >> 44) & 0xFFFFFFFF);
-                        s32 chk = func_001d72e0(hi >> 12);
+                        s64 v41 = *(s32 *)(p + 0xC) & 0xFFFFF;
+                        s64 chk = (s16)func_001d72e0((s32)v41);
                         s16 cur = func_001d7130(*(s32 *)(entry + 0xA04));
-                        if ((s16)chk != cur) {
-                            func_001d7400((u32)hi >> 12, entry + 0x48);
+                        if (chk != (s64)cur) {
+                            func_001d7400((s32)v41, entry + 0x48);
                             *(u8 *)(entry + 0x44) = *(u8 *)(entry + 0x40);
                             *(u8 *)(entry + 0x45) = *(u8 *)(entry + 0x41);
                             *(u8 *)(entry + 0x46) = *(u8 *)(entry + 0x42);

@@ -233,6 +233,7 @@ s32 func_002ac740(void) {
    1255). Remaining ~1240 differing words are these two families
    cascading through 1384 words. */
 /* measured: banked v5 (m2c transcription, s32 temps, M2C_FIELD expanded, block-scope externs, func_00155280() fixed, s8/s16 casts): fnalign retail 1380 obj 1356 (-24, -1.7% inside 1338-1421), 916 edits +5 reloc-only; frame 0x140 vs 0x190 count-neutral. Residuals: saved-reg rotation + u16 bit-set families. */
+/* measured: 2026-09-19 switch-order + default-place (this session): jtbl_007487E0 6 entries share pairwise (0,1->0x2ad2d4 9/10; 2,3->0x2ad4f0 11/12; 4,5->0x2ada3c 13/14) so case9:case10: stacked is correct, no real fallthrough; 9/10->default fallthrough is artefact (different targets, both return via epilogue) so break + default-at-end. Switch1/3 irregular 2,0/3,1 -> ascending 0,2/1,3. fnalign retail 1380: base 916+5 obj1356 -> default-end 915+5 obj1354 (-1) -> sw1-asc 879+5 (-37) -> sw1+sw3-asc 843+5 (-73) -> +default-end 842+5 obj1354 (-74 total). Pointer-walk trial on loop_102 D-table (p_102++) 844+5 (+2 vs 842, reject; retail also index*2). Raw-save prologue trial neutral 842. Frame still 0x140 vs 0x190, saved-reg rotation + u16 families remain. verify 28MATCH/8ASM, lint 0e/1w (pre-existing H003), fnalign object compiles. TU C-linked unverified (prod stays ASM), image hashes unverified. */
 // FUN_002AC750 NONMATCHING
 #ifdef NON_MATCHING
 void func_002ac750(s32 arg0, s32 arg1) {
@@ -498,8 +499,8 @@ loop_34:
                     }
                     temp_4_9 = (*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x59)));
                     switch (temp_4_9) {             /* switch 1; irregular */
-                    case 2:                         /* switch 1 */
                     case 0:                         /* switch 1 */
+                    case 2:                         /* switch 1 */
                         var_17 = 0;
                         temp_16_2 = ((s8)(var_21));
 loop_46:
@@ -514,8 +515,8 @@ loop_46:
                             goto loop_46;
                         }
                         return;
-                    case 3:                         /* switch 1 */
                     case 1:                         /* switch 1 */
+                    case 3:                         /* switch 1 */
                         var_16 = 0;
                         temp_3_4 = arg1 & 0xFF;
 loop_52:
@@ -645,8 +646,7 @@ loop_77:
                 }
                 return;
             }
-        default:                                    /* switch 2 */
-            return;
+            break;
         case 11:                                    /* switch 2 */
         case 12:                                    /* switch 2 */
             if (((s8)(func_002adcf0((*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x55)))))) == 1) {
@@ -692,8 +692,8 @@ loop_90:
                 }
                 temp_4_33 = (*( u8 * )((u8*)((func_00155280() + temp_17 + temp_16)) + (0x59)));
                 switch (temp_4_33) {                /* switch 3; irregular */
-                case 2:                             /* switch 3 */
                 case 0:                             /* switch 3 */
+                case 2:                             /* switch 3 */
                     var_17_3 = 0;
                     temp_16_5 = ((s8)(var_21));
 loop_102:
@@ -708,8 +708,8 @@ loop_102:
                         goto loop_102;
                     }
                     return;
-                case 3:                             /* switch 3 */
                 case 1:                             /* switch 3 */
+                case 3:                             /* switch 3 */
                     var_16_2 = 0;
                     temp_3_9 = arg1 & 0xFF;
 loop_108:
@@ -797,6 +797,8 @@ loop_130:
                     goto loop_132;
                 }
             }
+            break;
+        default:
             break;
         }
     }

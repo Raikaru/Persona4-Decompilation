@@ -2791,6 +2791,15 @@ s32 func_0013f620(s16 arg0, s32 arg1, u8 *arg2) {
    After: fndiff 199, fnalign 23 (+6 reloc-only) retail 267/object 267 size-exact, opclass
    dsll32/dsra32 surplus 0 (floor drops out of the surplus list). Retail's ten pairs
    (8x0x10, 2x0x18) reproduced site-for-site; its three andi 0xFFFF masks kept. */
+/* measured 0013f720 (owner, 2026-09-19): fnalign **23 -> 20 edits**, count
+   267 -> 265 against retail 267, by writing m2c's top-tested `loop_N:` /
+   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
+   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
+   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
+   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
+   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
+   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
+   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
 // FUN_0013F720 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -2845,17 +2854,15 @@ s32 func_0013f720(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     } else if ((s16)arg1 == -1) {
         var_22 = 0;
         var_16 = 0;
-loop_11:
-        if (var_16 < *(s16 *)(arg3 + 0xFC)) {
-            temp_3_2 = arg3 + var_16 * 2;
-            spA0 = temp_3_2 + 0xF4;
-            if (func_0010f930(arg0, *(s16 *)(temp_3_2 + 0xF4), temp_17, 0) == 0) {
-                func_0010f770(arg0, *(s16 *)spA0, temp_17, 0);
-                var_22 += 1;
-            }
-            var_16 += 1;
-            goto loop_11;
-        }
+do {
+                temp_3_2 = arg3 + var_16 * 2;
+                spA0 = temp_3_2 + 0xF4;
+                if (func_0010f930(arg0, *(s16 *)(temp_3_2 + 0xF4), temp_17, 0) == 0) {
+                    func_0010f770(arg0, *(s16 *)spA0, temp_17, 0);
+                    var_22 += 1;
+                }
+                var_16 += 1;
+} while (var_16 < *(s16 *)(arg3 + 0xFC));
         if (var_22 == 0) {
             var_19 = 0;
         }

@@ -1169,11 +1169,23 @@ void func_0027f6a0(void)
    It bought 72 differing words (1920 -> 1848) and cost **87 fnalign edits** (2392 -> 2479).
    By the pair rule (handoff 7aw) the edits decide: a pragma that lowers the word score
    while raising the number of instructions that differ from retail is moving a metric,
-   not reproducing codegen.  Floor stands at retail 2153 / object 2135 (-0.8%, gate
+   not reproducing codegen.  Floor stood at retail 2153 / object 2135 (-0.8%, gate
    2091-2221, mid-band), 2392 edits +80 reloc-only, 1920 differing words, frame -0x2E0
    against retail's -0x300.  Residual is prologue saved-register rotation (arg0 in $s0
    against retail's $s1, arg1 in $s1 against $s5) plus the 0x20 frame gap. */
-/* Ten COP1 accumulator chains written as shared-product a*b+-c*d per 7r; residual is prologue saved-reg rotation (arg0 $s0 vs $s1, arg1 $s1 vs $s5) + 0x20 frame gap; production stays ASM. */
+/* measured 0027f6f0 2026-09-19 tail_classify 2392 edits: structure 184, register 49.
+   Structural hunks worked inside arms (dispatch untouched; ascending-case sort already
+   measures 2514 WORSE and is not repeated): case-7 entry search reshaped to retail's
+   single-post-loop zero (remove per-iteration e=0, assign e only on found) 2392->2388;
+   case-4 cnt<0x10 dead tail (second func_0044b7b0 + f*100/chainD scaffolding after the
+   func_0025ecd0 call) removed 2388->2373; case-18 accumulator scaffolding simplified to
+   live-only (chainA=(1-f)*255, chainB=f*360+180, chainC=chainB, first arg (float)s20)
+   2373->2371; case-4 cnt<0xB *1.0f/+0.0f tail removed with no measurement change (kept
+   as cleanup).  Tried and REVERTED: Quad lq/sq block copy for case-12 copyA/copyB
+   2388->2541 (+153, words 1914->1963); <0x10 head simplification to f2*10-only
+   2373->2382 (+9, words 1943->1924).  Floor now 2371 edits +80 reloc-only, 1943
+   differing words.  Ten COP1 accumulator chains remain as shared-product a*b+-c*d per
+   7r; residual is prologue saved-reg rotation + 0x20 frame gap; production stays ASM. */
 // FUN_0027F6F0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0027f6f0(s32 arg0, u32 arg1)
@@ -1308,8 +1320,6 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             chainC = iGpffff803c + prodA;
             prodA = iGpffff8118 * divA;
             chainD = iGpffff803c - prodA;
-            prodB = chainA * 1.0f;
-            chainA = prodB + 0.0f;
             func_0025ecd0(chainB, (float)s20 * f + 123.0f, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, 1.0f, chainC - chainD + f, (void *)D_00796490);
         } else if (cnt32 < 0x10) {
             f = func_0044b7b0((iGpffff8094 * (float)(cnt32 - 10)) / 5.0f);
@@ -1326,11 +1336,6 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             prodA = f2 * 10.0f;
             chainA = prodA + chainA - chainA;
             func_0025ecd0(0.0f, chainA, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, 1.0f, chainC, (void *)D_00796490);
-            prodA = 16.0f * f2;
-            chainB = prodA + chainB - chainB;
-            f = func_0044b7b0((iGpffff8094 * (float)cnt32) / 5.0f);
-            prodB = f * 100.0f;
-            chainD = prodB - chainD + chainD;
         } else if (cnt32 < 0x15) {
             func_0025ec90(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, s19, (void *)iGpffffb4dc, 1, (void *)D_00796490);
             f = func_0044b7b0((iGpffff8094 * (float)(cnt32 - 15)) / 5.0f);
@@ -1702,11 +1707,10 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         if (D_0088202C[0] == 2) {
             e = (MsgProcWindowEntry *)0;
             for (i = 0; i < 8; i++) {
-                e = &D_008820B0[i];
-                if ((e->field0 & 1) == 0) {
+                if ((D_008820B0[i].field0 & 1) == 0) {
+                    e = &D_008820B0[i];
                     break;
                 }
-                e = (MsgProcWindowEntry *)0;
             }
             if (e != (MsgProcWindowEntry *)0) {
                 func_0043f9c8(e, 0, 0x18);
@@ -1718,11 +1722,10 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         } else if (D_0088202C[0] == 1) {
             e = (MsgProcWindowEntry *)0;
             for (i = 0; i < 8; i++) {
-                e = &D_008820B0[i];
-                if ((e->field0 & 1) == 0) {
+                if ((D_008820B0[i].field0 & 1) == 0) {
+                    e = &D_008820B0[i];
                     break;
                 }
-                e = (MsgProcWindowEntry *)0;
             }
             if (e != (MsgProcWindowEntry *)0) {
                 func_0043f9c8(e, 0, 0x18);
@@ -1734,11 +1737,10 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
         } else if (D_0088202C[0] == 0) {
             e = (MsgProcWindowEntry *)0;
             for (i = 0; i < 8; i++) {
-                e = &D_008820B0[i];
-                if ((e->field0 & 1) == 0) {
+                if ((D_008820B0[i].field0 & 1) == 0) {
+                    e = &D_008820B0[i];
                     break;
                 }
-                e = (MsgProcWindowEntry *)0;
             }
             if (e != (MsgProcWindowEntry *)0) {
                 func_0043f9c8(e, 0, 0x18);
@@ -1900,19 +1902,11 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
                 cntB++;
                 cntB32 = (s32)cntB;
                 f = func_0044b7b0((iGpffff8094 * (float)cntB32) / 10.0f);
-                prodA = (1.0f - f) * 255.0f;
-                chainA = prodA + 0.0f;
+                chainA = (1.0f - f) * 255.0f;
                 tmp = (s32)chainA;
-                prodA = (float)s20;
-                prodB = (float)s19;
                 chainB = f * 360.0f + 180.0f;
-                prodA = chainB * 1.0f;
-                chainC = prodA + 0.0f;
-                f2 = iGpffff803c + prodA - prodA;
-                f3 = iGpffff811c * f + iGpffff803c - iGpffff803c;
-                prodB = f2 * 1.0f;
-                chainD = prodB + f3 - f3;
-                func_0025ecd0(prodA - prodA + (float)s20, (float)s19, 0.0f, 0xFFFFFF, (u8)tmp, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, chainC, 1.0f, 1.0f, (void *)D_00796490);
+                chainC = chainB;
+                func_0025ecd0((float)s20, (float)s19, 0.0f, 0xFFFFFF, (u8)tmp, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, chainC, 1.0f, 1.0f, (void *)D_00796490);
                 if (cntB32 >= 10) {
                     D_00882020[0] &= ~0x80u;
                     cntB = 0;

@@ -792,6 +792,15 @@ s32 func_00172d80(u8 *arg0)
 
 #pragma push
 #pragma opt_common_subs off
+/* measured 00172e00 (owner, 2026-09-19): fnalign **428 -> 427 edits**, count
+   1527 -> 1525 against retail 1564, by writing m2c's top-tested `loop_N:` /
+   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
+   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
+   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
+   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
+   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
+   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
+   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
 // FUN_00172E00 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: object 1527 instrs (6108B), retail 1564 instrs (6256B) window 6272B (1568 instrs), within 3% (6084-6460B); probe nd 1254, fnalign edits 428 (+42 reloc-only). Honest translation with block-scope counters, sequential < guards, scalar gp forms (iGpffffb2cc/b2c8, D_00762EA0, iGpffffb284, iGpffffba4c/ba50/ba54/ba58/ba6c, D_007EFA00). Production stays ASM. Scoped pragma opt_common_subs off (push/pop around floor) enlarges 1501->1527 to reach band, verified via hash/len (not ignored); optimization_level 3/4 shrink wrong direction for this under-sized body per Main axis; pragma_sweep on unbanked gave no body (ran per guidance). */
@@ -978,18 +987,16 @@ block_209:
                             {
                                 s32 n = 1;
                                 s32 i = 1;
-                            loop_g1:
-                                if (i < 4) {
-                                    u8 *slot = D_007EF9B0 + (i * 0x750);
-                                    u8 *p48 = *(u8 **)(slot + 0x48);
-                                    if (p48 != NULL) {
-                                        *(u16 *)(p48 + 0xA) = *(u16 *)(p48 + 0xA) | 1;
-                                        *(u8 **)(h + 0x54 + (n * 4)) = p48;
-                                        n += 1;
-                                    }
-                                    i += 1;
-                                    goto loop_g1;
-                                }
+                            do {
+                                        u8 *slot = D_007EF9B0 + (i * 0x750);
+                                        u8 *p48 = *(u8 **)(slot + 0x48);
+                                        if (p48 != NULL) {
+                                            *(u16 *)(p48 + 0xA) = *(u16 *)(p48 + 0xA) | 1;
+                                            *(u8 **)(h + 0x54 + (n * 4)) = p48;
+                                            n += 1;
+                                        }
+                                        i += 1;
+                            } while (i < 4);
                             }
                             {
                                 s32 cnt = 0;

@@ -2409,6 +2409,15 @@ s32 func_00257820(s32 arg0, void *arg1) {
    func_00256460 takes 8 ints + 5 floats (its 6th/7th params are passed to
    func_0045e6a0 with (s16) narrowing). Family walls (see the sibling notes):
    (u32)-cast alpha sites, vt-base rematerialization, stack-slot overlap. */
+/* measured 00257900 (owner, 2026-09-19): fnalign **2521 -> 2519 edits**, count
+   3624 -> 3622 against retail 3580, by writing m2c's top-tested `loop_N:` /
+   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
+   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
+   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
+   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
+   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
+   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
+   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
 // FUN_00257900 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00257900(u8 *arg0) {
@@ -3262,45 +3271,43 @@ s32 func_00257900(u8 *arg0) {
                 func_0046d730(&D_00635CF8, 0xA5E);
             }
             var_2 = 0;
-loop_257:
-            if (var_2 < 0x100) {
-                temp_3_12 = (u8)(var_19[1]);
-                var_7 = (u8)(var_19[0]);
-                if ((s32) temp_3_12 < (s32) var_7) {
-
-                } else {
-                    var_7 = temp_3_12;
-                }
-                if ((s32) var_7 < (s32) var_19[2]) {
-                    var_7 = var_19[2];
-                }
-                temp_f0_12 = (f32)var_17[0] + (((f32)(temp_2_42 - 0x64) / 40.0f) * (f32)(var_7 - var_17[0]));
-                if (!(temp_f0_12 >= 2.1474836e9f)) {
-                    var_3_3 = (s32)( temp_f0_12) & 0xFF;
-                } else {
-                    var_3_3 = ((s32)( (temp_f0_12 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                }
-                var_19[0] = var_3_3;
-                temp_f0_13 = (f32)var_17[1] + (((f32)(temp_2_42 - 0x64) / 40.0f) * (f32)(var_7 - var_17[1]));
-                if (!(temp_f0_13 >= 2.1474836e9f)) {
-                    var_3_4 = (s32)( temp_f0_13) & 0xFF;
-                } else {
-                    var_3_4 = ((s32)( (temp_f0_13 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                }
-                var_19[1] = var_3_4;
-                temp_f0_14 = (f32)var_17[2] + (((f32)(temp_2_42 - 0x64) / 40.0f) * (f32)(var_7 - var_17[2]));
-                if (!(temp_f0_14 >= 2.1474836e9f)) {
-                    var_3_5 = (s32)( temp_f0_14) & 0xFF;
-                } else {
-                    var_3_5 = ((s32)( (temp_f0_14 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                }
-                var_19[2] = var_3_5;
-                var_19[3] = (u8) var_19[3];
-                var_19 += 4;
-                var_17 += 4;
-                var_2 += 1;
-                goto loop_257;
-            }
+do {
+                    temp_3_12 = (u8)(var_19[1]);
+                    var_7 = (u8)(var_19[0]);
+                    if ((s32) temp_3_12 < (s32) var_7) {
+    
+                    } else {
+                        var_7 = temp_3_12;
+                    }
+                    if ((s32) var_7 < (s32) var_19[2]) {
+                        var_7 = var_19[2];
+                    }
+                    temp_f0_12 = (f32)var_17[0] + (((f32)(temp_2_42 - 0x64) / 40.0f) * (f32)(var_7 - var_17[0]));
+                    if (!(temp_f0_12 >= 2.1474836e9f)) {
+                        var_3_3 = (s32)( temp_f0_12) & 0xFF;
+                    } else {
+                        var_3_3 = ((s32)( (temp_f0_12 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                    }
+                    var_19[0] = var_3_3;
+                    temp_f0_13 = (f32)var_17[1] + (((f32)(temp_2_42 - 0x64) / 40.0f) * (f32)(var_7 - var_17[1]));
+                    if (!(temp_f0_13 >= 2.1474836e9f)) {
+                        var_3_4 = (s32)( temp_f0_13) & 0xFF;
+                    } else {
+                        var_3_4 = ((s32)( (temp_f0_13 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                    }
+                    var_19[1] = var_3_4;
+                    temp_f0_14 = (f32)var_17[2] + (((f32)(temp_2_42 - 0x64) / 40.0f) * (f32)(var_7 - var_17[2]));
+                    if (!(temp_f0_14 >= 2.1474836e9f)) {
+                        var_3_5 = (s32)( temp_f0_14) & 0xFF;
+                    } else {
+                        var_3_5 = ((s32)( (temp_f0_14 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                    }
+                    var_19[2] = var_3_5;
+                    var_19[3] = (u8) var_19[3];
+                    var_19 += 4;
+                    var_17 += 4;
+                    var_2 += 1;
+} while (var_2 < 0x100);
             func_003ec2e0(temp_18);
             func_002570f0(0xFFFFFF, 0xFF, (f32)( temp_18), 0, 0, 0, 0.0f);
         } else if (temp_2_42 < 0xA1) {

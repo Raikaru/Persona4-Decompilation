@@ -1366,6 +1366,15 @@ void func_00376880(u8 **arg0) {
    are neutral and func_00253850 is WORSE by 10.  It is a real lever but a small one -
    roughly three edits per site here, under one elsewhere - so it only pays where the
    sites are dense. */
+/* measured 003768e0 (owner, 2026-09-19): fnalign **658 -> 656 edits**, count
+   1021 -> 1019 against retail 1042, by writing m2c's top-tested `loop_N:` /
+   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
+   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
+   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
+   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
+   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
+   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
+   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
 // FUN_003768E0 NONMATCHING
 #ifdef NON_MATCHING
 #define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((u8 *)(expr) + (offset)))
@@ -1647,54 +1656,52 @@ void func_003768e0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, f32 fparg0) {
             var_f21_2 = 1.0f;
             var_f24 = 0.0f;
             var_18 = 0;
-loop_27:
-            if (var_18 < 0x15) {
-                func_003764b0(arg0, arg1, var_f24, ((u8 *)stack.spF0 + (var_18 * 0xC)));
-                var_f24 -= fparg0 / 21.0f;
-                M2C_FIELD(var_20, u8 *, 0xC) = (u8) M2C_FIELD(arg3, u8 *, 0);
-                M2C_FIELD(var_20, u8 *, 0xD) = (u8) M2C_FIELD(arg3, u8 *, 1);
-                M2C_FIELD(var_20, u8 *, 0xE) = (u8) M2C_FIELD(arg3, u8 *, 2);
-                temp_f1 = temp_f22 * var_f21_2;
-                if (2.1474836e9f <= temp_f1) {
-                    var_3 = (M2C_BITWISE(s32, (temp_f1 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                } else {
-                    var_3 = 0x4F000000 & 0xFF;
-                }
-                M2C_FIELD((var_20 + 0xC), s8 *, 3) = var_3;
-                M2C_FIELD(var_20, u8 *, 0x30) = (u8) M2C_FIELD(arg3, u8 *, 0);
-                M2C_FIELD(var_20, u8 *, 0x31) = (u8) M2C_FIELD(arg3, u8 *, 1);
-                M2C_FIELD(var_20, u8 *, 0x32) = (u8) M2C_FIELD(arg3, u8 *, 2);
-                temp_f2 = temp_f20 * var_f21_2;
-                if (2.1474836e9f <= temp_f2) {
-                    var_3_2 = (M2C_BITWISE(s32, (temp_f2 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                } else {
-                    var_3_2 = 0x4F000000 & 0xFF;
-                }
-                M2C_FIELD((var_20 + 0x30), s8 *, 3) = var_3_2;
-                M2C_FIELD(var_19, u8 *, 0xC) = (u8) M2C_FIELD(arg3, u8 *, 0);
-                M2C_FIELD(var_19, u8 *, 0xD) = (u8) M2C_FIELD(arg3, u8 *, 1);
-                M2C_FIELD(var_19, u8 *, 0xE) = (u8) M2C_FIELD(arg3, u8 *, 2);
-                if (2.1474836e9f <= temp_f2) {
-                    var_3_3 = (M2C_BITWISE(s32, (temp_f2 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                } else {
-                    var_3_3 = 0x4F000000 & 0xFF;
-                }
-                M2C_FIELD((var_19 + 0xC), s8 *, 3) = var_3_3;
-                M2C_FIELD(var_19, u8 *, 0x30) = (u8) M2C_FIELD(arg3, u8 *, 0);
-                M2C_FIELD(var_19, u8 *, 0x31) = (u8) M2C_FIELD(arg3, u8 *, 1);
-                M2C_FIELD(var_19, u8 *, 0x32) = (u8) M2C_FIELD(arg3, u8 *, 2);
-                if (2.1474836e9f <= temp_f1) {
-                    var_3_4 = (M2C_BITWISE(s32, (temp_f1 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                } else {
-                    var_3_4 = 0x4F000000 & 0xFF;
-                }
-                M2C_FIELD((var_19 + 0x30), s8 *, 3) = var_3_4;
-                var_f21_2 += (f32)(s32)(iGpffff8404);
-                var_18 += 1;
-                var_20 += 0x48;
-                var_19 += 0x48;
-                goto loop_27;
-            }
+do {
+                    func_003764b0(arg0, arg1, var_f24, ((u8 *)stack.spF0 + (var_18 * 0xC)));
+                    var_f24 -= fparg0 / 21.0f;
+                    M2C_FIELD(var_20, u8 *, 0xC) = (u8) M2C_FIELD(arg3, u8 *, 0);
+                    M2C_FIELD(var_20, u8 *, 0xD) = (u8) M2C_FIELD(arg3, u8 *, 1);
+                    M2C_FIELD(var_20, u8 *, 0xE) = (u8) M2C_FIELD(arg3, u8 *, 2);
+                    temp_f1 = temp_f22 * var_f21_2;
+                    if (2.1474836e9f <= temp_f1) {
+                        var_3 = (M2C_BITWISE(s32, (temp_f1 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                    } else {
+                        var_3 = 0x4F000000 & 0xFF;
+                    }
+                    M2C_FIELD((var_20 + 0xC), s8 *, 3) = var_3;
+                    M2C_FIELD(var_20, u8 *, 0x30) = (u8) M2C_FIELD(arg3, u8 *, 0);
+                    M2C_FIELD(var_20, u8 *, 0x31) = (u8) M2C_FIELD(arg3, u8 *, 1);
+                    M2C_FIELD(var_20, u8 *, 0x32) = (u8) M2C_FIELD(arg3, u8 *, 2);
+                    temp_f2 = temp_f20 * var_f21_2;
+                    if (2.1474836e9f <= temp_f2) {
+                        var_3_2 = (M2C_BITWISE(s32, (temp_f2 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                    } else {
+                        var_3_2 = 0x4F000000 & 0xFF;
+                    }
+                    M2C_FIELD((var_20 + 0x30), s8 *, 3) = var_3_2;
+                    M2C_FIELD(var_19, u8 *, 0xC) = (u8) M2C_FIELD(arg3, u8 *, 0);
+                    M2C_FIELD(var_19, u8 *, 0xD) = (u8) M2C_FIELD(arg3, u8 *, 1);
+                    M2C_FIELD(var_19, u8 *, 0xE) = (u8) M2C_FIELD(arg3, u8 *, 2);
+                    if (2.1474836e9f <= temp_f2) {
+                        var_3_3 = (M2C_BITWISE(s32, (temp_f2 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                    } else {
+                        var_3_3 = 0x4F000000 & 0xFF;
+                    }
+                    M2C_FIELD((var_19 + 0xC), s8 *, 3) = var_3_3;
+                    M2C_FIELD(var_19, u8 *, 0x30) = (u8) M2C_FIELD(arg3, u8 *, 0);
+                    M2C_FIELD(var_19, u8 *, 0x31) = (u8) M2C_FIELD(arg3, u8 *, 1);
+                    M2C_FIELD(var_19, u8 *, 0x32) = (u8) M2C_FIELD(arg3, u8 *, 2);
+                    if (2.1474836e9f <= temp_f1) {
+                        var_3_4 = (M2C_BITWISE(s32, (temp_f1 - 2.1474836e9f)) | 0x80000000) & 0xFF;
+                    } else {
+                        var_3_4 = 0x4F000000 & 0xFF;
+                    }
+                    M2C_FIELD((var_19 + 0x30), s8 *, 3) = var_3_4;
+                    var_f21_2 += (f32)(s32)(iGpffff8404);
+                    var_18 += 1;
+                    var_20 += 0x48;
+                    var_19 += 0x48;
+} while (var_18 < 0x15);
             temp_f21 = 0.5f * func_0036de70(temp_21);
             temp_f20_2 = 0.5f * func_0036deb0(temp_21);
             var_16 = 0;
