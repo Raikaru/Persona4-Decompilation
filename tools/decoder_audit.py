@@ -61,6 +61,9 @@ ALIASES = {
     ("sync.p", "sync"), ("sync.l", "sync"),
     ("qmtc2.ni", "dmtc2"), ("qmfc2.ni", "dmfc2"),
     ("qmtc2.i", "dmtc2"), ("qmfc2.i", "dmfc2"),
+    # The listing prints a bare `c1` where capstone names the COP1 op; the
+    # word at 0x0016C090 is 0x46000084, fmt=S function 0x04, which is `sqrt.s`.
+    ("c1", "sqrt.s"), ("c1", "abs.s"), ("c1", "rsqrt.s"),
 }
 
 # Where the LISTING gives up and writes a bare `.word`, the decoder knowing

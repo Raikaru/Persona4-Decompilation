@@ -104,6 +104,45 @@ class AccumulateTests(unittest.TestCase):
         self.assertIsNone(eedis.fpu_accumulate(bytes.fromhex("20FBBD27")))  # addiu
 
 
+class MultimediaTests(unittest.TestCase):
+    """Opcode 0x1C, the EE's 128-bit MMI set.  Capstone knows none of it and
+    mis-NAMED three forms outright - `psraw` as `sdbbp`, `mthi1` as `v3mulu`,
+    `mfhi1` as `vmm0`.  Words below come from the tree's own listings."""
+
+    def test_the_mmi0_and_mmi2_subtables_are_selected_by_the_shift_field(self) -> None:
+        self.assertEqual(eedis.multimedia(bytes.fromhex("891BA370")),
+                         "pcpyld $v1, $a1, $v1")
+        self.assertEqual(eedis.multimedia(bytes.fromhex("88150270")),
+                         "pextlh $v0, $zero, $v0")
+        self.assertEqual(eedis.multimedia(bytes.fromhex("88160270")),
+                         "pextlb $v0, $zero, $v0")
+
+    def test_function_0x28_is_mmi1_not_mmi0(self) -> None:
+        """Getting this wrong named 18 `pextub` as `pextlb`.  The two differ
+        only in which half is extended, so nothing but the listing would have
+        caught it - which is the argument for auditing rather than eyeballing."""
+        self.assertEqual(
+            eedis.multimedia(bytes.fromhex("A84E0A70")).split()[0], "pextub")
+
+    def test_pmfhl_carries_its_half_selector_in_the_shift_field(self) -> None:
+        self.assertEqual(
+            eedis.multimedia(bytes.fromhex("30080070")).split()[0], "pmfhl.lw")
+
+    def test_the_three_previously_misnamed_forms_are_right_now(self) -> None:
+        for word, want in (("3F530A70", "psraw"), ("11000070", "mthi1"),
+                           ("10100070", "mfhi1")):
+            self.assertEqual(eedis.multimedia(bytes.fromhex(word)).split()[0], want)
+
+    def test_the_pipeline_one_multiply_unit_is_distinguished(self) -> None:
+        """`mult1` and `multu1` target the second multiplier; confusing them
+        with `mult`/`multu` would make two different instructions match."""
+        self.assertEqual(eedis.multimedia(bytes.fromhex("18207270")).split()[0], "mult1")
+        self.assertEqual(eedis.multimedia(bytes.fromhex("19000272")).split()[0], "multu1")
+
+    def test_a_non_mmi_word_is_left_alone(self) -> None:
+        self.assertIsNone(eedis.multimedia(bytes.fromhex("20FBBD27")))
+
+
 class UndecodedTests(unittest.TestCase):
     """118 forms - the MMI integer ops, VU macro-mode, the EE three-operand
     `mult` - remain unknown to capstone.  Naming them is a refinement; not
@@ -111,18 +150,18 @@ class UndecodedTests(unittest.TestCase):
 
     def test_two_different_unknown_words_do_not_compare_equal(self) -> None:
         disassemble = eedis.build(lambda word, pc: "??")
-        pcpyld = disassemble(bytes.fromhex("891BA370"), 0)
-        pextlb = disassemble(bytes.fromhex("88160270"), 0)
-        self.assertNotEqual(pcpyld, pextlb)
+        vmulx = disassemble(bytes.fromhex("D85AE24B"), 0)
+        vadd = disassemble(bytes.fromhex("A852EB4B"), 0)
+        self.assertNotEqual(vmulx, vadd)
 
     def test_the_same_unknown_word_compares_equal_at_any_address(self) -> None:
         disassemble = eedis.build(lambda word, pc: "??")
-        word = bytes.fromhex("891BA370")
+        word = bytes.fromhex("D85AE24B")
         self.assertEqual(disassemble(word, 0x1852f0), disassemble(word, 0x400))
 
     def test_an_unknown_word_is_rendered_as_its_own_raw_word(self) -> None:
         disassemble = eedis.build(lambda word, pc: "??")
-        self.assertEqual(disassemble(bytes.fromhex("891BA370"), 0), ".word 0x70a31b89")
+        self.assertEqual(disassemble(bytes.fromhex("D85AE24B"), 0), ".word 0x4be25ad8")
 
 
 class WrapperTests(unittest.TestCase):
