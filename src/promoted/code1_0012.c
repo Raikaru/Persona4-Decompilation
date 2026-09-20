@@ -5903,6 +5903,10 @@ loop_test_0012e900:
     return var_16;
 }
 /* measured func_0012e9d0: retail 5152B/1288 vs B8a draft 4968B/1242 (-184B/-46, -3.6%, below 3% floor 4997B/1249 by 29B/7; probe 1188w; fnalign 635 edits +1 reloc-only (retail 1286 vs object 1242); frame -0x100 both; stb[4] top-staging @0xFC + fx/fy spills @0xF0/0xF4 match; gp-fidelity kept (iGpffff9cc8 lw, fGpffff854c/8170 lwc1); s32 idx; two-pointer r. Path: single u32 dances (-154B vs manual-double), tu/fs/fret folds, stb+stack[0x30]. Parked: clamp bc1f (both source forms canonicalize), f26 colour wall (block-scoping inert: B6a -13B/neutral words), fx/fy spill-vs-save, struct home 0xB0 vs 0xC4. Prior best 5552B/1388 GUARDED_SCORE 1291. */
+/* measured 0012e9d0 (owner, 2026-09-19): fnalign **659 -> 657 edits**, count
+   1264 -> 1262 against retail 1286, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits - no guard before the first iteration, one compare
+   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
 // FUN_0012E9D0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0012e9d0(u8 *arg0)
@@ -6023,7 +6027,8 @@ void func_0012e9d0(u8 *arg0)
             aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
         }
         m = aval & 0xFF;
-        for (j = 0; j < 0x54; j++) {
+        j = 0;
+        do {
             q = arg0 + j * 0x14;
             r = q + 0xC48;
             if (*(s16 *)r >= 0) {
@@ -6044,7 +6049,8 @@ void func_0012e9d0(u8 *arg0)
                 stb[3] = (u8)(aval & 0xFF);
                 func_0034f2e0(h19, f21, f25, stb[0], stb[1], stb[2], (u32)(aval & 0xFF));
             }
-        }
+            j++;
+        } while (j < 0x54);
     }
     if ((*(s32 *)(arg0 + 0x14) & 1) != 0) {
         fx = 152.0f + (f23 + *(f32 *)(arg0 + 0x12E8));

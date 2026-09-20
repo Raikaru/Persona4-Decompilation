@@ -90,6 +90,10 @@ extern u16 D_008C024E[];
 // interleaved shuffle-copy loops retain divergent register scheduling. Restored
 // the bare assembly fallback.
 /* measured 0037ef40: `opt_loop_invariants on` inside the guard is worth 22 words (298 -> 276), the loop-preheader constant hoist. */
+/* measured 0037ef40 (owner, 2026-09-19): fnalign **298 -> 296 edits**, count
+   316 -> 314 against retail 316, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits - no guard before the first iteration, one compare
+   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
 // FUN_0037EF40 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
@@ -187,7 +191,8 @@ void func_0037ef40(u8 *arg0) {
             }
         }
     } else {
-        for (i = 0; i < 3; i++) {
+        i = 0;
+        do {
             c = n;
             k = c - 1;
             while (k > 0) {
@@ -231,7 +236,8 @@ void func_0037ef40(u8 *arg0) {
                 } while (t > 0);
                 k = c - 1;
             }
-        }
+            i++;
+        } while (i < 3);
     }
 }
 #pragma opt_loop_invariants off

@@ -1224,6 +1224,10 @@ void func_003874c0(s32 arg0, u8 *arg1)
     }
 }
 /* measured: honest first reconstruction per func_0038bab0/89640/84cc0 idiom (u8* state at +0x46 plus base, (f32)(u16) counters bltz double, plain (u8) clamps, sequential <15/<35/<4 guards empty else, block-scoped next/i/j, plain arithmetic no COP1 exemption, Vertex[4] 64B work at sp+0x60 with scale/color idiom per 0038a480; probe_variants v1 262w base honest, R1 v_u32 264w (+2) but fnalign 431->454 exact and v_u32b 264w/453o/257e adopted for 3% gate (v1 431o 5% short unbankable), R2 inclusive 266w/262e regress, aiu32/reorder 264w/257e ties unproductive; stop after two rounds (R1 productive for count, R2 unproductive after fnalign gate) per batch; fnalign v_u32b retail 454/object 453 (1 short 0.2% within 3%, 257 edits +2 reloc-only, sh/andi order + $s/$f color + GP offsets + COP1 adda/madd floor remain); providers verified (373cb0 f32,f32,f32,s32 per btlShuffleCalc.c:43, 44b7b0/610 f32 per btlShuffleCalc.c:27/26, 457120 u8* per btlShuffleCalc.c:9, 377930 u8*,s32,s32,u8*,s32 per this file:24, 3f6440 s32,s32 per this file:25, 45c870 void*,s32 per this file:796, 489f80/48a000 void per cmpConfig.c:35/37, 89180 u8* per this file:14, D_008872F8 f32[] per this file:56, D_00887310 s32,void*,s32 per this file:58, fGp82fc pi/82cc 0.4/83d8 pi/2 per image.bin, 15.0/28.0/30.0/10.0/255.0/192.0/211.0/316.0 per retail immediates); Ghidra/IDA agree on CFG/call order, differ on 373cb0 arg order and GP naming (used file idiom); lever 4 exclusive <15/<35/<4 already $v0 (inclusive regresses); lhu correct; double-def offset remains + COP1 chains; re-derived, no fabrications; archive P038_00387750_body.c stale COP1-floor note. Banked guarded floor. */
+/* measured 00387750 (owner, 2026-09-19): fnalign **259 -> 257 edits**, count
+   451 -> 449 against retail 454, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits - no guard before the first iteration, one compare
+   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
 // FUN_00387750 NONMATCHING
 #ifdef NON_MATCHING
 void func_00387750(u8 *arg0)
@@ -1336,7 +1340,8 @@ void func_00387750(u8 *arg0)
     draw(5, work, 4);
     {
         s32 j;
-        for (j = 0; j < 4; j++) {
+        j = 0;
+        do {
             s32 ai;
             f32 ang;
             f32 s;
@@ -1353,7 +1358,8 @@ void func_00387750(u8 *arg0)
             work[j].color[1] = 0.0f;
             work[j].color[2] = 0.0f;
             work[j].color[3] = (f32)(u32)ai;
-        }
+            j++;
+        } while (j < 4);
     }
     draw(5, work, 4);
     func_003f6440(3, 0x717FB);

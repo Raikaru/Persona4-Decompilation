@@ -180,6 +180,10 @@ void func_00495620(u8 *arg0)
    511/560 (513w) -> v3 518 (+sqrtf, 496w) -> v5 530 (+3 lanes) -> v6 559/560
    (inside gate, 496w). Float colouring v7/v8 tie 496 -- two fails, stopping
    rule above 60 met. Remaining: saved-reg perm, FPR colour, scheduling. */
+/* measured 004956b0 (owner, 2026-09-19): fnalign **479 -> 477 edits**, count
+   559 -> 557 against retail 560, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits - no guard before the first iteration, one compare
+   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
 // FUN_004956B0 NONMATCHING
 #ifdef NON_MATCHING
 void func_004956b0(u8 *arg0)
@@ -375,7 +379,8 @@ void func_004956b0(u8 *arg0)
                     vtx[1] = D_00713D14[0];
                     vtx[2] = D_00713D18[0];
                 }
-                for (j = 0; j < 5; j++) {
+                j = 0;
+                do {
                     u8 *p = vtx + j * 12;
                     D_00713D10[0] = *(f32 *)(p + 0);
                     D_00713D14[0] = *(f32 *)(p + 4);
@@ -389,7 +394,8 @@ void func_004956b0(u8 *arg0)
                     *(f32 *)(p + 4) = D_00713D14[0];
                     *(f32 *)(p + 8) = D_00713D18[0];
                     af20[j] = 0.0f;
-                }
+                    j++;
+                } while (j < 5);
                 {
                     u8 *nxt = vtx + 0x3C;
                     s32 it = 1;
@@ -789,6 +795,10 @@ void func_00496810(u8 *arg0)
    Subscript off=i*12 tie 657, colour hdr/ctrl swap 659 worse -- two fails,
    stopping rule above 60 met. Remaining: saved-reg perm, FPR colour,
    scheduling. */
+/* measured 004968a0 (owner, 2026-09-19): fnalign **624 -> 622 edits**, count
+   770 -> 768 against retail 752, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits - no guard before the first iteration, one compare
+   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
 // FUN_004968A0 NONMATCHING
 #ifdef NON_MATCHING
 void func_004968a0(u8 *arg0)
@@ -1106,7 +1116,8 @@ void func_004968a0(u8 *arg0)
                             vtx[0x1C] = 0.0f;
                             vtx[0x20] = 0.0f;
                             sp150[1] = sp150[1] + *(f32 *)(list + 0x2C);
-                            for (j = 0; j < 5; j++) {
+                            j = 0;
+                            do {
                                 u8 *p = vtx + j * 12;
                                 D_00713D10[0] = *(f32 *)(p + 0);
                                 D_00713D14[0] = *(f32 *)(p + 4);
@@ -1120,7 +1131,8 @@ void func_004968a0(u8 *arg0)
                                 *(f32 *)(p + 4) = D_00713D14[0];
                                 *(f32 *)(p + 8) = D_00713D18[0];
                                 af20[j] = 0.0f;
-                            }
+                                j++;
+                            } while (j < 5);
                             {
                                 u8 *nxt = vtx + 0x3C;
                                 s32 it = 1;
@@ -1213,7 +1225,6 @@ void func_004968a0(u8 *arg0)
         list += 0x30;
     }
 }
-
 #else
 INCLUDE_ASM("asm/nonmatchings/effPolygonThunder", func_004968a0);
 #endif
