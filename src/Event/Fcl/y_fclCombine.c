@@ -6296,7 +6296,7 @@ void func_002fbea0(u8 *arg0) {
     extern void func_002e4610(s32, s8);
     extern s32 func_00106330(s32);
     extern u8 *func_002e4870(s8);
-    extern u16 *func_002e48a0(s8, s16);
+    extern u16 *func_002e48a0(s8, s64);
     extern u8 *func_002b6150(s16);
     extern s32 func_002b6970(s16, s32);
     extern void func_002b68d0(s16, s32, s32);
@@ -6389,6 +6389,7 @@ void func_002fbea0(u8 *arg0) {
     s32 sumB;
     s32 total;
     s32 saved;
+    u16 bitSav;
 
     p = *(u8 **)(arg0 + 0x38);
     state = *(p + 1);
@@ -6640,7 +6641,62 @@ void func_002fbea0(u8 *arg0) {
         func_002bb550(*(s8 *)(p + 0xD));
         return;
     case 0x96:
-        break;
+        var_16_6 = *(s16 *)(func_002e4870(0) + 8);
+        if (*(s32 *)(func_002e4870(0) + 8) >= 9) {
+            var_16_6 = 8;
+        }
+        var_19 = (s64)(*(s16 *)(p + 0x11E) - *(s16 *)(p + 0x120));
+        var_18 = 0;
+        var_22 = var_16_6 + var_19;
+        while ((s64)((var_19 << 0x30) >> 0x30) < var_22) {
+            temp_16 = (s64)((var_18 << 0x30) >> 0x30);
+            temp_21 = temp_16 + 0x270;
+            temp_f20 = (f32)(*(s16 *)(func_002b6150((s64)((temp_21 << 0x30) >> 0x30)) + 0x42));
+            temp_f0 = func_002b2aa0(0, 0.0f, 255.0f, temp_f20, (f32)(*(s16 *)(func_002b6150((s64)((temp_21 << 0x30) >> 0x30)) + 0x40)));
+            if (!(temp_f0 >= 2.1474836e9f)) {
+                var_3 = ((s32)(temp_f0)) & 0xFF;
+            } else {
+                var_3 = (((s32)((temp_f0 - 2.1474836e9f))) | 0x80000000) & 0xFF;
+            }
+            temp_7 = var_3 & 0xFF;
+            if (*(s16 *)(p + 0x11E) == var_19) {
+                var_21 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);
+            } else {
+                var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
+            }
+            func_00275820(var_21, 0, 2, ((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 244.0f, (f32)(s32)((temp_16 * 0x17) + 0x6E), 43.0f);
+            var_19 = (s64)((var_19 + 1) << 0x30) >> 0x30;
+            var_18 = (s64)((var_18 + 1) << 0x30) >> 0x30;
+        }
+        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
+            func_002bbcf0(*(s8 *)(p + 0xD));
+            return;
+        }
+        if (func_002bb1c0(*(s8 *)(p + 0xD)) == 0) {
+            var_18 = 0;
+            while ((s64)((var_18 << 0x30) >> 0x30) < *(s32 *)(func_002e4870(0) + 8)) {
+                bitSav = *func_002e48a0(0, var_18);
+                if (*func_002e48a0(0, var_18) & 4) {
+                    *func_002e48a0(0, var_18) = 0;
+                    *func_002e48a0(0, var_18) |= 1;
+                    func_0010fd40(func_002e48a0(0, var_18));
+                    *func_002e48a0(0, var_18) = bitSav;
+                } else {
+                    func_0010fd40(func_002e48a0(0, var_18));
+                }
+                var_18 = (s64)((var_18 + 1) << 0x30) >> 0x30;
+            }
+            func_002bb550(*(s8 *)(p + 0xD));
+            tmp8 = func_002bab80((void *)func_00331660());
+            *(s8 *)(p + 0xD) = tmp8;
+            func_002badc0(tmp8, 0xD);
+            *(p + 1) = 0x92;
+            func_0032b770(arg0, 0, var_16_6, 1);
+            return;
+        }
+        *(p + 1) = 0x8D;
+        func_002bb550(*(s8 *)(p + 0xD));
+        return;
     case 0x97:
         if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
             func_002bbcf0(*(s8 *)(p + 0xD));

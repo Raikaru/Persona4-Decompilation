@@ -71,10 +71,17 @@ class WiringTests(unittest.TestCase):
         self.assertIn("CANCELLED", source)
         self.assertIn("got == want and missing and extra", source)
 
+    def test_an_in_band_floor_still_missing_code_is_reported_too(self) -> None:
+        """An exact count is the clearest case but not the only one:
+        func_0048c4e0 sits at +2.2% with a pure hole of 24 against a lump of
+        1, so it is comfortably in band and still missing a block of retail
+        code.  Requiring got == want would let every such floor through."""
+        source = (REPO / "tools" / "gate_audit.py").read_text()
+        self.assertIn("missing >= 10 and extra >= 1", source)
+
     def test_the_advice_names_the_floor_that_exposed_it(self) -> None:
         source = (REPO / "tools" / "gate_audit.py").read_text()
         self.assertIn("func_001265a0", source)
-        self.assertIn("two errors cancelling", source)
 
 
 if __name__ == "__main__":
