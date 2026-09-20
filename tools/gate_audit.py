@@ -99,7 +99,7 @@ def main() -> None:
     bounds = boundaries(windows)
 
     composition = "--composition" in sys.argv
-    inside, outside, unmeasured, split = 0, [], [], []
+    inside, outside, unmeasured, split, cancelled = 0, [], [], [], []
     with tempfile.TemporaryDirectory() as scratch:
         for path in sorted((REPO / "src").rglob("*.c")):
             if path.parent.name == "generated" or path.name.startswith("."):
@@ -147,9 +147,9 @@ def main() -> None:
                     inside += 1
                     if composition:
                         # A count inside the band proves nothing on its own:
-                        # a pure `delete` run and a pure `insert` run can
-                        # cancel (handoff 7aa).  Only pure runs count - a
-                        # `replace` is a diverged region, not missing code.
+                        # `delete` runs and `insert` runs cancel (handoff
+                        # 7aa).  Only pure runs count - a `replace` is a
+                        # diverged region, not missing code.
                         script, _edits, _reloc = fnalign.align(
                             fnalign.decode(retail, address),
                             fnalign.decode(body, 0), set())
@@ -161,6 +161,20 @@ def main() -> None:
                             split.append((min(hole, lump), hole, lump, got,
                                           want, name,
                                           str(path.relative_to(REPO))))
+                        # An EXACT count hides cancellation best of all,
+                        # because it reads as finished.  func_001265a0 sat at
+                        # 4404 against 4404 while calling `__fixsfdi` where
+                        # retail has cvt.w.s/mfc1/nop/dsll32/dsra32 - one
+                        # instruction short there, one long somewhere else.
+                        # No run threshold catches that; the totals do.
+                        missing = sum(i2 - i1 for t, i1, i2, _j1, _j2 in script
+                                      if t == "delete")
+                        extra = sum(j2 - j1 for t, _i1, _i2, j1, j2 in script
+                                    if t == "insert")
+                        if got == want and missing and extra:
+                            cancelled.append((missing + extra, missing, extra,
+                                              want, name,
+                                              str(path.relative_to(REPO))))
                 else:
                     outside.append((abs(drift), drift, got, want, name,
                                     str(path.relative_to(REPO))))
@@ -178,6 +192,15 @@ def main() -> None:
     if split:
         print(f"\n{len(split)} floors are inside the gate but hide a pure hole "
               "against a pure lump (handoff 7aa)")
+    for _key, missing, extra, want, name, source in sorted(cancelled, reverse=True):
+        print(f"  CANCELLED  missing {missing:4d}  extra {extra:4d}  of {want:5d}"
+              f"  {name}  {source}")
+    if cancelled:
+        print(f"\n{len(cancelled)} floors match retail's count EXACTLY while still"
+              "\nmissing instructions and emitting others - two errors cancelling."
+              "\nAn exact count reads as finished, so these hide better than any"
+              "\nfloor outside the band.  func_001265a0 was 4404 against 4404 while"
+              "\ncalling __fixsfdi where retail has cvt.w.s/mfc1/nop/dsll32/dsra32.")
     # A marker sitting straight on an INCLUDE_ASM row has no body to measure.
     # That is an honest "not started", not a defect, and lumping the two
     # together is what let a body that had stopped compiling hide among them.

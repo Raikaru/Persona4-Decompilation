@@ -98,6 +98,15 @@ extern void func_0033d520(u8 *arg0, s8 arg1, s16 arg2, s64 arg3, f32 fparg0, f32
 extern void func_00122520(s32 arg0, s32 arg1);
 extern f32 iGpffff8424;
 extern f32 iGpffff851c;
+extern f32 D_0064A210[];
+extern f32 D_0064A218[];
+extern void func_0045af60(s32, s32, s32, s32);
+extern s8 func_002bb1c0(s8 arg0);
+extern void func_00106620(s16 arg0, s32 arg1);
+extern void func_002e7a80(s32 arg0);
+void func_0033c490(u8 *arg0);
+extern void func_0033d550(void *arg0);
+extern u16 D_008C024E[];
 
 /* measured: func_00332bb0 recon + jump-table recovery (guarded dispatch skeleton installed - see tail). */
 /* retail window 37392B = 9348 words (37392/4); fnalign decodes 9344 instrs (excludes 4 padding words). Band 9067-9628 (+-3%: 9348*0.97=9067.56, 9348*1.03=9628.44; fnalign band 9064-9624). */
@@ -189,6 +198,7 @@ s32 func_00332bb0(u8 *arg0) {
     s64 h;
     s32 i;
     s32 k;
+    s32 cw;
     s8 sel;
     s64 act;
     f32 f0;
@@ -435,15 +445,121 @@ s32 func_00332bb0(u8 *arg0) {
         *(s8 *)(work + 0) = 13;
         break;
     case 13:
-        func_0033d320((void *)*(s32 *)(work + 0x11C), 0, 1);
-        func_0033d3d0((void *)*(s32 *)(work + 0xB0), 0x65);
-        *(s8 *)(work + 0) = 14;
+        g = 0;
+        while (((s64)(g << 0x30) >> 0x30) < 0x24) {
+            k = (s32)((s64)(g << 0x30) >> 0x30);
+            *(u8 *)(work + k + 0x2B4) = (u8)func_002b2aa0(0, 0.0f, 255.0f, (f32)*(s32 *)(work + 0x2B0), 15.0f);
+            if (*(s8 *)(work + k + 0x2D8) == 1) {
+                func_002b2970(&p0, 400.0f, 220.0f);
+                *(f32 *)(work + k * 4 + 0x2FC) = func_0033d630(p0, (s32)(((s64)(k * 10) << 0x30) >> 0x30), (s32)*(u8 *)(work + k + 0x2B4), 0, *(f32 *)(work + 0x2A8));
+            }
+            g = (s64)(((s64)(g << 0x30) >> 0x30) + 1);
+        }
+        *(f32 *)(work + 0x2A8) = func_002b2aa0(0, 0.0f, 360.0f, (f32)*(s32 *)(work + 0x2AC), 1000.0f);
+        *(s32 *)(work + 0x2AC) = func_002b2cb0(*(s32 *)(work + 0x2AC), 1, 0x3E8, 1, 2);
+        *(s32 *)(work + 0x2B0) = func_002b2cb0(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
+        func_002b2970(&p0, (f32)0x253, 78.0f);
+        func_002b2a60(&cw, 0xFF, 0xFF, 0xFF, 0xFF);
+        func_002caa10(*(s64 *)&p0, cw, *(s8 *)(work + 3) * func_0033cbc0(arg0, func_002e2740(*(s16 *)(work + 4))), 0x35, *(s32 *)(work + 0xC), 0xAB);
+        func_0033c490(arg0);
+        i = func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF);
+        k = func_001067f0((s16)func_002e2740(*(s16 *)(work + 4)));
+        func_00275520(82.0f, 132.0f, 58.0f, i, 0, 1, k, 0, 0, D_00795E60);
+        if (func_002bb680(*(s8 *)(work + 8)) != 0) {
+            func_002bbcf0(*(s8 *)(work + 8));
+        } else {
+            *(s8 *)(work + 0) = 0xC;
+            if (func_002bb1c0(*(s8 *)(work + 8)) == 0) {
+                func_00106620(func_002e2740(*(s16 *)(work + 4)), ((*(s8 *)(work + 3) + (func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) & 0xFF)) & 0xFF));
+                func_002e7a80(func_002e7a60() - *(s8 *)(work + 3) * func_0033cbc0(arg0, func_002e2740(*(s16 *)(work + 4))));
+                *(f32 *)(work + 0x1E0) = 580.0f - (f32)func_002b3170(func_002e7a60()) * 21.0f;
+                *(s16 *)(func_0033d310((void *)*(s32 *)(work + 0x198)) + 0xF8) = (s16)(((func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) & 0xFF) % 10) + 0x46);
+                func_0033d320((void *)*(s32 *)(work + 0x19C), 0, 0);
+                *(s16 *)(func_0033d310((void *)*(s32 *)(work + 0x19C)) + 0xF8) = (s16)(((func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) & 0xFF) / 10) + 0x46);
+                if (((func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) & 0xFF) / 10) == 0) {
+                    func_0033d320((void *)*(s32 *)(work + 0x19C), 0, 1);
+                    func_002b2970(&p0, (f32)0x243, 185.0f);
+                    func_002b2970(&p1, (f32)0x243, 185.0f);
+                    func_0033d3e0((void *)*(s32 *)(work + 0x198), p0, p1, 0, 0, 0);
+                }
+                func_002b2970(&p0, *(f32 *)(func_0033d310((void *)*(s32 *)(work + 0xD0)) + 0x2C), D_0064A210[1]);
+                func_002b2970(&p1, D_0064A210[0], D_0064A210[1]);
+                func_0033d3e0((void *)*(s32 *)(work + 0xD0), p0, p1, 0, 7, 0);
+                func_002b2970(&p0, *(f32 *)(func_0033d310((void *)*(s32 *)(work + 0xD4)) + 0x2C), *(f32 *)(func_0033d310((void *)*(s32 *)(work + 0xD4)) + 0x30));
+                func_002b2970(&p1, D_0064A218[0], *(f32 *)(func_0033d310((void *)*(s32 *)(work + 0xD4)) + 0x30));
+                func_0033d3e0((void *)*(s32 *)(work + 0xD4), p0, p1, 0, 7, 0);
+                *(s8 *)(work + 0) = 0xB;
+                func_0033d320((void *)*(s32 *)(work + 0x15C), 0, 1);
+                func_0033d320((void *)*(s32 *)(work + 0x160), 0, 1);
+                func_0033d320((void *)*(s32 *)(work + 0x1A0), 0, 1);
+                func_0033d320((void *)*(s32 *)(work + 0x1A4), 0, 1);
+                func_0033d320((void *)*(s32 *)(work + 0xA0), 0, 1);
+                func_0045af60(0, 0, 0, 6);
+            }
+            func_002bb550(*(s8 *)(work + 8));
+        }
         break;
     case 14:
-        func_0033d3d0((void *)*(s32 *)(work + 0x110), 0x65);
-        func_0033d3d0((void *)*(s32 *)(work + 0x114), 0x65);
-        func_0033d3d0((void *)*(s32 *)(work + 0x60), 0x65);
-        *(s8 *)(work + 0) = 15;
+        g = 0;
+        while (((s64)(g << 0x30) >> 0x30) < 0x24) {
+            k = (s32)((s64)(g << 0x30) >> 0x30);
+            *(u8 *)(work + k + 0x2B4) = (u8)func_002b2aa0(0, 255.0f, 0.0f, (f32)*(s32 *)(work + 0x2B0), 5.0f);
+            if (*(s8 *)(work + k + 0x2D8) == 1) {
+                func_002b2970(&p0, 400.0f, 220.0f);
+                *(f32 *)(work + k * 4 + 0x2FC) = func_0033d630(p0, (s32)(((s64)(k * 10) << 0x30) >> 0x30), (s32)*(u8 *)(work + k + 0x2B4), 0, *(f32 *)(work + 0x2A8));
+            }
+            g = (s64)(((s64)(g << 0x30) >> 0x30) + 1);
+        }
+        *(f32 *)(work + 0x2A8) = func_002b2aa0(0, 0.0f, 360.0f, (f32)*(s32 *)(work + 0x2AC), 1000.0f);
+        *(s32 *)(work + 0x2AC) = func_002b2cb0(*(s32 *)(work + 0x2AC), 1, 0x3E8, 1, 2);
+        *(s32 *)(work + 0x2B0) = func_002b2cb0(*(s32 *)(work + 0x2B0), 1, 5, 1, 1);
+        if (func_0033d390((void *)*(s32 *)(work + 0x10), 1) == 0 && func_0033d390((void *)*(s32 *)(work + 0x10), 3) == 0 && func_0033d390((void *)*(s32 *)(work + 0xB4), 1) == 0 && func_0033d390((void *)*(s32 *)(work + 0xB8), 1) == 0 && func_0033d390((void *)*(s32 *)(work + 0x110), 1) == 0 && func_0033d390((void *)*(s32 *)(work + 0x114), 1) == 0 && func_0033d390((void *)*(s32 *)(work + 0x1C), 4) == 0 && func_0033d390((void *)*(s32 *)(work + 0x20), 4) == 0 && func_0033d390((void *)*(s32 *)(work + 0x24), 4) == 0 && func_0033d390((void *)*(s32 *)(work + 0x28), 4) == 0 && func_0033d390((void *)*(s32 *)(work + 0x14), 2) == 0 && func_0033d390((void *)*(s32 *)(work + 0xB0), 4) == 0 && func_0033d390((void *)*(s32 *)(work + 0xB0), 2) == 0 && func_0033d390((void *)*(s32 *)(work + 0x17C), 2) == 0 && func_0033d390((void *)*(s32 *)(work + 0x17C), 4) == 0 && func_0033d390((void *)*(s32 *)(work + 0x180), 2) == 0 && func_0033d390((void *)*(s32 *)(work + 0x180), 4) == 0 && func_0033d390((void *)*(s32 *)(work + 0x184), 2) == 0 && func_0033d390((void *)*(s32 *)(work + 0x184), 4) == 0 && func_0033d390((void *)*(s32 *)(work + 0x58), 2) == 0 && func_0033d390((void *)*(s32 *)(work + 0x5C), 2) == 0 && func_0033d390((void *)*(s32 *)(work + 0x118), 2) == 0 && func_0033d390((void *)*(s32 *)(work + 0x11C), 2) == 0 && func_0033d390((void *)*(s32 *)(work + 0x40), 2) == 0 && func_0033d390((void *)*(s32 *)(work + 0x44), 2) == 0 && func_0033d390((void *)*(s32 *)(work + 0x48), 2) == 0 && func_0033d390((void *)*(s32 *)(work + 0x4C), 2) == 0 && func_0033d390((void *)*(s32 *)(work + 0x50), 2) == 0 && func_0033d390((void *)*(s32 *)(work + 0x54), 2) == 0 && func_0033d390((void *)*(s32 *)(work + 0x60), 2) == 0) {
+            *(s8 *)(work + 0) = 5;
+        } else if (func_0033d390((void *)*(s32 *)(work + 0x10), 1) != 0 && (D_008C024E[0] & 0x20)) {
+            func_0045af60(0, 0, 0, 2);
+            *(f32 *)(work + 0x1D0) = 580.0f - (f32)func_002b3170(func_002e7a60()) * 21.0f;
+            *(s32 *)(work + 0x1D4) = 0x41700000;
+            *(f32 *)(work + 0x1D8) = (f32)0x28A;
+            *(s32 *)(work + 0x1DC) = 0x41700000;
+            *(s16 *)(work + 0x1EA) = 0;
+            func_002b2970(&p0, (f32)0x28A, *(f32 *)(func_0033d310((void *)*(s32 *)(work + 0x10)) + 0x30));
+            func_0033d3e0((void *)*(s32 *)(work + 0x10), *(F2_0033 *)(func_0033d310((void *)*(s32 *)(work + 0x10)) + 0x2C), p0, 0, 0xA, 0);
+            func_0033d520((void *)*(s32 *)(work + 0x10), 0, 0xA, 0, *(f32 *)(func_0033d310((void *)*(s32 *)(work + 0x10)) + 0xC4), *(f32 *)(func_0033d310((void *)*(s32 *)(work + 0x10)) + 0xBC));
+            func_0033d550((void *)*(s32 *)(work + 0xB4));
+            func_0033d550((void *)*(s32 *)(work + 0xB8));
+            func_0033d550((void *)*(s32 *)(work + 0xBC));
+            func_0033d550((void *)*(s32 *)(work + 0x178));
+            func_0033d550((void *)*(s32 *)(work + 0x3C));
+            func_0033d550((void *)*(s32 *)(work + 0x110));
+            func_0033d550((void *)*(s32 *)(work + 0x114));
+            g = 0;
+            while (((s64)(g << 0x30) >> 0x30) < 4) {
+                k = (s32)((s64)(g << 0x30) >> 0x30);
+                func_0033d550((void *)*(s32 *)(work + k * 4 + 0x1C));
+                g = (s64)(((s64)(g << 0x30) >> 0x30) + 1);
+            }
+            func_0033d550((void *)*(s32 *)(work + 0x14));
+            func_0033d550((void *)*(s32 *)(work + 0xB0));
+            g = 0;
+            while (((s64)(g << 0x30) >> 0x30) < 3) {
+                k = (s32)((s64)(g << 0x30) >> 0x30);
+                func_0033d550((void *)*(s32 *)(work + k * 4 + 0x17C));
+                g = (s64)(((s64)(g << 0x30) >> 0x30) + 1);
+            }
+            func_0033d550((void *)*(s32 *)(work + 0x58));
+            func_0033d550((void *)*(s32 *)(work + 0x5C));
+            func_0033d550((void *)*(s32 *)(work + 0x118));
+            func_0033d550((void *)*(s32 *)(work + 0x11C));
+            g = 0;
+            while (((s64)(g << 0x30) >> 0x30) < 6) {
+                k = (s32)((s64)(g << 0x30) >> 0x30);
+                func_0033d550((void *)*(s32 *)(work + k * 4 + 0x40));
+                g = (s64)(((s64)(g << 0x30) >> 0x30) + 1);
+            }
+            func_0033d550((void *)*(s32 *)(work + 0x60));
+            func_00122520(1, 0xA);
+            *(s8 *)(work + 0) = 0xF;
+        }
         break;
     case 15:
         if (func_00122720() == 0) {

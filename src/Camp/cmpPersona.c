@@ -872,9 +872,33 @@ void func_001377e0(u8* arg0) {
    Measured and rejected: `opt_propagation off` 173 edits; `s64` colour
    locals 118.
    What remains, all small: retail[150:166] 16 against 13 in the table arm,
-   retail[169:180] 11 against 9 in the constants arm (retail materialises
-   those six constants with `daddiu`, so they may be 64-bit in the original),
-   and four 4-to-6 instruction replaces in the draw sequence. */
+   retail[169:180] 11 against 9 in the constants arm, and four 4-to-6
+   instruction replaces in the draw sequence.
+   REFUTED this round: the note used to add "retail materialises those six
+   constants with `daddiu`, so they may be 64-bit in the original".  They are
+   not.  Baseline 323 instrs / 112 edits; `s64` colour locals give 323 / 124
+   and `s32` give 323 / 124.  Neither moves the instruction count and both
+   cost edits, so the width hypothesis is dead - do not spend a round on it.
+   (`opt_propagation off` re-measured at 323 / 121, `opt_common_subs off` at
+   343 / 152.  Both worse.)
+   The deficit of 11 is ONE cause, not several:
+     - 10 instructions at 0x00137B38 paired against ZERO object instructions.
+       Retail hoists the constants into callee-saved registers ahead of the
+       loop - `daddiu $17,$0,0xFF`, `$22,0xE9`, `$23,0x2C`, `$30,0xF7` - and
+       spills the other two to the frame with `sb 0xAF,0xC0($29)` and
+       `sb 0x22,0xB0($29)`, then zeroes the counter with `daddu $18,$0,$0`.
+       b210 folds all six into the argument lists of the draw calls instead,
+       so none of that block exists in the object.
+     - 3 instructions at 0x001378BC, which are `sq $17,0x20($29)` and
+       `sq $16,0x10($29)` in the PROLOGUE.  Those follow from the first point
+       rather than being a second defect: with the constants folded the body
+       keeps fewer values live across calls, so it saves fewer registers.
+       They are visible only because tools/eedis.py taught fnalign to decode
+       `lq`/`sq`; before that both rows read `??` and compared equal to each
+       other, so this half of the deficit was invisible.
+   Next attempt wants a source shape that gives the six values a longer live
+   range across the draw sequence - not a wider type, which is now ruled
+   out. */
 // FUN_00137890 NONMATCHING
 #ifdef NON_MATCHING
 void func_00137890(u8 *arg0, s32 arg1)

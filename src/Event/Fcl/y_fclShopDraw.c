@@ -428,12 +428,23 @@ extern f32 fGpffff7ad4;
 /*   lever here. Both reverted; production stays at step 1 (12083 INSIDE). */
 /* helper evidence 002be530 (owner, 2026-09-20): retail has 1525 `jal`, every one */
 /*   to a `func_*` address, and 183 `cvt` with no helper anywhere - the three */
-/*   object helpers (2x `__fixsfdi` + 1x `__floatdisf`) cannot be legitimate. */
-/*   Witness pair at 0x002BF564-0x002BF59C and 0x002BF5A4-0x002BF5DC: */
-/*   `jal 0046b260/0046b2f0` -> `div.s` -> `cvt.w.s` -> `mfc1` -> */
-/*   `dsll32/dsra32 16` -> `sh 0x100/0x102`. Correct fix lengthens toward */
-/*   retail (cvt+extends outweigh the deleted `jal`), as seen on 002cb6c0 */
-/*   (+6 for two fixes); broad-narrowing all ~30 similar sites is refused. */
+/*   object helpers (2x `__fixsfdi` @+0x4e28/+0x4e68 + 1x `__floatdisf` @+0x50b8) */
+/*   cannot be legitimate. Fix pair temp_18_41 (320.0f-D_0063F5B8[0] -> 0xC64+0x100) */
+/*   and temp_16_44 (D_0063F5B8[4]-83.0f -> 0xC64+0x102): s64->s32 with (s32) RHS; */
+/*   witness at 0x002BF564-0x002BF59C and 0x002BF5A4-0x002BF5DC (`div.s` -> */
+/*   `cvt.w.s` -> `mfc1` -> `dsll32/dsra32 16` -> `sh`). Float site sp408 */
+/*   (0xD70+0x2C, @+0x50b0): retail 0x002C3C0C-0x002C3C3C loads TWO floats */
+/*   (`lwc1 0x408` + `lwc1 0x40C` -> `swc1 0x2C`), so the source had TWO floats */
+/*   there, not an s64 plus a stray int: `(f32)sp408 + unksp40C(uninit)` -> */
+/*   `*(f32*)&sp408 + *(f32*)((u8*)&sp408+4)`; `unksp40C` deleted (dummy-local */
+/*   ban) with zero count/frame movement (12076 unchanged), so it was truly dead. */
+/*   Rule is "measure it", not "helper fixes lengthen": here the pair removed */
+/*   double extends (helper+4 -> cvt+2, -2) and the float removed helper+cvt */
+/*   (-> 2x lwc1, -5), total 12083 -> 12076 (-7, deficit 346 -> 353, still */
+/*   INSIDE with 20 headroom to 12056). Edits 20096 -> 20084 (-12, trust for */
+/*   local correctness: single extends/loads now match retail) but guarded */
+/*   words 10958 -> 10980 (+22 worse, trust for global deficit: shorter body */
+/*   exposes more missing code - sliding risk, next round needs CROSS regions). */
 // FUN_002BE530 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -681,7 +692,6 @@ s32 func_002be530(u8 *arg0)
     s32 unksp1DC;
     s32 unksp1E4;
     s32 unksp1EC;
-    s32 unksp40C;
     u8 sp78C;
     u8 sp788;
     u8 sp784;
@@ -2668,8 +2678,8 @@ loop_241:
             func_002e0660((void *)((*(s32 *)((u8 *)(temp_17) + (0xD70)))), 0U, 0xFF, 0, 0xA, 0);
             func_002b2970(&sp408, 0x42380000U, 0x43930000U);
             temp_2_61 = (u8 *)(func_002e04e0((void *)((*(s32 *)((u8 *)(temp_17) + (0xD70))))));
-            (*(f32 *)((u8 *)(temp_2_61) + (0x2C))) = (f32) sp408;
-            (*(f32 *)((u8 *)(temp_2_61) + (0x30))) = unksp40C;
+            (*(f32 *)((u8 *)(temp_2_61) + (0x2C))) = *(f32 *)&sp408;
+            (*(f32 *)((u8 *)(temp_2_61) + (0x30))) = *(f32 *)((u8 *)&sp408 + 4);
             func_002e09e0((void *)((*(s32 *)((u8 *)(temp_17) + (0xD7C)))), 0x41, 8.0f);
             func_002e0660((void *)((*(s32 *)((u8 *)(temp_17) + (0xD7C)))), 0U, 0xFF, 0, 0xA, 0);
             func_002e09e0((void *)((*(s32 *)((u8 *)(temp_17) + (0xDD8)))), 0x41, 45.0f);

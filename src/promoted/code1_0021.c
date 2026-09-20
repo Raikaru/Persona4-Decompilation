@@ -1617,8 +1617,8 @@ void func_00213e20(u8 *arg0, u8 *arg1)
 void func_002142b0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
 {
     typedef struct {
-        s64 stat0[2];
-        s64 stat1[2];
+        s32 stat0[4];
+        s32 stat1[4];
         u8 color[0x14];
         s32 status;
         f32 unused[2];

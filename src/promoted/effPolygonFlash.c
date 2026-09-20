@@ -2555,6 +2555,22 @@ void func_0049e100(u8 *arg0)
    `c58`/`c5c` casts from `(u32)((f32)(x & 0xFF) * scale)` to `(s32)(...)`, and dropping
    the cast entirely.  Those two assign to `u32` variables, so the conversion is unsigned
    either way - they are not the ten sites.  Find the sites that feed the `dmtc2` pairs. */
+/* measured 0049e150 (2026-09-20): 506 against retail 500 (+1.2% INSIDE, band 485-515).
+   Yes, retail uses COP2/VU here. The listing has two pextlb/pextlh+qmtc2+vitof0+vmulx+sqc2
+   color blocks (c58/c5c), a 60-word lqc2/vmove/vmulx/vadd/vsub/sqc2 chain through
+   D_00713D10 for the 12 puVar15 floats (lwc1/swc1 triples), and lqc2/vmul/vmul/vftoi0/
+   qmfc2/ppach/ppacb/sw packs for the 4 puVar14 words (D_00713CE0 + 255.0f scale).
+   The body's surplus was C doing that arithmetic on the FPU: 12x (u32)float for puVar15
+   and 4x (u32)(f*255) for puVar14, each an unsigned idiom (lui 0x4F00/mtc1/c.ole.s/bc1t/
+   cvt.w.s/mfc1/b/sub.s/cvt.w.s/mfc1/lui 0x8000/or/sw; opclass cvt.w.s +20, mfc1 +12,
+   c.ole.s +10, sub.s +10, or +10, b +10, bc1t +9) against retail's dmtc2/qmtc2/dmfc2/qmfc2
+   reinterpret path (dmtc2 +12 in retail's favour), plus 6x dsll32/dsra32 from (s32)s128
+   extracts where retail uses plain lw (sp100/spF0/spD0 are words at 0x110/0xF0/0xD0;
+   only spC0 is a real quad at 0xC0). Fix run backwards from the count: narrow those three
+   s128 slots to s32 (saves 13, 531->518, frame 0x120->0x130) and spell the in-range
+   0..255 alpha as (s32)(f*255) (saves 12, 531->519); together 531->506 inside with no
+   inline asm. Full VU port (as in func_0049aa30/sibling func_004938e0) left for a MATCH
+   wave; no COP2 asm added here. */
 // FUN_0049E150 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
@@ -2573,9 +2589,9 @@ void func_0049e150(u8 *arg0)
     u32 c58;
     u32 c5c;
     f32 scale;
-    s128 sp100 __attribute__((aligned(16)));
-    s128 spF0 __attribute__((aligned(16)));
-    s128 spD0 __attribute__((aligned(16)));
+    s32 sp100;
+    s32 spF0;
+    s32 spD0;
     s128 spC0 __attribute__((aligned(16)));
     s32 temp_18;
     s32 temp_21;
@@ -2607,7 +2623,7 @@ void func_0049e150(u8 *arg0)
         piVar16 = *(s32 **)(arg0 + 0x3C);
         puVar3 = (u16 *)(*(u32 **)(arg0 + 0x3C))[1];
         iVar4 = *(s32 *)(temp_2 + 0x38);
-        *(s32 *)&sp100 = iVar4;
+        sp100 = iVar4;
         iVar5 = *(s32 *)(temp_2 + 0x4C);
         if (iVar5 != 0)
         {
@@ -2616,22 +2632,22 @@ void func_0049e150(u8 *arg0)
                 ecVal = 0;
                 e8Val = iVar5;
                 d0Val = 1;
-                *(s32 *)&spD0 = d0Val;
+                spD0 = d0Val;
                 iVar19 = (s32)(*(f32 *)(temp_2 + 0x44) * (f32)iVar5);
-                *(s32 *)&sp100 = iVar19;
+                sp100 = iVar19;
                 iVar20 = (s32)(*(f32 *)(temp_2 + 0x48) * (f32)iVar5);
-                *(s32 *)&spF0 = iVar20;
+                spF0 = iVar20;
             }
             else
             {
                 ecVal = iVar5;
                 e8Val = 0;
                 d0Val = -1;
-                *(s32 *)&spD0 = d0Val;
+                spD0 = d0Val;
                 iVar19 = (s32)((1.0f - *(f32 *)(temp_2 + 0x48)) * (f32)iVar5);
-                *(s32 *)&sp100 = iVar19;
+                sp100 = iVar19;
                 iVar20 = (s32)((1.0f - *(f32 *)(temp_2 + 0x44)) * (f32)iVar5);
-                *(s32 *)&spF0 = iVar20;
+                spF0 = iVar20;
             }
             if ((*(u8 *)(temp_2 + 0x55) == 0) || (*(u32 *)(arg0 + 0x34) != 0))
             {
@@ -2641,7 +2657,7 @@ void func_0049e150(u8 *arg0)
             else
             {
                 bVar = 1;
-                iVar17 = (s32)sp100;
+                iVar17 = sp100;
             }
             func_003c2290(*(u8 **)(*(u8 **)(puVar3 + 8) + 0x18), 10);
             puVar15 = (u32 *)(*(u8 **)(*(u8 **)(*(u8 **)(puVar3 + 8) + 0x18) + 0x5C) + 0x14);
@@ -2655,7 +2671,7 @@ void func_0049e150(u8 *arg0)
             cVar1 = *(s8 *)(temp_2 + 0x54);
             spC0 = (s128)(s32)(s32)cVar1;
             temp_18 = 0;
-            while (temp_18 < (s32)sp100)
+            while (temp_18 < sp100)
             {
                 temp_21 = *piVar16;
                 if (temp_21 != -2)
@@ -2753,23 +2769,23 @@ void func_0049e150(u8 *arg0)
                         puVar15[9] = (u32)f27o;
                         puVar15[10] = (u32)t320;
                         puVar15[11] = (u32)t328;
-                        if (temp_21 < (s32)sp100)
+                        if (temp_21 < sp100)
                         {
-                            fVar21 = (f32)temp_21 / (f32)(s32)sp100;
+                            fVar21 = (f32)temp_21 / (f32)sp100;
                         }
                         else
                         {
                             fVar21 = 1.0f;
-                            if ((s32)spF0 < temp_21)
+                            if (spF0 < temp_21)
                             {
-                                fVar21 = (f32)(iVar5 - temp_21) / (f32)(iVar5 - (s32)spF0);
+                                fVar21 = (f32)(iVar5 - temp_21) / (f32)(iVar5 - spF0);
                             }
                         }
-                        puVar14[0] = (u32)(fVar21 * 255.0f);
-                        puVar14[1] = (u32)(fVar21 * 255.0f);
-                        puVar14[2] = (u32)(fVar21 * 255.0f);
-                        puVar14[3] = (u32)(fVar21 * 255.0f);
-                        *piVar16 = temp_21 + (s32)spD0;
+                        puVar14[0] = (s32)(fVar21 * 255.0f);
+                        puVar14[1] = (s32)(fVar21 * 255.0f);
+                        puVar14[2] = (s32)(fVar21 * 255.0f);
+                        puVar14[3] = (s32)(fVar21 * 255.0f);
+                        *piVar16 = temp_21 + spD0;
                     }
                     piVar16 += 6;
                     puVar15 += 12;
