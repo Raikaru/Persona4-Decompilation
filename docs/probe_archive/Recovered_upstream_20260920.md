@@ -103,3 +103,61 @@ Local reproduction and evidence are under
 results, and the independent review. The source code and pending candidate
 archive are tracked; compiler objects, retail bytes, and machine-specific
 configuration are not part of the recovery commits.
+
+## Final integration on ff294a8
+
+The interrupted integration resumed from the clean nine-commit recovery tip
+`c772d4e60735902d85cec5fd1b143d7351228bce`. The already completed full build
+was recovered from its receipt: exit zero, 172 C objects and 56 Sony SDK
+objects linked, with both the loadable image and the complete executable
+matching their retail hashes. It was not restarted to retrieve its terminal.
+
+The recovery was then rebased onto
+`ff294a8d200d571a635813cdcd29ca895d3a70ee`. Seven patches are unchanged;
+the other two differ only in diff context around upstream's replaced loop
+labels. The newer `002f9d90` loop forms remain alongside the recovered Fcl
+position contracts. The old tip is retained in the local backup branch
+`backup/recovered-c772d4e-before-ff294a8`; other worktrees remain intact.
+
+One completed saved correction had not been integrated: the guarded
+`001f14f0` caller lacked `00242990`'s pointer/int prototype. The actual
+provider is `s32 func_00242990(u8 *, s32)`. Restoring its declaration and
+explicit pointer conversion changes neither the active object nor the
+separately enabled guarded object, including all 158 functions, relocations,
+and allocated data. This is a recovered contract correction, not another
+function promoted from assembly.
+
+Fresh independent compilation against this upstream again proves all five
+additional C functions and the protected callers/provider listed above.
+The comparisons retain 68 draw siblings, 40 combination-menu siblings, 78
+battle-calculation siblings and all 58 provider functions. The rule predicate's
+44-byte owned table is fully relocated and compared separately.
+
+Complete-tree verification reuses the earlier full run only after reproducing
+its exact committed input fingerprint. All twelve changed C owners were
+recompiled: 647 functions, 564 MATCH and 83 ASM, with no status regressions.
+The other 929 tracked verification inputs are unchanged, including headers,
+tooling, configuration and tests. The resulting report still covers 12,720
+functions: 8,011 MATCH and 4,709 ASM; the first-party subset is 6,376 MATCH
+and 484 ASM. This is an explicitly recorded combination of fresh owner
+checks and verified unchanged inputs, not a claim that every compiler job
+was rerun. The full Linux test suite was rerun and passed all 611 tests with
+eleven skipped; repository integrity lint reports zero errors.
+
+The final rebased build completed with exit zero in 888.43 seconds. It retains
+172 C objects linked from source and 56 Sony SDK objects. Its cache reused
+361 eligibility objects and 168 link objects, rebuilding twelve and four,
+respectively. The loadable-image SHA-1 is
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; the complete `SLUS_217.82`
+SHA-1 is `4eeec0360cf2715535d9f7e52eb69d786fb0158c`. Both match retail.
+The fingerprint before and after the build is
+`c2bd4f1d3fb12bc5ae20fa24830995ef879345fb86f2778a7e152ea74214a763`.
+It includes the recovered caller correction, subsequently committed as
+`10ee8a6`, rather than only the commit checked out when the build started.
+
+Final evidence is under `build/recover-upstream/continue-20260920/`:
+`verification-inputs.json`, `changed-verify.json`, `full-verify.json`,
+`independent/proof.json`, `saved-caller/proof.json`, `build-result.json`,
+`linked-report.json`, `publish-audit.json`, and the test/lint receipts.
+Pending bodies remain in the tracked recovery archive with their unresolved
+contracts and proofs identified; they are not included in the five-match gain.
