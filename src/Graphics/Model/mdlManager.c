@@ -970,17 +970,17 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
             else {
               if ((*param_3 & 0x800) == 0) {
                 *(float *)(param_3 + 0x10) = fStack_340;
-                *(float *)(param_3 + 0x12) = fStack_33c;
-                *(float *)(param_3 + 0x14) = fStack_338;
-                *(float *)(param_3 + 0x16) = fStack_334;
+                *(float *)(param_3 + 0x14) = fStack_33c;
+                *(float *)(param_3 + 0x18) = fStack_338;
+                *(float *)(param_3 + 0x1c) = fStack_334;
               }
               *param_3 = *param_3 | 0x800;
             }
             if ((*param_3 & 0x800) != 0) {
               fStack_340 = *(float *)(param_3 + 0x10);
-              fStack_33c = *(float *)(param_3 + 0x12);
-              fStack_338 = *(float *)(param_3 + 0x14);
-              fStack_334 = *(float *)(param_3 + 0x16);
+              fStack_33c = *(float *)(param_3 + 0x14);
+              fStack_338 = *(float *)(param_3 + 0x18);
+              fStack_334 = *(float *)(param_3 + 0x1c);
             }
             if (((*param_3 & 0x8000) != 0) &&
                ((*(float *)(param_3 + 0x24) != 0.0f || (*(float *)(param_3 + 0x26) != 0.0f)))) {

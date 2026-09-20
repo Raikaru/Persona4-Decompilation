@@ -1470,13 +1470,49 @@ u32 func_00421c60(void)
 /* measured: end of the function-local scheduling override. */
 #pragma schedule off
 /* measured 2026-09-20: object 33 instrs against retail 36, -8.3%, 26 differing
-   words.  The three missing instructions are **not** missing code: retail
-   materialises the DMA status register address as `lui $v1, 0x1000` then
-   `ori $v1, $v1, 0xf000` with the store at offset 0, once per access, where
-   b210 folds the address into the memory operand as `lui $v1, 0x1001` with
-   `sw $a0, -0x1000($v1)` - one instruction instead of two, at three access
-   sites.  The three `ori` are the whole net deficit (33 + 3 = 36); every
-   other delta nets to zero (see per-instruction map below).
+   words (re-measured via measure_guarded: obj 132B / window 144B, fnalign
+   retail 36 / object 33, 26 reloc-masked words).  The three missing
+   instructions are **not** missing code: retail materialises the DMA status
+   register address as `lui $v1, 0x1000` then `ori $v1, $v1, 0xf000` with the
+   store at offset 0, once per access, where b210 folds the address into the
+   memory operand as `lui $v1, 0x1001` with `sw $a0, -0x1000($v1)` - one
+   instruction instead of two, at three access sites.  The three `ori` are the
+   whole net deficit (33 + 3 = 36); every other delta nets to zero (see
+   per-instruction map below).
+   Re-verified 2026-09-20 against the corrected decoder
+   (`python3 -E -s tools/decoder_audit.py
+   asm/nonmatchings/code1_0042/func_00421c70.s`: 36 checked, 0 WRONG, 0
+   undecoded; tree-wide 58 WRONG in 4 unrelated forms `c1/sqrt.s`,
+   `mfhi1/vmm0`, `psraw/sdbbp`, `mthi1/v3mulu`, none of which appear here -
+   this function uses only addiu/sd/jal/nop/lui/ori/sw/sync/beqz/lw/andi/ld/j/jr).
+   Counts are trustworthy; a three-instruction gap here is real, not a single
+   mis-decoded form inventing or hiding instructions.  `ori` hypothesis
+   CONFIRMED, three named by retail word: #1 at 321C88 (R6, first `= 4`
+   store, word 00F06334), #2 at 321CA8 (R14, poll reload after the call
+   clobbers `$v1`), #3 at 321CDC (R27, second `= 4` store); each folds in the
+   object to `lui $v1, 0x1001` (0110033C) with `sw/lw -0x1000($v1)`
+   (00F064AC / 00F0428c).
+   Address-spelling check (why b210 will not emit the retail form): the body
+   spells `*(volatile u32 *)0x1000F000` - an absolute literal used directly as
+   a memory operand, which b210 always folds.  Probed 2026-09-20 via direct
+   mwccps2 b210 compiles + objdump: plain cast, `0x10000000 + 0xF000`,
+   `0x10000000 | 0xF000`, `u32`/`volatile u32 *` locals, u8/u16/u32 loads and
+   stores, and -O0/-O1/-O2/-O3/-O4 all give `lui 0x1001` + `mem -4096`;
+   b119 ties; `b = 0x10000000; b |= 0xF000` folds at -O2 (only -O0 keeps the
+   `ori`, with an `sq/lq` frame).  By contrast `return 0x1000F000` as a VALUE
+   gives exactly retail's `lui 0x1000` + `ori 0xF000`, and
+   `*p = 4; return (u32)p` keeps the store folded while the return gets the
+   `ori` - so the split is memory-operand folding versus value
+   materialisation.  Retail carries no HI16/LO16/GPREL for these words
+   (measure_guarded reloc column shows only R_MIPS_26 for the three jals;
+   objdump shows absolute `lui 0x1000` / `ori 0xF000` / `mem 0($v1)`), so both
+   sides are absolute: the difference is not symbol-versus-absolute but
+   folded-`lui` versus `lui + ori + mem 0`.  No honest C spelling emits the
+   value form for a dereference at -O2 (`volatile` address adds stack
+   loads/stores, `extern` gives GP-relative at 31 instrs, empty `__asm__`
+   barriers fold through, and a real `__asm__ ori` is banned compiler
+   steering per docs/matching.md like the refused `b`/`nop` padding).  Floor
+   stands; do not spend a deficit hunt on it.
    Batch 2026-09-20 (`python3 tools/probe_variants.py`, one batch, six
    candidates): base/plain-cast 26 words/33 instrs, hoisted `volatile u32 *p`
    26, `0x10000000 + 0xF000` 26, `while` for `do-while` 26, `void ba70` (no
@@ -1493,41 +1529,39 @@ u32 func_00421c60(void)
    addr` per site, reassigned `volatile u32 *` local, `#pragma tailcall on`
    (tail `jal` -> `j`, 33 -> 31, worse for the gate).  `extern volatile u32
    D_1000F000` is worse at 31 instrs.  `pragma_sweep` ties at 26 everywhere;
-   `optimization_level 0` is worse at 32.  So the gap is an
-   address-materialisation form b210 will not emit from C, not a hole to
-   fill.  Do not spend a deficit hunt on it.
+   `optimization_level 0` is worse at 32.
    Per-instruction map, retail `asm/nonmatchings/code1_0042/func_00421c70.s`
    (36) against the guarded body below (object 33, `fnalign --candidate`
    decode): R0 `addiu sp,-0x10` = O0 (frame); R1 `sd ra` = O1 (calls);
    R2 `jal ba20` = O2 (`t1 = func_0042ba20()`); R3 `nop` = O3 (delay);
    R4 `lui 0x1000` = O5 `lui 0x1001` (folded hi, first `= 4` address);
    R5 `addiu a0,4` = O4 (same value, scheduler swaps order); R6 `ori 0xF000`
-   = MISSING #1, folded into O6 `sw -0x1000` offset, no counterpart; R7 `sw
-   0(v1)` = O6 `sw -0x1000(v1)` (first store); R8 `sync` = O7 (first sync);
-   R9 `beqz` = O8 (same polarity, `if (t1 != 0)`); R10 `lui (delay)` = O9
-   `nop` (same count, retail fills delay with poll hi, object leaves nop;
+   = MISSING #1 (321C88), folded into O6 `sw -0x1000` offset, no counterpart;
+   R7 `sw 0(v1)` = O6 `sw -0x1000(v1)` (first store); R8 `sync` = O7 (first
+   sync); R9 `beqz` = O8 (same polarity, `if (t1 != 0)`); R10 `lui (delay)` =
+   O9 `nop` (same count, retail fills delay with poll hi, object leaves nop;
    hoisted-pointer batch still ties); R11 `jal ba70` = O10 (`func(4)`,
    `$a0=4` reused from the store); R12 `nop` = O11; R13 `lui` = O12 `lui
    0x1001` (poll address reload after the call clobbers `$v1`); R14 `ori` =
-   MISSING #2, folded; R15 `nop` = no counterpart (gap unneeded in folded
-   form, -1, offset by the tail +2 below); R16 `lw 0(v1)` = O13 `lw
+   MISSING #2 (321CA8), folded; R15 `nop` = no counterpart (gap unneeded in
+   folded form, -1, offset by the tail +2 below); R16 `lw 0(v1)` = O13 `lw
    -0x1000(v0)` (poll load); R17 `andi 4` = O14 (`& 4`); R18 `nop` = O15;
    R19 `nop` = O16; R20 `nop` = no counterpart (retail 3 nops andi->beqz,
    object 2, -1, offset by the tail +2); R21 `beqz` = O17 (`do-while` loop,
    `while` ties); R22 `nop` = O18; R23 `jal ba20` = O19 (`t2 =
    func_0042ba20()`); R24 `nop` = O20; R25 `lui` = O22 `lui 0x1001`
    (second `= 4` address, order swapped with the addiu as at R4/R5); R26
-   `addiu 4` = O21; R27 `ori` = MISSING #3, folded; R28 `sw` = O23 (second
-   store); R29 `sync` = O24 (second sync); R30 `beqz` = O25 (same polarity,
-   `if (t2 != 0) return func; return t2`); R31 `ld (delay)` = O29 `ld`
-   (same work, later; object delay O26 is `nop`); R32 `j ba70` = O27 `jal`
-   (tail-jump against call; `tailcall on` gives the `j` but 33 -> 31); R33
-   `addiu (j delay)` = O30 `addiu` (same dealloc, before `jr` not in a
+   `addiu 4` = O21; R27 `ori` = MISSING #3 (321CDC), folded; R28 `sw` = O23
+   (second store); R29 `sync` = O24 (second sync); R30 `beqz` = O25 (same
+   polarity, `if (t2 != 0) return func; return t2`); R31 `ld (delay)` = O29
+   `ld` (same work, later; object delay O26 is `nop`); R32 `j ba70` = O27
+   `jal` (tail-jump against call; `tailcall on` gives the `j` but 33 -> 31);
+   R33 `addiu (j delay)` = O30 `addiu` (same dealloc, before `jr` not in a
    delay); R34 `jr` = O31 (return `t2==0` with `$v0==0` against shared
    epilogue); R35 `addiu (jr delay)` = O32 `nop` (same count, retail fills,
    object leaves nop).  Tail is retail 6 against object 8 (+2), which with
    R15 (-1) and R20 (-1) nets to zero, leaving exactly the three `ori`
-   (R6/R14/R27) as the 36 - 33 = 3. */
+   (R6/R14/R27 at 321C88/321CA8/321CDC) as the 36 - 33 = 3. */
 // FUN_00421C70 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00421c70(void) {
