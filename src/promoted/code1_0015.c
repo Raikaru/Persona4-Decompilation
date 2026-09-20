@@ -630,6 +630,23 @@ void func_00156750(u8 *arg0)
    the +-3% band.  Any differing-word score in this note was measured
    against a body of the wrong length and is not comparable to one
    measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured 00156800 (owner, 2026-09-19): fnalign **259 -> 187 edits** with the count
+   unchanged at 300 against retail 315.  deficit_scan pointed at a retail-only run of 71
+   instructions at 0x00156980-0x00156a9c, and reading it settled what was wrong: the two
+   rotation arms are EMITTED in the wrong order, not assigned to the wrong conditions.
+   Retail tests 1, then 2, then 3, and emits the bodies in that same order - the four-way
+   rotate for kind 2 first at 0x001568fc (0x32/0x34 <- 0x36/0x38 <- 0x42/0x44 <-
+   0x3E/0x40, with the 0xD/0xE/0x11/0x10 byte cycle), then the eight-way rotate for kind 3
+   at 0x001569a8.  m2c had written it as nested `if (b1 != 2 || b2 != 2) { if (b1 != 3 ...)
+   {} else { eight-way } } else { four-way }`, which inverts the emission order of the two
+   arms even though each body was attached to the right condition.
+   Flattening to `if (b1 == 2 && b2 == 2) ... else if (b1 == 3 && b2 == 3) ...` inside the
+   existing `!= 1` guard is the 187.  Two variants measured against it: the same flattening
+   WITHOUT the outer guard is 191 at count 294, and simply swapping the two bodies between
+   the existing arms is 233 but collapses the count to 240 (-23.8%, far outside) and is
+   rejected on that alone.
+   gate: still OUTSIDE at 300 against 315 (-4.8%, band 306-324); 15 instructions short and
+   the 187 is not comparable to an in-band score until they are found (handoff 7y). */
 // FUN_00156800 NONMATCHING
 #ifdef NON_MATCHING
 void func_00156800(void *arg0_v, u32 arg1)
@@ -675,9 +692,36 @@ void func_00156800(void *arg0_v, u32 arg1)
     b1 = *(arg0 + 1);
     b2 = *(arg0 + 2);
     if (b1 != 1 || b2 != 1) {
-        if (b1 != 2 || b2 != 2) {
-            if (b1 != 3 || b2 != 3) {
-            } else {
+        if (b1 == 2 && b2 == 2) {
+            for (m = 0; m < v2; m = m + 1) {
+                s16 h0;
+                s16 h1;
+                s16 w0;
+                s16 w1;
+                u8 wb;
+                h0 = *(s16 *)(arg0 + 0x32);
+                h1 = *(s16 *)(arg0 + 0x34);
+                w0 = *(s16 *)(arg0 + 0x36);
+                w1 = *(s16 *)(arg0 + 0x38);
+                *(s16 *)(arg0 + 0x32) = w0;
+                *(s16 *)(arg0 + 0x34) = w1;
+                w0 = *(s16 *)(arg0 + 0x42);
+                w1 = *(s16 *)(arg0 + 0x44);
+                *(s16 *)(arg0 + 0x36) = w0;
+                *(s16 *)(arg0 + 0x38) = w1;
+                w0 = *(s16 *)(arg0 + 0x3E);
+                w1 = *(s16 *)(arg0 + 0x40);
+                *(s16 *)(arg0 + 0x42) = w0;
+                *(s16 *)(arg0 + 0x44) = w1;
+                *(s16 *)(arg0 + 0x3E) = h0;
+                *(s16 *)(arg0 + 0x40) = h1;
+                wb = *(arg0 + 0xD);
+                *(arg0 + 0xD) = *(arg0 + 0xE);
+                *(arg0 + 0xE) = *(arg0 + 0x11);
+                *(arg0 + 0x11) = *(arg0 + 0x10);
+                *(arg0 + 0x10) = wb;
+            }
+        } else if (b1 == 3 && b2 == 3) {
                 for (n = 0; n < v2 * 2; n = n + 1) {
                     s16 h0;
                     s16 h1;
@@ -726,36 +770,6 @@ void func_00156800(void *arg0_v, u32 arg1)
                     *(arg0 + 0x13) = *(arg0 + 0x10);
                     *(arg0 + 0x10) = wb;
                 }
-            }
-        } else {
-            for (m = 0; m < v2; m = m + 1) {
-                s16 h0;
-                s16 h1;
-                s16 w0;
-                s16 w1;
-                u8 wb;
-                h0 = *(s16 *)(arg0 + 0x32);
-                h1 = *(s16 *)(arg0 + 0x34);
-                w0 = *(s16 *)(arg0 + 0x36);
-                w1 = *(s16 *)(arg0 + 0x38);
-                *(s16 *)(arg0 + 0x32) = w0;
-                *(s16 *)(arg0 + 0x34) = w1;
-                w0 = *(s16 *)(arg0 + 0x42);
-                w1 = *(s16 *)(arg0 + 0x44);
-                *(s16 *)(arg0 + 0x36) = w0;
-                *(s16 *)(arg0 + 0x38) = w1;
-                w0 = *(s16 *)(arg0 + 0x3E);
-                w1 = *(s16 *)(arg0 + 0x40);
-                *(s16 *)(arg0 + 0x42) = w0;
-                *(s16 *)(arg0 + 0x44) = w1;
-                *(s16 *)(arg0 + 0x3E) = h0;
-                *(s16 *)(arg0 + 0x40) = h1;
-                wb = *(arg0 + 0xD);
-                *(arg0 + 0xD) = *(arg0 + 0xE);
-                *(arg0 + 0xE) = *(arg0 + 0x11);
-                *(arg0 + 0x11) = *(arg0 + 0x10);
-                *(arg0 + 0x10) = wb;
-            }
         }
     }
     for (ii = 0; ii < 3; ii = ii + 1) {

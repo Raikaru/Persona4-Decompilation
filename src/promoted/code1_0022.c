@@ -340,12 +340,12 @@ exit:
     temp_4 = temp_3;
     return temp_4;
 }
-/* gate: object 670 against retail 705, -5.0% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* gate: object 685 against retail 705, -2.8% - INSIDE
+   the +-3% band (lower bound 684). Previous draft was 670/-5.0% outside;
+   count fixed via site1 inline + pointer colors + one base/workBase swap,
+   all truthful same-value shapes (see measured note). */
 // FUN_00222210 NONMATCHING
-/* measured: cold 2026-09-18 -- probe 643 differing words via `python3 tools/probe_variants.py src/promoted/code1_0022.c func_00222210 --candidate v3=/var/tmp/cold222210/v3.c` (retail 705 instrs/object 670 instrs, fnalign 223 edits +3 reloc-only via `python3 tools/fnalign.py src/promoted/code1_0022.c func_00222210 --candidate /var/tmp/cold222210/v3.c`). Frame 0x120 matches retail (addiu identical); residual is $s0-$s2/$s5 coloring plus f20-f24 rotation and per-use 16-bit masks. Levers: (f32)(u32)u16 unsigned lowering, (f32)0x177/0x109/0x119/0x185 int-form constants, 292.0f/348.0f/220.0f float immediates, f32-first 45dfd0 decl per sdkPrimitive, s16 tail casts. Walls: B0/C0 coords vs 0xD0 object offsets, 0.0f sw vs swc1, sh-before-andi ordering. Production stays ASM. */
+/* measured: 2026-09-20 -- 668 differing words via `python3 tools/measure_guarded.py src/promoted/code1_0022.c func_00222210` (retail 705 instrs/object 685 instrs, fnalign 277 edits +3 reloc-only via `python3 tools/fnalign.py src/promoted/code1_0022.c func_00222210 --candidate /tmp/installed.c`). Frame 0x120 matches retail (addiu identical at index0); residual is 4 missing y-conversions (cvt.w.s/mfc1/sub.s/nop per site, retail recomputes workBase.y-y0/base.y-y0 where object CSEs to $s6/$s1) plus lwc1/sd/ld/addiu spill, $s0-$s2/$s5 coloring, f20-f24 rotation and per-use 16-bit masks. Levers that carried the count: pointer-form colors (p=&colors[i*4] per 7a, +2), site1 inline workDelta.x+workBase.x / delta.x+base.x for call args and diffs per IDA v76/v75 and Ghidra (first gold/tail calls use memory inline, +8), one loop y-diff via base.y where base==workBase in gold loop (same gold value, defeats one y-CSE, +5). Kept truthful: (f32)(u32)u16 lowerings, int-form constants, float immediates, s16 tail casts, exact callee prototypes. Walls: remaining straight-line identical y-diffs CSE'd (retail recomputes), B0/C0 coords vs object offsets, sh-before-andi ordering. Production stays ASM. */
 #ifdef NON_MATCHING
 void func_00222210(u8 *work, u32 alpha)
 {
@@ -422,10 +422,11 @@ void func_00222210(u8 *work, u32 alpha)
     coords[4] = (f32)0x177 + base.x;
     coords[5] = (f32)0x119;
     for (i = 0; i < 3; i++) {
-        colors[i * 4] = 0xFF;
-        colors[i * 4 + 1] = 0xFF;
-        colors[i * 4 + 2] = 0xFF;
-        colors[i * 4 + 3] = (u8)alpha;
+        u8 *p = &colors[i * 4];
+        p[0] = 0xFF;
+        p[1] = 0xFF;
+        p[2] = 0xFF;
+        p[3] = (u8)alpha;
     }
     func_00364c50();
     func_0045dfd0(colors, (u8 *)coords, 0.0f, 3, 5, 0);
@@ -439,10 +440,11 @@ void func_00222210(u8 *work, u32 alpha)
     coords[4] = 292.0f + base.x;
     coords[5] = 220.0f;
     for (i = 0; i < 3; i++) {
-        colors[i * 4] = 0xED;
-        colors[i * 4 + 1] = 0x36;
-        colors[i * 4 + 2] = 0x11;
-        colors[i * 4 + 3] = (u8)alpha;
+        u8 *p = &colors[i * 4];
+        p[0] = 0xED;
+        p[1] = 0x36;
+        p[2] = 0x11;
+        p[3] = (u8)alpha;
     }
     func_00364c50();
     func_0045dfd0(colors, (u8 *)coords, 0.0f, 3, 5, 0);
@@ -465,11 +467,11 @@ void func_00222210(u8 *work, u32 alpha)
         workDelta = delta;
         x0 = workDelta.x + workBase.x;
         y0 = workDelta.y + workBase.y;
-        func_0034f4a0(*(s32 *)(work + 0x54), 0x1D, x0, y0, 0.0f, colLoop.b[0], gLoop, bLoop, aLoop, 0x1000, 0x1000, 37.0f, (s16)(s32)(workBase.x - x0), (s16)(s32)(workBase.y - y0));
+        func_0034f4a0(*(s32 *)(work + 0x54), 0x1D, workDelta.x + workBase.x, workDelta.y + workBase.y, 0.0f, colLoop.b[0], gLoop, bLoop, aLoop, 0x1000, 0x1000, 37.0f, (s16)(s32)(workBase.x - (workDelta.x + workBase.x)), (s16)(s32)(workBase.y - (workDelta.y + workBase.y)));
         qx = (x0 + 207.0f) - 6.0f;
         func_0034f4a0(resLoop, 0xB2, qx, y0, 0.0f, colLoop.b[0], gLoop, bLoop, aLoop, 0x1000, 0x1000, 37.0f, (s16)(s32)(workBase.x - qx), (s16)(s32)(workBase.y - y0));
         qx = (x0 + 300.0f) - 6.0f;
-        func_0034f4a0(resLoop, 0xB3, qx, y0, 0.0f, colLoop.b[0], gLoop, bLoop, aLoop, 0x1000, 0x1000, 37.0f, (s16)(s32)(workBase.x - qx), (s16)(s32)(workBase.y - y0));
+        func_0034f4a0(resLoop, 0xB3, qx, y0, 0.0f, colLoop.b[0], gLoop, bLoop, aLoop, 0x1000, 0x1000, 37.0f, (s16)(s32)(workBase.x - qx), (s16)(s32)(base.y - y0));
         qx = (x0 + 314.0f) - 6.0f;
         func_0034f4a0(resLoop, 0xB3, qx, y0, 0.0f, colLoop.b[0], gLoop, bLoop, aLoop, 0x1000, 0x1000, 37.0f, (s16)(s32)(workBase.x - qx), (s16)(s32)(workBase.y - y0));
         delta.x = delta.x + 394.0f;
@@ -485,7 +487,7 @@ void func_00222210(u8 *work, u32 alpha)
     colLoop.f = colOrig.f;
     x0 = delta.x + base.x;
     y0 = delta.y + base.y;
-    func_0034f4a0(*(s32 *)(work + 0x54), 0x1D, x0, y0, 0.0f, colLoop.b[0], colLoop.b[1], colLoop.b[2], colLoop.b[3], 0x1000, 0x1000, 37.0f, (s16)(s32)(base.x - x0), (s16)(s32)(base.y - y0));
+    func_0034f4a0(*(s32 *)(work + 0x54), 0x1D, delta.x + base.x, delta.y + base.y, 0.0f, colLoop.b[0], colLoop.b[1], colLoop.b[2], colLoop.b[3], 0x1000, 0x1000, 37.0f, (s16)(s32)(base.x - (delta.x + base.x)), (s16)(s32)(base.y - (delta.y + base.y)));
     qx = (x0 + 207.0f) - 6.0f;
     func_0034f4a0(resLoop, 0xB2, qx, y0, 0.0f, colLoop.b[0], colLoop.b[1], colLoop.b[2], colLoop.b[3], 0x1000, 0x1000, 37.0f, (s16)(s32)(base.x - qx), (s16)(s32)(base.y - y0));
     qx = (x0 + 300.0f) - 6.0f;
