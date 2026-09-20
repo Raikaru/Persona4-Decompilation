@@ -313,17 +313,23 @@ f32 func_0046b2f0(u8 *param_1)
 // measured: pure hole 396 retail[319:715] 0x0046B87C-0x0046BEAC head c.eq.s/bc1t + lui/mtc1 0x43B4/0xC334/0x4334 float-range + c.ole.s, tail srl/andi/or/mtc1/cvt/add/swc1 0x24/0x28 unsigned conversions + stores; second hole 125 retail[719:844] 0x0046BEBC-0x0046C0B0 continuation (swc1 0x28 + bltz); calls exact 15+30/15+30 both streams so stores/branches not missing calls; lump 19 insert [266:266] object[297:316]; conversion check retail 22 bltz/95 mtc1/96 cvt vs object 36/142/120 (+14/+47/+24 already over, adding unsigned would go 2018 over upper 2011, removing would go 1853 under -- leave floor alone)
 // fix 2026-09-19: hoist D_00887300/10 into tbl300/310 (lui 43->15, 61->33 object; surplus 15 remains from 2.0f conversions per conversion check, not touched); holes moved 396 retail[319:715]->254 retail[1028:1282] and 125 retail[719:844]->90 retail[1367:1457], lump 19 unchanged at [266:266] object[291:310]; frame 0x260->0x280 (+32 for two locals) but net -25 instrs/-151 edits/-38 words; jal exact; unsigned 2.0f test would go 2007->1557 (-450, under gate) so left alone.
 // fix 2026-09-19 (regsave): body held 12 values live that retail recomputes/spills -- 8 UV scalars (uvA0..uvBC) pinned $f23-$f29, parent/rec/idx pinned $s4-$s6, tbl300+tbl310 pinned wide ($s7+$fp); retail spills UVs to $sp 0xa0-0xbc (4 div.s early + 8 swc1, ld/sd+lwc1/swc1 swaps), reloads parent/rec/idx/flags chains from $s1(arg0) after every jal (slotidx alone held in $s0), materialises tables per region. Fix: uv[8] array (FP spares 7->0), sink parent/rec/idx to use-site recompute (GPR spares 5->1), narrow tbl310 to per-site extern keeping tbl300 wide (saves EXACT, frame 0x280->0x220 vs retail 0x240); plus temp-doubled unsigned conversions (2.0f*mul.s -> add.s), (f32) else-paths (kills runtime unsigned-conv explosion), &-first color extracts with u32 col (and+srl+andi, hoisted 0xFF000000), (x<<8)-x scaling with straight-line shift + conditional recompute, delete retail-absent aC-scale block and bb/bb2 re-derivation. fnalign retail 1948 vs object 1836, 2467 edits (+14 reloc, was 3125/-658), guarded 1841wd (was 1888): python3 tools/fnalign.py src/Kernel/sdkSpr.c func_0046b380 --candidate /var/tmp/decomp380/verify380.c --quiet. Residual is repetition-confusion (4 near-identical extra-regions) + 255-hoist/use-mask/delay-slot micro + per-region lui packing ($s3-scratch vs temps).
-/* gate: func_0046b380 is now INSIDE the +-3% band at 1890 against retail 1948 (-3.0%, band
-   1890-2006) - it sits exactly on the lower edge, so any change that shortens the object
-   puts it back out.  It was -5.9% and 114 instructions short; +56 came from writing the
-   recomputations retail performs and the body had folded away (ten w-chains, three computed
-   `ov` values, two integer adds, the m-loops), NOT from missing calls - the call census was
-   45/45 exact the whole time.
-   Its edit count went 2465 -> 2710 crossing the band, and that is the right trade: an edit
-   score measured outside the gate is not comparable to one measured inside (handoff 7y), so
-   2465 was never a real number and 2710 is the first one this floor has had.
-   Still missing, by address: the j y-chain at 0x46BAFC, twelve computed `ov` values worth
-   two instructions each, and 0x10 of frame (0x230 against retail's 0x240). */
+/* gate: func_0046b380 is INSIDE the +-3% band at 1932 against retail 1948 (-0.8%, band
+   1890-2006) - +42 above the lower edge after restoring thirteen recomputation sites the
+   body had folded away (retail recomputes base-plus-index at every use; the body hoisted
+   it into base/b6/r2p).  It was at exactly the lower edge (1890, -3.0%) with no slack
+   downward; every batch below was measured, and anything that shortened was reverted.
+   Batches (object instrs, fnalign --candidate): 2 ov b6->base-order (L670,L832) +3
+   (1890->1893); 5 p-extra b6->base-order (L686 0x34, L780/L796 0x38, L830 0x3C, L936 0x40)
+   +20 (1893->1913); w6 r2p->base-order (L468, r2p dead and removed, neutral) +3
+   (1913->1916); 5 w b6->base-order (L669 +6 alone, L689/L734/L831/L906 +10) +16
+   (1916->1932).  Edits 2710->2755 (+45).  Base-order is (base+off)+idx, which will not
+   CSE with the b6-anchored branch/extra defs that keep b6 live, so each site keeps its
+   own addiu+addu; same-order full spellings CSE back to the hoisted form (+0) or worse.
+   Tried and reverted: 6 w same-order full -9; single ov same-order full +0; j y-chain
+   (L555) base-order -1; 6 ov full base-recompute -5.  Left alone: j y-chain (retail does
+   two full recomputes, body CSEs them to one - needs a CSE-breaking full spelling, not
+   base-order), 0x10 of frame (0x230 vs 0x240, needs dummy used locals - hacky, and the
+   floor now has +42 cushion without it). */
 // FUN_0046B380 NONMATCHING
 #ifdef NON_MATCHING
 void func_0046b380(u8 *arg0, s32 arg1) {
