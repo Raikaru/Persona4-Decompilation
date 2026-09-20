@@ -2601,15 +2601,22 @@ extern void func_0025f430(f32 farg0, f32 farg1, f32 farg2, s32 arg0, s32 arg1, s
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00126090);
 #endif
 /* measured: archived build/func_001265a0_floor_v1.c (1791L m2c) + jtbl-bound fix cases 10-15 to tail per ELF jtbl_00746730 dump at file-off 0x6467B0 (16 entries 0:26660,1-2:26664,3:26688,4-5:2679C,6-7:29778,8-9:2A024,10-15:2A948 tail; sltiu 0xa->0x10 exact). Installed fnalign retail 4404/object 4404 (exact, 0.0%, 80 edits +124 reloc-only) via `python3 tools/fnalign.py src/promoted/code1_0012.c func_001265a0`; probe 3842 words via measure_guarded. Candidate-method fnalign (--candidate floor) reports retail 4400/object 3779 (-14.1%, 6325 edits) due to scratch-vs-real TU compilation difference (header/guard placement), not body quality; installed is exact. Call census: all 202 retail jals +14 jalr have counterparts (30x0045d6e0,22x0025f3f0,17x0044b7b0,14x003f6440/002aaf20/002aaac0,11x0048a000/00489f80,etc.). Loops: 40 retail backward branches (30x6-instr zeroing +8x8-instr bgtz copy +3 large 414/240/240 at 0x126D9C/0x12742C/0x129B0C) all present as draft loop_93/loop_128/loop_351 + 4-word do-whiles. Frame -0x6C0 exact, sltiu 0x10 exact. Residual 80 edits are lui symbol materialization (0x5e vs 0) + MMI lq/add_a.w vs plain + VU0 adda/madd + scheduling, no missing regions by address (no deletes in installed alignment). */
-/* gate: func_001265a0 is OUTSIDE the +-3% band at 3779 against retail 4400 (-14.1%, band
-   4268-4532).  The object is 621 instructions SHORT - whole regions of the retail function
-   are still missing from the reconstruction, so this is a deficit to write, not a floor to
-   tune, and no word or edit score measured against it is comparable (handoff 7y).
-   This stamp previously read `object 4404 against retail 4404, +0.0% - INSIDE`.  That came
-   from running `fnalign.py <file> <func>` with NO --candidate on a guarded floor, which
-   compiles the INCLUDE_ASM fallback and therefore aligns retail against itself; window
-   trimming and relocations left 80 edits rather than 0, so the old 0-edit warning never
-   fired.  fnalign now refuses that invocation outright and tests/test_fnalign.py pins it. */
+/* gate: func_001265a0 is INSIDE the +-3% band at 4348 against retail 4400 (-1.2%, band
+   4268-4532), deficit 52, via --candidate measurement 2026-09-20.  Recovered the 15
+   dropped color channels (5 sites x 3: case4/5 var_19 loop, var_17_2 loop, 0x82-0xBE and
+   0xBD-0xD2 branches, case6/7 var_16 loop) - retail's (f32)(u32) halving conversions,
+   adda/madd lerp and (u8)(u32) clamp, which m2c had left as empty ifs; plus the site-1
+   quantized factor (f32)(s32)(255*f20)/255 at 0x1270C0.  The 159-run (0x1270F0-0x12736C)
+   and 104-run (0x127418-0x1275B8) dissolved.  Remainder is alignment phantoms over
+   present-but-different code (2350-run 0x127930-0x129DE8 covers the D_005E539C/53C4
+   $f20-blends whose 10 ACC seeds are still bare + case8/9 quat args; 142-delete and
+   46-run likewise) plus real small gaps: sb+40 byte-stores, lwc1+37, empty-if body at
+   0x12A7F4.  Prior stamps below describe the 3779/-14.1% floor, kept for history.
+   The 4404/4404 +0.0% number came from running `fnalign.py <file> <func>` with NO
+   --candidate on this guarded floor, which compiles the INCLUDE_ASM fallback and
+   therefore aligns retail against itself; window trimming and relocations left 80 edits
+   rather than 0, so the old 0-edit warning never fired.  fnalign now refuses that
+   invocation outright and tests/test_fnalign.py pins it. */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
 #ifndef M2C_GUARD
@@ -2885,6 +2892,21 @@ M2C_UNK unksp514;
     f32 temp_f16_2;
     f32 temp_f16_3;
     f32 temp_f1;
+    f32 temp_cA;
+    f32 temp_cB;
+    f32 temp_q1;
+    f32 temp_one_S2A;
+    f32 temp_one_S2B;
+    f32 temp_one_S2C;
+    f32 temp_one_S3A;
+    f32 temp_one_S3B;
+    f32 temp_one_S3C;
+    f32 temp_one_S4A;
+    f32 temp_one_S4B;
+    f32 temp_one_S4C;
+    f32 temp_one_S5A;
+    f32 temp_one_S5B;
+    f32 temp_one_S5C;
     f32 temp_f1_10;
     f32 temp_f1_11;
     f32 temp_f1_12;
@@ -3336,6 +3358,7 @@ loop_93:
                                 temp_7 = (u8 *)((s32)&D_005E5230 + (var_19 * 0x28));
                                 temp_9 = (s32)(M2C_FIELD(temp_7, s32 *, 0x1C) * 4);
                                 temp_8 = (u32)(M2C_FIELD((temp_9 + sp), u32 *, 0x450));
+                                temp_q1 = (f32)(s32)(255.0f * temp_f20) / 255.0f;
                                 var_6_2 = (s128 *)(&sp130);
                                 var_5_3 = (M2C_UNK *)(&sp430);
                                 var_4_4 = 3;
@@ -3351,46 +3374,22 @@ loop_93:
                                 temp_3_6 = (temp_8 >> 0x10) & 0xFF;
                                 temp_9_2 = (temp_8 >> 0x18) & 0xFF;
                                 temp_2_7 = (temp_8 >> 8) & 0xFF;
-                                if ((0xFF - temp_9_2) >= 0) {
-
-                                }
-                                if (temp_9_2 >= 0) {
-
-                                }
+                                temp_cA = (f32)(u32)(0xFF - temp_9_2);
+                                temp_cB = (f32)(u32)temp_9_2;
     /* ACC seed */;
-                                temp_f1_2 = (temp_f20 * temp_f21 + temp_f7 * temp_f8);
-                                if (!(temp_f1_2 >= 2.1474836e9f)) {
-                                    var_8 = 0x4F000000 & 0xFF;
-                                } else {
-                                    var_8 = (M2C_BITWISE(s32, (temp_f1_2 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                                }
+                                temp_f1_2 = temp_cB + temp_cA * temp_q1;
+                                var_8 = (u8)(u32)temp_f1_2;
                                 temp_9_3 = (var_8 & 0xFF) << 0x18;
-                                if ((0xFF - temp_3_6) >= 0) {
-
-                                }
-                                if (temp_3_6 >= 0) {
-
-                                }
+                                temp_cA = (f32)(u32)(0xFF - temp_3_6);
+                                temp_cB = (f32)(u32)temp_3_6;
     /* ACC seed */;
-                                temp_f1_3 = (temp_f20 * temp_f21 + temp_f7 * temp_f8);
-                                if (!(temp_f1_3 >= 2.1474836e9f)) {
-                                    var_6_3 = 0x4F000000 & 0xFF;
-                                } else {
-                                    var_6_3 = (M2C_BITWISE(s32, (temp_f1_3 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                                }
-                                if ((0xFF - temp_2_7) >= 0) {
-
-                                }
-                                if (temp_2_7 >= 0) {
-
-                                }
+                                temp_f1_3 = temp_cB + temp_cA * temp_q1;
+                                var_6_3 = (u8)(u32)temp_f1_3;
+                                temp_cA = (f32)(u32)(0xFF - temp_2_7);
+                                temp_cB = (f32)(u32)temp_2_7;
     /* ACC seed */;
-                                temp_f1_4 = (temp_f20 * temp_f21 + temp_f7 * temp_f8);
-                                if (!(temp_f1_4 >= 2.1474836e9f)) {
-                                    var_3_6 = 0x4F000000 & 0xFF;
-                                } else {
-                                    var_3_6 = (M2C_BITWISE(s32, (temp_f1_4 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                                }
+                                temp_f1_4 = temp_cB + temp_cA * temp_q1;
+                                var_3_6 = (u8)(u32)temp_f1_4;
                                 func_00124bb0(M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7, s32 *, 0)), (M2C_FIELD((temp_9 + sp), s32 *, 0x430) & ~0xFF) | 0xFF, ((var_3_6 & 0xFF) << 8) | (temp_9_3 | ((var_6_3 & 0xFF) << 0x10)) | 0xFF, 0x42, temp_20, M2C_BITWISE(f32, temp_9_3), M2C_FIELD(temp_7, f32 *, 4), 0.0f, M2C_FIELD(temp_7, f32 *, 8), M2C_FIELD(temp_7, f32 *, 0xC), M2C_FIELD(temp_7, f32 *, 0x10), M2C_FIELD(temp_7, f32 *, 0x14), M2C_FIELD(temp_7, f32 *, 0x18));
                             }
                         }
@@ -3433,46 +3432,25 @@ loop_128:
                         temp_3_9 = (temp_8_2 >> 0x10) & 0xFF;
                         temp_9_5 = (temp_8_2 >> 0x18) & 0xFF;
                         temp_2_10 = (temp_8_2 >> 8) & 0xFF;
-                        if ((0xFF - temp_9_5) >= 0) {
-
-                        }
-                        if (temp_9_5 >= 0) {
-
-                        }
+                        temp_cA = (f32)(u32)(0xFF - temp_9_5);
+                        temp_one_S2A = 1.0f;
+                        temp_cB = (f32)(u32)temp_9_5;
     /* ACC seed */;
-                        temp_f1_5 = (temp_f20 * temp_f21 + temp_f7 * temp_f8);
-                        if (!(temp_f1_5 >= 2.1474836e9f)) {
-                            var_8_2 = 0x4F000000 & 0xFF;
-                        } else {
-                            var_8_2 = (M2C_BITWISE(s32, (temp_f1_5 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                        }
+                        temp_f1_5 = temp_cB + temp_cA * temp_one_S2A;
+                        var_8_2 = (u8)(u32)temp_f1_5;
                         temp_9_6 = (var_8_2 & 0xFF) << 0x18;
-                        if ((0xFF - temp_3_9) >= 0) {
-
-                        }
-                        if (temp_3_9 >= 0) {
-
-                        }
+                        temp_cA = (f32)(u32)(0xFF - temp_3_9);
+                        temp_one_S2B = 1.0f;
+                        temp_cB = (f32)(u32)temp_3_9;
     /* ACC seed */;
-                        temp_f1_6 = (temp_f20 * temp_f21 + temp_f7 * temp_f8);
-                        if (!(temp_f1_6 >= 2.1474836e9f)) {
-                            var_6_6 = 0x4F000000 & 0xFF;
-                        } else {
-                            var_6_6 = (M2C_BITWISE(s32, (temp_f1_6 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                        }
-                        if ((0xFF - temp_2_10) >= 0) {
-
-                        }
-                        if (temp_2_10 >= 0) {
-
-                        }
+                        temp_f1_6 = temp_cB + temp_cA * temp_one_S2B;
+                        var_6_6 = (u8)(u32)temp_f1_6;
+                        temp_cA = (f32)(u32)(0xFF - temp_2_10);
+                        temp_one_S2C = 1.0f;
+                        temp_cB = (f32)(u32)temp_2_10;
     /* ACC seed */;
-                        temp_f1_7 = (temp_f20 * temp_f21 + temp_f7 * temp_f8);
-                        if (!(temp_f1_7 >= 2.1474836e9f)) {
-                            var_3_7 = 0x4F000000 & 0xFF;
-                        } else {
-                            var_3_7 = (M2C_BITWISE(s32, (temp_f1_7 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                        }
+                        temp_f1_7 = temp_cB + temp_cA * temp_one_S2C;
+                        var_3_7 = (u8)(u32)temp_f1_7;
                         func_00124bb0(M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7_2, s32 *, 0)), (M2C_FIELD((temp_9_4 + sp), s32 *, 0x190) & ~0xFF) | 0xFF, ((var_3_7 & 0xFF) << 8) | (temp_9_6 | ((var_6_6 & 0xFF) << 0x10)) | 0xFF, 0x42, temp_20, M2C_BITWISE(f32, temp_9_6), M2C_FIELD(temp_7_2, f32 *, 4), 0.0f, M2C_FIELD(temp_7_2, f32 *, 8), M2C_FIELD(temp_7_2, f32 *, 0xC), M2C_FIELD(temp_7_2, f32 *, 0x10), M2C_FIELD(temp_7_2, f32 *, 0x14), M2C_FIELD(temp_7_2, f32 *, 0x18));
                         var_17_2 += 1;
                         goto loop_128;
@@ -3549,45 +3527,24 @@ loop_128:
                     temp_3_12 = (temp_7_3 >> 0x10) & 0xFF;
                     temp_8_4 = (temp_7_3 >> 0x18) & 0xFF;
                     temp_2_15 = (temp_7_3 >> 8) & 0xFF;
-                    if ((0xFF - temp_8_4) >= 0) {
-
-                    }
-                    if (temp_8_4 >= 0) {
-
-                    }
+                    temp_cA = (f32)(u32)(0xFF - temp_8_4);
+                    temp_one_S3A = 1.0f;
+                    temp_cB = (f32)(u32)temp_8_4;
     /* ACC seed */;
-                    temp_f7 = (temp_f20 * temp_f21 + temp_f7 * temp_f8);
-                    if (!(temp_f7 >= 2.1474836e9f)) {
-                        var_7 = 0x4F000000 & 0xFF;
-                    } else {
-                        var_7 = (M2C_BITWISE(s32, (temp_f7 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                    }
-                    if ((0xFF - temp_3_12) >= 0) {
-
-                    }
-                    if (temp_3_12 >= 0) {
-
-                    }
+                    temp_f7 = temp_cB + temp_cA * temp_one_S3A;
+                    var_7 = (u8)(u32)temp_f7;
+                    temp_cA = (f32)(u32)(0xFF - temp_3_12);
+                    temp_one_S3B = 1.0f;
+                    temp_cB = (f32)(u32)temp_3_12;
     /* ACC seed */;
-                    temp_f7_2 = (temp_f20 * temp_f21 + temp_f7 * temp_f8);
-                    if (!(temp_f7_2 >= 2.1474836e9f)) {
-                        var_6_9 = 0x4F000000 & 0xFF;
-                    } else {
-                        var_6_9 = (M2C_BITWISE(s32, (temp_f7_2 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                    }
-                    if ((0xFF - temp_2_15) >= 0) {
-
-                    }
-                    if (temp_2_15 >= 0) {
-
-                    }
+                    temp_f7_2 = temp_cB + temp_cA * temp_one_S3B;
+                    var_6_9 = (u8)(u32)temp_f7_2;
+                    temp_cA = (f32)(u32)(0xFF - temp_2_15);
+                    temp_one_S3C = 1.0f;
+                    temp_cB = (f32)(u32)temp_2_15;
     /* ACC seed */;
-                    temp_f7_3 = (temp_f20 * temp_f21 + temp_f7 * temp_f8);
-                    if (!(temp_f7_3 >= 2.1474836e9f)) {
-                        var_3_8 = 0x4F000000 & 0xFF;
-                    } else {
-                        var_3_8 = (M2C_BITWISE(s32, (temp_f7_3 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                    }
+                    temp_f7_3 = temp_cB + temp_cA * temp_one_S3C;
+                    var_3_8 = (u8)(u32)temp_f7_3;
     /* ACC seed */;
     /* ACC seed */;
     /* ACC seed */;
@@ -3627,45 +3584,24 @@ loop_128:
                     temp_3_15 = (temp_7_4 >> 0x10) & 0xFF;
                     temp_8_6 = (temp_7_4 >> 0x18) & 0xFF;
                     temp_2_18 = (temp_7_4 >> 8) & 0xFF;
-                    if ((0xFF - temp_8_6) >= 0) {
-
-                    }
-                    if (temp_8_6 >= 0) {
-
-                    }
+                    temp_cA = (f32)(u32)(0xFF - temp_8_6);
+                    temp_one_S4A = 1.0f;
+                    temp_cB = (f32)(u32)temp_8_6;
     /* ACC seed */;
-                    temp_f8 = (temp_f20 * temp_f21 + temp_f7 * temp_f8);
-                    if (!(temp_f8 >= 2.1474836e9f)) {
-                        var_7_2 = 0x4F000000 & 0xFF;
-                    } else {
-                        var_7_2 = (M2C_BITWISE(s32, (temp_f8 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                    }
-                    if ((0xFF - temp_3_15) >= 0) {
-
-                    }
-                    if (temp_3_15 >= 0) {
-
-                    }
+                    temp_f8 = temp_cB + temp_cA * temp_one_S4A;
+                    var_7_2 = (u8)(u32)temp_f8;
+                    temp_cA = (f32)(u32)(0xFF - temp_3_15);
+                    temp_one_S4B = 1.0f;
+                    temp_cB = (f32)(u32)temp_3_15;
     /* ACC seed */;
-                    temp_f8_2 = (temp_f20 * temp_f21 + temp_f7 * temp_f8);
-                    if (!(temp_f8_2 >= 2.1474836e9f)) {
-                        var_6_12 = 0x4F000000 & 0xFF;
-                    } else {
-                        var_6_12 = (M2C_BITWISE(s32, (temp_f8_2 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                    }
-                    if ((0xFF - temp_2_18) >= 0) {
-
-                    }
-                    if (temp_2_18 >= 0) {
-
-                    }
+                    temp_f8_2 = temp_cB + temp_cA * temp_one_S4B;
+                    var_6_12 = (u8)(u32)temp_f8_2;
+                    temp_cA = (f32)(u32)(0xFF - temp_2_18);
+                    temp_one_S4C = 1.0f;
+                    temp_cB = (f32)(u32)temp_2_18;
     /* ACC seed */;
-                    temp_f8_3 = (temp_f20 * temp_f21 + temp_f7 * temp_f8);
-                    if (!(temp_f8_3 >= 2.1474836e9f)) {
-                        var_3_9 = 0x4F000000 & 0xFF;
-                    } else {
-                        var_3_9 = (M2C_BITWISE(s32, (temp_f8_3 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-                    }
+                    temp_f8_3 = temp_cB + temp_cA * temp_one_S4C;
+                    var_3_9 = (u8)(u32)temp_f8_3;
     /* ACC seed */;
     /* ACC seed */;
     /* ACC seed */;
@@ -4201,46 +4137,25 @@ loop_351:
             temp_3_18 = (temp_8_7 >> 0x10) & 0xFF;
             temp_9_8 = (temp_8_7 >> 0x18) & 0xFF;
             temp_2_22 = (temp_8_7 >> 8) & 0xFF;
-            if ((0xFF - temp_9_8) >= 0) {
-
-            }
-            if (temp_9_8 >= 0) {
-
-            }
+            temp_cA = (f32)(u32)(0xFF - temp_9_8);
+            temp_one_S5A = 1.0f;
+            temp_cB = (f32)(u32)temp_9_8;
     /* ACC seed */;
-            temp_f1_12 = (temp_f20 * temp_f21 + temp_f7 * temp_f8);
-            if (!(temp_f1_12 >= 2.1474836e9f)) {
-                var_8_3 = 0x4F000000 & 0xFF;
-            } else {
-                var_8_3 = (M2C_BITWISE(s32, (temp_f1_12 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-            }
+            temp_f1_12 = temp_cB + temp_cA * temp_one_S5A;
+            var_8_3 = (u8)(u32)temp_f1_12;
             temp_9_9 = (var_8_3 & 0xFF) << 0x18;
-            if ((0xFF - temp_3_18) >= 0) {
-
-            }
-            if (temp_3_18 >= 0) {
-
-            }
+            temp_cA = (f32)(u32)(0xFF - temp_3_18);
+            temp_one_S5B = 1.0f;
+            temp_cB = (f32)(u32)temp_3_18;
     /* ACC seed */;
-            temp_f1_13 = (temp_f20 * temp_f21 + temp_f7 * temp_f8);
-            if (!(temp_f1_13 >= 2.1474836e9f)) {
-                var_6_15 = 0x4F000000 & 0xFF;
-            } else {
-                var_6_15 = (M2C_BITWISE(s32, (temp_f1_13 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-            }
-            if ((0xFF - temp_2_22) >= 0) {
-
-            }
-            if (temp_2_22 >= 0) {
-
-            }
+            temp_f1_13 = temp_cB + temp_cA * temp_one_S5B;
+            var_6_15 = (u8)(u32)temp_f1_13;
+            temp_cA = (f32)(u32)(0xFF - temp_2_22);
+            temp_one_S5C = 1.0f;
+            temp_cB = (f32)(u32)temp_2_22;
     /* ACC seed */;
-            temp_f1_14 = (temp_f20 * temp_f21 + temp_f7 * temp_f8);
-            if (!(temp_f1_14 >= 2.1474836e9f)) {
-                var_3_34 = 0x4F000000 & 0xFF;
-            } else {
-                var_3_34 = (M2C_BITWISE(s32, (temp_f1_14 - 2.1474836e9f)) | 0x80000000) & 0xFF;
-            }
+            temp_f1_14 = temp_cB + temp_cA * temp_one_S5C;
+            var_3_34 = (u8)(u32)temp_f1_14;
             func_00124bb0(M2C_BITWISE(s32, (f32) M2C_FIELD(temp_7_5, s32 *, 0)), (M2C_FIELD((temp_9_7 + sp), s32 *, 0x150) & ~0xFF) | 0xFF, ((var_3_34 & 0xFF) << 8) | (temp_9_9 | ((var_6_15 & 0xFF) << 0x10)) | 0xFF, 0x42, temp_20, M2C_BITWISE(f32, temp_9_9), M2C_FIELD(temp_7_5, f32 *, 4), 0.0f, M2C_FIELD(temp_7_5, f32 *, 8), M2C_FIELD(temp_7_5, f32 *, 0xC), M2C_FIELD(temp_7_5, f32 *, 0x10), M2C_FIELD(temp_7_5, f32 *, 0x14), M2C_FIELD(temp_7_5, f32 *, 0x18));
             var_16 += 1;
             goto loop_351;

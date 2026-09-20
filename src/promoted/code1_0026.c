@@ -490,13 +490,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00260e60);
 /* decomposition for func_00261560 (banked vC 1611 inside, s32 spB0 saves 6 — same call as func_0035aff0):
    Retail 0x00261560-0x00262DDF 6272B 1568I, band 1521-1615. Banked vC 1611I/1429wd/2998ed (+43/+2.74% PASS, headroom 4) with handoff-7r entry (s32)((float)arg0+47.0f*(1.0f-fparg1)) and four 0xE 9th-args ((float)arg0+70/69*fparg1, 70,69,70,69 per c.lt.s/bc1t), s0 reuse via arg0, s32 spB0 (was s128, saves 6I/1wd/4ed vs v1d 1617I/1430wd/3002ed +2 over max), opt_level3 scoped (dummy v1e 1558I/1357wd/2970ed inside but 10x0.0f placeholders, correctly reverted). 12-arg ABI: a0->s0(arg0),a1->s4(arg1),a2->s3(arg2 u8),a3->s8(arg3 &0xF,>>4),t0->stack0xCC(arg4),f13->f22(fparg1),f14->f21(fparg2),t1->s6(arg5),t2->s7(arg6),t3->s2(arg7). MAC addrs 0x00261614/18,0x002619EC/F0,0x00261A5C/60,0x00261D00/04,0x00261D70/74,0x00261FDC/E0 (plain a+b*c). 12th-arg f15 0.0f correct literal. Caveat: no block prototypes for 0025f430/00260e60 (untyped calls keep sd bloat); adding s32/u8* prototypes drops to 1403I/1566 (-163 outside below, needs +~165 real logic) — bloat compensates missing blocks, gate passes but composition still 2998ed; honest typed version needs block recovery. */
 // FUN_00261560 NONMATCHING
-#ifdef NON_MATCHING
-#pragma push
-#pragma optimization_level 3
 void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0) {
     typedef signed __int128 s128;
     extern s128 D_00637430;
     extern void (*D_00887300[])(u32, u32);
+    void (**tbl)(u32, u32);
     extern void func_003f6440(s32, s32);
     extern void func_0045d6e0(void *, void *, f32, s32);
     extern void func_00489f80(void);
@@ -574,47 +572,13 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     s32 spD4;
     s32 spD0;
     s32 spCC;
-    s32 spB0;
+    s128 spB0;
     u8 *var_3;
-    u8 *var_3_10;
-    u8 *var_3_11;
-    u8 *var_3_13;
-    u8 *var_3_14;
-    u8 *var_3_16;
-    u8 *var_3_17;
-    u8 *var_3_2;
-    u8 *var_3_4;
-    u8 *var_3_5;
-    u8 *var_3_7;
-    u8 *var_3_8;
     f32 temp_f20;
-    u8 *var_3_12;
-    u8 *var_3_15;
-    u8 *var_3_18;
-    u8 *var_3_3;
-    u8 *var_3_6;
-    u8 *var_3_9;
     s32 temp_2;
     s32 temp_30;
     s32 var_17;
     s32 var_2;
-    s32 var_2_10;
-    s32 var_2_11;
-    s32 var_2_12;
-    s32 var_2_13;
-    s32 var_2_14;
-    s32 var_2_15;
-    s32 var_2_16;
-    s32 var_2_17;
-    s32 var_2_18;
-    s32 var_2_2;
-    s32 var_2_3;
-    s32 var_2_4;
-    s32 var_2_5;
-    s32 var_2_6;
-    s32 var_2_7;
-    s32 var_2_8;
-    s32 var_2_9;
 
     spCC = arg4;
     var_17 = 0x242424;
@@ -623,7 +587,8 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     }
     temp_30 = arg3 & 0xF;
     temp_2 = arg3 >> 4;
-    spB0 = temp_2;
+    spB0 = (s128) temp_2;
+    tbl = D_00887300;
     if (temp_2 == temp_30) {
         arg0 = (s32)((float)arg0 + 47.0f * (1.0f - fparg1));
         var_3 = (u8 *)(&sp2A8);
@@ -639,54 +604,54 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
         sp230 = arg0 - 0x40;
         unksp234 = arg1 - 0x40;
         sp240 = (s128) sp230;
-        D_00887300[0](0xE, 0);
-        D_00887300[0](0xC, 1);
-        D_00887300[0](7, 2);
-        D_00887300[0](9, 1);
-        D_00887300[0](0x14, 1);
-        D_00887300[0](6, 0);
-        D_00887300[0](8, 1);
+        tbl[0](0xE, 0);
+        tbl[0](0xC, 1);
+        tbl[0](7, 2);
+        tbl[0](9, 1);
+        tbl[0](0x14, 1);
+        tbl[0](6, 0);
+        tbl[0](8, 1);
         func_003f6440(3, 0x71003);
         func_003f6440(2, 0x44);
         func_00489f80();
         func_0045d6e0(&sp2AC, &sp240, 0, 10.0f);
         func_0048a000();
-        var_3_2 = (u8 *)(&sp2A0);
-        var_2_2 = 4;
-        if (var_3_2 != NULL) {
+        var_3 = (u8 *)(&sp2A0);
+        var_2 = 4;
+        if (var_3 != NULL) {
             do {
-                *var_3_2 = 0;
-                var_3_2 += 1;
-            } while (--var_2_2 != 0);
+                *var_3 = 0;
+                var_3 += 1;
+            } while (--var_2 != 0);
         }
         sp2A4 = sp2A0;
-        var_3_3 = (u8 *)(&sp210);
-        var_2_3 = 0x10;
-        if (var_3_3 != NULL) {
+        var_3 = (u8 *)(&sp210);
+        var_2 = 0x10;
+        if (var_3 != NULL) {
             do {
-                *var_3_3 = 0;
-                var_3_3 += 1;
-            } while (--var_2_3 != 0);
+                *var_3 = 0;
+                var_3 += 1;
+            } while (--var_2 != 0);
         }
         sp210 = arg5;
         sp214 = 0;
         sp218 = arg6;
         sp21C = 0x1E0;
         sp220 = (s128) sp210;
-        D_00887300[0](0xE, 0);
-        D_00887300[0](0xC, 1);
-        D_00887300[0](7, 2);
-        D_00887300[0](9, 1);
-        D_00887300[0](0x14, 1);
-        D_00887300[0](6, 0);
-        D_00887300[0](8, 1);
+        tbl[0](0xE, 0);
+        tbl[0](0xC, 1);
+        tbl[0](7, 2);
+        tbl[0](9, 1);
+        tbl[0](0x14, 1);
+        tbl[0](6, 0);
+        tbl[0](8, 1);
         func_003f6440(3, 0x31003);
         func_003f6440(2, 0x44);
         func_00489f80();
         func_0045d6e0(&sp2A4, &sp220, 0, 1.0f);
         func_0048a000();
-        D_00887300[0](6, 1);
-        D_00887300[0](7, 2);
+        tbl[0](6, 1);
+        tbl[0](7, 2);
         func_003f6440(3, 0x7000D);
         func_0025f430(var_17, arg2, 3, 0, arg7, 0, 0.0f, 0.0f, (f32) arg0, (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
         temp_f20 = (f32) arg0 + (9.0f * fparg1);
@@ -696,33 +661,33 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
         } else {
             func_0025f430(var_17, arg2, 0xE, 0, arg7, 0, 0.0f, 0.0f, ((float)arg0 + 69.0f * fparg1), (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
         }
-        var_3_4 = (u8 *)(&sp298);
-        var_2_4 = 4;
-        if (var_3_4 != NULL) {
+        var_3 = (u8 *)(&sp298);
+        var_2 = 4;
+        if (var_3 != NULL) {
             do {
-                *var_3_4 = 0;
-                var_3_4 += 1;
-            } while (--var_2_4 != 0);
+                *var_3 = 0;
+                var_3 += 1;
+            } while (--var_2 != 0);
         }
         sp29C = sp298;
         sp1F0 = D_00637430;
         sp1F0 = arg0 - 0x40;
         unksp1F4 = arg1 - 0x40;
         sp200 = (s128) sp1F0;
-        D_00887300[0](0xE, 0);
-        D_00887300[0](0xC, 1);
-        D_00887300[0](7, 2);
-        D_00887300[0](9, 1);
-        D_00887300[0](0x14, 1);
-        D_00887300[0](6, 0);
-        D_00887300[0](8, 1);
+        tbl[0](0xE, 0);
+        tbl[0](0xC, 1);
+        tbl[0](7, 2);
+        tbl[0](9, 1);
+        tbl[0](0x14, 1);
+        tbl[0](6, 0);
+        tbl[0](8, 1);
         func_003f6440(3, 0x71003);
         func_003f6440(2, 0x44);
         func_00489f80();
         func_0045d6e0(&sp29C, &sp200, 0, 5.0f);
         func_0048a000();
-        D_00887300[0](6, 0);
-        D_00887300[0](7, 2);
+        tbl[0](6, 0);
+        tbl[0](7, 2);
         func_003f6440(3, 0x7000D);
         func_00489f80();
         func_0025f430(var_17, arg2, 3, 0, arg7, 0, 0.0f, 0.0f, (f32) arg0, (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
@@ -733,35 +698,35 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
             func_0025f430(var_17, arg2, 0xE, 0, arg7, 0, 0.0f, 0.0f, ((float)arg0 + 69.0f * fparg1), (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
         }
         func_0048a000();
-        var_3_5 = (u8 *)(&sp290);
-        var_2_5 = 4;
-        if (var_3_5 != NULL) {
+        var_3 = (u8 *)(&sp290);
+        var_2 = 4;
+        if (var_3 != NULL) {
             do {
-                *var_3_5 = 0;
-                var_3_5 += 1;
-            } while (--var_2_5 != 0);
+                *var_3 = 0;
+                var_3 += 1;
+            } while (--var_2 != 0);
         }
         sp294 = sp290;
-        var_3_6 = (u8 *)(&sp1D0);
-        var_2_6 = 0x10;
-        if (var_3_6 != NULL) {
+        var_3 = (u8 *)(&sp1D0);
+        var_2 = 0x10;
+        if (var_3 != NULL) {
             do {
-                *var_3_6 = 0;
-                var_3_6 += 1;
-            } while (--var_2_6 != 0);
+                *var_3 = 0;
+                var_3 += 1;
+            } while (--var_2 != 0);
         }
         sp1D0 = arg5;
         sp1D4 = 0;
         sp1D8 = arg6;
         sp1DC = 0x1E0;
         sp1E0 = (s128) sp1D0;
-        D_00887300[0](0xE, 0);
-        D_00887300[0](0xC, 1);
-        D_00887300[0](7, 2);
-        D_00887300[0](9, 1);
-        D_00887300[0](0x14, 1);
-        D_00887300[0](6, 0);
-        D_00887300[0](8, 1);
+        tbl[0](0xE, 0);
+        tbl[0](0xC, 1);
+        tbl[0](7, 2);
+        tbl[0](9, 1);
+        tbl[0](0x14, 1);
+        tbl[0](6, 0);
+        tbl[0](8, 1);
         func_003f6440(3, 0x31003);
         func_003f6440(2, 0x44);
         func_00489f80();
@@ -774,131 +739,131 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
         func_00260e60(arg0, arg1, arg2, temp_30, 0, spCC, arg7, 1, 10.0f, fparg1, fparg2);
         return;
     }
-    0.0f;
+    (void)fparg0;
     arg0 = (s32)((float)arg0 + 47.0f * (1.0f - fparg1));
-    var_3_7 = (u8 *)(&sp288);
-    var_2_7 = 4;
-    if (var_3_7 != NULL) {
+    var_3 = (u8 *)(&sp288);
+    var_2 = 4;
+    if (var_3 != NULL) {
         do {
-            *var_3_7 = 0;
-            var_3_7 += 1;
-        } while (--var_2_7 != 0);
+            *var_3 = 0;
+            var_3 += 1;
+        } while (--var_2 != 0);
     }
     sp28C = sp288;
     sp1B0 = D_00637430;
     sp1B0 = arg0 - 0x40;
     unksp1B4 = arg1 - 0x40;
     sp1C0 = (s128) sp1B0;
-    D_00887300[0](0xE, 0);
-    D_00887300[0](0xC, 1);
-    D_00887300[0](7, 2);
-    D_00887300[0](9, 1);
-    D_00887300[0](0x14, 1);
-    D_00887300[0](6, 0);
-    D_00887300[0](8, 1);
+    tbl[0](0xE, 0);
+    tbl[0](0xC, 1);
+    tbl[0](7, 2);
+    tbl[0](9, 1);
+    tbl[0](0x14, 1);
+    tbl[0](6, 0);
+    tbl[0](8, 1);
     func_003f6440(3, 0x71003);
     func_003f6440(2, 0x44);
     func_00489f80();
     func_0045d6e0(&sp28C, &sp1C0, 0, 10.0f);
     func_0048a000();
-    var_3_8 = (u8 *)(&sp280);
-    var_2_8 = 4;
-    if (var_3_8 != NULL) {
+    var_3 = (u8 *)(&sp280);
+    var_2 = 4;
+    if (var_3 != NULL) {
         do {
-            *var_3_8 = 0;
-            var_3_8 += 1;
-        } while (--var_2_8 != 0);
+            *var_3 = 0;
+            var_3 += 1;
+        } while (--var_2 != 0);
     }
     sp284 = sp280;
-    var_3_9 = (u8 *)(&sp190);
-    var_2_9 = 0x10;
-    if (var_3_9 != NULL) {
+    var_3 = (u8 *)(&sp190);
+    var_2 = 0x10;
+    if (var_3 != NULL) {
         do {
-            *var_3_9 = 0;
-            var_3_9 += 1;
-        } while (--var_2_9 != 0);
+            *var_3 = 0;
+            var_3 += 1;
+        } while (--var_2 != 0);
     }
     sp190 = arg5;
     sp194 = 0;
     sp198 = arg6;
     sp19C = 0x1E0;
     sp1A0 = (s128) sp190;
-    D_00887300[0](0xE, 0);
-    D_00887300[0](0xC, 1);
-    D_00887300[0](7, 2);
-    D_00887300[0](9, 1);
-    D_00887300[0](0x14, 1);
-    D_00887300[0](6, 0);
-    D_00887300[0](8, 1);
+    tbl[0](0xE, 0);
+    tbl[0](0xC, 1);
+    tbl[0](7, 2);
+    tbl[0](9, 1);
+    tbl[0](0x14, 1);
+    tbl[0](6, 0);
+    tbl[0](8, 1);
     func_003f6440(3, 0x31003);
     func_003f6440(2, 0x44);
     func_00489f80();
     func_0045d6e0(&sp284, &sp1A0, 0, 1.0f);
     func_0048a000();
-    D_00887300[0](6, 1);
-    D_00887300[0](7, 2);
+    tbl[0](6, 1);
+    tbl[0](7, 2);
     func_003f6440(3, 0x3000D);
     func_0025f430(var_17, arg2, 0xF, 0, arg7, 0, 0.0f, 0.0f, (f32) arg0, (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
-    var_3_10 = (u8 *)(&sp278);
-    var_2_10 = 4;
-    if (var_3_10 != NULL) {
+    var_3 = (u8 *)(&sp278);
+    var_2 = 4;
+    if (var_3 != NULL) {
         do {
-            *var_3_10 = 0;
-            var_3_10 += 1;
-        } while (--var_2_10 != 0);
+            *var_3 = 0;
+            var_3 += 1;
+        } while (--var_2 != 0);
     }
     sp27C = sp278;
     sp170 = D_00637430;
     sp170 = arg0 - 0x40;
     unksp174 = arg1 - 0x40;
     sp180 = (s128) sp170;
-    D_00887300[0](0xE, 0);
-    D_00887300[0](0xC, 1);
-    D_00887300[0](7, 2);
-    D_00887300[0](9, 1);
-    D_00887300[0](0x14, 1);
-    D_00887300[0](6, 0);
-    D_00887300[0](8, 1);
+    tbl[0](0xE, 0);
+    tbl[0](0xC, 1);
+    tbl[0](7, 2);
+    tbl[0](9, 1);
+    tbl[0](0x14, 1);
+    tbl[0](6, 0);
+    tbl[0](8, 1);
     func_003f6440(3, 0x71003);
     func_003f6440(2, 0x44);
     func_00489f80();
     func_0045d6e0(&sp27C, &sp180, 0, 5.0f);
     func_0048a000();
-    D_00887300[0](6, 0);
-    D_00887300[0](7, 2);
+    tbl[0](6, 0);
+    tbl[0](7, 2);
     func_003f6440(3, 0x7000D);
     func_00489f80();
     func_0025f430(var_17, arg2, 0xF, 0, arg7, 0, 0.0f, 0.0f, (f32) arg0, (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
     func_0048a000();
-    var_3_11 = (u8 *)(&sp270);
-    var_2_11 = 4;
-    if (var_3_11 != NULL) {
+    var_3 = (u8 *)(&sp270);
+    var_2 = 4;
+    if (var_3 != NULL) {
         do {
-            *var_3_11 = 0;
-            var_3_11 += 1;
-        } while (--var_2_11 != 0);
+            *var_3 = 0;
+            var_3 += 1;
+        } while (--var_2 != 0);
     }
     sp274 = sp270;
-    var_3_12 = (u8 *)(&sp150);
-    var_2_12 = 0x10;
-    if (var_3_12 != NULL) {
+    var_3 = (u8 *)(&sp150);
+    var_2 = 0x10;
+    if (var_3 != NULL) {
         do {
-            *var_3_12 = 0;
-            var_3_12 += 1;
-        } while (--var_2_12 != 0);
+            *var_3 = 0;
+            var_3 += 1;
+        } while (--var_2 != 0);
     }
     sp150 = arg5;
     sp154 = 0;
     sp158 = arg6;
     sp15C = 0x1E0;
     sp160 = (s128) sp150;
-    D_00887300[0](0xE, 0);
-    D_00887300[0](0xC, 1);
-    D_00887300[0](7, 2);
-    D_00887300[0](9, 1);
-    D_00887300[0](0x14, 1);
-    D_00887300[0](6, 0);
-    D_00887300[0](8, 1);
+    tbl[0](0xE, 0);
+    tbl[0](0xC, 1);
+    tbl[0](7, 2);
+    tbl[0](9, 1);
+    tbl[0](0x14, 1);
+    tbl[0](6, 0);
+    tbl[0](8, 1);
     func_003f6440(3, 0x31003);
     func_003f6440(2, 0x44);
     func_00489f80();
@@ -909,144 +874,141 @@ void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, 
     } else {
         func_00260e60(arg0, arg1, arg2, temp_30, 1, spCC, arg7, 1, 10.0f, fparg1, fparg2);
     }
-    var_3_13 = (u8 *)(&sp268);
-    var_2_13 = 4;
-    if (var_3_13 != NULL) {
+    var_3 = (u8 *)(&sp268);
+    var_2 = 4;
+    if (var_3 != NULL) {
         do {
-            *var_3_13 = 0;
-            var_3_13 += 1;
-        } while (--var_2_13 != 0);
+            *var_3 = 0;
+            var_3 += 1;
+        } while (--var_2 != 0);
     }
     sp26C = sp268;
     sp130 = D_00637430;
     sp130 = arg0 - 0x40;
     unksp134 = arg1 - 0x40;
     sp140 = (s128) sp130;
-    D_00887300[0](0xE, 0);
-    D_00887300[0](0xC, 1);
-    D_00887300[0](7, 2);
-    D_00887300[0](9, 1);
-    D_00887300[0](0x14, 1);
-    D_00887300[0](6, 0);
-    D_00887300[0](8, 1);
+    tbl[0](0xE, 0);
+    tbl[0](0xC, 1);
+    tbl[0](7, 2);
+    tbl[0](9, 1);
+    tbl[0](0x14, 1);
+    tbl[0](6, 0);
+    tbl[0](8, 1);
     func_003f6440(3, 0x71003);
     func_003f6440(2, 0x44);
     func_00489f80();
     func_0045d6e0(&sp26C, &sp140, 0, 10.0f);
     func_0048a000();
-    var_3_14 = (u8 *)(&sp260);
-    var_2_14 = 4;
-    if (var_3_14 != NULL) {
+    var_3 = (u8 *)(&sp260);
+    var_2 = 4;
+    if (var_3 != NULL) {
         do {
-            *var_3_14 = 0;
-            var_3_14 += 1;
-        } while (--var_2_14 != 0);
+            *var_3 = 0;
+            var_3 += 1;
+        } while (--var_2 != 0);
     }
     sp264 = sp260;
-    var_3_15 = (u8 *)(&sp110);
-    var_2_15 = 0x10;
-    if (var_3_15 != NULL) {
+    var_3 = (u8 *)(&sp110);
+    var_2 = 0x10;
+    if (var_3 != NULL) {
         do {
-            *var_3_15 = 0;
-            var_3_15 += 1;
-        } while (--var_2_15 != 0);
+            *var_3 = 0;
+            var_3 += 1;
+        } while (--var_2 != 0);
     }
     sp110 = arg5;
     sp114 = 0;
     sp118 = arg6;
     sp11C = 0x1E0;
     sp120 = (s128) sp110;
-    D_00887300[0](0xE, 0);
-    D_00887300[0](0xC, 1);
-    D_00887300[0](7, 2);
-    D_00887300[0](9, 1);
-    D_00887300[0](0x14, 1);
-    D_00887300[0](6, 0);
-    D_00887300[0](8, 1);
+    tbl[0](0xE, 0);
+    tbl[0](0xC, 1);
+    tbl[0](7, 2);
+    tbl[0](9, 1);
+    tbl[0](0x14, 1);
+    tbl[0](6, 0);
+    tbl[0](8, 1);
     func_003f6440(3, 0x31003);
     func_003f6440(2, 0x44);
     func_00489f80();
     func_0045d6e0(&sp264, &sp120, 0, 1.0f);
     func_0048a000();
-    D_00887300[0](6, 1);
-    D_00887300[0](7, 2);
+    tbl[0](6, 1);
+    tbl[0](7, 2);
     func_003f6440(3, 0x3000D);
     func_0025f430(var_17, arg2, 3, 1, arg7, 0, 0.0f, 0.0f, (f32) arg0, (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
-    var_3_16 = (u8 *)(&sp258);
-    var_2_16 = 4;
-    if (var_3_16 != NULL) {
+    var_3 = (u8 *)(&sp258);
+    var_2 = 4;
+    if (var_3 != NULL) {
         do {
-            *var_3_16 = 0;
-            var_3_16 += 1;
-        } while (--var_2_16 != 0);
+            *var_3 = 0;
+            var_3 += 1;
+        } while (--var_2 != 0);
     }
     sp25C = sp258;
     spF0 = D_00637430;
     spF0 = arg0 - 0x40;
     unkspF4 = arg1 - 0x40;
     sp100 = (s128) spF0;
-    D_00887300[0](0xE, 0);
-    D_00887300[0](0xC, 1);
-    D_00887300[0](7, 2);
-    D_00887300[0](9, 1);
-    D_00887300[0](0x14, 1);
-    D_00887300[0](6, 0);
-    D_00887300[0](8, 1);
+    tbl[0](0xE, 0);
+    tbl[0](0xC, 1);
+    tbl[0](7, 2);
+    tbl[0](9, 1);
+    tbl[0](0x14, 1);
+    tbl[0](6, 0);
+    tbl[0](8, 1);
     func_003f6440(3, 0x71003);
     func_003f6440(2, 0x44);
     func_00489f80();
     func_0045d6e0(&sp25C, &sp100, 0, 5.0f);
     func_0048a000();
-    D_00887300[0](6, 0);
-    D_00887300[0](7, 2);
+    tbl[0](6, 0);
+    tbl[0](7, 2);
     func_003f6440(3, 0x7000D);
     func_00489f80();
     func_0025f430(var_17, arg2, 3, 1, arg7, 0, 0.0f, 0.0f, (f32) arg0, (f32) arg1, 10.0f, 0.0f, fparg1, fparg2);
     func_0048a000();
-    var_3_17 = (u8 *)(&sp250);
-    var_2_17 = 4;
-    if (var_3_17 != NULL) {
+    var_3 = (u8 *)(&sp250);
+    var_2 = 4;
+    if (var_3 != NULL) {
         do {
-            *var_3_17 = 0;
-            var_3_17 += 1;
-        } while (--var_2_17 != 0);
+            *var_3 = 0;
+            var_3 += 1;
+        } while (--var_2 != 0);
     }
     sp254 = sp250;
-    var_3_18 = (u8 *)(&spD0);
-    var_2_18 = 0x10;
-    if (var_3_18 != NULL) {
+    var_3 = (u8 *)(&spD0);
+    var_2 = 0x10;
+    if (var_3 != NULL) {
         do {
-            *var_3_18 = 0;
-            var_3_18 += 1;
-        } while (--var_2_18 != 0);
+            *var_3 = 0;
+            var_3 += 1;
+        } while (--var_2 != 0);
     }
     spD0 = arg5;
     spD4 = 0;
     spD8 = arg6;
     spDC = 0x1E0;
     spE0 = (s128) spD0;
-    D_00887300[0](0xE, 0);
-    D_00887300[0](0xC, 1);
-    D_00887300[0](7, 2);
-    D_00887300[0](9, 1);
-    D_00887300[0](0x14, 1);
-    D_00887300[0](6, 0);
-    D_00887300[0](8, 1);
+    tbl[0](0xE, 0);
+    tbl[0](0xC, 1);
+    tbl[0](7, 2);
+    tbl[0](9, 1);
+    tbl[0](0x14, 1);
+    tbl[0](6, 0);
+    tbl[0](8, 1);
     func_003f6440(3, 0x31003);
     func_003f6440(2, 0x44);
     func_00489f80();
     func_0045d6e0(&sp254, &spE0, 0, 1.0f);
     func_0048a000();
     if (arg_sp0 != 0) {
-        func_00260e60(arg0, arg1, arg2, (spB0 & 0xF), 2, arg_sp0, arg7, 1, 10.0f, fparg1, fparg2);
+        func_00260e60(arg0, arg1, arg2, ((s32)spB0 & 0xF), 2, arg_sp0, arg7, 1, 10.0f, fparg1, fparg2);
         return;
     }
-    func_00260e60(arg0, arg1, arg2, (spB0 & 0xF), 2, spCC, arg7, 1, 10.0f, fparg1, fparg2);
+    func_00260e60(arg0, arg1, arg2, ((s32)spB0 & 0xF), 2, spCC, arg7, 1, 10.0f, fparg1, fparg2);
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00261560);
-#endif
 #pragma opt_propagation off
 static inline void calendarZeroBytes(void *memory, s32 count)
 {
