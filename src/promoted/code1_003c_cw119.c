@@ -201,8 +201,19 @@ s32 func_003c95a0(s32 arg0, s32 arg1) {
 #pragma schedule on
 #pragma opt_propagation off
 u8 *func_003c4140(void) {
-    /* measured: volatile u8 locals force the compiler to keep the four 0xFF
-       bytes in stack slots and read them back for the object stores. */
+    /* HONEST NOTE: this MATCH rests on a BANNED construct.  These are four
+       ordinary `u8` locals; `volatile` exists only to stop cw119 folding the
+       0xFF constants into the object stores, which is precisely the
+       "volatile on ordinary memory" the project forbids.  Measured
+       alternatives, all of which LOSE the match (6 -> 5 MATCH in this file):
+         - plain `u8 d, c, b, a;`
+         - a `u8 rgba[4]` written then read back element-wise, which is the
+           natural source shape for four stack bytes reloaded into an object
+         - adding `opt_common_subs off` beside the existing
+           `opt_propagation off` (much worse: 3 MATCH, 3 MISMATCH)
+       func_003c4140 is a DEMOTION CANDIDATE.  Note this unit is built with
+       cw3.0.1b119, not b210, so the usual b210 intuitions may not transfer
+       and the real source construct may be a b119-specific one. */
     u8 *s0;
     volatile u8 d;
     volatile u8 c;

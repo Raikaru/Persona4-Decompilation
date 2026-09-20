@@ -7422,6 +7422,23 @@ scan:
    (4751 -> 4473) to land inside, the outer switch kept whole through 0x89 (retail sltiu 0x15, no empty arms), inner 0-2 switches
    kept as jtbl, the m2c arg-count hallucinations cut back, the float bit patterns collapsed (0x42000000->32.0f etc.),
    and D_008C027A/024E to [0]. */
+/* measured: seven `s64` temps were forcing MWCC's `__floatdisf` runtime call
+   where retail converts in 32 bits.  Six are the sign-extend-from-16 idiom
+   `(s64)(x << 0x30) >> 0x30` (temp_16_2, temp_21_4, temp_16_11, temp_16_14,
+   temp_16_29, temp_16_36), rewritten as the `s32` they are with an `(s16)`
+   cast on the right-hand side; the seventh, spE0, was a gratuitous `(s64)`
+   cast around an `s32` sum.
+   Retail evidence, asm/nonmatchings/y_fclCombine/func_00304580.s: at
+   0x00304F7C the sequence is `addiu $2, $19, 0x149` / `mtc1 $2, $f0` / nop /
+   `cvt.s.w $f12, $f0`, a 32-bit integer-to-float conversion inline with NO
+   call between the integer arithmetic and the float use - a `__floatdisf`
+   would need a `jal` and its argument setup right there.  All 33 conversions
+   in the retail listing are `cvt.s.w`.
+   Helpers 3 -> 0.  Object 4473 -> 4477 against retail 4557, so this floor is
+   the SHORTER-than-retail case: the count is not the test (see the amended
+   rule - a helper call is longer than the `mtc1`/`cvt.s.w` pair that replaces
+   it, so removal cannot move a short object toward retail).  It moved 4 the
+   right way anyway.  Edits 2299 -> 2279, differing words 3791 -> 3778. */
 // FUN_00304580 NONMATCHING
 #ifdef NON_MATCHING
 void func_00304580(u8 *arg0) {
@@ -7603,7 +7620,7 @@ void func_00304580(u8 *arg0) {
     s32 sp11C;
     u8 *sp100;
     u8 *spF0;
-    s64 spE0;
+    s32 spE0;
     u8 *spD0;
     f32 temp_f0;
     f32 temp_f20;
@@ -7644,11 +7661,11 @@ void func_00304580(u8 *arg0) {
     s32 var_21;
     s32 var_21_2;
     s32 var_3;
-    s64 temp_16_11;
-    s64 temp_16_14;
-    s64 temp_16_29;
-    s64 temp_16_2;
-    s64 temp_16_36;
+    s32 temp_16_11;
+    s32 temp_16_14;
+    s32 temp_16_29;
+    s32 temp_16_2;
+    s32 temp_16_36;
     s64 temp_16_37;
     s64 temp_16_4;
     s64 temp_16_7;
@@ -7661,7 +7678,7 @@ void func_00304580(u8 *arg0) {
     s64 temp_18_8;
     s64 temp_18_9;
     s64 temp_19_2;
-    s64 temp_21_4;
+    s32 temp_21_4;
     s64 temp_21_7;
     s64 temp_21_8;
     s64 temp_22_3;
@@ -7989,7 +8006,7 @@ loop_60:
 loop_66:
                 if (((s64) (var_18 << 0x30) >> 0x30) < (func_0010b5b0() & 0xFFFF)) {
                     sp11C = func_0046d200(func_00331560(), 0x77);
-                    temp_16_2 = (s64) (var_18 << 0x30) >> 0x30;
+                    temp_16_2 = (s16)var_18;
                     temp_21 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_17)+(0x184))), (s64) (var_18 << 0x38) >> 0x38));
                     func_002b2970(&sp288, (f32) ((temp_16_2 * 0x17) + 0x149), 104.0f);
                     func_002b2a60(col2F8, 0, 0, 0x99, 0xFFU);
@@ -8053,9 +8070,9 @@ loop_75:
                         func_002b83e0((u8 *)temp_18_2, sp258, (*(s32 *)col2F0), (*(s32 *)col2EC), 0xFFU, 0xFFU, 3, 0, 32.0f, 159.0f, 1, 0);
                         var_18_2 = 0;
                         temp_16_8 = (u8 *)(temp_17 + (temp_16_7 * 4));
-                        spE0 = (s64)(temp_21_3 + 0x7F);
+                        spE0 = temp_21_3 + 0x7F;
 loop_73:
-                        temp_21_4 = (s64) (var_18_2 << 0x30) >> 0x30;
+                        temp_21_4 = (s16)var_18_2;
                         if (temp_21_4 < (func_0010b5b0() & 0xFFFF)) {
                             spD0 = func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_8)+(0x154))), (s64) (var_18_2 << 0x38) >> 0x38);
                             func_002b2970(&sp250, (f32) ((temp_21_4 * 0x17) + 0x149), (f32) spE0);
@@ -8133,7 +8150,7 @@ loop_85:
     case 0x7A:                                      /* switch 1 */
         var_19_3 = 0;
 loop_97:
-        temp_16_11 = (s64) (var_19_3 << 0x30) >> 0x30;
+        temp_16_11 = (s16)var_19_3;
         if (temp_16_11 < (func_0010b5b0() & 0xFFFF)) {
             temp_18_6 = (s64) (var_19_3 << 0x30) >> 0x30;
             temp_21_7 = temp_18_6 + 0x21C;
@@ -8175,7 +8192,7 @@ loop_97:
         func_00275820(temp_16_13, 0, 2, ((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, (s64) (*(s8 *)((u8 *)(temp_18_7)+(0x128)))))+(2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp160, sp164, 43.0f);
         var_19_4 = 0;
 loop_110:
-        temp_16_14 = (s64) (var_19_4 << 0x30) >> 0x30;
+        temp_16_14 = (s16)var_19_4;
         if (temp_16_14 < (func_0010b5b0() & 0xFFFF)) {
             func_0031d630(arg0, (s64) (var_19_4 << 0x38) >> 0x38, (*(s8 *)((u8 *)(temp_17)+(0x128))), (*(s8 *)((u8 *)(temp_17)+(0x129))), 0);
             if ((((s64) (func_002b6970((*(s16 *)((u8 *)(func_002b6150((s64) ((temp_16_14 + 0x270) << 0x30) >> 0x30))+(0x10))), 1) << 0x30) >> 0x30) == 0) && ((*(s8 *)((u8 *)(temp_17)+(0x128))) != temp_16_14) && ((*(s8 *)((u8 *)((func_002e4870(0) + ((*(s8 *)((u8 *)(temp_17)+(0x128))) * 0xC) + temp_16_14))+(0x14))) > 0)) {
@@ -8472,7 +8489,7 @@ loop_155:
         func_00275820(temp_16_28, 0, 2, ((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, (s64) (*(s8 *)((u8 *)(temp_18_13)+(0x128)))))+(2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp148, sp14C, 43.0f);
         var_19_5 = 0;
 loop_165:
-        temp_16_29 = (s64) (var_19_5 << 0x30) >> 0x30;
+        temp_16_29 = (s16)var_19_5;
         if (temp_16_29 < (func_0010b5b0() & 0xFFFF)) {
             func_0031d630(arg0, (s64) (var_19_5 << 0x38) >> 0x38, (*(s8 *)((u8 *)(temp_17)+(0x128))), (*(s8 *)((u8 *)(temp_17)+(0x129))), 0);
             if (temp_16_29 == (*(s16 *)((u8 *)(temp_17)+(0x11E)))) {
@@ -8667,7 +8684,7 @@ loop_210:
         func_00275820(temp_16_35, 0, 2, ((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, (s64) (*(s8 *)((u8 *)(temp_18_15)+(0x128)))))+(2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 111.0f + sp140, sp144, 43.0f);
         var_19_6 = 0;
 loop_232:
-        temp_16_36 = (s64) (var_19_6 << 0x30) >> 0x30;
+        temp_16_36 = (s16)var_19_6;
         if (temp_16_36 < (func_0010b5b0() & 0xFFFF)) {
             func_0031d630(arg0, (s64) (var_19_6 << 0x38) >> 0x38, (*(s8 *)((u8 *)(temp_17)+(0x128))), (*(s8 *)((u8 *)(temp_17)+(0x129))), 0);
             if (((s64) (func_002b6970((*(s16 *)((u8 *)(func_002b6150((s64) ((temp_16_36 + 0x270) << 0x30) >> 0x30))+(0x10))), 1) << 0x30) >> 0x30) == 0) {
