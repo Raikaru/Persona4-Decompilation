@@ -3127,12 +3127,12 @@ void func_0021a7b0(u8 *arg1) {
     f32 spB8;
     s32 spA8;
     f32 spA0;
-    u8 sp80[64];
-    u8 spC0[64];
-    u8 sp100[64];
-    u8 sp140[64];
-    u8 sp180[64];
     u8 sp1C0[64];
+    u8 sp180[64];
+    u8 sp140[64];
+    u8 sp100[64];
+    u8 spC0[64];
+    u8 sp80[64];
     u8 sp60[24];
     f32 temp_f0;
     f32 temp_f20;
@@ -3141,8 +3141,7 @@ void func_0021a7b0(u8 *arg1) {
     f32 var_f1_5;
     f32 var_f24;
     f32 ySum;
-    f32 m10;
-    f32 n95;
+    s32 var_16;
     s32 temp_16;
     s32 temp_4;
     s32 *temp_22;
@@ -3161,7 +3160,6 @@ void func_0021a7b0(u8 *arg1) {
             }
         }
         temp_16 = *(u16 *)(arg1 + 4);
-        n95 = 95.0f;
         func_00201350();
         func_002012d0((u8 *)temp_22, 0.0f, 0.0f);
         if (*(u16 *)(arg1 + 0) & 4) {
@@ -3176,7 +3174,7 @@ void func_0021a7b0(u8 *arg1) {
         } else {
             var_f24 = 1.0f;
         }
-        ySum = n95 + var_f21;
+        ySum = 95.0f + var_f21;
         if (!(var_f24 <= 0.0f)) {
             u8 *var_6 = D_00628FA0;
             u8 *var_5 = sp60;
@@ -3194,7 +3192,7 @@ void func_0021a7b0(u8 *arg1) {
                 *(s16 *)(var_5 + 2) = (s16)t22;
                 var_5 += 4;
             } while (var_4 > 0);
-            *(f32 *)(sp80 + 4) = n95;
+            *(f32 *)(sp80 + 0) = -10.0f;
             *(f32 *)(sp80 + 4) = 95.0f;
             *(f32 *)(sp80 + 8) = temp_f20;
             *(f32 *)(sp80 + 0x18) = temp_f0;
