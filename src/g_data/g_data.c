@@ -65,7 +65,8 @@ extern u8 D_007981CC[];
 
 extern u8 D_0079BE2C[];
 
-extern void func_00232a40(void);
+extern s32 func_00232a40(s32 arg0);
+extern s32 func_0023ddc0(u8* arg0, s32 arg1);
 
 extern void func_0010b610(s32 arg0);
 
@@ -2431,9 +2432,9 @@ u8 *func_0010f4f0(s32 arg0) {
 }
 
 // FUN_0010F540
-void func_0010f540(void)
+s32 func_0010f540(s32 arg0)
 {
-    func_00232a40();
+    return func_00232a40(arg0);
 }
 
 // FUN_0010F560
@@ -2471,7 +2472,7 @@ u32 func_0010f600(s16 arg0, s32 arg1)
 }
 
 // FUN_0010F6A0
-void func_0010f6a0(s16 arg0, u32 arg1)
+s32 func_0010f6a0(s16 arg0, u32 arg1)
 {
     u8* ptr;
     u16 v;
@@ -2487,7 +2488,7 @@ void func_0010f6a0(s16 arg0, u32 arg1)
     }
     v = *(u16*)(ptr + 2);
     K_ASSERT(v != 0 && v < 0xB, 0xE54);
-    func_0023ddc0((u32)ptr, arg1);
+    return func_0023ddc0(ptr, arg1);
 }
 
 // FUN_0010F770
@@ -2531,7 +2532,7 @@ u16 func_0010f8c0(s32 arg0)
 }
 
 // FUN_0010F930
-void func_0010f930(s16 arg0, s16 arg1, u32 arg2, u32 arg3)
+s32 func_0010f930(s16 arg0, s16 arg1, u32 arg2, u32 arg3)
 {
     u8* ptr1;
     u8* ptr2;
@@ -2555,7 +2556,7 @@ void func_0010f930(s16 arg0, s16 arg1, u32 arg2, u32 arg3)
         K_ASSERT(arg1 < 0xB, 0x234);
         ptr2 = (u8*)D_00796E50 + (arg1 - 2) * 0x88 + 4;
     }
-    func_0023a1e0(arg2, ptr1, ptr2, arg3);
+    return func_0023a1e0(arg2, ptr1, ptr2, arg3);
 }
 
 // FUN_0010FA80
