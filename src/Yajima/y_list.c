@@ -537,6 +537,12 @@ INCLUDE_ASM("asm/nonmatchings/y_list", func_002e2a10);
    loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
    was ever the right one, so each loop is measured separately rather than converting
    them all. */
+/* measured 002e3560 (owner, 2026-09-19): fnalign **557 -> 554 edits**, count
+   711 -> 708 against retail 715, converting a SECOND constant-bound `for` loop
+   to `do { } while` after the first conversion was already banked.
+   The lever is iterative, which the first sweep hid: it converts the single best loop
+   per function, so re-running it after installing finds the next one.  The third pass
+   improved 14 more floors, `func_001ed700` by 89 edits on its own. */
 // FUN_002E3560 NONMATCHING
 #ifdef NON_MATCHING
 void func_002e3560(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
@@ -657,7 +663,8 @@ void func_002e3560(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
         }
         break;
     case 3:
-        for (i = 0; i < 0x600; i++) {
+        i = 0;
+        do {
             entry = p + ((s32)i * 2);
             *(s16 *)(entry + 0x0E) = 0;
             p = *(u8 **)(arg0 + 0x38);
@@ -681,7 +688,8 @@ void func_002e3560(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
                 count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
                 *(s16 *)(p + 2) = count;
             }
-        }
+            i++;
+        } while (i < 0x600);
         break;
     case 4:
         count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
