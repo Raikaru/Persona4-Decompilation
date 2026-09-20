@@ -2133,10 +2133,7 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
     s8 spEE;
     s8 spED;
     u8 spEC;
-    f32 spDC;
-    f32 spD8;
-    f32 spD4;
-    f32 spD0;
+    Quad4 spD;
     f32 f21;
     f32 f22;
     f32 f23;
@@ -2267,8 +2264,8 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
                 a = arg2 - 9;
             }
             f30 = 9.0f + fparg2;
-            f29 = (49.0f + fparg1) - (21.0f * fparg3);
-            f28 = (53.0f + fparg0) - (53.0f * fparg3);
+            f29 = (49.0f + fparg1) - (32.0f * fparg3);
+            f28 = (53.0f + fparg0) - (70.0f * fparg3);
             func_0025f430(col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f28, f29, f30, 30.0f, fparg3, fparg3);
             tmp = 40.0f * fparg3;
             func_0025f430(col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, ((s32)(((s64)((0.0f - tmp))) << 0x30 >> 0x30)), 0, f28 + tmp, f29, f30, 30.0f, fparg3, fparg3);
@@ -2307,8 +2304,8 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
                 a = arg2 - 9;
             }
             f30 = 10.0f + fparg2;
-            f29 = (49.0f + fparg1) - (21.0f * fparg3);
-            f28 = (53.0f + fparg0) - (53.0f * fparg3);
+            f29 = (49.0f + fparg1) - (32.0f * fparg3);
+            f28 = (53.0f + fparg0) - (70.0f * fparg3);
             func_0025f430(col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f28, f29, f30, 30.0f, fparg3, fparg3);
             tmp = 40.0f * fparg3;
             func_0025f430(col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, ((s32)(((s64)((0.0f - tmp))) << 0x30 >> 0x30)), 0, f28 + tmp, f29, f30, 30.0f, fparg3, fparg3);
@@ -2428,7 +2425,7 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
     }
     func_0048a000();
     setState = (void *)D_00887300;
-    p = (u8 *)(&spD0);
+    p = (u8 *)(&spD);
     n = 0x10;
     if (p != NULL) {
         do {
@@ -2438,11 +2435,11 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
         } while (n != 0);
     }
     tmp = 0.5f * (160.0f * (1.0f - fparg3));
-    spD0 = (fparg0 - 16.0f) + tmp;
-    spD4 = (fparg1 - 16.0f) + tmp;
+    spD.a = (s32)((fparg0 - 16.0f) + tmp);
+    spD.b = (s32)((fparg1 - 16.0f) + tmp);
     tmp = 160.0f * fparg3;
-    spD8 = tmp;
-    spDC = tmp;
+    spD.c = (s32)tmp;
+    spD.d = (s32)tmp;
     (*(void (**)(s32, s32))setState)(0xE, 0);
     (*(void (**)(s32, s32))setState)(0xC, 1);
     (*(void (**)(s32, s32))setState)(7, 2);
@@ -2454,7 +2451,7 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
     spED = (s8) (col >> 0x10);
     spEE = (s8) (col >> 8);
     spEF = (u8) col;
-    func_0045d6e0(&spEC, &spD0, fparg2, 0);
+    func_0045d6e0(&spEC, &spD, fparg2, 0);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a7920);
