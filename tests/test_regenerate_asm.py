@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sys
 import tempfile
 import unittest
@@ -9,6 +10,16 @@ TOOLS = Path(__file__).resolve().parents[1] / "tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 import regenerate_asm as regeneration
+
+
+class ManifestInputTests(unittest.TestCase):
+    def test_committed_generator_inputs_match_the_audited_manifest(self) -> None:
+        root = TOOLS.parent
+        manifest = json.loads((root / regeneration.MANIFEST).read_text(encoding="utf-8"))
+        for relative, expected in manifest["inputs"].items():
+            with self.subTest(path=relative):
+                self.assertEqual(regeneration.digest((root / relative).read_bytes()), expected,
+                                 "Audit generator changes and update the manifest before publishing")
 
 
 class OutputProtectionTests(unittest.TestCase):
