@@ -911,6 +911,7 @@ void func_001f14f0(u8 *arg0)
     extern s32 func_001fb170(s32);
     extern s32 func_001fb1f0(u8 *, s32);
     extern s32 func_001fb360(u8 *, s32);
+    extern s32 func_00242990(u8 *, s32);
 
     extern u8 iGpffffb3cc[];
     extern f32 fGpffff812c;
@@ -1264,7 +1265,7 @@ void func_001f14f0(u8 *arg0)
         if (temp_v6) {
           temp_v10 = *(unsigned short *)(pbStack_4 + 0x3f4);
           if (temp_v10 == 0x240) {
-            temp_v10 = func_00242990(*(unsigned int *)(*(int *)(pbStack_4 + 0x30) + 0xa64),temp_v2);
+            temp_v10 = func_00242990((u8 *)*(unsigned int *)(*(int *)(pbStack_4 + 0x30) + 0xa64),temp_v2);
           }
           if (temp_v10 < 0) {
             temp_v7 = func_001f12b0(pbStack_4,pbVar24,temp_v14,temp_v24,1);
