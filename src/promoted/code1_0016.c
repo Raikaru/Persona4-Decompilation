@@ -2196,7 +2196,7 @@ void func_0016bdd0(void *param_1)
         if (temp_v2) {
           temp_v10 = temp_v10 - (float)piVar1[8];
           fStack_3c = 0.0f;
-          FUN_003e40b0(&fStack_40,&fStack_40);
+          FUN_003e40b0(&fStack_38,&fStack_38);
           fStack_40 = fStack_40 * temp_v10;
           fStack_3c = fStack_3c * temp_v10;
           fStack_38 = fStack_38 * temp_v10;
@@ -2250,7 +2250,7 @@ void func_0016bdd0(void *param_1)
         fStack_88 = temp_v11 - (float)piVar1[0x33];
         fStack_5c = temp_v14;
         fStack_58 = temp_v11;
-        FUN_003e40b0(&fStack_a0,&fStack_90);
+        FUN_003e40b0(&fStack_98,&fStack_88);
         fStack_80 = (float)piVar1[0x34];
         fStack_7c = (float)piVar1[0x35];
         fStack_78 = (float)piVar1[0x36];
@@ -2418,7 +2418,7 @@ LAB_0016c5dc:
         if ((float)piVar1[8] < temp_v9) {
           temp_v9 = temp_v9 - (float)piVar1[8];
           fStack_10c = 0.0f;
-          FUN_003e40b0(&fStack_110,&fStack_110);
+          FUN_003e40b0(&fStack_108,&fStack_108);
           fStack_110 = fStack_110 * temp_v9;
           fStack_10c = fStack_10c * temp_v9;
           fStack_108 = fStack_108 * temp_v9;
@@ -2461,7 +2461,7 @@ LAB_0016c5dc:
         fStack_120 = *(float *)(temp_v8 + 0x20);
         fStack_11c = *(float *)(temp_v8 + 0x24);
         fStack_118 = *(float *)(temp_v8 + 0x28);
-        FUN_003e40b0(&fStack_120,&fStack_120);
+        FUN_003e40b0(&fStack_118,&fStack_118);
         temp_v9 = (float)piVar1[0xa3] + 55.0f;
         fStack_120 = -fStack_120 * temp_v9;
         fStack_11c = -fStack_11c * temp_v9;
@@ -2497,7 +2497,7 @@ LAB_0016c5dc:
             fStack_120 = *(float *)(temp_v8 + 0x20);
             fStack_11c = *(float *)(temp_v8 + 0x24);
             fStack_118 = *(float *)(temp_v8 + 0x28);
-            FUN_003e40b0(&fStack_120,&fStack_120);
+            FUN_003e40b0(&fStack_118,&fStack_118);
             fStack_120 = -fStack_120 * temp_v9;
             fStack_11c = -fStack_11c * temp_v9;
             fStack_118 = -fStack_118 * temp_v9;
@@ -2542,18 +2542,18 @@ LAB_0016c5dc:
           fStack_1a0 = *(float *)(temp_v8 + 0x20);
           fStack_198 = *(float *)(temp_v8 + 0x28);
           fStack_19c = 0.0f;
-          FUN_003e40b0(&fStack_1a0,&fStack_1a0);
+          FUN_003e40b0(&fStack_198,&fStack_198);
           temp_v9 = DAT_00756518;
           temp_v10 = DAT_00756514;
           fStack_190 = fStack_19c * DAT_00756518 - fStack_198 * DAT_00756514;
           fStack_18c = fStack_198 * DAT_00756510 - fStack_1a0 * DAT_00756518;
           fStack_188 = fStack_1a0 * DAT_00756514 - fStack_19c * DAT_00756510;
           temp_v14 = DAT_00756510;
-          FUN_003e40b0(&fStack_190,&fStack_190);
+          FUN_003e40b0(&fStack_188,&fStack_188);
           fStack_180 = (float)piVar1[0xad] * temp_v9 - (float)piVar1[0xae] * temp_v10;
           fStack_17c = (float)piVar1[0xae] * temp_v14 - (float)piVar1[0xac] * temp_v9;
           fStack_178 = (float)piVar1[0xac] * temp_v10 - (float)piVar1[0xad] * temp_v14;
-          FUN_003e40b0(&fStack_180,&fStack_180);
+          FUN_003e40b0(&fStack_178,&fStack_178);
           if (fStack_178 * fStack_198 + fStack_180 * fStack_1a0 + fStack_17c * fStack_19c < 0.0f) {
             fStack_180 = -fStack_180;
             fStack_17c = -fStack_17c;
@@ -2582,12 +2582,12 @@ LAB_0016c5dc:
           fStack_1b0 = fStack_15c * DAT_00756518 - fStack_158 * DAT_00756514;
           fStack_1ac = fStack_158 * DAT_00756510 - fStack_160 * DAT_00756518;
           fStack_1a8 = fStack_160 * DAT_00756514 - fStack_15c * DAT_00756510;
-          FUN_003e40b0(&fStack_1b0,&fStack_1b0);
+          FUN_003e40b0(&fStack_1a8,&fStack_1a8);
           temp_v8 = piVar1[0xb0];
           uStack_1c0 = *(unsigned int *)(temp_v8 + 0x20);
           uStack_1bc = *(unsigned int *)(temp_v8 + 0x24);
           fStack_1b8 = *(float *)(temp_v8 + 0x28);
-          FUN_003e40b0(&uStack_1c0,&uStack_1c0);
+          FUN_003e40b0(&fStack_1b8,&fStack_1b8);
           FUN_001687f0((unsigned char *)&fStack_f0,*(unsigned char **)(piVar1[0xa2] + 0x220));
           fStack_f0 = fStack_f0 + (float)piVar1[5];
           fStack_ec = fStack_ec + (float)piVar1[6];
@@ -2652,7 +2652,7 @@ LAB_0016c5dc:
             fStack_120 = *(float *)(temp_v8 + 0x20);
             fStack_11c = *(float *)(temp_v8 + 0x24);
             fStack_118 = *(float *)(temp_v8 + 0x28);
-            FUN_003e40b0(&fStack_120,&fStack_120);
+            FUN_003e40b0(&fStack_118,&fStack_118);
             fStack_120 = -fStack_120 * temp_v12;
             fStack_11c = -fStack_11c * temp_v12;
             fStack_118 = -fStack_118 * temp_v12;
@@ -2699,7 +2699,7 @@ LAB_0016c5dc:
               fStack_120 = *(float *)(temp_v8 + 0x20);
               fStack_11c = *(float *)(temp_v8 + 0x24);
               fStack_118 = *(float *)(temp_v8 + 0x28);
-              FUN_003e40b0(&fStack_120,&fStack_120);
+              FUN_003e40b0(&fStack_118,&fStack_118);
               temp_v12 = (float)piVar1[0xa5];
               fStack_120 = -fStack_120 * temp_v12;
               fStack_11c = -fStack_11c * temp_v12;
@@ -2748,7 +2748,7 @@ LAB_0016c5dc:
           fStack_120 = *(float *)(temp_v8 + 0x20);
           fStack_11c = *(float *)(temp_v8 + 0x24);
           fStack_118 = *(float *)(temp_v8 + 0x28);
-          FUN_003e40b0(&fStack_120,&fStack_120);
+          FUN_003e40b0(&fStack_118,&fStack_118);
           temp_v12 = (float)piVar1[0xa5];
           fStack_120 = -fStack_120 * temp_v12;
           fStack_11c = -fStack_11c * temp_v12;
@@ -2831,7 +2831,7 @@ LAB_0016c5dc:
         if ((float)piVar1[8] < temp_v10) {
           temp_v10 = temp_v10 - (float)piVar1[8];
           fStack_21c = 0.0f;
-          FUN_003e40b0(&fStack_220,&fStack_220);
+          FUN_003e40b0(&fStack_218,&fStack_218);
           fStack_220 = fStack_220 * temp_v10;
           fStack_21c = fStack_21c * temp_v10;
           fStack_218 = fStack_218 * temp_v10;
@@ -2876,7 +2876,7 @@ LAB_0016c5dc:
         fStack_208 = *(float *)(temp_v8 + 0x38) - fStack_1e8;
         temp_v12 = fStack_1e8;
         fStack_1ec = temp_v14;
-        FUN_003e40b0(&fStack_210,&fStack_210);
+        FUN_003e40b0(&fStack_208,&fStack_208);
         temp_v9 = (float)piVar1[0xa3];
         fStack_210 = fStack_210 * temp_v9;
         fStack_20c = fStack_20c * temp_v9;
@@ -2884,9 +2884,12 @@ LAB_0016c5dc:
         uStack_2d0[0]=fStack_1ec; uStack_2d0[1]=fStack_1f0;
         fStack_2c8 = fStack_1e8;
         temp_v8 = piVar1[0xb0];
-        fStack_2c4 = *(float *)(temp_v8 + 0x30) + fStack_210;
-        fStack_2c0 = *(float *)(temp_v8 + 0x34) + fStack_20c;
-        fStack_2bc = *(float *)(temp_v8 + 0x38) + fStack_208;
+        fStack_2c4 = *(float *)(temp_v8 + 0x30);
+        fStack_2c0 = *(float *)(temp_v8 + 0x34);
+        fStack_2bc = *(float *)(temp_v8 + 0x38);
+        fStack_2c4 = fStack_2c4 + fStack_210;
+        fStack_2c0 = fStack_2c0 + fStack_20c;
+        fStack_2bc = fStack_2bc + fStack_208;
         puVar15 = (unsigned int *)(temp_v4 + 0x10);
         puVar10 = (unsigned int *)piVar1[0xb0];
         temp_v4 = 8;
@@ -2904,12 +2907,12 @@ LAB_0016c5dc:
           fStack_230 = fStack_230 - uStack_2d0[0];
           fStack_22c = fStack_22c - uStack_2d0[1];
           fStack_228 = fStack_228 - fStack_2c8;
-          temp_v9 = (float)FUN_003e40b0(&fStack_230,&fStack_230);
+          temp_v9 = (float)FUN_003e40b0(&fStack_228,&fStack_228);
           if (0.0f < temp_v9) {
             fStack_210 = fStack_230;
             fStack_20c = fStack_22c;
             fStack_208 = fStack_228;
-            FUN_003e40b0(&fStack_210,&fStack_210);
+            FUN_003e40b0(&fStack_208,&fStack_208);
             fStack_20c = fStack_20c * temp_v9; fStack_210 = fStack_210 * temp_v9;
             fStack_208 = fStack_208 * temp_v9;
             FUN_003e0c90(piVar1[0xb0],&fStack_210,0);
@@ -2941,7 +2944,7 @@ LAB_0016c5dc:
           fStack_210 = *(float *)(temp_v4 + 0x30) - fStack_1f0;
           fStack_20c = *(float *)(temp_v4 + 0x34) - temp_v14;
           fStack_208 = *(float *)(temp_v4 + 0x38) - temp_v12;
-          FUN_003e40b0(&fStack_210,&fStack_210);
+          FUN_003e40b0(&fStack_208,&fStack_208);
           temp_v10 = (float)piVar1[0xa5];
           fStack_20c = fStack_20c * temp_v10; fStack_210 = fStack_210 * temp_v10;
           fStack_208 = fStack_208 * temp_v10;

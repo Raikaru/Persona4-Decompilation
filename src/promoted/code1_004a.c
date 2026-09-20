@@ -632,6 +632,29 @@ void func_004a5fa0(u8 *arg0) {
    it was hiding a genuine instruction surplus.  It is removed; the surplus is now visible and
    has to be written out of the body.  Any differing-word score measured with the pragma in
    place is not comparable to one measured inside the gate (handoff 7y, 7au). */
+/* measured 004a5fc0 (owner, 2026-09-20): **+12.6% OUTSIDE -> +1.3% INSIDE** the band
+   (851 -> 766 against retail 756) and fnalign **821 -> 777 edits**.
+   This is an over-long floor, the rarer case, so the lever is code the body emits that
+   retail does not.  The object had `andi +28` and `cvt.w.s +6` over retail: writing a
+   float-to-integer store as `spNN = (u16)(expr)` into a `u16` local makes b210 mask the
+   result with `andi 0xFFFF` at every site, while retail just lets `sh` truncate.
+   Casting to `(u32)` instead of `(u16)` drops the eight redundant masks.  Measured, all
+   on top of the scale hoist below:
+     `(u16)` cast, as m2c wrote it   821 edits, 851 instrs (+12.6% OUTSIDE)
+     no cast at all                  814 edits, 848 instrs (still outside)
+     `(s32)` cast                    832 edits, 716 instrs (-5.3%, outside the other way)
+     `(u32)` cast                    **777 edits, 766 instrs (+1.3% INSIDE)**
+   Note `(s32)` overshoots by removing 135 instructions - the signed conversion is a
+   different idiom, not just a different mask - so the three casts are three distinct
+   codegen shapes and the right one has to be measured, not reasoned from C semantics.
+   Hoisting `16.0f * blkC0[12]` and `[13]` out of the eight stores is worth 7 of the 44
+   (821 -> 814); here hoisting HELPS, which is the opposite of func_00375f00 and
+   func_0046b380 where retail recomputes.  Always measure the direction.
+   Swept across the other floors assigning three or more `(u16)(...)` casts: neutral
+   everywhere (func_0037da60 574, func_00381a70 298, func_0038bab0 196, func_001a4800 19,
+   all unchanged).  The lever only bites where the cast wraps a FLOAT-to-integer
+   conversion; an integer-to-u16 cast costs nothing to begin with, so there is no mask to
+   remove.  Check what is inside the parentheses before trying it. */
 // FUN_004A5FC0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -664,6 +687,8 @@ void func_004a5fc0(u8 *arg0)
     f32 sp70;
     s32 sp84;
     s32 sp80;
+    f32 sx;
+    f32 sy;
     u16 sp96;
     u16 sp94;
     u16 sp92;
@@ -769,14 +794,16 @@ main_body:
         if (*(s32 *)(arg0 + 0xD0) != 0) {
             func_00482730(*(s32 *)(arg0 + 0xD0), count);
             func_00482700(*(s32 *)(arg0 + 0xD0), blkC0);
-            sp88 = (u16)(blkC0[6] * (16.0f * blkC0[12]));
-            sp8A = (u16)(blkC0[7] * (16.0f * blkC0[13]));
-            sp8C = (u16)(blkC0[8] * (16.0f * blkC0[12]));
-            sp8E = (u16)(blkC0[7] * (16.0f * blkC0[13]));
-            sp90 = (u16)(blkC0[8] * (16.0f * blkC0[12]));
-            sp92 = (u16)(blkC0[9] * (16.0f * blkC0[13]));
-            sp94 = (u16)(blkC0[6] * (16.0f * blkC0[12]));
-            sp96 = (u16)(blkC0[8] * (16.0f * blkC0[12]));
+            sx = 16.0f * blkC0[12];
+            sy = 16.0f * blkC0[13];
+            sp88 = (u32)(blkC0[6] * sx);
+            sp8A = (u32)(blkC0[7] * sy);
+            sp8C = (u32)(blkC0[8] * sx);
+            sp8E = (u32)(blkC0[7] * sy);
+            sp90 = (u32)(blkC0[8] * sx);
+            sp92 = (u32)(blkC0[9] * sy);
+            sp94 = (u32)(blkC0[6] * sx);
+            sp96 = (u32)(blkC0[8] * sx);
             sp70 = blkC0[0];
             sp74 = blkC0[1];
             sp78 = blkC0[2] / 16.0f;
