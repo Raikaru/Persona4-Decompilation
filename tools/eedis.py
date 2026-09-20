@@ -105,6 +105,74 @@ def fpu_accumulate(word: bytes) -> str | None:
     return f"{mnemonic} {operands}"
 
 
+# Opcode 0x1C is MMI, the EE's 128-bit multimedia set.  Capstone knows none
+# of it - 2000-odd instructions across the tree - and a few words it names as
+# something else entirely (`psraw` as `sdbbp`, `mthi1` as `v3mulu`).  The
+# encoding is regular: the primary function is the low six bits, and the four
+# sub-classes MMI0/1/2/3 put a secondary opcode in the shift-amount field.
+MMI_DIRECT = {
+    0x10: ("mfhi1", "d"), 0x11: ("mthi1", "s"),
+    0x12: ("mflo1", "d"), 0x13: ("mtlo1", "s"),
+    0x18: ("mult1", "dst"), 0x19: ("multu1", "dst"),
+    0x1A: ("div1", "st"), 0x1B: ("divu1", "st"),
+    0x20: ("madd1", "dst"), 0x21: ("maddu1", "dst"),
+    0x28: ("mmi1", "dst"), 0x29: ("pcpyh", "dt"),
+    0x30: ("pmfhl", "d"), 0x31: ("pmthl", "s"),
+    0x34: ("psllh", "dta"), 0x36: ("psrlh", "dta"), 0x37: ("psrah", "dta"),
+    0x3C: ("psllw", "dta"), 0x3E: ("psrlw", "dta"), 0x3F: ("psraw", "dta"),
+}
+MMI0 = {0x01: "psubw", 0x02: "pcgtw", 0x03: "pmaxw", 0x16: "pextlh",
+        0x1A: "pextlb", 0x00: "paddw", 0x04: "paddh", 0x05: "psubh",
+        0x09: "psubb", 0x08: "paddb", 0x1E: "pext5", 0x1F: "ppac5"}
+MMI2 = {0x0E: "pcpyld", 0x12: "pand", 0x13: "pxor", 0x1F: "prot3w",
+        0x0A: "pmsubw", 0x00: "pmaddw", 0x09: "pmfhi", 0x1A: "pmflo"}
+MMI3 = {0x0E: "pcpyud", 0x12: "por", 0x13: "pnor", 0x1B: "pcpyh",
+        0x00: "pmadduw", 0x09: "pmthi", 0x1A: "pmtlo"}
+# Function 0x28 is MMI1, not MMI0.  Getting that wrong named 18 `pextub` as
+# `pextlb` - the two differ only in which half is extended, and the audit
+# caught it immediately because the listing disagreed.
+MMI1 = {0x01: "pabsw", 0x02: "pceqw", 0x03: "pminw", 0x04: "padsbh",
+        0x05: "pabsh", 0x06: "pceqh", 0x07: "pminh", 0x0A: "pceqb",
+        0x10: "padduw", 0x11: "psubuw", 0x12: "pextuw", 0x14: "padduh",
+        0x15: "psubuh", 0x16: "pextuh", 0x18: "paddub", 0x19: "psubub",
+        0x1A: "pextub", 0x1B: "qfsrv"}
+MMI_SUB = {0x08: MMI0, 0x09: MMI2, 0x28: MMI1, 0x29: MMI3}
+
+# `pmfhl`/`pmthl` carry the half-selector in the shift-amount field.
+PMFHL = {0x00: ".lw", 0x01: ".uw", 0x02: ".slw", 0x03: ".lh", 0x04: ".sh"}
+
+
+def multimedia(word: bytes) -> str | None:
+    """MMI text for WORD, or None when it is some other instruction."""
+    if len(word) < 4:
+        return None
+    value = struct.unpack("<I", word[:4])[0]
+    if value >> 26 != 0x1C:
+        return None
+    rs, rt = REGISTERS[(value >> 21) & 0x1F], REGISTERS[(value >> 16) & 0x1F]
+    rd, sa = REGISTERS[(value >> 11) & 0x1F], (value >> 6) & 0x1F
+    function = value & 0x3F
+    table = MMI_SUB.get(function)
+    if table is not None:
+        mnemonic = table.get(sa)
+        return f"{mnemonic} {rd}, {rs}, {rt}" if mnemonic else None
+    entry = MMI_DIRECT.get(function)
+    if entry is None:
+        return None
+    mnemonic, shape = entry
+    if function in (0x30, 0x31):
+        suffix = PMFHL.get(sa)
+        if suffix is None:
+            return None
+        mnemonic += suffix
+    return {"d": f"{mnemonic} {rd}",
+            "s": f"{mnemonic} {rs}",
+            "st": f"{mnemonic} {rs}, {rt}",
+            "dt": f"{mnemonic} {rd}, {rt}",
+            "dst": f"{mnemonic} {rd}, {rs}, {rt}",
+            "dta": f"{mnemonic} {rd}, {rt}, {sa}"}[shape]
+
+
 def build(capstone_disassemble):
     """Wrap a capstone-backed decoder with the EE forms it does not know.
 
@@ -122,7 +190,7 @@ def build(capstone_disassemble):
     """
 
     def disassemble(word: bytes, pc: int) -> str:
-        for decoder in (quadword_access, fpu_accumulate):
+        for decoder in (quadword_access, fpu_accumulate, multimedia):
             text = decoder(word)
             if text is not None:
                 return text
