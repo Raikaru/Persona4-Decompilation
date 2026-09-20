@@ -1643,6 +1643,7 @@ void func_002ecfc0(u8 *arg0) {
    2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
    func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
    func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
+/* measured 002ed430 (2026-09-20): deficit_scan first per assignment - retail 3764 vs object 3814 (+50, +1.3% INSIDE) so deficit -50 and every retail-only run is CROSS (227 at 0x002efe74, 103 at 0x002ef934, 98 at 0x002eea48, all > deficit). Opcode delta BOTH directions: retail has more lb +22/bnez +12/addu +12, object has more dsll32 +43/dsra32 +42/mtc1 +16/mov.s +10/lui +7/cvt.s.w +5 - the surplus names double-extends + float conversions, as on func_0026a020 (mul.s/lui/mtc1 vs add.s doubling idiom, -66 there). Fixed: func_00275820 (f32x3->s32x3, 7 calls, each saved mtc1/lui/cvt), func_002b2aa0 (s32,s32->s32,f32 + 0->0.0f at both calls), func_002b68d0 (s32->s16 first), var_16/var_16_2/var_16_3/var_17_2 s64->s16 with (s8)/(s16) loop rewrites, *func_002e4870 u8->s8 (3 sites + 0xD), and 38x (s64)(<<0x30/0x38) to (s16)/(s8) for 0x128+1/00314660/002b6150 narrow params. fnalign **2856 -> 2559 edits** (-297, +31 reloc-only), count **3814 -> 3693** (-121) vs retail 3761 trimmed (-68, -1.8% INSIDE 3648-3874). Remaining retail dsll32 +19/dsra32 +20 vs object addiu +41/move +14 are CROSS (all long runs still > deficit 68), no ABSENT. */
 // FUN_002ED430 NONMATCHING
 #ifdef NON_MATCHING
 void func_002ed430(u8 *arg0) {
