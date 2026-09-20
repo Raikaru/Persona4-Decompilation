@@ -2257,12 +2257,12 @@ void func_0029ecb0(u8 *arg0)
     *(s32 *)(state + 0x28) = *(s32 *)(state + 0x1C);
     *(s32 *)(state + 0x2C) = *(s32 *)(state + 0x20);
     *(s32 *)(state + 0x30) = *(s32 *)(state + 0x24);
-    if (*(volatile u16 *)D_008C027A & 0x4000) {
+    if (*(u16 *)D_008C027A & 0x4000) {
         do {
             value = *(s32 *)(state + 0x20) + 1;
             *(s32 *)(state + 0x20) = value;
             if (value >= 6) {
-                if (*(volatile u16 *)D_008C024E & 0x4000)
+                if (*(u16 *)D_008C024E & 0x4000)
                     *(s32 *)(state + 0x20) = 0;
                 else
                     *(s32 *)(state + 0x20) = *(s32 *)(state + 0x2C);
@@ -2271,12 +2271,12 @@ void func_0029ecb0(u8 *arg0)
             entry = code29AddOff(*(s32 *)(state + 0x1C) * 2, entry);
         } while (*(s16 *)entry < 0);
     }
-    if (*(volatile u16 *)D_008C027A & 0x1000) {
+    if (*(u16 *)D_008C027A & 0x1000) {
         do {
             value = *(s32 *)(state + 0x20) - 1;
             *(s32 *)(state + 0x20) = value;
             if (value < 0) {
-                if (*(volatile u16 *)D_008C024E & 0x1000)
+                if (*(u16 *)D_008C024E & 0x1000)
                     *(s32 *)(state + 0x20) = 5;
                 else
                     *(s32 *)(state + 0x20) = *(s32 *)(state + 0x2C);
@@ -2285,12 +2285,12 @@ void func_0029ecb0(u8 *arg0)
             entry = code29AddOff(*(s32 *)(state + 0x1C) * 2, entry);
         } while (*(s16 *)entry < 0);
     }
-    if (*(volatile u16 *)D_008C027A & 0x2000) {
+    if (*(u16 *)D_008C027A & 0x2000) {
         do {
             value = *(s32 *)(state + 0x1C) + 1;
             *(s32 *)(state + 0x1C) = value;
             if (value >= 20) {
-                if (*(volatile u16 *)D_008C024E & 0x2000)
+                if (*(u16 *)D_008C024E & 0x2000)
                     *(s32 *)(state + 0x1C) = 0;
                 else
                     *(s32 *)(state + 0x1C) = *(s32 *)(state + 0x28);
@@ -2299,12 +2299,12 @@ void func_0029ecb0(u8 *arg0)
             entry = code29AddOff(*(s32 *)(state + 0x1C) * 2, entry);
         } while (*(s16 *)entry < 0);
     }
-    if (*(volatile u16 *)D_008C027A & 0x8000) {
+    if (*(u16 *)D_008C027A & 0x8000) {
         do {
             value = *(s32 *)(state + 0x1C) - 1;
             *(s32 *)(state + 0x1C) = value;
             if (value < 0) {
-                if (*(volatile u16 *)D_008C024E & 0x8000)
+                if (*(u16 *)D_008C024E & 0x8000)
                     *(s32 *)(state + 0x1C) = 19;
                 else
                     *(s32 *)(state + 0x1C) = *(s32 *)(state + 0x28);

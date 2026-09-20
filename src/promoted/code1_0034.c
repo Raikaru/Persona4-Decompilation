@@ -236,7 +236,7 @@ void func_0034a8b0(u8 *packet, s32 data, void *callback)
         f32 farZ;
         f32 depth;
         v = (u8 *)data + ((s32)(s64)(s16)(s64)i << 6);
-        farZ = *(volatile f32 *)D_008872F8;
+        farZ = *(f32 *)D_008872F8;
         depth = *(f32 *)((u8 *)data + 0x108);
         *(f32 *)(v + 8) = farZ - depth;
         *(f32 *)(v + 0x18) = reciprocal;

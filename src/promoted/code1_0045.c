@@ -2076,11 +2076,24 @@ void func_0045d890(void *unused, u8 *arg1)
     }
     D_008873EC[0](arg1);
 }
-/* measured: `volatile u8 *arg0` is what keeps the three identical 4-byte
-   reloads that retail performs (a plain pointer lets b210 CSE them, and
-   `opt_common_subs off` -- the archived workaround -- also un-CSEs the
-   `3, 3` argument pair that retail materialises as li $a2,3 / move $a3,$a2).
-   opt_propagation off keeps the colors pointer computed early in $t1. */
+/* STEP 4 (2026-09-20): this MATCH rests on a banned construct. `volatile u8 *arg0` */
+/* is compiler-steering (H001): arg0 is a plain color buffer, not hardware, and the */
+/* qualifier exists only to defeat b210 CSE. Re-measured 2026-09-20 in isolated */
+/* probe copies (production never written for probes): baseline volatile + prop off */
+/* probe_variants 0 words, fndiff 0 (obj 148B/window 160B, 12B zero tail); plain u8 * */
+/* + prop off only: probe 22 words, fnalign 9 edits (retail 36 vs object 29 instrs, */
+/* 8 lbu in two reload groups deleted, call tail exact) -- plain CSEs the reloads; */
+/* plain + prop off + common_subs off (function-scoped): probe 1 word, fnalign 1 edit */
+/* (retail move $a3,$a2 vs object addiu $a3,$zero,3; 37/37 instrs) -- reloads return */
+/* but the 3,3 pair un-CSEs from retail li $a2,3 / move $a3,$a2; narrower scope */
+/* (common off before fn, on inside before call): probe 22 words, fnalign 9 edits */
+/* identical to plain -- pragma is function-granular, cannot split loads from call; */
+/* reordered 3,3 (s32 n=3 as n,n / 3,n / n,3; s32 a=3,b=a as a,b): probe 27/28/28/28 */
+/* words, copy-through fnalign 11 edits with addiu hoisted to prologue and $t1 lost. */
+/* Callers: owner_of.py -> src/promoted/code1_0045.c; grep src+include finds no other */
+/* volatile declaration (src/Kernel/mc.c declares void *,void *,s32,f32, not edited). */
+/* opt_propagation off keeps the colors pointer in $t1; it is not the banned part. */
+/* Honest plain-C best is the 1-word common-off body, still MISMATCH. */
 #pragma opt_propagation off
 // FUN_0045ED60
 void func_0045ed60(volatile u8 *arg0, void *arg1, s32 arg2, f32 fparg0) {

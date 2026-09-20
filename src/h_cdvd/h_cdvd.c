@@ -629,6 +629,22 @@ void func_00455b70(void* requestData)
         u8* fileMemory;
 
         fileMemory = request->fileMemory;
+        /* HONEST NOTE: this MATCH rests on a BANNED construct.  `volatile` on
+           ordinary memory is not something the retail source can be assumed to
+           have contained, and `HCdvdRequestView` is an ordinary heap block -
+           sdkCdvd.c:120 writes the same field plainly, and this is a single
+           read with no loop and no MMIO, so the driver-plausible reading does
+           not hold either.  Measured alternatives, all of which LOSE the match
+           (25 -> 24 MATCH, 1 MISMATCH, 4 differing words from a two-word
+           load-order swap, retail issuing $a2 before $a1):
+             - the plain `readByteSize = request->readByteSize;`
+             - the same with the two local assignments swapped
+             - the field read inlined into the func_00455d70 argument list
+             - `opt_common_subs off` and `schedule off` (both still 1 MISMATCH)
+             - `opt_propagation off` (worse: 2 MISMATCH)
+           So func_00455b70 is a DEMOTION CANDIDATE: on the project's own rules
+           this is not a legitimate match, and the cast stays only so the
+           regression is visible rather than silently reverted. */
         readByteSize = *(volatile u32*)&request->readByteSize;
         func_00455d70(requestData, fileMemory, readByteSize, request->path);
         request->archiveFileCount = 1;

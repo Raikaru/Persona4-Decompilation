@@ -678,7 +678,21 @@ u8 *func_00163990(u32 encounter, u8 *placement, s32 variant)
     levelSum = 0;
     unitCount = *(u16 *)(*(u8 **)(slot + 0x48) + 2);
     for (; unitIndex < (s32)unitCount; unitIndex++) {
-        /* The group pointer is reloaded for each unit in the retail loop. */
+        /* Step 4: batch protocol record. Baseline 36 MATCH / 6 ASM, this
+           function 0 words diff (760B obj / 768B window) with volatile.
+           Step 2 plain `*(u8 **)(slot + 0x48)` scores 32 words diff:
+           hoists to preheader `lw $a1,0x48($s0)` + loop `lw $v0,4($a1)`,
+           retail reloads per iteration `lw $a0,0x48($s0)` + `lw $v0,4($a0)`.
+           Step 3 `opt_loop_invariants off` with correct save/restore
+           (unit default around function is loop_invariants off / common_subs
+           on; function scope is loop_invariants on via push, restored to on
+           after the loop) still scores 32 scoped and 25 whole-function off
+           (extra andi on the bound), still hoisted. Also scored and kept out:
+           scoped common_subs off 32, whole common_subs off 144,
+           whole propagation off 169, scoped optimization_level 1 25,
+           block-scope group 32, inlined double-deref 32, s32 unitCount 32,
+           (s32)slot cast 35. No honest spelling reproduces the reload, so
+           volatile is kept to preserve MATCH; H001 remains here. */
         group = *(u8 *volatile *)(slot + 0x48);
         levelSum += *(u8 *)(*(u8 **)(group + 4) + (unitIndex * 0x30) + 6);
     }

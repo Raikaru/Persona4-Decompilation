@@ -516,6 +516,17 @@ draw_entry:
             :
             : "r"(sp70)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        /* measured: this volatile read is the COP2 block's OUTPUT PATH, not a
+           reload hack on ordinary memory.  The asm above ends in
+           `sw $2, 0x90($sp)`, a hard-coded frame offset the compiler cannot
+           associate with `sp90`; because `sp90` is a local whose address is
+           never taken, b210 correctly concludes no asm can have touched it and
+           the "memory" clobber does not reach it, so a plain read is folded
+           away.  Three legal alternatives were measured and each LOSES the
+           match (19 -> 18 MATCH, 1 MISMATCH in this file): a plain
+           `sp9C = sp90;`, declaring the slot as an asm output with
+           `"=m"(sp90)` and `sw $2, %0`, and taking the address into a local
+           `s32 *slotOut = &sp90;` so the clobber applies.  The cast stays. */
         sp9C = *(volatile s32 *)&sp90;
         func_004940d0(owner, i, &sp9C);
     }
