@@ -2583,6 +2583,20 @@ s32 func_00343cf0(u8 *arg0) {
    was a banned `volatile`.  Do not spend spelling effort here until someone finds an
    honest construct that defeats b210's CSE on a stack round-trip; the structure is right
    and the residual is the compiler keeping what retail reloads. */
+/* measured 00345700 (2026-09-20): honest reload for the 46 missing lwc1 - spelling each */
+/* scratch pair as one 8-byte struct copy `flow[i] = (*(CmbVec2f*)&ttmp[off]);` (37 sites, */
+/* incl. flow[36] from workB+0x8) instead of per-field `flow[i].x/y = (*(f32*)&ttmp[..]);` */
+/* forces b210 to reload the second value from the stack for the slot store, exactly like */
+/* banned `volatile` but without lying about storage (8B copy, all scratch offs 8-aligned, */
+/* same aliasing, no extra jal, no pragma/asm). Baseline 1912 words / 2138 vs retail 2190 */
+/* (-2.4%, deficit 52, lwc1+46 lbu+12, runs 41 ABSENT + 30 ABSENT) -> now 1821 words (-91) / */
+/* 2186 vs 2190 (-0.2% inside, deficit 4, lwc1 balanced +2 obj surplus, lbu+12 only, all three */
+/* runs CROSS). Banned volatile flow ties at 1821/2186 (+48); RGBA struct for the 12 byte */
+/* blocks regresses to 1836 (+15) so per-byte stays. Remaining wall is 12x first-byte lbu */
+/* ($a0 forwarded vs retail reload) + stack-offset/scheduling color; production stays ASM. */
+/* Commands: measure_guarded, deficit_scan, probe_variants vol/struct/struct2/structFull, */
+/* fnalign base/vol/struct, pragma_sweep (best tie 1912, prop-off 2051), micro1-7/C/Cb. TU */
+/* link + retail identity unverified (fnalign/probe only). */
 // FUN_00345700 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00345700(u8 *arg0) {
@@ -2649,11 +2663,9 @@ s32 func_00345700(u8 *arg0) {
     case 0:
         if (func_00285b30() >= 0x50) {
         func_002b2970((s64*)&ttmp[0xf8], 0x141, 70.0f);
-        flow[0].x = (*(f32*)&ttmp[0xf8]);
-        flow[0].y = (*(f32*)&ttmp[0xfc]);
+        flow[0] = (*(CmbVec2f*)&ttmp[0xf8]);
         func_002b2970((s64*)&ttmp[0xf0], 326.0f, 224.0f);
-        flow[1].x = (*(f32*)&ttmp[0xf0]);
-        flow[1].y = (*(f32*)&ttmp[0xf4]);
+        flow[1] = (*(CmbVec2f*)&ttmp[0xf0]);
         slot = *(u8 **)(arg0 + 0x38);
         *(f32 *)(slot + 0x20) = flow[1].x;
         *(f32 *)(slot + 0x24) = flow[1].y;
@@ -2691,11 +2703,9 @@ s32 func_00345700(u8 *arg0) {
         *(s16 *)(slot + 0x8a) = 8;
         *(s8 *)(slot + 0xc) = *(s8 *)(slot + 0xc) | 4;
         func_002b2970((s64*)&ttmp[0x108], 0x141, 70.0f);
-        flow[2].x = (*(f32*)&ttmp[0x108]);
-        flow[2].y = (*(f32*)&ttmp[0x10c]);
+        flow[2] = (*(CmbVec2f*)&ttmp[0x108]);
         func_002b2970((s64*)&ttmp[0x100], 326.0f, 224.0f);
-        flow[3].x = (*(f32*)&ttmp[0x100]);
-        flow[3].y = (*(f32*)&ttmp[0x104]);
+        flow[3] = (*(CmbVec2f*)&ttmp[0x100]);
         slot = *(u8 **)(arg0 + 0x38);
         *(f32 *)(slot + 0xa4) = flow[3].x;
         *(f32 *)(slot + 0xa8) = flow[3].y;
@@ -2733,8 +2743,7 @@ s32 func_00345700(u8 *arg0) {
         *(s16 *)(slot + 0x10e) = 8;
         *(s8 *)(slot + 0x90) = *(s8 *)(slot + 0x90) | 4;
         func_002b2970((s64*)&ttmp[0x110], 250.0f, 95.0f);
-        flow[4].x = (*(f32*)&ttmp[0x110]);
-        flow[4].y = (*(f32*)&ttmp[0x114]);
+        flow[4] = (*(CmbVec2f*)&ttmp[0x110]);
         slot = *(u8 **)(arg0 + 0x38);
         table = *(s8 *)(slot + 0xec) * 0xc + slot;
         *(f32 *)(table + 0xb0) = flow[4].x;
@@ -2744,11 +2753,9 @@ s32 func_00345700(u8 *arg0) {
         tmpI = func_002b2cb0(*(s8 *)(slot + 0xec),1,5,0,1);
         *(s8 *)(slot + 0xec) = tmpI;
         func_002b2970((s64*)&ttmp[0x120], 0x141, 70.0f);
-        flow[5].x = (*(f32*)&ttmp[0x120]);
-        flow[5].y = (*(f32*)&ttmp[0x124]);
+        flow[5] = (*(CmbVec2f*)&ttmp[0x120]);
         func_002b2970((s64*)&ttmp[0x118], 326.0f, 224.0f);
-        flow[6].x = (*(f32*)&ttmp[0x118]);
-        flow[6].y = (*(f32*)&ttmp[0x11c]);
+        flow[6] = (*(CmbVec2f*)&ttmp[0x118]);
         slot = *(u8 **)(arg0 + 0x38);
         *(f32 *)(slot + 0x128) = flow[6].x;
         *(f32 *)(slot + 0x12C) = flow[6].y;
@@ -2786,8 +2793,7 @@ s32 func_00345700(u8 *arg0) {
         *(s16 *)(slot + 0x192) = 8;
         *(s8 *)(slot + 0x114) = *(s8 *)(slot + 0x114) | 4;
         func_002b2970((s64*)&ttmp[0x128], 250.0f, 95.0f);
-        flow[7].x = (*(f32*)&ttmp[0x128]);
-        flow[7].y = (*(f32*)&ttmp[0x12c]);
+        flow[7] = (*(CmbVec2f*)&ttmp[0x128]);
         slot = *(u8 **)(arg0 + 0x38);
         table = *(s8 *)(slot + 0x170) * 0xc + slot;
         *(f32 *)(table + 0x134) = flow[7].x;
@@ -2797,8 +2803,7 @@ s32 func_00345700(u8 *arg0) {
         tmpI = func_002b2cb0(*(s8 *)(slot + 0x170),1,5,0,1);
         *(s8 *)(slot + 0x170) = tmpI;
         func_002b2970((s64*)&ttmp[0x130], 175.0f, 141.0f);
-        flow[8].x = (*(f32*)&ttmp[0x130]);
-        flow[8].y = (*(f32*)&ttmp[0x134]);
+        flow[8] = (*(CmbVec2f*)&ttmp[0x130]);
         slot = *(u8 **)(arg0 + 0x38);
         table = *(s8 *)(slot + 0x170) * 0xc + slot;
         *(f32 *)(table + 0x134) = flow[8].x;
@@ -2808,11 +2813,9 @@ s32 func_00345700(u8 *arg0) {
         tmpI = func_002b2cb0(*(s8 *)(slot + 0x170),1,5,0,1);
         *(s8 *)(slot + 0x170) = tmpI;
         func_002b2970((s64*)&ttmp[0x140], 156.0f, 232.0f);
-        flow[9].x = (*(f32*)&ttmp[0x140]);
-        flow[9].y = (*(f32*)&ttmp[0x144]);
+        flow[9] = (*(CmbVec2f*)&ttmp[0x140]);
         func_002b2970((s64*)&ttmp[0x138], 326.0f, 224.0f);
-        flow[10].x = (*(f32*)&ttmp[0x138]);
-        flow[10].y = (*(f32*)&ttmp[0x13c]);
+        flow[10] = (*(CmbVec2f*)&ttmp[0x138]);
         slot = *(u8 **)(arg0 + 0x38);
         *(f32 *)(slot + 0x1ac) = flow[10].x;
         *(f32 *)(slot + 0x1b0) = flow[10].y;
@@ -2850,11 +2853,9 @@ s32 func_00345700(u8 *arg0) {
         *(s16 *)(slot + 0x216) = 8;
         *(s8 *)(slot + 0x198) = *(s8 *)(slot + 0x198) | 4;
         func_002b2970((s64*)&ttmp[0x150], 156.0f, 232.0f);
-        flow[11].x = (*(f32*)&ttmp[0x150]);
-        flow[11].y = (*(f32*)&ttmp[0x154]);
+        flow[11] = (*(CmbVec2f*)&ttmp[0x150]);
         func_002b2970((s64*)&ttmp[0x148], 326.0f, 224.0f);
-        flow[12].x = (*(f32*)&ttmp[0x148]);
-        flow[12].y = (*(f32*)&ttmp[0x14c]);
+        flow[12] = (*(CmbVec2f*)&ttmp[0x148]);
         slot = *(u8 **)(arg0 + 0x38);
         *(f32 *)(slot + 0x230) = flow[12].x;
         *(f32 *)(slot + 0x234) = flow[12].y;
@@ -2892,8 +2893,7 @@ s32 func_00345700(u8 *arg0) {
         *(s16 *)(slot + 0x29a) = 8;
         *(s8 *)(slot + 0x21c) = *(s8 *)(slot + 0x21c) | 4;
         func_002b2970((s64*)&ttmp[0x158], 180.0f, 322.0f);
-        flow[13].x = (*(f32*)&ttmp[0x158]);
-        flow[13].y = (*(f32*)&ttmp[0x15c]);
+        flow[13] = (*(CmbVec2f*)&ttmp[0x158]);
         slot = *(u8 **)(arg0 + 0x38);
         table = *(s8 *)(slot + 0x278) * 0xc + slot;
         *(f32 *)(table + 0x23c) = flow[13].x;
@@ -2903,11 +2903,9 @@ s32 func_00345700(u8 *arg0) {
         tmpI = func_002b2cb0(*(s8 *)(slot + 0x278),1,5,0,1);
         *(s8 *)(slot + 0x278) = tmpI;
         func_002b2970((s64*)&ttmp[0x168], 156.0f, 232.0f);
-        flow[14].x = (*(f32*)&ttmp[0x168]);
-        flow[14].y = (*(f32*)&ttmp[0x16c]);
+        flow[14] = (*(CmbVec2f*)&ttmp[0x168]);
         func_002b2970((s64*)&ttmp[0x160], 326.0f, 224.0f);
-        flow[15].x = (*(f32*)&ttmp[0x160]);
-        flow[15].y = (*(f32*)&ttmp[0x164]);
+        flow[15] = (*(CmbVec2f*)&ttmp[0x160]);
         slot = *(u8 **)(arg0 + 0x38);
         *(f32 *)(slot + 0x2b4) = flow[15].x;
         *(f32 *)(slot + 0x2b8) = flow[15].y;
@@ -2945,8 +2943,7 @@ s32 func_00345700(u8 *arg0) {
         *(s16 *)(slot + 0x31e) = 8;
         *(s8 *)(slot + 0x2a0) = *(s8 *)(slot + 0x2a0) | 4;
         func_002b2970((s64*)&ttmp[0x170], 180.0f, 322.0f);
-        flow[16].x = (*(f32*)&ttmp[0x170]);
-        flow[16].y = (*(f32*)&ttmp[0x174]);
+        flow[16] = (*(CmbVec2f*)&ttmp[0x170]);
         slot = *(u8 **)(arg0 + 0x38);
         table = *(s8 *)(slot + 0x2fc) * 0xc + slot;
         *(f32 *)(table + 0x2c0) = flow[16].x;
@@ -2956,8 +2953,7 @@ s32 func_00345700(u8 *arg0) {
         tmpI = func_002b2cb0(*(s8 *)(slot + 0x2fc),1,5,0,1);
         *(s8 *)(slot + 0x2fc) = tmpI;
         func_002b2970((s64*)&ttmp[0x178], 250.0f, 0x16B);
-        flow[17].x = (*(f32*)&ttmp[0x178]);
-        flow[17].y = (*(f32*)&ttmp[0x17c]);
+        flow[17] = (*(CmbVec2f*)&ttmp[0x178]);
         slot = *(u8 **)(arg0 + 0x38);
         table = *(s8 *)(slot + 0x2fc) * 0xc + slot;
         *(f32 *)(table + 0x2c0) = flow[17].x;
@@ -2967,11 +2963,9 @@ s32 func_00345700(u8 *arg0) {
         tmpI = func_002b2cb0(*(s8 *)(slot + 0x2fc),1,5,0,1);
         *(s8 *)(slot + 0x2fc) = tmpI;
         func_002b2970((s64*)&ttmp[0x188], 0x141, 388.0f);
-        flow[18].x = (*(f32*)&ttmp[0x188]);
-        flow[18].y = (*(f32*)&ttmp[0x18c]);
+        flow[18] = (*(CmbVec2f*)&ttmp[0x188]);
         func_002b2970((s64*)&ttmp[0x180], 326.0f, 224.0f);
-        flow[19].x = (*(f32*)&ttmp[0x180]);
-        flow[19].y = (*(f32*)&ttmp[0x184]);
+        flow[19] = (*(CmbVec2f*)&ttmp[0x180]);
         slot = *(u8 **)(arg0 + 0x38);
         *(f32 *)(slot + 0x338) = flow[19].x;
         *(f32 *)(slot + 0x33c) = flow[19].y;
@@ -3009,11 +3003,9 @@ s32 func_00345700(u8 *arg0) {
         *(s16 *)(slot + 0x3a2) = 8;
         *(s8 *)(slot + 0x324) = *(s8 *)(slot + 0x324) | 4;
         func_002b2970((s64*)&ttmp[0x198], 0x141, 388.0f);
-        flow[20].x = (*(f32*)&ttmp[0x198]);
-        flow[20].y = (*(f32*)&ttmp[0x19c]);
+        flow[20] = (*(CmbVec2f*)&ttmp[0x198]);
         func_002b2970((s64*)&ttmp[0x190], 326.0f, 224.0f);
-        flow[21].x = (*(f32*)&ttmp[0x190]);
-        flow[21].y = (*(f32*)&ttmp[0x194]);
+        flow[21] = (*(CmbVec2f*)&ttmp[0x190]);
         slot = *(u8 **)(arg0 + 0x38);
         *(f32 *)(slot + 0x3bc) = flow[21].x;
         *(f32 *)(slot + 0x3c0) = flow[21].y;
@@ -3051,8 +3043,7 @@ s32 func_00345700(u8 *arg0) {
         *(s16 *)(slot + 0x426) = 8;
         *(s8 *)(slot + 0x3a8) = *(s8 *)(slot + 0x3a8) | 4;
         func_002b2970((s64*)&ttmp[0x1a0], 0x187, 0x16B);
-        flow[22].x = (*(f32*)&ttmp[0x1a0]);
-        flow[22].y = (*(f32*)&ttmp[0x1a4]);
+        flow[22] = (*(CmbVec2f*)&ttmp[0x1a0]);
         slot = *(u8 **)(arg0 + 0x38);
         table = *(s8 *)(slot + 0x404) * 0xc + slot;
         *(f32 *)(table + 0x3c8) = flow[22].x;
@@ -3062,11 +3053,9 @@ s32 func_00345700(u8 *arg0) {
         tmpI = func_002b2cb0(*(s8 *)(slot + 0x404),1,5,0,1);
         *(s8 *)(slot + 0x404) = tmpI;
         func_002b2970((s64*)&ttmp[0x1b0], 0x141, 388.0f);
-        flow[23].x = (*(f32*)&ttmp[0x1b0]);
-        flow[23].y = (*(f32*)&ttmp[0x1b4]);
+        flow[23] = (*(CmbVec2f*)&ttmp[0x1b0]);
         func_002b2970((s64*)&ttmp[0x1a8], 326.0f, 224.0f);
-        flow[24].x = (*(f32*)&ttmp[0x1a8]);
-        flow[24].y = (*(f32*)&ttmp[0x1ac]);
+        flow[24] = (*(CmbVec2f*)&ttmp[0x1a8]);
         slot = *(u8 **)(arg0 + 0x38);
         *(f32 *)(slot + 0x440) = flow[24].x;
         *(f32 *)(slot + 0x444) = flow[24].y;
@@ -3104,8 +3093,7 @@ s32 func_00345700(u8 *arg0) {
         *(s16 *)(slot + 0x4aa) = 8;
         *(s8 *)(slot + 0x42c) = *(s8 *)(slot + 0x42c) | 4;
         func_002b2970((s64*)&ttmp[0x1b8], 0x187, 0x16B);
-        flow[25].x = (*(f32*)&ttmp[0x1b8]);
-        flow[25].y = (*(f32*)&ttmp[0x1bc]);
+        flow[25] = (*(CmbVec2f*)&ttmp[0x1b8]);
         slot = *(u8 **)(arg0 + 0x38);
         table = *(s8 *)(slot + 0x488) * 0xc + slot;
         *(f32 *)(table + 0x44c) = flow[25].x;
@@ -3115,8 +3103,7 @@ s32 func_00345700(u8 *arg0) {
         tmpI = func_002b2cb0(*(s8 *)(slot + 0x488),1,5,0,1);
         *(s8 *)(slot + 0x488) = tmpI;
         func_002b2970((s64*)&ttmp[0x1c0], 458.0f, 322.0f);
-        flow[26].x = (*(f32*)&ttmp[0x1c0]);
-        flow[26].y = (*(f32*)&ttmp[0x1c4]);
+        flow[26] = (*(CmbVec2f*)&ttmp[0x1c0]);
         slot = *(u8 **)(arg0 + 0x38);
         table = *(s8 *)(slot + 0x488) * 0xc + slot;
         *(f32 *)(table + 0x44c) = flow[26].x;
@@ -3126,11 +3113,9 @@ s32 func_00345700(u8 *arg0) {
         tmpI = func_002b2cb0(*(s8 *)(slot + 0x488),1,5,0,1);
         *(s8 *)(slot + 0x488) = tmpI;
         func_002b2970((s64*)&ttmp[0x1d0], 482.0f, 232.0f);
-        flow[27].x = (*(f32*)&ttmp[0x1d0]);
-        flow[27].y = (*(f32*)&ttmp[0x1d4]);
+        flow[27] = (*(CmbVec2f*)&ttmp[0x1d0]);
         func_002b2970((s64*)&ttmp[0x1c8], 326.0f, 224.0f);
-        flow[28].x = (*(f32*)&ttmp[0x1c8]);
-        flow[28].y = (*(f32*)&ttmp[0x1cc]);
+        flow[28] = (*(CmbVec2f*)&ttmp[0x1c8]);
         slot = *(u8 **)(arg0 + 0x38);
         *(f32 *)(slot + 0x4c4) = flow[28].x;
         *(f32 *)(slot + 0x4c8) = flow[28].y;
@@ -3168,11 +3153,9 @@ s32 func_00345700(u8 *arg0) {
         *(s16 *)(slot + 0x52e) = 8;
         *(s8 *)(slot + 0x4b0) = *(s8 *)(slot + 0x4b0) | 4;
         func_002b2970((s64*)&ttmp[0x1e0], 482.0f, 232.0f);
-        flow[29].x = (*(f32*)&ttmp[0x1e0]);
-        flow[29].y = (*(f32*)&ttmp[0x1e4]);
+        flow[29] = (*(CmbVec2f*)&ttmp[0x1e0]);
         func_002b2970((s64*)&ttmp[0x1d8], 326.0f, 224.0f);
-        flow[30].x = (*(f32*)&ttmp[0x1d8]);
-        flow[30].y = (*(f32*)&ttmp[0x1dc]);
+        flow[30] = (*(CmbVec2f*)&ttmp[0x1d8]);
         slot = *(u8 **)(arg0 + 0x38);
         *(f32 *)(slot + 0x548) = flow[30].x;
         *(f32 *)(slot + 0x54c) = flow[30].y;
@@ -3210,8 +3193,7 @@ s32 func_00345700(u8 *arg0) {
         *(s16 *)(slot + 0x5b2) = 8;
         *(s8 *)(slot + 0x534) = *(s8 *)(slot + 0x534) | 4;
         func_002b2970((s64*)&ttmp[0x1e8], 462.0f, 141.0f);
-        flow[31].x = (*(f32*)&ttmp[0x1e8]);
-        flow[31].y = (*(f32*)&ttmp[0x1ec]);
+        flow[31] = (*(CmbVec2f*)&ttmp[0x1e8]);
         slot = *(u8 **)(arg0 + 0x38);
         table = *(s8 *)(slot + 0x590) * 0xc + slot;
         *(f32 *)(table + 0x554) = flow[31].x;
@@ -3221,11 +3203,9 @@ s32 func_00345700(u8 *arg0) {
         tmpI = func_002b2cb0(*(s8 *)(slot + 0x590),1,5,0,1);
         *(s8 *)(slot + 0x590) = tmpI;
         func_002b2970((s64*)&ttmp[0x1f8], 482.0f, 232.0f);
-        flow[32].x = (*(f32*)&ttmp[0x1f8]);
-        flow[32].y = (*(f32*)&ttmp[0x1fc]);
+        flow[32] = (*(CmbVec2f*)&ttmp[0x1f8]);
         func_002b2970((s64*)&ttmp[0x1f0], 326.0f, 224.0f);
-        flow[33].x = (*(f32*)&ttmp[0x1f0]);
-        flow[33].y = (*(f32*)&ttmp[0x1f4]);
+        flow[33] = (*(CmbVec2f*)&ttmp[0x1f0]);
         slot = *(u8 **)(arg0 + 0x38);
         *(f32 *)(slot + 0x5cc) = flow[33].x;
         *(f32 *)(slot + 0x5d0) = flow[33].y;
@@ -3263,8 +3243,7 @@ s32 func_00345700(u8 *arg0) {
         *(s16 *)(slot + 0x636) = 8;
         *(s8 *)(slot + 0x5b8) = *(s8 *)(slot + 0x5b8) | 4;
         func_002b2970((s64*)&ttmp[0x200], 462.0f, 141.0f);
-        flow[34].x = (*(f32*)&ttmp[0x200]);
-        flow[34].y = (*(f32*)&ttmp[0x204]);
+        flow[34] = (*(CmbVec2f*)&ttmp[0x200]);
         slot = *(u8 **)(arg0 + 0x38);
         table = *(s8 *)(slot + 0x614) * 0xc + slot;
         *(f32 *)(table + 0x5d8) = flow[34].x;
@@ -3274,8 +3253,7 @@ s32 func_00345700(u8 *arg0) {
         tmpI = func_002b2cb0(*(s8 *)(slot + 0x614),1,5,0,1);
         *(s8 *)(slot + 0x614) = tmpI;
         func_002b2970((s64*)&ttmp[0x208], 0x187, 95.0f);
-        flow[35].x = (*(f32*)&ttmp[0x208]);
-        flow[35].y = (*(f32*)&ttmp[0x20c]);
+        flow[35] = (*(CmbVec2f*)&ttmp[0x208]);
         slot = *(u8 **)(arg0 + 0x38);
         table = *(s8 *)(slot + 0x614) * 0xc + slot;
         *(f32 *)(table + 0x5d8) = flow[35].x;
@@ -3350,8 +3328,7 @@ s32 func_00345700(u8 *arg0) {
             i9 = 0;
             while (i9 < 12) {
                 func_002b2970((s64 *)(workB + 0x8), 323.0f, 217.0f);
-                flow[36].x = *(f32 *)(workB + 0x8);
-                flow[36].y = *(f32 *)(workB + 0xC);
+                flow[36] = (*(CmbVec2f*)(workB + 0x8));
                 *(CmbVec2f *)&workF70 = flow[36];
                 slot = *(u8 **)(arg0 + 0x38);
                 slot += (s32)i9 * 0x84;

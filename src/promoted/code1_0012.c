@@ -2601,22 +2601,23 @@ extern void func_0025f430(f32 farg0, f32 farg1, f32 farg2, s32 arg0, s32 arg1, s
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00126090);
 #endif
 /* measured: archived build/func_001265a0_floor_v1.c (1791L m2c) + jtbl-bound fix cases 10-15 to tail per ELF jtbl_00746730 dump at file-off 0x6467B0 (16 entries 0:26660,1-2:26664,3:26688,4-5:2679C,6-7:29778,8-9:2A024,10-15:2A948 tail; sltiu 0xa->0x10 exact). Installed fnalign retail 4404/object 4404 (exact, 0.0%, 80 edits +124 reloc-only) via `python3 tools/fnalign.py src/promoted/code1_0012.c func_001265a0`; probe 3842 words via measure_guarded. Candidate-method fnalign (--candidate floor) reports retail 4400/object 3779 (-14.1%, 6325 edits) due to scratch-vs-real TU compilation difference (header/guard placement), not body quality; installed is exact. Call census: all 202 retail jals +14 jalr have counterparts (30x0045d6e0,22x0025f3f0,17x0044b7b0,14x003f6440/002aaf20/002aaac0,11x0048a000/00489f80,etc.). Loops: 40 retail backward branches (30x6-instr zeroing +8x8-instr bgtz copy +3 large 414/240/240 at 0x126D9C/0x12742C/0x129B0C) all present as draft loop_93/loop_128/loop_351 + 4-word do-whiles. Frame -0x6C0 exact, sltiu 0x10 exact. Residual 80 edits are lui symbol materialization (0x5e vs 0) + MMI lq/add_a.w vs plain + VU0 adda/madd + scheduling, no missing regions by address (no deletes in installed alignment). */
-/* gate: func_001265a0 is INSIDE the +-3% band at 4348 against retail 4400 (-1.2%, band
-   4268-4532), deficit 52, via --candidate measurement 2026-09-20.  Recovered the 15
-   dropped color channels (5 sites x 3: case4/5 var_19 loop, var_17_2 loop, 0x82-0xBE and
-   0xBD-0xD2 branches, case6/7 var_16 loop) - retail's (f32)(u32) halving conversions,
-   adda/madd lerp and (u8)(u32) clamp, which m2c had left as empty ifs; plus the site-1
-   quantized factor (f32)(s32)(255*f20)/255 at 0x1270C0.  The 159-run (0x1270F0-0x12736C)
-   and 104-run (0x127418-0x1275B8) dissolved.  Remainder is alignment phantoms over
-   present-but-different code (2350-run 0x127930-0x129DE8 covers the D_005E539C/53C4
-   $f20-blends whose 10 ACC seeds are still bare + case8/9 quat args; 142-delete and
-   46-run likewise) plus real small gaps: sb+40 byte-stores, lwc1+37, empty-if body at
-   0x12A7F4.  Prior stamps below describe the 3779/-14.1% floor, kept for history.
-   The 4404/4404 +0.0% number came from running `fnalign.py <file> <func>` with NO
-   --candidate on this guarded floor, which compiles the INCLUDE_ASM fallback and
-   therefore aligns retail against itself; window trimming and relocations left 80 edits
-   rather than 0, so the old 0-edit warning never fired.  fnalign now refuses that
-   invocation outright and tests/test_fnalign.py pins it. */
+/* gate: func_001265a0 is INSIDE the +-3% band at 4404 against retail 4404 (+0.0%, band
+   4272-4536), deficit 0, via --candidate measurement 2026-09-20.  Filled the 46-run
+   (0x12A794-0x12A84C) that deficit_scan named ABSENT: the empty-if at 0x12A7F4 is the
+   same defect as its 0x12A794 neighbour - retail's 0.25f normalization
+   ((f32)(0x20<<16)+0.25f*(f32)((0x20-0x24)<<16)-(f32)0x28), (s32) compare, recomputed $3
+   ((f32)$2+$f1), and 32.0f*((f32)$3/65535.0f)+327.0f madd for the first 0x10006
+   func_0025f3f0 call, which m2c had left as an empty if plus blend/0.0f args.  The 46
+   dissolves into small register-color replaces; deficit_scan now reports only CROSS runs
+   (2350 at 0x127930, 142 at 0x129E18, 48 at 0x12A6F8) with mtc1 +207/lui +108/sb +40.
+   Prior stamp described 4348/4400 -1.2% deficit 52 (15 color channels + quantized factor;
+   159-run and 104-run dissolved; 2350/142/46 phantoms + sb+40/lwc1+37/empty-if gaps) and
+   3779/-14.1% floor, kept for history.  Candidate fnalign is 6509 edits +15 reloc-only,
+   probe 3903 words (base 3899); installed TU stays 74 MATCH/8 ASM with func_0012d630
+   untouched.  The old 4404/4404 +0.0% 80-edit number came from running `fnalign.py
+   <file> <func>` with NO --candidate on this guarded floor, which compiles the
+   INCLUDE_ASM fallback and therefore aligns retail against itself; fnalign now refuses
+   that invocation outright and tests/test_fnalign.py pins it. */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
 #ifndef M2C_GUARD
@@ -2907,6 +2908,8 @@ M2C_UNK unksp514;
     f32 temp_one_S5A;
     f32 temp_one_S5B;
     f32 temp_one_S5C;
+    f32 temp_f1_28;
+    f32 temp_f13_28;
     f32 temp_f1_10;
     f32 temp_f1_11;
     f32 temp_f1_12;
@@ -3027,6 +3030,8 @@ M2C_UNK unksp514;
     s32 temp_9_8;
     s32 temp_9_9;
     s32 temp_f0_10;
+    s32 temp_28;
+    s32 temp_i28;
     s32 var_16;
     s32 var_17;
     s32 var_17_2;
@@ -4292,11 +4297,15 @@ loop_351:
         }
         temp_5 = (s32)(M2C_FIELD(temp_20, s32 *, 0x24));
         temp_4 = (s32)(M2C_FIELD(temp_20, s32 *, 0x20));
-        temp_f0_11 = ((f32) (temp_4 << 0x10) + (0.25f * (f32) ((temp_4 - temp_5) << 0x10))) - (f32) M2C_FIELD(temp_20, s32 *, 0x28);
-        if (((temp_5 < temp_4) && (M2C_BITWISE(s32, temp_f0_11) < 0)) || ((temp_4 < temp_5) && (M2C_BITWISE(s32, temp_f0_11) > 0))) {
-
+        temp_28 = (s32)M2C_FIELD(temp_20, s32 *, 0x28);
+        temp_f1_28 = (f32)(temp_4 << 0x10) + 0.25f * (f32)((temp_4 - temp_5) << 0x10);
+        temp_f0_11 = temp_f1_28 - (f32)temp_28;
+        temp_i28 = (s32)temp_f0_11;
+        if (((temp_5 < temp_4) && (temp_i28 < 0)) || ((temp_4 < temp_5) && (temp_i28 > 0))) {
+            temp_28 = (s32)((f32)temp_i28 + temp_f1_28);
         }
-        func_0025f3f0(0xFFFFFFU, 0xFF, 0x10006, 0, M2C_FIELD(temp_20, s32 *, 0x3C), 1, (f32) 0x18B, (temp_f20 * temp_f21 + temp_f7 * temp_f8), 0.0f);
+        temp_f13_28 = 32.0f * ((f32)temp_28 / 65535.0f) + 327.0f;
+        func_0025f3f0(0xFFFFFFU, 0xFF, 0x10006, 0, M2C_FIELD(temp_20, s32 *, 0x3C), 1, (f32) 0x18B, temp_f13_28, 0.0f);
         func_0025f3f0(0xFFFFFFU, 0xFF, 0x10003, 0, M2C_FIELD(temp_20, s32 *, 0x3C), 1, 414.0f, 330.0f, 0.0f);
         func_0025f3f0(0xFFFFFFU, 0xFF, 0x10004, 0, M2C_FIELD(temp_20, s32 *, 0x3C), 1, 444.0f, 362.0f, 0.0f);
         func_0025f3f0(0xFFFFFFU, 0xFF, 0x10005, 0, M2C_FIELD(temp_20, s32 *, 0x3C), 1, (f32) 0x193, 394.0f, 0.0f);

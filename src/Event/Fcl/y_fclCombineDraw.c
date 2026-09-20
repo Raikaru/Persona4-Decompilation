@@ -4938,6 +4938,22 @@ void func_00324f80(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3) {
 }
 
 // measured: nd N/A (largest, 16064 B; draw-family + 12 M2C_ERROR). Heavy 2970/6c30/6a70/69f0 + unaligned/vector opcodes; s64-arg normalization floor. s64-param + misc-opcode floor.
+/* measured 00325450 (owner, 2026-09-20): fnalign **681 -> 669 edits**, count unchanged at
+   3932 against retail 4012 (-2.0%, inside).  deficit_scan classifies three 8-instruction
+   retail-only runs at 0x003268f4, 0x00326e18 and 0x00327528 as ABSENT, and all three are
+   the same eight instructions:
+     lui 0x4000 / mtc1 / add.s $f21  -> `2.0f + <prev>`
+     lui 0x42ae / mtc1 / lwc1 0xD0($sp) / add.s $f20  -> `87.0f + spD0`
+   Retail MATERIALISES both constants and redoes both adds at every site; the body hoists
+   each into a temporary once and reuses it, which is what the `lui +16, mtc1 +16,
+   add.s +16` opcode delta is counting.
+   Un-hoisting is measured per temporary and only one of them pays:
+     recompute `87.0f + spD0` at all 14 uses   -> **669**
+     recompute `2.0f + spD4` at all 15 uses    -> 689, worse
+     recompute both                            -> 679, worse than either alone
+   So the two temporaries are not interchangeable even though they have identical shape
+   and sit on adjacent lines.  Recompute-do-not-hoist is a per-variable measurement, not a
+   rule about the function. */
 // FUN_00325450 NONMATCHING
 #ifdef NON_MATCHING
 void func_00325450(u8 *arg0, s64 arg1, s64 arg2) {
@@ -5005,7 +5021,6 @@ void func_00325450(u8 *arg0, s64 arg1, s64 arg2) {
     f32 temp_f22_5;
     f32 temp_f22_6;
     f32 temp_f22_7;
-    f32 temp_f23;
     f32 temp_f23_2;
     f32 temp_f23_3;
     f32 temp_f24;
@@ -5087,10 +5102,9 @@ void func_00325450(u8 *arg0, s64 arg1, s64 arg2) {
     func_002b2970((u8 *)&spC8, (f32) 0x232 + spD0, temp_f21);
     func_002b77d0(0x13D, spC8, 0x13D, *(s32 *)sp124, 0xBD, arg2, 6, 3, 33.0f, (s16)0, func_00331560());
     temp_f24 = 2.0f + spD4;
-    temp_f23 = 87.0f + spD0;
-    func_002b2970((u8 *)&spC8, temp_f23, temp_f24);
+    func_002b2970((u8 *)&spC8, (87.0f + spD0), temp_f24);
     func_002b77d0(0x14F, spC8, 0x14F, *(s32 *)sp128, 0xBC, arg2, 6, 3, 35.0f, (s16)0, func_00331560());
-    func_002b2970((u8 *)&spC8, (428.0f + temp_f23) - 1.0f, temp_f24);
+    func_002b2970((u8 *)&spC8, (428.0f + (87.0f + spD0)) - 1.0f, temp_f24);
     func_002b77d0(0x2C2, spC8, 0x14F, *(s32 *)sp128, 0xBC, arg2, 6, 3, 35.0f, (s16)0, func_00331560());
     switch (temp_16) {                              /* switch 1 */
     case 0:                                         /* switch 1 */
@@ -5158,12 +5172,12 @@ void func_00325450(u8 *arg0, s64 arg1, s64 arg2) {
         func_002b77d0(0x1D5, spC8, 0x1D5, *(s32 *)sp11C, 0xBD, arg2, 6, 3, 30.0f, (s16)0, func_00331560());
         func_002b2970((u8 *)&spC8, temp_f20_4, temp_f21_7);
         func_002b77d0(0x2DF, spC8, 0x1D5, *(s32 *)sp120, 0xBF, arg2, 6, 3, 25.0f, (s16)0, func_00331560());
-        func_002b2970((u8 *)&spC8, 214.0f + temp_f23, temp_f24);
+        func_002b2970((u8 *)&spC8, 214.0f + (87.0f + spD0), temp_f24);
         func_002b77d0(0x2C1, spC8, 0x14F, *(s32 *)sp128, 0xBC, arg2, 6, 3, 35.0f, (s16)0, func_00331560());
         if (((s64) (arg2 << 0x38) >> 0x38) == 0) {
             *(s8 *)(temp_17 + 0x122) = 1;
         }
-        func_002b2970((u8 *)&spC8, (216.0f + temp_f23) - (f32) (*(s8 *)(temp_17 + 0x122) * 0xD6), 4.0f + spD4);
+        func_002b2970((u8 *)&spC8, (216.0f + (87.0f + spD0)) - (f32) (*(s8 *)(temp_17 + 0x122) * 0xD6), 4.0f + spD4);
         func_002b77d0(0x150, spC8, 0x150, *(s32 *)sp118, 0xBC, arg2, 6, 3, 36.0f, (s16)0, func_00331560());
         func_002b7750(0x2E0, 0x150);
         func_002b2a60(&spF4, 0x8A, 0xCC, 0xFF, 0);

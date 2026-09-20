@@ -723,17 +723,7 @@ void func_00212240(u8 *arg0, s32 arg1) {
 
 
 
-/* measured 00212270: object 3864B vs retail window 5248B; retail 1311 instrs vs object 966 instrs (-26.3%, gate needs 1272-1350); differing words 1165 reloc-masked (GUARDED_SCORE), fnalign 1052 edits. Prior 2026-09-19 baseline 3244B/811 instrs/-38.1%/1149 words/1066 edits; delta +620B/+155 instrs/-14 edits from second func_00457120 inv recompute plus 11 unsigned (f32)(u32) byte conversions (b0-b3). Frame object 0x3C0 vs retail 0x3A0 (32B over; was 0x390/16B short; extra inv2+b0-b3 locals plus second-call saves, s3 vs s4 arg1 park, f20 vs f23 div.s coloring). JAL retail 22 (1x201350,4x201820,2x34f460,2x34f4a0,4x364fb0,1x366c70,2x3e0870,2x457120,1x46d5f0,3x indirect D_00887310) vs object 22 (second func_00457120 added; call counts match, shortfall is straight-line packet/data code). */
-/* shortfall (2026-09-19): largest retail[143:430] 287 vs object[120:122] 3 (remaining five packet headers/data 0x2480-0x2934: lui 0x435D/0x43D1/0x43E0/0x41E8 with sw/swc1 plus unsigned unpack/spills; first header at 0xB0 closed via second 457120+11 unsigned, prior largest 321 vs 5); dozens of 4-18 replaces for (s32)(204/255/4096-scaled smooth)&mask clamps (retail 0x4F00/c.ole/bc1t/cvt.w.s/mfc1/andi/or-0x80000000 vs compact). Excluded: all 7 pairs present, thresholds intact; no switch/call/unsigned/narrow/field bloat levers apply. */
-/* gate: func_00212270 is FAR OUTSIDE the +-3% band - object 966 against retail 1311, -26.3%,
-   where the band is 1272-1350.  One quarter of the function is still not written (was two fifths at 811).
-   It is kept installed only because the missing code is localised and named: retail[143:430] 287 against 3, the remaining five packet headers/data at 0x2480-0x2934 (lui 0x435D/0x43D1/0x43E0/0x41E8 with sw/swc1 plus per-channel unsigned unpack and spills; first header at 0xB0 fixed 2026-09-19 via second 457120+11 unsigned).
-   Everything else measured against this body is still outside-gate - the 1165 differing
-   words and 1052 fnalign edits are scores against a body still 345 instrs short
-   (handoff 7y), and they must not be quoted as progress or compared with any floor
-   inside the gate.  The only work that counts here is writing the missing blocks:
-   disassemble each retail range named above, describe what it computes, write it,
-   measure.  Do not tune expressions in the part that exists. */
+/* measured 00212270: object 5164B vs retail window 5248B; retail 1311 instrs vs object 1291 instrs (-1.5%, INSIDE gate 1272-1350); differing words 1183 reloc-masked (GUARDED_SCORE), fnalign 496 edits (was 3864B/966 instrs/-26.3%/1165 words/1052 edits). Fix 2026-09-20 closes the three deficit_scan ABSENT runs (287 at 0x2124ac-0x212928, 56 at 0x212efc-0x212fdc, 45 at 0x213260-0x213314): 6-vert fan is (640,0)/(221,0)/(640,418)/(0,448)/(418,448)/(0,29) with per-vert unsigned RGBA from 0xFF7B0000|alpha (a=0 except verts 0,3), not the collapsed 640/320/0 packets; bars are two full quads (0,92)-(640,224) top-transparent and (0,224)-(640,356) top-opaque with RGB 255,100,0 and per-vert (s32)(204*smooth)&0xFF alpha, which makes the 15.0/8.0 smooth live. Frame still object 0x3C0 vs retail 0x3A0 (32B over). */
 // FUN_00212270 NONMATCHING
 #ifdef NON_MATCHING
 void func_00212270(u8 *arg0, u8 *arg1)
@@ -745,21 +735,17 @@ void func_00212270(u8 *arg0, u8 *arg1)
         u32 pad0[3];
         f32 w;
         u32 pad1;
-    } QuadA;
+        f32 r;
+        f32 g;
+        f32 b;
+        f32 a;
+        u32 pad2[4];
+    } Vert;
     typedef struct {
-        f32 x;
-        f32 y;
-        f32 z;
-        u32 pad0[3];
-        f32 w;
-        u32 pad1[9];
-    } QuadB;
-    typedef struct {
-        QuadA packet[6];
-        u8 pad0[0xC0];
+        Vert fan[6];
         s32 uv[8];
         u8 params[0x40];
-        QuadB bars[4];
+        Vert bars[4];
         u8 pad1[0x10];
     } Local;
     extern void (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
@@ -885,31 +871,55 @@ void func_00212270(u8 *arg0, u8 *arg1)
     b3 = (u32)color & 0xFF;
     temp = func_00457120();
     inv2 = 1.0f / *(f32 *)(temp + 0x80);
-    local.packet[0].x = 640.0f;
-    local.packet[0].y = 0.0f;
-    local.packet[0].z = scale;
-    local.packet[0].w = inv2;
-    local.packet[1].x = (f32)b0;
-    local.packet[1].y = (f32)b1;
-    local.packet[1].z = (f32)b2;
-    local.packet[1].w = (f32)b3;
-    local.packet[2].x = 320.0f;
-    local.packet[2].y = 0.0f;
-    local.packet[2].z = scale;
-    local.packet[2].w = inv2;
-    local.packet[3].x = (f32)b0;
-    local.packet[3].y = (f32)b1;
-    local.packet[3].z = (f32)b2;
-    local.packet[3].w = 0.0f;
-    local.packet[4].x = 0.0f;
-    local.packet[4].y = 320.0f;
-    local.packet[4].z = scale;
-    local.packet[4].w = inv2;
-    local.packet[5].x = (f32)b0;
-    local.packet[5].y = (f32)b1;
-    local.packet[5].z = (f32)b2;
-    local.packet[5].w = (f32)b3;
-    D_00887310[0](3, local.packet, 6);
+    local.fan[0].x = 640.0f;
+    local.fan[0].y = 0.0f;
+    local.fan[0].z = scale;
+    local.fan[0].w = inv2;
+    local.fan[0].r = (f32)b0;
+    local.fan[0].g = (f32)b1;
+    local.fan[0].b = (f32)b2;
+    local.fan[0].a = (f32)b3;
+    local.fan[1].x = 221.0f;
+    local.fan[1].y = 0.0f;
+    local.fan[1].z = scale;
+    local.fan[1].w = inv2;
+    local.fan[1].r = (f32)b0;
+    local.fan[1].g = (f32)b1;
+    local.fan[1].b = (f32)b2;
+    local.fan[1].a = 0.0f;
+    local.fan[2].x = 640.0f;
+    local.fan[2].y = 418.0f;
+    local.fan[2].z = scale;
+    local.fan[2].w = inv2;
+    local.fan[2].r = (f32)b0;
+    local.fan[2].g = (f32)b1;
+    local.fan[2].b = (f32)b2;
+    local.fan[2].a = 0.0f;
+    local.fan[3].x = 0.0f;
+    local.fan[3].y = 448.0f;
+    local.fan[3].z = scale;
+    local.fan[3].w = inv2;
+    local.fan[3].r = (f32)b0;
+    local.fan[3].g = (f32)b1;
+    local.fan[3].b = (f32)b2;
+    local.fan[3].a = (f32)b3;
+    local.fan[4].x = 418.0f;
+    local.fan[4].y = 448.0f;
+    local.fan[4].z = scale;
+    local.fan[4].w = inv2;
+    local.fan[4].r = (f32)b0;
+    local.fan[4].g = (f32)b1;
+    local.fan[4].b = (f32)b2;
+    local.fan[4].a = 0.0f;
+    local.fan[5].x = 0.0f;
+    local.fan[5].y = 29.0f;
+    local.fan[5].z = scale;
+    local.fan[5].w = inv2;
+    local.fan[5].r = (f32)b0;
+    local.fan[5].g = (f32)b1;
+    local.fan[5].b = (f32)b2;
+    local.fan[5].a = 0.0f;
+    D_00887310[0](3, local.fan, 6);
     if (special) {
         *(s32 *)(arg1 + 0x3C) += 1;
         if (*(s32 *)(arg1 + 0x3C) == 0x15) {
@@ -1031,36 +1041,67 @@ void func_00212270(u8 *arg0, u8 *arg1)
     local.bars[0].y = 92.0f;
     local.bars[0].z = 0.0f;
     local.bars[0].w = inv;
-    local.bars[1].x = 255.0f;
-    local.bars[1].y = 100.0f;
+    local.bars[0].r = 255.0f;
+    local.bars[0].g = 100.0f;
+    local.bars[0].b = 0.0f;
+    local.bars[0].a = 0.0f;
+    local.bars[1].x = 640.0f;
+    local.bars[1].y = 92.0f;
     local.bars[1].z = 0.0f;
-    local.bars[1].w = 0.0f;
-    local.bars[2].x = 640.0f;
-    local.bars[2].y = 92.0f;
+    local.bars[1].w = inv;
+    local.bars[1].r = 255.0f;
+    local.bars[1].g = 100.0f;
+    local.bars[1].b = 0.0f;
+    local.bars[1].a = 0.0f;
+    local.bars[2].x = 0.0f;
+    local.bars[2].y = 224.0f;
     local.bars[2].z = 0.0f;
     local.bars[2].w = inv;
-    local.bars[3].x = 255.0f;
-    local.bars[3].y = 100.0f;
+    local.bars[2].r = 255.0f;
+    local.bars[2].g = 100.0f;
+    local.bars[2].b = 0.0f;
+    local.bars[2].a = (f32)(u32)((s32)(204.0f * smooth) & 0xFF);
+    local.bars[3].x = 640.0f;
+    local.bars[3].y = 224.0f;
     local.bars[3].z = 0.0f;
-    local.bars[3].w = 0.0f;
-    color = (s32)(204.0f * smooth) & 0xFF;
+    local.bars[3].w = inv;
+    local.bars[3].r = 255.0f;
+    local.bars[3].g = 100.0f;
+    local.bars[3].b = 0.0f;
+    local.bars[3].a = (f32)(u32)((s32)(204.0f * smooth) & 0xFF);
     D_00887310[0](4, local.bars, 4);
     local.bars[0].x = 0.0f;
     local.bars[0].y = 224.0f;
     local.bars[0].z = 0.0f;
     local.bars[0].w = inv;
-    local.bars[1].x = 255.0f;
-    local.bars[1].y = 100.0f;
+    local.bars[0].r = 255.0f;
+    local.bars[0].g = 100.0f;
+    local.bars[0].b = 0.0f;
+    local.bars[0].a = (f32)(u32)((s32)(204.0f * smooth) & 0xFF);
+    local.bars[1].x = 640.0f;
+    local.bars[1].y = 224.0f;
     local.bars[1].z = 0.0f;
-    local.bars[1].w = 0.0f;
-    local.bars[2].x = 640.0f;
-    local.bars[2].y = 224.0f;
+    local.bars[1].w = inv;
+    local.bars[1].r = 255.0f;
+    local.bars[1].g = 100.0f;
+    local.bars[1].b = 0.0f;
+    local.bars[1].a = (f32)(u32)((s32)(204.0f * smooth) & 0xFF);
+    local.bars[2].x = 0.0f;
+    local.bars[2].y = 356.0f;
     local.bars[2].z = 0.0f;
     local.bars[2].w = inv;
-    local.bars[3].x = 255.0f;
-    local.bars[3].y = 100.0f;
+    local.bars[2].r = 255.0f;
+    local.bars[2].g = 100.0f;
+    local.bars[2].b = 0.0f;
+    local.bars[2].a = 0.0f;
+    local.bars[3].x = 640.0f;
+    local.bars[3].y = 356.0f;
     local.bars[3].z = 0.0f;
-    local.bars[3].w = 0.0f;
+    local.bars[3].w = inv;
+    local.bars[3].r = 255.0f;
+    local.bars[3].g = 100.0f;
+    local.bars[3].b = 0.0f;
+    local.bars[3].a = 0.0f;
     D_00887310[0](4, local.bars, 4);
     func_00201820(0);
     if (special) {
