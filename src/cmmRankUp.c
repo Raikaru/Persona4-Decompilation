@@ -1894,6 +1894,23 @@ INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00256460);
    leading f32s needed to place fparg3/fparg4 at $f15/$f16), (s16)/(s64) arg
    spellings, named vt local. FP-allocation floor + vtable-hoist placement. */
 /* object 1264B, window 1296B, normalized_diff 735 (verify); abandoned alpha/register probe */
+/* measured 002566d0 (owner, 2026-09-20): 316 against retail 322 (-1.9%, inside), **169
+   edits**, with three identical 16-instruction CROSS runs at 0x00256894, 0x00256a10 and
+   0x00256b18 - the same construct three times.
+   Retail's block reads `andi $2, $8, 0xFF` and then the unsigned float conversion on that
+   masked byte, doubling with `add.s $f0, $f0, $f0`.
+   Two rewrites measured, and the interesting one cannot be banked:
+     compact `var_f0 = (f32)(u32)alpha_u`, letting b210 emit the whole idiom:
+       **150 edits** (-19) but the count drops to 307, which is -4.7% and OUTSIDE the band
+       (312-332), so it is rejected on the gate;
+     keep the written-out idiom and double with `var_f0 = var_f0 + var_f0`:
+       182 edits, also 307 - worse on both counts.
+   The compact form being BETTER here is a genuine counter-example to the standing rule
+   that the hand-written idiom must never be compacted, which came from func_00356a10
+   where compacting 21 sites cost 486 edits.  The difference looks like the operand: a
+   masked byte here, a full word there.  Neither result is safe to generalise, and this
+   floor stays as it is until the 6 missing instructions are found - then the compact
+   form becomes bankable and is worth 19. */
 // FUN_002566D0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002566d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
