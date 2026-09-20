@@ -2610,6 +2610,16 @@ INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00126090);
    <file> <func>` with NO --candidate on this guarded floor, which compiles the
    INCLUDE_ASM fallback and therefore aligns retail against itself; fnalign now refuses
    that invocation outright and tests/test_fnalign.py pins it. */
+/* fix 2026-09-20: old 4404/4404 was two errors cancelling, not evidence the body was right. */
+/* Hole (-1): s64 temp_10 = (s64)(BITWISE(s64,var_f0)<<0x30)>>0x30 called __fixsfdi@+0x2c04 */
+/* (obj jal+nop+dsll+dsra = 4); retail is cvt.w.s/mfc1/nop/dsll32 16/dsra32 16 = 5 */
+/* (R2866-2870 0x129268-0x129278, $f2 = 137.0*temp_f16). Narrow s32 <<16>>16 gives */
+/* the 5 and clears census 1->0 but lands 4405/6516 alone. Lump (+1): temp_f1_28 had */
+/* (f32)(temp_4<<0x10) where retail is (f32)temp_4 (R4175 0x12a6dc mtc1 $v1 vs obj sll+mtc1). */
+/* Removing that sll returns 4404/4404 at 6514+15, census 0, both sites matching. */
+/* Trap: s32 keep 0x30 clears census at 4400/6509 and s32 no-shift at 4402/6511, both */
+/* LOWER edits than the right answer but wrong: they drop the dsll32/dsra32 16 pair */
+/* retail emits. Lower edits at worse count is not a better body. */
 // FUN_001265A0 NONMATCHING
 #ifdef NON_MATCHING
 #ifndef M2C_GUARD
@@ -3097,7 +3107,7 @@ M2C_UNK unksp514;
     s32 var_8;
     s32 var_8_2;
     s32 var_8_3;
-    s64 temp_10;
+    s32 temp_10;
     s8 var_3_26;
     s8 var_3_29;
     u32 *temp_20;
@@ -3922,7 +3932,7 @@ loop_128:
                     var_f0 = temp_f21_2 - 2.1474836e9f;
                     var_5_14 = (M2C_BITWISE(s32, var_f0) | 0x80000000) & 0xFF;
                 }
-                temp_10 = (s64) (M2C_BITWISE(s64, var_f0) << 0x30) >> 0x30;
+                temp_10 = (s32) (M2C_BITWISE(s32, var_f0) << 16) >> 16;
     /* ACC seed */;
                 func_0025f430(0xFFFFFFU, var_5_14, 0x1000E, 0, M2C_FIELD(temp_20, s32 *, 0x3C), 1, temp_10, temp_10, -3.0f, -76.0f, 10.0f, (temp_f20 * temp_f21 + temp_f7 * temp_f8), temp_f16, temp_f16);
                 if (!(temp_f21_2 >= 2.1474836e9f)) {
@@ -4290,7 +4300,7 @@ loop_351:
         temp_5 = (s32)(M2C_FIELD(temp_20, s32 *, 0x24));
         temp_4 = (s32)(M2C_FIELD(temp_20, s32 *, 0x20));
         temp_28 = (s32)M2C_FIELD(temp_20, s32 *, 0x28);
-        temp_f1_28 = (f32)(temp_4 << 0x10) + 0.25f * (f32)((temp_4 - temp_5) << 0x10);
+        temp_f1_28 = (f32)temp_4 + 0.25f * (f32)((temp_4 - temp_5) << 0x10);
         temp_f0_11 = temp_f1_28 - (f32)temp_28;
         temp_i28 = (s32)temp_f0_11;
         if (((temp_5 < temp_4) && (temp_i28 < 0)) || ((temp_4 < temp_5) && (temp_i28 > 0))) {

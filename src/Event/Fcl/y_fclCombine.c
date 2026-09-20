@@ -6333,6 +6333,17 @@ void func_002fbea0(u8 *arg0) {
     extern s8 func_002bb1c0(s8);
     extern void func_0010fd40(void *);
     extern void func_00314750(u8 *, s32);
+    extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
+    extern s32 func_00275820(s32, s32, s32, s32, s32, s32, const char *, s32, f32, f32, f32);
+    extern u8 *iGpffffb440;
+    extern u8 D_00795E60[];
+    extern s32 func_0010b190(u8 *);
+    extern s32 func_001099f0(u16 *, s32);
+    extern s32 func_003026c0(s32, s32);
+    extern s32 func_002e7a60(void);
+    extern void func_002e7a80(s32);
+    extern void func_002bbd80(s8, s32, void *);
+    extern s32 func_00349290(u8 *, s8);
 
     u8 *p;
     u8 state;
@@ -6363,6 +6374,21 @@ void func_002fbea0(u8 *arg0) {
     u8 c1;
     s64 sp440;
     s64 sp438;
+    s64 var_16_6;
+    s64 var_18;
+    s64 var_19;
+    s64 var_22;
+    s64 temp_16;
+    s64 temp_21;
+    f32 temp_f20;
+    f32 temp_f0;
+    s32 var_3;
+    s32 temp_7;
+    s32 var_21;
+    s32 sumA;
+    s32 sumB;
+    s32 total;
+    s32 saved;
 
     p = *(u8 **)(arg0 + 0x38);
     state = *(p + 1);
@@ -6552,6 +6578,41 @@ void func_002fbea0(u8 *arg0) {
         *(p + 1) = 0x1B;
         return;
     case 0x94:
+        var_16_6 = *(s16 *)(func_002e4870(0) + 8);
+        if (*(s32 *)(func_002e4870(0) + 8) >= 9) {
+            var_16_6 = 8;
+        }
+        var_19 = (s64)(*(s16 *)(p + 0x11E) - *(s16 *)(p + 0x120));
+        var_18 = 0;
+        var_22 = var_16_6 + var_19;
+        while ((s64)((var_19 << 0x30) >> 0x30) < var_22) {
+            temp_16 = (s64)((var_18 << 0x30) >> 0x30);
+            temp_21 = temp_16 + 0x270;
+            temp_f20 = (f32)(*(s16 *)(func_002b6150((s64)((temp_21 << 0x30) >> 0x30)) + 0x42));
+            temp_f0 = func_002b2aa0(0, 255.0f, 0.0f, temp_f20, (f32)(*(s16 *)(func_002b6150((s64)((temp_21 << 0x30) >> 0x30)) + 0x40)));
+            if (!(temp_f0 >= 2.1474836e9f)) {
+                var_3 = ((s32)(temp_f0)) & 0xFF;
+            } else {
+                var_3 = (((s32)((temp_f0 - 2.1474836e9f))) | 0x80000000) & 0xFF;
+            }
+            temp_7 = var_3 & 0xFF;
+            if (*(s16 *)(p + 0x11E) == temp_16) {
+                var_21 = func_002b2a30(0x2D, 0x2D, 0x2D, temp_7);
+            } else {
+                var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
+            }
+            func_00275820(var_21, 0, 2, ((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11), 0, 0, (const char *)D_00795E60, 0x15, 244.0f, (f32)(s32)((temp_16 * 0x17) + 0x6E), 43.0f);
+            var_19 = (s64)((var_19 + 1) << 0x30) >> 0x30;
+            var_18 = (s64)((var_18 + 1) << 0x30) >> 0x30;
+        }
+        if (func_002b6970(*(s16 *)(func_002b6150(0x193) + 0x10), 1) == 0) {
+            func_0032f4d0(arg0);
+            func_003205f0(arg0, 0x96, 0x118);
+            func_00315600(arg0, 0);
+            *(p + 0) = 0;
+            *(p + 1) = 0x1B;
+            return;
+        }
         break;
     case 0x95:
         if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
@@ -6629,7 +6690,46 @@ void func_002fbea0(u8 *arg0) {
         *(p + 1) = 0x9A;
         return;
     case 0x9E:
-        break;
+        if (*(s8 *)(p + 0x122) == 1) {
+            func_0032c480(arg0);
+        } else {
+            *(s8 *)(func_0034a630(*(s32 *)(p + 0x254)) + 1) = 1;
+            func_0011d1d0(func_003147d0(*(u8 **)(p + 0x148)), 0.0f);
+        }
+        if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
+            func_002bbcf0(*(s8 *)(p + 0xD));
+            return;
+        }
+        if (func_002bb1c0(*(s8 *)(p + 0xD)) == 0) {
+            func_0010b190((u8 *)func_002e48a0(0, *(s16 *)(p + 0x11E)));
+            sumA = func_001099f0(func_002e48a0(0, *(s16 *)(p + 0x11E)), 0) & 0xFF;
+            sumA += func_001099f0(func_002e48a0(0, *(s16 *)(p + 0x11E)), 1) & 0xFF;
+            sumA += func_001099f0(func_002e48a0(0, *(s16 *)(p + 0x11E)), 2) & 0xFF;
+            sumA += func_001099f0(func_002e48a0(0, *(s16 *)(p + 0x11E)), 3) & 0xFF;
+            sumA += func_001099f0(func_002e48a0(0, *(s16 *)(p + 0x11E)), 4) & 0xFF;
+            sumB = func_001099f0(func_002e48a0(0, *(s16 *)(p + 0x11E)), 0) & 0xFF;
+            sumB += func_001099f0(func_002e48a0(0, *(s16 *)(p + 0x11E)), 1) & 0xFF;
+            sumB += func_001099f0(func_002e48a0(0, *(s16 *)(p + 0x11E)), 2) & 0xFF;
+            sumB += func_001099f0(func_002e48a0(0, *(s16 *)(p + 0x11E)), 3) & 0xFF;
+            total = sumA * (sumB + (func_001099f0(func_002e48a0(0, *(s16 *)(p + 0x11E)), 4) & 0xFF)) + 0x7D0;
+            saved = func_003026c0(*(u16 *)((u8 *)(func_002e48a0(0, *(s16 *)(p + 0x11E))) + 2), total);
+            func_002e7a80(func_002e7a60() - saved);
+            func_002bb550(*(s8 *)(p + 0xD));
+            tmp8 = func_002bab80((void *)func_00331660());
+            *(s8 *)(p + 0xD) = tmp8;
+            func_002bbd80(*(s8 *)(p + 0xD), 0, (void *)(((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, *(s16 *)(p + 0x11E))) + (2))) * 0x11)));
+            func_002badc0(*(s8 *)(p + 0xD), 0x10);
+            *(p + 1) = 0x9F;
+            func_0045af60(1, 0, 2, 6);
+            if (*(s32 *)(p + 0x2B8) != 0) {
+                *(s32 *)(p + 0x2B8) = 0;
+            }
+            *(s32 *)(p + 0x2B8) = func_00349290(arg0, *(s8 *)(p + 0x122));
+            return;
+        }
+        func_002bb550(*(s8 *)(p + 0xD));
+        *(p + 1) = 0x9A;
+        return;
     case 0x9F:
         if (*(s8 *)(p + 0x122) == 1) {
             func_0032c480(arg0);

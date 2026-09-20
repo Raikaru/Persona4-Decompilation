@@ -3231,52 +3231,6 @@ void func_00475cd0(void* param_1)
         if ((*(u32*)((u8*)param_1 + 0xD8) & 0x80000) != 0) {
             func_004746b0((u8*)param_1 + 0x234, (u8*)param_1 + 0xEC);
         }
-        func_00477260((u64)(u32)*(void**)((u8*)param_1 + 0xDC), (u32*)color,
-                               (u16)((((Mdl475Param*)param_1)->flags & 8) != 0));
-        effect = (u8*)((Mdl475Param*)param_1)->e0;
-        if (effect == 0) {
-            func_003f6440(3, 0x7C01B);
-        } else if ((*(s32*)(effect + 0x10) != 0 || *(s32*)(effect + 0x1C) != 0)
-                   && ((((Mdl475Param*)param_1)->flags & 0x80) == 0)) {
-            func_003f6440(3, 0x7F06B);
-        } else {
-            func_003f6440(3, 0x7D7FB);
-        }
-        func_00479910(*(void**)((u8*)param_1 + 0xDC));
-        func_004789c0(param_1);
-        if ((*(u16*)((u8*)param_1 + 0xEC) & 0x10) != 0) {
-            func_00473000(*(void**)((u8*)param_1 + 0x10C),
-                          (u8*)param_1 + 0xEC);
-        } else if ((*(u16*)((u8*)param_1 + 0x140) & 0x81E0) != 0) {
-            func_00471370(*(void**)((u8*)param_1 + 0x10C),
-                          (u8*)param_1 + 0xEC, (u8*)param_1 + 0x140, 0);
-        } else {
-            func_00397c40(*(void**)((u8*)param_1 + 0x10C));
-        }
-        effect = *(u8**)((u8*)param_1 + 0x2CC);
-        if (effect != 0) {
-            func_0047d900((u32)effect, (u8*)param_1 + 0x80);
-            func_0047d540((u32)effect, param_1);
-        }
-        i = 0;
-        while (i < 2) {
-            model = *(u8**)((u8*)param_1 + i * 0xA4 + 0x124);
-            if (model != 0) {
-                effect = *(u8**)(model + 0x18);
-                if (effect != 0 && *(u16*)(model + 0x30) == 0) {
-                    func_0047d900((u32)effect, model + 8);
-                    func_0047d540((u32)effect, param_1);
-                }
-                effect = *(u8**)(model + 0x24);
-                if (effect != 0 && *(u16*)(model + 0x30) == 0) {
-                    func_0047dd40((u32)effect, param_1);
-                }
-                if (*(u16*)(model + 0x30) > 0) {
-                    *(u16*)(model + 0x30) -= 1;
-                }
-            }
-            i++;
-        }
         j = 0;
         while (j < 5) {
             slot = (u8*)param_1 + j * 0xC;
