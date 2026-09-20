@@ -8352,8 +8352,8 @@ void func_002da0a0(register u8 *root) {
     f32 temp_f20_2;
     f32 f1;
     f32 f20;
-    s64 width0;
-    s64 width1;
+    s16 width0;
+    s16 width1;
     s64 i;
     s32 hi;
     register u8 *work;
@@ -8410,16 +8410,16 @@ void func_002da0a0(register u8 *root) {
     func_002e0620(*(void **)(work + 0xED8), spF8, spF0, 0, 6, 0);
     root = *(u8 **)(root + 0x38);
     r = func_0046d200(*(void **)((u8 *)root + 0xF28), 4);
-    width0 = (s64)((79.0f + func_0046b260(r)) / 2.0f);
+    width0 = (s16)((79.0f + func_0046b260(r)) / 2.0f);
     *(s16 *)((u8 *)func_002e04e0(*(void **)((u8 *)root + 0xED4)) + 0x100) =
         (s16)width0;
-    width1 = (s64)(func_0046b2f0(r) / 2.0f);
+    width1 = (s16)(func_0046b2f0(r) / 2.0f);
     *(s16 *)((u8 *)func_002e04e0(*(void **)((u8 *)root + 0xED4)) + 0x102) =
         (s16)width1;
     width0 = width0 - 79;
     *(s16 *)((u8 *)func_002e04e0(*(void **)((u8 *)root + 0xED8)) + 0x100) =
         (s16)width0;
-    width1 = (s64)(func_0046b2f0(r) / 2.0f);
+    width1 = (s16)(func_0046b2f0(r) / 2.0f);
     *(s16 *)((u8 *)func_002e04e0(*(void **)((u8 *)root + 0xED8)) + 0x102) =
         (s16)width1;
 

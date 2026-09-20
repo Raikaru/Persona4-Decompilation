@@ -56,7 +56,7 @@ static inline f32 func_00263220_mul(f32 left, f32 right)
 }
 extern void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2,
                           s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          s64 arg4, s64 arg5,
+                          s32 arg4, s32 arg5,
                           f32 fparg3, f32 fparg4, f32 fparg5);
 extern char iGpffffa6c4;
 extern void (*D_00887300[])(u32 state, u32 value);
@@ -2196,7 +2196,7 @@ s32 func_00267800(u8 **arg0, u8 *arg1)
 // FUN_00267B20 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
-void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s64 arg4, s64 arg5,
+void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
                    f32 fparg3, f32 fparg4, f32 fparg5)
 {
     typedef unsigned int u_long128 __attribute__((mode(TI)));
@@ -2278,12 +2278,14 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
         b2_9 = (combined >> 8) & 0xFF;
         b3_9 = combined & 0xFF;
         while (i9 < count9) {
-            frame.points[i9][0] = (fparg0 + ((f32 *)ptr9)[i9 * 2]) - ((f32 *)ptr9)[0];
-            frame.points[i9][1] = (fparg1 + ((f32 *)ptr9)[i9 * 2 + 1]) - ((f32 *)ptr9)[1];
-            frame.colors[i9][0] = b0_9;
-            frame.colors[i9][1] = b1_9;
-            frame.colors[i9][2] = b2_9;
-            frame.colors[i9][3] = b3_9;
+            f32 *dst9 = &frame.points[i9][0];
+            u8 *col9 = &frame.colors[i9][0];
+            dst9[0] = (fparg0 + ((f32 *)ptr9)[i9 * 2]) - ((f32 *)ptr9)[0];
+            dst9[1] = (fparg1 + ((f32 *)ptr9)[i9 * 2 + 1]) - ((f32 *)ptr9)[1];
+            col9[0] = b0_9;
+            col9[1] = b1_9;
+            col9[2] = b2_9;
+            col9[3] = b3_9;
             i9++;
         }
         func_00364c50();
@@ -2336,12 +2338,14 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     frame.d0 = (combined >> 8) & 0xFF;
     b3 = combined & 0xFF;
     while (iA < countA) {
-        frame.points[iA][0] = (fparg0 + ((f32 *)ptrA)[iA * 2]) - ((f32 *)ptrA)[0];
-        frame.points[iA][1] = (fparg1 + ((f32 *)ptrA)[iA * 2 + 1]) - ((f32 *)ptrA)[1];
-        frame.colors[iA][0] = b0;
-        frame.colors[iA][1] = b1;
-        frame.colors[iA][2] = (u8)frame.d0;
-        frame.colors[iA][3] = b3;
+        f32 *dstA = &frame.points[iA][0];
+        u8 *colA = &frame.colors[iA][0];
+        dstA[0] = (fparg0 + ((f32 *)ptrA)[iA * 2]) - ((f32 *)ptrA)[0];
+        dstA[1] = (fparg1 + ((f32 *)ptrA)[iA * 2 + 1]) - ((f32 *)ptrA)[1];
+        colA[0] = b0;
+        colA[1] = b1;
+        colA[2] = (u8)frame.d0;
+        colA[3] = b3;
         iA++;
     }
     func_00364c50();
@@ -2359,12 +2363,14 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     ptrB = (u8 *)frame.arr100[arg3 * 2];
     iB = 0;
     while (iB < countB) {
-        frame.points[iB][0] = (fparg0 + ((f32 *)ptrB)[iB * 2]) - ((f32 *)ptrB)[0];
-        frame.points[iB][1] = (fparg1 + ((f32 *)ptrB)[iB * 2 + 1]) - ((f32 *)ptrB)[1];
-        frame.colors[iB][0] = b0;
-        frame.colors[iB][1] = b1;
-        frame.colors[iB][2] = (u8)frame.d0;
-        frame.colors[iB][3] = b3;
+        f32 *dstB = &frame.points[iB][0];
+        u8 *colB = &frame.colors[iB][0];
+        dstB[0] = (fparg0 + ((f32 *)ptrB)[iB * 2]) - ((f32 *)ptrB)[0];
+        dstB[1] = (fparg1 + ((f32 *)ptrB)[iB * 2 + 1]) - ((f32 *)ptrB)[1];
+        colB[0] = b0;
+        colB[1] = b1;
+        colB[2] = (u8)frame.d0;
+        colB[3] = b3;
         iB++;
     }
     if (arg1 == 0xFF) {
@@ -2376,12 +2382,14 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     }
     iC = 1;
     while (iC < countA) {
-        frame.points[iC - 1][0] = (fparg0 + ((f32 *)ptrA)[iC * 2]) - ((f32 *)ptrA)[0];
-        frame.points[iC - 1][1] = (fparg1 + ((f32 *)ptrA)[iC * 2 + 1]) - ((f32 *)ptrA)[1];
-        frame.colors[iC - 1][0] = b0;
-        frame.colors[iC - 1][1] = b1;
-        frame.colors[iC - 1][2] = (u8)frame.d0;
-        frame.colors[iC - 1][3] = b3;
+        f32 *dstC = &frame.points[iC - 1][0];
+        u8 *colC = &frame.colors[iC - 1][0];
+        dstC[0] = (fparg0 + ((f32 *)ptrA)[iC * 2]) - ((f32 *)ptrA)[0];
+        dstC[1] = (fparg1 + ((f32 *)ptrA)[iC * 2 + 1]) - ((f32 *)ptrA)[1];
+        colC[0] = b0;
+        colC[1] = b1;
+        colC[2] = (u8)frame.d0;
+        colC[3] = b3;
         iC++;
     }
     if (arg1 == 0xFF) {
