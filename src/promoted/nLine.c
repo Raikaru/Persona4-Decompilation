@@ -423,7 +423,6 @@ void func_0034c270(Vec2f arg0, s32 arg1, s32 arg2, f32 fparg0) {
     f32 hi;
     f32 lo;
     f32 c255;
-    f32 cMax;
     f32 *srcBase;
     s32 i;
     u8 *dst;
@@ -446,7 +445,6 @@ void func_0034c270(Vec2f arg0, s32 arg1, s32 arg2, f32 fparg0) {
     hi = arg0.y;
     lo = arg0.x;
     c255 = 255.0f;
-    cMax = 2.1474836e9f;
     for (; i < 0x14; i++) {
         dst = sp50 + i * 0x54;
         src = srcBase + i * 0xC;
