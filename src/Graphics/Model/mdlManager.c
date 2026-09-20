@@ -497,6 +497,9 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
    product shared between two terms must be ONE expression to get mula+madd.  About 44
    such sites are still written as separate multiplies and adds.  No word or edit score
    measured against this body is comparable until the count is inside (handoff 7y). */
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
 // FUN_00471370 NONMATCHING
 #ifdef NON_MATCHING
 void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
@@ -518,7 +521,7 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
     extern s32 func_003dcb40();
     extern s32 func_003dcc70();
     extern s32 func_003e05f0();
-    extern s32 func_003e0870();
+    extern s32 func_003e0870(float, void *, void *, int);
     extern s32 func_003e0960();
     extern s32 func_003e0a90();
     extern s32 func_003e40b0();
@@ -699,10 +702,10 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
     else {
       uStack_c8 = 0x3f800000;
       uStack_dc = 0x3f800000;
-      afStack_f0[0] = 1.0;
+      afStack_f0[0] = 1.0f;
       uStack_e0 = 0;
-      afStack_f0[2] = 0.0;
-      afStack_f0[1] = 0.0;
+      afStack_f0[2] = 0.0f;
+      afStack_f0[1] = 0.0f;
       uStack_cc = 0;
       uStack_d0 = 0;
       uStack_d8 = 0;
@@ -727,14 +730,14 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   if (temp_v1) {
     if ((temp_v3 == 0) || (temp_v9 = *(int *)(temp_v3 + 4), temp_v9 == 0)) {
       uStack_88 = 0x3f800000;
-      afStack_b0[5] = 1.0;
-      afStack_b0[0] = 1.0;
-      afStack_b0[4] = 0.0;
-      afStack_b0[2] = 0.0;
-      afStack_b0[1] = 0.0;
+      afStack_b0[5] = 1.0f;
+      afStack_b0[0] = 1.0f;
+      afStack_b0[4] = 0.0f;
+      afStack_b0[2] = 0.0f;
+      afStack_b0[1] = 0.0f;
       uStack_8c = 0;
       uStack_90 = 0;
-      afStack_b0[6] = 0.0;
+      afStack_b0[6] = 0.0f;
       uStack_78 = 0;
       uStack_7c = 0;
       uStack_80 = 0;
@@ -804,22 +807,22 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   pfVar8 = (float *)puVar12[2];
   temp_v11 = temp_v6 + 0x4c;
   puVar3 = *(unsigned int **)((short)param_2[2] * 0x50 + **(int **)(param_2 + 0x1a) + 0x48);
-  if ((puVar3 == (unsigned int *)0x0) || (*(float *)(param_2 + 4) != 0.0)) {
+  if ((puVar3 == (unsigned int *)0x0) || (*(float *)(param_2 + 4) != 0.0f)) {
     for (iStack_420 = 0; iStack_420 < (int)puVar12[1]; iStack_420 = iStack_420 + 1) {
       if (*pcVar2 == func_003954b0) {
         temp_v14 = *(float *)(temp_v11 + 8);
         temp_v15 = *(float *)(temp_v11 + 0xc);
         temp_v21 = *(float *)(temp_v11 + 0x10);
         temp_v20 = *(float *)(temp_v11 + 0x14);
-        fStack_230 = 1.0 - (temp_v15 * temp_v15 + temp_v21 * temp_v21) * 2.0;
-        fStack_22c = (temp_v14 * temp_v15 + temp_v20 * temp_v21) * 2.0;
-        fStack_228 = (temp_v21 * temp_v14 - temp_v20 * temp_v15) * 2.0;
-        fStack_220 = (temp_v14 * temp_v15 - temp_v20 * temp_v21) * 2.0;
-        fStack_21c = 1.0 - (temp_v14 * temp_v14 + temp_v21 * temp_v21) * 2.0;
-        fStack_218 = (temp_v15 * temp_v21 + temp_v20 * temp_v14) * 2.0;
-        fStack_210 = (temp_v21 * temp_v14 + temp_v20 * temp_v15) * 2.0;
-        fStack_20c = (temp_v15 * temp_v21 - temp_v20 * temp_v14) * 2.0;
-        fStack_208 = 1.0 - (temp_v14 * temp_v14 + temp_v15 * temp_v15) * 2.0;
+        fStack_230 = 1.0f - (temp_v15 * temp_v15 + temp_v21 * temp_v21) * 2.0f;
+        fStack_22c = (temp_v14 * temp_v15 + temp_v20 * temp_v21) * 2.0f;
+        fStack_228 = (temp_v21 * temp_v14 - temp_v20 * temp_v15) * 2.0f;
+        fStack_220 = (temp_v14 * temp_v15 - temp_v20 * temp_v21) * 2.0f;
+        fStack_21c = 1.0f - (temp_v14 * temp_v14 + temp_v21 * temp_v21) * 2.0f;
+        fStack_218 = (temp_v15 * temp_v21 + temp_v20 * temp_v14) * 2.0f;
+        fStack_210 = (temp_v21 * temp_v14 + temp_v20 * temp_v15) * 2.0f;
+        fStack_20c = (temp_v15 * temp_v21 - temp_v20 * temp_v14) * 2.0f;
+        fStack_208 = 1.0f - (temp_v14 * temp_v14 + temp_v15 * temp_v15) * 2.0f;
         uStack_224 = 3;
         uStack_200 = *(unsigned int *)(temp_v11 + 0x18);
         uStack_1fc = *(unsigned int *)(temp_v11 + 0x1c);
@@ -833,12 +836,12 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
           *param_3 = *param_3 | 0x600;
         }
         temp_v1 = 0;
-        fStack_30 = 1.0 / *(float *)(param_3 + 0x18);
-        fStack_2c = 1.0 / *(float *)(param_3 + 0x1a);
-        fStack_28 = 1.0 / *(float *)(param_3 + 0x1c);
+        fStack_30 = 1.0f / *(float *)(param_3 + 0x18);
+        fStack_2c = 1.0f / *(float *)(param_3 + 0x1a);
+        fStack_28 = 1.0f / *(float *)(param_3 + 0x1c);
         if ((*param_2 & 0x10) != 0) {
-          fStack_30 = fStack_30 * (1.0 / DAT_00922bb0);
-          temp_v21 = (1.0 / DAT_00922bb0) * DAT_00922bb4;
+          fStack_30 = fStack_30 * (1.0f / DAT_00922bb0);
+          temp_v21 = (1.0f / DAT_00922bb0) * DAT_00922bb4;
           fStack_2c = fStack_2c * temp_v21;
           fStack_28 = fStack_28 * temp_v21;
         }
@@ -864,11 +867,11 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
           uStack_10 = 0;
           uStack_c = 0x3f800000;
           uStack_8 = 0;
-          func_003e0870(0x43340000,temp_v24,&uStack_10,0);
+          func_003e0870(180.0f,temp_v24,&uStack_10,0);
           uStack_10 = 0;
           uStack_c = 0;
           uStack_8 = 0x3f800000;
-          func_003e0870(0xc2b40000,temp_v24,&uStack_10,2);
+          func_003e0870(-90.0f,temp_v24,&uStack_10,2);
           func_003e05f0(temp_v25,temp_v24,afStack_b0);
           temp_v0 = *param_3;
           if ((temp_v0 & 0x100) == 0) {
@@ -882,12 +885,12 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
                 uStack_c = 0;
                 uStack_8 = 0;
                 func_003e4320(&uStack_10,&uStack_10,afStack_b0);
-                func_003e0870(*(unsigned int *)(param_3 + 0x1e),temp_v24,&uStack_10,0);
+                func_003e0870(*(float *)(param_3 + 0x1e),temp_v24,&uStack_10,0);
                 uStack_10 = 0;
                 uStack_c = 0x3f800000;
                 uStack_8 = 0;
                 func_003e4320(&uStack_10,&uStack_10,afStack_b0);
-                func_003e0870(*(unsigned int *)(param_3 + 0x20),temp_v24,&uStack_10,2);
+                func_003e0870(*(float *)(param_3 + 0x20),temp_v24,&uStack_10,2);
                 func_003e05f0(pfVar8,temp_v25,temp_v24);
                 func_003dc610(&fStack_340,pfVar8);
               }
@@ -908,9 +911,9 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
               func_003e0960(temp_v23,afStack_b0);
               func_003e4320(&fStack_30,&fStack_30,temp_v23);
               func_003e40b0(&fStack_30,&fStack_30);
-              fStack_50 = 0.0;
-              fStack_4c = 0.0;
-              fStack_48 = -100.0;
+              fStack_50 = 0.0f;
+              fStack_4c = 0.0f;
+              fStack_48 = -100.0f;
               func_003e42a0(&fStack_50,&fStack_50,afStack_1b0);
               fStack_40 = fStack_20 - fStack_50;
               fStack_3c = fStack_1c - fStack_4c;
@@ -918,34 +921,34 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
               func_003e4320(&fStack_40,&fStack_40,temp_v23);
               func_003e40b0(&fStack_40,&fStack_40);
               temp_v21 = func_0044b920(fStack_3c);
-              temp_v15 = fGpffff8048 * temp_v21 - 90.0;
+              temp_v15 = fGpffff8048 * temp_v21 - 90.0f;
               temp_v21 = func_0044b950(fStack_40,fStack_38);
-              temp_v14 = fGpffff8048 * temp_v21 + 180.0;
+              temp_v14 = fGpffff8048 * temp_v21 + 180.0f;
               temp_v21 = func_0044b920(fStack_2c);
-              temp_v20 = fGpffff8048 * temp_v21 - 90.0;
+              temp_v20 = fGpffff8048 * temp_v21 - 90.0f;
               temp_v21 = func_0044b950(fStack_30,fStack_28);
               temp_v21 = fGpffff8048 * temp_v21;
-              for (temp_v20 = temp_v20 - temp_v15; temp_v20 < 0.0; temp_v20 = temp_v20 + 360.0) {
+              for (temp_v20 = temp_v20 - temp_v15; temp_v20 < 0.0f; temp_v20 = temp_v20 + 360.0f) {
               }
-              for (; 360.0 < temp_v20; temp_v20 = temp_v20 - 360.0) {
+              for (; 360.0f < temp_v20; temp_v20 = temp_v20 - 360.0f) {
               }
               temp_v16 = *(float *)(param_3 + 4);
-              if ((temp_v16 < temp_v20) && (temp_v20 < 360.0 - temp_v16)) {
-                if (180.0 <= temp_v20) {
-                  temp_v16 = 360.0 - temp_v16;
+              if ((temp_v16 < temp_v20) && (temp_v20 < 360.0f - temp_v16)) {
+                if (180.0f <= temp_v20) {
+                  temp_v16 = 360.0f - temp_v16;
                 }
                 temp_v1 = 1;
                 temp_v20 = temp_v16;
               }
               func_003e0870(-(temp_v20 + temp_v15),temp_v24,temp_v26,0);
-              for (temp_v21 = (temp_v21 + 180.0) - temp_v14; temp_v21 < 0.0; temp_v21 = temp_v21 + 360.0) {
+              for (temp_v21 = (temp_v21 + 180.0f) - temp_v14; temp_v21 < 0.0f; temp_v21 = temp_v21 + 360.0f) {
               }
-              for (; 360.0 < temp_v21; temp_v21 = temp_v21 - 360.0) {
+              for (; 360.0f < temp_v21; temp_v21 = temp_v21 - 360.0f) {
               }
               temp_v20 = *(float *)(param_3 + 6);
-              if ((temp_v20 < temp_v21) && (temp_v21 < 360.0 - temp_v20)) {
-                if (180.0 <= temp_v21) {
-                  temp_v20 = 360.0 - temp_v20;
+              if ((temp_v20 < temp_v21) && (temp_v21 < 360.0f - temp_v20)) {
+                if (180.0f <= temp_v21) {
+                  temp_v20 = 360.0f - temp_v20;
                 }
                 temp_v1 = 1;
                 temp_v21 = temp_v20;
@@ -973,7 +976,7 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
               fStack_334 = *(float *)(param_3 + 0x16);
             }
             if (((*param_3 & 0x8000) != 0) &&
-               ((*(float *)(param_3 + 0x24) != 0.0 || (*(float *)(param_3 + 0x26) != 0.0)))) {
+               ((*(float *)(param_3 + 0x24) != 0.0f || (*(float *)(param_3 + 0x26) != 0.0f)))) {
               fStack_390 = fStack_340;
               fStack_38c = fStack_33c;
               fStack_388 = fStack_338;
@@ -997,7 +1000,7 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
           if ((*param_3 & 0x200) == 0) {
             if ((puVar3 == (unsigned int *)0x0) && ((*param_3 & 0x100) != 0)) {
               temp_v21 = func_004bd4a0((unsigned char *)(param_3 + 8),(unsigned char *)&fStack_340);
-              if (temp_v21 < 0.0) {
+              if (temp_v21 < 0.0f) {
                 fStack_344 = -fStack_334;
                 fStack_350 = -fStack_340;
                 fStack_34c = -fStack_33c;
@@ -1005,7 +1008,7 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
                 temp_v21 = func_004bd4a0((unsigned char *)(param_3 + 8),(unsigned char *)&fStack_350);
               }
               temp_v21 = func_0044b920(temp_v21);
-              if (temp_v21 * 2.0 < fGpffff804c) {
+              if (temp_v21 * 2.0f < fGpffff804c) {
                 *param_3 = *param_3 & 0x7e1f;
                 *param_3 = *param_3 & 0xfbff;
               }
@@ -1017,20 +1020,20 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
             fStack_3a4 = *(float *)(param_3 + 0xe);
             func_003dcc70(&fStack_3b0,&fStack_340,&fStack_380);
             temp_v21 = *(float *)(param_3 + 2);
-            if (temp_v21 <= 0.0) {
+            if (temp_v21 <= 0.0f) {
               fStack_3a0 = fStack_3b0;
               fStack_39c = fStack_3ac;
               fStack_398 = fStack_3a8;
               fStack_394 = fStack_3a4;
             }
-            else if (1.0 <= temp_v21) {
+            else if (1.0f <= temp_v21) {
               fStack_3a0 = fStack_340;
               fStack_39c = fStack_33c;
               fStack_398 = fStack_338;
               fStack_394 = fStack_334;
             }
             else {
-              temp_v20 = 1.0 - temp_v21;
+              temp_v20 = 1.0f - temp_v21;
               if (iStack_35c == 0) {
                 temp_v20 = temp_v20 * fStack_360;
                 temp_v14 = temp_v20 * temp_v20;
@@ -1061,7 +1064,7 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
             else {
               func_003dc610(&uStack_3c0,&fStack_330);
               temp_v21 = func_004bd4a0((unsigned char *)&uStack_3c0,(unsigned char *)&fStack_3a0);
-              if (temp_v21 < 0.0) {
+              if (temp_v21 < 0.0f) {
                 fStack_344 = -fStack_394;
                 fStack_350 = -fStack_3a0;
                 fStack_34c = -fStack_39c;
@@ -1069,29 +1072,29 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
                 temp_v21 = func_004bd4a0((unsigned char *)&uStack_3c0,(unsigned char *)&fStack_350);
               }
               temp_v21 = func_0044b920(temp_v21);
-              if (temp_v21 * 2.0 <= fGpffff8068 * *(float *)(param_3 + 6)) {
+              if (temp_v21 * 2.0f <= fGpffff8068 * *(float *)(param_3 + 6)) {
                 *(float *)(param_3 + 8) = fStack_3a0;
                 *(float *)(param_3 + 10) = fStack_39c;
                 *(float *)(param_3 + 0xc) = fStack_398;
                 *(float *)(param_3 + 0xe) = fStack_394;
               }
               else {
-                temp_v21 = 1.0 - fGpffff806c / (temp_v21 * 2.0);
+                temp_v21 = 1.0f - fGpffff806c / (temp_v21 * 2.0f);
                 func_003dcc70(&fStack_3a0,&uStack_3c0,&fStack_380);
-                if (temp_v21 <= 0.0) {
+                if (temp_v21 <= 0.0f) {
                   *(float *)(param_3 + 8) = fStack_3a0;
                   *(float *)(param_3 + 10) = fStack_39c;
                   *(float *)(param_3 + 0xc) = fStack_398;
                   *(float *)(param_3 + 0xe) = fStack_394;
                 }
-                else if (1.0 <= temp_v21) {
+                else if (1.0f <= temp_v21) {
                   *(unsigned int *)(param_3 + 8) = uStack_3c0;
                   *(unsigned int *)(param_3 + 10) = uStack_3bc;
                   *(unsigned int *)(param_3 + 0xc) = uStack_3b8;
                   *(unsigned int *)(param_3 + 0xe) = uStack_3b4;
                 }
                 else {
-                  temp_v20 = 1.0 - temp_v21;
+                  temp_v20 = 1.0f - temp_v21;
                   if (iStack_35c == 0) {
                     temp_v20 = temp_v20 * fStack_360;
                     temp_v14 = temp_v20 * temp_v20;
@@ -1133,23 +1136,23 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
             temp_v19 = *(float *)(param_3 + 8);
             temp_v18 = *(float *)(param_3 + 0xc);
             temp_v14 = *(float *)(param_3 + 0xe);
-            temp_v20 = 2.0 / (temp_v14 * temp_v14 + temp_v18 * temp_v18 + temp_v19 * temp_v19 + temp_v16 * temp_v16);
+            temp_v20 = 2.0f / (temp_v14 * temp_v14 + temp_v18 * temp_v18 + temp_v19 * temp_v19 + temp_v16 * temp_v16);
             temp_v15 = temp_v19 * temp_v20;
             temp_v21 = temp_v16 * temp_v20;
             temp_v20 = temp_v18 * temp_v20;
-            *pfVar8 = 1.0 - (temp_v16 * temp_v21 + temp_v18 * temp_v20);
+            *pfVar8 = 1.0f - (temp_v16 * temp_v21 + temp_v18 * temp_v20);
             pfVar8[1] = temp_v19 * temp_v21 + temp_v20 * temp_v14;
             pfVar8[2] = temp_v18 * temp_v15 - temp_v21 * temp_v14;
             pfVar8[4] = temp_v19 * temp_v21 - temp_v20 * temp_v14;
-            pfVar8[5] = 1.0 - (temp_v18 * temp_v20 + temp_v19 * temp_v15);
+            pfVar8[5] = 1.0f - (temp_v18 * temp_v20 + temp_v19 * temp_v15);
             pfVar8[6] = temp_v16 * temp_v20 + temp_v15 * temp_v14;
             pfVar8[8] = temp_v18 * temp_v15 + temp_v21 * temp_v14;
             pfVar8[9] = temp_v16 * temp_v20 - temp_v15 * temp_v14;
-            pfVar8[10] = 1.0 - (temp_v19 * temp_v15 + temp_v16 * temp_v21);
-            pfVar8[0xc] = 0.0;
-            pfVar8[0xd] = 0.0;
-            pfVar8[0xe] = 0.0;
-            pfVar8[3] = 4.2039e-45;
+            pfVar8[10] = 1.0f - (temp_v19 * temp_v15 + temp_v16 * temp_v21);
+            pfVar8[0xc] = 0.0f;
+            pfVar8[0xd] = 0.0f;
+            pfVar8[0xe] = 0.0f;
+            pfVar8[3] = 4.2039e-45f;
             fStack_30 = *(float *)(param_3 + 0x18);
             fStack_2c = *(float *)(param_3 + 0x1a);
             fStack_28 = *(float *)(param_3 + 0x1c);
@@ -1168,22 +1171,22 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
             temp_v19 = *(float *)(param_3 + 8);
             temp_v18 = *(float *)(param_3 + 0xc);
             temp_v14 = *(float *)(param_3 + 0xe);
-            temp_v20 = 2.0 / (temp_v14 * temp_v14 + temp_v18 * temp_v18 + temp_v19 * temp_v19 + temp_v16 * temp_v16);
+            temp_v20 = 2.0f / (temp_v14 * temp_v14 + temp_v18 * temp_v18 + temp_v19 * temp_v19 + temp_v16 * temp_v16);
             temp_v15 = temp_v19 * temp_v20;
             temp_v21 = temp_v16 * temp_v20;
             temp_v20 = temp_v18 * temp_v20;
-            fStack_330 = 1.0 - (temp_v16 * temp_v21 + temp_v18 * temp_v20);
+            fStack_330 = 1.0f - (temp_v16 * temp_v21 + temp_v18 * temp_v20);
             fStack_32c = temp_v19 * temp_v21 + temp_v20 * temp_v14;
             fStack_328 = temp_v18 * temp_v15 - temp_v21 * temp_v14;
             fStack_320 = temp_v19 * temp_v21 - temp_v20 * temp_v14;
-            fStack_31c = 1.0 - (temp_v18 * temp_v20 + temp_v19 * temp_v15);
+            fStack_31c = 1.0f - (temp_v18 * temp_v20 + temp_v19 * temp_v15);
             fStack_318 = temp_v16 * temp_v20 + temp_v15 * temp_v14;
             fStack_310 = temp_v18 * temp_v15 + temp_v21 * temp_v14;
             fStack_30c = temp_v16 * temp_v20 - temp_v15 * temp_v14;
-            fStack_308 = 1.0 - (temp_v19 * temp_v15 + temp_v16 * temp_v21);
-            fStack_300 = 0.0;
-            fStack_2fc = 0.0;
-            fStack_2f8 = 0.0;
+            fStack_308 = 1.0f - (temp_v19 * temp_v15 + temp_v16 * temp_v21);
+            fStack_300 = 0.0f;
+            fStack_2fc = 0.0f;
+            fStack_2f8 = 0.0f;
             uStack_324 = 3;
             fStack_30 = *(float *)(param_3 + 0x18);
             fStack_2c = *(float *)(param_3 + 0x1a);
@@ -1286,7 +1289,7 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
         puVar3[0xc] = 0x3f800000;
         puVar3[0x12] = 0;
       }
-      if ((1.0 <= ((float *)puVar3)[0xe]) ||
+      if ((1.0f <= ((float *)puVar3)[0xe]) ||
          (pbVar19 = *(unsigned char **)(param_2 + 0x14), pbVar19 == (unsigned char *)0x0)) {
         pbVar19 = (unsigned char *)puVar12[8];
         temp_v21 = *(float *)(pbVar19 + 4);
@@ -1294,7 +1297,7 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       else {
         piVar4 = *(int **)(**(int **)(param_2 + 0x1a) + 0x4c + (short)param_2[2] * 0x50);
         if (piVar4 == (int *)0x0) {
-          temp_v21 = 0.0;
+          temp_v21 = 0.0f;
         }
         else {
           temp_v21 = fGpffff8040 * (float)*piVar4;
@@ -1320,7 +1323,7 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       func_003e4320(&fStack_60,&fStack_60,temp_v22);
       func_003e40b0(&fStack_60,&fStack_60);
       temp_v20 = (float)*(unsigned short *)((int)puVar3 + 0x3e) / *(float *)(param_3 + 6);
-      if (0.0 <= fStack_60) {
+      if (0.0f <= fStack_60) {
         func_003d5840(puVar3[5],puVar3[1]);
         func_003d5e40((unsigned char *)puVar3[5],temp_v21);
         func_003d5e90((unsigned char *)puVar3[6],pbVar19,(unsigned char *)puVar3[5],fStack_60 / temp_v20);
@@ -1332,7 +1335,7 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
         func_003d5e90((unsigned char *)puVar3[5],pbVar19,(unsigned char *)puVar3[6],-fStack_60 / temp_v20);
         temp_v9 = 1;
       }
-      if (0.0 <= fStack_5c) {
+      if (0.0f <= fStack_5c) {
         func_003d5840(puVar3[7],puVar3[3]);
         func_003d5e40((unsigned char *)puVar3[7],temp_v21);
         func_003d5e90((unsigned char *)puVar3[4],(unsigned char *)puVar3[temp_v9 + 4],(unsigned char *)puVar3[7],fStack_5c);
@@ -1344,15 +1347,15 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
         func_003d5e90((unsigned char *)puVar3[7],(unsigned char *)puVar3[temp_v9 + 4],(unsigned char *)puVar3[4],-fStack_5c);
         puVar3[0x11] = 3;
       }
-      if ((1.0 <= ((float *)puVar3)[0xe]) || (*(unsigned char **)(param_2 + 0x12) == (unsigned char *)0x0)) {
+      if ((1.0f <= ((float *)puVar3)[0xe]) || (*(unsigned char **)(param_2 + 0x12) == (unsigned char *)0x0)) {
         if ((*param_3 & 0x100) == 0) {
-          ((float *)puVar3)[0xc] = ((float *)puVar3)[0xc] * (1.0 - *(float *)(param_3 + 2));
+          ((float *)puVar3)[0xc] = ((float *)puVar3)[0xc] * (1.0f - *(float *)(param_3 + 2));
           puVar3[0x12] = 0x3f800000;
           func_003d5e90((unsigned char *)puVar12[8],(unsigned char *)puVar12[8],(unsigned char *)puVar3[puVar3[0x11] + 4],
-                        1.0 - ((float *)puVar3)[0xc]);
+                        1.0f - ((float *)puVar3)[0xc]);
         }
         else {
-          ((float *)puVar3)[0x12] = ((float *)puVar3)[0x12] * (1.0 - *(float *)(param_3 + 2));
+          ((float *)puVar3)[0x12] = ((float *)puVar3)[0x12] * (1.0f - *(float *)(param_3 + 2));
           func_003d5e90((unsigned char *)puVar12[8],(unsigned char *)puVar12[8],(unsigned char *)puVar3[puVar3[0x11] + 4],
                         ((float *)puVar3)[0x12]);
           if (((float *)puVar3)[0x12] < fGpffff8074) {
@@ -1365,7 +1368,7 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       else {
         func_003d5e90((unsigned char *)puVar12[8],*(unsigned char **)(param_2 + 0x12),(unsigned char *)puVar3[puVar3[0x11] + 4]
                       ,((float *)puVar3)[0xe]);
-        ((float *)puVar3)[0xe] = ((float *)puVar3)[0xe] + 1.0 / (float)puVar3[0xd];
+        ((float *)puVar3)[0xe] = ((float *)puVar3)[0xe] + 1.0f / (float)puVar3[0xd];
         puVar3[0xc] = 0;
       }
       func_00397c40(param_1);
@@ -1376,6 +1379,7 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
 #else
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471370);
 #endif
+#pragma pop
 /* gate: object 1971 against retail 1776, +11.0% - OUTSIDE the +-3% band (1723-1829).
    Any differing-word score in this note was measured against a body of the wrong length
    and is not comparable to one measured inside the gate (handoff 7y). Production guarded,
