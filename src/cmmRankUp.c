@@ -14,8 +14,6 @@ extern void func_002516f0();
 extern u8 D_00635CF8[];
 extern u8 D_00635D18[];
 extern u8 D_006367C0[];
-extern u8 D_00636310[];
-extern u8 D_00636390[];
 extern u8 D_00636410[];
 extern u8 D_00636460[];
 extern u8 D_00636480[];
@@ -56,6 +54,8 @@ typedef unsigned int u_long128 __attribute__((mode(TI)));
 extern u_long128 D_00636560;
 extern u_long128 D_00636570;
 typedef struct { u32 w0; u32 w1; } CopyPair;
+extern const CopyPair D_00636310[16];
+extern const CopyPair D_00636390[16];
 
 typedef struct {
     f32 f0;
@@ -71,7 +71,7 @@ typedef struct {
 } Sp120;
 extern u_long128 D_00636730;
 extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
-extern void func_0045e6a0(void *arg0, void *arg1, f32 fparg0, s32 arg2,
+extern void func_0045e6a0(s32 arg0, s32 arg1, f32 fparg0, u32 arg2,
                           s32 arg3, s32 arg4, s32 arg5, s32 arg6,
                           f32 fparg1, f32 fparg2, f32 fparg3);
 extern void func_00252230(Sp120 *arg0, Sp120 *arg1, Sp120 *arg2, f32 fparg0);
@@ -1776,7 +1776,7 @@ void func_002561f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s64 arg5, s64 arg6, f
       i++;
     }
     base = (u8 *)work.rgba;
-    func_0045e6a0(base, work.pairs, fparg2, 0x10, 4, (s32)(s16)arg5, (s32)(s16)arg6, b1, 0, fparg3, fparg4);
+    func_0045e6a0((s32)(u32)base, (s32)(u32)work.pairs, fparg2, 0x10, 4, (s32)(s16)arg5, (s32)(s16)arg6, b1, 0, fparg3, fparg4);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_002561f0);
@@ -1872,7 +1872,7 @@ void func_00256460(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
         }
         i++;
     }
-    func_0045e6a0(color, pos, fparg2, 0x10, 4, arg4, (s16)arg5, (s16)arg6,
+    func_0045e6a0((s32)(u32)color, (s32)(u32)pos, fparg2, 0x10, 4, arg4, (s16)arg5, (s16)arg6,
                   0.0f, fparg3, fparg4);
 }
 #pragma pop

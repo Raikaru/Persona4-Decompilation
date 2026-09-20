@@ -4,6 +4,14 @@
 #include "type.h"
 typedef struct RwObjectOwnerLink RwObjectOwnerLink;
 typedef struct RwObject RwObject;
+typedef struct RwFrame RwFrame;
+typedef struct RwMatrixTag RwMatrix;
+typedef enum RwOpCombineType {
+    rwCOMBINEREPLACE = 0,
+    rwCOMBINEPRECONCAT,
+    rwCOMBINEPOSTCONCAT,
+    rwOPCOMBINETYPEFORCEENUMSIZEINT = 0x7FFFFFFF
+} RwOpCombineType;
 
 /* Canonical grouped function declarations. */
 extern s32 iGpffffb994;
@@ -294,14 +302,18 @@ insert:
 /* measured: sibling list helper func_003e9cb0 uses plain beqz branches. */
 #pragma no_branch_likely on
 // FUN_003E9CB0
-u8 *func_003e9cb0(u8 *arg0)
+RwFrame *func_003e9cb0(RwFrame *frame, const RwMatrix *transform,
+                      RwOpCombineType combine)
 {
-    extern s32 func_003e0e20();
+    extern RwMatrix *func_003e0e20(RwMatrix *matrix, const RwMatrix *transform,
+                                  RwOpCombineType combine);
+    u8 *arg0;
     u8 *temp_3;
     u8 temp_5;
     u8 **head;
 
-    func_003e0e20(arg0 + 0x10);
+    arg0 = (u8 *)frame;
+    func_003e0e20((RwMatrix *)(arg0 + 0x10), transform, combine);
     temp_3 = *(u8 **)(arg0 + 0xA0);
     temp_5 = *(u8 *)(temp_3 + 3);
     if ((temp_5 & 3) == 0) {
@@ -310,7 +322,7 @@ u8 *func_003e9cb0(u8 *arg0)
 update:
     *(u8 *)(*(u8 **)(arg0 + 0xA0) + 3) = (u8)(temp_5 | 3);
     *(u8 *)(arg0 + 3) = (u8)(*(u8 *)(arg0 + 3) | 0xC);
-    return arg0;
+    return frame;
 insert:
     head = (u8 **)D_0088739C;
     *(u8 **)(temp_3 + 8) = *head;

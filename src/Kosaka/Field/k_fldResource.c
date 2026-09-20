@@ -13,6 +13,10 @@ typedef struct RwMatrixTolerance {
 
 typedef struct RwV3d { f32 x; f32 y; f32 z; } Vec3;
 typedef struct RwFrame RwFrame;
+typedef struct RwCamera RwCamera;
+typedef struct RpWorld RpWorld;
+typedef struct RpLight RpLight;
+typedef struct RwRGBAReal RwRGBAReal;
 typedef struct RwMatrixTag RwMatrix;
 typedef enum RwOpCombineType {
     rwCOMBINEREPLACE = 0,
@@ -45,19 +49,19 @@ extern void func_003bbb60(void *arg0);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 *func_00460e80(u8 *list, s32 arg1);
 extern u8 *func_00461290(u8 *list, s32 arg1);
-extern void *func_00457120(void);
-extern void *func_00457190(void);
-extern u8 *func_004571a0(void);
-extern u8 *func_004571b0(void);
-extern u8 *func_004571c0(void);
-extern void func_003e8110(void *arg0);
-extern void func_003e8120(void *arg0);
-extern void func_003cbf30(s32 a0, void *a1);
-extern void func_003cbe80(void *a0, void *a1);
-extern void func_003cbc60(s32 a0, void *a1);
-extern void func_003cbc10(void *a0, void *a1);
-extern void func_003c38b0(void *a0, void *a1);
-extern void func_003e9cb0(void *a0, void *a1, s32 a2);
+extern s32 func_00457120(void);
+extern s32 func_00457190(void);
+extern s32 func_004571a0(void);
+extern s32 func_004571b0(void);
+extern s32 func_004571c0(void);
+extern u32 func_003e8110(u32 camera);
+extern u32 func_003e8120(u32 camera);
+extern RpWorld *func_003cbf30(RpWorld *world, RpLight *light);
+extern RpWorld *func_003cbe80(RpWorld *world, RpLight *light);
+extern s32 func_003cbc60(s32 world, u8 *camera);
+extern RpWorld *func_003cbc10(RpWorld *world, RwCamera *camera);
+extern RpLight *func_003c38b0(RpLight *light, const RwRGBAReal *color);
+extern RwFrame *func_003e9cb0(RwFrame *frame, const RwMatrix *transform, RwOpCombineType combine);
 extern s32 func_004782b0(u32 arg0);
 extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
 extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
@@ -80,7 +84,7 @@ extern RwBool (*D_00887300[])(RwRenderState state, void *value);
 extern u8 *func_00149ca0(void);
 extern u8 *func_00149ce0(void);
 extern u8 *func_00149d20(void);
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern RwBool func_003f6440(s32 state, void *payload);
 extern s32 iGpffffba48;
 extern u8 iGpffffba4c;
 extern u8 iGpffffba50;
@@ -783,10 +787,10 @@ loop_157:
                 }
                 *( s32 * )(iGpffff9db0 + 0xDC) = func_00153c00(*( s16 * )(iGpffff9db0 + 0x12));
                 if (*( s32 * )(iGpffff9db0 + 0) >= 0xC8) {
-                    func_003e8180(func_00457120(), 100.0f);
+                    func_003e8180((void *)(u32)func_00457120(), 100.0f);
                 }
                 if (*( s32 * )(iGpffff9db0 + 0) < 0xC8) {
-                    func_003e8180(func_00457120(), 100.0f);
+                    func_003e8180((void *)(u32)func_00457120(), 100.0f);
                 }
                 temp_3_15 = (u8 *)(iGpffff9db0);
                 if (*( s32 * )(temp_3_15 + 0xDC) == 0) {
@@ -1265,7 +1269,7 @@ s32 func_001510c0(u8 *arg0)
                     *(s32 *)(arg0 + 0x14) = (s32)temp_19;
                 } else if (*(s32 *)(arg0 + 0xC) == 0) {
                     *(s32 *)(arg0 + 0xC) = (s32)temp_19;
-                    func_003db550(temp_19, func_00457120());
+                    func_003db550(temp_19, (void *)(u32)func_00457120());
                 } else {
                     *(s32 *)(arg0 + 8) = (s32)temp_19;
                 }
@@ -1585,14 +1589,9 @@ void func_00151f80(u8 *arg0)
     jtbl_008873EC[0](arg0);
 }
 
-/* Floor: 241 differing words but only 10 edit instructions, 305 emitted
-/* MATCHED.  The draw-state table has two address lifetimes - one for the call before the
-   render, one shared by the whole tail sequence - so `gs` is reloaded from &D_00887300 at
-   each, which is what stopped MWCC rematerialising `lui`/`addiu` at four call sites.  The
-   earlier note called that a wall and rejected `opt_propagation off` for it; the real fix
-   was typing the callback as RenderWare does, `RwBool (*)(RwRenderState, void *)`, so the
-   arguments go through as pointers rather than `u32`, plus `u8 *` for the first parameter
-   and for the three `func_00149c*` getters, and `u32` casts on the packed colour shifts. */
+/* The draw-state table has two address lifetimes: one at the initial call,
+ * and one shared by the final render-state sequence. The context is passed
+ * in the callback's second argument. Saved Vec4 values are light colors. */
 // FUN_00152170
 void func_00152170(u8 *arg0, u8 *arg1)
 {
@@ -1608,15 +1607,15 @@ void func_00152170(u8 *arg0, u8 *arg1)
     s32 flags;
     s32 light;
 
-    raster = func_00457120();
+    raster = (void *)(u32)func_00457120();
     gs = (u8 *)D_00887300;
     (*(RwBool (**)(RwRenderState, void *))gs)(0x14, (void *)2);
-    func_003e8110(raster);
-    cam = func_004571a0();
+    func_003e8110((u32)raster);
+    cam = (u8 *)(u32)func_004571a0();
     *(Vec4 *)(arg1 + 0xA50) = *(Vec4 *)(cam + 0x18);
-    cam = func_004571b0();
+    cam = (u8 *)(u32)func_004571b0();
     *(Vec4 *)(arg1 + 0xA60) = *(Vec4 *)(cam + 0x18);
-    src = (CopyPair *)(*(u8 **)(func_004571b0() + 4) + 0x10);
+    src = (CopyPair *)(*(u8 **)((u8 *)(u32)func_004571b0() + 4) + 0x10);
     dst = (CopyPair *)(arg1 + 0xA70);
     n = 8;
     do {
@@ -1629,55 +1628,56 @@ void func_00152170(u8 *arg0, u8 *arg1)
         dst++;
     } while (n > 0);
     if (func_00149ca0() != 0) {
-        func_003c38b0(func_004571a0(), (void *)func_00149ca0());
-        func_003c38b0(func_004571b0(), (void *)func_00149ce0());
-        func_003e9cb0(*(void **)(func_004571b0() + 4), (void *)func_00149d20(), 0);
+        func_003c38b0((RpLight *)(u32)func_004571a0(), (const RwRGBAReal *)func_00149ca0());
+        func_003c38b0((RpLight *)(u32)func_004571b0(), (const RwRGBAReal *)func_00149ce0());
+        func_003e9cb0(*(RwFrame **)((u8 *)(u32)func_004571b0() + 4),
+                      (const RwMatrix *)func_00149d20(), rwCOMBINEREPLACE);
     }
-    *(s8 *)(func_004571b0() + 2) = 3;
+    *(s8 *)((u8 *)(u32)func_004571b0() + 2) = 3;
     func_004571b0();
     if (*(s32 *)arg1 & 1) {
-        func_003cbc60((s32)func_00457190(), raster);
+        func_003cbc60(func_00457190(), (u8 *)raster);
         flags = *(s32 *)arg1;
         if (flags & 0x80000000) {
-            func_003cbc10(*(void **)(arg1 + 0xC), raster);
+            func_003cbc10(*(RpWorld **)(arg1 + 0xC), (RwCamera *)raster);
         } else if (flags & 0x40000000) {
             light = *(s32 *)(arg1 + 0x10);
             if (light != 0) {
-                func_003cbc10((void *)light, raster);
+                func_003cbc10((RpWorld *)(u32)light, (RwCamera *)raster);
             }
         } else if (flags & 0x20000000) {
             light = *(s32 *)(arg1 + 0x14);
             if (light != 0) {
-                func_003cbc10((void *)light, raster);
+                func_003cbc10((RpWorld *)(u32)light, (RwCamera *)raster);
             }
         } else {
-            func_003cbc10(*(void **)(arg1 + 8), raster);
+            func_003cbc10(*(RpWorld **)(arg1 + 8), (RwCamera *)raster);
         }
-        func_003cbf30((s32)func_00457190(), func_004571a0());
-        func_003cbf30((s32)func_00457190(), func_004571b0());
+        func_003cbf30((RpWorld *)(u32)func_00457190(), (RpLight *)(u32)func_004571a0());
+        func_003cbf30((RpWorld *)(u32)func_00457190(), (RpLight *)(u32)func_004571b0());
         flags = *(s32 *)arg1;
         if (flags & 0x80000000) {
-            func_003cbe80(*(void **)(arg1 + 0xC), func_004571a0());
-            func_003cbe80(*(void **)(arg1 + 0xC), func_004571b0());
+            func_003cbe80(*(RpWorld **)(arg1 + 0xC), (RpLight *)(u32)func_004571a0());
+            func_003cbe80(*(RpWorld **)(arg1 + 0xC), (RpLight *)(u32)func_004571b0());
         } else if (flags & 0x40000000) {
-            func_003cbe80(*(void **)(arg1 + 0x10), func_004571a0());
-            func_003cbe80(*(void **)(arg1 + 0x10), func_004571b0());
+            func_003cbe80(*(RpWorld **)(arg1 + 0x10), (RpLight *)(u32)func_004571a0());
+            func_003cbe80(*(RpWorld **)(arg1 + 0x10), (RpLight *)(u32)func_004571b0());
         } else if ((flags & 0x20000000) && (*(s32 *)(arg1 + 0x14) != 0)) {
-            func_003cbe80(*(void **)(arg1 + 0x14), func_004571a0());
-            func_003cbe80(*(void **)(arg1 + 0x14), func_004571b0());
+            func_003cbe80(*(RpWorld **)(arg1 + 0x14), (RpLight *)(u32)func_004571a0());
+            func_003cbe80(*(RpWorld **)(arg1 + 0x14), (RpLight *)(u32)func_004571b0());
         } else {
-            func_003cbe80(*(void **)(arg1 + 8), func_004571a0());
-            func_003cbe80(*(void **)(arg1 + 8), func_004571b0());
+            func_003cbe80(*(RpWorld **)(arg1 + 8), (RpLight *)(u32)func_004571a0());
+            func_003cbe80(*(RpWorld **)(arg1 + 8), (RpLight *)(u32)func_004571b0());
         }
     } else {
-        func_003cbf30((s32)func_00457190(), func_004571c0());
+        func_003cbf30((RpWorld *)(u32)func_00457190(), (RpLight *)(u32)func_004571c0());
     }
-    func_003e8120(raster);
+    func_003e8120((u32)raster);
     gs = (u8 *)D_00887300;
     (*(RwBool (**)(RwRenderState, void *))gs)(6, (void *)1);
     (*(RwBool (**)(RwRenderState, void *))gs)(8, (void *)1);
-    func_003f6440(2, 0x44);
-    func_003f6440(3, 0x717FB);
+    func_003f6440(2, (void *)0x44);
+    func_003f6440(3, (void *)0x717FB);
     (*(RwBool (**)(RwRenderState, void *))gs)(0x14, (void *)2);
     if (iGpffffba48 == 1) {
         (*(RwBool (**)(RwRenderState, void *))gs)(0xE, (void *)1);
@@ -1695,46 +1695,47 @@ void func_00152630(u8 *arg0, u8 *arg1)
     u8 *temp_18_2;
     u8 *temp_18_3;
 
-    temp_2 = func_00457120();
-    func_003e8110(temp_2);
+    temp_2 = (void *)(u32)func_00457120();
+    func_003e8110((u32)temp_2);
     if (*(u32 *)arg1 & 1) {
         if (*(u32 *)arg1 & 0x80000000) {
-            func_003cbf30(*(s32 *)(arg1 + 0xC), func_004571a0());
-            func_003cbf30(*(s32 *)(arg1 + 0xC), func_004571b0());
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0xC), (RpLight *)(u32)func_004571a0());
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0xC), (RpLight *)(u32)func_004571b0());
         } else if (*(u32 *)arg1 & 0x40000000) {
-            func_003cbf30(*(s32 *)(arg1 + 0x10), func_004571a0());
-            func_003cbf30(*(s32 *)(arg1 + 0x10), func_004571b0());
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0x10), (RpLight *)(u32)func_004571a0());
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0x10), (RpLight *)(u32)func_004571b0());
         } else if ((*(u32 *)arg1 & 0x20000000) && *(s32 *)(arg1 + 0x14) != 0) {
-            func_003cbf30(*(s32 *)(arg1 + 0x14), func_004571a0());
-            func_003cbf30(*(s32 *)(arg1 + 0x14), func_004571b0());
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0x14), (RpLight *)(u32)func_004571a0());
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0x14), (RpLight *)(u32)func_004571b0());
         } else {
-            func_003cbf30(*(s32 *)(arg1 + 8), func_004571a0());
-            func_003cbf30(*(s32 *)(arg1 + 8), func_004571b0());
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 8), (RpLight *)(u32)func_004571a0());
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 8), (RpLight *)(u32)func_004571b0());
         }
-        temp_18 = func_00457190();
-        func_003cbe80(temp_18, func_004571a0());
-        temp_18_2 = func_00457190();
-        func_003cbe80(temp_18_2, func_004571b0());
+        temp_18 = (void *)(u32)func_00457190();
+        func_003cbe80((RpWorld *)temp_18, (RpLight *)(u32)func_004571a0());
+        temp_18_2 = (void *)(u32)func_00457190();
+        func_003cbe80((RpWorld *)temp_18_2, (RpLight *)(u32)func_004571b0());
         if (*(u32 *)arg1 & 0x80000000) {
-            func_003cbc60(*(s32 *)(arg1 + 0xC), temp_2);
+            func_003cbc60(*(s32 *)(arg1 + 0xC), (u8 *)temp_2);
         } else if (*(u32 *)arg1 & 0x40000000) {
-            func_003cbc60(*(s32 *)(arg1 + 0x10), temp_2);
+            func_003cbc60(*(s32 *)(arg1 + 0x10), (u8 *)temp_2);
         } else if ((*(u32 *)arg1 & 0x20000000) && *(s32 *)(arg1 + 0x14) != 0) {
-            func_003cbc60(*(s32 *)(arg1 + 0x14), temp_2);
+            func_003cbc60(*(s32 *)(arg1 + 0x14), (u8 *)temp_2);
         } else {
-            func_003cbc60(*(s32 *)(arg1 + 8), temp_2);
+            func_003cbc60(*(s32 *)(arg1 + 8), (u8 *)temp_2);
         }
-        func_003cbc10(func_00457190(), temp_2);
+        func_003cbc10((RpWorld *)(u32)func_00457190(), (RwCamera *)temp_2);
     } else {
-        temp_18_3 = func_00457190();
-        func_003cbe80(temp_18_3, func_004571c0());
+        temp_18_3 = (void *)(u32)func_00457190();
+        func_003cbe80((RpWorld *)temp_18_3, (RpLight *)(u32)func_004571c0());
     }
-    func_003c38b0(func_004571a0(), arg1 + 0xA50);
-    func_003c38b0(func_004571b0(), arg1 + 0xA60);
-    func_003e9cb0((void *)*(s32 *)(func_004571b0() + 4), arg1 + 0xA70, 0);
-    *(s8 *)(func_004571b0() + 2) = 3;
+    func_003c38b0((RpLight *)(u32)func_004571a0(), (const RwRGBAReal *)(arg1 + 0xA50));
+    func_003c38b0((RpLight *)(u32)func_004571b0(), (const RwRGBAReal *)(arg1 + 0xA60));
+    func_003e9cb0((RwFrame *)(u32)*(s32 *)((u8 *)(u32)func_004571b0() + 4),
+                  (const RwMatrix *)(arg1 + 0xA70), rwCOMBINEREPLACE);
+    *(s8 *)((u8 *)(u32)func_004571b0() + 2) = 3;
     func_004571b0();
-    func_003e8120(temp_2);
+    func_003e8120((u32)temp_2);
 }
 
 // FUN_00152930
@@ -2211,4 +2212,3 @@ k_fldResource *func_001534a0(k_fldResource *src, void *arg1, u32 arg2)
     func_00152e50((u8 *)dst, arg1, temp_f20);
     return dst;
 }
-

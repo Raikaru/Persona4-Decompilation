@@ -839,3 +839,7 @@ iGpffffb0a0 = 0x00764190; // type:data evidence: retail code1_0046 func_0046ec70
 iGpffffb0a4 = 0x00764194; // type:data evidence: retail code1_0046 func_0046ec70 addiu $6,$28,-0x4F5C (0x00764194) at 0x0046F088; gp base 0x007690F0
 iGpffffb0b0 = 0x007641a0; // type:data evidence: retail code1_0046 func_0046ec70 addiu $6,$28,-0x4F50 (0x007641A0) at 0x0046F1EC; gp base 0x007690F0
 fGpffff8128 = 0x00761218; // type:data evidence: retail func_001a59a0 lwc1 -0x7ED8($28) at 0x001A5D40; gp base 0x007690F0
+fGpffff812c = 0x0076121c; // type:data evidence: retail func_001c79f0 lwc1 gp-0x7ED4 at 0x001C7C2C; configured GP 0x007690F0, matched C relocation with zero addend
+fGpffff8130 = 0x00761220; // type:data evidence: retail func_001c79f0 lwc1 gp-0x7ED0 at 0x001C7DC0; configured GP 0x007690F0, matched C relocation with zero addend
+fGpffff8134 = 0x00761224; // type:data evidence: retail func_001c79f0 lwc1 gp-0x7ECC at 0x001C7DC4; configured GP 0x007690F0, matched C relocation with zero addend
+fGpffff8138 = 0x00761228; // type:data evidence: retail func_001c79f0 lwc1 gp-0x7EC8 at 0x001C7E18 and 0x001C7E74; configured GP 0x007690F0, matched C relocations with zero addends
