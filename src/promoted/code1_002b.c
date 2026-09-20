@@ -815,6 +815,12 @@ void func_002b5120(s32 arg0, u8 *arg1)
 /* measured: restores opt_propagation after func_002b5120. */
 #pragma opt_propagation on
 /* measured: first C reconstruction (m2c 222 + rw 190 + types 3-vs-2 de-noised to file idiom, truthful externs D_008872F8[]/00461390(void*,s32,void*,s32) per tree, s32(u8*) + s8/u16/s16 + (s32)int-store + (u8)color + branchy u8-to-f32 + quad + (void*)callback, corrected active!=0 early-return without shared tail and mode3/4 folded); retail 624 object 632 (8 over, 1.3% in 3% gate) probe 548 via probe_variants, 304 edits +4 reloc-only via fnalign --candidate /var/tmp/cold2b52a0/guarded_extracted.c; step2 pragma singles all tie/regress (548 tie dead/prop/strength/unroll, 555 loop_invariants, 584 schedule, 611 common_subs, 627 L1, 676 peephole, 810 L0) and pairs best 548 tie via pragma_sweep; step3 subscript v3a direct/v3b off-local/v3c P-index all 548 tie; step4 colouring v4a count/half, v4b floats, v4c ptrs/bytes, v4d counters-first all 548 tie; residual is dispatch polarity (beq vs bne + addiu -1), sra $v0/$v1 swap, float mov.s surplus, folded mode3/4 vs retail duplicated blocks, vertex sub.s order; above 60 so two-tie stop met. */
+/* measured 002b52a0 (hand switch, 2026-09-20): mode chain (braced multi-line arms, chain_variables mode) */
+/* hand switch ascending 330 edits +4 reloc-only / probe 577, reversed 521 +4 / 567 vs chain 304 +4 / 548 */
+/* (chain wins; switch not installed. dup fixes 61-run at 0x002b5600 but breaks gate: switch-asc-dup 271/644 */
+/* 694 vs 624 +11.2% outside, chain-dup 241/586 692 vs 624 +10.9% outside, rejected per handoff 7y. state */
+/* 1-then-0 and 0-then-1 both tie 304/548. deficit retail+ lwc1 12/cvt 6/lh 4/jal 4, runs 61 at 0x002b5600, */
+/* 13 at 0x002b5808, 11 at 0x002b5a48; tail 43 structure vs 16 register. floor stays ASM.) */
 // FUN_002B52A0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002b52a0(u8 *arg0)

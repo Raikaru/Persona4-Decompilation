@@ -1123,6 +1123,8 @@ s32 func_0010be20(u8 *arg0)
 /* gate: object 455 against retail 463, -1.7% - INSIDE the +-3% band (dropped */
 /* `schedule on`: 413->455, edits 514->388; words 433->443 is the outside-gate */
 /* artefact noted above, not a regression). */
+/* measured 0010be60 (2026-09-20): braced typ==4/3/2/1 chain with default -> switch by hand (automatic sweep handles only single-line arms); fnalign 388 -> 334 ascending (1/2/3/4, plus 16 reloc-only) vs 396 reverse-source descending 4/3/2/1 (plus 12 reloc-only); ascending wins by 62, descending loses by 8 to the chain; guarded 443 -> 442 words. */
+/* measured 0010be60 (2026-09-20): outer dispatch layout inversion to retail's shape (condition to <0xC0||>=0xD8, triple i<3 loop inline, level>=2 j-loop out-of-line at 0x10C138 as retail 0x10BFCC/0x10C138); fnalign 334 -> 273 (-61, plus 19 reloc-only), guarded 442 -> 436 words; deficit_scan 463 vs 456 (-1.5% INSIDE, was 463 vs 455 -1.7%), retail-only 15 at 0x10C1D4/11 at 0x10C1A4/10 at 0x10C234 (frame-driven stat 0x90 vs 0xC0 offsets + loop-back need block, outer do-while/for probe ties 273 so rotation N-A); banked floor. */
 // FUN_0010BE60 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
@@ -1173,33 +1175,7 @@ void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2) {
         if ((u16)level >= 0x64) {
             break;
         }
-        if (*(u16 *)(arg0 + 2) >= 0xC0 && *(u16 *)(arg0 + 2) < 0xD8) {
-            if (*(u16 *)(arg0 + 2) < 0xC0 || *(u16 *)(arg0 + 2) >= 0xD8) {
-                func_0046d730(D_005E4318, 0x59F);
-            }
-            if ((u16)level >= 2) {
-                u8 *base;
-                base = (u8 *)iGpffffb3e4 + (*(u16 *)(arg0 + 2) - 0xC0) * 0x26E + (level & 0xFFFF) * 5;
-                j = 0;
-                while ((u16)j < 5) {
-                    u16 sv;
-                    u8 av;
-                    sv = stat[(u16)j];
-                    av = *(u8 *)(arg1 + (u16)j + 0x82);
-                    if ((s32)(av + sv) < 0x63) {
-                        u8 gain;
-                        u8 nv;
-                        gain = *(u8 *)(base + (u16)j + 0x7A);
-                        nv = (u8)(av + gain);
-                        *(u8 *)(arg1 + (u16)j + 0x82) = nv;
-                        if ((s32)(nv + sv) >= 0x64) {
-                            *(u8 *)(arg1 + (u16)j + 0x82) = (u8)(0x63 - sv);
-                        }
-                    }
-                    j = (j + 1) & 0xFFFF;
-                }
-            }
-        } else {
+        if (*(u16 *)(arg0 + 2) < 0xC0 || *(u16 *)(arg0 + 2) >= 0xD8) {
             i = 0;
             while ((u16)i < 3) {
                 a = 0;
@@ -1228,6 +1204,32 @@ void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2) {
                     }
                 }
                 i = (i + 1) & 0xFFFF;
+            }
+        } else {
+            if (*(u16 *)(arg0 + 2) < 0xC0 || *(u16 *)(arg0 + 2) >= 0xD8) {
+                func_0046d730(D_005E4318, 0x59F);
+            }
+            if ((u16)level >= 2) {
+                u8 *base;
+                base = (u8 *)iGpffffb3e4 + (*(u16 *)(arg0 + 2) - 0xC0) * 0x26E + (level & 0xFFFF) * 5;
+                j = 0;
+                while ((u16)j < 5) {
+                    u16 sv;
+                    u8 av;
+                    sv = stat[(u16)j];
+                    av = *(u8 *)(arg1 + (u16)j + 0x82);
+                    if ((s32)(av + sv) < 0x63) {
+                        u8 gain;
+                        u8 nv;
+                        gain = *(u8 *)(base + (u16)j + 0x7A);
+                        nv = (u8)(av + gain);
+                        *(u8 *)(arg1 + (u16)j + 0x82) = nv;
+                        if ((s32)(nv + sv) >= 0x64) {
+                            *(u8 *)(arg1 + (u16)j + 0x82) = (u8)(0x63 - sv);
+                        }
+                    }
+                    j = (j + 1) & 0xFFFF;
+                }
             }
         }
         level = (level + 1) & 0xFFFF;
@@ -1294,28 +1296,8 @@ void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2) {
         while ((u16)i < slot) {
             s8 typ;
             typ = *(s8 *)(entry + 1);
-            if (typ == 4) {
-            } else if (typ == 3) {
-            } else if (typ == 2) {
-                u16 sk;
-                sk = *(u16 *)(entry + 2);
-                if (sk != 0) {
-                    j = 0;
-                    while ((u16)j < known) {
-                        if (sk == *(u16 *)(skills + (u16)j * 2)) {
-                            break;
-                        }
-                        j = (j + 1) & 0xFFFF;
-                    }
-                    if ((u16)j != (u16)known) {
-                        if ((u16)out2 >= 0x20) {
-                            func_0046d730(D_005E4318, 0x614);
-                        }
-                        *(u16 *)(arg1 + (u16)out2 * 2 + 0x42) = sk;
-                        out2 = (out2 + 1) & 0xFFFF;
-                    }
-                }
-            } else if (typ == 1) {
+            switch (typ) {
+            case 1: {
                 u16 sk2;
                 sk2 = *(u16 *)(entry + 2);
                 if (sk2 != 0) {
@@ -1334,8 +1316,39 @@ void func_0010be60(u8 *arg0, u8 *arg1, s32 arg2) {
                         out1 = (out1 + 1) & 0xFFFF;
                     }
                 }
-            } else {
+                break;
+            }
+            case 2: {
+                u16 sk;
+                sk = *(u16 *)(entry + 2);
+                if (sk != 0) {
+                    j = 0;
+                    while ((u16)j < known) {
+                        if (sk == *(u16 *)(skills + (u16)j * 2)) {
+                            break;
+                        }
+                        j = (j + 1) & 0xFFFF;
+                    }
+                    if ((u16)j != (u16)known) {
+                        if ((u16)out2 >= 0x20) {
+                            func_0046d730(D_005E4318, 0x614);
+                        }
+                        *(u16 *)(arg1 + (u16)out2 * 2 + 0x42) = sk;
+                        out2 = (out2 + 1) & 0xFFFF;
+                    }
+                }
+                break;
+            }
+            case 3: {
+                break;
+            }
+            case 4: {
+                break;
+            }
+            default: {
                 func_0046d730(D_005E4318, 0x61F);
+                break;
+            }
             }
             i = (i + 1) & 0xFFFF;
             entry += 4;
