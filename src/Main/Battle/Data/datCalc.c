@@ -340,36 +340,42 @@ s32 func_00232610(DatUnit* unit, s32 spDelta)
 
 
 
-// FUN_00232730
-s32 func_00232730(u8 *arg0, s32 arg1)
+/* Shared skill search, including the equipment fallback. */
+static inline s32 PTDatCalcHasSkill(u8 *unit, s32 requestedSkill)
 {
-    s32 temp_16;
-    s32 temp_18;
-    s32 var_5;
+    s32 skill;
+    s32 count;
+    s32 index;
     u8 *base;
     s32 result;
     s32 limit;
 
-    temp_18 = func_0023e130(arg0) & 0xFFFF;
-    base = func_0023e140(arg0);
-    var_5 = 0;
-    temp_16 = arg1 & 0xFFFF;
-    limit = temp_18 & 0xFFFF;
-    while ((var_5 & 0xFFFF) < limit) {
-        if (temp_16 == *(u16 *)(base + ((u16)var_5 * 2))) {
+    count = func_0023e130(unit) & 0xFFFF;
+    base = func_0023e140(unit);
+    index = 0;
+    skill = requestedSkill & 0xFFFF;
+    limit = count & 0xFFFF;
+    while ((index & 0xFFFF) < limit) {
+        if (skill == *(u16 *)(base + ((u16)index * 2))) {
             return 1;
         }
-        var_5 = (var_5 + 1) & 0xFFFF;
+        index = (index + 1) & 0xFFFF;
     }
-    if (!(*(u16 *)arg0 & 4)) {
-        result = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+    if (!(*(u16 *)unit & 4)) {
+        result = (s32)((u32)(u16)func_00106cd0(*(s16 *)(unit + 2), 2) & 0xFFFF);
         if (result >= 0) {
-            if (temp_16 == func_001069a0((s16)result)) {
+            if (skill == func_001069a0((s16)result)) {
                 return 1;
             }
         }
     }
     return 0;
+}
+
+// FUN_00232730
+s32 func_00232730(u8 *arg0, s32 arg1)
+{
+    return PTDatCalcHasSkill(arg0, arg1);
 }
 
 // FUN_00232830
@@ -594,150 +600,36 @@ done_value:
     return v;
 }
 
-/* measured: recipe-A-family re-test 2026-08-03. The u16-table shape now
-   matches retail byte-for-byte outside the loop preheader (u16 loads, the
-   2-arg func_00106cd0 call, dsll32/dsra32 (s16) arg, goto-done tail with
-   the 0-def after the calls and the bltz guard). Residual is the
-   loop-register rotation floor: retail hoists the compare constant
-   (0x1F9..0x1FE) pre-loop in $a0 with limit in $a1 and counter in $a2;
-   mwcc b210 always puts the counter in $v1, limit in $a2 and
-   rematerializes the constant in the body. Measured: natural-while nd ~90,
-   opt_loop_invariants on nd 80 (hoists the constant but keeps counter
-   $v1/limit $a2/constant $a1), named constant locals nd 92 (assignment
-   sunk into the body), while(1)-break draft shape nd 302. The matched
-   twins func_00232730/func_00242360 allocate their 2-value loops to
-   $a1/$a0, so a third loop value shifts mwcc's pool to $v1/$a2/$a1; no
-   declaration order fixes it.
-   Wave 14: no gp-relative base loads in this function (pure register-loop
-   floor) — opt_propagation-off + index-first helper combo not applicable;
-   m2c draft signature (s32 func_00232d80(u8*)) matches the asm (no lever-1
-   defect). */
-/* measured 00232d80: `opt_loop_invariants on` inside the guard is worth 12
-   words (90 -> 78) at the same 1304B/1312B, fnalign 78 edits via
-   tools/fnalign.py --candidate, measure_guarded 78 via
-   tools/measure_guarded.py src/Main/Battle/Data/datCalc.c func_00232d80;
-   the loop-preheader constant hoist. */
-// FUN_00232D80 NONMATCHING
-#ifdef SKIP_ASM
+// FUN_00232D80
+#pragma push
+/* measured: 1304B/1312B, eight zero-tail bytes and 24 resolved relocations;
+   loop-invariant hoisting preserves the retail six-search preheaders. */
 #pragma opt_loop_invariants on
 s32 func_00232d80(u8 *arg0)
 {
-    s32 acc;
-    s32 temp_18;
-    s32 var_5;
-    u8 *base;
-    s32 limit;
     s32 result;
-    s32 found;
-    acc = 0;
-    temp_18 = func_0023e130(arg0) & 0xFFFF;
-    base = func_0023e140(arg0);
-    var_5 = 0;
-    limit = temp_18 & 0xFFFF;
-    while ((var_5 & 0xFFFF) < limit) {
-        if (*(u16 *)(base + ((u16)var_5 * 2)) == 0x1F9) { found = 1; goto done1; }
-        var_5 = (var_5 + 1) & 0xFFFF;
+    result = 0;
+    if (PTDatCalcHasSkill(arg0, 0x1F9) != 0) {
+        result |= 0x1;
     }
-    if (!(*(u16 *)arg0 & 4)) {
-        result = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
-        if (result >= 0) {
-            if (func_001069a0((s16)result) == 0x1F9) { found = 1; goto done1; }
-        }
+    if (PTDatCalcHasSkill(arg0, 0x1FA) != 0) {
+        result |= 0x2;
     }
-    found = 0;
-done1:
-    if (found != 0) { acc |= 1; }
-    temp_18 = func_0023e130(arg0) & 0xFFFF;
-    base = func_0023e140(arg0);
-    var_5 = 0;
-    limit = temp_18 & 0xFFFF;
-    while ((var_5 & 0xFFFF) < limit) {
-        if (*(u16 *)(base + ((u16)var_5 * 2)) == 0x1FA) { found = 1; goto done2; }
-        var_5 = (var_5 + 1) & 0xFFFF;
+    if (PTDatCalcHasSkill(arg0, 0x1FB) != 0) {
+        result |= 0x4;
     }
-    if (!(*(u16 *)arg0 & 4)) {
-        result = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
-        if (result >= 0) {
-            if (func_001069a0((s16)result) == 0x1FA) { found = 1; goto done2; }
-        }
+    if (PTDatCalcHasSkill(arg0, 0x1FC) != 0) {
+        result |= 0x8;
     }
-    found = 0;
-done2:
-    if (found != 0) { acc |= 2; }
-    temp_18 = func_0023e130(arg0) & 0xFFFF;
-    base = func_0023e140(arg0);
-    var_5 = 0;
-    limit = temp_18 & 0xFFFF;
-    while ((var_5 & 0xFFFF) < limit) {
-        if (*(u16 *)(base + ((u16)var_5 * 2)) == 0x1FB) { found = 1; goto done3; }
-        var_5 = (var_5 + 1) & 0xFFFF;
+    if (PTDatCalcHasSkill(arg0, 0x1FD) != 0) {
+        result |= 0x10;
     }
-    if (!(*(u16 *)arg0 & 4)) {
-        result = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
-        if (result >= 0) {
-            if (func_001069a0((s16)result) == 0x1FB) { found = 1; goto done3; }
-        }
+    if (PTDatCalcHasSkill(arg0, 0x1FE) != 0) {
+        result |= 0x20;
     }
-    found = 0;
-done3:
-    if (found != 0) { acc |= 4; }
-    temp_18 = func_0023e130(arg0) & 0xFFFF;
-    base = func_0023e140(arg0);
-    var_5 = 0;
-    limit = temp_18 & 0xFFFF;
-    while ((var_5 & 0xFFFF) < limit) {
-        if (*(u16 *)(base + ((u16)var_5 * 2)) == 0x1FC) { found = 1; goto done4; }
-        var_5 = (var_5 + 1) & 0xFFFF;
-    }
-    if (!(*(u16 *)arg0 & 4)) {
-        result = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
-        if (result >= 0) {
-            if (func_001069a0((s16)result) == 0x1FC) { found = 1; goto done4; }
-        }
-    }
-    found = 0;
-done4:
-    if (found != 0) { acc |= 8; }
-    temp_18 = func_0023e130(arg0) & 0xFFFF;
-    base = func_0023e140(arg0);
-    var_5 = 0;
-    limit = temp_18 & 0xFFFF;
-    while ((var_5 & 0xFFFF) < limit) {
-        if (*(u16 *)(base + ((u16)var_5 * 2)) == 0x1FD) { found = 1; goto done5; }
-        var_5 = (var_5 + 1) & 0xFFFF;
-    }
-    if (!(*(u16 *)arg0 & 4)) {
-        result = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
-        if (result >= 0) {
-            if (func_001069a0((s16)result) == 0x1FD) { found = 1; goto done5; }
-        }
-    }
-    found = 0;
-done5:
-    if (found != 0) { acc |= 0x10; }
-    temp_18 = func_0023e130(arg0) & 0xFFFF;
-    base = func_0023e140(arg0);
-    var_5 = 0;
-    limit = temp_18 & 0xFFFF;
-    while ((var_5 & 0xFFFF) < limit) {
-        if (*(u16 *)(base + ((u16)var_5 * 2)) == 0x1FE) { found = 1; goto done6; }
-        var_5 = (var_5 + 1) & 0xFFFF;
-    }
-    if (!(*(u16 *)arg0 & 4)) {
-        result = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
-        if (result >= 0) {
-            if (func_001069a0((s16)result) == 0x1FE) { found = 1; goto done6; }
-        }
-    }
-    found = 0;
-done6:
-    if (found != 0) { acc |= 0x20; }
-    return acc;
+    return result;
 }
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232d80);
-#endif
+#pragma pop
 
 // FUN_002332A0
 s8 func_002332a0(u8 *arg0, s32 arg1)
@@ -1006,179 +898,113 @@ s8 func_00233a90(u8 *arg0, s32 arg1)
     return result;
 }
 
-/* measured: recipe A applied across all 6 case bodies -- s32 temp_3 from
-   the raw lbu keeps the single bltz, the (u32) cast makes the shift srl,
-   `(f32)(s32)` on the OR result kills the duplicated-arm guard, doubling
-   is `var_f1 = var_f1 + var_f1` (add.s, not mul.s), and the per-case
-   mtc1/cvt.s.w/div.s/2.5f/0.75f/iGpffff8110 sequences compile in retail
-   shape. Also measured: arg1 must be s32 (an s16 param emits a spurious
-   dsll32/dsra32 at the save), and the second 0x4F5 error test needs
-   `temp_16 > 1` (not >= 2) for the slti-$at+bnez form. Best nd 290; the
-   residuals are five independent register/scheduling artifacts: the
-   call-path `(s64)(s32)func_002332a0(...)` emits an extra dsll32/dsra32-
-   by-24 pair where retail extends only at the merge (var_2 s64; a s32
-   var_2 rotates the saved registers and drops the call), the merge pair
-   splits as dsll32 $v0/dsra32 $s0 instead of retail's dsll32 $s0, the
-   else-path mask chain rotates (sllv/and dest), `(temp_2 != 0) & 0xFFFF`
-   folds the assignment andi, and the doubled-path OR lands in $v1 vs
-   retail $a0. */
-/* measured 2026-08-03 (re-test): ported the m2c draft with recipe A
-   (s32 temp_3 from the raw lbu keeps the single bltz; (u32) cast for srl;
-   (f32)(s32) on the OR result; var_f1 + var_f1 doubling; arg1 s32;
-   temp_16 > 1 for the slti-$at 0x4F5 form) -> nd 276, confirming the
-   earlier 290. Residuals unchanged (five independent register/scheduling
-   artifacts): the call-path s8->s64 extension emits an extra
-   dsll32/dsra32 pair where retail extends only at the merge, the merge
-   pair splits as dsll32 $v0/dsra32 $s0 vs retail's dsll32 $s0, the
-   else-path mask chain rotates, (temp_2 != 0) & 0xFFFF folds the
-   assignment andi, and the doubled-path OR lands in $v1 vs retail $a0.
-   func_0010a9b0 is 1-arg (retail preps only $4); iGpffffb408/-0x4BF8
-   base; iGpffff8110/-0x7EF0 float. */
-// FUN_00233BC0 NONMATCHING
-#ifdef SKIP_ASM
-f32 func_00233bc0(u8 *arg0, s32 arg1)
+// FUN_00233BC0
+/* The low-byte status index must be below 24. Retail diagnoses that
+ * contract twice; all six executable callers pass constants 0..4.
+ * The unused third parameter is passed by each of those callers. */
+#pragma push
+#pragma opt_propagation off
+f32 func_00233bc0(u8 *arg0, s32 arg1, s32 arg2)
 {
-    s32 disc;
-    s64 v2;
-    s8 b;
-    s32 t2;
-    u32 t4;
-    f32 f20;
-    f32 f1;
-    s32 t3;
-    u8 *tbl;
-    s16 m;
+    s32 index;
+    u8 active;
+    s32 enemyFlag;
+    u32 enemy;
+    s16 enemyPredicate;
+    f32 multiplier;
+    f32 percentage;
+    s32 value;
+    u8 *table;
+    s32 status;
 
-    disc = arg1 & 0xFF;
-    if (disc >= 24) {
+    index = arg1 & 0xFF;
+    if (index >= 24) {
         func_0046d730(D_00635938, 1265);
     }
-    if (disc >= 24) {
+    if (index >= 24) {
         func_0046d730(D_00635938, 1217);
     }
-    if (disc < 16) {
-        v2 = (s64)(s32)func_002332a0(arg0, arg1);
-    } else {
-        v2 = (s64)(((*(s32 *)(arg0 + 20) & (1 << disc)) != 0) << 24) >> 24;
-    }
-    m = (s16)v2;
-    if (m < -1 || m > 1) {
+    status = (s8)(index < 16 ? func_002332a0(arg0, arg1) :
+        (s8)(active = (*(u32 *)(arg0 + 20) & (1U << index)) != 0));
+    if (status < -1 || status > 1) {
         func_0046d730(D_00635938, 1269);
     }
-    t2 = (*(u16 *)arg0 & 4);
-    t4 = (t2 != 0) & 0xFFFF;
-    f20 = 1.0f;
-    tbl = iGpffffb408;
-    switch (disc) {
+    enemyFlag = (*(u16 *)arg0 & 4);
+    enemyPredicate = enemyFlag != 0;
+    enemy = (u16)enemyPredicate;
+    multiplier = 1.0f;
+    switch (index) {
     case 0:
-        t3 = *(m + ((t4 & 0xFFFF) * 3) + tbl + 1);
-        {
-            u8 raw = (u8)t3;
-            if ((s32)raw >= 0) {
-                f1 = (f32)(s32)raw;
-            } else {
-                s32 o = ((u32)raw >> 1) | (raw & 1);
-                f1 = (f32)(s32)o;
-                f1 = f1 + f1;
-            }
+        table = iGpffffb408;
+        value = *(u8 *)(PTDatCalcOffsetAdd((u32)status,
+            PTDatCalcOffsetAdd((enemy & 0xFFFF) * 3, (u32)table)) + 1U);
+        percentage = (f32)(u32)value;
+        multiplier = percentage / 100.0f;
+        active = (*(u32 *)(arg0 + 20) & 0x40000U) != 0;
+        if ((s8)active > 0) {
+            multiplier = multiplier * 2.5f;
         }
-        f20 = f1 / 100.0f;
-        if (((*(s32 *)(arg0 + 20) & 0x40000) != 0)) {
-            f20 = f20 * 2.5f;
-        }
-        if (t2 == 0 && func_0010a9b0(*(u16 *)(arg0 + 2)) != 0) {
-            f20 = f20 * iGpffff8110;
+        if (enemyFlag == 0 && func_0010a9b0(*(u16 *)(arg0 + 2)) != 0) {
+            multiplier = multiplier * iGpffff8110;
         }
         break;
     case 1:
-        t3 = *(m + ((t4 & 0xFFFF) * 3) + tbl + 1);
-        {
-            u8 raw = (u8)t3;
-            if ((s32)raw >= 0) {
-                f1 = (f32)(s32)raw;
-            } else {
-                s32 o = ((u32)raw >> 1) | (raw & 1);
-                f1 = (f32)(s32)o;
-                f1 = f1 + f1;
-            }
+        table = iGpffffb408;
+        value = *(u8 *)(PTDatCalcOffsetAdd((u32)status,
+            PTDatCalcOffsetAdd((enemy & 0xFFFF) * 3, (u32)table)) + 1U);
+        percentage = (f32)(u32)value;
+        multiplier = percentage / 100.0f;
+        active = (*(u32 *)(arg0 + 20) & 0x80000U) != 0;
+        if ((s8)active > 0) {
+            multiplier = multiplier * 2.5f;
         }
-        f20 = f1 / 100.0f;
-        if (((*(s32 *)(arg0 + 20) & 0x80000) != 0)) {
-            f1 = f1;
-            f20 = f20 * 2.5f;
-        }
-        if (t2 == 0 && func_0010a9b0(*(u16 *)(arg0 + 2)) != 0) {
-            f20 = f20 * iGpffff8110;
+        if (enemyFlag == 0 && func_0010a9b0(*(u16 *)(arg0 + 2)) != 0) {
+            multiplier = multiplier * iGpffff8110;
         }
         break;
     case 2:
-        t3 = *(((t4 & 0xFFFF) * 3) + tbl + 7 - m);
-        {
-            u8 raw = (u8)t3;
-            if ((s32)raw >= 0) {
-                f1 = (f32)(s32)raw;
-            } else {
-                s32 o = ((u32)raw >> 1) | (raw & 1);
-                f1 = (f32)(s32)o;
-                f1 = f1 + f1;
-            }
-        }
-        f20 = f1 / 100.0f;
-        if (t2 == 0 && func_0010a9b0(*(u16 *)(arg0 + 2)) != 0) {
-            f20 = f20 * 0.75f;
+        table = iGpffffb408;
+        value = *(u8 *)(PTDatCalcOffsetAdd((enemy & 0xFFFF) * 3, (u32)table) + 7U - (u32)status);
+        percentage = (f32)(u32)value;
+        multiplier = percentage / 100.0f;
+        if (enemyFlag == 0 && func_0010a9b0(*(u16 *)(arg0 + 2)) != 0) {
+            multiplier = multiplier * 0.75f;
         }
         break;
     case 3:
-        t3 = *(((t4 & 0xFFFF) * 3) + tbl + 1 - m);
-        {
-            u8 raw = (u8)t3;
-            if ((s32)raw >= 0) {
-                f1 = (f32)(s32)raw;
-            } else {
-                s32 o = ((u32)raw >> 1) | (raw & 1);
-                f1 = (f32)(s32)o;
-                f1 = f1 + f1;
-            }
-        }
-        f20 = f1 / 100.0f;
-        if (t2 == 0 && func_0010a9b0(*(u16 *)(arg0 + 2)) != 0) {
-            f20 = f20 * 0.75f;
+        table = iGpffffb408;
+        value = *(u8 *)(PTDatCalcOffsetAdd((enemy & 0xFFFF) * 3, (u32)table) + 1U - (u32)status);
+        percentage = (f32)(u32)value;
+        multiplier = percentage / 100.0f;
+        if (enemyFlag == 0 && func_0010a9b0(*(u16 *)(arg0 + 2)) != 0) {
+            multiplier = multiplier * 0.75f;
         }
         break;
     case 4:
-        t3 = *(tbl + ((t4 & 0xFFFF) * 3) + m);
-        {
-            s32 u = t3 + 0;
-            u8 raw = (u8)u;
-            if ((s32)raw >= 0) {
-                f1 = (f32)(s32)raw;
-            } else {
-                s32 o = ((u32)raw >> 1) | (raw & 1);
-                f1 = (f32)(s32)o;
-                f1 = f1 + f1;
-            }
-        }
-        f20 = f1 / 100.0f;
-        if (t2 == 0 && func_0010a9b0(*(u16 *)(arg0 + 2)) != 0) {
-            f20 = f20 * iGpffff8110;
+        table = iGpffffb408;
+        value = *(u8 *)(PTDatCalcOffsetAdd((u32)status,
+            PTDatCalcOffsetAdd((enemy & 0xFFFF) * 3, (u32)table)) + 7U);
+        percentage = (f32)(u32)value;
+        multiplier = percentage / 100.0f;
+        if (enemyFlag == 0 && func_0010a9b0(*(u16 *)(arg0 + 2)) != 0) {
+            multiplier = multiplier * iGpffff8110;
         }
         break;
     case 18:
-        if (m > 0) {
-            f20 = 2.5f;
+        if (status > 0) {
+            multiplier = 2.5f;
         }
         break;
     case 19:
-        if (m > 0) {
-            f20 = 2.5f;
+        if (status > 0) {
+            multiplier = 2.5f;
         }
         break;
     }
-    return f20;
+    return multiplier;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233bc0);
-#endif
+
+#pragma pop
 
 /* measured: func_002340c0 matches retail's 1904-byte window (1900-byte
    emitted body plus the retail zero-padding tail). The 0x30000 branch uses
