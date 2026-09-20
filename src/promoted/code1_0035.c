@@ -1629,6 +1629,21 @@ loop_test:
 /* switch3 reverse 3,2,1 -> 2868 (+2, current 1,2,3 correct); switch4 reverse 3,2,0/1 -> */
 /* 2866 (tie); switch1 as switch -> 2868 obj 2712 (+2/+4, if-chain stays). Post-fix */
 /* fnalign 2865 edits obj 2708 (+72 +2.73% inside band), tail_classify 2865 struct 267 reg 41. */
+/* measured 00356a10 (owner, 2026-09-20): 2708 against retail 2636 (+2.7%, inside with only
+   six instructions of headroom), **2865 edits**.  tail_classify says structure 267 against
+   register 41, so this floor is structurally wrong rather than allocator-blocked, and
+   deficit_scan names the three regions: retail-only runs of 334 at 0x00358648, 200 at
+   0x0035786c and 76 at 0x003572bc.
+   0x00358648 is the unsigned-int-to-float idiom - `bltz $20` then either `cvt.s.w` direct
+   or `srl 1 / andi 1 / or / cvt.s.w / add.s` doubled - and the body ALREADY spells it out
+   by hand at 21 sites as `if ((s32) x >= 0) v = (f32) x; else v = 2.0f * (f32) ((x >> 1) |
+   (x & 1));`.  Replacing all 21 with the compact `(f32)(u32) x` is much WORSE: 2865 -> 3351
+   edits and the count collapses to 2431 (-7.8%, outside the band).  b210 lowers the cast
+   form differently from the written-out form, so the hand-written idiom is correct here
+   and must not be 'simplified'.
+   0x0035786c is present too - retail's `135.0f + (f25 + load)` has the constant on the
+   left and so does the body.  Both regions are there and misaligned rather than missing,
+   which is why three sessions of spelling work have found -77, -1 and -1. */
 // FUN_00356A10 NONMATCHING
 #ifdef NON_MATCHING
 void func_00356a10(u8 *arg0) {
