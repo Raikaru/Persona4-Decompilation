@@ -171,7 +171,14 @@ def main() -> None:
                                       if t == "delete")
                         extra = sum(j2 - j1 for t, _i1, _i2, j1, j2 in script
                                     if t == "insert")
-                        if got == want and missing and extra:
+                        # An exact count is the clearest case, but not the
+                        # only one: func_0048c4e0 sits in band at +2.2% with
+                        # a pure hole of 24 against a lump of 1 and a further
+                        # 35 instructions buried in `replace` hunks.  A floor
+                        # can be comfortably in band and still be missing a
+                        # whole block of retail code.
+                        if (got == want and missing and extra) or \
+                           (missing >= 10 and extra >= 1):
                             cancelled.append((missing + extra, missing, extra,
                                               want, name,
                                               str(path.relative_to(REPO))))
@@ -196,11 +203,13 @@ def main() -> None:
         print(f"  CANCELLED  missing {missing:4d}  extra {extra:4d}  of {want:5d}"
               f"  {name}  {source}")
     if cancelled:
-        print(f"\n{len(cancelled)} floors match retail's count EXACTLY while still"
-              "\nmissing instructions and emitting others - two errors cancelling."
-              "\nAn exact count reads as finished, so these hide better than any"
-              "\nfloor outside the band.  func_001265a0 was 4404 against 4404 while"
-              "\ncalling __fixsfdi where retail has cvt.w.s/mfc1/nop/dsll32/dsra32.")
+        print(f"\n{len(cancelled)} floors are inside the gate while still MISSING"
+              "\nretail instructions and emitting others the retail does not have."
+              "\nA count in band, and an exact count most of all, reads as finished:"
+              "\nfunc_001265a0 was 4404 against 4404 while calling __fixsfdi where"
+              "\nretail has cvt.w.s/mfc1/nop/dsll32/dsra32 - one short there, one"
+              "\nlong elsewhere.  The `missing` column is unwritten retail code and"
+              "\nis worth more than the drift percentage next to it.")
     # A marker sitting straight on an INCLUDE_ASM row has no body to measure.
     # That is an honest "not started", not a defect, and lumping the two
     # together is what let a body that had stopped compiling hide among them.
