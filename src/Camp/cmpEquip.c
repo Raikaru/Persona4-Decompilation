@@ -275,8 +275,6 @@ void func_00131a00(u8 *arg0)
   s16 temp_v6;
   s16 temp_v8;
   s16 sStack_40;
-  s16 sStack_30;
-  s16 sStack_2a;
   s8 temp_v7;
   u8 temp_v0;
   u8 temp_v11;
@@ -287,14 +285,9 @@ void func_00131a00(u8 *arg0)
   u16 temp_v1;
   u16 temp_v12;
   u16 temp_v13;
-  u16 uStack_2e;
-  u16 uStack_1c;
-  u16 uStack_1a;
-  u16 uStack_18;
   u32 temp_v3;
-  u32 uStack_28;
-  u32 uStack_24;
-  u32 uStack_20;
+  typedef struct { s16 s30; u16 _2e; u16 _pad; s16 _2a; u32 _28; u32 _24; u32 _20; u16 _1c; u16 _1a; u16 _18; } E0Struct;
+  E0Struct e0;
   s32 temp_v4;
   char *pcVar5;
   u64 temp_v5;
@@ -568,30 +561,30 @@ void func_00131a00(u8 *arg0)
       fStack_8 = fStack_8 + 42.0f;
       fStack_4 = fStack_4 + 24.0f;
       temp_v9 = (f32)pbVar8[temp_v8 * 0x30 + 0xe7a] * temp_v17;
-      if (temp_v9 < 2.1474836e9f) {
+      if (temp_v9 <= 2.1474836e9f) {
         temp_v11 = (u8)(s32)temp_v9;
       }
       else {
         temp_v11 = (u8)(s32)(temp_v9 - 2.1474836e9f);
       }
-      func_001125d0((u8 *)&sStack_30);
+      func_001125d0((u8 *)&e0);
       if ((*(u32 *)(pbVar8 + 0x1c) & 0x20) == 0) {
-        uStack_1a = 4;
+        e0._1a = 4;
       }
       else if (temp_v0) {
-        uStack_1a = 3;
+        e0._1a = 3;
       }
       else {
-        uStack_1a = 2;
+        e0._1a = 2;
       }
-      sStack_30 = func_00106cd0(temp_v6,temp_v8);
-      uStack_2e = 0xffff;
-      uStack_28 = 0xffffffff;
-      uStack_24 = 1;
-      uStack_20 = 0;
-      uStack_1c = 0;
-      uStack_18 = 3;
-      func_00112300(CONCAT44(fStack_4,fStack_8),0.0f,temp_v11,(u8 *)&sStack_30);
+      e0.s30 = func_00106cd0(temp_v6,temp_v8);
+      e0._2e = 0xffff;
+      e0._28 = 0xffffffff;
+      e0._24 = 1;
+      e0._20 = 0;
+      e0._1c = 0;
+      e0._18 = 3;
+      func_00112300(CONCAT44(fStack_4,fStack_8),0.0f,temp_v11,(u8 *)&e0);
     }
   }
   if ((*(u32 *)(pbVar8 + 0x1c) & 8) != 0) {
@@ -724,17 +717,17 @@ void func_00131a00(u8 *arg0)
     else {
       temp_v11 = (u8)(s32)(temp_v9 - 2.1474836e9f);
     }
-    func_001125d0((u8 *)&sStack_30);
+    func_001125d0((u8 *)&e0);
     sStack_40 = func_00106cd0(temp_v6,*(s16 *)(pbVar8 + 0x2a));
-    uStack_2e = 0xffff;
-    uStack_28 = 0xffffffff;
-    uStack_24 = 1;
-    uStack_20 = 1;
-    uStack_1c = 1;
-    uStack_1a = 4;
-    uStack_18 = 3;
-    sStack_30 = sStack_40;
-    func_00112300(CONCAT44(fStack_4,fStack_8),0.0f,temp_v11,(u8 *)&sStack_30);
+    e0._2e = 0xffff;
+    e0._28 = 0xffffffff;
+    e0._24 = 1;
+    e0._20 = 1;
+    e0._1c = 1;
+    e0._1a = 4;
+    e0._18 = 3;
+    e0.s30 = sStack_40;
+    func_00112300(CONCAT44(fStack_4,fStack_8),0.0f,temp_v11,(u8 *)&e0);
     fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1380) + 122.0f;
     fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x1384) + 94.0f;
     temp_v9 = (f32)pbVar8[0x138a] * temp_v17;
@@ -744,8 +737,8 @@ void func_00131a00(u8 *arg0)
     else {
       temp_v11 = (u8)(s32)(temp_v9 - 2.1474836e9f);
     }
-    sStack_30 = *(s16 *)(pbVar8 + 0xc7a);
-    func_00112300(CONCAT44(fStack_4,fStack_8),0.0f,temp_v11,(u8 *)&sStack_30);
+    e0.s30 = *(s16 *)(pbVar8 + 0xc7a);
+    func_00112300(CONCAT44(fStack_4,fStack_8),0.0f,temp_v11,(u8 *)&e0);
   }
   if ((*(u32 *)(pbVar8 + 0x1c) & 0x2000) != 0) {
     temp_v10 = *(f32 *)(pbVar8 + 0x1474) + temp_v16 + *(f32 *)(pbVar8 + 0xe14);
@@ -793,36 +786,36 @@ void func_00131a00(u8 *arg0)
         temp_v4 = (s32)*(s16 *)(pbVar8 + 0x2c) + (s32)temp_v6;
         temp_v8 = *(s16 *)(pbVar8 + temp_v4 * 4 + 0x4a);
         temp_v1 = *(u16 *)(pbVar8 + temp_v4 * 4 + 0x4c);
-        func_001125d0((u8 *)&sStack_30);
+        func_001125d0((u8 *)&e0);
         if (*(s16 *)(pbVar8 + 0x2e) == temp_v6) {
-          uStack_1a = 3;
+          e0._1a = 3;
           func_00134f40(pbVar8,CONCAT44(fStack_4,fStack_8),1,temp_v3);
         }
         else {
-          uStack_1a = 5;
+          e0._1a = 5;
           func_00134f40(pbVar8,CONCAT44(fStack_4,fStack_8),0,temp_v3);
         }
-        uStack_28 = 0xffffffff;
-        uStack_24 = 1;
-        uStack_20 = 1;
-        uStack_1c = 1;
-        sStack_2a = sStack_40;
-        uStack_18 = 3;
-        sStack_30 = temp_v8;
-        uStack_2e = temp_v1;
-        func_00112300(CONCAT44(fStack_4,fStack_8),0.0f,(u8)(s32)temp_v9,(u8 *)&sStack_30);
+        e0._28 = 0xffffffff;
+        e0._24 = 1;
+        e0._20 = 1;
+        e0._1c = 1;
+        e0._2a = sStack_40;
+        e0._18 = 3;
+        e0.s30 = temp_v8;
+        e0._2e = temp_v1;
+        func_00112300(CONCAT44(fStack_4,fStack_8),0.0f,(u8)(s32)temp_v9,(u8 *)&e0);
       }
     }
   }
   if (((*(u32 *)(pbVar8 + 0x1c) & 0x40) != 0) && (0 < *(s16 *)(pbVar8 + 0xc46))) {
     temp_v5 = 0;
-    func_001125d0((u8 *)&sStack_30);
+    func_001125d0((u8 *)&e0);
     fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x14a0) + 124.0f;
     fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x14a4) + 147.0f;
-    uStack_28 = 0xffffffff;
-    uStack_1c = 0;
-    uStack_24 = 0;
-    uStack_20 = 0;
+    e0._28 = 0xffffffff;
+    e0._1c = 0;
+    e0._24 = 0;
+    e0._20 = 0;
     if (*(f32 *)(pbVar8 + 0x149c) < 0.0f) {
       temp_v5 = 1;
     }
@@ -832,23 +825,23 @@ void func_00131a00(u8 *arg0)
     func_00135520(arg0,CONCAT44(fStack_4,fStack_8),pbVar8[0x14aa],temp_v5);
     fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0xe40) + 124.0f;
     fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0xe44) + 147.0f;
-    sStack_30 = *(s16 *)(pbVar8 + ((s32)*(s16 *)(pbVar8 + 0x2c) + (s32)*(s16 *)(pbVar8 + 0x2e)
+    e0.s30 = *(s16 *)(pbVar8 + ((s32)*(s16 *)(pbVar8 + 0x2c) + (s32)*(s16 *)(pbVar8 + 0x2e)
                                     ) * 4 + 0x4a);
-    uStack_2e = *(u16 *)
+    e0._2e = *(u16 *)
                  (pbVar8 + ((s32)*(s16 *)(pbVar8 + 0x2c) + (s32)*(s16 *)(pbVar8 + 0x2e)) * 4 +
                            0x4c);
-    uStack_28 = 0xffffffff;
-    uStack_24 = 1;
-    uStack_20 = 1;
-    sStack_2a = sStack_40;
-    uStack_1a = 3;
-    uStack_1c = 1;
-    uStack_18 = 3;
+    e0._28 = 0xffffffff;
+    e0._24 = 1;
+    e0._20 = 1;
+    e0._2a = sStack_40;
+    e0._1a = 3;
+    e0._1c = 1;
+    e0._18 = 3;
     temp_v9 = (f32)pbVar8[0xe4a] * temp_v17;
     if (2.1474836e9f <= temp_v9) {
       temp_v9 = temp_v9 - 2.1474836e9f;
     }
-    func_00135130(arg0,CONCAT44(fStack_4,fStack_8),(s32)temp_v9 & 0xff,(u8 *)&sStack_30);
+    func_00135130(arg0,CONCAT44(fStack_4,fStack_8),(s32)temp_v9 & 0xff,(u8 *)&e0);
   }
   fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1350) + 640.0f;
   fStack_4 = temp_v16 + *(f32 *)(pbVar8 + 0x1354) + 400.0f;

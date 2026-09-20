@@ -74,18 +74,63 @@ def quadword_access(word: bytes) -> str | None:
     return f"{mnemonic} {rt}, {sign}{abs(offset):#x}({base})"
 
 
-def build(capstone_disassemble):
-    """Wrap a capstone-backed decoder so it also handles `lq` and `sq`.
+# COP1 with fmt=S, function 0x18-0x1F: the EE's floating-point
+# multiply-accumulate family.  Capstone knows none of them, so all six
+# returned "??" - and every "??" compares equal to every other, which meant
+# `adda.s`, `madd.s`, `mula.s`, `msub.s` and `madda.s` were INDISTINGUISHABLE
+# from each other and from every undecoded VU op in the same function.  An
+# entire session of accumulator work was measured through that.
+FPU_ACCUMULATE = {
+    0x18: ("adda.s", "fs,ft"), 0x19: ("suba.s", "fs,ft"),
+    0x1A: ("mula.s", "fs,ft"), 0x1B: ("msuba.s", "fs,ft"),
+    0x1C: ("madd.s", "fd,fs,ft"), 0x1D: ("msub.s", "fd,fs,ft"),
+    0x1E: ("madda.s", "fs,ft"), 0x1F: ("msuba.s", "fs,ft"),
+}
 
-    The wrapper is tried FIRST, not as a fallback: capstone returns nothing for
-    these words today, but a future capstone that decodes them as some MIPS DSP
-    instruction would otherwise silently win.
+
+def fpu_accumulate(word: bytes) -> str | None:
+    """`adda.s`/`madd.s` and friends, which capstone does not know."""
+    if len(word) < 4:
+        return None
+    value = struct.unpack("<I", word[:4])[0]
+    if value >> 26 != 0x11 or ((value >> 21) & 0x1F) != 0x10:
+        return None
+    entry = FPU_ACCUMULATE.get(value & 0x3F)
+    if entry is None:
+        return None
+    mnemonic, shape = entry
+    ft, fs, fd = (value >> 16) & 0x1F, (value >> 11) & 0x1F, (value >> 6) & 0x1F
+    operands = {"fs,ft": f"$f{fs}, $f{ft}",
+                "fd,fs,ft": f"$f{fd}, $f{fs}, $f{ft}"}[shape]
+    return f"{mnemonic} {operands}"
+
+
+def build(capstone_disassemble):
+    """Wrap a capstone-backed decoder with the EE forms it does not know.
+
+    The wrappers are tried FIRST, not as a fallback: capstone returns nothing
+    for these words today, but a future capstone that decodes them as some
+    MIPS DSP instruction would otherwise silently win.
+
+    Anything still undecoded becomes its own raw word rather than a shared
+    `"??"`.  That matters more than the pretty name: two DIFFERENT unknown
+    instructions must not compare equal.  A tree-wide audit against the
+    repository's own listings found 136 distinct forms capstone cannot read -
+    the MMI integer ops, the VU macro-mode ops, the EE three-operand `mult` -
+    and collapsing all of them to one token made every pair of them look
+    identical to the aligner.
     """
 
     def disassemble(word: bytes, pc: int) -> str:
-        text = quadword_access(word)
-        if text is not None:
+        for decoder in (quadword_access, fpu_accumulate):
+            text = decoder(word)
+            if text is not None:
+                return text
+        text = capstone_disassemble(word, pc)
+        if text and text != "??":
             return text
-        return capstone_disassemble(word, pc)
+        if len(word) < 4:
+            return "??"
+        return f".word {struct.unpack('<I', word[:4])[0]:#010x}"
 
     return disassemble
