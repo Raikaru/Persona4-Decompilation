@@ -2214,6 +2214,15 @@ void func_0045ee00(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg
  * $at/b insert-delete pairs at 6 and 0x14), so >=K to >K-1 rewrite N/A. Ruled out live: float-copy W32
  * 0x84/0x88 to W8 float (268 tie) and direct-float second block W8 0xC0/0xC4/0xC8 (309, worse). Banked. */
 /* measured 0045fbe0: `opt_common_subs off` inside the guard is worth 43 words (311 -> 268); retail rematerialises what b210 hoists. */
+/* measured 0045fbe0 (owner, 2026-09-19): fnalign **146 -> 144 edits**, count
+   375 -> 373 against retail 375, by writing m2c's top-tested `loop_N:` /
+   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
+   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
+   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
+   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
+   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
+   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
+   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
 // FUN_0045FBE0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -2275,14 +2284,12 @@ void func_0045fbe0(f32 *arg0, u8 *arg1, f32 *arg2, s32 arg3, f32 fparg0) {
         if (arg3 != 0) {
             s32 *p;
             var_20 = 0;
-loop_9:
-            if (var_20 < 6) {
-                p = (s32 *)&D_00712490[var_20];
-                D_00887304[0](p[0], work + (0xD0 - 0x80) + var_20 * 4);
-                D_00887300[0](p[0], p[1]);
-                var_20 += 1;
-                goto loop_9;
-            }
+do {
+                    p = (s32 *)&D_00712490[var_20];
+                    D_00887304[0](p[0], work + (0xD0 - 0x80) + var_20 * 4);
+                    D_00887300[0](p[0], p[1]);
+                    var_20 += 1;
+} while (var_20 < 6);
             D_00887300[0](1, 0);
             func_003f6440(2, 0x48);
             func_003f6440(3, 0x71801);

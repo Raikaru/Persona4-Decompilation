@@ -1079,6 +1079,15 @@ s32 func_00164570(u32 arg0, s32 arg1)
 
 
 /* measured: floor 313 differing words (reloc-masked), object 1688B vs 1728B window, 45/45 relocs; L003b 370 -> 313 via Frame v70/v80/v90/vA0 aggregates, block-scope u32 003b7060 (divu), opt_common_subs/propagation off + slot+0x50 temps, grouped f2/f1/f0 loads, index-before-reload order, var_16-last decl. Re-measured this pass: 313 words, 431 vs 422 instrs, 124 fnalign edits plus 4 reloc-only. Residual: sltu $2,$0,$4 at 0xF4/0x284/0x4F4 vs beqz $a0; $s1/$s2 outer/index rotation with mfhi $s0 vs $s2; entry b vs sltiu+beqz; 3-nop count-loop pad. This pass chased the sltu (var_4/var_4_2/var_4_3 0/1 flags tested after an addiu-1/daddu-0 join): 0u < (u32)var casts, u32 declarations with != 0 and 0u < tests, and both-paths assignment with unsigned test all score 313 neutral (both-paths alone: 337, the var=0-then-conditional-1 shape is load-bearing); MWCC folds the unsigned compare to beqz here while retail materialises it, mechanism unknown. Archived in docs/probe_archive/W50FldUnit_00164880_body.c; production stays ASM. */
+/* measured 00164880 (owner, 2026-09-19): fnalign **124 -> 122 edits**, count
+   422 -> 420 against retail 431, by writing m2c's top-tested `loop_N:` /
+   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
+   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
+   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
+   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
+   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
+   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
+   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
 // FUN_00164880 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0014cfd0(u8 *arg0);
@@ -1156,27 +1165,25 @@ loop_44:
             var_17_2 = 0;
             temp_f21 = frame.vA0[1];
             temp_f20 = frame.vA0[2];
-loop_10:
-            if (var_17_2 < 4U) {
-                var_4 = 0;
-                temp_3 = D_007EF9B0 + var_17_2 * 0x750;
-                if (*(s32 *)(temp_3 + 0x48) != 0 && *(s32 *)(temp_3 + 0x54) != 0) var_4 = 1;
-                if (var_4 != 0) {
-                    temp_2 = D_007EF9B0 + var_17_2 * 0x750;
-                    {
-                        u8 *slot50 = temp_2 + 0x50;
-                        temp_2_2 = func_0047a2f0(*(s32 *)(temp_2 + 0x50));
-                        frame.v90[0] = frame.vA0[0] - *(f32 *)(temp_2_2 + 0x30);
-                        temp_2_3 = func_0047a2f0(*(s32 *)slot50);
-                        frame.v90[1] = temp_f21 - *(f32 *)(temp_2_3 + 0x34);
-                        temp_2_4 = func_0047a2f0(*(s32 *)slot50);
-                        frame.v90[2] = temp_f20 - *(f32 *)(temp_2_4 + 0x38);
+do {
+                    var_4 = 0;
+                    temp_3 = D_007EF9B0 + var_17_2 * 0x750;
+                    if (*(s32 *)(temp_3 + 0x48) != 0 && *(s32 *)(temp_3 + 0x54) != 0) var_4 = 1;
+                    if (var_4 != 0) {
+                        temp_2 = D_007EF9B0 + var_17_2 * 0x750;
+                        {
+                            u8 *slot50 = temp_2 + 0x50;
+                            temp_2_2 = func_0047a2f0(*(s32 *)(temp_2 + 0x50));
+                            frame.v90[0] = frame.vA0[0] - *(f32 *)(temp_2_2 + 0x30);
+                            temp_2_3 = func_0047a2f0(*(s32 *)slot50);
+                            frame.v90[1] = temp_f21 - *(f32 *)(temp_2_3 + 0x34);
+                            temp_2_4 = func_0047a2f0(*(s32 *)slot50);
+                            frame.v90[2] = temp_f20 - *(f32 *)(temp_2_4 + 0x38);
+                        }
+                        if (func_003e4180(frame.v90) < 3000.0f) goto loop_12;
                     }
-                    if (func_003e4180(frame.v90) < 3000.0f) goto loop_12;
-                }
-                var_17_2 += 1;
-                goto loop_10;
-            }
+                    var_17_2 += 1;
+} while (var_17_2 < 4U);
 loop_12:
             if (var_17_2 < 4U) {
                 var_18 = *(u8 **)(var_18 + 0x138);

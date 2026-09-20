@@ -627,6 +627,15 @@ INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021fa40);
 /* G4 vt void(**)->u32 hoist x20 on G1+G2 (matched btlShuffleDraw pattern): 916 / 1396 (-22) inside, -362 words, kept. */
 /* G5 uD0.v dead g1/g12/g13/g14 removal on G1+G2+G4: 888 / 1396 (-22) neutral, -28 words, kept. */
 /* banked G1+G2+G4+G5: 888 words, obj 1396 / ret 1418 (delta -22, inside). Drops G3; retains 396/417 of the 867-inclusive gain. */
+/* measured 0021fea0 (owner, 2026-09-19): fnalign **585 -> 582 edits**, count
+   1396 -> 1394 against retail 1418, by writing m2c's top-tested `loop_N:` /
+   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
+   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
+   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
+   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
+   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
+   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
+   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
 // FUN_0021FEA0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0021fea0(u8 *arg0, u8 *arg1)
@@ -896,19 +905,17 @@ if ((*( u16 *)((u8 *)(w) + 0)) & 2) {
             f110[1] =(162.0f + (*(f32 *)(w + 0x144)));
             b22 = (u8)((*(u8 *)(w + 0x14A)));
             s21 = 0;
-loop_11:
-            if (s21 < (*(s32 *)((u8 *)(p16) + 0x38))) {
-                func_001125d0((u8 *)&aA0);
-                t3 = (u8 *)(p16 + (s21 * 4));
-                aA0.a0 = (u16)((*(u16 *)((u8 *)(t3) + 0x2C)));
-                aA0.a2 = (s16)((*(s16 *)((u8 *)(t3) + 0x2E)));
-                aA0.b6 = 6;
-                aA0.b8 = 5;
-                func_00112300((*(s64 *)&f110[0]), 0.0f, b22, (u8 *)&aA0);
-                f110[1] += 34.0f;
-                s21 += 1;
-                goto loop_11;
-            }
+do {
+                    func_001125d0((u8 *)&aA0);
+                    t3 = (u8 *)(p16 + (s21 * 4));
+                    aA0.a0 = (u16)((*(u16 *)((u8 *)(t3) + 0x2C)));
+                    aA0.a2 = (s16)((*(s16 *)((u8 *)(t3) + 0x2E)));
+                    aA0.b6 = 6;
+                    aA0.b8 = 5;
+                    func_00112300((*(s64 *)&f110[0]), 0.0f, b22, (u8 *)&aA0);
+                    f110[1] += 34.0f;
+                    s21 += 1;
+} while (s21 < (*(s32 *)((u8 *)(p16) + 0x38)));
         }
         f110[0] =(68.0f + (*(f32 *)(w + 0xE0)));
         f110[1] =(20.0f + (*(f32 *)(w + 0xE4)));

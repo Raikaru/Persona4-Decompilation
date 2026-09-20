@@ -322,6 +322,11 @@ f32 func_0046b2f0(u8 *param_1)
    step is to find which of the sunk recomputations retail actually performs at each
    use and write those back - the register colouring is already right, so the missing
    instructions are recomputation, not spills. */
+/* gate: func_0046b380 is OUTSIDE the +-3% band at 1834 against retail 1948 (-5.9%, band
+   1890-2006).  It is the largest first-party floor in the tree and 114 instructions SHORT,
+   so the deficit is missing code, not mistuning, and no edit score measured against it is
+   comparable to an in-band one (7y).  A full session on it found only -2 edits / -17 words
+   (both `m` loops counted 3..0), which is the expected return while the count is wrong. */
 // FUN_0046B380 NONMATCHING
 #ifdef NON_MATCHING
 void func_0046b380(u8 *arg0, s32 arg1) {
@@ -651,7 +656,7 @@ void func_0046b380(u8 *arg0, s32 arg1) {
             tbl300[0](1, *(s32 *)((*(u8 **)arg0) + 0x104 + slotidx));
         }
         D_00887310[0](4, pkt, 4);
-        for (m = 0; m < 4; m++) {
+        for (m = 3; m >= 0; m--) {
             savedPts[m][0] = pts[m][0];
             savedPts[m][1] = pts[m][1];
         }
@@ -988,7 +993,7 @@ void func_0046b380(u8 *arg0, s32 arg1) {
                 D_00887310[0](4, pkt, 4);
             }
         }
-        for (m = 0; m < 4; m++) {
+        for (m = 3; m >= 0; m--) {
             pts[m][0] = savedPts[m][0];
             pts[m][1] = savedPts[m][1];
         }
