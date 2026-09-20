@@ -404,9 +404,7 @@ void func_0034ee90(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
     u8 temp_3;
     u8 *temp_17;
     u8 *temp_16;
-    u8 *var_4;
 
-    var_4 = (u8 *)(arg0);
     temp_3 = (u8)((u8)(*(u8 *)(arg0 + 0x994)));
     var_f1 = (f32)(u32)temp_3;
     temp_f1 = var_f1 / 255.0f;
