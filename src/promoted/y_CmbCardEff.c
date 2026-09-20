@@ -2568,6 +2568,21 @@ s32 func_00343cf0(u8 *arg0) {
    values, so splitting them changes nothing.  If retail's low stack offsets are still the
    answer, the difference has to come from the *order* the slots are allocated in or from
    the other 229 `ttmp` offsets, not from the 36 scratch pairs. */
+/* measured 00345700 (owner, 2026-09-19): 2138 against retail 2190 (-2.4%, inside), and
+   deficit_scan gives an unusually clean answer - the ONLY opcodes retail has more of are
+   `lwc1 +46` and `lbu +12`, with two adjacent retail-only runs at 0x00346edc-0x00346f80
+   (41) and 0x00346f84-0x00347078 (61) that are really one 102-instruction region.
+   Reading it: retail round-trips every computed pair through the stack and RELOADS it.
+   At 0x00346efc it copies the func_002b2970 result from 0x1F0($sp) to 0xA0($sp), at
+   0x00346f3c it loads 0xA8($sp) back to store into slot+0x548, and at 0x00346f4c it
+   reloads slot+0x548 itself to write slot+0x538.  The body already spells that last
+   reload (`*(f32 *)(slot + 0x538) = *(f32 *)(slot + 0x548);`) and b210 honours it, so the
+   46 missing loads are the OTHER round-trips, where the value is still live in a register
+   and the compiler declines to reload it.
+   That is the same wall as func_00476e90, where the only spelling that forced the reloads
+   was a banned `volatile`.  Do not spend spelling effort here until someone finds an
+   honest construct that defeats b210's CSE on a stack round-trip; the structure is right
+   and the residual is the compiler keeping what retail reloads. */
 // FUN_00345700 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00345700(u8 *arg0) {
