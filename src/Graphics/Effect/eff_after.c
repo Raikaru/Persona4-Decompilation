@@ -1478,24 +1478,26 @@ void func_004bad70(u8 *data, EffAfterVec *position, EffAfterVec *normal) {
         break;
     }
 }
-/* measured: floor for func_004bb1d0 (obj 3952B vs window 4112B, probe_variants 879 differing words reloc-masked).
-   Frame 0xA0 matches retail; initial param loads (0x1C->0x78, 0x24->0x70, 0x20->0x7C, 0x28->0x74) match.
-   Logic confirmed against retail asm (asm/nonmatchings/eff_after/func_004bb1d0.s via `grep -rl func_004bb1d0 asm/`),
-   IDA sub_4BB1D0, and M2C P4_UNIT_004BB1D0 (606 draft lines, noise 0): 4-block ribbon accumulation
-   (sec,side,src,dst) = (arg1,0,0x10,0x18), (arg1,1,0x14,0x20), (arg1+1,0,0x10,0x1C), (arg1+1,1,0x14,0x24);
-   triple selection (count==2 / section==0 vs else) and (count==2 || (count==3 && section==1) vs else);
-   ring indices `-2 - sec + cursor` and `(cursor-1)-sec` with wrap by +count; asserts 0x14E/0x137 for count<2.
-   Residual is compiler floor per docs/matching.md: swapped saved regs ($s2/$s1 for work/section,
-   $f26 vs $f21 etc. for coeff/pair), scheduling (addiu before c.le.s vs after), and FPU choice
-   (madd for scale vs retail mul+mul+add). Exhausted folded-displacement (struct AfterWork vs raw
-   work+8 hoisting), reverse-order float/stack allocation, and struct-vs-raw probes.
-   No pooled float constants (noise 0; only 0.0f via mtc1 $zero, no gp-relative loads to bank).
-   Unit confirmed via `grep -rl func_004bb1d0 asm/` -> asm/nonmatchings/eff_after/func_004bb1d0.s.
-   Production stays INCLUDE_ASM fallback; body preserved here as NON_MATCHING seed. */
-/* gate: object 988 against retail 1026, -3.7% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* measured: floor for func_004bb1d0 (obj 4144B vs window 4112B, +0.8% inside the +-3% gate; measure_guarded 618 differing words reloc-masked). */
+/*   Frame 0xA0 matches retail; initial param loads (0x1C->0x78, 0x24->0x70, 0x20->0x7C, 0x28->0x74) match. */
+/*   Logic confirmed against retail asm (asm/nonmatchings/eff_after/func_004bb1d0.s via `grep -rl func_004bb1d0 asm/`), */
+/*   IDA sub_4BB1D0, and M2C P4_UNIT_004BB1D0 (606 draft lines, noise 0): 4-block ribbon accumulation */
+/*   (sec,side,src,dst) = (arg1,0,0x10,0x18), (arg1,1,0x14,0x20), (arg1+1,0,0x10,0x1C), (arg1+1,1,0x14,0x24); */
+/*   triple selection (count==2 / section==0 vs else) and (count==2 || (count==3 && section==1) vs else); */
+/*   ring indices `-2 - sec + cursor` and `(cursor-1)-sec` with wrap by +count; asserts 0x14E/0x137 for count<2. */
+/*   Count fix: the 8 vector-difference blocks hoisted `base+idx*12` (one addu, folded +4/+8 loads) where retail */
+/*   recomputes `base+offset` per field (one addiu for +4/+8, then one addu per index). Spelling each block as */
+/*   `b=(u8*)base; ob=idxB*12; oa=idxA*12; *(f32*)(b+ob)-*(f32*)(b+oa); b4=b+4; *(f32*)(b4+ob)-...; b8=b+8; ...` */
+/*   (M2C temp_5+4/temp_5+8 shape) closes all 32 missing addu and 16 of 21 missing addiu: obj 3952B->4144B */
+/*   (+192B, +48 instrs), 879->618 differing words. Remaining retail-only addu/addiu are the widths/alphas */
+/*   folded-displacement pair (retail addiu+load-0 vs object load-offset, 4-5 words) per matching.md gate 2. */
+/*   Residual is compiler floor per docs/matching.md: swapped saved regs ($s2/$s1 for work/section, */
+/*   $f26 vs $f21 etc. for coeff/pair), scheduling (addiu before c.le.s vs after), and FPU choice */
+/*   (madd for scale vs retail mul+mul+add: retail +4 mul.s/+4 add.s). Exhausted folded-displacement */
+/*   (struct AfterWork vs raw work+8 hoisting), reverse-order float/stack allocation, and struct-vs-raw probes. */
+/*   No pooled float constants (noise 0; only 0.0f via mtc1 $zero, no gp-relative loads to bank). */
+/*   Unit confirmed via `grep -rl func_004bb1d0 asm/` -> asm/nonmatchings/eff_after/func_004bb1d0.s. */
+/*   Production stays INCLUDE_ASM fallback; body preserved here as NON_MATCHING seed. */
 // FUN_004BB1D0 NONMATCHING
 #ifdef NON_MATCHING
 void func_004bb1d0(void *arg0, s32 arg1) {
@@ -1581,7 +1583,11 @@ void func_004bb1d0(void *arg0, s32 arg1) {
     } else {
         s32 idxA = (work->cursor - 1) - arg1;
         s32 idxB;
-        EffAfterVec *base;
+        u8 *b;
+        s32 ob;
+        s32 oa;
+        u8 *b4;
+        u8 *b8;
         if (idxA < 0) {
             idxA += work->count;
         }
@@ -1589,10 +1595,14 @@ void func_004bb1d0(void *arg0, s32 arg1) {
         if (idxB < 0) {
             idxB += work->count;
         }
-        base = work->src0;
-        dir.c[0] = base[idxB].c[0] - base[idxA].c[0];
-        dir.c[1] = base[idxB].c[1] - base[idxA].c[1];
-        dir.c[2] = base[idxB].c[2] - base[idxA].c[2];
+        b = (u8 *)work->src0;
+        ob = idxB * 12;
+        oa = idxA * 12;
+        dir.c[0] = *(f32 *)(b + ob) - *(f32 *)(b + oa);
+        b4 = b + 4;
+        dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
+        b8 = b + 8;
+        dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
         func_003e40b0(&dir.c[0], &dir.c[0]);
     }
     dir.c[0] *= coeff2;
@@ -1611,7 +1621,11 @@ void func_004bb1d0(void *arg0, s32 arg1) {
     } else {
         s32 idxC = (work->cursor - 1) - arg1;
         s32 idxD;
-        EffAfterVec *base;
+        u8 *b;
+        s32 ob;
+        s32 oa;
+        u8 *b4;
+        u8 *b8;
         if (idxC < 0) {
             idxC += work->count;
         }
@@ -1619,10 +1633,14 @@ void func_004bb1d0(void *arg0, s32 arg1) {
         if (idxD < 0) {
             idxD += work->count;
         }
-        base = work->src0;
-        dir.c[0] = base[idxC].c[0] - base[idxD].c[0];
-        dir.c[1] = base[idxC].c[1] - base[idxD].c[1];
-        dir.c[2] = base[idxC].c[2] - base[idxD].c[2];
+        b = (u8 *)work->src0;
+        ob = idxC * 12;
+        oa = idxD * 12;
+        dir.c[0] = *(f32 *)(b + ob) - *(f32 *)(b + oa);
+        b4 = b + 4;
+        dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
+        b8 = b + 8;
+        dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
         func_003e40b0(&dir.c[0], &dir.c[0]);
     }
     dir.c[0] *= coeff1;
@@ -1668,7 +1686,11 @@ void func_004bb1d0(void *arg0, s32 arg1) {
     } else {
         s32 idxA = (work->cursor - 1) - arg1;
         s32 idxB;
-        EffAfterVec *base;
+        u8 *b;
+        s32 ob;
+        s32 oa;
+        u8 *b4;
+        u8 *b8;
         if (idxA < 0) {
             idxA += work->count;
         }
@@ -1676,10 +1698,14 @@ void func_004bb1d0(void *arg0, s32 arg1) {
         if (idxB < 0) {
             idxB += work->count;
         }
-        base = work->src1;
-        dir.c[0] = base[idxB].c[0] - base[idxA].c[0];
-        dir.c[1] = base[idxB].c[1] - base[idxA].c[1];
-        dir.c[2] = base[idxB].c[2] - base[idxA].c[2];
+        b = (u8 *)work->src1;
+        ob = idxB * 12;
+        oa = idxA * 12;
+        dir.c[0] = *(f32 *)(b + ob) - *(f32 *)(b + oa);
+        b4 = b + 4;
+        dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
+        b8 = b + 8;
+        dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
         func_003e40b0(&dir.c[0], &dir.c[0]);
     }
     dir.c[0] *= coeff2;
@@ -1698,7 +1724,11 @@ void func_004bb1d0(void *arg0, s32 arg1) {
     } else {
         s32 idxC = (work->cursor - 1) - arg1;
         s32 idxD;
-        EffAfterVec *base;
+        u8 *b;
+        s32 ob;
+        s32 oa;
+        u8 *b4;
+        u8 *b8;
         if (idxC < 0) {
             idxC += work->count;
         }
@@ -1706,10 +1736,14 @@ void func_004bb1d0(void *arg0, s32 arg1) {
         if (idxD < 0) {
             idxD += work->count;
         }
-        base = work->src1;
-        dir.c[0] = base[idxC].c[0] - base[idxD].c[0];
-        dir.c[1] = base[idxC].c[1] - base[idxD].c[1];
-        dir.c[2] = base[idxC].c[2] - base[idxD].c[2];
+        b = (u8 *)work->src1;
+        ob = idxC * 12;
+        oa = idxD * 12;
+        dir.c[0] = *(f32 *)(b + ob) - *(f32 *)(b + oa);
+        b4 = b + 4;
+        dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
+        b8 = b + 8;
+        dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
         func_003e40b0(&dir.c[0], &dir.c[0]);
     }
     dir.c[0] *= coeff1;
@@ -1770,7 +1804,11 @@ void func_004bb1d0(void *arg0, s32 arg1) {
     } else {
         s32 idxA = (work->cursor - 1) - sel;
         s32 idxB;
-        EffAfterVec *base;
+        u8 *b;
+        s32 ob;
+        s32 oa;
+        u8 *b4;
+        u8 *b8;
         if (idxA < 0) {
             idxA += work->count;
         }
@@ -1778,10 +1816,14 @@ void func_004bb1d0(void *arg0, s32 arg1) {
         if (idxB < 0) {
             idxB += work->count;
         }
-        base = work->src0;
-        dir.c[0] = base[idxB].c[0] - base[idxA].c[0];
-        dir.c[1] = base[idxB].c[1] - base[idxA].c[1];
-        dir.c[2] = base[idxB].c[2] - base[idxA].c[2];
+        b = (u8 *)work->src0;
+        ob = idxB * 12;
+        oa = idxA * 12;
+        dir.c[0] = *(f32 *)(b + ob) - *(f32 *)(b + oa);
+        b4 = b + 4;
+        dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
+        b8 = b + 8;
+        dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
         func_003e40b0(&dir.c[0], &dir.c[0]);
     }
     dir.c[0] *= coeff0;
@@ -1800,7 +1842,11 @@ void func_004bb1d0(void *arg0, s32 arg1) {
     } else {
         s32 idxC = (work->cursor - 1) - sel;
         s32 idxD;
-        EffAfterVec *base;
+        u8 *b;
+        s32 ob;
+        s32 oa;
+        u8 *b4;
+        u8 *b8;
         if (idxC < 0) {
             idxC += work->count;
         }
@@ -1808,10 +1854,14 @@ void func_004bb1d0(void *arg0, s32 arg1) {
         if (idxD < 0) {
             idxD += work->count;
         }
-        base = work->src0;
-        dir.c[0] = base[idxC].c[0] - base[idxD].c[0];
-        dir.c[1] = base[idxC].c[1] - base[idxD].c[1];
-        dir.c[2] = base[idxC].c[2] - base[idxD].c[2];
+        b = (u8 *)work->src0;
+        ob = idxC * 12;
+        oa = idxD * 12;
+        dir.c[0] = *(f32 *)(b + ob) - *(f32 *)(b + oa);
+        b4 = b + 4;
+        dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
+        b8 = b + 8;
+        dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
         func_003e40b0(&dir.c[0], &dir.c[0]);
     }
     dir.c[0] *= coeff1;
@@ -1855,7 +1905,11 @@ void func_004bb1d0(void *arg0, s32 arg1) {
     } else {
         s32 idxA = (work->cursor - 1) - sel;
         s32 idxB;
-        EffAfterVec *base;
+        u8 *b;
+        s32 ob;
+        s32 oa;
+        u8 *b4;
+        u8 *b8;
         if (idxA < 0) {
             idxA += work->count;
         }
@@ -1863,10 +1917,14 @@ void func_004bb1d0(void *arg0, s32 arg1) {
         if (idxB < 0) {
             idxB += work->count;
         }
-        base = work->src1;
-        dir.c[0] = base[idxB].c[0] - base[idxA].c[0];
-        dir.c[1] = base[idxB].c[1] - base[idxA].c[1];
-        dir.c[2] = base[idxB].c[2] - base[idxA].c[2];
+        b = (u8 *)work->src1;
+        ob = idxB * 12;
+        oa = idxA * 12;
+        dir.c[0] = *(f32 *)(b + ob) - *(f32 *)(b + oa);
+        b4 = b + 4;
+        dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
+        b8 = b + 8;
+        dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
         func_003e40b0(&dir.c[0], &dir.c[0]);
     }
     dir.c[0] *= coeff0;
@@ -1885,7 +1943,11 @@ void func_004bb1d0(void *arg0, s32 arg1) {
     } else {
         s32 idxC = (work->cursor - 1) - sel;
         s32 idxD;
-        EffAfterVec *base;
+        u8 *b;
+        s32 ob;
+        s32 oa;
+        u8 *b4;
+        u8 *b8;
         if (idxC < 0) {
             idxC += work->count;
         }
@@ -1893,10 +1955,14 @@ void func_004bb1d0(void *arg0, s32 arg1) {
         if (idxD < 0) {
             idxD += work->count;
         }
-        base = work->src1;
-        dir.c[0] = base[idxC].c[0] - base[idxD].c[0];
-        dir.c[1] = base[idxC].c[1] - base[idxD].c[1];
-        dir.c[2] = base[idxC].c[2] - base[idxD].c[2];
+        b = (u8 *)work->src1;
+        ob = idxC * 12;
+        oa = idxD * 12;
+        dir.c[0] = *(f32 *)(b + ob) - *(f32 *)(b + oa);
+        b4 = b + 4;
+        dir.c[1] = *(f32 *)(b4 + ob) - *(f32 *)(b4 + oa);
+        b8 = b + 8;
+        dir.c[2] = *(f32 *)(b8 + ob) - *(f32 *)(b8 + oa);
         func_003e40b0(&dir.c[0], &dir.c[0]);
     }
     dir.c[0] *= coeff1;
