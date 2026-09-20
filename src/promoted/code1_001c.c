@@ -2525,6 +2525,14 @@ void func_001c5500(u8 *arg0, s32 arg1)
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c5500);
 #endif
 /* measured 001c5b80: 515 differing words guarded via `python3 tools/measure_guarded.py src/promoted/code1_001c.c func_001c5b80` (GUARDED_SCORE 515); probe 515 via `python3 tools/probe_variants.py src/promoted/code1_001c.c func_001c5b80 --candidate v16=/var/tmp/cold1c5b80/v16.c`; fnalign retail 629 vs object 626 instrs, 231 edits (+15 reloc-only) via `python3 tools/fnalign.py src/promoted/code1_001c.c func_001c5b80 --candidate /var/tmp/cold1c5b80/v16.c --quiet`. M2C via `python3 -E -s tools/m2c_decompile.py src/promoted/code1_001c.c func_001c5b80 -o /var/tmp/cold1c5b80/m2c.c`; romwright raw via `python3 tools/romwright_decompile.py func_001c5b80 --raw -o /var/tmp/cold1c5b80/rw_raw.c` (m2c-shaped fails on CONCAT44 intrinsic); de-noised to file idiom reusing existing decls (func_001bd560, func_003e40b0, func_003e4180, func_001958f0, func_00196040, func_003e0870, func_003e4320, func_001bd780, func_001bc3a0, func_001bac20, func_001bbef0, func_004b3110, func_001eb440, func_004bd050, D_0060A0E0, iGpffffb3ac, fGpffff8110) plus block externs (func_001bc630(u8*), func_003e41e0(f32*,f32*), func_0044b868(f32)->f32, fGpffff8118/fGpffff8128). Frame 0x160 with pose50[7]+out6C[3]+quat78[4]+pad88+mat90+padD0+pairD8+valE0+padE4+pairE8[2]+pairF0+valF8+padFC+actor100[3]+pad10C+out110[3]+pad11C+dir120[3]+pad12C+tmp130[3]+pad13C+center140[3]+pad14C+center150[3]+top15C (0x110 locals). Round1 v1 535 (629 vs 629, 125+16) -> v2 535 tie (single-mask group + (f32)0x226/0x2EE for 550/750). Round2 v3 530 (reversed float decls, -5) vs v4 532 (branch >=2 first, -3). Round3 v5 518 (v3+branch+center-center zero, -12) vs v6 530 tie (u16 counter). Round4 v7 518 tie (switch descending 4E-first) vs v8 522 (50-first numerator, +4). Round5 v9 517 (for-loop, -1) vs v10 518 tie (1.25 reorder). Round6 v11/v12 517 ties (0.5/len and 8128/len swaps). Round7 v13 522 (len-first decls, +5) vs v14 516 (centerY/Z cache, -1). Round8 v15 516 tie (split side) vs v16 515 (double copy_pair, -1). Round9 v17/v18 515 ties (split on v16, p4_cacd0_mul). Round10 v19/v20 515 ties (plain +0 removal, inclusive compare). Two unproductive rounds, stopping. Top remaining: FPU color shift (retail $f23/$f21 vs object $f21/$f22), COP1 adda/madd at +0x3E8/+0x3EC and adda/madd+msub at +0x6AC..+0x6C4 per archive (plain C emits mul/add, source-unreachable floor), ld/sd vs lw/sw copy, branch $at vs $v0, switch dispatch. Pragma sweep singles+28 pairs: best ties 515 (loopinv/strength/unroll), none installed. Within 3% size gate (626/629=99.5%), banked as floor. */
+/* measured 001c5b80 (owner, 2026-09-19): fnalign **231 -> 191 edits**, count
+   626 -> 626 against retail 629, by putting one switch's arms in REVERSED
+   order.  Case order is EMISSION order and the right one is whatever retail emitted:
+   a chain converted to a switch wants ascending, a jump table wants the table's own
+   layout, and a `beq` chain with no table can want the reverse of the source order.
+   All three orderings were measured on every switch in this body and this is the
+   only one that improved it; swept across the 167 first-party floors carrying a
+   switch, just four responded at all. */
 // FUN_001C5B80 NONMATCHING
 #ifdef NON_MATCHING
 void func_001c5b80(u8 *arg0, s32 arg1)
@@ -2733,25 +2741,25 @@ void func_001c5b80(u8 *arg0, s32 arg1)
         frame.pose50[1] = frame.out6C[1];
         frame.pose50[2] = frame.out6C[2];
         switch (*(u16 *)(*(u8 **)(saved_arg0 + 0xE0) + 0x6E)) {
-        case 0x4E:
-            frame.pose50[1] = 1000.0f;
-            frame.out110[1] = (f32)0x2EE;
-            scale = 2.5f;
+        case 52:
+            frame.pose50[1] = 500.0f;
+            frame.out110[1] = 450.0f;
+            scale = 2.75f;
             break;
-        case 0x38:
-            frame.pose50[1] = 800.0f;
-            frame.out110[1] = 700.0f;
-            scale = 3.75f;
-            break;
-        case 0x35:
+        case 53:
             frame.pose50[1] = 600.0f;
             frame.out110[1] = (f32)0x226;
             scale = 3.0f;
             break;
-        case 0x34:
-            frame.pose50[1] = 500.0f;
-            frame.out110[1] = 450.0f;
-            scale = 2.75f;
+        case 56:
+            frame.pose50[1] = 800.0f;
+            frame.out110[1] = 700.0f;
+            scale = 3.75f;
+            break;
+        case 78:
+            frame.pose50[1] = 1000.0f;
+            frame.out110[1] = (f32)0x2EE;
+            scale = 2.5f;
             break;
         default:
             frame.pose50[1] = 500.0f;

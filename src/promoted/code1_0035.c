@@ -2773,17 +2773,22 @@ void func_003599a0(u8 *arg0)
     *(f32 *)(arg0 + 0x34) = D_00761260;
 }
 
-/* measured 003599c0: object 1163 instrs against retail 1190 stripped (1192 raw; -27, -2.3%; band
+/* measured 003599c0: object 1173 instrs against retail 1190 stripped (1192 raw; -17, -1.4%; band
    1156-1228) via `python3 tools/fnalign.py src/promoted/code1_0035.c func_003599c0 --candidate
-   /tmp/3599c0_v5.c`, 1022 edits (+2 reloc-only), probe 1072 differing words. Frame object 0x130 vs
-   retail 0x120 (long-lived u16 spills quad, not half); calls 17/17 (11x0034f320 + 0046d730/0046b260/
+   /tmp/3599c0_fix6.c`, 853 edits (+2 reloc-only). Frame object 0x130 vs retail 0x120
+   (long-lived u16 spills quad, not half); calls 17/17 (11x0034f320 + 0046d730/0046b260/
    0045d6e0/00275020/00246830 + D_00887300 jalr); lwc1 20/20, swc1 12/12. Float landmarks exact
    (f25/f24/f26/f21/f22/f23/f28/f27/f20/f29/f30, shared madd products per 7r, descending float decls);
-   residual is int-color allocation (params stuck $s0/$s1), v30 stack spill, and two CSE-held recomputes
-   (o2 base, f20 div). Honest: slti for retail slti, sltiu only where retail sltiu (isSelf ==), u8/u16
-   casts, s128 quad move with (u16) narrow, indirect D_00887300[0]; prototypes per recon (0034f320 x13,
-   0045d6e0 x4, 00246830 returns u8 *). No sltiu-for-slti, no s64 flat, no opt_propagation, no volatile,
-   no asm. Mid-function propoff scopes tried for the two recomputes: no-op, removed. */
+   residual is int-color allocation (params stuck $s0/$s1), v30 stack spill, and CSE-held o-base
+   recomputes (first-3 via b, last-2 via o but CSE to b) plus conversion scheduling (object converts
+   before lui/lw, retail after). Fixes: e0=(s128)*(u16*)(e+0x3C) quad plus f0v direct (was missing
+   0x3C load, w3A word intermediate removed) for lhu/sh/sq; b-split f3/f2/f28/f27/f4b/f1c via o
+   to keep o live (addu +9 residual); f20 inside if(mode!=1) for second div (lui/mtc1 +1 each);
+   switch(mode) case1/case0 fallthrough shared (was (mode==1)||(mode==0) sltiu, now beq 3,2,1,0
+   with bodies loop,2,3 per M2C order 1/0,2,3); unsigned av for divu. Honest: slti for retail
+   slti, sltiu only where retail sltiu (isSelf ==), u8/u16 casts, s128 quad, indirect D_00887300[0];
+   prototypes per recon (0034f320 x13, 0045d6e0 x4, 00246830 returns u8 *). No sltiu-for-slti,
+   no s64 flat, no opt_propagation, no volatile, no asm. */
 // FUN_003599C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_003599c0(s32 arg0, u8 *arg1)
@@ -2844,14 +2849,13 @@ void func_003599c0(s32 arg0, u8 *arg1)
     s32 o1;
     s32 o2;
     s32 o3;
-    s32 w3A;
     u8 *sprE;
     u8 *sprL;
     u8 *spr;
     u8 *ns;
     s32 i;
     s32 cnt;
-    s32 av;
+    u32 av;
     s32 color;
     u8 a3;
     u8 alpha2;
@@ -2865,8 +2869,8 @@ void func_003599c0(s32 arg0, u8 *arg1)
     f26 = (f32)arg1[0] / 255.0f;
     e = arg1 + (*(s16 *)(arg1 + 0x26) + arg0) * 12;
     t23 = e[0x38];
-    w3A = *(u16 *)(e + 0x3A);
-    f0v = (u16)w3A;
+    f0v = *(u16 *)(e + 0x3A);
+    e0 = (s128)*(u16 *)(e + 0x3C);
     if (t23 >= 0x20) {
         func_0046d730(D_0064CC98, 0x5D5);
     }
@@ -2881,8 +2885,8 @@ void func_003599c0(s32 arg0, u8 *arg1)
     f1t = f21 + (f24 + b5B4);
     f4 = 81.0f + f1t;
     a3 = (u8)((f32)b1[0x5BA] * f26);
-    f3 = (f32)*(u16 *)(b1 + 0x5C0);
-    f2 = (f32)*(u16 *)(b1 + 0x5C6);
+    f3 = (f32)*(u16 *)(arg1 + o1 + 0x5C0);
+    f2 = (f32)*(u16 *)(arg1 + o1 + 0x5C6);
     if (isSelf) {
         col[0] = D_0064B2E8;
         col[1] = D_0064B2E9;
@@ -2905,8 +2909,8 @@ void func_003599c0(s32 arg0, u8 *arg1)
     f23 = 5.0f + (f25 + c190);
     f22 = 78.0f + (f21 + (f24 + c194));
     alpha = (u8)((f32)b2[0x19A] * f26);
-    f28 = (f32)*(u16 *)(b2 + 0x1A0);
-    f27 = (f32)*(u16 *)(b2 + 0x1A6);
+    f28 = (f32)*(u16 *)(arg1 + o2 + 0x1A0);
+    f27 = (f32)*(u16 *)(arg1 + o2 + 0x1A6);
     if (isSelf) {
         ptab = D_0064B2EC;
         ctab = &D_0064B2E8;
@@ -2916,8 +2920,8 @@ void func_003599c0(s32 arg0, u8 *arg1)
         ctab = &D_0064B2E0;
         v30 = 6;
     }
-    f20 = f27 / 4096.0f;
     if (mode != 1) {
+        f20 = f27 / 4096.0f;
         func_0034f320(*(u8 **)(arg1 + 0x11E8), 60.0f + f23, f22 + 16.0f * f20, 0.0f,
                       ptab[0], ptab[1], ptab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
         func_0034f320(*(u8 **)(arg1 + (u16)e0 * 4 + 0x11EC), 124.0f + f23, f22 + 14.0f * f20, 0.0f,
@@ -2942,15 +2946,9 @@ void func_003599c0(s32 arg0, u8 *arg1)
                   ptab[0], ptab[1], ptab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
     func_0034f320(*(u8 **)(arg1 + 0x1230), 214.0f + f30, f29, 0.0f,
                   ptab[0], ptab[1], ptab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
-    if (mode == 3) {
-        spr = isSelf ? *(u8 **)(arg1 + 0x1238) : *(u8 **)(arg1 + 0x123C);
-        func_0034f320(spr, 204.0f + f23, f22 + 14.0f * f20, 0.0f,
-                      0xFF, 0xFF, 0xFF, alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
-    } else if (mode == 2) {
-        spr = isSelf ? *(u8 **)(arg1 + 0x1240) : *(u8 **)(arg1 + 0x1244);
-        func_0034f320(spr, 198.0f + f23, f22 + 14.0f * f20, 0.0f,
-                      0xFF, 0xFF, 0xFF, alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
-    } else if ((mode == 1) || (mode == 0)) {
+    switch (mode) {
+    case 1:
+    case 0:
         f30 = 4.0f + (157.0f + f23);
         f29 = f22 + 20.0f * f20;
         sprL = *(u8 **)(arg1 + 0x1234);
@@ -2961,13 +2959,26 @@ void func_003599c0(s32 arg0, u8 *arg1)
                           ctab[0], ctab[1], ctab[2], alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
             i++;
         }
+        break;
+    case 2:
+        spr = isSelf ? *(u8 **)(arg1 + 0x1240) : *(u8 **)(arg1 + 0x1244);
+        func_0034f320(spr, 198.0f + f23, f22 + 14.0f * f20, 0.0f,
+                      0xFF, 0xFF, 0xFF, alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
+        break;
+    case 3:
+        spr = isSelf ? *(u8 **)(arg1 + 0x1238) : *(u8 **)(arg1 + 0x123C);
+        func_0034f320(spr, 204.0f + f23, f22 + 14.0f * f20, 0.0f,
+                      0xFF, 0xFF, 0xFF, alpha, (u16)f28, (u16)f27, 0, 0.0f, 0);
+        break;
+    default:
+        break;
     }
     if (f27 == 4096.0f) {
         f23 = 157.0f + f23;
         f20 = f22 + 30.0f * f20;
-        av = ((alpha & 0xFF) * 0xFF) / 255;
+        av = ((u32)(alpha & 0xFF) * 0xFF) / 255U;
         color = -256;
-        color |= av;
+        color |= (s32)av;
         ns = func_00246830(f0v);
         func_00275020(f23, f20, 0.0f, color, v30, 1, ns, 0, -1);
     }
@@ -2979,8 +2990,8 @@ void func_003599c0(s32 arg0, u8 *arg1)
     f1b = f21 + (f24 + c4C4);
     f2b = 78.0f + f1b;
     alpha2 = (u8)((f32)b3[0x4CA] * f26);
-    f4b = (f32)*(u16 *)(b3 + 0x4D0);
-    f1c = (f32)*(u16 *)(b3 + 0x4D6);
+    f4b = (f32)*(u16 *)(arg1 + o3 + 0x4D0);
+    f1c = (f32)*(u16 *)(arg1 + o3 + 0x4D6);
     func_0034f320(*(u8 **)(arg1 + mode * 4 + 0x121C), 15.0f + f3b, 2.0f + f2b, 0.0f,
                   0xFF, 0xFF, 0xFF, alpha2, (u16)f4b, (u16)f1c, 0, 0.0f, 0);
 }
