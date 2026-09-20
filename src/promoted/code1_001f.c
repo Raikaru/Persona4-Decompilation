@@ -902,6 +902,20 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
    The same shape in func_001b2380 - `(temp_v4 == 1) || (temp_v4 == 0)` then `else if (== 2)`,
    with a `goto LAB_001b2a6c` from the second arm into the first - was converted the same way
    and is WORSE (1392 -> 1394, count 1014 -> 1016), so it stays a chain. */
+/* measured 001f14f0 (owner, 2026-09-20): fnalign **1384 -> 1340 edits**, count 1520 -> 1505
+   against retail 1523, by giving six float literals their `f` suffix.  A bare `1.5` in C
+   is a DOUBLE, so every expression touching one is promoted to double, and the EE has no
+   hardware doubles - MWCC calls the emulation library instead.  That is a correctness bug
+   in the reconstruction, not a spelling preference.
+   The lever came from func_00471370, where 86 unsuffixed constants were forcing about 155
+   double-emulation calls and suffixing them took that floor 1971 -> 1551 edits and a +11%
+   body to retail's exact length.
+   Swept over every first-party floor carrying a bare literal.  Only this one improved:
+   func_001441e0, func_001c9820, func_001ca590, func_00205ff0 and func_00348c40 are all
+   exactly neutral, and func_001b2380 is WORSE (1392 -> 1418) while losing 91 instructions.
+   The first run of that sweep also reported eleven 'compile failed' floors, which was my
+   regex suffixing inside exponent literals - `2.1474836e9f` became `2.1474836fe9f`.  The
+   pattern now excludes `e`/`E`, and those floors have no bare literal at all. */
 // FUN_001F14F0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001f14f0(u8 *arg0)
@@ -1048,20 +1062,20 @@ void func_001f14f0(u8 *arg0)
         *(unsigned char **)(p + temp_v14 * 4 + 0x38) = p;
       }
     }
-    temp_v26 = 1.0;
+    temp_v26 = 1.0f;
     if (*(unsigned char *)(*(int *)(p + 0x30) + 0xa2) == '\x01') {
       temp_v13 = func_00243fa0((unsigned int)temp_v2,1);
-      temp_v26 = 1.0;
+      temp_v26 = 1.0f;
       if (temp_v13 == 0) {
         temp_v8 = *(unsigned short *)(*(int *)(p + 0x30) + 0xa4);
         temp_v25 = *(float *)(*(int *)(p + 0x30) + 0x2c) /
                  ((float)*(unsigned short *)(((unsigned int)temp_v8 * 0x1c + (unsigned int)temp_v8) * 8 + iGpffffb3cc + 0x14)
-                 / 100.0);
+                 / 100.0f);
         temp_v26 = fGpffff812c;
         if ((temp_v25 <= fGpffff812c) && (temp_v26 = fGpffff80d4, fGpffff80d4 <= temp_v25)) {
           temp_v26 = temp_v25;
         }
-        temp_v26 = temp_v26 * 1.0;
+        temp_v26 = temp_v26 * 1.0f;
       }
     }
     p[0x3f4] = 0x40;
@@ -1182,8 +1196,8 @@ void func_001f14f0(u8 *arg0)
         if ((int)((float)iStack_28 * temp_v26) != 0) {
           iStack_28 = (int)((float)iStack_28 * temp_v26);
         }
-        if ((int)((float)iStack_2c * 1.0) != 0) {
-          iStack_2c = (int)((float)iStack_2c * 1.0);
+        if ((int)((float)iStack_2c * 1.0f) != 0) {
+          iStack_2c = (int)((float)iStack_2c * 1.0f);
         }
         puVar23 = (unsigned int *)(pbVar5 + (unsigned int)bStack_b0 * 0x20 + 0xf8);
         *(unsigned int *)(pbVar5 + (unsigned int)bStack_b0 * 0x20 + 0xf8) = temp_v15;
