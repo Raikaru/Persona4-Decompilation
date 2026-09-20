@@ -103,6 +103,16 @@ void H_Dbprt_Flush()
     }
 }
 /* Floor (measured 2026-09-17, source-repo only): quad-base hoist (qf/qi locals over quads[i*16]) 163 -> 124 words, fnalign 218/218/74; the +10-instr over-emission is gone (was 230 obj vs 220 retail: the four qi stores each recomputed (i*16+k)*4, the sll+5/addu+4/addiu+3 opclass surplus). Singles sweep on the 163 body: opt_unroll_loops off, opt_strength_reduction off, opt_dead_assignments off all neutral (genuinely inert, verified byte-identical objects; b210 ignores them here), peephole off 166, cse 192, sched 196, prop 211, loop-inv 219. Re-sweep on the 124 body: same three neutral, cse 173, loop-inv 171, peephole 140, sched 198, prop 199. Tried: f878/white const hoists (125, white rematerialises per-iter), block-scoped row/col counters (neutral at 124). Prior: w2 163 best (w1 202, w3 s64 230, loop 219, sched 196, prop 211). Frame MATCH, vtBase hoist restores 7+1 jalr, dead low branch kept. Banked as guarded floor; production stays ASM. */
+/* measured 0044f720 (owner, 2026-09-19): fnalign **74 -> 72 edits**, count
+   218 -> 216 against retail 218, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_0044F720 NONMATCHING
 #ifdef NON_MATCHING
 void func_0044f720(void)
@@ -150,7 +160,8 @@ void func_0044f720(void)
                 qf[2] = D_008872F8[0];
             }
         }
-        for (row = 0; row < 0x28; row++) {
+        row = 0;
+        do {
             gridRow = (u8 *)((u32)D_008BF720 + (u32)(row * 0x35));
             rowY = 12.0f * (f32)row;
             rowY1 = 11.0f + rowY;
@@ -208,7 +219,8 @@ void func_0044f720(void)
                     D_00887310[0](4, quads, 4);
                 }
             }
-        }
+            row++;
+        } while (row < 0x28);
         func_0044fa90();
         func_00450630();
         ((void (*)(u32, u32))*(u32 *)vtBase)(14, save);

@@ -3095,6 +3095,16 @@ s32 func_0035afa0(u8 *arg0) {
    order, a staged texId, and duplicated cR/cW tails; no sltiu-for-slti, no s64 flat, no
    opt_propagation off, no volatile and no inline asm - the four dishonest routes to this band
    are listed in the notes above and all remain rejected. */
+/* measured 0035aff0 (owner, 2026-09-19): fnalign **167 -> 164 edits**, count
+   700 -> 698 against retail 696, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_0035AFF0 NONMATCHING
 #ifdef NON_MATCHING
 f32 func_0035aff0(u8 *arg0, s32 arg1)
@@ -3251,12 +3261,14 @@ f32 func_0035aff0(u8 *arg0, s32 arg1)
                 cR = 0xF2;
                 cW = 0xFF;
             }
-            for (k = 0; k < 4; k++) {
+            k = 0;
+            do {
                 *(f32 *)&qs[k].r = (f32)(u32)cR;
                 *(f32 *)&qs[k].g = (f32)(u32)flatA;
                 *(f32 *)&qs[k].b = (f32)(u32)flatB;
                 qs[k].a = (f32)(u32)cW;
-            }
+                k++;
+            } while (k < 4);
         }
         func_00489f80();
         func_003f6440(3, 0x31801);

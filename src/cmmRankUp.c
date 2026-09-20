@@ -833,6 +833,16 @@ INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252a60);
    two-temp/do-while spellings. gp-0x7F7C/-0x7F6C floats: 0x00761174/
    0x00761184 (GP base 0x007690F0). */
 /* measured: skeleton (2026-09-19): scratch candidate fnalign retail 1157 vs object 1128 instrs, edits 528 (+14 reloc-only), within 3% gate (1122-1192) and 1125-1195 band; delivered s32 shape obj 4516B = 1129 instrs, frame 0x150 both sides, words (reloc-masked) 1057. All 52 retail jal sites present; counted fors; two-temp/do-while copies + zero-fills; (u32)-cast alphas; accumulators as plain C. Requires fwd-decl fix void->s32 (line 102, as for 00254a70). Production stays ASM. */
+/* measured 00253850 (owner, 2026-09-19): fnalign **524 -> 522 edits**, count
+   1129 -> 1127 against retail 1157, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_00253850 NONMATCHING
 #ifdef NON_MATCHING
 typedef struct {
@@ -1014,7 +1024,8 @@ u8 *arg2;
                 *(s32 *)(dst + 4) = t2;
                 dst += 8;
             } while (n > 0);
-            for (i = 0; i < 4; i++) {
+            i = 0;
+            do {
                 ((f32 *)sp.spC0)[i * 2] += 218.0f;
                 ((f32 *)sp.spC0)[i * 2 + 1] += 406.0f;
                 p = sp.spB0 + i * 4;
@@ -1022,7 +1033,8 @@ u8 *arg2;
                 p[1] = 0;
                 p[2] = 0;
                 p[3] = 0x99;
-            }
+                i++;
+            } while (i < 4);
             func_0045dfd0(sp.spB0, sp.spC0, 0.0f, 4, 4, 1);
             tbl = *(s32 *)(arg2 + 4);
             asset = *(s32 *)(arg2 + 0x10);

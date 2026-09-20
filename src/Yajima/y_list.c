@@ -265,6 +265,16 @@ s8 func_002e2a00(void *arg0) {
 /* measured: #pragma opt_common_subs off kept for the count gate (678 -> 719 instrs; bare scores 614 words but is 6% short and will not bank; with pragma 615 words). opt_loop_invariants on scores 616, opt_unroll_loops off and schedule off tie at 614/615-class; none kept. */
 /* measured: probe rounds that did NOT help: e2-vs-p-reassign tie (614), g-guard vs direct-check -1 for g, inline-flags reload-per-use 643 (28 worse; the loads schedule after the calls retail-side), swapped call-first operands still 643, decl-order perms wA/wB/wC all 616-class, dropping type local ties. Prior nd-603 note above kept as history. Production stays INCLUDE_ASM. */
 #pragma opt_common_subs off
+/* measured 002e2a10 (owner, 2026-09-19): fnalign **581 -> 578 edits**, count
+   719 -> 716 against retail 721, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_002E2A10 NONMATCHING
 #ifdef NON_MATCHING
 void func_002e2a10(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
@@ -391,7 +401,8 @@ void func_002e2a10(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
         }
         break;
     case 3:
-        for (i = 0; i < 0x600; i++) {
+        i = 0;
+        do {
             entry = p + ((s32)i * 2);
             *(s16 *)(entry + 0x0E) = 0;
             e2 = *(u8 **)(iGpffffb58c + 0x38);
@@ -415,7 +426,8 @@ void func_002e2a10(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
                 count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
                 *(s16 *)(p + 2) = count;
             }
-        }
+            i++;
+        } while (i < 0x600);
         break;
     case 4:
         count = func_002b2cb0(*(s16 *)(p + 2), 1, 0, 0, 0);
@@ -515,6 +527,16 @@ INCLUDE_ASM("asm/nonmatchings/y_list", func_002e2a10);
 /* measured: truthful externs for 00106600(s16)/00106880(s16)/00106a60(s16)/00106b20(s16)/00106b50(s16)/00106330(s32)/00110830(s32->u8)/00110810(s32,u8)/002bdff0(s16)/002be160(s32,s32)/002be1b0(s16->s16)/002b3230(s16*,s16*); 002b2cb0 stays s16/s32 per file header to avoid TU churn for 002e5ae0/002e6280 (s32/s8 truth is codegen-neutral here: last-arg 0 emits same daddu). 002be1b0(s16) reproduces retail daddu $a0 + s16 $v0 use; void form would be 1 short. */
 /* measured: bulk src/generated/code1_002e.c candidate + single-function m2c (/var/tmp/cold2e3560/m2c_002e3560.c) + romwright (/var/tmp/cold2e3560/rom_002e3560.c) all agree on arity 5 and ok/type/value shape; retail $a0/$a1/$a2/$a3/$t0 maps to (u8 *,s32,s32,s8,s8). Production stays INCLUDE_ASM. */
 #pragma opt_common_subs off
+/* measured 002e3560 (owner, 2026-09-19): fnalign **560 -> 557 edits**, count
+   714 -> 711 against retail 715, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_002E3560 NONMATCHING
 #ifdef NON_MATCHING
 void func_002e3560(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
@@ -700,9 +722,11 @@ void func_002e3560(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
     mode = arg4;
     if (mode == 1) {
         out_count = 0;
-        for (n = 0; n < 0x600; n++) {
+        n = 0;
+        do {
             reorder[n] = -1;
-        }
+            n++;
+        } while (n < 0x600);
         for (i = 0; i < *(s16 *)(p + 2); i++) {
             entry = p + ((s32)i * 4);
             if ((func_00110830(*(s16 *)(entry + 0x0E)) & 0xFF) & 1) {
