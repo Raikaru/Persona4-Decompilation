@@ -2917,6 +2917,26 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002ed430);
    Left: 45-run 0x6894 (0x4F post-loop extends/hoists), 38-run 0x6C18 (0x50 tail),
    33-run 0x33E8 (0x3B six 34ae50 loop, 0x154 hoist + extends); further float-case
    cleanups (0x40/45/4E) deferred: each costs ~28 count, headroom is 43. */
+/* measured 002f0f00 (owner, 2026-09-20): helper census 6x __floatdisf -> 0, kept per
+   refined rule (short floor: helper removal must shorten, count not judged).
+   Retail at all six sites is plain narrow lwc1 with no helper nearby:
+   lwc1 $f1,0x3B8 / lwc1 $f0,0x3BC / swc1 $f1,0x3D0 at 0x002F1430-38,
+   lwc1 $f0,0x3C8 at 0x002F150C, lwc1 $f12,0x3C0 at 0x002F15E0/0x002F162C/
+   0x002F16C4 (0x002F16AC equivalent). Fixes: sp3D0 = *(f32 *)&sp3B8,
+   *(f32 *)&sp3C8, 4x sp3C0.position.x for ((f32)(sp3C0.bits)).
+   fnalign 2929 -> 2909 edits (-20), words 4982 -> 4969 (-13), count
+   5874 -> 5857 (-17) against retail 6011 (band 5831-6191 PASS, headroom 43 -> 26).
+   Count moves away by 17 because a helper call (jal + shuffling) is longer than
+   the single lwc1 that replaces it; on this short floor that direction is expected. */
+/* measured 002f0f00 (owner, 2026-09-20): 33-run 0x002F33E8 extends-only tried and
+   REVERTED. Six (s64)(var_20<<0x38)>>0x38 (s32<<56, UB) -> plain var_20 in the
+   temp_18_6/0x154 loop: micro proves plain emits retail dsll32/dsra32 24 while UB
+   emits move $a1,$zero, but in full context the loop still emits move zero and
+   keeps addiu $s1,base,0x154 + lw ($s1) hoist vs retail lw 0x154(base) x6.
+   fnalign 2909 -> 2917 (+8), words 4969 -> 4976 (+7), count 5857 -> 5865 (+8);
+   partial fix without hoist defeat misaligns, so reverted. Hoist defeat has no
+   measured lever here (loop micro: plain and (u32)+U both hoist after first use).
+   45-run 0x002F6894 and 38-run 0x002F6C18 still ABSENT, deferred with headroom 26. */
 // FUN_002F0F00 NONMATCHING
 #ifdef NON_MATCHING
 void func_002f0f00(u8 *arg0) {

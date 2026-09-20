@@ -1644,6 +1644,18 @@ loop_test:
    0x0035786c is present too - retail's `135.0f + (f25 + load)` has the constant on the
    left and so does the body.  Both regions are there and misaligned rather than missing,
    which is why three sessions of spelling work have found -77, -1 and -1. */
+/* measured 00356a10 (2026-09-20): helper census 8 __fixsfdi -> 0. The two */
+/* `((s64)(spF0))` sites passed only x through a float->s64 conversion; retail */
+/* loads both floats packed (`ld $4,0xF0($29)` at 0x356B28 for c270, 0x3592D8 */
+/* for f9d0, after `swc1` x at 0xF0 / y at 0xF4), so they are now */
+/* `(*(s64 *)&spF0)` with the existing `spF0=x at 0xF0 / spF4=y at 0xF4` layout. */
+/* The six `(s64)(((s64)(f/2.0f))<<0x30)>>0x30` sites are now `(s64)(s16)(f/2.0f)`; */
+/* retail does `div.s /2.0f, cvt.w.s, mfc1, dsll32 $x,$2,16, dsra32` (e.g. */
+/* 0x357060-70, 0x357090-9C), i.e. narrow cvt to word plus halfword sign-extend */
+/* to s64, never a 64-bit conversion. The 21 hand-written unsigned idioms are */
+/* untouched. Object was LONGER than retail, so per amended gate 3 the shortening */
+/* check applies: object 2708->2690 (-18, toward retail 2636; +72 +2.73% -> +54 */
+/* +2.05%, stays in band) and fnalign 2865->2820 (-45); GUARDED_SCORE 2500->2481. */
 // FUN_00356A10 NONMATCHING
 #ifdef NON_MATCHING
 void func_00356a10(u8 *arg0) {

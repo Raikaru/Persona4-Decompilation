@@ -2178,10 +2178,12 @@ s32 func_00267800(u8 **arg0, u8 *arg1)
 /* Floor: 304 differing words, 445 emitted instructions against retail's
    452 (1780 bytes in a 1808-byte window), frame -0xDB0 exact.  The
    twelve-argument signature is six ints and six floats with two $t
-   registers live on entry, so ints five and six ride $t0/$t1; the s64
-   width for those two comes from the caller-side declaration above and
-   scores 8 words better than s32.  The frame is one struct so the
-   0x100/0x150/0x1A0/0x5A0/0xDA8 offsets fall out of the layout, and the
+   registers live on entry, so ints five and six ride $t0/$t1; retail
+   converts those two from the low word with `mtc1 $19; cvt.s.w` at
+   0x00268140 (and `mtc1 $18; cvt.s.w` at 0x0026816C) plus
+   `dsll32/dsra32 16` for the (s16) narrowing, so the production width is
+   s32, not s64: `asm/nonmatchings/code1_0026/func_00267b20.s` shows the
+   narrow form at each site.  The frame is one struct so the
    two 0x13-word table copies are u32 do-while loops, which is what gives
    retail's lw/sw pairs; the DA8/DAC lwc1/swc1, the E0 zero/sw/lq-sq and
    the D_0063A9E0/D_0063AA30 lui/lo blocks all match.  Loop counters,
@@ -2192,6 +2194,30 @@ s32 func_00267800(u8 **arg0, u8 *arg1)
    $s3-$s0 vs $s5-$s2, the table base in $v0 vs $s1), the destination
    addu order in the four point/colour loops (base+index vs index+sp+off
    with the lwc1/addu pair reordered) and the func_0045e6a0 move order. On propagated base 2026-09-17: schedule 392 worse, cse_off 417 worse, loopinv 309 worse; propagation alone best. */
+/* measured 00267b20 (helper + deficit, 2026-09-20): libcall_scan 2 __floatdisf -> 0
+   by narrowing arg4/arg5 s64 -> s32 at the extern (line 57) and definition; the
+   (f32)arg4/arg5 sites then emit `cvt.s.w`, matching retail's `mtc1; cvt.s.w`
+   word conversions above, not a helper. Census is a lead only; this retail shape
+   is the evidence. Amended gate-3 case SHORTER-than-retail applied (baseline obj
+   1788B vs 1808B window, -20B/-1.1% INSIDE): helper removal alone must shorten
+   further (guarded 447 -> 440 instrs, -7, expected since jal + shuffle is longer
+   than the narrow conversion), so the count is not judged for that step; the
+   combined change with the deficit fix nets 447 -> 450 instrs (+3) to an exact
+   450/450 fnalign with obj 1800B vs 1808B window (-8B/-0.4% INSIDE). Edits
+   169 -> 158 (-11) and words 264 -> 260 (-4) both improve. Commands:
+   `echo src/promoted/code1_0026.c func_00267b20 | python3 tools/libcall_scan.py`
+   (empty = 0), `python3 tools/measure_guarded.py src/promoted/code1_0026.c
+   func_00267b20` (260), `python3 tools/fnalign.py ... --candidate /tmp/curr_body.c`
+   (158 +2 reloc-only, 450/450). Deficit classification before the address fix:
+   deficit 8, 40-length run at 0x00267E78 CROSS (40 > 8, 28 nearby) plus two
+   2-length runs at 0x00267C64 and 0x00267FF0 ABSENT (2 <= 8, 0 paired) naming
+   retail `addu/addiu` materialization vs object folded `0x5A0($v0)`; fixed by
+   preserving `f32 *dst = &frame.points[i][0]` / `u8 *col = &frame.colors[i][0]`
+   in all four loops (folded `swc1/sb` with large offset -> materialized `addu/
+   addiu` + `0($v0)`). After: deficit 0, only CROSS runs (15 at 0x00267FE8, 14 at
+   0x00267EB4, 12 at 0x002680D0) remain, so no missing code. Verify
+   `python3 tools/verify.py src/promoted/code1_0026.c` still 57 MATCH / 8 ASM;
+   `python3 tools/decomp_lint.py` 0 error. */
 /* measured 00267b20: `opt_propagation off` inside the guard is worth 40 words (304 -> 264). */
 // FUN_00267B20 NONMATCHING
 #ifdef NON_MATCHING

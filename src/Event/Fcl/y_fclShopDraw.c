@@ -8309,6 +8309,23 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d8a60);
    lwc1 -0x7AD4($gp) at both 002e0940 sites (0x1DA808/0x1DA918) and already used the same way at
    line 956; the archived symbol was a mislabel as the file's own notes warn. Residuals stay as
    archived: D_0063F5B8/F65x base hoist into $s1 and (s64)(s32) width casts on 46b260/46b2f0. */
+/* measured 002da0a0 (owner, 2026-09-20): narrow s64 width0/width1 to s16. The census */
+/*   (3 object-side __fixsfdi) was the lead only; retail evidence is the narrow shape at */
+/*   each site - cvt.w.s + mfc1 + dsll32 16/dsra32 16 + sh: width0 jal 46b260 0x002DA544 */
+/*   with cvt 0x002DA56C/mfc1 0x002DA570/dsll 0x002DA578/dsra 0x002DA57C/sh 0x002DA58C, */
+/*   width1 jal 46b2f0 0x002DA594 with cvt 0x002DA5AC/mfc1 0x002DA5B0/dsll 0x002DA5B8/ */
+/*   dsra 0x002DA5BC/sh 0x002DA5CC, reuse dsll 0x002DA5D0/dsra 0x002DA5D4 + addiu -0x4F */
+/*   0x002DA5D8 + dsll 0x002DA5DC/dsra 0x002DA5E0/sh 0x002DA5F0 (integer -79 on the kept */
+/*   $17, no second float call), width1 again jal 0x002DA5F8/cvt 0x002DA610/mfc1 0x002DA614/ */
+/*   dsll 0x002DA61C/dsra 0x002DA620/sh 0x002DA630. (s16)(float) reproduces it; the s64 */
+/*   temp does not. Amendment case: object LONGER than retail (1260 vs 1240), so the */
+/*   count check applies - and it passes: object 1260 -> 1255 (-5, toward retail, no */
+/*   away-move to explain). Both gates improve: libcall_scan 3 -> 0 object helpers; */
+/*   fnalign retail 1240 object 1260 -> 1255 (+1.6% -> +1.2%, band 1203-1277 PASS), */
+/*   edits 1199 -> 1180 (+2 reloc-only); guarded 1060 -> 1059 words (-1). Repro: */
+/*   libcall_scan via stdin row + measure_guarded --save-candidate + fnalign */
+/*   --candidate <path> --quiet. deficit_scan after: object not short (deficit -15), */
+/*   CROSS runs 218/111/60 remain. */
 // FUN_002DA0A0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002da0a0(register u8 *root) {

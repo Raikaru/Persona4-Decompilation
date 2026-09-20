@@ -485,26 +485,22 @@ extern u8 *func_003e2650(u8 *arg0, s32 arg1, u32 arg2); /* P4: ported verbatim i
    shape for the linked-list search. */
 // FUN_003E3110 NONMATCHING
 #ifdef NON_MATCHING
-typedef s32 M2C_UNK;
-typedef s8 M2C_UNK8;
-typedef s16 M2C_UNK16;
-typedef s32 M2C_UNK32;
-typedef s64 M2C_UNK64;
+/* measured: this body was raw m2c output and had NOT COMPILED since it was
+   written: its K&R scaffolding externs `s32 func_003df590();` and
+   `M2C_UNK func_003df4d0();` contradict the real prototypes at lines 57-58
+   ("identifier redeclared, was declared as int (int, ...), now declared as
+   int (...)"), so the floor produced no object and no score at all.  Nothing
+   noticed because a guarded body is never compiled by tools/build.py and
+   gate_audit.py only counted it.  Dropped the duplicate K&R rows, dropped the
+   fourteen unused m2c typedefs and macros (only M2C_FIELD is used, 11 times),
+   and gave the three externs that ARE only used here real parameter lists
+   taken from their call sites, so no implicit conversion is introduced.
+   Now measurable and the count is already EXACT: retail 118 instrs vs object
+   118, 96 edits, 100 differing words.  A live floor, not a dead one. */
 #define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((s8 *)(expr) + (offset)))
-#define M2C_BITWISE(type, expr) ((type)(expr))
-#define M2C_LWL(expr) (expr)
-#define M2C_FIRST3BYTES(expr) (expr)
-#define M2C_UNALIGNED32(expr) (expr)
-#define M2C_CARRY 0
-#define M2C_OVERFLOW(a) (0)
-#define MULT_HI(a, b) (0)
-#define MULTU_HI(a, b) (0)
-#define CLZ(x) (0)
-s32 func_003deea0(); /* extern */
-s32 func_003df050();      /* extern */
-M2C_UNK func_003df4d0();                       /* extern */
-s32 func_003df590();                         /* extern */
-s32 func_003e2ce0();                        /* extern */
+extern s32 func_003deea0(s32, s32 *, s32 *, s32, s32);
+extern s32 func_003df050(s32, s32, s32 *, u32 *);
+extern s32 func_003e2ce0(s32, s32);
 u8 *func_003e3110(u8 *arg0, s32 arg1, s32 arg2) {
     s32 sp5C;
     u32 sp58;

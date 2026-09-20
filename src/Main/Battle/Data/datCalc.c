@@ -1456,8 +1456,12 @@ s64 func_00235320(u8 *unit)
    2953-3135), improved from 3211 (+5.5%).  fnalign **1724 -> 1636 edits**.  Still
    outside, so the edit count is not comparable to an in-band one (handoff 7y).
    `tools/libcall_scan.py` reported 8 `__floatdisf` calls - s64-to-float conversions into
-   MWCC's runtime that retail never makes - at `temp_21_4/9/14/19` and
-   `temp_18_4/11/18/25`, each written `var_fN = (f32) temp / 100.0f`.  The census is now 0.
+   MWCC's runtime - at `temp_21_4/9/14/19` and `temp_18_4/11/18/25`, each written
+   `var_fN = (f32) temp / 100.0f`.  The census is now 0.
+   That scanner counts the OBJECT only; it does not and cannot check whether retail makes
+   the same call, because the disassembly names every callee by address and the shipped
+   images carry no helper symbols.  The evidence that these eight were wrong is retail's
+   own instruction shape plus the measured movement, not the census:
    The fix is the RHS, not the declaration.  m2c wrote each assignment as
    `(s64)((s64)((s64) (func_00106a00(...) << 0x30) >> 0x30))`, which forces 64-bit work
    before the store; retail simply sign-extends the halfword call result once
@@ -5623,7 +5627,22 @@ ret0:
 /* 00238940 idioms first: s32 clean, (u16)arg0 head split, u16 skill loads */
 /* 0x216-0x220, s16 counters (s32 vs s16 was 207 structural here this week), */
 /* table-walk field-by-field at fixed offsets, s16 fields. Front-load s16 */
-/* counters, counted fors, s32 clean. Not banked: count outside band. */
+/* counters, counted fors, s32 clean. */
+/* measured: this floor was UNMEASURABLE from the day the `extern s32
+   func_00243e30(u16 *arg0);` prototype was added at line 3667 for func_0023a6b0
+   until it was repaired.  That note says it was "placed here so earlier implicit
+   uses are unaffected", which is true, but this body is LATER in the file and its
+   two `func_00243e30(arg1)` calls pass the `u8 *arg1` parameter, so the guarded
+   body stopped compiling: "illegal implicit conversion from 'unsigned char *' to
+   'unsigned short *'".  Nothing caught it because a SKIP_ASM body is not compiled
+   by tools/build.py, and gate_audit.py reported the floor as "could not be
+   measured" rather than as an error.  Repaired by casting both call sites
+   `(u16 *)arg1`, matching what line 3788 already does; a pointer cast, no
+   conversion, no codegen change.
+   Now measurable: retail 2732 instrs vs object 2774 (+1.54%, INSIDE the +-3%
+   band), 1370 edits (plus 127 reloc-only), 2390 differing words.  The old
+   "Not banked: count outside band" verdict was therefore wrong as well as stale -
+   this floor is in band and is a legitimate target. */
 // FUN_0023E6F0 NONMATCHING
 #ifdef SKIP_ASM
 s32 func_0023e6f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
@@ -5810,7 +5829,7 @@ s32 func_0023e6f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
         }
         return var_2_2;
     case 9:                                         /* switch 1 */
-        if (func_00243e30(arg1) != 0) {
+        if (func_00243e30((u16 *)arg1) != 0) {
             return 0x100;
         }
     default:                                        /* switch 1 */
@@ -5986,7 +6005,7 @@ block_130:
         if ((*(s32 *)((u8 *)(arg1) + (0xC))) & 0x100000) {
             return 1;
         }
-        if (func_00243e30(arg1) != 0) {
+        if (func_00243e30((u16 *)arg1) != 0) {
             return 1;
         }
         if ((s32) iGpffffb3b8[temp_19 + 0xE] >= 0x64) {

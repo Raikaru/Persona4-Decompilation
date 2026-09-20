@@ -2125,6 +2125,7 @@ void func_002a7710(s32 arg0, u8 *arg1) {
    use and write those back - the register colouring is already right, so the missing
    instructions are recomputation, not spills. */
 /* fix 2026-09-20 (absent): handoff 48 from 002ae630 ownership trace written back as retail does it. 0x002a8068-0x002a80a0 (14): f30=9+fparg2 + f29=(49+fparg1)-32*fparg3 + 70*fparg3 head of f28=(53+fparg0)-70*fparg3 for arg3!=0 Block A (f23) outer-false live var 0xA-0x13 leg -- live-leg 32/70 pair (dead-leg same shape uses 21/53). 0x002a8410-0x002a8448 (14): same shape for Block B (f20) with f30=10+fparg2 -- live-leg 32/70 for second sub-block. 0x002a8f8c-0x002a8fdc (20): tail Quad4 int stores spD.a=(s32)((fparg0-16)+tmp), spD.b=(s32)((fparg1-16)+tmp), spD.c=spD.d=(s32)(160*fparg3) with tmp=0.5*160*(1-fparg3) + D_00887300 load -- cvt.w.s+mfc1+sw, not swc1; Quad4 + (s32) keeps all four (separate s32 scalars dead-store to one). Outer-false siblings same pattern: arg3!=0 dead var<0xA msub 70/32 (not 53/21); arg3==0 outer (both legs, both sub-blocks) fparg0-5.0f/22.0f+fparg1 (not 14/33). f30 per-leg (9/10 shared with f23/f20 before branches) forced via f30/f30b/f30c/f30d distinct dests + opt_common_subs off (else single-hoisted). fnalign retail 1528 vs object 1562 (+34, +2.2% inside 3% gate 1482-1574), 910 edits (+1 reloc), guarded 1442wd; frame now 0xf0 (retail) via extra saves. Inside band so edit score comparable again. */
+/* fix 2026-09-20 (helpers): libcall_scan 4x __fixsfdi -> 0 at the four (0.0f - tmp) sites via (s16)(0.0f - tmp). Amended-gate case: object LONGER than retail so the count check applies -- fnalign retail 1528 vs object 1562 (+34) 910ed -> 1556 (+28, +1.8% inside 1482-1574) 759ed (-151), guarded 1442->1266, count moved toward retail as required. Retail narrow shape at 0x002A7F50 (+3 siblings): mul 40*fparg3, sub 0-tmp, cvt.w.s, mfc1, dsll32/dsra32 16; micro_codegen confirms (s16) reproduces cvt+extend with no helper. Rejected (s32)(0.0f - tmp): 1544 instrs but 904ed, shorter yet unfaithful (drops the extend). Residual neg.s vs retail sub.s at those 4 sites left open. */
 #pragma opt_common_subs off
 // FUN_002A7920 NONMATCHING
 #ifdef NON_MATCHING
@@ -2255,7 +2256,7 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
             f28 = (53.0f + fparg0) - (53.0f * fparg3);
             func_0025f430(col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f28, f29, f30, 30.0f, fparg3, fparg3);
             tmp = 40.0f * fparg3;
-            func_0025f430(col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, ((s32)(((s64)((0.0f - tmp))) << 0x30 >> 0x30)), 0, f28 + tmp, f29, f30, 30.0f, fparg3, fparg3);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)(0.0f - tmp), 0, f28 + tmp, f29, f30, 30.0f, fparg3, fparg3);
             }
         } else if (var < 0xA) {
             if (var == 0) {
@@ -2273,7 +2274,7 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
             f28 = (53.0f + fparg0) - (70.0f * fparg3);
             func_0025f430(col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f28, f29, f30b, 30.0f, fparg3, fparg3);
             tmp = 40.0f * fparg3;
-            func_0025f430(col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, ((s32)(((s64)((0.0f - tmp))) << 0x30 >> 0x30)), 0, f28 + tmp, f29, f30b, 30.0f, fparg3, fparg3);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)(0.0f - tmp), 0, f28 + tmp, f29, f30b, 30.0f, fparg3, fparg3);
         }
         func_003f6440(3, 0x50805);
         func_003f6440(2, 0x44);
@@ -2295,7 +2296,7 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
             f28 = (53.0f + fparg0) - (53.0f * fparg3);
             func_0025f430(col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f28, f29, f30, 30.0f, fparg3, fparg3);
             tmp = 40.0f * fparg3;
-            func_0025f430(col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, ((s32)(((s64)((0.0f - tmp))) << 0x30 >> 0x30)), 0, f28 + tmp, f29, f30, 30.0f, fparg3, fparg3);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)(0.0f - tmp), 0, f28 + tmp, f29, f30, 30.0f, fparg3, fparg3);
             }
         } else if (var < 0xA) {
             if (var == 0) {
@@ -2313,7 +2314,7 @@ void func_002a7920(s8 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4, f32 fparg0, 
             f28 = (53.0f + fparg0) - (70.0f * fparg3);
             func_0025f430(col >> 8, (u8)a0b & 0xFF, 0x2E, 0, *(u8 **)(arg4 + 0x398), 0, 0, 0, f28, f29, f30b, 30.0f, fparg3, fparg3);
             tmp = 40.0f * fparg3;
-            func_0025f430(col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, ((s32)(((s64)((0.0f - tmp))) << 0x30 >> 0x30)), 0, f28 + tmp, f29, f30b, 30.0f, fparg3, fparg3);
+            func_0025f430(col >> 8, (u8)a0b & 0xFF, a + 0x2D, 0, *(u8 **)(arg4 + 0x398), 0, (s16)(0.0f - tmp), 0, f28 + tmp, f29, f30b, 30.0f, fparg3, fparg3);
         }
         func_003f6440(3, 0x50805);
         func_003f6440(2, 0x44);

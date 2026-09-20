@@ -2,8 +2,9 @@
 """Count MWCC runtime-helper calls in the object compiled from a guarded body.
 
 The EE has no hardware doubles and no 64-bit float conversions, so MWCC calls
-into its runtime for them.  Where the reconstruction makes such a call, the
-cause is a width or literal mistake:
+into its runtime for them.  A surplus of such calls OFTEN points to a width
+or literal mistake, though correct C semantics can require one - a genuine
+full-range s64-to-float conversion, or real double arithmetic:
 
     __fixsfdi   float -> s64     an `s64` temp that should be `s16`/`s32`
     __floatdisf s64 -> float     the same, in the other direction
@@ -20,12 +21,20 @@ is NOT machine-checked, and cannot be from the material in this repo:
   * `asm/nonmatchings/*.s` disassembles every callee as `jal func_XXXXXXXX`
     from its address, so a helper call there carries no helper name and a
     symbol scan of the asm would report zero for every function, always.
-  * the retail image `orig/SLUS_217.82` exports no symbol table, and the
-    linked `build/slus21782.elf` has no helper symbols either, so there is no
-    address to compare a retail `jal` target against.
+  * the retail image `orig/SLUS_217.82` exports no symbol table.  The linked
+    `build/slus21782.elf` DOES carry 22309 symbols, but those names are
+    project metadata rather than anything the retail bytes authenticate, and
+    none of them is a conversion helper - so the absence proves nothing and
+    there is still no address to compare a retail `jal` target against.
 
-So a nonzero census means "this body calls a runtime helper", not "retail does
-not".  That second half has held on every floor examined so far - the helpers
+Resolving the addresses is not impossible, only unimplemented: the configured
+`mwld-wrapper.sh` could link a probe that references each helper and the
+resolved `jal` target read back, after which retail calls could be counted by
+decoding `(word >> 26) == 3` and comparing targets.  Until that exists this
+tool reports one side.
+
+So a nonzero census means "this body calls a runtime helper", and explicitly
+not "retail does not".  That second half has held on every floor examined so far - the helpers
 disappear when a width is corrected, and the object moves toward retail when
 they do - but it is an argument from evidence, not something this output
 establishes.  Treat a hit as a strong lead to verify, not a proven defect.
