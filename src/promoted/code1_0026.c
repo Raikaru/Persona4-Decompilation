@@ -1426,6 +1426,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00263730);
    regs fixed), no delete/insert >=20 (largest delete 10 at 205:215, largest inserts 5-6).
    missing_prototypes.py is clean for this body (all calls declared), so mtc1 -3 is not an
    undeclared call but const/scheduling residue. Case-7 recovery untouched. */
+/* measured 00263cb0 (owner, 2026-09-19): fnalign **297 -> 260 edits**, count
+   1000 -> 1000 against retail 1021, by putting the switch arms in the order the
+   JUMP TABLE uses rather than ascending case order.  The layout is read out of the
+   retail ELF - the `sltiu` bound gives the entry count, each 4-byte entry gives an
+   arm address, and sorting the case values by arm address is the order retail
+   emitted them in; entries sharing the most common address are the default.
+   Ascending order is what a lowered if-CHAIN wants.  A jump table already encodes
+   its own order and the source has to agree with it.  Swept over every first-party
+   floor with a table: 20 were already in layout order, 5 improved (274, 88, 50, 37
+   and 7 edits) and 13 got worse, so it is measured per function like every other
+   spelling. */
 // FUN_00263CB0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00263cb0(s32 arg0, u8 *arg1)
@@ -1531,20 +1542,20 @@ s32 spA0;
                       0, 0, 88.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f);
         func_00263730(0, 0, 0xFF, temp_17_2, 0, temp_2, 0.0f);
         break;
-    case 5:
-        temp_17_3 = *(s32 *)(temp_2 + 0xC);
-        temp_3_4 = *(s32 *)(temp_2 + 0x10);
-        if (temp_3_4 - temp_17_3 == 1) {
-            if (*(s32 *)(temp_2 + 0x18) == temp_3_4) {
-                var_18 = -0x5E;
-            } else {
-                var_18 = -*(s32 *)(temp_2 + 0x1C);
-            }
-            func_0025f3f0(0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1,
-                          88.0f, 0.0f, 0.0f);
-            func_00263730(var_18, 0, 0xFF, temp_17_3, 0, temp_2, 0.0f);
+    case 6:
+        temp_17_5 = *(s32 *)(temp_2 + 0xC);
+        if (*(s32 *)(temp_2 + 0x10) - temp_17_5 == 1) {
+            func_0025f430(0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1,
+                          0, 0, 88.0f, 0.0f, 0.0f, 0.0f,
+                          1.0f, 1.0f);
+            func_00263730(-0x5E, 0, 0xFF, temp_17_5, 0, temp_2, 0.0f);
         } else {
-            goto else48;
+            temp_17_6 = *(s32 *)(temp_2 + 0x18);
+            temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
+            func_0025f430(0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1,
+                          0, 0, 88.0f, 0.0f, 0.0f, 0.0f,
+                          1.0f, 1.0f);
+            func_00263730(temp_18_3, 0, 0xFF, temp_17_6, 0, temp_2, 0.0f);
         }
         break;
     case 8:
@@ -1663,20 +1674,20 @@ s32 spA0;
             func_00261560(0x5E, 0x127, 0.0f, (s32)temp_f13_2 & 0xFF, func_00110c50(temp_18_2, temp_18_2) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16_3, 0);
         }
         break;
-    case 6:
-        temp_17_5 = *(s32 *)(temp_2 + 0xC);
-        if (*(s32 *)(temp_2 + 0x10) - temp_17_5 == 1) {
-            func_0025f430(0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1,
-                          0, 0, 88.0f, 0.0f, 0.0f, 0.0f,
-                          1.0f, 1.0f);
-            func_00263730(-0x5E, 0, 0xFF, temp_17_5, 0, temp_2, 0.0f);
+    case 5:
+        temp_17_3 = *(s32 *)(temp_2 + 0xC);
+        temp_3_4 = *(s32 *)(temp_2 + 0x10);
+        if (temp_3_4 - temp_17_3 == 1) {
+            if (*(s32 *)(temp_2 + 0x18) == temp_3_4) {
+                var_18 = -0x5E;
+            } else {
+                var_18 = -*(s32 *)(temp_2 + 0x1C);
+            }
+            func_0025f3f0(0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1,
+                          88.0f, 0.0f, 0.0f);
+            func_00263730(var_18, 0, 0xFF, temp_17_3, 0, temp_2, 0.0f);
         } else {
-            temp_17_6 = *(s32 *)(temp_2 + 0x18);
-            temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
-            func_0025f430(0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1,
-                          0, 0, 88.0f, 0.0f, 0.0f, 0.0f,
-                          1.0f, 1.0f);
-            func_00263730(temp_18_3, 0, 0xFF, temp_17_6, 0, temp_2, 0.0f);
+            goto else48;
         }
         break;
     case 7:

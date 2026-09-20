@@ -1959,6 +1959,17 @@ void func_002818a0(u32 arg0, s32 arg1) {
 }
 
 /* Floor (measured 2026-09-18, source-repo only): banked 485 words, fnalign 601/594/179 (+47 reloc), emitted 2376B/window 2416B (98.3%% PASS). Full 8+28 sweep: prop+peephole 443 BEST, peephole 449, dead+peephole 451, loop+dead 474, dead 475, loop/strength/unroll 485 tie, prop 486, cse 502, schedule 519 -- installed prop+peephole (peephole gives exact count 602/602 vs base 594/601 short, un-merging the six bec0 bodies; words -42, edits 179->197 +37 reloc, size 2376B->2408B/2416B 99.7%%). TWIN 608B triage stale vs 2416B window. Residual is FPU-chain scheduling + saved/FP coloring (s0/a0 vs s2/a0 swap persists); dsll32 1/1 exact, signature neutral. Banked as guarded floor; production stays ASM. */
+/* measured 002818e0 (owner, 2026-09-19): fnalign **197 -> 147 edits**, count
+   602 -> 602 against retail 602, by putting the switch arms in the order the
+   JUMP TABLE uses rather than ascending case order.  The layout is read out of the
+   retail ELF - the `sltiu` bound gives the entry count, each 4-byte entry gives an
+   arm address, and sorting the case values by arm address is the order retail
+   emitted them in; entries sharing the most common address are the default.
+   Ascending order is what a lowered if-CHAIN wants.  A jump table already encodes
+   its own order and the source has to agree with it.  Swept over every first-party
+   floor with a table: 20 were already in layout order, 5 improved (274, 88, 50, 37
+   and 7 edits) and 13 got worse, so it is measured per function like every other
+   spelling. */
 // FUN_002818E0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
@@ -2068,6 +2079,23 @@ s32 func_002818e0(u8 *arg0, s32 arg1)
         func_0027bec0(arg0);
         ret = 1;
         break;
+    case 8:
+        pv1 = (void *)func_00278fd0(arg0);
+        if (pv1 != NULL) {
+            func_00272a10(pv1, 10.0f, 90.0f);
+            func_002728c0(pv1, 0);
+            func_00272b00(pv1, 2);
+        }
+        pv2 = (void *)func_00278fb0(arg0);
+        if (pv2 != NULL) {
+            func_00272a10(pv2, 141.0f, 25.0f);
+            func_002728c0(pv2, 1);
+            func_00272b50(pv2, 0, 0);
+            func_00272730(pv2, 0x20);
+            func_002727a0(pv2, 0);
+        }
+        ret = 1;
+        break;
     case 7:
         e = NULL;
         for (i = 0; i < 8; i++) {
@@ -2085,23 +2113,6 @@ found:
             e->fieldC = 0;
             e->field4 = 5;
         }
-        break;
-    case 8:
-        pv1 = (void *)func_00278fd0(arg0);
-        if (pv1 != NULL) {
-            func_00272a10(pv1, 10.0f, 90.0f);
-            func_002728c0(pv1, 0);
-            func_00272b00(pv1, 2);
-        }
-        pv2 = (void *)func_00278fb0(arg0);
-        if (pv2 != NULL) {
-            func_00272a10(pv2, 141.0f, 25.0f);
-            func_002728c0(pv2, 1);
-            func_00272b50(pv2, 0, 0);
-            func_00272730(pv2, 0x20);
-            func_002727a0(pv2, 0);
-        }
-        ret = 1;
         break;
     case 9:
         ret = 1;
@@ -2157,6 +2168,17 @@ INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_002818e0);
 /* Residual is saved-reg colour plus extra s6, frame -0xA0 vs -0x90, branch-form */
 /* and FPU-chain scheduling; dsll32 exact, jtbl exact, relocs exact. Honest */
 /* stack, no volatile or asm. Banked floor; production stays ASM. */
+/* measured 00282250 (owner, 2026-09-19): fnalign **377 -> 370 edits**, count
+   980 -> 980 against retail 985, by putting the switch arms in the order the
+   JUMP TABLE uses rather than ascending case order.  The layout is read out of the
+   retail ELF - the `sltiu` bound gives the entry count, each 4-byte entry gives an
+   arm address, and sorting the case values by arm address is the order retail
+   emitted them in; entries sharing the most common address are the default.
+   Ascending order is what a lowered if-CHAIN wants.  A jump table already encodes
+   its own order and the source has to agree with it.  Swept over every first-party
+   floor with a table: 20 were already in layout order, 5 improved (274, 88, 50, 37
+   and 7 edits) and 13 got worse, so it is measured per function like every other
+   spelling. */
 // FUN_00282250 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00282250(u8 *arg0, s32 arg1)
@@ -2217,9 +2239,6 @@ s32 func_00282250(u8 *arg0, s32 arg1)
         func_0027bec0(arg0);
         ret = 1;
         break;
-    case 7:
-        func_002e0dd0();
-        break;
     case 8:
         pv = (void *)func_00278fd0(arg0);
         if (pv != NULL) {
@@ -2234,6 +2253,9 @@ s32 func_00282250(u8 *arg0, s32 arg1)
             func_002727a0(pv2, 0xFF);
         }
         ret = 1;
+        break;
+    case 7:
+        func_002e0dd0();
         break;
     case 9:
         tmp = func_0027b6e0(arg0, 0);

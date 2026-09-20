@@ -462,6 +462,17 @@ void func_001546a0(u16 arg0, u16 arg1)
    no_branch_likely, schedule, propagation and dead-assignment do not
    move. */
 /* measured this session: fresh probe 177wd / fnalign 193 edits (was 154 stale) confirms floor; slti inclusive (value>=3&&<9 -> >2&&<=8 fixes slti $at,$s3,3 dest to $at, tie 177wd; second $at already matches); short-by-N hunt checked (251 vs 250, 1 short, but shortfall is switch common-block layout per top-down fnalign, not trailing dead-arm chain). Banked. */
+/* measured 00154720 (owner, 2026-09-19): fnalign **193 -> 105 edits**, count
+   250 -> 248 against retail 251, by putting the switch arms in the order the
+   JUMP TABLE uses rather than ascending case order.  The layout is read out of the
+   retail ELF - the `sltiu` bound gives the entry count, each 4-byte entry gives an
+   arm address, and sorting the case values by arm address is the order retail
+   emitted them in; entries sharing the most common address are the default.
+   Ascending order is what a lowered if-CHAIN wants.  A jump table already encodes
+   its own order and the source has to agree with it.  Swept over every first-party
+   floor with a table: 20 were already in layout order, 5 improved (274, 88, 50, 37
+   and 7 edits) and 13 got worse, so it is measured per function like every other
+   spelling. */
 // FUN_00154720 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00154720(u16 arg0, u16 arg1, s64 arg2)
@@ -503,11 +514,58 @@ s32 func_00154720(u16 arg0, u16 arg1, s64 arg2)
     switch (kind) {
     case 4:
         return state;
+    case 7:
+        if (state != 1) {
+            value = 2;
+        }
+        goto common;
+    case 8:
+        if (state == 2) {
+            value = 1;
+        }
+        if ((s32)value > 2 && (s32)value <= 8) {
+            return value;
+        }
+        goto common;
+    case 9:
+        if (state != 1 && state != 4) {
+            return state;
+        }
+        goto common;
+    case 13:
+        if (state != 8) {
+            return state;
+        }
+        goto common;
+    case 10:
+        if (state == 4) {
+            value = 3;
+        }
+        goto common;
+    case 11:
+        if (state == 2) {
+            return state;
+        }
+        goto common;
+    case 12:
+        if (state == 4) {
+            return state;
+        }
+        goto common;
+    case 14:
+    case 15:
+    case 16:
+        return state;
+    case 17:
+        if (state == 2) {
+            value = 1;
+        }
+        goto common;
+    default:
     case 6:
         if ((s32)state < 6) {
             value = 1;
         }
-    default:
 common:
         if (func_00106330(0x8A) == 1 &&
             (((kind != 7 || state != 2) && (kind != 7 || state != 3)) ||
@@ -557,53 +615,6 @@ common:
             }
         }
         return value;
-    case 7:
-        if (state != 1) {
-            value = 2;
-        }
-        goto common;
-    case 8:
-        if (state == 2) {
-            value = 1;
-        }
-        if ((s32)value > 2 && (s32)value <= 8) {
-            return value;
-        }
-        goto common;
-    case 9:
-        if (state != 1 && state != 4) {
-            return state;
-        }
-        goto common;
-    case 10:
-        if (state == 4) {
-            value = 3;
-        }
-        goto common;
-    case 11:
-        if (state == 2) {
-            return state;
-        }
-        goto common;
-    case 12:
-        if (state == 4) {
-            return state;
-        }
-        goto common;
-    case 13:
-        if (state != 8) {
-            return state;
-        }
-        goto common;
-    case 14:
-    case 15:
-    case 16:
-        return state;
-    case 17:
-        if (state == 2) {
-            value = 1;
-        }
-        goto common;
     }
 }
 #else
