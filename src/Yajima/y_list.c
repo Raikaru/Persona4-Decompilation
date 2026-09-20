@@ -1040,7 +1040,12 @@ void func_002e4ac0(s32 arg0, s32 arg1) {
     temp_21 = *(u8 **)(D_00882F70[0] + 0x38);
     var_3 = temp_21;
     temp_7 = *(s32 *)(temp_21 + 4);
-    if ((temp_7 != 6) && (temp_7 != 10) && (temp_7 != 1)) {
+    switch (temp_7) {
+    case 6:
+    case 10:
+    case 1:
+        break;
+    default:
         return;
     }
     var_20 = 0;
