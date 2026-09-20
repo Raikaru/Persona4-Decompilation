@@ -1343,10 +1343,6 @@ void func_00202e60(u8 *arg0, void *arg1)
    claim with no direct retail evidence that also costs a word is not worth
    banking; if a later pass finds independent evidence for the signedness,
    the census says it is worth 6. */
-/* gate: object 302 against retail 315, -4.1% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
 // FUN_00202E70 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00202e70(u8 *arg0)
@@ -1362,6 +1358,9 @@ s32 func_00202e70(u8 *arg0)
     s32 v7;
     s16 v8;
     s32 i;
+    s16 v3;
+    s16 v4;
+    s32 v9;
 
     a = (u16 *)arg0;
     v1 = (s16)a[4];
@@ -1388,7 +1387,7 @@ s32 func_00202e70(u8 *arg0)
     if (((D_008C027A[0] & a[22]) != 0) || (((a[0] & 1) != 0) && ((D_008C027A[0] & a[24]) != 0))) {
         v5 = 1;
         v6 = (D_008C027A[0] & a[24]) != 0;
-        v7 = (D_008C027A[0] & a[24]) == 0;
+        v7 = (v6 == 0);
         if ((D_008C027A[0] & a[24]) != 0) {
             v8 = a[3];
         } else {
@@ -1436,7 +1435,7 @@ s32 func_00202e70(u8 *arg0)
     } else if (((D_008C027A[0] & a[23]) != 0) || (((a[0] & 1) != 0) && ((D_008C027A[0] & a[25]) != 0))) {
         v5 = 1;
         v6 = (D_008C027A[0] & a[25]) != 0;
-        v7 = (D_008C027A[0] & a[25]) == 0;
+        v7 = (v6 == 0);
         if ((D_008C027A[0] & a[25]) != 0) {
             v8 = a[3];
         } else {
@@ -1445,28 +1444,31 @@ s32 func_00202e70(u8 *arg0)
         for (i = 0; i < v8; i = i + 1) {
             v1 = (s16)a[1];
             v2 = (s16)a[2];
-            if (v1 + 1 < v2) {
-                a[2] = v2 - 1;
-            } else if (v1 <= 0) {
-                if (v2 != 1) {
+            v3 = (s16)a[3];
+            v4 = (s16)a[4];
+            if (v2 < v1 + v3 - 2 && v2 < v4 - 2) {
+                a[2] = v2 + 1;
+            } else {
+                v9 = (s16)a[4] - v3;
+                if (v1 < v9) {
+                    a[1] = (s16)a[1] + 1;
+                    a[2] = (s16)a[2] + 1;
+                } else if (v2 < v4 - 1) {
+                    a[2] = (s16)a[2] + 1;
+                } else {
                     if (((a[0] & 2) == 0) || ((D_008C0276[0] & a[23]) != 0) || (v6 != 0 && ((D_008C0276[0] & a[25]) != 0))) {
-                        v2 = (s16)a[4] - (s16)a[3];
-                        a[1] = v2;
-                        if (v2 < 0) {
-                            a[1] = 0;
-                        }
-                        a[2] = (s16)a[4] - 1;
-                    } else {
-                        v5 = 0;
                         a[1] = 0;
                         a[2] = 0;
+                    } else {
+                        v5 = 0;
+                        if (v4 < v3) {
+                            v9 = 0;
+                        }
+                        a[1] = v9;
+                        a[2] = (s16)a[4] - 1;
                     }
                     break;
                 }
-                a[2] = 0;
-            } else {
-                a[1] = v1 - 1;
-                a[2] = a[2] - 1;
             }
         }
         if (v5 != 0 && (a[0] & 8) != 0) {
