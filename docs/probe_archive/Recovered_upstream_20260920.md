@@ -178,3 +178,21 @@ nineteen skipped. Logs and source hashes are retained in
 `build/recover-upstream/continue-20260920/free-ci/`. This follow-up changes only
 the diagnostic preflight, its test, and this record; the game sources, compiler
 configuration, build driver, and official verifier retain their verified bytes.
+
+The next GitHub run passed its public checks and exposed an older stale
+assembly-generation input pin. The manifest still recorded verifier hash
+`a646226c6bb92658ba867bee48edd1b945d67e95c9118ab0e8dd88ec9244efce`
+from `d2d93c4`, while upstream `5ae32c1` had broadened temporary-source
+filtering. An AST comparison confirms that only `is_generated` changed;
+both versions select the same 394 source paths in the clean checkout.
+
+Before changing the manifest, an isolated Linux-local generation using the
+proposed input pin reproduced all 11,152 generated files and preserved both
+hand-maintained files. A second generation checked every output again. All
+62,635,980 bytes retain their existing SHA-256 hashes; no output recipe, path,
+or output hash changed. The manifest now pins the current verifier hash
+`2c53a185f171dc8645e1eb453af22c85c92e2f1772584beee89f89d48d0fe9f5`.
+A public test checks the committed generator-input hashes so this drift is
+caught before proprietary regeneration. Evidence is under
+`build/recover-upstream/continue-20260920/regeneration/`, including
+`input-audit.json` and `regeneration-proof.json`.
