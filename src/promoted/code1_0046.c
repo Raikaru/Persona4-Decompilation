@@ -67,7 +67,7 @@ extern u16 D_008C0276;
 extern u8 iGpffffb020[];
 extern u8 iGpffffb024[];
 extern u8 iGpffffb028[];
-extern u8 *func_00468940(s64 arg0, s16 arg1);
+extern u8 *func_00468940(u8 *arg0, s64 arg1);
 extern void func_00453670(void *arg0, s32 arg1, s16 arg2, s16 arg3, s16 arg4);
 extern void func_00453860(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_00453960(void *arg0);
@@ -1927,9 +1927,9 @@ s32 func_00467bd0(u8 *arg0)
         } else if ((D_008C0276 & 0x10) == 0) {
             if ((D_008C0276 & 0x80) != 0) {
                 {
-                    f32 f1 = 48.0f;
-                    f32 f2 = 248.0f;
-                    *(u8 * *)&D_00800000[w + 3984] = func_00468940((s64)f1, st);
+                    s32 bits[2] = {0x42400000, 0x43780000};
+                    s64 pack = *(s64 *)bits;
+                    *(u8 * *)&D_00800000[w + 4240] = func_00468940((u8 *)&D_00800000[w + 3984], pack);
                     *(s16 *)(D_00800000 + w + 3968) = 4;
                 }
             } else if ((D_008C0276 & 0x20) != 0) {

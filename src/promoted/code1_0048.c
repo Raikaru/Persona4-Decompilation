@@ -3285,8 +3285,6 @@ void func_0048c4e0(u8 *arg0)
     extern s32 func_004bceb0(void);
     extern f32 func_004bd0b0(s32 arg0);
     extern s32 func_004bd050(s32 arg0);
-    extern f32 func_0044b610(f32 arg0);
-    extern f32 func_0044b7b0(f32 arg0);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void func_0043f810(void *dst, void *src, u32 size);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
@@ -3308,6 +3306,11 @@ void func_0048c4e0(u8 *arg0)
     f32 g7c;
     f32 g80;
     f32 e0val;
+    f32 half;
+    f32 two;
+    f32 one;
+    f32 zero;
+    f32 negone;
     s32 v15;
     s32 v14;
     u32 idx;
@@ -3322,7 +3325,6 @@ void func_0048c4e0(u8 *arg0)
     s32 ci;
     f32 a;
     f32 b;
-    f32 c;
 
     count = *(u32 *)(arg0 + 4);
     flags = *(u32 *)(arg0 + 12);
@@ -3337,19 +3339,17 @@ void func_0048c4e0(u8 *arg0)
     saved20 = *(s32 *)(config + 32);
     mode9C = *(u8 *)(config + 156);
     g7c = fGpffff807c;
-    g80 = fGpffff8080;
-    e4val = *(f32 *)(config + 228);
-    e0val = *(f32 *)(config + 224);
-    idx = 0;
+    e4val = *(f32 *)(config + 220);
+    e0val = *(f32 *)(config + 216);
     vec130[3] = 0.0f;
     __asm__ volatile("lqc2 $vf10, 0x10(%0)" : : "r"(config), "m"(*(u_long128 *)(config + 16)) : "$vf10", "memory");
     func_004bceb0();
     if ((saved20 != 0) && (*(s32 *)(arg0 + 16) >= saved20)) {
         v14 = 0;
         v15 = 0;
-        goto main_check;
+        goto post_init;
     }
-    if ((*(s32 *)(arg0 + 16) != 0) || (mode9C == 0)) {
+    if ((*(s32 *)(arg0 + 16) != 0) || (*(u8 *)(config + 189) == 0)) {
         v14 = 0;
         if (*(f32 *)(config + 40) <= 0.0f) {
             tmp = *(s32 *)(config + 36);
@@ -3367,10 +3367,7 @@ void func_0048c4e0(u8 *arg0)
         }
         v15 = (s32)ftmp1;
         *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) - (f32)v15;
-        if (*(f32 *)(arg0 + 20) < 0.0f) {
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg0 + 20) + (f32)v15 + (f32)v15;
-        }
-        goto main_check;
+        goto post_init;
     } else {
         v14 = 1;
         if (*(f32 *)(config + 40) <= 0.0f) {
@@ -3380,8 +3377,17 @@ void func_0048c4e0(u8 *arg0)
             ftmp2 = (f32)(u32)count;
             v15 = (s32)(ftmp2 * ftmp1);
         }
-        goto main_check;
+        goto post_init;
     }
+post_init:
+    idx = 0;
+    g80 = fGpffff8080;
+    half = 0.5f;
+    two = 2.0f;
+    one = 1.0f;
+    zero = 0.0f;
+    negone = -1.0f;
+    goto main_check;
 main_body:
     if (*(s32 *)(nodes + 16) < limitB8) {
         goto skip_clear;
@@ -3419,13 +3425,9 @@ skip_clear:
     if (v15 == 0) {
         goto next_iter;
     }
-    func_004bd0b0(0);
-    a = *(f32 *)(config + 212);
-    b = func_004bd0b0(0);
-    c = *(f32 *)(config + 208) * ((1.0f - a) + a * b);
-    vec130[0] = c * func_0044b610(c);
-    vec130[1] = -(1.0f - c);
-    vec130[2] = c * func_0044b7b0(c);
+    vec130[0] = (func_004bd0b0(0) - half) * two;
+    vec130[1] = (func_004bd0b0(0) - half) * two;
+    vec130[2] = (func_004bd0b0(0) - half) * two;
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
     __asm__ volatile(
         "vmul.xyz $vf2, $vf10, $vf10 \n"
@@ -3436,31 +3438,24 @@ skip_clear:
         "vwaitq \n"
         "vmulq.xyz $vf10, $vf10, $Q \n"
         : : : "$vf2", "$vf10", "ACC", "Q", "memory");
-    if ((flags & 1) == 0) {
-        __asm__ volatile(
-            "vmulax.xyzw $ACC, $vf28, $vf10x \n"
-            "vmadday.xyzw $ACC, $vf29, $vf10y \n"
-            "vmaddz.xyzw $vf10, $vf30, $vf10z \n"
-            : : : "$vf10", "ACC", "memory");
-    }
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)vec130) : "r"(vec130) : "$vf10", "memory");
     out[0] = vec130[0];
     out[1] = vec130[1];
     out[2] = vec130[2];
-    a = *(f32 *)(config + 220);
+    a = *(f32 *)(config + 212);
     b = func_004bd0b0(0);
-    out[3] = *(f32 *)(config + 216) * ((1.0f - a) + a * b);
-    if (out[3] < 0.0f) {
+    out[3] = *(f32 *)(config + 208) * ((one - a) + a * b);
+    if (out[3] < zero) {
         out[3] = -out[3];
     }
     a = *(f32 *)(config + 204);
     b = func_004bd0b0(0);
-    vec120[0] = *(f32 *)(config + 200) * ((1.0f - a) + a * b);
+    vec120[0] = *(f32 *)(config + 200) * ((one - a) + a * b);
     vec120[1] = vec120[0];
     vec120[2] = vec120[0];
-    vec120[3] = 0.0f;
+    vec120[3] = zero;
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
-    if (*(f32 *)(config + 216) < 0.0f) {
+    if (*(f32 *)(config + 208) < zero) {
         __asm__ volatile("vsub.xyz $vf10, $vf0, $vf10" : : : "$vf10", "memory");
     }
     if ((flags & 1) != 0) {
@@ -3475,22 +3470,22 @@ skip_clear:
     __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
     a = *(f32 *)(config + 108);
     b = func_004bd0b0(0);
-    out[4] = (1.0f - a) + a * b;
+    out[4] = (one - a) + a * b;
     if (mode9C == 2) {
-        out[5] = 0.0f;
-        out[6] = 1.0f;
+        out[5] = zero;
+        out[6] = one;
     } else {
         a = *(f32 *)(config + 152);
         b = func_004bd0b0(0);
-        out[6] = (1.0f - a) + a * b;
+        out[6] = (one - a) + a * b;
         if (mode9C == 1) {
             b = func_004bd0b0(0);
             out[5] = g80 * b;
             if ((func_004bd050(0) & 1) != 0) {
-                out[6] = out[6] * -1.0f;
+                out[6] = out[6] * negone;
             }
         } else {
-            out[5] = 0.0f;
+            out[5] = zero;
         }
     }
     *(s32 *)(nodes + 16) = 0;
@@ -3499,14 +3494,14 @@ skip_clear:
         tmp = func_004bd050(0) % limitB8;
         ftmp1 = (f32)(u32)tmp;
         __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(nodes), "m"(*(u_long128 *)nodes) : "$vf11", "memory");
-        ftmp2 = out[3] * ftmp1 + e0val * (ftmp1 * (e4val * ftmp1));
-        if (ftmp2 < 0.0f) {
-            ftmp2 = 0.0f;
+        ftmp2 = out[3] * ftmp1 + half * (e0val * ftmp1 * ftmp1);
+        if (ftmp2 < zero) {
+            ftmp2 = zero;
         }
         vec130[0] = ftmp2 * out[0];
         vec130[1] = ftmp2 * out[1];
         vec130[2] = ftmp2 * out[2];
-        vec130[1] = vec130[1] - e0val * (ftmp1 * (e4val * ftmp1));
+        vec130[1] = vec130[1] - half * (e4val * ftmp1 * ftmp1);
         __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(vec130), "m"(*(u_long128 *)vec130) : "$vf10", "memory");
         __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
         __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
@@ -3529,8 +3524,8 @@ else_branch:
     b220buf = *(u_long128 *)nodes;
     __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(nodes), "m"(*(u_long128 *)nodes) : "$vf11", "memory");
     ftmp1 = out[3] + e0val * (f32)node10;
-    if (ftmp1 < 0.0f) {
-        ftmp1 = 0.0f;
+    if (ftmp1 < zero) {
+        ftmp1 = zero;
     }
     vec130[0] = ftmp1 * out[0];
     vec130[1] = ftmp1 * out[1];
