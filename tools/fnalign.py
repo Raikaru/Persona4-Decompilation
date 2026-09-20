@@ -37,14 +37,20 @@ from verify import (FUNCTION_WINDOWS, REPO, TARGET, ObjectFile, RetailElf,
                     window_for)
 from fndiff import _is_include_asm
 
+import eedis
+
 try:
     from capstone import Cs, CS_ARCH_MIPS, CS_MODE_LITTLE_ENDIAN, CS_MODE_MIPS64
     _DISASSEMBLER = Cs(CS_ARCH_MIPS, CS_MODE_MIPS64 | CS_MODE_LITTLE_ENDIAN)
 
-    def disassemble(word: bytes, pc: int) -> str:
+    def _capstone(word: bytes, pc: int) -> str:
         for instruction in _DISASSEMBLER.disasm(word, pc):
             return f"{instruction.mnemonic} {instruction.op_str}"
         return "??"
+
+    # capstone has no lq/sq, and an undecoded word becomes "??" - which
+    # compares equal to every other "??", hiding whole prologues.
+    disassemble = eedis.build(_capstone)
 except ImportError:  # pragma: no cover - capstone is a hard requirement here
     def disassemble(word: bytes, pc: int) -> str:
         return ""
