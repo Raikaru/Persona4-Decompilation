@@ -3477,7 +3477,7 @@ do {
             }
             temp_f20_2 = var_f1 / 12.0f;
             func_002b2970(&sp3B8, (f32) 0x149, 128.0f);
-            sp3D0 = ((f32)(sp3B8));
+            sp3D0 = *(f32 *)&sp3B8;
             sp3D4 = unksp3BC;
             temp_f1 = (f32)(s32)((f32)(s32)((f32)(s32)((func_0010b5b0() & 0xFFFF) * 0x17) / 2.0f));
             func_002b2970(&sp3C8, sp3D0 + temp_f1, unksp3BC + temp_f1);
@@ -3485,7 +3485,7 @@ do {
             temp_f22 = (f32)(s32)((f32)(s32)((temp_f20_2 * func_0046b260(temp_2_3)) / 2.0f));
             temp_f21 = (f32)(s32)((f32)(s32)((temp_f20_2 * func_0046b2f0(temp_2_3)) / 2.0f));
             func_0046d280(temp_2_3);
-            func_002b2970(&sp3C0.bits, ((f32)(sp3C8)) - temp_f22, unksp3CC - temp_f21);
+            func_002b2970(&sp3C0.bits, *(f32 *)&sp3C8 - temp_f22, unksp3CC - temp_f21);
             func_002b6c30(0x7E, sp3C0.position, 0x56, 0x431C0000);
             func_002b6a70(0x7E, 0U, 0xFF, 0, 2, 0);
             (*((f32 *)((u8 *)(func_002b6150(0x7E)) + (0xAC)))) = temp_f20_2;
@@ -3493,19 +3493,19 @@ do {
             temp_3_2 = (s32)((s32)(func_0010b5b0() & 0xFFFF));
             switch (temp_3_2) {                     /* switch 2; irregular */
             case 12:                                /* switch 2 */
-                func_002b2970(&sp3B0, ((f32)(sp3C0.bits)), unksp3C4 - 20.0f);
+                func_002b2970(&sp3B0, sp3C0.position.x, unksp3C4 - 20.0f);
                 func_002b69f0(0x7E, (*(FclVec2f *)&sp3C0.bits), (*(FclVec2f *)&sp3B0),  1,  8,  0);
                 break;
             case 10:                                /* switch 2 */
-                func_002b2970(&sp3A8, ((f32)(sp3C0.bits)), unksp3C4 - 16.0f);
+                func_002b2970(&sp3A8, sp3C0.position.x, unksp3C4 - 16.0f);
                 func_002b69f0(0x7E, (*(FclVec2f *)&sp3C0.bits), (*(FclVec2f *)&sp3A8),  1,  8,  0);
                 break;
             case 8:                                 /* switch 2 */
-                func_002b2970(&sp3A0, ((f32)(sp3C0.bits)), unksp3C4 - 13.0f);
+                func_002b2970(&sp3A0, sp3C0.position.x, unksp3C4 - 13.0f);
                 func_002b69f0(0x7E, (*(FclVec2f *)&sp3C0.bits), (*(FclVec2f *)&sp3A0),  1,  8,  0);
                 break;
             case 6:                                 /* switch 2 */
-                func_002b2970(&sp398, ((f32)(sp3C0.bits)), unksp3C4 - 10.0f);
+                func_002b2970(&sp398, sp3C0.position.x, unksp3C4 - 10.0f);
                 func_002b69f0(0x7E, (*(FclVec2f *)&sp3C0.bits), (*(FclVec2f *)&sp398),  1,  8,  0);
                 break;
             }
