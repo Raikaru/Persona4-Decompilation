@@ -946,6 +946,28 @@ under a different offset, so the two runs read as the same opcodes in the same
 order.  A recolouring changes the register fields throughout while the opcode
 sequence stays put.
 
+### 7bg. An eight-byte position argument can be a two-float aggregate
+
+`func_0032f4d0` reached exact C on 2026-09-19 from upstream `0ec5899`.
+The remaining scalar `ld` versus retail `ldr`/`ldl` pair was the argument
+contract: `func_003147e0` consumes a two-float position by value. Passing a
+plain `FclVec2` table element through a matching aggregate formal produces
+the retail pair and closes the address-register and branch-offset residuals.
+
+Change the shared declaration, the actual provider and every caller together.
+Here the provider reads the incoming position's X and Y members, and both
+source owners include `fcl_combine_internal.h`. Packed constructor outputs
+keep their real eight-byte storage while callers pass the vector view. No
+padding, volatile access, assembly or new optimization pragma is needed.
+
+Fresh independent proof gives 1368 executable bytes, 22 resolved relocations
+and eight zero alignment bytes in the 1376-byte window. All 69 neighboring
+draw functions and all allocated data are unchanged; the external caller
+owner's complete active object is identical. The two owners retain their
+pre-existing link-eligibility blockers, so this is exact C recovery without
+a new whole-image linkage claim. The source, caller audit and reproduction
+record are in `docs/probe_archive/Match_next_0ec5899_Fcl_position.md`.
+
 ### 7aw. A pragma's before/after is a pair, and the edits decide
 
 `func_0016bdd0` carried `#pragma optimization_level 1` with a note that read
