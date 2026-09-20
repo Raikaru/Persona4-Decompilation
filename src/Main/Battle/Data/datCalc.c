@@ -1452,6 +1452,24 @@ s64 func_00235320(u8 *unit)
 /* Three retail-only runs all CROSS, no ABSENT: 39 at 0x235610-0x2356ac (paired 2, nearby */
 /* 2), 103 at 0x23587c-0x235a18 (paired 3, nearby 18), 49 at 0x236c98-0x236d5c (paired 1, */
 /* nearby 3); object is not short, so missing-code work is wrong. Production stays ASM. */
+/* gate: func_00235520 is OUTSIDE the +-3% band at 3211 against retail 3044 (+5.5%, band
+   2953-3135) - 167 instructions too LONG, so every retail-only run is a CROSS by
+   arithmetic and no edit score measured against it is comparable (handoff 7y).
+   Its 22 `(u16)(...)` casts are the densest in the tree and were checked against the
+   func_004a5fc0 lever: all 22 wrap INTEGER expressions (4 u16 loads, 18 s16), not float
+   conversions, and rewriting them to `(u32)` probes 2784 -> 2784, exactly neutral.  That
+   confirms the lever's scope - it only removes a redundant `andi 0xFFFF` when the cast
+   wraps a float-to-integer conversion - and rules the whole family out here.
+   The surplus is now NAMED.  `tools/libcall_scan.py` reports **8 `__floatdisf` calls** in
+   this object - eight s64-to-float conversions into MWCC's runtime that retail never
+   makes.  Each costs a call plus its argument shuffling, which is most of the 167.
+   Removing 13 `__fixsfdi` calls of the same family took func_002db400 from 1744 edits to
+   102, so this is the lever here.
+   Measured on the way: 20 of the 32 `s64` temporaries are used only through the
+   `(x << 0x30) >> 0x30` sign-extend idiom or an `(s16)` cast, and narrowing all 20 to
+   `s16` is 1724 -> 1667 edits but takes the count the WRONG way, 3211 -> 3215.  So the
+   narrowing is not the whole answer - find the eight s64 values that reach a float and
+   fix those specifically. */
 // FUN_00235520 NONMATCHING
 #ifdef SKIP_ASM
 s32 func_00235520(s32 arg0, u8 *arg1, u8 *arg2, u16 arg3, u16 arg4, u16 arg5, s32 arg6, u8 arg7) {
