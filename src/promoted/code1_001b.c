@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "btl_skill_internal.h"
+#include "btl_target_state_packet_internal.h"
 extern s32 func_00106600(s16 id);
 typedef struct KwlnTask KwlnTask;
 typedef struct BtlUnit BtlUnit;
@@ -983,7 +984,6 @@ s32 func_001b1b30(void)
 {
     extern u8 *func_001f5f70(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern void func_00212240(u8 *arg0, s32 arg1);
-    extern u8 *func_001f3870(u8 *arg0, s32 arg1);
     extern void func_0020bf90(s32 arg0);
     extern void func_00213b50(s32 task);
     extern void func_00213c40(s32 task);

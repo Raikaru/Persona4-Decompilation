@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "btl_target_state_packet_internal.h"
 typedef struct BtlPacket BtlPacket;
 typedef struct BtlUnit BtlUnit;
 typedef struct RwV3d { f32 x, y, z; } RwV3d;
@@ -25,7 +26,7 @@ static inline s32 func_001a_fix_var(s32 value)
 }
 void func_001f6cd0(void);
 
-void func_001f14f0(void *arg0);
+void func_001f14f0(u8 *arg0);
 void func_001eb3b0(u8 *arg0);
 u8 func_001d7f10(void *arg0, u8 *arg1, u16 arg2, u32 arg3);
 extern void func_001d7c60(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
@@ -36,7 +37,7 @@ s32 btlUnitIsMoving(u8 *arg0);
 void func_001a03b0(s64 *arg0);
 void func_001dbf20(void *arg0, s32 arg1);
 BtlPacket *func_001d3700(u16 arg0, u16 arg1);
-s32 func_00194590(u8 *arg0, u32 arg1);
+s64 func_00194590(u8 *arg0, u32 arg1);
 extern void func_0022db90(u8 *arg0);
 extern void func_001f0a40(void *arg0);
 extern void func_00212070(u8 *arg0, u8 *arg1);
@@ -139,7 +140,6 @@ extern s32 func_00218390(s32 task);
 u8 *func_001f99c0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 u8 *func_001fa450(void);
 u8 *func_002027e0(void);
-u8 *func_001f3870(s64 *arg0, s8 arg1);
 extern void func_002183c0(s32 task);
 extern void func_00218160(u8 *task, u8 *unit);
 extern s32 func_00218200(s32 task);
@@ -2039,7 +2039,7 @@ void func_001a3f90(u8 *arg0)
             func_00194590(func_0019e7c0(0, 3), 1);
             if (func_00218390(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
                 temp_2_4 = func_001b1540();
-                func_00194590(func_001f3870(temp_2_4, 2), 1);
+                func_00194590(func_001f3870((u8 *)temp_2_4, 2), 1);
                 *(u16 *)((u8 *)temp_2_4 + 0x18) |= 0x8000;
                 func_001b0800((u8 *)arg0, 0xE);
             } else {
@@ -2197,28 +2197,39 @@ void func_001a47f0(void)
 {
 }
 
-/* measured: live object 1164B/window 1152B, normalized_diff 219 (installed guard below; prior nd232 note at 1168B; object exceeds window by 12B). Restructured the scan loop per retail: bound check as the while condition (init + branch-over-to-test), skip-chain as separate early-outs to incr with the != 1 arm exiting to donecheck (goto-loop + OR-combined chain miscompiled the branch tree). Unmasked increment (232 -> 223 -> 219). Open walls: frame 0x60 vs 0x50, s-reg rotation, body-index mask folded away (unmasked counter proves it redundant; separate/temp/three-mask/O1 spellings all tie), slt stays signed per retail. Ruled out today: masked-incr while (223), three-mask tail temp (219 tie), O1 on both (223/219 ties). Banked as floor. */
-/* measured 001a4800 2026-09-19: exact 287/287, 107 words, 19 edits (+2 reloc-only) — no code change (before=after). Systematic cause is one 1-instr shift pair: unmasked incr `addiu $s2,$s2,1` (object) vs masked `addiu $v1,$s2,1 + andi $s2,$v1,0xFFFF` (retail 0x1a48a4) (-1) plus cs-off remat extra `lw $v0,($gp)` at 0x1a4a6c (object 3 vs retail 2: lw/lw/lhu vs lw/lhu) (+1) = net 0 but middle `b/bne/bnez` targets off by 1 (15 of 19 edits); masked incr tried 2026-09-19: 288/288 exact, 19 edits (shifts flip direction, trailing nop delete at 0x1a4c7c; +5/+16 words per prior, no win); addu order swap `product+base`→`base+product` tried: 287/287, 21 edits (worse +2); cs-on+masked: 289/288, 73 edits (worse). Open remains addu `addu $v0,$v1,$v0` (retail 0x1a4944) vs `addu $v0,$v0,$v1` + frame 0x60 vs 0x50. Prior: cs-off 219->174, etc, banked 107. */
-/* 2026-09-19 frame-first + pairs (masked 107, raw 21/142, 287/287 exact, frame */
-/* both addiu $sp,$sp,-0x50 — prior 0x60 vs 0x50 wall now closed): fnalign 19 */
-/* (+2 reloc-only); 15 branch-target off-by-one (b .+25/24, bne .+9/8, bnez */
-/* .-26/-25, bne .+230/231, beqz .+197/198, b .+170/171, .+160/161, .+146/147, */
-/* .+137/138, .+131/132, bnez .+105/106, bne .+11/12, etc.) from one -1/+1 pair: */
-/* retail addiu $v1,$s2,1 + andi $s2,$v1,0xFFFF vs object addiu $s2,$s2,1 (-1) */
-/* plus cs-off remat lw $v0,($gp) extra at 0x1a4a6c (+1), net 0; stacking sched */
-/* 224, nobranch 107 tie, peephole 237 — no win. */
-// FUN_001A4800 NONMATCHING
-#ifdef NON_MATCHING
+/* The two fields belong to the same battle-state allocation. Keeping their
+ * shared view preserves the single state-pointer load used by retail. */
+typedef struct ActionState001a4800 {
+    u8 pad0[0x1A];
+    u16 kind;
+    u8 pad1C[0x290 - 0x1C];
+    u16 flags;
+} ActionState001a4800;
+
+#pragma push
+/* measured: b210 -O2 with this scoped setting emits 1148/1152 exact bytes.
+ * The ushort counter wrap and offset-first helper preserve retail's operation
+ * order. All 39 code relocations and the 52-byte switch table were resolved. */
 #pragma opt_common_subs off
+// FUN_001A4800
+/* Wait for the participating actions before dispatching the selected action
+ * type and submitting its target-state and camera packets. */
 void func_001a4800(u8 *arg0)
 {
+    extern void func_001eb420(u8 *target);
+    extern u16 *func_0010a900(s32 personaId);
+    extern s32 func_0010ce10(u8 *persona, u32 skillId);
+    extern s32 func_0019fc70(u8 *action);
+    extern void func_001f5bd0(s32 state);
+    extern s32 func_001f68e0(u8 *action);
+    extern void func_0022dc70(u8 *action);
     s32 temp_16;
     s32 var_16;
     s32 var_18;
     s32 var_2;
     u16 temp_2;
     u8 *temp_17;
-    u8 *temp_4;
+    ActionState001a4800 *temp_4;
     if (((s32)(func_00193cd0(0x506)) == (s32)(0)) && ((s32)(func_00193cd0(0xC05)) == (s32)(0))) {
         var_18 = 0;
         while ((s32)(temp_16 = var_18 & 0xFFFF) < (s32)(*(u16 *)((u8 *)arg0 + 0x6A))) {
@@ -2236,12 +2247,12 @@ void func_001a4800(u8 *arg0)
                 goto donecheck;
             }
 incr:
-            var_18 = var_18 + 1;
+            var_18 = (var_18 + 1) & 0xFFFF;
         }
 donecheck:
         if (temp_16 == (*( u16*)((u8 *)(arg0) + 0x6A))) {
             if (!((*( u16*)((u8 *)(arg0) + 0x18)) & 4)) {
-                func_001eb420((s32)(arg0) + 0x38);
+                func_001eb420(arg0 + 0x38);
             }
             (*( u16*)((u8 *)(arg0) + 0x18)) = (u16)((u16) ((*( u16*)((u8 *)(arg0) + 0x18)) & 0xFFFD));
             var_16 = 0;
@@ -2254,7 +2265,7 @@ donecheck:
                 /* fallthrough */
             case 9:
                 func_001f14f0(arg0);
-                if ((*( u8*)((u8 *)((((*( u16*)((u8 *)(arg0) + 0x6E)) * 0x28) + (iGpffffb3b8))) + 0x24)) == 5) {
+                if ((*( u8*)((u8 *)(func_001a_add_offset(*(u16 *)(arg0 + 0x6E) * 0x28, (s32)iGpffffb3b8)) + 0x24)) == 5) {
                     func_001b0800(arg0, 0x20U);
                 } else if ((*( s32*)((u8 *)(arg0) + 0xE8)) == 1) {
                     func_001b0800(arg0, 0x17U);
@@ -2278,14 +2289,14 @@ donecheck:
                     } else {
                         var_2 = 8;
                     }
-                    if (((s32)(func_0010ce10(func_0010a900(var_2 & 0xFFFF), 0x114)) != (s32)(-1)) || ((temp_4 = (iGpffffb3ac), ((*( u16*)((u8 *)(temp_4) + 0x1A)) == 1)) && ((*( u16*)((u8 *)(temp_4) + 0x290)) & 2))) {
+                    if (((s32)(func_0010ce10((u8 *)func_0010a900(var_2 & 0xFFFF), 0x114)) != (s32)(-1)) || ((temp_4 = (ActionState001a4800 *)iGpffffb3ac)->kind == 1 && (temp_4->flags & 2))) {
                         func_00194590(func_001f5f70(arg0, 8, 0, 0, 3), 1);
                         func_00194590(func_001bc920(arg0, 8), 0);
                         func_001b0850(arg0, 0x1D, 0xC);
                     } else {
                         func_001f5bd0(0);
                         func_00194590(func_001f5f70(arg0, 3, 0, 0, 2), 1);
-                        func_00194590(func_001f3870((s64 *)arg0, 0U), 1);
+                        func_00194590(func_001f3870(arg0, 0U), 1);
                         func_00194590(func_001bc920(arg0, 1), 0);
                         if ((s32)(func_001f68e0(arg0)) != (s32)(0)) {
                             func_001b0850(arg0, 0x1B, 0xC);
@@ -2316,10 +2327,7 @@ donecheck:
         }
     }
 }
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a4800);
-#endif
+#pragma pop
 /* measured 001a4c80 (WCold): m2c + romwright cold drafts de-noised to file idiom (u8* + RwV3d, truthful externs per tree: 95850(u8*,f32*)/95c50(u8*,u8*,RwV3d*)/99d00(s32,u8*,s64,s32)/f1210(u8*,s64,s32)/951f0(u8*,u8*,u8*,s32,f32*,f32*,s32)/95730(u8*,u8*,u8*,s32)/ec1c0(u8*,u8*,u8*)/3e4180(f32*)/3e40b0(f32*,f32*)/243d80(u8*)/f0a50(u8*)/f0bf0(u8*)/f0ff0(u8*)/22fb10(void)/96bd0(f32 local shadow over file s16)/b3bc+iGp8360 locals, D_005F6D20 kept); count first retail 584 vs v1 597 (2.2% over) then v2 586 (0.34% over); v1 525 -> v2 506 (float max/threshold fix) -> v4 487 via address-fold `(u8*)b3bc+off+2` for `lhu 2` (19-word win, 583/583 exact, 0% deviation, 445 edits +3 reloc-only via fnalign --candidate); pragma singles all tie/regress (sched 508, cs 520, prop 521), pair sched+cs 503 but 517/583 (11% short, rejected per 3% gate); scoped-counter v3 511 and s32-idx v5 499 regressed. Open walls: frame 0x140 vs retail 0x120 (spill of var_22/23), s-reg rotation, VU ACC (adda/msuba/madda) vs plain mul/add. Production stays ASM; banked as floor. Evidence in /var/tmp/cold1a4c80/ (m2c.c/rom.c/raw.c/types.txt/cand_v*.c). */
 /* measured 001a4c80 (owner, 2026-09-19): fnalign edits **445 -> 427** by writing the
    `if (kind == c) ... else if` chain as a `switch (kind)` with the cases ascending and the
@@ -2778,7 +2786,6 @@ void func_001a59a0(s64 *arg0) {
     extern s32 func_001f0dd0();
     extern s32 func_001f0f70();
     extern u8 *func_001f36e0();
-    extern u8 *func_001f3870();
     extern u8 *func_001f3950();
     extern u8 *func_001f5f70();
     extern s32 func_001f68e0();
@@ -3643,7 +3650,7 @@ block_224:
     (*(s64 *)((u8 *)(temp_2_62) + (0x60))) = temp_17;
     func_00194590(temp_2_62, 1);
     if (!((*(u16 *)((u8 *)(arg0) + (0x18))) & 4)) {
-        temp_2_63 = (u8 *)(func_001f3870(arg0, (*(u8 *)((u8 *)(arg0) + (0xDB)))));
+        temp_2_63 = (u8 *)(func_001f3870((u8 *)arg0, (*(u8 *)((u8 *)(arg0) + (0xDB)))));
         (*(s8 *)((u8 *)(temp_2_63) + (0))) = 5;
         (*(s64 *)((u8 *)(temp_2_63) + (8))) = temp_16;
         (*(s16 *)((u8 *)(temp_2_63) + (0x48))) = var_21;
@@ -3795,7 +3802,6 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_001f11e0();
     extern s32 func_001f2f90();
     extern s32 func_001f36e0();
-    extern s32 func_001f3870();
     extern s32 func_001f3950();
     extern s32 func_001f3b20();
     extern s32 func_001f5f70();
@@ -3832,7 +3838,6 @@ void func_001a7720(u8 *arg0) {
     extern s32 func_00231d70();
     extern s32 func_00231ed0();
     extern s32 func_00232710();
-    extern s32 func_0023d8e0();
     extern s32 func_0023df70();
     extern s32 func_0043c6a0();
     extern s32 func_004bd050();
@@ -5213,7 +5218,7 @@ do {
                     (*( s64 * )((u8 *)(temp_2_99) + (0x60))) = temp_16;
                     func_00194590(temp_2_99, 0);
                     if ((*( u16 * )((u8 *)((u8 *)arg0) + (0x6A))) == 1) {
-                        temp_3_14 = (s64)((s64) (func_0023d8e0((*( s64 * )((u8 *)((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))) + (0xA64))), sp2A0) << 0x30) >> 0x30);
+                        temp_3_14 = (s64)((s64) (func_0023d8e0((u8 *)(u32)(*( s64 * )((u8 *)((*( u8 ** )((u8 *)((u8 *)arg0) + (0x30)))) + (0xA64))), sp2A0) << 0x30) >> 0x30);
                         switch (temp_3_14) {            /* switch 3; irregular */
                         case 1:                         /* switch 3 */
                             var_2_12 = 0x29;
@@ -5855,7 +5860,7 @@ void func_001abbb0(s64 *arg0) {
     tmp = func_001f3b20((u8 *)arg0);
     *(s64 *)(tmp + 0x60) = uid;
     func_00194590(tmp, 1);
-    tmp = func_001f3870(arg0, 0);
+    tmp = func_001f3870((u8 *)arg0, 0);
     *(s64 *)(tmp + 0x60) = uid;
     func_00194590(tmp, 1);
     evPkt = func_00199ee0(*(u8 **)((u8 *)arg0 + 0x30), 8, 6, 0, 1.0f);
@@ -6249,7 +6254,7 @@ void func_001ac700(u8 *arg0) {
     }
     {
         u8 *packet;
-        packet = func_001f3870((s64 *)arg0, 0);
+        packet = func_001f3870(arg0, 0);
         *(s8 *)(packet + 0) = 4;
         *(s64 *)(packet + 8) = *(s64 *)(event_packet + 0x58);
         *(s64 *)(packet + 0x60) = temp_17;
@@ -6487,7 +6492,6 @@ void func_001acf50(u8 *arg0) {
     u8 *temp_2;
     u8 *temp_4;
     void func_001a03b0();
-    u8 *func_001f3870(u8 *arg0, s8 arg1);
     u8 *var_16;
 
     switch (*(u16 *)(arg0 + 0x6C)) {
@@ -6829,7 +6833,7 @@ second_check:
         *(u16 *)(D_0076449C + 0x1C) = 3;
     }
     {
-        u8 *f = func_001f3870(arg0, 0);
+        u8 *f = func_001f3870((u8 *)arg0, 0);
         *(s64 *)(f + 0x60) = *arg0;
         func_00194590(f, 1);
     }
@@ -7286,7 +7290,7 @@ void func_001ae800(u8 *arg0)
             return;
         }
         if (func_00218230(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
-            packet1 = func_001f3870((s64 *)arg0, 2);
+            packet1 = func_001f3870(arg0, 2);
             *(u64 *)(packet1 + 0x60) = *(u64 *)arg0;
             func_00194590(packet1, 1);
             *(s32 *)(*(u8 **)(D_0076449C + 0x170) + 0x434) =
@@ -7488,7 +7492,7 @@ loop_4:
     if (list != NULL) {
         elem28 = *(u8 **)(list + 0x28);
         if (*(u8 *)(list + 0x28) != 0) {
-            t1 = func_001f3870((s64 *)list, 2);
+            t1 = func_001f3870(list, 2);
             *(s64 *)(elem28 + 0x60) = uid;
             func_00194590(elem28, 1);
         }

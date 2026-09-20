@@ -1,6 +1,7 @@
 /* Source unit: src/btlTarget/btlTarget_001eb420.c (1 function markers) */
 #include "include_asm.h"
 #include "type.h"
+#include "btl_target_state_packet_internal.h"
 
 typedef struct RwV3d
 {
@@ -405,12 +406,12 @@ void func_001f0a40(void* param_1)
 
 
 // FUN_001F3850
-void func_001f3850(s32* param_1)
+void func_001f3850(u8* param_1)
 {
     s32 iVar1;
     s32 iVar2;
 
-    iVar1 = *param_1;
+    iVar1 = *(s32*)param_1;
     iVar2 = *(s32*)(iVar1 + 0x30);
     *(u16*)(iVar2 + 0xA0) = *(u16*)(iVar2 + 0xA0) - 1;
 }
