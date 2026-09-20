@@ -68,6 +68,63 @@ class QuadwordDecodeTests(unittest.TestCase):
         self.assertIsNone(eedis.quadword_access(b"\x7f\xb5"))
 
 
+class AccumulateTests(unittest.TestCase):
+    """The EE floating-point multiply-accumulate family, COP1 fmt=S with
+    function 0x18-0x1F.  Capstone knows none of them and returned `"??"` for
+    all six - and every `"??"` compared equal to every other, so `adda.s`,
+    `madd.s`, `mula.s`, `msub.s` and `madda.s` were indistinguishable from
+    each other AND from every undecoded VU op in the same function.  A whole
+    session of accumulator work was measured through that hole, which is why
+    two probes on `func_00471370` measured perfectly flat.
+
+    Words below are taken from the tree's own listings."""
+
+    def test_madd_s_has_three_operands(self) -> None:
+        self.assertEqual(eedis.fpu_accumulate(bytes.fromhex("1C100346")),
+                         "madd.s $f0, $f2, $f3")
+
+    def test_adda_s_has_two(self) -> None:
+        """`adda.s fs, ft` sets ACC = fs * ft.  It is a multiply, not an add,
+        and reading it as add-to-accumulator sent an agent hunting for a
+        zeroing of $f12 that does not exist."""
+        self.assertEqual(eedis.fpu_accumulate(bytes.fromhex("18000146")),
+                         "adda.s $f0, $f1")
+
+    def test_mula_msub_madda_and_suba_are_distinguished(self) -> None:
+        got = [eedis.fpu_accumulate(bytes.fromhex(h)) for h in
+               ("1A080046", "1D080246", "1E600C46", "19580246")]
+        self.assertEqual([t.split()[0] for t in got],
+                         ["mula.s", "msub.s", "madda.s", "suba.s"])
+        self.assertEqual(len(set(got)), 4)
+
+    def test_a_plain_cop1_op_is_left_alone(self) -> None:
+        self.assertIsNone(eedis.fpu_accumulate(bytes.fromhex("24000046")))  # cvt.w.s
+
+    def test_a_non_cop1_word_is_left_alone(self) -> None:
+        self.assertIsNone(eedis.fpu_accumulate(bytes.fromhex("20FBBD27")))  # addiu
+
+
+class UndecodedTests(unittest.TestCase):
+    """118 forms - the MMI integer ops, VU macro-mode, the EE three-operand
+    `mult` - remain unknown to capstone.  Naming them is a refinement; not
+    collapsing them onto one token is a correctness requirement."""
+
+    def test_two_different_unknown_words_do_not_compare_equal(self) -> None:
+        disassemble = eedis.build(lambda word, pc: "??")
+        pcpyld = disassemble(bytes.fromhex("891BA370"), 0)
+        pextlb = disassemble(bytes.fromhex("88160270"), 0)
+        self.assertNotEqual(pcpyld, pextlb)
+
+    def test_the_same_unknown_word_compares_equal_at_any_address(self) -> None:
+        disassemble = eedis.build(lambda word, pc: "??")
+        word = bytes.fromhex("891BA370")
+        self.assertEqual(disassemble(word, 0x1852f0), disassemble(word, 0x400))
+
+    def test_an_unknown_word_is_rendered_as_its_own_raw_word(self) -> None:
+        disassemble = eedis.build(lambda word, pc: "??")
+        self.assertEqual(disassemble(bytes.fromhex("891BA370"), 0), ".word 0x70a31b89")
+
+
 class WrapperTests(unittest.TestCase):
     def test_the_wrapper_prefers_the_quadword_decode(self) -> None:
         disassemble = eedis.build(lambda word, pc: "subu.qb $zero, $sp, $s4")
