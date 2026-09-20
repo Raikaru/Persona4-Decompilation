@@ -6861,38 +6861,11 @@ void func_00302770(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00302770);
 #endif
 
-/* wave 14: signature re-checked via the m2c oracle and the retail prologue
-   (dsll32 $16,$5,24 / dsra32 = byte sign-extend): arg1 IS s8; the m2c's
-   s64 arg1 is widening noise. */
-/* Floor: 27 differing words / 35 edits (was 32 words / 37 edits; wave-14 attempt measured 131 and kept no
-   body).  Two things carried it: `arg2` is a `u16 *`, so the draft's
-   `*(u8 *)(arg2 + j * 2)` double-scales - plain `arg2[j]` gives retail's
-   `sll 1` plus `lhu` - and `opt_loop_invariants on` hoists the constant 1
-   that every case's flag set reuses, which is the const-hoist the earlier
-   note identified but did not close (145 -> 44 words on its own).
-   measured: hoisting `i = 0` above `count`/`last` (retail rule,i,count,last order) removes the early
-   `move $s6` scheduling split (37 -> 35 edits, 32 -> 27 words; fnalign retail/object 259/259 instrs).
-   WALL: retail keeps the per-case loop counters in temps ($a1/$a3/$a2) and splits
-   j/k across $s5/$s3, while this build holds j in $s3 throughout.  Block-scoped per-case counters (240)
-   and 200 declaration orders were measured. */
-/* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/Event/Fcl/y_fclCombine.c func_00303610 --pairs` banked 27 (already carries opt_loop_invariants on); best ties 27 (loopinv alone plus four loopinv+second combos); bare without loopinv is 132, so the banked pragma stays load-bearing. All 28 pairs neutral or worse (commons 240-261, schedule 235-247, peephole 275-339). fnalign retail/object 259/259 per assignment. Floor stands; production stays ASM. */
-/* 2026-09-18 lead pass, 4 measured variants; floor confirmed at 27 words.
-   259/259 instructions.  Two residual classes, both allocation:
-   (a) retail keeps one `s16` loop counter in the caller-saved $a1 while this
-   body keeps it in the callee-saved $s3 - that loop contains no call in
-   either stream, so retail simply had a temp free where this body did not;
-   (b) a $s3/$s5 exchange on the later counter and the `lh 4($s1)` load,
-   the ordinary section 7m pair.
-   All four declaration permutations of the five `s16` locals tie at 27 with
-   a byte-identical stream, so neither class is reachable by reordering.
-   Register class, not register number, is the interesting half here: a
-   future pass should look for what keeps a temp live across that loop in
-   this body and not in retail.  Tried and tied at 27: giving the first
-   `for (j = 0; j < count; j++)` loop its own counter, which is the fix that
-   took func_0013fb50 from 34 to 28 on exactly this symptom.  So the shared
-   counter is not the cause here. */
-// FUN_00303610 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: 1036/1040 bytes with eight resolved code relocations and a fully resolved
+   44-byte switch table at 0x00749300. Independent searches keep their own
+   short counters; the nested category search retains separate inner/outer
+   lifetimes. The existing loop-invariant pragma hoists the flag constant. */
+// FUN_00303610
 #pragma push
 #pragma opt_loop_invariants on
 s32 func_00303610(u8 *arg0, s8 arg1, u16 *arg2)
@@ -6923,23 +6896,27 @@ s32 func_00303610(u8 *arg0, s8 arg1, u16 *arg2)
         }
         found = 0;
         switch (kind) {
-        case 1:
-            for (j = 0; j < count; j++) {
+        case 1: {
+            s16 item;
+            for (item = 0; item < count; item++) {
                 want = *(s16 *)(rule + 4);
-                if (want == (func_00109280(arg2[j]) & 0xFF)) {
+                if (want == (func_00109280(arg2[item]) & 0xFF)) {
                     found = 1;
                     break;
                 }
             }
             break;
-        case 2:
-            for (j = 0; j < count; j++) {
-                if (*(s16 *)(rule + 4) == arg2[j]) {
+        }
+        case 2: {
+            s16 item;
+            for (item = 0; item < count; item++) {
+                if (*(s16 *)(rule + 4) == arg2[item]) {
                     found = 1;
                     break;
                 }
             }
             break;
+        }
         case 3:
             want = *(s16 *)(rule + 4);
             if (want == (func_00109280(*last) & 0xFF)) {
@@ -6952,12 +6929,12 @@ s32 func_00303610(u8 *arg0, s8 arg1, u16 *arg2)
             }
             break;
         case 5:
-            for (j = 0; j < count; j++) {
+            for (k = 0; k < count; k++) {
                 want = *(s16 *)(rule + 4);
-                if (want == (func_00109280(arg2[j]) & 0xFF)) {
-                    for (k = 0; k < count; k++) {
+                if (want == (func_00109280(arg2[k]) & 0xFF)) {
+                    for (j = 0; j < count; j++) {
                         want = *(s16 *)(rule + 6);
-                        if (want == (func_00109280(arg2[k]) & 0xFF)) {
+                        if (want == (func_00109280(arg2[j]) & 0xFF)) {
                             found = 1;
                             break;
                         }
@@ -6965,11 +6942,13 @@ s32 func_00303610(u8 *arg0, s8 arg1, u16 *arg2)
                 }
             }
             break;
-        case 6:
-            for (j = 0; j < count; j++) {
-                if (*(s16 *)(rule + 4) == arg2[j]) {
-                    for (k = 0; k < count; k++) {
-                        if (*(s16 *)(rule + 6) == arg2[k]) {
+        case 6: {
+            s16 first;
+            s16 second;
+            for (first = 0; first < count; first++) {
+                if (*(s16 *)(rule + 4) == arg2[first]) {
+                    for (second = 0; second < count; second++) {
+                        if (*(s16 *)(rule + 6) == arg2[second]) {
                             found = 1;
                             break;
                         }
@@ -6977,6 +6956,7 @@ s32 func_00303610(u8 *arg0, s8 arg1, u16 *arg2)
                 }
             }
             break;
+        }
         case 7:
             if (count != 3) {
                 return 0;
@@ -7009,9 +6989,6 @@ s32 func_00303610(u8 *arg0, s8 arg1, u16 *arg2)
     return 1;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00303610);
-#endif
 
 // FUN_00303A20
 void func_00303a20(u8 *arg0) {
