@@ -921,6 +921,12 @@ void func_00122a10(void *arg0)
    bearing and scoped.  Residual: the nested `14.0f + (int + field)` FPR
    colouring, the alpha GPR temporary, the 0x19 sharing, q polarity and the
    tail conversion shape. */
+/* composition 2026-09-20: exact 804/804 is cancellation (INS 12 / DEL 3, replaces -9). */
+/* Surplus 12 is repeated lwc1 $f1,0x90/0xf0 reloads (O294,411,445,480,509,511,686,711,743,768 etc) */
+/* + addiu 0xFF reloads where retail keeps $f1/$t0 live; shortfall 3 is R606:609 b/nop/addiu */
+/* $s1,0x1c tail of second q-remap where object falls through. Tail ival/2 bgez + round-trip */
+/* cvt is +3 in one place but net is many smalls, no single 12-block; removing 12 alone */
+/* lands 792 (worse), so not banked. Anchor is retail listing per site, not edit count. */
 // FUN_00122A40 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off

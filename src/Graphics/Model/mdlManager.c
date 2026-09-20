@@ -2973,15 +2973,16 @@ int func_00475b90(void* buf, void* v, u32 idx, void* obj)
  *   value(0x80)+result(0x90,40B) vs merged interpolation, easing two-stage vs independent curves.
  * Production remains INCLUDE_ASM; owner 126 markers, 120 MATCH/6 ASM unchanged. func_00479100 untouched (29-word floor).
  */
-/* gate: func_00475cd0 is OUTSIDE the +-3% band at 1131 against retail 1000 (+13.1%).  The body previously read
-   1007/1000, 1393 edits only because `#pragma schedule on` was filling delay slots that retail leaves
-   empty.  Retail's first-party build is entirely unscheduled: across 212 byte-exact MATCH
-   first-party functions there are 2909 branches and **zero** filled delay slots, and this
-   function's own retail window has 179 branches with 179 empty slots and none filled.  The
-   pragma therefore never reproduced retail codegen - it deleted nops to shrink the count, and
-   it was hiding a genuine instruction surplus.  It is removed; the surplus is now visible and
-   has to be written out of the body.  Any differing-word score measured with the pragma in
-   place is not comparable to one measured inside the gate (handoff 7y, 7au). */
+/* gate: func_00475cd0 is INSIDE the +-3% band at 1002 against retail 1000 (+0.2%).
+   Fix was deleting early-return surplus work retail does not do: after the first
+   0xD8/0x80000 check the body called func_00477260, e0 effect (0x7C01B/0x7F06B/0x7D7FB),
+   func_00479910/004789c0, a second 0xEC/0x140 three-way, 0x2CC effect, and the i<2
+   loop before the j<5 loop. Retail/M2C early (color[3]==0) goes directly from the
+   first 0xD8 check to the j-loop then return. Deletion 1131->1002 (-129, +13.1%->+0.2%),
+   fnalign 1089->610 edits (-479). Also: 00477260 u64->void* (matches FUN_00477260
+   void*), current/target/value u32->s32 (retail slt, M2C s32), main j-loop copy outside
+   the (&2==0 && d3!=0) guard with !=-1 call-first (matches M2C/retail). Frame still
+   0x1E0 vs 0x1A0 (address-CSE/saved-coloring floor, count-neutral). */
 typedef struct {
     u8 _00[0xD3];
     u8 d3;
@@ -2998,7 +2999,7 @@ void func_00475cd0(void* param_1)
 {
     extern void func_00397c40();
     extern void func_003f6440(s32 a, s32 b);
-    extern void func_00477260(u64 a, u32* b, u16 c);
+    extern void func_00477260(void* a, u32* b, u16 c);
     extern void func_004789c0(void* a);
     extern void func_003dc610(void* out, void* in);
     extern void func_003dcb40(void* out, const void* in, s32 count, const void* quat);
@@ -3022,9 +3023,9 @@ void func_00475cd0(void* param_1)
     extern f32 fGpffff80f0;
     extern f32 fGpffff81f4;
 
-    u32 current;
-    u32 target;
-    u32 value;
+    s32 current;
+    s32 target;
+    s32 value;
     u32 flags;
     struct {
         f32 quaternion[4];
@@ -3350,7 +3351,7 @@ void func_00475cd0(void* param_1)
     if ((*(u32*)((u8*)param_1 + 0xD8) & 0x80000) != 0) {
         func_004746b0((u8*)param_1 + 0x234, (u8*)param_1 + 0xEC);
     }
-    func_00477260((u64)(u32)*(void**)((u8*)param_1 + 0xDC), (u32*)color,
+    func_00477260(*(void**)((u8*)param_1 + 0xDC), (u32*)color,
                         (u16)((((Mdl475Param*)param_1)->flags & 8) != 0));
     effect = (u8*)((Mdl475Param*)param_1)->e0;
     if (effect == 0) {
@@ -3403,23 +3404,23 @@ void func_00475cd0(void* param_1)
             *(void**)(slot + 0x290) != 0 &&
             func_0047ae90(param_1, j) != 0) {
             model = *(u8**)(slot + 0x290);
+            if (*(s32*)(slot + 0x294) != -1) {
+                func_0047a510(param_1, *(s32*)(slot + 0x294),
+                              func_0047a2f0(model));
+            } else {
+                copyCount = 8;
+                copySource = (u32*)param_1;
+                copyTarget = (u32*)model;
+                do {
+                    copyTarget[0] = copySource[0];
+                    copyTarget[1] = copySource[1];
+                    copySource += 2;
+                    copyTarget += 2;
+                    copyCount--;
+                } while (copyCount > 0);
+            }
             if ((*(u32*)(model + 0xD8) & 2) == 0 &&
                 ((Mdl475Param*)param_1)->d3 != 0) {
-                if (*(s32*)(slot + 0x294) == -1) {
-                    copyCount = 8;
-                    copySource = (u32*)param_1;
-                    copyTarget = (u32*)model;
-                    do {
-                        copyTarget[0] = copySource[0];
-                        copyTarget[1] = copySource[1];
-                        copySource += 2;
-                        copyTarget += 2;
-                        copyCount--;
-                    } while (copyCount > 0);
-                } else {
-                    func_0047a510(param_1, *(s32*)(slot + 0x294),
-                                  func_0047a2f0(model));
-                }
                 source = *(u8**)(model + 0xDC);
                 material = *(u8**)(source + 4);
                 func_003e05f0(&matrix0, model + 0x40, model);
@@ -3450,7 +3451,7 @@ void func_00475cd0(void* param_1)
                 if ((*(u32*)(model + 0xD8) & 0x80000) != 0) {
                     func_004746b0(model + 0x234, model + 0xEC);
                 }
-                func_00477260((u64)(u32)*(void**)(model + 0xDC), (u32*)color,
+                func_00477260(*(void**)(model + 0xDC), (u32*)color,
                                     (u16)((*(u8*)(model + 0x260) & 8) != 0));
                 effect = (u8*)((Mdl475Param*)param_1)->e0;
                 if (effect == 0) {
@@ -6507,10 +6508,12 @@ extern u8 D_0070B610;
 /* prior floor context (retained): three alloc blocks, 0xC list loop, 0x234/0x254 slot tables,
    8-word 0x50 copy, d200/dc30 1-arg calls, 0x667d0 10-arg call, sq/lq u_long128 spE0/D0/C0/B0,
    rotation groups {t17,sz} and {v19,v20,obj} rotate together in every declaration order tried. */
-/* gate: object 464 against retail 485, -4.3% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* gate: object 475 against retail 485, -2.1% - INSIDE the +-3% band (need >=470).
+   Fixes: 0x234 block (s32)map->(s32)(s64)map to match retail dsll32/dsra32 for both
+   0x234/0x254 tables (+2, 464->466); u32 i/j/k->u16 to match retail andi wrapping
+   (+9, 466->475, frame 0xE0->0x100 matching retail). fnalign 294->298 edits (count
+   fix before word-score comparison, handoff 7y). Remaining: saved-reg rotation,
+   D_0070B610 gp-relative vs lui (1 word), sq/lq spills (count-neutral). */
 // FUN_0047C660 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0047c660(u8 *arg0)
@@ -6524,9 +6527,9 @@ s32 func_0047c660(u8 *arg0)
     u32 ready;
     void *handle;
     u16 cnt;
-    u32 i;
-    u32 j;
-    u32 k;
+    u16 i;
+    u16 j;
+    u16 k;
     u8 *slot;
     u8 *base;
     s16 map;
@@ -6702,7 +6705,7 @@ s32 func_0047c660(u8 *arg0)
                         *(u32 *)(base + dstOff + 0x44) |= 1;
                         if (k == 0) {
                             if (*(void **)(arg0 + 0x234) != 0) {
-                                if ((s32)map < (s32)*(u16 *)(*(u8 **)(arg0 + 0x234) + 4)) {
+                                if ((s32)(s64)map < (s32)*(u16 *)(*(u8 **)(arg0 + 0x234) + 4)) {
                                     base = *(u8 **)(*(u8 **)(arg0 + 0x234) + 0);
                                     if (*(u32 *)(base + (u32)(u16)map * 8) != 0) {
                                         *(u32 *)(base + (j & 0xFFFF) * 8) = *(u32 *)(base + (u32)(u16)map * 8);

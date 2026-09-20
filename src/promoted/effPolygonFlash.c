@@ -1583,17 +1583,14 @@ void func_0049c3d0(u8 *arg0)
                             : "r"(&colA), "f"(255.0f), "r"(&packB)
                             : "$2", "$vf2", "$vf10", "$vf11", "memory");
                         {
-                            f32 fA;
+                            /* Retail 0049CC08-0049CC50 is the long unsigned idiom
+                               (mul/lui 0x4F00/mtc1/c.le/bc1t/cvt/mfc1/b/sub/cvt/mfc1/
+                               lui 0x8000/or/sll 24/or/sw); the short signed-plus-guard
+                               form cost a 12-vs-3 replace. Same finding as 0049e150
+                               pointing the other way. Interior around 0049C9C4
+                               (retail 29-vs-2 / 41-vs-1 lqc2/vmul chain) outstanding. */
                             u32 cb = *(u32 *)&packB;
-                            fA = 255.0f * fade;
-                            if (fA >= 2147483600.0f) {
-                                fA = fA - 2147483600.0f;
-                            }
-                            {
-                                s32 _i = (s32)fA;
-                                s32 _s = _i << 24;
-                                color[0] = cb | (u32)_s;
-                            }
+                            color[0] = cb | ((u32)(255.0f * fade) << 24);
                         }
                         pi[0] = cur + 1;
                     } else {
@@ -2570,7 +2567,15 @@ void func_0049e100(u8 *arg0)
    s128 slots to s32 (saves 13, 531->518, frame 0x120->0x130) and spell the in-range
    0..255 alpha as (s32)(f*255) (saves 12, 531->519); together 531->506 inside with no
    inline asm. Full VU port (as in func_0049aa30/sibling func_004938e0) left for a MATCH
-   wave; no COP2 asm added here. */
+   wave; no COP2 asm added here.
+   Residual is one dsll32/dsra32 pair from (s32)spC0, kept deliberately: plain
+   `if (cVar1 == 0)` with no slot and an `s32` word slot both measure 504 and remove
+   the pair, but the first deletes retail's quad traffic entirely (sq $2,0xC0 at
+   0049E378, lq $2,0xC0 at 0049E52C) and the second turns that lq into lw, the wrong
+   width. 504 was available and rejected; the faithful s128 stays at 506-inside.
+   lq/sq are ordinary 128-bit load/store, not COP2 (allowlist is lqc2/sqc2/qmtc2/qmfc2
+   and v*), so an asm lq-read would be the banned kind - the sibling's permitted VU
+   blocks are not a precedent for it. */
 // FUN_0049E150 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
