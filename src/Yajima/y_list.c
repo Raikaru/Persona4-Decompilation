@@ -1632,15 +1632,15 @@ void func_002e5960(s8 arg0) {
     *(s32 *)(p + 8) = 0;
 }
 
-/* measured (real tree): guarded de-noised floor GUARDED_SCORE 393 (measure_guarded */
+/* measured (real tree): guarded de-noised floor GUARDED_SCORE 398 (measure_guarded */
 /* measured: live in source/Persona4-Decompilation; verify 30 MATCH/7 ASM/0 MISMATCH, */
 /* measured: decomp_lint 0 errors +1 pre-existing H003 warn elsewhere). Mirror */
 /* measured: probe_variants: v1 cached-gp 405 -> v2 uncached-iGpffffb3d4 with duplicate */
 /* measured: i*0xE entry+2/entry+3 loads 393; round2 decl-order 393 neutral, s32 */
 /* measured: hi/lo 400 worse; round3 (h*3)*0x10 vs h*0x30 and i*14 vs i*0xE and */
 /* measured: (outer*4+outer)+10 vs outer*5+10 all 393 neutral. Two unproductive */
-/* measured: rounds, stop. fnalign live: retail 464 instrs vs object 435 (29 short), */
-/* measured: 285 edits +1 reloc-only, frame 0x100 vs 0x110. Retail window 468 words */
+/* measured: rounds, stop. fnalign live: retail 468 instrs vs object 471 (3 long), */
+/* measured: 158 edits +9 reloc-only, frame 0x100 vs 0x110. Retail window 468 words */
 /* measured: (0x750 incl. 4 trailing nops per asm size). m2c single-function run fails */
 /* measured: (jr without jump table); bulk src/generated/code1_002e.c candidate used as */
 /* measured: the de-noise source. Production stays INCLUDE_ASM. */
@@ -1656,10 +1656,10 @@ void func_002e5960(s8 arg0) {
 /* measured: b210 spills plain-s16 locals via sw/lw (u_long128 locals would add */
 /* measured: dsll32/dsrl32 widening pairs instead, same mixed-width floor as func_002e4ac0 */
 /* measured: nd 302 in this file); residual also carries saved-reg coloring/scheduling. */
-/* gate: object 435 against retail 464, -6.2% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
+/* gate: object 471 against retail 468, +0.6% - INSIDE */
+/*   the +-3% band (was 435 vs 464, -6.2% OUTSIDE). Separating default from the */
+/*   0/2/7/8 group in all four switches adds the missing 0xA4-with-branch bodies */
+/*   (4x dsll/dsra + 8x sll/addu + 4x b/addiu, net +36, 435->471). */
 // FUN_002E5AE0 NONMATCHING
 #ifdef NON_MATCHING
 extern s32 func_002e6230(u16 arg0, u16 *arg1);
@@ -1730,7 +1730,6 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
         case 2:
         case 7:
         case 8:
-        default:
             dst1 = q + h * 0x30 + 0x14;
             break;
         case 1:
@@ -1738,6 +1737,9 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
         case 6:
         case 10:
             dst1 = q + h * 0x30 + 0xA4;
+            break;
+        default:
+            dst1 = q + h * 0x30 + 0x14;
             break;
         }
         func_0043f9c8(dst1, 0, 0x30);
@@ -1749,7 +1751,6 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
         case 2:
         case 7:
         case 8:
-        default:
             dst2 = q + h * 0x30 + 0x14;
             break;
         case 1:
@@ -1757,6 +1758,9 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
         case 6:
         case 10:
             dst2 = q + h * 0x30 + 0xA4;
+            break;
+        default:
+            dst2 = q + h * 0x30 + 0x14;
             break;
         }
         func_0010cad0(dst2, id);
@@ -1813,7 +1817,6 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
             case 2:
             case 7:
             case 8:
-            default:
                 dst1 = q + h * 0x30 + 0x14;
                 break;
             case 1:
@@ -1821,6 +1824,9 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
             case 6:
             case 10:
                 dst1 = q + h * 0x30 + 0xA4;
+                break;
+            default:
+                dst1 = q + h * 0x30 + 0x14;
                 break;
             }
             func_0043f9c8(dst1, 0, 0x30);
@@ -1832,7 +1838,6 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
             case 2:
             case 7:
             case 8:
-            default:
                 dst2 = q + h * 0x30 + 0x14;
                 break;
             case 1:
@@ -1840,6 +1845,9 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2) {
             case 6:
             case 10:
                 dst2 = q + h * 0x30 + 0xA4;
+                break;
+            default:
+                dst2 = q + h * 0x30 + 0x14;
                 break;
             }
             func_0010cad0(dst2, id);

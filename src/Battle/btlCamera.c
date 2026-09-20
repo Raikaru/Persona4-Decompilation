@@ -1492,7 +1492,22 @@ void func_001ccda0(void)
    outer arm order is already right.
    gate: still OUTSIDE at 495 against retail 530 (-6.6%, band 514-546).  The body is
    about 35 instructions short and that code has to be written; no differing-word score
-   measured against it is comparable to one measured inside (handoff 7y). */
+   measured against it is comparable to one measured inside (handoff 7y).
+   2026-09-20: retail loads float fields the body kept in registers.  At 0x001cce7c
+   retail updates vC[1] in place via MAC (`vC[1] = (vC[1]+0.0) - const*(0x8c*0x2c)`,
+   adda/msub, 10 instr) while the body kept it dead in `fc`; case-2 first half stores
+   both middles (`vB[1]=const*fCC`, `vC[1]=const*(0x8c*0x2c)`) then reloads them for
+   `v30=vC-vB`, and both sqrt sites rematerialize `0.5f`/const/`4.0f`/`5.0f` via
+   lui/mtc1 instead of reusing FPU regs (runs at 0x001cd230 and 0x001cd254).
+   Rewriting the three arms to store/reload the array slots, fixing case-2 to
+   `96040(2,0,vB,&fCC)` + `95850(v2,vC)`, `4.0f` (not `5.0f`) with the missing
+   `fGpffff8110` sqrt factor, `vC[1]=product` (no const) + `f20sv=34180` reassign
+   second half, `ba790(col,v40,v58)` + `f70=v40[1]` with no `c6f40`, `12.0f`/`14.0f`
+   (not `20.0f`/`22.0f`), and the else-branch `m84=v58[3..6]` copy (no `bd780`)
+   takes object 495 -> 523 against retail 530 (-1.3%, band 514-546) - INSIDE.
+   lwc1/swc1 delta was +19/+10, now +1/+1; guarded differing words 473 -> 438
+   and fnalign edits hold at 331, now measured at the right length so the floor
+   is comparable (handoff 7y). */
 // FUN_001CCDB0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
@@ -1512,23 +1527,16 @@ void func_001ccdb0(u8 *arg0) {
     f32 f4;
     f32 f5;
     f32 f4out;
-    f32 fc;
-    f32 fi1c;
-    f32 v90[3];
-    f32 v20[3];
-    f32 v10[3];
+    f32 vB[3];
+    f32 vC[3];
     f32 v30[3];
-    f32 v58[3];
+    f32 v40[3];
+    f32 v58[7];
     f32 m84[4];
     f32 m2[4];
-    f32 v40b[3];
-    f32 b5c[3];
-    f32 b40[3];
-    f32 f20sv;
-    f32 fi2;
-    f32 fc2;
-    u8 col74[4];
+    u8 col[4];
     f32 f70;
+    f32 f20sv;
     f32 step;
 
     v2 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
@@ -1539,116 +1547,119 @@ void func_001ccdb0(u8 *arg0) {
         case 0:
         case 1:
             f4 = func_00196040(3, 0, 0, &f4out, 0, 0);
-            func_00196040(2, 0, v20, 0, 0, 0);
-            fi1c = f4out * 0.25f;
-            func_00195850(v2, v10);
-            fc = (fc + 0.0f) - fGpffff803c * *(f32 *)(v2 + 0x8C) * *(f32 *)(v2 + 0x2C);
-            func_001bd780(m84, v10, v20, &D_0060A0E0);
-            f5 = func_0044b868(fGpffff8110 * *(f32 *)(arg0 + 0xB8) * 0.5f);
+            func_00196040(2, 0, vB, 0, 0, 0);
+            vB[1] = 0.25f * f4out;
+            func_00195850(v2, vC);
+            vC[1] = (vC[1] + 0.0f) - fGpffff803c * *(f32 *)(v2 + 0x8C) * *(f32 *)(v2 + 0x2C);
+            func_001bd780(m84, vC, vB, &D_0060A0E0);
+            f5 = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
             f20sv = (f4 * 0.75f) / f5;
             if (*(u8 *)(ac + 0xC64) < 2) {
                 func_003dc740(5.0f, m84, &D_0060A0E0, 2);
             } else {
-                func_003dc740(20.0f, m84, &D_0060A0E0, 2);
+                func_003dc740(12.0f, m84, &D_0060A0E0, 2);
             }
             func_003dcb40(v30, &D_0060A100, 1, m84);
             v30[0] = v30[0] * f20sv;
             v30[1] = v30[1] * f20sv;
             v30[2] = v30[2] * f20sv;
-            v90[0] = v20[0] + v30[0];
-            v90[1] = fi1c + v30[1];
-            v90[2] = v20[2] + v30[2];
-            func_001bc3a0(v90, v90);
-            if (v90[1] < 25.0f) {
-                v90[1] = 25.0f;
+            v40[0] = vB[0] + v30[0];
+            v40[1] = vB[1] + v30[1];
+            v40[2] = vB[2] + v30[2];
+            func_001bc3a0(v40, v40);
+            if (v40[1] < 25.0f) {
+                v40[1] = 25.0f;
             }
             func_001c6f40(arg0, 1, 1, (s32 *)0, v58);
-            func_001ba790((f32 *)col74, v90, v58, 0.5f);
-            f70 = v90[1];
+            func_001ba790((f32 *)col, v40, v58, 0.5f);
+            f70 = v40[1];
             step = uGpffff81a0;
             break;
         case 2:
-            func_00196040((u32)arg0, 0, v10, &f4out, 0, 0);
-            fi2 = fGpffff8128 * f4out;
-            func_00195850(v2, v20);
-            fc2 = fGpffff8030 * *(f32 *)(v2 + 0x8C) * *(f32 *)(v2 + 0x2C);
-            func_001bd780(m84, v20, v10, &D_0060A0E0);
-            v30[0] = v20[0] - v10[0];
-            v30[1] = fc2 - fi1c;
-            v30[2] = v20[2] - v10[2];
+            func_00196040(2, 0, vB, &f4out, 0, 0);
+            vB[1] = fGpffff8128 * f4out;
+            func_00195850(v2, vC);
+            vC[1] = fGpffff8030 * *(f32 *)(v2 + 0x8C) * *(f32 *)(v2 + 0x2C);
+            func_001bd780(m84, vC, vB, &D_0060A0E0);
+            v30[0] = vC[0] - vB[0];
+            v30[1] = vC[1] - vB[1];
+            v30[2] = vC[2] - vB[2];
             f20sv = func_003e4180(v30);
-            f20sv += (5.0f * (*(f32 *)(v2 + 0x90) * *(f32 *)(v2 + 0x2C))) / func_0044b868(0.5f * *(f32 *)(arg0 + 0xB8));
+            f20sv += (4.0f * (*(f32 *)(v2 + 0x90) * *(f32 *)(v2 + 0x2C))) / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
             func_003dc740(-5.0f, m84, &D_0060A0E0, 2);
             func_003dcb40(v30, &D_0060A100, 1, m84);
             v30[0] = v30[0] * f20sv;
             v30[1] = v30[1] * f20sv;
             v30[2] = v30[2] * f20sv;
-            v40b[0] = v10[0] + v30[0];
-            v40b[1] = v10[1] + v30[1];
-            v40b[2] = v10[2] + v30[2];
-            func_001bc3a0(v40b, v40b);
-            if (v40b[1] < 25.0f) {
-                v40b[1] = 25.0f;
+            v40[0] = vB[0] + v30[0];
+            v40[1] = vB[1] + v30[1];
+            v40[2] = vB[2] + v30[2];
+            func_001bc3a0(v40, v40);
+            if (v40[1] < 25.0f) {
+                v40[1] = 25.0f;
             }
-            func_001958f0((s32)v2, v20);
-            v30[0] = v20[0] - v10[0];
-            v30[1] = fc2 - fi1c;
-            v30[2] = v20[2] - v10[2];
-            (void)func_003e4180(v30);
-            f20sv += (5.0f * (*(f32 *)(v2 + 0x90) * *(f32 *)(v2 + 0x2C))) / func_0044b868(0.5f * *(f32 *)(arg0 + 0xB8));
-            func_001bd780(m2, v20, v10, &D_0060A0E0);
+            func_001958f0((s32)v2, vC);
+            vC[1] = *(f32 *)(v2 + 0x8C) * *(f32 *)(v2 + 0x2C);
+            v30[0] = vC[0] - vB[0];
+            v30[1] = vC[1] - vB[1];
+            v30[2] = vC[2] - vB[2];
+            f20sv = func_003e4180(v30);
+            f20sv += (5.0f * (*(f32 *)(v2 + 0x90) * *(f32 *)(v2 + 0x2C))) / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+            func_001bd780(m2, vC, vB, &D_0060A0E0);
             if (*(u8 *)(ac + 0xC64) < 2) {
-                func_003dc740(22.0f, m2, &D_0060A0E0, 2);
-            } else {
                 func_003dc740(2.5f, m2, &D_0060A0E0, 2);
+            } else {
+                func_003dc740(14.0f, m2, &D_0060A0E0, 2);
             }
             func_003dcb40(v30, &D_0060A100, 1, m2);
             v30[0] = v30[0] * f20sv;
             v30[1] = v30[1] * f20sv;
             v30[2] = v30[2] * f20sv;
-            v58[0] = v10[0] + v30[0];
-            v58[1] = v10[1] + v30[1];
-            v58[2] = v10[2] + v30[2];
-            func_001ba790(b5c, b40, v58, 0.5f);
-            f70 = v58[1];
-            func_001c6f40(v2, 1, 1, (s32 *)0, v58);
+            v58[0] = vB[0] + v30[0];
+            v58[1] = vB[1] + v30[1];
+            v58[2] = vB[2] + v30[2];
+            func_001ba790((f32 *)col, v40, v58, 0.5f);
+            f70 = v40[1];
             step = 3.5f;
             break;
         }
     } else {
         func_001c6f40(arg0, 1, 1, (s32 *)0, v58);
         f4 = func_00196040(1, 0, 0, &f4out, 0, 0);
-        func_00196040(2, 0, v20, 0, 0, 0);
+        func_00196040(2, 0, vB, 0, 0, 0);
         if (f4 < 200.0f) {
             f4 = 200.0f;
         }
-        fi1c = f4out * 0.5f;
-        func_001bd780(m84, v10, v20, &D_0060A0E0);
-        f5 = func_0044b868(fGpffff8110 * *(f32 *)(arg0 + 0xB8) * 0.5f);
+        vB[1] = f4out * 0.5f;
+        m84[0] = v58[3];
+        m84[1] = v58[4];
+        m84[2] = v58[5];
+        m84[3] = v58[6];
+        f5 = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
         f20sv = (f4 * 0.75f) / f5;
         if (*(u8 *)(ac + 0xC64) < 2) {
             func_003dc740(5.0f, m84, &D_0060A0E0, 2);
         } else {
-            func_003dc740(20.0f, m84, &D_0060A0E0, 2);
+            func_003dc740(12.0f, m84, &D_0060A0E0, 2);
         }
         func_003dcb40(v30, &D_0060A100, 1, m84);
         v30[0] = v30[0] * f20sv;
         v30[1] = v30[1] * f20sv;
         v30[2] = v30[2] * f20sv;
-        v90[0] = v20[0] + v30[0];
-        v90[1] = fi1c + v30[1];
-        v90[2] = v20[2] + v30[2];
-        func_001bc3a0(v90, v90);
-        if (v90[1] < 25.0f) {
-            v90[1] = 25.0f;
+        v40[0] = vB[0] + v30[0];
+        v40[1] = vB[1] + v30[1];
+        v40[2] = vB[2] + v30[2];
+        func_001bc3a0(v40, v40);
+        if (v40[1] < 25.0f) {
+            v40[1] = 25.0f;
         }
-        func_001ba790((f32 *)col74, v90, v58, 0.5f);
-        f70 = v90[1];
+        func_001ba790((f32 *)col, v40, v58, 0.5f);
+        f70 = v40[1];
         step = 2.0f;
     }
     func_001bcd40(0.0f, *(u8 **)(arg0 + 0xE0), NULL, NULL, 1);
     func_001bcd40(0.0f, *(u8 **)(arg0 + 0xE0), NULL, NULL, 0x100);
-    func_001baff0((u16 *)arg0, v90, (f32 *)col74, v58, 1);
+    func_001baff0((u16 *)arg0, v40, (f32 *)col, v58, 1);
     func_001bbef0(arg0, step);
 }
 #pragma opt_propagation on
