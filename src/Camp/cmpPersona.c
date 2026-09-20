@@ -833,72 +833,63 @@ void func_001377e0(u8* arg0) {
    the +-3% band.  Any differing-word score in this note was measured
    against a body of the wrong length and is not comparable to one
    measured inside the gate (handoff 7y).  Fix the count first. */
-/* measured 2026-09-19 (lead, by hand against the retail listing): object 323
-   instrs against retail 334, one instruction outside the 324-344 band, with
-   **fnalign 384 edits -> 106**.  The body was 296/334 at 384 edits and a
-   177-instruction pure delete when this pass started; that delete is gone.
-   Four defects, each read out of the disassembly rather than guessed:
-   1. **Both `if` arms were inverted.**  Retail tests `slt $s4, 0x4e($s5)` and
-      *branches* to the long arm, so the short two-call arm is the
-      fall-through: the source is `if (arg1 >= count) { two calls } else
-      { ... }`.  The inner test is the same shape - `bne $s4, 0x52($s5)`
-      branches to the constants arm, so the table arm is the fall-through and
-      the source reads `if (arg1 == sel) { table } else { constants }`.
-      Those two inversions alone took 384 edits to 150 and dissolved the
-      177-instruction hole into runs of 15 or fewer.
-   2. **The coordinate pair is a `f32 pos[2]` in the frame, not two scalars.**
-      Retail stores `swc1 $f12, 0x158($sp)` / `swc1 $f13, 0x15c($sp)` before
-      every draw call and reloads both inside the digit loop
-      (`lwc1 $f12, 0x158($sp)`), and the final call takes them as one
-      `ld $a0, 0x158($sp)`.  Writing through `pos[0]`/`pos[1]` and passing
-      `pos[0], pos[1]` recovered ten instructions.
-   3. **The last call passes the pair as a 64-bit value**, with `0.0f` in
-      `$f12`: `func_00115c40(*(s64 *)pos, 0.0f, alpha, stack90)` against the
-      old `(0, 0, alpha, stack90)`.
-   4. **The alpha conversion must be the plain unsigned cast.**  Retail emits
-      the `cvt.w.s`/`mfc1`/`lui 0x8000`/`or`/`andi` recipe; the hand-written
-      `if (fa >= 2.1474836e9f) fa -= ...` guard compiled to one instruction.
-      Writing `alpha = (u32)fa & 0xFF` restores the ten-instruction recipe.
-   Two of those corrections cost six edits and are kept anyway, because they
-   are what retail does and the body must say so: the two trailing colour
-   bytes come from **0x0064B2ED and 0x0064B2EE**, not from `D_0064B2E8[1]`
-   and `[2]` (which are 0x64B2E9 and 0x64B2EA - different bytes), and the
-   panel flag at `stack90 + 2` is **1 in the table arm and 0 in the constants
-   arm**, matching retail's `addiu $s2, $zero, 1` / `sh $s2, 0xd2($sp)`
-   against `sh $zero, 0xd2($sp)`; the body had them the other way round.  A
-   relocation-masked score is blind to which symbol was named, so the earlier
-   "no change" reading proved nothing about folding - 106 edits with the wrong
-   addresses is worse than 112 with the right ones.
-   Measured and rejected: `opt_propagation off` 173 edits; `s64` colour
-   locals 118.
-   What remains, all small: retail[150:166] 16 against 13 in the table arm,
-   retail[169:180] 11 against 9 in the constants arm, and four 4-to-6
-   instruction replaces in the draw sequence.
-   REFUTED this round: the note used to add "retail materialises those six
-   constants with `daddiu`, so they may be 64-bit in the original".  They are
-   not.  Baseline 323 instrs / 112 edits; `s64` colour locals give 323 / 124
-   and `s32` give 323 / 124.  Neither moves the instruction count and both
-   cost edits, so the width hypothesis is dead - do not spend a round on it.
-   (`opt_propagation off` re-measured at 323 / 121, `opt_common_subs off` at
-   343 / 152.  Both worse.)
-   The deficit of 11 is ONE cause, not several:
-     - 10 instructions at 0x00137B38 paired against ZERO object instructions.
-       Retail hoists the constants into callee-saved registers ahead of the
-       loop - `daddiu $17,$0,0xFF`, `$22,0xE9`, `$23,0x2C`, `$30,0xF7` - and
-       spills the other two to the frame with `sb 0xAF,0xC0($29)` and
-       `sb 0x22,0xB0($29)`, then zeroes the counter with `daddu $18,$0,$0`.
-       b210 folds all six into the argument lists of the draw calls instead,
-       so none of that block exists in the object.
-     - 3 instructions at 0x001378BC, which are `sq $17,0x20($29)` and
-       `sq $16,0x10($29)` in the PROLOGUE.  Those follow from the first point
-       rather than being a second defect: with the constants folded the body
-       keeps fewer values live across calls, so it saves fewer registers.
-       They are visible only because tools/eedis.py taught fnalign to decode
-       `lq`/`sq`; before that both rows read `??` and compared equal to each
-       other, so this half of the deficit was invisible.
-   Next attempt wants a source shape that gives the six values a longer live
-   range across the draw sequence - not a wider type, which is now ruled
-   out. */
+/* measured 2026-09-20 (re-measure after decoder fix): object 323 instrs
+   against retail 334 (-3.3%, one outside the 324-344 band), fnalign 113
+   edits +2 reloc-only, probe reloc-masked 301 words. Prior baseline was
+   323/112; +1 is the decoder honesty tax (sq/lq now distinct, madd/adda
+   now distinct, unknown words no longer compare equal). Counts confirmed.
+   Re-measured and rejected: s64 colour locals 321/124, s32 locals 321/124
+   (both -2 instrs, +11 edits, width dead); opt_propagation off 323/122,
+   opt_common_subs off 343/153 (object longer than retail 336, both worse).
+   deficit_scan names three retail-only runs: 10 at 0x00137B38-0x00137B60,
+   3 at 0x001378BC-0x001378C0 paired against 2, 2 at 0x00137948-0x00137950
+   paired against 0 with 3 nearby. Net deficit is 11 (334-323).
+   The 10 at 37B38 are the constants hoist, retail paired against 7 nearby
+   object instrs: daddiu $17,0xFF / $22,0xE9 / $23,0x2C / andi $16,$19 /
+   daddiu $30,0xF7 / daddiu $2,0xAF + sb $2,0xC0 / daddiu $2,0x22 +
+   sb $2,0xB0 / daddu $18,$0,$0 (37B38,3C,40,44,48,4C,50,54,58,5C).
+   Object has 7 there (6x daddiu $s2/$s1/$s0/$s6/$s7/$fp + sb $zero,0xB0),
+   keeping cc0/cc1 in regs where retail spills them to 0xC0/0xB0.
+   REFUTED (lead's standing claim in this file, do not chase the prologue):
+   prior note's "3 are sq $17,0x20 / $16,0x10 prologue saves following from
+   fewer live registers". Both sides save sq $s0-$s7,$fp identically; the 3
+   at 378BC are swc1 $f22,8($sp) (+ $f21/$f20) paired 3-vs-2: object saves
+   only $f21/$f20, missing $f22 (prologue net +1, epilogue lwc1 $f22 net +1,
+   The 2 at 37948 (lwc1 $f0,0x10C8 + add.s $f1,$f1,$f0) are fy scheduling:
+   retail (base+offset)+idx*30 via add.s then madd.s $f20; base body did
+   idx*30+base+offset via madd.s $f1 then add.s $f20. Fixed below to retail
+   order (fy = base+offset+idx*30), 85->80 edits, count unchanged.
+   Live-range hypothesis (this round's open question): table arm reads
+   D_0064B2E8-E9-EA-EC-ED-EE from memory, constants arm uses immediates
+   0xFF/0xE9/0x2C/0xF7/0xAF/0x22. Probe with invented static const
+   litcol[6] for the six literals (measurement only, never installed):
+   329/119 (+6 instrs, inside band, +6 edits). Mechanism confirmed
+   (non-foldable source keeps longer), but refuted as a legitimate path:
+   no real memory holds those bytes (retail dump at 64B2E8: 2D 2D 2D FF
+   FF FF FF; F7 AF 22 never appears as a data sequence; FF E9 2C hits are
+   code immediates at 0x5E47C8/0x749AA8+). Hoisting c0-c2 with the same
+   immediates across the outer join (use in both short/long arms): 323/113
+   (no change). Declaration permutes colouring (c3-first 101, rev 109,
+   decl alone cannot add the 10; only invented memory can, which is banned
+   as a placeholder constant in everything but name (329 buys the count by
+   adding a data structure the game does not have; rejected while recording
+   that it confirms the mechanism, so nobody banks it later).
+   Open question, unanswered: retail keeps the six constants live in
+   callee-saved registers across the draw sequence; b210 folds them into
+   the argument lists; a real memory source for them would reproduce it but
+   no such memory exists in retail, so the live range must come from the
+   source SHAPE. What shape gives a literal a long live range without
+   inventing storage for it is unknown.
+   Installed floor below is the best legitimate shape at 323/77 edits +2
+   reloc-only, 300 words: decl cc0/cc1/c3/c0/c1/c2/sel, fy retail order,
+   k = stackd0+4 (retail 0xDC, was +12 reading the wrong byte per M2C
+   spDC and helper sb 0x4), sel draw if (sel != 0) (retail beqz $18 skip,
+   table draws 0x1CA8; was ==0 inverted), stackd0[144] as minimal size
+   giving retail 0x160 frame (helper writes to 0x38 need >=60, IDA gap
+   D8-158 suggests 128; 144 chosen for frame match, still safe). Remaining:
+   missing $f22 save/reload (object lwc1 $f13 vs mov.s $f13,$f22), bnez vs
+   bgtz on k (u32 !=0 vs signed >0), pos[1]=pos[1] self-keep vs re-store,
+   and internal offsets (stack90 at 0x150 vs retail 0xD0). Banked as floor.
 // FUN_00137890 NONMATCHING
 #ifdef NON_MATCHING
 void func_00137890(u8 *arg0, s32 arg1)
@@ -923,16 +914,16 @@ void func_00137890(u8 *arg0, s32 arg1)
     f32 fa;
     u32 alpha;
     s16 count;
+    u8 cc0;
+    u8 cc1;
+    u8 c3;
     u8 c0;
     u8 c1;
     u8 c2;
-    u8 c3;
-    u8 cc0;
-    u8 cc1;
     u8 sel;
     f32 pos[2];
     u8 stack90[8];
-    u8 stackd0[16];
+    u8 stackd0[144];
     u32 div;
     u32 ualpha;
     u32 ubase;
@@ -943,7 +934,7 @@ void func_00137890(u8 *arg0, s32 arg1)
     }
     idx = arg1;
     fx = (*(f32 *)(arg0 + 4) + *(f32 *)(arg0 + idx * 0x30 + 0x10C4)) - 10.0f;
-    fy = (f32)idx * 30.0f + *(f32 *)(arg0 + 8) + *(f32 *)(arg0 + idx * 0x30 + 0x10C8);
+    fy = *(f32 *)(arg0 + 8) + *(f32 *)(arg0 + idx * 0x30 + 0x10C8) + (f32)idx * 30.0f;
     ualpha = *(u8 *)(arg0 + idx * 0x30 + 0x10CE);
     ubase = *arg0;
     fa = (f32)ualpha * ((f32)ubase / 255.0f);
@@ -984,7 +975,7 @@ void func_00137890(u8 *arg0, s32 arg1)
         pos[0] = fx + 89.0f;
         pos[1] = pos[1];
         func_0034f2e0(*(u8 **)(arg0 + 0x1C60), pos[0], pos[1], c0, c1, c2, alpha);
-        k = *(u8 *)(stackd0 + 12);
+        k = *(u8 *)(stackd0 + 4);
         pos[0] = fx + 72.0f;
         pos[1] = fy + 26.0f;
         do {
@@ -993,7 +984,7 @@ void func_00137890(u8 *arg0, s32 arg1)
             pos[0] -= 22.0f;
             k /= 10;
         } while (k != 0);
-        if (sel == 0) {
+        if (sel != 0) {
             pos[0] = fx + 24.0f;
             pos[1] = fy + 33.0f;
             func_0034f2e0(*(u8 **)(arg0 + 0x1CA8), pos[0], pos[1], c3, cc0, cc1, alpha);

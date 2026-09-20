@@ -143,25 +143,89 @@ class MultimediaTests(unittest.TestCase):
         self.assertIsNone(eedis.multimedia(bytes.fromhex("20FBBD27")))
 
 
+class VectorUnitTests(unittest.TestCase):
+    """COP2 macro mode - how EE code drives VU0 from the main pipeline.  Four
+    thousand instructions across the tree, every one opaque to capstone.
+    Words below come from the tree's own listings."""
+
+    def test_a_broadcast_op_names_its_component(self) -> None:
+        self.assertEqual(
+            eedis.vector_unit(bytes.fromhex("D85AE24B")).split()[0], "vmulx.xyzw")
+
+    def test_a_plain_op_and_a_broadcast_op_are_distinguished(self) -> None:
+        """`vmul` and `vmulx` differ only in the function field's low bits;
+        conflating them would match two different instructions."""
+        plain = eedis.vector_unit(bytes.fromhex("2A12E44B")).split()[0]
+        broadcast = eedis.vector_unit(bytes.fromhex("D85AE24B")).split()[0]
+        self.assertEqual(plain, "vmul.xyzw")
+        self.assertNotEqual(plain, broadcast)
+
+    def test_the_dest_mask_is_decoded_not_assumed(self) -> None:
+        self.assertEqual(
+            eedis.vector_unit(bytes.fromhex("8302C04B")).split()[0], "vaddw.xyz")
+        self.assertEqual(
+            eedis.vector_unit(bytes.fromhex("9802204A")).split()[0], "vmulx.w")
+
+    def test_the_special_table_is_reached_by_fd_shifted_plus_low_bits(self) -> None:
+        """Functions 0x3C-0x3F escape to a second table whose opcode is
+        `(fd << 2) | (function & 3)`.  Getting that formula wrong puts every
+        special op on the wrong name."""
+        for word, want in (("3C53EB4B", "vmove.xyzw"), ("3C59EB4B", "vitof0.xyzw")):
+            self.assertEqual(eedis.vector_unit(bytes.fromhex(word)).split()[0], want)
+
+    def test_scalar_and_control_ops_carry_no_dest_suffix(self) -> None:
+        """These reuse the dest field, so printing an xyzw suffix invents a
+        distinction the hardware does not make - 245 disagreements when the
+        table first went in."""
+        self.assertEqual(eedis.vector_unit(bytes.fromhex("FF02004A")), "vnop")
+
+    def test_a_non_cop2_word_is_left_alone(self) -> None:
+        self.assertIsNone(eedis.vector_unit(bytes.fromhex("20FBBD27")))
+
+
+class ExtendedFormTests(unittest.TestCase):
+    def test_the_ee_three_operand_multiply_decodes(self) -> None:
+        """`mult` on the EE writes a third register as well as hi/lo, and
+        capstone rejects the encoding whenever that field is non-zero - 662
+        instructions, the single largest undecoded form."""
+        self.assertEqual(eedis.extended_forms(bytes.fromhex("18106200")),
+                         "mult $v0, $v1, $v0")
+
+    def test_a_two_operand_multiply_is_left_to_capstone(self) -> None:
+        word = (0x00 << 26) | (3 << 21) | (2 << 16) | 0x18
+        self.assertIsNone(eedis.extended_forms(word.to_bytes(4, "little")))
+
+    def test_the_cop0_interrupt_pair_decodes(self) -> None:
+        self.assertEqual(eedis.extended_forms(bytes.fromhex("38000042")), "ei")
+        self.assertEqual(eedis.extended_forms(bytes.fromhex("39000042")), "di")
+
+    def test_vu_control_moves_are_distinguished_from_macro_mode(self) -> None:
+        self.assertEqual(
+            eedis.extended_forms(bytes.fromhex("00A8C448")).split()[0], "ctc2.ni")
+        self.assertEqual(
+            eedis.extended_forms(bytes.fromhex("00E04448")).split()[0], "cfc2.ni")
+
+
 class UndecodedTests(unittest.TestCase):
-    """118 forms - the MMI integer ops, VU macro-mode, the EE three-operand
-    `mult` - remain unknown to capstone.  Naming them is a refinement; not
-    collapsing them onto one token is a correctness requirement."""
+    """Seven rare forms remain unknown - `mtsab`, `mtsah`, `mfsa`, `mtsa`,
+    `phmadh`, `pexew`, and a `c1` the listing itself will not name.  Naming
+    them is a refinement; not collapsing them onto one token is a correctness
+    requirement, and that property must survive every table added above."""
 
     def test_two_different_unknown_words_do_not_compare_equal(self) -> None:
         disassemble = eedis.build(lambda word, pc: "??")
-        vmulx = disassemble(bytes.fromhex("D85AE24B"), 0)
-        vadd = disassemble(bytes.fromhex("A852EB4B"), 0)
-        self.assertNotEqual(vmulx, vadd)
+        mtsab = disassemble(bytes.fromhex("00001805"), 0)
+        mfsa = disassemble(bytes.fromhex("28100000"), 0)
+        self.assertNotEqual(mtsab, mfsa)
 
     def test_the_same_unknown_word_compares_equal_at_any_address(self) -> None:
         disassemble = eedis.build(lambda word, pc: "??")
-        word = bytes.fromhex("D85AE24B")
+        word = bytes.fromhex("00001805")
         self.assertEqual(disassemble(word, 0x1852f0), disassemble(word, 0x400))
 
     def test_an_unknown_word_is_rendered_as_its_own_raw_word(self) -> None:
         disassemble = eedis.build(lambda word, pc: "??")
-        self.assertEqual(disassemble(bytes.fromhex("D85AE24B"), 0), ".word 0x4be25ad8")
+        self.assertEqual(disassemble(bytes.fromhex("00001805"), 0), ".word 0x05180000")
 
 
 class WrapperTests(unittest.TestCase):

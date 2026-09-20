@@ -116,6 +116,7 @@ MMI_DIRECT = {
     0x18: ("mult1", "dst"), 0x19: ("multu1", "dst"),
     0x1A: ("div1", "st"), 0x1B: ("divu1", "st"),
     0x20: ("madd1", "dst"), 0x21: ("maddu1", "dst"),
+    0x00: ("madd", "dst"), 0x01: ("maddu", "dst"),
     0x28: ("mmi1", "dst"), 0x29: ("pcpyh", "dt"),
     0x30: ("pmfhl", "d"), 0x31: ("pmthl", "s"),
     0x34: ("psllh", "dta"), 0x36: ("psrlh", "dta"), 0x37: ("psrah", "dta"),
@@ -123,7 +124,11 @@ MMI_DIRECT = {
 }
 MMI0 = {0x01: "psubw", 0x02: "pcgtw", 0x03: "pmaxw", 0x16: "pextlh",
         0x1A: "pextlb", 0x00: "paddw", 0x04: "paddh", 0x05: "psubh",
-        0x09: "psubb", 0x08: "paddb", 0x1E: "pext5", 0x1F: "ppac5"}
+        0x09: "psubb", 0x08: "paddb", 0x1E: "pext5", 0x1F: "ppac5",
+        0x06: "pcgth", 0x07: "pmaxh", 0x0A: "pcgtb", 0x10: "paddsw",
+        0x11: "psubsw", 0x12: "pextlw", 0x13: "ppacw", 0x14: "paddsh",
+        0x15: "psubsh", 0x17: "ppach", 0x18: "paddsb", 0x19: "psubsb",
+        0x1B: "ppacb"}
 MMI2 = {0x0E: "pcpyld", 0x12: "pand", 0x13: "pxor", 0x1F: "prot3w",
         0x0A: "pmsubw", 0x00: "pmaddw", 0x09: "pmfhi", 0x1A: "pmflo"}
 MMI3 = {0x0E: "pcpyud", 0x12: "por", 0x13: "pnor", 0x1B: "pcpyh",
@@ -173,6 +178,123 @@ def multimedia(word: bytes) -> str | None:
             "dta": f"{mnemonic} {rd}, {rt}, {sa}"}[shape]
 
 
+# COP2 macro mode: opcode 0x12 with the CO bit set.  This is how EE code
+# drives VU0 from the main pipeline, and capstone decodes none of it - 4000
+# instructions across the tree, every one of them opaque.  The encoding is
+# regular: bits 24-21 are the xyzw destination mask, and functions 0x3C-0x3F
+# escape to a second table whose opcode is `(fd << 2) | (function & 3)`.
+BROADCAST = "xyzw"
+VU_BASE = {
+    0x00: "vadd", 0x04: "vsub", 0x08: "vmadd", 0x0C: "vmsub",
+    0x10: "vmax", 0x14: "vmini", 0x18: "vmul",
+}
+VU_DIRECT = {
+    0x1C: "vmulq", 0x1D: "vmaxi", 0x1E: "vmuli", 0x1F: "vminii",
+    0x20: "vaddq", 0x21: "vmaddq", 0x22: "vaddi", 0x23: "vmaddi",
+    0x24: "vsubq", 0x25: "vmsubq", 0x26: "vsubi", 0x27: "vmsubi",
+    0x28: "vadd", 0x29: "vmadd", 0x2A: "vmul", 0x2B: "vmax",
+    0x2C: "vsub", 0x2D: "vmsub", 0x2E: "vopmsub", 0x2F: "vmini",
+    0x30: "viadd", 0x31: "visub", 0x32: "viaddi", 0x34: "viand",
+    0x35: "vior", 0x38: "vcallms", 0x39: "vcallmsr",
+}
+VU_SPECIAL = {
+    0x00: "vadda", 0x04: "vsuba", 0x08: "vmadda", 0x0C: "vmsuba",
+    0x10: "vitof0", 0x11: "vitof4", 0x12: "vitof12", 0x13: "vitof15",
+    0x14: "vftoi0", 0x15: "vftoi4", 0x16: "vftoi12", 0x17: "vftoi15",
+    0x18: "vmula", 0x1C: "vmulaq", 0x1D: "vabs", 0x1E: "vmulai",
+    0x1F: "vclipw", 0x20: "vaddaq", 0x21: "vmaddaq", 0x22: "vaddai",
+    0x23: "vmaddai", 0x24: "vsubaq", 0x25: "vmsubaq", 0x26: "vsubai",
+    0x27: "vmsubai", 0x28: "vadda", 0x29: "vmadda", 0x2A: "vmula",
+    0x2C: "vsuba", 0x2D: "vmsuba", 0x2E: "vopmula", 0x2F: "vnop",
+    0x30: "vmove", 0x31: "vmr32", 0x34: "vlqi", 0x35: "vsqi",
+    0x36: "vlqd", 0x37: "vsqd", 0x38: "vdiv", 0x39: "vsqrt",
+    0x3A: "vrsqrt", 0x3B: "vwaitq", 0x3C: "vmtir", 0x3D: "vmfir",
+    0x3E: "vilwr", 0x3F: "viswr", 0x40: "vrnext", 0x41: "vrget",
+    0x42: "vrinit", 0x43: "vrxor",
+}
+# The broadcast families occupy four consecutive slots each, one per field.
+for _base, _name in VU_BASE.items():
+    for _i in range(4):
+        VU_DIRECT.setdefault(_base + _i, _name + BROADCAST[_i])
+for _base, _name in ((0x00, "vadda"), (0x04, "vsuba"), (0x08, "vmadda"),
+                     (0x0C, "vmsuba"), (0x18, "vmula")):
+    for _i in range(4):
+        VU_SPECIAL[_base + _i] = _name + BROADCAST[_i]
+
+
+# These reuse the dest field for other purposes (the `fsf`/`ftf` component
+# selectors, or nothing at all), so printing an xyzw suffix on them invents a
+# distinction the hardware does not make - which the audit caught as 245
+# disagreements the moment the VU table went in.
+VU_NO_DEST = {
+    "vnop", "vwaitq", "vdiv", "vsqrt", "vrsqrt", "vmtir", "vmfir",
+    "vilwr", "viswr", "vrnext", "vrget", "vrinit", "vrxor", "vclipw",
+    "viadd", "visub", "viaddi", "viand", "vior", "vcallms", "vcallmsr",
+}
+
+
+def _mask(dest: int) -> str:
+    return "".join(c for c, bit in zip(BROADCAST, (8, 4, 2, 1)) if dest & bit)
+
+
+def vector_unit(word: bytes) -> str | None:
+    """COP2 macro-mode text for WORD, or None when it is something else."""
+    if len(word) < 4:
+        return None
+    value = struct.unpack("<I", word[:4])[0]
+    if value >> 26 != 0x12 or not (value >> 25) & 1:
+        return None
+    dest, function = (value >> 21) & 0xF, value & 0x3F
+    ft, fs, fd = (value >> 16) & 0x1F, (value >> 11) & 0x1F, (value >> 6) & 0x1F
+    if function >= 0x3C:
+        mnemonic = VU_SPECIAL.get((fd << 2) | (function & 3))
+        if mnemonic is None:
+            return None
+        if mnemonic in VU_NO_DEST:
+            return f"{mnemonic} $vf{ft}, $vf{fs}".rstrip(", $vf0") \
+                if mnemonic in ("vmtir", "vmfir", "vilwr", "viswr") else mnemonic
+        return f"{mnemonic}.{_mask(dest)} $vf{ft}, $vf{fs}"
+    mnemonic = VU_DIRECT.get(function)
+    if mnemonic is None:
+        return None
+    if mnemonic in VU_NO_DEST:
+        return f"{mnemonic} $vf{fd}, $vf{fs}, $vf{ft}"
+    suffix = f".{_mask(dest)}" if dest else ""
+    return f"{mnemonic}{suffix} $vf{fd}, $vf{fs}, $vf{ft}"
+
+
+# Three more families capstone will not take.  `mult`/`multu`/`madd`/`maddu`
+# on the EE write a THIRD register as well as hi/lo, and capstone rejects the
+# encoding whenever that field is non-zero - 719 instructions.  `ei`/`di` are
+# COP0 interrupt-enable.  `cfc2`/`ctc2` move to and from VU control registers.
+SPECIAL_MULTIPLY = {0x18: "mult", 0x19: "multu", 0x1C: "madd", 0x1D: "maddu"}
+COP0_INTERRUPT = {0x38: "ei", 0x39: "di"}
+COP2_CONTROL = {0x02: "cfc2.ni", 0x06: "ctc2.ni"}
+
+
+def extended_forms(word: bytes) -> str | None:
+    """EE forms capstone rejects or does not know, outside MMI and COP2 macro."""
+    if len(word) < 4:
+        return None
+    value = struct.unpack("<I", word[:4])[0]
+    opcode, rs = value >> 26, (value >> 21) & 0x1F
+    rt, rd = (value >> 16) & 0x1F, (value >> 11) & 0x1F
+    if opcode == 0x00 and rd:
+        mnemonic = SPECIAL_MULTIPLY.get(value & 0x3F)
+        if mnemonic is not None:
+            return (f"{mnemonic} {REGISTERS[rd]}, {REGISTERS[rs]}, "
+                    f"{REGISTERS[rt]}")
+    if opcode == 0x10 and rs == 0x10:
+        mnemonic = COP0_INTERRUPT.get(value & 0x3F)
+        if mnemonic is not None:
+            return mnemonic
+    if opcode == 0x12 and not (value >> 25) & 1:
+        mnemonic = COP2_CONTROL.get(rs)
+        if mnemonic is not None:
+            return f"{mnemonic} {REGISTERS[rt]}, ${rd}"
+    return None
+
+
 def build(capstone_disassemble):
     """Wrap a capstone-backed decoder with the EE forms it does not know.
 
@@ -190,7 +312,8 @@ def build(capstone_disassemble):
     """
 
     def disassemble(word: bytes, pc: int) -> str:
-        for decoder in (quadword_access, fpu_accumulate, multimedia):
+        for decoder in (quadword_access, fpu_accumulate, multimedia,
+                        vector_unit, extended_forms):
             text = decoder(word)
             if text is not None:
                 return text
