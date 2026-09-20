@@ -233,6 +233,7 @@ s32 func_00131910(u8 *arg0) {
 /* Front-load s16 counters, counted fors, if-chains (no jtbl/jr except */
 /* return; slti 5/3 bounds are if-chains, not sltiu+j.tbl). Not banked. */
 /* measured: candidate object 2567 instrs/retail 2732 instrs (10268B/10928B window 10928B, 165 short 6.0%), probe reloc-masked 2472 words (guard below, NON_MATCHING so production stays ASM; fnalign retail 2729/object 2567). Frame 0x100 vs retail 0x110 (extra f26/f27 saves from 8 live floats); inlined (f32)int for 0x212/0x226/0x1D1/0x195/0x25F/0x171/0x25E + float for rest (was double jal chains, six sites +1407 fixed); explicit (u16)/(u8) guards kept (adds vs single, 3x+43 kept to stay near gate); CONCAT44+fptodp kept for 11 Vec2f ld sites (adds vs ld, 11x~12). Call counts match retail 8x0034f320/20x0034f2e0/4x00274ed0/4x00112300/4x001125d0; block order 0x1000/0x400/0x800/0x80/0x100/0x200/0x04/0x10/0x08/0x02/0x2000/0x01/0x40; s16 counters front-loaded, counted fors for<3/for<5, if-chains (no jtbl). Largest TRUE hole 76 at 0x131C6C (lhu clamp, <100); 1916 hole is difflib misalignment from repeated lbu/mul/c.le blocks (call counts prove no missing functionality). Short by 83 vs 2650 min at 0x33D7C 9-instr site (object 9-15 vs retail 9, now matching, cumulative small diffs); no padding. */
+/* measured(2026-09-19): sb->sh at 0x131B44 (u16 0x1c/0x1e): fnalign 4435->4431 (-4), guarded 2472->2466 (-6), tail structure 81->79, object 2567->2565 (-2). Missing retail 0x00132F5C second 0x20 (lw/andi/beqz + sh 0xF6, 15 instrs) absent in object (1 vs 2 andi 0x20); broad opt_common_subs off restores it but moves to 3231 edits/2838 instrs/frame 0xC0, not installed. */
 // FUN_00131A00 NONMATCHING
 #ifdef NON_MATCHING
 void func_00131a00(u8 *arg0)
@@ -312,10 +313,8 @@ void func_00131a00(u8 *arg0)
   }
   if ((*(u32 *)(pbVar8 + 0x1c) & 0x1000) != 0) {
     pbVar7 = *(u8 **)(pbVar8 + 0x157c);
-    pbVar7[0x1c] = 0x3d;
-    pbVar7[0x1d] = 0;
-    pbVar7[0x1e] = 0x3f;
-    pbVar7[0x1f] = 0;
+    *(u16 *)(pbVar7 + 0x1c) = 0x3d;
+    *(u16 *)(pbVar7 + 0x1e) = 0x3f;
     fStack_8 = temp_v15 + *(f32 *)(pbVar8 + 0x1260) + (f32)0x212;
     fStack_4 = (temp_v16 + *(f32 *)(pbVar8 + 0x1264)) - 3.0f;
     temp_v9 = (f32)pbVar8[0x126a] * temp_v17;

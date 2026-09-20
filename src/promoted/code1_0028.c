@@ -1257,6 +1257,10 @@ found:
 }
 /* measured: restore propagation for the rest of the unit. */
 #pragma opt_propagation on
+/* measured 0028c580 (owner, 2026-09-19): fnalign **394 -> 392 edits**, count
+   586 -> 584 against retail 592, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits - no guard before the first iteration, one compare
+   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
 // FUN_0028C580 NONMATCHING
 #ifdef NON_MATCHING
 void func_0028c580(u8 *arg0, u8 *arg1, u8 *arg2) {
@@ -1287,7 +1291,8 @@ void func_0028c580(u8 *arg0, u8 *arg1, u8 *arg2) {
     if (((( *(u16 *)arg1 & 0xFFC00) >> 10) == 3)) {
         func_0014a300(*(u16 *)arg1, 0);
     }
-    for (i = 0; i < 3; i++) {
+    i = 0;
+    do {
         p = (u8 *)D_00882210 + i * 0x40;
         if (*(s32 *)p == 3 && *(u8 **)(p + 4) == arg1) {
             slot = i;
@@ -1296,7 +1301,8 @@ void func_0028c580(u8 *arg0, u8 *arg1, u8 *arg2) {
             }
             break;
         }
-    }
+        i++;
+    } while (i < 3);
     if (slot == -1 && (((( *(u16 *)arg1 & 0xFFC00) >> 10)) != 0xC)) {
         for (j = 0; j < 3; j++) {
             if (*(s32 *)((u8 *)D_00882210 + j * 0x40) == 2) {

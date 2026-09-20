@@ -311,6 +311,10 @@ void func_004aec80(u8 *arg0)
 /* vs half/full/gscale pressure remains - next hoist is half after snapshots. */
 /* Commands: floor_distance src/Graphics/Effect/effObjectParticle.c, regsave_scan */
 /* src/Graphics/Effect/effObjectParticle.c func_004aed70. */
+/* measured 004aed70 (owner, 2026-09-19): fnalign **486 -> 485 edits**, count
+   491 -> 489 against retail 491, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits - no guard before the first iteration, one compare
+   at the bottom.  Second pass of the sweep: 13 of 69 further floors improved. */
 // FUN_004AED70 NONMATCHING
 #ifdef NON_MATCHING
 void func_004aed70(u8 *arg0)
@@ -383,9 +387,11 @@ void func_004aed70(u8 *arg0)
         f32 half = 0.5f;
         func_00492df0(tmp4, snapA);
         func_004bceb0();
-        for (i = 0; i < 12; i++) {
+        i = 0;
+        do {
             base[i] = snap[i];
-        }
+            i++;
+        } while (i < 12);
         k = 0;
         while (k < cnt) {
             if (*(s32 *)(p18 + 0x10) >= 0) {
@@ -583,7 +589,6 @@ void func_004aed70(u8 *arg0)
     }
     func_004813f0();
 }
-
 #else
 INCLUDE_ASM("asm/nonmatchings/effObjectParticle", func_004aed70);
 #endif

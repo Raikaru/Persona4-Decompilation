@@ -599,6 +599,17 @@ lever is going to be recorded as not applying, the instrument that produced
 the negative has to be as good as the one that would have produced the
 positive.
 
+**For a jump-table switch, the right order is retail's TABLE LAYOUT order,
+not ascending.**  This is the resolution of the contradiction above, and it
+is the single largest structural win measured in this tree: on
+`func_0023a6b0`, reordering cases 8-15 to the layout the jump table actually
+uses - 9, 8, 10, 13, 11, 15, 14, 12 per `jtbl_00747C40`, verified
+value-by-value against each arm's address - is worth **824 edits** on its own
+(1952 -> 1128) and is count-neutral.  Ascending order is what a lowered
+*chain* wants; a jump table already encodes its own order, and the source has
+to agree with it.  Read the table out of the disassembly rather than
+guessing, and check each arm's body address against the entry it claims.
+
 Blanket-sorting a switch that is ALREADY in the body is a loser, which is
 the other half of the same rule.  Seventy-two first-party floors carry a
 switch whose cases are not ascending; sorting the arms of the biggest ones

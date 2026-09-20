@@ -424,6 +424,15 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002e8410);
    loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
    was ever the right one, so each loop is measured separately rather than converting
    them all. */
+/* measured 002e90d0 (2026-09-19, follow-up): fnalign **3141 -> 3114 edits** (-27),
+   guarded 1803 -> 1793 (-10), object 2157 -> 2145 (retail 2152, trimmed 2150),
+   tail_classify structure 129 -> 127.  Checked the other 10 `for` loops singly
+   with the same bottom-tested lever (`temp_v9 = 0; do { ...; temp_v9++; } while (cond);):
+   three stack - loop0 (0x20 `b7` variable-bound, 3125, -16), 0x18-middle bound-3
+   (3118, -7 on top), 0x16 bound-2 twin of the banked loop (3114, -4 on top).
+   A fourth b7 (0x1b-first, 3111, -3) was reverted: fndiff 1793 -> 1810 (+17).
+   Spellings: `++` footer 3125 vs `= +1` 3138 (++ kept); `u8 temp_v10` 3125 (no help);
+   `s32 temp_v9` 3076 but object 2075 vs retail 2150 fails the 2087-2217 gate (reject). */
 // FUN_002E90D0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002e90d0(u8 *arg0)
@@ -529,12 +538,14 @@ void func_002e90d0(u8 *arg0)
     temp_v4 = func_002bb680((s8)base[0xd]);
     if (temp_v4 == 0) {
       func_002bb550((s8)base[0xd]);
-      for (temp_v9 = 0; (s32)temp_v9 < (s8)base[0xb7]; temp_v9 = temp_v9 + 1) {
+      temp_v9 = 0;
+      do {
         temp_v4 = temp_v9 * 2;
         func_002b2970((s64 *)&stk_d8,26.0,(float)((temp_v9 * 0x10 + (s32)temp_v9) * 2 + 0x57));
         func_003147e0(arg0,(s8)temp_v9 + '\x04',stk_d8,*(u16 *)(base + temp_v4 + 0xb8),
                      (s16)temp_v4,0);
-      }
+        temp_v9++;
+      } while ((s32)temp_v9 < (s8)base[0xb7]);
       func_002b2a60(&bStack_40,0xc6,0xee,1,0xff);
       te = func_002b6150(((s8)base[0xb6] + 4) * 2 + 0x1f5);
       *(u8 *)(te + 0x85) = bStack_40;
@@ -884,13 +895,15 @@ void func_002e90d0(u8 *arg0)
                 }
                 else {
                   func_0045af60(0,0,0,1);
-                  for (temp_v9 = 0; temp_v9 < 3; temp_v9 = temp_v9 + 1) {
+                  temp_v9 = 0;
+                  do {
                     temp_v4 = temp_v9 * 2;
                     func_002b2970((s64 *)&stk_b0,26.0,
                                   (float)((temp_v9 * 0x10 + (s32)temp_v9) * 2 + 0x57));
                     func_003147e0(arg0,(s8)temp_v9,stk_b0,
                                  *(u16 *)(base + temp_v4 + 0xb8),(s16)temp_v4,1);
-                  }
+                    temp_v9++;
+                  } while (temp_v9 < 3);
                   temp_v10 = base[0xb3];
                   if (temp_v10 == '\x02') {
                     func_00315600(arg0,1);
@@ -1033,14 +1046,16 @@ void func_002e90d0(u8 *arg0)
       func_002bb550((s8)base[0xd]);
       func_00106390(*(s32 *)(D_00641870 + (s8)base[0x13f]*8 + 4),1);
       temp_v10 = -1;
-      for (temp_v9 = 0; temp_v9 < 2; temp_v9 = temp_v9 + 1) {
+      temp_v9 = 0;
+      do {
         temp_v6 = func_00106330(*(u32 *)(D_00641870 + temp_v9*8 + 4));
         if ((temp_v6 == 0) &&
            (temp_v12 = func_00109190(), (float)(s32)*(s8 *)(D_00641870 + temp_v9*8) <= temp_v12 * 100.0
            )) {
           temp_v10 = (s8)temp_v9;
         }
-      }
+        temp_v9++;
+      } while (temp_v9 < 2);
       base[0x13f] = temp_v10;
       if (temp_v10 == -1) {
         base[1] = 0x17;
