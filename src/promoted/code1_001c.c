@@ -19,6 +19,17 @@ struct RwV3d {
     f32 z;
 };
 
+typedef struct P4Vec4_001EC2B0 { f32 x, y, z, w; } P4Vec4_001EC2B0;
+typedef struct P4Vec4Holder_001EC2B0 { P4Vec4_001EC2B0 quat; } P4Vec4Holder_001EC2B0;
+typedef struct P4CameraFrame { RwV3d pos; P4Vec4Holder_001EC2B0 rot; } P4CameraFrame;
+typedef struct P4CameraBlend {
+    P4Vec4Holder_001EC2B0 first, second;
+    f32 scalar;
+    s32 flag;
+} P4CameraBlend;
+typedef struct P4CameraVec2 { f32 x, y; } P4CameraVec2;
+
+
 struct RwMatrixTag {
     RwV3d right;
     u32 flags;
@@ -358,215 +369,129 @@ INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c04e0);
 #endif
 // FUN_001C09A0
 void func_001c09a0(void) {}
-/* Sine-poly camera floor (1168B window; obj 1156B probe 34 fnalign 40; width check
-   2026-09-19: no dsll/dsra pairs, clean; frame -0xF0 matches retail). Open:
-   accumulator-chain fusion (mula/madd/adda/msub via Horner + 0.0f seeds), saved-reg
-   pressure, scheduler ordering. Chains decoded from retail to zero-seeded Horner sine
-   polys (coeffs iGpffff8054-8108/8180); closed forms cross-checked against IDA Hex-Rays
-   + Ghidra bodies. Spill model: 1bd560 writes sp40-sp58, 194ff0 writes spC8-spD0, 1bd780
-   writes sp68-sp77, 3dcc70 writes sp80-spA4 (incl. spA0/A4). Family 7z (stores the compiler
-   deleted as UB: loose scalars overflow callee writes, uninit f20poly/sp48 reads) / 7x
-   (sd deficit tell: retail ld/sd pairs vs few-field assigns; whole-aggregate copy restores).
-   Prior 900B/261 now 1156B/34 with explicit-frame struct; numbers reproducible with --candidate on extracted body.
-*/
-/* gate: object 289 against retail 289, +0.0% - INSIDE
-   the +-3% band (280-296). fnalign 40 edits (+18 reloc-only)
-   via `python3 tools/fnalign.py src/promoted/code1_001c.c func_001c09b0 --candidate <body> --quiet`.
-   Prior 225/288 (-21.9%, 63 short, 183 edits) recovered via explicit-frame struct. */
-/* measured 001c09b0 (owner, 2026-09-19): 289/289 exact, **34 edits**, and the most
-   structural floor in the near-MATCH tail - tools/tail_classify.py counts 14 structural
-   hunks against 14 register ones, where most tail floors are almost pure rotation.
-   Two shapes account for nearly all of it and both were attacked and both refused:
-     (a) retail batches a three-float copy - `lwc1 $f3/$f2/$f1` then `swc1` x3 - where the
-         object interleaves load/store per component.  Three named temporaries measure 35,
-         and a 12-byte struct assignment through a local `Trio001c09b0` type measures 40.
-     (b) retail spells the float guards `c.ole.s` + `bc1t` where the object emits
-         `c.olt.s` + `bc1f`.  Rewriting `a < b` as `!(b <= a)` measures 37 at the first
-         site, 43 at the second, 42 at the third and 42 with all three together.
-   So the 34 stands and the `c.ole.s` shape here is NOT the same lever as the
-   float-to-unsigned guard, which really does respond to constant-on-the-left spelling
-   (func_003768e0, 677 -> 658).  Two comparisons that look identical in the listing, one
-   source-addressable and one not. */
-// FUN_001C09B0 NONMATCHING
-#ifdef NON_MATCHING
-void func_001c09b0(u8 *arg0)
+/* Ported from current P3FES src/Battle/btlCamera.c btlCameraFrameActionTarget
+ * (0x002a7390, donor 04d95e2). Historical donor verification is
+ * recorded in the recovery note; no fresh P3 retail run is claimed.
+ * Complete pose and quaternion objects retain the retail copy boundaries.
+ * measured: 1156/1168 bytes; all executable bytes and relocations exact. */
+// FUN_001C09B0
+void func_001c09b0(u8* camera)
 {
-    extern u8 D_0060A0E0[];
-    extern u8 D_0060A100[];
-    extern void func_001bd560(f32 *arg0, f32 *arg1);
-    extern void func_00194ff0(u8 *arg0, u8 *arg1, f32 *arg2, f32 *arg3);
-    extern void func_001bd780(void *arg0, void *arg1, void *arg2, void *arg3);
-    extern f32 func_001ec2b0(f32 *arg0, f32 *arg1);
-    extern f32 func_003dcc70(f32 *arg0, f32 *arg1, f32 *arg2);
-    extern void func_003dcb40(s64 *arg0, s64 *arg1, s32 arg2, u8 *arg3);
-    extern void func_003dc740(u8 *arg0, u8 *arg1, s32 arg2, f32 farg);
-    extern f32 func_0044b868(f32 arg0);
-    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
-    extern f32 fGpffff815c;
-    extern f32 fGpffff804c;
-    extern f32 fGpffff8160;
-    extern f32 fGpffff818c;
-    extern f32 fGpffff8110;
+    extern void func_001bd560(f32*, f32*);
+    extern void func_00194ff0(u8*, u8*, f32*, f32*);
+    extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
+    extern void func_003dcc70(f32*, f32*, void*);
+    extern f32 func_0044b868(f32);
+    extern f32 func_003e41e0(f32*, f32*);
+    extern f32 fGpffff8118, fGpffff815c, fGpffff804c, fGpffff8160, fGpffff8110, fGpffff818c;
     extern f32 fGpffff8180;
-    extern f32 fGpffff8054;
-    extern f32 fGpffff8058;
-    extern f32 fGpffff805c;
-    extern f32 fGpffff8060;
-    extern f32 fGpffff8108;
-    extern f32 fGpffff8118;
+    extern f32 fGpffff8054, fGpffff8058, fGpffff805c, fGpffff8060, fGpffff8108;
+    extern RtQuat* func_003dc740(RtQuat*, const RwV3d*, f32, s32);
+    f32 horiz[2];
+    RwV3d eyeAdj;
+    RwV3d center;
+    P4Vec4Holder_001EC2B0 blended;
+    P4CameraBlend blend;
+    P4CameraFrame frames[2];
+    u8* unit;
+    f32 height;
+    f32 angle;
+    f32 ratio;
+    f32 w1;
+    f32 x;
+    f32 x2;
+    f32 r;
+    f32 r2;
+    f32 dist;
+    f32 sideOffset;
 
-    struct {
-        f32 sp40;
-        f32 sp44;
-        f32 sp48;
-        f32 sp4C;
-        f32 sp50;
-        f32 sp54;
-        f32 sp58;
-        f32 sp5C;
-        f32 sp60;
-        f32 sp64;
-        f32 sp68;
-        f32 sp6C;
-        f32 sp70;
-        f32 sp74;
-        f32 sp78;
-        f32 sp7C;
-        f32 sp80;
-        f32 sp84;
-        f32 sp88;
-        f32 sp8C;
-        f32 sp90;
-        f32 sp94;
-        f32 sp98;
-        f32 sp9C;
-        f32 spA0;
-        s32 spA4;
-        u8 pad_A8[0x8];
-        f32 spB0;
-        f32 spB4;
-        f32 spB8;
-        f32 spBC;
-        f32 spC0;
-        f32 spC4;
-        f32 spC8;
-        f32 spCC;
-        f32 spD0;
-        f32 spD4;
-        f32 spD8;
-        f32 spDC;
-        f32 spE0;
-        f32 spE4;
-        f32 spE8;
-        f32 spEC;
-    } frame;
-
-    u8 *work;
-    f32 temp_f0;
-    f32 temp_f1;
-    f32 temp_f2;
-    f32 temp_f3;
-    f32 temp_f4;
-    f32 t;
-
-    work = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
-    func_001bd560(&frame.sp40, (f32 *)(arg0 + 0x9C));
-    func_00194ff0(work, (u8 *)&frame.spC8, NULL, NULL);
-    frame.spCC = *(f32 *)(work + 0x84) * *(f32 *)(work + 0x2C) +
-                 fGpffff8118 * (*(f32 *)(work + 0x8C) * *(f32 *)(work + 0x2C));
-    *(s64 *)&frame.spD8 = *(s64 *)&frame.sp40;
-    frame.spE0 = frame.sp48;
-    frame.spDC = frame.spCC;
-    func_001bd780(&frame.sp68, &frame.spD8, &frame.spC8, D_0060A0E0);
-    temp_f0 = func_001ec2b0(&frame.sp4C, &frame.sp68);
-
-    if (fGpffff815c < temp_f0) {
-        t = fGpffff815c / temp_f0;
-        func_003dcc70(&frame.sp4C, &frame.sp68, &frame.sp80);
-
-        if (t <= 0.0f) {
-            frame.spB0 = frame.sp4C;
-            frame.spB4 = frame.sp50;
-            frame.spB8 = frame.sp54;
-            frame.spBC = frame.sp58;
-        } else if (t >= 1.0f) {
-            frame.spB0 = frame.sp68;
-            frame.spB4 = frame.sp6C;
-            frame.spB8 = frame.sp70;
-            frame.spBC = frame.sp74;
-        } else {
-            temp_f0 = 1.0f - t;
-
-            if (frame.spA4 == 0) {
-                temp_f4 = temp_f0 * frame.spA0;
-                temp_f3 = temp_f4 * temp_f4;
-                temp_f0 = fGpffff8180 * temp_f3 + fGpffff8054;
-                temp_f0 = temp_f3 * temp_f0 + fGpffff8058;
-                temp_f0 = temp_f3 * temp_f0 + fGpffff805c;
-                temp_f0 = temp_f3 * temp_f0 + fGpffff8060;
-                temp_f1 = temp_f3 * temp_f0 + fGpffff8108;
-                temp_f0 = temp_f3 * temp_f4;
-                temp_f0 = temp_f0 * temp_f1 + temp_f4;
-
-                temp_f4 = t * frame.spA0;
-                temp_f3 = temp_f4 * temp_f4;
-                temp_f2 = fGpffff8180 * temp_f3 + fGpffff8054;
-                temp_f2 = temp_f3 * temp_f2 + fGpffff8058;
-                temp_f2 = temp_f3 * temp_f2 + fGpffff805c;
-                temp_f2 = temp_f3 * temp_f2 + fGpffff8060;
-                temp_f1 = temp_f3 * temp_f2 + fGpffff8108;
-                temp_f2 = temp_f3 * temp_f4;
-                t = temp_f2 * temp_f1 + temp_f4;
-            }
-
-            frame.spB0 = frame.sp80 * temp_f0;
-            frame.spB4 = frame.sp84 * temp_f0;
-            frame.spB8 = frame.sp88 * temp_f0;
-            frame.spB0 = 0.0f + frame.spB0 + frame.sp90 * t;
-            frame.spB4 = 0.0f + frame.spB4 + frame.sp94 * t;
-            frame.spB8 = 0.0f + frame.spB8 + frame.sp98 * t;
-            frame.spBC = frame.sp8C * temp_f0 + frame.sp9C * t;
+    unit = *(u8**)(*(u8**)(camera + 0xe0) + 0x30);
+    func_001bd560((f32*)&frames[0], (f32*)(camera + 0x9c));
+    func_00194ff0(unit, (u8*)&center, NULL, NULL);
+    height = *(f32*)(unit + 0x84) * *(f32*)(unit + 0x2c);
+    height += fGpffff8118 * (*(f32*)(unit + 0x8c) * *(f32*)(unit + 0x2c));
+    center.y = height;
+    eyeAdj = frames[0].pos;
+    eyeAdj.y = height;
+    func_001bd780(&frames[1].rot, &eyeAdj, &center, D_0060A0E0);
+    angle = func_001ec2b0(&frames[0].rot, &frames[1].rot);
+    if (angle > fGpffff815c)
+    {
+        ratio = fGpffff815c / angle;
+        func_003dcc70((f32*)&frames[0].rot, (f32*)&frames[1].rot, &blend);
+        if (ratio <= 0.0f)
+        {
+            blended = frames[0].rot;
         }
-
-        func_003dcb40((s64 *)&frame.spD8, (s64 *)D_0060A100, 1, (u8 *)&frame.spB0);
-        frame.spD8 = frame.spD8 + frame.spC8;
-        frame.spDC = frame.spDC + frame.spCC;
-        frame.spE0 = frame.spE0 + frame.spD0;
-        func_001bd780(&frame.sp68, &frame.spD8, &frame.spC8, D_0060A0E0);
-    } else if (temp_f0 < fGpffff804c) {
-        func_003dc740((u8 *)&frame.sp68, D_0060A0E0, 2, fGpffff8160);
+        else if (1.0f <= ratio)
+        {
+            blended = frames[1].rot;
+        }
+        else
+        {
+            w1 = 1.0f - ratio;
+            if (blend.flag == 0)
+            {
+                x = w1 * blend.scalar;
+                x2 = x * x;
+                r = fGpffff8054 + fGpffff8180 * x2;
+                r = fGpffff8058 + x2 * r;
+                r = fGpffff805c + x2 * r;
+                r = fGpffff8060 + x2 * r;
+                r2 = fGpffff8108 + x2 * r;
+                r = x2 * x;
+                w1 = x + r * r2;
+                x = ratio * blend.scalar;
+                x2 = x * x;
+                r = fGpffff8054 + fGpffff8180 * x2;
+                r = fGpffff8058 + x2 * r;
+                r = fGpffff805c + x2 * r;
+                r = fGpffff8060 + x2 * r;
+                r2 = fGpffff8108 + x2 * r;
+                r = x2 * x;
+                ratio = x + r * r2;
+            }
+            blended.quat.x = blend.first.quat.x * w1;
+            blended.quat.y = blend.first.quat.y * w1;
+            blended.quat.z = blend.first.quat.z * w1;
+            blended.quat.x = 0.0f + blended.quat.x + blend.second.quat.x * ratio;
+            blended.quat.y = 0.0f + blended.quat.y + blend.second.quat.y * ratio;
+            blended.quat.z = 0.0f + blended.quat.z + blend.second.quat.z * ratio;
+            blended.quat.w = blend.first.quat.w * w1 + blend.second.quat.w * ratio;
+        }
+        func_003dcb40(&eyeAdj, (const RwV3d*)D_0060A100, 1, (const RtQuat*)&blended);
+        eyeAdj.x = eyeAdj.x + center.x;
+        eyeAdj.y = eyeAdj.y + center.y;
+        eyeAdj.z = eyeAdj.z + center.z;
+        func_001bd780(&frames[1].rot, &eyeAdj, &center, D_0060A0E0);
     }
-
-    func_003dcb40((s64 *)&frame.spD8, (s64 *)D_0060A100, 1, (u8 *)&frame.sp68);
-
-    t = 375.0f / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
-    frame.spD8 = frame.spD8 * t;
-    frame.spDC = frame.spDC * t;
-    frame.spE0 = frame.spE0 * t;
-
-    temp_f0 = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
-    t = t * temp_f0 * 0.21875f;
-
-    frame.spE8 = frame.spD8;
-    frame.spEC = frame.spE0;
-    func_003e41e0(&frame.spE8, &frame.spE8);
-
-    frame.spC8 = 0.0f + frame.spC8 + frame.spEC * t;
-    frame.spD0 = 0.0f + frame.spD0 - frame.spE8 * t;
-    frame.sp5C = frame.spC8 + frame.spD8;
-    frame.sp60 = frame.spCC + frame.spDC;
-    frame.sp64 = frame.spD0 + frame.spE0;
-
-    if (frame.sp60 < 25.0f) {
-        frame.sp60 = 25.0f;
+    else if (angle < fGpffff804c)
+    {
+        func_003dc740((RtQuat*)&frames[1].rot, (const RwV3d*)D_0060A0E0, fGpffff8160, 2);
     }
-
-    func_001bac20((u16 *)arg0, &frame.sp40, &frame.sp5C, 1);
-    func_001bbef0(arg0, fGpffff818c);
+    func_003dcb40(&eyeAdj, (const RwV3d*)D_0060A100, 1, (const RtQuat*)&frames[1].rot);
+    dist = 375 / func_0044b868(fGpffff8110 * (0.5f * *(f32*)(camera + 0xb8)));
+    eyeAdj.x = eyeAdj.x * dist;
+    eyeAdj.y = eyeAdj.y * dist;
+    eyeAdj.z = eyeAdj.z * dist;
+    sideOffset = dist * func_0044b868(fGpffff8110 * (0.5f * *(f32*)(camera + 0xb8)));
+    sideOffset = sideOffset * 0.21875f;
+    horiz[0] = eyeAdj.x;
+    horiz[1] = eyeAdj.z;
+    func_003e41e0(horiz, horiz);
+    center.x = 0.0f + center.x + horiz[1] * sideOffset;
+    center.z = 0.0f + center.z - horiz[0] * sideOffset;
+    frames[1].pos.x = center.x + eyeAdj.x;
+    frames[1].pos.y = center.y + eyeAdj.y;
+    frames[1].pos.z = center.z + eyeAdj.z;
+    if (frames[1].pos.y < 25.0f)
+    {
+        frames[1].pos.y = 25.0f;
+    }
+    func_001bac20((u16*)camera, (f32*)&frames[0], (f32*)&frames[1], 1);
+    func_001bbef0(camera, fGpffff818c);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c09b0);
-#endif
+
 // FUN_001C0E40
 void func_001c0e40(void) {}
 // FUN_001C0E50
@@ -2373,7 +2298,7 @@ void func_001c5500(u8 *arg0, s32 arg1)
     extern f32 fGpffff814c;
     extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
     extern f32 func_001ec3d0(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
-    extern f32 func_001ec2b0(void *arg0, void *arg1);
+    extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
     extern void func_001bd5e0(f32 *arg0, f32 *arg1);
     extern f32 func_0044b868(f32 arg0);
 
@@ -2491,7 +2416,7 @@ void func_001c5500(u8 *arg0, s32 arg1)
     poses.second.z = eye.z + direction.z;
 
     func_001bd560((f32 *)&poses.first, (f32 *)(arg0 + 0x9C));
-    if (!(func_001ec2b0(&poses.firstRotation, &poses.secondRotation) <= fGpffff8158)) {
+    if (!(func_001ec2b0((P4Vec4Holder_001EC2B0*)(&poses.firstRotation), (P4Vec4Holder_001EC2B0*)(&poses.secondRotation)) <= fGpffff8158)) {
         func_001bd5e0((f32 *)&poses.first, (f32 *)&poses.second);
         func_003dcb40((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&poses.firstRotation);
         direction.x *= 150.0f;
@@ -3397,7 +3322,7 @@ void func_001c8e90(u8 *arg0, f32 *arg1, f32 *arg2)
     extern f32 fGpffff8108;
     extern f32 iGpffff8160;
     extern f32 func_0044b868(f32 arg0);
-    extern f32 func_001ec2b0(void *arg0, void *arg1);
+    extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
     extern void func_003dcc70(void *arg0, void *arg1, void *arg2);
     extern void func_003dc740(u8 *arg0, u8 *arg1, s32 arg2, f32 arg3);
     extern f32 func_003e41b0(f32 *arg0);
@@ -3460,7 +3385,7 @@ void func_001c8e90(u8 *arg0, f32 *arg1, f32 *arg2)
     *(f32 *)(arg0 + 0x108) = frame.out108[2];
     func_001bd780(arg2 + 3, frame.vec138, frame.out108, D_0060A0E0);
     heightSum = *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C) + *(f32 *)(unitA + 0x90) * *(f32 *)(unitA + 0x2C) + widthSum + 0.0f;
-    blend = func_001ec2b0(arg1 + 3, arg2 + 3);
+    blend = func_001ec2b0((P4Vec4Holder_001EC2B0*)(arg1 + 3), (P4Vec4Holder_001EC2B0*)(arg2 + 3));
     thresh = fGpffff815c;
     if (!(blend <= thresh)) {
         t = thresh / blend;
@@ -3535,11 +3460,11 @@ void func_001c8e90(u8 *arg0, f32 *arg1, f32 *arg2)
         frame.vec148[0] = *(f32 *)&frame.pairF8 + 0.0f + frame.vec128[2] * dotA + 0.0f;
         frame.vec148[2] = (frame.val100 + 0.0f) - frame.vec128[0] * dotA;
         func_001bd780(frame.quatA0, frame.vec148, frame.out108, D_0060A0E0);
-        blend = func_001ec2b0(arg1 + 3, frame.quatA0);
+        blend = func_001ec2b0((P4Vec4Holder_001EC2B0*)(arg1 + 3), (P4Vec4Holder_001EC2B0*)(frame.quatA0));
         frame.vec148[0] = (*(f32 *)&frame.pairF8 + 0.0f) - frame.vec128[2] * dotA;
         frame.vec148[2] = frame.vec128[0] * dotA + frame.val100 + 0.0f;
         func_001bd780(frame.quatB0, frame.vec148, frame.out108, D_0060A0E0);
-        scale2 = func_001ec2b0(arg1 + 3, frame.quatB0);
+        scale2 = func_001ec2b0((P4Vec4Holder_001EC2B0*)(arg1 + 3), (P4Vec4Holder_001EC2B0*)(frame.quatB0));
         if (blend < scale2) {
             arg2[3] = frame.quatA0[0];
             arg2[4] = frame.quatA0[1];
@@ -3656,7 +3581,7 @@ void func_001c9820(u8 *arg0, s32 arg1, s32 arg2, f32 arg3)
     extern f32 fGpffff8170;
     extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
     extern f32 func_001ec3d0(f32 *arg0, f32 *arg1, f32 *arg2, f32 *arg3);
-    extern f32 func_001ec2b0(void *first, void *second);
+    extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
     extern f32 func_0044b868(f32 arg0);
     u8 *saved_arg0;
     u8 *action;
@@ -3810,7 +3735,7 @@ void func_001c9820(u8 *arg0, s32 arg1, s32 arg2, f32 arg3)
         work.outAC[1] = work.eye110[2] + work.dir120.y;
         work.outAC[2] = work.eye110[1] + work.dir120.z;
     }
-    tmp = func_001ec2b0((void *)&work.pose90[3], (void *)&work.quatB8.x);
+    tmp = func_001ec2b0((P4Vec4Holder_001EC2B0*)((void *)&work.pose90[3]), (P4Vec4Holder_001EC2B0*)((void *)&work.quatB8.x));
     if ((arg3 <= 0.0f) || (grow = fGpffff816c * arg3, !(tmp <= grow))) {
         if (dot < 0.0f) {
             func_001bab00(saved_arg0, (void *)work.outAC);
@@ -3893,7 +3818,7 @@ void func_001c9820(u8 *arg0, s32 arg1, s32 arg2, f32 arg3)
     if (work.outAC[1] < 25.0f) {
         work.outAC[1] = 25.0f;
     }
-    tmp = func_001ec2b0((void *)&work.pose90[3], (void *)&work.quatB8.x);
+    tmp = func_001ec2b0((P4Vec4Holder_001EC2B0*)((void *)&work.pose90[3]), (P4Vec4Holder_001EC2B0*)((void *)&work.quatB8.x));
     var_f20 = 1.25f;
     if (!(tmp <= 0.0f)) {
         div = grow / tmp;
@@ -3988,7 +3913,7 @@ void func_001ca590(u8 *arg0, f32 fparg0, f32 fparg1)
     extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
     extern f32 func_003e41b0(f32 *arg0);
     extern f32 fabsf(f32 x);
-    extern f32 func_001ec2b0(void *first, void *second);
+    extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
     extern f32 func_0044b868(f32 arg0);
     extern void func_001bd560(f32 *arg0, f32 *arg1);
     action = *(u8 **)(arg0 + 0xE0);
@@ -4072,11 +3997,11 @@ void func_001ca590(u8 *arg0, f32 fparg0, f32 fparg1)
         work.eye2.x = 0.0f + work.base.x + work.diff.z * radius;
         work.eye2.z = 0.0f + baseZ - work.diff.x * radius;
         func_001bd780(&work.quatE0, &work.eye2, &work.scaled, D_0060A0E0);
-        proj1 = func_001ec2b0(&work.frames[0].rot, &work.quatE0);
+        proj1 = func_001ec2b0((P4Vec4Holder_001EC2B0*)(&work.frames[0].rot), (P4Vec4Holder_001EC2B0*)(&work.quatE0));
         work.eye2.x = 0.0f + work.base.x - work.diff.z * radius;
         work.eye2.z = 0.0f + baseZ + work.diff.x * radius;
         func_001bd780(&work.quatF0, &work.eye2, &work.scaled, D_0060A0E0);
-        proj2 = func_001ec2b0(&work.frames[0].rot, &work.quatF0);
+        proj2 = func_001ec2b0((P4Vec4Holder_001EC2B0*)(&work.frames[0].rot), (P4Vec4Holder_001EC2B0*)(&work.quatF0));
         if (proj1 < proj2) {
             work.frames[1].rot = work.quatE0;
         } else {
@@ -4484,7 +4409,7 @@ void func_001cb960(void) {}
 void func_001cb970(u8 *arg0, f32 fparg0, s32 arg1)
 {
     extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
-    extern f32 func_001ec2b0(void *first, void *second);
+    extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
     extern f32 func_001ec3d0(u8 *first, u8 *second, u8 *point, u8 *out);
     extern f32 func_0044b868(f32 arg0);
     extern void func_001bd5e0(u8 *arg0, u8 *arg1);
@@ -4667,7 +4592,7 @@ void func_001cb970(u8 *arg0, f32 fparg0, s32 arg1)
     }
     func_001bd560(&frame.sp90, (f32 *)(camera + 0x9C));
     if (arg1 != 0) {
-        if (func_001ec2b0(&frame.sp9C, &frame.spB8) > fGpffff80dc) {
+        if (func_001ec2b0((P4Vec4Holder_001EC2B0*)(&frame.sp9C), (P4Vec4Holder_001EC2B0*)(&frame.spB8)) > fGpffff80dc) {
             func_001bd5e0((u8 *)&frame.sp90, (u8 *)&frame.spAC);
             mode = 3;
         } else {
