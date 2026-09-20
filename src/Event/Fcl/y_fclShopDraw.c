@@ -388,6 +388,24 @@ extern f32 fGpffff7ad4;
    reasoning about individual variables.
    The remaining 20177 edits are structure, not width; the dispatch and the s64 arithmetic
    sites (dsll32/dsra32 + madd) are the next thing to read against retail. */
+/* rejected 002be530 (owner, 2026-09-20): a pass that removed 183 `(u8)`/`(s8)`/`(f32)(s32)`
+   truncations from f32 arguments as 'spurious' measured **20177 -> 11129 edits**, the
+   largest single reduction anyone produced, and has been REVERTED.
+   The object went 12070 -> 7977 against retail 12429, from -2.9% INSIDE the band to
+   -35.8% OUTSIDE, 4452 instructions short, so the change could not stand.
+   My first reading of that arithmetic was WRONG and the agent corrected it, with an opcode
+   census I then verified against the disassembly.  I argued the lost 4093 instructions
+   proved retail performs those conversions.  It does not: retail has 110 `cvt.s.w`, 73
+   `cvt.w.s` and 127 `andi` against the body's 424, 344 and 515, and retail's 1525 `jal`
+   against the body's 891.  The casts really were spurious - roughly 2000 surplus
+   conversions standing in for roughly 2000 missing loads, moves and CALLS.  The body's
+   12070 was never a healthy count; it was short-359 with the shortfall papered over.
+   Deleting the padding without writing the missing code simply exposed the true deficit.
+   The edits fell only because fnalign stopped trying to pair 4000 instructions that no
+   longer existed.  An alignment score against a body a third too short measures a
+   different, smaller function (handoff 7y); 11129 is not better than 20177.
+   The honest work here is the 359-instruction shortfall the good body already has - run
+   deficit_scan.py and write the named regions. */
 // FUN_002BE530 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002be530(u8 *arg0)

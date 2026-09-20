@@ -30,7 +30,7 @@ extern f32 D_0064A380[];
 extern u8 D_0064A3D8[];
 extern u8 D_0064A3F0[];
 
-void func_00332bb0(u8 *arg0);
+s32 func_00332bb0(u8 *arg0);
 extern void func_00332a80(void);
 extern s32 func_0033cc40();
 void func_0044ea90(const void *, u32);
@@ -83,6 +83,14 @@ extern s32 func_0046a750(s32);
 extern s32 func_004553c0(void *);
 extern u8 *func_0033d130(void *, s32, s32);
 extern s32 func_00122720(void);
+extern s32 func_002bb680(s8 arg0);
+extern void func_002bbcf0(s8 arg0);
+extern void func_002bb550(s8 arg0);
+extern s8 func_002bab80(s32 arg0);
+extern void func_002badc0(s32 arg0, s32 arg1);
+extern u8 func_002e78a0(void);
+extern u8 func_002e78e0(void);
+extern s32 func_00110a60(s32 arg0, s32 arg1);
 
 /* measured: func_00332bb0 recon + jump-table recovery (guarded dispatch skeleton installed - see tail). */
 /* retail window 37392B = 9348 words (37392/4); fnalign decodes 9344 instrs (excludes 4 padding words). Band 9067-9628 (+-3%: 9348*0.97=9067.56, 9348*1.03=9628.44; fnalign band 9064-9624). */
@@ -154,17 +162,18 @@ extern s32 func_00122720(void);
 /*   multi-day (m2c 2294 lines/38 M2C_ERROR via prepare_assembly_block, this lane re-ran 2026-09-19); */
 /*   skeleton is structural (dispatch + call skeleton, ~530 instrs) and sits outside the band by */
 /*   construction - table above + switch shape is the deliverable (gate handoff 7y). */
-/* gate: func_00332bb0 is OUTSIDE the +-3% band at 530 against retail 9344 (-94.3%, band
-   9064-9624).  This is a DISPATCH SKELETON, not a floor: retail dispatches through the real
-   table jtbl_00749720 with 19 cases (case 8 is the default), and only the dispatch plus a few
-   arms are written.  Measured while building it: an if-chain spelling is 572 instrs / 9218
-   edits, descending case order is 534 / 9698, ascending is 530 / 9213 - so ascending is worth
-   485 edits over descending even on a skeleton, and s64 loop counters beat s32 by 5.
-   No word or edit number measured against this body is comparable until the arms are written
-   (handoff 7y). */
+/* gate: func_00332bb0 is OUTSIDE the +-3% band at 724 against retail 9344 (-92.3%, band
+   9064-9624). 6 arms written this lane (cases 1-tail,6,7,10,15,18; case 0 fallthrough + case 8=default
+   already faithful), object 530->724 (+194, +36.6%), edits 9213(+6 reloc)->9034(+8 reloc) (-179),
+   words 7642->7616 (-26, reloc-masked). Remaining missing (11): cases 2,3,4,5,9,11,12,13,14,16,17.
+   Cases 15/18 return s32 (0/-1 via func_00122720); all break paths return 0 via shared epilogue
+   (BD80). Signature corrected void->s32 with (void(*)(u8*)) cast at the func_0033be40 call site
+   (line 419, build-preserving only). Dispatch still exact ascending switch 0..18 with explicit
+   case 8 (sltiu 0x13 off jtbl_00749720). Next shortest: case 16 (199 lines), case 4 (270),
+   case 17 (317). */
 // FUN_00332BB0 NONMATCHING
 #ifdef NON_MATCHING
-void func_00332bb0(u8 *arg0) {
+s32 func_00332bb0(u8 *arg0) {
     u8 *work;
     void *tmp;
     s8 state;
@@ -172,6 +181,7 @@ void func_00332bb0(u8 *arg0) {
     s64 h;
     s32 i;
     s32 k;
+    s8 sel;
     F2_0033 p0;
     F2_0033 p1;
 
@@ -212,6 +222,28 @@ void func_00332bb0(u8 *arg0) {
             *(void **)(work + 0x17C) = func_0033d130(arg0, 0x28, *(s32 *)(work + 0xC));
             *(void **)(work + 0x180) = func_0033d130(arg0, 0x28, *(s32 *)(work + 0xC));
             *(void **)(work + 0x184) = func_0033d130(arg0, 0x28, *(s32 *)(work + 0xC));
+            g = 0;
+            while (((s64)(g << 0x30) >> 0x30) < 4) {
+                k = (s32)((s64)(g << 0x30) >> 0x30);
+                tmp = (void *)(work + k * 4 + 0x188);
+                *(void **)tmp = func_0033d130(arg0, 0x28, *(s32 *)(work + 0xC));
+                func_0033d320(*(void **)tmp, 13, 0);
+                func_0033d4e0(*(void **)tmp, 0, 0, 0, 0.0f, 0.0f);
+                g = (s64)(((s64)(g << 0x30) >> 0x30) + 1);
+            }
+            *(void **)(work + 0x19C) = func_0033d130(arg0, 0x46, *(s32 *)(work + 0xC));
+            *(void **)(work + 0x198) = func_0033d130(arg0, 0x46, *(s32 *)(work + 0xC));
+            *(void **)(work + 0x1A0) = func_0033d130(arg0, 0x46, *(s32 *)(work + 0xC));
+            *(void **)(work + 0x1A4) = func_0033d130(arg0, 0x46, *(s32 *)(work + 0xC));
+            *(void **)(work + 0x1A8) = func_0033d130(arg0, 0x40, *(s32 *)(work + 0xC));
+            *(void **)(work + 0x1AC) = func_0033d130(arg0, 0x41, *(s32 *)(work + 0xC));
+            if (func_002e2670() >= 6) {
+                *(f32 *)(work + 0x420) = 108.0f / (f32)(func_002e2670() - 5);
+            }
+            *(s8 *)(work + 9) = 0;
+            if ((s8)func_00110a60((s32)(func_002e78a0() & 0xFF), (s32)(func_002e78e0() & 0xFF)) == 1) {
+                *(s8 *)(work + 9) = 1;
+            }
         }
         break;
     case 2:
@@ -266,12 +298,26 @@ void func_00332bb0(u8 *arg0) {
         *(s8 *)(work + 0) = 9;
         break;
     case 6:
-        func_0033d320((void *)*(s32 *)(work + 0x14), 0, 1);
-        *(s8 *)(work + 0) = 5;
+        if (func_002bb680(*(s8 *)(work + 8)) != 0) {
+            func_002bbcf0(*(s8 *)(work + 8));
+        } else {
+            func_002bb550(*(s8 *)(work + 8));
+            *(s8 *)(work + 0) = 5;
+            if (*(s8 *)(work + 9) == 1) {
+                sel = func_002bab80(*(s32 *)(*(s32 *)(work + 0x428) + 0x110));
+                *(s8 *)(work + 8) = sel;
+                func_002badc0((s32)sel, 3);
+                *(s8 *)(work + 0) = 7;
+            }
+        }
         break;
     case 7:
-        func_0033d320((void *)*(s32 *)(work + 0x14), 0, 2);
-        *(s8 *)(work + 0) = 5;
+        if (func_002bb680(*(s8 *)(work + 8)) != 0) {
+            func_002bbcf0(*(s8 *)(work + 8));
+        } else {
+            func_002bb550(*(s8 *)(work + 8));
+            *(s8 *)(work + 0) = 5;
+        }
         break;
     case 8:
         /* shares the default block in retail (.L0033BD80) - kept explicit so the switch still spans 0..18 and mwcc emits sltiu 0x13. */
@@ -286,9 +332,32 @@ void func_00332bb0(u8 *arg0) {
         *(s8 *)(work + 0) = 10;
         break;
     case 10:
-        func_0033d320((void *)*(s32 *)(work + 0x178), 0, 0);
-        func_0033d320((void *)*(s32 *)(work + 0x3C), 0, 0);
-        *(s8 *)(work + 0) = 11;
+        if (func_0033d390((void *)*(s32 *)(work + 0x170), 4) == 0) {
+            func_0033d4e0((void *)*(s32 *)(work + 0x170), 0, 0, 0, 0.0f, 1.0f);
+        }
+        if (func_0033d390((void *)*(s32 *)(work + 0x188), 4) != 0) {
+            break;
+        }
+        func_0033d3d0((void *)*(s32 *)(work + 0xB0), 0x5B);
+        i = 0;
+        while ((s16)i < 3) {
+            func_0033d3d0((void *)*(s32 *)(work + (s16)i * 4 + 0x17C), 0x5B);
+            i = (s16)(i + 1);
+        }
+        i = 0;
+        while ((s16)i < 4) {
+            func_0033d320((void *)*(s32 *)(work + (s16)i * 4 + 0x188), 0, 1);
+            func_0033d320((void *)*(s32 *)(work + (s16)i * 4 + 0x17C), 0, 1);
+            i = (s16)(i + 1);
+        }
+        func_0033d320((void *)*(s32 *)(work + 0xB0), 0, 1);
+        *(s32 *)(work + 0x2B0) = 0;
+        i = 0;
+        while ((s16)i < 0x24) {
+            *(s8 *)(work + (s16)i + 0x2D8) = 1;
+            i = (s16)(i + 1);
+        }
+        *(s8 *)(work + 0) = 0xB;
         break;
     case 11:
         i = 0;
@@ -317,12 +386,10 @@ void func_00332bb0(u8 *arg0) {
         *(s8 *)(work + 0) = 15;
         break;
     case 15:
-        func_0033d320((void *)*(s32 *)(work + 0x10), 0, 0);
-        func_002b2970(&p0, D_0064A090[0], D_0064A090[1]);
-        func_002b2970(&p1, 650.0f, 241.0f);
-        func_0033d3e0((void *)*(s32 *)(work + 0x10), p0, p1, 0, 0xA, 0);
-        *(s8 *)(work + 0) = 16;
-        break;
+        if (func_00122720() == 0) {
+            return 0;
+        }
+        return -1;
     case 16:
         func_0033d320((void *)*(s32 *)(work + 0x58), 0, 1);
         func_0033d320((void *)*(s32 *)(work + 0x5C), 0, 1);
@@ -334,13 +401,14 @@ void func_00332bb0(u8 *arg0) {
         *(s8 *)(work + 0) = 18;
         break;
     case 18:
-        if (func_00122720() != 0) {
-            return;
+        if (func_00122720() == 0) {
+            return 0;
         }
-        break;
+        return -1;
     default:
         break;
     }
+    return 0;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/y_fclItemShopDraw", func_00332bb0);
@@ -374,7 +442,7 @@ u8 *func_0033be40(u8 *arg0) {
 
     func_0044ea90(D_0064A380, 0x958);
     temp_2 = (s8 *)D_008873F4[0](1, 0x42C, 0x40000);
-    temp_17 = func_00451fc0(arg0, D_0064A3D8, 0xF, 0, 0, func_00332bb0, func_0033bdc0, (u8 *)temp_2);
+    temp_17 = func_00451fc0(arg0, D_0064A3D8, 0xF, 0, 0, (void (*)(u8 *))func_00332bb0, func_0033bdc0, (u8 *)temp_2);
     *(s8 *)(temp_2 + 0) = 0;
     *(s32 *)(temp_2 + 0xC) = 0;
     *(f32 *)(temp_2 + 0x1E0) = (f32)0x28A;
