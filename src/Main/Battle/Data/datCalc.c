@@ -1452,24 +1452,29 @@ s64 func_00235320(u8 *unit)
 /* Three retail-only runs all CROSS, no ABSENT: 39 at 0x235610-0x2356ac (paired 2, nearby */
 /* 2), 103 at 0x23587c-0x235a18 (paired 3, nearby 18), 49 at 0x236c98-0x236d5c (paired 1, */
 /* nearby 3); object is not short, so missing-code work is wrong. Production stays ASM. */
-/* gate: func_00235520 is OUTSIDE the +-3% band at 3211 against retail 3044 (+5.5%, band
-   2953-3135) - 167 instructions too LONG, so every retail-only run is a CROSS by
-   arithmetic and no edit score measured against it is comparable (handoff 7y).
-   Its 22 `(u16)(...)` casts are the densest in the tree and were checked against the
-   func_004a5fc0 lever: all 22 wrap INTEGER expressions (4 u16 loads, 18 s16), not float
-   conversions, and rewriting them to `(u32)` probes 2784 -> 2784, exactly neutral.  That
-   confirms the lever's scope - it only removes a redundant `andi 0xFFFF` when the cast
-   wraps a float-to-integer conversion - and rules the whole family out here.
-   The surplus is now NAMED.  `tools/libcall_scan.py` reports **8 `__floatdisf` calls** in
-   this object - eight s64-to-float conversions into MWCC's runtime that retail never
-   makes.  Each costs a call plus its argument shuffling, which is most of the 167.
-   Removing 13 `__fixsfdi` calls of the same family took func_002db400 from 1744 edits to
-   102, so this is the lever here.
-   Measured on the way: 20 of the 32 `s64` temporaries are used only through the
-   `(x << 0x30) >> 0x30` sign-extend idiom or an `(s16)` cast, and narrowing all 20 to
-   `s16` is 1724 -> 1667 edits but takes the count the WRONG way, 3211 -> 3215.  So the
-   narrowing is not the whole answer - find the eight s64 values that reach a float and
-   fix those specifically. */
+/* gate: func_00235520 is OUTSIDE the +-3% band at 3187 against retail 3044 (+4.7%, band
+   2953-3135), improved from 3211 (+5.5%).  fnalign **1724 -> 1636 edits**.  Still
+   outside, so the edit count is not comparable to an in-band one (handoff 7y).
+   `tools/libcall_scan.py` reported 8 `__floatdisf` calls - s64-to-float conversions into
+   MWCC's runtime that retail never makes - at `temp_21_4/9/14/19` and
+   `temp_18_4/11/18/25`, each written `var_fN = (f32) temp / 100.0f`.  The census is now 0.
+   The fix is the RHS, not the declaration.  m2c wrote each assignment as
+   `(s64)((s64)((s64) (func_00106a00(...) << 0x30) >> 0x30))`, which forces 64-bit work
+   before the store; retail simply sign-extends the halfword call result once
+   (`dsll32 $21, $2, 16; dsra32 $21, $21, 16` at 0x00235dbc) and converts from the low
+   word with `mtc1 $21; cvt.s.w`.  Writing `temp = (s16)func_00106a00(func_00106cd0(...))`
+   at all eight sites is what removes the helpers AND shortens the object.
+   Measured, all eight helper-free:
+     declarations only, s32               1700 edits, 3227 instrs (+16, WORSE)
+     declarations only, s16               1684 edits, 3227 instrs (+16, WORSE)
+     keep s64, cast at the conversion     1708 edits, 3227 instrs (+16, WORSE)
+     narrow all 20 sign-extend-only s64   1667 edits, 3215 instrs (+4,  WORSE)
+     direct `(s16)` RHS, s64 decls        1676 edits, 3187 instrs
+     direct `(s16)` RHS + s32 decls       **1636 edits, 3187 instrs**  <- installed
+   The four declaration-only variants each made the object LONGER while removing the
+   calls, which is the trap: the helper census is a fidelity signal, not a size signal.
+   The helpers were never the 167-instruction surplus - they were masking 24 of it.  The
+   remaining 143 is a separate over-length defect and still has to be found. */
 // FUN_00235520 NONMATCHING
 #ifdef SKIP_ASM
 s32 func_00235520(s32 arg0, u8 *arg1, u8 *arg2, u16 arg3, u16 arg4, u16 arg5, s32 arg6, u8 arg7) {
@@ -1609,30 +1614,30 @@ s32 func_00235520(s32 arg0, u8 *arg1, u8 *arg2, u16 arg3, u16 arg4, u16 arg5, s3
     s64 temp_16_6;
     s64 temp_16_8;
     s64 temp_18;
-    s64 temp_18_11;
+    s32 temp_18_11;
     s64 temp_18_13;
     s64 temp_18_15;
-    s64 temp_18_18;
+    s32 temp_18_18;
     s64 temp_18_20;
     s64 temp_18_22;
-    s64 temp_18_25;
+    s32 temp_18_25;
     s64 temp_18_27;
     s64 temp_18_29;
-    s64 temp_18_4;
+    s32 temp_18_4;
     s64 temp_18_6;
     s64 temp_18_8;
     s64 temp_20;
     s64 temp_21;
-    s64 temp_21_14;
-    s64 temp_21_19;
+    s32 temp_21_14;
+    s32 temp_21_19;
     s64 temp_21_24;
     s64 temp_21_26;
     s64 temp_21_28;
     s64 temp_21_30;
     s64 temp_21_32;
     s64 temp_21_34;
-    s64 temp_21_4;
-    s64 temp_21_9;
+    s32 temp_21_4;
+    s32 temp_21_9;
     s32 temp_2_10;
     s32 temp_2_12;
     s32 temp_2_14;
@@ -1896,7 +1901,7 @@ s32 func_00235520(s32 arg0, u8 *arg1, u8 *arg2, u16 arg3, u16 arg4, u16 arg5, s3
                     if (temp_21_3 >= 0xB) {
                         func_0046d730(D_00635938, 0x2A7);
                     }
-                    temp_21_4 = (s64)((s64)((s64) (func_00106a00(func_00106cd0(temp_21_3, 2)) << 0x30) >> 0x30));
+                    temp_21_4 = (s16)func_00106a00(func_00106cd0(temp_21_3, 2));
                     if ((temp_21_4 < 0) || (temp_21_4 >= 0x65)) {
                         func_0046d730(D_00635938, 0x2AB);
                     }
@@ -1983,7 +1988,7 @@ loop_123:
                     if (temp_21_8 >= 0xB) {
                         func_0046d730(D_00635938, 0x2A7);
                     }
-                    temp_21_9 = (s64)((s64)((s64) (func_00106a00(func_00106cd0(temp_21_8, 2)) << 0x30) >> 0x30));
+                    temp_21_9 = (s16)func_00106a00(func_00106cd0(temp_21_8, 2));
                     if ((temp_21_9 < 0) || (temp_21_9 >= 0x65)) {
                         func_0046d730(D_00635938, 0x2AB);
                     }
@@ -2070,7 +2075,7 @@ loop_172:
                     if (temp_21_13 >= 0xB) {
                         func_0046d730(D_00635938, 0x2A7);
                     }
-                    temp_21_14 = (s64)((s64)((s64) (func_00106a00(func_00106cd0(temp_21_13, 2)) << 0x30) >> 0x30));
+                    temp_21_14 = (s16)func_00106a00(func_00106cd0(temp_21_13, 2));
                     if ((temp_21_14 < 0) || (temp_21_14 >= 0x65)) {
                         func_0046d730(D_00635938, 0x2AB);
                     }
@@ -2157,7 +2162,7 @@ loop_221:
                     if (temp_21_18 >= 0xB) {
                         func_0046d730(D_00635938, 0x2A7);
                     }
-                    temp_21_19 = (s64)((s64)((s64) (func_00106a00(func_00106cd0(temp_21_18, 2)) << 0x30) >> 0x30));
+                    temp_21_19 = (s16)func_00106a00(func_00106cd0(temp_21_18, 2));
                     if ((temp_21_19 < 0) || (temp_21_19 >= 0x65)) {
                         func_0046d730(D_00635938, 0x2AB);
                     }
@@ -2433,7 +2438,7 @@ loop_288:
                         if (temp_18_3 >= 0xB) {
                             func_0046d730(D_00635938, 0x2A7);
                         }
-                        temp_18_4 = (s64)((s64)((s64) (func_00106a00(func_00106cd0(temp_18_3, 2)) << 0x30) >> 0x30));
+                        temp_18_4 = (s16)func_00106a00(func_00106cd0(temp_18_3, 2));
                         if ((temp_18_4 < 0) || (temp_18_4 >= 0x65)) {
                             func_0046d730(D_00635938, 0x2AB);
                         }
@@ -2517,7 +2522,7 @@ loop_288:
                         if (temp_18_10 >= 0xB) {
                             func_0046d730(D_00635938, 0x2A7);
                         }
-                        temp_18_11 = (s64)((s64)((s64) (func_00106a00(func_00106cd0(temp_18_10, 2)) << 0x30) >> 0x30));
+                        temp_18_11 = (s16)func_00106a00(func_00106cd0(temp_18_10, 2));
                         if ((temp_18_11 < 0) || (temp_18_11 >= 0x65)) {
                             func_0046d730(D_00635938, 0x2AB);
                         }
@@ -2601,7 +2606,7 @@ loop_288:
                         if (temp_18_17 >= 0xB) {
                             func_0046d730(D_00635938, 0x2A7);
                         }
-                        temp_18_18 = (s64)((s64)((s64) (func_00106a00(func_00106cd0(temp_18_17, 2)) << 0x30) >> 0x30));
+                        temp_18_18 = (s16)func_00106a00(func_00106cd0(temp_18_17, 2));
                         if ((temp_18_18 < 0) || (temp_18_18 >= 0x65)) {
                             func_0046d730(D_00635938, 0x2AB);
                         }
@@ -2685,7 +2690,7 @@ loop_288:
                         if (temp_18_24 >= 0xB) {
                             func_0046d730(D_00635938, 0x2A7);
                         }
-                        temp_18_25 = (s64)((s64)((s64) (func_00106a00(func_00106cd0(temp_18_24, 2)) << 0x30) >> 0x30));
+                        temp_18_25 = (s16)func_00106a00(func_00106cd0(temp_18_24, 2));
                         if ((temp_18_25 < 0) || (temp_18_25 >= 0x65)) {
                             func_0046d730(D_00635938, 0x2AB);
                         }
