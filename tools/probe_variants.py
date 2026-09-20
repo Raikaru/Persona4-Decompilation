@@ -22,7 +22,7 @@ otherwise 1.  A matching candidate is reported but never installed.
 from __future__ import annotations
 import argparse
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
-import fcntl
+import errno
 import hashlib
 import io
 import os
@@ -30,7 +30,13 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
+
+if os.name == "nt":
+    import msvcrt
+else:
+    import fcntl
 
 REPO = Path(__file__).resolve().parents[1]
 TOOLS = REPO / "tools"
@@ -280,9 +286,21 @@ def _owner_lock(logical_source: Path):
     directory = Path(os.environ.get("TMPDIR", tempfile.gettempdir()))
     token = hashlib.sha256(str(logical_source).encode()).hexdigest()[:16]
     path = directory / ("p4probe-%s.lock" % token)
-    handle = open(path, "w")
+    handle = open(path, "a+b")
     try:
-        fcntl.flock(handle, fcntl.LOCK_EX)
+        if os.name == "nt":
+            # Lock byte zero and retry contention without LK_LOCK's time limit.
+            handle.seek(0)
+            while True:
+                try:
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+                    break
+                except OSError as error:
+                    if error.errno not in (errno.EACCES, errno.EAGAIN, errno.EDEADLK):
+                        raise
+                    time.sleep(0.05)
+        else:
+            fcntl.flock(handle, fcntl.LOCK_EX)
         yield
     finally:
         handle.close()
