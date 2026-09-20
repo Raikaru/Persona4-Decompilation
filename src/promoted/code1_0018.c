@@ -1404,6 +1404,13 @@ void func_00185830(void)
    The lever is iterative, which the first sweep hid: it converts the single best loop
    per function, so re-running it after installing finds the next one.  The third pass
    improved 14 more floors, `func_001ed700` by 89 edits on its own. */
+/* measured 00185850 (2026-09-20): fnalign **785 -> 402 edits**, count 900 -> 884 against retail 880 (+4, +0.5%). */
+/* deficit_scan 220-run at 0x00186270-0x001865e0 is a CROSS (object 20 LONG, deficit -20), not missing code: do not fill. */
+/* Block order was the cross: body emitted if (*piVar1==1) A then else-if (==0) B (A fall-through, bne), retail lays out */
+/* B (0x001858B4) then A (0x00186284) with beq-first dispatch. Swapping to if (==0) B else-if (==1) A re-syncs (-359). */
+/* Tail float form was the extra emission in that window: ((float)piVar1[0x158a..]) int->float cvt vs retail lwc1+add.s/sub.s */
+/* float loads. Reading the eight 0x154c-0x157d results as ((f32*)piVar1)[.] saves 24 edits. Double-literal grep is clean, */
+/* single-iter inner for (<1) removal costs +9 and manual iGpffff8214 hoist costs +22, so both stay as-is. */
 // FUN_00185850 NONMATCHING
 #ifdef NON_MATCHING
 void func_00185850(u8 *arg0)
@@ -1449,78 +1456,7 @@ void func_00185850(u8 *arg0)
   
   piVar1 = *(s32 **)(arg0 + 0x38);
   if (piVar1[1] == 0) {
-    if (*piVar1 == 1) {
-      tmp = func_00461390(D_00794930,4,piVar1 + 0x1590,4);
-      *(void (**)(void))(tmp + 8) = func_00185730;
-      *(s32 **)(tmp + 0x10) = piVar1;
-      tmp = func_00461390(D_00794930,4,piVar1 + 0x1e10,0x42);
-      *(void (**)(void))(tmp + 8) = func_00185730;
-      *(s32 **)(tmp + 0x10) = piVar1;
-      *(void (**)(void))(tmp + 0xc) = func_00185830;
-      *(s32 **)(tmp + 0x14) = piVar1;
-      tmp = func_00461390(D_00794930,4,piVar1 + 0x1548,4);
-      *(void (**)(u8 *, u8 *))(tmp + 8) = func_00185620;
-      *(s32 **)(tmp + 0x10) = piVar1;
-      pbVar4 = (u8 *)func_00460990();
-      *(void (**)(void))(pbVar4 + 8) = func_00185600;
-      *(s32 **)(pbVar4 + 0x10) = piVar1;
-      func_00460ac0(D_00794930,pbVar4);
-      tmp = func_00461390(D_00794930,4,piVar1 + 0x1590,4);
-      *(void (**)(void))(tmp + 8) = func_00185730;
-      *(s32 **)(tmp + 0x10) = piVar1;
-      tmp = func_00461390(D_00794930,4,piVar1 + 0x19f0,0x42);
-      *(void (**)(void))(tmp + 8) = func_00185730;
-      *(s32 **)(tmp + 0x10) = piVar1;
-      *(void (**)(void))(tmp + 0xc) = func_00185830;
-      *(s32 **)(tmp + 0x14) = piVar1;
-      pbVar4 = (u8 *)func_00460990();
-      *(void (**)(u8 *, u8 *))(pbVar4 + 8) = func_001854f0;
-      *(s32 **)(pbVar4 + 0x10) = piVar1;
-      func_00460ac0(D_00794930,pbVar4);
-      for (temp_v0 = 0; temp_v0 < 0xe; temp_v0 = temp_v0 + 1) {
-        for (temp_v4 = 0; temp_v4 < 1; temp_v4 = temp_v4 + 1) {
-          func_00461390(D_00794930,4,piVar1 + temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11c8,4);
-        }
-      }
-      pbVar4 = (u8 *)func_00460990();
-      *(void (**)(void))(pbVar4 + 8) = func_00185600;
-      *(s32 **)(pbVar4 + 0x10) = piVar1;
-      func_00460ac0(D_00794930,pbVar4);
-      tmp = func_00461390(D_00794930,4,piVar1 + 0x15d0,0x42);
-      *(void (**)(void))(tmp + 0xc) = func_00185830;
-      *(s32 **)(tmp + 0x14) = piVar1;
-      uGpffffb314 = uGpffffb314 != 0 ^ 1;
-      pbVar4 = (u8 *)func_00460990();
-      *(void (**)(u8 *, u8 *))(pbVar4 + 8) = func_001853e0;
-      *(s32 **)(pbVar4 + 0x10) = piVar1;
-      func_00460ac0(D_00794930,pbVar4);
-      for (temp_v0 = 0; temp_v0 < 7; temp_v0 = temp_v0 + 1) {
-        for (temp_v4 = 0; temp_v4 < 10; temp_v4 = temp_v4 + 1) {
-          piVar5 = piVar1 + temp_v0 * 10 + temp_v4 + 2;
-          temp_v2 = piVar1[temp_v0 * 10 + temp_v4 + 2];
-          temp_v3 = 0;
-          do {
-            if (3 < temp_v2) {
-              temp_v2 = 0;
-            }
-            ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + temp_v3 * 0x10 + 0x4c] =
-                 *(f32 *)(D_005F1DA0 + temp_v2 * 8);
-            ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + temp_v3 * 0x10 + 0x4d] =
-                 *(f32 *)(D_005F1DA0 + temp_v2 * 8 + 4);
-            temp_v2 = temp_v2 + 1;
-              temp_v3++;
-          } while (temp_v3 < 4);
-          if (uGpffffb314 != 0) {
-            *piVar5 = *piVar5 + 1;
-          }
-          if (3 < *piVar5) {
-            *piVar5 = 0;
-          }
-          func_00461390(D_00794930,4,piVar1 + temp_v0 * 0x280 + temp_v4 * 0x40 + 0x48,4);
-        }
-      }
-    }
-    else if (*piVar1 == 0) {
+    if (*piVar1 == 0) {
       temp_v0 = func_003ef6d0();
       temp_v0 = func_003ef650(temp_v0,D_005F1DC0);
       piVar1[0x2230] = temp_v0;
@@ -1760,15 +1696,86 @@ void func_00185850(u8 *arg0)
       ((f32 *)piVar1)[0x158c] = (fGpffff84d8 / (float)*(int *)(piVar1[0x2232] + 0xc));
       ((f32 *)piVar1)[0x158d] = (fGpffff84dc / (float)*(int *)(piVar1[0x2232] + 0x10));
       piVar1[0x1589] = iGpffff8424;
-      ((f32 *)piVar1)[0x154c] = ((float)piVar1[0x158a] + (float)piVar1[0x1589]);
-      ((f32 *)piVar1)[0x154d] = ((float)piVar1[0x158b] + (float)piVar1[0x1589]);
-      ((f32 *)piVar1)[0x155c] = ((float)piVar1[0x158c] - (float)piVar1[0x1589]);
-      ((f32 *)piVar1)[0x155d] = ((float)piVar1[0x158b] + (float)piVar1[0x1589]);
-      ((f32 *)piVar1)[0x156c] = ((float)piVar1[0x158a] + (float)piVar1[0x1589]);
-      ((f32 *)piVar1)[0x156d] = ((float)piVar1[0x158d] - (float)piVar1[0x1589]);
-      ((f32 *)piVar1)[0x157c] = ((float)piVar1[0x158c] - (float)piVar1[0x1589]);
-      ((f32 *)piVar1)[0x157d] = ((float)piVar1[0x158d] - (float)piVar1[0x1589]);
+      ((f32 *)piVar1)[0x154c] = (((f32 *)piVar1)[0x158a] + ((f32 *)piVar1)[0x1589]);
+      ((f32 *)piVar1)[0x154d] = (((f32 *)piVar1)[0x158b] + ((f32 *)piVar1)[0x1589]);
+      ((f32 *)piVar1)[0x155c] = (((f32 *)piVar1)[0x158c] - ((f32 *)piVar1)[0x1589]);
+      ((f32 *)piVar1)[0x155d] = (((f32 *)piVar1)[0x158b] + ((f32 *)piVar1)[0x1589]);
+      ((f32 *)piVar1)[0x156c] = (((f32 *)piVar1)[0x158a] + ((f32 *)piVar1)[0x1589]);
+      ((f32 *)piVar1)[0x156d] = (((f32 *)piVar1)[0x158d] - ((f32 *)piVar1)[0x1589]);
+      ((f32 *)piVar1)[0x157c] = (((f32 *)piVar1)[0x158c] - ((f32 *)piVar1)[0x1589]);
+      ((f32 *)piVar1)[0x157d] = (((f32 *)piVar1)[0x158d] - ((f32 *)piVar1)[0x1589]);
       *piVar1 = *piVar1 + 1;
+    }
+    else if (*piVar1 == 1) {
+      tmp = func_00461390(D_00794930,4,piVar1 + 0x1590,4);
+      *(void (**)(void))(tmp + 8) = func_00185730;
+      *(s32 **)(tmp + 0x10) = piVar1;
+      tmp = func_00461390(D_00794930,4,piVar1 + 0x1e10,0x42);
+      *(void (**)(void))(tmp + 8) = func_00185730;
+      *(s32 **)(tmp + 0x10) = piVar1;
+      *(void (**)(void))(tmp + 0xc) = func_00185830;
+      *(s32 **)(tmp + 0x14) = piVar1;
+      tmp = func_00461390(D_00794930,4,piVar1 + 0x1548,4);
+      *(void (**)(u8 *, u8 *))(tmp + 8) = func_00185620;
+      *(s32 **)(tmp + 0x10) = piVar1;
+      pbVar4 = (u8 *)func_00460990();
+      *(void (**)(void))(pbVar4 + 8) = func_00185600;
+      *(s32 **)(pbVar4 + 0x10) = piVar1;
+      func_00460ac0(D_00794930,pbVar4);
+      tmp = func_00461390(D_00794930,4,piVar1 + 0x1590,4);
+      *(void (**)(void))(tmp + 8) = func_00185730;
+      *(s32 **)(tmp + 0x10) = piVar1;
+      tmp = func_00461390(D_00794930,4,piVar1 + 0x19f0,0x42);
+      *(void (**)(void))(tmp + 8) = func_00185730;
+      *(s32 **)(tmp + 0x10) = piVar1;
+      *(void (**)(void))(tmp + 0xc) = func_00185830;
+      *(s32 **)(tmp + 0x14) = piVar1;
+      pbVar4 = (u8 *)func_00460990();
+      *(void (**)(u8 *, u8 *))(pbVar4 + 8) = func_001854f0;
+      *(s32 **)(pbVar4 + 0x10) = piVar1;
+      func_00460ac0(D_00794930,pbVar4);
+      for (temp_v0 = 0; temp_v0 < 0xe; temp_v0 = temp_v0 + 1) {
+        for (temp_v4 = 0; temp_v4 < 1; temp_v4 = temp_v4 + 1) {
+          func_00461390(D_00794930,4,piVar1 + temp_v0 * 0x40 + temp_v4 * 0x40 + 0x11c8,4);
+        }
+      }
+      pbVar4 = (u8 *)func_00460990();
+      *(void (**)(void))(pbVar4 + 8) = func_00185600;
+      *(s32 **)(pbVar4 + 0x10) = piVar1;
+      func_00460ac0(D_00794930,pbVar4);
+      tmp = func_00461390(D_00794930,4,piVar1 + 0x15d0,0x42);
+      *(void (**)(void))(tmp + 0xc) = func_00185830;
+      *(s32 **)(tmp + 0x14) = piVar1;
+      uGpffffb314 = uGpffffb314 != 0 ^ 1;
+      pbVar4 = (u8 *)func_00460990();
+      *(void (**)(u8 *, u8 *))(pbVar4 + 8) = func_001853e0;
+      *(s32 **)(pbVar4 + 0x10) = piVar1;
+      func_00460ac0(D_00794930,pbVar4);
+      for (temp_v0 = 0; temp_v0 < 7; temp_v0 = temp_v0 + 1) {
+        for (temp_v4 = 0; temp_v4 < 10; temp_v4 = temp_v4 + 1) {
+          piVar5 = piVar1 + temp_v0 * 10 + temp_v4 + 2;
+          temp_v2 = piVar1[temp_v0 * 10 + temp_v4 + 2];
+          temp_v3 = 0;
+          do {
+            if (3 < temp_v2) {
+              temp_v2 = 0;
+            }
+            ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + temp_v3 * 0x10 + 0x4c] =
+                 *(f32 *)(D_005F1DA0 + temp_v2 * 8);
+            ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + temp_v3 * 0x10 + 0x4d] =
+                 *(f32 *)(D_005F1DA0 + temp_v2 * 8 + 4);
+            temp_v2 = temp_v2 + 1;
+              temp_v3++;
+          } while (temp_v3 < 4);
+          if (uGpffffb314 != 0) {
+            *piVar5 = *piVar5 + 1;
+          }
+          if (3 < *piVar5) {
+            *piVar5 = 0;
+          }
+          func_00461390(D_00794930,4,piVar1 + temp_v0 * 0x280 + temp_v4 * 0x40 + 0x48,4);
+        }
+      }
     }
   }
   return;
