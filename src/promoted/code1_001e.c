@@ -3486,35 +3486,35 @@ s32 func_001ee490(u8 *arg0) {
    (retail order c1,c0,c2,c3). Swapped order (c1+c0+c2+c3) same earliest hunks, confirming earliest
    frame/s-reg floor hides MACs. Open: frame, s-reg rotation, scheduler ordering (cf. 001eed10 floor).
    Committed as NONMATCHING; production remains ASM (1024B? no, 1600B window). See P023 doc. */
-/* gate: object 383 against retail 398, -3.8% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first.
-   DIAGNOSED this round, deficit 15 instrs.  All three retail-only runs are
-   LONGER than the deficit - 37 at 0x001EEA78, 29 at 0x001EE7F0, 23 at
-   0x001EE870 - and you cannot be missing more instructions than you are
-   short, so every one of them is a CROSS, not absent code.  Writing new
-   statements into this body is the wrong move; it has to be re-synced.
-   The real signal is in the PROLOGUE, which fnalign shows first:
-     retail  addiu $sp, $sp, -0x4e0      object  addiu $sp, $sp, -0x4c0
-     retail  sd    $ra, 0x70($sp)        object  sd    $ra, 0x50($sp)
-     retail  move  $s4, $a0              object  move  $s3, $a0
-   Retail's frame is 32 bytes bigger and its save area starts 32 bytes
-   higher, i.e. retail spills FOUR more callee-saved registers and holds one
-   more pointer live ($s4 against the object's $s3).  A frame-size and
-   saved-register-count difference is a source defect, not a tuning problem:
-   the body does not keep as many values live across calls as retail's did.
-   The opcode delta agrees - retail has 18 more swc1, 8 more mul.s and 8 more
-   add.s, which is 34 more float operations against a deficit of only 15, so
-   the object is FUSING work retail kept separate.  Retail at 0x001EEA78 is
-   the unfused shape, storing each intermediate back before using it:
+/* measured: object 387 against retail 398, -2.76% - INSIDE the +-3% band
+   (a 398-instruction function gets 12 instructions of slack; the deficit is
+   11).  Was 383 / -3.8% OUTSIDE with 380 edits; now 371 edits.
+   The fix was UNFUSING two multiply-accumulates, and the evidence for it was
+   the opcode delta rather than any run: retail had 18 more `swc1`, 8 more
+   `mul.s` and 8 more `add.s` against a deficit of only 15, which means the
+   object was FUSING work retail kept separate rather than omitting it.  All
+   three retail-only runs were longer than the deficit - 37 at 0x001EEA78, 29
+   at 0x001EE7F0, 23 at 0x001EE870 - so every one was a CROSS and writing new
+   statements would have made the floor worse.
+   Retail at 0x001EEA78 stores each intermediate back before using it:
      lwc1 $f0,0x4C0($29) / mul.s $f2,$f0,$f1 / swc1 $f2,0x4C0($29)
      lwc1 $f0,0x4C4($29) / mul.s $f1,$f0,$f1 / swc1 $f1,0x4C4($29)
      lwc1 $f0,0x80($29)  / add.s $f0,$f2,$f0 / swc1 $f0,0x4C0($29)
-   That is `v[0] *= s; v[1] *= s; v[0] += p[0];` as separate statements on an
-   address-taken pair, not the object's fused `v[0] = v[0] * s + p[0]`.
-   Next step for this floor: give it the extra live pointer and unfuse those
-   multiply-accumulates, then re-measure the frame size before anything else. */
+     add.s $f0,$f1,$f20  / swc1 $f0,0x4C4($29)
+     lwc1 $f1,0x4C0($29) / lwc1 $f0,0x4C4($29)
+     swc1 $f1,0x498($29) / swc1 $f0,0x49C($29)
+   That is `t *= s; t += p; out = t;` as separate statements on an
+   address-taken pair, not `out = t * s + p;`.  Both the 300.0f and the
+   500.0f blocks were written fused and are now separate.
+   STILL OPEN, and the next thing to attack: the prologue.  Retail opens
+   `addiu $sp,$sp,-0x4e0` / `sd $ra,0x70($sp)` / `sq $s5,0x60($sp)` /
+   `sq $s4,0x50($sp)` where the object has `addiu $sp,$sp,-0x4c0` /
+   `sd $ra,0x50($sp)`.  Retail's frame is 32 bytes bigger, its save area
+   starts 32 bytes higher, and it holds one more pointer live - `$s4` against
+   the object's `$s3`.  A frame-size and saved-register-count difference is a
+   source defect: the body does not keep as many values live across calls as
+   retail's did.  (Visible only since tools/eedis.py taught fnalign to decode
+   `lq`/`sq`; both rows previously read `??` and compared equal.) */
 // FUN_001EE610 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001ee610(u8 *arg0, f32 arg1) {
@@ -3640,8 +3640,12 @@ tail_check:
                 tmp[16] = pts[0] - tmp[0];
                 tmp[17] = pts[1] - tmp[1];
                 func_003e41e0(&tmp[16], &tmp[16]);
-                tmp[4] = tmp[16] * 300.0f + pts[0];
-                tmp[5] = tmp[17] * 300.0f + pts[1];
+                tmp[16] = tmp[16] * 300.0f;
+                tmp[17] = tmp[17] * 300.0f;
+                tmp[16] = tmp[16] + pts[0];
+                tmp[17] = tmp[17] + pts[1];
+                tmp[4] = tmp[16];
+                tmp[5] = tmp[17];
             } else {
                 tmp[4] = pts[var_19 * 2 - 2];
                 tmp[5] = pts[var_19 * 2 - 1];
@@ -3650,8 +3654,12 @@ tail_check:
                 tmp[16] = pts[0] - tmp[0];
                 tmp[17] = pts[1] - tmp[1];
                 func_003e41e0(&tmp[16], &tmp[16]);
-                tmp[6] = tmp[16] * 500.0f + pts[0];
-                tmp[7] = tmp[17] * 500.0f + pts[1];
+                tmp[16] = tmp[16] * 500.0f;
+                tmp[17] = tmp[17] * 500.0f;
+                tmp[16] = tmp[16] + pts[0];
+                tmp[17] = tmp[17] + pts[1];
+                tmp[6] = tmp[16];
+                tmp[7] = tmp[17];
             } else {
                 tmp[6] = pts[var_19 * 2 - 4];
                 tmp[7] = pts[var_19 * 2 - 3];
