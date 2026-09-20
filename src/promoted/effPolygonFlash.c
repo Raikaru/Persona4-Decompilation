@@ -1238,6 +1238,16 @@ void func_0049c380(u8 *arg0)
    packed scalar color data before the COP2 block; b210 cannot emit this sequence
    from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
 /* Floor (measured 2026-09-18, source-repo only): measure_guarded 523 words (loop+prop), fnalign 592/592/419 (retail/object/edits instrs), emitted 2368B/window 2368B (100% exact size). Pragma sweep: loop 553, loop+prop 523 WINNER (-30), loop+dead 542 (-11), O4 553 tie, prop 563, sched 563, dead 577, strength/unroll 584, peephole 588, subs 608, O0 626; pairs confirm loop+prop stands. Probe chain: v1 scalar+bridges 585 -> v2 u32 colors+int quad zeros 584 (-1) -> installed loop 553 (-31) -> loop+prop 523 (-30). Micro-priced casts: (s32)(f*(f32)n) vs (u32) 584 vs 598 (+14 for 2 fades, cf. func_0049ef50 8-vs-21); color packing via single VU bridge per loop (lui 0x437F) not per-channel casts. wscan OBJ 5 dsll32/dsra32 vs RETAIL 0 (s128 width wall) + daddu 0-vs-13 (zero-idiom); opclass 15: nop -10, addiu +8, sw +7, dsra32 +5, lui -5, dsll32 +4, lw -3. Residual is saved-GPR/FP pool rotation + COP2 slot addresses + standalone MMI pextlb/pextlh (romwright m2c-shaped fails _pextlb intrinsic) + s128-canonicalization + daddu zero-idiom + interior VU vitof/vmul/vftoi/ppach. Banked as guarded floor; production stays ASM. See /var/tmp/cold49c3d0/ (m2c.c 309L, rw_raw.c 323L, rw_types.txt, v1/v2/v3u, cand523.c). */
+/* measured 0049c3d0 (owner, 2026-09-19): fnalign **419 -> 415 edits**, count
+   592 -> 590 against retail 592, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_0049C3D0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
@@ -1486,7 +1496,8 @@ void func_0049c3d0(u8 *arg0)
                             vertex[k * 3 + 4] = ((f32 *)D_00713D10)[1];
                             vertex[k * 3 + 5] = ((f32 *)D_00713D10)[2];
                         }
-                        for (k = 6; k < 12; k++) {
+                        k = 6;
+                        do {
                             u32 fb;
                             u32 f70w;
                             fb = D_00713FB0[k];
@@ -1507,7 +1518,8 @@ void func_0049c3d0(u8 *arg0)
                             vertex[k * 3 + 3] = ((f32 *)D_00713D10)[0];
                             vertex[k * 3 + 4] = ((f32 *)D_00713D10)[1];
                             vertex[k * 3 + 5] = ((f32 *)D_00713D10)[2];
-                        }
+                            k++;
+                        } while (k < 12);
                         if (cur < (s32)spF0) {
                             fade = (f32)cur / (f32)(s32)spF0;
                         } else {

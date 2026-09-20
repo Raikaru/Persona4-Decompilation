@@ -1561,6 +1561,16 @@ void func_00213e20(u8 *arg0, u8 *arg1)
 }
 /* measured 002142b0: retail 1624 instrs (6496B window), object 1636 instrs (6544B), 809 edits +4 reloc-only via `python3 -E -s tools/fnalign.py src/promoted/code1_0021.c func_002142b0 --candidate docs/probe_archive/Lane0021Full_002142b0_body.c` (was 1155 +4/object 1816). Truthful fixes: 00201650 floats-middle + u8 colors, 00201300 136.0f, 002016b0 s32, 0043f9c8 void*, 85.0*(f32)arg2. CFG hoist regresses 809->911 so kept. Frame -0x180 vs -0x170 + parks/coloring residual. Floor banked in Lane0021Full_002142b0_body.c (428 lines); production stays ASM. */
 /* installed 2026-09-19 from docs/probe_archive/Lane0021Full_002142b0_body.c (428 lines, single-function, zero markers): compiles clean with no fixes, fresh 6544B/6496B (1636 vs 1624, +0.7% inside gate), 1468 words. Kept as floor. */
+/* measured 002142b0 (owner, 2026-09-19): fnalign **809 -> 807 edits**, count
+   1636 -> 1634 against retail 1624, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_002142B0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002142b0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
@@ -1818,7 +1828,8 @@ void func_002142b0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
             tile = *(u16 *)(arg1 + 0xA18);
             value = func_0044b610(state) * fGpffff815c;
             value2 = func_0044b7b0(fGpffff815c);
-            for (i = 0; i < 3; i++) {
+            i = 0;
+            do {
                 temp = (f32)D_00626FC0[i] *
                        (f32)D_00626CC0[tile * 24 + i * 24];
                 work.effect[i * 2] = temp * value;
@@ -1826,7 +1837,8 @@ void func_002142b0(s32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1)
                 work.effect[i * 2 + 1] -=
                     (f32)D_00626FD0[i] *
                     (f32)D_00626CC0[tile * 24 + i * 24];
-            }
+                i++;
+            } while (i < 3);
             alpha = (s32)(64.0f * (f32)D_00626F00[tile]) & 0xFF;
             tile = (s16)tile + 1;
             *(u16 *)(arg1 + 0xA18) = (u16)tile;

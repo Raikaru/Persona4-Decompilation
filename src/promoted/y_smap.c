@@ -2184,6 +2184,16 @@ f32 func_002b1480(YVec3f *arg0, f32 arg1) {
 /*   u8 sp[0x10] s64 dead loads + high-word spills; (f32)327/341/395/443 via int cvt; */
 /*   explicit if (2.1474836e9f > x) u8/u16 guards; 9 fresh s16 counters; tail pp double-deref reload. */
 /* Residuals: guard mfc1 $v0 vs $v1 (4w/guard), fill-loop hoist, clear $s2/$s1 vs $s3/$s2. */
+/* measured 002b1520 (owner, 2026-09-19): fnalign **172 -> 163 edits**, count
+   831 -> 830 against retail 838, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_002B1520 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_loop_invariants on
@@ -2291,7 +2301,8 @@ void func_002b1520(s32 arg0, u8 *q) {
         *(u8 *)(*(u8 **)(q + 0x7C) + 0x10) = bv;
         t4 = 255.0f - t4;
         for (i3 = 0; i3 < 3; i3++) {
-            for (j3 = 0; j3 < 6; j3++) {
+            j3 = 0;
+            do {
                 u8 vv;
                 if (2.1474836e9f > t4) {
                     vv = (u8)(s32)t4;
@@ -2299,7 +2310,8 @@ void func_002b1520(s32 arg0, u8 *q) {
                     vv = (u8)(s32)(t4 - 2.1474836e9f);
                 }
                 *(u8 *)(*(u8 **)(q + (s32)i3 * 0x18 + (s32)j3 * 4 + 0x34) + 0x10) = vv;
-            }
+                j3++;
+            } while (j3 < 6);
         }
         *(f32 *)(sp + 4) = func_002b2aa0(0, 264.0f, (f32)327, (f32)*(s16 *)(q + 0x764), 5.0f);
         *(f32 *)(sp + 12) = func_002b2aa0(0, (f32)341, (f32)327, (f32)*(s16 *)(q + 0x764), 5.0f);

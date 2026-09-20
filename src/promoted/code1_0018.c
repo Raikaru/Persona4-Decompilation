@@ -1388,6 +1388,16 @@ void func_00185830(void)
    initialisation retail performs elsewhere, either inside the callee or in a later loop
    over the stored pointers.  That is where the 90 instructions are, and it is worth more
    than the whole rest of the function's distance. */
+/* measured 00185850 (owner, 2026-09-19): fnalign **790 -> 787 edits**, count
+   904 -> 902 against retail 880, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_00185850 NONMATCHING
 #ifdef NON_MATCHING
 void func_00185850(u8 *arg0)
@@ -1512,7 +1522,8 @@ void func_00185850(u8 *arg0)
       tmp = func_00401b80();
       *(u8 **)(piVar1 + 0x2232) = tmp;
       for (temp_v0 = 0; temp_v0 < 7; temp_v0 = temp_v0 + 1) {
-        for (temp_v4 = 0; temp_v4 < 10; temp_v4 = temp_v4 + 1) {
+        temp_v4 = 0;
+        do {
           ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x48] = (float)(temp_v4 << 6);
           ((f32 *)piVar1)[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x49] = (float)(temp_v0 << 6);
           piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x4a] = 0x447a0000;
@@ -1549,7 +1560,8 @@ void func_00185850(u8 *arg0)
           piVar1[temp_v0 * 0x280 + temp_v4 * 0x40 + 0x83] = 0x42800000;
           temp_v1 = func_003b7060();
           piVar1[temp_v0 * 10 + temp_v4 + 2] = temp_v1 & 3;
-        }
+            temp_v4++;
+        } while (temp_v4 < 10);
       }
       for (temp_v0 = 0; temp_v0 < 0xe; temp_v0 = temp_v0 + 1) {
         temp_v6 = (float)((temp_v0 + 1) * 0x20);

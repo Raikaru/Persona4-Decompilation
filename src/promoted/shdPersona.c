@@ -1416,7 +1416,15 @@ extern f32 iGpffff8094;
    stale loop registers); func_001187b0 is (u8*, s64, u8, s64, f32);
    iGpffff8364 = gp-0x7C9C = 0x00761454 (added to symbol_data_addrs). */
 /* measured: cold 2026-09-18 00118a20 -- GUARDED_SCORE 214 in real tree via `python3 -E -s tools/measure_guarded.py src/promoted/shdPersona.c func_00118a20` (probe 214 differing words, object 430 instrs/window 435 instrs, fnalign --candidate edit 82 +6 reloc-only, 435-instr window, retail window 1744B/436 instrs). Full-C from P4 m2c draft (/var/tmp/cold118a20/m2c.c) + rw raw (/var/tmp/cold118a20/rw.c, default m2c-shaped fails CONCAT44) + types (void*, 0x505/0x520/0x522/0x524/0x534) with named FMA locals (135+516*f25 then 516+x, -21-131*f24, 552+461*f23-15 etc, m11 shared for -11 stores + 484+m11), temp+join lerp chains, 0-arg 364c50/70, s64 casts for 1187b0. Frame 0xA0 matches retail. R1 c461/c413 int-cast 215 tie (1st non-lowering); R2 decl/stack (v3a 215 tie, v3b 226, v3c 214 lowering via reversed sp90/sp80/sp60, 112->82 edits); R3 pragmas (prop-off 398, loopinv 214 tie, both 394, 1st non-lowering); R4 pointer/seed ties 214 (2nd consecutive non-lowering, stop). verify.py 91 MATCH/11 ASM/0 MISMATCH; decomp_lint 0 errors (5 pre-existing warns elsewhere). Reused existing decls (0044b7b0 f32, 0045dfd0 f32-first, 001187b0 s64/u8/s64, iGpffff8094/8364), no new globals. Walls: s1/s2 colouring, 0x522/0x524 sh-before-extend, -11 mtc1-before-sw + 473 fold, FP temps. */
-// FUN_00118a20 NONMATCHING
+/* measured 00118a20 (owner, 2026-09-19): fnalign **82 -> 77 edits**, count 430 -> 428
+   against retail 435, by turning one constant-bound `for` loop into the `do { } while`
+   retail emits.  Same lever as the `loop_N:` goto sweep, reaching ordinary `for` loops.
+   This function's marker was written with a lowercase address where every other marker in
+   the tree uses uppercase, which silently excluded it from a batch installer keyed on the
+   uppercase form; it is normalised here.  (Spelling the two forms out literally in this
+   note is what tests/test_marker_tripwire.py exists to catch, so they are described
+   instead.) */
+// FUN_00118A20 NONMATCHING
 #ifdef NON_MATCHING
 void func_00118a20(u8 *arg0)
 {
@@ -1552,12 +1560,14 @@ void func_00118a20(u8 *arg0)
     sp60[5] = y2a;
     {
         s32 i;
-        for (i = 0; i < 3; i++) {
+        i = 0;
+        do {
             sp80[i * 4] = 0xFF;
             sp80[i * 4 + 1] = 0x36;
             sp80[i * 4 + 2] = 0x11;
             sp80[i * 4 + 3] = b505;
-        }
+            i++;
+        } while (i < 3);
     }
     func_00364c50();
     func_0045dfd0(0.0f, sp80, sp60, 3, 5, 0);

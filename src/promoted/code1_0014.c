@@ -288,6 +288,16 @@ static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
    still stands and is recorded above: retail saves $s6, $s7 and $fp that this body does
    not, and correcting the frame alone was measured and made the edits worse (1991 ->
    2007), so it is downstream of the region problem, not upstream of it. */
+/* measured 001400f0 (owner, 2026-09-19): fnalign **1991 -> 1989 edits**, count
+   1792 -> 1790 against retail 1792, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_001400F0 NONMATCHING
 #ifdef NON_MATCHING
 extern u8 D_005EF520[];
@@ -543,7 +553,8 @@ void func_001400f0(u8 *arg0)
             {
                 f32 prod;
                 prod = D_008872F8[0] * fa;
-                for (j = 0; j < 5; j++) {
+                j = 0;
+                do {
                     u8 *r;
                     u8 *dst;
                     r = D_005EF6A0 + (u32)j * 8;
@@ -555,7 +566,8 @@ void func_001400f0(u8 *arg0)
                     *(u32 *)(dst + 0x24) = 0x437F0000;
                     *(u32 *)(dst + 0x28) = 0x43010000;
                     *(f32 *)(dst + 0x2C) = (f32)(u32)((u8)prod);
-                }
+                    j++;
+                } while (j < 5);
             }
         }
         func_003f6440(3, 0x71801);

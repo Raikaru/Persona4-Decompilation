@@ -493,6 +493,16 @@ void func_0027d800(s32 a0, s32 a1, s32 a2, s32 a3, s16 t0, s16 t1, f32 f0, f32 f
    remainder copy/fill liveness in three 16-elem blocks (w5/w6/w7) with array-typed D_00882000/04/06/08
    (scalar GPREL16 cost one lui per site) and in-bounds F2 y indices (1,3,5,7,9 / 1,3,5,7,9,11,13,15).
    Residual is COP1 adda/madd/msub chains (7 sites) + scheduling wall; production stays ASM. */
+/* measured 0027d970 (owner, 2026-09-19): fnalign **872 -> 868 edits**, count
+   1782 -> 1780 against retail 1787, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_0027D970 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0027d970(s32 arg0, u32 arg1)
@@ -908,7 +918,8 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                 w6.points[11].y = f1 + 4.0f;
                 w6.points[13].y = f1 + 2.0f;
                 w6.points[15].y = f1;
-                for (i = 0; i < 16; i++) {
+                i = 0;
+                do {
                     p = &w6.points[i];
                     p->x += 20.0f;
                     p->y += (float)v0;
@@ -917,7 +928,8 @@ s32 func_0027d970(s32 arg0, u32 arg1)
                     c->g = 0x18;
                     c->b = 0x11;
                     c->a = 0xD8;
-                }
+                    i++;
+                } while (i < 16);
                 func_0045e8e0(&w6.colors[0], &w6.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
                 f2 = (float)a * 30.0f + (float)(v0 + 3) + 0.0f;
                 func_0025ec90(472.0f, f2, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, D_00796400);
@@ -1186,6 +1198,16 @@ void func_0027f6a0(void)
    2373->2382 (+9, words 1943->1924).  Floor now 2371 edits +80 reloc-only, 1943
    differing words.  Ten COP1 accumulator chains remain as shared-product a*b+-c*d per
    7r; residual is prologue saved-reg rotation + 0x20 frame gap; production stays ASM. */
+/* measured 0027f6f0 (owner, 2026-09-19): fnalign **2371 -> 2365 edits**, count
+   2125 -> 2123 against retail 2153, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_0027F6F0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0027f6f0(s32 arg0, u32 arg1)
@@ -1736,12 +1758,14 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             }
         } else if (D_0088202C[0] == 0) {
             e = (MsgProcWindowEntry *)0;
-            for (i = 0; i < 8; i++) {
+            i = 0;
+            do {
                 if ((D_008820B0[i].field0 & 1) == 0) {
                     e = &D_008820B0[i];
                     break;
                 }
-            }
+                i++;
+            } while (i < 8);
             if (e != (MsgProcWindowEntry *)0) {
                 func_0043f9c8(e, 0, 0x18);
                 e->field0 |= 1;
@@ -2477,6 +2501,16 @@ s32 func_002833b0(s32 arg0)
 }
 
 /* Floor (measured 2026-09-19, source-repo only, verbatim): `python3 tools/measure_guarded.py src/promoted/itfMsgProcedure_Window.c func_00283490` prints `func_00283490 @ 0x00283490  obj 5044B  window 5168B` and `GUARDED_SCORE func_00283490: 1139`; `python3 tools/fnalign.py src/promoted/itfMsgProcedure_Window.c func_00283490 --candidate /tmp/window_saved.c --quiet` prints `func_00283490 @ 0x00283490  retail 1288 instrs  object 1261 instrs` and `edit instructions: 584 (plus 52 reloc-only)` (-2.1% inside 3% gate, frame 0x140 exact). Draft from m2c+ghidra+IDA plus donor code1_0027 func_0027bf30 idiom; eight COP1 chains as fused a*b+c / c-a*b per handoff 7r. Earlier note claiming 1292/1292 exact and 4 edits measured the production ASM fallback, not the guarded body. Banked as guarded floor; production stays ASM. */
+/* measured 00283490 (owner, 2026-09-19): fnalign **584 -> 582 edits**, count
+   1261 -> 1259 against retail 1288, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_00283490 NONMATCHING
 #ifdef NON_MATCHING
 void func_00283490(u8 *arg0, u8 *arg1)
@@ -2657,7 +2691,8 @@ lab4_chk:;
         }
         func_003f6440(3, 0x7000D);
         func_003f6440(2, 0x48);
-        for (i = 0; i < 0x18; i++) {
+        i = 0;
+        do {
             f32 fx;
             f32 fy;
             fx = (f32)((i % 6) * 0x7E);
@@ -2669,7 +2704,8 @@ lab4_chk:;
             if (tmp < 0 && mod != 0) {
                 mod -= 4;
             }
-        }
+            i++;
+        } while (i < 0x18);
         f20 = iGpffff8094 * (f32)cnt;
         t = func_0044b7b0(f20 / 15.0f);
         if (v == 0) {
