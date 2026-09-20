@@ -8019,7 +8019,7 @@ void func_002d8a60(void *arg0, s8 arg1, f32 fparg0, f32 fparg1) {
     }
     func_002b2cb0(0, temp_20, 5, 0, 1);
     temp_3_2 = temp_18 + temp_19;
-    var_3 = (s64) ((*(s32*)((u8*)(temp_3_2)+0x1168) - *(s32*)((u8*)(temp_3_2)+0x116B)) << 0x30) >> 0x30;
+    var_3 = (s64)(s16)(*(s8*)((u8*)(temp_3_2)+0x1168) - *(s8*)((u8*)(temp_3_2)+0x116B));
     if (var_3 < 0) {
         var_3 = 0;
     }
@@ -8047,7 +8047,7 @@ loop_53:
             var_f20 = func_002b2aa0(0, fparg0, fparg1, (f32) *(s16*)((u8*)(temp_3_3)+0xFA2), (f32) *(s16*)((u8*)(temp_3_3)+0xFA0));
             *spD0 = func_002b2cb0((s32) *(s16*)((u8*)(temp_3_3)+0xFA2), 1, (s32) *(s16*)((u8*)(temp_3_3)+0xFA0), 0, 1);
         }
-        if (temp_21 == *(s32*)((u8*)(temp_18_2)+0x116B)) {
+        if (temp_21 == *(s8*)((u8*)(temp_18_2)+0x116B)) {
             if (temp_23 == *(s8*)((u8*)(temp_19)+0x11)) {
                 func_002e09e0(*(void**)((u8*)(temp_19)+0xDCC), 0x41, 143.0f);
                 func_002b2a60(&sp1F0, 0xFE, 0xC6, 0x31, 0xFF);
@@ -8057,7 +8057,7 @@ loop_53:
                 *(u8*)((u8*)(temp_2_8)+0x7B) = sp1F2;
                 *(u8*)((u8*)(temp_2_8)+0x7C) = sp1F3;
                 *(u8*)((u8*)(func_002e04e0(*(void**)((u8*)(temp_19)+0xDCC)))+0x62) = 0xFF;
-                temp_f23 = *(f32*)((u8*)(D_0063F888)+0x4) + (f32) (*(s32*)((u8*)(temp_18_2)+0x116B) << 5);
+                temp_f23 = *(f32*)((u8*)(D_0063F888)+0x4) + (f32) (*(s8*)((u8*)(temp_18_2)+0x116B) << 5);
                 *(f32*)((u8*)(func_002e04e0(*(void**)((u8*)(temp_19)+0xDCC)))+0x30) = temp_f23;
                 *(f32*)((u8*)(func_002e04e0(*(void**)((u8*)(temp_19)+0xDCC)))+0x2C) = (f32) (var_f20 - 10.0f);
                 func_002e09e0(*(void**)((u8*)(temp_19)+0xDD0), 0x41, 143.0f);
@@ -8068,7 +8068,7 @@ loop_53:
                 *(u8*)((u8*)(temp_2_9)+0x7B) = sp1EE;
                 *(u8*)((u8*)(temp_2_9)+0x7C) = sp1EF;
                 *(u8*)((u8*)(func_002e04e0(*(void**)((u8*)(temp_19)+0xDD0)))+0x62) = 0xFF;
-                temp_f23_2 = *(f32*)((u8*)(D_0063F888)+0x4) + (f32) (*(s32*)((u8*)(temp_18_2)+0x116B) << 5);
+                temp_f23_2 = *(f32*)((u8*)(D_0063F888)+0x4) + (f32) (*(s8*)((u8*)(temp_18_2)+0x116B) << 5);
                 *(f32*)((u8*)(func_002e04e0(*(void**)((u8*)(temp_19)+0xDD0)))+0x30) = temp_f23_2;
                 *(f32*)((u8*)(func_002e04e0(*(void**)((u8*)(temp_19)+0xDD0)))+0x2C) = (f32) (444.0f + var_f20);
                 func_002e04f0(*(void**)((u8*)(temp_19)+0xE68), 0, 1);
@@ -8083,7 +8083,7 @@ loop_53:
                 *(u8*)((u8*)(temp_2_10)+0x7B) = sp1EA;
                 *(u8*)((u8*)(temp_2_10)+0x7C) = sp1EB;
                 *(u8*)((u8*)(func_002e04e0(*(void**)((u8*)(temp_19)+0xEE4)))+0x62) = 0xFF;
-                temp_f23_3 = *(f32*)((u8*)(D_0063F888)+0x4) + (f32) (*(s32*)((u8*)(temp_18_2)+0x116B) << 5);
+                temp_f23_3 = *(f32*)((u8*)(D_0063F888)+0x4) + (f32) (*(s8*)((u8*)(temp_18_2)+0x116B) << 5);
                 *(f32*)((u8*)(func_002e04e0(*(void**)((u8*)(temp_19)+0xEE4)))+0x30) = temp_f23_3;
                 *(f32*)((u8*)(func_002e04e0(*(void**)((u8*)(temp_19)+0xEE4)))+0x2C) = (f32) (var_f20 - 10.0f);
                 func_002e09e0(*(void**)((u8*)(temp_19)+0xEE8), 0x41, 143.0f);
@@ -8094,7 +8094,7 @@ loop_53:
                 *(u8*)((u8*)(temp_2_11)+0x7B) = sp1E6;
                 *(u8*)((u8*)(temp_2_11)+0x7C) = sp1E7;
                 *(u8*)((u8*)(func_002e04e0(*(void**)((u8*)(temp_19)+0xEE8)))+0x62) = 0xFF;
-                temp_f23_4 = *(f32*)((u8*)(D_0063F888)+0x4) + (f32) (*(s32*)((u8*)(temp_18_2)+0x116B) << 5);
+                temp_f23_4 = *(f32*)((u8*)(D_0063F888)+0x4) + (f32) (*(s8*)((u8*)(temp_18_2)+0x116B) << 5);
                 *(f32*)((u8*)(func_002e04e0(*(void**)((u8*)(temp_19)+0xEE8)))+0x30) = temp_f23_4;
                 *(f32*)((u8*)(func_002e04e0(*(void**)((u8*)(temp_19)+0xEE8)))+0x2C) = (f32) (444.0f + var_f20);
                 func_002e04f0(*(void**)((u8*)(temp_19)+0xF08), 0, 1);
@@ -8107,7 +8107,7 @@ loop_53:
             var_21 = func_002b2a30(0U, 0xFFU, 0xAEU, 0U);
             func_002b2a60(&sp20C, 0xFF, 0xAE, 0, 0xFF);
             sp130 = func_002b2a30(0U, 0xFEU, 0xC7U, 0x31U);
-            if (temp_20_2 == *(s32*)((u8*)(temp_18_2)+0x1168)) {
+            if (temp_20_2 == *(s8*)((u8*)(temp_18_2)+0x1168)) {
                 sp134 = func_002b2a30(0x2DU, 0x2DU, 0x2DU, 0xFFU);
                 var_21 = func_002b2a30(0U, 0x2DU, 0x2DU, 0x2DU);
                 func_002b2a60(&sp20C, 0x2D, 0x2D, 0x2D, 0xFF);
