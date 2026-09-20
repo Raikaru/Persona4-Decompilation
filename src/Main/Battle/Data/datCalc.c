@@ -3644,6 +3644,7 @@ extern s32 func_00243e30(u16 *arg0);
    floor with a table: 20 were already in layout order, 5 improved (274, 88, 50, 37
    and 7 edits) and 13 got worse, so it is measured per function like every other
    spelling. */
+/* measured 0023a6b0 (owner, 2026-09-20): fnalign 805 -> 188 edits (plus 25 reloc-only unchanged), object 3070 vs retail 3080 (-0.3% inside 3% gate), via scoped #pragma opt_loop_invariants on. tail_classify structure 226 -> 50, register 105 -> 104. The pragma hoists the per-loop cnt&0xFFFF (andi $a1,$s5) and needle (addiu $a0) out of all 44 search loops, fixing the 5v6/4v2/2v3 length mismatches; deficit_scan unchanged deficit 10 (move +16 beq +5 nop +4 b +3, retail-only runs at 0x23a704, 0x23a734, 0x23a7a0) so the remainder is register coloring (s5/s6, s6/s7, val $s3/$a0, dsll+move vs dsll-direct) plus early range-vs-discrete and lhu scheduler phantom - wall, stop. Sibling 00238940 untouched, table_order already in layout order. */
 #pragma push
 #pragma opt_loop_invariants on
 // FUN_0023A6B0 NONMATCHING

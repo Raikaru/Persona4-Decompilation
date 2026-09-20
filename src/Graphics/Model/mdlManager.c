@@ -488,15 +488,24 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
    adda/madd (Horner, fixed by B1); mula 0x42264/0x4251C (lerp A*B+C*D, fixed by B1+B2);
    madda pairs 0x42574-0x42580 + 0x426DC-0x426E8 (2.0/sum-of-4-squares, already single).
    ~44 shared-product sites. lhu+bltz 0x472BF0 untouched (7az floor, struct u32 fix). */
-/* gate: func_00471370 is OUTSIDE the +-3% band at 1971 against retail 1776 (+11.0%, band
-   1723-1829).  First body this function has ever had.  The surplus came down from the
-   archived +44.2% draft in measured batches: dropping the trailing `+ 0.0f` terms -336,
-   merging the split lerps -10, correcting the float prototypes -83, a u64 fix -14, and
-   float-bit spelling -147, for 2561 -> 1971.  195 instructions of surplus remain and the
-   known cause is accumulator spelling: retail has 79 adda/mula/madd/madda lines and a
-   product shared between two terms must be ONE expression to get mula+madd.  About 44
-   such sites are still written as separate multiplies and adds.  No word or edit score
-   measured against this body is comparable until the count is inside (handoff 7y). */
+/* gate: func_00471370 is INSIDE the +-3% band at 1776 against retail 1776 (exact count,
+   band 1723-1829).  From the 1971 body: unsuffixed double constants were emitting ~155
+   fptodp/dpsub/dptofp/lito emulation calls (object had 233 jal vs retail's 78); `f`
+   suffixes on all 86 float constants -420 to 1551 with 79 calls.  The MAC-fusion theory
+   was inverted for this body: at equal precision our fused mula+madd undershoots retail,
+   whose 79 adda/mula/madd/madda lines are mostly SPLIT shapes (mul+store, reload+adda+
+   madd).  Length came back via retail-observed splits: push/pop opt_common_subs off +
+   opt_propagation off around the function +130 (1676, wrapper placement; in-body pragmas
+   are inert); column-major lerp splits (mul+store, reload+combine, 4th row fused) +11/+15;
+   negate-triple store-then-negate +2; afStack_350[4] array (sign-flip quads were scalar-
+   addressed so MWCC dropped 3 of 4 dead stores; array forces the 16B callee window) +12;
+   afStack_30[3] array (same scalar-escape loss on fStack_2c/28 scalings/reciprocals) +60.
+   Also fixed: body-local func_003e0870() prototype to (float,void*,void*,int) with 180.0f/
+   -90.0f literals and *(float*) loads (retail passes first arg in $f12; the () prototype
+   promoted floats to double, 2 fptodp).  lhu+bltz 0x472BF0 still untouched (7az floor).
+   Measured at gate: GUARDED_SCORE 1636, fnalign edits 2073, frame -0x400 vs retail -0x550.
+   Word/edit scores are comparable from here (equal length).  Production guarded, fallback
+   INCLUDE_ASM retained. */
 #pragma push
 #pragma opt_common_subs off
 #pragma opt_propagation off
@@ -1384,10 +1393,9 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471370);
 #endif
 #pragma pop
-/* gate: object 1971 against retail 1776, +11.0% - OUTSIDE the +-3% band (1723-1829).
-   Any differing-word score in this note was measured against a body of the wrong length
-   and is not comparable to one measured inside the gate (handoff 7y). Production guarded,
-   fallback INCLUDE_ASM retained. */
+/* gate: object 1776 against retail 1776 - INSIDE the +-3% band (1723-1829).  Scores at
+   gate: GUARDED_SCORE 1636, fnalign edits 2073, both comparable (equal length).
+   Production guarded, fallback INCLUDE_ASM retained. */
 
 extern void func_00397c40(void* a, void* b);
 extern void func_00471370(u8 *a, u8 *b, u8 *c, void *d);

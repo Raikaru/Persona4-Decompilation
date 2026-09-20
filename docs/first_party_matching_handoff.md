@@ -571,6 +571,39 @@ The reason sweeping misses these is that each pragma only reveals the next
 residual: at 24 words a pair sweep sees no improvement worth taking, because
 the win is three pragmas deep.
 
+### 7bh. Aggregates drop callee-saved floats; address-taken scalars do not
+
+`func_004b8f40` defeated two sessions.  Its deficit was `lwc1 +76 / swc1 +33`
+with two 349-instruction retail-only runs, and the diagnosis - correct as far
+as it went - was a **spill gap**: retail spills per use at frame 0x220 while
+the object kept `$f25`-`$f31` callee-saved at frame 0x1A0.  That reads like
+allocator identity, which 7bf says is unreachable.  It was reachable, and the
+rule is specific:
+
+> Address-taken scalars and plain arrays do **not** drop callee-saved float
+> registers.  Aggregates do.
+
+Collecting 26 `f32` intermediates into one address-taken struct took the
+saved set from twelve registers to six.  With two further changes - the `u64`
+previous/first-point puns written as plain struct floats, and three dispatch
+chains rewired to test 2,1,0 while laying the bodies 0,1,2 through `goto` -
+the floor went **2907 -> 1716 edits** and the object landed on an exact
+1932/1932.
+
+Two negatives from the same session are worth as much as the win:
+
+- Retail's exact saved set `$f20`-`$f24` was reproduced **twice**, by two
+  different routes, and both were **worse** (1812 words against 1807).
+  Matching the saved-register set is not the same as matching the code that
+  produces it; do not treat `regsave_scan` agreement as the goal in itself.
+- A global `opt_loop_invariants off` overshoots to frame 0x190 and is worse
+  both with and without the `goto` layout.
+
+The residual is 13 hoisted quadword address spills: retail recomputes the
+`== 1` and `== 2` nest addresses at every fetch and hoists only the `== 0`
+outer address.  That is the same recompute-do-not-hoist shape as
+`func_00375f00` and `func_0046b380`.
+
 ### 7be. Dispatch shape: arm count is not the discriminator, a default is
 
 The switch lever was written as "a chain of four or more equality arms may be
