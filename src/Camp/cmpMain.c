@@ -1,5 +1,6 @@
 /* Original translation unit cmpMain.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "sdk_snd_internal.h"
 
@@ -14,9 +15,8 @@ void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 s32 func_00453960(void *arg0);
 void func_0043f9c8(void *dst, s32 value, u32 size);
-s32 func_00451fc0(s32 arg0, const void *name, s32 prio, s32 a3, s32 a4,
-                  void (*init)(u8 *), void (*close)(u8 *), u8 *work);
-s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+
+
 void func_00440b68();
 void func_0012d140(void);
 u8 *func_00454a60(u8 *param, s32 mode);
@@ -82,7 +82,7 @@ extern u8 *iGpffff9cb4;
 extern u8 iGpffff9cc0;
 
 // FUN_0012C510
-s32 func_0012c510(void) {
+s32 func_0012c510(u8 *unusedTask) {
     u8 *p;
     u32 state;
     s32 r;
@@ -456,8 +456,7 @@ s32 func_0012d000(s32 arg0, s16 arg1) {
         return 0;
     }
     *(u16 *)(p + 0xC) = arg1;
-    r = func_00451fc0(arg0, &iGpffff9cb8, 0xC7, 0, 0,
-                      (void (*)(u8 *))func_0012c510, (void (*)(u8 *))func_0012cc50, p);
+    r = (s32)func_00451fc0((void *)(arg0), (const void *)(&iGpffff9cb8), 0xC7, 0, 0, func_0012c510, func_0012cc50, (u8 *)(p));
     func_0034bb20(0);
     func_0034c260(1);
     func_0043f9c8(p + 0x970C, 0, 0x30);
@@ -473,7 +472,7 @@ void func_0012d140(void) {
 }
 
 // FUN_0012D160
-void func_0012d160(void *arg0) {
+void func_0012d160(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
@@ -554,8 +553,7 @@ s32 func_0012d320(void) {
     if (p == NULL) {
         return 0;
     }
-    r = func_00451de0(D_005E58B0, 0xF, 0, 0, (void *)func_0012d190,
-                      (void *)func_0012d160, p);
+    r = (s32)func_00451de0((const void *)(D_005E58B0), 0xF, 0, 0, func_0012d190, func_0012d160, (u8 *)(p));
     *(u16 *)p = 0;
     *(u8 **)(p + 4) = D_005E5830;
     *(u8 **)(p + 8) = D_005E5850;

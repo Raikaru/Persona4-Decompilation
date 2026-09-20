@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 
 /* gp-relative global at 0x0072467C (gp - 0x4A74): pointer to the active list. */
@@ -17,10 +18,8 @@ extern void (*jtbl_008873EC[])(void *);
 extern s32 func_002b2d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
 extern void func_0044ea90(void *msg, s32 id);
 extern void func_00452080(s32 handle);
-extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, s32 (*init)(u8 *),
-                        void (*close)(u8 *), void *buf);
-extern s32 func_00451fc0(s32 arg0, const void *data, s32 a, s32 b, s32 c,
-                         s32 (*init)(u8 *), void (*close)(u8 *), u8 *buf);
+
+
 extern s32 func_002e23b0(u8 *arg0);
 extern s32 func_002e2410(u8 *arg0);
 extern void func_002e2470(u8 *arg0);
@@ -28,11 +27,11 @@ extern s32 func_002e4090(u8 *arg0);
 extern void func_002e29a0(void);
 extern s8 func_002e47b0(void);
 extern void func_002e4820(s8 arg0);
-extern void *func_0043f9c8(void *dest, s32 value, s32 size);
+extern void *func_0043f9c8(void *dest, s32 value, u32 size);
 extern s32 func_002e6b20(s16 *arg0, s16 *arg1);
 extern s32 func_002e6630(s16 *arg0, s16 *arg1);
 extern s32 func_00440bb8();
-extern void *func_0010fcb0();
+extern u8 *func_0010fcb0(s32 arg0);
 extern s32 func_0010aa80(s32 arg0);
 extern u16 *func_0010ac10(s32 arg0);
 
@@ -40,14 +39,14 @@ extern void func_0010cad0(u8 *dest, u16 id);
 extern s32 func_0010b5b0(void);
 extern s32 func_0010abd0(s16 arg0);
 extern u16 *func_0010ace0(s16 arg0);
-extern s32 func_0010a900(u16 arg0);
-extern void func_0010ffa0(s32 arg0);
+extern u16 *func_0010a900(s32 arg0);
+extern void func_0010ffa0(void);
 extern s32 func_002e5270(u8 *arg0, u8 *arg1);
 extern s16 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_00311d00(u16 id);
 extern s32 func_00311d60(u16 id);
 extern s32 func_00311e40(u16 id);
-extern void func_0043f810(void *dst, void *src, u32 size);
+extern void *func_0043f810(void *dst, const void *src, u32 size);
 extern s32 func_00106600(s16 arg0);
 extern u32 func_00106880(s16 arg0);
 extern u32 func_00106a60(s16 arg0);
@@ -71,8 +70,7 @@ void func_002e24a0(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
     }
     func_0044ea90(D_0063FC48, 0x67);
     buf = D_008873F4[0](1, 0x1810, 0x40000);
-    iGpffffb58c = (u8 *)func_00451de0(D_0063FC58, 0xF, 0, 0, func_002e23b0,
-                                       func_002e2470, buf);
+    iGpffffb58c = (u8 *)(s32)func_00451de0((const void *)(D_0063FC58), 0xF, 0, 0, func_002e23b0, func_002e2470, (u8 *)(buf));
     *(s32 *)(buf + 4) = arg0;
     *(s32 *)(buf + 8) = arg1;
     *(s8 *)(buf + 1) = arg2;
@@ -86,8 +84,7 @@ void func_002e2590(s32 arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
 
     func_0044ea90(D_0063FC48, 0x82);
     buf = D_008873F4[0](1, 0x1810, 0x40000);
-    func_00451fc0(arg0, D_0063FC58, 0xF, 0, 0, func_002e2410, func_002e2470,
-                  buf);
+    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063FC58), 0xF, 0, 0, func_002e2410, func_002e2470, (u8 *)(buf));
     *(s32 *)(buf + 4) = arg1;
     *(s32 *)(buf + 8) = arg2;
     *(s8 *)(buf + 1) = arg3;
@@ -781,14 +778,23 @@ INCLUDE_ASM("asm/nonmatchings/y_list", func_002e3560);
 #endif
 #pragma opt_common_subs on
 
-/* measured: de-noised m2c floor with truthful externs (0010b5b0/0010abd0/0010ace0/0010a900/0010ffa0/002e5270), s16 counters, (u16)/(void *)(u32) casts, for-loop form, iGpffffb3d4+i*0xE idiom; 74 differing words (was 310 implicit); production stays ASM. */
-// FUN_002E4090 NONMATCHING
-#ifdef NON_MATCHING
+typedef struct YListPersonaRecord {
+    u16 flags;
+    u16 id;
+    u8 data[0x2C];
+} YListPersonaRecord;
+typedef char YListPersonaSizeCheck[sizeof(YListPersonaRecord) == 0x30 ? 1 : -1];
+
+/* Case 6 compares the inventory persona with its compendium record.
+ * Read the copied record ID before both metadata and compendium lookup. */
+// FUN_002E4090
+#pragma push
+#pragma opt_lifetimes on
 s32 func_002e4090(u8 *arg0) {
-    u8 sp40[0x30];
-    u8 sp70[0x30];
+    YListPersonaRecord registered;
+    YListPersonaRecord current;
     s16 i;
-    s32 tmp;
+    u16 *tmp;
     u8 *p;
     u32 sw;
     p = *(u8 **)(arg0 + 0x38);
@@ -808,16 +814,16 @@ s32 func_002e4090(u8 *arg0) {
         for (i = 0; i < (func_0010b5b0() & 0xFFFF); i++) {
             if (func_0010abd0(i) == 1) {
                 func_0043f9c8(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
-                func_0043f810(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, (void *)(u32)func_0010ace0(i), 0x30);
+                func_0043f810(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, func_0010ace0(i), 0x30);
                 *(s32 *)(p + 8) += 1;
             }
         }
         break;
     case 2:
         for (i = 0; i < 0x100; i++) {
-            if ((void *)(u32)func_0010fcb0(i) != 0) {
+            if (func_0010fcb0(i) != 0) {
                 func_0043f9c8(p + (*(s32 *)(p + 8) * 0x30) + 0x14, 0, 0x30);
-                func_0043f810(p + (*(s32 *)(p + 8) * 0x30) + 0x14, (void *)(u32)func_0010fcb0(i), 0x30);
+                func_0043f810(p + (*(s32 *)(p + 8) * 0x30) + 0x14, func_0010fcb0(i), 0x30);
                 *(s32 *)(p + 8) += 1;
             }
         }
@@ -826,9 +832,9 @@ s32 func_002e4090(u8 *arg0) {
         for (i = 0; i < (func_0010b5b0() & 0xFFFF); i++) {
             if (func_0010abd0(i) == 1) {
                 tmp = func_0010a900(1);
-                if (tmp != (s32)(u32)func_0010ace0(i)) {
+                if (tmp != func_0010ace0(i)) {
                     func_0043f9c8(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
-                    func_0043f810(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, (void *)(u32)func_0010ace0(i), 0x30);
+                    func_0043f810(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, func_0010ace0(i), 0x30);
                     *(s32 *)(p + 8) += 1;
                 }
             }
@@ -837,12 +843,12 @@ s32 func_002e4090(u8 *arg0) {
     case 6:
         for (i = 0; i < (func_0010b5b0() & 0xFFFF); i++) {
             if (func_0010abd0(i) == 1) {
-                func_0043f810(sp40, (void *)(u32)func_0010ace0(i), 0x30);
-                if (*(u8 *)(iGpffffb3d4 + i * 0xE + 2) < 0x16) {
-                    func_0043f810(sp70, (void *)(u32)func_0010fcb0(i), 0x30);
-                    if (func_002e5270(sp40, sp70) == 1) {
+                func_0043f810(&current, func_0010ace0(i), 0x30);
+                if (*(u8 *)(iGpffffb3d4 + current.id * 0xE + 2) < 0x16) {
+                    func_0043f810(&registered, func_0010fcb0(current.id), 0x30);
+                    if (func_002e5270((u8 *)&current, (u8 *)&registered) == 1) {
                         func_0043f9c8(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
-                        func_0043f810(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, (void *)(u32)func_0010ace0(i), 0x30);
+                        func_0043f810(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, func_0010ace0(i), 0x30);
                         *(s32 *)(p + 8) += 1;
                     }
                 }
@@ -856,7 +862,7 @@ s32 func_002e4090(u8 *arg0) {
         }
         break;
     case 8:
-        func_0010ffa0(1);
+        func_0010ffa0();
         for (i = 1; i < 0xC0; i++) {
             func_0010cad0(p + ((i - 1) * 0x30) + 0x14, (u16)i);
             *(s32 *)(p + 8) += 1;
@@ -869,12 +875,10 @@ s32 func_002e4090(u8 *arg0) {
     return 0;
 }
 
-#else
-INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4090);
-#endif
 
+#pragma pop
 // FUN_002E45E0
-void func_002e45e0(void *arg0) {
+void func_002e45e0(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
@@ -893,7 +897,7 @@ void func_002e4610(s32 arg0, s8 arg1) {
     }
     func_0044ea90(D_0063FC48, 0x38F);
     buf = D_008873F4[0](1, 0x3014, 0x40000);
-    *slot = (u8 *)func_00451de0(D_0063FC58, 0xF, 0, 0, func_002e4090, (void (*)(u8 *))func_002e45e0, buf);
+    *slot = (u8 *)(s32)func_00451de0((const void *)(D_0063FC58), 0xF, 0, 0, func_002e4090, func_002e45e0, (u8 *)(buf));
     buf[0] = 0;
     *(s32 *)(buf + 4) = arg0;
     *(s32 *)(buf + 8) = 0;

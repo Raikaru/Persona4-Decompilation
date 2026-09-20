@@ -2,6 +2,7 @@
 /* Original translation unit sdkDbprt.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "include_asm.h"
+#include "sdk_dbprt.h"
 
 #define HDBPRT_GRID_WIDTH  (640 / 12)
 #define HDBPRT_GRID_HEIGHT (480 / 12)
@@ -420,7 +421,7 @@ INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044fa90);
    order/width choice. Converting the pointer through a named s32 local emits
    retail's addu $v1,$s3,$sp; addiu $v1,$v1,0x60 pair before lb $a1,0($v1). */
 // FUN_00450050
-void func_00450050(s64 arg0, s32 arg1, ...) {
+void func_00450050(s64 arg0, const char* arg1, ...) {
     va_list args;
     s8 sp60[0x100];
     f32 arg0hi;
@@ -434,7 +435,7 @@ void func_00450050(s64 arg0, s32 arg1, ...) {
 
     arg0hi = *(f32 *)((u8 *)&arg0 + 4);
     va_start(args, arg1);
-    func_00446ed8(sp60, (void *)arg1, args);
+    func_00446ed8(sp60, arg1, args);
     var_18 = (s32)(*(f32 *)&arg0);
     var_17 = (s32)arg0hi;
     var_19 = 0;
@@ -540,4 +541,3 @@ void func_00450340(s64 arg0, s32 arg1, ...) {
         } while (1);
     }
 }
-

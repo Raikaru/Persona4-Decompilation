@@ -1,24 +1,23 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 extern s32 iGpffffb4bc;
 extern s32 iGpffffa730;
 extern s32 func_00106330(s32 arg0);
 extern s32 func_00273970(u8 *arg0);
 extern void func_0026d810();
-extern s32 func_00451fc0(s32 arg0, const void *arg1, s32 arg2, s32 arg3,
-                         s32 arg4, void (*arg5)(void), void (*arg6)(void),
-                         s32 arg7);
+
 extern u8 D_0063B5A0[];
 extern u8 D_0063B5C0[];
-extern s32 func_0026db60(void);
+extern s32 func_0026db60(u8 *task);
 extern void func_0026c960(f32 fparg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f32 *arg5, f32 *arg6);
 extern f32 fGpffff82d4;
 extern f32 fGpffff83d0;
 extern f32 fGpffff842c;
 extern void func_0026c860(f32 *arg0, f32 *arg1);
 extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
-extern void func_0026dc30(void);
-extern s32 func_0026dee0(void);
+extern void func_0026dc30(u8 *task);
+extern s32 func_0026dee0(u8 *task);
 extern u8 *func_001452b0(s32 arg0);
 extern void func_0026dd60(u8 *arg0);
 extern void func_0026d440(void);
@@ -1168,8 +1167,9 @@ block_8:
 /* measured: closes optimization-level probe for 00263220 */
 #pragma optimization_level 2
 // FUN_00263460
-s32 func_00263460(s32 arg0)
+s32 func_00263460(u8 *sdkTaskBytes)
 {
+    s32 arg0 = (s32)sdkTaskBytes;
     s32 sp3C;
     s32 sp38;
     s32 temp_2_3;
@@ -1741,7 +1741,7 @@ void func_00264cb0(s32 arg0, s32 arg1)
     func_00460ac0((u8 *)arg1, temp_2);
 }
 // FUN_00264D10
-void func_00264d10(void)
+void func_00264d10(u8 *unusedTask)
 {
     s32 temp_4;
     u8 *temp_2;
@@ -2013,9 +2013,7 @@ s32 func_00267570(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     *(s32 *)(work + 8) = arg3;
     *(s32 *)(work + 0xC) = arg1;
     *(s32 *)(work + 0x10) = arg2;
-    result = func_00451fc0(arg0, D_00638FB0, 0xF, 0, 0,
-                           (void (*)(void))func_00266ba0,
-                           (void (*)(void))func_00267510, (s32)work);
+    result = (s32)func_00451fc0((void *)(arg0), (const void *)(D_00638FB0), 0xF, 0, 0, func_00266ba0, func_00267510, (u8 *)((s32)work));
     func_0045a8d0(3, 0);
     func_004598e0(0xA);
     return result;
@@ -2621,7 +2619,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026cef0);
 /* measured: opt_propagation off probe for func_0026db60 loop test ordering. */
 #pragma opt_propagation off
 // FUN_0026DB60
-s32 func_0026db60(void)
+s32 func_0026db60(u8 *unusedTask)
 {
     s32 var_17;
     u8 *var_16;
@@ -2668,7 +2666,7 @@ second_exit:
 /* measured: closes optimization_level 1 register-coloring probe for func_0026db60. */
 #pragma optimization_level 2
 // FUN_0026DC30
-void func_0026dc30(void)
+void func_0026dc30(u8 *unusedTask)
 {
     func_0026d810();
 }
@@ -2799,7 +2797,7 @@ loop_19_test:
     }
 }
 // FUN_0026DEE0
-s32 func_0026dee0(void)
+s32 func_0026dee0(u8 *unusedTask)
 {
     s32 temp_5;
     s8 temp_3;
@@ -2834,10 +2832,8 @@ s32 func_0026df80(void)
 {
     s32 temp_2;
 
-    temp_2 = func_00451fc0(0, D_0063B5A0, 0x10, 0, 0,
-                           (void (*)(void))func_0026db60, func_0026dc30, 0);
-    func_00451fc0(temp_2, D_0063B5C0, 0x10, 0, 0,
-                  (void (*)(void))func_0026dee0, NULL, 0);
+    temp_2 = (s32)func_00451fc0((void *)(0), (const void *)(D_0063B5A0), 0x10, 0, 0, func_0026db60, func_0026dc30, (u8 *)(0));
+    (s32)func_00451fc0((void *)(temp_2), (const void *)(D_0063B5C0), 0x10, 0, 0, func_0026dee0, 0, (u8 *)(0));
     return temp_2;
 }
 /* Allocate a header and count+1 linked records, including the wrap record.

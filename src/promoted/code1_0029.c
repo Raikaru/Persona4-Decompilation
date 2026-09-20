@@ -1,5 +1,6 @@
 /* Source unit: src/promoted/code1_0029.c */
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "sdk_snd_internal.h"
 typedef char *va_list;
@@ -348,9 +349,9 @@ void func_00293710(s16 arg0, s32 arg1, f32 fparg0, f32 fparg1,
 {
     extern u8 *func_002e1db0();
     extern u8 *func_002e2170();
-    extern void func_002930e0();
-    extern void func_002931a0();
-    extern s32 func_00451de0();
+extern s32 func_002930e0(u8 *task);
+extern void func_002931a0(u8 *task);
+
     extern s32 func_00452380(void *arg0);
     extern u8 **func_00452560(s32 arg0);
     extern void func_0043f810(void *arg0, void *arg1, s32 arg2);
@@ -387,8 +388,7 @@ void func_00293710(s16 arg0, s32 arg1, f32 fparg0, f32 fparg1,
         work = func_002e1db0(4, 0, 0, 0);
         work_link = *(u8 ***)(work + 0x24);
         *work_link = work;
-        result = func_00451de0(D_0063C958, 15, 0, 0,
-                               func_002930e0, func_002931a0, work_link);
+        result = (s32)func_00451de0((const void *)(D_0063C958), 15, 0, 0, func_002930e0, func_002931a0, (u8 *)(work_link));
     }
     manager = (u8 *)func_00452560(result);
     func_0043f9c8(&data, 0, 0x2C);

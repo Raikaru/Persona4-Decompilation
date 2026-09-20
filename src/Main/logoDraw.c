@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Source unit: src/Main/logoDraw_0012bbb0.c */
 #include "type.h"
 
@@ -9,7 +10,7 @@ extern void func_0046d730(const void *file, u32 line);
 extern void *func_00454a60(const char *path, s32 flags);
 extern void func_00454bd0(void *handle);
 extern s32 func_004553c0(void *handle);
-extern s32 func_00451de0();
+
 extern s32 func_00452490(s32);
 extern void func_00452080(s32 handle);
 extern s32 func_004667d0(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
@@ -18,8 +19,8 @@ extern void func_00460ac0(void *, void *);
 extern void func_00122520(s32, s32);
 extern void func_00122640(s32, s32);
 extern s32 func_00122720(void);
-extern void func_0012b890(void);
-extern void func_0012b940(void);
+extern s32 func_0012b890(u8 *task);
+extern void func_0012b940(u8 *task);
 extern void func_0012b9a0(void);
 extern void *func_00452560();
 extern void (*jtbl_008873EC[])(void *);
@@ -33,8 +34,8 @@ extern char D_005E5770[];
 extern char D_005E5790[];
 extern char D_005E57A8[];
 extern char D_00795E60[];
-extern s32 func_0012bbb0(s32);
-extern void func_0012bfb0(void);
+extern s32 func_0012bbb0(u8 *task);
+extern void func_0012bfb0(u8 *task);
 
 
 /* Keep the allocator table base as a u32 local so MWCCPS2 hoists its
@@ -50,8 +51,9 @@ typedef struct {
 
 // FUN_0012BBB0
 
-s32 func_0012bbb0(s32 arg0)
+s32 func_0012bbb0(u8 *sdkTaskBytes)
 {
+    s32 arg0 = (s32)sdkTaskBytes;
     s32 temp_19;
     s32 temp_19_2;
     s32 temp_2_5;
@@ -84,12 +86,12 @@ s32 func_0012bbb0(s32 arg0)
             temp_2_3 = (s32 *)((void *(*)(s32, s32, u32))*(u32 *)allocator)(1, 0xC, 0x40000);
             temp_2_3[0] = 0;
             temp_2_3[1] = (s32)func_004667d0(0, D_005E5770, 0, 0, 0, 0, 0, 0, 0, 0);
-            temp_2->task10 = func_00451de0(&D_00762D98, 0x100, 0, 0, func_0012b890, func_0012b940, temp_2_3);
+            temp_2->task10 = (s32)func_00451de0((const void *)(&D_00762D98), 0x100, 0, 0, func_0012b890, func_0012b940, (u8 *)(temp_2_3));
             func_0044ea90(&D_005E5730, 0x4D);
             temp_2_4 = (s32 *)((void *(*)(s32, s32, u32))*(u32 *)allocator)(1, 0xC, 0x40000);
             temp_2_4[0] = 0;
             temp_2_4[1] = (s32)func_004667d0(0, D_005E5790, 0, 0, 0, 0, 0, 0, 0, 0);
-            temp_2->task14 = func_00451de0(&D_00762D98, 0x100, 0, 0, func_0012b890, func_0012b940, temp_2_4);
+            temp_2->task14 = (s32)func_00451de0((const void *)(&D_00762D98), 0x100, 0, 0, func_0012b890, func_0012b940, (u8 *)(temp_2_4));
         }
         break;
     case 3:
@@ -165,7 +167,7 @@ s32 func_0012bbb0(s32 arg0)
 
 
 // FUN_0012BFB0
-void func_0012bfb0(void)
+void func_0012bfb0(u8 *unusedTask)
 {
     typedef struct LogoWork LogoWork;
     struct LogoWork
@@ -229,6 +231,6 @@ s32 func_0012c110(void)
         return 0;
     }
     *(s32 *)((u8 *)temp_2 + 4) = 0;
-    return func_00451de0(&D_005E57A8, 0xF, 0, 0, func_0012bbb0, func_0012bfb0, temp_2);
+    return (s32)func_00451de0((const void *)(&D_005E57A8), 0xF, 0, 0, func_0012bbb0, func_0012bfb0, (u8 *)(temp_2));
 }
 

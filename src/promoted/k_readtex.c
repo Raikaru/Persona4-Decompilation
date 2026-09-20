@@ -1,14 +1,14 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_readtex.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_task_registration.h"
 #include "include_asm.h"
 
 extern void (*jtbl_008873EC[])(void *);
 
 extern void func_0044ea90(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c,
-                         s32 (*init)(u8 *), void (*close)(u8 *), u8 *buf);
+
 extern u8 D_005F60B8[];
 extern u8 D_005F6040[];
 extern u8 D_005F6060[];
@@ -136,7 +136,7 @@ void func_00190600(void)
     func_0044ea90(D_005F60B8, 0x91);
     mem = D_008873F4[0](1, 0x24, 0x40000);
     if (mem != NULL) {
-        func_00451de0(D_005F6150, 0xF, 0, 0, func_001901d0, func_001905d0, mem);
+        (s32)func_00451de0((const void *)(D_005F6150), 0xF, 0, 0, func_001901d0, func_001905d0, (u8 *)(mem));
     }
 }
 

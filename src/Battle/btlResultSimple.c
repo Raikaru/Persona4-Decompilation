@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit btlResultSimple.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -25,8 +26,7 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 void func_0044ea90(const void *msg, s32 id);
 void func_0043f9c8(void *dst, s32 value, u32 size);
-s32 func_00451fc0(s32 window, const void *data, s32 a, s32 b, s32 c,
-                  s32 (*init)(u8 *), void (*close)(u8 *), void *buf);
+
 extern char D_00629628[];
 extern char D_006290F0[];
 extern char D_00629610[];
@@ -41,7 +41,7 @@ u8 *func_00455ea0(u8 *param, s32 a, s32 *b);
 s32 func_0046af60(u8 *arg0);
 s32 func_0046a750(s32 param);
 void func_0021fea0(u8 *arg0, u8 *work);
-void func_002214d0(void);
+void func_002214d0(u8 *task);
 void func_0034f2e0(void *arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, u8 arg5, u32 arg6);
 extern s32 func_00442088(void *dst, const void *fmt, ...);
 void func_00460ac0(void *param, void *work);
@@ -1101,7 +1101,7 @@ INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021fea0);
    of p/w/i (8 variants), loop-local addr pointers, shared addr var, u16/u32
    counters; all give the identical 12-word rotation. Register-coloring floor. */
 // FUN_002214D0
-void func_002214d0(void) {
+void func_002214d0(u8 *unusedTask) {
     BtlResultWork *p;
     s32 i;
     s32 j;
@@ -1136,8 +1136,7 @@ s32 func_002215c0(s32 arg0) {
     func_0044ea90(&D_00629628, 0x3A);
     buf = (u8 *)(*jtbl_008873E8)(0x578, 0x40000);
     func_0043f9c8(buf, 0, 0x578);
-    r = func_00451fc0(arg0, D_006290F0, 0xF, 0, 0, (s32 (*)(u8 *))func_0021f790,
-                      (void (*)(u8 *))func_002214d0, buf);
+    r = (s32)func_00451fc0((void *)(arg0), (const void *)(D_006290F0), 0xF, 0, 0, func_0021f790, func_002214d0, (u8 *)(buf));
     q = func_00452560(arg0);
     *(s32 *)(buf + 4) = 0;
     *(u16 **)(buf + 0x570) = q;

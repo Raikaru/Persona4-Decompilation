@@ -2,6 +2,7 @@
 #define SDKTASK_H
 
 #include "type.h"
+#include "sdk_task_registration.h"
 
 /* The object every registered task handler receives as its argument.
  *
@@ -43,7 +44,7 @@ typedef struct SdkTask {
 } SdkTask;
 
 /* Registers a child task under `parent` and returns it. The trailing `work`
- * pointer is what lands in SdkTask::work and is handed back to the callbacks. */
-extern SdkTask *func_00451fc0();
+ * pointer is stored in SdkTask::work; callbacks receive the task itself. */
+
 
 #endif /* SDKTASK_H */

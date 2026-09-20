@@ -12,7 +12,7 @@ extern code DAT_008873ec_abs[];
 // retail never has.
 
 // FUN_0021DD60
-void func_0021dd60(void)
+void func_0021dd60(u8 *unusedTask)
 {
     int iVar1;
 
@@ -28,7 +28,7 @@ void func_0021dd60(void)
 // retail never has.
 
 // FUN_002230A0
-void func_002230a0(void)
+void func_002230a0(u8 *unusedTask)
 {
     int iVar1;
 

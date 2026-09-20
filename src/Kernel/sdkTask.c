@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit sdkTask.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -8,7 +9,7 @@ extern s32 func_003e1220(u32 a0, u32 a1, u32 a2, u32 a3, void* a4, u32 a5);
 extern s32 iGpffffba18;
 extern u32 D_008BFFB0[];
 
-typedef struct KwlnTask
+struct KwlnTask
 {
     u8 unk0[0x18];
     s32 nameSum;               /* 0x18 */
@@ -18,23 +19,23 @@ typedef struct KwlnTask
     u32 unk28;                 /* 0x28 */
     u16 unk2C;                 /* 0x2C */
     u16 unk2E;                 /* 0x2E */
-    void* unk30;               /* 0x30 */
-    void (*unk34)(struct KwlnTask*); /* 0x34 */
-    u8 unk38[0x3C - 0x38];
+    SdkTaskUpdate unk30;               /* 0x30 */
+    SdkTaskDestroy unk34; /* 0x34 */
+    u8 *work;
     struct KwlnTask* listNext; /* 0x3C */
     struct KwlnTask* listPrev; /* 0x40 */
     struct KwlnTask* listPrev2; /* 0x44 */
     struct KwlnTask* parent;   /* 0x48 */
     struct KwlnTask* childList; /* 0x4C */
     struct KwlnTask* next;     /* 0x50 */
-} KwlnTask;
+};
 
 /* GP-relative list heads: gp -0x4614 (0x00764ADC), gp -0x4608 (0x00764AE8), gp -0x45FC (0x00764AF4). */
 extern void* iGpffffb9ec;
 extern void* iGpffffb9f8;
 extern KwlnTask* iGpffffba04;
 
-void* func_00451de0(const void* a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6);
+
 void func_00452570(KwlnTask* a0, KwlnTask* a1);
 void func_00452600(KwlnTask* a0);
 s32 func_00452080(KwlnTask* a0);
@@ -317,7 +318,7 @@ err:
 #pragma opt_loop_invariants on
 s32 func_00451430(KwlnTask* task)
 {
-    s32 (*fn)(KwlnTask*);
+    SdkTaskUpdate fn;
     u8* ptr;
     s32 result;
     s32 i;
@@ -346,13 +347,13 @@ s32 func_00451430(KwlnTask* task)
     {
         func_0043f810(D_008C0240, D_008C02E0, 0x94);
     }
-    fn = (s32 (*)(KwlnTask*))task->unk30;
-    if (fn != 0 && fn != (s32 (*)(KwlnTask*))-1)
+    fn = task->unk30;
+    if (fn != 0 && fn != (SdkTaskUpdate)-1)
     {
-        result = fn(task);
+        result = fn((u8 *)task);
         if (result != 0)
         {
-            task->unk30 = (void*)result;
+            task->unk30 = (SdkTaskUpdate)result;
         }
         if (result == -1 && (task->flags & 0xF) == 2)
         {
@@ -433,7 +434,7 @@ void func_004516b0(KwlnTask* task)
     func_00450f20(task);
     if (task->unk34 != 0)
     {
-        task->unk34(task);
+        task->unk34((u8 *)task);
     }
     task->flags &= ~0xF;
     func_00452600(task);
@@ -486,7 +487,7 @@ body:
         func_00450f20(task);
         if (task->unk34 != 0)
         {
-            task->unk34(task);
+            task->unk34((u8 *)task);
         }
         task->flags &= ~0xF;
         func_00452600(task);
@@ -686,7 +687,7 @@ s32 func_00451cf0(void)
     return 1;
 }
 // FUN_00451DE0
-void* func_00451de0(const void* a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6)
+void* func_00451de0(const void* a0, s32 a1, s32 a2, s32 a3, SdkTaskUpdate a4, SdkTaskDestroy a5, u8 *a6)
 {
     KwlnTask* task;
     s8* dst;
@@ -723,9 +724,9 @@ void* func_00451de0(const void* a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 
     task->unk28 = 0;
     task->unk2C = (u16)a2;
     task->unk2E = (u16)a3;
-    *(u32*)((u8*)task + 0x30) = a4;
-    *(u32*)((u8*)task + 0x34) = a5;
-    *(u32*)((u8*)task + 0x38) = a6;
+    task->unk30 = a4;
+    task->unk34 = a5;
+    task->work = a6;
     task->listNext = 0;
     *(u32*)((u8*)task + 0x40) = 0;
     *(u32*)((u8*)task + 0x44) = 0;
@@ -748,11 +749,11 @@ void* func_00451de0(const void* a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 
     return task;
 }
 // FUN_00451FC0
-void* func_00451fc0(void* a0, const void* a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6, s32 a7)
+void* func_00451fc0(void* a0, const void* a1, s32 a2, s32 a3, s32 a4, SdkTaskUpdate a5, SdkTaskDestroy a6, u8 *a7)
 {
     void* result;
 
-    result = func_00451de0(a1, a2, a3, a4, a5, a6, a7);
+    result = func_00451de0((const void *)(a1), a2, a3, a4, a5, a6, (u8 *)(a7));
     if (result != 0 && a0 != 0)
     {
         func_00452570(a0, result);
@@ -838,7 +839,7 @@ inner_err:
             func_00450f20(task);
             if (task->unk34 != 0)
             {
-                task->unk34(task);
+                task->unk34((u8 *)task);
             }
             task->flags &= ~0xF;
             func_00452600(task);

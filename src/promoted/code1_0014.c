@@ -1,5 +1,8 @@
 #include "include_asm.h"
+#include "sdk_dbprt.h"
+#include "sdk_task_registration.h"
 #include "type.h"
+#include "field_light_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
 
 typedef struct RwMatrix RwMatrix;
@@ -165,9 +168,9 @@ extern void func_004b13d0(s32 arg0, f32 arg1);
 
 extern s32 D_007642E4;
 extern u8 D_005EFB10[];
-extern void func_00148280(void);
+extern s32 func_00148280(u8 *task);
 extern void func_0017ccc0(u8 *arg0);
-extern u8 *func_00451fc0(u8 *a, const void *b, s32 c, s32 d, s32 e, void *f, void *g, void *h);
+
 
 static inline u8 *p4_e740_add(s32 offset, u8 *base) {
     return (u8 *)(offset + (u32)base);
@@ -183,7 +186,7 @@ typedef struct {
     u8 b3;
 } P4Bytes0014;
 typedef struct { f32 x, y, z; } SVec3;
-typedef struct { u8 c[4]; } Rgba8_0014;
+typedef FieldRgba8 Rgba8_0014;
 
 extern s32 RwEngineGetMatrixTolerances();
 extern s32 RwMatrixOptimize();
@@ -248,8 +251,7 @@ extern u8 iGpffff9de8;
 extern s32 func_0014e2a0(u8 *arg0);
 extern void func_0014e540(u8 *arg0);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c,
-                         void *init, void *close, void *buf);
+
 extern u8 iGpffff9da8;
 extern u8 D_005EF7B0[];
 extern s32 func_001441e0(u8 *arg0);
@@ -1452,60 +1454,16 @@ void func_00143b90(void)
 {
 }
 
-/* measured 001441e0 (owner, 2026-09-19): fnalign edits **668 -> 47**, object 565 against
-   retail 566.  The two long `if (v == c) ... else if` chains are `switch` statements, and
-   the arms were written in descending order.
-   `block_move_scan` found it: a one-sided run of **142 retail instructions at 0x0014449C
-   containing 23 calls**, shape `nop x46  addiu x24  ld x23  jal x23  b x23`.  Twenty-three
-   near-identical arms, each `func_00450050(pos, &gpGlobal)` with the gp offset stepping by
-   8 - -0x6318, -0x6310, -0x6308, -0x6300, -0x62F8 and so on - laid out in **ascending**
-   order while retail's comparisons run descending.  That is the 7av signature, and the
-   chain form cannot produce it however the arms are ordered in source.
-   Converting both chains to `switch (v)` with the cases sorted ascending is the whole
-   change; the arm bodies are untouched.
-   The outer `if (kind == 0) ... else if (kind == 1)` is a `switch` too: writing it as one
-   takes **47 -> 34 edits** and the count to an exact 567/567.  Retail's dispatch is a
-   three-way with a default - `beq` on 1 at R9, `beqz` for 0 at R11, `b .+545` for neither -
-   which a two-arm chain cannot produce.
-   Remaining 34 are a register rotation ($s0/$s1 against retail's $s2/$s3) and retail's
-   per-iteration row pointer, hoisted at R18-R19 as `sll $v0, $s3, 1; addu $s1, $s2, $v0`
-   and used as `sh $v0, 4($s1)`.  Two spellings of that pointer were measured on top of the
-   34 and both cost two edits while losing an instruction - `u16 *row = (u16 *)st + i` with
-   `row[2]`/`row[9]`, and `u8 *row = (u8 *)st + i * 2` with `*(u16 *)(row + 4)` and
-   `+ 0x12` - so the pointer is not the lever while the rotation stands.
-   Earlier follow-ups measured against the 47 and rejected: a per-iteration row pointer
-   `u16 *row = (u16 *)st + i` with `row[2]`/`row[9]`, to match retail's hoisted
-   `sll $v0, $s3, 1; addu $s1, $s2, $v0` at R18-R19, ties at 47 while moving the count
-   further from retail (564 against 566, where the installed body is 565); and swapping the
-   outer arms to test `kind == 1` first costs 123.  Retail's `addiu $v0, 1; beq $v1, $v0`
-   at R8-R9 is just how MWCC enters the second arm of `if (kind == 0) ... else if
-   (kind == 1)`, not evidence that the source tests 1 first. */
-// FUN_001441E0 NONMATCHING
-#ifdef SKIP_ASM
-/* measured 2026-09-19 (lead): the outer arms were in the wrong order, and the
-   earlier pass rejected the fix on the wrong metric.  Writing `kind == 0`
-   first and `kind == 1` second takes fnalign **1012 edits -> 668** at the same
-   561/566 count, and the differing-word score from 441 to 430.
-   The note below records "outer polarity `kind==0`-first swap 447" and kept
-   the original because 447 > 425 in words - but that comparison was made while
-   the body carried a 487-instruction head lump against retail's single
-   instruction at retail[15:16], with 497 instructions missing at
-   retail[61:558].  A word score does not measure a relocation; the edit count
-   does (handoff 7y and 7aq).  With the arms in retail's order that lump is
-   gone and what remains are two honest holes of 142 and 141 instructions at
-   retail[175:317] and retail[416:557] - real missing code, findable by
-   disassembling those ranges.
-   Also measured: the same swap with a bare `else` instead of `else if
-   (kind == 1)` is 558/566 with 663 edits and 437 words - fewer edits but a
-   worse score and three instructions further from retail, so the explicit
-   second test is kept. */
-/* 001441e0 floor (2068B/2272B, nd 425); truthful s32 return; init plus two display loops with Work-pair s64 arg. Production stays ASM. See docs/probe_archive/C14_001441e0_body.c. */
-/* measured 001441e0 (WWidthD): `s16 t0-t3`+`s8 v0/v1` -> `s32` gives 425 -> 424 words via `tools/measure_guarded.py`, fnalign 968 -> 964 edits at 513/566 (-53, was 517/566 -49) via `tools/fnalign.py --candidate`, `tools/wscan_pairs.py` 8 -> 6 vs retail 6 (exact, one 0x10 + one 0x18 removed); pragmas via `tools/probe_variants.py` (base 425): `schedule on` 454, `opt_common_subs off` 451, `opt_loop_invariants on` 426, `opt_propagation off` 425; outer polarity `kind==0`-first swap 447, nested `kind!=1` 443 (base else-if best; `bne` vs retail `beq` + `$s1`/`$s2` colour walls stand); -53 SHORT (9.4%, draft) from cascade, not one logical block (fnalign +436/-496 misalignment from polarity, net -49). */
+/* Keep each calendar row live across its four date queries. The third
+ * query is combined with the day index before the fourth call.
+ * measured: 2268 executable bytes and four zero-tail bytes, all exact. */
+#pragma push
+#pragma opt_lifetimes on
+// FUN_001441E0
 s32 func_001441e0(u8 *arg0) {
     extern s16 func_001060b0(void);
     extern s64 func_00110850(s32 arg0, u32 arg1);
     extern s32 func_00110c50(s32 arg0, s32 arg1);
-    extern void func_00450050(s64 arg0, const char *arg1);
     extern u16 D_008C024E[];
     extern char iGpffff9ce4;
     extern char iGpffff9ce8;
@@ -1532,8 +1490,8 @@ s32 func_001441e0(u8 *arg0) {
     extern char iGpffff9d90;
     extern char iGpffff9d98;
     extern char iGpffff9da0;
-    typedef struct { s32 kind; u16 a[7]; u16 b[7]; } State441e0;
-    typedef struct { s32 x; f32 y; } Pos441e0;
+    typedef union { struct { s32 kind; u16 a[7]; u16 b[7]; } fields; u16 words[16]; } State441e0;
+    typedef union { struct { f32 x, y; } coordinates; s64 packed; } Pos441e0;
     State441e0 *st;
     s32 kind;
     s32 i;
@@ -1546,186 +1504,187 @@ s32 func_001441e0(u8 *arg0) {
     s32 v0;
     s32 v1;
     st = *(State441e0 **)(arg0 + 0x38);
-    kind = st->kind;
+    kind = st->fields.kind;
     switch (kind) {
     case 0:
         for (i = 0; i < 7; i++) {
+            u16 *row = st->words + i;
             t0 = func_001060b0();
             v0 = (s8)func_00110850(i + t0, 3);
             t1 = func_001060b0();
             v1 = (s8)func_00110850(i + t1, 0);
-            st->a[i] = (u16)(v0 + v1 * 0x10);
-            t2 = func_001060b0();
+            row[2] = (u16)(v0 + v1 * 0x10);
+            t2 = i + func_001060b0();
             t3 = func_001060b0();
-            st->b[i] = (u16)func_00110c50(i + t2, t3);
+            row[9] = (u16)func_00110c50(t2, t3);
         }
-        st->kind = 1;
+        st->fields.kind = 1;
         break;
     case 1:
         if ((D_008C024E[0] & 0x800) != 0) {
             return -1;
         }
         for (i = 0; i < 7; i++) {
-            pos.x = 0x40A00000;
-            pos.y = 20.0f + (f32)i;
-            v = st->a[i];
+            pos.coordinates.x = 5.0f;
+            pos.coordinates.y = 20.0f + (f32)i;
+            v = *(u16 *)((u32)st + (u32)(i * 2) + 4);
             switch (v) {
             case 0:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9ce4);
+                func_00450050(pos.packed, &iGpffff9ce4);
                 break;
             case 1:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9ce8);
+                func_00450050(pos.packed, &iGpffff9ce8);
                 break;
             case 2:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9cf0);
+                func_00450050(pos.packed, &iGpffff9cf0);
                 break;
             case 3:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9cf8);
+                func_00450050(pos.packed, &iGpffff9cf8);
                 break;
             case 4:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d00);
+                func_00450050(pos.packed, &iGpffff9d00);
                 break;
             case 16:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d08);
+                func_00450050(pos.packed, &iGpffff9d08);
                 break;
             case 17:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d10);
+                func_00450050(pos.packed, &iGpffff9d10);
                 break;
             case 18:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d18);
+                func_00450050(pos.packed, &iGpffff9d18);
                 break;
             case 19:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d20);
+                func_00450050(pos.packed, &iGpffff9d20);
                 break;
             case 20:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d28);
+                func_00450050(pos.packed, &iGpffff9d28);
                 break;
             case 32:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d30);
+                func_00450050(pos.packed, &iGpffff9d30);
                 break;
             case 33:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d38);
+                func_00450050(pos.packed, &iGpffff9d38);
                 break;
             case 34:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d40);
+                func_00450050(pos.packed, &iGpffff9d40);
                 break;
             case 35:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d48);
+                func_00450050(pos.packed, &iGpffff9d48);
                 break;
             case 36:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d50);
+                func_00450050(pos.packed, &iGpffff9d50);
                 break;
             case 48:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d58);
+                func_00450050(pos.packed, &iGpffff9d58);
                 break;
             case 49:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d60);
+                func_00450050(pos.packed, &iGpffff9d60);
                 break;
             case 50:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d68);
+                func_00450050(pos.packed, &iGpffff9d68);
                 break;
             case 51:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d70);
+                func_00450050(pos.packed, &iGpffff9d70);
                 break;
             case 52:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d78);
+                func_00450050(pos.packed, &iGpffff9d78);
                 break;
             case 64:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d80);
+                func_00450050(pos.packed, &iGpffff9d80);
                 break;
             case 65:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d88);
+                func_00450050(pos.packed, &iGpffff9d88);
                 break;
             case 66:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d90);
+                func_00450050(pos.packed, &iGpffff9d90);
                 break;
             case 67:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d98);
+                func_00450050(pos.packed, &iGpffff9d98);
                 break;
             case 68:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9da0);
+                func_00450050(pos.packed, &iGpffff9da0);
                 break;
             }
         }
         for (i = 0; i < 7; i++) {
-            pos.x = 0x41700000;
-            pos.y = 20.0f + (f32)i;
-            v = st->b[i];
+            pos.coordinates.x = 15.0f;
+            pos.coordinates.y = 20.0f + (f32)i;
+            v = *(u16 *)((u32)st + (u32)(i * 2) + 0x12);
             switch (v) {
             case 0:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9ce4);
+                func_00450050(pos.packed, &iGpffff9ce4);
                 break;
             case 1:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9ce8);
+                func_00450050(pos.packed, &iGpffff9ce8);
                 break;
             case 2:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9cf0);
+                func_00450050(pos.packed, &iGpffff9cf0);
                 break;
             case 3:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9cf8);
+                func_00450050(pos.packed, &iGpffff9cf8);
                 break;
             case 4:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9ce4);
+                func_00450050(pos.packed, &iGpffff9ce4);
                 break;
             case 16:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d08);
+                func_00450050(pos.packed, &iGpffff9d08);
                 break;
             case 17:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d10);
+                func_00450050(pos.packed, &iGpffff9d10);
                 break;
             case 18:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d18);
+                func_00450050(pos.packed, &iGpffff9d18);
                 break;
             case 19:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d20);
+                func_00450050(pos.packed, &iGpffff9d20);
                 break;
             case 20:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d10);
+                func_00450050(pos.packed, &iGpffff9d10);
                 break;
             case 32:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d30);
+                func_00450050(pos.packed, &iGpffff9d30);
                 break;
             case 33:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d38);
+                func_00450050(pos.packed, &iGpffff9d38);
                 break;
             case 34:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d40);
+                func_00450050(pos.packed, &iGpffff9d40);
                 break;
             case 35:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d48);
+                func_00450050(pos.packed, &iGpffff9d48);
                 break;
             case 36:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d40);
+                func_00450050(pos.packed, &iGpffff9d40);
                 break;
             case 48:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d58);
+                func_00450050(pos.packed, &iGpffff9d58);
                 break;
             case 49:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d60);
+                func_00450050(pos.packed, &iGpffff9d60);
                 break;
             case 50:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d68);
+                func_00450050(pos.packed, &iGpffff9d68);
                 break;
             case 51:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d70);
+                func_00450050(pos.packed, &iGpffff9d70);
                 break;
             case 52:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d70);
+                func_00450050(pos.packed, &iGpffff9d70);
                 break;
             case 64:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9ce4);
+                func_00450050(pos.packed, &iGpffff9ce4);
                 break;
             case 65:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d10);
+                func_00450050(pos.packed, &iGpffff9d10);
                 break;
             case 66:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d40);
+                func_00450050(pos.packed, &iGpffff9d40);
                 break;
             case 67:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9d70);
+                func_00450050(pos.packed, &iGpffff9d70);
                 break;
             case 68:
-                func_00450050(*(s64 *)&pos.x, &iGpffff9da0);
+                func_00450050(pos.packed, &iGpffff9da0);
                 break;
             }
         }
@@ -1733,9 +1692,7 @@ s32 func_001441e0(u8 *arg0) {
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001441e0);
-#endif
+#pragma pop
 // FUN_00144AC0
 void func_00144ac0(u8 *arg0)
 {
@@ -1752,8 +1709,7 @@ s32 func_00144af0(void)
     if (temp_2 == 0) {
         return 0;
     }
-    return func_00451de0(&D_005EF7B0, 0x100, 0, 0,
-                         func_001441e0, func_00144ac0, (void *)(u32)temp_2);
+    return (s32)func_00451de0((const void *)(&D_005EF7B0), 0x100, 0, 0, func_001441e0, func_00144ac0, (u8 *)((void *)(u32)temp_2));
 }
 /* Return zero for a missing path; otherwise retain retail's short-circuited
    predicate calls and always-one result. Distinct equivalent low-16 forms
@@ -2335,15 +2291,13 @@ s32 func_00145c80(u16 arg0, s32 arg1) {
     return temp_17;
 }
 // FUN_00145D60
-s32 func_00145d60(u16 arg0, f32 *arg1, s32 arg2, f32 fparg0, f32 fparg1, f32 fparg2) {
-    s32 sp5C;
+s32 func_00145d60(u16 arg0, f32 *arg1, f32 fparg0, f32 fparg1, f32 fparg2, FieldRgba8 arg2) {
     s32 temp_17;
     s32 temp_4;
     u8 *temp_2;
     SVec3 point;
     Rgba8_0014 color;
 
-    sp5C = arg2;
     temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x3400) & 0xFFFF;
     temp_4 = *(s32 *)(iGpffff9db0 + 8);
     if (temp_4 == 0) {
@@ -2359,22 +2313,20 @@ s32 func_00145d60(u16 arg0, f32 *arg1, s32 arg2, f32 fparg0, f32 fparg1, f32 fpa
     *(f32 *)(temp_2 + 0x150) = fparg0;
     *(f32 *)(temp_2 + 0x154) = fparg1;
     *(f32 *)(temp_2 + 0x158) = fparg2;
-    color = *(Rgba8_0014 *)&sp5C;
+    color = arg2;
     *(Rgba8_0014 *)(temp_2 + 0x140) = color;
     func_0015f720(temp_2 + 0x15C, (const u8 *)arg1, fparg0, fparg1, fparg2);
     *(s32 *)(temp_2 + 0x28) = *(s32 *)(temp_2 + 0x28) | 8;
     return temp_17;
 }
 // FUN_00145E90
-s32 func_00145e90(u16 arg0, f32 *arg1, s32 arg2, f32 fparg0, f32 fparg1, f32 fparg2) {
-    s32 sp5C;
+s32 func_00145e90(u16 arg0, f32 *arg1, f32 fparg0, f32 fparg1, f32 fparg2, FieldRgba8 arg2) {
     s32 temp_17;
     s32 temp_4;
     u8 *temp_2;
     SVec3 point;
     Rgba8_0014 color;
 
-    sp5C = arg2;
     temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x5400) & 0xFFFF;
     temp_4 = *(s32 *)(iGpffff9db0 + 8);
     if (temp_4 == 0) {
@@ -2390,7 +2342,7 @@ s32 func_00145e90(u16 arg0, f32 *arg1, s32 arg2, f32 fparg0, f32 fparg1, f32 fpa
     *(f32 *)(temp_2 + 0x150) = fparg0;
     *(f32 *)(temp_2 + 0x154) = fparg1;
     *(f32 *)(temp_2 + 0x158) = fparg2;
-    color = *(Rgba8_0014 *)&sp5C;
+    color = arg2;
     *(Rgba8_0014 *)(temp_2 + 0x140) = color;
     func_0015f720(temp_2 + 0x15C, (const u8 *)arg1, fparg0, fparg1, fparg2);
     *(s32 *)(temp_2 + 0x28) = *(s32 *)(temp_2 + 0x28) | 8;
@@ -3322,7 +3274,8 @@ s32 func_00148140(u8 **arg0, u8 **arg1) {
 /* measured: cold148280 baseline v2 (m2c+ghidra+ida triangulation, float triple as f[3] keeping all three live, truthful (u8*,u8*) callees, void return keeping top decl): probe 1026 words; fnalign 232 edits (+209 reloc-only), retail 1253 vs object 1220 instrs (-33, -2.6%, band 1215-1291 INSIDE gate). Pragma round in one call on v1 (1029): commonOff 1033 (+4), loopInv 1029 tie, unroll 1029 tie, sched 1029 tie, peepOff 1012 (-17 best on v1, but on v2 1029 +3 win does not hold), deadOff 1029 tie. Subscript subA/subB 1026 tie. Fresh counters 1028 (+2 tie). Colour colA 1028/colB 1032 ties. Address hoist 861 (-165 words) REJECTED as shrinking false win: 1182 instrs (-5.7% outside gate), 899 edits worse, frame 0x2A0 vs 0x290; zero 1058 (+32). Residual is early bne/beq polarity + $a0/$v0, triple at 0x28c vs 0x280, and $s1/$s3 + $s2/$s4 colouring with branch cascade. Missing func_0014a160 return check (void decl kept to avoid touching later definition) and final daddu $v0,0 (void vs s32) account for ~6 of the gap. */
 // FUN_00148280 NONMATCHING
 #ifdef NON_MATCHING
-void func_00148280(void) {
+s32 func_00148280(u8 *unusedTask) {
+    /* Retail returns zero at 001495E8, 00148318. */
     extern void func_00152930(u8 *arg0, u8 *arg1);
     extern void func_00152bb0(u8 *arg0, u8 *arg1);
     extern void func_00152cd0(u8 *arg0, u8 *arg1);
@@ -3393,7 +3346,7 @@ void func_00148280(void) {
     l2 = func_001452b0(2);
     flag = 0;
     if (D_007642E4 == 1) {
-        return;
+        return 0;
     }
     if (*(s32 *)iGpffff9db0 >= 0xC8) {
         flag = 1;
@@ -3774,6 +3727,7 @@ void func_00148280(void) {
     *(void **)(tmp + 8) = (void *)func_00147ae0;
     *(u8 **)(tmp + 0x10) = D_007D1FE0;
     func_00460ac0(D_007945A0, tmp);
+    return 0;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00148280);
@@ -3784,7 +3738,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00148280);
 u8 *func_00149620(u8 *ctx) {
     u8 *o;
 
-    o = func_00451fc0(ctx, D_005EFB10, 0xC7, 0, 0, (void *)func_00148280, NULL, NULL);
+    o = func_00451fc0((void *)(ctx), (const void *)(D_005EFB10), 0xC7, 0, 0, func_00148280, 0, (u8 *)(NULL));
     func_0017ccc0(o);
     return o;
 }
@@ -5210,9 +5164,7 @@ s32 func_0014e5e0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
     if (temp_2 == NULL) {
         return 0;
     }
-    temp_17 = (s32)func_00451fc0(arg0, &D_005EFC18, 0xF, 0, 0,
-                                  (void *)func_0014e2a0,
-                                  (void *)func_0014e540, temp_2);
+    temp_17 = (s32)func_00451fc0((void *)(arg0), (const void *)(&D_005EFC18), 0xF, 0, 0, func_0014e2a0, func_0014e540, (u8 *)(temp_2));
     if (arg3 == 0) {
         func_00440b68(&iGpffff9de8, &iGpffff9de0, 0xD0);
         *(s32 *)(temp_2 + 4) = (s32)func_00454a60(arg1, 0);
@@ -5465,9 +5417,7 @@ s32 func_0014ec50(u8 *arg0, s32 arg1) {
         return 0;
     }
     header = D_005EFC28;
-    result = (s32)func_00451fc0(arg0, header, 0xF, 0, 0,
-                                 (void *)func_0014e950,
-                                 (void *)func_0014ec20, temp_2);
+    result = (s32)func_00451fc0((void *)(arg0), (const void *)(header), 0xF, 0, 0, func_0014e950, func_0014ec20, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 4) = arg1;
     if (arg1 == 0) {
         func_0044ea90(&iGpffff9de0, 0xC2);
@@ -5475,9 +5425,7 @@ s32 func_0014ec50(u8 *arg0, s32 arg1) {
         if (temp_2_2 == NULL) {
             arg1 = 0;
         } else {
-            arg1 = (s32)func_00451fc0((u8 *)result, &D_005EFC18, 0xF, 0, 0,
-                                      (void *)func_0014e2a0,
-                                      (void *)func_0014e540, temp_2_2);
+            arg1 = (s32)func_00451fc0((void *)((u8 *)result), (const void *)(&D_005EFC18), 0xF, 0, 0, func_0014e2a0, func_0014e540, (u8 *)(temp_2_2));
             func_00440b68(&iGpffff9de8, &iGpffff9de0, 0xD0);
             *(s32 *)(temp_2_2 + 4) = func_00454a60(&D_005EFC40, 0);
             *(s32 *)(temp_2_2 + 8) = 0x53;
@@ -5490,9 +5438,7 @@ s32 func_0014ec50(u8 *arg0, s32 arg1) {
         if (temp_2_2 == NULL) {
             arg1 = 0;
         } else {
-            arg1 = (s32)func_00451fc0((u8 *)result, &D_005EFC18, 0xF, 0, 0,
-                                      (void *)func_0014e2a0,
-                                      (void *)func_0014e540, temp_2_2);
+            arg1 = (s32)func_00451fc0((void *)((u8 *)result), (const void *)(&D_005EFC18), 0xF, 0, 0, func_0014e2a0, func_0014e540, (u8 *)(temp_2_2));
             func_00440b68(&iGpffff9de8, &iGpffff9de0, 0xD0);
             *(s32 *)(temp_2_2 + 4) = func_00454a60(&D_005EFC40, 0);
             *(s32 *)(temp_2_2 + 8) = 0x32;

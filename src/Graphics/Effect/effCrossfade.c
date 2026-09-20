@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit effCrossfade.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -12,7 +13,7 @@ extern u8 *func_00452380(void *path);
 extern void func_0044ea90(const void *msg, s32 id);
 extern void func_0046d730(const char *file, s32 line);
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
-extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+
 extern void func_004b2a00(u8 *arg0);
 extern s32 func_004b2780(u8 *arg0);
 extern void func_004b2e00(u8 *arg0);
@@ -138,5 +139,5 @@ void func_004b3180(s32 arg0) {
     *(void **)(p + 0x18) = (void *)func_004b30a0;
     *(u8 **)(p + 0x20) = p;
     *(u8 *)(p + 0) = 0;
-    func_00451de0(D_007145F0, arg0, 0, 0, (void *)func_004b2ed0, 0, p);
+    (s32)func_00451de0((const void *)(D_007145F0), arg0, 0, 0, func_004b2ed0, 0, (u8 *)(p));
 }

@@ -1421,8 +1421,9 @@ void func_0027b4c0(s32 *arg0)
 }
 
 // FUN_0027B500
-s32 func_0027b500(s32 arg0)
+s32 func_0027b500(u8 *sdkTaskBytes)
 {
+    s32 arg0 = (s32)sdkTaskBytes;
     u8 *node;
     u8 *temp;
 
@@ -1450,7 +1451,7 @@ void func_0027b5d0(s32 arg0)
     func_00460ac0(D_007964C0, temp_2);
 }
 // FUN_0027B690
-void func_0027b690(void)
+void func_0027b690(u8 *unusedTask)
 {
     u8 *temp_16;
     u8 *var_3;

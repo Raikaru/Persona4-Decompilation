@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Source unit: src/cutinDraw_00120bc0.c */
 #include "type.h"
 #include "sdk_snd_internal.h"
@@ -29,9 +30,9 @@ extern char D_005E4FC8[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 void func_0044ea90();
-s32 func_00451de0();
+
 s32 func_00120bc0(u8 *arg0);
-void func_00120db0();
+void func_00120db0(u8 *task);
 
 
 
@@ -157,7 +158,7 @@ s32 func_00120e20(s32 arg0, s32 arg1)
   hi = *(s16 *)((u8 *)&packed + 2);
   *(s16 *)(work + 4) = lo;
   *(s16 *)(work + 6) = hi;
-  result = func_00451de0(D_005E4FC8, 0xF, 0, 0, func_00120bc0, func_00120db0, work);
+  result = (s32)func_00451de0((const void *)(D_005E4FC8), 0xF, 0, 0, func_00120bc0, func_00120db0, (u8 *)(work));
   if (result == 0)
   {
     return 0;

@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit mt_sceneIcon.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -17,8 +18,7 @@ extern u8 iGpffffa6f8;
 extern u8 iGpffffa700;
 extern void func_0044ea90(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c,
-                         void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
+
 extern u8 *func_00145270(); /* old-style: func_0026d890 passes the icon id in $a0, func_0026da30 calls it bare */
 extern void func_004b1170(s32 a);
 /* measured: returns 0 / -1 in $v0; the task dispatcher discards it, so the callback site casts. */
@@ -94,7 +94,7 @@ s32 func_0026d890(u8 *arg0)
     return 0;
 }
 // FUN_0026D9F0
-void func_0026d9f0(void)
+void func_0026d9f0(u8 *unusedTask)
 {
     int iVar1;
 
@@ -134,7 +134,6 @@ s32 func_0026da30(s32 arg0, s32 arg1)
     mem = D_008873F4[0](1, 0x10, 0x40000);
     *(s16 *)(mem + 4) = arg0;
     *(s32 *)(mem + 8) = arg1;
-    return func_00451de0(&iGpffffa700, 0xF, 0, 0, (void (*)(u8 *))func_0026d890,
-                         (void (*)(u8 *))func_0026d9f0, mem);
+    return (s32)func_00451de0((const void *)(&iGpffffa700), 0xF, 0, 0, func_0026d890, func_0026d9f0, (u8 *)(mem));
 }
 

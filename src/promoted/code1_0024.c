@@ -1,10 +1,11 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 extern s32 func_00246480(void);
 extern f32 func_00245030(s32 arg0, s32 arg1);
 extern void func_00246450(s32 arg0);
 extern void func_0044ea90(void *file, s32 line);
-extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00635990[];
 extern u8 D_006359A0[];
@@ -349,20 +350,19 @@ s32 func_00246550(void)
     return 1;
 }
 // FUN_00246580
-s32 func_00246580(void)
+s32 func_00246580(u8 *unusedTask)
 {
     return 0;
 }
 // FUN_00246590
-void func_00246590(void)
+void func_00246590(u8 *unusedTask)
 {
 }
 // FUN_002465A0
 void func_002465a0(void)
 {
     func_0044ea90(D_00635990, 0xD1);
-    func_00451de0(D_006359A0, 0xF, 0, 0, (void *)func_00246580,
-                  (void *)func_00246590, D_008873F4[0](1, 8, 0x40000));
+    (s32)func_00451de0((const void *)(D_006359A0), 0xF, 0, 0, func_00246580, func_00246590, (u8 *)(D_008873F4[0](1, 8, 0x40000)));
 }
 // FUN_00246620
 void func_00246620(void)

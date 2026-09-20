@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern s32 func_0016fd00();
@@ -10,8 +11,7 @@ extern u8 D_005F1B28[];
 extern u8 D_005F1CF0[];
 extern f32 iGpffffba6c;
 extern void func_0044ea90(const void *file, s32 line);
-extern s32 func_00451fc0(s32 window, const void *data, s32 a, s32 b, s32 c,
-                         s32 (*init)(u8 *), void (*close)(u8 *), void *buf);
+
 extern u8 *func_00457120(void);
 extern s32 func_0017d3c0(u8 *arg0);
 extern s32 func_0017f490(u8 *arg0);
@@ -545,7 +545,7 @@ s32 func_0017e890(s32 arg0, s32 arg1, s32 arg2)
     if (work == NULL) {
         return 0;
     }
-    ret = func_00451fc0(arg0, D_005F1B28, 0xF, 0, 0, func_0017d3c0, func_0017e840, work);
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1B28), 0xF, 0, 0, func_0017d3c0, func_0017e840, (u8 *)(work));
     *(s32 *)(work + 0x10) = arg1;
     *(s32 *)(work + 0x14) = arg2;
     *(s32 *)(work + 0x1C) = -1;
@@ -2024,7 +2024,7 @@ s32 func_00182220(s32 arg0, s32 arg1, s32 arg2)
     if (work == NULL) {
         return 0;
     }
-    ret = func_00451fc0(arg0, D_005F1CF0, 0xF, 0, 0, func_0017f490, func_001821d0, work);
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1CF0), 0xF, 0, 0, func_0017f490, func_001821d0, (u8 *)(work));
     *(s32 *)(work + 0xC) = arg1;
     *(s32 *)(work + 0x4) = 1;
     *(s32 *)(work + 0x8) = arg2;

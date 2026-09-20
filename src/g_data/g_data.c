@@ -1424,7 +1424,7 @@ void func_00106d40(s16 arg0, s16 arg1, s16 arg2)
 }
 
 // FUN_00108CB0
-void func_00108cb0(void)
+void func_00108cb0(u8 *unusedTask)
 {
     int iVar1;
 

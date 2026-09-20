@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "type.h"
+#include "sdk_task_registration.h"
 
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -19,8 +20,7 @@ extern s32 D_00764494;
 
 extern void func_0015a630(void);
 extern void func_0044ea90(void *msg, s32 id);
-extern s32 func_00451fc0(s32 window, const void *data, s32 a, s32 b, s32 c,
-                         s32 (*init)(u8 *), void (*close)(u8 *), void *buf);
+
 extern s32 func_00470250(u8 *window, s32 size, s32 align);
 extern void func_00470810(s32 buf, void *file, s32 flags);
 extern s32 *func_00470bd0(s32 buf, s32 index);
@@ -43,8 +43,7 @@ s32 func_0018f3c0(s32 arg0)
     if (buf == NULL) {
         return 0;
     }
-    ret = func_00451fc0(arg0, D_005F59A0, 0xF, 0, 0, func_0018efe0,
-                        func_0018f390, buf);
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F59A0), 0xF, 0, 0, func_0018efe0, func_0018f390, (u8 *)(buf));
     func_0015a630();
     D_00764304 = 0;
     return ret;
@@ -127,8 +126,7 @@ s32 func_0018f700(s32 arg0)
     if (buf == NULL) {
         return 0;
     }
-    ret = func_00451fc0(arg0, D_005F5AB0, 0xF, 0, 0, func_0018f470,
-                        func_0018f6d0, buf);
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F5AB0), 0xF, 0, 0, func_0018f470, func_0018f6d0, (u8 *)(buf));
     func_0015a630();
     D_00764304 = 0;
     return ret;

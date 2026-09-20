@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit cldDungeonIn.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 
 extern u8 *func_00452560();
@@ -18,13 +19,12 @@ extern u8 *func_002e1db0(s32 a, s32 b, s32 c, s32 d);
 extern void func_0045b2e0(s32 a);
 extern u8 D_00638FC0[];
 extern u8 D_0063B070[];
-s32 func_00451fc0(s32 window, const void *data, s32 a, s32 b, s32 c,
-                  s32 (*init)(u8 *), void (*close)(u8 *), void *buf);
+
 s32 func_00268870(u8 *arg0);
-void func_00268920(void);
+void func_00268920(u8 *task);
 
 // FUN_00268920
-void func_00268920(void) {
+void func_00268920(u8 *unusedTask) {
     u8 *s0 = func_00452560();
     func_002e1ef0((void *)**(s32 **)(s0 + 8));
     jtbl_008873EC[0](s0);
@@ -75,7 +75,7 @@ s32 func_00268990(s32 arg0) {
     v1 = *(u8 ***)(v0 + 0x24);
     *v1 = v0;
     *(u8 ***)(s0 + 8) = v1;
-    ret = func_00451fc0(arg0, D_0063B070, 0xF, 0, 0, func_00268870, (void (*)(u8 *))func_00268920, s0);
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063B070), 0xF, 0, 0, func_00268870, func_00268920, (u8 *)(s0));
     func_0045b2e0(0x40);
     func_00106390(0x1470, 1);
     return ret;

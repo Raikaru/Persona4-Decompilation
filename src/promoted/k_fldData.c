@@ -1,14 +1,14 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldData.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_task_registration.h"
 #include "include_asm.h"
 
 extern void (*DAT_008873EC[])(void *);
 
 extern void func_0044ea90(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init,
-                         void *close, u8 *buf);
+
 extern char D_005F0A88[];
 extern char D_005F0A70[];
 extern char D_005F0AA0[];
@@ -392,8 +392,7 @@ s32 func_0015e7d0(void)
     if (mem == NULL) {
         return 0;
     }
-    result = func_00451de0(D_005F1050, 0xF, 0, 0, (void *)func_0015d730,
-                           (void *)func_0015e7a0, mem);
+    result = (s32)func_00451de0((const void *)(D_005F1050), 0xF, 0, 0, func_0015d730, func_0015e7a0, (u8 *)(mem));
     *(s32 *)(mem + 4) = 0;
     return result;
 }

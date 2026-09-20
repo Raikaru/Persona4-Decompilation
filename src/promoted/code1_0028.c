@@ -1,10 +1,11 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 
 s32 func_00452380(void *arg0);
 extern s32 D_0063C368[];
 
-s32 *func_00452560();
+extern u32 func_00452560(void *task);
 
 void memset(void *arg0, s32 arg1, s32 arg2);
 void func_00285260(void);
@@ -49,9 +50,8 @@ typedef struct {
 extern void func_0028b160(s32 arg0, s32 arg1);
 extern u8 *func_0028afe0(void);
 extern void func_0028bfb0(u8 *arg0, s32 arg1, u8 **arg2, u8 **arg3);
-extern s32 func_00285dd0(s32 arg0);
-extern s32 func_00451de0(const void *data, s32 arg1, s32 arg2, s32 arg3,
-                         void *init, void *close, void *buf);
+extern s32 func_00285dd0(u8 *task);
+
 extern void func_0028ad90(u8 *arg0, s32 arg1);
 extern void func_002865e0(UnkStruct_002865E0 *arg0);
 extern u8 *func_00457120(void);
@@ -60,8 +60,8 @@ extern s32 func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_00293fc0(s32 arg0);
 extern u8 *func_00294040(s32 arg0);
 extern u8 *func_0028fb90(void);
-extern void func_0028fc40(void *arg0, s32 arg1, s32 arg2, s32 arg3,
-                          s32 arg4);
+extern u8 *func_0028fc40(u8 *messageContext, u8 *work, u8 *primary,
+                         u8 *secondary, u8 *overlay);
 extern s32 func_00290f00(void);
 extern void func_00290ec0(s32 arg0, s32 arg1);
 extern void func_00291060(s32 arg0);
@@ -218,18 +218,19 @@ s32 func_00285cc0(u8 *arg0) {
     return 1;
 }
 // FUN_00285DD0
-s32 func_00285dd0(s32 arg0) {
+s32 func_00285dd0(u8 *sdkTaskBytes) {
+    s32 arg0 = (s32)sdkTaskBytes;
     u8 *data;
     u8 *entry;
     u8 *node;
     u8 *resource;
-    s32 *info;
+    u8 *info;
     s32 i;
     s32 flag;
     s32 result;
     char path[64];
 
-    data = (u8 *)func_00452560();
+    data = (u8 *)func_00452560(sdkTaskBytes);
     switch (*(s32 *)(data + 0x76C)) {
     case 0:
         *(s32 *)(data + 0x76C) = 1;
@@ -262,10 +263,11 @@ s32 func_00285dd0(s32 arg0) {
             } else {
                 *(s32 *)(data + 0x76C) = 8;
             }
-            info = (s32 *)func_00294040(*(s32 *)(data + 0x77C));
+            info = func_00294040(*(s32 *)(data + 0x77C));
             *(u8 **)(data + 4) = func_0028fb90();
-            func_0028fc40(data + 0x678, *(s32 *)(data + 4),
-                          info[13], info[14], info[15]);
+            func_0028fc40(data + 0x678, *(u8 **)(data + 4),
+                          *(u8 **)(info + 0x34), *(u8 **)(info + 0x38),
+                          *(u8 **)(info + 0x3C));
         }
         break;
     case 4:
@@ -362,10 +364,10 @@ func_00285dd0_loop_check:
     return 0;
 }
 // FUN_00286240
-void func_00286240(void) {
+void func_00286240(u8 *task) {
     s32 *p;
 
-    p = func_00452560();
+    p = (s32 *)func_00452560(task);
     if (*p & 0x80000000) {
         func_0028b160((s32)p, 1);
     } else {
@@ -373,8 +375,9 @@ void func_00286240(void) {
     }
 }
 // FUN_002862A0
-void func_002862a0(s32 arg0, s32 arg1) {
+s32 func_002862a0(s32 arg0, s32 arg1) {
     s32 *p;
+    s32 task;
 
     p = (s32 *)func_0028afe0();
     p[0x76C / 4] = 0;
@@ -382,11 +385,11 @@ void func_002862a0(s32 arg0, s32 arg1) {
     if (arg0 != 0) {
         p[0] |= 0x40000000;
     }
-    func_00451de0(D_0063C368, 0, 0, 0, (void *)func_00285dd0,
-                  (void *)func_00286240, p);
+    task = (s32)func_00451de0((const void *)(D_0063C368), 0, 0, 0, func_00285dd0, func_00286240, (u8 *)(p));
     if (arg1 != 0) {
         p[0] |= 0x80000000;
     }
+    return task;
 }
 // FUN_00286350
 s32 func_00286350(void) {
@@ -396,23 +399,23 @@ s32 func_00286350(void) {
 
 
 // FUN_00286380
-void func_00286380(void)
+void func_00286380(s32 task)
 {
     u8 *p;
 
-    p = (u8 *)func_00452560();
+    p = (u8 *)func_00452560((void *)task);
     *(s32 *)(p + 0x770) = *(s32 *)(p + 0x770) | 0x1;
 }
 
 // FUN_002863B0
-s32 func_002863b0(void) {
-    return (*(s32 *)((u8 *)func_00452560() + 0x770) & 2) != 0;
+s32 func_002863b0(s32 task) {
+    return (*(s32 *)((u8 *)func_00452560((void *)task) + 0x770) & 2) != 0;
 }
 // FUN_002863E0
 void func_002863e0(u32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *temp_2;
 
-    temp_2 = func_00452560();
+    temp_2 = (s32 *)func_00452560((void *)arg0);
     *(s32 *)((u8 *)temp_2 + 0x78C) = arg1;
     *(s32 *)((u8 *)temp_2 + 0x790) = arg2;
     *(s32 *)((u8 *)temp_2 + 0x794) = arg3;
@@ -461,7 +464,7 @@ s32 func_00286430(u8 *arg0) {
     case 3:
         val = func_00286350();
         if (val != 0) {
-            ptr = (u8 *)func_00452560(val);
+            ptr = (u8 *)func_00452560((void *)val);
             if (ptr != NULL) {
                 return func_00290de0(ptr + 0x678) != 0;
             }
@@ -605,7 +608,7 @@ s32 func_0028b650(void) {
     if (h == 0) {
         return 0;
     }
-    return *(s32 *)(func_00285480((u8 *)func_00452560(h)) + 0x768) != 0;
+    return *(s32 *)(func_00285480((u8 *)func_00452560((void *)h)) + 0x768) != 0;
 }
 
 // FUN_0028B6B0

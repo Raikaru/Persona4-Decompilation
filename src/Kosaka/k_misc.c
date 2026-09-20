@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 
 /* Task-work helpers for the Kosaka module. Counterparts of the Persona 3 FES
@@ -50,8 +51,7 @@ typedef struct RmdFadeWork
 extern void func_0044ea90(const void* file, u32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);  /* RwCalloc slot */
 extern void (*jtbl_008873EC[])(void*);      /* RwFree slot */
-extern s32 func_00451fc0(s32 arg0, const void* arg1, s32 arg2, s32 arg3, s32 arg4,
-                         s32 (*init)(void*), void (*destroy)(void*), u8* work);
+
 extern u8 func_00452080(void* task);        /* kwlnTaskDestroyWithHierarchy */
 extern u8* func_0047a250(void* mdl);        /* mdlGetColor */
 extern void func_0047a220(void* mdl, void* color); /* mdlSetColor */
@@ -64,8 +64,8 @@ static inline s32 kMiscOr(s32 left, s32 right)
     left |= right;
     return left;
 }
-s32 func_0014b780(void*);  /* delay-model-destroy update, sibling unit */
-void func_0014b840(void*); /* delay-model-destroy destroy, sibling unit */
+s32 func_0014b780(u8 *task);  /* delay-model-destroy update, sibling unit */
+void func_0014b840(u8 *task); /* delay-model-destroy destroy, sibling unit */
 
 // FUN_0014B870
 s32 func_0014b870(Model* mdl, s32 countdown)
@@ -80,7 +80,7 @@ s32 func_0014b870(Model* mdl, s32 countdown)
         return 0;
     }
 
-    task = func_00451fc0(0, D_005EFB40, 0xF, 0, 0, func_0014b780, func_0014b840, (u8*)work);
+    task = (s32)func_00451fc0((void *)(0), (const void *)(D_005EFB40), 0xF, 0, 0, func_0014b780, func_0014b840, (u8 *)((u8*)work));
     work->mdl = mdl;
     work->countdown = countdown;
 
@@ -88,7 +88,7 @@ s32 func_0014b870(Model* mdl, s32 countdown)
 }
 
 // FUN_0014B930
-s32 func_0014b930(void* arg0)
+s32 func_0014b930(u8 *arg0)
 {
     KwlnTask* scrShutdownTask = (KwlnTask*)arg0;
 
@@ -98,7 +98,7 @@ s32 func_0014b930(void* arg0)
 }
 
 // FUN_0014B960
-void func_0014b960(void* arg0)
+void func_0014b960(u8 *arg0)
 {
     KwlnTask* scrShutdownTask = (KwlnTask*)arg0;
 
@@ -118,14 +118,14 @@ s32 func_0014b990(KwlnTask* scrTask)
         return 0;
     }
 
-    task = func_00451fc0(0, D_005EFB60, 0xF, 0, 0, func_0014b930, func_0014b960, (u8*)work);
+    task = (s32)func_00451fc0((void *)(0), (const void *)(D_005EFB60), 0xF, 0, 0, func_0014b930, func_0014b960, (u8 *)((u8*)work));
     work->scrTask = scrTask;
 
     return task;
 }
 
 // FUN_0014BA40
-s32 func_0014ba40(void* arg0)
+s32 func_0014ba40(u8 *arg0)
 {
     RmdFadeWork* work;
     u8* rgba;
@@ -158,7 +158,7 @@ done:
 }
 
 // FUN_0014BBB0
-void func_0014bbb0(void* arg0)
+void func_0014bbb0(u8 *arg0)
 {
     KwlnTask* rmdFadeTask = (KwlnTask*)arg0;
 
@@ -185,8 +185,7 @@ s32 func_0014bbe0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     if (work == NULL) {
         return 0;
     }
-    task = func_00451fc0(arg0, D_005EFB80, 0xF, 0, 0,
-                         func_0014ba40, func_0014bbb0, (u8*)work);
+    task = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFB80), 0xF, 0, 0, func_0014ba40, func_0014bbb0, (u8 *)((u8*)work));
     work->mdl = (Model*)arg1;
     target = (f32)(u32)arg3;
     work->targetAlpha = target;

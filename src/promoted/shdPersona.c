@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit shdPersona.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_task_registration.h"
 #include "sdk_snd_internal.h"
 #include "sdktask.h"
 #include "include_asm.h"
@@ -58,7 +59,7 @@ void func_00454bd0();
 void func_003ef3a0();
 void func_0044ea90(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+
 extern char D_005E4810[];
 extern char D_005E4EB0[];
 extern char D_005E4F50[];
@@ -941,7 +942,7 @@ u8 *func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     if (w == NULL) {
         func_0046d730(D_005E4868, 0x5EE);
     }
-    r = (u8 *)func_00451fc0(arg0, D_005E4810, arg1, 0, 0, func_001178a0, func_0011b2d0, w);
+    r = (u8 *)func_00451fc0((void *)(arg0), (const void *)(D_005E4810), arg1, 0, 0, func_001178a0, func_0011b2d0, (u8 *)(w));
     if (r == NULL) {
         func_0046d730(D_005E4868, 0x5F8);
     }
@@ -3972,7 +3973,7 @@ u8 *func_0011d460(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3)
     if (w == NULL) {
         return NULL;
     }
-    r = (u8 *)func_00451fc0(arg0, D_005E4EB0, arg1, 0, 0, func_0011d1f0, func_0011d3c0, w);
+    r = (u8 *)func_00451fc0((void *)(arg0), (const void *)(D_005E4EB0), arg1, 0, 0, func_0011d1f0, func_0011d3c0, (u8 *)(w));
     if (r == NULL) {
         return NULL;
     }
@@ -4371,7 +4372,7 @@ s32 func_0011dfc0(s32 arg0, s32 arg1, char *arg2)
     if (buf == NULL) {
         return 0;
     }
-    r = func_00451de0(arg2, 0xF, 0, 0, func_0011ded0, func_0011df90, buf);
+    r = (s32)func_00451de0((const void *)(arg2), 0xF, 0, 0, func_0011ded0, func_0011df90, (u8 *)(buf));
     if (r == 0) {
         return 0;
     }
@@ -4400,7 +4401,7 @@ void func_0011e0c0(u8 *arg0, s32 arg1, s32 arg2)
             p4c = *(s32 *)(w + 0x4C);
             func_0044ea90(D_005E4868, 0x11B2);
             r = D_008873F4[0](1, 8, 0x40000);
-            if (r != 0 && func_00451de0(D_005E4E40, 0xF, 0, 0, func_0011ded0, func_0011df90, r) != 0) {
+            if (r != 0 && (s32)func_00451de0((const void *)(D_005E4E40), 0xF, 0, 0, func_0011ded0, func_0011df90, (u8 *)(r)) != 0) {
                 if (p4c != 0) {
                     func_00440b68((s32)D_005E4F10, (s32)(p4c + 0x10));
                 }
@@ -5132,7 +5133,7 @@ u8 *func_0011f410(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 *arg5)
     if (w == NULL) {
         func_0046d730(D_005E4868, 0x1465);
     }
-    r = (u8 *)func_00451fc0(arg0, D_005E4F30, 0xF, 0, 0, func_0011e8e0, func_0011f3c0, w);
+    r = (u8 *)func_00451fc0((void *)(arg0), (const void *)(D_005E4F30), 0xF, 0, 0, func_0011e8e0, func_0011f3c0, (u8 *)(w));
     if (r == NULL) {
         func_0046d730(D_005E4868, 0x146F);
     }
@@ -5403,7 +5404,7 @@ u8 *func_0011fbc0(s32 arg0, u8 *arg1, s32 arg2, u8 *arg3)
     if (w == NULL) {
         func_0046d730(D_005E4868, 0x1552);
     }
-    r = (u8 *)func_00451fc0(arg0, D_005E4F50, 0xF, 0, 0, func_0011f5a0, func_0011fb90, w);
+    r = (u8 *)func_00451fc0((void *)(arg0), (const void *)(D_005E4F50), 0xF, 0, 0, func_0011f5a0, func_0011fb90, (u8 *)(w));
     if (r == NULL) {
         func_0046d730(D_005E4868, 0x155C);
     }

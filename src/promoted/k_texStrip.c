@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_texStrip.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -12,9 +13,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void *func_003ef650(void *arg0, const char *arg1);
 extern void func_003ef610(s32 arg0);
 extern void func_003ef5b0(s32 arg0, s32 arg1);
-extern s32 func_00451fc0(s32 arg0, const void *arg1, s32 arg2, s32 arg3,
-                         s32 arg4, s32 (*arg5)(u8 *), void (*arg6)(u8 *),
-                         void *arg7);
+
 extern s32 func_00468170(void *arg0, const char *arg1);
 extern s32 func_004680f0(s32 arg0, void *arg1);
 extern void func_00462eb0(void *arg0);
@@ -500,8 +499,7 @@ s32 func_00191610(void)
     {
         return 0;
     }
-    return func_00451fc0(0, D_005F63E0, 0xF, 0, 0, func_00190c10,
-                         func_001915c0, mem);
+    return (s32)func_00451fc0((void *)(0), (const void *)(D_005F63E0), 0xF, 0, 0, func_00190c10, func_001915c0, (u8 *)(mem));
 }
 
 // measured: MATCH (object 420/window 432). The four func_003df3c0 spill slots
@@ -670,8 +668,7 @@ s32 func_00191bc0(void)
     {
         return 0;
     }
-    ret = func_00451fc0(0, D_005F63E0, 0xF, 0, 0, func_00191850,
-                        func_00191b70, mem);
+    ret = (s32)func_00451fc0((void *)(0), (const void *)(D_005F63E0), 0xF, 0, 0, func_00191850, func_00191b70, (u8 *)(mem));
     *(s32 *)((u8 *)mem + 0xE6C) = 0x28;
     *(s32 *)((u8 *)mem + 0xE70) = 1;
     return ret;
@@ -727,6 +724,5 @@ s32 func_00191d90(void)
     {
         return 0;
     }
-    return func_00451fc0(0, D_005F64A8, 0xF, 0, 0, func_00191c70,
-                         func_00191d60, mem);
+    return (s32)func_00451fc0((void *)(0), (const void *)(D_005F64A8), 0xF, 0, 0, func_00191c70, func_00191d60, (u8 *)(mem));
 }

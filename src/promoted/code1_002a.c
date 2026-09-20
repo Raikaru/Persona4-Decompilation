@@ -1,5 +1,6 @@
 /* Source unit: src/promoted/code1_002a.c */
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "fr_font_internal.h"
@@ -16,15 +17,14 @@ extern s32 D_00763918;
 extern s32 D_00764634;
 extern u8 D_0063EE40[];
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
-extern s32 func_00451fc0(void *a, const void *b, s32 c, s32 d, s32 e, void *f, void *g, void *h);
+
 extern s32 func_002aa890(u8 *arg0);
 extern void func_002aa450(void);
 extern void func_0044ea90(void *arg0, s32 arg1);
 extern u8 D_0063EEC0[];
 extern u8 D_0063EED0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_00451de0(const void *data, s32 arg1, s32 arg2, s32 arg3,
-                         void *init, void *close, void *buf);
+
 extern s32 func_002abf70(u8 *arg0);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void func_003f6440(s32 arg0, s32 arg1);
@@ -1078,14 +1078,14 @@ s32 func_002aa890(u8 *arg0) {
     return 0;
 }
 // FUN_002AAA00
-void func_002aaa00(void)
+void func_002aaa00(u8 *unusedTask)
 {
 }
 
 // FUN_002AAA10
 void func_002aaa10(void) {
     func_0043f9c8(D_00882F20, 0, 0x10);
-    func_00451fc0(NULL, D_0063EE40, 0xF, 0, 0, (void *)func_002aa890, (void *)func_002aaa00, NULL);
+    (s32)func_00451fc0((void *)(NULL), (const void *)(D_0063EE40), 0xF, 0, 0, func_002aa890, func_002aaa00, (u8 *)(NULL));
 }
 
 // FUN_002AAA80
@@ -1332,8 +1332,7 @@ void func_002ac2a0(void) {
 
     func_0044ea90(D_0063EEC0, 0x4B9);
     p = D_008873F4[0](1, 0x4D78, 0x40000);
-    func_00451de0(D_0063EED0, 0xF, 0, 0,
-                  (void *)func_002abf70, (void *)func_002ac270, p);
+    (s32)func_00451de0((const void *)(D_0063EED0), 0xF, 0, 0, func_002abf70, func_002ac270, (u8 *)(p));
     *(u8 *)(p + 0) = 0;
     *(s32 *)(p + 0x6B4) = 0x3F800000;
     *(s16 *)(p + 0x6B8) = 0x1F;

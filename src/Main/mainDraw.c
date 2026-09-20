@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit mainDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
+#include "sdk_task_registration.h"
 #include "type.h"
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -19,7 +20,7 @@ extern void func_004623a0(s32 arg0);
 extern void func_0044ea90(void *file, s32 line);
 extern void func_0046d730(void *file, s32 line);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
-extern s32 func_00451de0();
+
 extern u8 D_00793E80[];
 extern u8 D_00793EB0[];
 extern u8 D_00794900[];
@@ -206,8 +207,8 @@ extern void func_00101950(void);
 extern void func_00101a80(void);
 extern void func_001014b0(void);
 extern s32 func_00101bb0(u8 *arg0);
-extern s32 func_00102550(void);
-extern void func_001025e0(void *arg0);
+extern s32 func_00102550(u8 *task);
+extern void func_001025e0(u8 *task);
 
 
 /* Measured: the local vtable pointer matches retail's single $s0
@@ -555,7 +556,7 @@ void func_00102490(void) {
 
     func_0044ea90(&D_005DCAE8, 0x13B);
     temp_2 = D_008873F4[0](1, 0x60, 0x40000);
-    temp_2_2 = func_00451de0(&D_005DCAF8, 0xA, 0, 0, func_00101bb0, NULL, temp_2);
+    temp_2_2 = (s32)func_00451de0((const void *)(&D_005DCAF8), 0xA, 0, 0, func_00101bb0, 0, (u8 *)(temp_2));
     *(void **)(temp_2 + 8) = &D_001013A0;
     *(s32 *)(temp_2 + 0x10) = 0;
     *(void (**)(void))(temp_2 + 0x38) = func_001014b0;
@@ -566,7 +567,7 @@ void func_00102490(void) {
 }
 
 // FUN_00102550
-s32 func_00102550(void) {
+s32 func_00102550(u8 *unusedTask) {
     u32 var_16;
 
     if (func_003e8120(func_00457120()) != 0) {
@@ -582,15 +583,14 @@ s32 func_00102550(void) {
 }
 
 // FUN_001025E0
-void func_001025e0(void *arg0) {
+void func_001025e0(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
 // FUN_00102610
 void func_00102610(void) {
     func_0044ea90(&D_005DCAE8, 0x1FD);
-    if (func_00451de0(&D_005DCB10, 0xC8, 0, 0, func_00102550, func_001025e0,
-                      D_008873F4[0](1, 4, 0x40000)) == 0) {
+    if ((s32)func_00451de0((const void *)(&D_005DCB10), 0xC8, 0, 0, func_00102550, func_001025e0, (u8 *)(D_008873F4[0](1, 4, 0x40000))) == 0) {
         func_0046d730(&D_005DCAE8, 0x208);
     }
 }
