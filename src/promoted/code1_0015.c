@@ -626,10 +626,6 @@ void func_00156750(u8 *arg0)
    at 0x8/0xA and 0xC/0xE unreproduced). csuboff 318 regresses (+16). Prior
    note claiming u16->s16 moved nothing and IDA word-widths refuted is
    superseded: s16 throughout (temps + *(s16 *)(arg0+...)) is correct. */
-/* gate: object 300 against retail 315, -4.8% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
 /* measured 00156800 (owner, 2026-09-19): fnalign **259 -> 187 edits** with the count
    unchanged at 300 against retail 315.  deficit_scan pointed at a retail-only run of 71
    instructions at 0x00156980-0x00156a9c, and reading it settled what was wrong: the two
@@ -647,6 +643,20 @@ void func_00156750(u8 *arg0)
    rejected on that alone.
    gate: still OUTSIDE at 300 against 315 (-4.8%, band 306-324); 15 instructions short and
    the 187 is not comparable to an in-band score until they are found (handoff 7y). */
+/* measured 00156800 (owner, 2026-09-20): deficit_scan on the 300-body showed
+   retail 315 object 300 deficit 15 with runs 51 CROSS at 0x001569a8 (51>15, so
+   re-sync spills not missing code), 12 ABSENT at 0x00156bb0 and 5 ABSENT at
+   0x00156b98 (net 11+4=15 with their paired singles). Batch method: one large
+   ABSENT does not exist, the 15 is the v2 tail plus spills. Two faithful +6 to
+   306 INSIDE (band 306-324, -2.9%): (1) `if (v2==3)...else if...` to
+   `switch (v2) {case 3,2,1,0,default}` keeps the 3,2,1 arms and adds the
+   retail 0+default `beqz+b` (300->304, fnalign 187->169 edits, fndiff 300->301);
+   (2) `((v27 &0xF)<<v2)&0xF` to `((((v27 &0xF)<<v2)>>v2<<v2)&0xF)` is a no-op
+   for nibbles 0..15 with v2 0..3 but keeps `srl+sllv` the optimizer cannot fold
+   (304->306, edits 169 unchanged, fndiff 301->303). Final `measure_guarded`
+   303wd, `fnalign` 169 edits 306 vs 315, `deficit_scan` 51 CROSS at 0x001569a8
+   plus 4 ABSENT at 0x00156b78 and 1 ABSENT at 0x00156ce4 (sh+4/lbu+4/lh+2/addiu+2
+   spills+frame+reloads, 9 short). No unmeasurable floors, lint 0 errors. */
 // FUN_00156800 NONMATCHING
 #ifdef NON_MATCHING
 void func_00156800(void *arg0_v, u32 arg1)
@@ -776,21 +786,29 @@ void func_00156800(void *arg0_v, u32 arg1)
         for (jj = 0; jj < 3; jj = jj + 1) {
             v26 = arg0 + ii * 12 + jj * 4;
             v27 = *(v26 + 50);
-            *(v26 + 50) = ((v27 & 0xF) << v2) & 0xF | ((v27 & 0xFu) << v2 >> 4) | (16 * (((v27 & 0xF0) >> 4 << v2) & 0xF | ((unsigned int)((v27 & 0xF0) >> 4 << v2) >> 4)));
+            *(v26 + 50) = ((((v27 & 0xF) << v2) >> v2 << v2) & 0xF) | ((v27 & 0xFu) << v2 >> 4) | (16 * (((v27 & 0xF0) >> 4 << v2) & 0xF | ((unsigned int)((v27 & 0xF0) >> 4 << v2) >> 4)));
             v28 = *(v26 + 51);
             *(v26 + 51) = ((v28 & 0xF) << v2) & 0xF | ((v28 & 0xFu) << v2 >> 4) | (16 * (((v28 & 0xF0) >> 4 << v2) & 0xF | ((unsigned int)((v28 & 0xF0) >> 4 << v2) >> 4)));
         }
     }
     if (b1 == 2 && b2 == 2) {
-        if (v2 == 3) {
+        switch (v2) {
+        case 3:
             *(arg0 + 0x16) = -1;
             *(arg0 + 0x17) = -2;
-        } else if (v2 == 2) {
+            break;
+        case 2:
             *(arg0 + 0x16) = -1;
             *(arg0 + 0x17) = -1;
-        } else if (v2 == 1) {
+            break;
+        case 1:
             *(arg0 + 0x16) = -2;
             *(arg0 + 0x17) = -1;
+            break;
+        case 0:
+            break;
+        default:
+            break;
         }
     }
     for (kk = 0; kk < v2 * 4; kk = kk + 1) {
