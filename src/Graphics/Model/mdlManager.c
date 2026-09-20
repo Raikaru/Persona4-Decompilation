@@ -608,10 +608,7 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   float fStack_364;
   float fStack_360;
   int iStack_35c;
-  float fStack_350;
-  float fStack_34c;
-  float fStack_348;
-  float fStack_344;
+  float afStack_350[4];
   float fStack_340;
   float fStack_33c;
   float fStack_338;
@@ -678,9 +675,7 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
   float fStack_40;
   float fStack_3c;
   float fStack_38;
-  float fStack_30;
-  float fStack_2c;
-  float fStack_28;
+  float afStack_30[3];
   float fStack_20;
   float fStack_1c;
   float fStack_18;
@@ -836,14 +831,14 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
           *param_3 = *param_3 | 0x600;
         }
         temp_v1 = 0;
-        fStack_30 = 1.0f / *(float *)(param_3 + 0x18);
-        fStack_2c = 1.0f / *(float *)(param_3 + 0x1a);
-        fStack_28 = 1.0f / *(float *)(param_3 + 0x1c);
+        afStack_30[0] = 1.0f / *(float *)(param_3 + 0x18);
+        afStack_30[1] = 1.0f / *(float *)(param_3 + 0x1a);
+        afStack_30[2] = 1.0f / *(float *)(param_3 + 0x1c);
         if ((*param_2 & 0x10) != 0) {
-          fStack_30 = fStack_30 * (1.0f / DAT_00922bb0);
+          afStack_30[0] = afStack_30[0] * (1.0f / DAT_00922bb0);
           temp_v21 = (1.0f / DAT_00922bb0) * DAT_00922bb4;
-          fStack_2c = fStack_2c * temp_v21;
-          fStack_28 = fStack_28 * temp_v21;
+          afStack_30[1] = afStack_30[1] * temp_v21;
+          afStack_30[2] = afStack_30[2] * temp_v21;
         }
         pfVar17 = afStack_1b0;
         temp_v7 = 8;
@@ -857,13 +852,13 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
           pfVar17[1] = temp_v20;
           pfVar17 = pfVar17 + 2;
         } while (0 < temp_v7);
-        func_003e0a90(afStack_1b0,&fStack_30,1);
+        func_003e0a90(afStack_1b0,afStack_30,1);
         func_003e05f0(&fStack_330,&fStack_230,afStack_1b0);
         fStack_20 = fStack_300;
         fStack_1c = fStack_2fc;
         fStack_18 = fStack_2f8;
         if (param_4 == 0) {
-          func_003e0a90(&fStack_330,&fStack_30,1);
+          func_003e0a90(&fStack_330,afStack_30,1);
           uStack_10 = 0;
           uStack_c = 0x3f800000;
           uStack_8 = 0;
@@ -898,19 +893,22 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
             else {
               iStack_450 = 1;
               if ((temp_v0 & 0x40) == 0) {
-                fStack_30 = -*(float *)(param_3 + 0x1e);
-                fStack_2c = -*(float *)(param_3 + 0x20);
-                fStack_28 = -*(float *)(param_3 + 0x22);
+                afStack_30[0] = *(float *)(param_3 + 0x1e);
+                afStack_30[1] = *(float *)(param_3 + 0x20);
+                afStack_30[2] = *(float *)(param_3 + 0x22);
+                afStack_30[0] = -afStack_30[0];
+                afStack_30[1] = -afStack_30[1];
+                afStack_30[2] = -afStack_30[2];
               }
               else {
-                fStack_30 = fStack_20 - *(float *)(param_3 + 0x1e);
-                fStack_2c = fStack_1c - *(float *)(param_3 + 0x20);
-                fStack_28 = fStack_18 - *(float *)(param_3 + 0x22);
+                afStack_30[0] = fStack_20 - *(float *)(param_3 + 0x1e);
+                afStack_30[1] = fStack_1c - *(float *)(param_3 + 0x20);
+                afStack_30[2] = fStack_18 - *(float *)(param_3 + 0x22);
               }
-              func_003e40b0(&fStack_30,&fStack_30);
+              func_003e40b0(afStack_30,afStack_30);
               func_003e0960(temp_v23,afStack_b0);
-              func_003e4320(&fStack_30,&fStack_30,temp_v23);
-              func_003e40b0(&fStack_30,&fStack_30);
+              func_003e4320(afStack_30,afStack_30,temp_v23);
+              func_003e40b0(afStack_30,afStack_30);
               fStack_50 = 0.0f;
               fStack_4c = 0.0f;
               fStack_48 = -100.0f;
@@ -924,9 +922,9 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
               temp_v15 = fGpffff8048 * temp_v21 - 90.0f;
               temp_v21 = func_0044b950(fStack_40,fStack_38);
               temp_v14 = fGpffff8048 * temp_v21 + 180.0f;
-              temp_v21 = func_0044b920(fStack_2c);
+              temp_v21 = func_0044b920(afStack_30[1]);
               temp_v20 = fGpffff8048 * temp_v21 - 90.0f;
-              temp_v21 = func_0044b950(fStack_30,fStack_28);
+              temp_v21 = func_0044b950(afStack_30[0],afStack_30[2]);
               temp_v21 = fGpffff8048 * temp_v21;
               for (temp_v20 = temp_v20 - temp_v15; temp_v20 < 0.0f; temp_v20 = temp_v20 + 360.0f) {
               }
@@ -1001,11 +999,11 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
             if ((puVar3 == (unsigned int *)0x0) && ((*param_3 & 0x100) != 0)) {
               temp_v21 = func_004bd4a0((unsigned char *)(param_3 + 8),(unsigned char *)&fStack_340);
               if (temp_v21 < 0.0f) {
-                fStack_344 = -fStack_334;
-                fStack_350 = -fStack_340;
-                fStack_34c = -fStack_33c;
-                fStack_348 = -fStack_338;
-                temp_v21 = func_004bd4a0((unsigned char *)(param_3 + 8),(unsigned char *)&fStack_350);
+                afStack_350[3] = -fStack_334;
+                afStack_350[0] = -fStack_340;
+                afStack_350[1] = -fStack_33c;
+                afStack_350[2] = -fStack_338;
+                temp_v21 = func_004bd4a0((unsigned char *)(param_3 + 8),(unsigned char *)afStack_350);
               }
               temp_v21 = func_0044b920(temp_v21);
               if (temp_v21 * 2.0f < fGpffff804c) {
@@ -1050,9 +1048,12 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
                                                        fGpffff8058) + fGpffff805c) +
                                    fGpffff8060) + fGpffff8064) + temp_v21;
               }
-              fStack_3a0 = fStack_370 * temp_v21 + fStack_380 * temp_v20;
-              fStack_39c = fStack_36c * temp_v21 + fStack_37c * temp_v20;
-              fStack_398 = fStack_368 * temp_v21 + fStack_378 * temp_v20;
+              fStack_3a0 = fStack_380 * temp_v20;
+              fStack_39c = fStack_37c * temp_v20;
+              fStack_398 = fStack_378 * temp_v20;
+              fStack_3a0 = fStack_3a0 + fStack_370 * temp_v21;
+              fStack_39c = fStack_39c + fStack_36c * temp_v21;
+              fStack_398 = fStack_398 + fStack_368 * temp_v21;
               fStack_394 = fStack_374 * temp_v20 + fStack_364 * temp_v21;
             }
             if (((*param_3 & 0x2000) == 0) || (iStack_450 == 0)) {
@@ -1065,11 +1066,11 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
               func_003dc610(&uStack_3c0,&fStack_330);
               temp_v21 = func_004bd4a0((unsigned char *)&uStack_3c0,(unsigned char *)&fStack_3a0);
               if (temp_v21 < 0.0f) {
-                fStack_344 = -fStack_394;
-                fStack_350 = -fStack_3a0;
-                fStack_34c = -fStack_39c;
-                fStack_348 = -fStack_398;
-                temp_v21 = func_004bd4a0((unsigned char *)&uStack_3c0,(unsigned char *)&fStack_350);
+                afStack_350[3] = -fStack_394;
+                afStack_350[0] = -fStack_3a0;
+                afStack_350[1] = -fStack_39c;
+                afStack_350[2] = -fStack_398;
+                temp_v21 = func_004bd4a0((unsigned char *)&uStack_3c0,(unsigned char *)afStack_350);
               }
               temp_v21 = func_0044b920(temp_v21);
               if (temp_v21 * 2.0f <= fGpffff8068 * *(float *)(param_3 + 6)) {
@@ -1111,9 +1112,12 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
                                                            fGpffff8058) + fGpffff805c) +
                                        fGpffff8060) + fGpffff8064) + temp_v21;
                   }
-                  *(float *)(param_3 + 8) = fStack_370 * temp_v21 + fStack_380 * temp_v20;
-                  *(float *)(param_3 + 10) = fStack_36c * temp_v21 + fStack_37c * temp_v20;
-                  *(float *)(param_3 + 0xc) = fStack_368 * temp_v21 + fStack_378 * temp_v20;
+                  *(float *)(param_3 + 8) = fStack_380 * temp_v20;
+                  *(float *)(param_3 + 10) = fStack_37c * temp_v20;
+                  *(float *)(param_3 + 0xc) = fStack_378 * temp_v20;
+                  *(float *)(param_3 + 8) = *(float *)(param_3 + 8) + fStack_370 * temp_v21;
+                  *(float *)(param_3 + 10) = *(float *)(param_3 + 10) + fStack_36c * temp_v21;
+                  *(float *)(param_3 + 0xc) = *(float *)(param_3 + 0xc) + fStack_368 * temp_v21;
                   *(float *)(param_3 + 0xe) = fStack_374 * temp_v20 + fStack_364 * temp_v21;
                 }
               }
@@ -1153,15 +1157,15 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
             pfVar8[0xd] = 0.0f;
             pfVar8[0xe] = 0.0f;
             pfVar8[3] = 4.2039e-45f;
-            fStack_30 = *(float *)(param_3 + 0x18);
-            fStack_2c = *(float *)(param_3 + 0x1a);
-            fStack_28 = *(float *)(param_3 + 0x1c);
+            afStack_30[0] = *(float *)(param_3 + 0x18);
+            afStack_30[1] = *(float *)(param_3 + 0x1a);
+            afStack_30[2] = *(float *)(param_3 + 0x1c);
             if ((*param_2 & 0x10) != 0) {
-              fStack_30 = fStack_30 * DAT_00922bb0;
-              fStack_2c = fStack_2c * DAT_00922bb0 * DAT_00922bb4;
-              fStack_28 = fStack_28 * DAT_00922bb0 * DAT_00922bb4;
+              afStack_30[0] = afStack_30[0] * DAT_00922bb0;
+              afStack_30[1] = afStack_30[1] * DAT_00922bb0 * DAT_00922bb4;
+              afStack_30[2] = afStack_30[2] * DAT_00922bb0 * DAT_00922bb4;
             }
-            func_003e0a90(pfVar8,&fStack_30,1);
+            func_003e0a90(pfVar8,afStack_30,1);
             pfVar8[0xc] = fStack_20;
             pfVar8[0xd] = fStack_1c;
             pfVar8[0xe] = fStack_18;
@@ -1188,15 +1192,15 @@ void func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
             fStack_2fc = 0.0f;
             fStack_2f8 = 0.0f;
             uStack_324 = 3;
-            fStack_30 = *(float *)(param_3 + 0x18);
-            fStack_2c = *(float *)(param_3 + 0x1a);
-            fStack_28 = *(float *)(param_3 + 0x1c);
+            afStack_30[0] = *(float *)(param_3 + 0x18);
+            afStack_30[1] = *(float *)(param_3 + 0x1a);
+            afStack_30[2] = *(float *)(param_3 + 0x1c);
             if ((*param_2 & 0x10) != 0) {
-              fStack_30 = fStack_30 * DAT_00922bb0;
-              fStack_2c = fStack_2c * DAT_00922bb0 * DAT_00922bb4;
-              fStack_28 = fStack_28 * DAT_00922bb0 * DAT_00922bb4;
+              afStack_30[0] = afStack_30[0] * DAT_00922bb0;
+              afStack_30[1] = afStack_30[1] * DAT_00922bb0 * DAT_00922bb4;
+              afStack_30[2] = afStack_30[2] * DAT_00922bb0 * DAT_00922bb4;
             }
-            func_003e0a90(&fStack_330,&fStack_30,1);
+            func_003e0a90(&fStack_330,afStack_30,1);
             fStack_300 = fStack_20;
             fStack_2fc = fStack_1c;
             fStack_2f8 = fStack_18;
