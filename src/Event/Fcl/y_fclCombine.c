@@ -2878,6 +2878,44 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002ed430);
    goto/for/do collapse to one shape, so left alone. Inner switches 2 (12/10/8/6)
    and 3/4 (0/1/2/3) already match retail (micro: checks reverse of layout, layout
    in source order, exactly retail beq 6/8/10/12 and 3/2/1/0). */
+/* measured 002f0f00 (lane, 2026-09-20): fnalign **4120 -> 2929 edits** (-1191), count
+   6057 -> 5874 against retail 6011 (-2.3%, band 5831-6191 PASS, headroom 43).
+   tail_classify 840/106 -> 889/122, still STRUCTURE (unslide revealed small hunks;
+   net -1191). deficit_scan retail-only runs 251+201+83 -> 45+38+33 (R201 0x541C and
+   R251 0x5B0C crossed blocks unslid, not missing code; lump 475 -> ~357 -> gone).
+   Banked, in order (all via measure_guarded + fnalign --candidate, one at a time):
+   43.0f for int 0x422C0000 (2 sites, case 0x46): 4120->4116, -4 count (retail
+   lui/mtc1 direct; int literal forced cvt.s.w, wrong value 1.1e9 vs 43.0f).
+   plain f32 loads for triple (f32)(s32)x3 (0x46, 4 sites): 4116->4092, -24 count
+   (retail lwc1/swc1/add.s with no converts; kept stack round-trip via spXXX).
+   int-add hoist defeat `(u8 *)((u32)base + 0x148U)` (switch-3/4 second uses, 6 arms):
+   4090->3933 (-157), -5 count; micro-proven (tools/micro_codegen.py): b210 hoists a
+   repeated `base+OFF` into `addiu $sX,$sY,OFF` + `lw ($sX)` (object had 29x 0x148,
+   10x 0x11e, 6x 0x129/0x2f9, 5x 0x2fa/0x154 bumps; retail has none), int-add emits
+   the identical `lw OFF(base)` without merging, struct-member also defeats but
+   struct/int/pointer all SELF-merge so rotation caps at 3 shapes per merge group.
+   (s64)(<<0x38>>0x38) -> plain on s8-return 00314660 guards (9 sites: 0x46 ==0xD +
+   8x ==5/==0xE): 3933->3928->3865 (-68 total), -53 count (retail extends s8 via
+   dsll32/dsra32 24; verified at 0x553C; micro e2/e3 confirm plain/(s8) emit 24).
+   Same for 6x <0||>=6 range guards (12 wrappers): 3865->3787 (-78), -72 count.
+   Case 0x47 floats (4 loads + 2x 43.0f): 3787->3765 (-22), -28 count.
+   temp_17 reload `temp_17 = *(arg0+0x38)` before case-0x46 `&80` block: 3765->2929
+   (-836), +5 count; the reload breaks the TW+0x148 CSE chain (v1 micro: a load
+   between uses defeats it) and unslid R201+R251 wholesale. loop_319 goto->do-while
+   (retail head 0x67DC has no top-test; temp_20_6->temp_16_81 in body): neutral,
+   kept as retail-verified shape. (s8) on 0x46 guard: neutral, kept.
+   Tried and REVERTED (losses, excluded from banked state): if-chain mixed
+   int/struct rotation +5; lone 4221 int-add +7 (int-adds merge ACROSS the case,
+   consolidating one shared hoist - six-arm won by consolidating 6 -> fewer, adding
+   a 7th lengthened its span); (s8)var_20 x6 -850 alone BUT +8 on top of reload
+   (same slide fixed twice, shapes conflict); post-loop temp_17 reload neutral
+   (compiler eliminated it); bare `(temp_18_XX)` s8-use in 3146f0 args does NOT
+   compile (mwcc rejects; (s64)56 stays at 4512/4574). ldr/ldl already correct
+   (object matches retail pairs; missing pairs live in crossed regions). Float
+   homes $f20 vs retail $f1 and swc1-less preloads are register-class, tolerated.
+   Left: 45-run 0x6894 (0x4F post-loop extends/hoists), 38-run 0x6C18 (0x50 tail),
+   33-run 0x33E8 (0x3B six 34ae50 loop, 0x154 hoist + extends); further float-case
+   cleanups (0x40/45/4E) deferred: each costs ~28 count, headroom is 43. */
 // FUN_002F0F00 NONMATCHING
 #ifdef NON_MATCHING
 void func_002f0f00(u8 *arg0) {
@@ -4509,7 +4547,7 @@ loop_312:
         (*((s8 *)((u8 *)(temp_17) + (0x2FA)))) = (s8) temp_19_14;
         temp_18_42 = (s64) (temp_19_14 << 0x38) >> 0x38;
         temp_16_83 = (u16 *)(func_002e48a0((s64) (*((s8 *)((u8 *)(temp_17) + (0x2F9)))), temp_18_42));
-        func_003146f0((*((s32 *)((u8 *)(temp_17) + (0x148)))), temp_16_83, (*((s8 *)((u8 *)((func_002e4870((*((s8 *)((u8 *)(temp_17) + (0x2F9))))) + (temp_18_42)) + (0x2E4)))));
+        func_003146f0((*((s32 *)((u8 *)(temp_17) + (0x148)))), temp_16_83, (*((s8 *)((u8 *)((func_002e4870((*((s8 *)((u8 *)(temp_17) + (0x2F9))))) + ((s64) (temp_18_42 << 0x38) >> 0x38))) + (0x2E4)))));
         (*((s8 *)((u8 *)(temp_17) + (0)))) = 0xD;
         (*((u8 *)((u8 *)(temp_17) + (1)))) = 0xC5U;
         return;
@@ -4571,7 +4609,7 @@ loop_339:
         (*((s8 *)((u8 *)(temp_17) + (0x2F9)))) = 0xD;
         temp_18_44 = (s8)((s8)((s8)((*((s8 *)((u8 *)(temp_17) + (0x2FA)))))));
         temp_16_89 = (u16 *)(func_002e48a0(0xD, (s64) temp_18_44));
-        func_003146f0((*((s32 *)((u8 *)(temp_17) + (0x148)))), temp_16_89, (*((s8 *)((u8 *)((func_002e4870((*((s8 *)((u8 *)(temp_17) + (0x2F9))))) + (temp_18_44)) + (0x2E4)))));
+        func_003146f0((*((s32 *)((u8 *)(temp_17) + (0x148)))), temp_16_89, (*((s8 *)((u8 *)((func_002e4870((*((s8 *)((u8 *)(temp_17) + (0x2F9))))) + ((s64) ((s64) temp_18_44 << 0x38) >> 0x38))) + (0x2E4)))));
         (*((s8 *)((u8 *)(temp_17) + (0)))) = 0xD;
         (*((u8 *)((u8 *)(temp_17) + (1)))) = 0xC5U;
         break;

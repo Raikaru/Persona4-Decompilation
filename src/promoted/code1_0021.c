@@ -3771,6 +3771,113 @@ void func_0021be80(u8 *arg0, u8 *arg1)
     s32 color;
     s32 base;
     u16 index;
+    f32 t0[4];
+    f32 t1[4];
+    f32 t2[4];
+    f32 t3[4];
+    s32 id0;
+    s32 id1;
+    s32 id2;
+    s32 id3;
+    s32 row0;
+    s32 row1;
+    s32 row2;
+    s32 row3;
+    s32 group0;
+    s32 group1;
+    s32 group2;
+    s32 group3;
+    s32 side0;
+    s32 side1;
+    s32 side2;
+    s32 side3;
+    s32 signx0;
+    s32 signx1;
+    s32 signx2;
+    s32 signx3;
+    s32 signy0;
+    s32 signy1;
+    s32 signy2;
+    s32 signy3;
+    s32 q60;
+    s32 q61;
+    s32 q62;
+    s32 q63;
+    s32 q30;
+    s32 q31;
+    s32 q32;
+    s32 q33;
+    s32 r60;
+    s32 r61;
+    s32 r62;
+    s32 r63;
+    s32 r30;
+    s32 r31;
+    s32 r32;
+    s32 r33;
+    s32 nxt;
+    f32 sx0;
+    f32 sy0;
+    f32 sx1;
+    f32 sy1;
+    f32 sx2;
+    f32 sy2;
+    f32 sx3;
+    f32 sy3;
+    f32 f120;
+    f32 f130;
+    f32 f150;
+    f32 f160;
+    f32 f121;
+    f32 f131;
+    f32 f151;
+    f32 f161;
+    f32 f122;
+    f32 f132;
+    f32 f152;
+    f32 f162;
+    f32 f123;
+    f32 f133;
+    f32 f153;
+    f32 f163;
+    f32 *tile0;
+    f32 *tile1;
+    f32 *tile2;
+    f32 *tile3;
+    f32 tR[4];
+    f32 tF[4];
+    s32 rowR;
+    s32 rowF;
+    s32 groupR;
+    s32 groupF;
+    s32 sideR;
+    s32 sideF;
+    s32 signxR;
+    s32 signxF;
+    s32 signyR;
+    s32 signyF;
+    s32 q6R;
+    s32 q6F;
+    s32 q3R;
+    s32 q3F;
+    s32 r6R;
+    s32 r6F;
+    s32 r3R;
+    s32 r3F;
+    f32 sxR;
+    f32 syR;
+    f32 sxF;
+    f32 syF;
+    f32 f12R;
+    f32 f13R;
+    f32 f15R;
+    f32 f16R;
+    f32 f12F;
+    f32 f13F;
+    f32 f15F;
+    f32 f16F;
+    f32 *tileR;
+    f32 *tileF;
 
     (void)arg0;
     ctx = (u8 *)func_00452560(*(void **)(arg1 + 8));
@@ -3810,21 +3917,107 @@ void func_0021be80(u8 *arg0, u8 *arg1)
                 if (index >= 0xC) {
                     func_0046d730((void *)&D_00629030[0], 0xC6);
                 }
-                for (i = 0; i < 4; i++) {
-                    id = (i == 0) ? index : ((i == 1) ? index + 6 :
-                         (i == 2) ? (index + 1) % 6 : ((index + 7) % 6));
-                    row = (id % 6 < 3) ? (id % 3) : (3 - (id % 3));
-                    tile = &D_00628FD0[(row + 5) * 6];
-                    group = id / 6;
-                    side = ((id / 3) + group) & 1;
-                    signx = (side == 0) ? 1 : -1;
-                    signy = (group == 0) ? 1 : -1;
-                    func_0021b630(tile[0], tile[1], 0.0f,
-                                  fGpffff84cc * (f32)(-signx) * tile[2],
-                                  (f32)(-signy) * tile[3],
-                                  tile[4] + tile[2], tile[5] + tile[3], tile[4],
-                                  color, tile[5]);
+                id0 = (s32)index;
+                t0[0] = D_006290B0;
+                t0[1] = D_006290B4;
+                t0[2] = D_006290B8;
+                t0[3] = D_006290BC;
+                if (id0 < 0 || id0 >= 0xC) {
+                    func_0046d730((void *)&D_00629030[0], 0xC6);
                 }
+                q60 = id0 / 6;
+                q30 = id0 / 3;
+                side0 = (q30 + q60) & 1;
+                r60 = id0 % 6;
+                r30 = id0 % 3;
+                row0 = (r60 < 3) ? r30 : (2 - r30);
+                tile0 = &D_00628FD0[(row0 + 5) * 6];
+                group0 = id0 / 6;
+                signx0 = (side0 == 0) ? 1 : -1;
+                signy0 = (group0 == 0) ? 1 : -1;
+                sx0 = (f32)signx0;
+                sy0 = (f32)signy0;
+                f120 = (f32)0x13F - fGpffff84cc * ((t0[side0 * 2] - (f32)0x13F) + sx0 * tile0[0]);
+                f130 = fGpffff84d0 - ((t0[group0 * 2 + 1] - fGpffff84d0) + sy0 * tile0[1]);
+                f150 = fGpffff84cc * ((f32)(-signx0) * tile0[2]);
+                f160 = (f32)(-signy0) * tile0[3];
+                func_0021b630(f120, f130, 0.0f, f150, f160, tile0[4], tile0[5], tile0[4] + tile0[2], color, tile0[5] + tile0[3]);
+                id1 = (s32)index + 6;
+                t1[0] = D_006290B0;
+                t1[1] = D_006290B4;
+                t1[2] = D_006290B8;
+                t1[3] = D_006290BC;
+                if (id1 < 0 || id1 >= 0xC) {
+                    func_0046d730((void *)&D_00629030[0], 0xC6);
+                }
+                q61 = id1 / 6;
+                q31 = id1 / 3;
+                side1 = (q31 + q61) & 1;
+                r61 = id1 % 6;
+                r31 = id1 % 3;
+                row1 = (r61 < 3) ? r31 : (2 - r31);
+                tile1 = &D_00628FD0[(row1 + 5) * 6];
+                group1 = id1 / 6;
+                signx1 = (side1 == 0) ? 1 : -1;
+                signy1 = (group1 == 0) ? 1 : -1;
+                sx1 = (f32)signx1;
+                sy1 = (f32)signy1;
+                f121 = (f32)0x13F - fGpffff84cc * ((t1[side1 * 2] - (f32)0x13F) + sx1 * tile1[0]);
+                f131 = fGpffff84d0 - ((t1[group1 * 2 + 1] - fGpffff84d0) + sy1 * tile1[1]);
+                f151 = fGpffff84cc * ((f32)(-signx1) * tile1[2]);
+                f161 = (f32)(-signy1) * tile1[3];
+                func_0021b630(f121, f131, 0.0f, f151, f161, tile1[4], tile1[5], tile1[4] + tile1[2], color, tile1[5] + tile1[3]);
+                nxt = ((s32)index + 1) % 6;
+                id2 = nxt;
+                t2[0] = D_006290B0;
+                t2[1] = D_006290B4;
+                t2[2] = D_006290B8;
+                t2[3] = D_006290BC;
+                if (id2 < 0 || id2 >= 0xC) {
+                    func_0046d730((void *)&D_00629030[0], 0xC6);
+                }
+                q62 = id2 / 6;
+                q32 = id2 / 3;
+                side2 = (q32 + q62) & 1;
+                r62 = id2 % 6;
+                r32 = id2 % 3;
+                row2 = (r62 < 3) ? r32 : (2 - r32);
+                tile2 = &D_00628FD0[(row2 + 5) * 6];
+                group2 = id2 / 6;
+                signx2 = (side2 == 0) ? 1 : -1;
+                signy2 = (group2 == 0) ? 1 : -1;
+                sx2 = (f32)signx2;
+                sy2 = (f32)signy2;
+                f122 = (f32)0x13F - fGpffff84cc * ((t2[side2 * 2] - (f32)0x13F) + sx2 * tile2[0]);
+                f132 = fGpffff84d0 - ((t2[group2 * 2 + 1] - fGpffff84d0) + sy2 * tile2[1]);
+                f152 = fGpffff84cc * ((f32)(-signx2) * tile2[2]);
+                f162 = (f32)(-signy2) * tile2[3];
+                func_0021b630(f122, f132, 0.0f, f152, f162, tile2[4], tile2[5], tile2[4] + tile2[2], color, tile2[5] + tile2[3]);
+                id3 = nxt + 6;
+                t3[0] = D_006290B0;
+                t3[1] = D_006290B4;
+                t3[2] = D_006290B8;
+                t3[3] = D_006290BC;
+                if (id3 < 0 || id3 >= 0xC) {
+                    func_0046d730((void *)&D_00629030[0], 0xC6);
+                }
+                q63 = id3 / 6;
+                q33 = id3 / 3;
+                side3 = (q33 + q63) & 1;
+                r63 = id3 % 6;
+                r33 = id3 % 3;
+                row3 = (r63 < 3) ? r33 : (2 - r33);
+                tile3 = &D_00628FD0[(row3 + 5) * 6];
+                group3 = id3 / 6;
+                signx3 = (side3 == 0) ? 1 : -1;
+                signy3 = (group3 == 0) ? 1 : -1;
+                sx3 = (f32)signx3;
+                sy3 = (f32)signy3;
+                f123 = (f32)0x13F - fGpffff84cc * ((t3[side3 * 2] - (f32)0x13F) + sx3 * tile3[0]);
+                f133 = fGpffff84d0 - ((t3[group3 * 2 + 1] - fGpffff84d0) + sy3 * tile3[1]);
+                f153 = fGpffff84cc * ((f32)(-signx3) * tile3[2]);
+                f163 = (f32)(-signy3) * tile3[3];
+                func_0021b630(f123, f133, 0.0f, f153, f163, tile3[4], tile3[5], tile3[4] + tile3[2], color, tile3[5] + tile3[3]);
                 func_003f6440(2, 0x44);
                 color0[0] = 0x14;
                 color0[1] = 0x14;
@@ -3883,31 +4076,57 @@ void func_0021be80(u8 *arg0, u8 *arg1)
                         randomf = (value < 0) ? (f32)(2 * (((u32)value >> 1) | (value & 1))) :
                             (f32)value;
                         if ((s32)(4.0f * (randomf / 2147483600.0f)) == 0) {
-                            row = (i % 6 < 3) ? (i % 3) : (3 - (i % 3));
-                            tile = &D_00628FD0[(row + 5) * 6];
-                            group = i / 6;
-                            side = ((i / 3) + group) & 1;
-                            signx = (side == 0) ? 1 : -1;
-                            signy = (group == 0) ? 1 : -1;
-                            func_0021b630(tile[0], tile[1], 0.0f,
-                                          fGpffff84cc * (f32)(-signx) * tile[2],
-                                          (f32)(-signy) * tile[3],
-                                          tile[4] + tile[2], tile[5] + tile[3],
-                                          tile[4], color, tile[5]);
+                            tR[0] = D_006290B0;
+                            tR[1] = D_006290B4;
+                            tR[2] = D_006290B8;
+                            tR[3] = D_006290BC;
+                            if (i < 0 || i >= 0xC) {
+                                func_0046d730((void *)&D_00629030[0], 0xC6);
+                            }
+                            q6R = i / 6;
+                            q3R = i / 3;
+                            sideR = (q3R + q6R) & 1;
+                            r6R = i % 6;
+                            r3R = i % 3;
+                            rowR = (r6R < 3) ? r3R : (2 - r3R);
+                            tileR = &D_00628FD0[(rowR + 5) * 6];
+                            groupR = i / 6;
+                            signxR = (sideR == 0) ? 1 : -1;
+                            signyR = (groupR == 0) ? 1 : -1;
+                            sxR = (f32)signxR;
+                            syR = (f32)signyR;
+                            f12R = (f32)0x13F - fGpffff84cc * ((tR[sideR * 2] - (f32)0x13F) + sxR * tileR[0]);
+                            f13R = fGpffff84d0 - ((tR[groupR * 2 + 1] - fGpffff84d0) + syR * tileR[1]);
+                            f15R = fGpffff84cc * ((f32)(-signxR) * tileR[2]);
+                            f16R = (f32)(-signyR) * tileR[3];
+                            func_0021b630(f12R, f13R, 0.0f, f15R, f16R, tileR[4], tileR[5], tileR[4] + tileR[2], color, tileR[5] + tileR[3]);
                         }
                     }
                     if (*(u16 *)(arg1 + 4) & bit) {
-                        row = (i % 6 < 3) ? (i % 3) : (3 - (i % 3));
-                        tile = &D_00628FD0[(row + 5) * 6];
-                        group = i / 6;
-                        side = ((i / 3) + group) & 1;
-                        signx = (side == 0) ? 1 : -1;
-                        signy = (group == 0) ? 1 : -1;
-                        func_0021b630(tile[0], tile[1], 0.0f,
-                                      fGpffff84cc * (f32)(-signx) * tile[2],
-                                      (f32)(-signy) * tile[3],
-                                      tile[4] + tile[2], tile[5] + tile[3],
-                                      tile[4], color, tile[5]);
+                        tF[0] = D_006290B0;
+                        tF[1] = D_006290B4;
+                        tF[2] = D_006290B8;
+                        tF[3] = D_006290BC;
+                        if (i < 0 || i >= 0xC) {
+                            func_0046d730((void *)&D_00629030[0], 0xC6);
+                        }
+                        q6F = i / 6;
+                        q3F = i / 3;
+                        sideF = (q3F + q6F) & 1;
+                        r6F = i % 6;
+                        r3F = i % 3;
+                        rowF = (r6F < 3) ? r3F : (2 - r3F);
+                        tileF = &D_00628FD0[(rowF + 5) * 6];
+                        groupF = i / 6;
+                        signxF = (sideF == 0) ? 1 : -1;
+                        signyF = (groupF == 0) ? 1 : -1;
+                        sxF = (f32)signxF;
+                        syF = (f32)signyF;
+                        f12F = (f32)0x13F - fGpffff84cc * ((tF[sideF * 2] - (f32)0x13F) + sxF * tileF[0]);
+                        f13F = fGpffff84d0 - ((tF[groupF * 2 + 1] - fGpffff84d0) + syF * tileF[1]);
+                        f15F = fGpffff84cc * ((f32)(-signxF) * tileF[2]);
+                        f16F = (f32)(-signyF) * tileF[3];
+                        func_0021b630(f12F, f13F, 0.0f, f15F, f16F, tileF[4], tileF[5], tileF[4] + tileF[2], color, tileF[5] + tileF[3]);
                     }
                 }
                 func_003f6440(2, 0x44);
