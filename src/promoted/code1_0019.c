@@ -3739,6 +3739,31 @@ void func_0019c010(u8 *arg0)
    trailing `else` as `default`.  Swept with a brace-aware converter over the 26
    highest-edit first-party floors that carry a chain; seven improved, six got worse and
    the rest have no convertible chain, so this is measured per function. */
+/* measured 0019c0d0 (owner, 2026-09-20): helper census 8 `__floatdisf` (object-only,
+   `libcall_scan` + `measure_guarded` relocs; retail `asm/nonmatchings/code1_0019/func_0019c0d0.s`
+   carries no helper symbols so the census alone proves nothing). Retail shape at all eight
+   sites is narrow: `sb v0,0xac(sp)` at 0x0019c7cc (t0 store, no `andi`/64-bit/`jal`) and
+   `lbu v0,0xad(sp)` at 0x0019c85c + `bltz`/`srl v1,v0,1`/`andi`/`or`/`mtc1`/`cvt.s.w`
+   at 0x0019c860-0x0019c894 (u1 reload, unsigned-32, no `dsll32`/`dsra32`/`jal`; same recipe
+   at 0x0019c8a4/0x0019c8e8/0x0019c92c/0x0019c9fc and 0x0019cac0-0x0019cd64 for u2/u3/u0 and
+   col), while the object does `dsll32 $a0,$v0,0` + `dsra32` + `jal __floatdisf` at eight
+   sites. The two remaining `s64` (`v41`, `chk`) are legitimate: retail is wide there
+   (`dsll32 s2,v0,0xc` + `dsrl32` at 0x0019cecc for `& 0xFFFFF` as 64-bit, `dsll32 s1,v0,0x10`
+   + `dsra32` at 0x0019cee4 and `dsll32 v0,v0,0x10` + `dsra32` at 0x0019cef8 for `(s16)`
+   sign-extend to 64).
+   Case per amended gate: object SHORTER (941 against retail 951), so any correct removal must
+   move the count away (helpers longer than narrow) - expected, keep inside the +-3% band
+   (922-980; brief's 10 down is the 2% view, lower 931). Baseline 981 edits, 951/941.
+   All eight helper-free, measured from this baseline (`fnalign --candidate`):
+   s32 decls 1029 edits/922 instrs (0 helpers, -19 away, at 3% edge, edits +48 WORSE);
+   s16 1045/938 (+64 WORSE); keep-s64 + `(s32)` cast at use 1057/944 (+76 WORSE);
+   u32 1259/1010, u16 1259/1010, u8-unsigned 1262/1013, hybrid `u8 tmp[4]` 1,2,3,0 1259/1010,
+   V5 structure 999/1052 (all outside and/or edits up WORSE). Reordered s32 1,2,3,0 identical
+   to s32 (compiler normalises order). No narrow spelling stays inside and takes edits down:
+   helpers are reloc-excluded so removing them reveals counted mismatch (signed/unsigned
+   `cvt` + spills vs `jal`), and matching retail's counted spill/order/`madd` needs +70-110
+   (outside). Leave the banked compact floor; the spilled 1,2,3,0 structure is the documented
+   outside-band fix (header v5). No code change. */
 // FUN_0019C0D0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
