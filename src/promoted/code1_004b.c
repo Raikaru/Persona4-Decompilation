@@ -542,6 +542,7 @@ void func_004b1ab0(u8 *arg0)
    it was hiding a genuine instruction surplus.  It is removed; the surplus is now visible and
    has to be written out of the body.  Any differing-word score measured with the pragma in
    place is not comparable to one measured inside the gate (handoff 7y, 7au). */
+/* measured: 2026-09-20 second-branch signedness fix (spA0 u16s (u16)->(s16), stk78/7c (u32)->(s32)): obj 3192B/window 3184B (798/796 +0.3% INSIDE, was 909/796 +14.2%), 705wd (was 845). Micro: (u16)(float*16) store 24w with clamp vs (s16) 9w without (retail has no clamp there); (f32)(u32)>>5 unsigned 47w vs (s32) signed 24w (retail uses sra+cvt.s.w). No bare doubles (all floats suffixed). Stays ASM. */
 // FUN_004B1AD0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma push
@@ -712,16 +713,16 @@ void func_004b1ad0(u8 *arg0)
                 func_00482ad0((u8 *)tmp_a8, tmp_08, (u8 *)spA0);
                 stk8c = 0;
                 stk8e = 0;
-                stk88 = (u16)(spA0[1] * 16.0f);
+                stk88 = (s16)(spA0[1] * 16.0f);
                 stk8a = 0;
-                stk94 = (u16)(spA0[1] * 16.0f);
-                stk96 = (u16)(spA0[2] * 16.0f);
+                stk94 = (s16)(spA0[1] * 16.0f);
+                stk96 = (s16)(spA0[2] * 16.0f);
                 stk90 = 0;
-                stk92 = (u16)(spA0[2] * 16.0f);
+                stk92 = (s16)(spA0[2] * 16.0f);
                 stk70 = 0.0f;
                 stk74 = 0.0f;
-                stk78 = (f32)(u32)((u32)((f32)stk88 * spA0[0]) >> 5);
-                stk7c = (f32)(u32)((u32)((f32)stk96 * spA0[3]) >> 5);
+                stk78 = (f32)(s32)((s32)((f32)stk88 * spA0[0]) >> 5);
+                stk7c = (f32)(s32)((s32)((f32)stk96 * spA0[3]) >> 5);
                 stk80 = (s32)spA0[1];
                 stk84 = (u32)spA0[2];
                 func_003c42b0(*(s32 *)(tmp_a4 + 0x14), *(s32 *)(&spA0[3]));
