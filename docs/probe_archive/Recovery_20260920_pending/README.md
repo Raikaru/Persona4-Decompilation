@@ -12,10 +12,23 @@ for the unfinished work below.
 The counts in this table are historical measurements from the saved compiler
 runs, not new measurements of these bodies in the rebased source context.
 
-| Archived body | Saved result | Work required before production integration |
+The subsequent `0360227` recovery batch completed `001a4800` and its returned
+`001f3870` packet contract, including the concrete callback types, all target
+relocations and the complete switch table. See
+[the accepted action recovery](../Recovered_Action_001a4800_20260920.md).
+The original bodies below remain unchanged as historical inputs.
+
+The `002e8410` initializer and its creator proposals now have a
+[current-context implementation and proof record](../Fcl_initializer_002e8410_0360227/README.md)
+against `0360227`. The staged initializer again resolves all 148 relocations
+at 3256/3264 bytes, with paired creator and dispatcher changes. It remains
+pending because the wider SDK callback contracts are not yet reconciled;
+the original candidate bodies and their manifest hashes below remain unchanged.
+
+| Archived body | Saved result | Disposition and remaining work |
 | --- | --- | --- |
-| `001a4800.c` | 0 masked words; 1148/1152 bytes | Complete target relocation, sibling and data proof; reconcile the `001f3870` return and actual callers. |
-| `001f3870.c` | 0 masked words; 112/112 bytes | Return the allocated packet through a coherent provider/caller contract. Its existing provider is already C, so this is not a new C recovery. |
+| `001a4800.c` | 0 masked words; 1148/1152 bytes | Completed in the subsequent batch: exact C, 39 resolved code relocations, complete 52-byte switch table, all neighbors preserved. |
+| `001f3870.c` | 0 masked words; 112/112 bytes | Completed returned-packet/caller/callback contract, preserving exact bytes. The provider was already C, so this is not another C recovery. |
 | `002e8410.c` | 0 words; saved target proof resolves 148 relocations, 3256/3264 bytes | Reconcile the creator returns, position/color aggregates, and SDK callback registration and dispatch; repeat the whole-owner proof. |
 | `0034ad70.c` | 0 masked words; 220/224 bytes | Complete the SDK registration/callback contract along with the returned handle. |
 | `0034b740.c` | 0 masked words; 204/208 bytes | Complete the SDK registration/callback contract along with the returned handle. |
@@ -39,8 +52,11 @@ measurement. The two omitted zero-word candidates' C, translation-unit and
 object hashes were independently checked during recovery; full hashes are in
 the inventory report.
 
-The separate pending `00238940` proposal was already recovered as
-`../DC_worker7_00238940_pending_abi.c`. It still needs the coordinated provider
-width correction and complete owned-jump-table proof. The accepted guarded
-`002411a0` improvement is in `src/Main/Battle/Data/datCalc.c` and retains its
-assembly fallback at sixteen differing words.
+The separate `00238940` proposal now has an exact current-context body and a
+complete owned-table proof in
+`../DC_worker3_00238940_exact_pending_callers.c`. Its provider-width migration
+still needs three existing caller contexts closed; the datScript caller is
+already solved in the archived wide-provider proposal. The older
+`../DC_worker7_00238940_pending_abi.c` remains a historical attempt.
+`002411a0` is now accepted exact C, closing its sixteen-word register residual;
+see `../DC_worker3_20260920_recoveries.md` for both results.
