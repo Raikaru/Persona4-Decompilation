@@ -17,27 +17,27 @@ extern u32 func_00231d70(s32 arg0);
 
 /* Source unit: src/Battle/btlCamera_001be8d0.c */
 
-void FUN_001be050(f32 angle, f32 distance, void* camera);
+void FUN_001be050(u8* camera, f32 nearDegrees, f32 farDegrees);
 
 // FUN_001BE8D0
 void btlCameraSetDefaultDistanceA(void* camera)
 {
-    FUN_001be050(45.0f, 200.0f, camera);
+    FUN_001be050((u8 *)camera, 45.0f, 200.0f);
 }
 
 /* Source unit: src/Battle/btlCamera_001d05b0.c */
 
-void FUN_001be050(f32 angle, f32 distance, void* camera);
+void FUN_001be050(u8* camera, f32 nearDegrees, f32 farDegrees);
 
 // FUN_001D05B0
 void btlCameraSetDefaultDistanceB(void* camera)
 {
-    FUN_001be050(45.0f, 200.0f, camera);
+    FUN_001be050((u8 *)camera, 45.0f, 200.0f);
 }
 
 /* Source unit: src/Battle/btlCamera_001d0670.c */
 
-void FUN_001be050(f32 angle, f32 distance, void* camera);
+void FUN_001be050(u8* camera, f32 nearDegrees, f32 farDegrees);
 
 // FUN_001D05E0
 void func_001d05e0(u8 *arg0)
@@ -59,7 +59,7 @@ void func_001d05e0(u8 *arg0)
 // FUN_001D0670
 void btlCameraSetDefaultDistanceC(void* camera)
 {
-    FUN_001be050(45.0f, 200.0f, camera);
+    FUN_001be050((u8 *)camera, 45.0f, 200.0f);
 }
 
 /* Source unit: src/Battle/btlCamera_001d10d0.c */

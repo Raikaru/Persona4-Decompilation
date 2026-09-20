@@ -150,7 +150,6 @@ void func_002b5e20(s32, f32);
 
 
 extern u8 D_0064E590[];
-extern u8 iGpffffa938;
 extern u8 D_0064A4A0[];
 extern u8 D_0064A5E8[];
 extern u8 D_0064A600[];
@@ -166,7 +165,8 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 s32 func_0033e810(u8 *arg0);
 s32 func_0033e5c0(u8 *arg0);
 u8 *func_003488d0(u8 *arg0, u8 *arg1, s8 arg2);
-extern u32 D_00763A28;
+/* Retail's six-byte "%s %d" diagnostic format, addressed at GP - 0x56C8. */
+extern char D_00763A28[6];
 extern s64 D_0064A5A0[];
 extern f32 D_0064A5A8[];
 extern void (*D_00887300[])(s32, s32);
@@ -203,7 +203,7 @@ s32 func_0033e5c0(u8 *arg0) {
         switch (type) {
         case 0:
             func_0036d860(obj->environment, 0);
-            func_00440b68((const char *)&iGpffffa938, D_0064A4A0, 0x63);
+            func_00440b68((const char *)D_00763A28, D_0064A4A0, 0x63);
             obj->file = func_00454a60(D_0064E590, 0);
             obj->state += 1;
             break;
@@ -3776,7 +3776,7 @@ u8 *func_003488d0(u8 *arg0, u8 *arg1, s8 arg2) {
     ret = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A5E8), 0xF, 0, 0, func_00348330, func_00348840, (u8 *)(blk));
     *(s8 *)(blk + 4) = 0;
     *(s8 *)(blk + 0x14) = arg2;
-    func_00440b68((const char *)&D_00763A28, D_0064A4A0, 0x805);
+    func_00440b68(D_00763A28, D_0064A4A0, 0x805);
     *(u8 **)(blk + 0) = func_00454a60(arg1, 0);
     *(u32 *)(blk + 0x40) = 0x437F0000;
     return ret;

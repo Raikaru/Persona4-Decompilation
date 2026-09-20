@@ -57,7 +57,7 @@ s32 func_0046d200(void *, u8);
 s16 func_00353b50(void *);
 void func_0046d730(char *, s32);
 void func_0043f9c8(void *, s32, s32);
-s32 func_0013a040(s16 *, s32, s16);
+s32 func_0013a040(s16 *, s32, s32);
 void func_0013a060(void *);
 void func_0013a4a0(void *);
 void func_00138bf0(u8 *);
@@ -717,7 +717,7 @@ INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_00138bf0);
 #endif
 
 // FUN_0013A040
-s32 func_0013a040(s16 *arg0, s32 arg1, s16 arg2)
+s32 func_0013a040(s16 *arg0, s32 arg1, s32 arg2)
 {
     arg0[arg1 + 0x54] = arg0[arg1 + 0x2E];
     arg0[arg1 + 0x2E] = arg2;

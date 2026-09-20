@@ -940,7 +940,7 @@ s32 func_00201b00(u8 *work)
 #pragma pop
 // FUN_00201DE0
 u8 *func_00201de0(s32 arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4,
-                  s16 arg5, s16 arg6, s32 arg7, u16 arg_sp0)
+                  s16 arg5, s16 arg6, void *arg7, u16 arg_sp0)
 {
     u8 *spAC;
     u8 *temp_16;
@@ -952,7 +952,7 @@ u8 *func_00201de0(s32 arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4,
     *(void **)(temp_2 + 0x6C) = (void *)func_00201b00;
     *(void **)(temp_2 + 0x70) = (void *)func_00201db0;
     temp_16 = *(u8 **)(temp_2 + 0x78);
-    func_0043f810(temp_16 + 8, (void *)arg7, 0x20);
+    func_0043f810(temp_16 + 8, arg7, 0x20);
     *(s32 *)(temp_16 + 0) = arg0;
     *(s32 *)(temp_16 + 4) = arg1;
     *(s32 *)(temp_16 + 0x28) = arg2;
@@ -1177,7 +1177,7 @@ void func_00202570(u8 *arg0)
 }
 
 // FUN_00202590
-void func_00202590(s32 arg0, s8 arg1, s16 arg2)
+u8 *func_00202590(s32 arg0, s8 arg1, s16 arg2)
 {
     u8 *packet;
     u8 *temp;
@@ -1191,6 +1191,7 @@ void func_00202590(s32 arg0, s8 arg1, s16 arg2)
     *(s32 *)(temp + 0) = arg0;
     *(s8 *)(temp + 4) = arg1;
     *(s16 *)(temp + 6) = arg2;
+    return packet;
 }
 // FUN_00202620
 void func_00202620(u8 *arg0)

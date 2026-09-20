@@ -9,7 +9,8 @@ extern s32 func_0013ca60(s16 arg0, s16 arg1, s32 arg2);
 extern s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3);
 extern u32 func_003b7060(void);
 extern s32 func_0034c210(void);
-extern u8 *func_00106820();
+struct GDataEntry;
+extern struct GDataEntry *func_00106820(s16 arg0);
 extern u32 func_00106880(s16 arg0);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern s32 func_0010f930(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
@@ -33,10 +34,10 @@ extern void func_0011d080(u8 *arg0, s32 arg1);
 extern void func_0011d0a0(u8 *arg0, s32 arg1);
 extern void func_0011d0d0(u8 *arg0, void *arg1);
 extern void func_0011d170(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_00453670();
+extern void func_00453670(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_00453760(void *arg0, s32 arg1);
-extern void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_00453960(void *arg0);
+extern void func_004538e0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_00453960(u8 *arg0);
 extern void func_00136fa0(u8 *arg0, s32 arg1, s32 arg2);
 extern s32 func_0010ace0(s16 arg0);
 extern s32 func_0010a900(s32 arg0);
@@ -46,8 +47,8 @@ extern void func_0010b3b0(s16 arg0);
 extern s32 func_0010f6a0(s16 arg0, u32 arg1);
 extern void func_0011c180(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_0013f620(s16 arg0, s32 arg1, u8 *arg2);
-extern void func_0013a040(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_0013a530(u8 *arg0, s32 arg1);
+extern s32 func_0013a040(s16 *arg0, s32 arg1, s32 arg2);
+extern s32 func_0013a530(u8 *arg0, s32 arg1);
 extern void func_0013aa00(u8 *arg0);
 extern void func_001344b0(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_00131730(u8 *arg0);
@@ -56,7 +57,7 @@ extern void func_00134a50(u8 *arg0);
 extern void func_001349f0(u8 *arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
 extern s32 func_00106600(s16 arg0);
-extern void func_00106620(s16 arg0, s32 arg1);
+extern void func_00106620(s32 arg0, s32 arg1);
 extern void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
 extern void func_00134990(u8 *arg0, s16 arg1, s16 arg2);
 extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1,
@@ -77,14 +78,14 @@ extern void func_002bc860(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           f32 fparg0, f32 fparg1, f32 fparg2);
 extern void func_0012e2f0(u8 *arg0);
 extern s32 func_0012e8b0(u8 *arg0);
-extern s32 func_0012ff40(s32 arg0, s32 arg1, s16 arg2);
+extern s32 func_0012ff40(s32 arg0, s32 arg1, s32 arg2);
 extern void func_00353fb0(void);
 extern void func_00353fe0(void);
 extern s32 func_00354030(void);
 extern void func_00354080(s32 arg0);
-extern void func_0034bd60(s32 arg0);
+extern s32 func_0034bd60(s32 arg0);
 extern s32 func_0013b9f0(u8 *arg0);
-extern s32 func_0013c700(s32 arg0, s16 arg1, u8 *arg2);
+extern s32 func_0013c700(s16 arg0, s16 arg1, u8 *arg2);
 extern u16 D_008C024E[];
 extern u16 D_008C0252[];
 extern void func_0013c5a0(s32 *arg0, u8 *arg1);
@@ -103,15 +104,15 @@ extern void func_00106390(s32 arg0, s32 arg1);
 extern void func_0010f770(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
 extern s32 func_00354010(void);
 extern void func_0013aa90(u8 *arg0);
-extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern void *func_0043f9c8(void *arg0, s32 arg1, u32 arg2);
 extern s16 func_00353c10(s16 *arg0);
 extern s16 func_00353b50(s16 *arg0);
 extern s32 func_00167d90(u8 *arg0);
-extern s32 func_00354a50(s32 arg0, s32 arg1);
-extern s32 func_0046a770(void *arg0);
-extern s32 func_0046d200(void *arg0, u8 arg1);
+extern u8 *func_00354a50(s32 arg0, u16 arg1);
+extern u8 *func_0046a770(char *arg0);
+extern u8 *func_0046d200(u32 arg0, u32 arg1);
 extern void func_0046d730(void *arg0, s32 arg1);
-extern void func_00141d80(u8 *arg0, u32 arg1);
+extern s32 func_00141d80(u8 *arg0, s32 arg1);
 extern u8 D_005E57F0[];
 extern u8 D_005E5810[];
 extern u8 D_005E5830[];
@@ -1638,7 +1639,7 @@ void func_0013c5a0(s32 *arg0, u8 *arg1) {
         func_0045af60(0, 0, 0, 8);
         return;
     }
-    type = (s16)func_0010f8c0(*(u16 *)(func_00106820(*(s16 *)entry) + 0x24));
+    type = (s16)func_0010f8c0(*(u16 *)((u8 *)func_00106820(*(s16 *)entry) + 0x24));
     if (type == 0) {
         func_0012ff60(arg1, 4);
         func_001302d0(arg1);
@@ -1654,7 +1655,7 @@ void func_0013c5a0(s32 *arg0, u8 *arg1) {
 }
 // FUN_0013C6D0
 s32 func_0013c6d0(s16 arg0) {
-    return func_0010f540(*(u16 *)(func_00106820() + 0x24)) != 0;
+    return func_0010f540(*(u16 *)((u8 *)func_00106820(arg0) + 0x24)) != 0;
 }
 /* MATCHED: the same menu state machine as func_0013d8b0 beside it.  Nine of
    m2c's call arguments are stale registers - func_001312b0, func_001318c0,
@@ -1874,98 +1875,90 @@ s32 func_0013caa0(u32 *arg0, s32 *arg1, u8 *arg2) {
     }
     return 0;
 }
-/* State-machine floor (864B window; P1 obj 852B fndiff 135 fnalign 95 plus 4 reloc-only,
-   retail 214/object 213 (1 short, 0.5% within 3%, words+edits improve); P1 lever 2026-09-17:
-   correct func_00106620 to truthful (s32,s32) via block extern (g_data.c MATCH), 150->135/98->95.
-   Widened s32 base kept (single-narrow sweeps all worse: total 171, remaining 158, entry 157,
-   updated 159, index 158, count 159, state 161; itemOnly 153, typeOnly 154, truthful hybrid 153).
-   Ruled out: E1 recompute 156, P3 decl 150 neutral, P4 RMW 158 (00215c10 lever does not transfer),
-   P5 u16 150 neutral, P2 s16-pair 134 untruthful (true type u16, edits 129 worse). Pragmas on widened:
-   schedule 178 worse, cse_off 159 worse, loopinv 177->168 kept. Open: s-reg rotation, index-arith,
-   call-sequence alignment. See V013_0013c700_body.c for ruled-out variants. */
-/* measured 0013c700: `opt_loop_invariants on` inside the guard is worth 9 words (177 -> 168), the loop-preheader constant hoist. */
-// FUN_0013C700 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_loop_invariants on
-/* measured: object 880B, retail window 864B, normalized_diff 177, differing offsets 48-88,100-136,144-180,188-232,240-288,296-344,352-432,440-876; archived immediately because object exceeded retail window; ruled out corrected callee declarations, pointer-vs-array entry staging, state switch shape, and direct generated-loop reconstruction */
-s32 func_0013c700(s32 arg0, s16 arg1, u8 *arg2)
+/* The original row survives item application; recipient traversal and the
+   post-removal selection have separate lifetimes. Item accessors use a
+   signed halfword, while inventory writes receive its promoted word. */
+// FUN_0013C700
+s32 func_0013c700(s16 arg0, s16 arg1, u8 *arg2)
 {
-    extern void func_00106390(s32 arg0, s32 arg1);
-    extern void func_0010f770(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
     extern void func_0012e7c0(u8 *arg0);
-    extern s32 func_0012ff40(s32 arg0, s32 arg1, s16 arg2);
-    extern void func_0046d730(void *arg0, s32 arg1);
     extern u8 D_005ED9D0[];
-    extern s32 func_00354010(void);
-    extern void func_00106620(s32 arg0, s32 arg1);
     s32 state;
-    s32 index_count;
-    s32 index;
-    s32 item;
+    s16 item;
+    s32 inventory_item;
     s32 item_type;
-    s32 entry_index;
-    s32 remaining;
+    s16 remaining;
     s32 total;
     s32 updated;
     u8 *entry;
 
     state = 1;
     total = *(s16 *)(arg2 + 0x24) + *(s16 *)(arg2 + 0x22);
-    item = *(s16 *)(arg2 + total * 4 + 0x3E);
-    item_type = *(u16 *)(func_00106820(item) + 0x24);
+    inventory_item = item = ((s16 *)(arg2 + 0x3E))[total * 2];
+    item_type = *(u16 *)((u8 *)func_00106820(item) + 0x24);
     if (item_type == 246) {
         if (func_00354010() != 0) state = 3;
         else state = 0;
     } else if (arg1 == -1) {
+        s32 index_count;
+        s32 index;
+        u8 *recipient;
         index_count = 0;
         index = 0;
         while (index < *(s16 *)(arg2 + 0x3C)) {
-            entry = arg2 + index * 2 + 0x34;
-            if (func_0013ca60(arg0, *(s16 *)entry, item_type) != 0) {
-                func_0010f770((s16)arg0, *(s16 *)entry, item_type, 1);
+            recipient = arg2 + index * 2 + 0x34;
+            if (func_0013ca60(arg0, *(s16 *)recipient, item_type) != 0) {
+                func_0010f770(arg0, *(s16 *)recipient, item_type, 1);
                 index_count++;
             }
             index++;
         }
         if (index_count == 0) state = 0;
     } else if (func_0013ca60(arg0, arg1, item_type) != 0) {
-        func_0010f770((s16)arg0, arg1, item_type, 1);
+        func_0010f770(arg0, arg1, item_type, 1);
     } else state = 0;
     if (state > 0) {
         updated = (s16)(func_00106600(item) & 0xff) - 1;
         if (updated < 0) func_0046d730(D_005ED9D0, 0x29c);
-        func_00106620(item, updated & 0xff);
-        if (state != 3) {
+        func_00106620(inventory_item, updated & 0xff);
+        if (state == 3) {
+            func_00106390(5121, 1);
+        } else {
             func_00130430(arg2);
-            entry_index = total;
-            entry = arg2 + entry_index * 4;
-            remaining = *(s16 *)(entry + 0x40) - 1;
-            *(s16 *)(entry + 0x40) = remaining;
+            entry = code13AddOff((u32)total * 4U, arg2);
+            remaining = --*(s16 *)(entry + 0x40);
             if (remaining == 0) {
+                s32 selection;
                 func_0012e7c0(arg2);
-                total = *(s16 *)(arg2 + 0xc3e);
-                if (total < 6) {
+                selection = *(s16 *)(arg2 + 0xc3e);
+                if (selection < 6) {
                     func_0012ff40((s32)arg2, 1, 0);
-                    total = *(s16 *)(arg2 + 0xc3e) - 1;
-                    if (total < *(s16 *)(arg2 + 0x22)) func_0012ff40((s32)arg2, 0, total);
+                    selection = *(s16 *)(arg2 + 0xc3e) - 1;
+                    if (selection < *(s16 *)(arg2 + 0x22)) func_0012ff40((s32)arg2, 0, selection);
                 } else {
-                    total -= 6;
-                    if (total < *(s16 *)(arg2 + 0x24)) func_0012ff40((s32)arg2, 1, total);
+                    selection -= 6;
+                    if (selection < *(s16 *)(arg2 + 0x24)) func_0012ff40((s32)arg2, 1, selection);
                 }
                 state = 2;
             }
-        } else func_00106390(5121, 1);
+        }
     }
-    if (state == 3) return state;
-    if (state == 2 || state == 1) func_0045af60(1, 3, 2, 22);
-    else if (state == 0) func_0045af60(0, 0, 0, 8);
-    else func_0046d730(D_005ED9D0, 0x2ca);
+    switch (state) {
+    case 0:
+        func_0045af60(0, 0, 0, 8);
+        break;
+    case 1:
+    case 2:
+        func_0045af60(1, 3, 2, 22);
+        break;
+    case 3:
+        break;
+    default:
+        func_0046d730(D_005ED9D0, 0x2ca);
+        break;
+    }
     return state;
 }
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013c700);
-#endif
 // FUN_0013CA60
 s32 func_0013ca60(s16 arg0, s16 arg1, s32 arg2) {
     s32 v = 0;
@@ -2007,17 +2000,19 @@ s32 func_0013d5d0(u8 *arg0) {
         s16 value;
     } temp_16;
     s16 temp_19;
+    s32 inventory_new;
     s16 temp_18;
     s16 temp_2;
     s32 temp_6;
     s32 temp_6_2;
     s16 temp_17;
+    s32 inventory_old;
 
     temp_18 = *(s16 *)(code13AddOff(*(s16 *)(arg0 + 0x28) * 2, arg0) + 0x38);
-    temp_19 = *(s16 *)(code13AddOff((*(s16 *)(arg0 + 0x2C) +
+    inventory_new = temp_19 = *(s16 *)(code13AddOff((*(s16 *)(arg0 + 0x2C) +
                                      *(s16 *)(arg0 + 0x2E)) * 4, arg0) + 0x4A);
     temp_16.value = *(s16 *)(arg0 + 0x2A);
-    temp_17 = (s16)func_00106cd0(temp_18, temp_16.value);
+    inventory_old = temp_17 = (s16)func_00106cd0(temp_18, temp_16.value);
     if (temp_19 == temp_17) {
         func_0045af60(0, 0, 0, 8);
         return 0;
@@ -2025,10 +2020,10 @@ s32 func_0013d5d0(u8 *arg0) {
     func_00134560(arg0, 7);
     func_00134990(arg0, temp_17, temp_19);
     if ((func_00106600(temp_17) & 0xFF) != 0x63) {
-        func_00106620(temp_17, ((func_00106600(temp_17) & 0xFF) + 1) & 0xFF);
+        func_00106620(inventory_old, ((func_00106600(temp_17) & 0xFF) + 1) & 0xFF);
     }
     func_00106d40(temp_18, temp_16.value, temp_19);
-    func_00106620(temp_19, ((func_00106600(temp_19) & 0xFF) - 1) & 0xFF);
+    func_00106620(inventory_new, ((func_00106600(temp_19) & 0xFF) - 1) & 0xFF);
     func_00131730(arg0);
     temp_2 = *(s16 *)(arg0 + 0xC46);
     if (temp_2 < 5) {
@@ -2449,52 +2444,48 @@ s32 func_0013e8e0(u8 *arg0, s32 *arg1) {
     }
     return 0;
 }
-/* Floor: 402 differing words (was 473) over 73 edits plus 12 reloc-only (was 88+12),
-   689 emitted against retail 684 (was 693, 9 long now 5 long; obj 2756B/window 2736B
-   verify 1260, was 1514/2772). Same menu-state-machine family as func_0013caa0 and
-   func_0013d8b0; m2c seven-arg calls are stale registers. Width win 2026-09-17: six s16
-   slot/index temps -> s32 deletes 16 spurious dsll/dsra pairs (obj 20->0, retail 4),
-   473->402. Pragmas on widened: schedule 554 worse, cse_off 547 worse, loopinv 402 neutral.
-   WALL: inner-switch 0/1 arms via shared exit vs direct, $s0/$s1 colour swap on slot indices.
-*/
-// FUN_0013EA20 NONMATCHING
-#ifdef NON_MATCHING
+/* The selected recipient has both a signed-halfword skill API value and a
+   promoted menu-helper value. Query results are tested before their later
+   uses, and controller masks retain C integer promotion. */
+// FUN_0013EA20
 s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
     extern void func_00137fb0(u8 *arg0);
+    extern u32 func_00105610(s16 character);
     extern s32 func_00138ad0(u8 *arg0);
     extern s32 func_0013abb0(u8 *arg0);
     extern void func_0013ab30(u8 *arg0);
     extern void func_0013a8a0(u8 *arg0);
-    extern void func_0013a930(u8 *arg0);
+    extern void func_0013a930(void *arg0);
+    extern void func_00138490(void *arg0);
     extern void func_0013f4d0(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3);
-    u8 buf[0x30];
-    f32 temp_f1;
-    f32 var_f1;
-    s32 temp_17;
-    s32 temp_2;
-    s32 temp_3;
-    s32 temp_7;
-    s32 temp_8;
-    s32 temp_9;
-    s32 temp_16;
-    s32 temp_16_2;
-    s32 temp_2_2;
-    s32 temp_2_3;
-    s32 var_10;
-    s64 temp_3_2;
-    s64 temp_3_3;
-    s32 var_3;
-    u16 temp_5_3;
-    u16 temp_5_4;
+    u8 query[0x30];
+    f32 alpha;
+    s16 character;
+    s32 skillRow;
+    s16 recipientId;
+    s32 recipientValue;
+    s32 characterRow;
+    s32 skillPage;
+    s32 recipientRow;
+    s32 skillIndex;
+    s32 ready;
+    s32 queryResult;
+    s32 alternateQueryResult;
+    s32 finished;
+    s64 applicationResult;
+    s64 allApplicationResult;
+    s32 alphaByte;
+    s32 confirm;
+    s32 alternateConfirm;
 
-    *arg1 = (var_10 = 1);
-    temp_7 = (*(s16 *)(arg2 + 0x5C));
-    temp_17 = (*(s16 *)(((u8 *)(temp_7 * 2) + (u32)arg2 + 0xF4)));
-    temp_9 = (*(s16 *)(arg2 + 0x62));
-    temp_3 = (*(s16 *)(((u8 *)(temp_9 * 2) + (u32)arg2 + 0xF4)));
-    temp_2 = (*(s16 *)(arg2 + 0x5E));
-    temp_8 = (*(s16 *)(arg2 + 0x60));
-    temp_16 = temp_8 + temp_2;
+    *arg1 = (finished = 1);
+    characterRow = (*(s16 *)(arg2 + 0x5C));
+    character = *(s16 *)(code13AddOff(characterRow * 2, arg2) + 0xF4);
+    recipientRow = (*(s16 *)(arg2 + 0x62));
+    recipientValue = recipientId = *(s16 *)(code13AddOff(recipientRow * 2, arg2) + 0xF4);
+    skillRow = (*(s16 *)(arg2 + 0x5E));
+    skillPage = (*(s16 *)(arg2 + 0x60));
+    skillIndex = skillPage + skillRow;
     switch (*arg0) {
         case 0:
             *arg1 = 0;
@@ -2502,8 +2493,8 @@ s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
             *arg0 = 1;
             break;
         case 1:
-            temp_16_2 = (func_00138ad0(arg2));
-            if (temp_16_2 & func_0034c210()) {
+            ready = (func_00138ad0(arg2));
+            if (ready & func_0034c210()) {
                 *arg0 = 3;
                 func_0034bb20(8);
                 func_0013a8a0(arg2);
@@ -2533,7 +2524,7 @@ s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_0034bb20(0xA);
                 func_0045af60(0, 2, 0, 4);
             } else if (D_008C024E[0] & 0x40) {
-                if ((s32)(func_00105610(temp_17)) != (s32)(0)) {
+                if ((s32)(func_00105610(character)) != (s32)(0)) {
                     func_0045af60(0, 0, 0, 8);
                 } else {
                     func_0013a530(arg2, 3U);
@@ -2544,10 +2535,10 @@ s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
                 *(s32 *)(arg2 + 0x10) = (s32)(func_00354030());
                 *arg0 = 0xD;
             } else {
-                func_00453670(buf, 4, *(s16 *)(arg2 + 0xFC), temp_7, 0, temp_9, 1);
-                func_004538e0(buf, 0x4000, 0x1000, 0, 0);
-                if ((s32)(func_00453960(buf)) != (s32)(0)) {
-                    func_0013a040(arg2, 0, *(s32 *)(buf + 0x24));
+                func_00453670(query, 4, *(s16 *)(arg2 + 0xFC), characterRow, 0);
+                func_004538e0(query, 0x4000, 0x1000, 0, 0);
+                if ((s32)(func_00453960(query)) != (s32)(0)) {
+                    func_0013a040((s16 *)arg2, 0, *(s32 *)(query + 0x24));
                     func_00138490(arg2);
                     func_0013a8a0(arg2);
                     func_0045af60(0, 1, 0, 0);
@@ -2567,9 +2558,9 @@ s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_0013a8a0(arg2);
                 func_0045af60(0, 0, 0, 2);
             } else {
-                temp_5_3 = D_008C024E[0] & 0x40;
-                if (temp_5_3 != 0) {
-                    func_0013f4d0((s32 *)arg0, temp_17, temp_3, arg2);
+                confirm = D_008C024E[0] & 0x40;
+                if (confirm != 0) {
+                    func_0013f4d0((s32 *)arg0, character, recipientValue, arg2);
                 } else if (D_008C024E[0] & 0x80) {
                     func_0013a530(arg2, 9);
                     *arg0 = 0xB;
@@ -2578,16 +2569,15 @@ s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
                     *(s32 *)(arg2 + 0x10) = (s32)(func_00354030());
                     *arg0 = 0xD;
                 } else {
-                    func_00453670(buf, 6, *(s16 *)(arg2 + 0x580), temp_2, temp_8, temp_9, 1);
-                    func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
-                    temp_2_2 = (s32)(func_00453960(buf));
-                    if (temp_2_2 > 0) {
-                        func_0013a040(arg2, 1, *(s32 *)(buf + 0x24));
-                        func_0013a040(arg2, 2, *(s32 *)(buf + 0x28));
+                    func_00453670(query, 6, *(s16 *)(arg2 + 0x580), skillRow, skillPage);
+                    func_004538e0(query, 0x4000, 0x1000, 0x2000, 0x8000);
+                    if ((queryResult = func_00453960(query)) > 0) {
+                        func_0013a040((s16 *)arg2, 1, *(s32 *)(query + 0x24));
+                        func_0013a040((s16 *)arg2, 2, *(s32 *)(query + 0x28));
                         if (*(s16 *)(arg2 + 0x60) != *(s16 *)(arg2 + 0xAC)) {
                             func_0013a930(arg2);
                         }
-                        func_00354080(temp_2_2);
+                        func_00354080(queryResult);
                     }
                 }
             }
@@ -2608,8 +2598,8 @@ s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
                 break;
             }
             if (D_008C024E[0] & 0x40) {
-                temp_3_2 = (s8)func_0013f720((s16)temp_17, (s16)temp_3, temp_16, arg2);
-                switch (temp_3_2) {
+                applicationResult = (s8)func_0013f720((s16)character, (s16)recipientId, skillIndex, arg2);
+                switch (applicationResult) {
                 case 0:
                 case 1:
                     break;
@@ -2626,10 +2616,10 @@ s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
                     *(s32 *)(arg2 + 0x10) = (s32)(func_00354030());
                     *arg0 = 0xD;
                 } else {
-                    func_00453670(buf, 4, *(s16 *)(arg2 + 0xFC), temp_9, 0, temp_9, 1);
-                    func_004538e0(buf, 0x4000, 0x1000, 0, 0);
-                    if ((s32)(func_00453960(buf)) != (s32)(0)) {
-                        func_0013a040(arg2, 3, *(s32 *)(buf + 0x24));
+                    func_00453670(query, 4, *(s16 *)(arg2 + 0xFC), recipientRow, 0);
+                    func_004538e0(query, 0x4000, 0x1000, 0, 0);
+                    if ((s32)(func_00453960(query)) != (s32)(0)) {
+                        func_0013a040((s16 *)arg2, 3, *(s32 *)(query + 0x24));
                         func_0013aa00(arg2);
                         func_0045af60(0, 1, 0, 0);
                     }
@@ -2653,8 +2643,8 @@ s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
                     break;
                 }
                 if (D_008C024E[0] & 0x40) {
-                    temp_3_3 = (s8)func_0013f720((s16)temp_17, -1, temp_16, arg2);
-                    switch (temp_3_3) {
+                    allApplicationResult = (s8)func_0013f720((s16)character, -1, skillIndex, arg2);
+                    switch (allApplicationResult) {
                     case 0:
                     case 1:
                         break;
@@ -2689,37 +2679,36 @@ s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
                 *arg0 = 5;
                 func_0045af60(0, 2, 0, 4);
             } else {
-                temp_5_4 = D_008C024E[0] & 0x40;
-                if (temp_5_4 != 0) {
-                    func_0013f4d0((s32 *)arg0, temp_17, temp_3, arg2);
+                alternateConfirm = D_008C024E[0] & 0x40;
+                if (alternateConfirm != 0) {
+                    func_0013f4d0((s32 *)arg0, character, recipientValue, arg2);
                 } else if (D_008C024E[0] & 0x10) {
                     *(s32 *)(arg2 + 0x10) = (s32)(func_00354030());
                     *arg0 = 0xD;
                 } else {
-                    func_00453670(buf, 6, *(s16 *)(arg2 + 0x580), temp_2, temp_8, temp_9, 1);
-                    func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
-                    temp_2_3 = (s32)(func_00453960(buf));
-                    if (temp_2_3 > 0) {
-                        func_0013a040(arg2, 1, *(s32 *)(buf + 0x24));
-                        func_0013a040(arg2, 2, *(s32 *)(buf + 0x28));
+                    func_00453670(query, 6, *(s16 *)(arg2 + 0x580), skillRow, skillPage);
+                    func_004538e0(query, 0x4000, 0x1000, 0x2000, 0x8000);
+                    if ((alternateQueryResult = func_00453960(query)) > 0) {
+                        func_0013a040((s16 *)arg2, 1, *(s32 *)(query + 0x24));
+                        func_0013a040((s16 *)arg2, 2, *(s32 *)(query + 0x28));
                         if (*(s16 *)(arg2 + 0x60) != *(s16 *)(arg2 + 0xAC)) {
                             func_0013a930(arg2);
                         }
-                        func_00354080(temp_2_3);
+                        func_00354080(alternateQueryResult);
                     }
                 }
             }
             break;
         case 13:
             if ((++*(u16 *)(arg2 + 0xC) & 0xFFFF) >= 3) {
-                var_10 = 1;
+                finished = 1;
             } else {
-                temp_f1 = (1.0f - ((f32)*(u16 *)(arg2 + 0xC) / 3.0f)) * 255.0f;
-                var_3 = (u8)temp_f1;
-                *(u8 *)arg2 = var_3;
-                var_10 = 0;
+                alpha = (1.0f - ((f32)*(u16 *)(arg2 + 0xC) / 3.0f)) * 255.0f;
+                alphaByte = (u8)alpha;
+                *(u8 *)arg2 = alphaByte;
+                finished = 0;
             }
-            if (var_10 != 0) {
+            if (finished != 0) {
                 return 2;
             }
             break;
@@ -2728,9 +2717,6 @@ s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013ea20);
-#endif
 // FUN_0013F4D0
 void func_0013f4d0(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3) {
     s32 temp_18;
@@ -2743,7 +2729,7 @@ void func_0013f4d0(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3) {
     }
     temp_3 = func_0010f8c0(*(u16 *)(code13AddOff(temp_18 * 0xC, arg3) + 0x102)) & 0xFFFF;
     if (temp_3 == 0) {
-        func_0013a040(arg3, 3, 0);
+        func_0013a040((s16 *)arg3, 3, 0);
         func_0013a530(arg3, 5);
         func_0013aa00(arg3);
         if (arg0 != 0) {
@@ -2915,44 +2901,21 @@ s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3) {
     }
     return var_19;
 }
-/* Model floor (1072B window, size-exact). Probe nd 215;
-   fea0 float->s16 idiom, absolute consts via array decls.
-   Open: loop-hoist wall (C/0x8000/base remat per iter),
-   s0/s5 arg0-home swap with counter-temp cascade. */
-/* measured 0013fb50: `opt_loop_invariants on` inside the guard is worth 120 words (215 -> 95), the loop-preheader constant hoist. */
-/* 95 -> 34 (2026-09-18): the two float-to-u16 conversions were written out
-   by hand (compare against 2147483648.0f, subtract, or in 0x80000000, mask
-   0xFFFF).  b210 generates exactly that sequence for a plain `(u16)f` cast
-   and colours its temporaries the way retail does, where the expanded form
-   colours them the other way - the same lever that MATCHed func_00348330 in
-   src/promoted/y_CmbCardEff.c.  Remaining 34 words: retail keeps the second
-   loop counter in $a3 where b210 uses $s4, and a fourteen-instruction
-   error-path call block sits earlier in retail. */
-/* 2026-09-18 lead pass: 34 -> 28 words.  The first `while (k < 0x6C)` loop
-   and the later `while (k < 0x19)` loop shared one `k`, which forced the
-   counter into a callee-saved register because the second loop contains
-   calls; retail keeps the first loop's counter in the caller-saved $a3.
-   Giving the first loop its own `n` is worth 6 words.  Reusing `i` instead
-   costs 33 and reusing `j` costs 96, so it has to be a fresh variable.
-   Neutral on top of that (all tie at 28): `!resource` instead of
-   `resource == 0`, reversing the three resource declarations, moving the
-   `slot` declaration last.  Moving the `arg0 + 0x1874` store after its
-   guard costs 28 -> 33.  Residual is the resource-fetch block at retail
-   offsets 130-144, where retail copies each fetch result into a saved
-   register before testing it. */
-// FUN_0013FB50 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: b210 -O2 with loop-invariant optimization hoists the table and
+   conversion constants. Resource pointer contracts, the chained third-resource
+   store, and a counter scoped to sprite construction close the saved floor. */
+// FUN_0013FB50
+#pragma push
 #pragma opt_loop_invariants on
 void func_0013fb50(u8 *arg0) {
     s16 i;
     s16 j;
-    s16 k;
     s16 n;
     s32 value;
     f32 f;
-    s32 resource0;
-    s32 resource1;
-    s32 resource2;
+    u8 *resource0;
+    u8 *resource1;
+    u8 *resource2;
     s32 *slot;
     u8 *src;
     u8 *dst;
@@ -2997,47 +2960,46 @@ void func_0013fb50(u8 *arg0) {
     }
 
     *(s16 *)(arg0 + 0x32) = func_00353c10((s16 *)(arg0 + 0x22));
-    resource0 = func_0046a770(D_005E5830);
+    resource0 = func_0046a770((char *)D_005E5830);
     if (resource0 == 0) {
         func_0046d730(D_005EF6C8, 0x1EB);
     }
-    resource1 = func_0046a770(D_005E5850);
+    resource1 = func_0046a770((char *)D_005E5850);
     if (resource1 == 0) {
         func_0046d730(D_005EF6C8, 0x1ED);
     }
-    resource2 = func_0046a770(D_005E57F0);
-    *(s32 *)(arg0 + 0x1874) = resource2;
+    *(u8 **)(arg0 + 0x1874) = resource2 = func_0046a770((char *)D_005E57F0);
     if (resource2 == 0) {
         func_0046d730(D_005EF6C8, 0x1EF);
     }
-    if (func_0046a770(D_005E5810) == 0) {
+    if (func_0046a770((char *)D_005E5810) == 0) {
         func_0046d730(D_005EF6C8, 0x1F1);
     }
 
-    k = 0;
-    while (k < 0x19) {
-        if (k < 3) {
-            slot = (s32 *)(arg0 + k * 4 + 0x1810);
-            *slot = func_0046d200((void *)resource0, *(u8 *)(D_005EDA00 + k));
-        } else if (k < 0x18) {
-            slot = (s32 *)(arg0 + k * 4 + 0x1810);
-            *slot = func_0046d200((void *)resource1, *(u8 *)(D_005EDA00 + k));
-        } else {
-            slot = (s32 *)(arg0 + k * 4 + 0x1810);
-            *slot = func_0046d200((void *)resource2, *(u8 *)(D_005EDA00 + k));
+    {
+        s16 k;
+        k = 0;
+        while (k < 0x19) {
+            if (k < 3) {
+                slot = (s32 *)(arg0 + k * 4 + 0x1810);
+                *slot = (s32)func_0046d200((u32)resource0, *(u8 *)(D_005EDA00 + k));
+            } else if (k < 0x18) {
+                slot = (s32 *)(arg0 + k * 4 + 0x1810);
+                *slot = (s32)func_0046d200((u32)resource1, *(u8 *)(D_005EDA00 + k));
+            } else {
+                slot = (s32 *)(arg0 + k * 4 + 0x1810);
+                *slot = (s32)func_0046d200((u32)resource2, *(u8 *)(D_005EDA00 + k));
+            }
+            if (*slot == 0) {
+                func_0046d730(D_005EF6C8, 0x1FD);
+            }
+            k++;
         }
-        if (*slot == 0) {
-            func_0046d730(D_005EF6C8, 0x1FD);
-        }
-        k++;
     }
-    *(s32 *)(arg0 + 0x3C) = func_00354a50(0, 1);
+    *(u8 **)(arg0 + 0x3C) = func_00354a50(0, 1);
     func_00141d80(arg0, 0);
 }
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013fb50);
-#endif
+#pragma pop
 // FUN_0013FF80
 s32 func_0013ff80(u8 *arg0) {
     s32 v = *(s32 *)(arg0 + 0x14);

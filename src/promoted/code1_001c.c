@@ -48,7 +48,8 @@ extern void func_001ce8c0(u8 *arg0, f32 arg1, f32 arg2, f32 arg3);
 extern void func_001b73f0(u8 *arg0);
 extern void func_004b3110(s32 arg0);
 extern void func_001bab00(u8 *arg0, void *arg1);
-extern void func_001c6f40(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4);
+extern u32 func_001c6f40(u8 *camera, s32 resultCode, s32 useAlternate,
+                          P4CameraFrame *firstOut, P4CameraFrame *secondOut);
 extern void func_001cfad0(u8 *arg0, f32 arg1, f32 arg2);
 extern f32 fGpffff809c;
 extern f32 fGpffff8198;
@@ -4935,10 +4936,10 @@ void func_001ceff0(void) {
 }
 // FUN_001CF020
 void func_001cf020(u8 *arg0) {
-    u8 sp20[0x20];
+    P4CameraFrame frame;
 
-    func_001c6f40(arg0, 0, 0, 0, sp20);
-    func_001bab00(arg0, sp20);
+    func_001c6f40(arg0, 0, 0, NULL, &frame);
+    func_001bab00(arg0, &frame);
 }
 // FUN_001CF070
 void func_001cf070(u8 *arg0, u8 *arg1)

@@ -33,7 +33,7 @@ s32 func_0012e1d0(u8 *arg0);
 void func_0012e150(u8 *arg0);
 void func_0012db80(u8 *arg0, s32 arg1);
 s32 func_0013bcf0(u8 *arg0, s32 *arg1, u8 *arg2);
-s32 func_0013ea20(u8 *arg0, s32 *arg1, u8 *arg2);
+s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2);
 s32 func_0013caa0(u8 *arg0, s32 *arg1, u8 *arg2);
 s32 func_0013d8b0(u8 *arg0, s32 *arg1, u8 *arg2);
 s32 func_00142f20(u32 *arg0, s32 *arg1, u8 *arg2);
@@ -206,7 +206,7 @@ s32 func_0012c510(u8 *unusedTask) {
         }
         break;
     case 5:
-        r = func_0013ea20(p + 4, &sp68, p + 0x1EA4);
+        r = func_0013ea20((u32 *)(p + 4), &sp68, p + 0x1EA4);
         switch (r) {
         case 0:
             if (sp68 != 0) {

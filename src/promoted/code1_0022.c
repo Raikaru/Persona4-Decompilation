@@ -239,7 +239,7 @@ extern u8 *func_0022ced0(s32 arg0);
 extern void func_001d3ea0(int destination, u32 source);
 extern BtlPacket *func_0019bbe0(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
 extern void func_001f0a10(u8 *arg0);
-extern BtlPacket *func_001f36e0(s32 param_1, s32 param_2, void *param_3, s16 param_4, s16 param_5);
+extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *func_00199ee0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
 extern BtlPacket *func_0019a980(BtlUnit *unit);
 extern BtlPacket *func_001f81f0(u16 channel, const char *streamName);
@@ -2706,7 +2706,7 @@ void func_002282d0(u8 *arg0)
     u16 *raw;
     u8 *temp_17;
     extern void func_001b73f0(u8 *arg0);
-    extern void func_001bf5e0();
+    extern void func_001bf5e0(u8 *camera);
 
     if (func_00243ce0(
             (u8 *)*(s32 *)(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30) + 0xA64)) != 0) {
