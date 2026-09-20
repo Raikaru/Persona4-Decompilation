@@ -2306,9 +2306,9 @@ void func_0016bdd0(void *param_1)
           uStack_bc = *(unsigned int *)(temp_v4 + 0x44);
           uStack_b8 = *(unsigned int *)(temp_v4 + 0x48);
           temp_v8 = piVar1[3];
-          fStack_d0 = fStack_60 - *(float *)(temp_v8 + 0x40);
-          fStack_cc = temp_v14 - *(float *)(temp_v8 + 0x44);
-          fStack_c8 = temp_v11 - *(float *)(temp_v8 + 0x48);
+          fStack_d0 = fStack_60 - (float)*(int *)(temp_v8 + 0x40);
+          fStack_cc = temp_v14 - (float)*(int *)(temp_v8 + 0x44);
+          fStack_c8 = temp_v11 - (float)*(int *)(temp_v8 + 0x48);
           pbVar9 = (unsigned char *)FUN_00457120();
           FUN_00457630(pbVar9,(unsigned char *)&uStack_c0,(unsigned char *)&fStack_d0,(float *)0x0);
           temp_v8 = piVar1[0x32];
@@ -2458,9 +2458,9 @@ LAB_0016c5dc:
           puVar10 = puVar10 + 2;
         } while (0 < temp_v8);
         temp_v8 = piVar1[0xb0];
-        fStack_120 = *(float *)(temp_v8 + 0x20);
-        fStack_11c = *(float *)(temp_v8 + 0x24);
-        fStack_118 = *(float *)(temp_v8 + 0x28);
+        fStack_120 = (float)*(int *)(temp_v8 + 0x20);
+        fStack_11c = (float)*(int *)(temp_v8 + 0x24);
+        fStack_118 = (float)*(int *)(temp_v8 + 0x28);
         FUN_003e40b0(&fStack_118,&fStack_118);
         temp_v9 = (float)piVar1[0xa3] + 55.0f;
         fStack_120 = -fStack_120 * temp_v9;
@@ -2494,9 +2494,9 @@ LAB_0016c5dc:
           temp_v9 = FUN_003e4180(&fStack_130);
           if (0.0f < temp_v9) {
             temp_v8 = piVar1[0xb0];
-            fStack_120 = *(float *)(temp_v8 + 0x20);
-            fStack_11c = *(float *)(temp_v8 + 0x24);
-            fStack_118 = *(float *)(temp_v8 + 0x28);
+            fStack_120 = (float)*(int *)(temp_v8 + 0x20);
+            fStack_11c = (float)*(int *)(temp_v8 + 0x24);
+            fStack_118 = (float)*(int *)(temp_v8 + 0x28);
             FUN_003e40b0(&fStack_118,&fStack_118);
             fStack_120 = -fStack_120 * temp_v9;
             fStack_11c = -fStack_11c * temp_v9;
@@ -2649,9 +2649,9 @@ LAB_0016c5dc:
               puVar10 = puVar10 + 2;
             } while (0 < temp_v8);
             temp_v8 = piVar1[0xb0];
-            fStack_120 = *(float *)(temp_v8 + 0x20);
-            fStack_11c = *(float *)(temp_v8 + 0x24);
-            fStack_118 = *(float *)(temp_v8 + 0x28);
+            fStack_120 = (float)*(int *)(temp_v8 + 0x20);
+            fStack_11c = (float)*(int *)(temp_v8 + 0x24);
+            fStack_118 = (float)*(int *)(temp_v8 + 0x28);
             FUN_003e40b0(&fStack_118,&fStack_118);
             fStack_120 = -fStack_120 * temp_v12;
             fStack_11c = -fStack_11c * temp_v12;
@@ -2696,9 +2696,9 @@ LAB_0016c5dc:
                 puVar10 = puVar10 + 2;
               } while (0 < temp_v8);
               temp_v8 = piVar1[0xb0];
-              fStack_120 = *(float *)(temp_v8 + 0x20);
-              fStack_11c = *(float *)(temp_v8 + 0x24);
-              fStack_118 = *(float *)(temp_v8 + 0x28);
+              fStack_120 = (float)*(int *)(temp_v8 + 0x20);
+              fStack_11c = (float)*(int *)(temp_v8 + 0x24);
+              fStack_118 = (float)*(int *)(temp_v8 + 0x28);
               FUN_003e40b0(&fStack_118,&fStack_118);
               temp_v12 = (float)piVar1[0xa5];
               fStack_120 = -fStack_120 * temp_v12;
@@ -2745,9 +2745,9 @@ LAB_0016c5dc:
             piVar1[0xa5] = piVar1[0xa3];
           }
           temp_v8 = piVar1[0xb0];
-          fStack_120 = *(float *)(temp_v8 + 0x20);
-          fStack_11c = *(float *)(temp_v8 + 0x24);
-          fStack_118 = *(float *)(temp_v8 + 0x28);
+          fStack_120 = (float)*(int *)(temp_v8 + 0x20);
+          fStack_11c = (float)*(int *)(temp_v8 + 0x24);
+          fStack_118 = (float)*(int *)(temp_v8 + 0x28);
           FUN_003e40b0(&fStack_118,&fStack_118);
           temp_v12 = (float)piVar1[0xa5];
           fStack_120 = -fStack_120 * temp_v12;
@@ -2871,9 +2871,9 @@ LAB_0016c5dc:
         FUN_003e0e20(piVar1[0xb0],temp_v5,2);
         temp_v14 = fStack_1ec + (float)piVar1[0xa8];
         temp_v8 = piVar1[0xb0];
-        fStack_210 = *(float *)(temp_v8 + 0x30) - fStack_1f0;
-        fStack_20c = *(float *)(temp_v8 + 0x34) - temp_v14;
-        fStack_208 = *(float *)(temp_v8 + 0x38) - fStack_1e8;
+        fStack_210 = (float)*(int *)(temp_v8 + 0x30) - fStack_1f0;
+        fStack_20c = (float)*(int *)(temp_v8 + 0x34) - temp_v14;
+        fStack_208 = (float)*(int *)(temp_v8 + 0x38) - fStack_1e8;
         temp_v12 = fStack_1e8;
         fStack_1ec = temp_v14;
         FUN_003e40b0(&fStack_208,&fStack_208);
