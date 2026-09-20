@@ -589,14 +589,14 @@ void func_002b6be0(u8 *arg0, f2 p1, u32 arg2, f32 fparg0) {
    worse). Remaining levers: deferred g local scoped to the pair+chain only.
    Same argument-materialization family as the old nd 9 note. */
 // FUN_002B6C30
-void func_002b6c30(s16 arg0, f2 p1, s32 arg2, f32 fparg0) {
+void func_002b6c30(s64 arg0, f2 p1, s32 arg2, f32 fparg0) {
     u8 *base;
     u8 *base2;
     s32 off;
     u8 *entry;
     u8 *tmp;
     base = *(u8 **)(iGpffffb574 + 0x38);
-    off = ((s32)arg0) << 8;
+    off = (s32)(s16)arg0 * 256;
     entry = base + off;
     *(s16 *)(entry + 0x14) |= 1;
     *(f32 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x18) = fparg0;

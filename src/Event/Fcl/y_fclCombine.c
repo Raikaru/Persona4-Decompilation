@@ -114,7 +114,6 @@ extern f32 func_00109190(void);
 extern void func_0032f060(u8 *arg0, s32 arg1);
 extern void func_0032f4d0(u8 *arg0);
 extern void func_003307b0(u8 *arg0, s32 arg1, u8 *arg2);
-extern void func_002b6c30(s32 a, s64 b, s32 c, f32 d);
 extern void func_002b6a70(s32, s32, s32, s32, s32, s32);
 extern void func_002eb270(u8 *arg0, s32 arg1);
 extern void func_003205f0(u8 *arg0, s32 arg1, s32 arg2);
@@ -175,7 +174,6 @@ extern void func_0045a3e0(s32, s32);
 extern void func_0030f4f0(u8 *, s16 *);
 extern s32 func_00314320(u8 *);
 extern void func_00320970(u8 *, s32);
-extern void func_002b6c30(s32, s64, s32, f32);
 extern void func_002b6b40(s32, s32, s32, s32, s32, f32);
 extern void func_002b69f0(s32, s64, s64, s32, s32, s32);
 extern void func_00315600(u8 *, s32);
@@ -474,20 +472,20 @@ void func_002e90d0(u8 *arg0)
   FclPackedPosition position2;
   FclPackedPosition position0;
   FclPackedPosition stk_d8;
-  s64 stk_d0;
+  FclPackedPosition stk_d0;
   FclPackedPosition stk_c8;
   FclPackedPosition stk_c0;
-  s64 stk_b8;
+  FclPackedPosition stk_b8;
   FclPackedPosition stk_b0;
-  s64 stk_a8;
-  s64 stk_a0;
-  s64 stk_98;
+  FclPackedPosition stk_a8;
+  FclPackedPosition stk_a0;
+  FclPackedPosition stk_98;
   s64 stk_90;
   s64 stk_88;
-  s64 stk_80;
+  FclPackedPosition stk_80;
   s64 stk_78;
   s64 stk_70;
-  s64 stk_68;
+  FclPackedPosition stk_68;
   s32 iStack_60;
   u32 uStack_5c;
   s32 iStack_58;
@@ -830,8 +828,8 @@ void func_002e90d0(u8 *arg0)
     temp_v4 = func_002bb680((s8)base[0xd]);
     if (temp_v4 == 0) {
       func_002bb550((s8)base[0xd]);
-      func_002b2970((u8 *)&stk_d0,D_00641660[0],D_00641660[1]);
-      func_002b6c30(0x1c6,stk_d0,0x3d,242.0f);
+      func_002b2970((u8 *)&stk_d0.bits,D_00641660[0],D_00641660[1]);
+      func_002b6c30(0x1c6, stk_d0.position,0x3d,242.0f);
       func_002b6a70(0x1c6,0,100,0,10,0);
       base[0xb6] = 0;
       func_0032f4d0(arg0);
@@ -927,8 +925,8 @@ void func_002e90d0(u8 *arg0)
                       base[1] = 0x21;
                     }
                     else {
-                      func_002b2970((u8 *)&stk_b8,D_00641660[0],D_00641660[1]);
-                      func_002b6c30(0x1c6,stk_b8,0x3d,242.0f);
+                      func_002b2970((u8 *)&stk_b8.bits,D_00641660[0],D_00641660[1]);
+                      func_002b6c30(0x1c6, stk_b8.position,0x3d,242.0f);
                       func_002b6a70(0x1c6,0,100,0,10,0);
                       base[0xb6] = 0;
                       func_0032f4d0(arg0);
@@ -971,8 +969,8 @@ void func_002e90d0(u8 *arg0)
       *(s32 *)(base + 0x148) = temp_v4;
       func_00320970(arg0,0);
       func_00315310(arg0,0);
-      func_002b2970((u8 *)&stk_68,-78.0,-82.0);
-      func_002b6c30(0x80,stk_68,0x3f,220.0f);
+      func_002b2970((u8 *)&stk_68.bits,-78.0,-82.0);
+      func_002b6c30(0x80, stk_68.position,0x3f,220.0f);
       func_002b2a60(&bStack_4,0x49,0x72,0xff,0xff);
       te = func_002b6150(0x80);
       *(u8 *)(te + 0x85) = bStack_4;
@@ -987,8 +985,8 @@ void func_002e90d0(u8 *arg0)
       func_002b2970((u8 *)&stk_78,-78.0,-82.0);
       func_002b69f0(0x80,stk_70,stk_78,1,10,0);
       func_002b6a70(0x80,0,0xff,2,10,0);
-      func_002b2970((u8 *)&stk_80,540.0,347.0);
-      func_002b6c30(0x20c,stk_80,0x3f,220.0f);
+      func_002b2970((u8 *)&stk_80.bits,540.0,347.0);
+      func_002b6c30(0x20c, stk_80.position,0x3f,220.0f);
       func_002b2a60(&bStack_8,0x49,0x72,0xff,0xff);
       te = func_002b6150(0x20c);
       *(u8 *)(te + 0x85) = bStack_8;
@@ -1003,8 +1001,8 @@ void func_002e90d0(u8 *arg0)
       func_002b2970((u8 *)&stk_90,540.0,347.0);
       func_002b69f0(0x20c,stk_88,stk_90,1,10,0);
       func_002b6a70(0x20c,0,0xff,2,10,0);
-      func_002b2970((u8 *)&stk_98,-190.0,200.0);
-      func_002b6c30(0x81,stk_98,0x56,215.0f);
+      func_002b2970((u8 *)&stk_98.bits,-190.0,200.0);
+      func_002b6c30(0x81, stk_98.position,0x56,215.0f);
       func_002b2a60(&bStack_c,0x49,0x72,0xff,0xff);
       te = func_002b6150(0x81);
       *(u8 *)(te + 0x85) = bStack_c;
@@ -1014,11 +1012,11 @@ void func_002e90d0(u8 *arg0)
       func_002b6a70(0x81,0,0xff,0,10,0);
       te = func_002b6150(0x81);
       *(u32 *)(temp_v4 + 0xd0) = 0x42b40000;
-      func_002b2970((u8 *)&stk_a0,D_00640C50[0],D_00640C50[1]);
-      func_002b6c30(0x84,stk_a0,0x40,217.0f);
+      func_002b2970((u8 *)&stk_a0.bits,D_00640C50[0],D_00640C50[1]);
+      func_002b6c30(0x84, stk_a0.position,0x40,217.0f);
       func_002b6a70(0x84,0,0xff,0,10,0);
-      func_002b2970((u8 *)&stk_a8,D_00640C58[0],D_00640C58[1]);
-      func_002b6c30(0x85,stk_a8,0x40,218.0f);
+      func_002b2970((u8 *)&stk_a8.bits,D_00640C58[0],D_00640C58[1]);
+      func_002b6c30(0x85, stk_a8.position,0x40,218.0f);
       func_002b6a70(0x85,0,0xff,0,10,0);
       func_00315600(arg0,0);
       func_003205f0(arg0,0x92,0);
@@ -1564,14 +1562,14 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002eb270);
    preserve retail's store-before-next-index schedule. */
 // FUN_002ECFC0
 void func_002ecfc0(u8 *arg0) {
-    s64 sp38;
+    FclPackedPosition sp38;
     u8 *temp_16;
     FclVec2f *base;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
     base = (FclVec2f *)D_00641660;
     func_002b2970((u8 *)&sp38, base->x, base->y);
-    func_002b6c30(0x1C6, sp38, 0x3D, 242.0f);
+    func_002b6c30(0x1C6, sp38.position, 0x3D, 242.0f);
     func_002b6a70(0x1C6, 0, 0x64, 0, 0xA, 0);
     *(s8 *)(temp_16 + 0xB4) = 0;
     *(s8 *)(temp_16 + 0xB5) = 0;
@@ -2903,7 +2901,6 @@ void func_002f0f00(u8 *arg0) {
     extern f32 func_0046b260(s32);
     extern f32 func_0046b2f0(s32);
     extern void func_0046d280(s32);
-    extern void func_002b6c30(s32, s64, s32, f32);
     extern void func_002b6a70(s32, s32, s32, s32, s32, s32);
     extern void func_002b6af0(s32, s32, s32, s32, f32, f32, f32, f32);
     extern void func_002b69f0(s16, FclVec2f, FclVec2f, u32, u32, s16);
@@ -2995,7 +2992,7 @@ void func_002f0f00(u8 *arg0) {
     f32 sp3D4;
     f32 sp3D0;
     s64 sp3C8;
-    s64 sp3C0;
+    FclPackedPosition sp3C0;
     s64 sp3B8;
     s64 sp3B0;
     s64 sp3A8;
@@ -3449,28 +3446,28 @@ do {
             temp_f22 = (f32)(s32)((f32)(s32)((temp_f20_2 * func_0046b260(temp_2_3)) / 2.0f));
             temp_f21 = (f32)(s32)((f32)(s32)((temp_f20_2 * func_0046b2f0(temp_2_3)) / 2.0f));
             func_0046d280(temp_2_3);
-            func_002b2970(&sp3C0, ((f32)(sp3C8)) - temp_f22, unksp3CC - temp_f21);
-            func_002b6c30(0x7E, sp3C0, 0x56, 0x431C0000);
+            func_002b2970(&sp3C0.bits, ((f32)(sp3C8)) - temp_f22, unksp3CC - temp_f21);
+            func_002b6c30(0x7E, sp3C0.position, 0x56, 0x431C0000);
             func_002b6a70(0x7E, 0U, 0xFF, 0, 2, 0);
             (*((f32 *)((u8 *)(func_002b6150(0x7E)) + (0xAC)))) = temp_f20_2;
             (*((f32 *)((u8 *)(func_002b6150(0x7E)) + (0xA0)))) = temp_f20_2;
             temp_3_2 = (s32)((s32)(func_0010b5b0() & 0xFFFF));
             switch (temp_3_2) {                     /* switch 2; irregular */
             case 12:                                /* switch 2 */
-                func_002b2970(&sp3B0, ((f32)(sp3C0)), unksp3C4 - 20.0f);
-                func_002b69f0(0x7E, (*(FclVec2f *)&sp3C0), (*(FclVec2f *)&sp3B0),  1,  8,  0);
+                func_002b2970(&sp3B0, ((f32)(sp3C0.bits)), unksp3C4 - 20.0f);
+                func_002b69f0(0x7E, (*(FclVec2f *)&sp3C0.bits), (*(FclVec2f *)&sp3B0),  1,  8,  0);
                 break;
             case 10:                                /* switch 2 */
-                func_002b2970(&sp3A8, ((f32)(sp3C0)), unksp3C4 - 16.0f);
-                func_002b69f0(0x7E, (*(FclVec2f *)&sp3C0), (*(FclVec2f *)&sp3A8),  1,  8,  0);
+                func_002b2970(&sp3A8, ((f32)(sp3C0.bits)), unksp3C4 - 16.0f);
+                func_002b69f0(0x7E, (*(FclVec2f *)&sp3C0.bits), (*(FclVec2f *)&sp3A8),  1,  8,  0);
                 break;
             case 8:                                 /* switch 2 */
-                func_002b2970(&sp3A0, ((f32)(sp3C0)), unksp3C4 - 13.0f);
-                func_002b69f0(0x7E, (*(FclVec2f *)&sp3C0), (*(FclVec2f *)&sp3A0),  1,  8,  0);
+                func_002b2970(&sp3A0, ((f32)(sp3C0.bits)), unksp3C4 - 13.0f);
+                func_002b69f0(0x7E, (*(FclVec2f *)&sp3C0.bits), (*(FclVec2f *)&sp3A0),  1,  8,  0);
                 break;
             case 6:                                 /* switch 2 */
-                func_002b2970(&sp398, ((f32)(sp3C0)), unksp3C4 - 10.0f);
-                func_002b69f0(0x7E, (*(FclVec2f *)&sp3C0), (*(FclVec2f *)&sp398),  1,  8,  0);
+                func_002b2970(&sp398, ((f32)(sp3C0.bits)), unksp3C4 - 10.0f);
+                func_002b69f0(0x7E, (*(FclVec2f *)&sp3C0.bits), (*(FclVec2f *)&sp398),  1,  8,  0);
                 break;
             }
             (*((s8 *)((u8 *)(func_002b6150(0x7E)) + (0x47)))) = 1;
@@ -4671,7 +4668,7 @@ void func_002f6cf0(u8 *arg0) {
     u8 col158[4];
     u8 col15C[4];
     s64 sp118;
-    s64 sp110;
+    FclPackedPosition sp110;
     s64 sp108;
     s64 sp100;
     s64 spF8;
@@ -4852,8 +4849,8 @@ do {
 } while (((s64) (var_17_2 << 0x30) >> 0x30) < (func_0010b5b0() & 0xFFFF));
             func_00313800((*(s8 *)((u8 *)(temp_16)+(0x1A))));
             func_00323d00(arg0, 2, 0);
-            func_002b2970((u8 *)&sp110, (*(f32 *)((u8 *)(&D_00640E70)+(0))), (*(f32 *)((u8 *)(&D_00640E70)+(4))));
-            func_002b6c30(0xC8, sp110, 0x5A, 42.0f);
+            func_002b2970((u8 *)&sp110.bits, (*(f32 *)((u8 *)(&D_00640E70)+(0))), (*(f32 *)((u8 *)(&D_00640E70)+(4))));
+            func_002b6c30(0xC8, sp110.position, 0x5A, 42.0f);
             func_002b6a70(0xC8, 0xFFU, 0, 0, 0xA, 0xA);
             func_002b2970((u8 *)&sp108, (f32) 0x28A + (*(f32 *)((u8 *)(&D_00640E70)+(0))), (*(f32 *)((u8 *)(&D_00640E70)+(4))));
             func_002b2970((u8 *)&sp100, (*(f32 *)((u8 *)(&D_00640E70)+(0))) - 50.0f, (*(f32 *)((u8 *)(&D_00640E70)+(4))));
@@ -5645,7 +5642,7 @@ void func_002f9d90(u8 *arg0) {
     u8 col10C[4];
     u8 col108[4];
     u8 col104[4];
-    s64 spF8;
+    FclPackedPosition spF8;
     s64 spF0;
     s64 spE8;
     s64 spE0;
@@ -5772,8 +5769,8 @@ do {
                 temp_2_2 = (u8 *)(func_002b6150(0x8A));
                 (*( f32 * )((u8 *)(temp_2_2) + (0x38))) = (f32) ((*( f32 * )((u8 *)(temp_2_2) + (0x38))) + 60.0f);
             }
-            func_002b2970((u8 *)&spF8, (*( f32 * )((u8 *)(D_00640E70) + (0))), (*( f32 * )((u8 *)(D_00640E70) + (4))));
-            func_002b6c30(0xC8, spF8, 0x5A, 42.0f);
+            func_002b2970((u8 *)&spF8.bits, (*( f32 * )((u8 *)(D_00640E70) + (0))), (*( f32 * )((u8 *)(D_00640E70) + (4))));
+            func_002b6c30(0xC8, spF8.position, 0x5A, 42.0f);
             func_002b6a70(0xC8, 0xFFU, 0, 0, 0xA, 0xA);
             func_002b2970((u8 *)&spF0, (f32) 0x28A + (*( f32 * )((u8 *)(D_00640E70) + (0))), (*( f32 * )((u8 *)(D_00640E70) + (4))));
             func_002b2970((u8 *)&spE8, (*( f32 * )((u8 *)(D_00640E70) + (0))) - 50.0f, (*( f32 * )((u8 *)(D_00640E70) + (4))));
@@ -10235,7 +10232,6 @@ void func_0030c3c0(u8 *arg0) {
     extern s32 func_002b2d00(s32, s32, s32, s32, s8);
     extern void func_002b68d0(s16, s32, s32);
     extern void func_002b6a70(s32, s32, s32, s32, s32, s32);
-    extern void func_002b6c30(s32, s64, s32, f32);
     extern s8 func_002bab80(void *);
     extern void func_002badc0(s8, s32);
     extern void func_002bafc0(s8, s32);
@@ -10282,7 +10278,7 @@ void func_0030c3c0(u8 *arg0) {
     extern char iGpffffa8a4;
     extern char iGpffffa8a0;
     u8 spD8[8];
-    s64 spD0;
+    FclPackedPosition spD0;
     char spB0[32];
     char sp90[32];
     u8 sp60[48];
@@ -11719,8 +11715,8 @@ loop_463:
         (*(s16 *)((u8 *)(temp_16)+(0x2D8))) = temp_2_20;
         if ((((s64) ((s64) temp_2_20 << 0x30) >> 0x30) >= 0x3C) && ((s32)((s32)(((s64) (func_00314660((u8 *)(*(s32 *)((u8 *)(temp_16)+(0x148)))) << 0x38) >> 0x38))) != (s32)((s32)(0xE)))) {
             func_00314670((u8 *)(*(s32 *)((u8 *)(temp_16)+(0x148))), 0xB);
-            func_002b2970(&spD0, 0.0f, 0.0f);
-            func_002b6c30(0x1E8, spD0, 0xAA, 6.0f);
+            func_002b2970(&spD0.bits, 0.0f, 0.0f);
+            func_002b6c30(0x1E8, spD0.position, 0xAA, 6.0f);
             func_002b68d0(0x1E8, 0, 0);
             func_002b6a70(0x1E8, 0xFF, 0, 0, 0x32, 0xA);
             (*(u8 *)((u8 *)(temp_16)+(1))) = 0xC1U;
@@ -11790,16 +11786,16 @@ void func_0030f650(u8 *arg0) {
     s16 mats[12];
     s16 i;
     s16 k;
-    s64 w0;
+    FclPackedPosition w0;
     s64 w1;
     s64 w2;
-    s64 w3;
+    FclPackedPosition w3;
     s64 w4;
     s64 w5;
-    s64 w6;
-    s64 w7;
-    s64 w8;
-    s64 w9;
+    FclPackedPosition w6;
+    FclPackedPosition w7;
+    FclPackedPosition w8;
+    FclPackedPosition w9;
     FclByte4 c0;
     FclByte4 c1;
     FclByte4 c2;
@@ -11914,8 +11910,8 @@ void func_0030f650(u8 *arg0) {
             }
             *(s32 *)(p + 0x148) = func_00314320(arg0);
             func_00320970(arg0, 0);
-            func_002b2970((u8 *)&w0, -78.0f, -82.0f);
-            func_002b6c30(0x80, w0, 0x3F, 220.0f);
+            func_002b2970((u8 *)&w0.bits, -78.0f, -82.0f);
+            func_002b6c30(0x80, w0.position, 0x3F, 220.0f);
             func_002b2a60(&c0, 0x49, 0x72, 0xFF, 0xFF);
             te = func_002b6150(0x80);
             *(te + 0x85) = c0.b0;
@@ -11929,8 +11925,8 @@ void func_0030f650(u8 *arg0) {
             func_002b2970((u8 *)&w2, -78.0f, -82.0f);
             func_002b69f0(0x80, w1, w2, 1, 0xA, 0);
             func_002b6a70(0x80, 0, 0xFF, 2, 0xA, 0);
-            func_002b2970((u8 *)&w3, 540.0f, 347.0f);
-            func_002b6c30(0x20C, w3, 0x3F, 220.0f);
+            func_002b2970((u8 *)&w3.bits, 540.0f, 347.0f);
+            func_002b6c30(0x20C, w3.position, 0x3F, 220.0f);
             func_002b2a60(&c1, 0x49, 0x72, 0xFF, 0xFF);
             te = func_002b6150(0x20C);
             *(te + 0x85) = c1.b0;
@@ -11944,8 +11940,8 @@ void func_0030f650(u8 *arg0) {
             func_002b2970((u8 *)&w5, 540.0f, 347.0f);
             func_002b69f0(0x20C, w4, w5, 1, 0xA, 0);
             func_002b6a70(0x20C, 0, 0xFF, 2, 0xA, 0);
-            func_002b2970((u8 *)&w6, -190.0f, 200.0f);
-            func_002b6c30(0x81, w6, 0x56, 215.0f);
+            func_002b2970((u8 *)&w6.bits, -190.0f, 200.0f);
+            func_002b6c30(0x81, w6.position, 0x56, 215.0f);
             func_002b2a60(&c2, 0x49, 0x72, 0xFF, 0xFF);
             te = func_002b6150(0x81);
             *(te + 0x85) = c2.b0;
@@ -11953,14 +11949,14 @@ void func_0030f650(u8 *arg0) {
             *(te + 0x87) = c2.b2;
             *(te + 0x88) = c2.b3;
             *(f32 *)(func_002b6150(0x81) + 0xD0) = 90.0f;
-            func_002b2970((u8 *)&w7, D_00640C50[0], D_00640C50[1]);
-            func_002b6c30(0x84, w7, 0x40, 242.0f);
-            func_002b2970((u8 *)&w8, D_00640C58[0], D_00640C58[1]);
-            func_002b6c30(0x85, w8, 0x40, 242.0f);
+            func_002b2970((u8 *)&w7.bits, D_00640C50[0], D_00640C50[1]);
+            func_002b6c30(0x84, w7.position, 0x40, 242.0f);
+            func_002b2970((u8 *)&w8.bits, D_00640C58[0], D_00640C58[1]);
+            func_002b6c30(0x85, w8.position, 0x40, 242.0f);
             func_00315600(arg0, 0);
             func_00316e80((s32)arg0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0);
-            func_002b2970((u8 *)&w9, D_00641660[0], D_00641660[1]);
-            func_002b6c30(0x1C6, w9, 0x3D, 242.0f);
+            func_002b2970((u8 *)&w9.bits, D_00641660[0], D_00641660[1]);
+            func_002b6c30(0x1C6, w9.position, 0x3D, 242.0f);
             func_002b6a70(0x1C6, 0, 0x64, 0, 0xA, 0);
             *(p + 0xB4) = 0;
             *(p + 0xB5) = 0;
