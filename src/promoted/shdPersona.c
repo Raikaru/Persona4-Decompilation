@@ -3396,6 +3396,21 @@ void func_0011c3e0(u8 *arg0)
     u8 c;
 
     for (i = 0; i < 10; i++) {
+        /* HONEST NOTE: this MATCH rests on a BANNED construct.  `arg0 + 0x516`
+           is ordinary memory, and `volatile` here exists to force a reload on
+           each of the ten iterations.  Measured alternatives, all of which
+           LOSE the match (91 -> 90 MATCH):
+             - the plain `raw = *(s16 *)(arg0 + 0x516);` in the loop, 21
+               differing words: b210 computes the index before the `lh`, while
+               retail issues the `lh` first
+             - the load hoisted above the loop, 75 differing words and a loop
+               target of 0x0011C414 against retail's 0x0011C404 - retail really
+               does load ten times in the loop plus once after, so the hoist is
+               factually wrong
+             - plain plus `opt_loop_invariants off`, 449 differing words
+           Retail's per-iteration reload is therefore real, but no legal C
+           spelling found so far reproduces both the reload AND the
+           instruction order.  func_0011c3e0 is a DEMOTION CANDIDATE. */
         raw = *(volatile s16 *)(arg0 + 0x516);
         lo = *(f32 *)(arg0 + i * 36 + 0x2E8);
         ratio = (f32)raw;
