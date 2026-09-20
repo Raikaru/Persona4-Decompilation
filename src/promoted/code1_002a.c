@@ -56,7 +56,7 @@ extern void func_0025e9e0(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, f3
 extern s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, s32 arg5, s32 arg6, f32 farg3, f32 farg4, f32 farg5);
 extern u8 D_007485D0[];
 extern s32 iGpffffb530;
-extern void func_002baac0(void *arg0);
+extern u8 func_002baac0(u8 *message);
 extern void func_002bad10(s32 arg0);
 extern void func_002baf40(s32 arg0);
 extern void func_002bb050(s32 arg0);
@@ -595,7 +595,7 @@ s32 func_002a1a10(u8 *arg0) {
     case 0:
         iGpffffb52c = 0;
         func_002bb4e0();
-        func_002baac0(D_0063E630);
+        func_002baac0((u8 *)(D_0063E630));
         func_002bad10(1);
         func_002baf40(0);
         func_002bb050(0);

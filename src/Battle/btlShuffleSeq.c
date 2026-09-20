@@ -59,7 +59,7 @@ extern void func_002bb1e0(s32 a);
 extern void func_002bb4e0(void);
 extern s32 func_002bb140(void);
 extern void func_0043f9c8(void *dst, s32 c, s32 n);
-extern void func_002baac0(s32 a);
+extern u8 func_002baac0(u8 *message);
 extern void func_002baf40(s32 a);
 extern void func_002bb050(s32 a);
 extern void func_002bbf60(void);
@@ -486,7 +486,7 @@ s32 func_00379240(u8 *arg0) {
     if (*(s32 *)(base + 0x24) > 0) {
         if (func_00106330(0x142A) != 0) {
             func_00442830(sp30, D_00763AD0);
-            func_002baac0(*(s32 *)(arg0 + 0x1F2DC));
+            func_002baac0((u8 *)(*(s32 *)(arg0 + 0x1F2DC)));
             text = func_002438b0(0x14);
             func_002bbd20(0, text);
             func_002bbd20(1, sp30);
@@ -496,7 +496,7 @@ s32 func_00379240(u8 *arg0) {
         }
         if (func_00106330(0x142B) != 0) {
             func_00442830(sp30, D_00763AD4);
-            func_002baac0(*(s32 *)(arg0 + 0x1F2DC));
+            func_002baac0((u8 *)(*(s32 *)(arg0 + 0x1F2DC)));
             text = func_002438b0(0x14);
             func_002bbd20(0, text);
             func_002bbd20(1, sp30);
@@ -676,7 +676,7 @@ s32 func_00379920(u8 *arg0) {
 // FUN_003799D0
 void func_003799d0(u8 *arg0) {
     func_0043f9c8(arg0 + 0x1F244, 0, 8);
-    func_002baac0(*(s32 *)(arg0 + 0x1F2DC));
+    func_002baac0((u8 *)(*(s32 *)(arg0 + 0x1F2DC)));
     func_002baf40(0x14);
     func_002bb050(0);
     func_002bbf60();

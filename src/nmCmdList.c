@@ -62,8 +62,9 @@ void func_002baa90(int param_1)
 
 
 // FUN_002BAAC0
-u8 func_002baac0(u64 param_1)
+u8 func_002baac0(u8* message)
 {
+    extern s32 func_002774d0(u8* message);
     s32* command;
 
     if (DAT_00882F60_abs != NULL)
@@ -79,7 +80,7 @@ u8 func_002baac0(u64 param_1)
     command = (s32*)func_002bbf70();
     if (*command < 0)
     {
-        *command = func_002774d0(param_1);
+        *command = func_002774d0(message);
         func_002bbf80(command, 0);
         return 1;
     }

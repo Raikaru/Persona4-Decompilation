@@ -140,7 +140,7 @@ extern s32 func_00213a80(void);
 
 extern s32 func_00379b70(u8 *arg0);
 
-extern void func_002baac0(s32 arg0);
+extern u8 func_002baac0(u8 *message);
 
 extern void func_002bad10(s32 arg0);
 
@@ -257,7 +257,7 @@ case2_body:
             break;
         }
         *(u16 *)(work + 2) = 0;
-        func_002baac0(*(s32 *)(work + 0x1F354));
+        func_002baac0((u8 *)(*(s32 *)(work + 0x1F354)));
         func_002bad10(0);
         *(s32 *)(work + 8) = 8;
         /* fallthrough */
@@ -1163,4 +1163,3 @@ s32 func_00370020(s32 arg0, u8 *arg1)
     *(u16 *)(arg1 + 8) = (u16)v;
     return 1;
 }
-

@@ -8,6 +8,30 @@ The objective is a clean C replacement for each first-party `INCLUDE_ASM` functi
 
 ## Current checkpoint
 
+2026-09-20 continuation: the assembled source verifies **6,398 of 6,860
+first-party functions MATCH, with 462 assembly fallbacks**. This is a gain of
+22 exact C functions over published `0360227`, including the earlier twelve
+committed recoveries and ten subsequently recovered camera, camp, and action
+functions. `001a4800`, `002e8410`, and `002411a0` are now accepted C; their
+pending descriptions in the older checkpoint below are historical.
+
+The current check recompiles 1,389 functions with the official verifier and
+preserves its actual object output. Every new target is independently compared
+after applying all code and owned-data relocations. Other report rows reuse
+the completed full verification in `recovered-camera-pair/` only with unchanged
+source/compiler inputs. Current counts are 8,033 MATCH / 4,687 ASM over all
+12,720 verified functions. The excluded GCC owner is not added to this count.
+
+Source and proof details are in
+`docs/probe_archive/First_party_continuation_20260920.md` and
+`build/first-party-resume-persist/assembled-proof/`. Remaining work includes
+the side-camera maximum/visibility boundary, the narrow battle-status setter,
+the render-state restoration contract, and further camp and sprite lifetimes.
+Saved non-exact candidates remain guarded or archived. Continue from the
+current source and its measured receipts, not old whole-owner snapshots.
+
+### Published checkpoint 0360227
+
 2026-09-20 recovery, rebased onto upstream `ff294a8`: complete-tree validation
 reports **6,376 of 6,860 first-party functions MATCH, with 484 assembly
 fallbacks**. The five additional C recoveries are `00232d80`, `00233bc0`,

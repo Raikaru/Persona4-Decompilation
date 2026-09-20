@@ -36,7 +36,7 @@ typedef struct BtlTarget {
 typedef struct BtlTargetPacketWork {
     BtlAction* source; // 0x00
     BtlAction* action; // 0x04
-    u8 data[0x1c];
+    u8 data[0x20]; /* P4 result payload; P3FES uses 0x1c. */
     u16 effect;
     u16 targetFlags;
 } BtlTargetPacketWork;
@@ -342,7 +342,7 @@ void func_001f36b0(void* arg)
 
 
 // FUN_001F36E0
-BtlPacket* func_001f36e0(s32 param_1, s32 param_2, void* param_3, s16 param_4, s16 param_5)
+BtlPacket* func_001f36e0(s32 param_1, s32 param_2, const void* param_3, u16 param_4, u16 param_5)
 {
     BtlPacket* packet;
     u8* work;
@@ -355,8 +355,8 @@ BtlPacket* func_001f36e0(s32 param_1, s32 param_2, void* param_3, s16 param_4, s
     *(s32*)(work + 0) = param_1;
     *(s32*)(work + 4) = param_2;
     func_0043f810(work + 8, param_3, 0x20);
-    *(s16*)(work + 0x28) = param_4;
-    *(s16*)(work + 0x2a) = param_5;
+    *(u16*)(work + 0x28) = param_4;
+    *(u16*)(work + 0x2a) = param_5;
     return packet;
 }
 // FUN_001F37B0
