@@ -6085,6 +6085,16 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002cdf80);
    the repeated 0b20/cacd0 chains, but the 30-instr delete at retail[1505:1535]
    plus the four duplicated jal pairs are real; dropping the 8 redundant calls
    saves 28 instr and 60 edits (-5 words) with the count still in band. */
+/* measured 002d1590 (owner, 2026-09-19): fnalign **2141 -> 2140 edits**, count
+   2621 -> 2619 against retail 2642, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_002D1590 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_002d1590(void *arg0)
@@ -6575,11 +6585,13 @@ LAB1898_skip:
     func_002e04f0(*(void **)(work + 0xCA8), 0, 1);
     func_002e04f0(*(void **)(work + 0xCB8), 0, 1);
     func_002e04f0(*(void **)(work + 0xEAC), 0, 1);
-    for (i = 0; i < 3; i++) {
+    i = 0;
+    do {
         q = work + i * 4;
         func_002e04f0(*(void **)(q + 0xDBC), 0, 1);
         func_002e04f0(*(void **)(q + 0xE88), 0, 1);
-    }
+        i++;
+    } while (i < 3);
     func_002e04f0(*(void **)(work + 0xCAC), 0, 1);
     func_002e04f0(*(void **)(work + 0xE84), 0, 1);
     func_002e04f0(*(void **)(work + 0xC94), 0, 1);

@@ -2708,6 +2708,16 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00167560);
    strength-reduction, loop-invariants, dead-assignments and unroll-loops all
    tie at 158 before the block-scope fix; `schedule on` 209 and `peephole off`
    197.  Two-definition pinning of the pair pointer ties at 158. */
+/* measured 001679d0 (owner, 2026-09-19): fnalign **85 -> 81 edits**, count
+   228 -> 226 against retail 228, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_001679D0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -2765,9 +2775,11 @@ s32 func_001679d0(u8 *arg0)
                     } else {
                         s32 k;
 
-                        for (k = 0; k < 5; k++) {
+                        k = 0;
+                        do {
                             func_0047ae10(*(s32 *)(unit + 0x50), k & 0xFFFF);
-                        }
+                            k++;
+                        } while (k < 5);
                         func_0047d140(*(s32 *)(unit + 0x50));
                     }
                     n = *(s32 *)(work + 0x14);

@@ -351,6 +351,16 @@ void func_001607e0(void)
 #pragma opt_propagation on
 /* measured: 655wd via probe_variants (fnalign retail 760 vs object 779, +19 +2.5% inside 3% gate, 527 edits +8 reloc); opt_common_subs off 677->655 load-bearing; opt_loop_invariants on 677->699 regress, opt_unroll_loops off/schedule off tie at 677, direct subscript ((s32*)P)[j+N] 655->687 regress so materialized p=base+row+j*4 kept, decl swaps i/j and curOff/prevOff tie at 655; residual is saved-reg coloring + FPU lerp/madd ordering + lbu/sb scheduling, time-boxed per batch recipe. */
 /* 2026-09-19: materialisation-surplus removal per assignment (over by 19): lui audit retail {0x3f80:3, 0x7e:1, 0x79:2, 0x16:2} vs object {0x3f80:6, 0:5} => +3 float 1.0f (blend<1.0f, 1.0f/D_007643B4, nb>1.0f, =1.0f, 1.0f-b, b<1.0f; retail keeps 1.0f in reg, CSE-off reloads each). Frame retail -0x1f0 vs object -0x200 (+16 from colsA+colsB both live). Removed #pragma opt_common_subs off/on (CSE on): fnalign retail 760 vs object 754 (-6, -0.8%; stripped 758 vs 754 -4), lui {0x3f80:3} exact, frame -0x1f0 exact, words 677 (+22), edits 518 +11 reloc. Count lands inside gate with surplus gone; words cost accepted per assignment. */
+/* measured 00160880 (owner, 2026-09-19): fnalign **518 -> 516 edits**, count
+   754 -> 752 against retail 758, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_00160880 NONMATCHING
 #ifdef NON_MATCHING
 void func_00160880(void)
@@ -430,7 +440,8 @@ void func_00160880(void)
     base = iGpffffb2b0;
     bright = D_007643A4;
     alpha = iGpffff9ef8;
-    for (i = 0; i < 7; i++) {
+    i = 0;
+    do {
         s32 curRow = curOff + i * 0x24;
         s32 prevRow = prevOff + i * 0x24;
         u8 *vtxRow = D_007E4320 + (i << 11);
@@ -586,7 +597,8 @@ void func_00160880(void)
                 *(s32 *)(res + 20) = 0;
             }
         }
-    }
+        i++;
+    } while (i < 7);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_00160880);
@@ -1867,6 +1879,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016b8a0);
    The real state: the body is about 200 instructions short and the missing code has to be
    written.  No differing-word score measured against it is comparable to one measured
    inside the gate (handoff 7y). */
+/* gate: func_0016bdd0 is OUTSIDE the +-3% band at 2116 against retail 2319 (-8.8%, band
+   2249-2389).  203 instructions SHORT, so whole regions are missing and no edit or word
+   score measured against this body is comparable to an in-band one (handoff 7y).
+   `#pragma optimization_level 1` was tried on this function earlier and reverted: it
+   moved the word score without improving the edit count, which is exactly the inflation
+   the 7aw pair rule exists to reject.  Write the missing code first. */
 // FUN_0016BDD0 NONMATCHING
 #ifdef NON_MATCHING
 extern int FUN_003e0870();

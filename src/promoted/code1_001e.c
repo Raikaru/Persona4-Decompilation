@@ -3089,6 +3089,16 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
    Do not re-test declaration order: on func_001b11c0, the same class of transposition,
    four declaration orders measured 12, 12, 5 and 12 against a baseline of 5, so MWCC is
    not colouring by declaration. */
+/* measured 001ed700 (owner, 2026-09-19): fnalign **887 -> 871 edits**, count
+   686 -> 684 against retail 687, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_001ED700 NONMATCHING
 #ifdef NON_MATCHING
 void func_001ed700(f32 radius)
@@ -3268,7 +3278,8 @@ void func_001ed700(f32 radius)
         best = NULL;
         bestDist = 7000.0f;
         for (group = *(u8 **)(iGpffffb3ac + 0x318); group != NULL; group = *(u8 **)(group + 0x4CC)) {
-            for (j = 0; j < 4; j++) {
+            j = 0;
+            do {
                 delta[0] = *(f32 *)(group + j * 0x130 + 8) - wpos[0];
                 delta[1] = *(f32 *)(group + j * 0x130 + 12) - wpos[1];
                 dist = func_003e41b0(delta);
@@ -3277,7 +3288,8 @@ void func_001ed700(f32 radius)
                     best = group + j * 0x130 + 8;
                     bestDist = dist;
                 }
-            }
+                j++;
+            } while (j < 4);
         }
         if (best == NULL) {
             *(f32 *)(iGpffffb3ac + i * 0x130 + 0x330) = -1.0f;

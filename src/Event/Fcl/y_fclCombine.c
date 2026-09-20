@@ -414,6 +414,16 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002e8410);
 /* measured: retail 2152 instrs / object 2159 instrs (+0.3%, gate 2087-2217, mid-band), */
 /* fnalign 3164 edits, frame object -0x200 exact. File idioms per 003097e0/002eb270: */
 /* no (s64) first-arg casts, no &0xFFFF masks, D_ tables without (s32)&; production stays ASM. */
+/* measured 002e90d0 (owner, 2026-09-19): fnalign **3164 -> 3141 edits**, count
+   2159 -> 2157 against retail 2152, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_002E90D0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002e90d0(u8 *arg0)
@@ -1074,14 +1084,16 @@ void func_002e90d0(u8 *arg0)
   }
   else if (temp_v10 == '\x14') {
     temp_v10 = -1;
-    for (temp_v9 = 0; temp_v9 < 2; temp_v9 = temp_v9 + 1) {
+    temp_v9 = 0;
+    do {
       temp_v6 = func_00106330(*(u32 *)(D_00641870 + temp_v9*8 + 4));
       if ((temp_v6 == 0) &&
          (temp_v12 = func_00109190(), (float)(s32)*(s8 *)(D_00641870 + temp_v9*8) <= temp_v12 * 100.0))
       {
         temp_v10 = (s8)temp_v9;
       }
-    }
+        temp_v9++;
+    } while (temp_v9 < 2);
     base[0x13f] = temp_v10;
     if (temp_v10 == -1) {
       base[1] = 0x17;

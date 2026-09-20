@@ -180,6 +180,16 @@ s32 func_003645c0(char *out, s32 value)
    docs/probe_archive/LaneShdMisc_00364680_v3_body.c --quiet`. Residual is lui +6, nop +5, addu +1 with
    bytes in s4-s1 (retail s5-s2) and the swbase loads absolute where retail
    caches - saved-register coloring/scheduling floor. Production stays ASM. */
+/* measured 00364680 (owner, 2026-09-19): fnalign **160 -> 157 edits**, count
+   383 -> 381 against retail 372, by turning one constant-bound `for` loop into
+   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
+   with a guard before the first iteration; retail has none, because the loop provably
+   runs at least once and the original source said so.
+   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
+   which that sweep could not see.  Across the 40 floors with the most constant-bound
+   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
+   was ever the right one, so each loop is measured separately rather than converting
+   them all. */
 // FUN_00364680 NONMATCHING
 #ifdef NON_MATCHING
 void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, f32 fparg6, u8 *ptr, s32 arg2, s32 arg3) {
@@ -296,13 +306,15 @@ void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32
     verts[2][1] = fparg2 + fparg6;
     verts[3][0] = fparg1;
     verts[3][1] = fparg2 + fparg6;
-    for (i = 0; i < 4; i++) {
+    i = 0;
+    do {
         f32 *row = &verts[i][0];
         row[8] = (f32)(u32)temp_21;
         row[9] = (f32)(u32)temp_20;
         row[10] = (f32)(u32)temp_19;
         row[11] = (f32)(u32)temp_18;
-    }
+        i++;
+    } while (i < 4);
     drawbase[0](4, verts, 4);
 }
 #else
