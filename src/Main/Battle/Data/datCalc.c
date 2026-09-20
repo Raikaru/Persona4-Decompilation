@@ -3807,6 +3807,17 @@ extern s32 func_00243e30(u16 *arg0);
 
 /* measured: guarded floor for func_0023a6b0 (retail 12336B window, 3084 instrs). Candidate object 12312B/3078 instrs (-24B/-6, -0.2% inside 3% gate 2991-3177); fndiff 2615 words (reloc-masked), fnalign 2131 edits (+15 reloc-only). Switch 0-15 with empty 0/5 for retail sltiu 0x10 bound (jtbl_00747C40 16 entries; 0,5 share default 0x23D330); 44 fresh s32 counters with while+goto-done, (u16)ctr*2 indexing, (s32)((u32)(u16)00106cd0&0xFFFF)+bltz and (s16)temp_2 dsll32/dsra32 fallback per matched 00242990; s32-only (no s64); val via u32 00109870 ($v0 preserved) else iGpffffb3c8 table with (raw&0xFF00)<<16|(raw&0xFFFF00FF)*5 and (val&0xFFFF)==0 guard per 0023a620. Production stays ASM. */
 /* measured 2026-09-19 (0023a6b0 tail pass, sibling 00238940 untouched): fnalign 2131 -> 1079 edits (+15 -> +23 reloc-only), object 3078 -> 3070 instrs vs retail 3080 (-0.3%, inside 3% gate). tail_classify structure 237 -> 215, register 115 -> 100. Banked, in order on top of the old floor body: (1) 00109870 2nd arg temp_16 -> (arg1 & 0xFFFF) reproduces retail andi $a1,$s3,0xFFFF and the raw/extended $s3/$s0 coloring, -95 edits +1 instr; (2) 16x t0-mediated 001069d0(t0) -> nested 001069d0(00106cd0(...)) for retail move $a0,$v0 (micro-proven: s16 call result forwarded needs no extend), -24 edits -16 instrs, dead s16 t0 dropped (neutral); (3) 8x found==0/else-acc flattened onto one shared acc|=0x10000000 (bnez-to-OR, found=0-goto-chk shape per retail 13C2D0-39C), -60 edits -8 instrs; (4) switch cases 8-15 reordered to retail layout 9,8,10,13,11,15,14,12 (jtbl_00747C40: 8->C20C, 9->BF98, 10->C480, 11->CBDC, 12->D0C4, 13->C6F4, 14->CE50, 15->C968; value<->body mapping verified per-address, call census 44/44/44/60/16 exact), -824 edits count-neutral, kills the SequenceMatcher phantom deletes; (5) tail val-merges factored (((val&M)|ACC)&0xFFFF0000)|C per retail ori/and/or/lui/and/ori chains (micro-proven mask-reuse of guard lui), hasFlag!=0 -> ==1 for retail bne-1, -49 edits +15 instrs. Tail C verified semantically identical to retail throughout (A1 guard 0x7000000, A1/A2/B4 factored forms all net-equal). Recorded negatives (not banked): (s16)temp_2 -> temp_2 neutral (s16 params force the extend anyway); head || split into 3 ifs +6 edits +11 instrs (duplicated 100-epilogues), goto-shared-return -1 edit +7 instrs (reject: terrible ratio, uglifies); opt_loop_invariants on byte-identical hunks (inert here, unlike 00232d80); s16 sid/t0-holder for idu extend-once: micro-exact locally, +195 whole-function either way (live-range pressure across the 44 counters, floor). Residual is the 3-value loop-register rotation floor (counter/limit/const $a2/$a1/$a0 vs $a1/remat, same idiom 00232d80 measured unfixable), the idu extend-hoist floor above, the head ||-range fold, branch-cascade displacements, and ~320 SequenceMatcher phantom edits over the near-identical case bodies (zone multiset differs by ~10 instrs only). Production stays ASM. */
+/* measured 0023a6b0 (owner, 2026-09-19): fnalign **1079 -> 805 edits**, count
+   3070 -> 3070 against retail 3080, by putting the switch arms in the order the
+   JUMP TABLE uses rather than ascending case order.  The layout is read out of the
+   retail ELF - the `sltiu` bound gives the entry count, each 4-byte entry gives an
+   arm address, and sorting the case values by arm address is the order retail
+   emitted them in; entries sharing the most common address are the default.
+   Ascending order is what a lowered if-CHAIN wants.  A jump table already encodes
+   its own order and the source has to agree with it.  Swept over every first-party
+   floor with a table: 20 were already in layout order, 5 improved (274, 88, 50, 37
+   and 7 edits) and 13 got worse, so it is measured per function like every other
+   spelling. */
 // FUN_0023A6B0 NONMATCHING
 #ifdef SKIP_ASM
 s32 func_0023a6b0(u8 *arg0, s32 arg1)
@@ -4009,10 +4020,6 @@ done_p3:
         }
     }
     switch (temp_16) {
-    case 0:
-        break;
-    case 5:
-        break;
     case 1:
         cnt = func_0023e130(arg0) & 0xFFFF;
         base = func_0023e140(arg0);
@@ -4873,80 +4880,6 @@ done_13_c:
             acc |= 0x1000000;
         }
         break;
-    case 11:
-        cnt = func_0023e130(arg0) & 0xFFFF;
-        base = func_0023e140(arg0);
-        ctr_32 = 0;
-        while ((ctr_32 & 0xFFFF) < (cnt & 0xFFFF)) {
-            if (*(u16 *)(base + (u16)ctr_32 * 2) == 0x22A) {
-                found = 1;
-                goto done_11_a;
-            }
-            ctr_32 = (ctr_32 + 1) & 0xFFFF;
-        }
-        if ((*(u16 *)arg0 & 4) == 0) {
-            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
-            if (temp_2 >= 0) {
-                if (func_001069a0((s16)temp_2) == 0x22A) {
-                    found = 1;
-                    goto done_11_a;
-                }
-            }
-        }
-        found = 0;
-done_11_a:
-        if (found != 0) {
-            goto acc_11_b;
-        }
-        if ((*(u16 *)arg0 & 4) != 0) {
-            found = 0;
-            goto chk_11_b;
-        }
-        idu = *(u16 *)(arg0 + 2);
-        if (idu >= 0xB) {
-            func_0046d730(D_00635938, 0x23B);
-        }
-        if ((func_001069d0(func_00106cd0((s16)idu, 0)) & 0xFFFF) == 0x4E) {
-            found = 1;
-            goto chk_11_b;
-        }
-        if ((func_001069d0(func_00106cd0((s16)idu, 1)) & 0xFFFF) == 0x4E) {
-            found = 1;
-            goto chk_11_b;
-        }
-        found = 0;
-chk_11_b:
-        if (found == 0) {
-            goto skp_11_b;
-        }
-acc_11_b:
-        acc |= 0x10000000;
-skp_11_b:
-        cnt = func_0023e130(arg0) & 0xFFFF;
-        base = func_0023e140(arg0);
-        ctr_33 = 0;
-        while ((ctr_33 & 0xFFFF) < (cnt & 0xFFFF)) {
-            if (*(u16 *)(base + (u16)ctr_33 * 2) == 0x1D6) {
-                found = 1;
-                goto done_11_c;
-            }
-            ctr_33 = (ctr_33 + 1) & 0xFFFF;
-        }
-        if ((*(u16 *)arg0 & 4) == 0) {
-            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
-            if (temp_2 >= 0) {
-                if (func_001069a0((s16)temp_2) == 0x1D6) {
-                    found = 1;
-                    goto done_11_c;
-                }
-            }
-        }
-        found = 0;
-done_11_c:
-        if (found != 0) {
-            acc |= 0x1000000;
-        }
-        break;
     case 15:
         cnt = func_0023e130(arg0) & 0xFFFF;
         base = func_0023e140(arg0);
@@ -5017,6 +4950,80 @@ skp_15_b:
         }
         found = 0;
 done_15_c:
+        if (found != 0) {
+            acc |= 0x1000000;
+        }
+        break;
+    case 11:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_32 = 0;
+        while ((ctr_32 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_32 * 2) == 0x22A) {
+                found = 1;
+                goto done_11_a;
+            }
+            ctr_32 = (ctr_32 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x22A) {
+                    found = 1;
+                    goto done_11_a;
+                }
+            }
+        }
+        found = 0;
+done_11_a:
+        if (found != 0) {
+            goto acc_11_b;
+        }
+        if ((*(u16 *)arg0 & 4) != 0) {
+            found = 0;
+            goto chk_11_b;
+        }
+        idu = *(u16 *)(arg0 + 2);
+        if (idu >= 0xB) {
+            func_0046d730(D_00635938, 0x23B);
+        }
+        if ((func_001069d0(func_00106cd0((s16)idu, 0)) & 0xFFFF) == 0x4E) {
+            found = 1;
+            goto chk_11_b;
+        }
+        if ((func_001069d0(func_00106cd0((s16)idu, 1)) & 0xFFFF) == 0x4E) {
+            found = 1;
+            goto chk_11_b;
+        }
+        found = 0;
+chk_11_b:
+        if (found == 0) {
+            goto skp_11_b;
+        }
+acc_11_b:
+        acc |= 0x10000000;
+skp_11_b:
+        cnt = func_0023e130(arg0) & 0xFFFF;
+        base = func_0023e140(arg0);
+        ctr_33 = 0;
+        while ((ctr_33 & 0xFFFF) < (cnt & 0xFFFF)) {
+            if (*(u16 *)(base + (u16)ctr_33 * 2) == 0x1D6) {
+                found = 1;
+                goto done_11_c;
+            }
+            ctr_33 = (ctr_33 + 1) & 0xFFFF;
+        }
+        if ((*(u16 *)arg0 & 4) == 0) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+            if (temp_2 >= 0) {
+                if (func_001069a0((s16)temp_2) == 0x1D6) {
+                    found = 1;
+                    goto done_11_c;
+                }
+            }
+        }
+        found = 0;
+done_11_c:
         if (found != 0) {
             acc |= 0x1000000;
         }
@@ -5169,6 +5176,10 @@ done_12_c:
             acc |= 0x1000000;
         }
         break;
+    case 0:
+        break;
+    case 5:
+        break;
     }
     if (temp_16 == 0xE || temp_16 == 0xB || temp_16 == 0xF || temp_16 == 10 || temp_16 == 8) {
         cnt = func_0023e130(arg0) & 0xFFFF;
@@ -5247,7 +5258,6 @@ done_1db:
     }
     return (s32)val;
 }
-
 #else
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023a6b0);
 #endif
