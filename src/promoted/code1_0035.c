@@ -1886,7 +1886,7 @@ void func_00356a10(u8 *arg0) {
         } else {
             var_3 = (((s32)((temp_f1 - 2.1474836e9f))) | 0x80000000) & 0xFF;
         }
-        func_0034c270(((s64)(spF0)), var_3 & 0xFF, *( s32 *)((u8 *)(arg0) + (0x10)), 0);
+        func_0034c270((*(s64 *)&spF0), var_3 & 0xFF, *( s32 *)((u8 *)(arg0) + (0x10)), 0);
     }
     if (*( s32 *)((u8 *)(arg0) + (0x1C)) & 1) {
         var_16 = 0;
@@ -1984,8 +1984,8 @@ loop_22:
         } else {
             var_f20 = 2.0f * (f32) ((temp_2_6 >> 1) | (temp_2_6 & 1));
         }
-        temp_20 = (s64) (((s64)((func_0046b260(temp_19) / 2.0f))) << 0x30) >> 0x30;
-        temp_3_2 = (s64) (((s64)((func_0046b2f0(temp_19) / 2.0f))) << 0x30) >> 0x30;
+        temp_20 = (s64)(s16)(func_0046b260(temp_19) / 2.0f);
+        temp_3_2 = (s64)(s16)(func_0046b2f0(temp_19) / 2.0f);
         if (2.1474836e9f <= var_f20) {
             var_9 = 0x4F000000 & 0xFFFF;
         } else {
@@ -2017,8 +2017,8 @@ loop_22:
         } else {
             var_f20_2 = 2.0f * (f32) ((temp_2_8 >> 1) | (temp_2_8 & 1));
         }
-        temp_17 = (s64) (((s64)((func_0046b260(temp_19) / 2.0f))) << 0x30) >> 0x30;
-        temp_3_3 = (s64) (((s64)((func_0046b2f0(temp_19) / 2.0f))) << 0x30) >> 0x30;
+        temp_17 = (s64)(s16)(func_0046b260(temp_19) / 2.0f);
+        temp_3_3 = (s64)(s16)(func_0046b2f0(temp_19) / 2.0f);
         if (2.1474836e9f <= var_f20_2) {
             var_9_2 = 0x4F000000 & 0xFFFF;
         } else {
@@ -2332,8 +2332,8 @@ loop_22:
             spF0 = 21.5f + temp_f25;
             spF4 = 42.0f + temp_f24;
             temp_19_5 = (s32)(*( s32 *)((u8 *)(arg0) + (0x127C)));
-            temp_18 = (s64) (((s64)((func_0046b260(temp_19_5) / 2.0f))) << 0x30) >> 0x30;
-            func_0034f320(temp_19_5, 0x18U, 0U, 8U, (s32)temp_20_4, 0x1000, 0x1000, temp_18, spF0, spF4, 0, *( f32 *)((u8 *)(arg0) + (0x30)), (s64) (((s64)((func_0046b2f0(temp_19_5) / 2.0f))) << 0x30) >> 0x30);
+            temp_18 = (s64)(s16)(func_0046b260(temp_19_5) / 2.0f);
+            func_0034f320(temp_19_5, 0x18U, 0U, 8U, (s32)temp_20_4, 0x1000, 0x1000, temp_18, spF0, spF4, 0, *( f32 *)((u8 *)(arg0) + (0x30)), (s64)(s16)(func_0046b2f0(temp_19_5) / 2.0f));
             break;
         case 3:                                     /* switch 3 */
             temp_f12_4 = 79.0f + temp_f25;
@@ -2525,7 +2525,7 @@ loop_222:
     } else {
         var_3_13 = (((s32)((temp_f1_19 - 2.1474836e9f))) | 0x80000000) & 0xFF;
     }
-    func_0034f9d0(((s64)(spF0)), var_3_13 & 0xFF, *( s16 *)((u8 *)(arg0) + (0x14C)), *( s32 *)((u8 *)(arg0) + (0x1304)), 0);
+    func_0034f9d0((*(s64 *)&spF0), var_3_13 & 0xFF, *( s16 *)((u8 *)(arg0) + (0x14C)), *( s32 *)((u8 *)(arg0) + (0x1304)), 0);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00356a10);

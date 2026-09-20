@@ -1,22 +1,34 @@
 #!/usr/bin/env python3
-"""Find guarded bodies that pull in compiler helper calls retail does not make.
+"""Count MWCC runtime-helper calls in the object compiled from a guarded body.
 
 The EE has no hardware doubles and no 64-bit float conversions, so MWCC calls
-into its runtime for them.  Every such call is a `jal` the retail function
-does not have, plus the argument shuffling around it, and it is always caused
-by a width or literal mistake in the reconstruction rather than by anything
-retail did:
+into its runtime for them.  Where the reconstruction makes such a call, the
+cause is a width or literal mistake:
 
     __fixsfdi   float -> s64     an `s64` temp that should be `s16`/`s32`
     __floatdisf s64 -> float     the same, in the other direction
     __adddf3 and friends         a bare `1.5` literal, which is a double
 
 On `func_002db400` narrowing the `s64` temps removed 13 `__fixsfdi` calls and
-took the floor from 1744 to 102 edits.  On `func_00471370`, 86 unsuffixed
-constants were pulling in about 155 double-emulation calls.
+took the floor from 1744 to 102 edits.  On `func_00235520` the census went
+8 -> 0 and the object shortened by 24.
 
-This compiles each guarded body and counts the helper calls in the OBJECT,
-so it reports the defect directly rather than inferring it from a symptom.
+SCOPE, stated exactly, because an earlier version of this docstring claimed
+more than the tool does.  This counts the OBJECT side only.  The retail side
+is NOT machine-checked, and cannot be from the material in this repo:
+
+  * `asm/nonmatchings/*.s` disassembles every callee as `jal func_XXXXXXXX`
+    from its address, so a helper call there carries no helper name and a
+    symbol scan of the asm would report zero for every function, always.
+  * the retail image `orig/SLUS_217.82` exports no symbol table, and the
+    linked `build/slus21782.elf` has no helper symbols either, so there is no
+    address to compare a retail `jal` target against.
+
+So a nonzero census means "this body calls a runtime helper", not "retail does
+not".  That second half has held on every floor examined so far - the helpers
+disappear when a width is corrected, and the object moves toward retail when
+they do - but it is an argument from evidence, not something this output
+establishes.  Treat a hit as a strong lead to verify, not a proven defect.
 """
 from __future__ import annotations
 
@@ -61,7 +73,8 @@ def main() -> None:
         total = sum(found.values())
         detail = "  ".join(f"{name} x{count}"
                            for name, count in sorted(found.items(), key=lambda kv: -kv[1]))
-        print(f"{function}  {total} helper calls in the object: {detail}", flush=True)
+        print(f"{function}  {total} helper calls in the OBJECT "
+              f"(retail side not machine-checked): {detail}", flush=True)
 
 
 if __name__ == "__main__":
