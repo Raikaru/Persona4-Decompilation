@@ -2815,7 +2815,15 @@ void func_003599a0(u8 *arg0)
    with bodies loop,2,3 per M2C order 1/0,2,3); unsigned av for divu. Honest: slti for retail
    slti, sltiu only where retail sltiu (isSelf ==), u8/u16 casts, s128 quad, indirect D_00887300[0];
    prototypes per recon (0034f320 x13, 0045d6e0 x4, 00246830 returns u8 *). No sltiu-for-slti,
-   no s64 flat, no opt_propagation, no volatile, no asm. */
+   no s64 flat, no opt_propagation, no volatile, no asm.
+   Deficit-vs-composition (2026-09-20): deficit is 17; `deficit_scan` classes the large runs CROSS
+   (125 at 0x35a02c, 96 at 0x359cfc paired 2/92 nearby, 60 at 0x35a400), so the composition
+   223 missing / 212 extra (7 deletes, 11 inserts, 74 replaces with 71 <=13) is alignment artefact
+   of the repeated (u16) clamp + 0034f320 idiom, not unwritten code. Counterparts: obj 92
+   (164:256) against ret 96 (207:303) col[3]/rc/o2 block; obj 79+42 (383:462, 337:379) against
+   ret 125 (411:536) 0x11ec block; obj 21 (632:653) against ret 60 (656:716) 0x122c block.
+   Probes: f3 via b1 1173/854/223/212 unchanged; f0v load late 1175/852/223/212 (adds lq, worse).
+   No mass apply; body left unchanged, in band near finished. */
 // FUN_003599C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_003599c0(s32 arg0, u8 *arg1)
