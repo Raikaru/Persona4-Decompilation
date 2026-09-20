@@ -35,6 +35,31 @@ class QuadwordDecodeTests(unittest.TestCase):
         self.assertEqual(eedis.quadword_access(word.to_bytes(4, "little")),
                          "sq $s0, -0x10($sp)")
 
+    def test_lqc2_is_a_vu_load_not_an_octeon_branch(self) -> None:
+        """Capstone reads major opcode 0x36 as Octeon `bbit0` and renders the
+        displacement as a pc-relative BRANCH TARGET, so two byte-identical
+        `lqc2` rows at different addresses disassembled differently and
+        compared unequal.  Every VU load and store counted as an edit."""
+        self.assertEqual(eedis.quadword_access(bytes.fromhex("40008ADA")),
+                         "lqc2 $vf10, 0x40($s4)")
+
+    def test_sqc2_is_a_vu_store(self) -> None:
+        self.assertEqual(eedis.quadword_access(bytes.fromhex("0000AAF8")),
+                         "sqc2 $vf10, 0x0($a1)")
+
+    def test_the_vu_forms_name_a_vector_register_not_a_gpr(self) -> None:
+        """`lqc2 $vf11` and `lq $s5` take their register number from the same
+        field but from different files; printing `$s5` for a VU transfer would
+        make two different instructions read alike."""
+        self.assertIn("$vf11", eedis.quadword_access(bytes.fromhex("00008BDA")))
+        self.assertIn("$s5", eedis.quadword_access(bytes.fromhex("6000B57F")))
+
+    def test_the_same_vu_load_decodes_alike_at_any_address(self) -> None:
+        """The defect in one line: the text must not depend on the pc."""
+        disassemble = eedis.build(lambda word, pc: f"bbit032 $v0, 0xb, {pc:#x}")
+        word = bytes.fromhex("00008BDA")
+        self.assertEqual(disassemble(word, 0x004859B8), disassemble(word, 0x148))
+
     def test_an_ordinary_instruction_is_left_to_capstone(self) -> None:
         self.assertIsNone(eedis.quadword_access(bytes.fromhex("7000BFFF")))  # sd
         self.assertIsNone(eedis.quadword_access(bytes.fromhex("20FBBD27")))  # addiu
