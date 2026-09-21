@@ -77,3 +77,17 @@ mwcc b119 -O4 -nosyspath -Iinclude/rw/std -Iinclude/rw/ps2 -Iinclude/rw/sky2
 ```
 compiles a TU that includes `rwcore.h` and `rpworld.h` and takes the size of
 eighteen core and world structs, with no errors and no warnings.
+
+## What these headers still do not give you
+
+An exported header describes an API. The driver's own objects - the texture
+cache, the raster extension, the DMA packet builders - live in `.c` files
+the SDK never shipped, so `rwcore.h` here *casts to* `_SkyRasterExt` and
+`_SkyTexCache` without ever defining them. Two more, `rwDMA_flipData` and
+`rwDMAReadCircuitOneTag`, are written out but sit behind
+`#if (defined(_LIBGRAPH_H) && defined(_EEREGS_H_))`, and this tree has no
+Sony `libgraph.h`, so the preprocessor never reaches them.
+
+Those thirteen structures were recovered from DWARF debugging information
+instead and live in `include/rw/sky2priv`, which documents the provenance
+and the checks against Persona 4 retail.
