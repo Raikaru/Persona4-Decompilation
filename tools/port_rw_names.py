@@ -17,8 +17,10 @@ deliberately narrow:
     byte-identical and all match `0x003C40D0` - and a colliding address
     tells you nothing about which name belongs to it.
 
-Measured against the 392 RenderWare names this repo already proves: 41 of
-the rule's claims are in that set, and it gets **41 of 41 right**. An
+Measured against the 392 RenderWare names this repo already proves: 3 of
+the rule's claims are in that set, and it gets **3 of 3 right** - the
+tree already owns most of the rest under its own names, which the
+ownership veto excludes on purpose. An
 earlier draft blanked ALL 16-bit immediates, which also erased stack
 sizes and field offsets - two different functions then compared equal.
 Preserving everything but demonstrated relocations is what makes the
@@ -50,6 +52,7 @@ how this note got written.
 from __future__ import annotations
 
 import argparse
+import json
 import collections
 import importlib.util
 import re
@@ -186,6 +189,73 @@ def _elf_spans(path: Path) -> list[tuple[int, int]]:
     return spans
 
 
+def vendor_family(name: str, authored: set, ref_addr: int | None = None) -> bool:
+    """Whether a reference name comes from a library this transfer covers.
+
+    The references carry their WHOLE image - game code, middleware, libc -
+    and a unique masked shape does not make a Criterion game class method
+    a Persona 4 fact. Authoritative membership is the Ballers RW DWARF
+    unit inventory (which includes non-Rw spellings like matrixASMMult
+    and DefaultGeomAnimCB); the spelling fallback covers libc and Sony
+    runtime symbols Ballers does not compile from source. C++-mangled
+    game names are rejected outright.
+    """
+    if "__" in name[2:] or re.match(r"^\w+__F", name):
+        return False                            # C++-mangled game code
+    if ref_addr is not None and (name, ref_addr) in authored:
+        return True                             # RW units, authoritative
+    return (name.startswith("__") or name in {
+        "atof", "atoi", "exit", "malloc", "calloc", "realloc", "free",
+        "memcpy", "memset", "memmove", "strcpy", "strncpy", "strlen",
+        "strcmp", "strncmp", "strcat", "sprintf", "qsort", "sinf",
+        "cosf", "tanf", "sqrtf", "powf", "logf", "expf", "fmodf",
+        "ceilf", "floorf", "atan2f", "asinf", "acosf", "fabsf"})
+
+
+def _target_owned() -> set:
+    """Canonical addresses the tree already implements under a real name.
+
+    Uses verify's own marker scan: every `// FUN_XXXXXXXX` marker paired
+    with what follows it. A marker followed by a named definition (not a
+    placeholder, not INCLUDE_ASM) is owned - e.g. CRI's `MWSTM_Create` at
+    0x00512138, which a vendor `atof` claim must not overwrite even
+    though the bytes happen to agree. INCLUDE_ASM markers are NOT owned;
+    those are exactly what this transfer is allowed to name.
+    """
+    owned = set()
+    for path in (REPO / "src").rglob("*.c"):
+        for marker in V.scan_markers(path):
+            if marker.get("asm") or marker.get("stub"):
+                continue
+            name = marker.get("name") or ""
+            if not name or re.match(r"^func_[0-9a-f]{8}$", name):
+                continue
+            owned.add(marker["addr"])
+    return owned
+
+
+def rw_unit_names() -> set:
+    """(name, reference address) pairs the Ballers DWARF attributes to a
+    RenderWare unit.
+
+    Keyed by address as well as name: a RW name attached to a different
+    address is not the DWARF's function, it is a same-named symbol
+    elsewhere in the image. Burnout contributes nothing here - it has no
+    DWARF unit inventory, so its symbols may only corroborate a claim
+    Ballers already originated.
+    """
+    pairs = set()
+    for path in ("ballers_rw_units.json", "ballers_sky2_units.json"):
+        try:
+            units = json.loads((REPO / "docs" / "sky2" / path).read_text())
+        except (OSError, ValueError):
+            continue
+        for fns in units.values():
+            for fn in fns:
+                pairs.add((fn["name"], int(fn["addr"], 16)))
+    return pairs
+
+
 def exact_claims(references: dict[str, Path], retail, windows):
     """retail address -> {name -> set of references proposing it}."""
     spans = [(vaddr, filesz) for vaddr, _offset, filesz in retail.segs]
@@ -202,14 +272,20 @@ def exact_claims(references: dict[str, Path], retail, windows):
              [_relaxed(word) if index in relocs else word
               for index, word in enumerate(raw)]))
 
+    authored = rw_unit_names()
+    owned = _target_owned()
     claims = collections.defaultdict(lambda: collections.defaultdict(set))
     widths: dict[int, int] = {}
+    ballers_first = list(references) == ["ballers"] + [
+        t for t in references if t != "ballers"]
     for tag, path in references.items():
         # One read per reference, not one per function: a 48 MB image read
         # 20k times is a terabyte of pointless page-cache traffic.
         ref_spans = _elf_spans(path)
         for name, _addr, body in fid.ReferenceElf(path).functions:
             if len(body) < 16 or not IDENTIFIER.match(name):
+                continue
+            if not vendor_family(name, authored, _addr):
                 continue
             raw_ref = fid.words(body)
             ref_relocs = _reloc_words(raw_ref, ref_spans)
@@ -229,6 +305,12 @@ def exact_claims(references: dict[str, Path], retail, windows):
                     if ref_relocs != {i for i in relocs if i < len(raw_ref)}:
                         continue
                     if all(a == b for a, b in zip(theirs, masked)):
+                        if their_addr in owned:
+                            continue
+                        rw_origin = (name, _addr) in authored
+                        if (tag != "ballers" and rw_origin
+                                and name not in claims[their_addr]):
+                            continue    # Burnout corroborates, never originates
                         claims[their_addr][name].add(tag)
                         widths[their_addr] = len(raw_ref)
     return claims, widths
@@ -253,12 +335,21 @@ def main() -> int:
     retail = V.RetailElf(config["retail_elf"], target, windows["sha1"])
     canonical = {int(address, 16) for address in windows["windows"]}
 
-    claims, widths = exact_claims(references, retail, windows)
+    # Ballers first: its DWARF gives RW claims authoritative origin, keyed
+    # by (name, reference address). Burnout may then only corroborate an
+    # existing claim - it never originates one, because it has no CU
+    # inventory to prove a same-named symbol is the same function.
+    ordered = {tag: references[tag] for tag in
+               ("ballers", "burnout") if tag in references}
+    ordered.update({t: p for t, p in references.items()
+                    if t not in ("ballers", "burnout")})
+    claims, widths = exact_claims(ordered, retail, windows)
     taken_names, taken_addresses = claimed_elsewhere()
 
     # A name may only be written once, so a name that fits several addresses
     # equally well identifies none of them.
     chosen: dict[int, tuple[str, set[str]]] = {}
+    authored = rw_unit_names()
     for address, names in sorted(claims.items()):
         if len(names) != 1 or address not in canonical or address in taken_addresses:
             continue
@@ -277,11 +368,18 @@ def main() -> int:
         "// beside it. Generated by tools/port_rw_names.py; rewritten",
         "// wholesale each run. Do not hand-edit.",
         "//",
-        "// A name is here only if a reference function is masked-identical to",
-        "// the retail window - every word equal after blanking jump targets",
-        "// and 16-bit immediates - and only if exactly one name claims that",
-        "// address. Measured 35 of 35 correct against the names this repo",
-        "// already proves; see the module docstring.",
+        "// A name is here only if the reference function is",
+        "// relocation-class-identical to the retail window: every word",
+        "// byte-exact except at demonstrated relocations (j/jal targets,",
+        "// gp-relative offsets, and a lui whose very next instruction",
+        "// consumes it as %lo with a loadable-segment address), with both",
+        "// sides agreeing on where the relocations are, and only if exactly",
+        "// one name claims that address. Measured 3 of 3 correct against the",
+        "// names this repo already proves; see the module docstring.",
+        "//",
+        "// Ballers' DWARF originates every RenderWare claim; Burnout (no CU",
+        "// inventory) may only corroborate - except CRT/libc spellings,",
+        "// which carry no CU provenance anywhere and stand on its symtab.",
         "//",
         "// Applying one is a separate decision: where the name is a declared",
         "// API the header's prototype becomes binding, so fix the signature",
@@ -292,12 +390,12 @@ def main() -> int:
     for address, (name, who) in sorted(chosen.items()):
         lines.append(
             f"{name} = 0x{address:08X}; // type:func  evidence: "
-            f"{'+'.join(sorted(who))} masked-exact over {widths[address]} words, "
+            f"{'+'.join(sorted(who))} reloc-identical over {widths[address]} words, "
             f"sole claimant")
     OUTPUT.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     skipped = sum(1 for names in claims.values() if len(names) > 1)
-    print(f"{len(claims)} addresses matched masked-exact; {skipped} skipped as "
+    print(f"{len(claims)} addresses reloc-identical; {skipped} skipped as "
           f"contested, {len(duplicated)} names dropped as reused")
     print(f"{len(chosen)} names -> {OUTPUT.relative_to(REPO)}")
     return 0
