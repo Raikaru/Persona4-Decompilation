@@ -137,6 +137,7 @@ void mwPlyChkSupply(MWPLY mwply)
 }
 
 /* the stream flow limits: 80% of the handle's sector count as the minimum, all of it as the maximum */
+// FUN_0050C590
 void MWSFPLY_SetFlowLimit(MWPLY mwply)
 {
 	Sint32 n = mwply->flow_nsct;

@@ -178,13 +178,13 @@ struct MWPLY_OBJ {
 	Sint32 nskipdisp;          /* 0x88 frames skipped by mwPlyGetCurFrm */
 	Sint32 pic_struct;         /* 0x8C */
 	Sint32 chroma_format;      /* 0x90 */
-	Sint32 x94;
-	Sint32 x98;
-	Sint32 x9c;
-	Sint32 chromapos_h;        /* 0xA0 */
-	Sint32 chromapos_v;        /* 0xA4 */
-	Sint32 xa8;
-	SFX_OBJ *sfx;              /* 0xAC */
+	/* P4: 9.44 is 0x10 shorter through here - retail reads picusr_ptr at
+	 * 0x17C and the flow limit at 0x1C8 where this layout has 0x18C and
+	 * 0x1D8. These four unnamed words are the 0x10, moved to the tail so
+	 * the code that touches them still compiles. */
+	Sint32 chromapos_h;        /* 0x94 in 9.44 */
+	Sint32 chromapos_v;        /* 0x98 */
+	SFX_OBJ *sfx;              /* 0x9C */
 	void *sfx_wk;              /* 0xB0 SFX handle work */
 	Sint32 sfx_wksiz;          /* 0xB4 */
 	Sint32 sfh_cnt;            /* 0xB8 Sofdec headers seen */
@@ -238,6 +238,10 @@ struct MWPLY_OBJ {
 	Sint32 x2b0;
 	Sint32 x2b4;               /* 0x2B4 cleared when the decoder is stopped */
 	Sint32 x3c;                /* relocated: 0x3C in 9.31, absent in 9.44 */
+	Sint32 x94;                /* relocated, as above */
+	Sint32 x98;
+	Sint32 x9c;
+	Sint32 xa8;
 };
 
 typedef struct {
