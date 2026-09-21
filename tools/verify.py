@@ -833,9 +833,16 @@ def unit_compile_flags(cpath: Path, flags: list[str]) -> list[str]:
 
 
 def _compile_gcc(cpath: Path, cfg: dict, output: Path) -> tuple[bool, str]:
+    # The ee-gcc units are vendor code and the CRI ones need their own header
+    # roots, the way the RenderWare block needs `include/rw/*`.  That set is
+    # declared in config/version_flags.txt like every other compiler-specific
+    # flag list, keyed by compiler rather than by unit; only the `-I` entries
+    # are taken, because the shim pins the optimisation level itself.
+    includes = [flag for flag in version_flags().get("eegcc296", [])
+                if flag.startswith("-I")]
     shim = TOOLS / "eegcc_shim.py"
     process = subprocess.run(
-        [sys.executable, str(shim), "-c", *cfg["compile_flags"],
+        [sys.executable, str(shim), "-c", *cfg["compile_flags"], *includes,
          "-o", str(output), str(cpath)],
         cwd=REPO,
         stdout=subprocess.PIPE,

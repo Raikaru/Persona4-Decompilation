@@ -1041,7 +1041,7 @@ void func_002e90d0(u8 *arg0)
       for (temp_v9 = 0; temp_v9 < 2; temp_v9++) {
         temp_v6 = func_00106330(*(u32 *)(D_00641870 + temp_v9*8 + 4));
         if ((temp_v6 == 0) &&
-           (temp_v12 = func_00109190(), (float)(s32)*(s8 *)(D_00641870 + temp_v9*8) <= temp_v12 * 100.0
+           (temp_v12 = func_00109190(), (float)(s32)*(s8 *)(D_00641870 + temp_v9*8) <= temp_v12 * 100.0f
            )) {
           temp_v10 = (s8)temp_v9;
         }
@@ -1093,7 +1093,7 @@ void func_002e90d0(u8 *arg0)
     do {
       temp_v6 = func_00106330(*(u32 *)(D_00641870 + temp_v9*8 + 4));
       if ((temp_v6 == 0) &&
-         (temp_v12 = func_00109190(), (float)(s32)*(s8 *)(D_00641870 + temp_v9*8) <= temp_v12 * 100.0))
+         (temp_v12 = func_00109190(), (float)(s32)*(s8 *)(D_00641870 + temp_v9*8) <= temp_v12 * 100.0f))
       {
         temp_v10 = (s8)temp_v9;
       }

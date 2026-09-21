@@ -51,3 +51,14 @@ src/promoted/code2_0070.c
 
 # Isolated fp-bit runtime conversion; do not switch its mixed original unit.
 src/middleware/gcc_fp.c
+src/cri/libadxe/adx_amp.c
+src/cri/libadxe/adx_baif.c
+src/cri/libadxe/adx_bau.c
+src/cri/libadxe/adx_bsc.c
+src/cri/libadxe/adx_bsps.c
+src/cri/libadxe/adx_errs.c
+src/cri/libadxe/adx_sjd.c
+src/cri/libadxe/adx_tlk2.c
+src/cri/libadxe/adx_xpnd.c
+src/cri/libadxe/cri_cvfs.c
+src/cri/libadxe/sj_mem.c
