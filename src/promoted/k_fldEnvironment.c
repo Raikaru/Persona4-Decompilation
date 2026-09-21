@@ -1,4 +1,3 @@
-#include "include_asm.h"
 #include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldEnvironment.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -8,11 +7,12 @@ extern void func_00161460(s32 arg0, s32 arg1, s32 arg2);
 extern void func_00161500(s32 arg0);
 
 extern s16 func_001060b0(void);
-extern s32 func_001060c0(void);
-extern s8 func_00110960(s64 arg0, s32 arg1);
+extern u8 func_001060c0(void);
+extern s64 func_00110960(s32 arg0, u32 arg1);
 extern s32 func_00154720(u16 arg0, u16 arg1, s64 arg2);
-extern s32 func_00106330(s32 arg0);
-extern u8 *func_0015a0c0(void);
+extern u32 func_00106330(s32 arg0);
+extern s32 func_0015a0c0(void);
+extern s32 func_0014a160(void);
 
 extern void func_0044ea90(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -436,72 +436,38 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
 // FUN_001546A0
 void func_001546a0(u16 arg0, u16 arg1)
 {
-    func_00154720(arg0, arg1, func_00110960(func_001060b0(), func_001060c0() & 0xFF));
+    func_00154720(arg0, arg1, (s8)func_00110960(func_001060b0(), func_001060c0() & 0xFF));
 }
 
-/* measured: block-3 func_0015a0c0 handling. Retail places the non-NULL load
-   OUT OF LINE (bnez $v0, load; b return; load: lbu; move; b return) spanning
-   8 instructions; the plain if/else and empty-if+else both compile the load
-   inline (beqz skip; lbu inline), shrinking the block by 8B and shifting the
-   switch dispatch + every later branch target by one word (nd 142). switch
-   form over the boolean adds a jump table (nd 196). Return type is s32
-   (retail does move $v0,$sN, no dsll32/dsra32 truncation; m2c's s16 is wrong).
-   var_18=$s2, var_19=$s3 (declare var_18 second). Case 5 of the jtbl_00746C20
-   switch goes straight to block_42 (own empty case needed). */
-/* measured: discarded positive-branch candidate object 980B/window 1008B, normalized_diff 232; restored to bare INCLUDE_ASM. */
-/* Floor: 177 differing words, from a first reconstruction of the m2c draft.
-   What it took: the state and the working value are 32-bit locals and the
-   returns carry no `(s16)` cast - each cast cost a dsll32/dsra32 pair that
-   retail does not have - and the arg2 case labels are written in the order
-   that makes the compare chain come out reversed, which is retail's.
-   A variant that moves the shared `common` block to the end of the switch
-   instead of the `default:` position scores 186 words but only 42 edit
-   instructions against 154 here, so its block layout is much closer to
-   retail's; the remaining difference there is a handful of un-inverted
-   branch pairs (retail keeps `beqz far` plus `b near` where this build
-   emits one inverted branch), which opt_rebuildconditionals,
-   no_branch_likely, schedule, propagation and dead-assignment do not
-   move. */
-/* measured this session: fresh probe 177wd / fnalign 193 edits (was 154 stale) confirms floor; slti inclusive (value>=3&&<9 -> >2&&<=8 fixes slti $at,$s3,3 dest to $at, tie 177wd; second $at already matches); short-by-N hunt checked (251 vs 250, 1 short, but shortfall is switch common-block layout per top-down fnalign, not trailing dead-arm chain). Banked. */
-/* measured 00154720 (owner, 2026-09-19): fnalign **193 -> 105 edits**, count
-   250 -> 248 against retail 251, by putting the switch arms in the order the
-   JUMP TABLE uses rather than ascending case order.  The layout is read out of the
-   retail ELF - the `sltiu` bound gives the entry count, each 4-byte entry gives an
-   arm address, and sorting the case values by arm address is the order retail
-   emitted them in; entries sharing the most common address are the default.
-   Ascending order is what a lowered if-CHAIN wants.  A jump table already encodes
-   its own order and the source has to agree with it.  Swept over every first-party
-   floor with a table: 20 were already in layout order, 5 improved (274, 88, 50, 37
-   and 7 edits) and 13 got worse, so it is measured per function like every other
-   spelling. */
-/* measured 00154720 (owner, 2026-09-19): fnalign **105 -> 101 edits**, count
-   248 -> 249 against retail 251, by putting one switch's arms in REVERSED
-   order.  Case order is EMISSION order and the right one is whatever retail emitted:
-   a chain converted to a switch wants ascending, a jump table wants the table's own
-   layout, and a `beq` chain with no table can want the reverse of the source order.
-   All three orderings were measured on every switch in this body and this is the
-   only one that improved it; swept across the 167 first-party floors carrying a
-   switch, just four responded at all. */
-// FUN_00154720 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_00154720(u16 arg0, u16 arg1, s64 arg2)
+/* Measured with configured MWCCPS2 b210 -O2: 1008 code bytes and the
+ * complete 14-entry kind table match retail. The event helper owns its null
+ * fallback return separately from the ordinary condition/period mapping. */
+static inline s32 fldEnvironmentEventState(s32 state)
 {
-    extern s32 func_001060c0(void);
-    extern s32 func_00106330(s32 id);
-    extern s32 func_0014a160(void);
-    extern u8 *func_0015a0c0(void);
-    s32 value;
-    s32 hour;
+    u8 *entry;
+
+    entry = (u8 *)func_0015a0c0();
+    if (entry == NULL) {
+        return state;
+    }
+    state = *(u8 *)(entry + 0xD);
+    return state;
+}
+
+// FUN_00154720
+s32 func_00154720(u16 fieldKind, u16 baseState, s64 condition)
+{
+    s32 environmentState;
+    s32 period;
     s32 result;
     s32 state;
     s32 kind;
-    s32 weather;
-    u8 *entry;
+    s32 currentPeriod;
 
-    state = arg1;
-    value = state;
-    weather = func_001060c0() & 0xFF;
-    kind = arg0;
+    state = baseState;
+    environmentState = state;
+    currentPeriod = func_001060c0() & 0xFF;
+    kind = fieldKind;
     if (kind == 0x1C && state == 2) {
         if (func_00106330(0xF52) == 1) {
             result = 3;
@@ -514,122 +480,116 @@ s32 func_00154720(u16 arg0, u16 arg1, s64 arg2)
         return state;
     }
     if ((kind < 0x14 || kind >= 0x28) && func_0014a160() == 1) {
-        entry = func_0015a0c0();
-        if (entry != NULL) {
-            value = *(u8 *)(entry + 0xD);
-        }
-        return value;
+        return fldEnvironmentEventState(state);
     }
+    /* Only kind 6 clamps the base state; default preserves it. */
     switch (kind) {
     case 4:
         return state;
+    case 6:
+        if (state < 6) {
+            environmentState = 1;
+        }
+        break;
     case 7:
         if (state != 1) {
-            value = 2;
+            environmentState = 2;
         }
-        goto common;
+        break;
     case 8:
         if (state == 2) {
-            value = 1;
+            environmentState = 1;
         }
-        if ((s32)value > 2 && (s32)value <= 8) {
-            return value;
+        if ((s32)environmentState > 2 && (s32)environmentState <= 8) {
+            return environmentState;
         }
-        goto common;
+        break;
     case 9:
         if (state != 1 && state != 4) {
             return state;
         }
-        goto common;
-    case 13:
-        if (state != 8) {
-            return state;
-        }
-        goto common;
+        break;
     case 10:
         if (state == 4) {
-            value = 3;
+            environmentState = 3;
         }
-        goto common;
+        break;
     case 11:
         if (state == 2) {
             return state;
         }
-        goto common;
+        break;
     case 12:
         if (state == 4) {
             return state;
         }
-        goto common;
+        break;
+    case 13:
+        if (state != 8) {
+            return state;
+        }
+        break;
     case 14:
     case 15:
     case 16:
         return state;
     case 17:
         if (state == 2) {
-            value = 1;
+            environmentState = 1;
         }
-        goto common;
+        break;
     default:
-    case 6:
-        if ((s32)state < 6) {
-            value = 1;
-        }
-common:
-        if (func_00106330(0x8A) == 1 &&
-            (((kind != 7 || state != 2) && (kind != 7 || state != 3)) ||
-             (weather & 0xFF) != 5)) {
-            switch (arg2) {
-            case 2:
-            case 0:
-                value += 0x320;
-                break;
-            case 4:
-            case 3:
-            case 1:
-                value += 0x384;
-                break;
-            }
-        } else {
-            switch (arg2) {
-            case 4:
-            case 3:
-            case 1:
-                hour = weather & 0xFF;
-                if (hour < 5) {
-                    value += 0x258;
-                } else if (hour == 5) {
-                    value += 0x2BC;
-                }
-                break;
-            case 2:
-                hour = weather & 0xFF;
-                if (hour < 5) {
-                    value += 0x190;
-                } else if (hour == 5) {
-                    value += 0x1F4;
-                }
-                break;
-            case 0:
-                hour = weather & 0xFF;
-                switch (hour) {
-                case 4:
-                    value += 0x64;
-                    break;
-                case 5:
-                    value += 0xC8;
-                    break;
-                }
-                break;
-            }
-        }
-        return value;
+        break;
     }
+    if (func_00106330(0x8A) == 1 &&
+        (((kind != 7 || state != 2) && (kind != 7 || state != 3)) ||
+         (currentPeriod & 0xFF) != 5)) {
+        switch (condition) {
+        case 0:
+        case 2:
+            environmentState += 0x320;
+            break;
+        case 1:
+        case 3:
+        case 4:
+            environmentState += 0x384;
+            break;
+        }
+    } else {
+        switch (condition) {
+        case 0:
+            period = currentPeriod & 0xFF;
+            if (period < 4) {
+                break;
+            }
+            if (period < 5) {
+                environmentState += 0x64;
+            } else if (period == 5) {
+                environmentState += 0xC8;
+            }
+            break;
+        case 2:
+            period = currentPeriod & 0xFF;
+            if (period < 5) {
+                environmentState += 0x190;
+            } else if (period == 5) {
+                environmentState += 0x1F4;
+            }
+            break;
+        case 1:
+        case 3:
+        case 4:
+            period = currentPeriod & 0xFF;
+            if (period < 5) {
+                environmentState += 0x258;
+            } else if (period == 5) {
+                environmentState += 0x2BC;
+            }
+            break;
+        }
+    }
+    return environmentState;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldEnvironment", func_00154720);
-#endif
-
 // FUN_00154B10
 s32 func_00154b10(void) {
     char sp90[0x80];

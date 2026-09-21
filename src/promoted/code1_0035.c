@@ -873,7 +873,8 @@ void func_003553b0(u8 *arg0, f32 *arg1)
    in func_0035aec0 and func_0035be70. */
 
 // FUN_00355410
-void func_00355410(u8 *arg0, s8 arg1)
+/* Opacity arrives as a word; the state stores its low byte. */
+void func_00355410(u8 *arg0, u32 arg1)
 {
     u8 *temp_4;
 
@@ -1654,7 +1655,7 @@ void func_00356a10(u8 *arg0) {
     extern void func_0034c270(s64, s32, s32, f32);
     extern void func_0045d6e0(u8 *, u8 *, f32, s32);
     extern void func_003599c0(s32, u8 *);
-    extern void func_00355410(s32, s32);
+    extern void func_00355410(u8 *, u32);
     extern void func_00354ba0(s32);
     extern void func_0034f2e0(s32, s32, s32, s32, s32, f32, f32);
     extern void func_0034f320(s32, s32, s32, s32, s32, s32, s32, s64, f32, f32, s32, f32, s64);
@@ -1938,7 +1939,7 @@ loop_22:
         } else {
             var_5 = (((s32)((temp_f1_3 - 2.1474836e9f))) | 0x80000000) & 0xFF;
         }
-        func_00355410(*( s32 *)((u8 *)(arg0) + (0x1308)), var_5);
+        func_00355410(*(u8 **)(arg0 + 0x1308), var_5);
         func_00354ba0(*( s32 *)((u8 *)(arg0) + (0x1308)));
         spF0 = (f32) 0x25F + (temp_f25 + *( f32 *)((u8 *)(arg0) + (0x820)));
         spF4 = (f32) 0x107 + (temp_f24 + *( f32 *)((u8 *)(arg0) + (0x824)));

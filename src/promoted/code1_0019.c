@@ -2,7 +2,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "btl_skill_internal.h"
-typedef struct P4_95730_Vec3 {
+typedef struct RwV3d {
     f32 x;
     f32 y;
     f32 z;
@@ -98,8 +98,9 @@ extern s32 func_00454a60(s32 arg0, s32 arg1);
 extern void func_00456150(s32 arg0);
 extern s32 func_004553c0(s32 arg0);
 extern void func_00454bd0(s32 arg0);
-extern void func_00196040(s32 arg0, s32 arg1, void *arg2,
-                          s32 arg3, s32 arg4, s32 arg5);
+typedef struct RwV3d RwV3d;
+extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
+                         f32 *outTop, f32 *outBottom, u32 options);
 extern void func_001958f0(void *arg0, void *arg1);
 extern u32 func_00232710(s32 arg0, u32 arg1);
 extern s32 func_0022f7d0(u8 *arg0, f32 *arg1, s32 arg2);
@@ -1585,7 +1586,7 @@ void func_00194ff0(u8 *arg0, u8 *arg1, f32 *arg2, f32 *arg3)
         switch (temp_5) {
         case 0:
             if (func_00232710(*(s32 *)(arg0 + 0xA64), 0x100) == 0) {
-                func_00196040(2, 1, frame.vec, 0, 0, 1);
+                func_00196040(2, 1, (RwV3d *)frame.vec, NULL, NULL, 1);
             } else {
                 func_001958f0(
                     *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30),
@@ -1806,29 +1807,26 @@ void func_00196ce0(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
 
-/* Floor: 245 differing words, object 1708B against a 1744-byte window,
-   from a first reconstruction.  Body at
-   docs/probe_archive/Lane0019_00196d00_body.c; production stays ASM. */
-/* measured: banked Lane0019 v5 verbatim (retail 433/object 427 instrs, deficit 6, 1.39% deviation, within 3% gate; 1708B/1744B, 245 differing words reloc-masked, frame 0x80 exact, 10 relocs correct). 3% check: |433-427|/433 = 1.39% <= 3%, so guarded floor per handoff banking rule. Conventions copied from MATCHed neighbours: P4_95730_Vec3 aggregates, switch fallthrough state0->1, mask/active booleanization for C8 sltu, honest s32/f32 callees. Residual is FPR coloring + 0.0f-0.0f fold + pair staging + branch-target shift from 36B shortfall. Production stays guarded (not MATCH). */
-extern void func_001eec50(u8 *arg0);
+extern void func_001eec50(void *work);
 extern s32 func_001eed10(u8 *route, f32 *start, f32 *end, f32 radius);
 extern s32 func_001ef110(u8 *route, const f32 *startXZ, const f32 *endXZ, const f32 *centerXZ);
 extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
-// FUN_00196D00 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_00196d00(u8 *arg0)
+/* The vector snapshot preserves all three coordinates before flattening Y.
+   Separate vector/pair objects retain their natural stack lifetimes. Native
+   proof: 1736 executable bytes, ten resolved calls, 150 unchanged siblings. */
+// FUN_00196D00
+u32 func_00196d00(void *workData)
 {
-    struct P4_196D00_Frame {
-        u8 pad0[8];
-        f32 pair38[2];
-        f32 pair40[2];
-        f32 pair48[2];
-        f32 vec50[3];
-        u8 pad5c[4];
-        f32 vec60[3];
-        u8 pad6c[4];
-        f32 vec70[3];
-    } frame;
+    union MovementVector {
+        P4_95730_Vec3 vector;
+        f32 values[3];
+    } direction;
+    union MovementVector flatTarget;
+    union MovementVector position;
+    f32 routeStart[2];
+    f32 routeEnd[2];
+    f32 routeCenter[2];
+    u8 *arg0;
     u8 *unit;
     u16 state;
     s32 flags;
@@ -1838,6 +1836,7 @@ s32 func_00196d00(u8 *arg0)
     u8 *work;
     u16 index;
 
+    arg0 = (u8 *)workData;
     unit = *(u8 **)arg0;
     flags = *(s32 *)(arg0 + 0x10);
     if ((flags & 8) != 0) {
@@ -1845,8 +1844,8 @@ s32 func_00196d00(u8 *arg0)
         switch (state) {
         case 0:
             if ((flags & 0x10) != 0) {
-                func_00194ff0(unit, (u8 *)frame.vec50, NULL, NULL);
-                *(P4_95730_Vec3 *)(arg0 + 4) = *(P4_95730_Vec3 *)frame.vec50;
+                func_00194ff0(unit, (u8 *)position.values, NULL, NULL);
+                *(P4_95730_Vec3 *)(arg0 + 4) = position.vector;
             }
             *(u16 *)(arg0 + 0x14) = *(u16 *)(arg0 + 0x14) + 1;
             /* fallthrough */
@@ -1864,41 +1863,41 @@ s32 func_00196d00(u8 *arg0)
                 *(u16 *)(unit + 0xC8) &= 0xFFDF;
                 *(u16 *)(unit + 0xC8) |= 1;
                 *(u16 *)(unit + 0xC8) |= 0x10;
-                frame.vec70[0] = *(f32 *)(unit + 4) - *(f32 *)(arg0 + 4);
-                frame.vec70[1] = *(f32 *)(unit + 8) - *(f32 *)(arg0 + 8);
-                frame.vec70[2] = *(f32 *)(unit + 0xC) - *(f32 *)(arg0 + 0xC);
-                frame.vec70[1] = 0.0f;
-                func_003e40b0(frame.vec70, frame.vec70);
-                frame.vec70[0] *= *(f32 *)(arg0 + 0x1C);
-                frame.vec70[1] *= *(f32 *)(arg0 + 0x1C);
-                frame.vec70[2] *= *(f32 *)(arg0 + 0x1C);
-                *(f32 *)(unit + 0xDC) = *(f32 *)(arg0 + 4) + frame.vec70[0];
-                *(f32 *)(unit + 0xE0) = *(f32 *)(arg0 + 8) + frame.vec70[1];
-                *(f32 *)(unit + 0xE4) = *(f32 *)(arg0 + 0xC) + frame.vec70[2];
+                direction.values[0] = *(f32 *)(unit + 4) - *(f32 *)(arg0 + 4);
+                direction.values[1] = *(f32 *)(unit + 8) - *(f32 *)(arg0 + 8);
+                direction.values[2] = *(f32 *)(unit + 0xC) - *(f32 *)(arg0 + 0xC);
+                direction.values[1] = 0.0f;
+                func_003e40b0(direction.values, direction.values);
+                direction.values[0] *= *(f32 *)(arg0 + 0x1C);
+                direction.values[1] *= *(f32 *)(arg0 + 0x1C);
+                direction.values[2] *= *(f32 *)(arg0 + 0x1C);
+                *(f32 *)(unit + 0xDC) = *(f32 *)(arg0 + 4) + direction.values[0];
+                *(f32 *)(unit + 0xE0) = *(f32 *)(arg0 + 8) + direction.values[1];
+                *(f32 *)(unit + 0xE4) = *(f32 *)(arg0 + 0xC) + direction.values[2];
             } else {
                 if (*(f32 *)(arg0 + 0x1C) != 0.0f) {
-                    frame.vec70[0] = *(f32 *)(unit + 4) - *(f32 *)(arg0 + 4);
-                    frame.vec70[1] = *(f32 *)(unit + 8) - *(f32 *)(arg0 + 8);
-                    frame.vec70[2] = *(f32 *)(unit + 0xC) - *(f32 *)(arg0 + 0xC);
-                    frame.vec70[1] = 0.0f;
-                    func_003e40b0(frame.vec70, frame.vec70);
-                    frame.vec70[0] *= *(f32 *)(arg0 + 0x1C);
-                    frame.vec70[1] *= *(f32 *)(arg0 + 0x1C);
-                    frame.vec70[2] *= *(f32 *)(arg0 + 0x1C);
-                    frame.vec50[0] = *(f32 *)(arg0 + 4) + frame.vec70[0];
-                    frame.vec50[1] = *(f32 *)(arg0 + 8) + frame.vec70[1];
-                    frame.vec50[2] = *(f32 *)(arg0 + 0xC) + frame.vec70[2];
+                    direction.values[0] = *(f32 *)(unit + 4) - *(f32 *)(arg0 + 4);
+                    direction.values[1] = *(f32 *)(unit + 8) - *(f32 *)(arg0 + 8);
+                    direction.values[2] = *(f32 *)(unit + 0xC) - *(f32 *)(arg0 + 0xC);
+                    direction.values[1] = 0.0f;
+                    func_003e40b0(direction.values, direction.values);
+                    direction.values[0] *= *(f32 *)(arg0 + 0x1C);
+                    direction.values[1] *= *(f32 *)(arg0 + 0x1C);
+                    direction.values[2] *= *(f32 *)(arg0 + 0x1C);
+                    position.values[0] = *(f32 *)(arg0 + 4) + direction.values[0];
+                    position.values[1] = *(f32 *)(arg0 + 8) + direction.values[1];
+                    position.values[2] = *(f32 *)(arg0 + 0xC) + direction.values[2];
                 } else {
-                    *(P4_95730_Vec3 *)frame.vec50 = *(P4_95730_Vec3 *)(arg0 + 4);
+                    position.vector = *(P4_95730_Vec3 *)(arg0 + 4);
                 }
-                frame.vec50[1] = *(f32 *)(unit + 8);
-                *(P4_95730_Vec3 *)(unit + 4) = *(P4_95730_Vec3 *)frame.vec50;
+                position.values[1] = *(f32 *)(unit + 8);
+                *(P4_95730_Vec3 *)(unit + 4) = position.vector;
                 *(s32 *)(unit + 0x98) |= 4;
                 *(s32 *)(unit + 0xC4) &= ~1;
                 *(u16 *)(unit + 0xC8) &= 0xFFDF;
                 *(u16 *)(unit + 0xC8) &= 0xFFFE;
                 *(u16 *)(unit + 0xC8) &= 0xFFEF;
-                *(P4_95730_Vec3 *)(unit + 0xDC) = *(P4_95730_Vec3 *)frame.vec50;
+                *(P4_95730_Vec3 *)(unit + 0xDC) = position.vector;
             }
             *(u16 *)(arg0 + 0x14) = *(u16 *)(arg0 + 0x14) + 1;
             goto done;
@@ -1923,8 +1922,8 @@ s32 func_00196d00(u8 *arg0)
         switch (state) {
         case 0:
             if ((flags & 0x10) != 0) {
-                func_00194ff0(unit, (u8 *)frame.vec50, NULL, NULL);
-                *(P4_95730_Vec3 *)(arg0 + 4) = *(P4_95730_Vec3 *)frame.vec50;
+                func_00194ff0(unit, (u8 *)position.values, NULL, NULL);
+                *(P4_95730_Vec3 *)(arg0 + 4) = position.vector;
             }
             *(u16 *)(arg0 + 0x14) = *(u16 *)(arg0 + 0x14) + 1;
             /* fallthrough */
@@ -1933,41 +1932,39 @@ s32 func_00196d00(u8 *arg0)
             *(f32 *)(unit + 0xE8) = *(f32 *)(arg0 + 0x1C);
             *(s32 *)(unit + 0xC4) = *(s32 *)(arg0 + 0x10);
             *(f32 *)(unit + 0xCC) = 2.0f * (13.5f * *(f32 *)(arg0 + 0x20));
-            frame.pair48[0] = *(f32 *)(unit + 4);
-            frame.pair48[1] = *(f32 *)(unit + 0xC);
-            frame.pair40[0] = *(f32 *)(arg0 + 4);
-            frame.pair40[1] = *(f32 *)(arg0 + 0xC);
+            routeStart[0] = *(f32 *)(unit + 4);
+            routeStart[1] = *(f32 *)(unit + 0xC);
+            routeEnd[0] = *(f32 *)(arg0 + 4);
+            routeEnd[1] = *(f32 *)(arg0 + 0xC);
             if ((*(s32 *)(arg0 + 0x10) & 0x80) == 0) {
-                func_001eed10(unit + 0xEC, frame.pair48, frame.pair40, 50.0f);
+                func_001eed10(unit + 0xEC, routeStart, routeEnd, 50.0f);
             } else {
-                func_00196040(3, 1, (void *)frame.vec50, 0, 0, 1);
-                frame.pair38[0] = frame.vec50[0];
-                frame.pair38[1] = frame.vec50[2];
-                func_001ef110(unit + 0xEC, frame.pair48, frame.pair40, frame.pair38);
+                func_00196040(3, 1, &position.vector, NULL, NULL, 1);
+                routeCenter[0] = position.values[0];
+                routeCenter[1] = position.values[2];
+                func_001ef110(unit + 0xEC, routeStart, routeEnd, routeCenter);
             }
             index = *(u16 *)(unit + 0x4EC);
             if (index == 0) {
                 *(P4_95730_Vec3 *)(unit + 0xDC) = *(P4_95730_Vec3 *)(arg0 + 4);
             } else {
-                work = unit + index * 8;
-                frame.vec70[0] = *(f32 *)(work + 0xDC);
-                frame.vec70[1] = 0.0f;
-                frame.vec70[2] = *(f32 *)(work + 0xE0);
-                frame.vec60[0] = *(f32 *)(arg0 + 4);
-                frame.vec60[1] = *(f32 *)(arg0 + 8);
-                frame.vec60[2] = *(f32 *)(arg0 + 0xC);
-                frame.vec60[1] = 0.0f;
-                frame.vec70[0] = frame.vec70[0] - frame.vec60[0];
-                frame.vec70[1] = frame.vec60[1] - frame.vec60[1];
-                frame.vec70[2] = frame.vec70[2] - frame.vec60[2];
-                func_003e40b0(frame.vec70, frame.vec70);
-                frame.vec70[0] *= *(f32 *)(arg0 + 0x1C);
-                frame.vec70[1] *= *(f32 *)(arg0 + 0x1C);
-                frame.vec70[2] *= *(f32 *)(arg0 + 0x1C);
-                frame.vec60[0] += frame.vec70[0];
-                frame.vec60[1] += frame.vec70[1];
-                frame.vec60[2] += frame.vec70[2];
-                *(P4_95730_Vec3 *)(unit + 0xDC) = *(P4_95730_Vec3 *)frame.vec60;
+                work = (u8 *)p4_base_add_00194590(index * 8, (s32)unit);
+                direction.values[0] = *(f32 *)(work + 0xDC);
+                direction.values[1] = 0.0f;
+                direction.values[2] = *(f32 *)(work + 0xE0);
+                flatTarget.vector = *(P4_95730_Vec3 *)(arg0 + 4);
+                flatTarget.values[1] = 0.0f;
+                direction.values[0] = direction.values[0] - flatTarget.values[0];
+                direction.values[1] = direction.values[1] - flatTarget.values[1];
+                direction.values[2] = direction.values[2] - flatTarget.values[2];
+                func_003e40b0(direction.values, direction.values);
+                direction.values[0] *= *(f32 *)(arg0 + 0x1C);
+                direction.values[1] *= *(f32 *)(arg0 + 0x1C);
+                direction.values[2] *= *(f32 *)(arg0 + 0x1C);
+                flatTarget.values[0] += direction.values[0];
+                flatTarget.values[1] += direction.values[1];
+                flatTarget.values[2] += direction.values[2];
+                *(P4_95730_Vec3 *)(unit + 0xDC) = flatTarget.vector;
             }
             *(u16 *)(arg0 + 0x14) = *(u16 *)(arg0 + 0x14) + 1;
             /* fallthrough */
@@ -2013,9 +2010,6 @@ done:
     *(s32 *)(arg0 + 0x18) += 1;
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00196d00);
-#endif
 // FUN_001973D0
 void func_001973d0(u8 *arg0)
 {

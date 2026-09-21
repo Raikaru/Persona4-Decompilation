@@ -8,6 +8,16 @@ The objective is a clean C replacement for each first-party `INCLUDE_ASM` functi
 
 ## Current checkpoint
 
+2026-09-21 recovered continuation: **6,438 of 6,860 first-party functions
+MATCH, with 422 assembly fallbacks**. The completed `resumed-62` receipts
+cover all 62 additional C recoveries since `0360227`. Source and object hashes
+were checked before resuming. The three later opacity-contract owner changes
+also pass fresh verification: 223 functions, 210 MATCH and 13 ASM, preserving
+every earlier status and emitted size. See
+`docs/probe_archive/First_party_checkpoint_62_20260921.md`.
+
+### Earlier 52-function checkpoint
+
 2026-09-21 assembled checkpoint: **6,428 of 6,860 first-party functions MATCH,
 with 432 assembly fallbacks**. All 52 replacements since published `0360227`
 pass combined-source verification and independent code/data relocation proof.

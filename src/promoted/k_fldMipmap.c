@@ -155,7 +155,7 @@ void func_0018c550(u8 *arg0)
 }
 
 // FUN_0018C580
-s32 func_0018c580(void)
+s32 func_0018c580(u8 *parent)
 {
     u8 *mem;
 

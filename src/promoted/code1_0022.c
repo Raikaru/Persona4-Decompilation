@@ -152,7 +152,7 @@ extern f32 fGpffff8118;
 extern f32 fGpffff8174;
 extern f32 fGpffff8178;
 extern f32 fGpffff817c;
-extern void func_001c9820(u8 *camera, s32 reverseSide, s32 forceActorSide, f32 angleLimit);
+extern void func_001c9820(u8 *camera, f32 angleLimit, s32 reverseSide, s32 forceActorSide);
 extern void func_002266b0(u8 *camera, f32 heightScale, f32 scale, f32 distanceOffset, f32 duration);
 extern s32 func_0019fc70(u8 *action);
 
@@ -1687,7 +1687,7 @@ void func_002258b0(u8 *camera, f32 distanceOffset, f32 duration)
         }
         unit = *(u8 **)(action + 0x30);
         if (*(u8 *)(unit + 0xA2) == 0) {
-            func_001c9820(camera, 0, 1, 0.0f);
+            func_001c9820(camera, 0.0f, 0, 1);
             return;
         }
         target = *(u8 **)(*(u8 **)(action + 0x38) + 0x30);
