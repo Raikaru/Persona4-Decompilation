@@ -262,7 +262,7 @@ void func_00135dc0(u8* arg0)
     extern f32 func_0034f720(u8* arg0, f32 fparg0, f32 fparg1, f32 fparg2);
     extern void func_0034f9d0(Vec2f arg0, f32 fparg0, u32 arg1, s32 arg2, s32 arg3);
     extern void func_003f6440(s32 arg0, s32 arg1);
-    extern void func_00355410(void* arg0, s32 arg1);
+    extern void func_00355410(u8 *arg0, u32 arg1);
     extern void func_00354ba0(void* arg0);
     extern void func_00137890(u8* arg0, s32 arg1);
     extern s32 func_0010b5b0(void);
@@ -384,7 +384,7 @@ void func_00135dc0(u8* arg0)
     if ((*(s32*)(arg0 + 0x1C) & 0x800) != 0) {
         fa = 255.0f * alphaBase;
         alpha = (u8)fa;
-        func_00355410(*(void**)(arg0 + 0x1CB8), alpha);
+        func_00355410(*(u8 **)(arg0 + 0x1CB8), alpha);
         func_00354ba0(*(void**)(arg0 + 0x1CB8));
     }
     if ((*(s32*)(arg0 + 0x1C) & 0x2) != 0) {
