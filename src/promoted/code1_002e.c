@@ -1,3 +1,4 @@
+#include "fcl_color.h"
 #include "include_asm.h"
 #include "fcl_bounds_packet.h"
 #include "fcl_draw_task.h"
@@ -36,7 +37,6 @@ extern void *(*D_008873F4[])(size_t numObj, size_t sizeObj, u32 hint);
 extern void func_0044ea90(const void *arg0, u32 arg1);
 
 
-extern void func_002b2a60(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 
 extern void func_0045aac0(s16 arg0, s32 arg1, s32 arg2);
 extern s32 func_00106ac0(s16 arg0);
@@ -44,7 +44,7 @@ extern s64 func_00106af0(s16 arg0);
 extern s32 func_00106b20(s16 arg0);
 extern s32 func_00106b50(s16 arg0);
 
-void func_002b82d0(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s16 arg5);
+void func_002b82d0(u8 *arg0, u8 arg1, s8 arg2, s8 arg3, s16 arg4, s16 arg5);
 
 
 void func_002b8340(u8 *arg0, s8 arg1, s16 arg2, s16 arg3);
@@ -106,7 +106,7 @@ void func_002e0620(u8 *arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
     func_002b8270(*(u8 **)(arg0 + 0x38) + 4, p1, p2, arg3, arg4, arg5);
 }
 // FUN_002E0660
-void func_002e0660(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s64 arg5)
+void func_002e0660(u8 *arg0, u8 arg1, s8 arg2, s8 arg3, s16 arg4, s64 arg5)
 {
     func_002b82d0(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, arg5);
 }
@@ -574,7 +574,7 @@ s32 func_002e7510(s32 arg0)
     func_002b2970(&vec58.bits, 0, 0);
     func_002b29e0((u8 *)&color.bounds, 640.0f, 448.0f);
     func_002b5db0(iGpffffb590, vec58.position, &color.bounds);
-    func_002b2a60(&color_value, 0, 0, 0, 0xFF);
+    color_value = func_002b2a60(0, 0, 0, 0xFF);
     func_002b5e30(iGpffffb590, color_value);
     *work = 1;
     func_0045aac0(3, 0, 0x1E);

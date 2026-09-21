@@ -2,6 +2,8 @@
 #include "sdk_task_registration.h"
 /* Source unit: src/mt_scene/mt_scene_00268bd0.c (1 function markers) */
 #include "type.h"
+#include "effect_update_internal.h"
+#include "scene_event_internal.h"
 
 typedef struct Resrc {
     u8 data[0x28];
@@ -12,11 +14,9 @@ extern Resrc* MT_Scene_GetRes();
 
 u32 func_00268ce0(float* first, float* second, float* output, float* third);
 
-typedef struct { f32 x, y, z; } SVec3;
 extern u32 func_00269190(Resrc* param_1, u32 param_2, float param_3, u32 param_4);
 extern u32 func_002694f0(u32 param_1, u8 param_2, u32 param_3, u32 param_4);
-extern u32 func_00269820(u16 *param_1, s32 param_2, s64 param_3, s64 param_4,
-                         s32 param_5, s32 param_6, float param_7);
+
 extern u32 func_002699d0(u32 *param_1, u32 param_2, u32 param_3, u32 param_4,
                          u32 param_5, u32 param_6, float param_7);
 extern u32 func_00269bd0(void* resource, s32 enabled);
@@ -100,7 +100,7 @@ extern void func_0047a0e0(u32 arg0, u16 arg1, f32 arg2);
 extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern void func_00479e60(u32 arg0, u16 arg1, f32 arg2);
 extern u8 *func_0047a250(u32 arg0);
-extern void func_004b14f0(u32 arg0, void *arg1);
+extern void func_004b14f0(void *object, s32 *color);
 extern void func_0044ea90(const void *msg, u32 id);
 
 extern void func_0046d730(const void *msg, u32 line);
@@ -115,7 +115,6 @@ extern u32 func_0026d400(float *arg0);
 extern void func_003e9df0(void *arg0);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 extern void func_003e0f40(void *arg0);
-extern void func_00146f50(void *arg0, void *arg1, void *arg2);
 extern void func_0026bfc0(f32 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 *arg1);
 extern u8 *func_00147620(u32 arg0);
 extern f32 func_0044b610(f32 arg0);
@@ -297,7 +296,7 @@ s32 func_00268e60(u32 unk, u8 *arg1, f32 fparg0) {
 
 
 // FUN_00268F20
-s32 func_00268f20(u32 arg0, SVec3 *arg1, u32 arg2, u8 arg3)
+s32 func_00268f20(u32 arg0, SVec3 *arg1, u32 arg2, s8 arg3)
 {
     s32 result;
     u8 *p = func_00145270(arg0);
@@ -430,7 +429,7 @@ u32 func_002692d0(u32 param_1, u32 param_2, float param_3, u32 param_4)
     u32 lVar1;
     u32 uVar2;
 
-    lVar1 = (u32)MT_Scene_GetRes();
+    lVar1 = (u32)MT_Scene_GetRes(param_1);
     if (lVar1 != 0)
     {
         uVar2 = func_00269190((Resrc*)lVar1, param_2, param_3, param_4);
@@ -517,7 +516,7 @@ u32 func_002694f0(u32 param_1, u8 param_2, u32 param_3, u32 param_4)
         break;
     }
     case 6:
-        func_004b14f0(*(u32 *)((u8 *)param_1 + 0x144), tmp);
+        func_004b14f0(*(void **)((u8 *)param_1 + 0x144), (s32 *)tmp);
         bVar = tmp[3];
         break;
     default:
@@ -553,7 +552,7 @@ u32 func_00269620(u32 param_1, u8 param_2, u32 param_3, u32 param_4)
 
 // FUN_00269690
 s32 func_00269690(u32 unk, f32 fparg0, s32 arg1) {
-    u8 *temp_2 = (u8*)MT_Scene_GetRes();
+    u8 *temp_2 = (u8*)MT_Scene_GetRes(unk);
 
     if (temp_2 == NULL) {
         return 0;
@@ -579,9 +578,9 @@ s32 func_00269690(u32 unk, f32 fparg0, s32 arg1) {
 
 
 // FUN_00269740
-s32 func_00269740(void)
+s32 func_00269740(u32 resourceId)
 {
-    u8 *p = func_00145270();
+    u8 *p = func_00145270(resourceId);
 
     if (p == NULL) return 0;
     if (p == NULL) return 0;
@@ -600,7 +599,7 @@ s32 func_00269740(void)
 }
 
 // FUN_00269820
-u32 func_00269820(u16 *arg0, s32 arg1, s64 arg2, s64 arg3, s32 arg4, s32 arg5,
+u32 func_00269820(u16 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
                   float fparg0)
 {
     s32 var_17;
@@ -861,837 +860,669 @@ void func_00269db0(float *param_1, float *param_2)
 }
 #pragma opt_propagation on
 
-/* measured 0026a020 2026-09-19: skeleton from retail control flow (Ghidra FUN_0026a020 + IDA sub_26A020 vs m2c code1_0026.c).
-   fnalign retail 1680 vs object 1713 instrs (+33, +1.96%, inside 1630-1730 band), edits 1663 (+2 reloc-only).
-   Frame retail 0x180 vs object 0x160 (6 GPR + 6 FPR saves vs 4+6; c0 kept in s0). All 42 jal sites present;
-   counted loops, nested switches (0x8C via jtbl_00748080, 0x54/0x2C/0x81/0xE8/type/0x2000), half-scaler
-   (u>>1|u&1) with (s32) outer to avoid inner bltz (retail srl/or/mtc1/cvt/add), lerps as base+ratio*(t-b).
-   MAC adda/madd chains as plain C mul/add; remaining wall is scheduling/register coloring. Production stays ASM. */
-/* measured 0026a020 (owner, 2026-09-20): fnalign **1663 -> 1635 edits** and the count
-   1713 -> 1647 against retail 1680, so +2.0% over becomes -2.0% under and both metrics
-   improve.
-   The object was 33 instructions LONG with `mul.s +25, lui +25, mtc1 +19` over retail and
-   retail holding `add.s +27`.  That pairing names the defect exactly: the unsigned
-   float conversion doubles its half-value, and m2c writes the doubling as
-   `2.0f * (f32)(...)`, which costs a `lui`+`mtc1` to materialise 2.0f and then a `mul.s`.
-   Retail doubles by ADDING the value to itself.  Writing it as
-     t = (float)(int)(((x) >> 1) | ((x) & 1U));
-     t = t + t;
-   removes 66 instructions across the 22 sites and 28 edits.
-   A second reading of the same delta was WRONG and is recorded so it is not retried:
-   retail's `bltz +27` against the object's `bgez +25` looks like inverted guard polarity,
-   but rewriting all 22 guards from `if ((int)x < 0)` to `if ((int)x >= 0)` with the arms
-   swapped measures **2058**, nearly 400 worse.  The body's polarity was already right;
-   the branch-opcode difference is a consequence of the doubling shape, not its cause.
-   Combining both changes is 1722, also worse than the doubling alone. */
-// FUN_0026A020 NONMATCHING
-#ifdef NON_MATCHING
-void func_0026a020(u8 *arg0) {
-    extern void func_00269c70(float *out, float *base, float a0, float a1, float a2);
-    extern void func_00269db0(float *a0, float *a1);
-    extern float func_0026cba0(unsigned int a0, float a1, float a2);
-    extern float func_003e4180(float *a0);
-    extern void func_003e40b0(void *a0, void *a1);
-    extern void func_00146a10(u8 *a0, u8 *a1, void *a2, void *a3);
-    extern void func_0026cef0(unsigned int a0, void *a1, void *a2, unsigned int a3, unsigned int a4);
-    extern void func_0026c770(float *a0, float *a1, float *a2);
-    extern void func_0026c680(float *a0);
-    extern unsigned char *func_0047a250(unsigned int a0);
-    extern void func_0047a850(unsigned int a0, unsigned int a1);
-    extern void func_0047a870(unsigned int a0, unsigned int a1);
-    extern void func_0047a220(unsigned int a0, void *a1);
-    extern void func_004b14f0(unsigned int a0, void *a1);
-    extern void func_004b13f0(unsigned int a0, void *a1);
-    extern void func_004b1190(unsigned int a0);
-    extern void func_0045af60(int a0, int a1, int a2, int a3);
-    extern int func_0026ba60(u8 *a0);
-    extern unsigned int func_00269820(unsigned short *a0, int a1, long long a2, long long a3, int a4, int a5, float a6);
-    float f168[3];
-    float f158[3];
-    float f148[3];
-    float f138[3];
-    float f128[3];
-    float f118[3];
-    float f108[3];
-    float fF8[3];
-    float fE8[3];
-    float fD8[3];
-    float fC8[3];
-    float fB8[3];
-    float fA8[3];
-    float f98[3];
-    float f88[3];
-    float f78[3];
-    float f70[3];
-    float f60[3];
-    unsigned char stk78[4];
-    unsigned char stk7C_extra[4];
-    int step;
-    unsigned int flags;
-    unsigned int c0;
-    unsigned int c4;
-    float ratio;
-    float tmpF;
-    float tmpF2;
-    float f20save;
-    int i;
-    int j;
-    int k;
-    unsigned char mode8C;
-    unsigned char mode54;
-    unsigned char mode2C;
-    unsigned char mode81;
-    unsigned char modeE8;
-    unsigned char alpha;
-    unsigned char tmpB0;
-    unsigned char tmpB1;
-    unsigned char tmpB2;
-    unsigned char tmpB3;
-    float *p1;
-    float *p2;
-    if (arg0 == 0) {
+/* Resource fields recovered from the P4 setters and update retail. */
+typedef struct SceneScaleUpdate {
+    RwV3d start;
+    RwV3d end;
+    u32 duration;
+    u32 elapsed;
+} SceneScaleUpdate;
+
+typedef struct SceneFootstepUpdate {
+    u8 mode;
+    u8 sequence;
+    u8 surface;
+    u8 sound;
+    u16 elapsed;
+    u16 period;
+    u16 delay;
+    u16 unknown0a;
+} SceneFootstepUpdate;
+
+typedef union SceneMoveTime {
+    u32 frame;
+    f32 distance;
+} SceneMoveTime;
+
+typedef struct SceneQueuedAnimation {
+    s32 layer;
+    s32 animation;
+    s32 frame;
+    s32 flags;
+    s32 blend;
+    f32 speed;
+} SceneQueuedAnimation;
+
+typedef struct SceneUpdateResource {
+    u16 id;
+    u16 unknown02;
+    RwV3d position;
+    RwV3d rotation;
+    RwV3d scale;
+    u32 flags;
+    u8 moveEase;
+    u8 unknown2d[3];
+    RwV3d moveStart;
+    RwV3d moveEnd;
+    u8 unknown48[12];
+    u8 moveKind;
+    u8 unknown55[3];
+    s8 *path;
+    f32 moveSpeed;
+    SceneMoveTime moveElapsed;
+    SceneMoveTime moveDuration;
+    RwV3d rotationStart;
+    RwV3d rotationEnd;
+    u8 unknown80;
+    u8 rotationEase;
+    u16 unknown82;
+    u32 rotationDuration;
+    u32 rotationElapsed;
+    u8 orbitEase;
+    u8 unknown8d[3];
+    RwV3d orbitStart;
+    RwV3d orbitEnd;
+    f32 yawStart;
+    f32 yawEnd;
+    f32 pitchStart;
+    f32 pitchEnd;
+    f32 distanceStart;
+    f32 distanceEnd;
+    u32 orbitDuration;
+    u32 orbitElapsed;
+    SceneScaleUpdate scaleUpdate;
+    SceneFootstepUpdate footsteps;
+    u8 alphaStart;
+    u8 alphaEnd;
+    u16 unknownf6;
+    u32 alphaDuration;
+    u32 alphaElapsed;
+    s8 alphaBlend;
+    u8 unknown101[3];
+    f32 fovStart;
+    f32 fovEnd;
+    s32 fovDuration;
+    s32 fovElapsed;
+    u8 unknown114[0x20];
+    s32 forcedFrames;
+    struct SceneUpdateResource *next;
+    struct SceneUpdateResource *previous;
+} SceneUpdateResource;
+
+typedef struct SceneCharacterUpdate {
+    SceneUpdateResource base;
+    u8 *effects[2];
+    u32 unknown148;
+    SceneQueuedAnimation animation;
+    u8 *model;
+} SceneCharacterUpdate;
+
+typedef struct SceneObjectUpdate {
+    SceneUpdateResource base;
+    SceneQueuedAnimation animation;
+    u8 *model;
+} SceneObjectUpdate;
+
+typedef struct SceneEffectUpdate {
+    SceneUpdateResource base;
+    u32 unknown140;
+    u8 *effect;
+} SceneEffectUpdate;
+
+typedef struct SceneCameraUpdate {
+    SceneUpdateResource base;
+    f32 fov;
+} SceneCameraUpdate;
+
+typedef struct Model Model;
+typedef struct RwRGBA {
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+} RwRGBA;
+
+typedef union SceneEffectColor {
+    s32 packed;
+    RwRGBA rgba;
+} SceneEffectColor;
+
+extern f32 func_003e4180(f32 *vector);
+extern void func_00146a10(u8 *resource, u8 *position, u8 *rotation, u8 *scale);
+extern void func_0026c770(f32 *start, f32 *end, f32 *delta);
+extern f32 func_0026cba0(u32 kind, f32 duration, f32 elapsed);
+extern s32 func_0026ba60(u16 *position);
+extern RwRGBA *mdlGetColor(Model *model);
+extern void mdlSetColor(Model *model, const RwRGBA *color);
+extern void func_0047a850(void *model);
+extern void func_0047a870(void *model);
+extern void func_004b13f0(void *effect, s32 *color);
+/* The companion forwarding provider requires this same object parameter. */
+
+extern s32 func_0045af60(s16 index, s16 stream, s16 bank, s16 sound);
+
+static inline f32 sceneUpdateBlend(f32 start, f32 delta, f32 amount)
+{
+    return start + delta * amount;
+}
+
+static inline f32 sceneUpdateLerp(f32 start, f32 end, f32 amount)
+{
+    return start + amount * (end - start);
+}
+
+static inline s32 sceneUpdateStepContinues(f32 distance, f32 step)
+{
+    return !(distance <= step);
+}
+
+static inline void sceneUpdateDifference(RwV3d *out, const RwV3d *end,
+                                         const RwV3d *start)
+{
+    out->x = end->x - start->x;
+    out->y = end->y - start->y;
+    out->z = end->z - start->z;
+}
+
+static inline void sceneUpdateInterpolate(RwV3d *out, const RwV3d *start,
+                                          const RwV3d *end, f32 amount)
+{
+    out->x = sceneUpdateLerp(start->x, end->x, amount);
+    out->y = sceneUpdateLerp(start->y, end->y, amount);
+    out->z = sceneUpdateLerp(start->z, end->z, amount);
+}
+
+static inline s32 sceneUpdateResourceType(SceneUpdateResource *resource)
+{
+    return (resource->id & 0xFFC00) >> 10;
+}
+
+static inline u8 *sceneUpdateAttachedEffect(SceneCharacterUpdate *character, s32 index)
+{
+    u8 *slot = (u8 *)character + index * sizeof(character->effects[0]);
+    return *(u8 **)(slot + sizeof(character->base));
+}
+
+static inline void sceneUpdateQueuedAnimation(SceneUpdateResource *resource,
+                                               SceneQueuedAnimation *animation)
+{
+    s32 layer = animation->layer;
+    s32 motion = animation->animation;
+    s32 frame = animation->frame;
+    s32 flags = animation->flags;
+    s32 blend = animation->blend;
+    f32 speed = animation->speed;
+    func_00269820(&resource->id, layer, motion, frame, flags, blend, speed);
+}
+
+static inline void sceneUpdatePath(SceneUpdateResource *resource,
+                                   RwV3d *position, RwV3d *rotation)
+{
+    f32 total = resource->moveDuration.distance;
+    f32 elapsed = resource->moveElapsed.distance;
+    s8 *path = resource->path;
+    func_0026cef0(path, elapsed, total, &position->x, &rotation->x);
+}
+
+static inline s32 sceneFootstepBankIndex(s32 sequence, s32 firstSound)
+{
+    return firstSound + sequence;
+}
+
+static inline void sceneUpdateFootstep(SceneUpdateResource *resource)
+{
+    s32 terrain = func_0026ba60((u16 *)&resource->position);
+    SceneFootstepUpdate *foot = &resource->footsteps;
+    switch (foot->surface) {
+    case 0:
+        {
+            s32 note = foot->sequence;
+            s16 sound;
+            s16 stream;
+            note += terrain * 4;
+            sound = note;
+            stream = foot->sound;
+            func_0045af60(0, stream, 1, sound);
+        }
+        break;
+    case 1:
+        {
+            s32 sound = sceneFootstepBankIndex(foot->sequence, 0x18);
+            s16 stream = foot->sound;
+            func_0045af60(0, stream, 2, (s16)sound);
+        }
+        break;
+    }
+    foot->sequence++;
+    if (foot->sequence >= 4) {
+        foot->sequence = 0;
+    }
+}
+
+/* Recovered Scene update: native unsigned conversions, resource views,
+   queued animation snapshots and footstep bank indexing reproduce the retail
+   body. Full owner/data proof: build/next-wave-20260921/event/release-closure-v3. */
+// FUN_0026A020
+void func_0026a020(u8 *arg0)
+{
+    SceneUpdateResource *resource = (SceneUpdateResource *)arg0;
+    s32 frames = 0;
+
+    if (resource == NULL) {
         return;
     }
-    flags = *(unsigned int *)(arg0 + 0x28);
-    step = 0;
-    if ((flags & 0x20) != 0) {
-        step = *(int *)(arg0 + 0x134);
-        *(unsigned int *)(arg0 + 0x28) = flags & ~0x20U;
-        *(unsigned int *)(arg0 + 0x134) = 0;
-    } else if ((flags & 8) == 0) {
-        step = 1;
+    if (resource->flags & 0x20) {
+        frames = resource->forcedFrames;
+        resource->flags &= ~0x20;
+        resource->forcedFrames = 0;
+    } else if (!(resource->flags & 8)) {
+        frames = 1;
     }
-    if (step < 0) {
-        step = 0;
+    if (frames < 0) {
+        frames = 0;
     }
-    flags = *(unsigned int *)(arg0 + 0x28);
-    if ((flags & 0x10) != 0) {
-        *(unsigned int *)(arg0 + 0x28) = flags | 0x08000000U;
-        f168[0] = *(float *)(arg0 + 0x90);
-        f168[1] = *(float *)(arg0 + 0x94);
-        f168[2] = *(float *)(arg0 + 0x98);
-        func_00269c70(f138, f168, *(float *)(arg0 + 0xA8), *(float *)(arg0 + 0xB0), *(float *)(arg0 + 0xB8));
-        *(float *)(arg0 + 4) = f138[0];
-        *(float *)(arg0 + 8) = f138[1];
-        *(float *)(arg0 + 0xC) = f138[2];
-        *(float *)(arg0 + 0x10) = *(float *)(arg0 + 0x90);
-        *(float *)(arg0 + 0x14) = *(float *)(arg0 + 0x94);
-        *(float *)(arg0 + 0x18) = *(float *)(arg0 + 0x98);
-        f158[0] = *(float *)(arg0 + 0x9C);
-        f158[1] = *(float *)(arg0 + 0xA0);
-        f158[2] = *(float *)(arg0 + 0xA4);
-        func_00269c70(f128, f158, *(float *)(arg0 + 0xAC), *(float *)(arg0 + 0xB4), *(float *)(arg0 + 0xBC));
-        f108[0] = *(float *)(arg0 + 0x9C) - *(float *)(arg0 + 0x90);
-        f108[1] = *(float *)(arg0 + 0xA0) - *(float *)(arg0 + 0x94);
-        f108[2] = *(float *)(arg0 + 0xA4) - *(float *)(arg0 + 0x98);
-        c0 = *(unsigned int *)(arg0 + 0xC0);
-        if (c0 == 0) {
-            *(float *)(arg0 + 4) = f128[0];
-            *(float *)(arg0 + 8) = f128[1];
-            *(float *)(arg0 + 0xC) = f128[2];
-            f108[0] = f158[0] - f128[0];
-            f108[1] = f158[1] - f128[1];
-            f108[2] = f158[2] - f128[2];
-            func_00269db0((float *)(arg0 + 0x10), f108);
-            flags = *(unsigned int *)(arg0 + 0x28) & ~0x10U;
-            *(unsigned int *)(arg0 + 0x28) = flags;
-            *(unsigned int *)(arg0 + 0x28) = flags & 0xF7FFFFFFU;
+
+    if (resource->flags & 0x10) {
+        RwV3d startCenter;
+        RwV3d endCenter;
+        RwV3d center;
+        RwV3d startPosition;
+        RwV3d endPosition;
+        RwV3d position;
+        RwV3d direction;
+        f32 startYaw;
+        f32 startPitch;
+        f32 startDistance;
+        f32 endYaw;
+        f32 endPitch;
+        f32 endDistance;
+
+        resource->flags |= 0x8000000;
+        startCenter = resource->orbitStart;
+        startYaw = resource->yawStart;
+        startPitch = resource->pitchStart;
+        startDistance = resource->distanceStart;
+        func_00269c70(&startPosition.x, &startCenter.x,
+                     startYaw, startPitch, startDistance);
+        resource->position = startPosition;
+        resource->rotation = resource->orbitStart;
+        endCenter = resource->orbitEnd;
+        endYaw = resource->yawEnd;
+        endPitch = resource->pitchEnd;
+        endDistance = resource->distanceEnd;
+        func_00269c70(&endPosition.x, &endCenter.x,
+                     endYaw, endPitch, endDistance);
+        sceneUpdateDifference(&direction, &resource->orbitEnd, &resource->orbitStart);
+        if (resource->orbitDuration == 0) {
+            resource->position = endPosition;
+            sceneUpdateDifference(&direction, &endCenter, &endPosition);
+            func_00269db0(&resource->rotation.x, &direction.x);
+            resource->flags &= ~0x10;
+            resource->flags &= ~0x8000000;
         } else {
-            mode8C = *(unsigned char *)(arg0 + 0x8C);
-            switch (mode8C) {
+            u32 ease = resource->orbitEase;
+            switch (ease) {
             case 0: {
-                float fc4;
-                float fc0;
-                c4 = *(unsigned int *)(arg0 + 0xC4);
-                if ((int)c4 < 0) {
-                    fc4 = (float)(int)(((c4) >> 1) | ((c4) & 1U));
-                    fc4 = fc4 + fc4;
-                } else {
-                    fc4 = (float)(int)c4;
-                }
-                if ((int)c0 < 0) {
-                    fc0 = (float)(int)(((c0) >> 1) | ((c0) & 1U));
-                    fc0 = fc0 + fc0;
-                } else {
-                    fc0 = (float)(int)c0;
-                }
-                ratio = fc4 / fc0;
-                f148[0] = (f158[0] - f168[0]) * ratio + f168[0];
-                f148[1] = (f158[1] - f168[1]) * ratio + f168[1];
-                f148[2] = (f158[2] - f168[2]) * ratio + f168[2];
-                tmpF = (*(float *)(arg0 + 0xAC) - *(float *)(arg0 + 0xA8)) * ratio + *(float *)(arg0 + 0xA8);
-                tmpF2 = (*(float *)(arg0 + 0xB4) - *(float *)(arg0 + 0xB0)) * ratio + *(float *)(arg0 + 0xB0);
-                f70[0] = (*(float *)(arg0 + 0xBC) - *(float *)(arg0 + 0xB8)) * ratio + *(float *)(arg0 + 0xB8);
-                func_00269c70(f118, f148, tmpF, tmpF2, f70[0]);
-                *(float *)(arg0 + 4) = f118[0];
-                *(float *)(arg0 + 8) = f118[1];
-                *(float *)(arg0 + 0xC) = f118[2];
-                *(float *)(arg0 + 0x10) = f148[0];
-                *(float *)(arg0 + 0x14) = f148[1];
-                *(float *)(arg0 + 0x18) = f148[2];
+                f32 amount = (f32)resource->orbitElapsed / (f32)resource->orbitDuration;
+                sceneUpdateInterpolate(&center, &startCenter, &endCenter, amount);
+                func_00269c70(&position.x, &center.x,
+                    sceneUpdateLerp(startYaw, endYaw, amount),
+                    sceneUpdateLerp(startPitch, endPitch, amount),
+                    sceneUpdateLerp(startDistance, endDistance, amount));
+                resource->position = position;
+                resource->rotation = center;
                 break;
             }
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5: {
-                float fc4;
-                float fc0;
-                float cb;
-                c4 = *(unsigned int *)(arg0 + 0xC4);
-                if ((int)c4 < 0) {
-                    fc4 = (float)(int)(((c4) >> 1) | ((c4) & 1U));
-                    fc4 = fc4 + fc4;
-                } else {
-                    fc4 = (float)(int)c4;
-                }
-                if ((int)c0 < 0) {
-                    fc0 = (float)(int)(((c0) >> 1) | ((c0) & 1U));
-                    fc0 = fc0 + fc0;
-                } else {
-                    fc0 = (float)(int)c0;
-                }
-                cb = func_0026cba0(mode8C, fc0, fc4);
-                if ((int)c0 < 0) {
-                    tmpF = (float)(int)(((c0) >> 1) | ((c0) & 1U));
-                    tmpF = tmpF + tmpF;
-                } else {
-                    tmpF = (float)(int)c0;
-                }
-                ratio = cb / tmpF;
-                f148[0] = (f158[0] - f168[0]) * ratio + f168[0];
-                f148[1] = (f158[1] - f168[1]) * ratio + f168[1];
-                f148[2] = (f158[2] - f168[2]) * ratio + f168[2];
-                tmpF = (*(float *)(arg0 + 0xAC) - *(float *)(arg0 + 0xA8)) * ratio + *(float *)(arg0 + 0xA8);
-                tmpF2 = (*(float *)(arg0 + 0xB4) - *(float *)(arg0 + 0xB0)) * ratio + *(float *)(arg0 + 0xB0);
-                f70[0] = (*(float *)(arg0 + 0xBC) - *(float *)(arg0 + 0xB8)) * ratio + *(float *)(arg0 + 0xB8);
-                func_00269c70(f118, f148, tmpF, tmpF2, f70[0]);
-                *(float *)(arg0 + 4) = f118[0];
-                *(float *)(arg0 + 8) = f118[1];
-                *(float *)(arg0 + 0xC) = f118[2];
-                *(float *)(arg0 + 0x10) = f148[0];
-                *(float *)(arg0 + 0x14) = f148[1];
-                *(float *)(arg0 + 0x18) = f148[2];
+            case 1: case 2: case 3: case 4: case 5: {
+                f32 amount = func_0026cba0(ease,
+                    (f32)resource->orbitDuration, (f32)resource->orbitElapsed);
+                amount /= (f32)resource->orbitDuration;
+                sceneUpdateInterpolate(&center, &startCenter, &endCenter, amount);
+                func_00269c70(&position.x, &center.x,
+                    sceneUpdateLerp(startYaw, endYaw, amount),
+                    sceneUpdateLerp(startPitch, endPitch, amount),
+                    sceneUpdateLerp(startDistance, endDistance, amount));
+                resource->position = position;
+                resource->rotation = center;
                 break;
             }
-            default:
-                break;
             }
-            c4 = *(unsigned int *)(arg0 + 0xC4);
-            c0 = *(unsigned int *)(arg0 + 0xC0);
-            if (c4 >= c0) {
-                *(float *)(arg0 + 4) = f128[0];
-                *(float *)(arg0 + 8) = f128[1];
-                *(float *)(arg0 + 0xC) = f128[2];
-                f108[0] = f158[0] - f128[0];
-                f108[1] = f158[1] - f128[1];
-                f108[2] = f158[2] - f128[2];
-                func_00269db0((float *)(arg0 + 0x10), f108);
-                flags = *(unsigned int *)(arg0 + 0x28) & ~0x10U;
-                *(unsigned int *)(arg0 + 0x28) = flags;
-                *(unsigned int *)(arg0 + 0x28) = flags & 0xF7FFFFFFU;
+            if (resource->orbitElapsed >= resource->orbitDuration) {
+                resource->position = endPosition;
+                sceneUpdateDifference(&direction, &endCenter, &endPosition);
+                func_00269db0(&resource->rotation.x, &direction.x);
+                resource->flags &= ~0x10;
+                resource->flags &= ~0x8000000;
             } else {
-                *(unsigned int *)(arg0 + 0xC4) = c4 + (unsigned int)step;
+                resource->orbitElapsed += frames;
             }
         }
     } else {
-        if ((flags & 1) != 0) {
-            fF8[0] = *(float *)(arg0 + 0x3C);
-            fF8[1] = *(float *)(arg0 + 0x40);
-            fF8[2] = *(float *)(arg0 + 0x44);
-            fE8[0] = *(float *)(arg0 + 4);
-            fE8[1] = *(float *)(arg0 + 8);
-            fE8[2] = *(float *)(arg0 + 0xC);
-            mode54 = *(unsigned char *)(arg0 + 0x54);
-            switch (mode54) {
-            case 0: {
-                float len;
-                int cnt;
-                fD8[0] = fF8[0] - fE8[0];
-                fD8[1] = fF8[1] - fE8[1];
-                fD8[2] = fF8[2] - fE8[2];
-                len = func_003e4180(fD8);
-                cnt = step;
+        if (resource->flags & 1) {
+            RwV3d end = resource->moveEnd;
+            RwV3d current = resource->position;
+            RwV3d delta;
+            RwV3d unit;
+            RwV3d position;
+            RwV3d rotation;
+
+            if (resource->moveKind == 0) {
+                f32 length;
+                s32 remaining;
+                sceneUpdateDifference(&delta, &end, &current);
+                length = func_003e4180(&delta.x);
+                remaining = frames;
                 do {
-                    if (len <= *(float *)(arg0 + 0x5C)) {
-                        *(float *)(arg0 + 4) = fF8[0];
-                        *(float *)(arg0 + 8) = fF8[1];
-                        *(float *)(arg0 + 0xC) = fF8[2];
-                        *(unsigned int *)(arg0 + 0x28) &= ~1U;
+                    if (!sceneUpdateStepContinues(length, resource->moveSpeed)) {
+                        resource->position = end;
+                        resource->flags &= ~1;
                         break;
                     }
-                    func_003e40b0(fC8, fD8);
-                    if (cnt > 0) {
-                        *(float *)(arg0 + 4) = fC8[0] * *(float *)(arg0 + 0x5C) + *(float *)(arg0 + 4);
-                        *(float *)(arg0 + 8) = fC8[1] * *(float *)(arg0 + 0x5C) + *(float *)(arg0 + 8);
-                        *(float *)(arg0 + 0xC) = fC8[2] * *(float *)(arg0 + 0x5C) + *(float *)(arg0 + 0xC);
+                    func_003e40b0(&unit.x, &delta.x);
+                    if (remaining > 0) {
+                        resource->position.x += unit.x * resource->moveSpeed;
+                        resource->position.y += unit.y * resource->moveSpeed;
+                        resource->position.z += unit.z * resource->moveSpeed;
                     }
-                    cnt--;
-                    if (cnt <= 0) {
-                        break;
-                    }
-                    len = func_003e4180(fD8);
-                } while (1);
-                func_00146a10(arg0, arg0 + 4, 0, 0);
-                break;
-            }
-            case 1: {
-                float div0;
-                float div1;
-                float div2;
-                unsigned int total;
-                unsigned char sub;
-                total = *(unsigned int *)(arg0 + 0x64);
-                fD8[0] = fF8[0] - *(float *)(arg0 + 0x30);
-                fD8[1] = fF8[1] - *(float *)(arg0 + 0x34);
-                fD8[2] = fF8[2] - *(float *)(arg0 + 0x38);
-                if (total == 0) {
-                    *(float *)(arg0 + 4) = fF8[0];
-                    *(float *)(arg0 + 8) = fF8[1];
-                    *(float *)(arg0 + 0xC) = fF8[2];
-                    *(unsigned int *)(arg0 + 0x28) &= ~1U;
+                    remaining--;
+                } while (remaining > 0);
+                func_00146a10(arg0, (u8 *)&resource->position, NULL, NULL);
+            } else if (resource->moveKind == 1) {
+                sceneUpdateDifference(&delta, &end, &resource->moveStart);
+                if (resource->moveDuration.frame == 0) {
+                    resource->position = end;
+                    resource->flags &= ~1;
                 } else {
-                    if ((int)total < 0) {
-                        div0 = (float)(int)(((total) >> 1) | ((total) & 1U));
-                        div0 = div0 + div0;
-                    } else {
-                        div0 = (float)(int)total;
-                    }
-                    fD8[0] /= div0;
-                    if ((int)total < 0) {
-                        div1 = (float)(int)(((total) >> 1) | ((total) & 1U));
-                        div1 = div1 + div1;
-                    } else {
-                        div1 = (float)(int)total;
-                    }
-                    fD8[1] /= div1;
-                    if ((int)total < 0) {
-                        div2 = (float)(int)(((total) >> 1) | ((total) & 1U));
-                        div2 = div2 + div2;
-                    } else {
-                        div2 = (float)(int)total;
-                    }
-                    fD8[2] /= div2;
-                    sub = *(unsigned char *)(arg0 + 0x2C);
-                    switch (sub) {
-                    case 0: {
-                        float f60;
-                        unsigned int cur;
-                        cur = *(unsigned int *)(arg0 + 0x60);
-                        if ((int)cur < 0) {
-                            f60 = (float)(int)(((cur) >> 1) | ((cur) & 1U));
-                            f60 = f60 + f60;
-                        } else {
-                            f60 = (float)(int)cur;
-                        }
-                        *(float *)(arg0 + 4) = fD8[0] * f60 + *(float *)(arg0 + 0x30);
-                        if ((int)cur < 0) {
-                            f60 = (float)(int)(((cur) >> 1) | ((cur) & 1U));
-                            f60 = f60 + f60;
-                        } else {
-                            f60 = (float)(int)cur;
-                        }
-                        *(float *)(arg0 + 8) = fD8[1] * f60 + *(float *)(arg0 + 0x34);
-                        if ((int)cur < 0) {
-                            f60 = (float)(int)(((cur) >> 1) | ((cur) & 1U));
-                            f60 = f60 + f60;
-                        } else {
-                            f60 = (float)(int)cur;
-                        }
-                        *(float *)(arg0 + 0xC) = fD8[2] * f60 + *(float *)(arg0 + 0x38);
+                    u32 ease;
+                    delta.x /= (f32)resource->moveDuration.frame;
+                    delta.y /= (f32)resource->moveDuration.frame;
+                    delta.z /= (f32)resource->moveDuration.frame;
+                    ease = resource->moveEase;
+                    switch (ease) {
+                    case 0:
+                        resource->position.x = delta.x * (f32)resource->moveElapsed.frame + resource->moveStart.x;
+                        resource->position.y = delta.y * (f32)resource->moveElapsed.frame + resource->moveStart.y;
+                        resource->position.z = delta.z * (f32)resource->moveElapsed.frame + resource->moveStart.z;
+                        break;
+                    case 1: case 2: case 3: case 4: case 5: {
+                        f32 amount = func_0026cba0(ease,
+                            (f32)resource->moveDuration.frame, (f32)resource->moveElapsed.frame);
+                        resource->position.x = sceneUpdateBlend(resource->moveStart.x, delta.x, amount);
+                        resource->position.y = sceneUpdateBlend(resource->moveStart.y, delta.y, amount);
+                        resource->position.z = sceneUpdateBlend(resource->moveStart.z, delta.z, amount);
                         break;
                     }
-                    case 1:
-                    case 2:
-                    case 3:
-                    case 4:
-                    case 5: {
-                        float fc;
-                        float fcur;
-                        float ftot;
-                        unsigned int cur;
-                        cur = *(unsigned int *)(arg0 + 0x60);
-                        if ((int)total < 0) {
-                            ftot = (float)(int)(((total) >> 1) | ((total) & 1U));
-                            ftot = ftot + ftot;
-                        } else {
-                            ftot = (float)(int)total;
-                        }
-                        if ((int)cur < 0) {
-                            fcur = (float)(int)(((cur) >> 1) | ((cur) & 1U));
-                            fcur = fcur + fcur;
-                        } else {
-                            fcur = (float)(int)cur;
-                        }
-                        fc = func_0026cba0(sub, ftot, fcur);
-                        *(float *)(arg0 + 4) = fD8[0] * fc + *(float *)(arg0 + 0x30);
-                        *(float *)(arg0 + 8) = fD8[1] * fc + *(float *)(arg0 + 0x34);
-                        *(float *)(arg0 + 0xC) = fD8[2] * fc + *(float *)(arg0 + 0x38);
-                        break;
                     }
-                    default:
-                        break;
-                    }
-                    total = *(unsigned int *)(arg0 + 0x64);
-                    {
-                        unsigned int cur2 = *(unsigned int *)(arg0 + 0x60);
-                        if (cur2 >= total) {
-                            *(float *)(arg0 + 4) = fF8[0];
-                            *(float *)(arg0 + 8) = fF8[1];
-                            *(float *)(arg0 + 0xC) = fF8[2];
-                            *(unsigned int *)(arg0 + 0x28) &= ~1U;
-                        } else {
-                            *(unsigned int *)(arg0 + 0x60) = cur2 + (unsigned int)step;
-                        }
-                    }
-                }
-                func_00146a10(arg0, arg0 + 4, 0, 0);
-                break;
-            }
-            case 2: {
-                float cur;
-                float tot;
-                int sflags;
-                func_0026cef0(*(unsigned int *)(arg0 + 0x58), fB8, fA8, *(unsigned int *)(arg0 + 0x60), *(unsigned int *)(arg0 + 0x64));
-                cur = *(float *)(arg0 + 0x60);
-                tot = *(float *)(arg0 + 0x64);
-                if (!(cur < tot)) {
-                    sflags = *(int *)(arg0 + 0x28);
-                    if ((sflags & 0x40) != 0) {
-                        *(float *)(arg0 + 0x60) = cur - tot;
+                    if (resource->moveElapsed.frame >= resource->moveDuration.frame) {
+                        resource->position = end;
+                        resource->flags &= ~1;
                     } else {
-                        *(unsigned int *)(arg0 + 0x28) = (unsigned int)sflags & ~1U;
+                        resource->moveElapsed.frame += frames;
                     }
                 }
-                *(float *)(arg0 + 4) = fB8[0];
-                *(float *)(arg0 + 8) = fB8[1];
-                *(float *)(arg0 + 0xC) = fB8[2];
-                i = 0;
-                while (i < step) {
-                    *(float *)(arg0 + 0x60) = *(float *)(arg0 + 0x60) + *(float *)(arg0 + 0x5C);
-                    i++;
+                func_00146a10(arg0, (u8 *)&resource->position, NULL, NULL);
+            } else if (resource->moveKind == 2) {
+                s32 i;
+                sceneUpdatePath(resource, &position, &rotation);
+                if (!(resource->moveElapsed.distance < resource->moveDuration.distance)) {
+                    if (resource->flags & 0x40) {
+                        resource->moveElapsed.distance -= resource->moveDuration.distance;
+                    } else {
+                        resource->flags &= ~1;
+                    }
                 }
-                func_00146a10(arg0, arg0 + 4, 0, 0);
-                if ((*(unsigned int *)(arg0 + 0x28) & 8) == 0) {
-                    *(float *)(arg0 + 0x10) = fA8[0];
-                    *(float *)(arg0 + 0x14) = fA8[1];
-                    *(float *)(arg0 + 0x18) = fA8[2];
-                    func_00146a10(arg0, 0, arg0 + 0x10, 0);
+                resource->position = position;
+                for (i = 0; i < frames; i++) {
+                    resource->moveElapsed.distance += resource->moveSpeed;
                 }
-                break;
-            }
-            default:
-                break;
+                func_00146a10(arg0, (u8 *)&resource->position, NULL, NULL);
+                if (!(resource->flags & 8)) {
+                    resource->rotation = rotation;
+                    func_00146a10(arg0, NULL, (u8 *)&resource->rotation, NULL);
+                }
             }
         }
-        if ((*(unsigned int *)(arg0 + 0x28) & 4) != 0) {
-            if (*(int *)(arg0 + 0x84) == 0) {
-                *(float *)(arg0 + 0x10) = *(float *)(arg0 + 0x74);
-                *(float *)(arg0 + 0x14) = *(float *)(arg0 + 0x78);
-                *(float *)(arg0 + 0x18) = *(float *)(arg0 + 0x7C);
-                *(unsigned int *)(arg0 + 0x28) &= ~4U;
-                func_00146a10(arg0, 0, arg0 + 0x10, 0);
+        if (resource->flags & 4) {
+            if (resource->rotationDuration == 0) {
+                resource->rotation = resource->rotationEnd;
+                resource->flags &= ~4;
+                func_00146a10(arg0, NULL, (u8 *)&resource->rotation, NULL);
+            } else if (resource->rotationElapsed == 0) {
+                resource->rotationElapsed += frames;
             } else {
-                if (*(int *)(arg0 + 0x88) == 0) {
-                    *(int *)(arg0 + 0x88) = step;
+                RwV3d delta;
+                RwV3d rotation;
+                f32 x;
+                f32 y;
+                f32 z;
+                f32 duration;
+                func_0026c770(&resource->rotationStart.x, &resource->rotationEnd.x, &delta.x);
+                duration = (f32)resource->rotationDuration;
+                x = delta.x / duration;
+                y = delta.y / duration;
+                z = delta.z / duration;
+                switch (resource->rotationEase) {
+                case 0: {
+                    u32 elapsed = resource->rotationElapsed;
+                    rotation.x = sceneUpdateBlend(resource->rotationStart.x, x, (f32)elapsed);
+                    rotation.y = sceneUpdateBlend(resource->rotationStart.y, y, (f32)elapsed);
+                    rotation.z = sceneUpdateBlend(resource->rotationStart.z, z, (f32)elapsed);
+                    break;
+                }
+                case 1: case 2: case 3: case 4: case 5: {
+                    f32 amount = func_0026cba0(resource->rotationEase,
+                        (f32)resource->rotationDuration, (f32)resource->rotationElapsed);
+                    rotation.x = sceneUpdateBlend(resource->rotationStart.x, x, amount);
+                    rotation.y = sceneUpdateBlend(resource->rotationStart.y, y, amount);
+                    rotation.z = sceneUpdateBlend(resource->rotationStart.z, z, amount);
+                    break;
+                }
+                }
+                resource->rotation = rotation;
+                if (resource->rotationElapsed >= resource->rotationDuration) {
+                    resource->rotation = resource->rotationEnd;
+                    resource->flags &= ~4;
                 } else {
-                    float div;
-                    float cba;
-                    func_0026c770((float *)(arg0 + 0x68), (float *)(arg0 + 0x74), f98);
-                    div = (float)(int)*(unsigned int *)(arg0 + 0x84);
-                    if ((int)*(unsigned int *)(arg0 + 0x84) < 0) {
-                        div = 2.0f * (float)(int)(((*(unsigned int *)(arg0 + 0x84)) >> 1) | ((*(unsigned int *)(arg0 + 0x84)) & 1U));
-                    }
-                    f98[0] /= div;
-                    f98[1] /= div;
-                    f98[2] /= div;
-                    mode81 = *(unsigned char *)(arg0 + 0x81);
-                    switch (mode81) {
-                    case 0: {
-                        unsigned int cur;
-                        cur = *(unsigned int *)(arg0 + 0x88);
-                        if ((int)cur < 0) {
-                            tmpF = (float)(int)(((cur) >> 1) | ((cur) & 1U));
-                            tmpF = tmpF + tmpF;
-                        } else {
-                            tmpF = (float)(int)cur;
-                        }
-                        f88[0] = f98[0] * tmpF + *(float *)(arg0 + 0x68);
-                        if ((int)cur < 0) {
-                            tmpF = (float)(int)(((cur) >> 1) | ((cur) & 1U));
-                            tmpF = tmpF + tmpF;
-                        } else {
-                            tmpF = (float)(int)cur;
-                        }
-                        f88[1] = f98[1] * tmpF + *(float *)(arg0 + 0x6C);
-                        if ((int)cur < 0) {
-                            tmpF = (float)(int)(((cur) >> 1) | ((cur) & 1U));
-                            tmpF = tmpF + tmpF;
-                        } else {
-                            tmpF = (float)(int)cur;
-                        }
-                        f88[2] = f98[2] * tmpF + *(float *)(arg0 + 0x70);
-                        break;
-                    }
-                    case 1:
-                    case 2:
-                    case 3:
-                    case 4:
-                    case 5: {
-                        unsigned int tot;
-                        unsigned int cur;
-                        float ftot;
-                        float fcur;
-                        tot = *(unsigned int *)(arg0 + 0x84);
-                        cur = *(unsigned int *)(arg0 + 0x88);
-                        if ((int)tot < 0) {
-                            ftot = (float)(int)(((tot) >> 1) | ((tot) & 1U));
-                            ftot = ftot + ftot;
-                        } else {
-                            ftot = (float)(int)tot;
-                        }
-                        if ((int)cur < 0) {
-                            fcur = (float)(int)(((cur) >> 1) | ((cur) & 1U));
-                            fcur = fcur + fcur;
-                        } else {
-                            fcur = (float)(int)cur;
-                        }
-                        cba = func_0026cba0(mode81, ftot, fcur);
-                        f88[0] = f98[0] * cba + *(float *)(arg0 + 0x68);
-                        f88[1] = f98[1] * cba + *(float *)(arg0 + 0x6C);
-                        f88[2] = f98[2] * cba + *(float *)(arg0 + 0x70);
-                        break;
-                    }
-                    default:
-                        break;
-                    }
-                    *(float *)(arg0 + 0x10) = f88[0];
-                    *(float *)(arg0 + 0x14) = f88[1];
-                    *(float *)(arg0 + 0x18) = f88[2];
-                    if (*(unsigned int *)(arg0 + 0x88) >= *(unsigned int *)(arg0 + 0x84)) {
-                        *(float *)(arg0 + 0x10) = *(float *)(arg0 + 0x74);
-                        *(float *)(arg0 + 0x14) = *(float *)(arg0 + 0x78);
-                        *(float *)(arg0 + 0x18) = *(float *)(arg0 + 0x7C);
-                        *(unsigned int *)(arg0 + 0x28) &= ~4U;
-                    } else {
-                        *(unsigned int *)(arg0 + 0x88) += (unsigned int)step;
-                    }
-                    if (step != 0) {
-                        func_00146a10(arg0, 0, arg0 + 0x10, 0);
-                    }
+                    resource->rotationElapsed += frames;
+                }
+                if (frames != 0) {
+                    func_00146a10(arg0, NULL, (u8 *)&resource->rotation, NULL);
                 }
             }
         }
-        if ((*(unsigned int *)(arg0 + 0x28) & 0x08000000U) == 0) {
-            func_0026c680((float *)(arg0 + 0x10));
+        if (!(resource->flags & 0x8000000)) {
+            func_0026c680(&resource->rotation.x);
         }
     }
-    if ((*(unsigned int *)(arg0 + 0x28) & 0x8000U) != 0) {
-        unsigned int e0;
-        e0 = *(unsigned int *)(arg0 + 0xE0);
-        if (e0 == 0) {
-            *(float *)(arg0 + 0x1C) = *(float *)(arg0 + 0xD4);
-            *(float *)(arg0 + 0x20) = *(float *)(arg0 + 0xD8);
-            *(float *)(arg0 + 0x24) = *(float *)(arg0 + 0xDC);
-            *(unsigned int *)(arg0 + 0x28) &= 0xFFFF7FFFU;
-            func_00146a10(arg0, 0, 0, arg0 + 0x1C);
+
+    if (resource->flags & 0x8000) {
+        SceneScaleUpdate *scale = &resource->scaleUpdate;
+        if (scale->duration == 0) {
+            resource->scale = scale->end;
+            resource->flags &= ~0x8000;
+            func_00146a10(arg0, NULL, NULL, (u8 *)&resource->scale);
         } else {
-            float fE0;
-            float fE4;
-            unsigned int e1C;
-            if ((int)e0 < 0) {
-                fE0 = (float)(int)(((e0) >> 1) | ((e0) & 1U));
-                fE0 = fE0 + fE0;
+            f32 duration = (f32)scale->duration;
+            u32 elapsed = scale->elapsed;
+            RwV3d result;
+            result.x = sceneUpdateBlend(scale->start.x, (scale->end.x - scale->start.x) / duration, (f32)elapsed);
+            result.y = sceneUpdateBlend(scale->start.y, (scale->end.y - scale->start.y) / duration, (f32)elapsed);
+            result.z = sceneUpdateBlend(scale->start.z, (scale->end.z - scale->start.z) / duration, (f32)elapsed);
+            resource->scale = result;
+            if (scale->elapsed >= scale->duration) {
+                resource->scale = scale->end;
+                resource->flags &= ~0x8000;
             } else {
-                fE0 = (float)(int)e0;
+                scale->elapsed += frames;
             }
-            e1C = *(unsigned int *)(arg0 + 0xE4);
-            if ((int)e1C < 0) {
-                fE4 = (float)(int)(((e1C) >> 1) | ((e1C) & 1U));
-                fE4 = fE4 + fE4;
-            } else {
-                fE4 = (float)(int)e1C;
-            }
-            ratio = fE4 / fE0;
-            f78[0] = (*(float *)(arg0 + 0xC8) - *(float *)(arg0 + 0xC8 - 0x28)) * ratio + *(float *)(arg0 + 0xC8 - 0x28);
-            f78[1] = (*(float *)(arg0 + 0xCC) - *(float *)(arg0 + 0xCC - 0x28)) * ratio + *(float *)(arg0 + 0xCC - 0x28);
-            f78[2] = (*(float *)(arg0 + 0xD0) - *(float *)(arg0 + 0xD0 - 0x28)) * ratio + *(float *)(arg0 + 0xD0 - 0x28);
-            *(float *)(arg0 + 0x1C) = f78[0];
-            *(float *)(arg0 + 0x20) = f78[1];
-            *(float *)(arg0 + 0x24) = f78[2];
-            e1C = *(unsigned int *)(arg0 + 0xE4);
-            if (e1C >= *(unsigned int *)(arg0 + 0xE0)) {
-                *(float *)(arg0 + 0x1C) = *(float *)(arg0 + 0xD4);
-                *(float *)(arg0 + 0x20) = *(float *)(arg0 + 0xD8);
-                *(float *)(arg0 + 0x24) = *(float *)(arg0 + 0xDC);
-                *(unsigned int *)(arg0 + 0x28) &= 0xFFFF7FFFU;
-            } else {
-                *(unsigned int *)(arg0 + 0xE4) = e1C + (unsigned int)step;
-            }
-            if (step != 0) {
-                func_00146a10(arg0, 0, 0, arg0 + 0x1C);
+            if (frames != 0) {
+                func_00146a10(arg0, NULL, NULL, (u8 *)&resource->scale);
             }
         }
     }
-    flags = *(unsigned int *)(arg0 + 0x28);
-    if ((flags & 0x4000U) != 0) {
-        unsigned int f8;
-        unsigned int fc;
-        float f_lo;
-        float f_hi;
-        float fdiv;
-        f8 = *(unsigned int *)(arg0 + 0xF8);
-        if (f8 == 0) {
-            alpha = *(unsigned char *)(arg0 + 0xF5);
-            *(unsigned int *)(arg0 + 0x28) = flags & ~0x4000U;
+
+    if (resource->flags & 0x4000) {
+        u8 alpha;
+        if (resource->alphaDuration == 0) {
+            alpha = resource->alphaEnd;
+            resource->flags &= ~0x4000;
+        } else if (resource->alphaElapsed >= resource->alphaDuration) {
+            alpha = resource->alphaEnd;
+            resource->flags &= ~0x4000;
         } else {
-            fc = *(unsigned int *)(arg0 + 0xFC);
-            if (fc >= f8) {
-                alpha = *(unsigned char *)(arg0 + 0xF5);
-                *(unsigned int *)(arg0 + 0x28) = flags & ~0x4000U;
-            } else {
-                if ((int)*(unsigned char *)(arg0 + 0xF4) < 0) {
-                    f_lo = 2.0f * (float)(int)(((*(unsigned char *)(arg0 + 0xF4)) >> 1) | ((*(unsigned char *)(arg0 + 0xF4)) & 1U));
-                } else {
-                    f_lo = (float)(int)*(unsigned char *)(arg0 + 0xF4);
-                }
-                if ((int)*(unsigned char *)(arg0 + 0xF5) < 0) {
-                    f_hi = 2.0f * (float)(int)(((*(unsigned char *)(arg0 + 0xF5)) >> 1) | ((*(unsigned char *)(arg0 + 0xF5)) & 1U));
-                } else {
-                    f_hi = (float)(int)*(unsigned char *)(arg0 + 0xF5);
-                }
-                if ((int)f8 < 0) {
-                    tmpF = (float)(int)(((f8) >> 1) | ((f8) & 1U));
-                    tmpF = tmpF + tmpF;
-                } else {
-                    tmpF = (float)(int)f8;
-                }
-                if ((int)fc < 0) {
-                    tmpF2 = (float)(int)(((fc) >> 1) | ((fc) & 1U));
-                    tmpF2 = tmpF2 + tmpF2;
-                } else {
-                    tmpF2 = (float)(int)fc;
-                }
-                fdiv = (f_hi - f_lo) / tmpF * tmpF2 + f_lo;
-                if (!(fdiv >= 2.1474836e9f)) {
-                    i = (int)fdiv & 0xFF;
-                } else {
-                    i = ((int)(fdiv - 2.1474836e9f) | 0x80000000) & 0xFF;
-                }
-                alpha = (unsigned char)(i & 0xFF);
-                *(unsigned int *)(arg0 + 0xFC) = fc + (unsigned int)step;
-            }
+            f32 start = (f32)(u32)resource->alphaStart;
+            f32 end = (f32)(u32)resource->alphaEnd;
+            f32 delta = (end - start) / (f32)resource->alphaDuration;
+            alpha = (u8)sceneUpdateBlend(start, delta, (f32)resource->alphaElapsed);
+            resource->alphaElapsed += frames;
         }
-        i = (*(unsigned short *)arg0 & 0xFFC00) >> 10;
-        if (i == 3) {
-            unsigned char *p;
-            unsigned char b0;
-            unsigned char b1;
-            unsigned char b2;
-            unsigned char b3;
-            p = func_0047a250(*(unsigned int *)(arg0 + 0x164));
-            b0 = *(unsigned char *)(p + 0);
-            b1 = *(unsigned char *)(p + 1);
-            b2 = *(unsigned char *)(p + 2);
-            b3 = alpha;
-            tmpB0 = b0;
-            tmpB1 = b1;
-            tmpB2 = b2;
-            tmpB3 = b3;
-            if ((int)(char)b3 < 0xFF) {
-                if (*(char *)(arg0 + 0x100) != 0) {
-                    func_0047a850(*(unsigned int *)(arg0 + 0x164), tmpB0);
+        switch (sceneUpdateResourceType(resource)) {
+        case 3: {
+            SceneCharacterUpdate *character = (SceneCharacterUpdate *)resource;
+            RwRGBA color = *mdlGetColor((Model *)character->model);
+            color.alpha = alpha;
+            if (color.alpha < 0xFF) {
+                if (resource->alphaBlend != 0) {
+                    func_0047a850(character->model);
                 } else {
-                    func_0047a870(*(unsigned int *)(arg0 + 0x164), tmpB0);
+                    func_0047a870(character->model);
                 }
             } else {
-                func_0047a870(*(unsigned int *)(arg0 + 0x164), tmpB0);
+                func_0047a870(character->model);
             }
-            {
-                unsigned char buf[4];
-                buf[0] = tmpB0;
-                buf[1] = tmpB1;
-                buf[2] = tmpB2;
-                buf[3] = tmpB3;
-                func_0047a220(*(unsigned int *)(arg0 + 0x164), buf);
-            }
-        } else if (i == 6) {
-            unsigned char buf[4];
-            buf[3] = alpha;
-            func_004b14f0(*(unsigned int *)(arg0 + 0x144), buf);
-            func_004b13f0(*(unsigned int *)(arg0 + 0x144), buf);
+            mdlSetColor((Model *)character->model, &color);
+            break;
+        }
+        case 6: {
+            SceneEffectUpdate *effect = (SceneEffectUpdate *)resource;
+            SceneEffectColor color;
+            func_004b14f0(effect->effect, &color.packed);
+            color.rgba.alpha = alpha;
+            func_004b13f0(effect->effect, &color.packed);
+            break;
+        }
         }
     }
-    if ((*(unsigned int *)(arg0 + 0x28) & 0x400U) != 0) {
-        if (((*(unsigned short *)arg0 & 0xFFC00) >> 10) == 7) {
-            int lim;
-            float base;
-            lim = *(int *)(arg0 + 0x10C);
-            base = *(float *)(arg0 + 0x108);
-            if (lim <= 0) {
-                *(float *)(arg0 + 0x140) = base;
-                *(unsigned int *)(arg0 + 0x28) &= ~0x400U;
+    if (resource->flags & 0x400) {
+        switch (sceneUpdateResourceType(resource)) {
+        case 7: {
+            SceneCameraUpdate *camera = (SceneCameraUpdate *)resource;
+            s32 duration = resource->fovDuration;
+            f32 start = resource->fovStart;
+            f32 end = resource->fovEnd;
+            s32 elapsed = resource->fovElapsed;
+            if (duration <= 0) {
+                camera->fov = end;
+                resource->flags &= ~0x400;
             } else {
-                float cur;
-                cur = (*(float *)(arg0 + 0x108) - *(float *)(arg0 + 0x102)) / (float)lim * (float)*(unsigned int *)(arg0 + 0x60) + *(float *)(arg0 + 0x102);
-                *(float *)(arg0 + 0x140) = cur;
-                if (*(int *)(arg0 + 0x110) >= lim) {
-                    *(float *)(arg0 + 0x140) = base;
-                    *(unsigned int *)(arg0 + 0x28) &= ~0x400U;
+                f32 delta = (end - start) / (f32)duration;
+                /* Retail uses the movement timer for the value, then its
+                   separate FOV timer to decide when the transition ends. */
+                camera->fov = sceneUpdateBlend(start, delta, (f32)resource->moveElapsed.frame);
+                if (elapsed >= duration) {
+                    camera->fov = end;
+                    resource->flags &= ~0x400;
                 } else {
-                    *(int *)(arg0 + 0x110) += step;
+                    resource->fovElapsed += frames;
                 }
             }
+            break;
+        }
         }
     }
-    i = (*(unsigned short *)arg0 & 0xFFC00) >> 10;
-    if (i == 1) {
-        for (j = 0; j < 2; j++) {
-            if (*(int *)(arg0 + 0x140 + j * 4) != 0) {
-                func_004b1190(*(unsigned int *)(arg0 + 0x140 + j * 4));
+
+    {
+        s32 type = sceneUpdateResourceType(resource);
+    if (type == 1) {
+        SceneCharacterUpdate *character = (SceneCharacterUpdate *)resource;
+        s32 i;
+        for (i = 0; i < 2; i++) {
+            u8 *effect = sceneUpdateAttachedEffect(character, i);
+            if (effect != NULL) {
+                func_004b1190(effect);
             }
         }
-    } else if (i == 3) {
-        for (j = 0; j < 2; j++) {
-            if (*(int *)(arg0 + 0x140 + j * 4) != 0) {
-                func_004b1190(*(unsigned int *)(arg0 + 0x140 + j * 4));
+    } else if (type == 3) {
+        SceneCharacterUpdate *character = (SceneCharacterUpdate *)resource;
+        s32 i;
+        for (i = 0; i < 2; i++) {
+            u8 *effect = sceneUpdateAttachedEffect(character, i);
+            if (effect != NULL) {
+                func_004b1190(effect);
             }
         }
-    } else if (i == 6) {
-        if (*(int *)(arg0 + 0x144) != 0) {
-            func_004b1190(*(unsigned int *)(arg0 + 0x144));
-        }
-    }
-    if ((*(unsigned int *)(arg0 + 0x28) & 0x2000U) != 0) {
-        unsigned short *ptr = 0;
-        unsigned int h = 0;
-        int kind;
-        kind = (*(unsigned short *)arg0 & 0xFFC00) >> 10;
-        if (kind == 1) {
-            ptr = (unsigned short *)(arg0 + 0x14C);
-            h = *(unsigned int *)(arg0 + 0x164);
-        } else if (kind == 2) {
-            ptr = (unsigned short *)(arg0 + 0x140);
-            h = *(unsigned int *)(arg0 + 0x158);
-        } else if (kind == 3) {
-            ptr = (unsigned short *)(arg0 + 0x14C);
-            h = *(unsigned int *)(arg0 + 0x164);
-        }
-        if (ptr != 0) {
-            unsigned int idx;
-            idx = *(unsigned int *)ptr;
-            if (*(unsigned char *)(h + idx * 0xA4 + 0xEE) == 1) {
-                func_00269820((unsigned short *)arg0, (int)idx, (long long)*(int *)(ptr + 2), (long long)*(int *)(ptr + 4), *(int *)(ptr + 6), *(int *)(ptr + 8), *(float *)(ptr + 10));
-                *(unsigned int *)(arg0 + 0x28) &= ~0x2000U;
-            }
+    } else if (type == 6) {
+        SceneEffectUpdate *effect = (SceneEffectUpdate *)resource;
+        if (effect->effect != NULL) {
+            func_004b1190(effect->effect);
         }
     }
-    modeE8 = *(unsigned char *)(arg0 + 0xE8);
-    if (modeE8 == 1 || modeE8 == 2) {
-        if (modeE8 == 1) {
-            if ((*(unsigned int *)(arg0 + 0x28) & 1) == 0) {
-                int v;
-                unsigned char sub;
-                *(unsigned char *)(arg0 + 0xE8) = 0;
-                v = func_0026ba60(arg0 + 4);
-                sub = *(unsigned char *)(arg0 + 0xEA);
-                if (sub == 0) {
-                    func_0045af60(0, *(unsigned char *)(arg0 + 0xEB), 1, (int)(*(unsigned char *)(arg0 + 0xE9) + v * 4));
-                } else if (sub == 1) {
-                    func_0045af60(0, *(unsigned char *)(arg0 + 0xEB), 2, (int)*(unsigned char *)(arg0 + 0xE9) + 0x18);
+    }
+    if (resource->flags & 0x2000) {
+        SceneQueuedAnimation *animation = NULL;
+        u8 *model = NULL;
+        switch (sceneUpdateResourceType(resource)) {
+        case 1:
+            animation = &((SceneCharacterUpdate *)resource)->animation;
+            model = ((SceneCharacterUpdate *)resource)->model;
+            break;
+        case 2:
+            animation = &((SceneObjectUpdate *)resource)->animation;
+            model = ((SceneObjectUpdate *)resource)->model;
+            break;
+        case 3:
+            animation = &((SceneCharacterUpdate *)resource)->animation;
+            model = ((SceneCharacterUpdate *)resource)->model;
+            break;
+        }
+        if (animation != NULL && model[animation->layer * 0xA4 + 0xEE] == 1) {
+            sceneUpdateQueuedAnimation(resource, animation);
+            resource->flags &= ~0x2000;
+        }
+    }
+    {
+        SceneFootstepUpdate *foot = &resource->footsteps;
+        switch (foot->mode) {
+        case 0:
+            break;
+        case 1:
+        case 2:
+            if (foot->mode == 1) {
+                if (!(resource->flags & 1)) {
+                    foot->mode = 0;
+                    sceneUpdateFootstep(resource);
+                    break;
                 }
-                *(unsigned char *)(arg0 + 0xE9) += 1;
-                if ((int)*(unsigned char *)(arg0 + 0xE9) >= 4) {
-                    *(unsigned char *)(arg0 + 0xE9) = 0;
-                    return;
+            } else if (foot->mode == 2) {
+                if (!(resource->flags & 4)) {
+                    foot->mode = 0;
+                    sceneUpdateFootstep(resource);
+                    break;
                 }
-            } else if (step != 0) {
-                unsigned short d;
-                d = *(unsigned short *)(arg0 + 0xF0);
-                if ((int)(short)d > 0) {
-                    *(unsigned short *)(arg0 + 0xF0) = d - 1;
-                    return;
-                }
-                if (*(unsigned short *)(arg0 + 0xEC) == 0) {
-                    int v;
-                    unsigned char sub;
-                    v = func_0026ba60(arg0 + 4);
-                    sub = *(unsigned char *)(arg0 + 0xEA);
-                    if (sub == 0) {
-                        func_0045af60(0, *(unsigned char *)(arg0 + 0xEB), 1, (int)(*(unsigned char *)(arg0 + 0xE9) + v * 4));
-                    } else if (sub == 1) {
-                        func_0045af60(0, *(unsigned char *)(arg0 + 0xEB), 2, (int)*(unsigned char *)(arg0 + 0xE9) + 0x18);
+            } else {
+                break;
+            }
+            if (frames != 0) {
+                if (foot->delay > 0) {
+                    foot->delay--;
+                } else {
+                    if (foot->elapsed == 0) {
+                        sceneUpdateFootstep(resource);
                     }
-                    *(unsigned char *)(arg0 + 0xE9) += 1;
-                    if ((int)*(unsigned char *)(arg0 + 0xE9) >= 4) {
-                        *(unsigned char *)(arg0 + 0xE9) = 0;
+                    foot->elapsed++;
+                    if (foot->elapsed >= foot->period) {
+                        if (foot->period <= 0) {
+                            foot->mode = 0;
+                        } else {
+                            foot->elapsed = 0;
+                        }
                     }
-                }
-                *(unsigned short *)(arg0 + 0xEC) += 1;
-                if (*(unsigned short *)(arg0 + 0xEC) >= *(unsigned short *)(arg0 + 0xEE)) {
-                    if (*(unsigned short *)(arg0 + 0xEE) <= 0) {
-                        *(unsigned char *)(arg0 + 0xE8) = 0;
-                        return;
-                    }
-                    *(unsigned short *)(arg0 + 0xEC) = 0;
                 }
             }
-        } else {
-            if ((*(unsigned int *)(arg0 + 0x28) & 4) == 0) {
-                int v;
-                unsigned char sub;
-                *(unsigned char *)(arg0 + 0xE8) = 0;
-                v = func_0026ba60(arg0 + 4);
-                sub = *(unsigned char *)(arg0 + 0xEA);
-                if (sub == 0) {
-                    func_0045af60(0, *(unsigned char *)(arg0 + 0xEB), 1, (int)(*(unsigned char *)(arg0 + 0xE9) + v * 4));
-                } else if (sub == 1) {
-                    func_0045af60(0, *(unsigned char *)(arg0 + 0xEB), 2, (int)*(unsigned char *)(arg0 + 0xE9) + 0x18);
-                }
-                *(unsigned char *)(arg0 + 0xE9) += 1;
-                if ((int)*(unsigned char *)(arg0 + 0xE9) >= 4) {
-                    *(unsigned char *)(arg0 + 0xE9) = 0;
-                    return;
-                }
-            } else if (step != 0) {
-                unsigned short d;
-                d = *(unsigned short *)(arg0 + 0xF0);
-                if ((int)(short)d > 0) {
-                    *(unsigned short *)(arg0 + 0xF0) = d - 1;
-                    return;
-                }
-                if (*(unsigned short *)(arg0 + 0xEC) == 0) {
-                    int v;
-                    unsigned char sub;
-                    v = func_0026ba60(arg0 + 4);
-                    sub = *(unsigned char *)(arg0 + 0xEA);
-                    if (sub == 0) {
-                        func_0045af60(0, *(unsigned char *)(arg0 + 0xEB), 1, (int)(*(unsigned char *)(arg0 + 0xE9) + v * 4));
-                    } else if (sub == 1) {
-                        func_0045af60(0, *(unsigned char *)(arg0 + 0xEB), 2, (int)*(unsigned char *)(arg0 + 0xE9) + 0x18);
-                    }
-                    *(unsigned char *)(arg0 + 0xE9) += 1;
-                    if ((int)*(unsigned char *)(arg0 + 0xE9) >= 4) {
-                        *(unsigned char *)(arg0 + 0xE9) = 0;
-                    }
-                }
-                *(unsigned short *)(arg0 + 0xEC) += 1;
-                if (*(unsigned short *)(arg0 + 0xEC) >= *(unsigned short *)(arg0 + 0xEE)) {
-                    if (*(unsigned short *)(arg0 + 0xEE) <= 0) {
-                        *(unsigned char *)(arg0 + 0xE8) = 0;
-                        return;
-                    }
-                    *(unsigned short *)(arg0 + 0xEC) = 0;
-                }
-            }
+            break;
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026a020);
-#endif
-
 /* measured: ported from m2c + P3FES idioms. Best nd 60 (obj 428B/window 432B)
    with hoisted temp_3[0]/temp_3[4] loads + sp40p base pointer. Residual:
    retail materializes func_00168ec0 arg3 (&sp40) via addiu $a2,$sp,0x40 at the
@@ -1824,7 +1655,7 @@ s32 func_0026bd50(u32 unk, s32 arg1) {
 
 
 // FUN_0026BDA0
-s32 func_0026bda0(u32 arg0, s8 arg1, s8 arg2, s16 arg3, s16 arg4, s8 arg5)
+s32 func_0026bda0(u32 arg0, s32 arg1, u8 arg2, s16 arg3, s16 arg4, s16 arg5)
 {
     u8 *p = func_00145270(arg0);
 
@@ -2027,7 +1858,7 @@ void func_0026c190(f32 *out, void *resource, f32 scale)
             base[1] = *(f32 *)(handle + 8);
             base[2] = *(f32 *)(handle + 0xc);
             scale = *(f32 *)((u8 *)resource + 0x144);
-            func_00146f50(matrix, base, axis);
+            func_00146f50((u32 *)matrix, base, (u32 *)axis);
             src = (s32 *)matrix;
             dst = (s32 *)matrix_copy;
             count = 8;

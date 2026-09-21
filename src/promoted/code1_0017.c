@@ -52,7 +52,7 @@ extern s32 func_0015a160(void);
    promotion order of an old-style call with a u16 local for b and an explicit
    (u16) cast on a; any prototyped u16 parameter hoists the a3 mask before the
    loads (nd4). Sole caller in this unit. */
-extern s32 func_00161630();
+extern s32 func_00161630(s32 field, s32 room, s32 encounter, s32 level);
 extern void func_00182310(s32 arg0);
 extern void func_0018e030(s32 arg0, s32 arg1);
 extern s32 func_0029da90(s32 arg0, s32 arg1, s32 arg2);

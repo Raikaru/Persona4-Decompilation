@@ -3272,7 +3272,7 @@ u32 func_0023d9b0(u8 *arg0, s32 arg1)
 }
 #pragma pop
 // FUN_0023DD90
-u8 func_0023dd90(u8 *arg0, s32 arg1)
+u16 func_0023dd90(u8 *arg0, s32 arg1)
 {
     u8 *base = iGpffffb3b8 + 3;
     return *(u8 *)(base + (arg1 & 0xFFFF) * 0x28);

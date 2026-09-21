@@ -89,58 +89,56 @@ u8 *func_001d0730(s32 arg0, s32 arg1)
     }
     return (u8 *)((s32)&D_005FE1D0 + ((((arg0 & 0xFFFF) * 3) + (func_004bd050(0) & 1)) * 0x34));
 }
-/* measured: probe 420 words via probe_variants v3 candidate. */
-/* fnalign retail 571 vs object 557 (14 short, 2.5 pct, within 3 pct gate). */
-/* 113 edits +8 reloc-only. v1 445-560, v2 433-557, v3 420-557. */
-/* Goto switch layout took edits 364 to 113. wscan dsll32 2-2. */
-/* Repro: m2c to m2c.c (281 lines) and romwright to rom.c (269 lines). */
-/* romwright types short int-voidptr, 492 instrs, plus raw output. */
-/* De-noised to file idiom: u8 ptr, f32, s16-u16, Frame 0x70-0x1B0. */
-/* Frame pads pad88-A8-17C-18C-19C for 0x1C0 frame, plain f32 vecs. */
-/* u64 copy for D_0060A0E0, explicit goto switches for retail layout. */
-// FUN_001D07E0 NONMATCHING
-#ifdef NON_MATCHING
+typedef struct RwV3d { f32 x, y, z; } RwV3d;
+typedef struct RtQuat { RwV3d imag; f32 real; } RtQuat;
+typedef struct RwMatrixTag {
+    RwV3d right; u32 flags;
+    RwV3d up; u32 pad1;
+    RwV3d at; u32 pad2;
+    RwV3d pos; u32 pad3;
+} RwMatrix;
+typedef struct P4CameraFrame { RwV3d pos; RtQuat rot; } P4CameraFrame;
+typedef struct BtlUnit BtlUnit;
+
+/* Round the Y/Z displacement products before adding their focus coordinates. */
+static inline f32 btlCamera_product(f32 left, f32 right)
+{
+    return left * right;
+}
+
+// FUN_001D07E0
 s32 func_001d07e0(u8 *arg0, u8 *arg1)
 {
     extern u32 func_001d10d0(void *camera);
     extern u8 *func_001b0c80(s32 arg0);
-    extern void func_00195aa0(u8 *arg0, u8 *arg1, f32 *arg2);
-    extern void func_001ec1c0(f32 *out, f32 *a, f32 *b);
-    extern void func_003dcb40(f32 *out, f32 *in, s32 count, f32 *rot);
-    extern void func_001959d0(u8 *arg0, f32 *arg1);
-    extern void func_001bd780(void *out, void *first, void *second, void *config);
-    extern void func_003e0870(void *out, void *in, s32 mode, f32 angle);
-    extern void func_003e4320(void *out, void *in, void *matrix);
-    extern void func_001bac20(u8 *arg0, f32 *arg1, f32 *arg2, s32 arg3);
+    extern void func_00195aa0(BtlUnit *unit, BtlUnit *target, RwV3d *out);
+    extern void func_001ec1c0(u8 *out, u8 *first, u8 *second);
+    extern RwV3d *RtQuatTransformVectors(RwV3d *out, const RwV3d *in, s32 count, const RtQuat *rotation);
+    extern void func_001959d0(BtlUnit *unit, RwV3d *out);
+    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
+    extern void func_001bd780(void *out, const void *first, const void *second, const void *config);
+    extern RwMatrix *func_003e0870(RwMatrix *matrix, const RwV3d *axis, f32 angle, s32 mode);
+    extern RwV3d *func_003e4320(RwV3d *out, const RwV3d *in, const RwMatrix *matrix);
+    extern void func_001bac20(u16 *camera, f32 *first, f32 *second, u16 mode);
     extern void func_001bbe80(u8 *arg0, f32 arg1);
     extern void func_001bbef0(u8 *arg0, f32 arg1);
     extern void func_001bbf40(u8 *arg0, f32 arg1);
-    extern u8 D_0060A0E0[];
-    extern u8 D_0060A0F0[];
-    extern u8 D_0060A100[];
-    struct Frame {
-        f32 f70[6];
-        u8 pad88[8];
-        f32 f90[6];
-        u8 padA8[8];
-        f32 quatB0[4];
-        f32 quatC0[4];
-        f32 matD0[16];
-        f32 pos110[3];
-        f32 quat11C[4];
-        f32 pos12C[3];
-        f32 quat138[6];
-        f32 tmp150[4];
-        f32 tmp160[4];
-        f32 vec170[3];
-        u8 pad17C[4];
-        f32 inB[3];
-        u8 pad18C[4];
-        f32 inA[3];
-        u8 pad19C[4];
-        f32 pos1A0[4];
-        f32 dir1B0[4];
-    } frame;
+    extern RwV3d D_0060A0E0;
+    extern RwV3d D_0060A0F0;
+    extern RwV3d D_0060A100;
+    RwV3d direction;
+    RwV3d position;
+    RwV3d offsetA;
+    RwV3d offsetB;
+    RwV3d up;
+    RwV3d centerA;
+    RwV3d centerB;
+    P4CameraFrame poses[2];
+    RwMatrix matrix;
+    RtQuat rotationA;
+    RtQuat rotationB;
+    RwV3d transformed[2];
+    RwV3d focus[2];
     u8 *base;
     s16 index;
     s16 next;
@@ -148,7 +146,6 @@ s32 func_001d07e0(u8 *arg0, u8 *arg1)
     u8 *unit0;
     u8 *unit1;
     u8 *tmpUnit;
-    f32 scale;
     f32 angle;
     u16 cntC;
     s16 dur;
@@ -170,12 +167,13 @@ s32 func_001d07e0(u8 *arg0, u8 *arg1)
         goto next_entry;
     }
     cntC = *(u16 *)(arg1 + 0xC);
-    dur = *(s16 *)(base + index * 0x3C + 4);
+    dur = *(s16 *)(btlCamera_add_index(index * 0x3C, base) + 4);
     if ((s32)cntC < (s32)dur) {
         goto bump_tick;
     }
 next_entry:
-    next = (s16)(index + 1);
+    next = index;
+    ++next;
     if ((s32)next >= (s32)*(u8 *)base) {
         goto clear_flag;
     }
@@ -196,169 +194,136 @@ next_entry:
     unit0 = *(u8 **)(*(u8 **)(arg1 + 0) + 0x30);
     if (unit0 != unit1) {
         if ((*(u16 *)(arg1 + 0xE) & 0x20) == 0) {
-            func_001ec1c0(frame.quatC0, (f32 *)(unit0 + 4), (f32 *)(unit1 + 4));
-            func_001ec1c0(frame.quatB0, (f32 *)(*(u8 **)(*(u8 **)(arg1 + 4) + 0x30) + 4), (f32 *)(*(u8 **)(*(u8 **)(arg1 + 0) + 0x30) + 4));
+            func_001ec1c0((u8 *)&rotationA, (u8 *)(unit0 + 4), (u8 *)(unit1 + 4));
+            func_001ec1c0((u8 *)&rotationB, (u8 *)(*(u8 **)(*(u8 **)(arg1 + 4) + 0x30) + 4), (u8 *)(*(u8 **)(*(u8 **)(arg1 + 0) + 0x30) + 4));
         } else {
-            func_00195aa0(unit0, unit1, frame.tmp160);
-            func_00195aa0(*(u8 **)(*(u8 **)(arg1 + 4) + 0x30), *(u8 **)(*(u8 **)(arg1 + 0) + 0x30), frame.tmp150);
-            func_001ec1c0(frame.quatC0, frame.tmp160, frame.tmp150);
-            func_001ec1c0(frame.quatB0, frame.tmp150, frame.tmp160);
+            func_00195aa0((BtlUnit *)unit0, (BtlUnit *)unit1, &centerA);
+            func_00195aa0(*(BtlUnit **)(*(u8 **)(arg1 + 4) + 0x30), *(BtlUnit **)(*(u8 **)(arg1 + 0) + 0x30), &centerB);
+            func_001ec1c0((u8 *)&rotationA, (u8 *)&centerA, (u8 *)&centerB);
+            func_001ec1c0((u8 *)&rotationB, (u8 *)&centerB, (u8 *)&centerA);
         }
     } else {
-        frame.quatC0[0] = *(f32 *)(unit0 + 0x1C);
-        frame.quatC0[1] = *(f32 *)(unit0 + 0x20);
-        frame.quatC0[2] = *(f32 *)(unit0 + 0x24);
-        frame.quatC0[3] = *(f32 *)(unit0 + 0x28);
+        rotationA = *(RtQuat *)(unit0 + 0x1C);
         tmpUnit = *(u8 **)(*(u8 **)(arg1 + 0) + 0x30);
-        frame.quatB0[0] = *(f32 *)(tmpUnit + 0x1C);
-        frame.quatB0[1] = *(f32 *)(tmpUnit + 0x20);
-        frame.quatB0[2] = *(f32 *)(tmpUnit + 0x24);
-        frame.quatB0[3] = *(f32 *)(tmpUnit + 0x28);
+        rotationB = *(RtQuat *)(tmpUnit + 0x1C);
     }
-    frame.inA[0] = *(f32 *)(entry + 4);
-    frame.inA[1] = *(f32 *)(entry + 8);
-    frame.inA[2] = *(f32 *)(entry + 12);
-    frame.inB[0] = *(f32 *)(entry + 16);
-    frame.inB[1] = *(f32 *)(entry + 20);
-    frame.inB[2] = *(f32 *)(entry + 24);
+    offsetA = *(RwV3d *)(entry + 4);
+    offsetB = *(RwV3d *)(entry + 16);
     if ((*(u16 *)(arg1 + 0xE) & 2) != 0) {
-        frame.inA[0] = frame.inA[0] * -1.0f;
-        frame.inB[0] = frame.inB[0] * -1.0f;
+        offsetA.x = offsetA.x * -1.0f;
+        offsetB.x = offsetB.x * -1.0f;
     }
     sw1 = *(u16 *)(entry + 2);
-    if (sw1 == 2) {
-        goto sw1_case2;
+    switch (sw1) {
+    case 1:
+        tmpUnit = *(u8 **)(*(u8 **)(arg1 + 0) + 0x30);
+        RtQuatTransformVectors(&transformed[0], &offsetA, 1, &rotationA);
+        RtQuatTransformVectors(&transformed[1], &offsetB, 1, &rotationA);
+        poses[0].pos.x = *(f32 *)(tmpUnit + 4) + transformed[0].x;
+        poses[0].pos.y = *(f32 *)(tmpUnit + 8) + transformed[0].y;
+        poses[0].pos.z = *(f32 *)(tmpUnit + 12) + transformed[0].z;
+        poses[1].pos.x = *(f32 *)(tmpUnit + 4) + transformed[1].x;
+        poses[1].pos.y = *(f32 *)(tmpUnit + 8) + transformed[1].y;
+        poses[1].pos.z = *(f32 *)(tmpUnit + 12) + transformed[1].z;
+        break;
+    case 2:
+        tmpUnit = *(u8 **)(*(u8 **)(arg1 + 4) + 0x30);
+        RtQuatTransformVectors(&transformed[0], &offsetA, 1, &rotationB);
+        RtQuatTransformVectors(&transformed[1], &offsetB, 1, &rotationB);
+        poses[0].pos.x = *(f32 *)(tmpUnit + 4) + transformed[0].x;
+        poses[0].pos.y = *(f32 *)(tmpUnit + 8) + transformed[0].y;
+        poses[0].pos.z = *(f32 *)(tmpUnit + 12) + transformed[0].z;
+        poses[1].pos.x = *(f32 *)(tmpUnit + 4) + transformed[1].x;
+        poses[1].pos.y = *(f32 *)(tmpUnit + 8) + transformed[1].y;
+        poses[1].pos.z = *(f32 *)(tmpUnit + 12) + transformed[1].z;
+        break;
     }
-    if (sw1 != 1) {
-        goto sw1_done;
-    }
-    goto sw1_case1;
-sw1_case1:
-    tmpUnit = *(u8 **)(*(u8 **)(arg1 + 0) + 0x30);
-    func_003dcb40(&frame.f90[0], frame.inA, 1, frame.quatC0);
-    func_003dcb40(&frame.f90[3], frame.inB, 1, frame.quatC0);
-    frame.pos110[0] = *(f32 *)(tmpUnit + 4) + frame.f90[0];
-    frame.pos110[1] = *(f32 *)(tmpUnit + 8) + frame.f90[1];
-    frame.pos110[2] = *(f32 *)(tmpUnit + 12) + frame.f90[2];
-    frame.pos12C[0] = *(f32 *)(tmpUnit + 4) + frame.f90[3];
-    frame.pos12C[1] = *(f32 *)(tmpUnit + 8) + frame.f90[4];
-    frame.pos12C[2] = *(f32 *)(tmpUnit + 12) + frame.f90[5];
-    goto sw1_done;
-sw1_case2:
-    tmpUnit = *(u8 **)(*(u8 **)(arg1 + 4) + 0x30);
-    func_003dcb40(&frame.f90[0], frame.inA, 1, frame.quatB0);
-    func_003dcb40(&frame.f90[3], frame.inB, 1, frame.quatB0);
-    frame.pos110[0] = *(f32 *)(tmpUnit + 4) + frame.f90[0];
-    frame.pos110[1] = *(f32 *)(tmpUnit + 8) + frame.f90[1];
-    frame.pos110[2] = *(f32 *)(tmpUnit + 12) + frame.f90[2];
-    frame.pos12C[0] = *(f32 *)(tmpUnit + 4) + frame.f90[3];
-    frame.pos12C[1] = *(f32 *)(tmpUnit + 8) + frame.f90[4];
-    frame.pos12C[2] = *(f32 *)(tmpUnit + 12) + frame.f90[5];
-sw1_done:
-    frame.inA[0] = *(f32 *)(entry + 32);
-    frame.inA[1] = *(f32 *)(entry + 36);
-    frame.inA[2] = *(f32 *)(entry + 40);
-    frame.inB[0] = *(f32 *)(entry + 44);
-    frame.inB[1] = *(f32 *)(entry + 48);
-    frame.inB[2] = *(f32 *)(entry + 52);
+    offsetA = *(RwV3d *)(entry + 32);
+    offsetB = *(RwV3d *)(entry + 44);
     if ((*(u16 *)(arg1 + 0xE) & 2) != 0) {
-        frame.inA[0] = frame.inA[0] * -1.0f;
-        frame.inB[0] = frame.inB[0] * -1.0f;
+        offsetA.x = offsetA.x * -1.0f;
+        offsetB.x = offsetB.x * -1.0f;
     }
     sw2 = *(u16 *)(entry + 28);
-    if (sw2 == 3) {
-        goto sw2_case3;
-    }
-    if (sw2 == 2) {
-        goto sw2_case2;
-    }
-    if (sw2 != 1) {
-        goto sw2_done;
-    }
-    goto sw2_case1;
-sw2_case1:
-    tmpUnit = *(u8 **)(*(u8 **)(arg1 + 0) + 0x30);
-    func_003dcb40(&frame.f90[0], frame.inA, 1, frame.quatC0);
-    func_003dcb40(&frame.f90[3], frame.inB, 1, frame.quatC0);
-    frame.f70[0] = *(f32 *)(tmpUnit + 4) + frame.f90[0];
-    frame.f70[1] = *(f32 *)(tmpUnit + 8) + frame.f90[1];
-    frame.f70[2] = *(f32 *)(tmpUnit + 12) + frame.f90[2];
-    frame.f70[3] = *(f32 *)(tmpUnit + 4) + frame.f90[3];
-    frame.f70[4] = *(f32 *)(tmpUnit + 8) + frame.f90[4];
-    frame.f70[5] = *(f32 *)(tmpUnit + 12) + frame.f90[5];
-    goto sw2_done;
-sw2_case2:
-    tmpUnit = *(u8 **)(*(u8 **)(arg1 + 4) + 0x30);
-    func_003dcb40(&frame.f90[0], frame.inA, 1, frame.quatB0);
-    func_003dcb40(&frame.f90[3], frame.inB, 1, frame.quatB0);
-    frame.f70[0] = *(f32 *)(tmpUnit + 4) + frame.f90[0];
-    frame.f70[1] = *(f32 *)(tmpUnit + 8) + frame.f90[1];
-    frame.f70[2] = *(f32 *)(tmpUnit + 12) + frame.f90[2];
-    frame.f70[3] = *(f32 *)(tmpUnit + 4) + frame.f90[3];
-    frame.f70[4] = *(f32 *)(tmpUnit + 8) + frame.f90[4];
-    frame.f70[5] = *(f32 *)(tmpUnit + 12) + frame.f90[5];
-    goto sw2_done;
-sw2_case3:
-    tmpUnit = *(u8 **)(*(u8 **)(arg1 + 4) + 0x30);
-    if ((*(u32 *)(tmpUnit + 0x9C) & 0x8000) == 0) {
-        func_001959d0(tmpUnit, frame.pos1A0);
-    } else {
-        func_00195850(tmpUnit, frame.pos1A0);
-    }
-    func_003dcb40(frame.dir1B0, (f32 *)D_0060A100, 1, frame.quatC0);
-    scale = *(f32 *)(tmpUnit + 0x90) * *(f32 *)(tmpUnit + 0x2C);
-    frame.f70[0] = frame.pos1A0[0] + frame.dir1B0[0] * scale;
-    frame.f70[1] = frame.pos1A0[1] + frame.dir1B0[1] * scale;
-    frame.f70[2] = frame.pos1A0[2] + frame.dir1B0[2] * scale;
-    if (frame.f70[1] < 100.0f) {
-        frame.f70[1] = 100.0f;
-    } else {
-        if ((*(u16 *)(arg1 + 0xE) & 8) != 0) {
-            if (frame.f70[1] > 250.0f) {
-                frame.f70[1] = 250.0f;
-            }
-        } else if ((*(u16 *)(arg1 + 0xE) & 0x10) != 0) {
-            if (frame.f70[1] > 500.0f) {
-                frame.f70[1] = 500.0f;
-            }
-        } else if (((*(u16 *)(arg1 + 0xE) & 4) != 0) && (frame.f70[1] > 150.0f)) {
-            frame.f70[1] = 150.0f;
+    switch (sw2) {
+    case 1:
+        tmpUnit = *(u8 **)(*(u8 **)(arg1 + 0) + 0x30);
+        RtQuatTransformVectors(&transformed[0], &offsetA, 1, &rotationA);
+        RtQuatTransformVectors(&transformed[1], &offsetB, 1, &rotationA);
+        focus[0].x = *(f32 *)(tmpUnit + 4) + transformed[0].x;
+        focus[0].y = *(f32 *)(tmpUnit + 8) + transformed[0].y;
+        focus[0].z = *(f32 *)(tmpUnit + 12) + transformed[0].z;
+        focus[1].x = *(f32 *)(tmpUnit + 4) + transformed[1].x;
+        focus[1].y = *(f32 *)(tmpUnit + 8) + transformed[1].y;
+        focus[1].z = *(f32 *)(tmpUnit + 12) + transformed[1].z;
+        break;
+    case 2:
+        tmpUnit = *(u8 **)(*(u8 **)(arg1 + 4) + 0x30);
+        RtQuatTransformVectors(&transformed[0], &offsetA, 1, &rotationB);
+        RtQuatTransformVectors(&transformed[1], &offsetB, 1, &rotationB);
+        focus[0].x = *(f32 *)(tmpUnit + 4) + transformed[0].x;
+        focus[0].y = *(f32 *)(tmpUnit + 8) + transformed[0].y;
+        focus[0].z = *(f32 *)(tmpUnit + 12) + transformed[0].z;
+        focus[1].x = *(f32 *)(tmpUnit + 4) + transformed[1].x;
+        focus[1].y = *(f32 *)(tmpUnit + 8) + transformed[1].y;
+        focus[1].z = *(f32 *)(tmpUnit + 12) + transformed[1].z;
+        break;
+    case 3:
+        tmpUnit = *(u8 **)(*(u8 **)(arg1 + 4) + 0x30);
+        if ((*(u32 *)(tmpUnit + 0x9C) & 0x8000) == 0) {
+            func_001959d0((BtlUnit *)tmpUnit, &position);
+        } else {
+            btlUnitGetSphereWorldCenter((BtlUnit *)tmpUnit, &position);
         }
+        RtQuatTransformVectors(&direction, &D_0060A100, 1, &rotationA);
+        {
+            RwV3d displacement;
+            displacement.x = direction.x * (*(f32 *)(tmpUnit + 0x90) * *(f32 *)(tmpUnit + 0x2C));
+            displacement.y = btlCamera_product(direction.y, (*(f32 *)(tmpUnit + 0x90) * *(f32 *)(tmpUnit + 0x2C)));
+            displacement.z = btlCamera_product(direction.z, (*(f32 *)(tmpUnit + 0x90) * *(f32 *)(tmpUnit + 0x2C)));
+            focus[0].x = 0.0f + position.x + displacement.x;
+            focus[0].y = position.y + displacement.y;
+            focus[0].z = position.z + displacement.z;
+        }
+        if (focus[0].y < 100.0f) {
+            focus[0].y = 100.0f;
+        } else {
+            if ((*(u16 *)(arg1 + 0xE) & 8) != 0) {
+                if (focus[0].y > 250.0f) {
+                    focus[0].y = 250.0f;
+                }
+            } else if ((*(u16 *)(arg1 + 0xE) & 0x10) != 0) {
+                if (focus[0].y > 500.0f) {
+                    focus[0].y = 500.0f;
+                }
+            } else if (((*(u16 *)(arg1 + 0xE) & 4) != 0) && (focus[0].y > 150.0f)) {
+                focus[0].y = 150.0f;
+            }
+        }
+        focus[1] = focus[0];
+        break;
     }
-    frame.f70[3] = frame.f70[0];
-    frame.f70[4] = frame.f70[1];
-    frame.f70[5] = frame.f70[2];
-sw2_done:
-    func_001bd780(frame.quat11C, frame.pos110, frame.f70, D_0060A0E0);
+    func_001bd780(&poses[0].rot, &poses[0].pos, &focus[0], &D_0060A0E0);
     angle = *(f32 *)(entry + 56);
     if (angle != 0.0f) {
-        func_003e0870(frame.matD0, D_0060A0F0, 0, angle);
-        func_003e4320(frame.vec170, D_0060A0E0, frame.matD0);
+        func_003e0870(&matrix, &D_0060A0F0, angle, 0);
+        func_003e4320(&up, &D_0060A0E0, &matrix);
     } else {
-        *(u64 *)frame.vec170 = *(u64 *)D_0060A0E0;
-        frame.vec170[2] = *(f32 *)(D_0060A0E0 + 8);
+        up = D_0060A0E0;
     }
-    func_001bd780(frame.quat138, frame.pos12C, &frame.f70[3], frame.vec170);
-    func_001bac20(arg0, frame.pos110, frame.pos12C, 1);
-    if (*(s16 *)(base + 2) == 2) {
-        goto fin2;
+    func_001bd780(&poses[1].rot, &poses[1].pos, &focus[1], &up);
+    func_001bac20((u16 *)arg0, (f32 *)&poses[0], (f32 *)&poses[1], 1);
+    switch (*(s16 *)(base + 2)) {
+    case 0:
+        func_001bbf40(arg0, (f32)*(s16 *)entry / 30.0f);
+        break;
+    case 1:
+        func_001bbe80(arg0, (f32)*(s16 *)entry / 30.0f);
+        break;
+    case 2:
+        func_001bbef0(arg0, (f32)*(s16 *)entry / 30.0f);
+        break;
     }
-    if (*(s16 *)(base + 2) != 1) {
-        if (*(s16 *)(base + 2) != 0) {
-            goto fin_done;
-        }
-        goto fin0;
-    }
-    goto fin1;
-fin0:
-    func_001bbf40(arg0, (f32)*(s16 *)entry / 30.0f);
-    goto fin_done;
-fin1:
-    func_001bbe80(arg0, (f32)*(s16 *)entry / 30.0f);
-    goto fin_done;
-fin2:
-    func_001bbef0(arg0, (f32)*(s16 *)entry / 30.0f);
-fin_done:
     *(s16 *)(arg1 + 0xA) = (s16)(index + 1);
     *(u16 *)(arg1 + 0xC) = 0;
     goto tick;
@@ -371,9 +336,6 @@ tick:
     *(u16 *)(arg1 + 0x8) = (u16)(*(u16 *)(arg1 + 0x8) + 1);
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlCamera_grouped", func_001d07e0);
-#endif
 // FUN_001D10D0
 u32 func_001d10d0(void* camera)
 {
