@@ -34,11 +34,29 @@ Boston, MA 02111-1307, USA.  */
    the executable file might be covered by the GNU General Public License.  */
 
 /* Adapted from GCC releases/gcc-2.95/gcc/config/fp-bit.c, GOFAST float_to_usi.
- * Retail symbol and unpacker ABI retained. ee-gcc 2.96 -O2: 156B/160B,
- * zero differing instruction bytes; the final retail word is zero padding.
- * The accompanying license is in COPYING.gcc-runtime; these notices and
- * exceptions apply to this runtime source, not unrelated project files. */
+ * Retail symbol and unpacker ABI retained. The accompanying license is in
+ * COPYING.gcc-runtime; these notices and exceptions apply to this runtime
+ * source, not unrelated project files.
+ *
+ * measured 2026-09-21, ee-gcc 2.96 -O2 -G0: 160B against retail's 160B, 91
+ * differing bytes. The header here used to claim "zero differing instruction
+ * bytes", and that claim was wrong and unverifiable from outside: this unit
+ * is in config/gcc_units.txt, and verify.py excluded those from its default
+ * scan, so nothing ever graded it. Counting the gcc units exposed it.
+ *
+ * Two independent differences, neither a spelling question:
+ *   - register colouring. Retail keeps the unpacked fields in $t7/$t5/$t6
+ *     across the whole body where this C leaves them in the argument
+ *     registers $a0/$v1/$a1. Every instruction that touches a field differs
+ *     only in its register fields.
+ *   - block placement. Retail sinks the `exponent > 60` shift-left arm past
+ *     the return and branches back to it (`b .-32` at the tail); this body
+ *     emits it inline, which is why the tails disagree in length rather
+ *     than content.
+ * Both point at how the value is carried, not at what it computes, so the
+ * arithmetic below is believed correct and is kept under NON_MATCHING. */
 
+#include "include_asm.h"
 #include "type.h"
 extern void func_0044ddf0(u32 *, u32 *);
 typedef enum { SNAN, QNAN, ZERO, NUMBER, INFINITY } FloatClass;
@@ -46,7 +64,9 @@ typedef struct { FloatClass kind; u32 sign; s32 exponent; u64 fraction; } FloatP
 static __inline__ int iszero(FloatParts *p) { return p->kind == 2; }
 static __inline__ int isnan(FloatParts *p) { return p->kind == SNAN || p->kind == QNAN; }
 static __inline__ int isinf(FloatParts *p) { return p->kind == 4; }
-// FUN_0044E830
+
+// FUN_0044E830 NONMATCHING
+#ifdef NON_MATCHING
 u32 func_0044e830(f64 arg0)
 {
     FloatParts parts;
@@ -65,3 +85,6 @@ u32 func_0044e830(f64 arg0)
     else
         return parts.fraction >> (60 - parts.exponent);
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e830);
+#endif

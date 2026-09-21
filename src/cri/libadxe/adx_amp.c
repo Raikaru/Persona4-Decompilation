@@ -79,7 +79,6 @@ ADXAMP ADXAMP_Create(Sint32 maxnch, SJ *sji, SJ *sjo)
 }
 
 // 100% matching!
-// FUN_004C1518
 void ADXAMP_Destroy(ADXAMP amp) 
 {
     if (amp != NULL)
@@ -114,7 +113,6 @@ void ADXAMP_Start(ADXAMP amp)
 }
 
 // 100% matching!
-// FUN_004C1710
 void ADXAMP_Stop(ADXAMP amp)
 {
     amp->stat = 0;

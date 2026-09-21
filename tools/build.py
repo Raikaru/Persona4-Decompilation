@@ -700,6 +700,21 @@ def check_link_floor(count):
     )
 
 
+def _gcc_unit_has_c(path):
+    """True when a gcc unit carries compiled C, not just INCLUDE_ASM.
+
+    Most config/gcc_units.txt entries are pure assembly holders: compiling
+    them produces .text no marker owns, which the per-function layout cannot
+    place, and their bytes are identical whichever way they arrive. Only the
+    units with real reconstructed C -- the CRI ones -- need the compiler.
+    """
+    try:
+        return any(not m.get("asm") and m.get("name") and not m.get("stub")
+                   for m in V.scan_markers(path))
+    except Exception:
+        return False
+
+
 def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
                        include_generated=False):
     """Select matching C source units that can be placed byte-exact."""
@@ -712,15 +727,16 @@ def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
     # the runtime. The candidate-promotion flow drives them separately through
     # build/m2c_verify_report.json, so they are opt-in here.
     # config/gcc_units.txt lists units retail built with ee-gcc rather than
-    # MWCCPS2. Building them needs an ee-gcc toolchain that is not part of this
-    # repo, so the build failed outright wherever it was absent, including CI.
-    # They are compiler-runtime and vendor code, not first-party game code.
-    # Link their extracted retail assembly, which is byte-identical by
-    # construction, so the build does not depend on a second compiler.
+    # MWCCPS2. Those used to be excluded and linked from their extracted
+    # retail assembly instead, so the build needed only one compiler. The CRI
+    # units under src/cri ended that: they are reconstructed C that compiles
+    # to retail's bytes, and linking assembly over them would throw the
+    # source away. ee-gcc is a build requirement now; _compile_unit routes
+    # these through tools/eegcc_shim.py.
     sources = sorted(p for p in (REPO / "src").rglob("*.c")
                      if (include_generated or not V.is_generated(p))
-                     and not V.is_gcc_unit(p)
-                     and not is_pure_sdk_source(p))
+                     and not is_pure_sdk_source(p)
+                     and (not V.is_gcc_unit(p) or _gcc_unit_has_c(p)))
     for cpath in sources:
         markers = V.scan_markers(cpath)
         real = [m for m in markers if m["name"]]
@@ -1045,6 +1061,37 @@ def _compile_with_mwccgap(c, src, output):
     )
 
 
+def _unit_flags(c, src):
+    """Cache-key flags for a unit, from whichever compiler actually builds it.
+
+    `_mwccgap_flags` calls `V.unit_compiler`, which resolves the unit's key
+    against `mwcc_versions` -- and a gcc unit's key names an ee-gcc include
+    set, not a Metrowerks build, so asking mwccgap about it is an error.
+    """
+    if V.is_gcc_unit(Path(src)):
+        key = V.compiler_units().get(
+            Path(src).resolve().relative_to(REPO).as_posix()) or "eegcc296"
+        return [*c["compile_flags"], *V.version_flags().get(key, [])]
+    return _mwccgap_flags(c, src)
+
+
+def _compile_unit(c, src, output):
+    """Compile one unit with whichever compiler retail used for it.
+
+    `config/gcc_units.txt` units go through tools/eegcc_shim.py, which
+    compiles to assembly, splices the INCLUDE_ASM listings and assembles.
+    verify.py already owns that invocation, including the per-unit include
+    set, so it is reused here rather than duplicated.
+    """
+    if V.is_gcc_unit(src):
+        compiled, log = V._compile_gcc(src, c, Path(output))
+        if not compiled:
+            sys.stderr.write(log)
+            sys.exit(f"build: ee-gcc failed for {src.relative_to(REPO)}")
+        return
+    _compile_with_mwccgap(c, src, output)
+
+
 INCLUDE_ASM_CACHE_RE = re.compile(
     r'^\s*INCLUDE_(?:ASM|RODATA)\s*\(\s*"([^"]*)"\s*,\s*'
     r"([A-Za-z_][A-Za-z0-9_]*)"
@@ -1077,6 +1124,18 @@ def _cache_inputs(mode, source=None):
 
 
 def _cache_tools(c, mode, src=None):
+    # A gcc unit is not built by mwcc at all, so its cache key must name the
+    # ee-gcc root instead; otherwise swapping toolchains would reuse objects
+    # built by the other compiler.
+    if src is not None and V.is_gcc_unit(Path(src)):
+        tools = {"eegcc": str(c.get("eegcc_root", "")),
+                 "eegcc_flags": V.version_flags().get(
+                     V.compiler_units().get(
+                         Path(src).resolve().relative_to(REPO).as_posix())
+                     or "eegcc296", [])}
+        if AS_TOOL is not None:
+            tools["assembler"] = AS_TOOL.argv
+        return tools
     tools = {"mwcc": V.unit_compiler(Path(src), c) if src is not None else c["mwcc"]}
     if AS_TOOL is not None:
         tools["assembler"] = AS_TOOL.argv
@@ -1091,10 +1150,10 @@ def compile_eligibility(c, src, cache):
     # Both the eligibility and link paths now compile through mwccgap, so the
     # cache key must record the mwccgap flags actually used -- keying on the
     # bare compile_flags would miss an assembler/prefix change.
-    flags = _mwccgap_flags(c, src)
+    flags = _unit_flags(c, src)
 
     def produce(temporary):
-        _compile_with_mwccgap(c, src, temporary)
+        _compile_unit(c, src, temporary)
         return True, ""
 
     compiled, _log = cache.build(
@@ -1112,7 +1171,7 @@ def compile_eligibility(c, src, cache):
 
 def compile_c(c, src, obj, cache):
     def produce(temporary):
-        _compile_with_mwccgap(c, src, temporary)
+        _compile_unit(c, src, temporary)
         progbitsify(temporary)
         return True, ""
 
@@ -1121,7 +1180,7 @@ def compile_c(c, src, obj, cache):
         output=obj,
         source=src,
         include_dirs=_include_dirs(c["compile_flags"]),
-        flags=_mwccgap_flags(c, src),
+        flags=_unit_flags(c, src),
         tools=_cache_tools(c, "link", src),
         inputs=_cache_inputs("link", src),
         producer=produce,

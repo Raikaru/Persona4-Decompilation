@@ -100,7 +100,6 @@ static void* AU_GetInfo(void *hdr, Sint32 hdrlen, Sint32 *sfreq, Sint32 *nch, Si
 }
 
 // 100% matching!
-// FUN_004C29B8
 Sint32 ADXB_CheckAu(Sint8 *ibuf)
 {
     if ((memcmp(ibuf, ".snd", 4) == 0) || (memcmp(ibuf, ".sd", 4) == 0)) 

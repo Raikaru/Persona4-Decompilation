@@ -178,7 +178,6 @@ void ADXB_ExecOneSpsd(ADXB adxb)
 }
 
 // 100% matching!
-// FUN_004C4B80
 Sint32 ADXB_CheckSpsd(Sint8 *ibuf)
 {
     return memcmp(ibuf, "SPSD", 4) == 0;

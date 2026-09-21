@@ -34,8 +34,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c3420);
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c3460);
 // FUN_004C3498
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c3498);
-// FUN_004C7340
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c7340);
 // FUN_004C7388
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c7388);
 // FUN_004C73F0
@@ -88,8 +86,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c7b80);
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c7e28);
 // FUN_004C7E68
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c7e68);
-// FUN_004C7E90
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c7e90);
 // FUN_004C7EF8
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c7ef8);
 // FUN_004C7F30
@@ -100,8 +96,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c7f48);
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c7f80);
 // FUN_004C83B0
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c83b0);
-// FUN_004C83E8
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c83e8);
 // FUN_004C8400
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c8400);
 // FUN_004C8458
@@ -124,16 +118,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c8830);
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c8908);
 // FUN_004C8950
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c8950);
-// FUN_004C89F0
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c89f0);
 // FUN_004C8A60
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c8a60);
 // FUN_004C8A90
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c8a90);
 // FUN_004C8B48
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c8b48);
-// FUN_004C8B70
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c8b70);
 // FUN_004C8BD0
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c8bd0);
 // FUN_004C8CD0
@@ -215,8 +205,6 @@ s8 func_004c9858(u8 *arg0)
     }
     return *(s8 *)(arg0 + 1);
 }
-// FUN_004C9888
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9888);
 // FUN_004C9900
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9900);
 // FUN_004C9978
@@ -314,8 +302,6 @@ u32 func_004ca658(u32 arg0)
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004ca668);
 // FUN_004CA680
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004ca680);
-// FUN_004CA698
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004ca698);
 // FUN_004CA6C0
 s32 func_004ca6c0(void)
 {
@@ -582,8 +568,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004cf4e8);
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004cf550);
 // FUN_004CF710
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004cf710);
-// FUN_004CF738
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004cf738);
 // FUN_004CF798
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004cf798);
 // FUN_004CF7D0
