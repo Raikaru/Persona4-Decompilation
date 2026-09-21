@@ -855,6 +855,7 @@ void func_001377e0(u8* arg0) {
    fewer live registers". Both sides save sq $s0-$s7,$fp identically; the 3
    at 378BC are swc1 $f22,8($sp) (+ $f21/$f20) paired 3-vs-2: object saves
    only $f21/$f20, missing $f22 (prologue net +1, epilogue lwc1 $f22 net +1,
+   compensated by object extras: addu $v1,$s5,$v0 insert, 2x trailing nop).
    The 2 at 37948 (lwc1 $f0,0x10C8 + add.s $f1,$f1,$f0) are fy scheduling:
    retail (base+offset)+idx*30 via add.s then madd.s $f20; base body did
    idx*30+base+offset via madd.s $f1 then add.s $f20. Fixed below to retail
@@ -889,7 +890,7 @@ void func_001377e0(u8* arg0) {
    D8-158 suggests 128; 144 chosen for frame match, still safe). Remaining:
    missing $f22 save/reload (object lwc1 $f13 vs mov.s $f13,$f22), bnez vs
    bgtz on k (u32 !=0 vs signed >0), pos[1]=pos[1] self-keep vs re-store,
-   and internal offsets (stack90 at 0x150 vs retail 0xD0). Banked as floor.
+   and internal offsets (stack90 at 0x150 vs retail 0xD0). Banked as floor. */
 // FUN_00137890 NONMATCHING
 #ifdef NON_MATCHING
 void func_00137890(u8 *arg0, s32 arg1)

@@ -229,7 +229,25 @@ def _newline_for(raw: bytes) -> str:
 
 @contextmanager
 def scratch_source(source: Path):
-    """Yield a temporary TU path in SOURCE's directory, then remove it."""
+    """Yield a temporary TU path in SOURCE's directory, then remove it.
+
+    The `finally` below only runs when the process survives.  A cancelled
+    probe, a timeout or a killed agent leaves the file behind, and 44 had
+    accumulated under `src/` before anyone noticed - one of which then broke
+    a compile inside another agent's harness.  Nothing was ever going to
+    report them: the names start with a dot, so git ignores them and
+    `gate_audit` skips them by the same rule.
+
+    So sweep siblings on the way in, but only ones older than an hour, which
+    cannot belong to a probe running concurrently with this one.
+    """
+    cutoff = time.time() - 3600
+    for stale in source.parent.glob(f".{source.stem}.probe_*{source.suffix}"):
+        try:
+            if stale.stat().st_mtime < cutoff:
+                stale.unlink()
+        except OSError:
+            pass
     descriptor, name = tempfile.mkstemp(
         prefix=f".{source.stem}.probe_",
         suffix=source.suffix,

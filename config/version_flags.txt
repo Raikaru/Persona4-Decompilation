@@ -20,3 +20,16 @@
 # are written with build 55 (the `addiu $t0, 0x37` before every
 # _rwStreamWriteVersionedChunkHeader call).
 cw3.0.1b119 -O4 -inline auto -DRWBUILDNUMBER=55 -nosyspath -Iinclude/rw/std -Iinclude/rw/ps2 -Iinclude/rw/plcore -Iinclude/rw/core -Iinclude/rw/p2 -Iinclude/rw/drvcommon -Iinclude/rw/drvnull -Iinclude/rw/world -Iinclude/rw/worldp2 -Iinclude/rw/p2null -Iinclude/rw/worldp2null -Iinclude/rw/inc
+
+# The ee-gcc 2.96 vendor units (config/gcc_units.txt). CRI shipped its PS2
+# middleware as GCC-built libraries - `libadxe.a`'s objects carry
+# `gcc2_compiled.` and `__gnu_compiled_c`, and no MWCCPS2 build on disk
+# reproduces their size at any optimisation level - so the reconstructed
+# sources under src/cri/libadxe compile with the same toolchain the tree
+# already pins for the other vendor units. Only the `-I` entries are used;
+# tools/eegcc_shim.py pins `-O2 -G0` itself. The layout mirrors the upstream
+# decompilation's include root so the vendored files stay verbatim: their
+# headers reach each other through `../../../cri/mwlib/...` and reach the CRI
+# SDK headers through `../../../recvx-decomp-cri/cri/mwlib/...`, both relative
+# to whichever -I directory they are found under.
+eegcc296 -Iinclude/cri/cri/mwlib/ee -Iinclude/cri/cri/mwlib/ee/lib/libadxe -Iinclude/cri/recvx-decomp-cri/cri/mwlib/include -Iinclude/cri/recvx-decomp-cri/cri/mwlib/ee/include
