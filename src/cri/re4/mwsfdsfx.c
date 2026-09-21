@@ -260,6 +260,7 @@ void MWSFTAG_InitTagInf(MWPLY mwply)
 }
 
 // Registers the additional-info ring as SFD user-output channel 2 (private stream 2 data); -1 on failure.
+// FUN_0050F130
 Sint32 MWSFTAG_SetAinfSj(MWPLY mwply)
 {
 	if (mwsftag_IsNoAinf(mwply) == TRUE) {

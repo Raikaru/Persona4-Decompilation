@@ -591,7 +591,6 @@ Sint32 ADXSJD_GetLpEndOfst(ADXSJD sjd)
 }
 
 // 100% matching!
-// FUN_004CF010
 Sint32 ADXSJD_GetHdrLen(ADXSJD sjd)
 {
     return sjd->hdrlen;

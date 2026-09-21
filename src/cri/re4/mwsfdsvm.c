@@ -19,10 +19,12 @@ Sint32 mwg_vsync_fid;
 Sint32 mwg_vbin_fid;
 
 // Waits for the idle-type server border (SVM type 6; a no-op without threads).
-// FUN_004F10E0
+// FUN_004CD130
 void MWSFSVM_GotoIdleBorder(void)
 {
-	SVM_GotoSvrBorder(6);
+	/* P4: 9.44 uses border 7, not 6 - retail loads `addiu $a0, $zero, 7`
+	 * at 0x004CD134. */
+	SVM_GotoSvrBorder(7);
 }
 
 // printf-style error of the MW player: formats into a 256-byte static and reports through
