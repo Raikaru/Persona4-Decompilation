@@ -528,7 +528,7 @@ void func_002b6ac0(u8 *arg0, u32 arg1, u32 arg2, s32 arg3, f32 fparg0, f32 fparg
    s32 and passed as (s16)arg3 (s16 widening emits the retail sign-extension). */
 // FUN_002B6AF0
 #pragma opt_propagation off
-void func_002b6af0(s16 arg0, u32 arg1, u32 arg2, s32 arg3, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
+void func_002b6af0(s16 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32 arg1, u32 arg2, s32 arg3) {
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
     func_002b8300(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, (s16)arg3, fparg0, fparg1, fparg2, fparg3);
 }
@@ -1217,7 +1217,7 @@ void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
 /* fnalign retail 366 vs object 362 (-1.1%, inside +-3%); was 334 (-8.7%). Frame 0xC0 vs retail 0xE0; remaining deltas are t/out ld/sd vs lwc1/swc1 and sra vs zero leaves. */
 // FUN_002B83E0 NONMATCHING
 #ifdef NON_MATCHING
-void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, s16 arg6, s16 arg7, f32 fparg0, f32 fparg1, s8 arg_sp0, s8 arg_sp8) {
+void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, f32 fparg0, f32 fparg1, s16 arg6, s16 arg7, s8 arg_sp0, s8 arg_sp8) {
     arg0[0x37] = arg_sp8;
     arg0[0xA3] = arg_sp8;
     arg0[0x5C] = arg4;
@@ -1913,4 +1913,3 @@ s32 func_002b9f90(s32 arg0, s16 arg1, s32 arg2) {
     *(s16 *)(p + 0x6600) = arg1;
     return handle;
 }
-

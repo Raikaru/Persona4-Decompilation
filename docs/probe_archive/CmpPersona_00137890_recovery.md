@@ -1,5 +1,57 @@
 # Camp persona row renderer, 00137890
 
+## Exact recovery, September 21
+
+The actual current owner now verifies **16 MATCH / one ASM**, with
+`func_00137890` in ordinary unguarded C. The target emits **1,340 exact bytes
+in the 1,344-byte retail window**, all **28 relocations** resolve correctly,
+and the remaining four bytes are retail zero alignment. All sixteen sibling
+functions, their relocation destinations, and allocated data remain unchanged.
+The official actual-owner compiler job completed in session 26768, exit zero.
+
+The closing change models the existing menu storage as a typed view. Its
+parent X/Y floats occupy offsets 4 and 8. The 0x30-byte row view begins at
+0x10C4, with X/Y at offsets 0/4 and opacity at offset 0xA. These are the
+same addresses previously obtained through the integer-address helper. The
+owner's initializer fills 28 rows beginning at 0x1064; the renderer uses the
+last 26 of those rows. The actual count provider returns only 6, 8, 10 or 12,
+so every valid renderer index is within this view. Unknown fields are explicit
+gaps in an existing object view, not added stack storage or synthetic accesses.
+
+Using the typed menu and row members preserves the parent-X load before the
+row-address addition, closing the two instruction-order differences described
+below. A stand-alone typed row pointer did not do so; neither did five further
+mixed-input helper boundaries. The successful source preserves the original
+floating-point arithmetic order, including the zero addition and multiply-add
+in the Y coordinate.
+
+The panel now has explicit byte, halfword and word storage views over the
+same 0x80-byte object. This preserves the genuine eight-byte header and two
+0x3C-byte records written by `func_00115830`, and the first record's level
+byte at offset 12. Both the typed panel and the typed parent opacity member
+were tested independently and together; all preserve the exact result. No
+new pragma, assembly, volatile access, artificial side effect or padding
+instruction was used.
+
+The renderer's actual caller retains `(u8 *, s32)`. The count and equipped
+slot queries return `s32`; the persona getter returns `u16 *`; the panel and
+record builders take their actual byte-buffer interfaces; the sprite renderer
+uses `(void *, f32, f32, u8, u8, u8, u32)`; and the panel renderer accepts
+`(Vec2f, s32, s16 *, f32)`. All seven provider definitions were checked before
+acceptance, and no provider or unrelated caller was changed by this closure.
+
+Evidence: `build/first-party-finish-20260920/persona-row-phases/` in the recovery
+worktree. `variants/` preserves all measured controls and immutable complete
+owner objects. `current/proof.json`, `current/official.json` and
+`current/compile.json` bind the integrated source, compiler binary, effective
+headers, emitted object, complete relocation proof and sibling/data checks.
+The layout check additionally enumerates all 108 reached X/Y/opacity accesses
+for the four real slot-count values and verifies their original byte offsets.
+Integrated source SHA-256 is
+`1afa5cd5651330834a1b14edf8fd067eb57a956a449de027820b06eebf739b05`.
+
+## Earlier two-word floor
+
 The corrected C candidate remains guarded by `NON_MATCHING`. Under its configured
 MWCCPS2 b210 compiler with `-O2 -Iinclude`, it emits 1340 bytes in the 1344-byte
 retail window. The remaining four retail bytes are zero. Two unmasked instruction
