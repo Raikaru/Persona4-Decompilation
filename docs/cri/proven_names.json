@@ -1,380 +1,5359 @@
 {
- "004d0690": "adxsje_output_header",
- "005044b0": "MPV_IsEmptyPpic",
- "00504008": "MPV_IsEmptyBpic",
- "004d7968": "adxt_stat_decinfo",
- "004ce1e8": "adxsjd_decexec_start",
- "004e4a60": "DTR_ExecHndl",
- "004cddc0": "adxsjd_decode_prep",
- "004d7680": "adxt_nlp_trap_entry",
- "004c7b80": "adxf_LoadPtBothNw",
- "004cff68": "adxsje_set_rsig",
- "004c5b68": "ADX_DecodeInfoExLoop",
- "004cfd08": "adxsje_calc_rsig",
- "004c4ba8": "ADX_DecodeInfoWav",
- "004c5dc8": "ADX_DecodeInfoAinf",
- "004d8000": "adxt_stat_decend",
- "004ca990": "ADXT_InsertHdrSfa",
- "004d2840": "ADXSTMF_ExecHndl",
- "004c60a0": "ADX_DecodeMono4",
- "004d0e98": "ADXSJE_Create",
- "004ce550": "adxsjd_decexec_end",
- "004d01f0": "adxsje_encode_blk",
- "004cf550": "adxsje_write68",
- "004e77c0": "htCiGetFileSize64",
- "004c2f38": "ADXB_ExecOneAuUlaw",
- "004e6120": "dvCiReqRd",
- "004c1570": "ADXAMP_Start",
- "004c51e8": "ADXB_ExecOneWav4",
- "004e90b8": "LSC_EntryFileRange",
- "004f01b8": "SJX_Init",
- "004e53a8": "DTX_Create",
- "004c5050": "ADXB_ExecOneWav8",
- "004cc218": "ADXM_SetupThrd",
- "004e7d40": "htCiReqRd",
- "004c4368": "ADXB_EndDecode",
- "004e6f90": "dvCiLoadFcache",
- "004cdab8": "ADXSJD_Create",
- "004e5e80": "dvCiOpen",
- "004e7a58": "htCiOpen",
- "004ca720": "ADXT_Init",
- "004e55c8": "DTX_ExecHndl",
- "004cfb98": "adxsje_get_pcm_data",
- "004d15d8": "adxsje_encode_prep",
- "004c54e8": "ADX_GetCoefficient",
- "005068f8": "MPV_GoNextDelimSj",
- "004c44f0": "ADXB_ExecOneAdx",
- "00509058": "MWSFCRE_SetCondSfd",
- "004cba78": "adxm_mwidle_proc",
- "004eb020": "ADXT_AttachDolbyProLogicII",
- "004c5968": "ADX_DecodeInfoExIdly",
- "004d03b0": "adxsje_output_sdata",
- "004cca10": "ADXPS2_ExecVint",
- "004e1cd8": "cvFsOpen",
- "004d10d8": "ADXSJE_Start",
- "004ce0c8": "adxsjd_get_wr",
- "004c3520": "ADXB_Create",
- "005017d8": "MPSDEC_DecHdMpeg1",
- "004c2248": "ADXB_DecodeHeaderAiff",
- "0052b738": "SFX_Create",
- "004c2138": "ADX_DecodeInfoAiff",
- "004c2a10": "ADX_DecodeInfoAu",
- "00528570": "SFD_SetUsrSj",
- "004e8f30": "LSC_Create",
- "004e58a0": "DTX_CallUrpc",
- "00503df0": "MPV_SearchDelim",
- "004cb880": "adxm_vsync_proc",
- "004c41a0": "ADXB_EvokeDecode",
- "004c6b60": "ADXERR_ItoA",
- "00504dc8": "MPV_GetPicAtr",
- "004c8bd0": "adxf_read_sj32",
- "004d32f8": "ADXPS2_SetupDvdFs",
- "00503cf0": "MPV_BsearchDelim",
- "004c4dd8": "ADXB_DecodeHeaderWav",
- "004c2b20": "ADXB_DecodeHeaderAu",
- "004d0590": "adxsje_write_end_code",
- "004f03c8": "SJX_Create",
- "004c4910": "ADXB_DecodeHeaderSpsd",
- "004d8b20": "ADXPD_ExecHndl",
- "004e7ed0": "htCiStopTr",
- "004cb988": "adxm_fs_proc",
- "004e5738": "DTX_Init",
- "00519fa0": "SFD_SetMpvParaTbl",
- "00526290": "SFD_SetExtClockFn",
- "00528f40": "SFH_IsSfdHeader",
- "004e4f10": "DTR_Create",
- "004cb640": "adxm_goto_svr_border",
- "004e62c8": "dvCiStopTr",
- "004ca8b0": "ADXT_Finish",
- "004c6d10": "ADXF_Init",
- "00506c30": "MPV_Init",
- "004c8830": "adxf_SetAfsFileInfo",
- "004efaf8": "SJ_SearchTag",
- "005083c0": "MWSFCRE_SetSupplySj",
- "005290a0": "SFH_IsEffFtrInf",
- "004d40a0": "adxt_start_stm",
- "004d8858": "ADXPD_Create",
- "00529330": "SFH_AnlyHdrToolVer",
- "004c92d0": "adxf_ExecOne",
- "004e72a0": "dvCiSetRootDir",
- "00507560": "MPVM2V_DecodePicAtr",
- "004e1ad8": "cvFsSetDefDev",
- "004c6de8": "ADXF_Finish",
- "00504f30": "MPV_GetVbvBufSiz",
- "005072d8": "MPV_SetCond",
- "004e5d68": "dvCiGetFileSize",
- "004e2360": "cvFsGetFileSize",
- "004e9998": "LSC_Finish",
- "004e4dd0": "DTR_ExecServer",
- "004d6b10": "ADXT_SetOutputMono",
- "00516df8": "SFHDS_SetHdr",
- "0051a1c0": "SFD_SetMpvCond",
- "004fb690": "MPV_SkipFrmSj",
- "00524d90": "SFD_SetCond",
- "004e5038": "DTR_Stop",
- "00510ce0": "MWSST_Reset",
- "00517eb8": "SFD_SetElementOutSj",
- "00529e08": "SFH_AnlyElemPicSz",
- "005034f0": "MPS_GetSysHd",
- "004d04e0": "adxsje_encode_data",
- "004c7260": "adxf_SetCmdHstry",
- "004ef9b0": "sj_hexstr_to_val",
- "00501730": "MPS_DecHd",
- "004ce858": "ADXSJD_ExecHndl",
- "004e76f8": "htCiIsExistFile",
- "00509d00": "MWSFD_Malloc",
- "00516078": "SFD_AnalyCreInf",
- "00522e78": "SFD_Destroy",
- "00505360": "MPV_DecodePicAtrSj",
- "004c3980": "ADXB_SetDefPrm",
- "004e7bd0": "htCiClose",
- "00524ff8": "SFD_GetCond",
- "004d6838": "ADXT_IsHeader",
- "004d85d0": "ADXT_ExecRdCompChk",
- "004cb360": "ADXMNG_CallVintServerFunctions",
- "005228b8": "SFD_Create",
- "0052baf0": "SFX_SetTagInf",
- "004c8458": "adxf_CreateAdxFs",
- "00511220": "MWSFSVM_Error",
- "00517b80": "SFD_SetErrFn",
- "00529298": "SFH_AnlyHdrToolInf",
- "005035a0": "MPS_GetLastSysHd",
- "005038f8": "MPS_SetErrFn",
- "00503c58": "MPV_CheckDelim",
- "004d1748": "adxsje_encode_exec",
- "004e17a0": "cvFsAddDev",
- "00513df8": "SFD_SetOutPan",
- "005235f8": "SFD_TermSupply",
- "005073f0": "MPV_GetCond",
- "004e9878": "LSC_CallErrFunc",
- "00521468": "SFD_Pause",
- "0052a270": "SFH_AnlyFtrFxType",
- "004c7588": "ADXF_GetFnameRangeEx",
- "004ccb68": "ADXPS2_ResumeIdleThrd",
- "004e5ce0": "dvCiIsExistFile",
- "004c6c68": "ADXERR_ItoA2",
- "004c1bc8": "ADXB_CheckAc3",
- "00523b28": "SFD_SetVideoPts",
- "004cb548": "adxm_lock",
- "004e92f8": "LSC_Stop",
- "00524a20": "SFD_SetTotTime",
- "00526208": "SFD_SetUsrTimeFn",
- "004cd2f8": "ADXPS2_PrintfErr",
- "004d8550": "ADXT_ExecRdErrChk",
- "004e9918": "LSC_Init",
- "004c5648": "ADX_ScanInfoCode",
- "004c5870": "ADX_DecodeInfoExADPCM2",
- "00522f40": "SFD_Start",
- "00529bc0": "SFH_AnlyElemLayer",
- "004ccbf0": "ADXPS2_WakeupMainThrd",
- "004c3f58": "ADXB_EntryData",
- "00513f00": "SFD_SetOutVol",
- "00523578": "SFD_AddWritePtr",
- "00525340": "SFD_GetTrHn",
- "00503638": "MPS_GetPketHd",
- "004c9888": "adxf_ChkPrmGfr",
- "004cd378": "ADXPS2_PrintfWarn",
- "004f0350": "SJX_Finish",
- "004c58f0": "ADX_DecodeInfoExVer",
- "004e5828": "DTX_Finish",
- "0050c640": "MWSFPLY_RecordFname",
- "0050c728": "MWSFPLY_ReqStartAfs",
- "00513e88": "SFD_GetOutPan",
- "00526a10": "SFD_GetFps",
- "005036c8": "MPS_Init",
- "005037d0": "MPS_Finish",
- "00504ff8": "MPV_GetLinkFlg",
- "004e2028": "cvFsClose",
- "005121c0": "MWSTM_SetFileRange",
- "00525c40": "SFD_GetTime",
- "00529d90": "SFH_AnlyElemBitRate",
- "0052a078": "SFH_AnlyFtrShcFixFlg",
- "004c89f0": "adxf_CloseSjStm",
- "004cb5d0": "adxm_unlock",
- "004c6af0": "ADXERR_CallErrFunc2",
- "004c6990": "ADX_DecodeSte4",
- "00521670": "SFD_SetSpeed",
- "00529eb8": "SFH_AnlyElemPicRate",
- "0052a008": "SFH_AnlyFtrFixFlg",
- "0052b600": "SFX_Init",
- "00503340": "MPS_CheckDelim",
- "004fb518": "MPV_SetErrFunc",
- "004d1d70": "ADXSTM_BindFileNw",
- "004c42d8": "ADXB_CopyExtraBufSte",
- "00513f80": "SFD_GetOutVol",
- "00523508": "SFD_GetWritePtr",
- "00529030": "SFH_IsExistStmId",
- "00529c40": "SFH_AnlyElemChNum",
- "00529cb0": "SFH_AnlyElemSmpHz",
- "0052a0f0": "SFH_AnlyFtrExpand",
- "004d7618": "adxt_set_outpan",
- "004e9290": "LSC_Start",
- "005178c0": "SFD_InitRsc",
- "00529840": "SFH_AnlyByteRate",
- "00507258": "MPV_Destroy",
- "004d1068": "ADXSJE_Destroy",
- "004e22f8": "cvFsGetStat",
- "004e96d8": "LSC_SetFlowLimit",
- "004cef50": "ADXSJD_GetDefPan",
- "004e5540": "DTX_Destroy",
- "004c1c80": "ADXB_SetAhxDecSmpl",
- "00517138": "SFHDS_ReprocessHdr",
- "005171f0": "SFHDS_ProcessHdr",
- "00503488": "MPS_GetPackHd",
- "004cdc38": "ADXSJD_Destroy",
- "004c93c0": "DTX_ExecServer",
- "0050f130": "MWSFTAG_SetAinfSj",
- "0050f4d8": "MWSFTAG_ClearUsrSj",
- "005107a8": "MWSST_Finish",
- "00510a98": "MWSST_Pause",
- "00524b18": "SFD_SetSeekPos",
- "004d33f8": "ADXPS2_LoadFcacheDvd",
- "004e2298": "cvFsExecServer",
- "004ef8b8": "SJ_SplitChunk",
- "004c5fe8": "ADX_DecodeFooter",
- "00515c00": "SFD_SetConcatPlay",
- "00523ab0": "SFD_SetSupplySj",
- "00504ed0": "MPV_GetBitRate",
- "004d14c8": "ADXSJE_SetConfigSfa",
- "004c8400": "adxf_AllocAdxFs",
- "004cb790": "adxm_safe_proc",
- "004e5a68": "dvCiCdSearchFile",
- "004e5ff8": "dvCiClose",
- "004c40f0": "ADXB_EvokeExpandSte",
- "004cb3f8": "ADXM_ExecSvrAll",
- "004ceef8": "ADXSJD_GetDefOutVol",
- "004c29b8": "ADXB_CheckAu",
- "0050c590": "MWSFPLY_SetFlowLimit",
- "00510910": "MWSST_StartSj",
- "00512490": "SFD_SetAdxtPara",
- "00522ff8": "SFD_Stop",
- "00506b20": "MPV_MoveChunk",
- "005070d0": "MPV_Create",
- "0052a498": "SFXA_Create",
- "004d0e40": "ADXSJE_Finish",
- "004efbc8": "SJUNI_CreateRmt",
- "004c4148": "ADXB_EvokeExpandPl2",
- "004c6048": "ADX_CalcHdrInfoLen",
- "004c6a98": "ADXERR_CallErrFunc1",
- "00510968": "MWSST_Stop",
- "00516f08": "SFHDS_IsSfdHeader",
- "0051fa40": "SFD_IsNextFrmReady",
- "005218f0": "SFD_ExecOne",
- "004e9038": "LSC_Destroy",
- "004eff60": "SJRMT_Init",
- "004c1518": "ADXAMP_Destroy",
- "00529528": "SFH_AnlyPackType",
- "0052b950": "SFX_Destroy",
- "00503c08": "MPS_Destroy",
- "004c1398": "ADXSTM_Finish",
- "004ee2c0": "SJRBF_GetNumData",
- "004c40a0": "ADXB_EvokeExpandMono",
- "00509e10": "MWSFD_Free",
- "0050b020": "MWSFFRM_SetShfCbFn",
- "00529578": "SFH_AnlyPketSizLen",
- "00503870": "MPSLIB_SetErr",
- "004fb608": "MPVERR_SetCode",
- "004c7340": "adxf_ChkPrmPt",
- "004d1908": "ADXSTM_Init",
- "004ed9a0": "SJMEM_GetNumData",
- "004cda30": "ADXSJD_Finish",
- "00521618": "SFD_Standby",
- "004f04c0": "SJX_Destroy",
- "004c3640": "ADXB_Destroy",
- "004c3ff0": "ADXB_Stop",
- "00509010": "MWSFCRE_DestroySfd",
- "0050cd00": "MWDMA_WaitEnd",
- "0050f238": "MWSFTAG_UpdateTagInf",
- "00511850": "MWSFSVR_VsyncThrdProc",
- "004c7e28": "adxf_CloseLdptnwHn",
- "004d68d0": "ADXT_IsEndcode",
- "004e9250": "LSC_ResetEntry",
- "004c3cf0": "ADXB_TakeSnapshot",
- "004c3d30": "ADXB_RestoreSnapshot",
- "004c4038": "ADXB_Reset",
- "00510e60": "MWSST_IsEnable",
- "00524d50": "SFD_GetHnStat",
- "0052b9a0": "SFXLIB_Error",
- "004d17e0": "ADXSJE_ExecHndl",
- "004effb0": "SJRMT_Finish",
- "004c3420": "ADXB_Init",
- "004cda78": "adxsjd_clear",
- "0050d380": "MWSFD_SetFlowLimit",
- "00510ea0": "MWSFSVM_Init",
- "004c34e8": "adxb_ResetAinf",
- "004cd6a0": "ADXRNA_Destroy",
- "00517840": "SFHDS_GetMuxVerNum",
- "004ccc98": "ADXM_WaitVsync",
- "004e97b0": "LSC_CallStatFunc",
- "004ed3e8": "SJCRS_Init",
- "004efac0": "SJ_GetTagContent",
- "004d89d0": "ADXPD_Destroy",
- "00500dd0": "MPS_Create",
- "004e5a08": "dvCiGetInterface",
- "004c9858": "LSC_GetStat",
- "004c95c8": "LSC_GetNumStm",
- "004efcc8": "SJRMT_Destroy",
- "004c5448": "ADXCRS_Init",
- "004d8cc0": "ADXCS_Create",
- "004c3bd0": "ADXB_GetNumChan",
- "004c5478": "ADXCRS_Finish",
- "004cdd30": "ADXSJD_TermSupply",
- "004cdd60": "ADXSJD_Start",
- "004cdd90": "ADXSJD_Stop",
- "004cee80": "ADXSJD_GetLpStartOfst",
- "004c1ae8": "ADXB_ExecOneAc3",
- "0050b8f0": "MWSFLIB_SetErrCode",
- "0050d2f0": "MWSFLSC_SetFlowLimit",
- "005074c0": "MPVM2V_Init",
- "004c7238": "ADXF_CALC_BYTE2SCT",
- "004cb728": "adxm_goto_mwidle_border",
- "004d8c78": "ADXCS_Init",
- "004c4b80": "ADXB_CheckSpsd",
- "004de2e8": "adxcs_dec_svr",
- "004e5000": "DTR_Destroy",
- "0050e428": "MWSFSFX_Init",
- "004f9b60": "MWSFSVR_SetMwsfdSvrFlg",
- "004f2370": "MWSTM_ReqStop",
- "004fbaa8": "MPV_GetPicUsr",
- "005070a8": "MPV_Finish",
- "0052a580": "SFXA_Destroy",
- "004ccc70": "ADXPS2_SleepMainThrd",
- "004e15a8": "cvFsError",
- "004cf710": "ADXPD_Init",
- "004d8928": "ADXPD_SetCoef",
- "004d8950": "ADXPD_SetDly",
- "004d8978": "ADXPD_GetDly",
- "004d8ac8": "ADXPD_Stop",
- "004e7798": "htCiGetFileSize",
- "004c1ce8": "ADXB_ExecOneAhx",
- "0050f078": "MWSFTAG_IsUseAinfSj",
- "004bd720": "MWSTM_SetFlowLimit",
- "00517878": "SFHDS_GetColType",
- "00521850": "SFD_IsHnSvrWait",
- "00503a40": "MPSLIB_CheckHn",
- "004fba70": "MPV_SetUsrSj",
- "00501078": "MPVLIB_CheckHn",
- "004d8cf0": "ADXCS_CalcWorkCprm",
- "004e7280": "dvCiSetRdMode",
- "004c4348": "ADXB_CopyExtraBufMono",
- "00516d98": "SFHDS_Init",
- "00506d90": "MPVLIB_ConvOix",
- "00429e08": "LSC_LockCrs",
- "004c6cf0": "ADXF_Ocbi",
- "0050f190": "MWSFTAG_InitTagInf",
- "004cb778": "adxm_safe_trap",
- "004eeaa0": "SJRBF_GetFlowCnt",
- "004c3fd8": "ADXB_Start",
- "004d8af0": "ADXPD_Reset",
- "004cd130": "MWSFSVM_GotoIdleBorder",
- "00512138": "MWSTM_Create",
- "004fb500": "SFHDS_InitFhd",
- "00507240": "MPV_GetDctCnt",
- "004c3ca0": "MWSFD_IsEnableHndl",
- "005050a0": "MPV_SetPicUsrBuf",
- "004cc1f0": "ADXM_IsSetupThrd",
- "004c3cd8": "ADXB_GetDefPan",
- "004c3e40": "ADXPD_SetExtPrm",
- "004d8b10": "adxpd_error",
- "004e5028": "DTR_Start"
+ "00429e08": {
+  "name": "LSC_LockCrs",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004bd720": {
+  "name": "MWSTM_SetFlowLimit",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c13e8": {
+  "name": "ADXAMP_Create",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c1518": {
+  "name": "ADXAMP_Destroy",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c1570": {
+  "name": "ADXAMP_Start",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c1718": {
+  "name": "adxamp_extract",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c19a8": {
+  "name": "ADXAMP_ExecHndl",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c1a98": {
+  "name": "ADXB_SetAc3DecSmpl",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c1ae8": {
+  "name": "ADXB_ExecOneAc3",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c1b18": {
+  "name": "ADXB_DecodeHeaderAc3",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c1bc8": {
+  "name": "ADXB_CheckAc3",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c1c80": {
+  "name": "ADXB_SetAhxDecSmpl",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c1ce8": {
+  "name": "ADXB_ExecOneAhx",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c2138": {
+  "name": "ADX_DecodeInfoAiff",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c2248": {
+  "name": "ADXB_DecodeHeaderAiff",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c2360": {
+  "name": "ADXB_ExecOneAu16",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c2678": {
+  "name": "ADXB_ExecOneAiff",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c29b8": {
+  "name": "ADXB_CheckAu",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c2a10": {
+  "name": "ADX_DecodeInfoAu",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c2b20": {
+  "name": "ADXB_DecodeHeaderAu",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c2f38": {
+  "name": "ADXB_ExecOneAuUlaw",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c30e0": {
+  "name": "ADXB_ExecOneAu",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c3420": {
+  "name": "ADXB_Init",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c3460": {
+  "name": "ADXB_Finish",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c3498": {
+  "name": "adxb_DefGetWr",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c34c8": {
+  "name": "adxb_DefAddWr",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c34e8": {
+  "name": "adxb_ResetAinf",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c3520": {
+  "name": "ADXB_Create",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c3640": {
+  "name": "ADXB_Destroy",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c3688": {
+  "name": "ADXB_DecodeHeaderAdx",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c3980": {
+  "name": "ADXB_SetDefPrm",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c3bd0": {
+  "name": "ADXB_GetNumChan",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004c3c08": {
+  "name": "ADXB_GetOutBps",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c3ca0": {
+  "name": "MWSFD_IsEnableHndl",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c3cd8": {
+  "name": "ADXB_GetDefPan",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c3cf0": {
+  "name": "ADXB_TakeSnapshot",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c3d30": {
+  "name": "ADXB_RestoreSnapshot",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c3d70": {
+  "name": "ADXB_SetExtString",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c3dd8": {
+  "name": "ADXB_SetDefExtString",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c3e20": {
+  "name": "ADXPD_GetExtPrm",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c3e40": {
+  "name": "ADXPD_SetExtPrm",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c3e50": {
+  "name": "adxb_get_key",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c3f58": {
+  "name": "ADXB_EntryData",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c3fd8": {
+  "name": "ADXB_Start",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c3ff0": {
+  "name": "ADXB_Stop",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c4038": {
+  "name": "ADXB_Reset",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c40a0": {
+  "name": "ADXB_EvokeExpandMono",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c40f0": {
+  "name": "ADXB_EvokeExpandSte",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c4148": {
+  "name": "ADXB_EvokeExpandPl2",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c41a0": {
+  "name": "ADXB_EvokeDecode",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c42d8": {
+  "name": "ADXB_CopyExtraBufSte",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c4348": {
+  "name": "ADXB_CopyExtraBufMono",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c4368": {
+  "name": "ADXB_EndDecode",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c44f0": {
+  "name": "ADXB_ExecOneAdx",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c4640": {
+  "name": "ADXB_ExecHndl",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c4728": {
+  "name": "adxb_dec_cb_proc",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c4790": {
+  "name": "ADXB_ExecServer",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c47f0": {
+  "name": "ADX_DecodeInfoSpsd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c4910": {
+  "name": "ADXB_DecodeHeaderSpsd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c4b80": {
+  "name": "ADXB_CheckSpsd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c4ba8": {
+  "name": "ADX_DecodeInfoWav",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c4dd8": {
+  "name": "ADXB_DecodeHeaderWav",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c5050": {
+  "name": "ADXB_ExecOneWav8",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c51e8": {
+  "name": "ADXB_ExecOneWav4",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c53f0": {
+  "name": "ADXB_ExecOneWav",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c5448": {
+  "name": "ADXCRS_Init",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c5478": {
+  "name": "ADXCRS_Finish",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c54e8": {
+  "name": "ADX_GetCoefficient",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c5648": {
+  "name": "ADX_ScanInfoCode",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c56c8": {
+  "name": "ADX_IsAdxFmt",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c5770": {
+  "name": "ADX_DecodeInfo",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c5870": {
+  "name": "ADX_DecodeInfoExADPCM2",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c58f0": {
+  "name": "ADX_DecodeInfoExVer",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c5968": {
+  "name": "ADX_DecodeInfoExIdly",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c5aa0": {
+  "name": "ADX_DecodeInfoExLoopEncTime",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004c5b68": {
+  "name": "ADX_DecodeInfoExLoop",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c5dc8": {
+  "name": "ADX_DecodeInfoAinf",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c5fe8": {
+  "name": "ADX_DecodeFooter",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c6048": {
+  "name": "ADX_CalcHdrInfoLen",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c60a0": {
+  "name": "ADX_DecodeMono4",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c6280": {
+  "name": "ADX_DecodeSte4AsMono",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c6648": {
+  "name": "ADX_DecodeSte4AsSte",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c6990": {
+  "name": "ADX_DecodeSte4",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c6a70": {
+  "name": "ADXERR_EntryErrFunc",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c6a98": {
+  "name": "ADXERR_CallErrFunc1",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004c6af0": {
+  "name": "ADXERR_CallErrFunc2",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004c6b60": {
+  "name": "ADXERR_ItoA",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c6c68": {
+  "name": "ADXERR_ItoA2",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c6cf0": {
+  "name": "ADXF_Ocbi",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c6d10": {
+  "name": "ADXF_Init",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c6de8": {
+  "name": "ADXF_Finish",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c7238": {
+  "name": "ADXF_CALC_BYTE2SCT",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c7260": {
+  "name": "adxf_SetCmdHstry",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c7310": {
+  "name": "adxf_wait_1ms",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c7340": {
+  "name": "adxf_ChkPrmPt",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c7610": {
+  "name": "adxf_LoadPartitionRangeNw",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004c7638": {
+  "name": "adxf_LoadPtRangeNwEx",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004c78c8": {
+  "name": "adxf_LoadPtNwEx",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004c79a0": {
+  "name": "adxf_LoadPtFromAfsNwEx",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004c7a68": {
+  "name": "adxf_LoadPtFmgLongNwEx",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004c7b40": {
+  "name": "adxf_LoadPtFromAfsFmgLongNwEx",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004c7b80": {
+  "name": "adxf_LoadPtBothNw",
+  "sources": [
+   "re4ps2"
+  ]
+ },
+ "004c7e28": {
+  "name": "adxf_CloseLdptnwHn",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c7e90": {
+  "name": "ADXF_StopPtLd",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004c8400": {
+  "name": "adxf_AllocAdxFs",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c8458": {
+  "name": "adxf_CreateAdxFs",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c84f0": {
+  "name": "adxf_SetFileInfoEx",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c8688": {
+  "name": "adxf_SetFileInfoRange",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004c8830": {
+  "name": "adxf_SetAfsFileInfo",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004c89f0": {
+  "name": "adxf_CloseSjStm",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c8bd0": {
+  "name": "adxf_read_sj32",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c92d0": {
+  "name": "adxf_ExecOne",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c93c0": {
+  "name": "DTX_ExecServer",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c95c8": {
+  "name": "LSC_GetNumStm",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004c96a8": {
+  "name": "ADXF_GetFsizeByte",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004c9858": {
+  "name": "LSC_GetStat",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004c9888": {
+  "name": "adxf_ChkPrmGfr",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004c9978": {
+  "name": "ADXF_GetFnameRange",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004c9a28": {
+  "name": "ADXF_GetFnameRangeEx",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004c9d70": {
+  "name": "ADXT_ExecFsSvr",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004c9ee0": {
+  "name": "ADXHDR_WriteBeLong",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004c9f00": {
+  "name": "ADXHDR_WriteLeLong",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004c9f20": {
+  "name": "adxhdr_get_base_info",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004c9fe0": {
+  "name": "adxhdr_get_ext_info",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ca000": {
+  "name": "adxhdr_get_loop_prm",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ca0f0": {
+  "name": "adxhdr_get_ply_prm",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ca1b0": {
+  "name": "ADX_DecodeHeader",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ca368": {
+  "name": "adxhdr_set_base_info",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ca460": {
+  "name": "ADX_EncodeHeader",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ca4e0": {
+  "name": "ADXT_GetHdrInfo",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ca698": {
+  "name": "ADXT_VsyncProc",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004ca720": {
+  "name": "ADXT_Init",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004ca890": {
+  "name": "ADXT_ResetLibrary",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004ca8b0": {
+  "name": "ADXT_Finish",
+  "sources": [
+   "re4ps2"
+  ]
+ },
+ "004ca990": {
+  "name": "ADXT_InsertHdrSfa",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004cabd0": {
+  "name": "MWSFPLY_ReqStartFname",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cae08": {
+  "name": "ADXT_StartSeamless",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004cb2d0": {
+  "name": "ADXMNG_CallMainServerFunctions",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004cb360": {
+  "name": "ADXMNG_CallVintServerFunctions",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cb3f8": {
+  "name": "ADXM_ExecSvrAll",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cb510": {
+  "name": "adxmng_DecideFramework",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004cb548": {
+  "name": "adxm_lock",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cb5d0": {
+  "name": "adxm_unlock",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cb640": {
+  "name": "adxm_goto_svr_border",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cb728": {
+  "name": "adxm_goto_mwidle_border",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cb778": {
+  "name": "adxm_safe_trap",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cb790": {
+  "name": "adxm_safe_proc",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cb7e8": {
+  "name": "adxm_usrvsync_proc",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cb880": {
+  "name": "adxm_vsync_proc",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cb988": {
+  "name": "adxm_fs_proc",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cba78": {
+  "name": "adxm_mwidle_proc",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cbbb0": {
+  "name": "adxm_usridle_proc",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cbd40": {
+  "name": "adxm_ResumeThread",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cbda8": {
+  "name": "adxm_SuspendThread",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cbe08": {
+  "name": "adxm_SetupSafeThrd",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cbeb0": {
+  "name": "adxm_SetupUsrVsyncThrd",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cc078": {
+  "name": "adxm_SetupMwIdleThrd",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cc110": {
+  "name": "adxm_SetupUsrIdleThrd",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cc1f0": {
+  "name": "ADXM_IsSetupThrd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cc218": {
+  "name": "ADXM_SetupThrd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cc3a8": {
+  "name": "adxm_ShutdownPreProcedure",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cc3f8": {
+  "name": "ADXM_ShutdownThrd",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cc700": {
+  "name": "adxm_ShutdownFsThrd",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004cca10": {
+  "name": "ADXPS2_ExecVint",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004ccb68": {
+  "name": "ADXPS2_ResumeIdleThrd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004ccbf0": {
+  "name": "ADXPS2_WakeupMainThrd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004ccc70": {
+  "name": "ADXPS2_SleepMainThrd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004ccc98": {
+  "name": "ADXM_WaitVsync",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004ccce8": {
+  "name": "ADXPS2_ExecServerEx",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004ccd30": {
+  "name": "ADXPS2_SetupThrd",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004ccda8": {
+  "name": "ADXPS2_ExecServer",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cce40": {
+  "name": "ADXM_SetupThrdEx",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cd030": {
+  "name": "ADXM_ShutdownThrdEx",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cd130": {
+  "name": "MWSFSVM_GotoIdleBorder",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cd148": {
+  "name": "ADXM_SetCbIdleTopEnd",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cd1d0": {
+  "name": "ADXM_SetupFramework",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004cd250": {
+  "name": "ADXM_ShutdownFramework",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004cd2c8": {
+  "name": "ADXPS2_SetOutputDebugLevel",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cd2f8": {
+  "name": "ADXPS2_PrintfErr",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cd378": {
+  "name": "ADXPS2_PrintfWarn",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cd488": {
+  "name": "ADXPS2_GetNumDataSjtmp",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cd4c8": {
+  "name": "ADXPS2_GetNumRoomSjtmp",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cd508": {
+  "name": "ADXPS2_GetNumDataSjiop",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cd540": {
+  "name": "ADXPS2_GetNumRoomSjiop",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cd6a0": {
+  "name": "ADXRNA_Destroy",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cd780": {
+  "name": "ADXRNA_GetStat",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cd9d8": {
+  "name": "ADXSJD_Init",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cda30": {
+  "name": "ADXSJD_Finish",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cda78": {
+  "name": "adxsjd_clear",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cdab8": {
+  "name": "ADXSJD_Create",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004cdc38": {
+  "name": "ADXSJD_Destroy",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cdce0": {
+  "name": "ADXSJD_SetOutSj",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cdd30": {
+  "name": "ADXSJD_TermSupply",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cdd60": {
+  "name": "ADXSJD_Start",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cdd90": {
+  "name": "ADXSJD_Stop",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cddc0": {
+  "name": "adxsjd_decode_prep",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004ce0c8": {
+  "name": "adxsjd_get_wr",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004ce1e8": {
+  "name": "adxsjd_decexec_start",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004ce550": {
+  "name": "adxsjd_decexec_end",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004ce718": {
+  "name": "adxsjd_decexec_extra",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004ce7a8": {
+  "name": "adxsjd_decode_exec",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004ce858": {
+  "name": "ADXSJD_ExecHndl",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004ce900": {
+  "name": "adxsjd_insert_proc",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cea50": {
+  "name": "adxsjd_discard_proc",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cec80": {
+  "name": "ADXSJD_SetExtParams",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004cecc8": {
+  "name": "ADXSJD_AdjustSmpl",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cee80": {
+  "name": "ADXSJD_GetLpStartOfst",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004ceef8": {
+  "name": "ADXSJD_GetDefOutVol",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cef50": {
+  "name": "ADXSJD_GetDefPan",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cefb8": {
+  "name": "ADXSJD_GetDataId",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004cf360": {
+  "name": "adxsje_nsmpl_to_ofst",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004cf390": {
+  "name": "ADXSJE_CalcLpInfo",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004cf4e8": {
+  "name": "ADXSJE_GetInfo",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004cf550": {
+  "name": "adxsje_write68",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004cf710": {
+  "name": "ADXPD_Init",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004cfb98": {
+  "name": "adxsje_get_pcm_data",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004cfd08": {
+  "name": "adxsje_calc_rsig",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004cff68": {
+  "name": "adxsje_set_rsig",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004d01f0": {
+  "name": "adxsje_encode_blk",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004d03b0": {
+  "name": "adxsje_output_sdata",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004d04e0": {
+  "name": "adxsje_encode_data",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004d0590": {
+  "name": "adxsje_write_end_code",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004d0690": {
+  "name": "adxsje_output_header",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004d0e40": {
+  "name": "ADXSJE_Finish",
+  "sources": [
+   "re4ps2"
+  ]
+ },
+ "004d0e98": {
+  "name": "ADXSJE_Create",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004d1068": {
+  "name": "ADXSJE_Destroy",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004d10d8": {
+  "name": "ADXSJE_Start",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004d1230": {
+  "name": "ADXSJE_SetBlkSmpl",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004d12e8": {
+  "name": "ADXSJE_SetAinfOutputVol",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004d1310": {
+  "name": "ADXSJE_SetAinfOutputPan",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004d1340": {
+  "name": "ADXSJE_SetAinfDataId",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004d1428": {
+  "name": "ADXSJE_ClearAinf",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004d1478": {
+  "name": "ADXSJE_SetCommonInf",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004d14c8": {
+  "name": "ADXSJE_SetConfigSfa",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004d15b0": {
+  "name": "ADXSJE_SetInSj",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004d15d8": {
+  "name": "adxsje_encode_prep",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004d1748": {
+  "name": "adxsje_encode_exec",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004d17e0": {
+  "name": "ADXSJE_ExecHndl",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004d18e8": {
+  "name": "ADXT_SetupNrmlNumStm",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004d1908": {
+  "name": "ADXSTM_Init",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d19a8": {
+  "name": "ADXSTMF_SetupHandleMember",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004d1ab0": {
+  "name": "ADXSTMF_CreateCvfsRt",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004d1b88": {
+  "name": "ADXSTMF_CreateCvfs",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004d1d70": {
+  "name": "ADXSTM_BindFileNw",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d20f0": {
+  "name": "adxstm_start_sub",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004d2840": {
+  "name": "ADXSTMF_ExecHndl",
+  "sources": [
+   "re4ps2"
+  ]
+ },
+ "004d32f8": {
+  "name": "ADXPS2_SetupDvdFs",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d33f8": {
+  "name": "ADXPS2_LoadFcacheDvd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d3458": {
+  "name": "ADXPS2_SetFcacheDvd",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004d34c0": {
+  "name": "ADXPS2_SetRdModeDvd",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004d3628": {
+  "name": "ADXPS2_OpenLsn",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004d3750": {
+  "name": "adxt_disp_rna_stat",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004d38a8": {
+  "name": "adxt_Create",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004d40a0": {
+  "name": "adxt_start_stm",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d41b0": {
+  "name": "ADXT_StartSj",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004d4630": {
+  "name": "adxt_GetTimeSfreq2",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004d4e40": {
+  "name": "adxt_SetOutPan",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004d5020": {
+  "name": "adxt_SetOutBalance",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004d5150": {
+  "name": "adxt_SetOutVol",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004d5500": {
+  "name": "ADXT_SetReloadTime",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004d58a8": {
+  "name": "ADXT_GetIbufRemainTime",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004d5b58": {
+  "name": "adxt_ExecServer",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004d6838": {
+  "name": "ADXT_IsHeader",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d68d0": {
+  "name": "ADXT_IsEndcode",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d6b10": {
+  "name": "ADXT_SetOutputMono",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d7080": {
+  "name": "ADXT_StartMem2",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004d71b0": {
+  "name": "ADXT_StartMemIdx",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004d7320": {
+  "name": "adxt_trap_entry_lps",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d73d8": {
+  "name": "adxt_trap_entry",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004d7618": {
+  "name": "adxt_set_outpan",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d7680": {
+  "name": "adxt_nlp_trap_entry",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d7968": {
+  "name": "adxt_stat_decinfo",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d7d78": {
+  "name": "ADXT_SetCbEndDecinfo",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004d8000": {
+  "name": "adxt_stat_decend",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d8210": {
+  "name": "adxt_RcvrReplay",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004d8300": {
+  "name": "ADXT_ExecErrChk",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004d8550": {
+  "name": "ADXT_ExecRdErrChk",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d85d0": {
+  "name": "ADXT_ExecRdCompChk",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d8858": {
+  "name": "ADXPD_Create",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d8928": {
+  "name": "ADXPD_SetCoef",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d8950": {
+  "name": "ADXPD_SetDly",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d8978": {
+  "name": "ADXPD_GetDly",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d89d0": {
+  "name": "ADXPD_Destroy",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d8aa8": {
+  "name": "ADXPD_Start",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004d8ac8": {
+  "name": "ADXPD_Stop",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d8af0": {
+  "name": "ADXPD_Reset",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d8b10": {
+  "name": "adxpd_error",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d8b20": {
+  "name": "ADXPD_ExecHndl",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004d8c18": {
+  "name": "ADXPD_ExecServer",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004d8c78": {
+  "name": "ADXCS_Init",
+  "sources": [
+   "re4ps2"
+  ]
+ },
+ "004d8cc0": {
+  "name": "ADXCS_Create",
+  "sources": [
+   "re4ps2"
+  ]
+ },
+ "004d8cf0": {
+  "name": "ADXCS_CalcWorkCprm",
+  "sources": [
+   "re4ps2"
+  ]
+ },
+ "004de2e8": {
+  "name": "adxcs_dec_svr",
+  "sources": [
+   "re4ps2"
+  ]
+ },
+ "004e1578": {
+  "name": "cvFsCallUsrErrFn",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e15a8": {
+  "name": "cvFsError",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004e15d0": {
+  "name": "cvFsInit",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e1698": {
+  "name": "cvFsFinish",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e17a0": {
+  "name": "cvFsAddDev",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e1a00": {
+  "name": "cvFsDelDev",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e1ad8": {
+  "name": "cvFsSetDefDev",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e1cd8": {
+  "name": "cvFsOpen",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e2028": {
+  "name": "cvFsClose",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e2298": {
+  "name": "cvFsExecServer",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e22f8": {
+  "name": "cvFsGetStat",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e2360": {
+  "name": "cvFsGetFileSize",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e2420": {
+  "name": "cvFsGetFileSizeEx",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e24f0": {
+  "name": "cvFsGetFileSizeByHndl",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e2550": {
+  "name": "cvFsGetFreeSize",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e2878": {
+  "name": "cvFsIsExistFile",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e2920": {
+  "name": "cvFsGetNumFiles",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e2a30": {
+  "name": "cvFsLoadDirInfo",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e2b08": {
+  "name": "cvFsGetMaxByteRate",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e2da0": {
+  "name": "cvFsGetDevName",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e2fe8": {
+  "name": "cvFsAddVolumeEx",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e31b0": {
+  "name": "cvFsGetVolumeInfo",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e3280": {
+  "name": "cvFsSetDefVol",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e3428": {
+  "name": "cvFsIsExistDevice",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e3448": {
+  "name": "cvFsGetNumTr64",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e34e0": {
+  "name": "cvFsGetFileSize64",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e3598": {
+  "name": "cvFsGetFileSizeEx64",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e3658": {
+  "name": "cvFsGetFsys64Info",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e4a60": {
+  "name": "DTR_ExecHndl",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e4dd0": {
+  "name": "DTR_ExecServer",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e4e90": {
+  "name": "DTR_Init",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e4f10": {
+  "name": "DTR_Create",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e5000": {
+  "name": "DTR_Destroy",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e5028": {
+  "name": "DTR_Start",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e5038": {
+  "name": "DTR_Stop",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e5360": {
+  "name": "DTX_Open",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e5390": {
+  "name": "DTX_Close",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e53a8": {
+  "name": "DTX_Create",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e5540": {
+  "name": "DTX_Destroy",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e55c8": {
+  "name": "DTX_ExecHndl",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e5738": {
+  "name": "DTX_Init",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e5828": {
+  "name": "DTX_Finish",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e58a0": {
+  "name": "DTX_CallUrpc",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e5a08": {
+  "name": "dvCiGetInterface",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e5a68": {
+  "name": "dvCiCdSearchFile",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e5ce0": {
+  "name": "dvCiIsExistFile",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e5d68": {
+  "name": "dvCiGetFileSize",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e5e80": {
+  "name": "dvCiOpen",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e5ff8": {
+  "name": "dvCiClose",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e6120": {
+  "name": "dvCiReqRd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e62c8": {
+  "name": "dvCiStopTr",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e6460": {
+  "name": "dvCiSetDvdLayer",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e6f90": {
+  "name": "dvCiLoadFcache",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e7110": {
+  "name": "dvCiSetFcache",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e7280": {
+  "name": "dvCiSetRdMode",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e72a0": {
+  "name": "dvCiSetRootDir",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e73f0": {
+  "name": "htCiGetInterface",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e76f8": {
+  "name": "htCiIsExistFile",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e7798": {
+  "name": "htCiGetFileSize",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e77c0": {
+  "name": "htCiGetFileSize64",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e7a58": {
+  "name": "htCiOpen",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e7bd0": {
+  "name": "htCiClose",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e7d40": {
+  "name": "htCiReqRd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e7ed0": {
+  "name": "htCiStopTr",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e8be8": {
+  "name": "htCiLoadFcache",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e8d68": {
+  "name": "htCiSetOpenMode",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e8d98": {
+  "name": "htCiSetRootDir",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e8e28": {
+  "name": "htCiSetAccessName",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e8f30": {
+  "name": "LSC_Create",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004e9038": {
+  "name": "LSC_Destroy",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004e9090": {
+  "name": "LSC_EntryFname",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004e90b8": {
+  "name": "LSC_EntryFileRange",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004e9250": {
+  "name": "LSC_ResetEntry",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004e9290": {
+  "name": "LSC_Start",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004e92f8": {
+  "name": "LSC_Stop",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004e9380": {
+  "name": "LSC_Pause",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004e9480": {
+  "name": "LSC_GetStmId",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004e95a8": {
+  "name": "LSC_GetStmStat",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004e96d8": {
+  "name": "LSC_SetFlowLimit",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004e9770": {
+  "name": "LSC_EntryChgStatFunc",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004e97b0": {
+  "name": "LSC_CallStatFunc",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e9878": {
+  "name": "LSC_CallErrFunc",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004e9918": {
+  "name": "LSC_Init",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004e9998": {
+  "name": "LSC_Finish",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004eb020": {
+  "name": "ADXT_AttachDolbyProLogicII",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004eb180": {
+  "name": "ADXT_SetOutPos",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004ed3e8": {
+  "name": "SJCRS_Init",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004ed420": {
+  "name": "SJCRS_Finish",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ed648": {
+  "name": "sjmem_Create",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004ed800": {
+  "name": "sjmem_GetUuid",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ed8a8": {
+  "name": "sjmem_EntryErrFunc",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ed938": {
+  "name": "sjmem_Reset",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ed9a0": {
+  "name": "SJMEM_GetNumData",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004eda48": {
+  "name": "sjmem_GetChunk",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004edb78": {
+  "name": "sjmem_PutChunk",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004edc68": {
+  "name": "sjmem_UngetChunk",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004eddd0": {
+  "name": "sjmem_IsGetChunk",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ee070": {
+  "name": "sjrbf_Create",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004ee240": {
+  "name": "sjrbf_Reset",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ee2c0": {
+  "name": "SJRBF_GetNumData",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004ee370": {
+  "name": "sjrbf_GetChunk",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ee560": {
+  "name": "sjrbf_PutChunk",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ee730": {
+  "name": "sjrbf_UngetChunk",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ee978": {
+  "name": "sjrbf_IsGetChunk",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004eea88": {
+  "name": "SJRBF_SetFlowCnt",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004eeaa0": {
+  "name": "SJRBF_GetFlowCnt",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004eec78": {
+  "name": "sjuni_Create",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004eed90": {
+  "name": "sjuni_Destroy",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004eee50": {
+  "name": "sjuni_GetUuid",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004eeef8": {
+  "name": "sjuni_EntryErrFunc",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004eef88": {
+  "name": "sjuni_Reset",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ef0a8": {
+  "name": "sjuni_GetNumData",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ef1c0": {
+  "name": "sjuni_GetChunk",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ef360": {
+  "name": "sjuni_PutChunk",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ef4d8": {
+  "name": "sjuni_UngetChunk",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ef660": {
+  "name": "sjuni_IsGetChunk",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ef770": {
+  "name": "sjuni_GetNumChunk",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ef838": {
+  "name": "sjuni_GetNumChainPool",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "004ef8b8": {
+  "name": "SJ_SplitChunk",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004ef918": {
+  "name": "sj_val_to_hexstr",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004ef9b0": {
+  "name": "sj_hexstr_to_val",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004efa60": {
+  "name": "SJ_MakeTag",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004efac0": {
+  "name": "SJ_GetTagContent",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004efaf8": {
+  "name": "SJ_SearchTag",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004efbc8": {
+  "name": "SJUNI_CreateRmt",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004efcc8": {
+  "name": "SJRMT_Destroy",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004efcf8": {
+  "name": "SJRMT_GetUuid",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004efd98": {
+  "name": "SJRMT_GetChunk",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004efef8": {
+  "name": "SJRMT_IsGetChunk",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004eff60": {
+  "name": "SJRMT_Init",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004effb0": {
+  "name": "SJRMT_Finish",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004efff0": {
+  "name": "sjx_rcvcbf",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004f0090": {
+  "name": "sjx_sndcbf",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004f01b8": {
+  "name": "SJX_Init",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004f0350": {
+  "name": "SJX_Finish",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004f03c8": {
+  "name": "SJX_Create",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004f04c0": {
+  "name": "SJX_Destroy",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004f0508": {
+  "name": "SJX_Reset",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004f0ec0": {
+  "name": "SFX_SetErrFn",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004f2370": {
+  "name": "MWSTM_ReqStop",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004f9b60": {
+  "name": "MWSFSVR_SetMwsfdSvrFlg",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004fb500": {
+  "name": "SFHDS_InitFhd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004fb518": {
+  "name": "MPV_SetErrFunc",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "004fb608": {
+  "name": "MPVERR_SetCode",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004fb658": {
+  "name": "mpverr_SetCodeSub",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "004fb690": {
+  "name": "MPV_SkipFrmSj",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004fba70": {
+  "name": "MPV_SetUsrSj",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "004fba98": {
+  "name": "SFX_SetPicUsrDat",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "004fbaa8": {
+  "name": "MPV_GetPicUsr",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00500c30": {
+  "name": "mpvlib_InitObjTbl",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00500dd0": {
+  "name": "MPS_Create",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00500e08": {
+  "name": "mpvlib_SearchFreeHn",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00501078": {
+  "name": "MPVLIB_CheckHn",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00501730": {
+  "name": "MPS_DecHd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005017d8": {
+  "name": "MPSDEC_DecHdMpeg1",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00503340": {
+  "name": "MPS_CheckDelim",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005033b0": {
+  "name": "MPS_IsConformable",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00503488": {
+  "name": "MPS_GetPackHd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005034f0": {
+  "name": "MPS_GetSysHd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005035a0": {
+  "name": "MPS_GetLastSysHd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00503638": {
+  "name": "MPS_GetPketHd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005036c8": {
+  "name": "MPS_Init",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005037d0": {
+  "name": "MPS_Finish",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00503870": {
+  "name": "MPSLIB_SetErr",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005038f8": {
+  "name": "MPS_SetErrFn",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005039a0": {
+  "name": "MPS_GetErrInf",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00503a40": {
+  "name": "MPSLIB_CheckHn",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00503c08": {
+  "name": "MPS_Destroy",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00503c58": {
+  "name": "MPV_CheckDelim",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00503cf0": {
+  "name": "MPV_BsearchDelim",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00503df0": {
+  "name": "MPV_SearchDelim",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00503ef8": {
+  "name": "MPV_CopyStm",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00504008": {
+  "name": "MPV_IsEmptyBpic",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005044b0": {
+  "name": "MPV_IsEmptyPpic",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00504a98": {
+  "name": "MPV_GetErrInf",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "00504ba0": {
+  "name": "MPV_DecodeFrm",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00504c50": {
+  "name": "MPV_SkipFrm",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00504dc8": {
+  "name": "MPV_GetPicAtr",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00504ed0": {
+  "name": "MPV_GetBitRate",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00504f30": {
+  "name": "MPV_GetVbvBufSiz",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00504ff8": {
+  "name": "MPV_GetLinkFlg",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005050a0": {
+  "name": "MPV_SetPicUsrBuf",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005050e0": {
+  "name": "MPV_DecodePicAtrSj",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "005052f0": {
+  "name": "mpvhdec_GetCurDelim",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00505360": {
+  "name": "MPV_DecodePicAtr",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00505400": {
+  "name": "mpvhdec_GetCodec",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "005054a8": {
+  "name": "mpvhdec_DecShcSj",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "00505b68": {
+  "name": "mpvhdec_DecGscSj",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "00505de8": {
+  "name": "mpvhdec_DecPscSj",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "005063d0": {
+  "name": "mpvhdec_DecEscSj",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00506490": {
+  "name": "mpvhdec_DecUdscSj",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00506580": {
+  "name": "mpvhdec_AnalyUd",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00506748": {
+  "name": "mpvhdec_DecSeqUdsc",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "00506850": {
+  "name": "MPVHDEC_GoNextDelim",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "005068f8": {
+  "name": "MPV_GoNextDelimSj",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00506a50": {
+  "name": "mpvhdec_RecoverSj",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00506b20": {
+  "name": "MPV_MoveChunk",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00506b98": {
+  "name": "MPV_IsConformable",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00506c30": {
+  "name": "MPV_Init",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "00506d08": {
+  "name": "mpvlib_ChkFatal",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00506d90": {
+  "name": "MPVLIB_ConvOix",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00506dd0": {
+  "name": "MPVLIB_ConvGuard",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "00506de8": {
+  "name": "mpvlib_InitClip",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00506e38": {
+  "name": "mpvlib_InitClip0255",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00506f08": {
+  "name": "mpvlib_InitObj",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "00506ff8": {
+  "name": "mpvlib_InitPicAtr",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "005070a8": {
+  "name": "MPV_Finish",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005070d0": {
+  "name": "MPV_Create",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00507178": {
+  "name": "mpvlib_InitHn",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "00507240": {
+  "name": "MPV_GetDctCnt",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00507258": {
+  "name": "MPV_Destroy",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005072d8": {
+  "name": "MPV_SetCond",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005073a0": {
+  "name": "mpvlib_SetCondAll",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "005073f0": {
+  "name": "MPV_GetCond",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005074c0": {
+  "name": "MPVM2V_Init",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00507560": {
+  "name": "MPVM2V_DecodePicAtr",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00507628": {
+  "name": "mpvm2v_CopyPicAtr",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00507c28": {
+  "name": "MWSKG_Create",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "00507c50": {
+  "name": "MWSKG_SetKeyString",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "00507d50": {
+  "name": "MWSKG_EncryptAllRange",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "00507ea0": {
+  "name": "MWSKG_Decrypt",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "005083c0": {
+  "name": "MWSFCRE_SetSupplySj",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00509010": {
+  "name": "MWSFCRE_DestroySfd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00509058": {
+  "name": "MWSFCRE_SetCondSfd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005091a8": {
+  "name": "MWSFCRE_ResetSfdHn",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "00509d00": {
+  "name": "MWSFD_Malloc",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "00509e10": {
+  "name": "MWSFD_Free",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0050acc0": {
+  "name": "MWSFD_GetLastFrmCnt",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0050ad80": {
+  "name": "MWSFFRM_AnalyTotalFrmNum",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0050afb8": {
+  "name": "MWSFFRM_InitSfhInfTable",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0050b020": {
+  "name": "MWSFFRM_SetShfCbFn",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0050b230": {
+  "name": "MWSFD_GetTotalFrmNum",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0050b300": {
+  "name": "MWSFD_GetFramePoolStatusByBufferAddress",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0050b388": {
+  "name": "MWSFD_GetFramePoolStatusByBufferId",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0050b8f0": {
+  "name": "MWSFLIB_SetErrCode",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0050ba08": {
+  "name": "MWSFLIB_SfdErrFunc",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0050c590": {
+  "name": "MWSFPLY_SetFlowLimit",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0050c640": {
+  "name": "MWSFPLY_RecordFname",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0050c6d8": {
+  "name": "MWSFPLY_ReqStartFnameRange",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0050c728": {
+  "name": "MWSFPLY_ReqStartAfs",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0050c940": {
+  "name": "MWRSC_SaveRsc",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0050c9d0": {
+  "name": "MWRSC_RestoreRsc",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0050ca58": {
+  "name": "MWSFD_SetUseSPR",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0050caa0": {
+  "name": "MWSFD_ExecSetSprCbFn",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0050cb68": {
+  "name": "MWSPR_SaveSprByCpu",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0050cba0": {
+  "name": "MWSPR_SaveSprByDma",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0050cc48": {
+  "name": "MWSPR_RestoreSprByCpu",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0050cc78": {
+  "name": "MWSPR_RestoreSprByDma",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0050cd00": {
+  "name": "MWDMA_WaitEnd",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0050cd48": {
+  "name": "MWDMA_GetStat",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0050ce40": {
+  "name": "MWSFD_AdjustGetFrmTiming",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0050d2b8": {
+  "name": "MWSFD_GetPlyInf",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0050d2f0": {
+  "name": "MWSFLSC_SetFlowLimit",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0050d380": {
+  "name": "MWSFD_SetFlowLimit",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0050e0d0": {
+  "name": "MWSFD_SetMaxAlpha",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0050e428": {
+  "name": "MWSFSFX_Init",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0050e4e0": {
+  "name": "MWSFSFX_CnvFrmInfToSfx",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0050e5f8": {
+  "name": "MWSFD_IsColAdjFrame",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0050e648": {
+  "name": "MWSFD_IsColAdjFile",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0050e698": {
+  "name": "MWSFD_GetFxType",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0050ecb8": {
+  "name": "MWSFSFX_SetCompoMode",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0050ee28": {
+  "name": "MWSFSFX_SetOutBufSize",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0050ef38": {
+  "name": "MWSFD_GetMaxAlpha",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0050f078": {
+  "name": "MWSFTAG_IsUseAinfSj",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0050f0a0": {
+  "name": "MWSFTAG_CreateAinfSj",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0050f130": {
+  "name": "MWSFTAG_SetAinfSj",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0050f190": {
+  "name": "MWSFTAG_InitTagInf",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0050f1e0": {
+  "name": "MWSFTAG_SetTagInf",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0050f238": {
+  "name": "MWSFTAG_UpdateTagInf",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0050f4d8": {
+  "name": "MWSFTAG_ClearUsrSj",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0050f568": {
+  "name": "MWSFD_GetAinfAll",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0050f580": {
+  "name": "MWSFD_GetAinfFx",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "0050f5d0": {
+  "name": "MWSFD_GetZfrmRange",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00510630": {
+  "name": "MWSST_CalcAdxWorkSize",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00510660": {
+  "name": "MWSST_CalcAixWorkSize",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "005106b0": {
+  "name": "MWSFD_SetSstCh",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "00510740": {
+  "name": "MWSST_Init",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "005107a8": {
+  "name": "MWSST_Finish",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "00510808": {
+  "name": "MWSST_CalcWorkSize",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "00510870": {
+  "name": "MWSST_CreateCoreHn",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "005108c8": {
+  "name": "MWSST_DestroyCoreHn",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "00510910": {
+  "name": "MWSST_StartSj",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "00510968": {
+  "name": "MWSST_Stop",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "00510a28": {
+  "name": "MWSST_GetTime",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "00510a98": {
+  "name": "MWSST_Pause",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "00510bc0": {
+  "name": "MWSST_Create",
+  "sources": [
+   "devilkings"
+  ]
+ },
+ "00510ce0": {
+  "name": "MWSST_Reset",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "00510e60": {
+  "name": "MWSST_IsEnable",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "00510ea0": {
+  "name": "MWSFSVM_Init",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00510ef8": {
+  "name": "MWSFSVM_EntryVint",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "00510f30": {
+  "name": "MWSFSVM_DeleteVint",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00510f88": {
+  "name": "MWSFSVM_EntryIdVfunc",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "005110a0": {
+  "name": "MWSFSVM_EntryWaitVsyncFunc",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "005110d0": {
+  "name": "MWSFSVM_DeleteWaitVsyncFunc",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00511220": {
+  "name": "MWSFSVM_Error",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00511300": {
+  "name": "MWSFSVR_IsEndDec",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00511328": {
+  "name": "MWSFSVR_CheckForceSvrBdr",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00511850": {
+  "name": "MWSFSVR_VsyncThrdProc",
+  "sources": [
+   "devilkings",
+   "re4ps2"
+  ]
+ },
+ "00511898": {
+  "name": "MWSFSVR_IdleThrdProc",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "005119e0": {
+  "name": "MWSFD_SetCbDecSvr",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00511a98": {
+  "name": "MWSFD_SetCbRestDecSvr",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00511de0": {
+  "name": "MWSFSVR_IsSvrBdrHndl",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "00511e48": {
+  "name": "MWSFD_SetReqSvrBdrHn",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "00511f28": {
+  "name": "MWSFD_RequestStopRead",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "00511f48": {
+  "name": "MWSFD_IsFsBdr",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "00511f98": {
+  "name": "MWSTM_SetRdSct",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00511fc8": {
+  "name": "MWSTM_SeekSct",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "005120f8": {
+  "name": "MWSTM_GetFsizeByte",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00512138": {
+  "name": "MWSTM_Create",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00512168": {
+  "name": "MWSTM_SetFname",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "005121c0": {
+  "name": "MWSTM_SetFileRange",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00512490": {
+  "name": "SFD_SetAdxtPara",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00513df8": {
+  "name": "SFD_SetOutPan",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00513e88": {
+  "name": "SFD_GetOutPan",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00513f00": {
+  "name": "SFD_SetOutVol",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00513f80": {
+  "name": "SFD_GetOutVol",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00515c00": {
+  "name": "SFD_SetConcatPlay",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00515f20": {
+  "name": "SFD_GetTimePerFile",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00516078": {
+  "name": "SFD_AnalyCreInf",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00516d98": {
+  "name": "SFHDS_Init",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00516df8": {
+  "name": "SFHDS_SetHdr",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00516f08": {
+  "name": "SFHDS_IsSfdHeader",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00517138": {
+  "name": "SFHDS_ReprocessHdr",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005171f0": {
+  "name": "SFHDS_ProcessHdr",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00517840": {
+  "name": "SFHDS_GetMuxVerNum",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00517878": {
+  "name": "SFHDS_GetColType",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005178c0": {
+  "name": "SFD_Init",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "005179f8": {
+  "name": "SFD_Finish",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00517b80": {
+  "name": "SFD_SetErrFn",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00517c28": {
+  "name": "SFD_GetErrInf",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00517eb8": {
+  "name": "SFD_SetElementOutSj",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00518328": {
+  "name": "SFD_SetCbReadPackFn",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "00519ef0": {
+  "name": "SFD_SetMpvPara",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00519fa0": {
+  "name": "SFD_SetMpvParaTbl",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0051a090": {
+  "name": "SFD_MakeRfbInfo",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0051a130": {
+  "name": "SFD_CalcYccPlane",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0051a1c0": {
+  "name": "SFD_SetMpvCond",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0051a378": {
+  "name": "SFD_GetNumFrm",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0051a3e8": {
+  "name": "SFD_SetVideoUsrSj",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0051a490": {
+  "name": "SFD_SetPicUsrBuf",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0051f3c0": {
+  "name": "SFD_LockFrm",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0051f460": {
+  "name": "SFD_UnlockFrm",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0051f888": {
+  "name": "SFD_GetNextPicUsr",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0051f8e8": {
+  "name": "SFD_GetNumRemainFrm",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0051fa40": {
+  "name": "SFD_IsNextFrmReady",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00521418": {
+  "name": "SFD_GetPaStat",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00521468": {
+  "name": "SFD_Pause",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00521618": {
+  "name": "SFD_Standby",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00521670": {
+  "name": "SFD_SetSpeed",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00521850": {
+  "name": "SFD_IsHnSvrWait",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00521878": {
+  "name": "SFD_IsSvrWait",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "005218f0": {
+  "name": "SFD_ExecOne",
+  "sources": [
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00521948": {
+  "name": "SFD_ExecServer",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "005228b8": {
+  "name": "SFD_Create",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00522e78": {
+  "name": "SFD_Destroy",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00522f40": {
+  "name": "SFD_Start",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00522ff8": {
+  "name": "SFD_Stop",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00523508": {
+  "name": "SFD_GetWritePtr",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00523578": {
+  "name": "SFD_AddWritePtr",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005235f8": {
+  "name": "SFD_TermSupply",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00523730": {
+  "name": "SFD_GetIdFrm",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "00523818": {
+  "name": "SFD_RelIdFrm",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "005238b8": {
+  "name": "SFD_GetFrm",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "005239b0": {
+  "name": "SFD_RelFrm",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "00523ab0": {
+  "name": "SFD_SetSupplySj",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00523b28": {
+  "name": "SFD_SetVideoPts",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00523f90": {
+  "name": "SFD_InitSeek",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00524158": {
+  "name": "SFD_SetSeekPosTbl",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "005241b8": {
+  "name": "SFD_StartHeadAnaly",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00524680": {
+  "name": "SFD_CnvTimeToPos",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00524778": {
+  "name": "SFD_CnvPosToTime",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "005248b8": {
+  "name": "SFD_Seek",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00524a20": {
+  "name": "SFD_SetTotTime",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00524b18": {
+  "name": "SFD_SetSeekPos",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00524d50": {
+  "name": "SFD_GetHnStat",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00524d90": {
+  "name": "SFD_SetCond",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00524ff8": {
+  "name": "SFD_GetCond",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00525098": {
+  "name": "SFX_GetCnvTable",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "005250a8": {
+  "name": "SFD_GetMvInf",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00525180": {
+  "name": "SFD_GetPlyInf",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "00525220": {
+  "name": "SFD_GetTmrInf",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "00525340": {
+  "name": "SFD_GetTrHn",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005253f0": {
+  "name": "SFD_GetSofdecHeader",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00525c40": {
+  "name": "SFD_GetTime",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00526138": {
+  "name": "SFD_OutUsrFrmSync",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00526208": {
+  "name": "SFD_SetUsrTimeFn",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00526290": {
+  "name": "SFD_SetExtClockFn",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00526380": {
+  "name": "SFD_UpdateTime",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00526a10": {
+  "name": "SFD_GetFps",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00526a88": {
+  "name": "SFD_GetPlayFps",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00526b88": {
+  "name": "SFD_OutDispSync",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00526c10": {
+  "name": "SFD_IsDrawTime",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00528448": {
+  "name": "SFD_SetSystemUsrSj",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00528570": {
+  "name": "SFD_SetUsrSj",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00528c50": {
+  "name": "SFH_Init",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00528ce0": {
+  "name": "SFH_Finish",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00528d28": {
+  "name": "SFH_Create",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00528df0": {
+  "name": "SFH_Destroy",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00528f40": {
+  "name": "SFH_IsSfdHeader",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00529030": {
+  "name": "SFH_IsExistStmId",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005290a0": {
+  "name": "SFH_IsEffFtrInf",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "005291b8": {
+  "name": "SFH_AnlySfdFname",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00529228": {
+  "name": "SFH_AnlySfdTimStmp",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00529298": {
+  "name": "SFH_AnlyHdrToolInf",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00529330": {
+  "name": "SFH_AnlyHdrToolVer",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00529400": {
+  "name": "SFH_AnalyHdrComment",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "00529528": {
+  "name": "SFH_AnlyPackType",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00529578": {
+  "name": "SFH_AnlyPketSizLen",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00529840": {
+  "name": "SFH_AnlyByteRate",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00529bc0": {
+  "name": "SFH_AnlyElemLayer",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00529c40": {
+  "name": "SFH_AnlyElemChNum",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00529cb0": {
+  "name": "SFH_AnlyElemSmpHz",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00529d90": {
+  "name": "SFH_AnlyElemBitRate",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00529e08": {
+  "name": "SFH_AnlyElemPicSz",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "00529eb8": {
+  "name": "SFH_AnlyElemPicRate",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0052a008": {
+  "name": "SFH_AnlyFtrFixFlg",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0052a078": {
+  "name": "SFH_AnlyFtrShcFixFlg",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0052a0f0": {
+  "name": "SFH_AnlyFtrExpand",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0052a270": {
+  "name": "SFH_AnlyFtrFxType",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0052a498": {
+  "name": "SFXA_Create",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0052a580": {
+  "name": "SFXA_Destroy",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0052a5a8": {
+  "name": "SFXA_MakeAlpLumiTbl",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0052a668": {
+  "name": "SFXA_SetLumiPrm",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052a688": {
+  "name": "SFXA_GetLumiPrm",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052a6a8": {
+  "name": "SFXA_SetAlp3Prm",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052a6c0": {
+  "name": "SFXA_GetAlp3Prm",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052a6e0": {
+  "name": "SFX_SetClipping",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0052a860": {
+  "name": "SFX_DecideTableAlph3",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0052aae0": {
+  "name": "SFXCNV_MakeCcirFromY",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052ad58": {
+  "name": "SFX_CnvFrmByCbFunc",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0052b358": {
+  "name": "SFX_Make1PlaneCftDstBuf",
+  "sources": [
+   "onimusha"
+  ]
+ },
+ "0052b600": {
+  "name": "SFX_Init",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0052b6c8": {
+  "name": "SFX_Finish",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052b738": {
+  "name": "SFX_Create",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0052b950": {
+  "name": "SFX_Destroy",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0052b9a0": {
+  "name": "SFXLIB_Error",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0052ba60": {
+  "name": "SFX_GetOutBufSize",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052ba80": {
+  "name": "SFX_SetCnvTable",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052baf0": {
+  "name": "SFX_SetTagInf",
+  "sources": [
+   "devilkings",
+   "onimusha",
+   "re4ps2"
+  ]
+ },
+ "0052bc08": {
+  "name": "SFX_GetZfrmRange",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052bc58": {
+  "name": "SFX_SetAlp3Prm",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052bce0": {
+  "name": "SFX_ShiftYccPtrByLine",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052bd68": {
+  "name": "SFX_SetMaxRowToYccPln",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052bd90": {
+  "name": "SFX_ShiftYccPtrByPix",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052be40": {
+  "name": "SFX_SetMaxAlpha",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052c040": {
+  "name": "SFXZ_SetTagInf",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052c180": {
+  "name": "SFXZ_GetZfrmRange",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052c470": {
+  "name": "SFXZ_MakeCnvZTbl",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052c790": {
+  "name": "SFXZ_SetZclip",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052c828": {
+  "name": "SFXZ_GetZclip",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ },
+ "0052c840": {
+  "name": "SFXZ_IsSetZclip",
+  "sources": [
+   "devilkings",
+   "onimusha"
+  ]
+ }
 }

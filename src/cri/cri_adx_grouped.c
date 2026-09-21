@@ -2152,8 +2152,6 @@ asm void func_004c1718(u32 *param_1)
 
 #pragma schedule on
 
-// FUN_004C19A8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c19a8);
 
 // FUN_004C19D0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c19d0);

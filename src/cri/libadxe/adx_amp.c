@@ -205,6 +205,7 @@ void adxamp_extract(ADXAMP amp)
 }
 
 // 100% matching!
+// FUN_004C19A8
 void ADXAMP_ExecHndl(ADXAMP amp) 
 {
     if (amp->stat == 2)
