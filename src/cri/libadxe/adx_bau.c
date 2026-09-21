@@ -338,6 +338,7 @@ void ADXB_ExecOneAu8(ADXB adxb)
 }
 
 // 100% matching!
+// FUN_004C2F38
 void ADXB_ExecOneAuUlaw(ADXB adxb)
 {
 	AdxDecPara *dp;
@@ -398,6 +399,7 @@ void ADXB_ExecOneAuUlaw(ADXB adxb)
 }
 
 // 100% matching!
+// FUN_004C30E0
 void ADXB_ExecOneAu(ADXB adxb)
 {
     if (adxb->cdctype == 2) 

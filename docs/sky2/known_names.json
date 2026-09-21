@@ -1,0 +1,2354 @@
+{
+ "003b6da0": {
+  "evidence": "RpRandomSeedMT = 0x003B6DA0; // type:func  evidence: p3:RpRandomSeedMT@0x00488c70 tier:2 (P3 recovered-symbol address; not verifier-matched)",
+  "name": "RpRandomSeedMT",
+  "provenance": "config/symbol_names.p3.txt",
+  "tier": "p3"
+ },
+ "003b6f00": {
+  "evidence": "RpRandomSeed = 0x003B6F00; // type:func  evidence: p3:RpRandomSeed@0x00488dd0 tier:1 (P3 verifier-matched) file:src/rw/rprandom.c",
+  "name": "RpRandomSeed",
+  "provenance": "config/symbol_names.p3.txt",
+  "tier": "p3"
+ },
+ "003b7060": {
+  "evidence": "RpRandom = 0x003B7060; // type:func  evidence: p3:RpRandom@0x00488f30 tier:2 (P3 recovered-symbol address; not verifier-matched)",
+  "name": "RpRandom",
+  "provenance": "config/symbol_names.p3.txt",
+  "tier": "p3"
+ },
+ "003bd6b0": {
+  "evidence": "#define WorldSectorStreamRead func_003bd6b0",
+  "name": "WorldSectorStreamRead",
+  "provenance": "alias:src/renderware/world/babinwor.c",
+  "tier": "alias"
+ },
+ "003bdd00": {
+  "evidence": "static RpPlaneSector * PlaneSectorStreamRead(RwStream * stream, RwUInt8 ** binaryWorldMallocAddr, RpWorld * world, RwUInt32 flags) {",
+  "name": "PlaneSectorStreamRead",
+  "provenance": "marker:src/renderware/world/babinwor.c",
+  "tier": "marker"
+ },
+ "003be9a0": {
+  "evidence": "static RwObjectHasFrame * AtomicSync(RwObjectHasFrame * object) {",
+  "name": "AtomicSync",
+  "provenance": "marker:src/renderware/world/baclump.c",
+  "tier": "marker"
+ },
+ "003bea60": {
+  "evidence": "static RpAtomic    * ClumpAtomicCloneAndAttach(RpAtomic * atomic, void *pData) {",
+  "name": "ClumpAtomicCloneAndAttach",
+  "provenance": "marker:src/renderware/world/baclump.c",
+  "tier": "marker"
+ },
+ "003bed10": {
+  "evidence": "static const rpGeometryList * GeometryListStreamWrite(const rpGeometryList * geomList, RwStream * stream) {",
+  "name": "GeometryListStreamWrite",
+  "provenance": "marker:src/renderware/world/baclump.c",
+  "tier": "marker"
+ },
+ "003bf1a0": {
+  "evidence": "static void        * ClumpInitCameraExt(void *object, RwInt32 offsetInObject __RWUNUSED__, RwInt32 sizeInObject __RWUNUSED__) {",
+  "name": "ClumpInitCameraExt",
+  "provenance": "marker:src/renderware/world/baclump.c",
+  "tier": "marker"
+ },
+ "003bf360": {
+  "evidence": "static RpAtomic    * ClumpAtomicAddSize(RpAtomic * atomic, void *pData) {",
+  "name": "ClumpAtomicAddSize",
+  "provenance": "marker:src/renderware/world/baclump.c",
+  "tier": "marker"
+ },
+ "003bf3d0": {
+  "evidence": "static RpAtomic    * ClumpAtomicStreamWrite(RpAtomic * atomic, void *pData) {",
+  "name": "ClumpAtomicStreamWrite",
+  "provenance": "marker:src/renderware/world/baclump.c",
+  "tier": "marker"
+ },
+ "003bf5f0": {
+  "evidence": "static RpAtomic    * ClumpAtomicStreamRead(RwStream * stream, rwFrameList * fl, rpGeometryList * gl) {",
+  "name": "ClumpAtomicStreamRead",
+  "provenance": "marker:src/renderware/world/baclump.c",
+  "tier": "marker"
+ },
+ "003bf930": {
+  "evidence": "void _rpAtomicResyncInterpolatedSphere(RpAtomic * atomic) {",
+  "name": "_rpAtomicResyncInterpolatedSphere",
+  "provenance": "marker:src/renderware/world/baclump.c",
+  "tier": "marker"
+ },
+ "003c00e0": {
+  "evidence": "#define RpAtomicCreate func_003c00e0",
+  "name": "RpAtomicCreate",
+  "provenance": "alias:src/renderware/world/baclump.c",
+  "tier": "alias"
+ },
+ "003c0210": {
+  "evidence": "#define RpAtomicSetGeometry func_003c0210",
+  "name": "RpAtomicSetGeometry",
+  "provenance": "alias:src/renderware/world/baclump.c",
+  "tier": "alias"
+ },
+ "003c02e0": {
+  "evidence": "#define RpAtomicDestroy func_003c02e0",
+  "name": "RpAtomicDestroy",
+  "provenance": "alias:src/renderware/world/baclump.c",
+  "tier": "alias"
+ },
+ "003c03a0": {
+  "evidence": "RpAtomic * RpAtomicClone(RpAtomic *atomic) {",
+  "name": "RpAtomicClone",
+  "provenance": "marker:src/renderware/world/baclump.c",
+  "tier": "marker"
+ },
+ "003c0850": {
+  "evidence": "RpClump            * RpClumpAddAtomic(RpClump * clump, RpAtomic * atomic) {",
+  "name": "RpClumpAddAtomic",
+  "provenance": "marker:src/renderware/world/baclump.c",
+  "tier": "marker"
+ },
+ "003c08c0": {
+  "evidence": "RpClump            * RpClumpRemoveLight(RpClump * clump, RpLight * light) {",
+  "name": "RpClumpRemoveLight",
+  "provenance": "marker:src/renderware/world/baclump.c",
+  "tier": "marker"
+ },
+ "003c0900": {
+  "evidence": "RwUInt32 RpAtomicStreamGetSize(RpAtomic * atomic) {",
+  "name": "RpAtomicStreamGetSize",
+  "provenance": "marker:src/renderware/world/baclump.c",
+  "tier": "marker"
+ },
+ "003c1b90": {
+  "evidence": "#define RpAtomicSetFrame func_003c1b90",
+  "name": "RpAtomicSetFrame",
+  "provenance": "alias:src/renderware/world/baclump.c",
+  "tier": "alias"
+ },
+ "003c1d00": {
+  "evidence": "void               * _rpGeometryOpen(void *instance, RwInt32 offset, RwInt32 __RWUNUSED__ size) {",
+  "name": "_rpGeometryOpen",
+  "provenance": "marker:src/renderware/world/bageomet.c",
+  "tier": "marker"
+ },
+ "003c1ea0": {
+  "evidence": "#define RpGeometryAddMorphTargets func_003c1ea0",
+  "name": "RpGeometryAddMorphTargets",
+  "provenance": "alias:src/renderware/world/bageomet.c",
+  "tier": "alias"
+ },
+ "003c2130": {
+  "evidence": "const RpGeometry   * RpGeometryTriangleSetVertexIndices(const RpGeometry * geometry, RpTriangle * triangle, RwUInt16 vert1, RwUInt16 vert2, RwUInt16",
+  "name": "RpGeometryTriangleSetVertexIndices",
+  "provenance": "marker:src/renderware/world/bageomet.c",
+  "tier": "marker"
+ },
+ "003c2150": {
+  "evidence": "RpGeometry * RpGeometryTriangleSetMaterial(RpGeometry *geometry, RpTriangle *triangle, RpMaterial *material) {",
+  "name": "RpGeometryTriangleSetMaterial",
+  "provenance": "marker:src/renderware/world/bageomet.c",
+  "tier": "marker"
+ },
+ "003c21e0": {
+  "evidence": "RpGeometry         * RpGeometryForAllMaterials(RpGeometry * geometry, RpMaterialCallBack fpCallBack, void *pData) {",
+  "name": "RpGeometryForAllMaterials",
+  "provenance": "marker:src/renderware/world/bageomet.c",
+  "tier": "marker"
+ },
+ "003c22f0": {
+  "evidence": "#define RpGeometryUnlock func_003c22f0",
+  "name": "RpGeometryUnlock",
+  "provenance": "alias:src/renderware/world/bageomet.c",
+  "tier": "alias"
+ },
+ "003c2630": {
+  "evidence": "#define RpGeometryCreate func_003c2630",
+  "name": "RpGeometryCreate",
+  "provenance": "alias:src/renderware/world/bageomet.c",
+  "tier": "alias"
+ },
+ "003c2a60": {
+  "evidence": "RpGeometry         * RpGeometryAddRef(RpGeometry * geometry) {",
+  "name": "RpGeometryAddRef",
+  "provenance": "marker:src/renderware/world/bageomet.c",
+  "tier": "marker"
+ },
+ "003c2a80": {
+  "evidence": "#define RpGeometryDestroy func_003c2a80",
+  "name": "RpGeometryDestroy",
+  "provenance": "alias:src/renderware/world/baclump.c",
+  "tier": "alias"
+ },
+ "003c2bd0": {
+  "evidence": "#define GeometryStreamGetSizeActual func_003c2bd0",
+  "name": "GeometryStreamGetSizeActual",
+  "provenance": "alias:src/renderware/world/bageomet.c",
+  "tier": "alias"
+ },
+ "003c2c90": {
+  "evidence": "RwUInt32 RpGeometryStreamGetSize(const RpGeometry * geometry) {",
+  "name": "RpGeometryStreamGetSize",
+  "provenance": "marker:src/renderware/world/bageomet.c",
+  "tier": "marker"
+ },
+ "003c2cf0": {
+  "evidence": "#define RpGeometryStreamWrite func_003c2cf0",
+  "name": "RpGeometryStreamWrite",
+  "provenance": "alias:src/renderware/world/baclump.c",
+  "tier": "alias"
+ },
+ "003c30b0": {
+  "evidence": "RpGeometry         * RpGeometryStreamRead(RwStream * stream) {",
+  "name": "RpGeometryStreamRead",
+  "provenance": "marker:src/renderware/world/bageomet.c",
+  "tier": "marker"
+ },
+ "003c38b0": {
+  "evidence": "RpLight            * RpLightSetColor(RpLight * light, const RwRGBAReal * color) {",
+  "name": "RpLightSetColor",
+  "provenance": "marker:src/renderware/world/balight.c",
+  "tier": "marker"
+ },
+ "003c3f20": {
+  "evidence": "RwStream* _rpReadWorldRights(RwStream *s, RwInt32 len, void *obj __RWUNUSED__, RwInt32 off __RWUNUSED__, RwInt32 size __RWUNUSED__) {",
+  "name": "_rpReadWorldRights",
+  "provenance": "marker:src/renderware/world/babinwor.c",
+  "tier": "marker"
+ },
+ "003c3fa0": {
+  "evidence": "RwStream* _rpWriteMaterialRights(RwStream *s, RwInt32 len __RWUNUSED__, const void *obj, RwInt32 off __RWUNUSED__, RwInt32 size __RWUNUSED__) {",
+  "name": "_rpWriteMaterialRights",
+  "provenance": "marker:src/renderware/world/bamateri.c",
+  "tier": "marker"
+ },
+ "003c4010": {
+  "evidence": "RwInt32 _rpSizeMaterialRights(const void *obj, RwInt32 off __RWUNUSED__, RwInt32 size __RWUNUSED__) {",
+  "name": "_rpSizeMaterialRights",
+  "provenance": "marker:src/renderware/world/bamateri.c",
+  "tier": "marker"
+ },
+ "003c42b0": {
+  "evidence": "RpMaterial * RpMaterialSetTexture(RpMaterial *material, RwTexture *texture) {",
+  "name": "RpMaterialSetTexture",
+  "provenance": "marker:src/renderware/world/bamateri.c",
+  "tier": "marker"
+ },
+ "003c47c0": {
+  "evidence": "#define RpMaterialStreamGetSize func_003c47c0",
+  "name": "RpMaterialStreamGetSize",
+  "provenance": "alias:src/renderware/world/bamatlst.c",
+  "tier": "alias"
+ },
+ "003c4820": {
+  "evidence": "#define RpMaterialStreamWrite func_003c4820",
+  "name": "RpMaterialStreamWrite",
+  "provenance": "alias:src/renderware/world/bamatlst.c",
+  "tier": "alias"
+ },
+ "003c4a40": {
+  "evidence": "RpMaterialList     * _rpMaterialListInitialize(RpMaterialList * matList) {",
+  "name": "_rpMaterialListInitialize",
+  "provenance": "marker:src/renderware/world/bamatlst.c",
+  "tier": "marker"
+ },
+ "003c4a60": {
+  "evidence": "RpMaterial         * _rpMaterialListGetMaterial(const RpMaterialList * matList, RwInt32 matIndex) {",
+  "name": "_rpMaterialListGetMaterial",
+  "provenance": "marker:src/renderware/world/bamatlst.c",
+  "tier": "marker"
+ },
+ "003c4a80": {
+  "evidence": "#define _rpMaterialListAppendMaterial func_003c4a80",
+  "name": "_rpMaterialListAppendMaterial",
+  "provenance": "alias:src/renderware/world/bageomet.c",
+  "tier": "alias"
+ },
+ "003c4bc0": {
+  "evidence": "RwInt32 _rpMaterialListFindMaterialIndex(const RpMaterialList * matList, const RpMaterial * material) {",
+  "name": "_rpMaterialListFindMaterialIndex",
+  "provenance": "marker:src/renderware/world/bamatlst.c",
+  "tier": "marker"
+ },
+ "003c4c00": {
+  "evidence": "RwUInt32 _rpMaterialListStreamGetSize(const RpMaterialList * matList) {",
+  "name": "_rpMaterialListStreamGetSize",
+  "provenance": "marker:src/renderware/world/bamatlst.c",
+  "tier": "marker"
+ },
+ "003c4cf0": {
+  "evidence": "const RpMaterialList * _rpMaterialListStreamWrite(const RpMaterialList * matList, RwStream * stream) {",
+  "name": "_rpMaterialListStreamWrite",
+  "provenance": "marker:src/renderware/world/bamatlst.c",
+  "tier": "marker"
+ },
+ "003c4fa0": {
+  "evidence": "#define _rpMaterialListStreamRead func_003c4fa0",
+  "name": "_rpMaterialListStreamRead",
+  "provenance": "alias:src/renderware/world/bageomet.c",
+  "tier": "alias"
+ },
+ "003c54c0": {
+  "evidence": "void * _rpMeshClose(void *instance, RwInt32 __RWUNUSED__ offset, RwInt32 __RWUNUSED__ size) {",
+  "name": "_rpMeshClose",
+  "provenance": "marker:src/renderware/world/bamesh.c",
+  "tier": "marker"
+ },
+ "003c55f0": {
+  "evidence": "#define _rpBuildMeshCreate func_003c55f0",
+  "name": "_rpBuildMeshCreate",
+  "provenance": "alias:src/renderware/world/baworld.c",
+  "tier": "alias"
+ },
+ "003c5700": {
+  "evidence": "#define _rpBuildMeshDestroy func_003c5700",
+  "name": "_rpBuildMeshDestroy",
+  "provenance": "alias:src/renderware/world/bameshop.c",
+  "tier": "alias"
+ },
+ "003c5760": {
+  "evidence": "#define _rpMeshDestroy func_003c5760",
+  "name": "_rpMeshDestroy",
+  "provenance": "alias:src/renderware/world/baworld.c",
+  "tier": "alias"
+ },
+ "003c59f0": {
+  "evidence": "RpMeshHeader * _rpMeshHeaderForAllMeshes(RpMeshHeader * meshHeader, RpMeshCallBack fpCallBack, void *pData) {",
+  "name": "_rpMeshHeaderForAllMeshes",
+  "provenance": "marker:src/renderware/world/bamesh.c",
+  "tier": "marker"
+ },
+ "003c5a90": {
+  "evidence": "RwStream * _rpMeshWrite(const RpMeshHeader *meshHeader, const void *object, RwStream *stream, const RpMaterialList *matList) {",
+  "name": "_rpMeshWrite",
+  "provenance": "marker:src/renderware/world/bamesh.c",
+  "tier": "marker"
+ },
+ "003c5d10": {
+  "evidence": "#define _rpMeshRead func_003c5d10",
+  "name": "_rpMeshRead",
+  "provenance": "alias:src/renderware/world/baworobj.c",
+  "tier": "alias"
+ },
+ "003c5fd0": {
+  "evidence": "RwInt32 _rpMeshSize(const RpMeshHeader *meshHeader, const void *object) {",
+  "name": "_rpMeshSize",
+  "provenance": "marker:src/renderware/world/bamesh.c",
+  "tier": "marker"
+ },
+ "003c6960": {
+  "evidence": "static Edge * TriStripGetTriEdge(TriBinEntry *binEntry, RwUInt16 v1, RwUInt16 v2 /*, RwInt32 currentAttempt */ ) {",
+  "name": "TriStripGetTriEdge",
+  "provenance": "marker:src/renderware/world/bameshop.c",
+  "tier": "marker"
+ },
+ "003c6a40": {
+  "evidence": "static void TriStripMarkTriUsed(TriBinEntry *tri, TriBinList *binListArray, RwInt32 currentAttempt) {",
+  "name": "TriStripMarkTriUsed",
+  "provenance": "marker:src/renderware/world/bameshop.c",
+  "tier": "marker"
+ },
+ "003c6c10": {
+  "evidence": "static RwUInt32 TriStripFollow(TriStripListEntry *strip, Edge *nextEdge, TriBinList *binListArray, RpBuildMeshTriangle *triList __RWUNUSED__, RwInt32",
+  "name": "TriStripFollow",
+  "provenance": "marker:src/renderware/world/bameshop.c",
+  "tier": "marker"
+ },
+ "003c8bf0": {
+  "evidence": "RpMeshHeader * _rpMeshOptimise(RpBuildMesh * mesh, RwUInt32 flags) {",
+  "name": "_rpMeshOptimise",
+  "provenance": "marker:src/renderware/world/bameshop.c",
+  "tier": "marker"
+ },
+ "003c8d30": {
+  "evidence": "RwInt32 RpWorldSectorRegisterPluginStream(RwUInt32 pluginID, RwPluginDataChunkReadCallBack readCB, RwPluginDataChunkWriteCallBack writeCB, RwPluginDa",
+  "name": "RpWorldSectorRegisterPluginStream",
+  "provenance": "marker:src/renderware/world/basector.c",
+  "tier": "marker"
+ },
+ "003c8da0": {
+  "evidence": "static RpWorldSector * WorldFindSector(RpWorldSector * sector, void *data) {",
+  "name": "WorldFindSector",
+  "provenance": "marker:src/renderware/world/baworld.c",
+  "tier": "marker"
+ },
+ "003c8eb0": {
+  "evidence": "#define WorldBuildMeshAtomicSector func_003c8eb0",
+  "name": "WorldBuildMeshAtomicSector",
+  "provenance": "alias:src/renderware/world/baworld.c",
+  "tier": "alias"
+ },
+ "003c91d0": {
+  "evidence": "void _rpWorldSectorDeinstanceAll(RpSector * sector) {",
+  "name": "_rpWorldSectorDeinstanceAll",
+  "provenance": "marker:src/renderware/world/baworld.c",
+  "tier": "marker"
+ },
+ "003c9300": {
+  "evidence": "#define _rpWorldSectorDestroyRecurse func_003c9300",
+  "name": "_rpWorldSectorDestroyRecurse",
+  "provenance": "alias:src/renderware/world/babinwor.c",
+  "tier": "alias"
+ },
+ "003c9750": {
+  "evidence": "RpWorldSector      * _rpWorldSectorForAllLocalLights(RpWorldSector * sector, RpLightCallBack callBack, void *pData) {",
+  "name": "_rpWorldSectorForAllLocalLights",
+  "provenance": "marker:src/renderware/world/baworld.c",
+  "tier": "marker"
+ },
+ "003c97e0": {
+  "evidence": "RpWorld * _rpWorldSetupSectorBoundingBoxes(RpWorld *world) {",
+  "name": "_rpWorldSetupSectorBoundingBoxes",
+  "provenance": "marker:src/renderware/world/baworld.c",
+  "tier": "marker"
+ },
+ "003c9a80": {
+  "evidence": "RpWorld            * RpWorldLock(RpWorld * world) {",
+  "name": "RpWorldLock",
+  "provenance": "marker:src/renderware/world/baworld.c",
+  "tier": "marker"
+ },
+ "003c9b30": {
+  "evidence": "RpWorld            * RpWorldUnlock(RpWorld * world) {",
+  "name": "RpWorldUnlock",
+  "provenance": "marker:src/renderware/world/baworld.c",
+  "tier": "marker"
+ },
+ "003c9c20": {
+  "evidence": "#define RpWorldSectorGetWorld func_003c9c20",
+  "name": "RpWorldSectorGetWorld",
+  "provenance": "alias:src/renderware/world/baworobj.c",
+  "tier": "alias"
+ },
+ "003c9e80": {
+  "evidence": "RpWorld            * RpWorldSetSectorRenderCallBack(RpWorld * world, RpWorldSectorCallBackRender fpCallBack) {",
+  "name": "RpWorldSetSectorRenderCallBack",
+  "provenance": "marker:src/renderware/world/baworld.c",
+  "tier": "marker"
+ },
+ "003ca270": {
+  "evidence": "RpWorld            * RpWorldForAllMaterials(RpWorld * world, RpMaterialCallBack fpCallBack, void *pData) {",
+  "name": "RpWorldForAllMaterials",
+  "provenance": "marker:src/renderware/world/baworld.c",
+  "tier": "marker"
+ },
+ "003ca830": {
+  "evidence": "static void        * WorldInitCameraExt(void *object, RwInt32 offsetInObject __RWUNUSED__, RwInt32 sizeInObject __RWUNUSED__) {",
+  "name": "WorldInitCameraExt",
+  "provenance": "marker:src/renderware/world/baworobj.c",
+  "tier": "marker"
+ },
+ "003ca890": {
+  "evidence": "static void        * WorldCopyCameraExt(void *dstObject, const void *srcObject, RwInt32 offsetInObject __RWUNUSED__, RwInt32 sizeInObject __RWUNUSED_",
+  "name": "WorldCopyCameraExt",
+  "provenance": "marker:src/renderware/world/baworobj.c",
+  "tier": "marker"
+ },
+ "003ca960": {
+  "evidence": "#define _rpLightTieDestroy func_003ca960",
+  "name": "_rpLightTieDestroy",
+  "provenance": "alias:src/renderware/world/baworld.c",
+  "tier": "alias"
+ },
+ "003ca9d0": {
+  "evidence": "#define _rpTieDestroy func_003ca9d0",
+  "name": "_rpTieDestroy",
+  "provenance": "alias:src/renderware/world/baworld.c",
+  "tier": "alias"
+ },
+ "003cb1e0": {
+  "evidence": "static void        * WorldInitLightExt(void *object, RwInt32 offset __RWUNUSED__, RwInt32 size __RWUNUSED__) {",
+  "name": "WorldInitLightExt",
+  "provenance": "marker:src/renderware/world/baworobj.c",
+  "tier": "marker"
+ },
+ "003cb210": {
+  "evidence": "static void        * WorldCopyLightExt(void *dstObject, const void *srcObject, RwInt32 offset __RWUNUSED__, RwInt32 size __RWUNUSED__) {",
+  "name": "WorldCopyLightExt",
+  "provenance": "marker:src/renderware/world/baworobj.c",
+  "tier": "marker"
+ },
+ "003cb6d0": {
+  "evidence": "static RpAtomic    * WorldAddClumpAtomic(RpAtomic * atomic, void *data) {",
+  "name": "WorldAddClumpAtomic",
+  "provenance": "marker:src/renderware/world/baworobj.c",
+  "tier": "marker"
+ },
+ "003cb700": {
+  "evidence": "static RwStream    * writeGeometryMesh(RwStream * stream, RwInt32 binaryLength __RWUNUSED__, const void *object, RwInt32 offsetInObject __RWUNUSED__,",
+  "name": "writeGeometryMesh",
+  "provenance": "marker:src/renderware/world/baworobj.c",
+  "tier": "marker"
+ },
+ "003cb720": {
+  "evidence": "static RwStream    * readGeometryMesh(RwStream * stream, RwInt32 binaryLength __RWUNUSED__, void *object, RwInt32 offsetInObject __RWUNUSED__, RwInt3",
+  "name": "readGeometryMesh",
+  "provenance": "marker:src/renderware/world/baworobj.c",
+  "tier": "marker"
+ },
+ "003cb7e0": {
+  "evidence": "static RwStream * readGeometryNative(RwStream *stream, RwInt32 binaryLength __RWUNUSED__, void *object, RwInt32 offsetInObject __RWUNUSED__, RwInt32",
+  "name": "readGeometryNative",
+  "provenance": "marker:src/renderware/world/baworobj.c",
+  "tier": "marker"
+ },
+ "003cb820": {
+  "evidence": "static RwStream    * writeSectorMesh(RwStream * stream, RwInt32 binaryLength __RWUNUSED__, const void *object, RwInt32 offsetInObject __RWUNUSED__, R",
+  "name": "writeSectorMesh",
+  "provenance": "marker:src/renderware/world/baworobj.c",
+  "tier": "marker"
+ },
+ "003cb870": {
+  "evidence": "static RwStream    * readSectorMesh(RwStream * stream, RwInt32 binaryLength __RWUNUSED__, void *object, RwInt32 offsetInObject __RWUNUSED__, RwInt32",
+  "name": "readSectorMesh",
+  "provenance": "marker:src/renderware/world/baworobj.c",
+  "tier": "marker"
+ },
+ "003cb8d0": {
+  "evidence": "static RwInt32 sizeSectorMesh(const void *object, RwInt32 offsetInObject __RWUNUSED__, RwInt32 sizeInObject __RWUNUSED__) {",
+  "name": "sizeSectorMesh",
+  "provenance": "marker:src/renderware/world/baworobj.c",
+  "tier": "marker"
+ },
+ "003cbc10": {
+  "evidence": "RpWorld            * RpWorldAddCamera(RpWorld * world, RwCamera * camera) {",
+  "name": "RpWorldAddCamera",
+  "provenance": "marker:src/renderware/world/baworobj.c",
+  "tier": "marker"
+ },
+ "003cbce0": {
+  "evidence": "RpWorld            * RpAtomicGetWorld(const RpAtomic * atomic) {",
+  "name": "RpAtomicGetWorld",
+  "provenance": "marker:src/renderware/world/baworobj.c",
+  "tier": "marker"
+ },
+ "003cbde0": {
+  "evidence": "RwCamera           * RwCameraForAllSectorsInFrustum(RwCamera * camera, RpWorldSectorCallBack callback, void *data) {",
+  "name": "RwCameraForAllSectorsInFrustum",
+  "provenance": "marker:src/renderware/world/baworobj.c",
+  "tier": "marker"
+ },
+ "003cbe80": {
+  "evidence": "#define RpWorldAddLight func_003cbe80",
+  "name": "RpWorldAddLight",
+  "provenance": "alias:src/renderware/world/baworobj.c",
+  "tier": "alias"
+ },
+ "003cebb0": {
+  "evidence": "#define _rpGeometryNativeRead func_003cebb0",
+  "name": "_rpGeometryNativeRead",
+  "provenance": "alias:src/renderware/world/baworobj.c",
+  "tier": "alias"
+ },
+ "003d5300": {
+  "evidence": "_rwSListDestroyArray On entry       : Arrray generated by _rwSListToArray On exit        : TRUE if ok RwBool _rwSListDestroyArray(RwUInt8 * array) {",
+  "name": "_rwSListDestroyArray",
+  "provenance": "marker:src/renderware/plcore/balist.c",
+  "tier": "marker"
+ },
+ "003dc610": {
+  "evidence": "RtQuatConvertFromMatrix = 0x003DC610; // type:func  evidence: p3:RtQuatConvertFromMatrix@0x004bdcb0 tier:2 (P3 recovered-symbol address; not verifier-matched)",
+  "name": "RtQuatConvertFromMatrix",
+  "provenance": "config/symbol_names.p3.txt",
+  "tier": "p3"
+ },
+ "003dcb40": {
+  "evidence": "RtQuatTransformVectors = 0x003DCB40; // type:func  evidence: p3:RtQuatTransformVectors@0x004be1e0 tier:2 (P3 recovered-symbol address; not verifier-matched)",
+  "name": "RtQuatTransformVectors",
+  "provenance": "config/symbol_names.p3.txt",
+  "tier": "p3"
+ },
+ "003dddf0": {
+  "evidence": "#define RwFopen func_003dddf0",
+  "name": "RwFopen",
+  "provenance": "alias:src/renderware/plcore/bastream.c",
+  "tier": "alias"
+ },
+ "003ddf20": {
+  "evidence": "#define RwFclose func_003ddf20",
+  "name": "RwFclose",
+  "provenance": "alias:src/renderware/plcore/bastream.c",
+  "tier": "alias"
+ },
+ "003ddf80": {
+  "evidence": "#define RwFread func_003ddf80",
+  "name": "RwFread",
+  "provenance": "alias:src/renderware/plcore/bastream.c",
+  "tier": "alias"
+ },
+ "003ddfd0": {
+  "evidence": "#define RwFwrite func_003ddfd0",
+  "name": "RwFwrite",
+  "provenance": "alias:src/renderware/plcore/bastream.c",
+  "tier": "alias"
+ },
+ "003de020": {
+  "evidence": "#define RwFseek func_003de020",
+  "name": "RwFseek",
+  "provenance": "alias:src/renderware/plcore/bastream.c",
+  "tier": "alias"
+ },
+ "003de100": {
+  "evidence": "#define RwFeof func_003de100",
+  "name": "RwFeof",
+  "provenance": "alias:src/renderware/plcore/bastream.c",
+  "tier": "alias"
+ },
+ "003de270": {
+  "evidence": "#define RwFtell func_003de270",
+  "name": "RwFtell",
+  "provenance": "alias:src/renderware/plcore/bastream.c",
+  "tier": "alias"
+ },
+ "003ded20": {
+  "evidence": "static              RwBool ChunkIsComplex(RwChunkHeaderInfo * chunkHeaderInfo) {",
+  "name": "ChunkIsComplex",
+  "provenance": "marker:src/renderware/plcore/babinary.c",
+  "tier": "marker"
+ },
+ "003deea0": {
+  "evidence": "#define _rwStreamReadChunkHeader func_003deea0",
+  "name": "_rwStreamReadChunkHeader",
+  "provenance": "alias:src/renderware/plcore/babinary.c",
+  "tier": "alias"
+ },
+ "003deff0": {
+  "evidence": "RwStream           * _rwStreamWriteVersionedChunkHeader(RwStream * stream, RwInt32 type, RwInt32 size, RwUInt32 version, RwUInt32 buildNum) {",
+  "name": "_rwStreamWriteVersionedChunkHeader",
+  "provenance": "marker:src/renderware/plcore/babinary.c",
+  "tier": "marker"
+ },
+ "003df050": {
+  "evidence": "RwBool RwStreamFindChunk(RwStream * stream, RwUInt32 type, RwUInt32 * lengthOut, RwUInt32 * versionOut) {",
+  "name": "RwStreamFindChunk",
+  "provenance": "marker:src/renderware/plcore/babinary.c",
+  "tier": "marker"
+ },
+ "003df1a0": {
+  "evidence": "RwStream * RwStreamWriteReal(RwStream *stream, const RwReal *reals, RwUInt32 numBytes) {",
+  "name": "RwStreamWriteReal",
+  "provenance": "marker:src/renderware/plcore/babinary.c",
+  "tier": "marker"
+ },
+ "003df240": {
+  "evidence": "#define RwStreamWriteInt32 func_003df240",
+  "name": "RwStreamWriteInt32",
+  "provenance": "alias:src/renderware/world/bamateri.c",
+  "tier": "alias"
+ },
+ "003df300": {
+  "evidence": "#define RwStreamReadReal func_003df300",
+  "name": "RwStreamReadReal",
+  "provenance": "alias:src/renderware/world/bageomet.c",
+  "tier": "alias"
+ },
+ "003df360": {
+  "evidence": "RwStream * RwStreamReadInt16(RwStream *stream, RwInt16 *ints, RwUInt32 numBytes) {",
+  "name": "RwStreamReadInt16",
+  "provenance": "marker:src/renderware/plcore/babinary.c",
+  "tier": "marker"
+ },
+ "003df3c0": {
+  "evidence": "RwStream           * RwStreamReadChunkHeaderInfo(RwStream * stream, RwChunkHeaderInfo * chunkHeaderInfo) {",
+  "name": "RwStreamReadChunkHeaderInfo",
+  "provenance": "marker:src/renderware/plcore/babinary.c",
+  "tier": "marker"
+ },
+ "003df440": {
+  "evidence": "void           * _rwColorOpen(void *instance, RwInt32 __RWUNUSED__ offset , RwInt32 __RWUNUSED__ size ) {",
+  "name": "_rwColorOpen",
+  "provenance": "marker:src/renderware/plcore/bacolor.c",
+  "tier": "marker"
+ },
+ "003df480": {
+  "evidence": "void * _rwErrorOpen(void *object, RwInt32 offset, RwInt32 __RWUNUSED__ size ) {",
+  "name": "_rwErrorOpen",
+  "provenance": "marker:src/renderware/plcore/baerr.c",
+  "tier": "marker"
+ },
+ "003df4b0": {
+  "evidence": "void * _rwErrorClose(void *object, RwInt32 __RWUNUSED__ offset , RwInt32 __RWUNUSED__ size) {",
+  "name": "_rwErrorClose",
+  "provenance": "marker:src/renderware/plcore/baerr.c",
+  "tier": "marker"
+ },
+ "003df4d0": {
+  "evidence": "RwError * RwErrorSet(RwError *code) {",
+  "name": "RwErrorSet",
+  "provenance": "marker:src/renderware/plcore/baerr.c",
+  "tier": "marker"
+ },
+ "003df550": {
+  "evidence": "RwError * RwErrorGet(RwError *code) {",
+  "name": "RwErrorGet",
+  "provenance": "marker:src/renderware/plcore/baerr.c",
+  "tier": "marker"
+ },
+ "003df590": {
+  "evidence": "#define _rwerror func_003df590",
+  "name": "_rwerror",
+  "provenance": "alias:src/renderware/core/babincam.c",
+  "tier": "alias"
+ },
+ "003df5d0": {
+  "evidence": "_rwSListCreate On entry       : Entry size On exit        : SList (NULL on error) RwSList            * _rwSListCreate(RwInt32 size, RwUInt32 hint) {",
+  "name": "SList",
+  "provenance": "marker:src/renderware/plcore/balist.c",
+  "tier": "marker"
+ },
+ "003df6e0": {
+  "evidence": "_rwSListGetNewEntry On entry       : SList On exit        : New entry void               * _rwSListGetNewEntry(RwSList * sList, RwUInt32 hint) {",
+  "name": "_rwSListGetNewEntry",
+  "provenance": "marker:src/renderware/plcore/balist.c",
+  "tier": "marker"
+ },
+ "003df7e0": {
+  "evidence": "_rwSListDestroyEndEntries On entry   : SList : Amount of entries from end of list On exit    : void _rwSListDestroyEndEntries(RwSList * sList, RwInt3",
+  "name": "_rwSListDestroyEndEntries",
+  "provenance": "marker:src/renderware/plcore/balist.c",
+  "tier": "marker"
+ },
+ "003df7f0": {
+  "evidence": "_rwSListDestroy On entry       : SList On exit        : TRUE if ok RwBool _rwSListDestroy(RwSList * sList) {",
+  "name": "_rwSListDestroy",
+  "provenance": "marker:src/renderware/plcore/balist.c",
+  "tier": "marker"
+ },
+ "003df860": {
+  "evidence": "_rwSListGetNumEntries On entry       : SList On exit        : Num entries RwInt32 _rwSListGetNumEntries(const RwSList * sList) {",
+  "name": "_rwSListGetNumEntries",
+  "provenance": "marker:src/renderware/plcore/balist.c",
+  "tier": "marker"
+ },
+ "003df870": {
+  "evidence": "_rwSListGetEntry On entry       : SList : Element On exit        : void               * _rwSListGetEntry(RwSList * sList, RwInt32 entry) {",
+  "name": "_rwSListGetEntry",
+  "provenance": "marker:src/renderware/plcore/balist.c",
+  "tier": "marker"
+ },
+ "003df890": {
+  "evidence": "_rwSListGetBegin On entry       : SList On exit        : void               * _rwSListGetBegin(RwSList * sList) {",
+  "name": "_rwSListGetBegin",
+  "provenance": "marker:src/renderware/plcore/balist.c",
+  "tier": "marker"
+ },
+ "003df8a0": {
+  "evidence": "void               * _rwSListGetEnd(RwSList * sList) {",
+  "name": "_rwSListGetEnd",
+  "provenance": "marker:src/renderware/plcore/balist.c",
+  "tier": "marker"
+ },
+ "003df8c0": {
+  "evidence": "static RWASMAPI_void MatrixMultiply(RwMatrix * dstMat, const RwMatrix * matA, const RwMatrix * matB) {",
+  "name": "MatrixMultiply",
+  "provenance": "marker:src/renderware/plcore/bamatrix.c",
+  "tier": "marker"
+ },
+ "003dff20": {
+  "evidence": "static RwMatrix * MatrixInvertGeneric(RwMatrix * dst, const RwMatrix * src) {",
+  "name": "MatrixInvertGeneric",
+  "provenance": "marker:src/renderware/plcore/bamatrix.c",
+  "tier": "marker"
+ },
+ "003e00f0": {
+  "evidence": "RwBool _rwMatrixSetMultFn(rwMatrixMultFn multMat) {",
+  "name": "_rwMatrixSetMultFn",
+  "provenance": "marker:src/renderware/plcore/bamatrix.c",
+  "tier": "marker"
+ },
+ "003e0130": {
+  "evidence": "RwReal _rwMatrixDeterminant(const RwMatrix * matrix) {",
+  "name": "_rwMatrixDeterminant",
+  "provenance": "marker:src/renderware/plcore/bamatrix.c",
+  "tier": "marker"
+ },
+ "003e0180": {
+  "evidence": "RwReal _rwMatrixOrthogonalError(const RwMatrix * matrix) {",
+  "name": "_rwMatrixOrthogonalError",
+  "provenance": "marker:src/renderware/plcore/bamatrix.c",
+  "tier": "marker"
+ },
+ "003e01e0": {
+  "evidence": "RwReal _rwMatrixNormalError(const RwMatrix * matrix) {",
+  "name": "_rwMatrixNormalError",
+  "provenance": "marker:src/renderware/plcore/bamatrix.c",
+  "tier": "marker"
+ },
+ "003e02c0": {
+  "evidence": "void * _rwMatrixOpen(void *instance, RwInt32 offset, RwInt32 __RWUNUSED__ size) {",
+  "name": "_rwMatrixOpen",
+  "provenance": "marker:src/renderware/plcore/bamatrix.c",
+  "tier": "marker"
+ },
+ "003e0380": {
+  "evidence": "RwEngineGetMatrixTolerances = 0x003E0380; // type:func  evidence: p3:RwEngineGetMatrixTolerances@0x004c2cc0 tier:1 (P3 verifier-matched) file:src/rw/rwplcore.c",
+  "name": "RwEngineGetMatrixTolerances",
+  "provenance": "config/symbol_names.p3.txt",
+  "tier": "p3"
+ },
+ "003e03b0": {
+  "evidence": "RwBool RwEngineSetMatrixTolerances(const RwMatrixTolerance * const tolerance) {",
+  "name": "RwEngineSetMatrixTolerances",
+  "provenance": "marker:src/renderware/plcore/bamatrix.c",
+  "tier": "marker"
+ },
+ "003e03e0": {
+  "evidence": "RwMatrix * RwMatrixOptimize(RwMatrix * matrix, const RwMatrixTolerance * tolerance) {",
+  "name": "RwMatrixOptimize",
+  "provenance": "marker:src/renderware/plcore/bamatrix.c",
+  "tier": "marker"
+ },
+ "003e05d0": {
+  "evidence": "RwMatrix * RwMatrixUpdate(RwMatrix * matrix) {",
+  "name": "RwMatrixUpdate",
+  "provenance": "marker:src/renderware/plcore/bamatrix.c",
+  "tier": "marker"
+ },
+ "003e05f0": {
+  "evidence": "RwMatrixMultiply = 0x003E05F0; // type:func  evidence: p3:RwMatrixMultiply@0x004c2f30 tier:4 (P3 Ghidra-exported guess; no verifier/source/recovered evidence)",
+  "name": "RwMatrixMultiply",
+  "provenance": "config/symbol_names.p3.txt",
+  "tier": "p3"
+ },
+ "003e0870": {
+  "evidence": "RwMatrixRotate = 0x003E0870; // type:func  evidence: p3:RwMatrixRotate@0x004c31b0 tier:2 (P3 recovered-symbol address; not verifier-matched)",
+  "name": "RwMatrixRotate",
+  "provenance": "config/symbol_names.p3.txt",
+  "tier": "p3"
+ },
+ "003e0960": {
+  "evidence": "RwMatrix * RwMatrixInvert(RwMatrix * dst, const RwMatrix * src) {",
+  "name": "RwMatrixInvert",
+  "provenance": "marker:src/renderware/plcore/bamatrix.c",
+  "tier": "marker"
+ },
+ "003e0a90": {
+  "evidence": "RwMatrix * RwMatrixScale(RwMatrix * matrix, const RwV3d * scale, RwOpCombineType combineOp) {",
+  "name": "RwMatrixScale",
+  "provenance": "marker:src/renderware/plcore/bamatrix.c",
+  "tier": "marker"
+ },
+ "003e0c90": {
+  "evidence": "RwMatrix * RwMatrixTranslate(RwMatrix * matrix, const RwV3d * translation, RwOpCombineType combineOp) {",
+  "name": "RwMatrixTranslate",
+  "provenance": "marker:src/renderware/plcore/bamatrix.c",
+  "tier": "marker"
+ },
+ "003e0f40": {
+  "evidence": "RwBool RwMatrixDestroy(RwMatrix * matrix) {",
+  "name": "RwMatrixDestroy",
+  "provenance": "marker:src/renderware/plcore/bamatrix.c",
+  "tier": "marker"
+ },
+ "003e0f80": {
+  "evidence": "RwMatrix * RwMatrixCreate(void) {",
+  "name": "RwMatrixCreate",
+  "provenance": "marker:src/renderware/plcore/bamatrix.c",
+  "tier": "marker"
+ },
+ "003e1020": {
+  "evidence": "#define _rwFreeListEnable func_003e1020",
+  "name": "_rwFreeListEnable",
+  "provenance": "alias:src/renderware/core/badevice.c",
+  "tier": "alias"
+ },
+ "003e1030": {
+  "evidence": "RwFreeList * FreeListCreate( RwUInt32    entrySize, RwUInt32    entriesPerBlock, /* must be multiple of 8 */ RwUInt32    alignment, RwUInt32    block",
+  "name": "FreeListCreate",
+  "provenance": "marker:src/renderware/plcore/bamemory.c",
+  "tier": "marker"
+ },
+ "003e1220": {
+  "evidence": "#define RwFreeListCreateAndPreallocateSpace func_003e1220",
+  "name": "RwFreeListCreateAndPreallocateSpace",
+  "provenance": "alias:src/renderware/core/bacamera.c",
+  "tier": "alias"
+ },
+ "003e1230": {
+  "evidence": "void _RwFreeListFree(RwFreeList *freeList) {",
+  "name": "_RwFreeListFree",
+  "provenance": "marker:src/renderware/plcore/bamemory.c",
+  "tier": "marker"
+ },
+ "003e12f0": {
+  "evidence": "RwBool RwFreeListDestroy(RwFreeList * freeList) {",
+  "name": "RwFreeListDestroy",
+  "provenance": "marker:src/renderware/plcore/bamemory.c",
+  "tier": "marker"
+ },
+ "003e13d0": {
+  "evidence": "void * _rwFreeListAllocReal(RwFreeList * freeList, RwUInt32 hint) {",
+  "name": "_rwFreeListAllocReal",
+  "provenance": "marker:src/renderware/plcore/bamemory.c",
+  "tier": "marker"
+ },
+ "003e15a0": {
+  "evidence": "RwFreeList * _rwFreeListFreeReal(RwFreeList * freeList, void *entry) {",
+  "name": "_rwFreeListFreeReal",
+  "provenance": "marker:src/renderware/plcore/bamemory.c",
+  "tier": "marker"
+ },
+ "003e1740": {
+  "evidence": "#define RwFreeListPurge func_003e1740",
+  "name": "RwFreeListPurge",
+  "provenance": "alias:src/renderware/plcore/bamemory.c",
+  "tier": "alias"
+ },
+ "003e18c0": {
+  "evidence": "#define RwFreeListForAllUsed func_003e18c0",
+  "name": "RwFreeListForAllUsed",
+  "provenance": "alias:src/renderware/plcore/batkreg.c",
+  "tier": "alias"
+ },
+ "003e1a70": {
+  "evidence": "RwInt32 RwFreeListPurgeAllFreeLists(void) {",
+  "name": "RwFreeListPurgeAllFreeLists",
+  "provenance": "marker:src/renderware/plcore/bamemory.c",
+  "tier": "marker"
+ },
+ "003e1b10": {
+  "evidence": "RwBool _rwMemoryOpen(const RwMemoryFunctions * memFuncs) {",
+  "name": "_rwMemoryOpen",
+  "provenance": "marker:src/renderware/plcore/bamemory.c",
+  "tier": "marker"
+ },
+ "003e1c30": {
+  "evidence": "void _rwMemoryClose(void) {",
+  "name": "_rwMemoryClose",
+  "provenance": "marker:src/renderware/plcore/bamemory.c",
+  "tier": "marker"
+ },
+ "003e1cb0": {
+  "evidence": "static rwResources * ResourcesInit(rwResources * res, RwUInt32 size) {",
+  "name": "ResourcesInit",
+  "provenance": "marker:src/renderware/plcore/baresour.c",
+  "tier": "marker"
+ },
+ "003e1db0": {
+  "evidence": "void               * _rwResourcesOpen(void *instance, RwInt32 offset, RwInt32 __RWUNUSED__ size) {",
+  "name": "_rwResourcesOpen",
+  "provenance": "marker:src/renderware/plcore/baresour.c",
+  "tier": "marker"
+ },
+ "003e1e10": {
+  "evidence": "void               * _rwResourcesClose(void *instance, RwInt32 __RWUNUSED__ offset, RwInt32 __RWUNUSED__ size) {",
+  "name": "_rwResourcesClose",
+  "provenance": "marker:src/renderware/plcore/baresour.c",
+  "tier": "marker"
+ },
+ "003e1ea0": {
+  "evidence": "RwBool RwResourcesFreeResEntry(RwResEntry * entry) {",
+  "name": "RwResourcesFreeResEntry",
+  "provenance": "marker:src/renderware/plcore/baresour.c",
+  "tier": "marker"
+ },
+ "003e1f50": {
+  "evidence": "void _rwResourcesPurge(void) {",
+  "name": "_rwResourcesPurge",
+  "provenance": "marker:src/renderware/plcore/baresour.c",
+  "tier": "marker"
+ },
+ "003e23e0": {
+  "evidence": "RwInt32 RwResourcesGetArenaUsage(void) {",
+  "name": "RwResourcesGetArenaUsage",
+  "provenance": "marker:src/renderware/plcore/baresour.c",
+  "tier": "marker"
+ },
+ "003e2430": {
+  "evidence": "#define RwResourcesEmptyArena func_003e2430",
+  "name": "RwResourcesEmptyArena",
+  "provenance": "alias:src/renderware/plcore/baresour.c",
+  "tier": "alias"
+ },
+ "003e2650": {
+  "evidence": "static RwStream    * StreamFileNameInitialize(RwStream * stream, RwStreamAccessType accessType, const void *pData) {",
+  "name": "StreamFileNameInitialize",
+  "provenance": "marker:src/renderware/plcore/bastream.c",
+  "tier": "marker"
+ },
+ "003e2750": {
+  "evidence": "static RwStream    * StreamMemoryInitialize(RwStream * stream, RwStreamAccessType accessType, const void *pData) {",
+  "name": "StreamMemoryInitialize",
+  "provenance": "marker:src/renderware/plcore/bastream.c",
+  "tier": "marker"
+ },
+ "003e2800": {
+  "evidence": "RwStream           * _rwStreamInitialize(RwStream * stream, RwBool rwOwned, RwStreamType type, RwStreamAccessType accessType, const void *pData) {",
+  "name": "_rwStreamInitialize",
+  "provenance": "marker:src/renderware/plcore/bastream.c",
+  "tier": "marker"
+ },
+ "003e2910": {
+  "evidence": "RwUInt32 RwStreamRead(RwStream *stream, void *buffer, RwUInt32 length) {",
+  "name": "RwStreamRead",
+  "provenance": "marker:src/renderware/plcore/bastream.c",
+  "tier": "marker"
+ },
+ "003e2ab0": {
+  "evidence": "RwStream * RwStreamWrite(RwStream *stream, void const *buffer, RwUInt32 length) {",
+  "name": "RwStreamWrite",
+  "provenance": "marker:src/renderware/plcore/bastream.c",
+  "tier": "marker"
+ },
+ "003e2ce0": {
+  "evidence": "RwStream * RwStreamSkip(RwStream *stream, RwUInt32 offset) {",
+  "name": "RwStreamSkip",
+  "provenance": "marker:src/renderware/plcore/bastream.c",
+  "tier": "marker"
+ },
+ "003e2e40": {
+  "evidence": "RwBool RwStreamClose(RwStream *stream, void *pData) {",
+  "name": "RwStreamClose",
+  "provenance": "marker:src/renderware/plcore/bastream.c",
+  "tier": "marker"
+ },
+ "003e2f60": {
+  "evidence": "RwStream * RwStreamOpen(RwStreamType type, RwStreamAccessType accessType, const void *pData) {",
+  "name": "RwStreamOpen",
+  "provenance": "marker:src/renderware/plcore/bastream.c",
+  "tier": "marker"
+ },
+ "003e3020": {
+  "evidence": "RwInt32 _rwPluginRegistryAddPluginStream(RwPluginRegistry * reg, RwUInt32 pluginID, RwPluginDataChunkReadCallBack readCB, RwPluginDataChunkWriteCallB",
+  "name": "_rwPluginRegistryAddPluginStream",
+  "provenance": "marker:src/renderware/plcore/batkbin.c",
+  "tier": "marker"
+ },
+ "003e3070": {
+  "evidence": "RwInt32 _rwPluginRegistryAddPlgnStrmlwysCB( RwPluginRegistry * reg, RwUInt32 pluginID, RwPluginDataChunkAlwaysCallBack alwaysCB) {",
+  "name": "_rwPluginRegistryAddPlgnStrmlwysCB",
+  "provenance": "marker:src/renderware/plcore/batkbin.c",
+  "tier": "marker"
+ },
+ "003e30c0": {
+  "evidence": "RwInt32 _rwPluginRegistryAddPlgnStrmRightsCB(RwPluginRegistry *reg, RwUInt32 pluginID, RwPluginDataChunkRightsCallBack rightsCB) {",
+  "name": "_rwPluginRegistryAddPlgnStrmRightsCB",
+  "provenance": "marker:src/renderware/plcore/batkbin.c",
+  "tier": "marker"
+ },
+ "003e3110": {
+  "evidence": "#define _rwPluginRegistryReadDataChunks func_003e3110",
+  "name": "_rwPluginRegistryReadDataChunks",
+  "provenance": "alias:src/renderware/core/babincam.c",
+  "tier": "alias"
+ },
+ "003e32f0": {
+  "evidence": "const RwPluginRegistry* _rwPluginRegistryInvokeRights(const RwPluginRegistry *reg, RwUInt32 id, void *obj, RwUInt32 extraData) {",
+  "name": "_rwPluginRegistryInvokeRights",
+  "provenance": "marker:src/renderware/plcore/batkbin.c",
+  "tier": "marker"
+ },
+ "003e3370": {
+  "evidence": "RwInt32 _rwPluginRegistryGetSize(const RwPluginRegistry * reg, const void *object) {",
+  "name": "_rwPluginRegistryGetSize",
+  "provenance": "marker:src/renderware/plcore/batkbin.c",
+  "tier": "marker"
+ },
+ "003e33f0": {
+  "evidence": "const RwPluginRegistry * _rwPluginRegistryWriteDataChunks(const RwPluginRegistry * reg, RwStream * stream, const void *object) {",
+  "name": "_rwPluginRegistryWriteDataChunks",
+  "provenance": "marker:src/renderware/plcore/batkbin.c",
+  "tier": "marker"
+ },
+ "003e3560": {
+  "evidence": "const RwPluginRegistry * _rwPluginRegistrySkipDataChunks(const RwPluginRegistry * reg, RwStream * stream) {",
+  "name": "_rwPluginRegistrySkipDataChunks",
+  "provenance": "marker:src/renderware/plcore/batkbin.c",
+  "tier": "marker"
+ },
+ "003e3630": {
+  "evidence": "#define _rwPluginRegistryOpen func_003e3630",
+  "name": "_rwPluginRegistryOpen",
+  "provenance": "alias:src/renderware/core/badevice.c",
+  "tier": "alias"
+ },
+ "003e3680": {
+  "evidence": "static void rwDestroyEntry(void *object, void *freelist) {",
+  "name": "rwDestroyEntry",
+  "provenance": "marker:src/renderware/plcore/batkreg.c",
+  "tier": "marker"
+ },
+ "003e36c0": {
+  "evidence": "RwBool _rwPluginRegistryClose(void) {",
+  "name": "_rwPluginRegistryClose",
+  "provenance": "marker:src/renderware/plcore/batkreg.c",
+  "tier": "marker"
+ },
+ "003e3830": {
+  "evidence": "RwBool _rwPluginRegistryGetPluginOffset(const RwPluginRegistry * reg, RwUInt32 pluginID) {",
+  "name": "_rwPluginRegistryGetPluginOffset",
+  "provenance": "marker:src/renderware/plcore/batkreg.c",
+  "tier": "marker"
+ },
+ "003e3870": {
+  "evidence": "RwInt32 _rwPluginRegistryAddPlugin(RwPluginRegistry * reg, RwInt32 size, RwUInt32 pluginID, RwPluginObjectConstructor constructCB, RwPluginObjectDest",
+  "name": "_rwPluginRegistryAddPlugin",
+  "provenance": "marker:src/renderware/plcore/batkreg.c",
+  "tier": "marker"
+ },
+ "003e3b70": {
+  "evidence": "const RwPluginRegistry * _rwPluginRegistryInitObject(const RwPluginRegistry * reg, void *object) {",
+  "name": "_rwPluginRegistryInitObject",
+  "provenance": "marker:src/renderware/plcore/batkreg.c",
+  "tier": "marker"
+ },
+ "003e3c20": {
+  "evidence": "const RwPluginRegistry * _rwPluginRegistryDeInitObject(const RwPluginRegistry * reg, void *object) {",
+  "name": "_rwPluginRegistryDeInitObject",
+  "provenance": "marker:src/renderware/plcore/batkreg.c",
+  "tier": "marker"
+ },
+ "003e3c90": {
+  "evidence": "const RwPluginRegistry * _rwPluginRegistryCopyObject(const RwPluginRegistry * reg, void {",
+  "name": "_rwPluginRegistryCopyObject",
+  "provenance": "marker:src/renderware/plcore/batkreg.c",
+  "tier": "marker"
+ },
+ "003e3d00": {
+  "evidence": "static RwV3d * VectorMultPoints(RwV3d *pointsOut, const RwV3d *pointsIn, RwInt32 numPoints, const RwMatrix *matrix) {",
+  "name": "VectorMultPoints",
+  "provenance": "marker:src/renderware/plcore/bavector.c",
+  "tier": "marker"
+ },
+ "003e3dc0": {
+  "evidence": "static RwV3d * VectorMultPoint(RwV3d *pointOut, const RwV3d *pointIn, const RwMatrix *matrix) {",
+  "name": "VectorMultPoint",
+  "provenance": "marker:src/renderware/plcore/bavector.c",
+  "tier": "marker"
+ },
+ "003e3e60": {
+  "evidence": "static RwV3d * VectorMultVectors(RwV3d *pointsOut, const RwV3d *pointsIn, RwInt32 numPoints, const RwMatrix *matrix) {",
+  "name": "VectorMultVectors",
+  "provenance": "marker:src/renderware/plcore/bavector.c",
+  "tier": "marker"
+ },
+ "003e3f00": {
+  "evidence": "static RwV3d * VectorMultVector(RwV3d *pointOut, const RwV3d *pointIn, const RwMatrix *matrix) {",
+  "name": "VectorMultVector",
+  "provenance": "marker:src/renderware/plcore/bavector.c",
+  "tier": "marker"
+ },
+ "003e3f80": {
+  "evidence": "RwBool _rwVectorSetMultFn(rwVectorMultFn multPoint, rwVectorsMultFn multPoints, rwVectorMultFn multVector, rwVectorsMultFn multVectors) {",
+  "name": "_rwVectorSetMultFn",
+  "provenance": "marker:src/renderware/plcore/bavector.c",
+  "tier": "marker"
+ },
+ "003e40b0": {
+  "evidence": "RwV3dNormalize = 0x003E40B0; // type:func  evidence: p3:RwV3dNormalize@0x004c69f0 tier:2 (P3 recovered-symbol address; not verifier-matched)",
+  "name": "RwV3dNormalize",
+  "provenance": "config/symbol_names.p3.txt",
+  "tier": "p3"
+ },
+ "003e4180": {
+  "evidence": "RwV3dLength = 0x003E4180; // type:func  evidence: p3:RwV3dLength@0x004c6ac0 tier:1 (P3 verifier-matched) file:src/rw/rwplcore.c",
+  "name": "RwV3dLength",
+  "provenance": "config/symbol_names.p3.txt",
+  "tier": "p3"
+ },
+ "003e41b0": {
+  "evidence": "RwV2dLength = 0x003E41B0; // type:func  evidence: p3:RwV2dLength@0x004c6af0 tier:4 (P3 Ghidra-exported guess; no verifier/source/recovered evidence)",
+  "name": "RwV2dLength",
+  "provenance": "config/symbol_names.p3.txt",
+  "tier": "p3"
+ },
+ "003e42a0": {
+  "evidence": "RwV3d * RwV3dTransformPoint(RwV3d *pointOut, const RwV3d *pointIn, const RwMatrix *matrix) {",
+  "name": "RwV3dTransformPoint",
+  "provenance": "marker:src/renderware/plcore/bavector.c",
+  "tier": "marker"
+ },
+ "003e42e0": {
+  "evidence": "RwV3d * RwV3dTransformPoints(RwV3d *pointsOut, const RwV3d *pointsIn, RwInt32 numPoints, const RwMatrix *matrix) {",
+  "name": "RwV3dTransformPoints",
+  "provenance": "marker:src/renderware/plcore/bavector.c",
+  "tier": "marker"
+ },
+ "003e4320": {
+  "evidence": "RwV3d * RwV3dTransformVector(RwV3d *vectorOut, const RwV3d *vectorIn, const RwMatrix *matrix) {",
+  "name": "RwV3dTransformVector",
+  "provenance": "marker:src/renderware/plcore/bavector.c",
+  "tier": "marker"
+ },
+ "003e4360": {
+  "evidence": "RwV3d * RwV3dTransformVectors(RwV3d *vectorsOut, const RwV3d *vectorsIn, RwInt32 numPoints, const RwMatrix *matrix) {",
+  "name": "RwV3dTransformVectors",
+  "provenance": "marker:src/renderware/plcore/bavector.c",
+  "tier": "marker"
+ },
+ "003e43a0": {
+  "evidence": "void               * _rpBinaryWorldClose(void *instance, RwInt32 __RWUNUSED__ offset, RwInt32 __RWUNUSED__ size) {",
+  "name": "_rpBinaryWorldClose",
+  "provenance": "marker:src/renderware/world/babinwor.c",
+  "tier": "marker"
+ },
+ "003e4420": {
+  "evidence": "static void splitBlock(rwResHeapBlockHeader * block, RwUInt32 size) {",
+  "name": "splitBlock",
+  "provenance": "marker:src/renderware/plcore/resmem.c",
+  "tier": "marker"
+ },
+ "003e44b0": {
+  "evidence": "RwBool _rwResHeapInit(void *resHeap, RwUInt32 size) {",
+  "name": "_rwResHeapInit",
+  "provenance": "marker:src/renderware/plcore/resmem.c",
+  "tier": "marker"
+ },
+ "003e4510": {
+  "evidence": "#define _rwResHeapClose func_003e4510",
+  "name": "_rwResHeapClose",
+  "provenance": "alias:src/renderware/plcore/baresour.c",
+  "tier": "alias"
+ },
+ "003e4520": {
+  "evidence": "void _rwResHeapFree(void *memory) {",
+  "name": "_rwResHeapFree",
+  "provenance": "marker:src/renderware/plcore/resmem.c",
+  "tier": "marker"
+ },
+ "003e45f0": {
+  "evidence": "void               * _rwResHeapAlloc(void *resHeap, RwUInt32 size) {",
+  "name": "_rwResHeapAlloc",
+  "provenance": "marker:src/renderware/plcore/resmem.c",
+  "tier": "marker"
+ },
+ "003e46e0": {
+  "evidence": "void * _rwChunkGroupOpen(void *instance, RwInt32 __RWUNUSED__ offset , RwInt32 __RWUNUSED__ size ) {",
+  "name": "_rwChunkGroupOpen",
+  "provenance": "marker:src/renderware/plcore/rwgrp.c",
+  "tier": "marker"
+ },
+ "003e4760": {
+  "evidence": "void * _rwChunkGroupClose(void *instance, RwInt32 __RWUNUSED__ offset, RwInt32 __RWUNUSED__ size ) {",
+  "name": "_rwChunkGroupClose",
+  "provenance": "marker:src/renderware/plcore/rwgrp.c",
+  "tier": "marker"
+ },
+ "003e47c0": {
+  "evidence": "static int StrICmp(const RwChar * s1, const RwChar * s2) {",
+  "name": "StrICmp",
+  "provenance": "marker:src/renderware/plcore/rwstring.c",
+  "tier": "marker"
+ },
+ "003e4880": {
+  "evidence": "static RwChar  * StrUpr(RwChar * s) {",
+  "name": "StrUpr",
+  "provenance": "marker:src/renderware/plcore/rwstring.c",
+  "tier": "marker"
+ },
+ "003e48d0": {
+  "evidence": "static RwChar  * StrLwr(RwChar * s) {",
+  "name": "StrLwr",
+  "provenance": "marker:src/renderware/plcore/rwstring.c",
+  "tier": "marker"
+ },
+ "003e4920": {
+  "evidence": "static RwChar * StrChr(const RwChar *s, int c) {",
+  "name": "StrChr",
+  "provenance": "marker:src/renderware/plcore/rwstring.c",
+  "tier": "marker"
+ },
+ "003e4960": {
+  "evidence": "static RwChar  * StrRChr(const RwChar * s, int c) {",
+  "name": "StrRChr",
+  "provenance": "marker:src/renderware/plcore/rwstring.c",
+  "tier": "marker"
+ },
+ "003e49a0": {
+  "evidence": "RwBool _rwStringOpen(void) {",
+  "name": "_rwStringOpen",
+  "provenance": "marker:src/renderware/plcore/rwstring.c",
+  "tier": "marker"
+ },
+ "003e4ac0": {
+  "evidence": "#define _rwStringClose func_003e4ac0",
+  "name": "_rwStringClose",
+  "provenance": "alias:src/renderware/core/badevice.c",
+  "tier": "alias"
+ },
+ "003e4ad0": {
+  "evidence": "RwUInt32 _rwStringStreamGetSize(const RwChar * string) {",
+  "name": "_rwStringStreamGetSize",
+  "provenance": "marker:src/renderware/plcore/rwstring.c",
+  "tier": "marker"
+ },
+ "003e4b20": {
+  "evidence": "const RwChar       * _rwStringStreamWrite(const RwChar * string, RwStream * stream) {",
+  "name": "_rwStringStreamWrite",
+  "provenance": "marker:src/renderware/plcore/rwstring.c",
+  "tier": "marker"
+ },
+ "003e4be0": {
+  "evidence": "#define StringStreamRead func_003e4be0",
+  "name": "StringStreamRead",
+  "provenance": "alias:src/renderware/plcore/rwstring.c",
+  "tier": "alias"
+ },
+ "003e4d80": {
+  "evidence": "#define UnicodeStringStreamRead func_003e4d80",
+  "name": "UnicodeStringStreamRead",
+  "provenance": "alias:src/renderware/plcore/rwstring.c",
+  "tier": "alias"
+ },
+ "003e4f60": {
+  "evidence": "RwChar             * _rwStringStreamFindAndRead(RwChar *string, RwStream * stream) {",
+  "name": "_rwStringStreamFindAndRead",
+  "provenance": "marker:src/renderware/plcore/rwstring.c",
+  "tier": "marker"
+ },
+ "003e5110": {
+  "evidence": "RwBBox * RwBBoxCalculate(RwBBox *boundBox, const RwV3d *verts, RwInt32 numVerts) {",
+  "name": "RwBBoxCalculate",
+  "provenance": "marker:src/renderware/core/babbox.c",
+  "tier": "marker"
+ },
+ "003e5250": {
+  "evidence": "RwUInt32 RwCameraStreamGetSize(const RwCamera *camera) {",
+  "name": "RwCameraStreamGetSize",
+  "provenance": "marker:src/renderware/core/babincam.c",
+  "tier": "marker"
+ },
+ "003e5290": {
+  "evidence": "const RwCamera * RwCameraStreamWrite(const RwCamera *camera, RwStream *stream) {",
+  "name": "RwCameraStreamWrite",
+  "provenance": "marker:src/renderware/core/babincam.c",
+  "tier": "marker"
+ },
+ "003e53b0": {
+  "evidence": "RwCamera * RwCameraStreamRead(RwStream *stream) {",
+  "name": "RwCameraStreamRead",
+  "provenance": "marker:src/renderware/core/babincam.c",
+  "tier": "marker"
+ },
+ "003e5550": {
+  "evidence": "static RwBool breadthFirst(RwFrame *** frameListPos, RwFrame * frame) {",
+  "name": "breadthFirst",
+  "provenance": "marker:src/renderware/core/babinfrm.c",
+  "tier": "marker"
+ },
+ "003e5830": {
+  "evidence": "rwFrameList        * _rwFrameListInitialize(rwFrameList * frameList, RwFrame * frame) {",
+  "name": "_rwFrameListInitialize",
+  "provenance": "marker:src/renderware/core/babinfrm.c",
+  "tier": "marker"
+ },
+ "003e5990": {
+  "evidence": "RwBool _rwFrameListFindFrame(const rwFrameList * frameList, const RwFrame * frame, RwInt32 * npIndex) {",
+  "name": "_rwFrameListFindFrame",
+  "provenance": "marker:src/renderware/core/babinfrm.c",
+  "tier": "marker"
+ },
+ "003e59e0": {
+  "evidence": "rwFrameList        * _rwFrameListDeinitialize(rwFrameList * frameList) {",
+  "name": "_rwFrameListDeinitialize",
+  "provenance": "marker:src/renderware/core/babinfrm.c",
+  "tier": "marker"
+ },
+ "003e5a30": {
+  "evidence": "RwUInt32 _rwFrameListStreamGetSize(const rwFrameList * frameList) {",
+  "name": "_rwFrameListStreamGetSize",
+  "provenance": "marker:src/renderware/core/babinfrm.c",
+  "tier": "marker"
+ },
+ "003e5ae0": {
+  "evidence": "const rwFrameList  * _rwFrameListStreamWrite(const rwFrameList * frameList, RwStream * stream) {",
+  "name": "_rwFrameListStreamWrite",
+  "provenance": "marker:src/renderware/core/babinfrm.c",
+  "tier": "marker"
+ },
+ "003e5df0": {
+  "evidence": "rwFrameList        * _rwFrameListStreamRead(RwStream * stream, rwFrameList * frameList) {",
+  "name": "_rwFrameListStreamRead",
+  "provenance": "marker:src/renderware/core/babinfrm.c",
+  "tier": "marker"
+ },
+ "003e6240": {
+  "evidence": "RwUInt32 RwTextureStreamGetSize(const RwTexture *texture) {",
+  "name": "RwTextureStreamGetSize",
+  "provenance": "marker:src/renderware/core/babintex.c",
+  "tier": "marker"
+ },
+ "003e62b0": {
+  "evidence": "const RwTexture * RwTextureStreamWrite(const RwTexture *texture, RwStream *stream) {",
+  "name": "RwTextureStreamWrite",
+  "provenance": "marker:src/renderware/core/babintex.c",
+  "tier": "marker"
+ },
+ "003e6430": {
+  "evidence": "RwTexture * RwTextureStreamRead(RwStream *stream) {",
+  "name": "RwTextureStreamRead",
+  "provenance": "marker:src/renderware/core/babintex.c",
+  "tier": "marker"
+ },
+ "003e6870": {
+  "evidence": "const RwTexDictionary * RwTexDictionaryStreamWrite(const RwTexDictionary *texDict, RwStream *stream) {",
+  "name": "RwTexDictionaryStreamWrite",
+  "provenance": "marker:src/renderware/core/babintex.c",
+  "tier": "marker"
+ },
+ "003e6a90": {
+  "evidence": "RwTexDictionary * RwTexDictionaryStreamRead(RwStream *stream) {",
+  "name": "RwTexDictionaryStreamRead",
+  "provenance": "marker:src/renderware/core/babintex.c",
+  "tier": "marker"
+ },
+ "003e6db0": {
+  "evidence": "static RwCamera    * CameraUpdateZShiftScale(RwCamera * camera) {",
+  "name": "CameraUpdateZShiftScale",
+  "provenance": "marker:src/renderware/core/bacamera.c",
+  "tier": "marker"
+ },
+ "003e6e70": {
+  "evidence": "#define CameraBuildPerspClipPlanes func_003e6e70",
+  "name": "CameraBuildPerspClipPlanes",
+  "provenance": "alias:src/renderware/core/bacamera.c",
+  "tier": "alias"
+ },
+ "003e7680": {
+  "evidence": "static RwCamera    * CameraBuildPerspViewMatrix(RwCamera * camera) {",
+  "name": "CameraBuildPerspViewMatrix",
+  "provenance": "marker:src/renderware/core/bacamera.c",
+  "tier": "marker"
+ },
+ "003e7810": {
+  "evidence": "#define CameraBuildParallelClipPlanes func_003e7810",
+  "name": "CameraBuildParallelClipPlanes",
+  "provenance": "alias:src/renderware/core/bacamera.c",
+  "tier": "alias"
+ },
+ "003e7d50": {
+  "evidence": "static RwCamera    * CameraBuildParallelViewMatrix(RwCamera * camera) {",
+  "name": "CameraBuildParallelViewMatrix",
+  "provenance": "marker:src/renderware/core/bacamera.c",
+  "tier": "marker"
+ },
+ "003e7ee0": {
+  "evidence": "static RwObjectHasFrame * CameraSync(RwObjectHasFrame * type) {",
+  "name": "CameraSync",
+  "provenance": "marker:src/renderware/core/bacamera.c",
+  "tier": "marker"
+ },
+ "003e7f50": {
+  "evidence": "static RwCamera    * CameraEndUpdate(RwCamera * camera) {",
+  "name": "CameraEndUpdate",
+  "provenance": "marker:src/renderware/core/bacamera.c",
+  "tier": "marker"
+ },
+ "003e7fb0": {
+  "evidence": "static RwCamera    * CameraBeginUpdate(RwCamera * camera) {",
+  "name": "CameraBeginUpdate",
+  "provenance": "marker:src/renderware/core/bacamera.c",
+  "tier": "marker"
+ },
+ "003e8080": {
+  "evidence": "void               * _rwCameraOpen(void * instance, RwInt32 offset, RwInt32 __RWUNUSED__ size) {",
+  "name": "_rwCameraOpen",
+  "provenance": "marker:src/renderware/core/bacamera.c",
+  "tier": "marker"
+ },
+ "003e8130": {
+  "evidence": "RwCamera * RwCameraSetViewOffset(RwCamera *camera, const RwV2d *offset) {",
+  "name": "RwCameraSetViewOffset",
+  "provenance": "marker:src/renderware/core/bacamera.c",
+  "tier": "marker"
+ },
+ "003e8180": {
+  "evidence": "RwCamera * RwCameraSetNearClipPlane(RwCamera *camera, RwReal nearClip) {",
+  "name": "RwCameraSetNearClipPlane",
+  "provenance": "marker:src/renderware/core/bacamera.c",
+  "tier": "marker"
+ },
+ "003e81c0": {
+  "evidence": "RwCamera * RwCameraSetFarClipPlane(RwCamera *camera, RwReal farClip) {",
+  "name": "RwCameraSetFarClipPlane",
+  "provenance": "marker:src/renderware/core/bacamera.c",
+  "tier": "marker"
+ },
+ "003e8200": {
+  "evidence": "RwFrustumTestResult RwCameraFrustumTestSphere(const RwCamera *camera, const RwSphere *sphere) {",
+  "name": "RwCameraFrustumTestSphere",
+  "provenance": "marker:src/renderware/core/bacamera.c",
+  "tier": "marker"
+ },
+ "003e82a0": {
+  "evidence": "RwCamera * RwCameraClear(RwCamera *camera, RwRGBA *color, RwInt32 clearMode) {",
+  "name": "RwCameraClear",
+  "provenance": "marker:src/renderware/core/bacamera.c",
+  "tier": "marker"
+ },
+ "003e82e0": {
+  "evidence": "RwCamera * RwCameraShowRaster(RwCamera *camera, void *dev, RwUInt32 flags) {",
+  "name": "RwCameraShowRaster",
+  "provenance": "marker:src/renderware/core/bacamera.c",
+  "tier": "marker"
+ },
+ "003e8310": {
+  "evidence": "RwCamera * RwCameraSetProjection(RwCamera *camera, RwCameraProjection projection) {",
+  "name": "RwCameraSetProjection",
+  "provenance": "marker:src/renderware/core/bacamera.c",
+  "tier": "marker"
+ },
+ "003e83a0": {
+  "evidence": "RwCamera * RwCameraSetViewWindow(RwCamera *camera, const RwV2d *viewWindow) {",
+  "name": "RwCameraSetViewWindow",
+  "provenance": "marker:src/renderware/core/bacamera.c",
+  "tier": "marker"
+ },
+ "003e8440": {
+  "evidence": "RwBool RwCameraDestroy(RwCamera *camera) {",
+  "name": "RwCameraDestroy",
+  "provenance": "marker:src/renderware/core/bacamera.c",
+  "tier": "marker"
+ },
+ "003e84a0": {
+  "evidence": "RwCamera * RwCameraCreate(void) {",
+  "name": "RwCameraCreate",
+  "provenance": "marker:src/renderware/core/bacamera.c",
+  "tier": "marker"
+ },
+ "003e85a0": {
+  "evidence": "#define CorePluginAttach func_003e85a0",
+  "name": "CorePluginAttach",
+  "provenance": "alias:src/renderware/core/badevice.c",
+  "tier": "alias"
+ },
+ "003e8790": {
+  "evidence": "static void * MallocWrapper(RwFreeList *fl, RwUInt32 hint) {",
+  "name": "MallocWrapper",
+  "provenance": "marker:src/renderware/plcore/baplcore.c",
+  "tier": "marker"
+ },
+ "003e87b0": {
+  "evidence": "static RwFreeList * FreeWrapper(RwFreeList *fl, void *pData) {",
+  "name": "FreeWrapper",
+  "provenance": "marker:src/renderware/plcore/baplcore.c",
+  "tier": "marker"
+ },
+ "003e87f0": {
+  "evidence": "RwBool _rwDeviceSystemRequest(RwDevice * device, RwInt32 requestID, void *pOut, void *pInOut, RwInt32 numIn) {",
+  "name": "_rwDeviceSystemRequest",
+  "provenance": "marker:src/renderware/plcore/baplcore.c",
+  "tier": "marker"
+ },
+ "003e8910": {
+  "evidence": "#define _rwGetNumEngineInstances func_003e8910",
+  "name": "_rwGetNumEngineInstances",
+  "provenance": "alias:src/renderware/plcore/batkreg.c",
+  "tier": "alias"
+ },
+ "003e8930": {
+  "evidence": "RwInt32 RwEngineRegisterPlugin(RwInt32 size, RwUInt32 pluginID, RwPluginObjectConstructor initCB, RwPluginObjectDestructor termCB) {",
+  "name": "RwEngineRegisterPlugin",
+  "provenance": "marker:src/renderware/plcore/baplcore.c",
+  "tier": "marker"
+ },
+ "003e8960": {
+  "evidence": "RwInt32 RwEngineGetPluginOffset(RwUInt32 pluginID) {",
+  "name": "RwEngineGetPluginOffset",
+  "provenance": "marker:src/renderware/plcore/baplcore.c",
+  "tier": "marker"
+ },
+ "003e8970": {
+  "evidence": "RwVideoMode * RwEngineGetVideoModeInfo(RwVideoMode *modeinfo, RwInt32 modeIndex) {",
+  "name": "RwEngineGetVideoModeInfo",
+  "provenance": "marker:src/renderware/plcore/baplcore.c",
+  "tier": "marker"
+ },
+ "003e89c0": {
+  "evidence": "RwInt32 RwEngineGetCurrentVideoMode(void) {",
+  "name": "RwEngineGetCurrentVideoMode",
+  "provenance": "marker:src/renderware/plcore/baplcore.c",
+  "tier": "marker"
+ },
+ "003e8a10": {
+  "evidence": "RwBool RwEngineSetVideoMode(RwInt32 modeIndex) {",
+  "name": "RwEngineSetVideoMode",
+  "provenance": "marker:src/renderware/plcore/baplcore.c",
+  "tier": "marker"
+ },
+ "003e8a50": {
+  "evidence": "RwBool RwEngineStart(void) {",
+  "name": "RwEngineStart",
+  "provenance": "marker:src/renderware/core/badevice.c",
+  "tier": "marker"
+ },
+ "003e8b10": {
+  "evidence": "RwBool RwEngineOpen(RwEngineOpenParams *initParams) {",
+  "name": "RwEngineOpen",
+  "provenance": "marker:src/renderware/plcore/baplcore.c",
+  "tier": "marker"
+ },
+ "003e8c60": {
+  "evidence": "RwBool RwEngineInit(const RwMemoryFunctions *memFuncs, RwUInt32 openFlags, RwUInt32 resArenaSize) {",
+  "name": "RwEngineInit",
+  "provenance": "marker:src/renderware/core/badevice.c",
+  "tier": "marker"
+ },
+ "003e8ed0": {
+  "evidence": "static void rwSetHierarchyRoot(RwFrame *frame, RwFrame *root) {",
+  "name": "rwSetHierarchyRoot",
+  "provenance": "marker:src/renderware/core/baframe.c",
+  "tier": "marker"
+ },
+ "003e8f80": {
+  "evidence": "static RwFrame * rwFrameCloneRecurse(RwFrame *oldFrame, RwFrame *newRoot) {",
+  "name": "rwFrameCloneRecurse",
+  "provenance": "marker:src/renderware/core/baframe.c",
+  "tier": "marker"
+ },
+ "003e90f0": {
+  "evidence": "RwFrame * _rwFrameCloneAndLinkClones(RwFrame *root) {",
+  "name": "_rwFrameCloneAndLinkClones",
+  "provenance": "marker:src/renderware/core/baframe.c",
+  "tier": "marker"
+ },
+ "003e9140": {
+  "evidence": "RwFrame * _rwFramePurgeClone(RwFrame *root) {",
+  "name": "_rwFramePurgeClone",
+  "provenance": "marker:src/renderware/core/baframe.c",
+  "tier": "marker"
+ },
+ "003e9240": {
+  "evidence": "RwBool RwFrameDirty(const RwFrame *frame) {",
+  "name": "RwFrameDirty",
+  "provenance": "marker:src/renderware/core/baframe.c",
+  "tier": "marker"
+ },
+ "003e9250": {
+  "evidence": "#define rwFrameInternalInit func_003e9250",
+  "name": "rwFrameInternalInit",
+  "provenance": "alias:src/renderware/core/baframe.c",
+  "tier": "alias"
+ },
+ "003e9320": {
+  "evidence": "RwFrame * RwFrameCreate(void) {",
+  "name": "RwFrameCreate",
+  "provenance": "marker:src/renderware/core/baframe.c",
+  "tier": "marker"
+ },
+ "003e9390": {
+  "evidence": "RwBool RwFrameDestroy(RwFrame *frame) {",
+  "name": "RwFrameDestroy",
+  "provenance": "marker:src/renderware/core/baframe.c",
+  "tier": "marker"
+ },
+ "003e95c0": {
+  "evidence": "#define RwFrameDestroyHierarchy func_003e95c0",
+  "name": "RwFrameDestroyHierarchy",
+  "provenance": "alias:src/renderware/core/babinfrm.c",
+  "tier": "alias"
+ },
+ "003e9680": {
+  "evidence": "#define RwFrameUpdateObjects func_003e9680",
+  "name": "RwFrameUpdateObjects",
+  "provenance": "alias:src/renderware/core/babinfrm.c",
+  "tier": "alias"
+ },
+ "003e9700": {
+  "evidence": "RwMatrix * RwFrameGetLTM(RwFrame *frame) {",
+  "name": "RwFrameGetLTM",
+  "provenance": "marker:src/renderware/core/baframe.c",
+  "tier": "marker"
+ },
+ "003e9750": {
+  "evidence": "#define RwFrameGetRoot func_003e9750",
+  "name": "RwFrameGetRoot",
+  "provenance": "alias:src/renderware/core/babinfrm.c",
+  "tier": "alias"
+ },
+ "003e9760": {
+  "evidence": "RwFrame * RwFrameAddChildNoUpdate(RwFrame *parent, RwFrame *child) {",
+  "name": "RwFrameAddChildNoUpdate",
+  "provenance": "marker:src/renderware/core/baframe.c",
+  "tier": "marker"
+ },
+ "003e9830": {
+  "evidence": "RwFrame * RwFrameAddChild(RwFrame *parent, RwFrame *child) {",
+  "name": "RwFrameAddChild",
+  "provenance": "marker:src/renderware/core/baframe.c",
+  "tier": "marker"
+ },
+ "003e99a0": {
+  "evidence": "#define RwFrameRemoveChild func_003e99a0",
+  "name": "RwFrameRemoveChild",
+  "provenance": "alias:src/renderware/core/baframe.c",
+  "tier": "alias"
+ },
+ "003e9af0": {
+  "evidence": "RwFrame * RwFrameForAllChildren(RwFrame *frame, RwFrameCallBack callBack, void *data) {",
+  "name": "RwFrameForAllChildren",
+  "provenance": "marker:src/renderware/core/baframe.c",
+  "tier": "marker"
+ },
+ "003e9b60": {
+  "evidence": "RwInt32 RwFrameCount(RwFrame *frame) {",
+  "name": "RwFrameCount",
+  "provenance": "marker:src/renderware/core/baframe.c",
+  "tier": "marker"
+ },
+ "003e9d50": {
+  "evidence": "RwFrame * RwFrameTranslate(RwFrame *frame, const RwV3d *translation, RwOpCombineType combineOp) {",
+  "name": "RwFrameTranslate",
+  "provenance": "marker:src/renderware/core/baframe.c",
+  "tier": "marker"
+ },
+ "003e9df0": {
+  "evidence": "RwFrame * RwFrameSetIdentity(RwFrame *frame) {",
+  "name": "RwFrameSetIdentity",
+  "provenance": "marker:src/renderware/core/baframe.c",
+  "tier": "marker"
+ },
+ "003e9ee0": {
+  "evidence": "void               * _rwImageOpen(void *instance, RwInt32 offset, RwInt32 __RWUNUSED__ size) {",
+  "name": "_rwImageOpen",
+  "provenance": "marker:src/renderware/core/baimage.c",
+  "tier": "marker"
+ },
+ "003ea130": {
+  "evidence": "void               * _rwImageClose(void *instance, RwInt32 __RWUNUSED__ offset, RwInt32 __RWUNUSED__ size ) {",
+  "name": "_rwImageClose",
+  "provenance": "marker:src/renderware/core/baimage.c",
+  "tier": "marker"
+ },
+ "003ea2c0": {
+  "evidence": "RwImage            * RwImageCreate(RwInt32 width, RwInt32 height, RwInt32 depth) {",
+  "name": "RwImageCreate",
+  "provenance": "marker:src/renderware/core/baimage.c",
+  "tier": "marker"
+ },
+ "003ea370": {
+  "evidence": "RwBool RwImageDestroy(RwImage * image) {",
+  "name": "RwImageDestroy",
+  "provenance": "marker:src/renderware/core/baimage.c",
+  "tier": "marker"
+ },
+ "003ea3e0": {
+  "evidence": "#define RwImageAllocatePixels func_003ea3e0",
+  "name": "RwImageAllocatePixels",
+  "provenance": "alias:src/renderware/core/baimage.c",
+  "tier": "alias"
+ },
+ "003ea510": {
+  "evidence": "RwImage            * RwImageFreePixels(RwImage * image) {",
+  "name": "RwImageFreePixels",
+  "provenance": "marker:src/renderware/core/baimage.c",
+  "tier": "marker"
+ },
+ "003ea560": {
+  "evidence": "RwImage            * RwImageMakeMask(RwImage * image) {",
+  "name": "RwImageMakeMask",
+  "provenance": "marker:src/renderware/core/baimage.c",
+  "tier": "marker"
+ },
+ "003ea690": {
+  "evidence": "RwImage            * RwImageApplyMask(RwImage * image, const RwImage * mask) {",
+  "name": "RwImageApplyMask",
+  "provenance": "marker:src/renderware/core/baimage.c",
+  "tier": "marker"
+ },
+ "003eaa80": {
+  "evidence": "const RwChar       * RwImageSetPath(const RwChar * path) {",
+  "name": "RwImageSetPath",
+  "provenance": "marker:src/renderware/core/baimage.c",
+  "tier": "marker"
+ },
+ "003eab70": {
+  "evidence": "#define ImagePathForAllFullNames func_003eab70",
+  "name": "ImagePathForAllFullNames",
+  "provenance": "alias:src/renderware/core/baimage.c",
+  "tier": "alias"
+ },
+ "003eaf60": {
+  "evidence": "RwImage            * RwImageRead(const RwChar * imageName) {",
+  "name": "RwImageRead",
+  "provenance": "marker:src/renderware/core/baimage.c",
+  "tier": "marker"
+ },
+ "003eb1c0": {
+  "evidence": "const RwChar       * RwImageFindFileType(const RwChar * imageName) {",
+  "name": "RwImageFindFileType",
+  "provenance": "marker:src/renderware/core/baimage.c",
+  "tier": "marker"
+ },
+ "003eb1f0": {
+  "evidence": "RwBool RwImageRegisterImageFormat(const RwChar * extension, RwImageCallBackRead imageRead, RwImageCallBackWrite imageWrite) {",
+  "name": "RwImageRegisterImageFormat",
+  "provenance": "marker:src/renderware/core/baimage.c",
+  "tier": "marker"
+ },
+ "003eb3b0": {
+  "evidence": "RwImage            * RwImageReadMaskedImage(const RwChar * imageName, const RwChar * maskName) {",
+  "name": "RwImageReadMaskedImage",
+  "provenance": "marker:src/renderware/core/baimage.c",
+  "tier": "marker"
+ },
+ "003ebac0": {
+  "evidence": "#define RwImageCopy func_003ebac0",
+  "name": "RwImageCopy",
+  "provenance": "alias:src/renderware/core/baimage.c",
+  "tier": "alias"
+ },
+ "003ebde0": {
+  "evidence": "RwImage            * RwImageGammaCorrect(RwImage * image) {",
+  "name": "RwImageGammaCorrect",
+  "provenance": "marker:src/renderware/core/baimage.c",
+  "tier": "marker"
+ },
+ "003ebff0": {
+  "evidence": "#define RwImageSetGamma func_003ebff0",
+  "name": "RwImageSetGamma",
+  "provenance": "alias:src/renderware/core/badevice.c",
+  "tier": "alias"
+ },
+ "003ec110": {
+  "evidence": "RwImage * RwImageSetFromRaster(RwImage *image, RwRaster *raster) {",
+  "name": "RwImageSetFromRaster",
+  "provenance": "marker:src/renderware/core/baimras.c",
+  "tier": "marker"
+ },
+ "003ec180": {
+  "evidence": "RwRaster * RwRasterSetFromImage(RwRaster *raster, RwImage *image) {",
+  "name": "RwRasterSetFromImage",
+  "provenance": "marker:src/renderware/core/baimras.c",
+  "tier": "marker"
+ },
+ "003ec1f0": {
+  "evidence": "RwImage * RwImageFindRasterFormat(RwImage *ipImage, RwInt32 nRasterType, RwInt32 *npWidth, RwInt32 *npHeight, RwInt32 *npDepth, RwInt32 *npFormat) {",
+  "name": "RwImageFindRasterFormat",
+  "provenance": "marker:src/renderware/core/baimras.c",
+  "tier": "marker"
+ },
+ "003ec2a0": {
+  "evidence": "RwRaster           * RwRasterUnlock(RwRaster * raster) {",
+  "name": "RwRasterUnlock",
+  "provenance": "marker:src/renderware/core/baraster.c",
+  "tier": "marker"
+ },
+ "003ec2e0": {
+  "evidence": "RwRaster           * RwRasterUnlockPalette(RwRaster * raster) {",
+  "name": "RwRasterUnlockPalette",
+  "provenance": "marker:src/renderware/core/baraster.c",
+  "tier": "marker"
+ },
+ "003ec330": {
+  "evidence": "RwBool RwRasterDestroy(RwRaster * raster) {",
+  "name": "RwRasterDestroy",
+  "provenance": "marker:src/renderware/core/baraster.c",
+  "tier": "marker"
+ },
+ "003ec3d0": {
+  "evidence": "RwUInt8            * RwRasterLockPalette(RwRaster * raster, RwInt32 lockMode) {",
+  "name": "RwRasterLockPalette",
+  "provenance": "marker:src/renderware/core/baraster.c",
+  "tier": "marker"
+ },
+ "003ec420": {
+  "evidence": "RwInt32 RwRasterGetNumLevels(RwRaster * raster) {",
+  "name": "RwRasterGetNumLevels",
+  "provenance": "marker:src/renderware/core/baraster.c",
+  "tier": "marker"
+ },
+ "003ec480": {
+  "evidence": "RwRaster           * RwRasterShowRaster(RwRaster * raster, void *dev, RwUInt32 flags) {",
+  "name": "RwRasterShowRaster",
+  "provenance": "marker:src/renderware/core/baraster.c",
+  "tier": "marker"
+ },
+ "003ec4f0": {
+  "evidence": "RwRaster           * RwRasterSubRaster(RwRaster * subRaster, RwRaster * raster, RwRect * rect) {",
+  "name": "RwRasterSubRaster",
+  "provenance": "marker:src/renderware/core/baraster.c",
+  "tier": "marker"
+ },
+ "003ec590": {
+  "evidence": "RwRaster           * RwRasterCreate(RwInt32 width, RwInt32 height, RwInt32 depth, RwInt32 flags) {",
+  "name": "RwRasterCreate",
+  "provenance": "marker:src/renderware/core/baraster.c",
+  "tier": "marker"
+ },
+ "003ec6a0": {
+  "evidence": "RwUInt8 * RwRasterLock(RwRaster *raster, RwUInt8 level, RwInt32 lockMode) {",
+  "name": "RwRasterLock",
+  "provenance": "marker:src/renderware/core/baraster.c",
+  "tier": "marker"
+ },
+ "003ec6f0": {
+  "evidence": "void               * _rwRasterClose(void *instance, RwInt32 __RWUNUSED__ offset, RwInt32 __RWUNUSED__ size) {",
+  "name": "_rwRasterClose",
+  "provenance": "marker:src/renderware/core/baraster.c",
+  "tier": "marker"
+ },
+ "003ec760": {
+  "evidence": "void               * _rwRasterOpen(void *instance, RwInt32 offset, RwInt32 __RWUNUSED__ size) {",
+  "name": "_rwRasterOpen",
+  "provenance": "marker:src/renderware/core/baraster.c",
+  "tier": "marker"
+ },
+ "003ed0b0": {
+  "evidence": "#define RwImageResample func_003ed0b0",
+  "name": "RwImageResample",
+  "provenance": "alias:src/renderware/core/baresamp.c",
+  "tier": "alias"
+ },
+ "003ed2d0": {
+  "evidence": "RwImage            * RwImageCreateResample(const RwImage * srcImage, RwInt32 width, RwInt32 height) {",
+  "name": "RwImageCreateResample",
+  "provenance": "marker:src/renderware/core/baresamp.c",
+  "tier": "marker"
+ },
+ "003ed450": {
+  "evidence": "static void FrameSyncHierarchyRecurse(RwFrame *frame, RwInt32 flags) {",
+  "name": "FrameSyncHierarchyRecurse",
+  "provenance": "marker:src/renderware/core/basync.c",
+  "tier": "marker"
+ },
+ "003ed540": {
+  "evidence": "static void FrameSyncHierarchyRecurseNoLTM(RwFrame *frame) {",
+  "name": "FrameSyncHierarchyRecurseNoLTM",
+  "provenance": "marker:src/renderware/core/basync.c",
+  "tier": "marker"
+ },
+ "003ed650": {
+  "evidence": "static void FrameSyncHierarchy(RwFrame *frame) {",
+  "name": "FrameSyncHierarchy",
+  "provenance": "marker:src/renderware/core/basync.c",
+  "tier": "marker"
+ },
+ "003ed7e0": {
+  "evidence": "RwBool _rwFrameSyncDirty(void) {",
+  "name": "_rwFrameSyncDirty",
+  "provenance": "marker:src/renderware/core/basync.c",
+  "tier": "marker"
+ },
+ "003ed960": {
+  "evidence": "#define _rwFrameSyncHierarchyLTM func_003ed960",
+  "name": "_rwFrameSyncHierarchyLTM",
+  "provenance": "alias:src/renderware/core/baframe.c",
+  "tier": "alias"
+ },
+ "003eda60": {
+  "evidence": "static              RwBool TextureDefaultMipmapName(RwChar * name, RwChar * maskName, RwUInt8 mipLevel, RwInt32 __RWUNUSED__ format) {",
+  "name": "TextureDefaultMipmapName",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003edb30": {
+  "evidence": "static RwBool PalettizeImage(RwImage **image, RwInt32 depth) {",
+  "name": "PalettizeImage",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003edc30": {
+  "evidence": "static RwBool PalettizeMipmaps(RwRGBA *MipPalette, RwImage *sourceImage, RwImage **mipArray, RwInt32 totalMipLevels, RwInt32 logpalsize) {",
+  "name": "PalettizeMipmaps",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003ede50": {
+  "evidence": "static RwImage     * TextureImageReadAndSize(const RwChar * name, const RwChar * maskName, RwInt32 format, RwInt32 * rasterWidth, RwInt32 * rasterHei",
+  "name": "TextureImageReadAndSize",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003ee1d0": {
+  "evidence": "static RwTexture   * TextureDefaultNormalRead(const RwChar * name, const RwChar * maskName) {",
+  "name": "TextureDefaultNormalRead",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003ee470": {
+  "evidence": "static RwTexture   * TextureDefaultMipmapRead(const RwChar * name, const RwChar * maskName) {",
+  "name": "TextureDefaultMipmapRead",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003eea90": {
+  "evidence": "static RwTexture   * TextureDefaultRead(const RwChar * name, const RwChar * maskName) {",
+  "name": "TextureDefaultRead",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003eeae0": {
+  "evidence": "static RwRaster    * TextureRasterDefaultBuildMipmaps(RwRaster * raster, RwImage * sourceImage) {",
+  "name": "TextureRasterDefaultBuildMipmaps",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003eee70": {
+  "evidence": "static              RwBool StringCompare(const RwChar * cpA, const RwChar * cpB) {",
+  "name": "StringCompare",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003eef60": {
+  "evidence": "static RwTexture * TextureDefaultFind(const RwChar *name) {",
+  "name": "TextureDefaultFind",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003ef000": {
+  "evidence": "RwBool RwTextureSetMipmapping(RwBool enable) {",
+  "name": "RwTextureSetMipmapping",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003ef020": {
+  "evidence": "#define RwTextureGetMipmapping func_003ef020",
+  "name": "RwTextureGetMipmapping",
+  "provenance": "alias:src/renderware/core/babintex.c",
+  "tier": "alias"
+ },
+ "003ef040": {
+  "evidence": "RwBool RwTextureSetAutoMipmapping(RwBool enable) {",
+  "name": "RwTextureSetAutoMipmapping",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003ef060": {
+  "evidence": "#define RwTextureGetAutoMipmapping func_003ef060",
+  "name": "RwTextureGetAutoMipmapping",
+  "provenance": "alias:src/renderware/core/babintex.c",
+  "tier": "alias"
+ },
+ "003ef080": {
+  "evidence": "RwTexture * RwTextureSetRaster(RwTexture *texture, RwRaster *raster) {",
+  "name": "RwTextureSetRaster",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003ef0d0": {
+  "evidence": "RwTexDictionary * RwTexDictionaryCreate(void) {",
+  "name": "RwTexDictionaryCreate",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003ef1b0": {
+  "evidence": "RwBool RwTexDictionaryDestroy(RwTexDictionary *dict) {",
+  "name": "RwTexDictionaryDestroy",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003ef260": {
+  "evidence": "#define RwTexDictionaryForAllTextures func_003ef260",
+  "name": "RwTexDictionaryForAllTextures",
+  "provenance": "alias:src/renderware/core/babintex.c",
+  "tier": "alias"
+ },
+ "003ef2e0": {
+  "evidence": "#define RwTextureCreate func_003ef2e0",
+  "name": "RwTextureCreate",
+  "provenance": "alias:src/renderware/core/batextur.c",
+  "tier": "alias"
+ },
+ "003ef3a0": {
+  "evidence": "RwBool RwTextureDestroy(RwTexture *texture) {",
+  "name": "RwTextureDestroy",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003ef470": {
+  "evidence": "#define RwTextureSetName func_003ef470",
+  "name": "RwTextureSetName",
+  "provenance": "alias:src/renderware/core/batextur.c",
+  "tier": "alias"
+ },
+ "003ef510": {
+  "evidence": "#define RwTextureSetMaskName func_003ef510",
+  "name": "RwTextureSetMaskName",
+  "provenance": "alias:src/renderware/core/batextur.c",
+  "tier": "alias"
+ },
+ "003ef5b0": {
+  "evidence": "RwTexture * RwTexDictionaryAddTexture(RwTexDictionary *dict, RwTexture *texture) {",
+  "name": "RwTexDictionaryAddTexture",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003ef610": {
+  "evidence": "RwTexture * RwTexDictionaryRemoveTexture(RwTexture *texture) {",
+  "name": "RwTexDictionaryRemoveTexture",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003ef650": {
+  "evidence": "#define RwTexDictionaryFindNamedTexture func_003ef650",
+  "name": "RwTexDictionaryFindNamedTexture",
+  "provenance": "alias:src/renderware/core/batextur.c",
+  "tier": "alias"
+ },
+ "003ef6b0": {
+  "evidence": "RwTexDictionary * RwTexDictionarySetCurrent(RwTexDictionary *dict) {",
+  "name": "RwTexDictionarySetCurrent",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003ef6f0": {
+  "evidence": "#define RwTextureGenerateMipmapName func_003ef6f0",
+  "name": "RwTextureGenerateMipmapName",
+  "provenance": "alias:src/renderware/core/batextur.c",
+  "tier": "alias"
+ },
+ "003ef740": {
+  "evidence": "RwTexture * RwTextureRead(const RwChar *name, const RwChar *maskName) {",
+  "name": "RwTextureRead",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003ef890": {
+  "evidence": "RwInt32 RwTextureRegisterPlugin(RwInt32 size, RwUInt32 pluginID, RwPluginObjectConstructor constructCB, RwPluginObjectDestructor destructCB, RwPlugin",
+  "name": "RwTextureRegisterPlugin",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003ef8c0": {
+  "evidence": "RwBool RwTextureRasterGenerateMipmaps(RwRaster *raster, RwImage *image) {",
+  "name": "RwTextureRasterGenerateMipmaps",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003ef900": {
+  "evidence": "void * _rwTextureClose(void *instance, RwInt32 __RWUNUSED__ offset, RwInt32 __RWUNUSED__ size) {",
+  "name": "_rwTextureClose",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003efac0": {
+  "evidence": "void * _rwTextureOpen(void *instance, RwInt32 offset, RwInt32 __RWUNUSED__ size) {",
+  "name": "_rwTextureOpen",
+  "provenance": "marker:src/renderware/core/batextur.c",
+  "tier": "marker"
+ },
+ "003efd20": {
+  "evidence": "void _rwObjectHasFrameSetFrame(void *object, RwFrame * frame) {",
+  "name": "_rwObjectHasFrameSetFrame",
+  "provenance": "marker:src/renderware/core/batypehf.c",
+  "tier": "marker"
+ },
+ "003efda0": {
+  "evidence": "void _rwObjectHasFrameReleaseFrame(void *object) {",
+  "name": "_rwObjectHasFrameReleaseFrame",
+  "provenance": "marker:src/renderware/core/batypehf.c",
+  "tier": "marker"
+ },
+ "003f07d0": {
+  "evidence": "#define RwPalQuantAddImage func_003f07d0",
+  "name": "RwPalQuantAddImage",
+  "provenance": "alias:src/renderware/core/batextur.c",
+  "tier": "alias"
+ },
+ "003f17e0": {
+  "evidence": "#define RwPalQuantResolvePalette func_003f17e0",
+  "name": "RwPalQuantResolvePalette",
+  "provenance": "alias:src/renderware/core/batextur.c",
+  "tier": "alias"
+ },
+ "003f1ce0": {
+  "evidence": "#define RwPalQuantMatchImage func_003f1ce0",
+  "name": "RwPalQuantMatchImage",
+  "provenance": "alias:src/renderware/core/batextur.c",
+  "tier": "alias"
+ },
+ "003f24a0": {
+  "evidence": "#define RwPalQuantInit func_003f24a0",
+  "name": "RwPalQuantInit",
+  "provenance": "alias:src/renderware/core/batextur.c",
+  "tier": "alias"
+ },
+ "003f26c0": {
+  "evidence": "#define RwPalQuantTerm func_003f26c0",
+  "name": "RwPalQuantTerm",
+  "provenance": "alias:src/renderware/core/batextur.c",
+  "tier": "alias"
+ },
+ "003f6440": {
+  "evidence": "RpSkyRenderStateSet = 0x003F6440; // type:func  evidence: p3:RpSkyRenderStateSet@0x004d7f60 tier:2 (P3 recovered-symbol address; not verifier-matched)",
+  "name": "RpSkyRenderStateSet",
+  "provenance": "config/symbol_names.p3.txt",
+  "tier": "p3"
+ },
+ "003fe630": {
+  "evidence": "#define _rwDeviceRegisterPlugin func_003fe630",
+  "name": "_rwDeviceRegisterPlugin",
+  "provenance": "alias:src/renderware/core/badevice.c",
+  "tier": "alias"
+ },
+ "00401450": {
+  "evidence": "#define _rwDeviceGetHandle func_00401450",
+  "name": "_rwDeviceGetHandle",
+  "provenance": "alias:src/renderware/plcore/baplcore.c",
+  "tier": "alias"
+ },
+ "00410a40": {
+  "evidence": "RxPipeline         * RwIm3DSetTransformPipeline(RxPipeline * pipeline) {",
+  "name": "RwIm3DSetTransformPipeline",
+  "provenance": "marker:src/renderware/p2/baim3d.c",
+  "tier": "marker"
+ },
+ "00410ab0": {
+  "evidence": "RxPipeline         * RwIm3DSetRenderPipeline(RxPipeline * pipeline, RwPrimitiveType primType) {",
+  "name": "RwIm3DSetRenderPipeline",
+  "provenance": "marker:src/renderware/p2/baim3d.c",
+  "tier": "marker"
+ },
+ "00410d90": {
+  "evidence": "void               * _rwIm3DClose(void *instance, RwInt32 __RWUNUSED__ offset, RwInt32 __RWUNUSED__ size) {",
+  "name": "_rwIm3DClose",
+  "provenance": "marker:src/renderware/p2/baim3d.c",
+  "tier": "marker"
+ },
+ "00410ed0": {
+  "evidence": "void               * _rwRenderPipelineOpen( void *instance, RwInt32 offset, RwInt32 size __RWUNUSED__ ) {",
+  "name": "_rwRenderPipelineOpen",
+  "provenance": "marker:src/renderware/p2/bapipe.c",
+  "tier": "marker"
+ },
+ "00410f00": {
+  "evidence": "void               * _rwRenderPipelineClose( void *instance, RwInt32 offset __RWUNUSED__, RwInt32 size __RWUNUSED__ ) {",
+  "name": "_rwRenderPipelineClose",
+  "provenance": "marker:src/renderware/p2/bapipe.c",
+  "tier": "marker"
+ },
+ "00410f40": {
+  "evidence": "#define _rwPipeInitForCamera func_00410f40",
+  "name": "_rwPipeInitForCamera",
+  "provenance": "alias:src/renderware/core/bacamera.c",
+  "tier": "alias"
+ },
+ "00410f50": {
+  "evidence": "void _rxPacketDestroy(RxPacket * packet) {",
+  "name": "_rxPacketDestroy",
+  "provenance": "marker:src/renderware/p2/p2altmdl.c",
+  "tier": "marker"
+ },
+ "00410ff0": {
+  "evidence": "RwBool _rxPipelineClose(void) {",
+  "name": "_rxPipelineClose",
+  "provenance": "marker:src/renderware/p2/p2core.c",
+  "tier": "marker"
+ },
+ "00411060": {
+  "evidence": "RwBool _rxPipelineOpen(void) {",
+  "name": "_rxPipelineOpen",
+  "provenance": "marker:src/renderware/p2/p2core.c",
+  "tier": "marker"
+ },
+ "00411130": {
+  "evidence": "RxPipelineNode * PipelineNodeDestroy(RxPipelineNode * node, RxPipeline *pipeline) {",
+  "name": "PipelineNodeDestroy",
+  "provenance": "marker:src/renderware/p2/p2core.c",
+  "tier": "marker"
+ },
+ "004114d0": {
+  "evidence": "RxPipeline         * RxPipelineExecute(RxPipeline * pipeline, void *data, RwBool heapReset) {",
+  "name": "RxPipelineExecute",
+  "provenance": "marker:src/renderware/p2/p2core.c",
+  "tier": "marker"
+ },
+ "004115d0": {
+  "evidence": "RxPipeline         * RxPipelineCreate(void) {",
+  "name": "RxPipelineCreate",
+  "provenance": "marker:src/renderware/p2/p2core.c",
+  "tier": "marker"
+ },
+ "00411670": {
+  "evidence": "void _rxPipelineDestroy(RxPipeline * Pipeline) {",
+  "name": "_rxPipelineDestroy",
+  "provenance": "marker:src/renderware/p2/p2core.c",
+  "tier": "marker"
+ },
+ "004118c0": {
+  "evidence": "static RwBool ReallocAndFixupSuperBlock(RxPipeline *pipeline, RwUInt32 newSize) {",
+  "name": "ReallocAndFixupSuperBlock",
+  "provenance": "marker:src/renderware/p2/p2define.c",
+  "tier": "marker"
+ },
+ "00411a70": {
+  "evidence": "static RwBool LockPipelineExpandData(RxPipeline *dstPipe, RxPipeline *srcPipe) {",
+  "name": "LockPipelineExpandData",
+  "provenance": "marker:src/renderware/p2/p2define.c",
+  "tier": "marker"
+ },
+ "00411ce0": {
+  "evidence": "static              RwBool _NodeCreate(RxPipeline * pipeline, RxPipelineNode * node, RxNodeDefinition * nodespec) {",
+  "name": "_NodeCreate",
+  "provenance": "marker:src/renderware/p2/p2define.c",
+  "tier": "marker"
+ },
+ "00411ee0": {
+  "evidence": "static void PipelineTallyInputs(RxPipeline * pipeline) {",
+  "name": "PipelineTallyInputs",
+  "provenance": "marker:src/renderware/p2/p2define.c",
+  "tier": "marker"
+ },
+ "00411fd0": {
+  "evidence": "#define PipelineTopSort func_00411fd0",
+  "name": "PipelineTopSort",
+  "provenance": "alias:src/renderware/p2/p2define.c",
+  "tier": "alias"
+ },
+ "004123c0": {
+  "evidence": "static RxPipeline * PipelineUnlockTopSort(RxPipeline *pipeline) {",
+  "name": "PipelineUnlockTopSort",
+  "provenance": "marker:src/renderware/p2/p2define.c",
+  "tier": "marker"
+ },
+ "00412520": {
+  "evidence": "void * RxPipelineNodeCreateInitData(RxPipelineNode *node, RwUInt32 size) {",
+  "name": "RxPipelineNodeCreateInitData",
+  "provenance": "marker:src/renderware/p2/p2define.c",
+  "tier": "marker"
+ },
+ "00414c10": {
+  "evidence": "#define RxHeapFree func_00414c10",
+  "name": "RxHeapFree",
+  "provenance": "alias:src/renderware/p2/p2altmdl.c",
+  "tier": "alias"
+ },
+ "00414ef0": {
+  "evidence": "#define _rxHeapReset func_00414ef0",
+  "name": "_rxHeapReset",
+  "provenance": "alias:src/renderware/p2/p2core.c",
+  "tier": "alias"
+ },
+ "00414fd0": {
+  "evidence": "#define RxHeapDestroy func_00414fd0",
+  "name": "RxHeapDestroy",
+  "provenance": "alias:src/renderware/p2/p2core.c",
+  "tier": "alias"
+ },
+ "00415070": {
+  "evidence": "#define RxHeapCreate func_00415070",
+  "name": "RxHeapCreate",
+  "provenance": "alias:src/renderware/p2/p2core.c",
+  "tier": "alias"
+ },
+ "004151b0": {
+  "evidence": "#define RxRenderStateVectorSetDefaultRenderStateVector func_004151b0",
+  "name": "RxRenderStateVectorSetDefaultRenderStateVector",
+  "provenance": "alias:src/renderware/p2/p2core.c",
+  "tier": "alias"
+ },
+ "00415920": {
+  "evidence": "#define _rwIm3DDestroyPlatformTransformPipeline func_00415920",
+  "name": "_rwIm3DDestroyPlatformTransformPipeline",
+  "provenance": "alias:src/renderware/p2/baim3d.c",
+  "tier": "alias"
+ },
+ "00415940": {
+  "evidence": "#define _rwIm3DDestroyPlatformRenderPipelines func_00415940",
+  "name": "_rwIm3DDestroyPlatformRenderPipelines",
+  "provenance": "alias:src/renderware/p2/baim3d.c",
+  "tier": "alias"
+ },
+ "0043f810": {
+  "evidence": "#define memcpy func_0043f810",
+  "name": "memcpy",
+  "provenance": "alias:src/renderware/core/baimage.c",
+  "tier": "alias"
+ },
+ "0043f9c8": {
+  "evidence": "#define memset func_0043f9c8",
+  "name": "memset",
+  "provenance": "alias:src/renderware/core/babincam.c",
+  "tier": "alias"
+ }
+}

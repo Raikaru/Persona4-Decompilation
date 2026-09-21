@@ -70,13 +70,15 @@ typedef struct _adx_intbuf
     Sint16 *pcmbuf;
     Sint32 pcmbsize;
     Sint32 pcmbdist;
-    Sint16 unk48;
-    Sint16 unk4A;
-    Sint32 unk4C;
-    AdxDecPara dp;   
-    Sint16 unk7C;
-    Sint16 unk7E;
-    Sint32 unk80;
+    /* P4: 9.44's ADX_BASIC does not carry unk48/unk4A/unk4C or
+     * unk7C/unk7E/unk80 where 8.30 does, so every later field sits 0x10
+     * lower. Retail says so directly: `addiu $v1, $a0, 0x48` takes the
+     * address of `dp` (0x50 here), and the whole getwrfunc..cdctype run
+     * reads 0x10 below these offsets. They are moved to the tail rather
+     * than deleted, because 8.30 code still writes them - only the few
+     * functions that do so stay different, and every other field lands
+     * where retail puts it. */
+    AdxDecPara dp;
     Sint32 ndecsmpl;
     void* (*getwrfunc)();
     void *getwrobj;
@@ -87,7 +89,19 @@ typedef struct _adx_intbuf
     Sint32 total_decsmpl;
     Sint32 total_decdtlen;
     Sint16 fmttype;
+    /* retail reads cdctype at 0x9C, four past fmttype's 0x98, not two */
+    Sint16 rsv9a;
     Sint16 cdctype;
+    Sint16 unk48;
+    Sint16 unk4A;
+    Sint32 unk4C;
+    Sint16 unk7C;
+    Sint16 unk7E;
+    Sint32 unk80;
+    /* 9.44's handle is 0x104; retail strides the pool with
+     * `addiu $s0, $s0, 0x104` in ADXB_ExecServer at 0x004C4790. What the
+     * tail holds is not known, so it is reserved rather than invented. */
+    Uint8 rsvTail[0x104 - 0xB0];
 } ADX_BASIC;
 typedef ADX_BASIC *ADXB;
 
