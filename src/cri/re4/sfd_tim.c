@@ -450,6 +450,7 @@ void SFTIM_SetTimeFn(SFD sfd, SFTIM_FN fn, Sint32 type)
 
 // Installs an external clock callback (with its wrap value) and selects it (cond 0xF = 5); NULL
 // reverts to the vsync clock.
+// FUN_00526290
 Sint32 SFD_SetExtClockFn(SFD sfd, SFTIM_FN fn, Sint32 wrap, void *obj)
 {
 	SFTIM tim;
@@ -494,6 +495,7 @@ Sint32 SFD_CmpTime(Sint32 a, Sint32 aunit, Sint32 b, Sint32 bunit)
 }
 
 // Installs the user's frame-skip judgement callback.
+// FUN_00526198
 Sint32 SFD_SetUsrIsSkipFn(SFD sfd, Bool (*fn)())
 {
 	if (SFLIB_CheckHn(sfd) != 0) {

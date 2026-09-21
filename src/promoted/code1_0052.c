@@ -105,8 +105,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00523138);
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00523508);
 // FUN_00523578
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00523578);
-// FUN_005235F8
-INCLUDE_ASM("asm/nonmatchings/code1_0052", func_005235f8);
 // FUN_005242D0
 void func_005242d0(u8 *arg0)
 {

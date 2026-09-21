@@ -181,6 +181,7 @@ void SFPLY_SetPtsmFn(void (*setfn)(SFPLY_PTSM *ptsm), void (*resetfn)(SFPLY_PTSM
 
 // Declares the input finished: sets the terminate flag on the input driver's output buffer so the
 // demuxer/decoders drain and the play ends (linked play, stream-joint starts).
+// FUN_005235F8
 Sint32 SFD_TermSupply(SFD sfd)
 {
 	Sint32 buf;
@@ -606,6 +607,7 @@ static Bool sfply_IsTermAny(SFD sfd)
 }
 
 /* the video input ring holds 80% of its size or the configured amount */
+// FUN_005223F0
 static Bool sfply_IsVidBufFull(SFD sfd)
 {
 	SFBUF_RING *ring = &sfd->buf[sfd->tr[2].bufin].u.ring;
