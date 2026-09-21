@@ -277,6 +277,7 @@ void ADXT_Destroy(ADXT adxt)
 }
 
 // Destroys every live handle (ADXT_Finish).
+// FUN_004D3F08
 void ADXT_DestroyAll(void)
 {
 	Sint32 i;
@@ -730,11 +731,14 @@ Bool ADXT_IsIbufSafety(ADXT adxt)
 }
 
 /* (dead-stripped) */
+// FUN_004D5AF8
 Bool ADXT_IsCompleted(ADXT adxt)
 {
 	if (adxt == NULL) {
 		ADXERR_CallErrFunc1("E02080802 ADXT_IsCompleted: parameter error");
-		return FALSE;
+		/* P4: 9.44 reports the parameter error as -1 rather than FALSE;
+		 * retail loads `addiu $v0, $zero, -1` on this path at 0x004D5B14. */
+		return -1;
 	}
 	if (adxt->stat == ADXT_STAT_PLAYEND) {
 		return TRUE;
@@ -1075,6 +1079,7 @@ Sint32 ADXT_GetOutBalance(ADXT adxt)
 }
 
 /* mono output switch: every live handle's pan and balance are re-applied */
+// FUN_004D6B10
 void ADXT_SetOutputMono(Sint32 flag)
 {
 	Sint32 i;

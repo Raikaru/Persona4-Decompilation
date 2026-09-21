@@ -79,6 +79,12 @@ typedef struct {
 	void *stm_dir;        /* 0xB4 */
 	Sint32 stm_ofst;      /* 0xB8 */
 	Sint32 stm_nsct;      /* 0xBC */
+	/* P4: ADXT 9.44's handle is 0xC8, not the 0xC0 this GameCube 9.31 header
+	 * describes. Proven by retail's own stride: ADXT_SetOutputMono at
+	 * 0x004D6B10 walks adxt_obj with `addiu $s1, $s1, 0xc8`. What the two
+	 * extra words hold is not known yet, so they are named as padding
+	 * rather than guessed at. */
+	Uint8 padC0[0xC8 - 0xC0];
 } ADXT_OBJ;
 
 typedef ADXT_OBJ *ADXT;

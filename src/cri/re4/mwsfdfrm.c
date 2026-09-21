@@ -478,7 +478,11 @@ static void mwsffrm_DecideFrmType(MWSFFRM_VFRM *vfrm, Sint32 *ftype)
 }
 
 // SFD picture type (1 I, 2 P, 3 B, 4 D) -> MWS_FRM value (identity; error and 1 for others).
-static Sint32 mwl_convPtypeFromSFD(Sint32 ptype)
+/* P4: 9.44 switches on the picture type UNSIGNED - retail's range test at
+ * 0x0050A6B4 is `sltiu`, not the `sltiu`'s signed sibling this signature
+ * produces. */
+// FUN_0050A6A8
+static Sint32 mwl_convPtypeFromSFD(Uint32 ptype)
 {
 	Sint32 ret;
 

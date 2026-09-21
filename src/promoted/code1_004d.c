@@ -246,8 +246,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3cd8);
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3d08);
 // FUN_004D3EE0
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3ee0);
-// FUN_004D3F08
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3f08);
 // FUN_004D3F68
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3f68);
 // FUN_004D3F90
@@ -285,12 +283,8 @@ s8 func_004d4430(u8 *arg0)
 #pragma optimization_level 2
 // FUN_004D4460
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d4460);
-// FUN_004D4490
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d4490);
 // FUN_004D44C8
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d44c8);
-// FUN_004D4518
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d4518);
 // FUN_004D45E0
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d45e0);
 // FUN_004D4630

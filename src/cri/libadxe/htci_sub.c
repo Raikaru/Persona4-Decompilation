@@ -311,6 +311,7 @@ Sint32 htCiLoadFpCache(Sint8 *fls_fname, Sint8 *fpc_ptr, Sint32 fpc_size)
 }
 
 // 100% matching!
+// FUN_004E8D68
 void htCiSetOpenMode(Sint32 mode)
 {
     if (mode != 0) 

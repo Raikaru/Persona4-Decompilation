@@ -221,6 +221,7 @@ DTR DTR_Create(SJ sjsrc, SJ sjdst)
 }
 
 // 100% matching!
+// FUN_004E5000
 void DTR_Destroy(DTR dtr) 
 {
     SJCRS_Lock();

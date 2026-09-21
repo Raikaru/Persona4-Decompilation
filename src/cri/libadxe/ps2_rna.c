@@ -151,6 +151,7 @@ void ps2rna_init_psj(void)
 } 
 
 // 100% matching!
+// FUN_004EB6D0
 void ps2rna_finish_psj(void)
 {
     Sint32 i;
@@ -804,6 +805,7 @@ Sint32 PS2RNA_GetOutVol(PS2RNA rna)
 }
 
 // 100% matching!
+// FUN_0052BAD0
 Sint32 PS2RNA_GetOutPan(PS2RNA rna, Sint32 chno)
 {
     return rna->ee_pan[chno];

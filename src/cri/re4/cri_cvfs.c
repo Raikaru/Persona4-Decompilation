@@ -701,7 +701,6 @@ Sint32 cvFsGetFileSizeEx(const Char8 *fname, Sint32 *size)
 }
 
 // Installs the user error callback (func(obj, msg, hn)); ADXGC_SetupDvdFs installs adxgc_err_dvd.
-// FUN_004E2E28
 void cvFsEntryErrFunc(CVFS_USRERRFN func, void *obj)
 {
 	if (func == NULL) {

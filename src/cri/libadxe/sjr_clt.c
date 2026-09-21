@@ -19,6 +19,7 @@ SJ SJRBF_CreateRmt(Sint8 *buf, Sint32 bsize, Sint32 xsize)
 }
 
 // 100% matching!
+// FUN_004EFC20
 SJ SJMEM_CreateRmt(Sint8 *data, Sint32 dtsize)
 {
     sjrmt_sbuf[0] = (Sint32)data;
@@ -42,6 +43,7 @@ SJ SJUNI_CreateRmt(Sint32 mode, Sint8 *wk, Sint32 wksize)
 }
 
 // 100% matching!
+// FUN_004EFCC8
 void SJRMT_Destroy(SJ sj)
 {
     sjrmt_sbuf[0] = (Sint32)sj;
@@ -50,6 +52,7 @@ void SJRMT_Destroy(SJ sj)
 }
 
 // 100% matching!
+// FUN_004EFCF8
 const UUID* SJRMT_GetUuid(SJ sj)
 {
     static UUID uuid; 
@@ -70,6 +73,7 @@ const UUID* SJRMT_GetUuid(SJ sj)
 }
 
 // 100% matching!
+// FUN_004EFD68
 void SJRMT_Reset(SJ sj)
 {
     sjrmt_sbuf[0] = (Sint32)sj;
@@ -114,6 +118,7 @@ void SJRMT_PutChunk(SJ sj, Sint32 id, SJCK *ck)
 }
 
 // 100% matching!
+// FUN_004EFEA8
 Sint32 SJRMT_GetNumData(SJ sj, Sint32 id)
 {
     sjrmt_sbuf[0] = (Sint32)sj;
@@ -125,6 +130,7 @@ Sint32 SJRMT_GetNumData(SJ sj, Sint32 id)
 }
 
 // 100% matching!
+// FUN_004EFEF8
 Sint32 SJRMT_IsGetChunk(SJ sj, Sint32 id, Sint32 nbyte, Sint32 *rbyte)
 {
     sjrmt_sbuf[0] = (Sint32)sj;
