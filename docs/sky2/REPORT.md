@@ -5,7 +5,7 @@
 Ballers beats Burnout decisively, and the reason is the compiler. Ballers'
 1341 RenderWare compilation units all carry the producer string
 `MW MIPS C Compiler` (Metrowerks — the same family as Persona 4's MWCCPS2
-3.0.1 b119), confirmed with `build/rw_dwarf.py` and the `.comment` section
+3.0.1 b119), confirmed with `tools/rw_dwarf.py` and the `.comment` section
 (`MW MIPS C Compiler (2.4.1.01)`). The 796 `gcc2_compiled` markers in the
 image are elsewhere, not in RenderWare. So this is a same-toolchain
 reference: same instruction selection, same register allocator, same idioms.

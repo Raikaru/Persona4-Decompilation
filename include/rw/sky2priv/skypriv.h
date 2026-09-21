@@ -1,6 +1,6 @@
 /* RenderWare PlayStation 2 driver-internal layouts, recovered from
  * DWARF 1 debugging information. GENERATED - do not hand-edit; see
- * the README beside this file and regenerate with build/rw_dwarf.py.
+ * the README beside this file and regenerate with tools/rw_dwarf.py.
  *
  * source: SLUS_211.86
  * units:  badma.c, basky.c, skyinst.c, texcache.c
