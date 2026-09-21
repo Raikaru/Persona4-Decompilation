@@ -2963,9 +2963,8 @@ void func_002f0f00(u8 *arg0) {
     extern f32 func_0046b2f0(s32);
     extern void func_0046d280(s32);
     extern void func_002b6a70(s32, s32, s32, s32, s32, s32);
-    extern void func_002b6af0(s32, s32, s32, s32, f32, f32, f32, f32);
     extern void func_002b69f0(s16, FclVec2f, FclVec2f, u32, u32, s16);
-    extern void func_002b83e0(u8 *,  s64,  s64,  s64,  u8,  u8,  s32,  s32,  f32,  f32,  s64,  s64);
+
     extern void func_00314450(u8 *,  u16 *,  s32,  s32);
     extern void func_0011c6e0(u8 *, s32);
     extern void func_0011d140(u8 *,  s32);
@@ -3528,7 +3527,7 @@ do {
                 break;
             }
             (*((s8 *)((u8 *)(func_002b6150(0x7E)) + (0x47)))) = 1;
-            func_002b6af0(0x7E, 0, 4, 4, temp_f20_2, temp_f20_2, temp_f20_2 - iGpffff8504, temp_f20_2);
+            func_002b6af0(0x7E, temp_f20_2, temp_f20_2, temp_f20_2 - iGpffff8504, temp_f20_2, 0, 4, 4);
             if ((*((s8 *)((u8 *)(temp_17) + (0x128)))) == -1) {
                 (*((s16 *)((u8 *)(temp_17) + (0x11E)))) = 0;
             }
@@ -3672,7 +3671,7 @@ block_83:
                     func_002b2970(&sp380, (f32) (temp_16_4 + 0x149), 104.0f);
                     func_002b2a60((u8 *)(&sp3F8), 0, 0, 0x99, 0xFFU);
                     func_002b2a60((u8 *)(&sp3F4), 0, 0, 0x99, 0xFFU);
-                    func_002b83e0((u8 *)temp_20_3,   sp380,   (s32) sp3F8,   (s32) sp3F4,   0xFFU,   0xFFU,   3,   0,   0x42000000,   159.0f,   0,   0);
+                    func_002b83e0((u8 *)temp_20_3, fclPacketPosition(sp380), fclPacketColor((u32)((s32) sp3F8)), fclPacketColor((u32)((s32) sp3F4)), 0xFFU, 0xFFU, 0x42000000, 159.0f, 3, 0, 0, 0);
                     var_20 = 0;
                     temp_18_6 = (u8 *)((s32)(temp_17) + (temp_18_5 * 4));
                     for (; (s32)((s32)(((s64) (var_20 << 0x30) >> 0x30))) < (s32)((s32)((func_0010b5b0() & 0xFFFF)));) {
@@ -3683,14 +3682,14 @@ block_83:
                         temp_21_2 = (s16 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_18_6) + (0x154))))),  (s64) (var_20 << 0x38) >> 0x38));
                         temp_22 = (s16 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_18_6) + (0x154))))),  (s64) (var_20 << 0x38) >> 0x38));
                         temp_23 = (s16 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_18_6) + (0x154))))),  (s64) (var_20 << 0x38) >> 0x38));
-                        func_002b83e0((u8 *)((s16 *) sp120),   sp378,   ((*((s32 *)((u8 *)(temp_16_6) + (0x78))))),   ((*((s32 *)((u8 *)(temp_21_2) + (0x78))))),   (*((u8 *)((u8 *)(temp_22) + (0x5E)))),   (*((u8 *)((u8 *)(temp_23) + (0x5E)))),   3,   0,   0x42000000,   (*((f32 *)((u8 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_18_6) + (0x154))))),  (s64) (var_20 << 0x38) >> 0x38)) + (4)))),   0,   0);
+                        func_002b83e0((u8 *)((s16 *) sp120), fclPacketPosition(sp378), fclPacketColor((u32)(((*((s32 *)((u8 *)(temp_16_6) + (0x78))))))), fclPacketColor((u32)(((*((s32 *)((u8 *)(temp_21_2) + (0x78))))))), (*((u8 *)((u8 *)(temp_22) + (0x5E)))), (*((u8 *)((u8 *)(temp_23) + (0x5E)))), 0x42000000, (*((f32 *)((u8 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_18_6) + (0x154))))),  (s64) (var_20 << 0x38) >> 0x38)) + (4)))), 3, 0, 0, 0);
                         var_20 = (s64) ((var_20 + 1) << 0x30) >> 0x30;
                     }
                     temp_20_4 = (s64) (var_19_4 << 0x30) >> 0x30;
                     temp_18_7 = (s64) ((temp_20_4 + 0x25E) << 0x30) >> 0x30;
                     temp_16_7 = (s32)((s32)(func_0046d200(func_00331560(), 0x39)));
                     func_002b6a70(temp_18_7, 0U, 0xFF, 0, 3, 0);
-                    func_002b6af0(temp_18_7, 0, 3, 0, 1.0f, 1.0f, iGpffff8504, 1.0f);
+                    func_002b6af0(temp_18_7, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, 0);
                     temp_20_5 = (temp_20_4 * 0x17) + 0x14E;
                     func_002b2970(&sp370, (f32) temp_20_5, 110.0f + (func_0046b2f0(temp_16_7) / 2.0f));
                     func_002b2970(&sp368, (f32) temp_20_5, 110.0f);
@@ -3752,7 +3751,7 @@ block_83:
                         func_002b2970(&sp350, (f32)(s32)((temp_16_11 * 0x17) + 0x149), 104.0f);
                         func_002b2a60((u8 *)(&sp3F0), 0, 0, 0x99, 0xFFU);
                         func_002b2a60((u8 *)(&sp3EC), 0, 0, 0x99, 0xFFU);
-                        func_002b83e0((u8 *)temp_21_3,   sp350,   (s32) sp3F0,   (s32) sp3EC,   0xFFU,   0xFFU,   3,   0,   0x42000000,   159.0f,   1,   0);
+                        func_002b83e0((u8 *)temp_21_3, fclPacketPosition(sp350), fclPacketColor((u32)((s32) sp3F0)), fclPacketColor((u32)((s32) sp3EC)), 0xFFU, 0xFFU, 0x42000000, 159.0f, 3, 0, 1, 0);
                         var_18_2 = 0;
                         temp_16_12 = (u8 *)((s32)(temp_17) + (temp_16_11 * 4));
                         for (; (s32)((s32)(((s64) (var_18_2 << 0x30) >> 0x30))) < (s32)((s32)((func_0010b5b0() & 0xFFFF)));) {
@@ -3763,14 +3762,14 @@ block_83:
                             sp110 = (u8*)((u8*)((u8*)(s32)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_16_12) + (0x154))))),  (s64) (var_18_2 << 0x38) >> 0x38))));
                             sp100 = (u8*)((u8*)((u8*)(s32)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_16_12) + (0x154))))),  (s64) (var_18_2 << 0x38) >> 0x38))));
                             0;
-                            func_002b83e0((u8 *)temp_30,   0,   ((*((s32 *)((u8 *)(temp_22_2) + (0x78))))),   ((*((s32 *)((u8 *)(temp_23_2) + (0x78))))),   (*((u8 *)((u8 *)(sp110) + (0x5E)))),   (*((u8 *)((u8 *)(sp100) + (0x5E)))),   3,   0,   0x42000000,   (*((f32 *)((u8 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_16_12) + (0x154))))),  (s64) (var_18_2 << 0x38) >> 0x38)) + (4)))),   1,   0);
+                            func_002b83e0((u8 *)temp_30, fclPacketPosition(0), fclPacketColor((u32)(((*((s32 *)((u8 *)(temp_22_2) + (0x78))))))), fclPacketColor((u32)(((*((s32 *)((u8 *)(temp_23_2) + (0x78))))))), (*((u8 *)((u8 *)(sp110) + (0x5E)))), (*((u8 *)((u8 *)(sp100) + (0x5E)))), 0x42000000, (*((f32 *)((u8 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_16_12) + (0x154))))),  (s64) (var_18_2 << 0x38) >> 0x38)) + (4)))), 3, 0, 1, 0);
                             var_18_2 = (s64) ((var_18_2 + 1) << 0x30) >> 0x30;
                         }
                         temp_18_10 = (s64) (var_19_5 << 0x30) >> 0x30;
                         temp_16_13 = (s64) ((temp_18_10 + 0x25E) << 0x30) >> 0x30;
                         temp_21_4 = (s32)((s32)(func_0046d200(func_00331560(), 0x39)));
                         func_002b6a70(temp_16_13, 0xFFU, 0, 0, 3, 0);
-                        func_002b6af0(temp_16_13, 0, 3, 0, 1.0f, 1.0f, 1.0f, iGpffff8504);
+                        func_002b6af0(temp_16_13, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                         temp_18_11 = (temp_18_10 * 0x17) + 0x14E;
                         func_002b2970(&sp348, (f32) temp_18_11, 110.0f);
                         func_002b2970(&sp340, (f32) temp_18_11, 110.0f + (func_0046b2f0(temp_21_4) / 2.0f));
@@ -3808,7 +3807,7 @@ block_83:
                             func_002b2970(&sp320, (f32) (temp_21_5 + 0x149), 104.0f);
                             func_002b2a60((u8 *)(&sp3E8), 0, 0, 0x99, 0xFFU);
                             func_002b2a60((u8 *)(&sp3E4), 0, 0, 0x99, 0xFFU);
-                            func_002b83e0((u8 *)temp_18_14,   sp320,   (s32) sp3E8,   (s32) sp3E4,   0xFFU,   0xFFU,   3,   0,   0x42000000,   159.0f,   1,   0);
+                            func_002b83e0((u8 *)temp_18_14, fclPacketPosition(sp320), fclPacketColor((u32)((s32) sp3E8)), fclPacketColor((u32)((s32) sp3E4)), 0xFFU, 0xFFU, 0x42000000, 159.0f, 3, 0, 1, 0);
                             var_18_3 = 0;
                             temp_16_16 = (u8 *)((s32)(temp_17) + (temp_16_15 * 4));
                             spF0 = temp_21_5 + 0x7F;
@@ -3820,14 +3819,14 @@ block_83:
                                 temp_22_3 = (s16 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_16_16) + (0x154))))),  (s64) (var_18_3 << 0x38) >> 0x38));
                                 temp_23_3 = (s16 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_16_16) + (0x154))))),  (s64) (var_18_3 << 0x38) >> 0x38));
                                 temp_30_2 = (s16 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_16_16) + (0x154))))),  (s64) (var_18_3 << 0x38) >> 0x38));
-                                func_002b83e0((u8 *)((s16 *) spE0),   sp318,   ((*((s32 *)((u8 *)(temp_21_7) + (0x78))))),   ((*((s32 *)((u8 *)(temp_22_3) + (0x78))))),   (*((u8 *)((u8 *)(temp_23_3) + (0x5E)))),   (*((u8 *)((u8 *)(temp_30_2) + (0x5E)))),   3,   0,   0x42000000,   (*((f32 *)((u8 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_16_16) + (0x154))))),  (s64) (var_18_3 << 0x38) >> 0x38)) + (4)))),   1,   0);
+                                func_002b83e0((u8 *)((s16 *) spE0), fclPacketPosition(sp318), fclPacketColor((u32)(((*((s32 *)((u8 *)(temp_21_7) + (0x78))))))), fclPacketColor((u32)(((*((s32 *)((u8 *)(temp_22_3) + (0x78))))))), (*((u8 *)((u8 *)(temp_23_3) + (0x5E)))), (*((u8 *)((u8 *)(temp_30_2) + (0x5E)))), 0x42000000, (*((f32 *)((u8 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_16_16) + (0x154))))),  (s64) (var_18_3 << 0x38) >> 0x38)) + (4)))), 3, 0, 1, 0);
                                 var_18_3 = (s64) ((var_18_3 + 1) << 0x30) >> 0x30;
                             }
                             temp_16_17 = (s64) (var_19_6 << 0x30) >> 0x30;
                             temp_18_15 = (s64) ((temp_16_17 + 0x25E) << 0x30) >> 0x30;
                             temp_21_8 = (s32)((s32)(func_0046d200(func_00331560(), 0x39)));
                             func_002b6a70(temp_18_15, 0xFFU, 0, 0, 3, 0);
-                            func_002b6af0(temp_18_15, 0, 3, 0, 1.0f, 1.0f, 1.0f, iGpffff8504);
+                            func_002b6af0(temp_18_15, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                             temp_22_4 = (temp_16_17 * 0x17) + 0x14E;
                             func_002b2970(&sp310, (f32) temp_22_4, 110.0f);
                             func_002b2970(&sp308, (f32) temp_22_4, 110.0f + (func_0046b2f0(temp_21_8) / 2.0f));
@@ -3873,7 +3872,7 @@ block_83:
                             func_002b2970(&sp2E8, (f32)(s32)((temp_18_18 * 0x17) + 0x149), 104.0f);
                             func_002b2a60((u8 *)(&sp3E0), 0, 0, 0x99, 0xFFU);
                             func_002b2a60((u8 *)(&sp3DC), 0, 0, 0x99, 0xFFU);
-                            func_002b83e0((u8 *)temp_16_20,   sp2E8,   (s32) sp3E0,   (s32) sp3DC,   0xFFU,   0xFFU,   3,   0,   0x42000000,   159.0f,   1,   0);
+                            func_002b83e0((u8 *)temp_16_20, fclPacketPosition(sp2E8), fclPacketColor((u32)((s32) sp3E0)), fclPacketColor((u32)((s32) sp3DC)), 0xFFU, 0xFFU, 0x42000000, 159.0f, 3, 0, 1, 0);
                             var_19_7 = 0;
                             temp_18_19 = (u8 *)((s32)(temp_17) + (temp_18_18 * 4));
                             for (; (s32)((s32)(((s64) (var_19_7 << 0x30) >> 0x30))) < (s32)((s32)((func_0010b5b0() & 0xFFFF)));) {
@@ -3884,14 +3883,14 @@ block_83:
                                 temp_30_3 = (s16 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_18_19) + (0x154))))),  (s64) (var_19_7 << 0x38) >> 0x38));
                                 spD0 = (u8*)((u8*)((u8*)(s32)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_18_19) + (0x154))))),  (s64) (var_19_7 << 0x38) >> 0x38))));
                                 0;
-                                func_002b83e0((u8 *)temp_23_4,   0,   ((*((s32 *)((u8 *)(temp_21_10) + (0x78))))),   ((*((s32 *)((u8 *)(temp_22_6) + (0x78))))),   (*((u8 *)((u8 *)(temp_30_3) + (0x5E)))),   (*((u8 *)((u8 *)(spD0) + (0x5E)))),   3,   0,   0x42000000,   (*((f32 *)((u8 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_18_19) + (0x154))))),  (s64) (var_19_7 << 0x38) >> 0x38)) + (4)))),   1,   0);
+                                func_002b83e0((u8 *)temp_23_4, fclPacketPosition(0), fclPacketColor((u32)(((*((s32 *)((u8 *)(temp_21_10) + (0x78))))))), fclPacketColor((u32)(((*((s32 *)((u8 *)(temp_22_6) + (0x78))))))), (*((u8 *)((u8 *)(temp_30_3) + (0x5E)))), (*((u8 *)((u8 *)(spD0) + (0x5E)))), 0x42000000, (*((f32 *)((u8 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_18_19) + (0x154))))),  (s64) (var_19_7 << 0x38) >> 0x38)) + (4)))), 3, 0, 1, 0);
                                 var_19_7 = (s64) ((var_19_7 + 1) << 0x30) >> 0x30;
                             }
                             temp_19_6 = (s64) (var_20_2 << 0x30) >> 0x30;
                             temp_16_21 = (s64) ((((s64) ((temp_19_6 + 0x6A) << 0x38) >> 0x38) + 0x1F4) << 0x30) >> 0x30;
                             temp_18_20 = (s32)((s32)(func_0046d200(func_00331560(), 0x39)));
                             func_002b6a70(temp_16_21, 0xFFU, 0, 0, 3, 0);
-                            func_002b6af0(temp_16_21, 0, 3, 0, 1.0f, 1.0f, 1.0f, iGpffff8504);
+                            func_002b6af0(temp_16_21, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                             temp_19_7 = (temp_19_6 * 0x17) + 0x14E;
                             func_002b2970(&sp2E0, (f32) temp_19_7, 110.0f);
                             func_002b2970(&sp2D8, (f32) temp_19_7, 110.0f + (func_0046b2f0(temp_18_20) / 2.0f));
@@ -3924,7 +3923,7 @@ block_83:
                             func_002b2970(&sp2C0, (f32)(s32)((temp_21_11 * 0x17) + 0x149), (f32)(s32)((temp_3_3 * 0x17) + 0x7F));
                             temp_21_12 = (s16 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_18_21) + (0x154))))),  (s64) (var_19_8 << 0x38) >> 0x38));
                             func_002b2a60((u8 *)(&sp3D8), 0, 0, 0x99, 0xA5U);
-                            func_002b83e0((u8 *)temp_22_7,   sp2C0,   ((*((s32 *)((u8 *)(temp_21_12) + (0x78))))),   (s32) sp3D8,   0xA5U,   0xA5U,   6,   0,   0x42000000,   (*((f32 *)((u8 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_18_21) + (0x154))))),  (s64) (var_19_8 << 0x38) >> 0x38)) + (4)))),   1,   1);
+                            func_002b83e0((u8 *)temp_22_7, fclPacketPosition(sp2C0), fclPacketColor((u32)(((*((s32 *)((u8 *)(temp_21_12) + (0x78))))))), fclPacketColor((u32)((s32) sp3D8)), 0xA5U, 0xA5U, 0x42000000, (*((f32 *)((u8 *)(func_0034ae50((u8 *)((*((s32 *)((u8 *)(temp_18_21) + (0x154))))),  (s64) (var_19_8 << 0x38) >> 0x38)) + (4)))), 6, 0, 1, 1);
                             var_19_8 = (s64) ((var_19_8 + 1) << 0x30) >> 0x30;
                         }
                         var_20_3 = (s64) ((var_20_3 + 1) << 0x30) >> 0x30;
@@ -8942,8 +8941,7 @@ void func_00304580(u8 *arg0) {
     extern s32 func_002b6970(s16, s32);
     extern void func_002b69f0(s16, FclVec2f, FclVec2f, u32, u32, s16);
     extern void func_002b6a70(s32, s32, s32, s32, s32, s32);
-    extern void func_002b6af0(s16, u32, u32, s32, f32, f32, f32, f32);
-    extern void func_002b83e0(u8 *, s64, s64, s64, u8, u8, s32, s32, f32, f32, s64, s64);
+
     extern void func_002ba970(s32, s8, s32);
     extern s8 func_002bab80(void *);
     extern void func_002badc0(s8, s32);
@@ -9467,7 +9465,7 @@ loop_66:
                     func_002b2970(&sp288, (f32) ((temp_16_2 * 0x17) + 0x149), 104.0f);
                     func_002b2a60((u8 *)(col2F8), 0, 0, 0x99, 0xFFU);
                     func_002b2a60((u8 *)(col2F4), 0, 0, 0x99, 0xFFU);
-                    func_002b83e0((u8 *)temp_21, sp288, (*(s32 *)col2F8), (*(s32 *)col2F4), 0xFFU, 0xFFU, 3, 0, 32.0f, 159.0f, 1, 0);
+                    func_002b83e0((u8 *)temp_21, fclPacketPosition(sp288), fclPacketColor((u32)((*(s32 *)col2F8))), fclPacketColor((u32)((*(s32 *)col2F4))), 0xFFU, 0xFFU, 32.0f, 159.0f, 3, 0, 1, 0);
                     var_19 = 0;
                     temp_16_3 = (u8 *)(temp_17 + (temp_16_2 * 4));
 loop_64:
@@ -9478,7 +9476,7 @@ loop_64:
                         temp_23 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_3)+(0x154))), (s64) (var_19 << 0x38) >> 0x38));
                         sp100 = func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_3)+(0x154))), (s64) (var_19 << 0x38) >> 0x38);
                         spF0 = func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_3)+(0x154))), (s64) (var_19 << 0x38) >> 0x38);
-                        func_002b83e0((u8 *)temp_30, 0, ((*(u8 *)((u8 *)(temp_22)+(0x78)))), ((*(u8 *)((u8 *)(temp_23)+(0x78)))), (*(u8 *)(sp100+0x5E)), (*(u8 *)(spF0+0x5E)), 3, 0, 32.0f, (*(f32 *)((u8 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_3)+(0x154))), (s64) (var_19 << 0x38) >> 0x38))+(4))), 1, 0);
+                        func_002b83e0((u8 *)temp_30, fclPacketPosition(0), fclPacketColor((u32)(((*(u8 *)((u8 *)(temp_22)+(0x78)))))), fclPacketColor((u32)(((*(u8 *)((u8 *)(temp_23)+(0x78)))))), (*(u8 *)(sp100+0x5E)), (*(u8 *)(spF0+0x5E)), 32.0f, (*(f32 *)((u8 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_3)+(0x154))), (s64) (var_19 << 0x38) >> 0x38))+(4))), 3, 0, 1, 0);
                         var_19 = (s64) ((var_19 + 1) << 0x30) >> 0x30;
                         goto loop_64;
                     }
@@ -9487,7 +9485,7 @@ loop_64:
                     temp_16_4 = (s64) ((temp_19_2 + 0x25E) << 0x30) >> 0x30;
                     temp_21_2 = func_0046d200(func_00331560(), 0x39);
                     func_002b6a70(temp_16_4, 0xFFU, 0, 0, 3, 0);
-                    func_002b6af0(temp_16_4, 0, 3, 0, 1.0f, 1.0f, 1.0f, iGpffff8504);
+                    func_002b6af0(temp_16_4, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                     temp_19_3 = (temp_19_2 * 0x17) + 0x14E;
                     func_002b2970(&sp280, (f32) temp_19_3, 110.0f);
                     func_002b2970(&sp278, (f32) temp_19_3, 110.0f + (func_0046b2f0(temp_21_2) / 2.0f));
@@ -9523,7 +9521,7 @@ loop_75:
                         func_002b2970(&sp258, (f32) (temp_21_3 + 0x149), 104.0f);
                         func_002b2a60((u8 *)(col2F0), 0, 0, 0x99, 0xFFU);
                         func_002b2a60((u8 *)(col2EC), 0, 0, 0x99, 0xFFU);
-                        func_002b83e0((u8 *)temp_18_2, sp258, (*(s32 *)col2F0), (*(s32 *)col2EC), 0xFFU, 0xFFU, 3, 0, 32.0f, 159.0f, 1, 0);
+                        func_002b83e0((u8 *)temp_18_2, fclPacketPosition(sp258), fclPacketColor((u32)((*(s32 *)col2F0))), fclPacketColor((u32)((*(s32 *)col2EC))), 0xFFU, 0xFFU, 32.0f, 159.0f, 3, 0, 1, 0);
                         var_18_2 = 0;
                         temp_16_8 = (u8 *)(temp_17 + (temp_16_7 * 4));
                         spE0 = temp_21_3 + 0x7F;
@@ -9536,7 +9534,7 @@ loop_73:
                             temp_22_2 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_8)+(0x154))), (s64) (var_18_2 << 0x38) >> 0x38));
                             temp_23_2 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_8)+(0x154))), (s64) (var_18_2 << 0x38) >> 0x38));
                             temp_30_2 = (s16 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_8)+(0x154))), (s64) (var_18_2 << 0x38) >> 0x38));
-                            func_002b83e0(spD0, sp250, ((*(u8 *)((u8 *)(temp_21_5)+(0x78)))), ((*(u8 *)((u8 *)(temp_22_2)+(0x78)))), (*(u8 *)((u8 *)(temp_23_2)+(0x5E))), (*(u8 *)((u8 *)(temp_30_2)+(0x5E))), 3, 0, 32.0f, (*(f32 *)((u8 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_8)+(0x154))), (s64) (var_18_2 << 0x38) >> 0x38))+(4))), 1, 0);
+                            func_002b83e0(spD0, fclPacketPosition(sp250), fclPacketColor((u32)(((*(u8 *)((u8 *)(temp_21_5)+(0x78)))))), fclPacketColor((u32)(((*(u8 *)((u8 *)(temp_22_2)+(0x78)))))), (*(u8 *)((u8 *)(temp_23_2)+(0x5E))), (*(u8 *)((u8 *)(temp_30_2)+(0x5E))), 32.0f, (*(f32 *)((u8 *)(func_0034ae50((u8 *)(*(s32 *)((u8 *)(temp_16_8)+(0x154))), (s64) (var_18_2 << 0x38) >> 0x38))+(4))), 3, 0, 1, 0);
                             var_18_2 = (s64) ((var_18_2 + 1) << 0x30) >> 0x30;
                             goto loop_73;
                         }
@@ -9544,7 +9542,7 @@ loop_73:
                         temp_16_9 = (s64) ((temp_18_3 + 0x25E) << 0x30) >> 0x30;
                         temp_21_6 = func_0046d200(func_00331560(), 0x39);
                         func_002b6a70(temp_16_9, 0xFFU, 0, 0, 3, 0);
-                        func_002b6af0(temp_16_9, 0, 3, 0, 1.0f, 1.0f, 1.0f, iGpffff8504);
+                        func_002b6af0(temp_16_9, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                         temp_18_4 = (temp_18_3 * 0x17) + 0x14E;
                         func_002b2970(&sp248, (f32) temp_18_4, 110.0f);
                         func_002b2970(&sp240, (f32) temp_18_4, 110.0f + (func_0046b2f0(temp_21_6) / 2.0f));
