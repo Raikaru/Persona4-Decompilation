@@ -8899,8 +8899,6 @@ extern u32 D_007330C8[];
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e55c8);
 // FUN_004E5738
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e5738);
-// FUN_004E5828
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e5828);
 // FUN_004E58A0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e58a0);
 // FUN_004E59A8
@@ -9272,6 +9270,8 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9380);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e93c0);
 // FUN_004E9420
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9420);
+// FUN_004E9450
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9450);
 // FUN_004E9480
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9480);
 // FUN_004E9510
@@ -9282,6 +9282,8 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e95a8);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9640);
 // FUN_004E96D8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e96d8);
+// FUN_004E9740
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e9740);
 // FUN_004E97B0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e97b0);
 // FUN_004E9818
@@ -10111,8 +10113,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004effb0);
 // FUN_004EFFF0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004efff0);
 
-// FUN_004F0090
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004f0090);
 
 // FUN_004F01A0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004f01a0);

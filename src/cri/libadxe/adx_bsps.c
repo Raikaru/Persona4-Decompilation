@@ -33,7 +33,7 @@ Sint32 ADX_DecodeInfoSpsd(Sint8 *ibuf, Sint32 ibuflen, Sint16 *dlen, Sint8 *code
     case 1:
         *bps = 8;
         
-        *blksize = temp = (Uint8)*nch;
+        *blksize = temp = *nch;
         
         *nsmpl_blk = 1;
         
@@ -45,7 +45,7 @@ Sint32 ADX_DecodeInfoSpsd(Sint8 *ibuf, Sint32 ibuflen, Sint16 *dlen, Sint8 *code
     case 3:
         *bps = 4;
         
-        *blksize = temp2 = (Uint8)*nch;
+        *blksize = temp2 = *nch;
         
         *nsmpl_blk = 2;
         

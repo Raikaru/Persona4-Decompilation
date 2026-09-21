@@ -41,12 +41,11 @@ void LSC_SetFlowLimit(LSC lsc, Sint32 min_val)
 }
 
 // Entries still queued (including the one loading).
-// FUN_004E9450
 Sint32 LSC_GetNumStm(LSC lsc)
 {
 	if (lsc == NULL) {
 		LSC_CallErrFunc("E0003: Illigal parameter lsc=NULL\n");
-		return -1;
+		return -3;
 	}
 	return lsc->num_stm;
 }
@@ -56,7 +55,7 @@ Sint32 LSC_GetStat(LSC lsc)
 {
 	if (lsc == NULL) {
 		LSC_CallErrFunc("E0003: Illigal parameter lsc=NULL\n");
-		return -1;
+		return -3;
 	}
 	return lsc->stat;
 }
@@ -68,7 +67,7 @@ Sint32 LSC_GetStmStat(LSC lsc, Sint32 id)
 
 	if (lsc == NULL) {
 		LSC_CallErrFunc("E0003: Illigal parameter lsc=NULL\n");
-		return -1;
+		return -3;
 	}
 	for (i = 0; i < LSC_MAX_ENTRY; i++) {
 		if (lsc->tbl[i].id == id) {
@@ -84,7 +83,7 @@ Sint32 LSC_GetStmPos(LSC lsc, Sint32 no)
 {
 	if (lsc == NULL) {
 		LSC_CallErrFunc("E0003: Illigal parameter lsc=NULL\n");
-		return -1;
+		return -3;
 	}
 	if (no < 0 || no >= LSC_MAX_ENTRY) {
 		LSC_CallErrFunc("E0009: Illigal parameter no=%d\n", no);
@@ -164,7 +163,7 @@ Sint32 LSC_EntryFileRange(LSC lsc, Char8 *fname, void *dir, Sint32 ofst, Sint32 
 
 	if (lsc == NULL) {
 		LSC_CallErrFunc("E0003: Illigal parameter lsc=NULL\n");
-		return -1;
+		return -3;
 	}
 	if (lsc->num_stm >= LSC_MAX_ENTRY) {
 		return -1;

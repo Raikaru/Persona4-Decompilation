@@ -319,6 +319,7 @@ void DTX_Init(void)
 }
 
 // 100% matching!
+// FUN_004E5828
 void DTX_Finish(void)
 {
     Sint32 i;
@@ -330,7 +331,7 @@ void DTX_Finish(void)
     {
         dtx++; // FAKE: this operation is invalid, it's only allowed for match purposes
         
-        for (i = 0; i < 8; i++) 
+        for (i = 0; i < 16; i++) 
         {
             dtx = &dtx_clnt[i];
     
@@ -363,6 +364,7 @@ Sint32 DTX_CallUrpc(Sint32 fno, Sint32 *in, Sint32 nin, Sint32 *out, Sint32 nout
 }
 
 // 100% matching!
+// FUN_004C93C0
 void DTX_ExecServer(void)
 {
     Sint32 i;
@@ -370,7 +372,7 @@ void DTX_ExecServer(void)
 
     SJCRS_Lock();
 
-    for (i = 0; i < 8; i++) 
+    for (i = 0; i < 16; i++) 
     {
         dtx = &dtx_clnt[i];
 
