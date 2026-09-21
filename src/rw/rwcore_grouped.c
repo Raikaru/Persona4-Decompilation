@@ -925,11 +925,71 @@ void func_00402390(u8 *arg0, u8 *arg1, u8 *arg2)
         : "$vf1", "$vf2", "$vf3", "$vf4", "$vf5", "$vf6", "$vf7", "$vf8", "$vf9", "$vf10", "$vf11", "$vf12", "$vf13", "ACC", "memory");
 }
 // FUN_00402410
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00402410);
+u8 *func_00402410(u8 *arg0, u8 *arg1, u8 *arg2)
+{
+    __asm__ volatile(
+        ".set noat\n"
+        ".set noreorder\n"
+        "lqc2 $vf1, 0x0($6)\n"
+        "lqc2 $vf2, 0x10($6)\n"
+        "lqc2 $vf3, 0x20($6)\n"
+        "lqc2 $vf4, 0x30($6)\n"
+        "lwu $3, 0x0($5)\n"
+        "lwu $1, 0x4($5)\n"
+        "lwu $2, 0x8($5)\n"
+        "dsll32 $1, $1, 0\n"
+        "or $1, $1, $3\n"
+        "pcpyld $2, $2, $1\n"
+        "qmtc2.ni $2, $vf5\n"
+        "vmulax.xyz $ACC, $vf1, $vf5x\n"
+        "vmadday.xyz $ACC, $vf2, $vf5y\n"
+        "vmaddaz.xyz $ACC, $vf3, $vf5z\n"
+        "vmaddw.xyz $vf5, $vf4, $vf0w\n"
+        "qmfc2.ni $1, $vf5\n"
+        "dsrl32 $2, $1, 0\n"
+        "pcpyud $3, $1, $1\n"
+        "sw $1, 0x0($4)\n"
+        "sw $2, 0x4($4)\n"
+        "sw $3, 0x8($4)\n"
+        "daddu $2, $4, $0\n"
+        ".set reorder\n"
+        :
+        : "r"(arg0), "r"(arg1), "r"(arg2)
+        : "$vf1", "$vf2", "$vf3", "$vf4", "$vf5", "ACC", "memory");
+}
 // FUN_00402470
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00402470);
 // FUN_00402510
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00402510);
+u8 *func_00402510(u8 *arg0, u8 *arg1, u8 *arg2)
+{
+    __asm__ volatile(
+        ".set noat\n"
+        ".set noreorder\n"
+        "lqc2 $vf1, 0x0($6)\n"
+        "lqc2 $vf2, 0x10($6)\n"
+        "lqc2 $vf3, 0x20($6)\n"
+        "lwu $1, 0x0($5)\n"
+        "lwu $2, 0x4($5)\n"
+        "lwu $3, 0x8($5)\n"
+        "dsll32 $2, $2, 0\n"
+        "or $2, $2, $1\n"
+        "pcpyld $3, $3, $2\n"
+        "qmtc2.ni $3, $vf4\n"
+        "vmulax.xyz $ACC, $vf1, $vf4x\n"
+        "vmadday.xyz $ACC, $vf2, $vf4y\n"
+        "vmaddz.xyz $vf4, $vf3, $vf4z\n"
+        "qmfc2.ni $1, $vf4\n"
+        "dsrl32 $2, $1, 0\n"
+        "pcpyud $3, $1, $1\n"
+        "sw $1, 0x0($4)\n"
+        "sw $2, 0x4($4)\n"
+        "sw $3, 0x8($4)\n"
+        "daddu $2, $4, $0\n"
+        ".set reorder\n"
+        :
+        : "r"(arg0), "r"(arg1), "r"(arg2)
+        : "$vf1", "$vf2", "$vf3", "$vf4", "ACC", "memory");
+}
 // FUN_00402570
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00402570);
 // FUN_00402600
