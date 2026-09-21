@@ -3,6 +3,7 @@
   "name": "LSC_LockCrs",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -11,7 +12,14 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
+  ]
+ },
+ "004c0e50": {
+  "name": "adxcs_exec_svr",
+  "sources": [
+   "re4proto"
   ]
  },
  "004c13e8": {
@@ -26,6 +34,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -34,6 +43,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -55,7 +65,8 @@
   "name": "ADXB_SetAc3DecSmpl",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c1ae8": {
@@ -63,6 +74,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -70,7 +82,8 @@
   "name": "ADXB_DecodeHeaderAc3",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c1bc8": {
@@ -78,6 +91,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -86,6 +100,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -94,6 +109,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -102,6 +118,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -110,6 +127,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -118,6 +136,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -125,7 +144,8 @@
   "name": "ADXB_ExecOneAiff",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c29b8": {
@@ -133,6 +153,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -141,6 +162,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -149,6 +171,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -157,6 +180,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -164,13 +188,15 @@
   "name": "ADXB_ExecOneAu",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c3420": {
   "name": "ADXB_Init",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -185,20 +211,23 @@
   "name": "adxb_DefGetWr",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c34c8": {
   "name": "adxb_DefAddWr",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c34e8": {
   "name": "adxb_ResetAinf",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -206,6 +235,7 @@
   "name": "ADXB_Create",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -214,6 +244,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -222,6 +253,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -230,13 +262,22 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
+  ]
+ },
+ "004c3a20": {
+  "name": "ADXB_DecodeHeader",
+  "sources": [
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c3bd0": {
   "name": "ADXB_GetNumChan",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -244,7 +285,8 @@
   "name": "ADXB_GetOutBps",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c3ca0": {
@@ -252,6 +294,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -260,6 +303,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -268,6 +312,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -276,6 +321,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -297,7 +343,8 @@
   "name": "ADXPD_GetExtPrm",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c3e40": {
@@ -305,6 +352,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -312,7 +360,8 @@
   "name": "adxb_get_key",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c3f58": {
@@ -320,6 +369,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -328,6 +378,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -336,6 +387,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -344,6 +396,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -352,6 +405,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -360,6 +414,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -368,6 +423,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -376,6 +432,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -384,6 +441,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -392,6 +450,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -400,6 +459,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -408,6 +468,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -415,14 +476,16 @@
   "name": "ADXB_ExecHndl",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c4728": {
   "name": "adxb_dec_cb_proc",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c4790": {
@@ -437,6 +500,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -445,6 +509,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -453,6 +518,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -461,6 +527,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -469,6 +536,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -477,6 +545,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -485,6 +554,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -492,13 +562,15 @@
   "name": "ADXB_ExecOneWav",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c5448": {
   "name": "ADXCRS_Init",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -506,6 +578,7 @@
   "name": "ADXCRS_Finish",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -514,6 +587,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -521,6 +595,7 @@
   "name": "ADX_ScanInfoCode",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -535,7 +610,8 @@
   "name": "ADX_DecodeInfo",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c5870": {
@@ -543,6 +619,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -551,6 +628,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -559,6 +637,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -573,6 +652,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -581,6 +661,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -589,6 +670,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -597,6 +679,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -605,6 +688,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -612,14 +696,16 @@
   "name": "ADX_DecodeSte4AsMono",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c6648": {
   "name": "ADX_DecodeSte4AsSte",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c6990": {
@@ -627,6 +713,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -641,6 +728,7 @@
   "name": "ADXERR_CallErrFunc1",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -648,6 +736,7 @@
   "name": "ADXERR_CallErrFunc2",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -656,6 +745,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -664,6 +754,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -672,6 +763,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -679,6 +771,7 @@
   "name": "ADXF_Init",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -686,6 +779,7 @@
   "name": "ADXF_Finish",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -694,6 +788,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -702,6 +797,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -717,6 +813,21 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
+   "re4ps2"
+  ]
+ },
+ "004c7560": {
+  "name": "adxf_LoadPartitionNw",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004c7588": {
+  "name": "ADXF_GetFnameRangeEx",
+  "sources": [
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -735,7 +846,8 @@
  "004c78c8": {
   "name": "adxf_LoadPtNwEx",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c79a0": {
@@ -759,6 +871,7 @@
  "004c7b80": {
   "name": "adxf_LoadPtBothNw",
   "sources": [
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -766,6 +879,7 @@
   "name": "adxf_CloseLdptnwHn",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -775,11 +889,18 @@
    "devilkings"
   ]
  },
+ "004c7f80": {
+  "name": "adxf_GetPtStatEx",
+  "sources": [
+   "re4proto"
+  ]
+ },
  "004c8400": {
   "name": "adxf_AllocAdxFs",
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -788,6 +909,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -798,17 +920,33 @@
    "onimusha"
   ]
  },
+ "004c85e8": {
+  "name": "adxf_OpenAfs",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
  "004c8688": {
   "name": "adxf_SetFileInfoRange",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004c8770": {
+  "name": "adxf_OpenRange",
+  "sources": [
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c8830": {
   "name": "adxf_SetAfsFileInfo",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -817,7 +955,15 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
+  ]
+ },
+ "004c8a90": {
+  "name": "adxf_Close",
+  "sources": [
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c8bd0": {
@@ -825,7 +971,36 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
+  ]
+ },
+ "004c8e80": {
+  "name": "adxf_ReadNw32",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004c9068": {
+  "name": "adxf_ReadNw",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004c90e0": {
+  "name": "adxf_Stop",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004c9208": {
+  "name": "adxf_StopNw",
+  "sources": [
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c92d0": {
@@ -833,6 +1008,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -841,26 +1017,37 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
+  ]
+ },
+ "004c9478": {
+  "name": "adxf_Seek",
+  "sources": [
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c95c8": {
   "name": "LSC_GetNumStm",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
- "004c96a8": {
-  "name": "ADXF_GetFsizeByte",
+ "004c9630": {
+  "name": "adxf_GetFsizeSct",
   "sources": [
-   "devilkings"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c9858": {
   "name": "LSC_GetStat",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -869,6 +1056,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -878,16 +1066,11 @@
    "devilkings"
   ]
  },
- "004c9a28": {
-  "name": "ADXF_GetFnameRangeEx",
+ "004c9bb8": {
+  "name": "adxf_GetFnameFromPt",
   "sources": [
-   "devilkings"
-  ]
- },
- "004c9d70": {
-  "name": "ADXT_ExecFsSvr",
-  "sources": [
-   "devilkings"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004c9ee0": {
@@ -961,6 +1144,7 @@
   "name": "ADXT_Init",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -974,6 +1158,7 @@
  "004ca8b0": {
   "name": "ADXT_Finish",
   "sources": [
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -981,6 +1166,7 @@
   "name": "ADXT_InsertHdrSfa",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -988,7 +1174,8 @@
   "name": "MWSFPLY_ReqStartFname",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004cae08": {
@@ -1000,13 +1187,15 @@
  "004cb2d0": {
   "name": "ADXMNG_CallMainServerFunctions",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004cb360": {
   "name": "ADXMNG_CallVintServerFunctions",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1014,13 +1203,15 @@
   "name": "ADXM_ExecSvrAll",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
  "004cb510": {
   "name": "adxmng_DecideFramework",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004cb548": {
@@ -1028,6 +1219,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1036,6 +1228,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1044,6 +1237,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1052,6 +1246,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1060,6 +1255,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1068,6 +1264,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1083,6 +1280,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1090,6 +1288,7 @@
   "name": "adxm_fs_proc",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1098,6 +1297,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1112,21 +1312,24 @@
   "name": "adxm_ResumeThread",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004cbda8": {
   "name": "adxm_SuspendThread",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004cbe08": {
   "name": "adxm_SetupSafeThrd",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004cbeb0": {
@@ -1140,7 +1343,8 @@
   "name": "adxm_SetupMwIdleThrd",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004cc110": {
@@ -1155,6 +1359,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1163,6 +1368,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1191,6 +1397,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1199,6 +1406,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1207,6 +1415,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1215,6 +1424,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1223,6 +1433,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1266,6 +1477,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1300,6 +1512,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1308,6 +1521,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1344,6 +1558,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1358,6 +1573,7 @@
   "name": "ADXSJD_Init",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1365,6 +1581,7 @@
   "name": "ADXSJD_Finish",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1373,6 +1590,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1380,6 +1598,7 @@
   "name": "ADXSJD_Create",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1388,6 +1607,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1403,6 +1623,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1411,6 +1632,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1419,6 +1641,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1426,6 +1649,7 @@
   "name": "adxsjd_decode_prep",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1434,6 +1658,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1441,6 +1666,7 @@
   "name": "adxsjd_decexec_start",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1448,6 +1674,7 @@
   "name": "adxsjd_decexec_end",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1455,14 +1682,16 @@
   "name": "adxsjd_decexec_extra",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ce7a8": {
   "name": "adxsjd_decode_exec",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ce858": {
@@ -1470,6 +1699,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1477,14 +1707,16 @@
   "name": "adxsjd_insert_proc",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004cea50": {
   "name": "adxsjd_discard_proc",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004cec80": {
@@ -1505,6 +1737,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1513,6 +1746,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1521,6 +1755,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1553,6 +1788,7 @@
   "name": "adxsje_write68",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1561,6 +1797,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1568,6 +1805,7 @@
   "name": "adxsje_get_pcm_data",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1575,6 +1813,7 @@
   "name": "adxsje_calc_rsig",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1582,6 +1821,7 @@
   "name": "adxsje_set_rsig",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1589,6 +1829,7 @@
   "name": "adxsje_encode_blk",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1596,6 +1837,7 @@
   "name": "adxsje_output_sdata",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1603,6 +1845,7 @@
   "name": "adxsje_encode_data",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1610,6 +1853,7 @@
   "name": "adxsje_write_end_code",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1617,12 +1861,14 @@
   "name": "adxsje_output_header",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
  "004d0e40": {
   "name": "ADXSJE_Finish",
   "sources": [
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1630,6 +1876,7 @@
   "name": "ADXSJE_Create",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1637,6 +1884,7 @@
   "name": "ADXSJE_Destroy",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1644,6 +1892,7 @@
   "name": "ADXSJE_Start",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1687,6 +1936,7 @@
   "name": "ADXSJE_SetConfigSfa",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1700,6 +1950,7 @@
   "name": "adxsje_encode_prep",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1707,6 +1958,7 @@
   "name": "adxsje_encode_exec",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1714,6 +1966,7 @@
   "name": "ADXSJE_ExecHndl",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1728,6 +1981,7 @@
   "name": "ADXSTM_Init",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1735,28 +1989,88 @@
   "name": "ADXSTMF_SetupHandleMember",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004d1ab0": {
   "name": "ADXSTMF_CreateCvfsRt",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004d1b88": {
   "name": "ADXSTMF_CreateCvfs",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d1ca0": {
+  "name": "adxstm_Create",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d1d18": {
+  "name": "adxstm_Destroy",
+  "sources": [
+   "onimusha",
+   "re4proto"
   ]
  },
  "004d1d70": {
   "name": "ADXSTM_BindFileNw",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
+  ]
+ },
+ "004d1de0": {
+  "name": "adxstm_BindFileNw",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d1ec8": {
+  "name": "adxstm_BindFile",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d1f30": {
+  "name": "adxstm_ReleaseFileNw",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d1fa0": {
+  "name": "adxstm_ReleaseFile",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d2080": {
+  "name": "adxstm_Seek",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d20d8": {
+  "name": "adxstm_Tell",
+  "sources": [
+   "onimusha",
+   "re4proto"
   ]
  },
  "004d20f0": {
@@ -1765,10 +2079,74 @@
    "onimusha"
   ]
  },
+ "004d2160": {
+  "name": "adxstm_Start",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d21e8": {
+  "name": "adxstm_Start2",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d2260": {
+  "name": "adxstm_StopNw",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d22f8": {
+  "name": "adxstm_Stop",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d23e8": {
+  "name": "adxstm_SetEos",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
  "004d2840": {
   "name": "ADXSTMF_ExecHndl",
   "sources": [
+   "re4proto",
    "re4ps2"
+  ]
+ },
+ "004d2a48": {
+  "name": "adxstm_ExecServer",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d2c88": {
+  "name": "adxstm_SetBufSize",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d2fe8": {
+  "name": "adxstm_SetSj",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d3258": {
+  "name": "adxstm_OpenCvfs",
+  "sources": [
+   "onimusha",
+   "re4proto"
   ]
  },
  "004d32f8": {
@@ -1776,6 +2154,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1784,6 +2163,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1821,48 +2201,110 @@
    "onimusha"
   ]
  },
+ "004d3c08": {
+  "name": "adxt_Create3D",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d3d08": {
+  "name": "adxt_Destroy",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
  "004d40a0": {
   "name": "adxt_start_stm",
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
- "004d41b0": {
-  "name": "ADXT_StartSj",
+ "004d4268": {
+  "name": "adxt_StopWithoutLsc",
   "sources": [
-   "devilkings"
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d4338": {
+  "name": "adxt_Stop",
+  "sources": [
+   "onimusha",
+   "re4proto"
   ]
  },
  "004d4630": {
   "name": "adxt_GetTimeSfreq2",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d47c8": {
+  "name": "adxt_GetTime",
+  "sources": [
+   "onimusha",
+   "re4proto"
   ]
  },
  "004d4e40": {
   "name": "adxt_SetOutPan",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d4fa0": {
+  "name": "adxt_GetOutPan",
+  "sources": [
+   "onimusha",
+   "re4proto"
   ]
  },
  "004d5020": {
   "name": "adxt_SetOutBalance",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004d5150": {
   "name": "adxt_SetOutVol",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d5470": {
+  "name": "adxt_SetDefSvrFreq",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d54c8": {
+  "name": "adxt_SetSvrFreq",
+  "sources": [
+   "onimusha",
+   "re4proto"
   ]
  },
  "004d5500": {
   "name": "ADXT_SetReloadTime",
   "sources": [
    "onimusha"
+  ]
+ },
+ "004d5840": {
+  "name": "adxt_GetNumSmplObuf",
+  "sources": [
+   "onimusha",
+   "re4proto"
   ]
  },
  "004d58a8": {
@@ -1874,7 +2316,43 @@
  "004d5b58": {
   "name": "adxt_ExecServer",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d5cc0": {
+  "name": "adxt_GetErrCode",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d6090": {
+  "name": "adxt_Pause",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d61f8": {
+  "name": "adxt_GetStatPause",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d63e8": {
+  "name": "adxt_DiscardSmpl",
+  "sources": [
+   "onimusha",
+   "re4proto"
+  ]
+ },
+ "004d65f8": {
+  "name": "adxt_SetLnkSw",
+  "sources": [
+   "onimusha",
+   "re4proto"
   ]
  },
  "004d6838": {
@@ -1882,6 +2360,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1890,26 +2369,37 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
+  ]
+ },
+ "004d6968": {
+  "name": "adxt_InsertSilence",
+  "sources": [
+   "onimusha",
+   "re4proto"
   ]
  },
  "004d6b10": {
   "name": "ADXT_SetOutputMono",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
- "004d7080": {
-  "name": "ADXT_StartMem2",
+ "004d6d68": {
+  "name": "adxt_StartAfs",
   "sources": [
-   "devilkings"
+   "onimusha",
+   "re4proto"
   ]
  },
- "004d71b0": {
-  "name": "ADXT_StartMemIdx",
+ "004d6ec0": {
+  "name": "adxt_StartFnameRange",
   "sources": [
-   "devilkings"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004d7320": {
@@ -1917,6 +2407,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1924,13 +2415,15 @@
   "name": "adxt_trap_entry",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004d7618": {
   "name": "adxt_set_outpan",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1939,6 +2432,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1946,6 +2440,7 @@
   "name": "adxt_stat_decinfo",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1961,6 +2456,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1983,6 +2479,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -1991,7 +2488,15 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
+  ]
+ },
+ "004d8698": {
+  "name": "adxt_ExecHndl",
+  "sources": [
+   "onimusha",
+   "re4proto"
   ]
  },
  "004d8858": {
@@ -1999,6 +2504,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2007,6 +2513,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2015,6 +2522,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2023,6 +2531,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2031,6 +2540,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2038,7 +2548,8 @@
   "name": "ADXPD_Start",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004d8ac8": {
@@ -2046,6 +2557,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2054,6 +2566,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2062,6 +2575,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2070,6 +2584,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2083,24 +2598,28 @@
  "004d8c78": {
   "name": "ADXCS_Init",
   "sources": [
+   "re4proto",
    "re4ps2"
   ]
  },
  "004d8cc0": {
   "name": "ADXCS_Create",
   "sources": [
+   "re4proto",
    "re4ps2"
   ]
  },
  "004d8cf0": {
   "name": "ADXCS_CalcWorkCprm",
   "sources": [
+   "re4proto",
    "re4ps2"
   ]
  },
  "004de2e8": {
   "name": "adxcs_dec_svr",
   "sources": [
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2108,13 +2627,15 @@
   "name": "cvFsCallUsrErrFn",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004e15a8": {
   "name": "cvFsError",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2137,6 +2658,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2152,6 +2674,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2160,6 +2683,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2168,6 +2692,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2176,6 +2701,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2184,6 +2710,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2192,6 +2719,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2311,6 +2839,7 @@
   "name": "DTR_ExecHndl",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2319,6 +2848,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2334,6 +2864,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2342,6 +2873,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2350,6 +2882,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2358,6 +2891,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2380,6 +2914,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2388,6 +2923,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2395,6 +2931,7 @@
   "name": "DTX_ExecHndl",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2403,6 +2940,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2411,6 +2949,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2419,6 +2958,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2427,6 +2967,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2435,6 +2976,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2443,6 +2985,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2451,6 +2994,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2459,6 +3003,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2467,6 +3012,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2475,6 +3021,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2483,6 +3030,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2498,6 +3046,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2513,6 +3062,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2521,6 +3071,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2536,6 +3087,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2544,6 +3096,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2552,6 +3105,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2560,6 +3114,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2568,6 +3123,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2576,6 +3132,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2584,6 +3141,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2619,6 +3177,7 @@
   "name": "LSC_Create",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2626,6 +3185,7 @@
   "name": "LSC_Destroy",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2639,6 +3199,7 @@
   "name": "LSC_EntryFileRange",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2646,6 +3207,7 @@
   "name": "LSC_ResetEntry",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2653,6 +3215,7 @@
   "name": "LSC_Start",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2660,6 +3223,7 @@
   "name": "LSC_Stop",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2685,6 +3249,7 @@
   "name": "LSC_SetFlowLimit",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2700,6 +3265,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2707,6 +3273,7 @@
   "name": "LSC_CallErrFunc",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2715,6 +3282,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2723,6 +3291,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2731,6 +3300,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2745,113 +3315,131 @@
   "name": "SJCRS_Init",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
  "004ed420": {
   "name": "SJCRS_Finish",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ed648": {
   "name": "sjmem_Create",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ed800": {
   "name": "sjmem_GetUuid",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ed8a8": {
   "name": "sjmem_EntryErrFunc",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ed938": {
   "name": "sjmem_Reset",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ed9a0": {
   "name": "SJMEM_GetNumData",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
  "004eda48": {
   "name": "sjmem_GetChunk",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004edb78": {
   "name": "sjmem_PutChunk",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004edc68": {
   "name": "sjmem_UngetChunk",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004eddd0": {
   "name": "sjmem_IsGetChunk",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ee070": {
   "name": "sjrbf_Create",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ee240": {
   "name": "sjrbf_Reset",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ee2c0": {
   "name": "SJRBF_GetNumData",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
  "004ee370": {
   "name": "sjrbf_GetChunk",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ee560": {
   "name": "sjrbf_PutChunk",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ee730": {
   "name": "sjrbf_UngetChunk",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ee978": {
   "name": "sjrbf_IsGetChunk",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004eea88": {
@@ -2864,6 +3452,7 @@
   "name": "SJRBF_GetFlowCnt",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2871,61 +3460,71 @@
   "name": "sjuni_Create",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004eed90": {
   "name": "sjuni_Destroy",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004eee50": {
   "name": "sjuni_GetUuid",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004eeef8": {
   "name": "sjuni_EntryErrFunc",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004eef88": {
   "name": "sjuni_Reset",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ef0a8": {
   "name": "sjuni_GetNumData",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ef1c0": {
   "name": "sjuni_GetChunk",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ef360": {
   "name": "sjuni_PutChunk",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ef4d8": {
   "name": "sjuni_UngetChunk",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ef660": {
   "name": "sjuni_IsGetChunk",
   "sources": [
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004ef770": {
@@ -2945,6 +3544,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2960,6 +3560,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2975,6 +3576,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2983,6 +3585,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2991,6 +3594,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -2999,6 +3603,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3028,6 +3633,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3036,6 +3642,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3043,14 +3650,16 @@
   "name": "sjx_rcvcbf",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004f0090": {
   "name": "sjx_sndcbf",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004f01b8": {
@@ -3058,6 +3667,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3066,6 +3676,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3074,6 +3685,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3082,6 +3694,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3096,7 +3709,8 @@
   "name": "SFX_SetErrFn",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004f2370": {
@@ -3104,6 +3718,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3112,6 +3727,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3120,6 +3736,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3127,6 +3744,7 @@
   "name": "MPV_SetErrFunc",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3135,6 +3753,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3142,7 +3761,8 @@
   "name": "mpverr_SetCodeSub",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "004fb690": {
@@ -3150,6 +3770,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3158,13 +3779,15 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
  "004fba98": {
   "name": "SFX_SetPicUsrDat",
   "sources": [
-   "devilkings"
+   "devilkings",
+   "re4proto"
   ]
  },
  "004fbaa8": {
@@ -3172,6 +3795,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3179,7 +3803,8 @@
   "name": "mpvlib_InitObjTbl",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "00500dd0": {
@@ -3187,6 +3812,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3194,7 +3820,8 @@
   "name": "mpvlib_SearchFreeHn",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "00501078": {
@@ -3202,6 +3829,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3210,6 +3838,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3218,6 +3847,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3226,6 +3856,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3241,6 +3872,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3249,6 +3881,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3257,6 +3890,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3265,6 +3899,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3273,6 +3908,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3281,6 +3917,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3289,6 +3926,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3297,6 +3935,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3312,6 +3951,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3320,6 +3960,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3328,6 +3969,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3336,6 +3978,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3344,6 +3987,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3359,6 +4003,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3367,6 +4012,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3395,6 +4041,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3403,6 +4050,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3411,6 +4059,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3419,6 +4068,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3427,6 +4077,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3440,21 +4091,24 @@
   "name": "mpvhdec_GetCurDelim",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "00505360": {
   "name": "MPV_DecodePicAtr",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "00505400": {
   "name": "mpvhdec_GetCodec",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "005054a8": {
@@ -3479,27 +4133,31 @@
   "name": "mpvhdec_DecEscSj",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "00506490": {
   "name": "mpvhdec_DecUdscSj",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "00506580": {
   "name": "mpvhdec_AnalyUd",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "00506748": {
   "name": "mpvhdec_DecSeqUdsc",
   "sources": [
-   "devilkings"
+   "devilkings",
+   "re4proto"
   ]
  },
  "00506850": {
@@ -3514,6 +4172,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3521,7 +4180,8 @@
   "name": "mpvhdec_RecoverSj",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "00506b20": {
@@ -3529,6 +4189,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3543,6 +4204,7 @@
   "name": "MPV_Init",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3550,7 +4212,8 @@
   "name": "mpvlib_ChkFatal",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "00506d90": {
@@ -3558,6 +4221,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3571,20 +4235,23 @@
   "name": "mpvlib_InitClip",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "00506e38": {
   "name": "mpvlib_InitClip0255",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "00506f08": {
   "name": "mpvlib_InitObj",
   "sources": [
-   "devilkings"
+   "devilkings",
+   "re4proto"
   ]
  },
  "00506ff8": {
@@ -3598,6 +4265,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3606,13 +4274,15 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
  "00507178": {
   "name": "mpvlib_InitHn",
   "sources": [
-   "devilkings"
+   "devilkings",
+   "re4proto"
   ]
  },
  "00507240": {
@@ -3620,6 +4290,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3628,6 +4299,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3636,6 +4308,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3643,7 +4316,8 @@
   "name": "mpvlib_SetCondAll",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "005073f0": {
@@ -3651,6 +4325,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3659,6 +4334,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3667,6 +4343,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3674,7 +4351,8 @@
   "name": "mpvm2v_CopyPicAtr",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "00507c28": {
@@ -3706,6 +4384,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3714,6 +4393,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3722,6 +4402,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3735,6 +4416,7 @@
   "name": "MWSFD_Malloc",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3743,6 +4425,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3770,6 +4453,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3796,6 +4480,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3810,6 +4495,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3818,6 +4504,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3825,7 +4512,8 @@
   "name": "MWSFPLY_ReqStartFnameRange",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "0050c728": {
@@ -3833,6 +4521,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3840,14 +4529,16 @@
   "name": "MWRSC_SaveRsc",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "0050c9d0": {
   "name": "MWRSC_RestoreRsc",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "0050ca58": {
@@ -3861,35 +4552,40 @@
   "name": "MWSFD_ExecSetSprCbFn",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "0050cb68": {
   "name": "MWSPR_SaveSprByCpu",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "0050cba0": {
   "name": "MWSPR_SaveSprByDma",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "0050cc48": {
   "name": "MWSPR_RestoreSprByCpu",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "0050cc78": {
   "name": "MWSPR_RestoreSprByDma",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "0050cd00": {
@@ -3897,6 +4593,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3925,6 +4622,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3933,6 +4631,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3947,6 +4646,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3979,6 +4679,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -3999,6 +4700,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4013,6 +4715,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4021,6 +4724,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4036,6 +4740,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4044,6 +4749,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4097,6 +4803,7 @@
   "name": "MWSST_Finish",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4116,6 +4823,7 @@
   "name": "MWSST_DestroyCoreHn",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4123,6 +4831,7 @@
   "name": "MWSST_StartSj",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4130,6 +4839,7 @@
   "name": "MWSST_Stop",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4143,6 +4853,7 @@
   "name": "MWSST_Pause",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4156,13 +4867,22 @@
   "name": "MWSST_Reset",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
+  ]
+ },
+ "00510d90": {
+  "name": "MWSST_Destroy",
+  "sources": [
+   "devilkings",
+   "re4proto"
   ]
  },
  "00510e60": {
   "name": "MWSST_IsEnable",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4171,6 +4891,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4197,7 +4918,8 @@
   "name": "MWSFSVM_EntryWaitVsyncFunc",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "005110d0": {
@@ -4212,6 +4934,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4226,13 +4949,15 @@
   "name": "MWSFSVR_CheckForceSvrBdr",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "00511850": {
   "name": "MWSFSVR_VsyncThrdProc",
   "sources": [
    "devilkings",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4306,6 +5031,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4321,6 +5047,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4329,6 +5056,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4337,6 +5065,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4345,6 +5074,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4353,6 +5083,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4361,6 +5092,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4369,6 +5101,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4384,6 +5117,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4392,6 +5126,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4400,6 +5135,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4408,6 +5144,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4416,6 +5153,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4424,6 +5162,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4432,6 +5171,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4440,6 +5180,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4447,7 +5188,8 @@
   "name": "SFD_Init",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "005179f8": {
@@ -4462,6 +5204,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4477,6 +5220,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4498,6 +5242,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4520,6 +5265,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4541,7 +5287,8 @@
   "name": "SFD_SetPicUsrBuf",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "0051f3c0": {
@@ -4575,6 +5322,7 @@
   "name": "SFD_IsNextFrmReady",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4590,6 +5338,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4598,6 +5347,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4606,6 +5356,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4614,6 +5365,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4627,6 +5379,7 @@
   "name": "SFD_ExecOne",
   "sources": [
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4641,6 +5394,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4649,6 +5403,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4657,6 +5412,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4665,6 +5421,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4673,6 +5430,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4681,6 +5439,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4689,6 +5448,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4721,6 +5481,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4729,6 +5490,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4779,6 +5541,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4787,6 +5550,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4795,6 +5559,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4803,6 +5568,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4811,6 +5577,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4845,6 +5612,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4860,6 +5628,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4875,6 +5644,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4883,6 +5653,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4898,6 +5669,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4934,6 +5706,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4941,7 +5714,8 @@
   "name": "SFH_Init",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "00528ce0": {
@@ -4955,14 +5729,16 @@
   "name": "SFH_Create",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "00528df0": {
   "name": "SFH_Destroy",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "00528f40": {
@@ -4970,6 +5746,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4978,6 +5755,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -4986,6 +5764,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5008,6 +5787,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5016,6 +5796,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5031,6 +5812,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5039,6 +5821,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5047,6 +5830,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5055,6 +5839,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5063,6 +5848,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5071,6 +5857,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5079,6 +5866,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5087,6 +5875,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5095,6 +5884,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5103,6 +5893,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5111,6 +5902,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5119,6 +5911,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5127,6 +5920,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5135,6 +5929,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5143,6 +5938,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5196,7 +5992,8 @@
   "name": "SFXCNV_MakeCcirFromY",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "0052ad58": {
@@ -5216,6 +6013,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5231,6 +6029,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5239,6 +6038,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5247,6 +6047,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5269,6 +6070,7 @@
   "sources": [
    "devilkings",
    "onimusha",
+   "re4proto",
    "re4ps2"
   ]
  },
@@ -5318,21 +6120,24 @@
   "name": "SFXZ_SetTagInf",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "0052c180": {
   "name": "SFXZ_GetZfrmRange",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "0052c470": {
   "name": "SFXZ_MakeCnvZTbl",
   "sources": [
    "devilkings",
-   "onimusha"
+   "onimusha",
+   "re4proto"
   ]
  },
  "0052c790": {

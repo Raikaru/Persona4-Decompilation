@@ -210,6 +210,7 @@ Sint32 ADXB_DecodeHeaderAu(ADXB adxb, Sint8 *ibuf, Sint32 ibuflen)
 }
 
 // 100% matching!
+// FUN_004C2360
 void ADXB_ExecOneAu16(ADXB adxb)
 {
 	AdxDecPara *dp;
@@ -264,7 +265,9 @@ void ADXB_ExecOneAu16(ADXB adxb)
         }
         
         adxb->total_decsmpl = ndata;
-        adxb->total_decdtlen = ndata * (adxb->nch << 1);
+        /* retail multiplies `ndata * nch` then `sll 1` (`sra 0x18` + `sll 1` at
+         * 0x004C2440/0x004C2450), not `(nch << 1)` first (`sra 0x17`). */
+        adxb->total_decdtlen = ndata * adxb->nch * 2;
         
         adxb->stat = 2;
     }

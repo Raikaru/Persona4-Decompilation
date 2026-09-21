@@ -21,6 +21,9 @@ typedef struct
 	Sint32 req_nsct;
     Sint8 *buf;
 	Sint32 tr_nsct;
+	Sint32 unk24;
+	Sint32 unk28;
+	Sint32 unk2c;
 } HTS_CI_OBJ;
 typedef HTS_CI_OBJ *HTCI;
 

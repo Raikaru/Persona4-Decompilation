@@ -67,11 +67,11 @@
 		bitpos++;                                                                      \
 	}
 
-/* current byte position (rounded up to the next byte boundary) */
+/* current byte position (rounded up to the next byte boundary; (ptr-2)+n as in MPVHDEC_BYTEPTR_M2:
+ * retail header byte pointers emit (ptr+n)-8 with the sum a backend temporary (target lwz;add;subi;subf),
+ * while q=ptr;q+=n;q-=8 reuses the dying argument in place (see mpv_dec.c MPVDEC_END note) */
 #define MPVBIT_BYTEPTR(q)                                                                      \
-	q = (Uint8 *)ptr;                                                                      \
-	q += (bitpos + 7) >> 3;                                                                \
-	q -= 8
+	q = (Uint8 *)(ptr - 2) + ((bitpos + 7) >> 3)
 
 /* position only (no words loaded), for skipping a header by its start code */
 #define MPVBIT_SETPOS(buf)                                                                     \

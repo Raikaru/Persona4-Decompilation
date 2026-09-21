@@ -35,6 +35,7 @@ void SFXLIB_Error(SFX_OBJ *sfx, SFX_FRM *frm, const Char8 *msg)
 }
 
 // Frees the converter and its Z / alpha sub-objects.
+// FUN_0052B950
 void SFX_Destroy(SFX_OBJ *sfx)
 {
 	SFXZ_OBJ *sfxz;

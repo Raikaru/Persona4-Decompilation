@@ -28,13 +28,14 @@ typedef void (*LSC_STATFN)(void *obj1, void *obj2);
 
 typedef struct _lsc_sinfo
  {
-	Sint32 sid;
-    Sint8 fname[LSC_FNAME_MAX];
-    void *dir;
-    Sint32 ofst;
-    Sint32 fsct;
-    Sint32 stat;
-    Sint32 rdsct;
+	Sint32 sid;         /* 0x00 id (retail 0x4E9180 8c430038 lw v1,56(v0); 0x4E9194 ae130000 sw s3,0(s0)) */
+	Sint8 *fname;       /* 0x04 fname pointer (retail 0x4E9170 ae120004 sw s2,4(s0)) */
+	Sint32 chksum;      /* 0x08 checksum (retail 0x4E9198 ae000008 sw zero,8(s0) + sum loop 0x4E91A8-0x4E91C4) */
+	void *dir;          /* 0x0C (retail 0x4E91DC ae16000c sw s6,12(s0)) */
+	Sint32 ofst;        /* 0x10 (retail 0x4E91C8 ae140010 sw s4,16(s0)) */
+	Sint32 fsct;        /* 0x14 (retail 0x4E91D0 ae150014 sw s5,20(s0)) */
+	Sint32 stat;        /* 0x18 (retail 0x4E91D8 ae000018 sw zero,24(s0)) */
+	Sint32 rdsct;       /* 0x1C (retail 0x4E91D4 ae00001c sw zero,28(s0)) */
 } LSC_SINFO;
 typedef void	*LSC_FP;
 

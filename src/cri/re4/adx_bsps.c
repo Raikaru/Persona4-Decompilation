@@ -91,6 +91,8 @@ Sint32 ADXB_DecodeHeaderSpsd(ADXB adxb, void *buf, Sint32 bsize)
 Sint32 ADX_DecodeInfoSpsd(Uint8 *buf, Sint32 bsize, Sint16 *hdrlen, Sint8 *x0c, Sint8 *bps, Sint8 *x0f,
 			  Sint8 *nch, Sint32 *sfreq, Sint32 *nsmpl, Sint32 *fmt, Sint16 *x9c)
 {
+	Sint32 tmp1;
+	Sint32 tmp2;
 	*hdrlen = buf[7] << 4;
 	*nch = (buf[9] & 3) + 1;
 	*sfreq = *(Uint16 *)(buf + 0x2a);
@@ -104,7 +106,7 @@ Sint32 ADX_DecodeInfoSpsd(Uint8 *buf, Sint32 bsize, Sint16 *hdrlen, Sint8 *x0c, 
 		break;
 	case 1:
 		*bps = 8;
-		*x0f = *nch;
+		*x0f = tmp1 = *nch;
 		*fmt = 1;
 		*nsmpl = *(Sint32 *)(buf + 0xc);
 		*x9c = 1;
@@ -112,7 +114,7 @@ Sint32 ADX_DecodeInfoSpsd(Uint8 *buf, Sint32 bsize, Sint16 *hdrlen, Sint8 *x0c, 
 	case 2:
 	case 3:
 		*bps = 4;
-		*x0f = *nch;
+		*x0f = tmp2 = *nch;
 		*fmt = 2;
 		*nsmpl = *(Sint32 *)(buf + 0xc) * 2;
 		*x9c = 2;

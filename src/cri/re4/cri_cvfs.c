@@ -20,21 +20,29 @@ typedef struct {
 	void (*ExecServer)(void);                                       /* 0x00 */
 	void (*EntryErrFunc)(CVFS_ERRFUNC func, void *obj);             /* 0x04 */
 	Sint32 (*GetFileSize)(const Char8 *fname);                      /* 0x08 */
-	void *x0c;
+	Sint32 (*GetFreeSize)(const Char8 *devname);                    /* 0x0C retail 004e262c lw $s0,0xc($s0) */
 	void *(*Open)(const Char8 *fname, void *dir, Sint32 rw);        /* 0x10 */
 	void (*Close)(void *hn);                                        /* 0x14 */
 	Sint32 (*Seek)(void *hn, Sint32 pos, Sint32 type);              /* 0x18 */
 	Sint32 (*Tell)(void *hn);                                       /* 0x1C */
 	Sint32 (*ReqRd)(void *hn, Sint32 nsct, void *buf);              /* 0x20 */
-	void *x24;
+	Sint32 (*ReqWr)(void *hn, Sint32 nsct, void *buf);              /* 0x24 */
 	void (*StopTr)(void *hn);                                       /* 0x28 */
 	Sint32 (*GetStat)(void *hn);                                    /* 0x2C */
 	Sint32 (*GetSctLen)(void *hn);                                  /* 0x30 */
 	void (*SetSctLen)(void *hn, Sint32 sctlen);                     /* 0x34 */
 	Sint32 (*GetNumTr)(void *hn);                                   /* 0x38 */
-	void *x3c[9];                                                   /* 0x3C */
-	Sint32 (*OptFn)(void *hn, Sint32 fnid, Sint32 a, Sint32 b);     /* 0x60 */
-	void *x64;
+	Sint32 (*ChangeDir)(const Char8 *dirname);                      /* 0x3C */
+	Sint32 (*IsExistFile)(const Char8 *fname);                      /* 0x40 retail 004e28d8 lw $v0,0x40($s0) */
+	Sint32 (*GetNumFiles)(void);                                    /* 0x44 retail 004e29d8 lw $s0,0x44($s0) */
+	Sint32 (*LoadDirInfo)(const Char8 *name, void *inf, Sint32 num);/* 0x48 */
+	Sint32 (*GetMaxByteRate)(void *hn);                             /* 0x4C retail 004e2b2c lw $v0,0x4c($v0) */
+	Sint32 (*MakeDir)(const Char8 *dirname);                        /* 0x50 */
+	Sint32 (*RemoveDir)(const Char8 *dname);                        /* 0x54 */
+	Sint32 (*DeleteFile)(const Char8 *fname);                       /* 0x58 */
+	Sint32 (*GetFileSizeEx)(const Char8 *fname, void *size);        /* 0x5C retail 004e2494 lw $v0,0x5c($s0) */
+	Sint32 (*OptFn)(void *hn, Sint32 fnid, Sint32 a, Sint32 b);     /* 0x60 retail 004e2e7c lw $v0,0x60($v1) */
+	Sint32 (*OptFn2)(void *hn, Sint32 fnid, Sint32 a, Sint32 b);    /* 0x64 retail 004e2ee4 lw $v0,0x64($v0) */
 } CVFS_DEVIF;
 
 typedef struct {
@@ -470,7 +478,7 @@ Sint32 cvFsDeleteFile(const Char8 *fname)
 		cvfs_Error("cvFsDeleteFile #3:device not found");
 		return 0;
 	}
-	if (vtbl->x64 == NULL) {
+	if (vtbl->OptFn2 == NULL) {
 		cvfs_Error("cvFsDeleteFile #4:vtbl error");
 		return 0;
 	}
@@ -498,7 +506,7 @@ Sint32 cvFsRemoveDir(const Char8 *dname)
 		cvfs_Error("cvFsRemoveDir #3:device not found");
 		return 0;
 	}
-	if (vtbl->x64 == NULL) {
+	if (vtbl->OptFn2 == NULL) {
 		cvfs_Error("cvFsRemoveDir #4:vtbl error");
 		return 0;
 	}
@@ -526,7 +534,7 @@ Sint32 cvFsMakeDir(const Char8 *dname)
 		cvfs_Error("cvFsMakeDir #3:device not found");
 		return 0;
 	}
-	if (vtbl->x64 == NULL) {
+	if (vtbl->OptFn2 == NULL) {
 		cvfs_Error("cvFsMakeDir #4:vtbl error");
 		return 0;
 	}
@@ -568,7 +576,7 @@ Sint32 cvFsIsExistFile(const Char8 *fname)
 		cvfs_Error("cvFsIsExistFile #3:device not found");
 		return 0;
 	}
-	if (vtbl->x64 == NULL) {
+	if (vtbl->OptFn2 == NULL) {
 		cvfs_Error("cvFsIsExistFile #4:vtbl error");
 		return 0;
 	}
@@ -596,7 +604,7 @@ Sint32 cvFsChangeDir(const Char8 *dname)
 		cvfs_Error("cvFsChangeDir #3:device not found");
 		return 0;
 	}
-	if (vtbl->x64 == NULL) {
+	if (vtbl->OptFn2 == NULL) {
 		cvfs_Error("cvFsChangeDir #4:vtbl error");
 		return 0;
 	}
@@ -655,7 +663,7 @@ Sint32 cvFsGetFreeSize(const Char8 *devname)
 		cvfs_Error("cvFsGetFreeSize #5:device not found");
 		return 0;
 	}
-	if (vtbl->x64 == NULL) {
+	if (vtbl->OptFn2 == NULL) {
 		cvfs_Error("cvFsGetFreeSize #6:vtbl error");
 		return 0;
 	}
@@ -693,7 +701,7 @@ Sint32 cvFsGetFileSizeEx(const Char8 *fname, Sint32 *size)
 		cvfs_Error("cvFsGetFileSizeEx #3:device not found");
 		return 0;
 	}
-	if (vtbl->x64 == NULL) {
+	if (vtbl->OptFn2 == NULL) {
 		cvfs_Error("cvFsGetFileSizeEx #4:vtbl error");
 		return 0;
 	}
@@ -807,7 +815,7 @@ Sint32 cvFsReqWr(CVFS_OBJ *obj, Sint32 nsct, void *buf)
 		cvfs_Error("cvFsReqWr #1:handle error");
 		return 0;
 	}
-	if (obj->vtbl->x64 != NULL) {
+	if (obj->vtbl->OptFn2 != NULL) {
 		ret = obj->vtbl->OptFn(obj->hn, 20, nsct, (Sint32)buf);
 	} else {
 		ret = 0;
