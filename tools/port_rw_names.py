@@ -83,38 +83,74 @@ def claimed_elsewhere() -> tuple[set[str], set[int]]:
     return names, addresses
 
 
-def _reloc_words(raw: list[int]) -> set[int]:
+def _reloc_words(raw: list[int], spans: list[tuple[int, int]]) -> set[int]:
     """Positions that may legitimately differ between two links of the same
     object.
 
-    A `j`/`jal` target is a relocated address. So is the low half of an
-    address that some instruction materialised as a `lui`+`%lo` pair - and a
-    pair only: when the two builds' constants DIFFER, what changed is an
-    address, because a literal constant compiles identically in both links.
-    `$gp`-relative load/store offsets are relocation-derived too: the
-    small-data area base differs per link. Every other immediate - stack
-    sizes, field offsets, loop bounds - is code, and must compare equal.
+    Three relocation shapes exist, and only demonstrated ones are relaxed:
+
+      * a `j`/`jal` target;
+      * a `$gp`-relative offset (addiu or load/store with base $28);
+      * a `lui r,HI` whose VERY NEXT instruction consumes it as
+        `%lo(r, HI)` in an addiu or load/store, and whose reconstructed
+        32-bit value is an address in a loadable segment.
+
+    At most one LUI can be pending, because a new LUI evicts it: with the
+    single-slot rule, "very next instruction" is enforced by construction.
+    No state survives any instruction that does not immediately consume
+    the pending LUI, so pairing never crosses a basic block and an
+    intermediate write of any kind - `ori`, `slti`, a load, another `lui`
+    - kills it. After a pair completes, later `lw 4(r)` instructions are
+    ordinary field accesses whose offsets are code.
     """
     relocs: set[int] = set()
-    lui_at: dict[int, int] = {}
+    pending: tuple[int, int, int] | None = None   # (index, reg, hi half)
     for index, word in enumerate(raw):
         opcode = word >> 26
-        if opcode in (0x02, 0x03):
-            relocs.add(index)
-        elif opcode == 0x0F:                      # lui rt, imm
-            lui_at[(word >> 16) & 0x1F] = index
-        elif opcode in (0x08, 0x09):              # addi/addiu rt, rs, imm
-            base = (word >> 21) & 0x1F
-            if base == 28 and (word >> 16) & 0x1F != 0:   # gp-relative
-                relocs.add(index)
-            elif base in lui_at:
-                relocs.add(index)
-                relocs.add(lui_at[base])
+        rs = (word >> 21) & 0x1F
+        rt = (word >> 16) & 0x1F
+        if opcode == 0x0F:                        # lui rt, imm
+            if rt:                                # a new LUI evicts any prior
+                pending = (index, rt, word & 0xFFFF)
+            else:
+                pending = None
+            continue
+        if opcode in (0x08, 0x09):                # addi/addiu rt, rs, imm
+            if rs == 28 and rt != 0:
+                relocs.add(index)                 # gp-relative
+            elif pending is not None and rs == rt and rt == pending[1]:
+                relocs.update(_address_pair(pending, index, word, spans))
+                pending = None
+                continue
         elif opcode in (0x20, 0x21, 0x23, 0x24, 0x25, 0x28, 0x29, 0x2B,
                         0x31, 0x35, 0x39, 0x3F):  # loads/stores
-            if (word >> 21) & 0x1F == 28:         # gp-relative access
-                relocs.add(index)
+            if rs == 28:
+                relocs.add(index)                 # gp-relative access
+            elif pending is not None and rs == pending[1]:
+                relocs.update(_address_pair(pending, index, word, spans))
+                pending = None
+                continue
+        elif opcode in (0x02, 0x03):
+            relocs.add(index)
+        # Anything else - arithmetic, logical, branches, anything that does
+        # not immediately consume the pending LUI - clears it.
+        pending = None
     return relocs
+
+
+def _address_pair(entry: tuple[int, int, int], index: int, word: int,
+                  spans: list[tuple[int, int]]) -> set[int]:
+    """A lui+consumer pair is relocatable only if the reconstructed value is
+    an address in a loadable segment; a large literal constant is code and
+    must compare byte-exact."""
+    lui_index, _reg, hi = entry
+    low = word & 0xFFFF
+    if low >= 0x8000:
+        low -= 0x10000
+    value = (hi << 16) + low
+    if any(start <= value < start + size for start, size in spans):
+        return {index, lui_index}
+    return set()
 
 
 def _padded_with_nops(raw: list[int], words: list[int]) -> bool:
@@ -132,8 +168,27 @@ def _relaxed(word: int) -> int:
     return word & 0xFFFF0000                     # I-type: opcode, rs, rt
 
 
+def _elf_spans(path: Path) -> list[tuple[int, int]]:
+    """Loadable (vaddr, filesz) spans of a reference ELF, for the address test."""
+    import struct as _struct
+    data = path.read_bytes()
+    if data[:4] != b"\x7fELF" or data[4] != 1:
+        raise ValueError(f"{path}: not a 32-bit ELF")
+    (_ident, _type, _machine, _version, _entry, phoff, _shoff, _flags,
+     _ehsize, phentsize, phnum, *_rest) = \
+        _struct.unpack_from("<16sHHIIIIIHHHHHH", data, 0)
+    spans = []
+    for index in range(phnum):
+        ptype, _offset, vaddr, _paddr, filesz, _memsz, _flags, _align = \
+            _struct.unpack_from("<8I", data, phoff + index * phentsize)
+        if ptype == 1 and filesz:
+            spans.append((vaddr, filesz))
+    return spans
+
+
 def exact_claims(references: dict[str, Path], retail, windows):
     """retail address -> {name -> set of references proposing it}."""
+    spans = [(vaddr, filesz) for vaddr, _offset, filesz in retail.segs]
     by_size: dict[int, list] = {}
     for text, size in windows["windows"].items():
         size = int(size)
@@ -141,28 +196,37 @@ def exact_claims(references: dict[str, Path], retail, windows):
         if data is None:
             continue
         raw = fid.words(data)
-        relocs = _reloc_words(raw)
+        relocs = _reloc_words(raw, spans)
         by_size.setdefault(size, []).append(
-            (int(text, 16), raw,
+            (int(text, 16), raw, relocs,
              [_relaxed(word) if index in relocs else word
               for index, word in enumerate(raw)]))
 
     claims = collections.defaultdict(lambda: collections.defaultdict(set))
     widths: dict[int, int] = {}
     for tag, path in references.items():
+        # One read per reference, not one per function: a 48 MB image read
+        # 20k times is a terabyte of pointless page-cache traffic.
+        ref_spans = _elf_spans(path)
         for name, _addr, body in fid.ReferenceElf(path).functions:
             if len(body) < 16 or not IDENTIFIER.match(name):
                 continue
             raw_ref = fid.words(body)
-            ref_relocs = _reloc_words(raw_ref)
+            ref_relocs = _reloc_words(raw_ref, ref_spans)
             theirs = [_relaxed(word) if index in ref_relocs else word
                       for index, word in enumerate(raw_ref)]
             for pad in (0, 4, 8, 12):
-                for their_addr, raw, masked in by_size.get(len(body) + pad, ()):
+                for their_addr, raw, relocs, masked in by_size.get(len(body) + pad, ()):
                     # A longer retail window is acceptable only if the extra
                     # suffix is alignment padding; the comparison itself runs
                     # over the reference function's own length.
                     if pad and not _padded_with_nops(raw_ref, raw):
+                        continue
+                    # A word relaxed on one side only must not match an exact
+                    # word on the other: the classes have to agree, since a
+                    # relocation exists in both links of the same object or
+                    # in neither.
+                    if ref_relocs != {i for i in relocs if i < len(raw_ref)}:
                         continue
                     if all(a == b for a, b in zip(theirs, masked)):
                         claims[their_addr][name].add(tag)

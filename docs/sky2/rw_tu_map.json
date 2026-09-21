@@ -39,10 +39,6 @@
   "name": "_rpSkinSplitDataStreamGetSize",
   "unit": "bsplit.c"
  },
- "003bbe20": {
-  "name": "RpSplinePluginAttach",
-  "unit": "rpspline.c"
- },
  "003bcbc0": {
   "name": "UserDataObjectConstruct",
   "unit": "rpusrdat.c"
@@ -69,10 +65,6 @@
  },
  "003bf930": {
   "name": "_rpAtomicResyncInterpolatedSphere",
-  "unit": "baclump.c"
- },
- "003bfe60": {
-  "name": "RpClumpGetNumAtomics",
   "unit": "baclump.c"
  },
  "003c00e0": {
@@ -255,10 +247,6 @@
   "name": "_rpWorldSectorDestroyRecurse",
   "unit": "baworld.c"
  },
- "003c9530": {
-  "name": "WorldClose",
-  "unit": "baworld.c"
- },
  "003c9750": {
   "name": "_rpWorldSectorForAllLocalLights",
   "unit": "baworld.c"
@@ -275,10 +263,6 @@
   "name": "RpWorldSectorGetWorld",
   "unit": "baworld.c"
  },
- "003ca6a0": {
-  "name": "WorldObjectClose",
-  "unit": "baworobj.c"
- },
  "003ca830": {
   "name": "WorldInitCameraExt",
   "unit": "baworobj.c"
@@ -293,10 +277,6 @@
  },
  "003ca9d0": {
   "name": "_rpTieDestroy",
-  "unit": "baworobj.c"
- },
- "003cae70": {
-  "name": "WorldInitClumpExt",
   "unit": "baworobj.c"
  },
  "003cb1e0": {
@@ -370,14 +350,6 @@
  "003d4f80": {
   "name": "AnimClose",
   "unit": "rpmorph.c"
- },
- "003d4fc0": {
-  "name": "RtAnimInitialize",
-  "unit": "rtanim.c"
- },
- "003d5130": {
-  "name": "RtAnimGetInterpolatorInfo",
-  "unit": "rtanim.c"
  },
  "003dc610": {
   "name": "RtQuatConvertFromMatrix",
@@ -1341,10 +1313,6 @@
  },
  "003ef6b0": {
   "name": "RwTexDictionarySetCurrent",
-  "unit": "batextur.c"
- },
- "003ef6d0": {
-  "name": "RwTexDictionaryGetCurrent",
   "unit": "batextur.c"
  },
  "003ef6f0": {
