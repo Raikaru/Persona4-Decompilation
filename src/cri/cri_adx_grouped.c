@@ -2914,6 +2914,8 @@ int func_004c3ce8(int object)
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c3d70);
 // FUN_004C3DD8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c3dd8);
+// FUN_004C3E20
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004c3e20);
 // FUN_004C3E40
 #pragma schedule on
 void func_004c3e40(int object, u16 x, u16 y, u16 z)
@@ -5444,12 +5446,8 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d8698);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d8760);
 // FUN_004D8798
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d8798);
-// FUN_004D8808
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d8808);
 // FUN_004D8830
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d8830);
-// FUN_004D8858
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d8858);
 /* Source unit: src/cri/cri_adx_004d89a0.c (1 function markers) */
 // FUN_004D89A0
 #pragma schedule on
@@ -5465,11 +5463,7 @@ void func_004d89a0(int object, u16 x, u16 y, u16 z)
 
 #pragma schedule on
 
-// FUN_004D89B0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d89b0);
 
-// FUN_004D89D0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004d89d0);
 // FUN_004D8A08
 void func_004d8a08(int object, u32 value)
 {
@@ -8768,8 +8762,6 @@ u32 func_004e52d8(void)
 #pragma optimization_level 3
 
 
-// FUN_004E5360
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004e5360);
 
 
 // FUN_004E53A8
