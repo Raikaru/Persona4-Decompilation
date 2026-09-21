@@ -1,0 +1,1558 @@
+{
+ "00396830": {
+  "name": "HAnimClose",
+  "unit": "rphanim.c"
+ },
+ "00396870": {
+  "name": "HAnimConstructor",
+  "unit": "rphanim.c"
+ },
+ "00397460": {
+  "name": "RpHAnimFrameGetHierarchy",
+  "unit": "rphanim.c"
+ },
+ "00399d80": {
+  "name": "RpMatFXMaterialGetEffects",
+  "unit": "rpmatfx.c"
+ },
+ "0039aa50": {
+  "name": "_rpMatFXPipelineWorldSectorSetup",
+  "unit": "effectPipesSky.c"
+ },
+ "0039aab0": {
+  "name": "_rpMatFXPipelineAtomicSetup",
+  "unit": "effectPipesSky.c"
+ },
+ "0039b250": {
+  "name": "DefaultGeomAnimCB",
+  "unit": "rpmorph.c"
+ },
+ "0039b290": {
+  "name": "GeomAnimCtor",
+  "unit": "rpmorph.c"
+ },
+ "0039b540": {
+  "name": "_rpTeamDictionaryAtomicRights",
+  "unit": "teamdictionary.c"
+ },
+ "003b7450": {
+  "name": "_rpSkinSplitDataStreamGetSize",
+  "unit": "bsplit.c"
+ },
+ "003bbe20": {
+  "name": "RpSplinePluginAttach",
+  "unit": "rpspline.c"
+ },
+ "003bcbc0": {
+  "name": "UserDataObjectConstruct",
+  "unit": "rpusrdat.c"
+ },
+ "003bce20": {
+  "name": "UserDataObjectStreamWrite",
+  "unit": "rpusrdat.c"
+ },
+ "003be9a0": {
+  "name": "AtomicSync",
+  "unit": "baclump.c"
+ },
+ "003bea60": {
+  "name": "ClumpAtomicCloneAndAttach",
+  "unit": "baclump.c"
+ },
+ "003bf1a0": {
+  "name": "ClumpInitCameraExt",
+  "unit": "baclump.c"
+ },
+ "003bf5f0": {
+  "name": "ClumpAtomicStreamRead",
+  "unit": "baclump.c"
+ },
+ "003bf930": {
+  "name": "_rpAtomicResyncInterpolatedSphere",
+  "unit": "baclump.c"
+ },
+ "003bfe60": {
+  "name": "RpClumpGetNumAtomics",
+  "unit": "baclump.c"
+ },
+ "003c00e0": {
+  "name": "RpAtomicCreate",
+  "unit": "baclump.c"
+ },
+ "003c0210": {
+  "name": "RpAtomicSetGeometry",
+  "unit": "baclump.c"
+ },
+ "003c02e0": {
+  "name": "RpAtomicDestroy",
+  "unit": "baclump.c"
+ },
+ "003c03a0": {
+  "name": "RpAtomicClone",
+  "unit": "baclump.c"
+ },
+ "003c0850": {
+  "name": "RpClumpAddAtomic",
+  "unit": "baclump.c"
+ },
+ "003c08c0": {
+  "name": "RpClumpRemoveLight",
+  "unit": "baclump.c"
+ },
+ "003c1b90": {
+  "name": "RpAtomicSetFrame",
+  "unit": "baclump.c"
+ },
+ "003c1d00": {
+  "name": "_rpGeometryOpen",
+  "unit": "bageomet.c"
+ },
+ "003c1ea0": {
+  "name": "RpGeometryAddMorphTargets",
+  "unit": "bageomet.c"
+ },
+ "003c2130": {
+  "name": "RpGeometryTriangleSetVertexIndices",
+  "unit": "bageomet.c"
+ },
+ "003c2150": {
+  "name": "RpGeometryTriangleSetMaterial",
+  "unit": "bageomet.c"
+ },
+ "003c21e0": {
+  "name": "RpGeometryForAllMaterials",
+  "unit": "bageomet.c"
+ },
+ "003c2290": {
+  "name": "RpGeometryLock",
+  "unit": "bageomet.c"
+ },
+ "003c22f0": {
+  "name": "RpGeometryUnlock",
+  "unit": "bageomet.c"
+ },
+ "003c2630": {
+  "name": "RpGeometryCreate",
+  "unit": "bageomet.c"
+ },
+ "003c2a60": {
+  "name": "RpGeometryAddRef",
+  "unit": "bageomet.c"
+ },
+ "003c2a80": {
+  "name": "RpGeometryDestroy",
+  "unit": "bageomet.c"
+ },
+ "003c30b0": {
+  "name": "RpGeometryStreamRead",
+  "unit": "bageomet.c"
+ },
+ "003c38b0": {
+  "name": "RpLightSetColor",
+  "unit": "balight.c"
+ },
+ "003c3f20": {
+  "name": "_rpReadWorldRights",
+  "unit": "babinwor.c"
+ },
+ "003c3fa0": {
+  "name": "_rpWriteMaterialRights",
+  "unit": "bamateri.c"
+ },
+ "003c4010": {
+  "name": "_rpSizeMaterialRights",
+  "unit": "bamateri.c"
+ },
+ "003c42b0": {
+  "name": "RpMaterialSetTexture",
+  "unit": "bamateri.c"
+ },
+ "003c4a40": {
+  "name": "_rpMaterialListInitialize",
+  "unit": "bamatlst.c"
+ },
+ "003c4a60": {
+  "name": "_rpMaterialListGetMaterial",
+  "unit": "bamatlst.c"
+ },
+ "003c4a80": {
+  "name": "_rpMaterialListAppendMaterial",
+  "unit": "bamatlst.c"
+ },
+ "003c4bc0": {
+  "name": "_rpMaterialListFindMaterialIndex",
+  "unit": "bamatlst.c"
+ },
+ "003c4fa0": {
+  "name": "_rpMaterialListStreamRead",
+  "unit": "bamatlst.c"
+ },
+ "003c54c0": {
+  "name": "_rpMeshClose",
+  "unit": "bamesh.c"
+ },
+ "003c55f0": {
+  "name": "_rpBuildMeshCreate",
+  "unit": "bamesh.c"
+ },
+ "003c5700": {
+  "name": "_rpBuildMeshDestroy",
+  "unit": "bamesh.c"
+ },
+ "003c5760": {
+  "name": "_rpMeshDestroy",
+  "unit": "bamesh.c"
+ },
+ "003c59f0": {
+  "name": "_rpMeshHeaderForAllMeshes",
+  "unit": "bamesh.c"
+ },
+ "003c5a90": {
+  "name": "_rpMeshWrite",
+  "unit": "bamesh.c"
+ },
+ "003c5d10": {
+  "name": "_rpMeshRead",
+  "unit": "bamesh.c"
+ },
+ "003c5fd0": {
+  "name": "_rpMeshSize",
+  "unit": "bamesh.c"
+ },
+ "003c6960": {
+  "name": "TriStripGetTriEdge",
+  "unit": "bameshop.c"
+ },
+ "003c6a40": {
+  "name": "TriStripMarkTriUsed",
+  "unit": "bameshop.c"
+ },
+ "003c6c10": {
+  "name": "TriStripFollow",
+  "unit": "bameshop.c"
+ },
+ "003c8bf0": {
+  "name": "_rpMeshOptimise",
+  "unit": "bameshop.c"
+ },
+ "003c8d30": {
+  "name": "RpWorldSectorRegisterPluginStream",
+  "unit": "basector.c"
+ },
+ "003c8da0": {
+  "name": "WorldFindSector",
+  "unit": "baworld.c"
+ },
+ "003c8eb0": {
+  "name": "WorldBuildMeshAtomicSector",
+  "unit": "baworld.c"
+ },
+ "003c91d0": {
+  "name": "_rpWorldSectorDeinstanceAll",
+  "unit": "baworld.c"
+ },
+ "003c9300": {
+  "name": "_rpWorldSectorDestroyRecurse",
+  "unit": "baworld.c"
+ },
+ "003c9530": {
+  "name": "WorldClose",
+  "unit": "baworld.c"
+ },
+ "003c9750": {
+  "name": "_rpWorldSectorForAllLocalLights",
+  "unit": "baworld.c"
+ },
+ "003c9a80": {
+  "name": "RpWorldLock",
+  "unit": "baworld.c"
+ },
+ "003c9b30": {
+  "name": "RpWorldUnlock",
+  "unit": "baworld.c"
+ },
+ "003c9c20": {
+  "name": "RpWorldSectorGetWorld",
+  "unit": "baworld.c"
+ },
+ "003ca6a0": {
+  "name": "WorldObjectClose",
+  "unit": "baworobj.c"
+ },
+ "003ca830": {
+  "name": "WorldInitCameraExt",
+  "unit": "baworobj.c"
+ },
+ "003ca890": {
+  "name": "WorldCopyCameraExt",
+  "unit": "baworobj.c"
+ },
+ "003ca960": {
+  "name": "_rpLightTieDestroy",
+  "unit": "baworobj.c"
+ },
+ "003ca9d0": {
+  "name": "_rpTieDestroy",
+  "unit": "baworobj.c"
+ },
+ "003cae70": {
+  "name": "WorldInitClumpExt",
+  "unit": "baworobj.c"
+ },
+ "003cb1e0": {
+  "name": "WorldInitLightExt",
+  "unit": "baworobj.c"
+ },
+ "003cb210": {
+  "name": "WorldCopyLightExt",
+  "unit": "baworobj.c"
+ },
+ "003cb6d0": {
+  "name": "WorldAddClumpAtomic",
+  "unit": "baworobj.c"
+ },
+ "003cb700": {
+  "name": "writeGeometryMesh",
+  "unit": "baworobj.c"
+ },
+ "003cb720": {
+  "name": "readGeometryMesh",
+  "unit": "baworobj.c"
+ },
+ "003cb7e0": {
+  "name": "readGeometryNative",
+  "unit": "baworobj.c"
+ },
+ "003cb820": {
+  "name": "writeSectorMesh",
+  "unit": "baworobj.c"
+ },
+ "003cb870": {
+  "name": "readSectorMesh",
+  "unit": "baworobj.c"
+ },
+ "003cb8d0": {
+  "name": "sizeSectorMesh",
+  "unit": "baworobj.c"
+ },
+ "003cbc10": {
+  "name": "RpWorldAddCamera",
+  "unit": "baworobj.c"
+ },
+ "003cbce0": {
+  "name": "RpAtomicGetWorld",
+  "unit": "baworobj.c"
+ },
+ "003cbde0": {
+  "name": "RwCameraForAllSectorsInFrustum",
+  "unit": "baworobj.c"
+ },
+ "003cbe80": {
+  "name": "RpWorldAddLight",
+  "unit": "baworobj.c"
+ },
+ "003cc130": {
+  "name": "_rpWorldPipelineClose",
+  "unit": "bapipew.c"
+ },
+ "003cebb0": {
+  "name": "_rpGeometryNativeRead",
+  "unit": "native.c"
+ },
+ "003d0930": {
+  "name": "RpMeshPS2AllInstanceCallBack",
+  "unit": "ps2allatomic.c"
+ },
+ "003d2240": {
+  "name": "RwIm3DPS2AllResEntryAllocCallBack",
+  "unit": "ps2allim3d.c"
+ },
+ "003d4f80": {
+  "name": "AnimClose",
+  "unit": "rpmorph.c"
+ },
+ "003d4fc0": {
+  "name": "RtAnimInitialize",
+  "unit": "rtanim.c"
+ },
+ "003d5130": {
+  "name": "RtAnimGetInterpolatorInfo",
+  "unit": "rtanim.c"
+ },
+ "003dc610": {
+  "name": "RtQuatConvertFromMatrix",
+  "unit": "rtquat.c"
+ },
+ "003dcb40": {
+  "name": "RtQuatTransformVectors",
+  "unit": "rtquat.c"
+ },
+ "003dddf0": {
+  "name": "RwFopen",
+  "unit": "rtfsmgr.c"
+ },
+ "003ddf20": {
+  "name": "RwFclose",
+  "unit": "rtfsmgr.c"
+ },
+ "003ddf80": {
+  "name": "RwFread",
+  "unit": "rtfsmgr.c"
+ },
+ "003ddfd0": {
+  "name": "RwFwrite",
+  "unit": "rtfsmgr.c"
+ },
+ "003de020": {
+  "name": "RwFseek",
+  "unit": "rtfsmgr.c"
+ },
+ "003de100": {
+  "name": "RwFeof",
+  "unit": "rtfsmgr.c"
+ },
+ "003de270": {
+  "name": "RwFtell",
+  "unit": "rtfsmgr.c"
+ },
+ "003ded20": {
+  "name": "ChunkIsComplex",
+  "unit": "babinary.c"
+ },
+ "003deea0": {
+  "name": "_rwStreamReadChunkHeader",
+  "unit": "babinary.c"
+ },
+ "003deff0": {
+  "name": "_rwStreamWriteVersionedChunkHeader",
+  "unit": "babinary.c"
+ },
+ "003df050": {
+  "name": "RwStreamFindChunk",
+  "unit": "babinary.c"
+ },
+ "003df1a0": {
+  "name": "RwStreamWriteReal",
+  "unit": "babinary.c"
+ },
+ "003df240": {
+  "name": "RwStreamWriteInt32",
+  "unit": "babinary.c"
+ },
+ "003df300": {
+  "name": "RwStreamReadReal",
+  "unit": "babinary.c"
+ },
+ "003df440": {
+  "name": "_rwColorOpen",
+  "unit": "bacolor.c"
+ },
+ "003df480": {
+  "name": "_rwErrorOpen",
+  "unit": "baerr.c"
+ },
+ "003df4b0": {
+  "name": "_rwErrorClose",
+  "unit": "baerr.c"
+ },
+ "003df4d0": {
+  "name": "RwErrorSet",
+  "unit": "baerr.c"
+ },
+ "003df550": {
+  "name": "RwErrorGet",
+  "unit": "baerr.c"
+ },
+ "003df590": {
+  "name": "_rwerror",
+  "unit": "baerr.c"
+ },
+ "003df6e0": {
+  "name": "_rwSListGetNewEntry",
+  "unit": "balist.c"
+ },
+ "003df7f0": {
+  "name": "_rwSListDestroy",
+  "unit": "balist.c"
+ },
+ "003df860": {
+  "name": "_rwSListGetNumEntries",
+  "unit": "balist.c"
+ },
+ "003df870": {
+  "name": "_rwSListGetEntry",
+  "unit": "balist.c"
+ },
+ "003df8c0": {
+  "name": "MatrixMultiply",
+  "unit": "bamatrix.c"
+ },
+ "003dff20": {
+  "name": "MatrixInvertGeneric",
+  "unit": "bamatrix.c"
+ },
+ "003e00f0": {
+  "name": "_rwMatrixSetMultFn",
+  "unit": "bamatrix.c"
+ },
+ "003e0130": {
+  "name": "_rwMatrixDeterminant",
+  "unit": "bamatrix.c"
+ },
+ "003e0180": {
+  "name": "_rwMatrixOrthogonalError",
+  "unit": "bamatrix.c"
+ },
+ "003e01e0": {
+  "name": "_rwMatrixNormalError",
+  "unit": "bamatrix.c"
+ },
+ "003e02c0": {
+  "name": "_rwMatrixOpen",
+  "unit": "bamatrix.c"
+ },
+ "003e0380": {
+  "name": "RwEngineGetMatrixTolerances",
+  "unit": "bamatrix.c"
+ },
+ "003e03b0": {
+  "name": "RwEngineSetMatrixTolerances",
+  "unit": "bamatrix.c"
+ },
+ "003e03e0": {
+  "name": "RwMatrixOptimize",
+  "unit": "bamatrix.c"
+ },
+ "003e05d0": {
+  "name": "RwMatrixUpdate",
+  "unit": "bamatrix.c"
+ },
+ "003e05f0": {
+  "name": "RwMatrixMultiply",
+  "unit": "bamatrix.c"
+ },
+ "003e0870": {
+  "name": "RwMatrixRotate",
+  "unit": "bamatrix.c"
+ },
+ "003e0960": {
+  "name": "RwMatrixInvert",
+  "unit": "bamatrix.c"
+ },
+ "003e0a90": {
+  "name": "RwMatrixScale",
+  "unit": "bamatrix.c"
+ },
+ "003e0c90": {
+  "name": "RwMatrixTranslate",
+  "unit": "bamatrix.c"
+ },
+ "003e0f40": {
+  "name": "RwMatrixDestroy",
+  "unit": "bamatrix.c"
+ },
+ "003e0f80": {
+  "name": "RwMatrixCreate",
+  "unit": "bamatrix.c"
+ },
+ "003e1020": {
+  "name": "_rwFreeListEnable",
+  "unit": "bamemory.c"
+ },
+ "003e1030": {
+  "name": "FreeListCreate",
+  "unit": "bamemory.c"
+ },
+ "003e1210": {
+  "name": "RwFreeListCreate",
+  "unit": "bamemory.c"
+ },
+ "003e1220": {
+  "name": "RwFreeListCreateAndPreallocateSpace",
+  "unit": "bamemory.c"
+ },
+ "003e1230": {
+  "name": "_RwFreeListFree",
+  "unit": "bamemory.c"
+ },
+ "003e12f0": {
+  "name": "RwFreeListDestroy",
+  "unit": "bamemory.c"
+ },
+ "003e13d0": {
+  "name": "_rwFreeListAllocReal",
+  "unit": "bamemory.c"
+ },
+ "003e15a0": {
+  "name": "_rwFreeListFreeReal",
+  "unit": "bamemory.c"
+ },
+ "003e1740": {
+  "name": "RwFreeListPurge",
+  "unit": "bamemory.c"
+ },
+ "003e18c0": {
+  "name": "RwFreeListForAllUsed",
+  "unit": "bamemory.c"
+ },
+ "003e1a70": {
+  "name": "RwFreeListPurgeAllFreeLists",
+  "unit": "bamemory.c"
+ },
+ "003e1b10": {
+  "name": "_rwMemoryOpen",
+  "unit": "bamemory.c"
+ },
+ "003e1c30": {
+  "name": "_rwMemoryClose",
+  "unit": "bamemory.c"
+ },
+ "003e1cb0": {
+  "name": "ResourcesInit",
+  "unit": "baresour.c"
+ },
+ "003e1db0": {
+  "name": "_rwResourcesOpen",
+  "unit": "baresour.c"
+ },
+ "003e1e10": {
+  "name": "_rwResourcesClose",
+  "unit": "baresour.c"
+ },
+ "003e1ea0": {
+  "name": "RwResourcesFreeResEntry",
+  "unit": "baresour.c"
+ },
+ "003e1f50": {
+  "name": "_rwResourcesPurge",
+  "unit": "baresour.c"
+ },
+ "003e23e0": {
+  "name": "RwResourcesGetArenaUsage",
+  "unit": "baresour.c"
+ },
+ "003e2430": {
+  "name": "RwResourcesEmptyArena",
+  "unit": "baresour.c"
+ },
+ "003e2650": {
+  "name": "StreamFileNameInitialize",
+  "unit": "bastream.c"
+ },
+ "003e2750": {
+  "name": "StreamMemoryInitialize",
+  "unit": "bastream.c"
+ },
+ "003e2800": {
+  "name": "_rwStreamInitialize",
+  "unit": "bastream.c"
+ },
+ "003e2910": {
+  "name": "RwStreamRead",
+  "unit": "bastream.c"
+ },
+ "003e2ab0": {
+  "name": "RwStreamWrite",
+  "unit": "bastream.c"
+ },
+ "003e2ce0": {
+  "name": "RwStreamSkip",
+  "unit": "bastream.c"
+ },
+ "003e2e40": {
+  "name": "RwStreamClose",
+  "unit": "bastream.c"
+ },
+ "003e2f60": {
+  "name": "RwStreamOpen",
+  "unit": "bastream.c"
+ },
+ "003e3020": {
+  "name": "_rwPluginRegistryAddPluginStream",
+  "unit": "batkbin.c"
+ },
+ "003e3070": {
+  "name": "_rwPluginRegistryAddPlgnStrmlwysCB",
+  "unit": "batkbin.c"
+ },
+ "003e30c0": {
+  "name": "_rwPluginRegistryAddPlgnStrmRightsCB",
+  "unit": "batkbin.c"
+ },
+ "003e3110": {
+  "name": "_rwPluginRegistryReadDataChunks",
+  "unit": "batkbin.c"
+ },
+ "003e32f0": {
+  "name": "_rwPluginRegistryInvokeRights",
+  "unit": "batkbin.c"
+ },
+ "003e3370": {
+  "name": "_rwPluginRegistryGetSize",
+  "unit": "batkbin.c"
+ },
+ "003e33f0": {
+  "name": "_rwPluginRegistryWriteDataChunks",
+  "unit": "batkbin.c"
+ },
+ "003e3560": {
+  "name": "_rwPluginRegistrySkipDataChunks",
+  "unit": "batkbin.c"
+ },
+ "003e3630": {
+  "name": "_rwPluginRegistryOpen",
+  "unit": "batkreg.c"
+ },
+ "003e3680": {
+  "name": "rwDestroyEntry",
+  "unit": "batkreg.c"
+ },
+ "003e36c0": {
+  "name": "_rwPluginRegistryClose",
+  "unit": "batkreg.c"
+ },
+ "003e3830": {
+  "name": "_rwPluginRegistryGetPluginOffset",
+  "unit": "batkreg.c"
+ },
+ "003e3870": {
+  "name": "_rwPluginRegistryAddPlugin",
+  "unit": "batkreg.c"
+ },
+ "003e3b70": {
+  "name": "_rwPluginRegistryInitObject",
+  "unit": "batkreg.c"
+ },
+ "003e3c20": {
+  "name": "_rwPluginRegistryDeInitObject",
+  "unit": "batkreg.c"
+ },
+ "003e3c90": {
+  "name": "_rwPluginRegistryCopyObject",
+  "unit": "batkreg.c"
+ },
+ "003e3d00": {
+  "name": "VectorMultPoints",
+  "unit": "bavector.c"
+ },
+ "003e3dc0": {
+  "name": "VectorMultPoint",
+  "unit": "bavector.c"
+ },
+ "003e3e60": {
+  "name": "VectorMultVectors",
+  "unit": "bavector.c"
+ },
+ "003e3f00": {
+  "name": "VectorMultVector",
+  "unit": "bavector.c"
+ },
+ "003e3f80": {
+  "name": "_rwVectorSetMultFn",
+  "unit": "bavector.c"
+ },
+ "003e40b0": {
+  "name": "RwV3dNormalize",
+  "unit": "bavector.c"
+ },
+ "003e4180": {
+  "name": "RwV3dLength",
+  "unit": "bavector.c"
+ },
+ "003e41b0": {
+  "name": "RwV2dLength",
+  "unit": "bavector.c"
+ },
+ "003e42a0": {
+  "name": "RwV3dTransformPoint",
+  "unit": "bavector.c"
+ },
+ "003e42e0": {
+  "name": "RwV3dTransformPoints",
+  "unit": "bavector.c"
+ },
+ "003e4320": {
+  "name": "RwV3dTransformVector",
+  "unit": "bavector.c"
+ },
+ "003e4360": {
+  "name": "RwV3dTransformVectors",
+  "unit": "bavector.c"
+ },
+ "003e43a0": {
+  "name": "_rpBinaryWorldClose",
+  "unit": "babinwor.c"
+ },
+ "003e4420": {
+  "name": "splitBlock",
+  "unit": "resmem.c"
+ },
+ "003e44b0": {
+  "name": "_rwResHeapInit",
+  "unit": "resmem.c"
+ },
+ "003e4510": {
+  "name": "_rwResHeapClose",
+  "unit": "resmem.c"
+ },
+ "003e4520": {
+  "name": "_rwResHeapFree",
+  "unit": "resmem.c"
+ },
+ "003e45f0": {
+  "name": "_rwResHeapAlloc",
+  "unit": "resmem.c"
+ },
+ "003e46e0": {
+  "name": "_rwChunkGroupOpen",
+  "unit": "rwgrp.c"
+ },
+ "003e4760": {
+  "name": "_rwChunkGroupClose",
+  "unit": "rwgrp.c"
+ },
+ "003e47c0": {
+  "name": "StrICmp",
+  "unit": "rwstring.c"
+ },
+ "003e4880": {
+  "name": "StrUpr",
+  "unit": "rwstring.c"
+ },
+ "003e48d0": {
+  "name": "StrLwr",
+  "unit": "rwstring.c"
+ },
+ "003e4920": {
+  "name": "StrChr",
+  "unit": "rwstring.c"
+ },
+ "003e4960": {
+  "name": "StrRChr",
+  "unit": "rwstring.c"
+ },
+ "003e49a0": {
+  "name": "_rwStringOpen",
+  "unit": "rwstring.c"
+ },
+ "003e4ac0": {
+  "name": "_rwStringClose",
+  "unit": "rwstring.c"
+ },
+ "003e4ad0": {
+  "name": "_rwStringStreamGetSize",
+  "unit": "rwstring.c"
+ },
+ "003e4b20": {
+  "name": "_rwStringStreamWrite",
+  "unit": "rwstring.c"
+ },
+ "003e4be0": {
+  "name": "StringStreamRead",
+  "unit": "rwstring.c"
+ },
+ "003e4d80": {
+  "name": "UnicodeStringStreamRead",
+  "unit": "rwstring.c"
+ },
+ "003e4f60": {
+  "name": "_rwStringStreamFindAndRead",
+  "unit": "rwstring.c"
+ },
+ "003e5110": {
+  "name": "RwBBoxCalculate",
+  "unit": "babbox.c"
+ },
+ "003e53b0": {
+  "name": "RwCameraStreamRead",
+  "unit": "babincam.c"
+ },
+ "003e59e0": {
+  "name": "_rwFrameListDeinitialize",
+  "unit": "babinfrm.c"
+ },
+ "003e5df0": {
+  "name": "_rwFrameListStreamRead",
+  "unit": "babinfrm.c"
+ },
+ "003e6240": {
+  "name": "RwTextureStreamGetSize",
+  "unit": "babintex.c"
+ },
+ "003e62b0": {
+  "name": "RwTextureStreamWrite",
+  "unit": "babintex.c"
+ },
+ "003e6430": {
+  "name": "RwTextureStreamRead",
+  "unit": "babintex.c"
+ },
+ "003e6870": {
+  "name": "RwTexDictionaryStreamWrite",
+  "unit": "babintex.c"
+ },
+ "003e6a90": {
+  "name": "RwTexDictionaryStreamRead",
+  "unit": "babintex.c"
+ },
+ "003e6db0": {
+  "name": "CameraUpdateZShiftScale",
+  "unit": "bacamera.c"
+ },
+ "003e6e70": {
+  "name": "CameraBuildPerspClipPlanes",
+  "unit": "bacamera.c"
+ },
+ "003e7680": {
+  "name": "CameraBuildPerspViewMatrix",
+  "unit": "bacamera.c"
+ },
+ "003e7810": {
+  "name": "CameraBuildParallelClipPlanes",
+  "unit": "bacamera.c"
+ },
+ "003e7d50": {
+  "name": "CameraBuildParallelViewMatrix",
+  "unit": "bacamera.c"
+ },
+ "003e7ee0": {
+  "name": "CameraSync",
+  "unit": "bacamera.c"
+ },
+ "003e7f50": {
+  "name": "CameraEndUpdate",
+  "unit": "bacamera.c"
+ },
+ "003e7fb0": {
+  "name": "CameraBeginUpdate",
+  "unit": "bacamera.c"
+ },
+ "003e8080": {
+  "name": "_rwCameraOpen",
+  "unit": "bacamera.c"
+ },
+ "003e8130": {
+  "name": "RwCameraSetViewOffset",
+  "unit": "bacamera.c"
+ },
+ "003e8180": {
+  "name": "RwCameraSetNearClipPlane",
+  "unit": "bacamera.c"
+ },
+ "003e81c0": {
+  "name": "RwCameraSetFarClipPlane",
+  "unit": "bacamera.c"
+ },
+ "003e8200": {
+  "name": "RwCameraFrustumTestSphere",
+  "unit": "bacamera.c"
+ },
+ "003e82a0": {
+  "name": "RwCameraClear",
+  "unit": "bacamera.c"
+ },
+ "003e82e0": {
+  "name": "RwCameraShowRaster",
+  "unit": "bacamera.c"
+ },
+ "003e8310": {
+  "name": "RwCameraSetProjection",
+  "unit": "bacamera.c"
+ },
+ "003e83a0": {
+  "name": "RwCameraSetViewWindow",
+  "unit": "bacamera.c"
+ },
+ "003e8440": {
+  "name": "RwCameraDestroy",
+  "unit": "bacamera.c"
+ },
+ "003e84a0": {
+  "name": "RwCameraCreate",
+  "unit": "bacamera.c"
+ },
+ "003e85a0": {
+  "name": "CorePluginAttach",
+  "unit": "badevice.c"
+ },
+ "003e8790": {
+  "name": "MallocWrapper",
+  "unit": "badevice.c"
+ },
+ "003e87b0": {
+  "name": "FreeWrapper",
+  "unit": "badevice.c"
+ },
+ "003e87f0": {
+  "name": "_rwDeviceSystemRequest",
+  "unit": "badevice.c"
+ },
+ "003e8910": {
+  "name": "_rwGetNumEngineInstances",
+  "unit": "badevice.c"
+ },
+ "003e8930": {
+  "name": "RwEngineRegisterPlugin",
+  "unit": "badevice.c"
+ },
+ "003e8960": {
+  "name": "RwEngineGetPluginOffset",
+  "unit": "badevice.c"
+ },
+ "003e8970": {
+  "name": "RwEngineGetVideoModeInfo",
+  "unit": "badevice.c"
+ },
+ "003e89c0": {
+  "name": "RwEngineGetCurrentVideoMode",
+  "unit": "badevice.c"
+ },
+ "003e8a10": {
+  "name": "RwEngineSetVideoMode",
+  "unit": "badevice.c"
+ },
+ "003e8a50": {
+  "name": "RwEngineStart",
+  "unit": "badevice.c"
+ },
+ "003e8b10": {
+  "name": "RwEngineOpen",
+  "unit": "badevice.c"
+ },
+ "003e8c60": {
+  "name": "RwEngineInit",
+  "unit": "badevice.c"
+ },
+ "003e8ed0": {
+  "name": "rwSetHierarchyRoot",
+  "unit": "baframe.c"
+ },
+ "003e8f80": {
+  "name": "rwFrameCloneRecurse",
+  "unit": "baframe.c"
+ },
+ "003e90f0": {
+  "name": "_rwFrameCloneAndLinkClones",
+  "unit": "baframe.c"
+ },
+ "003e9140": {
+  "name": "_rwFramePurgeClone",
+  "unit": "baframe.c"
+ },
+ "003e9240": {
+  "name": "RwFrameDirty",
+  "unit": "baframe.c"
+ },
+ "003e9250": {
+  "name": "rwFrameInternalInit",
+  "unit": "baframe.c"
+ },
+ "003e9320": {
+  "name": "RwFrameCreate",
+  "unit": "baframe.c"
+ },
+ "003e9390": {
+  "name": "RwFrameDestroy",
+  "unit": "baframe.c"
+ },
+ "003e95c0": {
+  "name": "RwFrameDestroyHierarchy",
+  "unit": "baframe.c"
+ },
+ "003e9680": {
+  "name": "RwFrameUpdateObjects",
+  "unit": "baframe.c"
+ },
+ "003e9700": {
+  "name": "RwFrameGetLTM",
+  "unit": "baframe.c"
+ },
+ "003e9750": {
+  "name": "RwFrameGetRoot",
+  "unit": "baframe.c"
+ },
+ "003e9760": {
+  "name": "RwFrameAddChildNoUpdate",
+  "unit": "baframe.c"
+ },
+ "003e9830": {
+  "name": "RwFrameAddChild",
+  "unit": "baframe.c"
+ },
+ "003e99a0": {
+  "name": "RwFrameRemoveChild",
+  "unit": "baframe.c"
+ },
+ "003e9af0": {
+  "name": "RwFrameForAllChildren",
+  "unit": "baframe.c"
+ },
+ "003e9d50": {
+  "name": "RwFrameTranslate",
+  "unit": "baframe.c"
+ },
+ "003e9df0": {
+  "name": "RwFrameSetIdentity",
+  "unit": "baframe.c"
+ },
+ "003e9ee0": {
+  "name": "_rwImageOpen",
+  "unit": "baimage.c"
+ },
+ "003ea130": {
+  "name": "_rwImageClose",
+  "unit": "baimage.c"
+ },
+ "003ea2c0": {
+  "name": "RwImageCreate",
+  "unit": "baimage.c"
+ },
+ "003ea370": {
+  "name": "RwImageDestroy",
+  "unit": "baimage.c"
+ },
+ "003ea3e0": {
+  "name": "RwImageAllocatePixels",
+  "unit": "baimage.c"
+ },
+ "003ea510": {
+  "name": "RwImageFreePixels",
+  "unit": "baimage.c"
+ },
+ "003ea560": {
+  "name": "RwImageMakeMask",
+  "unit": "baimage.c"
+ },
+ "003ea690": {
+  "name": "RwImageApplyMask",
+  "unit": "baimage.c"
+ },
+ "003eaa80": {
+  "name": "RwImageSetPath",
+  "unit": "baimage.c"
+ },
+ "003eab70": {
+  "name": "ImagePathForAllFullNames",
+  "unit": "baimage.c"
+ },
+ "003eaf60": {
+  "name": "RwImageRead",
+  "unit": "baimage.c"
+ },
+ "003eb1c0": {
+  "name": "RwImageFindFileType",
+  "unit": "baimage.c"
+ },
+ "003eb3b0": {
+  "name": "RwImageReadMaskedImage",
+  "unit": "baimage.c"
+ },
+ "003ebac0": {
+  "name": "RwImageCopy",
+  "unit": "baimage.c"
+ },
+ "003ebde0": {
+  "name": "RwImageGammaCorrect",
+  "unit": "baimage.c"
+ },
+ "003ebff0": {
+  "name": "RwImageSetGamma",
+  "unit": "baimage.c"
+ },
+ "003ec110": {
+  "name": "RwImageSetFromRaster",
+  "unit": "baimras.c"
+ },
+ "003ec180": {
+  "name": "RwRasterSetFromImage",
+  "unit": "baimras.c"
+ },
+ "003ec1f0": {
+  "name": "RwImageFindRasterFormat",
+  "unit": "baimras.c"
+ },
+ "003ec2a0": {
+  "name": "RwRasterUnlock",
+  "unit": "baraster.c"
+ },
+ "003ec2e0": {
+  "name": "RwRasterUnlockPalette",
+  "unit": "baraster.c"
+ },
+ "003ec330": {
+  "name": "RwRasterDestroy",
+  "unit": "baraster.c"
+ },
+ "003ec3d0": {
+  "name": "RwRasterLockPalette",
+  "unit": "baraster.c"
+ },
+ "003ec420": {
+  "name": "RwRasterGetNumLevels",
+  "unit": "baraster.c"
+ },
+ "003ec480": {
+  "name": "RwRasterShowRaster",
+  "unit": "baraster.c"
+ },
+ "003ec4f0": {
+  "name": "RwRasterSubRaster",
+  "unit": "baraster.c"
+ },
+ "003ec590": {
+  "name": "RwRasterCreate",
+  "unit": "baraster.c"
+ },
+ "003ec6a0": {
+  "name": "RwRasterLock",
+  "unit": "baraster.c"
+ },
+ "003ec6f0": {
+  "name": "_rwRasterClose",
+  "unit": "baraster.c"
+ },
+ "003ec760": {
+  "name": "_rwRasterOpen",
+  "unit": "baraster.c"
+ },
+ "003ed0b0": {
+  "name": "RwImageResample",
+  "unit": "baresamp.c"
+ },
+ "003ed2d0": {
+  "name": "RwImageCreateResample",
+  "unit": "baresamp.c"
+ },
+ "003ed450": {
+  "name": "FrameSyncHierarchyRecurse",
+  "unit": "basync.c"
+ },
+ "003ed540": {
+  "name": "FrameSyncHierarchyRecurseNoLTM",
+  "unit": "basync.c"
+ },
+ "003ed650": {
+  "name": "FrameSyncHierarchy",
+  "unit": "basync.c"
+ },
+ "003ed7e0": {
+  "name": "_rwFrameSyncDirty",
+  "unit": "basync.c"
+ },
+ "003ed960": {
+  "name": "_rwFrameSyncHierarchyLTM",
+  "unit": "basync.c"
+ },
+ "003eda60": {
+  "name": "TextureDefaultMipmapName",
+  "unit": "batextur.c"
+ },
+ "003edb30": {
+  "name": "PalettizeImage",
+  "unit": "batextur.c"
+ },
+ "003edc30": {
+  "name": "PalettizeMipmaps",
+  "unit": "batextur.c"
+ },
+ "003ede50": {
+  "name": "TextureImageReadAndSize",
+  "unit": "batextur.c"
+ },
+ "003ee1d0": {
+  "name": "TextureDefaultNormalRead",
+  "unit": "batextur.c"
+ },
+ "003ee470": {
+  "name": "TextureDefaultMipmapRead",
+  "unit": "batextur.c"
+ },
+ "003eea90": {
+  "name": "TextureDefaultRead",
+  "unit": "batextur.c"
+ },
+ "003eeae0": {
+  "name": "TextureRasterDefaultBuildMipmaps",
+  "unit": "batextur.c"
+ },
+ "003eee70": {
+  "name": "StringCompare",
+  "unit": "batextur.c"
+ },
+ "003eef60": {
+  "name": "TextureDefaultFind",
+  "unit": "batextur.c"
+ },
+ "003ef000": {
+  "name": "RwTextureSetMipmapping",
+  "unit": "batextur.c"
+ },
+ "003ef020": {
+  "name": "RwTextureGetMipmapping",
+  "unit": "batextur.c"
+ },
+ "003ef040": {
+  "name": "RwTextureSetAutoMipmapping",
+  "unit": "batextur.c"
+ },
+ "003ef060": {
+  "name": "RwTextureGetAutoMipmapping",
+  "unit": "batextur.c"
+ },
+ "003ef0d0": {
+  "name": "RwTexDictionaryCreate",
+  "unit": "batextur.c"
+ },
+ "003ef1b0": {
+  "name": "RwTexDictionaryDestroy",
+  "unit": "batextur.c"
+ },
+ "003ef260": {
+  "name": "RwTexDictionaryForAllTextures",
+  "unit": "batextur.c"
+ },
+ "003ef2e0": {
+  "name": "RwTextureCreate",
+  "unit": "batextur.c"
+ },
+ "003ef3a0": {
+  "name": "RwTextureDestroy",
+  "unit": "batextur.c"
+ },
+ "003ef470": {
+  "name": "RwTextureSetName",
+  "unit": "batextur.c"
+ },
+ "003ef510": {
+  "name": "RwTextureSetMaskName",
+  "unit": "batextur.c"
+ },
+ "003ef5b0": {
+  "name": "RwTexDictionaryAddTexture",
+  "unit": "batextur.c"
+ },
+ "003ef610": {
+  "name": "RwTexDictionaryRemoveTexture",
+  "unit": "batextur.c"
+ },
+ "003ef650": {
+  "name": "RwTexDictionaryFindNamedTexture",
+  "unit": "batextur.c"
+ },
+ "003ef6b0": {
+  "name": "RwTexDictionarySetCurrent",
+  "unit": "batextur.c"
+ },
+ "003ef6d0": {
+  "name": "RwTexDictionaryGetCurrent",
+  "unit": "batextur.c"
+ },
+ "003ef6f0": {
+  "name": "RwTextureGenerateMipmapName",
+  "unit": "batextur.c"
+ },
+ "003ef740": {
+  "name": "RwTextureRead",
+  "unit": "batextur.c"
+ },
+ "003ef890": {
+  "name": "RwTextureRegisterPlugin",
+  "unit": "batextur.c"
+ },
+ "003ef8c0": {
+  "name": "RwTextureRasterGenerateMipmaps",
+  "unit": "batextur.c"
+ },
+ "003ef900": {
+  "name": "_rwTextureClose",
+  "unit": "batextur.c"
+ },
+ "003efac0": {
+  "name": "_rwTextureOpen",
+  "unit": "batextur.c"
+ },
+ "003efd20": {
+  "name": "_rwObjectHasFrameSetFrame",
+  "unit": "batypehf.c"
+ },
+ "003efda0": {
+  "name": "_rwObjectHasFrameReleaseFrame",
+  "unit": "batypehf.c"
+ },
+ "003f07d0": {
+  "name": "RwPalQuantAddImage",
+  "unit": "palquant.c"
+ },
+ "003f17e0": {
+  "name": "RwPalQuantResolvePalette",
+  "unit": "palquant.c"
+ },
+ "003f1ce0": {
+  "name": "RwPalQuantMatchImage",
+  "unit": "palquant.c"
+ },
+ "003f24a0": {
+  "name": "RwPalQuantInit",
+  "unit": "palquant.c"
+ },
+ "003f26c0": {
+  "name": "RwPalQuantTerm",
+  "unit": "palquant.c"
+ },
+ "003f5040": {
+  "name": "_rwSkyFindMSB",
+  "unit": "basky.c"
+ },
+ "003f6440": {
+  "name": "RpSkyRenderStateSet",
+  "unit": "basky.c"
+ },
+ "003f69f0": {
+  "name": "skyGetSizeTexCB",
+  "unit": "basky.c"
+ },
+ "003fe630": {
+  "name": "_rwDeviceRegisterPlugin",
+  "unit": "basky.c"
+ },
+ "00401450": {
+  "name": "_rwDeviceGetHandle",
+  "unit": "basky.c"
+ },
+ "00402390": {
+  "name": "matrixASMMult",
+  "unit": "baskytran.c"
+ },
+ "00402410": {
+  "name": "vectorASMMultPointSingle",
+  "unit": "baskytran.c"
+ },
+ "00402470": {
+  "name": "vectorASMMultPoints",
+  "unit": "baskytran.c"
+ },
+ "00402510": {
+  "name": "vectorASMMultVectorSingle",
+  "unit": "baskytran.c"
+ },
+ "00402680": {
+  "name": "_rwSkyRasterInitiateStop",
+  "unit": "skyblit.c"
+ },
+ "00403390": {
+  "name": "_rwSkyRasterClear",
+  "unit": "skyblit.c"
+ },
+ "00410370": {
+  "name": "RpSkyTexGetTex0",
+  "unit": "texcache.c"
+ },
+ "00410a40": {
+  "name": "RwIm3DSetTransformPipeline",
+  "unit": "baim3d.c"
+ },
+ "00410ab0": {
+  "name": "RwIm3DSetRenderPipeline",
+  "unit": "baim3d.c"
+ },
+ "00410d90": {
+  "name": "_rwIm3DClose",
+  "unit": "baim3d.c"
+ },
+ "00410ed0": {
+  "name": "_rwRenderPipelineOpen",
+  "unit": "bapipe.c"
+ },
+ "00410f00": {
+  "name": "_rwRenderPipelineClose",
+  "unit": "bapipe.c"
+ },
+ "00410f40": {
+  "name": "_rwPipeInitForCamera",
+  "unit": "bapipe.c"
+ },
+ "00410f50": {
+  "name": "_rxPacketDestroy",
+  "unit": "p2altmdl.c"
+ },
+ "00410ff0": {
+  "name": "_rxPipelineClose",
+  "unit": "p2core.c"
+ },
+ "00411060": {
+  "name": "_rxPipelineOpen",
+  "unit": "p2core.c"
+ },
+ "00411130": {
+  "name": "PipelineNodeDestroy",
+  "unit": "p2core.c"
+ },
+ "004114d0": {
+  "name": "RxPipelineExecute",
+  "unit": "p2core.c"
+ },
+ "004115d0": {
+  "name": "RxPipelineCreate",
+  "unit": "p2core.c"
+ },
+ "00411670": {
+  "name": "_rxPipelineDestroy",
+  "unit": "p2core.c"
+ },
+ "004118c0": {
+  "name": "ReallocAndFixupSuperBlock",
+  "unit": "p2define.c"
+ },
+ "00411a70": {
+  "name": "LockPipelineExpandData",
+  "unit": "p2define.c"
+ },
+ "00411ce0": {
+  "name": "_NodeCreate",
+  "unit": "p2define.c"
+ },
+ "00411ee0": {
+  "name": "PipelineTallyInputs",
+  "unit": "p2define.c"
+ },
+ "00411fd0": {
+  "name": "PipelineTopSort",
+  "unit": "p2define.c"
+ },
+ "004123c0": {
+  "name": "PipelineUnlockTopSort",
+  "unit": "p2define.c"
+ },
+ "00412520": {
+  "name": "RxPipelineNodeCreateInitData",
+  "unit": "p2define.c"
+ },
+ "00414c10": {
+  "name": "RxHeapFree",
+  "unit": "p2heap.c"
+ },
+ "00414ef0": {
+  "name": "_rxHeapReset",
+  "unit": "p2heap.c"
+ },
+ "00414fd0": {
+  "name": "RxHeapDestroy",
+  "unit": "p2heap.c"
+ },
+ "00415070": {
+  "name": "RxHeapCreate",
+  "unit": "p2heap.c"
+ },
+ "004151b0": {
+  "name": "RxRenderStateVectorSetDefaultRenderStateVector",
+  "unit": "p2renderstate.c"
+ },
+ "00415920": {
+  "name": "_rwIm3DDestroyPlatformTransformPipeline",
+  "unit": "im3dpipe.c"
+ },
+ "00415940": {
+  "name": "_rwIm3DDestroyPlatformRenderPipelines",
+  "unit": "im3dpipe.c"
+ }
+}

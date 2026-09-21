@@ -5,17 +5,24 @@ that linked the same objects carries the same code - and if that title
 shipped its symbol table, it names ours.  The transfer rule here is
 deliberately narrow:
 
-  * the reference function must be **masked-identical** to the retail
-    window: every instruction word equal after blanking `j`/`jal` targets
-    and 16-bit immediates, which are exactly what relinking changes;
+  * the reference function must be **relocation-identical** to the retail
+    window: every word exactly equal, except at demonstrated relocations.
+    A relocation is a `j`/`jal` target, the low half of a `lui`+`%lo`
+    address pair, or a `$gp`-relative offset - and a differing constant
+    pair proves relocation, since a literal compiles identically in both
+    links. Everything else (stack sizes, field offsets, loop bounds, which
+    registers, which opcode) compares byte-exact;
   * the retail address must be claimed by **one name only**.  Small bodies
     collide - five different `*Close` functions in NBA Ballers are
     byte-identical and all match `0x003C40D0` - and a colliding address
     tells you nothing about which name belongs to it.
 
-Measured against the 392 RenderWare names this repo already proves: of the
-634 addresses the rule fires on, 35 are in that set, and it gets **35 of 35
-right**.  For comparison, the structural matcher in
+Measured against the 392 RenderWare names this repo already proves: 41 of
+the rule's claims are in that set, and it gets **41 of 41 right**. An
+earlier draft blanked ALL 16-bit immediates, which also erased stack
+sizes and field offsets - two different functions then compared equal.
+Preserving everything but demonstrated relocations is what makes the
+match an identity.  For comparison, the structural matcher in
 `docs/sky2/name-transfer-report.md` scored 0.650 on the same ground truth.
 That gap is the difference between "these two functions look alike" and
 "these two functions are the same object code".
@@ -76,6 +83,55 @@ def claimed_elsewhere() -> tuple[set[str], set[int]]:
     return names, addresses
 
 
+def _reloc_words(raw: list[int]) -> set[int]:
+    """Positions that may legitimately differ between two links of the same
+    object.
+
+    A `j`/`jal` target is a relocated address. So is the low half of an
+    address that some instruction materialised as a `lui`+`%lo` pair - and a
+    pair only: when the two builds' constants DIFFER, what changed is an
+    address, because a literal constant compiles identically in both links.
+    `$gp`-relative load/store offsets are relocation-derived too: the
+    small-data area base differs per link. Every other immediate - stack
+    sizes, field offsets, loop bounds - is code, and must compare equal.
+    """
+    relocs: set[int] = set()
+    lui_at: dict[int, int] = {}
+    for index, word in enumerate(raw):
+        opcode = word >> 26
+        if opcode in (0x02, 0x03):
+            relocs.add(index)
+        elif opcode == 0x0F:                      # lui rt, imm
+            lui_at[(word >> 16) & 0x1F] = index
+        elif opcode in (0x08, 0x09):              # addi/addiu rt, rs, imm
+            base = (word >> 21) & 0x1F
+            if base == 28 and (word >> 16) & 0x1F != 0:   # gp-relative
+                relocs.add(index)
+            elif base in lui_at:
+                relocs.add(index)
+                relocs.add(lui_at[base])
+        elif opcode in (0x20, 0x21, 0x23, 0x24, 0x25, 0x28, 0x29, 0x2B,
+                        0x31, 0x35, 0x39, 0x3F):  # loads/stores
+            if (word >> 21) & 0x1F == 28:         # gp-relative access
+                relocs.add(index)
+    return relocs
+
+
+def _padded_with_nops(raw: list[int], words: list[int]) -> bool:
+    """An accepted window suffix must be alignment padding, nothing else."""
+    return all(word == 0 for word in words[len(raw):])
+
+
+def _relaxed(word: int) -> int:
+    """A relocation word compares on everything but its address payload."""
+    opcode = word >> 26
+    if opcode in (0x02, 0x03):                   # j / jal: 6-bit opcode + target
+        return word & 0xFC000000
+    if opcode == 0x0F:                           # lui: opcode, rt, hi half
+        return word & 0xFFFF0000
+    return word & 0xFFFF0000                     # I-type: opcode, rs, rt
+
+
 def exact_claims(references: dict[str, Path], retail, windows):
     """retail address -> {name -> set of references proposing it}."""
     by_size: dict[int, list] = {}
@@ -85,8 +141,11 @@ def exact_claims(references: dict[str, Path], retail, windows):
         if data is None:
             continue
         raw = fid.words(data)
+        relocs = _reloc_words(raw)
         by_size.setdefault(size, []).append(
-            (int(text, 16), [fid.mask_word(word) for word in raw]))
+            (int(text, 16), raw,
+             [_relaxed(word) if index in relocs else word
+              for index, word in enumerate(raw)]))
 
     claims = collections.defaultdict(lambda: collections.defaultdict(set))
     widths: dict[int, int] = {}
@@ -94,12 +153,20 @@ def exact_claims(references: dict[str, Path], retail, windows):
         for name, _addr, body in fid.ReferenceElf(path).functions:
             if len(body) < 16 or not IDENTIFIER.match(name):
                 continue
-            mine = [fid.mask_word(word) for word in fid.words(body)]
+            raw_ref = fid.words(body)
+            ref_relocs = _reloc_words(raw_ref)
+            theirs = [_relaxed(word) if index in ref_relocs else word
+                      for index, word in enumerate(raw_ref)]
             for pad in (0, 4, 8, 12):
-                for their_addr, masked in by_size.get(len(body) + pad, ()):
-                    if all(a == b for a, b in zip(mine, masked)):
+                for their_addr, raw, masked in by_size.get(len(body) + pad, ()):
+                    # A longer retail window is acceptable only if the extra
+                    # suffix is alignment padding; the comparison itself runs
+                    # over the reference function's own length.
+                    if pad and not _padded_with_nops(raw_ref, raw):
+                        continue
+                    if all(a == b for a, b in zip(theirs, masked)):
                         claims[their_addr][name].add(tag)
-                        widths[their_addr] = len(mine)
+                        widths[their_addr] = len(raw_ref)
     return claims, widths
 
 
