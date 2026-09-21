@@ -407,8 +407,6 @@ s32 *func_004de2d8(s32 arg0)
 }
 /* measured: close schedule-on probe after func_004de2d8. */
 #pragma schedule off
-// FUN_004DE2E8
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de2e8);
 #pragma schedule on
 // FUN_004DE310
 s32 func_004de310(void)

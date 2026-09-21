@@ -16,6 +16,14 @@ The image's own banners date the whole set to Feb 28 - Mar 1 2005:
 `INCLUDE_ASM` rows at the start of this work, the largest single unmatched
 region in the tree.
 
+Two reconstructions are vendored side by side, because they are
+complementary rather than redundant:
+
+| tree | version | licence | files | role |
+|---|---|---|---|---|
+| `src/cri/re4` | ADXT/GC 9.31, ADXF 7.18 | CC0 | 124 | closer to 9.44, and the only source for Sofdec, MPEG video, AHX |
+| `src/cri/libadxe` | ADXT 8.30 | MIT | 47 | PS2-native, and matches functions the other misses |
+
 ## Where these files come from
 
 Verbatim from the Resident Evil Code: Veronica X decompilation
