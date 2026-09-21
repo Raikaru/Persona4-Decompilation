@@ -300,6 +300,7 @@ Sint32 SFD_GetFps(SFD sfd, Sint32 *fps)
 }
 
 // Duration of one video frame as count/scale (1000 / prate; 29.97 fps assumed when unknown).
+// FUN_005269D0
 void SFTIM_GetTimeOneFrmVideo(SFD sfd, Sint32 *ncount, Sint32 *tscale)
 {
 	Sint32 picrate;
@@ -634,6 +635,7 @@ Sint32 SFTIM_GetTimeSub(SFD sfd, Sint32 *ncount, Sint32 *tscale)
 
 // Public time (mwPlyGetTime): current time plus the start offset (audio start sample when the unit is
 // the audio rate, else the video start offset).
+// FUN_00525C40
 Sint32 SFD_GetTime(SFD sfd, Sint32 *ncount, Sint32 *tscale)
 {
 	if (SFLIB_CheckHn(sfd) != 0) {
@@ -727,6 +729,7 @@ static Bool sftim_ChkStagnant(SFD sfd)
 }
 
 // Whether the clock has stopped advancing for longer than allowed (error 0xFF000222); ends the play.
+// FUN_00525A98
 Bool SFTIM_IsStagnant(SFD sfd)
 {
 	if (sftim_ChkStagnant(sfd)) {
@@ -786,6 +789,7 @@ static void sftim_VbInHn(SFD sfd)
 
 // Library vsync tick: counts vsyncs and, for every live handle, advances its vsync clocks and
 // samples the selected clock source (cond 0xF) into cur/cur_unit, flagging a change when it moved.
+// FUN_00525810
 void SFTIM_VbIn(void)
 {
 	SFD *hn;

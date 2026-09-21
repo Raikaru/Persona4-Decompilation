@@ -67,6 +67,7 @@ void MWSFSVM_EntryIdVfunc(Sint32 id, Sint32 (*func)(void *obj), void *obj)
 }
 
 // SVM init and cleared callback ids.
+// FUN_00510EA0
 void MWSFSVM_Init(void)
 {
 	SVM_Init();

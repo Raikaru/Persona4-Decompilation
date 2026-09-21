@@ -211,6 +211,7 @@ SJX SJX_Create(SJ sjsrc, SJ sjdst, Sint32 lin)
 }
 
 // 100% matching!
+// FUN_004F04C0
 void SJX_Destroy(SJX sjx)
 {
     Sint32 arg[1];

@@ -24,6 +24,7 @@ void MWSTM_ReqStart(ADXSTM stm)
 }
 
 // Unbinds, binds the new file range (no-wait) and sets the end-of-stream at its length.
+// FUN_005121C0
 void MWSTM_SetFileRange(ADXSTM stm, const Char8 *fname, void *dir, Sint32 ofst, Sint32 nsct)
 {
 	ADXSTM_ReleaseFileNw(stm);
@@ -45,6 +46,7 @@ ADXSTM MWSTM_Create(void *sj)
 }
 
 // Refill policy in bytes (min = refill when below, max = request size).
+// FUN_004BD720
 void MWSTM_SetFlowLimit(ADXSTM stm, Sint32 min_nsct, Sint32 max_nsct)
 {
 	if (stm != NULL) {
@@ -53,6 +55,7 @@ void MWSTM_SetFlowLimit(ADXSTM stm, Sint32 min_nsct, Sint32 max_nsct)
 }
 
 // Whether the controller is in ADXSTM_STAT_ERROR.
+// FUN_00512088
 Bool MWSTM_IsFsStatErr(ADXSTM stm)
 {
 	return ADXSTM_GetStat(stm) == 4;

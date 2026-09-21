@@ -230,6 +230,7 @@ void ps2rna_release_psj(PS2PSJ psj)
 }
 
 // 100% matching!
+// FUN_004EB830
 void ps2rna_rcvcbf(void *obj, void *dt, Sint32 dtlen)
 {
     PS2RNA_DTXFMT *fmt;

@@ -156,6 +156,7 @@ MPS MPS_Create(void)
 }
 
 // -1 for a NULL or free handle; records it in mpslib_hn_last.
+// FUN_00503A40
 Sint32 MPSLIB_CheckHn(MPS mps)
 {
 	mpslib_hn_last = mps;

@@ -134,6 +134,7 @@ Sint32 SFAOAP_Init(void)
 }
 
 // Forwards the playback speed to the audio driver's SetSpeed callback.
+// FUN_00513FF0
 void SFAOAP_SetSpeed(SFD sfd, Sint32 speed)
 {
 	SFAOAP *aoap;
@@ -147,6 +148,7 @@ void SFAOAP_SetSpeed(SFD sfd, Sint32 speed)
 }
 
 // Movie audio volume through the audio driver's callback (0 without audio).
+// FUN_00513F80
 Sint32 SFD_GetOutVol(SFD sfd)
 {
 	SFAOAP *aoap;

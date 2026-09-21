@@ -214,6 +214,7 @@ static void mwsffrm_AnalySofdecHeader(MWPLY mwply, void *data, Uint32 size)
 }
 
 // Installs mwsffrm_AnalySofdecHeader as the SFD header callback (cond 0x4B fn, 0x4C obj).
+// FUN_0050B020
 void MWSFFRM_SetShfCbFn(MWPLY mwply)
 {
 	void *sfd = mwply->sfd;

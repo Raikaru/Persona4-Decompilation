@@ -34,12 +34,14 @@ void ADXB_AhxTermSupply(ADXB_OBJ *adxb)
 }
 
 // One decode step of an AHX stream (through the registered hook).
+// FUN_004C1CE8
 void ADXB_ExecOneAhx(ADXB_OBJ *adxb)
 {
 	ahxexecfunc(adxb);
 }
 
 // Per-tick decode limit: forwarded to the AHX decoder and kept in samples and 96-sample units.
+// FUN_004C1C80
 void ADXB_SetAhxDecSmpl(ADXB_OBJ *adxb, Sint32 nsmpl)
 {
 	if (adxb->ahx != NULL) {

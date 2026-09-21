@@ -75,6 +75,7 @@ Sint32 ADXRNA_GetNumRoom(ADXRNA rna)
 }
 
 // 100% matching!
+// FUN_004CD780
 Sint32 ADXRNA_GetStat(ADXRNA rna)
 {
     printf("ADXRNA_GetStat: not implemented\n");

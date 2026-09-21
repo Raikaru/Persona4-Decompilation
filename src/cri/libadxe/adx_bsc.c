@@ -515,6 +515,7 @@ void memcpy2(Sint16 *dst, const Sint16 *src, Sint32 nword)
 }
 
 // 100% matching!
+// FUN_004C42D8
 void ADXB_CopyExtraBufSte(Sint16 *obuf, Sint32 obsize, Sint32 obdist, Sint32 nxsmpl)
 {
     memcpy2(obuf, &obuf[obsize], nxsmpl);

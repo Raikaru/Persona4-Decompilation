@@ -9,6 +9,7 @@
 
 // Pops the next total-sample entry of the concatenation queue (the audio driver reads the sample
 // count of each concatenated file); *val = -1 and 0 when empty.
+// FUN_00515E50
 Sint32 SFCON_ReadTotSmplQue(SFD sfd, Sint32 *val, Sint32 *last)
 {
 	SFCON *con = &sfd->con;
@@ -99,6 +100,7 @@ Sint32 SFCON_IsEndcodeSkip(SFD sfd)
 
 // Enables concatenated play: the streams continue across end codes (linked file playback,
 // mwPlyLinkStm).
+// FUN_00515C00
 Sint32 SFD_SetConcatPlay(SFD sfd)
 {
 	if (SFLIB_CheckHn(sfd) != 0) {

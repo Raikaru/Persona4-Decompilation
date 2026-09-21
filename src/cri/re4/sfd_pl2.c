@@ -85,6 +85,7 @@ Sint32 SFPL2_Pause(SFD sfd, Sint32 sw)
 }
 
 // Public pause (mwPlyPause): sw 1 pauses (or re-pauses), 0 resumes; flags a state change.
+// FUN_00521468
 Sint32 SFD_Pause(SFD sfd, Sint32 sw)
 {
 	Sint32 psw;

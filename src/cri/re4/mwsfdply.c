@@ -291,6 +291,7 @@ Sint32 mwPlySfdGetPaStat(MWPLY mwply)
 }
 
 // Starts the SFD decoder once it is in standby (called by the decode server); error -0x133 on failure.
+// FUN_0050BDC0
 Sint32 mwPlySfdStart(MWPLY mwply)
 {
 	if (SFD_Start(mwply->sfd) != 0) {

@@ -191,6 +191,7 @@ static SFH_ELEM *sfh_SearchElem(Uint8 *hdr, Uint32 id)
 }
 
 // Element record of stream `id` after the handle checks.
+// FUN_00529AF8
 static SFH_ELEM *sfh_GetElem(SFH sfh, Uint32 id)
 {
 	Uint8 *hdr = sfh->hdr;
@@ -556,6 +557,7 @@ Bool SFH_AnlyElemSmpHz(SFH sfh, Uint8 id, Sint32 *val)
 }
 
 // Audio element: channel count.
+// FUN_00529C40
 Bool SFH_AnlyElemChNum(SFH sfh, Uint8 id, Sint32 *val)
 {
 	SFH_ELEM *elem;
@@ -835,6 +837,7 @@ Bool SFH_IsEffFtrInf(SFH sfh, Uint8 id, Sint32 *flag)
 }
 
 // Whether an element record for stream `id` exists.
+// FUN_00529030
 Bool SFH_IsExistStmId(SFH sfh, Uint8 id, Sint32 *flag)
 {
 	Uint8 *hdr;

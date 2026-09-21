@@ -153,8 +153,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00513290);
 // FUN_005132A8
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005132a8);
 
-// FUN_005132C8
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005132c8);
 /* measured: object 36B/window 40B/normalized_diff 6 (2 differing words, first diffs 16,18-20,22-23, 4B zero tail). */
 /* measured: second boolean as <1U (not ==0) fixes sltiu-vs-xori (was 3 words with xori $v0,$v0,1, now sltiu $v0,$v0,1 matching retail); >1U alternate stays at 3. */
 /* measured: remaining is ld-ra scheduling (same 2-word floor as func_00512fa0); no short chain (9/9 instrs), arg N/A, loop N/A. Updated from 3 to 2. */
@@ -167,8 +165,6 @@ s32 func_00513380(void) {
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00513380);
 #endif
 
-// FUN_005133A8
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005133a8);
 
 // FUN_00513410
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00513410);

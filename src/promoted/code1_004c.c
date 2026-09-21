@@ -118,8 +118,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c8908);
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c8950);
 // FUN_004C8A60
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c8a60);
-// FUN_004C8A90
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c8a90);
 // FUN_004C8B48
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c8b48);
 // FUN_004C8BD0
@@ -138,8 +136,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c8e28);
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c8e80);
 // FUN_004C9010
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9010);
-// FUN_004C9068
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9068);
 // FUN_004C90A8
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c90a8);
 // FUN_004C90E0
@@ -177,8 +173,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9670);
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c96a8);
 // FUN_004C9720
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9720);
-// FUN_004C9768
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9768);
 // FUN_004C97B8
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c97b8);
 // FUN_004C97F0
@@ -235,8 +229,6 @@ u32 func_004c9bd0(u32 arg0)
 
 // FUN_004C9BE0
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9be0);
-// FUN_004C9C20
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9c20);
 // FUN_004C9C58
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9c58);
 // FUN_004C9C90
@@ -318,18 +310,12 @@ s32 func_004ca700(void)
 }
 // FUN_004CA720
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004ca720);
-// FUN_004CA890
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004ca890);
 // FUN_004CA8B0
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004ca8b0);
-// FUN_004CA990
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004ca990);
 // FUN_004CAB90
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004cab90);
 // FUN_004CABD0
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004cabd0);
-// FUN_004CABF0
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004cabf0);
 // FUN_004CAC50
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004cac50);
 // FUN_004CACC0
@@ -580,8 +566,6 @@ void func_004cf7e0(u8 *arg0, s16 arg1, s16 arg2)
 
 // FUN_004CF880
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004cf880);
-// FUN_004CF920
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004cf920);
 // FUN_004CF958
 void func_004cf958(u8 *arg0, s16 arg1, s16 arg2)
 {

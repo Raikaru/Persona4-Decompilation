@@ -60,6 +60,7 @@ void ADXERR_CallErrFunc2(Char8 *msg1, Char8 *msg2)
 }
 
 // Reports one error message to the ADX error callback and the SVM error callback.
+// FUN_004C6A98
 void ADXERR_CallErrFunc1(Char8 *msg)
 {
 	strncpy(adxerr_msg, msg, 255);
