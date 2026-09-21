@@ -390,17 +390,36 @@ def _rewrite_moves(asm: Path) -> None:
 
 
 # MWCC objects carry none of these, and mwldps2 rejects an object whose
-# sections the linker command file does not place.  The empty .text/.data/.bss
-# placeholders and GCC's own metadata are dropped so a GCC unit presents the
-# same shape to the linker as a Metrowerks one.
-GCC_ONLY_SECTIONS = (".text", ".data", ".bss", ".reginfo", ".MIPS.abiflags",
-                     ".pdr", ".mdebug.eabi64", ".gnu.attributes")
+# sections the linker command file does not place.  GCC's own metadata is
+# dropped unconditionally so a GCC unit presents the same shape to the linker
+# as a Metrowerks one.
+GCC_METADATA_SECTIONS = (".reginfo", ".MIPS.abiflags", ".pdr",
+                         ".mdebug.eabi64", ".gnu.attributes")
+# `.text`, `.data` and `.bss` are only placeholders in a unit whose code all
+# arrives through INCLUDE_ASM, which every GCC unit was until the CRI sources
+# landed.  Those carry real code and real file statics, and removing a
+# section that defines a symbol something still relocates against makes
+# objcopy fail with `symbol X required but not present`.  So drop them only
+# when they are genuinely empty.
+GCC_PLACEHOLDER_SECTIONS = (".text", ".data", ".bss")
 GCC_ONLY_SYMBOLS = ("gcc2_compiled.", "__gnu_compiled_c")
 
 
+def _empty_sections(obj: Path) -> set[str]:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import verify as V
+
+    _endian, sections = V.elf_sections(obj.read_bytes())
+    return {section["name"] for section in sections
+            if not section["size"] and section.get("name")}
+
+
 def _strip_gcc_metadata(objcopy: str, obj: Path) -> None:
+    empty = _empty_sections(obj)
+    removable = list(GCC_METADATA_SECTIONS) + [
+        name for name in GCC_PLACEHOLDER_SECTIONS if name in empty]
     argv = [str(objcopy)]
-    argv += ["--remove-section=%s" % name for name in GCC_ONLY_SECTIONS]
+    argv += ["--remove-section=%s" % name for name in removable]
     argv += ["--strip-symbol=%s" % name for name in GCC_ONLY_SYMBOLS]
     proc = subprocess.run([*argv, str(obj)], stdout=subprocess.PIPE,
                           stderr=subprocess.STDOUT, text=True)

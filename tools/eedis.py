@@ -268,6 +268,10 @@ def vector_unit(word: bytes) -> str | None:
 # encoding whenever that field is non-zero - 719 instructions.  `ei`/`di` are
 # COP0 interrupt-enable.  `cfc2`/`ctc2` move to and from VU control registers.
 SPECIAL_MULTIPLY = {0x18: "mult", 0x19: "multu", 0x1C: "madd", 0x1D: "maddu"}
+# The shift-amount register.  `mfsa`/`mtsa` are SPECIAL; `mtsab`/`mtsah` are
+# REGIMM with an immediate, which is why they look like branch encodings.
+SPECIAL_SHIFT = {0x28: "mfsa", 0x29: "mtsa"}
+REGIMM_SHIFT = {0x18: "mtsab", 0x19: "mtsah"}
 COP0_INTERRUPT = {0x38: "ei", 0x39: "di"}
 COP2_CONTROL = {0x02: "cfc2.ni", 0x06: "ctc2.ni"}
 
@@ -284,6 +288,15 @@ def extended_forms(word: bytes) -> str | None:
         if mnemonic is not None:
             return (f"{mnemonic} {REGISTERS[rd]}, {REGISTERS[rs]}, "
                     f"{REGISTERS[rt]}")
+    if opcode == 0x00:
+        mnemonic = SPECIAL_SHIFT.get(value & 0x3F)
+        if mnemonic is not None:
+            return (f"{mnemonic} {REGISTERS[rd]}" if mnemonic == "mfsa"
+                    else f"{mnemonic} {REGISTERS[rs]}")
+    if opcode == 0x01:
+        mnemonic = REGIMM_SHIFT.get(rt)
+        if mnemonic is not None:
+            return f"{mnemonic} {REGISTERS[rs]}, {value & 0xFFFF:#x}"
     if opcode == 0x10 and rs == 0x10:
         mnemonic = COP0_INTERRUPT.get(value & 0x3F)
         if mnemonic is not None:

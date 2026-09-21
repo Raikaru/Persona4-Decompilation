@@ -207,25 +207,32 @@ class ExtendedFormTests(unittest.TestCase):
 
 
 class UndecodedTests(unittest.TestCase):
-    """Seven rare forms remain unknown - `mtsab`, `mtsah`, `mfsa`, `mtsa`,
-    `phmadh`, `pexew`, and a `c1` the listing itself will not name.  Naming
-    them is a refinement; not collapsing them onto one token is a correctness
-    requirement, and that property must survive every table added above."""
+    """Three rare forms remain unknown - `phmadh`, `pexew`, and a `c1` the
+    listing itself will not name.  Naming them is a refinement; not collapsing
+    them onto one token is a correctness requirement, and that property must
+    survive every table added above.
+
+    These cases were written against `00001805` and `28100000`, which the
+    decoder has since learned are `mtsab` and `mfsa`.  The examples therefore
+    moved to opcodes 0x3D and 0x3F, which are reserved on the R5900 and decode
+    to nothing - the point is the unknown-word PROPERTY, so the right repair
+    is a word that is still genuinely unknown, not a re-pin to the new
+    spelling."""
 
     def test_two_different_unknown_words_do_not_compare_equal(self) -> None:
         disassemble = eedis.build(lambda word, pc: "??")
-        mtsab = disassemble(bytes.fromhex("00001805"), 0)
-        mfsa = disassemble(bytes.fromhex("28100000"), 0)
-        self.assertNotEqual(mtsab, mfsa)
+        first = disassemble(bytes.fromhex("000000f4"), 0)
+        second = disassemble(bytes.fromhex("000000fc"), 0)
+        self.assertNotEqual(first, second)
 
     def test_the_same_unknown_word_compares_equal_at_any_address(self) -> None:
         disassemble = eedis.build(lambda word, pc: "??")
-        word = bytes.fromhex("00001805")
+        word = bytes.fromhex("000000f4")
         self.assertEqual(disassemble(word, 0x1852f0), disassemble(word, 0x400))
 
     def test_an_unknown_word_is_rendered_as_its_own_raw_word(self) -> None:
         disassemble = eedis.build(lambda word, pc: "??")
-        self.assertEqual(disassemble(bytes.fromhex("00001805"), 0), ".word 0x05180000")
+        self.assertEqual(disassemble(bytes.fromhex("000000f4"), 0), ".word 0xf4000000")
 
 
 class WrapperTests(unittest.TestCase):

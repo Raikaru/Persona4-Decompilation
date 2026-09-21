@@ -445,6 +445,49 @@ extern f32 fGpffff7ad4;
 /*   local correctness: single extends/loads now match retail) but guarded */
 /*   words 10958 -> 10980 (+22 worse, trust for global deficit: shorter body */
 /*   exposes more missing code - sliding risk, next round needs CROSS regions). */
+/* measured 002be530 (2026-09-20, composition round 1): re-measured everything */
+/*   with the current decoder before writing. fnalign retail 12429 object 12076 */
+/*   (-2.8% INSIDE, 20 headroom to 12056), edits 20084 (+14 reloc-only), */
+/*   measure_guarded 10980. deficit_scan: deficit 353, retail has more addiu */
+/*   +711 move +695 jal +637 lw +424 lbu +214 sb +213 lwc1 +124; CROSS 3447 at */
+/*   0x002c63d4, 997 at 0x002c3258, 802 at 0x002c4458 (same addrs as step 1, */
+/*   re-derived fresh - the broken-decoder classification stands for these */
+/*   three: each is a replace pairing 3-6 object instrs against 802-3447 */
+/*   retail, far longer than any deficit, so CROSS not ABSENT). Pure runs: */
+/*   delete 44 tot 1402, insert 36 tot 768 (fnalign script sums, net +634 vs */
+/*   deficit +353 because replaces hold the rest: replace retail 9401 object */
+/*   9682). */
+/*   Largest ABSENT-first work, case 0xE (retail 0x002BF05C block), each with */
+/*   a named retail counterpart (no conversions in retail, all plain loads): */
+/*   (1) temp_f20_2/3 `(f32)(s32)(float)` -> plain `*(f32 *)`: retail */
+/*   0x002BF098 `lwc1 $f20,0x0($16)` and 0x002BF0AC `lwc1 $f20,0x4($16)`; */
+/*   object 12076->12072 (-4), edits 20084->20080 (-4), guarded 10980->10986 */
+/*   (+6, trust fnalign locally). (2) temp_f20_4/5 same shape -> plain (+add): */
+/*   retail 0x002BF1B0 `lwc1 $f1,0x0/lwc1 $f0,0x8/add.s` and 0x002BF1CC */
+/*   `lwc1 $f20,0x4`; object 12072->12068 (-4), edits ->20076 (-4), guarded */
+/*   10986->10981 (-5). (3) `func_002b2970(&sp640,(u8)f,(u8)f)` -> plain */
+/*   floats: retail 0x002BF12C `lwc1 $f12,0x0/lwc1 $f13,0x4/jal` (the same */
+/*   witness the rejected step 2 named at 0x002BF138 for the sibling call); */
+/*   object 12068->12004 (-64, the exact step-2 cost, re-measured), edits */
+/*   20076->20012 (-64), guarded 10981->10981 (0). Total 12076->12004 (-72), */
+/*   edits 20084->20012 (-72), andi -6 cvt.s.w -8 cvt.w.s -8 mfc1 -4 or -4. */
+/*   BAND: 12004 against 12429 is -3.42%, 52 BELOW lower 12056 - OUTSIDE by */
+/*   exactly the content's cost (64-12 headroom). Kept and stated explicitly */
+/*   per assignment rather than reverted (step 2 reverted this same pair to */
+/*   stay in band; the floor cannot be both correct here and inside). Gate */
+/*   audit now 11 inside / 1 outside (this floor, -3.4%, RC 0), lint 0 errors. */
+/*   Region account for the 1402 (fresh deficit 425, so ABSENT iff len<=425): */
+/*   611 at 0x002c208c-0x002c2a18 CROSS (only run longer than deficit); 349 at */
+/*   0x002bfb58 ABSENT, 286 at 0x002c0ee8 ABSENT, 101 at 0x002bf9c0 ABSENT, 16 */
+/*   at 0x002bedfc ABSENT, 33x1 at 0x002be6a4-0x002bea48 plus 1x1 at 0x002beb18 */
+/*   ABSENT (all `lw $a2,0xf28($s1)` scheduling vs object `lw-first` order, */
+/*   e.g. retail move/addiu/lw vs object lw/move/addiu at R91-93/O93-95), 6x1 */
+/*   at 0x002c5754-0x002c5d74 ABSENT. ABSENT sum 791, CROSS sum 611, tot 1402. */
+/*   Inserts 36 tot 768 (largest 448 at 0x002c0edc next to the 286 delete, */
+/*   121 at 0x002bf56c, 50 at 0x002bf5ac - the object-side CROSS lumps). The */
+/*   three CROSS replaces above plus these pure runs are the whole composition; */
+/*   next is the 349 ABSENT's remaining (u8) casts (D90/D94/C4C/C50/E7C...), */
+/*   each pair costing ~64, so each needs its own band statement. */
 // FUN_002BE530 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
@@ -1628,13 +1671,13 @@ block_626:
         (*(u8 *)((u8 *)(temp_2_6) + (0x7B))) = sp78E;
         (*(u8 *)((u8 *)(temp_2_6) + (0x7C))) = sp78F;
         func_002b2970(&sp648, (*(f32 *)((u8 *)(temp_16_3) + (0))) - 80.0f, (*(f32 *)((u8 *)(temp_16_3) + (4))));
-        func_002b2970(&sp640, ((u8)((*(f32 *)((u8 *)(temp_16_3) + (0))))), ((u8)((*(f32 *)((u8 *)(temp_16_3) + (4))))));
+        func_002b2970(&sp640, (*(f32 *)((u8 *)(temp_16_3) + (0))), (*(f32 *)((u8 *)(temp_16_3) + (4))));
         func_002e0620((void *)((*(s32 *)((u8 *)(temp_17) + (0xC44)))), sp648, sp640, 0, 3, (s64) (((*(s8 *)((u8 *)(temp_17) + (7))) + 1) << 0x30) >> 0x30);
         func_002e0660((void *)((*(s32 *)((u8 *)(temp_17) + (0xC44)))), 0U, 0xFF, 0, 3, (s64) (((*(s8 *)((u8 *)(temp_17) + (7))) + 1) << 0x30) >> 0x30);
         func_002e09e0((void *)((*(s32 *)((u8 *)(temp_17) + (0xC48)))), 0x41, 127.0f);
-        temp_f20_4 = (f32)(s32)((*(f32 *)((u8 *)(temp_16_3) + (0))) + (*(f32 *)((u8 *)(temp_16_3) + (8))));
+        temp_f20_4 = (*(f32 *)((u8 *)(temp_16_3) + (0))) + (*(f32 *)((u8 *)(temp_16_3) + (8)));
         (*(f32 *)((u8 *)(func_002e04e0((void *)((*(s32 *)((u8 *)(temp_17) + (0xC48)))))) + (0x2C))) = temp_f20_4;
-        temp_f20_5 = (f32)(s32)((*(f32 *)((u8 *)(temp_16_3) + (4))));
+        temp_f20_5 = (*(f32 *)((u8 *)(temp_16_3) + (4)));
         (*(f32 *)((u8 *)(func_002e04e0((void *)((*(s32 *)((u8 *)(temp_17) + (0xC48)))))) + (0x30))) = temp_f20_5;
         func_002b2a60(&sp788, 0xFE, 0xC6, 0x31, 0xFFU);
         temp_2_7 = (u8 *)(func_002e04e0((void *)((*(s32 *)((u8 *)(temp_17) + (0xC48))))));
