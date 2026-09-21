@@ -310,14 +310,19 @@ Sint32 ADX_DecodeInfo(Uint8 *data, Sint32 len, Sint16 *hdrlen, Sint8 *fmt, Sint8
 }
 
 /* offset of the first 0x8000 info code word in data (-1: none) */
+// FUN_004C5648
 Sint32 ADX_ScanInfoCode(Uint8 *data, Sint32 len, Sint16 *ofst)
 {
 	Sint32 i;
 	Sint32 pos;
+	Uint16 code;
 
 	pos = 0x7FFFFFFF;
+	/* retail keeps 0x80 in $t1 (`addiu $t1, $zero, 0x80` at 0x004C5654) and
+	 * loads `lhu`, not big-endian `-0x8000` via `lh`. */
+	code = 0x80;
 	for (i = 0; i < len - 1; i += 2) {
-		if (*(Sint16 *)(data + i) == -0x8000) {
+		if (*(Uint16 *)(data + i) == code) {
 			pos = (i < pos) ? i : pos;
 			break;
 		}

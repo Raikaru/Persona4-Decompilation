@@ -7,6 +7,7 @@
 static DVCI_FLIST_TBL dvg_flist_tbl = { 0 };
 static Sint8 dvg_rbuf[4096] __attribute__((aligned(64)));
 sceCdRMode dvg_ci_cdrmode = { 0 };
+Sint32 dvg_ci_rdmode_ex = 0;
 
 // 100% matching!
 static void conv_to_tpath(Sint8 *spath, Sint8 *tpath)
@@ -200,8 +201,10 @@ Sint32 dvCiLoadFpCache(Sint8 *fls_fname, Sint8 *fpc_ptr, Sint32 fpc_size)
 }
 
 // 100% matching!
-void dvCiSetRdMode(Sint32 nrtry, Sint32 speed, Sint32 dtype)
+// FUN_004E7280
+void dvCiSetRdMode(Sint32 nrtry, Sint32 speed, Sint32 dtype, Sint32 ex)
 {
+    dvg_ci_rdmode_ex = ex;
     dvg_ci_cdrmode.trycount = nrtry;
     
     dvg_ci_cdrmode.spindlctrl = speed;

@@ -23,6 +23,7 @@ Sint32 SFD_GetTrHn(SFD sfd, Sint32 strm, void **hn)
 }
 
 // Copy of the player information block (decoded/skipped picture counts, 64-bit stream counters).
+// FUN_00525180
 Sint32 SFD_GetPlyInf(SFD sfd, SFD_PLYINF *inf)
 {
 	if (SFLIB_CheckHn(sfd) != 0) {
@@ -68,6 +69,7 @@ static Sint32 sfset_IsSettable(SFD sfd, Sint32 id, Sint32 val)
 }
 
 // Sets a condition of the handle if allowed.
+// FUN_00524ED0
 void SFSET_SetCond(SFD sfd, Sint32 id, Sint32 val)
 {
 	if (sfset_IsSettable(sfd, id, val)) {
@@ -76,6 +78,7 @@ void SFSET_SetCond(SFD sfd, Sint32 id, Sint32 val)
 }
 
 // Sets the handle's default value of a condition (restored by a reset).
+// FUN_00524F20
 static void sfset_SetCondDef(SFD sfd, Sint32 id, Sint32 val)
 {
 	if (sfset_IsSettable(sfd, id, val)) {

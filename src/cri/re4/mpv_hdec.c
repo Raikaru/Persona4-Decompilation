@@ -343,6 +343,7 @@ Sint32 mpvhdec_DecSeqUdsc(MPV mpv, Char8 *buf, Sint32 len)
 // A user data block (after 0x1B2) up to the next start code: parsed as sequence user data after a
 // sequence header, copied into the user stream joint registered for the header type (MPV_SetUsrSj),
 // and for picture user data copied into the picture user data buffer (Sofdec's per-frame data).
+// FUN_00506580
 Sint32 mpvhdec_AnalyUd(MPV mpv, Uint8 *buf, Sint32 len)
 {
 	SJCK ck;
@@ -715,20 +716,24 @@ Sint32 MPV_DecodePicAtrSj(MPV hn, SJ sj)
 // The user data of the last picture header (buffer and length).
 void MPV_GetPicUsr(MPV mpv, Uint8 **buf, Sint32 *len)
 {
+	/* base pointer keeps picusr at 0x3E8 in one addiu (retail 005050B8 addiu 1000 proves base+small, not direct) */
+	struct { Uint8 *b; Sint32 s; Sint32 l; } *p = (void *)&mpv->picusr_buf;
 	if (buf != NULL) {
-		*buf = mpv->picusr_buf;
+		*buf = p->b;
 	}
 	if (len != NULL) {
-		*len = mpv->picusr_len;
+		*len = p->l;
 	}
 }
 
 // Buffer that receives each picture's user data (Sofdec per-frame data, SFD_SetPicUsrBuf).
 void MPV_SetPicUsrBuf(MPV mpv, Uint8 *buf, Sint32 bufsiz)
 {
-	mpv->picusr_buf = buf;
-	mpv->picusr_bufsiz = bufsiz;
-	mpv->picusr_len = 0;
+	/* base pointer for addiu 1000 pattern (retail 005050A0 addiu 1000 proves base+small for 0,4,8 stores) */
+	struct { Uint8 *b; Sint32 s; Sint32 l; } *p = (void *)&mpv->picusr_buf;
+	p->b = buf;
+	p->s = bufsiz;
+	p->l = 0;
 }
 
 // Stream joint (+ notification callback) that receives the user data of header type `id`

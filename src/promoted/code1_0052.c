@@ -161,8 +161,6 @@ s32 *func_00528c30(void)
 
 /* measured: ee-gcc -O2 -G0 matches the 16-byte retail window. */
 #pragma schedule on
-// FUN_0052B950
-INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052b950);
 // FUN_0052B9A0
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052b9a0);
 // FUN_0052B9E0

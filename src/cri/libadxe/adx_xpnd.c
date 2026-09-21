@@ -5,7 +5,9 @@
 //#include <string.h>
 
 Sint32 adxpd_internal_error = 0;
-ADX_XPDOBJ adxpd_obj[8] = { 0 };
+/* 16 decoders, not 8: retail's ADXPD_ExecServer counts down from
+ * `addiu $s1, $zero, 0xf` at 0x004D8C30. */
+ADX_XPDOBJ adxpd_obj[16] = { 0 };
 
 // 100% matching!
 void ADXPD_Init(void) 
@@ -20,7 +22,7 @@ ADXPD ADXPD_Create(void)
 	ADXPD xpd1;
     ADXPD xpd2;
 
-    for (no = 0; no < 8; no++) 
+    for (no = 0; no < 16; no++) 
     {
         xpd1 = &adxpd_obj[no];
         
@@ -30,7 +32,7 @@ ADXPD ADXPD_Create(void)
         }
     } 
 
-    if (no == 8) 
+    if (no == 16) 
     {
         return NULL;
     }
@@ -193,12 +195,13 @@ void ADXPD_ExecHndl(ADXPD xpd)
 }
 
 // 100% matching!
+// FUN_004D8C18
 void ADXPD_ExecServer(void) 
 {
     ADXPD xpd;
     Sint32 no;
 
-    for (no = 0; no < 8; no++) 
+    for (no = 0; no < 16; no++) 
     {
         xpd = &adxpd_obj[no];
 

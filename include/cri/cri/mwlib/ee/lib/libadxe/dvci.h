@@ -20,6 +20,8 @@ typedef struct
 	Sint32 tr_nsct;
 	sceCdlFILE fp;
 	sceCdRMode mode;
+	Sint32 unk40;
+	Sint32 unk44;
 } DVS_CI_OBJ;
 typedef DVS_CI_OBJ *DVCI;
 

@@ -86,17 +86,16 @@ void lsc_StatRead(LSC lsc)
 // 100% matching!
 void lsc_StatEnd(LSC lsc) 
 {
-    static Sint8 fname[LSC_FNAME_MAX];
+    Sint8 *fname;
 	void *dir;
 	Sint32 ofst;
 	Sint32 nsct;
 	LSC_SINFO *sinfo;
 
-    dir = NULL; 
-    
+    fname = NULL;
+    dir = NULL;
     ofst = 0;
-    
-    nsct = 0; 
+    nsct = 0;
     
     if (lsc->fp != NULL) 
     {
@@ -108,7 +107,7 @@ void lsc_StatEnd(LSC lsc)
         {
             sinfo = &lsc->sinfo[lsc->rpos];
             
-            memcpy(fname, sinfo->fname, sizeof(fname) - 1);
+            fname = sinfo->fname;
             
             dir = sinfo->dir;
             
@@ -138,6 +137,7 @@ void lsc_StatEnd(LSC lsc)
 }
 
 // 100% matching! 
+// FUN_004E9D50
 void lsc_ExecHndl(LSC lsc) 
 {
     if ((lsc->pause == TRUE) || (lsc->stat != LSC_STAT_EXEC) || (lsc->nstm <= 0)) 

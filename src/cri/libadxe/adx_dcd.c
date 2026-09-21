@@ -21,7 +21,7 @@ void ADX_GetCoefficient(Sint32 cof, Sint32 sfreq, Sint16 *k0, Sint16 *k1)
 // 100% matching!
 Sint32 ADX_ScanInfoCode(Sint8 *ibuf, Sint32 ibuflen, Sint16 *dlen)
 {
-	Sint16 code;
+	Uint16 code;
 	Sint32 ptr;
 	Sint32 minptr;
 
@@ -31,7 +31,7 @@ Sint32 ADX_ScanInfoCode(Sint8 *ibuf, Sint32 ibuflen, Sint16 *dlen)
     
     for (ptr = 0; ptr < (ibuflen - 1); ptr += 2) 
     {
-        if (*(Sint16*)&ibuf[ptr] == code) 
+        if (*(Uint16*)&ibuf[ptr] == code)
         {
             minptr = (ptr < minptr) ? ptr : minptr;
             break;

@@ -7,8 +7,11 @@
 #include "cri_cvfs.h"
 #include "macros.h"
 
-typedef struct _adxstm_file 
-{ 
+/* ADXSTM_FILE is 64B (40*64=2560=0xA00) in this older CRI generation, distinct from P4 retail's
+ * 0x60 (96B) ADXSTM_OBJ pool (40*96=3840=0xF00, `li a2,3840` at 0x4D193C). Do NOT grow it to 0x60
+ * to chase P4 sizes; SetupHandleMember/CreateCvfs/Init SIZE mismatches against P4 are expected. */
+typedef struct _adxstm_file
+{
 	Sint8 used;
 	Sint8 stat;
 	Sint8 rdflg;

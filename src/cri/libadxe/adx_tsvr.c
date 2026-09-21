@@ -15,6 +15,24 @@ Sint32 adxt_dbg_nch = 0;
 Sint32 adxt_dbg_ndt = 0;
 Sint32 adxt_dbg_rna_ndata = 0;
 
+// NOTE (9.44 vs 8.30 version gaps, documented not ported):
+// - adxt_trap_entry 392B vs P4 408B at 0x004D73D8: P4 tests `lbu $v0,2($s1)`
+//   (mode at 0x02) with `addiu $v0,-2`+`sltiu $v0,2` (mode==2||3) at 0x4D7404/0x4D7408
+//   and `lb $v0,0x6c($s1)` (lpsw) at 0x4D7410, then `lw $a2,0x50($s1)` (lpendmod)
+//   and `sw $a1,0x90($s1)` (trapnsmpl) / `lw $v0,0x4c($s1)` (lpcnt); 8.30 here tests
+//   `stm==NULL && lpflg==0` and uses lp_skiplen at 0x50(trpnsmpl at 0x90 is 0xE4 in
+//   8.30 with NCH=8, 0x90 with NCH=2 but lpcnt is 0x70 vs 0x4C), so the 16B gap is
+//   a struct/layout change, not a 4-word tweak.
+// - adxt_set_outpan 220B vs 104B at 0x004D7618: P4 just forwards
+//   `lh $a2,0x42`/`lh $a2,0x44` (outpan) to `j 0x004D4DF0` (RNA pan) at
+//   0x4D7640/0x4D765C; 8.30 adds PAN_AUTO (-128) -> LEFT/RIGHT/CENTER mapping.
+// - adxt_stat_decend 80B vs 520B at 0x004D8000, adxt_stat_decinfo 808B vs 1040B at
+//   0x004D7968: stubs vs 9.44's channel loops, flush_nsmpl at 0xA8 and
+//   fname/dir/ofst/nsct at 0xB4/0xB8/0xBC/0xC0. adxt_RcvrReplay 220B vs 240B at
+//   0x004D8210 differs by the second `jal 0x004C54A8` (Lock) and trailing
+//   `j 0x004C54C0` (Unlock) around the sjo reset loop. adxt_disp_rna_stat 260B vs
+//   256B at 0x004D3750 is the closest (same rna at 0x0C/stat at 0x01 offsets) and
+//   differs only in saved-reg allocation (`-0x40` vs `-0x30` frame).
 // 100% matching!
 void adxt_trap_entry(void *obj)
 {

@@ -21,7 +21,7 @@
 typedef struct SFXZ_OBJ SFXZ_OBJ;
 typedef struct SFXA_OBJ SFXA_OBJ;
 
-/* SFX handle (0x78 bytes, sfx_libwork.hn[]) */
+/* SFX handle (0x74 bytes, sfx_libwork.hn[]) */
 typedef struct SFX_OBJ {
 	Sint32 used;               /* 0x00 */
 	Sint32 compo;              /* 0x04 stream component layout (0 = not read yet) */
@@ -32,21 +32,28 @@ typedef struct SFX_OBJ {
 	Sint32 taginf_flg;         /* 0x18 */
 	Sint32 tag_a;              /* 0x1C */
 	Sint32 tag_b;              /* 0x20 */
-	Sint32 pad24;              /* 0x24 */
-	SFXZ_OBJ *sfxz;            /* 0x28 */
-	Sint32 x2c;                /* 0x2C (1) */
-	Sint32 x30;                /* 0x30 */
-	SFXA_OBJ *sfxa;            /* 0x34 */
-	void *coladj;              /* 0x38 */
-	Sint32 tbl_type;           /* 0x3C type of the conversion table in buf[0] */
-	Uint8 *buf[4];             /* 0x40 four 0x400-byte buffers carved from the work (buf[0] = table) */
-	Sint32 pad50[2];           /* 0x50 */
-	void *work;                /* 0x58 */
-	Sint32 wsize;              /* 0x5C */
-	Sint32 pad60[2];           /* 0x60 */
-	Sint32 x68;                /* 0x68 (-1) */
-	Sint32 pad6c[2];           /* 0x6C */
-	Sint32 x74;                /* 0x74 */
+	/* P4: 9.44 carries four fewer bytes before sfxz than this 9.31 header.
+	 * Retail proves it twice at once: SFX_Destroy at 0x0052B950 reads sfxz
+	 * with `lw $a0, 0x24($v0)` (0052B964) and sfxa with `lw $s0, 0x30($v0)`
+	 * (0052B968) where this layout has 0x28/0x34, and SFX_SetTagInf at
+	 * 0x0052BAF0 addresses the tag block through `addiu $s1, $t0, 0x14`
+	 * (0052BAFC) with `sw $v0, 4($s1)` / `sw $v1, 8($s1)` (0052BB10/18) and
+	 * sfxz with `lw $s0, 0x24($t0)` (0052BB2C) where this layout has
+	 * 0x18/0x1C/0x20/0x28. The extra word is the pad24 below, removed. */
+	SFXZ_OBJ *sfxz;            /* 0x24 */
+	Sint32 x2c;                /* 0x28 (1) */
+	Sint32 x30;                /* 0x2C */
+	SFXA_OBJ *sfxa;            /* 0x30 */
+	void *coladj;              /* 0x34 */
+	Sint32 tbl_type;           /* 0x38 type of the conversion table in buf[0] */
+	Uint8 *buf[4];             /* 0x3C four 0x400-byte buffers carved from the work (buf[0] = table) */
+	Sint32 pad50[2];           /* 0x4C */
+	void *work;                /* 0x54 */
+	Sint32 wsize;              /* 0x58 */
+	Sint32 pad60[2];           /* 0x5C */
+	Sint32 x68;                /* 0x64 (-1) */
+	Sint32 pad6c[2];           /* 0x68 */
+	Sint32 x74;                /* 0x70 */
 } SFX_OBJ;
 
 #define SFX_MAX_HN 8
