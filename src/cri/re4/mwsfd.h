@@ -150,8 +150,11 @@ struct MWPLY_OBJ {
 	Sint32 used;               /* 0x04 */
 	Sint32 stat;               /* 0x08 */
 	MWSFD_CRPRM prm;           /* 0x0C */
-	Sint32 x3c;                /* 0x3C (1) */
-	void *sfd;                 /* 0x40 */
+	/* P4: 9.44 has no field here. Retail reads `sfd` at 0x3C and `stm` at
+	 * 0x40 - mwPlyChkSupply at 0x0050C5F4 - where this 9.31 header puts
+	 * them at 0x40 and 0x44. x3c is moved to the tail rather than deleted
+	 * so the code that writes it still compiles. */
+	void *sfd;                 /* 0x3C in 9.44 */
 	void *stm;                 /* 0x44 ADXSTM */
 	Sint32 x48;
 	void *lsc;                 /* 0x4C */
@@ -234,6 +237,7 @@ struct MWPLY_OBJ {
 	Sint32 x2ac;
 	Sint32 x2b0;
 	Sint32 x2b4;               /* 0x2B4 cleared when the decoder is stopped */
+	Sint32 x3c;                /* relocated: 0x3C in 9.31, absent in 9.44 */
 };
 
 typedef struct {

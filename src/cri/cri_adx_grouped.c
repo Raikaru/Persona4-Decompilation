@@ -1453,6 +1453,8 @@ u32 func_004bf200(int object)
 
 #pragma optimization_level 3
 
+// FUN_004BF208
+INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004bf208);
 
 // FUN_004BF210
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_004bf210);
