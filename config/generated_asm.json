@@ -38,7 +38,7 @@
     "tools/slus21782_functions.json": "43d17bf206f4c878e34ed335aa8a715e09b94a6060321f32c22e04ad72284b5a",
     "tools/extract_nonmatching_asm.py": "78cde4a7fded07dff5fd8151ebdcef2aa903d864e8a217669e04d78f27bd40eb",
     "tools/asm.py": "75670b3a6ddfa7761a0734b5a4d4b2692f365eaf04f8f8a5a2d6d8802ac5ab70",
-    "tools/verify.py": "e3da1a93763f5b8b6ebccfc7789a4c2cf2bc1d9f77057d5b99a5ad681f302940"
+    "tools/verify.py": "6728a0931244436c15a80053a6566f623901a119aae13cf5a6b6d839ea7d3fe9"
   },
   "generated": [
     {
@@ -56045,5 +56045,6 @@
       "sha256": "957b95309fcf6862a3802ac7c25f2589d7d1cc139504ab0c0aa27c22d3632501",
       "reason": "Hand-carried .rodata jump table and local case labels added in e135f04d; keep this hand-maintained assembly tracked."
     }
-  ]
+  ],
+  "inputs-verify.py": "tools/verify.py supplies retail-byte helpers and source filtering. Audited 2026-09-21: e3da1a93763f -> 6728a0931244. Three changes, none reachable from the generator: _compile_gcc now picks its include set per unit from config/version_flags.txt, a --skip-gcc-units flag was added, and the default scan no longer drops config/gcc_units.txt units. regenerate_asm.py uses RetailElf, the window tables and is_generated; it never calls _compile_gcc and never builds the default file list. is_generated and every other verifier AST node are unchanged, so the same source paths are selected and all 11152 generated outputs reproduce byte-for-byte."
 }

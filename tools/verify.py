@@ -834,11 +834,22 @@ def unit_compile_flags(cpath: Path, flags: list[str]) -> list[str]:
 
 def _compile_gcc(cpath: Path, cfg: dict, output: Path) -> tuple[bool, str]:
     # The ee-gcc units are vendor code and the CRI ones need their own header
-    # roots, the way the RenderWare block needs `include/rw/*`.  That set is
-    # declared in config/version_flags.txt like every other compiler-specific
-    # flag list, keyed by compiler rather than by unit; only the `-I` entries
-    # are taken, because the shim pins the optimisation level itself.
-    includes = [flag for flag in version_flags().get("eegcc296", [])
+    # roots, the way the RenderWare block needs `include/rw/*`.  Those sets
+    # are declared in config/version_flags.txt like every other
+    # compiler-specific flag list; only the `-I` entries are taken, because
+    # the shim pins the optimisation level itself.
+    #
+    # The key is per unit, not per compiler, because two independent
+    # reconstructions of CRI's library live side by side - one from the RECVX
+    # decompilation, one from RE4's - and each brings its own `cri_xpt.h` and
+    # `sj.h`.  A single shared include path would silently give one tree the
+    # other's headers, and they disagree: RE4's `Sint32` is `signed long`,
+    # which is 4 bytes on GameCube and 8 here.
+    try:
+        key = compiler_units().get(cpath.resolve().relative_to(REPO).as_posix())
+    except ValueError:
+        key = None
+    includes = [flag for flag in version_flags().get(key or "eegcc296", [])
                 if flag.startswith("-I")]
     shim = TOOLS / "eegcc_shim.py"
     process = subprocess.run(
@@ -931,23 +942,31 @@ def main() -> None:
     parser.add_argument("--show-mismatches", action="store_true", help="print non-MATCH/non-STUB detail")
     parser.add_argument("--include-generated", action="store_true",
                         help="include src/generated candidate files in the scan")
+    parser.add_argument("--skip-gcc-units", action="store_true",
+                        help="omit config/gcc_units.txt units, for an "
+                             "environment with no ee-gcc toolchain")
     args = parser.parse_args()
     cfg, target, windows = load_config(), _read_json(TARGET), _read_json(FUNCTION_WINDOWS)
     if windows.get("program") != "SLUS_217.82" or windows.get("sha1") != target["elf"]["sha1"]:
         _die("slus21782_functions.json does not describe the configured P4 USA target")
     retail = RetailElf(cfg["retail_elf"], target, windows["sha1"])
 
-    # config/gcc_units.txt units are linked from their extracted retail
-    # assembly rather than compiled, because building them needs an ee-gcc
-    # toolchain this repo does not ship. Scoring them here would report
-    # COMPILE_ERROR wherever that toolchain is absent -- CI included -- while
-    # reporting MATCH on a developer machine that happens to have it, so the
-    # same tree would grade differently in two places. They hold no first-party
-    # functions, so excluding them costs the project's metric nothing.
+    # config/gcc_units.txt units used to be excluded here. That was written
+    # when every one of them held nothing but INCLUDE_ASM: scoring them would
+    # have reported COMPILE_ERROR wherever the ee-gcc toolchain was absent,
+    # CI included, and MATCH on a developer machine that happened to have it,
+    # so the same tree graded differently in two places for no gain.
+    #
+    # The CRI units under src/cri broke that premise. They are real
+    # reconstructed C that compiles to retail's bytes, so excluding them
+    # would hide genuine matches and, worse, leave those addresses owned by a
+    # unit nothing ever verifies. The toolchain is a build requirement now
+    # rather than an optional extra, and `--skip-gcc-units` remains for an
+    # environment that truly cannot supply one.
     source_files = sorted(
         path for path in (REPO / "src").rglob("*.c")
         if (args.include_generated or not is_generated(path))
-        and not is_gcc_unit(path)
+        and not (args.skip_gcc_units and is_gcc_unit(path))
     )
     requested = [Path(file).resolve() for file in args.files] if args.files else source_files
     files: list[Path] = list(requested)
