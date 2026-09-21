@@ -124,6 +124,7 @@ void mwPlyStartFnameRange(MWPLY mwply, const Char8 *fname, Sint32 ofst, Sint32 n
 }
 
 /* the file stream reached its end: tell the decoder no more data comes */
+// FUN_0050C5E8
 void mwPlyChkSupply(MWPLY mwply)
 {
 	void *sfd = mwply->sfd;
