@@ -638,7 +638,6 @@ void MWSFSFX_CnvFrmInfToSfx(MWPLY mwply, MWS_FRM *frm, SFX_FRM *sfxfrm)
 }
 
 // The player's SFX converter handle.
-// FUN_004BF208
 SFX_OBJ *MWSFSFX_GetSfxHn(MWPLY mwply)
 {
 	return mwply->sfx;
