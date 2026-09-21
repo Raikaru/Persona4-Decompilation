@@ -1,0 +1,5691 @@
+{
+ "00100670": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0016cbd0",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,semantic,0.991); src(RW-core,symtab) p4:00100670 size=1888; br:0016cbd0 size=2460; outside-RW-block-cap,mangled-name",
+  "name": "rw_init2__Fv",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9908565613573072,
+  "source_file": "RW-core (symtab)"
+ },
+ "0014d7d0": {
+  "ballers_evidence": "context",
+  "ballers_ref": "00133af0",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,context,1.000); src(RW-core,symtab) p4:0014d7d0 size=36; br:00133af0 size=36; outside-RW-block-cap",
+  "name": "RwV2dLength",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "0015c1e0": {
+  "ballers_evidence": "shape",
+  "ballers_ref": "0019fa30",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,shape,1.000); src(RW-core,symtab) p4:0015c1e0 size=48; br:0019fa30 size=48; outside-RW-block-cap,mangled-name",
+  "name": "rwutil_CallBack_ClumpGetAtomic__FP8RpAtomicPv",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "0016e8c0": {
+  "ballers_evidence": "context",
+  "ballers_ref": "0012ee90",
+  "burnout_name": "HasMemoryBuffer__17CGtLobbyDirtySock16ELobbyMemoryPool",
+  "burnout_score": 1.0,
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,context,1.000); src(RW-core,symtab) p4:0016e8c0 size=20; br:0012ee90 size=20; outside-RW-block-cap; burnout disagrees: HasMemoryBuffer__17CGtLobbyDirtySock16ELobbyMemoryPool (context,1.000)",
+  "name": "_rwSListGetEntry",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "0018a170": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0019f890",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.859); src(RW-core,symtab) p4:0018a170 size=136; br:0019f890 size=84; outside-RW-block-cap,mangled-name",
+  "name": "rwutil_AtomicRenderClippedToCamera__FP8RpAtomicbP8RwCamera",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.8585709541853855,
+  "source_file": "RW-core (symtab)"
+ },
+ "001b93c0": {
+  "ballers_evidence": "context",
+  "ballers_ref": "0014df70",
+  "confidence": 0.63,
+  "evidence": "diff(p4-vs-ballers,context,0.862); src(basky.c) p4:001b93c0 size=412; br:0014df70 size=408; outside-RW-block-cap; same-file cluster",
+  "name": "SkyUseMode",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.8623910320843028,
+  "source_file": "basky.c"
+ },
+ "001bbd80": {
+  "ballers_evidence": "context",
+  "ballers_ref": "00235ff0",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,context,0.870); src(RW-core,symtab) p4:001bbd80 size=252; br:00235ff0 size=284; outside-RW-block-cap",
+  "name": "RtQuatConvertFromMatrix",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.8698328000457104,
+  "source_file": "RW-core (symtab)"
+ },
+ "001bbf40": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00133c50",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.901); src(RW-core,symtab) p4:001bbf40 size=80; br:00133c50 size=60; outside-RW-block-cap",
+  "name": "RwV3dTransformVector",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9008097165991902,
+  "source_file": "RW-core (symtab)"
+ },
+ "001ec350": {
+  "ballers_evidence": "shape",
+  "ballers_ref": "00133970",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,shape,1.000); src(RW-core,symtab) p4:001ec350 size=120; br:00133970 size=120; outside-RW-block-cap",
+  "name": "_rwV3dNormalize",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "00275d80": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "003146d0",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.873); src(RW-core,symtab) p4:00275d80 size=1124; br:003146d0 size=868; outside-RW-block-cap",
+  "name": "RpTeamCreate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.8732956624433083,
+  "source_file": "RW-core (symtab)"
+ },
+ "0028b320": {
+  "ballers_evidence": "context",
+  "ballers_ref": "002b6fa0",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,context,0.858); src(RW-core,symtab) p4:0028b320 size=284; br:002b6fa0 size=256; outside-RW-block-cap",
+  "name": "RpDMorphGeometryCreateDMorphTargets",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.8575000092870572,
+  "source_file": "RW-core (symtab)"
+ },
+ "0029d1c0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002b7cf0",
+  "burnout_name": "NextFrame__15CB4ReplaySystemP16CDrivingControlsb",
+  "burnout_score": 0.909,
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.933); src(RW-core,symtab) p4:0029d1c0 size=164; br:002b7cf0 size=176; outside-RW-block-cap; burnout disagrees: NextFrame__15CB4ReplaySystemP16CDrivingControlsb (call-graph,0.909)",
+  "name": "RpDMorphAtomicGetDMorphValues",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9326658778880725,
+  "source_file": "RW-core (symtab)"
+ },
+ "002a2650": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "003152d0",
+  "burnout_name": "LobbyStatbookCreate",
+  "burnout_score": 0.941,
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.951); src(RW-core,symtab) p4:002a2650 size=188; br:003152d0 size=200; outside-RW-block-cap; burnout disagrees: LobbyStatbookCreate (call-graph,0.941)",
+  "name": "RpTeamDictionaryCreate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9507288150089789,
+  "source_file": "RW-core (symtab)"
+ },
+ "002baa90": {
+  "ballers_evidence": "context",
+  "ballers_ref": "0013e710",
+  "burnout_name": "SubmitWorldCoronasForRendering__17CB4EffectsManagerP35CB4StreamedTrackLODAndCollisionData",
+  "burnout_score": 1.0,
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,context,0.988); src(RW-core,symtab) p4:002baa90 size=48; br:0013e710 size=48; outside-RW-block-cap; burnout disagrees: SubmitWorldCoronasForRendering__17CB4EffectsManagerP35CB4StreamedTrackLODAndCollisionData (profile,1.000)",
+  "name": "RwTexDictionaryRemoveTexture",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9875000000000002,
+  "source_file": "RW-core (symtab)"
+ },
+ "00311e40": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00253840",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.891); src(RW-core,symtab) p4:00311e40 size=84; br:00253840 size=72; outside-RW-block-cap",
+  "name": "RpHAnimIDGetIndex",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.8905677655677656,
+  "source_file": "RW-core (symtab)"
+ },
+ "0035c670": {
+  "ballers_evidence": "context",
+  "ballers_ref": "002b71e0",
+  "burnout_name": "sceSifSetSreg",
+  "burnout_score": 1.0,
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,context,1.000); src(RW-core,symtab) p4:0035c670 size=28; br:002b71e0 size=28; outside-RW-block-cap; burnout disagrees: sceSifSetSreg (context,1.000)",
+  "name": "RpDMorphGeometryGetDMorphTarget",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "0038f680": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "003cab90",
+  "burnout_name": "urlDecode__20AptActionInterpreterPCcR9EAStringCT2",
+  "burnout_score": 0.937,
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.888); src(RW-core,symtab) p4:0038f680 size=356; br:003cab90 size=324; outside-RW-block-cap; burnout disagrees: urlDecode__20AptActionInterpreterPCcR9EAStringCT2 (call-graph,0.937)",
+  "name": "RwFgets",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.8881936589899118,
+  "source_file": "RW-core (symtab)"
+ },
+ "00394fd0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002b6090",
+  "confidence": 0.975,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.975); src(RW-core,symtab) p4:00394fd0 size=292; br:002b6090 size=308",
+  "name": "RpDMorphAnimationCreate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9753368169267395,
+  "source_file": "RW-core (symtab)"
+ },
+ "00395100": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002b6270",
+  "confidence": 0.999,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.999); src(RW-core,symtab) p4:00395100 size=392; br:002b6270 size=396",
+  "name": "RpDMorphAnimationCreateFrames",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9994722169569421,
+  "source_file": "RW-core (symtab)"
+ },
+ "00395290": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002b6430",
+  "confidence": 0.942,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.942); src(RW-core,symtab) p4:00395290 size=536; br:002b6430 size=532",
+  "name": "RpDMorphAnimationStreamRead",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9415000830311255,
+  "source_file": "RW-core (symtab)"
+ },
+ "003962e0": {
+  "ballers_evidence": "context",
+  "ballers_ref": "00252700",
+  "confidence": 0.936,
+  "evidence": "diff(p4-vs-ballers,context,0.936); src(RW-core,symtab) p4:003962e0 size=200; br:00252700 size=208",
+  "name": "RpHAnimKeyFrameStreamWrite",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9355424483000242,
+  "source_file": "RW-core (symtab)"
+ },
+ "003963b0": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "002527d0",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,semantic,1.000); src(RW-core,symtab) p4:003963b0 size=16; br:002527d0 size=16; empty-stub-cap",
+  "name": "RpHAnimKeyFrameStreamGetSize",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003963c0": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "002527e0",
+  "confidence": 0.98,
+  "evidence": "diff(p4-vs-ballers,semantic,0.980); src(RW-core,symtab) p4:003963c0 size=352; br:002527e0 size=368",
+  "name": "RpHAnimKeyFrameMulRecip",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9799667493893565,
+  "source_file": "RW-core (symtab)"
+ },
+ "00396f00": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00253330",
+  "confidence": 0.979,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.979); src(RW-core,symtab) p4:00396f00 size=164; br:00253330 size=172",
+  "name": "RpHAnimPluginAttach",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9785792553030731,
+  "source_file": "RW-core (symtab)"
+ },
+ "00396fb0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002533e0",
+  "burnout_name": "GetRankRating__19CB4WorldTourService17ERevengeMeterRank",
+  "burnout_score": 0.897,
+  "confidence": 0.955,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.955); src(RW-core,symtab) p4:00396fb0 size=360; br:002533e0 size=360; burnout disagrees: GetRankRating__19CB4WorldTourService17ERevengeMeterRank (context,0.897)",
+  "name": "RpHAnimHierarchyCreate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9550795575746154,
+  "source_file": "RW-core (symtab)"
+ },
+ "00397120": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00253550",
+  "confidence": 0.859,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.859); src(RW-core,symtab) p4:00397120 size=164; br:00253550 size=168",
+  "name": "RpHAnimHierarchyDestroy",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8586346948591915,
+  "source_file": "RW-core (symtab)"
+ },
+ "00397390": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002536c0",
+  "confidence": 0.925,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.925); src(RW-core,symtab) p4:00397390 size=196; br:002536c0 size=188",
+  "name": "RpHAnimHierarchyAttach",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9254771788744535,
+  "source_file": "RW-core (symtab)"
+ },
+ "00397460": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "00253800",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,semantic,1.000); src(RW-core,symtab) p4:00397460 size=16; br:00253800 size=16; empty-stub-cap",
+  "name": "RpHAnimFrameGetHierarchy",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "00397470": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00253830",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.882); src(RW-core,symtab) p4:00397470 size=16; br:00253830 size=16; empty-stub-cap",
+  "name": "RpHAnimFrameGetID",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8815384615384616,
+  "source_file": "RW-core (symtab)"
+ },
+ "003999a0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00237cf0",
+  "confidence": 0.973,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.973); src(RW-core,symtab) p4:003999a0 size=356; br:00237cf0 size=396",
+  "name": "RpMatFXPluginAttach",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9727686511012754,
+  "source_file": "RW-core (symtab)"
+ },
+ "00399b10": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00237e80",
+  "burnout_name": "_rwaSymbolTableFindParamTypeByUUID",
+  "burnout_score": 0.959,
+  "confidence": 0.901,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.901); src(RW-core,symtab) p4:00399b10 size=100; br:00237e80 size=100; burnout disagrees: _rwaSymbolTableFindParamTypeByUUID (context,0.959)",
+  "name": "RpMatFXAtomicEnableEffects",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9006459686953164,
+  "source_file": "RW-core (symtab)"
+ },
+ "00399b80": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00237f00",
+  "confidence": 0.918,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.918); src(RW-core,symtab) p4:00399b80 size=100; br:00237f00 size=100",
+  "name": "RpMatFXWorldSectorEnableEffects",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9184237464730941,
+  "source_file": "RW-core (symtab)"
+ },
+ "00399bf0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00237f70",
+  "confidence": 0.908,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.908); src(RW-core,symtab) p4:00399bf0 size=392; br:00237f70 size=408",
+  "name": "RpMatFXMaterialSetEffects",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9079484783316202,
+  "source_file": "RW-core (symtab)"
+ },
+ "00399db0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00238270",
+  "confidence": 0.897,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.897); src(RW-core,symtab) p4:00399db0 size=540; br:00238270 size=552",
+  "name": "RpMatFXMaterialSetBumpMapTexture",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8966262311657094,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039a030": {
+  "ballers_evidence": "context",
+  "ballers_ref": "00238500",
+  "confidence": 0.975,
+  "evidence": "diff(p4-vs-ballers,context,0.975); src(RW-core,symtab) p4:0039a030 size=92; br:00238500 size=88",
+  "name": "RpMatFXMaterialSetBumpMapCoefficient",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9747533341341406,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039a090": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002385b0",
+  "confidence": 0.972,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.972); src(RW-core,symtab) p4:0039a090 size=88; br:002385b0 size=80",
+  "name": "RpMatFXMaterialGetBumpMapFrame",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9724848627977534,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039a0f0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00238600",
+  "confidence": 0.978,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.978); src(RW-core,symtab) p4:0039a0f0 size=88; br:00238600 size=84",
+  "name": "RpMatFXMaterialGetBumpMapCoefficient",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9781342026317271,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039a150": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00238660",
+  "burnout_name": "HashStrDel",
+  "burnout_score": 0.961,
+  "confidence": 0.924,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.924); src(RW-core,symtab) p4:0039a150 size=172; br:00238660 size=176; burnout disagrees: HashStrDel (context,0.961)",
+  "name": "RpMatFXMaterialSetEnvMapTexture",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9242404969886907,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039a260": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00238770",
+  "confidence": 0.99,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.990); src(RW-core,symtab) p4:0039a260 size=124; br:00238770 size=120",
+  "name": "RpMatFXMaterialSetEnvMapFrameBufferAlpha",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9899949955546413,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039a2e0": {
+  "ballers_evidence": "context",
+  "ballers_ref": "002384a0",
+  "burnout_name": "ResetInteractionBools__16CB4NetworkPlayer",
+  "burnout_score": 0.971,
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,context,0.970); src(RW-core,symtab) p4:0039a2e0 size=88; br:002384a0 size=84; burnout disagrees: ResetInteractionBools__16CB4NetworkPlayer (context,0.971)",
+  "name": "RpMatFXMaterialSetBumpMapFrame",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9701235076734038,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039a340": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00238850",
+  "confidence": 0.96,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.960); src(RW-core,symtab) p4:0039a340 size=88; br:00238850 size=80",
+  "name": "RpMatFXMaterialGetEnvMapTexture",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9596222061919812,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039a3a0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002388a0",
+  "confidence": 0.972,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.972); src(RW-core,symtab) p4:0039a3a0 size=88; br:002388a0 size=80",
+  "name": "RpMatFXMaterialGetEnvMapFrame",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9724848627977534,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039a400": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002388f0",
+  "confidence": 0.972,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.972); src(RW-core,symtab) p4:0039a400 size=88; br:002388f0 size=80",
+  "name": "RpMatFXMaterialGetEnvMapFrameBufferAlpha",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9724427190124941,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039a460": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00238940",
+  "confidence": 0.971,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.971); src(RW-core,symtab) p4:0039a460 size=88; br:00238940 size=80",
+  "name": "RpMatFXMaterialGetEnvMapCoefficient",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9714475419798904,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039a4c0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00238990",
+  "confidence": 0.986,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.986); src(RW-core,symtab) p4:0039a4c0 size=196; br:00238990 size=200",
+  "name": "RpMatFXMaterialSetDualTexture",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9862241036380488,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039a590": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00238a60",
+  "confidence": 0.988,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.988); src(RW-core,symtab) p4:0039a590 size=160; br:00238a60 size=160",
+  "name": "RpMatFXMaterialSetDualBlendModes",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9884772741273105,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039a630": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00238b00",
+  "confidence": 0.96,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.960); src(RW-core,symtab) p4:0039a630 size=88; br:00238b00 size=80",
+  "name": "RpMatFXMaterialGetDualTexture",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9596643499772404,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039a690": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00238b50",
+  "confidence": 0.982,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.982); src(RW-core,symtab) p4:0039a690 size=100; br:00238b50 size=96",
+  "name": "RpMatFXMaterialGetDualBlendModes",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9824335905144684,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039a700": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00238710",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.970); src(RW-core,symtab) p4:0039a700 size=92; br:00238710 size=84",
+  "name": "RpMatFXMaterialSetEnvMapFrame",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9699162734268925,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039a760": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "00238c10",
+  "confidence": 0.991,
+  "evidence": "diff(p4-vs-ballers,semantic,0.991); src(RW-core,symtab) p4:0039a760 size=116; br:00238c10 size=112",
+  "name": "RpMatFXMaterialGetUVTransformMatrices",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9905866923731254,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039a7e0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00238c80",
+  "burnout_name": "BeginRender__21CB4EnvironmentManager15EPlayerCarIndex",
+  "burnout_score": 1.0,
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(effectpipesdriver.c) p4:0039a7e0 size=8; br:00238c80 size=8; empty-stub-cap; burnout disagrees: BeginRender__21CB4EnvironmentManager15EPlayerCarIndex (context,1.000)",
+  "name": "_rpMatFXSetupDualRenderState",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "effectpipesdriver.c"
+ },
+ "0039a7f0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00238c90",
+  "confidence": 0.996,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.996); src(effectpipesdriver.c) p4:0039a7f0 size=172; br:00238c90 size=176",
+  "name": "_rpMatFXMaterialSkyInitialize",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9961908588910878,
+  "source_file": "effectpipesdriver.c"
+ },
+ "0039a8a0": {
+  "ballers_evidence": "shape",
+  "ballers_ref": "00238d40",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,shape,1.000); src(effectpipesdriver.c) p4:0039a8a0 size=104; br:00238d40 size=104",
+  "name": "_rpMatFXMaterialSkyEnvMapSetBlend",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "effectpipesdriver.c"
+ },
+ "0039a910": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00238db0",
+  "confidence": 0.991,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.991); src(effectpipesdriver.c) p4:0039a910 size=280; br:00238db0 size=272",
+  "name": "_rpMatFXMaterialSkyDualSetBlend",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9908584975801474,
+  "source_file": "effectpipesdriver.c"
+ },
+ "0039aa50": {
+  "ballers_evidence": "shape",
+  "ballers_ref": "00238ee0",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,shape,1.000); src(effectPipesSky.c) p4:0039aa50 size=92; br:00238ee0 size=92",
+  "name": "_rpMatFXPipelineWorldSectorSetup",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "effectPipesSky.c"
+ },
+ "0039aab0": {
+  "ballers_evidence": "shape",
+  "ballers_ref": "00238f40",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,shape,1.000); src(effectPipesSky.c) p4:0039aab0 size=88; br:00238f40 size=88",
+  "name": "_rpMatFXPipelineAtomicSetup",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "effectPipesSky.c"
+ },
+ "0039ab10": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00238fa0",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(effectPipesSky.c) p4:0039ab10 size=8; br:00238fa0 size=8; empty-stub-cap",
+  "name": "_rpMatFXSetupBumpMapTexture",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "effectPipesSky.c"
+ },
+ "0039b2c0": {
+  "ballers_evidence": "shape",
+  "ballers_ref": "002396a0",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,shape,1.000); src(RW-core,symtab) p4:0039b2c0 size=184; br:002396a0 size=188",
+  "name": "RpMorphGeometryCreateInterpolators",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039b380": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00239e90",
+  "confidence": 0.972,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.972); src(RW-core,symtab) p4:0039b380 size=204; br:00239e90 size=228",
+  "name": "RpMorphPluginAttach",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9716086507489642,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039b5a0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00280858",
+  "confidence": 0.986,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.986); src(RW-core,symtab) p4:0039b5a0 size=216; br:00280858 size=224",
+  "name": "RpPDSPluginAttach",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9861791894141921,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039b680": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00280938",
+  "confidence": 0.873,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.873); src(RW-core,symtab) p4:0039b680 size=88; br:00280938 size=76",
+  "name": "RpPDSRegisterPipe",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8726434752659488,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039b6e0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00280988",
+  "confidence": 0.946,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.946); src(RW-core,symtab) p4:0039b6e0 size=56; br:00280988 size=52",
+  "name": "RpPDSGetPipe",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9459542730838978,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039bbd0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00281030",
+  "confidence": 0.923,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.923); src(RW-core,symtab) p4:0039bbd0 size=540; br:00281030 size=560",
+  "name": "RpPDSSkyMatPipeCreate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9234125913707173,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039bdf0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00281260",
+  "confidence": 0.979,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.979); src(RW-core,symtab) p4:0039bdf0 size=188; br:00281260 size=196",
+  "name": "RpPDSSkyObjPipeCreate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.978862962335301,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039cb80": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00284cc0",
+  "confidence": 0.874,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.874); src(RW-core,symtab) p4:0039cb80 size=2012; br:00284cc0 size=2172",
+  "name": "RpPDS_G3_Emb_PS2AllMatBridgeCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8740065100331936,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039d360": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00285540",
+  "confidence": 0.89,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.890); src(RW-core,symtab) p4:0039d360 size=2396; br:00285540 size=2456",
+  "name": "RpPDS_G3_Gem_PS2AllMatBridgeCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8896990930782177,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039dcc0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00285ed8",
+  "confidence": 0.888,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.888); src(RW-core,symtab) p4:0039dcc0 size=2680; br:00285ed8 size=2776",
+  "name": "RpPDS_G3_Bem_PS2AllMatBridgeCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8880373058033658,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039e740": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002869b0",
+  "confidence": 0.885,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.885); src(RW-core,symtab) p4:0039e740 size=2312; br:002869b0 size=2376",
+  "name": "RpPDS_G3_Dup_PS2AllMatBridgeCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8848405785734897,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039f0e0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00287ba0",
+  "confidence": 0.886,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.886); src(RW-core,symtab) p4:0039f0e0 size=128; br:00287ba0 size=124",
+  "name": "RpPDS_G3_Skin_PS2AllInstanceCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.88594809733767,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039f160": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00287378",
+  "confidence": 0.922,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.922); src(RW-core,symtab) p4:0039f160 size=2148; br:00287378 size=2088",
+  "name": "RpPDS_G3_Skin_PS2AllObjectSetupCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9223140565318758,
+  "source_file": "RW-core (symtab)"
+ },
+ "0039f9d0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0028c228",
+  "confidence": 0.858,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.858); src(RW-core,symtab) p4:0039f9d0 size=2184; br:0028c228 size=2748",
+  "name": "RpPDS_G3_DMorph_PS2AllBridgeCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8580979592071637,
+  "source_file": "RW-core (symtab)"
+ },
+ "003a03a0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024d2d0",
+  "confidence": 0.927,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.897); src(ps2allatomic.c) p4:003a03a0 size=1792; br:0024d2d0 size=1772; same-file cluster",
+  "name": "RpMeshPS2AllBridgeCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8970425477386966,
+  "source_file": "ps2allatomic.c"
+ },
+ "003a0aa0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0028b168",
+  "confidence": 0.878,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.878); src(RW-core,symtab) p4:003a0aa0 size=2508; br:0028b168 size=2528",
+  "name": "RpPDS_G3x_DupUva_PS2AllBridgeCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8781044778680673,
+  "source_file": "RW-core (symtab)"
+ },
+ "003a14f0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00283fa8",
+  "confidence": 0.978,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.978); src(RW-core,symtab) p4:003a14f0 size=240; br:00283fa8 size=264",
+  "name": "RpPDS_G3x_APL_LightingUpload",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9780663780663782,
+  "source_file": "RW-core (symtab)"
+ },
+ "003a16c0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002b8310",
+  "confidence": 0.87,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.870); src(RW-core,symtab) p4:003a16c0 size=108; br:002b8310 size=108",
+  "name": "RpDMorphPluginAttach",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8695959595959596,
+  "source_file": "RW-core (symtab)"
+ },
+ "003a6650": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00288da8",
+  "confidence": 0.883,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.883); src(RW-core,symtab) p4:003a6650 size=1360; br:00288da8 size=1532",
+  "name": "RpPDS_G3x_Generic_MeshPS2AllBridgeCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8830654860515823,
+  "source_file": "RW-core (symtab)"
+ },
+ "003a7a30": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00317700",
+  "confidence": 0.853,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.853); src(teamskyrender.c) p4:003a7a30 size=1360; br:00317700 size=708",
+  "name": "_rpTeamRender",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8526454785151953,
+  "source_file": "teamskyrender.c"
+ },
+ "003a8840": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024ecc0",
+  "burnout_name": "_rwSkyRasterRenderScaled",
+  "burnout_score": 0.861,
+  "confidence": 0.905,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.875); src(ps2allim3d.c) p4:003a8840 size=1116; br:0024ecc0 size=1128; same-file cluster; burnout disagrees: _rwSkyRasterRenderScaled (call-graph,0.861)",
+  "name": "RwIm3DPS2AllBridgeCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8746817957326872,
+  "source_file": "ps2allim3d.c"
+ },
+ "003b4ff0": {
+  "ballers_evidence": "context",
+  "ballers_ref": "00236550",
+  "confidence": 0.927,
+  "evidence": "diff(p4-vs-ballers,context,0.927); src(RW-core,symtab) p4:003b4ff0 size=360; br:00236550 size=356",
+  "name": "RtQuatTransformVectors",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9271647509578546,
+  "source_file": "RW-core (symtab)"
+ },
+ "003b5d20": {
+  "ballers_evidence": "context",
+  "ballers_ref": "0019f240",
+  "confidence": 0.884,
+  "evidence": "diff(p4-vs-ballers,context,0.884); src(RW-core,symtab) p4:003b5d20 size=644; br:0019f240 size=504; mangled-name",
+  "name": "rwutil_AtomicSetAllMaterialColors__FP8RpAtomicPv",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8842809320977866,
+  "source_file": "RW-core (symtab)"
+ },
+ "003b61e0": {
+  "ballers_evidence": "context",
+  "ballers_ref": "0019f440",
+  "confidence": 0.872,
+  "evidence": "diff(p4-vs-ballers,context,0.872); src(RW-core,symtab) p4:003b61e0 size=424; br:0019f440 size=472; mangled-name",
+  "name": "rwutil_AtomicSetAllMaterialColorAlpha__FP8RpAtomicPv",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8720550234174649,
+  "source_file": "RW-core (symtab)"
+ },
+ "003b82d0": {
+  "ballers_evidence": "shape",
+  "ballers_ref": "002ca4f0",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,shape,1.000); src(RW-core,symtab) p4:003b82d0 size=244; br:002ca4f0 size=244",
+  "name": "RpSkinPluginAttach",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003b83d0": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "002ca5f0",
+  "confidence": 0.983,
+  "evidence": "diff(p4-vs-ballers,semantic,0.983); src(RW-core,symtab) p4:003b83d0 size=24; br:002ca5f0 size=24",
+  "name": "RpSkinAtomicSetHAnimHierarchy",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9830508474576273,
+  "source_file": "RW-core (symtab)"
+ },
+ "003b83f0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002ca610",
+  "confidence": 0.883,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.883); src(RW-core,symtab) p4:003b83f0 size=20; br:002ca610 size=20",
+  "name": "RpSkinGeometryGetSkin",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8827618164967561,
+  "source_file": "RW-core (symtab)"
+ },
+ "003b8410": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002ca630",
+  "confidence": 0.989,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.989); src(RW-core,symtab) p4:003b8410 size=132; br:002ca630 size=140",
+  "name": "RpSkinGeometrySetSkin",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9888932709187518,
+  "source_file": "RW-core (symtab)"
+ },
+ "003b84a0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002ca6c0",
+  "confidence": 0.992,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.992); src(RW-core,symtab) p4:003b84a0 size=96; br:002ca6c0 size=92",
+  "name": "RpSkinDestroy",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9921742192581811,
+  "source_file": "RW-core (symtab)"
+ },
+ "003b8510": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002ca730",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:003b8510 size=8; br:002ca730 size=8; empty-stub-cap",
+  "name": "RpSkinGetSkinToBoneMatrices",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003b8520": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002ca740",
+  "confidence": 0.907,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.907); src(RW-core,symtab) p4:003b8520 size=136; br:002ca740 size=136",
+  "name": "RpSkinAtomicSetType",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9065339793256371,
+  "source_file": "RW-core (symtab)"
+ },
+ "003b85e0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002ca7d0",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.946); src(skinskycommon.c) p4:003b85e0 size=728; br:002ca7d0 size=740; same-file cluster",
+  "name": "_rpSkinInitialize",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9455612156976243,
+  "source_file": "skinskycommon.c"
+ },
+ "003b88c0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002caac0",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(skinskycommon.c) p4:003b88c0 size=8; br:002caac0 size=8; empty-stub-cap",
+  "name": "_rpSkinDeinitialize",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "skinskycommon.c"
+ },
+ "003b88d0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002caad0",
+  "confidence": 0.992,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.992); src(skinskycommon.c) p4:003b88d0 size=84; br:002caad0 size=88",
+  "name": "_rpSkinGeometryNativeSize",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9919729150365493,
+  "source_file": "skinskycommon.c"
+ },
+ "003b8930": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002cab30",
+  "confidence": 0.998,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.998); src(skinskycommon.c) p4:003b8930 size=404; br:002cab30 size=416",
+  "name": "_rpSkinGeometryNativeWrite",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.997780630141404,
+  "source_file": "skinskycommon.c"
+ },
+ "003b8ad0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002cacd0",
+  "burnout_name": "_rwaMemoryBitmapCreate",
+  "burnout_score": 0.925,
+  "confidence": 0.998,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.998); src(skinskycommon.c) p4:003b8ad0 size=588; br:002cacd0 size=600; burnout disagrees: _rwaMemoryBitmapCreate (call-graph,0.925)",
+  "name": "_rpSkinGeometryNativeRead",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9976334386152846,
+  "source_file": "skinskycommon.c"
+ },
+ "003b8d20": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002caf30",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(skinmatfxsky.c) p4:003b8d20 size=8; br:002caf30 size=8; empty-stub-cap",
+  "name": "_rpSkinPipelinesCreate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "skinmatfxsky.c"
+ },
+ "003b8d30": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00238ed0",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(effectPipesSky.c) p4:003b8d30 size=8; br:00238ed0 size=8; empty-stub-cap",
+  "name": "_rpMatFXPipelinesDestroy",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "effectPipesSky.c"
+ },
+ "003b8d40": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002caf50",
+  "confidence": 0.949,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.919); src(skinmatfxsky.c) p4:003b8d40 size=264; br:002caf50 size=264; same-file cluster",
+  "name": "_rpSkinPipelinesAttach",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9189494241605226,
+  "source_file": "skinmatfxsky.c"
+ },
+ "003bb330": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0023bfe0",
+  "confidence": 0.968,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.968); src(RW-core,symtab) p4:003bb330 size=104; br:0023bfe0 size=116",
+  "name": "RpSplineGetNumControlPoints",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9678889758646948,
+  "source_file": "RW-core (symtab)"
+ },
+ "003bb3a0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0012eb70",
+  "burnout_name": "_rwResourcesOpen",
+  "burnout_score": 0.923,
+  "confidence": 0.912,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.912); src(RW-core,symtab) p4:003bb3a0 size=252; br:0012eb70 size=248; burnout disagrees: _rwResourcesOpen (call-graph,0.923)",
+  "name": "_rwSListGetNewEntry",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9123178673178675,
+  "source_file": "RW-core (symtab)"
+ },
+ "003bb4a0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0012ec70",
+  "burnout_name": "RwEngineOpen",
+  "burnout_score": 0.917,
+  "confidence": 0.925,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.925); src(RW-core,symtab) p4:003bb4a0 size=272; br:0012ec70 size=268; burnout disagrees: RwEngineOpen (call-graph,0.917)",
+  "name": "_rwSListGetNewEntries",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9249720409313893,
+  "source_file": "RW-core (symtab)"
+ },
+ "003bb5b0": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0023c060",
+  "confidence": 0.965,
+  "evidence": "diff(p4-vs-ballers,semantic,0.965); src(RW-core,symtab) p4:003bb5b0 size=1236; br:0023c060 size=1228",
+  "name": "RpSplineFindPosition",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9650152823151822,
+  "source_file": "RW-core (symtab)"
+ },
+ "003bbb60": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0023c530",
+  "confidence": 0.994,
+  "evidence": "diff(p4-vs-ballers,semantic,0.994); src(RW-core,symtab) p4:003bbb60 size=116; br:0023c530 size=116",
+  "name": "RpSplineDestroy",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9938503004067205,
+  "source_file": "RW-core (symtab)"
+ },
+ "003bbbe0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0023c5b0",
+  "confidence": 0.979,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.979); src(RW-core,symtab) p4:003bbbe0 size=576; br:0023c5b0 size=608",
+  "name": "RpSplineCreate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9794460127027905,
+  "source_file": "RW-core (symtab)"
+ },
+ "003bbe20": {
+  "ballers_evidence": "profile",
+  "ballers_ref": "0023c810",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,profile,1.000); src(RW-core,symtab) p4:003bbe20 size=56; br:0023c810 size=56",
+  "name": "RpSplinePluginAttach",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003bd110": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002b5cb0",
+  "confidence": 0.961,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.961); src(RW-core,symtab) p4:003bd110 size=72; br:002b5cb0 size=80",
+  "name": "RpUserDataGetFormatSize",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9612443303622127,
+  "source_file": "RW-core (symtab)"
+ },
+ "003bd160": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002b5d00",
+  "confidence": 0.974,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.974); src(RW-core,symtab) p4:003bd160 size=776; br:002b5d00 size=900",
+  "name": "RpUserDataPluginAttach",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9738788011700338,
+  "source_file": "RW-core (symtab)"
+ },
+ "003bfae0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0023d6c0",
+  "confidence": 0.92,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.920); src(RW-core,symtab) p4:003bfae0 size=352; br:0023d6c0 size=352",
+  "name": "RpAtomicGetWorldBoundingSphere",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9195665541780066,
+  "source_file": "RW-core (symtab)"
+ },
+ "003bfe60": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0023da70",
+  "confidence": 0.997,
+  "evidence": "diff(p4-vs-ballers,semantic,0.997); src(RW-core,symtab) p4:003bfe60 size=44; br:0023da70 size=44",
+  "name": "RpClumpGetNumAtomics",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9966386459514937,
+  "source_file": "RW-core (symtab)"
+ },
+ "003bfe90": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0023daa0",
+  "confidence": 0.915,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.915); src(RW-core,symtab) p4:003bfe90 size=148; br:0023daa0 size=136",
+  "name": "RpClumpRender",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.915343060022131,
+  "source_file": "RW-core (symtab)"
+ },
+ "003bff30": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0023db30",
+  "burnout_name": "SetPlayerSticking__Q221CB4OnlineResultsState15CB4PlayerActionib",
+  "burnout_score": 0.853,
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,semantic,1.000); src(RW-core,symtab) p4:003bff30 size=132; br:0023db30 size=136; burnout disagrees: SetPlayerSticking__Q221CB4OnlineResultsState15CB4PlayerActionib (call-graph,0.853)",
+  "name": "RpClumpForAllAtomics",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003bffc0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0023dbc0",
+  "confidence": 0.987,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.987); src(RW-core,symtab) p4:003bffc0 size=140; br:0023dbc0 size=144",
+  "name": "RpClumpForAllCameras",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9874643874643875,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c0050": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0023dc50",
+  "confidence": 0.987,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.987); src(RW-core,symtab) p4:003c0050 size=140; br:0023dc50 size=144",
+  "name": "RpClumpForAllLights",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9874643874643875,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c0520": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0023e130",
+  "confidence": 0.999,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.999); src(RW-core,symtab) p4:003c0520 size=276; br:0023e130 size=284",
+  "name": "RpClumpClone",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9986540022178877,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c0640": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0023e250",
+  "burnout_name": "OnRaceCarElimination__20CB4HUDMessageManageri",
+  "burnout_score": 0.943,
+  "confidence": 0.961,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.961); src(RW-core,symtab) p4:003c0640 size=180; br:0023e250 size=192; burnout disagrees: OnRaceCarElimination__20CB4HUDMessageManageri (context,0.943)",
+  "name": "RpClumpCreate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.960581275014632,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c0700": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0023e310",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,semantic,1.000); src(RW-core,symtab) p4:003c0700 size=328; br:0023e310 size=332",
+  "name": "RpClumpDestroy",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9996498452470054,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c0880": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0023e490",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:003c0880 size=52; br:0023e490 size=52",
+  "name": "RpClumpRemoveLight",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c0f20": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0023e510",
+  "confidence": 0.933,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.933); src(RW-core,symtab) p4:003c0f20 size=2948; br:0023e510 size=2876",
+  "name": "RpClumpStreamRead",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9327831907427381,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c1ab0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0023f050",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:003c1ab0 size=44; br:0023f050 size=44",
+  "name": "RpAtomicRegisterPlugin",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c1ae0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0023f080",
+  "burnout_name": "RwCameraRegisterPlugin",
+  "burnout_score": 0.888,
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:003c1ae0 size=44; br:0023f080 size=44; burnout disagrees: RwCameraRegisterPlugin (call-graph,0.888)",
+  "name": "RpClumpRegisterPlugin",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c1b10": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0023f0b0",
+  "confidence": 0.962,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.962); src(RW-core,symtab) p4:003c1b10 size=36; br:0023f0b0 size=36",
+  "name": "RpAtomicRegisterPluginStream",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9615384615384615,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c1b40": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0023f0e0",
+  "confidence": 0.994,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.994); src(RW-core,symtab) p4:003c1b40 size=24; br:0023f0e0 size=24",
+  "name": "RpAtomicSetStreamAlwaysCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9935897435897436,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c1b60": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0023f100",
+  "confidence": 0.99,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.990); src(RW-core,symtab) p4:003c1b60 size=24; br:0023f100 size=24",
+  "name": "RpAtomicSetStreamRightsCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9903846153846154,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c1b80": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0023f120",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:003c1b80 size=16; br:0023f120 size=16; empty-stub-cap",
+  "name": "RpAtomicGetPluginOffset",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c1d40": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0023f240",
+  "confidence": 0.895,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.895); src(RW-core,symtab) p4:003c1d40 size=344; br:0023f240 size=384",
+  "name": "RpMorphTargetCalcBoundingSphere",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8953695305910081,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c2290": {
+  "ballers_evidence": "shape",
+  "ballers_ref": "0023f7a0",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,shape,1.000); src(RW-core,symtab) p4:003c2290 size=84; br:0023f7a0 size=84",
+  "name": "RpGeometryLock",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c2b70": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00240020",
+  "confidence": 0.997,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.997); src(RW-core,symtab) p4:003c2b70 size=44; br:00240020 size=44",
+  "name": "RpGeometryRegisterPlugin",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9972527472527473,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c2ba0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00240050",
+  "confidence": 0.958,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.958); src(RW-core,symtab) p4:003c2ba0 size=36; br:00240050 size=36",
+  "name": "RpGeometryRegisterPluginStream",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9583333333333333,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c3920": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00240910",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:003c3920 size=44; br:00240910 size=44",
+  "name": "RpLightRegisterPlugin",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c3950": {
+  "ballers_evidence": "context",
+  "ballers_ref": "00240940",
+  "confidence": 0.95,
+  "evidence": "diff(p4-vs-ballers,context,0.950); src(RW-core,symtab) p4:003c3950 size=36; br:00240940 size=36",
+  "name": "RpLightRegisterPluginStream",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9500000000000001,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c3ae0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00240970",
+  "confidence": 0.931,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.931); src(RW-core,symtab) p4:003c3ae0 size=472; br:00240970 size=472",
+  "name": "RpLightStreamRead",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9311995799375467,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c3cc0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00240b50",
+  "burnout_name": "RwCameraDestroy",
+  "burnout_score": 0.977,
+  "confidence": 0.999,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.999); src(RW-core,symtab) p4:003c3cc0 size=96; br:00240b50 size=96; burnout disagrees: RwCameraDestroy (call-graph,0.977)",
+  "name": "RpLightDestroy",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9994959407658398,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c3d20": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00240bb0",
+  "confidence": 0.988,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.988); src(RW-core,symtab) p4:003c3d20 size=232; br:00240bb0 size=236",
+  "name": "RpLightCreate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9875159270836658,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c40d0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0012fa40",
+  "burnout_name": "_rwMatrixClose",
+  "burnout_score": 0.989,
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:003c40d0 size=104; br:0012fa40 size=104; AGREES with burnout (call-graph,0.989)",
+  "name": "_rwMatrixClose",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9997000405661547,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c4140": {
+  "ballers_evidence": "context",
+  "ballers_ref": "0013e170",
+  "confidence": 0.956,
+  "evidence": "diff(p4-vs-ballers,context,0.956); src(RW-core,symtab) p4:003c4140 size=212; br:0013e170 size=216",
+  "name": "RwTexDictionaryCreate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9559940652925056,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c4220": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002410b0",
+  "confidence": 0.886,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.886); src(RW-core,symtab) p4:003c4220 size=136; br:002410b0 size=132",
+  "name": "RpMaterialDestroy",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8859431801705725,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c4310": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002411a0",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:003c4310 size=44; br:002411a0 size=44",
+  "name": "RpMaterialRegisterPlugin",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c4340": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00245730",
+  "confidence": 0.962,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.962); src(RW-core,symtab) p4:003c4340 size=36; br:00245730 size=36",
+  "name": "RpWorldSectorRegisterPluginStream",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9615384615384615,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c4370": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00241200",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:003c4370 size=24; br:00241200 size=24",
+  "name": "RpMaterialSetStreamRightsCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c4390": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00241220",
+  "confidence": 0.924,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.924); src(RW-core,symtab) p4:003c4390 size=1068; br:00241220 size=1016",
+  "name": "RpMaterialStreamRead",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9240892929257484,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c8ce0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002456e0",
+  "confidence": 0.998,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.998); src(RW-core,symtab) p4:003c8ce0 size=20; br:002456e0 size=20",
+  "name": "RpWorldSectorRender",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.997538302708951,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c8d00": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00245700",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:003c8d00 size=44; br:00245700 size=44",
+  "name": "RpWorldSectorRegisterPlugin",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c8d60": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00245760",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:003c8d60 size=24; br:00245760 size=24",
+  "name": "RpWorldSectorSetStreamAlwaysCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c8d80": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00245780",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:003c8d80 size=24; br:00245780 size=24",
+  "name": "RpWorldSectorSetStreamRightsCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c9d00": {
+  "ballers_evidence": "profile",
+  "ballers_ref": "00246520",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,profile,1.000); src(RW-core,symtab) p4:003c9d00 size=60; br:00246520 size=60",
+  "name": "RpWorldRender",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c9d40": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00246560",
+  "confidence": 0.921,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.921); src(RW-core,symtab) p4:003c9d40 size=320; br:00246560 size=316",
+  "name": "RpWorldDestroy",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.921116590605742,
+  "source_file": "RW-core (symtab)"
+ },
+ "003c9eb0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002466a0",
+  "burnout_name": "ShowCountdown__FP12CB4PlayerCar",
+  "burnout_score": 0.889,
+  "confidence": 0.983,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.983); src(RW-core,symtab) p4:003c9eb0 size=948; br:002466a0 size=956; burnout disagrees: ShowCountdown__FP12CB4PlayerCar (call-graph,0.889)",
+  "name": "RpWorldCreate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9825594862376038,
+  "source_file": "RW-core (symtab)"
+ },
+ "003ca320": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00246a60",
+  "confidence": 0.934,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.934); src(RW-core,symtab) p4:003ca320 size=168; br:00246a60 size=172",
+  "name": "RpWorldForAllWorldSectors",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9341757319173499,
+  "source_file": "RW-core (symtab)"
+ },
+ "003ca3d0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00246b10",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:003ca3d0 size=44; br:00246b10 size=44",
+  "name": "RpWorldRegisterPlugin",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003ca400": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00246b40",
+  "confidence": 0.962,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.962); src(RW-core,symtab) p4:003ca400 size=36; br:00246b40 size=36",
+  "name": "RpWorldRegisterPluginStream",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9615384615384615,
+  "source_file": "RW-core (symtab)"
+ },
+ "003ca430": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00246b70",
+  "confidence": 0.994,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.994); src(RW-core,symtab) p4:003ca430 size=364; br:00246b70 size=368",
+  "name": "RpWorldPluginAttach",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.993661666492344,
+  "source_file": "RW-core (symtab)"
+ },
+ "003cbc90": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00248470",
+  "confidence": 0.993,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.993); src(RW-core,symtab) p4:003cbc90 size=72; br:00248470 size=76",
+  "name": "RpWorldAddAtomic",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9934941520467836,
+  "source_file": "RW-core (symtab)"
+ },
+ "003cbcf0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002484d0",
+  "confidence": 0.998,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.998); src(RW-core,symtab) p4:003cbcf0 size=236; br:002484d0 size=232",
+  "name": "RpWorldAddClump",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9977419094827145,
+  "source_file": "RW-core (symtab)"
+ },
+ "003cbf30": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "00248710",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,semantic,1.000); src(RW-core,symtab) p4:003cbf30 size=220; br:00248710 size=228",
+  "name": "RpWorldRemoveLight",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9997164852082228,
+  "source_file": "RW-core (symtab)"
+ },
+ "003cc010": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00248800",
+  "confidence": 0.877,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.877); src(RW-core,symtab) p4:003cc010 size=88; br:00248800 size=84",
+  "name": "RpWorldSetDefaultSectorPipeline",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.876939087114568,
+  "source_file": "RW-core (symtab)"
+ },
+ "003cc070": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00248860",
+  "confidence": 0.877,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.877); src(RW-core,symtab) p4:003cc070 size=88; br:00248860 size=84",
+  "name": "RpAtomicSetDefaultPipeline",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8768865515842358,
+  "source_file": "RW-core (symtab)"
+ },
+ "003cc0d0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002488c0",
+  "confidence": 0.877,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.877); src(RW-core,symtab) p4:003cc0d0 size=88; br:002488c0 size=84",
+  "name": "RpMaterialSetDefaultPipeline",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8768865515842358,
+  "source_file": "RW-core (symtab)"
+ },
+ "003cc2c0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00248ad0",
+  "confidence": 0.995,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.995); src(fastim3d.c) p4:003cc2c0 size=176; br:00248ad0 size=176",
+  "name": "fastIm3DTransformPipeCreate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9950630963373346,
+  "source_file": "fastim3d.c"
+ },
+ "003cc370": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00248b80",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.961); src(fastim3d.c) p4:003cc370 size=236; br:00248b80 size=292; same-file cluster",
+  "name": "_rwfastIm3DPipesOpen",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9607267427419742,
+  "source_file": "fastim3d.c"
+ },
+ "003cc460": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00248cb0",
+  "confidence": 0.965,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.935); src(fastim3d.c) p4:003cc460 size=160; br:00248cb0 size=216; same-file cluster",
+  "name": "_rwfastIm3DPipesClose",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.93546234039234,
+  "source_file": "fastim3d.c"
+ },
+ "003cc500": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00248d90",
+  "confidence": 0.985,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.985); src(matbridge.c) p4:003cc500 size=88; br:00248d90 size=92",
+  "name": "_rxPS2AllTexFilterASMFunc",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9846984501715957,
+  "source_file": "matbridge.c"
+ },
+ "003cc560": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00248df0",
+  "confidence": 0.976,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.976); src(matbridge.c) p4:003cc560 size=288; br:00248df0 size=276",
+  "name": "_rxPS2AllMatColASMFunc",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9762515262515262,
+  "source_file": "matbridge.c"
+ },
+ "003cc680": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00248f10",
+  "burnout_name": "AllocateMemSize__6RealmcPCciiii",
+  "burnout_score": 0.931,
+  "confidence": 0.906,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.876); src(matbridge.c) p4:003cc680 size=88; br:00248f10 size=88; same-file cluster; burnout disagrees: AllocateMemSize__6RealmcPCciiii (context,0.931)",
+  "name": "_rxPS2AllSurfPropsASMFunc",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8758241758241758,
+  "source_file": "matbridge.c"
+ },
+ "003cc6e0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00248f70",
+  "confidence": 0.921,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.891); src(matinstance.c) p4:003cc6e0 size=60; br:00248f70 size=52; same-file cluster",
+  "name": "reDestroyCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8906292572109547,
+  "source_file": "matinstance.c"
+ },
+ "003cc720": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00248fb0",
+  "confidence": 0.918,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.888); src(matinstance.c) p4:003cc720 size=2140; br:00248fb0 size=2136; same-file cluster",
+  "name": "_rwPS2AllRabinsConstructionTimeCode",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8882236303042128,
+  "source_file": "matinstance.c"
+ },
+ "003ccf80": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00249810",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.946); src(matinstance.c) p4:003ccf80 size=1944; br:00249810 size=2040; same-file cluster",
+  "name": "DMADataSizeRecalc",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9455712303034634,
+  "source_file": "matinstance.c"
+ },
+ "003cd720": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024a010",
+  "burnout_name": "GetCollidingPairs__20CB4ActiveBodyManager",
+  "burnout_score": 0.979,
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.960); src(matinstance.c) p4:003cd720 size=2172; br:0024a010 size=2172; same-file cluster; burnout disagrees: GetCollidingPairs__20CB4ActiveBodyManager (semantic,0.979)",
+  "name": "DMADataFillTags",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9598001879782847,
+  "source_file": "matinstance.c"
+ },
+ "003cdfa0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024a890",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.952); src(matputil.c) p4:003cdfa0 size=172; br:0024a890 size=188; same-file cluster",
+  "name": "rpObjectDestroyMeshCache",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9524736412654636,
+  "source_file": "matputil.c"
+ },
+ "003ce050": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024a950",
+  "burnout_name": "RwaFreeListCreate",
+  "burnout_score": 0.901,
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.952); src(matputil.c) p4:003ce050 size=284; br:0024a950 size=296; same-file cluster; burnout disagrees: RwaFreeListCreate (call-graph,0.901)",
+  "name": "rpObjectGetMeshCacheResize",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9524200573838778,
+  "source_file": "matputil.c"
+ },
+ "003ce170": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024aa80",
+  "confidence": 0.971,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.971); src(native.c) p4:003ce170 size=192; br:0024aa80 size=184",
+  "name": "PointerToOffset",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9711198206564916,
+  "source_file": "native.c"
+ },
+ "003ce230": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024ab40",
+  "confidence": 0.977,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.977); src(native.c) p4:003ce230 size=176; br:0024ab40 size=168",
+  "name": "OffsetToPointer",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9771109055949448,
+  "source_file": "native.c"
+ },
+ "003ce3a0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024abf0",
+  "confidence": 0.996,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.996); src(native.c) p4:003ce3a0 size=448; br:0024abf0 size=468",
+  "name": "_rpGeometryNativeWrite",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9961707986723006,
+  "source_file": "native.c"
+ },
+ "003ce560": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024add0",
+  "burnout_name": "UpdateStreamPVS__16CB4StreamedTrack",
+  "burnout_score": 0.938,
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.951); src(native.c) p4:003ce560 size=732; br:0024add0 size=752; same-file cluster; burnout disagrees: UpdateStreamPVS__16CB4StreamedTrack (call-graph,0.938)",
+  "name": "_rpGeometryNativeRead",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9512627921037753,
+  "source_file": "native.c"
+ },
+ "003ce840": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024b0c0",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(native.c) p4:003ce840 size=412; br:0024b0c0 size=412",
+  "name": "_rpGeometryNativeSize",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "native.c"
+ },
+ "003ce9e0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024b260",
+  "burnout_name": "_RwaSPU2OutputFinishExecute",
+  "burnout_score": 0.91,
+  "confidence": 0.991,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.991); src(native.c) p4:003ce9e0 size=456; br:0024b260 size=484; burnout disagrees: _RwaSPU2OutputFinishExecute (call-graph,0.910)",
+  "name": "_rpWorldSectorNativeWrite",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9907544390236787,
+  "source_file": "native.c"
+ },
+ "003ceeb0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024b760",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(native.c) p4:003ceeb0 size=436; br:0024b760 size=436",
+  "name": "_rpWorldSectorNativeSize",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "native.c"
+ },
+ "003cf140": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024b9f0",
+  "confidence": 0.956,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.926); src(nodeps2all.c) p4:003cf140 size=1220; br:0024b9f0 size=1240; same-file cluster",
+  "name": "PS2AllNodeBody",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9259335273187442,
+  "source_file": "nodeps2all.c"
+ },
+ "003cf610": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024bed0",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.968); src(nodeps2all.c) p4:003cf610 size=924; br:0024bed0 size=916; same-file cluster",
+  "name": "PS2AllNodeInstance",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9683530876357702,
+  "source_file": "nodeps2all.c"
+ },
+ "003cf9b0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024c270",
+  "burnout_name": "GetMedal__19CB4PostEventService17EB4ScoreMedalType",
+  "burnout_score": 0.906,
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.952); src(nodeps2all.c) p4:003cf9b0 size=120; br:0024c270 size=136; same-file cluster; burnout disagrees: GetMedal__19CB4PostEventService17EB4ScoreMedalType (context,0.906)",
+  "name": "RxPipelineNodePS2AllSetCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9516312316403598,
+  "source_file": "nodeps2all.c"
+ },
+ "003cfa30": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024c300",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.969); src(nodeps2all.c) p4:003cfa30 size=52; br:0024c300 size=56; same-file cluster",
+  "name": "RxPipelineNodePS2AllGroupMeshes",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.968864468864469,
+  "source_file": "nodeps2all.c"
+ },
+ "003cfa70": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024c340",
+  "burnout_name": "GetFinalPlayerScore__C13CB4CrashScoreiiiii",
+  "burnout_score": 0.926,
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.980); src(nodeps2all.c) p4:003cfa70 size=12; br:0024c340 size=12; empty-stub-cap; burnout disagrees: GetFinalPlayerScore__C13CB4CrashScoreiiiii (call-graph,0.926)",
+  "name": "RxNodeDefinitionGetPS2All",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9803643724696357,
+  "source_file": "nodeps2all.c"
+ },
+ "003cfa80": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024c350",
+  "confidence": 0.921,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.921); src(ps2alllighting.c) p4:003cfa80 size=1308; br:0024c350 size=1456",
+  "name": "RxPipelineNodePS2AllApplyLight",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9211351392103622,
+  "source_file": "ps2alllighting.c"
+ },
+ "003cffa0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024c900",
+  "confidence": 0.913,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.883); src(ps2allatomic.c) p4:003cffa0 size=80; br:0024c900 size=68; same-file cluster",
+  "name": "_rpAtomicPS2AllDoApplyLight",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8828071537131009,
+  "source_file": "ps2allatomic.c"
+ },
+ "003cfff0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024c950",
+  "confidence": 0.998,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.998); src(ps2allatomic.c) p4:003cfff0 size=332; br:0024c950 size=336",
+  "name": "RpAtomicPS2AllObjInstanceTestFunc",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.997839262465794,
+  "source_file": "ps2allatomic.c"
+ },
+ "003d0140": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024caa0",
+  "confidence": 0.924,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.894); src(ps2allatomic.c) p4:003d0140 size=228; br:0024caa0 size=208; same-file cluster",
+  "name": "RpAtomicPS2AllPrimTypeTransTypeSetupFunc",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8939051594987504,
+  "source_file": "ps2allatomic.c"
+ },
+ "003d0230": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024cb70",
+  "burnout_name": "PrepareVehicleIDListForFrontEnd__27CB4CrashPlayerVehicleStream",
+  "burnout_score": 0.912,
+  "confidence": 0.992,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.992); src(ps2allatomic.c) p4:003d0230 size=560; br:0024cb70 size=568; burnout disagrees: PrepareVehicleIDListForFrontEnd__27CB4CrashPlayerVehicleStream (context,0.912)",
+  "name": "RpAtomicPS2AllLightingSetupFunc",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9920686082346346,
+  "source_file": "ps2allatomic.c"
+ },
+ "003d0460": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024cdb0",
+  "confidence": 0.945,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.915); src(ps2allatomic.c) p4:003d0460 size=212; br:0024cdb0 size=212; same-file cluster",
+  "name": "RpAtomicPS2AllResEntryAllocFunc",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9147488118519069,
+  "source_file": "ps2allatomic.c"
+ },
+ "003d0540": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024ce90",
+  "confidence": 0.968,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.938); src(ps2allatomic.c) p4:003d0540 size=588; br:0024ce90 size=608; same-file cluster",
+  "name": "RpAtomicPS2AllObjectSetupCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9382562228348608,
+  "source_file": "ps2allatomic.c"
+ },
+ "003d0850": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024d1b0",
+  "confidence": 0.94,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.910); src(ps2allatomic.c) p4:003d0850 size=224; br:0024d1b0 size=216; same-file cluster",
+  "name": "RpMeshPS2AllResEntryAllocCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9104682694297649,
+  "source_file": "ps2allatomic.c"
+ },
+ "003d0930": {
+  "ballers_evidence": "shape",
+  "ballers_ref": "0024d290",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,shape,1.000); src(ps2allatomic.c) p4:003d0930 size=64; br:0024d290 size=64",
+  "name": "RpMeshPS2AllInstanceCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "ps2allatomic.c"
+ },
+ "003d0970": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0028a9f0",
+  "confidence": 0.977,
+  "evidence": "diff(p4-vs-ballers,semantic,0.977); src(RW-core,symtab) p4:003d0970 size=1572; br:0028a9f0 size=1912",
+  "name": "RpPDS_G3x_Uva_PS2AllBridgeCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.977429659376153,
+  "source_file": "RW-core (symtab)"
+ },
+ "003d0fa0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024d9c0",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.960); src(ps2allatomic.c) p4:003d0fa0 size=4196; br:0024d9c0 size=4104; same-file cluster",
+  "name": "RpAtomicPS2AllInstance",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9599371562127893,
+  "source_file": "ps2allatomic.c"
+ },
+ "003d2010": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024e9d0",
+  "confidence": 0.902,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.872); src(ps2allim3d.c) p4:003d2010 size=184; br:0024e9d0 size=172; same-file cluster",
+  "name": "RwIm3DPS2AllGetMeshHeaderMeshCacheFunc",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8721364547433712,
+  "source_file": "ps2allim3d.c"
+ },
+ "003d20d0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024ea80",
+  "confidence": 0.95,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.920); src(ps2allim3d.c) p4:003d20d0 size=368; br:0024ea80 size=376; same-file cluster",
+  "name": "RwIm3DPS2AllObjectSetupCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9203707104731261,
+  "source_file": "ps2allim3d.c"
+ },
+ "003d2240": {
+  "ballers_evidence": "shape",
+  "ballers_ref": "0024ec00",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,shape,1.000); src(ps2allim3d.c) p4:003d2240 size=164; br:0024ec00 size=164",
+  "name": "RwIm3DPS2AllResEntryAllocCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "ps2allim3d.c"
+ },
+ "003d2720": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0024f140",
+  "confidence": 0.999,
+  "evidence": "diff(p4-vs-ballers,semantic,0.999); src(ps2allim3d.c) p4:003d2720 size=1300; br:0024f140 size=1276",
+  "name": "RwIm3DPS2AllInstance",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9988177391881242,
+  "source_file": "ps2allim3d.c"
+ },
+ "003d2c40": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024f640",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.949); src(ps2allmat.c) p4:003d2c40 size=1128; br:0024f640 size=1144; same-file cluster",
+  "name": "PS2AllMatProcessInitData",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.948785781998312,
+  "source_file": "ps2allmat.c"
+ },
+ "003d30b0": {
+  "ballers_evidence": "shape",
+  "ballers_ref": "0024fac0",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,shape,1.000); src(ps2allmat.c) p4:003d30b0 size=108; br:0024fac0 size=112",
+  "name": "PS2AllMatPipelineNodeInit",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "ps2allmat.c"
+ },
+ "003d3130": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024fb40",
+  "confidence": 0.94,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.910); src(ps2allmat.c) p4:003d3130 size=808; br:0024fb40 size=728; same-file cluster",
+  "name": "RxPipelineNodePS2AllMatGenerateCluster",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9097128279941034,
+  "source_file": "ps2allmat.c"
+ },
+ "003d3460": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024fe20",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.956); src(ps2allmat.c) p4:003d3460 size=392; br:0024fe20 size=388; same-file cluster",
+  "name": "RxPipelineNodePS2AllMatSetTriangleVUBufferSizes",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9561588536804028,
+  "source_file": "ps2allmat.c"
+ },
+ "003d35f0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0024ffb0",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.957); src(ps2allmat.c) p4:003d35f0 size=388; br:0024ffb0 size=388; same-file cluster",
+  "name": "RxPipelineNodePS2AllMatSetLineVUBufferSizes",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9572592710493075,
+  "source_file": "ps2allmat.c"
+ },
+ "003d3780": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00250140",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.942); src(ps2allmat.c) p4:003d3780 size=344; br:00250140 size=336; same-file cluster",
+  "name": "RxPipelineNodePS2AllMatSetPointListVUBufferSize",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9419478907599464,
+  "source_file": "ps2allmat.c"
+ },
+ "003d38e0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00250290",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.969); src(ps2allmat.c) p4:003d38e0 size=52; br:00250290 size=56; same-file cluster",
+  "name": "RxPipelineNodePS2AllMatSetVIFOffset",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.968864468864469,
+  "source_file": "ps2allmat.c"
+ },
+ "003d3920": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002502d0",
+  "confidence": 0.917,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.887); src(ps2allmat.c) p4:003d3920 size=116; br:002502d0 size=120; same-file cluster",
+  "name": "RxPipelineNodePS2AllMatSetVU1CodeArray",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.887114623071582,
+  "source_file": "ps2allmat.c"
+ },
+ "003d39a0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00250350",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.960); src(ps2allmat.c) p4:003d39a0 size=224; br:00250350 size=248; same-file cluster",
+  "name": "RxPipelineNodePS2AllMatSetCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.960414600098103,
+  "source_file": "ps2allmat.c"
+ },
+ "003d3a80": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00250450",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.982); src(ps2allmat.c) p4:003d3a80 size=12; br:00250450 size=12; empty-stub-cap",
+  "name": "RxNodeDefinitionGetPS2AllMat",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.981646423751687,
+  "source_file": "ps2allmat.c"
+ },
+ "003d3a90": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00250460",
+  "confidence": 0.91,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.880); src(ps2allsector.c) p4:003d3a90 size=80; br:00250460 size=68; same-file cluster",
+  "name": "_rpWorldSectorPS2AllDoApplyLight",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8797991990045881,
+  "source_file": "ps2allsector.c"
+ },
+ "003d3ae0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002504b0",
+  "confidence": 0.985,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.985); src(ps2allsector.c) p4:003d3ae0 size=232; br:002504b0 size=240",
+  "name": "RpWorldSectorPS2AllFrustumTestFunc",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9848903639111088,
+  "source_file": "ps2allsector.c"
+ },
+ "003d3bd0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002505a0",
+  "confidence": 0.953,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.923); src(ps2allsector.c) p4:003d3bd0 size=652; br:002505a0 size=632; same-file cluster",
+  "name": "RpWorldSectorPS2AllObjectSetupCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9234553896334887,
+  "source_file": "ps2allsector.c"
+ },
+ "003d3e60": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00250820",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.967); src(ps2allsector.c) p4:003d3e60 size=2644; br:00250820 size=2560; same-file cluster",
+  "name": "RpWorldSectorPS2AllInstance",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9667411086563796,
+  "source_file": "ps2allsector.c"
+ },
+ "003d48d0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00251230",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(wrldpipe.c) p4:003d48d0 size=60; br:00251230 size=60",
+  "name": "_pluginObjectDestroy",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9997905209494489,
+  "source_file": "wrldpipe.c"
+ },
+ "003d4910": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00251270",
+  "confidence": 0.952,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.922); src(wrldpipe.c) p4:003d4910 size=152; br:00251270 size=152; same-file cluster",
+  "name": "_pluginGeometryCopy",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9219982837191129,
+  "source_file": "wrldpipe.c"
+ },
+ "003d49b0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00251310",
+  "confidence": 0.951,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.921); src(wrldpipe.c) p4:003d49b0 size=172; br:00251310 size=176; same-file cluster",
+  "name": "_pluginAtomicCopy",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9205836053140661,
+  "source_file": "wrldpipe.c"
+ },
+ "003d4a60": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002513c0",
+  "confidence": 0.952,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.922); src(wrldpipe.c) p4:003d4a60 size=152; br:002513c0 size=152; same-file cluster",
+  "name": "_pluginSectorCopy",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9219982837191129,
+  "source_file": "wrldpipe.c"
+ },
+ "003d4b00": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00251460",
+  "confidence": 0.961,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.931); src(wrldpipe.c) p4:003d4b00 size=232; br:00251460 size=236; same-file cluster",
+  "name": "_initAtomicMeshCache",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9309927360774818,
+  "source_file": "wrldpipe.c"
+ },
+ "003d4bf0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00251550",
+  "confidence": 0.992,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.992); src(wrldpipe.c) p4:003d4bf0 size=124; br:00251550 size=132",
+  "name": "_initSectorMeshCache",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9917508417508417,
+  "source_file": "wrldpipe.c"
+ },
+ "003d4c70": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002515e0",
+  "confidence": 0.995,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.995); src(wrldpipe.c) p4:003d4c70 size=244; br:002515e0 size=248",
+  "name": "_rxWorldDevicePluginAttach",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9945009389265742,
+  "source_file": "wrldpipe.c"
+ },
+ "003d4d70": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002516e0",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(wrldpipe.c) p4:003d4d70 size=8; br:002516e0 size=8; empty-stub-cap",
+  "name": "_rpDestroyPlatformMaterialPipelines",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "wrldpipe.c"
+ },
+ "003d4d80": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002516f0",
+  "burnout_name": "SetFrontendFrameRate__7CB4Gameb",
+  "burnout_score": 0.958,
+  "confidence": 0.991,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.991); src(wrldpipe.c) p4:003d4d80 size=120; br:002516f0 size=124; burnout disagrees: SetFrontendFrameRate__7CB4Gameb (context,0.958)",
+  "name": "_rpCreatePlatformMaterialPipelines",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9912406277082182,
+  "source_file": "wrldpipe.c"
+ },
+ "003d4e00": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00251770",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(wrldpipe.c) p4:003d4e00 size=8; br:00251770 size=8; empty-stub-cap",
+  "name": "_rpDestroyPlatformWorldSectorPipelines",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "wrldpipe.c"
+ },
+ "003d4e10": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00251780",
+  "confidence": 0.991,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.991); src(wrldpipe.c) p4:003d4e10 size=120; br:00251780 size=124",
+  "name": "_rpCreatePlatformWorldSectorPipelines",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9912415510095501,
+  "source_file": "wrldpipe.c"
+ },
+ "003d4e90": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00251800",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(wrldpipe.c) p4:003d4e90 size=8; br:00251800 size=8; empty-stub-cap",
+  "name": "_rpDestroyPlatformAtomicPipelines",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "wrldpipe.c"
+ },
+ "003d4ea0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00251810",
+  "confidence": 0.991,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.991); src(wrldpipe.c) p4:003d4ea0 size=120; br:00251810 size=124",
+  "name": "_rpCreatePlatformAtomicPipelines",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9912406277082182,
+  "source_file": "wrldpipe.c"
+ },
+ "003d4fc0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0027fc30",
+  "confidence": 0.998,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.998); src(RW-core,symtab) p4:003d4fc0 size=52; br:0027fc30 size=52",
+  "name": "RtAnimInitialize",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9979084967320261,
+  "source_file": "RW-core (symtab)"
+ },
+ "003d5000": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0027fc70",
+  "confidence": 0.982,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.982); src(RW-core,symtab) p4:003d5000 size=296; br:0027fc70 size=300",
+  "name": "RtAnimRegisterInterpolationScheme",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9815923383665686,
+  "source_file": "RW-core (symtab)"
+ },
+ "003d5130": {
+  "ballers_evidence": "shape",
+  "ballers_ref": "0027fda0",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,shape,1.000); src(RW-core,symtab) p4:003d5130 size=132; br:0027fda0 size=132",
+  "name": "RtAnimGetInterpolatorInfo",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003d5330": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0019eda0",
+  "confidence": 0.955,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.955); src(RW-core,symtab) p4:003d5330 size=136; br:0019eda0 size=136; mangled-name",
+  "name": "rwutil_DMorphAnimationLoadMem__FPCvUi",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9545256892419429,
+  "source_file": "RW-core (symtab)"
+ },
+ "003d53c0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0027fe60",
+  "confidence": 0.936,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.936); src(RW-core,symtab) p4:003d53c0 size=576; br:0027fe60 size=588",
+  "name": "RtAnimAnimationStreamRead",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9357621064646079,
+  "source_file": "RW-core (symtab)"
+ },
+ "003d5710": {
+  "ballers_evidence": "shape",
+  "ballers_ref": "0013a940",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,shape,1.000); src(RW-core,symtab) p4:003d5710 size=56; br:0013a940 size=56",
+  "name": "RwRGBASetFromPixel",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003d5790": {
+  "ballers_evidence": "shape",
+  "ballers_ref": "002800b0",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,shape,1.000); src(RW-core,symtab) p4:003d5790 size=156; br:002800b0 size=156",
+  "name": "RtAnimInterpolatorCreate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003d5840": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00280160",
+  "confidence": 0.851,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.851); src(RW-core,symtab) p4:003d5840 size=324; br:00280160 size=312",
+  "name": "RtAnimInterpolatorSetCurrentAnim",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8505585515931912,
+  "source_file": "RW-core (symtab)"
+ },
+ "003d5990": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00280370",
+  "burnout_name": "SetPlayListChanged__20CB4NetworkingService",
+  "burnout_score": 0.991,
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.878); src(RW-core,symtab) p4:003d5990 size=12; br:00280370 size=12; empty-stub-cap; burnout disagrees: SetPlayListChanged__20CB4NetworkingService (call-graph,0.991)",
+  "name": "RtAnimInterpolatorSetAnimLoopCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8784615384615384,
+  "source_file": "RW-core (symtab)"
+ },
+ "003d59d0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00280390",
+  "confidence": 0.956,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.956); src(RW-core,symtab) p4:003d59d0 size=492; br:00280390 size=472",
+  "name": "RtAnimInterpolatorSubAnimTime",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9558055551767557,
+  "source_file": "RW-core (symtab)"
+ },
+ "003d5bc0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00280570",
+  "confidence": 0.967,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.967); src(RW-core,symtab) p4:003d5bc0 size=628; br:00280570 size=672",
+  "name": "RtAnimInterpolatorAddAnimTime",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9671244242327216,
+  "source_file": "RW-core (symtab)"
+ },
+ "003d5e40": {
+  "ballers_evidence": "shape",
+  "ballers_ref": "00280810",
+  "burnout_name": "FireAirRamUpwards__17CB4VehiclePhysicsUifb",
+  "burnout_score": 0.875,
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,shape,1.000); src(RW-core,symtab) p4:003d5e40 size=72; br:00280810 size=72; burnout disagrees: FireAirRamUpwards__17CB4VehiclePhysicsUifb (call-graph,0.875)",
+  "name": "RtAnimInterpolatorSetCurrentTime",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003d7150": {
+  "ballers_evidence": "context",
+  "ballers_ref": "00131e90",
+  "confidence": 0.909,
+  "evidence": "diff(p4-vs-ballers,context,0.909); src(RW-core,symtab) p4:003d7150 size=84; br:00131e90 size=88",
+  "name": "_rwStreamModuleClose",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9089348033877327,
+  "source_file": "RW-core (symtab)"
+ },
+ "003d96b0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0019fa60",
+  "confidence": 0.91,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.910); src(RW-core,symtab) p4:003d96b0 size=172; br:0019fa60 size=136; mangled-name",
+  "name": "rwutil_ClumpLoadMem__FPCvUi",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9096720506629913,
+  "source_file": "RW-core (symtab)"
+ },
+ "003dbbc0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001353b0",
+  "confidence": 0.894,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.894); src(RW-core,symtab) p4:003dbbc0 size=640; br:001353b0 size=680",
+  "name": "RwTextureStreamRead",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8942531238682809,
+  "source_file": "RW-core (symtab)"
+ },
+ "003dc740": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00236110",
+  "confidence": 0.895,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.895); src(RW-core,symtab) p4:003dc740 size=1024; br:00236110 size=1080",
+  "name": "RtQuatRotate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8950936966843761,
+  "source_file": "RW-core (symtab)"
+ },
+ "003dcc70": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "00251980",
+  "confidence": 0.913,
+  "evidence": "diff(p4-vs-ballers,semantic,0.913); src(RW-core,symtab) p4:003dcc70 size=1568; br:00251980 size=1616",
+  "name": "RpHAnimKeyFrameInterpolate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9132056429168592,
+  "source_file": "RW-core (symtab)"
+ },
+ "003ddc20": {
+  "ballers_evidence": "context",
+  "ballers_ref": "002b61d0",
+  "confidence": 0.925,
+  "evidence": "diff(p4-vs-ballers,context,0.925); src(RW-core,symtab) p4:003ddc20 size=116; br:002b61d0 size=152",
+  "name": "RpDMorphAnimationDestroy",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9250185379330874,
+  "source_file": "RW-core (symtab)"
+ },
+ "003ddca0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "003ca720",
+  "confidence": 0.96,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.960); src(RW-core,symtab) p4:003ddca0 size=320; br:003ca720 size=332",
+  "name": "RtFSManagerGetFileSystemFromFileName",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9595050336141645,
+  "source_file": "RW-core (symtab)"
+ },
+ "003de110": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "003cacf0",
+  "confidence": 0.939,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.939); src(RW-core,symtab) p4:003de110 size=352; br:003cacf0 size=364",
+  "name": "RwFexist",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9390835404119727,
+  "source_file": "RW-core (symtab)"
+ },
+ "003e0250": {
+  "ballers_evidence": "context",
+  "ballers_ref": "001371d0",
+  "burnout_name": "_rwCameraClose",
+  "burnout_score": 0.984,
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,context,1.000); src(RW-core,symtab) p4:003e0250 size=104; br:001371d0 size=104; AGREES with burnout (context,0.984)",
+  "name": "_rwCameraClose",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9995500608492321,
+  "source_file": "RW-core (symtab)"
+ },
+ "003e0680": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0012fea0",
+  "confidence": 0.98,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.980); src(RW-core,symtab) p4:003e0680 size=484; br:0012fea0 size=500",
+  "name": "RwMatrixRotateOneMinusCosineSine",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9798777663950649,
+  "source_file": "RW-core (symtab)"
+ },
+ "003e0e20": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00130710",
+  "confidence": 0.978,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.978); src(RW-core,symtab) p4:003e0e20 size=288; br:00130710 size=300",
+  "name": "RwMatrixTransform",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9780482387289599,
+  "source_file": "RW-core (symtab)"
+ },
+ "003e1210": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00130b10",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:003e1210 size=16; br:00130b10 size=16; empty-stub-cap",
+  "name": "RwFreeListCreate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003e1ff0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00131950",
+  "confidence": 0.932,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.932); src(RW-core,symtab) p4:003e1ff0 size=708; br:00131950 size=724",
+  "name": "RwResourcesAllocateResEntry",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9324731618809322,
+  "source_file": "RW-core (symtab)"
+ },
+ "003e2570": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00131e00",
+  "burnout_name": "_rwStreamModuleOpen",
+  "burnout_score": 0.995,
+  "confidence": 0.911,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.911); src(RW-core,symtab) p4:003e2570 size=128; br:00131e00 size=136; AGREES with burnout (semantic,0.995)",
+  "name": "_rwStreamModuleOpen",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9110863348030757,
+  "source_file": "RW-core (symtab)"
+ },
+ "003e25f0": {
+  "ballers_evidence": "context",
+  "ballers_ref": "00138180",
+  "burnout_name": "_rwStreamModuleClose",
+  "burnout_score": 1.0,
+  "confidence": 0.962,
+  "evidence": "diff(p4-vs-ballers,context,0.962); src(RW-core,symtab) p4:003e25f0 size=84; br:00138180 size=104; burnout disagrees: _rwStreamModuleClose (call-graph,1.000)",
+  "name": "_rwFrameClose",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9623186481145153,
+  "source_file": "RW-core (symtab)"
+ },
+ "003e50a0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001349f0",
+  "burnout_name": "_rwpathisabsolute",
+  "burnout_score": 0.894,
+  "confidence": 0.994,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.994); src(RW-core,symtab) p4:003e50a0 size=100; br:001349f0 size=104; AGREES with burnout (call-graph,0.894)",
+  "name": "_rwpathisabsolute",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9936581733285029,
+  "source_file": "RW-core (symtab)"
+ },
+ "003e5520": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00134cf0",
+  "confidence": 0.962,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.962); src(RW-core,symtab) p4:003e5520 size=36; br:00134cf0 size=36",
+  "name": "RwFrameRegisterPluginStream",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9615384615384615,
+  "source_file": "RW-core (symtab)"
+ },
+ "003e6210": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00135170",
+  "confidence": 0.962,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.962); src(RW-core,symtab) p4:003e6210 size=36; br:00135170 size=36",
+  "name": "RwTextureRegisterPluginStream",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9615384615384615,
+  "source_file": "RW-core (symtab)"
+ },
+ "003e8410": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001375f0",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:003e8410 size=44; br:001375f0 size=44",
+  "name": "RwCameraRegisterPlugin",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003e8dc0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001380d0",
+  "burnout_name": "_rwFrameOpen",
+  "burnout_score": 0.99,
+  "confidence": 0.909,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.909); src(RW-core,symtab) p4:003e8dc0 size=152; br:001380d0 size=168; AGREES with burnout (semantic,0.990)",
+  "name": "_rwFrameOpen",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9087456436170901,
+  "source_file": "RW-core (symtab)"
+ },
+ "003e9460": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00138780",
+  "burnout_name": "Teardown__10StringPool",
+  "burnout_score": 0.905,
+  "confidence": 0.971,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.971); src(RW-core,symtab) p4:003e9460 size=344; br:00138780 size=336; burnout disagrees: Teardown__10StringPool (context,0.905)",
+  "name": "rwFrameDestroyRecurse",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9710012712879982,
+  "source_file": "RW-core (symtab)"
+ },
+ "003e9cb0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00138f60",
+  "confidence": 0.878,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.878); src(RW-core,symtab) p4:003e9cb0 size=148; br:00138f60 size=140",
+  "name": "RwFrameTransform",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8776448130839721,
+  "source_file": "RW-core (symtab)"
+ },
+ "003e9eb0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001391c0",
+  "burnout_name": "RwRasterRegisterPlugin",
+  "burnout_score": 0.888,
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:003e9eb0 size=44; br:001391c0 size=44; burnout disagrees: RwRasterRegisterPlugin (call-graph,0.888)",
+  "name": "RwFrameRegisterPlugin",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003ec3a0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0013b420",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:003ec3a0 size=44; br:0013b420 size=44",
+  "name": "RwRasterRegisterPlugin",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "003ef6d0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0013e7d0",
+  "confidence": 0.876,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.876); src(RW-core,symtab) p4:003ef6d0 size=24; br:0013e7d0 size=24",
+  "name": "RwTexDictionaryGetCurrent",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8761164080066002,
+  "source_file": "RW-core (symtab)"
+ },
+ "003efde0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0013ef30",
+  "confidence": 0.953,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.953); src(RW-core,symtab) p4:003efde0 size=328; br:0013ef30 size=312",
+  "name": "_rwImageFindAlphaType",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9532689355048112,
+  "source_file": "RW-core (symtab)"
+ },
+ "003f2760": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001418e0",
+  "confidence": 0.991,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.991); src(badma.c) p4:003f2760 size=208; br:001418e0 size=212",
+  "name": "rwDMAFlushPURef",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9908739059682455,
+  "source_file": "badma.c"
+ },
+ "003f2830": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001419c0",
+  "burnout_name": "rwDMAHandler",
+  "burnout_score": 0.898,
+  "confidence": 0.939,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.909); src(badma.c) p4:003f2830 size=1184; br:001419c0 size=1504; same-file cluster; AGREES with burnout (call-graph,0.898)",
+  "name": "rwDMAHandler",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9090603574722452,
+  "source_file": "badma.c"
+ },
+ "003f2cd0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00141fa0",
+  "burnout_name": "rwDMAVSYNCHandler",
+  "burnout_score": 0.978,
+  "confidence": 0.971,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.971); src(badma.c) p4:003f2cd0 size=616; br:00141fa0 size=696; AGREES with burnout (call-graph,0.978)",
+  "name": "rwDMAVSYNCHandler",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9710074154810847,
+  "source_file": "badma.c"
+ },
+ "003f2f40": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00142260",
+  "burnout_name": "_rwDMAClosePkt",
+  "burnout_score": 0.898,
+  "confidence": 0.921,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.891); src(badma.c) p4:003f2f40 size=900; br:00142260 size=948; same-file cluster; AGREES with burnout (call-graph,0.898)",
+  "name": "_rwDMAClosePkt",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.8909826113440791,
+  "source_file": "badma.c"
+ },
+ "003f32d0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00142620",
+  "burnout_name": "_rwDMAForceBufferSwap",
+  "burnout_score": 0.946,
+  "confidence": 0.958,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.928); src(badma.c) p4:003f32d0 size=516; br:00142620 size=628; same-file cluster; AGREES with burnout (call-graph,0.946)",
+  "name": "_rwDMAForceBufferSwap",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9284644493441014,
+  "source_file": "badma.c"
+ },
+ "003f34e0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001428a0",
+  "burnout_name": "_rwDMAAddPkt",
+  "burnout_score": 0.903,
+  "confidence": 0.967,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.937); src(badma.c) p4:003f34e0 size=448; br:001428a0 size=460; same-file cluster; AGREES with burnout (call-graph,0.903)",
+  "name": "_rwDMAAddPkt",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9371156230769158,
+  "source_file": "badma.c"
+ },
+ "003f36a0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00142a70",
+  "burnout_name": "_rwDMAAddPURef",
+  "burnout_score": 0.875,
+  "confidence": 0.913,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.883); src(badma.c) p4:003f36a0 size=168; br:00142a70 size=156; same-file cluster; AGREES with burnout (call-graph,0.875)",
+  "name": "_rwDMAAddPURef",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.8826655722870964,
+  "source_file": "badma.c"
+ },
+ "003f3750": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00142b10",
+  "burnout_name": "_rwDMAReqFlip",
+  "burnout_score": 0.941,
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.964); src(badma.c) p4:003f3750 size=376; br:00142b10 size=392; same-file cluster; AGREES with burnout (call-graph,0.941)",
+  "name": "_rwDMAReqFlip",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9637529053471271,
+  "source_file": "badma.c"
+ },
+ "003f38d0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00142ca0",
+  "burnout_name": "_rwDMAWaitQueue",
+  "burnout_score": 0.966,
+  "confidence": 0.998,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.998); src(badma.c) p4:003f38d0 size=232; br:00142ca0 size=236; AGREES with burnout (call-graph,0.966)",
+  "name": "_rwDMAWaitQueue",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9979437817379213,
+  "source_file": "badma.c"
+ },
+ "003f39c0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00142d90",
+  "burnout_name": "_rwDMAOpenVIFPkt",
+  "burnout_score": 0.909,
+  "confidence": 0.902,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.872); src(badma.c) p4:003f39c0 size=1256; br:00142d90 size=1234; same-file cluster; burnout disagrees: _rwDMAOpenVIFPkt (call-graph,0.909)",
+  "name": "_rwDMAOpenGIFPkt",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8718316852723647,
+  "source_file": "badma.c"
+ },
+ "003f3eb0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00143300",
+  "burnout_name": "_rwDMAOpenGIFPkt",
+  "burnout_score": 0.974,
+  "confidence": 0.932,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.902); src(badma.c) p4:003f3eb0 size=1208; br:00143300 size=1268; same-file cluster; burnout disagrees: _rwDMAOpenGIFPkt (semantic,0.974)",
+  "name": "_rwDMAOpenVIFPkt",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9023089458636032,
+  "source_file": "badma.c"
+ },
+ "003f44c0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00143800",
+  "burnout_name": "_rwDMAUnhook",
+  "burnout_score": 0.896,
+  "confidence": 0.947,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.917); src(badma.c) p4:003f44c0 size=612; br:00143800 size=636; same-file cluster; burnout disagrees: _rwDMAUnhook (call-graph,0.896)",
+  "name": "_rwDMADMAPktAllocHigh",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9166157944213758,
+  "source_file": "badma.c"
+ },
+ "003f4730": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00143a80",
+  "burnout_name": "_rwDMAAddImageUpload",
+  "burnout_score": 0.927,
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.944); src(badma.c) p4:003f4730 size=536; br:00143a80 size=580; same-file cluster; AGREES with burnout (call-graph,0.927)",
+  "name": "_rwDMAAddImageUpload",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9437162408665015,
+  "source_file": "badma.c"
+ },
+ "003f4950": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00143cd0",
+  "burnout_name": "_rwDMAHook",
+  "burnout_score": 0.972,
+  "confidence": 0.974,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.974); src(badma.c) p4:003f4950 size=304; br:00143cd0 size=324; AGREES with burnout (call-graph,0.972)",
+  "name": "_rwDMAHook",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9735711583372465,
+  "source_file": "badma.c"
+ },
+ "003f4a80": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00143e20",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.959); src(badma.c) p4:003f4a80 size=340; br:00143e20 size=336; same-file cluster",
+  "name": "_rwDMAUnhook",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9589178306180305,
+  "source_file": "badma.c"
+ },
+ "003f4be0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00143f70",
+  "confidence": 0.918,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.888); src(badma.c) p4:003f4be0 size=168; br:00143f70 size=152; same-file cluster",
+  "name": "_rwDMAUnhookPrimitive",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.888007695496062,
+  "source_file": "badma.c"
+ },
+ "003f4c90": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00144010",
+  "burnout_name": "_rwDMADmaOpen",
+  "burnout_score": 0.896,
+  "confidence": 0.968,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.938); src(badma.c) p4:003f4c90 size=664; br:00144010 size=708; same-file cluster; AGREES with burnout (call-graph,0.896)",
+  "name": "_rwDMADmaOpen",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9383315887634588,
+  "source_file": "badma.c"
+ },
+ "003f4f30": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001442e0",
+  "confidence": 0.898,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.868); src(badma.c) p4:003f4f30 size=84; br:001442e0 size=76; same-file cluster",
+  "name": "_rwDMADmaClose",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8681457231250237,
+  "source_file": "badma.c"
+ },
+ "003f4f90": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "00144330",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,semantic,0.970); src(badma.c) p4:003f4f90 size=84; br:00144330 size=96",
+  "name": "_rwDMAPreAlloc",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9703435751123287,
+  "source_file": "badma.c"
+ },
+ "003f4ff0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00144390",
+  "burnout_name": "_rwSkyInitConfigSystem",
+  "burnout_score": 0.949,
+  "confidence": 0.98,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.980); src(baevent.c) p4:003f4ff0 size=80; br:00144390 size=88; AGREES with burnout (call-graph,0.949)",
+  "name": "_rwSkyInitConfigSystem",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9797721656575188,
+  "source_file": "baevent.c"
+ },
+ "003f5040": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001443f0",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(basky.c) p4:003f5040 size=48; br:001443f0 size=48",
+  "name": "_rwSkyFindMSB",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "basky.c"
+ },
+ "003f5070": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00144420",
+  "confidence": 0.926,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.896); src(basky.c) p4:003f5070 size=3352; br:00144420 size=3652; same-file cluster",
+  "name": "_rwSkySetRenderState",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8964450501736243,
+  "source_file": "basky.c"
+ },
+ "003f5d90": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00145270",
+  "confidence": 0.955,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.925); src(basky.c) p4:003f5d90 size=1708; br:00145270 size=1776; same-file cluster",
+  "name": "SkyGetRenderState",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9247371642047888,
+  "source_file": "basky.c"
+ },
+ "003f6780": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "00145be0",
+  "confidence": 0.991,
+  "evidence": "diff(p4-vs-ballers,semantic,0.991); src(basky.c) p4:003f6780 size=92; br:00145be0 size=96",
+  "name": "RpSkySelectDeepZBuffer",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.990720933472476,
+  "source_file": "basky.c"
+ },
+ "003f68a0": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "00145d20",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,semantic,1.000); src(basky.c) p4:003f68a0 size=112; br:00145d20 size=112",
+  "name": "RpSkyTextureSetMipmapL",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "basky.c"
+ },
+ "003f6910": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00145e40",
+  "burnout_name": "skyReadTexCB",
+  "burnout_score": 0.976,
+  "confidence": 0.995,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.995); src(basky.c) p4:003f6910 size=128; br:00145e40 size=132; AGREES with burnout (call-graph,0.976)",
+  "name": "skyReadTexCB",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9954693512753329,
+  "source_file": "basky.c"
+ },
+ "003f6990": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00145ed0",
+  "burnout_name": "skyWriteTexCB",
+  "burnout_score": 0.987,
+  "confidence": 0.995,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.995); src(basky.c) p4:003f6990 size=92; br:00145ed0 size=96; AGREES with burnout (call-graph,0.987)",
+  "name": "skyWriteTexCB",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9946393762183238,
+  "source_file": "basky.c"
+ },
+ "003f69f0": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "00145f30",
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,semantic,1.000); src(basky.c) p4:003f69f0 size=32; br:00145f30 size=32",
+  "name": "skyGetSizeTexCB",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "basky.c"
+ },
+ "003f6a10": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "00145f50",
+  "burnout_name": "SkyCameraBeginUpdate",
+  "burnout_score": 0.872,
+  "confidence": 0.977,
+  "evidence": "diff(p4-vs-ballers,semantic,0.977); src(basky.c) p4:003f6a10 size=2484; br:00145f50 size=3328; AGREES with burnout (call-graph,0.872)",
+  "name": "SkyCameraBeginUpdate",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9767995517577088,
+  "source_file": "basky.c"
+ },
+ "003f73d0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00146c50",
+  "confidence": 0.917,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.887); src(basky.c) p4:003f73d0 size=192; br:00146c50 size=196; same-file cluster",
+  "name": "SkyCameraEndUpdate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8865475544574594,
+  "source_file": "basky.c"
+ },
+ "003f7490": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00146d20",
+  "burnout_name": "SkyCameraClear",
+  "burnout_score": 0.981,
+  "confidence": 0.956,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.926); src(basky.c) p4:003f7490 size=1312; br:00146d20 size=1468; same-file cluster; AGREES with burnout (semantic,0.981)",
+  "name": "SkyCameraClear",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9260297831681964,
+  "source_file": "basky.c"
+ },
+ "003f79b0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001472e0",
+  "burnout_name": "SkyRasterShowRaster",
+  "burnout_score": 0.855,
+  "confidence": 0.943,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.913); src(basky.c) p4:003f79b0 size=172; br:001472e0 size=160; same-file cluster; AGREES with burnout (call-graph,0.855)",
+  "name": "SkyRasterShowRaster",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9133034848361549,
+  "source_file": "basky.c"
+ },
+ "003f7a70": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00147390",
+  "confidence": 0.959,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.929); src(basky.c) p4:003f7a70 size=1688; br:00147390 size=1740; same-file cluster",
+  "name": "SkyGetRasterFormat",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9292441490483666,
+  "source_file": "basky.c"
+ },
+ "003f8110": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "00147a60",
+  "confidence": 0.987,
+  "evidence": "diff(p4-vs-ballers,semantic,0.987); src(basky.c) p4:003f8110 size=5696; br:00147a60 size=5624",
+  "name": "calcOffsets",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.987314361716409,
+  "source_file": "basky.c"
+ },
+ "003f9750": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00149060",
+  "confidence": 0.985,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.985); src(basky.c) p4:003f9750 size=324; br:00149060 size=316",
+  "name": "skyTransferMinSize",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9848511542307004,
+  "source_file": "basky.c"
+ },
+ "003f98a0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001491a0",
+  "burnout_name": "SkyRasterCreate__FPvT0i",
+  "burnout_score": 0.991,
+  "confidence": 0.907,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.877); src(basky.c) p4:003f98a0 size=6992; br:001491a0 size=7328; same-file cluster; burnout disagrees: SkyRasterCreate__FPvT0i (semantic,0.991)",
+  "name": "SkyRasterCreate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8774505516345931,
+  "source_file": "basky.c"
+ },
+ "003fb830": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0014b290",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.943); src(basky.c) p4:003fb830 size=408; br:0014b290 size=380; same-file cluster",
+  "name": "SkyRasterDestroy",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9434918649475007,
+  "source_file": "basky.c"
+ },
+ "003fb9d0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0014b410",
+  "burnout_name": "SkyRasterLock_32to8",
+  "burnout_score": 0.983,
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.959); src(basky.c) p4:003fb9d0 size=636; br:0014b410 size=640; same-file cluster; AGREES with burnout (semantic,0.983)",
+  "name": "SkyRasterLock_32to8",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.958973968754903,
+  "source_file": "basky.c"
+ },
+ "003fbc50": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0014b690",
+  "burnout_name": "SkyRasterLock_16to4",
+  "burnout_score": 0.883,
+  "confidence": 0.971,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.971); src(basky.c) p4:003fbc50 size=916; br:0014b690 size=960; AGREES with burnout (call-graph,0.883)",
+  "name": "SkyRasterLock_16to4",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9708122044006002,
+  "source_file": "basky.c"
+ },
+ "003fbff0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0014ba50",
+  "burnout_name": "SkyRasterUnlock_8to32",
+  "burnout_score": 0.939,
+  "confidence": 0.973,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.973); src(basky.c) p4:003fbff0 size=644; br:0014ba50 size=640; AGREES with burnout (call-graph,0.939)",
+  "name": "SkyRasterUnlock_8to32",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9728545485514007,
+  "source_file": "basky.c"
+ },
+ "003fc280": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0014bcd0",
+  "burnout_name": "SkyRasterUnlock_4to16",
+  "burnout_score": 0.954,
+  "confidence": 0.976,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.976); src(basky.c) p4:003fc280 size=876; br:0014bcd0 size=844; AGREES with burnout (call-graph,0.954)",
+  "name": "SkyRasterUnlock_4to16",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9759886505057662,
+  "source_file": "basky.c"
+ },
+ "003fc5f0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0014c020",
+  "burnout_name": "SkyRasterLock",
+  "burnout_score": 0.974,
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.953); src(basky.c) p4:003fc5f0 size=3132; br:0014c020 size=3192; same-file cluster; AGREES with burnout (semantic,0.974)",
+  "name": "SkyRasterLock",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9530635705629429,
+  "source_file": "basky.c"
+ },
+ "003fd230": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0014cca0",
+  "burnout_name": "SkyRasterUnlock",
+  "burnout_score": 0.897,
+  "confidence": 0.958,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.928); src(basky.c) p4:003fd230 size=560; br:0014cca0 size=564; same-file cluster; AGREES with burnout (call-graph,0.897)",
+  "name": "SkyRasterUnlock",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.928131776257735,
+  "source_file": "basky.c"
+ },
+ "003fd460": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0014cee0",
+  "confidence": 0.948,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.918); src(basky.c) p4:003fd460 size=192; br:0014cee0 size=180; same-file cluster",
+  "name": "SkyRasterLockPalette",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9178882119875658,
+  "source_file": "basky.c"
+ },
+ "003fd520": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0014cfa0",
+  "burnout_name": "SkyRasterUnlockPalette",
+  "burnout_score": 0.905,
+  "confidence": 0.957,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.927); src(basky.c) p4:003fd520 size=272; br:0014cfa0 size=280; same-file cluster; AGREES with burnout (call-graph,0.905)",
+  "name": "SkyRasterUnlockPalette",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9265369589605449,
+  "source_file": "basky.c"
+ },
+ "003fd690": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0014d130",
+  "burnout_name": "writeTEXToStream",
+  "burnout_score": 0.917,
+  "confidence": 0.966,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.936); src(basky.c) p4:003fd690 size=688; br:0014d130 size=720; same-file cluster; AGREES with burnout (call-graph,0.917)",
+  "name": "writeTEXToStream",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9363257427351371,
+  "source_file": "basky.c"
+ },
+ "003fd940": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0014d400",
+  "burnout_name": "readTEXFromStream",
+  "burnout_score": 0.899,
+  "confidence": 0.96,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.930); src(basky.c) p4:003fd940 size=964; br:0014d400 size=952; same-file cluster; AGREES with burnout (call-graph,0.899)",
+  "name": "readTEXFromStream",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9296981585244373,
+  "source_file": "basky.c"
+ },
+ "003fdd10": {
+  "ballers_evidence": "shape",
+  "ballers_ref": "0014d7c0",
+  "burnout_name": "SkyNativeTextureGetSize",
+  "burnout_score": 0.996,
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,shape,1.000); src(basky.c) p4:003fdd10 size=164; br:0014d7c0 size=164; AGREES with burnout (semantic,0.996)",
+  "name": "SkyNativeTextureGetSize",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "basky.c"
+ },
+ "003fddc0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0014d870",
+  "confidence": 0.997,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.997); src(basky.c) p4:003fddc0 size=348; br:0014d870 size=368",
+  "name": "SkyNativeTextureWrite",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9965370816461195,
+  "source_file": "basky.c"
+ },
+ "003fe320": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0014ddc0",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.950); src(basky.c) p4:003fe320 size=332; br:0014ddc0 size=428; same-file cluster",
+  "name": "setInitialRenderState",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9501089978748025,
+  "source_file": "basky.c"
+ },
+ "003fe700": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0014e1e0",
+  "burnout_name": "SkyOpen",
+  "burnout_score": 0.89,
+  "confidence": 0.996,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.996); src(basky.c) p4:003fe700 size=912; br:0014e1e0 size=900; AGREES with burnout (call-graph,0.890)",
+  "name": "SkyOpen",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9956787598455087,
+  "source_file": "basky.c"
+ },
+ "003fea90": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0014e570",
+  "burnout_name": "setUpFSAA0",
+  "burnout_score": 0.865,
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.954); src(basky.c) p4:003fea90 size=1740; br:0014e570 size=1776; same-file cluster; AGREES with burnout (call-graph,0.865)",
+  "name": "setUpFSAA0",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9539874945056397,
+  "source_file": "basky.c"
+ },
+ "003ff160": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0014ec60",
+  "confidence": 0.986,
+  "evidence": "diff(p4-vs-ballers,semantic,0.986); src(basky.c) p4:003ff160 size=1096; br:0014ec60 size=1008",
+  "name": "skyCustomModeIsOk",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9858091181345459,
+  "source_file": "basky.c"
+ },
+ "004010c0": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "00150140",
+  "burnout_name": "SkySystem",
+  "burnout_score": 0.998,
+  "confidence": 0.999,
+  "evidence": "diff(p4-vs-ballers,semantic,0.999); src(basky.c) p4:004010c0 size=904; br:00150140 size=900; AGREES with burnout (semantic,0.998)",
+  "name": "SkySystem",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9989391326104036,
+  "source_file": "basky.c"
+ },
+ "00401460": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001506a0",
+  "burnout_name": "_rpSkyFrameBufferRastersUpdate",
+  "burnout_score": 0.956,
+  "confidence": 0.997,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.997); src(basky.c) p4:00401460 size=372; br:001506a0 size=376; AGREES with burnout (call-graph,0.956)",
+  "name": "_rpSkyFrameBufferRastersUpdate",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.996591731835309,
+  "source_file": "basky.c"
+ },
+ "004015e0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00150820",
+  "burnout_name": "_rpSkyDestroyFrameBufferRasters",
+  "burnout_score": 0.929,
+  "confidence": 0.983,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.983); src(basky.c) p4:004015e0 size=108; br:00150820 size=124; AGREES with burnout (call-graph,0.929)",
+  "name": "_rpSkyDestroyFrameBufferRasters",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9826710300763596,
+  "source_file": "basky.c"
+ },
+ "00401650": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001508a0",
+  "burnout_name": "SkyCreateFBRaster",
+  "burnout_score": 0.926,
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.964); src(basky.c) p4:00401650 size=540; br:001508a0 size=540; same-file cluster; AGREES with burnout (call-graph,0.926)",
+  "name": "SkyCreateFBRaster",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9636052598125878,
+  "source_file": "basky.c"
+ },
+ "00401870": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00150ac0",
+  "burnout_name": "SkyCreateDBRaster",
+  "burnout_score": 0.93,
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.955); src(basky.c) p4:00401870 size=556; br:00150ac0 size=564; same-file cluster; AGREES with burnout (call-graph,0.930)",
+  "name": "SkyCreateDBRaster",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9549114185954084,
+  "source_file": "basky.c"
+ },
+ "00401aa0": {
+  "ballers_evidence": "shape",
+  "ballers_ref": "00150d00",
+  "burnout_name": "_rpSkyCreateFrameBufferRasters",
+  "burnout_score": 0.948,
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,shape,1.000); src(basky.c) p4:00401aa0 size=224; br:00150d00 size=228; AGREES with burnout (call-graph,0.948)",
+  "name": "_rpSkyCreateFrameBufferRasters",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "basky.c"
+ },
+ "00401b90": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00150e00",
+  "confidence": 0.928,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.898); src(basky.c) p4:00401b90 size=2036; br:00150e00 size=2264; same-file cluster",
+  "name": "SkyGSMipGenerate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8976387323760676,
+  "source_file": "basky.c"
+ },
+ "00402600": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00151960",
+  "burnout_name": "_rwSkyRasterFinaliseStart",
+  "burnout_score": 0.964,
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.966); src(skyblit.c) p4:00402600 size=116; br:00151960 size=132; same-file cluster; AGREES with burnout (call-graph,0.964)",
+  "name": "_rwSkyRasterFinaliseStart",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9658808470703976,
+  "source_file": "skyblit.c"
+ },
+ "00402680": {
+  "ballers_evidence": "profile",
+  "ballers_ref": "001519f0",
+  "burnout_name": "_rwSkyRasterInitiateStop",
+  "burnout_score": 0.979,
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,profile,1.000); src(skyblit.c) p4:00402680 size=68; br:001519f0 size=68; AGREES with burnout (call-graph,0.979)",
+  "name": "_rwSkyRasterInitiateStop",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "skyblit.c"
+ },
+ "004026d0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00151a40",
+  "confidence": 0.964,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.934); src(skyblit.c) p4:004026d0 size=664; br:00151a40 size=816; same-file cluster",
+  "name": "spriteSetup",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.933614072165873,
+  "source_file": "skyblit.c"
+ },
+ "00402970": {
+  "ballers_evidence": "context",
+  "ballers_ref": "00151d70",
+  "burnout_name": "NetConnMAC",
+  "burnout_score": 0.878,
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,context,0.954); src(skyblit.c) p4:00402970 size=320; br:00151d70 size=384; same-file cluster; burnout disagrees: NetConnMAC (context,0.878)",
+  "name": "spriteRGBAZ",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9541476087951035,
+  "source_file": "skyblit.c"
+ },
+ "00402ab0": {
+  "ballers_evidence": "context",
+  "ballers_ref": "00151ef0",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,context,0.940); src(skyblit.c) p4:00402ab0 size=352; br:00151ef0 size=448; same-file cluster",
+  "name": "spriteUV",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9399270532791819,
+  "source_file": "skyblit.c"
+ },
+ "00402c10": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001520b0",
+  "confidence": 0.952,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.922); src(skyblit.c) p4:00402c10 size=312; br:001520b0 size=392; same-file cluster",
+  "name": "spriteUnsetup",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9222659970617726,
+  "source_file": "skyblit.c"
+ },
+ "00402d50": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00152240",
+  "confidence": 0.883,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.853); src(skyblit.c) p4:00402d50 size=656; br:00152240 size=660; same-file cluster",
+  "name": "_rwSkyRasterClearRect",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8531189491267129,
+  "source_file": "skyblit.c"
+ },
+ "00402fe0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001524e0",
+  "confidence": 0.935,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.905); src(skyblit.c) p4:00402fe0 size=400; br:001524e0 size=376; same-file cluster",
+  "name": "unScaledSpriteClip",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9051021957084691,
+  "source_file": "skyblit.c"
+ },
+ "00403170": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00152660",
+  "confidence": 0.906,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.876); src(skyblit.c) p4:00403170 size=532; br:00152660 size=560; same-file cluster",
+  "name": "scaledSpriteClip",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8757390418261138,
+  "source_file": "skyblit.c"
+ },
+ "00403390": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00152890",
+  "burnout_name": "_rwSkyRasterClear",
+  "burnout_score": 1.0,
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(skyblit.c) p4:00403390 size=68; br:00152890 size=68; AGREES with burnout (shape,1.000)",
+  "name": "_rwSkyRasterClear",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "skyblit.c"
+ },
+ "004033e0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001528e0",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.944); src(skyblit.c) p4:004033e0 size=1360; br:001528e0 size=1364; same-file cluster",
+  "name": "skyRasterSetupForUpload",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9440161352110179,
+  "source_file": "skyblit.c"
+ },
+ "00403930": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00152e40",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.965); src(skyblit.c) p4:00403930 size=6520; br:00152e40 size=6544; same-file cluster",
+  "name": "_rwSkyRasterRender",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9646014935901723,
+  "source_file": "skyblit.c"
+ },
+ "004052b0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001547d0",
+  "confidence": 0.971,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.971); src(skyblit.c) p4:004052b0 size=6312; br:001547d0 size=6432",
+  "name": "_rwSkyRasterRenderScaled",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9706347992954933,
+  "source_file": "skyblit.c"
+ },
+ "00406b60": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001560f0",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.959); src(skyblit.c) p4:00406b60 size=4208; br:001560f0 size=4072; same-file cluster",
+  "name": "_rwSkyRasterRenderFast",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9592536217198608,
+  "source_file": "skyblit.c"
+ },
+ "00407df0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00157330",
+  "confidence": 0.949,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.919); src(skyconv.c) p4:00407df0 size=504; br:00157330 size=492; same-file cluster",
+  "name": "_rwSkyImageFindRasterFormat",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9191116244635508,
+  "source_file": "skyconv.c"
+ },
+ "00407ff0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00157520",
+  "burnout_name": "_rwSkyImageGetRaster",
+  "burnout_score": 0.923,
+  "confidence": 0.972,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.972); src(skyconv.c) p4:00407ff0 size=4444; br:00157520 size=4648; AGREES with burnout (semantic,0.923)",
+  "name": "_rwSkyImageGetRaster",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9717182021576424,
+  "source_file": "skyconv.c"
+ },
+ "00409150": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00158750",
+  "confidence": 0.975,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.975); src(skyconv.c) p4:00409150 size=3028; br:00158750 size=3124",
+  "name": "copyRGBAPalette",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9745422147701144,
+  "source_file": "skyconv.c"
+ },
+ "00409d30": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00159390",
+  "confidence": 0.94,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.910); src(skyconv.c) p4:00409d30 size=224; br:00159390 size=216; same-file cluster",
+  "name": "SkyRasterPalQuantImage",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9104969936730093,
+  "source_file": "skyconv.c"
+ },
+ "00409e10": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00159470",
+  "burnout_name": "SkyRasterSetImageNormalPalettised",
+  "burnout_score": 0.967,
+  "confidence": 0.995,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.995); src(skyconv.c) p4:00409e10 size=640; br:00159470 size=656; AGREES with burnout (semantic,0.967)",
+  "name": "SkyRasterSetImageNormalPalettised",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9952150913169632,
+  "source_file": "skyconv.c"
+ },
+ "0040a090": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00159700",
+  "burnout_name": "SkyRasterSetImageNormal",
+  "burnout_score": 0.98,
+  "confidence": 0.99,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.990); src(skyconv.c) p4:0040a090 size=1132; br:00159700 size=1180; AGREES with burnout (call-graph,0.980)",
+  "name": "SkyRasterSetImageNormal",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9903227742933399,
+  "source_file": "skyconv.c"
+ },
+ "0040a500": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00159ba0",
+  "burnout_name": "_rwSkyRasterSetImage",
+  "burnout_score": 0.877,
+  "confidence": 0.958,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.928); src(skyconv.c) p4:0040a500 size=336; br:00159ba0 size=332; same-file cluster; AGREES with burnout (call-graph,0.877)",
+  "name": "_rwSkyRasterSetImage",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9278756220090866,
+  "source_file": "skyconv.c"
+ },
+ "0040a650": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00159cf0",
+  "confidence": 0.907,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.877); src(skyinst.c) p4:0040a650 size=420; br:00159cf0 size=512; same-file cluster",
+  "name": "open2DVU1Pkt",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8770674392824865,
+  "source_file": "skyinst.c"
+ },
+ "0040a800": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00159ef0",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.940); src(skyinst.c) p4:0040a800 size=516; br:00159ef0 size=532; same-file cluster",
+  "name": "openVU1SetupPktNew",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9395063170009944,
+  "source_file": "skyinst.c"
+ },
+ "0040aa10": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015a110",
+  "confidence": 0.948,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.918); src(skyinst.c) p4:0040aa10 size=72; br:0015a110 size=120; same-file cluster",
+  "name": "closeAndDispatchVU1Packet",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9184296905671787,
+  "source_file": "skyinst.c"
+ },
+ "0040aa60": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015a190",
+  "burnout_name": "initVu1DispatchStuff",
+  "burnout_score": 0.971,
+  "confidence": 0.955,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.925); src(skyinst.c) p4:0040aa60 size=912; br:0015a190 size=760; same-file cluster; AGREES with burnout (call-graph,0.971)",
+  "name": "initVu1DispatchStuff",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9247686341436342,
+  "source_file": "skyinst.c"
+ },
+ "0040adf0": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0015a490",
+  "confidence": 0.999,
+  "evidence": "diff(p4-vs-ballers,semantic,0.999); src(skyinst.c) p4:0040adf0 size=436; br:0015a490 size=464",
+  "name": "addCopyVU1Line",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9986161067555488,
+  "source_file": "skyinst.c"
+ },
+ "0040afb0": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0015a660",
+  "confidence": 0.991,
+  "evidence": "diff(p4-vs-ballers,semantic,0.991); src(skyinst.c) p4:0040afb0 size=88; br:0015a660 size=84",
+  "name": "SkyIm2DRenderLine",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9914236706689535,
+  "source_file": "skyinst.c"
+ },
+ "0040b010": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0015a6c0",
+  "confidence": 0.999,
+  "evidence": "diff(p4-vs-ballers,semantic,0.999); src(skyinst.c) p4:0040b010 size=544; br:0015a6c0 size=572",
+  "name": "addCopyVU1Triangle",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9992475803905234,
+  "source_file": "skyinst.c"
+ },
+ "0040b230": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0015a900",
+  "confidence": 0.994,
+  "evidence": "diff(p4-vs-ballers,semantic,0.994); src(skyinst.c) p4:0040b230 size=96; br:0015a900 size=92",
+  "name": "SkyIm2DRenderTriangle",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9935157513665522,
+  "source_file": "skyinst.c"
+ },
+ "0040b290": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0015a960",
+  "confidence": 0.998,
+  "evidence": "diff(p4-vs-ballers,semantic,0.998); src(skyinst.c) p4:0040b290 size=652; br:0015a960 size=676",
+  "name": "addCopyVU1PrimLineList",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9982983477252679,
+  "source_file": "skyinst.c"
+ },
+ "0040b520": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015ac10",
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.970); src(skyinst.c) p4:0040b520 size=652; br:0015ac10 size=676",
+  "name": "addCopyVU1PrimPolyLine",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.970246584239845,
+  "source_file": "skyinst.c"
+ },
+ "0040b7b0": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0015aec0",
+  "confidence": 0.999,
+  "evidence": "diff(p4-vs-ballers,semantic,0.999); src(skyinst.c) p4:0040b7b0 size=772; br:0015aec0 size=796",
+  "name": "addCopyVU1PrimTriList",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9989120078510034,
+  "source_file": "skyinst.c"
+ },
+ "0040bac0": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0015b1e0",
+  "confidence": 0.999,
+  "evidence": "diff(p4-vs-ballers,semantic,0.999); src(skyinst.c) p4:0040bac0 size=800; br:0015b1e0 size=832",
+  "name": "addCopyVU1PrimTriStrip",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9989776299278468,
+  "source_file": "skyinst.c"
+ },
+ "0040bde0": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0015b520",
+  "confidence": 0.999,
+  "evidence": "diff(p4-vs-ballers,semantic,0.999); src(skyinst.c) p4:0040bde0 size=784; br:0015b520 size=808",
+  "name": "addCopyVU1PrimTriFan",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9989541302069772,
+  "source_file": "skyinst.c"
+ },
+ "0040c0f0": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0015c890",
+  "burnout_name": "SkyIm2DRenderPrimitive",
+  "burnout_score": 0.982,
+  "confidence": 0.991,
+  "evidence": "diff(p4-vs-ballers,semantic,0.991); src(skyinst.c) p4:0040c0f0 size=116; br:0015c890 size=112; burnout disagrees: SkyIm2DRenderPrimitive (semantic,0.982)",
+  "name": "SkyIm2DRenderIndexedPrimitive",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9908870081710952,
+  "source_file": "skyinst.c"
+ },
+ "0040c170": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015b8c0",
+  "confidence": 0.975,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.975); src(skyinst.c) p4:0040c170 size=688; br:0015b8c0 size=712",
+  "name": "addCopyVU1IndPrimLineList",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9745468679896744,
+  "source_file": "skyinst.c"
+ },
+ "0040c420": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015bb90",
+  "burnout_name": "addCopyVU1IndPrimTriStrip",
+  "burnout_score": 0.988,
+  "confidence": 0.975,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.975); src(skyinst.c) p4:0040c420 size=688; br:0015bb90 size=712; burnout disagrees: addCopyVU1IndPrimTriStrip (semantic,0.988)",
+  "name": "addCopyVU1IndPrimPolyLine",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9745461952154969,
+  "source_file": "skyinst.c"
+ },
+ "0040c6d0": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0015be60",
+  "burnout_name": "addCopyVU1IndPrimLineList",
+  "burnout_score": 0.909,
+  "confidence": 0.999,
+  "evidence": "diff(p4-vs-ballers,semantic,0.999); src(skyinst.c) p4:0040c6d0 size=816; br:0015be60 size=848; burnout disagrees: addCopyVU1IndPrimLineList (context,0.909)",
+  "name": "addCopyVU1IndPrimTriList",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9990647606004242,
+  "source_file": "skyinst.c"
+ },
+ "0040ca00": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0015c1b0",
+  "confidence": 0.999,
+  "evidence": "diff(p4-vs-ballers,semantic,0.999); src(skyinst.c) p4:0040ca00 size=852; br:0015c1b0 size=884",
+  "name": "addCopyVU1IndPrimTriStrip",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9990717119267919,
+  "source_file": "skyinst.c"
+ },
+ "0040cd60": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0015c530",
+  "confidence": 0.999,
+  "evidence": "diff(p4-vs-ballers,semantic,0.999); src(skyinst.c) p4:0040cd60 size=828; br:0015c530 size=852",
+  "name": "addCopyVU1IndPrimTriFan",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9990738491202247,
+  "source_file": "skyinst.c"
+ },
+ "0040d0a0": {
+  "ballers_evidence": "shape",
+  "ballers_ref": "0015b850",
+  "burnout_name": "SkyIm2DRenderIndexedPrimitive",
+  "burnout_score": 0.981,
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-ballers,shape,1.000); src(skyinst.c) p4:0040d0a0 size=112; br:0015b850 size=112; burnout disagrees: SkyIm2DRenderIndexedPrimitive (semantic,0.981)",
+  "name": "SkyIm2DRenderPrimitive",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "skyinst.c"
+ },
+ "0040d170": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0015c960",
+  "burnout_name": "_rwSkyPipeSetupForCamera",
+  "burnout_score": 0.854,
+  "confidence": 0.997,
+  "evidence": "diff(p4-vs-ballers,semantic,0.997); src(skyinst.c) p4:0040d170 size=1016; br:0015c960 size=1048; AGREES with burnout (call-graph,0.854)",
+  "name": "_rwSkyPipeSetupForCamera",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9974620599959385,
+  "source_file": "skyinst.c"
+ },
+ "0040d570": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015cd80",
+  "burnout_name": "_SkyBuildPktForUpLoadAlignedContiguousRectangle",
+  "burnout_score": 0.865,
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.967); src(texcache.c) p4:0040d570 size=428; br:0015cd80 size=432; same-file cluster; burnout disagrees: _SkyBuildPktForUpLoadAlignedContiguousRectangle (call-graph,0.865)",
+  "name": "skyFillInPktForUpLoadAlignedContiguousRectangle",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9673084136300669,
+  "source_file": "texcache.c"
+ },
+ "0040d720": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015cf30",
+  "burnout_name": "skyPrepareUploadRaster",
+  "burnout_score": 0.865,
+  "confidence": 0.994,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.994); src(texcache.c) p4:0040d720 size=872; br:0015cf30 size=880; AGREES with burnout (call-graph,0.865)",
+  "name": "skyPrepareUploadRaster",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9936306556268916,
+  "source_file": "texcache.c"
+ },
+ "0040da90": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015d2a0",
+  "burnout_name": "_SkyDdispatchUpLoadAlignedContiguousRectangle",
+  "burnout_score": 0.988,
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.945); src(texcache.c) p4:0040da90 size=548; br:0015d2a0 size=740; same-file cluster; AGREES with burnout (call-graph,0.988)",
+  "name": "_SkyDdispatchUpLoadAlignedContiguousRectangle",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9449816401890325,
+  "source_file": "texcache.c"
+ },
+ "0040dcc0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015d590",
+  "burnout_name": "_SkyUpLoadAlignedRectangle",
+  "burnout_score": 0.932,
+  "confidence": 0.949,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.919); src(texcache.c) p4:0040dcc0 size=640; br:0015d590 size=776; same-file cluster; AGREES with burnout (call-graph,0.932)",
+  "name": "_SkyUpLoadAlignedRectangle",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9187410383882966,
+  "source_file": "texcache.c"
+ },
+ "0040df50": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015d8b0",
+  "burnout_name": "skyTexCacheMemRasterToGs",
+  "burnout_score": 0.872,
+  "confidence": 0.968,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.938); src(texcache.c) p4:0040df50 size=2268; br:0015d8b0 size=2368; same-file cluster; AGREES with burnout (call-graph,0.872)",
+  "name": "skyTexCacheMemRasterToGs",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9379564084831976,
+  "source_file": "texcache.c"
+ },
+ "0040e830": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015e1f0",
+  "burnout_name": "_skyTexCacheUploadRaster",
+  "burnout_score": 0.884,
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.957); src(texcache.c) p4:0040e830 size=1700; br:0015e1f0 size=1648; same-file cluster; AGREES with burnout (call-graph,0.884)",
+  "name": "_skyTexCacheUploadRaster",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9571040856736556,
+  "source_file": "texcache.c"
+ },
+ "0040f020": {
+  "ballers_evidence": "semantic",
+  "ballers_ref": "0015e9b0",
+  "confidence": 0.971,
+  "evidence": "diff(p4-vs-ballers,semantic,0.971); src(texcache.c) p4:0040f020 size=388; br:0015e9b0 size=388",
+  "name": "skyTexCacheCloseCache",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9706227543423326,
+  "source_file": "texcache.c"
+ },
+ "0040f1b0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015eb40",
+  "burnout_name": "skyTexCacheEndFrame",
+  "burnout_score": 1.0,
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(texcache.c) p4:0040f1b0 size=8; br:0015eb40 size=8; empty-stub-cap; AGREES with burnout (call-graph,1.000)",
+  "name": "skyTexCacheEndFrame",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "texcache.c"
+ },
+ "0040f1c0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015eb50",
+  "burnout_name": "skyTexCacheUploadPalette",
+  "burnout_score": 0.932,
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.941); src(texcache.c) p4:0040f1c0 size=704; br:0015eb50 size=776; same-file cluster; AGREES with burnout (call-graph,0.932)",
+  "name": "skyTexCacheUploadPalette",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9414797907490575,
+  "source_file": "texcache.c"
+ },
+ "0040f480": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015ee60",
+  "confidence": 0.961,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.931); src(texcache.c) p4:0040f480 size=232; br:0015ee60 size=224; same-file cluster",
+  "name": "RpSkyTexCacheAccessSpeculate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9306636740368314,
+  "source_file": "texcache.c"
+ },
+ "0040f570": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015ef40",
+  "confidence": 0.955,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.925); src(texcache.c) p4:0040f570 size=1304; br:0015ef40 size=1264; same-file cluster",
+  "name": "RpSkyTexCacheAccessRaster",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9253643911169314,
+  "source_file": "texcache.c"
+ },
+ "0040fa90": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015f430",
+  "confidence": 0.936,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.906); src(texcache.c) p4:0040fa90 size=572; br:0015f430 size=532; same-file cluster",
+  "name": "RpSkyTexCacheReleaseRaster",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9060200722177744,
+  "source_file": "texcache.c"
+ },
+ "0040fcd0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015f650",
+  "burnout_name": "RpSkyTexCacheRasterLock",
+  "burnout_score": 0.865,
+  "confidence": 0.969,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.939); src(texcache.c) p4:0040fcd0 size=936; br:0015f650 size=920; same-file cluster; AGREES with burnout (call-graph,0.865)",
+  "name": "RpSkyTexCacheRasterLock",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 0.9393378571471892,
+  "source_file": "texcache.c"
+ },
+ "00410080": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015fab0",
+  "confidence": 0.995,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.995); src(texcache.c) p4:00410080 size=736; br:0015fab0 size=720",
+  "name": "RpSkyTexCacheRestore",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9951861844767244,
+  "source_file": "texcache.c"
+ },
+ "00410370": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015fda0",
+  "confidence": 0.994,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.994); src(texcache.c) p4:00410370 size=32; br:0015fda0 size=32",
+  "name": "RpSkyTexGetTex0",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9942307692307691,
+  "source_file": "texcache.c"
+ },
+ "00410390": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015fdc0",
+  "confidence": 0.989,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.989); src(texcache.c) p4:00410390 size=140; br:0015fdc0 size=144",
+  "name": "RpSkyTexCalcTex1",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9886853886853886,
+  "source_file": "texcache.c"
+ },
+ "00410420": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015fe50",
+  "confidence": 0.866,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.866); src(RW-core,symtab) p4:00410420 size=176; br:0015fe50 size=224",
+  "name": "RwIm3DTransform",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8661985987296045,
+  "source_file": "RW-core (symtab)"
+ },
+ "004104d0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015ff30",
+  "confidence": 0.978,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.978); src(RW-core,symtab) p4:004104d0 size=76; br:0015ff30 size=84",
+  "name": "RwIm3DEnd",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9775709272660492,
+  "source_file": "RW-core (symtab)"
+ },
+ "00410520": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0015ff90",
+  "confidence": 0.912,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.912); src(RW-core,symtab) p4:00410520 size=384; br:0015ff90 size=400",
+  "name": "RwIm3DRenderIndexedPrimitive",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9124582511833165,
+  "source_file": "RW-core (symtab)"
+ },
+ "004106a0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00160120",
+  "confidence": 0.89,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.890); src(RW-core,symtab) p4:004106a0 size=340; br:00160120 size=404",
+  "name": "RwIm3DRenderPrimitive",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8899789416851386,
+  "source_file": "RW-core (symtab)"
+ },
+ "00410930": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0019f8f0",
+  "confidence": 0.894,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.894); src(RW-core,symtab) p4:00410930 size=264; br:0019f8f0 size=252; mangled-name",
+  "name": "rwutil_PrepClumpForExternalAnimation__FP7RpClump",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8944595342394314,
+  "source_file": "RW-core (symtab)"
+ },
+ "00410df0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001606e0",
+  "burnout_name": "Release__13CB4PhysicsVDB",
+  "burnout_score": 0.958,
+  "confidence": 0.922,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.922); src(RW-core,symtab) p4:00410df0 size=220; br:001606e0 size=216; burnout disagrees: Release__13CB4PhysicsVDB (semantic,0.958)",
+  "name": "_rwIm3DOpen",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9217369908481317,
+  "source_file": "RW-core (symtab)"
+ },
+ "00410f30": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00160820",
+  "burnout_name": "_rwPipeAttach",
+  "burnout_score": 1.0,
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:00410f30 size=8; br:00160820 size=8; empty-stub-cap; AGREES with burnout (call-graph,1.000)",
+  "name": "_rwPipeAttach",
+  "proposed_by": [
+   "ballers",
+   "burnout"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "004114c0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00160db0",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.990); src(RW-core,symtab) p4:004114c0 size=8; br:00160db0 size=8; empty-stub-cap",
+  "name": "RxHeapGetGlobalHeap",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9897435897435897,
+  "source_file": "RW-core (symtab)"
+ },
+ "004125d0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00161f00",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(RW-core,symtab) p4:004125d0 size=8; br:00161f00 size=8; empty-stub-cap",
+  "name": "RxPipelineNodeGetInitData",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "004125e0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00161f10",
+  "burnout_name": "_RwaWaveConvBitDepthPCM",
+  "burnout_score": 0.864,
+  "confidence": 0.951,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.951); src(RW-core,symtab) p4:004125e0 size=1728; br:00161f10 size=1760; burnout disagrees: _RwaWaveConvBitDepthPCM (call-graph,0.864)",
+  "name": "RxLockedPipeUnlock",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9506300032437777,
+  "source_file": "RW-core (symtab)"
+ },
+ "00412ca0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001625f0",
+  "confidence": 0.916,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.916); src(RW-core,symtab) p4:00412ca0 size=484; br:001625f0 size=484",
+  "name": "RxPipelineLock",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9159958185350314,
+  "source_file": "RW-core (symtab)"
+ },
+ "00412e90": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "001627e0",
+  "confidence": 0.95,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.950); src(RW-core,symtab) p4:00412e90 size=280; br:001627e0 size=300",
+  "name": "RxPipelineFindNodeByName",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9503151463952949,
+  "source_file": "RW-core (symtab)"
+ },
+ "00412fb0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00162910",
+  "confidence": 0.873,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.873); src(RW-core,symtab) p4:00412fb0 size=732; br:00162910 size=740",
+  "name": "RxLockedPipeAddFragment",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.8728190871719078,
+  "source_file": "RW-core (symtab)"
+ },
+ "00413290": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00162c00",
+  "confidence": 0.909,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.909); src(RW-core,symtab) p4:00413290 size=192; br:00162c00 size=208",
+  "name": "RxLockedPipeAddPath",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9088141183136941,
+  "source_file": "RW-core (symtab)"
+ },
+ "00414e10": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002802a0",
+  "confidence": 0.909,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.909); src(RW-core,symtab) p4:00414e10 size=224; br:002802a0 size=200",
+  "name": "RtAnimInterpolatorSetKeyFrameCallBacks",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 0.9092633365580461,
+  "source_file": "RW-core (symtab)"
+ },
+ "00415930": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00165060",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(im3dpipe.c) p4:00415930 size=8; br:00165060 size=8; empty-stub-cap",
+  "name": "_rwIm3DCreatePlatformTransformPipeline",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "im3dpipe.c"
+ },
+ "00415950": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00165080",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,1.000); src(im3dpipe.c) p4:00415950 size=8; br:00165080 size=8; empty-stub-cap",
+  "name": "_rwIm3DCreatePlatformRenderPipelines",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "rw-block",
+  "score": 1.0,
+  "source_file": "im3dpipe.c"
+ },
+ "00457190": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00317470",
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.984); src(RW-core,symtab) p4:00457190 size=12; br:00317470 size=12; empty-stub-cap,outside-RW-block-cap",
+  "name": "RpTeamSetShadows",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9835164835164836,
+  "source_file": "RW-core (symtab)"
+ },
+ "004574d0": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00315120",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.937); src(RW-core,symtab) p4:004574d0 size=344; br:00315120 size=380; outside-RW-block-cap",
+  "name": "RpTeamDictionarySetLODElement",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9371692042685916,
+  "source_file": "RW-core (symtab)"
+ },
+ "00475b10": {
+  "ballers_evidence": "context",
+  "ballers_ref": "0019f120",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,context,0.891); src(RW-core,symtab) p4:00475b10 size=120; br:0019f120 size=116; outside-RW-block-cap,mangled-name",
+  "name": "rwutil_GetHierarchyFrame_Recurse__FP7RwFramePv",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.8911534215161517,
+  "source_file": "RW-core (symtab)"
+ },
+ "00478410": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002b7da0",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.941); src(RW-core,symtab) p4:00478410 size=824; br:002b7da0 size=752; outside-RW-block-cap",
+  "name": "RpDMorphAtomicSetAnimation",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9413377953485217,
+  "source_file": "RW-core (symtab)"
+ },
+ "0047eaa0": {
+  "ballers_evidence": "context",
+  "ballers_ref": "0012ee20",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,context,0.923); src(RW-core,symtab) p4:0047eaa0 size=128; br:0012ee20 size=112; outside-RW-block-cap",
+  "name": "_rwSListToArray",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9231664345394365,
+  "source_file": "RW-core (symtab)"
+ },
+ "00480e20": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00252610",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.958); src(RW-core,symtab) p4:00480e20 size=216; br:00252610 size=240; outside-RW-block-cap",
+  "name": "RpHAnimKeyFrameStreamRead",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9578156134556499,
+  "source_file": "RW-core (symtab)"
+ },
+ "004940d0": {
+  "ballers_evidence": "context",
+  "ballers_ref": "0015e860",
+  "confidence": 0.63,
+  "evidence": "diff(p4-vs-ballers,context,0.881); src(texcache.c) p4:004940d0 size=280; br:0015e860 size=332; outside-RW-block-cap; same-file cluster",
+  "name": "skyTexCacheOpenCache",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.881004016064257,
+  "source_file": "texcache.c"
+ },
+ "00494ff0": {
+  "ballers_evidence": "context",
+  "ballers_ref": "00133b20",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,context,0.968); src(RW-core,symtab) p4:00494ff0 size=156; br:00133b20 size=172; outside-RW-block-cap",
+  "name": "RwV2dNormalize",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9677653435915371,
+  "source_file": "RW-core (symtab)"
+ },
+ "004a0c00": {
+  "ballers_evidence": "context",
+  "ballers_ref": "00289840",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,context,0.880); src(RW-core,symtab) p4:004a0c00 size=2204; br:00289840 size=2216; outside-RW-block-cap",
+  "name": "RpPDS_G3x_Dup_MeshPS2AllBridgeCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.8797969947450608,
+  "source_file": "RW-core (symtab)"
+ },
+ "004ab420": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "00314b00",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.947); src(RW-core,symtab) p4:004ab420 size=372; br:00314b00 size=336; outside-RW-block-cap",
+  "name": "RpTeamSetDictionary",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9465345172662198,
+  "source_file": "RW-core (symtab)"
+ },
+ "004b1190": {
+  "ballers_evidence": "context",
+  "ballers_ref": "0013e0b0",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,context,0.869); src(RW-core,symtab) p4:004b1190 size=32; br:0013e0b0 size=28; outside-RW-block-cap",
+  "name": "RwTextureSetReadCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.86875,
+  "source_file": "RW-core (symtab)"
+ },
+ "004b1520": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0013e0d0",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.853); src(RW-core,symtab) p4:004b1520 size=32; br:0013e0d0 size=24; outside-RW-block-cap",
+  "name": "RwTextureGetReadCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.8525641025641025,
+  "source_file": "RW-core (symtab)"
+ },
+ "004b5040": {
+  "ballers_evidence": "context",
+  "ballers_ref": "002872f8",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,context,0.966); src(RW-core,symtab) p4:004b5040 size=140; br:002872f8 size=128; outside-RW-block-cap",
+  "name": "RpPDS_G3_Matfx_PS2AllMatBridgeCallBack",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9660001699069244,
+  "source_file": "RW-core (symtab)"
+ },
+ "004bc520": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "0012fdf0",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.920); src(RW-core,symtab) p4:004bc520 size=24; br:0012fdf0 size=28; outside-RW-block-cap",
+  "name": "RwMatrixUpdate",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9202464202464203,
+  "source_file": "RW-core (symtab)"
+ },
+ "004c47f0": {
+  "ballers_evidence": "context",
+  "ballers_ref": "00157120",
+  "confidence": 0.63,
+  "evidence": "diff(p4-vs-ballers,context,0.906); src(skyconv.c) p4:004c47f0 size=288; br:00157120 size=264; outside-RW-block-cap; same-file cluster",
+  "name": "_rwSkyRGBToPixel",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9056501331091495,
+  "source_file": "skyconv.c"
+ },
+ "004c7260": {
+  "ballers_evidence": "context",
+  "ballers_ref": "00139080",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,context,0.906); src(RW-core,symtab) p4:004c7260 size=172; br:00139080 size=176; outside-RW-block-cap",
+  "name": "RwFrameSetIdentity",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9060786435786435,
+  "source_file": "RW-core (symtab)"
+ },
+ "004e24f0": {
+  "ballers_evidence": "context",
+  "ballers_ref": "00248a70",
+  "confidence": 0.63,
+  "evidence": "diff(p4-vs-ballers,context,0.899); src(fastim3d.c) p4:004e24f0 size=92; br:00248a70 size=92; outside-RW-block-cap; same-file cluster",
+  "name": "PS2Im3DFastTransformNodeBody",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.8993773714921826,
+  "source_file": "fastim3d.c"
+ },
+ "004f9410": {
+  "ballers_evidence": "call-graph",
+  "ballers_ref": "002b7140",
+  "burnout_name": "GetMessage__Q26Realmc12PS2Interfacei",
+  "burnout_score": 0.888,
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,call-graph,0.912); src(RW-core,symtab) p4:004f9410 size=164; br:002b7140 size=160; outside-RW-block-cap; burnout disagrees: GetMessage__Q26Realmc12PS2Interfacei (call-graph,0.888)",
+  "name": "RpDMorphGeometryRemoveDMorphTarget",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9124376978035516,
+  "source_file": "RW-core (symtab)"
+ },
+ "00515b58": {
+  "ballers_evidence": "context",
+  "ballers_ref": "0013a900",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,context,1.000); src(RW-core,symtab) p4:00515b58 size=52; br:0013a900 size=52; outside-RW-block-cap",
+  "name": "RwRGBAToPixel",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "00524580": {
+  "ballers_evidence": "context",
+  "ballers_ref": "0039b160",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,context,1.000); src(RW-core,symtab) p4:00524580 size=32; br:0039b160 size=32; outside-RW-block-cap,mangled-name",
+  "name": "rw_gsImgXfer_LoadImg_Path2__FPviiiiiiii",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 1.0,
+  "source_file": "RW-core (symtab)"
+ },
+ "00525730": {
+  "ballers_evidence": "context",
+  "ballers_ref": "00145c80",
+  "confidence": 0.63,
+  "evidence": "diff(p4-vs-ballers,context,0.962); src(basky.c) p4:00525730 size=156; br:00145c80 size=160; outside-RW-block-cap; same-file cluster",
+  "name": "RpSkyTextureSetMipmapK",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9620089285714287,
+  "source_file": "basky.c"
+ },
+ "0063c580": {
+  "ballers_evidence": "context",
+  "ballers_ref": "0012e8e0",
+  "confidence": 0.6,
+  "evidence": "diff(p4-vs-ballers,context,0.995); src(RW-core,symtab) p4:0063c580 size=57; br:0012e8e0 size=60; outside-RW-block-cap",
+  "name": "_rwErrorOpen",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9950000000000001,
+  "source_file": "RW-core (symtab)"
+ },
+ "007166f8": {
+  "ballers_evidence": "context",
+  "ballers_ref": "0024b920",
+  "confidence": 0.63,
+  "evidence": "diff(p4-vs-ballers,context,0.998); src(nodeps2all.c) p4:007166f8 size=200; br:0024b920 size=204; outside-RW-block-cap; same-file cluster",
+  "name": "PS2AllPipelineNodeInit",
+  "proposed_by": [
+   "ballers"
+  ],
+  "region": "outlier",
+  "score": 0.9980392156862746,
+  "source_file": "nodeps2all.c"
+ }
+}
