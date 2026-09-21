@@ -254,6 +254,7 @@ Sint32 MPVHDEC_DecPicture(MPV mpv, SJ sj)
 
 /* the public copy of mpvhdec_GoNextDelim: a real function (its own locals: ck above rest on the
  * frame), emitted after MPVHDEC_DecPicture like the original */
+// FUN_005068F8
 Sint32 MPV_GoNextDelimSj(SJ sj)
 {
 	SJCK ck;

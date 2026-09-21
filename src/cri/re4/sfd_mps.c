@@ -234,6 +234,7 @@ Sint32 SFMPS_Standby(SFD sfd)
 }
 
 // Destroys the MPS parser handle.
+// FUN_00519C38
 Sint32 SFMPS_Destroy(SFD sfd)
 {
 	if (MPS_Destroy(SFMPS_MPS(sfd)) != 0) {
@@ -407,6 +408,7 @@ static void sfmps_ProcPrep(SFD sfd)
 }
 
 /* copies a packet payload into ring buffer `buf`, registering its PTS */
+// FUN_00519008
 Sint32 sfmps_CopyDstBuft(SFD sfd, Sint32 buf, Uint8 *data, Sint32 len, Sint64 pts)
 {
 	SFBUF_RINF inf;
