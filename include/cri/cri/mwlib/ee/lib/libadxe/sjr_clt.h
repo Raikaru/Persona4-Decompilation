@@ -4,6 +4,15 @@
 #include <../../../recvx-decomp-cri/cri/mwlib/ee/include/cri_xpt.h>
 #include <../../../recvx-decomp-cri/cri/mwlib/include/sj.h>
 
+/* P4: measured and REVERTED, recorded so nobody repeats it. Retail's
+ * SJUNI_CreateRmt sends `addiu $a0, $zero, 0x20` at 0x004EFBFC, and the
+ * eleven calls that follow use 0x20..0x2A consecutively - exactly the span
+ * from UNI_CREATE to FINISH, so shifting the whole enumeration down by two
+ * looks right and does fix SJUNI_CreateRmt. It costs more than it buys:
+ * byte-exact functions fell 317 -> 309 and the name-driven measure 177 ->
+ * 175, so some other caller needs the numbering as it stands. The command
+ * space is evidently not one flat enumeration in 9.44 and needs more
+ * evidence than one function's immediate. */
 typedef enum 
 {
 	SJRMT_RBF_CREATE = 32,

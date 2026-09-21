@@ -127,9 +127,10 @@ void dtx_def_sndcbf(void *obj, void *dt, Sint32 dtlen)
 }
 
 // 100% matching!
+// FUN_004E5360
 DTX DTX_Open(Sint32 id)
 {
-    if ((Uint32)id >= 8) 
+    if ((Uint32)id >= 16) 
     {
         return NULL;
     }
