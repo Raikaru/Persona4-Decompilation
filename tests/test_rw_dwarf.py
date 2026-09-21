@@ -11,7 +11,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "tools"))
 SPEC = importlib.util.spec_from_file_location("p4_rw_dwarf",
-                                              REPO / "build" / "rw_dwarf.py")
+                                              REPO / "tools" / "rw_dwarf.py")
 assert SPEC is not None and SPEC.loader is not None
 rw = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(rw)

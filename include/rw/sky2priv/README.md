@@ -7,7 +7,7 @@ information in a retail game that compiled RenderWare from source.
 Regenerate with:
 
 ```sh
-python3 -E -s build/rw_dwarf.py <reference-elf> \
+python3 -E -s tools/rw_dwarf.py <reference-elf> \
     --header include/rw/sky2priv/skypriv.h \
     --json   docs/sky2/ballers_structs.json \
     --from-unit driver/sky2 \
@@ -40,7 +40,7 @@ the generator emits them. That distinction is decided by **compiling** a
 
 NBA Ballers: Phenom (SLUS-21186, 2006-02-09 review build). Its `.debug`
 section is 35 MB of DWARF **version 1** - a format binutils dropped long ago,
-which is why `build/rw_dwarf.py` parses it directly. Every one of its 1341
+which is why `tools/rw_dwarf.py` parses it directly. Every one of its 1341
 RenderWare compilation units names `MW MIPS C Compiler` as producer, the same
 compiler family as this tree's MWCCPS2 3.0.1 b119 RenderWare block, and it
 carries the driver sources by path:
