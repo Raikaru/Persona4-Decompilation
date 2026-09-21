@@ -33,10 +33,15 @@ typedef struct ADXPD_OBJ {
 	Sint16 dly[2][2];   /* 0x28 */
 	Sint16 k1;          /* 0x30 */
 	Sint16 k2;          /* 0x32 */
-	Sint16 ext1;        /* 0x34 */
-	Sint16 ext2;        /* 0x36 */
-	Sint16 ext3;        /* 0x38 */
-	Sint16 pad3a;
+	/* P4: 9.44 carries 0x6C more before the extended parameters -
+	 * ADXPD_SetExtPrm stores them at 0xA0/0xA2/0xA4 (0x004C3E4C onward)
+	 * where this layout has 0x34/0x36/0x38. `dly` at 0x28 is unaffected:
+	 * ADXPD_GetDly and ADXPD_SetDly both match byte for byte. */
+	Uint8 pad34[0xA0 - 0x34];
+	Sint16 ext1;        /* 0xA0 */
+	Sint16 ext2;        /* 0xA2 */
+	Sint16 ext3;        /* 0xA4 */
+	Sint16 padA6;
 } ADXPD_OBJ;
 
 extern Sint32 adx_decode_output_mono_flag;

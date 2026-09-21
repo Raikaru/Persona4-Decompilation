@@ -52,6 +52,7 @@ void sjx_rcvcbf(void *obj, void *dt, Sint32 dtlen)
 }
 
 // 100% matching!
+// FUN_004F0090
 void sjx_sndcbf(void *obj, void *dt, Sint32 dtlen)
 {
     SJX_DTXFMT *fmt;
@@ -69,7 +70,7 @@ void sjx_sndcbf(void *obj, void *dt, Sint32 dtlen)
 
     SJCRS_Lock();
 
-    for (i = 0; i < 16; i++)
+    for (i = 0; i < 32; i++)
     {
         sjx = &sjx_obj[i];
         
