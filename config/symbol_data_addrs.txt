@@ -852,3 +852,7 @@ fGpffff8168 = 0x00761258; // type:data evidence: retail func_001be990 lwc1 gp-0x
 fGpffff816c = 0x0076125c; // type:data evidence: retail func_001be050 lwc1 gp-0x7E94 at 0x001BE338; independently resolved code relocation with GP 0x007690F0
 fGpffff8190 = 0x00761280; // type:data evidence: retail func_001be990 lwc1 gp-0x7E70 at 0x001BEB3C; independently resolved code relocation with GP 0x007690F0
 fGpffff8194 = 0x00761284; // type:data evidence: retail func_001be990 lwc1 gp-0x7E6C at 0x001BEC30; independently resolved code relocation with GP 0x007690F0
+uGpffff81a0 = 0x00761290; // type:data evidence: func_001ccdb0 retail 001CD024 lwc1 gp-0x7E60; GP 0x007690F0; retail bytes 66 66 16 40, f32 bits 0x40166666
+fGpffff80bc = 0x007611ac; // type:data evidence: func_001c80f0 lwc1 at 0x001C8444, GP minus 0x7F44; retail f32 bits 0x3FA66666
+fGpffff8120 = 0x00761210; // type:data evidence: func_001c80f0 lwc1 at 0x001C8650 and 0x001C8774, GP minus 0x7EE0; retail f32 bits 0x3F4F5C29
+fGpffff8124 = 0x00761214; // type:data evidence: func_001c80f0 lwc1 at 0x001C8654 and 0x001C879C, GP minus 0x7EDC; retail f32 bits 0x3E428F5C

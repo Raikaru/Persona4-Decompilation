@@ -2243,7 +2243,7 @@ typedef struct ActionState001a4800 {
 void func_001a4800(u8 *arg0)
 {
     extern void func_001eb420(u8 *target);
-    extern u16 *func_0010a900(s32 personaId);
+    extern u16 *func_0010a900(u16 personaId);
     extern s32 func_0010ce10(u8 *persona, u32 skillId);
     extern s32 func_0019fc70(u8 *action);
     extern void func_001f5bd0(s32 state);
@@ -5843,7 +5843,7 @@ void func_001abbb0(s64 *arg0) {
     extern u8 *func_001f8000(s32 arg0, s32 arg1);
     extern u8 *func_00194b60(void);
     extern u8 *func_001f8140(s32 arg0);
-    extern u8 *func_0019f5f0(s32 arg0, s64 arg1, u16 *arg2);
+    extern u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2);
     extern void func_0019ea60(u8 *arg0, s32 arg1);
     extern u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2);
     extern u8 *func_0019c030(u8 *arg0, u16 arg1, u16 arg2);

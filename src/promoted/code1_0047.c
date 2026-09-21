@@ -1,10 +1,11 @@
 #include "include_asm.h"
 #include "type.h"
+#include "model_callbacks_internal.h"
 #include "sdk_snd_internal.h"
 extern void (*iGpffffbb2c)();
 extern void (*iGpffffbb30)();
 extern void (*iGpffffbb34)();
-extern void (*iGpffffbb38)();
+extern MdlSetupCallback iGpffffbb38;
 extern void (*iGpffffbb3c)();
 extern void func_00470d70(u8 *arg0);
 extern void (*jtbl_008873EC[])(void *);
@@ -333,12 +334,13 @@ void func_0047d050(s32 arg0)
     iGpffffbb28 = arg0;
 }
 // FUN_0047D090
-s32 func_0047d090(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
+s32 func_0047d090(MdlNameCallback arg0, MdlTypeCallback arg1, MdlNameCallback arg2,
+                 MdlSetupCallback arg3, MdlDataCallback arg4)
 {
     iGpffffbb2c = (void (*)())arg0;
     iGpffffbb30 = (void (*)())arg1;
     iGpffffbb34 = (void (*)())arg2;
-    iGpffffbb38 = (void (*)())arg3;
+    iGpffffbb38 = arg3;
     iGpffffbb3c = (void (*)())arg4;
     return 1;
 }
@@ -361,9 +363,9 @@ void func_0047d110(void)
 }
 
 // FUN_0047D140
-void func_0047d140(void)
+void func_0047d140(void *model)
 {
-    iGpffffbb38();
+    iGpffffbb38(model);
 }
 
 // FUN_0047D170

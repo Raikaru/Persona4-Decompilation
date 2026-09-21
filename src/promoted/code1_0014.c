@@ -2,6 +2,7 @@
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "model_matrix_internal.h"
 #include "field_light_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
 
@@ -2763,7 +2764,6 @@ void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
     extern f32 D_005EF9C8[];
     extern u8 D_005EF9D0[];
     extern u8 D_005EF9F0[];
-    extern s32 func_0047a1a0(s32 arg0, void *arg1, f32 arg2, s32 arg3);
     extern void func_0047a1e0(s32 arg0, void *arg1, s32 arg2);
     extern void func_00146f50(void *arg0, void *arg1, void *arg2);
     extern void func_004b12e0(s32 arg0, void *arg1);
@@ -2814,9 +2814,9 @@ void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            func_0047a1a0(h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
-            func_0047a1a0(h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
-            func_0047a1a0(h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
+            func_0047a1a0((void *)(u32)h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
+            func_0047a1a0((void *)(u32)h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
+            func_0047a1a0((void *)(u32)h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
             func_0047a1e0(h, tr, 2);
             func_0047a180((RwMatrix *)h, (const RwV3d *)(arg0 + 4), 2);
             return;
@@ -2827,9 +2827,9 @@ void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            func_0047a1a0(h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
-            func_0047a1a0(h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
-            func_0047a1a0(h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
+            func_0047a1a0((void *)(u32)h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
+            func_0047a1a0((void *)(u32)h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
+            func_0047a1a0((void *)(u32)h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
             func_0047a1e0(h, tr, 2);
             func_0047a180((RwMatrix *)h, (const RwV3d *)(arg0 + 4), 2);
             return;
@@ -2840,9 +2840,9 @@ void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            func_0047a1a0(h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
-            func_0047a1a0(h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
-            func_0047a1a0(h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
+            func_0047a1a0((void *)(u32)h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
+            func_0047a1a0((void *)(u32)h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
+            func_0047a1a0((void *)(u32)h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
             func_0047a1e0(h, tr, 2);
             func_0047a180((RwMatrix *)h, (const RwV3d *)(arg0 + 4), 2);
             return;
@@ -2874,9 +2874,9 @@ void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            func_0047a1a0(h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
-            func_0047a1a0(h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
-            func_0047a1a0(h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
+            func_0047a1a0((void *)(u32)h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
+            func_0047a1a0((void *)(u32)h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
+            func_0047a1a0((void *)(u32)h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
             func_0047a1e0(h, tr, 2);
             func_0047a180((RwMatrix *)h, (const RwV3d *)(arg0 + 4), 2);
             return;
@@ -3287,7 +3287,7 @@ s32 func_00148280(u8 *unusedTask) {
     extern s32 func_0047a6d0(void *arg0, s32 arg1, void *arg2);
     extern void func_004b11d0(void *arg0, void *arg1);
     extern void func_00440bb8(void *arg0, u32 arg1, s32 arg2, void *arg3);
-    extern void func_0014a160(void);
+    extern s32 func_0014a160(void);
     extern u8 D_005DC7D0[];
     extern u8 D_005DC824[];
     extern u8 D_005EFB00[];
@@ -4016,11 +4016,11 @@ done:
 #pragma opt_rebuildconditionals off
 
 // FUN_0014A160
-void func_0014a160(void) {
+s32 func_0014a160(void) {
     u8 *temp_2;
 
     temp_2 = iGpffff9db0;
-    func_0014a190(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4));
+    return func_0014a190(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4));
 }
 /* measured: closes opt_rebuildconditionals for func_0014a160. */
 #pragma opt_rebuildconditionals on
@@ -4752,7 +4752,7 @@ void func_0014d290(u8 *arg0, u8 *arg1)
     extern s32 func_003bb330(u8 *arg0);
     extern void func_003bb3a0(u8 *arg0, s32 arg1, void *arg2);
     extern void func_0045f790(void *arg0, void *arg1, void *arg2, s32 arg3);
-    extern void func_004601c0(void *arg0, void *arg1, s32 arg2, f32 fparg0);
+    extern void func_004601c0(u8 *position, f32 size, u8 *color, s32 setStates);
     extern f32 D_005EFBB8[];
     extern u8 D_005EFBBC[];
     extern u8 D_005EFBBD[];
@@ -4793,7 +4793,7 @@ void func_0014d290(u8 *arg0, u8 *arg1)
             sp4C = *(P4Bytes0014 *)D_005EFBC0;
         }
         func_003bb3a0(*(u8 **)(arg1 + 0xC), var_16_2, sp40);
-        func_004601c0(sp40, &sp4C, 1, 5.0f);
+        func_004601c0((u8 *)sp40, 5.0f, (u8 *)&sp4C, 1);
         var_16_2 += 1;
     }
 }

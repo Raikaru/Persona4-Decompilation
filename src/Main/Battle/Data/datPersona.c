@@ -4,7 +4,7 @@
 
 extern void func_0046d730(const void *file, u32 line);
 extern void *func_0043f9c8(void *dest, s32 value, s32 size);
-extern void func_0023a620(s32 arg0, u16 arg1);
+extern s32 func_0023a620(s32 arg0, u16 arg1);
 extern char D_005E4318[];
 extern s16 D_00797F88[];
 extern s16 D_00797F8C[];
@@ -37,7 +37,6 @@ s32 func_0010cc20(u8 *arg0, u16 arg1);
 
 extern u16 *func_0010ace0(s16 arg0);
 extern s32 func_0010b5b0(void);
-extern void func_0023a620(s32 arg0, u16 arg1);
 extern s32 func_0010ae30(s32 arg0);
 extern s32 func_0010b3b0(); /* old-style: target call preserves s64 argument */
 extern u16 func_0010b460(void);
@@ -62,7 +61,7 @@ s8 func_00109e30(u8 *arg0, s32 arg1);
 
 extern u8 *func_0010b060(u16 personaId);
 
-u16 *func_0010a900(); /* old-style: every retail caller jals with no arg setup */
+u16 *func_0010a900(u16 character);
 
 // FUN_001092F0
 u16 func_001092f0(u32 arg0)
@@ -81,9 +80,9 @@ u16 func_00109300(s32 arg0)
 }
 
 // FUN_00109360
-u16 func_00109360(void)
+u16 func_00109360(u16 arg0)
 {
-    return *(u16 *)((u8 *)func_0010a900() + 2);
+    return *(u16 *)((u8 *)func_0010a900(arg0) + 2);
 }
 
 // FUN_001093A0
@@ -227,7 +226,7 @@ void func_001097c0(u8 *arg0, s32 arg1)
 }
 
 // FUN_00109870
-void func_00109870(s32 arg0, s32 arg1)
+u32 func_00109870(u16 arg0, s32 arg1)
 {
     u8 *persona;
 
@@ -238,7 +237,7 @@ void func_00109870(s32 arg0, s32 arg1)
     if ((arg1 & 0xFFFF) >= 0x10) {
         func_0046d730(D_005E4318, 0x1B8);
     }
-    func_0023a620(0, *(u16 *)(iGpffffb3d8 + (u16)*(u16 *)(persona + 2) * 0x20 + (u16)arg1 * 2));
+    return (u32)func_0023a620(0, *(u16 *)(iGpffffb3d8 + (u16)*(u16 *)(persona + 2) * 0x20 + (u16)arg1 * 2));
 }
 
 // FUN_00109920
@@ -251,7 +250,11 @@ u8 func_00109920(u8 *arg0, s32 arg1)
 }
 
 // FUN_00109980
-s32 func_00109980(s32 arg0, s32 arg1)
+/* Preserve the public word transport while interpreting the character as a halfword. */
+s32 func_00109980(s32 arg0, s32 arg1);
+s32 func_00109980(arg0, arg1)
+u16 arg0;
+s32 arg1;
 {
     u16 *p = func_0010a900(arg0);
     u8 *base = (u8 *)p;
@@ -307,7 +310,7 @@ u8 func_00109ad0(u8 *arg0, s32 arg1)
 }
 
 // FUN_00109BF0
-u8 func_00109bf0(u8 *arg0, s32 arg1)
+u8 func_00109bf0(u16 arg0, s32 arg1)
 {
     s16 a;
     s16 b;
@@ -483,14 +486,14 @@ s32 func_0010a780(u8 *arg0, s32 arg1, s32 arg2)
     return (u8)statTotal;
 }
 // FUN_0010A840
-s32 func_0010a840(s32 arg0, s32 arg1, s32 arg2) {
+s32 func_0010a840(u16 arg0, s32 arg1, s32 arg2) {
     u8 *base;
     u8 *stat;
     s16 old;
     s16 delta;
     s16 total;
 
-    base = (u8 *)func_0010a900();
+    base = (u8 *)func_0010a900(arg0);
     if ((arg1 & 0xFFFF) >= 5) {
         func_0046d730(D_005E4318, 0x36C);
     }
@@ -508,7 +511,7 @@ s32 func_0010a840(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 // FUN_0010A900
-u16 *func_0010a900(s32 arg0)
+u16 *func_0010a900(u16 arg0)
 {
     u16 *p;
     s32 v = arg0 & 0xFFFF;
@@ -1755,4 +1758,3 @@ void func_0010d150(u8 *arg0)
         }
     }
 }
-

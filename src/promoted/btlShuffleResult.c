@@ -82,7 +82,7 @@ extern s32 func_00107890(s32 a);
 extern s32 func_0015a190(void);
 extern u8 func_002baac0(u8 *message);
 extern void *func_0036e910(void *a);
-extern s32 func_00377eb0();
+extern s32 func_00377eb0(u8 *parent, s32 cardIndex);
 extern void func_0038d2a0(s32 a);
 extern u32 func_003b7060(void);
 extern s32 func_00380bd0(u8 *a);
@@ -96,7 +96,7 @@ extern s32 iGpffffa9E0;
 extern s32 iGpffffa9E4;
 extern void func_003761f0(u8 *a, s32 b, s32 c, u16 d, void *e, s32 f, f32 g);
 extern void func_00375b40(u8 *a, s32 b, s32 c, s32 d);
-extern s32 func_00378220(s32 a);
+extern s32 func_00378220(u8 *task);
 extern s32 func_00388ec0(s32 a);
 extern void func_00388e40(s32 a);
 extern void func_00388ee0(s32 a);
@@ -497,7 +497,7 @@ s32 func_00381a70(u8 *arg0)
         func_0038daf0(*(s32 *)(ctx + 0x1F29C), 6);
         *st = 2;
     case 2:
-        tmp = func_00378220(*(s32 *)(ctx + 0x1F2A0));
+        tmp = func_00378220((u8 *)*(s32 *)(ctx + 0x1F2A0));
         if (tmp != 0) {
             tmp = func_00388ec0(*(s32 *)(ctx + 0x1F294));
             if (tmp != 0) {
@@ -693,7 +693,7 @@ lab_2310:
         break;
     case 11:
         if (((*(u16 *)(arg0 + 0x1C) += 1) & 0xFFFF) >= 0x3C) {
-            tmp = func_00378220(*(s32 *)(ctx + 0x1F2A4));
+            tmp = func_00378220((u8 *)*(s32 *)(ctx + 0x1F2A4));
             if (tmp != 0) {
                 *st = 0xC;
                 func_00389350(*(s32 *)(ctx + 0x1F294));

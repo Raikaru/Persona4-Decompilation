@@ -122,7 +122,7 @@ done:
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
-extern u64 func_003b7060(void);
+extern u32 func_003b7060(void);
 extern u64 func_003b88c0(void);
 extern u64 func_003bf1c0(u64 value);
 extern u64 func_003bf1f0(u64 value);
@@ -326,4 +326,3 @@ block_9:
 }
 #pragma opt_propagation on
 #pragma schedule off
-

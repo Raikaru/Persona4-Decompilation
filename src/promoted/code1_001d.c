@@ -142,7 +142,7 @@ extern void func_001bd780(void *arg0, const void *arg1, const void *arg2, const 
 extern f32 func_0044b868(f32 arg0);
 extern void func_001bac20(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
 extern void func_001bbef0(u8 *arg0, f32 arg1);
-extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, u16 arg3, f32 arg4);
+extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern f32 D_0060A100[];
 extern f32 fGpffff8030;
 extern f32 fGpffff803c;
@@ -242,7 +242,7 @@ void func_001d01c0(u8 *arg0)
     func_001bac20((u16 *)arg0, (f32 *)&poses.firstPosition, (f32 *)&poses.secondPosition, 1);
     func_001bbef0(arg0, 5.0f);
     func_001bcd40(*(u8 **)(arg0 + 0xE0), (u8 *)&firstCenter, (f32 *)&secondCenter,
-                  9, 50.0f);
+                  50.0f, 9);
 }
 // FUN_001D1310
 void func_001d1310(u16 *arg0) {

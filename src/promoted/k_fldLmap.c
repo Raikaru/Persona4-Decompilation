@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldLmap.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_sprite_loader.h"
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 
@@ -19,7 +20,6 @@ extern u8 *func_00454a60(u8 *param, s32 mode);
 extern void func_00454bd0(u8 *ptr);
 extern s32 func_004553c0(u8 *ptr);
 extern s32 func_00455f70(u8 *param, s32 *out);
-extern s32 func_0046af60(s32 param);
 extern s32 func_0046a750(s32 param);
 extern void func_0046b0d0(void *ptr);
 
@@ -167,11 +167,11 @@ s32 func_001866d0(u8 *arg0)
         /* fallthrough */
     case 1:
         if (func_004553c0(*(u8 **)(temp_16 + 4)) != 0) {
-            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x38) = func_0046af60(func_00455f70(D_005F1F10, &sp8C));
-            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x3C) = func_0046af60(func_00455f70(D_005F1F30, &sp8C));
-            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x40) = func_0046af60(func_00455f70(D_005F1F50, &sp8C));
-            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x44) = func_0046af60(func_00455f70(D_005F1F70, &sp8C));
-            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x48) = func_0046af60(func_00455f70(D_005F1F90, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x38) = (s32)func_0046af60((u32)func_00455f70(D_005F1F10, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x3C) = (s32)func_0046af60((u32)func_00455f70(D_005F1F30, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x40) = (s32)func_0046af60((u32)func_00455f70(D_005F1F50, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x44) = (s32)func_0046af60((u32)func_00455f70(D_005F1F70, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x48) = (s32)func_0046af60((u32)func_00455f70(D_005F1F90, &sp8C));
             *(s32 *)temp_16 = *(s32 *)temp_16 + 1;
         }
         break;
@@ -465,11 +465,11 @@ s32 func_00186eb0(u8 *arg0)
             u8 *tmp2 = func_00457120();
             func_003e9cb0(*(s32 *)(tmp2 + 4), *(u8 **)(st + 0x18), 0);
         }
-        *(s32 *)(st + 0x24) = func_0046af60(func_00455f70(D_005F2010, &out));
-        *(s32 *)(st + 0x2C) = func_0046af60(func_00455f70(D_005F2030, &out));
-        *(s32 *)(st + 0x30) = func_0046af60(func_00455f70(D_005F2050, &out));
-        *(s32 *)(st + 0x28) = func_0046af60(func_00455f70(D_005F2070, &out));
-        *(s32 *)(st + 0x34) = func_0046af60(func_00455f70(D_005F2090, &out));
+        *(s32 *)(st + 0x24) = (s32)func_0046af60((u32)func_00455f70(D_005F2010, &out));
+        *(s32 *)(st + 0x2C) = (s32)func_0046af60((u32)func_00455f70(D_005F2030, &out));
+        *(s32 *)(st + 0x30) = (s32)func_0046af60((u32)func_00455f70(D_005F2050, &out));
+        *(s32 *)(st + 0x28) = (s32)func_0046af60((u32)func_00455f70(D_005F2070, &out));
+        *(s32 *)(st + 0x34) = (s32)func_0046af60((u32)func_00455f70(D_005F2090, &out));
         *(u8 **)(st + 0x160) = func_0029db50(15, *(s32 *)(*(u8 **)(st + 0x20) + 0x110), *(s32 *)(*(u8 **)(st + 0x20) + 0x118), 0);
         *(s32 *)st = *(s32 *)st + 1;
     }

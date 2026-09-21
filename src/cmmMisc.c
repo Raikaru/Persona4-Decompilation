@@ -2,6 +2,8 @@
 #include "include_asm.h"
 #include "type.h"
 
+extern u32 func_003b7060(void);
+
 
 extern void func_00440b68(const char *fmt, const char *file, s32 line);
 extern void *func_00454a60(const char *path, s32 flags);

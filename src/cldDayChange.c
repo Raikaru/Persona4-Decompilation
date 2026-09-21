@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_sprite_loader.h"
 #include "sdk_task_registration.h"
 /* Persona 4 USA decompilation - cldDayChange.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
@@ -43,7 +44,6 @@ void func_00265f40(s32 arg0, s32 arg1, u32 arg2, s32 arg3, u8 *arg4,
 s32 func_00442088(char *buf, const char *fmt, ...);
 u8 *func_00455f70(void *arg0, u32 *arg1);
 u8 *func_0046aea0(const char *name);
-s32 func_0046af60(u8 *arg0);
 s32 func_0046a750(s32 param);
 extern void func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, s32, s32);
 extern u8 D_006376F0[];
@@ -120,7 +120,7 @@ s32 func_00264ec0(u8 *arg0) {
             p[2] = (s32)func_0046aea0((const char *)buf);
             p[0] = 3;
         } else {
-            p[2] = func_0046af60(s);
+            p[2] = (s32)func_0046af60((u32)s);
             p[0] = 3;
         }
         break;
@@ -554,4 +554,3 @@ s32 func_00266950(s32 arg0, s32 arg1, s32 arg2) {
     func_004598e0(0xA);
     return r;
 }
-

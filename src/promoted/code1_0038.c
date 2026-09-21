@@ -1,6 +1,8 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "rw/plcore/barenderstate.h"
+#include "btl_shuffle_draw_internal.h"
 #include "shd_misc_internal.h"
 #include "sdk_snd_internal.h"
 #include "ed_staff_internal.h"
@@ -23,8 +25,7 @@ extern void func_002bad10(s32 arg0);
 extern void func_002bbd20(s32 arg0, void *arg1);
 extern u8 *func_0010b010(u16 personaId);
 extern s32 func_00376590(u8 *arg0, u8 *arg1);
-extern void func_00377930(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern s32 func_003f6440(s32 state, void *value);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_0064ECA0[];
 extern u8 D_0064EED0[];
@@ -54,7 +55,7 @@ extern void func_0038cab0(u8 *arg0);
 
 extern f32 D_00761470;
 extern f32 D_008872F8[];
-extern void (*D_00887300[])(u32, u32);
+extern s32 (*D_00887300[])(RwRenderState state, void *value);
 extern s32 (*D_00887310[])(s32, void *, s32);
 extern u8 *func_00457120(void);
 extern f32 func_0044b610(f32 fparg0);
@@ -170,10 +171,10 @@ s32 func_00380980(u8 *arg0)
 // FUN_00380BD0
 s32 func_00380bd0(u8 **arg0)
 {
-    extern u8 func_00109bf0(u8 *arg0, s32 arg1);
+    extern u8 func_00109bf0(u16 arg0, s32 arg1);
     extern s32 func_00104c70(s32 arg0);
     extern s32 func_00106330(s32 arg0);
-    extern s32 func_003b7060(void);
+    extern u32 func_003b7060(void);
     extern u8 D_0064E760[];
     f32 temp_f1;
     f32 var_f1;
@@ -184,7 +185,7 @@ s32 func_00380bd0(u8 **arg0)
     if (*(s32 *)(*arg0 + 0x1F30C) != 0) {
         return 0;
     }
-    temp_16 = func_00109bf0((u8 *)1, 4) & 0xFF;
+    temp_16 = func_00109bf0(1, 4) & 0xFF;
     func_00104c70(1);
     if (func_00106330(0x1426) != 0) {
         var_16 = 0x3C;
@@ -266,11 +267,11 @@ void func_00383c40(u8 *arg0)
         func_0046d730(D_0064EEB0, 0x103);
         break;
     }
-    func_003f6440(3, 0x71801);
-    func_003f6440(2, 0x48);
+    func_003f6440(3, (void *)0x71801);
+    func_003f6440(2, (void *)0x48);
     func_00377930(base, value, 0, colors, 1);
-    func_003f6440(3, 0x717FB);
-    func_003f6440(2, 0x44);
+    func_003f6440(3, (void *)0x717FB);
+    func_003f6440(2, (void *)0x44);
 }
 // FUN_00383D70
 void func_00383d70(u8 *arg0)
@@ -307,14 +308,14 @@ void func_00383d70(u8 *arg0)
                                      (f32)*(u16 *)state) / 30.0f) +
          fGpffff809c + 0.0f);
     colors[3] = (u8)alpha;
-    func_003f6440(3, 0x71801);
-    func_003f6440(2, 0x48);
+    func_003f6440(3, (void *)0x71801);
+    func_003f6440(2, (void *)0x48);
     for (i = 0; i < *(s32 *)(state + 0x14); i++) {
         func_00377930(base, *(s32 *)(state + i * 4 + 4), 0,
                       colors, 0);
     }
-    func_003f6440(3, 0x717FB);
-    func_003f6440(2, 0x44);
+    func_003f6440(3, (void *)0x717FB);
+    func_003f6440(2, (void *)0x44);
 }
 /* Floor: 727 differing words over 145 edit instructions, 785 emitted against
    retail's 846, from a first reconstruction.  arg0 is a `u8 *`: m2c types it
@@ -358,8 +359,7 @@ void func_00383f80(u8 *arg0)
 {
     extern f32 func_00373cb0(f32 t, f32 a, f32 b, s32 mode);
     extern s32 func_00378530(s32 a, s32 b);
-    extern void func_00377930(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
-    extern void func_003f6440(s32 arg0, s32 arg1);
+    extern s32 func_003f6440(s32 state, void *value);
     extern u8 *func_00457120(void);
     extern f32 D_008872F8[];
     extern s32 (*D_00887310[])(s32, void *, s32);
@@ -439,8 +439,8 @@ void func_00383f80(u8 *arg0)
     for (i = lo; i < hi; i++) {
         func_00377930(ctx, i, 0, colors, 0);
     }
-    func_003f6440(3, 0x71801);
-    func_003f6440(2, 0x48);
+    func_003f6440(3, (void *)0x71801);
+    func_003f6440(2, (void *)0x48);
     colors[0] = 0x50;
     colors[1] = 0x4B;
     colors[2] = 0x3C;
@@ -519,8 +519,8 @@ void func_00383f80(u8 *arg0)
     work[3].color[2] = (f32)(u32)colors[2];
     work[3].color[3] = (f32)(u32)(u8)(u32)(192.0f * scale);
     D_00887310[0](4, work, 4);
-    func_003f6440(3, 0x717FB);
-    func_003f6440(2, 0x44);
+    func_003f6440(3, (void *)0x717FB);
+    func_003f6440(2, (void *)0x44);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00383f80);
@@ -605,8 +605,8 @@ void func_00384cc0(u8 *arg0)
     point.x = 314.0f;
     point.y = 237.0f;
     packed = (quad & 0xFF) | 0x3767FF00;
-    func_003f6440(3, 0x71801);
-    func_003f6440(2, 0x48);
+    func_003f6440(3, (void *)0x71801);
+    func_003f6440(2, (void *)0x48);
     if (*(u16 *)info & 0x20) {
         if (quad != 0) {
             func_00364c90(point, 0.0f, packed, 403.0f, 2.0f, 0.0f, 1);
@@ -640,8 +640,8 @@ void func_00384cc0(u8 *arg0)
             }
         }
     }
-    func_003f6440(3, 0x717FB);
-    func_003f6440(2, 0x44);
+    func_003f6440(3, (void *)0x717FB);
+    func_003f6440(2, (void *)0x44);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00384cc0);
@@ -653,7 +653,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00384cc0);
 void func_00385380(u8 *arg0)
 {
     extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
-    extern void func_003f6440(s32 arg0, s32 arg1);
+    extern s32 func_003f6440(s32 state, void *value);
     typedef struct { f32 x; f32 y; } Vec2f_5380;
     extern void func_00364c90(Vec2f_5380 pos, f32 depth, s32 color, f32 width, f32 height, f32 angle, s32 mode);
     extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u32 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
@@ -691,11 +691,11 @@ void func_00385380(u8 *arg0)
     w1 = func_00373cb0((f32)*cnt, 5.0f, 6.0f, 1);
     t1 = func_00373cb0((f32)*cnt, 0.0f, 5.0f, 1);
     blend1 = DAT_007613F8 * w1 + (fGpffff80bc - fGpffff82cc * t1);
-    func_003f6440(3, 0x71801);
-    func_003f6440(2, 0x48);
+    func_003f6440(3, (void *)0x71801);
+    func_003f6440(2, (void *)0x48);
     func_00364c90((Vec2f_5380){318.0f, 231.0f}, 0.0f, 0x71BA00FF, (blend1 - eased1) * 270.0f, blend1 * 45.0f, fGpffff83c8, 0);
-    func_003f6440(3, 0x717FB);
-    func_003f6440(2, 0x44);
+    func_003f6440(3, (void *)0x717FB);
+    func_003f6440(2, (void *)0x44);
     w2 = func_00373cb0((f32)*cnt, 5.0f, 6.0f, 1);
     t2 = func_00373cb0((f32)*cnt, 2.0f, 5.0f, 1);
     blend2 = DAT_007613F8 * w2 + (fGpffff80bc - fGpffff82cc * t2);
@@ -730,9 +730,9 @@ void func_00385970(u8 *arg0)
 {
     typedef struct { f32 x; f32 y; } Vec2f_5970;
     extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
-    extern void func_003f6440(s32 arg0, s32 arg1);
+    extern s32 func_003f6440(s32 state, void *value);
     extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u32 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
-    extern s32 func_003b7060(void);
+    extern u32 func_003b7060(void);
     extern f32 func_0044b7b0(f32 fparg0);
     extern f32 fGpffff8374;
     extern f32 fGpffff83cc;
@@ -840,8 +840,8 @@ void func_00385970(u8 *arg0)
         u8 b0;
         s32 col0;
         f32 x0;
-        func_003f6440(3, 0x71801);
-        func_003f6440(2, 0x48);
+        func_003f6440(3, (void *)0x71801);
+        func_003f6440(2, (void *)0x48);
         t108 = blend * 108.0f;
         inv = 1.0f - blend;
         r0 = (u8)(inv * 255.0f + t108);
@@ -919,8 +919,8 @@ void func_00385970(u8 *arg0)
                 func_00364fb0(position, 0.0f, col3, fGpffff83cc, 0, 0);
             }
         }
-        func_003f6440(3, 0x717FB);
-        func_003f6440(2, 0x44);
+        func_003f6440(3, (void *)0x717FB);
+        func_003f6440(2, (void *)0x44);
     }
     {
         f32 inv2;
@@ -960,8 +960,8 @@ void func_00385970(u8 *arg0)
         func_0034f4a0(resource, 0x38, 407.0f - d2, 40.0f - d2, 0.0f, cr, cg, cb, 0xFF, 0x1000, 0x1000, 45.0f, 0, 0);
         func_0034f4a0(resource, 0x39, d2 + 103.0f, d2 + 186.0f, 0.0f, cr, cg, cb, 0xFF, 0x1000, 0x1000, 45.0f, 0, 0);
     }
-    func_003f6440(3, 0x71801);
-    func_003f6440(2, 0x48);
+    func_003f6440(3, (void *)0x71801);
+    func_003f6440(2, (void *)0x48);
     *(u16 *)(state + 4) = (*(u16 *)(state + 4) + 1) % 10;
     {
         s32 i;
@@ -994,8 +994,8 @@ void func_00385970(u8 *arg0)
             func_0034f4a0(resource, 0x3B, fx, fy, 0.0f, 0xFF, alpha0, 0xFF, alpha, 0x1000, 0x1000, 0.0f, 0, 0);
         }
     }
-    func_003f6440(3, 0x717FB);
-    func_003f6440(2, 0x44);
+    func_003f6440(3, (void *)0x717FB);
+    func_003f6440(2, (void *)0x44);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00385970);
@@ -1007,7 +1007,7 @@ void func_00386c00(u8 *arg0)
 {
     typedef struct { f32 x; f32 y; } Vec2f_6c00;
     extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
-    extern void func_003f6440(s32 arg0, s32 arg1);
+    extern s32 func_003f6440(s32 state, void *value);
     extern void func_00365ac0(Vec2f_6c00 position, s32 color, s32 mode, f32 depth, f32 angle, f32 wid, f32 hgt);
     extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u32 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
     extern f32 func_0044b7b0(f32 fparg0);
@@ -1086,14 +1086,14 @@ void func_00386c00(u8 *arg0)
     pos.y = 211.0f;
     if (var_f22 > 0.0f) {
         angle0 = fGpffff837c * (1.0f + var_f22);
-        func_003f6440(3, 0x71801);
-        func_003f6440(2, 0x48);
+        func_003f6440(3, (void *)0x71801);
+        func_003f6440(2, (void *)0x48);
         func_00365ac0(pos, 0xAE545AFF, 0, 0.0f, angle0, 111.5f * var_f22, 92.0f);
     }
     if (var_f21 > 0.0f) {
         angle1 = fGpffff837c * (1.0f + var_f24);
-        func_003f6440(3, 0x717FB);
-        func_003f6440(2, 0x44);
+        func_003f6440(3, (void *)0x717FB);
+        func_003f6440(2, (void *)0x44);
         func_00365ac0(pos, 0x4A2400FF, 1, 0.0f, angle1, 98.0f * var_f21, 18.0f);
     }
     mid = (var_f23 - 1.0f) * 300.0f;
@@ -1107,8 +1107,8 @@ void func_00386c00(u8 *arg0)
     pos.x = mx;
     pos.y = my;
     func_0034f4a0(resource, 0x39, pos.x, pos.y, 0.0f, 0x4A, 0x24, 0, 0xFF, 0x1000, 0x1000, 45.0f, 0, 0);
-    func_003f6440(3, 0x71801);
-    func_003f6440(2, 0x48);
+    func_003f6440(3, (void *)0x71801);
+    func_003f6440(2, (void *)0x48);
     *(u16 *)(state + 4) = (*(u16 *)(state + 4) + 1) % 60;
     {
         s32 i;
@@ -1134,8 +1134,8 @@ void func_00386c00(u8 *arg0)
             func_0034f4a0(resource, 0x3C, pos.x, pos.y, 0.0f, 0xFF, 0xFF, 0xFF, alpha, 0x1000, 0x1000, 0.0f, 0, 0);
         }
     }
-    func_003f6440(3, 0x717FB);
-    func_003f6440(2, 0x44);
+    func_003f6440(3, (void *)0x717FB);
+    func_003f6440(2, (void *)0x44);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00386c00);
@@ -1172,15 +1172,15 @@ void func_003874c0(s32 arg0, u8 *arg1)
             temp_3 = (u8)temp_f1;
             *(u8 *)(entry + 5) = temp_3;
         }
-        func_003f6440(3, 0x71801);
-        func_003f6440(2, 0x48);
+        func_003f6440(3, (void *)0x71801);
+        func_003f6440(2, (void *)0x48);
         for (i = 0; i < *(s32 *)(base + 0x1F234); i++) {
             func_00377930(base,
                           *(s32 *)(base + (i * 4) + 0x1F214),
                           0, entry + 2, 1);
         }
-        func_003f6440(3, 0x717FB);
-        func_003f6440(2, 0x44);
+        func_003f6440(3, (void *)0x717FB);
+        func_003f6440(2, (void *)0x44);
     }
     if ((*(u16 *)(arg1 + 0x4C) & 0x10) != 0) {
         func_00383c40(arg1);
@@ -1295,13 +1295,13 @@ void func_00387750(u8 *arg0)
     colors[2] = 0;
     colors[3] = 0;
     func_00489f80();
-    func_003f6440(3, 0x31801);
+    func_003f6440(3, (void *)0x31801);
     func_0045c870(colors, 0);
     colors[3] = 0xFF;
     func_00377930(base, *(s32 *)(base + 0x1F308), 0, colors, 0);
     func_0048a000();
-    func_003f6440(3, 0x3F801);
-    func_003f6440(2, 0x48);
+    func_003f6440(3, (void *)0x3F801);
+    func_003f6440(2, (void *)0x48);
     draw = D_00887310[0];
     {
         s32 i;
@@ -1351,8 +1351,8 @@ void func_00387750(u8 *arg0)
         } while (j < 4);
     }
     draw(5, work, 4);
-    func_003f6440(3, 0x717FB);
-    func_003f6440(2, 0x44);
+    func_003f6440(3, (void *)0x717FB);
+    func_003f6440(2, (void *)0x44);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00387750);
@@ -2036,8 +2036,8 @@ void func_00389640(u8 **arg0)
     if (*tickp >= 0x140) {
         *tickp = 0;
     }
-    func_003f6440(3, 0x71801);
-    func_003f6440(2, 0x48);
+    func_003f6440(3, (void *)0x71801);
+    func_003f6440(2, (void *)0x48);
     for (i = 0; i < 4; i++) {
         u8 *entry;
         u16 counter;
@@ -2085,8 +2085,8 @@ void func_00389640(u8 **arg0)
                           *(f32 *)(entry + 8), (s16)size0, (s16)size1);
         }
     }
-    func_003f6440(3, 0x717FB);
-    func_003f6440(2, 0x44);
+    func_003f6440(3, (void *)0x717FB);
+    func_003f6440(2, (void *)0x44);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00389640);
@@ -2162,15 +2162,15 @@ void func_00389e10(u8 **arg0)
     raw = (u8 *)arg0;
     z = D_008872F8[0];
     scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
-    D_00887300[0](1, 0);
-    func_003f6440(3, 0x71801);
-    func_003f6440(2, 0x48);
+    D_00887300[0]((RwRenderState)1, (void *)0);
+    func_003f6440(3, (void *)0x71801);
+    func_003f6440(2, (void *)0x48);
     for (outer = 0; outer < 4; outer++) {
         base = raw + 0xA0 + outer * 0x30;
         entry = base + 4;
         if (outer == 2) {
-            func_003f6440(3, 0x717FB);
-            func_003f6440(2, 0x44);
+            func_003f6440(3, (void *)0x717FB);
+            func_003f6440(2, (void *)0x44);
         }
         for (j = 0; j < 2; j++) {
             u16 *cnt;
@@ -2232,20 +2232,20 @@ void func_00389e10(u8 **arg0)
         func_00364c50();
         if (outer < 2) {
             if (found != 0) {
-                func_003f6440(3, 0x71801);
-                func_003f6440(2, 0x42);
+                func_003f6440(3, (void *)0x71801);
+                func_003f6440(2, (void *)0x42);
             }
             D_00887310[0](2, (void *)batch, 62);
             if (found != 0) {
-                func_003f6440(3, 0x71801);
-                func_003f6440(2, 0x48);
+                func_003f6440(3, (void *)0x71801);
+                func_003f6440(2, (void *)0x48);
             }
         }
         D_00887310[0](4, (void *)batch, 62);
         func_00364c70();
     }
-    func_003f6440(3, 0x717FB);
-    func_003f6440(2, 0x44);
+    func_003f6440(3, (void *)0x717FB);
+    func_003f6440(2, (void *)0x44);
 }
 #pragma opt_loop_invariants off
 #else
@@ -2289,7 +2289,7 @@ void func_0038a480(u8 *arg0)
     extern void func_0046d730(void *file, s32 line);
     extern u8 D_0064F0E0[];
     extern f32 iGpffff81e0;
-    extern void (*D_00887300[])(u32 state, u32 value);
+    extern s32 (*D_00887300[])(RwRenderState state, void *value);
     extern s32 (*D_00887310[])(s32 kind, void *base, s32 count);
     typedef struct {
         f32 x;
@@ -2402,7 +2402,7 @@ void func_0038a480(u8 *arg0)
             func_0046d730(D_0064F0E0, 0x21E);
         }
         func_003e0f40((void *)handle);
-        D_00887300[0](1, 0);
+        D_00887300[0]((RwRenderState)1, (void *)0);
         func_00364c50();
         D_00887310[0](4, work, j);
         func_00364c70();
@@ -2485,15 +2485,13 @@ void func_0038a940(u8 **arg0)
 /* 2026-09-19 (this lane): live body re-measures 154wd / 43 edits +6 reloc-only, 316/316. Two fresh levers, both rejected: q25 (name the 0.25f const before half, both tail arms) ties at 154 with byte-identical fnalign - propagation folds the temp, const-mat timing is pure scheduler choice; fac-late (sum before fac-load in the k-loop) regresses to 160 / 55 edits, exploding the entry/factors address induction - the loop-head order is load-bearing. Residual: twin 0.25f const-mat timing + float-reg colour cascade + 0x70 fold. */
 // FUN_0038ACD0 NONMATCHING
 #ifdef NON_MATCHING
-typedef struct { f32 x; f32 y; } Vec2f_acd0;
-extern void func_00364c90(Vec2f_acd0 position, f32 depth, s32 color, f32 width, f32 height, f32 angle, s32 mode);
 void func_0038acd0(u8 *arg0)
 {
     extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern f32 fGpffff83a4;
     extern u8 D_0064F090[];
     f32 factors[5];
-    Vec2f_acd0 point;
+    Vec2f point;
     u8 *state;
     u8 *entry;
     s32 span;
@@ -2561,8 +2559,8 @@ void func_0038acd0(u8 *arg0)
         }
         tail = 1.0f;
     }
-    func_003f6440(3, 0x71801);
-    func_003f6440(2, 0x48);
+    func_003f6440(3, (void *)0x71801);
+    func_003f6440(2, (void *)0x48);
     point.y = 224.0f;
     half = lower / 2.0f;
     for (k = 0; k < 5; k++) {
@@ -2577,8 +2575,8 @@ void func_0038acd0(u8 *arg0)
     }
     point.x = upper;
     func_00364c90(point, 0.0f, 0xFF403DFF, lower * tail, 448.0f, 0.0f, 0);
-    func_003f6440(3, 0x717FB);
-    func_003f6440(2, 0x44);
+    func_003f6440(3, (void *)0x717FB);
+    func_003f6440(2, (void *)0x44);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038acd0);
@@ -2620,8 +2618,8 @@ void func_0038b1c0(u8 *arg0)
             alpha = 1.0f;
         }
         if (i == 5) {
-            func_003f6440(3, 0x71801);
-            func_003f6440(2, 0x48);
+            func_003f6440(3, (void *)0x71801);
+            func_003f6440(2, (void *)0x48);
         }
         if (i < 5) {
             red = 0xFF;
@@ -2644,8 +2642,8 @@ void func_0038b1c0(u8 *arg0)
             *(f32 *)((u8 *)D_0064EFB0 + i * 0x14 + 4),
             red, green, blue, alpha_byte);
     }
-    func_003f6440(3, 0x717FB);
-    func_003f6440(2, 0x44);
+    func_003f6440(3, (void *)0x717FB);
+    func_003f6440(2, (void *)0x44);
 }
 // measured: preserve retail argument materialization order
 #pragma opt_propagation off
@@ -3025,18 +3023,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038c100);
 // FUN_0038C770
 void func_0038c770(u8 *arg0)
 {
-    extern void func_00371500(f32 *arg0, f32 fparg0, f32 *arg1);
-    extern s32 func_003717e0(f32 *arg0, f32 *arg1);
+    extern void func_00371500(u8 *screen, f32 depth, u8 *point);
+    extern s32 func_003717e0(u8 *point, u8 *screen);
     extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern s32 func_00378530(s32 arg0, s32 arg1);
-    extern void func_00377930(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, s32 arg4);
-    struct Input {
-        f32 in0;
-        f32 in1;
-        f32 in2;
-    };
     struct Work {
-        struct Input input;
+        BtlShuffleVec3 input;
         f32 pad0;
         f32 out0;
         f32 out1;
@@ -3095,24 +3087,24 @@ void func_0038c770(u8 *arg0)
         {
             u8 *entry;
             entry = base + (i * 0xE8) + 0x1D6B8;
-            work.input = *(struct Input *)entry;
+            work.input = *(BtlShuffleVec3 *)entry;
         }
-        func_003717e0(&work.input.in0, &work.out0);
+        func_003717e0((u8 *)&work.input, (u8 *)&work.out0);
         work.out0 += 6.0f;
         work.out1 += 5.0f;
-        func_00371500(&work.out0, work.input.in2, &work.input.in0);
+        func_00371500((u8 *)&work.out0, work.input.z, (u8 *)&work.input);
         {
             u8 *draw_base;
             s32 draw_index;
-            u8 *draw_input;
+            const BtlShuffleVec3 *draw_input;
             u8 *draw_colors;
             s32 draw_mode;
             draw_base = base;
             draw_index = i;
-            draw_input = (u8 *)&work.input.in0;
+            draw_input = &work.input;
             draw_colors = work.colors;
             draw_mode = 1;
-            func_00377930((s32)draw_base, draw_index, draw_input, draw_colors, draw_mode);
+            func_00377930(draw_base, draw_index, draw_input, draw_colors, draw_mode);
         }
     }
 }
@@ -3209,7 +3201,7 @@ void func_0038cab0(u8 *arg0)
     work[3].color[2] = 0.0f;
     work[3].color[3] = 255.0f;
     work[3].scale = inv_scale;
-    D_00887300[0](1, 0);
+    D_00887300[0]((RwRenderState)1, (void *)0);
     func_00364c50();
     D_00887310[0](4, &work[0], 4);
     func_00364c70();

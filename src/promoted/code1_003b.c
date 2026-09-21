@@ -6,7 +6,7 @@ extern u8 D_00885A90[];
 extern s32 iGpffffb680;
 extern s32 iGpffffb618;
 extern s32 func_003b6e70(s32 arg0);
-extern u64 func_003b7060(void);
+extern u32 func_003b7060(void);
 extern s32 func_003b6e00(s32 arg0);
 extern void func_003b6f00(s32 arg0, u8 *arg1);
 extern s32 iGpffffb6c0;
@@ -473,24 +473,27 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6e70);
    build/WS19_003b6f00_nd210.c and restored to INCLUDE_ASM. */
 // FUN_003B6F00
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6f00);
-/* measured: docs/probe_archive/FP3B_003b7060_body.c object 172B/window 176B, normalized_diff 30 live this session (installed guard below; prior nd78 note was stale). Global array addressing is correct, while load order, counter/address materialization, signed-compare shape, and branch/return layout remain mismatched. Banked as floor. */
+/* RpRandom returns RwUInt32. Unsigned state addition wraps modulo 2^32,
+   and the shifted result retains the low 31 bits. The C body remains guarded:
+   saved b210 -O2,p proof emits 164/176 bytes with 23 differing resolved words.
+   Evidence: build/first-party-finish-20260920/random-provider/func_003b7060/unsigned-state-and-return. */
 // FUN_003B7060 NONMATCHING
 #ifdef NON_MATCHING
-u64 func_003b7060(void) {
-    s32 *temp_8;
-    s32 *temp_4;
+u32 func_003b7060(void) {
+    u32 *temp_8;
+    u32 *temp_4;
     u32 *temp_3_2;
     u32 *temp_4_2;
     u32 temp_4_3;
     u32 var_3;
     u32 raw;
     u32 max;
-    s64 temp_2;
+    u32 temp_2;
     u8 *temp_3;
     u8 *temp_5;
     temp_3 = D_008872E0 + iGpffffb618;
-    temp_8 = *(s32 **)(temp_3 + 8);
-    temp_4 = *(s32 **)(temp_3 + 4);
+    temp_8 = *(u32 **)(temp_3 + 8);
+    temp_4 = *(u32 **)(temp_3 + 4);
     *temp_4 = *temp_8 + *temp_4;
     temp_5 = D_008872E0 + iGpffffb618;
     temp_3_2 = *(u32 **)(temp_5 + 4);
@@ -498,7 +501,7 @@ u64 func_003b7060(void) {
     temp_4_2 = temp_3_2 + 1;
     *(u32 **)(temp_5 + 4) = temp_4_2;
     max = *(u32 *)(temp_5 + 0xC);
-    temp_2 = ((s64)(raw >> 1) << 0x21) >> 0x21;
+    temp_2 = (raw >> 1) & 0x7FFFFFFFU;
     if ((u32)temp_4_2 < max) {
         temp_4_3 = *(u32 *)(temp_5 + 8) + 4;
         *(u32 *)(temp_5 + 8) = temp_4_3;

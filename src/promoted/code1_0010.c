@@ -1,6 +1,8 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+
+typedef struct RwImage RwImage;
 extern void func_00442830(void *dst, void *src);
 
 extern u8 *D_00764298;
@@ -419,12 +421,14 @@ void func_00100670(void)
     extern void func_0044ea90(void *arg0, s32 arg1);
     extern void *(*jtbl_008873E8[])(u32 size, u32 align);
     extern void func_0046a2e0(void *arg0, s32 arg1);
-    extern s32 func_003eb1f0(s32 arg0, s32 arg1, s32 arg2);
+    typedef RwImage *(*ImageReadCallback)(const char *name);
+    typedef RwImage *(*ImageWriteCallback)(RwImage *image, const char *name);
+    extern s32 func_003eb1f0(const char *extension, ImageReadCallback readImage, ImageWriteCallback writeImage);
     extern void func_0046d740(const void *arg0, const void *arg1, u32 arg2);
-    extern void func_003d8c00(void);
-    extern u8 *func_003d96b0(u8 *arg0, s32 arg1);
-    extern s32 func_00463d60(u8 *arg0);
-    extern void *func_00463e60(void *arg0, void *arg1);
+    extern RwImage *func_003d8c00(const char *name);
+    extern RwImage *func_003d96b0(RwImage *image, const char *name);
+    extern RwImage *func_00463d60(const char *name);
+    extern RwImage *func_00463e60(RwImage *image, const char *name);
     extern u8 D_0064F2F0[];
     extern u8 D_0064F380[];
     extern u8 D_0064F3A0[];
@@ -681,11 +685,11 @@ void func_00100670(void)
     func_00456e40();
     func_0044ea90((void *)&iGpffff8598, 0x2C3);
     func_0046a2e0(jtbl_008873E8[0](0x62000, 0x40000), 0x62000);
-    if (func_003eb1f0((s32)&iGpffff8590, (s32)func_003d8c00, (s32)func_003d96b0) == 0) {
+    if (func_003eb1f0((const char *)&iGpffff8590, func_003d8c00, func_003d96b0) == 0) {
         ok = 0;
         goto check;
     }
-    if (func_003eb1f0((s32)&iGpffff8594, (s32)func_00463d60, (s32)func_00463e60) == 0) {
+    if (func_003eb1f0((const char *)&iGpffff8594, func_00463d60, func_00463e60) == 0) {
         ok = 0;
         goto check;
     }

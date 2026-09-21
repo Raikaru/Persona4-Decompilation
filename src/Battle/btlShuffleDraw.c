@@ -1,17 +1,21 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit btlShuffleDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
+#include "sdk_sprite_loader.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "btl_shuffle_draw_internal.h"
 #include "sdk_snd_internal.h"
+extern s32 func_00378220(u8 *task);
 extern void func_003549d0();
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 func_00354830();
 
 extern void func_0036df30(u8 *arg0);
 extern void func_0036d8b0(void);
-extern void *func_00457120(void);
-extern void func_004577d0(void *arg0, f32 arg1);
+extern s32 func_00457120(void);
+struct RwCamera;
+extern void func_004577d0(struct RwCamera *camera, f32 fov);
 extern s32 func_0038cec0(void *arg0);
 extern s32 func_00388bd0(void *arg0);
 extern s32 func_0038d790(void *arg0);
@@ -32,7 +36,7 @@ extern void func_003730f0(u8 *arg0, s32 arg1, s32 arg2, void *arg3);
 extern void func_003733d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_00373590(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 
-typedef struct RwV3d { f32 x, y, z; } ShuffleVec3;
+typedef BtlShuffleVec3 ShuffleVec3;
 typedef struct { f32 x, y, z, w; } ShuffleVec4;
 typedef struct RtQuat { ShuffleVec3 imag; f32 real; } ShuffleQuaternion;
 typedef struct { s64 a; f32 b; } ShuffleVec2s;
@@ -85,13 +89,13 @@ extern s32 func_00373170(u8 *arg0);
 extern void func_003733f0(u8 *arg0);
 extern void func_00373610(u8 *arg0);
 extern void func_00375f00(u8 *arg0, s32 arg1);
-extern s32 func_004553c0(s32 arg0);
+struct HCdvd;
+extern u32 H_Cdvd_IsFileLoaded(struct HCdvd *archive);
 extern u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
 extern void func_0043f810(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_0046af60(s32 arg0);
-extern void func_0036d230(s32 arg0);
-extern s32 func_0046a750(s32 arg0);
-extern void func_00454bd0(s32 arg0);
+extern void func_0036d230(u8 *data);
+extern u32 func_0046a750(s16 *sprite);
+extern u32 H_Cdvd_Destroy(struct HCdvd *archive);
 extern void func_003768e0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, f32 fparg0);
 extern f32 func_00375a70(u8 *arg0, s32 arg1);
 extern f32 iGpffff8170;
@@ -104,16 +108,16 @@ extern void func_003760f0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 *arg4, f32
 extern void func_00376290(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern f32 func_0036de70(u8 *arg0);
 extern f32 func_0036deb0(u8 *arg0);
-extern void *func_003e0f80(void);
-extern void *func_003e0c90(void *arg0, const void *arg1, s32 arg2);
-extern void func_003e42a0(void *arg0, void *arg1, void *arg2);
-extern void func_003717e0(void *arg0, void *arg1);
-extern void func_003e0f40(void *arg0);
+extern BtlShuffleMatrix *func_003e0f80(void);
+extern BtlShuffleMatrix *func_003e0c90(BtlShuffleMatrix *matrix, const BtlShuffleVec3 *translation, BtlShuffleCombine mode);
+extern BtlShuffleVec3 *func_003e42a0(BtlShuffleVec3 *out, const BtlShuffleVec3 *in, const BtlShuffleMatrix *matrix);
+extern s32 func_003717e0(u8 *point, u8 *screen);
+extern s32 func_003e0f40(BtlShuffleMatrix *matrix);
 extern void func_00364c50(void);
 extern void func_00364c70(void);
 extern f32 D_008872F8[];
-extern void (*D_00887300[])(u32, u32);
-extern s32 (*D_00887310[])(s32, void *, s32);
+extern BtlShuffleRenderStateSet D_00887300[];
+extern BtlShuffleRenderPrimitive D_00887310[];
 extern ShuffleQuaternion *func_003dc740(ShuffleQuaternion *dst,
                                        const ShuffleVec3 *axis,
                                        f32 angle, s32 combine);
@@ -248,74 +252,89 @@ void func_003741f0(u8 *arg0) {
    colouring; doing the same for the later read as well is 176.  Same
    structural-fix-costs-words pattern as func_002e5000 in src/Yajima/
    y_list.c. */
-// FUN_003742B0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_003742b0(u8 *arg0)
+/* The copy and sprite loops keep separate cursors; the sprite destination
+   is formed before registration. opt_lifetimes on closes the remaining
+   22 register words: 852/864 bytes, every relocation and zero tail proved.
+   See docs/probe_archive/Shuffle_003742b0_recovery.md. */
+// FUN_003742B0
+#pragma push
+#pragma opt_lifetimes on
+s32 func_003742b0(u8 *work)
 {
-    s32 state;
-    s32 i;
-    s32 size;
-    u8 *p;
-    s32 val;
-    s32 tmp;
-    s32 k;
-    state = *(s32 *)(arg0 + 0x1F2EC);
-    if (state != 2) {
-        if (state != 1) {
-            if ((state != 0) || (func_004553c0(*(s32 *)(arg0 + 0x1F2E8)) == 0)) {
-                return 0;
-            }
-            k = 0;
-            for (i = 0; i < 9; i++) {
-                tmp = (s32)func_00455ea0((u8 *)(*(s32 *)(arg0 + 0x1F2E8)), k, &size);
+    s32 copyIndex;
+    s32 spriteIndex;
+    u8 *source;
+    s32 archiveIndex;
+    s32 byteCount;
+    extern void *memcpy(void *, const void *, size_t);
+    switch (*(s32 *)(work + 0x1F2EC)) {
+    case 0:
+    {
+        if (H_Cdvd_IsFileLoaded(*(struct HCdvd **)(work + 0x1F2E8)) == 0) break;
+        archiveIndex = 0;
+        {
+            u8 *val;
+            u8 *p;
+            for (copyIndex = 0; copyIndex < 9; copyIndex++, archiveIndex++) {
+                source = func_00455ea0((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, &byteCount);
                 func_0044ea90(&D_0064EA20, 0x101);
-                val = (s32)D_008873F4[0](1, size, 0x40000);
-                p = arg0 + i * 4 + 0x1F2B8;
-                *(s32 *)p = val;
+                val = D_008873F4[0](1, byteCount, 0x40000);
+                p = work + copyIndex * 4 + 0x1F2B8;
+                *(u8 **)p = val;
                 if (val == 0) {
                     func_0046d730(&D_0064EA20, 0x102);
                 }
-                func_0043f810(*(s32 *)p, tmp, size);
-                k++;
+                memcpy(*(u8 **)p, source, (size_t)byteCount);
             }
-            for (i = 0; i < 3; i++) {
-                val = func_0046af60((s32)func_00455ea0((u8 *)(*(s32 *)(arg0 + 0x1F2E8)), k, NULL));
-                *(s32 *)(arg0 + i * 4 + 0x1F2AC) = val;
-                if (val == 0) {
+        }
+        {
+            u8 *p;
+            for (spriteIndex = 0; spriteIndex < 3; spriteIndex++, archiveIndex++) {
+                p = work + spriteIndex * 4 + 0x1F2AC;
+                *(u8 **)p = func_0046af60((u32)func_00455ea0((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, NULL));
+                if (*(u8 **)p == NULL) {
                     func_0046d730(&D_0064EA20, 0x109);
                 }
-                k++;
             }
-            for (i = 0; i < 3; i++) {
-                tmp = (s32)func_00455ea0((u8 *)(*(s32 *)(arg0 + 0x1F2E8)), k, &size);
+        }
+        {
+            u8 *val;
+            u8 *p;
+            for (copyIndex = 0; copyIndex < 3; copyIndex++, archiveIndex++) {
+                source = func_00455ea0((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, &byteCount);
                 func_0044ea90(&D_0064EA20, 0x10F);
-                val = (s32)D_008873F4[0](1, size, 0x40000);
-                p = arg0 + i * 4 + 0x1F2DC;
-                *(s32 *)p = val;
+                val = D_008873F4[0](1, byteCount, 0x40000);
+                p = work + copyIndex * 4 + 0x1F2DC;
+                *(u8 **)p = val;
                 if (val == 0) {
                     func_0046d730(&D_0064EA20, 0x110);
                 }
-                func_0043f810(*(s32 *)p, tmp, size);
-                k++;
+                memcpy(*(u8 **)p, source, (size_t)byteCount);
             }
-            func_0036d230((s32)func_00455ea0((u8 *)(*(s32 *)(arg0 + 0x1F2E8)), k, NULL));
-            *(s32 *)(arg0 + 0x1F2EC) = 1;
         }
-        for (i = 0; i < 3; i++) {
-            val = *(s32 *)(arg0 + i * 4 + 0x1F2AC);
-            if ((val != 0) && (func_0046a750(val) == 0)) {
+        func_0036d230(func_00455ea0((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, NULL));
+        *(s32 *)(work + 0x1F2EC) = 1;
+    }
+    case 1:
+    {
+        s32 val;
+        for (spriteIndex = 0; spriteIndex < 3; spriteIndex++) {
+            val = *(s32 *)(work + spriteIndex * 4 + 0x1F2AC);
+            if ((val != 0) && (func_0046a750(*(s16 **)(work + spriteIndex * 4 + 0x1F2AC)) == 0)) {
                 return 0;
             }
         }
-        func_00454bd0(*(s32 *)(arg0 + 0x1F2E8));
-        *(s32 *)(arg0 + 0x1F2E8) = 0;
-        *(s32 *)(arg0 + 0x1F2EC) = 2;
     }
-    return 1;
+        H_Cdvd_Destroy(*(struct HCdvd **)(work + 0x1F2E8));
+        *(s32 *)(work + 0x1F2E8) = 0;
+        *(s32 *)(work + 0x1F2EC) = 2;
+    case 2:
+        return 1;
+    }
+    return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003742b0);
-#endif
+
+#pragma pop
 // FUN_00374610
 void func_00374610(u8 *arg0) {
     s32 i;
@@ -397,14 +416,14 @@ loop_test:
 // FUN_00374910
 void func_00374910(u8 *arg0) {
     func_0036d8b0();
-    func_004577d0(func_00457120(), *(f32 *)(arg0 + 0x1F310));
+    func_004577d0((struct RwCamera *)(u32)func_00457120(), *(f32 *)(arg0 + 0x1F310));
 }
 
 
 // FUN_00374960
 void func_00374960(u8 *arg0) {
     func_0036d8b0();
-    func_004577d0(func_00457120(), *(f32 *)(arg0 + 0x1F310));
+    func_004577d0((struct RwCamera *)(u32)func_00457120(), *(f32 *)(arg0 + 0x1F310));
     *(s32 *)(arg0 + 0x1F298) = func_0038cec0((void *)*(s32 *)(arg0 + 0x1F2A8));
     *(s32 *)(arg0 + 0x1F294) = func_00388bd0((void *)*(s32 *)(arg0 + 0x1F2A8));
     *(s32 *)(arg0 + 0x1F29C) = func_0038d790((void *)*(s32 *)(arg0 + 0x1F2A8));
@@ -582,16 +601,16 @@ void func_00374d20(u8 *arg0) {
     *(s32 *)(m + 0x34) = 0;
     *(s32 *)(m + 0x38) = 0;
     *(s32 *)(m + 0x0C) = 3;
-    func_003e0c90(m, &translation, 2);
+    func_003e0c90((BtlShuffleMatrix *)m, &translation, rwCOMBINEPOSTCONCAT);
     func_003e0e20(m, func_003e9700(camera), 2);
     renderStateBase = (u32)D_00887300;
-    ((void (*)(s32, s32))*(u32 *)renderStateBase)(6, 0);
-    ((void (*)(s32, s32))*(u32 *)renderStateBase)(8, 0);
-    ((void (*)(s32, s32))*(u32 *)renderStateBase)(0x14, 2);
+    (*(BtlShuffleRenderStateSet *)renderStateBase)(6, 0);
+    (*(BtlShuffleRenderStateSet *)renderStateBase)(8, 0);
+    (*(BtlShuffleRenderStateSet *)renderStateBase)(rwRENDERSTATECULLMODE, (void *)2);
     func_003f6440(3, 0x717FB);
     func_003f6440(2, 0x44);
     if (*(u16 *)(arg0 + 0x1F2F4) & 0x20) {
-        ((void (*)(s32, s32))*(u32 *)renderStateBase)(1, func_0036be00());
+        (*(BtlShuffleRenderStateSet *)renderStateBase)(rwRENDERSTATETEXTURERASTER, (void *)(u32)func_0036be00());
         func_00410420(backVertices, 4, m, 3);
         func_004106a0(4);
     }
@@ -600,7 +619,7 @@ void func_00374d20(u8 *arg0) {
         ShuffleVec3 axis = {0.0f, 0.0f, 1.0f};
         func_003e0870(m, &axis, 1, 180.0f);
     }
-    ((void (*)(s32, s32))*(u32 *)renderStateBase)(1, texture);
+    (*(BtlShuffleRenderStateSet *)renderStateBase)(rwRENDERSTATETEXTURERASTER, (void *)(u32)texture);
     func_00410420(frontVertices, 4, m, 3);
     func_004106a0(4);
     if (*(u16 *)(arg0 + 0x1F2F4) & 0x10) {
@@ -631,7 +650,7 @@ void func_00374d20(u8 *arg0) {
         func_00410420(frontVertices, 4, m, 3);
         func_004106a0(4);
     }
-    func_003e0f40(m);
+    func_003e0f40((BtlShuffleMatrix *)m);
 }
 
 /* measured (b210 -O2, 2026-09-17): table/index/float reconstruction (largest
@@ -1629,8 +1648,8 @@ void func_003768e0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, f32 fparg0) {
     stack.spBC |= 0x20003;
     func_003f6440(2, 0x48);
     func_003f6440(3, 0x71801);
-    D_00887300[0](0x14, 1);
-    D_00887300[0](6, 1);
+    D_00887300[0](rwRENDERSTATECULLMODE, (void *)1);
+    D_00887300[0](rwRENDERSTATEZTESTENABLE, (void *)1);
     D_00887300[0](8, 0);
     temp_5 = (u8 *)(arg0 + (arg1 * 0xE8) + 0x1D6A0);
     temp_21 = arg0 + (arg1 * 0xFB0);
@@ -2062,43 +2081,19 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003768e0);
 #endif
 
 
-/* measured: the old "FPU FMA-fusion floor" note is REFUTED -- b210 emits the exact
-   retail accumulator chain (mula/madda/madda/madd + 2.0f/div + the 9 rotation
-   products) from the plain spelling 2.0f / (y*y + x*x + z*z + w*w), verified
-   against a bare compile. Reconstructed the whole function to nd 15 (obj 1236B):
-   prologue, all stack slots (sp1B8v ShuffleVec3, sp1C8[2], spB0[0x40] at 0xB0,
-   sp80[12], sp70v ShuffleVec4 at 0x70), the f20-f23 saved-FP mapping
-   (declaration order alphaBase/halfW/halfH/scale), the alpha lbu/bltz/mtc1/cvt/
-   srl/andi/or/add.s recipe-A blocks and the D_00887300/D_00887310 tail all match
-   byte-for-byte. Remaining 3 residuals: (1) the two arg1*0xE8 chains emit
-   addu $v0,$s4,$v0 where retail has addu $v0,$v0,$s4 -- inline operand flips
-   (arg1*0xE8+arg0) did not change it, lever-10 named s32 local untested;
-   (2) the dot sum canonicalises to mula(x),madda(y) where retail has
-   mula(y),madda(x) -- survived direct-struct-field and 4-temp spellings;
-   (3) alpha else-arm or/mtc1 result register $v0 vs retail $v1 (scheduling
-   residual, 8 words). 4 attempts: nd 108->15->51. */
-/* Shuffle-render floor (1248B window). First probe nd 378
-   (obj 1616B, 368B overrun); frame verified, int homes exact,
-   mula/madda/madd fusion emitted from plain spelling. Model:
-   5 int-saves, 4 FP-saves + scalar-replacement gap (quad kept
-   in regs vs retail stacked). Open: FP homes, addu flips,
-   mula order, alpha-reg, scheduler cascade. Variants tied:
-   folding, block-scope, counter-reuse all neutral. Ghidra
-   phantoms killed (per-iter div, +C0 store, denormal).
-   Quad-built, retail-arbitrated; prior nd-15 note on file. */
-/* measured 00377930: `schedule on` inside the guard is worth 38 words (378 -> 340). */
-/* measured 00377930: `opt_propagation off` inside the guard is worth 2 words (340 -> 338). */
-/* gate: object 358 against retail 312, +14.7% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
-/* measured 00377930: `u32 t` -> `s32 t` deletes the largest pure insert (64 instrs at object[248:312], per-conversion double unsigned handling -> single) + drop `schedule on`/`opt_propagation off` (pragma_sweep checked: sched-only 297/387, both 294/390 vs nopragma 316/216): `python3 tools/fnalign.py src/Battle/btlShuffleDraw.c func_00377930 --candidate /tmp/cand_77930_s32_nopragma.c --quiet` retail 312 vs object 316 instrs (216 edits +4 reloc-only); `python3 tools/measure_guarded.py src/Battle/btlShuffleDraw.c func_00377930` 338 -> 298 words. */
-/* gate: object 316 against retail 312, +1.3% - INSIDE the +-3% band (was 358, +14.7% OUTSIDE). */
-// FUN_00377930 NONMATCHING
-#ifdef NON_MATCHING
-void func_00377930(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4)
+/* Build an untextured screen-space quad from the card's position and rotation.
+ * The four 64-byte sky2 vertices retain the PS2 screen/color/reciprocal-Z layout.
+ * measured b210 -O2: 1236/1248 bytes, complete resolved retail instructions.
+ * See docs/probe_archive/Shuffle_00377930_recovery.md. */
+static inline u8 *shuffleVertexSource377930(s32 offset, u8 *base)
+{
+    return (u8 *)((u32)offset + (u32)base);
+}
+// FUN_00377930
+void func_00377930(u8 *arg0, s32 arg1, const BtlShuffleVec3 *arg2, u8 *arg3, s32 arg4)
 {
     extern f32 D_008872F8_abs[];
+    typedef char AssertSkyVertexSize[(sizeof(BtlShuffleSkyVertex) == 64) ? 1 : -1];
     f32 datw;
     f32 halfW;
     f32 halfH;
@@ -2107,130 +2102,100 @@ void func_00377930(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4)
     f32 n0;
     f32 n1;
     f32 n2;
-    f32 sp1B8v[3];
+    f32 xw, yw, zw, xx, yy, zz, yz, zx, xy;
     f32 sp1C8[2];
-    f32 sp80[12];
-    f32 sp70v[4];
-    f32 mat[4][16];
+    BtlShuffleVec3 sp1B8v;
+    BtlShuffleSkyVertex mat[4];
+    BtlShuffleVec3 sp80[4];
+    ShuffleVec4 sp70v;
     u8 *chain;
-    u8 *cbase;
-    void *matrix;
-    f32 *slot;
+    u8 *card;
+    BtlShuffleMatrix *matrix;
+    BtlShuffleSkyFields *slot;
+    s32 index;
 
     datw = D_008872F8_abs[0];
     scale = 1.0f / *(f32 *)((u8 *)func_00457120() + 0x80);
     if (arg2 != 0) {
-        sp1B8v[0] = *(f32 *)arg2;
-        sp1B8v[1] = *(f32 *)(arg2 + 4);
-        sp1B8v[2] = *(f32 *)(arg2 + 8);
+        sp1B8v = *(BtlShuffleVec3 *)arg2;
     } else {
-        chain = arg1 * 0xE8 + arg0;
-        cbase = chain + 0x1D6B8;
-        sp1B8v[0] = *(f32 *)(chain + 0x1D6B8);
-        sp1B8v[1] = *(f32 *)(cbase + 4);
-        sp1B8v[2] = *(f32 *)(cbase + 8);
+        chain = shuffleVertexSource377930(arg1 * 0xE8, arg0);
+        sp1B8v = *(BtlShuffleVec3 *)(chain + 0x1D6B8);
     }
-    chain = arg1 * 0xE8 + arg0;
-    sp70v[0] = *(f32 *)(chain + 0x1D714);
-    sp70v[1] = *(f32 *)(chain + 0x1D718);
-    sp70v[2] = *(f32 *)(chain + 0x1D71C);
-    sp70v[3] = *(f32 *)(chain + 0x1D720);
-    arg2 = (s32)(arg0 + arg1 * 0xFB0);
-    halfW = func_0036de70((u8 *)arg2) / 2.0f;
-    halfH = func_0036deb0((u8 *)arg2) / 2.0f;
+    chain = shuffleVertexSource377930(arg1 * 0xE8, arg0);
+    sp70v = *(ShuffleVec4 *)(chain + 0x1D714);
+    card = arg0 + arg1 * 0xFB0;
+    halfW = func_0036de70(card) / 2.0f;
+    halfH = func_0036deb0(card) / 2.0f;
     matrix = func_003e0f80();
     func_00457120();
-    norm = 2.0f / (sp70v[3] * sp70v[3] + sp70v[2] * sp70v[2] + sp70v[0] * sp70v[0] + sp70v[1] * sp70v[1]);
-    n0 = sp70v[0] * norm;
-    n1 = sp70v[1] * norm;
-    n2 = sp70v[2] * norm;
-    ((f32 *)matrix)[0] = 1.0f - (sp70v[1] * n1 + sp70v[2] * n2);
-    ((f32 *)matrix)[1] = sp70v[0] * n1 + n2 * sp70v[3];
-    ((f32 *)matrix)[2] = sp70v[2] * n0 - n1 * sp70v[3];
-    ((f32 *)matrix)[4] = sp70v[0] * n1 - n2 * sp70v[3];
-    ((f32 *)matrix)[5] = 1.0f - (sp70v[2] * n2 + sp70v[0] * n0);
-    ((f32 *)matrix)[6] = sp70v[1] * n2 + n0 * sp70v[3];
-    ((f32 *)matrix)[8] = sp70v[2] * n0 + n1 * sp70v[3];
-    ((f32 *)matrix)[9] = sp70v[1] * n2 - n0 * sp70v[3];
-    ((f32 *)matrix)[10] = 1.0f - (sp70v[0] * n0 + sp70v[1] * n1);
-    ((s32 *)matrix)[12] = 0;
-    ((s32 *)matrix)[13] = 0;
-    ((s32 *)matrix)[14] = 0;
-    ((s32 *)matrix)[3] = 3;
-    func_003e0c90(matrix, sp1B8v, 2);
-    sp80[0] = halfW;
-    sp80[1] = halfH;
-    sp80[2] = 0.0f;
-    sp80[3] = -halfW;
-    ((s32 *)sp80)[4] = 0;
-    sp80[5] = -halfH;
-    ((s32 *)sp80)[6] = 0;
-    ((s32 *)sp80)[7] = 0;
-    sp80[8] = halfH;
-    sp80[9] = halfW;
-    sp80[10] = -halfW;
-    sp80[11] = -halfH;
-    for (arg2 = 0; arg2 < 4; arg2 = arg2 + 1) {
-        s32 t;
-        f32 f;
-        func_003e42a0(sp1B8v, &sp80[arg2 * 3], matrix);
-        func_003717e0(sp1B8v, sp1C8);
-        slot = mat[arg2];
-        slot[0] = sp1C8[0];
-        slot[1] = sp1C8[1];
-        slot[2] = datw;
-        slot[6] = scale;
-        t = arg3[0];
-        if ((s32)t < 0) {
-            f = (f32)((t >> 1) | (t & 1));
-            f += f;
-        } else {
-            f = (f32)t;
-        }
-        slot[8] = f;
-        t = arg3[1];
-        if ((s32)t < 0) {
-            f = (f32)((t >> 1) | (t & 1));
-            f += f;
-        } else {
-            f = (f32)t;
-        }
-        slot[9] = f;
-        t = arg3[2];
-        if ((s32)t < 0) {
-            f = (f32)((t >> 1) | (t & 1));
-            f += f;
-        } else {
-            f = (f32)t;
-        }
-        slot[10] = f;
-        t = arg3[3];
-        if ((s32)t < 0) {
-            f = (f32)((t >> 1) | (t & 1));
-            f += f;
-        } else {
-            f = (f32)t;
-        }
-        slot[11] = f;
+    norm = 2.0f / (sp70v.x * sp70v.x + sp70v.y * sp70v.y + sp70v.z * sp70v.z + sp70v.w * sp70v.w);
+    n0 = sp70v.x * norm;
+    n1 = sp70v.y * norm;
+    n2 = sp70v.z * norm;
+    xw = n0 * sp70v.w;
+    yw = n1 * sp70v.w;
+    zw = n2 * sp70v.w;
+    xx = sp70v.x * n0;
+    yy = sp70v.y * n1;
+    zz = sp70v.z * n2;
+    yz = sp70v.y * n2;
+    zx = sp70v.z * n0;
+    xy = sp70v.x * n1;
+    matrix->right.x = 1.0f - (yy + zz);
+    matrix->right.y = xy + zw;
+    matrix->right.z = zx - yw;
+    matrix->up.x = xy - zw;
+    matrix->up.y = 1.0f - (zz + xx);
+    matrix->up.z = yz + xw;
+    matrix->at.x = zx + yw;
+    matrix->at.y = yz - xw;
+    matrix->at.z = 1.0f - (xx + yy);
+    matrix->pos.x = 0.0f;
+    matrix->pos.y = 0.0f;
+    matrix->pos.z = 0.0f;
+    matrix->flags = 3;
+    func_003e0c90(matrix, &sp1B8v, 2);
+    sp80[0].x = halfW;
+    sp80[0].y = halfH;
+    sp80[0].z = 0.0f;
+    sp80[1].x = -halfW;
+    sp80[1].y = halfH;
+    sp80[1].z = 0.0f;
+    sp80[2].x = halfW;
+    sp80[2].y = -halfH;
+    sp80[2].z = 0.0f;
+    sp80[3].x = -halfW;
+    sp80[3].y = -halfH;
+    sp80[3].z = 0.0f;
+    for (index = 0; index < 4; index++) {
+        func_003e42a0(&sp1B8v, &sp80[index], matrix);
+        func_003717e0((u8 *)&sp1B8v, (u8 *)sp1C8);
+        slot = &mat[index].u.els;
+        slot->scrVertex.x = sp1C8[0];
+        slot->scrVertex.y = sp1C8[1];
+        slot->scrVertex.z = datw;
+        slot->color.r = (f32)(u32)arg3[0];
+        slot->color.g = (f32)(u32)arg3[1];
+        slot->color.b = (f32)(u32)arg3[2];
+        slot->color.a = (f32)(u32)arg3[3];
+        slot->recipZ = scale;
     }
-    D_00887300[0](1, 0);
+    D_00887300[0](rwRENDERSTATETEXTURERASTER, NULL);
     if (arg4 != 0 && arg3[3] == 0xFF) {
         func_00364c50();
     }
-    D_00887310[0](4, mat, 4);
+    D_00887310[0](rwPRIMTYPETRISTRIP, mat, 4);
     if (arg4 != 0 && arg3[3] == 0xFF) {
         func_00364c70();
     }
     func_003e0f40(matrix);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00377930);
-#endif
 // FUN_00377E10
 s32 func_00377e10(u8 *arg0) {
     s32 *p = *(s32 **)(arg0 + 0x38);
 
-    if (func_00378220() == 0) {
+    if (func_00378220(arg0) == 0) {
         *p = func_00354830((u8 *)p + 8);
     }
     return 0;
@@ -2246,147 +2211,130 @@ void func_00377e60(u8 *arg0) {
 }
 
 
-/* measured: retail allocates the copy loops as dst=$a0, i=$a1, p=$v0, 0xFF=$v1
-   (0xFF hoisted to the preheader); mwcc b210 rotates i to $v0/$a0 and p to $v1,
-   materialising 0xFF inside the loop — every instruction is otherwise identical
-   (nd 64, obj 800B = window). Everything else in this function is solved: the
-   stack layout spA0[3]@0xA0 / sp90[3]@0x90 / sp60[4][3]@0x60 / sp50[4]@0x50 /
-   sp40[4]@0x40, the element-wise spill copies via a block-scoped f32* q, the
-   +30/-30 shared materialisation (temp_f1 = 30.0f, stores via -temp_f1), the gp
-   value in temp_f0/temp_f0_2, the two 4-iteration copy loops to mem[i*0x24+0x120]
-   and +0x1B0, and func_00451fc0's 8-arg call. Temp-register rotation floor.
-   Re-measured 2026-09-15 at nd 120 (s-reg work/p/arg1 rotation plus the loop
-   rotation; decl and assignment swaps inert); banked as guarded floor. */
-/* measured 00377eb0: `opt_loop_invariants on` inside the guard is worth 2 words (119 -> 117), the loop-preheader constant hoist. */
-/* 117 -> 112 (2026-09-18), and the object goes from three instructions short
-   of retail to exact (199/199).  The first loop's three-float copy out of
-   stack.spA0 is a struct assignment, not three element stores: written as
-   elements b210 forwards the three stores it just made into spA0 and never
-   reloads, where retail reloads all three from the stack before storing.
-   Same lever as func_0025dd30 in src/shdWindow.c.  Measured and rejected:
-   applying it to the second loop's sp90 copy as well (115). */
-// FUN_00377EB0 NONMATCHING
-#ifdef NON_MATCHING
+/* The two faces belong to the allocated 0x240-byte work buffer; the
+   registered task is retained separately and returned to the caller. Each
+   loop snapshots one position before writing a 0x24-byte vertex. Independent
+   loop indices and the existing invariant hoist reproduce all 800 bytes.
+   Full code/caller/data proof: docs/probe_archive/Shuffle_00377eb0_recovery.md. */
+// FUN_00377EB0
+#pragma push
 #pragma opt_loop_invariants on
 s32 func_00377eb0(u8 *arg0, s32 arg1)
 {
-    struct ShuffleDrawVec3 { f32 x, y, z; };
-    struct ShuffleDrawStack {
-        s32 sp40[4];
-        s32 sp50[4];
-        f32 sp60[4][3];
-        f32 sp90[3];
-        s32 gap;
-        f32 spA0[3];
-    } stack;
-    s32 saved_arg1;
-    u8 *p;
-    u8 *saved_arg0;
-    u8 *q;
-    s32 i;
-    f32 temp_f0;
-    f32 temp_f1;
+    struct ShuffleCardPosition { f32 x, y, z; };
+    struct ShuffleCardPosition front;
+    struct ShuffleCardPosition back;
+    struct ShuffleCardPosition positions[4];
+    f32 u[4];
+    f32 v[4];
+    s32 cardIndex;
+    u8 *work;
+    u8 *task;
+    u8 *parent;
+    u8 *vertex;
+    f32 height;
+    f32 halfWidth;
 
-    saved_arg0 = arg0;
-    saved_arg1 = arg1;
+    parent = arg0;
+    cardIndex = arg1;
     func_0044ea90(D_0064EA20, 0x76C);
-    p = D_008873F4[0](1, 0x240, 0x40000);
-    if (p == NULL) {
+    work = D_008873F4[0](1, 0x240, 0x40000);
+    if (work == NULL) {
         func_0046d730(D_0064EA20, 0x76D);
     }
-    p = (u8 *)(s32)func_00451fc0((void *)(saved_arg0), (const void *)(D_0064EA60), 0x12, 0, 0, func_00377e10, func_00377e60, (u8 *)(p));
-    if (p == NULL) {
+    task = (u8 *)(s32)func_00451fc0((void *)(parent), (const void *)(D_0064EA60), 0x12, 0, 0, func_00377e10, func_00377e60, work);
+    if (task == NULL) {
         func_0046d730(D_0064EA20, 0x777);
     }
-    func_003781d0(p, saved_arg1);
-    func_00378260(p, 0xFF, 0xFF, 0xFF, 0);
+    func_003781d0(task, cardIndex);
+    func_00378260(task, 0xFF, 0xFF, 0xFF, 0);
 
-    temp_f1 = 30.0f;
-    stack.sp60[0][0] = -temp_f1;
-    temp_f0 = iGpffff81e0;
-    stack.sp60[0][1] = temp_f0;
-    stack.sp60[0][2] = 0.0f;
-    stack.sp50[0] = 0x3F7E0000;
-    stack.sp40[0] = 0;
-    stack.sp60[1][0] = temp_f1;
-    stack.sp60[1][1] = temp_f0;
-    stack.sp60[1][2] = 0.0f;
-    stack.sp50[1] = 0;
-    stack.sp40[1] = 0;
-    stack.sp60[2][0] = -temp_f1;
-    temp_f0 = -temp_f0;
-    stack.sp60[2][1] = temp_f0;
-    stack.sp60[2][2] = 0.0f;
-    stack.sp50[2] = 0x3F7E0000;
-    stack.sp40[2] = 0x3F250000;
-    stack.sp60[3][0] = temp_f1;
-    stack.sp60[3][1] = temp_f0;
-    stack.sp60[3][2] = 0.0f;
-    stack.sp50[3] = 0;
-    stack.sp40[3] = 0x3F250000;
+    halfWidth = 30.0f;
+    positions[0].x = -halfWidth;
+    height = iGpffff83e0;
+    positions[0].y = height;
+    positions[0].z = 0.0f;
+    u[0] = 0.9921875f;
+    v[0] = 0;
+    positions[1].x = halfWidth;
+    positions[1].y = height;
+    positions[1].z = 0.0f;
+    u[1] = 0;
+    v[1] = 0;
+    positions[2].x = -halfWidth;
+    height = -height;
+    positions[2].y = height;
+    positions[2].z = 0.0f;
+    u[2] = 0.9921875f;
+    v[2] = 0.64453125f;
+    positions[3].x = halfWidth;
+    positions[3].y = height;
+    positions[3].z = 0.0f;
+    u[3] = 0;
+    v[3] = 0.64453125f;
 
-    for (i = 0; i < 4; i++) {
-        q = (u8 *)&stack.sp60[i][0];
-        sp: ;
-        stack.spA0[0] = *(f32 *)(q + 0);
-        stack.spA0[1] = *(f32 *)(q + 4);
-        stack.spA0[2] = *(f32 *)(q + 8);
-        q = p + i * 0x24;
-        *(struct ShuffleDrawVec3 *)(q + 0x120) = *(struct ShuffleDrawVec3 *)stack.spA0;
-        q[0x12C] = 0xFF;
-        q[0x12D] = 0xFF;
-        q[0x12E] = 0xFF;
-        q[0x12F] = 0xFF;
-        *(f32 *)(q + 0x13C) = *(f32 *)&stack.sp50[i];
-        *(f32 *)(q + 0x140) = *(f32 *)&stack.sp40[i];
+    {
+        s32 index;
+        for (index = 0; index < 4; index++) {
+            vertex = (u8 *)&positions[index];
+            front.x = *(f32 *)(vertex + 0);
+            front.y = *(f32 *)(vertex + 4);
+            front.z = *(f32 *)(vertex + 8);
+            vertex = work + index * 0x24;
+            *(struct ShuffleCardPosition *)(vertex + 0x120) = front;
+            vertex[0x12C] = 0xFF;
+            vertex[0x12D] = 0xFF;
+            vertex[0x12E] = 0xFF;
+            vertex[0x12F] = 0xFF;
+            *(f32 *)(vertex + 0x13C) = u[index];
+            *(f32 *)(vertex + 0x140) = v[index];
+        }
     }
 
-    temp_f1 = 30.0f;
-    stack.sp60[0][0] = temp_f1;
-    temp_f0 = iGpffff81e0;
-    stack.sp60[0][1] = temp_f0;
-    stack.sp60[0][2] = 0.0f;
-    stack.sp50[0] = 0x3F7E0000;
-    stack.sp40[0] = 0;
-    stack.sp60[1][0] = -temp_f1;
-    stack.sp60[1][1] = temp_f0;
-    stack.sp60[1][2] = 0.0f;
-    stack.sp50[1] = 0;
-    stack.sp40[1] = 0;
-    stack.sp60[2][0] = temp_f1;
-    temp_f0 = -temp_f0;
-    stack.sp60[2][1] = temp_f0;
-    stack.sp60[2][2] = 0.0f;
-    stack.sp50[2] = 0x3F7E0000;
-    stack.sp40[2] = 0x3F250000;
-    stack.sp60[3][0] = -temp_f1;
-    stack.sp60[3][1] = temp_f0;
-    stack.sp60[3][2] = 0.0f;
-    stack.sp50[3] = 0;
-    stack.sp40[3] = 0x3F250000;
+    halfWidth = 30.0f;
+    positions[0].x = halfWidth;
+    height = iGpffff83e0;
+    positions[0].y = height;
+    positions[0].z = 0.0f;
+    u[0] = 0.9921875f;
+    v[0] = 0;
+    positions[1].x = -halfWidth;
+    positions[1].y = height;
+    positions[1].z = 0.0f;
+    u[1] = 0;
+    v[1] = 0;
+    positions[2].x = halfWidth;
+    height = -height;
+    positions[2].y = height;
+    positions[2].z = 0.0f;
+    u[2] = 0.9921875f;
+    v[2] = 0.64453125f;
+    positions[3].x = -halfWidth;
+    positions[3].y = height;
+    positions[3].z = 0.0f;
+    u[3] = 0;
+    v[3] = 0.64453125f;
 
-    for (i = 0; i < 4; i++) {
-        q = (u8 *)&stack.sp60[i][0];
-        stack.sp90[0] = *(f32 *)(q + 0);
-        stack.sp90[1] = *(f32 *)(q + 4);
-        stack.sp90[2] = *(f32 *)(q + 8);
-        q = p + i * 0x24;
-        *(f32 *)(q + 0x1B0) = stack.sp90[0];
-        *(f32 *)(q + 0x1B4) = stack.sp90[1];
-        *(f32 *)(q + 0x1B8) = stack.sp90[2];
-        q[0x1BC] = 0xFF;
-        q[0x1BD] = 0xFF;
-        q[0x1BE] = 0xFF;
-        q[0x1BF] = 0xFF;
-        *(f32 *)(q + 0x1CC) = *(f32 *)&stack.sp50[i];
-        *(f32 *)(q + 0x1D0) = *(f32 *)&stack.sp40[i];
+    {
+        s32 index;
+        for (index = 0; index < 4; index++) {
+            vertex = (u8 *)&positions[index];
+            back.x = *(f32 *)(vertex + 0);
+            back.y = *(f32 *)(vertex + 4);
+            back.z = *(f32 *)(vertex + 8);
+            vertex = work + index * 0x24;
+            *(struct ShuffleCardPosition *)(vertex + 0x1B0) = back;
+            vertex[0x1BC] = 0xFF;
+            vertex[0x1BD] = 0xFF;
+            vertex[0x1BE] = 0xFF;
+            vertex[0x1BF] = 0xFF;
+            *(f32 *)(vertex + 0x1CC) = u[index];
+            *(f32 *)(vertex + 0x1D0) = v[index];
+        }
     }
-    return (s32)p;
+    return (s32)task;
 }
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00377eb0);
-#endif
+#pragma pop
 // FUN_003781D0
 void func_003781d0(u8 *arg0, s32 arg1) {
     char buf[0x100];

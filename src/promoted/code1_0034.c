@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "fcl_combine_internal.h"
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "rw/plcore/barenderstate.h"
@@ -1538,4 +1539,3 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, u32 arg1, s32 arg2, s32 a
         }
     }
 }
-

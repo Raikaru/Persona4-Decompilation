@@ -162,7 +162,7 @@ void func_002bad10(u32 arg0);
 void func_002bb050(u32 arg0);
 void func_002baf40(u32 arg0);
 extern void func_00195850(u8 *arg0, f32 *arg1);
-extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, u16 arg3, f32 arg4);
+extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern void func_001b73f0(u8 *arg0);
 extern s32 func_004bd050(s32 arg0);
 extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
@@ -205,7 +205,7 @@ extern void func_001bc800(u8 *arg0);
 extern void func_002318c0(DatUnitEc *arg0, DatUnit *arg1);
 extern void func_001bdd60(void);
 extern u8 *func_00105510(s16 arg0);
-extern u16 *func_0010a900(s32 arg0);
+extern u16 *func_0010a900(u16 arg0);
 extern s32 func_0010ce10(u8 *arg0, u32 arg1);
 extern void func_002038c0(s32 arg0);
 extern void func_00231f20(s32 arg0, u16 arg1);
@@ -1058,7 +1058,7 @@ done:
 #ifdef NON_MATCHING
 void func_001b1d70(void) {
     extern s32 iGpffffb414;
-    extern u8 *func_0019f5f0(s32 arg0, u16 arg1, u8 *arg2);
+    extern u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2);
     extern u32 func_002326f0(s32 arg0, u32 arg1);
     extern u8 *func_00477c40(u16 arg0, u16 arg1, s32 arg2);
     extern u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2);
@@ -1102,7 +1102,7 @@ void func_001b1d70(void) {
                 break;
             tmp = *(u8 **)(w2 + 4);
             id = *(u16 *)(tmp + 2);
-            pkt = func_0019f5f0(0, id, tmp);
+            pkt = func_0019f5f0(0, id, (u16 *)tmp);
             unit = *(u8 **)(pkt + 0x30);
             func_002326f0(*(s32 *)(unit + 0xA64), 0xFFF7FFFF);
             *(u16 *)(*(u8 **)(unit + 0xA64)) &= 0xFFDF;
@@ -1143,7 +1143,7 @@ void func_001b1d70(void) {
     k = 0;
     while (k < 6) {
         if (*(u16 *)(list + 2) != 0 && func_002428f0((s32)list, 0) == 0) {
-            func_0019f5f0(1, *(u16 *)(list + 2), list);
+            func_0019f5f0(1, *(u16 *)(list + 2), (u16 *)list);
         }
         k++;
         list += 0x30;
@@ -4250,174 +4250,158 @@ void func_001bccc0(s32 arg0, s16 arg1, s32 arg2, s32 arg3) {
     *(s32 *)(temp_3 + 0xC) = arg3;
 }
 
-/* measured (this session): cold reconstruction v3 object 359/retail 367 instrs (2.2% short, within 3%); probe_variants 307 words/381 edits (v1 314/471); flag-spill locals fb0/fc0/fd0/fe0/ff0/f100/f110/f120/f130 made live (+11 instrs); fnalign slt $at none for fixed loops, s64 guard N/A (variable u16 loops use plain b+slt per retail, not (s64)0<count), slti $at N/A (variable bounds), dead-arm kept via live flag stores; residual is lq/sq flag spills and COP1 adda/msub chains; banked guarded floor. */
-// FUN_001BCD40 NONMATCHING
-#ifdef NON_MATCHING
-void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, u16 arg3, f32 arg4) {
-    extern void func_00194fc0(u8 *arg0, s32 arg1);
-    extern void func_00194fa0(u8 *arg0, s32 arg1);
-    extern void func_00195850(u8 *arg0, void *arg1);
-    extern f32 func_001ec3d0(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
-    extern void func_001b1560(void);
-    u32 mask;
-    u32 ix;
-    u32 cnt;
-    u8 *unit;
-    u8 *pkt;
-    f32 s30;
-    f32 s2c;
-    f32 s28;
-    f32 s24;
-    u32 t20;
-    u32 t1c;
-    f32 s18;
-    f32 s14;
-    u32 stk10[2];
-    u32 stk8;
-    u32 fb0; u32 fc0; u32 fd0; u32 fe0; u32 ff0; u32 f100; u32 f110; u32 f120; u32 f130;
-    f32 res;
+/* Apply ordered visibility rules before testing the XZ camera segment.
+ * Unit group IDs come from the 0019d210 constructors (0, 1, or 2).
+ * measured b210 -O2: 1472/1472 bytes, all 22 relocations resolved.
+ * Loop invariants retain the flag tests; separate target ordinals and
+ * the u16 accessor preserve each search's index conversions. */
+static inline u8 *cameraVisibilityTarget(u8 *action, u16 index)
+{
+    return *(u8 **)(action + index * 4 + 0x38);
+}
 
-    if ((*(u32 *)(D_0076449C + 0x10) & 4) != 0) {
+struct RwV3d;
+
+#pragma push
+#pragma opt_loop_invariants on
+// FUN_001BCD40
+void func_001bcd40(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode)
+{
+    extern void btlUnitSetFlags(BtlUnit *unit, u16 flags);
+    extern void btlUnitClearFlags(BtlUnit *unit, u16 flags);
+    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, struct RwV3d *out);
+    extern f32 func_001ec3d0(u8 *first, u8 *second, u8 *point, u8 *out);
+    struct {
+        f32 first[2];
+        f32 second[2];
+        f32 point[2];
+        f32 closest[2];
+        f32 center[3];
+    } geometry;
+    u8 *current;
+    u8 *unit;
+    u16 targetGroups;
+    f32 distance;
+
+    if ((*(u32 *)(D_0076449C + 0x10) & 4) != 0)
         return;
-    }
-    if (arg1 == NULL || (u8 *)arg2 == NULL) {
-        res = 0.0f;
+
+    if (first != NULL && second != NULL) {
+        geometry.first[0] = ((f32 *)first)[0];
+        geometry.first[1] = ((f32 *)first)[2];
+        geometry.second[0] = second[0];
+        geometry.second[1] = second[2];
     } else {
-        s30 = *(f32 *)arg1;
-        s2c = *(f32 *)((u8 *)arg1 + 8);
-        s28 = *(f32 *)arg2;
-        s24 = *(f32 *)((u8 *)arg2 + 8);
+        radius = 0.0f;
     }
-    mask = 0;
-    if ((arg3 & 0x10) != 0) {
-        ix = 0;
-        cnt = *(u16 *)(arg0 + 0x6A);
-        while (ix < cnt) {
-            mask |= (u32)(1 << (*(u8 *)(*(s32 *)(*(s32 *)(arg0 + ix * 4 + 0x38) + 0x30) + 0xA2) & 0x1F)) & 0xFFFF;
-            ix = (ix + 1) & 0xFFFF;
+
+    targetGroups = 0;
+    if ((mode & 0x10) != 0) {
+        s32 index;
+        index = 0;
+        while ((index & 0xFFFF) < *(u16 *)(action + 0x6A)) {
+            targetGroups |= (u16)(1u << *(u8 *)(*(u8 **)(
+                cameraVisibilityTarget(action, index) + 0x30) + 0xA2));
+            index = (index + 1) & 0xFFFF;
         }
     }
-    fb0 = arg3 & 0x200;
-    fc0 = arg3 & 0x80;
-    fd0 = arg3 & 8;
-    fe0 = arg3 & 2;
-    ff0 = arg3 & 0x800;
-    f100 = arg3 & 1;
-    f110 = arg3 & 4;
-    f120 = arg3 & 0x400;
-    f130 = arg3 & 0x100;
-    {
-        u32 f20 = (arg3 & 0x20) != 0;
-        u32 f40 = (arg3 & 0x40) != 0;
-        u32 f100 = f130 != 0;
-        for (unit = *(u8 **)(D_0076449C + 0x174); unit != NULL; unit = *(u8 **)(unit + 0x450)) {
-            if (((*(u16 *)(unit + 0x1A) & 1) == 0) || (*(s32 *)(*(u8 **)(unit + 0x30) + 0x9C) & 8) == 0) {
+
+    for (current = *(u8 **)(D_0076449C + 0x174); current != NULL;
+         current = *(u8 **)(current + 0x450)) {
+        if ((*(u16 *)(current + 0x1A) & 1) == 0)
+            continue;
+        unit = *(u8 **)(current + 0x30);
+        if ((*(u32 *)(unit + 0x9C) & 8) == 0)
+            continue;
+
+        if ((mode & 0x20) != 0 && current != action) {
+            btlUnitClearFlags((BtlUnit *)unit, 2);
+            btlUnitSetFlags((BtlUnit *)unit, 4);
+            if ((mode & 0x40) == 0) *(u8 *)(unit + 0x37) = 0xFF;
+            continue;
+        }
+        if ((mode & 0x100) != 0) {
+            btlUnitClearFlags((BtlUnit *)unit, 2);
+            if ((mode & 0x400) != 0) btlUnitSetFlags((BtlUnit *)unit, 4);
+            if ((mode & 0x40) == 0) *(u8 *)(unit + 0x37) = 0xFF;
+            continue;
+        }
+        if (current == *(u8 **)(D_0076449C + 0x170) && (mode & 4) != 0) {
+            btlUnitClearFlags((BtlUnit *)unit, 2);
+            btlUnitSetFlags((BtlUnit *)unit, 4);
+            if ((mode & 0x40) == 0) *(u8 *)(unit + 0x37) = 0xFF;
+            continue;
+        }
+        if (action != NULL) {
+            if (current == action && (mode & 1) != 0) {
+                btlUnitClearFlags((BtlUnit *)unit, 2);
+                btlUnitSetFlags((BtlUnit *)unit, 4);
+                if ((mode & 0x40) == 0) *(u8 *)(unit + 0x37) = 0xFF;
                 continue;
             }
-            pkt = *(u8 **)(unit + 0x30);
-            if (f20 == 0 || unit == arg0) {
-                if (f100 == 0) {
-                    if (unit == *(u8 **)(D_0076449C + 0x170) && f110 != 0) {
-                        func_00194fc0(pkt, 2);
-                        func_00194fa0(pkt, 4);
-                        if (f40 == 0) {
-                            *(u8 *)(pkt + 0x37) = 0xFF;
-                        }
-                    } else if (arg0 == NULL) {
-                        if (arg1 == NULL || (u8 *)arg2 == NULL) {
-                            res = 0.0f;
-                        } else {
-                            func_00195850(pkt, stk10);
-                            t20 = stk10[0];
-                            t1c = stk8;
-                            res = func_001ec3d0((u8 *)&s30, (u8 *)&s28, (u8 *)&t20, (u8 *)&s18);
-                            res = (res + 0.0f) - *(f32 *)(pkt + 0x90) * *(f32 *)(pkt + 0x2C);
-                            if (!(((s30 < s18) || (s18 < s28)) && ((s18 < s30) || (s28 < s18))) && !(((s2c < s14) || (s14 < s24)) && ((s14 < s2c) || (s24 < s14)))) {
-                                goto next_unit;
-                            }
-                        }
-                        if (res <= arg4) {
-                            func_00194fa0(pkt, 2);
-                            if (fc0 == 0) {
-                                *(u8 *)(pkt + 0x37) = 0;
-                            }
-                            if (fb0 != 0) {
-                                func_00194fc0(pkt, 4);
-                            }
-                        }
-                    } else if (unit == arg0 && f100 != 0) {
-                        func_00194fc0(pkt, 2);
-                        func_00194fa0(pkt, 4);
-                        if (f40 == 0) {
-                            *(u8 *)(pkt + 0x37) = 0xFF;
-                        }
-                    } else if ((mask & (u32)(1 << (*(u8 *)(pkt + 0xA2) & 0x1F))) == 0) {
-                        if ((ff0 == 0) || (func_001b1560(), unit != (u8 *)0)) {
-                            if (fe0 != 0) {
-                                u32 j = 0;
-                                u32 n = *(u16 *)(arg0 + 0x6A);
-                                while (j < n) {
-                                    if (unit == *(u8 **)(arg0 + j * 4 + 0x38)) {
-                                        func_00194fc0(pkt, 2);
-                                        func_00194fa0(pkt, 4);
-                                        if (f40 == 0) {
-                                            *(u8 *)(pkt + 0x37) = 0xFF;
-                                        }
-                                        break;
-                                    }
-                                    j = (j + 1) & 0xFFFF;
-                                }
-                                if (j != *(u16 *)(arg0 + 0x6A) || unit == *(u8 **)(arg0 + 0x88)) {
-                                    goto next_unit;
-                                }
-                            }
-                            if (*(s8 *)(pkt + 0xA2) != *(s8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) || fd0 == 0) {
-                                goto next_unit2;
-                            }
-                            func_00194fc0(pkt, 2);
-                            if (f40 == 0) {
-                                *(u8 *)(pkt + 0x37) = 0xFF;
-                            }
-                        } else {
-                            func_00194fc0(pkt, 2);
-                            func_00194fa0(pkt, 4);
-                            if (f40 == 0) {
-                                *(u8 *)(pkt + 0x37) = 0xFF;
-                            }
-                        }
-                    } else {
-                        func_00194fc0(pkt, 2);
-                        func_00194fa0(pkt, 4);
-                        if (f40 == 0) {
-                            *(u8 *)(pkt + 0x37) = 0xFF;
-                        }
-                    }
-                } else {
-                    func_00194fc0(pkt, 2);
-                    if (f120 != 0) {
-                        func_00194fa0(pkt, 4);
-                    }
-                    if (f40 == 0) {
-                        *(u8 *)(pkt + 0x37) = 0xFF;
-                    }
-                }
-            } else {
-                func_00194fc0(pkt, 2);
-                func_00194fa0(pkt, 4);
-                if (f40 == 0) {
-                    *(u8 *)(pkt + 0x37) = 0xFF;
-                }
+            if ((targetGroups & (1u << *(u8 *)(unit + 0xA2))) != 0) {
+                btlUnitClearFlags((BtlUnit *)unit, 2);
+                btlUnitSetFlags((BtlUnit *)unit, 4);
+                if ((mode & 0x40) == 0) *(u8 *)(unit + 0x37) = 0xFF;
+                continue;
             }
-next_unit2:
-            ;
-next_unit:
-            ;
+            if ((mode & 0x800) != 0 && current == (u8 *)(uintptr_t)func_001b1560()) {
+                btlUnitClearFlags((BtlUnit *)unit, 2);
+                btlUnitSetFlags((BtlUnit *)unit, 4);
+                if ((mode & 0x40) == 0) *(u8 *)(unit + 0x37) = 0xFF;
+                continue;
+            }
+            if ((mode & 2) != 0) {
+                s32 index;
+                index = 0;
+                while ((index & 0xFFFF) < *(u16 *)(action + 0x6A)) {
+                    if (current == cameraVisibilityTarget(action, index)) {
+                        btlUnitClearFlags((BtlUnit *)unit, 2);
+                        btlUnitSetFlags((BtlUnit *)unit, 4);
+                        if ((mode & 0x40) == 0) *(u8 *)(unit + 0x37) = 0xFF;
+                        break;
+                    }
+                    index = (index + 1) & 0xFFFF;
+                }
+                if ((index & 0xFFFF) != *(u16 *)(action + 0x6A) ||
+                    current == *(u8 **)(action + 0x88))
+                    continue;
+            }
+            if (*(u8 *)(unit + 0xA2) == *(u8 *)(*(u8 **)(action + 0x30) + 0xA2) &&
+                (mode & 8) != 0) {
+                btlUnitClearFlags((BtlUnit *)unit, 2);
+                if ((mode & 0x40) == 0) *(u8 *)(unit + 0x37) = 0xFF;
+                continue;
+            }
+        }
+
+        if (first != NULL && second != NULL) {
+            btlUnitGetSphereWorldCenter((BtlUnit *)unit, (struct RwV3d *)geometry.center);
+            geometry.point[0] = geometry.center[0];
+            geometry.point[1] = geometry.center[2];
+            distance = func_001ec3d0((u8 *)geometry.first, (u8 *)geometry.second,
+                                     (u8 *)geometry.point, (u8 *)geometry.closest);
+            distance = 0.0f + distance - *(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C);
+            if (((geometry.first[0] < geometry.closest[0] ||
+                  !(geometry.second[0] <= geometry.closest[0])) &&
+                 (!(geometry.first[0] <= geometry.closest[0]) ||
+                  geometry.second[0] < geometry.closest[0])) ||
+                ((geometry.first[1] < geometry.closest[1] ||
+                  !(geometry.second[1] <= geometry.closest[1])) &&
+                 (!(geometry.first[1] <= geometry.closest[1]) ||
+                  geometry.second[1] < geometry.closest[1])))
+                continue;
+        } else {
+            distance = 0.0f;
+        }
+        if (distance <= radius) {
+            btlUnitSetFlags((BtlUnit *)unit, 2);
+            if ((mode & 0x80) == 0) *(u8 *)(unit + 0x37) = 0;
+            if ((mode & 0x200) != 0) btlUnitClearFlags((BtlUnit *)unit, 4);
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001bcd40);
-#endif
+#pragma pop
 /* measured: disabling propagation preserves retail's independent outer-index
    materialisation after the preheader branch. */
 #pragma opt_propagation off
@@ -4864,8 +4848,8 @@ void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2)
     if (temp_2 != NULL) {
         if ((*(u16 *)(temp_2 + 0x1C) == 1) &&
             ((*(u16 *)(arg0 + 0x142) & 2) == 0)) {
-            func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 1, 0.0f);
-            func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 8, 0.0f);
+            func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 1);
+            func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 8);
             *(s32 *)(arg0 + 0x138) = 1;
         } else {
             temp_f12 = 0.0f;
@@ -4874,8 +4858,8 @@ void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2)
             } else {
                 var_7 = 0xA;
             }
-            func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, var_7,
-                          temp_f12);
+            func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, temp_f12,
+                          var_7);
             *(s32 *)(arg0 + 0x138) = 0;
         }
     }
@@ -4906,7 +4890,7 @@ void func_001bdeb0(u8 *arg0)
             if ((*(u16 *)(temp_2 + 0x1C) == 1) &&
                 ((*(u16 *)(arg0 + 0x142) & 2) == 0)) {
                 if (*(s32 *)(arg0 + 0x13C) != 0) {
-                    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0x201, 0.0f);
+                    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 0x201);
                 }
                 *(s32 *)(arg0 + 0x138) = 1;
                 return;
@@ -4922,10 +4906,10 @@ void func_001bdeb0(u8 *arg0)
                                   0) == 0) {
                     func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C,
                                   (f32 *)(*(u8 **)(*(u8 **)(arg0 + 0x134) + 0x30) + 4),
-                                  temp_16, 50.0f);
+                                  50.0f, temp_16);
                 }
             } else {
-                func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, temp_16, 0.0f);
+                func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, temp_16);
             }
             *(s32 *)(arg0 + 0x138) = 0;
         }
@@ -5144,8 +5128,8 @@ void func_001be900(u8 *arg0)
     if ((temp4 != NULL) && ((*(u16 *)(temp4 + 0x1A) & 1) != 0)) {
         temp16 = *(u8 **)(temp4 + 0x30);
         func_00195850(temp16, &local.value);
-        func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, &local.value, 0xC1,
-                      0.5f * (*(f32 *)(temp16 + 0x90) * *(f32 *)(temp16 + 0x2C)));
+        func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, &local.value, 0.5f * (*(f32 *)(temp16 + 0x90) * *(f32 *)(temp16 + 0x2C)),
+                      0xC1);
     }
 }
 /* Exact P4 general action camera, ported from P3 FES btlCameraFrameAction
@@ -5415,7 +5399,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
     func_001bd780(&frames[1].rot, &frames[1].pos, &center,
                  &D_0060A0E0);
     func_001b73f0(unit);
-    func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 1, 0.0f);
+    func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
     if (frames[0].pos.y < 25.0f)
     {
         frames[0].pos.y = 25.0f;
@@ -5461,7 +5445,7 @@ first_done:
                                            ((temp_16 & 0xFFFF) * 0x1E8))),
                   2);
     func_001b73f0(temp_17);
-    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 1, 0.0f);
+    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 1);
     *(s32 *)(arg0 + 0x144) = 1;
     goto finish;
 second_random:
@@ -5491,8 +5475,8 @@ process:
     if ((temp4 != NULL) && ((*(u16 *)(temp4 + 0x1A) & 1) != 0)) {
         temp16 = *(u8 **)(temp4 + 0x30);
         func_00195850(temp16, &local.value);
-        func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, &local.value, 0xC1,
-                      0.25f * (*(f32 *)(temp16 + 0x90) * *(f32 *)(temp16 + 0x2C)));
+        func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, &local.value, 0.25f * (*(f32 *)(temp16 + 0x90) * *(f32 *)(temp16 + 0x2C)),
+                      0xC1);
     }
 done:
     ;
@@ -5670,8 +5654,8 @@ void func_001bfb70(u8 *arg0)
     if ((temp4 != NULL) && ((*(u16 *)(temp4 + 0x1A) & 1) != 0)) {
         temp16 = *(u8 **)(temp4 + 0x30);
         func_00195850(temp16, &local.value);
-        func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, &local.value, 0xC3,
-                      0.25f * (*(f32 *)(temp16 + 0x90) * *(f32 *)(temp16 + 0x2C)));
+        func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, &local.value, 0.25f * (*(f32 *)(temp16 + 0x90) * *(f32 *)(temp16 + 0x2C)),
+                      0xC3);
     }
 }
 /* Adapted from P3 FES btlCameraFrameActionDuel at 04d95e2.

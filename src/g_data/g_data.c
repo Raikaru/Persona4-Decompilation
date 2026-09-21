@@ -229,7 +229,7 @@ typedef struct PersonaWork {
     u8 bonusStats[5];
 } PersonaWork;
 
-extern PersonaWork* func_0010a900(u16 pcId);
+extern u16 *func_0010a900(u16 pcId);
 
 extern u32 func_0010c750(void *persona, u16 level);
 
@@ -488,7 +488,7 @@ u32 func_00105210(s16 arg0)
     }
     else
     {
-        PersonaWork* persona = func_0010a900(arg0);
+        PersonaWork* persona = (PersonaWork *)func_0010a900(arg0);
 
         K_ASSERT(persona != 0, 0x1B8);
         return datPersonaGetNextExp((int)persona);
@@ -529,7 +529,7 @@ extern u32 DAT_00762ca0;
 
 
 // FUN_00105330
-s16 func_00105330(void)
+s32 func_00105330(s32 character)
 {
     return D_00797F88[0];
 }
@@ -755,7 +755,7 @@ s32 func_00105a50(s16 arg0)
     if (arg0 == 1)
         value = D_00797400[0];
     else {
-        PersonaWork *persona = func_0010a900((u16)arg0);
+        PersonaWork *persona = (PersonaWork *)func_0010a900((u16)arg0);
         if (persona == 0)
             func_0046d730((const char *)D_005E4298, 0x1B8);
         value = datPersonaGetNextExp((int)persona);
@@ -781,7 +781,7 @@ first_done:
     if (arg0 == 1)
         value = D_00797400[0];
     else {
-        PersonaWork *persona = func_0010a900((u16)arg0);
+        PersonaWork *persona = (PersonaWork *)func_0010a900((u16)arg0);
         if (persona == 0)
             func_0046d730((const char *)D_005E4298, 0x1B8);
         value = datPersonaGetNextExp((int)persona);
@@ -806,7 +806,7 @@ second_done:
     if (arg0 == 1)
         value = D_00797400[0];
     else {
-        PersonaWork *persona = func_0010a900((u16)arg0);
+        PersonaWork *persona = (PersonaWork *)func_0010a900((u16)arg0);
         if (persona == 0)
             func_0046d730((const char *)D_005E4298, 0x1B8);
         value = datPersonaGetNextExp((int)persona);
@@ -1529,7 +1529,7 @@ u8 datPersonaGetLevel(int persona)
 // FUN_00109400
 u8 datPersonaGetLevelByPcId(u16 pcId)
 {
-    PersonaWork* persona = func_0010a900(pcId);
+    PersonaWork* persona = (PersonaWork *)func_0010a900(pcId);
     return persona->level;
 }
 
@@ -1562,7 +1562,7 @@ u16* datPersonaGetSkills(int persona)
 // FUN_001094E0
 u16* datPersonaGetSkillsByPcId(u16 pcId)
 {
-    PersonaWork* persona = func_0010a900(pcId);
+    PersonaWork* persona = (PersonaWork *)func_0010a900(pcId);
 
     return persona->skills;
 }
@@ -1572,7 +1572,7 @@ u16* datPersonaGetSkillsByPcId(u16 pcId)
 // FUN_00109D80
 void datPersonaAddToBonusStatByPcId(u16 pcId, u16 statId, s8 amount)
 {
-    PersonaWork* persona = func_0010a900(pcId);
+    PersonaWork* persona = (PersonaWork *)func_0010a900(pcId);
 
     persona->bonusStats[statId] += amount;
 }

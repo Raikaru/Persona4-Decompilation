@@ -74,7 +74,7 @@ void RtQuatConvertFromMatrix(void* out, void* in);
 
 u16 func_001c0e50(void* camera);
 void func_001be050(u8* camera, f32 angle, f32 distance);
-void func_001c5500(void* camera, s32 arg);
+void func_001c5500(u8* camera, s32 arg);
 void func_001c5b80(void* camera, s32 arg);
 void func_001c1040(void* camera, u32 arg);
 
@@ -99,7 +99,12 @@ f32 RwV3dNormalize(RwV3d* out, const RwV3d* in);
 RwMatrix* RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mode);
 RwV3d* func_003e4320(RwV3d* out, const RwV3d* in, const RwMatrix* matrix);
 void func_001bd780(void* out, const void* first, const void* second, const void* config);
-void func_001bcd40(f32 param_1, u8* param_2, u8* param_3, u8* param_4, u16 param_5);
+void func_001bcd40(u8* param_2, u8* param_3, f32* param_4, f32 param_1, u16 param_5);
+
+static inline void cameraApplyVisibility(f32 radius, u8 *camera, u16 mode)
+{
+    func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, radius, mode);
+}
 extern f32 func_00196040(u32, u32, void*, f32*, void*, u32);
 extern void func_001958f0(BtlUnit*, RwV3d*);
 extern f32 func_0044b868(f32 x);
@@ -109,7 +114,7 @@ extern void func_0019de70(BtlUnitStateWork *work, u16 value);
 extern void func_001959d0(BtlUnit *arg0, RwV3d *arg1);
 extern RwV3d* func_003dcb40(RwV3d *out, const RwV3d *in, s32 count,
                           const RtQuat *quat);
-extern void func_001bab00(u8 *arg0, void *arg1);
+extern void func_001bab00(u16 *arg0, f32 *arg1);
 void func_001bac20(u16* work, f32* first, f32* second, u16 mode);
 void func_001bd560(f32 *out, f32 *in);
 void func_001cc5d0(u8 *camera, f32 *out);
@@ -193,7 +198,7 @@ extern f32 DAT_00761258;
 extern u8 *iGpffffb3ac;
 extern void func_001c1f70(void *arg0, s32 arg1);
 extern void func_001bdeb0(void);
-void func_001cb970(void* camera, f32 speed, int param_3);
+void func_001cb970(u8* camera, f32 duration, s32 initialize);
 extern f32 fGpffff80e8;
 extern f32 fGpffff8180;
 extern f32 fGpffff8170;
@@ -494,13 +499,13 @@ void func_001c6560(void* camera)
     func_001be050((u8 *)camera, 45.0f, 200.0f);
     break;
   case 2:
-    func_001c5500(camera,1);
+    func_001c5500((u8 *)camera, 1);
     break;
   case 3:
     func_001c5b80(camera,1);
     break;
   case 4:
-    func_001c5500(camera,1);
+    func_001c5500((u8 *)camera, 1);
     break;
   case 5:
     func_001c5b80(camera,1);
@@ -535,8 +540,8 @@ void func_001c6650(u8 *arg0)
             func_00195850(temp17, &local.value);
             scale = 0.5f * (*(f32 *)(temp17 + 0x90) *
                             *(f32 *)(temp17 + 0x2C));
-            func_001bcd40(scale, *(u8 **)(arg0 + 0xE0), arg0 + 0x9C,
-                          (u8 *)&local.value, 0xC1);
+            func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, (f32 *)&local.value,
+                          scale, 0xC1);
         }
         break;
     case 2:
@@ -638,7 +643,7 @@ void func_001c6760(void *camera, float angle, float distanceScale, float heightS
   scratch.secondPosition.x = scratch.center.value.x + scratch.direction.value.x;
   scratch.secondPosition.y = scratch.center.value.y + scratch.direction.value.y;
   scratch.secondPosition.z = scratch.center.value.z + scratch.direction.value.z;
-  func_001bcd40(0.0f, *(u8 **)(cameraAddress + 0xe0), NULL, NULL, 1);
+  func_001bcd40(*(u8 **)(cameraAddress + 0xe0), NULL, NULL, 0.0f, 1);
   func_001bac20((u16 *)camera, (f32 *)&scratch.firstPosition, (f32 *)&scratch.secondPosition, 1);
   func_001bbef0((u8 *)camera, 3.5f);
 }
@@ -749,7 +754,7 @@ void func_001c6bf0(u8 *arg0)
     if (work.secondPosition.y < 25.0f) {
         work.secondPosition.y = 25.0f;
     }
-    func_001bcd40(0.0f, *(u8 **)(arg0 + 0xE0), NULL, NULL, 2);
+    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 2);
     func_001bac20((u16 *)arg0, (f32 *)&work.firstPosition, (f32 *)&work.secondPosition, 1);
     func_001bbef0(arg0, 1.5f);
 }
@@ -906,11 +911,8 @@ void func_001c73e0(u8 *arg0)
                       &frames[0], &frames[1]) != 0)
     {
         func_001b73f0(0);
-        func_001bcd40(
-            0.0f,
-            (u8 *)(uintptr_t)*(u32 *)(arg0 + 0xE0),
-            NULL, NULL, 0x100);
-        func_001bab00(arg0, &frames[1]);
+        cameraApplyVisibility(0.0f, arg0, 0x100);
+        func_001bab00((u16 *)(arg0), (f32 *)(&frames[1]));
         return;
     }
     func_001bac20((u16 *)arg0, (f32 *)&frames[0],
@@ -967,7 +969,7 @@ void func_001c7510(BtlCamera* camera)
   buf[7] = buf[20] * fVar20 + fVar9;
   buf[8] = buf[21] * fVar20 + fVar8;
   buf[9] = buf[22] * fVar20 + fVar7;
-  func_001bcd40(0.0f, (u8 *)camera->action, 0, 0, 1);
+  func_001bcd40((u8 *)camera->action, 0, 0, 0.0f, 1);
   func_001bac20((u16 *)camera, (f32 *)buf, (f32 *)(buf + 7), 1);
   func_001bbef0((u8 *)camera, 2.5f);
 }
@@ -1025,7 +1027,7 @@ void func_001c7780(BtlCamera* camera)
   buf[7] = buf[20] * fVar20 + fVar9;
   buf[8] = buf[21] * fVar20 + fVar8;
   buf[9] = buf[22] * fVar20 + fVar7;
-  func_001bcd40(0.0f, (u8 *)camera->action, 0, 0, 1);
+  func_001bcd40((u8 *)camera->action, 0, 0, 0.0f, 1);
   func_001bac20((u16 *)camera, (f32 *)(buf + 7), (f32 *)buf, 1);
   func_001bbef0((u8 *)camera, 2.5f);
 }
@@ -1048,7 +1050,7 @@ void func_001cbfe0(int param_1)
     else {
       speed = DAT_00761258;
     }
-    func_001cb970((void*)param_1, speed, *(u16 *)(param_1 + 0x10c) == 0);
+    func_001cb970((u8*)param_1, speed, *(u16 *)(param_1 + 0x10c) == 0);
     *(short *)(param_1 + 0x10c) = *(u16 *)(param_1 + 0x10c) + 1;
   }
   return;
@@ -1212,8 +1214,8 @@ void func_001cc0a0(u8 *camera)
         work.pos.y = 25.0f;
     }
 
-    func_001bcd40(400.0f, *(u8 **)(camera + 0xE0), (u8 *)&work.pos, (u8 *)&target, 3);
-    func_001bab00(camera, &work.pos);
+    func_001bcd40(*(u8 **)(camera + 0xE0), (u8 *)&work.pos, (f32 *)&target, 400.0f, 3);
+    func_001bab00((u16 *)(camera), (f32 *)(&work.pos));
 }
 // FUN_001CC5C0
 void func_001cc5c0(void)
@@ -1455,207 +1457,163 @@ void func_001cca60(BtlCamera* camera)
     scratch.out.y = scratch.diff.y + scratch.target.y;
     scratch.out.z = scratch.diff.z + scratch.target.z;
     func_001bc3a0((f32*)&scratch.out, (f32*)&scratch.out);
-    func_001bcd40(0.0f, (u8*)0, (u8*)0, (u8*)0, 0x100);
-    func_001bab00((u8*)(uintptr_t)iVar2, (void*)&scratch.out);
+    func_001bcd40((u8*)0, (u8*)0, (f32 *)0, 0.0f, 0x100);
+    func_001bab00((u16 *)(uintptr_t)iVar2, (f32 *)&scratch.out);
     func_001bd5a0((f32*)(iVar2 + 0x9c), (f32*)&scratch.out);
 }
 // FUN_001CCDA0
 void func_001ccda0(void)
 {
 }
-/* measured 001ccdb0: `opt_propagation off` inside the guard is worth 2 words (475 -> 473). */
-/* gate: object 493 against retail 530, -7.0% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
-/* measured 001ccdb0 2026-09-19: the `mode` dispatch is a `switch`, not an if-else chain,
-   and correcting it takes fnalign edits **586 -> 328**.  Retail reads the mode with
-   `lhu $v1, 0x1a($a1)` at R14 - so it is u16, not s16 - then compares **descending**,
-   2 at R16, 1 at R19, 0 at R21, default `b` at R23, and lays the arm bodies out
-   **ascending**, cases 0 and 1 immediately at R25 and case 2 at R158.  That is MWCC's
-   switch lowering (handoff 7av) and the chain could not produce it.
-   This also explains what `block_move_scan` reported as an UNPAIRED 218-instruction
-   retail run with no object counterpart: the object was emitting case 2's body 136
-   instructions too early, which the opcode comparison scores at 0.872 - a displaced
-   recolouring, not missing code.
-   Inverting the outer `0x20000000` test was measured and is much worse (775), so the
-   outer arm order is already right.
-   gate: still OUTSIDE at 495 against retail 530 (-6.6%, band 514-546).  The body is
-   about 35 instructions short and that code has to be written; no differing-word score
-   measured against it is comparable to one measured inside (handoff 7y).
-   2026-09-20: retail loads float fields the body kept in registers.  At 0x001cce7c
-   retail updates vC[1] in place via MAC (`vC[1] = (vC[1]+0.0) - const*(0x8c*0x2c)`,
-   adda/msub, 10 instr) while the body kept it dead in `fc`; case-2 first half stores
-   both middles (`vB[1]=const*fCC`, `vC[1]=const*(0x8c*0x2c)`) then reloads them for
-   `v30=vC-vB`, and both sqrt sites rematerialize `0.5f`/const/`4.0f`/`5.0f` via
-   lui/mtc1 instead of reusing FPU regs (runs at 0x001cd230 and 0x001cd254).
-   Rewriting the three arms to store/reload the array slots, fixing case-2 to
-   `96040(2,0,vB,&fCC)` + `95850(v2,vC)`, `4.0f` (not `5.0f`) with the missing
-   `fGpffff8110` sqrt factor, `vC[1]=product` (no const) + `f20sv=34180` reassign
-   second half, `ba790(col,v40,v58)` + `f70=v40[1]` with no `c6f40`, `12.0f`/`14.0f`
-   (not `20.0f`/`22.0f`), and the else-branch `m84=v58[3..6]` copy (no `bd780`)
-   takes object 495 -> 523 against retail 530 (-1.3%, band 514-546) - INSIDE.
-   lwc1/swc1 delta was +19/+10, now +1/+1; guarded differing words 473 -> 438
-   and fnalign edits hold at 331, now measured at the right length so the floor
-   is comparable (handoff 7y). */
-// FUN_001CCDB0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_propagation off
-void func_001ccdb0(u8 *arg0) {
-    extern u32 func_001bc3a0(float *a, float *b);
+/* The battle-start mode is 0..2 (001ef8c0); the group queries require
+ * nonempty eligible unit sets. Three complete poses retain the first,
+ * interpolated and final camera frames consumed by 001baff0.
+ * measured b210 -O2: 2124/2128 bytes, four zero alignment bytes.
+ * Whole quaternion assignment preserves the grouped copy; strict >1
+ * participant tests retain the retail large-angle-first branch layout. */
+// FUN_001CCDB0
+void func_001ccdb0(u8 *camera)
+{
+    extern void btlUnitGetSphereWorldCenter(BtlUnit *, RwV3d *);
+    extern f32 func_00196040(u32, u32, RwV3d *, f32 *, f32 *, u32);
     extern void func_001ba790(f32 *out, f32 *first, f32 *second, f32 weight);
-    extern void func_001baff0(u16 *a, f32 *b, f32 *c, f32 *d, u16 e);
-    extern void func_003dc740(f32 a, void *b, void *c, s32 d);
+    extern void func_001baff0(u16 *camera, f32 *first, f32 *middle, f32 *last, u16 mode);
+    extern RtQuat *func_003dc740(RtQuat *rotation, const RwV3d *axis, f32 angle, s32 mode);
+    extern f32 RwV3dLength(const RwV3d *vector);
     extern f32 fGpffff8128;
     extern f32 fGpffff8030;
     extern f32 fGpffff803c;
-    extern f32 fGpffff8110;
     extern f32 uGpffff81a0;
-    u8 *v2;
-    u8 *ac;
-    u16 mode;
-    f32 f4;
-    f32 f5;
-    f32 f4out;
-    f32 vB[3];
-    f32 vC[3];
-    f32 v30[3];
-    f32 v40[3];
-    P4CameraFrame v58;
-    f32 m84[4];
-    f32 m2[4];
-    u8 col[4];
-    f32 f70;
-    f32 f20sv;
-    f32 step;
+    f32 height;
+    RwV3d unitCenter;
+    RwV3d groupCenter;
+    RwV3d direction;
+    P4CameraFrame frames[3];
+    u8 *unit;
+    f32 distance;
+    f32 duration;
 
-    v2 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
-    ac = *(u8 **)iGpffffb3ac;
-    if ((*(u32 *)(ac + 0xC) & 0x20000000) == 0) {
-        mode = *(u16 *)(ac + 0x1A);
-        switch (mode) {
+    unit = *(u8 **)(*(u8 **)(camera + 0xE0) + 0x30);
+    if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x20000000) == 0) {
+        switch (*(u16 *)(iGpffffb3ac + 0x1A)) {
         case 0:
         case 1:
-            f4 = func_00196040(3, 0, 0, &f4out, 0, 0);
-            func_00196040(2, 0, vB, 0, 0, 0);
-            vB[1] = 0.25f * f4out;
-            func_00195850(v2, vC);
-            vC[1] = (vC[1] + 0.0f) - fGpffff803c * *(f32 *)(v2 + 0x8C) * *(f32 *)(v2 + 0x2C);
-            func_001bd780(m84, vC, vB, &D_0060A0E0);
-            f5 = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
-            f20sv = (f4 * 0.75f) / f5;
-            if (*(u8 *)(ac + 0xC64) < 2) {
-                func_003dc740(5.0f, m84, &D_0060A0E0, 2);
+            distance = func_00196040(3, 0, NULL, &height, NULL, 0);
+            func_00196040(2, 0, &groupCenter, NULL, NULL, 0);
+            groupCenter.y = 0.25f * height;
+            btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
+            unitCenter.y = 0.0f + unitCenter.y - fGpffff803c *
+                           (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
+            func_001bd780(&frames[0].rot, &unitCenter, &groupCenter, &D_0060A0E0);
+            distance = (0.75f * distance) /
+                       func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+            if (*(u8 *)(iGpffffb3ac + 0xC64) > 1) {
+                func_003dc740((RtQuat *)&frames[0].rot, &D_0060A0E0, 12.0f, 2);
             } else {
-                func_003dc740(12.0f, m84, &D_0060A0E0, 2);
+                func_003dc740((RtQuat *)&frames[0].rot, &D_0060A0E0, 5.0f, 2);
             }
-            func_003dcb40(v30, &D_0060A100, 1, m84);
-            v30[0] = v30[0] * f20sv;
-            v30[1] = v30[1] * f20sv;
-            v30[2] = v30[2] * f20sv;
-            v40[0] = vB[0] + v30[0];
-            v40[1] = vB[1] + v30[1];
-            v40[2] = vB[2] + v30[2];
-            func_001bc3a0(v40, v40);
-            if (v40[1] < 25.0f) {
-                v40[1] = 25.0f;
+            func_003dcb40(&direction, (const RwV3d *)&D_0060A100, 1, (const RtQuat *)&frames[0].rot);
+            direction.x *= distance;
+            direction.y *= distance;
+            direction.z *= distance;
+            frames[0].pos.x = groupCenter.x + direction.x;
+            frames[0].pos.y = groupCenter.y + direction.y;
+            frames[0].pos.z = groupCenter.z + direction.z;
+            func_001bc3a0((f32 *)&frames[0], (f32 *)&frames[0]);
+            if (frames[0].pos.y < 25.0f) {
+                frames[0].pos.y = 25.0f;
             }
-            func_001c6f40(arg0, 1, 1, NULL, &v58);
-            func_001ba790((f32 *)col, v40, (f32 *)&v58, 0.5f);
-            f70 = v40[1];
-            step = uGpffff81a0;
+            func_001c6f40(camera, 1, 1, NULL, &frames[2]);
+            func_001ba790((f32 *)&frames[1], (f32 *)&frames[0], (f32 *)&frames[2], 0.5f);
+            frames[1].pos.y = frames[0].pos.y;
+            duration = uGpffff81a0;
             break;
         case 2:
-            func_00196040(2, 0, vB, &f4out, 0, 0);
-            vB[1] = fGpffff8128 * f4out;
-            func_00195850(v2, vC);
-            vC[1] = fGpffff8030 * *(f32 *)(v2 + 0x8C) * *(f32 *)(v2 + 0x2C);
-            func_001bd780(m84, vC, vB, &D_0060A0E0);
-            v30[0] = vC[0] - vB[0];
-            v30[1] = vC[1] - vB[1];
-            v30[2] = vC[2] - vB[2];
-            f20sv = func_003e4180(v30);
-            f20sv += (4.0f * (*(f32 *)(v2 + 0x90) * *(f32 *)(v2 + 0x2C))) / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
-            func_003dc740(-5.0f, m84, &D_0060A0E0, 2);
-            func_003dcb40(v30, &D_0060A100, 1, m84);
-            v30[0] = v30[0] * f20sv;
-            v30[1] = v30[1] * f20sv;
-            v30[2] = v30[2] * f20sv;
-            v40[0] = vB[0] + v30[0];
-            v40[1] = vB[1] + v30[1];
-            v40[2] = vB[2] + v30[2];
-            func_001bc3a0(v40, v40);
-            if (v40[1] < 25.0f) {
-                v40[1] = 25.0f;
+            func_00196040(2, 0, &groupCenter, &height, NULL, 0);
+            groupCenter.y = fGpffff8128 * height;
+            btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
+            unitCenter.y = fGpffff8030 * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
+            func_001bd780(&frames[0].rot, &unitCenter, &groupCenter, &D_0060A0E0);
+            direction.x = unitCenter.x - groupCenter.x;
+            direction.y = unitCenter.y - groupCenter.y;
+            direction.z = unitCenter.z - groupCenter.z;
+            distance = RwV3dLength(&direction);
+            distance += (4.0f * (*(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C))) /
+                        func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+            func_003dc740((RtQuat *)&frames[0].rot, &D_0060A0E0, -5.0f, 2);
+            func_003dcb40(&direction, (const RwV3d *)&D_0060A100, 1, (const RtQuat *)&frames[0].rot);
+            direction.x *= distance;
+            direction.y *= distance;
+            direction.z *= distance;
+            frames[0].pos.x = groupCenter.x + direction.x;
+            frames[0].pos.y = groupCenter.y + direction.y;
+            frames[0].pos.z = groupCenter.z + direction.z;
+            func_001bc3a0((f32 *)&frames[0], (f32 *)&frames[0]);
+            if (frames[0].pos.y < 25.0f) {
+                frames[0].pos.y = 25.0f;
             }
-            func_001958f0((s32)v2, vC);
-            vC[1] = *(f32 *)(v2 + 0x8C) * *(f32 *)(v2 + 0x2C);
-            v30[0] = vC[0] - vB[0];
-            v30[1] = vC[1] - vB[1];
-            v30[2] = vC[2] - vB[2];
-            f20sv = func_003e4180(v30);
-            f20sv += (5.0f * (*(f32 *)(v2 + 0x90) * *(f32 *)(v2 + 0x2C))) / func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
-            func_001bd780(m2, vC, vB, &D_0060A0E0);
-            if (*(u8 *)(ac + 0xC64) < 2) {
-                func_003dc740(2.5f, m2, &D_0060A0E0, 2);
+            func_001958f0((BtlUnit *)unit, &unitCenter);
+            unitCenter.y = *(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C);
+            direction.x = unitCenter.x - groupCenter.x;
+            direction.y = unitCenter.y - groupCenter.y;
+            direction.z = unitCenter.z - groupCenter.z;
+            distance = RwV3dLength(&direction);
+            distance += (5.0f * (*(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C))) /
+                        func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+            func_001bd780(&frames[2].rot, &unitCenter, &groupCenter, &D_0060A0E0);
+            if (*(u8 *)(iGpffffb3ac + 0xC64) > 1) {
+                func_003dc740((RtQuat *)&frames[2].rot, &D_0060A0E0, 14.0f, 2);
             } else {
-                func_003dc740(14.0f, m2, &D_0060A0E0, 2);
+                func_003dc740((RtQuat *)&frames[2].rot, &D_0060A0E0, 2.5f, 2);
             }
-            func_003dcb40(v30, &D_0060A100, 1, m2);
-            v30[0] = v30[0] * f20sv;
-            v30[1] = v30[1] * f20sv;
-            v30[2] = v30[2] * f20sv;
-            v58.pos.x = vB[0] + v30[0];
-            v58.pos.y = vB[1] + v30[1];
-            v58.pos.z = vB[2] + v30[2];
-            func_001ba790((f32 *)col, v40, (f32 *)&v58, 0.5f);
-            f70 = v40[1];
-            step = 3.5f;
+            func_003dcb40(&direction, (const RwV3d *)&D_0060A100, 1, (const RtQuat *)&frames[2].rot);
+            direction.x *= distance;
+            direction.y *= distance;
+            direction.z *= distance;
+            frames[2].pos.x = groupCenter.x + direction.x;
+            frames[2].pos.y = groupCenter.y + direction.y;
+            frames[2].pos.z = groupCenter.z + direction.z;
+            func_001ba790((f32 *)&frames[1], (f32 *)&frames[0], (f32 *)&frames[2], 0.5f);
+            frames[1].pos.y = frames[0].pos.y;
+            duration = 3.5f;
             break;
         }
     } else {
-        func_001c6f40(arg0, 1, 1, NULL, &v58);
-        f4 = func_00196040(1, 0, 0, &f4out, 0, 0);
-        func_00196040(2, 0, vB, 0, 0, 0);
-        if (f4 < 200.0f) {
-            f4 = 200.0f;
+        func_001c6f40(camera, 1, 1, NULL, &frames[2]);
+        distance = func_00196040(1, 0, NULL, &height, NULL, 0);
+        func_00196040(2, 0, &groupCenter, NULL, NULL, 0);
+        if (!(200.0f <= distance)) {
+            distance = 200.0f;
         }
-        vB[1] = f4out * 0.5f;
-        m84[0] = v58.rot.quat.x;
-        m84[1] = v58.rot.quat.y;
-        m84[2] = v58.rot.quat.z;
-        m84[3] = v58.rot.quat.w;
-        f5 = func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
-        f20sv = (f4 * 0.75f) / f5;
-        if (*(u8 *)(ac + 0xC64) < 2) {
-            func_003dc740(5.0f, m84, &D_0060A0E0, 2);
+        groupCenter.y = 0.5f * height;
+        frames[0].rot = frames[2].rot;
+        distance = (0.75f * distance) /
+                   func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+        if (*(u8 *)(iGpffffb3ac + 0xC64) > 1) {
+            func_003dc740((RtQuat *)&frames[0].rot, &D_0060A0E0, 12.0f, 2);
         } else {
-            func_003dc740(12.0f, m84, &D_0060A0E0, 2);
+            func_003dc740((RtQuat *)&frames[0].rot, &D_0060A0E0, 5.0f, 2);
         }
-        func_003dcb40(v30, &D_0060A100, 1, m84);
-        v30[0] = v30[0] * f20sv;
-        v30[1] = v30[1] * f20sv;
-        v30[2] = v30[2] * f20sv;
-        v40[0] = vB[0] + v30[0];
-        v40[1] = vB[1] + v30[1];
-        v40[2] = vB[2] + v30[2];
-        func_001bc3a0(v40, v40);
-        if (v40[1] < 25.0f) {
-            v40[1] = 25.0f;
+        func_003dcb40(&direction, (const RwV3d *)&D_0060A100, 1, (const RtQuat *)&frames[0].rot);
+        direction.x *= distance;
+        direction.y *= distance;
+        direction.z *= distance;
+        frames[0].pos.x = groupCenter.x + direction.x;
+        frames[0].pos.y = groupCenter.y + direction.y;
+        frames[0].pos.z = groupCenter.z + direction.z;
+        func_001bc3a0((f32 *)&frames[0], (f32 *)&frames[0]);
+        if (frames[0].pos.y < 25.0f) {
+            frames[0].pos.y = 25.0f;
         }
-        func_001ba790((f32 *)col, v40, (f32 *)&v58, 0.5f);
-        f70 = v40[1];
-        step = 2.0f;
+        func_001ba790((f32 *)&frames[1], (f32 *)&frames[0], (f32 *)&frames[2], 0.5f);
+        frames[1].pos.y = frames[0].pos.y;
+        duration = 2.0f;
     }
-    func_001bcd40(0.0f, *(u8 **)(arg0 + 0xE0), NULL, NULL, 1);
-    func_001bcd40(0.0f, *(u8 **)(arg0 + 0xE0), NULL, NULL, 0x100);
-    func_001baff0((u16 *)arg0, v40, (f32 *)col, (f32 *)&v58, 1);
-    func_001bbef0(arg0, step);
+    func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
+    func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
+    func_001baff0((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], (f32 *)&frames[2], 1);
+    func_001bbef0(camera, duration);
 }
-#pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001ccdb0);
-#endif
 // FUN_001CD600
 void func_001cd600(u8 *arg0)
 {
@@ -1776,7 +1734,7 @@ void btlAct_WIN_P(BtlCamera* camera)
     distance = distance + 25.0f;
     i = (i + 1) & 0xffff;
   }
-  func_001bcd40(0.0f, (u8*)camera->action, 0, 0, 1);
+  func_001bcd40((u8*)camera->action, 0, 0, 0.0f, 1);
   func_001bb3d0(camera, &scratch.frameBytes[0],
                &scratch.frameBytes[0x1c],
                &scratch.frameBytes[0x38],
@@ -1885,9 +1843,9 @@ void func_001cdaf0(u8 *camera)
     work.candidate[2] = work.currentPosition.z + work.transformed[2];
     func_001bd780(work.targetRotation, &work.currentPosition,
                   work.candidate, &D_0060A0E0);
-    func_001bcd40(60.0f, *(u8 **)(camera + 0xe0),
-                  (u8 *)&work.currentPosition,
-                  (u8 *)work.unitPosition, 0x8c0);
+    func_001bcd40(*(u8 **)(camera + 0xe0), (u8 *)&work.currentPosition,
+                  (f32 *)work.unitPosition,
+                  60.0f, 0x8c0);
     func_001bac20((u16 *)camera, (f32 *)&work.currentPosition,
                   (f32 *)&work.targetPosition, 1);
     func_001bbef0(camera, 0.75f);
@@ -2079,8 +2037,8 @@ void func_001ce390(u8 *arg0)
         func_00195850(temp16, &local.value);
         scale = 0.5f * (*(f32 *)(temp16 + 0x90) *
                         *(f32 *)(temp16 + 0x2C));
-        func_001bcd40(scale, *(u8 **)(arg0 + 0xE0), arg0 + 0x9C,
-                      (u8 *)&local.value, 0xC1);
+        func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, (f32 *)&local.value,
+                      scale, 0xC1);
     }
 }
 // FUN_001CE420
@@ -2090,5 +2048,5 @@ void func_001ce420(void)
 // FUN_001CE430
 void func_001ce430(int param_1)
 {
-  func_001bcd40(0.0f, (u8 *)(uintptr_t)*(int *)(param_1 + 0xe0), 0, 0, 0);
+  cameraApplyVisibility(0.0f, (u8 *)(uintptr_t)param_1, 0);
 }

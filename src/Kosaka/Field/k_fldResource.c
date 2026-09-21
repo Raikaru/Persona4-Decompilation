@@ -2,6 +2,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldResource.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "model_matrix_internal.h"
 #include "rw/ps2/ostypes.h"
 #include "rw/plcore/barenderstate.h"
 
@@ -38,7 +39,6 @@ extern void func_00152170(u8 *arg0, u8 *arg1);
 extern s32 func_004581a0(void *object, const char *name);
 extern void func_00458430(s32 *out, void *object, const char *name, s32 index);
 extern void func_0046d730(const char *file, s32 line);
-extern void func_0047a1a0(void);
 extern void func_004b1290(s32 a0, f32 f12, f32 f13, f32 f14);
 extern void func_003c9d40(void *arg0);
 extern void func_003c0700(void *arg0);
@@ -2042,7 +2042,6 @@ do { \
 void func_00153300(s8 *arg0, f32 fparg0)
 {
     extern void func_003e9d50(s32 a0, void *a1, f32 f12, s32 a3);
-    extern void func_0047a1a0(void *a0, void *a1, f32 f12, s32 a2);
     void *ptr;
     struct {
         s64 sp40;

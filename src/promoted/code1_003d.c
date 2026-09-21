@@ -1,5 +1,28 @@
 #include "include_asm.h"
 #include "type.h"
+
+typedef struct RwImage RwImage;
+
+/* Native RenderWare stream tags and values from bastream.h. */
+typedef struct RwStream RwStream;
+typedef enum RwStreamType {
+    rwNASTREAM = 0,
+    rwSTREAMFILE,
+    rwSTREAMFILENAME,
+    rwSTREAMMEMORY,
+    rwSTREAMCUSTOM,
+    rwSTREAMTYPEFORCEENUMSIZEINT = 0x7FFFFFFF
+} RwStreamType;
+typedef enum RwStreamAccessType {
+    rwNASTREAMACCESS = 0,
+    rwSTREAMREAD,
+    rwSTREAMWRITE,
+    rwSTREAMAPPEND,
+    rwSTREAMACCESSTYPEFORCEENUMSIZEINT = 0x7FFFFFFF
+} RwStreamAccessType;
+
+
+
 typedef char *va_list;
 #define va_start(ap, last) (ap = (va_list)(s32)(__builtin_args_info(2) >= 8 ? 0 : (8 - __builtin_args_info(2)) * 8))
 #define va_end(ap) ((void)0)
@@ -1054,29 +1077,29 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d8c00);
 #pragma schedule on
 #pragma no_branch_likely on
 // FUN_003D96B0
-u8 *func_003d96b0(u8 *arg0, s32 arg1) {
+RwImage *func_003d96b0(RwImage *arg0, const char *arg1) {
     u8 *temp2;
     s32 var16;
-    extern u8 *func_003e2f60(s32, s32, s32);
+    extern RwStream *func_003e2f60(RwStreamType, RwStreamAccessType, const void *);
     extern void func_003d81d0(u8 *, s32, u8 *);
     extern void func_003d8300(u8 *, s32, u8 *);
     extern s32 func_003d86a0(s8 *, s32, u8 *);
     extern s32 func_003d81a0(s32);
-    extern void func_003e2e40(u8 *, s32);
+    extern s32 func_003e2e40(RwStream *, void *);
 
-    temp2 = func_003e2f60(2, 2, arg1);
+    temp2 = (u8 *)func_003e2f60(rwSTREAMFILENAME, rwSTREAMWRITE, arg1);
     if (temp2 == NULL) {
         goto done;
     }
     var16 = 0x18;
-    if (*(s32 *)(arg0 + 0x18) != 0) {
-        var16 = *(s32 *)(arg0 + 0xC);
+    if (*(s32 *)((u8 *)arg0 + 0x18) != 0) {
+        var16 = *(s32 *)((u8 *)arg0 + 0xC);
     }
-    func_003d81d0(temp2, var16, arg0);
-    func_003d8300(temp2, var16, arg0);
-    func_003d86a0((s8 *)temp2, var16, arg0);
+    func_003d81d0(temp2, var16, (u8 *)arg0);
+    func_003d8300(temp2, var16, (u8 *)arg0);
+    func_003d86a0((s8 *)temp2, var16, (u8 *)arg0);
     func_003d81a0(var16);
-    func_003e2e40(temp2, 0);
+    func_003e2e40((RwStream *)temp2, NULL);
     return arg0;
 done:
     return NULL;

@@ -11,6 +11,7 @@
    00473710 332/352 nd202; 00477FB0 388/400 nd272. */
 /* Pragma state is per-function in this file: opt_common_subs off + opt_propagation off are load-bearing in func_00479100 (29-word floor) but worse in func_00475cd0 (csoff 1057, propoff 1024 vs sched-on 915); func_00475cd0 uses schedule on only. Do not copy pragmas across functions. */
 #include "type.h"
+#include "model_matrix_internal.h"
 #include "rw/std/stddef.h"
 #include "Kosaka/k_clump_internal.h"
 /* measured: index-first addu operand-order carrier (lever 3). Kept at top of
@@ -32,7 +33,6 @@ typedef void (*CallbackFn)(void);
 
 extern s32 func_003b83d0(s32 object, s32 hierarchy);
 
-extern void func_003e0870(void);
 extern void func_003e0e20(void *arg0, void *arg1, s32 arg2);
 extern f32 DAT_0076112c;
 extern void func_0039a260(void* a, void* b);
@@ -228,6 +228,8 @@ enum RwOpCombineType
 typedef enum RwOpCombineType RwOpCombineType;
 
 extern RwMatrix* RwMatrixTranslate(RwMatrix* matrix, const RwV3d* translation, RwOpCombineType combineOp);
+struct RwMatrixTag;
+extern struct RwMatrixTag* func_003e0870(struct RwMatrixTag* matrix, const RwV3d* axis, f32 angle, RwOpCombineType combineOp);
 
 // 12 bytes. attachedWpns slot layout from P4 retail (flags bit 0 at 0x00, wpnMdl at 0x04, unk_08 at 0x08).
 typedef struct MdlWpnSlot
@@ -500,9 +502,9 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
    negate-triple store-then-negate +2; afStack_350[4] array (sign-flip quads were scalar-
    addressed so MWCC dropped 3 of 4 dead stores; array forces the 16B callee window) +12;
    afStack_30[3] array (same scalar-escape loss on fStack_2c/28 scalings/reciprocals) +60.
-   Also fixed: body-local func_003e0870() prototype to (float,void*,void*,int) with 180.0f/
-   -90.0f literals and *(float*) loads (retail passes first arg in $f12; the () prototype
-   promoted floats to double, 2 fptodp).  lhu+bltz 0x472BF0 still untouched (7az floor).
+   Rotation calls use the native matrix/axis/float-angle/combine-op contract;
+   the angle occupies $f12 without the old unprototyped float-to-double promotion.
+   lhu+bltz 0x472BF0 remains untouched (7az floor).
    Measured at gate: GUARDED_SCORE 1636, fnalign edits 2073, frame -0x400 vs retail -0x550.
    Word/edit scores are comparable from here (equal length).  Production guarded, fallback
    INCLUDE_ASM retained. */
@@ -530,7 +532,6 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
     extern s32 func_003dcb40();
     extern s32 func_003dcc70();
     extern s32 func_003e05f0();
-    extern s32 func_003e0870(float, void *, void *, int);
     extern s32 func_003e0960();
     extern s32 func_003e0a90();
     extern s32 func_003e40b0();
@@ -871,11 +872,11 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
           uStack_10 = 0;
           uStack_c = 0x3f800000;
           uStack_8 = 0;
-          func_003e0870(180.0f,temp_v24,&uStack_10,0);
+          func_003e0870((struct RwMatrixTag*)temp_v24, (const RwV3d*)&uStack_10, 180.0f, rwCOMBINEREPLACE);
           uStack_10 = 0;
           uStack_c = 0;
           uStack_8 = 0x3f800000;
-          func_003e0870(-90.0f,temp_v24,&uStack_10,2);
+          func_003e0870((struct RwMatrixTag*)temp_v24, (const RwV3d*)&uStack_10, -90.0f, rwCOMBINEPOSTCONCAT);
           func_003e05f0(temp_v25,temp_v24,afStack_b0);
           temp_v0 = *param_3;
           if ((temp_v0 & 0x100) == 0) {
@@ -889,12 +890,12 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
                 uStack_c = 0;
                 uStack_8 = 0;
                 func_003e4320(&uStack_10,&uStack_10,afStack_b0);
-                func_003e0870(*(float *)(param_3 + 0x1e),temp_v24,&uStack_10,0);
+                func_003e0870((struct RwMatrixTag*)temp_v24, (const RwV3d*)&uStack_10, *(float *)(param_3 + 0x1e), rwCOMBINEREPLACE);
                 uStack_10 = 0;
                 uStack_c = 0x3f800000;
                 uStack_8 = 0;
                 func_003e4320(&uStack_10,&uStack_10,afStack_b0);
-                func_003e0870(*(float *)(param_3 + 0x20),temp_v24,&uStack_10,2);
+                func_003e0870((struct RwMatrixTag*)temp_v24, (const RwV3d*)&uStack_10, *(float *)(param_3 + 0x20), rwCOMBINEPOSTCONCAT);
                 func_003e05f0(pfVar8,temp_v25,temp_v24);
                 func_003dc610(&fStack_340,pfVar8);
               }
@@ -947,7 +948,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
                 temp_v1 = 1;
                 temp_v20 = temp_v16;
               }
-              func_003e0870(-(temp_v20 + temp_v15),temp_v24,temp_v26,0);
+              func_003e0870((struct RwMatrixTag*)temp_v24, (const RwV3d*)temp_v26, -(temp_v20 + temp_v15), rwCOMBINEREPLACE);
               for (temp_v21 = (temp_v21 + 180.0f) - temp_v14; temp_v21 < 0.0f; temp_v21 = temp_v21 + 360.0f) {
               }
               for (; 360.0f < temp_v21; temp_v21 = temp_v21 - 360.0f) {
@@ -960,7 +961,7 @@ s32 func_00471370(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
                 temp_v1 = 1;
                 temp_v21 = temp_v20;
               }
-              func_003e0870(temp_v21 + temp_v14,temp_v24,temp_v25,2);
+              func_003e0870((struct RwMatrixTag*)temp_v24, (const RwV3d*)temp_v25, temp_v21 + temp_v14, rwCOMBINEPOSTCONCAT);
               func_003e05f0(pfVar8,temp_v25,temp_v24);
               func_003dc610(&fStack_340,pfVar8);
             }
@@ -5395,9 +5396,10 @@ RwMatrix* func_0047a180(RwMatrix* matrix, const RwV3d* translation, int combineO
 }
 
 // FUN_0047A1A0
-void func_0047a1a0(void)
+void func_0047a1a0(void *matrix, const void *axis, f32 angle, s32 combineOp)
 {
-    func_003e0870();
+    func_003e0870((struct RwMatrixTag *)matrix, (const RwV3d *)axis,
+                  angle, (RwOpCombineType)combineOp);
 }
 
 // FUN_0047A1C0

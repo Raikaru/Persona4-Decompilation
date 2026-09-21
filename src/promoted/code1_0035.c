@@ -4202,7 +4202,8 @@ void func_0035fd60(u8 *arg0) {
     extern void func_0034f9d0(s64 pos, f32 z, u32 alpha, s32 arg2, s32 arg3);
     extern void func_00275980(void *src, void *dst, s32 n);
     extern void func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s32 a, s32 b, void *buf, s32 c, s32 d);
-    extern void func_002bc7a0(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, f32 f0, f32 f1, f32 f2);
+    extern void func_002bc7a0(s32 item, f32 x, f32 y, f32 depth,
+                              s32 color, s32 font, s32 mode, s32 table);
     extern void func_00361d20(s32 idx, u8 *ctx);
     extern void func_003f6440(s32 cmd, s32 val);
     extern void func_0045c870(u8 *color, s32 flag);
@@ -4455,7 +4456,7 @@ void func_0035fd60(u8 *arg0) {
             color = (a0 | 0xADADAD00);
             v1 = 0;
         }
-        func_002bc7a0(v1, color, 1, 8, 8, (f32)(s32)pos.f[0], (f32)(s32)pos.f[1], 0.0f);
+        func_002bc7a0(v1, (f32)(s32)pos.f[0], (f32)(s32)pos.f[1], 0.0f, color, 1, 8, 8);
         if (*(s32 *)(arg0 + 0x1C) & 8) {
             pos.f[0] = 85.0f + (baseX + *(f32 *)(arg0 + 0x388));
             pos.f[1] = 325.0f + (baseY + *(f32 *)(arg0 + 0x38C));

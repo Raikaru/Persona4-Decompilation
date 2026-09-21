@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit itfMsgProcedure_Window.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_sprite_loader.h"
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 
@@ -12,7 +13,6 @@ extern void func_0025f230(u32 arg);
 extern void func_00366380(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, s32 t2, s32 t3, s16 s0, void *s1, f32 f0, f32 f1, f32 f2, f32 f3);
 extern void func_0046a750(void *arg);
 extern s32 func_00455f70(char *str, void *out);
-extern s32 func_0046af60(void *arg);
 
 extern s32 func_0025ef20(char *str);
 extern s32 func_00266b70(void);
@@ -282,13 +282,13 @@ void func_0027d2f0(void *arg0)
 
     tmp = func_00455f70(D_0063BFE0, &local);
     if (tmp != 0) {
-        D_007245C8 = func_0046af60((void *)tmp);
+        D_007245C8 = (s32)func_0046af60((u32)tmp);
     } else {
         D_007245C8 = 0;
     }
     tmp = func_00455f70(D_0063C000, &local);
     if (tmp != 0) {
-        D_007245CC = func_0046af60((void *)tmp);
+        D_007245CC = (s32)func_0046af60((u32)tmp);
     } else {
         D_007245CC = 0;
     }

@@ -34,7 +34,7 @@ extern void func_001da270();
 extern void func_001da2b0();
 extern void func_001da2f0();
 extern s32 func_001d9390();
-extern s32 func_00235520();
+extern s32 func_00235520(s32 skill, u8 *source, u8 *target, s32 count, s32 hit, s32 relation, s32 options, s32 channel);
 extern void func_00233bb0(u32 arg0);
 extern s32 func_001d8cb0(u32 arg0, u8 *arg1);
 extern u32 func_001d8bc0(u8 *arg0);
@@ -1294,7 +1294,7 @@ s32 func_001dd1c0(u8 *p, u8 *q, u16 *t, u16 u, u32 v) {
         else
             b = *(u8 *)(iGpffffb3b8 + w * 40 + 8);
         if ((v2 != 0 || (b & 0xFF) == 1) && (v2 != 1 || (b & 0xFF) == 0)) {
-            d = func_00235520(w, *(u32 *)(*(u32 *)(p + 0x30) + 0xA64), *(u32 *)(*(u32 *)(q + 0x30) + 0xA64), 1, 1, 1, 0, 1);
+            d = func_00235520(w, (u8 *)*(u32 *)(*(u32 *)(p + 0x30) + 0xA64), (u8 *)*(u32 *)(*(u32 *)(q + 0x30) + 0xA64), 1, 1, 1, 0, 1);
             d2 = s + d;
             if (d2 > 0 && bd > 0) {
                 if (d2 < bd) {
@@ -1342,7 +1342,7 @@ s32 func_001dd3a0(u8 *p, u8 *q, u16 *t, u16 u, s32 v) {
         if (w != 0 && w < 0x1B8) {
             b = *(u8 *)(iGpffffb3b8 + w * 40 + 8);
             if ((v2 != 0 || (b & 0xFF) == 1) && (v2 != 1 || (b & 0xFF) == 0)) {
-                d = func_0043c6a0(s2 - (s1 + func_00235520(w, *(u32 *)(*(u32 *)(p + 0x30) + 0xA64), *(u32 *)(*(u32 *)(q + 0x30) + 0xA64), 1, 1, 1, 0, 1)));
+                d = func_0043c6a0(s2 - (s1 + func_00235520(w, (u8 *)*(u32 *)(*(u32 *)(p + 0x30) + 0xA64), (u8 *)*(u32 *)(*(u32 *)(q + 0x30) + 0xA64), 1, 1, 1, 0, 1)));
                 if (d < bd) {
                     best = *(u16 *)e;
                     bd = d;
@@ -5248,7 +5248,7 @@ s32 func_001e66c0(void) {
 s32 func_001e6740(void) {
     u8 *p = func_0029d050();
     u8 *q = func_001b0cc0(func_0029cc00(0) & 0xFFFFFFF);
-    s32 x = func_00235520(0, *(u32 *)(*(u8 **)(p + 0x30) + 0xA64), *(u32 *)(*(u8 **)(q + 0x30) + 0xA64), 1, 1, 1, 0, 1);
+    s32 x = func_00235520(0, (u8 *)*(u32 *)(*(u8 **)(p + 0x30) + 0xA64), (u8 *)*(u32 *)(*(u8 **)(q + 0x30) + 0xA64), 1, 1, 1, 0, 1);
     s32 off;
     s32 sum;
     func_00233bb0(*(u32 *)(*(u8 **)(p + 0x30) + 0xA64));
@@ -5340,4 +5340,3 @@ done:
     func_0029cf50(x != 0);
     return 1;
 }
-

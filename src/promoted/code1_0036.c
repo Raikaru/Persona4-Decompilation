@@ -28,7 +28,7 @@ extern u8 func_00109280(s32 personaId);
 extern u8 datPersonaGetLevel(s32 persona);
 extern u32 datPersonaGetNextExp(s32 persona);
 extern u32 func_00109440(PersonaWork *persona);
-extern PersonaWork *func_0010a900(u16 pcId);
+extern u16 *func_0010a900(u16 pcId);
 
 extern void func_003642e0(u8 *arg0, void *arg1);
 
@@ -1155,7 +1155,7 @@ void func_003672d0(void *work, s16 pcId)
 {
     u8 *state = (u8 *)work + 4;
     s32 personaId = (u16)func_00105290(pcId);
-    PersonaWork *persona = func_0010a900((u16)pcId);
+    PersonaWork *persona = (PersonaWork *)func_0010a900((u16)pcId);
     *(s16 *)state = pcId;
     *(u8 **)(state + 16) = func_00109220(personaId);
     *(u8 *)(state + 20) = func_00109280(personaId);
@@ -1167,7 +1167,7 @@ void func_003672d0(void *work, s16 pcId)
             *(s16 *)(state + i * 2 + 2) = func_00104f10(i);
     } else {
         s32 remaining;
-        PersonaWork *other = func_0010a900((u16)pcId);
+        PersonaWork *other = (PersonaWork *)func_0010a900((u16)pcId);
         u32 next = func_00109440(other);
         // Retail subtracts in 32 bits, then applies a signed lower clamp.
         remaining = (s32)(next - datPersonaGetNextExp((s32)other));

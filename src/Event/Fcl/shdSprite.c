@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit shdSprite.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_sprite_loader.h"
 #include "include_asm.h"
 
 typedef int (*code)();
@@ -19,7 +20,6 @@ void func_0044ea90(const void *msg, s32 id);
 void func_0043f810(void *dst, const void *src, u32 size);
 void func_0043f9c8(void *dst, s32 value, u32 size);
 s32 func_00455f70(s32 arg0, s32 *arg1);
-u8 *func_0046af60(s32 arg0);
 u8 *func_0046aea0(const char *name);
 u32 func_0046a750(s16 *param);
 f32 func_0046b1f0(void *ptr, s32 index);
@@ -105,7 +105,6 @@ u8 *func_0025ef20(u8 *arg0)
 s32 func_0025f110(u8 *arg0)
 {
     s32 func_00455f70(s32, s32 *);
-    u8 *func_0046af60(s32);
     u8 *func_0046aea0(const char *);
     u32 func_0046a750(s16 *);
     s32 temp;

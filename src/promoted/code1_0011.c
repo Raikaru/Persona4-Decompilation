@@ -1025,8 +1025,12 @@ loop7_check:
 }
 #pragma opt_propagation on
 // FUN_00112300
-void func_00112300(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2)
+#pragma opt_propagation off
+void func_00112300(f32 inputDepth, u64 arg0, s32 inputAlpha, u8 *inputEntry)
 {
+    f32 fparg0;
+    s32 arg1;
+    u8 *arg2;
     u8 buf[256];
     s32 temp16;
     s32 temp19;
@@ -1042,9 +1046,9 @@ void func_00112300(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2)
     void func_00442088(void *, void *, s32);
     s32 func_0046a770(void *);
     void func_0046d730(void *, s32);
-    void func_00112610(s64, f32, u8, u8 *, s32, s32);
-    void func_00112830(s64, f32, u8, u8 *, s32);
-    void func_001130c0(Vec2f, f32, u8, u8 *, s32);
+    void func_00112610(Vec2f, f32, s32, u8 *, s32, s32);
+    void func_00112830(s64, f32, s32, u8 *, s32);
+    void func_001130c0(Vec2f, f32, s32, u8 *, s32);
     extern f32 D_005E4790[];
     extern f32 D_005E4794[];
     extern f32 D_005E479C[];
@@ -1054,6 +1058,9 @@ void func_00112300(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2)
     extern u8 iGpffff9bd8;
     extern u8 iGpffff9be8;
 
+    fparg0 = inputDepth;
+    arg1 = inputAlpha;
+    arg2 = inputEntry;
     temp16 = func_0046a770(D_005E5830);
     temp19 = func_0046a770(D_005E5850);
     if (temp16 == 0) {
@@ -1063,7 +1070,7 @@ void func_00112300(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2)
         func_0046d730(&iGpffff9be0, 0x94);
     }
     if (*(u16 *)(arg2 + 0x14) != 0) {
-        func_00112610(arg0, fparg0, arg1, arg2, temp16, temp19);
+        func_00112610(*(Vec2f *)&arg0, fparg0, arg1, arg2, temp16, temp19);
         *(f32 *)&arg0 = *(f32 *)&arg0 + 45.0f;
     }
     if (*(s32 *)(arg2 + 0xC) != 0) {
@@ -1115,6 +1122,7 @@ void func_00112300(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2)
             0);
     }
 }
+#pragma opt_propagation on
 // FUN_001125D0
 void func_001125d0(u8 *arg0) {
     s32 temp_1;
@@ -1134,7 +1142,7 @@ void func_001125d0(u8 *arg0) {
     *(s16 *)(arg0 + 0x16) = 0;
 }
 // FUN_00112610
-void func_00112610(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4)
+void func_00112610(Vec2f arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4)
 {
     typedef struct {
         u8 b[4];
@@ -1214,7 +1222,7 @@ void func_00112610(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4
 /* 494->480; sb -5->+15 and swc1/lwc1 -8/-8 remain for the word-copy hole). */
 // FUN_00112830 NONMATCHING
 #ifdef NON_MATCHING
-void func_00112830(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
+void func_00112830(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
 {
     extern u8 D_005E4750[];
 
@@ -1504,7 +1512,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00112830);
    current position is the best of them and the scheduler moves the pair regardless. */
 // FUN_001130C0 NONMATCHING
 #ifdef NON_MATCHING
-void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
+void func_001130c0(Vec2f arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
 {
     typedef struct { u8 r, g, b, a; } Color;
     struct {

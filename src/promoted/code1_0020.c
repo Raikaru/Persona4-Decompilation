@@ -172,7 +172,7 @@ extern void func_00207b00();
 extern void func_002089e0();
 extern void func_00208870(u8 *unused, u8 *arg1, f32 *arg2);
 extern void func_001bc660(s32 state, BtlAction *action, u32 param_3);
-extern void func_001bcd40(f32 arg0, u8 *arg1, u8 *arg2, u8 *arg3, u16 arg4);
+extern void func_001bcd40(u8 *arg1, u8 *arg2, f32 *arg3, f32 arg0, u16 arg4);
 extern u8 *func_001b0c80(s32 arg0);
 extern s32 func_002428f0(s32 arg0, s32 arg1);
 extern void func_00194ff0(void *arg0, void *arg1, void *arg2, void *arg3);
@@ -260,7 +260,7 @@ void func_00200770(u8 *arg0)
         u8 spE0[0x40];
         Vec3 sp120;
     } Frame;
-    extern void func_001bcd40(f32 arg0, u8 *arg1, u8 *arg2, u8 *arg3, u32 arg4);
+    extern void func_001bcd40(u8 *arg1, u8 *arg2, f32 *arg3, f32 arg0, u16 arg4);
     extern u16 func_001bc7f0(void);
     extern void func_0048a150(void *arg0, void *arg1);
     extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
@@ -270,7 +270,7 @@ void func_00200770(u8 *arg0)
     extern void func_00478e70(void *arg0);
     extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
     extern void func_001bd780(void *arg0, const void *arg1, const void *arg2, const void *arg3);
-    extern void func_001bab00(void *arg0, void *arg1);
+    extern void func_001bab00(u16 *arg0, f32 *arg1);
     extern u8 *iGpffffb474;
     Frame frame;
     u8 *temp_17;
@@ -287,7 +287,7 @@ void func_00200770(u8 *arg0)
         if (temp_4 == 0) {
             if (*(u16 *)(temp_16 + 0x38) == 0) {
                 func_001bc660(1, NULL, 1);
-                func_001bcd40(0.0f, NULL, NULL, NULL, 0x100);
+                func_001bcd40(NULL, NULL, NULL, 0.0f, 0x100);
             } else {
                 func_001bc660(1, NULL, 0);
             }
@@ -310,7 +310,7 @@ void func_00200770(u8 *arg0)
             func_0047a510(*(u8 **)temp_17, *(u16 *)(temp_17 + 4) + 1, frame.sp90 + 0x10);
             frame.sp40 = *(Vec3 *)frame.sp90;
             func_001bd780(&frame.sp4C, frame.sp90, frame.spD0, frame.sp70);
-            func_001bab00(iGpffffb474 + 0x24, &frame.sp40);
+            func_001bab00((u16 *)(iGpffffb474 + 0x24), (f32 *)(&frame.sp40));
         }
     }
 }
@@ -363,7 +363,7 @@ void func_00200a60(u8 *arg0)
         goto done;
     }
     func_001bc660(1, NULL, 1);
-    func_001bcd40(0.0f, NULL, NULL, NULL, 0x100);
+    func_001bcd40(NULL, NULL, NULL, 0.0f, 0x100);
     temp_4 = *(s32 *)(temp_16 + 0);
     switch (temp_4) {
     case 0:
@@ -2340,7 +2340,7 @@ void func_00205170(u8 *arg0, s32 arg1, f32 fx, f32 fy, s32 arg2, s32 arg3, s32 a
     extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
     extern s32 func_0023dd90(u8 *arg0, s32 arg1);
     extern void func_00114dc0(s32 arg0, f32 fx, s32 arg1, s32 arg2, u8 *arg3);
-    extern void func_002bc860(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 fx, f32 fy, f32 fz);
+    extern void func_002bc860(f32 fx, f32 fy, f32 fz, s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     f32 spB0;
     f32 spB4;
     u8 spBC;
@@ -2412,7 +2412,7 @@ void func_00205170(u8 *arg0, s32 arg1, f32 fx, f32 fy, s32 arg2, s32 arg3, s32 a
     }
     if (arg4 != 0) {
         func_00272c60(0x40);
-        func_002bc860(temp_22 | -0x100, 1, 0, temp_17, 10.0f + (2.0f + temp_f20), 36.0f + fy, 0.0f);
+        func_002bc860(10.0f + (2.0f + temp_f20), 36.0f + fy, 0.0f, temp_22 | -0x100, 1, 0, temp_17);
         func_00272c80(0x40);
     }
 }
@@ -2435,7 +2435,7 @@ void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
     extern u32 func_00452560(void *task);
     extern void func_00113280(Vec2f arg0, f32 fparg0, s32 arg1,
                               s16 arg2, s32 arg3, s32 arg4);
-    extern void func_002bc4b0(s32 arg0, s32 arg1, s32 arg2, f32 fparg0,
+    extern void func_002bc4b0(f32 fparg0, s32 arg0, s32 arg1, s32 arg2,
                               s32 arg3, s32 arg4, s32 arg5);
     u8 *glyphs;
     u8 tone;
@@ -2500,8 +2500,15 @@ void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
     }
     if (show_detail != 0) {
         func_00272c60(0x40);
-        func_002bc4b0((s16)id, (s32)(10.0f + ((2.0f + fx) - 1.0f)),
-                      (s32)(36.0f + y), 0.0f, masked | ~0xFF, 1, 0);
+        {
+            s32 labelX;
+            s32 labelY;
+            s32 item;
+            labelX = (s32)(10.0f + ((2.0f + fx) - 1.0f));
+            labelY = (s32)(36.0f + y);
+            item = (s16)id;
+            func_002bc4b0(0.0f, item, labelX, labelY, masked | ~0xFF, 1, 0);
+        }
         func_00272c80(0x40);
     }
 }
@@ -3024,7 +3031,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00206dd0);
 #endif
 
 extern s32 func_00106600(s16 id);
-extern u16 *func_0010a900(s32 id);
+extern u16 *func_0010a900(u16 id);
 extern u16 func_0010cf40(u8 *persona, s16 slot);
 extern s32 func_00232aa0(s32 id);
 extern u8 *iGpffffb3b8;
@@ -4736,7 +4743,7 @@ void func_0020b5b0(s32 arg0, u8 *arg1)
 
 // FUN_0020B6D0
 extern u32 func_001d8df0(u8 *arg0);
-extern u16 *func_0010a900(s32 arg0);
+extern u16 *func_0010a900(u16 arg0);
 extern s32 func_0010ce10(u8 *arg0, u32 arg1);
 extern u16 func_0010f8c0(s32 arg0);
 extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
