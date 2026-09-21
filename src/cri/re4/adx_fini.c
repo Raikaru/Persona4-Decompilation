@@ -53,6 +53,7 @@ Sint32 ADXF_GetNumCmd(Sint32 *ncall)
 
 // ADX file system shutdown (reference counted): closes every handle and clears the partition table,
 // the command history and the no-wait partition-load state.
+// FUN_004C6DE8
 void ADXF_Finish(void)
 {
 	if (--adxf_init_cnt == 0) {

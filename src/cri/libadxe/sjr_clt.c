@@ -7,6 +7,7 @@ static Sint32 sjrmt_sbuf[64] __attribute__((aligned(64)));
 static Sint32 sjrmt_rbuf[64] __attribute__((aligned(64)));
 
 // 100% matching!
+// FUN_004EFBC8
 SJ SJRBF_CreateRmt(Sint8 *buf, Sint32 bsize, Sint32 xsize)
 {
     sjrmt_sbuf[0] = (Sint32)buf;
@@ -31,6 +32,7 @@ SJ SJMEM_CreateRmt(Sint8 *data, Sint32 dtsize)
 }
 
 // 100% matching!
+// FUN_004EFC70
 SJ SJUNI_CreateRmt(Sint32 mode, Sint8 *wk, Sint32 wksize)
 {
     sjrmt_sbuf[0] = mode;
@@ -82,6 +84,7 @@ void SJRMT_Reset(SJ sj)
 }
 
 // 100% matching!
+// FUN_004EFD98
 void SJRMT_GetChunk(SJ sj, Sint32 id, Sint32 nbyte, SJCK *ck)
 {
     sjrmt_sbuf[0] = (Sint32)sj;
@@ -96,6 +99,7 @@ void SJRMT_GetChunk(SJ sj, Sint32 id, Sint32 nbyte, SJCK *ck)
 }
 
 // 100% matching!
+// FUN_004EFE08
 void SJRMT_UngetChunk(SJ sj, Sint32 id, SJCK *ck)
 {
     sjrmt_sbuf[0] = (Sint32)sj;
@@ -107,6 +111,7 @@ void SJRMT_UngetChunk(SJ sj, Sint32 id, SJCK *ck)
 }
 
 // 100% matching!
+// FUN_004EFE58
 void SJRMT_PutChunk(SJ sj, Sint32 id, SJCK *ck)
 {
     sjrmt_sbuf[0] = (Sint32)sj;
@@ -156,6 +161,7 @@ void SJRMT_Init(void)
 }
 
 // 100% matching!
+// FUN_004EFFB0
 void SJRMT_Finish(void) 
 {
     if (--sjrmt_init_cnt == 0) 

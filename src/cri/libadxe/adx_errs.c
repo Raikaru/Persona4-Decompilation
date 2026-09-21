@@ -55,6 +55,7 @@ void ADXERR_CallErrFunc2(const Sint8 *msg1, const Sint8 *msg2)
 }
 
 // 100% matching!
+// FUN_004C6B60
 void ADXERR_ItoA(Sint32 val, Sint8 *str, Sint32 len)
 {
     static Sint8 buf[32];

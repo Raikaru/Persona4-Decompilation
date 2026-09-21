@@ -321,6 +321,7 @@ void ADXSJE_Stop(ADXSJE sje)
 }
 
 /* x68 leading silent samples are pushed into every input first */
+// FUN_004D10D8
 void ADXSJE_Start(ADXSJE sje)
 {
 	Sint32 ch;
@@ -392,6 +393,7 @@ static ADXSJE_PRDFLT *adxsje_prdflt_create(Sint32 nsmpl)
 }
 
 // Frees a predictor object.
+// FUN_004CF920
 static void adxsje_prdflt_destroy(ADXSJE_PRDFLT *prd)
 {
 	if (prd == NULL) {

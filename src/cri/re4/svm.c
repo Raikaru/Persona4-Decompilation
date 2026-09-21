@@ -162,6 +162,7 @@ Sint32 SVM_GetNumCbSvr(Sint32 svtype)
 
 // Atomically sets *flag to 1; returns nonzero if it was not already 1 (locked fallback when no
 // platform hook is installed).
+// FUN_004F1278
 Sint32 SVM_TestAndSet(Sint32 *flag)
 {
 	Sint32 ret;
@@ -260,6 +261,7 @@ void SVM_SetCbErr(void (*func)(void *obj, Char8 *msg), void *obj)
 }
 
 // Calls the registered border hook of a server type (threaded setups only).
+// FUN_004F0E40
 void SVM_GotoSvrBorder(Sint32 svtype)
 {
 	if (svm_goto_border_func[svtype].func != NULL) {

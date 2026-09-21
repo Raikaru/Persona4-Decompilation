@@ -252,12 +252,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3f68);
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3f90);
 // FUN_004D3FA8
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3fa8);
-// FUN_004D40A0
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d40a0);
 // FUN_004D4170
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d4170);
-// FUN_004D41B0
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d41b0);
 // FUN_004D4238
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d4238);
 // FUN_004D4268

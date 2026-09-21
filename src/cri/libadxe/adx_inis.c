@@ -66,6 +66,7 @@ void ADXT_Init(void)
 }
 
 // 100% matching!
+// FUN_004CA890
 void ADXT_ResetLibrary(void)
 {
     adxt_init_cnt = 0;

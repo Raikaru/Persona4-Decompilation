@@ -56,6 +56,7 @@ void ADXB_ExecOneSpsd(ADXB adxb)
 
 // Container-specific header decode for ADXB_DecodeHeader: fills the handle, clears the loop info,
 // type ADXB_TYPE_SPSD; returns the header length.
+// FUN_004C4910
 Sint32 ADXB_DecodeHeaderSpsd(ADXB adxb, void *buf, Sint32 bsize)
 {
 	Sint16 hdrlen;

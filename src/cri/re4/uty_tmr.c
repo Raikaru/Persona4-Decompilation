@@ -36,6 +36,7 @@ Float32 UTY_TmrToUsec(Float32 t)
 }
 
 // Time base ticks per second (bus clock / 4), or 1 for a void timer.
+// FUN_0052D810
 Sint64 UTY_GetTmrUnit(void)
 {
 	return utytmr_unit;

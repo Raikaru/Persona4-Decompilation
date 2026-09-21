@@ -177,6 +177,7 @@ void ADXB_ExecOneWav16(ADXB adxb)
 
 // Container-specific header decode for ADXB_DecodeHeader: fills the handle from ADX_DecodeInfoWav,
 // clears the loop info, type ADXB_TYPE_WAV; returns the header length (0 on failure).
+// FUN_004C4DD8
 Sint32 ADXB_DecodeHeaderWav(ADXB adxb, void *buf, Sint32 bsize)
 {
 	Sint16 hdrlen;

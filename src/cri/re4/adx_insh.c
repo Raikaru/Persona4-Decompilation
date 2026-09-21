@@ -31,6 +31,7 @@ void *ADXT_GetDmyBuf(void)
 
 // Generates an SFA header with the ADXSJE encoder configured by (a, b, c) and pushes it into the
 // handle's input stream joint ahead of the stream data; spins forever if the header does not fit.
+// FUN_004CA990
 void ADXT_InsertHdrSfa(ADXT_OBJ *adxt, Sint32 a, Sint32 b, Sint32 c)
 {
 	SJ sjs[2];

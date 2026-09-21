@@ -206,6 +206,7 @@ Uint8 *MPVLIB_GetClipBase(void)
 }
 
 // -1 for a NULL or not-ready handle (stat != READY); records it in mpvlib_mpvobj.
+// FUN_00507480
 Sint32 MPVLIB_CheckHn(MPV mpv)
 {
 	mpvlib_mpvobj = mpv;

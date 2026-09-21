@@ -14,6 +14,7 @@ void SJMEM_Error(void *obj, Sint32 errcode)
 }
 
 // 100% matching!
+// FUN_004ED530
 void SJMEM_Init(void) 
 {
     if (sjmem_init_cnt == 0) 
@@ -25,6 +26,7 @@ void SJMEM_Init(void)
 }
 
 // 100% matching!
+// FUN_004ED5B0
 void SJMEM_Finish(void)
 {
     if (--sjmem_init_cnt == 0)

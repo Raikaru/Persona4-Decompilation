@@ -619,6 +619,7 @@ Sint32 ADXSTM_GetFileLen(ADXSTM stm)
 }
 
 // 100% matching!
+// FUN_004D2E50
 void ADXSTM_GetCvdfsStat(ADXSTM stm, Sint32 *cvfsst) 
 {
     ADXSTMF stmf;
@@ -629,6 +630,7 @@ void ADXSTM_GetCvdfsStat(ADXSTM stm, Sint32 *cvfsst)
 }
 
 // 100% matching!
+// FUN_004D2E80
 Sint32 ADXSTM_GetFad(const Sint8 *fname, Sint32 *fad)
 {
     *fad = 0;
@@ -649,6 +651,7 @@ Sint32 ADXSTM_GetFsizeSct(const Sint8 *fname, Sint32 *fnsct)
 }
 
 // 100% matching!
+// FUN_004D2B50
 Sint32 ADXSTM_GetFsizeByte(const Sint8 *fname, Sint32 *fsize) 
 {
     *fsize = cvFsGetFileSize(fname);

@@ -498,6 +498,7 @@ void adxt_RcvrReplay(ADXT adxt)
 }
 
 // 100% matching!
+// FUN_004D8300
 void ADXT_ExecErrChk(ADXT adxt)
 {
     Sint32 stat;

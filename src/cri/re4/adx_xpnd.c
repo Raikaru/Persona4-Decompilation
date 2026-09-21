@@ -92,6 +92,7 @@ void ADXPD_Reset(ADXPD pd)
 }
 
 // STOP and clear the prediction history (start of a new stream).
+// FUN_004D8AC8
 void ADXPD_Stop(ADXPD pd)
 {
 	pd->stat = ADXPD_STAT_STOP;
@@ -165,6 +166,7 @@ void ADXPD_Destroy(ADXPD pd)
 }
 
 // Reads the scale key state (running key, multiplier, adder) for a snapshot.
+// FUN_004C3E20
 void ADXPD_GetExtPrm(ADXPD pd, Sint16 *e1, Sint16 *e2, Sint16 *e3)
 {
 	*e1 = pd->ext1;
@@ -181,6 +183,7 @@ void ADXPD_SetExtPrm(ADXPD pd, Sint16 e1, Sint16 e2, Sint16 e3)
 }
 
 // Reads the two-sample prediction history of both channels (d0 = sample -1, d1 = sample -2).
+// FUN_004D8978
 void ADXPD_GetDly(ADXPD pd, Sint16 *d0, Sint16 *d1)
 {
 	d0[0] = pd->dly[0][0];
@@ -190,6 +193,7 @@ void ADXPD_GetDly(ADXPD pd, Sint16 *d0, Sint16 *d1)
 }
 
 // Writes the prediction history (header initial delay or a restored snapshot).
+// FUN_004D8950
 void ADXPD_SetDly(ADXPD pd, Sint16 *d0, Sint16 *d1)
 {
 	pd->dly[0][0] = d0[0];
@@ -199,6 +203,7 @@ void ADXPD_SetDly(ADXPD pd, Sint16 *d0, Sint16 *d1)
 }
 
 // Derives the prediction coefficients k1/k2 from the encoder cut-off frequency and sampling rate.
+// FUN_004D8928
 void ADXPD_SetCoef(ADXPD pd, Sint32 sfreq, Sint32 cutoff)
 {
 	ADX_GetCoefficient(cutoff, sfreq, &pd->k1, &pd->k2);

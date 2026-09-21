@@ -93,8 +93,6 @@ void func_00503990(u8 *arg0, s32 arg1, s32 arg2)
 
 // FUN_005039A0
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_005039a0);
-// FUN_00503A40
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00503a40);
 // FUN_00503A68
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00503a68);
 // FUN_00503AA0
@@ -140,8 +138,6 @@ void func_005072c8(void)
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_005072d8);
 // FUN_005073A0
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_005073a0);
-// FUN_00507480
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00507480);
 // FUN_005074A8
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_005074a8);
 // FUN_005074C0
@@ -160,8 +156,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00507560);
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00507628);
 // FUN_00507768
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00507768);
-// FUN_00507780
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00507780);
 // FUN_005077F0
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_005077f0);
 // FUN_00507948
@@ -306,8 +300,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050bcf8);
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050bd48);
 // FUN_0050BD80
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050bd80);
-// FUN_0050BDC0
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050bdc0);
 // FUN_0050BE00
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050be00);
 // FUN_0050BE60
@@ -479,8 +471,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050d260);
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050d2b8);
 // FUN_0050D2F0
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050d2f0);
-// FUN_0050D320
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050d320);
 // FUN_0050D348
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050d348);
 /* measured: schedule on places the field load in the jr $ra delay slot for this 8-byte accessor. */

@@ -1116,6 +1116,7 @@ static Sint32 mwsfcre_CalcWorkSfx(MWSFD_CRPRM *cprm)
 
 // Total work the creation parameters need (SFD component buffers + SFX converter); the game
 // allocates exactly this much and passes it back as cprm->work.
+// FUN_00508310
 Sint32 mwPlyCalcWorkCprmSfd(MWSFD_CRPRM *cprm)
 {
 	Sint32 sfdsiz;

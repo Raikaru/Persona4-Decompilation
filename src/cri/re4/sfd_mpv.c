@@ -363,6 +363,7 @@ Sint32 SFMPV_SaveCond(SFD sfd, Sint32 *tbl, Sint32 size)
 }
 
 // Restores the MPV decoder conditions saved by SFMPV_SaveCond.
+// FUN_0051A300
 void SFMPV_RestoreCond(SFD sfd, Sint32 *tbl, Sint32 n)
 {
 	MPV hn = SFMPV_WK(sfd)->mpv;
@@ -378,6 +379,7 @@ void SFMPV_RestoreCond(SFD sfd, Sint32 *tbl, Sint32 n)
 
 // Buffer for the picture user data of the frames in flight (`num` slots of `siz` bytes); the MW
 // player passes max_skip + 3 slots of 64 bytes.
+// FUN_0051A490
 Sint32 SFD_SetPicUsrBuf(SFD sfd, void *buf, Sint32 num, Sint32 siz)
 {
 	if (SFLIB_CheckHn(sfd) != 0) {
@@ -2547,6 +2549,7 @@ static inline Sint32 sfmpv_ChkRingSpace(SFD sfd)
 }
 
 /* skip the sequence end codes at the read position */
+// FUN_0051BA98
 static inline void sfmpv_SkipEndcode(SFD sfd, SJ sj)
 {
 	SJCK ck;

@@ -372,6 +372,7 @@ static void adxstm_release_nw(ADXSTM stm)
 }
 
 // Blocking unbind: stop, request the release and pump the file server until `bound` clears.
+// FUN_004D1FA0
 static void adxstm_release(ADXSTM stm)
 {
 	adxstm_stop(stm);
@@ -456,6 +457,7 @@ void ADXSTM_ReleaseFileNw(ADXSTM stm)
 
 // Records the file to stream (`fname` on CVFS device `dir`, `ofst`/`nsct` in sectors; nsct 0xFFFFF =
 // whole file) and asks the server to open it (bind_req).
+// FUN_004D1DE0
 void ADXSTM_BindFileNw(ADXSTM stm, const Char8 *fname, void *dir, Sint32 ofst, Sint32 nsct)
 {
 	SVM_Lock();

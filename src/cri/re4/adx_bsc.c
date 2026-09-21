@@ -673,6 +673,7 @@ Sint32 ADXB_GetLpEndPos(ADXB adxb)
 }
 
 // Loop start offset in bytes (x2c); tolerates a NULL handle (returns 0).
+// FUN_004C3CA0
 Sint32 ADXB_GetLpStartOfst(ADXB adxb)
 {
 	if (adxb == NULL) {

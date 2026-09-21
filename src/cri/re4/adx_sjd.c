@@ -150,6 +150,7 @@ Sint32 ADXSJD_GetLpEndPos(ADXSJD sjd)
 }
 
 // Loop start byte offset; 0 for a NULL handle.
+// FUN_004CEE80
 Sint32 ADXSJD_GetLpStartOfst(ADXSJD sjd)
 {
 	if (sjd == NULL) {
@@ -347,6 +348,7 @@ static void adxsjd_decexec_end(ADXSJD sjd)
 }
 
 /* raw formats: the decoder consumed the block without output */
+// FUN_004CE718
 static void adxsjd_rawexec_end(ADXSJD sjd)
 {
 	ADXB adxb;
@@ -630,6 +632,7 @@ void adxsjd_decode_prep(ADXSJD sjd)
 }
 
 // Stops the block decoder and the SJD (stat STOP).
+// FUN_004CDD90
 void ADXSJD_Stop(ADXSJD sjd)
 {
 	ADXB_Stop(sjd->adxb);
@@ -653,6 +656,7 @@ static void adxsjd_reset(ADXSJD sjd)
 }
 
 // Resets the per-play counters and enters PREP: the next tick parses the header at the input.
+// FUN_004CDD60
 void ADXSJD_Start(ADXSJD sjd)
 {
 	adxsjd_reset(sjd);

@@ -25,6 +25,7 @@ static Uint8 sfhds_sfhlib_work[SFHDS_SFH_WORK_SIZE];
 
 // Colour type from the Sofdec header's video feature block (3 = needs colour-space conversion), -1
 // when no header / no features.
+// FUN_00517878
 Sint32 SFHDS_GetColType(SFD sfd)
 {
 	SFHDS_FHD *fhd = &sfd->fhd;
@@ -257,6 +258,7 @@ void sfhds_DoProcessHdr(SFH sfh, SFHDS_FHD *fhd)
 
 // Parses the raw 0x800-byte header packet through the SFH analyser into the SFHDS_FHD fields
 // (stream counts and ids, audio codec/rate/channels, video size/rate/bitrate, feature block).
+// FUN_005171F0
 void SFHDS_ProcessHdr(SFHDS_FHD *fhd)
 {
 	SFH sfh;
@@ -320,6 +322,7 @@ Sint32 sfhds_SetHdrRaw(SFD sfd, Uint8 *data, Sint32 size)
 }
 
 // Whether the bytes are a Sofdec header packet (SFH_IsSfdHeader on a temporary analyser).
+// FUN_00516F08
 Bool SFHDS_IsSfdHeader(void *data, Sint32 size)
 {
 	SFH sfh;
@@ -339,6 +342,7 @@ Bool SFHDS_IsSfdHeader(void *data, Sint32 size)
 #define SFHDS_STARTCODE_PRV2 0x1BF
 
 /* big-endian 32-bit start code at p */
+// FUN_00516ED8
 static Sint32 sfhds_GetStartCode(Uint8 *p)
 {
 	Sint32 code;

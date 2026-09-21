@@ -300,6 +300,7 @@ static void adxt_stat_decinfo(ADXT adxt)
 
 /* non-loop end trap: with the link switch on, look for a following ADX file behind the footer
  * (its info code) and restart the decoder on it */
+// FUN_004D7680
 void adxt_nlp_trap_entry(void *obj)
 {
 	ADXT p;

@@ -751,6 +751,7 @@ Sint32 cvFsGetFileSize(const Char8 *fname)
 
 // Transfer state of a file handle from its device: 1 complete, 2 reading, 3 error (also for a bad
 // handle).
+// FUN_004E22F8
 Sint32 cvFsGetStat(CVFS_OBJ *obj)
 {
 	Sint32 stat = 3;
@@ -769,6 +770,7 @@ Sint32 cvFsGetStat(CVFS_OBJ *obj)
 
 // Runs every registered device's server (gcCiExecServer completes the DVD reads). Called twice per
 // ADXT_ExecFsSvr.
+// FUN_004E2298
 void cvFsExecServer(void)
 {
 	Sint32 i;
@@ -1066,6 +1068,7 @@ void cvFsAddDev(Char8 *devname, CVFS_GETIFFN getif)
 }
 
 /* the devices' error callback: forwards to the user's */
+// FUN_004E1578
 void cvFsCallUsrErrFn(void *obj, const Char8 *msg, void *hn)
 {
 	if (cvfs_errfn != NULL) {

@@ -382,6 +382,7 @@ static void sjrbf_GetChunk(SJRBF_OBJ *sj, Sint32 id, Sint32 nbyte, SJCK *ck)
 }
 
 // Locked wrapper of sjrbf_GetChunk; the main primitive every producer/consumer in the pipeline uses.
+// FUN_004CABF0
 void SJRBF_GetChunk(SJRBF_OBJ *sj, Sint32 id, Sint32 nbyte, SJCK *ck)
 {
 	SJCRS_Lock();

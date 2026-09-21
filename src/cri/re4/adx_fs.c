@@ -16,6 +16,7 @@ static Sint32 adxf_ldpt_tbsize;
 
 // Debug trace: records command `cmd` (entry sub 0 / exit sub 1) with its call count, handle and two
 // parameters in the 16-entry ring adxf_cmd_hstry.
+// FUN_004C7260
 static void adxf_SetCmdHstry(Sint32 cmd, Sint32 sub, ADXF adxf, Sint32 prm1, Sint32 prm2)
 {
 	ADXF_CMD_HSTRY *h;
@@ -178,6 +179,7 @@ ADXF adxf_CreateAdxFs(void)
 }
 
 // Stops a reading handle, unbinds and destroys its stream controller and clears the slot.
+// FUN_004C8A90
 void ADXF_Close(ADXF adxf)
 {
 	ADXSTM stm;

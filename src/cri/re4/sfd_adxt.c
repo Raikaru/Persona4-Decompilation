@@ -307,6 +307,7 @@ Sint32 SFADXT_Pause(SFD sfd, Sint32 sw)
 }
 
 // Stops the ADXT.
+// FUN_00513A78
 Sint32 SFADXT_Stop(SFD sfd)
 {
 	ADXT_Stop(SFADXT_WK(sfd)->adxt);
@@ -932,6 +933,7 @@ static void sfadxt_CheckStat(SFD sfd, Sint32 len)
 }
 
 /* the audio header analysis once the decoder has data */
+// FUN_005132C8
 static void sfadxt_AnalyAhdr(SFD sfd)
 {
 	SFSEE_AHDR *ahdr;
@@ -952,6 +954,7 @@ static void sfadxt_AnalyAhdr(SFD sfd)
 }
 
 /* the server frequency follows the condition */
+// FUN_005133A8
 static void sfadxt_UpdateSvrFreq(SFD sfd)
 {
 	SFADXT_WORK *wk;
@@ -1011,6 +1014,7 @@ Sint32 SFADXT_Finish(void)
 }
 
 // Library init: ADXT and SFA, clears the driver parameters.
+// FUN_005124E8
 Sint32 SFADXT_Init(void)
 {
 	ADXT_Init();
