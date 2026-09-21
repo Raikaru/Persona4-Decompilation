@@ -57,12 +57,14 @@ class MaskWord(unittest.TestCase):
 class GeneratedFile(unittest.TestCase):
     def test_every_line_carries_its_reference_and_width(self):
         entries = produced()
-        # 418 under the relocation-identical rule with the immediate-pair
-        # constraint (564 under the earlier all-immediates mask that equated
-        # different constants, 482 without the constraint).
-        self.assertGreater(len(entries), 380)
+        # 56 under the final rule: relocation-identical, vendor-family
+        # membership (authoritative Ballers RW unit set for RW; spelling
+        # for CRT/libc), and target-side ownership veto. 418 under shape-
+        # only rules included Criterion game classes and an `atof` that
+        # would have overwritten CRI's MWSTM_Create at 0x00512138.
+        self.assertGreater(len(entries), 40)
         for address, (name, evidence) in entries.items():
-            self.assertRegex(evidence, r"masked-exact over \d+ words, sole claimant")
+            self.assertRegex(evidence, r"reloc-identical over \d+ words, sole claimant")
             self.assertTrue(name.isidentifier(), name)
 
     def test_no_name_is_claimed_twice(self):
@@ -81,9 +83,10 @@ class GeneratedFile(unittest.TestCase):
                    for address in entries if address in truth}
         # Fewer than the 35 the rule itself scores: the file omits addresses
         # another producer already names, and some of the truth set is theirs.
-        # 20 of the truth pairs survive the tighter rule (41 under the
-        # looser one); the assertion that matters is zero disagreements.
-        self.assertGreaterEqual(len(overlap), 15)
+        # 3 survive the vendor-family + ownership filters - the tree
+        # already owns most known RW addresses under its own names. Zero
+        # disagreements is the assertion that matters.
+        self.assertGreaterEqual(len(overlap), 2)
         disagreements = {f"{address:08x}": (name, truth[address])
                          for address, name in overlap.items()
                          if name != truth[address]}
@@ -175,6 +178,37 @@ class RelocClassifier(unittest.TestCase):
     def test_lui_zero_is_never_pending(self):
         words = [self.lui(0, 0x0076), self.lw(3, 0, 0x7000)]
         self.assertEqual([], self.relocs(words))
+
+    def test_target_owned_addresses_are_vetoed(self):
+        """CRI's MWSTM_Create lives at 0x00512138 with authoritative source
+        (src/cri/re4/mwstm.c); Burnout's `atof` has the same tiny shape and
+        must not rename it. Ownership comes from verify's marker scan, so
+        any named in-tree definition vetoes a vendor claim.
+        """
+        self.assertIn(0x00512138, port._target_owned())
+        produced_now = produced()
+        self.assertNotIn(0x00512138, produced_now)
+
+    def test_vendor_family_is_membership_plus_crt(self):
+        """RW membership is keyed by (name, reference address) from the
+        Ballers DWARF - which is why matrixASMMult (no Rw prefix)
+        qualifies only at its own address - and CRT/libc from an explicit
+        list. Mangled game classes qualify under neither, and a RW name
+        at a foreign address does not.
+        """
+        authored = port.rw_unit_names()
+        self.assertTrue(port.vendor_family(
+            "matrixASMMult", authored, 0x001516E0))   # Ballers low_pc
+        self.assertFalse(port.vendor_family(
+            "matrixASMMult", authored, 0x00567890))     # foreign address
+        self.assertTrue(port.vendor_family("DefaultGeomAnimCB", authored,
+                                           0x00239630))   # Ballers low_pc
+        self.assertTrue(port.vendor_family("__sfvwrite", authored))
+        self.assertFalse(port.vendor_family(
+            "Prepare__17CGtNetMessageDataiiP17CGtNetworkMessage", authored,
+            0x0050E828))
+        self.assertFalse(port.vendor_family(
+            "Clear__Q26Realmc15SystemInterface", authored, 0x00528E40))
 
     def test_one_sided_relocation_across_different_spans_is_rejected(self):
         """The guard the normalized-word comparison cannot give.
