@@ -1,6 +1,8 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "model_callbacks_internal.h"
+#include "model_matrix_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
 
 typedef struct RwMatrix RwMatrix;
@@ -104,7 +106,6 @@ extern u8 D_007F00D8[];
 extern u8 D_007E9328[];
 extern s32 func_00168060(u8 *arg0);
 extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
-extern void func_0047a1a0(s32 arg0, s32 arg1, f32 arg2, s32 arg3);
 extern void func_00478e70(s32 arg0);
 extern s32 iGpffff9f00;
 extern void func_003e99a0(void *arg0);
@@ -127,7 +128,6 @@ extern s32 func_001060c0(void);
 extern s32 func_00110960(s16 arg0, s32 arg1);
 extern s32 D_005F1350[];
 extern void *func_00478140(u32 arg0, u32 arg1, u32 arg2);
-extern void func_0047d140(void);
 extern void func_0047a220(void *arg0, void *arg1);
 extern void func_0047a990(void *arg0);
 extern void func_0047aaa0(void *arg0, s32 arg1, void *arg2, void *arg3,
@@ -1025,7 +1025,7 @@ loop_done:
         if (var_20 == NULL) {
             var_20 = func_00478140(var_18, var_17, 0);
             if (temp_22 == 1) {
-                func_0047d140();
+                func_0047d140(var_20);
             } else {
                 func_0047aaa0(var_20, 0, (void *)9, (void *)0x163, D_005F13A0, 0);
                 func_0047adf0(var_20, 0, 0x1F4);
@@ -1073,7 +1073,7 @@ generic:
         }
         if (var_20 == NULL) {
             var_20 = func_00478140(1, temp_5, 0);
-            func_0047d140();
+            func_0047d140(var_20);
             if (*(u8 *)(D_007F16F4 + temp_16) != 0) {
                 var_4 = 0;
 loop_65:
@@ -1590,7 +1590,7 @@ void func_00168de0(u8 *arg0, s32 arg1, f32 fparg0) {
         sp40.y = -1.0f * sp50.y;
         sp40.z = -1.0f * sp50.z;
         func_0047a180((RwMatrix *)*(s32 *)(temp_16 + 0x10), &sp40, 2);
-        func_0047a1a0(*(s32 *)(temp_16 + 0x10), arg1, fparg0, 2);
+        func_0047a1a0((void *)(u32)*(s32 *)(temp_16 + 0x10), (const void *)(u32)arg1, fparg0, 2);
         func_0047a180((RwMatrix *)*(s32 *)(temp_16 + 0x10), &sp50, 2);
     }
 }

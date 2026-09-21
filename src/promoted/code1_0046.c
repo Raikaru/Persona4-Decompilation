@@ -2,8 +2,16 @@
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "rw/plcore/barenderstate.h"
 #include "h_cdvd_internal.h"
 #include "Kosaka/k_clump_internal.h"
+
+typedef s32 (*WindowRenderStateSet)(RwRenderState state, void *value);
+/* Compatible with s32 (RwRenderState, void *) in C89: both arguments retain
+ * their types under default promotions. The explicit argument conversions
+ * at the save/restore calls retain retail's address-before-load evaluation. */
+typedef s32 (*WindowRenderStateCall)();
+
 extern s32 iGpffffb034;
 extern s32 iGpffffbaf8;
 extern s32 iGpffffbab4;
@@ -60,7 +68,7 @@ extern s32 D_00724130;
 
 extern s32 func_004633f0(u8 *task);
 extern void func_00468ff0(s32 arg0, u8 *arg1);
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern s32 func_003f6440(s32 state, void *value);
 extern void func_00460ac0(char *name, u8 *task);
 extern u8 D_00712670[];
 extern s32 D_00724BF4;
@@ -85,8 +93,8 @@ extern s32 D_00724BF8;
 extern u32 D_00724BFC;
 extern u8 *D_00724C00;
 extern u8 *D_00724C04;
-extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern void (*D_00887304[])(s32 arg0, s32 *arg1);
+extern WindowRenderStateSet D_00887300[];
+extern s32 (*D_00887304[])(RwRenderState state, void *value);
 extern u8 D_008872E0[];
 extern s32 iGpffffaf60;
 extern void func_003c21e0(s32 arg0, s32 (*callback)(u8 *, s32 *), s32 *result);
@@ -140,7 +148,7 @@ extern f32 fGpffff84f0;
 extern f32 func_0044b610(f32 arg0);
 extern f32 func_0044b7b0(f32 arg0);
 extern void func_0045f790(void *arg0, void *arg1, void *arg2, s32 arg3);
-extern void func_0045fbe0(void *arg0, void *arg1, void *arg2, s32 arg3, f32 fparg0);
+extern void func_0045fbe0(f32 *position, f32 radius, u8 *color, f32 *matrix, s32 setStates);
 struct Data_00712508 {
     f32 field_0;
     f32 field_4;
@@ -195,12 +203,12 @@ void func_004601c0(u8 *arg0, f32 fparg0, u8 *arg1, s32 arg2) {
         if (arg2 != 0) {
             for (var_17 = 0; var_17 < 6U; var_17++) {
                 temp_16 = &D_00712490[var_17 * 2];
-                D_00887304[0](temp_16[0], &sp80[var_17]);
-                D_00887300[0](temp_16[0], temp_16[1]);
+                ((WindowRenderStateCall)D_00887304[0])((RwRenderState)(temp_16[0]), (void *)(&sp80[var_17]));
+                D_00887300[0]((RwRenderState)(temp_16[0]), (void *)(temp_16[1]));
             }
-            D_00887300[0](1, 0);
-            func_003f6440(2, 0x48);
-            func_003f6440(3, 0x71801);
+            D_00887300[0]((RwRenderState)(1), (void *)(0));
+            func_003f6440(2, (void *)(0x48));
+            func_003f6440(3, (void *)(0x71801));
         }
         spA0[2][2] = 1.0f;
         spA0[1][1] = 1.0f;
@@ -223,7 +231,7 @@ void func_004601c0(u8 *arg0, f32 fparg0, u8 *arg1, s32 arg2) {
             spF0[0] = *(f32 *)(arg0 + 0);
             spF0[1] = *(f32 *)(arg0 + 4) + temp_f22;
             spF0[2] = *(f32 *)(arg0 + 8);
-            func_0045fbe0(&spF0[0], arg1, &spA0[0][0], 0, temp_f12);
+            func_0045fbe0(&spF0[0], temp_f12, arg1, &spA0[0][0], 0);
         }
         func_003e0870(&spA0[0][0], &spE, 2, 90.0f);
         temp_f22 = 0.0f;
@@ -234,11 +242,11 @@ void func_004601c0(u8 *arg0, f32 fparg0, u8 *arg1, s32 arg2) {
             spF0[0] = *(f32 *)(arg0 + 0);
             spF0[1] = *(f32 *)(arg0 + 4);
             spF0[2] = *(f32 *)(arg0 + 8) + var_f21;
-            func_0045fbe0(&spF0[0], arg1, &spA0[0][0], 0, temp_f12_2);
+            func_0045fbe0(&spF0[0], temp_f12_2, arg1, &spA0[0][0], 0);
         }
         if (arg2 != 0) {
             for (var_16_3 = 0; var_16_3 < 6U; var_16_3++) {
-                D_00887300[0](D_00712490[var_16_3 * 2], sp80[var_16_3]);
+                ((WindowRenderStateCall)D_00887300[0])((RwRenderState)(D_00712490[var_16_3 * 2]), (void *)(sp80[var_16_3]));
             }
         }
     }
@@ -249,122 +257,118 @@ void func_004601c0(u8 *arg0, f32 fparg0, u8 *arg1, s32 arg2) {
 
 
 
-/* measured: fnalign retail 270 vs object 270 (+0, PASS 3% band 260-276, was 190 vs 268 -29.1%); opclass clean (no delta, was swc1 -26/lwc1 -19/add.s -11); frame 0xE0 matches retail (was 0xA0). Shapes: honest aggregates f32 sp80[4]/spD[3]/spB0[3]/spBC[3] + s32 sp90[6] (was scalars + sp90[8] with &sp90[var+36] and byte-load UB, b210 deleted stores per handoff 7z); memory-update adds spB0[0]=spB0[0]+... where retail reloads (was temp-reg adds keeping values in saved regs, +3 swc1); `if (fparg0>fparg1)` max form (was <= with bc1f, retail bc1t, clean census); fGpffff84f0/fGpffff82fc for gp loads (was 0.123f/0.456f literals, same lwc1 class, correct GPREL); distinct fourth-loop temps (was single temp_f0 reuse bug) + word loads (was byte). Walls: saved-reg rotation, scheduling, 97 fnalign edits; production stays ASM. */
-// FUN_004604D0 NONMATCHING
-#ifdef NON_MATCHING
-void func_004604d0(f32 *arg0, u8 *arg1, s32 arg2, f32 fparg0, f32 fparg1) {
-    f32 spD[3];
-    f32 spBC[3];
-    f32 spB0[3];
-    s32 sp90[6];
-    f32 sp80[4];
-    f32 temp_f20;
-    f32 temp_f21;
-    f32 temp_f22;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f0_3;
-    f32 temp_f4;
-    f32 temp_f4_2;
-    f32 var_f0;
-    f32 var_f20;
-    f32 var_f22;
-    u32 var_16;
-    u32 var_19;
-    u32 var_19_2;
-    u32 var_19_3;
-    u32 var_20;
-    s32 *temp_16;
+/* Draw a wireframe cylinder using circular slices and paired line endpoints.
+ * The ring API takes radius second; all native integer/floating arguments keep
+ * that order. b210 -O2: 1076 executable bytes plus twelve zero alignment bytes.
+ * See docs/Window_render_contract_recovery_20260920.md for the resolved proof. */
+// FUN_004604D0
+void func_004604d0(f32 *position, f32 radius, f32 height, u8 *color, s32 setStates) {
+    f32 circlePosition[3];
+    f32 endpoints[2][3];
+    s32 savedStates[6];
+    f32 sphere[4];
+    f32 sideAngle;
+    f32 verticalOffset;
+    f32 oppositeAngle;
+    f32 x;
+    f32 z;
+    f32 oppositeX;
+    f32 edgeZ;
+    f32 oppositeZ;
+    f32 scratch;
+    f32 angle;
+    f32 halfHeight;
+    u32 restoreIndex;
+    u32 segmentIndex;
+    u32 stateIndex;
+    s32 *stateEntry;
 
-    if (fparg0 > fparg1) {
-        var_f0 = fparg0;
+    if (radius > height) {
+        scratch = radius;
     } else {
-        var_f0 = fparg1;
+        scratch = height;
     }
-    sp80[3] = var_f0;
-    sp80[0] = arg0[0];
-    sp80[1] = arg0[1];
-    sp80[2] = arg0[2];
-    if (func_003e8200(*(s32 *)D_008872E0, (u8 *)&sp80[0]) != 0) {
-        if (arg2 != 0) {
-            var_20 = 0;
-            for (var_20 = 0; var_20 < 6U; var_20++) {
-                temp_16 = &D_00712490[var_20 * 2];
-                D_00887304[0](temp_16[0], &sp90[var_20]);
-                D_00887300[0](temp_16[0], temp_16[1]);
+    sphere[3] = scratch;
+    sphere[0] = position[0];
+    sphere[1] = position[1];
+    sphere[2] = position[2];
+    if (func_003e8200(*(s32 *)D_008872E0, (u8 *)&sphere[0]) != 0) {
+        if (setStates != 0) {
+            stateIndex = 0;
+            for (stateIndex = 0; stateIndex < 6U; stateIndex++) {
+                stateEntry = &D_00712490[stateIndex * 2];
+                ((WindowRenderStateCall)D_00887304[0])((RwRenderState)(stateEntry[0]), (void *)(&savedStates[stateIndex]));
+                D_00887300[0]((RwRenderState)(stateEntry[0]), (void *)(stateEntry[1]));
             }
-            D_00887300[0](1, 0);
-            func_003f6440(2, 0x48);
-            func_003f6440(3, 0x71801);
+            D_00887300[0]((RwRenderState)(1), (void *)(0));
+            func_003f6440(2, (void *)(0x48));
+            func_003f6440(3, (void *)(0x71801));
         }
-        spD[0] = arg0[0];
-        temp_f20 = 0.5f * fparg1;
-        spD[1] = arg0[1] - temp_f20;
-        spD[2] = arg0[2];
-        temp_f21 = fparg1 / 7.0f;
-        var_19 = 0;
-        for (var_19 = 0; var_19 < 8U; var_19++) {
-            func_0045fbe0(&spD[0], arg1, 0, 0, fparg0);
-            spD[1] += temp_f21;
+        verticalOffset = height / 7.0f;
+        circlePosition[0] = position[0];
+        halfHeight = 0.5f * height;
+        circlePosition[1] = position[1] - halfHeight;
+        circlePosition[2] = position[2];
+        segmentIndex = 0;
+        for (; segmentIndex < 8U; segmentIndex++) {
+            func_0045fbe0(&circlePosition[0], radius, color, 0, 0);
+            circlePosition[1] += verticalOffset;
         }
-        var_f22 = 0.0f;
-        var_19_2 = 0;
-        temp_f21 = 0.5f * -fparg1;
-        for (var_19_2 = 0; var_19_2 < 10U; var_19_2++) {
-            spB0[0] = fparg0 * func_0044b610(var_f22);
-            spB0[1] = temp_f21;
-            temp_f4 = fparg0 * func_0044b7b0(var_f22);
-            spB0[2] = temp_f4;
-            spBC[0] = spB0[0];
-            spBC[1] = temp_f20;
-            spBC[2] = temp_f4;
-            spB0[0] = spB0[0] + arg0[0];
-            spB0[1] = spB0[1] + arg0[1];
-            spB0[2] = spB0[2] + arg0[2];
-            spBC[0] = spB0[0];
-            spBC[1] = temp_f20 + arg0[1];
-            spBC[2] = spB0[2];
-            func_0045f790(&spB0[0], &spBC[0], arg1, 0);
-            var_f22 += fGpffff84f0;
+        sideAngle = 0.0f;
+        segmentIndex = 0;
+        scratch = -height;
+        verticalOffset = 0.5f * scratch;
+        for (; segmentIndex < 10U; segmentIndex++) {
+            endpoints[0][0] = radius * func_0044b610(sideAngle);
+            endpoints[0][1] = verticalOffset;
+            edgeZ = radius * func_0044b7b0(sideAngle);
+            endpoints[0][2] = edgeZ;
+            endpoints[1][0] = endpoints[0][0];
+            endpoints[1][1] = halfHeight;
+            endpoints[1][2] = edgeZ;
+            endpoints[0][0] = endpoints[0][0] + position[0];
+            endpoints[0][1] = endpoints[0][1] + position[1];
+            endpoints[0][2] = endpoints[0][2] + position[2];
+            endpoints[1][0] = endpoints[0][0];
+            endpoints[1][1] = halfHeight + position[1];
+            endpoints[1][2] = endpoints[0][2];
+            func_0045f790(&endpoints[0][0], &endpoints[1][0], color, 0);
+            sideAngle += fGpffff84f0;
         }
-        var_f20 = 0.0f;
-        var_19_3 = 0;
-        for (var_19_3 = 0; var_19_3 < 5U; var_19_3++) {
-            temp_f0 = fparg0 * func_0044b610(var_f20);
-            spB0[0] = temp_f0;
-            spB0[1] = temp_f21;
-            temp_f0_2 = fparg0 * func_0044b7b0(var_f20);
-            spB0[2] = temp_f0_2;
-            temp_f22 = fGpffff82fc + var_f20;
-            temp_f0_3 = fparg0 * func_0044b610(temp_f22);
-            spBC[0] = temp_f0_3;
-            spBC[1] = temp_f21;
-            temp_f4_2 = fparg0 * func_0044b7b0(temp_f22);
-            spBC[2] = temp_f4_2;
-            spB0[0] = spB0[0] + arg0[0];
-            spB0[1] = spB0[1] + arg0[1];
-            spB0[2] = spB0[2] + arg0[2];
-            spBC[0] = spBC[0] + arg0[0];
-            spBC[1] = spBC[1] + arg0[1];
-            spBC[2] = spBC[2] + arg0[2];
-            func_0045f790(&spB0[0], &spBC[0], arg1, 0);
-            spB0[1] = spB0[1] + fparg1;
-            spBC[1] = spBC[1] + fparg1;
-            func_0045f790(&spB0[0], &spBC[0], arg1, 0);
-            var_f20 += fGpffff84f0;
+        angle = 0.0f;
+        segmentIndex = 0;
+        for (; segmentIndex < 5U; segmentIndex++) {
+            x = radius * func_0044b610(angle);
+            endpoints[0][0] = x;
+            endpoints[0][1] = verticalOffset;
+            z = radius * func_0044b7b0(angle);
+            endpoints[0][2] = z;
+            oppositeAngle = fGpffff82fc + angle;
+            oppositeX = radius * func_0044b610(oppositeAngle);
+            endpoints[1][0] = oppositeX;
+            endpoints[1][1] = verticalOffset;
+            oppositeZ = radius * func_0044b7b0(oppositeAngle);
+            endpoints[1][2] = oppositeZ;
+            endpoints[0][0] = endpoints[0][0] + position[0];
+            endpoints[0][1] = endpoints[0][1] + position[1];
+            endpoints[0][2] = endpoints[0][2] + position[2];
+            endpoints[1][0] = endpoints[1][0] + position[0];
+            endpoints[1][1] = endpoints[1][1] + position[1];
+            endpoints[1][2] = endpoints[1][2] + position[2];
+            func_0045f790(&endpoints[0][0], &endpoints[1][0], color, 0);
+            endpoints[0][1] = endpoints[0][1] + height;
+            endpoints[1][1] = endpoints[1][1] + height;
+            func_0045f790(&endpoints[0][0], &endpoints[1][0], color, 0);
+            angle += fGpffff84f0;
         }
-        if (arg2 != 0) {
-            var_16 = 0;
-            for (var_16 = 0; var_16 < 6U; var_16++) {
-                D_00887300[0](D_00712490[var_16 * 2], sp90[var_16]);
+        if (setStates != 0) {
+            restoreIndex = 0;
+            for (restoreIndex = 0; restoreIndex < 6U; restoreIndex++) {
+                ((WindowRenderStateCall)D_00887300[0])((RwRenderState)(D_00712490[restoreIndex * 2]), (void *)(savedStates[restoreIndex]));
             }
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004604d0);
-#endif
-
 // FUN_00460910
 void func_00460910(s32 arg0, s32 arg1)
 {
@@ -412,11 +416,11 @@ void func_00460a80(s32 arg0, s32 arg1)
 
 // FUN_004614B0
 void func_004614b0(void) {
-    void (**tbl)(s32, s32) = (void (**)(s32, s32))(u32)D_00887300;
-    tbl[0](6, 1);
-    tbl[0](8, 1);
-    func_003f6440(2, 0x44);
-    func_003f6440(3, 0x717FB);
+    WindowRenderStateSet *tbl = (WindowRenderStateSet *)(u32)D_00887300;
+    tbl[0]((RwRenderState)(6), (void *)(1));
+    tbl[0]((RwRenderState)(8), (void *)(1));
+    func_003f6440(2, (void *)(0x44));
+    func_003f6440(3, (void *)(0x717FB));
 }
 
 // FUN_00461530
@@ -448,30 +452,30 @@ void func_00461560(u8 *arg0)
 #pragma opt_propagation off
         if ((*(u16 *)(arg0 + 0x1A) & 2) == 0) {
             {
-                void (**table)(s32, s32) =
-                    (void (**)(s32, s32))(u32)D_00887300;
-                table[0](6, 1);
-                table[0](8, 1);
+                WindowRenderStateSet *table =
+                    (WindowRenderStateSet *)(u32)D_00887300;
+                table[0]((RwRenderState)(6), (void *)(1));
+                table[0]((RwRenderState)(8), (void *)(1));
             }
         }
 #pragma opt_propagation on
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x717FB);
+        func_003f6440(2, (void *)(0x44));
+        func_003f6440(3, (void *)(0x717FB));
         var_17 = *(u8 **)(temp_16 + 8);
         goto loop_00461560_first_test;
 loop_00461560_first_body:
         if (func_003e8200(*(s32 *)D_008872E0,
                           func_003bfae0(*(s32 *)(var_17 + 0))) != 0) {
             if (*(s32 *)(var_17 + 4) == 1) {
-                D_00887304[0](0xE, &sp4C);
-                D_00887300[0](0xE, 0);
+                D_00887304[0]((RwRenderState)(0xE), (void *)(&sp4C));
+                D_00887300[0]((RwRenderState)(0xE), (void *)(0));
             }
             if (*((s32 *)((u8 *)&iGpffffaf60 - 0x18)) == 1) {
                 temp_4 = *(u8 **)(var_17 + 0);
                 ((void (*)(u8 *))(*(void **)(temp_4 + 0x48)))(temp_4);
             }
             if (*(s32 *)(var_17 + 4) == 1) {
-                D_00887300[0](0xE, sp4C);
+                D_00887300[0]((RwRenderState)(0xE), (void *)(sp4C));
             }
         }
         var_17 = *(u8 **)(var_17 + 0x24);
@@ -490,15 +494,15 @@ loop_00461560_second_body:
                 func_003e8200(*(s32 *)D_008872E0,
                               func_003bfae0(*(s32 *)(var_17_2 + 0))) != 0) {
                 if (*(s32 *)(var_17_2 + 4) == 1) {
-                    D_00887304[0](0xE, &sp4C);
-                    D_00887300[0](0xE, 0);
+                    D_00887304[0]((RwRenderState)(0xE), (void *)(&sp4C));
+                    D_00887300[0]((RwRenderState)(0xE), (void *)(0));
                 }
                 if (*((s32 *)((u8 *)&iGpffffaf60 - 0x18)) == 1) {
                     temp_4_3 = *(u8 **)(var_17_2 + 0);
                     ((void (*)(u8 *))(*(void **)(temp_4_3 + 0x48)))(temp_4_3);
                 }
                 if (*(s32 *)(var_17_2 + 4) == 1) {
-                    D_00887300[0](0xE, sp4C);
+                    D_00887300[0]((RwRenderState)(0xE), (void *)(sp4C));
                 }
             }
         }
@@ -510,30 +514,30 @@ loop_00461560_second_test:
 #pragma opt_propagation off
         if ((*(u16 *)(arg0 + 0x1A) & 2) == 0) {
             {
-                void (**table)(s32, s32) =
-                    (void (**)(s32, s32))(u32)D_00887300;
-                table[0](6, 1);
-                table[0](8, 0);
+                WindowRenderStateSet *table =
+                    (WindowRenderStateSet *)(u32)D_00887300;
+                table[0]((RwRenderState)(6), (void *)(1));
+                table[0]((RwRenderState)(8), (void *)(0));
             }
         }
 #pragma opt_propagation on
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x717FB);
+        func_003f6440(2, (void *)(0x44));
+        func_003f6440(3, (void *)(0x717FB));
         var_17_3 = *(u8 **)(temp_16 + 0x18);
         goto loop_00461560_third_test;
 loop_00461560_third_body:
         if (func_003e8200(*(s32 *)D_008872E0,
                           func_003bfae0(*(s32 *)(var_17_3 + 0))) != 0) {
             if (*(s32 *)(var_17_3 + 4) == 1) {
-                D_00887304[0](0xE, &sp4C);
-                D_00887300[0](0xE, 0);
+                D_00887304[0]((RwRenderState)(0xE), (void *)(&sp4C));
+                D_00887300[0]((RwRenderState)(0xE), (void *)(0));
             }
             if (*((s32 *)((u8 *)&iGpffffaf60 - 8)) == 1) {
                 temp_4_4 = *(u8 **)(var_17_3 + 0);
                 ((void (*)(u8 *))(*(void **)(temp_4_4 + 0x48)))(temp_4_4);
             }
             if (*(s32 *)(var_17_3 + 4) == 1) {
-                D_00887300[0](0xE, sp4C);
+                D_00887300[0]((RwRenderState)(0xE), (void *)(sp4C));
             }
         }
         var_17_3 = *(u8 **)(var_17_3 + 0x24);
@@ -544,30 +548,30 @@ loop_00461560_third_test:
 #pragma opt_propagation off
         if ((*(u16 *)(arg0 + 0x1A) & 2) == 0) {
             {
-                void (**table)(s32, s32) =
-                    (void (**)(s32, s32))(u32)D_00887300;
-                table[0](6, 1);
-                table[0](8, 1);
+                WindowRenderStateSet *table =
+                    (WindowRenderStateSet *)(u32)D_00887300;
+                table[0]((RwRenderState)(6), (void *)(1));
+                table[0]((RwRenderState)(8), (void *)(1));
             }
         }
 #pragma opt_propagation on
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x715FB);
+        func_003f6440(2, (void *)(0x44));
+        func_003f6440(3, (void *)(0x715FB));
         var_16 = *(u8 **)(temp_16 + 0x1C);
         goto loop_00461560_fourth_test;
 loop_00461560_fourth_body:
         if (func_003e8200(*(s32 *)D_008872E0,
                           func_003bfae0(*(s32 *)(var_16 + 0))) != 0) {
             if (*(s32 *)(var_16 + 4) == 1) {
-                D_00887304[0](0xE, &sp4C);
-                D_00887300[0](0xE, 0);
+                D_00887304[0]((RwRenderState)(0xE), (void *)(&sp4C));
+                D_00887300[0]((RwRenderState)(0xE), (void *)(0));
             }
             if (*((s32 *)((u8 *)&iGpffffaf60 - 4)) == 1) {
                 temp_4_5 = *(u8 **)(var_16 + 0);
                 ((void (*)(u8 *))(*(void **)(temp_4_5 + 0x48)))(temp_4_5);
             }
             if (*(s32 *)(var_16 + 4) == 1) {
-                D_00887300[0](0xE, sp4C);
+                D_00887300[0]((RwRenderState)(0xE), (void *)(sp4C));
             }
         }
         var_16 = *(u8 **)(var_16 + 0x24);
@@ -587,17 +591,17 @@ void func_00461a40(u8 *arg0)
     u8 *temp_16;
     u8 *temp_4_2;
     u8 *var_16;
-    void (**table)(s32, s32);
+    WindowRenderStateSet *table;
 
     temp_16 = *(u8 **)(arg0 + 0x1C);
     if (temp_16 != NULL) {
         if ((*(u16 *)(arg0 + 0x1A) & 2) == 0) {
             table = D_00887300;
-            table[0](6, 1);
-            table[0](8, 0);
+            table[0]((RwRenderState)(6), (void *)(1));
+            table[0]((RwRenderState)(8), (void *)(0));
         }
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x717FB);
+        func_003f6440(2, (void *)(0x44));
+        func_003f6440(3, (void *)(0x717FB));
         var_16 = *(u8 **)(temp_16 + 0x20);
         goto loop_00461A40_test;
 loop_00461A40_body:
@@ -609,15 +613,15 @@ loop_00461A40_body:
                 (func_003e8200(*(s32 *)D_008872E0,
                                func_003bfae0(*(s32 *)(var_16 + 0))) != 0)) {
                 if (*(s32 *)(var_16 + 4) == 1) {
-                    D_00887304[0](0xE, &sp3C);
-                    D_00887300[0](0xE, 0);
+                    D_00887304[0]((RwRenderState)(0xE), (void *)(&sp3C));
+                    D_00887300[0]((RwRenderState)(0xE), (void *)(0));
                 }
                 if (iGpffffaf60 == 1) {
                     temp_4_2 = *(u8 **)(var_16 + 0);
                     ((void (*)(u8 *))(*(void **)(temp_4_2 + 0x48)))(temp_4_2);
                 }
                 if (*(s32 *)(var_16 + 4) == 1) {
-                    D_00887300[0](0xE, sp3C);
+                    D_00887300[0]((RwRenderState)(0xE), (void *)(sp3C));
                 }
             }
         }
@@ -653,30 +657,30 @@ void func_00461be0(u8 *arg0)
 #pragma opt_propagation off
         if ((*(u16 *)(arg0 + 0x1A) & 2) == 0) {
             {
-                void (**table)(s32, s32) =
-                    (void (**)(s32, s32))(u32)D_00887300;
-                table[0](6, 1);
-                table[0](8, 1);
+                WindowRenderStateSet *table =
+                    (WindowRenderStateSet *)(u32)D_00887300;
+                table[0]((RwRenderState)(6), (void *)(1));
+                table[0]((RwRenderState)(8), (void *)(1));
             }
         }
 #pragma opt_propagation on
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x715FB);
+        func_003f6440(2, (void *)(0x44));
+        func_003f6440(3, (void *)(0x715FB));
         var_17 = *(u8 **)(temp_16 + 0xC);
         goto loop_00461BE0_first_test;
 loop_00461BE0_first_body:
         if (func_003e8200(*(s32 *)D_008872E0,
                           func_003bfae0(*(s32 *)(var_17 + 0))) != 0) {
             if (*(s32 *)(var_17 + 4) == 1) {
-                D_00887304[0](0xE, &sp4C);
-                D_00887300[0](0xE, 0);
+                D_00887304[0]((RwRenderState)(0xE), (void *)(&sp4C));
+                D_00887300[0]((RwRenderState)(0xE), (void *)(0));
             }
             if (*((s32 *)((u8 *)&iGpffffaf60 - 0x14)) == 1) {
                 temp_4 = *(u8 **)(var_17 + 0);
                 ((void (*)(u8 *))(*(void **)(temp_4 + 0x48)))(temp_4);
             }
             if (*(s32 *)(var_17 + 4) == 1) {
-                D_00887300[0](0xE, sp4C);
+                D_00887300[0]((RwRenderState)(0xE), (void *)(sp4C));
             }
         }
         var_17 = *(u8 **)(var_17 + 0x24);
@@ -684,23 +688,23 @@ loop_00461BE0_first_test:
         if (var_17 != NULL) {
             goto loop_00461BE0_first_body;
         }
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x735FB);
+        func_003f6440(2, (void *)(0x44));
+        func_003f6440(3, (void *)(0x735FB));
         var_17_2 = *(u8 **)(temp_16 + 0x10);
         goto loop_00461BE0_second_test;
 loop_00461BE0_second_body:
         if (func_003e8200(*(s32 *)D_008872E0,
                           func_003bfae0(*(s32 *)(var_17_2 + 0))) != 0) {
             if (*(s32 *)(var_17_2 + 4) == 1) {
-                D_00887304[0](0xE, &sp4C);
-                D_00887300[0](0xE, 0);
+                D_00887304[0]((RwRenderState)(0xE), (void *)(&sp4C));
+                D_00887300[0]((RwRenderState)(0xE), (void *)(0));
             }
             if (*((s32 *)((u8 *)&iGpffffaf60 - 0x10)) == 1) {
                 temp_4_2 = *(u8 **)(var_17_2 + 0);
                 ((void (*)(u8 *))(*(void **)(temp_4_2 + 0x48)))(temp_4_2);
             }
             if (*(s32 *)(var_17_2 + 4) == 1) {
-                D_00887300[0](0xE, sp4C);
+                D_00887300[0]((RwRenderState)(0xE), (void *)(sp4C));
             }
         }
         var_17_2 = *(u8 **)(var_17_2 + 0x24);
@@ -711,15 +715,15 @@ loop_00461BE0_second_test:
 #pragma opt_propagation off
         if ((*(u16 *)(arg0 + 0x1A) & 2) == 0) {
             {
-                void (**table)(s32, s32) =
-                    (void (**)(s32, s32))(u32)D_00887300;
-                table[0](6, 1);
-                table[0](8, 0);
+                WindowRenderStateSet *table =
+                    (WindowRenderStateSet *)(u32)D_00887300;
+                table[0]((RwRenderState)(6), (void *)(1));
+                table[0]((RwRenderState)(8), (void *)(0));
             }
         }
 #pragma opt_propagation on
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x717FB);
+        func_003f6440(2, (void *)(0x44));
+        func_003f6440(3, (void *)(0x717FB));
         var_17_3 = *(u8 **)(temp_16 + 0x14);
         goto loop_00461BE0_third_test;
 loop_00461BE0_third_body:
@@ -731,15 +735,15 @@ loop_00461BE0_third_body:
                 func_003e8200(*(s32 *)D_008872E0,
                               func_003bfae0(*(s32 *)(var_17_3 + 0))) != 0) {
                 if (*(s32 *)(var_17_3 + 4) == 1) {
-                    D_00887304[0](0xE, &sp4C);
-                    D_00887300[0](0xE, 0);
+                    D_00887304[0]((RwRenderState)(0xE), (void *)(&sp4C));
+                    D_00887300[0]((RwRenderState)(0xE), (void *)(0));
                 }
                 if (*((s32 *)((u8 *)&iGpffffaf60 - 0xC)) == 1) {
                     temp_4_4 = *(u8 **)(var_17_3 + 0);
                     ((void (*)(u8 *))(*(void **)(temp_4_4 + 0x48)))(temp_4_4);
                 }
                 if (*(s32 *)(var_17_3 + 4) == 1) {
-                    D_00887300[0](0xE, sp4C);
+                    D_00887300[0]((RwRenderState)(0xE), (void *)(sp4C));
                 }
             }
         }
@@ -748,23 +752,23 @@ loop_00461BE0_third_test:
         if (var_17_3 != NULL) {
             goto loop_00461BE0_third_body;
         }
-        func_003f6440(2, 0x42);
-        func_003f6440(3, 0x71801);
+        func_003f6440(2, (void *)(0x42));
+        func_003f6440(3, (void *)(0x71801));
         var_17_4 = *(u8 **)(temp_16 + 0x28);
         goto loop_00461BE0_fourth_test;
 loop_00461BE0_fourth_body:
         if (func_003e8200(*(s32 *)D_008872E0,
                           func_003bfae0(*(s32 *)(var_17_4 + 0))) != 0) {
             if (*(s32 *)(var_17_4 + 4) == 1) {
-                D_00887304[0](0xE, &sp4C);
-                D_00887300[0](0xE, 0);
+                D_00887304[0]((RwRenderState)(0xE), (void *)(&sp4C));
+                D_00887300[0]((RwRenderState)(0xE), (void *)(0));
             }
             if (*((s32 *)((u8 *)&iGpffffaf60 + 8)) == 1) {
                 temp_4_5 = *(u8 **)(var_17_4 + 0);
                 ((void (*)(u8 *))(*(void **)(temp_4_5 + 0x48)))(temp_4_5);
             }
             if (*(s32 *)(var_17_4 + 4) == 1) {
-                D_00887300[0](0xE, sp4C);
+                D_00887300[0]((RwRenderState)(0xE), (void *)(sp4C));
             }
         }
         var_17_4 = *(u8 **)(var_17_4 + 0x24);
@@ -772,23 +776,23 @@ loop_00461BE0_fourth_test:
         if (var_17_4 != NULL) {
             goto loop_00461BE0_fourth_body;
         }
-        func_003f6440(2, 0x48);
-        func_003f6440(3, 0x71801);
+        func_003f6440(2, (void *)(0x48));
+        func_003f6440(3, (void *)(0x71801));
         var_16 = *(u8 **)(temp_16 + 0x24);
         goto loop_00461BE0_fifth_test;
 loop_00461BE0_fifth_body:
         if (func_003e8200(*(s32 *)D_008872E0,
                           func_003bfae0(*(s32 *)(var_16 + 0))) != 0) {
             if (*(s32 *)(var_16 + 4) == 1) {
-                D_00887304[0](0xE, &sp4C);
-                D_00887300[0](0xE, 0);
+                D_00887304[0]((RwRenderState)(0xE), (void *)(&sp4C));
+                D_00887300[0]((RwRenderState)(0xE), (void *)(0));
             }
             if (*((s32 *)((u8 *)&iGpffffaf60 + 4)) == 1) {
                 temp_4_6 = *(u8 **)(var_16 + 0);
                 ((void (*)(u8 *))(*(void **)(temp_4_6 + 0x48)))(temp_4_6);
             }
             if (*(s32 *)(var_16 + 4) == 1) {
-                D_00887300[0](0xE, sp4C);
+                D_00887300[0]((RwRenderState)(0xE), (void *)(sp4C));
             }
         }
         var_16 = *(u8 **)(var_16 + 0x24);
@@ -805,7 +809,7 @@ void func_00462230(u8 *arg0)
 {
     u8 *self;
     u8 *work;
-    void (**table)(s32, s32);
+    WindowRenderStateSet *table;
 
     self = arg0;
     work = *(u8 **)(self + 0x1C);
@@ -815,16 +819,16 @@ void func_00462230(u8 *arg0)
     func_00476c70(work);
     if ((*(s32 *)(work + 0xE0) == 0) ||
         ((*(s32 *)(work + 0xD8) & 0x800) != 0)) {
-        func_003f6440(2, *(s32 *)(work + 0xE4));
-        func_003f6440(3, *(s32 *)(work + 0xE8));
+        func_003f6440(2, (void *)(*(s32 *)(work + 0xE4)));
+        func_003f6440(3, (void *)(*(s32 *)(work + 0xE8)));
         self = (u8 *)D_00887300;
-        ((void (**)(s32, s32))self)[0](6, 1);
-        ((void (**)(s32, s32))self)[0](8, 0);
+        ((WindowRenderStateSet *)self)[0]((RwRenderState)(6), (void *)(1));
+        ((WindowRenderStateSet *)self)[0]((RwRenderState)(8), (void *)(0));
         func_00479910(*(s32 *)(work + 0xDC));
     } else {
         table = D_00887300;
-        table[0](6, 1);
-        table[0](8, 0);
+        table[0]((RwRenderState)(6), (void *)(1));
+        table[0]((RwRenderState)(8), (void *)(0));
         *(u16 *)(self + 0x1A) |= 2;
         *(s32 *)(self + 0x1C) = *(s32 *)(work + 0xE0);
         func_00461560(self);
@@ -890,10 +894,10 @@ void func_004623a0(u8 *arg0)
             func_003e82a0(func_00457120(), &sp2C[0], *(s32 *)(p + 0x1C));
             break;
         case 2:
-            D_00887300[0](*(s32 *)(p + 0x1C), *(s32 *)(p + 0x20));
+            D_00887300[0]((RwRenderState)(*(s32 *)(p + 0x1C)), (void *)(*(s32 *)(p + 0x20)));
             break;
         case 3:
-            func_003f6440(*(s32 *)(p + 0x1C), *(s32 *)(p + 0x20));
+            func_003f6440(*(s32 *)(p + 0x1C), (void *)(*(s32 *)(p + 0x20)));
             break;
         case 4:
             {
@@ -1106,136 +1110,6 @@ void func_00463520(void) {
     func_00451de0((const void *)(D_00712670), 0x12C, 0, 0, func_004633f0, 0, (u8 *)(0));
 }
 
-/* Floor: 177 words (was 155) / fnalign 154 edits (was 257), obj 262 vs retail 264 (-2, inside gate, was exact 264/264 hiding an 83-instruction pure hole vs 91-instruction lump per 7aa). */
-/* Hole fix first: palette entry `image + *(image+0x18) + i*4` and raw `dst = image + *(image+0x14)` added the image base to absolute pointers (Ghidra/IDA: entry = *(image+0x18)+i*4, dst = *(image+0x14); HSfdImage.palette/pixels at 0x18/0x14). */
-/* Removing the base deletes the invented lump (object[116:207] 91) and recovers the missing retail palette (retail[129:212] 83); max pure delete is now 22 (retail[100:122] advance-before) with no pure lump >=25, so the composition gate passes. */
-/* Palette now does three separate `*(u16*)(source+i*2)` loads (lhu exact, was -2 with cached `value`); advance uses a block-scope `s32 base` (0x20/0x10/0) with `source += (base*count*(1<<bit_depth))>>3` (two mults like retail, was two literal shift+mult blocks). Frame stays 0x50. */
-/* Words rose 155->177 while edits fell 257->154: correct structure insertion per 7y (cf. func_00468ff0 898->911 while edits 674->316). Count -2 is inside the 2-instruction slack. */
-/* Remaining wall: 22-hole advance-before (retail computes `base*count*(1<<...)>>3` before the palette into $t4 across jal 463870; hoisting it here costs a fifth saved reg, frame 0x60, edits 250 regress) plus the known 5-instruction per-branch default-body placement (costs 45 elsewhere, 200). Switch order 1,2/0xA,0x13/0x1B,0x14/0x24/0x2C unchanged. */
-// FUN_00463930 NONMATCHING
-#ifdef NON_MATCHING
-u8 *func_00463930(u8 *arg0)
-{
-    u8 *image;
-    s32 bit_depth;
-    u8 *source;
-    s32 i;
-    u8 *dst;
-    extern u8 *func_003ea2c0(s32 width, s32 height, s32 depth);
-
-    source = arg0 + 0x40;
-    if ((*(u8 *)(arg0 + 0) != 2) ||
-        (*(u8 *)(arg0 + 1) != 0) ||
-        (*(u8 *)(arg0 + 8) != 0x54) ||
-        (*(u8 *)(arg0 + 9) != 0x4D) ||
-        (*(u8 *)(arg0 + 0xA) != 0x58) ||
-        (*(u8 *)(arg0 + 0xB) != 0x30)) {
-        return NULL;
-    }
-    switch (*(u8 *)(arg0 + 0x16)) {    case 1:
-        bit_depth = 0x18;
-        break;
-    case 2:
-    case 0xA:
-        bit_depth = 0x10;
-        break;
-    case 0x13:
-    case 0x1B:
-        bit_depth = 8;
-        break;
-    case 0x14:
-    case 0x24:
-
-    case 0x2C:
-        bit_depth = 4;
-        break;
-    default:
-        if (*(u8 *)(arg0 + 0x16) == 0) {
-            bit_depth = 0x20;
-        } else {
-            bit_depth = 0;
-        }
-        break;
-    }
-    if (bit_depth == 0) {
-        return NULL;
-    }
-    if (bit_depth >= 0x10) {
-        bit_depth = 0x20;
-    }
-    image = func_003ea2c0(*(u16 *)(arg0 + 0x12),
-                          *(u16 *)(arg0 + 0x14), bit_depth);
-    func_003ea3e0(image);
-    if (*(u8 *)(arg0 + 0x10) != 0) {
-        switch (*(u8 *)(arg0 + 0x11)) {        case 0:
-            func_004637c0(image, (const u16 *)source);
-            break;
-                case 2:
-
-        case 0xA:
-            for (i = 0; i < (1 << *(s32 *)(image + 0xC)); i++) {
-                u8 *entry = *(u8 **)(image + 0x18) + i * 4;
-                entry[0] = (u8)((*(u16 *)(source + i * 2) & 0x1F) * 8);
-                entry[1] = (u8)(((*(u16 *)(source + i * 2) >> 5) & 0x1F) * 8);
-                entry[2] = (u8)(((*(u16 *)(source + i * 2) >> 0xA) & 0x1F) * 8);
-                if (i == 0) {
-                    entry[3] = 0;
-                } else {
-                    entry[3] = -1;
-                }
-            }
-            break;
-}
-        func_00463870(image, bit_depth);
-        {
-            s32 base;
-            if (*(u8 *)(arg0 + 0x11) == 0) {
-                base = 0x20;
-            } else if (*(u8 *)(arg0 + 0x11) == 0xA || *(u8 *)(arg0 + 0x11) == 2) {
-                base = 0x10;
-            } else {
-                base = 0;
-            }
-            source += (base * *(u8 *)(arg0 + 0x10) * (1 << bit_depth)) >> 3;
-        }
-    }
-    switch (*(u8 *)(arg0 + 0x16)) {    default:
-        if (*(u8 *)(arg0 + 0x16) == 0) {
-            func_00463570(image, source);
-        }
-        break;
-        case 1:
-        func_00463620(image, source);
-        break;
-    case 2:
-    case 0xA:
-        func_004636a0(image, source);
-        break;
-    case 0x13:
-    case 0x1B:
-        dst = *(u8 **)(image + 0x14);
-        for (i = 0; i < *(s32 *)(image + 8); i++) {
-            s32 j;
-
-            for (j = 0; j < *(s32 *)(image + 4); j++) {
-                dst[j] = *source;
-                source++;
-            }
-            dst += *(s32 *)(image + 0x10);
-        }
-        break;
-    case 0x14:
-    case 0x24:
-
-    case 0x2C:
-        func_00463740(image, source);
-        break;
-}
-    return image;
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00463930);
-#endif
 // FUN_004645E0
 void func_004645e0(void) {
     func_0043a978();
@@ -1715,8 +1589,8 @@ void func_004673c0(u8 *work)
 /* measured: honest void *table plus explicit function-pointer casts; object 848B/window 848B/nd 0; no H001 waiver. */
 void func_00467880(u8 *arg0)
 {
-    extern void func_003e8110(s32 arg0);
-    extern s32 func_003e8120(s32 arg0);
+    extern u32 func_003e8110(u32 camera);
+    extern u32 func_003e8120(u32 camera);
     extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 farg0, s32 arg2);
     extern char iGpffffb01c;
     extern u8 D_00712A20[];
@@ -1740,10 +1614,10 @@ void func_00467880(u8 *arg0)
     s32 kind;
     void *table;
 
-    if (func_003e8120(func_00457120()) != 0) {
-        D_00887304[0](0xE, &work.field58);
+    if (func_003e8120((u32)func_00457120()) != 0) {
+        D_00887304[0]((RwRenderState)(0xE), (void *)(&work.field58));
         table = D_00887300;
-        (*(void (**)(s32, s32))table)(0xE, 0);
+        (*(WindowRenderStateSet *)table)((RwRenderState)(0xE), (void *)(0));
         work.pair0 = 0x40800000;
         work.pair4 = 4.0f;
         func_00450050(*(s64 *)(void *)&work.pair0, &iGpffffb01c, arg0);
@@ -1810,8 +1684,8 @@ void func_00467880(u8 *arg0)
         *(u8 *)(void *)&work.color0 = 0x80;
         func_0045d6e0((u8 *)&work.color0,
                       (f32 *)(void *)&work.field40, 0.0f, 1);
-        (*(void (**)(s32, s32))table)(0xE, work.field58);
-        func_003e8110(func_00457120());
+        (*(WindowRenderStateSet *)table)((RwRenderState)(0xE), (void *)(work.field58));
+        func_003e8110((u32)func_00457120());
     }
 }
 /* measured: base 277wd (reloc-masked) / fnalign 344 edits, obj 976B/window 1264B (-288B), retail 312/object 244 instrs (-68); */
@@ -2255,8 +2129,8 @@ void func_00468ff0(s32 arg0, u8 *arg1) {
     s16 temp_4_4;
     s32 temp_5;
     s32 *var_6_2;
-    void (**tbl300a)(s32, s32);
-    void (**tbl300b)(s32, s32);
+    WindowRenderStateSet *tbl300a;
+    WindowRenderStateSet *tbl300b;
     void (**tblEC)(void *);
     s32 temp_2;
     s32 temp_2_3;
@@ -2598,29 +2472,29 @@ loop_94:
             (*(s16 *)((u8 *)(arg1) + (0x1E4))) = 6;
             return;
         }
-        D_00887304[0](0xE, &spFC);
-        tbl300a = (void (**)(s32, s32))(u32)D_00887300;
-        tbl300a[0](0xE, 0);
+        D_00887304[0]((RwRenderState)(0xE), (void *)(&spFC));
+        tbl300a = (WindowRenderStateSet *)(u32)D_00887300;
+        tbl300a[0]((RwRenderState)(0xE), (void *)(0));
         func_0040fcd0((*(s32 *)((u8 *)(arg1) + (0xD0))), 1);
         temp_5_6 = iGpffffbae8;
         if (temp_5_6 != 0) {
             func_00143ba0((*(s32 *)((u8 *)(arg1) + (0xD0))), temp_5_6, iGpffffbaf4, iGpffffbaf0);
             tbl300b = tbl300a;
-            tbl300b[0](0x14, 1);
+            tbl300b[0]((RwRenderState)(0x14), (void *)(1));
             (*(s32 *)((u8 *)(arg1) + (0x38))) = temp_2_3;
-            tbl300b[0](6, 0);
-            tbl300b[0](7, 2);
-            tbl300b[0](8, 0);
-            tbl300b[0](0xA, 5);
-            tbl300b[0](0xB, 9);
-            tbl300b[0](9, 1);
-            tbl300b[0](0xC, 1);
-            tbl300b[0](2, 3);
-            tbl300b[0](1, (*(s32 *)((u8 *)(arg1) + (0xD0))));
+            tbl300b[0]((RwRenderState)(6), (void *)(0));
+            tbl300b[0]((RwRenderState)(7), (void *)(2));
+            tbl300b[0]((RwRenderState)(8), (void *)(0));
+            tbl300b[0]((RwRenderState)(0xA), (void *)(5));
+            tbl300b[0]((RwRenderState)(0xB), (void *)(9));
+            tbl300b[0]((RwRenderState)(9), (void *)(1));
+            tbl300b[0]((RwRenderState)(0xC), (void *)(1));
+            tbl300b[0]((RwRenderState)(2), (void *)(3));
+            tbl300b[0]((RwRenderState)(1), (void *)((*(s32 *)((u8 *)(arg1) + (0xD0)))));
             D_00887310[0](4, (void *)(arg1 + 0xE0), 4);
         }
         func_0040fcd0((*(s32 *)((u8 *)(arg1) + (0xD0))), 0);
-        tbl300a[0](0xE, spFC);
+        tbl300a[0]((RwRenderState)(0xE), (void *)(spFC));
         return;
     case 6:                                          /* switch 1 */
         if ((*(s32 *)((u8 *)(arg1) + (0x1F4))) != 0) {
@@ -3206,33 +3080,32 @@ void func_0046d700(const char *file, s32 line, const char *msg, ...)
 void func_0046d730(void *arg0, s32 arg1) {}
 // FUN_0046D740
 void func_0046d740(const void *msg, const void *file, u32 line) {}
-/* measured: func_0046d750 reconstruction from retail asm + P4_UNIT_0046D750 draft (495 lines, m2c noise 0).
- * Jal audit: func_00457120 takes 0 args (no $a0-$a3 written before jal, returns pointer for 0x80 float);
- * func_003e8120/func_003e8110 take 1 arg ($a0 = 457120 result); func_003f6440 takes 2 ($a0,$a1);
- * D_00887300 takes 2 ($a0,$a1, cached in $s1), D_00887310 takes 3 ($a0,$a1,$a2 = 4,ptr,4, cached in $s1);
- * func_0046ea60 takes 2 (arg0 original $a0 + work+0xC $a1) -- draft 1-arg form is invented, fixed here.
- * Frame is 0x30 with $s0=work, $s1=table base, no stack locals (all state in work struct).
- * Variants hand-reasoned from alignment edits, all with #pragma opt_propagation off (measured below):
- * v1 honest for-loops, cached tables: nd 3061 obj 4252/4256 (frame 0x20, no $s1, float $f1/$f2 swapped, counters $v vs $a).
- * +pragma off: nd 629 obj 4236/4256 (frame 0x30 + $s1 restored, tail tables match).
- * decl f2-before-f1: nd 618 (float sub/div $f2/$f1 fixed).
- * case-7 duplicate bnez via (b23==0 && b23==0): nd 325 obj 4244/4256 (tail + epilogue byte-exact from 0x46e678).
- * case-7 group pointer g=work+(i<<8), e=g+(j<<6): nd 318 obj 4244/4256 hwasm (best, ported below).
- * Residual is pure integer register coloring: outer $v1 vs $a3, g $a3 vs $a1, e $a2 vs $a0, byte $a0 vs $v0,
- * or-dest $a1 vs $v1; decl-order sweeps (3 tries) all stay nd 318, tail from 0x46e678 onward is byte-exact.
- * Saved-register coloring + call-argument setup order floor (cf. docs/matching.md known floors); banked as guarded body.
- * Removing #pragma opt_propagation off measures nd 318 -> nd 3061 (frame 0x30->0x20, tables reload each call).
- * Ported to this owner with function-local externs (D_00887310 s32-return, 8120/8110, ea60); file-scope here
- * already has D_00887300/003f6440/457120. probe_variants.py in this tree: base without pragma context 1030,
- * with pragma 248 differing words; store-via-g without e temp (noe) 248, e/g decl swap (egdecl) 248, byte-temps
- * before e (bytesfirst) 285 (worse). fnalign.py base: retail 1061 instrs, object 1061 instrs, all edits are
- * register-only replaces ($a3/$a2/$a1/$a0 vs $v1/$v0/$a3/$a2, $v0/$v1 vs $a0/$a1); same count confirms coloring floor. */
+/* RwGlobals.dOpenDevice begins at +0x10, with fpRenderStateSet at +0x20.
+ * Use the registered enum/void-pointer callback through the native static
+ * instance, following RwRenderStateSetMacro in the PS2 RenderWare headers. */
+typedef struct WindowDeviceStatePrefix {
+    f32 gammaCorrection;
+    s32 (*system)(s32, void *, void *, s32);
+    f32 zBufferNear, zBufferFar;
+    WindowRenderStateSet setState;
+} WindowDeviceStatePrefix;
+typedef struct WindowEngineStatePrefix {
+    void *camera, *world;
+    u16 renderFrame, lightFrame, pad[2];
+    WindowDeviceStatePrefix device;
+} WindowEngineStatePrefix;
+extern u32 ourGlobals[4096];
+
+/* Initialize and animate the border and fill vertices, then submit the
+ * enabled window. The function owns its nine-entry state switch table.
+ * MWCCPS2 b210: 4244 executable bytes, followed by twelve zero bytes. */
+#pragma push
 #pragma opt_propagation off
-// FUN_0046D750 NONMATCHING
-#ifdef NON_MATCHING
+#pragma opt_lifetimes on
+// FUN_0046D750
 s32 func_0046d750(u8 *arg0) {
-    extern s32 func_003e8120(s32 arg0);
-    extern void func_003e8110(s32 arg0);
+    extern u32 func_003e8120(u32 camera);
+    extern u32 func_003e8110(u32 camera);
     extern s32 (*D_00887310[])(s32, void *, s32);
     extern void func_0046ea60(u8 *arg0, u8 *arg1);
     f32 f2;
@@ -3244,7 +3117,7 @@ s32 func_0046d750(u8 *arg0) {
     u8 *g;
     u8 *e;
     s32 state;
-    void (**tbl00)(s32, s32);
+    WindowRenderStateSet *tbl00;
     s32 (**tbl10)(s32, void *, s32);
 
     work = *(u8 **)(arg0 + 0x38);
@@ -3412,18 +3285,12 @@ test0k2:
             *(u8 *)(work + 0x23) = (u8)(*(f32 *)(work + 0x40));
             *(s32 *)work = *(s32 *)work + 1;
         }
-        k = 0;
-        goto test5k;
-body5k:
-        e = work + (k << 6);
-        *(f32 *)(e + 0x480) = (f32)*(u8 *)(work + 0x20);
-        *(f32 *)(e + 0x484) = (f32)*(u8 *)(work + 0x21);
-        *(f32 *)(e + 0x488) = (f32)*(u8 *)(work + 0x22);
-        *(f32 *)(e + 0x48C) = (f32)*(u8 *)(work + 0x23);
-        k++;
-test5k:
-        if (k < 4) {
-            goto body5k;
+        for (k = 0; k < 4; k++) {
+            e = work + (k << 6);
+            *(f32 *)(e + 0x480) = (f32)*(u8 *)(work + 0x20);
+            *(f32 *)(e + 0x484) = (f32)*(u8 *)(work + 0x21);
+            *(f32 *)(e + 0x488) = (f32)*(u8 *)(work + 0x22);
+            *(f32 *)(e + 0x48C) = (f32)*(u8 *)(work + 0x23);
         }
         break;
     }
@@ -3440,8 +3307,8 @@ test5k:
         i = 0;
         goto test7o;
 body7o:
-        g = work + (i << 8);
         j = 0;
+        g = work + (i << 8);
         goto test7i;
 body7i:
         e = g + (j << 6);
@@ -3472,6 +3339,7 @@ test7k:
         if (k < 4) {
             goto body7k;
         }
+        /* Retail tests the same loaded alpha byte twice. */
         if (*(u8 *)(work + 0x23) == 0 && *(u8 *)(work + 0x23) == 0) {
             *(s32 *)work = *(s32 *)work + 1;
         }
@@ -3480,15 +3348,15 @@ test7k:
         return -1;
     }
     if (*(s32 *)(work + 4) == 1) {
-        if (func_003e8120(func_00457120()) != 0) {
-            tbl00 = D_00887300;
-            tbl00[0](6, 1);
-            tbl00[0](8, 0);
-            tbl00[0](7, 2);
-            tbl00[0](0xC, 1);
-            tbl00[0](1, 0);
-            func_003f6440(2, 0x44);
-            func_003f6440(3, 0x717FB);
+        if (func_003e8120((u32)func_00457120()) != 0) {
+            tbl00 = &((WindowEngineStatePrefix *)ourGlobals)->device.setState;
+            tbl00[0]((RwRenderState)(6), (void *)(1));
+            tbl00[0]((RwRenderState)(8), (void *)(0));
+            tbl00[0]((RwRenderState)(7), (void *)(2));
+            tbl00[0]((RwRenderState)(0xC), (void *)(1));
+            tbl00[0]((RwRenderState)(1), (void *)(0));
+            func_003f6440(2, (void *)(0x44));
+            func_003f6440(3, (void *)(0x717FB));
             tbl10 = D_00887310;
             tbl10[0](4, work + 0x460, 4);
             tbl10[0](4, work + 0x60, 4);
@@ -3496,16 +3364,11 @@ test7k:
             tbl10[0](4, work + 0x260, 4);
             tbl10[0](4, work + 0x360, 4);
         }
-        func_003e8110(func_00457120());
+        func_003e8110((u32)func_00457120());
     }
     return 0;
 }
-
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046d750);
-#endif
-/* measured: closes opt_propagation around func_0046d750. */
-#pragma opt_propagation on
+#pragma pop
 // FUN_0046E7F0
 /* Keep the table address cached without changing the free callback type. */
 #pragma push
@@ -3863,9 +3726,9 @@ void func_0046ec70(u8 *arg0) {
 s32 func_0046f2b0(u8 *arg0)
 {
     extern s32 func_00457120(void);
-    extern s32 func_003e8120(s32 arg0);
-    extern void func_003e8110(s32 arg0);
-    extern void func_003f6440(s32 arg0, s32 arg1);
+    extern u32 func_003e8120(u32 camera);
+    extern u32 func_003e8110(u32 camera);
+    extern s32 func_003f6440(s32 state, void *value);
     extern s32 func_00453960(void *arg0);
     extern s32 func_00453d70(void *arg0);
     extern s32 func_00453dc0(void *arg0);
@@ -3876,7 +3739,7 @@ s32 func_0046f2b0(u8 *arg0)
     extern void func_00470490(u8 *arg0, s32 arg1, s32 arg2);
     extern u8 *func_00470d10(u8 *arg0, s32 arg1);
     extern s32 func_00470e20(u8 *arg0);
-    extern void (*D_00887300[])(s32, s32);
+    extern WindowRenderStateSet D_00887300[];
     extern s32 (*D_00887310[])(s32, void *, s32);
     extern u16 D_008C024C[];
     extern u16 D_008C024E[];
@@ -4124,23 +3987,23 @@ do {
                 (*(f32 *)((u8 *)(temp_17) + (0xB4))) = (f32) (((*(s32 *)((u8 *)(temp_17) + (0x2C))) * ((*(s32 *)((u8 *)(temp_17) + (0x134))) + 1)) + 2 + (*(s32 *)((u8 *)(temp_17) + (0x1C))));
                 (*(f32 *)((u8 *)(temp_17) + (0xF0))) = (f32) ((*(s32 *)((u8 *)(temp_17) + (0x18))) - 2 + (*(s32 *)((u8 *)(temp_17) + (0x20))));
                 (*(f32 *)((u8 *)(temp_17) + (0xF4))) = (f32) (((*(s32 *)((u8 *)(temp_17) + (0x2C))) * ((*(s32 *)((u8 *)(temp_17) + (0x134))) + 1)) + 2 + (*(s32 *)((u8 *)(temp_17) + (0x1C))));
-                if (func_003e8120(func_00457120()) != 0) {
-                    D_00887300[0](0xE, 0);
-                    D_00887300[0](0xC, 1);
-                    D_00887300[0](7, 2);
-                    D_00887300[0](0x14, 1);
-                    D_00887300[0](6, 0);
-                    D_00887300[0](8, 0);
-                    D_00887300[0](1, 0);
-                    func_003f6440(2, 0x44);
-                    func_003f6440(3, 0x717FB);
+                if (func_003e8120((u32)func_00457120()) != 0) {
+                    D_00887300[0]((RwRenderState)(0xE), (void *)(0));
+                    D_00887300[0]((RwRenderState)(0xC), (void *)(1));
+                    D_00887300[0]((RwRenderState)(7), (void *)(2));
+                    D_00887300[0]((RwRenderState)(0x14), (void *)(1));
+                    D_00887300[0]((RwRenderState)(6), (void *)(0));
+                    D_00887300[0]((RwRenderState)(8), (void *)(0));
+                    D_00887300[0]((RwRenderState)(1), (void *)(0));
+                    func_003f6440(2, (void *)(0x44));
+                    func_003f6440(3, (void *)(0x717FB));
                     D_00887310[0](4, (u8 *)temp_17 + 0x30, 4);
                 }
-                func_003e8110(func_00457120());
+                func_003e8110((u32)func_00457120());
             }
-            func_003e8120(func_00457120());
+            func_003e8120((u32)func_00457120());
             func_0046ec70(arg0);
-            func_003e8110(func_00457120());
+            func_003e8110((u32)func_00457120());
             if ((*(s32 *)((u8 *)(temp_17) + (4))) & 4) {
                 var_3_5 = &spB0;
                 var_2_5 = 0xC;

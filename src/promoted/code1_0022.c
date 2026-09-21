@@ -224,7 +224,7 @@ extern s64 func_00194590(u8 *arg0, u32 arg1);
 extern u8 *func_00202400(s32 arg0, s32 arg1);
 extern s32 func_004bd050(s32 arg0);
 extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
-extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, u16 arg3, f32 arg4);
+extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern u8 D_00632240[];
 extern u8 *func_0019ef90(s32 arg0, s32 arg1);
 extern void func_0019d0c0(u8 *arg0);
@@ -1076,7 +1076,7 @@ void func_002240e0(u8 *camera)
     }
     if (reset != 0) {
         func_001b73f0(NULL);
-        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         func_001bab00((u16 *)camera, (f32 *)&poses.second);
     } else {
         func_001bac20((u16 *)camera, (f32 *)&poses.first, (f32 *)&poses.second, 1);
@@ -1281,7 +1281,7 @@ loop_48_done:
         work.second = *(Vec3 *)D_00634890;
     }
     if (var_16 != 0) {
-        func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0x100, 0);
+        func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 0x100);
         func_001bab00((u16 *)arg0, (f32 *)&work.second);
         return;
     }
@@ -1587,7 +1587,7 @@ void func_002250a0(u8 *camera, f32 distanceOffset, f32 duration)
         flags = 0xC3;
     }
     func_001bcd40(*(u8 **)(camera + 0xE0), farUnit + 4,
-                  (f32 *)&poses.second, flags, 50.0f);
+                  (f32 *)&poses.second, 50.0f, flags);
     if (duration == 0.0f) {
         func_001bd5e0((f32 *)&poses.first, (f32 *)&poses.second);
         RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A100, 1,
@@ -1921,7 +1921,7 @@ void func_00225ec0(u8 *camera)
     radius = *(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C);
     if (*(u16 *)(iGpffffb3ac + 0x108) == 10 && *(s32 *)(iGpffffb3ac + 0xC04) == *(s32 *)(action + 8)) {
         if (*(s32 *)(iGpffffb3ac + 0xC08) != 0 && func_00232710(*(s32 *)(unit + 0xA64), 0x100) == 0) {
-            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 8, 0.0f);
+            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 8);
         }
         return;
     }
@@ -1970,7 +1970,7 @@ void func_00225ec0(u8 *camera)
                 scale = (f32)frames / 30.0f;
                 func_001bac20((u16 *)(iGpffffb3ac + 0x24), (f32 *)&rec718.first, (f32 *)&rec718.second, 1);
                 func_001bbef0(iGpffffb3ac + 0x24, scale);
-                func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+                func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
                 return;
             } else {
                 record = *(u8 **)(iGpffffb3ac + 0xB98) + 0x618;
@@ -1982,7 +1982,7 @@ void func_00225ec0(u8 *camera)
                 scale = (f32)frames / 30.0f;
                 func_001bac20((u16 *)(iGpffffb3ac + 0x24), (f32 *)&rec618.first, (f32 *)&rec618.second, 1);
                 func_001bbef0(iGpffffb3ac + 0x24, scale);
-                func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+                func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
                 return;
             }
         }
@@ -2004,10 +2004,10 @@ void func_00225ec0(u8 *camera)
             func_001cfed0(camera);
         }
         if (func_00232710(*(s32 *)(unit + 0xA64), 0x100) == 0) {
-            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 1, 0.0f);
-            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 8, 0.0f);
+            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
+            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 8);
         } else {
-            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         }
         *(s32 *)(iGpffffb3ac + 0xC08) = 1;
         return;
@@ -2169,7 +2169,7 @@ void func_002266b0(u8 *camera, f32 heightScale, f32 scale, f32 distanceOffset, f
     }
     func_001bc3a0((f32 *)&poses.first, (f32 *)&poses.first);
     func_001bc3a0((f32 *)&poses.second, (f32 *)&poses.second);
-    func_001bcd40(*(u8 **)(camera + 0xE0), actor + 4, (f32 *)(target + 4), 3, 50.0f);
+    func_001bcd40(*(u8 **)(camera + 0xE0), actor + 4, (f32 *)(target + 4), 50.0f, 3);
     func_001bac20((u16 *)camera, (f32 *)&poses.first, (f32 *)&poses.second, 1);
     func_001bbef0(camera, duration);
 }
@@ -2248,7 +2248,7 @@ void func_00226c40(u8 *camera)
         if (*(u8 *)(*(u8 **)(target + 0x30) + 0xA2) != 0) {
             break;
         }
-        func_001bcd40(action, NULL, NULL, 8, 0.0f);
+        func_001bcd40(action, NULL, NULL, 0.0f, 8);
         break;
     case 3:
     case 5:
@@ -2280,7 +2280,7 @@ void func_00226c40(u8 *camera)
         func_001bac20((u16 *)(iGpffffb3ac + 0x24),
                       (f32 *)&selected.first, (f32 *)&selected.second, 1);
         func_001bbef0(iGpffffb3ac + 0x24, duration);
-        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         break;
     case 6:
         action = *(u8 **)(camera + 0xE0);
@@ -2311,7 +2311,7 @@ void func_00226c40(u8 *camera)
                           (f32 *)&other.first, (f32 *)&other.second, 1);
             func_001bbef0(iGpffffb3ac + 0x24, duration);
         }
-        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         break;
     default:
         break;
@@ -2381,7 +2381,7 @@ void func_00227230(u8 *camera)
             func_001bac20((u16 *)(iGpffffb3ac + 0x24),
                           (f32 *)&selected.first, (f32 *)&selected.second, 1);
             func_001bbef0(iGpffffb3ac + 0x24, duration);
-            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
             break;
         }
     case 6:
@@ -2413,7 +2413,7 @@ void func_00227230(u8 *camera)
                           (f32 *)&other.first, (f32 *)&other.second, 1);
             func_001bbef0(iGpffffb3ac + 0x24, duration);
         }
-        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         break;
     default:
         break;
@@ -2508,7 +2508,7 @@ void func_002277e0(u8 *camera)
         if (*(u8 *)(*(u8 **)(target + 0x30) + 0xA2) != 0) {
             break;
         }
-        func_001bcd40(action, NULL, NULL, 8, 0.0f);
+        func_001bcd40(action, NULL, NULL, 0.0f, 8);
         break;
     case 2:
     case 4:
@@ -2518,7 +2518,7 @@ void func_002277e0(u8 *camera)
             (target = *(u8 **)(action + 0x38), action != target) &&
             *(u8 *)(*(u8 **)(target + 0x30) + 0xA2) == 0) {
             func_001c5110(camera);
-            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 8, 0.0f);
+            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 8);
             break;
         }
     case 3:
@@ -2551,7 +2551,7 @@ void func_002277e0(u8 *camera)
         func_001bac20((u16 *)(iGpffffb3ac + 0x24),
                       (f32 *)&selected.first, (f32 *)&selected.second, 1);
         func_001bbef0(iGpffffb3ac + 0x24, duration);
-        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         break;
     case 6:
         action = *(u8 **)(camera + 0xE0);
@@ -2582,7 +2582,7 @@ void func_002277e0(u8 *camera)
                           (f32 *)&other.first, (f32 *)&other.second, 1);
             func_001bbef0(iGpffffb3ac + 0x24, duration);
         }
-        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         break;
     default:
         break;
@@ -2646,7 +2646,7 @@ void func_00227e40(u8 *camera)
             func_001bac20((u16 *)(iGpffffb3ac + 0x24),
                           (f32 *)&selected.first, (f32 *)&selected.second, 1);
             func_001bbef0(iGpffffb3ac + 0x24, duration);
-            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
             break;
         }
         /* Fall through: absent genus-1 targets use the state-6 camera. */
@@ -2679,7 +2679,7 @@ void func_00227e40(u8 *camera)
                           (f32 *)&other.first, (f32 *)&other.second, 1);
             func_001bbef0(iGpffffb3ac + 0x24, duration);
         }
-        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0x100, 0.0f);
+        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         break;
     default:
         break;
@@ -2733,7 +2733,7 @@ void func_002282d0(u8 *arg0)
         func_001bac20((u16 *)(DAT_0076449c + 0x24), (f32 *)&work.first,
                       (f32 *)&work.second, 1);
         func_001bbef0(DAT_0076449c + 0x24, var_f1);
-        func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 1, 0);
+        func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 1);
         return;
     }
     func_001bf5e0(arg0);
@@ -2917,7 +2917,7 @@ void func_002289b0(u8 *arg0)
     index_offset = (temp_16 & 0xFFFF) * 0x1E8;
     target = (u8 *)&D_00632240 + index_offset;
     func_001bdd80(arg0, target + flag_offset, 8);
-    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 3, 0.0f);
+    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 3);
 }
 // FUN_00228A60
 void func_00228a60(void)
@@ -2959,7 +2959,7 @@ void func_00228a80(u8 *arg0)
         flag_offset = (func_004bd050(0) & 1) * 0xF4;
         index_offset = ((temp_16 & 0xFFFF) - 2) * 0x1E8;
         func_001bdd80(arg0, (u8 *)&D_00633740 + index_offset + flag_offset, 8);
-        func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 3, 0);
+        func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 3);
         return;
     }
     temp_5 = func_00231d70(2) & 0xFFFF;
@@ -3005,7 +3005,7 @@ loop_7_done:
     func_001bac20((u16 *)(DAT_0076449c + 0x24), (f32 *)&work.first,
                   (f32 *)&work.second, 1);
     func_001bbef0(DAT_0076449c + 0x24, var_f1);
-    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0x100, 0);
+    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 0x100);
 }
 // FUN_00228D00
 void func_00228d00(u8 *arg0) {
@@ -3086,7 +3086,7 @@ loop_7_done:
     func_001bac20((u16 *)(DAT_0076449c + 0x24), (f32 *)&work.first,
                   (f32 *)&work.second, 1);
     func_001bbef0(DAT_0076449c + 0x24, var_f1);
-    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0x100, 0);
+    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 0x100);
 }
 // FUN_00228F60
 void func_00228f60(u8 *arg0)

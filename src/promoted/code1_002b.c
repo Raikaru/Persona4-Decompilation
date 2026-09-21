@@ -1910,16 +1910,28 @@ block_23:
                   arg0, arg1, arg2, arg3, temp_item, arg5);
     return 0;
 }
-/* Preserve the word-sized ID through both metadata queries. Passing it
- * explicitly preserves all 740 code bytes and the six-way table. */
+/* Preserve the word-sized ID through both metadata queries. Capture the
+ * remaining inputs before those calls; scoped propagation preserves their
+ * retail entry order, all 740 code bytes, and the six-way table. */
+#pragma push
+#pragma opt_propagation off
 // FUN_002BC4B0
-void func_002bc4b0(s32 arg0, s32 arg1, s32 arg2, f32 fparg0, s32 arg3, s32 arg4, s32 arg5)
+void func_002bc4b0(f32 inputDepth, s32 arg0, s32 arg1, s32 arg2,
+                    s32 inputArg3, s32 inputArg4, s32 inputArg5)
 {
     extern u32 func_00106850(s32 arg0);
     extern s64 func_00106b80(s32 arg0);
     extern s32 func_002791f0(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
     u32 temp_2;
+    f32 fparg0;
+    s32 arg3;
+    s32 arg4;
+    s32 arg5;
 
+    fparg0 = inputDepth;
+    arg3 = inputArg3;
+    arg4 = inputArg4;
+    arg5 = inputArg5;
     temp_2 = func_00106850(arg0);
     switch (temp_2) {
     case 0:
@@ -1955,9 +1967,14 @@ void func_002bc4b0(s32 arg0, s32 arg1, s32 arg2, f32 fparg0, s32 arg3, s32 arg4,
         return;
     }
 }
+#pragma pop
 // FUN_002BC7A0
-void func_002bc7a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
-    func_002791f0(arg1, arg2, arg3, 1, D_0063F2B0[(s8)arg4], arg0);
+void func_002bc7a0(s32 item, f32 x, f32 y, f32 depth,
+                    s32 color, s32 font, s32 mode, s32 table)
+{
+    extern s32 func_002791f0(f32 x, f32 y, f32 depth, s32 color, s32 font,
+                            s32 mode, s32 flags, s32 table, s32 item);
+    func_002791f0(x, y, depth, color, font, mode, 1, D_0063F2B0[(s8)table], item);
 }
 
 // FUN_002BC7F0
@@ -1966,9 +1983,12 @@ void func_002bc7f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, f
 }
 
 // FUN_002BC860
-void func_002bc860(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+void func_002bc860(f32 x, f32 y, f32 depth,
+                    s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
-    func_002791f0(arg0, arg1, arg2, 1, D_0063F2C8[0], arg3);
+    extern s32 func_002791f0(f32 x, f32 y, f32 depth, s32 arg0, s32 arg1,
+                            s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+    func_002791f0(x, y, depth, arg0, arg1, arg2, 1, D_0063F2C8[0], arg3);
 }
 // FUN_002BC890
 s32 func_002bc890(u8 *arg0, s32 arg1)

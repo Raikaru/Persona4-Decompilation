@@ -1,6 +1,7 @@
 #include "include_asm.h"
 /* Source unit: src/Kosaka/Field/k_fldFBN.c */
 #include "type.h"
+#include "model_matrix_internal.h"
 
 typedef struct FbnEntry
 {
@@ -97,7 +98,6 @@ extern s32 func_00478140(u16 arg0, u16 arg1, s32 arg2);
 extern s32 func_004782b0(u32 arg0);
 extern void *func_00478750(s32 arg0);
 extern void func_00478e70(void *arg0);
-extern void func_0047a1a0(void *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void func_0047a1e0(void *arg0, void *arg1, s32 arg2);
 extern void *func_0047a2f0(u32 arg0);
 extern void *(*D_008873F4[])(size_t, size_t, u32);

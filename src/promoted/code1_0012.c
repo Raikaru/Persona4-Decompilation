@@ -3,6 +3,7 @@ typedef signed __int128 s128;
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "sdk_snd_internal.h"
+#include "shd_misc_internal.h"
 extern f32 fGpffff9cA0;
 extern f32 fGpffff9cA4;
 extern s128 D_005E5740;
@@ -1595,7 +1596,7 @@ void func_00124210(u8 *arg0)
     func_0046a340(*(s32 *)(arg0 + 0x38));
 }
 // FUN_00124350
-extern s32 func_003b7060(void);
+extern u32 func_003b7060(void);
 s32 func_00124350(void)
 {
     f32 temp_f0;
@@ -5146,10 +5147,7 @@ s32 func_0012d630(u8 *arg0)
         u16 tally;
         u8 padE[0x30 - 0xE];
     } Rec0012d630;
-    typedef struct {
-        f32 x;
-        f32 y;
-    } Vec2f_0012d630;
+    typedef Vec2f Vec2f_0012d630;
     extern s32 func_0012e1d0(u8 *arg0);
     extern void func_0034f1e0(void);
     extern void func_0034f320(u8 *arg0, f32 farg0, f32 farg1, f32 farg2,
@@ -5848,6 +5846,7 @@ void func_0012e9d0(u8 *arg0)
     typedef union {
         s64 s;
         f32 f[2];
+        PackedVec2f position;
     } Pack_0012e9d0;
     extern void func_0034f1e0(void);
     extern void func_0034c270(V2_0012e9d0 arg0, s32 arg1, s32 arg2, f32 fparg0);
@@ -5857,11 +5856,11 @@ void func_0012e9d0(u8 *arg0)
     extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u32 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
     extern void func_00130c30(u8 *arg0, s64 arg1, s32 arg2);
     extern void func_001125d0(u8 *arg0);
-    extern void func_00112300(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2);
+    extern void func_00112300(f32 fparg0, u64 arg0, s32 arg1, u8 *arg2);
     extern void func_00130680(u8 *arg0, s32 arg1);
     extern u32 func_00106880(s16 arg0);
     extern void func_00274ed0(s32 color, s32 font, s32 mode, s32 glyph, s32 arg4, s32 arg5, f32 x, f32 y, f32 scale);
-    extern void func_00130ce0(u8 *arg0, s64 arg1, s32 arg2, s16 *arg3);
+    extern void func_00130ce0(u8 *arg0, PackedVec2f arg1, s32 arg2, s16 *arg3);
     extern void func_0034f9d0(V2_0012e9d0 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3);
     extern u8 D_005E76B0[];
     extern u8 D_0064B2E8[];
@@ -6045,7 +6044,7 @@ void func_0012e9d0(u8 *arg0)
         *(s16 *)(stack + 0x16) = 4;
         pack.f[0] = fx + 1.0f;
         pack.f[1] = fy;
-        func_00112300(pack.s, 0.0f, (u8)(aval & 0xFF), stack);
+        func_00112300(0.0f, pack.s, (u8)(aval & 0xFF), stack);
     }
     if ((*(s32 *)(arg0 + 0x14) & 4) != 0) {
         for (k = 0; k < *(s16 *)(arg0 + 0x3C); k++) {
@@ -6168,7 +6167,7 @@ void func_0012e9d0(u8 *arg0)
                     } else {
                         aval = ((s32)(fmul - 2147483648.0f) | 0x80000000) & 0xFF;
                     }
-                    func_00112300(pack.s, 0.0f, (u8)(aval & 0xFF), stack);
+                    func_00112300(0.0f, pack.s, (u8)(aval & 0xFF), stack);
                 }
             }
         }
@@ -6194,7 +6193,7 @@ void func_0012e9d0(u8 *arg0)
         *(s16 *)(stack + 0x18) = 4;
         pack.f[0] = fx;
         pack.f[1] = fy;
-        func_00130ce0(arg0, pack.s, aval & 0xFF, (s16 *)stack);
+        func_00130ce0(arg0, pack.position, aval & 0xFF, (s16 *)stack);
     }
     {
         V2_0012e9d0 pos;

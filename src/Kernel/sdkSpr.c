@@ -1,5 +1,6 @@
 /* Original translation unit sdkSpr.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
+#include "sdk_sprite_loader.h"
 #include "type.h"
 
 void func_0044ea90(void *arg0, s32 arg1);
@@ -144,7 +145,7 @@ loop:
 }
 
 // FUN_0046AF60
-void func_0046af60(u32 arg0)
+u8 *func_0046af60(u32 arg0)
 {
     u8 *node;
     u8 *last;
@@ -166,6 +167,7 @@ loop:
             goto loop;
         }
     }
+    return node;
 }
 
 // FUN_0046B000
@@ -1155,4 +1157,3 @@ s32 func_0046d5f0(u8 *arg0, s32 arg1) {
 void func_0046d6a0(void)
 {
 }
-

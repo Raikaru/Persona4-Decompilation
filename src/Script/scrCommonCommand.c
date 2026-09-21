@@ -18,7 +18,7 @@ extern u32 kwlnTaskGetTimer(KwlnTask* task);
 extern void func_0046d730(const char* file, u32 line);
 extern void func_00440b68(const char* fmt, ...);
 extern void func_00106390(s32 flag, s32 value);
-extern s32 func_003b7060(void);
+extern u32 func_003b7060(void);
 extern float func_0029cd50(s32 paramIdx);
 extern void func_0029cf70(float value);
 extern float sqrtf(float x);

@@ -10,6 +10,8 @@
 
 typedef struct KwlnTask KwlnTask;
 
+u16 func_00109360(u16 character);
+
 typedef unsigned int ShdByte __attribute__((mode(QI)));
 
 void func_0011e230();
@@ -1000,7 +1002,7 @@ extern f32 D_005E4D84;
 extern f32 D_005E4D88;
 extern u8 D_005E4D90[];
 extern s16 D_005E4D58[];
-s32 func_003b7060();
+u32 func_003b7060(void);
 void func_0045dfd0(f32, void *, void *, s32, s32, s32);
 void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg2, u8 arg3, u8 arg4, u32 arg5,
@@ -1807,7 +1809,7 @@ void func_00119210(u8 *arg0)
         }
         *(u16 *)e8 = 0;
         {
-            s32 rv = func_003b7060() & 0xFFF;
+            s32 rv = (s32)func_003b7060() & 0xFFF;
             f32 fa;
             f32 div;
             f32 scale;
@@ -4547,7 +4549,7 @@ s32 func_0011e460(u8 *arg0)
 
 
 
-s32 func_003b7060();
+u32 func_003b7060(void);
 u16 *func_001094d0(s32 arg0);
 extern u16 *iGpffffb3ec;
 /* measured: the explicit `bltz`/negative conversion path for

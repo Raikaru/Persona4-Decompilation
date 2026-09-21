@@ -5,6 +5,7 @@ extern char* strcpy(char* destination, const char* source);
 extern s32 sprintf(char* destination, const char* format, ...);
 extern char* strcat(char* destination, const char* source);
 #include "type.h"
+#include "model_matrix_internal.h"
 #include "include_asm.h"
 
 extern s32 func_0029cc00(s32 arg0);
@@ -44,7 +45,6 @@ extern void func_0047a1c0(s32 a, void* b, s32 c);
 extern f32 func_0047a080(s32 arg0, s32 arg1);
 extern void func_0047a0e0(s32 arg0, s32 arg1, f32 arg2);
 extern void* func_0047a2f0(u32 arg0);
-extern void func_0047a1a0(s32 arg0, void* arg1, f32 arg2, s32 arg3);
 extern void func_0047a1e0(s32 arg0, void* arg1, s32 arg2);
 extern f32 func_0014b660(u8* arg0);
 extern f32 func_0014b5d0(u8* arg0);
@@ -424,7 +424,7 @@ s32 func_001774a0(void)
             neg[1] = -1.0f * a[1];
             neg[2] = -1.0f * a[2];
             func_0047a180(*(s32 *)(p + 0x164), neg, 2);
-            func_0047a1a0(*(s32 *)(p + 0x164), &cfg, *(f32 *)(s2 + 0x14C), 0);
+            func_0047a1a0((void *)(u32)*(s32 *)(p + 0x164), &cfg, *(f32 *)(s2 + 0x14C), 0);
             func_0047a180(*(s32 *)(p + 0x164), a, 2);
             q = func_0047a2f0(*(s32 *)(p + 0x164));
             *(Vec3f *)(q + 0x30) = *(Vec3f *)(s2 + 0x140);
@@ -463,7 +463,7 @@ s32 func_001774a0(void)
             neg[1] = -1.0f * a[1];
             neg[2] = -1.0f * a[2];
             func_0047a180(*(s32 *)(p + 0x164), neg, 2);
-            func_0047a1a0(*(s32 *)(p + 0x164), &cfg, *(f32 *)(s2 + 0x14C), 2);
+            func_0047a1a0((void *)(u32)*(s32 *)(p + 0x164), &cfg, *(f32 *)(s2 + 0x14C), 2);
             func_0047a180(*(s32 *)(p + 0x164), a, 2);
             q = func_0047a2f0(*(s32 *)(p + 0x164));
             *(Vec3f *)(q + 0x30) = *(Vec3f *)(s2 + 0x140);
@@ -475,7 +475,7 @@ s32 func_001774a0(void)
                 zz[2] = z;
                 zz[1] = z;
                 zz[0] = z;
-                func_0047a1a0(*(s32 *)(p + 0x22C), &cfg, *(f32 *)(s2 + 0x14C), 2);
+                func_0047a1a0((void *)(u32)*(s32 *)(p + 0x22C), &cfg, *(f32 *)(s2 + 0x14C), 2);
                 func_0047a1e0(*(s32 *)(p + 0x22C), zz, 2);
                 func_0047a180(*(s32 *)(p + 0x22C), s2 + 0x140, 2);
                 func_00478e70(*(s32 *)(p + 0x22C));
@@ -496,7 +496,7 @@ s32 func_001774a0(void)
             neg[1] = -1.0f * a[1];
             neg[2] = -1.0f * a[2];
             func_0047a180(*(s32 *)(p + 0x144), neg, 2);
-            func_0047a1a0(*(s32 *)(p + 0x144), &cfg, *(f32 *)(s2 + 0x14C), 0);
+            func_0047a1a0((void *)(u32)*(s32 *)(p + 0x144), &cfg, *(f32 *)(s2 + 0x14C), 0);
             func_0047a180(*(s32 *)(p + 0x144), a, 2);
             q = func_0047a2f0(*(s32 *)(p + 0x144));
             *(Vec3f *)(q + 0x30) = *(Vec3f *)(s2 + 0x140);

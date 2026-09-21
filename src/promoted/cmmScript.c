@@ -2,6 +2,7 @@
 /* Build with -DP4_UNIT_<address> to select one original source unit. */
 /* Original translation unit cmmScript.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
+#include "sdk_sprite_loader.h"
 #include "sdk_task_registration.h"
 #include "type.h"
 
@@ -58,7 +59,6 @@ extern void func_00454bd0(u8* arg0);
 extern u8* func_00454a60(void* arg0, s32 arg1);
 extern s32 func_004553c0(u8* arg0);
 extern s32 func_00455f70(void* arg0, u32* arg1);
-extern s32 func_0046af60(u32 arg0);
 extern s32 func_0046a750(s32 arg0);
 extern void func_00440b68(void* arg0, void* arg1, u32 arg2);
 extern u8* func_00246cd0(s32 arg0);
@@ -87,7 +87,7 @@ extern s32 func_00246d50(s32 arg0);
 extern s32 func_001060c0(void);
 extern s8 func_00110960(s32 arg0, s32 arg1);
 extern s32 func_00106330(s32 arg0);
-extern s32 func_003b7060(void);
+extern u32 func_003b7060(void);
 
 
 extern u8 D_00635A88[];
@@ -875,7 +875,7 @@ s32 func_0024b870(u8 *unusedTask)
         s0[1] = 4;
         temp = func_00455f70(D_00635A60, (u32*)&sp2c);
         if (temp != 0) {
-            s0[9] = func_0046af60(temp);
+            s0[9] = (s32)func_0046af60((u32)temp);
         }
     case 4:
         if (func_0046a750(s0[9]) != 0) {
@@ -2427,4 +2427,3 @@ s32 func_00250940(void)
     }
     return 1;
 }
-

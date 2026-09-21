@@ -1,4 +1,5 @@
 #include "type.h"
+#include "model_callbacks_internal.h"
 
 extern void func_004787e0(); /* old-style: retail jals with $a1 still holding the compared coordinate */
 extern void *func_00477c40(u32 arg0, u32 arg1, u32 arg2);
