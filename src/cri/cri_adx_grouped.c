@@ -11836,8 +11836,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00506580);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00506748);
 // FUN_00506850
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00506850);
-// FUN_005068F8
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005068f8);
 // FUN_00506A50
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00506a50);
 // FUN_00506B20
@@ -13791,8 +13789,6 @@ asm int func_00513dc8(int param_1)
 // FUN_00513DF8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00513df8);
 
-// FUN_00513E88
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00513e88);
 
 // FUN_00513F00
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00513f00);
@@ -14367,11 +14363,7 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00515c00);
 
 
 
-// FUN_00515D10
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00515d10);
 
-// FUN_00515D98
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00515d98);
 
 // FUN_00515E50
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00515e50);
@@ -14965,8 +14957,6 @@ u32 func_00519000(void)
 /* Source unit: src/cri/cri_adx_00519278.c (1 function markers) */
 #pragma optimization_level 3
 
-// FUN_00519008
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00519008);
 
 // FUN_00519198
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00519198);
@@ -15062,8 +15052,6 @@ asm void func_00519b98(u32 *param_1)
 // FUN_00519C20
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00519c20);
 
-// FUN_00519C38
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00519c38);
 
 // FUN_00519C88
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00519c88);
@@ -15152,11 +15140,7 @@ asm void func_0051a130(int param_1,int param_2,int param_3,int *param_4)
 
 #pragma schedule on
 
-// FUN_0051A1C0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0051a1c0);
 
-// FUN_0051A278
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0051a278);
 
 // FUN_0051A300
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0051a300);
@@ -15268,8 +15252,6 @@ asm int func_0051b0e8(u32 *param_1,u32 param_2)
 
 /* Source unit: src/cri/cri_adx_0051c098.c (1 function markers) */
 
-// FUN_0051B150
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0051b150);
 // FUN_0051B1D8
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_0051b1d8);
 // FUN_0051B330
@@ -16175,8 +16157,6 @@ INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005220f0);
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00522270);
 // FUN_00522350
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00522350);
-// FUN_005223F0
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005223f0);
 // FUN_005224A8
 asm u8 func_005224a8(int param_1)
 {
@@ -16840,14 +16820,10 @@ asm u32 func_005260e8(int param_1,u32 *param_2,u32 *param_3)
 
 // FUN_00526138
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00526138);
-// FUN_00526198
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00526198);
 // FUN_005261F0
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_005261f0);
 // FUN_00526208
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00526208);
-// FUN_00526290
-INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00526290);
 // FUN_00526380
 INCLUDE_ASM("asm/nonmatchings/cri_adx_grouped", func_00526380);
 // FUN_00526408

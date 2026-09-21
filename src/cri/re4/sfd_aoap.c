@@ -177,6 +177,7 @@ Sint32 SFD_SetOutVol(SFD sfd, Sint32 vol)
 }
 
 // Channel pan through the audio driver's callback.
+// FUN_00513E88
 Sint32 SFD_GetOutPan(SFD sfd, Sint32 ch)
 {
 	SFAOAP *aoap;

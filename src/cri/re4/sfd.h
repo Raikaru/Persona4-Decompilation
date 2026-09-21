@@ -675,8 +675,13 @@ typedef struct SFD_OBJ {
 	SFLIB_ERRINF err;          /* 0x9F0 */
 	Sint32 cond[SFD_COND_NUM]; /* 0xA04 */
 	Sint32 cond_def[SFD_COND_NUM]; /* 0xB94 */
-	Uint8 padD24[4];
-	/* 0xD28 */
+	/* P4: 9.44's SFD_OBJ carries eight more bytes here, so `con` and
+	 * everything after it sit 8 higher. Retail says so in five places at
+	 * once: `addiu $s0, $s1, 0xd30` for &con (SFCON_WriteTotSmplQue),
+	 * 0xF2C, `addiu $s0, $s2, 0x1020` for tst (sfadxt_InitInf), 0x1FC0 and
+	 * 0x2114 - every one exactly 8 above this layout. */
+	Uint8 padD24[0xD30 - 0xD24];
+	/* 0xD30 in 9.44 */
 	SFCON con;                 /* 0xD28 (also the SFTIM handle: &sfd->con) */
 	Uint8 padFA4[(int)(0x1018 - 0xD28 - sizeof(SFCON))];
 	Uint8 tst[0x1C0];          /* 0x1018 time stabiliser work (sfd_tst.c SFTST_WORK) */

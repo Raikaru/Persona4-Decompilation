@@ -322,6 +322,7 @@ void SFD_CalcYccPlane(void *buf, Sint32 width, Sint32 height, SFMPV_PLANE *plane
 }
 
 /* a NULL handle sets the decoder's default (MPV_SetCond(NULL, ..)) */
+// FUN_0051A1C0
 Sint32 SFD_SetMpvCond(SFD sfd, Sint32 id, Sint32 val)
 {
 	MPV hn;
@@ -344,6 +345,7 @@ Sint32 SFD_SetMpvCond(SFD sfd, Sint32 id, Sint32 val)
 }
 
 // Saves up to 16 MPV decoder conditions into `tbl` (kept across a handle reset).
+// FUN_0051A278
 Sint32 SFMPV_SaveCond(SFD sfd, Sint32 *tbl, Sint32 size)
 {
 	MPV hn = SFMPV_WK(sfd)->mpv;
@@ -2533,6 +2535,7 @@ static inline Sint32 sfmpv_SeekVhdr(SFD sfd, Sint32 *flg)
 }
 
 /* the video decoder cannot use the ring buffer unless a whole pack fits */
+// FUN_0051B150
 static inline Sint32 sfmpv_ChkRingSpace(SFD sfd)
 {
 	Sint32 n = SFMPV_BUFIN(sfd);

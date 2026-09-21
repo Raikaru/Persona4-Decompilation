@@ -31,6 +31,7 @@ Sint32 SFCON_ReadTotSmplQue(SFD sfd, Sint32 *val, Sint32 *last)
 
 // Pushes a file's total sample count onto the 32-entry queue (from the demuxer at each concatenated
 // file); 0 when full.
+// FUN_00515D98
 Sint32 SFCON_WriteTotSmplQue(SFD sfd, Sint32 val, Sint32 last)
 {
 	SFCON *con = &sfd->con;
@@ -52,6 +53,7 @@ Sint32 SFCON_WriteTotSmplQue(SFD sfd, Sint32 val, Sint32 last)
 
 // Adds a finished file's duration to the accumulated concatenation time and records it in the
 // per-file ring (the clock adds it to the next file's timestamps).
+// FUN_00515D10
 void SFCON_UpdateConcatTime(SFD sfd, Sint32 t)
 {
 	SFCON *con = &sfd->con;

@@ -72,19 +72,26 @@ typedef struct {
 	Uint32 x9c;           /* 0x9C time position at the last (re)start in adxt_time_unit units */
 	Sint32 startvsync;    /* 0xA0 adxt_vsync_cnt at start */
 	Sint32 decsmpl;       /* 0xA4 samples decoded before the current (linked) file */
-	Sint8 stmstart;       /* 0xA8 start the stream when the decoder is ready */
-	Uint8 pada9[0xAC - 0xA9];
-	Uint8 *wkend;         /* 0xAC end of the file stream ring buffer (ADXT_Create) */
-	void *stm_fname;      /* 0xB0 pending adxt_start_stm arguments */
-	void *stm_dir;        /* 0xB4 */
-	Sint32 stm_ofst;      /* 0xB8 */
-	Sint32 stm_nsct;      /* 0xBC */
-	/* P4: ADXT 9.44's handle is 0xC8, not the 0xC0 this GameCube 9.31 header
-	 * describes. Proven by retail's own stride: ADXT_SetOutputMono at
-	 * 0x004D6B10 walks adxt_obj with `addiu $s1, $s1, 0xc8`. What the two
-	 * extra words hold is not known yet, so they are named as padding
-	 * rather than guessed at. */
-	Uint8 padC0[0xC8 - 0xC0];
+	/* P4: from 0xA8 this header was a field short. CRI's own layout, read
+	 * out of the STABS `_adx_talk` record in the Resident Evil 4 PS2
+	 * prototype (build/cri_stabs.py), is
+	 *   0xA8 flush_nsmpl  0xAC stm_start_flg  0xAD ainf_sw  0xAE rsv4
+	 *   0xB0 fname_wk     0xB4 fname  0xB8 dir  0xBC ofst  0xC0 nsct
+	 * ending the handle at 0xC4. The local names are kept where the .c
+	 * files already use them; CRI's own name follows in brackets. */
+	Sint32 flush_nsmpl;   /* 0xA8 */
+	Sint8 stmstart;       /* 0xAC start the stream when the decoder is ready [stm_start_flg] */
+	Sint8 ainf_sw;        /* 0xAD */
+	Sint16 rsv4;          /* 0xAE */
+	Uint8 *wkend;         /* 0xB0 end of the file stream ring buffer [fname_wk] */
+	void *stm_fname;      /* 0xB4 pending adxt_start_stm arguments [fname] */
+	void *stm_dir;        /* 0xB8 [dir] */
+	Sint32 stm_ofst;      /* 0xBC [ofst] */
+	Sint32 stm_nsct;      /* 0xC0 [nsct] */
+	/* The prototype's handle ends at 0xC4; Persona 4 strides adxt_obj by
+	 * 0xC8 (`addiu $s1, $s1, 0xc8` in ADXT_SetOutputMono at 0x004D6B10),
+	 * so 9.44 carries one more word here. */
+	Uint8 padC4[0xC8 - 0xC4];
 } ADXT_OBJ;
 
 typedef ADXT_OBJ *ADXT;

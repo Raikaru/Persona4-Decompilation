@@ -422,6 +422,7 @@ Sint32 sfadxt_GetTime(SFD sfd, Sint32 *ncount, Sint32 *tscale)
 // Driver work defaults from the library parameters (ring buffer, ADXT work): transfer state
 // sfadxt_CopyData, no time yet; creates the time stabiliser with the tolerance / excess / adjust
 // conditions (0x3D..0x42, 0x48).
+// FUN_00513568
 Sint32 sfadxt_InitInf(SFD sfd, SFADXT_WORK *wk)
 {
 	void *tst;
