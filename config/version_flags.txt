@@ -32,7 +32,7 @@ cw3.0.1b119 -O4 -inline auto -DRWBUILDNUMBER=55 -nosyspath -Iinclude/rw/std -Iin
 # headers reach each other through `../../../cri/mwlib/...` and reach the CRI
 # SDK headers through `../../../recvx-decomp-cri/cri/mwlib/...`, both relative
 # to whichever -I directory they are found under.
-eegcc296 -Iinclude/rw/std -Iinclude/cri/cri/mwlib/ee -Iinclude/cri/cri/mwlib/ee/lib/libadxe -Iinclude/cri/recvx-decomp-cri/cri/mwlib/include -Iinclude/cri/recvx-decomp-cri/cri/mwlib/ee/include
+eegcc296 -Iinclude/cri/ps2 -Iinclude/rw/std -Iinclude/cri/cri/mwlib/ee -Iinclude/cri/cri/mwlib/ee/lib/libadxe -Iinclude/cri/recvx-decomp-cri/cri/mwlib/include -Iinclude/cri/recvx-decomp-cri/cri/mwlib/ee/include
 
 # The RE4 reconstruction of CRI's library (src/cri/re4) carries its own copies
 # of cri_xpt.h, sj.h, sfd.h and friends, and they are NOT interchangeable with
@@ -40,4 +40,4 @@ eegcc296 -Iinclude/rw/std -Iinclude/cri/cri/mwlib/ee -Iinclude/cri/cri/mwlib/ee/
 # GameCube and eight under this EABI64 target. Its units therefore get their
 # own key and their own include root, listed against them in
 # config/compiler_units.txt.
-eegcc296re4 -Isrc/cri/re4 -Iinclude/rw/std
+eegcc296re4 -Isrc/cri/re4 -Iinclude/cri/ps2 -Iinclude/rw/std

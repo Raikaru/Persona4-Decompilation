@@ -237,8 +237,6 @@ s32 func_004e4ef8(void)
 #pragma schedule off
 // FUN_004E4F10
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4f10);
-// FUN_004E5000
-INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e5000);
 // FUN_004E76F8
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e76f8);
 // FUN_004E77C0

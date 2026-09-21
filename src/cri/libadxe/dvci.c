@@ -90,6 +90,7 @@ void dvCiEntryErrFunc(CVF_FS_ERRFN errfn, void *obj)
 }
 
 // 100% matching!
+// FUN_004E5C68
 void dvci_to_large_to_yen(Sint8 *fname)
 {
     Uint32 len;
@@ -252,6 +253,7 @@ void* dvCiOpen(Sint8 *fname, void *prm, CVE_FS_OP rw)
 }
 
 // 100% matching!
+// FUN_004E5FF8
 void dvCiClose(void *obj)
 {
     DVCI dvci;
@@ -304,6 +306,7 @@ Sint32 dvCiSeek(void *obj, Sint32 nsct, CVE_FS_SK mode)
 }
 
 // 100% matching!
+// FUN_004EA2D0
 Sint32 dvCiTell(void *obj)
 {
     DVCI dvci;
