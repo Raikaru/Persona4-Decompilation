@@ -24,8 +24,6 @@ INCLUDE_ASM("asm/nonmatchings/rofs_if", func_004f2260);
 // FUN_004F22E0
 INCLUDE_ASM("asm/nonmatchings/rofs_if", func_004f22e0);
 
-// FUN_004F2370
-INCLUDE_ASM("asm/nonmatchings/rofs_if", func_004f2370);
 
 // FUN_004F2398
 INCLUDE_ASM("asm/nonmatchings/rofs_if", func_004f2398);

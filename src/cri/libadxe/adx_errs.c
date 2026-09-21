@@ -87,7 +87,6 @@ void ADXERR_ItoA(Sint32 val, Sint8 *str, Sint32 len)
 }
 
 // 100% matching!
-// FUN_004C6C68
 void ADXERR_ItoA2(Sint32 val, Sint32 val2, Sint8 *str, Sint32 len) 
 {
     ADXERR_ItoA(val, str, len);

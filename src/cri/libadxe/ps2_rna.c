@@ -1,0 +1,891 @@
+#include "../../../cri/mwlib/ee/lib/libadxe/ps2_rna.h"
+#include "../../../cri/mwlib/ee/lib/libadxe/dtx.h"
+#include "../../../cri/mwlib/ee/lib/libadxe/rna_crs.h"
+#include "../../../cri/mwlib/ee/lib/libadxe/sjr_clt.h"
+
+#include <stdio.h>
+//#include <string.h>
+
+Char8* volatile ps2rna_build = "\nPS2RNA Ver 0.98 Build:Jan 26 2001 09:57:43\n";
+Uint32 ps2rna_dbtbl[1000] = 
+{ 
+    256, 253, 250, 247, 244, 241, 238, 236, 233, 230, 228, 225, 222, 220, 217, 215, 212, 210, 208, 205, 203, 201, 198,
+    196, 194, 191, 189, 187, 185, 183, 181, 179, 177, 175, 173, 171, 169, 167, 165, 163, 161, 159, 157, 156, 154, 152,
+    150, 149, 147, 145, 143, 142, 140, 139, 137, 135, 134, 132, 131, 129, 128, 126, 125, 123, 122, 121, 119, 118, 117,
+    115, 114, 113, 111, 110, 109, 107, 106, 105, 104, 103, 101, 100, 99,  98,  97,  96,  95,  94,  92,  91,  90,  89,
+    88,  87,  86,  85,  84,  83,  82,  81,  80,  80,  79,  78,  77,  76,  75,  74,  73,  72,  72,  71,  70,  69,  68,
+    68,  67,  66,  65,  65,  64,  63,  62,  62,  61,  60,  60,  59,  58,  57,  57,  56,  56,  55,  54,  54,  53,  52,
+    52,  51,  51,  50,  49,  49,  48,  48,  47,  47,  46,  46,  45,  45,  44,  43,  43,  42,  42,  41,  41,  41,  40,
+    40,  39,  39,  38,  38,  37,  37,  37,  36,  36,  35,  35,  34,  34,  34,  33,  33,  32,  32,  32,  31,  31,  31,
+    30,  30,  30,  29,  29,  29,  28,  28,  28,  27,  27,  27,  26,  26,  26,  25,  25,  25,  25,  24,  24,  24,  23,
+    23,  23,  23,  22,  22,  22,  22,  21,  21,  21,  21,  20,  20,  20,  20,  19,  19,  19,  19,  18,  18,  18,  18,
+    18,  17,  17,  17,  17,  17,  16,  16,  16,  16,  16,  15,  15,  15,  15,  15,  15,  14,  14,  14,  14,  14,  14,
+    13,  13,  13,  13,  13,  13,  12,  12,  12,  12,  12,  12,  12,  11,  11,  11,  11,  11,  11,  11,  11,  10,  10,
+    10,  10,  10,  10,  10,  10,  9,   9,   9,   9,   9,   9,   9,   9,   9,   8,   8,   8,   8,   8,   8,   8,   8,
+    8,   8,   8,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   6,   6,   6,   6,   6,   6,   6,   6,   6,
+    6,   6,   6,   6,   6,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   4,   4,   4,
+    4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   3,   3,   3,   3,   3,   3,
+    3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   2,   2,   2,   2,
+    2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,
+    2,   2,   2,   2,   2,   2,   2,   2,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
+    1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
+    1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
+}; 
+Sint32 ps2rna_max_voice = 8;
+Sint32 ps2psj_iop_wksize = 0x20800;
+Sint8 *ps2psj_iop_work0 = NULL;
+Sint8 *ps2psj_iop_work = NULL;
+Sint8 ps2psj_alloc_flag = 0;
+Sint32 ps2rna_init_cnt = 0;
+void *ps2rna_eewk = NULL;
+void *ps2rna_iopwk = NULL;
+PS2PSJ_OBJ ps2psj_obj[8] = { 0 };
+Sint8 ps2psj_sjuni_eewk[8][256] = { 0 }; 
+Sint32 ps2psj_sjiop_wk[8] = { 0 }; /* unused */
+Sint32 ps2psj_sjiop_buf[8] = { 0 }; /* unused */
+PS2RNA_OBJ ps2rna_obj[8] = { 0 };
+DTX ps2rna_dtx = NULL;
+Sint32 ps2rna_wklen = 0;
+Sint8 ps2rna_ee_work[2256] = { 0 };
+
+// 100% matching!
+void ps2rna_init_psj(void) 
+{
+    Sint32 i;
+	PS2PSJ psj;
+	Sint8 *wk;
+
+    if (ps2psj_iop_work0 == NULL) 
+    {
+        ps2psj_iop_work0 = sceSifAllocIopHeap(ps2psj_iop_wksize + 64);
+        
+        ps2psj_iop_work = (void*)(((Sint32)ps2psj_iop_work0 + 64) & 0xFFFFFFC0);
+        
+        ps2psj_alloc_flag = 1;
+    }
+
+    memset(ps2psj_obj, 0, sizeof(ps2psj_obj));
+    
+    wk = ps2psj_iop_work;
+
+    for (i = 0; i < ps2rna_max_voice; i++) 
+    {
+        psj = &ps2psj_obj[i];
+        
+        psj->used = FALSE;
+
+        if (((Sint32)wk & 0x3F))
+        {
+            printf("E0110101: ps2rna_init_psj wk size error\n");
+            
+            while (TRUE);
+        }
+
+        psj->sjiop = SJUNI_CreateRmt(1, wk, 256);
+
+        if (psj->sjiop == NULL) 
+        {
+            printf("E0110102: ps2rna_init_psj: can't creat SJUNI_CreaetRmt\n");
+            
+            while (TRUE);
+        }
+
+        wk += 256;
+        
+        if (((Sint32)wk & 0x3F)) 
+        {
+            printf("E0110103: ps2rna_init_psj: wk size error\n");
+            
+            while (TRUE);
+        }
+
+        psj->sjtmp = SJUNI_Create(1, ps2psj_sjuni_eewk[i], 256);
+
+        if (psj->sjtmp == NULL) 
+        {
+            printf("E0110104: ps2rna_init_psj: can't creat SJUNI_Creaet\n");
+            
+            while (TRUE);
+        }
+
+        psj->ck.len = 16384;
+        
+        psj->ck.data = wk;
+        
+        wk += 16384;
+        
+        SJ_PutChunk(psj->sjtmp, 0, &psj->ck);
+        
+        psj->sjx = SJX_Create(psj->sjtmp, psj->sjiop, 1);
+        
+        if (psj->sjx == NULL) 
+        {
+            printf("E0110105: ps2rna_init_psj: can't creat SJX_Create\n");
+            
+            while (TRUE);
+        }
+    }
+} 
+
+// 100% matching!
+void ps2rna_finish_psj(void)
+{
+    Sint32 i;
+    PS2PSJ psj;
+
+    for (i = 0; i < ps2rna_max_voice; i++) 
+    {
+        psj = &ps2psj_obj[i]; 
+
+        if (psj->sjiop != NULL) 
+        {
+            SJRMT_Destroy(psj->sjiop);
+        }
+
+        if (psj->sjtmp != NULL)
+        {
+            SJ_Destroy(psj->sjtmp);
+        }
+
+        if (psj->sjx != NULL)
+        {
+            SJX_Destroy(psj->sjx);
+        }
+
+        memset(psj, 0, sizeof(PS2PSJ_OBJ));
+    }
+
+    if (ps2psj_alloc_flag == 1)
+    {
+        sceSifFreeIopHeap(ps2psj_iop_work0);
+        
+        ps2psj_iop_work0 = NULL;
+        
+        ps2psj_alloc_flag = 0;
+    }
+}
+
+// 100% matching
+PS2PSJ ps2rna_get_psj(void)
+{
+    Sint32 i;
+    PS2PSJ psj;
+
+    psj = NULL;
+
+    for (i = 0; i < ps2rna_max_voice; i++) 
+    {
+        psj = &ps2psj_obj[i];
+
+        if (psj->used == FALSE) 
+        {
+            break;
+        }
+    }
+
+    if (i == 8) 
+    {
+        return NULL;
+    }
+
+    SJ_Reset(psj->sjtmp);
+    
+    SJ_PutChunk(psj->sjtmp, 0, &psj->ck); 
+    
+    SJRMT_Reset(psj->sjiop);
+    
+    psj->used = TRUE;
+    
+    return psj;
+}
+
+// 100% matching!
+void ps2rna_release_psj(PS2PSJ psj)
+{
+    psj->used = FALSE;
+}
+
+// 100% matching!
+void ps2rna_rcvcbf(void *obj, void *dt, Sint32 dtlen)
+{
+    PS2RNA_DTXFMT *fmt;
+	Sint32 ncmd;
+	Sint32 i;
+
+    fmt = dt;
+
+    if (fmt == NULL) 
+    {
+        while (TRUE);
+    }
+
+    ncmd = fmt->ncmd;
+
+    for (i = 0; i < ncmd; i++) 
+    {
+        
+    }
+}
+
+// 100% matching!
+void ps2rna_sndcbf(void *obj, void *dt, Sint32 dtlen)
+{
+    PS2RNA_DTXFMT *fmt;
+	PS2RNA_DTXCMD *cmd;
+	Sint32 i;
+	Sint32 ncmd;
+    Sint32 psmvol;
+    PS2RNA rna;
+
+    fmt = dt;
+    
+    cmd = fmt->cmd;  
+
+    ncmd = 0;
+    
+    for (i = 0; i < 8; i++) 
+    {
+        rna = &ps2rna_obj[i];
+        
+        if (rna->used == TRUE) 
+        {
+            if (ncmd == 128) 
+            {
+                goto label;
+            }
+            
+            if (rna->ee_plysw != rna->iop_plysw) 
+            {
+                cmd[ncmd].no = IOPRNA_CMD_SETPSW;
+                
+                cmd[ncmd].rna = rna->ioprna;
+                
+                cmd[ncmd].arg1 = rna->ee_plysw;
+                
+                rna->iop_plysw = rna->ee_plysw;
+                
+                ncmd++;
+            }
+            
+            if (ncmd == 128) 
+            {
+                goto label;
+            }
+            
+            if (rna->ee_nch != rna->iop_nch) 
+            {
+                cmd[ncmd].no = IOPRNA_CMD_SETNCH;
+                
+                cmd[ncmd].rna = rna->ioprna;
+                
+                cmd[ncmd].arg1 = rna->ee_nch;
+                
+                rna->iop_nch = rna->ee_nch;
+                
+                ncmd++;
+            }
+            
+            if (ncmd == 128) 
+            {
+                goto label;
+            }
+            
+            if (rna->ee_sfreq != rna->iop_sfreq) 
+            {
+                cmd[ncmd].no = IOPRNA_CMD_SETSFREQ;
+                
+                cmd[ncmd].rna = rna->ioprna;
+                
+                cmd[ncmd].arg1 = rna->ee_sfreq;
+                
+                rna->iop_sfreq = rna->ee_sfreq;
+                
+                ncmd++;
+            }
+            
+            if (ncmd == 128) 
+            {
+                goto label;
+            }
+            
+            if (rna->ee_vol != rna->iop_vol) 
+            {
+                psmvol = ps2rna_dbtbl[-rna->ee_vol];
+                
+                cmd[ncmd].no = IOPRNA_CMD_SETVOL;
+                
+                cmd[ncmd].rna = rna->ioprna;
+                
+                cmd[ncmd].arg1 = 0;
+                cmd[ncmd].arg2 = psmvol;
+                
+                ncmd++;
+                
+                rna->iop_vol = rna->ee_vol;
+            }
+                
+            if (ncmd == 128) 
+            {
+                goto label;
+            }
+        }
+    } 
+    
+label:
+    fmt->ncmd = ncmd;
+}
+
+// 100% matching!
+void PS2RNA_Init(void)
+{
+    ps2rna_build;
+    
+    if (ps2rna_init_cnt == 0) 
+    {
+        SJRMT_Init();
+        SJX_Init();
+        DTX_Init();
+        ps2rna_init_psj();
+        
+        ps2rna_wklen = 2176;
+        
+        ps2rna_eewk = (void*)(((Sint32)ps2rna_ee_work + 64) & 0xFFFFFFC0);
+        
+        if (ps2rna_iopwk == NULL) 
+        {
+            ps2rna_iopwk = sceSifAllocIopHeap(2256);
+            
+            if (ps2rna_iopwk == NULL) 
+            {
+                printf("E0100301: PS2RNA_Init can't allocate IOP Heap\n");
+                
+                while (TRUE);
+            }
+        }
+        
+        ps2rna_iopwk = (void*)(((Sint32)ps2rna_iopwk + 64) & 0xFFFFFFC0); 
+        
+        ps2rna_dtx = DTX_Create(1, ps2rna_eewk, ps2rna_iopwk, ps2rna_wklen);
+        
+        if (ps2rna_dtx == NULL) 
+        {
+            printf("E0100302: PS2RNA_Init can't create DTX\n");
+            
+            while (TRUE); 
+        } 
+        
+        DTX_SetRcvCbf(ps2rna_dtx, ps2rna_rcvcbf, NULL);
+        DTX_SetSndCbf(ps2rna_dtx, ps2rna_sndcbf, NULL);
+    }
+    
+    ps2rna_init_cnt++;
+}
+
+// 100% matching!
+void PS2RNA_Finish(void)
+{
+    if (--ps2rna_init_cnt == 0)
+    {
+        DTX_Finish();
+        SJX_Finish();
+        SJRMT_Finish();
+    }
+} 
+
+// 100% matching!
+PS2RNA PS2RNA_Create(SJ *sj, Sint32 maxnch)
+{
+    Sint32 i;
+	Sint32 arg_in[4];
+	Sint32 arg_out[1];
+	PS2RNA ps2rna;
+
+    for (i = 0; i < 8; i++)
+    {
+        ps2rna = &ps2rna_obj[i];
+
+        if (ps2rna->used == FALSE) 
+        {
+            break;
+        }
+    }
+
+    if (i == 8) 
+    {
+        return NULL;
+    }
+    
+    memset(ps2rna, 0, sizeof(PS2RNA_OBJ));
+    
+    ps2rna->maxnch = maxnch;
+    
+    for (i = 0; i < maxnch; i++) 
+    {
+        ps2rna->psj[i] = ps2rna_get_psj();
+    }
+
+    arg_in[0] = maxnch;
+    arg_in[1] = 0;
+
+    for (i = 0; i < maxnch; i++) 
+    {
+        arg_in[2 + i] = (Sint32)ps2rna->psj[i]->sjiop;
+    }
+     
+    ps2rna->ioprna = (IOPRNA)DTX_CallUrpc(PS2RNA_DTXFNO_CREATE, arg_in, 4, arg_out, 1);
+
+    if (ps2rna->ioprna == NULL)
+    {
+        printf("E0100401: can't create PS2RNA of IOP\n");
+        
+        return NULL;
+    }
+    
+    for (i = 0; i < maxnch; i++)
+    {
+        ps2rna->dtr[i] = DTR_Create(sj[i], ps2rna->psj[i]->sjtmp);
+    }
+
+    for (i = 0; i < maxnch; i++)
+    {
+        ps2rna->sjo[i] = sj[i];
+    } 
+    
+    ps2rna->ee_plysw = 0;
+    ps2rna->iop_plysw = 0;
+    
+    ps2rna->ee_nch = maxnch;
+    ps2rna->iop_nch = maxnch; 
+    
+    ps2rna->ee_vol = 0;
+    ps2rna->iop_vol = 0;
+
+    for (i = 0; i < maxnch; i++)
+    {
+        ps2rna->ee_pan[i] = 0;
+        ps2rna->iop_pan[i] = 0;
+    }
+
+    ps2rna->trnsw = 0;
+    
+    ps2rna->dtrstop_flg = 1;
+    
+    ps2rna->flsh_size = 0;
+    ps2rna->obuf_size = SJ_GetNumData(sj[0], 1) + SJ_GetNumData(sj[0], 0);
+    
+    ps2rna->used = TRUE;
+    
+    return ps2rna;
+}
+
+// 100% matching!
+void PS2RNA_Destroy(PS2RNA ps2rna)
+{
+    Sint32 i;
+	Sint32 arg[1];
+
+    for (i = 0; i < ps2rna->maxnch; i++)
+    {
+        if (ps2rna->dtr[i] != NULL) 
+        {
+            DTR_Destroy(ps2rna->dtr[i]);
+        }
+    }
+    
+    arg[0] = (Sint32)ps2rna->ioprna; 
+    
+    DTX_CallUrpc(PS2RNA_DTXFNO_DESTROY, arg, 1, NULL, 0);
+ 
+    for (i = 0; i < ps2rna->maxnch; i++) 
+    {
+        if (ps2rna->psj[i] != NULL) 
+        {
+            ps2rna_release_psj(ps2rna->psj[i]);
+        }
+    }
+    
+    ps2rna->used = FALSE;
+}
+
+// 100% matching!
+void PS2RNA_Start(PS2RNA rna)
+{
+    printf("PS2RNA_Start: not implemented\n");
+
+    while (TRUE);
+}
+
+// 100% matching!
+void PS2RNA_Stop(PS2RNA rna)
+{
+    PS2RNA_SetTransSw(rna, 0);
+    PS2RNA_SetPlaySw(rna, 0);
+}
+
+// 100% matching!
+void PS2RNA_SetTransSw(PS2RNA rna, Sint32 sw)
+{
+    Sint32 i;
+
+    if (rna->trnsw == sw)
+    {
+        return;
+    }
+    
+    rna->trnsw = sw;
+    
+    if (sw != 1)
+    {
+        return;
+    }
+    
+    if (rna->dtrstop_flg == sw)
+    {
+        for (i = 0; i < rna->maxnch; i++) 
+        {
+            DTR_Start(rna->dtr[i]);
+        }
+
+        rna->dtrstop_flg = 0;
+    }
+
+    rna->flsh_size = 0;
+}
+
+// 100% matching!
+void PS2RNA_SetPlaySw(PS2RNA rna, Sint32 sw)
+{
+    Sint32 i;
+
+    rna->ee_plysw = sw;
+    
+    if (sw == 0) 
+    {
+        for (i = 0; i < rna->maxnch; i++) 
+        {
+            SJ_Reset(rna->psj[i]->sjtmp);
+            
+            SJ_PutChunk(rna->psj[i]->sjtmp, 0, &rna->psj[i]->ck);
+            
+            SJRMT_Reset(rna->psj[i]->sjiop); 
+        }
+    }
+}
+
+// 100% matching!
+void PS2RNA_ClearBuf(PS2RNA rna) 
+{
+    printf("PS2RNA_ClearBuf: not implemented\n");
+
+    while (TRUE);
+}
+
+// 100% matching!
+void PS2RNA_SetPcmType(PS2RNA rna, Sint32 type)
+{
+    printf("PS2RNA_SetPcmType: not implemented\n");
+
+    while (TRUE);
+}
+
+// 100% matching! 
+void PS2RNA_GetTime(PS2RNA rna, Sint32 *ncount, Sint32 *tscale)
+{
+    *ncount = 0;
+    
+    *tscale = 48000;
+}
+
+// 100% matching! 
+Sint32 PS2RNA_GetNumData(PS2RNA rna)
+{
+    return (Uint32)(16384 - SJ_GetNumData(rna->psj[0]->sjtmp, 0)) / 2;
+}
+
+// 100% matching! 
+Sint32 PS2RNA_GetNumRoom(PS2RNA rna)
+{
+    return (Uint32)SJ_GetNumData(rna->psj[0]->sjtmp, 0) / 2;
+} 
+
+// 100% matching!
+void PS2RNA_ExecHndl(PS2RNA rna)
+{
+    Sint32 i;
+	SJCK ck;
+    Sint32 temp;
+
+    if ((rna->ee_plysw == 1) && (rna->trnsw == 0)) 
+    {
+        temp = SJ_GetNumData(rna->sjo[0], 1);
+        
+        if ((temp > 0) && (temp < 64))
+        {
+            for (i = 0; i < rna->maxnch; i++) 
+            {
+                SJ_GetChunk(rna->sjo[i], 0, 1024, &ck);
+                
+                if (ck.len < 1024)
+                {
+                    SJ_UngetChunk(rna->sjo[i], 0, &ck);
+                    return;
+                }
+                else 
+                {
+                    memset(ck.data, 0, ck.len);
+                    
+                    SJ_PutChunk(rna->sjo[i], 1, &ck);
+                }
+            }
+        }
+        
+        if (rna->flsh_size < rna->obuf_size)
+        {
+            for (i = 0; i < rna->maxnch; i++) 
+            {
+                SJ_GetChunk(rna->sjo[i], 0, rna->obuf_size, &ck);
+                
+                memset(ck.data, 0, ck.len);
+                
+                SJ_PutChunk(rna->sjo[i], 1, &ck);
+            }
+            
+            rna->flsh_size += ck.len;
+        }
+    
+        if ((rna->flsh_size >= rna->obuf_size) && (SJ_GetNumData(rna->sjo[0], 1) < 64))
+        {
+            for (i = 0; i < rna->maxnch; i++) 
+            {
+                DTR_Stop(rna->dtr[i]);
+            }
+            
+            rna->dtrstop_flg = 1;
+        }
+    }
+}
+
+// 100% matching!
+void PS2RNA_ExecServer(void)
+{
+    Sint32 i;
+    PS2RNA rna;
+
+    SJX_ExecServer();
+    DTR_ExecServer();
+
+    RNACRS_Lock();
+
+    for (i = 0; i < 8; i++) 
+    {
+        rna = &ps2rna_obj[i];
+
+        if (rna->used == TRUE)
+        {
+            PS2RNA_ExecHndl(rna);
+        }
+    }
+
+    RNACRS_Unlock();
+}
+
+// 100% matching!
+void PS2RNA_SetStartSmpl(PS2RNA rna, Sint32 nsmpl)
+{
+    printf("PS2RNA_SetStartSmpl: not implemented\n");
+
+    while (TRUE);
+}
+
+// 100% matching!
+void PS2RNA_SetNumChan(PS2RNA rna, Sint32 nch)
+{
+    rna->ee_nch = nch; 
+}
+
+// 100% matching!
+void PS2RNA_SetSfreq(PS2RNA rna, Sint32 sfreq)
+{
+    rna->ee_sfreq = sfreq;
+}
+
+// 100% matching!
+void PS2RNA_SetOutVol(PS2RNA rna, Sint32 vol)
+{
+    Sint32 val;
+
+    val = vol;
+    
+    if (val > 0) 
+    {
+        val = 0;
+    }
+
+    if (val < -999) 
+    {
+        val = -999;
+    }
+
+    rna->ee_vol = val; 
+}
+
+// 100% matching!
+void PS2RNA_SetOutPan(PS2RNA rna, Sint32 chno, Sint32 pan)
+{
+    Sint32 val;
+
+    val = pan;
+
+    if (val < -15)
+    {
+        val = -15;
+    }
+
+    if (val > 15) 
+    {
+        val = 15;
+    }
+    
+    rna->ee_pan[chno] = val;
+}
+
+// 100% matching!
+void PS2RNA_SetBitPerSmpl(PS2RNA rna, Sint32 bps)
+{
+    if (bps != 16) 
+    {
+        printf("PS2RNA_SetBitPerSmpl: not support %d bps\n");
+        
+        while (TRUE);
+    }
+}
+
+// 100% matching!
+Sint32 PS2RNA_GetStartSmpl(PS2RNA rna)
+{
+    printf("PS2RNA_GetStartSmpl: not implemented\n");
+    
+    while (TRUE);
+}
+
+// 100% matching!
+Sint32 PS2RNA_GetSfreq(PS2RNA rna) 
+{
+    return rna->ee_sfreq;
+}
+
+// 100% matching!
+Sint32 PS2RNA_GetOutVol(PS2RNA rna)
+{
+    return rna->ee_vol;
+}
+
+// 100% matching!
+Sint32 PS2RNA_GetOutPan(PS2RNA rna, Sint32 chno)
+{
+    return rna->ee_pan[chno];
+}
+
+// 100% matching!
+Sint32 PS2RNA_GetBitPerSmpl(PS2RNA rna) 
+{
+    return 16;
+}
+
+// 100% matching!
+Sint32 PS2RNA_IsOverflow(PS2RNA rna)
+{
+    printf("PS2RNA_IsOverflow: not implemented\n");
+
+    while (TRUE);
+}
+
+// 100% matching!
+void PS2RNA_ClearOverflow(PS2RNA rna)
+{
+    printf("PS2RNA_ClearOverflow: not implemented\n");
+    
+    while (TRUE);
+}
+
+// 100% matching!
+void PS2RNA_Flush(PS2RNA rna)
+{
+    printf("PS2RNA_Flush: not implemented\n");
+
+    while (TRUE);
+}
+
+// 100% matching!
+Sint32 PS2RNA_DiscardData(PS2RNA rna, Sint32 nsmpl)
+{
+    printf("PS2RNA_DiscardData: not implemented\n");
+
+    while (TRUE); 
+}
+
+// 100% matching!
+void PS2RNA_SetTotalNumSmpl(PS2RNA rna, Sint32 nsmpl)
+{
+    printf("PS2RNA_SetTotalNumSmpl: not implemented\n");
+
+    while (TRUE);
+}
+
+// 100% matching!
+Sint32 PS2RNA_SetStmHdInfo(PS2RNA rna, void *snddat)
+{
+    printf("PS2RNA_SetStmHdInfo: not implemented\n");
+
+    while (TRUE);
+}
+
+// 100% matching!
+Sint32 PS2RNA_IsPlySwOff(PS2RNA rna) 
+{
+    Sint32 ret;
+
+    ret = 0;
+    
+    if (PS2RNA_GetNumData(rna) <= 0) 
+    {
+        ret = rna->dtrstop_flg == 1;
+    }
+    
+    return ret;
+}
+
+// 100% matching!
+SJ PS2RNA_GetSjtmp(PS2RNA rna, Sint32 chno)
+{
+    return rna->psj[chno]->sjtmp; 
+} 
+
+// 100% matching!
+SJ PS2RNA_GetSjiop(PS2RNA rna, Sint32 chno)
+{
+    return rna->psj[chno]->sjiop; 
+}

@@ -155,6 +155,7 @@ static CVFS_IF addDevice(Sint8 *devname, CVF_FS_VTBLFN func)
 }
 
 // 100% matching!
+// FUN_004E1908
 static CVFS_IF getDevice(const Sint8 *devname) 
 {
     Uint32 len;
@@ -174,6 +175,7 @@ static CVFS_IF getDevice(const Sint8 *devname)
 }
 
 // 100% matching!
+// FUN_004E19A0
 static void toUpperStr(Sint8 *src)
 {
     Uint32 len;
@@ -456,7 +458,6 @@ void cvFsClose(CVFS cvfs)
 }
 
 // 100% matching!
-// FUN_004E20A0
 Sint32 cvFsTell(CVFS cvfs) 
 {
     Sint32 val;
@@ -483,7 +484,6 @@ Sint32 cvFsTell(CVFS cvfs)
 }
 
 // 100% matching!
-// FUN_004E2108
 Sint32 cvFsSeek(CVFS cvfs, Sint32 nsct, CVE_FS_SK sk_mode)
 {
     Sint32 val;
@@ -510,7 +510,6 @@ Sint32 cvFsSeek(CVFS cvfs, Sint32 nsct, CVE_FS_SK sk_mode)
 }
 
 // 100% matching!
-// FUN_004E2170
 Sint32 cvFsReqRd(CVFS cvfs, Sint32 nsct, void *buf)
 {
     Sint32 val;
@@ -1312,7 +1311,6 @@ Sint8* cvFsGetDevName(CVFS cvfs)
 }
 
 // 100% matching!
-// FUN_004E2E28
 void cvFsEntryErrFunc(CVF_FS_ERRFN errfn, void *obj)
 {
     if (errfn == NULL)

@@ -149,6 +149,7 @@ jobs:
           P4_PRIVATE_MWLD_PATH: ${{ vars.P4_PRIVATE_MWLD_PATH || 'mwldps2.exe' }}
           P4_PRIVATE_RETAIL_ELF_PATH: ${{ vars.P4_PRIVATE_RETAIL_ELF_PATH || 'SLUS_217.82' }}
           P4_PRIVATE_MWCC_B119_PATH: ${{ vars.P4_PRIVATE_MWCC_B119_PATH || 'cw3.0.1b119/mwccps2.exe' }}
+          P4_PRIVATE_EEGCC_ROOT: ${{ vars.P4_PRIVATE_EEGCC_ROOT || 'ee-gcc-2.96' }}
         run: |
           set -eu
           private_root="$RUNNER_TEMP/p4-private"
@@ -175,6 +176,17 @@ jobs:
               exit 1
             fi
           done
+          # ee-gcc 2.96 builds the vendor units in config/gcc_units.txt. It
+          # used to be optional, because those units held nothing but
+          # INCLUDE_ASM and were linked from extracted retail assembly. The
+          # reconstructed CRI sources under src/cri ended that: they are real
+          # C that must be compiled to be verified, so the toolchain is now a
+          # build requirement rather than a developer convenience.
+          if [ ! -x "$private_root/$P4_PRIVATE_EEGCC_ROOT/bin/ee-gcc" ]; then
+            echo "::error::${P4_PRIVATE_DEPS_REPO} does not contain '$P4_PRIVATE_EEGCC_ROOT/bin/ee-gcc'. Upload the ee-gcc 2.96 tree there (or point P4_PRIVATE_EEGCC_ROOT at it); config/gcc_units.txt cannot be verified without it."
+            exit 1
+          fi
+          echo "P4_PRIVATE_EEGCC_ROOT=$P4_PRIVATE_EEGCC_ROOT" >> "$GITHUB_ENV"
           echo "P4_PRIVATE_ROOT=$private_root" >> "$GITHUB_ENV"
           echo "P4_PRIVATE_MWCC_PATH=$P4_PRIVATE_MWCC_PATH" >> "$GITHUB_ENV"
           echo "P4_PRIVATE_MWLD_PATH=$P4_PRIVATE_MWLD_PATH" >> "$GITHUB_ENV"
@@ -197,6 +209,7 @@ jobs:
             --env "P4_MWCC_CW3_0_1B119_BINARY=/opt/p4/$P4_PRIVATE_MWCC_B119_PATH" \
             --env "P4_MWLD_BINARY=/opt/p4/$P4_PRIVATE_MWLD_PATH" \
             --env "P4_RETAIL_ELF=/opt/p4/$P4_PRIVATE_RETAIL_ELF_PATH" \
+            --env "P4_EEGCC_ROOT=/opt/p4/$P4_PRIVATE_EEGCC_ROOT" \
             --workdir /work \
             p4-decomp-ci \
             sh -ec '
