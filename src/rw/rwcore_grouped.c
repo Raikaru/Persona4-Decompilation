@@ -382,9 +382,10 @@ extern s32 func_003ec1f0(s32 arg0, s32 arg1, s32 *arg2, s32 *arg3, s32 *arg4, s3
 #pragma no_branch_likely off
 extern s32 func_003ec330(u8 *arg0); /* P4: ported verbatim into src/renderware */
 // FUN_003EC3A0
-void func_003ec3a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
+s32 func_003ec3a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
 {
-    func_003e3870(D_0070B7E0, arg0, arg1, arg2, arg3, arg4);
+    extern s32 func_003e3870(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+    return func_003e3870(D_0070B7E0, arg0, arg1, arg2, arg3, arg4);
 }
 /* measured: retail uses a plain beqz for the callback result. */
 #pragma no_branch_likely on
@@ -958,7 +959,53 @@ u8 *func_00402410(u8 *arg0, u8 *arg1, u8 *arg2)
         : "$vf1", "$vf2", "$vf3", "$vf4", "$vf5", "ACC", "memory");
 }
 // FUN_00402470
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00402470);
+u8 *func_00402470(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3)
+{
+    __asm__ volatile(
+        ".set noat\n"
+        ".set noreorder\n"
+        "daddu $8, $4, $0\n"
+        "lqc2 $vf1, 0x0($7)\n"
+        "lqc2 $vf2, 0x10($7)\n"
+        "lqc2 $vf3, 0x20($7)\n"
+        "lqc2 $vf4, 0x30($7)\n"
+        "lwu $13, 0x0($5)\n"
+        "lwu $11, 0x4($5)\n"
+        "lwu $12, 0x8($5)\n"
+        "dsll32 $11, $11, 0\n"
+        "or $11, $11, $13\n"
+        "pcpyld $12, $12, $11\n"
+        "qmtc2.ni $12, $vf5\n"
+        "1:\n"
+        "blez $6, 2f\n"
+        "addi $5, $5, 0xC\n"
+        "vmulax.xyz $ACC, $vf1, $vf5x\n"
+        "vmadday.xyz $ACC, $vf2, $vf5y\n"
+        "vmaddaz.xyz $ACC, $vf3, $vf5z\n"
+        "vmaddw.xyz $vf6, $vf4, $vf0w\n"
+        "lwu $13, 0x0($5)\n"
+        "lwu $11, 0x4($5)\n"
+        "lwu $12, 0x8($5)\n"
+        "addi $6, $6, -0x1\n"
+        "dsll32 $11, $11, 0\n"
+        "or $11, $11, $13\n"
+        "pcpyld $12, $12, $11\n"
+        "qmtc2.ni $12, $vf5\n"
+        "qmfc2.ni $25, $vf6\n"
+        "dsrl32 $2, $25, 0\n"
+        "pcpyud $3, $25, $25\n"
+        "sw $25, 0x0($4)\n"
+        "sw $2, 0x4($4)\n"
+        "sw $3, 0x8($4)\n"
+        "b 1b\n"
+        "addi $4, $4, 0xC\n"
+        "2:\n"
+        "daddu $2, $8, $0\n"
+        ".set reorder\n"
+        :
+        : "r"(arg0), "r"(arg1), "r"(arg2), "r"(arg3)
+        : "$vf1", "$vf2", "$vf3", "$vf4", "$vf5", "$vf6", "ACC", "memory");
+}
 // FUN_00402510
 u8 *func_00402510(u8 *arg0, u8 *arg1, u8 *arg2)
 {
