@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "type.h"
+#include "model_callbacks_internal.h"
 
 typedef struct MdlAppObj
 {
@@ -24,7 +25,6 @@ typedef struct MdlAppBc
 extern s32 func_0047e440(u16 id, u16 subId);
 extern void *func_0047dea0(u16 id, u16 subId, s32 kind);
 extern s32 func_0047df40(u16 id, u16 subId);
-extern void func_0047d090(void *fn0, void *fn1, void *fn2, void *fn3, void *fn4);
 extern s32 func_00106330(s32 id);
 extern s64 func_001060b0(void);
 extern s32 func_00110d60(s16 value);
@@ -32,10 +32,10 @@ extern s32 func_00442088(char *buf, char *fmt, ...);
 extern void func_00440b68(char *fmt, ...);
 extern s32 func_00454a60(void *msg, s32 kind);
 extern void func_00456150(s32 handle);
-extern void func_002308a0(void);
-extern void func_00230bc0(void);
-extern void func_00230c00(void);
-extern void func_00230d30(void);
+extern s32 func_002308a0(s32 type, s32 id, char *name);
+extern u8 func_00230bc0(u16 type);
+extern s32 func_00230c00(s32 type, s32 id, char *path);
+extern s32 func_00230d30(void *model);
 extern void func_002311a0(MdlAppObj *obj);
 
 extern char D_00635820[];
@@ -146,8 +146,8 @@ void func_002311a0(MdlAppObj *obj)
 // FUN_002312E0
 void func_002312e0(void)
 {
-    func_0047d090(&func_002308a0, &func_00230bc0, &func_00230c00, &func_00230d30,
-                  &func_00230f20);
+    func_0047d090(func_002308a0, func_00230bc0, func_00230c00,
+                  func_00230d30, func_00230f20);
 }
 
 // FUN_00231330

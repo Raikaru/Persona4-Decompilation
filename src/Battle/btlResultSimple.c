@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "sdk_sprite_loader.h"
 #include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit btlResultSimple.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -38,7 +39,6 @@ void func_0046d730(const void *file, s32 line);
 s32 func_0046a770(u32 param);
 s32 func_004553c0(u8 *ptr);
 u8 *func_00455ea0(u8 *param, s32 a, s32 *b);
-s32 func_0046af60(u8 *arg0);
 s32 func_0046a750(s32 param);
 void func_0021fea0(u8 *arg0, u8 *work);
 void func_002214d0(u8 *task);
@@ -292,8 +292,7 @@ s32 func_0021f340(BtlResultWork *work)
             var_18 = 0;
             while (var_18 < 3) {
                 dest = (s32 *)(arg0 + var_18 * 4 + 0x400);
-                *dest = (s32)func_0046af60(
-                    func_00455ea0(*(u8 **)(arg0 + 0x4BC), var_18, 0));
+                *dest = (s32)func_0046af60((u32)func_00455ea0(*(u8 **)(arg0 + 0x4BC), var_18, 0));
                 if (*dest == 0) {
                     func_0046d730(&D_00629610, 0x181);
                 }
@@ -745,7 +744,7 @@ void func_0021fea0(u8 *arg0, u8 *arg1)
     s32 func_0010d6d0(s16);
     s32 func_0021e050(u8 *);
     void func_001125d0(u8 *);
-    void func_00112300(s64, f32, u8, u8 *);
+    void func_00112300(f32, u64, s32, u8 *);
     int func_00274ed0(f32, f32, f32, s32, s32, s32, s32, s32, s32);
 
     (void)arg0;
@@ -912,7 +911,7 @@ do {
                     aA0.a2 = (s16)((*(s16 *)((u8 *)(t3) + 0x2E)));
                     aA0.b6 = 6;
                     aA0.b8 = 5;
-                    func_00112300((*(s64 *)&f110[0]), 0.0f, b22, (u8 *)&aA0);
+                    func_00112300(0.0f, (*(u64 *)&f110[0]), b22, (u8 *)&aA0);
                     f110[1] += 34.0f;
                     s21 += 1;
 } while (s21 < (*(s32 *)((u8 *)(p16) + 0x38)));
@@ -1213,4 +1212,3 @@ void func_00221770(void) {
     }
     work->flags |= 4;
 }
-

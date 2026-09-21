@@ -66,7 +66,7 @@ s32 func_0017d3c0(u8 *arg0)
     extern void func_00168de0();
     extern s32 func_0016ffd0();
     extern s32 func_0017e980();
-    extern s32 func_003b7060();
+    extern u32 func_003b7060(void);
     extern void func_0043f9c8();
     extern void func_00452080();
     extern void func_0046d730();

@@ -82,7 +82,7 @@ extern u8 *func_00251570(s32 arg0, s32 arg1);
 extern void func_00251850(s32 arg0);
 extern s32 func_0025f360(s32 arg0, s32 arg1, u8 *arg2);
 extern s32 func_0035afa0(s32 arg0);
-extern s32 func_003b7060();
+extern u32 func_003b7060(void);
 extern void func_003e05f0(void *arg0, void *arg1, void *arg2);
 extern f32 func_0044b610(f32 fparg0);
 extern f32 func_0044b7b0(f32 fparg0);
@@ -3624,7 +3624,7 @@ extern void func_00275980();
 extern void func_002bbd80();
 extern s32 func_00106330();
 extern void func_00106390();
-extern u8 *func_0010a900();
+extern u16 *func_0010a900(u16 character);
 extern s32 func_0010cc20();
 extern void func_004599a0();
 extern void func_00459950();
@@ -3927,20 +3927,20 @@ s32 func_0025b240(u8 *arg0) {
             tmp = 0x113;
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)((s32)gp4BB8 + 0x1469));
             func_002badc0(*(s8 *)(ctx + 0x3C), 0x12);
-            pb = func_0010a900(5);
+            pb = (u8 *)func_0010a900(5);
             func_0010cc20(pb, 0x113);
             break;
         case 8:
             tmp = 0x112;
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)((s32)gp4BB8 + 0x1456));
             func_002badc0(*(s8 *)(ctx + 0x3C), 0x13);
-            pb = func_0010a900(5);
+            pb = (u8 *)func_0010a900(5);
             func_0010cc20(pb, 0x112);
             break;
         case 9:
             tmp = 0x10D;
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)((s32)gp4BB8 + 0x13F7));
-            pb = func_0010a900(5);
+            pb = (u8 *)func_0010a900(5);
             func_0010cc20(pb, 0x10D);
             break;
         }

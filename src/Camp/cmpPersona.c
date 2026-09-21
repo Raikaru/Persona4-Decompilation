@@ -2,6 +2,7 @@
 /* Persona 4 USA decompilation - cmpPersona.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
+#include "shd_misc_internal.h"
 
 typedef struct CmpHead CmpHead;
 struct CmpHead {
@@ -816,201 +817,134 @@ void func_001377e0(u8* arg0) {
     *(s32*)(base + 0x1C) = 0;
 }
 
-/* measured: the plain `(u8)` cast uses MWCC's native guarded conversion
-   idiom; it is not a float-to-unsigned compiler floor. This function still
-   has the genuine COP1 accumulator-chain floor: retail contains
-   `adda.s $f0,$f1` / `madd.s $f20,$f3,$f2` for the alpha calculation, plus the
-   doubled-bltz u16 sign-test pattern. */
-/* measured: candidate object 296 instrs/retail 334 instrs (1184B/1344B, 38 short), probe reloc-masked 252 words (guard below, NON_MATCHING so production stays ASM; fnalign 384 edits +2 reloc-only). Frame 0x160 vs small object frame from fewer live locals across 0034f2e0 calls (8 saves + f20-22 in retail); COP1 adda.s/madd.s alpha chain at 37958/3795C from plain C multiply. Banked as floor. */
-/* gate: object 296 against retail 334, -11.4% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
-/* 2026-09-19 lead audit: this floor's 252-word score is meaningless and the
-   -11.4% count understates how wrong the body is.  fnalign shows a single
-   `delete retail[140:317]` of **177 instructions** that this body does not
-   have at all, offset by a 96-instruction `replace` and a 45-instruction
-   `insert` of code retail does not have.  A 177-instruction hole cancelling
-   against ~141 instructions of invented work is the compensating-surplus
-   pattern from handoff 7u: the count looks nearly right and the structure is
-   badly wrong.
-   Whoever takes this next: recover the retail block at 140-317 first - it
-   begins `jal` / `b .+177` / `addiu $a0, $sp, 0xd0` / `jal`, so it is a
-   call-heavy arm built around a 0xD0 stack object - and delete the invented
-   96- and 45-instruction regions rather than tuning anything.  Do not trust
-   any pragma or colouring number measured against the present body. */
-/* gate: object 296 against retail 334, -11.4% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
-/* measured 2026-09-20 (re-measure after decoder fix): object 323 instrs
-   against retail 334 (-3.3%, one outside the 324-344 band), fnalign 113
-   edits +2 reloc-only, probe reloc-masked 301 words. Prior baseline was
-   323/112; +1 is the decoder honesty tax (sq/lq now distinct, madd/adda
-   now distinct, unknown words no longer compare equal). Counts confirmed.
-   Re-measured and rejected: s64 colour locals 321/124, s32 locals 321/124
-   (both -2 instrs, +11 edits, width dead); opt_propagation off 323/122,
-   opt_common_subs off 343/153 (object longer than retail 336, both worse).
-   deficit_scan names three retail-only runs: 10 at 0x00137B38-0x00137B60,
-   3 at 0x001378BC-0x001378C0 paired against 2, 2 at 0x00137948-0x00137950
-   paired against 0 with 3 nearby. Net deficit is 11 (334-323).
-   The 10 at 37B38 are the constants hoist, retail paired against 7 nearby
-   object instrs: daddiu $17,0xFF / $22,0xE9 / $23,0x2C / andi $16,$19 /
-   daddiu $30,0xF7 / daddiu $2,0xAF + sb $2,0xC0 / daddiu $2,0x22 +
-   sb $2,0xB0 / daddu $18,$0,$0 (37B38,3C,40,44,48,4C,50,54,58,5C).
-   Object has 7 there (6x daddiu $s2/$s1/$s0/$s6/$s7/$fp + sb $zero,0xB0),
-   keeping cc0/cc1 in regs where retail spills them to 0xC0/0xB0.
-   REFUTED (lead's standing claim in this file, do not chase the prologue):
-   prior note's "3 are sq $17,0x20 / $16,0x10 prologue saves following from
-   fewer live registers". Both sides save sq $s0-$s7,$fp identically; the 3
-   at 378BC are swc1 $f22,8($sp) (+ $f21/$f20) paired 3-vs-2: object saves
-   only $f21/$f20, missing $f22 (prologue net +1, epilogue lwc1 $f22 net +1,
-   compensated by object extras: addu $v1,$s5,$v0 insert, 2x trailing nop).
-   The 2 at 37948 (lwc1 $f0,0x10C8 + add.s $f1,$f1,$f0) are fy scheduling:
-   retail (base+offset)+idx*30 via add.s then madd.s $f20; base body did
-   idx*30+base+offset via madd.s $f1 then add.s $f20. Fixed below to retail
-   order (fy = base+offset+idx*30), 85->80 edits, count unchanged.
-   Live-range hypothesis (this round's open question): table arm reads
-   D_0064B2E8-E9-EA-EC-ED-EE from memory, constants arm uses immediates
-   0xFF/0xE9/0x2C/0xF7/0xAF/0x22. Probe with invented static const
-   litcol[6] for the six literals (measurement only, never installed):
-   329/119 (+6 instrs, inside band, +6 edits). Mechanism confirmed
-   (non-foldable source keeps longer), but refuted as a legitimate path:
-   no real memory holds those bytes (retail dump at 64B2E8: 2D 2D 2D FF
-   FF FF FF; F7 AF 22 never appears as a data sequence; FF E9 2C hits are
-   code immediates at 0x5E47C8/0x749AA8+). Hoisting c0-c2 with the same
-   immediates across the outer join (use in both short/long arms): 323/113
-   (no change). Declaration permutes colouring (c3-first 101, rev 109,
-   decl alone cannot add the 10; only invented memory can, which is banned
-   as a placeholder constant in everything but name (329 buys the count by
-   adding a data structure the game does not have; rejected while recording
-   that it confirms the mechanism, so nobody banks it later).
-   Open question, unanswered: retail keeps the six constants live in
-   callee-saved registers across the draw sequence; b210 folds them into
-   the argument lists; a real memory source for them would reproduce it but
-   no such memory exists in retail, so the live range must come from the
-   source SHAPE. What shape gives a literal a long live range without
-   inventing storage for it is unknown.
-   Installed floor below is the best legitimate shape at 323/77 edits +2
-   reloc-only, 300 words: decl cc0/cc1/c3/c0/c1/c2/sel, fy retail order,
-   k = stackd0+4 (retail 0xDC, was +12 reading the wrong byte per M2C
-   spDC and helper sb 0x4), sel draw if (sel != 0) (retail beqz $18 skip,
-   table draws 0x1CA8; was ==0 inverted), stackd0[144] as minimal size
-   giving retail 0x160 frame (helper writes to 0x38 need >=60, IDA gap
-   D8-158 suggests 128; 144 chosen for frame match, still safe). Remaining:
-   missing $f22 save/reload (object lwc1 $f13 vs mov.s $f13,$f22), bnez vs
-   bgtz on k (u32 !=0 vs signed >0), pos[1]=pos[1] self-keep vs re-store,
-   and internal offsets (stack90 at 0x150 vs retail 0xD0). Banked as floor. */
+/* measured: b210 -O2 emits 1340B in the 1344B retail window, with a
+   four-byte zero suffix. The parent-X load and row-address add at +0x80 and
+   +0x84 remain reversed; all other relocated instructions agree. The full
+   panel, first-record level byte, selection flag and marker coordinates are
+   reconstructed. See docs/probe_archive/CmpPersona_00137890_recovery.md. */
+static inline u32 CmpPersonaOffsetAddress(u32 offset, u32 base)
+{
+    return offset + base;
+}
+
 // FUN_00137890 NONMATCHING
 #ifdef NON_MATCHING
 void func_00137890(u8 *arg0, s32 arg1)
 {
     extern s32 func_0010b5b0(void);
-    extern void func_0046d730(void *arg0, s32 arg1);
-    extern s32 func_0010ace0(s16 arg0);
-    extern void func_00115830(void *arg0);
-    extern void func_00115940(void *arg0, void *arg1, s32 arg2);
-    extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u32 arg4);
-    extern s32 func_00105330(s32 arg0);
-    extern void func_00115c40(s64 arg0, f32 fparg0, u32 arg1, void *arg2);
+    extern u16 *func_0010ace0(s16 slot);
+    extern void func_00115830(u8 *panel);
+    extern void func_00115940(u8 *persona, u8 *record, s32 mode);
+    extern void func_0034f2e0(void *sprite, f32 x, f32 y,
+                            u8 red, u8 green, u8 blue, u32 alpha);
+    extern s32 func_00105330(s32 character);
+    extern void func_00115c40(Vec2f position, s32 alpha, s16 *panel, f32 depth);
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2E9[];
     extern u8 D_0064B2EA[];
     extern u8 D_0064B2EC[];
     extern u8 D_0064B2ED[];
     extern u8 D_0064B2EE[];
-    s32 idx;
-    f32 fx;
-    f32 fy;
-    f32 fa;
+    f32 x;
+    f32 y;
+    f32 row_y;
+    f32 opacity;
+    u32 entry_alpha;
+    u32 base_alpha;
     u32 alpha;
-    s16 count;
-    u8 cc0;
-    u8 cc1;
-    u8 c3;
-    u8 c0;
-    u8 c1;
-    u8 c2;
-    u8 sel;
-    f32 pos[2];
-    u8 stack90[8];
-    u8 stackd0[144];
-    u32 div;
-    u32 ualpha;
-    u32 ubase;
-    u32 k;
+    s32 selected;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 digit_red;
+    u8 digit_green;
+    u8 digit_blue;
+    u32 sprite_alpha;
+    u8 level;
+    u8 panel[0x80];
+    Vec2f position;
 
     if (arg1 < 0 || arg1 >= (func_0010b5b0() & 0xFFFF)) {
         func_0046d730(D_005EB580, 0x478);
     }
-    idx = arg1;
-    fx = (*(f32 *)(arg0 + 4) + *(f32 *)(arg0 + idx * 0x30 + 0x10C4)) - 10.0f;
-    fy = *(f32 *)(arg0 + 8) + *(f32 *)(arg0 + idx * 0x30 + 0x10C8) + (f32)idx * 30.0f;
-    ualpha = *(u8 *)(arg0 + idx * 0x30 + 0x10CE);
-    ubase = *arg0;
-    fa = (f32)ualpha * ((f32)ubase / 255.0f);
-    alpha = (u32)fa & 0xFF;
+    x = (*(f32 *)(arg0 + 4) +
+         *(f32 *)((u8 *)CmpPersonaOffsetAddress(arg1 * 0x30, (u32)arg0) + 0x10C4)) - 10.0f;
+    y = 0.0f + (*(f32 *)(arg0 + 8) +
+                *(f32 *)((u8 *)CmpPersonaOffsetAddress(arg1 * 0x30, (u32)arg0) + 0x10C8)) +
+        30.0f * (f32)arg1;
+    entry_alpha = *(u8 *)((u8 *)CmpPersonaOffsetAddress(arg1 * 0x30, (u32)arg0) + 0x10CE);
+    base_alpha = *arg0;
+    opacity = (f32)entry_alpha * ((f32)base_alpha / 255.0f);
+    alpha = (u8)opacity;
     if (arg1 >= *(s16 *)(arg0 + 0x4E)) {
-        pos[0] = fx - 40.0f;
-        pos[1] = fy + 21.0f;
-        func_0034f2e0(*(u8 **)(arg0 + 0x1C64), pos[0], pos[1], 0xFF, 0xE9, 0x2C, alpha);
-        pos[0] = fx + 89.0f;
-        pos[1] = fy + 21.0f;
-        func_0034f2e0(*(u8 **)(arg0 + 0x1C68), pos[0], pos[1], 0xFF, 0xE9, 0x2C, alpha);
+        position.x = x - 40.0f;
+        position.y = y + 21.0f;
+        func_0034f2e0(*(void **)(arg0 + 0x1C64), position.x, position.y,
+                      0xFF, 0xE9, 0x2C, alpha);
+        position.x = x + 89.0f;
+        position.y = y + 21.0f;
+        func_0034f2e0(*(void **)(arg0 + 0x1C68), position.x, position.y,
+                      0xFF, 0xE9, 0x2C, alpha);
     } else {
-        func_00115830(stack90);
+        func_00115830(panel);
         if (arg1 == *(s16 *)(arg0 + 0x52)) {
-            c0 = D_0064B2E8[0];
-            c1 = D_0064B2E9[0];
-            c2 = D_0064B2EA[0];
-            c3 = D_0064B2EC[0];
-            cc0 = D_0064B2ED[0];
-            cc1 = D_0064B2EE[0];
-            sel = 1;
-            *(s16 *)(stack90 + 2) = sel;
+            selected = 1;
+            *(s16 *)(panel + 2) = selected;
+            red = D_0064B2E8[0];
+            green = D_0064B2E9[0];
+            blue = D_0064B2EA[0];
+            sprite_alpha = (u8)alpha;
+            digit_red = D_0064B2EC[0];
+            digit_green = D_0064B2ED[0];
+            digit_blue = D_0064B2EE[0];
         } else {
-            c0 = 0xFF;
-            c1 = 0xE9;
-            c2 = 0x2C;
-            c3 = 0xF7;
-            cc0 = 0xAF;
-            cc1 = 0x22;
-            sel = 0;
-            *(s16 *)(stack90 + 2) = sel;
+            *(s16 *)(panel + 2) = 0;
+            red = 0xFF;
+            green = 0xE9;
+            blue = 0x2C;
+            sprite_alpha = (u8)alpha;
+            digit_red = 0xF7;
+            digit_green = 0xAF;
+            digit_blue = 0x22;
+            selected = 0;
         }
-        *(s16 *)stack90 = 2;
-        func_00115940((void *)(s32)func_0010ace0(*(s16 *)(arg0 + idx * 2 + 0x36)), stackd0, 2);
-        pos[0] = fx - 40.0f;
-        pos[1] = fy + 21.0f;
-        func_0034f2e0(*(u8 **)(arg0 + 0x1C5C), pos[0], pos[1], c0, c1, c2, alpha);
-        pos[0] = fx + 89.0f;
-        pos[1] = pos[1];
-        func_0034f2e0(*(u8 **)(arg0 + 0x1C60), pos[0], pos[1], c0, c1, c2, alpha);
-        k = *(u8 *)(stackd0 + 4);
-        pos[0] = fx + 72.0f;
-        pos[1] = fy + 26.0f;
+        *(s16 *)panel = 2;
+        func_00115940((u8 *)func_0010ace0(*(s16 *)((u8 *)CmpPersonaOffsetAddress(arg1 * 2, (u32)arg0) + 0x36)),
+                      panel + 8, 2);
+        position.x = x - 40.0f;
+        position.y = y + 21.0f;
+        func_0034f2e0(*(void **)(arg0 + 0x1C5C), position.x, position.y,
+                      red, green, blue, sprite_alpha);
+        position.x = x + 89.0f;
+        position.y = y + 21.0f;
+        func_0034f2e0(*(void **)(arg0 + 0x1C60), position.x, position.y,
+                      red, green, blue, sprite_alpha);
+        level = panel[12];
+        position.x = x + 72.0f;
+        row_y = y + 26.0f;
+        position.y = row_y;
         do {
-            div = k % 10;
-            func_0034f2e0(*(u8 **)(arg0 + div * 4 + 0x1C7C), pos[0], pos[1], c3, cc0, cc1, alpha);
-            pos[0] -= 22.0f;
-            k /= 10;
-        } while (k != 0);
-        if (sel != 0) {
-            pos[0] = fx + 24.0f;
-            pos[1] = fy + 33.0f;
-            func_0034f2e0(*(u8 **)(arg0 + 0x1CA8), pos[0], pos[1], c3, cc0, cc1, alpha);
+            func_0034f2e0(*(void **)(arg0 + (level % 10) * 4 + 0x1C7C),
+                          position.x, position.y,
+                          digit_red, digit_green, digit_blue, sprite_alpha);
+            position.x -= 22.0f;
+            level /= 10U;
+        } while (level > 0);
+        if (selected != 0) {
+            position.x = x + 24.0f;
+            position.y = y + 33.0f;
+            func_0034f2e0(*(void **)(arg0 + 0x1CA8), position.x, position.y,
+                          digit_red, digit_green, digit_blue, sprite_alpha);
         }
-        if (arg1 == func_00105330(1) && (*(u32 *)(arg0 + 0x1C) & 0x20) != 0) {
-            pos[0] = 22.0f;
-            func_0034f2e0(*(u8 **)(arg0 + 0x1CAC), pos[0], pos[1], 0xFF, 0x85, 0x1F, alpha);
+        if (arg1 == func_00105330(1) && (*(u32 *)(arg0 + 0x1C) & 0x20)) {
+            position.x = 22.0f;
+            position.y = row_y;
+            func_0034f2e0(*(void **)(arg0 + 0x1CAC), position.x, position.y,
+                          0xFF, 0x85, 0x1F, sprite_alpha);
         }
-        pos[0] = fx + 99.0f;
-        pos[1] = fy + 20.0f;
-        func_00115c40(*(s64 *)pos, 0.0f, alpha, stack90);
-        count = 0;
-        (void)count;
-        (void)fa;
-        (void)sel;
+        position.x = x + 99.0f;
+        position.y = y + 20.0f;
+        func_00115c40(position, alpha, (s16 *)panel, 0.0f);
     }
 }
 #else

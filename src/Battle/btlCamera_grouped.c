@@ -10,7 +10,7 @@ static inline u8 *btlCamera_add_index(s32 index, u8 *base)
 /* Canonical grouped function declarations. */
 u32 func_001d10d0(void* camera);
 void func_00195850(u8* arg0, f32* arg1);
-void func_001bcd40(u8* arg0, u8* arg1, f32* arg2, u16 arg3, f32 arg4);
+void func_001bcd40(u8* arg0, u8* arg1, f32* arg2, f32 arg4, u16 arg3);
 extern s32 func_004bd050(s32 arg0);
 extern u8 D_005FE1D0[];
 extern u32 func_00231d70(s32 arg0);
@@ -51,8 +51,8 @@ void func_001d05e0(u8 *arg0)
         if ((*(u16 *)(temp_4 + 0x1A) & 1) != 0) {
             temp_16 = *(u8 **)(temp_4 + 0x30);
             func_00195850(temp_16, sp30);
-            func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, sp30, 0xC1,
-                          0.5f * (*(f32 *)(temp_16 + 0x90) * *(f32 *)(temp_16 + 0x2C)));
+            func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, sp30, 0.5f * (*(f32 *)(temp_16 + 0x90) * *(f32 *)(temp_16 + 0x2C)),
+                          0xC1);
         }
     }
 }
@@ -76,8 +76,8 @@ void func_001d06a0(u8 *arg0)
         if ((*(u16 *)(temp_4 + 0x1A) & 1) != 0) {
             temp_16 = *(u8 **)(temp_4 + 0x30);
             func_00195850(temp_16, sp30);
-            func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, sp30, 0xC1,
-                          0.5f * (*(f32 *)(temp_16 + 0x90) * *(f32 *)(temp_16 + 0x2C)));
+            func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, sp30, 0.5f * (*(f32 *)(temp_16 + 0x90) * *(f32 *)(temp_16 + 0x2C)),
+                          0xC1);
         }
     }
 }

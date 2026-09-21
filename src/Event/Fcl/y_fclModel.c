@@ -3,6 +3,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "model_matrix_internal.h"
 
 extern void func_0044ea90(u8 *file, s32 line);
 extern u8 D_0064A618[];
@@ -98,7 +99,6 @@ void func_00349440(u8 *arg0, u8 *arg1)
     extern void func_003e0c90(void *a, void *b, s32 c);
     extern void *func_003e05f0(void *a, void *b, void *c);
     extern void func_0047a1c0(void *a, void *b, s32 c);
-    extern void func_0047a1a0(void *a, void *b, s32 c, f32 d);
     extern void func_0047a1e0(void *a, void *b, s32 c);
     extern void func_0043f810(void *dst, void *src, u32 size);
     extern s32 func_00457190(void);
@@ -213,7 +213,7 @@ void func_00349440(u8 *arg0, u8 *arg1)
             iGpffffb5a0 = 0.0f;
         }
     }
-    func_0047a1a0(*(u8 **)(obj + 0xC), axisX, 1, iGpffffb5a0);
+    func_0047a1a0(*(u8 **)(obj + 0xC), axisX, iGpffffb5a0, 1);
     colA = *(s128 *)D_0064A680;
     colB = *(s128 *)D_0064A690;
     quat = *(s128 *)D_0064A6A0;

@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "fcl_combine_internal.h"
 #include "fcl_draw_task.h"
 #include "sdk_task_registration.h"
 extern s32 func_0034ac00(u8 *task);

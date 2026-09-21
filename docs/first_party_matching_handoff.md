@@ -8,6 +8,23 @@ The objective is a clean C replacement for each first-party `INCLUDE_ASM` functi
 
 ## Current checkpoint
 
+2026-09-21 assembled checkpoint: **6,428 of 6,860 first-party functions MATCH,
+with 432 assembly fallbacks**. All 52 replacements since published `0360227`
+pass combined-source verification and independent code/data relocation proof.
+The complete report is 8,063 MATCH / 4,657 ASM over 12,720 functions. The
+wrapper freshly compiles 41 changed owners and reuses 332 checked unchanged
+objects from the completed 38-function checkpoint. Source, transitive header,
+compiler/profile, compilation-tool and fallback-corpus checks are recorded.
+
+See `docs/probe_archive/First_party_checkpoint_20260921.md` and
+`build/campaign-checkpoint/resumed-52/` in the publication checkout. The newest
+accepted bodies include `001c17a0`, `001679d0`, `0031d630`, and `0031ddf0`;
+their earlier guarded descriptions below are historical. Continue from the
+actual source and completed receipts. Provider/caller work for further exact
+scratch candidates remains separate until its combined proof passes.
+
+### Earlier assembled checkpoint (September 20)
+
 2026-09-20 continuation: the assembled source verifies **6,398 of 6,860
 first-party functions MATCH, with 462 assembly fallbacks**. This is a gain of
 22 exact C functions over published `0360227`, including the earlier twelve

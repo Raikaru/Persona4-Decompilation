@@ -2245,7 +2245,7 @@ void func_0045ee00(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg
 // FUN_0045FBE0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_common_subs off
-void func_0045fbe0(f32 *arg0, u8 *arg1, f32 *arg2, s32 arg3, f32 fparg0) {
+void func_0045fbe0(f32 *arg0, f32 fparg0, u8 *arg1, f32 *arg2, s32 arg3) {
     u8 work[0x5E0];
     f32 temp_f23;
     f32 temp_f20;

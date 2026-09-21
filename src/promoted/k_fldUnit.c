@@ -2,8 +2,11 @@
 /* Original translation unit k_fldUnit.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "sdk_task_registration.h"
+#include "model_matrix_internal.h"
+#include "model_callbacks_internal.h"
 #include "include_asm.h"
 
+typedef struct Resrc Resrc;
 typedef struct RwMatrix RwMatrix;
 typedef struct RwV3d RwV3d;
 
@@ -25,7 +28,8 @@ extern u8 iGpffff9f2b;
 extern u8 iGpffff9f24;
 extern s32 func_0014b870(s32 arg0, s32 arg1);
 extern void func_002319c0(s32 arg0);
-extern s32 func_0047ae90(s32 arg0, u16 arg1);
+extern s32 func_0047ae90(u8 *arg0, u16 arg1);
+extern void func_0047ae10(u8 *arg0, u16 arg1);
 extern s32 func_004553c0(s32 arg0);
 extern void func_00454bd0(s32 arg0);
 extern void func_0043f810(void *arg0, s32 arg1, s32 arg2);
@@ -38,8 +42,8 @@ extern DatUnitEc *func_00231630(u16 encountId);
 extern u8 *func_00163990(u32 arg0, u8 *arg1, s32 arg2);
 extern s32 func_00442088(char *dst, const char *fmt, ...);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
-extern u64 func_003b7060(void);
-extern u8 *func_00145270(s32 arg0);
+extern u32 func_003b7060(void);
+extern Resrc *func_00145270(u16 arg0);
 extern s32 func_00145540(s32 arg0, u8 arg1, u8 *arg2);
 extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern void func_0047aa30(u8 *arg0, u8 *arg1);
@@ -71,19 +75,19 @@ extern s32 func_0014c960(s32 *arg0, s32 *arg1);
 extern s32 func_00106330(s32 arg0);
 extern s32 func_00145ac0(s32 arg0, s32 arg1);
 extern u8 *func_00162330(void);
-extern u8 *func_00231580(u16 arg0);
-extern u8 *func_00162680(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_00109400(s32 arg0);
-extern s32 func_00105ee0(s32 arg0);
+typedef struct DatUnitPc DatUnitPc;
+extern DatUnitPc *func_00231580(u16 arg0);
+extern u8 *func_00162680(u16 arg0, u16 arg1, s32 arg2);
+extern u8 func_00109400(u16 arg0);
+extern s16 func_00105ee0(s32 arg0);
 extern s32 func_00104c70(s32 arg0);
-extern s32 func_00155280(void);
+extern s32 *func_00155280(void);
 extern void func_0014a0f0(u16 arg0, s32 arg1);
 extern u16 func_00145780(u16 arg0, s32 arg1, s32 arg2);
-extern void func_0047a1a0(void *arg0, void *arg1, f32 arg2, s32 arg3);
 extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern s32 func_0018bb20(s32 arg0, void *arg1);
 
-extern void memset(void *destination, s32 value, u32 size);
+extern void *memset(void *destination, s32 value, u32 size);
 extern u8 D_007E8020[];
 extern u8 D_007E8C00[];
 extern u8 D_007EF9B0[];
@@ -142,7 +146,7 @@ void func_00164020(u8 *arg0);
 void func_00164fa0(s32 arg0);
 void func_00165670(u8 *arg0, s32 arg1);
 void *func_00478140(u32 arg0, u32 arg1, u32 arg2);
-s32 func_004782b0(s32 arg0);
+s32 func_004782b0(u8 *arg0);
 s32 func_00440b68(const char *fmt, ...);
 u8 *func_00454a60(u8 *arg0, s32 arg1);
 s32 func_0014a200(void);
@@ -154,23 +158,23 @@ u8 *func_0047a250(s32 arg0);
 void func_0047a220(s32 arg0, u8 *arg1);
 void func_004b14f0(u8 *arg0, u8 *arg1);
 void func_004b13f0(u8 *arg0, u8 *arg1);
-u8 *func_0047a2f0(s32 arg0);
+void *func_0047a2f0(void *arg0);
 void func_00146630(u16 arg0);
 void func_0047a870(s32 arg0);
-void func_004787e0(s32 arg0);
+void func_004787e0(u8 *arg0);
 void func_00452080(s32 arg0);
-s32 func_00162510(s32 arg0, s32 arg1);
+s32 func_00162510(u16 arg0, u16 arg1);
 s32 func_0015a160(void);
 s32 func_001679d0(u8 *arg0);
 u8 *func_001452b0(s32 arg0);
-void func_0046d730(u8 *arg0, s32 arg1);
+void func_0046d730(void *arg0, s32 arg1);
 void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2);
 u8 *func_00166600(u8 *arg0, u32 *arg1, s32 arg2);
 extern s64 func_001060b0(void);
 extern s32 func_001064f0(s32 arg0);
 extern s32 func_00110d60(s16 arg0);
 extern s32 D_007E8BF8[];
-void func_0043f9c8(u8 *arg0, s32 arg1, s32 arg2);
+void *func_0043f9c8(void *arg0, s32 arg1, u32 arg2);
 s32 func_00161b10(u16 arg0, u16 arg1, u16 arg2);
 s32 func_0015a320(void);
 u8 *func_00161c80(u16 arg0, u16 arg1, u16 arg2, s32 arg3);
@@ -199,11 +203,11 @@ s32 func_00162c30(void)
     for (i = 0; i < 4; i++) {
         v4 = ((s32 *)D_007EF9B0) + i * 468;
         if ((v4[18] != 0) && (v4[21] == 0)) {
-            if (func_004782b0(v4[20]) == 0) {
+            if (func_004782b0((u8 *)(v4[20])) == 0) {
                 return 0;
             }
             for (j = 0; j < 5; j++) {
-                if (func_0047ae90(v4[20], j) == 0) {
+                if (func_0047ae90((u8 *)(v4[20]), j) == 0) {
                     return 0;
                 }
             }
@@ -285,7 +289,7 @@ void func_00162e10(void)
             }
             slot2 = D_007EF9B0 + i * 0x750;
             resId = func_00145540(i & 0xFFFF, kind, *(u8 **)(slot2 + 0x50)) & 0xFFFF;
-            res = func_00145270(resId);
+            res = (u8 *)func_00145270(resId);
             *(u8 **)(slot2 + 0x54) = res;
             func_0017b9a0(*(s32 *)(res + 0x224), 60.0f);
             node = func_001452b0(0xE);
@@ -388,7 +392,7 @@ void func_00162e10(void)
                     func_00168de0(*(s32 *)(*(u8 **)(slot + 0x54) + 0x220), D_00756510, 90.0f * (f32)r);
                     func_00479940(*(u8 **)(slot2 + 0x50), 0, (s16)func_0016fd00(*(u16 *)(D_007EF9B0 + i * 0x750 + 0x728)), 0, 1);
                     {
-                        u8 *src = func_0047a2f0(*(s32 *)(*(u8 **)D_007EFA04 + 0x164));
+                        u8 *src = (u8 *)func_0047a2f0(*(void **)(*(u8 **)D_007EFA04 + 0x164));
                         u8 *dst = mtx;
                         s32 n = 8;
                         do {
@@ -427,7 +431,7 @@ void func_00162e10(void)
                 }
             }
             {
-                u8 *src = func_0047a2f0(*(s32 *)(*(u8 **)D_007EFA04 + 0x164));
+                u8 *src = (u8 *)func_0047a2f0(*(void **)(*(u8 **)D_007EFA04 + 0x164));
                 u8 *dst = mtx;
                 s32 n = 8;
                 do {
@@ -561,7 +565,7 @@ void func_00162e10(void)
             }
             {
                 u8 *cur = D_007EF9B0 + i * 0x750;
-                func_003e05d0(func_0047a2f0(*(s32 *)(cur + 0x50)));
+                func_003e05d0((u8 *)func_0047a2f0(*(void **)(cur + 0x50)));
                 func_0014b0c0(*(u16 *)(*(u8 **)(cur + 0x54)), 1);
                 func_00168730(*(s32 *)(*(u8 **)(cur + 0x54) + 0x220), 0x40000000);
                 {
@@ -735,7 +739,7 @@ s32 func_00163c90(s32 arg0)
   {
     return 1;
   }
-  if (func_004782b0(*((s32 *) (temp_16 + 0x50))) == 0)
+  if (func_004782b0((u8 *)(*((s32 *) (temp_16 + 0x50)))) == 0)
   {
     return 0;
   }
@@ -772,7 +776,7 @@ s32 func_00163c90(s32 arg0)
     func_0017b9a0(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x224)), *((f32 *) (D_005F1340 + ((*((u8 *) (temp_16 + 0x1CB))) * 4))));
   }
   func_0047a1e0(*((void **) (temp_16 + 0x50)), (D_005F12E0 + ((*((u8 *) (temp_16 + 0x1CA))) * 0x30)) + ((*((u8 *) (temp_16 + 0x1CB))) * 0xC), 2);
-  func_003e05d0(func_0047a2f0(*((s32 *) (temp_16 + 0x50))));
+  func_003e05d0((u8 *)func_0047a2f0(*((void **)  (temp_16 + 0x50))));
   func_00168de0(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), sp40, *((f32 *) ((*((u8 **) (temp_16 + 0x1AC))) + 0x14C)));
   func_00168ae0(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), (*((u8 **) (temp_16 + 0x1AC))) + 0x140);
   func_0014b0c0(*((u16 *) (*((u8 **) (0x54 + temp_16)))), 1);
@@ -884,136 +888,109 @@ void func_001641d0(void)
 
 
 
-/* Floor: 136 differing words over 80 fnalign edits, 199 emitted against
-   retail's 207 (3.9% short).  Corrected this pass: the first block's
-   `func_00109400` argument is the literal 1 (retail leaves the 1 it just
-   stored to +0x728 in $a0), not arg2 - the old body passed arg2, which is
-   both wrong and cost 24 words (160 -> 136).
-   WALL: the eight-instruction shortfall is retail rematerialising
-   `D_007F16F0 + i * 8` twice per iteration of the first clear loop - once
-   into $a0 at the loop head and again into $s2 after the inner loop - while
-   b210 folds both into one saved register.  The source already spells it
-   out twice.  `opt_common_subs off` does not recover it (161 words),
-   `opt_propagation off` and `opt_loop_invariants on` are both neutral at
-   136.  Underneath that is the documented saved-register rotation: retail
-   keeps var_16 in $s0 coalesced with temp_2's freed $16 and the slot
-   pointer in $a0, b210 gives the freed $16 to temp_4 and pushes var_16 to
-   $s1; every declaration order was tried in an earlier pass. */
-/* gate: object 199 against retail 207, -3.9% - OUTSIDE
-   the +-3% band.  Any differing-word score in this note was measured
-   against a body of the wrong length and is not comparable to one
-   measured inside the gate (handoff 7y).  Fix the count first. */
-/* measured 2026-09-19 (lead): object 209 instrs against retail 208, inside the
-   gate, 72 fnalign edits.  Was 199 against 207 - -3.9% and outside - at 80
-   edits and 136 differing words.
-   The deficit was rematerialisation, not missing code.  Retail recomputes the
-   table row after each inner loop: `sll $v1, $s0, 3` / `lui $v0, 0x7f` /
-   `addiu $v0, $v0, 0x16f0` / `addu $s2, $v0, $v1` / `addiu $s1, $s2, 0xc` /
-   `lw $a0, 0xc($s2)` at retail[76:82] and again at retail[182:187], where the
-   body reuses the row pointer it already holds and emits two instructions.
-   `#pragma opt_common_subs off` restores both recomputations and the count
-   with them.  The differing-word score rises 136 -> 161, which is the usual
-   artefact of a count moving by ten instructions (handoff 7y); the edit count
-   is the comparable measure here and it falls.
-   Note the opposite result on `func_00126090` in `code1_0012.c`, where the
-   same pragma costs 303 words against 112 - this compiler flag is per
-   function, never per file. */
-// FUN_00164230 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_common_subs off
-void func_00164230(s32 arg0, s32 arg1, s32 arg2)
+/* Keep cache traversal and signed selection lifetimes separate. Script records
+   contain fixed 32-byte paths indexed by the 16-bit PC ID. */
+// FUN_00164230
+void func_00164230(u16 fieldId, u16 roomId, u16 entryId)
 {
-    u8 *p;
-    s32 i;
-    s32 j;
-    s32 v;
-    u16 w;
-    u8 *e;
-    u8 *b;
-    u8 *e2;
+    u8 **modelSlot;
 
-    p = func_00162330();
-    if (p == NULL) {
-    } else {
-        *(u8 **)(p + 72) = func_00231580(1);
-        *(u8 **)(p + 80) = func_00162680(arg0, arg1, 1);
-        *(u16 *)(p + 1832) = 1;
-        *(s32 *)(p + 68) = 0;
-        *(s32 *)(p + 448) = func_00109400(1) & 0xFF;
-        *(s32 *)(p + 452) = func_00104c70(1) & 0xFF;
-        *(u8 **)(p + 436) = (u8 *)func_0017d070((u8 *)0);
-        *(u16 *)(p + 88) = arg2;
+    {
+        u8 *unit;
+
+        unit = func_00162330();
+        if (unit != NULL) {
+            *(DatUnitPc **)(unit + 0x48) = func_00231580(1);
+            *(u8 **)(unit + 0x50) = func_00162680(fieldId, roomId, 1);
+            *(u16 *)(unit + 0x728) = 1;
+            *(s32 *)(unit + 0x44) = 0;
+            *(s32 *)(unit + 0x1C0) = func_00109400(1) & 0xFF;
+            *(s32 *)(unit + 0x1C4) = func_00104c70(1) & 0xFF;
+            *(u8 **)(unit + 0x1B4) = (u8 *)func_0017d070(NULL);
+            *(u16 *)(unit + 0x58) = entryId;
+        }
     }
-    if (func_00162510(arg0, arg1) == 1) {
+    if (func_00162510(fieldId, roomId) == 1) {
+        s32 i;
+        u8 *cache;
+        u8 *record;
+
         i = 0;
         while (i < 3) {
-            e = D_007F16F0 + i * 8;
-            if (*(u8 **)(e + 12) == NULL) {
-            } else {
+            cache = D_007F16F0 + (u32)i * 8;
+            if (*(u8 **)(cache + 12) != NULL) {
+                s32 j;
+
                 j = 0;
                 while (j < 5) {
-                    b = *(u8 **)(e + 12) + (j * 3) * 4;
-                    *(b + 652) = *(b + 652) | 1;
+                    record = *(u8 **)(cache + 12) + (j * 3) * 4;
+                    record[0x28C] = record[0x28C] | 1;
                     j += 1;
                 }
-                b = D_007F16F0 + i * 8;
-                e2 = b + 12;
-                func_004787e0(*(s32 *)(b + 12));
-                *(s32 *)e2 = 0;
-                *(u16 *)(b + 8) = 0;
-                *(u16 *)(b + 10) = 0;
+                record = D_007F16F0 + i * 8;
+                modelSlot = (u8 **)(record + 12);
+                func_004787e0(*(u8 **)(record + 12));
+                *modelSlot = NULL;
+                *(u16 *)(record + 8) = 0;
+                *(u16 *)(record + 10) = 0;
             }
             i += 1;
         }
     } else {
+        u16 pcId;
+        s16 selectedId;
+        s32 i;
+        s32 modelId;
+        u8 *unit;
+        u8 *cache;
+        u8 *record;
+
         i = 0;
         while (i < 3) {
-            v = (s16)func_00105ee0(i);
-            if (v > 0) {
-                p = func_00162330();
-                if (p == NULL) {
-                } else {
-                    w = (u16)v;
-                    *(u8 **)(p + 72) = func_00231580(w);
-                    *(u8 **)(p + 80) = func_00162680(arg0, arg1, w);
-                    *(u16 *)(p + 1832) = v;
-                    *(s32 *)(p + 68) = 0;
-                    *(s32 *)(p + 448) = func_00109400(v) & 0xFF;
-                    if (w == 1) {
-                        *(s32 *)(p + 452) = func_00104c70((s16)v) & 0xFF;
-                        *(u8 **)(p + 436) = (u8 *)func_0017d070((u8 *)0);
+            selectedId = (s16)func_00105ee0(i);
+            if (selectedId > 0) {
+                unit = func_00162330();
+                if (unit != NULL) {
+                    pcId = (u16)selectedId;
+                    *(DatUnitPc **)(unit + 0x48) = func_00231580(pcId);
+                    modelId = pcId;
+                    *(u8 **)(unit + 0x50) = func_00162680(fieldId, roomId, modelId);
+                    *(u16 *)(unit + 0x728) = pcId;
+                    *(s32 *)(unit + 0x44) = 0;
+                    *(s32 *)(unit + 0x1C0) = func_00109400(pcId) & 0xFF;
+                    if (modelId == 1) {
+                        *(s32 *)(unit + 0x1C4) = func_00104c70((s16)pcId) & 0xFF;
+                        *(u8 **)(unit + 0x1B4) = (u8 *)func_0017d070(NULL);
                     } else {
-                        func_00440b68((const char *)D_00763008, D_005F1500, 477);
-                        *(u8 **)(p + 1840) = func_00454a60(D_005F13C0 + w * 32, 0);
+                        func_00440b68((const char *)D_00763008, D_005F1500, 0x1DD);
+                        *(u8 **)(unit + 0x730) =
+                            func_00454a60(((u8 (*)[32])D_005F13C0)[pcId], 0);
                     }
-                    *(u16 *)(p + 88) = arg2;
+                    *(u16 *)(unit + 0x58) = entryId;
                 }
             } else {
-                e = D_007F16F0 + i * 8;
-                if (*(u8 **)(e + 12) == NULL) {
-                } else {
+                cache = D_007F16F0 + (u32)i * 8;
+                if (*(u8 **)(cache + 12) != NULL) {
+                    s32 j;
+
                     j = 0;
                     while (j < 5) {
-                        b = *(u8 **)(e + 12) + (j * 3) * 4;
-                        *(b + 652) = *(b + 652) | 1;
+                        record = *(u8 **)(cache + 12) + (j * 3) * 4;
+                        record[0x28C] = record[0x28C] | 1;
                         j += 1;
                     }
-                    b = D_007F16F0 + i * 8;
-                    e2 = b + 12;
-                    func_004787e0(*(s32 *)(b + 12));
-                    *(s32 *)e2 = 0;
-                    *(u16 *)(b + 8) = 0;
-                    *(u16 *)(b + 10) = 0;
+                    record = D_007F16F0 + i * 8;
+                    modelSlot = (u8 **)(record + 12);
+                    func_004787e0(*(u8 **)(record + 12));
+                    *modelSlot = NULL;
+                    *(u16 *)(record + 8) = 0;
+                    *(u16 *)(record + 10) = 0;
                 }
             }
             i += 1;
         }
     }
 }
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00164230);
-#endif
 
 
 
@@ -1093,262 +1070,302 @@ s32 func_00164570(u32 arg0, s32 arg1)
 
 
 
-/* measured: floor 313 differing words (reloc-masked), object 1688B vs 1728B window, 45/45 relocs; L003b 370 -> 313 via Frame v70/v80/v90/vA0 aggregates, block-scope u32 003b7060 (divu), opt_common_subs/propagation off + slot+0x50 temps, grouped f2/f1/f0 loads, index-before-reload order, var_16-last decl. Re-measured this pass: 313 words, 431 vs 422 instrs, 124 fnalign edits plus 4 reloc-only. Residual: sltu $2,$0,$4 at 0xF4/0x284/0x4F4 vs beqz $a0; $s1/$s2 outer/index rotation with mfhi $s0 vs $s2; entry b vs sltiu+beqz; 3-nop count-loop pad. This pass chased the sltu (var_4/var_4_2/var_4_3 0/1 flags tested after an addiu-1/daddu-0 join): 0u < (u32)var casts, u32 declarations with != 0 and 0u < tests, and both-paths assignment with unsigned test all score 313 neutral (both-paths alone: 337, the var=0-then-conditional-1 shape is load-bearing); MWCC folds the unsigned compare to beqz here while retail materialises it, mechanism unknown. Archived in docs/probe_archive/W50FldUnit_00164880_body.c; production stays ASM. */
-/* measured 00164880 (owner, 2026-09-19): fnalign **124 -> 122 edits**, count
-   422 -> 420 against retail 431, by writing m2c's top-tested `loop_N:` /
-   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
-   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
-   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
-   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
-   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
-   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
-   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
-// FUN_00164880 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0014cfd0(u8 *arg0);
+s32 func_0014cfd0(u8 *position);
+
 #pragma push
 #pragma opt_common_subs off
 #pragma opt_propagation off
-u8 *func_00164880(s32 unused, u32 arg1, f32 arg2)
+/* Keep the random node, its rejection state and the loop count in their
+   own selection lifetime. The same vector is reused for each distance test. */
+static inline u8 *fldChooseRandomSpawn(V3 *delta)
 {
-    struct Frame {
-        f32 v70[3];
-        u8 pad7C[4];
-        f32 v80[3];
-        u8 pad8C[4];
-        f32 v90[3];
-        u8 pad9C[4];
-        f32 vA0[3];
-        u8 padAC[4];
-    } frame;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f24;
-    f32 temp_f24_2;
-    f32 var_f22;
-    f32 temp_f21;
-    f32 temp_f20;
-    f32 tx;
-    f32 ty;
-    f32 tz;
-    s32 var_16_3;
-    s32 var_18_2;
-    s32 var_3;
-    s32 var_4;
-    s32 var_4_2;
-    s32 var_4_3;
-    u32 temp_16;
-    u32 var_16_2;
-    u32 var_17_3;
-    u32 var_17_4;
-    u32 var_18_3;
-    u8 *temp_17;
-    u8 *temp_19;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
-    u8 *temp_2_4;
-    u8 *temp_2_5;
-    u8 *temp_3;
-    u8 *temp_3_2;
-    u8 *temp_3_3;
-    u8 *temp_3_4;
-    u8 *temp_3_5;
-    u8 *var_2;
-    u8 *var_19;
-    u8 *var_18;
-    u8 *var_17;
-    u32 var_17_2;
-    u8 *var_16;
-    extern u32 func_003b7060(void);
+    u32 count;
+    s32 rejected;
+    u8 *choice;
+    u8 *cursor;
+    s32 index;
+    s32 walked;
+    s32 used;
+    s32 ready;
+    u8 *unit;
+    u8 *model;
+    void **modelSlot;
+    f32 coordinate;
+
+retry:
+    count = 0;
+    rejected = 0;
+    cursor = func_001452b0(0xF);
+    goto count_test;
+count_body:
+    count++;
+    cursor = *(u8 **)(cursor + 0x138);
+count_test:
+    if (cursor != NULL) {
+        goto count_body;
+    }
+    count = func_003b7060() % count;
+    choice = func_001452b0(0xF);
+    walked = 0;
+    goto walk_test;
+walk_body:
+    choice = *(u8 **)(choice + 0x138);
+    walked++;
+walk_test:
+    if (walked < (s32)count) {
+        goto walk_body;
+    }
+    index = 0;
+    goto party_test;
+party_body:
+    used = 0;
+    unit = D_007EF9B0 + index * 0x750;
+    if (*(s32 *)(unit + 0x48) != 0 && *(s32 *)(unit + 0x54) != 0) {
+        used = 1;
+    }
+    ready = used != 0;
+    if (ready) {
+        unit = D_007EF9B0 + index * 0x750;
+        modelSlot = (void **)(unit + 0x50);
+        model = (u8 *)func_0047a2f0(*(void **)(unit + 0x50));
+        coordinate = *(f32 *)(model + 0x30);
+        delta->x = *(f32 *)(choice + 0x140) - coordinate;
+        model = (u8 *)func_0047a2f0(*modelSlot);
+        coordinate = *(f32 *)(model + 0x34);
+        delta->y = *(f32 *)(choice + 0x144) - coordinate;
+        model = (u8 *)func_0047a2f0(*modelSlot);
+        coordinate = *(f32 *)(model + 0x38);
+        delta->z = *(f32 *)(choice + 0x148) - coordinate;
+        if (func_003e4180(&delta->x) < 3000.0f) {
+            goto checked_party;
+        }
+    }
+    index++;
+party_test:
+    if (index < 4) {
+        goto party_body;
+    }
+checked_party:
+    if (index < 4) {
+        rejected = 1;
+    }
+    {
+        s32 result;
+        s32 yes;
+
+        result = func_0014cfd0(choice + 0x140);
+        yes = 1;
+        if (result == yes || rejected == yes) {
+            goto retry;
+        }
+    }
+    return choice;
+}
+
+/* Both field modes use genuine position and difference vectors. The
+   selection temporary holds the first mode's saved node and the second
+   mode's current node in mutually exclusive paths. */
+// FUN_00164880
+u8 *func_00164880(s32 unused, u32 limit, f32 minimumDistance)
+{
+    V3 primaryPosition;
+    V3 primaryDelta;
+    V3 secondaryPosition;
+    V3 secondaryDelta;
+    f32 primaryDistance;
+    f32 secondaryDistance;
+    f32 savedPrimaryDistance;
+    f32 savedSecondaryDistance;
+    f32 bestDistance;
+    f32 positionY;
+    f32 positionZ;
+    s32 primaryUsed;
+    s32 ready;
+    s32 secondaryUsed;
+    u32 secondaryIndex;
+    u8 *savedSecondaryNode;
+    u8 *selection;
+    u8 *primaryEntry;
+    u8 *modelX;
+    u8 *source;
+    u8 *modelOrEntry;
+    u8 *secondarySource;
+    u8 *primaryRow;
+    u8 *primarySpawned;
+    u8 *secondaryRow;
+    u8 *secondarySpawned;
+    u8 *candidate;
+    u32 index;
+    u8 *best;
 
     func_001452b0(0xF);
-    var_16 = NULL;
+    best = NULL;
     func_0015a160();
-    var_f22 = 1.1754944e-38f;
+    bestDistance = 1.1754944e-38f;
     if (func_0014a200() == 1) {
-        if (func_00164f40() < (s32)arg1) {
-            var_18 = func_001452b0(0xF);
-loop_44:
-            if (var_18 == NULL) goto block_71;
-            tx = *(f32 *)(var_18 + 0x140);
-            ty = *(f32 *)(var_18 + 0x144);
-            tz = *(f32 *)(var_18 + 0x148);
-            frame.vA0[0] = tx;
-            frame.vA0[1] = ty;
-            frame.vA0[2] = tz;
-            var_17_2 = 0;
-            temp_f21 = frame.vA0[1];
-            temp_f20 = frame.vA0[2];
-do {
-                    var_4 = 0;
-                    temp_3 = D_007EF9B0 + var_17_2 * 0x750;
-                    if (*(s32 *)(temp_3 + 0x48) != 0 && *(s32 *)(temp_3 + 0x54) != 0) var_4 = 1;
-                    if (var_4 != 0) {
-                        temp_2 = D_007EF9B0 + var_17_2 * 0x750;
-                        {
-                            u8 *slot50 = temp_2 + 0x50;
-                            temp_2_2 = func_0047a2f0(*(s32 *)(temp_2 + 0x50));
-                            frame.v90[0] = frame.vA0[0] - *(f32 *)(temp_2_2 + 0x30);
-                            temp_2_3 = func_0047a2f0(*(s32 *)slot50);
-                            frame.v90[1] = temp_f21 - *(f32 *)(temp_2_3 + 0x34);
-                            temp_2_4 = func_0047a2f0(*(s32 *)slot50);
-                            frame.v90[2] = temp_f20 - *(f32 *)(temp_2_4 + 0x38);
-                        }
-                        if (func_003e4180(frame.v90) < 3000.0f) goto loop_12;
+        if (func_00164f40() < (s32)limit) {
+            candidate = func_001452b0(0xF);
+            while (candidate != NULL) {
+                primaryPosition = *(V3 *)(candidate + 0x140);
+                index = 0;
+                positionY = primaryPosition.y;
+                positionZ = primaryPosition.z;
+                goto primary_party_test;
+primary_party_body:
+                primaryUsed = 0;
+                primaryRow = D_007EF9B0 + index * 0x750;
+                if (*(s32 *)(primaryRow + 0x48) != 0 && *(s32 *)(primaryRow + 0x54) != 0) {
+                    primaryUsed = 1;
+                }
+                ready = primaryUsed != 0;
+                if (ready) {
+                    primaryEntry = D_007EF9B0 + index * 0x750;
+                    {
+                        u8 *modelSlot = primaryEntry + 0x50;
+
+                        modelX = (u8 *)func_0047a2f0(*(void **)(primaryEntry + 0x50));
+                        primaryDelta.x = primaryPosition.x - *(f32 *)(modelX + 0x30);
+                        source = (u8 *)func_0047a2f0(*(void **)modelSlot);
+                        primaryDelta.y = positionY - *(f32 *)(source + 0x34);
+                        modelOrEntry = (u8 *)func_0047a2f0(*(void **)modelSlot);
+                        primaryDelta.z = positionZ - *(f32 *)(modelOrEntry + 0x38);
                     }
-                    var_17_2 += 1;
-} while (var_17_2 < 4U);
-loop_12:
-            if (var_17_2 < 4U) {
-                var_18 = *(u8 **)(var_18 + 0x138);
-                goto loop_44;
-            }
-            if (func_00164f40() == 0) {
-loop_14:
-                var_16_2 = 0;
-                var_18_2 = 0;
-                var_2 = func_001452b0(0xF);
-                goto loop_16_check;
-loop_16_body:
-                    var_16_2 += 1;
-                    var_2 = *(u8 **)(var_2 + 0x138);
-loop_16_check:
-                if (var_2 != NULL) goto loop_16_body;
-                temp_16 = func_003b7060() % var_16_2;
-                var_17 = func_001452b0(0xF);
-                var_3 = 0;
-loop_19:
-                if (var_3 < (s32)temp_16) {
-                    var_17 = *(u8 **)(var_17 + 0x138);
-                    var_3 += 1;
-                    goto loop_19;
-                }
-                var_16_3 = 0;
-loop_27:
-                if (var_16_3 < 4) {
-                    var_4_2 = 0;
-                    temp_3_2 = D_007EF9B0 + var_16_3 * 0x750;
-                    if (*(s32 *)(temp_3_2 + 0x48) != 0 && *(s32 *)(temp_3_2 + 0x54) != 0) var_4_2 = 1;
-                    if (var_4_2 != 0) {
-                        temp_2_2 = D_007EF9B0 + var_16_3 * 0x750;
-                        {
-                            u8 *slot50 = temp_2_2 + 0x50;
-                            temp_2_3 = func_0047a2f0(*(s32 *)(temp_2_2 + 0x50));
-                            frame.v90[0] = *(f32 *)(var_17 + 0x140) - *(f32 *)(temp_2_3 + 0x30);
-                            temp_2_4 = func_0047a2f0(*(s32 *)slot50);
-                            frame.v90[1] = *(f32 *)(var_17 + 0x144) - *(f32 *)(temp_2_4 + 0x34);
-                            temp_2_5 = func_0047a2f0(*(s32 *)slot50);
-                            frame.v90[2] = *(f32 *)(var_17 + 0x148) - *(f32 *)(temp_2_5 + 0x38);
-                        }
-                        if (func_003e4180(frame.v90) < 3000.0f) goto loop_28;
+                    if (func_003e4180(&primaryDelta.x) < 3000.0f) {
+                        goto primary_party_checked;
                     }
-                    var_16_3 += 1;
-                    goto loop_27;
                 }
-loop_28:
-                if (var_16_3 < 4) var_18_2 = 1;
-                if (func_0014cfd0(var_17 + 0x140) == 1) goto loop_14;
-                if (var_18_2 == 1) goto loop_14;
-                return var_17;
-            }
-            if (func_0014cfd0(var_18 + 0x140) == 1) {
-                var_18 = *(u8 **)(var_18 + 0x138);
-                goto loop_44;
-            }
-            temp_f24 = var_f22;
-            temp_19 = var_16;
-            var_17_3 = 0;
-loop_42:
-            if (var_17_3 < 0xFU) {
-                temp_3_3 = D_007E8C00 + var_17_3 * 0x750;
-                if (*(s32 *)(temp_3_3 + 0x48) != 0) {
-                    temp_2_3 = *(u8 **)(temp_3_3 + 0x1AC);
-                    frame.v90[0] = frame.vA0[0] - *(f32 *)(temp_2_3 + 0x140);
-                    frame.v90[1] = temp_f21 - *(f32 *)(temp_2_3 + 0x144);
-                    frame.v90[2] = temp_f20 - *(f32 *)(temp_2_3 + 0x148);
-                    temp_f0 = func_003e4180(frame.v90);
-                    if (temp_f0 > var_f22) { var_f22 = temp_f0; var_16 = var_18; }
-                    if (temp_f0 < arg2) { var_f22 = temp_f24; var_16 = temp_19; goto block_41; }
+                index++;
+primary_party_test:
+                if (index < 4U) {
+                    goto primary_party_body;
                 }
-block_41:
-                var_17_3 += 1;
-                goto loop_42;
+primary_party_checked:
+                if (index < 4U) {
+                    candidate = *(u8 **)(candidate + 0x138);
+                    continue;
+                }
+                if (func_00164f40() == 0) {
+                    return fldChooseRandomSpawn(&primaryDelta);
+                }
+                if (func_0014cfd0(candidate + 0x140) == 1) {
+                    candidate = *(u8 **)(candidate + 0x138);
+                    continue;
+                }
+                savedPrimaryDistance = bestDistance;
+                selection = best;
+                index = 0;
+                goto primary_neighbor_test;
+primary_neighbor_body:
+                primarySpawned = D_007E8C00 + index * 0x750;
+                if (*(s32 *)(primarySpawned + 0x48) != 0) {
+                    source = *(u8 **)(primarySpawned + 0x1AC);
+                    primaryDelta.x = primaryPosition.x - *(f32 *)(source + 0x140);
+                    primaryDelta.y = positionY - *(f32 *)(source + 0x144);
+                    primaryDelta.z = positionZ - *(f32 *)(source + 0x148);
+                    primaryDistance = func_003e4180(&primaryDelta.x);
+                    if (!(primaryDistance <= bestDistance)) {
+                        bestDistance = primaryDistance;
+                        best = candidate;
+                    }
+                    if (primaryDistance < minimumDistance) {
+                        bestDistance = savedPrimaryDistance;
+                        best = selection;
+                        goto next_primary_node;
+                    }
+                }
+                index++;
+primary_neighbor_test:
+                if (index < 0xFU) {
+                    goto primary_neighbor_body;
+                }
+next_primary_node:
+                candidate = *(u8 **)(candidate + 0x138);
             }
-            var_18 = *(u8 **)(var_18 + 0x138);
-            goto loop_44;
+            goto done;
+        }
+    } else if (func_0014a270() == 1 && func_00164f40() < (s32)limit) {
+        selection = func_001452b0(0xF);
+        goto secondary_node_test;
+secondary_node_body:
+        secondaryPosition = *(V3 *)(selection + 0x140);
+        index = 0;
+        positionY = secondaryPosition.y;
+        positionZ = secondaryPosition.z;
+        goto secondary_party_test;
+secondary_party_body:
+        secondaryUsed = 0;
+        secondaryRow = D_007EF9B0 + index * 0x750;
+        if (*(s32 *)(secondaryRow + 0x48) != 0 && *(s32 *)(secondaryRow + 0x54) != 0) {
+            secondaryUsed = 1;
+        }
+        ready = secondaryUsed != 0;
+        if (ready) {
+            modelOrEntry = D_007EF9B0 + index * 0x750;
+            {
+                u8 *modelSlot = modelOrEntry + 0x50;
+
+                secondarySource = (u8 *)func_0047a2f0(*(void **)(modelOrEntry + 0x50));
+                secondaryDelta.x = secondaryPosition.x - *(f32 *)(secondarySource + 0x30);
+                source = (u8 *)func_0047a2f0(*(void **)modelSlot);
+                secondaryDelta.y = positionY - *(f32 *)(source + 0x34);
+                modelX = (u8 *)func_0047a2f0(*(void **)modelSlot);
+                secondaryDelta.z = positionZ - *(f32 *)(modelX + 0x38);
+            }
+            if (func_003e4180(&secondaryDelta.x) < 3000.0f) {
+                goto secondary_party_checked;
+            }
+        }
+        index++;
+secondary_party_test:
+        if (index < 4U) {
+            goto secondary_party_body;
+        }
+secondary_party_checked:
+        if (index < 4U) {
+            selection = *(u8 **)(selection + 0x138);
+            goto secondary_node_test;
+        }
+        if (func_00164f40() == 0) {
+            return selection;
+        }
+        savedSecondaryDistance = bestDistance;
+        savedSecondaryNode = best;
+        secondaryIndex = 0;
+        goto secondary_neighbor_test;
+secondary_neighbor_body:
+        secondarySpawned = D_007E8C00 + secondaryIndex * 0x750;
+        if (*(s32 *)(secondarySpawned + 0x48) != 0) {
+            secondarySource = *(u8 **)(secondarySpawned + 0x1AC);
+            secondaryDelta.x = secondaryPosition.x - *(f32 *)(secondarySource + 0x140);
+            secondaryDelta.y = positionY - *(f32 *)(secondarySource + 0x144);
+            secondaryDelta.z = positionZ - *(f32 *)(secondarySource + 0x148);
+            secondaryDistance = func_003e4180(&secondaryDelta.x);
+            if (!(secondaryDistance <= bestDistance)) {
+                bestDistance = secondaryDistance;
+                best = selection;
+            }
+            if (secondaryDistance < minimumDistance) {
+                bestDistance = savedSecondaryDistance;
+                best = savedSecondaryNode;
+                goto next_secondary_node;
+            }
+        }
+        secondaryIndex++;
+secondary_neighbor_test:
+        if (secondaryIndex < 0xFU) {
+            goto secondary_neighbor_body;
+        }
+next_secondary_node:
+        selection = *(u8 **)(selection + 0x138);
+secondary_node_test:
+        if (selection != NULL) {
+            goto secondary_node_body;
         }
     }
-    if (func_0014a270() == 1 && func_00164f40() < (s32)arg1) {
-        var_19 = func_001452b0(0xF);
-loop_70:
-        if (var_19 == NULL) goto block_71;
-        tx = *(f32 *)(var_19 + 0x140);
-        ty = *(f32 *)(var_19 + 0x144);
-        tz = *(f32 *)(var_19 + 0x148);
-        frame.v80[0] = tx;
-        frame.v80[1] = ty;
-        frame.v80[2] = tz;
-        var_17_4 = 0;
-        temp_f21 = frame.v80[1];
-        temp_f20 = frame.v80[2];
-loop_56:
-        if (var_17_4 < 4U) {
-            var_4_3 = 0;
-            temp_3_4 = D_007EF9B0 + var_17_4 * 0x750;
-            if (*(s32 *)(temp_3_4 + 0x48) != 0 && *(s32 *)(temp_3_4 + 0x54) != 0) var_4_3 = 1;
-            if (var_4_3 != 0) {
-                temp_2_4 = D_007EF9B0 + var_17_4 * 0x750;
-                {
-                    u8 *slot50 = temp_2_4 + 0x50;
-                    temp_2_5 = func_0047a2f0(*(s32 *)(temp_2_4 + 0x50));
-                    frame.v70[0] = frame.v80[0] - *(f32 *)(temp_2_5 + 0x30);
-                    temp_2_3 = func_0047a2f0(*(s32 *)slot50);
-                    frame.v70[1] = temp_f21 - *(f32 *)(temp_2_3 + 0x34);
-                    temp_2_2 = func_0047a2f0(*(s32 *)slot50);
-                    frame.v70[2] = temp_f20 - *(f32 *)(temp_2_2 + 0x38);
-                }
-                if (func_003e4180(frame.v70) < 3000.0f) goto loop_58;
-            }
-            var_17_4 += 1;
-            goto loop_56;
-        }
-loop_58:
-        if (var_17_4 < 4U) {
-            var_19 = *(u8 **)(var_19 + 0x138);
-            goto loop_70;
-        }
-        if (func_00164f40() == 0) return var_19;
-        temp_f24_2 = var_f22;
-        temp_17 = var_16;
-        var_18_3 = 0;
-loop_68:
-        if (var_18_3 < 0xFU) {
-            temp_3_5 = D_007E8C00 + var_18_3 * 0x750;
-            if (*(s32 *)(temp_3_5 + 0x48) != 0) {
-                temp_2_5 = *(u8 **)(temp_3_5 + 0x1AC);
-                frame.v70[0] = frame.v80[0] - *(f32 *)(temp_2_5 + 0x140);
-                frame.v70[1] = temp_f21 - *(f32 *)(temp_2_5 + 0x144);
-                frame.v70[2] = temp_f20 - *(f32 *)(temp_2_5 + 0x148);
-                temp_f0_2 = func_003e4180(frame.v70);
-                if (temp_f0_2 > var_f22) { var_f22 = temp_f0_2; var_16 = var_19; }
-                if (temp_f0_2 < arg2) { var_f22 = temp_f24_2; var_16 = temp_17; goto block_67; }
-            }
-block_67:
-            var_18_3 += 1;
-            goto loop_68;
-        }
-        var_19 = *(u8 **)(var_19 + 0x138);
-        goto loop_70;
-    }
-block_71:
-    return var_16;
+done:
+    return best;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00164880);
-#endif
-
 
 
 // FUN_00164F40
@@ -1403,11 +1420,11 @@ void func_00164fa0(s32 arg0)
         temp_16 = (u8 **)(D_007EFA00 + temp_17);
         actorId = func_00145540(arg0 & 0xFFFF, 3, *temp_16) & 0xFFFF;
         temp_20 = (u8 **)(D_007EFA04 + temp_17);
-        temp_2 = func_00145270(actorId);
+        temp_2 = (u8 *)func_00145270(actorId);
         *temp_20 = temp_2;
         func_0017b9a0(*(s32 *)(temp_2 + 0x224), 60.0f);
         temp_18 = D_007EF9B0 + temp_17;
-        var_2 = func_0047a2f0((s32)*temp_16);
+        var_2 = (u8 *)func_0047a2f0(*temp_16);
         i = 8;
         var_6 = temp_18;
         do {
@@ -1419,7 +1436,7 @@ void func_00164fa0(s32 arg0)
             *(s32 *)(var_2 + 4) = temp_3;
             var_2 += 8;
         } while (i > 0);
-        func_003e05d0(func_0047a2f0((s32)*temp_16));
+        func_003e05d0((u8 *)func_0047a2f0(*temp_16));
         func_0014b0c0(*(u16 *)*temp_20, 1);
         func_00168730(*((s32 *)(*temp_20 + 0x220)), 0x40000000);
         func_00168c00(*((s32 *)(*temp_20 + 0x220)));
@@ -1473,7 +1490,7 @@ s32 func_00165300(void)
     s32 i;
     for (i = 0; i < 0xF; i++) {
         u8 *p = D_007E8C00 + i * 0x750;
-        if (*(s32 *)(p + 0x48) != 0 && func_004782b0(*(s32 *)(p + 0x50)) == 0) {
+        if (*(s32 *)(p + 0x48) != 0 && func_004782b0((u8 *)(*(s32 *)(p + 0x50))) == 0) {
             return 0;
         }
     }
@@ -1534,7 +1551,7 @@ void func_00165380(void)
             f1ca = slot + 0x1CA;
             f50 = slot + 0x50;
             func_0047a1e0(*(void **)f50, D_005F12E0 + *f1ca * 0x30 + *(u8 *)(slot + 0x1CB) * 0xC, 2);
-            dst = func_0047a2f0(*(s32 *)f50);
+            dst = (u8 *)func_0047a2f0(*(void **)f50);
             n = 8;
             src = slot;
             do {
@@ -1546,7 +1563,7 @@ void func_00165380(void)
                 *(s32 *)(dst + 4) = t2;
                 dst += 8;
             } while (n > 0);
-            func_003e05d0(func_0047a2f0(*(s32 *)f50));
+            func_003e05d0((u8 *)func_0047a2f0(*(void **)f50));
             f54 = slot + 0x54;
             func_0014b0c0(*(u16 *)(*(u8 **)f54), 1);
             func_00168730(*(s32 *)(*(u8 **)f54 + 0x220), 0x40000000);
@@ -1585,7 +1602,7 @@ void func_00165670(u8 *arg0, s32 arg1)
     s32 i;
     v = *(u32 *)(p + 0x48) != 0 && *(u32 *)(p + 0x54) != 0;
     if (v != 0) {
-        q = func_0047a2f0(*(u32 *)(p + 0x50));
+        q = (u8 *)func_0047a2f0(*(void **)(p + 0x50));
         s = q;
         n = 8;
         d = p;
@@ -1608,7 +1625,7 @@ void func_00165670(u8 *arg0, s32 arg1)
             for (i = 0; i < 5; i++) {
                 *(u8 *)(*(u32 *)(p + 0x50) + i * 12 + 0x28C) |= 1;
             }
-            func_004787e0(*(u32 *)(p + 0x50));
+            func_004787e0(*(u8 **)(p + 0x50));
             *(u32 *)(p + 0x50) = 0;
         }
         if (*(u32 *)(p + 0x1B0) != 0) {
@@ -1784,7 +1801,7 @@ s32 func_00165be0(void)
     for (i = 0; i < 2; i++)
     {
         v = D_007E8BE8[i];
-        if (v != 0 && func_004782b0(v) == 0)
+        if (v != 0 && func_004782b0((u8 *)(v)) == 0)
         {
             return 0;
         }
@@ -1855,7 +1872,7 @@ s32 func_00165be0(void)
         }
         code = func_00145780((u16)((0x3FF - j) & 0xFFFF), 3, v);
         func_0014b0c0(code, 1);
-        ptr = (u8*)func_00145270(code);
+        ptr = (u8 *)func_00145270(code);
         *(s32*)(ptr + 0x234) = 3;
         if (*(u32*)(D_007E8BE0 + j4) != 0)
         {
@@ -1917,7 +1934,7 @@ void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
     if (arg0 != NULL) {
         temp_17 = (s32)(((*(u8 **)(arg0 + 0x160) + 7)[0] & 1) != 0);
         *(u16 *)(arg0 + 0xC) = (u16)func_00145ac0(arg2 & 0xFFFF, func_00478750(*(s32 *)(func_0015a320())));
-        temp_2 = func_00145270(*(u16 *)(arg0 + 0xC));
+        temp_2 = (u8 *)func_00145270(*(u16 *)(arg0 + 0xC));
         func_0047aa30(*(u8 **)(temp_2 + 0x144), D_005DC920);
         temp_21 = temp_17 * 0xC;
         func_0047a1e0(*(u8 **)(temp_2 + 0x144), D_005F1530 + temp_21, 2);
@@ -1963,7 +1980,7 @@ void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
         func_00478e70(temp_4_2);
         temp_17_2 = (s32)((600.0f + *(f32 *)(arg1 + 0x140)) / 1200.0f);
         temp_18 = (s32)((600.0f + *(f32 *)(arg1 + 0x148)) / 1200.0f);
-        *(u8 **)(temp_2 + 0x140) = func_00145270(*(u16 *)((u8 *)func_00155280() + (temp_18 << 8) + (temp_17_2 * 0x10) + 0x56));
+        *(u8 **)(temp_2 + 0x140) = (u8 *)func_00145270(*(u16 *)((u8 *)func_00155280() + (temp_18 << 8) + (temp_17_2 * 0x10) + 0x56));
         func_0014a0f0(*(u16 *)(arg0 + 0xC), 1);
         iGpffffb2e4 += 1;
     }
@@ -2110,9 +2127,9 @@ u8 *func_00166600(u8 *arg0, u32 *arg1, s32 arg2)
             var_f22 = 1.1754944e-38f;
             while (var_19 != NULL) {
                 pos = *(V3 *)(var_19 + 0x140);
-                vec.x = pos.x - *(f32 *)(func_0047a2f0((s32)*(u8 **)D_007EFA00) + 0x30);
-                vec.y = pos.y - *(f32 *)(func_0047a2f0((s32)*(u8 **)D_007EFA00) + 0x34);
-                vec.z = pos.z - *(f32 *)(func_0047a2f0((s32)*(u8 **)D_007EFA00) + 0x38);
+                vec.x = pos.x - *(f32 *)((u8 *)func_0047a2f0(*(u8 **)D_007EFA00) + 0x30);
+                vec.y = pos.y - *(f32 *)((u8 *)func_0047a2f0(*(u8 **)D_007EFA00) + 0x34);
+                vec.z = pos.z - *(f32 *)((u8 *)func_0047a2f0(*(u8 **)D_007EFA00) + 0x38);
                 if (func_003e4180(&vec.x) < 500.0f) {
                     var_19 = *(u8 **)(var_19 + 0x138);
                     var_16 += 1;
@@ -2597,242 +2614,235 @@ void func_00167530(void)
 
 
 
-/* measured: nd ~200 after four attempts. Retail recomputes the slot pointer */
-/*   inside the if-branch (temp_2 = D_007E8C00 + var_21*0x750, fresh mult) even */
-/*   though the loop head computed the identical value into temp_17; mwcc b210 */
-/*   CSEs the recomputation and reuses $17, losing 6 words (same */
-/*   CSE-of-recomputation floor as func_00164fa0; tried pointer arithmetic, */
-/*   (s32)&-int-cast spellings, temp_5/temp_5_2 fresh forms — the int-cast also */
-/*   grows the frame to 0x90). Everything else (the (s32) cvt conversions, the */
-/*   ±3/±2 comparison chains, the 0xE1F/0xE3C guards, D_007E8020 sw stores) */
-/*   matches; only var_21/var_20 and the sltu-on-var_5 check registers remain */
-/*   after the CSE issue. */
-/* 2026-09-17 reconstruction from the m2c draft (guarded v1): nd 243; int temps */
-/*   for the (600+x)/1200 lanes (kills float spills/cvt.s.w, mfc1 homes), u32 */
-/*   flag loads, <<4/<<8 map idiom. Guarded-body levers all flat: deref provider */
-/*   args 256, materialized u32 entry guard (no sltu either way), (u32)hit cast. */
-/*   Open wall per fnalign: per-site slot mult recompute (CSE merges it) + the */
-/*   s6=slot+0x50 precompute for the call arg. Production stays ASM. */
-// FUN_00167560 NONMATCHING
-#ifdef NON_MATCHING
+/* Preserve the per-site unit addresses and the readiness value used by each
+   scan. The grid coordinates are signed integers; the second scan shares its
+   center and grid size while retaining the original coordinate before addition. */
+// FUN_00167560
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
 void func_00167560(void)
 {
-    f32 fx0;
-    f32 fz0;
-    f32 fx;
-    f32 fz;
-    f32 fx2;
-    f32 fz2;
-    s32 var_20;
-    s32 var_20_2;
-    s32 var_21;
-    s32 var_21_2;
-    s32 t;
-    u8 *slot;
-    u8 *slot2;
-    u8 *e;
-    u8 *e2;
-    u8 *q;
-    u8 *q2;
-    u8 *hit;
+    s32 playerCellX;
+    s32 playerCellZ;
+    s32 unitCellX;
+    s32 unitCellZ;
+    s32 objectCellX;
+    s32 objectCellZ;
+    s32 unitIndex;
+    s32 objectIndex;
+    s32 unitCount;
+    s32 objectCount;
+    s32 offset;
+    s32 ready;
+    u8 *unit;
+    u8 *object;
+    u8 *unitEntry;
+    u8 **modelSlot;
+    u8 *selectedUnit;
+    u8 *selected;
+    u8 *objectResource;
+    s32 used;
 
     func_0043f9c8(D_007E8020, 0, 0x40);
-    if (*(u32 *)D_007EF9F8 != 0 && *(u32 *)D_007EFA04 != 0) {
-        fx0 = (f32)(s32)((600.0f + *(f32 *)(func_0047a2f0((s32)D_007EFA00) + 0x30)) / 1200.0f);
-        fz0 = (f32)(s32)((600.0f + *(f32 *)(func_0047a2f0((s32)D_007EFA00) + 0x38)) / 1200.0f);
-        var_21 = 0;
-        var_20 = 0;
-        while (var_21 < 0xF) {
-            hit = NULL;
-            slot = D_007E8C00 + var_21 * 0x750;
-            if (*(s32 *)(slot + 0x48) != 0 && *(s32 *)(slot + 0x54) != 0) {
-                hit = (u8 *)1;
+    ready = *(u32 *)D_007EF9F8 != 0;
+    if (ready) {
+        ready = *(u32 *)D_007EFA04 != 0;
+    }
+    if (ready) {
+        playerCellX = (s32)((600.0f + *(f32 *)(
+            (u8 *)func_0047a2f0(*(u8 **)D_007EFA00) + 0x30)) / 1200.0f);
+        playerCellZ = (s32)((600.0f + *(f32 *)(
+            (u8 *)func_0047a2f0(*(u8 **)D_007EFA00) + 0x38)) / 1200.0f);
+        unitIndex = 0;
+        unitCount = 0;
+        while (unitIndex < 0xF) {
+            used = 0;
+            unit = D_007E8C00 + unitIndex * 0x750;
+            if (*(s32 *)(unit + 0x48) != 0 && *(s32 *)(unit + 0x54) != 0) {
+                used = 1;
             }
-            if (hit != NULL) {
-                e = D_007E8C00 + var_21 * 0x750;
-                fx = (f32)(s32)((600.0f + *(f32 *)(func_0047a2f0(*(s32 *)(e + 0x50)) + 0x30)) / 1200.0f);
-                fz = (f32)(s32)((600.0f + *(f32 *)(func_0047a2f0(*(s32 *)(e + 0x50)) + 0x38)) / 1200.0f);
-                q = func_00145270(*(u16 *)((u8 *)func_00155280() + ((s32)fz << 8) + ((s32)fx << 4) + 0x56));
-                if ((s32)fx >= (s32)fx0 - 3 && (s32)fx0 + 3 >= (s32)fx && (s32)fz >= (s32)fz0 - 3 && (s32)fz0 + 3 >= (s32)fz && q != NULL && (*(s32 *)(q + 0x28) & 2)) {
-                    if (var_20 >= 8) {
+            ready = used != 0;
+            if (ready) {
+                unitEntry = D_007E8C00 + unitIndex * 0x750;
+                modelSlot = (u8 **)(unitEntry + 0x50);
+                unitCellX = (s32)((600.0f + *(f32 *)(
+                    (u8 *)func_0047a2f0(*modelSlot) + 0x30)) / 1200.0f);
+                unitCellZ = (s32)((600.0f + *(f32 *)(
+                    (u8 *)func_0047a2f0(*modelSlot) + 0x38)) / 1200.0f);
+                selected = (u8 *)func_00145270(*(u16 *)((u8 *)func_00155280() +
+                    (unitCellZ << 8) + (unitCellX << 4) + 0x56));
+                if (!(unitCellX < playerCellX - 3 || unitCellX > playerCellX + 3 ||
+                      unitCellZ < playerCellZ - 3 || unitCellZ > playerCellZ + 3 ||
+                      selected == NULL || !(*(s32 *)(selected + 0x28) & 2))) {
+                    if (unitCount >= 8) {
                         func_0046d730(D_005F1500, 0xE1F);
                     }
-                    e2 = D_007E8C00 + var_21 * 0x750;
-                    *(s32 *)(e2 + 0x40) |= 1;
-                    *(u8 **)(D_007E8020 + var_20 * 4) = e2;
-                    var_20 += 1;
+                    selectedUnit = D_007E8C00 + unitIndex * 0x750;
+                    *(s32 *)(selectedUnit + 0x40) |= 1;
+                    *(u8 **)(D_007E8020 + unitCount * 4) = selectedUnit;
+                    unitCount += 1;
                 } else {
-                    *(s32 *)(slot + 0x40) &= ~1;
+                    *(s32 *)(unit + 0x40) &= ~1;
                 }
             }
-            var_21 += 1;
+            unitIndex += 1;
         }
-        var_21_2 = 0;
-        var_20_2 = 0;
-        while (var_21_2 < 8) {
-            t = var_21_2 * 0x168;
-            slot2 = D_007E80A0 + t;
-            if (*(s32 *)(slot2 + 0) != 0) {
-                fx2 = (f32)(s32)((600.0f + *(f32 *)(slot2 + 0x150)) / 1200.0f);
-                fz2 = (f32)(s32)((600.0f + *(f32 *)(slot2 + 0x158)) / 1200.0f);
-                q2 = func_00145270(*(u16 *)((u8 *)func_00155280() + t + ((s32)fz2 << 8) + ((s32)fx2 << 4) + 0x56));
-                if ((s32)fx2 >= (s32)fx0 - 2 && (s32)fx0 + 2 >= (s32)fx2 && (s32)fz2 >= (s32)fz0 - 2 && (s32)fz0 + 2 >= (s32)fz2 && q2 != NULL && (*(s32 *)(q2 + 0x28) & 2)) {
-                    if (var_20_2 >= 8) {
+        objectIndex = 0;
+        objectCount = 0;
+        while (objectIndex < 8) {
+            offset = objectIndex * 0x168;
+            object = D_007E80A0 + offset;
+            if (*(s32 *)object != 0) {
+                f32 center;
+                f32 gridSize;
+                f32 positionX;
+                f32 shiftedX;
+
+                positionX = *(f32 *)(object + 0x150);
+                center = 600.0f;
+                shiftedX = center + positionX;
+                gridSize = 1200.0f;
+                objectCellX = (s32)(shiftedX / gridSize);
+                objectCellZ = (s32)((center + *(f32 *)(object + 0x158)) / gridSize);
+                objectResource = (u8 *)func_00145270(*(u16 *)((u8 *)func_00155280() +
+                    (objectCellZ << 8) + (objectCellX << 4) + 0x56));
+                if (!(objectCellX < playerCellX - 2 || objectCellX > playerCellX + 2 ||
+                      objectCellZ < playerCellZ - 2 || objectCellZ > playerCellZ + 2 ||
+                      objectResource == NULL || !(*(s32 *)(objectResource + 0x28) & 2))) {
+                    if (objectCount >= 8) {
                         func_0046d730(D_005F1500, 0xE3C);
                     }
-                    q = D_007E80A0 + var_21_2 * 0x168;
-                    *(s32 *)(q + 4) |= 1;
-                    *(u8 **)(D_007E8020 + 0x20 + var_20_2 * 4) = q;
-                    var_20_2 += 1;
+                    selected = D_007E80A0 + objectIndex * 0x168;
+                    *(s32 *)(selected + 4) |= 1;
+                    *(u8 **)(D_007E8020 + 0x20 + objectCount * 4) = selected;
+                    objectCount += 1;
                 } else {
-                    *(s32 *)(slot2 + 4) &= ~1;
+                    *(s32 *)(object + 4) &= ~1;
                 }
             }
-            var_21_2 += 1;
+            objectIndex += 1;
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00167560);
-#endif
+#pragma pop
 
 
-
-/* measured: 153 differing words at an exact 228/228.  This replaces an
-   archived draft that emitted 772B against the 912B window - 15% short, so it
-   was never a floor - with a full re-derivation from the disassembly.
-   Levers that paid, in order: `opt_common_subs off` 191 -> 158, because retail
-   rematerialises `D_007F16F0 + i * 8` a second time inside the kind-3 arm
-   where b210 keeps the first result live; and declaring the three inner
-   five-iteration counters at block scope rather than sharing one function-scope
-   `k`, 158 -> 153, which stops the counter claiming a callee-saved register
-   where retail uses $a1.  Writing the kind compare as
-   `*(u16 *)(unit + 0x728) != *(s32 *)(work + j * 4 + 4)` puts the word load
-   first as retail has it.  The switch is a real `switch` with case 1 falling
-   through into case 2's `return -1`, which is what produces retail's
-   descending 2/1/0 compare chain ahead of the three ascending bodies.
-   WALL 1: retail materialises the any-slot test as `sltu $v0, $zero, $a0`
-   followed by `beqz $v0`, while b210 folds it to a bare `beqz $a0`.  Measured
-   and rejected: `(0U < (u32)used) != 0` (153), `(u32)used > 0U` (153),
-   assigning it to an `s32 any` first (153), and doing the same at both test
-   sites (188).
-   WALL 2: a two-position saved-register rotation - retail holds the work
-   pointer in $s2, the outer index in $s3 and the unit pointer in $s1, and
-   b210 uses $s0, $s1 and $s2 for the same three.  Four declaration orders
-   measured, all 153.  Pragmas on the `opt_common_subs off` base: propagation,
-   strength-reduction, loop-invariants, dead-assignments and unroll-loops all
-   tie at 158 before the block-scope fix; `schedule on` 209 and `peephole off`
-   197.  Two-definition pinning of the pair pointer ties at 158. */
-/* measured 001679d0 (owner, 2026-09-19): fnalign **85 -> 81 edits**, count
-   228 -> 226 against retail 228, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
-   with a guard before the first iteration; retail has none, because the loop provably
-   runs at least once and the original source said so.
-   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
-   which that sweep could not see.  Across the 40 floors with the most constant-bound
-   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
-   was ever the right one, so each loop is measured separately rather than converting
-   them all. */
-// FUN_001679D0 NONMATCHING
-#ifdef NON_MATCHING
+/* Model replacement waits for all selected units before completing the task.
+ * Measured: 904 relocated bytes plus eight zero suffix bytes. The scoped
+ * lifetime/reload profile preserves the kind field across model teardown. */
+// FUN_001679D0
+#pragma push
+#pragma opt_lifetimes on
 #pragma opt_common_subs off
-s32 func_001679d0(u8 *arg0)
+#pragma opt_propagation off
+s32 func_001679d0(u8 *task)
 {
-    extern void func_0047ae10(s32 arg0, u16 arg1);
-    extern void func_0047d140(s32 arg0);
+    u8 *entry;
+    s32 index;
     u8 *work;
     u8 *unit;
-    u8 *pair;
-    u8 *kindp;
-    s32 i;
-    s32 j;
-    s32 used;
-    s32 n;
+    u8 *retainedField;
+    u8 *field;
+    s32 requestIndex;
+    s32 attached;
+    s32 selectedCount;
+    s32 isAttached;
+    s32 selectedIndex;
+    s32 requestedKind;
+    s32 kind;
+    u16 fieldId;
+    u16 fieldSubId;
+    s32 replacementKind;
 
-    work = *(u8 **)(arg0 + 0x38);
+    work = *(u8 **)(task + 0x38);
     switch (*(s32 *)work) {
     case 0:
-        for (i = 0; i < 4; i++) {
-            used = 0;
-            unit = D_007EF9B0 + i * 1872;
+        for (index = 0; index < 4; index++) {
+            attached = 0;
+            unit = D_007EF9B0 + index * 0x750;
             if (*(s32 *)(unit + 0x48) != 0) {
                 if (*(s32 *)(unit + 0x54) != 0) {
-                    used = 1;
+                    attached = 1;
                 }
             }
-            if (0U < (u32)used) {
-                for (j = 0; j < 4; j++) {
-                    if (*(u16 *)(unit + 0x728) != *(s32 *)(work + j * 4 + 4)) {
+            isAttached = attached != 0;
+            if (isAttached) {
+                for (requestIndex = 0; requestIndex < 4; requestIndex++) {
+                    requestedKind = *(s32 *)(work + requestIndex * 4 + 4);
+                    kind = *(u16 *)(unit + 0x728);
+                    if (requestedKind != kind) {
                         continue;
                     }
-                    kindp = unit + 0x728;
-                    if (*(u16 *)(unit + 0x728) == 3) {
+                    /* The kind address survives model teardown; its value selects the path. */
+                    retainedField = unit + 0x728;
+                    if (kind == 3) {
                         func_00165670(unit, 0);
-                        pair = D_007F16F0 + i * 8;
-                        if (*(s32 *)(pair + 4) != 0) {
-                            s32 k;
+                        entry = D_007F16F0 + index * 8;
+                        if (*(s32 *)(entry + 4) != 0) {
+                            s32 layer;
 
-                            for (k = 0; k < 5; k++) {
-                                *(u8 *)(*(s32 *)(pair + 4) + k * 12 + 0x28C) |= 1;
+                            for (layer = 0; layer < 5; layer++) {
+                                *(u8 *)(*(s32 *)(entry + 4) + layer * 12 + 0x28C) |= 1;
                             }
-                            pair = D_007F16F0 + i * 8;
-                            unit = pair + 4;
-                            func_004787e0(*(s32 *)(pair + 4));
+                            entry = D_007F16F0 + index * 8;
+                            unit = entry + 4;
+                            func_004787e0((u8 *)(*(s32 *)(entry + 4)));
                             *(s32 *)unit = 0;
-                            *(s16 *)(pair + 0) = 0;
-                            *(s16 *)(pair + 2) = 0;
+                            *(s16 *)(entry + 0) = 0;
+                            *(s16 *)(entry + 2) = 0;
                         }
-                        unit = D_007EF9B0 + i * 1872;
-                        *(u8 **)(unit + 0x50) =
-                            func_00162680(*(u16 *)iGpffff9db0,
-                                          *(u16 *)(iGpffff9db0 + 4),
-                                          *(u16 *)kindp);
+                        unit = D_007EF9B0 + index * 0x750;
+                        /* Load the field context once, then pass both native halfword IDs. */
+                        field = iGpffff9db0;
+                        fieldId = *(u16 *)field;
+                        fieldSubId = *(u16 *)(field + 4);
+                        replacementKind = *(u16 *)retainedField;
+                        *(u8 **)(unit + 0x50) = func_00162680(fieldId, fieldSubId, replacementKind);
                     } else {
-                        s32 k;
+                        s32 layer;
 
-                        k = 0;
-                        do {
-                            func_0047ae10(*(s32 *)(unit + 0x50), k & 0xFFFF);
-                            k++;
-                        } while (k < 5);
-                        func_0047d140(*(s32 *)(unit + 0x50));
+                        for (layer = 0; layer < 5; layer++) {
+                            func_0047ae10((u8 *)(*(s32 *)(unit + 0x50)), layer & 0xFFFF);
+                        }
+                        func_0047d140((void *)(*(s32 *)(unit + 0x50)));
                     }
-                    n = *(s32 *)(work + 0x14);
-                    *(s32 *)(work + n * 4 + 0x18) = i;
+                    selectedCount = *(s32 *)(work + 0x14);
+                    *(s32 *)(work + selectedCount * 4 + 0x18) = index;
                     *(s32 *)(work + 0x14) = *(s32 *)(work + 0x14) + 1;
                     break;
                 }
             }
         }
         *(s32 *)work = *(s32 *)work + 1;
-        return 0;
+        break;
     case 1:
-        for (i = 0; (u32)i < (u32)*(s32 *)(work + 0x14); i++) {
-            pair = work + i * 4;
-            kindp = pair + 0x18;
-            unit = D_007EF9B0 + *(s32 *)(pair + 0x18) * 1872;
+        for (index = 0; (u32)index < (u32)*(s32 *)(work + 0x14); index++) {
+            entry = work + index * 4;
+            retainedField = entry + 0x18;
+            unit = D_007EF9B0 + *(s32 *)(entry + 0x18) * 0x750;
             if (*(u16 *)(unit + 0x728) == 3) {
-                if (func_004782b0(*(s32 *)(unit + 0x50)) == 0) {
+                if (func_004782b0((u8 *)(*(s32 *)(unit + 0x50))) == 0) {
                     return 0;
                 }
-                used = 0;
-                unit = D_007EF9B0 + *(s32 *)kindp * 1872;
+                attached = 0;
+                selectedIndex = *(s32 *)retainedField;
+                unit = D_007EF9B0 + selectedIndex * 0x750;
                 if (*(s32 *)(unit + 0x48) != 0) {
                     if (*(s32 *)(unit + 0x54) != 0) {
-                        used = 1;
+                        attached = 1;
                     }
                 }
-                if (!(0U < (u32)used)) {
-                    func_00164fa0(*(s32 *)kindp);
+                isAttached = attached != 0;
+                if (!isAttached) {
+                    func_00164fa0(selectedIndex);
                 }
             } else {
-                s32 k;
+                s32 layer;
 
-                for (k = 0; k < 5; k++) {
-                    if (func_0047ae90(
-                            *(s32 *)(D_007EF9B0 + *(s32 *)(pair + 0x18) * 1872 +
-                                     0x50),
-                            k & 0xFFFF) == 0) {
+                for (layer = 0; layer < 5; layer++) {
+                    if (func_0047ae90((u8 *)(*(s32 *)(D_007EF9B0 + *(s32 *)(entry + 0x18) * 0x750 +
+                                     0x50)), layer & 0xFFFF) == 0) {
                         return 0;
                     }
                 }
@@ -2846,11 +2856,7 @@ s32 func_001679d0(u8 *arg0)
     return 0;
 }
 
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_001679d0);
-#endif
-
+#pragma pop
 // FUN_00167D60
 void func_00167d60(u8 *arg0)
 {

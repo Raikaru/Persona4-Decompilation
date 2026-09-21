@@ -90,7 +90,7 @@ extern u16 func_0010b6f0(void);
 extern void func_0010c980(u8 *arg0, s32 arg1);
 extern s32 func_0010c6f0(PersonaWork *arg0);
 extern void func_0010c5a0(u8 *arg0, u8 *arg1);
-extern u16 *func_0010a900(s32 arg0);
+extern u16 *func_0010a900(u16 arg0);
 extern void func_00201720(void *arg0, f32 arg1, f32 arg2);
 extern void func_00201300(s32 *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4);
 extern void func_002016e0(u8 *arg0, s16 arg1, s16 arg2, f32 arg3);
@@ -3712,7 +3712,7 @@ void func_0021be80(u8 *arg0, u8 *arg1)
     extern void func_0021bbb0(s32 color, s32 frame);
     extern void func_0021b500(void *dst, f32 x, f32 y, f32 z, f32 u, f32 v,
                               s32 color);
-    extern s32 func_003b7060(void);
+    extern u32 func_003b7060(void);
     extern void func_003f6440(s32 arg0, s32 arg1);
     extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     extern u8 *func_00457120(void);

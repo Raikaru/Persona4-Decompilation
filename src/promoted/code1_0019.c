@@ -264,7 +264,7 @@ extern void func_0047a120(void *arg0);
 extern void func_0047a150(void *arg0);
 extern u8 *func_00199ee0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
 extern u32 func_004bd050(u32 arg0);
-extern u16 *func_0010a900();
+extern u16 *func_0010a900(u16 character);
 extern s32 func_0010f4f0(s32 arg0);
 extern void func_001b0800(u8 *arg0, u32 arg1);
 extern void func_001b08d0(void *arg0);
@@ -5025,7 +5025,7 @@ upper_height_done:
 
 #pragma pop
 // FUN_0019F5F0
-u8 *func_0019f5f0(s32 arg0, s64 arg1, u16 *arg2)
+u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2)
 {
     s32 temp_16;
     s32 temp_2;

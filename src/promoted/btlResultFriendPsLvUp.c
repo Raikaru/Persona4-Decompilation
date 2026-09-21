@@ -12,7 +12,7 @@ extern s32 func_00117780(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4);
 extern void func_0011d100(s32 arg0, void *arg1);
 extern void func_0011bb90(s32 arg0);
 extern void func_00117580(s32 arg0, s32 arg1);
-extern u8 *func_0010a900(u16 arg0);
+extern u16 *func_0010a900(u16 arg0);
 extern s32 func_00106330(s32 arg0);
 extern void func_00106390(s32 arg0, s32 arg1);
 extern void func_0011b480(s32 a0, u16 a1, u8 *a2, s32 a3);
@@ -135,7 +135,7 @@ s32 func_002239a0(u8 *sdkTaskBytes)
                 *(s32 *)(r + 56) = idx + 1;
                 continue;
             }
-            q = func_0010a900(id);
+            q = (u8 *)func_0010a900(id);
             *(s32 *)(q + 8) = *(s32 *)(base + idx * 4 + 0x6A4) + *(s32 *)(q + 8);
             if ((s32)*(u8 *)(base + idx * 136 + 0x6B4) <= 0) {
                 *(s32 *)(r + 56) = idx + 1;
