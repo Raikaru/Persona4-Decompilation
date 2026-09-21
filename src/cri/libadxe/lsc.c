@@ -309,6 +309,7 @@ Sint32 LSC_GetStat(LSC lsc)
 }
 
 // 100% matching!
+// FUN_004E9450
 Sint32 LSC_GetNumStm(LSC lsc) 
 {
     if (lsc == NULL) 
@@ -454,6 +455,7 @@ void LSC_SetFlowLimit(LSC lsc, Sint32 min)
 }
 
 // 100% matching!
+// FUN_004E9740
 Sint32 LSC_GetFlowLimit(LSC lsc) 
 {
     if (lsc == NULL) 
@@ -467,6 +469,7 @@ Sint32 LSC_GetFlowLimit(LSC lsc)
 }
 
 // 100% matching!
+// FUN_004E9770
 void LSC_EntryChgStatFunc(LSC_STATFN statfn, void *obj1, void *obj2)
 {
     if (statfn == NULL) 
@@ -495,6 +498,7 @@ void LSC_CallStatFunc(void)
 }
 
 // 100% matching!
+// FUN_004E97E8
 void LSC_SetLpFlg(LSC lsc, Sint32 flg)
 {
     if (lsc == NULL) 

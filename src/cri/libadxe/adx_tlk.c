@@ -482,6 +482,7 @@ Sint32 ADXT_GetStat(ADXT adxt)
 }
 
 // 100% matching! 
+// FUN_004D4490
 void ADXT_SetTimeMode(Sint32 mode)
 {
     if (mode == 1) 
@@ -497,6 +498,7 @@ void ADXT_SetTimeMode(Sint32 mode)
 }
 
 // 100% matching! 
+// FUN_004D4518
 void ADXT_GetTimeSfreq(ADXT adxt, Sint32 *ncount, Sint32 *tscale)
 {
     if ((adxt->stat == ADXT_STAT_PLAYING) || (adxt->stat == ADXT_STAT_DECEND))
@@ -956,6 +958,7 @@ Sint32 ADXT_GetDecNumSmpl(ADXT adxt)
 }
 
 // 100% matching! 
+// FUN_004D6838
 Sint32 ADXT_IsHeader(Sint8 *adr, Sint32 siz, Sint32 *hdrsiz)
 {
     Sint16 dlen;
