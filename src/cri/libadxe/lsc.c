@@ -134,19 +134,19 @@ Sint32 LSC_EntryFileRange(LSC lsc, Sint8 *fname, void *dir, Sint32 ofst, Sint32 
     {
         LSC_CallErrFunc("E0003: Illigal parameter lsc=NULL");
         
-        return -1;
+        return -3;
     }
 
     if (lsc->nstm >= LSC_STM_MAX)
     {
-        return -1;
+        return -3;
     }
 
     if (fname == NULL) 
     {
         LSC_CallErrFunc("E0011: Illigal parameter fname=%s", fname);
         
-        return -1;
+        return -3;
     }
 
     sinfo = &lsc->sinfo[lsc->wpos];
@@ -302,7 +302,7 @@ Sint32 LSC_GetStat(LSC lsc)
     {
         LSC_CallErrFunc("E0003: Illigal parameter lsc=NULL");
         
-        return -1;
+        return -3;
     }
     
     return lsc->stat;
@@ -315,7 +315,7 @@ Sint32 LSC_GetNumStm(LSC lsc)
     {
         LSC_CallErrFunc("E0003: Illigal parameter lsc=NULL");
         
-        return -1;
+        return -3;
     }
     
     return lsc->nstm;
@@ -330,14 +330,14 @@ Sint32 LSC_GetStmId(LSC lsc, Sint32 no)
     {
         LSC_CallErrFunc("E0003: Illigal parameter lsc=NULL");
         
-        return -1;
+        return -3;
     }
 
     if ((no < 0) || (no >= lsc->nstm)) 
     {
         LSC_CallErrFunc("E0009: Illigal parameter no=%d", no);
         
-        return -1;
+        return -3;
     }
     
     pos = (lsc->rpos + no) % LSC_STM_MAX;
@@ -384,7 +384,7 @@ Sint32 LSC_GetStmStat(LSC lsc, Sint32 sid)
     {
         LSC_CallErrFunc("E0003: Illigal parameter lsc=NULL");
         
-        return -1;
+        return -3;
     }
 
     for (i = 0; i < LSC_STM_MAX; i++) 
@@ -399,7 +399,7 @@ Sint32 LSC_GetStmStat(LSC lsc, Sint32 sid)
     {
         LSC_CallErrFunc("E0012: Can not find stream ID =%d", sid);
         
-        return -1;
+        return -3;
     }
 
     return lsc->sinfo[i].stat;
@@ -454,14 +454,13 @@ void LSC_SetFlowLimit(LSC lsc, Sint32 min)
 }
 
 // 100% matching!
-// FUN_004E9740
 Sint32 LSC_GetFlowLimit(LSC lsc) 
 {
     if (lsc == NULL) 
     {
         LSC_CallErrFunc("E0003: Illigal parameter lsc=NULL");
         
-        return -1;
+        return -3;
     }
     
     return lsc->bufmin;
