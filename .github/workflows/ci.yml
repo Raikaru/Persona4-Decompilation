@@ -182,6 +182,10 @@ jobs:
           # reconstructed CRI sources under src/cri ended that: they are real
           # C that must be compiled to be verified, so the toolchain is now a
           # build requirement rather than a developer convenience.
+          if [ ! -x "$private_root/ee-binutils/bin/as" ]; then
+            echo "::error::${P4_PRIVATE_DEPS_REPO} does not contain 'ee-binutils/bin/as'. The ee-gcc path needs the Sony EE assembler specifically: assembling those units with the decompals binutils takes the CRI units from 66 MATCH to 6."
+            exit 1
+          fi
           if [ ! -x "$private_root/$P4_PRIVATE_EEGCC_ROOT/bin/ee-gcc" ]; then
             echo "::error::${P4_PRIVATE_DEPS_REPO} does not contain '$P4_PRIVATE_EEGCC_ROOT/bin/ee-gcc'. Upload the ee-gcc 2.96 tree there (or point P4_PRIVATE_EEGCC_ROOT at it); config/gcc_units.txt cannot be verified without it."
             exit 1
@@ -210,6 +214,7 @@ jobs:
             --env "P4_MWLD_BINARY=/opt/p4/$P4_PRIVATE_MWLD_PATH" \
             --env "P4_RETAIL_ELF=/opt/p4/$P4_PRIVATE_RETAIL_ELF_PATH" \
             --env "P4_EEGCC_ROOT=/opt/p4/$P4_PRIVATE_EEGCC_ROOT" \
+            --env "P4_EEGCC_AS=/opt/p4/ee-binutils/bin/as" \
             --workdir /work \
             p4-decomp-ci \
             sh -ec '

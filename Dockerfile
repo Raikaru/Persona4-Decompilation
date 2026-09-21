@@ -31,12 +31,18 @@ ENV P4_MWCC=/usr/local/bin/mwccps2.exe \
     P4_RETAIL_ELF=/opt/p4/SLUS_217.82 \
     P4_AS=/usr/local/bin/mipsel-linux-gnu-as \
     P4_OBJCOPY=/usr/local/bin/mipsel-linux-gnu-objcopy \
+    P4_EEGCC_ROOT=/opt/p4/ee-gcc-2.96 \
+    P4_EEGCC_AS=/opt/p4/ee-binutils/bin/as \
     PYTHONUNBUFFERED=1
 
 COPY tools/requirements-debian.txt /tmp/requirements-debian.txt
+# The ee-gcc 2.96 toolchain that builds config/gcc_units.txt is a set of i386
+# binaries, so the image needs the 32-bit loader and libc as well as the
+# 64-bit userland everything else uses.
 RUN set -eux; \
+    dpkg --add-architecture i386; \
     apt-get update; \
-    apt-get install -y --no-install-recommends $(cat /tmp/requirements-debian.txt); \
+    apt-get install -y --no-install-recommends $(cat /tmp/requirements-debian.txt) libc6:i386; \
     rm -rf /var/lib/apt/lists/* /tmp/requirements-debian.txt
 
 # Install the PS2-aware decompals binutils build.  The project tools retain the

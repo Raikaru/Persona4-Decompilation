@@ -82,7 +82,11 @@ def _config() -> dict:
                             if v is not None})
             except json.JSONDecodeError:
                 pass
-    for key, env in (("eegcc_root", "P4_EEGCC_ROOT"), ("as_path", "P4_AS")):
+    # CI runs with no *_config.local.json at all - the workflow asserts their
+    # absence - so every tool this path needs must also be reachable from the
+    # environment, `objcopy` included.
+    for key, env in (("eegcc_root", "P4_EEGCC_ROOT"), ("as_path", "P4_AS"),
+                     ("eegcc_as", "P4_EEGCC_AS"), ("objcopy", "P4_OBJCOPY")):
         if os.environ.get(env):
             cfg[key] = os.environ[env]
     return cfg
@@ -430,7 +434,15 @@ def _strip_gcc_metadata(objcopy: str, obj: Path) -> None:
 def main() -> int:
     cfg = _config()
     root = cfg.get("eegcc_root")
-    as_path = cfg.get("as_path") or cfg.get("p4_as")
+    # The assembler is NOT interchangeable here. Measured: assembling these
+    # units with the decompals binutils the Metrowerks path uses drops the
+    # CRI units from 66 MATCH to 6, because the two assemblers differ in how
+    # they encode and pad what ee-gcc emits. The Metrowerks units are
+    # unaffected and keep using P4_AS, so the two are configured separately:
+    # `eegcc_as` / `P4_EEGCC_AS` selects the Sony EE assembler for this path
+    # and falls back to `as_path` where they are the same binary.
+    as_path = (os.environ.get("P4_EEGCC_AS") or cfg.get("eegcc_as")
+               or cfg.get("as_path") or cfg.get("p4_as"))
     objcopy = cfg.get("objcopy") or cfg.get("p4_objcopy")
     if not root or not as_path or not objcopy:
         _die("set eegcc_root in tools/build_config.local.json "
