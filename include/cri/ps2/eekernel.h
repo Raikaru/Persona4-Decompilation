@@ -14,20 +14,23 @@ extern int iSignalSema(int sema);
 extern int SignalSema(int sema);
 extern int WaitSema(int sema);
 extern int PollSema(int sema);
-typedef struct t_ThreadParam {
+typedef struct ThreadParam {
     int status;
-    void *func;
+    void *entry;
     void *stack;
-    int stack_size;
-    void *gp_reg;
-    int initial_priority;
-    int current_priority;
+    int stackSize;
+    void *gpReg;
+    int initPriority;
+    int currentPriority;
     unsigned int attr;
     unsigned int option;
     int waitType;
     int waitId;
     int wakeupCount;
 } ThreadParam;
+
+/* The linker's global-pointer symbol; CRI's thread setup passes `&_gp`. */
+extern void *_gp;
 
 extern int CreateSema(void *param);
 extern int CreateThread(ThreadParam *param);
