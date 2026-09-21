@@ -57,7 +57,10 @@ class MaskWord(unittest.TestCase):
 class GeneratedFile(unittest.TestCase):
     def test_every_line_carries_its_reference_and_width(self):
         entries = produced()
-        self.assertGreater(len(entries), 500)
+        # 418 under the relocation-identical rule with the immediate-pair
+        # constraint (564 under the earlier all-immediates mask that equated
+        # different constants, 482 without the constraint).
+        self.assertGreater(len(entries), 380)
         for address, (name, evidence) in entries.items():
             self.assertRegex(evidence, r"masked-exact over \d+ words, sole claimant")
             self.assertTrue(name.isidentifier(), name)
@@ -78,7 +81,9 @@ class GeneratedFile(unittest.TestCase):
                    for address in entries if address in truth}
         # Fewer than the 35 the rule itself scores: the file omits addresses
         # another producer already names, and some of the truth set is theirs.
-        self.assertGreaterEqual(len(overlap), 25)
+        # 20 of the truth pairs survive the tighter rule (41 under the
+        # looser one); the assertion that matters is zero disagreements.
+        self.assertGreaterEqual(len(overlap), 15)
         disagreements = {f"{address:08x}": (name, truth[address])
                          for address, name in overlap.items()
                          if name != truth[address]}
@@ -89,6 +94,107 @@ class GeneratedFile(unittest.TestCase):
             (REPO / "tools" / "slus21782_functions.json").read_text())["windows"]
         canonical = {int(address, 16) for address in windows}
         self.assertLessEqual(set(produced()), canonical)
+
+
+class RelocClassifier(unittest.TestCase):
+    """The rule defines what may differ between two links of one object."""
+
+    SPANS = [(0x00100000, 0x838A00)]
+
+    def relocs(self, words):
+        return sorted(port._reloc_words(words, self.SPANS))
+
+    def relaxed(self, words):
+        r = self.relocs(words)
+        return [port._relaxed(w) if i in r else w for i, w in enumerate(words)]
+
+    @staticmethod
+    def lui(reg, imm):
+        return (0x0F << 26) | (reg << 16) | imm
+
+    @staticmethod
+    def addiu(rt, rs, imm):
+        return (0x09 << 26) | (rs << 21) | (rt << 16) | (imm & 0xFFFF)
+
+    @staticmethod
+    def lw(rt, base, off):
+        return (0x23 << 26) | (base << 21) | (rt << 16) | (off & 0xFFFF)
+
+    def test_immediate_address_pair_relaxes_both_words(self):
+        pair = [self.lui(8, 0x0076), self.lw(3, 8, 0x7000)]
+        self.assertEqual([0, 1], self.relocs(pair))
+
+    def test_literal_constants_are_not_relocations(self):
+        """0x12345678 vs 0x9ABCDEF0: differing large literals are code."""
+        a = [self.lui(2, 0x1234), self.addiu(2, 2, 0x5678)]
+        b = [self.lui(2, 0x9ABC), self.addiu(2, 2, 0xDEF0)]
+        self.assertNotEqual(self.relaxed(a), self.relaxed(b))
+        self.assertEqual([], self.relocs(a))
+
+    def test_one_sided_relocation_cannot_match_exact_words(self):
+        """A pair relaxed here must not equal a byte-exact load elsewhere."""
+        target = [self.lui(9, 0x0076), self.lw(3, 9, 0x7000)]
+        exact = [self.lui(9, 0x0076), self.lw(3, 8, 0x7000)]
+        self.assertEqual([0, 1], self.relocs(target))
+        self.assertEqual([], self.relocs(exact))
+        self.assertNotEqual(self.relaxed(target), self.relaxed(exact))
+
+    def test_field_offsets_after_the_pair_are_code(self):
+        """`lw 4(r)` after the address is materialised is an ordinary
+        access: 4 versus 8 must distinguish two functions."""
+        lo = [self.lui(8, 0x0076), self.addiu(8, 8, 0x7000),
+              self.addiu(9, 0, 0x40), self.lw(3, 8, 4)]
+        hi = [self.lui(8, 0x0076), self.addiu(8, 8, 0x7000),
+              self.addiu(9, 0, 0x40), self.lw(3, 8, 8)]
+        self.assertNotEqual(self.relaxed(lo), self.relaxed(hi))
+        self.assertEqual([0, 1], self.relocs(lo))
+
+    def test_an_intermediate_writer_kills_the_pair(self):
+        """lui; ori (same reg); lw - the ori is not %lo, so the lw is code.
+        No state survives an instruction that did not consume it."""
+        killed = [self.lui(8, 0x0076),
+                  (0x0D << 26) | (8 << 21) | (8 << 16) | 0x7000,
+                  self.lw(3, 8, 4)]
+        self.assertEqual([], self.relocs(killed))
+
+    def test_consecutive_luis_leave_only_the_last_pending(self):
+        words = [self.lui(8, 0x0076), self.lui(9, 0x0076),
+                 self.lw(3, 9, 0x7000), self.lw(4, 8, 8)]
+        self.assertEqual([1, 2], self.relocs(words))
+
+    def test_pairing_cannot_cross_a_branch(self):
+        words = [self.lui(8, 0x0076), self.addiu(8, 8, 0x7000),
+                 (0x04 << 26) | (0 << 21) | (9 << 16) | 0x0002,
+                 self.lw(3, 8, 4)]
+        self.assertEqual([0, 1], self.relocs(words))
+
+    def test_gp_relative_accesses_stay_relocatable(self):
+        words = [self.addiu(2, 28, 0x5430), self.lw(3, 28, 0x20)]
+        self.assertEqual([0, 1], self.relocs(words))
+
+    def test_lui_zero_is_never_pending(self):
+        words = [self.lui(0, 0x0076), self.lw(3, 0, 0x7000)]
+        self.assertEqual([], self.relocs(words))
+
+    def test_one_sided_relocation_across_different_spans_is_rejected(self):
+        """The guard the normalized-word comparison cannot give.
+
+        With different load spans per side, `lui $8,0x0010; lw $3,0($8)`
+        is a pair on the target (0x00100000 is loadable there) but plain
+        code on the reference (its spans exclude that address). The
+        relaxed words come out IDENTICAL - `lui` erases its own immediate
+        - so only the relocation-class equality stops a false match.
+        """
+        target = [self.lui(8, 0x0010), self.lw(3, 8, 0)]
+        reference = [self.lui(8, 0x0000), self.lw(3, 8, 0)]
+        target_relocs = port._reloc_words(target, self.SPANS)
+        ref_relocs = port._reloc_words(reference, [(0x00200000, 0x100000)])
+        target_words = [port._relaxed(w) if i in target_relocs else w
+                        for i, w in enumerate(target)]
+        ref_words = [port._relaxed(w) if i in ref_relocs else w
+                     for i, w in enumerate(reference)]
+        self.assertEqual(target_words, ref_words)      # bytes cannot tell
+        self.assertNotEqual(target_relocs, ref_relocs)  # classes can
 
 
 if __name__ == "__main__":
