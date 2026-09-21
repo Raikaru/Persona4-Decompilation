@@ -89,8 +89,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005127e8);
 // FUN_005128A0
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005128a0);
 
-// FUN_00512B08
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512b08);
 
 /* measured: object 32B/window 32B/normalized_diff 10 (3 differing words, first diffs 20-24,26-28). */
 /* measured: two-load forwarding fix: retail lw $v0,0x2004($a0) then lw $a0,0($v0) + tail-jump j 004d6910 with frame intact; banked body was one-load and semantically wrong, replaced with *(s32**)(*(u8**)(arg0+0x2004)) forwarding tail body per Main. */
@@ -113,8 +111,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512c70);
 // FUN_00512D90
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512d90);
 
-// FUN_00512EA8
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512ea8);
 
 
 // FUN_00512EF8

@@ -73,8 +73,6 @@ void func_00522fd0(s32 arg0)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00522fd0);
 #endif
-// FUN_00522FF8
-INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00522ff8);
 // FUN_00523050
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00523050);
 // FUN_005230B8

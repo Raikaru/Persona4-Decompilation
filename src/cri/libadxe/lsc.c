@@ -309,7 +309,6 @@ Sint32 LSC_GetStat(LSC lsc)
 }
 
 // 100% matching!
-// FUN_004E9450
 Sint32 LSC_GetNumStm(LSC lsc) 
 {
     if (lsc == NULL) 
