@@ -9,7 +9,10 @@
 
 #define DEF_STACK_SIZE    2048
 
-typedef struct ThreadParam ThreadParam; 
+/* P4: the upstream tree had no Sony headers, so it forward-declared
+ * ThreadParam here and left it incomplete - which is why its
+ * ADXPS2_SetupThrd could never compile. <eekernel.h> above now
+ * supplies the real definition, so the placeholder is removed. */
 
 void adxps2_adx_thrd_func(void);
 void ADXPS2_ExecServer(void);
