@@ -1008,11 +1008,17 @@ void adxb_DefAddWr(void *obj, Sint32 nbyte, Sint32 nsmpl)
 Sint16 *adxb_DefGetWr(void *obj, Sint32 *pos, Sint32 *nsmpl, Sint32 *x70)
 {
 	ADXB adxb = obj;
+	Sint16 *pcm;
 
+	/* retail loads the return `x3c` second (`lw $v0, 0x3c($a0)` at 0x004C349C)
+	 * and keeps it in $v0: hoist it above the stores. (11 -> 6 differing
+	 * words; the remaining $t0/$v1 colour and total/written order are still
+	 * open.) */
+	pcm = (Sint16 *)adxb->x3c;
 	*pos = adxb->x8c;
 	*nsmpl = adxb->x40 - adxb->x8c;
 	*x70 = adxb->total_nsmpl - adxb->x88;
-	return (Sint16 *)adxb->x3c;
+	return pcm;
 }
 
 // Library init: brings up the ADPCM core (ADXPD) and the key generator and clears the 16 decoder slots.

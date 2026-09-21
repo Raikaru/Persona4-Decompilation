@@ -4,7 +4,8 @@
 
 //#include <string.h>
 
-Sint32 adxstmf_rtim_ofst = 0; 
+static Sint32 adxstm_init_cnt = 0;
+Sint32 adxstmf_rtim_ofst = 0;
 Sint32 adxstmf_rtim_num = 8; 
 Sint32 adxstmf_nrml_ofst = 8;
 Sint32 adxstmf_nrml_num = 32;
@@ -21,15 +22,19 @@ void ADXT_SetupRtimeNumStm(Sint32 num)
 // 100% matching!
 void ADXT_SetupNrmlNumStm(Sint32 num)
 {
-    adxstmf_nrml_num = num;
     adxstmf_nrml_ofst = 40 - num;
+    adxstmf_nrml_num = num;
 }
 
-// 100% matching!
+// P4 retail 0x4D1908 is the 0x60-generation Init (`lw v1,0(v0)`/`addiu v1,1`/`bne v1,a0` at
+// 0x4D191C-0x4D1924, `li a2,3840` at 0x4D193C for 40*0x60). This TU is the older 64B
+// ADXSTM_FILE generation (40*64=2560=0xA00), so the size word stays 0xA00 and cannot match P4;
+// the guard below only recovers the 72B shape (like LSC_Init).
 Sint32 ADXSTM_Init(void)
 {
-    memset(adxstmf_obj, 0, sizeof(adxstmf_obj));
-    
+    if (++adxstm_init_cnt == 1) {
+        memset(adxstmf_obj, 0, sizeof(adxstmf_obj));
+    }
     return 1;
 }
 
@@ -45,7 +50,14 @@ void ADXSTM_Finish(void)
     cvFsFinish();
 }
 
-// 100% matching!
+/* P4 retail ADXSTMF_SetupHandleMember (0x4D19A8, 264B) is the 0x60-generation constructor: it takes
+ * (stm, fp/dir in s1/s2, fsize in s0, sj in s4) and emits the stores cited in re4/adx_stmc.c
+ * (`sw s1,8`, `sw s2,12`, `sw a3,44` for 0x200, `sw a2,92` for 0xFFFFF, `sw v1,48`+`sw v1,20`,
+ * `sb 1,1`, `sb 0,2`, `sw s4,4`, `sw s0,16`, `sw 0,88`, `sw s0,28/64/24`, `sb 1,0`, `sb 0,68`).
+ * This TU's ADXSTM_FILE is 64B (40*64=2560=0xA00), a different CRI generation from P4's 96B pool,
+ * so SetupHandleMember plus CreateCvfs and Init cannot match P4's sizes without breaking this TU's
+ * own 100%-matching claims elsewhere; leave those SIZE mismatches and only fix same-size drifts. */
+// 100% matching (within this generation)!
 void ADXSTMF_SetupHandleMember(ADXSTMF stmf, CVFS fp, Sint32 fofst, Sint32 fsize, SJ sj)
 {
     stmf->stat = 1;

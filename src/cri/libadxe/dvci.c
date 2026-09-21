@@ -159,6 +159,7 @@ Sint32 dvCiGetFileSize(const Sint8 *fname)
 }
 
 // 100% matching!
+// FUN_004E5E28
 static DVCI dvci_alloc(void)
 {
     DVCI dvci;
@@ -178,6 +179,7 @@ static DVCI dvci_alloc(void)
 }
 
 // 100% matching!
+// FUN_004E5E60
 static void dvci_free(DVCI dvci)
 {
     memset(dvci, 0, sizeof(DVS_CI_OBJ));

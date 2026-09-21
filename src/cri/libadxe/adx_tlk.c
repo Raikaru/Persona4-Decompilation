@@ -958,7 +958,6 @@ Sint32 ADXT_GetDecNumSmpl(ADXT adxt)
 }
 
 // 100% matching! 
-// FUN_004D6838
 Sint32 ADXT_IsHeader(Sint8 *adr, Sint32 siz, Sint32 *hdrsiz)
 {
     Sint16 dlen;
@@ -1066,7 +1065,14 @@ Sint32 ADXT_InsertSilence(ADXT adxt, Sint32 nch, Sint32 nsmpl)
     return wsize;
 }
 
-// 100% matching!
+// 8.30 stub kept as version difference, not a defect to port.
+// P4 9.44 at 0x004D6B10 is 184B: `sw $a0,-0x7750($v0)` saves the flag, then
+// `addiu $s1,$s1,0xc8` strides adxt_obj[16] by 0xC8 and re-applies
+// `jal 0x004D4FA0` (GetOutPan) / `jal 0x004D4E40` (SetOutPan) per channel plus
+// `jal 0x004D50E0`/`jal 0x004D5020` (Get/SetOutBalance). libadxe 8.30 has no
+// outbal/mono-flag in ADX_TALK (0xA4 bytes vs 0xC8) and centralises mono in the
+// decoder via ADX_SetDecodeSteAsMonoSw, so porting the 0xC8 loop here would use
+// the wrong stride and break the 8.30 layout. Re4's 184B loop is exact there.
 void ADXT_SetOutputMono(Sint32 flag)
 {
     ADX_SetDecodeSteAsMonoSw(flag);

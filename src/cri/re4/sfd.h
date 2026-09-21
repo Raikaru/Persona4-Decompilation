@@ -405,10 +405,17 @@ typedef struct {
 	Sint64 pts;                /* 0x1018 PTS of the picture being decoded */
 } SFMPV_WORK;
 
-/* 0xA0-byte player information block returned by SFD_GetPlyInf */
+/* 0xA8-byte player information block returned by SFD_GetPlyInf (8-byte aligned:
+ * retail SFD_GetPlyInf at 0x00525180 copies it with a `ld/sd` 0x20-stride loop
+ * (`ld $v1, ($a0)` at 005251CC, `sd $v1, ($a1)` at 005251DC, `addiu $a0, $a0, 0x20`
+ * at 005251EC, `bne $a0, $v0` at 005251F8 with end `addiu $v0, $s0, 0x9F0` at
+ * 005251C4) plus a trailing `ld $v0, ($a0)` / `sd $v0, ($a1)` (00525200/08) for
+ * the final 8 bytes, where this header's 0xA0 `Sint32 raw[0x28]` made ee-gcc emit
+ * only the 5-iteration loop (152B vs 160B). The extra 8 bytes also move err/cond
+ * +8 (see below); the raw words stay 4-byte accessible.) */
 typedef struct {
-	Sint32 raw[0x28];
-} SFD_PLYINF;
+	Sint32 raw[0x2A];
+} SFD_PLYINF __attribute__((aligned(8)));
 
 /* creation parameters passed to SFTRN_InitHn: trif_tbl[n] is driver n's function table
  * (0 input, 1 system, 2 video, 3 audio, 4 video out, 5 audio out, 6/7 output, 8 user) */
@@ -671,20 +678,24 @@ typedef struct SFD_OBJ {
 	Sint32 x944;
 	Sint32 x948;
 	Sint32 x94c;
-	SFD_PLYINF plyinf;         /* 0x950 */
-	SFLIB_ERRINF err;          /* 0x9F0 */
-	Sint32 cond[SFD_COND_NUM]; /* 0xA04 */
-	Sint32 cond_def[SFD_COND_NUM]; /* 0xB94 */
-	/* P4: 9.44's SFD_OBJ carries eight more bytes here, so `con` and
-	 * everything after it sit 8 higher. Retail says so in five places at
-	 * once: `addiu $s0, $s1, 0xd30` for &con (SFCON_WriteTotSmplQue),
-	 * 0xF2C, `addiu $s0, $s2, 0x1020` for tst (sfadxt_InitInf), 0x1FC0 and
-	 * 0x2114 - every one exactly 8 above this layout. */
-	Uint8 padD24[0xD30 - 0xD24];
+	SFD_PLYINF plyinf;         /* 0x950 (0xA8 bytes in 9.44, see above) */
+	SFLIB_ERRINF err;          /* 0x9F8 in 9.44: retail SFD_SetErrFn at 0x00517B80
+	                            * materialises `addiu $a0, $s0, 0x9F8` (00517BE8) for &err */
+	Sint32 cond[SFD_COND_NUM]; /* 0xA0C in 9.44: retail SFD_IsDrawTime at 0x00526C10
+	                            * uses `addiu $a2, $s0, 0xA0C` (00526C48) for &cond */
+	Sint32 cond_def[SFD_COND_NUM]; /* 0xB9C in 9.44 */
+	/* P4: REVERTED the padD24[0xD30-0xD24] insertion (12 bytes, +8 over the original
+	 * 4): it put `con` at 0xD30 for the right reason (five places: `addiu $s0, $s1, 0xD30`
+	 * for &con, 0xF2C, `addiu $s0, $s2, 0x1020` for tst, 0x1FC0, 0x2114) but left
+	 * err/cond 8 low (0x9F0/0xA04 vs retail 0x9F8/0xA0C above). The +8 lives in plyinf
+	 * (0xA8 vs 0xA0, see above): with plyinf 0xA8, cond ends at 0xD2C and the original
+	 * 4-byte pad puts `con` at 0xD30 with no extra. Byte-exact 30 -> 32 held with the pad;
+	 * this keeps it (con still 0xD30) and fixes err/cond. */
+	Uint8 padD24[4];
 	/* 0xD30 in 9.44 */
-	SFCON con;                 /* 0xD28 (also the SFTIM handle: &sfd->con) */
-	Uint8 padFA4[(int)(0x1018 - 0xD28 - sizeof(SFCON))];
-	Uint8 tst[0x1C0];          /* 0x1018 time stabiliser work (sfd_tst.c SFTST_WORK) */
+	SFCON con;                 /* 0xD30 (also the SFTIM handle: &sfd->con) */
+	Uint8 padFA4[(int)(0x1020 - 0xD30 - sizeof(SFCON))];
+	Uint8 tst[0x1C0];          /* 0x1020 in 9.44: time stabiliser work (sfd_tst.c SFTST_WORK) */
 	Uint8 pad11D8[0x12D8 - 0x11D8];
 	SFPLY_PTSM ptsm;           /* 0x12D8 */
 	Uint8 pad12E4[0x1308 - 0x12E4];
@@ -705,7 +716,8 @@ typedef struct SFD_OBJ {
 } SFD_OBJ;                     /* 0x3598; SFD_Create wants 0x35B8 (32-byte alignment slack) */
 
 /* 64-bit stream counters inside plyinf (SFD_OBJ + 0x9B0..0x9D8) seen through a separate view:
- * SFD_PLYINF itself has to stay 4-byte aligned (SFD_GetPlyInf copies it with a lwz/stw loop) */
+ * SFD_PLYINF itself is 8-byte aligned (see above); the separate view exists because
+ * SFD_GetPlyInf copies the whole block while the counters are updated as 64-bit. */
 typedef struct {
 	Uint8 pad0[0x980];
 	Sint64 s_flow;             /* 0x980 system stream ring: flow count (sfd_mps.c) */

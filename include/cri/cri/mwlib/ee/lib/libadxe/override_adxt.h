@@ -24,6 +24,13 @@ typedef struct _adx_xpdobj
 	ADXPDPRM xprm;
 	Sint16 dly[2][2];
 	Sint16 k[2];
+	/* retail strides the pool with `addiu $s0, $s0, 0x3c` in ADXPD_ExecServer
+	 * at 0x004D8C5C and clears 0x3C in ADXPD_Destroy at 0x004D89E8: the handle
+	 * is 0x3C like the RE4 tree (dly 0x28, k 0x30, scale key 0x34), not 0x34.
+	 * The key is never touched by this tree's float decoder, so it is only
+	 * reserved to fix the stride/size. */
+	Sint16 ext[3];
+	Sint16 pad3a;
 } ADX_XPDOBJ;
 typedef ADX_XPDOBJ *ADXPD;
 
@@ -131,8 +138,11 @@ typedef struct
 	void *dtrpobj;
 	void (*dfltfunc)();
 	void *dfltobj;
-	Sint8 spsdinfo[64];
-	Sint32 hdrlen;
+	Sint8 spsdinfo[64]; /* 0x58 */
+	Sint32 hdrlen; /* 0x98 */
+	Sint32 lnksw; /* 0x9C: retail Destroy clears 0xA8 not 0x9C (addiu 0xA8 at 004cdc74), Create strides 0xA8 (addiu at 004cdb08) */
+	Sint32 pad_nsmpl; /* 0xA0 */
+	Sint32 skip_nsmpl; /* 0xA4 */
 } ADX_SJDEC;
 typedef ADX_SJDEC *ADXSJD;
 #endif

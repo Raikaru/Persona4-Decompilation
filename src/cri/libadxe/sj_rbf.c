@@ -6,7 +6,7 @@ char* volatile sj_build = "\nSJ Ver.6.00 Build:Jan 26 2001 09:59:32\n";
 static const UUID sjrbf_uuid = { 0x3B9A9E81, 0x0DBB, 0x11D2, { 0xA6, 0xBF, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00 } }; 
 SJ_IF sjrbf_vtbl = { NULL, NULL, NULL, (void*)SJRBF_Destroy, (void*)SJRBF_GetUuid, (void*)SJRBF_Reset, (void*)SJRBF_GetChunk,(void*)SJRBF_UngetChunk, (void*)SJRBF_PutChunk, (void*)SJRBF_GetNumData, (void*)SJRBF_IsGetChunk, (void*)SJRBF_EntryErrFunc };
 Sint32 sjrbf_init_cnt = 0;
-SJRBF_OBJ sjrbf_obj[64] = { 0 };
+SJRBF_OBJ sjrbf_obj[256] = { 0 }; /* retail slti 0x100 at 004ee0a8, stride 0x40 (sll 6 at 004ee0d8) */
 
 // 99.29% matching
 void SJRBF_Error(SJRBF rbf, Sint32 errcode)
@@ -15,6 +15,7 @@ void SJRBF_Error(SJRBF rbf, Sint32 errcode)
 }
 
 // 100% matching!
+// FUN_004EDF48
 void SJRBF_Init(void) 
 {
     if (sjrbf_init_cnt == 0) 
@@ -26,6 +27,7 @@ void SJRBF_Init(void)
 }
 
 // 100% matching!
+// FUN_004EDFC8
 void SJRBF_Finish(void) 
 {
     if (--sjrbf_init_cnt == 0) 
@@ -42,7 +44,7 @@ SJ SJRBF_Create(Sint8 *buf, Sint32 bsize, Sint32 xsize)
     
     SJCRS_Lock();
 
-    for (no = 0; no < 64; no++)
+    for (no = 0; no < 256; no++) /* retail slti 0x100 at 004ee0a8 */
     {
         if (sjrbf_obj[no].used == FALSE) 
         {
@@ -50,7 +52,7 @@ SJ SJRBF_Create(Sint8 *buf, Sint32 bsize, Sint32 xsize)
         }
     }
 
-    if (no == 64) 
+    if (no == 256) /* retail addiu 0x100 at 004ee0cc */
     {
         rbf = NULL;
     }
@@ -133,7 +135,11 @@ void SJRBF_Reset(SJ sj)
     
     rbf->nroom = rbf->bsize;
     
-    rbf->rpos = 0; 
+    rbf->rpos = 0;
+    rbf->flow[0][0] = 0; /* retail sw 0x28 at 004ee2a8 */
+    rbf->flow[0][1] = 0; /* retail sw 0x2c at 004ee2ac */
+    rbf->flow[1][0] = 0; /* retail sw 0x30 at 004ee2b0 */
+    rbf->flow[1][1] = 0; /* retail sw 0x34 at 004ee294 */
 }
 
 // 100% matching!

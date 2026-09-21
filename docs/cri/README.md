@@ -1,6 +1,6 @@
 # Naming Persona 4's CRI middleware
 
-`docs/cri/proven_names.json` maps 744 Persona 4 addresses to CRI function
+`docs/cri/proven_names.json` maps 789 Persona 4 addresses to CRI function
 names. Unlike `docs/sky2/proposed_names.json`, these are not proposals.
 
 ## Why they are proof rather than inference
@@ -16,6 +16,7 @@ displacements - gives functions that agree in every remaining bit, up to
 |---|---|---|
 | Onimusha: Dawn of Dreams (SLUS-21362) | 2005-12 | 1420 |
 | Devil Kings (SLUS-21297) | 2005-08 | 1146 |
+| Resident Evil 4 prototype (SLPS_000.00) | 2005-08 | 864 |
 | Resident Evil 4 (SLUS-21134) | 2005-09 | 659 |
 
 Two builds of different games do not produce 659 identical instruction
@@ -23,9 +24,9 @@ streams by accident. The masked comparison leaves registers, opcodes,
 branch offsets and every non-relocated immediate intact, so a hit means the
 same compiler emitted the same source at the same optimisation level.
 
-The file keeps the 744 where the address and the name are mutually unique;
-596 of those are corroborated by more than one game, and 38 more were
-decided by majority where two games disagreed. 174 addresses were left out
+The file keeps the 789 where the address and the name are mutually unique;
+687 of those are corroborated by more than one game, and 87 more were
+decided by majority where the games disagreed. 131 addresses were left out
 as undecided rather than guessed. The unmasked scores differ only in the
 relocated fields, as expected for the same code linked at three different
 addresses.

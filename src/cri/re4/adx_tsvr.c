@@ -185,6 +185,15 @@ void ADXT_ExecHndl(ADXT adxt)
 	}
 }
 
+/* NOTE (76B gap to P4 1040B at 0x004D7968, kept as-is this pass): retail hoists
+ * `addiu $s3,$zero,0x800` at 0x4D7978 and reuses $s3 for every sector calc, and
+ * clears `sw $zero,0xa8($s0)` (flush_nsmpl) at 0x4D79A8 before testing
+ * `lb $v1,0xac($s0)` (stmstart) at 0x4D79AC; this spelling uses 0x800 literals
+ * and never touches 0xA8 there. The tail keeps the proven 0xB0/0xB4/0xB8/0xBC/0xC0
+ * fname_wk/fname/dir/ofst/nsct (`lw $a1,0xb4`/`lw $a2,0xb8`/`lw $a3,0xbc`/
+ * `lw $t0,0xc0` at 0x4D79D8/0x4D79F4/0x4D79F8/0x4D7A00) and `jal 0x004D40A0`
+ * (adxt_start_stm) at 0x4D79FC. Loop setup keeps lpendmod at 0x50, trapnsmpl at
+ * 0x90 and lpcnt at 0x4C, matching `sw $v1,0x50`/`sw $v0,0x90` in retail. */
 /* the decoder has read the header: size the decode step, set up looping / end handling and
  * program the renderer */
 static void adxt_stat_decinfo(ADXT adxt)

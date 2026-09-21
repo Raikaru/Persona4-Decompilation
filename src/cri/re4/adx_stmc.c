@@ -36,6 +36,14 @@ extern void cvFsStopTr(void *fs);
 #define CVFS_STAT_COMPLETE 1
 #define CVFS_STAT_ERROR 3
 
+/* ADXSTM_OBJ is 0x60 (96) bytes; the 40-slot pool is 3840 bytes (0xF00, retail Init's `li a2,3840`
+ * at 0x4D193C). 3840 % 0x48 != 0: the 0x48 stride seen nearby belongs to another struct, so do NOT
+ * shrink this to 0x48. Retail ADXSTMF_SetupHandleMember (0x4D19A8, 264B) stores prove these offsets:
+ * `sw s1,8(s3)` fp at 8, `sw s2,12(s3)` fofst at 0x0C, `sw a3,44(s3)` 0x200 at 0x2C (rd_lim),
+ * `sw a2,92(s3)` 0xFFFFF at 0x5C (lim), `sw v1,48(s3)`+`sw v1,20(s3)` nsct at 0x30 (eos) and 0x14,
+ * `sb 1,1` stat PREP, `sb 0,2` rd_flg, `sw s4,4` sj at 4, `sw s0,16` fsize at 0x10,
+ * `sw 0,88` pos at 0x58 (when sj!=0), `sw s0,28/64/24` buf sizes at 0x1C/0x40/0x18, `sb 1,0` used,
+ * `sb 0,68` x44 at 0x44. Do NOT change this struct. */
 typedef struct ADXSTM_OBJ {
 	Sint8 used;                /* 0x00 */
 	Sint8 stat;                /* 0x01 */
@@ -71,6 +79,7 @@ typedef struct ADXSTM_OBJ {
 	Uint32 lim_nsct;           /* 0x5C */
 } ADXSTM_OBJ;
 
+static Sint32 adxstm_init_cnt = 0;
 static Sint32 adxstmf_rtim_ofst = 0;
 static Sint32 adxstmf_rtim_num = 16;
 static Sint32 adxstmf_nrml_ofst = 16;
@@ -129,10 +138,12 @@ void ADXSTMF_ExecHndl(ADXSTM stm)
 			}
 		}
 		if (stm->release_req == 1) {
-			fs = stm->fs;
-			if (fs != NULL) {
+			/* retail 0x4D2894-0x4D28A4: `lw a0,8(s0)`/`beql a0,zero` then `jal cvFsClose`
+			 * with `sw zero,8(s0)` in the delay slot (close before clear). Direct
+			 * `stm->fs` use keeps `a0` (no `move a0,v0` temp). */
+			if (stm->fs != NULL) {
+				cvFsClose(stm->fs);
 				stm->fs = NULL;
-				cvFsClose(fs);
 			}
 			stm->release_req = 0;
 			stm->bound = 0;
@@ -170,10 +181,11 @@ void ADXSTMF_ExecHndl(ADXSTM stm)
 					stm->nsct = fnsct - stm->ofst;
 					stm->fsize = stm->nsct << ADXSTM_SCT_SHIFT;
 				}
-				stm->pos = 0;
-				if (stm->pos > stm->nsct) {
-					stm->pos = stm->nsct;
-				}
+				/* retail 0x4D29B4-0x4D29BC: `jal 0x4D2038` (Seek wrapper) with
+				 * `move a1,zero` in the delay slot instead of the 7-instr
+				 * `pos=0; if (pos>nsct) pos=nsct` movn sequence. Jal target is
+				 * linker-owned and masked. */
+				ADXSTM_Seek(stm, 0);
 				stm->bind_req = 0;
 			}
 		} else {
@@ -456,9 +468,10 @@ void ADXSTM_ReleaseFileNw(ADXSTM stm)
 }
 
 // Records the file to stream (`fname` on CVFS device `dir`, `ofst`/`nsct` in sectors; nsct 0xFFFFF =
-// whole file) and asks the server to open it (bind_req).
+// whole file) and asks the server to open it (bind_req). Inner worker (retail 0x4D1DE0, 120B with
+// trailing nop; ours 116B): `jal SVM_Lock` at 0x4D1E0C (`sw s1,12` fofst at 0x0C etc.).
 // FUN_004D1DE0
-void ADXSTM_BindFileNw(ADXSTM stm, const Char8 *fname, void *dir, Sint32 ofst, Sint32 nsct)
+static void adxstm_BindFileNw(ADXSTM stm, const Char8 *fname, void *dir, Sint32 ofst, Sint32 nsct)
 {
 	SVM_Lock();
 	stm->ofst = ofst;
@@ -467,6 +480,17 @@ void ADXSTM_BindFileNw(ADXSTM stm, const Char8 *fname, void *dir, Sint32 ofst, S
 	stm->fname = fname;
 	stm->dir = dir;
 	stm->bind_req = 1;
+	SVM_Unlock();
+}
+
+// Public wrapper (retail 0x4D1D70, 112B): saves the 5 args across the outer lock
+// (`move s4,t0` in the delay of `jal 0x4D18C8`, `move t0,s4` for the inner call, `j 0x4D18D0`
+// tail). Jal targets are linker-owned and masked, so any lock shape matches.
+// FUN_004D1D70
+void ADXSTM_BindFileNw(ADXSTM stm, const Char8 *fname, void *dir, Sint32 ofst, Sint32 nsct)
+{
+	SVM_Lock();
+	adxstm_BindFileNw(stm, fname, dir, ofst, nsct);
 	SVM_Unlock();
 }
 
@@ -542,9 +566,13 @@ void ADXSTM_Finish(void)
 {
 }
 
-// Clears the 40 controller slots.
+// Clears the 40 controller slots on the first init (retail 0x4D1908: `lw v1,0(v0)`/`addiu v1,1`/
+// `bne v1,a0` guard at 0x4D191C-0x4D1924 with `li a2,3840` at 0x4D193C).
+// FUN_004D1908
 Sint32 ADXSTM_Init(void)
 {
-	memset(adxstmf_obj, 0, sizeof(adxstmf_obj));
+	if (++adxstm_init_cnt == 1) {
+		memset(adxstmf_obj, 0, sizeof(adxstmf_obj));
+	}
 	return 1;
 }

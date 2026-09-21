@@ -23,7 +23,7 @@ void ADXT_SetupDvdFs(ADXT_SPRM *sprm)
     {
         dvCiLoadFpCache((Sint8*)sprm->fname, (Sint8*)sprm->fpc, sprm->size);
         
-        dvCiSetRdMode(sprm->nrtry, sprm->speed, sprm->dtype);
+        dvCiSetRdMode(sprm->nrtry, sprm->speed, sprm->dtype, sprm->opmode);
     }
 }
 
@@ -45,5 +45,5 @@ Sint32 ADXT_LoadFpCacheDvd(ADXT_SPRM *sprm)
 // 100% matching!
 void ADXT_SetRdMode(ADXT_SPRM *sprm)
 {
-    dvCiSetRdMode(sprm->nrtry, sprm->speed, sprm->dtype);
+    dvCiSetRdMode(sprm->nrtry, sprm->speed, sprm->dtype, sprm->opmode);
 }

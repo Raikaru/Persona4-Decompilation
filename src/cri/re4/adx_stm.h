@@ -1,5 +1,6 @@
 /* CRI ADX stream controller (adx_stmc.c) public interface. Argument roles from the callers
- * (lsc_svr, mwstm) and the stores in adx_stmc. */
+ * (lsc_svr, mwstm) and the stores in adx_stmc. ADXSTM_OBJ is 0x60 (96B); the 40-slot pool is
+ * 3840 bytes (retail Init `li a2,3840` at 0x4D193C). */
 #ifndef CRI_ADX_STM_H
 #define CRI_ADX_STM_H
 

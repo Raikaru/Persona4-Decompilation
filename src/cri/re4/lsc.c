@@ -42,6 +42,13 @@ void LSC_SetFlowLimit(LSC lsc, Sint32 min_val)
 	lsc->min_val = min_val;
 }
 
+// Retail 0x4C95C8 is lw 20(a0) (0x4C95E8 8c820014) with li -3 (0x4C95E4 2402fffd) but the 0x4E
+// LSC_OBJ proves num_stm at 0x24: SetFlowLimit lw 24(bsize)+sw 20(bufmin) (0x4E9708 8c820018
+// +0x4E9730 ac830014), GetStmId bounds lw 36(nstm)+sll 5+lw 56(table) (0x4E94B0 8cc20024 +
+// 0x4E94F8 00021940 +0x4E9500 8c620038), Create sw 24/sw 20 + clear 16x32 from s2+560
+// (0x4E8FD0 ae500018 +0x4E8FE8 ae420014 +0x4E8FE0 26430230 +0x4E9008 2463ffe0), ExecServer
+// s0+=568 (0x4E9404 26100238 =0x38+16*32). Keep 0x24 (1 diff vs 0x4C intentional); -3 kept
+// per 0x4C95C8/0x4C9858 (GetStat lb 1 at 0x4C9878 80820001 exact).
 // Entries still queued (including the one loading).
 Sint32 LSC_GetNumStm(LSC lsc)
 {
@@ -63,21 +70,29 @@ Sint32 LSC_GetStat(LSC lsc)
 }
 
 /* dead-stripped by the linker */
+// Retail 0x4E95A8: NULL li -1 (0x4E95C4 2402ffff), stride sll 5 (0x4E960C 00031940) with
+// base a2=lsc+56 (0x4E95C8 24860038) stepping +32 (0x4E95E8 24c60020), not-found li -1
+// (0x4E9620 2402ffff), stat at +80 =56+24 (0x4E962C 8c620050). Break+check shape matches
+// libadxe GetStmStat; 128B return-inside-loop was 24B short of 152B window.
+// FUN_004E95A8
 Sint32 LSC_GetStmStat(LSC lsc, Sint32 id)
 {
 	Sint32 i;
 
 	if (lsc == NULL) {
 		LSC_CallErrFunc("E0003: Illigal parameter lsc=NULL\n");
-		return -3;
+		return -1;
 	}
 	for (i = 0; i < LSC_MAX_ENTRY; i++) {
 		if (lsc->tbl[i].id == id) {
-			return lsc->tbl[i].stat;
+			break;
 		}
 	}
-	LSC_CallErrFunc("E0012: Can not find stream ID =%d\n", id);
-	return -1;
+	if (i == LSC_MAX_ENTRY) {
+		LSC_CallErrFunc("E0012: Can not find stream ID =%d\n", id);
+		return -1;
+	}
+	return lsc->tbl[i].stat;
 }
 
 /* dead-stripped by the linker */
@@ -154,19 +169,27 @@ static LSC_ENTRY *lsc_GetWrEntry(LSC lsc)
 	return &lsc->tbl[lsc->wr_idx];
 }
 
+// Retail 0x4E90B8: NULL/full/fname-NULL all li -1 (0x4E9104 2402ffff, 0x4E9114 2402ffff,
+// 0x4E9130 2402ffff); entry ptr s0=lsc+wr*32+56 (0x4E9168 24700038), fname at +4 first
+// (0x4E9170 ae120004) with id in strlen delay slot (0x4E9194 ae130000), sum zero at +8
+// (0x4E9198 ae000008), ofst +16 (0x4E91C8 ae140010), nsct +20 (0x4E91D0 ae150014), pos +28
+// (0x4E91D4 ae00001c) before stat +24 (0x4E91D8 ae000018), dir +12 LAST (0x4E91DC ae16000c),
+// nstm++ (0x4E920C ae260024) before wr in bne delay slot (0x4E9218 ae24001c).
 // Queues a file range (name, CVFS device, sector offset/count) to be streamed after the previous
 // entries, giving it the next id (0..0x7FFFFFFF, wrapping); the file name is checksummed so a
 // changed string is detected at load time. PREP -> EXEC. -1 when the 16-entry queue is full.
+// FUN_004E90B8
 Sint32 LSC_EntryFileRange(LSC lsc, Char8 *fname, void *dir, Sint32 ofst, Sint32 nsct)
 {
 	LSC_ENTRY *ent;
 	Sint32 id;
+	Sint32 pos;
 	Uint32 len;
 	Sint32 i;
 
 	if (lsc == NULL) {
 		LSC_CallErrFunc("E0003: Illigal parameter lsc=NULL\n");
-		return -3;
+		return -1;
 	}
 	if (lsc->num_stm >= LSC_MAX_ENTRY) {
 		return -1;
@@ -175,11 +198,11 @@ Sint32 LSC_EntryFileRange(LSC lsc, Char8 *fname, void *dir, Sint32 ofst, Sint32 
 		LSC_CallErrFunc("E0011: Illigal parameter fname=%s\n", fname);
 		return -1;
 	}
-	id = lsc->tbl[(lsc->wr_idx + LSC_MAX_ENTRY - 1) % LSC_MAX_ENTRY].id;
-	ent = lsc_GetWrEntry(lsc);
-	id = (id == LSC_ID_MAX) ? 0 : id + 1;
-	ent->id = id;
+	ent = &lsc->tbl[lsc->wr_idx];
 	ent->fname = fname;
+	pos = (lsc->wr_idx + 15) % LSC_MAX_ENTRY;
+	id = (lsc->tbl[pos].id == LSC_ID_MAX) ? 0 : lsc->tbl[pos].id + 1;
+	ent->id = id;
 	len = strlen(fname);
 	ent->fname_sum = 0;
 	for (i = 0; i < len; i++) {
@@ -187,9 +210,9 @@ Sint32 LSC_EntryFileRange(LSC lsc, Char8 *fname, void *dir, Sint32 ofst, Sint32 
 	}
 	ent->ofst = ofst;
 	ent->nsct = nsct;
-	ent->dir = dir;
-	ent->stat = LSC_ENT_WAIT;
 	ent->pos = 0;
+	ent->stat = LSC_ENT_WAIT;
+	ent->dir = dir;
 	lsc->num_stm++;
 	lsc->wr_idx = (lsc->wr_idx + 1) % LSC_MAX_ENTRY;
 	if (lsc->stat == LSC_STAT_PREP) {

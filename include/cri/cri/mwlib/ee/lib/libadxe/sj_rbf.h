@@ -19,8 +19,9 @@ typedef struct
 	Sint8 *buf;
 	Sint32 bsize;
 	Sint32 xsize;
-	SJRBF_ERRFN errfunc;
-	void *errobj;
+	Sint32 flow[2][2]; /* 0x28: retail SJRBF_GetNumData lw 0x38 vs 0x28, SJRBF_Create sw 0x38, sjrbf_Reset clears 0x28..0x34 */
+	SJRBF_ERRFN errfunc; /* 0x38 */
+	void *errobj; /* 0x3C */
 } SJRBF_OBJ;
 typedef SJRBF_OBJ *SJRBF;
 

@@ -263,6 +263,7 @@ Sint32 htci_get_fsize_opened(Sint32 fd)
 }
 
 // 100% matching!
+// FUN_004E7A00
 HTCI htci_alloc(void) 
 {
     HTCI htci;
@@ -282,6 +283,7 @@ HTCI htci_alloc(void)
 }
 
 // 100% matching!
+// FUN_004E7A38
 void htci_free(HTCI htci)
 {
     memset(htci, 0, sizeof(HTS_CI_OBJ));

@@ -14,6 +14,7 @@ void SJUNI_Error(SJUNI uni, Sint32 errcode)
 }
 
 // 100% matching!
+// FUN_004EEB50
 void SJUNI_Init(void) 
 { 
     if (sjuni_init_cnt == 0)
@@ -25,6 +26,7 @@ void SJUNI_Init(void)
 }
 
 // 100% matching!
+// FUN_004EEBD0
 void SJUNI_Finish(void)
 {
     if (--sjuni_init_cnt == 0) 

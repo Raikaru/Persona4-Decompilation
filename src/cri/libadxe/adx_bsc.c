@@ -253,11 +253,14 @@ Sint32 ADXB_GetOutBps(ADXB adxb)
         
         return 16;
     }
-    else if (adxb->fmttype == 1) 
+    if (adxb->fmttype == 1)
     {
-        return (adxb->cdctype != 2) ? 16 : 4;
+        if (adxb->cdctype == 2)
+        {
+            return 4;
+        }
+        return 16;
     }
-    
     return 16;
 }
 

@@ -13,7 +13,10 @@ typedef struct {
 	Sint32 taginf_flg;
 	Sint32 tag_a;
 	Sint32 tag_b;
-	Sint32 pad24;
+	/* P4: same four-byte removal as sfx.h SFX_OBJ: retail SFX_SetTagInf at
+	 * 0x0052BAF0 uses `addiu $s1, $t0, 0x14` (0052BAFC) for the tag block
+	 * and `lw $s0, 0x24($t0)` (0052BB2C) for sfxz, both 4 below this
+	 * layout's 0x18/0x28. */
 	void *sfxz;
 	Sint32 pad2C[3];
 	void *coladj;

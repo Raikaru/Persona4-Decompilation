@@ -65,6 +65,13 @@ extern void ADXT_ExecHndl(ADXT adxt);
 #define ADXT_RNA_WORK 0x40C0
 #define ADXT_IBUF_XSIZE 0x24
 #define ADXT_SCT_SIZE 0x800
+/* Retail stores the ADX magic big-endian: P4 byteswaps the 16-bit load
+ * (`lhu $v1,($a2)` at 0x4D684C/0x4D68E4, then `sll $a2,$v1,8` at 0x4D6850/0x4D68E8,
+ * `srl $v1,$v1,8` at 0x4D6854/0x4D68EC, `or $v1,$v1,$a2` at 0x4D6858/0x4D68F0 and
+ * `andi $v1,0xffff` at 0x4D685C/0x4D68F4) before comparing against 0x8000/0x8001.
+ * libadxe 8.30 already does this via BSWAP_U16 and is byte-exact there; the direct
+ * `*(Uint16 *)data` compare here compiled to `lhu`+`ori`+`bne` and is 16B/20B short. */
+#define ADXT_BSWAP_U16(p) ((Uint16)(((*(Uint16 *)(p)) >> 8) | ((*(Uint16 *)(p)) << 8)))
 
 /* ADXT_OBJ.stat (public) */
 #define ADXT_STAT_PLAYEND 5
@@ -646,6 +653,15 @@ void ADXT_SetSvrFreq(ADXT adxt, Sint32 freq)
 	adxt_last_svrfreq = freq;
 }
 
+/* NOTE (version split, not a small fix): P4 9.44 splits this name into a 96B wrapper at
+ * 0x004D5500 (`jal 0x004C54D8` enter, `jal 0x004D5560` worker, `j 0x004C54E0` exit;
+ * empty `jr $ra` stubs) and a 176B worker at 0x004D5560. The worker proves the
+ * 0x3C/0x3E/0x08 offsets kept here: `lh $a3,0x3c($t1)` (ibuf_nsct) at 0x4D5590,
+ * `lw $t0,8($t1)` (stm) at 0x4D5594, `sh $a3,0x3e($t1)` (reload_nsct) at 0x4D55F0
+ * and `jal 0x004D2C30` (ADXSTM_SetBufSize) at 0x4D55FC. This 2-arg dead-stripped
+ * spelling (148B) and lib's 4-arg 88B spelling both omit the SetBufSize side effect
+ * and the `slt/min` against ibuf_nsct, so neither can be made exact without
+ * introducing the wrapper/worker pair, which is out of scope for this pass. */
 /* (dead-stripped) reload threshold from a time in seconds */
 void ADXT_SetReloadTime(ADXT adxt, Float32 time)
 {
@@ -699,6 +715,14 @@ Sint32 ADXT_GetNumSmplObuf(ADXT adxt)
 	return 0;
 }
 
+/* NOTE (version split): P4 is a 64B wrapper at 0x004D58A8 (`jal 0x004C54D8`,
+ * `jal 0x004D58E8` worker at 0x4D58E8, `jal 0x004C54E0`) around a 232B worker at
+ * 0x004D58E8. The worker proves the path kept here: `jal 0x004D4430`
+ * (ADXT_GetStat) at 0x4D5928, `lw $v1,0x14($s2)` (sji) at 0x4D593C with
+ * `lw $v0,0x24($v1)`+`jalr` (SJ_GetNumData) at 0x4D594C/0x4D5950, then
+ * `jal 0x004D4C90`/`jal 0x004D4C08` (GetNumChan/GetSfreq) at 0x4D595C/0x4D5968.
+ * This 240B spelling inlines the worker; shrinking it to the 64B wrapper would
+ * require adding the worker as a new unnamed function, out of scope here. */
 /* (dead-stripped) playback time left in the input buffer, in seconds */
 Float32 ADXT_GetIbufRemainTime(ADXT adxt)
 {
@@ -978,6 +1002,7 @@ void ADXT_SetLnkSw(ADXT adxt, Sint32 sw)
 
 // True if `data` starts with an ADX header (magic 0x8000) whose info decodes; returns its length in
 // *hdrsiz. Used by the Sofdec audio demuxer to find the start of an ADX track.
+// FUN_004D6838
 Bool ADXT_IsHeader(Uint8 *data, Sint32 size, Sint32 *hdrsiz)
 {
 	Sint16 hdrlen;
@@ -992,7 +1017,7 @@ Bool ADXT_IsHeader(Uint8 *data, Sint32 size, Sint32 *hdrsiz)
 	if (size < 2) {
 		return FALSE;
 	}
-	if (*(Uint16 *)data != 0x8000) {
+	if (ADXT_BSWAP_U16(data) != 0x8000) {
 		return FALSE;
 	}
 	if (ADX_DecodeInfo(data, size, &hdrlen, &fmt, &bps, &blksiz, &nch, &sfreq, &nsmpl, &blksmpl) < 0) {
@@ -1005,10 +1030,10 @@ Bool ADXT_IsHeader(Uint8 *data, Sint32 size, Sint32 *hdrsiz)
 // True if `data` starts with an ADX end code (magic 0x8001); *ecsiz gets the remaining size.
 Bool ADXT_IsEndcode(Uint8 *data, Sint32 size, Sint32 *ecsiz)
 {
-	if (size < 2) {
+	if (size <= 1) {
 		return FALSE;
 	}
-	if (*(Uint16 *)data != 0x8001) {
+	if (ADXT_BSWAP_U16(data) != 0x8001) {
 		return FALSE;
 	}
 	*ecsiz = size;

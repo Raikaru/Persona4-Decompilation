@@ -36,7 +36,6 @@ static void adxf_SetCmdHstry(Sint32 cmd, Sint32 sub, ADXF adxf, Sint32 prm1, Sin
 }
 
 /* release the stream joint of a finished read (after flushing the destination buffer) */
-// FUN_004C89F0
 static void adxf_ReleaseSj(ADXF adxf)
 {
 	SJ sj;
@@ -52,17 +51,20 @@ static void adxf_ReleaseSj(ADXF adxf)
 }
 
 // Validates an AFS partition id (0..255) and a non-NULL partition info pointer.
+// Retail at 0x4C7340 returns ADXF_ERR_OK (0) / ADXF_ERR_PRM (-3): `move $v0,$zero`
+// at +0x24 and `addiu $v0,$zero,-3` at +0x38 (lib adxf_ChkPrmPt already exact).
+// FUN_004C7340
 static Sint32 adxf_ChkPrmPt(Sint32 ptid, void *ptinfo)
 {
-	if (ptid < 0 || ptid >= ADXF_MAX_PTINFO) {
+	if ((Uint32)ptid >= ADXF_MAX_PTINFO) {
 		ADXERR_CallErrFunc1("E9040801:partition ID is range outside.(adxf_ChkPrmPt)");
-		return NG;
+		return -3;
 	}
 	if (ptinfo == NULL) {
 		ADXERR_CallErrFunc1("E9040802:'ptinfo' is NULL.(adxf_ChkPrmPt)");
-		return NG;
+		return -3;
 	}
-	return OK;
+	return 0;
 }
 
 // Dead: starts loading the AFS table of contents of `fname` into `ptinfo` for partition `ptid`

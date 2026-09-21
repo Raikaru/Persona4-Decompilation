@@ -18,7 +18,11 @@ void adxf_SetCmdHstry(Sint32 cmdid, Sint32 fg, Sint32 prm0, Sint32 prm1, Sint32 
 {
     ADXF_CMD_HSTRY *hstry;
 
-    adxf_hstry_no %= ADXF_CMD_HSTRY_MAX;
+    /* P4 retail ring is 16 entries: `addiu $a1,$v1,0xf` at 0x4C7260+0x24 with */
+    /* `sra $v0,$v0,4`/`sll $v0,$v0,4` at +0x34/+0x38 (ours was 0xff/8/8 for 256). */
+    /* ADXF_CMD_HSTRY_MAX (256) comes from unowned recvx cri_adxf.h; keep header, */
+    /* modulo the retail size locally. */
+    adxf_hstry_no %= 16;
     
     hstry = &adxf_cmd_hstry[adxf_hstry_no];
    
@@ -49,7 +53,6 @@ void adxf_wait_1ms(void)
 }
 
 // 100% matching!
-// FUN_004C7340
 Sint32 adxf_ChkPrmPt(Sint32 ptid, void *ptinfo)
 {
     if ((Uint32)ptid >= ADXF_PART_MAX) 
@@ -843,18 +846,23 @@ ADXF ADXF_OpenAfs(Sint32 ptid, Sint32 flid)
 }
 
 // 100% matching!
+// FUN_004C89F0
 void adxf_CloseSjStm(ADXF adxf)
 {
-    if ((adxf->sj != NULL) && (adxf->sjflag == 0)) 
+    SJ sj;
+    if ((adxf->sj != NULL) && (adxf->sjflag == 0))
     {
-        if (adxf_ocbi_fg == 1) 
+        if (adxf_ocbi_fg == 1)
         {
             ADXF_Ocbi(adxf->buf, adxf->bsize);
         }
-        
-        SJ_Destroy(adxf->sj);
-        
+        /* Retail at 0x4C89F0 stores first: `sw $zero,8($s0)` at +0x50 BEFORE */
+        /* `lw $v0,12($v1)` at +0x54 / `jalr $v0` at +0x58; ours stored at +0x5c */
+        /* after the call. Hoist the clear before SJ_Destroy like re4's */
+        /* adxf_ReleaseSj (already exact at this address). */
+        sj = adxf->sj;
         adxf->sj = NULL;
+        SJ_Destroy(sj);
     }
 }
 

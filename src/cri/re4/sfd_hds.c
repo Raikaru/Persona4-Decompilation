@@ -403,13 +403,17 @@ void SFHDS_FinishFhd(SFHDS_FHD *fhd)
 }
 
 // Clears the header analysis (handle creation).
+// P4: the fifth word is hdrsiz (0x10), not rawsiz (0x90): retail SFHDS_InitFhd
+// at 0x004FB500 clears `sw $zero, 0x10($a0)` (004FB500) with 0/4/8/0xC where
+// this source cleared 0x90.
+// FUN_004FB500
 void SFHDS_InitFhd(SFHDS_FHD *fhd)
 {
 	fhd->valid = 0;
 	fhd->ver_major = 0;
 	fhd->ver_minor = 0;
 	fhd->byterate = 0;
-	fhd->rawsiz = 0;
+	fhd->hdrsiz = 0;
 }
 
 // Library init: gives the SFH analyser its 32 objects' work.

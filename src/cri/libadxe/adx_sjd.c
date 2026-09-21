@@ -5,7 +5,7 @@
 
 //#include <string.h>
 
-ADX_SJDEC adxsjd_obj[8] = { 0 };
+ADX_SJDEC adxsjd_obj[16] = { 0 }; /* retail slti 0x10 at 004cdb00, stride 0xA8 at 004cdb08 */
 
 // 100% matching!
 void ADXSJD_Init(void) 
@@ -55,7 +55,7 @@ ADXSJD ADXSJD_Create(SJ sji, Sint32 maxnch, SJ *sjo)
 
     sjrbf = (SJRBF)sjo[0];
 
-    for (i = 0; i < 8; i++) 
+    for (i = 0; i < 16; i++) /* retail slti 0x10 at 004cdb00 */
     {
         if (adxsjd_obj[i].used == FALSE) 
         {
@@ -63,7 +63,7 @@ ADXSJD ADXSJD_Create(SJ sji, Sint32 maxnch, SJ *sjo)
         }
     }
     
-    if (i == 8)
+    if (i == 16) /* retail addiu 0x10 at 004cdb24 */
     { 
         return NULL;
     }
@@ -118,6 +118,7 @@ void ADXSJD_Destroy(ADXSJD sjd)
 
         if (adxb != NULL) 
         {
+            sjd->adxb = NULL; /* retail sw $zero,4($s0) at 004cdc5c */
             ADXB_Destroy(adxb);
         }
     

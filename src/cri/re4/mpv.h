@@ -185,35 +185,33 @@ typedef struct MPV_OBJ {
 	Sint32 m2v_mode;                /* 0x358 0 unknown, 1 MPEG-1, 2 MPEG-2 */
 	Sint32 stc[3];                  /* 0x35C "STCCODE" user data values */
 	Uint8 *tbl368[6];               /* 0x368 */
-	Uint8 mcbuf[0x680 - 0x380];     /* 0x380 */
-	Float64 blk[6][32];             /* 0x680 six 0x100-byte coefficient blocks */
-	Uint8 intra_iqm[64];            /* 0xC80 */
-	Uint8 nintra_iqm[64];           /* 0xCC0 */
-	Uint8 work[0x1100 - 0xD00];     /* 0xD00 */
-	Uint16 bitmsk[16];              /* 0x1100 */
-	Sint8 zigzag[64];               /* 0x1120 */
-	Uint8 pad1160[0x1260 - 0x1160];
-	Uint8 group_tbl[32];            /* 0x1260 */
-	MPV_RUNLEVEL rl[6];             /* 0x1280 */
-	Uint8 pad12B0[0x1300 - 0x12B0];
-	Sint32 pic_done;                /* 0x1300 set when a picture has been decoded */
-	Sint32 npic;                    /* 0x1304 */
-	SJCK ck;                        /* 0x1308 chunk being parsed */
-	Sint32 bitofs;                  /* 0x1310 bit offset of the slice data in its first byte */
-	Sint32 dcprec;                  /* 0x1314 "IDCPREC" (0: 8 bit, 3: 11 bit DC) */
-	MPV_BLKDEC_FUNC intra_func;     /* 0x1318 */
-	MPV_BLKDEC_FUNC nintra_func;    /* 0x131C */
-	Sint32 pad1320;
-	Sint32 x1324;                   /* 0x1324 copy of cond[7] */
-	void *dctbl_y;                  /* 0x1328 */
-	void *dctbl_c;                  /* 0x132C */
-	void *m2v;                      /* 0x1330 */
-	Sint32 hdrtype;                 /* 0x1334 header being decoded: 1 sequence, 2 GOP, 3 picture */
-	MPV_USRSJ usr[4];               /* 0x1338 */
-	Uint8 *picusr_buf;              /* 0x1368 */
-	Sint32 picusr_bufsiz;           /* 0x136C */
-	Sint32 picusr_len;              /* 0x1370 */
-	Sint32 pad1374;
+	Uint8 *mcbuf;                    /* 0x380 motion work pointer; retail sw zero,896 proves word (not 0x300 bulk) */
+	Float64 (*blk)[32];              /* 0x384 six coefficient blocks via pointer; retail sw zero,900 proves word */
+	Uint8 *intra_iqm;                /* 0x388 */
+	Uint8 *nintra_iqm;               /* 0x38C */
+	Uint8 *work;                     /* 0x390 */
+	Uint16 *bitmsk;                  /* 0x394 retail sw zero,916 proves word */
+	Sint8 *zigzag;                   /* 0x398 */
+	Uint8 *group_tbl;                /* 0x39C (distinct from group_tbl_p at 0x038) */
+	MPV_RUNLEVEL *rl;                /* 0x3A0 was rl[6]; pointer keeps mpv->rl[i] working */
+	Sint32 x1324;                   /* 0x3A4 was 0x1324, copy of cond[7]; retail lw 428(s0)+sw 932(s0) proves */
+	void *dctbl_y;                   /* 0x3A8 was 0x1328 */
+	void *dctbl_c;                   /* 0x3AC was 0x132C */
+	void *m2v;                       /* 0x3B0 was 0x1330 */
+	Sint32 hdrtype;                  /* 0x3B4 was 0x1334; retail lw s6,948(s3) at 005065BC proves */
+	MPV_USRSJ usr[4];                /* 0x3B8 was 0x1338; retail addiu 952 at 00505088 proves */
+	Uint8 *picusr_buf;               /* 0x3E8 was 0x1368; retail addiu 1000 at 005050A0 proves */
+	Sint32 picusr_bufsiz;            /* 0x3EC was 0x136C */
+	Sint32 picusr_len;               /* 0x3F0 was 0x1370; retail sw zero,1008(s2) at 00505140 proves */
+	Sint32 pic_done;                 /* 0x3F4 was 0x1300; remaining space to handle size 0x420 */
+	Sint32 npic;                     /* 0x3F8 was 0x1304 */
+	SJCK ck;                         /* 0x3FC was 0x1308 */
+	Sint32 bitofs;                   /* 0x404 was 0x1310 */
+	Sint32 dcprec;                   /* 0x408 was 0x1314 */
+	MPV_BLKDEC_FUNC intra_func;      /* 0x40C was 0x1318 */
+	MPV_BLKDEC_FUNC nintra_func;     /* 0x410 was 0x131C */
+	Sint32 pad414;                   /* 0x414 was pad1320 */
+	Uint8 pad418[0x420 - 0x418];     /* pad to handle size 0x420; retail addiu 1056 at 00507150 proves stride */
 } MPV_OBJ;
 
 Sint8 *MPV_SearchDelim(Sint8 *p, Sint32 n, Sint32 mask);
