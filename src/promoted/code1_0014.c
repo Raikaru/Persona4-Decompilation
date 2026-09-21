@@ -2,6 +2,8 @@
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "effect_update_internal.h"
+#include "scene_event_internal.h"
 #include "model_matrix_internal.h"
 #include "field_light_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
@@ -186,7 +188,7 @@ typedef struct {
     u8 b2;
     u8 b3;
 } P4Bytes0014;
-typedef struct { f32 x, y, z; } SVec3;
+
 typedef FieldRgba8 Rgba8_0014;
 
 extern s32 RwEngineGetMatrixTolerances();
@@ -2765,7 +2767,6 @@ void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
     extern u8 D_005EF9D0[];
     extern u8 D_005EF9F0[];
     extern void func_0047a1e0(s32 arg0, void *arg1, s32 arg2);
-    extern void func_00146f50(void *arg0, void *arg1, void *arg2);
     extern void func_004b12e0(s32 arg0, void *arg1);
     struct { s64 p; f32 f; u32 _pad; } pf[4];
     f32 tr[3];
@@ -2852,7 +2853,7 @@ void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
                 func_00440b68(D_005EF9F0);
                 return;
             }
-            func_00146f50(c0, arg0 + 4, arg0 + 16);
+            func_00146f50(c0, arg0 + 4, (u32 *)(arg0 + 16));
             src = c0;
             dst = c1;
             n = 8;
@@ -5034,7 +5035,7 @@ s32 func_0014e2a0(u8 *arg0) {
     extern s32 func_004553c0(u8 *arg0);
     extern s32 func_00455f70(u8 *arg0, s32 *arg1);
     extern void func_00454bd0(u8 *arg0);
-    extern s32 func_004b1190();
+
     extern void func_004b11d0();
     extern void func_004b1150();
     extern u8 D_005DC7D0[];
@@ -5082,7 +5083,7 @@ block_10:
                 (*(s32 *)(temp_18 + 0x98) != 1)) {
                 if ((u32)*(u32 *)(temp_18 + 0x18) <
                     (u32)*(u32 *)(temp_18 + 8)) {
-                    func_004b1190(*(s32 *)(temp_18 + 0x14));
+                    func_004b1190(*(u8 **)(temp_18 + 0x14));
                     func_004b11d0(
                         (s32)&D_005DC7D0 +
                         (*(u16 *)(temp_18 + 0x1C) * 0x54),
@@ -5105,7 +5106,7 @@ loop_body:
                     temp_11 = (s32 *)(temp_5 + 0x44);
                     if ((u32)*(u32 *)(temp_5 + 0x44) <
                         (u32)*(u32 *)(temp_18 + 8)) {
-                        func_004b1190(temp_4_2);
+                        func_004b1190((u8 *)temp_4_2);
                         func_004b11d0(
                             (s32)&D_005DC7D0 +
                             (*(u16 *)(temp_18 + var_19 * 2 + 0x64) *

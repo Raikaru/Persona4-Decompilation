@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "effect_update_internal.h"
 extern u8 *func_00457120(void);
 extern s32 iGpffffbb9c;
 /* gp - 0x4460 = 0x00764c90: base of a 0x1C-strided per-type handler table */
@@ -9,7 +10,7 @@ extern s32 (*iGpffffbba4)(void);
 extern void func_00484bb0();
 extern void func_00485b20();
 extern void func_00485fe0();
-extern void func_00485630();
+extern void func_00485630(u8 *object);
 extern u8 *func_00485c80(u8 *arg0);
 extern void func_00486400();
 extern void func_00486060();
@@ -194,9 +195,9 @@ void func_004b1170(void)
 }
 
 // FUN_004B1190
-void func_004b1190(void)
+void func_004b1190(u8 *object)
 {
-    func_00485630();
+    func_00485630(object);
 }
 
 // FUN_004B11B0

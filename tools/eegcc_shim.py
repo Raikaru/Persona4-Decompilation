@@ -48,10 +48,13 @@ import json
 import os
 import platform
 import re
+import shlex
 import shutil
 import subprocess
 import sys
 import tempfile
+
+import asm as assembler_tools
 
 TOOLS = Path(__file__).resolve().parent
 REPO = TOOLS.parent
@@ -67,6 +70,8 @@ STAGE_WSL = "/mnt/" + str(STAGE_WIN).replace(":", "").replace("\\", "/").lower()
 # -ffunction-sections mirrors MWCC's one-section-per-function output, which
 # build.py's per-function placement depends on.
 GCC_FLAGS = ["-O2", "-G0", "-ffunction-sections"]
+# EABI keeps the EE's 64-bit sd/ld operations intact in fallback assembly.
+ASSEMBLER_FLAGS = ["-EL", "-march=r5900", "-mabi=eabi"]
 DROP_PREFIXES = ("-lang", "-msgstyle", "-maxerrors", "-enum", "-char", "-str")
 INCLUDE_REGEX = re.compile(r'\s*(INCLUDE_ASM|INCLUDE_RODATA)\("([^"]+)",\s*([^)]+)\)')
 
@@ -277,6 +282,29 @@ def _splice(source: Path) -> str:
     return "\n".join(out) + "\n"
 
 
+def _stage_includes(includes: list[str], work: Path) -> list[str]:
+    """Retain project-relative header layout for includes containing '..'."""
+    staged: list[str] = []
+    copied: list[Path] = []
+    for index, directory in enumerate(includes):
+        path = Path(directory)
+        if not path.is_absolute():
+            path = REPO / path
+        path = path.resolve()
+        if not path.is_dir():
+            _die("include directory does not exist: %s" % directory)
+        try:
+            relative = Path("project") / path.relative_to(REPO.resolve())
+        except ValueError:
+            relative = Path("external") / str(index)
+        target = work / relative
+        if not any(target == parent or parent in target.parents for parent in copied):
+            shutil.copytree(path, target, dirs_exist_ok=True)
+            copied.append(target)
+        staged.append(relative.as_posix())
+    return staged
+
+
 def _compile_to_asm(root: Path, source: Path, includes: list[str], work: Path) -> Path:
     """Run ee-gcc and return the generated assembly.
 
@@ -323,16 +351,7 @@ def _compile_to_asm(root: Path, source: Path, includes: list[str], work: Path) -
         return asm
 
     (work / "in.c").write_text(source_text, encoding="utf-8", newline="\n")
-    staged = []
-    for index, directory in enumerate(includes):
-        path = Path(directory)
-        if not path.is_absolute():
-            path = REPO / path
-        if not path.is_dir():
-            _die("include directory does not exist: %s" % directory)
-        target = work / ("inc%d" % index)
-        shutil.copytree(path, target, dirs_exist_ok=True)
-        staged.append(index)
+    staged = _stage_includes(includes, work)
     script = work / "run.sh"
     here = "%s/%s" % (STAGE_WSL, work.name)
     # $STAGE holds only the compiler, and every invocation compiles in its own
@@ -355,14 +374,14 @@ def _compile_to_asm(root: Path, source: Path, includes: list[str], work: Path) -
         "WORK=$(mktemp -d /tmp/p4gcc_work.XXXXXX)",
         "trap 'rm -rf \"$WORK\"' EXIT",
     ]
-    for index in staged:
-        lines.append("cp -r %s/inc%d \"$WORK/inc%d\"" % (here, index, index))
+    for directory in sorted({Path(name).parts[0] for name in staged}):
+        lines.append('cp -r %s "$WORK/"' % shlex.quote(here + '/' + directory))
     lines += [
         "cp %s/in.c \"$WORK/in.c\"" % here,
         "cd \"$WORK\"",
         "\"$STAGE/bin/ee-gcc\" %s %s -S in.c -o out.s" % (
             " ".join(GCC_FLAGS),
-            " ".join("-I$WORK/inc%d" % index for index in staged)),
+            " ".join('"-I$WORK/"' + shlex.quote(name) for name in staged)),
         "cp out.s %s/out.s" % here,
     ]
     script.write_text("\n".join(lines) + "\n", newline="\n")
@@ -393,6 +412,51 @@ def _rewrite_moves(asm: Path) -> None:
     asm.write_text("\n".join(out) + "\n", encoding="utf-8", newline="\n")
 
 
+LARGE_WORD_ADD = re.compile(
+    r"^(\s*)addu\s+(\$\w+)\s*,\s*(\$\w+)\s*,\s*(-?(?:0x[0-9a-fA-F]+|[0-9]+))\s*$")
+WORD_ADDRESS_MACRO = re.compile(
+    r"^\s*(la|lw|lwu|lh|lhu|lb|lbu|sw|sh|sb|lwc1|swc1)\s+\$\w+\s*,\s*([^#]+?)(?:\s*#.*)?$")
+
+
+def _rewrite_eabi_pseudos(asm: Path) -> None:
+    """Keep the old compiler's explicit word arithmetic under GNU EABI macros.
+
+    GNU as otherwise turns an immediate-form addu into a 64-bit daddu when
+    the constant needs a temporary. Its generic MIPS3 spelling also handles
+    the old compiler's rounded conversion and soft-double literal macros.
+    These directives affect assembly acceptance, not the requested operations.
+    """
+    lines = []
+    for line in asm.read_text(encoding="utf-8").splitlines():
+        match = LARGE_WORD_ADD.fullmatch(line)
+        if match:
+            literal = match[4]
+            value = int(literal, 16 if "x" in literal.lower() else 10)
+            if not -32768 <= value <= 32767:
+                if match[3] in ("$1", "$at"):
+                    _die("cannot expand a large addu immediate with $at as its input")
+                lines += [f"{match[1]}li\t$1,{literal}",
+                          f"{match[1]}addu\t{match[2]},$1,{match[3]}"]
+                continue
+        address = WORD_ADDRESS_MACRO.fullmatch(line)
+        if address:
+            operand = address[2].strip()
+            # These compiler-generated address expressions use 32-bit pointers,
+            # even though sd/ld elsewhere require 64-bit GPR mode. Direct
+            # %lo relocations and small displacements are already instructions.
+            displacement = re.sub(r"\(\$\w+\)$", "", operand)
+            direct = bool(re.fullmatch(r"-?(?:0x[0-9a-fA-F]+|[0-9]+)", displacement))
+            if address[1] == "la" or (not direct and not operand.startswith("%")):
+                lines += ["\t.set push", "\t.set gp=32", line, "\t.set pop"]
+                continue
+        instruction = line.strip().split(None, 1)
+        if instruction and instruction[0] in ("cvt.w.s", "li.d"):
+            lines += ["\t.set push", "\t.set mips3", line, "\t.set pop"]
+        else:
+            lines.append(line)
+    asm.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+
+
 # MWCC objects carry none of these, and mwldps2 rejects an object whose
 # sections the linker command file does not place.  GCC's own metadata is
 # dropped unconditionally so a GCC unit presents the same shape to the linker
@@ -418,35 +482,42 @@ def _empty_sections(obj: Path) -> set[str]:
             if not section["size"] and section.get("name")}
 
 
-def _strip_gcc_metadata(objcopy: str, obj: Path) -> None:
+def _binutils_tool(cfg: dict, key: str, alias: str, name: str, env: str) -> assembler_tools.Tool:
+    """Use the build driver's native/WSL discovery when no path is configured."""
+    if os.environ.get(env):
+        return assembler_tools.find_gnu_tool(name, env)
+    command = cfg.get(key) or cfg.get(alias)
+    if command:
+        return assembler_tools.Tool((str(command),))
+    return assembler_tools.find_gnu_tool(name, env)
+
+
+def _assembler_tool(cfg: dict) -> assembler_tools.Tool:
+    """Honor the dedicated EE assembler before the general native/WSL fallback."""
+    if os.environ.get("P4_EEGCC_AS") or cfg.get("eegcc_as"):
+        return _binutils_tool(cfg, "eegcc_as", "eegcc_as", "mipsel-linux-gnu-as", "P4_EEGCC_AS")
+    return _binutils_tool(cfg, "as_path", "p4_as", "mipsel-linux-gnu-as", "P4_AS")
+
+
+def _strip_gcc_metadata(objcopy: assembler_tools.Tool, obj: Path) -> None:
     empty = _empty_sections(obj)
     removable = list(GCC_METADATA_SECTIONS) + [
         name for name in GCC_PLACEHOLDER_SECTIONS if name in empty]
-    argv = [str(objcopy)]
-    argv += ["--remove-section=%s" % name for name in removable]
+    argv = ["--remove-section=%s" % name for name in removable]
     argv += ["--strip-symbol=%s" % name for name in GCC_ONLY_SYMBOLS]
-    proc = subprocess.run([*argv, str(obj)], stdout=subprocess.PIPE,
-                          stderr=subprocess.STDOUT, text=True)
+    proc = assembler_tools._run_tool(objcopy, [*argv, obj])
     if proc.returncode != 0:
-        _die("objcopy failed for %s:\n%s" % (obj, proc.stdout))
+        _die("objcopy failed for %s:\n%s" % (obj, proc.stdout.decode("utf-8", errors="replace")))
 
 
 def main() -> int:
     cfg = _config()
     root = cfg.get("eegcc_root")
-    # The assembler is NOT interchangeable here. Measured: assembling these
-    # units with the decompals binutils the Metrowerks path uses drops the
-    # CRI units from 66 MATCH to 6, because the two assemblers differ in how
-    # they encode and pad what ee-gcc emits. The Metrowerks units are
-    # unaffected and keep using P4_AS, so the two are configured separately:
-    # `eegcc_as` / `P4_EEGCC_AS` selects the Sony EE assembler for this path
-    # and falls back to `as_path` where they are the same binary.
-    as_path = (os.environ.get("P4_EEGCC_AS") or cfg.get("eegcc_as")
-               or cfg.get("as_path") or cfg.get("p4_as"))
-    objcopy = cfg.get("objcopy") or cfg.get("p4_objcopy")
-    if not root or not as_path or not objcopy:
+    if not root:
         _die("set eegcc_root in tools/build_config.local.json "
-             "(or P4_EEGCC_ROOT), and as_path / objcopy alongside it")
+             "(or P4_EEGCC_ROOT)")
+    as_tool = _assembler_tool(cfg)
+    objcopy = _binutils_tool(cfg, "objcopy", "p4_objcopy", "mipsel-linux-gnu-objcopy", "P4_OBJCOPY")
 
     source, out, includes = _parse(sys.argv[1:])
     native = platform.system() != "Windows"
@@ -458,14 +529,14 @@ def main() -> int:
         work = Path(tmp)
         asm = _compile_to_asm(Path(root), source, includes, work)
         _rewrite_moves(asm)
+        _rewrite_eabi_pseudos(asm)
         out.parent.mkdir(parents=True, exist_ok=True)
         out.unlink(missing_ok=True)
-        proc = subprocess.run(
-            [str(as_path), "-EL", "-march=r5900", str(asm), "-o", str(out)],
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
-        )
+        # EABI uses the EE's 64-bit GPR operations. In the assembler's o32
+        # default, an sd/ld fallback is expanded into two sw/lw instructions.
+        proc = assembler_tools._run_tool(as_tool, [*ASSEMBLER_FLAGS, asm, "-o", out])
         if proc.returncode != 0 or not out.is_file():
-            _die("assembler failed for %s:\n%s" % (source, proc.stdout))
+            _die("assembler failed for %s:\n%s" % (source, proc.stdout.decode("utf-8", errors="replace")))
         _strip_gcc_metadata(objcopy, out)
     return 0
 

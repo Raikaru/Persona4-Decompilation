@@ -13,7 +13,7 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
 extern void func_00194f10(void *arg0, void *arg1);
 extern void func_001ec1c0(void *out, void *first, void *second);
 extern void func_001ec6d0(s16 *arg0, s16 *arg1, f32 *position);
-extern u32 func_001ef720();
+extern s32 func_001ef720(s32 groupFlags, s32 excludedFlags);
 extern s64 func_0023a6b0(s32 arg0, s64 arg1);
 extern u16 func_00231f80(u8 *arg0);
 extern u16 func_00232290(u8 *arg0);
@@ -63,7 +63,9 @@ extern char D_005DC824[];
 extern char D_00794AE0[];
 extern char D_00794C00[];
 extern void func_001d44a0(f32 arg0, f32 arg1, f32 *arg2, s32 *arg3, u8 *arg4, u8 *arg5);
-extern f32 func_00196040(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, s32 arg4, s32 arg5);
+struct RwV3d;
+extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
+                          f32 *outTop, f32 *outBottom, u32 options);
 extern void func_00194ee0(u8 *arg0, f32 *arg1);
 extern void func_00195b60(u8 *arg0, s32 arg1, u8 *arg2);
 extern u8 *func_0019eda0(u8 *arg0, s32 arg1);
@@ -372,219 +374,189 @@ s16 func_001d15a0(void)
 done:
     return (s16)result;
 }
-/* measured 001d1680: `opt_loop_invariants on` inside the guard is worth 12 words (342 -> 330), the loop-preheader constant hoist. */
-/* measured 001d1680 (owner, 2026-09-19): fnalign **474 -> 473 edits**, count
-   393 -> 391 against retail 397, by writing m2c's top-tested `loop_N:` /
-   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
-   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
-   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
-   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
-   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
-   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
-   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
-// FUN_001D1680 NONMATCHING
-#ifdef SKIP_ASM
+#pragma push
 #pragma opt_loop_invariants on
-void func_001d1680(s32 arg0) {
-    f32 spD8;
-    s32 spD4;
-    f32 spD0;
-    f32 spC0;
-    f32 spB0;
-    u16 spA8;
-    s32 sp90;
-    f32 sp80;
-    f32 temp_f0;
-    f32 temp_f1;
-    f32 temp_f4;
-    f32 temp_f5;
-    f32 temp_f6;
-    f32 var_f2;
-    f32 var_f3;
-    f32 var_f2_2;
-    f32 var_f3_2;
-    s32 temp_16;
-    s32 temp_3;
-    s32 temp_4;
-    s32 var_19;
-    s32 var_5;
-    s32 var_5_2;
-    s32 var_20_2;
-    s32 var_21;
-    s64 var_18;
-    u8 temp_2_4;
-    u8 *temp_17;
-    u8 *var_16;
-    u8 *var_16_2;
-    u8 *var_19_2;
-    u8 *var_20;
+#pragma opt_lifetimes on
+static inline f32 formationCapacityLimit(s32 limit)
+{
+    return (f32)limit;
+}
 
-    spD4 = 0;
-    *(s16 *)(*(u8 **)iGpffffb3ac + 0xA70) = -1;
+/* Assign party/enemy formation slots, optionally snap positions, then face
+ * each side toward the other. MWCC b210: 1592 bytes and eight zero tail bytes.
+ * The capacity scan has five candidates; 5 denotes no fitting candidate. */
+// FUN_001D1680
+void func_001d1680(s32 applyPositions, s32 unused)
+{
+    RwV3d position;
+    RwV3d actorCenter;
+    RwV3d enemyCenter;
+    u16 counts[4];
+    /* The failure sentinel can write cell 5; only cells 0..4 are scanned. */
+    s32 occupied[6];
+    RtQuat rotation;
+    u8 *actor;
+    u16 nextSlot;
+    s16 formation;
+    u8 *layout;
+    u16 selectedSlot;
+    u16 chosen;
+    u8 *enemy;
+    u8 *facingUnit;
+
+    position.y = 0.0f;
+    *(s16 *)(iGpffffb3ac + 0xA70) = -1;
     if (func_0022ead0() == 1) {
-        var_18 = -1;
+        formation = -1;
     } else {
-        func_001d1310(&spA8);
-        var_18 = (s64)(s32)func_001d14b0((u8 *)&spA8);
+        func_001d1310(counts);
+        formation = (s16)func_001d14b0((u8 *)counts);
     }
-    if (var_18 != -1) {
-        func_0043f9c8(*(u8 **)iGpffffb3ac + 0xA74, 0, 0x24);
-        var_19 = 1;
-        var_20 = *(u8 **)(*(u8 **)iGpffffb3ac + 0x178);
-        temp_17 = (u8 *)((s32)&D_00607E50 + (var_18 * 0xE0));
-do {
-                u8 *t170 = *(u8 **)(*(u8 **)(*(u8 **)iGpffffb3ac + 0x170) + 0x30);
-                if (t170 == var_20) {
-                    var_21 = 0;
-                } else {
-    loop_8:
-                    {
-                        s32 t3 = var_19 & 0xFFFF;
-                        if ((*(temp_17 + t3 * 0x18) == 0) && (t3 < 4)) {
-                            var_19 = (var_19 + 1) & 0xFFFF;
-                            goto loop_8;
-                        }
-                        var_21 = var_19 & 0xFFFF;
-                        var_19 = (var_19 + 1) & 0xFFFF;
-                    }
+    /* Keep sentinel comparison separate from the signed table-row conversion. */
+    if ((s64)formation != -1) {
+        func_0043f9c8(iGpffffb3ac + 0xA74, 0, 0x24);
+        nextSlot = 1;
+        actor = *(u8 **)(iGpffffb3ac + 0x178);
+        layout = D_00607E50 + formation * 0xE0;
+        while (actor != NULL) {
+            s32 slot;
+            u8 *entry;
+            if (*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30) == actor) {
+                selectedSlot = 0;
+            } else {
+                while (layout[(u16)nextSlot * 0x18] == 0 && (u16)nextSlot < 4) {
+                    nextSlot++;
                 }
-                {
-                    s32 t16 = var_21 & 0xFFFF;
-                    u8 *t2 = temp_17 + t16 * 0x18;
-                    spD0 = (f32)(s32)*(f32 *)(t2 + 4);
-                    spD8 = (f32)(s32)*(f32 *)(t2 + 8);
-                    func_001ec6d0((s16 *)(var_20 + 0x94), (s16 *)(var_20 + 0x96), &spD0);
-                    if (arg0 != 0) {
-                        spD0 = (f32)((*(s16 *)(var_20 + 0x94) * 0x19) - 0x6D6);
-                        spD8 = (f32)((*(s16 *)(var_20 + 0x96) * 0x19) - 0x6D6);
-                        func_00194ee0(var_20, &spD0);
-                    }
-                    temp_2_4 = *(var_20 + 0xA2);
-                    switch (temp_2_4) {
-                    case 0:
-                        *(s32 *)(*(u8 **)iGpffffb3ac + t16 * 4 + 0xA74) = 1;
-                        break;
-                    case 1:
-                        *(s32 *)(*(u8 **)iGpffffb3ac + t16 * 4 + 0xA84) = 1;
-                        break;
-                    }
-                    *(var_20 + 0x9FC) = (s8)var_21;
-                }
-                var_20 = *(u8 **)(var_20 + 0xA6C);
-} while (var_20 != NULL);
-        {
-            u8 *v192 = *(u8 **)(*(u8 **)iGpffffb3ac + 0x180);
-            func_0043f9c8((u8 *)&sp90, 0, 0x14);
-loop_50:
-            if (v192 != NULL) {
-                if (func_002428f0((u8 *)*(s32 *)(v192 + 0xA64), 0) == 0) {
-                    s32 v202 = 5;
-                    f32 vf3 = (f32)0x05F5E100;
-                    f32 vf2 = vf3;
-                    f32 tf1 = (f32)(s32)*(f32 *)(v192 + 0x2C);
-                    f32 tf6 = *(f32 *)(v192 + 0x90) * tf1;
-                    f32 tf5 = *(f32 *)(v192 + 0x8C) * tf1;
-                    s32 v5 = 0;
-loop_31:
-                    if ((v5 & 0xFFFF) < 5) {
-                        s32 t32 = v5 & 0xFFFF;
-                        if (*(s32 *)((t32 * 4) + (s32)&sp90 + 0) != 1) {
-                            u8 *t33 = temp_17 + t32 * 0x18;
-                            if (*(t33 + 0x60) != 0) {
-                                f32 tf4 = (f32)(s32)(*(f32 *)(t33 + 0x70) - tf6);
-                                f32 tf12 = (f32)(s32)(*(f32 *)(t33 + 0x74) - tf5);
-                                if (!(tf4 < 0.0f) && !(tf12 < 0.0f) && ((tf4 < vf3) || (tf12 < vf2))) {
-                                    vf3 = tf4;
-                                    vf2 = tf12;
-                                    v202 = v5 & 0xFFFF;
-                                }
-                            }
-                        }
-                        v5 = (v5 + 1) & 0xFFFF;
-                        goto loop_31;
-                    }
-                    if ((v202 & 0xFFFF) >= 5) {
-                        s32 v52 = 0;
-                        v202 = 5;
-                        vf3 = (f32)0x05F5E100;
-                        vf2 = vf3;
-loop_40:
-                        if ((v52 & 0xFFFF) < 5) {
-                            s32 t34 = v52 & 0xFFFF;
-                            if (*(s32 *)((t34 * 4) + (s32)&sp90 + 0) != 1) {
-                                u8 *t35 = temp_17 + t34 * 0x18;
-                                f32 tf13;
-                                f32 tf0;
-                                if ((*(t35 + 0x60) != 0) && (((tf13 = *(f32 *)(t35 + 0x70) - tf6), (tf0 = *(f32 *)(t35 + 0x74) - tf5), (tf13 < vf3)) || (tf0 < vf2))) {
-                                    vf3 = tf13;
-                                    vf2 = tf0;
-                                    v202 = v52 & 0xFFFF;
-                                }
-                            }
-                            v52 = (v52 + 1) & 0xFFFF;
-                            goto loop_40;
-                        }
-                    }
-                    {
-                        s32 t4 = v202 & 0xFFFF;
-                        s32 t162 = t4 * 4;
-                        u8 *t23;
-                        *(s32 *)((t162) + (s32)&sp90 + 0) = 1;
-                        t23 = temp_17 + t4 * 0x18;
-                        spD0 = (f32)(s32)*(f32 *)(t23 + 0x64);
-                        spD8 = (f32)(s32)*(f32 *)(t23 + 0x68);
-                        func_001ec6d0((s16 *)(v192 + 0x94), (s16 *)(v192 + 0x96), &spD0);
-                        if (arg0 != 0) {
-                            spD0 = (f32)((*(s16 *)(v192 + 0x94) * 0x19) - 0x6D6);
-                            spD8 = (f32)((*(s16 *)(v192 + 0x96) * 0x19) - 0x6D6);
-                            func_00194ee0(v192, &spD0);
-                        }
-                        {
-                            u8 t24 = *(v192 + 0xA2);
-                            switch (t24) {
-                            case 0:
-                                *(s32 *)(*(u8 **)iGpffffb3ac + t162 + 0xA74) = 1;
-                                break;
-                            case 1:
-                                *(s32 *)(*(u8 **)iGpffffb3ac + t162 + 0xA84) = 1;
-                                break;
-                            }
-                        }
-                        *(v192 + 0x9FC) = (s8)v202;
-                    }
-                }
-                v192 = *(u8 **)(v192 + 0xA6C);
-                goto loop_50;
+                selectedSlot = (u16)nextSlot;
+                nextSlot++;
             }
+            slot = (u16)selectedSlot;
+            entry = layout + slot * 0x18;
+            position.x = *(f32 *)(entry + 4);
+            position.z = *(f32 *)(entry + 8);
+            func_001ec6d0((s16 *)(actor + 0x94), (s16 *)(actor + 0x96), (f32 *)&position);
+            if (applyPositions != 0) {
+                position.x = (f32)(*(s16 *)(actor + 0x94) * 25 - 1750);
+                position.z = (f32)(*(s16 *)(actor + 0x96) * 25 - 1750);
+                func_00194ee0(actor, (f32 *)&position);
+            }
+            switch (actor[0xA2]) {
+            case 0:
+                *(s32 *)(iGpffffb3ac + slot * 4 + 0xA74) = 1;
+                break;
+            case 1:
+                *(s32 *)(iGpffffb3ac + slot * 4 + 0xA84) = 1;
+                break;
+            }
+            actor[0x9FC] = (s8)selectedSlot;
+            actor = *(u8 **)(actor + 0xA6C);
         }
-        func_00196040(2, 1, (u8 *)&spB0, 0, 0, 1);
-        func_00195850(*(u8 **)(*(u8 **)(*(u8 **)iGpffffb3ac + 0x170) + 0x30), &spC0);
-        var_16 = *(u8 **)(*(u8 **)iGpffffb3ac + 0x17C);
-loop_53:
-        if (var_16 != NULL) {
-            func_00195850(var_16, &spD0);
-            func_001ec1c0(&sp80, &spD0, &spB0);
-            func_00194f10(var_16, &sp80);
-            var_16 = *(u8 **)(var_16 + 0xA68);
-            goto loop_53;
+
+        enemy = *(u8 **)(iGpffffb3ac + 0x180);
+        func_0043f9c8((u8 *)occupied, 0, 5 * sizeof(occupied[0]));
+        while (enemy != NULL) {
+            if (func_002428f0(*(u8 **)(enemy + 0xA64), 0) == 0) {
+                f32 radius;
+                f32 height;
+                f32 radiusSlack;
+                f32 leastRadius;
+                f32 leastHeight;
+                f32 scale;
+                /* Induction and the current array index have separate lifetimes. */
+                struct { u16 index; u16 current; } cursor;
+                s32 slot;
+                s32 occupiedOffset;
+                u8 *entry;
+                chosen = 5;
+                leastRadius = formationCapacityLimit(100000000);
+                leastHeight = leastRadius;
+                scale = *(f32 *)(enemy + 0x2C);
+                radius = (f32)(s32)(*(f32 *)(enemy + 0x90) * scale);
+                height = (f32)(s32)(*(f32 *)(enemy + 0x8C) * scale);
+                for (cursor.index = 0; (u16)cursor.index < 5; cursor.index++) {
+                    cursor.current = (u16)cursor.index;
+                    if (occupied[cursor.current] != 1) {
+                        u8 *candidate = layout + (s32)cursor.current * 0x18;
+                        if (candidate[0x60] != 0) {
+                            f32 heightSlack;
+                            radiusSlack = *(f32 *)(candidate + 0x70) - radius;
+                            heightSlack = *(f32 *)(candidate + 0x74) - height;
+                            if (!(radiusSlack < 0.0f) && !(heightSlack < 0.0f) &&
+                                (radiusSlack < leastRadius || heightSlack < leastHeight)) {
+                                leastRadius = radiusSlack;
+                                leastHeight = heightSlack;
+                                chosen = (u64)cursor.index;
+                            }
+                        }
+                    }
+                }
+                if ((u16)chosen >= 5) {
+                    chosen = 5;
+                    leastRadius = formationCapacityLimit(100000000);
+                    leastHeight = leastRadius;
+                    for (cursor.index = 0; (u16)cursor.index < 5; cursor.index++) {
+                        cursor.current = (u16)cursor.index;
+                        if (occupied[cursor.current] != 1) {
+                            u8 *candidate = layout + (s32)cursor.current * 0x18;
+                            if (candidate[0x60] != 0) {
+                                f32 heightSlack;
+                                radiusSlack = *(f32 *)(candidate + 0x70) - radius;
+                                heightSlack = *(f32 *)(candidate + 0x74) - height;
+                                if (radiusSlack < leastRadius || heightSlack < leastHeight) {
+                                    leastRadius = radiusSlack;
+                                    leastHeight = heightSlack;
+                                    chosen = (u64)cursor.index;
+                                }
+                            }
+                        }
+                    }
+                }
+                slot = (u16)chosen;
+                occupiedOffset = slot * 4;
+                occupied[slot] = 1;
+                entry = layout + slot * 0x18;
+                position.x = *(f32 *)(entry + 0x64);
+                position.z = *(f32 *)(entry + 0x68);
+                func_001ec6d0((s16 *)(enemy + 0x94), (s16 *)(enemy + 0x96), (f32 *)&position);
+                if (applyPositions != 0) {
+                    position.x = (f32)(*(s16 *)(enemy + 0x94) * 25 - 1750);
+                    position.z = (f32)(*(s16 *)(enemy + 0x96) * 25 - 1750);
+                    func_00194ee0(enemy, (f32 *)&position);
+                }
+                switch (enemy[0xA2]) {
+                case 0:
+                    *(s32 *)(iGpffffb3ac + occupiedOffset + 0xA74) = 1;
+                    break;
+                case 1:
+                    *(s32 *)(iGpffffb3ac + occupiedOffset + 0xA84) = 1;
+                    break;
+                }
+                enemy[0x9FC] = (s8)chosen;
+            }
+            enemy = *(u8 **)(enemy + 0xA6C);
         }
-        var_16_2 = *(u8 **)(*(u8 **)iGpffffb3ac + 0x184);
-loop_56:
-        if (var_16_2 != NULL) {
-            func_00195850(var_16_2, &spD0);
-            func_001ec1c0(&sp80, &spD0, &spC0);
-            func_00194f10(var_16_2, &sp80);
-            var_16_2 = *(u8 **)(var_16_2 + 0xA68);
-            goto loop_56;
+
+        func_00196040(2, 1, &enemyCenter, NULL, NULL, 1);
+        func_00195850(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30), (f32 *)&actorCenter);
+        facingUnit = *(u8 **)(iGpffffb3ac + 0x17C);
+        while (facingUnit != NULL) {
+            func_00195850(facingUnit, (f32 *)&position);
+            func_001ec1c0(&rotation, &position, &enemyCenter);
+            func_00194f10(facingUnit, &rotation);
+            facingUnit = *(u8 **)(facingUnit + 0xA68);
         }
-        *(s16 *)(*(u8 **)iGpffffb3ac + 0xA70) = (s16)var_18;
-        *(s16 *)(*(u8 **)iGpffffb3ac + 0xA72) = func_001ef720(2, 0x80000);
+        facingUnit = *(u8 **)(iGpffffb3ac + 0x184);
+        while (facingUnit != NULL) {
+            func_00195850(facingUnit, (f32 *)&position);
+            func_001ec1c0(&rotation, &position, &actorCenter);
+            func_00194f10(facingUnit, &rotation);
+            facingUnit = *(u8 **)(facingUnit + 0xA68);
+        }
+        *(s16 *)(iGpffffb3ac + 0xA70) = formation;
+        *(s16 *)(iGpffffb3ac + 0xA72) = func_001ef720(2, 0x80000);
     }
 }
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d1680);
-#endif
+#pragma pop
 // FUN_001D1CC0
 s32 func_001d1cc0(u8 *arg0)
 {
@@ -971,9 +943,7 @@ void func_001d4c40(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
         s32 zero1;
         s32 zero2;
         s32 one;
-        f32 value40;
-        f32 pad44;
-        f32 pad48;
+        RwV3d center;
         f32 value4C;
     } frame;
     f32 base;
@@ -982,7 +952,7 @@ void func_001d4c40(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
     u8 *temp16;
 
     temp16 = (u8 *)(arg2 + 8);
-    base = func_00196040(3, 0, (u8 *)&frame.value40, (u8 *)&frame.value4C, 0, 0);
+    base = func_00196040(3, 0, &frame.center, &frame.value4C, 0, 0);
     temp = *(u16 *)(temp16 + 4);
     if (temp == 0) {
         value = base;
@@ -993,7 +963,7 @@ void func_001d4c40(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
     frame.zero0 = 0;
     frame.zero1 = 0;
     frame.zero2 = 0;
-    func_001d44a0(value, 0.5f * frame.value4C, &frame.value40, &frame.zero0, temp16, arg3);
+    func_001d44a0(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, arg3);
 }
 // FUN_001D4CF0
 void func_001d4cf0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
@@ -1002,9 +972,7 @@ void func_001d4cf0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
         s32 zero1;
         s32 zero2;
         s32 one;
-        f32 value40;
-        f32 pad44;
-        f32 pad48;
+        RwV3d center;
         f32 value4C;
     } frame;
     f32 base;
@@ -1019,7 +987,7 @@ void func_001d4cf0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
         mode = 2;
     }
     temp16 = (u8 *)(arg2 + 8);
-    base = func_00196040(mode & 0xFFFF, 0, (u8 *)&frame.value40, (u8 *)&frame.value4C, 0, 0);
+    base = func_00196040(mode & 0xFFFF, 0, &frame.center, &frame.value4C, 0, 0);
     temp = *(u16 *)(temp16 + 4);
     if (temp == 0) {
         value = base;
@@ -1030,7 +998,7 @@ void func_001d4cf0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
     frame.zero0 = 0;
     frame.zero1 = 0;
     frame.zero2 = 0;
-    func_001d44a0(value, 0.5f * frame.value4C, &frame.value40, &frame.zero0, temp16, arg3);
+    func_001d44a0(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, arg3);
 }
 // FUN_001D4DC0
 void func_001d4dc0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
@@ -1039,9 +1007,7 @@ void func_001d4dc0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
         s32 zero1;
         s32 zero2;
         s32 one;
-        f32 value40;
-        f32 pad44;
-        f32 pad48;
+        RwV3d center;
         f32 value4C;
     } frame;
     f32 base;
@@ -1056,7 +1022,7 @@ void func_001d4dc0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
         mode = 1;
     }
     temp16 = (u8 *)(arg2 + 8);
-    base = func_00196040(mode & 0xFFFF, 0, (u8 *)&frame.value40, (u8 *)&frame.value4C, 0, 0);
+    base = func_00196040(mode & 0xFFFF, 0, &frame.center, &frame.value4C, 0, 0);
     temp = *(u16 *)(temp16 + 4);
     if (temp == 0) {
         value = base;
@@ -1067,7 +1033,7 @@ void func_001d4dc0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
     frame.zero0 = 0;
     frame.zero1 = 0;
     frame.zero2 = 0;
-    func_001d44a0(value, 0.5f * frame.value4C, &frame.value40, &frame.zero0, temp16, arg3);
+    func_001d44a0(value, 0.5f * frame.value4C, (f32 *)&frame.center, &frame.zero0, temp16, arg3);
 }
 // FUN_001D4E90
 void func_001d4e90(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
@@ -2238,7 +2204,6 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
     extern void func_00195850(u8 *a0, f32 *a1);
     extern void func_003e42a0(f32 *dst, f32 *src, u8 *cam);
     extern f32 func_003e41e0(f32 *out, f32 *in);
-    extern f32 func_00196040(s32 a0, s32 a1, u8 *a2, u8 *a3, s32 a4, s32 a5);
     extern f32 func_001ec3d0(f32 *a0, f32 *a1, f32 *a2, f32 *a3);
     extern s32 func_001d8df0(u8 *a0);
     extern u8 *func_001d8bc0(u8 *a0);
@@ -2394,7 +2359,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
         s32 tmp;
         tmp = func_001d8df0(arg1) & 0xFFFF;
         func_00195850(*(u8 **)(arg0 + 0x30), POS);
-        func_00196040(tmp, 0, (u8 *)CENTER, 0, 0, 1);
+        func_00196040(tmp, 0, (RwV3d *)CENTER, 0, 0, 1);
         BASEXZ[0] = POS[0];
         BASEXZ[1] = POS[2];
         CENTERXZ[0] = CENTER[0];

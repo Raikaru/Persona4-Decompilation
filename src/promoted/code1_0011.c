@@ -53,7 +53,7 @@ extern s32 func_00106330(s32 arg0);
 extern void func_00453570(void);
 extern void func_0043f9c8(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_00452080(void);
-extern s32 func_0010f560(s16 arg0, u16 arg1);
+extern u16 func_0010f560(s16 arg0, s32 arg1);
 extern u32 func_0010f600(s16 arg0, s32 arg1);
 extern void *func_00243840(u16 arg0);
 

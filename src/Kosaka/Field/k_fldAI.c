@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "Kosaka/k_fldFrame_internal.h"
 extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern s32 func_0016fd00();
 extern void func_003e0f40();
@@ -20,16 +21,16 @@ extern s32 iGpffffb25c;
 extern u8 *iGpffffb2c8;
 extern s32 func_0014bff0(u8 *arg0, u8 *arg1, f32 arg2);
 extern s32 func_0014c4c0(u8 *arg0, u8 *arg1, f32 arg2);
-extern s32 func_0016b8a0(void *arg0, void *arg1);
+extern s32 func_0016b8a0(const RwV3d *line, RwV3d *hitPointDst);
 extern f32 func_003e4180(f32 *arg0);
 extern u8 *func_0047a2f0(u8 *arg0);
 
-typedef struct { f32 x, y, z; } FldAIVec3;
+typedef RwV3d FldAIVec3;
 typedef struct { f32 x, y, z, w; } FldAIVec4;
 extern u8 D_005F1B40[];
 extern u8 D_005F1B4C[];
 
-extern u8 *func_00155280(void);
+extern s32 *func_00155280(void);
 
 /* diagnosed Bank0017d3c0 refusal: GUARDED_SCORE 1115 (reloc-masked differing words); fnalign retail 1308 instrs/object 1013 instrs (-295, -22.5%, outside +-3% gate); 739 edits (+5 reloc-only), 140 replaces/11 deletes/8 inserts. Archive claimed object 4052B/window 5248B (1013/1312 instrs) nd2803; byte counts match within 4 instrs (retail 1308 vs claimed 1312), score metric differs (lverify nd vs guarded). Frame retail 0x130 vs object 0xe0 (-80B). Largest delete retail[1128:1149] 21 instrs with 2 jal + 0x4C/0x58/0x5C stores (distance>2800 else path); three jal deletes at 267/1245/1274 (lhu 0x728 + jal for 0016fd00/0016ffd0); two 5-instr mtc1/cvt deletes at 1019/1027 for (f32)(count+1). Shorter, so excluded longer-side causes (unsigned casts, dsll32/dsra32 narrowing, field copies, defensive C); candidates are dropped else work, omitted/recomputed calls (differing-range jal retail 30 vs object 5), and missing aggregate spills. Repaired to compile (5 data + 24 func decls in file idiom, omitted 0014bd90 arg, s32/u8* load types, no logic change); numbers are for the repaired body. */
 /* 2026-09-19 head-start install attempt (LaneMisc7 archive, 400 lines): as-archived does not compile (stale D_007EF9B0/D_007EFA04/iGpffff830c/iGpffff82fc/D_00756510, int->u8* at 003e0f80/003e9700/0047a2f0/00479940). Fixed count-neutrally (extern u8* 003e0f80(void), extern u8* 003e9700(s32), extern u8 D_007EF9B0[], extern f32 iGpffff830c/iGpffff82fc, extern u8 D_00756510[], D_007EFA04+0x220->D_007EFA00+0x224 and +0x164->+0x168, (u8*) casts on s32 first-args for 0047a2f0/00479940) to a compiling candidate at retail 1308/object 1044 (-264, -20.2%, outside gate; 1002 edits +4 reloc-only). No 2-3 substantial blocks: largest inserts 9 (at 366,412,1175) and 6 (1081), largest deletes 4 (501:505) and 1s; shortfall spread across replaces (e.g. 149:168 19-vs-16). Do not bank short body; function stays ASM. Fallback per Main is func_0047b0c0 three declarations (0044ea90 + 11 lines, jtbl[0], void*). */
@@ -214,13 +215,13 @@ s32 func_0017d3c0(u8 *arg0)
             subtype = func_001687e0(*(u8 **)((u8 *)D_007EFA00 + 0x224));
             tbl_s = subtype << 8;
             tbl_t = type << 4;
-            if ((func_00155280()[tbl_s + tbl_t + 0x58] == 2) ||
-                (func_00155280()[tbl_s + tbl_t + 0x58] == 9) ||
-                (func_00155280()[tbl_s + tbl_t + 0x58] == 0xA) ||
-                (func_00155280()[tbl_s + tbl_t + 0x58] == 0xB) ||
-                (func_00155280()[tbl_s + tbl_t + 0x58] == 0xC) ||
-                (func_00155280()[tbl_s + tbl_t + 0x58] == 0xD) ||
-                (func_00155280()[tbl_s + tbl_t + 0x58] == 0xE)) {
+            if ((((u8 *)func_00155280())[tbl_s + tbl_t + 0x58] == 2) ||
+                (((u8 *)func_00155280())[tbl_s + tbl_t + 0x58] == 9) ||
+                (((u8 *)func_00155280())[tbl_s + tbl_t + 0x58] == 0xA) ||
+                (((u8 *)func_00155280())[tbl_s + tbl_t + 0x58] == 0xB) ||
+                (((u8 *)func_00155280())[tbl_s + tbl_t + 0x58] == 0xC) ||
+                (((u8 *)func_00155280())[tbl_s + tbl_t + 0x58] == 0xD) ||
+                (((u8 *)func_00155280())[tbl_s + tbl_t + 0x58] == 0xE)) {
                 *(s32 *)(work + 0x58) = 0;
                 *(s32 *)(work + 0x5C) = 0;
                 *(s32 *)(work + 0x4C) = -1;
@@ -627,7 +628,7 @@ s32 func_0017ea10(u8 *arg0)
     out = ab[0];
     ab[0] = ab[1];
     ab[1] = out;
-    if (func_0016b8a0(temp_2, temp_2_2) == 1) {
+    if (func_0016b8a0((const RwV3d *)temp_2, (RwV3d *)temp_2_2) == 1) {
         return 0;
     }
     temp_17 = func_0047a2f0(*(u8 **)(arg0 + 0x50));
@@ -652,202 +653,259 @@ s32 func_0017ea10(u8 *arg0)
     return 0;
 }
 
-/* measured: GUARDED_SCORE 334 (obj 1868B/window 1872B; retail 467 instrs/object 467 instrs, exact, inside) via measure_guarded + fnalign --candidate (edits 460, was 488). Un-hoisted per assignment: 4 single-update b+off -> arg0+par*0x18+off recomputation (+4 addiu, micro matches retail addu+addiu with base load/store); two 6-way blocks from *(arg0+par*0x18+off) (1 addu+6 addiu) to fb[par*6+6..11] array form (micro: 6 addu+6 addiu with addu/addiu + base-displacement lwc1/swc1, matching retail; arg0+(off+const) gives addiu+addu with absolute loads, (off+arg0)+const stays hoisted). Net addu/addiu delta now 0 (was +10/+4). par==0 kept as if (retail bnez); switch_probe has no single-line chains, 2-arm switch would not change descending/ascending. */
-// FUN_0017ED40 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0017ed40(u8 *arg0) {
-    FldAIVec4 v50;
-    FldAIVec3 v60;
-    FldAIVec3 v6C;
-    FldAIVec3 v80;
-    FldAIVec3 v8C;
+// FUN_0017ED40
+/* Advance one of sixteen field-AI bounds samples. The ray query consumes
+ * both endpoints, which must remain one contiguous two-vector array.
+ * Steps 0-7 gather both bounds; later steps correct the selected x/z bound.
+ * Measured b210 -O2: 1868/1872 bytes and seven resolved relocations.
+ * Retained propagation preserves the copied vectors and centered coordinates.
+ * Load each comparison value separately, and name the bound-array base before
+ * each single-bound correction, to preserve the retail address lifetimes. */
+#pragma push
+#pragma opt_propagation off
+s32 func_0017ed40(u8 *work)
+{
     FldAIVec3 hit;
-    f32 tmpF0;
-    f32 tmpF1;
-    f32 tmpF2;
-    f32 tmpF3;
-    f32 tmpF4;
-    s32 tmp3;
-    s32 tmp4;
-    s32 cnt5;
-    s32 par;
-    s32 ret;
-    s32 bit;
-    u8 *tmpP;
-    u8 *cellA;
-    u8 *tabA;
-    u8 *tabB;
+    FldAIVec3 line[2];
+    FldAIVec3 offsets[2];
+    FldAIVec4 cell;
+    f32 originZ;
+    f32 originY;
+    f32 originX;
+    f32 endpointZ;
+    f32 endpointX;
+    s32 directionMask;
+    s32 tableStep;
+    s32 cachedStep;
+    s32 axis;
+    s32 result;
+    s32 direction;
+    u8 *unit;
+    u8 *sourceCell;
+    u8 *firstOffset;
+    u8 *secondOffset;
     s32 cellX;
     s32 cellZ;
 
-    cellX = 0;
-    cellZ = 0;
-    ret = 1;
-    if (*(s32 *)(arg0 + 0x4C) < 0x10) {
-        tmpP = *(u8 **)(arg0 + 0xC);
-        tmpF2 = *(f32 *)(tmpP + 0x19C);
-        tmpF1 = *(f32 *)(tmpP + 0x1A0);
-        tmpF0 = *(f32 *)(tmpP + 0x1A4);
-        v80.x = tmpF2;
-        v80.y = tmpF1;
-        v80.z = tmpF0;
-        v8C = v80;
-        if (*(s32 *)(arg0 + 0x4C) >= 4) {
-            cellX = (s32)((600.0f + v80.x) / 1200.0f);
-            cellZ = (s32)((600.0f + v80.z) / 1200.0f);
-            cellA = func_00155280() + (cellZ << 8) + (cellX * 0x10);
-            v50.x = *(f32 *)(cellA + 0x54);
-            v50.y = *(f32 *)(cellA + 0x58);
-            v50.z = *(f32 *)(cellA + 0x5C);
-            v50.w = *(f32 *)(cellA + 0x60);
-            cnt5 = *(s32 *)(arg0 + 0x4C);
-            bit = cnt5 & 3;
-            if ((cnt5 < 0) && (bit != 0)) {
-                bit -= 4;
+    result = 1;
+    if (*(s32 *)(work + 0x4C) < 0x10) {
+        unit = *(u8 **)(work + 0xC);
+        originX = *(f32 *)(unit + 0x19C);
+        originY = *(f32 *)(unit + 0x1A0);
+        originZ = *(f32 *)(unit + 0x1A4);
+        line[0].x = originX;
+        line[0].y = originY;
+        line[0].z = originZ;
+        line[1] = line[0];
+        cachedStep = *(s32 *)(work + 0x4C);
+        if (cachedStep >= 4) {
+            f32 centeredX = 600.0f + line[0].x;
+            cellX = (s32)(centeredX / 1200.0f);
+            cellZ = (s32)((600.0f + line[0].z) / 1200.0f);
+            sourceCell = ((u8 *)func_00155280()) + (cellZ * 0x100) + (cellX * 0x10);
+            cell = *(FldAIVec4 *)(sourceCell + 0x54);
+            cachedStep = *(s32 *)(work + 0x4C);
+            direction = cachedStep & 3;
+            if ((cachedStep < 0) && (direction != 0)) {
+                direction -= 4;
             }
-            tmp3 = 1 << bit;
-            if ((((u8 *)&v50.x)[10] & tmp3) == 0 || ((((u8 *)&v50.x)[11] & tmp3) != 0)) {
+            directionMask = 1 << direction;
+            if ((((u8 *)&cell)[10] & directionMask) == 0 || ((((u8 *)&cell)[11] & directionMask) != 0)) {
                 goto tail;
             }
         }
-tab:
-        tmp4 = *(s32 *)(arg0 + 0x4C);
-        tabA = D_005F1B40 + (tmp4 * 0x18);
-        v60 = *(FldAIVec3 *)tabA;
-        if ((tmp4 >= 4) && (*(s32 *)(arg0 + 0x4C) < 8)) {
-            if (v60.x < 0.0f) {
-                v60.x = (1200.0f * (f32)(cellX - 1)) - v80.x;
-            } else if (!(v60.x <= 0.0f)) {
-                v60.x = (1200.0f * (f32)(cellX + 1)) - v80.x;
+        tableStep = (s32)*(u32 *)(work + 0x4C);
+        firstOffset = D_005F1B40 + (tableStep * 0x18);
+        offsets[0] = *(FldAIVec3 *)firstOffset;
+        if ((tableStep >= 4) && (cachedStep < 8)) {
+            if (offsets[0].x < 0.0f) {
+                offsets[0].x = (1200.0f * (f32)(cellX - 1)) - line[0].x;
+            } else if (!(offsets[0].x <= 0.0f)) {
+                offsets[0].x = (1200.0f * (f32)(cellX + 1)) - line[0].x;
             }
-            if (v60.z < 0.0f) {
-                v60.z = (1200.0f * (f32)(cellZ - 1)) - v80.z;
-            } else if (!(v60.z <= 0.0f)) {
-                v60.z = (1200.0f * (f32)(cellZ + 1)) - v80.z;
+            if (offsets[0].z < 0.0f) {
+                offsets[0].z = (1200.0f * (f32)(cellZ - 1)) - line[0].z;
+            } else if (!(offsets[0].z <= 0.0f)) {
+                offsets[0].z = (1200.0f * (f32)(cellZ + 1)) - line[0].z;
             }
         }
-        tmpF4 = v80.x + v60.x;
-        v80.x = tmpF4;
-        { f32 t = v80.y + v60.y; v80.y = t; }
-        tmpF3 = v80.z + v60.z;
-        v80.z = tmpF3;
-        tabB = D_005F1B4C + (*(s32 *)(arg0 + 0x4C) * 0x18);
-        v6C = *(FldAIVec3 *)tabB;
-        { f32 t = v8C.x + v6C.x; v8C.x = t; }
-        { f32 t = v8C.y + v6C.y; v8C.y = t; }
-        { f32 t = v8C.z + v6C.z; v8C.z = t; }
+        endpointX = line[0].x + offsets[0].x;
+        line[0].x = endpointX;
         {
-            s32 nx = (s32)((600.0f + tmpF4) / 1200.0f);
-            s32 nz = (s32)((600.0f + tmpF3) / 1200.0f);
-            u8 *cellB = func_00155280() + (nz << 8) + (nx * 0x10);
+            f32 value = line[0].y + offsets[0].y;
+            line[0].y = value;
+        }
+        endpointZ = line[0].z + offsets[0].z;
+        line[0].z = endpointZ;
+        secondOffset = D_005F1B4C + (*(s32 *)(work + 0x4C) * 0x18);
+        offsets[1] = *(FldAIVec3 *)secondOffset;
+        {
+            f32 value = line[1].x + offsets[1].x;
+            line[1].x = value;
+        }
+        {
+            f32 value = line[1].y + offsets[1].y;
+            line[1].y = value;
+        }
+        {
+            f32 value = line[1].z + offsets[1].z;
+            line[1].z = value;
+        }
+        {
+            f32 centeredX = 600.0f + endpointX;
+            s32 endpointCellX = (s32)(centeredX / 1200.0f);
+            s32 endpointCellZ = (s32)((600.0f + endpointZ) / 1200.0f);
+            u8 *cellB = ((u8 *)func_00155280()) + (endpointCellZ * 0x100) + (endpointCellX * 0x10);
             if (*(u8 *)(cellB + 0x54) == 1) {
-                par = 0;
-                if (func_0016b8a0(&v80.x, &hit) == 1) {
-                    s32 c2 = *(s32 *)(arg0 + 0x4C);
-                    if (c2 >= 4) {
-                        par = c2 & 1;
-                        if ((c2 < 0) && (par != 0)) {
-                            par -= 2;
+                axis = 0;
+                if (func_0016b8a0(line, &hit) == 1) {
+                    s32 hitStep = *(s32 *)(work + 0x4C);
+                    if (hitStep >= 4) {
+                        axis = hitStep & 1;
+                        if ((hitStep < 0) && (axis != 0)) {
+                            axis -= 2;
                         }
                     }
-                    if (c2 < 8) {
-                        f32 *fb = (f32 *)arg0;
-                        if (fb[par * 6 + 6] < hit.x) {
-                            fb[par * 6 + 6] = hit.x;
+                    if (hitStep < 8) {
+                        f32 *bounds = (f32 *)work;
+                        {
+                            f32 value = hit.x;
+                            if (bounds[axis * 6 + 6] < value) {
+                                bounds[axis * 6 + 6] = value;
+                            }
                         }
-                        if (fb[par * 6 + 7] < hit.y) {
-                            fb[par * 6 + 7] = hit.y;
+                        {
+                            f32 value = hit.y;
+                            if (bounds[axis * 6 + 7] < value) {
+                                bounds[axis * 6 + 7] = value;
+                            }
                         }
-                        if (fb[par * 6 + 8] < hit.z) {
-                            fb[par * 6 + 8] = hit.z;
+                        {
+                            f32 value = hit.z;
+                            if (bounds[axis * 6 + 8] < value) {
+                                bounds[axis * 6 + 8] = value;
+                            }
                         }
-                        if (!(fb[par * 6 + 9] <= hit.x)) {
-                            fb[par * 6 + 9] = hit.x;
+                        {
+                            f32 value = hit.x;
+                            if (!(bounds[axis * 6 + 9] <= value)) {
+                                bounds[axis * 6 + 9] = value;
+                            }
                         }
-                        if (!(fb[par * 6 + 10] <= hit.y)) {
-                            fb[par * 6 + 10] = hit.y;
+                        {
+                            f32 value = hit.y;
+                            if (!(bounds[axis * 6 + 10] <= value)) {
+                                bounds[axis * 6 + 10] = value;
+                            }
                         }
-                        if (!(fb[par * 6 + 11] <= hit.z)) {
-                            fb[par * 6 + 11] = hit.z;
+                        {
+                            f32 value = hit.z;
+                            if (!(bounds[axis * 6 + 11] <= value)) {
+                                bounds[axis * 6 + 11] = value;
+                            }
                         }
-                        if (*(s32 *)(arg0 + 0x4C) < 4) {
-                            *(f32 *)(arg0 + 0x30) = *(f32 *)(arg0 + 0x18);
-                            *(f32 *)(arg0 + 0x34) = *(f32 *)(arg0 + 0x1C);
-                            *(f32 *)(arg0 + 0x38) = *(f32 *)(arg0 + 0x20);
-                            *(f32 *)(arg0 + 0x3C) = *(f32 *)(arg0 + 0x24);
-                            *(f32 *)(arg0 + 0x40) = *(f32 *)(arg0 + 0x28);
-                            *(f32 *)(arg0 + 0x44) = *(f32 *)(arg0 + 0x2C);
+                        if (*(s32 *)(work + 0x4C) < 4) {
+                            *(FldAIVec3 *)(work + 0x30) = *(FldAIVec3 *)(work + 0x18);
+                            *(FldAIVec3 *)(work + 0x3C) = *(FldAIVec3 *)(work + 0x24);
                         }
-                    } else if (c2 < 0xC) {
-                        if (par == 0) {
-                            if (*(f32 *)(arg0 + par * 0x18 + 0x24) < hit.x) {
-                                *(f32 *)(arg0 + par * 0x18 + 0x24) = hit.x;
+                    } else if (hitStep < 0xC) {
+                        if (axis == 0) {
+                            {
+                                f32 *bounds = (f32 *)work;
+                                f32 value = hit.x;
+                                if (bounds[axis * 6 + 9] < value) {
+                                    bounds[axis * 6 + 9] = value;
+                                }
                             }
                         } else {
-                            if (*(f32 *)(arg0 + par * 0x18 + 0x2C) < hit.z) {
-                                *(f32 *)(arg0 + par * 0x18 + 0x2C) = hit.z;
+                            {
+                                f32 *bounds = (f32 *)work;
+                                f32 value = hit.z;
+                                if (bounds[axis * 6 + 11] < value) {
+                                    bounds[axis * 6 + 11] = value;
+                                }
                             }
                         }
-                    } else if (par == 0) {
-                        if (!(*(f32 *)(arg0 + par * 0x18 + 0x18) <= hit.x)) {
-                            *(f32 *)(arg0 + par * 0x18 + 0x18) = hit.x;
+                    } else if (axis == 0) {
+                        {
+                            f32 *bounds = (f32 *)work;
+                            f32 value = hit.x;
+                            if (!(bounds[axis * 6 + 6] <= value)) {
+                                bounds[axis * 6 + 6] = value;
+                            }
                         }
                     } else {
-                        if (!(*(f32 *)(arg0 + par * 0x18 + 0x20) <= hit.z)) {
-                            *(f32 *)(arg0 + par * 0x18 + 0x20) = hit.z;
+                        {
+                            f32 *bounds = (f32 *)work;
+                            f32 value = hit.z;
+                            if (!(bounds[axis * 6 + 8] <= value)) {
+                                bounds[axis * 6 + 8] = value;
+                            }
                         }
                     }
                 } else {
-                    s32 c3 = *(s32 *)(arg0 + 0x4C);
-                    if (c3 >= 4) {
-                        par = c3 & 1;
-                        if ((c3 < 0) && (par != 0)) {
-                            par -= 2;
+                    s32 missStep = *(s32 *)(work + 0x4C);
+                    if (missStep >= 4) {
+                        axis = missStep & 1;
+                        if ((missStep < 0) && (axis != 0)) {
+                            axis -= 2;
                         }
                     }
-                    if (c3 < 8) {
-                        f32 *fb2 = (f32 *)arg0;
-                        if (fb2[par * 6 + 6] < v8C.x) {
-                            fb2[par * 6 + 6] = v8C.x;
+                    if (missStep < 8) {
+                        f32 *bounds = (f32 *)work;
+                        {
+                            f32 value = line[1].x;
+                            if (bounds[axis * 6 + 6] < value) {
+                                bounds[axis * 6 + 6] = value;
+                            }
                         }
-                        if (fb2[par * 6 + 7] < v8C.y) {
-                            fb2[par * 6 + 7] = v8C.y;
+                        {
+                            f32 value = line[1].y;
+                            if (bounds[axis * 6 + 7] < value) {
+                                bounds[axis * 6 + 7] = value;
+                            }
                         }
-                        if (fb2[par * 6 + 8] < v8C.z) {
-                            fb2[par * 6 + 8] = v8C.z;
+                        {
+                            f32 value = line[1].z;
+                            if (bounds[axis * 6 + 8] < value) {
+                                bounds[axis * 6 + 8] = value;
+                            }
                         }
-                        if (!(fb2[par * 6 + 9] <= v8C.x)) {
-                            fb2[par * 6 + 9] = v8C.x;
+                        {
+                            f32 value = line[1].x;
+                            if (!(bounds[axis * 6 + 9] <= value)) {
+                                bounds[axis * 6 + 9] = value;
+                            }
                         }
-                        if (!(fb2[par * 6 + 10] <= v8C.y)) {
-                            fb2[par * 6 + 10] = v8C.y;
+                        {
+                            f32 value = line[1].y;
+                            if (!(bounds[axis * 6 + 10] <= value)) {
+                                bounds[axis * 6 + 10] = value;
+                            }
                         }
-                        if (!(fb2[par * 6 + 11] <= v8C.z)) {
-                            fb2[par * 6 + 11] = v8C.z;
+                        {
+                            f32 value = line[1].z;
+                            if (!(bounds[axis * 6 + 11] <= value)) {
+                                bounds[axis * 6 + 11] = value;
+                            }
                         }
-                        if (*(s32 *)(arg0 + 0x4C) < 4) {
-                            *(f32 *)(arg0 + 0x30) = *(f32 *)(arg0 + 0x18);
-                            *(f32 *)(arg0 + 0x34) = *(f32 *)(arg0 + 0x1C);
-                            *(f32 *)(arg0 + 0x38) = *(f32 *)(arg0 + 0x20);
-                            *(f32 *)(arg0 + 0x3C) = *(f32 *)(arg0 + 0x24);
-                            *(f32 *)(arg0 + 0x40) = *(f32 *)(arg0 + 0x28);
-                            *(f32 *)(arg0 + 0x44) = *(f32 *)(arg0 + 0x2C);
+                        if (*(s32 *)(work + 0x4C) < 4) {
+                            *(FldAIVec3 *)(work + 0x30) = *(FldAIVec3 *)(work + 0x18);
+                            *(FldAIVec3 *)(work + 0x3C) = *(FldAIVec3 *)(work + 0x24);
                         }
                     }
                 }
             }
         }
 tail:
-        *(s32 *)(arg0 + 0x4C) = *(s32 *)(arg0 + 0x4C) + 1;
+        *(s32 *)(work + 0x4C) = *(s32 *)(work + 0x4C) + 1;
     } else {
-        ret = 0;
+        result = 0;
     }
-    return ret;
+    return result;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldAI", func_0017ed40);
-#endif
 
+#pragma pop
 /* measured 0017f490 (owner, romwright R1 + doubles-to-float + uStack_4 byte-cast + DAT data fix): fndiff obj 11680B vs window 11584B (+96B); fnalign retail 2896 vs object 2920 (+24, +0.83%, band 2809-2983, inside); edits 3363 (+9 reloc-only); GUARDED_SCORE 2631. Frame retail -0x2D0 vs object -0x100 (-464B). `#pragma opt_common_subs off` scoped to this function and closed after it (same file idiom as 0017d3c0, CSE off for per-call addresses). Residual is saved-reg colour, hoisted bases, and COP1 vs plain arithmetic; no helpers (all floats are f-suffixed, 003e0870 takes f32). */
 /* measured 0017f490 (Xa17f490, 2026-09-20): baseline 3015 edits (+10 reloc-only), retail 2894/obj 2822 (-72, -2.5% inside) via measure_guarded+fnalign --candidate --quiet; deficit_scan swc1+133 lwc1+116 move+23 bc1t+16 sub.s+11 lbu+11 add.s+10 divu+7, runs 405@0x00181970/201@0x00180d70/111@0x00180768 (all branch-layout, not missing code; dispatch jtbl_00746D80 15 entries already layout order, untouched). Tried (all --candidate --quiet): char->uchar 9x 0x1ca 3015 (0, tie); case6 int->float stores 3015 (0); prologue distinct temp 3015 (0); 003e4180 Vec3*+casts 3015 (0); 003e40b0 Vec3B*+25 casts 3235 (+220, obj 2803, LOSS, old-style decl is correct); 003e4180 old-style 3009 (0). WIN unsigned % 8x (2x %3, 2x %100 outer-cast removed, 1x %0x1e, 2x %0x50 inner-unsigned, 1x temp_v7) 3015->3009 (-6, obj same). WIN case3 if(<0)->if(>=0) arm swap 3009->3004 (-5). WIN case4 same 3004->2998 (-6). WIN case6 same (69-line CUT/PUT) 2998->2992 (-6). HUGE WIN case11 same (47-line CUT/PUT; retail small-first layout lw 0x8c bltz->0x181dec at 0x00181dd0, bounds-check large second) 2992->2407 (-585, obj 2822 same, +12 reloc-only). Final 2407 (-608), retail 2894/obj 2822 (-72 inside), gate INSIDE (3 inside 0 outside), lint 0. */
 // FUN_0017F490 NONMATCHING
@@ -871,7 +929,7 @@ extern int CAND_iGpffffb2c8; /* 0xffffb2c8 */
 extern int CAND_iGpffffb310; /* 0xffffb310 */
 
 /* Unsupported intrinsic, declaration required: CONCAT44 (PIECE). */
-extern int FUN_0017ed40(int *);
+extern s32 FUN_0017ed40(u8 *);
 /* Supplied declaration required: FUN_003b7060. */
 extern int FUN_003e0f80(void);
 /* Supplied declaration required: FUN_003e40b0. */
@@ -1153,7 +1211,7 @@ int func_0017f490(unsigned char *param_1)
       *piVar1 = *piVar1 + 1;
       break;
     case 1:
-      temp_v3 = FUN_0017ed40(piVar1);
+      temp_v3 = FUN_0017ed40((u8 *)piVar1);
       if (temp_v3 == 0) {
         temp_v0 = FUN_0047a2f0(*(unsigned int *)(piVar1[3] + 0x50));
         fStack_20 = *(float *)(temp_v0 + 0x30);

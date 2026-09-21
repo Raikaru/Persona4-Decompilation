@@ -18,18 +18,67 @@ extern s32 func_00169780(void* collisionWorld, f32* origin,
                          f32* vector, f32 fraction);
 extern s32 func_0016a110(s32 collisionWorld, f32* origin,
                          f32* vector, f32 fraction, s32 fieldId);
-extern u8* func_003e9700(s32 arg0);
+extern u8* func_003e9700(u8 *frame);
 extern u8* func_00457120(void);
 
-extern void* func_00394d70(void* collisionWorld, void* intersection,
-                           void* callback, void* param);
-extern void func_003e40b0(f32* dst, const f32* src);
-extern void func_0043f9c8(void* dst, s32 value, s32 size);
+/* PS2 RenderWare rpcollis.h: collision callbacks retain the distance argument
+ * even when the query recomputes its own plane distance. */
+typedef struct RpAtomic RpAtomic;
+typedef struct RpWorld RpWorld;
+typedef struct RpWorldSector RpWorldSector;
+typedef struct RpIntersection RpIntersection;
+typedef struct RpCollisionTriangle {
+    RwV3d normal;
+    RwV3d point;
+    s32 index;
+    RwV3d *vertices[3];
+} RpCollisionTriangle;
 
-extern void func_00394e70(void* collision, void* state,
-                          void* callback, void* param);
-extern void* func_00169a30(const RwV3d* point, const void* triangle,
-                           void* collector);
+/* RenderWare intersection payload: its largest members are two vectors. */
+struct RpIntersection
+{
+    union
+    {
+        struct { RwV3d start; RwV3d end; } line;
+        RwV3d point;
+        struct { RwV3d center; f32 radius; } sphere;
+        struct { RwV3d sup; RwV3d inf; } box;
+        void *object;
+    } t;
+    s32 type;
+};
+
+/* Shared field collision state; the world and atomic producers use the same
+ * parallel arrays and retain the atomic beside the intersection copy. */
+typedef struct FldFrameCollisionCollector
+{
+    RwV3d points[64];
+    RwV3d normals[64];
+    f32 distances[64];
+    RwV3d corrections[64];
+    s32 flags[64];
+    s32 mode;
+    s32 count;
+    s32 hitCount;
+    RwV3d direction;
+    RpIntersection intersection;
+    RpAtomic *atomic;
+} FldFrameCollisionCollector;
+typedef RpCollisionTriangle *(*FldFrameWorldTriangleCallback)(
+    RpIntersection *, RpWorldSector *, RpCollisionTriangle *, f32, void *);
+
+extern RpWorld *func_00394d70(RpWorld *world, RpIntersection *intersection,
+                              FldFrameWorldTriangleCallback callback, void *data);
+extern f32 func_003e40b0(f32* dst, const f32* src);
+extern void* func_0043f9c8(void* dst, s32 value, u32 size);
+
+typedef RpCollisionTriangle *(*FldFrameGeometryTriangleCallback)(
+    RpIntersection *, RpCollisionTriangle *, f32, void *);
+
+extern RpAtomic *func_00394e70(RpAtomic *atomic, RpIntersection *intersection,
+    FldFrameGeometryTriangleCallback callback, void *data);
+extern RpCollisionTriangle *func_00169a30(RpIntersection *intersection,
+    RpCollisionTriangle *triangle, f32 callbackDistance, void *data);
 
 // 44 bytes. Callback state passed through RenderWare field raycasts.
 typedef struct FldFrameRaycast
@@ -41,15 +90,15 @@ typedef struct FldFrameRaycast
     f32 nearestFraction;   // 0x24
     void* hitObject;       // 0x28
 } FldFrameRaycast;
-extern void* func_0016b350(f32 fraction, const RwV3d* line,
-                           void* unused, FldFrameRaycast* raycast);
+extern RpCollisionTriangle *func_0016b350(RpIntersection *intersection,
+    RpCollisionTriangle *triangle, f32 fraction, void *data);
 
 // P3 counterpart fGpffff820c (gp -0x7DF4); P4 retail uses gp -0x7D4C,
 // i.e. absolute 0x007690f0 - 0x7d4c = 0x007613a4.
 extern f32 fGpffff82b4;
 extern void* func_0016b430(void* collisionWorld, void* data);
-extern void* func_0016b770(f32 fraction, const RwV3d* line,
-                           void* unused, FldFrameRaycast* raycast);
+extern RpCollisionTriangle *func_0016b770(RpIntersection *intersection,
+    RpCollisionTriangle *triangle, f32 fraction, void *data);
 
 
 
@@ -98,64 +147,62 @@ RwV3d* func_00169200(RwV3d* dst, const RwV3d* point,
 
 
 
-/* measured: floor 155 differing words (reloc-masked), object 1112B vs 1120B window (8B retail zero tail). */
-/* Floor: 209 differing words over 26 edits, 274 emitted against retail's
-   277 (1112 bytes in an 1120-byte window with an 8-byte zero tail).  The
-   previous archive measured 155 words but 270 alignment edits; this body
-   aligns instruction for instruction except at one site per search loop.
-   Levers: extern f32 fabsf(f32) gives retail's abs.s; func_00168ec0 and
-   func_003e4180 keep their real prototypes; a separate edge distance
-   preserves the second path's FPR live range; the search index, count,
-   record and slot pointers are block-scoped per branch, which puts the
-   index in $a0 and the count in $v1; the record and triangle copies are
-   RwV3d struct assignments (paired lwc1/swc1); a miss falls out of the
-   search into `index = -1` and a hit jumps past it, and the existing-entry
-   branch is written first (`index >= 0`); the slot address is
-   `(u8 *)(4 * index) + (u32)context + 0x600` so the scaled index is added
-   first, while the record address stays base-first.
-   WALL: the third equality test - retail emits `bc1f` to the increment and
-   an unconditional `b` to the hit label, this build folds it into `bc1t`;
-   every later branch displacement moves by two words.  Nested ifs, a
-   negated `||` continue form, a found flag, opt_rebuildconditionals,
-   opt_propagation, opt_lifetimes and opt_dead_code were measured. */
-// FUN_00169320 NONMATCHING
-#ifdef NON_MATCHING
-void* func_00169320(RwV3d* point, void* unused, RwV3d* triangle, u8* context)
+static inline s32 fldFrameFindPlane(u8 *context, const RwV3d *normal)
 {
+    s32 index;
+    s32 count;
+    f32 *record;
+
+    index = 0;
+    count = *(s32 *)(context + 0xB04);
+    while (index < count) {
+        record = (f32 *)(context + 12 * index);
+        if (record[192] == normal->x && record[193] == normal->y && record[194] == normal->z)
+            return index;
+        index++;
+    }
+    return -1;
+}
+
+/* measured: b210 -O2, 1112 executable bytes and eight retail zero bytes;
+ * all three call relocations resolve. The shared plane search preserves the
+ * separate failed-comparison and found-index exits. Edge records use the
+ * collector base first; interior records retain their scaled-index order. */
+// FUN_00169320
+RpCollisionTriangle *func_00169320(RpIntersection *intersection, RpWorldSector *sector,
+                    RpCollisionTriangle *collision, f32 callbackDistance, void *data)
+{
+    /* A sphere center begins the intersection input union. */
+    RwV3d *point = (RwV3d *)intersection;
+    RwV3d *triangle = &collision->normal;
+    u8 *context = data;
     extern f32 fabsf(f32 x);
-    extern s32 func_00168ec0(void *arg0, void *arg1, void *arg2);
+    extern s32 func_00168ec0(f32 *arg0, f32 **arg1, f32 *arg2);
     extern f32 func_003e4180(f32 *vec);
-    typedef struct FldFrameTriangle
-    {
-        RwV3d vector;
-        u8 gap[0x10];
-        RwV3d* normal;
-    } FldFrameTriangle;
-    FldFrameTriangle* triangleData;
+
     RwV3d projected;
     RwV3d edgePoint;
     RwV3d delta;
-    RwV3d* normal;
+    RwV3d* firstVertex;
     f32 projection;
     f32 distance;
-    f32 edgedist;
+    f32 edgeDistance;
     s32 i;
     f32 tx;
     f32 ty;
     f32 tz;
-    triangleData = (FldFrameTriangle*)triangle;
-    ty = triangleData->vector.y;
-    tx = triangleData->vector.x;
-    tz = triangleData->vector.z;
-    normal = triangleData->normal;
-    projection = normal->x * tx + normal->y * ty + normal->z * tz - (point->x * tx + point->y * ty + point->z * tz);
+    ty = collision->normal.y;
+    tx = collision->normal.x;
+    tz = collision->normal.z;
+    firstVertex = collision->vertices[0];
+    projection = firstVertex->x * tx + firstVertex->y * ty + firstVertex->z * tz - (point->x * tx + point->y * ty + point->z * tz);
     projected.x = tx * projection;
     projected.y = ty * projection;
     projected.z = tz * projection;
     projected.x += point->x;
     projected.y += point->y;
     projected.z += point->z;
-    if (func_00168ec0(&projected, (u8*)triangle + 0x1c, triangle) != 0)
+    if (func_00168ec0(&projected.x, (f32 **)((u8 *)collision + 0x1C), &triangle->x) != 0)
     {
         distance = fabsf(projection);
         {
@@ -163,17 +210,8 @@ void* func_00169320(RwV3d* point, void* unused, RwV3d* triangle, u8* context)
         s32 count;
         f32* record;
         f32* fraction;
-        index = 0;
-        count = *(s32*)(context + 0xb04);
-        while (index < count)
-        {
-            record = (f32*)(context + 12 * index);
-            if (record[192] == triangle->x && record[193] == triangle->y && record[194] == triangle->z)
-                goto found1;
-            index++;
-        }
-        index = -1;
-found1:
+        index = fldFrameFindPlane(context, triangle);
+        count = *(s32 *)(context + 0xB04);
         if (index >= 0)
         {
             fraction = (f32*)((u8*)(4 * index) + (u32)context + 0x600);
@@ -205,412 +243,413 @@ found1:
     {
         for (i = 0; i < 3; i++)
         {
-            func_00169200(&edgePoint, &projected, *(RwV3d**)((u8*)triangle + 0x1c + 4 * i), *(RwV3d**)((u8*)triangle + 0x1c + 4 * ((i + 1) % 3)));
+            func_00169200(&edgePoint, &projected, *(RwV3d**)((u8*)collision + 0x1c + 4 * i), *(RwV3d**)((u8*)collision + 0x1c + 4 * ((i + 1) % 3)));
             delta.x = point->x - edgePoint.x;
             delta.y = point->y - edgePoint.y;
             delta.z = point->z - edgePoint.z;
-            edgedist = func_003e4180((f32*)&delta);
+            edgeDistance = func_003e4180((f32*)&delta);
             {
             s32 index;
             s32 count;
             f32* record;
             f32* fraction;
-            index = 0;
-            count = *(s32*)(context + 0xb04);
-            while (index < count)
-            {
-                record = (f32*)(context + 12 * index);
-                if (record[192] == triangle->x && record[193] == triangle->y && record[194] == triangle->z)
-                    goto found2;
-                index++;
-            }
-            index = -1;
-found2:
+            index = fldFrameFindPlane(context, triangle);
+            count = *(s32 *)(context + 0xB04);
             if (index >= 0)
             {
-                fraction = (f32*)((u8*)(4 * index) + (u32)context + 0x600);
-                if (edgedist < *fraction)
+                fraction = (f32*)(context + 4 * index + 0x600);
+                if (edgeDistance < *fraction)
                 {
                     record = (f32*)(context + 12 * index);
                     *(RwV3d*)record = edgePoint;
                     *(RwV3d*)(record + 192) = *triangle;
-                    *fraction = edgedist;
+                    *fraction = edgeDistance;
                 }
             }
             else
             {
-                fraction = (f32*)((u8*)(4 * count) + (u32)context + 0x600);
-                if (edgedist < *fraction)
+                fraction = (f32*)(context + 4 * count + 0x600);
+                if (edgeDistance < *fraction)
                 {
                     record = (f32*)(context + 12 * count);
                     *(RwV3d*)record = projected;
-                    record = (f32*)((u8*)(12 * *(s32*)(context + 0xb04)) + (u32)context);
+                    record = (f32*)(context + 12 * *(s32*)(context + 0xb04));
                     *(RwV3d*)(record + 192) = *triangle;
-                    fraction = (f32*)((u8*)(4 * *(s32*)(context + 0xb04)) + (u32)context + 0x600);
-                    *fraction = edgedist;
+                    fraction = (f32*)(context + 4 * *(s32*)(context + 0xb04) + 0x600);
+                    *fraction = edgeDistance;
                     (*(s32*)(context + 0xb04))++;
                 }
             }
             }
         }
     }
-    return triangle;
+    return collision;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_00169320);
-#endif
-/* Floor: 88 differing words (reloc-masked fndiff), obj 664B/window 688B, 166 vs 169
-   instrs, 52 fnalign edits plus 2 reloc-only. Cold start from the retail window;
-   nearest archives (LFF2 nd340, LaneFldFrame non-MATCH) contributed only the buffer
-   shape. Work struct mirrors sibling func_0016abc0's measured query-work pattern
-   (records/mode/count/hitCount/gap/scratch/zero/input/inputCopy/inputTail/type):
-   retail offsets fix records[0xB00], count +0xB04, endpoint copy 0xBB0->0xBC0 (lq/sq
-   via u_long128), type +0xB78 and delta +0xB80, so the 0x48 interior and the 8-byte
-   tail are sized, not invented; mode/hitCount/gap/scratch/zero/tail are unstored on
-   this path (retail writes neither) and documented here, not asserted as used. The
-   nested query sub-struct carries the u_long128 alignment that pads 0x2C->0x30 and
-   lands delta at +0xB80; the main loop reads the copy (displacement proof: retail
-   loads 0xBC0/0xBCC, never 0xBB0). Frame 0xBF0, save set s0-s4 and all 6 retail
-   relocations (2x memset, 69320 HI/LO, 394d70, 3e40b0 at identical offsets) match;
-   the 2 extra object GPRELs are link-time small-data for fGpffff82b4.
-   WALLS: (1) saved rotation retail i/result/vector/cw/rec in $s0..$s4 vs build
-   cw/i/result/vector/rec: cw sits 4th vs 1st, everything else identical. Stable
-   across 12 probes: two struct models, three decl orders, s32/void* handle, union
-   copy reads, block/function-scope pointer, dot associations, scheduler scopes.
-   A void* local copy is copy-propagated away (neutral); only a true prototype
-   change moves it, and void* is kept anyway as the semantic truth (world pointer
-   into a void* callee, sibling 0016a0c0 precedent) with the sole caller 0016a960
-   verified MATCH. (2) scale CSE: retail recomputes the fractions address post-call
-   in a $v0 temp with split +0x60/+0x600 (7-vs-4, the 3-instruction shortfall); this
-   build carries the folded +0x660 address in dead-cw $s0 across func_003e40b0.
-   Killed: fq-temp split (110, +17 via an extra saved live range), result=0 late
-   (163, destroys the early-zero prologue), yoda zero-checks (neutral), scoped
-   schedule off (neutral), commute/scope CSE splits (neutral). (3) zero-check FPR:
-   $f1-zero retail vs $f2-zero build plus cascade. s32 loop index throughout (no
-   spurious dsll32/dsra32). Production stays ASM; func_00169320 and func_0016abc0
-   untouched. */
-// FUN_00169780 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_00169780(void* collisionWorld, f32* origin,
-                  f32* vector, f32 fraction)
+/* Collect world-sphere contacts and remove inward motion from the displacement.
+ * The complete work layout retains the shared collector and aligned query copies.
+ * measured: b210 -O2 emits 680 bytes plus the eight-byte retail zero suffix.
+ * Expression reuse fuses the staged projection; propagation-off retains its
+ * component snapshots. Signed post-normalization scaling preserves the distance
+ * address's separate lifetime. All addresses remain inside the complete work. */
+// FUN_00169780
+#pragma push
+#pragma opt_common_subs on
+#pragma opt_propagation off
+s32 func_00169780(void* collisionWorld, f32* origin, f32* vector, f32 radius)
 {
-    extern void* func_00169320(RwV3d* point, void* unused, RwV3d* triangle,
-                              u8* context);
-    typedef struct FldFrameWork69780
+    typedef struct FldFrameSphereWork
     {
-        u8 records[0xb00];
-        s32 mode;
-        s32 count;
-        s32 hitCount;
-        u8 gap[0xc];
-        u8 scratch[0x20];
-        u8 zero[0x18];
-        f32 input[4];
-        struct
+        FldFrameCollisionCollector collector;
+        RwV3d zero;
+        union
         {
-            union
+            u_long128 bits;
+            struct
             {
-                u_long128 bits;
-                f32 f[4];
-            } copy;
-            u8 tail[8];
-            s32 type;
+                RwV3d center;
+                f32 radius;
+            } sphere;
+        } input;
+        union
+        {
+            u_long128 bits;
+            RpIntersection intersection;
         } query;
-        RwV3d delta;
-    } FldFrameWork69780;
-    FldFrameWork69780 work;
-    f32 px, py, pz;
-    f32 scale;
+        union
+        {
+            RwV3d vector;
+            f32 components[3];
+        } delta;
+    } FldFrameSphereWork;
+    FldFrameSphereWork work;
+    f32 adjustX;
+    f32 adjustY;
+    f32 adjustZ;
+    f32 correction;
     f32 dot;
-    s32 i;
     s32 result;
+    s32 i;
 
     result = 0;
-    work.input[0] = origin[0] + vector[0];
-    work.input[1] = origin[1] + vector[1];
-    work.input[2] = origin[2] + vector[2];
-    work.input[3] = fraction;
-    work.query.type = 3;
-    work.query.copy.bits = *(u_long128*)work.input;
+    work.input.sphere.center.x = origin[0] + vector[0];
+    work.input.sphere.center.y = origin[1] + vector[1];
+    work.input.sphere.center.z = origin[2] + vector[2];
+    work.input.sphere.radius = radius;
+    work.query.intersection.type = 3;
+    work.query.bits = work.input.bits;
     for (i = 0; i < 64; i++)
     {
-        u8* rec = work.records + 12 * i;
-        func_0043f9c8(rec, 0, 12);
-        func_0043f9c8(rec + 0x300, 0, 12);
-        *(f32*)(work.records + 0x600 + 4 * i) = fGpffff82b4;
+        u8* record = (u8*)&work + sizeof(RwV3d) * i;
+        func_0043f9c8(record, 0, 12);
+        func_0043f9c8(record + sizeof(work.collector.points), 0, 12);
+        work.collector.distances[i] = fGpffff82b4;
     }
-    work.count = 0;
+    work.collector.count = 0;
     if (collisionWorld == NULL)
     {
         return 0;
     }
-    func_00394d70(collisionWorld, &work.query.copy, func_00169320, work.records);
-    for (i = 0; i < work.count; i++)
+    func_00394d70(collisionWorld, &work.query.intersection, func_00169320, &work.collector);
+    for (i = 0; i < work.collector.count; i++)
     {
-        if (((f32*)(work.records + 0x600))[i] < fGpffff82b4)
+        const u8* distanceEntry;
+        distanceEntry = (const u8*)&work + i * sizeof(f32);
+        if (*(const f32*)(distanceEntry + 0x600) < fGpffff82b4)
         {
-            RwV3d* point = (RwV3d*)(work.records + 12 * i);
-            work.delta.x = work.query.copy.f[0] - point->x;
-            work.delta.y = work.query.copy.f[1] - point->y;
-            work.delta.z = work.query.copy.f[2] - point->z;
-            func_003e40b0(&work.delta.x, &work.delta.x);
+            RwV3d* point = &work.collector.points[i];
+            f32 dx;
+            f32 dy;
+            f32 dz;
+            f32* direction;
+            f32 oldZ;
+            f32 oldX;
+            f32 zero;
+
+            work.delta.vector.x = work.query.intersection.t.sphere.center.x - point->x;
+            work.delta.vector.y = work.query.intersection.t.sphere.center.y - point->y;
+            work.delta.vector.z = work.query.intersection.t.sphere.center.z - point->z;
+            direction = work.delta.components;
+            func_003e40b0(direction, direction);
+            /* The signed contact displacement is recomputed after normalization. */
+            distanceEntry = (const u8*)&work + i * (s32)sizeof(f32);
+            correction = work.query.intersection.t.sphere.radius - *(const f32*)(distanceEntry + 0x600);
+            dx = work.delta.vector.x;
+            adjustX = dx * correction;
+            dy = work.delta.vector.y;
+            adjustY = dy * correction;
+            dz = work.delta.vector.z;
+            adjustZ = dz * correction;
+            oldZ = vector[2];
+            oldX = vector[0];
+            /* Retain the Y, X, Z accumulator and comparison-value lifetimes. */
+            dot = vector[1] * dy;
+            zero = 0.0f;
+            dot += oldX * dx;
+            dot += oldZ * dz;
+            if (dot < zero)
             {
-                u8 *pr = work.records + 12 * i;
-                scale = work.query.copy.f[3] - *(f32*)(pr + 0x600 - 8 * i);
-            }
-            px = work.delta.x * scale;
-            py = work.delta.y * scale;
-            pz = work.delta.z * scale;
-            dot = vector[0] * work.delta.x + vector[1] * work.delta.y + vector[2] * work.delta.z;
-            if (dot < 0.0f)
-            {
-                px = work.delta.x * dot;
-                py = work.delta.y * dot;
-                pz = work.delta.z * dot;
-                vector[0] -= px;
-                vector[1] -= py;
-                vector[2] -= pz;
+                adjustX = dx * dot;
+                adjustY = dy * dot;
+                adjustZ = dz * dot;
+                vector[0] = oldX - adjustX;
+                vector[1] -= adjustY;
+                vector[2] -= adjustZ;
                 result = 1;
             }
-            if (vector[2] == 0.0f && vector[1] == 0.0f && vector[0] == 0.0f)
+            oldX = vector[0];
+            zero = 0.0f;
+            if (oldX == zero && vector[1] == zero && vector[2] == zero)
             {
-                vector[0] += px;
-                vector[1] += py;
-                vector[2] += pz;
+                vector[0] = oldX + adjustX;
+                vector[1] += adjustY;
+                vector[2] += adjustZ;
                 result = 1;
             }
         }
     }
     return result;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_00169780);
-#endif
-/* measured: first reconstruction from retail + m2c + 00169320 conventions (RwV3d tri/comp/edge/delta, buf[3]/ptrs[3], block-scoped index/count/record/fraction, fabsf->abs.s, D_0076122C threshold at gp-0x7EC4, bare &tri.x, a00 materialization per gate 2). fnalign retail 416/object 407 (deficit 9, 2.16% deviation, within 3% gate; v6 with pragma still 407/416), probe_variants nd 354 -> 352 with propagation-off. 3% check: |416-407|/416 = 2.16% <= 3%, so guarded floor per handoff banking rule. Residual is register color + folded-vs-materialized + ACC vs mul/add + displacement cascade. Production stays guarded (not MATCH). */
-/* measured: pragma_sweep singles: opt_propagation off 352 (baseline 354, -2); loop_invariants on/strength off/unroll off tie 354; dead off 369, peephole off 376, schedule on 398, level3/4 398/399, commons off 413, level1 413, level0 525. Banking propagation-off (load-bearing -2, preserves COP1 chain colouring per code1_0019 00197a80 precedent). measure_guarded 352, fnalign retail 416/object 407 (2.16%) with pragma, still within 3%. */
-// FUN_00169A30 NONMATCHING
-#ifdef NON_MATCHING
+
+#pragma pop
+/* Keep the scaled offset and collector address in the integer domain
+ * until the resulting address points into the collector storage. */
+static inline u8 *fldFrameCollectorOffset(u32 offset, FldFrameCollisionCollector *collector)
+{
+    return (u8 *)(offset + (uintptr_t)collector);
+}
+
+static inline s32 fldFrameFindLocalPlane(FldFrameCollisionCollector *collector, const RwV3d *normal)
+{
+    s32 index;
+    s32 count;
+    const u8 *record;
+    f32 nx;
+    f32 ny;
+    f32 nz;
+
+    index = 0;
+    nx = normal->x;
+    ny = normal->y;
+    nz = normal->z;
+    count = collector->count;
+    while (index < count)
+    {
+        record = (const u8 *)collector + sizeof(RwV3d) * index;
+        if (*(const f32 *)(record + 0x300) == nx &&
+            *(const f32 *)(record + 0x304) == ny &&
+            *(const f32 *)(record + 0x308) == nz)
+        {
+            return index;
+        }
+        index++;
+    }
+    return -1;
+}
+
+/* Transform an atomic triangle to world space and merge its nearest plane
+ * contact into the shared collector. Existing edge contacts use the closest
+ * edge point; new edge contacts retain the plane projection, as retail does.
+ * measured: b210 -O2 emits 1668 bytes plus a 12-byte retail zero suffix.
+ * Removing propagation-off changes eight words; removing loop-invariants-on
+ * changes the vertex-pointer addition at +0xAC. The interior path uses
+ * the offset helper for distance and flag addresses. */
 #pragma push
 #pragma opt_propagation off
-void *func_00169a30(const RwV3d *point, const void *triangle, void *collector)
+#pragma opt_loop_invariants on
+// FUN_00169A30
+RpCollisionTriangle *func_00169a30(RpIntersection *intersection,
+    RpCollisionTriangle *triangle, f32 callbackDistance, void *data)
 {
-    extern f32 fabsf(f32 x);
-    extern s32 func_00168ec0(void *arg0, void *arg1, void *arg2);
-    extern f32 func_003e4180(f32 *vec);
-    extern void func_003e4360(void *dst, const void *src, s32 n, void *mat);
-    extern void func_003e42e0(void *dst, void *src, s32 n, void *mat);
+    extern f32 fabsf(f32 value);
+    extern s32 func_00168ec0(f32 *point, f32 **vertices, f32 *normal);
+    extern f32 func_003e4180(f32 *vector);
+    extern RwV3d *func_003e4360(RwV3d *dst, const RwV3d *src, s32 count, const void *matrix);
+    extern RwV3d *func_003e42e0(RwV3d *dst, const RwV3d *src, s32 count, const void *matrix);
     extern f32 D_0076122C;
-    typedef struct FldFrameTri169a30
-    {
-        RwV3d pos;
-        u8 gap[0x10];
-        void *verts[3];
-    } FldFrameTri169a30;
-    u8 *ctx;
-    FldFrameTri169a30 *triData;
-    RwV3d tri;
-    RwV3d comp;
-    RwV3d edge;
+    const RwV3d *point = &intersection->t.sphere.center;
+    FldFrameCollisionCollector *collector = data;
+    RwV3d projected;
+    RwV3d normal;
+    f32 *vertexPointers[3];
+    RwV3d edgePoint;
     RwV3d delta;
-    RwV3d buf[3];
-    void *ptrs[3];
-    void *mat;
-    f32 dot;
-    f32 dotV;
-    f32 dotP;
-    f32 proj;
-    f32 edgedist;
-    s32 i;
-    ctx = (u8 *)collector;
-    triData = (FldFrameTri169a30 *)triangle;
-    tri.x = ((RwV3d *)triangle)->x;
-    tri.y = ((RwV3d *)triangle)->y;
-    tri.z = ((RwV3d *)triangle)->z;
+    union
     {
-        u8 *tmpPtr = *(u8 **)(ctx + 0xB34);
-        s32 tmpId = *(s32 *)(tmpPtr + 4);
-        mat = func_003e9700(tmpId);
-    }
-    func_003e4360(&tri, triangle, 1, mat);
-    func_003e40b0(&tri.x, &tri.x);
+        RwV3d vector;
+        f32 components[3];
+    } vertices[3];
+    s32 i;
+    void *matrix;
+    f32 dot;
+    f32 projection;
+    f32 distance;
+    f32 edgeDistance;
+    f32 nx;
+    f32 ny;
+    f32 nz;
+
+    normal = triangle->normal;
+    matrix = func_003e9700(*(u8 **)((u8 *)collector->atomic + 4));
+    func_003e4360(&normal, &triangle->normal, 1, matrix);
+    func_003e40b0(&normal.x, &normal.x);
     for (i = 0; i < 3; i++)
     {
-        func_003e42e0(&buf[i], triData->verts[i], 1, mat);
-        ptrs[i] = &buf[i];
+        func_003e42e0(&vertices[i].vector, triangle->vertices[i], 1, matrix);
+        vertexPointers[i] = vertices[i].components;
     }
-    dot = tri.y * *(f32 *)(ctx + 0xB10) + tri.x * *(f32 *)(ctx + 0xB0C) + tri.z * *(f32 *)(ctx + 0xB14);
-    if (dot >= 0.0f && *(s32 *)(ctx + 0xB00) == 0)
+    dot = normal.x * collector->direction.x +
+          normal.y * collector->direction.y +
+          normal.z * collector->direction.z;
+    if (dot >= 0.0f && collector->mode == 0)
     {
-        return (void *)triangle;
+        return triangle;
     }
-    if (fabsf(tri.y) > D_0076122C)
+    if (fabsf(normal.y) > D_0076122C)
     {
-        return (void *)triangle;
+        return triangle;
     }
+    ny = normal.y;
+    nx = normal.x;
+    nz = normal.z;
+    projection = vertexPointers[0][0] * nx + vertexPointers[0][1] * ny + vertexPointers[0][2] * nz -
+                 (point->x * nx + point->y * ny + point->z * nz);
+    projected.x = nx * projection;
+    projected.y = ny * projection;
+    projected.z = nz * projection;
+    projected.x += point->x;
+    projected.y += point->y;
+    projected.z += point->z;
+    if (func_00168ec0(&projected.x, vertexPointers, &normal.x) != 0)
     {
-        RwV3d *v0 = (RwV3d *)ptrs[0];
-        dotV = v0->y * tri.y + v0->x * tri.x + v0->z * tri.z;
-        dotP = point->y * tri.y + point->x * tri.x + point->z * tri.z;
-        proj = dotV - dotP;
-    }
-    comp.x = tri.x * proj + point->x;
-    comp.y = tri.y * proj + point->y;
-    comp.z = tri.z * proj + point->z;
-    if (func_00168ec0(&comp, ptrs, &tri) != 0)
-    {
-        f32 dist = fabsf(proj);
-        {
         s32 index;
         s32 count;
-        f32* record;
-        f32* fraction;
-        u8* fbase;
-        u8* a00;
-        index = 0;
-        count = *(s32*)(ctx + 0xb04);
-        while (index < count)
-        {
-            record = (f32*)(ctx + 12 * index);
-            if (record[192] == tri.x && record[193] == tri.y && record[194] == tri.z)
-                goto found1;
-            index++;
-        }
-        index = -1;
-found1:
+        u8 *record;
+        f32 *fraction;
+        u8 *fbase;
+        s32 *flag;
+        distance = fabsf(projection);
+        index = fldFrameFindLocalPlane(collector, &normal);
+        count = collector->count;
         if (index >= 0)
         {
-            fraction = (f32*)((u8*)(4 * index) + (u32)ctx + 0x600);
-            if (dist < *fraction)
+            fbase = fldFrameCollectorOffset(4 * index, collector);
+            fraction = (f32 *)(fbase + 0x600);
+            if (distance < *fraction)
             {
-                record = (f32*)(ctx + 12 * index);
-                *(RwV3d*)record = comp;
-                *(RwV3d*)(record + 192) = *(RwV3d*)triangle;
-                *fraction = dist;
-                if (*(s32*)(ctx + 0xB00) == 1)
+                record = (u8 *)collector + 12 * index;
+                *(RwV3d *)record = projected;
+                *(RwV3d *)(record + 0x300) = normal;
+                *fraction = distance;
+                if (collector->mode == 1)
                 {
-                    fbase = (u8*)(4 * index) + (u32)ctx;
-                    a00 = fbase + 0xA00;
-                    if (*(s32*)a00 == 0)
+                    flag = (s32 *)(fbase + 0xA00);
+                    if (*flag == 0)
                     {
-                        (*(s32*)(ctx + 0xB08))++;
+                        collector->hitCount++;
                     }
-                    *(s32*)a00 = 1;
+                    *flag = 1;
                 }
             }
         }
         else
         {
-            fraction = (f32*)((u8*)(4 * count) + (u32)ctx + 0x600);
-            if (dist < *fraction)
+            fraction = (f32 *)(fldFrameCollectorOffset(4 * count, collector) + 0x600);
+            if (distance < *fraction)
             {
-                record = (f32*)(ctx + 12 * count);
-                *(RwV3d*)record = comp;
-                record = (f32*)((u8*)(12 * *(s32*)(ctx + 0xb04)) + (u32)ctx);
-                *(RwV3d*)(record + 192) = *(RwV3d*)triangle;
-                fraction = (f32*)((u8*)(4 * *(s32*)(ctx + 0xb04)) + (u32)ctx + 0x600);
-                *fraction = dist;
-                if (*(s32*)(ctx + 0xB00) == 1)
+                record = (u8 *)collector + 12 * count;
+                *(RwV3d *)record = projected;
+                record = fldFrameCollectorOffset(12 * collector->count, collector);
+                *(RwV3d *)(record + 0x300) = normal;
+                fraction = (f32 *)(fldFrameCollectorOffset(4 * collector->count, collector) + 0x600);
+                *fraction = distance;
+                if (collector->mode == 1)
                 {
-                    fbase = (u8*)(4 * *(s32*)(ctx + 0xb04)) + (u32)ctx;
-                    a00 = fbase + 0xA00;
-                    if (*(s32*)a00 == 0)
+                    if (*(s32 *)(fldFrameCollectorOffset(4 * collector->count, collector) + 0xA00) == 0)
                     {
-                        (*(s32*)(ctx + 0xB08))++;
+                        collector->hitCount++;
                     }
-                    *(s32*)a00 = 1;
+                    {
+                        s32 hitFlag = 1;
+                        *(s32 *)(fldFrameCollectorOffset(4 * collector->count, collector) + 0xA00) = hitFlag;
+                    }
                 }
-                (*(s32*)(ctx + 0xb04))++;
+                collector->count++;
             }
-        }
         }
     }
     else
     {
-        for (i = 0; i < 3; i++)
+        s32 edge;
+        for (edge = 0; edge < 3; edge++)
         {
-            func_00169200(&edge, &comp, (RwV3d*)ptrs[i], (RwV3d*)ptrs[(i + 1) % 3]);
-            delta.x = point->x - edge.x;
-            delta.y = point->y - edge.y;
-            delta.z = point->z - edge.z;
-            edgedist = func_003e4180((f32*)&delta);
-            {
             s32 index;
             s32 count;
-            f32* record;
-            f32* fraction;
-            u8* fbase;
-        u8* a00;
-            index = 0;
-            count = *(s32*)(ctx + 0xb04);
-            while (index < count)
-            {
-                record = (f32*)(ctx + 12 * index);
-                if (record[192] == tri.x && record[193] == tri.y && record[194] == tri.z)
-                    goto found2;
-                index++;
-            }
-            index = -1;
-found2:
+            u8 *record;
+            f32 *fraction;
+            u8 *fbase;
+            s32 *flag;
+            func_00169200(&edgePoint, &projected, (RwV3d *)vertexPointers[edge], (RwV3d *)vertexPointers[(edge + 1) % 3]);
+            delta.x = point->x - edgePoint.x;
+            delta.y = point->y - edgePoint.y;
+            delta.z = point->z - edgePoint.z;
+            edgeDistance = func_003e4180(&delta.x);
+            index = fldFrameFindLocalPlane(collector, &normal);
+            count = collector->count;
             if (index >= 0)
             {
-                fraction = (f32*)((u8*)(4 * index) + (u32)ctx + 0x600);
-                if (edgedist < *fraction)
+                fbase = (u8 *)collector + 4 * index;
+                fraction = (f32 *)(fbase + 0x600);
+                if (edgeDistance < *fraction)
                 {
-                    record = (f32*)(ctx + 12 * index);
-                    *(RwV3d*)record = edge;
-                    *(RwV3d*)(record + 192) = *(RwV3d*)triangle;
-                    *fraction = edgedist;
-                    if (*(s32*)(ctx + 0xB00) == 1)
+                    record = (u8 *)collector + 12 * index;
+                    *(RwV3d *)record = edgePoint;
+                    *(RwV3d *)(record + 0x300) = normal;
+                    *fraction = edgeDistance;
+                    if (collector->mode == 1)
                     {
-                        fbase = (u8*)(4 * index) + (u32)ctx;
-                    a00 = fbase + 0xA00;
-                        if (*(s32*)a00 == 0)
+                        flag = (s32 *)(fbase + 0xA00);
+                        if (*flag == 0)
                         {
-                            (*(s32*)(ctx + 0xB08))++;
+                            collector->hitCount++;
                         }
-                        *(s32*)a00 = 1;
+                        *flag = 1;
                     }
                 }
             }
             else
             {
-                fraction = (f32*)((u8*)(4 * count) + (u32)ctx + 0x600);
-                if (edgedist < *fraction)
+                fraction = (f32 *)((u8 *)collector + 4 * count + 0x600);
+                if (edgeDistance < *fraction)
                 {
-                    record = (f32*)(ctx + 12 * count);
-                    *(RwV3d*)record = comp;
-                    record = (f32*)((u8*)(12 * *(s32*)(ctx + 0xb04)) + (u32)ctx);
-                    *(RwV3d*)(record + 192) = *(RwV3d*)triangle;
-                    fraction = (f32*)((u8*)(4 * *(s32*)(ctx + 0xb04)) + (u32)ctx + 0x600);
-                    *fraction = edgedist;
-                    if (*(s32*)(ctx + 0xB00) == 1)
+                    record = (u8 *)collector + 12 * count;
+                    *(RwV3d *)record = projected;
+                    record = (u8 *)collector + 12 * collector->count;
+                    *(RwV3d *)(record + 0x300) = normal;
+                    fraction = (f32 *)((u8 *)collector + 4 * collector->count + 0x600);
+                    *fraction = edgeDistance;
+                    if (collector->mode == 1)
                     {
-                        fbase = (u8*)(4 * *(s32*)(ctx + 0xb04)) + (u32)ctx;
-                    a00 = fbase + 0xA00;
-                        if (*(s32*)a00 == 0)
+                        if (*(s32 *)((u8 *)collector + 4 * collector->count + 0xA00) == 0)
                         {
-                            (*(s32*)(ctx + 0xB08))++;
+                            collector->hitCount++;
                         }
-                        *(s32*)a00 = 1;
+                        *(s32 *)((u8 *)collector + 4 * collector->count + 0xA00) = 1;
                     }
-                    (*(s32*)(ctx + 0xb04))++;
+                    collector->count++;
                 }
-            }
             }
         }
     }
-    return (void *)triangle;
+    return triangle;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_00169a30);
-#endif
 // FUN_0016A0C0
 void* func_0016a0c0(void* collisionWorld, void* state)
 {
-    *(void**)((u8*)state + 0xb34) = collisionWorld;
-    func_00394e70(collisionWorld, (u8*)state + 0xb18,
-                  func_00169a30, state);
+    FldFrameCollisionCollector *collector = state;
+    collector->atomic = collisionWorld;
+    func_00394e70(collisionWorld, &collector->intersection,
+                  func_00169a30, collector);
     return collisionWorld;
 }
 
@@ -916,7 +955,7 @@ s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
         if (fieldFlags == 0xffff)
         {
             object = (u8*)func_003e9700(
-                *(s32*)((u8*)func_00457120() + 4));
+                *(u8**)((u8*)func_00457120() + 4));
             fieldX = (s32)((*(f32*)(object + 0x30) + 600.0f) / 1200.0f);
             fieldY = (s32)((*(f32*)(object + 0x38) + 600.0f) / 1200.0f);
         }
@@ -973,14 +1012,14 @@ s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
 s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* normal, RwV3d* vector)
 {
     extern u8* func_001452b0(s32 arg0);
-    extern void func_0043f9c8(void* dst, s32 value, s32 size);
+    extern void* func_0043f9c8(void* dst, s32 value, u32 size);
     extern s32 func_0014a200(void);
     extern s32 func_0014a270(void);
     extern u8* func_00457120(void);
-    extern u8* func_003e9700(s32 arg0);
+    extern u8* func_003e9700(u8 *frame);
     extern void* func_00155280(void);
     extern void* func_0047a310(s32 arg0);
-    extern void func_003e40b0(f32* dst, const f32* src);
+    extern f32 func_003e40b0(f32* dst, const f32* src);
     extern f32 D_007615DC;
     extern s32 D_005F1650[];
     typedef struct FldFrameQueryWork
@@ -1059,7 +1098,7 @@ s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* n
         func_003bff30(collisionWorld, func_0016a0c0, work.records);
         if (func_0014a200() == 1 || func_0014a270() == 1)
         {
-            dimensions = (f32*)func_003e9700(*(s32*)((u8*)func_00457120() + 4));
+            dimensions = (f32*)func_003e9700(*(u8**)((u8*)func_00457120() + 4));
             x = (s32)((dimensions[12] + 600.0f) / 1200.0f);
             z = (s32)((dimensions[14] + 600.0f) / 1200.0f);
             for (j = 0; j < 4; j++)
@@ -1191,7 +1230,7 @@ s32 func_0016b080(const RwV3d* point, f32 radius, RwV3d* normal, RwV3d* vector)
         {
             u8* map;
             FldSelectionNode* node;
-            map = func_003e9700(*(s32*)(func_00457120() + 4));
+            map = func_003e9700(*(u8**)(func_00457120() + 4));
             fieldX = (s32)((((const RwV3d*)(map + 0x30))->x + 600.0f) / 1200.0f);
             fieldZ = (s32)((((const RwV3d*)(map + 0x30))->z + 600.0f) / 1200.0f);
             key = *(u16*)((u8*)func_00155280() + (fieldZ * 256) +
@@ -1223,9 +1262,13 @@ s32 func_0016b080(const RwV3d* point, f32 radius, RwV3d* normal, RwV3d* vector)
 /* measured: propagation probe for func_0016b260 register scheduling. */
 #pragma opt_propagation off
 // FUN_0016B260
-void* func_0016b260(const RwV3d* line, void* unused,
-                    const void* triangle, FldFrameRaycast* raycast)
+RpCollisionTriangle *func_0016b260(RpIntersection *intersection,
+                    RpWorldSector *sector, RpCollisionTriangle *collision,
+                    f32 distance, void *data)
 {
+    const RwV3d *line = (const RwV3d *)intersection;
+    const void *triangle = collision;
+    FldFrameRaycast *raycast = data;
     typedef struct FldFrameLine
     {
         RwV3d start;
@@ -1274,9 +1317,11 @@ void* func_0016b260(const RwV3d* line, void* unused,
 }
 #pragma opt_propagation on
 // FUN_0016B350
-void* func_0016b350(f32 fraction, const RwV3d* line,
-                    void* unused, FldFrameRaycast* raycast)
+RpCollisionTriangle *func_0016b350(RpIntersection *intersection,
+    RpCollisionTriangle *triangle, f32 fraction, void *data)
 {
+    const RwV3d *line = (const RwV3d *)intersection;
+    FldFrameRaycast *raycast = data;
     typedef struct FldFrameLine
     {
         RwV3d point[2];
@@ -1300,7 +1345,7 @@ void* func_0016b350(f32 fraction, const RwV3d* line,
         raycast->didHit = 1;
         raycast->nearestFraction = fraction;
     }
-    return unused;
+    return triangle;
 }
 
 
@@ -1310,7 +1355,7 @@ void* func_0016b430(void* collisionWorld, void* data)
 {
     FldFrameRaycast* raycast = data;
     raycast->hitObject = collisionWorld;
-    func_00394e70(collisionWorld, &raycast->line[0],
+    func_00394e70(collisionWorld, (RpIntersection *)&raycast->line[0],
                   func_0016b350, raycast);
     return collisionWorld;
 }
@@ -1394,7 +1439,7 @@ u32 func_0016b540(const RwV3d* line, RwV3d* hitPointDst)
         }
         else
         {
-            func_00394d70(collisionWorld, &intersection, func_0016b260, &raycast);
+            func_00394d70(collisionWorld, (RpIntersection *)&intersection, func_0016b260, &raycast);
             result = raycast.didHit;
         }
         return result;
@@ -1441,9 +1486,11 @@ u32 func_0016b540(const RwV3d* line, RwV3d* hitPointDst)
     }
 }
 // FUN_0016B770
-void* func_0016b770(f32 fraction, const RwV3d* line,
-                    void* unused, FldFrameRaycast* raycast)
+RpCollisionTriangle *func_0016b770(RpIntersection *intersection,
+    RpCollisionTriangle *triangle, f32 fraction, void *data)
 {
+    const RwV3d *line = (const RwV3d *)intersection;
+    FldFrameRaycast *raycast = data;
     typedef struct FldFrameLine
     {
         RwV3d point[2];
@@ -1467,7 +1514,7 @@ void* func_0016b770(f32 fraction, const RwV3d* line,
         raycast->didHit = 1;
         raycast->nearestFraction = fraction;
     }
-    return unused;
+    return triangle;
 }
 
 
@@ -1477,7 +1524,7 @@ void* func_0016b850(void* collisionWorld, void* data)
 {
     FldFrameRaycast* raycast = data;
     raycast->hitObject = collisionWorld;
-    func_00394e70(collisionWorld, &raycast->line[0],
+    func_00394e70(collisionWorld, (RpIntersection *)&raycast->line[0],
                   func_0016b770, raycast);
     return collisionWorld;
 }

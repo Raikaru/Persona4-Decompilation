@@ -2,6 +2,7 @@
 #include "sdk_task_registration.h"
 /* Source unit: src/cutinDraw_00120bc0.c */
 #include "type.h"
+#include "effect_update_internal.h"
 #include "sdk_snd_internal.h"
 
 extern char D_005E4FA0[];
@@ -15,7 +16,7 @@ s32 func_00454a60();
 s32 func_004553c0();
 s32 func_00455f70();
 s32 func_004b1130();
-void func_004b1190();
+
 void func_004b11d0();
 void func_004b1250();
 s32 func_004b1520();
@@ -82,7 +83,7 @@ s32 func_00120bc0(u8 *arg0)
                 *(s32 *)(temp_16 + 0x18) = 1;
             }
             func_004b1250(*(s32 *)(temp_16 + 0x24), &sp220);
-            func_004b1190(*(s32 *)(temp_16 + 0x24));
+            func_004b1190(*(u8 **)(temp_16 + 0x24));
             func_004b11d0(D_005DC974, *(s32 *)(temp_16 + 0x24));
             if (func_004b1540(*(s32 *)(temp_16 + 0x24)) != 0) {
                 *(s32 *)(temp_16 + 0xC) = 1;

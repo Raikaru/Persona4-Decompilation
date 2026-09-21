@@ -130,7 +130,12 @@ extern f32 fGpffff81a8;
 extern f32 func_0044b610(f32 fparg0);
 extern f32 func_0044b7b0(f32 fparg0);
 extern s32 func_00200ce0(void);
-extern void func_00205170(u8 *arg0, s32 arg1, f32 fx, f32 fy, s32 arg2, s32 arg3, s32 arg4);
+typedef void (*BattleSelectionDraw)(u8 *work, s32 slot, f32 x, f32 y,
+                                    u8 opacity, s32 highlighted, s32 showDetail);
+extern void func_00206dd0(u8 *work, u8 *state, f32 x, f32 y,
+                         BattleSelectionDraw drawSelection);
+
+extern void func_00205170(u8 *arg0, s32 arg1, f32 fx, f32 fy, u8 arg2, s32 arg3, s32 arg4);
 extern void func_00205ff0(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
                           void (*callback)(void), u8 *arg3);
 extern void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
@@ -2324,103 +2329,111 @@ void func_00204dc0(s32 index, f32 x, f32 y, f32 depth, f32 angle, s32 extend)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00204dc0);
 #endif
-/* measured: object 1100B/window 1120B/normalized_diff 614 (206 differing words fndiff, fnalign 275/278 3-short 106e+18 reloc; baseline parked 617/208/115e). Best type_u16_temp17 (s32 temp_17->u16 temp_17 single-line, -2w/-3B/-9e). */
-/* measured: dead-arm head/lo/lo2/21 redundant-store shapes all neutral DCE (208w); slti inclusive, <1U/<2U, s16-cast, loopinv, schedule, s64, commsub, u16-narrowing (owner-edit N/A), adjacent-OR (no ||/-1), COP2 (N/A), index-mask/CSE (no andi-CSE/frame diff) all tried per checklist; remaining Path2 CSE + preheader + second-loop hoist + displacement cascade walls. No volatile/asm. Staged /tmp/push_205170_full.c via NearGA.Dead205170. */
-/* measured 00205170 2026-09-17 via `python3 tools/measure_guarded.py src/promoted/code1_0020.c func_00205170`: 204wd before and after (obj 1100B/window 1120B, 1.8% short, honest); s8 var_16 -> u8 var_16 clears mask surplus (opclass andi +23 -> +8, move -21 -> -6, score 26 -> 11; fnalign 127 -> 109 edits). Values 0x96/0xFF overflow s8 range as signed; u8 needs no zero-extension. Remaining andi +8/move -6 are temp_17/u16 and sb spills. `opt_common_subs off` still worth 2wd (206 -> 204). */
-/* 2026-09-18: the in-body prototype for func_00114dc0 now carries the live
-   definition's parameter order (shdSkill.c, float second).  Word score is a
-   tie at 204 with edit groups 109 -> 107; b210 emits argument setup in source
-   order, so the order has to be right before the rest can be read. */
-// FUN_00205170 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_common_subs off
-void func_00205170(u8 *arg0, s32 arg1, f32 fx, f32 fy, s32 arg2, s32 arg3, s32 arg4) {
-    extern u32 func_00452560(void *arg0);
-    extern s32 func_0023ddc0(u8 *arg0, s32 arg1);
-    extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
-    extern s32 func_0023dd90(u8 *arg0, s32 arg1);
-    extern void func_00114dc0(s32 arg0, f32 fx, s32 arg1, s32 arg2, u8 *arg3);
-    extern void func_002bc860(f32 fx, f32 fy, f32 fz, s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-    f32 spB0;
-    f32 spB4;
-    u8 spBC;
-    u8 spBD;
-    u8 spBE;
-    u8 spBF;
-    u8 var_16;
-    u16 temp_17;
-    u8 *temp_18;
-    u8 *temp_19;
-    s32 temp_21;
-    s32 temp_22;
-    s32 temp_2;
-    s32 temp_lo;
-    s32 temp_lo_2;
-    f32 temp_f20;
-    f32 temp_f23;
-    f32 temp_f24;
+/* The position and color are complete value objects passed to shdSkill.
+ * Keep the signed row ID and narrow it at provider boundaries; the
+ * cost-type provider returns u16 from its byte-sized table field. */
+typedef struct { u8 b0, b1, b2, b3; } BattleSkillIconColor;
+extern void func_00114dc0(Vec2f position, f32 scale,
+                          BattleSkillIconColor color, u16 skill, s32 texture);
+extern u32 func_0023d9b0(u8 *unit, s32 skill);
+extern s32 func_0023ddc0(u8 *unit, s32 skill);
+extern u16 func_0023dd90(u8 *unit, s32 skill);
 
-    temp_19 = (u8 *)func_00452560(*(void **)(arg0 + 0x5B0));
-    temp_18 = *(u8 **)(*(u8 **)(*(u8 **)(arg0 + 0x178) + 0x30) + 0xA64);
-    temp_17 = *(u16 *)(arg0 + arg1 * 2 + 0x194);
-    if (temp_17 >= 0x1B8 || func_0023ddc0(temp_18, temp_17 & 0xFFFF) != 0) {
-        if (arg3 != 0) {
-            var_16 = 0x6E;
+// FUN_00205170
+#pragma push
+#pragma opt_rebuildconditionals off
+#pragma opt_common_subs off
+#pragma opt_propagation off
+void func_00205170(u8 *work, s32 slot, f32 x, f32 y,
+                   u8 opacity, s32 highlighted, s32 showDetail)
+{
+    extern u32 func_00452560(void *task);
+    extern void func_002bc860(f32 x, f32 y, f32 z, s32 color,
+                              s32 mode, s32 flags, s32 skill);
+    u8 *glyphs;
+    u8 *unit;
+    s32 skill;
+    u8 tone;
+    s32 cost;
+    s32 alpha;
+    s32 tens;
+    s32 hundreds;
+    s32 radix;
+    f32 textX;
+    f32 digitY;
+    f32 digitX;
+    Vec2f iconPosition;
+    BattleSkillIconColor iconColor;
+
+    glyphs = (u8 *)func_00452560(*(void **)(work + 0x5B0));
+    unit = *(u8 **)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA64);
+    skill = *(s16 *)(p4_002091f0_add((u32)(slot * 2), work) + 0x194);
+    if (skill >= 0x1B8 || func_0023ddc0(unit, (u16)skill) != 0) {
+        if (highlighted != 0) {
+            tone = 0x6E;
         } else {
-            var_16 = 0x96;
+            tone = 0x96;
         }
-    } else if (arg3 != 0) {
-        var_16 = 0x1B;
+    } else if (highlighted != 0) {
+        tone = 0x1B;
     } else {
-        var_16 = 0xFF;
+        tone = 0xFF;
     }
-    spB0 = fx;
-    spB4 = fy;
-    spBC = var_16;
-    spBD = var_16;
-    spBE = var_16;
-    spBF = arg2;
-    func_00114dc0((s32)(*(s64 *)&spB0), 50.0f, *(s32 *)&spBC, temp_17 & 0xFFFF, *(u8 **)(temp_19 + 0x60));
+    iconPosition.x = x;
+    iconPosition.y = y;
+    iconColor.b0 = tone;
+    iconColor.b1 = tone;
+    iconColor.b2 = tone;
+    iconColor.b3 = opacity;
+    func_00114dc0(iconPosition, 50.0f, iconColor, (u16)skill,
+                  *(s32 *)(glyphs + 0x60));
     func_00272c60(0x40);
-    temp_22 = arg2 & 0xFF;
-    temp_f20 = 42.0f + fx;
-    temp_2 = (u8)var_16;
-    func_00275020(temp_f20, (2.0f + fy) - 1.0f, 50.0f,
-                  temp_22 | (((temp_2 << 24) | (temp_2 << 16)) | (((u8)var_16) << 8)),
-                  0, 1, (const char *)D_00887300 + temp_17 * 0x13, 0, -1);
+    alpha = opacity & 0xFF;
+    textX = 42.0f + x;
+    {
+        f32 textY = (2.0f + y) - 1.0f;
+        f32 depth = 50.0f;
+        u32 high = (u8)tone;
+        func_00275020(textX, textY, depth,
+                      alpha | ((high << 24) | (high << 16) | ((u32)(u8)tone << 8)),
+                      0, 1, (const char *)iGpffffb448 + skill * 0x13, 0, -1);
+    }
     func_00272c80(0x40);
-    if (temp_17 < 0x1B8) {
-        temp_21 = func_0023d9b0(temp_18, temp_17 & 0xFFFF);
-        if (temp_21 != 0) {
-            temp_f24 = 10.0f + fy;
-            temp_f23 = 262.0f + fx;
-            func_00201650(temp_19, 0xC, (temp_21 % 10) + 9, 32.0f + temp_f23, temp_f24, var_16, var_16, var_16, arg2);
-            temp_lo = temp_21 / 10;
-            if (temp_lo != 0) {
-                func_00201650(temp_19, 0xC, (temp_lo % 10) + 9, 16.0f + temp_f23, temp_f24, var_16, var_16, var_16, arg2);
+    if (skill < 0x1B8) {
+        cost = func_0023d9b0(unit, (u16)skill);
+        if (cost != 0) {
+            digitY = 10.0f + y;
+            digitX = 262.0f + x;
+            func_00201650(glyphs, 0xC, (cost % 10) + 9,
+                          32.0f + digitX, digitY, tone, tone, tone, opacity);
+            radix = 10;
+            tens = cost / radix;
+            if (tens != 0) {
+                func_00201650(glyphs, 0xC, (tens % radix) + 9,
+                              16.0f + digitX, digitY, tone, tone, tone, opacity);
             }
-            temp_lo_2 = temp_21 / 100;
-            if (temp_lo_2 != 0) {
-                func_00201650(temp_19, 0xC, (temp_lo_2 % 10) + 9, temp_f23, temp_f24, var_16, var_16, var_16, arg2);
+            hundreds = cost / 100;
+            if (hundreds != 0) {
+                func_00201650(glyphs, 0xC, (hundreds % 10) + 9,
+                              digitX, digitY, tone, tone, tone, opacity);
             }
-            if ((func_0023dd90(temp_18, temp_17 & 0xFFFF) & 0xFFFF) == 1) {
-                func_00201650(temp_19, 0xC, 0x56, 310.0f + fx, 12.0f + fy, var_16, var_16, var_16, arg2);
+            if ((func_0023dd90(unit, (u16)skill) & 0xFFFF) == 1) {
+                func_00201650(glyphs, 0xC, 0x56, 310.0f + x, 12.0f + y,
+                              tone, tone, tone, opacity);
             } else {
-                func_00201650(temp_19, 0xC, 0x57, 310.0f + fx, 12.0f + fy, var_16, var_16, var_16, arg2);
+                func_00201650(glyphs, 0xC, 0x57, 310.0f + x, 12.0f + y,
+                              tone, tone, tone, opacity);
             }
         }
     }
-    if (arg4 != 0) {
+    if (showDetail != 0) {
         func_00272c60(0x40);
-        func_002bc860(10.0f + (2.0f + temp_f20), 36.0f + fy, 0.0f, temp_22 | -0x100, 1, 0, temp_17);
+        func_002bc860(10.0f + ((2.0f + textX) - 1.0f), 36.0f + y,
+                      0.0f, alpha | ~0xFF, 1, 0, skill);
         func_00272c80(0x40);
     }
 }
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205170);
-#endif
-
+#pragma pop
 /* 888/896 bytes; twelve resolved relocations and eight zero alignment bytes.
  * Narrow the promoted row ID at helper boundaries. The four-byte color
  * has byte and packed-word views; reload the signed number after drawing. */
@@ -2930,105 +2943,84 @@ INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205ff0);
 /* 2026-09-19 cold205ff0v8 func_00205ff0: retail 886 / object 867 (v8_fix) band 859-913 deficit -19 (-2.1%) INSIDE, keep INCLUDE_ASM (not MATCH); jal 24 both, jalr 10 both (7x base $v0 + 3x cb $s5) - old obj had 11 (extra count-loop cb from duplicated arms), fixed to shared flag/goto matching retail (selected+highlighted skips, single cb site; task note inverted retail 11 vs obj 10, measured retail 10 via decode); edits 303 (was 422 on v3/v7 824-825), +42 via x0=0.0f base for all X (476/479/97/461/463 + x0, pos[0]=(s32)(32+x0)), s32 pos[4]/u8 col[4] struct (4x sb + int cvt stores + 2nd 45d6e0 update), var_f22=-50*shape duplicated per &4 arm, count min (limit>=cur); stale v0b-v7 probe 792-794 not carried forward; remaining FPR/s-reg coloring + clamp c.le/bc1t vs c.olt/bc1f polarity + schedule floors; floor body docs/probe_archive/Lane0020_00205ff0_body.c. */
 /* Counts: jal 24 both (1x012d0 11x01410 7x01650 2x019e0 1x452560 2x45d6e0); jalr retail 10 (7x base $2 + 3x cb $21) vs obj 11 (7x base + 4x cb, extra loop arm); no jtbl (only jr $31), no switch, no missing case 7. Largest runs: del 45:62 len17 + ins 43:58 len15 (clamp c.le/bc1t vs c.olt/bc1f polarity pair, v1 ties); del 329:337 len8 (2nd 45d6e0 pos: stack 0xFC/0xE0 vs 0xDF/0xD8 + add/cvt/mfc/sw); del 507:515 len8 (cb sharing 1 call w/ var_7 vs duplicated 2 calls); tail del 769:770/804:805/814:815 + ins 807:744-748 ($f20 reuse vs remat 0x1CD). */
 /* 7o N/A (0 floors, structural not pair-exchange, already bare-decl form; reverse ties). Eight probe_variants one call: v0b 793, v1 793, v2 793, v3 792 best, v4 793, v5 794, v6 793, v7 792 (C89-fixed re-measured). Rejects recorded; scratch /var/tmp/cold205ff0/v0b.c+v1..v7+fnalign_v3.txt. */
-/* measured: object 868B/window 880B/normalized_diff 291 (85 differing words, live re-measured current tree). */
-/* measured: entry tall-branch plus callback-arg setup floor; slti-at, dead-store trailing-arm, arg-cast audit, loop-invariant and schedule levers checked top-down via fnalign with no gain over current 85-word body; full-size (868 vs 880, minus 1pt) floor. */
-/* 2026-09-18, handoff 7r probe; floor stands at 85.  217/217 instructions.
-   This is one of only three floors in the tree whose accumulator-prime count
-   differs from retail (object 5, retail 4).  The site is
-   `temp_f20_2 = (f32)0x14D + (18.5f * (1.0f - temp_f20))`: retail computes
-   the product separately and finishes with a plain `add.s $f20, $f0, $f1`,
-   where this body primes `mtc1 $zero` and uses `adda.s`/`madd.s`.
-   Per 7r that means retail's product is shared - used a second time - but no
-   second use is visible in either body and the instruction counts are equal,
-   so the sharing is not a missing statement.  Measured and rejected:
-   writing the product first `(18.5f * (1.0f - temp_f20)) + (f32)0x14D` ties
-   at 85, lifting it into a named local ties at 85, distributing to
-   `18.5f - 18.5f * temp_f20` costs 147, and folding the constant to
-   `((f32)0x14D + 18.5f) - 18.5f * temp_f20` costs 146. */
-/* measured 00206dd0 2026-09-19: callback 3rd param s8 -> u8 fixes li -1 to li 0xff (retail 0x0020705c); 85 -> 84 words, 21 -> 20 edits (+2 reloc-only), 217/217 kept. */
-/* 2026-09-19 frame-first + pairs (masked 84, raw 22/99, 217/217 exact, frame */
-/* both addiu $sp,$sp,-0x90): fnalign 20 (+2 reloc-only); home moves object */
-/* move $s2,$a2 first vs retail mov.s $f21,$f12 + mov.s $f20,$f13 first (int vs */
-/* float spill order, independent ABI files); base retail lw $v0,($s0) vs object */
-/* lui $v0,0 + lw $v0,($v0); FP sub.s $f1 vs $f2, lui/mtc1 + cvt/add scheduling, */
-/* lh $a1 scheduling; stacking sched 189, nobranch 84 tie, peephole 153; decl */
-/* float-first tie 84, pos u32 tie 84; s8->u8 85->84 kept. */
-// FUN_00206DD0 NONMATCHING
-#ifdef NON_MATCHING
-/* lane W42c20 probe for func_00206dd0 (0x00206dd0)
- * measured: obj 868B, window 880B, differing words 88 (fndiff)
- * levers tried: explicit clamping, (2.0f * f) - (f * f) to trigger mula/msub,
- *   base = D_00887300, s32[4] pos with bit-pattern values, Color4 byte writes.
- * Remaining differences: D_00887300 base register/relocation handling
- *   and prologue saved-register copy order for s2 vs f20/f21.
- */
+typedef struct BattleRenderDispatch {
+    void (*setState)(u32 state, u32 value);
+} BattleRenderDispatch;
 
-void func_00206dd0(u8 *arg0, u8 *arg1, void (*arg2)(u8 *, s16, u8, s32, s32, f32, f32), f32 fparg0, f32 fparg1)
+/* 868/880 bytes; seventeen resolved relocations and twelve zero alignment
+ * bytes. Retain the renderer base separately for each drawing phase and
+ * the float values between the easing product and integer pixel origin. */
+// FUN_00206DD0
+void func_00206dd0(u8 *work, u8 *selection, f32 x, f32 y,
+                   BattleSelectionDraw drawSelection)
 {
-    u8 *temp_2;
-    f32 var_f0;
-    f32 var_f1;
-    f32 temp_f20;
-    f32 temp_f20_2;
-    s32 pos[4];
+    u8 *glyphs;
+    f32 progress;
+    f32 clamped;
+    f32 scale;
+    f32 remainingFraction;
+    f32 remaining;
+    f32 slideProduct;
+    f32 slideOffset;
+    f32 row;
+    s32 rect[4];
     Color4 color;
-    void (**base)(u32, u32);
+    BattleRenderDispatch *renderer;
 
-    temp_2 = (u8 *)func_00452560(*(s32 *)(arg0 + 0x5B0));
-    func_002012d0(temp_2, fparg0, fparg1);
+    glyphs = (u8 *)func_00452560(*(s32 *)(work + 0x5B0));
+    func_002012d0(glyphs, x, y);
 
-    var_f0 = (f32)(*(s16 *)(arg0 + 0x1A)) / 4.0f;
-    if (var_f0 > 1.0f) {
-        var_f1 = 1.0f;
-    } else if (var_f0 < 0.0f) {
-        var_f1 = 0.0f;
+    progress = (f32)(*(s16 *)(work + 0x1A)) / 4.0f;
+    if (progress > 1.0f) {
+        clamped = 1.0f;
+    } else if (progress < 0.0f) {
+        clamped = 0.0f;
     } else {
-        var_f1 = var_f0;
+        clamped = progress;
     }
 
-    temp_f20 = (2.0f * var_f1) - (var_f1 * var_f1);
-    if (temp_f20 <= 0.0f) {
+    scale = (2.0f * clamped) - (clamped * clamped);
+    if (scale <= 0.0f) {
         return;
     }
 
-    base = D_00887300;
-    base[0](8, 1);
-
-    if (temp_f20 < 1.0f) {
-        base[0](1, 0);
-
+    renderer = (BattleRenderDispatch *)D_00887300;
+    renderer->setState(8, 1);
+    if (scale < 1.0f) {
+        renderer->setState(1, 0);
         color.c0 = 0;
         color.c1 = 0;
         color.c2 = 0xFF;
         color.c3 = 0;
-        pos[0] = 0x6E;
-        pos[1] = 0x14D;
-        pos[2] = 0x17C;
-        pos[3] = 0x25;
-        func_0045d6e0((u8 *)&color, (f32 *)pos, 0.0f, 0);
+        rect[0] = 0x6E;
+        rect[1] = 0x14D;
+        rect[2] = 0x17C;
+        rect[3] = 0x25;
+        func_0045d6e0((u8 *)&color, (f32 *)rect, 0.0f, 0);
     }
 
-    func_002019e0(temp_2, 170.0f);
-    func_00201720(temp_2, 1.0f, temp_f20);
+    func_002019e0(glyphs, 170.0f);
+    func_00201720(glyphs, 1.0f, scale);
+    remainingFraction = 1.0f - scale;
+    remaining = remainingFraction;
+    slideProduct = 18.5f * remaining;
+    slideOffset = slideProduct;
+    row = (f32)0x14D + slideOffset;
+    func_00201410(glyphs, 9, 0x30, 110.0f, row);
+    func_00201410(glyphs, 9, 0x31, 470.0f, row);
 
-    temp_f20_2 = (f32)0x14D + (18.5f * (1.0f - temp_f20));
-    func_00201410(temp_2, 9, 0x30, 110.0f, temp_f20_2);
-    func_00201410(temp_2, 9, 0x31, 470.0f, temp_f20_2);
-
-    func_00201720(temp_2, 1.0f, 1.0f);
-    base[0](8, 0);
-    func_002019e0(temp_2, 150.0f);
-    base[0](6, 1);
-    arg2(arg0, *(s16 *)(arg1 + 4), 0xFF, 0, 0, 127.0f, 338.0f);
-    base[0](6, 0);
-    func_002019e0(temp_2, 0.0f);
-    func_00201410(temp_2, 9, 0x32, 215.0f, 412.0f);
-    func_00201410(temp_2, 9, 0x33, 193.0f, 412.0f);
-    func_00201410(temp_2, 9, 0x33, (f32)0x19D, 412.0f);
+    func_00201720(glyphs, 1.0f, 1.0f);
+    renderer = (BattleRenderDispatch *)D_00887300;
+    renderer->setState(8, 0);
+    func_002019e0(glyphs, 150.0f);
+    renderer->setState(6, 1);
+    drawSelection(work, *(s16 *)(selection + 4), 127.0f, 338.0f, 0xFF, 0, 0);
+    renderer->setState(6, 0);
+    func_002019e0(glyphs, 0.0f);
+    func_00201410(glyphs, 9, 0x32, 215.0f, 412.0f);
+    func_00201410(glyphs, 9, 0x33, 193.0f, 412.0f);
+    func_00201410(glyphs, 9, 0x33, (f32)0x19D, 412.0f);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00206dd0);
-#endif
 
 extern s32 func_00106600(s16 id);
 extern u16 *func_0010a900(u16 id);
@@ -3687,7 +3679,6 @@ u16 func_00208b00(u8 *arg0, u8 *arg1)
 // FUN_00208D00
 void func_00208d00(u8 *arg0, s32 arg1, f32 *arg2)
 {
-    extern void func_00206dd0(u8 *arg0, u8 *state, f32 farg0, f32 farg1, void (*callback)(void));
     u8 *state = (u8 *)arg1;
     u8 *temp;
     s16 temp_2;
@@ -3697,7 +3688,7 @@ void func_00208d00(u8 *arg0, s32 arg1, f32 *arg2)
     if (*(u16 *)state == 2) {
         func_00201650(temp, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
         func_00201650(temp, 9, 0x4A, 93.0f, 314.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-        func_00206dd0(state, arg0, arg2[0], arg2[1], (void (*)(void))func_00205170);
+        func_00206dd0(state, arg0, arg2[0], arg2[1], func_00205170);
     } else {
         func_00201650(temp, 9, 0x21, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     }
@@ -3844,7 +3835,6 @@ u16 func_002091f0(u8 *arg0, u8 *arg1)
 // FUN_00209370
 void func_00209370(u8 *arg0, s32 arg1, f32 *arg2)
 {
-    extern void func_00206dd0(u8 *arg0, u8 *state, f32 farg0, f32 farg1, void (*callback)(void));
     u8 *state = (u8 *)arg1;
     u8 *temp;
     s16 temp_2;
@@ -3854,7 +3844,7 @@ void func_00209370(u8 *arg0, s32 arg1, f32 *arg2)
     if (*(u16 *)state == 2) {
         func_00201650(temp, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
         func_00201650(temp, 9, 0x4A, 93.0f, 314.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-        func_00206dd0(state, arg0, arg2[0], arg2[1], (void (*)(void))func_002055d0);
+        func_00206dd0(state, arg0, arg2[0], arg2[1], func_002055d0);
     } else {
         func_00201650(temp, 9, 0x23, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     }

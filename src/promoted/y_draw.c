@@ -1,5 +1,6 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit y_draw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+#include "fcl_color.h"
 #include "type.h"
 #include "fcl_bounds_packet.h"
 #include "fcl_draw_task.h"
@@ -18,7 +19,7 @@ typedef struct {
 } f4;
 
 
-extern void func_002b82d0(u8 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, s16 arg5);
+extern void func_002b82d0(u8 *arg0, u8 arg1, u32 arg2, u32 arg3, u32 arg4, s16 arg5);
 
 extern void func_002b8300(u8 *arg0, u32 arg1, u32 arg2, s16 arg3, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
 
@@ -40,9 +41,8 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_003f6440(s32, s32);
 extern void (*D_00887300[])(u32 state, u32 value);
 
-extern void *func_002b2970(void *, f32, f32);
+extern void func_002b2970(u8 *, f32, f32);
 extern s32 func_002b2a30(u8, u8, u8, u8);
-extern void func_002b2a60(u8 *, s32, s32, s32, s32);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern f32 func_0046b260(u8 *arg0);
 extern f32 func_0046b2f0(u8 *arg0);
@@ -349,7 +349,7 @@ s32 func_002b6590(s32 arg0, s16 arg1, s32 arg2) {
         j = i;
         off = j;
         zero = 0.0f;
-        func_002b2970(&pos, zero, zero);
+        func_002b2970((u8 *)&pos, zero, zero);
         *(f2 *)((u8 *)((s32)p + off * 8) + 0x28) = pos;
         ff = 0xFF;
         *(u8 *)((s32)p + off + 0x6C) = ff;
@@ -358,7 +358,7 @@ s32 func_002b6590(s32 arg0, s16 arg1, s32 arg2) {
         one = 0x3F800000;
         *(s32 *)(q + 0xA4) = one;
         *(s32 *)(q + 0x98) = one;
-        func_002b2a60((u8 *)&color, ff, ff, ff, ff);
+        color = func_002b2a60(ff, ff, ff, ff);
         c0 = color.c0;
         c1 = color.c1;
         c2 = color.c2;
@@ -482,7 +482,7 @@ void func_002b69f0(s16 arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
 /* measured: close opt_propagation scope after func_002b69f0. */
 #pragma opt_propagation on
 // FUN_002B6A40
-void func_002b6a40(u8 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, s32 arg5) {
+void func_002b6a40(u8 *arg0, u8 arg1, u32 arg2, u32 arg3, u32 arg4, s32 arg5) {
     u8 *base = *(u8 **)(arg0 + 0x38);
     s16 ext = (s16)arg5;
     func_002b82d0(base + 0x10, arg1, arg2, arg3, arg4, ext);
@@ -502,7 +502,7 @@ void func_002b6a40(u8 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, s32 arg5) {
 // FUN_002B6A70
 /* measured: open opt_propagation scope for func_002b6a70. */
 #pragma opt_propagation off
-void func_002b6a70(s16 arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, s32 arg5) {
+void func_002b6a70(s16 arg0, u8 arg1, u32 arg2, u32 arg3, u32 arg4, s32 arg5) {
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
     func_002b82d0(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, arg3, arg4, (s16)arg5);
 }
@@ -586,7 +586,7 @@ void func_002b6be0(u8 *arg0, f2 p1, u32 arg2, f32 fparg0) {
    worse). Remaining levers: deferred g local scoped to the pair+chain only.
    Same argument-materialization family as the old nd 9 note. */
 // FUN_002B6C30
-void func_002b6c30(s64 arg0, f2 p1, s32 arg2, f32 fparg0) {
+void func_002b6c30(s64 arg0, f2 p1, f32 fparg0, s32 arg2) {
     u8 *base;
     u8 *base2;
     s32 off;
@@ -830,7 +830,7 @@ u8 *func_002b74f0(s32 arg0, s32 arg1) {
             *(f32 *)(entry + 0xA8) = unitScale;
             *(f32 *)(entry + 0x9C) = unitScale;
             entries = *(u8 **)(iGpffffb574 + 0x38);
-            func_002b2a60((u8 *)&color, alpha, alpha, alpha, alpha);
+            color = func_002b2a60(alpha, alpha, alpha, alpha);
             *(u4 *)((u8 *)(entryOffset + (s32)entries) + componentOffset + 0x81) = color;
             component++;
         }
@@ -892,7 +892,7 @@ void func_002b77d0(s16 arg0, f2 p1, s16 arg1, u32 arg2, s16 arg3, s8 arg4, s16 a
         func_0046d280(tmp);
         func_002b82d0(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x72), 0, 0, 0, (s16)(arg6 + arg7));
         func_002b8300(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, 0, (u32)arg6, arg7, 1.0f, 1.0f, 1.0f, fGpffff8504);
-        func_002b2970(&tmpS, p1.x, p1.y + func_0046b2f0(first) / 2.0f);
+        func_002b2970((u8 *)&tmpS, p1.x, p1.y + func_0046b2f0(first) / 2.0f);
         outS = tmpS;
         func_002b8270(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, p1, outS, 0, (s32)arg6, (s32)arg7);
     } else {
@@ -919,7 +919,7 @@ void func_002b77d0(s16 arg0, f2 p1, s16 arg1, u32 arg2, s16 arg3, s8 arg4, s16 a
         *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x8C) = ((u8 *)&arg2)[3];
         func_002b82d0(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, 0, ((u8 *)&arg2)[3], 0, 0, 0);
         func_002b8300(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, 0, (u32)arg5, arg7, 1.0f, 1.0f, fGpffff8504, 1.0f);
-        func_002b2970(&tmpS, p1.x, p1.y + func_0046b2f0(first) / 2.0f);
+        func_002b2970((u8 *)&tmpS, p1.x, p1.y + func_0046b2f0(first) / 2.0f);
         outS = tmpS;
         func_002b8270(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, outS, p1, 0, (s32)arg5, (s32)arg7);
     }
@@ -1143,7 +1143,7 @@ void func_002b8270(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5) {
 }
 
 // FUN_002B82D0
-void func_002b82d0(u8 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, s16 arg5) {
+void func_002b82d0(u8 *arg0, u8 arg1, u32 arg2, u32 arg3, u32 arg4, s16 arg5) {
     arg0[0x5C] = arg1;
     arg0[0x5D] = arg2;
     arg0[0x5E] = arg1;
@@ -1199,224 +1199,128 @@ void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
     *(s16 *)(arg0 + 0x0) |= 0x200;
 }
 
-/* measured: all four branches (sp0/sp8 combos) fully decompiled - every store
-   matches retail's semantics (0x88-0x9C 1.0f/fGpffff8504 pattern, the 2970 f2
-   result copied to 0x18/0x28 vs p2 to 0x20, the u4 a2/a3 copies at 0x6D-0x77,
-   the 0x7E arg6/2 sra pattern, the swapped 0x94/0x98 order and swapped
-   0x18/0x20 placement in the sp0!=0 branches, fparg1 to +4, |= 1 tail). The
-   block is mwcc b210's stack layout: retail allocates the per-branch f2/u4
-   locals (p2/t/out/a3/a2) at FRESH slots per branch (out@B8/B0/A8/A0, t@98/
-   88/70/60, p2@90/80/78/68, a3@D8/D0/C8/C0, a2@DC/D4/CC/C4 - the whole
-   0x60-0xDF band, frame 0xE0), while mwcc liveness-merges the mutually
-   exclusive branch slots into one 0x60-0x7F band (frame 0xD0, nd 327 across
-   function-level and block-scoped local spellings, with and without hoisted
-   x6/x7 s16 extensions - retail's arg6/arg7 extensions are hoisted temps
-   used only at 0x82/0xA0). No source spelling forces fresh per-branch slots. */
-/* measured 002b83e0 (banked honest four-leaf body: u8* + f2 p1 + u4/u4 + u8/u8 + s16/s16 + 2x f32 + 2x s8 stack, 0x88-0x9C 1.0f/gp pattern per leaf with 94/98 swap in sp0!=0 leaves, 2970 f2 + 8270-pattern stores with 18/20 swap, u4 byte copies, 0x7E s6/2 sra in B/D, fparg1 tail + |=1): measure_guarded 360 words obj 1336B/window 1472B (136 short); fnalign --candidate 314 edits, retail 366 vs object 334 instrs; opclass lwc1 -17 swc1 -15 lbu -12 shortfalls with beqz +3/bnez -3. Earliest hunk is prologue saves + spill shift (sd a1 0x50->0x90); dropping the entry alias re-measured identical 360. Wall is retail's fresh per-branch f2/u4 stack slots (0x60-0xDF band, frame 0xE0) vs mwcc's merged band (frame 0xD0) -- no honest spelling forces fresh slots. Production stays ASM. */
-/* measured 2026-09-19: f32 fa2/fa3 float-mediated u4 copies recover the swc1/lwc1 hole. */
-/* fnalign retail 366 vs object 362 (-1.1%, inside +-3%); was 334 (-8.7%). Frame 0xC0 vs retail 0xE0; remaining deltas are t/out ld/sd vs lwc1/swc1 and sra vs zero leaves. */
-// FUN_002B83E0 NONMATCHING
-#ifdef NON_MATCHING
-void func_002b83e0(u8 *arg0, f2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5, f32 fparg0, f32 fparg1, s16 arg6, s16 arg7, s8 arg_sp0, s8 arg_sp8) {
+/* Position snapshots are consumed by the inline transition setters.
+   Duration stays signed-word sized until each field is stored. */
+static inline void fclStartPosition(u8 *arg0, const f2 *p1, const f2 *p2, u32 arg3, s32 arg4, s32 arg5) {
+    f32 startX = p1->x;
+    f32 startY;
+    *(f32 *)(arg0 + 0x18) = startX;
+    startY = p1->y;
+    *(f32 *)(arg0 + 0x1C) = startY;
+    *(f32 *)(arg0 + 0x20) = p2->x;
+    *(f32 *)(arg0 + 0x24) = p2->y;
+    *(f32 *)(arg0 + 0x28) = startX;
+    *(f32 *)(arg0 + 0x2C) = startY;
+    *(s16 *)(arg0 + 0x32) = 0;
+    *(s16 *)(arg0 + 0x30) = arg4;
+    *(s16 *)(arg0 + 0x34) = arg5;
+    arg0[0x36] = arg3;
+    *(s16 *)(arg0 + 0x0) |= 2;
+}
+
+static inline void fclStartAlpha(u8 *arg0, u8 arg1, u32 arg2, u32 arg3, u32 arg4, s16 arg5) {
+    arg0[0x5C] = arg1;
+    arg0[0x5D] = arg2;
+    arg0[0x5E] = arg1;
+    *(s16 *)(arg0 + 0x5A) = 0;
+    *(s16 *)(arg0 + 0x58) = arg4;
+    *(s16 *)(arg0 + 0x60) = arg5;
+    arg0[0x62] = arg3;
+    *(s16 *)(arg0 + 0x0) |= 4;
+}
+
+static inline void fclStartRevealScale(u8 *arg0, u32 mode, u32 duration, s32 delay, s8 outgoing)
+{
+    *(f32 *)(arg0 + 0x88) = 1.0f;
+    *(f32 *)(arg0 + 0x8C) = 1.0f;
+    *(f32 *)(arg0 + 0x90) = 1.0f;
+    if (outgoing == 0) {
+        f32 initialScale = fGpffff8504;
+        *(f32 *)(arg0 + 0x94) = initialScale;
+        *(f32 *)(arg0 + 0x98) = 1.0f;
+        *(f32 *)(arg0 + 0x9C) = initialScale;
+    } else {
+        *(f32 *)(arg0 + 0x94) = 1.0f;
+        *(f32 *)(arg0 + 0x98) = fGpffff8504;
+        *(f32 *)(arg0 + 0x9C) = 1.0f;
+    }
+    *(s16 *)(arg0 + 0x84) = 0;
+    *(s16 *)(arg0 + 0x82) = duration;
+    *(s16 *)(arg0 + 0xA0) = delay;
+    arg0[0xA2] = mode;
+    *(s16 *)arg0 |= 0x10;
+}
+
+static inline void fclStartColor(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
+    arg0[0x6D] = arg1.c0;
+    arg0[0x6E] = arg1.c1;
+    arg0[0x6F] = arg1.c2;
+    arg0[0x71] = arg2.c0;
+    arg0[0x72] = arg2.c1;
+    arg0[0x73] = arg2.c2;
+    arg0[0x75] = arg1.c0;
+    arg0[0x76] = arg1.c1;
+    arg0[0x77] = arg1.c2;
+    *(s16 *)(arg0 + 0x7A) = arg4;
+    *(s16 *)(arg0 + 0x7C) = 0;
+    *(s16 *)(arg0 + 0x7E) = arg5;
+    arg0[0x80] = arg3;
+    *(s16 *)(arg0 + 0x0) |= 0x200;
+}
+
+// FUN_002B83E0
+void func_002b83e0(u8 *arg0, FclDrawPosition p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5,
+                   f32 fparg0, f32 fparg1, s32 arg6, s32 arg7, s8 arg_sp0, s8 arg_sp8)
+{
+    struct {
+        f2 end3;
+        FclPackedPosition start3;
+        f2 end2;
+        FclPackedPosition start2;
+        FclPackedPosition end1;
+        f2 start1;
+        FclPackedPosition end0;
+        f2 start0;
+        f2 source3, source2, source1, source0;
+    } positions;
+
     arg0[0x37] = arg_sp8;
     arg0[0xA3] = arg_sp8;
-    arg0[0x5C] = arg4;
-    arg0[0x5D] = arg5;
-    arg0[0x5E] = arg4;
-    *(s16 *)(arg0 + 0x5A) = 0;
-    *(s16 *)(arg0 + 0x58) = arg6;
-    *(s16 *)(arg0 + 0x60) = arg7;
-    arg0[0x62] = 0;
-    *(s16 *)arg0 |= 4;
-    if (arg_sp0 != 0) {
-        if ((s32)(s8)arg_sp8 != 0) {
-            f2 t;
-            f2 out;
-            f32 fa2;
-            f32 fa3;
-            *(f32 *)(arg0 + 0x88) = 1.0f;
-            *(f32 *)(arg0 + 0x8C) = 1.0f;
-            *(f32 *)(arg0 + 0x90) = 1.0f;
-            *(f32 *)(arg0 + 0x94) = 1.0f;
-            *(f32 *)(arg0 + 0x98) = fGpffff8504;
-            *(f32 *)(arg0 + 0x9C) = 1.0f;
-            *(s16 *)(arg0 + 0x84) = 0;
-            *(s16 *)(arg0 + 0x82) = arg6;
-            *(s16 *)(arg0 + 0xA0) = arg7;
-            arg0[0xA2] = 1;
-            *(s16 *)arg0 |= 0x10;
-            func_002b2970(&t, p1.x, p1.y + fparg0 / 2.0f);
-            out = t;
-            fa2 = *(f32 *)&arg2;
-            fa3 = *(f32 *)&arg3;
-            *(f32 *)(arg0 + 0x18) = p1.x;
-            *(f32 *)(arg0 + 0x1C) = p1.y;
-            *(f32 *)(arg0 + 0x20) = out.x;
-            *(f32 *)(arg0 + 0x24) = out.y;
-            *(f32 *)(arg0 + 0x28) = p1.x;
-            *(f32 *)(arg0 + 0x2C) = p1.y;
-            *(s16 *)(arg0 + 0x32) = 0;
-            *(s16 *)(arg0 + 0x30) = arg6;
-            *(s16 *)(arg0 + 0x34) = arg7;
-            arg0[0x36] = 1;
-            *(s16 *)arg0 |= 2;
-            arg0[0x6D] = ((u8 *)&fa2)[0];
-            arg0[0x6E] = ((u8 *)&fa2)[1];
-            arg0[0x6F] = ((u8 *)&fa2)[2];
-            arg0[0x71] = ((u8 *)&fa3)[0];
-            arg0[0x72] = ((u8 *)&fa3)[1];
-            arg0[0x73] = ((u8 *)&fa3)[2];
-            arg0[0x75] = ((u8 *)&fa2)[0];
-            arg0[0x76] = ((u8 *)&fa2)[1];
-            arg0[0x77] = ((u8 *)&fa2)[2];
-            *(s16 *)(arg0 + 0x7A) = 0;
-            *(s16 *)(arg0 + 0x7C) = 0;
-            *(s16 *)(arg0 + 0x7E) = arg6 / 2;
-            arg0[0x80] = 0;
-            *(s16 *)arg0 |= 0x200;
+    fclStartAlpha(arg0, arg4, arg5, 0, arg6, arg7);
+    if (arg_sp0 == 0) {
+        if (arg_sp8 == 0) {
+            fclStartRevealScale(arg0, 0, (s16)arg6, (s16)arg7, 0);
+            positions.end0.bits = p1.bits;
+            func_002b2970((u8 *)&positions.source0, p1.position.x, p1.position.y + fparg0 / 2.0f);
+            positions.start0 = positions.source0;
+            fclStartPosition(arg0, &positions.start0, &positions.end0.position, 0, arg6, arg7);
+            fclStartColor(arg0, arg2, arg3, 0, 0, 0);
         } else {
-            f2 t;
-            f2 out;
-            f32 fa2;
-            f32 fa3;
-            *(f32 *)(arg0 + 0x88) = 1.0f;
-            *(f32 *)(arg0 + 0x8C) = 1.0f;
-            *(f32 *)(arg0 + 0x90) = 1.0f;
-            *(f32 *)(arg0 + 0x94) = 1.0f;
-            *(f32 *)(arg0 + 0x98) = fGpffff8504;
-            *(f32 *)(arg0 + 0x9C) = 1.0f;
-            *(s16 *)(arg0 + 0x84) = 0;
-            *(s16 *)(arg0 + 0x82) = arg6;
-            *(s16 *)(arg0 + 0xA0) = arg7;
-            arg0[0xA2] = 1;
-            *(s16 *)arg0 |= 0x10;
-            func_002b2970(&t, p1.x, p1.y + fparg0 / 2.0f);
-            out = t;
-            fa2 = *(f32 *)&arg2;
-            fa3 = *(f32 *)&arg3;
-            *(f32 *)(arg0 + 0x18) = p1.x;
-            *(f32 *)(arg0 + 0x1C) = p1.y;
-            *(f32 *)(arg0 + 0x20) = out.x;
-            *(f32 *)(arg0 + 0x24) = out.y;
-            *(f32 *)(arg0 + 0x28) = p1.x;
-            *(f32 *)(arg0 + 0x2C) = p1.y;
-            *(s16 *)(arg0 + 0x32) = 0;
-            *(s16 *)(arg0 + 0x30) = arg6;
-            *(s16 *)(arg0 + 0x34) = arg7;
-            arg0[0x36] = 0;
-            *(s16 *)arg0 |= 2;
-            arg0[0x6D] = ((u8 *)&fa2)[0];
-            arg0[0x6E] = ((u8 *)&fa2)[1];
-            arg0[0x6F] = ((u8 *)&fa2)[2];
-            arg0[0x71] = ((u8 *)&fa3)[0];
-            arg0[0x72] = ((u8 *)&fa3)[1];
-            arg0[0x73] = ((u8 *)&fa3)[2];
-            arg0[0x75] = ((u8 *)&fa2)[0];
-            arg0[0x76] = ((u8 *)&fa2)[1];
-            arg0[0x77] = ((u8 *)&fa2)[2];
-            *(s16 *)(arg0 + 0x7A) = 0;
-            *(s16 *)(arg0 + 0x7C) = 0;
-            *(s16 *)(arg0 + 0x7E) = 0;
-            arg0[0x80] = 0;
-            *(s16 *)arg0 |= 0x200;
+            fclStartRevealScale(arg0, 1, (s16)arg6, (s16)arg7, 0);
+            positions.end1.bits = p1.bits;
+            func_002b2970((u8 *)&positions.source1, p1.position.x, p1.position.y + fparg0 / 2.0f);
+            positions.start1 = positions.source1;
+            fclStartPosition(arg0, &positions.start1, &positions.end1.position, 1, arg6, arg7);
+            fclStartColor(arg0, arg2, arg3, 0, 0, arg6 / 2);
         }
-    } else if ((s32)(s8)arg_sp8 != 0) {
-        f2 t;
-        f2 out;
-        f32 fa2;
-        f32 fa3;
-        *(f32 *)(arg0 + 0x88) = 1.0f;
-        *(f32 *)(arg0 + 0x8C) = 1.0f;
-        *(f32 *)(arg0 + 0x90) = 1.0f;
-        *(f32 *)(arg0 + 0x94) = fGpffff8504;
-        *(f32 *)(arg0 + 0x98) = 1.0f;
-        *(f32 *)(arg0 + 0x9C) = fGpffff8504;
-        *(s16 *)(arg0 + 0x84) = 0;
-        *(s16 *)(arg0 + 0x82) = arg6;
-        *(s16 *)(arg0 + 0xA0) = arg7;
-        arg0[0xA2] = 1;
-        *(s16 *)arg0 |= 0x10;
-        func_002b2970(&t, p1.x, p1.y + fparg0 / 2.0f);
-        out = t;
-        fa2 = *(f32 *)&arg2;
-        fa3 = *(f32 *)&arg3;
-        *(f32 *)(arg0 + 0x18) = out.x;
-        *(f32 *)(arg0 + 0x1C) = out.y;
-        *(f32 *)(arg0 + 0x20) = p1.x;
-        *(f32 *)(arg0 + 0x24) = p1.y;
-        *(f32 *)(arg0 + 0x28) = out.x;
-        *(f32 *)(arg0 + 0x2C) = out.y;
-        *(s16 *)(arg0 + 0x32) = 0;
-        *(s16 *)(arg0 + 0x30) = arg6;
-        *(s16 *)(arg0 + 0x34) = arg7;
-        arg0[0x36] = 1;
-        *(s16 *)arg0 |= 2;
-        arg0[0x6D] = ((u8 *)&fa2)[0];
-        arg0[0x6E] = ((u8 *)&fa2)[1];
-        arg0[0x6F] = ((u8 *)&fa2)[2];
-        arg0[0x71] = ((u8 *)&fa3)[0];
-        arg0[0x72] = ((u8 *)&fa3)[1];
-        arg0[0x73] = ((u8 *)&fa3)[2];
-        arg0[0x75] = ((u8 *)&fa2)[0];
-        arg0[0x76] = ((u8 *)&fa2)[1];
-        arg0[0x77] = ((u8 *)&fa2)[2];
-        *(s16 *)(arg0 + 0x7A) = 0;
-        *(s16 *)(arg0 + 0x7C) = 0;
-        *(s16 *)(arg0 + 0x7E) = arg6 / 2;
-        arg0[0x80] = 0;
-        *(s16 *)arg0 |= 0x200;
+    } else if (arg_sp8 == 0) {
+        fclStartRevealScale(arg0, 0, (s16)arg6, (s16)arg7, 1);
+        func_002b2970((u8 *)&positions.source2, p1.position.x, p1.position.y + fparg0 / 2.0f);
+        positions.end2 = positions.source2;
+        positions.start2.bits = p1.bits;
+        fclStartPosition(arg0, &positions.start2.position, &positions.end2, 0, arg6, arg7);
+        fclStartColor(arg0, arg2, arg3, 0, 0, 0);
     } else {
-        f2 t;
-        f2 out;
-        f32 fa2;
-        f32 fa3;
-        *(f32 *)(arg0 + 0x88) = 1.0f;
-        *(f32 *)(arg0 + 0x8C) = 1.0f;
-        *(f32 *)(arg0 + 0x90) = 1.0f;
-        *(f32 *)(arg0 + 0x94) = fGpffff8504;
-        *(f32 *)(arg0 + 0x98) = 1.0f;
-        *(f32 *)(arg0 + 0x9C) = fGpffff8504;
-        *(s16 *)(arg0 + 0x84) = 0;
-        *(s16 *)(arg0 + 0x82) = arg6;
-        *(s16 *)(arg0 + 0xA0) = arg7;
-        arg0[0xA2] = 0;
-        *(s16 *)arg0 |= 0x10;
-        func_002b2970(&t, p1.x, p1.y + fparg0 / 2.0f);
-        out = t;
-        fa2 = *(f32 *)&arg2;
-        fa3 = *(f32 *)&arg3;
-        *(f32 *)(arg0 + 0x18) = out.x;
-        *(f32 *)(arg0 + 0x1C) = out.y;
-        *(f32 *)(arg0 + 0x20) = p1.x;
-        *(f32 *)(arg0 + 0x24) = p1.y;
-        *(f32 *)(arg0 + 0x28) = out.x;
-        *(f32 *)(arg0 + 0x2C) = out.y;
-        *(s16 *)(arg0 + 0x32) = 0;
-        *(s16 *)(arg0 + 0x30) = arg6;
-        *(s16 *)(arg0 + 0x34) = arg7;
-        arg0[0x36] = 0;
-        *(s16 *)arg0 |= 2;
-        arg0[0x6D] = ((u8 *)&fa2)[0];
-        arg0[0x6E] = ((u8 *)&fa2)[1];
-        arg0[0x6F] = ((u8 *)&fa2)[2];
-        arg0[0x71] = ((u8 *)&fa3)[0];
-        arg0[0x72] = ((u8 *)&fa3)[1];
-        arg0[0x73] = ((u8 *)&fa3)[2];
-        arg0[0x75] = ((u8 *)&fa2)[0];
-        arg0[0x76] = ((u8 *)&fa2)[1];
-        arg0[0x77] = ((u8 *)&fa2)[2];
-        *(s16 *)(arg0 + 0x7A) = 0;
-        *(s16 *)(arg0 + 0x7C) = 0;
-        *(s16 *)(arg0 + 0x7E) = 0;
-        arg0[0x80] = 0;
-        *(s16 *)arg0 |= 0x200;
+        fclStartRevealScale(arg0, 1, (s16)arg6, (s16)arg7, 1);
+        func_002b2970((u8 *)&positions.source3, p1.position.x, p1.position.y + fparg0 / 2.0f);
+        positions.end3 = positions.source3;
+        positions.start3.bits = p1.bits;
+        fclStartPosition(arg0, &positions.start3.position, &positions.end3, 1, arg6, arg7);
+        fclStartColor(arg0, arg2, arg3, 0, 0, arg6 / 2);
     }
     *(f32 *)(arg0 + 4) = fparg1;
     *(s16 *)arg0 |= 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b83e0);
-#endif
 
 /* measured: complete six-chain state machine decompiled (0x2/0x80/0x4/0x200/
    0x10/8 flag dispatches, recipe-A byte conversions at 0x5C-0x77 - single bare

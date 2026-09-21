@@ -5,6 +5,7 @@ extern char* strcpy(char* destination, const char* source);
 extern s32 sprintf(char* destination, const char* format, ...);
 extern char* strcat(char* destination, const char* source);
 #include "type.h"
+#include "scene_event_internal.h"
 #include "model_matrix_internal.h"
 #include "include_asm.h"
 
@@ -49,7 +50,6 @@ extern void func_0047a1e0(s32 arg0, void* arg1, s32 arg2);
 extern f32 func_0014b660(u8* arg0);
 extern f32 func_0014b5d0(u8* arg0);
 extern f32 func_0014b6f0(u8* arg0);
-extern void func_00146e60(s32 arg0, u8* arg1, f32* arg2);
 extern s32 func_00151580(s32 a, s32 b, s32* c);
 extern s32 func_003e9700(s32 arg0);
 extern void func_003e40b0(f32* a, f32* b);
@@ -586,7 +586,7 @@ s32 func_00177b30(void)
             vec[0] = func_0014b660(p2);
             vec[1] = func_0014b5d0(p2);
             vec[2] = func_0014b6f0(p2);
-            func_00146e60(flag & 0xFFFF, (u8*)(p2 + 0x30), vec);
+            func_00146e60(flag & 0xFFFF, (u8*)(p2 + 0x30), (u8 *)&vec);
             func_0047a1c0(v, p2, 0);
             func_00479940((u8*)v, 0, 0, 8, 1);
         }

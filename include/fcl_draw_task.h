@@ -2,15 +2,7 @@
 #define FCL_DRAW_TASK_H
 
 #include "fcl_draw_types.h"
-
-/* The draw provider consumes the four bytes as a value, rather than a packed
- * integer. Member names agree with the provider's recovered color type. */
-typedef struct {
-    u8 c0;
-    u8 c1;
-    u8 c2;
-    u8 c3;
-} FclDrawColor;
+#include "fcl_color.h"
 
 /* Creators return the SDK task handle; the handle is stored in EE word fields. */
 s32 func_002b5c90(s32 parent, FclVec2 position);
@@ -22,12 +14,35 @@ s32 func_002b9f90(s32 parent, s16 count, s32 resource);
 void func_002b5e30(u8 *task, FclDrawColor color);
 u8 *func_002b5da0(u8 *task);
 
+/* Element positions are at work + slot * 0x200 + 0x12C.
+   Their eight-byte value has four-byte alignment. */
+#pragma push
+#pragma pack(4)
+typedef union {
+    FclVec2 position;
+    s64 bits;
+    FclPackedPosition aligned;
+} FclDrawPosition;
+#pragma pop
+typedef char FclDrawPositionSizeCheck[sizeof(FclDrawPosition) == 8 ? 1 : -1];
+typedef char FclDrawPositionAlignmentCheck[
+    sizeof(struct { u32 prefix; FclDrawPosition value; }) == 12 ? 1 : -1];
+typedef char FclDrawPositionRestoreCheck[
+    sizeof(struct { u32 prefix; FclPackedPosition value; }) == 16 ? 1 : -1];
+
 /* Integer and floating arguments keep their separate EE register order. */
 void func_002b6af0(s16 resource, f32 scale0, f32 scale1, f32 scale2, f32 scale3,
                    u32 mode, u32 duration, s32 delay);
-void func_002b83e0(u8 *draw, FclVec2 position, FclDrawColor color0,
+void func_002b83e0(u8 *draw, FclDrawPosition position, FclDrawColor color0,
                    FclDrawColor color1, u8 alpha0, u8 alpha1, f32 height,
-                   f32 depth, s16 duration, s16 delay, s8 mode, s8 reverse);
+                   f32 depth, s32 duration, s32 delay, s8 mode, s8 reverse);
+
+static inline FclDrawPosition fclDrawPositionValue(FclVec2 position)
+{
+    FclDrawPosition value;
+    value.position = position;
+    return value;
+}
 
 static inline FclDrawColor fclPacketColor(u32 bits)
 {

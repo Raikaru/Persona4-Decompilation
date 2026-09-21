@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "scene_event_internal.h"
 extern s32 iGpffffb4bc;
 extern s32 iGpffffa730;
 extern s32 func_00106330(s32 arg0);
@@ -2469,8 +2470,8 @@ void func_00268ad0(u8 *arg0)
 /* measured 0026cef0: L26 277wd/obj1088B/window1296B (208B short, 16% short, fails 3% gate >=1257B) + gap-zero 287wd + array[4]->[8] 276wd/frame-0x160 still short; frame-struct explicit 0x80-0x16C pads (0xF0 size) whole-window 324v325/obj1300B/window1296B (4B over, 0.3%, within gate), fnalign 75 edits (+3 reloc-only): earliest mtc1/div/mov FPR (f23/f21/f20 coloring), sll/addu *36 with var_5 hoist, s0/s1 (var_17/var_16), addu order, lwc1/swc1 scheduling, MAC FPR; tried float honesty (1.0f/20.0f, s8 lb, f32), branch polarity (<=/< with !< for bc1f/bc1t), bottom-test while, cached base (base/base2, fixed lb + whole-window), MAC second-addend (delta*weight+first), interleaved sig (arg0/fparg0/arg1/arg2 for mov.s order), declaration reorder (75 vs 87), block V3 (71 edits but +1 instr, kept per-field donor-style). Remaining are register/scheduling/FPU floors per matching.md; banked. No volatile/asm. */
 // FUN_0026CEF0 NONMATCHING
 #ifdef NON_MATCHING
-f32 func_0026cef0(s8 *arg0, f32 fparg0, f32 *arg1, f32 *arg2,
-                  f32 fparg1)
+f32 func_0026cef0(s8 *arg0, f32 fparg0, f32 fparg1,
+                  f32 *arg1, f32 *arg2)
 {
     struct Cef0Frame {
         f32 v80[4];

@@ -180,7 +180,7 @@ extern void *func_0014ad50(void);
 extern u8 *func_00149ca0(void);
 extern u8 *func_00149ce0(void);
 extern s32 func_001d10d0(u8 *arg0, u8 *arg1);
-extern void func_001d07e0(u8 *arg0, u8 *arg1);
+extern s32 func_001d07e0(u8 *arg0, u8 *arg1);
 extern u8 *func_001d1200(u8 *arg0);
 extern void func_001d10f0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
 extern void func_001bdeb0(u8 *arg0);

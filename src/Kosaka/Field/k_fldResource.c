@@ -2,6 +2,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldResource.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "scene_event_internal.h"
 #include "model_matrix_internal.h"
 #include "rw/ps2/ostypes.h"
 #include "rw/plcore/barenderstate.h"
@@ -288,7 +289,6 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     extern f32 func_0014b660(u8 *arg0);
     extern f32 func_0014b5d0(u8 *arg0);
     extern f32 func_0014b6f0(u8 *arg0);
-    extern void func_00146e60(s32 arg0, u8 *arg1, f32 *arg2);
     extern s32 func_0014a270(void);
     extern s32 func_0014a200(void);
     extern void func_00149ea0(u8 *arg0);
@@ -337,9 +337,7 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     s32 sp2A4;
     f32 sp2A0;
     f32 sp29C;
-    f32 sp298;
-    f32 sp294;
-    f32 sp290;
+    SVec3 angles;
     u8 sp280[0x10];
     u8 sp240[0x40];
     u8 sp200[0x40];
@@ -741,10 +739,10 @@ loop_150:
                             if (temp_19 == 0) {
                                 func_0046d730((const char *)D_005EFC80, 0x297);
                             }
-                            sp290 = func_0014b660(temp_18);
-                            sp294 = func_0014b5d0(temp_18);
-                            sp298 = func_0014b6f0(temp_18);
-                            func_00146e60(temp_19, temp_18 + 0x30, &sp290);
+                            angles.x = func_0014b660(temp_18);
+                            angles.y = func_0014b5d0(temp_18);
+                            angles.z = func_0014b6f0(temp_18);
+                            func_00146e60(temp_19, temp_18 + 0x30, (u8 *)&angles);
                             temp_4_8 = (u8 *)(iGpffff9db0);
                             if ((*( s32 * )(temp_4_8 + 0) != 0x14) || (*( s32 * )(temp_4_8 + 4) != 1)) {
                                 temp_18_2 = (s32)(func_0047a310(*( s32 * )((*( u8 ** )(iGpffff9db0 + 0x28) + temp_16_7) + 0x12C)));

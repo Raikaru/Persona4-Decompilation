@@ -12,15 +12,15 @@
  *       encounter-record table used by func_00161c80
  */
 
-extern s32 func_0014a230();
-extern s32 func_0014a2a0();
+extern s32 func_0014a230(s32 field, s32 room);
+extern s32 func_0014a2a0(s32 field, s32 room);
 extern s32 func_0015a740();
-extern s64 func_001060b0();
-extern s32 func_001060c0();
-extern s64 func_00110960();
-extern s32 func_00106330();
-extern u32 func_003b7060();
-extern void func_0046d730();
+extern s16 func_001060b0(void);
+extern u8 func_001060c0(void);
+extern s64 func_00110960(s32 day, u32 time);
+extern u32 func_00106330(s32 bit);
+extern u32 func_003b7060(void);
+extern void func_0046d730(void *file, s32 line);
 extern u8 *iGpffffb41c;
 extern u8 *iGpffffb418;
 extern u8 *iGpffffb424;
@@ -51,7 +51,7 @@ s32 func_00161a70(s32 arg0, s32 arg1, s32 arg2) {
     u8 *base;
 
     result = 0;
-    if ((func_0014a230() == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
+    if ((func_0014a230(arg0, arg1) == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
         base = iGpffffb41c;
         result = *(u8 *)((u8 *)encSlot((arg2 & 0xFFFF) * 10, (u32)base) + 2);
     }
@@ -69,7 +69,7 @@ s32 func_00161b10(s32 arg0, s32 arg1, s32 arg2) {
     u8 *base;
 
     result = 0;
-    if ((func_0014a230() == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
+    if ((func_0014a230(arg0, arg1) == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
         base = iGpffffb41c;
         result = *(u8 *)((u8 *)encSlot((arg2 & 0xFFFF) * 10, (u32)base) + 4);
     }
@@ -89,7 +89,7 @@ s32 func_001619b0(s32 arg0, s32 arg1, s32 arg2) {
     u8 *base;
 
     result = 0;
-    if ((func_0014a230() == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
+    if ((func_0014a230(arg0, arg1) == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
         base = iGpffffb41c;
         idx = arg2 & 0xFFFF;
         result = *(u8 *)((u8 *)encSlot(idx * 10, (u32)base) + 3);
@@ -136,117 +136,116 @@ s32 func_00161bb0(s16 id) {
 }
 /* measured: closes the hoisting scope after func_00161bb0. */
 #pragma opt_loop_invariants off
-/* Model floor (896B window; obj ~860B). Best probe 191 words via measure_guarded
-   (was 192) / 105 edits via fnalign (was 100). WINS: st is s32 with a single
-   (s16) cast at creation -- wscan dsll32/dsra32 now 2 vs 2 retail (was 3 vs 2;
-   removes the spurious call-site pair) -- plus flat (A==0x28||A==0x3c)&&call==0
-   branch chain, arg0/arg1 identifier swap (s1/s3 homes), 1.0f init, trunc idiom,
-   (s32) modulo compares, blez >0 test, direct t0 (no extra move). The width fix
-   trades 192/100 for 191/105: pairs understood, remaining cost is colouring
-   (s1 vs s3 homes), bnez vs beqz+b, GP loads and lbu schedule.
-   WALLS: s2 shared-temp squatter (blocks arg3/i12 coalesce),
-   result-init single-word (retail ori+andi), +16 layout shift,
-   temp-reg names, GPREL/absolute display phantoms (relocs ok).
-*/
-// FUN_00161630 NONMATCHING
-#ifdef NON_MATCHING
-u32 func_00161630(u32 arg1, u32 arg0, u32 arg2, u32 arg3)
+// FUN_00161630
+/* Choose a category, then draw an encounter from its weighted entries.
+ * The three categories occupy entries [0,20), [20,25), and [25,30).
+ * Return the encounter ID in the low halfword and the category bits above it.
+ * Measured b210 -O2: 888/896 bytes, 19 resolved relocations, eight zero bytes.
+ * Retained propagation preserves address lifetimes; the unsigned table-index
+ * expression keeps the threshold lookup distinct from the cached signed offset. */
+#pragma push
+#pragma opt_propagation off
+s32 func_00161630(s32 field, s32 room, s32 encounter, s32 level)
 {
-    u32 result;
-    f32 f;
-    u16 u2;
-    s32 st;
-    s8 c;
-    u32 u13;
-    u32 u11;
-    s32 i16;
-    s32 i17;
-    s32 i12;
-    s32 i6;
-    s32 i;
+    u16 selected;
+    f32 multiplier;
+    u16 tableId;
+    s32 day;
+    s32 alternate;
+    s32 tableOffset;
+    s32 total;
+    s32 kind;
+    s32 first;
+    s32 last;
     s32 sum;
-    u32 m;
-    u32 acc;
-    u8 b;
-    s32 i15;
-    u8 *q;
-    s32 ret28;
+    s32 index;
+    s32 alternateOffset;
+    s32 draw;
+    s32 cumulative;
+    s32 normalRate;
+    u8 *tables;
+    u8 *table;
+    u8 *entries;
 
-    u32 t = 0xFFFF;
-    result = t & 0xFFFF;
-    f = 1.0f;
-    if ((func_0014a230() == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
-        u2 = *(u16 *)(iGpffffb41c + ((arg2 & 0xFFFF) * 10));
-        st = (s16)func_001060b0();
-        c = (s8)func_00110960(st, func_001060c0() & 0xFF);
-        u13 = (c == 1);
-        if (func_00106330(0x1411) == 1) {
-            f = 100.0f;
-        }
-        if (((arg0 & 0xFFFF) == 0x28) || ((arg0 & 0xFFFF) == 0x3C)) {
-            if ((arg0 & 0xFFFF) != 0x28) {
-                ret28 = func_00106330(0xC0F);
-            }
-            if (ret28 == 0) {
-                f = 0.0f;
-            }
-        }
-        i16 = u2 * 0xF8;
-        u11 = *(u8 *)(iGpffffb418 + i16 + u13);
-        if (func_00106330(0x1410) == 0) {
-            if ((arg3 & 0xFFFF) > 0) {
-                u11 += (s32)f * *(u8 *)(iGpffffb418 + i16 + u13 + 2);
-            }
-            if ((arg3 & 0xFFFF) >= 2) {
-                u11 += *(u8 *)(iGpffffb418 + i16 + u13 + 4);
-            }
-        }
-        if (u11 == 0) {
-            func_0046d730(D_005F12C8, 0x69);
-        }
-        m = func_003b7060() % u11;
-        b = *(u8 *)(iGpffffb418 + i16 + u13);
-        if ((s32)m < (s32)b) {
-            i17 = 1;
-            i12 = 0;
-            i6 = 0x14;
-        } else if ((s32)m < (s32)(b + (s32)f * *(u8 *)(iGpffffb418 + i16 + u13 + 2))) {
-            i17 = 2;
-            i12 = 0x14;
-            i6 = 0x19;
-        } else {
-            i17 = 4;
-            i12 = 0x19;
-            i6 = 0x1E;
-        }
-        sum = 0;
-        i15 = u13 * 0x78;
-        q = iGpffffb418 + i16 + i15;
-        for (i = i12; i < i6; i++) {
-            if (*(s16 *)(q + i * 4 + 8) != 0) {
-                sum += *(u16 *)(q + i * 4 + 10);
-            }
-        }
-        if (sum == 0) {
-            return 0xFFFFFFFF;
-        }
-        m = func_003b7060() % sum;
-        acc = 0;
-        for (; i12 < i6; i12++) {
-            acc += *(u16 *)(iGpffffb418 + i16 + i15 + i12 * 4 + 10);
-            if ((s32)m < (s32)acc) {
-                result = *(u16 *)(iGpffffb418 + i16 + i15 + i12 * 4 + 8);
-                break;
-            }
-        }
-        return (i17 << 16) | (result & 0xFFFF);
+    selected = 0xFFFF;
+    multiplier = 1.0f;
+    if (func_0014a230(field, room) == 1 || func_0014a2a0(field, room) == 1) {
+        tableId = *(u16 *)(iGpffffb41c + (u16)encounter * 10);
+    } else {
+        return -1;
     }
-    return 0xFFFFFFFF;
+    day = (s16)func_001060b0();
+    alternate = (s8)func_00110960(day, func_001060c0() & 0xFF) == 1;
+    if (func_00106330(0x1411) == 1) {
+        multiplier = 100.0f;
+    }
+    field = (u16)field;
+    if ((field == 0x28 || field == 0x3C) && func_00106330(0xC0F) == 0) {
+        multiplier = 0.0f;
+    }
+    tableOffset = tableId * 0xF8;
+    total = *(u8 *)(iGpffffb418 + tableOffset + alternate);
+    if (func_00106330(0x1410) == 0) {
+        s32 available = (s32)(u16)level;
+        if (available > 0) {
+            total += (s32)multiplier *
+                *(u8 *)((u8 *)encSlot(alternate, encSlot(tableOffset, (u32)iGpffffb418)) + 2);
+        }
+        if (available >= 2) {
+            total += *(u8 *)((u8 *)encSlot(alternate, encSlot(tableOffset, (u32)iGpffffb418)) + 4);
+        }
+    }
+    if (total == 0) {
+        func_0046d730(D_005F12C8, 0x69);
+    }
+    draw = (s32)(func_003b7060() % (u32)total);
+    tables = iGpffffb418;
+    table = tables + tableOffset;
+    normalRate = *(u8 *)(table + alternate);
+    if (draw < normalRate) {
+        kind = 1;
+        first = 0;
+        last = 20;
+    } else if (draw < normalRate + (s32)multiplier *
+        *(u8 *)((u8 *)encSlot(alternate, encSlot((u32)tableId * 0xF8, (u32)tables)) + 2)) {
+        kind = 2;
+        first = 20;
+        last = 25;
+    } else {
+        kind = 4;
+        first = 25;
+        last = 30;
+    }
+    sum = 0;
+    index = first;
+    alternateOffset = alternate * 0x78;
+    entries = table + alternateOffset;
+    for (; index < last; index++) {
+        u8 *entry = entries + index * 4;
+        if (*(u16 *)(entry + 8) != 0) {
+            sum += *(u16 *)(entry + 10);
+        }
+    }
+    if (sum == 0) {
+        return -1;
+    }
+    draw = (s32)(func_003b7060() % (u32)sum);
+    cumulative = 0;
+    tables = iGpffffb418;
+    entries = tables + tableOffset + alternateOffset;
+    for (; first < last; first++) {
+        s32 offset = first * 4;
+        cumulative += *(u16 *)(entries + offset + 10);
+        if (draw < cumulative) {
+            selected = *(u16 *)((u8 *)encSlot(offset,
+                encSlot(alternateOffset, encSlot(tableOffset, (u32)tables))) + 8);
+            break;
+        }
+    }
+    return (kind << 16) | selected;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_encount", func_00161630);
-#endif
 
+#pragma pop
 /* measured: cold reconstruction from the m2c draft + matched sibling 61bb0 idioms reaches probe/fndiff reloc-masked nd 243 (verify nd ~730), object ~1132B/window 1184B, fnalign 295 vs ~283 instrs. Banked in docs/probe_archive/KEn80_00161c80_body.c (guarded v1 spelling in owner). Scale note: probe/fndiff and verify normalized_diff run ~3x apart on this body (243 vs ~730); compare like with like. Flat across hoist/mask/narrow/color variants; loop_invariants and propagation pragmas catastrophic; literal table addresses neutral. Open walls: base-spill/found-reg coloring, sunk base loads, saved-register rotation. Production stays ASM. */
 // FUN_00161C80 NONMATCHING
 #ifdef NON_MATCHING
@@ -273,7 +272,7 @@ u8 *func_00161c80(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     u16 idx;
 
     found = NULL;
-    if ((func_0014a230() == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
+    if ((func_0014a230(arg0, arg1) == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
         idx = (u16)(arg2 & 0xFFFF);
         base = iGpffffb424 + *(u16 *)(iGpffffb41c + idx * 10 + 6) * 0x15C;
         if (idx == 0) {

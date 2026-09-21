@@ -1,3 +1,4 @@
+#include "fcl_color.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 /* Consolidated Persona 4 source units. */
@@ -122,7 +123,7 @@ extern void func_002b5100(u8 *, s8);
 extern void func_002b4240(u8 *, s8);
 extern void func_002b2970(void *, f32, f32);
 extern void func_002b69b0(u8 *, YVec2f, YVec2f, u32, u32, s16);
-extern void func_002b6a40(u8 *, u32, u32, u32, u32, s32);
+extern void func_002b6a40(u8 *, u8, u32, u32, u32, s32);
 extern void func_002b6ac0(u8 *, u32, u32, s32, f32, f32, f32, f32);
 extern void func_002b6be0(u8 *, YVec2f, u32, f32);
 extern f32 func_0046b2f0(u8 *);
@@ -1084,7 +1085,6 @@ u8 *func_002ae630(u8 *arg0) {
     extern s32 func_002b6590(s32, s16, s32);
     extern void *func_0047a2f0(s32);
     extern u8 *func_001452b0(s32);
-    extern void func_002b2a60(u8 *, s32, s32, s32, s32);
     extern s32 func_002add90(u8 *);
     extern void func_002ae520(u8 *);
     u8 *blk;
@@ -1217,16 +1217,16 @@ u8 *func_002ae630(u8 *arg0) {
         }
     }
     func_002b2970(&w1, 17.0f, 150.0f);
-    func_002b2a60((u8 *)&c1, 0x80, 0x80, 0x80, 0);
+    fclWriteColorBytes((u8 *)&c1, 0x80, 0x80, 0x80, 0);
     func_002b2830(res, w1, 240.0f, 120.0f, c1);
     func_002b2970(&w2, 148.0f, 249.0f);
-    func_002b2a60((u8 *)&c2, 0x80, 0, 0, 0);
+    fclWriteColorBytes((u8 *)&c2, 0x80, 0, 0, 0);
     func_002b2830(res, w2, 150.0f, 231.0f, c2);
     func_002b2970(&w3, 0.0f, 395.0f);
-    func_002b2a60((u8 *)&c3, 0, 0x80, 0, 0);
+    fclWriteColorBytes((u8 *)&c3, 0, 0x80, 0, 0);
     func_002b2830(res, w3, 151.0f, 121.0f, c3);
     func_002b2970(&w4, 0.0f, 150.0f);
-    func_002b2a60((u8 *)&c4, 0, 0, 0x80, 0);
+    fclWriteColorBytes((u8 *)&c4, 0, 0, 0x80, 0);
     func_002b2830(res, w4, 23.0f, 395.0f, c4);
     *(s32 *)(blk + 0xCC) = func_002b3990((s32)res);
     for (k = 0; k < 0xF; k++) {

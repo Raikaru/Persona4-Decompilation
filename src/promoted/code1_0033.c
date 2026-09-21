@@ -1,3 +1,4 @@
+#include "fcl_color.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -14,7 +15,7 @@ extern void func_00106390(s32 arg0, s32 arg1);
 extern u32 func_002e7a60(void);
 
 
-void func_002b82d0(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s16 arg5);
+void func_002b82d0(u8 *arg0, u8 arg1, s8 arg2, s8 arg3, s16 arg4, s16 arg5);
 
 void func_002b8340(u8 *arg0, s8 arg1, s16 arg2, s16 arg3,
                     f32 fparg0, f32 fparg1);
@@ -28,12 +29,7 @@ typedef struct {
 } F2_0033;
 
 /* Same four byte channels as the color constructor's output. */
-typedef struct Byte4 {
-    u8 b0;
-    u8 b1;
-    u8 b2;
-    u8 b3;
-} Color_0033;
+typedef FclDrawColor Color_0033;
 
 typedef struct {
     s32 sp30;
@@ -93,7 +89,6 @@ extern s32 func_00122720(void);
 extern s32 func_0033de90(u8 *arg0, s32 arg1);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 D_007955C0[];
-extern void func_002b2a60(u8 *, s32, s32, s32, s32);
 extern void func_0045eb20(void *, void *, f32, s32, s32, s32, s32, s16,
                          f32, f32, f32, void *);
 extern u8 D_00794A80[];
@@ -522,7 +517,7 @@ void func_0033d420(u8 *arg0, F2_0033 p1, F2_0033 p2,
     *(s16 *)(*(u8 **)(arg0 + 0x38) + 4) &= (s16)~2;
 }
 // FUN_0033D4B0
-void func_0033d4b0(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s64 arg5)
+void func_0033d4b0(u8 *arg0, u8 arg1, s8 arg2, s8 arg3, s16 arg4, s64 arg5)
 {
     func_002b82d0(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, arg5);
 }
@@ -545,8 +540,7 @@ void func_0033d520(u8 *arg0, s8 arg1, s16 arg2, s64 arg3, f32 fparg0, f32 fparg1
 #pragma opt_propagation off
 void func_0033d550(u8 *arg0)
 {
-    extern void func_002b82d0(u8 *arg0, u8 arg1, u8 arg2, u8 arg3,
-                               s16 arg4, s16 arg5);
+    extern void func_002b82d0(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s16 arg4, s16 arg5);
     extern void func_002b8300(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
                                s8 arg1, s16 arg2, s16 arg3);
     s16 h;
@@ -620,7 +614,7 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, s32 alpha, s8 hig
     points[3].x = originX - 26.0f;
     points[3].y = -400.0f;
 
-    func_002b2a60((u8 *)&baseColor, 0x7E, 0, 8, alpha);
+    baseColor = func_002b2a60(0x7E, 0, 8, alpha);
     colors[0] = colors[1] = colors[2] = colors[3] = colors[4] = baseColor;
 
     func_0045eb20(colors, points, 70.0f, 5, 4, 1, 0, 0, rotation, 1.0f, 1.0f, D_00794AB0);
@@ -638,7 +632,7 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, s32 alpha, s8 hig
         points[3].x = (originX - 26.0f) - 7.0f;
         points[3].y = -400.0f;
 
-        func_002b2a60((u8 *)&highlightColor, 0xFF, 0xFF, 0xFF, alpha);
+        highlightColor = func_002b2a60(0xFF, 0xFF, 0xFF, alpha);
         colors[0] = colors[1] = colors[2] = colors[3] = colors[4] = highlightColor;
 
         func_0045eb20(colors, points, 69.0f, 5, 4, 1, 0, 0, 5.0f + rotation, 1.0f, 1.0f, D_00794A80);

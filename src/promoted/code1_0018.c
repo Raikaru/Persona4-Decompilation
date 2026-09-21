@@ -2,6 +2,7 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "type.h"
+#include "scene_event_internal.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 static inline s32 code1_0018_shift4(s32 value)
 {
@@ -2140,7 +2141,6 @@ extern float FUN_0044b920(float);
 /* Supplied declaration required: FUN_0047a2f0. */
 /* Supplied declaration required: FUN_0047a310. */
 extern int FUN_00102980(void);
-extern void FUN_00146e60(unsigned long long, unsigned long long, unsigned long long);
 extern float FUN_0014b5d0(void *);
 extern float FUN_0014b660(void *);
 extern float FUN_0014b6f0(void *);
@@ -2252,9 +2252,7 @@ s32 func_0018a200(u8 *param_1)
   float fStack_90;
   float fStack_8c;
   float fStack_88;
-  float fStack_80;
-  float fStack_7c;
-  float fStack_78;
+  SVec3 transformAngles;
   float fStack_70;
   float fStack_6c;
   float fStack_68;
@@ -2423,11 +2421,10 @@ s32 func_0018a200(u8 *param_1)
           puVar8 = puVar8 + 2;
         } while (0 < temp_v4);
         FUN_00478e70(*(unsigned char **)(puVar1[3] + 0x164));
-        fStack_80 = FUN_0014b660((void *)(puVar1[3] + 0x240));
-        fStack_7c = FUN_0014b5d0((void *)(puVar1[3] + 0x240));
-        fStack_78 = FUN_0014b6f0((void *)(puVar1[3] + 0x240));
-        FUN_00146e60((unsigned long long)*(unsigned short *)puVar1[3],(long)(int)((unsigned short *)puVar1[3] + 0x138),
-                      (long)(int)&fStack_80);
+        transformAngles.x = FUN_0014b660((void *)(puVar1[3] + 0x240));
+        transformAngles.y = FUN_0014b5d0((void *)(puVar1[3] + 0x240));
+        transformAngles.z = FUN_0014b6f0((void *)(puVar1[3] + 0x240));
+        func_00146e60(*(u16 *)puVar1[3], (u8 *)puVar1[3] + 0x270, (u8 *)&transformAngles);
         temp_v8 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
         FUN_003e05d0(temp_v8);
         FUN_0047a220(*(unsigned int *)(puVar1[3] + 0x164),D_00763074);

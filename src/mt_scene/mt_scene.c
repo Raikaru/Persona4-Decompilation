@@ -1,10 +1,11 @@
 /* Source unit: src/mt_scene/mt_scene_00145260.c (1 function markers) */
 #include "include_asm.h"
 #include "type.h"
+#include "scene_event_internal.h"
 
 extern u8* PTR_DAT_00762ea0;
-extern s32 func_00147530(s32 resourceManager, u64 resourceId);
-extern void func_00146a10(s32 resource, u64 position, u64 angles, u64 flags);
+extern u8 *func_00147530(u8 *resourceManager, u16 resourceId);
+extern void func_00146a10(u8 *resource, u8 *position, u8 *angles, u8 *scale);
 
 extern u32 D_00764580;
 extern u32 D_00764584;
@@ -23,17 +24,17 @@ u32 func_00145260(void)
 
 
 // FUN_00146E60
-void func_00146e60(u64 resourceId, u64 position, u64 angles)
+void func_00146e60(u16 resourceId, u8 *position, u8 *angles)
 {
-    s32 resource;
+    u8 *resource;
 
-    if (*(s32*)(PTR_DAT_00762ea0 + 8) == 0)
+    if (*(u8 **)(PTR_DAT_00762ea0 + 8) == 0)
     {
         resource = 0;
     }
     else
     {
-        resource = func_00147530(*(s32*)(PTR_DAT_00762ea0 + 8), resourceId);
+        resource = func_00147530(*(u8 **)(PTR_DAT_00762ea0 + 8), resourceId);
     }
 
     if (resource != 0)
@@ -45,17 +46,17 @@ void func_00146e60(u64 resourceId, u64 position, u64 angles)
 
 
 // FUN_00146EE0
-void func_00146ee0(u64 resourceId, u64 angles)
+void func_00146ee0(u16 resourceId, u8 *angles)
 {
-    s32 resource;
+    u8 *resource;
 
-    if (*(s32*)(PTR_DAT_00762ea0 + 8) == 0)
+    if (*(u8 **)(PTR_DAT_00762ea0 + 8) == 0)
     {
         resource = 0;
     }
     else
     {
-        resource = func_00147530(*(s32*)(PTR_DAT_00762ea0 + 8), resourceId);
+        resource = func_00147530(*(u8 **)(PTR_DAT_00762ea0 + 8), resourceId);
     }
 
     if (resource != 0)

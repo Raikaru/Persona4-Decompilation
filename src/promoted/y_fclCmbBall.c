@@ -1,3 +1,4 @@
+#include "fcl_color.h"
 #include "include_asm.h"
 #include "fcl_combine_internal.h"
 #include "fcl_draw_task.h"
@@ -25,7 +26,6 @@ extern f32 D_008872F8[];
 extern u8 *func_00457120(void);
 extern s32 *func_003315e0(void);
 extern void func_003f6440(s32, s32);
-extern void func_002b2a60(void *, s32, s32, s32, s32);
 
 
 
@@ -111,11 +111,11 @@ void func_0034ae70(u8 *arg0, u8 *arg1) {
     *(s32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0xE0) = 0x3F800000;
     *(s32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0xE4) = 0x3F800000;
     if (*(s8 *)(arg1 + 0xF00) == 1) {
-        func_002b2a60(colors, 0x2D, 0x2D, 0x2D, *(u8 *)(arg1 + 0xE6E));
+        fclWriteColorBytes(colors, 0x2D, 0x2D, 0x2D, *(u8 *)(arg1 + 0xE6E));
     } else {
-        func_002b2a60(colors, 0, 0, 0x66, *(u8 *)(arg1 + 0xE6E));
+        fclWriteColorBytes(colors, 0, 0, 0x66, *(u8 *)(arg1 + 0xE6E));
         if (*(s16 *)(arg1 + 2) >= 3) {
-            func_002b2a60(colors, 0xCC, 0xFF, 0xFF, (u8)((u32)*(u8 *)(arg1 + 0xE6E) >> 1));
+            fclWriteColorBytes(colors, 0xCC, 0xFF, 0xFF, (u8)((u32)*(u8 *)(arg1 + 0xE6E) >> 1));
         }
     }
     i = 0;

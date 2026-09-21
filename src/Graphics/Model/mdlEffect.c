@@ -1,6 +1,7 @@
 #include "include_asm.h"
 /* Source unit: src/Graphics/Model/mdlFile_0047d2d0.c (1 function markers) */
 #include "type.h"
+#include "effect_update_internal.h"
 
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
@@ -46,7 +47,7 @@ extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
 extern void func_003e0670(void *matrixOut, void *matrixIn);
 extern void func_003dc610(void *arg0, void *arg1);
 extern void func_004b12e0(s32 arg0, void *arg1);
-extern void func_004b1190(s32 arg0);
+
 extern void func_004bce80(void);
 extern void func_004bceb0(void);
 extern void func_003e42a0(void *arg0, void *arg1, u8 *arg2);
@@ -295,7 +296,7 @@ void func_0047d540(u8 **arg0, u8 *arg1)
                 *(struct Vec3 *)&out[3] = *(struct Vec3 *)&in[12];
             }
             func_004b12e0(*(u32 *)(node + 8), (u8 *)out);
-            func_004b1190(*(u32 *)(node + 8));
+            func_004b1190(*(u8 **)(node + 8));
             node = *(u8 **)(node + 16);
     }
 }
