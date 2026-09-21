@@ -817,18 +817,42 @@ void func_001377e0(u8* arg0) {
     *(s32*)(base + 0x1C) = 0;
 }
 
-/* measured: b210 -O2 emits 1340B in the 1344B retail window, with a
-   four-byte zero suffix. The parent-X load and row-address add at +0x80 and
-   +0x84 remain reversed; all other relocated instructions agree. The full
-   panel, first-record level byte, selection flag and marker coordinates are
-   reconstructed. See docs/probe_archive/CmpPersona_00137890_recovery.md. */
+/* The menu initializer and transition copier establish this 0x30-byte
+   position/opacity stride. This view starts at the third initialized row. */
+typedef struct {
+    f32 x;
+    f32 y;
+    u8 _08[2];
+    u8 alpha;
+    u8 _0b[0x25];
+} CmpPersonaLayoutRow;
+
+typedef struct {
+    u8 alpha;
+    u8 _01[3];
+    f32 x;
+    f32 y;
+    u8 _0c[0x10B8];
+    CmpPersonaLayoutRow rows[26];
+} CmpPersonaLayoutView;
+
+/* Eight-byte header followed by two 0x3c-byte records, initialized by
+   func_00115830. The word and halfword views cover its actual header fields. */
+typedef union {
+    u8 bytes[0x80];
+    s16 halves[0x40];
+    s32 words[0x20];
+} CmpPersonaPanel;
+
 static inline u32 CmpPersonaOffsetAddress(u32 offset, u32 base)
 {
     return offset + base;
 }
 
-// FUN_00137890 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: b210 -O2 emits 1340 exact bytes followed by four retail zero
+   alignment bytes. The menu's typed row view preserves the parent-X load
+   before the row-address addition. See the recovery archive for controls. */
+// FUN_00137890
 void func_00137890(u8 *arg0, s32 arg1)
 {
     extern s32 func_0010b5b0(void);
@@ -845,6 +869,7 @@ void func_00137890(u8 *arg0, s32 arg1)
     extern u8 D_0064B2EC[];
     extern u8 D_0064B2ED[];
     extern u8 D_0064B2EE[];
+    CmpPersonaLayoutView *menu;
     f32 x;
     f32 y;
     f32 row_y;
@@ -861,19 +886,18 @@ void func_00137890(u8 *arg0, s32 arg1)
     u8 digit_blue;
     u32 sprite_alpha;
     u8 level;
-    u8 panel[0x80];
+    CmpPersonaPanel panel;
     Vec2f position;
 
     if (arg1 < 0 || arg1 >= (func_0010b5b0() & 0xFFFF)) {
         func_0046d730(D_005EB580, 0x478);
     }
-    x = (*(f32 *)(arg0 + 4) +
-         *(f32 *)((u8 *)CmpPersonaOffsetAddress(arg1 * 0x30, (u32)arg0) + 0x10C4)) - 10.0f;
-    y = 0.0f + (*(f32 *)(arg0 + 8) +
-                *(f32 *)((u8 *)CmpPersonaOffsetAddress(arg1 * 0x30, (u32)arg0) + 0x10C8)) +
+    menu = (CmpPersonaLayoutView *)arg0;
+    x = (menu->x + menu->rows[arg1].x) - 10.0f;
+    y = 0.0f + (menu->y + menu->rows[arg1].y) +
         30.0f * (f32)arg1;
-    entry_alpha = *(u8 *)((u8 *)CmpPersonaOffsetAddress(arg1 * 0x30, (u32)arg0) + 0x10CE);
-    base_alpha = *arg0;
+    entry_alpha = menu->rows[arg1].alpha;
+    base_alpha = menu->alpha;
     opacity = (f32)entry_alpha * ((f32)base_alpha / 255.0f);
     alpha = (u8)opacity;
     if (arg1 >= *(s16 *)(arg0 + 0x4E)) {
@@ -886,10 +910,10 @@ void func_00137890(u8 *arg0, s32 arg1)
         func_0034f2e0(*(void **)(arg0 + 0x1C68), position.x, position.y,
                       0xFF, 0xE9, 0x2C, alpha);
     } else {
-        func_00115830(panel);
+        func_00115830(panel.bytes);
         if (arg1 == *(s16 *)(arg0 + 0x52)) {
             selected = 1;
-            *(s16 *)(panel + 2) = selected;
+            panel.halves[1] = selected;
             red = D_0064B2E8[0];
             green = D_0064B2E9[0];
             blue = D_0064B2EA[0];
@@ -898,7 +922,7 @@ void func_00137890(u8 *arg0, s32 arg1)
             digit_green = D_0064B2ED[0];
             digit_blue = D_0064B2EE[0];
         } else {
-            *(s16 *)(panel + 2) = 0;
+            panel.halves[1] = 0;
             red = 0xFF;
             green = 0xE9;
             blue = 0x2C;
@@ -908,9 +932,9 @@ void func_00137890(u8 *arg0, s32 arg1)
             digit_blue = 0x22;
             selected = 0;
         }
-        *(s16 *)panel = 2;
+        panel.halves[0] = 2;
         func_00115940((u8 *)func_0010ace0(*(s16 *)((u8 *)CmpPersonaOffsetAddress(arg1 * 2, (u32)arg0) + 0x36)),
-                      panel + 8, 2);
+                      panel.bytes + 8, 2);
         position.x = x - 40.0f;
         position.y = y + 21.0f;
         func_0034f2e0(*(void **)(arg0 + 0x1C5C), position.x, position.y,
@@ -919,7 +943,7 @@ void func_00137890(u8 *arg0, s32 arg1)
         position.y = y + 21.0f;
         func_0034f2e0(*(void **)(arg0 + 0x1C60), position.x, position.y,
                       red, green, blue, sprite_alpha);
-        level = panel[12];
+        level = panel.bytes[12];
         position.x = x + 72.0f;
         row_y = y + 26.0f;
         position.y = row_y;
@@ -944,13 +968,9 @@ void func_00137890(u8 *arg0, s32 arg1)
         }
         position.x = x + 99.0f;
         position.y = y + 20.0f;
-        func_00115c40(position, alpha, (s16 *)panel, 0.0f);
+        func_00115c40(position, alpha, panel.halves, 0.0f);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/cmpPersona", func_00137890);
-#endif
-
 // FUN_00137DD0
 s32 func_00137dd0(u8* arg0) {
     s32 result = 1;
