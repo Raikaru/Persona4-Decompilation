@@ -583,6 +583,7 @@ void ADXB_Reset(ADXB adxb)
 }
 
 // Aborts decoding: resets the PL2 encoder if attached, stops the ADPCM core and returns to STOP.
+// FUN_004C3FF0
 void ADXB_Stop(ADXB adxb)
 {
 	if (adxb->xdc != NULL) {
@@ -643,6 +644,7 @@ void ADXB_TakeSnapshot(ADXB adxb)
 }
 
 // Default pan of channel `ch` from the AINF header chunk (-128 = none), as ADXT applies at start.
+// FUN_004C3CD8
 Sint16 ADXB_GetDefPan(ADXB adxb, Sint32 ch)
 {
 	return adxb->def_pan[ch];
@@ -732,6 +734,7 @@ Sint32 ADXB_GetOutBps(ADXB adxb)
 }
 
 // Output channel count; a mono stream with a Pro Logic II encoder attached outputs 2 channels.
+// FUN_004C3BD0
 Sint32 ADXB_GetNumChan(ADXB adxb)
 {
 	if (adxb->nch == 1 && adxb->xdc != NULL) {
@@ -935,6 +938,7 @@ const Char8 *ADXB_GetSignature(void)
 }
 
 // Frees a block decoder: destroys its ADPCM core and clears the slot in adxb_obj.
+// FUN_004C3640
 void ADXB_Destroy(ADXB adxb)
 {
 	ADXPD pd;
@@ -1012,6 +1016,7 @@ Sint16 *adxb_DefGetWr(void *obj, Sint32 *pos, Sint32 *nsmpl, Sint32 *x70)
 }
 
 // Library init: brings up the ADPCM core (ADXPD) and the key generator and clears the 16 decoder slots.
+// FUN_004C3460
 void ADXB_Init(void)
 {
 	ADXPD_Init();

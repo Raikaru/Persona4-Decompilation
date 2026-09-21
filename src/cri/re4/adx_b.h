@@ -78,7 +78,12 @@ typedef struct {
 	Sint32 nsmpl96;                                          /* 0xBC */
 	Sint32 ainf_len;                                         /* 0xC0 */
 	Uint8 ainf[16];                                          /* 0xC4 */
-	Sint16 def_outvol;                                       /* 0xD4 */
+	/* P4: 9.44 has 0xC more here, which makes the handle 0x104 rather
+	 * than 0xF8 - ADXB_Destroy clears it with `addiu $a2, $zero, 0x104`
+	 * at 0x004C366C, and def_pan and xdc are read 0xC higher
+	 * (ADXB_GetDefPan 0xE2, ADXB_GetNumChan 0xE8). */
+	Uint8 padD4[0xE0 - 0xD4];
+	Sint16 def_outvol;                                       /* 0xE0 */
 	Sint16 def_pan[2];                                       /* 0xD6 */
 	Uint8 padda[2];
 	void *xdc;                                               /* 0xDC (adx_sjd: pl2setsfreqfunc called when set) */

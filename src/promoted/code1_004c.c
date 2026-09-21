@@ -30,8 +30,6 @@ u32 func_004c3400(u32 arg0)
 
 // FUN_004C3420
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c3420);
-// FUN_004C3460
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c3460);
 // FUN_004C7388
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c7388);
 // FUN_004C73F0
