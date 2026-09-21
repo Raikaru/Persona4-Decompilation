@@ -1,0 +1,734 @@
+{
+ "0012dc00": {
+  "confidence": 0.941,
+  "evidence": "diff(p4-vs-burnout,context,0.911); map(librwcore.a(baimage.obj) br:003221c0 size=548); p4:0012dc00 size=668; same-member cluster; size-ratio=1.22",
+  "name": "RwImageMakeMask",
+  "source_file": "librwcore.a(baimage.obj) :: baimage.c"
+ },
+ "00141cf0": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,context,1.000); map(librwcore.a(bavector.obj) br:0031f010 size=32); p4:00141cf0 size=32; same-member cluster; size-ratio=1.0",
+  "name": "RwV2dLength",
+  "source_file": "librwcore.a(bavector.obj) :: bavector.c"
+ },
+ "00145540": {
+  "confidence": 0.901,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.871); map(librwcore.a(palquant.obj) br:00329d08 size=324); p4:00145540 size=332; same-member cluster; size-ratio=1.02",
+  "name": "ExtractNodes",
+  "source_file": "librwcore.a(palquant.obj) :: palquant.c"
+ },
+ "00162e10": {
+  "confidence": 0.932,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.902); map(librwcore.a(palquant.obj) br:00328720 size=2596); p4:00162e10 size=2944; same-member cluster; size-ratio=1.13",
+  "name": "RwPalQuantResolvePalette",
+  "source_file": "librwcore.a(palquant.obj) :: palquant.c"
+ },
+ "00168ae0": {
+  "confidence": 0.914,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.884); map(librwcore.a(palquant.obj) br:003272b8 size=268); p4:00168ae0 size=284; same-member cluster; size-ratio=1.06",
+  "name": "LeafCalcStats",
+  "source_file": "librwcore.a(palquant.obj) :: palquant.c"
+ },
+ "00176500": {
+  "confidence": 0.966,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.936); map(librwcore.a(baim3d.obj) br:00346088 size=188); p4:00176500 size=184; same-member cluster; size-ratio=0.98",
+  "name": "_rwIm3DOpen",
+  "source_file": "librwcore.a(baim3d.obj) :: baim3d.c"
+ },
+ "0017b9a0": {
+  "confidence": 0.931,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.901); map(librwcore.a(palquant.obj) br:00329a30 size=468); p4:0017b9a0 size=420; same-member cluster; size-ratio=0.9",
+  "name": "CalcNodeWeights",
+  "source_file": "librwcore.a(palquant.obj) :: palquant.c"
+ },
+ "001f2fe0": {
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-burnout,context,1.000); map(librwcore.a(baerr.obj) br:0031ca80 size=48); p4:001f2fe0 size=48; no same-member neighbor; size-ratio=1.0",
+  "name": "_rwErrorOpen",
+  "source_file": "librwcore.a(baerr.obj) :: baerr.c"
+ },
+ "001fab40": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,context,0.971); map(librwcore.a(palquant.obj) br:00329e50 size=68); p4:001fab40 size=72; same-member cluster; size-ratio=1.06",
+  "name": "GetIndex",
+  "source_file": "librwcore.a(palquant.obj) :: palquant.c"
+ },
+ "0028f960": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,context,0.983); map(librwcore.a(bamatrix.obj) br:0031d090 size=44); p4:0028f960 size=44; same-member cluster; size-ratio=1.0",
+  "name": "_rwMatrixSetMultFn",
+  "source_file": "librwcore.a(bamatrix.obj) :: bamatrix.c"
+ },
+ "002bd220": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,context,1.000); map(librwcore.a(bamatrix.obj) br:0031d058 size=28); p4:002bd220 size=28; same-member cluster; size-ratio=1.0",
+  "name": "RwMatrixUpdate",
+  "source_file": "librwcore.a(bamatrix.obj) :: bamatrix.c"
+ },
+ "00396c00": {
+  "confidence": 0.896,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.866); map(librwcore.a(bamemory.obj) br:0031d838 size=672); p4:00396c00 size=628; same-member cluster; size-ratio=0.93",
+  "name": "_rwFreeListAllocReal",
+  "source_file": "librwcore.a(bamemory.obj) :: bamemory.c"
+ },
+ "0039b290": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,context,0.969); map(librwcore.a(badevice.obj) br:00321968 size=36); p4:0039b290 size=36; same-member cluster; size-ratio=1.0",
+  "name": "MallocWrapper",
+  "source_file": "librwcore.a(badevice.obj) :: badevice.c"
+ },
+ "003a3500": {
+  "confidence": 0.909,
+  "evidence": "diff(p4-vs-burnout,context,0.879); map(librwcore.a(skyblit.obj) br:00338af8 size=316); p4:003a3500 size=360; same-member cluster; size-ratio=1.14",
+  "name": "unScaledSpriteClip",
+  "source_file": "librwcore.a(skyblit.obj) :: skyblit.c"
+ },
+ "003a8840": {
+  "confidence": 0.65,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.861); map(librwcore.a(skyblit.obj) br:0033ae20 size=5784); p4:003a8840 size=1116; same-member cluster; size-ratio=0.19",
+  "name": "_rwSkyRasterRenderScaled",
+  "source_file": "librwcore.a(skyblit.obj) :: skyblit.c"
+ },
+ "003bb210": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.951); map(librwcore.a(badevice.obj) br:00321328 size=268); p4:003bb210 size=284; same-member cluster; size-ratio=1.06",
+  "name": "RwEngineStart",
+  "source_file": "librwcore.a(badevice.obj) :: badevice.c"
+ },
+ "003bb3a0": {
+  "confidence": 0.923,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.923); map(librwcore.a(baresour.obj) br:00346f90 size=312); p4:003bb3a0 size=252; no same-member neighbor; size-ratio=0.81",
+  "name": "_rwResourcesOpen",
+  "source_file": "librwcore.a(baresour.obj) :: baresour.c"
+ },
+ "003bb4a0": {
+  "confidence": 0.947,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.917); map(librwcore.a(badevice.obj) br:003214c0 size=316); p4:003bb4a0 size=272; same-member cluster; size-ratio=0.86",
+  "name": "RwEngineOpen",
+  "source_file": "librwcore.a(badevice.obj) :: badevice.c"
+ },
+ "003c1ae0": {
+  "confidence": 0.918,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.888); map(librwcore.a(bacamera.obj) br:00320d30 size=68); p4:003c1ae0 size=44; same-member cluster; size-ratio=0.65",
+  "name": "RwCameraRegisterPlugin",
+  "source_file": "librwcore.a(bacamera.obj) :: bacamera.c"
+ },
+ "003c3cc0": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.977); map(librwcore.a(bacamera.obj) br:00320ac8 size=92); p4:003c3cc0 size=96; same-member cluster; size-ratio=1.04",
+  "name": "RwCameraDestroy",
+  "source_file": "librwcore.a(bacamera.obj) :: bacamera.c"
+ },
+ "003c40d0": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.989); map(librwcore.a(bamatrix.obj) br:0031d178 size=104); p4:003c40d0 size=104; same-member cluster; size-ratio=1.0",
+  "name": "_rwMatrixClose",
+  "source_file": "librwcore.a(bamatrix.obj) :: bamatrix.c"
+ },
+ "003c9530": {
+  "confidence": 0.948,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.948); map(librwcore.a(p2core.obj) br:003463f8 size=92); p4:003c9530 size=112; no same-member neighbor; size-ratio=1.22",
+  "name": "_rxPipelineClose",
+  "source_file": "librwcore.a(p2core.obj) :: p2core.c"
+ },
+ "003ca740": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,context,0.988); map(librwcore.a(skyblit.obj) br:0033dfe8 size=52); p4:003ca740 size=52; same-member cluster; size-ratio=1.0",
+  "name": "_rwSkyRasterSetContext",
+  "source_file": "librwcore.a(skyblit.obj) :: skyblit.c"
+ },
+ "003cb300": {
+  "confidence": 0.873,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.873); map(librwcore.a(p2heap.obj) br:003467b8 size=780); p4:003cb300 size=868; no same-member neighbor; size-ratio=1.11",
+  "name": "RxHeapFree",
+  "source_file": "librwcore.a(p2heap.obj) :: p2heap.c"
+ },
+ "003dbe40": {
+  "confidence": 0.979,
+  "evidence": "diff(p4-vs-burnout,semantic,0.979); map(librwcore.a(batextur.obj) br:00324fe8 size=912); p4:003dbe40 size=1328; no same-member neighbor; size-ratio=1.46",
+  "name": "PalettizeMipmaps",
+  "source_file": "librwcore.a(batextur.obj) :: batextur.c"
+ },
+ "003dd530": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,context,0.991); map(librwcore.a(skyinst.obj) br:00342bc8 size=84); p4:003dd530 size=84; same-member cluster; size-ratio=1.0",
+  "name": "SkyIm2DRenderLine",
+  "source_file": "librwcore.a(skyinst.obj) :: skyinst.c"
+ },
+ "003dd5c0": {
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-burnout,shape,1.000); map(librtfsyst.a(rtfsyst.obj) br:003bbf00 size=96); p4:003dd5c0 size=96; no same-member neighbor; size-ratio=1.0",
+  "name": "_rtFileSystemTriggerCallBack",
+  "source_file": "librtfsyst.a(rtfsyst.obj) :: rtfsyst.c"
+ },
+ "003dd830": {
+  "confidence": 0.903,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.873); map(librtfsyst.a(rtfsmgr.obj) br:003bbd60 size=180); p4:003dd830 size=200; same-member cluster; size-ratio=1.11",
+  "name": "RtFSManagerRegister",
+  "source_file": "librtfsyst.a(rtfsmgr.obj) :: rtfsmgr.c"
+ },
+ "003dd900": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.945); map(librtfsyst.a(rtfsmgr.obj) br:003bbe18 size=148); p4:003dd900 size=140; same-member cluster; size-ratio=0.95",
+  "name": "RtFSManagerGetFileSystemFromName",
+  "source_file": "librtfsyst.a(rtfsmgr.obj) :: rtfsmgr.c"
+ },
+ "003dda50": {
+  "confidence": 0.908,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.878); map(librtfsyst.a(rtfsmgr.obj) br:003bb6d0 size=396); p4:003dda50 size=440; same-member cluster; size-ratio=1.11",
+  "name": "RtFSManagerFOpen",
+  "source_file": "librtfsyst.a(rtfsmgr.obj) :: rtfsmgr.c"
+ },
+ "003ddc10": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.992); map(librtfsyst.a(rtfsmgr.obj) br:003bbed8 size=12); p4:003ddc10 size=12; same-member cluster; size-ratio=1.0",
+  "name": "_rtGetFSManager",
+  "source_file": "librtfsyst.a(rtfsmgr.obj) :: rtfsmgr.c"
+ },
+ "003df2a0": {
+  "confidence": 0.65,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.858); map(librwcore.a(baim3d.obj) br:003461c8 size=252); p4:003df2a0 size=88; same-member cluster; size-ratio=0.35",
+  "name": "RwIm3DGetRenderPipeline",
+  "source_file": "librwcore.a(baim3d.obj) :: baim3d.c"
+ },
+ "003e0250": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,context,0.984); map(librwcore.a(bacamera.obj) br:00320d80 size=104); p4:003e0250 size=104; same-member cluster; size-ratio=1.0",
+  "name": "_rwCameraClose",
+  "source_file": "librwcore.a(bacamera.obj) :: bacamera.c"
+ },
+ "003e22c0": {
+  "confidence": 0.941,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.911); map(librwcore.a(baim3d.obj) br:00345c70 size=384); p4:003e22c0 size=284; same-member cluster; size-ratio=0.74",
+  "name": "RwIm3DRenderPrimitive",
+  "source_file": "librwcore.a(baim3d.obj) :: baim3d.c"
+ },
+ "003e2570": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,semantic,0.995); map(librwcore.a(bastream.obj) br:0031ee48 size=120); p4:003e2570 size=128; same-member cluster; size-ratio=1.07",
+  "name": "_rwStreamModuleOpen",
+  "source_file": "librwcore.a(bastream.obj) :: bastream.c"
+ },
+ "003e25f0": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,1.000); map(librwcore.a(bastream.obj) br:0031eec0 size=84); p4:003e25f0 size=84; same-member cluster; size-ratio=1.0",
+  "name": "_rwStreamModuleClose",
+  "source_file": "librwcore.a(bastream.obj) :: bastream.c"
+ },
+ "003e4030": {
+  "confidence": 0.96,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.930); map(librwcore.a(bavector.obj) br:0031f138 size=128); p4:003e4030 size=116; same-member cluster; size-ratio=0.91",
+  "name": "_rwV3dNormalize",
+  "source_file": "librwcore.a(bavector.obj) :: bavector.c"
+ },
+ "003e43c0": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,profile,1.000); map(librwcore.a(bavector.obj) br:0031f1b8 size=84); p4:003e43c0 size=84; same-member cluster; size-ratio=1.0",
+  "name": "_rwVectorOpen",
+  "source_file": "librwcore.a(bavector.obj) :: bavector.c"
+ },
+ "003e50a0": {
+  "confidence": 0.894,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.894); map(librwcore.a(osintf.obj) br:00348288 size=72); p4:003e50a0 size=100; no same-member neighbor; size-ratio=1.39",
+  "name": "_rwpathisabsolute",
+  "source_file": "librwcore.a(osintf.obj) :: osintf.c"
+ },
+ "003e6770": {
+  "confidence": 0.957,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.927); map(librwcore.a(basky.obj) br:00334678 size=240); p4:003e6770 size=252; same-member cluster; size-ratio=1.05",
+  "name": "SkyNativeTextureWrite",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "003e8010": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,context,0.984); map(librwcore.a(baframe.obj) br:00321da0 size=104); p4:003e8010 size=104; same-member cluster; size-ratio=1.0",
+  "name": "_rwFrameClose",
+  "source_file": "librwcore.a(baframe.obj) :: baframe.c"
+ },
+ "003e8dc0": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,semantic,0.990); map(librwcore.a(baframe.obj) br:00321e08 size=136); p4:003e8dc0 size=152; same-member cluster; size-ratio=1.12",
+  "name": "_rwFrameOpen",
+  "source_file": "librwcore.a(baframe.obj) :: baframe.c"
+ },
+ "003e9eb0": {
+  "confidence": 0.888,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.888); map(librwcore.a(baraster.obj) br:003241d0 size=68); p4:003e9eb0 size=44; no same-member neighbor; size-ratio=0.65",
+  "name": "RwRasterRegisterPlugin",
+  "source_file": "librwcore.a(baraster.obj) :: baraster.c"
+ },
+ "003ece40": {
+  "confidence": 0.971,
+  "evidence": "diff(p4-vs-burnout,semantic,0.971); map(librwcore.a(baresamp.obj) br:00324568 size=636); p4:003ece40 size=620; no same-member neighbor; size-ratio=0.97",
+  "name": "ImageResampleGetAvgPixel",
+  "source_file": "librwcore.a(baresamp.obj) :: baresamp.c"
+ },
+ "003f2830": {
+  "confidence": 0.928,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.898); map(librwcore.a(badma.obj) br:00329fb8 size=1392); p4:003f2830 size=1184; same-member cluster; size-ratio=0.85",
+  "name": "rwDMAHandler",
+  "source_file": "librwcore.a(badma.obj) :: badma.c"
+ },
+ "003f2cd0": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.978); map(librwcore.a(badma.obj) br:0032a528 size=628); p4:003f2cd0 size=616; same-member cluster; size-ratio=0.98",
+  "name": "rwDMAVSYNCHandler",
+  "source_file": "librwcore.a(badma.obj) :: badma.c"
+ },
+ "003f2f40": {
+  "confidence": 0.93,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.898); map(librwcore.a(badma.obj) br:0032a7a0 size=1204); p4:003f2f40 size=900; same-member cluster; size-ratio=0.75; HAND-VERIFIED: 2x call to AddPkt-role helper + DMA-tag idiom; callee chain 003f2760->003f34e0(_rwDMAAddPkt)",
+  "name": "_rwDMAClosePkt",
+  "source_file": "librwcore.a(badma.obj) :: badma.c"
+ },
+ "003f32d0": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.946); map(librwcore.a(badma.obj) br:0032ac58 size=536); p4:003f32d0 size=516; same-member cluster; size-ratio=0.96; HAND-VERIFIED: shared callee _rwDMAClosePkt + DMA MMIO + literals 0x122/0x1121",
+  "name": "_rwDMAForceBufferSwap",
+  "source_file": "librwcore.a(badma.obj) :: badma.c"
+ },
+ "003f34e0": {
+  "confidence": 0.933,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.903); map(librwcore.a(badma.obj) br:0032ae70 size=372); p4:003f34e0 size=448; same-member cluster; size-ratio=1.2",
+  "name": "_rwDMAAddPkt",
+  "source_file": "librwcore.a(badma.obj) :: badma.c"
+ },
+ "003f36a0": {
+  "confidence": 0.905,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.875); map(librwcore.a(badma.obj) br:0032c760 size=160); p4:003f36a0 size=168; same-member cluster; size-ratio=1.05",
+  "name": "_rwDMAAddPURef",
+  "source_file": "librwcore.a(badma.obj) :: badma.c"
+ },
+ "003f3750": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.941); map(librwcore.a(badma.obj) br:0032afe8 size=404); p4:003f3750 size=376; same-member cluster; size-ratio=0.93",
+  "name": "_rwDMAReqFlip",
+  "source_file": "librwcore.a(badma.obj) :: badma.c"
+ },
+ "003f38d0": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.966); map(librwcore.a(badma.obj) br:0032c800 size=220); p4:003f38d0 size=232; same-member cluster; size-ratio=1.05",
+  "name": "_rwDMAWaitQueue",
+  "source_file": "librwcore.a(badma.obj) :: badma.c"
+ },
+ "003f39c0": {
+  "confidence": 0.939,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.909); map(librwcore.a(badma.obj) br:0032b708 size=1348); p4:003f39c0 size=1256; same-member cluster; size-ratio=0.93",
+  "name": "_rwDMAOpenVIFPkt",
+  "source_file": "librwcore.a(badma.obj) :: badma.c"
+ },
+ "003f3eb0": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,semantic,0.974); map(librwcore.a(badma.obj) br:0032b180 size=1412); p4:003f3eb0 size=1208; same-member cluster; size-ratio=0.86",
+  "name": "_rwDMAOpenGIFPkt",
+  "source_file": "librwcore.a(badma.obj) :: badma.c"
+ },
+ "003f44c0": {
+  "confidence": 0.926,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.896); map(librwcore.a(badma.obj) br:0032c230 size=480); p4:003f44c0 size=612; same-member cluster; size-ratio=1.27",
+  "name": "_rwDMAUnhook",
+  "source_file": "librwcore.a(badma.obj) :: badma.c"
+ },
+ "003f4730": {
+  "confidence": 0.957,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.927); map(librwcore.a(badma.obj) br:0032bef8 size=516); p4:003f4730 size=536; same-member cluster; size-ratio=1.04",
+  "name": "_rwDMAAddImageUpload",
+  "source_file": "librwcore.a(badma.obj) :: badma.c"
+ },
+ "003f4950": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.972); map(librwcore.a(badma.obj) br:0032c100 size=304); p4:003f4950 size=304; same-member cluster; size-ratio=1.0",
+  "name": "_rwDMAHook",
+  "source_file": "librwcore.a(badma.obj) :: badma.c"
+ },
+ "003f4c90": {
+  "confidence": 0.93,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.896); map(librwcore.a(badma.obj) br:0032c410 size=824); p4:003f4c90 size=664; same-member cluster; size-ratio=0.81; HAND-VERIFIED: shared callees _rwDMAHook + SyncDCache; same 2-jalr shape",
+  "name": "_rwDMADmaOpen",
+  "source_file": "librwcore.a(badma.obj) :: badma.c"
+ },
+ "003f4ff0": {
+  "confidence": 0.949,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.949); map(librwcore.a(baevent.obj) br:00348b90 size=100); p4:003f4ff0 size=80; no same-member neighbor; size-ratio=0.8",
+  "name": "_rwSkyInitConfigSystem",
+  "source_file": "librwcore.a(baevent.obj) :: baevent.c"
+ },
+ "003f6910": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.976); map(librwcore.a(basky.obj) br:00337a70 size=116); p4:003f6910 size=128; same-member cluster; size-ratio=1.1",
+  "name": "skyReadTexCB",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "003f6990": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.987); map(librwcore.a(basky.obj) br:00337ae8 size=88); p4:003f6990 size=92; same-member cluster; size-ratio=1.05; HAND-VERIFIED: near-identical bodies (6 normalized lines differ)",
+  "name": "skyWriteTexCB",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "003f6a10": {
+  "confidence": 0.902,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.872); map(librwcore.a(basky.obj) br:0032dab0 size=2572); p4:003f6a10 size=2484; same-member cluster; size-ratio=0.97",
+  "name": "SkyCameraBeginUpdate",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "003f7490": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,semantic,0.981); map(librwcore.a(basky.obj) br:0032e4c0 size=1164); p4:003f7490 size=1312; same-member cluster; size-ratio=1.13",
+  "name": "SkyCameraClear",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "003f79b0": {
+  "confidence": 0.885,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.855); map(librwcore.a(basky.obj) br:00337c18 size=148); p4:003f79b0 size=172; same-member cluster; size-ratio=1.16",
+  "name": "SkyRasterShowRaster",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "003fb9d0": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,semantic,0.983); map(librwcore.a(basky.obj) br:00332888 size=576); p4:003fb9d0 size=636; same-member cluster; size-ratio=1.1",
+  "name": "SkyRasterLock_32to8",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "003fbc50": {
+  "confidence": 0.913,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.883); map(librwcore.a(basky.obj) br:00332ac8 size=1008); p4:003fbc50 size=916; same-member cluster; size-ratio=0.91",
+  "name": "SkyRasterLock_16to4",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "003fbff0": {
+  "confidence": 0.969,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.939); map(librwcore.a(basky.obj) br:00332eb8 size=760); p4:003fbff0 size=644; same-member cluster; size-ratio=0.85",
+  "name": "SkyRasterUnlock_8to32",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "003fc280": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.954); map(librwcore.a(basky.obj) br:003331b0 size=952); p4:003fc280 size=876; same-member cluster; size-ratio=0.92",
+  "name": "SkyRasterUnlock_4to16",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "003fc5f0": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,semantic,0.974); map(librwcore.a(basky.obj) br:00333568 size=2256); p4:003fc5f0 size=3132; same-member cluster; size-ratio=1.39",
+  "name": "SkyRasterLock",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "003fd230": {
+  "confidence": 0.927,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.897); map(librwcore.a(basky.obj) br:00333e38 size=524); p4:003fd230 size=560; same-member cluster; size-ratio=1.07",
+  "name": "SkyRasterUnlock",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "003fd520": {
+  "confidence": 0.935,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.905); map(librwcore.a(basky.obj) br:00337d78 size=256); p4:003fd520 size=272; same-member cluster; size-ratio=1.06",
+  "name": "SkyRasterUnlockPalette",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "003fd690": {
+  "confidence": 0.947,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.917); map(librwcore.a(basky.obj) br:00334048 size=744); p4:003fd690 size=688; same-member cluster; size-ratio=0.92; HAND-VERIFIED: two shared distinctive callees (_rwStreamWriteVersionedChunkHeader, RwStreamWriteInt32) + chunk constants",
+  "name": "writeTEXToStream",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "003fd940": {
+  "confidence": 0.929,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.899); map(librwcore.a(basky.obj) br:00334330 size=836); p4:003fd940 size=964; same-member cluster; size-ratio=1.15",
+  "name": "readTEXFromStream",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "003fdd10": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,semantic,0.996); map(librwcore.a(basky.obj) br:00337ed8 size=140); p4:003fdd10 size=164; same-member cluster; size-ratio=1.17",
+  "name": "SkyNativeTextureGetSize",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "003fe700": {
+  "confidence": 0.92,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.890); map(librwcore.a(basky.obj) br:00334c40 size=752); p4:003fe700 size=912; same-member cluster; size-ratio=1.21",
+  "name": "SkyOpen",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "003fea90": {
+  "confidence": 0.895,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.865); map(librwcore.a(basky.obj) br:00335020 size=1832); p4:003fea90 size=1740; same-member cluster; size-ratio=0.95",
+  "name": "setUpFSAA0",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "004010c0": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,semantic,0.998); map(librwcore.a(basky.obj) br:003367b0 size=816); p4:004010c0 size=904; same-member cluster; size-ratio=1.11",
+  "name": "SkySystem",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "00401460": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.956); map(librwcore.a(basky.obj) br:00336ae8 size=304); p4:00401460 size=372; same-member cluster; size-ratio=1.22; HAND-VERIFIED: GS TEX register bit-surgery idiom, same struct offsets 0x58/0x8/0xc/0x10",
+  "name": "_rpSkyFrameBufferRastersUpdate",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "004015e0": {
+  "confidence": 0.959,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.929); map(librwcore.a(basky.obj) br:003377e8 size=88); p4:004015e0 size=108; same-member cluster; size-ratio=1.23",
+  "name": "_rpSkyDestroyFrameBufferRasters",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "00401650": {
+  "confidence": 0.956,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.926); map(librwcore.a(basky.obj) br:00336c18 size=476); p4:00401650 size=540; same-member cluster; size-ratio=1.13",
+  "name": "SkyCreateFBRaster",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "00401870": {
+  "confidence": 0.96,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.930); map(librwcore.a(basky.obj) br:00336df8 size=500); p4:00401870 size=556; same-member cluster; size-ratio=1.11",
+  "name": "SkyCreateDBRaster",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "00401aa0": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.948); map(librwcore.a(basky.obj) br:00336ff0 size=212); p4:00401aa0 size=224; same-member cluster; size-ratio=1.06",
+  "name": "_rpSkyCreateFrameBufferRasters",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "00402600": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.964); map(librwcore.a(skyblit.obj) br:0033def0 size=108); p4:00402600 size=116; same-member cluster; size-ratio=1.07",
+  "name": "_rwSkyRasterFinaliseStart",
+  "source_file": "librwcore.a(skyblit.obj) :: skyblit.c"
+ },
+ "00402680": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.979); map(librwcore.a(skyblit.obj) br:0033df60 size=64); p4:00402680 size=68; same-member cluster; size-ratio=1.06",
+  "name": "_rwSkyRasterInitiateStop",
+  "source_file": "librwcore.a(skyblit.obj) :: skyblit.c"
+ },
+ "00403390": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,shape,1.000); map(librwcore.a(skyblit.obj) br:0033dfa0 size=68); p4:00403390 size=68; same-member cluster; size-ratio=1.0; HAND-VERIFIED: same 17-insn skeleton as br _rwSkyRasterClear; same ClearRect-call role",
+  "name": "_rwSkyRasterClear",
+  "source_file": "librwcore.a(skyblit.obj) :: skyblit.c"
+ },
+ "00407ff0": {
+  "confidence": 0.953,
+  "evidence": "diff(p4-vs-burnout,semantic,0.923); map(librwcore.a(skyconv.obj) br:0033e1a8 size=3892); p4:00407ff0 size=4444; same-member cluster; size-ratio=1.14",
+  "name": "_rwSkyImageGetRaster",
+  "source_file": "librwcore.a(skyconv.obj) :: skyconv.c"
+ },
+ "00409e10": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,semantic,0.967); map(librwcore.a(skyconv.obj) br:0033f5a0 size=908); p4:00409e10 size=640; same-member cluster; size-ratio=0.7",
+  "name": "SkyRasterSetImageNormalPalettised",
+  "source_file": "librwcore.a(skyconv.obj) :: skyconv.c"
+ },
+ "0040a090": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.980); map(librwcore.a(skyconv.obj) br:0033f930 size=1160); p4:0040a090 size=1132; same-member cluster; size-ratio=0.98",
+  "name": "SkyRasterSetImageNormal",
+  "source_file": "librwcore.a(skyconv.obj) :: skyconv.c"
+ },
+ "0040a500": {
+  "confidence": 0.907,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.877); map(librwcore.a(skyconv.obj) br:0033ff98 size=272); p4:0040a500 size=336; same-member cluster; size-ratio=1.24",
+  "name": "_rwSkyRasterSetImage",
+  "source_file": "librwcore.a(skyconv.obj) :: skyconv.c"
+ },
+ "0040aa60": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.971); map(librwcore.a(skyinst.obj) br:003402c8 size=920); p4:0040aa60 size=912; same-member cluster; size-ratio=0.99; HAND-VERIFIED: magic DMA tags 0x6C0D03F0/0x6C033F9/0x412 + shared callee SyncDCache",
+  "name": "initVu1DispatchStuff",
+  "source_file": "librwcore.a(skyinst.obj) :: skyinst.c"
+ },
+ "0040c0f0": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,semantic,0.982); map(librwcore.a(skyinst.obj) br:00342c80 size=112); p4:0040c0f0 size=116; same-member cluster; size-ratio=1.04",
+  "name": "SkyIm2DRenderPrimitive",
+  "source_file": "librwcore.a(skyinst.obj) :: skyinst.c"
+ },
+ "0040c420": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,semantic,0.988); map(librwcore.a(skyinst.obj) br:00342280 size=716); p4:0040c420 size=688; same-member cluster; size-ratio=0.96",
+  "name": "addCopyVU1IndPrimTriStrip",
+  "source_file": "librwcore.a(skyinst.obj) :: skyinst.c"
+ },
+ "0040c6d0": {
+  "confidence": 0.939,
+  "evidence": "diff(p4-vs-burnout,context,0.909); map(librwcore.a(skyinst.obj) br:00341860 size=940); p4:0040c6d0 size=816; same-member cluster; size-ratio=0.87",
+  "name": "addCopyVU1IndPrimLineList",
+  "source_file": "librwcore.a(skyinst.obj) :: skyinst.c"
+ },
+ "0040d0a0": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,semantic,0.981); map(librwcore.a(skyinst.obj) br:00342cf0 size=104); p4:0040d0a0 size=112; same-member cluster; size-ratio=1.08",
+  "name": "SkyIm2DRenderIndexedPrimitive",
+  "source_file": "librwcore.a(skyinst.obj) :: skyinst.c"
+ },
+ "0040d170": {
+  "confidence": 0.884,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.854); map(librwcore.a(skyinst.obj) br:00342808 size=872); p4:0040d170 size=1016; same-member cluster; size-ratio=1.17",
+  "name": "_rwSkyPipeSetupForCamera",
+  "source_file": "librwcore.a(skyinst.obj) :: skyinst.c"
+ },
+ "0040d570": {
+  "confidence": 0.895,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.865); map(librwcore.a(texcache.obj) br:00342d58 size=644); p4:0040d570 size=428; same-member cluster; size-ratio=0.66",
+  "name": "_SkyBuildPktForUpLoadAlignedContiguousRectangle",
+  "source_file": "librwcore.a(texcache.obj) :: texcache.c"
+ },
+ "0040d720": {
+  "confidence": 0.895,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.865); map(librwcore.a(texcache.obj) br:00342fe0 size=504); p4:0040d720 size=872; same-member cluster; size-ratio=1.73",
+  "name": "skyPrepareUploadRaster",
+  "source_file": "librwcore.a(texcache.obj) :: texcache.c"
+ },
+ "0040da90": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.988); map(librwcore.a(texcache.obj) br:003431d8 size=564); p4:0040da90 size=548; same-member cluster; size-ratio=0.97",
+  "name": "_SkyDdispatchUpLoadAlignedContiguousRectangle",
+  "source_file": "librwcore.a(texcache.obj) :: texcache.c"
+ },
+ "0040dcc0": {
+  "confidence": 0.962,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.932); map(librwcore.a(texcache.obj) br:00343410 size=860); p4:0040dcc0 size=640; same-member cluster; size-ratio=0.74",
+  "name": "_SkyUpLoadAlignedRectangle",
+  "source_file": "librwcore.a(texcache.obj) :: texcache.c"
+ },
+ "0040df50": {
+  "confidence": 0.902,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.872); map(librwcore.a(texcache.obj) br:00343770 size=2320); p4:0040df50 size=2268; same-member cluster; size-ratio=0.98",
+  "name": "skyTexCacheMemRasterToGs",
+  "source_file": "librwcore.a(texcache.obj) :: texcache.c"
+ },
+ "0040e830": {
+  "confidence": 0.914,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.884); map(librwcore.a(texcache.obj) br:00344080 size=1352); p4:0040e830 size=1700; same-member cluster; size-ratio=1.26",
+  "name": "_skyTexCacheUploadRaster",
+  "source_file": "librwcore.a(texcache.obj) :: texcache.c"
+ },
+ "0040f1b0": {
+  "confidence": 0.35,
+  "evidence": "diff(p4-vs-burnout,call-graph,1.000); map(librwcore.a(texcache.obj) br:00345ad0 size=8); p4:0040f1b0 size=8; same-member cluster; size-ratio=1.0; HAND-CHECK: WEAK - both sides are empty `jr ra` stubs, zero information; name plausible only by neighborhood",
+  "name": "skyTexCacheEndFrame",
+  "source_file": "librwcore.a(texcache.obj) :: texcache.c"
+ },
+ "0040f1c0": {
+  "confidence": 0.962,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.932); map(librwcore.a(texcache.obj) br:00344800 size=940); p4:0040f1c0 size=704; same-member cluster; size-ratio=0.75",
+  "name": "skyTexCacheUploadPalette",
+  "source_file": "librwcore.a(texcache.obj) :: texcache.c"
+ },
+ "0040fcd0": {
+  "confidence": 0.895,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.865); map(librwcore.a(texcache.obj) br:003451c0 size=740); p4:0040fcd0 size=936; same-member cluster; size-ratio=1.26",
+  "name": "RpSkyTexCacheRasterLock",
+  "source_file": "librwcore.a(texcache.obj) :: texcache.c"
+ },
+ "00410f30": {
+  "confidence": 1.0,
+  "evidence": "diff(p4-vs-burnout,call-graph,1.000); map(librwcore.a(bapipe.obj) br:00346328 size=8); p4:00410f30 size=8; no same-member neighbor; size-ratio=1.0",
+  "name": "_rwPipeAttach",
+  "source_file": "librwcore.a(bapipe.obj) :: bapipe.c"
+ },
+ "00411740": {
+  "confidence": 0.938,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.908); map(librwcore.a(badevice.obj) br:00321188 size=112); p4:00411740 size=108; same-member cluster; size-ratio=0.96",
+  "name": "RwEngineGetCurrentVideoMode",
+  "source_file": "librwcore.a(badevice.obj) :: badevice.c"
+ },
+ "004117b0": {
+  "confidence": 0.936,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.906); map(librwcore.a(badevice.obj) br:003211f8 size=104); p4:004117b0 size=108; same-member cluster; size-ratio=1.04",
+  "name": "RwEngineSetVideoMode",
+  "source_file": "librwcore.a(badevice.obj) :: badevice.c"
+ },
+ "00465400": {
+  "confidence": 0.65,
+  "evidence": "diff(p4-vs-burnout,semantic,0.927); map(librwcore.a(basky.obj) br:00335748 size=852); p4:00465400 size=360; same-member cluster; size-ratio=0.42",
+  "name": "skyCustomModeIsOk",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "00474af0": {
+  "confidence": 0.953,
+  "evidence": "diff(p4-vs-burnout,context,0.923); map(librwcore.a(basky.obj) br:00337cc0 size=180); p4:00474af0 size=176; same-member cluster; size-ratio=0.98",
+  "name": "SkyRasterLockPalette",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "004800d0": {
+  "confidence": 0.903,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.873); map(librwcore.a(bamemory.obj) br:0031d1e0 size=804); p4:004800d0 size=864; same-member cluster; size-ratio=1.07",
+  "name": "RwFreeListCreate",
+  "source_file": "librwcore.a(bamemory.obj) :: bamemory.c"
+ },
+ "004af740": {
+  "confidence": 0.949,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.919); map(librwcore.a(bastream.obj) br:0031e7c0 size=396); p4:004af740 size=348; same-member cluster; size-ratio=0.88",
+  "name": "RwStreamRead",
+  "source_file": "librwcore.a(bastream.obj) :: bastream.c"
+ },
+ "004c1c80": {
+  "confidence": 0.98,
+  "evidence": "diff(p4-vs-burnout,context,0.980); map(librwcore.a(baimras.obj) br:00323b90 size=100); p4:004c1c80 size=100; no same-member neighbor; size-ratio=1.0",
+  "name": "RwImageSetFromRaster",
+  "source_file": "librwcore.a(baimras.obj) :: baimras.c"
+ },
+ "004c42a8": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,shape,1.000); map(librwcore.a(basky.obj) br:00337850 size=44); p4:004c42a8 size=44; same-member cluster; size-ratio=1.0",
+  "name": "_rwSkyFindMSB",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "004d65f8": {
+  "confidence": 0.65,
+  "evidence": "diff(p4-vs-burnout,context,0.952); map(librwcore.a(basky.obj) br:00337908 size=172); p4:004d65f8 size=52; same-member cluster; size-ratio=0.3",
+  "name": "RpSkyRenderStateGet",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "004db708": {
+  "confidence": 0.962,
+  "evidence": "diff(p4-vs-burnout,context,0.932); map(librwcore.a(bavector.obj) br:0031f280 size=488); p4:004db708 size=496; same-member cluster; size-ratio=1.02",
+  "name": "VectorMultPoints",
+  "source_file": "librwcore.a(bavector.obj) :: bavector.c"
+ },
+ "004eb3d8": {
+  "confidence": 0.931,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.901); map(librwcore.a(bamemory.obj) br:0031e1c0 size=808); p4:004eb3d8 size=760; same-member cluster; size-ratio=0.94",
+  "name": "FreeListCreate",
+  "source_file": "librwcore.a(bamemory.obj) :: bamemory.c"
+ },
+ "004efef8": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,shape,1.000); map(librtfsyst.a(rtfsmgr.obj) br:003bbcf0 size=104); p4:004efef8 size=104; same-member cluster; size-ratio=1.0",
+  "name": "RtFSManagerOpen",
+  "source_file": "librtfsyst.a(rtfsmgr.obj) :: rtfsmgr.c"
+ },
+ "004f7a50": {
+  "confidence": 0.922,
+  "evidence": "diff(p4-vs-burnout,call-graph,0.892); map(librwcore.a(baimage.obj) br:00322eb8 size=936); p4:004f7a50 size=820; same-member cluster; size-ratio=0.88",
+  "name": "ImageConvertDepth",
+  "source_file": "librwcore.a(baimage.obj) :: baimage.c"
+ },
+ "004fb4e0": {
+  "confidence": 0.65,
+  "evidence": "diff(p4-vs-burnout,context,0.900); map(librwcore.a(basky.obj) br:0032ca08 size=2716); p4:004fb4e0 size=56; same-member cluster; size-ratio=0.02",
+  "name": "_rwSkySetRenderState",
+  "source_file": "librwcore.a(basky.obj) :: basky.c"
+ },
+ "00507c28": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,context,0.975); map(librwcore.a(badma.obj) br:0032c930 size=64); p4:00507c28 size=32; same-member cluster; size-ratio=0.5",
+  "name": "_rwDMAPreAlloc",
+  "source_file": "librwcore.a(badma.obj) :: badma.c"
+ },
+ "007439c8": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,context,0.993); map(librwcore.a(bavector.obj) br:0031f468 size=152); p4:007439c8 size=152; same-member cluster; size-ratio=1.0",
+  "name": "VectorMultPoint",
+  "source_file": "librwcore.a(bavector.obj) :: bavector.c"
+ },
+ "0088db80": {
+  "confidence": 0.97,
+  "evidence": "diff(p4-vs-burnout,context,0.992); map(librwcore.a(bavector.obj) br:0031f6a0 size=128); p4:0088db80 size=128; same-member cluster; size-ratio=1.0",
+  "name": "VectorMultVector",
+  "source_file": "librwcore.a(bavector.obj) :: bavector.c"
+ }
+}

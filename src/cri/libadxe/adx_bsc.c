@@ -9,7 +9,9 @@
 
 //#include <string.h>
 
-ADX_BASIC adxb_obj[8] = { 0 };
+/* 9.44 pools 16 decoders, not 8: retail's ADXB_ExecServer counts
+ * down from `addiu $s1, $zero, 0xf` at 0x004C47A8. */
+ADX_BASIC adxb_obj[16] = { 0 };
 
 // 100% matching!
 void ADXB_Init(void) 
@@ -20,6 +22,7 @@ void ADXB_Init(void)
 }
 
 // 100% matching!
+// FUN_004C3498
 void* adxb_DefGetWr(void *obj, Sint32 *wpos, Sint32 *nroom, Sint32 *lp_nsmpl)
 {
     ADXB adxb;
@@ -54,7 +57,7 @@ ADXB ADXB_Create(Sint32 maxnch, Sint16 *obuf, Sint32 bsize, Sint32 bdist)
 	ADXB adxb1;
     ADXB adxb2;
 
-    for (no = 0; no < 8; no++)
+    for (no = 0; no < 16; no++)
     {
         adxb1 = &adxb_obj[no];
         
@@ -420,6 +423,7 @@ void ADXB_EvokeExpandMono(ADXB adxb, Sint32 nblk)
 }
 
 // 100% matching!
+// FUN_004C40F0
 void ADXB_EvokeExpandSte(ADXB adxb, Sint32 nblk)
 {
 	AdxDecPara *dp;
@@ -642,12 +646,13 @@ void ADXB_ExecHndl(ADXB adxb)
 }
 
 // 100% matching!
+// FUN_004C4790
 void ADXB_ExecServer(void) 
 {
     ADXB adxb;
 	Sint32 no;
     
-    for (no = 0; no < 8; no++) 
+    for (no = 0; no < 16; no++) 
     {
         adxb = &adxb_obj[no];
         
