@@ -30,6 +30,8 @@ That is why this is a structural-matching problem, not a byte-matching one.
 | `known_names.json` | 392 Persona 4 address -> RenderWare name pairs this repo already proves, from `src/renderware/**` markers and alias defines | **proven** |
 | `proposed_names.json` | 122 proposals for currently unnamed Persona 4 functions | **hints only, see below** |
 | `name-transfer-report.md` | the full method, every configuration tried, and the failure analysis | - |
+| `ballers_names.json` | 417 proposals from the NBA Ballers Phenom diff, each with confidence, evidence, source file, and Burnout agreement | **hints, stronger - see REPORT.md** |
+| `REPORT.md` | the Ballers method, scores, Burnout comparison, and agreement analysis | - |
 
 ## The proposals are hints, not facts
 
@@ -71,3 +73,17 @@ Do not over-read that. Naive 1:1 alignment by order and size was tried and
 compilers disagree too much. The correspondence is good enough to say which
 source file a region came from, and not good enough to name a function by
 counting along it.
+
+## A second reference: Ballers
+
+NBA Ballers Phenom (SLUS-21186) compiled its RenderWare from source with
+`MW MIPS C Compiler` - the same toolchain family as Persona 4's block - so
+the structural diff transfers far better than Burnout's gcc-built one.
+Measured on the same 392 pairs: greedy with semantics **297/336 correct,
+precision 0.884, recall 0.864** (driver block 100/107 = 0.935), against
+Burnout's 93/143 = 0.650 / 0.368. Where the two references independently
+propose the same name, precision is 92/94 = 0.979; where they disagree,
+Ballers is right 31 times out of 42 and Burnout once. `ballers_names.json`
+carries per-entry agreement, and `REPORT.md` has the full numbers, the
+failure analysis, and nine hand-checked pairs. Same rule as above: hints,
+not `src/` edits.
