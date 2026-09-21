@@ -34,6 +34,11 @@ typedef struct dtr_obj
 	Sint32 dstlin;
 	Sint32 blklen;
 	Sint32 total_tbyte;
+	/* P4: 9.44's DTR_OBJ is 0x80, twice this. Retail's DTR_Init clears the
+	 * pool with `addiu $a2, $zero, 0x800` at 0x004E4EC8 over sixteen
+	 * objects. What the second half holds is not known, so it is reserved
+	 * rather than invented. */
+	Uint8 rsvTail[0x80 - 0x40];
 } DTR_OBJ;
 typedef DTR_OBJ *DTR;
 

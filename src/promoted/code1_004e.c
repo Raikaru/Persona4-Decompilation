@@ -219,8 +219,6 @@ s8 func_004e4dc8(u8 *arg0)
 #pragma schedule off
 // FUN_004E4DD0
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4dd0);
-// FUN_004E4E90
-INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4e90);
 /* measured: schedule on keeps the store in the jr return delay slot. */
 #pragma schedule on
 // FUN_004E4EF8
