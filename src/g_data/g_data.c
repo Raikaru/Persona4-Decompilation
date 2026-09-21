@@ -158,7 +158,7 @@ extern u8 D_00797F8E[];
 
 extern u8* DAT_007644D0;
 
-extern void func_0023dd90(void* arg0, u8* arg1);
+extern u16 func_0023dd90(u8* arg0, s32 arg1);
 
 extern void func_003e40b0(f32* a, f32* b);
 
@@ -2438,7 +2438,7 @@ s32 func_0010f540(s32 arg0)
 }
 
 // FUN_0010F560
-void func_0010f560(s16 arg0, u8* arg1)
+u16 func_0010f560(s16 arg0, s32 arg1)
 {
     u8* p;
 
@@ -2451,7 +2451,7 @@ void func_0010f560(s16 arg0, u8* arg1)
         K_ASSERT(arg0 < 0xB, 0x234);
         p = (u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4;
     }
-    func_0023dd90(p, arg1);
+    return func_0023dd90(p, arg1);
 }
 
 // FUN_0010F600

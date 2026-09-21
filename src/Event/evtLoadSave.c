@@ -2,6 +2,7 @@
 /* Persona 4 USA decompilation - evtLoadSave.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
+#include "scene_event_internal.h"
 
 typedef struct { u8 c[4]; } Rgba8;
 typedef struct { s16 a; s16 b; s16 c; s16 d; } S16x4;
@@ -23,7 +24,6 @@ extern void func_0047aa30(s32, u8 *);
 extern s32 func_002919d0(s32);
 extern u16 func_00145780(u16, s32, s32);
 extern void func_00269c20(u16, s32);
-extern void func_00146e60(u16, f32 *, f32 *);
 extern u16 *func_00145270(u16);
 extern void func_0046d730(u8 *, s32);
 extern void func_00286ff0(u8 *, u16, u16 *);
@@ -268,11 +268,11 @@ void func_00294be0(u8 *arg0, u8 *arg1) {
         } else {
             resource_id = *(u16 *)idx;
         }
-        func_00146e60(resource_id, &stack.vec[1].x, &stack.vec[0].x);
+        func_00146e60(resource_id, (u8 *)&stack.vec[1], (u8 *)&stack.vec[0]);
         *(s32 *)((u8 *)idx + 0x144) = 0;
         *(u16 **)(arg1 + 0x12C) = func_00145270(resource_id);
         func_0026bfc0(&stack.vec[1].x, 900.0f, 45.0f, 0.0f, 0.0f, &stack.vec[2].x);
-        func_00146e60(resource_id, &stack.vec[2].x, &stack.vec[0].x);
+        func_00146e60(resource_id, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
         resource = (u8 *)func_00145270(0x1E59);
         if (resource == NULL) {
             resource_id = func_00145480(0x259) & 0xFFFF;
@@ -280,7 +280,7 @@ void func_00294be0(u8 *arg0, u8 *arg1) {
         } else {
             resource_id = *(u16 *)resource;
         }
-        func_00146e60(resource_id, &stack.vec[2].x, &stack.vec[0].x);
+        func_00146e60(resource_id, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
         *(s32 *)((u8 *)func_00145270(resource_id) + 0x144) = 0;
         func_0028be70(arg1, 0);
         temp_3 = *(u16 **)(arg1 + 0x12C);
@@ -598,7 +598,7 @@ void func_00295740(s32 arg0, u8 *arg1) {
             sp58.x = (f32)temp_2_2;
             sp58.y = 0;
             sp58.z = (f32)-temp_2_2;
-            func_00146e60(temp_16, &sp58.x, 0);
+            func_00146e60(temp_16, (u8 *)&sp58, 0);
             temp_2_3 = (u16 *)(func_00145270(temp_16));
             if (temp_2_3 == NULL) {
                 func_0046d730(D_0063CAB0, 0x9C5);

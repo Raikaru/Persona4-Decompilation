@@ -2,6 +2,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "scene_event_internal.h"
 #include "sdk_snd_internal.h"
 typedef char *va_list;
 #define va_start(ap, last) (ap = (va_list)__builtin_args_info(2))
@@ -344,7 +345,7 @@ s32 func_00291b30(s32 arg0, u16 *arg1) {
 /* measured: O1 float-local register mapping probe for func_00293710. */
 #pragma optimization_level 1
 // FUN_00293710
-void func_00293710(s16 arg0, s32 arg1, f32 fparg0, f32 fparg1,
+void func_00293710(u16 arg0, s32 arg1, f32 fparg0, f32 fparg1,
                    f32 fparg2, f32 fparg3, s32 arg2, u8 *arg3)
 {
     extern u8 *func_002e1db0();

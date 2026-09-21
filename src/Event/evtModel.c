@@ -3,6 +3,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "scene_event_internal.h"
 
 extern s32 func_00452380();
 extern void func_00452080();
@@ -51,9 +52,7 @@ extern f32 D_00761260;  /* gp -0x7e90 */
 
 extern s32 func_00291a60(u32 id);
 extern void *func_00145270(u32 id);
-extern void func_00269340(s32 id, void *param, s32 a, s32 b);
-extern void func_00269820(void *res, s32 a, s32 b, s32 c, s32 d, s32 e, f32 f);
-extern void func_0026bda0(s32 id, s32 a, s32 b, s32 c, s32 d, s32 e);
+
 extern u8 *func_002e1db0(s32 a, s32 b, s32 c, s32 d);
 extern void func_002e1ef0(void *a);
 extern u8 *func_002e2170(void *a, s32 b, s32 c);
@@ -581,9 +580,10 @@ s32 func_00292bb0(s32 arg0, u8 *arg1) {
 // FUN_00292EF0
 #pragma push
 #pragma opt_rebuildconditionals off
+#pragma opt_propagation off
 s32 func_00292ef0(s32 arg0, u8 *arg1) {
     EvtModelRec *rec = (EvtModelRec *)arg1;
-    u8 sp[0xC];
+    SVec3 sp;
     u32 id;
     s32 handle;
     s32 var_3;
@@ -604,12 +604,16 @@ done:
     if (var_3 == 0) {
         func_00269820(func_00145270(id), 0, 1, 5, 0, 0, 1.0f);
     } else if (var_3 == 5) {
-        *(s32 *)(sp + 0) = 0;
-        *(f32 *)(sp + 4) = rec->posX;
-        *(s32 *)(sp + 8) = 0;
-        func_00269340(id, sp, rec->target, 0);
+        sp.x = 0.0f;
+        sp.y = rec->posX;
+        sp.z = 0.0f;
+        func_00269340(id, &sp, *(u32 *)&rec->target, 0);
         if (rec->flags & 2) {
-            func_0026bda0(id, 2, (rec->timer + 1) & 0xFF, rec->angX, rec->angY, rec->angZ);
+            u8 sound = (rec->timer + 1) & 0xFF;
+            s16 start = rec->angX;
+            s16 end = rec->angY;
+            s16 flags = rec->angZ;
+            func_0026bda0(id, 2, sound, start, end, flags);
         }
     } else if (var_3 == 25) {
         func_00269820(func_00145270(id), 0, 0, 5, 1, 0, 1.0f);
@@ -719,7 +723,7 @@ void func_002932b0(s32 arg0) {
 }
 
 // FUN_002933A0
-void func_002933a0(s16 arg0, s32 arg1, f32 fparg0) {
+void func_002933a0(u16 arg0, s32 arg1, f32 fparg0) {
     u8 sp[0x2C];
     u32 var_2;
     u8 **temp_10;
@@ -768,7 +772,7 @@ void func_002933a0(s16 arg0, s32 arg1, f32 fparg0) {
 }
 
 // FUN_00293550
-void func_00293550(s16 arg0, s16 arg1, s32 arg2, f32 fparg0) {
+void func_00293550(u16 arg0, u16 arg1, s32 arg2, f32 fparg0) {
     u8 sp[0x2C];
     u32 var_2;
     u8 **temp_10;

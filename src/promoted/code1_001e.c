@@ -1509,7 +1509,7 @@ s32 func_001e9950(void) {
     extern s32 func_0023d6e0(s32 arg0);
     extern s32 func_0023df70(s32 arg0);
     extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
-    extern s32 func_0023dd90(u8 *arg0, s32 arg1);
+    extern u16 func_0023dd90(u8 *arg0, s32 arg1);
     extern s32 func_001db360(u8 *arg0, s32 arg1, s32 arg2);
     extern s32 func_00235520(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
     extern s32 func_00242800(s32 arg0, s32 arg1);

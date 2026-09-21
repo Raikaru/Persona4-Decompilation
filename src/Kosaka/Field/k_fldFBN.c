@@ -1,6 +1,7 @@
 #include "include_asm.h"
 /* Source unit: src/Kosaka/Field/k_fldFBN.c */
 #include "type.h"
+#include "scene_event_internal.h"
 #include "model_matrix_internal.h"
 
 typedef struct FbnEntry
@@ -70,7 +71,6 @@ extern u8 *func_00145270(s32 arg0);
 extern f32 func_0014b660(u8 *arg0);
 extern f32 func_0014b5d0(u8 *arg0);
 extern f32 func_0014b6f0(u8 *arg0);
-extern void func_00146e60(s32 arg0, u8 *arg1, f32 *arg2);
 extern void *func_0015ca30(void);
 extern void *func_0015cbe0(s32 arg0);
 extern void func_0015d100(FbnEntry *arg0, s32 arg1);
@@ -168,9 +168,7 @@ u8 *func_0015e870(s32 arg0, s32 arg1, s16 arg2)
 s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     char buf[0x40];
-    f32 f0;
-    f32 f1;
-    f32 f2;
+    SVec3 angles;
     u32 tmp;
     u8 *fbn;
     u8 *p;
@@ -304,10 +302,10 @@ s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
         s32 m;
         for (m = 0; (u32)m < *(u32 *)(fbn + 0x10); m++) {
             s32 id = func_001453a0(*(u16 *)(p + 0x50) & 0x3FF) & 0xFFFF;
-            f0 = func_0014b660(p + 0x10);
-            f1 = func_0014b5d0(p + 0x10);
-            f2 = func_0014b6f0(p + 0x10);
-            func_00146e60(id, p + 0x40, &f0);
+            angles.x = func_0014b660(p + 0x10);
+            angles.y = func_0014b5d0(p + 0x10);
+            angles.z = func_0014b6f0(p + 0x10);
+            func_00146e60(id, p + 0x40, (u8 *)&angles);
             p += 0x60;
         }
     }
@@ -331,9 +329,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
     extern void func_0046d730(u8 *arg0, s32 arg1);
     extern s32 func_0015d1a0(u8 *arg0);
     extern s32 D_00764364;
-    f32 spC8;
-    f32 spC4;
-    f32 spC0;
+    SVec3 angles;
     f32 spB8;
     u64 spB0;
     f32 spA8;
@@ -394,7 +390,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
             spA8 = (f32)t;
             k = (s32)func_00478750(D_00764364);
             *(s32 *)(tmp + 0x22C) = k;
-            func_0047a1a0((void *)k, &spB0, spC4, 2);
+            func_0047a1a0((void *)k, &spB0, angles.y, 2);
             func_0047a1e0((void *)*(s32 *)(tmp + 0x22C), &spA0, 2);
             if (*(u8 *)(rec + 0xB) & 1) {
                 *(s32 *)(tmp + 0x28) |= 0x80000000;
@@ -424,10 +420,10 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
                     *(s32 *)(dst + 4) = w1;
                     dst += 8;
                 } while (n > 0);
-                spC0 = (f32)(s32)(func_0014b660(rec + 0x20));
-                spC4 = (f32)(s32)(func_0014b5d0(rec + 0x20));
-                spC8 = (f32)(s32)(func_0014b6f0(rec + 0x20));
-                func_00146e60(rid, rec + 0x50, &spC0);
+                angles.x = (f32)(s32)(func_0014b660(rec + 0x20));
+                angles.y = (f32)(s32)(func_0014b5d0(rec + 0x20));
+                angles.z = (f32)(s32)(func_0014b6f0(rec + 0x20));
+                func_00146e60(rid, rec + 0x50, (u8 *)&angles);
                 func_003e05d0(func_0047a2f0(*(u8 *)((u8 *)iGpffffb2a4 + i * 4)));
                 break;
             case 1:

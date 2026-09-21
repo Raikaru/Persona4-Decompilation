@@ -1,5 +1,6 @@
 /* Original translation unit y_fclItemShopDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 
+#include "fcl_color.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -72,7 +73,6 @@ extern s16 func_002e2740(s32 arg0);
 extern u32 func_001067f0(s16 arg0);
 extern s32 func_00106600(s16 arg0);
 extern s32 func_00110830(s32 arg0);
-extern void func_002b2a60(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_002caa10(s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 extern void func_002bc7f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, f32 arg6, f32 arg7, f32 arg8);
 extern s16 func_002e2670(void);
@@ -761,7 +761,7 @@ s32 func_00332bb0(u8 *arg0) {
             func_0033d3c0((void *)*(s32 *)(work + 0x198), 57.0f);
             *(s16 *)(func_0033d310((void *)*(s32 *)(work + 0x198)) + 0xF8) = (s16)(((func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) & 0xFF) % 10) + 0x46);
             func_0033d3d0((void *)*(s32 *)(work + 0x198), 0x5B);
-            func_002b2a60(&cw, 0x7E, 0, 8, 0xFF);
+            fclWriteColorBytes(&cw, 0x7E, 0, 8, 0xFF);
             tmp = func_0033d310((void *)*(s32 *)(work + 0x198));
             *(u8 *)((u8 *)tmp + 0x79) = *(u8 *)&cw;
             *(u8 *)((u8 *)tmp + 0x7A) = *((u8 *)&cw + 1);
@@ -775,7 +775,7 @@ s32 func_00332bb0(u8 *arg0) {
             func_0033d3c0((void *)*(s32 *)(work + 0x19C), 57.0f);
             *(s16 *)(func_0033d310((void *)*(s32 *)(work + 0x19C)) + 0xF8) = (s16)(((func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) & 0xFF) / 10) + 0x46);
             func_0033d3d0((void *)*(s32 *)(work + 0x19C), 0x5B);
-            func_002b2a60(&cw, 0x7E, 0, 8, 0xFF);
+            fclWriteColorBytes(&cw, 0x7E, 0, 8, 0xFF);
             tmp = func_0033d310((void *)*(s32 *)(work + 0x19C));
             *(u8 *)((u8 *)tmp + 0x79) = *(u8 *)&cw;
             *(u8 *)((u8 *)tmp + 0x7A) = *((u8 *)&cw + 1);
@@ -921,7 +921,7 @@ s32 func_00332bb0(u8 *arg0) {
         *(s32 *)(work + 0x2AC) = func_002b2cb0(*(s32 *)(work + 0x2AC), 1, 0x3E8, 1, 2);
         *(s32 *)(work + 0x2B0) = func_002b2cb0(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
         func_002b2970(&p0, (f32)0x253, 78.0f);
-        func_002b2a60(&cw, 0xFF, 0xFF, 0xFF, 0xFF);
+        fclWriteColorBytes(&cw, 0xFF, 0xFF, 0xFF, 0xFF);
         func_002caa10(*(s64 *)&p0, cw, *(s8 *)(work + 3) * func_0033cbc0(arg0, func_002e2740(*(s16 *)(work + 4))), 0x35, *(s32 *)(work + 0xC), 0xAB);
         func_0033c490(arg0);
         *(s16 *)(func_0033d310((void *)*(s32 *)(work + 0x198)) + 0xF8) = (s16)(((func_00106600((s16)func_002e2740(*(s16 *)(work + 4))) & 0xFF) % 10) + 0x46);
@@ -1045,7 +1045,7 @@ s32 func_00332bb0(u8 *arg0) {
         *(s32 *)(work + 0x2AC) = func_002b2cb0(*(s32 *)(work + 0x2AC), 1, 0x3E8, 1, 2);
         *(s32 *)(work + 0x2B0) = func_002b2cb0(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
         func_002b2970(&p0, (f32)0x253, 78.0f);
-        func_002b2a60(&cw, 0xFF, 0xFF, 0xFF, 0xFF);
+        fclWriteColorBytes(&cw, 0xFF, 0xFF, 0xFF, 0xFF);
         func_002caa10(*(s64 *)&p0, cw, *(s8 *)(work + 3) * func_0033cbc0(arg0, func_002e2740(*(s16 *)(work + 4))), 0x35, *(s32 *)(work + 0xC), 0xAB);
         func_0033c490(arg0);
         i = func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF);
@@ -1474,7 +1474,7 @@ void func_0033c490(u8 *arg0)
         }
         func_00275520(78.0f, 77.0f, 62.0f, v4, 0, 1, v6, 0, 0, D_00795E60);
         func_002b2970(&f2[1], 406.0f, 84.0f);
-        func_002b2a60(&sw[1], 0x26, 0x26, 0x26, 0xFF);
+        fclWriteColorBytes(&sw[1], 0x26, 0x26, 0x26, 0xFF);
         func_002caa10(*(s64 *)&f2[1], sw[1], func_0033cbc0(arg0, func_002e2740(*(s16 *)(p + 4))), 0x19, *(s32 *)(p + 0xC), 0xAB);
         {
             s32 t5 = func_002e2740(*(s16 *)(p + 4));
@@ -1557,7 +1557,7 @@ void func_0033c490(u8 *arg0)
                 }
                 func_00275520(78.0f, f20v, 62.0f, w0, 0, 1, v6, 0, 0, D_00795E60);
                 func_002b2970(&f2[0], 406.0f, (f32)(off28 + 0x54));
-                func_002b2a60(&sw[0], c20, c19, c18, 0xFF);
+                fclWriteColorBytes(&sw[0], c20, c19, c18, 0xFF);
                 v4 = func_0033cbc0(arg0, func_002e2740(w));
                 func_002caa10(*(s64 *)&f2[0], sw[0], v4, 0x19, *(s32 *)(p + 0xC), 0xAB);
             }

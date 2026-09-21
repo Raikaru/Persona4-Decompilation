@@ -1,5 +1,6 @@
 /* Source unit: src/Scene/mt_scene_00145270.c */
 #include "type.h"
+#include "scene_event_internal.h"
 
 /* Ported from P3FES src/Scene/mt_scene.c FUN_003b5d10 (verified MATCH there).
  * 007cd540 -> PTR_DAT_00762ea0, 003b54c0 -> func_00147530. */
@@ -45,17 +46,13 @@ typedef struct RwV3d
     f32 z;
 } RwV3d;
 
-typedef struct RwMatrix
-{
-    u32 flags; // 0x00
-    u32 pad[15];
-} RwMatrix;
+typedef struct RwMatrixTag RwMatrix;
 
 extern u8 D_005EFA10[];
 extern u8 D_005EFA20[];
 extern u8 D_005EFA30[];
-extern void RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mode);
-extern void RwMatrixTranslate(RwMatrix* matrix, u64 param_2, s32 mode);
+extern RwMatrix* RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mode);
+extern RwMatrix* RwMatrixTranslate(RwMatrix* matrix, const RwV3d* translation, s32 mode);
 
 
 
@@ -153,7 +150,7 @@ u16 MT_Scene_CreateResLightNpc(u16 resId)
 
 
 // FUN_00146F50
-void func_00146f50(u32* param_1, u64 param_2, u32* param_3)
+void func_00146f50(u32* param_1, const void* param_2, u32* param_3)
 {
     u32 uVar1;
     u32 uVar2;
@@ -180,7 +177,7 @@ void func_00146f50(u32* param_1, u64 param_2, u32* param_3)
     RwMatrixRotate((RwMatrix*)auStack_40, (const RwV3d*)D_005EFA20, pfParam3[1], 1);
     RwMatrixRotate((RwMatrix*)auStack_40, (const RwV3d*)D_005EFA10, pfParam3[0], 1);
     RwMatrixRotate((RwMatrix*)auStack_40, (const RwV3d*)D_005EFA30, pfParam3[2], 1);
-    RwMatrixTranslate((RwMatrix*)auStack_40, param_2, 2);
+    RwMatrixTranslate((RwMatrix*)auStack_40, (const RwV3d*)param_2, 2);
 
     puVar4 = auStack_40;
     iVar3 = 8;

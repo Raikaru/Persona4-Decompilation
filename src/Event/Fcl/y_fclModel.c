@@ -1,5 +1,6 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit y_fclModel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+#include "fcl_color.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -44,7 +45,6 @@ extern s32 func_00106330(s32);
 extern s32 func_00348be0(u8 *);
 extern s32 func_00348c10(u8 *);
 extern u8 *func_001102f0(u8 *, s32, s32, f32);
-extern void func_002b2a60(void *, s32, s32, s32, s32);
 extern void func_003489c0(u8 *, void *, s32, s32, s32, f32, f32, f32, f32);
 extern s32 func_00285b30(void);
 extern u8 *func_00460990(void);
@@ -438,11 +438,11 @@ s32 func_00349c50(u8 *arg0)
             case 1:
                 if (func_00348c10(*(u8 **)(obj + 0xEC)) == 0) {
                     func_001102f0(sp38, 0x140, 0xA5, 300.0f);
-                    func_002b2a60(&sp48, 0xFF, 0xFF, 0xFF, 0xFF);
+                    fclWriteColorBytes(&sp48, 0xFF, 0xFF, 0xFF, 0xFF);
                     func_003489c0(*(u8 **)(obj + 0xEC), sp38, sp48, 0, -1, 0.0f, 0.0f, 0.0f, 1.0f);
                 }
                 if (func_00348c10(*(u8 **)(obj + 0xF0)) == 0) {
-                    func_002b2a60(sp44, 0xFF, 0xFF, 0xFF, 0xFF);
+                    fclWriteColorBytes(sp44, 0xFF, 0xFF, 0xFF, 0xFF);
                     ((u8 *)&sp4C)[0] = sp44[0];
                     ((u8 *)&sp4C)[1] = sp44[1];
                     ((u8 *)&sp4C)[2] = sp44[2];
@@ -450,13 +450,13 @@ s32 func_00349c50(u8 *arg0)
                     func_001102f0(sp28, 0x140, 0xA5, 300.0f);
                     switch (*(u16 *)(obj + 8)) {
                     case 0x59:
-                        func_002b2a60(&sp4C, 0xFF, 0xFF, 0xFF, 0xCD);
+                        fclWriteColorBytes(&sp4C, 0xFF, 0xFF, 0xFF, 0xCD);
                         break;
                     case 0xA:
-                        func_002b2a60(&sp4C, 0xFF, 0xFF, 0xFF, 0xA);
+                        fclWriteColorBytes(&sp4C, 0xFF, 0xFF, 0xFF, 0xA);
                         break;
                     case 0x5F:
-                        func_002b2a60(&sp4C, 0xFF, 0xFF, 0xFF, 0xAA);
+                        fclWriteColorBytes(&sp4C, 0xFF, 0xFF, 0xFF, 0xAA);
                         break;
                     default:
                         break;
