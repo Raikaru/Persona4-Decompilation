@@ -108,6 +108,7 @@ const Sint32 SFPLY_cond_dfl[101] = {
 
 // Tells the input driver where its data comes from: a memory range or a stream joint (the player's
 // file ring fed by ADXSTM). MWSFCRE_SetSupplySj calls it at every start.
+// FUN_00523AB0
 Sint32 SFD_SetSupplySj(SFD sfd, SFBUF_SUP *sup)
 {
 	if (SFLIB_CheckHn(sfd) != 0) {
@@ -117,6 +118,7 @@ Sint32 SFD_SetSupplySj(SFD sfd, SFBUF_SUP *sup)
 }
 
 /* dead (inlined into sfply_ResetHn): writable region of the input buffer */
+// FUN_00523508
 Sint32 SFD_GetSupplyInf(SFD sfd, SFBUF_RINF *inf)
 {
 	if (SFLIB_CheckHn(sfd) != 0) {
@@ -126,6 +128,7 @@ Sint32 SFD_GetSupplyInf(SFD sfd, SFBUF_RINF *inf)
 }
 
 /* dead (inlined into sfply_ResetHn) */
+// FUN_00523578
 Sint32 SFD_AddSupply(SFD sfd, Sint32 adr, Sint32 nbyte)
 {
 	if (SFLIB_CheckHn(sfd) != 0) {
@@ -329,6 +332,7 @@ Sint32 SFPLY_GetResetFlg(void)
 }
 
 /* stop the output drivers of a playing handle */
+// FUN_005230D8
 static Sint32 sfply_StopTr(SFD sfd)
 {
 	Sint32 ret;
@@ -441,6 +445,7 @@ void SFPLY_AddSkipPic(SFD sfd, Sint32 n, void *arg)
 }
 
 // Counts `n` decoded pictures and calls the optional hook (cond 0x24).
+// FUN_00522D90
 void SFPLY_AddDecPic(SFD sfd, Sint32 n, void *arg)
 {
 	void (*fn)(SFD sfd, void *arg, SFD_PLYINF *inf);
@@ -1082,6 +1087,7 @@ void sfply_ExecOne(SFD sfd)
 
 // Public server entry: validates the handle and runs sfply_ExecOne. Called per handle from the MW
 // player's decode server each frame.
+// FUN_005218F0
 Sint32 SFD_ExecOne(SFD sfd)
 {
 	if (SFLIB_CheckHn(sfd) != 0) {

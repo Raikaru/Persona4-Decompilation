@@ -414,6 +414,7 @@ Sint32 MPS_DecHd(MPS mps, Uint8 *adr, Sint32 len, Sint32 *used, Sint32 *flags)
 }
 
 // Installs the PES (packet header) callback; unused by the Sofdec driver.
+// FUN_005016E0
 void MPS_SetPesFn(MPS mps, void *fn, void *obj)
 {
 	if (MPSLIB_CheckHn(mps) == 0) {
@@ -423,6 +424,7 @@ void MPS_SetPesFn(MPS mps, void *fn, void *obj)
 }
 
 // Installs the program stream map callback; unused.
+// FUN_00501690
 void MPS_SetPsMapFn(MPS mps, void *fn, void *obj)
 {
 	if (MPSLIB_CheckHn(mps) == 0) {
@@ -433,6 +435,7 @@ void MPS_SetPsMapFn(MPS mps, void *fn, void *obj)
 
 // Installs the system header callback (fn(obj, MPSDEC_SYSINF)); the SFD driver passes the user's
 // cond 0x3B/0x3C hook.
+// FUN_00501640
 void MPS_SetSystemFn(MPS mps, void *fn, void *obj)
 {
 	if (MPSLIB_CheckHn(mps) == 0) {

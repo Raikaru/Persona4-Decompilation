@@ -316,6 +316,7 @@ static void adxt_start_sjd(ADXT adxt, SJ sj)
 // Starts file playback: sizes the stream ring (reload threshold / total, sectors -> bytes), sets the
 // end-of-stream lead (adxstm_seteos_sct sectors), rewinds and binds the file range (`ofst`, `nsct`
 // sectors, no-wait) on the ADXSTM, starts the transfer and the decoder on the file stream joint.
+// FUN_004D40A0
 void adxt_start_stm(ADXT adxt, void *fname, void *dir, Sint32 ofst, Sint32 nsct)
 {
 	ADXSTM_SetBufSize(adxt->stm, adxt->reload_nsct << 11, adxt->ibuf_nsct << 11);
@@ -332,6 +333,7 @@ void adxt_start_stm(ADXT adxt, void *fname, void *dir, Sint32 ofst, Sint32 nsct)
 // Starts playback from a caller-supplied stream joint (mode 3, no file stream): the decoder reads the
 // ADX data the caller puts into `sj`, linked playback is enabled. This is how the Sofdec player feeds
 // the movie's audio track (sfd_adxt.c).
+// FUN_004D41B0
 void ADXT_StartSj(ADXT adxt, SJ sj)
 {
 	if (adxt == NULL || sj == NULL) {
@@ -591,6 +593,7 @@ void ADXT_SetOutPan(ADXT adxt, Sint32 ch, Sint32 pan)
 }
 
 // The pan last set for channel `ch` (-15..15, -128 = the stream default).
+// FUN_004D4FA0
 Sint32 ADXT_GetOutPan(ADXT adxt, Sint32 ch)
 {
 	if (adxt == NULL) {
@@ -1047,6 +1050,7 @@ Sint32 ADXT_InsertSilence(ADXT adxt, Sint32 nch, Sint32 nsmpl)
 }
 
 /* (dead-stripped) balance: -15..15, centred when the output is mono */
+// FUN_004D5020
 void ADXT_SetOutBalance(ADXT adxt, Sint32 bal)
 {
 	if (adxt == NULL) {

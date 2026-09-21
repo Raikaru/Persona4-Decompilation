@@ -55,6 +55,7 @@ void ADXAMP_Stop(ADXAMP_OBJ *amp)
 
 // Resets the sample counters and zero-fills / resets the input and output stream joints, then runs
 // (stat 2). Called by adxt_start_sjd when a handle has an amp.
+// FUN_004C1570
 void ADXAMP_Start(ADXAMP_OBJ *amp)
 {
 	SJCK ck;

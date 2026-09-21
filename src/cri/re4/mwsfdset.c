@@ -31,12 +31,14 @@ Sint32 mwPlyGetNumSkipDec(MWPLY mwply)
 }
 
 // Sets an SFD condition on the player's decoder (NULL player: the library default).
+// FUN_0050D320
 void MWSFD_SetCond(MWPLY mwply, Sint32 id, Sint32 val)
 {
 	SFD_SetCond((mwply != NULL) ? mwply->sfd : NULL, id, val);
 }
 
 // Refill thresholds (sectors) of the stream controller and the load scheduler.
+// FUN_0050D380
 void MWSFD_SetFlowLimit(MWPLY mwply, Sint32 min_nsct, Sint32 max_nsct)
 {
 	MWSTM_SetFlowLimit(mwply->stm, min_nsct, max_nsct);

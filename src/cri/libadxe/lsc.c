@@ -255,6 +255,7 @@ void LSC_Stop(LSC lsc)
 }
 
 // 100% matching!
+// FUN_004E9380
 void LSC_Pause(LSC lsc, Sint32 sw)
 {
     if (lsc == NULL)

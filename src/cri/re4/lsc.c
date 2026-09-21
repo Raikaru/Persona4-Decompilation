@@ -11,6 +11,7 @@ void *lsc_stat_obj1;
 void *lsc_stat_obj2;
 
 // Calls the optional status callback when a scheduler's queue runs empty (none installed here).
+// FUN_004E97B0
 void LSC_CallStatFunc(void)
 {
 	if (lsc_stat_func != NULL) {
@@ -27,6 +28,7 @@ void LSC_EntryStatFunc(void (*func)(void *obj1, void *obj2), void *obj1, void *o
 }
 
 // Refill threshold in bytes for the stream controller (default 80% of the stream joint size).
+// FUN_004E96D8
 void LSC_SetFlowLimit(LSC lsc, Sint32 min_val)
 {
 	if (lsc == NULL) {
@@ -126,6 +128,7 @@ static void lsc_ClearEntry(LSC lsc)
 }
 
 // Stops the stream controller if this scheduler started it, clears the queue, state STOP.
+// FUN_004E92F8
 void LSC_Stop(LSC lsc)
 {
 	if (lsc == NULL) {

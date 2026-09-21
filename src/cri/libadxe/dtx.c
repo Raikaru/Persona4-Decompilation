@@ -79,6 +79,7 @@ int dtx_svr_proc()
 }
 
 // 100% matching!
+// FUN_004E5218
 DTX dtx_create_rmt(Sint32 id, Sint8 *eewk, Sint8 *iopwk, Sint32 wklen)
 {
     dtx_sbuf[0] = id;
@@ -92,6 +93,7 @@ DTX dtx_create_rmt(Sint32 id, Sint8 *eewk, Sint8 *iopwk, Sint32 wklen)
 }
 
 // 100% matching!
+// FUN_004E5288
 void dtx_destroy_rmt(DTX dtx)
 {
     dtx_sbuf[0] = (Sint32)dtx;
@@ -136,6 +138,7 @@ DTX DTX_Open(Sint32 id)
 }
 
 // 100% matching!
+// FUN_004E5390
 void DTX_Close(DTX dtx) 
 {
     dtx->rcvcbf = NULL;

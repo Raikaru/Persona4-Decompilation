@@ -20,6 +20,7 @@ void cvFsCallUsrErrFn(void *obj, const Sint8 *msg, void *hndl)
 }
 
 // 100% matching!
+// FUN_004E15A8
 void cvFsError(const Sint8 *msg)
 {
     cvFsCallUsrErrFn(&cvfs_errobj, msg, NULL);
@@ -193,6 +194,7 @@ static void toUpperStr(Sint8 *src)
 }
 
 // 100% matching!
+// FUN_004E1A00
 void cvFsDelDev(Sint8 *devname)
 {
     Uint32 len;
@@ -217,6 +219,7 @@ void cvFsDelDev(Sint8 *devname)
 }
 
 // 100% matching!
+// FUN_004E1AD8
 void cvFsSetDefDev(Sint8 *devname)
 {
     Uint32 len;
@@ -247,6 +250,7 @@ void cvFsSetDefDev(Sint8 *devname)
 }
 
 // 100% matching!
+// FUN_004E1BA0
 static Sint32 isExistDev(const Sint8 *devname, Sint32 len)
 {
     Sint32 lp;
@@ -350,6 +354,7 @@ CVFS cvFsOpen(const Sint8 *fname, void *prm, CVE_FS_OP op_mode)
 }
 
 // 100% matching!
+// FUN_004E1E00
 static void* allocCvFsHn()
 {
     Sint32 lp;
@@ -436,6 +441,7 @@ static void getDefDev(Sint8 *dev)
 }
 
 // 100% matching!
+// FUN_004E2028
 void cvFsClose(CVFS cvfs)
 {
     if (cvfs == NULL) 
@@ -536,6 +542,7 @@ Sint32 cvFsReqRd(CVFS cvfs, Sint32 nsct, void *buf)
 }
 
 // 100% matching!
+// FUN_004E21D8
 Sint32 cvFsReqWr(CVFS cvfs, Sint32 nsct, void *buf)
 {
     Sint32 val;
@@ -799,6 +806,7 @@ Sint32 cvFsGetFreeSize(Sint8 *devname)
 }
 
 // 100% matching!
+// FUN_004E2690
 Sint32 cvFsGetSctLen(CVFS cvfs)
 {
     Sint32 val;
@@ -842,6 +850,7 @@ void cvFsSetSctLen(CVFS cvfs, Sint32 sctlen)
 }
 
 // 100% matching!
+// FUN_004E2750
 Sint32 cvFsGetNumTr(CVFS cvfs)
 {
     Sint32 val;
@@ -1288,6 +1297,7 @@ Sint32 cvFsDeleteFile(const Sint8 *fname)
 }
 
 // 100% matching!
+// FUN_004E2DA0
 Sint8* cvFsGetDevName(CVFS cvfs)
 {
     Sint32 lp;
@@ -1326,6 +1336,7 @@ void cvFsEntryErrFunc(CVF_FS_ERRFN errfn, void *obj)
 }
 
 // 100% matching!
+// FUN_004E2E50
 Sint32 cvFsOptFn1(CVFS cvfs, Sint32 p0, Sint32 p1, Sint32 p2)
 {
     Sint32 val;
@@ -1352,6 +1363,7 @@ Sint32 cvFsOptFn1(CVFS cvfs, Sint32 p0, Sint32 p1, Sint32 p2)
 }
 
 // 100% matching!
+// FUN_004E2EB8
 Sint32 cvFsOptFn2(CVFS cvfs, Sint32 p0, Sint32 p1, Sint32 p2)
 {
     Sint32 val;

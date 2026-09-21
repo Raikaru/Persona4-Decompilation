@@ -1094,6 +1094,7 @@ Sint32 ADXF_ReadNw32(ADXF adxf, Sint32 nsct, void *buf)
 }
 
 // 100% matching!
+// FUN_004C9068
 Sint32 ADXF_ReadNw(ADXF adxf, Sint32 nsct, void *buf)
 {
     if (((Sint32)buf & 0x3F)) 
@@ -1288,6 +1289,7 @@ Sint32 ADXF_GetFsizeByte(ADXF adxf)
 }
 
 // 100% matching!
+// FUN_004C9768
 Sint32 ADXF_GetNumReqSct(ADXF adxf, Sint32 *seekpos)
 {
     if (adxf == NULL) 
@@ -1489,6 +1491,7 @@ void ADXF_SetOcbiSw(Sint32 sw)
 }
 
 // 100% matching!
+// FUN_004C9C20
 void ADXF_SetReqRdSct(ADXF adxf, Sint32 nsct)
 {
     if (adxf->stat == ADXF_STAT_READING) 
