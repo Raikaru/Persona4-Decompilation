@@ -1,3 +1,4 @@
+#include "effect_geometry_internal.h"
 #include "model_motion_internal.h"
 #include "include_asm.h"
 #include "type.h"
@@ -100,7 +101,6 @@ extern u16 *func_00483c40(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           void *arg4, s32 arg5);
 extern void func_003c2290(void *arg0, s32 arg1);
 extern void func_003c42b0(void *arg0, s32 arg1);
-extern u8 *func_00482f70(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4);
 extern void func_004a5ef0(u8 *arg0, u8 *arg1);
 extern u8 *func_00483270(s32 arg0);
 extern s32 func_00481300(u16 arg0);

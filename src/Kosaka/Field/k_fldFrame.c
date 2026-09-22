@@ -5,21 +5,23 @@
 #include "Kosaka/k_fldFrame_internal.h"
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
+typedef struct RwFrame RwFrame;
+typedef struct RwMatrixTag RwMatrix;
 extern u8* iGpffff9db0;
 extern s32 func_00145270(s32 arg0);
 extern u8* func_001452b0(s32 arg0);
 extern s32 func_0014a160(void);
 extern s32 func_0014a200(void);
 extern s32 func_0014a270(void);
-extern void* func_00155280(void);
+extern s32* func_00155280(void);
 extern s32 func_001687d0(s32 arg0);
 extern s32 func_001687e0(s32 arg0);
 extern s32 func_00169780(void* collisionWorld, f32* origin,
                          f32* vector, f32 fraction);
 extern s32 func_0016a110(s32 collisionWorld, f32* origin,
                          f32* vector, f32 fraction, s32 fieldId);
-extern u8* func_003e9700(u8 *frame);
-extern u8* func_00457120(void);
+extern RwMatrix* func_003e9700(RwFrame* frame);
+extern s32 func_00457120(void);
 
 /* PS2 RenderWare rpcollis.h: collision callbacks retain the distance argument
  * even when the query recomputes its own plane distance. */
@@ -489,7 +491,7 @@ RpCollisionTriangle *func_00169a30(RpIntersection *intersection,
     f32 nz;
 
     normal = triangle->normal;
-    matrix = func_003e9700(*(u8 **)((u8 *)collector->atomic + 4));
+    matrix = func_003e9700(*(RwFrame **)((u8 *)collector->atomic + 4));
     func_003e4360(&normal, &triangle->normal, 1, matrix);
     func_003e40b0(&normal.x, &normal.x);
     for (i = 0; i < 3; i++)
@@ -497,6 +499,9 @@ RpCollisionTriangle *func_00169a30(RpIntersection *intersection,
         func_003e42e0(&vertices[i].vector, triangle->vertices[i], 1, matrix);
         vertexPointers[i] = vertices[i].components;
     }
+    /* Retail 00169B14..00169B38 reads direction before testing mode.
+     * Mode-one sphere queries leave it unwritten; preserve that original
+     * omission. See Retained_color_and_sphere_20260922_worker6.md. */
     dot = normal.x * collector->direction.x +
           normal.y * collector->direction.y +
           normal.z * collector->direction.z;
@@ -662,7 +667,7 @@ void* func_0016a0c0(void* collisionWorld, void* state)
 #pragma opt_loop_invariants on
 s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s32 fieldId)
 {
-    extern void *func_0047a310(s32 arg0);
+    extern void *func_0047a310(void *model);
     extern f32 func_003e4180(f32 *vec);
     extern u8 D_007E8020[];
     extern f32 fGpffff82b8;
@@ -753,7 +758,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
     {
         if (((*(s32 *)(list10 + 0x28) & 2) != 0) && (*(s32 *)(list10 + 0x150) == 1))
         {
-            void *target = func_0047a310(*(s32 *)(list10 + 0x144));
+            void *target = func_0047a310(*(void **)(list10 + 0x144));
             func_003bff30(target, func_0016a0c0, work.points);
             line[1].x = origin[0];
             line[1].y = origin[1];
@@ -761,7 +766,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
             line[0] = line[1];
             line[0].y += 400.0f;
             line[1].y -= 600.0f;
-            target = func_0047a310(*(s32 *)(list10 + 0x144));
+            target = func_0047a310(*(void **)(list10 + 0x144));
             if (func_0016b480(target, line, &hit) == 1)
             {
                 vector[1] = -((origin[1] - fraction) - hit.y);
@@ -794,7 +799,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
                     u8 *other = *(u8 **)(entry + 0x54);
                     if (((*(s32 *)(other + 0x28) & 2) != 0) && ((*(s32 *)(entry + 0x40) & 2) == 0))
                     {
-                        s32 id = *(s32 *)(other + 0x228);
+                        void *id = *(void **)(other + 0x228);
                         if (id != 0)
                         {
                             void *target = func_0047a310(id);
@@ -810,7 +815,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
     {
         if (((*(s32 *)(list3 + 0x28) & 2) != 0) && (*(s32 *)(list3 + 0x22c) != 0))
         {
-            void *target = func_0047a310(*(s32 *)(list3 + 0x22c));
+            void *target = func_0047a310(*(void **)(list3 + 0x22c));
             func_003bff30(target, func_0016a0c0, work.points);
         }
         list3 = *(u8 **)(list3 + 0x138);
@@ -824,7 +829,7 @@ s32 func_0016a110(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s3
         }
         if (*(s32 *)entry != 0)
         {
-            s32 id = *(s32 *)(entry + 0x164);
+            void *id = *(void **)(entry + 0x164);
             if (id != 0)
             {
                 void *target = func_0047a310(id);
@@ -954,8 +959,8 @@ s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
         fieldFlags = fieldId & 0xffff;
         if (fieldFlags == 0xffff)
         {
-            object = (u8*)func_003e9700(
-                *(u8**)((u8*)func_00457120() + 4));
+            object = (u8*)((u8*)func_003e9700((RwFrame*)(
+                *(u8**)((u8*)((u8*)(uintptr_t)func_00457120()) + 4))));
             fieldX = (s32)((*(f32*)(object + 0x30) + 600.0f) / 1200.0f);
             fieldY = (s32)((*(f32*)(object + 0x38) + 600.0f) / 1200.0f);
         }
@@ -997,63 +1002,51 @@ s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
     }
     return func_0016a110(collisionWorld, origin, vector, fraction, fieldId);
 }
-/* measured: floor 211 differing words (reloc-masked), object 299 instrs vs retail 303 instrs (1196B vs 1212B, 4-instr deficit, 129 edits +3 reloc-only).
- * Signature (void*, RwV3d*, f32, RwV3d*, RwV3d*) copies the MATCHed func_0016b080 extern and caller setup.
- * Threshold D_007615DC (0x007615DC, gp-0x7B14) not fGpffff82b4; table D_005F1650[2*j] pairs; grid key search copies func_0016b540 raw u8* +0x1A0/+0x138/+8 pattern; 600.0f/1200.0f via f32; lq/sq via u_long128; bare &normal->x for func_003e40b0.
- * Probes (probe_variants, reloc-masked): baseline 227 -> scoped 7-word copy (separate n, temp v) 222 -> point temps px/py/pz + for-forms 219.
- * Declaration search (probe_search): 200 orders 227->218; 500 orders on v3 219->211; 300 orders on v6/v7 219->211 (best order kept).
- * Parent lever 1 (opt_loop_invariants on before for): grid for 219->219, final while 219->219, for-forms 219->219; OFF at -O2 baseline, measured no-op here.
- * Parent lever 2 (cast at call site moves setup): bare &normal->x vs (f32*)normal, 0.0f vs *(u32*), u8* rec vs f32* rec, header KClumpCallback vs void* shadow: v6 219 vs v7 219, no-op (no stack args).
- * WALL: param home-move daddu block order invariant per parent (declaration/initialiser/assignment/K&R/copy-local identical); retail recomputes &D[2*j] once while reusing +4 in $s6, this build CSEs both through offsets (fnalign retail[150:154] 4-instr deficit); saved-register colors $s0-$s7/$fp permuted after exhaustive search.
- * Floor keeps production INCLUDE_ASM; body is semantically faithful. */
-/* fresh 2026-09-17: cur 211wd confirmed; fnalign 303v299 (4 short, 50 ops); dead-arm N/A (shortfall deletes are straight-line: [150:154] 4-instr address recompute sll/lui/addiu/addu (allocator-pressure wall, base rematerialized not reused), [216:219] 3x sw-zero (store-scheduling wall), [224:226] const remat (loop-invariants no-op stays banked), [264:266] loop-structural + 13/15-block unroll divergence; [84:88] bnez+move+b vs beqz tail-merge is peephole wall (same family as Main 169320 bc1f/b vs bc1t); no compare/branch/store delete site); parent 4938e0 levers N/A (no 0xFFFF-at-calls + frame-reg symptom (frame matches, no sq/lq pair); line-88 || is two different calls ==1 (no adjacent-const fold, no addiu+sltiu emitted); no COP2); index-commute skipped (compiler canonicalizes 2*j==j*2, base-reuse is pressure not syntax); prior 500-order/colours/CSE/scheduling walls stand. Guard kept as floor. */
-// FUN_0016ABC0 NONMATCHING
-#ifdef NON_MATCHING
+/* 1216/1216 bytes with all relocations resolved. The sphere query shares
+ * the callback collector and retains each neighbor coordinate across both
+ * table reads. Contact accumulation uses its own counter and accepted value.
+ * Retail leaves direction and the unused sphere payload words unwritten;
+ * see Retained_color_and_sphere_20260922_worker6.md for exact store coverage.
+ * Both scoped settings are part of the retained b210 -O2 measurement. */
+// FUN_0016ABC0
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
 s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* normal, RwV3d* vector)
 {
     extern u8* func_001452b0(s32 arg0);
     extern void* func_0043f9c8(void* dst, s32 value, u32 size);
     extern s32 func_0014a200(void);
     extern s32 func_0014a270(void);
-    extern u8* func_00457120(void);
-    extern u8* func_003e9700(u8 *frame);
-    extern void* func_00155280(void);
-    extern void* func_0047a310(s32 arg0);
+    extern s32 func_00457120(void);
+    extern RwMatrix* func_003e9700(RwFrame* frame);
+    extern s32* func_00155280(void);
+    extern void* func_0047a310(void* model);
     extern f32 func_003e40b0(f32* dst, const f32* src);
     extern f32 D_007615DC;
     extern s32 D_005F1650[];
     typedef struct FldFrameQueryWork
     {
-        u8 records[0xb00];
-        s32 mode;
-        s32 count;
-        s32 hitCount;
-        u8 gap[0xc];
-        u8 scratch[0x20];
-        u8 zero[0x18];
-        f32 input[4];
-        u_long128 inputCopy;
-        u8 inputTail[8];
-        s32 intersectionType;
+        FldFrameCollisionCollector collector;
+        RwV3d zero;
+        union
+        {
+            u_long128 bits;
+            f32 components[4];
+        } input;
+        union
+        {
+            u_long128 bits;
+            RpIntersection intersection;
+        } query;
     } FldFrameQueryWork;
     FldFrameQueryWork work;
-    u16 id;
-    f32 py;
-    f32 px;
-    f32* dimensions;
-    u8* node;
-    u8* list;
-    s32 foundCount;
-    s32 i;
-    f32* entry;
-    void* table;
-    s32 x;
-    f32 threshold;
-    s32 z;
     s32 result;
-    s32 j;
-    void* target;
-    f32 pz;
+    u8* list;
+    s32 i;
+    s32 foundCount;
+    f32 threshold;
+    f32 px, py, pz;
 
     result = 0;
     list = func_001452b0(10);
@@ -1062,116 +1055,125 @@ s32 func_0016abc0(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* n
     px = point->x;
     py = point->y;
     pz = point->z;
-    work.input[0] = px;
-    work.input[1] = py;
-    work.input[2] = pz;
-    work.input[3] = radius;
-    work.intersectionType = 3;
-    work.inputCopy = *(u_long128*)work.input;
+    work.input.components[0] = px;
+    work.input.components[1] = py;
+    work.input.components[2] = pz;
+    work.input.components[3] = radius;
+    work.query.intersection.type = 3;
+    work.query.bits = work.input.bits;
     for (i = 0; i < 64; i++)
     {
-        u8* rec = work.records + 12 * i;
+        u8* rec = ((u8 *)&work.collector) + 12 * i;
         func_0043f9c8(rec, 0, 12);
         func_0043f9c8(rec + 0x300, 0, 12);
-        *(f32*)(work.records + 0x600 + 4 * i) = D_007615DC;
-        *(s32*)(work.records + 0xa00 + 4 * i) = 0;
+        *(f32*)(((u8 *)&work.collector) + 0x600 + 4 * i) = D_007615DC;
+        *(s32*)(((u8 *)&work.collector) + 0xa00 + 4 * i) = 0;
     }
-    work.hitCount = 0;
-    work.count = 0;
+    work.collector.hitCount = 0;
+    work.collector.count = 0;
+    /* The retail seven-word copy includes two unused payload words. */
+    work.collector.intersection = work.query.intersection;
+    func_0043f9c8(&work.zero, 0, 12);
+    if (collisionWorld == 0)
+        return 0;
+    work.collector.mode = 1;
+    func_003bff30(collisionWorld, func_0016a0c0, ((u8 *)&work.collector));
+    if (func_0014a200() == 1 || func_0014a270() == 1)
     {
-        s32* src = (s32*)&work.inputCopy;
-        s32* dst = (s32*)work.scratch;
-        s32 n = 7;
-        do
+        const u8* dimensions;
+        f32 positionX;
+        f32 translatedX;
+        s32 x;
+        s32 z;
+        s32 j;
+        dimensions = (const u8*)((u8*)func_003e9700((RwFrame*)(*(u8**)((u8*)((u8*)(uintptr_t)func_00457120()) + 4))));
+        positionX = *(const f32*)(dimensions + 0x30);
+        translatedX = 600.0f + positionX;
+        x = (s32)(translatedX / 1200.0f);
+        z = (s32)((*(const f32*)(dimensions + 0x38) + 600.0f) / 1200.0f);
+        for (j = 0; j < 4; j++)
         {
-            s32 v = *src;
-            src++;
-            n--;
-            *dst = v;
-            dst++;
-        } while (n > 0);
-    }
-    func_0043f9c8(work.zero, 0, 12);
-    if (collisionWorld != 0)
-    {
-        work.mode = 1;
-        func_003bff30(collisionWorld, func_0016a0c0, work.records);
-        if (func_0014a200() == 1 || func_0014a270() == 1)
-        {
-            dimensions = (f32*)func_003e9700(*(u8**)((u8*)func_00457120() + 4));
-            x = (s32)((dimensions[12] + 600.0f) / 1200.0f);
-            z = (s32)((dimensions[14] + 600.0f) / 1200.0f);
-            for (j = 0; j < 4; j++)
+            s32* offsets = &D_005F1650[2 * j];
+            s32* zOffset = offsets + 1;
+            void* table;
+            table = func_00155280();
+            if (*(u8*)((u8*)table + ((z + *zOffset) * 256) + 16 * (x + offsets[0]) + 84) == 1)
             {
-                s32* offsets = &D_005F1650[2 * j];
+                u16 id;
+                void* target;
+                u8* node;
+                offsets = &D_005F1650[2U * j];
                 table = func_00155280();
-                if (*(u8*)((u8*)table + ((z + offsets[1]) << 8) + 16 * (x + offsets[0]) + 84) == 1)
+                id = *(u16*)((u8*)table + ((z + *zOffset) * 256) + 16 * (x + offsets[0]) + 86);
+                target = 0;
+                node = func_001452b0(12);
+                while (node != 0)
                 {
-                    table = func_00155280();
-                    id = *(u16*)((u8*)table + ((z + offsets[1]) << 8) + 16 * (x + offsets[0]) + 86);
-                    target = 0;
-                    node = func_001452b0(12);
-                    while (node != 0)
+                    if (*(u16*)node == id)
                     {
-                        if (*(u16*)node == id)
-                        {
-                            target = *(void**)(*(u8**)(node + 0x1a0) + 8);
-                            break;
-                        }
-                        node = *(u8**)(node + 0x138);
+                        target = *(void**)(*(u8**)(node + 0x1a0) + 8);
+                        break;
                     }
-                    if (target != 0)
-                        func_003bff30(target, func_0016a0c0, work.records);
+                    node = *(u8**)(node + 0x138);
                 }
-            }
-            while (list != 0)
-            {
-                if ((*(s32*)(list + 0x28) & 2) != 0 && *(s32*)(list + 0x150) == 1)
-                {
-                    target = func_0047a310(*(s32*)(list + 0x144));
-                    func_003bff30(target, func_0016a0c0, work.records);
-                }
-                list = *(u8**)(list + 0x138);
+                if (target != 0)
+                    func_003bff30(target, func_0016a0c0, ((u8 *)&work.collector));
             }
         }
-        normal->x = 0.0f;
-        normal->y = 0.0f;
-        normal->z = 0.0f;
-        vector->x = 0.0f;
-        vector->y = 0.0f;
-        vector->z = 0.0f;
-        foundCount = 0;
-        threshold = D_007615DC;
-        for (i = 0; i < work.count; i++)
+        while (list != 0)
         {
-            entry = (f32*)(work.records + 12 * i);
-            if (*(f32*)(work.records + 0x600 + 4 * i) < threshold)
+            if ((*(s32*)(list + 0x28) & 2) != 0 && *(s32*)(list + 0x150) == 1)
             {
-                normal->x += entry[192];
-                normal->y += entry[193];
-                normal->z += entry[194];
-                vector->x += entry[0];
-                vector->y += entry[1];
-                vector->z += entry[2];
-                foundCount++;
-                result = 1;
+                func_003bff30(func_0047a310(*(void**)(list + 0x144)),
+                              func_0016a0c0, &work.collector);
             }
+            list = *(u8**)(list + 0x138);
         }
-        if (result == 1)
-        {
-            func_003e40b0(&normal->x, &normal->x);
-            threshold = (f32)foundCount;
-            vector->x /= threshold;
-            vector->y /= threshold;
-            vector->z /= threshold;
-        }
-        return result;
     }
-    return 0;
+    normal->x = 0.0f;
+    normal->y = 0.0f;
+    normal->z = 0.0f;
+    vector->x = 0.0f;
+    vector->y = 0.0f;
+    vector->z = 0.0f;
+    {
+        s32 contact = 0;
+        s32 accepted;
+        foundCount = 0;
+        accepted = 1;
+        threshold = D_007615DC;
+        for (; contact < work.collector.count; contact++)
+        {
+            if (*(f32*)(((u8 *)&work.collector) + 0x600 + 4 * contact) < threshold)
+            {
+                const u8 *entry = (const u8 *)&work + 12 * contact;
+                normal->x += *(const f32 *)(entry + 0x300);
+                normal->y += *(const f32 *)(entry + 0x304);
+                normal->z += *(const f32 *)(entry + 0x308);
+                {
+                    f32 currentX = vector->x;
+                    f32 contactX = *(const f32 *)(entry + 0x0);
+                    vector->x = currentX + contactX;
+                }
+                vector->y += *(const f32 *)(entry + 0x4);
+                vector->z += *(const f32 *)(entry + 0x8);
+                foundCount++;
+                result = accepted;
+            }
+        }
+    }
+    if (result == 1)
+    {
+        func_003e40b0(&normal->x, &normal->x);
+        threshold = (f32)foundCount;
+        vector->x /= threshold;
+        vector->y /= threshold;
+        vector->z /= threshold;
+    }
+    return result;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016abc0);
-#endif
+
+#pragma pop
 /* 476/480 bytes; ten resolved relocations; four zero alignment bytes.
  * Write the preferred/fallback selection through the caller's real output. */
 #pragma push
@@ -1230,7 +1232,7 @@ s32 func_0016b080(const RwV3d* point, f32 radius, RwV3d* normal, RwV3d* vector)
         {
             u8* map;
             FldSelectionNode* node;
-            map = func_003e9700(*(u8**)(func_00457120() + 4));
+            map = ((u8*)func_003e9700((RwFrame*)(*(u8**)(((u8*)(uintptr_t)func_00457120()) + 4))));
             fieldX = (s32)((((const RwV3d*)(map + 0x30))->x + 600.0f) / 1200.0f);
             fieldZ = (s32)((((const RwV3d*)(map + 0x30))->z + 600.0f) / 1200.0f);
             key = *(u16*)((u8*)func_00155280() + (fieldZ * 256) +

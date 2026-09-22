@@ -1,3 +1,4 @@
+#include "btl_camera_palette_internal.h"
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -31,7 +32,6 @@ extern u16 D_0076455C;
 extern u16 D_0076455A;
 extern f32 D_007613E0;
 extern f32 D_007613E4;
-extern u8 D_007635C8[4];
 extern f32 D_008872FC_abs[];
 extern void func_00122640(s32 arg0, s32 arg1);
 extern s32 func_00122720(void);
@@ -5665,7 +5665,7 @@ s32 func_001fbb50(u8 *work) {
                 func_003f6440(3, (void *)0x31801);
                 func_00204690(0, layerScale, layerScale, D_008872FC_abs[0], colors.radial.word);
                 func_0048a000();
-                func_001fb480(1.0f, D_007635C8, 0x54, 0x31801, (u8 *)1);
+                func_001fb480(1.0f, (u8 *)&D_007635C8, 0x54, 0x31801, (u8 *)1);
                 if ((s32)D_0076455A >= 0x14) {
                     *work = 3;
                 }
@@ -5676,7 +5676,7 @@ s32 func_001fbb50(u8 *work) {
         }
         case 2: {
             if (iGpffffb469 == 0) {
-                func_001fb480(1.0f, D_007635C8, 0x44, 0x31801, (u8 *)1);
+                func_001fb480(1.0f, (u8 *)&D_007635C8, 0x44, 0x31801, (u8 *)1);
                 if (*(u16 *)(work + 6) == 1) {
                     layerScale = D_007613E0;
                 } else {

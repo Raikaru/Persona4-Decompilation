@@ -1,3 +1,5 @@
+#include "btl_camera_palette_internal.h"
+#include "effect_geometry_internal.h"
 #include "btl_motion_internal.h"
 #include "include_asm.h"
 #include "type.h"
@@ -233,7 +235,7 @@ extern void func_0045f0b0(f32 *arg0, u8 *arg1, s32 arg2, f32 arg3);
 extern void func_0045fa00(f32 *arg0, s32 arg1, f32 arg2);
 extern u8 *func_0022cdb0(s32 arg0);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
-extern u8 *func_00457120(void);
+extern s32 func_00457120(void);
 extern void func_004577d0(void *arg0, f32 arg1);
 extern f32 fGpffff8048;
 extern u8 D_005F74C0[];
@@ -2870,23 +2872,29 @@ void func_001b6110(void)
 {
 }
 
-/* measured: GUARDED_SCORE 56 via tools/measure_guarded.py src/promoted/code1_001b.c func_001b6120 (fnalign retail 492/object 492 instrs, 64 edits +48 reloc-only; live 1968B/window 1968B, 0 short). De-noised m2c.c (307 lines, 4 VU mula/madda/madd unknowns) into file idiom (no M2C_*, file-scope D_0076449C/D_00922CA0-CBC-CC0/00149ca0-ce0/0014acd0-ad10-ad50/00457120/003e8180/001ef9a0, locals per tree plus D_005F7270/D_0060A140-410-840/iGp-a4d8-db/fGp-81f4-b458/D_00922C60 per btlMain-001d-001f; quat/matrix per BtlMainMatrix). Chase R1 loop-pragmas 59x4 tie, R2 palette 63/59x3 tie, R3 stores 59x4 tie, R4 matrix 64/61/58/60 best src-first 58, R5 combos 58x4 tie, R6 s128/count/c 58/59/58/57 best c0,c2,c1,c3 57, R7 combos 57x3/58 tie, R8 c-orders 58/57/58/56 best c0,c3,c1,c2 56, R9 combos 56x4 tie, R10 orders 56/58/56/57 tie stop. Residual VU-vs-FPU (matched), lq/sq coloring, D_009 rotation, loop constants, store rotation. Production ASM. */
-// FUN_001B6120 NONMATCHING
-#ifdef NON_MATCHING
+/* Camera snapshots, quaternion conversion and effect geometry setup.
+ * Shared geometry and complete palette contracts match their providers.
+ * Native proof and the retail matrix-padding omission are documented in
+ * docs/probe_archive/Battle_camera_setup_001b6120_20260922_worker7.md.
+ */
+// FUN_001B6120
+#pragma push
+#pragma opt_loop_invariants on
 void func_001b6120(void)
 {
-    extern u8 *func_004571a0(void);
-    extern u8 *func_004571c0(void);
+    extern s32 func_004571a0(void);
+    extern s32 func_004571c0(void);
     extern u8 *func_00149d20(void);
-    extern void func_003dc610(void *arg0, void *arg1);
-    extern void func_0043f810(void *dst, const void *src, u32 size);
+    extern s32 func_003dc610(void *quat, const void *matrix);
+    extern void *func_0043f810(void *dst, const void *src, u32 size);
     extern s32 func_00442088(char *dst, const char *fmt, ...);
-    extern u8 *func_003ef650(s32 arg0, ...);
-    extern s32 func_003ef6d0(void);
-    extern u16 *func_00482f70(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4);
-    extern void func_003c42b0(void *a, void *b);
+    typedef struct RwTexDictionary RwTexDictionary;
+    typedef struct RwTexture RwTexture;
+    extern RwTexture *func_003ef650(RwTexDictionary *dictionary, const char *name);
+    extern RwTexDictionary *func_003ef6d0(void);
+    extern void *func_003c42b0(void *material, void *texture);
     extern u8 *func_003c2290(u8 *a, s32 b);
-    extern void func_003c22f0(void *a);
+    extern void *func_003c22f0(void *geometry);
     extern u8 *func_003e9c10(u8 *a0, const f32 *a1, s32 a2);
     extern char D_005F7270[];
     extern u8 D_0060A140[];
@@ -2897,9 +2905,6 @@ void func_001b6120(void)
     extern u8 iGpffffa4da;
     extern u8 iGpffffa4db;
     extern f32 fGpffff81f4;
-    extern f32 fGpffffb458;
-    typedef unsigned int u_long128 __attribute__((mode(TI)));
-    extern u_long128 D_00922C60[4];
     typedef struct {
         f32 x;
         f32 y;
@@ -2914,15 +2919,12 @@ void func_001b6120(void)
         u32 pad2;
         Vec3 pos;
         u32 pad3;
-    } Matrix;
+    } Matrix __attribute__((aligned(16)));
+    extern Matrix D_00922C60;
     u8 *base;
     u8 *cam;
     u8 *vec;
     u8 *tmp;
-    f32 a;
-    f32 b;
-    f32 c;
-    f32 d;
     f32 qx;
     f32 qy;
     f32 qz;
@@ -2941,9 +2943,6 @@ void func_001b6120(void)
     f32 t3_2;
     f32 t2_2;
     Matrix matrix;
-    u_long128 *dst;
-    u_long128 *src;
-    s32 count;
     char buf[0x80];
     u8 *handle;
     u8 *work;
@@ -2954,51 +2953,23 @@ void func_001b6120(void)
     f32 *tblA;
     f32 *tblB;
     u32 i;
+    f32 uvScale;
+    u8 white;
     f32 pos[3];
-    u8 c0;
-    u8 c1;
-    u8 c2;
-    u8 c3;
-    cam = func_004571a0();
+    typedef BtlCameraPalette Rgba;
+    typedef struct { f32 r, g, b, a; } RgbaReal;
+    cam = (u8 *)func_004571a0();
     base = D_0076449C;
-    a = *(f32 *)(cam + 0x18);
-    b = *(f32 *)(cam + 0x1C);
-    c = *(f32 *)(cam + 0x20);
-    d = *(f32 *)(cam + 0x24);
-    *(f32 *)(base + 0x270) = a;
-    *(f32 *)(base + 0x274) = b;
-    *(f32 *)(base + 0x278) = c;
-    *(f32 *)(base + 0x27C) = d;
-    cam = func_004571c0();
+    *(RgbaReal *)(base + 0x270) = *(RgbaReal *)(cam + 0x18);
+    cam = (u8 *)func_004571c0();
     base = D_0076449C;
-    a = *(f32 *)(cam + 0x18);
-    b = *(f32 *)(cam + 0x1C);
-    c = *(f32 *)(cam + 0x20);
-    d = *(f32 *)(cam + 0x24);
-    *(f32 *)(base + 0x280) = a;
-    *(f32 *)(base + 0x284) = b;
-    *(f32 *)(base + 0x288) = c;
-    *(f32 *)(base + 0x28C) = d;
+    *(RgbaReal *)(base + 0x280) = *(RgbaReal *)(cam + 0x18);
     vec = func_00149ca0();
     base = D_0076449C;
-    a = *(f32 *)(vec + 0x0);
-    b = *(f32 *)(vec + 0x4);
-    c = *(f32 *)(vec + 0x8);
-    d = *(f32 *)(vec + 0xC);
-    *(f32 *)(base + 0x1BC) = a;
-    *(f32 *)(base + 0x1C0) = b;
-    *(f32 *)(base + 0x1C4) = c;
-    *(f32 *)(base + 0x1C8) = d;
+    *(RgbaReal *)(base + 0x1BC) = *(RgbaReal *)(vec + 0x0);
     vec = func_00149ce0();
     base = D_0076449C;
-    a = *(f32 *)(vec + 0x0);
-    b = *(f32 *)(vec + 0x4);
-    c = *(f32 *)(vec + 0x8);
-    d = *(f32 *)(vec + 0xC);
-    *(f32 *)(base + 0x1CC) = a;
-    *(f32 *)(base + 0x1D0) = b;
-    *(f32 *)(base + 0x1D4) = c;
-    *(f32 *)(base + 0x1D8) = d;
+    *(RgbaReal *)(base + 0x1CC) = *(RgbaReal *)(vec + 0x0);
     tmp = func_00149d20();
     base = D_0076449C;
     func_003dc610(base + 0x1DC, tmp);
@@ -3012,49 +2983,21 @@ void func_001b6120(void)
     *(f32 *)(base + 0x258) = fGpffff81f4 * (f32)iGpffffa4db;
     vec = (u8 *)func_0014acd0();
     base = D_0076449C;
-    a = *(f32 *)(vec + 0x0);
-    b = *(f32 *)(vec + 0x4);
-    c = *(f32 *)(vec + 0x8);
-    d = *(f32 *)(vec + 0xC);
-    *(f32 *)(base + 0x1EC) = a;
-    *(f32 *)(base + 0x1F0) = b;
-    *(f32 *)(base + 0x1F4) = c;
-    *(f32 *)(base + 0x1F8) = d;
+    *(RgbaReal *)(base + 0x1EC) = *(RgbaReal *)(vec + 0x0);
     vec = (u8 *)func_0014ad10();
     base = D_0076449C;
-    a = *(f32 *)(vec + 0x0);
-    b = *(f32 *)(vec + 0x4);
-    c = *(f32 *)(vec + 0x8);
-    d = *(f32 *)(vec + 0xC);
-    *(f32 *)(base + 0x1FC) = a;
-    *(f32 *)(base + 0x200) = b;
-    *(f32 *)(base + 0x204) = c;
-    *(f32 *)(base + 0x208) = d;
+    *(RgbaReal *)(base + 0x1FC) = *(RgbaReal *)(vec + 0x0);
     tmp = (u8 *)func_0014ad50();
     base = D_0076449C;
     func_003dc610(base + 0x20C, tmp);
     base = D_0076449C;
     func_0043f810(base + 0x21C, base + 0x1EC, 0x30);
     base = D_0076449C;
-    a = *(f32 *)(base + 0x1BC);
-    b = *(f32 *)(base + 0x1C0);
-    c = *(f32 *)(base + 0x1C4);
-    d = *(f32 *)(base + 0x1C8);
-    D_00922CA0[0] = a;
-    D_00922CA4[0] = b;
-    D_00922CA8[0] = c;
-    D_00922CAC[0] = d;
-    a = *(f32 *)(base + 0x1CC);
-    b = *(f32 *)(base + 0x1D0);
-    c = *(f32 *)(base + 0x1D4);
-    d = *(f32 *)(base + 0x1D8);
-    D_00922CB0[0] = a;
-    D_00922CB4[0] = b;
-    D_00922CB8[0] = c;
-    D_00922CBC[0] = d;
+    *(RgbaReal *)D_00922CA0 = *(RgbaReal *)(base + 0x1BC);
+    *(RgbaReal *)D_00922CB0 = *(RgbaReal *)(base + 0x1CC);
     base = D_0076449C;
-    qx = *(f32 *)(base + 0x1DC);
     qy = *(f32 *)(base + 0x1E0);
+    qx = *(f32 *)(base + 0x1DC);
     qz = *(f32 *)(base + 0x1E4);
     qw = *(f32 *)(base + 0x1E8);
     inv = 2.0f / ((qx * qx) + (qy * qy) + (qz * qz) + (qw * qw));
@@ -3083,31 +3026,24 @@ void func_001b6120(void)
     matrix.pos.y = 0.0f;
     matrix.pos.z = 0.0f;
     matrix.flags = 3;
-    src = (u_long128 *)&matrix;
-    dst = D_00922C60;
-    count = 4;
-    do {
-        u_long128 row = *src;
-        src++;
-        count--;
-        *dst = row;
-        dst++;
-    } while (count > 0);
+    /* Retail copies all 64 bytes here without writing the SDK pad1,
+     * pad2 or pad3 words (stack offsets 0xCC, 0xDC and 0xEC). */
+    D_00922C60 = matrix;
     D_00922CC0[0] = 1;
-    *(f32 *)(D_0076449C + 0x25C) = fGpffff81f4 * (f32)((u8 *)&fGpffffb458)[4];
-    *(f32 *)(D_0076449C + 0x260) = fGpffff81f4 * (f32)((u8 *)&fGpffffb458)[5];
-    *(f32 *)(D_0076449C + 0x264) = fGpffff81f4 * (f32)((u8 *)&fGpffffb458)[6];
-    *(f32 *)(D_0076449C + 0x268) = fGpffff81f4 * (f32)((u8 *)&fGpffffb458)[7];
+    *(f32 *)(D_0076449C + 0x25C) = fGpffff81f4 * (f32)iGpffffb45c.red;
+    *(f32 *)(D_0076449C + 0x260) = fGpffff81f4 * (f32)iGpffffb45c.green;
+    *(f32 *)(D_0076449C + 0x264) = fGpffff81f4 * (f32)iGpffffb45c.blue;
+    *(f32 *)(D_0076449C + 0x268) = fGpffff81f4 * (f32)iGpffffb45c.alpha;
     if (func_001ef9a0() != 0x20B) {
-        func_003e8180(func_00457120(), 35.0f);
+        func_003e8180(((u8 *)func_00457120()), 35.0f);
     } else {
-        func_003e8180(func_00457120(), 100.0f);
+        func_003e8180(((u8 *)func_00457120()), 100.0f);
     }
     base = D_0076449C;
     *(u32 *)(base + 0xC) |= 0x2000002;
     base = D_0076449C;
     func_00442088(buf, D_005F7270, *(u16 *)(base + 0x26C), *(u16 *)(base + 0x26E));
-    *(u8 **)(D_0076449C + 0xE78) = func_003ef650(func_003ef6d0(), buf);
+    *(u8 **)(D_0076449C + 0xE78) = (u8 *)func_003ef650(func_003ef6d0(), buf);
     if (*(u32 *)(D_0076449C + 0xE78) != 0) {
         *(u32 *)(D_0076449C + 0xE80) = 0;
         *(u8 **)(D_0076449C + 0xE7C) = (u8 *)func_00482f70(1, 0x76, 0x59, D_0060A140, 0x4C);
@@ -3120,18 +3056,21 @@ void func_001b6120(void)
         dstPos = *(u8 **)(*(u8 **)(p + 0x5C) + 0x14);
         dstUv = *(u8 **)(p + 0x34);
         dstCol = *(u8 **)(p + 0x30);
+        i = 0;
         tblA = D_0060A410;
         tblB = D_0060A840;
-        for (i = 0; i < 0x59; i++) {
+        uvScale = 8.0f;
+        white = 0xFF;
+        for (; i < 0x59; i++) {
             *(f32 *)(dstPos + 0) = tblA[i * 3 + 0];
             *(f32 *)(dstPos + 4) = tblA[i * 3 + 1];
             *(f32 *)(dstPos + 8) = tblA[i * 3 + 2];
             *(f32 *)(dstUv + 0) = tblB[i * 2 + 0];
-            *(f32 *)(dstUv + 4) = 8.0f * tblB[i * 2 + 1];
-            dstCol[0] = 0xFF;
-            dstCol[1] = 0xFF;
-            dstCol[2] = 0xFF;
-            dstCol[3] = 0xFF;
+            *(f32 *)(dstUv + 4) = uvScale * tblB[i * 2 + 1];
+            dstCol[0] = white;
+            dstCol[1] = white;
+            dstCol[2] = white;
+            dstCol[3] = white;
             dstPos += 0xC;
             dstUv += 8;
             dstCol += 4;
@@ -3146,14 +3085,7 @@ void func_001b6120(void)
         base = D_0076449C;
         handle = *(u8 **)(base + 0xE7C);
         work = *(u8 **)(handle + 0x14);
-        c0 = iGpffffa4d8;
-        c3 = iGpffffa4db;
-        c1 = iGpffffa4d9;
-        c2 = iGpffffa4da;
-        *(u8 *)(work + 4) = c0;
-        *(u8 *)(work + 5) = c1;
-        *(u8 *)(work + 6) = c2;
-        *(u8 *)(work + 7) = c3;
+        *(Rgba *)(work + 4) = D_007635C8;
         pos[0] = 0.0f;
         pos[1] = 5.0f;
         pos[2] = 0.0f;
@@ -3161,9 +3093,8 @@ void func_001b6120(void)
         func_003e9c10(*(u8 **)(*(u8 **)(base + 0xE7C) + 0xC), pos, 0);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b6120);
-#endif
+
+#pragma pop
 // FUN_001B68D0
 /* measured: opt_propagation off probes the retail ordered second float load group. */
 #pragma opt_propagation off
@@ -3677,7 +3608,7 @@ s32 func_001ba0e0(u8 *arg0)
 {
     extern f32 fGpffff81f4;
     extern u8 *func_00457130(void);
-    extern void func_00457140(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
     u32 total;
     u32 cur;
     f32 t;
@@ -3685,10 +3616,10 @@ s32 func_001ba0e0(u8 *arg0)
     f32 s;
     f32 e;
     f32 m;
-    s32 o0;
-    s32 o1;
-    s32 o2;
-    s32 o3;
+    u8 o0;
+    u8 o1;
+    u8 o2;
+    u8 o3;
     u8 b0;
     u8 b1;
     u8 b2;
@@ -4424,7 +4355,7 @@ void func_001bd390(void)
     f32 values[3];
     f32 delta[3];
 
-    base = *(u8 **)(func_00457120() + 4) + 0x10;
+    base = *(u8 **)(((u8 *)func_00457120()) + 4) + 0x10;
     counter = 0;
     goto outer_check;
 outer_body:
@@ -4623,9 +4554,9 @@ void func_001bd7d0(void)
         matrix.pos.z = 0.0f;
         matrix.flags = 3;
         matrix.pos = *(Bd7Vec3 *)(D_0076449C + 0xC0);
-        temp_6 = func_00457120();
+        temp_6 = ((u8 *)func_00457120());
         func_003e9cb0(*(u8 **)(temp_6 + 4), &matrix, 0);
-        func_004577d0(func_00457120(),
+        func_004577d0(((u8 *)func_00457120()),
                       fGpffff8048 * *(f32 *)(D_0076449C + 0xDC));
     }
     if ((*(s32 *)(D_0076449C + 0xF8) & 2) != 0) {
@@ -4740,8 +4671,8 @@ void func_001bdb60(void)
     u8 *temp_3;
     u8 *temp_3_2;
 
-    func_003e8180(func_00457120(), 35.0f);
-    func_004577d0(func_00457120(), 40.0f);
+    func_003e8180(((u8 *)func_00457120()), 35.0f);
+    func_004577d0(((u8 *)func_00457120()), 40.0f);
     {
         u8 *base;
 

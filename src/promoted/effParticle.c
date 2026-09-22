@@ -52,14 +52,14 @@ void func_00487710(u8 *arg0, s32 arg1);
 void func_004878c0(u8 *arg0, void *arg1);
 void func_00487a30(u8 *arg0, void *arg1);
 void func_00487ba0(u8 *arg0, s32 *arg1);
-extern void func_00484970(s32 arg0);
+extern void func_00484970(u8 *arg0);
 extern void func_00484a90(u8 *arg0, f32 arg1);
-extern void func_00484a40(s32 arg0, void *arg1);
-extern void func_004849c0(s32 arg0);
-extern void func_00485fe0(s32 arg0);
-extern void func_00486400(s32 arg0, f32 arg1);
-extern void func_004861f0(s32 arg0, void *arg1);
-extern void func_00485630(s32 arg0);
+extern void func_00484a40(u8 *arg0, void *arg1);
+extern void func_004849c0(u8 *arg0);
+extern void func_00485fe0(u8 *arg0);
+extern void func_00486400(u8 *arg0, f32 arg1);
+extern s32 func_004861f0(u8 *arg0, f32 *arg1);
+extern void func_00485630(u8 *arg0);
 extern ParticleSnapshot func_00492df0(s32 arg0, u32 *arg1);
 extern ParticleSnapshot func_00492db0(s32 arg0, u32 *arg1);
 extern void func_004bceb0(void);
@@ -545,216 +545,230 @@ void func_00487c00(int param_1)
   return;
 }
 
-/* measured: reconstructed full switch/VU0 particle path; retail and candidate differ only by temp_17/var_16 saved-register assignment (retail $s1/$s0, candidate $s0/$s1), nd 27, object 892B/window 896B. Tried saved-local declaration permutations, case-local splits, register qualifiers, pointer/count types, expression shapes, and O1; no improvement. Parked near-match. */
-// Archived C body: build/WBHygiene_func_00487c30_archive.txt; no current park body remains.
-/* measured: 27 differing words, 223/223 instrs, fnalign 49ed, obj892B/window896B; loopinv 27wd/49ed tie, schedule 194 (764B), commons 27 tie, prop 27 tie; decl-swap var_16-front 64ed (worse); temp_17/var_16 $s0/$s1 vs retail $s1/$s0 rotation stands from earliest hunk (retail[18] lw $s0 vs object $s1); no lb/lbu so s8 N/A; no sunk address chain so double-def N/A; VU0 lqc2/sqc2 split blocks reproduce. Banked near-match. */
-/* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/promoted/effParticle.c func_00487c30 --pairs` banked 27; best ties 27 (all 8 singles except schedule/peephole plus 13 pairs among them); all 28 pairs neutral or worse (peephole 175-191, schedule 190-194). Singles loopinv/commons/prop already tie per above; pairs confirm $s0/$s1 rotation floor. fnalign retail/object 223/223 per assignment. Floor stands; production stays ASM. */
-/* 2026-09-18 lead pass; section 7m exchanged-register-pair class, floor
-   confirmed at 27 words.  223/223 instructions and every differing word is
-   an instruction naming `var_16` or `temp_17`: retail puts the pointer
-   loaded from `0x18(temp_18)` in $s0 and the count from `8(temp_18)` in
-   $s1, this body has them the other way round.  The load order already
-   matches retail, so it is the allocation and not the sequence.
-   Declaration order does not reach it: moving `temp_17` above `var_19` ties
-   at 27, while swapping `var_16` with `temp_18` costs 27 -> 42 and moving
-   `var_16` after `var_19` costs the same.  One more member of the class
-   documented in handoff 7m; stop here. */
-// FUN_00487C30 NONMATCHING
-#ifdef NON_MATCHING
-void func_00487c30(u8 *arg0, f32 arg1)
+typedef struct ParticleUpdateRecord
 {
-    u8 spC0[16];
-    u8 spB0[16];
-    u8 spA0[16];
-    u8 sp60[0x40];
-    s32 *var_19;
-    s32 temp_17;
-    s32 var_18;
-    u16 temp_5;
-    u8 *temp_18;
-    u8 *var_16;
+    f32 position[4];
+    s32 age;
+    u32 color;
+    f32 scale;
+    f32 angle;
+} ParticleUpdateRecord __attribute__((aligned(16)));
 
-    temp_18 = *(u8 **)(arg0 + 0x4C);
-    temp_5 = *(u16 *)(arg0 + 0xC);
-    switch (temp_5) {
+/* measured: native b210 -O2 emits 892 exact bytes and four zero alignment bytes.
+ * Each real loop index is initialized after its emitter/setup phase. The object
+ * cursor's initialized scope begins at the existing subtype array lookup.
+ * These lifetimes preserve the signed count snapshot, per-record reloads, and
+ * all VU0 operations, including the transformed subtype-5 start-call omission.
+ * Evidence: build/finish-first-party-20260922/particle-next-03/. */
+
+// FUN_00487C30
+void func_00487c30(u8* particle, f32 scale)
+{
+    f32 transformedPosition[4] __attribute__((aligned(16)));
+    u32 translationSnapshot[4] __attribute__((aligned(16)));
+    u32 rotationSnapshot[4] __attribute__((aligned(16)));
+    f32 transform[4][4] __attribute__((aligned(16)));
+    s32 particleCount;
+    u16 subtype;
+    s32 emitterAddress;
+    ParticleUpdateRecord* record;
+
+    emitterAddress = *(s32*)(particle + 0x4C);
+    subtype = *(u16*)(particle + 0xC);
+    switch (subtype)
+    {
     case 5:
-        var_16 = *(u8 **)(temp_18 + 0x18);
-        var_19 = *(s32 **)(arg0 + 0x34);
-        temp_17 = *(s32 *)(temp_18 + 8);
-        if ((*(u32 *)(temp_18 + 0xC) & 1) == 0) {
-            var_18 = 0;
-            while (var_18 < temp_17) {
-                if (*(s32 *)(var_16 + 0x10) == 0) {
-                    func_00484970(*var_19);
+        record = *(ParticleUpdateRecord**)((u8*)emitterAddress + 0x18);
+        /* The object-array traversal starts after the record-base lookup. */
+        {
+            u8** objects = *(u8***)(particle + 0x34);
+            particleCount = *(s32*)((u8*)emitterAddress + 8);
+            if ((*(u32*)((u8*)emitterAddress + 0xC) & 1) == 0)
+            {
+                {
+                    /* This traversal starts only after its emitter/setup phase. */
+                    s32 index = 0;
+                    while (index < particleCount)
+                    {
+                        if (record->age == 0)
+                        {
+                            func_00484970(*objects);
+                        }
+                        if (record->age >= 0)
+                        {
+                            func_00484a90(*objects, record->scale * scale);
+                            func_00484a40(*objects, record);
+                            func_004849c0(*objects);
+                        }
+                        index++;
+                        record++;
+                        objects++;
+                    }
                 }
-                if (*(s32 *)(var_16 + 0x10) >= 0) {
-                    func_00484a90((u8 *)*var_19,
-                                  *(f32 *)(var_16 + 0x18) * arg1);
-                    func_00484a40(*var_19, var_16);
-                    func_004849c0(*var_19);
+                return;
+            }
+            func_00492df0(emitterAddress, (u32*)rotationSnapshot);
+            func_00492db0(emitterAddress, (u32*)translationSnapshot);
+            __asm__ volatile(".set noreorder       \n"
+                             "lqc2 $vf10, 0(%0)    \n"
+                             ".set reorder         \n"
+                             :
+                             : "r"(rotationSnapshot)
+                             : "$vf10", "memory");
+            /* VU0 quaternion input is VF10; the helper produces VF28..VF31. */
+            func_004bceb0();
+            __asm__ volatile(".set noreorder       \n"
+                             "lqc2 $vf31, 0(%0)    \n"
+                             ".set reorder         \n"
+                             :
+                             : "r"(translationSnapshot)
+                             : "$vf31", "memory");
+            __asm__ volatile(".set noreorder       \n"
+                             "sqc2 $vf28, 0(%0)    \n"
+                             "sqc2 $vf29, 16(%0)   \n"
+                             "sqc2 $vf30, 32(%0)   \n"
+                             "sqc2 $vf31, 48(%0)   \n"
+                             ".set reorder         \n"
+                             :
+                             : "r"(transform)
+                             : "$vf28", "$vf29", "$vf30", "$vf31", "memory");
+            {
+                /* This traversal starts only after its emitter/setup phase. */
+                s32 index = 0;
+                while (index < particleCount)
+                {
+                    if (record->age >= 0)
+                    {
+                        __asm__ volatile(".set noreorder                  \n"
+                                         "lqc2 $vf28, 0(%0)                \n"
+                                         "lqc2 $vf29, 16(%0)               \n"
+                                         "lqc2 $vf30, 32(%0)               \n"
+                                         "lqc2 $vf31, 48(%0)               \n"
+                                         "lqc2 $vf10, 0(%1)                \n"
+                                         "vmulax.xyzw $ACC, $vf28, $vf10x \n"
+                                         "vmadday.xyzw $ACC, $vf29, $vf10y \n"
+                                         "vmaddaz.xyzw $ACC, $vf30, $vf10z \n"
+                                         "vmaddw.xyzw $vf10, $vf31, $vf0w \n"
+                                         ".set reorder                    \n"
+                                         :
+                                         : "r"(transform), "r"(record)
+                                         : "$vf28", "$vf29", "$vf30", "$vf31", "$vf10", "ACC", "memory");
+                        __asm__ volatile(".set noreorder       \n"
+                                         "sqc2 $vf10, 0(%0)    \n"
+                                         ".set reorder         \n"
+                                         :
+                                         : "r"(transformedPosition)
+                                         : "$vf10", "memory");
+                        func_00484a90(*objects, record->scale * scale);
+                        func_00484a40(*objects, transformedPosition);
+                        func_004849c0(*objects);
+                    }
+                    index++;
+                    record++;
+                    objects++;
                 }
-                var_18++;
-                var_16 += 0x20;
-                var_19++;
             }
             return;
         }
-        func_00492df0((s32)temp_18, (u32 *)spA0);
-        func_00492db0((s32)temp_18, (u32 *)spB0);
-        __asm__ volatile(
-            ".set noreorder       \n"
-            "lqc2 $vf10, 0(%0)    \n"
-            ".set reorder         \n"
-            :
-            : "r"(spA0)
-            : "$vf10", "memory");
-        func_004bceb0();
-        __asm__ volatile(
-            ".set noreorder       \n"
-            "lqc2 $vf31, 0(%0)    \n"
-            ".set reorder         \n"
-            :
-            : "r"(spB0)
-            : "$vf31", "memory");
-        __asm__ volatile(
-            ".set noreorder       \n"
-            "sqc2 $vf28, 0(%0)    \n"
-            "sqc2 $vf29, 16(%0)   \n"
-            "sqc2 $vf30, 32(%0)   \n"
-            "sqc2 $vf31, 48(%0)   \n"
-            ".set reorder         \n"
-            :
-            : "r"(sp60)
-            : "$vf28", "$vf29", "$vf30", "$vf31", "memory");
-        var_18 = 0;
-        while (var_18 < temp_17) {
-            if (*(s32 *)(var_16 + 0x10) >= 0) {
-                __asm__ volatile(
-                    ".set noreorder                  \n"
-                    "lqc2 $vf28, 0(%0)                \n"
-                    "lqc2 $vf29, 16(%0)               \n"
-                    "lqc2 $vf30, 32(%0)               \n"
-                    "lqc2 $vf31, 48(%0)               \n"
-                    "lqc2 $vf10, 0(%1)                \n"
-                    "vmulax.xyzw $ACC, $vf28, $vf10x \n"
-                    "vmadday.xyzw $ACC, $vf29, $vf10y \n"
-                    "vmaddaz.xyzw $ACC, $vf30, $vf10z \n"
-                    "vmaddw.xyzw $vf10, $vf31, $vf0w \n"
-                    ".set reorder                    \n"
-                    :
-                    : "r"(sp60), "r"(var_16)
-                    : "$vf28", "$vf29", "$vf30", "$vf31", "$vf10",
-                      "ACC", "memory");
-                __asm__ volatile(
-                    ".set noreorder       \n"
-                    "sqc2 $vf10, 0(%0)    \n"
-                    ".set reorder         \n"
-                    :
-                    : "r"(spC0)
-                    : "$vf10", "memory");
-                func_00484a90((u8 *)*var_19,
-                              *(f32 *)(var_16 + 0x18) * arg1);
-                func_00484a40(*var_19, spC0);
-                func_004849c0(*var_19);
-            }
-            var_18++;
-            var_16 += 0x20;
-            var_19++;
-        }
-        return;
     case 6:
-        var_16 = *(u8 **)(temp_18 + 0x18);
-        var_19 = *(s32 **)(arg0 + 0x3C);
-        temp_17 = *(s32 *)(temp_18 + 8);
-        if ((*(u32 *)(temp_18 + 0xC) & 1) == 0) {
-            var_18 = 0;
-            while (var_18 < temp_17) {
-                if (*(s32 *)(var_16 + 0x10) == 0) {
-                    func_00485fe0(*var_19);
+        record = *(ParticleUpdateRecord**)((u8*)emitterAddress + 0x18);
+        /* The object-array traversal starts after the record-base lookup. */
+        {
+            u8** objects = *(u8***)(particle + 0x3C);
+            particleCount = *(s32*)((u8*)emitterAddress + 8);
+            if ((*(u32*)((u8*)emitterAddress + 0xC) & 1) == 0)
+            {
+                {
+                    /* This traversal starts only after its emitter/setup phase. */
+                    s32 index = 0;
+                    while (index < particleCount)
+                    {
+                        if (record->age == 0)
+                        {
+                            func_00485fe0(*objects);
+                        }
+                        if (record->age >= 0)
+                        {
+                            func_00486400(*objects, record->scale * scale);
+                            func_004861f0(*objects, (f32*)record);
+                            func_00485630(*objects);
+                        }
+                        index++;
+                        record++;
+                        objects++;
+                    }
                 }
-                if (*(s32 *)(var_16 + 0x10) >= 0) {
-                    func_00486400(*var_19,
-                                  *(f32 *)(var_16 + 0x18) * arg1);
-                    func_004861f0(*var_19, var_16);
-                    func_00485630(*var_19);
+                return;
+            }
+            func_00492df0(emitterAddress, (u32*)rotationSnapshot);
+            func_00492db0(emitterAddress, (u32*)translationSnapshot);
+            __asm__ volatile(".set noreorder       \n"
+                             "lqc2 $vf10, 0(%0)    \n"
+                             ".set reorder         \n"
+                             :
+                             : "r"(rotationSnapshot)
+                             : "$vf10", "memory");
+            /* VU0 quaternion input is VF10; the helper produces VF28..VF31. */
+            func_004bceb0();
+            __asm__ volatile(".set noreorder       \n"
+                             "lqc2 $vf31, 0(%0)    \n"
+                             ".set reorder         \n"
+                             :
+                             : "r"(translationSnapshot)
+                             : "$vf31", "memory");
+            __asm__ volatile(".set noreorder       \n"
+                             "sqc2 $vf28, 0(%0)    \n"
+                             "sqc2 $vf29, 16(%0)   \n"
+                             "sqc2 $vf30, 32(%0)   \n"
+                             "sqc2 $vf31, 48(%0)   \n"
+                             ".set reorder         \n"
+                             :
+                             : "r"(transform)
+                             : "$vf28", "$vf29", "$vf30", "$vf31", "memory");
+            {
+                /* This traversal starts only after its emitter/setup phase. */
+                s32 index = 0;
+                while (index < particleCount)
+                {
+                    if (record->age == 0)
+                    {
+                        func_00485fe0(*objects);
+                    }
+                    if (record->age >= 0)
+                    {
+                        __asm__ volatile(".set noreorder                  \n"
+                                         "lqc2 $vf28, 0(%0)                \n"
+                                         "lqc2 $vf29, 16(%0)               \n"
+                                         "lqc2 $vf30, 32(%0)               \n"
+                                         "lqc2 $vf31, 48(%0)               \n"
+                                         "lqc2 $vf10, 0(%1)                \n"
+                                         "vmulax.xyzw $ACC, $vf28, $vf10x \n"
+                                         "vmadday.xyzw $ACC, $vf29, $vf10y \n"
+                                         "vmaddaz.xyzw $ACC, $vf30, $vf10z \n"
+                                         "vmaddw.xyzw $vf10, $vf31, $vf0w \n"
+                                         ".set reorder                    \n"
+                                         :
+                                         : "r"(transform), "r"(record)
+                                         : "$vf28", "$vf29", "$vf30", "$vf31", "$vf10", "ACC", "memory");
+                        __asm__ volatile(".set noreorder       \n"
+                                         "sqc2 $vf10, 0(%0)    \n"
+                                         ".set reorder         \n"
+                                         :
+                                         : "r"(transformedPosition)
+                                         : "$vf10", "memory");
+                        func_00486400(*objects, record->scale * scale);
+                        func_004861f0(*objects, (f32*)transformedPosition);
+                        func_00485630(*objects);
+                    }
+                    index++;
+                    record++;
+                    objects++;
                 }
-                var_18++;
-                var_16 += 0x20;
-                var_19++;
             }
             return;
         }
-        func_00492df0((s32)temp_18, (u32 *)spA0);
-        func_00492db0((s32)temp_18, (u32 *)spB0);
-        __asm__ volatile(
-            ".set noreorder       \n"
-            "lqc2 $vf10, 0(%0)    \n"
-            ".set reorder         \n"
-            :
-            : "r"(spA0)
-            : "$vf10", "memory");
-        func_004bceb0();
-        __asm__ volatile(
-            ".set noreorder       \n"
-            "lqc2 $vf31, 0(%0)    \n"
-            ".set reorder         \n"
-            :
-            : "r"(spB0)
-            : "$vf31", "memory");
-        __asm__ volatile(
-            ".set noreorder       \n"
-            "sqc2 $vf28, 0(%0)    \n"
-            "sqc2 $vf29, 16(%0)   \n"
-            "sqc2 $vf30, 32(%0)   \n"
-            "sqc2 $vf31, 48(%0)   \n"
-            ".set reorder         \n"
-            :
-            : "r"(sp60)
-            : "$vf28", "$vf29", "$vf30", "$vf31", "memory");
-        var_18 = 0;
-        while (var_18 < temp_17) {
-            if (*(s32 *)(var_16 + 0x10) == 0) {
-                func_00485fe0(*var_19);
-            }
-            if (*(s32 *)(var_16 + 0x10) >= 0) {
-                __asm__ volatile(
-                    ".set noreorder                  \n"
-                    "lqc2 $vf28, 0(%0)                \n"
-                    "lqc2 $vf29, 16(%0)               \n"
-                    "lqc2 $vf30, 32(%0)               \n"
-                    "lqc2 $vf31, 48(%0)               \n"
-                    "lqc2 $vf10, 0(%1)                \n"
-                    "vmulax.xyzw $ACC, $vf28, $vf10x \n"
-                    "vmadday.xyzw $ACC, $vf29, $vf10y \n"
-                    "vmaddaz.xyzw $ACC, $vf30, $vf10z \n"
-                    "vmaddw.xyzw $vf10, $vf31, $vf0w \n"
-                    ".set reorder                    \n"
-                    :
-                    : "r"(sp60), "r"(var_16)
-                    : "$vf28", "$vf29", "$vf30", "$vf31", "$vf10",
-                      "ACC", "memory");
-                __asm__ volatile(
-                    ".set noreorder       \n"
-                    "sqc2 $vf10, 0(%0)    \n"
-                    ".set reorder         \n"
-                    :
-                    : "r"(spC0)
-                    : "$vf10", "memory");
-                func_00486400(*var_19,
-                              *(f32 *)(var_16 + 0x18) * arg1);
-                func_004861f0(*var_19, spC0);
-                func_00485630(*var_19);
-            }
-            var_18++;
-            var_16 += 0x20;
-            var_19++;
-        }
-        return;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/effParticle", func_00487c30);
-#endif
 typedef struct RpAtomic RpAtomic;
 typedef enum RpPTankLockFlags
 {
