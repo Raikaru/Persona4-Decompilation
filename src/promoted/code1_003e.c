@@ -1051,8 +1051,6 @@ extern u8 *func_003e84a0(void); /* P4: ported verbatim into src/renderware */
 /* measured: closes schedule inside func_003e84a0. */
 #pragma schedule off
 
-// FUN_003E85A0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e85a0);
 
 /* measured: opt_propagation off tests retaining table-address materialisation before the argument load. */
 #pragma opt_propagation off
