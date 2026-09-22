@@ -12,6 +12,7 @@ HTS_CI_OBJ htg_ci_obj[13] = { 0 };
 Uint8 htg_ci_fname[297] = { 0 };
 
 // 100% matching!
+// FUN_004E7368
 CVFS_IF htCiGetInterface(void)
 {
     return &htci_vtbl;
@@ -26,6 +27,7 @@ void htci_wait(void)
 }
 
 // 100% matching!
+// FUN_004E7458
 void htci_call_errfn(HTCI htci, const char *msg)
 {
     if (htg_ci_err_func != NULL) 
@@ -546,6 +548,7 @@ void htCiStopTr(void *obj)
 }
 
 // 100% matching!
+// FUN_004E7FC8
 CVE_FS_ST htCiGetStat(void *obj)
 {
     HTCI htci;

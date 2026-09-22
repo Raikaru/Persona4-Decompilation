@@ -34,6 +34,7 @@ Sint32 SFD_GetPlyInf(SFD sfd, SFD_PLYINF *inf)
 }
 
 // Raw condition read (no handle check).
+// FUN_00525098
 Sint32 SFSET_GetCond(SFD sfd, Sint32 id)
 {
 	return sfd->cond[id];

@@ -184,6 +184,7 @@ Sint32 ADX_DecodeInfoExLoop(Sint8 *ibuf, Sint32 ibuflen, Sint32 *lp_ins_nsmpl, S
 }
 
 // 100% matching!
+// FUN_004C5FE8
 Sint32 ADX_DecodeFooter(Sint8 *ibuf, Sint32 ibuflen, Sint16 *dlen) 
 {
     if (ibuflen < 16) 

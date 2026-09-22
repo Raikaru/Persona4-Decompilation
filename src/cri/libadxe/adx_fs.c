@@ -45,6 +45,7 @@ void adxf_SetCmdHstry(Sint32 cmdid, Sint32 fg, Sint32 prm0, Sint32 prm1, Sint32 
 }
 
 // 100% matching!
+// FUN_004C7310
 void adxf_wait_1ms(void) 
 {
     Sint32 i;
@@ -1328,6 +1329,7 @@ Sint32 ADXF_GetNumReadSct(ADXF adxf)
 }
 
 // 100% matching!
+// FUN_004C9858
 Sint32 ADXF_GetStat(ADXF adxf)
 {
     if (adxf == NULL)

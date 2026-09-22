@@ -137,6 +137,7 @@ static void* AIFF_GetInfo(void *hdr, Sint32 *sfreq, Sint32 *nch, Sint32 *bps, Si
 }
 
 // 100% matching!
+// FUN_004C20D0
 Sint32 ADXB_CheckAiff(Sint8 *ibuf)
 {
     if ((memcmp(ibuf, "FORM", 4) == 0) && (memcmp(&ibuf[8], "AIFF", 4) == 0))
@@ -322,6 +323,7 @@ void ADXB_ExecOneAiff16(ADXB adxb)
 }
 
 // 100% matching!
+// FUN_004C24F8
 void ADXB_ExecOneAiff8(ADXB adxb) 
 {
 	AdxDecPara *dp;

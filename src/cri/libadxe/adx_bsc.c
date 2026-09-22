@@ -203,6 +203,7 @@ void ADXB_EntryAddWrFunc(ADXB adxb, void (*func)(), void *obj)
 }
 
 // 100% matching!
+// FUN_004C3BB8
 Sint16* ADXB_GetPcmBuf(ADXB adxb)
 {
     return adxb->pcmbuf;
@@ -215,6 +216,7 @@ Sint32 ADXB_GetFormat(ADXB adxb)
 }
 
 // 100% matching!
+// FUN_004C3BC8
 Sint32 ADXB_GetSfreq(ADXB adxb)
 {
     return adxb->sfreq;
@@ -325,6 +327,7 @@ Sint32 ADXB_GetLpEndOfst(ADXB adxb)
 }
 
 // 100% matching!
+// FUN_004C3F50
 Sint32 ADXB_GetStat(ADXB adxb)
 {
     return adxb->stat;
@@ -400,6 +403,7 @@ Sint32 ADXB_GetDecNumSmpl(ADXB adxb)
 }
 
 // 100% matching!
+// FUN_004C4098
 ADXPD ADXB_GetAdxpd(ADXB adxb) 
 {
     return adxb->xpd;
@@ -509,6 +513,7 @@ void ADXB_EvokeDecode(ADXB adxb)
 }
 
 // 100% matching!
+// FUN_004C42A8
 void memcpy2(Sint16 *dst, const Sint16 *src, Sint32 nword)
 {
     for ( ; nword > 0; nword--) 

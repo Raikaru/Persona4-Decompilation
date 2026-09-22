@@ -286,24 +286,28 @@ void SFTST_SetMovaveRange(SFTST tst, Sint32 range)
 }
 
 // Time after which an adjustment is switched off.
+// FUN_00527AF0
 void SFTST_SetAdjPoff(SFTST tst, SFTST_TIME *t)
 {
 	tst->adjpoff = *t;
 }
 
 // Difference from which an adjustment starts.
+// FUN_00527AD8
 void SFTST_SetAdjStart(SFTST tst, SFTST_TIME *t)
 {
 	tst->adjstart = *t;
 }
 
 // Difference treated as a gross error (history reset).
+// FUN_00527AC0
 void SFTST_SetExcessErr(SFTST tst, SFTST_TIME *t)
 {
 	tst->excesserr = *t;
 }
 
 // Step size of an output time base shift.
+// FUN_00527AA8
 void SFTST_SetTolerance(SFTST tst, SFTST_TIME *t)
 {
 	tst->tolerance = *t;

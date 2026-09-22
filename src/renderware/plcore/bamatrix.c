@@ -1023,6 +1023,8 @@ _rwMatrixOpen(void *instance, RwInt32 offset, RwInt32 __RWUNUSED__ size)
  * \see RwEngineSetMatrixTolerances
  * \see RwMatrixOptimize
  */
+// FUN_003E0380
+#pragma schedule on
 RwBool
 RwEngineGetMatrixTolerances(RwMatrixTolerance * const tolerance)
 {
@@ -1039,6 +1041,8 @@ RwEngineGetMatrixTolerances(RwMatrixTolerance * const tolerance)
 
     RWRETURN(result);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rwmatrix

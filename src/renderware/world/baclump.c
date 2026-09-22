@@ -19,7 +19,6 @@
 #define RwStreamRead func_003e2910
 #define RpAtomicCreate func_003c00e0
 #define RpAtomicSetGeometry func_003c0210
-#define _rwPluginRegistryReadDataChunks func_003e3110
 #define RpGeometryStreamRead func_003c30b0
 #define RpGeometryDestroy func_003c2a80
 #define RpGeometryAddRef func_003c2a60

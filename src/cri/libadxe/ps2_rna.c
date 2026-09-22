@@ -807,7 +807,7 @@ Sint32 PS2RNA_GetOutVol(PS2RNA rna)
 
 // 100% matching!
 // FUN_0052BAD0
-Sint32 PS2RNA_GetOutPan(PS2RNA rna, Sint32 chno)
+Sint32 func_0052bad0(PS2RNA rna, Sint32 chno)
 {
     return rna->ee_pan[chno];
 }

@@ -54,6 +54,7 @@ Sint32 SFTIM_GetSpeed(SFD sfd)
 }
 
 // Sets the speed; the vsync clocks advance by `speed` per vsync instead of 1000.
+// FUN_00527028
 void SFTIM_SetSpeed(SFD sfd, Sint32 speed)
 {
 	SFD_TIM(sfd)->speed = speed;
@@ -508,6 +509,7 @@ Sint32 SFD_SetUsrIsSkipFn(SFD sfd, Bool (*fn)())
 
 /* the handle is in a state whose clock runs (playing / paused-playing, 4 or 6); otherwise the
  * time is reported as -1/1 */
+// FUN_005260E8
 Bool SFTIM_ChkRegularTime(SFD sfd, Sint32 *ncount, Sint32 *tscale)
 {
 	Sint32 stat;
@@ -574,6 +576,7 @@ Sint32 sftim_GetTimeExtClock(SFD sfd, Sint32 *ncount, Sint32 *tscale)
 }
 
 // Clock type 3 placeholder: no time.
+// FUN_00525FD0
 Sint32 sftim_GetTimeUfrm(SFD sfd, Sint32 *ncount, Sint32 *tscale)
 {
 	if (!SFTIM_ChkRegularTime(sfd, ncount, tscale)) {

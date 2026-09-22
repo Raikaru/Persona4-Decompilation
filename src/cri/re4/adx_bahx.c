@@ -26,6 +26,7 @@ void ADXB_EntryAhxFunc(void (*setsji)(void *, void *), void (*setdecsmpl)(void *
 }
 
 // End of input for an AHX decoder attached to the handle.
+// FUN_004C1C50
 void ADXB_AhxTermSupply(ADXB_OBJ *adxb)
 {
 	if (adxb->ahx != NULL) {
@@ -52,6 +53,7 @@ void ADXB_SetAhxDecSmpl(ADXB_OBJ *adxb, Sint32 nsmpl)
 }
 
 // Input stream joint of the AHX decoder.
+// FUN_004C1D10
 void ADXB_SetAhxInSj(ADXB_OBJ *adxb, void *sji)
 {
 	if (adxb->ahx != NULL) {

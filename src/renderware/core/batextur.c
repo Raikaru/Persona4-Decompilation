@@ -2522,6 +2522,8 @@ RwTexDictionarySetCurrent(RwTexDictionary *dict)
  * \see RwTexDictionarySetCurrent
  *
  */
+// FUN_003EF6D0
+#pragma schedule on
 RwTexDictionary *
 RwTexDictionaryGetCurrent(void)
 {
@@ -2530,6 +2532,8 @@ RwTexDictionaryGetCurrent(void)
 
     RWRETURN(RWTEXTUREGLOBAL(currentTexDict));
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

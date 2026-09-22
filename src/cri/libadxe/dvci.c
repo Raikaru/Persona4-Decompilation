@@ -28,6 +28,7 @@ static void dvci_wait(void)
 }
 
 // 100% matching!
+// FUN_004E9E68
 void dvci_call_errfn(DVCI dvci, const char *msg)
 {
     if (dvg_ci_err_func != NULL) 

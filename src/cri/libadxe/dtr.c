@@ -233,6 +233,7 @@ void DTR_Destroy(DTR dtr)
 }
 
 // 100% matching!
+// FUN_004E5028
 void DTR_Start(DTR dtr) 
 {
     dtr->total_tbyte = 0;

@@ -2426,8 +2426,10 @@ RwCameraGetWorld(const RwCamera * camera)
  * \see RpWorldRender
  * \see RpWorldPluginAttach
  */
+// FUN_003CBC90
+#pragma schedule on
 RpWorld            *
-RpWorldAddAtomic(RpWorld * world, RpAtomic * atomic)
+func_003cbc90(RpWorld * world, RpAtomic * atomic)
 {
     RwFrame            *frame;
     RpWorldAtomicExt   *atomicExt;
@@ -2455,6 +2457,8 @@ RpWorldAddAtomic(RpWorld * world, RpAtomic * atomic)
 
     RWRETURN(world);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rpworldsub
