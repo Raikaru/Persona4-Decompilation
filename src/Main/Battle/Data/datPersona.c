@@ -64,7 +64,7 @@ extern u8 *func_0010b060(u16 personaId);
 u16 *func_0010a900(u16 character);
 
 // FUN_001092F0
-u16 func_001092f0(u32 arg0)
+u32 func_001092f0(u32 arg0)
 {
     return *(u16 *)(arg0 + 2);
 }
@@ -105,110 +105,149 @@ u16 func_00109470(s32 arg0)
     return *p;
 }
 
-/* measured: object 676B/window 688B/normalized_diff 252 (105 differing words, live re-measured current tree). */
-/* measured: 170 vs 169 instrs (1 short) with tail inserts at 148 and 170 plus colouring (s1-s0, s6-s7, t3-t1); slti-v0 both sides (s3-vs-s2 input) so inclusive N-A (probe >=0x100->>0xFF 105->107 regress, >=0x20->>0x1F tie, both regress); dead-arm self-assign at second-loop chain end tie 105 (no retail slti-at trailing, no honest redundant constant store); skills pointer-temp 105->108 regress; sltiu 0 and no || so adjacent-== fold N-A, frame same so index-mask N-A; banked floor within 3% (676B/688B). */
-// FUN_00109510 NONMATCHING
-#ifdef NON_MATCHING
-#pragma push
-#pragma opt_loop_invariants on
-s32 func_00109510(u8 *arg0, s32 arg1, s32 arg2) {
-    u8 *entry;
-    s32 reach;
-    u16 id;
-    u8 base_level;
-    s32 known;
-    s32 last;
-    u8 *scan;
-    s32 j;
-    s32 found;
-    s32 i;
-    s32 slot;
-    s32 span;
-    s32 out;
-    s32 limit;
-    s32 room;
-    s32 first;
-    s32 level;
+/* The selected learning range uses independent output and traversal counts.
+   Its length helper preserves that value across the known-skill query.
+   Native b210 O2 with these scoped propagation/loop settings is exact
+   684/688 bytes; see docs/probe_archive/Persona_skills_00109510_20260922.md. */
+static inline s32 datPersonaSelectedCount(s32 first, s32 last)
+{
+    return (last + 1) - first;
+}
 
-    if ((s32)*(u16 *)(arg0 + 2) >= 0x100) {
+// FUN_00109510
+#pragma push
+#pragma opt_propagation off
+#pragma opt_loop_invariants on
+s32 func_00109510(u8 *persona, void *arg1, void *arg2)
+{
+    u8 *table;
+    s32 maximum;
+    s32 baseLevel;
+    s32 lowerLevel;
+    s32 remainingLevels;
+    s32 upperLevel;
+    s32 first;
+    s32 i;
+    s32 foundFirst;
+    s32 foundLast;
+    s32 last;
+    u8 *entry;
+    s32 span;
+    s32 known;
+    s32 skill;
+    s32 count;
+    s32 visit;
+    u8 *skills;
+
+    if ((s32)*(u16 *)(persona + 2) >= 0x100)
+    {
         func_0046d730(D_005E4318, 0x132);
     }
-    if (func_0010be20(arg0) != 0) {
-        entry = (u8 *)iGpffffb3e4 + (*(u16 *)(arg0 + 2) - 0xC0) * 0x26E + 4;
-        limit = 0x20;
-        base_level = 0;
-        level = *(u8 *)(arg0 + 4);
-        room = 0x63 - level;
-    } else {
-        id = *(u16 *)(arg0 + 2);
-        entry = (u8 *)iGpffffb3dc + id * 0x46 + 6;
-        limit = 0x10;
-        base_level = *(u8 *)(iGpffffb3d4 + id * 0xE + 3);
-        level = *(u8 *)(arg0 + 4) - base_level;
-        room = 0x63 - *(u8 *)(arg0 + 4);
+    if (func_0010be20(persona) != 0)
+    {
+        table = (u8 *)iGpffffb3e4 + (*(u16 *)(persona + 2) - 0xC0) * 0x26E + 4;
+        maximum = 0x20;
+        baseLevel = 0;
+        lowerLevel = *(u8 *)(persona + 4);
+        remainingLevels = 0x63 - lowerLevel;
     }
-    reach = level + room;
+    else
+    {
+        u16 id = *(u16 *)(persona + 2);
+        u8 *baseRecord;
+        u32 recordAddress;
+        table = iGpffffb3dc + id * 0x46 + 6;
+        maximum = 0x10;
+        baseRecord = iGpffffb3d4;
+        recordAddress = id * 0xE;
+        recordAddress += (u32)baseRecord;
+        baseLevel = ((u8 *)recordAddress)[3];
+        lowerLevel = *(u8 *)(persona + 4) - baseLevel;
+        remainingLevels = 0x63 - *(u8 *)(persona + 4);
+    }
+    upperLevel = lowerLevel + remainingLevels;
     first = 0;
-    found = 0;
-    span = 0;
+    foundFirst = 0;
+    foundLast = 0;
     i = 0;
-    while (i < limit) {
-        scan = entry + i * 4;
-        if (*(s8 *)(scan + 1) == 0) {
+    while (i < maximum)
+    {
+        entry = table + i * 4;
+        if (*(s8 *)(entry + 1) == 0)
+        {
             break;
         }
-        if ((s32)level < (s32)*(u8 *)scan) {
-            if (found == 0) {
-                found = 1;
+        if (lowerLevel < *(u8 *)entry)
+        {
+            if (foundFirst == 0)
+            {
+                foundFirst = 1;
                 first = i;
                 last = i;
             }
-            if (reach >= (s32)*(u8 *)scan) {
-                span = 1;
+            if (*(u8 *)entry <= upperLevel)
+            {
+                foundLast = 1;
                 last = i;
             }
         }
         i++;
     }
-    if (span != 0) {
-        slot = (last + 1) - first;
-    } else {
-        slot = 0;
+    if (foundLast != 0)
+    {
+        span = datPersonaSelectedCount(first, last);
     }
-    scan = entry + first * 4;
-    known = func_0010ceb0(arg0);
-    out = 0;
-    j = 0;
-    while (j < slot) {
-        if (*(s8 *)(scan + 1) == 1) {
-            for (i = 0; i < known; i++) {
-                if (*(u16 *)(scan + 2) == *(u16 *)(arg0 + 0xC + i * 2)) {
+    else
+    {
+        span = 0;
+    }
+    table += first * 4;
+    skills = persona + 0xC;
+    known = func_0010ceb0(persona);
+    count = 0;
+    visit = 0;
+    while (visit < span)
+    {
+        switch (*(s8 *)(table + 1))
+        {
+        case 1:
+            skill = 0;
+            while (skill < known)
+            {
+                if (*(u16 *)(table + 2) == *(u16 *)(skills + skill * 2))
+                {
                     break;
                 }
+                skill++;
             }
-            if (i == known) {
-                if (out >= 0x20) {
+            if (skill == known)
+            {
+                if (count >= 0x20)
+                {
                     func_0046d730(D_005E4318, 0x17B);
                 }
-                *(u16 *)(arg1 + out * 2) = *(u16 *)(scan + 2);
-                if (arg2 != 0) {
-                    *(u16 *)(arg2 + out * 2) = *(u8 *)scan + base_level;
+                ((u16 *)arg1)[count] = *(u16 *)(table + 2);
+                if (arg2 != NULL)
+                {
+                    ((u16 *)arg2)[count] = *(u8 *)table + baseLevel;
                 }
-                out++;
+                count++;
             }
-        }
-        if (out == 0x20) {
+            break;
+        default:
             break;
         }
-        j++;
-        scan += 4;
+        if (count == 0x20)
+        {
+            break;
+        }
+        visit++;
+        table += 4;
     }
-    return out & 0xFFFF;
+    return count & 0xFFFF;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_00109510);
-#endif
+
 
 // FUN_001097C0
 void func_001097c0(u8 *arg0, s32 arg1)
@@ -1586,7 +1625,7 @@ s32 func_0010ccc0(u8 *arg0, u32 arg1)
 }
 
 // FUN_0010CD70
-void func_0010cd70(u8 *arg0, s32 arg1, u32 arg2)
+s32 func_0010cd70(u8 *arg0, s32 arg1, u16 arg2)
 {
     if (arg0 == NULL || (s16)arg1 == 0 || (arg2 & 0xFFFF) == 0) {
         func_0046d730(D_005E4318, 0x6FE);
@@ -1597,6 +1636,7 @@ void func_0010cd70(u8 *arg0, s32 arg1, u32 arg2)
             s32 off = r * 2;
             *(u16 *)(off + (s32)arg0 + 0xC) = (u16)arg2;
         }
+        return r;
     }
 }
 

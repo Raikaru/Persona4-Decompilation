@@ -7396,3 +7396,6 @@ fGpffff8124 = 0x00761214; // type:data
 D_00762FC8 = 0x00762fc8; // type:data
 iGpffffb26c = 0x0076435c; // type:data
 uGpffffb270 = 0x00764360; // type:data
+
+// Field preset records: count/count/minorIds[10], three records.
+fldResourcePresets = 0x005f0590; // type:data evidence: func_0014efc0 preset lookup

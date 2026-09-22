@@ -1,3 +1,4 @@
+#include "model_motion_internal.h"
 /* Source unit: src/Kosaka/k_command/k_command_00176c20.c (1 function markers) */
 #include "Kosaka/k_command_internal.h"
 
@@ -40,7 +41,6 @@ extern s32 func_004782b0(void* arg0);
 extern void* func_00478750(s32 arg0);
 extern void func_004787e0(u32 arg0);
 extern void func_00478e70(s32 arg0);
-extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern void func_00479e60(s32 a, s32 b, f32 c);
 extern void func_0047a1c0(s32 a, void* b, s32 c);
 extern f32 func_0047a080(s32 arg0, s32 arg1);

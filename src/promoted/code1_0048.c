@@ -780,11 +780,11 @@ void func_00484a40(u8 *arg0, void *arg1) {
 }
 
 // FUN_00484A90
-void func_00484a90(u8 *arg0) {
-    void (*fn)(s32) = *(void (**)(s32))(D_007134A8 + (*(u16 *)(arg0 + 4) << 6));
+void func_00484a90(u8 *arg0, f32 scale) {
+    void (*fn)(s32, f32) = *(void (**)(s32, f32))(D_007134A8 + (*(u16 *)(arg0 + 4) << 6));
 
     if (fn != NULL) {
-        fn(*(s32 *)(arg0 + 8));
+        fn(*(s32 *)(arg0 + 8), scale);
     }
 }
 
@@ -2593,7 +2593,7 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
 {
     s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
     f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
-    void func_0048a460(void);
+    f32 func_0048a460(void);
     u_long128 sp50;
     s32 size;
 

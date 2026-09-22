@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "primitive_point_buffer.h"
 #include "scene_event_internal.h"
 extern s32 iGpffffb4bc;
 extern s32 iGpffffa730;
@@ -2228,7 +2229,6 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     extern u32 D_0063A9E0[];
     extern u32 D_0063AA30[];
     extern void func_00364c70(void);
-    extern void func_0045e6a0(void *arg0, void *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 fparg1, f32 fparg2, f32 fparg3);
     struct {
         u_long128 c0;
         s32 d0;
@@ -2240,7 +2240,7 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
         u32 arr150[0x13];
         u8 pad150[4];
         u8 colors[256][4];
-        f32 points[257][2];
+        PrimFloat2 points[257];
         f32 da8;
         f32 dac;
     } frame;
@@ -2303,7 +2303,7 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
         b2_9 = (combined >> 8) & 0xFF;
         b3_9 = combined & 0xFF;
         while (i9 < count9) {
-            f32 *dst9 = &frame.points[i9][0];
+            f32 *dst9 = &frame.points[i9].v[0];
             u8 *col9 = &frame.colors[i9][0];
             dst9[0] = (fparg0 + ((f32 *)ptr9)[i9 * 2]) - ((f32 *)ptr9)[0];
             dst9[1] = (fparg1 + ((f32 *)ptr9)[i9 * 2 + 1]) - ((f32 *)ptr9)[1];
@@ -2363,7 +2363,7 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     frame.d0 = (combined >> 8) & 0xFF;
     b3 = combined & 0xFF;
     while (iA < countA) {
-        f32 *dstA = &frame.points[iA][0];
+        f32 *dstA = &frame.points[iA].v[0];
         u8 *colA = &frame.colors[iA][0];
         dstA[0] = (fparg0 + ((f32 *)ptrA)[iA * 2]) - ((f32 *)ptrA)[0];
         dstA[1] = (fparg1 + ((f32 *)ptrA)[iA * 2 + 1]) - ((f32 *)ptrA)[1];
@@ -2388,7 +2388,7 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     ptrB = (u8 *)frame.arr100[arg3 * 2];
     iB = 0;
     while (iB < countB) {
-        f32 *dstB = &frame.points[iB][0];
+        f32 *dstB = &frame.points[iB].v[0];
         u8 *colB = &frame.colors[iB][0];
         dstB[0] = (fparg0 + ((f32 *)ptrB)[iB * 2]) - ((f32 *)ptrB)[0];
         dstB[1] = (fparg1 + ((f32 *)ptrB)[iB * 2 + 1]) - ((f32 *)ptrB)[1];
@@ -2407,7 +2407,7 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     }
     iC = 1;
     while (iC < countA) {
-        f32 *dstC = &frame.points[iC - 1][0];
+        f32 *dstC = &frame.points[iC - 1].v[0];
         u8 *colC = &frame.colors[iC - 1][0];
         dstC[0] = (fparg0 + ((f32 *)ptrA)[iC * 2]) - ((f32 *)ptrA)[0];
         dstC[1] = (fparg1 + ((f32 *)ptrA)[iC * 2 + 1]) - ((f32 *)ptrA)[1];
@@ -2423,8 +2423,8 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     {
         s32 v0;
         s32 v1;
-        v0 = (s32)(s16)(s32)(fparg0 + ((f32)arg4 - frame.points[0][0]));
-        v1 = (s32)(s16)(s32)(fparg1 + ((f32)arg5 - frame.points[0][1]));
+        v0 = (s32)(s16)(s32)(fparg0 + ((f32)arg4 - frame.points[0].v[0]));
+        v1 = (s32)(s16)(s32)(fparg1 + ((f32)arg5 - frame.points[0].v[1]));
         func_0045e6a0(frame.colors, frame.points, fparg2, countA - 1, 4, 1, v0, v1, fparg3, fparg4, fparg5);
     }
     if (arg1 == 0xFF) {

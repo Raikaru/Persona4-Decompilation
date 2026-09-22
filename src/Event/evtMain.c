@@ -598,15 +598,8 @@ void func_00287310(u8 *arg0) {
     func_002871a0(1, *(u8 **)(arg0 + 0x14), arg0);
 }
 
-/* measured: retail 473 vs object 459 (-14, -3.0% inside); fnalign 573->163 (plus 6 reloc): full reverse of all 5 switches (26 cases: outer 14 + 3+3+4+2 inner) 573->299 at tied count (nd 409->411, branch deltas dominate nd); case6/case36 outer if (arg2!=NULL) big-first -> if (arg2==NULL) small-first (bnez vs beqz layout) 299->163 at tied count (nd 411->413); table_order.py: no jtbl (outer is beq chain, sole sltiu at 0x87628 is temp_18<3 bound, not dispatch) so layout N/A; inner 0/1/2 ascending (= reverse of 2/1/0) and 0/1/3/2 (= reverse of 2/3/1/0) match retail descending checks + ascending bodies; remaining floors: frame 0x70 (sd 0x40 vs 0x50 + ext $s4, 5 vs 4 saved), addu $v1,$v1,$s0 vs $v1,$s0,$v1 swaps (~10), dead sp6E (sh 0x6e) + sp64 (swc1 0x64, ld vs ldr/ldl alignment), empty if (*(arg2+2)!=0) {} (lhu/beqz, needs volatile to keep, banned), else-branch reloads (lw/sll/addu alias floor), $s2/$s3 rotation. */
-// FUN_00287360 NONMATCHING
-/* Measured continuation: 1884/1904 bytes, 252 physical word differences,
-   44 aligned edits. Native packed cut-in objects, exact slot-address operand
-   order, and explicit post-create slot reload. The sole remaining instruction
-   omission is the retail duration gate at 0028772C; other differences are its
-   branch displacements. Keep the retail fallback until this is recovered.
-   Evidence: build/next-wave-20260921/event/review/REVIEW.md. */
-#ifdef NON_MATCHING
+/* The earlier duration-gate experiments remain in the Event recovery archives.
+   This owner uses the actual typed Scene lookup and native packed cut-in values. */
 struct Resrc;
 extern struct Resrc *MT_Scene_GetRes(u16 resourceId);
 
@@ -619,6 +612,11 @@ static inline u8 *evtCutinAddress(u32 index, u8 *work)
     return (u8 *)address;
 }
 
+/* Measured: 1896 executable bytes, 47 resolved relocations and eight zero tail
+   bytes. Reassigning the consumed enable state retains retail's duration load
+   and common join; both duration outcomes perform the same polygon update.
+   Current proof: docs/probe_archive/Event_duration_current_5a1bcf7_20260921.md. */
+// FUN_00287360
 void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     union {
         struct { s16 first, second; } halves;
@@ -760,6 +758,10 @@ void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                     var_19 = (u8 *)MT_Scene_GetRes(*(u16 *)(arg0 + 0x20));
                     if (var_19 != NULL) {
                         var_16 = 1;
+                        /* A timed key keeps this resource enabled too. */
+                        if (*(u16 *)(arg2 + 2) != 0) {
+                            var_16 = 1;
+                        }
                     }
                 }
                 break;
@@ -883,9 +885,6 @@ void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     }
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/evtMain", func_00287360);
-#endif
 // FUN_00287AD0
 /* measured: without opt_loop_invariants, MWCC rematerializes the 0x22 loop
  * constant inside the loop body; retail hoists it to the preheader. */

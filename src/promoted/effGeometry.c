@@ -2,6 +2,11 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit effGeometry.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+/* RenderWare's public RwFrame typedef carries the SDK's 16-byte alignment. */
+typedef struct RwFrame RwFrame __attribute__((aligned(16)));
+typedef struct RpAtomic RpAtomic;
+typedef struct RpGeometry RpGeometry;
+typedef struct RpMaterial RpMaterial;
 extern s32 func_00481460();
 extern void func_00460ac0();
 extern s32 func_00481390();
@@ -17,17 +22,17 @@ extern void func_003e0a90(void *arg0, f32 *arg1, s32 arg2);
 extern void func_003e0c90(void *arg0, void *arg1, s32 arg2);
 extern void func_003e05f0(void *arg0, void *arg1, void *arg2);
 extern void func_003a2950();
-extern void func_0046d730(const void *file, s32 line);
+extern void func_0046d730(void *file, s32 line);
 extern u8 D_00713448[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern s32 func_003e9320(void);
-extern s32 func_003c00e0(void);
-extern s32 func_003c4140(void);
-extern void *func_003c2630(s32 arg0, s32 arg1, u32 arg2);
-extern u8 *func_003c1b90();
-extern u8 *func_003c0210(s32 arg0, void *arg1, s32 arg2);
-extern void func_003c2a80(void *arg0);
-extern void func_0043f9c8(void *dst, s32 value, u32 size);
+extern RwFrame *func_003e9320(void);
+extern RpAtomic *func_003c00e0(void);
+extern RpMaterial *func_003c4140(void);
+extern RpGeometry *func_003c2630(s32 arg0, s32 arg1, u32 arg2);
+extern RpAtomic *func_003c1b90(RpAtomic *atomic, RwFrame *frame);
+extern RpAtomic *func_003c0210(RpAtomic *atomic, RpGeometry *geometry, u32 flags);
+extern s32 func_003c2a80(RpGeometry *geometry);
+extern void *func_0043f9c8(void *dst, s32 value, u32 size);
 extern void func_0044ea90(const void *file, s32 line);
 extern f32 fGpffff8078;
 extern s32 iGpffffb610;
@@ -80,11 +85,11 @@ u8 *func_00482c40(s32 arg0, s32 arg1, s32 arg2) {
 
     func_0044ea90(D_00713448, 0x1B);
     p = jtbl_008873E8[0](0x48, 0x40000);
-    t22 = func_003e9320();
-    t16 = func_003c00e0();
-    t23 = func_003c4140();
+    t22 = (s32)func_003e9320();
+    t16 = (s32)func_003c00e0();
+    t23 = (s32)func_003c4140();
     obj = func_003c2630(arg0, arg1, arg2);
-    func_003c1b90(t16, t22);
+    func_003c1b90((RpAtomic *)t16, (RwFrame *)t22);
     vec.x = 0.0f;
     vec.y = 0.0f;
     vec.z = 0.0f;
@@ -93,8 +98,8 @@ u8 *func_00482c40(s32 arg0, s32 arg1, s32 arg2) {
         u8 *q = *(u8 **)((u8 *)obj + 0x5C);
         *(struct F4 *)(q + 4) = vec;
     }
-    func_003c0210(t16, obj, 0);
-    func_003c2a80(obj);
+    func_003c0210((RpAtomic *)t16, (RpGeometry *)obj, 0);
+    func_003c2a80((RpGeometry *)obj);
     *(s16 *)((u8 *)p + 0) = 5;
     *(s32 *)((u8 *)p + 4) = arg2;
     *(s16 *)((u8 *)p + 8) = (s16)arg0;
@@ -220,9 +225,9 @@ u8 *func_004830f0(u16 arg0, s32 arg1) {
     *(u16 *)(p + 0xA) = arg0;
     *(s32 *)(p + 0x14) = 0;
     *(s32 *)(p + 0x10) = func_003a2340(arg0 & 0xFFFF, arg1, 2);
-    t = func_003e9320();
+    t = (s32)func_003e9320();
     *(s32 *)(p + 0xC) = t;
-    func_003c1b90(*(s32 **)(p + 0x10), t);
+    func_003c1b90(*(RpAtomic **)(p + 0x10), (RwFrame *)t);
     *(s32 *)(*(u8 **)(*(u8 **)(p + 0x10) + iGpffffb610) + 0xB4) = 1;
     if (arg1 & 0x80000) {
         func_0043f810(*(u8 **)(*(u8 **)(p + 0x10) + iGpffffb610) + 0xE0, D_00713460, 0x10);
@@ -490,86 +495,67 @@ void func_004839d0(int param_1, u32 *param_2)
   return;
 }
 
-/* measured: live object 572B/window 576B, normalized_diff 81 (installed guard below; prior nd108 note was stale). Genuine gains this session: mult-operand order (arg0&mask first) and anti-CSE (u16)arg0 for the late saved mask (108 -> 81). Open walls: saved-register rotation (arg0-home $s6 vs $s4 class; decl swaps neutral), 3-operand mult operand order (rs follows evaluation; decoupled-mask forms reverse evaluation), slt-$at assert (goto-form ties), frame slots +0x10 (allocation count), u_long128 mult/conversion traffic, stack-float round-trip. Ruled out: s32 mult (uncompilable slot forms), goto-assert, schedule on (129), propagation off (126), peephole/O-levels, mask spellings, u32 caller sig. Banked as floor. */
-// FUN_00483A00 NONMATCHING
-#ifdef NON_MATCHING
-u8 *func_00483a00(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    typedef unsigned int u_long128 __attribute__((mode(TI)));
-    f32 spDC;
-    s32 spD8;
-    s32 spD4;
-    s32 spD0;
-    s32 spCC;
-    s32 spC0;
-    u_long128 spB0;
-    u_long128 spA0;
-    s32 temp_22;
-    s32 temp_21;
-    u8 *temp_19;
-    u8 *temp_18;
-    s32 temp_17;
-    s32 var_16;
-    u8 *temp_2_2;
-    f32 temp_f0;
-    s32 temp_2;
-
-    spCC = arg3;
-    temp_22 = (arg0 & 0xFFFF) * (arg1 & 0xFFFF);
-    if (temp_22 < 0x10000) {
-    } else {
+// FUN_00483A00
+u8 *func_00483a00(s32 partCount, s32 verticesPerPart, s32 trianglesPerPart, s32 flags)
+{
+    /* The count check uses the signed interpretation of the low product word. */
+    if ((s32)((u32)(verticesPerPart & 0xFFFF) * (partCount & 0xFFFF)) > 0xFFFF) {
         func_0046d730(D_00713448, 459);
     }
     func_0044ea90(D_00713448, 461);
-    temp_21 = (u16)arg0;
-    temp_19 = jtbl_008873E8[0](temp_21 * 4 + 0x58, 0x40000);
-    spC0 = func_003e9320();
-    temp_17 = func_003c00e0();
-    temp_2 = (arg2 & 0xFFFF) * temp_21;
-    spB0 = temp_2;
-    spA0 = (u_long128)(u32)(temp_19 + 0x58);
-    temp_18 = func_003c2630(temp_22, (s32)temp_2, spCC);
-    var_16 = 0;
-    while ((var_16 & 0xFFFF) < temp_21) {
-        *(s32 *)((u8 *)spA0 + ((var_16 & 0xFFFF) * 4)) = func_003c4140();
-        var_16 = (var_16 + 1) & 0xFFFF;
-    }
-    func_003c1b90(temp_17, spC0);
-    spD0 = 0;
-    spD4 = 0;
-    spD8 = 0;
-    temp_f0 = fGpffff8078;
-    spDC = temp_f0;
-    temp_2_2 = *(u8 **)(temp_18 + 0x5C);
-    *(s32 *)(temp_2_2 + 4) = spD0;
-    *(s32 *)(temp_2_2 + 8) = spD4;
-    *(s32 *)(temp_2_2 + 0xC) = spD8;
-    *(f32 *)(temp_2_2 + 0x10) = temp_f0;
-    func_003c0210(temp_17, temp_18, 0);
-    func_003c2a80(temp_18);
-    *(s16 *)(temp_19 + 0) = 5;
-    *(s32 *)(temp_19 + 4) = spCC;
-    *(s16 *)(temp_19 + 8) = (s16)arg1;
-    *(s16 *)(temp_19 + 0xA) = (s16)arg2;
-    *(s32 *)(temp_19 + 0xC) = spC0;
-    *(s32 *)(temp_19 + 0x10) = temp_17;
-    *(s32 *)(temp_19 + 0x14) = 0;
-    *(s16 *)(temp_19 + 0x48) = (s16)arg0;
-    *(s16 *)(temp_19 + 0x4A) = (s16)temp_22;
-    *(s16 *)(temp_19 + 0x4C) = (s16)spB0;
-    *(s32 *)(temp_19 + 0x54) = (s32)spA0;
-    *(s8 *)(temp_19 + 0x4E) = -1;
-    *(s8 *)(temp_19 + 0x4F) = -1;
-    *(s8 *)(temp_19 + 0x50) = -1;
-    *(s8 *)(temp_19 + 0x51) = -1;
-    func_0043f9c8(temp_19 + 0x18, 0, 0x30);
-    *(s16 *)(temp_19 + 0x30) = 0x15;
-    *(u8 **)(temp_19 + 0x34) = temp_19;
-    return temp_19;
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483a00);
-#endif
+    {
+        struct RwSphere { RwV3d center; f32 radius; } sphere;
+        RwFrame *frame;
+        RpMaterial **materials;
+        u8 *effect;
+        RpGeometry *geometry;
+        RpAtomic *atomic;
+        const s32 count = (u16)partCount;
+        u16 index;
+        u8 *morphTarget;
 
+        effect = jtbl_008873E8[0](count * 4 + 0x58, 0x40000);
+        frame = func_003e9320();
+        atomic = func_003c00e0();
+        geometry = func_003c2630(
+            (s32)((u32)(verticesPerPart & 0xFFFF) * (partCount & 0xFFFF)),
+            (s32)((u32)(trianglesPerPart & 0xFFFF) * (s32)count), flags);
+        materials = (RpMaterial **)(effect + 0x58);
+        index = 0;
+        while (index < count) {
+            materials[index] = func_003c4140();
+            index++;
+        }
+        func_003c1b90(atomic, frame);
+        sphere.center.x = 0.0f;
+        sphere.center.y = 0.0f;
+        sphere.center.z = 0.0f;
+        sphere.radius = fGpffff8078;
+        morphTarget = *(u8 **)((u8 *)geometry + 0x5C);
+        *(struct RwSphere *)(morphTarget + 4) = sphere;
+        func_003c0210(atomic, geometry, 0);
+        func_003c2a80(geometry);
+        *(s16 *)(effect + 0) = 5;
+        *(s32 *)(effect + 4) = flags;
+        *(s16 *)(effect + 8) = (s16)verticesPerPart;
+        *(s16 *)(effect + 0xA) = (s16)trianglesPerPart;
+        *(RwFrame **)(effect + 0xC) = frame;
+        *(RpAtomic **)(effect + 0x10) = atomic;
+        *(s32 *)(effect + 0x14) = 0;
+        *(s16 *)(effect + 0x48) = (s16)partCount;
+        *(s16 *)(effect + 0x4A) =
+            (s16)(s32)((u32)(verticesPerPart & 0xFFFF) * (partCount & 0xFFFF));
+        *(s16 *)(effect + 0x4C) =
+            (s16)(s32)((u32)(trianglesPerPart & 0xFFFF) * (s32)count);
+        *(RpMaterial ***)(effect + 0x54) = materials;
+        *(u8 *)(effect + 0x51) = *(u8 *)(effect + 0x50) =
+            *(u8 *)(effect + 0x4F) = *(u8 *)(effect + 0x4E) = 0xFF;
+        func_0043f9c8(effect + 0x18, 0, 0x30);
+        *(s16 *)(effect + 0x30) = 0x15;
+        *(u8 **)(effect + 0x34) = effect;
+        return effect;
+    }
+}
 // FUN_00483C40
 u8 *func_00483c40(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
     s32 temp_16;

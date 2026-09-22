@@ -1,3 +1,4 @@
+#include "btl_motion_internal.h"
 /* Source unit: src/Battle/btlTarget_001eb440.c */
 #include "include_asm.h"
 #include "type.h"
@@ -64,7 +65,6 @@ extern void func_00106020(s32 arg);
 extern void func_00113480(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_001f6c40(void* action, s32 flags);
 extern void func_001f56d0(void* action, s32 effect, s32 arg2, s32 arg3, s32 arg4);
-extern void func_00198dd0(void* unit, s32 state);
 extern void func_00213b10(void* unit);
 extern void func_00213b30(void* unit);
 extern s32 func_00231e20(void* data);

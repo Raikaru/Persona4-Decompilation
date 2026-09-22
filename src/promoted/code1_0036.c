@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "primitive_point_buffer.h"
 #include "fr_font_internal.h"
 struct RwMatrixTag;
 typedef struct RwV3d {
@@ -703,15 +704,14 @@ void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                    s16 arg8, void *arg9, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3)
 {
     extern s64 iGpffffabe8;
-    extern u8 D_0064E320[];
+    extern const s32 D_0064E320[36];
     extern void func_0045eb20(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
     extern void func_0045e8e0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
-    extern void func_0045e6a0(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 fparg1, f32 fparg2, f32 fparg3);
-    f32 v[18][2];
+    PrimPointRow v[18];
     u8 col[0x48];
     f32 w;
-    s32 *src;
-    s32 *dst;
+    const s32 *src;
+    PrimPointRow *dst;
     s32 cnt, centerY;
     s32 t1;
     s32 t2;
@@ -724,43 +724,43 @@ void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
     u8 a;
     f32 fx;
     f32 fy;
-    PairF32 *p;
+    PrimPointRow *p;
     u8 *c;
 
-    src = (s32 *)D_0064E320;
-    dst = (s32 *)v;
+    src = D_0064E320;
+    dst = v;
     cnt = 18;
     do {
         t1 = src[0];
         t2 = src[1];
         src += 2;
         cnt -= 1;
-        dst[0] = t1;
-        dst[1] = t2;
-        dst += 2;
+        dst->words.w0 = t1;
+        dst->words.w1 = t2;
+        dst++;
     } while (cnt > 0);
     w = (f32)(arg2 - 10) * fparg2;
-    v[0][0] = w * 0.5f + 5.0f;
+    v[0].point.v[0] = w * 0.5f + 5.0f;
     h = (f32)(arg3 - 10) * fparg3;
-    v[0][1] = h * 0.5f + 5.0f;
-    v[5][0] = w + 5.0f;
-    v[6][0] = v[5][0] + 2.0f;
-    v[7][0] = v[5][0] + 4.0f;
-    v[8][0] = v[5][0] + 5.0f;
-    v[9][0] = v[5][0] + 5.0f;
-    v[9][1] = h + 5.0f;
-    v[10][0] = v[5][0] + 4.0f;
-    v[10][1] = v[9][1] + 2.0f;
-    v[11][0] = v[5][0] + 2.0f;
-    v[11][1] = v[9][1] + 4.0f;
-    v[12][0] = v[5][0];
-    v[12][1] = v[9][1] + 5.0f;
-    v[13][1] = v[9][1] + 5.0f;
-    v[14][1] = v[9][1] + 4.0f;
-    v[15][1] = v[9][1] + 2.0f;
-    v[16][1] = v[9][1];
-    arg7 = (s32)(s16)(s32)((f32)arg7 - v[0][0]);
-    centerY = (arg8 = (s16)(s32)((f32)arg8 - v[0][1]));
+    v[0].point.v[1] = h * 0.5f + 5.0f;
+    v[5].point.v[0] = w + 5.0f;
+    v[6].point.v[0] = v[5].point.v[0] + 2.0f;
+    v[7].point.v[0] = v[5].point.v[0] + 4.0f;
+    v[8].point.v[0] = v[5].point.v[0] + 5.0f;
+    v[9].point.v[0] = v[5].point.v[0] + 5.0f;
+    v[9].point.v[1] = h + 5.0f;
+    v[10].point.v[0] = v[5].point.v[0] + 4.0f;
+    v[10].point.v[1] = v[9].point.v[1] + 2.0f;
+    v[11].point.v[0] = v[5].point.v[0] + 2.0f;
+    v[11].point.v[1] = v[9].point.v[1] + 4.0f;
+    v[12].point.v[0] = v[5].point.v[0];
+    v[12].point.v[1] = v[9].point.v[1] + 5.0f;
+    v[13].point.v[1] = v[9].point.v[1] + 5.0f;
+    v[14].point.v[1] = v[9].point.v[1] + 4.0f;
+    v[15].point.v[1] = v[9].point.v[1] + 2.0f;
+    v[16].point.v[1] = v[9].point.v[1];
+    arg7 = (s32)(s16)(s32)((f32)arg7 - v[0].point.v[0]);
+    centerY = (arg8 = (s16)(s32)((f32)arg8 - v[0].point.v[1]));
     i = 0;
     rgba = ((u32)arg4 << 8) | (u32)arg5;
     r = rgba >> 24;
@@ -770,9 +770,9 @@ void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
     fx = (f32)arg0;
     fy = (f32)arg1;
     while (i < 18) {
-        p = (PairF32 *)v[i];
-        p->x += fx;
-        p->y += fy;
+        p = &v[i];
+        p->point.v[0] += fx;
+        p->point.v[1] += fy;
         c = &col[i * 4];
         c[0] = r;
         c[1] = g;
@@ -788,10 +788,10 @@ void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
         }
     } else if (arg5 == 0xFF) {
         iGpffffabe8 |= 0x80;
-        func_0045e6a0((s32)(u32)col, (s32)(u32)v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
+        func_0045e6a0(col, v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
         iGpffffabe8 &= ~0x80;
     } else {
-        func_0045e6a0((s32)(u32)col, (s32)(u32)v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
+        func_0045e6a0(col, v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
     }
 }
 // FUN_00366670
@@ -800,15 +800,14 @@ void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
  * primitive ABIs. Keep i = 0 before splitting the unsigned packed color.
  */
 void func_00366670(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s16 arg8, void *arg9, f32 fparg1, f32 fparg2, f32 fparg3) { extern s64 iGpffffabe8;
-extern u8 D_0064E3B0[];
+extern const s32 D_0064E3B0[36];
 extern void func_0045eb20(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
 extern void func_0045e8e0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
-extern void func_0045e6a0(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 fparg1, f32 fparg2, f32 fparg3);
-f32 v[18][2];
+PrimPointRow v[18];
 u8 col[0x48];
 f32 w;
-s32 *src;
-s32 *dst;
+const s32 *src;
+PrimPointRow *dst;
 s32 cnt, centerY;
 s32 t1;
 s32 t2;
@@ -821,43 +820,43 @@ u8 b;
 u8 a;
 f32 fx;
 f32 fy;
-PairF32 *p;
+PrimPointRow *p;
 u8 *c;
 
-src = (s32 *)D_0064E3B0;
-dst = (s32 *)v;
+src = D_0064E3B0;
+dst = v;
 cnt = 18;
 do {
     t1 = src[0];
     t2 = src[1];
     src += 2;
     cnt -= 1;
-    dst[0] = t1;
-    dst[1] = t2;
-    dst += 2;
+    dst->words.w0 = t1;
+    dst->words.w1 = t2;
+    dst++;
 } while (cnt > 0);
 w = (f32)(arg2 - 10) * fparg2;
-v[0][0] = w * 0.5f + 5.0f;
+v[0].point.v[0] = w * 0.5f + 5.0f;
 h = (f32)(arg3 - 10) * fparg3;
-v[0][1] = h * 0.5f + 5.0f;
-v[5][0] = w + 5.0f;
-v[6][0] = v[5][0] + 3.0f;
-v[7][0] = v[5][0] + 4.0f;
-v[8][0] = v[5][0] + 5.0f;
-v[9][0] = v[5][0] + 5.0f;
-v[9][1] = h + 5.0f;
-v[10][0] = v[5][0] + 4.0f;
-v[10][1] = v[9][1] + 3.0f;
-v[11][0] = v[5][0] + 3.0f;
-v[11][1] = v[9][1] + 4.0f;
-v[12][0] = v[5][0];
-v[12][1] = v[9][1] + 5.0f;
-v[13][1] = v[9][1] + 5.0f;
-v[14][1] = v[9][1] + 4.0f;
-v[15][1] = v[9][1] + 3.0f;
-v[16][1] = v[9][1];
-arg7 = (s32)(s16)(s32)((f32)arg7 - v[0][0]);
-centerY = (arg8 = (s16)(s32)((f32)arg8 - v[0][1]));
+v[0].point.v[1] = h * 0.5f + 5.0f;
+v[5].point.v[0] = w + 5.0f;
+v[6].point.v[0] = v[5].point.v[0] + 3.0f;
+v[7].point.v[0] = v[5].point.v[0] + 4.0f;
+v[8].point.v[0] = v[5].point.v[0] + 5.0f;
+v[9].point.v[0] = v[5].point.v[0] + 5.0f;
+v[9].point.v[1] = h + 5.0f;
+v[10].point.v[0] = v[5].point.v[0] + 4.0f;
+v[10].point.v[1] = v[9].point.v[1] + 3.0f;
+v[11].point.v[0] = v[5].point.v[0] + 3.0f;
+v[11].point.v[1] = v[9].point.v[1] + 4.0f;
+v[12].point.v[0] = v[5].point.v[0];
+v[12].point.v[1] = v[9].point.v[1] + 5.0f;
+v[13].point.v[1] = v[9].point.v[1] + 5.0f;
+v[14].point.v[1] = v[9].point.v[1] + 4.0f;
+v[15].point.v[1] = v[9].point.v[1] + 3.0f;
+v[16].point.v[1] = v[9].point.v[1];
+arg7 = (s32)(s16)(s32)((f32)arg7 - v[0].point.v[0]);
+centerY = (arg8 = (s16)(s32)((f32)arg8 - v[0].point.v[1]));
 i = 0;
 rgba = ((u32)arg4 << 8) | (u32)arg5;
 r = rgba >> 24;
@@ -867,9 +866,9 @@ a = rgba;
 fx = (f32)arg0;
 fy = (f32)arg1;
 while (i < 18) {
-    p = (PairF32 *)v[i];
-    p->x += fx;
-    p->y += fy;
+    p = &v[i];
+    p->point.v[0] += fx;
+    p->point.v[1] += fy;
     c = &col[i * 4];
     c[0] = r;
     c[1] = g;
@@ -885,10 +884,10 @@ if (arg9 != 0) {
     }
 } else if (arg5 == 0xFF) {
     iGpffffabe8 |= 0x80;
-    func_0045e6a0((s32)(u32)col, (s32)(u32)v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
+    func_0045e6a0(col, v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
     iGpffffabe8 &= ~0x80;
 } else {
-    func_0045e6a0((s32)(u32)col, (s32)(u32)v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
+    func_0045e6a0(col, v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
 } }
 /* 780/784 bytes; nine resolved relocations; four zero alignment bytes.
  * Keep the angle and shared scale local to each primitive call. */
@@ -902,18 +901,17 @@ void func_00366960(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
     extern s64 iGpffffabe8;
     extern void func_0045eb20(void *, void *, f32, s32, s32, s32, s32, s16, f32, f32, f32, void *);
     extern void func_0045e8e0(void *, void *, f32, s32, s32, s32, s32, s16, f32, f32, f32, void *);
-    extern void func_0045e6a0(s32, s32, f32, u32, s32, s32, s32, s32, f32, f32, f32);
-    f32 points[4][2] = { 0.0f };
+    PrimFloat2 points[4] = { 0.0f };
     u8 colors[16];
     RwV3d transformed;
     u32 i;
     u32 packed;
     u8 r, g, b, a;
 
-    points[1][0] = (f32)width;
-    points[2][0] = points[1][0];
-    points[2][1] = (f32)height;
-    points[3][1] = points[2][1];
+    points[1].v[0] = (f32)width;
+    points[2].v[0] = points[1].v[0];
+    points[2].v[1] = (f32)height;
+    points[3].v[1] = points[2].v[1];
     i = 0;
     packed = ((u32)rgb << 8) | (u32)alpha;
     r = (u8)(packed >> 24);
@@ -929,7 +927,7 @@ void func_00366960(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
         color[1] = g;
         color[2] = b;
         color[3] = a;
-        point = points[i];
+        point = points[i].v;
         transformed.x = point[0] - (f32)centerX;
         pointY = point + 1;
         transformed.y = point[1] - (f32)centerY;
@@ -958,14 +956,14 @@ void func_00366960(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
         {
             f32 angle = 0.0f;
             f32 scale = 1.0f;
-            func_0045e6a0((s32)(u32)colors, (s32)(u32)points, z, 4, 5, mode, 0, 0, angle, scale, scale);
+            func_0045e6a0(colors, points, z, 4, 5, mode, 0, 0, angle, scale, scale);
         }
         iGpffffabe8 &= ~0x80;
     } else {
         {
             f32 angle = 0.0f;
             f32 scale = 1.0f;
-            func_0045e6a0((s32)(u32)colors, (s32)(u32)points, z, 4, 5, mode, 0, 0, angle, scale, scale);
+            func_0045e6a0(colors, points, z, 4, 5, mode, 0, 0, angle, scale, scale);
         }
     }
 }

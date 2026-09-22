@@ -1,3 +1,4 @@
+#include "model_motion_internal.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldUnit.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -6,9 +7,17 @@
 #include "model_callbacks_internal.h"
 #include "include_asm.h"
 
+typedef struct HCdvd HCdvd;
+typedef struct Model Model;
 typedef struct Resrc Resrc;
 typedef struct RwMatrix RwMatrix;
 typedef struct RwV3d RwV3d;
+struct RwV3d
+{
+    f32 x;
+    f32 y;
+    f32 z;
+};
 
 extern void (*DAT_008873EC[])(void *);
 extern void *(*DAT_008873F4[])(size_t, size_t, u32);
@@ -30,9 +39,9 @@ extern s32 func_0014b870(s32 arg0, s32 arg1);
 extern void func_002319c0(s32 arg0);
 extern s32 func_0047ae90(u8 *arg0, u16 arg1);
 extern void func_0047ae10(u8 *arg0, u16 arg1);
-extern s32 func_004553c0(s32 arg0);
-extern void func_00454bd0(s32 arg0);
-extern void func_0043f810(void *arg0, s32 arg1, s32 arg2);
+extern u32 func_004553c0(HCdvd *arg0);
+extern u32 func_00454bd0(HCdvd *arg0);
+extern void *func_0043f810(void *arg0, const void *arg1, u32 arg2);
 extern s32 func_001619b0(u16 arg0, u16 arg1, u16 arg2);
 extern s32 func_00161a70(u16 arg0, u16 arg1, u16 arg2);
 extern void func_00182310(s32 arg0);
@@ -45,18 +54,17 @@ extern void func_0046d740(const void *msg, const void *file, u32 line);
 extern u32 func_003b7060(void);
 extern Resrc *func_00145270(u16 arg0);
 extern s32 func_00145540(s32 arg0, u8 arg1, u8 *arg2);
-extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern void func_0047aa30(u8 *arg0, u8 *arg1);
 extern s32 func_0014c780(void);
 extern void func_0017b9a0(s32 arg0, f32 arg1);
-extern void func_0047a1e0(void *arg0, void *arg1, s32 arg2);
+extern void func_0047a1e0(Model *arg0, const RwV3d *arg1, s32 arg2);
 extern void func_003e05d0(u8 *arg0);
 extern void func_00168de0(s32 arg0, void *arg1, f32 arg2);
 extern void func_00168ae0();
-extern void func_0014b0c0(s32 arg0, s32 arg1);
+extern void func_0014b0c0(u16 arg0, u32 arg1);
 extern void func_00168730(s32 arg0, s32 arg1);
 extern void func_00168780(s32 arg0, f32 arg1);
-extern s32 func_00478750(s32 arg0);
+extern u32 *func_00478750(u8 *arg0);
 extern f32 func_00168770(s32 arg0);
 extern void func_00478e70(u8 *arg0);
 extern s32 func_00182220(s32 arg0, u8 *arg1, s32 arg2);
@@ -83,9 +91,9 @@ extern s16 func_00105ee0(s32 arg0);
 extern s32 func_00104c70(s32 arg0);
 extern s32 *func_00155280(void);
 extern void func_0014a0f0(u16 arg0, s32 arg1);
-extern u16 func_00145780(u16 arg0, s32 arg1, s32 arg2);
+extern s32 func_00145780(u16 arg0, s32 arg1, s32 arg2);
 extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
-extern s32 func_0018bb20(s32 arg0, void *arg1);
+extern s32 func_0018bb20(s32 arg0, s32 arg1);
 
 extern void *memset(void *destination, s32 value, u32 size);
 extern u8 D_007E8020[];
@@ -212,7 +220,7 @@ s32 func_00162c30(void)
                 }
             }
             if ((v18 = v4[460]) != 0) {
-                if (func_004553c0(v18) == 0) {
+                if (func_004553c0((HCdvd *)(v18)) == 0) {
                     return 0;
                 }
                 func_0044ea90(D_005F1500, 0x218);
@@ -224,8 +232,8 @@ s32 func_00162c30(void)
                 resource = *(s32 *)field;
                 v9 = *(s32 *)(resource + 0x118);
                 func_0043f810((void *)v7[461],
-                              *(s32 *)(resource + 0x110), v9);
-                func_00454bd0(*(s32 *)field);
+                              (const void *)(*(s32 *)(resource + 0x110)), v9);
+                func_00454bd0((HCdvd *)(*(s32 *)field));
                 *(s32 *)field = 0;
                 for (k = 0; k < 5; k++) {
                     resource = v7[20];
@@ -357,13 +365,13 @@ void func_00162e10(void)
             }
             {
                 u8 *s3 = D_007EF9B0 + i * 0x750;
-                *(s32 *)(*(u8 **)(s3 + 0x54) + 0x228) = func_00478750(iGpffffb274);
+                *(s32 *)(*(u8 **)(s3 + 0x54) + 0x228) = (s32)func_00478750((u8 *)(iGpffffb274));
                 {
                     f32 t = func_00168770(*(s32 *)(*(u8 **)(s3 + 0x54) + 0x220));
                     spA0[0] = t;
                     spA0[1] = t;
                     spA0[2] = t;
-                    func_0047a1e0(*(u8 **)(*(u8 **)(s3 + 0x54) + 0x228), &spA0[0], 2);
+                    func_0047a1e0((Model *)(*(u8 **)(*(u8 **)(s3 + 0x54) + 0x228)), (const RwV3d *)(&spA0[0]), 2);
                     func_00478e70(*(u8 **)(*(u8 **)(s3 + 0x54) + 0x228));
                 }
             }
@@ -775,19 +783,19 @@ s32 func_00163c90(s32 arg0)
   {
     func_0017b9a0(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x224)), *((f32 *) (D_005F1340 + ((*((u8 *) (temp_16 + 0x1CB))) * 4))));
   }
-  func_0047a1e0(*((void **) (temp_16 + 0x50)), (D_005F12E0 + ((*((u8 *) (temp_16 + 0x1CA))) * 0x30)) + ((*((u8 *) (temp_16 + 0x1CB))) * 0xC), 2);
+  func_0047a1e0((Model *)(*((void **) (temp_16 + 0x50))), (const RwV3d *)((D_005F12E0 + ((*((u8 *) (temp_16 + 0x1CA))) * 0x30)) + ((*((u8 *) (temp_16 + 0x1CB))) * 0xC)), 2);
   func_003e05d0((u8 *)func_0047a2f0(*((void **)  (temp_16 + 0x50))));
   func_00168de0(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), sp40, *((f32 *) ((*((u8 **) (temp_16 + 0x1AC))) + 0x14C)));
   func_00168ae0(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), (*((u8 **) (temp_16 + 0x1AC))) + 0x140);
   func_0014b0c0(*((u16 *) (*((u8 **) (0x54 + temp_16)))), 1);
   func_00168730(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), 0x40000000);
   func_00168780(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), 35.0f);
-  *((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228)) = func_00478750(iGpffffb274);
+  *((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228)) = (s32)func_00478750((u8 *)(iGpffffb274));
   temp_f0 = func_00168770(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)));
   sp30[2] = temp_f0;
   sp30[1] = temp_f0;
   sp30[0] = temp_f0;
-  func_0047a1e0((void *) (*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228))), sp30, 2);
+  func_0047a1e0((Model *)((*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228)))), (const RwV3d *)(sp30), 2);
   func_00478e70((u8 *) (*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228))));
   *((s32 *) (temp_16 + 0x1B0)) = func_00182220(0, temp_16, *((u8 *) (temp_16 + 0x1CA)));
   *((s32 *) (temp_16 + 0x1B8)) = func_00167420((u8 *) 0, temp_16);
@@ -1446,10 +1454,10 @@ void func_00164fa0(s32 arg0)
             func_00168780(*((s32 *)(*temp_20 + 0x220)), 35.0f);
         }
         temp_20_2 = (u8 **)(D_007EFA04 + (arg0 * 0x750));
-        *(u8 **)(*temp_20_2 + 0x228) = (u8 *)func_00478750(iGpffffb274);
+        *(u8 **)(*temp_20_2 + 0x228) = (u8 *)func_00478750((u8 *)(iGpffffb274));
         temp_f0 = func_00168770(*((s32 *)(*temp_20_2 + 0x220)));
         sp70[0] = sp70[1] = sp70[2] = temp_f0;
-        func_0047a1e0(*(u8 **)(*temp_20_2 + 0x228), &sp70[0], 2);
+        func_0047a1e0((Model *)(*(u8 **)(*temp_20_2 + 0x228)), (const RwV3d *)(&sp70[0]), 2);
         func_00478e70(*(u8 **)(*temp_20_2 + 0x228));
         if (func_002319f0(*temp_21) == 0) {
             func_00479940(*temp_16, 0, (s16)func_0016fd00(*(u16 *)(D_007F00D8 + (arg0 * 0x750))), 0, 1);
@@ -1550,7 +1558,7 @@ void func_00165380(void)
             slot = D_007E8C00 + i * 0x750;
             f1ca = slot + 0x1CA;
             f50 = slot + 0x50;
-            func_0047a1e0(*(void **)f50, D_005F12E0 + *f1ca * 0x30 + *(u8 *)(slot + 0x1CB) * 0xC, 2);
+            func_0047a1e0((Model *)(*(void **)f50), (const RwV3d *)(D_005F12E0 + *f1ca * 0x30 + *(u8 *)(slot + 0x1CB) * 0xC), 2);
             dst = (u8 *)func_0047a2f0(*(void **)f50);
             n = 8;
             src = slot;
@@ -1569,12 +1577,12 @@ void func_00165380(void)
             func_00168730(*(s32 *)(*(u8 **)f54 + 0x220), 0x40000000);
             func_00168c00(*(s32 *)(*(u8 **)f54 + 0x220));
             func_00168780(*(s32 *)(*(u8 **)f54 + 0x220), 35.0f);
-            *(s32 *)(*(u8 **)f54 + 0x228) = func_00478750(iGpffffb274);
+            *(s32 *)(*(u8 **)f54 + 0x228) = (s32)func_00478750((u8 *)(iGpffffb274));
             temp_f0 = func_00168770(*(s32 *)(*(u8 **)f54 + 0x220));
             sp50[2] = temp_f0;
             sp50[1] = temp_f0;
             sp50[0] = temp_f0;
-            func_0047a1e0((void *)*(s32 *)(*(u8 **)f54 + 0x228), sp50, 2);
+            func_0047a1e0((Model *)(*(s32 *)(*(u8 **)f54 + 0x228)), (const RwV3d *)(sp50), 2);
             func_00478e70((u8 *)*(s32 *)(*(u8 **)f54 + 0x228));
             *(s32 *)(slot + 0x1B0) = func_00182220(0, slot, *f1ca);
             f1b8 = slot + 0x1B8;
@@ -1757,155 +1765,166 @@ void func_00165b00(void)
 
 
 
-/* Floor: 182 differing words (reloc-masked fndiff), obj 968B/window 976B, 242 vs
-   241 instrs. Cold reconstruction from the retail window (244/244 exact on the
-   first attempt); the recorded nd-133 body was never archived and is not
-   reproducible. Banked body in docs/probe_archive/W65FldUnit_00165be0_body.c:
-   entry guards, phase-1 D_007E8BE8/BE0 checks, node-count walk with dead
-   count==0 message arm, count%2 message, divu-remainder scan with element
-   addressing for the +8 store, conditional limit reload, blind node walk, and
-   the two-iteration big loop with test-then-materialise slot recompute and the
-   correct *(*slot+0x110) double dereference. A 152-word variant reading the
-   wrong *(slot+0x110) address is documented in the archive, not banked.
-   Killed this pass: entry goto/nesting (189/203); hoisted/split temp bases
-   (206/151); cast-index form (195); decl reversal (162); count>>1+lim (194);
-   CSE-off (199), loop-invariants-on (194), propagation-off (152 neutral).
-   Open walls: saved rotation, gp-relative arena bases (sized shadows rejected
-   by the compiler), entry polarity, ==1 const sinking. Production stays ASM. */
-// FUN_00165BE0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: b210 -O2 emits 964 bytes and twelve zero alignment bytes.
+ * Loop-invariant motion preserves the active-record comparison. Disabling
+ * constant extraction keeps the scale stores inside the creation loop;
+ * propagation-off retains the file-slot and selected-index address lifetimes.
+ * Readiness uses the two owner handle arrays; D_007E8BE0 holds selection rows.
+ * Evidence: build/first-party-continue-live/field/constructor-release/. */
+// FUN_00165BE0
+#pragma push
+#pragma opt_pulloutconstants off
+#pragma opt_propagation off
+#pragma opt_loop_invariants on
 s32 func_00165be0(void)
 {
+    u8* instance;
+    s32 pair;
     u8* node;
-    s32 j;
-    u8* ptr;
-    s32 j4;
-    u8* base;
-    s32 i;
-    s32 count;
-    s32 k;
-    s32 v;
-    s32 w;
-    u16 code;
-    void* alc;
-    f32 tmp[3];
+    s32 handleOffset;
+    u8* modelSlot;
+    s32 resourceIndex;
+    s32 nodeCount;
+    s32* selection;
+    s32 modelHandle;
+    s32 fileHandle;
+    u16 resourceId;
+    void* allocation;
+    RwV3d scale;
 
-    if (func_0014a200() == 0)
+    if (func_0014a200() == 0 || func_0014a200() == 0)
     {
         return 1;
     }
-    if (func_0014a200() == 0)
+    for (resourceIndex = 0; resourceIndex < 2; resourceIndex++)
     {
-        return 1;
-    }
-    for (i = 0; i < 2; i++)
-    {
-        v = D_007E8BE8[i];
-        if (v != 0 && func_004782b0((u8 *)(v)) == 0)
+        modelHandle = D_007643C8[resourceIndex];
+        if (modelHandle != 0 && func_004782b0((u8 *)(modelHandle)) == 0)
         {
             return 0;
         }
-        w = *(s32*)(D_007E8BE0 + i * 4);
-        if (w != 0 && func_004553c0(w) == 0)
+        fileHandle = D_007643C0[resourceIndex];
+        if (fileHandle != 0 && func_004553c0((HCdvd *)(fileHandle)) == 0)
         {
             return 0;
         }
     }
     {
-        u8* n2 = func_001452b0(0x11);
-        count = 0;
-        while (n2 != 0)
+        u8* cursor = func_001452b0(0x11);
+        nodeCount = 0;
+        while (cursor != NULL)
         {
-            count++;
-            n2 = *(u8**)(n2 + 0x138);
+            nodeCount++;
+            cursor = *(u8**)(cursor + 0x138);
         }
     }
-    if (count == 0)
+    if (nodeCount == 0)
     {
         return 1;
     }
-    if (count == 0)
+    if (nodeCount == 0)
     {
         func_0046d730(D_005F1500, 0x965);
     }
-    if (count % 2 != 0)
+    if (nodeCount % 2 != 0)
     {
         func_0046d730(D_005F1500, 0x966);
     }
+    pair = (s32)(func_003b7060() % (u32)(nodeCount >> 1));
     {
-        extern u32 func_003b7060(void);
-        j = (s32)(func_003b7060() % (u32)(count / 2));
-    }
-    {
-        u8* sbase = D_007E8BE0;
-        for (k = 0; k < 2; k++)
+        typedef struct FldPairSelection
         {
-            u8* slot = sbase + k * 16;
-            if (*(s32*)slot != 1)
+            s32 active;
+            u32 field04;
+            s32 nodeIndex;
+            s32 actorId;
+        } FldPairSelection;
+        s32 index;
+        u8* records;
+
+        index = 0;
+        records = D_007E8BE0;
+        for (; index < 2; index++)
+        {
+            FldPairSelection* record = (FldPairSelection*)(records + index * 16);
+            if (record->active != 1)
             {
                 continue;
             }
-            if (*(s32*)(slot + 8) >= 0)
+            selection = &record->nodeIndex;
+            if (*selection >= 0)
             {
                 continue;
             }
-            *((s32*)slot + 2) = j + k;
+            *selection = pair + index;
         }
     }
     if (D_007E8BE8[0] >= 0)
     {
-        j = D_007E8BE8[0];
+        pair = D_007E8BE8[0];
     }
     node = func_001452b0(0x11);
-    for (k = 0; k < j * 2; k++)
     {
-        node = *(u8**)(node + 0x138);
+        s32 steps;
+        s32 walked;
+
+        walked = 0;
+        steps = (s32)((u32)pair * 2U);
+        while (walked < steps)
+        {
+            walked++;
+            node = *(u8**)(node + 0x138);
+        }
     }
-    for (j = 0; j < 2; j++)
+    for (pair = 0; pair < 2; pair++)
     {
-        j4 = j * 4;
-        base = (u8*)D_007E8BE8 + j4;
-        v = *(s32*)base;
-        if (v == 0)
+        handleOffset = pair * 4;
+        modelSlot = (u8*)D_007643C8 + handleOffset;
+        modelHandle = *(s32*)modelSlot;
+        if (modelHandle == 0)
         {
             continue;
         }
-        code = func_00145780((u16)((0x3FF - j) & 0xFFFF), 3, v);
-        func_0014b0c0(code, 1);
-        ptr = (u8 *)func_00145270(code);
-        *(s32*)(ptr + 0x234) = 3;
-        if (*(u32*)(D_007E8BE0 + j4) != 0)
+        resourceId = func_00145780((u16)(0x3FF - pair), 3, modelHandle);
+        func_0014b0c0(resourceId, 1);
+        instance = (u8*)func_00145270(resourceId);
+        *(s32*)(instance + 0x234) = 3;
         {
-            u8* slot;
-            slot = D_007E8BE0 + j4;
-            alc = DAT_008873F4[0](1, *(u32*)(ptr + 0x28C), 0x40000);
-            *(void**)(ptr + 0x288) = alc;
+            u8* loaded;
+            loaded = (u8*)*(s32*)((u8*)D_007643C0 + handleOffset);
+            if (loaded != NULL)
             {
-                u8* tp = *(u8**)slot;
-                func_0043f810(alc, *(s32*)(tp + 0x110), *(s32*)(ptr + 0x28C));
+                u8* fileSlot;
+                fileSlot = (u8*)&D_007643C0[(u32)pair];
+                *(u32*)(instance + 0x28C) = *(u32*)(loaded + 0x118);
+                func_0044ea90(D_005F1500, 0x990);
+                allocation = DAT_008873F4[0](1, *(u32*)(instance + 0x28C), 0x40000);
+                *(void**)(instance + 0x288) = allocation;
+                {
+                    u8* file = (u8*)*(s32*)fileSlot;
+                    func_0043f810(allocation, (const void *)(*(void**)(file + 0x110)), *(u32*)(instance + 0x28C));
+                }
+                func_00454bd0((HCdvd *)(*(s32*)fileSlot));
+                *(s32*)fileSlot = 0;
             }
-            func_00454bd0(*(s32*)slot);
-            *(s32*)slot = 0;
         }
         {
-            s32 r;
-            r = func_00478750(*(s32*)(D_007E8BE0 - 0x5C));
-            *(s32*)(ptr + 0x22C) = r;
-            tmp[0] = tmp[1] = tmp[2] = 30.0f;
-            func_0047a1e0((void*)*(s32*)(ptr + 0x22C), tmp, 2);
-            func_00478e70(*(u8**)(ptr + 0x22C));
-            func_0047a1a0(*(void**)(ptr + 0x164), D_00756510, *(f32*)(node + 0x14C), 2);
-            func_0047a180(*(void**)(ptr + 0x164), (void*)(node + 0x140), 2);
-            *(s32*)(ptr + 0x294) = func_0018bb20(*(s32*)(ptr + 0x228), ptr);
+            s32 model;
+            model = (s32)func_00478750((u8 *)(iGpffffb274));
+            *(s32*)(instance + 0x22C) = model;
+            scale.x = scale.y = scale.z = 30.0f;
+            func_0047a1e0((Model *)(*(s32*)(instance + 0x22C)), &scale, 2);
+            func_00478e70(*(u8**)(instance + 0x22C));
+            func_0047a1a0(*(void**)(instance + 0x164), D_00756510, *(f32*)(node + 0x14C), 2);
+            func_0047a180(*(void**)(instance + 0x164), (void*)(node + 0x140), 2);
+            *(s32*)(instance + 0x294) = func_0018bb20(*(s32*)(instance + 0x228), (s32)(instance));
             node = *(u8**)(node + 0x138);
-            *(s32*)base = 0;
+            *(s32*)modelSlot = 0;
         }
     }
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00165be0);
-#endif
+#pragma pop
 
 
 
@@ -1933,11 +1952,11 @@ void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
 
     if (arg0 != NULL) {
         temp_17 = (s32)(((*(u8 **)(arg0 + 0x160) + 7)[0] & 1) != 0);
-        *(u16 *)(arg0 + 0xC) = (u16)func_00145ac0(arg2 & 0xFFFF, func_00478750(*(s32 *)(func_0015a320())));
+        *(u16 *)(arg0 + 0xC) = (u16)func_00145ac0(arg2 & 0xFFFF, (s32)func_00478750((u8 *)(*(s32 *)(func_0015a320()))));
         temp_2 = (u8 *)func_00145270(*(u16 *)(arg0 + 0xC));
         func_0047aa30(*(u8 **)(temp_2 + 0x144), D_005DC920);
         temp_21 = temp_17 * 0xC;
-        func_0047a1e0(*(u8 **)(temp_2 + 0x144), D_005F1530 + temp_21, 2);
+        func_0047a1e0((Model *)(*(u8 **)(temp_2 + 0x144)), (const RwV3d *)(D_005F1530 + temp_21), 2);
         func_0047a1a0(*(u8 **)(temp_2 + 0x144), D_00756510, *(f32 *)(arg1 + 0x14C), 2);
         func_0047a180((RwMatrix *)*(u8 **)(temp_2 + 0x144), (const RwV3d *)(arg1 + 0x140), 2);
         if (*(s32 *)(arg0 + 8) != 0) {
@@ -1970,10 +1989,10 @@ void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
         } else {
             func_0047a220((s32)*(u8 **)(temp_2 + 0x144), D_005F1570 + ((func_0015a160() / 20U) * 4));
         }
-        temp_2_2 = (u8 *)func_00478750(D_00764364);
+        temp_2_2 = (u8 *)func_00478750((u8 *)(D_00764364));
         *(u8 **)(temp_2 + 0x16C) = temp_2_2;
         func_0047a1a0(temp_2_2, D_00756510, *(f32 *)(arg1 + 0x14C), 2);
-        func_0047a1e0(*(u8 **)(temp_2 + 0x16C), D_005F1550 + temp_21, 2);
+        func_0047a1e0((Model *)(*(u8 **)(temp_2 + 0x16C)), (const RwV3d *)(D_005F1550 + temp_21), 2);
         func_0047a180((RwMatrix *)*(u8 **)(temp_2 + 0x16C), (const RwV3d *)(arg1 + 0x140), 2);
         temp_4_2 = *(u8 **)(temp_2 + 0x16C);
         *(u8 **)(arg0 + 0x164) = temp_4_2;
