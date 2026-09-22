@@ -8,8 +8,8 @@ extern s32 iGpffffbb9c;
 extern u8 *iGpffffbba0;
 /* gp - 0x445C = 0x00764c94: enable predicate, called through the pointer */
 extern s32 (*iGpffffbba4)(void);
-extern void func_00484bb0();
-extern void func_00485b20();
+extern u8 *func_00484bb0(u8 *resource);
+extern void func_00485b20(u8 *model);
 extern void func_00485fe0();
 extern void func_00485630(u8 *object);
 extern u8 *func_00485c80(u8 *arg0);
@@ -178,15 +178,15 @@ void func_004b1100(u8 *arg0, f32 arg1)
     func_00492e30(*(u8 **)(arg0 + 0x5c));
 }
 // FUN_004B1130
-void func_004b1130(void)
+s32 func_004b1130(s32 resource)
 {
-    func_00484bb0();
+    return (s32)func_00484bb0((u8 *)(u32)resource);
 }
 
 // FUN_004B1150
-void func_004b1150(void)
+void func_004b1150(s32 model)
 {
-    func_00485b20();
+    func_00485b20((u8 *)(u32)model);
 }
 
 // FUN_004B1170

@@ -224,7 +224,7 @@ extern void func_00216df0(u8 *arg0, s32 arg1);
 extern void func_00216e60(void);
 extern void func_00218e50(u8 *arg0, s32 arg1);
 extern void func_00219790(void);
-extern void func_0021a7b0(void);
+extern void func_0021a7b0(u8 *task, u8 *state);
 extern void func_0021b190(u8 *arg0, s32 arg1);
 extern void func_0021b1f0(s32 arg0, s32 *arg1);
 extern void func_0021be10(u8 *arg0, s32 arg1);
@@ -5614,10 +5614,9 @@ void func_0020ff00(u8 *arg0, u8 *arg1)
     extern f32 func_0044b610(f32 fparg0);
     extern f32 func_0044b7b0(f32 fparg0);
     extern u8 *func_00457120(void);
-    extern void func_00365ac0(s64 pos, s32 color, s32 mode, f32 depth, f32 angle, f32 wid, f32 hgt);
     extern f32 fGpffff837c;
     extern f32 fGpffff84a8;
-    s64 posOrig;
+    Vec2f posOrig;
     Vec2f posA;
     Vec2f posB;
     f32 verts[6][16];
@@ -5648,8 +5647,8 @@ void func_0020ff00(u8 *arg0, u8 *arg1)
     idx = (s32)(*(u16 *)(arg1 + 0xE) + 1);
     *(u16 *)(arg1 + 0xE) = (u16)idx;
     idx &= 0xFFFF;
-    ((s32 *)&posOrig)[0] = 0x43970000;
-    ((s32 *)&posOrig)[1] = 0x43600000;
+    posOrig.x = 302.0f;
+    posOrig.y = 224.0f;
     D_00887300[0](1, 0);
     if (idx < 0x23) {
         fA = 0.0f;
@@ -5660,7 +5659,7 @@ void func_0020ff00(u8 *arg0, u8 *arg1)
     }
     if (!(fA <= 0.0f)) {
         func_00201820(2);
-        func_00365ac0(posOrig, 0xFF1432FF, 1, 0.0f, 0.0f, 400.0f * fA, 90.0f);
+        func_00365ac0(posOrig, 0.0f, 0xFF1432FF, 0.0f, 400.0f * fA, 90.0f, 1);
         func_00201820(0);
     }
     if (idx < 0x19) {
@@ -5672,7 +5671,7 @@ void func_0020ff00(u8 *arg0, u8 *arg1)
     }
     if (!(fB <= 0.0f)) {
         func_00201820(2);
-        func_00365ac0(posOrig, 0xFF1432FF, 1, 0.0f, 0.0f, 400.0f * fB, 90.0f);
+        func_00365ac0(posOrig, 0.0f, 0xFF1432FF, 0.0f, 400.0f * fB, 90.0f, 1);
         func_00201820(0);
     }
     if (idx < 0xA) {
@@ -5691,7 +5690,7 @@ void func_0020ff00(u8 *arg0, u8 *arg1)
     }
     fC = 4.0f * fC2 + fC1;
     if (!(fC <= 0.0f)) {
-        func_00365ac0(posOrig, 0xFF, 1, 0.0f, 0.0f, 86.0f * fC, 11.0f);
+        func_00365ac0(posOrig, 0.0f, 0xFF, 0.0f, 86.0f * fC, 11.0f, 1);
     }
     if (idx < 0) {
         fD1 = 0.0f;
