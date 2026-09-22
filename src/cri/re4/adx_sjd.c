@@ -140,7 +140,7 @@ Sint32 ADXSJD_GetDefOutVol(ADXSJD sjd)
 	return 0;
 }
 
-// Default pan table from the stream's AINF chunk once decoding has begun; NULL otherwise.
+// Returns adxb + 0xD0 when AINF is present and decoding has begun; NULL otherwise.
 // FUN_004CEFB8
 void *func_004cefb8(ADXSJD sjd)
 {
