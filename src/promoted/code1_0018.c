@@ -3800,7 +3800,7 @@ extern u8 D_005F5FD0[];
 extern f32 iGpffffa020;
 extern f32 iGpffffa024;
 extern char iGpffffa028;
-extern void func_00457140(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
 extern s32 func_00470280(u8 *window, s32 id, s32 size, s32 flags);
 extern void func_00470970(s32 buf, void *rect);
 extern void func_00442088(void *dst, const char *fmt, ...);

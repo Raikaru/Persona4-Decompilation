@@ -1,3 +1,4 @@
+#include "effect_geometry_internal.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit effPolygonRing.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -32,7 +33,6 @@ extern void func_0049a570(void *arg0);
 
 extern void func_0044ea90();
 extern void func_0043f810(void *dst, void *src, u32 size);
-extern u8 *func_00482f70(u32 arg0, u32 arg1, u32 arg2, void *arg3, u32 arg4);
 extern f32 func_004bd0b0();
 extern u8 D_00713390[];
 extern s32 func_0048abd0();

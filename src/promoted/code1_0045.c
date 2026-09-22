@@ -1368,7 +1368,7 @@ s8 *func_00457130(void)
     return &iGpffffba88;
 }
 // FUN_00457140
-void func_00457140(s8 arg0, s8 arg1, s8 arg2, s8 arg3)
+void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3)
 {
     iGpffffba88 = arg0;
     iGpffffba89 = arg1;

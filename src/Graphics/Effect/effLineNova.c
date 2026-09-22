@@ -1,3 +1,4 @@
+#include "effect_geometry_internal.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit effLineNova.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -9,7 +10,6 @@ void func_0046d730(u8 *file, s32 line);
 void *func_00481460(u16 arg0);
 void *func_00481540(u16 arg0);
 void func_00460ac0(void *arg0, void *arg1);
-u16 *func_00482f70(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4);
 u8 *func_00484490(u8 *obj);
 void func_0043f810(void *dst, const void *src, u32 size);
 void func_004b4430(u8 *arg0, u8 *arg1);
@@ -66,7 +66,7 @@ u8 *func_004b32f0(u8 *arg0)
     }
     *(u8 **)(r + 0) = r + 0x10;
     *(u8 **)(r + 8) = r;
-    p = func_00482f70(n & 0xFFFF, 4, 6, D_00713310, 0x48);
+    p = (u16 *)func_00482f70(n & 0xFFFF, 4, 6, D_00713310, 0x48);
     *(u16 **)(r + 4) = p;
     *p = *p & 0xFFFE;
     cnt = *(s32 *)(arg0 + 0x38);
@@ -526,7 +526,7 @@ u8 *func_004b3ed0(u8 *arg0)
     }
     *(u8 **)(temp_2 + 0) = temp_2 + 0x10;
     *(u8 **)(temp_2 + 8) = temp_2;
-    temp_2_2 = func_00482f70(temp_16 & 0xFFFF, 4, 6, D_00713310, 0x48);
+    temp_2_2 = (u16 *)func_00482f70(temp_16 & 0xFFFF, 4, 6, D_00713310, 0x48);
     *(u16 **)(temp_2 + 4) = temp_2_2;
     *temp_2_2 &= 0xFFFE;
     cnt = *(u32 *)(arg0 + 0x38);
