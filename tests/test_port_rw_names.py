@@ -29,29 +29,52 @@ def produced() -> dict[int, tuple[str, str]]:
     return out
 
 
-class MaskWord(unittest.TestCase):
-    """The mask defines what "the same object code" means across two links."""
+class RelocEquality(unittest.TestCase):
+    """The shipped matcher's word equality, not fid.mask_word.
 
-    def test_jump_target_and_immediate_are_blanked_but_the_opcode_is_not(self):
-        jal_low = (0x03 << 26) | 0x000100
-        jal_high = (0x03 << 26) | 0x00BEEF
-        self.assertEqual(port.fid.mask_word(jal_low), port.fid.mask_word(jal_high))
-        j_low = (0x02 << 26) | 0x000100
-        self.assertNotEqual(port.fid.mask_word(jal_low), port.fid.mask_word(j_low))
+    exact_claims() no longer calls fid.mask_word; it relaxes only words
+    _reloc_words() classifies and compares the rest byte-exact. These
+    tests pin that path directly.
+    """
 
-    def test_register_operands_survive_the_mask(self):
-        """Masking an immediate must not also erase which registers are used.
+    SPANS = [(0x00100000, 0x838A00)]
 
-        `addiu $4, $5, X` and `addiu $6, $7, X` are different code and have
-        to stay distinguishable, or short functions all collapse together.
-        """
-        addiu_a = (0x09 << 26) | (5 << 21) | (4 << 16) | 0x20
-        addiu_b = (0x09 << 26) | (7 << 21) | (6 << 16) | 0x20
-        self.assertNotEqual(port.fid.mask_word(addiu_a), port.fid.mask_word(addiu_b))
+    def normalize(self, words, spans=None):
+        r = port._reloc_words(words, spans or self.SPANS)
+        return [port._relaxed(w) if i in r else w
+                for i, w in enumerate(words)]
 
-    def test_a_register_only_instruction_is_compared_whole(self):
-        addu = (0x00 << 26) | (5 << 21) | (6 << 16) | (4 << 11) | 0x21
-        self.assertEqual(addu, port.fid.mask_word(addu))
+    def test_j_and_jal_never_compare_equal(self):
+        """Both are relocated, but opcode 2 vs 3 is real: a call is not
+        a branch to the same target."""
+        j_word = (0x02 << 26) | 0x000100
+        jal_word = (0x03 << 26) | 0x00BEEF
+        self.assertNotEqual(self.normalize([j_word]),
+                            self.normalize([jal_word]))
+
+    def test_register_operands_survive_relaxation(self):
+        """A relocatable lw still keeps opcode/rs/rt; only the address
+        payload drops. Two accesses of different fields must not match."""
+        lw_a = port._reloc_words([(0x0F << 26) | (8 << 16) | 0x0076,
+                                  (0x23 << 26) | (8 << 21) | (3 << 16) | 0x4],
+                                 self.SPANS)
+        # 0x4 low with hi 0x76 -> 0x00760004 is inside the span, so the
+        # pair is a relocation; the OTHER lw (different rt) is not equal.
+        pair = [(0x0F << 26) | (8 << 16) | 0x0076,
+                (0x23 << 26) | (8 << 21) | (3 << 16) | 0x7000]
+        other = [(0x0F << 26) | (8 << 16) | 0x0076,
+                 (0x23 << 26) | (8 << 21) | (4 << 16) | 0x7000]  # rt=4
+        self.assertNotEqual(self.normalize(pair), self.normalize(other))
+
+    def test_nonzero_window_suffix_is_rejected(self):
+        """A reference shorter than the retail window only matches if the
+        extra words are all-zero padding."""
+        raw_ref = [0x10431020, 0x0800E003, 0x00000000]
+        padded = raw_ref + [0, 0]                  # alignment nops: fine
+        garbage = raw_ref + [0x10431020]           # real instruction: no
+        self.assertTrue(port._padded_with_nops(raw_ref, padded))
+        self.assertFalse(port._padded_with_nops(raw_ref, garbage))
+        self.assertFalse(port._padded_with_nops(raw_ref, raw_ref + [1]))
 
 
 class GeneratedFile(unittest.TestCase):
