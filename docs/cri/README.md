@@ -1,7 +1,7 @@
 # Naming Persona 4's CRI middleware
 
-`docs/cri/proven_names.json` maps 789 Persona 4 addresses to CRI function
-names. Unlike `docs/sky2/proposed_names.json`, these are not proposals.
+`docs/cri/proven_names.json` maps 788 Persona 4 addresses to CRI function
+names, after removing one same-shape collision refuted by Persona 4's call graph.
 
 ## Why they are proof rather than inference
 
@@ -24,20 +24,20 @@ streams by accident. The masked comparison leaves registers, opcodes,
 branch offsets and every non-relocated immediate intact, so a hit means the
 same compiler emitted the same source at the same optimisation level.
 
-The file keeps the 789 where the address and the name are mutually unique;
+The file keeps the 788 where the address and the name are mutually unique;
 687 of those are corroborated by more than one game, and 87 more were
 decided by majority where the games disagreed. 131 addresses were left out
-as undecided rather than guessed. The unmasked scores differ only in the
-relocated fields, as expected for the same code linked at three different
-addresses.
+as undecided rather than guessed.
+The unmasked scores differ only in the relocated fields, as expected for
+the same code linked at three different addresses.
 
-**Measured against this project's own work:** 70 of the CRI markers in
+**Measured against this project's own work:** 69 of the CRI markers in
 `src/cri` sit at an address these tables name, and 65 agree with the name
-the port attributed - 92%. Of the five that differ, `SJMEM_Create` against
-`sjmem_Create` is a spelling, `lsc_ClearEntry` against `LSC_ResetEntry` and
-`adxf_ReleaseSj` against `adxf_CloseSjStm` look like renames between
-versions, and two are genuine same-shape confusions. All five are still
-byte-exact at their address, so the ownership stands even where the name is
+the port attributed - 94%. Of the four that differ, `SJMEM_Create` against
+`sjmem_Create` is a spelling, while `lsc_ClearEntry` against `LSC_ResetEntry`
+and `adxf_ReleaseSj` against `adxf_CloseSjStm` look like renames between
+versions; one is a remaining same-shape confusion. All four are still
+byte-exact at their addresses, so ownership stands even where the name is
 wrong - which is the distinction `build/adx_fid.py` records as `order_ok`.
 
 ## What this is good for
@@ -79,3 +79,9 @@ The INTERNAL structures - `ADX_BASIC`, `SFD_OBJ`, `ADXSTM_OBJ` - are not in
 there, because CRI shipped its libraries prebuilt and only the public
 headers reached Capcom's `-g` units. Those still have to come from retail's
 own instructions, the way `build/adx_survey.py` finds them.
+
+## Residual dispositions
+
+`residual_dispositions.json` records every right-size donor candidate that
+did not become a source owner, including compiler floors, layout/version
+divergence, wrong attributions, and candidates superseded by exact donors.

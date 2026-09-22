@@ -8,6 +8,7 @@ import unittest
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
+VU_LISTING = REPO / "asm" / "nonmatchings" / "code1_0048" / "func_00485870.s"
 sys.path.insert(0, str(REPO / "tools"))
 SPEC = importlib.util.spec_from_file_location("p4_decoder_audit",
                                               REPO / "tools" / "decoder_audit.py")
@@ -55,7 +56,7 @@ class AliasTests(unittest.TestCase):
 
 
 class EndToEndTests(unittest.TestCase):
-    def test_no_instruction_in_a_vu_heavy_listing_is_decoded_WRONG(self) -> None:
+    def test_vu_quadword_fixture_is_not_decoded_as_branches(self) -> None:
         """VU quadword transfers must not decode as Octeon branches."""
         with tempfile.TemporaryDirectory() as directory:
             listing = Path(directory) / "vu_quadword.s"
@@ -67,6 +68,16 @@ class EndToEndTests(unittest.TestCase):
                 [sys.executable, "-E", "-s", "tools/decoder_audit.py", "--quiet",
                  str(listing)],
                 cwd=REPO, capture_output=True, text=True, timeout=600)
+        self.assertNotIn("listing says", done.stdout)
+        self.assertEqual(done.returncode, 0)
+
+    @unittest.skipUnless(VU_LISTING.is_file(), "repo asm listing not present")
+    def test_no_instruction_in_a_vu_heavy_listing_is_decoded_wrong(self) -> None:
+        """Keep the real listing that exposed the branch-on-bit defect covered."""
+        done = subprocess.run(
+            [sys.executable, "-E", "-s", "tools/decoder_audit.py", "--quiet",
+             str(VU_LISTING)],
+            cwd=REPO, capture_output=True, text=True, timeout=600)
         self.assertNotIn("listing says", done.stdout)
         self.assertEqual(done.returncode, 0)
 

@@ -1,6 +1,6 @@
 /* CRI Sofdec MW player seamless / loop playback (mwsfdsl.c): the mwPly*Lp / Seamless / Afs entry
  * points queue files on the handle's load scheduler and link the streams so the decoder plays them
- * back to back. All dead-stripped in this game except mwPlyLinkStm and the two MWSFLSC_ helpers. */
+ * back to back. All dead-stripped in this game except mwPlyLinkStm and the two short wrappers. */
 #include "cri_xpt.h"
 #include <stdio.h>
 
@@ -8,7 +8,7 @@ typedef struct {
 	Uint8 pad0[0x30];
 	void *sfd;              /* 0x30 */
 	Uint8 pad34[8];
-	void *lsc;              /* 0x3C */
+	void *sfd_944;          /* 0x3C in P4's 9.44 layout */
 	Uint8 pad40[0x74 - 0x40];
 	Sint8 linkstm;          /* 0x74 */
 	Sint8 linkstm_req;      /* 0x75 */
@@ -17,7 +17,7 @@ typedef struct {
 extern Bool MWSFD_IsEnableHndl(MWPLY_OBJ *mwply);
 extern void MWSFSVM_Error(const Char8 *fmt, ...);
 extern Sint32 SFD_SetConcatPlay(void *sfd);
-extern void func_005250a8(void *lsc, Sint32 nsct);
+extern void func_005250a8(void *sfd, void *inf);
 extern Sint32 LSC_GetStat(void *lsc);
 extern void mwPlyEntryFnameSub(MWPLY_OBJ *mwply, const Char8 *fname);
 extern Sint32 mwPlyEntryFnameCore(MWPLY_OBJ *mwply, const Char8 *fname);
@@ -181,12 +181,14 @@ void mwPlyReleaseLp(MWPLY_OBJ *mwply)
 	mwPlyReleaseSub(mwply);
 }
 
-// Refill threshold (sectors) of the handle's load scheduler.
+// Copies the decoder's 0x40-byte movie-information block when this player owns a decoder.
+// The four shipped symbol tables misidentify this same-shape wrapper as MWSFLSC_SetFlowLimit:
+// the retail caller passes a stack output buffer, and its callee is SFD_GetMvInf.
 // FUN_0050D2F0
-void MWSFLSC_SetFlowLimit(MWPLY_OBJ *mwply, Sint32 nsct)
+void func_0050d2f0(MWPLY_OBJ *mwply, void *inf)
 {
-	if (mwply->lsc != NULL) {
-		func_005250a8(mwply->lsc, nsct);
+	if (mwply->sfd_944 != NULL) {
+		func_005250a8(mwply->sfd_944, inf);
 	}
 }
 

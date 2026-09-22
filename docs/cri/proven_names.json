@@ -4617,15 +4617,6 @@
    "onimusha"
   ]
  },
- "0050d2f0": {
-  "name": "MWSFLSC_SetFlowLimit",
-  "sources": [
-   "devilkings",
-   "onimusha",
-   "re4proto",
-   "re4ps2"
-  ]
- },
  "0050d380": {
   "name": "MWSFD_SetFlowLimit",
   "sources": [

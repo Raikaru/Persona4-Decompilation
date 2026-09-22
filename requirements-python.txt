@@ -17,6 +17,8 @@ rabbitizer==1.14.3
 # fnalign/decoder_audit require Capstone for the base MIPS64 instruction set;
 # tools/eedis.py supplies the Emotion Engine instructions Capstone lacks.
 capstone==5.0.6
+# CI parses every YAML configuration file directly.
+PyYAML==6.0.3
 n64img==0.3.3
 crunch64==0.6.2
 pygfxd==1.0.5
