@@ -125,6 +125,10 @@ IDENTIFIER = re.compile(rb"^[A-Za-z_][A-Za-z0-9_]*$")
 # "E5022301: cnvfrm work is short." where "cnvfrm" is not a function name.
 ERROR_TAG = re.compile(rb"^E\d+[A-Z]?[: ]\s*([A-Za-z_][A-Za-z0-9_]*)\s*(?::|$)")
 PAREN_TAG = re.compile(rb"\(([A-Za-z_][A-Za-z0-9_]*)\)\s*$")
+# Both tag shapes only occur inside CRI's error macros.  Without this guard
+# any trailing "(word)" is read as a name - "mainDraw(drawOt)" then names the
+# argument `drawOt` rather than the function `mainDraw`.
+ERROR_STRING = re.compile(rb"^E\d")
 PLACEHOLDER = re.compile(r"^(?:FUN|func)_[0-9A-Fa-f]+$")
 C_KEYWORDS = {
     "auto", "break", "case", "char", "const", "continue", "default", "do",
@@ -351,7 +355,7 @@ def error_string_names(
     names: dict[int, tuple[bytes, int]] = {}
     for string_addr, users in ref_users.items():
         text = string_at.get(string_addr)
-        if text is None or len(users) != 1:
+        if text is None or len(users) != 1 or not ERROR_STRING.match(text):
             continue
         match = ERROR_TAG.match(text) or PAREN_TAG.search(text)
         if match is None:
@@ -614,7 +618,12 @@ def main() -> int:
         "//   name themselves this way).  The evidence note keeps the raw text.",
     ]
     for fn_addr, name in sorted(accepted.items()):
-        text = truncate(accepted_strings[fn_addr].decode("ascii", "replace"))
+        # Class E evidence is the whole error message and the name it tags can
+        # sit at the tail ("...(LSC_ExecServer)"), so it must survive intact;
+        # the longest is 79 characters.  Class A evidence is a bare keyword
+        # and keeps the tighter limit.
+        limit = 80 if fn_addr in accepted_error else 60
+        text = truncate(accepted_strings[fn_addr].decode("ascii", "replace"), limit)
         lines.append(f'{name} = 0x{fn_addr:08X}; // type:func  evidence: string:"{text}"')
     OUTPUT.write_bytes(("\n".join(lines) + "\n").encode("utf-8"))
     print(f"wrote {OUTPUT.relative_to(REPO)} with {len(accepted)} names")
