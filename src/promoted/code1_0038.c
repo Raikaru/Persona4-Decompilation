@@ -1005,10 +1005,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00385970);
 #ifdef NON_MATCHING
 void func_00386c00(u8 *arg0)
 {
-    typedef struct { f32 x; f32 y; } Vec2f_6c00;
     extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern s32 func_003f6440(s32 state, void *value);
-    extern void func_00365ac0(Vec2f_6c00 position, s32 color, s32 mode, f32 depth, f32 angle, f32 wid, f32 hgt);
     extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u32 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
     extern f32 func_0044b7b0(f32 fparg0);
     extern f32 fGpffff812c;
@@ -1019,7 +1017,7 @@ void func_00386c00(u8 *arg0)
     u8 *base;
     u8 *state;
     s32 resource;
-    Vec2f_6c00 pos;
+    Vec2f pos;
     f32 var_f22;
     f32 var_f21;
     f32 var_f23;
@@ -1088,13 +1086,13 @@ void func_00386c00(u8 *arg0)
         angle0 = fGpffff837c * (1.0f + var_f22);
         func_003f6440(3, (void *)0x71801);
         func_003f6440(2, (void *)0x48);
-        func_00365ac0(pos, 0xAE545AFF, 0, 0.0f, angle0, 111.5f * var_f22, 92.0f);
+        func_00365ac0(pos, 0.0f, 0xAE545AFF, angle0, 111.5f * var_f22, 92.0f, 0);
     }
     if (var_f21 > 0.0f) {
         angle1 = fGpffff837c * (1.0f + var_f24);
         func_003f6440(3, (void *)0x717FB);
         func_003f6440(2, (void *)0x44);
-        func_00365ac0(pos, 0x4A2400FF, 1, 0.0f, angle1, 98.0f * var_f21, 18.0f);
+        func_00365ac0(pos, 0.0f, 0x4A2400FF, angle1, 98.0f * var_f21, 18.0f, 1);
     }
     mid = (var_f23 - 1.0f) * 300.0f;
     mx = mid + 359.0f;

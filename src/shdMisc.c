@@ -572,155 +572,94 @@ void func_003657d0(Vec2f arg0, f32 fparg0, s32 arg1, f32 fparg1, f32 fparg2, s32
 }
 
 
-/* measured (mwcc b210 -O2): guarded body scores 221 differing words via */
-/* `python3 tools/probe_variants.py src/shdMisc.c func_00365ac0 */
-/* --candidate plain=/tmp/cand_plain.c` (replay with */
-/* `python3 tools/measure_guarded.py src/shdMisc.c func_00365ac0`). */
-/* Frame (0x310), saves (s0-s4, f20-f27), ABI (Vec2f+s32+s32+f32x4), CFG, */
-/* modulo idioms (plain signed % reproduces the andi/bgez/beqz/addiu -8/-4 */
-/* chains), extraction, vertex MAC shapes (adda/madda/msub/madd fuse from */
-/* 364C90-style `(0.0f + pos) + X*cos - Y*sin` expressions) and epilogue */
-/* calls all verify against retail. */
-/* Surplus was hand-expanded unsigned->float: `if (t >= 0) row=(f32)(u32)t` */
-/* `else { hh=(f32)(((u32)t>>1)|bit); row=hh+hh; }` doubles b210's own */
-/* bltz/srl/andi/or/mtc1/cvt/add.s idiom (opclass +8 each of bltz/b/srl/andi/ */
-/* or/mtc1/cvt, +10 add.s, +29 nop, +4 swc1, -4 move; 369 vs 272 instrs, +97). */
-/* Plain `(f32)(u32)t` lets b210 emit the idiom once, as sibling 003657d0 */
-/* documents: 369->277 instrs (+5 net: nop+5, add.s+2, addiu+2, move-4), */
-/* 305->221 differing words, opclass total delta 105->13. Remaining 5 are */
-/* int-temp coloring/scheduling (i in $a0 vs $a1, hoisted mtc1/andi order, */
-/* $t2/$a1 vs $a1/$v0 naming); no dsll32/dsra32, no volatile/asm, no pragma. */
-/* missing_prototypes.py reports 0 undeclared callees for this TU; */
-/* solve_signedness.py reports lb/lbu/lh/lhu 0/0 mismatch 0. No prototype or */
-/* struct-width change was needed: Vec2f-by-value already emits the retail */
-/* `sd`, and all callees (00457120/0044b610/0044b7b0, D_00887300/10) are */
-/* declared. Production stays ASM. */
-// FUN_00365AC0 NONMATCHING
-#ifdef NON_MATCHING
-void func_00365ac0(Vec2f position, s32 color, s32 mode, f32 depth, f32 angle, f32 wid, f32 hgt) {
+/* Keep the signed axis components and geometry parameters live across
+ * their actual operations; the native 1088-byte window is exact. */
+#pragma push
+#pragma opt_loop_invariants on
+static inline f32 outlineSignedExtent(s32 sign, f32 extent)
+{
+    return (f32)sign * extent;
+}
+static inline f32 outlineExtent(s32 isTip, s32 half, f32 width, f32 height)
+{
+    return width * (f32)half + height * (f32)isTip;
+}
+static inline f32 outlineAxis(s32 phase, f32 width, f32 height)
+{
+    s32 isTip = (phase % 4) == 1;
+    s32 half = ((phase + 1) % 4) / 2;
+    f32 extent = outlineExtent(isTip, half, width, height);
+    return outlineSignedExtent(phase < 4 ? 1 : -1, extent);
+}
+// FUN_00365AC0
+void func_00365ac0(Vec2f position, f32 depth, s32 color, f32 angle, f32 width, f32 height, s32 mode) {
     f32 output[160];
-    f32 temp_f27;
-    f32 temp_f26;
-    f32 temp_f25;
-    f32 temp_f24;
-    f32 temp_f23;
-    f32 temp_f22;
-    f32 pos_x;
-    f32 pos_y;
-    f32 cos_a;
-    f32 zero;
-    s32 temp_16;
-    s32 temp_17;
-    s32 temp_18;
-    s32 temp_19;
+    f32 vertexDepth;
+    f32 reciprocalDepth;
+    f32 rotationA;
+    f32 originX;
+    f32 originY;
+    f32 rotationB;
+    s32 red;
+    s32 green;
+    s32 blue;
+    s32 alpha;
     s32 i;
     u8 *camera;
-    temp_f27 = angle;
-    temp_f26 = wid;
-    temp_f25 = hgt;
-    pos_y = position.y;
-    pos_x = position.x;
-    temp_f26 = temp_f26 * iGpffff83d4;
-    temp_f24 = D_008872F8[0] - depth;
+    originY = position.y;
+    originX = position.x;
+    width = width * iGpffff83d4;
+    vertexDepth = D_008872F8[0] - depth;
     camera = ((u8 *)(u32)func_00457120());
-    temp_f23 = 1.0f / *(f32 *)(camera + 0x80);
-    temp_19 = (s32)(u8)(((u32)color & 0xFF000000) >> 24);
-    temp_18 = (s32)(u8)(((u32)color & 0x00FF0000) >> 16);
-    temp_17 = (s32)(u8)(((u32)color & 0x0000FF00) >> 8);
-    temp_16 = color & 0xFF;
-    temp_f22 = func_0044b7b0(temp_f27);
-    cos_a = func_0044b610(temp_f27);
-    zero = 0.0f;
+    reciprocalDepth = 1.0f / *(f32 *)(camera + 0x80);
+    red = (s32)(u8)(((u32)color & 0xFF000000) >> 24);
+    green = (s32)(u8)(((u32)color & 0x00FF0000) >> 16);
+    blue = (s32)(u8)(((u32)color & 0x0000FF00) >> 8);
+    alpha = color & 0xFF;
+    rotationA = func_0044b7b0(angle);
+    rotationB = func_0044b610(angle);
     i = 0;
     for (; i < 10; i++) {
         s32 mod8a = i % 8;
         s32 mod8b = (i + 6) % 8;
-        f32 xh1 = (f32)(((mod8a + 1) % 4) / 2);
-        f32 cf1 = (f32)(((u32)((mod8a % 4) ^ 1)) < 1);
-        f32 X;
-        f32 xh2 = (f32)(((mod8b + 1) % 4) / 2);
-        f32 cf2 = (f32)(((u32)((mod8b % 4) ^ 1)) < 1);
-        f32 Y;
+        f32 X = outlineAxis(mod8a, width, height);
+        f32 Y = outlineAxis(mod8b, width, height);
         f32 *row;
-        xh1 = temp_f25 * cf1 + temp_f26 * xh1;
-        X = (f32)((mod8a < 4) ? 1 : -1) * xh1;
-        xh2 = temp_f25 * cf2 + temp_f26 * xh2;
-        Y = (f32)((mod8b < 4) ? 1 : -1) * xh2;
         row = &output[i * 16];
-        row[0] = (zero + pos_x) + X * cos_a - Y * temp_f22;
-        row[1] = (zero + pos_y) + Y * cos_a + X * temp_f22;
-        row[2] = temp_f24;
-        row[6] = temp_f23;
-        row[8] = (f32)(u32)temp_19;
-        row[9] = (f32)(u32)temp_18;
-        row[10] = (f32)(u32)temp_17;
-        row[11] = (f32)(u32)temp_16;
+        row[0] = originX + X * rotationB - Y * rotationA;
+        row[1] = originY + Y * rotationB + X * rotationA;
+        row[2] = vertexDepth;
+        row[6] = reciprocalDepth;
+        row[8] = (f32)(u32)red;
+        row[9] = (f32)(u32)green;
+        row[10] = (f32)(u32)blue;
+        row[11] = (f32)(u32)alpha;
     }
     D_00887300[0](1, 0);
-    if (mode != 0 && (temp_16 & 0xFF) == 0xFF) {
+    if (mode != 0 && (alpha & 0xFF) == 0xFF) {
         iGpffffabe8 |= 0x80;
     }
     D_00887310[0](4, output, 10);
-    if (mode != 0 && (temp_16 & 0xFF) == 0xFF) {
+    if (mode != 0 && (alpha & 0xFF) == 0xFF) {
         iGpffffabe8 &= ~0x80;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00365ac0);
-#endif
+#pragma pop
 
-/* measured (mwcc b210 -O2): guarded body compiles to 1148B over the 1152B
-   window with 17 independently resolved relocations, normalized diff 25.
-   `python3 tools/probe_variants.py src/shdMisc.c func_00365f00
-   --candidate base=/var/tmp/cand_00365f00.c` reproduces 25; replay with
-   `python3 tools/measure_guarded.py src/shdMisc.c func_00365f00`.
-   All 25 differing words are one five-register color/count rotation:
-   generated edge_a=$s3 edge_b=$s2 edge_g=$s6 edge_r=$s7 count=$fp against
-   retail edge_a=$s2 edge_b=$s6 edge_g=$s7 edge_r=$fp count=$s3; every other
-   word including frame, spills, FP schedule and relocations is identical.
-   Ten declaration/type spellings tie at 25 (edge swap, count-first,
-   count-after-edge, reversed edges, edge_a-last, i-last, u16 count,
-   edge/center interleave, init-at-declaration, u32 count mask), so the
-   rotation is a saved-register coloring floor, not an ordering oversight.
-   Complete source and probe evidence:
-   docs/probe_archive/RadialProvider_00365f00_body.c. Production stays ASM. */
-/* pair sweep 2026-09-17: `python3 -E -s tools/pragma_sweep.py src/shdMisc.c func_00365f00 --pairs` banked 25; best ties 25 (all 8 singles except schedule/peephole plus 13 pairs among them); all 28 pairs neutral or worse (peephole forms 237, schedule forms 269-271). Ten declaration spellings already tie per above; pairs confirm saved-register coloring floor. fnalign retail/object 287/287 per assignment. Floor stands; production stays ASM. */
-/* 25 -> 13 (2026-09-18): assigning `edge_r` first of the four edge bytes.
-   The four `(f32)(u32)edge_*` conversion blocks are emitted in the order the
-   locals are defined, not the order the stores are written, so with the
-   alpha-first grouping b210 put the vertex[1][8] block 15 instructions after
-   retail's.  Measured and rejected: the full r,g,b,a order for both colour
-   groups (31), inlining `((u8 *)&edgeColor)[0]` into the loop the way the
-   centre red byte is inlined (202), moving `num_segments` above or into the
-   colour group (251 - its range check has to stay where it is), declaring
-   edge_r last (25).  Remaining 13 words are one saved-register exchange:
-   retail colours edge_r $fp and num_segments $s3, b210 the other way. */
-/* 2026-09-18 lead pass, 5 measured variants; floor confirmed at 13 words.
-   287/287 instructions.  The residual is one saved-register swap plus the
-   load slot that follows from it: retail keeps `edge_g` in $fp and
-   `num_segments` in $s3 and loads `edge_g` three instructions later than
-   this body does; here the two registers are exchanged.
-   Statement order is load-bearing and must not be touched: moving
-   `num_segments = (s32)(segments & 0xFFFF)` above the colour extractions
-   costs 13 -> 251, moving it between the edge and centre extractions costs
-   the same, and moving `edge_g`'s extraction after it costs the same again.
-   Declaration order does not reach the pair at all - hoisting
-   `num_segments` above `i` and moving `edge_g` to the end of the list both
-   tie at 13.  Same class as func_0024be40, func_001b11c0 and
-   func_001eca10. */
-/* 2026-09-18, handoff 7o re-probe; floor stands at 13.  287/287 instructions
-   and the pair is $fp/$s3 - retail colours `edge_g` $s3 and the segment
-   count $fp, this body the reverse.  Eight variants without initialisers:
-   all four scope arrangements tie at 13 in retail computation order and all
-   four cost 17 reversed.  Scope is inert here and reversal is a regression,
-   so the body already has retail's order. */
-/* measured 00365f00 (owner, 2026-09-19): 287/287 exact, **12 edits plus 12 reloc-only**.  The
-   twelve are a $s3/$fp rotation - retail holds `num_segments` in $s3 and the stack-passed
-   `mode` byte in $fp, the object swaps them - plus one `lbu 0xec($sp)` placed three slots
-   early.  Four positions for the `num_segments` declaration were measured (before `i`, right
-   after `vertex`, before `edge_a`, after `center_g`) and all four are neutral at 12. */
-// FUN_00365F00 NONMATCHING
-#ifdef NON_MATCHING
+/* The checked low-halfword count and full-width angle divisor have separate
+ * lifetimes. Inline validation and alpha/blue/green/red snapshots reproduce
+ * 1148 executable bytes and 17 resolved relocations; four zero bytes align
+ * the next function. */
+static inline s32 radialCheckedSegmentCount(u32 segments)
+{
+    s32 count = (s32)(segments & 0xFFFF);
+    if (count <= 0 || count > 100) {
+        func_0046d730(D_0064E2F8, 571);
+    }
+    return count;
+}
+
+// FUN_00365F00
 void func_00365f00(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
                    f32 radius, f32 angle, u32 segments, f32 xscale, f32 yscale,
                    s32 mode) {
@@ -742,10 +681,10 @@ void func_00365f00(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
     s32 center_b;
     s32 center_g;
     s32 num_segments;
-    edge_r = ((u8 *)&edgeColor)[0];
     edge_a = ((u8 *)&edgeColor)[3];
     edge_b = ((u8 *)&edgeColor)[2];
     edge_g = ((u8 *)&edgeColor)[1];
+    edge_r = ((u8 *)&edgeColor)[0];
     center_a = ((u8 *)&centerColor)[3];
     center_b = ((u8 *)&centerColor)[2];
     center_g = ((u8 *)&centerColor)[1];
@@ -753,10 +692,7 @@ void func_00365f00(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
     origin_x = position.x;
     far_depth = D_008872F8[0];
     reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
-    num_segments = (s32)(segments & 0xFFFF);
-    if (num_segments <= 0 || num_segments > 100) {
-        func_0046d730(D_0064E2F8, 571);
-    }
+    num_segments = radialCheckedSegmentCount(segments);
     vertices[0][0] = position.x;
     vertices[0][1] = origin_y;
     far_depth -= depth;
@@ -788,7 +724,3 @@ void func_00365f00(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
         iGpffffabe8 &= ~0x80;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00365f00);
-#endif
-

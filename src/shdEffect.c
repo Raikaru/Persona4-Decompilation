@@ -32,15 +32,15 @@ typedef struct ShdFarg
     f32 bC;    /* 0x0C */
 } ShdFarg;
 
-extern void func_0044ea90(void *msg, s32 id);
+extern void func_0044ea90(const void *msg, s32 id);
 
 extern s32 func_004ab420(s32 a, void *b);
-extern void *func_00452560(void);
-extern void func_004b1210(s32 a, s32 b);
-extern s32 func_004b1580(s32 a);
+extern u32 func_00452560(void *task);
+extern void func_004b1210(void *a, void *b);
+extern u32 func_004b1580(s32 a);
 extern void func_004b1150(s32 a);
 extern s32 func_004b1130(s32 a);
-extern void func_0046d730(const void *file, u32 line);
+extern void func_0046d730(void *file, s32 line);
 extern s32 func_0025f960(u8 *task);
 extern void func_0025fa30(u8 *task);
 extern s32 func_0025fd80(u8 *task);
@@ -153,13 +153,13 @@ void func_0025fd70(u8 *arg0, s32 arg1, u8 arg2)
 }
 
 // FUN_0025FD80
-s32 func_0025fd80(u8 *unusedTask)
+s32 func_0025fd80(u8 *task)
 {
     ShdTask *t;
 
-    t = func_00452560();
-    func_004b1210(t->unk4, t->unk0);
-    if (t->unk8 != 0 && func_004b1580(t->unk0) >= t->unk8)
+    t = (void *)func_00452560(task);
+    func_004b1210((void *)(u32)t->unk4, (void *)(u32)t->unk0);
+    if (t->unk8 != 0 && (s32)func_004b1580(t->unk0) >= t->unk8)
     {
         return -1;
     }
@@ -167,17 +167,17 @@ s32 func_0025fd80(u8 *unusedTask)
 }
 
 // FUN_0025FE00
-void func_0025fe00(u8 *unusedTask)
+void func_0025fe00(u8 *task)
 {
     void *t;
 
-    t = func_00452560();
+    t = (void *)func_00452560(task);
     func_004b1150(*(s32 *)t);
     (*jtbl_008873EC)(t);
 }
 
 // FUN_0025FE50
-void func_0025fe50(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+s32 func_0025fe50(s32 arg0, s32 arg1, s32 arg2, void *arg3)
 {
     u8 *buf;
 
@@ -192,7 +192,8 @@ void func_0025fe50(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     func_0044ea90(D_00637290, 0xD9);
     buf = D_008873F4[0](1, 0xC, 0x40000);
     *(s32 *)buf = func_004b1130(arg1);
-    *(s32 *)(buf + 4) = arg3;
+    *(void **)(buf + 4) = arg3;
     *(s32 *)(buf + 8) = arg2;
-    (s32)func_00451fc0((void *)(arg0), (const void *)((u8 *)&D_00763798), 0xF, 0, 0, func_0025fd80, func_0025fe00, (u8 *)(buf));
+    return (s32)func_00451fc0((void *)(u32)arg0, &D_00763798,
+                               0xF, 0, 0, func_0025fd80, func_0025fe00, buf);
 }
