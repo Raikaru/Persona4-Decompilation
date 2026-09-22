@@ -1,0 +1,160 @@
+{
+  "libadxe": {
+    "DTX_Init": {
+      "addr": "004e5738",
+      "differing": 4,
+      "words": 60,
+      "disposition": "compiler_floor",
+      "reason": "The donor loop spells 65536/-- while retail uses 65535/-4. Probed source spellings reduce the residual to two words but do not reproduce the retail schedule."
+    },
+    "SJUNI_CreateRmt": {
+      "addr": "004efbc8",
+      "differing": 1,
+      "words": 21,
+      "disposition": "wrong_attribution",
+      "reason": "This retail address constructs the 0x20-byte SJRBF object. The 0x22-byte SJUNI remote object belongs at 004efc70, so the coincidental right-size candidate must not be ported."
+    }
+  },
+  "re4": {
+    "ADXB_DecodeHeaderAdx": {
+      "addr": "004c3688",
+      "differing": 22,
+      "words": 187,
+      "disposition": "version_structural_divergence",
+      "reason": "The donor has the same extent but materially different decode/control structure; source spelling probes did not reach the retail body."
+    },
+    "ADXB_ExecOneAu": {
+      "addr": "004c30e0",
+      "differing": 1,
+      "words": 16,
+      "disposition": "compiler_floor",
+      "reason": "One-word code-generation residual after donor spelling and schedule probes; retaining ASM avoids a non-source address or instruction-order hack."
+    },
+    "ADXB_ExecOneWav": {
+      "addr": "004c53f0",
+      "differing": 1,
+      "words": 22,
+      "disposition": "compiler_floor",
+      "reason": "One-word code-generation residual after donor spelling and schedule probes; retaining ASM avoids a non-source address or instruction-order hack."
+    },
+    "ADXB_ExecOneWav8": {
+      "addr": "004c5050",
+      "differing": 65,
+      "words": 102,
+      "disposition": "version_structural_divergence",
+      "reason": "The right-size donor differs across most of the function; this is not a local scheduling or declaration-order residual."
+    },
+    "ADXPD_Init": {
+      "addr": "004cf710",
+      "differing": 1,
+      "words": 9,
+      "disposition": "superseded_by_exact_donor",
+      "reason": "The libadxe donor compiles exactly at this address with the retail 0xC0 object and D_00723548; that implementation now owns the symbol."
+    },
+    "LSC_GetNumStm": {
+      "addr": "004c95c8",
+      "differing": 1,
+      "words": 12,
+      "disposition": "superseded_by_exact_donor",
+      "reason": "The libadxe donor compiles exactly at this address and now owns the symbol."
+    },
+    "MPVLIB_CheckHn": {
+      "addr": "00501078",
+      "differing": 1,
+      "words": 9,
+      "disposition": "wrong_layout_variant",
+      "reason": "The donor uses stat at offset 0x188 while retail uses offset 0; the large-layout donor maps to a different retail address."
+    },
+    "MPV_GetPicUsr": {
+      "addr": "004fbaa8",
+      "differing": 1,
+      "words": 10,
+      "disposition": "wrong_layout_variant",
+      "reason": "The donor uses picusr at offset 0x3E8 while retail uses 0x148; the large-layout donor maps to a different retail address."
+    },
+    "MPV_SetErrFunc": {
+      "addr": "004fb518",
+      "differing": 12,
+      "words": 28,
+      "disposition": "wrong_layout_variant",
+      "reason": "The donor places errinf at offset 0x250 while retail places it at offset 4, producing a different MPV object layout."
+    },
+    "MPV_SetUsrSj": {
+      "addr": "004fba70",
+      "differing": 1,
+      "words": 9,
+      "disposition": "wrong_layout_variant",
+      "reason": "The donor uses usr at offset 0x3B8 while retail uses 0x118; the large-layout donor maps to a different retail address."
+    },
+    "MWSFCRE_SetSupplySj": {
+      "addr": "005083c0",
+      "differing": 4,
+      "words": 52,
+      "disposition": "compiler_floor",
+      "reason": "The remaining words are branch-delay and store-order scheduling differences after source spelling probes."
+    },
+    "MWSFD_IsEnableHndl": {
+      "addr": "004c3ca0",
+      "differing": 1,
+      "words": 5,
+      "disposition": "shared_struct_drift",
+      "reason": "The donor field used is at offset 4 while retail reads offset 44; fixing one function would corrupt the shared MWSFD layout."
+    },
+    "MWSFSVR_SetMwsfdSvrFlg": {
+      "addr": "004f9b60",
+      "differing": 1,
+      "words": 10,
+      "disposition": "shared_struct_drift",
+      "reason": "The donor svr_flg field is at offset 88 while retail stores at offset 0; this requires a coherent shared MWSFD layout reconstruction, not a local special case."
+    },
+    "MWSST_Pause": {
+      "addr": "00510a98",
+      "differing": 2,
+      "words": 24,
+      "disposition": "version_api_divergence",
+      "reason": "Retail calls getter 00510e40 and validates IsEnable; the donor directly accesses state and validates IsValid."
+    },
+    "MWSST_StartSj": {
+      "addr": "00510910",
+      "differing": 3,
+      "words": 22,
+      "disposition": "version_api_divergence",
+      "reason": "Retail calls getter 00510e40 and validates IsEnable; the donor directly accesses state and validates IsValid, with a different load order."
+    },
+    "SFD_SetOutPan": {
+      "addr": "00513df8",
+      "differing": 3,
+      "words": 36,
+      "disposition": "compiler_floor",
+      "reason": "The residual is the compiler's v0/v1 value allocation; source-order probes do not reproduce retail without an instruction-level hack."
+    },
+    "SFD_SetOutVol": {
+      "addr": "00513f00",
+      "differing": 3,
+      "words": 31,
+      "disposition": "compiler_floor",
+      "reason": "The residual is the compiler's v0/v1 value allocation; source-order probes do not reproduce retail without an instruction-level hack."
+    },
+    "adxb_DefGetWr": {
+      "addr": "004c3498",
+      "differing": 6,
+      "words": 12,
+      "disposition": "version_codegen_divergence",
+      "reason": "Half of this short donor differs after the available declaration, expression, and scheduling probes; no evidence supports forcing it onto the retail address."
+    },
+    "adxsje_set_rsig": {
+      "addr": "004cff68",
+      "differing": 132,
+      "words": 162,
+      "disposition": "version_structural_divergence",
+      "reason": "Retail calls a helper where the donor inlines a ternary path, so the right-size match is not the retail implementation."
+    },
+    "mpvlib_SearchFreeHn": {
+      "addr": "00500e08",
+      "differing": 5,
+      "words": 20,
+      "disposition": "wrong_layout_variant",
+      "reason": "The donor uses the large MPV work/stat layout and stride while retail uses the small layout; the large-layout implementation maps elsewhere."
+    }
+  }
+}

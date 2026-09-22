@@ -29,6 +29,7 @@ extern s32 D_0070B650[];
 extern s32 D_0070B680[];
 extern u8 D_0070B610[];
 extern s32 D_0072483C;
+#define _rpUVAnimMaterialExtOffset D_0072483C
 extern s32 iGpffffb744;
 extern s32 iGpffffb748;
 extern s32 iGpffffab24;
@@ -313,12 +314,12 @@ s32 RpUVAnimPluginAttach(void)
     if (func_003e8930(0, 0x135, UVAnimOpen, UVAnimClose) < 0) {
         return 0;
     }
-    D_0072483C = func_003c4310(0x30, 0x135, UVAnimConstructor,
+    _rpUVAnimMaterialExtOffset = func_003c4310(0x30, 0x135, UVAnimConstructor,
                                func_003d72a0, func_003d7350);
     result = func_003c4340(0x135, func_003d77f0, func_003d75b0,
                             UVAnimSize) >= 0;
     if (result != 0) {
-        result = D_0072483C >= 0;
+        result = _rpUVAnimMaterialExtOffset >= 0;
     }
     return result;
 }
@@ -331,7 +332,7 @@ s32 RpUVAnimPluginAttach(void)
 // FUN_003D7260
 s32 UVAnimConstructor(s32 arg0)
 {
-    func_0043f9c8((void *)(arg0 + D_0072483C), 0, 0x30);
+    func_0043f9c8((void *)(arg0 + _rpUVAnimMaterialExtOffset), 0, 0x30);
     return arg0;
 }
 /* measured: close schedule on probe for func_003d7260. */
@@ -355,14 +356,13 @@ INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d77f0);
 // FUN_003D79B0
 s32 UVAnimSize(s32 arg0)
 {
-    extern s32 iGpffffb74c;
     s32 value;
     u32 index;
     u8 *entry;
 
     if (func_003d8150() != 0) {
         value = 0xC;
-        entry = (u8 *)(arg0 + iGpffffb74c);
+        entry = (u8 *)(arg0 + _rpUVAnimMaterialExtOffset);
         value += 4;
         index = 0;
         do {
