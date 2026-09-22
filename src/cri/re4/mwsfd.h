@@ -330,6 +330,8 @@ void MWSFRNA_SetOutPan(MWPLY_OBJ *mwply, Sint32 ch, Sint32 pan);
 Sint32 MWSFRNA_GetOutVol(MWPLY_OBJ *mwply);
 void MWSFRNA_SetOutVol(MWPLY_OBJ *mwply, Sint32 vol);
 void MWSTM_SetFlowLimit(void *stm, Sint32 min_nsct, Sint32 max_nsct);
+void MWSFD_GetMvInf(MWPLY_OBJ *mwply, void *mvinf);
+void MWSFLSC_SetFlowLimit(MWPLY_OBJ *mwply, Sint32 nsct);
 Sint32 MWSFLIB_SetErrCode(Sint32 code);
 void MWSFLIB_SfdErrFunc(void *obj, Sint32 code);
 void MWSFD_SetCond(MWPLY mwply, Sint32 id, Sint32 val);

@@ -227,9 +227,14 @@ static RwPluginRegistry clumpTKList =
       (RwPluginRegEntry *)NULL,
       (RwPluginRegEntry *)NULL };
 
-extern RwInt32 _rpClumpCameraExtOffset;  /* P4: file static, at its retail address */
-extern RwInt32 _rpClumpLightExtOffset;  /* P4: file static, at its retail address */
-extern RwInt32 iGpffffb6b4;  /* P4: adjacent file-static offset used by RpClumpForAllLights */
+/* Retail uses gp-0x4950 for the camera offset and RpClumpRemoveLight, but
+ * stores and reads the light registration/list offset at gp-0x494C. Keep
+ * the linked image's two words distinct rather than forcing upstream's
+ * single `_rpClumpLightExtOffset` static onto both. */
+extern RwInt32 _rpClumpCameraExtOffset;
+extern RwInt32 _rpClumpLightExtOffset;
+extern RwInt32 iGpffffb6b4;
+#define _rpClumpLightListExtOffset iGpffffb6b4
 
 extern RwModuleInfo clumpModule;  /* P4: file static, at its retail address */
 
@@ -1888,12 +1893,12 @@ _rpClumpRegisterExtensions()
         RWRETURN(FALSE);
     }
 
-    _rpClumpLightExtOffset = RpLightRegisterPlugin(sizeof(RpClumpLightExt),
+    _rpClumpLightListExtOffset = RpLightRegisterPlugin(sizeof(RpClumpLightExt),
                                            rwID_CLUMP,
                                            ClumpInitLightExt,
                                            ClumpDeInitLightExt,
                                            NULL);
-    if (_rpClumpLightExtOffset < 0)
+    if (_rpClumpLightListExtOffset < 0)
     {
         /* Failed */
         RWRETURN(FALSE);
@@ -2417,7 +2422,7 @@ func_003c0050(RpClump * clump, RpLightCallBack callback, void *pData)
     while (cur != end)
     {
         RpLight *light = (RpLight *) ((RwUInt8 *)(cur) -
-            offsetof(RpClumpLightExt, inClumpLink) - iGpffffb6b4);
+            offsetof(RpClumpLightExt, inClumpLink) - _rpClumpLightListExtOffset);
 
         RWASSERTISTYPE(light, rpLIGHT);
 
