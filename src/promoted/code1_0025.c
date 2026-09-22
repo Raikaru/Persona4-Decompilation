@@ -8,7 +8,7 @@ static inline f32 p4_0025_add(f32 left, f32 right) {
     return left + right;
 }
 s32 func_00452380(void *arg0);
-extern s32 *func_00452560();
+extern u32 func_00452560(void *task);
 extern void func_0025f230(s32 arg0);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void func_004ab680(s32 arg0);
@@ -464,7 +464,7 @@ s32 func_002519e0(u8 *sdkTaskBytes) {
     s32 *temp_2;
     u8 *temp_2_3;
 
-    temp_2 = func_00452560();
+    temp_2 = (s32 *)func_00452560(sdkTaskBytes);
     switch (*temp_2) {
     case 0:
         temp_2[4] = func_0025ef20(D_00635BF0);
@@ -541,11 +541,11 @@ block_15:
     return 0;
 }
 // FUN_00251CE0
-void func_00251ce0(u8 *unusedTask)
+void func_00251ce0(u8 *task)
 {
     void *t;
 
-    t = func_00452560();
+    t = (s32 *)func_00452560(task);
     func_0025f230(*(s32 *)((u8 *)t + 0x10));
     (*jtbl_008873EC)(t);
 }
@@ -1210,12 +1210,12 @@ void func_0025ec90(f32 farg0, f32 farg1, f32 farg2,
                   0, 0, 0.0f, 1.0f, 1.0f, arg5);
 }
 // FUN_0025F960
-s32 func_0025f960(u8 *unusedTask) {
+s32 func_0025f960(u8 *task) {
     s32 var_17;
     s32 *p;
     s32 temp_3;
 
-    p = func_00452560();
+    p = (s32 *)func_00452560(task);
     if (p[4] != 0) {
         var_17 = func_00481450();
         func_00481440(p[4]);
@@ -1237,12 +1237,12 @@ s32 func_0025f960(u8 *unusedTask) {
     return 0;
 }
 // FUN_0025FA30
-void func_0025fa30(u8 *unusedTask)
+void func_0025fa30(u8 *task)
 {
     s32 *temp_2;
     s32 temp_3;
 
-    temp_2 = func_00452560();
+    temp_2 = (s32 *)func_00452560(task);
     temp_3 = temp_2[0];
     switch (temp_3) {
     case 0:
@@ -1255,9 +1255,9 @@ void func_0025fa30(u8 *unusedTask)
     jtbl_008873EC[0](temp_2);
 }
 // FUN_0025FF60
-s32 func_0025ff60(void)
+s32 func_0025ff60(s32 task)
 {
     s32 *p;
-    p = func_00452560();
+    p = (s32 *)func_00452560((void *)(u32)task);
     return p[0];
 }

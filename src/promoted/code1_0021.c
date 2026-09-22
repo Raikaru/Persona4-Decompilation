@@ -4,6 +4,7 @@
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 #include "btl_panel_internal.h"
+#include "btl_shuffle_draw_internal.h"
 
 typedef struct KwlnTask KwlnTask;
 typedef struct PersonaWork PersonaWork;
@@ -14,7 +15,6 @@ extern s32 iGpffffb470;
 extern f32 D_008872F8[];
 extern f32 fGpffff84a4;
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern void func_00365ac0(s64 pos, s32 color, s32 mode, f32 depth, f32 angle, f32 wid, f32 hgt);
 extern u8 D_00628FA0[];
 extern f32 D_007615B4;
 extern f32 D_007615B8;
@@ -3055,179 +3055,184 @@ void func_00218730(s32 task)
     p = (u8 *)func_00452560((void *)task);
     *(u16 *)(p + 0x8C0) = *(u16 *)(p + 0x8C0) | 0x10;
 }
-/* measured 0021a7b0: retail 427 instrs, object 418 instrs (-9, -2.1%, band 414-440) via `python3 -E -s tools/fnalign.py src/promoted/code1_0021.c func_0021a7b0 --candidate /tmp/final_candidate.c` (was 337, -90/-21.1% under-size floor); fndiff 401 words reloc-masked, fnalign 458 edits. Frame -0x210 correct (was -0x1B0): six packet structs stride 0x40 at sp+0x80/0xC0/0x100/0x140/0x180/0x1C0, not 48B; u8[48]->u8[64] fixes 96B (sp60[24] already pads 24->32 to 0x80). `opt_common_subs off` scoped recovers 81 instrs (337->418): retail recomputes (u8)(204.0f*var_f24) per packet (lui 0x4F00/c.le/bc1t/cvt.w.s/mfc1/andi/or-0x80000000) where b210 CSEs the float->int once and reuses $a0 for three packets; big if(var_f24>0) block 172 vs retail 240 with CSE on. `schedule on` retained (7 words 393->386 on old base). Residual is prologue park order, int-vs-FPU packet stores, and FPU save coloring; best legal plain-C floor, production stays ASM. */
-/* gate: func_0021a7b0 is OUTSIDE the +-3% band at 460 against retail 428 (+7.5%).  The body previously read
-   418/427, 458 edits only because `#pragma schedule on` was filling delay slots that retail leaves
-   empty.  Retail's first-party build is entirely unscheduled: across 212 byte-exact MATCH
-   first-party functions there are 2909 branches and **zero** filled delay slots, and this
-   function's own retail window has 49 branches with 49 empty slots and none filled.  The
-   pragma therefore never reproduced retail codegen - it deleted nops to shrink the count, and
-   it was hiding a genuine instruction surplus.  It is removed; the surplus is now visible and
-   has to be written out of the body.  Any differing-word score measured with the pragma in
-   place is not comparable to one measured inside the gate (handoff 7y, 7au). */
-// FUN_0021A7B0 NONMATCHING
-#ifdef SKIP_ASM
-#pragma opt_common_subs off
-void func_0021a7b0(u8 *arg1) {
-    struct { s32 lo; s32 hi; } sp208pair;
-    f32 spB8;
-    s32 spA8;
-    f32 spA0;
-    u8 sp1C0[64];
-    u8 sp180[64];
-    u8 sp140[64];
-    u8 sp100[64];
-    u8 spC0[64];
-    u8 sp80[64];
-    u8 sp60[24];
-    f32 temp_f0;
-    f32 temp_f20;
-    f32 var_f21;
-    f32 var_f0;
-    f32 var_f1_5;
-    f32 var_f24;
-    f32 ySum;
-    s32 var_16;
-    s32 temp_16;
-    s32 temp_4;
-    s32 *temp_22;
-    extern void func_002012d0(u8 *arg0, f32 fparg0, f32 fparg1);
+// FUN_0021A7B0
+void func_0021a7b0(u8 *task, u8 *state)
+{
+    PackedVec2f effectPosition;
+    BtlShuffleSkyVertex vertices[6];
+    BtlShuffleSkyVertex *vertex;
+    u8 indexBytes[24];
+    f32 visibility;
+    f32 originX;
+    f32 originY;
+    f32 panelHeight;
+    f32 screenDepth;
+    f32 reciprocalDepth;
+    f32 opacity;
+    f32 firstScale;
+    f32 secondScale;
+    f32 bottomY;
+    s32 *renderWork;
+    s32 tick;
+    s32 flags;
+    extern void func_002012d0(u8 *task, f32 fparg0, f32 fparg1);
 
-    temp_22 = (s32 *)func_00452560(*(void **)(arg1 + 0x10));
-    if ((*temp_22 & 1) == 0) {
+    renderWork = (s32 *)func_00452560(*(void **)(state + 0x10));
+    if ((*renderWork & 1) == 0) {
         return;
     }
-    temp_4 = *(u16 *)(arg1 + 0);
-    if (temp_4 & 1) {
-        if (!(temp_4 & 2)) {
-            *(u16 *)(arg1 + 4) += 1;
-            if (*(u16 *)(arg1 + 4) == 0x0E) {
-                *(u16 *)(arg1 + 0) |= 2;
+    flags = *(u16 *)(state + 0);
+    if (flags & 1) {
+        if (!(flags & 2)) {
+            *(u16 *)(state + 4) += 1;
+            if (*(u16 *)(state + 4) == 0x0E) {
+                *(u16 *)(state + 0) |= 2;
             }
         }
-        temp_16 = *(u16 *)(arg1 + 4);
+        tick = *(u16 *)(state + 4);
         func_00201350();
-        func_002012d0((u8 *)temp_22, 0.0f, 0.0f);
-        if (*(u16 *)(arg1 + 0) & 4) {
-            var_f21 = 298.0f;
-        } else {
-            var_f21 = 181.0f;
+        {
+            f32 depth = 0.0f;
+            func_002012d0((u8 *)renderWork, depth, depth);
         }
-        if ((s32)temp_16 < 5) {
-            var_f24 = 0.0f;
-        } else if ((s32)temp_16 < 0x0E) {
-            var_f24 = (f32)((s32)temp_16 - 5) / 9.0f;
+        if (*(u16 *)(state + 0) & 4) {
+            originX = -10.0f;
+            originY = 95.0f;
+            panelHeight = 298.0f;
         } else {
-            var_f24 = 1.0f;
+            originX = -10.0f;
+            originY = 95.0f;
+            panelHeight = 181.0f;
         }
-        ySum = 95.0f + var_f21;
-        if (!(var_f24 <= 0.0f)) {
-            u8 *var_6 = D_00628FA0;
-            u8 *var_5 = sp60;
-            s32 var_4 = 6;
-            s32 t3;
-            s32 t22;
-            temp_f20 = D_008872F8[0];
-            temp_f0 = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+        if ((s32)tick < 5) {
+            visibility = 0.0f;
+        } else if ((s32)tick < 0x0E) {
+            visibility = (f32)((s32)tick - 5) / 9.0f;
+        } else {
+            visibility = 1.0f;
+        }
+        if (!(visibility <= 0.0f)) {
+            u8 *sourceIndices;
+            u8 *outputIndices;
+            s32 pairsLeft;
+            s32 firstIndex;
+            s32 secondIndex;
+            screenDepth = D_008872F8[0];
+            reciprocalDepth = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+            sourceIndices = D_00628FA0;
+            outputIndices = indexBytes;
+            pairsLeft = 6;
             do {
-                t3 = *(s16 *)var_6;
-                t22 = *(s16 *)(var_6 + 2);
-                var_6 += 4;
-                var_4 -= 1;
-                *(s16 *)var_5 = (s16)t3;
-                *(s16 *)(var_5 + 2) = (s16)t22;
-                var_5 += 4;
-            } while (var_4 > 0);
-            *(f32 *)(sp80 + 0) = -10.0f;
-            *(f32 *)(sp80 + 4) = 95.0f;
-            *(f32 *)(sp80 + 8) = temp_f20;
-            *(f32 *)(sp80 + 0x18) = temp_f0;
-            *(s32 *)(sp80 + 0x20) = 0;
-            *(s32 *)(sp80 + 0x24) = 0;
-            *(s32 *)(sp80 + 0x28) = 0;
-            *(f32 *)(sp80 + 0x2C) = (f32)(u8)(204.0f * var_f24);
-            *(f32 *)(spC0 + 0) = -10.0f + 241.0f;
-            *(f32 *)(spC0 + 4) = 95.0f;
-            *(f32 *)(spC0 + 8) = temp_f20;
-            *(f32 *)(spC0 + 0x18) = temp_f0;
-            *(s32 *)(spC0 + 0x20) = 0;
-            *(s32 *)(spC0 + 0x24) = 0;
-            *(s32 *)(spC0 + 0x28) = 0;
-            *(f32 *)(spC0 + 0x2C) = (f32)(u8)(204.0f * var_f24);
+                firstIndex = *(s16 *)sourceIndices;
+                secondIndex = *(s16 *)(sourceIndices + 2);
+                sourceIndices += 4;
+                pairsLeft -= 1;
+                *(s16 *)outputIndices = (s16)firstIndex;
+                *(s16 *)(outputIndices + 2) = (s16)secondIndex;
+                outputIndices += 4;
+            } while (pairsLeft > 0);
+            /* Keep the first vertex cursor at the packet byte-address boundary. */
+            vertex = (BtlShuffleSkyVertex *)(u8 *)&vertices[0];
+            vertex->u.els.scrVertex.x = originX;
+            vertex->u.els.scrVertex.y = originY;
+            vertex->u.els.scrVertex.z = screenDepth;
+            vertex->u.els.recipZ = reciprocalDepth;
+            vertex->u.els.color.r = 0;
+            vertex->u.els.color.g = 0;
+            vertex->u.els.color.b = 0;
+            opacity = 204.0f * visibility;
+            vertex->u.els.color.a = (f32)(u8)opacity;
+            vertex = &vertices[1];
+            vertex->u.els.scrVertex.x = ws14_add(originX, 241.0f);
+            vertex->u.els.scrVertex.y = originY;
+            vertex->u.els.scrVertex.z = screenDepth;
+            vertex->u.els.recipZ = reciprocalDepth;
+            vertex->u.els.color.r = 0;
+            vertex->u.els.color.g = 0;
+            vertex->u.els.color.b = 0;
+            vertex->u.els.color.a = (f32)(u8)opacity;
             {
-                *(f32 *)(sp100 + 0) = -10.0f;
-                *(f32 *)(sp100 + 4) = ySum;
-                *(f32 *)(sp100 + 8) = temp_f20;
-                *(f32 *)(sp100 + 0x18) = temp_f0;
-                *(s32 *)(sp100 + 0x20) = 0;
-                *(s32 *)(sp100 + 0x24) = 0;
-                *(s32 *)(sp100 + 0x28) = 0;
-                *(f32 *)(sp100 + 0x2C) = (f32)(u8)(204.0f * var_f24);
+                vertex = &vertices[2];
+                vertex->u.els.scrVertex.x = originX;
+                vertex->u.els.scrVertex.y = bottomY = originY + panelHeight;
+                vertex->u.els.scrVertex.z = screenDepth;
+                vertex->u.els.recipZ = reciprocalDepth;
+                vertex->u.els.color.r = 0;
+                vertex->u.els.color.g = 0;
+                vertex->u.els.color.b = 0;
+                vertex->u.els.color.a = (f32)(u8)opacity;
             }
             {
-                *(f32 *)(sp140 + 0) = -10.0f + 241.0f;
-                *(f32 *)(sp140 + 4) = ySum;
-                *(f32 *)(sp140 + 8) = temp_f20;
-                *(f32 *)(sp140 + 0x18) = temp_f0;
-                *(s32 *)(sp140 + 0x20) = 0;
-                *(s32 *)(sp140 + 0x24) = 0;
-                *(s32 *)(sp140 + 0x28) = 0;
-                *(f32 *)(sp140 + 0x2C) = (f32)(u8)(204.0f * var_f24);
+                vertex = &vertices[3];
+                vertex->u.els.scrVertex.x = ws14_add(originX, 241.0f);
+                vertex->u.els.scrVertex.y = bottomY;
+                vertex->u.els.scrVertex.z = screenDepth;
+                vertex->u.els.recipZ = reciprocalDepth;
+                vertex->u.els.color.r = 0;
+                vertex->u.els.color.g = 0;
+                vertex->u.els.color.b = 0;
+                vertex->u.els.color.a = (f32)(u8)opacity;
             }
             {
-                f32 tf1 = -10.0f + (f32)0x15D;
-                *(f32 *)(sp180 + 0) = tf1;
-                *(f32 *)(sp180 + 4) = 95.0f;
-                *(f32 *)(sp180 + 8) = temp_f20;
-                *(f32 *)(sp180 + 0x18) = temp_f0;
-                *(s32 *)(sp180 + 0x20) = 0;
-                *(s32 *)(sp180 + 0x24) = 0;
-                *(s32 *)(sp180 + 0x28) = 0;
-                *(s32 *)(sp180 + 0x2C) = 0;
-                *(f32 *)(sp1C0 + 0) = tf1;
-                *(f32 *)(sp1C0 + 4) = ySum;
-                *(f32 *)(sp1C0 + 8) = temp_f20;
-                *(f32 *)(sp1C0 + 0x18) = temp_f0;
-                *(s32 *)(sp1C0 + 0x20) = 0;
-                *(s32 *)(sp1C0 + 0x24) = 0;
-                *(s32 *)(sp1C0 + 0x28) = 0;
-                *(s32 *)(sp1C0 + 0x2C) = 0;
+                f32 farX;
+                vertex = &vertices[4];
+                farX = ws14_add(originX, (f32)0x15D);
+                vertex->u.els.scrVertex.x = farX;
+                vertex->u.els.scrVertex.y = originY;
+                vertex->u.els.scrVertex.z = screenDepth;
+                vertex->u.els.recipZ = reciprocalDepth;
+                vertex->u.els.color.r = 0;
+                vertex->u.els.color.g = 0;
+                vertex->u.els.color.b = 0;
+                vertex->u.els.color.a = 0;
+                vertex = &vertices[5];
+                vertex->u.els.scrVertex.x = farX;
+                vertex->u.els.scrVertex.y = bottomY;
+                vertex->u.els.scrVertex.z = screenDepth;
+                vertex->u.els.recipZ = reciprocalDepth;
+                vertex->u.els.color.r = 0;
+                vertex->u.els.color.g = 0;
+                vertex->u.els.color.b = 0;
+                vertex->u.els.color.a = 0;
             }
             D_00887300[0](1, 0);
-            D_00887314_abs[0](3, sp80, 6, sp60, 12);
+            D_00887314_abs[0](3, vertices, 6, indexBytes, 12);
         }
-        sp208pair.lo = 0x43FB0000;
-        sp208pair.hi = 0x43570000;
+        effectPosition.xy.x = 502.0f;
+        effectPosition.xy.y = 215.0f;
         {
-            if (temp_16 < 0) {
-                var_f0 = 0.0f;
-            } else if (temp_16 < 0x0A) {
-                var_f0 = func_0044b7b0(fGpffff84a4 * ((f32)temp_16 / 10.0f));
+            if (tick < 0) {
+                firstScale = 0.0f;
+            } else if (tick < 0x0A) {
+                firstScale = func_0044b7b0(fGpffff84a4 * ((f32)tick / 10.0f));
             } else {
-                var_f0 = 1.0f;
+                firstScale = 1.0f;
             }
-            if (!(var_f0 <= 0.0f)) {
-                func_003657d0(*(Vec2f *)&sp208pair, 0.0f, 0xCC, D_007615B4 * var_f0, D_007615B8 * var_f0, 0);
+            {
+                f32 depth = 0.0f;
+                if (!(firstScale <= depth)) {
+                    func_003657d0(effectPosition.xy, depth, 0xCC, D_007615B4 * firstScale, D_007615B8 * firstScale, 0);
+                }
             }
         }
         {
-            if (temp_16 < 0) {
-                var_f1_5 = 0.0f;
-            } else if (temp_16 < 8) {
-                var_f1_5 = 1.0f - func_0044b610(fGpffff84a4 * ((f32)temp_16 / 8.0f));
+            if (tick < 0) {
+                secondScale = 0.0f;
+            } else if (tick < 8) {
+                secondScale = 1.0f - func_0044b610(fGpffff84a4 * ((f32)tick / 8.0f));
             } else {
-                var_f1_5 = 1.0f;
+                secondScale = 1.0f;
             }
-            if (!(var_f1_5 <= 0.0f)) {
-                func_00365ac0(*(s64 *)&sp208pair, 0x89FF1FFF, 1, 0.0f, fGpffff84a4 * var_f1_5, 125.5f * var_f1_5, 16.0f);
+            {
+                f32 depth = 0.0f;
+                if (!(secondScale <= depth)) {
+                    func_00365ac0(effectPosition.xy, depth, 0x89FF1FFF, fGpffff84a4 * secondScale, 125.5f * secondScale, 16.0f, 1);
+                }
             }
         }
     }
 }
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021a7b0);
-#endif
+
 // FUN_0021AE60
 void func_0021ae60(u8 *arg0, u8 *arg1)
 {
