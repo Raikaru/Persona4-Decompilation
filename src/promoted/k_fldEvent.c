@@ -1,3 +1,4 @@
+#include "model_motion_internal.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldEvent.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
@@ -62,7 +63,6 @@ s16 func_00479c30(s32, s32);
 s32 func_0016fe80(s32);
 s32 func_0016ffd0(s32);
 s32 func_0016fd00(s32);
-extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 void func_0016e540(s32, s32);
 void func_0016e560(s32, s32);
 void func_0017d100(u8 *);
@@ -838,7 +838,6 @@ s32 func_00172e00(u8 *arg0)
     extern u8 iGpffffba54;
     extern u8 iGpffffba58;
     extern f32 iGpffffba6c;
-    s32 func_00479940(u8 *, u32, s32, s32, s32);
     void func_00479e60(void *, s32, f32);
     f32 func_0047a080(s32, s32);
     void func_0045af60(s32, s32, s32, s32);

@@ -1,3 +1,4 @@
+#include "model_motion_internal.h"
 /* Whole-file translation unit: src/Graphics/Effect/effHelper.c */
 
 #include "type.h"
@@ -10,7 +11,6 @@ u8 *func_00484490(u8 *obj);
 s32 func_004844d0(u8 *obj);
 u8 *func_004abc50(u8 *base, s32 size);
 s32 func_00479ca0(s32 res, s32 arg1);
-extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 u32 func_0047a7c0(s32 res);
 u32 func_00484bb0(s32 arg);
 u32 func_00485c80(u32 arg);

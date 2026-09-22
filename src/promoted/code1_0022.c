@@ -1,3 +1,4 @@
+#include "btl_motion_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -228,8 +229,6 @@ extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern u8 D_00632240[];
 extern u8 *func_0019ef90(s32 arg0, s32 arg1);
 extern void func_0019d0c0(u8 *arg0);
-extern void func_00198dd0(u8 *arg0, s32 arg1);
-extern void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4);
 extern void func_002339d0(u8 *arg0);
 extern u8 D_0062D920[];
 extern void func_001a03b0(s64 *arg0);
@@ -4282,7 +4281,6 @@ s32 func_0022b870(u8 *arg0)
     extern s32 func_001b1540(void);
     extern void func_0022fdc0(u8 *arg0);
     extern u8 *func_001f7650(u8 *arg0);
-    extern void func_00198dd0(u8 *arg0, s32 arg1);
     extern u8 D_00630C50[];
     u32 index;
     s32 value;

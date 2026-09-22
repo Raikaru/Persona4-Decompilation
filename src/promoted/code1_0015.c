@@ -1,3 +1,4 @@
+#include "model_motion_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -116,7 +117,6 @@ extern void func_0016eaa0(s32 arg0, s8 arg1, void *arg2);
 extern u8 *func_0016eaf0(s32 arg0);
 extern u8 *func_0047a2f0(s32 arg0);
 extern s32 func_00457c90(s32 arg0, const void *arg1);
-extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern u8 D_005F0690[];
 extern u8 D_005F06A0[];
 extern void func_0016eb00(s32 arg0);

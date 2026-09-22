@@ -1,3 +1,4 @@
+#include "btl_motion_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "btl_skill_internal.h"
@@ -105,7 +106,6 @@ extern void func_002aaaa0(void);
 extern void func_001fc230(s32 arg0);
 extern s32 func_001faaa0(u8 *arg0);
 extern s32 func_00230210(void);
-extern void func_00198920(u8 *arg0, s16 arg1, u16 arg2, s16 arg3, f32 arg4);
 extern s32 func_001fae10(void);
 extern void func_0045a9a0(s32 arg0, s32 arg1);
 extern void func_00122520(s32 arg0, s32 arg1);
@@ -148,7 +148,6 @@ extern void func_002aaa80(void);
 extern void func_001fc280(void);
 void func_00194590(u8 *arg0, u32 arg1);
 extern s32 func_0021d470(s32 task);
-extern void func_00198dd0(u8 *arg0, s32 arg1);
 extern void func_001eb7f0(u8 *arg0);
 extern s32 func_001eb860(void);
 extern s32 func_001faaf0(void);
@@ -1124,7 +1123,7 @@ void func_001b1d70(void) {
                 func_0014a460(*(u16 *)(unit + 0x9FE), 1);
                 func_0019d7a0(unit, 1);
                 func_00198dd0(unit, 0);
-                func_00198920(unit, *(s16 *)(unit + 0x9EC), 0, *(s8 *)(unit + 0x9F4), *(f32 *)(unit + 0x9F0));
+                func_00198920(unit, *(s16 *)(unit + 0x9EC), 0, *(f32 *)(unit + 0x9F0), *(s8 *)(unit + 0x9F4));
                 func_001987a0(unit);
                 tmp = *(u8 **)(unit + 0xA00);
                 if (*(s32 *)(tmp + 0x2D0) == 0) {
@@ -1783,7 +1782,7 @@ void func_001b3790(void)
     goto check;
 loop:
     *(u16 *)(var16 + 0x9D8) = *(u16 *)(var16 + 0x9D8) | 0x40;
-    func_00198920(var16, 0, 0, 1, 1.0f);
+    func_00198920(var16, 0, 0, 1.0f, 1);
     var16 = *(u8 **)(var16 + 0xA68);
 check:
     if (var16 != NULL) {
@@ -1816,8 +1815,7 @@ s32 func_001b3870(void)
 loop:
         *(u16 *)(var_16 + 0x9D8) &= 0xFFBF;
         func_00198dd0(var_16, 0);
-        func_00198920(var_16, *(s16 *)(var_16 + 0x9EC), 8,
-                      *(s8 *)(var_16 + 0x9F4), *(f32 *)(var_16 + 0x9F0));
+        func_00198920(var_16, *(s16 *)(var_16 + 0x9EC), 8, *(f32 *)(var_16 + 0x9F0), *(s8 *)(var_16 + 0x9F4));
         var_16 = *(u8 **)(var_16 + 0xA68);
 check:
         if (var_16 != NULL) goto loop;

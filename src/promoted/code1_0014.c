@@ -1,3 +1,4 @@
+#include "model_motion_internal.h"
 #include "include_asm.h"
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
@@ -122,7 +123,6 @@ extern s32 func_0014c240(void *arg0, void *arg1, f32 fparg0, f32 fparg1);
 extern s32 func_0014a230(s32 arg0, s32 arg1);
 extern s32 func_0014a2a0(s32 arg0, s32 arg1);
 extern void func_00440b68();
-extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern s32 func_00153a60(s32 arg0);
 extern s32 func_00147070(void);
 extern s32 func_001458b0(s32 arg0);
@@ -2741,153 +2741,117 @@ void func_00146630(u16 arg0) {
 /* measured: closes schedule-off probe for 46630. */
 #pragma schedule on
 #pragma optimization_level 2
-/* Model floor (1104B window). First probe nd 229 (obj 1044B);
-   frame -0xE0 vs -0xF0, saves verified. Open: GPREL consts,
-   fusion order, scheduler cascade. Quad-built. */
-/* measured 00146a10 (owner, 2026-09-19): fnalign edits **182 -> 99** by writing the
-   `if (flag == c) ... else if` chain as a `switch (flag)` with the cases sorted ascending.
-   MWCC lowers a switch as descending comparisons with the arm bodies laid out in
-   ascending case order (handoff 7av), and a chain cannot produce that shape however the
-   arms are ordered in source.  Found by sweeping every first-party floor that carries a
-   four-or-more arm equality chain and measuring both spellings; the sweep also found
-   `func_001adea0` where the switch is *worse* (49 -> 51), so this is measured per
-   function and never assumed. */
-// FUN_00146A10 NONMATCHING
-#ifdef NON_MATCHING
-void func_00146a10(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
+/* Updates the supplied position, rotation and scale vectors before applying
+   the resource-specific model or effect transform. NULL inputs retain the
+   corresponding resource vector. Native b210 -O2: 1100/1104 bytes, with
+   four 12-byte initializer vectors and a four-byte zero suffix.
+   See Resource_transform_00146a10_20260922_worker1.md. */
+// FUN_00146A10
+void func_00146a10(u8 *resource, u8 *position, u8 *rotation, u8 *scaleInput)
 {
-    extern s64 D_005EF990[];
-    extern f32 D_005EF998[];
-    extern s64 D_005EF9A0[];
-    extern f32 D_005EF9A8[];
-    extern s64 D_005EF9B0[];
-    extern f32 D_005EF9B8[];
-    extern s64 D_005EF9C0[];
-    extern f32 D_005EF9C8[];
     extern u8 D_005EF9D0[];
     extern u8 D_005EF9F0[];
-    extern void func_0047a1e0(s32 arg0, void *arg1, s32 arg2);
-    extern void func_004b12e0(s32 arg0, void *arg1);
-    struct { s64 p; f32 f; u32 _pad; } pf[4];
-    f32 tr[3];
-    u32 c0[16];
-    u32 c1[16];
-    s32 h;
-    s32 flag;
-    s32 n;
-    u32 *src;
-    u32 *dst;
-    u32 t0;
-    u32 t1;
+    typedef struct Model Model;
+    extern void func_0047a1e0(Model *model, const RwV3d *scale, s32 combineOp);
+    extern void func_004b12e0(s32 effect, u8 *matrix);
+    RwV3d axisY = {0.0f, 1.0f, 0.0f};
+    RwV3d axisX = {1.0f, 0.0f, 0.0f};
+    RwV3d axisZ = {0.0f, 0.0f, 1.0f};
+    RwV3d scale = {2.0f, 2.0f, 2.0f};
+    u32 effectMatrix[16];
+    u32 transformMatrix[16];
+    s32 modelHandle;
+    s32 resourceType;
+    u32 *sourceWords;
+    u32 *outputWords;
+    s32 remainingPairs;
+    u32 first;
+    u32 second;
 
-    pf[0].p = D_005EF990[0];
-    pf[0].f = D_005EF998[0];
-    pf[1].p = D_005EF9A0[0];
-    pf[1].f = D_005EF9A8[0];
-    pf[2].p = D_005EF9B0[0];
-    pf[2].f = D_005EF9B8[0];
-    pf[3].p = D_005EF9C0[0];
-    pf[3].f = D_005EF9C8[0];
-    if (arg0 != 0) {
-        if (arg1 != 0) {
-            *(u32 *)(arg0 + 4) = *(u32 *)arg1;
-            *(f32 *)(arg0 + 8) = *(f32 *)(arg1 + 4);
-            *(f32 *)(arg0 + 12) = *(f32 *)(arg1 + 8);
+    if (resource != 0) {
+        if (position != 0) {
+            *(RwV3d *)(resource + 4) = *(const RwV3d *)position;
         }
-        if (arg2 != 0) {
-            *(u32 *)(arg0 + 16) = *(u32 *)arg2;
-            *(f32 *)(arg0 + 20) = *(f32 *)(arg2 + 4);
-            *(f32 *)(arg0 + 24) = *(f32 *)(arg2 + 8);
+        if (rotation != 0) {
+            *(RwV3d *)(resource + 16) = *(const RwV3d *)rotation;
         }
-        if (arg3 != 0) {
-            *(u32 *)(arg0 + 28) = *(u32 *)arg3;
-            *(f32 *)(arg0 + 32) = *(f32 *)(arg3 + 4);
-            *(f32 *)(arg0 + 36) = *(f32 *)(arg3 + 8);
+        if (scaleInput != 0) {
+            *(RwV3d *)(resource + 28) = *(const RwV3d *)scaleInput;
         }
-        tr[0] = *(f32 *)(arg0 + 28);
-        tr[1] = *(f32 *)(arg0 + 32);
-        tr[2] = *(f32 *)(arg0 + 36);
-        flag = (*(u16 *)arg0 & 0xFFC00) >> 10;
-        switch (flag) {
+        scale = *(const RwV3d *)(resource + 28);
+        resourceType = (*(u16 *)resource & 0xFFC00) >> 10;
+        switch (resourceType) {
         case 1:
-            h = *(s32 *)(arg0 + 0x164);
-            if (h == 0) {
+            modelHandle = *(s32 *)(resource + 0x164);
+            if (modelHandle == 0) {
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            func_0047a1a0((void *)(u32)h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
-            func_0047a1a0((void *)(u32)h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
-            func_0047a1a0((void *)(u32)h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
-            func_0047a1e0(h, tr, 2);
-            func_0047a180((RwMatrix *)h, (const RwV3d *)(arg0 + 4), 2);
+            func_0047a1a0((void *)(u32)modelHandle, &axisY, *(f32 *)(resource + 0x14), 0);
+            func_0047a1a0((void *)(u32)modelHandle, &axisX, *(f32 *)(resource + 0x10), 1);
+            func_0047a1a0((void *)(u32)modelHandle, &axisZ, *(f32 *)(resource + 0x18), 1);
+            func_0047a1e0((Model *)(u32)modelHandle, &scale, 2);
+            func_0047a180((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
             return;
-            break;
         case 2:
-            h = *(s32 *)(arg0 + 0x158);
-            if (h == 0) {
+            modelHandle = *(s32 *)(resource + 0x158);
+            if (modelHandle == 0) {
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            func_0047a1a0((void *)(u32)h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
-            func_0047a1a0((void *)(u32)h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
-            func_0047a1a0((void *)(u32)h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
-            func_0047a1e0(h, tr, 2);
-            func_0047a180((RwMatrix *)h, (const RwV3d *)(arg0 + 4), 2);
+            func_0047a1a0((void *)(u32)modelHandle, &axisY, *(f32 *)(resource + 0x14), 0);
+            func_0047a1a0((void *)(u32)modelHandle, &axisX, *(f32 *)(resource + 0x10), 1);
+            func_0047a1a0((void *)(u32)modelHandle, &axisZ, *(f32 *)(resource + 0x18), 1);
+            func_0047a1e0((Model *)(u32)modelHandle, &scale, 2);
+            func_0047a180((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
             return;
-            break;
         case 3:
-            h = *(s32 *)(arg0 + 0x164);
-            if (h == 0) {
+            modelHandle = *(s32 *)(resource + 0x164);
+            if (modelHandle == 0) {
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            func_0047a1a0((void *)(u32)h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
-            func_0047a1a0((void *)(u32)h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
-            func_0047a1a0((void *)(u32)h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
-            func_0047a1e0(h, tr, 2);
-            func_0047a180((RwMatrix *)h, (const RwV3d *)(arg0 + 4), 2);
+            func_0047a1a0((void *)(u32)modelHandle, &axisY, *(f32 *)(resource + 0x14), 0);
+            func_0047a1a0((void *)(u32)modelHandle, &axisX, *(f32 *)(resource + 0x10), 1);
+            func_0047a1a0((void *)(u32)modelHandle, &axisZ, *(f32 *)(resource + 0x18), 1);
+            func_0047a1e0((Model *)(u32)modelHandle, &scale, 2);
+            func_0047a180((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
             return;
-            break;
         case 6:
-            if (*(s32 *)(arg0 + 0x144) == 0) {
+            if (*(s32 *)(resource + 0x144) == 0) {
                 func_00440b68(D_005EF9F0);
                 return;
             }
-            func_00146f50(c0, arg0 + 4, (u32 *)(arg0 + 16));
-            src = c0;
-            dst = c1;
-            n = 8;
+            func_00146f50(transformMatrix, resource + 4, (u32 *)(resource + 16));
+            sourceWords = transformMatrix;
+            outputWords = effectMatrix;
+            remainingPairs = 8;
             do {
-                t0 = src[0];
-                t1 = src[1];
-                src = src + 2;
-                n = n - 1;
-                dst[0] = t0;
-                dst[1] = t1;
-                dst = dst + 2;
-            } while (n > 0);
-            func_004b12e0(*(s32 *)(arg0 + 0x144), c1);
+                first = sourceWords[0];
+                second = sourceWords[1];
+                sourceWords = sourceWords + 2;
+                remainingPairs = remainingPairs - 1;
+                outputWords[0] = first;
+                outputWords[1] = second;
+                outputWords = outputWords + 2;
+            } while (remainingPairs > 0);
+            func_004b12e0(*(s32 *)(resource + 0x144), (u8 *)effectMatrix);
             return;
-            break;
         case 10:
-            h = *(s32 *)(arg0 + 0x144);
-            if (h == 0) {
+            modelHandle = *(s32 *)(resource + 0x144);
+            if (modelHandle == 0) {
                 func_00440b68(D_005EF9D0);
                 return;
             }
-            func_0047a1a0((void *)(u32)h, &pf[0].p, *(f32 *)(arg0 + 0x14), 0);
-            func_0047a1a0((void *)(u32)h, &pf[1].p, *(f32 *)(arg0 + 0x10), 1);
-            func_0047a1a0((void *)(u32)h, &pf[2].p, *(f32 *)(arg0 + 0x18), 1);
-            func_0047a1e0(h, tr, 2);
-            func_0047a180((RwMatrix *)h, (const RwV3d *)(arg0 + 4), 2);
+            func_0047a1a0((void *)(u32)modelHandle, &axisY, *(f32 *)(resource + 0x14), 0);
+            func_0047a1a0((void *)(u32)modelHandle, &axisX, *(f32 *)(resource + 0x10), 1);
+            func_0047a1a0((void *)(u32)modelHandle, &axisZ, *(f32 *)(resource + 0x18), 1);
+            func_0047a1e0((Model *)(u32)modelHandle, &scale, 2);
+            func_0047a180((RwMatrix *)(u32)modelHandle, (const RwV3d *)(resource + 4), 2);
             return;
-            break;
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00146a10);
-#endif
 // FUN_00147530
 u8 *func_00147530(u8 *arg0, u16 arg1) {
     s32 temp_3;

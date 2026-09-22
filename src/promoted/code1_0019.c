@@ -1,3 +1,5 @@
+#include "model_motion_internal.h"
+#include "btl_motion_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -143,7 +145,6 @@ extern s32 func_00193840(u8 *arg0, s32 arg1);
 extern void func_0010d480(void);
 extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
 extern f32 func_0022cf00(u8 *arg0, u8 *arg1, s32 arg2);
-extern s64 func_001990d0(u8 *arg0, s32 arg1);
 extern void func_00195630(u8 *arg0);
 extern u8 *func_00452380(void *arg0);
 extern void func_00452080(s32 arg0);
@@ -197,7 +198,6 @@ static inline void p4_d550_store(u8 *value, u8 *base, u32 index, u32 offset)
 
 extern f32 func_0047a080(s32 arg0, s32 arg1);
 extern void func_00479e60(void *arg0, s32 arg1, f32 arg2);
-extern void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4);
 static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 arg4)
 {
     func_00198920(arg0, arg1, arg2, arg3, arg4);
@@ -260,7 +260,6 @@ extern s32 func_00232830(s32 arg0, s32 arg1);
 extern u8 *func_0019e150(u8 *arg0, f32 *arg1, s32 arg2);
 extern s32 func_00242930(u8 *arg0);
 extern s32 func_00243e30(s32 arg0);
-extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern void func_0047a120(void *arg0);
 extern void func_0047a150(void *arg0);
 extern u8 *func_00199ee0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
@@ -2165,7 +2164,6 @@ static inline u32 p4_add_index_base(u32 offset, u32 base)
 /* measured: declaration-corrected C candidate for func_00198380. */
 // FUN_00198380
 void func_00198380(u8 *arg0) {
-    extern u32 func_001990d0(u8 *arg0, s32 arg1);
     f32 var_f12;
     s16 temp_16_2;
     s16 temp_2;
@@ -2224,7 +2222,7 @@ void func_00198380(u8 *arg0) {
                         case 0xE:
                         case 0x12:
                         case 0x18:
-                            temp_4 = func_001990d0(arg0, temp_16_2 & 0xFFFF) & 0xFFFF;
+                            temp_4 = (u16)func_001990d0(arg0, temp_16_2 & 0xFFFF);
                             if ((s32)temp_4 < (s32)(*(u16 *)(arg0 + 0x9E4))) {
                                 var_6 = (u16)(*(u16 *)(p4_add_index_base(temp_4 * 0xA, (u32)*(s32 *)(arg0 + 0x9F8)) + 8));
                             } else {
@@ -2312,54 +2310,71 @@ u32 func_001988b0(u8 *unit)
     return 0;
 }
 
-/* Battle-motion floor (1200B window; plain obj 1128B fndiff 249 verify 748,
-   cse_off obj 1204B fndiff 222 verify 707 fnalign 176 edits retail 300/obj 301;
-   frame -0x80 vs -0x90 retail (one saved reg short), DSP prologue shape verified.
-   Open: frame size, branch cascade, scheduler ordering. Quad-built
-   (m2c+IDA+Ghidra+retail: void/5-arg sig, int-form 1.0f store,
-   neighbor-merged tails rejected, a2 zeroing modeled). Extra pragmas 2026-09-17:
-   loopinv 222 neutral, schedule 273 worse, nobl 222 neutral. */
-/* measured 00198920: `opt_common_subs off` inside the guard is worth 27 words (249 -> 222); retail rematerialises what b210 hoists. */
-// FUN_00198920 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_common_subs off
-void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4in)
+typedef struct MotionTableEntry {
+    s16 followMotion;
+    s16 ratePercent;
+    s16 followFrame;
+    s16 unknown6;
+    s16 nextMotion;
+} MotionTableEntry;
+static inline u16 motionModeFlags(u16 option)
+{
+    switch (option) {
+    case 0:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+        return 0;
+    default:
+        return 1;
+    }
+}
+/* Measured: 1196 instruction bytes, nine resolved relocations and four zero
+ * tail bytes. Animation and blend frames retain their halfword domains through
+ * the model dispatcher. The table views keep rate and follow-up lifetimes
+ * separate; the shared motion contracts preserve all existing callers. */
+// FUN_00198920
+void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4)
 {
     extern f32 iGpffff80d4;
     extern f32 iGpffff812c;
     extern u8 *func_0019eda0(u8 *arg0, s32 arg1);
     s32 a1m;
-    s32 v11;
+    u16 v11;
     s32 v12;
     s16 *sp;
-    u8 *base;
-    s32 arg4;
+    MotionTableEntry *base;
+    MotionTableEntry *table;
 
-    /* a3-slot arrives u16 but retail masks it in its own param home. */
-    arg4 = arg4in;
     *(s16 *)(arg0 + 0x9DC) = arg4;
     if ((*(u32 *)(arg0 + 0x98) & 2) != 0) {
+        a1m = (u16)arg1;
         *(s16 *)(arg0 + 0x9DA) = arg1;
-        a1m = arg1 & 0xFFFF;
         v11 = (u16)func_001990d0(arg0, a1m);
-        if (v11 < *(u16 *)(arg0 + 0x9E4)) {
-            *(f32 *)(arg0 + 0x9E0) = arg3 * ((f32)*(s16 *)(*(u8 **)(arg0 + 0x9F8) + v11 * 10 + 2) / 100.0f);
+        if ((u16)v11 < *(u16 *)(arg0 + 0x9E4)) {
+            table = *(MotionTableEntry **)(arg0 + 0x9F8);
+            *(f32 *)(arg0 + 0x9E0) = arg3 * ((f32)table[v11].ratePercent / 100.0f);
         } else {
             *(s32 *)(arg0 + 0x9E0) = 0x3F800000;
         }
         arg4 = arg4 & 0xFFFF;
-        if (arg4 != 5 && arg4 != 4 && arg4 != 3 && arg4 != 2 && arg4 != 0) {
-            v12 = 1;
-        } else {
-            v12 = 0;
-        }
-        if ((arg3 < iGpffff80d4 || iGpffff812c < arg3) && (arg2 == 8 || arg2 == 12 || arg2 == 4)) {
-            v12 = v12 | 0x60;
+        v12 = motionModeFlags(arg4);
+        if (arg3 < iGpffff80d4 || !(arg3 <= iGpffff812c)) {
+            switch (arg1) {
+            case 4:
+            case 12:
+            case 8:
+                v12 = (u16)(v12 | 0x60);
+                break;
+            default:
+                break;
+            }
         }
         if (((*(u16 *)(arg0 + 0x9D8) & 0x10) != 0) || (*(s32 *)(arg0 + 0xA64) != 0 && func_00232710(*(s32 *)(arg0 + 0xA64), 256) != 0)) {
-            v12 = v12 | 0x100;
+            v12 = (u16)(v12 | 0x100);
         }
-        if (arg2 == 19) {
+        if (arg1 == 19) {
             func_0047a150(*(u8 **)(arg0 + 0xA00));
         } else {
             func_0047a120(*(u8 **)(arg0 + 0xA00));
@@ -2378,35 +2393,49 @@ void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4in)
         *(f32 *)(arg0 + 0x88) = (f32)sp[2];
         *(f32 *)(arg0 + 0x8C) = (f32)(u16)sp[3];
         *(f32 *)(arg0 + 0x90) = (f32)(u16)sp[4];
-        if (arg2 == 16 || arg2 == 8) {
-            if (v11 < *(u16 *)(arg0 + 0x9E4)) {
-                base = *(u8 **)(arg0 + 0x9F8) + v11 * 10;
-                if (*(s16 *)base >= 0 && *(s16 *)(base + 4) > 0) {
+        switch (arg1) {
+        case 8:
+        case 16:
+            if ((u16)v11 < *(u16 *)(arg0 + 0x9E4)) {
+                base = &((MotionTableEntry *)*(u8 **)(arg0 + 0x9F8))[(u16)v11];
+                if (base->followMotion >= 0 && base->followFrame > 0) {
                     *(u16 *)(arg0 + 0x9D8) = *(u16 *)(arg0 + 0x9D8) | 4;
-                    *(s16 *)(arg0 + 0x9E6) = *(s16 *)base;
-                    *(s16 *)(arg0 + 0x9E8) = *(s16 *)(base + 4);
+                    *(s16 *)(arg0 + 0x9E6) = ((MotionTableEntry *)*(u8 **)(arg0 + 0x9F8))[(u16)v11].followMotion;
+                    *(s16 *)(arg0 + 0x9E8) = ((MotionTableEntry *)p4_base_add_00194590((u16)v11 * sizeof(MotionTableEntry), *(s32 *)(arg0 + 0x9F8)))->followFrame;
                 }
             }
-        } else {
-            *(u16 *)(arg0 + 0x9D8) = *(u16 *)(arg0 + 0x9D8) & ~4;
+            break;
+        default:
+            *(u16 *)(arg0 + 0x9D8) = *(u16 *)(arg0 + 0x9D8) & 0xFFFB;
+            break;
         }
         if (arg4 == 0) {
-            if (arg2 == 4) {
+            switch (arg1) {
+            case 2:
+            case 8:
+            case 12:
+            case 9:
+            case 11:
+            case 22:
+            case 23:
+            case 20:
                 *(s16 *)(arg0 + 0x9EE) = 0;
-            } else if (arg2 == 20 || arg2 == 23 || arg2 == 22 || arg2 == 11 || arg2 == 9 || arg2 == 12 || arg2 == 8 || arg2 == 2) {
+                break;
+            case 4:
                 *(s16 *)(arg0 + 0x9EE) = 0;
-            } else if (v11 >= *(u16 *)(arg0 + 0x9E4)) {
-                *(s16 *)(arg0 + 0x9EE) = 0;
-            } else {
-                *(s16 *)(arg0 + 0x9EE) = *(s16 *)(*(u8 **)(arg0 + 0x9F8) + v11 * 10 + 8);
+                break;
+            default:
+                if ((u16)v11 < *(u16 *)(arg0 + 0x9E4)) {
+                    table = *(MotionTableEntry **)(arg0 + 0x9F8);
+                    *(s16 *)(arg0 + 0x9EE) = table[v11].nextMotion;
+                } else {
+                    *(s16 *)(arg0 + 0x9EE) = 0;
+                }
+                break;
             }
         }
     }
 }
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00198920);
-#endif
 /* Recovered.  Two shapes closed it: the availability flag is an if/else
    (`if (r == 1) flag = 0; else flag = 1;`) rather than `flag = 1` with a
    conditional clear - retail reuses the materialised 1 as both the flag
@@ -2429,7 +2458,6 @@ void func_00198dd0(u8 *arg0, u16 arg1)
     s32 flag;
     s32 r;
     s16 temp;
-    extern s32 func_00479d10(u8 *a, u32 b, s16 c);
     extern s32 func_00479dd0(u8 *a, u32 b, s16 c);
     extern s32 func_00232710();
 
@@ -3034,14 +3062,22 @@ void func_00199e50(u8 *arg0)
 }
 
 // FUN_00199E70
-s32 func_00199e70(u8 *arg0)
+u32 func_00199e70(void *workData)
 {
-    s16 temp_5;
+    u8 *packet = (u8 *)workData;
+    s16 motion;
+    s32 frame;
+    f32 rate;
+    u16 option;
 
-    temp_5 = *(s16 *)(arg0 + 4);
-    if (temp_5 >= 0 && temp_5 < 0x1E)
-        func_00198920(*(u8 **)(arg0 + 0), temp_5, *(u16 *)(arg0 + 6),
-                      *(f32 *)(arg0 + 8), *(u16 *)(arg0 + 0xC));
+    motion = *(s16 *)(packet + 4);
+    if (motion >= 0 && motion < 0x1E) {
+        workData = *(u8 **)packet;
+        frame = *(u16 *)(packet + 6);
+        rate = *(f32 *)(packet + 8);
+        option = *(u16 *)(packet + 0xC);
+        func_00198920((u8 *)workData, motion, frame, rate, option);
+    }
     return 1;
 }
 
@@ -3058,21 +3094,27 @@ void func_0019a010(u8 *arg0)
 }
 
 // FUN_0019A030
-s32 func_0019a030(u8 *arg0)
+u32 func_0019a030(void *workData)
 {
-    s16 temp_5;
-    s16 var_2;
-    u8 *temp_4;
+    u8 *packet = (u8 *)workData;
+    s16 requested;
+    s16 current;
+    u16 option;
+    u16 frame;
+    f32 rate;
 
-    temp_4 = *(u8 **)arg0;
-    if ((*(s32 *)(temp_4 + 0x98) & 2) != 0)
-        var_2 = *(s16 *)(temp_4 + 0x9DA);
+    workData = *(u8 **)workData;
+    if ((*(s32 *)((u8 *)workData + 0x98) & 2) != 0)
+        current = *(s16 *)((u8 *)workData + 0x9DA);
     else
-        var_2 = 0;
-    temp_5 = *(s16 *)(temp_4 + 0x9EC);
-    if (temp_5 != var_2)
-        func_00198920(temp_4, temp_5, *(u16 *)(arg0 + 4),
-                      *(f32 *)(temp_4 + 0x9F0), (u16)*(s8 *)(temp_4 + 0x9F4));
+        current = 0;
+    requested = *(s16 *)((u8 *)workData + 0x9EC);
+    if (requested != current) {
+        option = *(s8 *)((u8 *)workData + 0x9F4);
+        frame = *(u16 *)(packet + 4);
+        rate = *(f32 *)((u8 *)workData + 0x9F0);
+        func_00198920((u8 *)workData, requested, frame, rate, option);
+    }
     return 1;
 }
 
@@ -3270,8 +3312,9 @@ void func_0019aae0(u8 *arg0)
 }
 
 // FUN_0019AB00
-s32 func_0019ab00(u8 *arg0)
+u32 func_0019ab00(void *workData)
 {
+    u8 *arg0 = (u8 *)workData;
     u8 *temp_18;
     u16 temp_17;
     u16 temp_16;
@@ -3357,211 +3400,217 @@ void func_0019b710(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
 
-// FUN_0019B730 NONMATCHING
-#ifdef NON_MATCHING
+typedef struct BattlePacketRgba {
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+} BattlePacketRgba;
+
+typedef struct BattleColorUnit {
+    u8 unknown00[0x30];
+    BattlePacketRgba color;
+    u8 unknown34[0x64];
+    u32 flags;
+} BattleColorUnit;
+
+typedef struct BattleColorPacket {
+    BattleColorUnit *unit;
+    u32 startColor;
+    u32 targetColor;
+    s16 alphaDuration;
+    s16 rgbDuration;
+    u8 mode;
+    u8 flags;
+    s16 counter;
+} BattleColorPacket;
+
 extern f32 fGpffff81f4;
-s32 func_0019b730(u8 *arg0)
+
+/* Mirrors the actual color-by-value setter at 00194f60. */
+static inline void battleColorPublish(BattleColorUnit *unit, BattlePacketRgba color)
 {
-    u8 *temp_19;
-    s32 temp_16;
-    s32 var_18;
-    s32 var_17;
-    s32 var_21;
-    s32 var_22;
-    s32 var_23;
-    u32 var_3;
-    s32 spA8;
-    s32 spA4;
-    s32 spA0;
-    s32 sp9C;
-    s32 sp98;
-    s32 sp94;
+    unit->color = color;
+    unit->flags |= 4;
+}
+
+/* Packed-word/VU bridge, matching model_normalize_packed_color. C owns the
+ * source words and packed output; the hardware computes all four color lanes.
+ * The final 0x437f0000 bit pattern transfers the real 255.0f scale to VF2.x. */
+static inline u32 battleColorBlendWords(const u32 *start, const u32 *target, f32 factor)
+{
+    u32 targetColor;
+    u32 startColor;
+    u32 packedColor;
+    const u32 *source;
     f32 scale;
+    f32 inverse;
+    u32 bits;
+
+    targetColor = *target;
+    source = &targetColor;
+    scale = fGpffff81f4;
+    {
+        u32 bits;
+        __asm__ volatile(
+            "lw $2, 0(%1)\n"
+            "pextlb $2, $zero, $2\n"
+            "pextlh $2, $zero, $2\n"
+            "qmtc2 $2, $vf11\n"
+            "vitof0.xyzw $vf11, $vf11\n"
+            "mfc1 %0, %2\n"
+            "nop\n"
+            "qmtc2 %0, $vf2\n"
+            "vmulx.xyzw $vf11, $vf11, $vf2x\n"
+            : "=&r"(bits)
+            : "r"(source), "f"(scale), "m"(*source)
+            : "$2", "$vf2", "$vf11", "memory");
+    }
+    startColor = *start;
+    source = &startColor;
+    {
+        u32 bits;
+        __asm__ volatile(
+            "lw $2, 0(%1)\n"
+            "pextlb $2, $zero, $2\n"
+            "pextlh $2, $zero, $2\n"
+            "qmtc2 $2, $vf10\n"
+            "vitof0.xyzw $vf10, $vf10\n"
+            "mfc1 %0, %2\n"
+            "nop\n"
+            "qmtc2 %0, $vf2\n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+            : "=&r"(bits)
+            : "r"(source), "f"(scale), "m"(*source)
+            : "$2", "$vf2", "$vf10", "memory");
+    }
+    inverse = 1.0f - factor;
+    {
+        u32 bits;
+        __asm__ volatile(
+            "mfc1 %0, %1\n"
+            "nop\n"
+            "qmtc2 %0, $vf2\n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+            "mfc1 %0, %2\n"
+            "nop\n"
+            "qmtc2 %0, $vf2\n"
+            "vmulx.xyzw $vf11, $vf11, $vf2x\n"
+            "vadd.xyzw $vf10, $vf10, $vf11\n"
+            : "=&r"(bits)
+            : "f"(inverse), "f"(factor)
+            : "$vf2", "$vf10", "$vf11", "memory");
+    }
+    bits = 0x437F0000U;
+    __asm__ volatile(
+        "qmtc2 %0, $vf2\n"
+        "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+        "vftoi0.xyzw $vf10, $vf10\n"
+        "qmfc2 %0, $vf10\n"
+        "ppach %0, $zero, %0\n"
+        "ppacb %0, $zero, %0\n"
+        "sw %0, packedColor\n"
+        : "+r"(bits), "=m"(packedColor)
+        : : "$vf2", "$vf10", "memory");
+    return packedColor;
+}
+
+/* Measured: 1164 instruction bytes in the 1168-byte window, three resolved
+ * relocations and a four-byte zero tail. This callback uses the packet creator's
+ * u32 (void *) contract. Modes 1..4 initialize every timing value; the retail
+ * constructor callers use modes 3 or 4. The packet is 20 bytes.
+ * Disabling propagation locally retains the alpha result's memory/merge
+ * lifetime. Publication remains the actual four-byte color-by-value operation. */
+#pragma push
+#pragma opt_propagation off
+// FUN_0019B730
+u32 func_0019b730(void *workData)
+{
+    BattleColorPacket *packet = (BattleColorPacket *)workData;
+    BattleColorUnit *unit;
+    s32 counter;
+    s32 alphaDuration;
+    s32 rgbDuration;
+    s32 alphaStart;
+    s32 rgbStart;
+    s32 end;
+    u32 color;
+    BattlePacketRgba published;
     f32 factor;
-    f32 inv;
-    temp_19 = *(u8 **)arg0;
-    temp_16 = *(s16 *)(arg0 + 0x12);
-    switch (*(u8 *)(arg0 + 0x10)) {
+
+    unit = packet->unit;
+    counter = packet->counter;
+    switch (packet->mode) {
     case 1:
-        var_18 = *(s16 *)(arg0 + 0xC);
-        var_21 = 0;
-        var_17 = *(s16 *)(arg0 + 0xE);
-        var_22 = var_18 + 1;
-        var_23 = var_17 + var_18;
+        alphaDuration = packet->alphaDuration;
+        alphaStart = 0;
+        rgbDuration = packet->rgbDuration;
+        rgbStart = alphaDuration + 1;
+        end = rgbDuration + alphaDuration;
         break;
     case 2:
-        var_17 = *(s16 *)(arg0 + 0xE);
-        var_22 = 0;
-        var_18 = *(s16 *)(arg0 + 0xC);
-        var_21 = var_17 + 1;
-        var_23 = var_17 + var_18;
+        rgbDuration = packet->rgbDuration;
+        rgbStart = 0;
+        alphaDuration = packet->alphaDuration;
+        alphaStart = rgbDuration + 1;
+        end = rgbDuration + alphaDuration;
         break;
     case 3:
     case 4:
-        var_18 = *(s16 *)(arg0 + 0xC);
-        var_21 = 0;
-        var_17 = *(s16 *)(arg0 + 0xE);
-        var_22 = 0;
-        if (var_17 < var_18) {
-            var_23 = var_18;
-        } else {
-            var_23 = var_17;
-        }
+        alphaDuration = packet->alphaDuration;
+        alphaStart = 0;
+        rgbDuration = packet->rgbDuration;
+        rgbStart = 0;
+        if (rgbDuration < alphaDuration)
+            end = alphaDuration;
+        else
+            end = rgbDuration;
         break;
     }
-    if (temp_16 == 0) {
-        var_3 = *(u8 *)(temp_19 + 0x30) | ((*(u8 *)(temp_19 + 0x31) << 8) | ((*(u8 *)(temp_19 + 0x33) << 24) | (*(u8 *)(temp_19 + 0x32) << 16)));
-        *(u32 *)(arg0 + 4) = var_3;
-        if (*(u8 *)(arg0 + 0x11) & 1) {
-            *(u32 *)(arg0 + 4) = *(u32 *)(arg0 + 4) & 0xFFFFFF;
-        }
-        if (*(u8 *)(arg0 + 0x11) & 2) {
-            *(u32 *)(arg0 + 4) = (*(u32 *)(arg0 + 4) & 0xFFFFFF) | 0xFF000000;
-        }
-        if (*(u8 *)(arg0 + 0x11) & 4) {
-            *(u32 *)(arg0 + 4) = 0;
-        }
-        if (*(u8 *)(arg0 + 0x11) & 8) {
-            *(u32 *)(arg0 + 4) = 0xFFFFFFFF;
-        }
-        func_0019d040(temp_19);
+    if (counter == 0) {
+        color = unit->color.red | (((u32)unit->color.green << 8) |
+                (((u32)unit->color.alpha << 24) | ((u32)unit->color.blue << 16)));
+        packet->startColor = color;
+        if (packet->flags & 1)
+            packet->startColor &= 0xFFFFFF;
+        if (packet->flags & 2)
+            packet->startColor = (packet->startColor & 0xFFFFFF) | 0xFF000000;
+        if (packet->flags & 4)
+            packet->startColor = 0;
+        if (packet->flags & 8)
+            packet->startColor = 0xFFFFFFFF;
+        func_0019d040((u8 *)unit);
     }
-    var_3 = *(u32 *)(arg0 + 4);
-    if (temp_16 >= var_22) {
-        if (var_17 > 0) {
-            if (temp_16 < var_22 + var_17) {
-                factor = (f32)(temp_16 - var_22) / (f32)var_17;
-            } else {
-                factor = 1.0f;
-            }
-        } else {
+    color = packet->startColor;
+    if (counter >= rgbStart) {
+        if (rgbDuration > 0 && counter < rgbStart + rgbDuration)
+            factor = (f32)(counter - rgbStart) / (f32)rgbDuration;
+        else
             factor = 1.0f;
-        }
-        inv = 1.0f - factor;
-        scale = fGpffff81f4;
-        spA8 = *(s32 *)(arg0 + 8);
-        __asm__ volatile(
-            "lw $2, 0(%0)          \n"
-            "pextlb $2, $0, $2     \n"
-            "pextlh $2, $0, $2     \n"
-            "qmtc2.ni $2, $vf11    \n"
-            "vitof0.xyzw $vf11, $vf11 \n"
-            "mfc1 $2, %1           \n"
-            "nop                   \n"
-            "qmtc2.ni $2, $vf2     \n"
-            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
-            :
-            : "r"(&spA8), "f"(scale)
-            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        spA4 = *(s32 *)(arg0 + 4);
-        __asm__ volatile(
-            "lw $2, 0(%0)          \n"
-            "pextlb $2, $0, $2     \n"
-            "pextlh $2, $0, $2     \n"
-            "qmtc2.ni $2, $vf10    \n"
-            "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, %1           \n"
-            "nop                   \n"
-            "qmtc2.ni $2, $vf2     \n"
-            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-            "mfc1 $2, %2           \n"
-            "nop                   \n"
-            "qmtc2.ni $2, $vf2     \n"
-            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-            "mfc1 $2, %3           \n"
-            "nop                   \n"
-            "qmtc2.ni $2, $vf2     \n"
-            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
-            "vadd.xyzw $vf10, $vf10, $vf11 \n"
-            "lui $2, 0x437F        \n"
-            "qmtc2.ni $2, $vf2     \n"
-            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-            "vftoi0.xyzw $vf10, $vf10 \n"
-            "qmfc2.ni $2, $vf10    \n"
-            "ppach $2, $0, $2      \n"
-            "ppacb $2, $0, $2      \n"
-            "sw $2, 0xA0($sp)      \n"
-            :
-            : "r"(&spA4), "f"(scale), "f"(inv), "f"(factor)
-            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
-           hoists the reload above the asm, so the read is volatile. */
-        spA0 = *(volatile s32 *)&spA0;
-        var_3 = (var_3 & 0xFF000000) | (spA0 & 0xFFFFFF);
+        color = (color & 0xFF000000) |
+                (battleColorBlendWords(&packet->startColor, &packet->targetColor, factor) & 0xFFFFFF);
     }
-    if (temp_16 >= var_21) {
-        if (var_18 > 0) {
-            if (temp_16 < var_21 + var_18) {
-                factor = (f32)(temp_16 - var_21) / (f32)var_18;
-            } else {
-                factor = 1.0f;
-            }
-        } else {
+    if (counter >= alphaStart) {
+        if (alphaDuration > 0 && counter < alphaStart + alphaDuration)
+            factor = (f32)(counter - alphaStart) / (f32)alphaDuration;
+        else
             factor = 1.0f;
-        }
-        inv = 1.0f - factor;
-        scale = fGpffff81f4;
-        sp9C = *(s32 *)(arg0 + 8);
-        __asm__ volatile(
-            "lw $2, 0(%0)          \n"
-            "pextlb $2, $0, $2     \n"
-            "pextlh $2, $0, $2     \n"
-            "qmtc2.ni $2, $vf11    \n"
-            "vitof0.xyzw $vf11, $vf11 \n"
-            "mfc1 $2, %1           \n"
-            "nop                   \n"
-            "qmtc2.ni $2, $vf2     \n"
-            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
-            :
-            : "r"(&sp9C), "f"(scale)
-            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        sp98 = *(s32 *)(arg0 + 4);
-        __asm__ volatile(
-            "lw $2, 0(%0)          \n"
-            "pextlb $2, $0, $2     \n"
-            "pextlh $2, $0, $2     \n"
-            "qmtc2.ni $2, $vf10    \n"
-            "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, %1           \n"
-            "nop                   \n"
-            "qmtc2.ni $2, $vf2     \n"
-            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-            "mfc1 $2, %2           \n"
-            "nop                   \n"
-            "qmtc2.ni $2, $vf2     \n"
-            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-            "mfc1 $2, %3           \n"
-            "nop                   \n"
-            "qmtc2.ni $2, $vf2     \n"
-            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
-            "vadd.xyzw $vf10, $vf10, $vf11 \n"
-            "lui $2, 0x437F        \n"
-            "qmtc2.ni $2, $vf2     \n"
-            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
-            "vftoi0.xyzw $vf10, $vf10 \n"
-            "qmfc2.ni $2, $vf10    \n"
-            "ppach $2, $0, $2      \n"
-            "ppacb $2, $0, $2      \n"
-            "sw $2, 0x94($sp)      \n"
-            :
-            : "r"(&sp98), "f"(scale), "f"(inv), "f"(factor)
-            : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
-           hoists the reload above the asm, so the read is volatile. */
-        sp94 = *(volatile s32 *)&sp94;
-        var_3 = (var_3 & 0xFFFFFF) | (sp94 & 0xFF000000);
+        color = (color & 0xFFFFFF) |
+                (battleColorBlendWords(&packet->startColor, &packet->targetColor, factor) & 0xFF000000);
     }
-    *(u32 *)(temp_19 + 0x30) = var_3;
-    *(s32 *)(temp_19 + 0x98) = *(s32 *)(temp_19 + 0x98) | 4;
-    if (var_23 < temp_16) {
+    published.red = color;
+    published.green = color >> 8;
+    published.blue = color >> 16;
+    published.alpha = color >> 24;
+    battleColorPublish(unit, published);
+    if (end < counter)
         return 1;
-    }
-    *(s16 *)(arg0 + 0x12) = temp_16 + 1;
+    packet->counter++;
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019b730);
-#endif
+
+#pragma pop
+
 // FUN_0019BBC0
 void func_0019bbc0(u8 *arg0)
 {

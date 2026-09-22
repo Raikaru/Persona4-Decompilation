@@ -1,8 +1,8 @@
+#include "model_motion_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "Kosaka/k_fldFrame_internal.h"
-extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern s32 func_0016fd00();
 extern void func_003e0f40();
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -956,7 +956,6 @@ extern float FUN_003e4180(float *);
 extern int FUN_00452080(void *);
 extern int FUN_00457120(void);
 extern int FUN_0045af60(short, short, short, short);
-extern int FUN_00479940(unsigned char *, unsigned int, int, int, int);
 extern void FUN_0047a850(unsigned char *);
 extern void FUN_0047a870(unsigned char *);
 extern void FUN_004b13f0(void *, int *);
@@ -1180,7 +1179,7 @@ int func_0017f490(unsigned char *param_1)
     case 0:
       temp_v0 = FUN_003e0f80();
       piVar1[4] = temp_v0;
-      FUN_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,0,1);
+      func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,0,1);
       piVar1[5] = CAND_iGpffffb2c8 + (unsigned int)*(unsigned char *)(piVar1[3] + 0x1ca) * 0x180 +
                   (unsigned int)*(unsigned short *)(piVar1[3] + 0x1c8) * 0x40;
       temp_v0 = piVar1[3];
@@ -1455,7 +1454,7 @@ int func_0017f490(unsigned char *param_1)
       }
       else {
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) | 4;
-        FUN_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,1,8,1);
+        func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,1,8,1);
         temp_v0 = FUN_003b7060();
         temp_v7 = (unsigned int)temp_v0 % 100;
         temp_v3 = 0;
@@ -1586,7 +1585,7 @@ int func_0017f490(unsigned char *param_1)
       if ((piVar1[0x23] < 1) && (temp_v0 = FUN_0017ea10((unsigned char *)piVar1[3]), temp_v0 == 0)) {
         piVar1[0x23] = *(int *)(piVar1[5] + 0x34);
         *piVar1 = 0xb;
-        FUN_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
+        func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
       }
       else {
         if (0 < piVar1[0x23]) {
@@ -1603,7 +1602,7 @@ int func_0017f490(unsigned char *param_1)
           temp_v8 = (float)FUN_003e40b0(&fStack_e0,&fStack_e0);
           if (*(float *)piVar1[5] <= temp_v8) {
             piVar1[0x23] = (int)((float *)piVar1[5])[0xd];
-            FUN_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
+            func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
             *piVar1 = 0xb;
           }
         }
@@ -1728,7 +1727,7 @@ int func_0017f490(unsigned char *param_1)
       if ((piVar1[0x23] < 1) && (temp_v0 = FUN_0017ea10((unsigned char *)piVar1[3]), temp_v0 == 0)) {
         piVar1[0x23] = *(int *)(piVar1[5] + 0x34);
         *piVar1 = 0xb;
-        FUN_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
+        func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
       }
       else {
         if (0 < piVar1[0x23]) {
@@ -1746,7 +1745,7 @@ int func_0017f490(unsigned char *param_1)
           if (*(float *)piVar1[5] <= temp_v8) {
             piVar1[0x23] = (int)((float *)piVar1[5])[0xd];
             *piVar1 = 0xb;
-            FUN_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
+            func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
           }
         }
         else if (0 < temp_v0) {
@@ -1793,7 +1792,7 @@ int func_0017f490(unsigned char *param_1)
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffffb;
         ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
         *piVar1 = 1;
-        FUN_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
+        func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
       }
       else {
         piVar1[0x25] = piVar1[0x25] - 1;
@@ -1852,7 +1851,7 @@ int func_0017f490(unsigned char *param_1)
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffffb;
         ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
         *piVar1 = 1;
-        FUN_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
+        func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
         temp_v8 = temp_v10;
       }
       temp_v10 = ((float *)piVar1)[0x1a] * 10.0f;
@@ -1942,7 +1941,7 @@ int func_0017f490(unsigned char *param_1)
           piVar1[0x23] = 0xd2;
           piVar1[0x24] = 0x3c;
           *piVar1 = 7;
-          FUN_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,1,8,1);
+          func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,1,8,1);
           return 0;
         }
       }
@@ -2000,14 +1999,14 @@ int func_0017f490(unsigned char *param_1)
             }
             ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
             *piVar1 = 0xc;
-            FUN_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
+            func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
             return 0;
           }
         }
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffffb;
         ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
         *piVar1 = 1;
-        FUN_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
+        func_00479940(*(unsigned char **)(piVar1[3] + 0x50),0,0,8,1);
       }
       break;
     case 0xc:

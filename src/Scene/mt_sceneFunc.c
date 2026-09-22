@@ -1,3 +1,4 @@
+#include "model_motion_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 /* Source unit: src/mt_scene/mt_scene_00268bd0.c (1 function markers) */
@@ -97,7 +98,6 @@ extern s32 func_003e05d0(void *arg0);
 extern s32 func_00168ec0();
 extern s32 func_00479dd0(u32 arg0, u16 arg1, s16 arg2);
 extern void func_0047a0e0(u32 arg0, u16 arg1, f32 arg2);
-extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern void func_00479e60(u32 arg0, u16 arg1, f32 arg2);
 extern u8 *func_0047a250(u32 arg0);
 extern void func_004b14f0(void *object, s32 *color);

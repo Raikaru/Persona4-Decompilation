@@ -1,3 +1,4 @@
+#include "btl_motion_internal.h"
 #include "type.h"
 #include "model_callbacks_internal.h"
 
@@ -960,7 +961,6 @@ BtlPacket* btlUnitCreateResNullifiedAnimPacket(BtlUnit* unit, f32 param);
 BtlPacket* func_0019a5e0(BtlUnit* unit, s32 param);
 BtlPacket* btlUnitCreateEnmDodgeAnimPacket(BtlUnit* unit, s32 param);
 void func_00199e50(BtlUnitPacketCountRef* work);
-u32 func_00199e70(void* work);
 void func_00199ec0(BtlUnitPacketCountRef* work);
 
 // FUN_00199EE0
@@ -1067,9 +1067,6 @@ s32 func_0019ae20(u8 *arg0) {
     extern u8 *iGpffffb3cc;
     extern void func_00479e60(void *a, s32 b, f32 c);
     extern u32 func_00231d70(u32 a);
-    extern void func_00198920(u8 *a, s16 b, u16 c, s16 d, f32 e);
-    extern s16 func_001990d0(u8 *a, u16 b);
-    extern void func_00198dd0(u8 *a, s32 b);
     u8 *t17;
     u8 *t4;
     u8 *made;
@@ -1172,7 +1169,7 @@ s32 func_0019ae20(u8 *arg0) {
         }
         if (*(u16 *)(arg0 + 8) & 0x20) {
             func_00198dd0(t17, 0);
-            func_00198920(t17, *(s16 *)(t17 + 0x9EC), 0, *(s8 *)(t17 + 0x9F4), *(f32 *)(t17 + 0x9F0));
+            func_00198920(t17, *(s16 *)(t17 + 0x9EC), 0, *(f32 *)(t17 + 0x9F0), *(s8 *)(t17 + 0x9F4));
             t3_8 = *(s32 *)(t17 + 0x98) & 2;
             if (t3_8 != 0) {
                 v2 = *(s16 *)(t17 + 0x9DA);

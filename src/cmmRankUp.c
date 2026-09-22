@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit cmmRankUp.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "primitive_point_buffer.h"
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
@@ -72,9 +73,6 @@ typedef struct {
 } Sp120;
 extern u_long128 D_00636730;
 extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
-extern void func_0045e6a0(s32 arg0, s32 arg1, f32 fparg0, u32 arg2,
-                          s32 arg3, s32 arg4, s32 arg5, s32 arg6,
-                          f32 fparg1, f32 fparg2, f32 fparg3);
 extern void func_00252230(Sp120 *arg0, Sp120 *arg1, Sp120 *arg2, f32 fparg0);
  extern void func_003e0870(void *arg0, void *arg1, f32 fparg0, s32 arg2);
 extern void func_003f6440(s32 arg0, s32 arg1);
@@ -1766,134 +1764,221 @@ void func_00256040(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
    interleave and for-loop cost edits. Remaining three short are the save/restore wall:
    retail saves $s0-$s5 (frame 0x140) vs object $s0-$s3 (frame 0x120); two sq/lq pairs plus
    one spill have no honest lever left in this batch. */
-// FUN_002561F0 NONMATCHING
-#ifdef NON_MATCHING
-void func_002561f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s64 arg5, s64 arg6, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4) {
-    typedef struct { u8 r; u8 g; u8 b; u8 a; } RGBA;
-    typedef union { struct { f32 x; f32 y; } f; struct { u32 w0; u32 w1; } w; s64 align; } Pair;
-    typedef struct { RGBA rgba[16]; u8 scratch[16]; Pair pairs[16]; } Work;
-    Work work;
-    Pair *pairp; u8 *p; u8 *base; u32 i; s32 count; u32 w0; u32 w1; Pair *src; Pair *dst;
-    u32 packed; u32 packed2; u32 packed3; u32 packed4; f32 value2; f32 value3;
-    s32 b0; s32 b1; s32 b2; s32 b3; s32 c0; s32 c1; s32 c2; s32 c3;
-    s32 d0; s32 d1; s32 d2; s32 d3; s32 e0; s32 e1; s32 e2; s32 e3;
-    src = (Pair *)D_00636310; dst = work.pairs; count = 16; do { w0 = src->w.w0; w1 = src->w.w1; src++; count--; dst->w.w0 = w0; dst->w.w1 = w1; dst++; } while (count > 0);
-    i = 0; packed = arg0 << 8; b0 = (packed >> 24) & 0xFF; b1 = (packed >> 16) & 0xFF; b2 = arg0 & 0xFF; b3 = packed & 0xFF;
-    value2 = ((f32)arg2 * 255.0f) / 255.0f; value3 = ((f32)arg3 * 255.0f) / 255.0f; packed2 = packed | arg1; c0 = (packed2 >> 24) & 0xFF; c1 = (packed2 >> 16) & 0xFF; c2 = (packed2 >> 8) & 0xFF; c3 = packed2 & 0xFF; packed4 = packed | (s32)value2; e0 = (packed4 >> 24); e1 = (packed4 >> 16); e2 = (packed4 >> 8); e3 = packed4; packed3 = packed | (s32)value3; d0 = (packed3 >> 24); d1 = (packed3 >> 16); d2 = (packed3 >> 8); d3 = packed3;
-    while (i < 16U) {
-      pairp = work.pairs + i;
-      pairp->f.x += fparg0; pairp->f.y += fparg1;
-      if (i == 0 || i == 1 || (u32)(i - 0xE) < 2U) { p = (u8 *)&work.rgba[i]; p[0] = b0; p[1] = b1; p[2] = b2; p[3] = b3; }
-      else if ((u32)(i - 6) < 4U) { p = (u8 *)&work.rgba[i]; p[0] = e0; p[1] = e1; p[2] = e2; p[3] = e3; }
-      else if ((u32)(i - 0xA) < 4U) { p = (u8 *)&work.rgba[i]; p[0] = d0; p[1] = d1; p[2] = d2; p[3] = d3; }
-      else { p = (u8 *)&work.rgba[i]; p[0] = c0; p[1] = c1; p[2] = c2; p[3] = c3; }
-      i++;
-    }
-    base = (u8 *)work.rgba;
-    func_0045e6a0((s32)(u32)base, (s32)(u32)work.pairs, fparg2, 0x10, 4, (s32)(s16)arg5, (s32)(s16)arg6, b1, 0, fparg3, fparg4);
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_002561f0);
-#endif
-/* Floor: 48 differing words over 57 edit instructions, 153 emitted against
-   retail's 153, from a first reconstruction.  The signature is 7 ints and 5
-   floats: the MIPS EABI passes integer arguments 5-8 in $t0-$t3, which is
-   where arg4..arg6 live, and arg4 is forwarded to func_0045e6a0 untouched -
-   retail never reloads it.  The vertex table is copied with an explicit
-   two-word CopyPair loop; letting MWCC copy the 8-byte struct directly
-   emits lwc1/swc1 where retail uses lw/sw.  The colour buffer is
-   `u8 color[20][4]`, which is what puts the position array at 0xC0 and
-   makes the frame 0x140.  Hoisting the four base-colour bytes above the
-   loop took 66 words to 48.
-   WALL: FPU scheduling.  Retail issues both `255.0f * (f32)argN` products
-   before the main colour and only then the two divisions; this build sinks
-   each product onto its own division, so the two chains are emitted whole
-   one after the other.  opt_propagation off (158), opt_serializeassignments
-   and folding the divide into the product were all measured. */
-// FUN_00256460 NONMATCHING
-#ifdef NON_MATCHING
+/* The earlier probes above are superseded by the shared panel representation.
+ * Retail differs from func_00256460 only in this palette's table address.
+ * Both take seven integer arguments and five floats; the callers supply the
+ * two offsets explicitly. 612/624 bytes, three resolved relocations and twelve
+ * zero alignment bytes. See docs/probe_archive/Rankup_002561f0_palette.md. */
 #pragma push
 #pragma opt_loop_invariants on
-void func_00256460(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
-                   s32 arg6, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
-                   f32 fparg4)
-{
-    f32 pos[16][2];
-    u8 color[20][4];
-    CopyPair *src;
-    CopyPair *dst;
-    u32 w0;
-    u32 w1;
-    u32 rgb;
-    u32 main;
-    u32 lower;
-    u32 upper;
-    s32 n;
-    u32 i;
-    f32 scaled2;
-    f32 scaled3;
-    s32 b0;
-    s32 b1;
-    s32 b2;
-    s32 b3;
+typedef struct { u8 r, g, b, a; } RankUpColor;
 
-    src = (CopyPair *)D_00636390;
-    dst = (CopyPair *)pos;
-    n = 0x10;
+// FUN_002561F0
+void func_002561f0(s32 rgbValue, s32 mainAlpha, s32 upperAlpha, s32 lowerAlpha,
+                   s32 saveState, s32 offsetX, s32 offsetY,
+                   f32 translateX, f32 translateY, f32 depth,
+                   f32 scaleX, f32 scaleY)
+{
+    PrimPointRow positions[16];
+    RankUpColor colors[20];
+    RankUpColor edge;
+    RankUpColor mainColor;
+    RankUpColor upper;
+    RankUpColor lower;
+    const CopyPair *source;
+    PrimPointRow *destination;
+    u32 word0;
+    u32 word1;
+    u32 rgb;
+    u32 packed;
+    s32 remaining;
+    u32 index;
+    PrimPointRow *point;
+    RankUpColor *color;
+    f32 scaledUpper;
+    f32 scaledLower;
+
+    source = D_00636310;
+    destination = positions;
+    remaining = 16;
     do {
-        w0 = src->w0;
-        w1 = src->w1;
-        src++;
-        n--;
-        dst->w0 = w0;
-        dst->w1 = w1;
-        dst++;
-    } while (n > 0);
-    i = 0;
-    rgb = arg0 << 8;
-    b0 = (rgb >> 0x18) & 0xFF;
-    b1 = (rgb >> 0x10) & 0xFF;
-    b2 = arg0 & 0xFF;
-    b3 = rgb & 0xFF;
-    scaled2 = 255.0f * (f32)arg2;
-    scaled3 = 255.0f * (f32)arg3;
-    main = rgb | arg1;
-    lower = rgb | (s32)(scaled3 / 255.0f);
-    upper = rgb | (s32)(scaled2 / 255.0f);
-    while (i < 0x10U) {
-        pos[i][0] = pos[i][0] + fparg0;
-        pos[i][1] = pos[i][1] + fparg1;
-        if (i == 0 || i == 1 || (u32)(i - 0xE) < 2U) {
-            color[i][0] = (u8)b0;
-            color[i][1] = (u8)b1;
-            color[i][2] = (u8)b2;
-            color[i][3] = (u8)b3;
-        } else if ((u32)(i - 6) < 4U) {
-            color[i][0] = (u8)(upper >> 0x18);
-            color[i][1] = (u8)(upper >> 0x10);
-            color[i][2] = (u8)(upper >> 8);
-            color[i][3] = (u8)upper;
-        } else if ((u32)(i - 0xA) < 4U) {
-            color[i][0] = (u8)(lower >> 0x18);
-            color[i][1] = (u8)(lower >> 0x10);
-            color[i][2] = (u8)(lower >> 8);
-            color[i][3] = (u8)lower;
+        word0 = source->w0;
+        word1 = source->w1;
+        source++;
+        remaining--;
+        destination->words.w0 = word0;
+        destination->words.w1 = word1;
+        destination++;
+    } while (remaining > 0);
+    index = 0;
+    rgb = (u32)rgbValue << 8;
+    edge.r = (rgb >> 24) & 255;
+    edge.g = (rgb >> 16) & 255;
+    edge.b = rgbValue & 255;
+    edge.a = rgb & 255;
+    scaledUpper = 255.0f * (f32)upperAlpha;
+    scaledLower = 255.0f * (f32)lowerAlpha;
+    packed = rgb | mainAlpha;
+    mainColor.r = (packed >> 24) & 255;
+    mainColor.g = (packed >> 16) & 255;
+    mainColor.b = (packed >> 8) & 255;
+    mainColor.a = packed & 255;
+    while (index < 16U) {
+        point = &positions[index];
+        point->point.v[0] += translateX;
+        point->point.v[1] += translateY;
+        if (index == 0 || index == 1 || (u32)(index - 14) < 2U) {
+            color = &colors[index];
+            color->r = edge.r;
+            color->g = edge.g;
+            color->b = edge.b;
+            color->a = edge.a;
+        } else if ((u32)(index - 6) < 4U) {
+            packed = rgb | (s32)(scaledUpper / 255.0f);
+            upper.r = packed >> 24;
+            upper.g = packed >> 16;
+            upper.b = packed >> 8;
+            upper.a = packed;
+            color = &colors[index];
+            color->r = upper.r;
+            color->g = upper.g;
+            color->b = upper.b;
+            color->a = upper.a;
+        } else if ((u32)(index - 10) < 4U) {
+            packed = rgb | (s32)(scaledLower / 255.0f);
+            lower.r = packed >> 24;
+            lower.g = packed >> 16;
+            lower.b = packed >> 8;
+            lower.a = packed;
+            color = &colors[index];
+            color->r = lower.r;
+            color->g = lower.g;
+            color->b = lower.b;
+            color->a = lower.a;
         } else {
-            color[i][0] = (u8)((main >> 0x18) & 0xFF);
-            color[i][1] = (u8)((main >> 0x10) & 0xFF);
-            color[i][2] = (u8)((main >> 8) & 0xFF);
-            color[i][3] = (u8)(main & 0xFF);
+            color = &colors[index];
+            color->r = mainColor.r;
+            color->g = mainColor.g;
+            color->b = mainColor.b;
+            color->a = mainColor.a;
         }
-        i++;
+        index++;
     }
-    func_0045e6a0((s32)(u32)color, (s32)(u32)pos, fparg2, 0x10, 4, arg4, (s16)arg5, (s16)arg6,
-                  0.0f, fparg3, fparg4);
+    offsetX = (s16)offsetX;
+    offsetY = (s16)offsetY;
+    func_0045e6a0(colors, &positions,
+                  depth, 16U, 4, saveState, offsetX, offsetY,
+                  0.0f, scaleX, scaleY);
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00256460);
-#endif
 
+/* Draw the 16-point rank-up panel with separate upper and lower alpha.
+ * The source palette keeps its 80-byte color allocation. Each point's word
+ * copy and float translation use the explicit members of one storage union.
+ * 612/624 bytes, three resolved relocations, twelve zero alignment bytes;
+ * loop-invariant color divisions retain the retail ordering.
+ * See docs/probe_archive/Rankup_00256460_point_rows_20260921.md. */
+#pragma push
+#pragma opt_loop_invariants on
+
+// FUN_00256460
+void func_00256460(s32 rgbValue, s32 mainAlpha, s32 upperAlpha, s32 lowerAlpha,
+                   s32 saveState, s32 offsetX, s32 offsetY,
+                   f32 translateX, f32 translateY, f32 depth,
+                   f32 scaleX, f32 scaleY)
+{
+    PrimPointRow positions[16];
+    RankUpColor colors[20];
+    RankUpColor edge;
+    RankUpColor mainColor;
+    RankUpColor upper;
+    RankUpColor lower;
+    const CopyPair *source;
+    PrimPointRow *destination;
+    u32 word0;
+    u32 word1;
+    u32 rgb;
+    u32 packed;
+    s32 remaining;
+    u32 index;
+    PrimPointRow *point;
+    RankUpColor *color;
+    f32 scaledUpper;
+    f32 scaledLower;
+
+    source = D_00636390;
+    destination = positions;
+    remaining = 16;
+    do {
+        word0 = source->w0;
+        word1 = source->w1;
+        source++;
+        remaining--;
+        destination->words.w0 = word0;
+        destination->words.w1 = word1;
+        destination++;
+    } while (remaining > 0);
+    index = 0;
+    rgb = (u32)rgbValue << 8;
+    edge.r = (rgb >> 24) & 255;
+    edge.g = (rgb >> 16) & 255;
+    edge.b = rgbValue & 255;
+    edge.a = rgb & 255;
+    scaledUpper = 255.0f * (f32)upperAlpha;
+    scaledLower = 255.0f * (f32)lowerAlpha;
+    packed = rgb | mainAlpha;
+    mainColor.r = (packed >> 24) & 255;
+    mainColor.g = (packed >> 16) & 255;
+    mainColor.b = (packed >> 8) & 255;
+    mainColor.a = packed & 255;
+    while (index < 16U) {
+        point = &positions[index];
+        point->point.v[0] += translateX;
+        point->point.v[1] += translateY;
+        if (index == 0 || index == 1 || (u32)(index - 14) < 2U) {
+            color = &colors[index];
+            color->r = edge.r;
+            color->g = edge.g;
+            color->b = edge.b;
+            color->a = edge.a;
+        } else if ((u32)(index - 6) < 4U) {
+            packed = rgb | (s32)(scaledUpper / 255.0f);
+            upper.r = packed >> 24;
+            upper.g = packed >> 16;
+            upper.b = packed >> 8;
+            upper.a = packed;
+            color = &colors[index];
+            color->r = upper.r;
+            color->g = upper.g;
+            color->b = upper.b;
+            color->a = upper.a;
+        } else if ((u32)(index - 10) < 4U) {
+            packed = rgb | (s32)(scaledLower / 255.0f);
+            lower.r = packed >> 24;
+            lower.g = packed >> 16;
+            lower.b = packed >> 8;
+            lower.a = packed;
+            color = &colors[index];
+            color->r = lower.r;
+            color->g = lower.g;
+            color->b = lower.b;
+            color->a = lower.a;
+        } else {
+            color = &colors[index];
+            color->r = mainColor.r;
+            color->g = mainColor.g;
+            color->b = mainColor.b;
+            color->a = mainColor.a;
+        }
+        index++;
+    }
+    offsetX = (s16)offsetX;
+    offsetY = (s16)offsetY;
+    func_0045e6a0(colors, &positions,
+                  depth, 16U, 4, saveState, offsetX, offsetY,
+                  0.0f, scaleX, scaleY);
+}
+#pragma pop
 
 
 /* measured: nd 303 after four attempts; frame 0x150, prologue, both copy
@@ -2865,7 +2950,7 @@ s32 func_00257900(u8 *arg0) {
                     }
                 }
                 if (!(var_f2 <= 0.0f)) {
-                    func_002561f0(0, (s32)( (153.0f * var_f2)), (s32)( (153.0f * var_f4)), (s32)( (153.0f * var_f3)), 1, 0, 0.0f, 0.0f, 40.0f, 0.0f, 1.0f);
+                    func_002561f0(0, (s32)( (153.0f * var_f2)), (s32)( (153.0f * var_f4)), (s32)( (153.0f * var_f3)), 1, 0, 0, 0.0f, 40.0f, 0.0f, 1.0f, 1.0f);
                 }
                 temp_2_12 = (s32)(*(s32 *)(ctx + 0xC));
                 if (temp_2_12 > 0) {
@@ -2904,7 +2989,7 @@ s32 func_00257900(u8 *arg0) {
                 }
             } else if (temp_3_2 < 0x213) {
                 func_002566d0(0xFFFFFF, 0xFF, temp_18, temp_17, 0.0f, 0.0f, 0.0f, 0.0f, temp_f20);
-                func_002561f0(0, 0x99, 0x99, 0x99, 1, 0, 0.0f, 0.0f, 40.0f, 0.0f, 1.0f);
+                func_002561f0(0, 0x99, 0x99, 0x99, 1, 0, 0, 0.0f, 40.0f, 0.0f, 1.0f, 1.0f);
                 func_00278450(*(s8 *)(ctx + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(ctx + 0x18)) & 0xFF));
                 func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 0);
                 func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 1);
@@ -2917,7 +3002,7 @@ s32 func_00257900(u8 *arg0) {
                 temp_f21 = 1.0f - ((f32) (temp_3_2 - 0x212) / 20.0f);
                 func_002566d0(0xFFFFFF, 0xFF, temp_18, temp_17, 0.0f, 0.0f, 0.0f, 0.0f, temp_f20);
                 temp_f0_4 = 153.0f * temp_f21;
-                func_002561f0(0, (s32)( temp_f0_4), (s32)( temp_f0_4), (s32)( temp_f0_4), 1, 0, 0.0f, 0.0f, 40.0f, 0.0f, 1.0f);
+                func_002561f0(0, (s32)( temp_f0_4), (s32)( temp_f0_4), (s32)( temp_f0_4), 1, 0, 0, 0.0f, 40.0f, 0.0f, 1.0f, 1.0f);
                 func_00278450(*(s8 *)(ctx + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(ctx + 0x18)) & 0xFF));
                 temp_f0_5 = 255.0f * temp_f21;
                 func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(ctx + 0x3C), 0, 0);

@@ -1,6 +1,8 @@
+#include "model_motion_internal.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit y_fclCombine.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "fcl_color.h"
+#include "fcl_row_draw.h"
 #include "include_asm.h"
 #include "fcl_bounds_packet.h"
 #include "fcl_draw_task.h"
@@ -146,7 +148,6 @@ extern s32 func_0033e120(u8 *arg0, s32, s32);
 extern void func_001075d0(s32);
 extern s32 func_00144f60(void);
 extern u8 *func_001452b0(s32);
-extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern u8 *func_00457120(void);
 extern f32 func_0014b4d0(void);
 extern void func_004577d0(u8 *arg0, f32 arg1);
@@ -169,7 +170,6 @@ extern s32 func_00459760(void);
 extern void func_0045a3e0(s32, s32);
 extern void func_0030f4f0(u8 *, s16 *);
 extern s32 func_00314320(u8 *);
-extern void func_00320970(u8 *, s32);
 extern void func_002b6b40(s32, s32, s32, s32, s32, f32);
 extern void func_002b69f0(s32, s64, s64, s32, s32, s32);
 extern void func_00315600(u8 *, s32);
@@ -5674,7 +5674,6 @@ void func_002f9d90(u8 *arg0) {
     extern void func_00310960(u8 *, s32, s32);
     extern void func_00324680(u8 *, s32, s32);
     extern s32 func_00325450(u8 *, s32, s32);
-    extern void func_00329310(u8 *, s32, s32);
     extern u8 *func_002e4870(s8);
     extern s32 func_00275820(f32, f32, f32, s32, s32, s32, const char *, s32, f32, f32, f32);
     extern void func_002b69f0(s16, FclVec2f, FclVec2f, u32, u32, s16);
@@ -8925,7 +8924,7 @@ void func_00304580(u8 *arg0) {
     extern void func_0011c630(u8 *);
     extern void func_0011c6e0(u8 *, s32);
     extern void func_0011caf0(u8 *);
-    extern s32 func_0011cc00(u8 *, s16, u8 *);
+    extern s32 func_0011cc00(u8 *, u16, u16);
     extern void func_0011d140(u8 *, s32);
     extern void *func_00243840(u16);
     extern s32 func_00275520(s32, s32, s32, s32, s32, s32, const char *, f32, f32, f32);
@@ -9002,7 +9001,7 @@ void func_00304580(u8 *arg0) {
     extern s32 func_003095f0(void);
     extern s32 func_00309630(u16);
     extern s32 func_003096d0(u8 *);
-    extern s32 func_0010cd70(s32, s32, u8 *);
+    extern s32 func_0010cd70(u8 *, s32, u16);
     extern void func_00110270(u8 *, u16);
     extern void func_001102c0(s16);
     extern s32 func_001102d0(void);
@@ -10334,8 +10333,8 @@ block_274:
         temp_2_47 = (s16)(func_002b2cb0((u8) (*(s16 *)((u8 *)(temp_17)+(0x2D8))), 1, 0x28, 0, 1));
         (*(s16 *)((u8 *)(temp_17)+(0x2D8))) = temp_2_47;
         if (((s64) ((s64) temp_2_47 << 0x30) >> 0x30) == 0x14) {
-            func_0011cc00(func_003147d0((u8 *)(*(s32 *)((u8 *)(temp_17)+(0x148)))), (s16)(*(u16 *)((u8 *)(temp_16_40)+(0))), (u8 *)(u32)(*(u16 *)((u8 *)(temp_16_40)+(2))));
-            func_0010cd70((s32)func_001102e0(), (s16)(*(u16 *)((u8 *)(temp_16_40)+(0))), (u8 *)(u32)(*(u16 *)((u8 *)(temp_16_40)+(2))));
+            func_0011cc00(func_003147d0((u8 *)(*(s32 *)((u8 *)(temp_17)+(0x148)))), (s16)(*(u16 *)((u8 *)(temp_16_40)+(0))), (*(u16 *)((u8 *)(temp_16_40)+(2))));
+            func_0010cd70((u8 *)func_001102e0(), (s16)(*(u16 *)((u8 *)(temp_16_40)+(0))), (*(u16 *)((u8 *)(temp_16_40)+(2))));
             func_0045af60(1, 3, 3, 2);
         }
         if ((*(s16 *)((u8 *)(temp_17)+(0x2D8))) >= 0x28) {
@@ -11815,14 +11814,14 @@ void func_0030c3c0(u8 *arg0) {
     extern s32 func_00106330(s32);
     extern void func_00106390(s32, s32);
     extern void func_0010be60(u8 *, u8 *, s32);
-    extern void func_0010cd70(u8 *, s64, s16);
+    extern s32 func_0010cd70(u8 *, s32, u16);
     extern s32 func_0010ce10(u8 *, u32);
     extern u32 func_0010ceb0(void *);
     extern s64 func_00110a60(s32, s32);
     extern void func_0011b8f0(u8 *, s32);
     extern void func_0011c6e0(u8 *, s32);
     extern s32 func_0011cb70(u8 *, s32);
-    extern s32 func_0011cc00(u8 *, s64, s32);
+    extern s32 func_0011cc00(u8 *, u16, u16);
     extern void func_0011cdd0(u8 *, s16);
     extern void func_0011ce30(u8 *);
     extern void func_0011d140(u8 *, s32);

@@ -1,3 +1,4 @@
+#include "model_motion_internal.h"
 #include "Kosaka/k_clump_internal.h"
 #include "sdk_task_registration.h"
 #include "include_asm.h"
@@ -94,7 +95,6 @@ extern u8 D_005F5320[];
 extern u8 D_005F5330[];
 extern u8 *func_00457120(void);
 extern f32 fGpffff8218;
-extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern s64 func_00479c30(s32 arg0, s32 arg1);
 extern u8 *func_0047a2f0(u32 arg0);
 extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
@@ -2164,7 +2164,6 @@ extern int FUN_00457120(void);
 extern void FUN_00458f40(void *, void *);
 extern int FUN_004782b0(unsigned char *);
 extern void FUN_00478e70(unsigned char *);
-extern int FUN_00479940(unsigned char *, unsigned int, int, int, int);
 extern short FUN_00479c30(int, int);
 extern int FUN_0047a6d0(void *, int, void *);
 extern void FUN_0047a850(unsigned char *);
@@ -2481,7 +2480,7 @@ s32 func_0018a200(u8 *param_1)
         fStack_88 = temp_v13;
         FUN_0047a1e0(*(unsigned int *)(temp_v5 + 0x164),&fStack_90);
       }
-      FUN_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,(int)*(short *)(*(int *)(puVar1[3] + 0x280) + 6)
+      func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,(int)*(short *)(*(int *)(puVar1[3] + 0x280) + 6)
                     ,0,1);
     }
     else if (*(int *)(temp_v5 + 0x234) == 2) {
@@ -2517,7 +2516,7 @@ s32 func_0018a200(u8 *param_1)
         puVar1[0x14] = temp_v11;
         puVar1[0x15] = temp_v5;
       }
-      FUN_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,
+      func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,
                     (int)*(short *)(*(int *)(puVar1[3] + 0x284) + 0x6c),0,1);
     }
     if (*(unsigned short *)(puVar1[3] + 0x298) < 4) {
@@ -2545,7 +2544,7 @@ s32 func_0018a200(u8 *param_1)
                (*(float *)(puVar1[3] + 0x35c) / temp_v13);
       puVar1[7] = (unsigned int)temp_v13;
       puVar1[6] = (unsigned int)(((float*)puVar1)[6] + temp_v13);
-      FUN_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
+      func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
       FUN_003bb5b0(puVar1[6],*(unsigned int *)(puVar1[3] + 0x360),10,&fStack_d0,0);
       temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
       fStack_c0 = *(float *)(temp_v4 + 0x30);
@@ -2614,20 +2613,20 @@ s32 func_0018a200(u8 *param_1)
           puVar1[0xb] = (int)temp_v3;
           temp_v5 = puVar1[3];
           if (*(int *)(temp_v5 + 0x234) == 1) {
-            FUN_00479940(*(unsigned char **)(temp_v5 + 0x164),0,(int)*(short *)(*(int *)(temp_v5 + 0x280) + 6),4
+            func_00479940(*(unsigned char **)(temp_v5 + 0x164),0,(int)*(short *)(*(int *)(temp_v5 + 0x280) + 6),4
                           ,1);
             return 0;
           }
           if (*(int *)(temp_v5 + 0x234) != 2) {
             return 0;
           }
-          FUN_00479940(*(unsigned char **)(temp_v5 + 0x164),0,(int)*(short *)(*(int *)(temp_v5 + 0x284) + 0x6c),
+          func_00479940(*(unsigned char **)(temp_v5 + 0x164),0,(int)*(short *)(*(int *)(temp_v5 + 0x284) + 0x6c),
                         4,1);
           return 0;
         }
       }
       if (-1 < (int)puVar1[0xb]) {
-        FUN_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,(int)(short)puVar1[0xb],4,1);
+        func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,(int)(short)puVar1[0xb],4,1);
         puVar1[0xb] = 0xffffffff;
       }
       temp_v5 = puVar1[3];
@@ -2636,7 +2635,7 @@ s32 func_0018a200(u8 *param_1)
         temp_v11 = puVar1[10];
         if ((int)temp_v11 < 1) {
           if ((temp_v11 == 0) && (temp_v3 = FUN_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
-            FUN_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
+            func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
           }
           if ((int)puVar1[9] < 1) {
             FUN_003bb5b0(puVar1[6],*(unsigned int *)(puVar1[3] + 0x360),10,&fStack_120,0);
@@ -2678,7 +2677,7 @@ s32 func_0018a200(u8 *param_1)
                 puVar1[9] = 0x5a;
                 temp_v4 = FUN_003b7060();
                 puVar1[10] = temp_v4 % 0x5a + 0x3c;
-                FUN_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
+                func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
               }
             }
             else if (((float*)puVar1)[6] < 0.0f) {
@@ -2687,7 +2686,7 @@ s32 func_0018a200(u8 *param_1)
               puVar1[9] = 0x5a;
               temp_v4 = FUN_003b7060();
               puVar1[10] = temp_v4 % 0x5a + 0x3c;
-              FUN_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
+              func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
             }
           }
           else {
@@ -2702,7 +2701,7 @@ s32 func_0018a200(u8 *param_1)
       else if (((temp_v3 == 4) || (temp_v3 == 2)) || (temp_v3 == 1)) {
         if (((temp_v3 != 4) || (((float*)puVar1)[6] != 1.0f)) &&
            (temp_v3 = FUN_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
-          FUN_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
+          func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
         }
         FUN_003bb5b0(puVar1[6],*(unsigned int *)(puVar1[3] + 0x360),10,&fStack_f0,0);
         temp_v4 = FUN_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
@@ -2741,7 +2740,7 @@ s32 func_0018a200(u8 *param_1)
         if (*(short *)(puVar1[3] + 0x220) == 4) {
           if (1.0f < ((float*)puVar1)[6]) {
             puVar1[6] = 0x3f800000;
-            FUN_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
+            func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
           }
         }
         else if (1.0f < ((float*)puVar1)[6]) {
@@ -2779,11 +2778,11 @@ s32 func_0018a200(u8 *param_1)
     }
     if (temp_v13 == 1.0f) {
       if (*puVar1 == 5) {
-        FUN_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,3,8,0);
+        func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,3,8,0);
         *puVar1 = 7;
       }
       else {
-        FUN_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,8,1);
+        func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,8,1);
         *puVar1 = 4;
       }
     }
@@ -2791,7 +2790,7 @@ s32 func_0018a200(u8 *param_1)
   case 7:
     if ((*(char *)(*(int *)(puVar1[3] + 0x164) + 0xee) == '\x01') &&
        (temp_v3 = FUN_00479c30(*(int *)(puVar1[3] + 0x164),0), temp_v3 != 0)) {
-      FUN_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,8,1);
+      func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,8,1);
     }
   }
   return 0;
@@ -2836,10 +2835,14 @@ s32 func_0018bbf0(u8 *arg0)
     value = *(u32 *)(*(u8 **)(arg0 + 0x38));
     return value >= 4;
 }
+/* Shared animation contracts: CSE retains the common transition constant.
+ * The O1 profile still preserves the retail FPU accumulator order. */
 // FUN_0018BC20
 /* measured: optimization_level 1 preserves retail's FPU scheduling for this
    vector normalize; -O2 reorders it into a mismatching form. */
 #pragma optimization_level 1
+#pragma push
+#pragma opt_common_subs on
 void func_0018bc20(u8 *arg0)
 {
     struct Vec3 {
@@ -2862,7 +2865,6 @@ void func_0018bc20(u8 *arg0)
     u8 *temp_2;
     void *target;
     s32 zero;
-    s32 one;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
     temp_2 = func_0047a2f0(*(u32 *)(*(u8 **)(temp_16 + 0xC) + 0x164));
@@ -2897,8 +2899,7 @@ void func_0018bc20(u8 *arg0)
                 *(u32 *)(*(u8 **)(temp_16 + 0xC) + 0x164), 0);
         target = *(void **)(*(u8 **)(temp_16 + 0xC) + 0x164);
         zero = 0;
-        one = 1;
-        func_00479940(target, zero, one, 4, one);
+        func_00479940(target, zero, 1, 4, 1);
         *(s32 *)temp_16 = 5;
         return;
     }
@@ -2906,12 +2907,22 @@ void func_0018bc20(u8 *arg0)
         *(void **)(*(u8 **)(temp_16 + 0xC) + 0x164), 0, 3, 8, 0);
     *(s32 *)temp_16 = 7;
 }
+#pragma pop
 #pragma optimization_level 2
 /* measured: optimization_level 1 preserves the retail FPU accumulator order. */
 #pragma optimization_level 1
+/* Copy the complete direction vector when starting the transition. The
+ * aggregate retains all three source loads with shared constants enabled. */
 // FUN_0018BDD0
+#pragma push
+#pragma opt_common_subs on
 void func_0018bdd0(u8 *arg0)
 {
+    struct Direction {
+        f32 x;
+        f32 y;
+        f32 z;
+    };
     u8 *temp_16;
     u8 *target;
     f32 guard38;
@@ -2920,11 +2931,7 @@ void func_0018bdd0(u8 *arg0)
     f32 guard3c;
     f32 guard34;
     f32 guard40;
-    f32 value30;
-    f32 value34;
-    f32 value38;
     s32 zero;
-    s32 one;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
     guard38 = *(f32 *)(temp_16 + 0x38);
@@ -2935,16 +2942,10 @@ void func_0018bdd0(u8 *arg0)
     guard40 = *(f32 *)(temp_16 + 0x40);
     if ((guard30 * guard3c + guard34 * guard40) + guard38 * guard44 <
         fGpffff8218) {
-        value30 = *(f32 *)(temp_16 + 0x30);
-        value34 = *(f32 *)(temp_16 + 0x34);
-        value38 = *(f32 *)(temp_16 + 0x38);
-        *(f32 *)(temp_16 + 0x3C) = value30;
-        *(f32 *)(temp_16 + 0x40) = value34;
-        *(f32 *)(temp_16 + 0x44) = value38;
+        *(struct Direction *)(temp_16 + 0x3C) = *(struct Direction *)(temp_16 + 0x30);
         target = *(u8 **)(*(u8 **)(temp_16 + 0xC) + 0x164);
         zero = 0;
-        one = 1;
-        func_00479940(target, zero, one, 4, one);
+        func_00479940(target, zero, 1, 4, 1);
         *(s32 *)temp_16 = 6;
         return;
     }
@@ -2952,6 +2953,7 @@ void func_0018bdd0(u8 *arg0)
                   0, 0, 8, 1);
     *(s32 *)temp_16 = 4;
 }
+#pragma pop
 /* measured: close optimization_level 1 FPU accumulator probe. */
 #pragma optimization_level 2
 /* measured: opt_propagation off probe preserves retail's handle-load/result

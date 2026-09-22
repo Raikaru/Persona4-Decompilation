@@ -2,7 +2,7 @@
 #include "type.h"
 #include "fr_font_internal.h"
 extern u8 *func_001094d0(void);
-extern s32 func_00109510(s32 arg0, void *arg1, void *arg2);
+extern s32 func_00109510(u8 *persona, void *skills, void *levels);
 extern void func_0010e710(s32, u8 *, s32);
 typedef struct {
     f32 x;
@@ -52,7 +52,8 @@ extern s32 D_005E4610[];
 extern s32 func_00106330(s32 arg0);
 extern void func_00453570(void);
 extern void func_0043f9c8(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_00452080(void);
+typedef struct KwlnTask KwlnTask;
+extern s32 func_00452080(KwlnTask *task);
 extern u16 func_0010f560(s16 arg0, s32 arg1);
 extern u32 func_0010f600(s16 arg0, s32 arg1);
 extern void *func_00243840(u16 arg0);
@@ -1429,95 +1430,29 @@ void func_00112830(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00112830);
 #endif
-/* Floor (re-measured 2026-09-17): probe_variants 5 reloc-masked differing */
-/* words; fnalign retail 110 instrs / object 110 instrs, 4 edits plus 5 */
-/* reloc-only (110*4 = 440B in the 448B window; the 2-word suffix is retail */
-/* zero-tail nop/nop). Registers, frame, both calls and the whole loop match */
-/* retail; the only residual is a scheduling group swap - retail emits the */
-/* two colour read-backs (lbu 0xde/0xdd(sp)) before the alpha arithmetic, */
-/* this build emits them after. */
-/*   WINS: writing the alpha as `255 - (arg1 & 0xFF)` on a u8 parameter */
-/*   makes MWCC evaluate the masked operand first (andi, then the 0xFF */
-/*   constant, then `subu $s2,$v0,$v1`), which is retail's operand order; */
-/*   the bare `255 - arg1` form materialises the constant first and */
-/*   reverses the subu operands. Keeping alpha_byte assigned before the */
-/*   two colour locals preserves retail's $s2/$s1/$s0 assignment, which */
-/*   follows definition order here (declaration order is inert in this */
-/*   function; six permutations measured). */
-/*   Width audit 2026-09-17 (tools/wscan_pairs): object dsll32/dsra32 pairs */
-/*   1 = retail 1, the shared legitimate (s16)temp_21 sign-extension before */
-/*   the sprintf call; the u8 arg1 carries no extension cost and the andi */
-/*   count is 5 = 5, so u8 stands. s32-with-mask and u8-bare both score 5 */
-/*   words but 6 fnalign edits (reversed subu) against this shape's 4. */
-/*   WALL: moving the colour reads above the alpha statement makes the */
-/*   instruction stream exact - an instruction-level alignment then */
-/*   reports no inserts, deletes or reordering - but rotates the same */
-/*   three registers ($s2/$s1/$s0 against retail's $s1/$s0/$s2), scoring */
-/*   11 words against this shape's 5.  Measured inert on that variant: */
-/*   400 declaration permutations, every colour/alpha type combination */
-/*   in {u8,u16,s16,u32,s32}, and the pragmas opt_dead_assignments, */
-/*   opt_lifetimes, optimize_for_size and opt_strength_reduction. */
-/*   Sweep complete 2026-09-17: `opt_common_subs off` and */
-/*   `opt_loop_invariants on` are neutral (5 words / 4 edits, identical */
-/*   stream); `#pragma schedule on` (105) and `opt_propagation off` (78) */
-/*   are worse still. Pairs 2026-09-17 (`tools/pragma_sweep.py --pairs`, */
-/*   8 singles + 28 pairs, banked 5): ties at 5 among cse_off/loopinv/ */
-/*   strength_off/unroll_off + 8 pairs among them; dead 58, prop 75, */
-/*   sched 102, peephole 105, all sched/peephole pairs 100-109. No pair */
-/*   beats the singles; floor stands at 5. Opclass 2026-09-17 (tools/opclass.py on this owner): */
-/*   this floor carries no opcode-class surplus - both sides emit the lbu */
-/*   pair, so the residual is genuinely scheduling, not an lb/lbu fix. */
-/* 2026-09-18 lead pass, 9 measured variants, floor confirmed at 5 words.
-   110/110 instructions.  The whole residual is placement: retail reloads the
-   two colour bytes (`lbu $s1, 0xde($sp)` / `lbu $s0, 0xdd($sp)`) immediately
-   after storing the struct and before computing `255 - (arg1 & 0xFF)`, while
-   this body computes the subtraction first and reloads three instructions
-   later.  Everything else agrees.
-   The source order is already retail's and must not be "fixed": moving the
-   two colour reads above the alpha statement costs 5 -> 11, swapping the two
-   reads as well costs 5 -> 10, and inlining the alpha expression into the
-   call costs 5 -> 28.  Pragmas do not reach it either - `schedule off`,
-   `opt_loop_invariants on`, `opt_unroll_loops off` and `opt_common_subs off`
-   all tie at 5 with a byte-identical stream, `opt_dead_assignments off`
-   costs 58 and `opt_propagation off` costs 75. */
-/* 2026-09-18, handoff 7p probe; floor stands at 5.  The four differing words
-   are the two `lbu` loads of the green and blue colour bytes: retail issues
-   them at instruction 27-28, this body at 30-31, five slots later.  Moving
-   the snapshot is what fixed func_001c79f0, so it was tried four ways here
-   and every one is a large regression: assigning the loop copies right after
-   `color2`/`color1` costs 45, dropping the loop copies and using
-   `color1`/`color2` directly in the loop costs 37, assigning them just after
-   `alpha_byte` costs 50, and reading `stack.color.g`/`.b` into them straight
-   after the struct copy costs 43.  The current split - two u32s before the
-   first call, two u8 copies after it - is the cheapest arrangement; the
-   remaining five-slot delay is scheduling. */
-/* 2026-09-19 pair close-out (Main request): fnalign 110/110, 4 edits +5 reloc-only =9 floor_distance edits, 14 words (5 masked + HI16/LO16 splits + 8B zero tail). Frame addiu $sp,-0xE0 both sides -- match, closed on frame. */
-/* - reloc-only [16:18] lui $v0,0x5e + addiu $v0,0x4770 vs lui $v0,0 + addiu $v0,0 (D_005E4770): immediate (linker addend). */
-/* - delete [27:29] lbu $s1,0xde($sp) + lbu $s0,0xdd($sp) vs -- : scheduling (order-only, same regs $s1/$s0; retail issues before alpha, body 5 slots later). No nop-vs-work -- both sides emit the pair. */
-/* - insert [32:32]->[30:32] -- vs lbu $s1,0xde($sp) + lbu $s0,0xdd($sp): scheduling counterpart to the delete above; together 4 edits. */
-/* - reloc-only [51:52] addiu $a1,$gp,-0x6414 vs addiu $a1,$gp,0 (iGpffff9bec): immediate. */
-/* - reloc-only [56:58] lui/addiu for D_005E4798: immediate. */
-/* No register rotation (regs $s1/$s0/$s2 correct in this shape; the 11-word colour-first variant rotates them -- see WALL above), no $a0-$t0 spill move, no operand-order (subu order already retail's via 255-(arg1&0xFF)), no branch-offset. Next person: finished on frame/count/regs, open only on 5-slot schedule. */
-/* measured 001130c0 (owner, this session): 110/110 exact, **4 fnalign edits**, 5 differing
-   words, and all four are one register transposition: retail colours the two colour bytes
-   and the alpha temporary $s1/$s0/$s2 where the object uses $s2/$s1/$s0.  Reordering the
-   three assignments so the colour reads precede the alpha computation - which is retail's
-   emission order, `lbu 0xde`/`lbu 0xdd` at R27-R28 before `andi`/`subu` at R29-R31 - is
-   worse, 11 edits.  Genuine allocator floor. */
-/* measured 001130c0 (owner, 2026-09-19): 110/110 exact, **4 edits plus 5 reloc-only**.  All four
-   are b210 hoisting `lbu $s1, 0xde($sp)` / `lbu $s0, 0xdd($sp)` above the `255 - (arg1 & 0xFF)`
-   computation that retail emits first.  The source order already matches retail; four
-   placements of the `alpha_byte` statement were measured (before the colour copy, first
-   statement, after the two colour reads, before `temp_2`) and score 4, 8, 8 and 11 - the
-   current position is the best of them and the scheduler moves the pair regardless. */
-// FUN_001130C0 NONMATCHING
-#ifdef NON_MATCHING
+typedef struct { u8 r, g, b, a; } FontGlyphColor;
+static inline s32 fontDrawLeadingGlyph(const Vec2f *position, f32 depth, u8 opacity, s32 texture,
+    const FontGlyphColor *color, u32 *blue, u32 *green)
+{
+    s32 alpha;
+
+    *blue = color->b;
+    *green = color->g;
+    alpha = 255 - (opacity & 0xFF);
+    func_0046d4c0(0, texture, 0x47, position->x, 2.0f + position->y,
+                  alpha, color->r, *green, *blue, depth, 0);
+    return alpha;
+}
+
+/* Native b210 -O2: 440 executable bytes, nine resolved relocations,
+ * and eight retail alignment zeros. The leading draw keeps inverse
+ * opacity live while the loop retains its blue and green snapshots. */
+// FUN_001130C0
 void func_001130c0(Vec2f arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
 {
-    typedef struct { u8 r, g, b, a; } Color;
     struct {
         s8 text[0x4C];
-        Color color;
+        FontGlyphColor color;
     } stack;
     s16 temp_21;
     u32 color2;
@@ -1535,13 +1470,9 @@ void func_001130c0(Vec2f arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
 
     temp_21 = *(s16 *)(arg2 + 2);
     temp_2 = D_005E4770 + (*(s16 *)(arg2 + 0x16) * 4);
-    stack.color = *(Color *)temp_2;
-    alpha_byte = 255 - (arg1 & 0xFF);
-    color2 = stack.color.b;
-    color1 = stack.color.g;
-    func_0046d4c0(0, arg3, 0x47, arg0.x, 2.0f + arg0.y,
-                  alpha_byte, stack.color.r, color1, color2,
-                  fparg0, 0);
+    stack.color = *(FontGlyphColor *)temp_2;
+    alpha_byte = fontDrawLeadingGlyph(&arg0, fparg0, arg1, arg3,
+        &stack.color, &color2, &color1);
     func_00442088(stack.text, &iGpffff9bec, (s16)temp_21);
     arg0.x = arg0.x + (14.0f +
         *(f32 *)(D_005E4798 + (*(s16 *)(arg2 + 0x18) * 0x10)));
@@ -1556,9 +1487,7 @@ void func_001130c0(Vec2f arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
         var_20--;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_001130c0);
-#endif
+
 // FUN_00113280
 void func_00113280(Vec2f arg0, f32 fparg0, s32 arg1, s16 arg2, s32 arg3,
                    s32 arg4)
@@ -1663,8 +1592,8 @@ s32 func_00113520(s32 arg0, s32 arg1, s32 arg2, u8 *arg3)
 // FUN_00113610
 void func_00113610(s32 arg0, u8 *arg1)
 {
-    u8 sp70[0x40];
-    u8 sp30[0x40];
+    u16 sp70[32];
+    u16 sp30[32];
     u8 *table;
     u8 *entry;
     s16 i;
@@ -1688,15 +1617,15 @@ void func_00113610(s32 arg0, u8 *arg1)
         i++;
     }
     *(s16 *)(arg1 + 0x60) = i;
-    count = (s16)func_00109510(arg0, sp70, sp30);
+    count = (s16)func_00109510((u8 *)(u32)arg0, sp70, sp30);
     j = 0;
     while (j < count) {
         index = (s32)j * 0xC;
         entry = arg1 + index;
         *(s32 *)(entry + 0x68) = 0;
         *(s32 *)(entry + 0x6C) = 0;
-        *(u16 *)(entry + 0x66) = *(u16 *)(sp70 + ((s32)j * 2));
-        *(u16 *)(arg1 + ((s32)j * 2) + 0x1E4) = *(u16 *)(sp30 + ((s32)j * 2));
+        *(u16 *)(entry + 0x66) = sp70[(s32)j];
+        *(u16 *)(arg1 + ((s32)j * 2) + 0x1E4) = sp30[(s32)j];
         j++;
     }
     *(s16 *)(arg1 + 0x224) = count;
@@ -1766,8 +1695,8 @@ s32 func_0011fcf0(u8 *arg0) {
     return *(s32 *)(*(u8 **)(arg0 + 0x38) + 8) == 8;
 }
 // FUN_0011FD10
-void func_0011fd10(void) {
-    func_00452080();
+void func_0011fd10(s32 task) {
+    func_00452080((KwlnTask *)task);
 }
 // FUN_0011FD30
 void func_0011fd30(u8 *arg0) {

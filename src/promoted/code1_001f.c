@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "rw/plcore/barenderstate.h"
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
 #include "btl_target_state_packet_internal.h"
@@ -20,9 +21,10 @@ static inline u32 addOffsetAfterBase(u32 base, u32 offset) {
     return offset + base;
 }
 
-extern s32 D_00625210[];
-extern void (*D_00887300[])();
-extern void (*D_00887304[])(s32 arg0, void *arg1);
+extern RwRenderState D_00625210[];
+typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
+extern BattleRenderStateFunction D_00887300[];
+extern BattleRenderStateFunction D_00887304[];
 extern void func_001fb480(f32 scale, u8 *arg0, s32 arg1, s32 arg2, u8 *arg3);
 extern u16 D_0076455C;
 extern u16 D_0076455A;
@@ -32,10 +34,10 @@ extern u8 D_007635C8[4];
 extern f32 D_008872FC_abs[];
 extern void func_00122640(s32 arg0, s32 arg1);
 extern s32 func_00122720(void);
-extern void func_00204690(u8 *arg0, f32 fparg0, f32 fparg1, s32 arg1, f32 fparg2);
+extern void func_00204690(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color);
 extern void func_003e8110(s32 arg0);
 extern s32 func_003e8120(s32 arg0);
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern s32 func_003f6440(s32 command, void *value);
 extern s32 func_00457120(void);
 extern void func_0045c870(u8 *arg0, s32 arg1);
 extern void func_00489f80(void);
@@ -49,7 +51,7 @@ extern s32 func_00231ee0(u8 *arg0);
 extern s32 func_00231f80(u8 *arg0);
 extern u16 func_00232290(u8 *arg0);
 extern s32 func_002326c0(u8 *arg0);
-extern s32 func_002428f0(u8 *arg0, s32 arg1);
+extern u32 func_002428f0(s32 unit, s32 hpDelta);
 extern s32 func_00106330(s32 arg0);
 extern s32 func_0010f420(s32 arg0, s32 arg1);
 extern u8 *iGpffffb3d0;
@@ -74,7 +76,7 @@ extern s32 func_002439c0(s32 arg0);
 extern u16 func_00243a30(u8 *arg0, s32 *arg1);
 extern void func_0046d730(void *arg0, s32 arg1);
 extern u8 D_0060AB08[];
-extern s32 func_002340c0(s32 arg0, s32 arg1);
+extern s32 func_002340c0(u8 *unit, s32 flags);
 extern void func_0045a3e0(s32 arg0, s32 arg1);
 extern s16 func_001060b0(void);
 extern s32 func_00110d60(s32 arg0);
@@ -1237,14 +1239,14 @@ void func_001f14f0(u8 *arg0)
           *puVar31 = *puVar31 | 8;
         }
         if (pbStack_4 == p) {
-          temp_v20 = func_002428f0(pbStack_24,iStack_40);
+          temp_v20 = (s32)func_002428f0((s32)(pbStack_24),iStack_40);
           temp_v6 = temp_v20 != 0;
           if ((temp_v20 == 0) && (temp_v6 = 0, (temp_v15 & 0x80000) != 0)) {
             temp_v6 = temp_v5;
           }
         }
         else {
-          temp_v20 = func_002428f0(pbStack_24,iStack_50);
+          temp_v20 = (s32)func_002428f0((s32)(pbStack_24),iStack_50);
           temp_v6 = temp_v20 != 0;
           if ((temp_v20 == 0) && (temp_v6 = 0, (temp_v15 & 0x80000) != 0)) {
             temp_v6 = temp_v5;
@@ -1508,7 +1510,7 @@ LAB_001f27e8:
           temp_v23 = temp_v13 + temp_v12 * 0x20;
           temp_v4 = *(int *)(temp_v23 + 0xf0);
           temp_v22 = temp_v22 + temp_v4;
-          temp_v20 = func_002428f0((u8 *)temp_v3,temp_v22);
+          temp_v20 = (s32)func_002428f0((s32)((u8 *)temp_v3),temp_v22);
           if ((temp_v20 != 0) ||
              (((*(unsigned int *)(temp_v23 + 0xf8) & 0x80000) != 0 &&
               ((*(unsigned int *)(temp_v23 + 0xfc) & 0x80000) == 0)))) {
@@ -1566,7 +1568,7 @@ LAB_001f27e8:
         if (((((*(unsigned short *)(temp_v11 + 0x1a) & 1) != 0) &&
              (temp_v13 = *(int *)(temp_v11 + 0x30), *(char *)(temp_v13 + 0xa2) == '\x01')) &&
             ((*(unsigned int *)(temp_v13 + 0x9c) & 8) != 0)) &&
-           ((temp_v12 = func_002428f0((u8 *)(*(unsigned int *)(temp_v13 + 0xa64)),0), temp_v12 == 0 &&
+           ((temp_v12 = (s32)func_002428f0((s32)((u8 *)(*(unsigned int *)(temp_v13 + 0xa64))),0), temp_v12 == 0 &&
             (temp_v12 = func_00232710(*(unsigned int *)(*(int *)(temp_v11 + 0x30) + 0xa64),0x100000),
             temp_v12 == 0)))) {
           temp_v10 = temp_v10 - 1;
@@ -1854,52 +1856,61 @@ s32 func_001f3b80(s32 arg0) {
                                           (u32)temp_5) + 4);
     return (s32)addBaseFirst((u32)temp_5, (u32)value);
 }
-/* Guarded candidate: 932/944 bytes, 11 differing instruction words (2026-09-20).
-   Preserve the original list head while borrowing a cursor for the flags
-   scan. The resistance passes have independent indices and the second pass
-   reloads its head after the query callbacks. The remaining difference is
-   the first pass's node/index register allocation. D_0060AB20's caller at
-   001f56d0 supplies four integer arguments; all are unused here.
-   Receipts: build/first-party-finish-20260920/code001f-worker7-objects. */
-// FUN_001F3BB0 NONMATCHING
-#ifdef NON_MATCHING
+/* Native b210 -O2 recovery: 932 bytes plus 12 zero tail bytes.
+   Keep both message results at function scope. One native word holds the
+   first pass's element index, then the second pass's node address; each
+   phase initializes it before use. The first head survives the flags scan,
+   while the second head is reloaded after the first pass's query callbacks.
+   The four unused arguments retain D_0060AB20's callback contract.
+   See docs/probe_archive/BattleAction_20260922_resume.md. */
+// FUN_001F3BB0
 s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     extern s32 func_001ef4d0(s32 arg0, s32 arg1);
     extern s32 func_00231e20(u8 *arg0);
     extern s32 func_00242800(u8 *arg0, s32 arg1);
-    s32 count;
-    s32 actor;
-    s32 has_skill;
-    s32 avg_level;
-    s32 hero_level;
-    s32 level_advantage;
-    u8 *node;
-    u8 *scan;
+    typedef struct ResistanceScanNode {
+        u8 reserved000[0xA4];
+        u16 id;
+        u8 reserved0A6[0x9BE];
+        u8 *data;
+        u8 reservedA68[4];
+        struct ResistanceScanNode *next;
+    } ResistanceScanNode;
+    s32 secondaryMessage;
+    s32 primaryMessage;
+    s32 enemyCount;
+    s32 actorId;
+    s32 hasSkill;
+    s32 averageLevel;
+    s32 referenceLevel;
+    s32 levelAdvantage;
+    ResistanceScanNode *firstNode;
+    ResistanceScanNode *flagNode;
     u8 *metadata;
     u32 flags;
 
-    count = func_001ef720(2, 0x80000) & 0xFFFF;
-    if (count > 5) {
+    enemyCount = func_001ef720(2, 0x80000) & 0xFFFF;
+    if (enemyCount > 5) {
         return -1;
     }
 
     if (func_00106330(0x38) != 0) {
-        actor = 5;
+        actorId = 5;
     } else {
-        actor = 8;
+        actorId = 8;
     }
-    has_skill = func_0010ce10((u8 *)func_0010a900(actor & 0xFFFF), 0x10D) != -1;
+    hasSkill = func_0010ce10((u8 *)func_0010a900(actorId & 0xFFFF), 0x10D) != -1;
 
-    avg_level = func_001ef4d0(2, 0x80000) & 0xFFFF;
-    hero_level = func_00231e20(*(u8 **)(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30) + 0xA64)) & 0xFF;
-    level_advantage = (avg_level - hero_level) >= 4;
+    averageLevel = func_001ef4d0(2, 0x80000) & 0xFFFF;
+    referenceLevel = func_00231e20(*(u8 **)(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30) + 0xA64)) & 0xFF;
+    levelAdvantage = (averageLevel - referenceLevel) >= 4;
 
-    node = *(u8 **)(iGpffffb3ac + 0x180);
-    scan = node;
+    firstNode = *(ResistanceScanNode **)(iGpffffb3ac + 0x180);
+    flagNode = firstNode;
     metadata = iGpffffb3c4;
-    for (; scan != NULL; scan = *(u8 **)(scan + 0xA6C)) {
-        flags = *(u16 *)(metadata + (*(u16 *)(scan + 0xA4) * 0x3C));
+    for (; flagNode != NULL; flagNode = flagNode->next) {
+        flags = *(u16 *)(metadata + (flagNode->id * 0x3C));
         if ((flags & 0x40) != 0) {
             return 1;
         }
@@ -1908,40 +1919,38 @@ s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
         }
     }
 
-    if (has_skill) {
-        s32 val2;
-        s32 val1;
+    if (hasSkill) {
+        /* The first pass uses an element index; the second uses a node address. */
+        uintptr_t scanPosition;
 
-        val2 = -1;
-        val1 = val2;
+        secondaryMessage = -1;
+        primaryMessage = secondaryMessage;
 
         {
-            s32 i;
-
-            for (; node != NULL; node = *(u8 **)(node + 0xA6C)) {
-                for (i = 0; i < 8; i++) {
-                    if ((func_00242800(*(u8 **)(node + 0xA64), (s16)i) & 0x07000000) != 0) {
-                        switch (i) {
+            for (; firstNode != NULL; firstNode = firstNode->next) {
+                for (scanPosition = 0; (s32)scanPosition < 8; scanPosition++) {
+                    if ((func_00242800(firstNode->data, (s16)scanPosition) & 0x07000000) != 0) {
+                        switch (scanPosition) {
                         case 0:
-                            val1 = 0x17;
+                            primaryMessage = 0x17;
                             break;
                         case 1:
-                            val1 = 0x18;
+                            primaryMessage = 0x18;
                             break;
                         case 2:
-                            val1 = 0x19;
+                            primaryMessage = 0x19;
                             break;
                         case 3:
-                            val1 = 0x1B;
+                            primaryMessage = 0x1B;
                             break;
                         case 4:
-                            val1 = 0x1A;
+                            primaryMessage = 0x1A;
                             break;
                         case 6:
-                            val1 = 0x1C;
+                            primaryMessage = 0x1C;
                             break;
                         case 7:
-                            val1 = 0x1D;
+                            primaryMessage = 0x1D;
                             break;
                         }
                     }
@@ -1950,33 +1959,34 @@ s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
         }
 
         {
-            u8 *second_node;
-            s32 second_index;
+            s32 secondElement;
 
-            for (second_node = *(u8 **)(iGpffffb3ac + 0x180); second_node != NULL; second_node = *(u8 **)(second_node + 0xA6C)) {
-                for (second_index = 0; second_index < 8; second_index++) {
-                    if ((func_00242800(*(u8 **)(second_node + 0xA64), (s16)second_index) & 0x08000000) != 0) {
-                        switch (second_index) {
+            for (scanPosition = (uintptr_t)*(ResistanceScanNode **)(iGpffffb3ac + 0x180);
+                 scanPosition != 0;
+                 scanPosition = (uintptr_t)((ResistanceScanNode *)scanPosition)->next) {
+                for (secondElement = 0; secondElement < 8; secondElement++) {
+                    if ((func_00242800(((ResistanceScanNode *)scanPosition)->data, (s16)secondElement) & 0x08000000) != 0) {
+                        switch (secondElement) {
                         case 0:
-                            val2 = 0x1E;
+                            secondaryMessage = 0x1E;
                             break;
                         case 1:
-                            val2 = 0x1F;
+                            secondaryMessage = 0x1F;
                             break;
                         case 2:
-                            val2 = 0x20;
+                            secondaryMessage = 0x20;
                             break;
                         case 3:
-                            val2 = 0x22;
+                            secondaryMessage = 0x22;
                             break;
                         case 4:
-                            val2 = 0x21;
+                            secondaryMessage = 0x21;
                             break;
                         case 6:
-                            val2 = 0x23;
+                            secondaryMessage = 0x23;
                             break;
                         case 7:
-                            val2 = 0x24;
+                            secondaryMessage = 0x24;
                             break;
                         }
                     }
@@ -1984,32 +1994,29 @@ s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
             }
         }
 
-        if (val1 != -1) {
-            return val1;
+        if (primaryMessage != -1) {
+            return primaryMessage;
         }
-        if (val2 != -1) {
-            return val2;
+        if (secondaryMessage != -1) {
+            return secondaryMessage;
         }
     }
 
-    if (level_advantage) {
+    if (levelAdvantage) {
         return 2;
     }
 
     switch (*(u16 *)(iGpffffb3ac + 0x1A)) {
     case 0:
-        return count + 2;
+        return enemyCount + 2;
     case 1:
-        return count + 7;
+        return enemyCount + 7;
     case 2:
-        return count + 12;
+        return enemyCount + 12;
     default:
         return -1;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f3bb0);
-#endif
 // FUN_001F3F60
 s32 func_001f3f60(void)
 {
@@ -2591,276 +2598,205 @@ low_switch_4ce0:
         return -1;
     }
 }
-extern s32 func_00242930(void *data);
+extern u32 func_00242930(s32 unit);
 extern u8 *func_001b0c80(s32 arg0);
-/* Floor: 1888B window, obj 1872B, 61 differing words. Frame (-336,
-   sd ra,0x40, sq s0-s3), callee-saved assignment, all 21 calls, both
-   arm chains, the guard chain and the switch table match retail.
-   WINS: callee-saved regs are assigned in REVERSE declaration order
-   (var_18 declared first -> s2, var_17 -> s1, var_16 -> s0, the
-   parameter last -> s3; micro-test r1/r2); retail calls 002428f0
-   before 001b0c80 and consumes the 001b0c80 result in v0, so nothing
-   is hoisted across the call and only four s-regs are saved; every
-   arm of both chains repeats its own store tail (a shared
-   "if (b != 0)" epilogue collapses the eight arms and loses 92B);
-   the constant (code,-1) pairs are written with array indexing
-   (sh 0x50/0x52 folded) while the loop's node-id pairs use a pointer
-   temp (addiu + sh 0/2); the 0xA6C/0xA68 globals need a materialized
-   pointer for the store and a plain expression for the load;
-   "if (aux >= 0) switch (aux)" reproduces retail's bltz bound check
-   (micro-test f_guard) which no switch operand type alone emits.
-   WALL (one instruction): retail rematerializes the id address
-   (addiu v0,a0,0x52; lh v0,0(v0)) instead of folding it onto the
-   code pointer (lh v0,2(a0)); the 4B shift is the whole residual.
-   Fourteen addressing shapes (struct array, 2D, u8 views, dual
-   pointers, nested scopes), both compiler builds (b210/b119),
-   -O1/-O2/-O2,s/-O2,p/-O4 and the opt_propagation/opt_common_subs/
-   opt_dead_code/opt_strength_reduction/opt_lifetimes pragmas all
-   fold. A census over all 7942 matched functions finds no in-tree
-   precedent for one sp-derived base with two materialized offsets.
-   MEASURED, NOT BANKED: spelling the guard `if (aux > -1)` instead of
-   `if (aux >= 0)` drops the reloc-masked residual from 57 words to 6, but
-   it is not an improvement. That spelling emits `slti $at,$v0,0; bnez $at`
-   where retail emits a single `bltz $v0`, and the extra instruction merely
-   cancels the one missing `addiu` below, realigning every later branch
-   offset. Two cancelling size errors score better than one honest one, so
-   the body below keeps the form that matches retail's comparison.
-   Resume: that rematerialization lever.
-*/
-/* 2026-09-18 diagnosis for the next pass; floor unchanged at 57.  The
-   residual has one dominant shape and it is the reverse of pointer caching:
-   retail materialises a row address and then loads at offset zero -
-   `addu $a0, $v0, $sp` / `addiu $v0, $a0, 0x50` / `lh $a1, ($v0)`, and again
-   `addiu $v0, $a0, 0x52` / `lh $v0, ($v0)` - where this body folds the
-   element offset into the load, `lh $v0, 2($a0)`.  The `spbuf` reads are
-   written as `b[0]` and `b[1]` off one pointer; retail's shape is two
-   separate element pointers, each dereferenced at zero.  That is the
-   experiment to run next: `s16 *b0 = &spbuf[k]; s16 *b1 = &spbuf[k + 1];`
-   at the read sites, not the write sites, which already agree.  The rest of
-   the rows are one-instruction branch displacements that will follow the
-   address shape. */
-/* 57 -> 13 (2026-09-18) by handoff 7p, and the next experiment is named
-   below.  Retail forms a row address once and then derives each element
-   address from it at its use - `addu $a0, $v0, $sp` / `addiu $v0, $a0, 0x50`
-   / `lh ($v0)`, later `addiu $v0, $a0, 0x52` / `lh ($v0)` - where this body
-   used to fold the element offset into the load, `lh 2($a0)`.
-   Two element pointers, each dereferenced at offset zero, is worth 57 -> 14,
-   and assigning the second one lazily rather than at its declaration takes
-   it to 13.  Placement of that assignment is load bearing in the same way as
-   func_001c79f0's snapshot: before the `iGpffffb3ac` read 13, right after
-   the first read 13, either side of the `pa68` computation 13, before the
-   first read 14, at the declaration 14, before `*pa68 = var_5` 57, and
-   `b4 = &b3[1]` instead of `b3 + 1` 57.  Rejected: `*(b3 + 1)` without a
-   second pointer 57, byte-offset casts 57, indexing `spbuf[k3]` and
-   `spbuf[k3 + 1]` off a saved index 64.
-   The remaining 13 words say retail's long-lived base is the *row*, not the
-   array: it holds `$sp + index*4` in $a0 and adds 0x50 and 0x52 to it, which
-   means `spbuf` is at offset 0x50 inside a per-row stack structure rather
-   than a standalone `s16 spbuf[128]`.  The next pass should merge the stack
-   arrays of this function into one row struct and index that.  Byte-offset
-   spellings do not reach it: a saved `boff` with `*(s16 *)((u8 *)spbuf +
-   boff)` and `+ boff + 2` costs 57, and mixing it with the pointer form ties
-   at 13.
-   Closed out 2026-09-18: the row-struct hypothesis is wrong.  Retail's write
-   sites use the same shape this body already produces - `addiu $3, $2, 0x50`
-   then `sh 0x0($3)` and `sh 0x2($3)` - and they align exactly, so `spbuf` is
-   a single array at frame offset 0x50 in retail too.  The difference is only
-   that at the read site retail derives BOTH element addresses from the row
-   base `$sp + index*4` (adding 0x50 and 0x52) where this body derives the
-   second from the first (`$v0 + 2`).  C cannot name `$sp + index*4`: every
-   spelling that tries goes through the array and is worse - mirroring the
-   write-site index form at both reads 64 with an s32 index and 64 with u16,
-   and `b3[1]` for the second read 57.  Treat the remaining 13 as codegen.
-   2026-09-19 base-pointer round: five single-base spellings (u8 base + idx, s16 base[40/41], inline without idx, base+b3 hybrid) all 57 - naming the row keeps the computation but not the register lifetime, and costs a sub for the -0x50; two-pointer lazy stays best at 13. */
-// FUN_001F4E50 NONMATCHING
-#ifdef NON_MATCHING
+/* Native b210 -O2 recovery: 1876 bytes plus 12 zero tail bytes.
+   Each selected field has its own uintptr_t address, derived from that
+   field's array base. The byte offset stays live across the previous-code
+   check; the actor address is formed after recording the selected code.
+   This preserves both addiu/LH-at-zero pairs and the signed actor guard.
+   The owned nine-entry switch table resolves to retail at 0x00747500.
+   See docs/probe_archive/BattleAction_20260922_resume.md. */
+// FUN_001F4E50
 s64 func_001f4e50(u8 *arg0) {
-    s16 spbuf[128];
-    s16 var_5;
-    u8 *var_18;
-    s32 var_17;
-    s32 var_16;
-    s32 temp_4;
-    u8 *ac;
+    struct ActionMessageChoice {
+        s16 code;
+        s16 actor;
+    } choices[64];
+    s16 selectedCode;
+    u8 *unit;
+    s32 choiceCount;
+    s32 code8ACount;
+    s32 enemyCount;
+    u8 *battle;
 
     if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
         return -1;
     }
-    var_17 = 0;
-    var_16 = 0;
-    ac = iGpffffb3ac;
-    var_18 = *(u8 **)(ac + 0x178);
-    while (var_18 != NULL) {
-        if (func_002428f0(*(u8 **)(var_18 + 0xA64), 0) == 0) {
-            u8 *t2 = (u8 *)func_001b0c80((s32)var_18);
-            if ((t2 == NULL) || !(*(u16 *)(t2 + 0x18) & 0x20)) {
-                if (func_00242930((void *)*(u8 **)(var_18 + 0xA64)) != 0) {
-                    s16 *b = &spbuf[(var_17 & 0xFFFF) * 2];
-                    b[0] = 0x8A;
-                    b[1] = *(u16 *)(var_18 + 0xA4);
-                    var_17 = (var_17 + 1) & 0xFFFF;
-                    var_16 = (var_16 + 1) & 0xFFFF;
+    choiceCount = 0;
+    code8ACount = 0;
+    battle = iGpffffb3ac;
+    unit = *(u8 **)(battle + 0x178);
+    while (unit != NULL) {
+        if (func_002428f0((s32)(*(u8 **)(unit + 0xA64)), 0) == 0) {
+            u8 *unitWork = (u8 *)func_001b0c80((s32)unit);
+            if ((unitWork == NULL) || !(*(u16 *)(unitWork + 0x18) & 0x20)) {
+                if (func_00242930((s32)((void *)*(u8 **)(unit + 0xA64))) != 0) {
+                    struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
+                    choice->code = 0x8A;
+                    choice->actor = *(u16 *)(unit + 0xA4);
+                    choiceCount = (choiceCount + 1) & 0xFFFF;
+                    code8ACount = (code8ACount + 1) & 0xFFFF;
                 }
-                if (*(u16 *)(var_18 + 0xA4) != 1) {
-                    if (func_00232710(*(s32 *)(var_18 + 0xA64), 0x10) != 0) {
-                        s16 *b = &spbuf[(var_17 & 0xFFFF) * 2];
-                        b[0] = 0x99;
-                        b[1] = *(u16 *)(var_18 + 0xA4);
-                        var_17 = (var_17 + 1) & 0xFFFF;
-                    } else if (func_00232710(*(s32 *)(var_18 + 0xA64), 0x20) != 0) {
-                        s16 *b = &spbuf[(var_17 & 0xFFFF) * 2];
-                        b[0] = 0x9f;
-                        b[1] = *(u16 *)(var_18 + 0xA4);
-                        var_17 = (var_17 + 1) & 0xFFFF;
-                    } else if (func_00232710(*(s32 *)(var_18 + 0xA64), 0x4) != 0) {
-                        s16 *b = &spbuf[(var_17 & 0xFFFF) * 2];
-                        b[0] = 0xa5;
-                        b[1] = *(u16 *)(var_18 + 0xA4);
-                        var_17 = (var_17 + 1) & 0xFFFF;
-                    } else if (func_00232710(*(s32 *)(var_18 + 0xA64), 0x2) != 0) {
-                        s16 *b = &spbuf[(var_17 & 0xFFFF) * 2];
-                        b[0] = 0xab;
-                        b[1] = *(u16 *)(var_18 + 0xA4);
-                        var_17 = (var_17 + 1) & 0xFFFF;
-                    } else if (func_00232710(*(s32 *)(var_18 + 0xA64), 0x1) != 0) {
-                        s16 *b = &spbuf[(var_17 & 0xFFFF) * 2];
-                        b[0] = 0xb1;
-                        b[1] = *(u16 *)(var_18 + 0xA4);
-                        var_17 = (var_17 + 1) & 0xFFFF;
-                    } else if (func_00232710(*(s32 *)(var_18 + 0xA64), 0x40) != 0) {
-                        s16 *b = &spbuf[(var_17 & 0xFFFF) * 2];
-                        b[0] = 0xb7;
-                        b[1] = *(u16 *)(var_18 + 0xA4);
-                        var_17 = (var_17 + 1) & 0xFFFF;
-                    } else if (func_00232710(*(s32 *)(var_18 + 0xA64), 0x80) != 0) {
-                        s16 *b = &spbuf[(var_17 & 0xFFFF) * 2];
-                        b[0] = 0xbd;
-                        b[1] = *(u16 *)(var_18 + 0xA4);
-                        var_17 = (var_17 + 1) & 0xFFFF;
-                    } else if (func_00232710(*(s32 *)(var_18 + 0xA64), 0x8) != 0) {
-                        s16 *b = &spbuf[(var_17 & 0xFFFF) * 2];
-                        b[0] = 0xc3;
-                        b[1] = *(u16 *)(var_18 + 0xA4);
-                        var_17 = (var_17 + 1) & 0xFFFF;
+                if (*(u16 *)(unit + 0xA4) != 1) {
+                    if (func_00232710(*(s32 *)(unit + 0xA64), 0x10) != 0) {
+                        struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
+                        choice->code = 0x99;
+                        choice->actor = *(u16 *)(unit + 0xA4);
+                        choiceCount = (choiceCount + 1) & 0xFFFF;
+                    } else if (func_00232710(*(s32 *)(unit + 0xA64), 0x20) != 0) {
+                        struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
+                        choice->code = 0x9f;
+                        choice->actor = *(u16 *)(unit + 0xA4);
+                        choiceCount = (choiceCount + 1) & 0xFFFF;
+                    } else if (func_00232710(*(s32 *)(unit + 0xA64), 0x4) != 0) {
+                        struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
+                        choice->code = 0xa5;
+                        choice->actor = *(u16 *)(unit + 0xA4);
+                        choiceCount = (choiceCount + 1) & 0xFFFF;
+                    } else if (func_00232710(*(s32 *)(unit + 0xA64), 0x2) != 0) {
+                        struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
+                        choice->code = 0xab;
+                        choice->actor = *(u16 *)(unit + 0xA4);
+                        choiceCount = (choiceCount + 1) & 0xFFFF;
+                    } else if (func_00232710(*(s32 *)(unit + 0xA64), 0x1) != 0) {
+                        struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
+                        choice->code = 0xb1;
+                        choice->actor = *(u16 *)(unit + 0xA4);
+                        choiceCount = (choiceCount + 1) & 0xFFFF;
+                    } else if (func_00232710(*(s32 *)(unit + 0xA64), 0x40) != 0) {
+                        struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
+                        choice->code = 0xb7;
+                        choice->actor = *(u16 *)(unit + 0xA4);
+                        choiceCount = (choiceCount + 1) & 0xFFFF;
+                    } else if (func_00232710(*(s32 *)(unit + 0xA64), 0x80) != 0) {
+                        struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
+                        choice->code = 0xbd;
+                        choice->actor = *(u16 *)(unit + 0xA4);
+                        choiceCount = (choiceCount + 1) & 0xFFFF;
+                    } else if (func_00232710(*(s32 *)(unit + 0xA64), 0x8) != 0) {
+                        struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
+                        choice->code = 0xc3;
+                        choice->actor = *(u16 *)(unit + 0xA4);
+                        choiceCount = (choiceCount + 1) & 0xFFFF;
                     }
                 }
-                if (func_002340c0(*(s32 *)(var_18 + 0xA64), 0xA) != 0) {
-                    s16 *b = &spbuf[(var_17 & 0xFFFF) * 2];
-                    b[0] = 0x6F;
-                    b[1] = *(u16 *)(var_18 + 0xA4);
-                    var_17 = (var_17 + 1) & 0xFFFF;
+                if (func_002340c0((u8 *)(*(s32 *)(unit + 0xA64)), 0xA) != 0) {
+                    struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
+                    choice->code = 0x6F;
+                    choice->actor = *(u16 *)(unit + 0xA4);
+                    choiceCount = (choiceCount + 1) & 0xFFFF;
                 }
-                if (func_002340c0(*(s32 *)(var_18 + 0xA64), 0x80) != 0) {
-                    s16 *b = &spbuf[(var_17 & 0xFFFF) * 2];
-                    b[0] = 0x76;
-                    b[1] = *(u16 *)(var_18 + 0xA4);
-                    var_17 = (var_17 + 1) & 0xFFFF;
+                if (func_002340c0((u8 *)(*(s32 *)(unit + 0xA64)), 0x80) != 0) {
+                    struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
+                    choice->code = 0x76;
+                    choice->actor = *(u16 *)(unit + 0xA4);
+                    choiceCount = (choiceCount + 1) & 0xFFFF;
                 }
-                if (func_002340c0(*(s32 *)(var_18 + 0xA64), 0x220) != 0) {
-                    s16 *b = &spbuf[(var_17 & 0xFFFF) * 2];
-                    b[0] = 0x7D;
-                    b[1] = *(u16 *)(var_18 + 0xA4);
-                    var_17 = (var_17 + 1) & 0xFFFF;
+                if (func_002340c0((u8 *)(*(s32 *)(unit + 0xA64)), 0x220) != 0) {
+                    struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
+                    choice->code = 0x7D;
+                    choice->actor = *(u16 *)(unit + 0xA4);
+                    choiceCount = (choiceCount + 1) & 0xFFFF;
                 }
             }
         }
-        var_18 = *(u8 **)(var_18 + 0xA6C);
+        unit = *(u8 **)(unit + 0xA6C);
     }
     {
-        u8 *t18 = *(u8 **)(arg0 + 0x30);
-        if (*(u16 *)(t18 + 0xA4) == 1) {
-            if (func_00232710(*(s32 *)(t18 + 0xA64), 0x20) != 0) {
-                spbuf[(var_17 & 0xFFFF) * 2] = 0x92;
-                spbuf[((var_17 & 0xFFFF) * 2) + 1] = -1;
-                var_17 = (var_17 + 1) & 0xFFFF;
-            } else if (func_00232710(*(s32 *)(t18 + 0xA64), 0x2) != 0) {
-                spbuf[(var_17 & 0xFFFF) * 2] = 0x94;
-                spbuf[((var_17 & 0xFFFF) * 2) + 1] = -1;
-                var_17 = (var_17 + 1) & 0xFFFF;
-            } else if (func_00232710(*(s32 *)(t18 + 0xA64), 0x1) != 0) {
-                spbuf[(var_17 & 0xFFFF) * 2] = 0x95;
-                spbuf[((var_17 & 0xFFFF) * 2) + 1] = -1;
-                var_17 = (var_17 + 1) & 0xFFFF;
-            } else if (func_00232710(*(s32 *)(t18 + 0xA64), 0x40) != 0) {
-                spbuf[(var_17 & 0xFFFF) * 2] = 0x96;
-                spbuf[((var_17 & 0xFFFF) * 2) + 1] = -1;
-                var_17 = (var_17 + 1) & 0xFFFF;
-            } else if (func_00232710(*(s32 *)(t18 + 0xA64), 0x80) != 0) {
-                spbuf[(var_17 & 0xFFFF) * 2] = 0x97;
-                spbuf[((var_17 & 0xFFFF) * 2) + 1] = -1;
-                var_17 = (var_17 + 1) & 0xFFFF;
-            } else if (func_00232710(*(s32 *)(t18 + 0xA64), 0x8) != 0) {
-                spbuf[(var_17 & 0xFFFF) * 2] = 0x98;
-                spbuf[((var_17 & 0xFFFF) * 2) + 1] = -1;
-                var_17 = (var_17 + 1) & 0xFFFF;
+        u8 *sourceUnit = *(u8 **)(arg0 + 0x30);
+        if (*(u16 *)(sourceUnit + 0xA4) == 1) {
+            if (func_00232710(*(s32 *)(sourceUnit + 0xA64), 0x20) != 0) {
+                choices[choiceCount & 0xFFFF].code = 0x92;
+                choices[choiceCount & 0xFFFF].actor = -1;
+                choiceCount = (choiceCount + 1) & 0xFFFF;
+            } else if (func_00232710(*(s32 *)(sourceUnit + 0xA64), 0x2) != 0) {
+                choices[choiceCount & 0xFFFF].code = 0x94;
+                choices[choiceCount & 0xFFFF].actor = -1;
+                choiceCount = (choiceCount + 1) & 0xFFFF;
+            } else if (func_00232710(*(s32 *)(sourceUnit + 0xA64), 0x1) != 0) {
+                choices[choiceCount & 0xFFFF].code = 0x95;
+                choices[choiceCount & 0xFFFF].actor = -1;
+                choiceCount = (choiceCount + 1) & 0xFFFF;
+            } else if (func_00232710(*(s32 *)(sourceUnit + 0xA64), 0x40) != 0) {
+                choices[choiceCount & 0xFFFF].code = 0x96;
+                choices[choiceCount & 0xFFFF].actor = -1;
+                choiceCount = (choiceCount + 1) & 0xFFFF;
+            } else if (func_00232710(*(s32 *)(sourceUnit + 0xA64), 0x80) != 0) {
+                choices[choiceCount & 0xFFFF].code = 0x97;
+                choices[choiceCount & 0xFFFF].actor = -1;
+                choiceCount = (choiceCount + 1) & 0xFFFF;
+            } else if (func_00232710(*(s32 *)(sourceUnit + 0xA64), 0x8) != 0) {
+                choices[choiceCount & 0xFFFF].code = 0x98;
+                choices[choiceCount & 0xFFFF].actor = -1;
+                choiceCount = (choiceCount + 1) & 0xFFFF;
             }
         }
     }
-    if ((var_16 & 0xFFFF) >= 2) {
-        spbuf[(var_17 & 0xFFFF) * 2] = 0x89;
-        spbuf[((var_17 & 0xFFFF) * 2) + 1] = -1;
-        var_17 = (var_17 + 1) & 0xFFFF;
+    if ((code8ACount & 0xFFFF) >= 2) {
+        choices[choiceCount & 0xFFFF].code = 0x89;
+        choices[choiceCount & 0xFFFF].actor = -1;
+        choiceCount = (choiceCount + 1) & 0xFFFF;
     }
-    temp_4 = func_001ef720(2, 0x80000) & 0xFFFF;
+    enemyCount = func_001ef720(2, 0x80000) & 0xFFFF;
     {
-        u8 *t214 = iGpffffb3ac;
-        s16 *pa6c = (s16 *)(t214 + 0xA6C);
-        if (*(s16 *)(t214 + 0xA6C) == temp_4) {
-            if ((temp_4 < 6) && (temp_4 > 0)) {
-                spbuf[(var_17 & 0xFFFF) * 2] = 0x89 - temp_4;
-                spbuf[((var_17 & 0xFFFF) * 2) + 1] = -1;
-                var_17 = (var_17 + 1) & 0xFFFF;
+        u8 *battleCounts = iGpffffb3ac;
+        s16 *savedEnemyCount = (s16 *)(battleCounts + 0xA6C);
+        if (*(s16 *)(battleCounts + 0xA6C) == enemyCount) {
+            if ((enemyCount < 6) && (enemyCount > 0)) {
+                choices[choiceCount & 0xFFFF].code = 0x89 - enemyCount;
+                choices[choiceCount & 0xFFFF].actor = -1;
+                choiceCount = (choiceCount + 1) & 0xFFFF;
             }
         } else {
-            *pa6c = temp_4;
+            *savedEnemyCount = enemyCount;
         }
     }
-    if ((var_17 & 0xFFFF) <= 0) {
+    if ((choiceCount & 0xFFFF) <= 0) {
         return -1;
     }
     {
-        s16 *b3 = &spbuf[((func_00231d70(var_17 & 0xFFFF) & 0xFFFF)) * 2];
-        s16 aux;
-        s16 *b4;
-        u8 *t215;
-        s32 *pa68;
-        var_5 = *b3;
-        b4 = b3 + 1;
-        t215 = iGpffffb3ac;
-        pa68 = (s32 *)(t215 + 0xA68);
-        if (*(s32 *)(t215 + 0xA68) == var_5) {
+        u32 selectedOffset = (func_00231d70(choiceCount & 0xFFFF) & 0xFFFF) * 4;
+        /* These are two field addresses within the same selected row. */
+        uintptr_t codeAddress = (uintptr_t)((u8 *)choices + selectedOffset);
+        s16 actorId;
+        uintptr_t actorAddress;
+        u8 *battleSelection;
+        s32 *previousCode;
+        selectedCode = *(s16 *)codeAddress;
+        battleSelection = iGpffffb3ac;
+        previousCode = (s32 *)(battleSelection + 0xA68);
+        if (*(s32 *)(battleSelection + 0xA68) == selectedCode) {
             return -1;
         }
-        *pa68 = var_5;
-        aux = *b4;
-        if (aux >= 0) {
-            switch (aux) {
+        *previousCode = selectedCode;
+        actorAddress = (uintptr_t)((u8 *)&choices[0].actor + selectedOffset);
+        actorId = *(s16 *)actorAddress;
+        if (actorId >= 0) {
+            switch (actorId) {
             case 2:
-                var_5 = var_5 + 1;
+                selectedCode = selectedCode + 1;
                 break;
             case 3:
-                var_5 = var_5 + 2;
+                selectedCode = selectedCode + 2;
                 break;
             case 4:
-                var_5 = var_5 + 3;
+                selectedCode = selectedCode + 3;
                 break;
             case 6:
-                var_5 = var_5 + 4;
+                selectedCode = selectedCode + 4;
                 break;
             case 7:
-                var_5 = var_5 + 5;
+                selectedCode = selectedCode + 5;
                 break;
             case 8:
-                var_5 = var_5 + 6;
+                selectedCode = selectedCode + 6;
                 break;
             }
         }
     }
-    return var_5;
+    return selectedCode;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f4e50);
-#endif
 // FUN_001F55B0
 s32 func_001f55b0(u8 *arg0)
 {
@@ -3711,7 +3647,7 @@ s16 func_001f6d60(u8 *arg0)
                 var_16 = 0x3E7;
             }
             }
-        if (func_002428f0(temp_17, var_16) != 0) {
+        if (func_002428f0((s32)(temp_17), var_16) != 0) {
             var_16 = -((func_00231ed0(temp_17) & 0xFFFF) - 1);
         }
         break;
@@ -4389,7 +4325,7 @@ s32 func_001f8810(u8 *arg0, s32 arg1)
     {
         return -1;
     }
-    if (func_002428f0((u8 *)*(s32 *)(temp_4 + 0xA64), 0) != 0)
+    if (func_002428f0((s32)((u8 *)*(s32 *)(temp_4 + 0xA64)), 0) != 0)
     {
         return -1;
     }
@@ -4704,7 +4640,7 @@ s32 func_001f90e0(u8 *arg0)
     var_16 = 0;
     var_17 = *(u8 **)(iGpffffb3ac + 0x178);
     while (var_17 != NULL) {
-        if ((func_002428f0(*(u8 **)(var_17 + 0xA64), 0) == 0) &&
+        if ((func_002428f0((s32)(*(u8 **)(var_17 + 0xA64)), 0) == 0) &&
             (func_00232710(*(s32 *)(var_17 + 0xA64), 0x1001D7) == 0) &&
             (*(u16 *)(var_17 + 0xA4) != 1) &&
             (var_17 != *(u8 **)(arg0 + 0x30))) {
@@ -5328,9 +5264,9 @@ loop_outer_body:
             var_20 = 0;
             goto loop_inner_test;
 loop_inner_body:
-            if (func_002340c0(
+            if (func_002340c0((u8 *)(
                     *(s32 *)(*(u8 **)(*(u8 **)(arg0 + (var_20 * 4) + 0x38) +
-                                      0x30) + 0xA64),
+                                      0x30) + 0xA64)),
                     temp_19) != 0) {
                 var_20 += 1;
                 goto loop_inner_test;
@@ -5436,8 +5372,8 @@ loop_outer_body:
             var_18 = 0;
             goto loop_inner_test;
 loop_inner_body:
-            if (func_002340c0(
-                *(s32 *)(*(u8 **)(*(u8 **)(arg0 + (var_18 * 4) + 0x38) + 0x30) + 0xA64),
+            if (func_002340c0((u8 *)(
+                *(s32 *)(*(u8 **)(*(u8 **)(arg0 + (var_18 * 4) + 0x38) + 0x30) + 0xA64)),
                 temp_17) != 0) {
                 var_18 += 1;
                 goto loop_inner_test;
@@ -5498,7 +5434,7 @@ loop_body:
         if (!(temp_16 & temp_5)) {
             goto loop_increment;
         }
-        if (func_002340c0(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64),
+        if (func_002340c0((u8 *)(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64)),
                           temp_5) == 0) {
             goto loop_after_call;
         }
@@ -5556,7 +5492,7 @@ void func_001fb480(f32 scale, u8 *arg0, s32 arg1, s32 arg2, u8 *arg3)
     f32 n224;
     f32 f;
     f32 g;
-    void (**base)(u32, u32);
+    BattleRenderStateFunction *base;
     u8 *cam;
     u8 *disp;
     extern u8 *func_00401b80(void);
@@ -5587,17 +5523,17 @@ void func_001fb480(f32 scale, u8 *arg0, s32 arg1, s32 arg2, u8 *arg3)
         x1 = cx + w320 * scale;
         y1 = cy + w224 * scale;
     }
-    base = (void (**)(u32, u32))D_00887300;
-    base[0](7, 2);
-    base[0](0x14, 1);
-    base[0](0xE, 0);
-    base[0](6, 0);
-    base[0](8, 0);
-    base[0](9, (u32)arg3);
-    base[0](0xC, 1);
-    base[0](1, (u32)disp);
-    func_003f6440(2, arg1);
-    func_003f6440(3, arg2);
+    base = D_00887300;
+    base[0](rwRENDERSTATESHADEMODE, (void *)2);
+    base[0](rwRENDERSTATECULLMODE, (void *)1);
+    base[0](rwRENDERSTATEFOGENABLE, (void *)0);
+    base[0](rwRENDERSTATEZTESTENABLE, (void *)0);
+    base[0](rwRENDERSTATEZWRITEENABLE, (void *)0);
+    base[0](rwRENDERSTATETEXTUREFILTER, arg3);
+    base[0](rwRENDERSTATEVERTEXALPHAENABLE, (void *)1);
+    base[0](rwRENDERSTATETEXTURERASTER, disp);
+    func_003f6440(2, (void *)arg1);
+    func_003f6440(3, (void *)arg2);
     z = *(f32 *)D_008872FC_abs;
     inv = 1.0f / *(f32 *)(cam + 0x84);
     *(f32 *)(work.packet + 0x00) = x0;
@@ -5644,125 +5580,122 @@ void func_001fb480(f32 scale, u8 *arg0, s32 arg1, s32 arg2, u8 *arg3)
     base[0](1, 0);
 }
 #pragma pop
-/* Guarded candidate: 1620/1632 bytes, 13 differing instruction words.
-   The two RGBA objects own all eight bytes, including the packed radial
-   alpha. Countdown case 1 falls through to case 2 after decrementing.
-   Native float loads and unsigned counter conversion preserve the retail
-   arithmetic. Explicit shared RGB values and state-array byte offsets keep
-   the two state loops and the case-local callback pointer distinct.
-   Remaining differences: the two float-to-byte conversion registers and
-   the radial call's depth/color load order. See the 2026-09-20 receipts in
-   build/first-party-finish-20260920/code001f-worker7-objects. */
-// FUN_001FBB50 NONMATCHING
-#ifdef NON_MATCHING
+/* Native b210 -O2 recovery: 1620 bytes plus 12 zero tail bytes.
+   The state table is addressed through uintptr_t so ordinary propagation
+   retains its base while reloading each callback. Ordinary common-subexpression
+   optimization gives both unsigned alpha conversions their retail temporaries.
+   The radial draw takes depth before packed color in both owners.
+   See docs/probe_archive/BattleAction_20260922_resume.md. */
+// FUN_001FBB50
 #pragma push
-#pragma opt_propagation off
-#pragma opt_common_subs off
-s32 func_001fbb50(u8 *arg0) {
-    s32 sp50[7];
+#pragma opt_propagation on
+#pragma opt_common_subs on
+s32 func_001fbb50(u8 *work) {
+    void *savedStates[7];
     struct {
         union { s32 word; u8 bytes[4]; } radial;
         u8 screen[4];
     } colors;
-    f32 temp_f21;
-    f32 temp_f20;
-    s32 var_18;
-    u32 var_16;
+    f32 fadeProgress;
+    f32 layerScale;
+    s32 result;
+    u32 stateIndex;
 
     if (func_003e8120(func_00457120()) == 0) {
         return 0;
     }
-    var_18 = 0;
-    for (var_16 = 0; var_16 < 7; var_16++) {
-        u32 offset = var_16 * sizeof(sp50[0]);
-        D_00887304[0](*(s32 *)((u8 *)D_00625210 + offset), (u8 *)sp50 + offset);
+    result = 0;
+    for (stateIndex = 0; stateIndex < 7; stateIndex++) {
+        u32 offset = stateIndex * sizeof(savedStates[0]);
+        D_00887304[0](*(RwRenderState *)((u8 *)D_00625210 + offset), (u8 *)savedStates + offset);
     }
-    arg0 = *(u8 **)(arg0 + 0x38);
+    work = *(u8 **)(work + 0x38);
     {
-        u32 t3 = *arg0;
-        switch (t3) {
+        u32 state = *work;
+        switch (state) {
         case 0:
             break;
         case 1: {
-            u32 t2 = D_0076455C;
-            if (t2 == 0) {
+            u32 countdown = D_0076455C;
+            if (countdown == 0) {
                 f32 square;
-                void (**base)();
+                uintptr_t stateInterface;
 
                 D_0076455A++;
-                temp_f21 = (f32)(u32)D_0076455A / 20.0f;
-                base = D_00887300;
-                base[0](7, 2);
-                base[0](0x14, 1);
-                base[0](0x0E, 0);
-                base[0](6, 0);
-                base[0](8, 0);
-                base[0](0x0C, 1);
-                base[0](1, 0);
-                func_003f6440(2, 0x44);
-                func_003f6440(3, 0x31801);
+                fadeProgress = (f32)(u32)D_0076455A / 20.0f;
+                /* Keep the table address; each draw state reloads its callback. */
+                stateInterface = (uintptr_t)D_00887300;
+                (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATESHADEMODE, (void *)2);
+                (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATECULLMODE, (void *)1);
+                (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATEFOGENABLE, (void *)0);
+                (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATEZTESTENABLE, (void *)0);
+                (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATEZWRITEENABLE, (void *)0);
+                (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATEVERTEXALPHAENABLE, (void *)1);
+                (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATETEXTURERASTER, (void *)0);
+                func_003f6440(2, (void *)0x44);
+                func_003f6440(3, (void *)0x31801);
                 func_00489f80();
                 colors.screen[2] = colors.screen[1] = colors.screen[0] = 0xFF;
-                square = temp_f21 * temp_f21;
+                square = fadeProgress * fadeProgress;
                 {
-                    f32 pw3 = temp_f21 * square;
-                    f32 pw4 = temp_f21 * pw3;
-                    f32 pw5 = temp_f21 * pw4;
-                    f32 tf1 = 255.0f * (1.0f - temp_f21 * pw5);
-                    u8 v3 = (u8)tf1;
-                    colors.screen[3] = v3;
+                    f32 progressCubed = fadeProgress * square;
+                    f32 progressFourth = fadeProgress * progressCubed;
+                    f32 progressFifth = fadeProgress * progressFourth;
+                    f32 screenOpacity = 255.0f * (1.0f - fadeProgress * progressFifth);
+                    u8 screenAlpha = (u8)screenOpacity;
+                    colors.screen[3] = screenAlpha;
                 }
                 func_0045c870(colors.screen, 0);
                 colors.radial.bytes[2] = colors.radial.bytes[1] = colors.radial.bytes[0] = 0xFF;
                 {
-                    f32 tf12 = 160.0f * (1.0f - square);
-                    u8 v32 = (u8)tf12;
-                    colors.radial.bytes[3] = v32;
+                    f32 radialOpacity = 160.0f * (1.0f - square);
+                    u8 radialAlpha = (u8)radialOpacity;
+                    colors.radial.bytes[3] = radialAlpha;
                 }
-                temp_f20 = 1.5f * ((f32)(u32)D_0076455A / 20.0f);
+                layerScale = 1.5f * ((f32)(u32)D_0076455A / 20.0f);
                 func_00457120();
-                base[0](7, 2);
-                base[0](0x14, 1);
-                base[0](0x0E, 0);
-                base[0](6, 0);
-                base[0](8, 0);
-                base[0](0x0C, 1);
-                base[0](1, 0);
-                func_003f6440(2, 0x44);
-                func_003f6440(3, 0x31801);
-                func_00204690(0, temp_f20, temp_f20, colors.radial.word, D_008872FC_abs[0]);
+                (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATESHADEMODE, (void *)2);
+                (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATECULLMODE, (void *)1);
+                (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATEFOGENABLE, (void *)0);
+                (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATEZTESTENABLE, (void *)0);
+                (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATEZWRITEENABLE, (void *)0);
+                (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATEVERTEXALPHAENABLE, (void *)1);
+                (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATETEXTURERASTER, (void *)0);
+                func_003f6440(2, (void *)0x44);
+                func_003f6440(3, (void *)0x31801);
+                func_00204690(0, layerScale, layerScale, D_008872FC_abs[0], colors.radial.word);
                 func_0048a000();
                 func_001fb480(1.0f, D_007635C8, 0x54, 0x31801, (u8 *)1);
                 if ((s32)D_0076455A >= 0x14) {
-                    *arg0 = 3;
+                    *work = 3;
                 }
                 break;
             }
-            D_0076455C = t2 - 1;
+            D_0076455C = countdown - 1;
             /* Continue the waiting-state draw after decrementing. */
         }
         case 2: {
             if (iGpffffb469 == 0) {
                 func_001fb480(1.0f, D_007635C8, 0x44, 0x31801, (u8 *)1);
-                if (*(u16 *)(arg0 + 6) == 1) {
-                    temp_f20 = D_007613E0;
+                if (*(u16 *)(work + 6) == 1) {
+                    layerScale = D_007613E0;
                 } else {
-                    temp_f20 = D_007613E4;
+                    layerScale = D_007613E4;
                 }
                 colors.screen[2] = colors.screen[1] = colors.screen[0] = 0xFF;
                 {
                     u8 alpha;
 
-                    if (*(u16 *)(arg0 + 6) == 1) {
+                    if (*(u16 *)(work + 6) == 1) {
                         alpha = 6;
                     } else {
                         alpha = 0x0A;
                     }
                     colors.screen[3] = alpha;
                 }
-                func_001fb480(temp_f20, colors.screen, 0x44, 0x31801, (u8 *)2);
+                func_001fb480(layerScale, colors.screen, 0x44, 0x31801, (u8 *)2);
                 colors.screen[3] = 5;
-                func_001fb480(temp_f20, colors.screen, 0x48, 0x31801, (u8 *)2);
+                func_001fb480(layerScale, colors.screen, 0x48, 0x31801, (u8 *)2);
             }
             break;
         }
@@ -5770,7 +5703,7 @@ s32 func_001fbb50(u8 *arg0) {
             if (func_00122720() != 0) {
                 func_00122640(1, 0x1E);
                 iGpffffb468 = 0;
-                var_18 = -1;
+                result = -1;
             }
             break;
         }
@@ -5781,21 +5714,18 @@ s32 func_001fbb50(u8 *arg0) {
             u32 k;
 
             for (k = 0; k < 7; k++) {
-                u32 offset = k * sizeof(sp50[0]);
-                D_00887300[0](*(s32 *)((u8 *)D_00625210 + offset), *(s32 *)((u8 *)sp50 + offset));
+                u32 offset = k * sizeof(savedStates[0]);
+                D_00887300[0](*(RwRenderState *)((u8 *)D_00625210 + offset), *(void **)((u8 *)savedStates + offset));
             }
         }
-        D_00887300[0](1, 0);
-        func_003f6440(2, 0x44);
-        func_003f6440(3, 0x717FB);
+        D_00887300[0](rwRENDERSTATETEXTURERASTER, NULL);
+        func_003f6440(2, (void *)0x44);
+        func_003f6440(3, (void *)0x717FB);
         func_003e8110(func_00457120());
     }
-    return var_18;
+    return result;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001fbb50);
-#endif
 // FUN_001FC1B0
 void func_001fc1b0(s16 arg0) {
     if (func_00452380(&D_006251F0) == 0) {

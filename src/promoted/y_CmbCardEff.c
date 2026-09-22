@@ -127,10 +127,10 @@ void func_003dc740(void *arg0, void *arg1, u32 arg2);
 void func_0036de20(void *arg0, void *arg1);
 void func_0036dd10(void *arg0, void *arg1, f32 arg2);
 s32 func_00285b30(void);
-f32 func_002b2aa0(s32, f32, f32, f32, f32);
-s32 func_002b2cb0(s32, s32, s32, s32, s32);
-u8 *func_00457120(void);
-u8 *func_00461390(void *a, s32 b, void *c, s32 d);
+f32 func_002b2aa0(s64, f32, f32, f32, f32);
+s32 func_002b2cb0(s32, s32, s32, s32, s8);
+s32 func_00457120(void);
+u8 *func_00461390(u8 *list, s32 primitive, s32 vertices, s32 count);
 extern f32 iGpffff8360;
 extern f32 iGpffff8508;
 extern f32 iGpffff850c;
@@ -3429,104 +3429,100 @@ void func_00347b30(u8 *arg0, u8 *arg1) {
     ((void (*)(s32, s32))*(u32 *)base)(1, *func_00331620());
 }
 
-/* measured: re-tested with recipe A (4-part bltz shape: s32 v = *(u8*)load, u32 c = v,
-   (f32)(s32)((c>>1)|(c&1)), x+x doubling) + recipe B (D_008872F8 base): the single
-   bare bltz guard, srl/andi/or, cvt.s.w and add.s x+x per site ALL now reproduce
-   retail byte-for-byte (nd 312 -> 263, obj 1216B = window). Two residuals remain:
-   (1) the or/mtc1 chain at each of the 6 conversion sites keeps its result in $v1
-   (or $v1,$a0,$v1) where retail coalesces into $a0 (or $a0,$a0,$v1) — tried both
-   if/else orders, j=(u32)i loop copies, per-site fresh locals, decl reorders: the
-   the or-result register never moves; (2) mwcc b210 places the loop-invariant
-   `lui %hi(D_008872F8)` INSIDE the loop body (direct array spelling) or emits
-   lui+addiu at entry (pointer local) — retail hoists a lui-ONLY base into $v0 at
-   entry with %lo folded into the lwc1; no spelling reproduces the 1-word hoist.
-   Recipe A cracked the doubled-alpha CFG; the or-register coloring + lui hoist
-   remain compiler floors (same family as func_0024f160 / mdlManager conv-CFG).
-   Re-measured this wave: two fresh full-body reconstructions (m2c-based 426,
-   FMA-idiom zero+base-f3*mul block with s8-doubled-alpha per the inline-pointer-
-   out skill 433) BOTH landed well above the recorded 263 — the exact recipe-A
-   body is not recoverable from the truncated note + m2c draft (the adda.s/msub.s/
-   madd.s accumulator block and the lui-only D_008872F8 hoist are the structural
-   crux). 263 remains the measured best; not re-pursued to window-exactness. */
-/* measured: re-derived inherited nd263 -> nd56 (differing words reloc-masked, 301/301 instrs, 1204B/1216B) in correct tree pwd /home/raikaru/Projects/Persona 3 Decomp/source/Persona4-Decompilation.
-   Exact commands (bare repo-relative paths):
-     python3 tools/probe_variants.py src/promoted/y_CmbCardEff.c func_00347c70 --candidate v10b=/var/tmp/cmb347c70/body_v10b.c  # 56 (v9 raw 265, v4 tight 261, v5 reload 279, v11 dtab 270, v12 dtab+pragma 289, v13 recipeA 76)
-     python3 tools/fnalign.py src/promoted/y_CmbCardEff.c func_00347c70 --candidate /var/tmp/cmb347c70/body_v10b.c  # 58 edits (+4 reloc-only), retail 301 object 301
-     python3 tools/probe_archive.py docs/probe_archive/yCmb_00347c70_body.c src/promoted/y_CmbCardEff.c  # 56, source unchanged
-   Reconstruction top-down: lw 0x38(a0)->s0, 1.0f/div.s, ((flags&2)>>1)==1 gate, s16 i<4 loop x4 with (f32)*(u8*) srl/bltz, FMA reload *(0x134/0x138) +/- 64.0f**(0x1A0) (literal 64 for lui/mtc1, adda/msub/madd), 00285b30<0x208 alloc 00461390+00347b30, ((flags&4)>>2)==1 with 002b2aa0(0,...)/002b2cb0, ((flags&0x10)>>4)==1 with 002b2aa0(1,...)/(u8)(s32) guard + 002b2cb0.
-   Levers that moved it (docs/matching.md): raw byte-offset ((s32)obj+(s32)i*0x40+off) fixes body-head dsll32/dsra32 (p-style folds ext to bottom only; isolated loop3 int+short vs loop4 short proof) + reload FMA fixes ACC (cached f1b/c64 h1=mul vs reload h2=adda, isolated fma_test proof) + #pragma push/opt_loop_invariants on/pop 265->56 (full D-1.0 hoist vs lui-only; dtab variants reject). Recipe A explicit v/c/doubling 76 rejects (plain already single bltz as in matched 003489c0). Flag ((x&N)>>k)==1, s16, u8/lbu, s16/lh, f32, /2 correction all match.
-   Remaining 56 floor (fnalign earliest hunk loop preheader, nothing after is real until it is gone): lui-only hoist granularity (retail lui $v0 alone at entry + lwc1/sub per iter; pragma hoists whole lui+lwc1+sub to preheader, direct keeps lui in body) + or/mtc1 coloring ($v1 vs $a0, dest $a0 vs $a1, counter $a1 vs $a2, srl/andi/or/mtc1 x4 + final mfc1/or/sb $v0 vs $v1) + branch displacement cascade. Same family as prior 263 note + y_draw 002b7f20 + y_smap 002b0b10. Tried p/raw/off+base/while/dtab/recipeA/decl orders, all measured. Production stays INCLUDE_ASM per floor policy; best faithful body banked as docs/probe_archive/yCmb_00347c70_body.c (LF) with push/pop pragma. No live body, no TEMP-PROBE, externs preserved, CRLF preserved. */
-/* Fresh 2026-09-17 (this lane, in order after 004941f0): `python3 tools/probe_archive.py docs/probe_archive/yCmb_00347c70_body.c src/promoted/y_CmbCardEff.c` re-measures 56, source unchanged — banked body still reproduces. Two fresh levers via `python3 tools/probe_variants.py src/promoted/y_CmbCardEff.c func_00347c70 --candidate v_s32=/tmp/cmb_v_s32.c --candidate v_nop=/tmp/cmb_v_nop.c`: v_s32 (func_00348330 exact guarded idiom `s32 v; if (2.1474836e9f > fres) { v=(s32)fres; v&=0xFF; } else { v=(s32)(fres-K)|0x80000000; v&=0xFF; } *(u8*)=(u8)v;` replacing archive `u8 cv` direct) ties at 56 — the tail mfc1/or/sb $v0-vs-$v1 coloring wall persists across u8/s32 spellings, same family as 00348330 nd15 (3 sites x 5 words there, 1 site here within the 56); v_nop (strip push/loop_invariants) regresses to 265, confirming the banked pragma stays load-bearing 265->56 (matches inherited v9 raw 265). No new win; 56 floor stands, production stays INCLUDE_ASM per floor policy, archive unchanged. */
-/* measured: banked yCmb_00347c70_body.c verbatim (301/301 instrs, 0.0% deviation, within 3% gate; 1204B/1216B, 56 differing words reloc-masked, 58 fnalign edits +4 reloc-only). 3% check: |301-301|/301 = 0.0% <= 3%, so guarded floor per handoff banking rule. Body keeps file conventions: obj = *(u8**)(arg0+0x38), raw (s32)obj+(s32)i*0x40+off, s16 i, ((x&N)>>k)==1 flags, reload FMA, (u8)(s32)fres guard shared with func_00348330 nd15 idiom. Residual is hoist-granularity + or/mtc1 coloring + tail conversion coloring, same family as 00348330. Verified via probe_archive 56 and fnalign 301/301. Production stays guarded (not MATCH) per floor policy. */
-/* 56 -> 51 (2026-09-18): the hand-written float-to-u8 conversion replaced by
-   the plain `(u8)fres` cast, which b210 expands itself and colours the way
-   retail does.  Same lever as func_00348330 above. */
-// FUN_00347C70 NONMATCHING
-#ifdef NON_MATCHING
+/* Update the enabled card quad, queue its draw packet, then advance position
+ * and alpha animation. The enable bit gates the entire update after the camera
+ * read. The four-vertex index copy retains the signed-halfword loop domain.
+ *
+ * Native b210 -O2: 1204/1216 bytes, with a verified 12-byte zero suffix.
+ * Loop invariants retain the depth-symbol base; propagation is disabled so the
+ * camera result, first scale read and packet arguments keep retail's order.
+ * Recovery history and full relocation/sibling proof:
+ * docs/probe_archive/yCmb_00347c70_recovery_20260922.md. */
+// FUN_00347C70
 #pragma push
 #pragma opt_loop_invariants on
-s32 func_00347c70(u8 *arg0)
+#pragma opt_propagation off
+s32 func_00347c70(u8 *task)
 {
-    u8 *obj;
-    f32 div;
-    s16 i;
-    obj = *(u8 **)(arg0 + 0x38);
-    div = 1.0f / *(f32 *)(func_00457120() + 0x80);
-    if (((( *(s32 *)(obj + 0x11C) & 2) >> 1) == 1)) {
-        for (i = 0; i < 4; i++) {
-            *(f32 *)((s32)obj + (s32)i * 0x40 + 0x18) = D_008872F8[0] - 1.0f;
-            *(f32 *)((s32)obj + (s32)i * 0x40 + 0x28) = div;
-            *(f32 *)((s32)obj + (s32)i * 0x40 + 0x30) = (f32)*(u8 *)(obj + 0x198);
-            *(f32 *)((s32)obj + (s32)i * 0x40 + 0x34) = (f32)*(u8 *)(obj + 0x199);
-            *(f32 *)((s32)obj + (s32)i * 0x40 + 0x38) = (f32)*(u8 *)(obj + 0x19A);
-            *(f32 *)((s32)obj + (s32)i * 0x40 + 0x3C) = (f32)*(u8 *)(obj + 0x19B);
+    u8 *work;
+    f32 reciprocalDepth;
+    u8 *vertex;
+    s16 index;
+    s64 wideIndex;
+    f32 depth;
+    f32 scale;
+    u8 *camera;
+
+    work = *(u8 **)(task + 0x38);
+    camera = (u8 *)(u32)func_00457120();
+    reciprocalDepth = 1.0f / *(f32 *)(camera + 0x80);
+    if (((( *(s32 *)(work + 0x11C) & 2) >> 1) == 1)) {
+        for (index = 0; index < 4; index++) {
+            wideIndex = index;
+            vertex = work;
+            vertex = (u8 *)((u32)vertex + ((u32)wideIndex << 6));
+            depth = *(f32 *)D_008872F8;
+            *(f32 *)(vertex + 0x18) = depth - 1.0f;
+            *(f32 *)(vertex + 0x28) = reciprocalDepth;
+            *(f32 *)(vertex + 0x30) = (f32)*(u8 *)(work + 0x198);
+            *(f32 *)(vertex + 0x34) = (f32)*(u8 *)(work + 0x199);
+            *(f32 *)(vertex + 0x38) = (f32)*(u8 *)(work + 0x19A);
+            *(f32 *)(vertex + 0x3C) = (f32)*(u8 *)(work + 0x19B);
         }
-    }
-    *(f32 *)(obj + 0x10) = *(f32 *)(obj + 0x134) - 64.0f * *(f32 *)(obj + 0x1A0);
-    *(f32 *)(obj + 0x14) = *(f32 *)(obj + 0x138) - 64.0f * *(f32 *)(obj + 0x1A0);
-    *(f32 *)(obj + 0x50) = *(f32 *)(obj + 0x134) + 64.0f * *(f32 *)(obj + 0x1A0);
-    *(f32 *)(obj + 0x54) = *(f32 *)(obj + 0x138) - 64.0f * *(f32 *)(obj + 0x1A0);
-    *(f32 *)(obj + 0x90) = *(f32 *)(obj + 0x134) - 64.0f * *(f32 *)(obj + 0x1A0);
-    *(f32 *)(obj + 0x94) = *(f32 *)(obj + 0x138) + 64.0f * *(f32 *)(obj + 0x1A0);
-    *(f32 *)(obj + 0xD0) = *(f32 *)(obj + 0x134) + 64.0f * *(f32 *)(obj + 0x1A0);
-    *(f32 *)(obj + 0xD4) = *(f32 *)(obj + 0x138) + 64.0f * *(f32 *)(obj + 0x1A0);
-    if (func_00285b30() < 0x208) {
-        u8 *alloc = func_00461390(D_00794F00, 4, obj + 0x10, 4);
-        *(u32 *)(alloc + 8) = (u32)func_00347b30;
-        *(u8 **)(alloc + 0x10) = obj;
-    }
-    if (((( *(s32 *)(obj + 0x11C) & 4) >> 2) == 1)) {
-        f32 f14 = (f32)*(s16 *)(obj + 0x13E);
-        f32 f15 = (f32)*(s16 *)(obj + 0x13C);
-        *(f32 *)(obj + 0x134) = func_002b2aa0(0, *(f32 *)(obj + 0x124), *(f32 *)(obj + 0x12C), f14, f15);
-        f14 = (f32)*(s16 *)(obj + 0x13E);
-        f15 = (f32)*(s16 *)(obj + 0x13C);
-        *(f32 *)(obj + 0x138) = func_002b2aa0(0, *(f32 *)(obj + 0x128), *(f32 *)(obj + 0x130), f14, f15);
-        if (*(s16 *)(obj + 0x13E) < *(s16 *)(obj + 0x13C)) {
-            *(s16 *)(obj + 0x13E) = func_002b2cb0(*(s16 *)(obj + 0x13E), 1, *(s16 *)(obj + 0x13C), 0, 1);
-        } else {
-            *(s32 *)(obj + 0x11C) &= 0xFFFB;
+        /* Four corners of a square with an unscaled half-width of 64. */
+        scale = *(f32 *)(work + 0x1A0);
+        *(f32 *)(work + 0x10) = *(f32 *)(work + 0x134) - 64.0f * scale;
+        *(f32 *)(work + 0x14) = *(f32 *)(work + 0x138) - 64.0f * *(f32 *)(work + 0x1A0);
+        *(f32 *)(work + 0x50) = *(f32 *)(work + 0x134) + 64.0f * *(f32 *)(work + 0x1A0);
+        *(f32 *)(work + 0x54) = *(f32 *)(work + 0x138) - 64.0f * *(f32 *)(work + 0x1A0);
+        *(f32 *)(work + 0x90) = *(f32 *)(work + 0x134) - 64.0f * *(f32 *)(work + 0x1A0);
+        *(f32 *)(work + 0x94) = *(f32 *)(work + 0x138) + 64.0f * *(f32 *)(work + 0x1A0);
+        *(f32 *)(work + 0xD0) = *(f32 *)(work + 0x134) + 64.0f * *(f32 *)(work + 0x1A0);
+        *(f32 *)(work + 0xD4) = *(f32 *)(work + 0x138) + 64.0f * *(f32 *)(work + 0x1A0);
+        if (func_00285b30() < 0x208) {
+            u8 *list;
+            s32 primitive;
+            s32 vertices;
+            s32 count;
+            u8 *alloc;
+            list = D_00794F00;
+            primitive = 4;
+            vertices = (s32)(u32)(work + 0x10);
+            count = primitive;
+            alloc = func_00461390(list, primitive, vertices, count);
+            *(u32 *)(alloc + 8) = (u32)func_00347b30;
+            *(u8 **)(alloc + 0x10) = work;
         }
-    }
-    if (((( *(s32 *)(obj + 0x11C) & 0x10) >> 4) == 1)) {
-        f32 f12 = (f32)*(u8 *)(obj + 0x193);
-        f32 f13 = (f32)*(u8 *)(obj + 0x197);
-        f32 f14 = (f32)*(s16 *)(obj + 0x19C);
-        f32 f15 = (f32)(*(s16 *)(obj + 0x19E) / 2);
-        f32 fres = func_002b2aa0(1, f12, f13, f14, f15);
-        *(u8 *)(obj + 0x19B) = (u8)fres;
-        if (*(s16 *)(obj + 0x19C) < *(s16 *)(obj + 0x19E)) {
-            *(s16 *)(obj + 0x19C) = func_002b2cb0(*(s16 *)(obj + 0x19C), 1, *(s16 *)(obj + 0x19E), 0, 1);
-        } else {
-            *(s16 *)(obj + 0x19C) = 0;
+        if (((( *(s32 *)(work + 0x11C) & 4) >> 2) == 1)) {
+            f32 f14 = (f32)*(s16 *)(work + 0x13E);
+            f32 f15 = (f32)*(s16 *)(work + 0x13C);
+            *(f32 *)(work + 0x134) = func_002b2aa0(0, *(f32 *)(work + 0x124), *(f32 *)(work + 0x12C), f14, f15);
+            f14 = (f32)*(s16 *)(work + 0x13E);
+            f15 = (f32)*(s16 *)(work + 0x13C);
+            *(f32 *)(work + 0x138) = func_002b2aa0(0, *(f32 *)(work + 0x128), *(f32 *)(work + 0x130), f14, f15);
+            if (*(s16 *)(work + 0x13E) < *(s16 *)(work + 0x13C)) {
+                *(s16 *)(work + 0x13E) = func_002b2cb0(*(s16 *)(work + 0x13E), 1, *(s16 *)(work + 0x13C), 0, 1);
+            } else {
+                *(s32 *)(work + 0x11C) &= 0xFFFB;
+            }
+        }
+        if (((( *(s32 *)(work + 0x11C) & 0x10) >> 4) == 1)) {
+            f32 f12 = (f32)*(u8 *)(work + 0x193);
+            f32 f13 = (f32)*(u8 *)(work + 0x197);
+            f32 f14 = (f32)*(s16 *)(work + 0x19C);
+            f32 f15 = (f32)(*(s16 *)(work + 0x19E) / 2);
+            f32 fres = func_002b2aa0(1, f12, f13, f14, f15);
+            *(u8 *)(work + 0x19B) = (u8)fres;
+            if (*(s16 *)(work + 0x19C) < *(s16 *)(work + 0x19E)) {
+                *(s16 *)(work + 0x19C) = func_002b2cb0(*(s16 *)(work + 0x19C), 1, *(s16 *)(work + 0x19E), 0, 1);
+            } else {
+                *(s16 *)(work + 0x19C) = 0;
+            }
         }
     }
     return 0;
 }
 #pragma pop
-#else
-INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_00347c70);
-#endif
 // FUN_00348130
 void func_00348130(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));

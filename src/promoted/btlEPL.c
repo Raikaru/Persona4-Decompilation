@@ -1,3 +1,4 @@
+#include "btl_motion_internal.h"
 #include "include_asm.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit btlEPL.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
@@ -20,7 +21,6 @@ static u8 *D_0072449C;
 extern void func_00194ff0(void *arg0, void *arg1, void *arg2, void *arg3);
 extern void func_00194ee0(void *arg0, void *arg1);
 extern void func_00194f10(void *arg0, void *arg1);
-extern void func_00198dd0(void *arg0, s32 arg1);
 extern void func_0048a150(void *arg0, void *arg1);
 extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
 extern void func_0047a1e0(void *arg0, void *arg1, s32 arg2);
@@ -32,7 +32,6 @@ extern void func_003e0a90(void *arg0, f32 *arg1, s32 arg2);
 extern void func_003e05f0(void *arg0, void *arg1, void *arg2);
 extern void func_003dc610(void *arg0, void *arg1);
 extern void func_001ec350(void *arg0, void *arg1);
-extern void func_00198920(void *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4);
 extern u32 func_0047a7c0(u32 arg0);
 extern u32 func_004bd050(s32 arg0);
 extern s32 func_001fc300(void *arg0, void *arg1);

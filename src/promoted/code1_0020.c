@@ -1,3 +1,4 @@
+#include "btl_motion_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -140,7 +141,7 @@ extern void func_00205ff0(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
                           void (*callback)(void), u8 *arg3);
 extern void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
                          u8 opacity, s32 highlighted, s32 show_detail);
-extern void func_00204690(u8 *arg0, f32 fparg0, f32 fparg1, s32 arg1, f32 fparg2);
+extern void func_00204690(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color);
 extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
 typedef struct {
     u8 c0;
@@ -172,7 +173,7 @@ extern void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted);
 extern u16 func_00243920(s64 arg0);
 extern void func_00207140(u16 *flags, u8 *work);
-extern s32 func_00207320(u8 *arg0, u8 *arg1, u8 **arg2);
+extern s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel);
 extern void func_00207b00();
 extern void func_002089e0();
 extern void func_00208870(u8 *unused, u8 *arg1, f32 *arg2);
@@ -183,8 +184,6 @@ extern s32 func_002428f0(s32 arg0, s32 arg1);
 extern void func_00194ff0(void *arg0, void *arg1, void *arg2, void *arg3);
 extern void func_00194ee0(void *arg0, void *arg1);
 extern void func_00194f10(void *arg0, void *arg1);
-extern void func_00198dd0(void *arg0, s32 arg1);
-extern void func_00198920(u8 *arg0, s16 arg1, u16 arg2, s16 arg3, f32 arg4);
 extern u8 *iGpffffb3ac;
 
 extern s32 D_00881444_abs[];
@@ -399,8 +398,7 @@ loop_17_body:
         func_00194ee0(var_17, sp40);
         func_00194f10(var_17, sp30);
         func_00198dd0(var_17, 0);
-        func_00198920(var_17, *(s16 *)(var_17 + 0x9EC), 0,
-                      *(s8 *)(var_17 + 0x9F4), *(f32 *)(var_17 + 0x9F0));
+        func_00198920(var_17, *(s16 *)(var_17 + 0x9EC), 0, *(f32 *)(var_17 + 0x9F0), *(s8 *)(var_17 + 0x9F4));
     }
     var_17 = *(u8 **)(var_17 + 0xA6C);
 loop_17_test:
@@ -2040,7 +2038,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00203930);
 // FUN_00204690
 #pragma push
 #pragma opt_loop_invariants on
-void func_00204690(u8 *unused, f32 scaleX, f32 scaleY, s32 color, f32 depth)
+void func_00204690(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color)
 {
     f32 vertices[81][16];
     u32 alpha = ((u8 *)&color)[3];
@@ -2136,7 +2134,7 @@ void func_00204a30(u8 *arg0, f32 fparg0, f32 fparg1)
     work.colors.c1 = 0xFF;
     work.colors.c2 = 0xFF;
     work.colors.c3 = 0x20;
-    func_00204690(arg0, fparg0, fparg1, *(s32 *)(void *)&work.colors, 100.0f);
+    func_00204690(arg0, fparg0, fparg1, 100.0f, *(s32 *)(void *)&work.colors);
     func_003f6440(3, 0x717FB);
     base[0](8, 0);
 }
@@ -3088,227 +3086,206 @@ void func_00207140(u16 *flags, u8 *work)
     }
     *(u16 *)(work + 0x5A6) = itemCount;
 }
-/* Floor: 72 differing words over 111 fnalign edits (plus 3 reloc-only), 502
-   emitted instructions against retail's 502 (equal).  Width pass fixed three
-   defects (135 -> 111 edits, pairs 4 -> 2 = retail, size 505/504 -> equal):
-   (1) `func_0010b6f0` declared `s8` here but its definition returns `u16`,
-   which emitted dsll32/dsra32 with shift 24 where retail has shift 16;
-   declaring `u16` reproduces retail's 16-pair.  (2) case 6 hoisted
-   `n = *(s16 *)(arg1 + 0x5A6)` ahead of the `func_001f0620` call, costing an
-   early `lh` into $s2 plus a re-extension pair where retail loads $a2 after
-   the call and reuses it for the `func_00202c60` argument with no reload;
-   loading after the call in the `||` RHS and passing the load directly
-   reproduces retail's `lh $a2` / `lh $v0` with no pair and no extra load.
-   (3) `(func_001ef720(1, 0) & 0xFFFF) < 2` emitted `sltiu` where retail has
-   `slti`; a no-op `(s32)` cast on the masked value flips the comparison
-   signed with identical behavior (values 0..0xFFFF) and no pair.
-   What the retail stream dictated (unchanged): the outer dispatch is an
-   if/else-if chain, not a switch, while the inner dispatch on
-   *(s16 *)(arg0 + 4) is a real jump table whose 3/7/2/0 arms break to one
-   shared `return 4`.  func_001f0620 takes two arguments; retail reuses the
-   compare constants in $a1/$a3.  The list counter stays 32-bit with an
-   explicit `& 0xFFFF` (retail's `andi`, not dsll32/dsra32).
-   WALL: saved-register rotation.  Retail numbers them arg1=$s0, arg2=$s1,
-   arg0=$s2 and this build numbers arg1=$s1, arg2=$s0, arg0=$s2; frames and
-   saves are otherwise identical (0x40, ra+s0/s1/s2).  250 declaration orders,
-   all pragmas, and local aliases for both pointer parameters (MWCC coalesces
-   the copy) were measured pre-fix; the only other difference is the 0x18C
-   store scheduling one instruction later than retail's (pair before `sh`,
-   retail `sh` first).  Removing `opt_loop_invariants` costs 6 edits, so the
-   bracket stays. */
-/* measured 00207320: `opt_loop_invariants on` inside the guard is worth 6 edits against the fixed body; width pass 135 -> 111 edits, pairs equal at 2, sizes equal at 502. */
-// FUN_00207320 NONMATCHING
-#ifdef NON_MATCHING
+/* 2008/2016 bytes, with eight zero alignment bytes. The callback receives
+   the same integer work address passed by func_00203420; its local byte view
+   and unsigned party-count store preserve retail's register and store order.
+   See docs/probe_archive/Battle_menu_00207320_20260922.md. */
+#pragma push
 #pragma opt_loop_invariants on
-s32 func_00207320(u8 *arg0, u8 *arg1, u8 **arg2)
+// FUN_00207320
+s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel)
 {
-    extern s32 func_001f0620(u8 *arg0, s32 arg1);
-    extern void func_001f56d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-    extern u32 func_001ef720(s32 arg0, s32 arg1);
-    extern s16 func_0023dfe0(s32 arg0);
-    extern s32 func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+    extern u32 func_00452560(void *task);
+    extern u16 *func_0010a900(u16 character);
+    extern s32 func_001f0620(u8 *arg0, s64 arg1);
+    extern s32 func_001f56d0(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
+    extern s32 func_001ef720(s32 arg0, s32 arg1);
+    extern s32 func_0023dfe0(u8 *unit);
+    extern u8 *func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern u16 func_0010b6f0(void);
-    extern void func_00202c60(u8 *arg0, s32 arg1, s16 arg2, void *a, void *b, void *c, void *d, u8 *arg7);
+    extern void func_00202c60(u8 *arg0, s16 arg1, s16 arg2, void *a, void *b, void *c, void *d, u8 *arg7);
     extern void func_00202e60(u8 *arg0, void *arg1);
-    extern void func_002019f0(u8 *arg0, s32 arg1);
-    extern void func_00208a50(void);
-    extern void func_00208b00(void);
-    extern void func_00208d00(void);
-    extern void func_00208fd0(void);
-    extern void func_002090d0(void);
-    extern void func_00209140(void);
-    extern void func_002091f0(void);
-    extern void func_00209370(void);
-    extern void func_00209640(void);
-    extern void func_00209740(void);
-    extern void func_002097b0(void);
-    extern void func_00209870(void);
-    extern void func_002099c0(void);
-    extern void func_00209bc0(void);
-    extern void func_00209cd0(void);
-    extern void func_0020a5d0(void);
-    extern void func_0020a640(void);
-    extern void func_0020aa70(void);
-    extern void func_0020ac70(void);
+    extern void func_002019f0(s32 arg0, u32 arg1);
+    extern void func_00208a50(u8 *arg0, u8 *arg1);
+    extern u16 func_00208b00(u8 *arg0, u8 *arg1);
+    extern void func_00208d00(u8 *arg0, s32 arg1, f32 *arg2);
+    extern void func_00208fd0(u8 *arg0, u8 *arg1, f32 *arg2);
+    extern void func_002090d0(u8 *arg0, u8 *arg1);
+    extern void func_00209140(u8 *arg0, u8 *arg1);
+    extern u16 func_002091f0(u8 *arg0, u8 *arg1);
+    extern void func_00209370(u8 *arg0, s32 arg1, f32 *arg2);
+    extern void func_00209640(u8 *arg0, u8 *arg1, f32 *arg2);
+    extern void func_00209740(u8 *arg0, u8 *arg1);
+    extern void func_002097b0(u8 *arg0, u8 *arg1);
+    extern u16 func_00209870(u8 *arg0, s32 arg1, u8 **arg2);
+    extern void func_002099c0(u8 *arg0, u8 *arg1, f32 *arg2);
+    extern void func_00209bc0(u8 *arg0, u8 *arg1, f32 *arg2);
+    extern void func_00209cd0(u8 *arg0, u8 *arg1);
+    extern void func_0020a5d0(u16 *arg0, u8 *arg1);
+    extern u16 func_0020a640(u8 *arg0, u8 *arg1);
+    extern void func_0020aa70(u8 *arg0, u8 *arg1, f32 *arg2);
+    extern void func_0020ac70(s32 arg0, u8 *arg1, f32 *arg2);
     extern void func_0020ad70(void);
+    u8 *work;
     u8 *panel;
-    u8 *entry;
-    u8 *ui;
-    s32 mode;
-    s16 sub;
-    s32 count;
+    u8 *action;
+    u8 *unit;
+    s32 input;
+    s16 subAction;
+    s32 partyCount;
 
-    if (*(s16 *)(func_00452560(*(s32 *)(arg1 + 0x5B0)) + 0xAA) < 2) {
+    work = (u8 *)(u32)workAddress;
+    if (*(s16 *)(func_00452560(*(void **)(work + 0x5B0)) + 0xAA) < 2) {
         return 1;
     }
-    if (*(s16 *)(arg1 + 0x14) != 0) {
+    if (*(s16 *)(work + 0x14) != 0) {
         return 1;
     }
-    mode = func_00202e70(arg0) & 0xFFFF;
-    if (mode == 1) {
-    if (*(s16 *)(arg0 + 4) != 3) {
+    input = func_00202e70(selection) & 0xFFFF;
+    if (input == 1) {
+    if (*(s16 *)(selection + 4) != 3) {
         func_0045af60(0, 0, 0, 2);
     }
-    *(s16 *)(arg0 + 4) = 3;
-    *(s16 *)(arg0 + 2) = 0;
-    } else if (mode == 4) {
-    if (func_001f0620(*(u8 **)(arg1 + 0x178), 0xA) == 0) {
+    *(s16 *)(selection + 4) = 3;
+    *(s16 *)(selection + 2) = 0;
+    } else if (input == 4) {
+    if (func_001f0620(*(u8 **)(work + 0x178), 0xA) == 0) {
         return 1;
     }
     func_0045af60(0, 0, 0, 3);
-    *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) = 0xA;
+    *(s16 *)(*(u8 **)(work + 0x178) + 0x6C) = 0xA;
     if (func_00106330(0x38) != 0) {
-        sub = 0x10B;
+        subAction = 0x10B;
     } else {
-        sub = 0x110;
+        subAction = 0x110;
     }
-    *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6E) = sub;
+    *(s16 *)(*(u8 **)(work + 0x178) + 0x6E) = subAction;
     return 4;
-    } else if (mode == 5) {
-    *(s16 *)(arg1 + 0x14) = -3;
-    } else if (mode == 6) {
-    *(s16 *)(arg1 + 0x14) = 3;
-    } else if (mode == 2) {
-    switch (*(s16 *)(arg0 + 4)) {
+    } else if (input == 5) {
+    *(s16 *)(work + 0x14) = -3;
+    } else if (input == 6) {
+    *(s16 *)(work + 0x14) = 3;
+    } else if (input == 2) {
+    switch (*(s16 *)(selection + 4)) {
     case 3:
-        if (func_001f0620(*(u8 **)(arg1 + 0x178), 1) == 0) {
+        if (func_001f0620(*(u8 **)(work + 0x178), 1) == 0) {
             func_0045af60(0, 0xF, 0, 8);
             return 1;
         }
-        *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) = 1;
-        *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6E) =
-            func_0023dfe0(*(s32 *)(*(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30) + 0xA64));
+        *(s16 *)(*(u8 **)(work + 0x178) + 0x6C) = 1;
+        *(s16 *)(*(u8 **)(work + 0x178) + 0x6E) =
+            func_0023dfe0(*(u8 **)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA64));
         break;
     case 4:
-        if (func_001f0620(*(u8 **)(arg1 + 0x178), 2) == 0) {
-            if (func_00232710(*(s32 *)(*(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30) + 0xA64), 8) != 0) {
-                func_002019f0(*(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30), 0x90);
+        if (func_001f0620(*(u8 **)(work + 0x178), 2) == 0) {
+            if (func_00232710(*(s32 *)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA64), 8) != 0) {
+                func_002019f0((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x90);
             }
             func_0045af60(0, 0xF, 0, 8);
             return 1;
         }
-        func_0010a900(*(u16 *)(*(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30) + 0xA4));
-        func_00202c60(arg1 + 0x74, 4, *(s16 *)(arg1 + 0x1A4), func_00208a50,
-                      func_00208b00, func_00208d00, func_002090d0, arg1);
-        panel = arg1 + 0x74;
-        *arg2 = panel;
+        func_0010a900(*(u16 *)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA4));
+        func_00202c60(work + 0x74, 4, *(s16 *)(work + 0x1A4), func_00208a50,
+                      func_00208b00, func_00208d00, func_002090d0, work);
+        panel = work + 0x74;
+        *nextPanel = panel;
         func_00202e60(panel, func_00208fd0);
-        *(s16 *)(arg1 + 0x10) = 0;
-        *(s32 *)(arg1 + 4) = *(s32 *)(arg1 + 4) & ~4;
+        *(s16 *)(work + 0x10) = 0;
+        *(s32 *)(work + 4) = *(s32 *)(work + 4) & ~4;
         return 3;
     case 6:
-        if (func_001f0620(*(u8 **)(arg1 + 0x178), 3) == 0 || *(s16 *)(arg1 + 0x5A6) == 0) {
-            if (*(s16 *)(arg1 + 0x5A6) == 0) {
-                func_002019f0(*(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30), 0x92);
+        if (func_001f0620(*(u8 **)(work + 0x178), 3) == 0 || *(s16 *)(work + 0x5A6) == 0) {
+            if (*(s16 *)(work + 0x5A6) == 0) {
+                func_002019f0((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x92);
             }
             func_0045af60(0, 0xF, 0, 8);
             return 1;
         }
-        func_00202c60(arg1 + 0xA8, 4, *(s16 *)(arg1 + 0x5A6), func_00209140, func_002091f0,
-                      func_00209370, func_00209740, arg1);
-        panel = arg1 + 0xA8;
-        *arg2 = panel;
+        func_00202c60(work + 0xA8, 4, *(s16 *)(work + 0x5A6), func_00209140, func_002091f0,
+                      func_00209370, func_00209740, work);
+        panel = work + 0xA8;
+        *nextPanel = panel;
         func_00202e60(panel, func_00209640);
-        *(s16 *)(arg1 + 0x10) = 0;
-        *(s32 *)(arg1 + 4) = *(s32 *)(arg1 + 4) & ~4;
+        *(s16 *)(work + 0x10) = 0;
+        *(s32 *)(work + 4) = *(s32 *)(work + 4) & ~4;
         return 3;
     case 1:
-        if (func_001f0620(*(u8 **)(arg1 + 0x178), 4) == 0) {
+        if (func_001f0620(*(u8 **)(work + 0x178), 4) == 0) {
             if ((s32)(func_001ef720(1, 0) & 0xFFFF) < 2) {
-                func_002019f0(*(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30), 0x93);
+                func_002019f0((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x93);
             }
             func_0045af60(0, 0xF, 0, 8);
             return 1;
         }
-        count = 0;
-        for (ui = *(u8 **)(iGpffffb3ac + 0x17C); ui != NULL; ui = *(u8 **)(ui + 0xA68)) {
-            if (*(u16 *)(ui + 0xA4) != 1) {
-                *(u8 **)(arg1 + (count & 0xFFFF) * 4 + 0x17C) = ui;
-                count = (count + 1) & 0xFFFF;
+        partyCount = 0;
+        for (unit = *(u8 **)(iGpffffb3ac + 0x17C); unit != NULL; unit = *(u8 **)(unit + 0xA68)) {
+            if (*(u16 *)(unit + 0xA4) != 1) {
+                *(u8 **)(work + (partyCount & 0xFFFF) * 4 + 0x17C) = unit;
+                partyCount = (partyCount + 1) & 0xFFFF;
             }
         }
-        *(s16 *)(arg1 + 0x18C) = count;
-        func_00202c60(arg1 + 0xDC, 3, (s16)count, func_002097b0, func_00209870,
-                      func_002099c0, func_00209cd0, arg1);
-        panel = arg1 + 0xDC;
-        *arg2 = panel;
+        *(u16 *)(work + 0x18C) = partyCount;
+        func_00202c60(work + 0xDC, 3, (s16)partyCount, func_002097b0, func_00209870,
+                      func_002099c0, func_00209cd0, work);
+        panel = work + 0xDC;
+        *nextPanel = panel;
         func_00202e60(panel, func_00209bc0);
-        *(s16 *)(arg1 + 0x10) = 0;
-        *(s32 *)(arg1 + 4) = *(s32 *)(arg1 + 4) & ~4;
+        *(s16 *)(work + 0x10) = 0;
+        *(s32 *)(work + 4) = *(s32 *)(work + 4) & ~4;
         return 3;
     case 5:
-        if (func_001f0620(*(u8 **)(arg1 + 0x178), 5) == 0) {
-            if (func_00232710(*(s32 *)(*(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30) + 0xA64), 8) != 0) {
-                func_002019f0(*(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30), 0x91);
+        if (func_001f0620(*(u8 **)(work + 0x178), 5) == 0) {
+            if (func_00232710(*(s32 *)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA64), 8) != 0) {
+                func_002019f0((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x91);
             } else {
-                entry = *(u8 **)(arg1 + 0x178);
-                if (!(*(u16 *)(entry + 0x18) & 0x400)) {
-                    func_002019f0(*(u8 **)(entry + 0x30), 0x95);
+                action = *(u8 **)(work + 0x178);
+                if (!(*(u16 *)(action + 0x18) & 0x400)) {
+                    func_002019f0((s32)(u32)*(u8 **)(action + 0x30), 0x95);
                 }
             }
             func_0045af60(0, 0xF, 0, 8);
             return 1;
         }
-        *(s32 *)(arg1 + 0x5A8) = func_00117780(*(s32 *)(arg1 + 0x5B0), 0xF, 1, 8, 8);
-        *(s16 *)(arg1 + 0x5AC) = -1;
-        func_00202c60(arg1 + 0x144, 4, (s16)func_0010b6f0(), func_0020a5d0,
-                      func_0020a640, func_0020aa70, func_0020ad70, arg1);
-        panel = arg1 + 0x144;
-        *arg2 = panel;
+        *(u8 **)(work + 0x5A8) = func_00117780(*(s32 *)(work + 0x5B0), 0xF, 1, 8, 8);
+        *(s16 *)(work + 0x5AC) = -1;
+        func_00202c60(work + 0x144, 4, (s16)func_0010b6f0(), func_0020a5d0,
+                      func_0020a640, func_0020aa70, func_0020ad70, work);
+        panel = work + 0x144;
+        *nextPanel = panel;
         func_00202e60(panel, func_0020ac70);
-        *(s16 *)(arg1 + 0x10) = 0;
-        *(s32 *)(arg1 + 4) = *(s32 *)(arg1 + 4) & ~4;
+        *(s16 *)(work + 0x10) = 0;
+        *(s32 *)(work + 4) = *(s32 *)(work + 4) & ~4;
         return 3;
     case 7:
-        if (func_001f0620(*(u8 **)(arg1 + 0x178), 6) == 0) {
-            func_001f56d0(*(u8 **)(arg1 + 0x178), 5, 0, 0, 2);
+        if (func_001f0620(*(u8 **)(work + 0x178), 6) == 0) {
+            func_001f56d0((s32)(u32)*(u8 **)(work + 0x178), 5, 0, 0, 2);
             func_0045af60(0, 0xF, 0, 8);
             return 1;
         }
-        *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) = 6;
-        *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6E) = 0;
+        *(s16 *)(*(u8 **)(work + 0x178) + 0x6C) = 6;
+        *(s16 *)(*(u8 **)(work + 0x178) + 0x6E) = 0;
         break;
     case 2:
-        if (func_001f0620(*(u8 **)(arg1 + 0x178), 7) == 0) {
+        if (func_001f0620(*(u8 **)(work + 0x178), 7) == 0) {
             func_0045af60(0, 0xF, 0, 8);
             return 1;
         }
-        *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) = 7;
-        *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6E) = 0;
+        *(s16 *)(*(u8 **)(work + 0x178) + 0x6C) = 7;
+        *(s16 *)(*(u8 **)(work + 0x178) + 0x6E) = 0;
         break;
     case 0:
-        if (func_001f0620(*(u8 **)(arg1 + 0x178), 0xA) == 0) {
+        if (func_001f0620(*(u8 **)(work + 0x178), 0xA) == 0) {
             func_0045af60(0, 0xF, 0, 8);
             return 1;
         }
         func_0045af60(0, 0, 0, 3);
-        *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) = 0xA;
+        *(s16 *)(*(u8 **)(work + 0x178) + 0x6C) = 0xA;
         if (func_00106330(0x38) != 0) {
-            sub = 0x10B;
+            subAction = 0x10B;
         } else {
-            sub = 0x110;
+            subAction = 0x110;
         }
-        *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6E) = sub;
+        *(s16 *)(*(u8 **)(work + 0x178) + 0x6E) = subAction;
         break;
     default:
         break;
@@ -3317,10 +3294,7 @@ s32 func_00207320(u8 *arg0, u8 *arg1, u8 **arg2)
     }
     return 1;
 }
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00207320);
-#endif
+#pragma pop
 /* measured: GUARDED_SCORE 760 -> 746 differing words via tbl-base hoist (probe_variants), retail 860 vs object 863 -> 855 instrs (+3 -> -5, within gate); fnalign 532 -> 517 edits (+1 reloc-only). Lui per symbol retail 65 vs object 91 surplus 26 (D_00887300 6 hoisted vs 14 per-site, D_00626BD0 2/2 tie); hoisted D_00887300 to tbl at first use (void (**tbl)(u32,u32) = D_00887300, 14 -> 3 bases, lui 91->80 surplus 15, -11): 760->746 words (-14). Prologue init 767 ties-worse, last-site direct 755 worse, px-reuse 779 worse. Remaining: saved-reg rotation (retail s8/s1/s4 vs build s7/s2), FPR colouring (retail f26/f25/f24 vs build f22/f21/f20), frame -0xD0 vs -0xB0, stack pos 0xC0 vs 0xA8, residual float constants (0xc120 +4, 0x3f80 +2). Banked floor; production stays ASM. */
 /* measured 00207b00 (owner, 2026-09-19): fnalign edits **517 -> 470**, frame 0xC0 -> 0xD0
    **exactly retail's**, and the saved float set now matches: $f23/$f24/$f25/$f26 against

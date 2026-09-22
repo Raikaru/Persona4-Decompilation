@@ -159,9 +159,9 @@ u32 func_002bb0e0(void)
 
 
 // FUN_002BB140
-s8 func_002bb140(void)
+s32 func_002bb140(void)
 {
-  s8 uVar1;
+  s32 uVar1;
 
   u8 *lVar2;
 
@@ -349,9 +349,9 @@ u32 func_002bb380(void)
 
 
 // FUN_002BB600
-s8 func_002bb600(void)
+s32 func_002bb600(void)
 {
-  s8 uVar1;
+  s32 uVar1;
   int *piVar2;
   u8 *lVar3;
 
@@ -468,7 +468,7 @@ u32 func_002bb700(void)
 
 
 // FUN_002BBD20
-void func_002bbd20(u64 param_1,u64 param_2)
+void func_002bbd20(s32 param_1,void *param_2)
 
 {
 

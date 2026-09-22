@@ -38,7 +38,7 @@ extern void func_0044ea90(u8 *file, s32 line);
 extern u8 D_007131E8[];
 /* Defined below in this file; called at line 54, above its definition. */
 extern void func_0047d310(u32 *param_1);
-extern u8 *func_00457120(void);
+extern s32 func_00457120(void);
 extern u8 *func_003e9700(s32 arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void func_0043f810(void *dst, const void *src, u32 size);
@@ -50,7 +50,9 @@ extern void func_004b12e0(s32 arg0, void *arg1);
 
 extern void func_004bce80(void);
 extern void func_004bceb0(void);
-extern void func_003e42a0(void *arg0, void *arg1, u8 *arg2);
+typedef struct RwV3d { f32 x, y, z; } RwV3d;
+typedef struct RwMatrixTag RwMatrix;
+extern RwV3d *func_003e42a0(RwV3d *out, const RwV3d *in, const RwMatrix *matrix);
 extern f32 D_00713D10[];
 extern f32 D_00713D14[];
 extern f32 D_00713D18[];
@@ -750,7 +752,7 @@ void func_0048a1f0(u8 *arg0)
 {
     u8 *obj;
 
-    obj = func_003e9700(*(s32 *)((u8 *)func_00457120() + 4));
+    obj = func_003e9700(*(s32 *)((u8 *)(u32)func_00457120() + 4));
     *(f32 *)(arg0 + 0) = *(f32 *)(obj + 0x20);
     *(f32 *)(arg0 + 4) = *(f32 *)(obj + 0x24);
     *(f32 *)(arg0 + 8) = *(f32 *)(obj + 0x28);
@@ -761,7 +763,7 @@ void func_0048a250(u8 *arg0)
 {
     u8 *obj;
 
-    obj = func_003e9700(*(s32 *)((u8 *)func_00457120() + 4));
+    obj = func_003e9700(*(s32 *)((u8 *)(u32)func_00457120() + 4));
     *(f32 *)(arg0 + 0) = *(f32 *)(obj + 0x30);
     *(f32 *)(arg0 + 4) = *(f32 *)(obj + 0x34);
     *(f32 *)(arg0 + 8) = *(f32 *)(obj + 0x38);
@@ -773,7 +775,7 @@ void func_0048a2b0(u8 *arg0, u8 *arg1)
     u8 *obj;
     f32 temp[4];
 
-    obj = func_003e9700(*(s32 *)((u8 *)func_00457120() + 4));
+    obj = func_003e9700(*(s32 *)((u8 *)(u32)func_00457120() + 4));
     temp[0] = *(f32 *)(obj + 0x30);
     temp[1] = *(f32 *)(obj + 0x34);
     temp[2] = *(f32 *)(obj + 0x38);
@@ -879,59 +881,12 @@ void func_0048a340(f32 param_1)
         : "r"(raw + 0x10)
         : "$vf28", "$vf29", "$vf30", "memory");
 }
-/* measured floor: honest void 15wd fresh this session (obj176B/window176B, fnalign FPR $f0/$f1/$f2 + $v0/$v1 rotation per owner note). Rejected 11wd returning-local-array (dangling stack, callers use $vf10 not $v0). Inert: decl orders, mul swap, nested forms, quot/div-reuse, raw spellings, opt CSE/prop/dead/loop/schedule, O1/O3, b119 regress 45wd. No volatile-ordinary/asm-steering; COP2 sqc2/lqc2 is genuine hardware contract. Banked. */
-/* measured 2026-09-17 full pragma_sweep --pairs: banked 15 via measure_guarded; */
-/* best stays 15 (ties: dead off, loopinv on, prop off, strength off, unroll off */
-/* and their pairs; 22 csoff group, 23 peephole group, 34-35 schedule group). */
-/* No pair wins; floor stands. */
-/* `python3 -E -s tools/pragma_sweep.py src/Graphics/Model/mdlEffect.c func_0048a460 --pairs`. */
-/* 2026-09-18: confirmed 15-word register-colouring wall.  The whole residual
-   is inside instructions 21-39: retail keeps the divisor in $f0, the
-   dividend in $f1 and the quotient in $f2 and uses $v0 for the two float
-   constants and the final `addiu`, where b210 uses $f2/$f0/$f1 and $v1.
-   Measured and rejected: a local for transformed.z, locals for the two
-   quotients, accumulate-split divisions in three shapes, commuting the
-   multiplies, dropping the parentheses (22), storing output[2]/[3] first
-   (19), reversing the transformed/input declaration order (20), inlining
-   mdlEffect_camera_matrix (18) or hoisting it to a local, four spellings
-   of the closing lqc2 operand (plain, no `m`, `=m` output, `&output[0]`,
-   a u8* local), and the ten-pragma sweep - everything ties at 15 except
-   opt_common_subs off and optimization_level 1 (22) and level 3 (34). */
-/* 2026-09-18 lead pass, 5 measured variants; floor confirmed at 15 words.
-   44/44 instructions.  The residual is an FP/GPR rotation around the two
-   perspective divides: retail loads the divisor into $f0 and the dividend
-   into $f1 with the quotient in $f2 and the 448.0f constant through $v0,
-   while this body uses $f2/$f0 -> $f1 and $v1.  The remaining rows are the
-   absolute-address `lui`/`lwc1` pairs, which fnalign shows as differences
-   only because the candidate's relocations are zeroed.
-   Not reachable from source: `(x / z) * 640.0f` instead of
-   `640.0f * (x / z)` ties at 15, splitting the struct declaration ties at
-   15, `640.0f * x / z` costs 15 -> 22, reordering the two zero stores costs
-   15 -> 17, and hoisting them above the divides costs 15 -> 19.  The two
-   inline-asm blocks are genuine terminal COP2 transfers per the VU handoff,
-   not a shortcut. */
-/* 2026-09-18 section 7o eight-probe pass; floor stays 15. */
-/* Exchanged pair per fnalign (retail[21:26][27:33][34:36][38:40]): retail keeps */
-/* divisor (transformed.z, 0x38($sp)) in $f0, dividend (transformed.x 0x30 / y 0x34) */
-/* in $f1, quotient in $f2, constants (640.0f lui 0x4420, 448.0f lui 0x43e0) and */
-/* output pointer (addiu $sp,0x10) in $v0, where this body uses $f2/$f0 -> $f1 and */
-/* $v1. residual_signature reports edits 20 mask 0 cvt 0 class 0 perm 0 other 5 */
-/* with no stable mapping because fnalign groups the rotation into multi-instruction */
-/* replace blocks (single-register rows would be perm); the mapping above is the pair. */
-/* Two values tried: qx = transformed.x / transformed.z, qy = transformed.y / */
-/* transformed.z, declared without initialiser and assigned as statements, retail */
-/* order (qx then qy) vs reverse, at function scope vs block scope. All eight via */
-/* probe_variants in one batch, each 15 -> 16 (one extra word; quotient locals hurt): */
-/* v1 fn-both retail (qx,qy top, qx then qy) 16; v2 fn-both reverse (qy then qx) 16; */
-/* v3 blk-both retail ({qx,qy} block, qx then qy) 16; v4 blk-both reverse 16; */
-/* v5 qx-fn/qy-blk retail (qx top, qy block, qx then qy) 16; v6 same split reverse 16; */
-/* v7 qx-blk/qy-fn retail (qy top, qx block, qx then qy) 16; v8 same split reverse 16. */
-/* No variant reaches zero; 7o does not close this FP/GPR rotation. Floor untouched. */
-// FUN_0048A460 NONMATCHING
-#ifdef NON_MATCHING
-void func_0048a460(void)
+/* Projects VF10 into screen coordinates and returns camera-space depth. */
+// FUN_0048A460
+f32 func_0048a460(void)
 {
-    struct { f32 x, y, z; } transformed, input;
+    RwV3d transformed, input;
+    f32 depth;
     f32 output[4] __attribute__((aligned(16)));
     __asm__ volatile(
         "sqc2 $vf10, 0(%1) \n"
@@ -942,9 +897,10 @@ void func_0048a460(void)
     input.y = D_00713D14[0];
     input.z = D_00713D18[0];
     func_003e42a0(&transformed, &input,
-                  mdlEffect_camera_matrix(func_00457120()));
-    output[0] = 640.0f * (transformed.x / transformed.z);
-    output[1] = 448.0f * (transformed.y / transformed.z);
+                  (const RwMatrix *)mdlEffect_camera_matrix((u8 *)(u32)func_00457120()));
+    depth = transformed.z;
+    output[0] = 640.0f * (transformed.x / depth);
+    output[1] = 448.0f * (transformed.y / depth);
     output[2] = 0.0f;
     output[3] = 0.0f;
     __asm__ volatile(
@@ -952,10 +908,8 @@ void func_0048a460(void)
         :
         : "r"(output), "m"(*(f32 (*)[4])output)
         : "$vf10", "memory");
+    return depth;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a460);
-#endif
 // FUN_0048A510
 s32 func_0048a510(void)
 {
@@ -974,11 +928,11 @@ s32 func_0048a510(void)
     *(f32 *)(raw + 0x20) = D_00713D10[0];
     *(f32 *)(raw + 0x24) = D_00713D14[0];
     *(f32 *)(raw + 0x28) = D_00713D18[0];
-    func_003e42a0(raw + 0x30, raw + 0x20,
-                  mdlEffect_camera_matrix(func_00457120()));
-    ptr = (u8 *)func_00457120();
+    func_003e42a0((RwV3d *)(raw + 0x30), (const RwV3d *)(raw + 0x20),
+                  (const RwMatrix *)mdlEffect_camera_matrix((u8 *)(u32)func_00457120()));
+    ptr = (u8 *)(u32)func_00457120();
     temp_f20 = *(f32 *)(ptr + 0x80);
-    ptr = (u8 *)func_00457120();
+    ptr = (u8 *)(u32)func_00457120();
     temp_f0 = *(f32 *)(ptr + 0x84);
     temp_f1 = *(f32 *)(raw + 0x38);
     if ((temp_f1 <= temp_f20) || !(temp_f1 < temp_f0)) {
@@ -1028,8 +982,8 @@ f32 func_0048a650(f32 fparg0)
     *(f32 *)(raw + 0x30) = D_00713D10[0];
     *(f32 *)(raw + 0x34) = D_00713D14[0];
     *(f32 *)(raw + 0x38) = D_00713D18[0];
-    func_003e42a0(raw + 0x40, raw + 0x30,
-                  mdlEffect_camera_matrix(func_00457120()));
+    func_003e42a0((RwV3d *)(raw + 0x40), (const RwV3d *)(raw + 0x30),
+                  (const RwMatrix *)mdlEffect_camera_matrix((u8 *)(u32)func_00457120()));
     temp_f22 = *(f32 *)(raw + 0x48);
     temp_f1 = *(f32 *)(raw + 0x40) / temp_f22;
     temp_f0 = 640.0f * temp_f1;
@@ -1049,14 +1003,14 @@ f32 func_0048a650(f32 fparg0)
         :
         : "r"(raw + 0x20)
         : "$vf10", "memory");
-    ptr = (u8 *)func_00457120();
+    ptr = (u8 *)(u32)func_00457120();
     temp_f21 = *(f32 *)(ptr + 0x80);
-    ptr = (u8 *)func_00457120();
+    ptr = (u8 *)(u32)func_00457120();
     temp_f0 = *(f32 *)(ptr + 0x84);
     if ((temp_f22 <= temp_f21) || !(temp_f22 < temp_f0)) {
         return 0.0f;
     }
-    ptr = (u8 *)func_00457120();
+    ptr = (u8 *)(u32)func_00457120();
     ptr = *(u8 **)(ptr + 4);
     __asm__ volatile(
         "lqc2 $vf10, 0(%0) \n"
@@ -1349,7 +1303,7 @@ void func_004a6e70(u8 *arg0)
     extern s32 func_004814d0(u16 b);
     extern void func_00460ac0(void *a, void *b);
     extern void func_003e9cb0(s32 a, void *b, s32 c);
-    extern u8 *func_00457120(void);
+    extern s32 func_00457120(void);
     extern u8 *func_003e9700(s32 a);
     extern f32 sqrtf(f32 x);
     extern u8 D_007141B0[];
@@ -1636,13 +1590,13 @@ void func_004a6e70(u8 *arg0)
         } while (outer < 13);
     }
     {
-        u8 *c = (u8 *)func_00457120();
+        u8 *c = (u8 *)(u32)func_00457120();
         f32 cx = *(f32 *)(c + 0x80);
-        u8 *d = (u8 *)func_00457120();
+        u8 *d = (u8 *)(u32)func_00457120();
         f32 cy = *(f32 *)(d + 0x84);
         f32 tz = cy - cx;
         f32 k2 = (tz * -65535.0f * cy) / (cy * -65535.0f - (cy - cx) * -255.0f);
-        u8 *e = (u8 *)func_00457120();
+        u8 *e = (u8 *)(u32)func_00457120();
         f32 ex = *(f32 *)(e + 0x68);
         f32 ey = *(f32 *)(e + 0x6C);
         f32 fA = 2.0f * (ex * k2);
@@ -1666,7 +1620,7 @@ void func_004a6e70(u8 *arg0)
             *(u16 *)(q + 0xC) |= 1;
         }
         {
-            u8 *r = (u8 *)func_00457120();
+            u8 *r = (u8 *)(u32)func_00457120();
             u8 *s2 = func_003e9700(*(s32 *)(r + 4));
             func_003e9cb0(*(s32 *)(listBase + 0xC), s2, 0);
         }

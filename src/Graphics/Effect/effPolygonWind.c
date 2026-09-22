@@ -3,6 +3,8 @@
 /* Original translation unit effPolygonWind.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
+typedef struct RpGeometry RpGeometry;
+
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 typedef int s128 __attribute__((mode(TI)));
 
@@ -17,16 +19,16 @@ typedef struct {
 extern PolygonWindColor iGpffffbb64; /* 0x00724C54 */
 extern void func_0044ea90(char *, s32);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern u8 *func_00483e10(u16, u16, void *, s32, s32);
+extern u8 *func_00483e10(s32, s32, s32, s32, s32);
 extern s32 func_00481300(s32);
 extern void func_004842d0(void *, s32);
 extern void func_004843f0(void *, s32);
 extern void func_004a1d70(void *, void *);
 extern void func_004a30e0(u8 *, u8 *);
 extern void func_004a4450(u8 *, u8 *);
-extern s32 func_00484010(void *);
-extern u8 *func_003c2290(u8 *, s32);
-extern void func_0043f810(void *, const void *, u32);
+extern u8 *func_00484010(u8 *);
+extern RpGeometry *func_003c2290(RpGeometry *, s32);
+extern void *func_0043f810(void *, const void *, u32);
 extern char D_00713330[];
 extern char D_00714148[];
 extern u_long128 D_00713CE0;
@@ -45,7 +47,7 @@ extern void func_004bd3c0(f32);
 extern void func_004bd450(void);
 extern f32 func_0044b610(f32);
 extern f32 func_0044b7b0(f32);
-extern void func_003c22f0(void *);
+extern RpGeometry *func_003c22f0(RpGeometry *);
 extern f32 D_00713D10[4];
 extern f32 D_00713D14[4];
 extern f32 D_00713D18[4];
@@ -74,7 +76,7 @@ u8 *func_004a20b0(u8 *arg0, s32 arg1)
     if (*(u32 *)(arg0 + 0x8C) < 3U) {
         *(u32 *)(arg0 + 0x8C) = 3U;
     }
-    *(void **)(work + 4) = func_00483e10(*(u16 *)(arg0 + 0x38), *(u16 *)(arg0 + 0x8C), D_00713330, 4, 0x4C);
+    *(u8 **)(work + 4) = func_00483e10(*(u16 *)(arg0 + 0x38), *(u16 *)(arg0 + 0x8C), (s32)(u32)D_00713330, 4, 0x4C);
     if (arg1 == 0) {
         func_004842d0(*(void **)(work + 4), func_00481300(0x14));
     } else {
@@ -105,7 +107,7 @@ u8 *func_004a21e0(u8 *arg0)
     if (*(u32 *)(p17 + 0x8C) < 3U) {
         *(u32 *)(p17 + 0x8C) = 3U;
     }
-    *(s32 *)(work + 4) = func_00484010(*(void **)(p16 + 4));
+    *(u8 **)(work + 4) = func_00484010(*(u8 **)(p16 + 4));
     func_004a1d70(work, p17);
     return work;
 }
@@ -251,7 +253,7 @@ void func_004a2310(u8 *arg0)
         u8 *p10;
         u8 *p18;
         p10 = *(u8 **)(*(u8 **)(ctx + 0x10) + 0x18);
-        func_003c2290(p10, 0xFF2);
+        func_003c2290((RpGeometry *)(p10), 0xFF2);
         p18 = *(u8 **)(*(u8 **)(ctx + 0x10) + 0x18);
         var_18 = *(u8 **)(*(u8 **)(p18 + 0x5C) + 0x14);
         var_17 = *(u8 **)(p18 + 0x34);
@@ -429,7 +431,7 @@ next_outer:
             pvar20 += 0x30;
         }
         ctx2 = *(u8 **)(*(u8 **)(ctx + 0x10) + 0x18);
-        func_003c22f0(ctx2);
+        func_003c22f0((RpGeometry *)(ctx2));
         if ((*(u16 *)ctx & 4) != 0) {
             *(u16 *)(ctx2 + 0xC) = *(u16 *)(ctx2 + 0xC) | 1;
         }
@@ -669,7 +671,7 @@ void func_004a30e0(u8 *arg0, u8 *arg1)
 
     temp_23 = *(u32 *)(arg1 + 0x38);
     if (temp_23 != 0) {
-        func_003c2290(*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18), 0xFF8);
+        func_003c2290((RpGeometry *)(*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18)), 0xFF8);
         temp_3 = *(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18);
         temp_18 = *(u8 **)(temp_3 + 0x30);
         var_19 = temp_18;
@@ -743,7 +745,7 @@ u8 *func_004a33e0(u8 *arg0, s32 arg1)
     if (*(u32 *)(arg0 + 0x8C) < 3U) {
         *(u32 *)(arg0 + 0x8C) = 3U;
     }
-    *(void **)(work + 4) = func_00483e10(*(u16 *)(arg0 + 0x38), *(u16 *)(arg0 + 0x8C), D_00713330, 4, 0x4C);
+    *(u8 **)(work + 4) = func_00483e10(*(u16 *)(arg0 + 0x38), *(u16 *)(arg0 + 0x8C), (s32)(u32)D_00713330, 4, 0x4C);
     if (arg1 == 0) {
         func_004842d0(*(void **)(work + 4), func_00481300(0x14));
     } else {
@@ -774,7 +776,7 @@ u8 *func_004a3510(u8 *arg0)
     if (*(u32 *)(p17 + 0x8C) < 3U) {
         *(u32 *)(p17 + 0x8C) = 3U;
     }
-    *(s32 *)(work + 4) = func_00484010(*(void **)(p16 + 4));
+    *(u8 **)(work + 4) = func_00484010(*(u8 **)(p16 + 4));
     func_004a30e0(work, p17);
     return work;
 }
@@ -934,7 +936,7 @@ void func_004a3640(u8 *arg0)
         u8 *p10;
         u8 *p18;
         p10 = *(u8 **)(*(u8 **)(ctx + 0x10) + 0x18);
-        func_003c2290(p10, 0xFF2);
+        func_003c2290((RpGeometry *)(p10), 0xFF2);
         p18 = *(u8 **)(*(u8 **)(ctx + 0x10) + 0x18);
         var_18 = *(u8 **)(*(u8 **)(p18 + 0x5C) + 0x14);
         var_17 = *(u8 **)(p18 + 0x34);
@@ -1127,7 +1129,7 @@ next_outer:
             pvar20 += 0x30;
         }
         ctx2 = *(u8 **)(*(u8 **)(ctx + 0x10) + 0x18);
-        func_003c22f0(ctx2);
+        func_003c22f0((RpGeometry *)(ctx2));
         if ((*(u16 *)ctx & 4) != 0) {
             *(u16 *)(ctx2 + 0xC) = *(u16 *)(ctx2 + 0xC) | 1;
         }
@@ -1350,120 +1352,92 @@ void func_004a4380(u8 *arg0)
    or-0x80000000 sequence for the cast and colours its temporaries the way
    retail does; the m2c-expanded copy colours them the other way.  Same lever
    as func_00348330 in src/promoted/y_CmbCardEff.c. */
-// FUN_004A4450 NONMATCHING
 /* measured: live object 824B/window 832B, normalized_diff 67 (installed guard below; replaces bare ASM). Recovery: XWND skeleton fixed to compile ((u32) 3rd f810 args per file convention) plus #pragma opt_loop_invariants on (128 -> 67, the file's own 004a4380/004a3010 idiom). Open walls: saved-register rotation (args $s0/$s1 vs $s3/$s4 class), or-dest regs ($t3 vs $t2 at both conversion sites), 2^31 clamp compare form. Ruled out: s32 loop counters (tie alone and on loopinv base), or-operand commutation (tie), (u32)(s32) conversion two-step (160). Prior in-file note's nd47 batch is not on disk; closest reproduced here is 67. Banked as floor. */
-#ifdef NON_MATCHING
+/* The earlier floors above are superseded by the identical retail initializer
+   at 004a1d70. Distinct unsigned row/replication counters and sizes reproduce
+   the entire stream with the native geometry/copy interfaces: 824/832 bytes,
+   four resolved calls and eight zero alignment bytes. This initializes the
+   first color/UV strip, then duplicates it for the remaining meshes.
+   See docs/probe_archive/Wind_004a4450_shared_initializer.md. */
+#pragma push
 #pragma opt_loop_invariants on
+// FUN_004A4450
 void func_004a4450(u8 *arg0, u8 *arg1)
 {
-    f32 temp_f8;
-    f32 temp_f7;
-    f32 temp_f6;
-    f32 temp_f2;
-    f32 temp_f1;
-    f32 temp_f0;
-    f32 var_f0;
-    f32 var_f0_2;
-    f32 var_f0_3;
-    f32 two31;
-    s32 temp_10;
-    s32 temp_8;
-    s32 temp_7;
-    s32 temp_6;
-    s32 temp_5;
-    s32 temp_4;
-    s32 var_10;
-    u32 temp_23;
-    u32 var_20;
-    u32 var_9;
-    u8 *temp_16;
-    u8 *temp_18;
-    u8 *temp_3;
-    u8 *var_17;
-    u8 *var_19;
-    u8 *temp_20;
-    u8 *temp_21;
-    u8 *temp_22;
-    u8 *a0;
-    u8 *a1;
+    u32 meshCount;
+    u8 *geometry;
+    u8 *colors;
+    u8 *colorsBase;
+    u8 *verticesBase;
+    u8 *vertices;
+    s32 frames;
+    u32 fadeIn;
+    u32 fadeOut;
+    u32 pointCount;
+    u32 i;
+    f32 opacity;
+    f32 step;
+    u32 colorBytes;
+    u32 wordCount;
+    u32 vertexBytes;
+    u32 copies;
+    u16 *model;
 
-    a0 = arg0;
-    a1 = arg1;
-    temp_23 = *(u32 *)(a1 + 0x38);
-    if (temp_23 != 0) {
-        func_003c2290(*(u8 **)(*(u8 **)(*(u8 **)(a0 + 4) + 0x10) + 0x18), 0xFF8);
-        temp_3 = *(u8 **)(*(u8 **)(*(u8 **)(a0 + 4) + 0x10) + 0x18);
-        temp_18 = *(u8 **)(temp_3 + 0x30);
-        var_19 = temp_18;
-        temp_16 = *(u8 **)(temp_3 + 0x34);
-        var_17 = temp_16;
-        temp_f2 = 3.0f;
-        temp_f8 = *(f32 *)(a1 + 0x90) / temp_f2;
-        temp_8 = *(s32 *)(a1 + 0x8C);
-        temp_f1 = (f32)temp_8;
-        temp_7 = (s32)(*(f32 *)(a1 + 0x78) * temp_f1);
-        temp_6 = (s32)(*(f32 *)(a1 + 0x7C) * temp_f1);
-        temp_5 = temp_8 + 1;
-        temp_4 = temp_5 * 4;
-        temp_10 = temp_8 - temp_6;
-        temp_f7 = 2.0f * temp_f8;
-        temp_f6 = 3.0f * temp_f8;
-        temp_f2 = 255.0f;
-        temp_f1 = (f32)temp_10;
-        two31 = 2147483648.0f;
-        var_9 = 0;
-        while (var_9 < (u32)temp_5) {
-            if (var_9 < (u32)temp_7) {
-                var_f0 = (f32)(u32)var_9;
-                var_f0_2 = var_f0 / (f32)temp_7;
-            } else if ((u32)temp_6 < var_9) {
-                temp_10 = temp_8 - var_9;
-                var_f0_3 = (f32)(u32)temp_10;
-                var_f0_2 = var_f0_3 / temp_f1;
+    meshCount = *(u32 *)(arg1 + 0x38);
+    if (meshCount != 0) {
+        geometry = *(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18);
+        func_003c2290((RpGeometry *)(geometry), 0xFF8);
+        geometry = *(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4) + 0x10) + 0x18);
+        colorsBase = *(u8 **)(geometry + 0x30);
+        colors = colorsBase;
+        verticesBase = *(u8 **)(geometry + 0x34);
+        vertices = verticesBase;
+        step = *(f32 *)(arg1 + 0x90) / 3.0f;
+        frames = *(s32 *)(arg1 + 0x8C);
+        fadeIn = (s32)(*(f32 *)(arg1 + 0x78) * (f32)frames);
+        fadeOut = (s32)(*(f32 *)(arg1 + 0x7C) * (f32)frames);
+        pointCount = frames + 1;
+        wordCount = pointCount * 4;
+        i = 0;
+        while (i < pointCount) {
+            if (i < fadeIn) {
+                opacity = (f32)i / (f32)(s32)fadeIn;
+            } else if (fadeOut < i) {
+                opacity = (f32)(u32)(frames - i) / (f32)(s32)(frames - fadeOut);
             } else {
-                var_f0_2 = 1.0f;
+                opacity = 1.0f;
             }
-            *(s32 *)var_19 = 0xFFFFFF;
-            temp_f0 = temp_f2 * var_f0_2;
-            var_10 = (u32)temp_f0;
-            *(s32 *)(var_19 + 4) = (var_10 << 24) | 0xFFFFFF;
-            *(u8 *)(var_19 + 8) = *(u8 *)(var_19 + 4);
-            *(u8 *)(var_19 + 9) = *(u8 *)(var_19 + 5);
-            *(u8 *)(var_19 + 0xA) = *(u8 *)(var_19 + 6);
-            *(u8 *)(var_19 + 0xB) = *(u8 *)(var_19 + 7);
-            *(s32 *)(var_19 + 0xC) = 0xFFFFFF;
-            var_19 += 0x10;
-            *(s32 *)var_17 = 0;
-            *(f32 *)(var_17 + 8) = temp_f8;
-            *(f32 *)(var_17 + 0x10) = temp_f7;
-            *(f32 *)(var_17 + 0x18) = temp_f6;
-            var_17 += 0x20;
-            var_9 += 1;
+            *(u32 *)(colors + 0) = 0xFFFFFF;
+            *(u32 *)(colors + 4) = ((u32)(opacity * 255.0f) << 24) | 0xFFFFFF;
+            *(PolygonWindColor *)(colors + 8) = *(PolygonWindColor *)(colors + 4);
+            *(u32 *)(colors + 12) = 0xFFFFFF;
+            colors += 0x10;
+            *(u32 *)(vertices + 0) = 0;
+            *(f32 *)(vertices + 8) = step;
+            *(f32 *)(vertices + 0x10) = step * 2.0f;
+            *(f32 *)(vertices + 0x18) = step * 3.0f;
+            vertices += 0x20;
+            i += 1;
         }
-        var_20 = 1;
-        temp_6 = temp_4 * 4;
-        temp_7 = temp_4 * 8;
-        while (var_20 < temp_23) {
-            func_0043f810(var_19, temp_18, (u32)temp_6);
-            var_19 += temp_6;
-            func_0043f810(var_17, temp_16, (u32)temp_7);
-            var_17 += temp_7;
-            var_20 += 1;
+        copies = 1;
+        colorBytes = wordCount * 4;
+        vertexBytes = wordCount * 8;
+        while (copies < meshCount) {
+            func_0043f810(colors, colorsBase, colorBytes);
+            colors += colorBytes;
+            func_0043f810(vertices, verticesBase, vertexBytes);
+            vertices += vertexBytes;
+            copies += 1;
         }
-        temp_20 = *(u8 **)(a0 + 4);
-        temp_21 = *(u8 **)(temp_20 + 0x10);
-        temp_22 = *(u8 **)(temp_21 + 0x18);
-        func_003c22f0(temp_22);
-        if (*(u16 *)temp_20 & 4) {
-            *(u16 *)(temp_22 + 0xC) = *(u16 *)(temp_22 + 0xC) | 1;
+        model = *(u16 **)(arg0 + 4);
+        geometry = *(u8 **)(*(u8 **)((u8 *)model + 0x10) + 0x18);
+        func_003c22f0((RpGeometry *)(geometry));
+        if ((*model & 4) != 0) {
+            *(u16 *)(geometry + 0xC) |= 1;
         }
     }
 }
-
-#pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/effPolygonWind", func_004a4450);
-#endif
+#pragma pop
 
 // FUN_004A4790
 u8 *func_004a4790(u8 *arg0, s32 arg1)
@@ -1482,7 +1456,7 @@ u8 *func_004a4790(u8 *arg0, s32 arg1)
     if (*(u32 *)(arg0 + 0x8C) < 3U) {
         *(u32 *)(arg0 + 0x8C) = 3U;
     }
-    *(void **)(work + 4) = func_00483e10(*(u16 *)(arg0 + 0x38), *(u16 *)(arg0 + 0x8C), D_00713330, 4, 0x4C);
+    *(u8 **)(work + 4) = func_00483e10(*(u16 *)(arg0 + 0x38), *(u16 *)(arg0 + 0x8C), (s32)(u32)D_00713330, 4, 0x4C);
     if (arg1 == 0) {
         func_004842d0(*(void **)(work + 4), func_00481300(0x14));
     } else {
@@ -1513,7 +1487,7 @@ u8 *func_004a48d0(u8 *arg0)
     if (*(u32 *)(p17 + 0x8C) < 3U) {
         *(u32 *)(p17 + 0x8C) = 3U;
     }
-    *(s32 *)(work + 4) = func_00484010(*(void **)(p16 + 4));
+    *(u8 **)(work + 4) = func_00484010(*(u8 **)(p16 + 4));
     func_004a4450(work, p17);
     return work;
 }
@@ -1637,7 +1611,7 @@ void func_004a4a10(u8 *arg0)
         u8 *p10;
         u8 *p18;
         p10 = *(u8 **)(*(u8 **)(ctx + 0x10) + 0x18);
-        func_003c2290(p10, 0xFF2);
+        func_003c2290((RpGeometry *)(p10), 0xFF2);
         p18 = *(u8 **)(*(u8 **)(ctx + 0x10) + 0x18);
         var_18 = *(u8 **)(*(u8 **)(p18 + 0x5C) + 0x14);
         var_17 = *(u8 **)(p18 + 0x34);
@@ -1811,7 +1785,7 @@ next_outer:
             pvar20 += 0x2C;
         }
         ctx2 = *(u8 **)(*(u8 **)(ctx + 0x10) + 0x18);
-        func_003c22f0(ctx2);
+        func_003c22f0((RpGeometry *)(ctx2));
         if ((*(u16 *)ctx & 4) != 0) {
             *(u16 *)(ctx2 + 0xC) = *(u16 *)(ctx2 + 0xC) | 1;
         }

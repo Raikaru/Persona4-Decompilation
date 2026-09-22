@@ -1,6 +1,5 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit pscRes.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
-#include "include_asm.h"
 #include "type.h"
 
 extern void func_0046d730(const void *file, u32 line);
@@ -28,12 +27,13 @@ extern s32 func_0036ccc0(void);
 extern void func_00442830(char *dst, char *src);
 extern char D_0064E550[];
 extern char D_0064E570[];
-extern s32 func_0036d3e0(u8 *arg0);
-extern void *func_003ec590(s32 a, s32 b, s32 c, s32 d);
-extern void *func_003ec3d0(void *a, s32 b);
-extern void func_003ec2e0(void *a);
-extern void *func_003ec6a0(void *a, s32 b, s32 c);
-extern void func_003ec2a0(void *a);
+extern s32 func_0036d3e0(const void *input);
+typedef struct RwRaster RwRaster;
+extern RwRaster *func_003ec590(s32 width, s32 height, s32 depth, s32 flags);
+extern u8 *func_003ec3d0(RwRaster *raster, s32 lockMode);
+extern RwRaster *func_003ec2e0(RwRaster *raster);
+extern u8 *func_003ec6a0(RwRaster *raster, u8 level, s32 lockMode);
+extern RwRaster *func_003ec2a0(RwRaster *raster);
 extern const u8 D_0064E4E0[];
 extern void *D_0072469C;
 extern s32 func_004553c0(void *arg0);
@@ -862,152 +862,170 @@ void func_0036d230(u8 *arg0) {
     *(u32 *)((u8 *)p + 0x10) |= 8;
 }
 
-/* measured: MWCC -O2 plain, object 1144B/window 1152B, normalized_diff 49w (fnalign 286/286 exact, 49e+4 reloc-only; owner 244w obj1132B fnalign 285/283 2-short 119e). Best WBHygiene archive (var_17/src1/var_19/temp_20/p0/dst/dst2/var_20 + r/c pairs). Trials: deadArchCase 136w 1-over regress, deadArchDef 49w neutral DCE, deadOwnCase 203w, deadOwnDef 244w, slti-inclusive 53w regress, nocast/s32cast/declswap/u16 49 tie, flagsfold 209w 1-short (proves folding is shortfall), ownerfix 270w, u16+CSE-off 49 tie N/A (no andi-CSE/frame diff, frame 0x70 both), adjacent-OR N/A. Remaining 49 colour-only 4-way s-reg rotation + tail a0/a1 + beq + 4 reloc-only; zero inserts/deletes, wall holds. 2-short->exact via dead-arm does NOT transfer here; exact via var_20=0;var_20|=4 (move+ori) vs folded addiu. No volatile/asm. Staged /tmp/push_36d3e0_full.c via NearGA.Dead36d3e0. */
-// Archived C body: build/WBHygiene_func_0036d3e0_archive.txt; pushed to 49w exact via WBHygiene archive (see note).
-// FUN_0036D3E0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0036d3e0(u8 *arg0) {
-    s32 var_17;
-    u8 *src1;
-    s32 var_19;
-    void *temp_20;
-    u8 *p0;
-    u8 *dst;
-    u8 *dst2;
-    s32 var_20;
-    s32 i;
-    s32 i2;
-    s32 r;
-    s32 c;
-    s32 r2;
-    s32 c2;
-    s32 r3;
-    s32 c3;
-    s32 r4;
-    s32 c4;
+typedef struct PscImageHeader {
+    u8 reserved00[0x10];
+    u8 paletteCount;
+    u8 reserved11;
+    u16 width;
+    u16 height;
+    u8 pixelFormat;
+    u8 reserved17[0x29];
+} PscImageHeader;
 
-    var_17 = 0;
-    p0 = arg0;
-    var_19 = 0;
-    switch (arg0[0x16]) {
-    case 0:
-        var_19 = 0x20;
-        break;
-    case 1:
-        var_19 = 0x18;
-        break;
-    case 2:
-    case 10:
-        var_19 = 0x10;
-        break;
-    case 19:
-    case 27:
-        var_19 = 8;
-        break;
-    case 20:
-    case 36:
-    case 44:
-        var_19 = 4;
-        break;
+typedef struct PscPaletteView {
+    const u32 *colors;
+    s32 flags;
+} PscPaletteView;
+
+/* measured: MWCC b210 -O2, 1144/1152 bytes with an 8-byte zero tail.
+ * The input byte cursor is separate from the retained header and palette
+ * base; the palette upload advances its own local color cursor. */
+// FUN_0036D3E0
+s32 func_0036d3e0(const void *input) {
+    const u8 *source;
+    PscPaletteView paletteView;
+    s32 depth;
+    RwRaster *raster;
+    const PscImageHeader *header;
+    u8 *paletteOut;
+    u8 *pixelsOut;
+    s32 rasterFlags;
+    s32 paletteIndex8;
+    s32 paletteIndex4;
+    s32 column32;
+    s32 row32;
+    s32 row24;
+    s32 column24;
+    s32 row8;
+    s32 column8;
+    s32 row4;
+    s32 column4;
+
+    paletteView.flags = 0;
+    source = (const u8 *)input;
+    header = (const PscImageHeader *)source;
+    {
+        s32 decodedDepth;
+        decodedDepth = 0;
+        switch (((const PscImageHeader *)input)->pixelFormat) {
+        case 0:
+            decodedDepth = 0x20;
+            break;
+        case 1:
+            decodedDepth = 0x18;
+            break;
+        case 2:
+        case 10:
+            decodedDepth = 0x10;
+            break;
+        case 19:
+        case 27:
+            decodedDepth = 8;
+            break;
+        case 20:
+        case 36:
+        case 44:
+            decodedDepth = 4;
+            break;
+        }
+        depth = decodedDepth;
     }
-    if (var_19 == 0) {
+    if (depth == 0) {
         func_0046d730(D_0064E4E0, 0x409);
     }
-    arg0 += 0x40;
-    switch (var_19) {
+    source += 0x40;
+    switch (depth) {
     case 8:
-        src1 = arg0;
-        arg0 += (u32)p0[0x10] << 10;
-        var_17 |= 1;
+        paletteView.colors = (const u32 *)source;
+        source += (u32)header->paletteCount << 10;
+        paletteView.flags |= 1;
         break;
     case 4:
-        src1 = arg0;
-        arg0 += (u32)p0[0x10] << 6;
-        var_17 |= 1;
+        paletteView.colors = (const u32 *)source;
+        source += (u32)header->paletteCount << 6;
+        paletteView.flags |= 1;
         break;
     }
-    var_20 = 0;
-    var_20 |= 4;
-    switch (var_19) {
+    rasterFlags = 0;
+    rasterFlags |= 4;
+    switch (depth) {
     case 0x20:
-        var_20 |= 0x500;
+        rasterFlags |= 0x500;
         break;
     case 0x18:
-        var_20 |= 0x600;
+        rasterFlags |= 0x600;
         break;
     case 8:
-        var_20 |= 0x2500;
+        rasterFlags |= 0x2500;
         break;
     case 4:
-        var_20 |= 0x4500;
+        rasterFlags |= 0x4500;
         break;
     default:
         func_0046d730(D_0064E4E0, 0x431);
         break;
     }
-    temp_20 = func_003ec590(*(u16 *)(p0 + 0x12), *(u16 *)(p0 + 0x14), var_19, var_20);
-    if (var_17 & 1) {
-        dst = func_003ec3d0(temp_20, 1);
-        switch (var_19) {
+    raster = func_003ec590(header->width, header->height, depth, rasterFlags);
+    if (paletteView.flags & 1) {
+        const u32 *colors = paletteView.colors;
+        paletteOut = func_003ec3d0(raster, 1);
+        switch (depth) {
         case 8:
-            for (i = 0; i < 0x100; i++) {
-                *(s32 *)dst = *(s32 *)src1;
-                src1 += 4;
-                dst += 4;
+            for (paletteIndex8 = 0; paletteIndex8 < 0x100; paletteIndex8++) {
+                *(u32 *)paletteOut = *colors;
+                colors++;
+                paletteOut += 4;
             }
             break;
         case 4:
-            for (i2 = 0; i2 < 0x10; i2++) {
-                *(s32 *)dst = *(s32 *)src1;
-                src1 += 4;
-                dst += 4;
+            for (paletteIndex4 = 0; paletteIndex4 < 0x10; paletteIndex4++) {
+                *(u32 *)paletteOut = *colors;
+                colors++;
+                paletteOut += 4;
             }
             break;
         }
-        func_003ec2e0(temp_20);
+        func_003ec2e0(raster);
     }
-    dst2 = func_003ec6a0(temp_20, 0, 1);
-    switch (var_19) {
+    pixelsOut = func_003ec6a0(raster, 0, 1);
+    switch (depth) {
     case 0x20:
-        for (r = 0; r < (s32)*(u16 *)(p0 + 0x14); r++) {
-            for (c = 0; c < (s32)*(u16 *)(p0 + 0x12); c++) {
-                *(s32 *)dst2 = *(s32 *)arg0;
-                arg0 += 4;
-                dst2 += 4;
+        for (row32 = 0; row32 < (s32)header->height; row32++) {
+            for (column32 = 0; column32 < (s32)header->width; column32++) {
+                *(s32 *)pixelsOut = *(const s32 *)source;
+                source += 4;
+                pixelsOut += 4;
             }
         }
         break;
     case 0x18:
-        for (r2 = 0; r2 < (s32)*(u16 *)(p0 + 0x14); r2++) {
-            for (c2 = 0; c2 < (s32)*(u16 *)(p0 + 0x12) * 3; c2++) {
-                *dst2 = *arg0;
-                arg0 += 1;
-                dst2 += 1;
+        for (row24 = 0; row24 < (s32)header->height; row24++) {
+            for (column24 = 0; column24 < (s32)header->width * 3; column24++) {
+                *pixelsOut = *source;
+                source += 1;
+                pixelsOut += 1;
             }
         }
         break;
     case 8:
-        for (r3 = 0; r3 < (s32)*(u16 *)(p0 + 0x14); r3++) {
-            for (c3 = 0; c3 < (s32)*(u16 *)(p0 + 0x12); c3++) {
-                *dst2 = *arg0;
-                arg0 += 1;
-                dst2 += 1;
+        for (row8 = 0; row8 < (s32)header->height; row8++) {
+            for (column8 = 0; column8 < (s32)header->width; column8++) {
+                *pixelsOut = *source;
+                source += 1;
+                pixelsOut += 1;
             }
         }
         break;
     case 4:
-        for (r4 = 0; r4 < (s32)*(u16 *)(p0 + 0x14); r4++) {
-            for (c4 = 0; c4 < (s32)*(u16 *)(p0 + 0x12) >> 3; c4++) {
-                *(s32 *)dst2 = *(s32 *)arg0;
-                arg0 += 4;
-                dst2 += 4;
+        for (row4 = 0; row4 < (s32)header->height; row4++) {
+            for (column4 = 0; column4 < (s32)header->width >> 3; column4++) {
+                *(s32 *)pixelsOut = *(const s32 *)source;
+                source += 4;
+                pixelsOut += 4;
             }
         }
         break;
     }
-    func_003ec2a0(temp_20);
-    return (s32)temp_20;
+    func_003ec2a0(raster);
+    return (s32)raster;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/pscRes", func_0036d3e0);
-#endif
