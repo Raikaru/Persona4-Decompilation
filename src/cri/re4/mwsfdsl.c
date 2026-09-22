@@ -17,7 +17,8 @@ typedef struct {
 extern Bool MWSFD_IsEnableHndl(MWPLY_OBJ *mwply);
 extern void MWSFSVM_Error(const Char8 *fmt, ...);
 extern Sint32 SFD_SetConcatPlay(void *sfd);
-extern void SFD_GetMvInf(void *sfd, void *mvinf);
+#define SFD_GetMvInf func_005250a8
+extern void func_005250a8(void *sfd, void *mvinf);
 extern Sint32 LSC_GetStat(void *lsc);
 extern void mwPlyEntryFnameSub(MWPLY_OBJ *mwply, const Char8 *fname);
 extern Sint32 mwPlyEntryFnameCore(MWPLY_OBJ *mwply, const Char8 *fname);

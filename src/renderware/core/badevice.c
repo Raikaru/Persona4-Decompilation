@@ -13,7 +13,6 @@
 #define _rwStringOpen func_003e49a0
 #define _rwMemoryOpen func_003e1b10
 #define _rwPluginRegistryOpen func_003e3630
-#define CorePluginAttach func_003e85a0
 #define _rwDeviceRegisterPlugin func_003fe630
 #define _rwPluginRegistryClose func_003e36c0
 #define _rwMemoryClose func_003e1c30
@@ -257,6 +256,7 @@ MetricsClose(void *instance __RWUNUSED__,
  On exit    : TRUE on success
  */
 
+// FUN_003E85A0
 static              RwBool
 CorePluginAttach(void)
 {
@@ -308,7 +308,9 @@ CorePluginAttach(void)
     state |=
         _rwPipeAttach();
     state |=
-        RwEngineRegisterPlugin(sizeof(rwImmediGlobals), rwID_IMMEDIATEMODULE,
+        /* PS2 adds two PS2All material-pipeline pointers which the
+         * reconstructed null-driver rwImmediGlobals header omits. */
+        RwEngineRegisterPlugin(sizeof(rwImmediGlobals) + 8, rwID_IMMEDIATEMODULE,
                                _rwIm3DOpen, _rwIm3DClose);
     state |=
         RwEngineRegisterPlugin(sizeof(rwResourcesGlobals), rwID_RESOURCESMODULE,
