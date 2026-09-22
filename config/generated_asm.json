@@ -31,7 +31,7 @@
     "inputs-verify.py": "tools/verify.py supplies retail-byte helpers and source filtering. The earlier fdc4ce4edc38 -> a646226c6bb9 bump excluded staged probe copies. Audited 2026-09-20: a646226c6bb9 -> 2c53a185f171 changes only the is_generated AST node, broadening that filter to every dot-prefixed temporary source. Both predicates select the same 394 clean source paths; all other verifier AST nodes are identical. Fresh isolated generation and a second comparison reproduce all 11152 generated files and both retained files, 62635980 bytes, with every existing output hash unchanged. See docs/probe_archive/Recovered_upstream_20260920.md."
   },
   "inputs": {
-    "requirements-python.txt": "5060d9e5c5cae77d328b65eed5f586fcda9139f66331e6ff62c8bd2c22956166",
+    "requirements-python.txt": "8e0d2cd27bc31647cd567c78b41a60ce0175aa866b563926c0b2b3dbefcf1aca",
     "config/target.json": "cb4fffeb0f711f8d97efb9d08776659e9a32b013043f3b59a9ea5bc582c5a85d",
     "config/slus21782.yaml": "99fc10b794b6ae5edfc9b6da828a5a5c29036050101c0f1ebd78326e4e08bc9b",
     "config/symbol_addrs.txt": "0c3524c648feaebe852f2b0221acae604de53f77f02e997ea425e368692bab52",

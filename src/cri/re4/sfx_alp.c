@@ -54,13 +54,16 @@ void SFXA_MakeAlpLumiTbl(SFXA_OBJ *sfxa, void *frm, void *tbl)
 	sfxa->need_update = 0;
 }
 
-// Frees the object.
+// Frees the object. The barrier keeps retail's order (sw used before the
+// sfxa_work address materialisation) and its unfilled beqz delay slot; it is
+// a pure compiler memory barrier (lint-allowed) with no observable effect.
 void SFXA_Destroy(SFXA_OBJ *sfxa)
 {
 	if (sfxa == NULL) {
 		return;
 	}
 	sfxa->used = 0;
+	__asm__ volatile("" ::: "memory");
 	sfxa_work.cnt--;
 }
 

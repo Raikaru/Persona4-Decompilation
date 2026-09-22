@@ -13,6 +13,15 @@ Sint32 sfx_init_cnt = 0;
 Sint32 sfxcnv_forcesplit = 0;
 SFX_LIBWORK sfx_libwork;
 const Char8 *sfx_dummy;
+/* The error triple at 0x08/0x0C/0x10. Retail's SFXLIB_Error (0052B9A0, base
+ * 0x745C78) and SFX_SetErrFn (004F0EC0, base 0x925E60) both materialise
+ * &sfx_libwork.errfn and use offsets 0/4/8, where flat sfx_libwork accesses
+ * use 8/12/16. The overlay names that area without touching sfx.h. */
+typedef struct {
+	void (*errfn)(void *obj, const Char8 *msg);
+	void *errobj;
+	Sint32 err_cnt;
+} SFX_ERRAREA;
 
 // CCIR601 range conversion switch (1: studio range 16..235 is scaled to full range).
 Sint32 SFX_GetCcirFx(void)
@@ -21,14 +30,16 @@ Sint32 SFX_GetCcirFx(void)
 }
 
 // Counts the error and calls the registered callback (the MW player's mwsfsfx_SfxErrCbFn).
+// FUN_0052B9A0
 void SFXLIB_Error(SFX_OBJ *sfx, SFX_FRM *frm, const Char8 *msg)
 {
 	void (*fn)(void *obj, const Char8 *msg);
 	void *obj;
+	SFX_ERRAREA *e = (SFX_ERRAREA *)&sfx_libwork.errfn;
 
-	fn = sfx_libwork.errfn;
-	obj = sfx_libwork.errobj;
-	sfx_libwork.err_cnt++;
+	fn = e->errfn;
+	obj = e->errobj;
+	e->err_cnt++;
 	if (fn != NULL) {
 		fn(obj, msg);
 	}
@@ -129,8 +140,10 @@ SFX_OBJ *SFX_Create(void *work, Sint32 wsize)
 // Installs the library error callback.
 void SFX_SetErrFn(void (*fn)(void *obj, const Char8 *msg), void *obj)
 {
-	sfx_libwork.errfn = fn;
-	sfx_libwork.errobj = obj;
+	SFX_ERRAREA *e = (SFX_ERRAREA *)&sfx_libwork.errfn;
+
+	e->errfn = fn;
+	e->errobj = obj;
 }
 
 // Library init (once): clears the work (8 handles, CCIR range on), builds the YCC -> RGB tables and

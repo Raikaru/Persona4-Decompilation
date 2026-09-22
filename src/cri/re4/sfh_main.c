@@ -203,7 +203,7 @@ static SFH_ELEM *sfh_GetElem(SFH sfh, Uint32 id)
 }
 
 // Stream id class: 0xC0..0xDF audio, 0xE0..0xEF video, 0xBD/0xBF private, else 0.
-static Uint32 sfh_GetStmType(Uint8 id)
+static Uint32 sfh_GetStmType(Uint32 id)
 {
 	Uint32 type = id;
 
@@ -219,12 +219,29 @@ static Uint32 sfh_GetStmType(Uint8 id)
 	return type;
 }
 
-// The element is of the expected class and its feature block is present (flag == 1).
-static Bool sfh_IsEffFtr(SFH_ELEM *elem, Uint8 id, Uint32 type)
+// The audio element carries a feature block (flag == 1).
+static Bool sfh_IsEffFtrAud(Uint32 id, SFH_ELEM *elem)
 {
 	Uint32 flg;
 
-	if (sfh_GetStmType(id) != type) {
+	if (sfh_GetStmType(id) != SFH_STM_AUD) {
+		return FALSE;
+	}
+	flg = elem->ftr_flag;
+	if (flg > 1) {
+		return FALSE;
+	} else if (flg == 0) {
+		return FALSE;
+	}
+	return TRUE;
+}
+
+// The video element carries a feature block (flag == 1).
+static Bool sfh_IsEffFtrVid(Uint32 id, SFH_ELEM *elem)
+{
+	Uint32 flg;
+
+	if (sfh_GetStmType(id) != SFH_STM_VID) {
 		return FALSE;
 	}
 	flg = elem->ftr_flag;
@@ -294,6 +311,7 @@ static Bool sfh_GetStrVer(const Char8 *buf, Sint32 *major, Sint32 *minor)
 
 /* feature (ftr) fields of a video element */
 
+// FUN_0052A270
 Bool SFH_AnlyFtrFxType(SFH sfh, Uint8 id, Sint32 *val)
 {
 	SFH_ELEM *elem;
@@ -303,7 +321,7 @@ Bool SFH_AnlyFtrFxType(SFH sfh, Uint8 id, Sint32 *val)
 	if (elem == NULL) {
 		return FALSE;
 	}
-	if (!sfh_IsEffFtr(elem, id, SFH_STM_VID)) {
+	if (!sfh_IsEffFtrVid(id, elem)) {
 		return FALSE;
 	}
 	if (sfh->ver < SFH_VER_210) {
@@ -323,7 +341,7 @@ Bool SFH_AnlyFtrGopM(SFH sfh, Uint8 id, Sint32 *val)
 	if (elem == NULL) {
 		return FALSE;
 	}
-	if (!sfh_IsEffFtr(elem, id, SFH_STM_VID)) {
+	if (!sfh_IsEffFtrVid(id, elem)) {
 		return FALSE;
 	}
 	*val = elem->ftr_gopm;
@@ -343,7 +361,7 @@ Bool SFH_AnlyFtrGopN(SFH sfh, Uint8 id, Sint32 *val)
 	if (elem == NULL) {
 		return FALSE;
 	}
-	if (!sfh_IsEffFtr(elem, id, SFH_STM_VID)) {
+	if (!sfh_IsEffFtrVid(id, elem)) {
 		return FALSE;
 	}
 	*val = elem->ftr_gopn;
@@ -354,6 +372,7 @@ Bool SFH_AnlyFtrGopN(SFH sfh, Uint8 id, Sint32 *val)
 }
 
 // Video feature: expand flag.
+// FUN_0052A0F0
 Bool SFH_AnlyFtrExpand(SFH sfh, Uint8 id, Sint32 *val)
 {
 	SFH_ELEM *elem;
@@ -363,7 +382,7 @@ Bool SFH_AnlyFtrExpand(SFH sfh, Uint8 id, Sint32 *val)
 	if (elem == NULL) {
 		return FALSE;
 	}
-	if (!sfh_IsEffFtr(elem, id, SFH_STM_VID)) {
+	if (!sfh_IsEffFtrVid(id, elem)) {
 		return FALSE;
 	}
 	*val = elem->ftr_expand;
@@ -371,6 +390,7 @@ Bool SFH_AnlyFtrExpand(SFH sfh, Uint8 id, Sint32 *val)
 }
 
 // Video feature: sequence-header-code fixed flag.
+// FUN_0052A078
 Bool SFH_AnlyFtrShcFixFlg(SFH sfh, Uint8 id, Sint32 *val)
 {
 	SFH_ELEM *elem;
@@ -380,14 +400,15 @@ Bool SFH_AnlyFtrShcFixFlg(SFH sfh, Uint8 id, Sint32 *val)
 	if (elem == NULL) {
 		return FALSE;
 	}
-	if (!sfh_IsEffFtr(elem, id, SFH_STM_VID)) {
+	if (!sfh_IsEffFtrVid(id, elem)) {
 		return FALSE;
 	}
-	*val = (elem->ftr_fixflg >> 4) & 1;
+	*val = (elem->ftr_fixflg & 0x10) >> 4;
 	return TRUE;
 }
 
 // Video feature: fixed flag.
+// FUN_0052A008
 Bool SFH_AnlyFtrFixFlg(SFH sfh, Uint8 id, Sint32 *val)
 {
 	SFH_ELEM *elem;
@@ -397,7 +418,7 @@ Bool SFH_AnlyFtrFixFlg(SFH sfh, Uint8 id, Sint32 *val)
 	if (elem == NULL) {
 		return FALSE;
 	}
-	if (!sfh_IsEffFtr(elem, id, SFH_STM_VID)) {
+	if (!sfh_IsEffFtrVid(id, elem)) {
 		return FALSE;
 	}
 	*val = elem->ftr_fixflg & 1;
@@ -414,7 +435,7 @@ Bool SFH_AnlyFtrPicType(SFH sfh, Uint8 id, Sint32 *val)
 	if (elem == NULL) {
 		return FALSE;
 	}
-	if (!sfh_IsEffFtr(elem, id, SFH_STM_VID)) {
+	if (!sfh_IsEffFtrVid(id, elem)) {
 		return FALSE;
 	}
 	*val = elem->ftr_pictype;
@@ -431,7 +452,7 @@ Bool SFH_AnlyFtrColType(SFH sfh, Uint8 id, Sint32 *val)
 	if (elem == NULL) {
 		return FALSE;
 	}
-	if (!sfh_IsEffFtr(elem, id, SFH_STM_VID)) {
+	if (!sfh_IsEffFtrVid(id, elem)) {
 		return FALSE;
 	}
 	*val = elem->ftr_coltype;
@@ -805,6 +826,7 @@ Bool SFH_AnlyHdrToolVer(SFH sfh, Sint32 *major, Sint32 *minor)
 }
 
 // Whether stream `id` (audio or video) carries a feature block (tool version >= 1.10).
+// FUN_005290A0
 Bool SFH_IsEffFtrInf(SFH sfh, Uint8 id, Sint32 *flag)
 {
 	SFH_ELEM *elem;
@@ -821,14 +843,14 @@ Bool SFH_IsEffFtrInf(SFH sfh, Uint8 id, Sint32 *flag)
 		if (elem == NULL) {
 			return FALSE;
 		}
-		*flag = sfh_IsEffFtr(elem, sid, SFH_STM_AUD);
+		*flag = sfh_IsEffFtrAud(sid, elem);
 		break;
 	case SFH_STM_VID:
 		elem = sfh_GetElem(sfh, sid);
 		if (elem == NULL) {
 			return FALSE;
 		}
-		*flag = sfh_IsEffFtr(elem, sid, SFH_STM_VID);
+		*flag = sfh_IsEffFtrVid(sid, elem);
 		break;
 	default:
 		return FALSE;

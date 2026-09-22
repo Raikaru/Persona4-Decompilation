@@ -32,7 +32,7 @@ extern Sint32 ADXT_GetSfreq(ADXT adxt);
 extern Sint32 ADXT_GetNumSmpl(ADXT adxt);
 extern Sint32 ADXT_GetNumChan(ADXT adxt);
 extern Sint32 ADXT_GetErrCode(ADXT adxt);
-extern void ADXT_SetSvrFreq(ADXT adxt, Sint32 freq);
+extern void func_004d5488(ADXT adxt, Sint32 freq);
 extern void ADXT_SetAutoRcvr(ADXT adxt, Sint32 sw);
 extern void ADXT_TermSupply(ADXT adxt);
 extern void ADXT_SetTimeOfst(ADXT adxt, Sint32 ofst);
@@ -55,7 +55,7 @@ extern void SFTST_Pause(void *tst, Sint32 sw);
 extern void SFTST_Calc(void *tst, SFTST_TIME *mt, SFTST_TIME *hlp, SFTST_TIME *out);
 extern void SFTST_GoNextFrame(void *tst, SFTST_TIME *frm);
 extern void SFTST_SetAdjFlg(void *tst, Sint32 flg);
-extern void SFTST_SetTstFlg(void *tst, Sint32 flg);
+extern void func_00527aa0(void *tst, Sint32 flg);
 extern void SFTST_SetTolerance(void *tst, SFTST_TIME *t);
 extern void SFTST_SetExcessErr(void *tst, SFTST_TIME *t);
 extern void SFTST_SetAdjStart(void *tst, SFTST_TIME *t);
@@ -459,7 +459,7 @@ Sint32 sfadxt_InitInf(SFD sfd, SFADXT_WORK *wk)
 	adjpoff.cnt = SFSET_GetCond(sfd, 0x42);
 	adjpoff.unit = 1000000;
 	SFTST_Create(tst);
-	SFTST_SetTstFlg(tst, SFSET_GetCond(sfd, 0x48));
+	func_00527aa0(tst, SFSET_GetCond(sfd, 0x48));
 	SFTST_SetTolerance(tst, &tolerance);
 	SFTST_SetExcessErr(tst, &excesserr);
 	SFTST_SetAdjStart(tst, &adjstart);
@@ -966,7 +966,7 @@ static void sfadxt_UpdateSvrFreq(SFD sfd)
 	freq = SFSET_GetCond(sfd, 0x1B);
 	if (wk->svrfreq != freq) {
 		wk->svrfreq = freq;
-		ADXT_SetSvrFreq(adxt, freq);
+		func_004d5488(adxt, freq);
 	}
 }
 

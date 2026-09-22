@@ -25,6 +25,7 @@ extern Sint32 cvFsGetFileSize(const Char8 *fname);
 extern Sint32 cvFsReqRd(void *fs, Sint32 nsct, void *buf);
 extern Sint32 cvFsGetStat(void *fs);
 extern void cvFsStopTr(void *fs);
+extern void func_004c9d48(void);
 
 #define ADXSTM_MAX_OBJ 40
 #define ADXSTM_SCT_SHIFT 11
@@ -393,7 +394,7 @@ static void adxstm_release(ADXSTM stm)
 		if (stm->bound == 0) {
 			break;
 		}
-		ADXT_ExecFsSvr();
+		func_004c9d48();
 	}
 }
 

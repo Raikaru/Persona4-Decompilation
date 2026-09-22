@@ -1850,8 +1850,10 @@ RwTexDictionaryDestroy(RwTexDictionary *dict)
  * \see RwTexDictionaryForAllTexDictionaries
  * \see RwTexDictionaryFindNamedTexture
  */
+// FUN_003EF260
+#pragma schedule on
 const RwTexDictionary *
-RwTexDictionaryForAllTextures(const RwTexDictionary* dict,
+func_003ef260(const RwTexDictionary* dict,
                               RwTextureCallBack fpCallBack, void *pData)
 {
     RwLLLink           *cur, *next;
@@ -1888,6 +1890,8 @@ RwTexDictionaryForAllTextures(const RwTexDictionary* dict,
     /* All OK */
     RWRETURN(dict);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rwtexdict
@@ -1986,8 +1990,10 @@ RwTexDictionaryForAllTexDictionaries(RwTexDictionaryCallBack fpCallBack,
  * \see RwTextureDestroy
  *
  */
+// FUN_003EF2E0
+#pragma schedule on
 RwTexture *
-RwTextureCreate(RwRaster *raster)
+func_003ef2e0(RwRaster *raster)
 {
     RwTexture   *texture;
 
@@ -2032,6 +2038,8 @@ RwTextureCreate(RwRaster *raster)
 
     RWRETURN(texture);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 #if (defined(RWDEBUG) || defined(RWSUPPRESSINLINE))
 
@@ -2201,8 +2209,10 @@ RwTextureGetMaskName(RwTexture *texture)
  * \see RwTextureRead
  *
  */
+// FUN_003EF470
+#pragma schedule on
 RwTexture *
-RwTextureSetName(RwTexture *texture, const RwChar *name)
+func_003ef470(RwTexture *texture, const RwChar *name)
 {
     RWAPIFUNCTION(RWSTRING("RwTextureSetName"));
     RWASSERT(textureModule.numInstances);
@@ -2216,6 +2226,8 @@ RwTextureSetName(RwTexture *texture, const RwChar *name)
 
     RWRETURN(texture);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /**
  * \ingroup rwtexture
@@ -2233,8 +2245,10 @@ RwTextureSetName(RwTexture *texture, const RwChar *name)
  * \see RwTextureRead
  *
  */
+// FUN_003EF510
+#pragma schedule on
 RwTexture *
-RwTextureSetMaskName(RwTexture *texture, const RwChar *maskName)
+func_003ef510(RwTexture *texture, const RwChar *maskName)
 {
     RWAPIFUNCTION(RWSTRING("RwTextureSetMaskName"));
     RWASSERT(textureModule.numInstances);
@@ -2248,6 +2262,8 @@ RwTextureSetMaskName(RwTexture *texture, const RwChar *maskName)
 
     RWRETURN(texture);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 #if (defined(RWDEBUG) || defined(RWSUPPRESSINLINE))
 
@@ -2407,8 +2423,10 @@ RwTexDictionaryRemoveTexture(RwTexture *texture)
  * \see RwTexDictionaryForAllTextures
  *
  */
+// FUN_003EF650
+#pragma schedule on
 RwTexture *
-RwTexDictionaryFindNamedTexture(RwTexDictionary *dict, const RwChar *name)
+func_003ef650(RwTexDictionary *dict, const RwChar *name)
 {
     RwTexture          *result;
     RwLLLink           *cur, *end;
@@ -2444,6 +2462,8 @@ RwTexDictionaryFindNamedTexture(RwTexDictionary *dict, const RwChar *name)
     /* Not found */
     RWRETURN((RwTexture *)NULL);
 }
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

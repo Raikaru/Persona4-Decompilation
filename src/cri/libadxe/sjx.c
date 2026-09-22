@@ -8,7 +8,9 @@ Char8* volatile sjx_build = "\nSJX Ver 1.00 Build:Jan 26 2001 09:59:55\n";
 Sint32 sjx_init_cnt = 0;
 void *sjx_eewk = NULL;
 void *sjx_iopwk = NULL;
-SJX_OBJ sjx_obj[16] = { 0 };
+// Retail SJX_Create scans 32 handles (`slti 0x20` at 0x004F0410, `li 0x20` at
+// 0x004F042C, stride 0x14): the pool is 32, not 16.
+SJX_OBJ sjx_obj[32] = { 0 };
 DTX sjx_dtx = NULL;
 Sint32 sjx_wklen = 0;
 Sint8 sjx_ee_work[2256] = { 0 };
@@ -163,13 +165,14 @@ void SJX_Finish(void)
 }
 
 // 100% matching!
+// FUN_004F03C8
 SJX SJX_Create(SJ sjsrc, SJ sjdst, Sint32 lin)
 {
     Sint32 i;
 	Sint32 arg[4];
 	SJX sjx;
 
-    for (i = 0; i < 16; i++) 
+    for (i = 0; i < 32; i++)
     {
         sjx = &sjx_obj[i];
 
@@ -179,16 +182,19 @@ SJX SJX_Create(SJ sjsrc, SJ sjdst, Sint32 lin)
         }
     }
     
-    if (i == 16) 
+    if (i == 32)
     {
         return NULL;
     }
 
     memset(sjx, 0, sizeof(SJX_OBJ));
     
+    // Retail stores sjsrc (4) before lin (0xC) (0x004F0448 sw 4 then 0x004F044C
+    // sw 0xC): sjsrc first, then lin, then sjdst.
+    sjx->sjsrc = sjsrc;
+
     sjx->lin = lin;
     
-    sjx->sjsrc = sjsrc;
     sjx->sjdst = sjdst;
     
     arg[0] = (Sint32)sjsrc;

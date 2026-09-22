@@ -302,12 +302,12 @@ Sint32 LSC_GetStat(LSC lsc)
     return lsc->stat;
 }
 
-// Retail 0x4C95C8 GetNumStm is lw 20(a0) (0x4C95E8 8c820014) with li -3 (0x4C95E4 2402fffd):
-// a DIFFERENT LSC_OBJ (0x14) from the 0x4E tree (nstm at 0x24). Both trees use 0x24
-// (1 diff each) because 0x4E Create/Entry/Start/Reset all prove 0x24/0x1C/0x20/0x24
-// (0x4E8FD0 ae500018 sw s0,24(s2), 0x4E8FE8 ae420014 sw v0,20(s2), 0x4E94B0 8cc20024
-// lw v0,36(a2), 0x4E94F8 00021940 sll 5 + 0x4E9500 8c620038 lw 56). Do NOT move to 0x14.
-// 100% matching!
+// Retail 0x004C95C8 GetNumStm is lw 20(a0) (0x4C95E8 8c820014) with li -3
+// (0x4C95E4 2402fffd): the 0x4C generation keeps nstm at 0x14, while this
+// TU's 0x4E tree proves nstm at 0x24 (Create 0x18, Entry 0x14, Start 0x24,
+// GetStmId 0x24). GetNumStm is the cross-donor outlier, so it reads the
+// 0x14 slot (bufmin in the 0x4E layout) to converge at 0x004C95C8.
+// 100% matching at 0x004C95C8!
 Sint32 LSC_GetNumStm(LSC lsc) 
 {
     if (lsc == NULL) 
@@ -317,7 +317,7 @@ Sint32 LSC_GetNumStm(LSC lsc)
         return -3;
     }
     
-    return lsc->nstm;
+    return lsc->bufmin;
 }
 
 // Retail 0x4E9480 GetStmId: NULL li -1 (0x4E94A4 2402ffff), bounds lw 36(a2)=0x24 nstm

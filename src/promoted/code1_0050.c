@@ -469,8 +469,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050d228);
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050d260);
 // FUN_0050D2B8
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050d2b8);
-// FUN_0050D2F0
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050d2f0);
 // FUN_0050D348
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050d348);
 /* measured: schedule on places the field load in the jr $ra delay slot for this 8-byte accessor. */

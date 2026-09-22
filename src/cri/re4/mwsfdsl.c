@@ -5,11 +5,11 @@
 #include <stdio.h>
 
 typedef struct {
-	Uint8 pad0[0x40];
-	void *sfd;              /* 0x40 */
-	Uint8 pad44[8];
-	void *lsc;              /* 0x4C */
-	Uint8 pad50[0x74 - 0x50];
+	Uint8 pad0[0x30];
+	void *sfd;              /* 0x30 */
+	Uint8 pad34[8];
+	void *lsc;              /* 0x3C */
+	Uint8 pad40[0x74 - 0x40];
 	Sint8 linkstm;          /* 0x74 */
 	Sint8 linkstm_req;      /* 0x75 */
 } MWPLY_OBJ;
@@ -17,7 +17,7 @@ typedef struct {
 extern Bool MWSFD_IsEnableHndl(MWPLY_OBJ *mwply);
 extern void MWSFSVM_Error(const Char8 *fmt, ...);
 extern Sint32 SFD_SetConcatPlay(void *sfd);
-extern void LSC_SetFlowLimit(void *lsc, Sint32 nsct);
+extern void func_005250a8(void *lsc, Sint32 nsct);
 extern Sint32 LSC_GetStat(void *lsc);
 extern void mwPlyEntryFnameSub(MWPLY_OBJ *mwply, const Char8 *fname);
 extern Sint32 mwPlyEntryFnameCore(MWPLY_OBJ *mwply, const Char8 *fname);
@@ -182,10 +182,11 @@ void mwPlyReleaseLp(MWPLY_OBJ *mwply)
 }
 
 // Refill threshold (sectors) of the handle's load scheduler.
+// FUN_0050D2F0
 void MWSFLSC_SetFlowLimit(MWPLY_OBJ *mwply, Sint32 nsct)
 {
 	if (mwply->lsc != NULL) {
-		LSC_SetFlowLimit(mwply->lsc, nsct);
+		func_005250a8(mwply->lsc, nsct);
 	}
 }
 

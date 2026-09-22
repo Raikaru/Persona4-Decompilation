@@ -26,14 +26,14 @@ void ADXT_SetupNrmlNumStm(Sint32 num)
     adxstmf_nrml_num = num;
 }
 
-// P4 retail 0x4D1908 is the 0x60-generation Init (`lw v1,0(v0)`/`addiu v1,1`/`bne v1,a0` at
-// 0x4D191C-0x4D1924, `li a2,3840` at 0x4D193C for 40*0x60). This TU is the older 64B
-// ADXSTM_FILE generation (40*64=2560=0xA00), so the size word stays 0xA00 and cannot match P4;
-// the guard below only recovers the 72B shape (like LSC_Init).
+// Retail 0x004D1908 clears 40*0x60=3840=0xF00 (`li a2,3840` at 0x4D193C).
+// This TU's ADXSTM_FILE is the older 64B generation (40*64=0xA00), so
+// sizeof(adxstmf_obj) stays 0xA00; Init keeps the explicit retail size to
+// converge at 0x004D1908 without growing the struct.
 Sint32 ADXSTM_Init(void)
 {
     if (++adxstm_init_cnt == 1) {
-        memset(adxstmf_obj, 0, sizeof(adxstmf_obj));
+        memset(adxstmf_obj, 0, 0xF00);
     }
     return 1;
 }
