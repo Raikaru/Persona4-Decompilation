@@ -125,7 +125,7 @@ typedef struct {
 
 
 extern void func_003ef3a0(void *arg0);
-extern void func_001437b0(void *arg0, s32 arg1, s32 arg2);
+extern void func_001437b0(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_0034f5d0(u8 *arg0);
 extern s32 func_0044ea90(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -5079,213 +5079,187 @@ void func_0012d410(u8 *arg0)
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
 #pragma pop
-/* Floor: 1360B window, obj 1348B, 13 differing words (was 66).
-   Typed record views closed two of them: the per-entry alpha/tally pair is
-   a 0x30-stride record based at p+0xAE, and the sprite lookups are an array
-   of pointers at p+0x74 - indexing those views naturally beats byte-offset
-   arithmetic (kit recipe S03).
-   WINS: the per-entry alpha byte is read into a u32 temp before the
-   sprite if/else, which is where retail emits `lbu $t0,0xae(...)`;
-   declaring func_0034f320's 10th parameter u16 (it takes the raw
-   *(u16 *)(q + 0xBA) tally) removes the promotion that reordered the
-   whole argument block - 28 -> 16 words; and func_00364320 takes
-   (pos, z, color, num), so the palette byte is the colour argument and
-   -1 the number - the previous body had those two swapped, which was a
-   real ABI error, not just a codegen difference.
-/*   WALL: the remaining rows are evaluation-order artifacts - retail */
-/*   computes `index + base` (addu $v1,$v0,$s1) and converts the 0x17D */
-/*   constant before loading its float addend, this build does both the */
-/*   other way round. Integer-cast pointer arithmetic, operand swaps and */
-/*   named temporaries for either side were all measured inert. Pairs */
-/*   2026-09-17 (`tools/pragma_sweep.py --pairs`, 8 singles + 28 pairs, */
-/*   banked 13): ties at 13 among loopinv/strength_off/unroll_off + 3 pairs */
-/*   among them; dead 37, prop 61, cse 307, sched 315, peephole 332 */
-/*   (pairs 37-357). Three causes stand: addu order, lbu/sd-mtc1 */
-/*   scheduling, cvt.s.w into $f1; floor stands at 13 (337/337). */
-/*   7o 2026-09-18 (`tools/residual_signature.py src/promoted/code1_0012.c func_0012d630`: */
-/*   edits 12 mask 0 cvt 1 class 1 perm 0 other 6 [$s1->$v0 $v0->$s1], probe 13 words; */
-/*   class/perm 1/12 not majority - single addu operand swap (retail $v0,$v0,$s1 */
-/*   vs object $v0,$s1,$v0 for p+sel*4) plus lbu/sd-mtc1 scheduling and cvt.s.w. */
-/*   Eight q/idx probes (strip q init, q before idx vs idx before q, F/B scopes, */
-/*   one batched probe_variants call, all truthful): v1_FF_retail 13, v2_FF_rev 44, */
-/*   v3_FB_retail 13, v4_FB_rev 44, v5_BF_retail 13, v6_BF_rev 44, */
-/*   v7_BB_retail 13, v8_BB_rev 44. Retail ties, reverse 13->44, scopes neutral. */
-/*   Floor stands at 13 (337/337). */
-/*   2026-09-19 verbatim residual, masked 13 (raw 12/26, 337/337 exact, frame */
-/*   both addiu $sp,$sp,-0x80): object vs retail, FPU scheduling + addu + cvt: */
-/*   off 1080: object sd $zero,($sp) vs retail lbu $t0,0xAE($v1); */
-/*   off 1092: object addu $v0,$s1,$v0 vs retail addu $v0,$v0,$s1 (p+sel*4); */
-/*   off 1108: object mtc1 $zero,$f14 vs retail lw $a0,0x74($v0); */
-/*   off 1112: object lbu $t0,0xAE($v1) vs retail sd $zero,($sp); */
-/*   off 1116: object lw $a0,0x74($v0) vs retail mtc1 $zero,$f14; */
-/*   off 1180: object lwc1 $f1,0x228($s1) vs retail addiu $v0,$zero,0x17D; */
-/*   off 1184: object addiu $v0,$zero,0x17D vs retail mtc1 $v0,$f0; */
-/*   off 1188: object mtc1 $v0,$f0 vs retail nop; */
-/*   off 1192: object nop vs retail cvt.s.w $f1,$f0; */
-/*   off 1196: object cvt.s.w $f0,$f0 vs retail lwc1 $f0,0x228($s1); */
-/*   off 1200: object add.s $f0,$f0,$f1 vs retail add.s $f0,$f1,$f0; */
-/*   off 1208: object mtc1 $zero,$f12 vs retail lbu $a1,0x22E($s1); */
-/*   off 1212: object lbu $a1,0x22E($s1) vs retail mtc1 $zero,$f12. */
-/*   Immediates same (0x17D, 0x228/0x22E), branches same targets, nop/work is */
-/*   FPU scheduling (sched 315, peephole 332, nobranch tie 13). */
-/* measured 0012d630 (owner, 2026-09-19): 337/337 exact, **12 edits**.  Two of them are
-   commutative operand order - retail `addu $v0, $v0, $s1` against the object's
-   `addu $v0, $s1, $v0`, and an `add.s` with its operands the other way round.  Writing the
-   source additions in retail's order (`j * 0x30 + p`, and the 0x228 load before the (f32)
-   cast, separately and together) measures 12 every time: b210 canonicalises commutative
-   operand order before allocation, so it cannot be steered from source. */
-// FUN_0012D630 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0012d630(u8 *arg0)
+/* The menu owns eleven complete tween records and three seven-sprite banks.
+ * measured: native b210 -O2 emits 1348 exact bytes plus 12 zero alignment bytes.
+ * Scoped propagation preserves the selected sprite/opacity snapshots and the
+ * two metadata color loads before their zero-depth argument transfers.
+ * See docs/probe_archive/Camp_renderer_0012d630_complete_20260922.md. */
+typedef struct {
+    Vec2f startPosition;
+    Vec2f endPosition;
+    Vec2f position;
+    u8 startAlpha;
+    u8 endAlpha;
+    u8 alpha;
+    u8 pad1B;
+    u16 startScaleX;
+    u16 endScaleX;
+    u16 scaleX;
+    u16 startScaleY;
+    u16 endScaleY;
+    u16 scaleY;
+    s32 startFrame;
+    s32 endFrame;
+} CampMenuTween;
+typedef struct {
+    s32 field00;
+    Vec2f position;
+    s16 frame;
+    s16 field0E;
+    s32 selection;
+    s32 previousSelection;
+    s32 state;
+    s32 visibleOptions[7];
+    s32 optionCount;
+    u8 *sprites[3][7];
+    s32 informationResource;
+    CampMenuTween tweens[11];
+} CampMenuWork;
+typedef char CampMenuTweenSize[(sizeof(CampMenuTween) == 0x30) ? 1 : -1];
+typedef char CampMenuWorkSize[(sizeof(CampMenuWork) == 0x2A4) ? 1 : -1];
+
+#pragma push
+#pragma opt_propagation off
+// FUN_0012D630
+s32 func_0012d630(u8 *menu)
 {
-    typedef struct {
-        u8 alpha;
-        u8 pad01[0xB];
-        u16 tally;
-        u8 padE[0x30 - 0xE];
-    } Rec0012d630;
-    typedef Vec2f Vec2f_0012d630;
     extern s32 func_0012e1d0(u8 *arg0);
     extern void func_0034f1e0(void);
     extern void func_0034f320(u8 *arg0, f32 farg0, f32 farg1, f32 farg2,
-                              u8 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5,
-                              u16 arg6, s32 arg7, f32 farg3, s16 arg_sp0);
-    extern void func_00364320(Vec2f_0012d630 pos, f32 z, s32 color, s32 num);
-    extern void func_0034f9d0(Vec2f_0012d630 pos, s32 arg1, f32 z, s32 arg2, s32 arg3);
-    Vec2f_0012d630 pos;
-    Vec2f_0012d630 pos2;
-    s32 result;
-    u8 *p;
-    s32 i;
-    s32 count;
-    s32 sel;
-    s32 j;
+                              u8 arg1, u8 arg2, u8 arg3, u32 arg4, u16 arg5,
+                              u16 arg6, s16 arg7, f32 farg3, s16 arg_sp0);
+    extern void func_0034f9d0(Vec2f pos, f32 z, u32 arg1, s32 arg2, s32 arg3);
+    Vec2f pos;
+    Vec2f pos2;
+    u8 *bytes;
+    s32 finished;
+    s32 tweenIndex;
+    s32 visibleCount;
+    s32 selection;
+    s32 row;
     f32 x;
     f32 y;
+    f32 labelY;
+    u8 numberColor;
+    u8 informationColor;
 
-    result = 1;
-    p = arg0;
-    switch (*(s32 *)(p + 0x18)) {
+    bytes = menu;
+    finished = 1;
+    switch (*(s32 *)(bytes + 0x18)) {
     case 0:
-        if (1) {
-            if (func_0012e1d0(p) != 0) {
-                func_0012dea0(p, 1);
-                break;
-            }
+        if (func_0012e1d0(bytes) != 0) {
+            func_0012dea0(bytes, 1);
+            break;
         }
-        if (*(s16 *)(p + 0xC) < 100) {
-            *(s16 *)(p + 0xC) = *(s16 *)(p + 0xC) + 1;
+        if (*(s16 *)(bytes + 0xC) < 100) {
+            *(s16 *)(bytes + 0xC) = *(s16 *)(bytes + 0xC) + 1;
         }
-        for (i = 0; i < 0xB; i++) {
-            u8 *q = p + i * 0x30;
-            func_001437b0(q + 0x94, *(s16 *)(p + 0xC), 0);
-            if (*(u8 *)(q + 0xAE) != 0) {
-                result = 0;
+        for (tweenIndex = 0; tweenIndex < 0xB; tweenIndex++) {
+            u8 *rowBytes = bytes + tweenIndex * 0x30;
+            func_001437b0(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 0);
+            if (*(u8 *)(rowBytes + 0xAE) != 0) {
+                finished = 0;
             }
         }
         break;
     case 1:
-        if (0) {
-            if (func_0012e1d0(p) != 0) {
-                func_0012dea0(p, 1);
-                break;
-            }
+        if (*(s16 *)(bytes + 0xC) < 100) {
+            *(s16 *)(bytes + 0xC) = *(s16 *)(bytes + 0xC) + 1;
         }
-        if (*(s16 *)(p + 0xC) < 100) {
-            *(s16 *)(p + 0xC) = *(s16 *)(p + 0xC) + 1;
-        }
-        for (i = 0; i < 0xB; i++) {
-            u8 *q = p + i * 0x30;
-            func_001437b0(q + 0x94, *(s16 *)(p + 0xC), 0);
-            if (*(u8 *)(q + 0xAE) != 0) {
-                result = 0;
+        for (tweenIndex = 0; tweenIndex < 0xB; tweenIndex++) {
+            u8 *rowBytes = bytes + tweenIndex * 0x30;
+            func_001437b0(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 0);
+            if (*(u8 *)(rowBytes + 0xAE) != 0) {
+                finished = 0;
             }
         }
         break;
     case 2:
-        if (1) {
-            if (func_0012e1d0(p) != 0) {
-                func_0012dea0(p, 1);
-                break;
-            }
+        if (func_0012e1d0(bytes) != 0) {
+            func_0012dea0(bytes, 1);
+            break;
         }
-        if (*(s16 *)(p + 0xC) < 100) {
-            *(s16 *)(p + 0xC) = *(s16 *)(p + 0xC) + 1;
+        if (*(s16 *)(bytes + 0xC) < 100) {
+            *(s16 *)(bytes + 0xC) = *(s16 *)(bytes + 0xC) + 1;
         }
-        for (i = 0; i < 0xB; i++) {
-            u8 *q = p + i * 0x30;
-            func_001437b0(q + 0x94, *(s16 *)(p + 0xC), 2);
-            if (*(u8 *)(q + 0xAE) != 0) {
-                result = 0;
+        for (tweenIndex = 0; tweenIndex < 0xB; tweenIndex++) {
+            u8 *rowBytes = bytes + tweenIndex * 0x30;
+            func_001437b0(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 2);
+            if (*(u8 *)(rowBytes + 0xAE) != 0) {
+                finished = 0;
             }
         }
         break;
     case 3:
-        if (0) {
-            if (func_0012e1d0(p) != 0) {
-                func_0012dea0(p, 1);
-                break;
-            }
+        if (*(s16 *)(bytes + 0xC) < 100) {
+            *(s16 *)(bytes + 0xC) = *(s16 *)(bytes + 0xC) + 1;
         }
-        if (*(s16 *)(p + 0xC) < 100) {
-            *(s16 *)(p + 0xC) = *(s16 *)(p + 0xC) + 1;
-        }
-        for (i = 0; i < 0xB; i++) {
-            u8 *q = p + i * 0x30;
-            func_001437b0(q + 0x94, *(s16 *)(p + 0xC), 0);
-            if (*(u8 *)(q + 0xAE) != 0) {
-                result = 0;
+        for (tweenIndex = 0; tweenIndex < 0xB; tweenIndex++) {
+            u8 *rowBytes = bytes + tweenIndex * 0x30;
+            func_001437b0(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 0);
+            if (*(u8 *)(rowBytes + 0xAE) != 0) {
+                finished = 0;
             }
         }
         break;
     }
     func_0034f1e0();
-    sel = *(s32 *)(p + 0x10);
-    count = *(s32 *)(p + 0x38);
-    for (j = 0; j < count; j++) {
-        u8 *q = p + j * 0x30;
-        s32 idx;
+    selection = *(s32 *)(bytes + 0x10);
+    visibleCount = *(s32 *)(bytes + 0x38);
+    for (row = 0; row < visibleCount; row++) {
+        u8 *rowBytes = bytes + row * 0x30;
+        s32 option;
         u8 *sprite;
         u32 alpha;
 
-        x = *(f32 *)(p + 4) + 173.0f + *(f32 *)(q + 0xA4);
+        x = *(f32 *)(bytes + 4) + 173.0f + *(f32 *)(rowBytes + 0xA4);
         pos.x = x;
-        y = *(f32 *)(p + 8) + 52.0f + *(f32 *)(q + 0xA8) + (f32)(j * 0x16);
+        y = *(f32 *)(bytes + 8) + 52.0f + *(f32 *)(rowBytes + 0xA8) + (f32)(row * 0x16);
         pos.y = y;
-        alpha = *(u8 *)(q + 0xAE);
-        idx = *(s32 *)(p + j * 4 + 0x1C);
-        if (j == sel) {
+        alpha = *(u8 *)(rowBytes + 0xAE);
+        option = *(s32 *)(bytes + row * 4 + 0x1C);
+        if (row == selection) {
             pos.x += 2.0f;
             pos.y += 11.0f;
-            sprite = *(u8 **)(p + idx * 4 + 0x58);
+            sprite = *(u8 **)(bytes + option * 4 + 0x58);
         } else {
             pos.x += 1.0f;
-            if (sel < j) {
+            if (selection < row) {
                 pos.y += 45.0f;
             }
-            sprite = *(u8 **)(p + idx * 4 + 0x3C);
+            sprite = *(u8 **)(bytes + option * 4 + 0x3C);
         }
         func_0034f320(sprite, pos.x, pos.y, 0.0f, 0xFF, 0xFF, 0xFF,
-                      alpha, 0x1000, *(u16 *)(q + 0xBA), 0,
+                      alpha, 0x1000, *(u16 *)(rowBytes + 0xBA), 0,
                       0.0f, 0);
     }
-    pos.x = *(f32 *)(p + 4) + 173.0f + *(f32 *)(p + 0x1F4) + 3.0f;
-    pos.y = *(f32 *)(p + 8) + 52.0f + *(f32 *)(p + 0x1F8) + 311.0f;
-    func_0034f320(((u8 **)(p + 0x74))[*(s32 *)(p + *(s32 *)(p + 0x10) * 4 + 0x1C)],
-                  pos.x, pos.y, 0.0f, 0xFF, 0xFF, 0xFF,
-                  ((Rec0012d630 *)(p + 0xAE))[j].alpha, 0x1000,
-                  ((Rec0012d630 *)(p + 0xAE))[j].tally, 0, 0.0f, 0);
-    pos.x = *(f32 *)(p + 0x224) + 18.0f;
-    pos.y = (f32)0x17D + *(f32 *)(p + 0x228);
-    func_00364320(pos, 0.0f, *(u8 *)(p + 0x22E), -1);
-    pos2.x = *(f32 *)(p + 0x254) + 640.0f;
-    pos2.y = *(f32 *)(p + 0x258) + 400.0f;
-    func_0034f9d0(pos2, *(u8 *)(p + 0x25E), 0.0f, 0, *(s32 *)(p + 0x90));
-    return result;
+    pos.x = *(f32 *)(bytes + 4) + 173.0f + *(f32 *)(bytes + 0x1F4) + 3.0f;
+    pos.y = *(f32 *)(bytes + 8) + 52.0f + *(f32 *)(bytes + 0x1F8) + 311.0f;
+    {
+        CampMenuWork *work = (CampMenuWork *)bytes;
+        u32 tweenOffset = (u32)row * sizeof(CampMenuTween);
+        CampMenuTween *tween = (CampMenuTween *)(tweenOffset + (u32)bytes + 0x94);
+        u32 selectedAlpha = tween->alpha;
+        s32 selectedOption = work->visibleOptions[work->selection];
+        u8 *selectedSprite = work->sprites[2][selectedOption];
+        func_0034f320(selectedSprite, pos.x, pos.y, 0.0f,
+                      0xFF, 0xFF, 0xFF, selectedAlpha, 0x1000,
+                      tween->scaleY, 0, 0.0f, 0);
+    }
+    pos.x = *(f32 *)(bytes + 0x224) + 18.0f;
+    labelY = (f32)0x17D;
+    labelY += *(f32 *)(bytes + 0x228);
+    pos.y = labelY;
+    numberColor = *(u8 *)(bytes + 0x22E);
+    func_00364320(pos, 0.0f, numberColor, -1);
+    pos2.x = *(f32 *)(bytes + 0x254) + 640.0f;
+    pos2.y = *(f32 *)(bytes + 0x258) + 400.0f;
+    informationColor = *(u8 *)(bytes + 0x25E);
+    func_0034f9d0(pos2, 0.0f, informationColor, 0, *(s32 *)(bytes + 0x90));
+    return finished;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_0012d630);
-#endif
+
+#pragma pop
 // FUN_0012DB80
 s32 func_0012db80(u8 *arg0, s32 arg1)
 {

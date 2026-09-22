@@ -1,3 +1,4 @@
+#include "btl_skill_target_internal.h"
 #include "btl_motion_internal.h"
 #include "include_asm.h"
 #include "type.h"
@@ -75,7 +76,6 @@ extern u8 *func_001d8c00();
 extern u8 *func_001de370();
 extern void func_001db580();
 extern void func_001db8d0();
-extern s32 func_001d7f10(u8 *arg0, s32 arg1, u16 arg2, s32 arg3);
 extern s32 func_001dd570();
 extern s32 func_001de000();
 extern s32 func_001d9390();
@@ -1516,7 +1516,6 @@ s32 func_001e9950(void) {
     extern s32 func_00242800(s32 arg0, s32 arg1);
     extern u8 *func_001b0cc0(s32 arg0);
     extern void func_001dbf20(u8 *arg0, s32 arg1);
-    extern s32 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, s32 arg3);
     u8 *work;
     u8 *unit;
     s32 bestSkill;

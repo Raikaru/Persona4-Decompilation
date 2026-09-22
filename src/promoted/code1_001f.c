@@ -1,3 +1,4 @@
+#include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -58,7 +59,6 @@ extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
 
 extern s32 func_001f56d0(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern u16 func_001d7f10();
 extern void func_001f62b0();
 extern void func_001f58d0();
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -715,9 +715,9 @@ u32 func_001f0f70(u8 *arg0)
 // FUN_001F0FF0
 s32 func_001f0ff0(u32 arg0)
 {
-    u16 index;
+    s32 index;
     index = *(u16 *)(arg0 + 0x6E);
-    return (func_001d7f10(arg0, 0, index, 0) & 0xFFFF) == 0;
+    return (func_001d7f10((u8 *)arg0, 0, index, 0) & 0xFFFF) == 0;
 }
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma optimization_level 2

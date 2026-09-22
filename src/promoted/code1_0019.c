@@ -1,3 +1,4 @@
+#include "btl_skill_target_internal.h"
 #include "model_motion_internal.h"
 #include "btl_motion_internal.h"
 #include "include_asm.h"
@@ -38,7 +39,6 @@ extern u8 D_005F6CA0[];
 extern f32 D_005F6C10[];
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3b8;
-extern u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3);
 extern s32 func_001f0a50(u8 *arg0);
 extern s32 func_001f11e0(s64 arg0);
 extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
